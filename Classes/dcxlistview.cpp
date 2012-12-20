@@ -197,43 +197,79 @@ void DcxListView::parseControlStyles( const TString & styles, LONG * Styles, LON
 {
 	*ExStyles = WS_EX_CLIENTEDGE;
 
-	const UINT numtok = styles.numtok( );
+	//const UINT numtok = styles.numtok( );
 
-	for (UINT i = 1; i <= numtok; i++)
+	//for (UINT i = 1; i <= numtok; i++)
+	//{
+	//	if ( styles.gettok( i ) == TEXT("report") ) 
+	//		*Styles |= LVS_REPORT;
+	//	else if ( styles.gettok( i ) == TEXT("icon") ) 
+	//		*Styles |= LVS_ICON;
+	//	else if ( styles.gettok( i ) == TEXT("smallicon") ) 
+	//		*Styles |= LVS_SMALLICON;
+	//	else if ( styles.gettok( i ) == TEXT("list") ) 
+	//		*Styles |= LVS_LIST;
+	//	else if ( styles.gettok( i ) == TEXT("noheader") ) 
+	//		*Styles |= LVS_NOCOLUMNHEADER;
+	//	else if ( styles.gettok( i ) == TEXT("alignleft") ) 
+	//		*Styles |= LVS_ALIGNLEFT;
+	//	else if ( styles.gettok( i ) == TEXT("aligntop") ) 
+	//		*Styles |= LVS_ALIGNTOP;
+	//	else if ( styles.gettok( i ) == TEXT("autoarrange") ) 
+	//		*Styles |= LVS_AUTOARRANGE;
+	//	else if ( styles.gettok( i ) == TEXT("nolabelwrap") ) 
+	//		*Styles |= LVS_NOLABELWRAP;
+	//	else if ( styles.gettok( i ) == TEXT("showsel") ) 
+	//		*Styles |= LVS_SHOWSELALWAYS;
+	//	else if ( styles.gettok( i ) == TEXT("singlesel") ) 
+	//		*Styles |= LVS_SINGLESEL;
+	//	else if ( styles.gettok( i ) == TEXT("editlabel") ) 
+	//		*Styles |= LVS_EDITLABELS;
+	//	else if ( styles.gettok( i ) == TEXT("sortasc") ) 
+	//		*Styles |= LVS_SORTASCENDING;
+	//	else if ( styles.gettok( i ) == TEXT("sortdesc") ) 
+	//		*Styles |= LVS_SORTDESCENDING;
+	//	else if ( styles.gettok( i ) == TEXT("noscroll") ) 
+	//		*Styles |= LVS_NOSCROLL;
+	//	else if ( styles.gettok( i ) == TEXT("noheadersort") ) 
+	//		*Styles |= LVS_NOSORTHEADER;
+	//}
+	for (TString tsStyle(styles.getfirsttok( 1 )); tsStyle != ""; tsStyle = styles.getnexttok( ))
 	{
-		if ( styles.gettok( i ) == TEXT("report") ) 
+		if ( tsStyle == TEXT("report") )
 			*Styles |= LVS_REPORT;
-		else if ( styles.gettok( i ) == TEXT("icon") ) 
+		else if ( tsStyle == TEXT("icon") )
 			*Styles |= LVS_ICON;
-		else if ( styles.gettok( i ) == TEXT("smallicon") ) 
+		else if ( tsStyle == TEXT("smallicon") )
 			*Styles |= LVS_SMALLICON;
-		else if ( styles.gettok( i ) == TEXT("list") ) 
+		else if ( tsStyle == TEXT("list") )
 			*Styles |= LVS_LIST;
-		else if ( styles.gettok( i ) == TEXT("noheader") ) 
+		else if ( tsStyle == TEXT("noheader") )
 			*Styles |= LVS_NOCOLUMNHEADER;
-		else if ( styles.gettok( i ) == TEXT("alignleft") ) 
+		else if ( tsStyle == TEXT("alignleft") )
 			*Styles |= LVS_ALIGNLEFT;
-		else if ( styles.gettok( i ) == TEXT("aligntop") ) 
+		else if ( tsStyle == TEXT("aligntop") )
 			*Styles |= LVS_ALIGNTOP;
-		else if ( styles.gettok( i ) == TEXT("autoarrange") ) 
+		else if ( tsStyle == TEXT("autoarrange") )
 			*Styles |= LVS_AUTOARRANGE;
-		else if ( styles.gettok( i ) == TEXT("nolabelwrap") ) 
+		else if ( tsStyle == TEXT("nolabelwrap") )
 			*Styles |= LVS_NOLABELWRAP;
-		else if ( styles.gettok( i ) == TEXT("showsel") ) 
+		else if ( tsStyle == TEXT("showsel") )
 			*Styles |= LVS_SHOWSELALWAYS;
-		else if ( styles.gettok( i ) == TEXT("singlesel") ) 
+		else if ( tsStyle == TEXT("singlesel") )
 			*Styles |= LVS_SINGLESEL;
-		else if ( styles.gettok( i ) == TEXT("editlabel") ) 
+		else if ( tsStyle == TEXT("editlabel") )
 			*Styles |= LVS_EDITLABELS;
-		else if ( styles.gettok( i ) == TEXT("sortasc") ) 
+		else if ( tsStyle == TEXT("sortasc") )
 			*Styles |= LVS_SORTASCENDING;
-		else if ( styles.gettok( i ) == TEXT("sortdesc") ) 
+		else if ( tsStyle == TEXT("sortdesc") )
 			*Styles |= LVS_SORTDESCENDING;
-		else if ( styles.gettok( i ) == TEXT("noscroll") ) 
+		else if ( tsStyle == TEXT("noscroll") )
 			*Styles |= LVS_NOSCROLL;
-		else if ( styles.gettok( i ) == TEXT("noheadersort") ) 
+		else if ( tsStyle == TEXT("noheadersort") )
 			*Styles |= LVS_NOSORTHEADER;
 	}
+
 	this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
 }
 
@@ -241,46 +277,88 @@ void DcxListView::parseListviewExStyles( const TString & styles, LONG * ExStyles
 {
 	*ExStyles = LVS_EX_DOUBLEBUFFER;
 
-	const unsigned int numtok = styles.numtok( );
-
-	for (unsigned int i = 1; i <= numtok; i++ )
+//	const unsigned int numtok = styles.numtok( );
+//
+//	for (unsigned int i = 1; i <= numtok; i++ )
+//	{
+//		if ( styles.gettok( i ) == TEXT("grid") ) 
+//			*ExStyles |= LVS_EX_GRIDLINES;
+//		else if ( styles.gettok( i ) == TEXT("borderselect") ) 
+//			*ExStyles |= LVS_EX_BORDERSELECT;
+//		else if ( styles.gettok( i ) == TEXT("flatsb") ) 
+//			*ExStyles |= LVS_EX_FLATSB;
+//		else if ( styles.gettok( i ) == TEXT("fullrow") ) 
+//			*ExStyles |= LVS_EX_FULLROWSELECT;
+//		else if ( styles.gettok( i ) == TEXT("checkbox") ) 
+//			*ExStyles |= LVS_EX_CHECKBOXES;
+//		else if ( styles.gettok( i ) == TEXT("headerdrag") ) 
+//			*ExStyles |= LVS_EX_HEADERDRAGDROP;
+//		else if ( styles.gettok( i ) == TEXT("hottrack") ) 
+//			*ExStyles |= LVS_EX_TRACKSELECT;
+//		else if ( styles.gettok( i ) == TEXT("oneclick") ) 
+//			*ExStyles |= LVS_EX_ONECLICKACTIVATE;
+//		else if ( styles.gettok( i ) == TEXT("twoclick") ) 
+//			*ExStyles |= LVS_EX_TWOCLICKACTIVATE;
+//		else if ( styles.gettok( i ) == TEXT("underlinehot") ) 
+//			*ExStyles |= LVS_EX_UNDERLINEHOT;
+//		else if ( styles.gettok( i ) == TEXT("underlinecold") ) 
+//			*ExStyles |= LVS_EX_UNDERLINECOLD;
+//		else if ( styles.gettok( i ) == TEXT("subitemimage") ) 
+//			*ExStyles |= LVS_EX_SUBITEMIMAGES;
+//		else if ( styles.gettok( i ) == TEXT("tooltip") )
+//			*ExStyles |= LVS_EX_LABELTIP | LVS_EX_INFOTIP;
+//#ifdef DCX_USE_WINSDK
+//		else if ( styles.gettok( i ) == TEXT("transparentbkg") )
+//			*ExStyles |= LVS_EX_TRANSPARENTBKGND;
+//		else if ( styles.gettok( i ) == TEXT("shadowtext") )
+//			*ExStyles |= LVS_EX_TRANSPARENTSHADOWTEXT;
+//		else if ( styles.gettok( i ) == TEXT("autosize") )
+//			*ExStyles |= LVS_EX_AUTOSIZECOLUMNS;
+//		else if ( styles.gettok( i ) == TEXT("headeralways") )
+//			*ExStyles |= LVS_EX_HEADERINALLVIEWS;
+//		else if ( styles.gettok( i ) == TEXT("hidelabels") )
+//			*ExStyles |= LVS_EX_HIDELABELS;
+//		// LVS_EX_AUTOCHECKSELECT LVS_EX_COLUMNSNAPPOINTS LVS_EX_JUSTIFYCOLUMNS LVS_EX_SNAPTOGRID LVS_EX_AUTOAUTOARRANGE
+//#endif
+//	}
+	for (TString tsStyle(styles.getfirsttok( 1 )); tsStyle != ""; tsStyle = styles.getnexttok( ))
 	{
-		if ( styles.gettok( i ) == TEXT("grid") ) 
+		if ( tsStyle == TEXT("grid") ) 
 			*ExStyles |= LVS_EX_GRIDLINES;
-		else if ( styles.gettok( i ) == TEXT("borderselect") ) 
+		else if ( tsStyle == TEXT("borderselect") ) 
 			*ExStyles |= LVS_EX_BORDERSELECT;
-		else if ( styles.gettok( i ) == TEXT("flatsb") ) 
+		else if ( tsStyle == TEXT("flatsb") ) 
 			*ExStyles |= LVS_EX_FLATSB;
-		else if ( styles.gettok( i ) == TEXT("fullrow") ) 
+		else if ( tsStyle == TEXT("fullrow") ) 
 			*ExStyles |= LVS_EX_FULLROWSELECT;
-		else if ( styles.gettok( i ) == TEXT("checkbox") ) 
+		else if ( tsStyle == TEXT("checkbox") ) 
 			*ExStyles |= LVS_EX_CHECKBOXES;
-		else if ( styles.gettok( i ) == TEXT("headerdrag") ) 
+		else if ( tsStyle == TEXT("headerdrag") ) 
 			*ExStyles |= LVS_EX_HEADERDRAGDROP;
-		else if ( styles.gettok( i ) == TEXT("hottrack") ) 
+		else if ( tsStyle == TEXT("hottrack") ) 
 			*ExStyles |= LVS_EX_TRACKSELECT;
-		else if ( styles.gettok( i ) == TEXT("oneclick") ) 
+		else if ( tsStyle == TEXT("oneclick") ) 
 			*ExStyles |= LVS_EX_ONECLICKACTIVATE;
-		else if ( styles.gettok( i ) == TEXT("twoclick") ) 
+		else if ( tsStyle == TEXT("twoclick") ) 
 			*ExStyles |= LVS_EX_TWOCLICKACTIVATE;
-		else if ( styles.gettok( i ) == TEXT("underlinehot") ) 
+		else if ( tsStyle == TEXT("underlinehot") ) 
 			*ExStyles |= LVS_EX_UNDERLINEHOT;
-		else if ( styles.gettok( i ) == TEXT("underlinecold") ) 
+		else if ( tsStyle == TEXT("underlinecold") ) 
 			*ExStyles |= LVS_EX_UNDERLINECOLD;
-		else if ( styles.gettok( i ) == TEXT("subitemimage") ) 
+		else if ( tsStyle == TEXT("subitemimage") ) 
 			*ExStyles |= LVS_EX_SUBITEMIMAGES;
-		else if ( styles.gettok( i ) == TEXT("tooltip") )
+		else if ( tsStyle == TEXT("tooltip") )
 			*ExStyles |= LVS_EX_LABELTIP | LVS_EX_INFOTIP;
 #ifdef DCX_USE_WINSDK
-		else if ( styles.gettok( i ) == TEXT("transparentbkg") )
+		else if ( tsStyle == TEXT("transparentbkg") )
 			*ExStyles |= LVS_EX_TRANSPARENTBKGND;
-		else if ( styles.gettok( i ) == TEXT("shadowtext") )
+		else if ( tsStyle == TEXT("shadowtext") )
 			*ExStyles |= LVS_EX_TRANSPARENTSHADOWTEXT;
-		else if ( styles.gettok( i ) == TEXT("autosize") )
+		else if ( tsStyle == TEXT("autosize") )
 			*ExStyles |= LVS_EX_AUTOSIZECOLUMNS;
-		else if ( styles.gettok( i ) == TEXT("headeralways") )
+		else if ( tsStyle == TEXT("headeralways") )
 			*ExStyles |= LVS_EX_HEADERINALLVIEWS;
-		else if ( styles.gettok( i ) == TEXT("hidelabels") )
+		else if ( tsStyle == TEXT("hidelabels") )
 			*ExStyles |= LVS_EX_HIDELABELS;
 		// LVS_EX_AUTOCHECKSELECT LVS_EX_COLUMNSNAPPOINTS LVS_EX_JUSTIFYCOLUMNS LVS_EX_SNAPTOGRID LVS_EX_AUTOAUTOARRANGE
 #endif
@@ -300,7 +378,7 @@ void DcxListView::parseInfoRequest( const TString &input, PTCHAR szReturnValue) 
 {
 	const UINT numtok = input.numtok( );
 
-	const TString prop(input.gettok( 3 ));
+	const TString prop(input.getfirsttok( 3 ));
 	
 	// [NAME] [ID] [PROP] [N] [NSUB]
 	if (prop == TEXT("columns")) {
@@ -321,7 +399,8 @@ void DcxListView::parseInfoRequest( const TString &input, PTCHAR szReturnValue) 
 	else if (prop == TEXT("columnorder")) {
 		// if its a report listview and it has headers
 		const int count = this->getColumnCount();
-		const int col = (numtok > 3 ? input.gettok(3).to_int() -1 : -1);
+		//const int col = (numtok > 3 ? input.gettok( 3 ).to_int() -1 : -1);	// wrong token used, 3 = prop
+		const int col = (numtok > 3 ? input.getnexttok( ).to_int() -1 : -1);	// tok 4
 
 		// invalid column
 		if ((col < -1) || (col >= count) || (count <= 0))
@@ -345,8 +424,10 @@ void DcxListView::parseInfoRequest( const TString &input, PTCHAR szReturnValue) 
 		// collect all values
 		TString buff;
 
+		//for (int i = 0; i < count; i++)
+		//	buff.tsprintf(TEXT("%s %d"), buff.to_chr(), val[i]);
 		for (int i = 0; i < count; i++)
-			buff.tsprintf(TEXT("%s %d"), buff.to_chr(), val[i]);
+			buff.addtok(val[i]);
 
 		lstrcpyn(szReturnValue, buff.trim().to_chr(), MIRC_BUFFER_SIZE_CCH);
 		delete [] val;
@@ -354,11 +435,11 @@ void DcxListView::parseInfoRequest( const TString &input, PTCHAR szReturnValue) 
 	}
 	// [NAME] [ID] [PROP] [N] (NSUB)
 	else if (prop == TEXT("text") && numtok > 3) {
-		const int nItem = input.gettok(4).to_int() - 1;
+		const int nItem = input.getnexttok( ).to_int() - 1;		// tok 4
 		int nSubItem = 0;
 		
 		if (numtok > 4)
-			nSubItem = input.gettok(5).to_int() -1;
+			nSubItem = input.getnexttok( ).to_int() -1;			// tok 5
 
 		if ((nItem > -1) && (nSubItem > -1) && (nItem < ListView_GetItemCount(this->m_Hwnd))) {
 			ListView_GetItemText( this->m_Hwnd, nItem, nSubItem, szReturnValue, MIRC_BUFFER_SIZE_CCH );
@@ -368,8 +449,8 @@ void DcxListView::parseInfoRequest( const TString &input, PTCHAR szReturnValue) 
 	// [NAME] [ID] [PROP] [N] [NSUB]
 	else if ( prop == TEXT("icon") && numtok > 4 ) {
 
-		const int nItem = input.gettok( 4 ).to_int( ) - 1;
-		const int nSubItem = input.gettok(5).to_int() -1;
+		const int nItem = input.getnexttok( ).to_int( ) - 1;	// tok 4
+		const int nSubItem = input.getnexttok( ).to_int() -1;	// tok 5
 
 		if ((nItem > -1) && (nSubItem > -1) && (nItem < ListView_GetItemCount(this->m_Hwnd)) && (nSubItem < this->getColumnCount()))
 		{
@@ -385,7 +466,7 @@ void DcxListView::parseInfoRequest( const TString &input, PTCHAR szReturnValue) 
 	}
 	// [NAME] [ID] [PROP] [N]
 	else if (prop == TEXT("selected") && (numtok > 3)) {
-		const int nItem = input.gettok(4).to_int();
+		const int nItem = input.getnexttok( ).to_int();	// tok 4
 
 		// In range
 		if ((nItem > 0) && (nItem < ListView_GetItemCount(this->m_Hwnd))) {
@@ -400,7 +481,7 @@ void DcxListView::parseInfoRequest( const TString &input, PTCHAR szReturnValue) 
 		int nSubItem = 0;
 		
 		if (numtok > 3)
-			nSubItem = input.gettok(4).to_int() -1;
+			nSubItem = input.getnexttok( ).to_int() -1;	// tok 4
 
 		if ((nItem > -1) && (nSubItem > -1)) {
 			ListView_GetItemText( this->m_Hwnd, nItem, nSubItem, szReturnValue, MIRC_BUFFER_SIZE_CCH );
@@ -424,7 +505,7 @@ void DcxListView::parseInfoRequest( const TString &input, PTCHAR szReturnValue) 
 
 			// if we want a specific index
 			if (numtok > 3) {
-				int n = input.gettok( 4 ).to_int();
+				const int n = input.getnexttok( ).to_int();	// tok 4
 
 				// sel index out of bounds
 				if (n > nSelItems)
@@ -464,8 +545,10 @@ void DcxListView::parseInfoRequest( const TString &input, PTCHAR szReturnValue) 
 				{
 					if (i == 1)
 						list.tsprintf(TEXT("%d"), nItem +1);
+					//else
+					//	list.tsprintf(TEXT("%s,%d"), list.to_chr(), nItem +1);
 					else
-						list.tsprintf(TEXT("%s,%d"), list.to_chr(), nItem +1);
+						list.addtok((nItem +1), TSCOMMA);
 				}
 
 				lstrcpyn(szReturnValue, list.to_chr(), MIRC_BUFFER_SIZE_CCH);
@@ -482,7 +565,7 @@ void DcxListView::parseInfoRequest( const TString &input, PTCHAR szReturnValue) 
 	// [NAME] [ID] [PROP] [N]
 	else if ( prop == TEXT("state") && numtok > 3 ) {
 
-		const int nItem = input.gettok( 4 ).to_int( ) - 1;
+		const int nItem = input.getnexttok( ).to_int( ) - 1;	// tok 4
 
 		if ( nItem > -1 && nItem < ListView_GetItemCount( this->m_Hwnd ) ) {
 
@@ -517,7 +600,7 @@ void DcxListView::parseInfoRequest( const TString &input, PTCHAR szReturnValue) 
 		if ( matchtext.len( ) > 0 ) {
 
 			UINT SearchType;
-			const TString searchMode(params.gettok(1));
+			const TString searchMode(params.getfirsttok( 1 ));
 
 			if (searchMode == TEXT("R"))
 				SearchType = LVSEARCH_R;
@@ -526,8 +609,8 @@ void DcxListView::parseInfoRequest( const TString &input, PTCHAR szReturnValue) 
 			else
 				SearchType = LVSEARCH_E;
 
-			const int nColumn = params.gettok( 2 ).to_int( ) - 1;
-			const int N = params.gettok( 3 ).to_int( );
+			const int nColumn = params.getnexttok( ).to_int( ) - 1;	// tok 2
+			const int N = params.getnexttok( ).to_int( );			// tok 3
 			const int nItems = ListView_GetItemCount( this->m_Hwnd );
 			const int nColumns = this->getColumnCount( );
 			int count = 0;
@@ -632,7 +715,7 @@ void DcxListView::parseInfoRequest( const TString &input, PTCHAR szReturnValue) 
 		int nColumn = -1;
 
 		if (numtok > 3)
-			nColumn = input.gettok(4).to_int() - 1;
+			nColumn = input.getnexttok( ).to_int() - 1;	// tok 4
 
 		const int count = this->getColumnCount();
 
@@ -640,8 +723,10 @@ void DcxListView::parseInfoRequest( const TString &input, PTCHAR szReturnValue) 
 		if (nColumn == -1) {
 			TString buff;
 
+			//for (int i = 0; i < count; i++)
+			//	buff.tsprintf(TEXT("%s %d"), buff.to_chr(), ListView_GetColumnWidth(this->m_Hwnd, i));
 			for (int i = 0; i < count; i++)
-				buff.tsprintf(TEXT("%s %d"), buff.to_chr(), ListView_GetColumnWidth(this->m_Hwnd, i));
+				buff.addtok( ListView_GetColumnWidth(this->m_Hwnd, i) );
 
 			lstrcpyn(szReturnValue, buff.trim().to_chr(), MIRC_BUFFER_SIZE_CCH);
 			return;
@@ -656,7 +741,7 @@ void DcxListView::parseInfoRequest( const TString &input, PTCHAR szReturnValue) 
 	// [NAME] [ID] [PROP] [N]
 	else if ( prop == TEXT("htext") && numtok > 3 ) {
 
-		const int nColumn = input.gettok( 4 ).to_int( ) - 1;
+		const int nColumn = input.getnexttok( ).to_int( ) - 1;	// tok 4
 
 		if ( nColumn > -1 && nColumn < this->getColumnCount( ) ) {
 
@@ -675,7 +760,7 @@ void DcxListView::parseInfoRequest( const TString &input, PTCHAR szReturnValue) 
 	// [NAME] [ID] [PROP] [N]
 	else if ( prop == TEXT("hicon") && numtok > 3 ) {
 
-		const int nColumn = input.gettok( 4 ).to_int( ) - 1;
+		const int nColumn = input.getnexttok( ).to_int( ) - 1;	// tok 4
 
 		if ( nColumn > -1 && nColumn < this->getColumnCount( ) ) {
 
@@ -699,7 +784,7 @@ void DcxListView::parseInfoRequest( const TString &input, PTCHAR szReturnValue) 
 		if (!IsWindow(h))
 			this->showError(TEXT("hstate"), NULL, TEXT("Unable to get Header Window"));
 		else {
-			const int nCol = (input.gettok( 4 ).to_int( ) - 1);
+			const int nCol = (input.getnexttok( ).to_int( ) - 1);	// tok 4
 			if ( nCol > -1 && nCol < this->getColumnCount( ) ) {
 
 				TString tsRes;
@@ -732,7 +817,7 @@ void DcxListView::parseInfoRequest( const TString &input, PTCHAR szReturnValue) 
 	// [NAME] [ID] [PROP] [GID]
 	else if ( prop == TEXT("gtext") && numtok > 3 ) {
 
-		const int GID = input.gettok( 4 ).to_int( );
+		const int GID = input.getnexttok( ).to_int( );	// tok 4
 
 		WCHAR wstr[MIRC_BUFFER_SIZE_CCH + 1];
 
@@ -760,8 +845,8 @@ void DcxListView::parseInfoRequest( const TString &input, PTCHAR szReturnValue) 
 	}
 	// [NAME] [ID] [PROP] [N] [NSUB] [PBARPROP] [PARAM]
 	else if ((prop == TEXT("pbar")) && (numtok > 5)) {
-		const int nItem = input.gettok( 4 ).to_int() -1;
-		const int nSubItem = input.gettok( 5 ).to_int();
+		const int nItem = input.getnexttok( ).to_int() -1;	// tok 4
+		const int nSubItem = input.getnexttok( ).to_int();	// tok 5
 
 		if (nItem > -1 && nItem < ListView_GetItemCount(this->m_Hwnd)) {
 			LVITEM lvi;
@@ -806,7 +891,7 @@ void DcxListView::parseInfoRequest( const TString &input, PTCHAR szReturnValue) 
 #endif
 	// [NAME] [ID] [PROP] [N]
 	else if ( prop == TEXT("gid") ) {
-		const int iIndex = input.gettok(4).to_int() -1;
+		const int iIndex = input.getnexttok( ).to_int() -1;	// tok 4
 
 		if (iIndex > -1 && iIndex < ListView_GetItemCount(this->m_Hwnd))
 		{
@@ -828,8 +913,8 @@ void DcxListView::parseInfoRequest( const TString &input, PTCHAR szReturnValue) 
 	}
 	// [NAME] [ID] [PROP] [ROW] [COL]
 	else if (prop == TEXT("markeditem")) {
-		int nRow = input.gettok(4).to_int();
-		int nCol = input.gettok(5).to_int();
+		int nRow = input.getnexttok( ).to_int();	// tok 4
+		int nCol = input.getnexttok( ).to_int();	// tok 5
 
 		// 1-based indexes.
 		if ((nRow < 1) || (nRow > ListView_GetItemCount(this->m_Hwnd))) {
@@ -870,10 +955,10 @@ void DcxListView::parseInfoRequest( const TString &input, PTCHAR szReturnValue) 
 		TString tsFlags('+');
 
 		if (Dcx::VistaModule.isVista()) {
-			const int gid = input.gettok( 4 ).to_int( );
+			const int gid = input.getnexttok( ).to_int( );	// tok 4
 			const UINT iMask = LVGS_COLLAPSIBLE|LVGS_HIDDEN|LVGS_NOHEADER|LVGS_COLLAPSED|LVGS_SELECTED;
 
-			UINT iState = ListView_GetGroupState(this->m_Hwnd, gid, iMask);
+			const UINT iState = ListView_GetGroupState(this->m_Hwnd, gid, iMask);
 
 			if ((iState & LVGS_COLLAPSIBLE) == LVGS_COLLAPSIBLE)
 				tsFlags += 'C';
@@ -923,9 +1008,9 @@ void DcxListView::autoSize(const int nColumn, const int iFlags)
 */
 
 void DcxListView::parseCommandRequest( const TString &input) {
-	const XSwitchFlags flags(input.gettok(3));
+	const XSwitchFlags flags(input.getfirsttok( 3 ));
 
-	const int numtok = input.numtok( );
+	const unsigned int numtok = input.numtok( );
 
 	// xdid -r [NAME] [ID] [SWITCH]
 	if (flags[TEXT('r')]) {
@@ -978,8 +1063,8 @@ void DcxListView::parseCommandRequest( const TString &input) {
 			return;
 		}
 
-		int nRow = input.gettok(4).to_int();
-		int nCol = input.gettok(5).to_int();
+		int nRow = input.getnexttok( ).to_int();	// tok 4
+		int nCol = input.getnexttok( ).to_int();	// tok 5
 
 		// We're currently checking 1-based indexes.
 		if ((nRow < 1) || (nRow > ListView_GetItemCount(this->m_Hwnd))) {
@@ -1013,7 +1098,7 @@ void DcxListView::parseCommandRequest( const TString &input) {
 
 		if (lviDcx != NULL) 
 		{
-			const XSwitchFlags xflag(input.gettok(6));
+			const XSwitchFlags xflag(input.getnexttok( ));	// tok 6
 			const TString info(input.gettok(7, -1));
 
 			if (!xflag[TEXT('+')]) {
@@ -1033,7 +1118,7 @@ void DcxListView::parseCommandRequest( const TString &input) {
 	}
 	// xdid -B [NAME] [ID] [SWITCH] [N]
 	else if (flags[TEXT('B')] && numtok > 3) {
-		int nItem = (int)input.gettok( 4 ).to_num() -1;
+		int nItem = input.getnexttok( ).to_int() -1;	// tok 4
 
 		// check if item supplied was 0 (now -1), last item in list
 		if (nItem == -1) {
@@ -1061,7 +1146,7 @@ void DcxListView::parseCommandRequest( const TString &input) {
 			return;
 		}
 		if (this->isStyle(LVS_SINGLESEL)) {
-			int nItem = (int)input.gettok( 4 ).to_num() -1;
+			int nItem = input.getnexttok( ).to_int() -1;	// tok 4
 
 			if (nItem == -1)
 				nItem = nItemCnt -1;
@@ -1070,7 +1155,7 @@ void DcxListView::parseCommandRequest( const TString &input) {
 				ListView_SetItemState(this->m_Hwnd, nItem, LVIS_SELECTED, LVIS_SELECTED);
 		}
 		else {
-			const TString Ns(input.gettok( 4 ));
+			const TString Ns(input.getnexttok( ));	// tok 4
 			const int n = Ns.numtok(TSCOMMA);
 			const int nItems = nItemCnt--;
 
@@ -1088,7 +1173,7 @@ void DcxListView::parseCommandRequest( const TString &input) {
 	}
 	// xdid -d [NAME] [ID] [SWITCH] [N]
 	else if (flags[TEXT('d')] && (numtok > 3)) {
-		int nItem = (int)input.gettok( 4 ).to_num() -1;
+		int nItem = input.getnexttok( ).to_int() -1;	// tok 4
 
 		// check if item supplied was 0 (now -1), last item in list.
 		if (nItem == -1) {
@@ -1112,9 +1197,9 @@ void DcxListView::parseCommandRequest( const TString &input) {
 		ZeroMemory(&lvbki, sizeof(LVBKIMAGE));
 		TString filename;
 
-		lvbki.ulFlags = this->parseImageFlags(input.gettok( 4 ));
-		lvbki.xOffsetPercent = (int)input.gettok( 5 ).to_num();
-		lvbki.yOffsetPercent = (int)input.gettok( 6 ).to_num();
+		lvbki.ulFlags = this->parseImageFlags(input.getnexttok( ));	// tok 4
+		lvbki.xOffsetPercent = input.getnexttok( ).to_int();	// tok 5
+		lvbki.yOffsetPercent = input.getnexttok( ).to_int();	// tok 6
 
 		if (numtok > 6) {
 			filename = input.gettok(7, -1).trim();
@@ -1142,8 +1227,8 @@ void DcxListView::parseCommandRequest( const TString &input) {
 	}
 	// xdid -i [NAME] [ID] [SWITCH] [+FLAGS] [COLOR]
 	else if (flags[TEXT('i')] && numtok > 4) {
-		const UINT iColorFlags = this->parseColorFlags(input.gettok( 4 ));
-		const COLORREF clrColor = (COLORREF)input.gettok( 5 ).to_num();
+		const UINT iColorFlags = this->parseColorFlags(input.getnexttok( ));	// tok 4
+		const COLORREF clrColor = (COLORREF)input.getnexttok( ).to_num();		// tok 5
 
 		if (iColorFlags & LVCS_TEXT)
 			ListView_SetTextColor(this->m_Hwnd, clrColor);
@@ -1167,12 +1252,14 @@ void DcxListView::parseCommandRequest( const TString &input) {
 
 		this->redrawWindow();
 	}
-	// xdid -j [NAME] [ID] [SWITCH] [ROW] [COL] [FLAGS] ([COLOUR] (BGCOLOUR))
+	// xdid -j [NAME] [ID] [ROW] [COL] [FLAGS] ([COLOUR] (BGCOLOUR))
+	// [NAME] [ID] -j [ROW] [COL] [FLAGS] ([COLOUR] (BGCOLOUR))
 	else if (flags[TEXT('j')] && numtok > 5) {
-		int nItem = input.gettok( 4 ).to_int() -1;
-		const int nCol = input.gettok( 5 ).to_int() -1;
-		const COLORREF clrText = (COLORREF)input.gettok( 7 ).to_num();
-		const COLORREF clrBack = (COLORREF)input.gettok( 8 ).to_num();
+		int nItem = input.getnexttok( ).to_int() -1;						// tok 4
+		const int nCol = input.getnexttok( ).to_int() -1;					// tok 5
+		const UINT lviflags = this->parseItemFlags(input.getnexttok( ));	// tok 6
+		const COLORREF clrText = (COLORREF)input.getnexttok( ).to_num();	// tok 7
+		const COLORREF clrBack = (COLORREF)input.getnexttok( ).to_num();	// tok 8
 
 		if (nItem == -1) {
 			nItem = ListView_GetItemCount(this->m_Hwnd) -1;
@@ -1202,7 +1289,6 @@ void DcxListView::parseCommandRequest( const TString &input) {
 			return;
 		}
 
-		const UINT lviflags = this->parseItemFlags(input.gettok( 6 ));
 		LPDCXLVITEM lviDcx = (LPDCXLVITEM) lvi.lParam;
 
 		if (lviDcx != NULL) {
@@ -1228,8 +1314,8 @@ void DcxListView::parseCommandRequest( const TString &input) {
 	}
 	// xdid -k [NAME] [ID] [SWITCH] [STATE] [N]
 	else if (flags[TEXT('k')] && numtok > 4) {
-		const int state = (int)input.gettok( 4 ).to_num();
-		int nItem = (int)input.gettok( 5 ).to_num() -1;
+		const int state = input.getnexttok( ).to_int();	// tok 4
+		int nItem = input.getnexttok( ).to_int() -1;	// tok 5
 
 		// check if item supplied was 0 (now -1), last item in list.
 		if (nItem == -1) {
@@ -1249,10 +1335,10 @@ void DcxListView::parseCommandRequest( const TString &input) {
 	}
 	// xdid -l [NAME] [ID] [SWITCH] [N] [M] [ICON] (OVERLAY)
 	else if (flags[TEXT('l')] && numtok > 5) {
-		int nItem    = input.gettok(4).to_int() -1;
-		const int nSubItem = input.gettok(5).to_int() -1;
-		const int nIcon    = input.gettok(6).to_int() -1;
-		const int nOverlay = (numtok > 6 ? input.gettok(7).to_int() : -1);
+		int nItem    = input.getnexttok( ).to_int() -1;							// tok 4
+		const int nSubItem = input.getnexttok( ).to_int() -1;					// tok 5
+		const int nIcon    = input.getnexttok( ).to_int() -1;					// tok 6
+		const int nOverlay = (numtok > 6 ? input.getnexttok( ).to_int() : -1);	// tok 7
 
 		// check if item supplied was 0 (now -1), last item in list.
 		if (nItem == -1) {
@@ -1302,14 +1388,15 @@ void DcxListView::parseCommandRequest( const TString &input) {
 	}
 	// xdid -m [NAME] [ID] [SWITCH] [0|1]
 	else if (flags[TEXT('m')] && numtok > 3) {
-		if (input.gettok( 4 ) == TEXT('1'))
+		if (input.getnexttok( ) == TEXT('1'))	// tok 4
 			ListView_EnableGroupView(this->m_Hwnd, TRUE);
 		else
 			ListView_EnableGroupView(this->m_Hwnd, FALSE);
 	}
 	// xdid -n [NAME] [ID] [SWITCH] [N] [+FLAGS] (WIDTH) ...
 	else if (flags[TEXT('n')] && numtok > 4) {
-		const XSwitchFlags xflags(input.gettok(5));
+		int nColumn = (input.getnexttok( ).to_int() -1);	// tok 4
+		const XSwitchFlags xflags(input.getnexttok( ));		// tok 5
 		const UINT iTotal = this->getColumnCount();
 
 		// manually set widths for all specified columns
@@ -1327,8 +1414,7 @@ void DcxListView::parseCommandRequest( const TString &input) {
 			return;
 		}
 
-		int nColumn = (input.gettok(4).to_int() -1);
-		const int iFlags = this->parseHeaderFlags2(xflags), iWidth = input.gettok( 6 ).to_int();
+		const int iFlags = this->parseHeaderFlags2(xflags), iWidth = input.getnexttok( ).to_int();	// tok 6
 
 		if (nColumn > -1 && (UINT)nColumn < iTotal) {	// set width for a single specific column
 			if (iFlags == LVSCW_AUTOSIZE_MAX) { // +s
@@ -1410,14 +1496,15 @@ void DcxListView::parseCommandRequest( const TString &input) {
 	}
 	// xdid -q [NAME] [ID] [SWITCH] [N] [+FLAGS] [GID] [Group Text]
 	else if (flags[TEXT('q')] && numtok > 6) {
-		const int index = (int)input.gettok( 4 ).to_num() -1;
-		const UINT iFlags = this->parseGroupFlags(input.gettok( 5 ));
-		const int gid = (int)input.gettok( 6 ).to_num();
+		const int index = input.getnexttok( ).to_int() -1;				// tok 4
+		const TString tsflags(input.getnexttok( ));						// tok 5
+		const int gid = input.getnexttok( ).to_int();					// tok 6
+		const UINT iFlags = this->parseGroupFlags(tsflags);
 
 		if (index > -1 && gid > 0) {
 			if (!ListView_HasGroup(this->m_Hwnd, gid)) {
 				const TString text(input.gettok(7, -1));
-				const UINT iState = this->parseGroupState( input.gettok(5) );
+				const UINT iState = this->parseGroupState( tsflags );
 
 				LVGROUP lvg;
 				ZeroMemory(&lvg, sizeof(LVGROUP));
@@ -1455,9 +1542,9 @@ void DcxListView::parseCommandRequest( const TString &input) {
 		ZeroMemory(&lvc, sizeof(LVCOLUMN));
 		int nColumn = 0;
 		TString data(input.gettok(1, TSTAB).gettok(4, -1).trim());
-
-		int icon  = data.gettok( 2 ).to_int() -1;
-		int width = data.gettok( 3 ).to_int();
+		TString tsflags(data.getfirsttok( 1 ));
+		int icon  = data.getnexttok( ).to_int() -1;		// tok 2
+		int width = data.getnexttok( ).to_int();		// tok 3
 
 		TString itemtext;
 		if (data.numtok( ) > 3)
@@ -1466,7 +1553,7 @@ void DcxListView::parseCommandRequest( const TString &input) {
 		lvc.iImage = I_IMAGENONE;
 		lvc.mask = LVCF_FMT | LVCF_TEXT | LVCF_WIDTH;
 		lvc.cx = width;
-		lvc.fmt = this->parseHeaderFlags(data.gettok( 1 ));
+		lvc.fmt = this->parseHeaderFlags(tsflags);
 		lvc.iSubItem = 0;
 		lvc.pszText = itemtext.to_chr();
 
@@ -1483,7 +1570,7 @@ void DcxListView::parseCommandRequest( const TString &input) {
 		*	These flags do NOT make the columns auto size as text is added
 		* They auto size the columns to match the text already present (none).
 		*/
-		this->autoSize(nColumn,data.gettok( 1 ));
+		this->autoSize(nColumn,tsflags);
 
 		const int tabs = input.numtok(TSTAB);
 
@@ -1494,8 +1581,9 @@ void DcxListView::parseCommandRequest( const TString &input) {
 
 				data = input.gettok(i, TSTAB).trim();
 
-				icon  = data.gettok( 2 ).to_int() -1;
-				width = data.gettok( 3 ).to_int();
+				tsflags = data.getfirsttok( 1 );
+				icon  = data.getnexttok( ).to_int() -1;	// tok 2
+				width = data.getnexttok( ).to_int();	// tok 3
 				itemtext = TEXT("");
 
 				if (data.numtok( ) > 3)
@@ -1503,7 +1591,7 @@ void DcxListView::parseCommandRequest( const TString &input) {
 
 				lvc.mask = LVCF_FMT | LVCF_TEXT | LVCF_WIDTH;
 				lvc.cx = width;
-				lvc.fmt = this->parseHeaderFlags(data.gettok( 1 ));
+				lvc.fmt = this->parseHeaderFlags(tsflags);
 				lvc.iImage = I_IMAGENONE;
 				lvc.iSubItem = 0;
 				lvc.pszText = itemtext.to_chr();
@@ -1515,7 +1603,7 @@ void DcxListView::parseCommandRequest( const TString &input) {
 
 				ListView_InsertColumn(this->m_Hwnd, nColumn, &lvc);
 
-				this->autoSize(nColumn,data.gettok( 1 ));
+				this->autoSize(nColumn,tsflags);
 			}
 		}
 	}
@@ -1525,8 +1613,8 @@ void DcxListView::parseCommandRequest( const TString &input) {
 	}
 	// xdid -v [NAME] [ID] [SWITCH] [N] [M] (ItemText)
 	else if (flags[TEXT('v')] && numtok > 4) {
-		int nItem = input.gettok(4).to_int() - 1;
-		const int nSubItem = input.gettok(5).to_int() -1;
+		int nItem = input.getnexttok( ).to_int() - 1;			// tok 4
+		const int nSubItem = input.getnexttok( ).to_int() -1;	// tok 5
 
 		// check if item supplied was 0 (now -1), last item in list.
 		if (nItem == -1) {
@@ -1571,12 +1659,12 @@ void DcxListView::parseCommandRequest( const TString &input) {
 	}
 	// xdid -w [NAME] [ID] [SWITCH] [+FLAGS] [INDEX] [FILENAME]
 	else if (flags[TEXT('w')] && numtok > 5) {
-		const TString tflags(input.gettok( 4 ));
+		const TString tflags(input.getnexttok( ));				// tok 4
+		const int index = input.getnexttok( ).to_int();			// tok 5
+		TString filename(input.gettok(6, -1));
 		const UINT iFlags = this->parseIconFlagOptions(tflags);
 		HIMAGELIST himl;
 		HICON icon = NULL;
-		const int index = input.gettok( 5 ).to_int();
-		TString filename(input.gettok(6, -1));
 		int overlayindex = 0;
 
 		// determine overlay index
@@ -1683,7 +1771,7 @@ void DcxListView::parseCommandRequest( const TString &input) {
 	else if (flags[TEXT('W')] && numtok > 3) {
 		static const TString poslist(TEXT("report icon smallicon list tile"));
 		static const int lv_styles[5] = { LV_VIEW_DETAILS, LV_VIEW_ICON, LV_VIEW_SMALLICON, LV_VIEW_LIST, LV_VIEW_TILE };
-		const TString style(input.gettok(4));
+		const TString style(input.getnexttok( ));	// tok 4
 		const int index = poslist.findtok(style.to_chr(), 1);
 		const UINT mode = lv_styles[index -1];
 
@@ -1691,7 +1779,7 @@ void DcxListView::parseCommandRequest( const TString &input) {
 	}
 	// xdid -y [NAME] [ID] [SWITCH] [+FLAGS]
 	else if (flags[TEXT('y')] && numtok > 3) {
-		const UINT iFlags = this->parseIconFlagOptions(input.gettok( 4 ));
+		const UINT iFlags = this->parseIconFlagOptions(input.getnexttok( ));	// tok 4
 		HIMAGELIST himl;
 
 		if (iFlags & LVSIL_SMALL) {
@@ -1719,10 +1807,11 @@ void DcxListView::parseCommandRequest( const TString &input) {
 	// xdid -z [NAME] [ID] [SWITCH] [+FLAGS] [N] (ALIAS)
 	else if (flags[TEXT('z')] && numtok > 4) {
 		DCXLVSORT lvsort;
-		const int nColumn = input.gettok( 5 ).to_int() -1;
+
+		lvsort.iSortFlags = this->parseSortFlags(input.getnexttok( ));	// tok 4
+		const int nColumn = input.getnexttok( ).to_int() -1;	// tok 5
 
 		lvsort.m_Hwnd = this->m_Hwnd;
-		lvsort.iSortFlags = this->parseSortFlags(input.gettok( 4 ));
 		lvsort.nColumn = nColumn;
 
 		if (nColumn < 0 || nColumn >= this->getColumnCount())
@@ -1731,7 +1820,7 @@ void DcxListView::parseCommandRequest( const TString &input) {
 		if (lvsort.iSortFlags & LVSS_CUSTOM && numtok < 6)
 			return;
 		else
-			lvsort.tsCustomAlias = input.gettok( 6 );
+			lvsort.tsCustomAlias = input.getnexttok( );		// tok 6
 
 		ListView_SortItemsEx(this->m_Hwnd, DcxListView::sortItemsEx, &lvsort);
 	}
@@ -1742,8 +1831,8 @@ void DcxListView::parseCommandRequest( const TString &input) {
 		LVITEM lvi;
 		ZeroMemory(&lvi, sizeof(LVITEM));
 
-		lvi.iItem = input.gettok(4).to_int() -1;
-		lvi.iSubItem = input.gettok(5).to_int();
+		lvi.iItem = input.getnexttok( ).to_int() -1;	// tok 4
+		lvi.iSubItem = input.getnexttok( ).to_int();	// tok 5
 		lvi.mask = LVIF_PARAM;
 
 		// check if item supplied was 0 (now -1), last item in list.
@@ -1784,7 +1873,7 @@ void DcxListView::parseCommandRequest( const TString &input) {
 		if (!this->isStyle(LVS_REPORT))
 			return;
 
-		int pos = input.gettok(4).to_int();
+		int pos = input.getnexttok( ).to_int();	// tok 4
 		int count = ListView_GetItemCount(this->m_Hwnd);
 		RECT rc;
 
@@ -1810,7 +1899,7 @@ void DcxListView::parseCommandRequest( const TString &input) {
 	}
 	// xdid -V [NAME] [ID] [SWITCH] [nItem]
 	else if (flags[TEXT('V')] && numtok > 3) {
-		const int nItem = input.gettok( 4 ).to_int() -1;
+		const int nItem = input.getnexttok( ).to_int() -1;	// tok 4
 
 		if (nItem > -1)
 			ListView_EnsureVisible(this->m_Hwnd, nItem, FALSE);
@@ -1828,10 +1917,10 @@ void DcxListView::parseCommandRequest( const TString &input) {
 		// +x save to xml [dataset_name filename]
 		// +c save to custom @window [@window] (data is appended to the bottom of the window, window must exist)
 		const int count = ListView_GetItemCount(this->m_Hwnd);
-		const TString tsFlags(input.gettok( 3 ).trim());
-		const int iN1 = input.gettok( 4 ).to_int();
-		int iN2 = input.gettok( 5 ).to_int();
-		const TString tsArgs(input.gettok( 6, -1 ).trim());
+		const TString tsFlags(input.getnexttok( ).trim());		// tok 4
+		const int iN1 = input.getnexttok( ).to_int();			// tok 5
+		int iN2 = input.getnexttok( ).to_int();					// tok 6
+		const TString tsArgs(input.gettok( 7, -1 ).trim());
 
 		if ((tsFlags[0] != TEXT('+')) || (tsFlags.len() < 2)) {
 			// no flags specified.
@@ -1840,12 +1929,12 @@ void DcxListView::parseCommandRequest( const TString &input) {
 		}
 		// make sure N1-N2 are within the range of items in listview.
 		// adjust iN2 if its < 0, so its an offset from the last item.
-		if (iN2 < 0) iN2 = count + iN2;
+		if (iN2 == 0) iN2 = count;
+		else if (iN2 < 0) iN2 = count + iN2;
 		if ((iN1 < 1) || (iN1 > count) || (iN2 < 0) || (iN2 < iN1)) {
 			this->showError(NULL,TEXT("-S"), TEXT("Invalid Range: N1-N2 Must be in range of items in listview"));
 			return;
 		}
-		if (iN2 == 0) iN2 = count;
 
 		switch (tsFlags[1])
 		{
@@ -1880,8 +1969,8 @@ void DcxListView::parseCommandRequest( const TString &input) {
 			return;
 		}
 
-		const int nCol = (input.gettok(4).to_int() -1);
-		const XSwitchFlags xflag(input.gettok(5));
+		const int nCol = (input.getnexttok( ).to_int() -1);	// tok 4
+		const XSwitchFlags xflag(input.getnexttok( ));		// tok 5
 		const TString info(input.gettok(6, -1));
 		const UINT ntok = info.numtok();
 
@@ -1963,13 +2052,13 @@ void DcxListView::parseCommandRequest( const TString &input) {
 	}
 	// xdid -G [NAME] [ID] [SWITCH] [GID] [+MASK] [+STATES]
 	else if (flags[TEXT('G')] && numtok == 6) {
-		const int gid = (int)input.gettok( 4 ).to_num();
+		const int gid = input.getnexttok( ).to_int();
 
 		if (ListView_HasGroup(this->m_Hwnd, gid)) {
 #ifdef DCX_USE_WINSDK
 			if (Dcx::VistaModule.isVista()) {
-				const UINT iMask = this->parseGroupState( input.gettok( 5 ) );
-				const UINT iState = this->parseGroupState( input.gettok( 6 ) );
+				const UINT iMask = this->parseGroupState( input.getnexttok( ) );	// tok 5
+				const UINT iState = this->parseGroupState( input.getnexttok( ) );	// tok 6
 
 				ListView_SetGroupState(this->m_Hwnd, gid, iMask, iState);
 			}
@@ -3633,8 +3722,8 @@ bool DcxListView::ctrlLoadListview(const int nPos, const TString &tsData)
 bool DcxListView::xLoadListview(const int nPos, const TString &tsData, const TCHAR *sTest, const TCHAR *sCount, const TCHAR *sGet, const TCHAR *sGetNamed)
 {
 	TString res;	// used to store the data returned by mIRC.
-	const TString tsflags(tsData.gettok( 10 ));
-	const TString tsName(tsData.gettok( 11 ));
+	const TString tsflags(tsData.getfirsttok( 10 ));
+	const TString tsName(tsData.getnexttok( ));	// tok 11
 	const TString tsItem(tsData.gettok( 12, -1 ));
 
 	// check table/window exists
@@ -3697,8 +3786,8 @@ bool DcxListView::xLoadListview(const int nPos, const TString &tsData, const TCH
 	}
 	else if (iFlags & LVIMF_NUMERIC) {
 		// numeric range supplied.
-		iStart = tsItem.gettok( 1, TSCOMMA).to_int();	// first item in hash table to be added taken from range.
-		iEnd = tsItem.gettok( 2, TSCOMMA).to_int();	// last item in hash table to be added taken from range.
+		iStart = tsItem.getfirsttok( 1, TSCOMMA).to_int();	// first item in hash table to be added taken from range.
+		iEnd = tsItem.getnexttok( TSCOMMA).to_int();	// last item in hash table to be added taken from range.	tok 2
 		if (iEnd < 0) iEnd = iTotal + iEnd;		// if iEnd is a negative number then make iEnd the last item in table + iEnd
 	}
 	// iStart & iEnd MUST be 1 or greater. (zero gives a hashtable/window item count.)
@@ -3749,14 +3838,14 @@ void DcxListView::massSetItem(const int nPos, const TString &input)
 {
 	TString data(input.gettok(1, TSTAB).gettok(4, -1).trim());
 
-	const int indent = data.gettok( 2 ).to_int();
-	UINT stateFlags = this->parseItemFlags(data.gettok( 3 ));
-	int icon = data.gettok( 4 ).to_int() -1;
-	const int state = data.gettok( 5 ).to_int();
-	int overlay = data.gettok( 6 ).to_int( );
-	const int group = data.gettok( 7 ).to_int();
-	COLORREF clrText = (COLORREF)data.gettok( 8 ).to_num();
-	COLORREF clrBack = (COLORREF)data.gettok( 9 ).to_num();
+	const int indent = data.getfirsttok( 2 ).to_int();
+	UINT stateFlags = this->parseItemFlags(data.getnexttok( ));	// tok 3
+	int icon = data.getnexttok( ).to_int() -1;					// tok 4
+	const int state = data.getnexttok( ).to_int();				// tok 5
+	int overlay = data.getnexttok( ).to_int( );					// tok 6
+	const int group = data.getnexttok( ).to_int();				// tok 7
+	COLORREF clrText = (COLORREF)data.getnexttok( ).to_num();	// tok 8
+	COLORREF clrBack = (COLORREF)data.getnexttok( ).to_num();	// tok 9
 	LVITEM lvi;
 	ZeroMemory(&lvi, sizeof(LVITEM));
 
@@ -3861,15 +3950,18 @@ void DcxListView::massSetItem(const int nPos, const TString &input)
 		for (int i = 2; i <= tabs; i++)
 		{
 			data = input.gettok(i, TSTAB).trim();
+			const int nToks = data.numtok();
 
-			if (data.numtok() < 5) {
+			if (nToks < 5) {
 				this->showError(NULL,TEXT("-a"), TEXT("Invalid subitem syntax"));
 				break;
 			}
 
-			stateFlags = parseItemFlags(data.gettok( 1 ));
-			clrText = (COLORREF)data.gettok(4).to_num();
-			clrBack = (COLORREF)data.gettok(5).to_num();
+			stateFlags = parseItemFlags(data.getfirsttok( 1 ));
+			icon = data.getnexttok( ).to_int() -1;				// tok 2
+			overlay = data.getnexttok( ).to_int();				// tok 3
+			clrText = (COLORREF)data.getnexttok( ).to_num();	// tok 4
+			clrBack = (COLORREF)data.getnexttok( ).to_num();	// tok 5
 
 			// setup colum #
 			ri = new DCXLVRENDERINFO;
@@ -3895,8 +3987,6 @@ void DcxListView::massSetItem(const int nPos, const TString &input)
 			lvi.mask = LVIF_TEXT;
 
 			// icon
-			icon = data.gettok( 2 ).to_int() -1;
-
 			lvi.mask |= LVIF_IMAGE; // moved here to turn off icon when none is wanted.
 			if (icon > -1)
 				lvi.iImage = icon;
@@ -3904,7 +3994,7 @@ void DcxListView::massSetItem(const int nPos, const TString &input)
 				lvi.iImage = I_IMAGECALLBACK; // NB: using I_IMAGENONE causes a gap to be left for the icon for some reason. Using I_IMAGECALLBACK doesn't do this.
 
 			// overlay
-			if ((overlay = data.gettok(3).to_int()) > 0) {
+			if (overlay > 0) {
 				lvi.mask |= LVIF_STATE;
 				lvi.state |= INDEXTOOVERLAYMASK(overlay);
 				lvi.stateMask |= LVIS_OVERLAYMASK;
@@ -3913,7 +4003,7 @@ void DcxListView::massSetItem(const int nPos, const TString &input)
 				lvi.state |= INDEXTOOVERLAYMASK(0);
 
 			itemtext = TEXT("");
-			if (data.numtok() > 5) {
+			if (nToks > 5) {
 				itemtext = data.gettok(6, -1);
 
 				TString res;

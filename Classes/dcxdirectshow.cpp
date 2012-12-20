@@ -92,13 +92,19 @@ void DcxDirectshow::parseControlStyles( const TString & styles, LONG * Styles, L
 {
 	*Styles |= SS_NOTIFY;
 
-	const UINT numtok = styles.numtok( );
+	//const UINT numtok = styles.numtok( );
 
-	for (UINT i = 1; i <= numtok; i++)
+	//for (UINT i = 1; i <= numtok; i++)
+	//{
+	//	if (( styles.gettok( i ) == TEXT("fixratio") ))
+	//		this->m_bKeepRatio = true;
+	//}
+	for (TString tsStyle(styles.getfirsttok( 1 )); tsStyle != ""; tsStyle = styles.getnexttok( ))
 	{
-		if (( styles.gettok( i ) == TEXT("fixratio") ))
+		if (( tsStyle == TEXT("fixratio") ))
 			this->m_bKeepRatio = true;
 	}
+
 	this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
 }
 

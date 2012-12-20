@@ -342,26 +342,31 @@ mIRC(xdid) {
 		return 0;
 	}
 
-	DcxDialog * p_Dialog = Dcx::Dialogs.getDialogByName(d.gettok( 1 ));
+	const TString tsDname(d.getfirsttok( 1 ));
+	DcxDialog * p_Dialog = Dcx::Dialogs.getDialogByName(tsDname);
 
 	if (p_Dialog == NULL) {
-		Dcx::errorex(TEXT("/xdid"), TEXT("Unknown dialog \"%s\": see Mark command"), d.gettok(1).to_chr());
+		Dcx::errorex(TEXT("/xdid"), TEXT("Unknown dialog \"%s\": see Mark command"), tsDname.to_chr());
 		return 0;
 	}
 
-	const TString IDs(d.gettok( 2 ));
+	const TString IDs(d.getnexttok( ));	// tok 2
+	const TString tsArgs(d.gettok(3, -1));
 	TString d2;
 	DcxControl * p_Control;
 	const int n = IDs.numtok(TSCOMMA);
 
 	// Multiple IDs id,id,id,id-id,id-id
 	if (n > 1) {
+
+		IDs.getfirsttok(0, TSCOMMA);
+
 		for (int i = 1; i <= n; i++) {
-			const TString tsID(IDs.gettok(i, TSCOMMA));
+			const TString tsID(IDs.getnexttok( TSCOMMA ));	// tok i
 			UINT id_start = 0, id_end = 0;
 			if (tsID.numtok(TEXT("-")) == 2) {
-				id_start = tsID.gettok(1, TEXT("-")).to_int();
-				id_end = tsID.gettok(2, TEXT("-")).to_int();
+				id_start = tsID.getfirsttok(1, TEXT("-")).to_int();
+				id_end = tsID.getnexttok(TEXT("-")).to_int();
 			}
 			else
 				id_start = id_end = tsID.to_int();
@@ -370,11 +375,11 @@ mIRC(xdid) {
 				p_Control = p_Dialog->getControlByID(id + mIRC_ID_OFFSET);
 
 				if (p_Control == NULL) {
-					p_Dialog->showErrorEx(NULL,d.gettok( 3 ).to_chr(), TEXT("(xdid) Invalid ID : %ld (dialog : %s)"), id, d.gettok( 1 ).to_chr());
+					p_Dialog->showErrorEx(NULL,tsArgs.gettok( 1 ).to_chr(), TEXT("(xdid) Invalid ID : %ld (dialog : %s)"), id, tsDname.to_chr());
 					return 0;
 				}
 
-				d2.tsprintf(TEXT("%s %ld %s"),d.gettok( 1 ).to_chr(), id, d.gettok(3, -1).to_chr());
+				d2.tsprintf(TEXT("%s %ld %s"),tsDname.to_chr(), id, tsArgs.to_chr());
 
 				p_Control->parseCommandRequest(d2);
 			}
@@ -384,8 +389,8 @@ mIRC(xdid) {
 	else {
 		UINT id_start = 0, id_end = 0;
 		if (IDs.numtok(TEXT("-")) == 2) {
-			id_start = IDs.gettok(1, TEXT("-")).to_int();
-			id_end = IDs.gettok(2, TEXT("-")).to_int();
+			id_start = IDs.getfirsttok(1, TEXT("-")).to_int();
+			id_end = IDs.getnexttok(TEXT("-")).to_int();
 		}
 		else
 			id_start = id_end = IDs.to_int();
@@ -394,7 +399,7 @@ mIRC(xdid) {
 			p_Control = p_Dialog->getControlByID(id + mIRC_ID_OFFSET);
 
 			if (p_Control == NULL) {
-				p_Dialog->showErrorEx(NULL,d.gettok( 3 ).to_chr(), TEXT("(xdid) Invalid ID : %ld (dialog : %s)"), id, d.gettok( 1 ).to_chr());
+				p_Dialog->showErrorEx(NULL,tsArgs.gettok( 1 ).to_chr(), TEXT("(xdid) Invalid ID : %ld (dialog : %s)"), id, tsDname.to_chr());
 				return 0;
 			}
 
@@ -423,17 +428,20 @@ mIRC(_xdid) {
 		return 0;
 	}
 
-	DcxDialog * p_Dialog = Dcx::Dialogs.getDialogByName(d.gettok( 1 ));
+	const TString tsDname(d.getfirsttok( 1 ));
+	const TString tsID(d.getnexttok( ));
+
+	DcxDialog * p_Dialog = Dcx::Dialogs.getDialogByName(tsDname);
 
 	if (p_Dialog == NULL) {
-		Dcx::errorex(TEXT("$!xdid()"), TEXT("Unknown dialog \"%s\": see Mark command"), d.gettok(1).to_chr());
+		Dcx::errorex(TEXT("$!xdid()"), TEXT("Unknown dialog \"%s\": see Mark command"), tsDname.to_chr());
 		return 0;
 	}
 
-	const DcxControl * p_Control = p_Dialog->getControlByID((UINT) d.gettok( 2 ).to_int() + mIRC_ID_OFFSET);
+	const DcxControl * p_Control = p_Dialog->getControlByID((UINT) tsID.to_int() + mIRC_ID_OFFSET);
 
 	if (p_Control == NULL) {
-		p_Dialog->showErrorEx(d.gettok( 3 ).to_chr(), NULL, TEXT("Invalid ID : %s (dialog %s)"), d.gettok( 2 ).to_chr(), d.gettok( 1 ).to_chr());
+		p_Dialog->showErrorEx(d.getnexttok( ).to_chr(), NULL, TEXT("Invalid ID : %s (dialog %s)"), tsID.to_chr(), tsDname.to_chr());
 		return 0;
 	}
 
@@ -476,15 +484,17 @@ mIRC(xdialog) {
 
 	data[0] = 0;
 
+	const TString tsDname(d.gettok( 1 ));
+
 	if (d.numtok( ) < 2) {
-		Dcx::errorex(TEXT("/xdialog"), TEXT("Invalid arguments ( dialog %s)"), d.gettok(1).to_chr());
+		Dcx::errorex(TEXT("/xdialog"), TEXT("Invalid arguments ( dialog %s)"), tsDname.to_chr());
 		return 0;
 	}
 
-	DcxDialog * p_Dialog = Dcx::Dialogs.getDialogByName(d.gettok( 1 ));
+	DcxDialog * p_Dialog = Dcx::Dialogs.getDialogByName(tsDname);
 
 	if (p_Dialog == NULL) {
-		Dcx::errorex(TEXT("/xdialog"), TEXT("Unknown dialog \"%s\": see Mark command"), d.gettok(1).to_chr());
+		Dcx::errorex(TEXT("/xdialog"), TEXT("Unknown dialog \"%s\": see Mark command"), tsDname.to_chr());
 		return 0;
 	}
 
@@ -506,16 +516,18 @@ mIRC(_xdialog) {
 	// reset mIRC data
 	data[0] = 0;
 
+	const TString tsDname(d.getfirsttok( 1 ));
+
 	if (d.numtok( ) < 2) {
-		Dcx::errorex(TEXT("$!xdialog()"), TEXT("Invalid arguments ( dialog %s)"), d.gettok(1).to_chr());
+		Dcx::errorex(TEXT("$!xdialog()"), TEXT("Invalid arguments ( dialog %s)"), tsDname.to_chr());
 		return 0;
 	}
 
-	const DcxDialog *p_Dialog = Dcx::Dialogs.getDialogByName(d.gettok( 1 ));
+	const DcxDialog *p_Dialog = Dcx::Dialogs.getDialogByName(tsDname);
 
 	if (p_Dialog == NULL) {
-		if (d.gettok( 2 ) != TEXT("ismarked")) {
-			Dcx::errorex(TEXT("$!xdialog()"), TEXT("Unknown dialog \"%s\": see Mark command"), d.gettok(1).to_chr());
+		if (d.getnexttok( ) != TEXT("ismarked")) {
+			Dcx::errorex(TEXT("$!xdialog()"), TEXT("Unknown dialog \"%s\": see Mark command"), tsDname.to_chr());
 			return 0;
 		}
 		else
@@ -545,16 +557,17 @@ mIRC(xpop) {
 		Dcx::error(TEXT("/xpop"),TEXT("Invalid arguments"));
 		return 0;
 	}
+	const TString tsMenu(d.gettok( 1 ));
 
-	if ((d.gettok(1) == TEXT("mirc")) || (d.gettok(1) == TEXT("mircbar"))) {
+	if ((tsMenu == TEXT("mirc")) || (tsMenu == TEXT("mircbar"))) {
 		Dcx::error(TEXT("/xpop"),TEXT("Invalid menu name : mirc or mircbar menus don't have access to this feature."));
 		return 0;
 	}
 
-	XPopupMenu *p_Menu = Dcx::XPopups.getMenuByName(d.gettok(1), FALSE);
+	XPopupMenu *p_Menu = Dcx::XPopups.getMenuByName(tsMenu, FALSE);
 
 	if (p_Menu == NULL) {
-		Dcx::errorex(TEXT("/xpop"), TEXT("Unknown menu \"%s\": see /xpopup -c command"), d.gettok(1).to_chr());
+		Dcx::errorex(TEXT("/xpop"), TEXT("Unknown menu \"%s\": see /xpopup -c command"), tsMenu.to_chr());
 		return 0;
 	}
 
@@ -580,15 +593,17 @@ mIRC(_xpop) {
 		return 0;
 	}
 
-	if ((d.gettok( 1 ) == TEXT("mirc")) || (d.gettok( 1 ) == TEXT("mircbar"))) {
+	const TString tsMenu(d.gettok( 1 ));
+
+	if ((tsMenu == TEXT("mirc")) || (tsMenu == TEXT("mircbar"))) {
 		Dcx::error(TEXT("$!xpop()"),TEXT("Invalid menu name : mirc or mircbar menus don't have access to this feature."));
 		return 0;
 	}
 
-	const XPopupMenu *p_Menu = Dcx::XPopups.getMenuByName(d.gettok(1), FALSE);
+	const XPopupMenu *p_Menu = Dcx::XPopups.getMenuByName(tsMenu, FALSE);
 
 	if (p_Menu == NULL) {
-		Dcx::errorex(TEXT("$!xpop()"), TEXT("Unknown menu \"%s\": see /xpopup -c command"), d.gettok(1).to_chr());
+		Dcx::errorex(TEXT("$!xpop()"), TEXT("Unknown menu \"%s\": see /xpopup -c command"), tsMenu.to_chr());
 		return 0;
 	}
 
@@ -730,7 +745,7 @@ mIRC(xSignal) {
 // /dcx WindowProps [HWND] [+FLAGS] (ARGS)
 mIRC(WindowProps) {
 	const TString input(data);
-	const int numtok = input.numtok( );
+	const unsigned int numtok = input.numtok( );
 	data[0] = TEXT('\0');
 
 	if (numtok < 2) {
@@ -738,14 +753,14 @@ mIRC(WindowProps) {
 		return 0;
 	}
 
-	HWND hwnd = (HWND) input.gettok(1).to_int();
+	HWND hwnd = (HWND) input.getfirsttok(1).to_int();
 
 	if (!IsWindow(hwnd)) {
 		Dcx::error(TEXT("/dcx WindowProps"), TEXT("Invalid window"));
 		return 0;
 	}
 
-	const TString flags(input.gettok( 2 ).trim());
+	const TString flags(input.getnexttok( ).trim());
 	const XSwitchFlags xflags(flags);
 
 	if (!xflags[TEXT('+')] || (flags.len() < 2)) {
@@ -774,7 +789,7 @@ mIRC(WindowProps) {
 			Dcx::error(TEXT("/dcx WindowProps"), TEXT("Invalid Args"));
 			return 0;
 		}
-		const int index = input.gettok( 3 ).to_int();
+		const int index = input.getnexttok( ).to_int();	// tok 3
 		TString filename(input.gettok(1,TSTAB).gettok(4, -1).trim());
 
 		if (!ChangeHwndIcon(hwnd,flags,index,filename))
@@ -782,36 +797,35 @@ mIRC(WindowProps) {
 	}
 	// set hwnd title text
 	// +t [TEXT]
-	if (xflags[TEXT('t')]) { 
+	else if (xflags[TEXT('t')]) { 
 		TString txt;
 		
 		if (xflags[TEXT('i')]) {
 			if (input.numtok(TSTAB) > 1)
 				txt = input.gettok(2,-1,TSTAB);
 		}
-		else if (numtok > 2) {
+		else if (numtok > 2)
 			txt = input.gettok(3, -1);
-		}
 
 		SetWindowText(hwnd, txt.trim().to_chr());
 	}
 	// RMB click hwnd at pos.
 	// +r [X] [Y]
-	if (xflags[TEXT('r')]) {
-		const UINT x = (UINT)input.gettok( 3 ).to_num();
-		const UINT y = (UINT)input.gettok( 4 ).to_num();
+	else if (xflags[TEXT('r')]) {
+		const UINT x = (UINT)input.getnexttok( ).to_num();	// tok 3
+		const UINT y = (UINT)input.getnexttok( ).to_num();	// tok 4
 		const LPARAM parm = MAKELONG(x,y);
 		SendMessage(hwnd,WM_RBUTTONDOWN,MK_RBUTTON,parm);
 		PostMessage(hwnd,WM_RBUTTONUP,MK_RBUTTON,parm); // MUST be a PostMessage or the dll hangs untill the menu is closed.
 	}
 	// Add Vista+ glass effect to window.
 	// +v [top] [left] [bottom] [right]
-	if (xflags[TEXT('v')]) {
+	else if (xflags[TEXT('v')]) {
 		MARGINS margin;
-		margin.cyTopHeight = (INT)input.gettok( 3 ).to_num();
-		margin.cxLeftWidth = (INT)input.gettok( 4 ).to_num();
-		margin.cyBottomHeight = (INT)input.gettok( 5 ).to_num();
-		margin.cxRightWidth = (INT)input.gettok( 6 ).to_num();
+		margin.cyTopHeight = (INT)input.getnexttok( ).to_num();		// tok 3
+		margin.cxLeftWidth = (INT)input.getnexttok( ).to_num();		// tok 4
+		margin.cyBottomHeight = (INT)input.getnexttok( ).to_num();	// tok 5
+		margin.cxRightWidth = (INT)input.getnexttok( ).to_num();	// tok 6
 		AddStyles(hwnd, GWL_EXSTYLE, WS_EX_LAYERED);
 		//RGBQUAD clr = {0};
 		//BOOL bOpaque = FALSE;
@@ -831,7 +845,7 @@ mIRC(ActiveWindow) {
 
 	data[0] = 0;
 
-	const int numtok = input.numtok();
+	const unsigned int numtok = input.numtok();
 
 	if (numtok < 1) {
 		Dcx::error(TEXT("$!dcx(ActiveWindow)"), TEXT("Insufficient parameters"));
@@ -845,7 +859,7 @@ mIRC(ActiveWindow) {
 		return 0;
 	}
 
-	TString prop(input.gettok(1));
+	const TString prop(input.gettok(1));
 	WINDOWINFO wi;
 
 	ZeroMemory(&wi, sizeof(WINDOWINFO));

@@ -89,22 +89,37 @@ DcxText::~DcxText( ) {
 
 void DcxText::parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme)
 {
-	const UINT numtok = styles.numtok( );
 	*Styles |= SS_NOTIFY;
+	//const UINT numtok = styles.numtok( );
 
-	for (UINT i = 1; i <= numtok; i++)
+	//for (UINT i = 1; i <= numtok; i++)
+	//{
+	//	if (styles.gettok( i ) == TEXT("nowrap"))
+	//		*Styles |= SS_LEFTNOWORDWRAP;
+	//	else if (styles.gettok( i ) == TEXT("center"))
+	//		*Styles |= SS_CENTER;
+	//	else if (styles.gettok( i ) == TEXT("right"))
+	//		*Styles |= SS_RIGHT;
+	//	else if (styles.gettok( i ) == TEXT("noprefix"))
+	//		*Styles |= SS_NOPREFIX;
+	//	else if (styles.gettok( i ) == TEXT("endellipsis"))
+	//		*Styles |= SS_ENDELLIPSIS;
+	//	else if (styles.gettok( i ) == TEXT("pathellipsis"))
+	//		*Styles |= SS_PATHELLIPSIS;
+	//}
+	for (TString tsStyle(styles.getfirsttok( 1 )); tsStyle != ""; tsStyle = styles.getnexttok( ))
 	{
-		if (styles.gettok( i ) == TEXT("nowrap"))
+		if (tsStyle == TEXT("nowrap"))
 			*Styles |= SS_LEFTNOWORDWRAP;
-		else if (styles.gettok( i ) == TEXT("center"))
+		else if (tsStyle == TEXT("center"))
 			*Styles |= SS_CENTER;
-		else if (styles.gettok( i ) == TEXT("right"))
+		else if (tsStyle == TEXT("right"))
 			*Styles |= SS_RIGHT;
-		else if (styles.gettok( i ) == TEXT("noprefix"))
+		else if (tsStyle == TEXT("noprefix"))
 			*Styles |= SS_NOPREFIX;
-		else if (styles.gettok( i ) == TEXT("endellipsis"))
+		else if (tsStyle == TEXT("endellipsis"))
 			*Styles |= SS_ENDELLIPSIS;
-		else if (styles.gettok( i ) == TEXT("pathellipsis"))
+		else if (tsStyle == TEXT("pathellipsis"))
 			*Styles |= SS_PATHELLIPSIS;
 	}
 
@@ -141,8 +156,8 @@ void DcxText::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) co
  */
 
 void DcxText::parseCommandRequest(const TString &input) {
-	const XSwitchFlags flags(input.gettok(3));
-	const int numtok = input.numtok( );
+	const XSwitchFlags flags(input.getfirsttok( 3 ));
+	const UINT numtok = input.numtok( );
 
 	// xdid -r [NAME] [ID] [SWITCH]
 	if (flags[TEXT('r')]) {
@@ -152,7 +167,7 @@ void DcxText::parseCommandRequest(const TString &input) {
 
 	// xdid -a [NAME] [ID] [SPACE 0|1] [TEXT]
 	if (flags[TEXT('a')] && numtok > 2) {
-		if (input.gettok(4).to_int() == 1)
+		if (input.getnexttok( ).to_int() == 1)	// tok 4
 			this->m_tsText += TEXT(" ");
 
 		this->m_tsText += input.gettok(5, -1);

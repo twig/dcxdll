@@ -135,13 +135,13 @@ void DcxStatusBar::parseControlStyles( const TString & styles, LONG * Styles, LO
 
 void DcxStatusBar::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) const
 {
-	const int numtok = input.numtok( );
-	const TString prop(input.gettok( 3 ));
+	const UINT numtok = input.numtok( );
+	const TString prop(input.getfirsttok( 3 ));
 
 	// [NAME] [ID] [PROP] [N]
 	if ( prop == TEXT("text") && numtok > 3 ) {
 
-		const int iPart = input.gettok( 4 ).to_int( ) -1, nParts = this->getParts( 256, 0 );
+		const int iPart = input.getnexttok( ).to_int( ) -1, nParts = this->getParts( 256, 0 );	// tok 4
 
 		if ( iPart > -1 && iPart < nParts ) {
 
@@ -173,7 +173,7 @@ void DcxStatusBar::parseInfoRequest( const TString & input, PTCHAR szReturnValue
 	// [NAME] [ID] [PROP] [N]
 	else if ( prop == TEXT("tooltip") && numtok > 3 ) {
 
-		const int iPart = input.gettok( 4 ).to_int( ), nParts = this->getParts( 256, 0 );
+		const int iPart = input.getnexttok( ).to_int( ), nParts = this->getParts( 256, 0 );	// tok 4
 
 		if ( iPart > -1 && iPart < nParts ) {
 
@@ -218,7 +218,7 @@ void DcxStatusBar::deletePartInfo(const int iPart)
 void DcxStatusBar::parseCommandRequest( const TString & input ) {
 	const XSwitchFlags flags(input.gettok(3));
 
-	const int numtok = input.numtok( );
+	const unsigned int numtok = input.numtok( );
 
 	// xdid -k [NAME] [ID] [SWITCH] [COLOR]
 	if (flags[TEXT('k')] && numtok > 3) {
@@ -232,12 +232,12 @@ void DcxStatusBar::parseCommandRequest( const TString & input ) {
 	// xdid -l [NAME] [ID] [SWITCH] [POS [POS POS ...]]
 	else if ( flags[TEXT('l')] && numtok > 3 ) {
 
-		const int nParts = numtok - 3;
+		const unsigned int nParts = numtok - 3;
 		INT parts[256];
 
 		int c = 0, t = 0;
 		TString p;
-		for (int i = 0; i < nParts; i++ )
+		for (unsigned int i = 0; i < nParts; i++ )
 		{
 			if (c >= 100) {
 				this->showError(NULL, TEXT("-l"), TEXT("Can't Allocate Over 100% of Statusbar!"));

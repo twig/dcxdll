@@ -133,7 +133,7 @@ BOOL ParseCommandToLogfont(const TString& cmd, LPLOGFONT lf) {
 		return FALSE;
 
 	ZeroMemory(lf, sizeof(LOGFONT));
-	const UINT flags = parseFontFlags(cmd.gettok( 1 ));
+	const UINT flags = parseFontFlags(cmd.getfirsttok( 1 ));
 
 	if (flags & DCF_DEFAULT) {
 		HFONT hf = (HFONT) GetStockObject(DEFAULT_GUI_FONT);
@@ -141,7 +141,8 @@ BOOL ParseCommandToLogfont(const TString& cmd, LPLOGFONT lf) {
 		return TRUE;
 	}
 	else {
-		const int fSize = cmd.gettok( 3 ).to_int();
+		lf->lfCharSet = (BYTE)parseFontCharSet(cmd.getnexttok( ));	// tok 2
+		const int fSize = cmd.getnexttok( ).to_int();	// tok 3
 		const TString fName(cmd.gettok(4, -1).trim());
 
 		if (!fSize)
@@ -169,7 +170,6 @@ BOOL ParseCommandToLogfont(const TString& cmd, LPLOGFONT lf) {
 		if (flags & DCF_UNDERLINE)
 			lf->lfUnderline = TRUE;
 
-		lf->lfCharSet = (BYTE)parseFontCharSet(cmd.gettok( 2 ));
 		lstrcpyn(lf->lfFaceName, fName.to_chr(), 31);
 		lf->lfFaceName[31] = 0;
 		return TRUE;

@@ -376,11 +376,11 @@ LRESULT CALLBACK DcxDock::mIRCRefWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, L
 					DcxDock::getTreebarItemType(buf, pTvis->itemex.lParam);
 					Dcx::mIRC.execex(TEXT("/!set -nu1 %%dcx_%d %s"), pTvis->itemex.lParam, pTvis->itemex.pszText );
 					Dcx::mIRC.tsEvalex(buf, TEXT("$xtreebar_callback(geticons,%s,%%dcx_%d)"), buf.to_chr(), pTvis->itemex.lParam);
-					int i = buf.gettok( 1 ).to_int() -1;
+					int i = buf.getfirsttok( 1 ).to_int() -1;
 					if (i < 0)
 						i = I_IMAGENONE; //0;
 					pTvis->itemex.iImage = i;
-					i = buf.gettok( 2 ).to_int() -1;
+					i = buf.getnexttok( ).to_int() -1;
 					if (i < 0)
 						i = I_IMAGENONE; //0;
 					pTvis->itemex.iSelectedImage = i;
@@ -588,18 +588,31 @@ LRESULT CALLBACK DcxDock::mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 					LPSB_PARTINFO pPart = (LPSB_PARTINFO)lpDrawItem->itemData;
 					if (pPart != NULL) {
 						RECT rc = lpDrawItem->rcItem;
+
+						if (pPart->m_BkgCol != NULL)
+							FillRect(lpDrawItem->hDC, &rc, pPart->m_BkgCol);
+
 						if (pPart->m_iIcon > -1) {
 							IMAGEINFO ii;
 							ImageList_GetImageInfo(pthis->g_hImageList, pPart->m_iIcon, &ii);
 							ImageList_Draw(pthis->g_hImageList, pPart->m_iIcon, lpDrawItem->hDC, rc.left, rc.top + ((rc.bottom - rc.top) - (ii.rcImage.bottom - ii.rcImage.top)) / 2, ILD_TRANSPARENT);
 							rc.left += (ii.rcImage.right - ii.rcImage.left) +5;
 						}
+
+						COLORREF oldTxtClr = CLR_INVALID;
+						if (pPart->m_TxtCol != CLR_INVALID)
+							oldTxtClr = SetTextColor(lpDrawItem->hDC, pPart->m_TxtCol);
+
+						const int oldbkg = SetBkMode( lpDrawItem->hDC, TRANSPARENT );
+
 						if (pPart->m_Text.len() > 0)
 							mIRC_DrawText(lpDrawItem->hDC, pPart->m_Text, &rc, DT_LEFT | DT_VCENTER | DT_SINGLELINE, false);
-						else if (IsWindow(pPart->m_Child)) {
-							SetWindowPos(pPart->m_Child, NULL, rc.left, rc.top,
-								(rc.right - rc.left), (rc.bottom - rc.top), SWP_NOZORDER|SWP_NOOWNERZORDER|SWP_SHOWWINDOW|SWP_NOACTIVATE);
-						}
+						else if (IsWindow(pPart->m_Child))
+							SetWindowPos(pPart->m_Child, NULL, rc.left, rc.top, (rc.right - rc.left), (rc.bottom - rc.top), SWP_NOZORDER|SWP_NOOWNERZORDER|SWP_SHOWWINDOW|SWP_NOACTIVATE);
+
+						SetBkMode( lpDrawItem->hDC, oldbkg );
+						if (oldTxtClr != CLR_INVALID)
+							SetTextColor(lpDrawItem->hDC, oldTxtClr);
 						return TRUE;
 					}
 				}
@@ -672,6 +685,8 @@ void DcxDock::UnInitStatusbar(void)
 
 		while (itStart != itEnd) {
 			if (*itStart != NULL) {
+				if (((LPSB_PARTINFO)*itStart)->m_BkgCol != NULL)
+					DeleteBrush(((LPSB_PARTINFO)*itStart)->m_BkgCol);
 				delete *itStart;
 			}
 			itStart++;
@@ -696,22 +711,20 @@ bool DcxDock::IsStatusbar(void)
 
 void DcxDock::status_parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme )
 {
-	const unsigned int numtok = styles.numtok( );
 	*Styles = WS_CHILD|WS_VISIBLE|WS_CLIPCHILDREN|WS_CLIPSIBLINGS;
 
-	for (unsigned int i = 1; i <= numtok; i++ ) {
-
-		if ( styles.gettok( i ) == TEXT("grip") )
+	for (TString tsStyle(styles.getfirsttok( 1 )); tsStyle != TEXT(""); tsStyle = styles.getnexttok()) {
+		if ( tsStyle == TEXT("grip") )
 			*Styles |= SBARS_SIZEGRIP;
-		else if ( styles.gettok( i ) == TEXT("tooltips") )
+		else if ( tsStyle == TEXT("tooltips") )
 			*Styles |= SBARS_TOOLTIPS;
-		else if ( styles.gettok( i ) == TEXT("nodivider") )
+		else if ( tsStyle == TEXT("nodivider") )
 			*Styles |= CCS_NODIVIDER;
-		else if ( styles.gettok( i ) == TEXT("notheme") )
+		else if ( tsStyle == TEXT("notheme") )
 			*bNoTheme = TRUE;
-		else if ( styles.gettok( i ) == TEXT("disabled") )
+		else if ( tsStyle == TEXT("disabled") )
 			*Styles |= WS_DISABLED;
-		else if ( styles.gettok( i ) == TEXT("transparent") )
+		else if ( tsStyle == TEXT("transparent") )
 			*ExStyles |= WS_EX_TRANSPARENT;
 	}
 }

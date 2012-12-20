@@ -28,8 +28,8 @@ DcxmlParser Parser;
 
 mIRC(dcxml) {
 	const TString input(data);
-	const XSwitchFlags flags(input.gettok(1));
-	const int numtok = input.numtok();
+	const XSwitchFlags flags(input.getfirsttok(1));
+	const UINT numtok = input.numtok();
 
 	if (numtok < 3) {
 		Dcx::error(TEXT("/dcxml"), TEXT("Insuffient parameters"));
@@ -62,8 +62,8 @@ mIRC(dcxml) {
 		}
 		TiXmlElement *popups = doc.FirstChildElement("dcxml")->FirstChildElement("popups");
 		TiXmlElement *popup = NULL;
-		const TString popupName(input.gettok(2));
-		const TString popupDataset(input.gettok(3));
+		const TString popupName(input.getnexttok());		// tok 2
+		const TString popupDataset(input.getnexttok( ));	// tok 3
 
 		if ((popupName == TEXT("mircbar")) || (popupName == TEXT("mirc")) || (popupName == TEXT("scriptpopup"))) {
 			Dcx::errorex(TEXT("/dcxml"), TEXT("Menu name TEXT('%s') is reserved."), popupName.to_chr());

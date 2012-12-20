@@ -120,7 +120,7 @@ void DcxImage::parseControlStyles( const TString &styles, LONG *Styles, LONG *Ex
 
 void DcxImage::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) const
 {
-	const TString prop(input.gettok( 3 ));
+	const TString prop(input.getfirsttok( 3 ));
 
 	// [NAME] [ID] [PROP]
 	if ( prop == TEXT("fname")) {
@@ -212,14 +212,14 @@ bool DcxImage::LoadGDIPlusImage(const TString &flags, TString &filename) {
  */
 
 void DcxImage::parseCommandRequest( const TString & input) {
-	const XSwitchFlags flags(input.gettok(3));
-	const int numtok = input.numtok( );
+	const XSwitchFlags flags(input.getfirsttok(3));
+	const unsigned int numtok = input.numtok( );
 
 	// xdid -w [NAME] [ID] [SWITCH] [+FLAGS] [INDEX] [SIZE] [FILENAME]
 	if (flags[TEXT('w')] && numtok > 6) {
-		const TString flag(input.gettok( 4 ));
-		const int index = input.gettok( 5 ).to_int();
-		const int size = input.gettok( 6 ).to_int();
+		const TString flag(input.getnexttok( ));		// tok 4
+		const int index = input.getnexttok( ).to_int();	// tok 5
+		const int size = input.getnexttok( ).to_int();	// tok 6
 		TString filename(input.gettok(7, -1).trim());
 
 		PreloadData();
@@ -246,7 +246,7 @@ void DcxImage::parseCommandRequest( const TString & input) {
 	}
 	//xdid -i [NAME] [ID] [SWITCH] [+FLAGS] [IMAGE]
 	else if (flags[TEXT('i')] && numtok > 4) {
-		const TString flag(input.gettok(4).trim());
+		const TString flag(input.getnexttok( ).trim());	// tok 4
 		TString filename(input.gettok(5, -1).trim());
 
 		PreloadData();
@@ -278,18 +278,18 @@ void DcxImage::parseCommandRequest( const TString & input) {
 	}
 	// xdid -k [NAME] [ID] [SWITCH] [COLOR]
 	else if (flags[TEXT('k')] && numtok > 3) {
-		this->m_clrTransColor = (COLORREF)input.gettok( 4 ).to_num();
+		this->m_clrTransColor = (COLORREF)input.getnexttok( ).to_num();	// tok 4
 		this->redrawWindow();
 	}
 	// xdid -o [NAME] [ID] [SWITCH] [XOFFSET] [YOFFSET]
 	else if (flags[TEXT('o')] && numtok > 4) {
-		this->m_iXOffset = input.gettok( 4 ).to_int();
-		this->m_iYOffset = input.gettok( 5 ).to_int();
+		this->m_iXOffset = input.getnexttok( ).to_int();	// tok 4
+		this->m_iYOffset = input.getnexttok( ).to_int();	// tok 5
 		this->redrawWindow();
 	}
 	// xdid -S [NAME] [ID] [SWITCH] [1|0]
 	else if (flags[TEXT('S')] && numtok > 3) {
-		if (input.gettok( 4 ).to_int() > 0)
+		if (input.getnexttok( ).to_int() > 0)	// tok 4
 			this->m_bResizeImage = true;
 		else
 			this->m_bResizeImage = false;

@@ -24,11 +24,11 @@ void TraverseChildren(const HTREEITEM hParent, TString &buf, TString &res, LPTVI
 				Dcx::mIRC.tsEvalex(res, TEXT("$xtreebar_callback(geticons,%s,%%dcx_%d)"), tsType.to_chr(), pitem->lParam);
 			}
 			pitem->mask = TVIF_IMAGE|TVIF_SELECTEDIMAGE;
-			int i = res.gettok( 1 ).to_int() -1;
+			int i = res.getfirsttok( 1 ).to_int() -1;
 			if (i < 0)
 				i = I_IMAGENONE; //0;
 			pitem->iImage = i;
-			i = res.gettok( 2 ).to_int() -1;
+			i = res.getnexttok( ).to_int() -1;
 			if (i < 0)
 				i = I_IMAGENONE; //0;
 			pitem->iSelectedImage = i;
@@ -59,11 +59,11 @@ void TraverseTreebarItems(void)
 				Dcx::mIRC.tsEvalex(res, TEXT("$xtreebar_callback(geticons,%s,%%dcx_%d)"), tsType.to_chr(), item.lParam);
 			}
 			item.mask = TVIF_IMAGE|TVIF_SELECTEDIMAGE;
-			int i = res.gettok( 1 ).to_int() -1;
+			int i = res.getfirsttok( 1 ).to_int() -1;
 			if (i < 0)
 				i = I_IMAGENONE; //0;
 			item.iImage = i;
-			i = res.gettok( 2 ).to_int() -1;
+			i = res.getnexttok( ).to_int() -1;
 			if (i < 0)
 				i = I_IMAGENONE; //0;
 			item.iSelectedImage = i;
@@ -87,7 +87,7 @@ mIRC(xtreebar) {
 		return 0;
 	}
 
-	const TString switches(input.gettok(1));
+	const TString switches(input.getfirsttok( 1 ));
 
 	if (switches[0] != TEXT('-')) {
 		Dcx::error(TEXT("/xtreebar"), TEXT("Invalid Switch"));
@@ -143,7 +143,7 @@ mIRC(xtreebar) {
 				};
 				for (int i = 2; i <= numtok; i++)
 				{
-					switch (treebar_styles.findtok(input.gettok(i).to_chr(),1))
+					switch (treebar_styles.findtok(input.getnexttok( ).to_chr(),1))
 					{
 					case TS_TRACK: // trackselect (off by default)
 						stylef |= TVS_TRACKSELECT;
@@ -278,8 +278,8 @@ mIRC(xtreebar) {
 					Dcx::error(TEXT("/xtreebar -c"), TEXT("Invalid Colour Args"));
 					return 0;
 				}
-				const TString cflag(input.gettok(2));
-				const COLORREF clr = (COLORREF)input.gettok(3).to_num();
+				const TString cflag(input.getnexttok( ));
+				const COLORREF clr = (COLORREF)input.getnexttok( ).to_num();
 
 				if (cflag[0] != TEXT('+')) {
 					Dcx::error(TEXT("/xtreebar -c"),TEXT("Invalid Colour flag"));
@@ -342,7 +342,7 @@ mIRC(xtreebar) {
 					Dcx::error(TEXT("/xtreebar -w"), TEXT("No Valid TreeView Image List"));
 					return 0;
 				}
-				const TString tsIndex(input.gettok(2));
+				const TString tsIndex(input.getnexttok( ));
 				if (tsIndex == TEXT("clear")) { // no images.
 					HIMAGELIST o = TreeView_SetImageList(Dcx::mIRC.getTreeview(),NULL,TVSIL_NORMAL);
 					if (o != NULL && o != Dcx::mIRC.getTreeImages())
@@ -368,8 +368,8 @@ mIRC(xtreebar) {
 					}
 					if (himl != NULL) {
 						int iIndex = tsIndex.to_int() -1;
-						const int fIndex = input.gettok(4).to_int(), iCnt = ImageList_GetImageCount(himl) -1;
-						const TString cflag(input.gettok(3).trim());
+						const TString cflag(input.getnexttok( ).trim());
+						const int fIndex = input.getnexttok( ).to_int(), iCnt = ImageList_GetImageCount(himl) -1;
 						TString filename(input.gettok(5,-1).trim());
 
 						// check index is within range.
@@ -407,7 +407,7 @@ mIRC(xtreebar) {
 			break;
 		case TEXT('T'): // [1|0]
 			{ // Take over Treebar drawing
-				DcxDock::g_bTakeOverTreebar = (input.gettok( 2 ).to_int() ? true : false);
+				DcxDock::g_bTakeOverTreebar = (input.getnexttok( ).to_int() ? true : false);
 				if (DcxDock::g_bTakeOverTreebar) {
 					if (Dcx::mIRC.isAlias(TEXT("xtreebar_callback")))
 						TraverseTreebarItems();
@@ -439,9 +439,9 @@ mIRC(_xtreebar)
 		ret(TEXT("D_ERROR Invalid Args: An Index & a Prop are required."));
 
 	static const TString poslist(TEXT("item icons"));
-	const int nType = poslist.findtok(d.gettok( 2 ).to_chr(),1);
+	const int nType = poslist.findtok(d.getfirsttok( 2 ).to_chr(),1);
 	const int cnt = TreeView_GetCount(Dcx::mIRC.getTreeview());
-	int index = d.gettok( 3 ).to_int();
+	int index = d.getnexttok( ).to_int();
 
 	if (index > cnt)
 		ret(TEXT("D_ERROR Invalid Item Index"));

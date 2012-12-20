@@ -125,37 +125,72 @@ void DcxEdit::toXml(TiXmlElement * xml) const
 */
 void DcxEdit::parseControlStyles( const TString &styles, LONG *Styles, LONG *ExStyles, BOOL *bNoTheme)
 {
-	const UINT numtok = styles.numtok( );
+	//const UINT numtok = styles.numtok( );
 
-	for (UINT i = 1; i <= numtok; i++)
+	//styles.getfirsttok( 0 );
+
+	//for (UINT i = 1; i <= numtok; i++)
+	//{
+	//	const TString tsStyle(styles.getnexttok( ));	// tok i
+
+	//	if (tsStyle == TEXT("multi")) 
+	//		*Styles |= ES_MULTILINE;
+	//	else if (tsStyle == TEXT("center"))
+	//		*Styles |= ES_CENTER;
+	//	else if (tsStyle == TEXT("right"))
+	//		*Styles |= ES_RIGHT;
+	//	else if (tsStyle == TEXT("autohs"))
+	//		*Styles |= ES_AUTOHSCROLL;
+	//	else if (tsStyle == TEXT("autovs"))
+	//		*Styles |= ES_AUTOVSCROLL;
+	//	else if (tsStyle == TEXT("vsbar"))
+	//		*Styles |= WS_VSCROLL;
+	//	else if (tsStyle == TEXT("hsbar"))
+	//		*Styles |= WS_HSCROLL;
+	//	else if (tsStyle == TEXT("lowercase"))
+	//		*Styles |= ES_LOWERCASE;
+	//	else if (tsStyle == TEXT("number"))
+	//		*Styles |= ES_NUMBER;
+	//	else if (tsStyle == TEXT("password"))
+	//		*Styles |= ES_PASSWORD;
+	//	else if (tsStyle == TEXT("uppercase"))
+	//		*Styles |= ES_UPPERCASE;
+	//	else if (tsStyle == TEXT("return"))
+	//		*Styles |= ES_WANTRETURN;
+	//	else if (tsStyle == TEXT("readonly"))
+	//		*Styles |= ES_READONLY;
+	//	else if (tsStyle == TEXT("showsel"))
+	//		*Styles |= ES_NOHIDESEL;
+	//}
+	for (TString tsStyle(styles.getfirsttok( 1 )); tsStyle != ""; tsStyle = styles.getnexttok( ))
 	{
-		if (styles.gettok( i ) == TEXT("multi")) 
+		if (tsStyle == TEXT("multi")) 
 			*Styles |= ES_MULTILINE;
-		else if (styles.gettok( i ) == TEXT("center"))
+		else if (tsStyle == TEXT("center"))
 			*Styles |= ES_CENTER;
-		else if (styles.gettok( i ) == TEXT("right"))
+		else if (tsStyle == TEXT("right"))
 			*Styles |= ES_RIGHT;
-		else if (styles.gettok( i ) == TEXT("autohs"))
+		else if (tsStyle == TEXT("autohs"))
 			*Styles |= ES_AUTOHSCROLL;
-		else if (styles.gettok( i ) == TEXT("autovs"))
+		else if (tsStyle == TEXT("autovs"))
 			*Styles |= ES_AUTOVSCROLL;
-		else if (styles.gettok( i ) == TEXT("vsbar"))
+		else if (tsStyle == TEXT("vsbar"))
 			*Styles |= WS_VSCROLL;
-		else if (styles.gettok( i ) == TEXT("hsbar"))
+		else if (tsStyle == TEXT("hsbar"))
 			*Styles |= WS_HSCROLL;
-		else if (styles.gettok( i ) == TEXT("lowercase"))
+		else if (tsStyle == TEXT("lowercase"))
 			*Styles |= ES_LOWERCASE;
-		else if (styles.gettok( i ) == TEXT("number"))
+		else if (tsStyle == TEXT("number"))
 			*Styles |= ES_NUMBER;
-		else if (styles.gettok( i ) == TEXT("password"))
+		else if (tsStyle == TEXT("password"))
 			*Styles |= ES_PASSWORD;
-		else if (styles.gettok( i ) == TEXT("uppercase"))
+		else if (tsStyle == TEXT("uppercase"))
 			*Styles |= ES_UPPERCASE;
-		else if (styles.gettok( i ) == TEXT("return"))
+		else if (tsStyle == TEXT("return"))
 			*Styles |= ES_WANTRETURN;
-		else if (styles.gettok( i ) == TEXT("readonly"))
+		else if (tsStyle == TEXT("readonly"))
 			*Styles |= ES_READONLY;
-		else if (styles.gettok( i ) == TEXT("showsel"))
+		else if (tsStyle == TEXT("showsel"))
 			*Styles |= ES_NOHIDESEL;
 	}
 
@@ -174,13 +209,13 @@ void DcxEdit::parseInfoRequest( const TString &input, PTCHAR szReturnValue) cons
 {
 	const unsigned int numtok = input.numtok( );
 
-	const TString prop(input.gettok( 3 ));
+	const TString prop(input.getfirsttok( 3 ));
 
 	// [NAME] [ID] [PROP] [N]
 	if (prop == TEXT("text")) {
 		if (this->isStyle(ES_MULTILINE)) {
 			if (numtok > 3) {
-				const int nLine = input.gettok( 4 ).to_int();
+				const int nLine = input.getnexttok( ).to_int();	// tok 4
 
 				if (nLine > 0 && nLine <= this->m_tsText.numtok(TEXT("\r\n"))) {
 					lstrcpyn(szReturnValue, this->m_tsText.gettok(nLine, TEXT("\r\n")).to_chr(), MIRC_BUFFER_SIZE_CCH);
@@ -288,8 +323,8 @@ void DcxEdit::parseInfoRequest( const TString &input, PTCHAR szReturnValue) cons
 * blah
 */
 void DcxEdit::parseCommandRequest( const TString &input) {
-	const XSwitchFlags flags(input.gettok(3));
-	const int numtok = input.numtok( );
+	const XSwitchFlags flags(input.getfirsttok( 3 ));
+	const unsigned int numtok = input.numtok( );
 
 	// xdid -r [NAME] [ID] [SWITCH]
 	if (flags[TEXT('r')]) {
@@ -309,7 +344,7 @@ void DcxEdit::parseCommandRequest( const TString &input) {
 	// xdid -d [NAME] [ID] [SWITCH] [N]
 	else if (flags[TEXT('d')] && numtok > 3) {
 		if (this->isStyle(ES_MULTILINE)) {
-			const int nLine = input.gettok( 4 ).to_int();
+			const int nLine = input.getnexttok( ).to_int();	// tok 4
 			this->m_tsText.deltok(nLine, TEXT("\r\n"));
 			SetWindowTextW(this->m_Hwnd, this->m_tsText.to_chr());
 		}
@@ -317,7 +352,7 @@ void DcxEdit::parseCommandRequest( const TString &input) {
 	// xdid -i [NAME] [ID] [SWITCH] [N] [TEXT]
 	else if (flags[TEXT('i')] && numtok > 4) {
 		if (this->isStyle(ES_MULTILINE)) {
-			const int nLine = input.gettok( 4 ).to_int();
+			const int nLine = input.getnexttok( ).to_int();	// tok 4
 			this->m_tsText.instok(input.gettok(5, -1).to_chr(), nLine, TEXT("\r\n"));
 		}
 		else
@@ -326,7 +361,7 @@ void DcxEdit::parseCommandRequest( const TString &input) {
 	}
 	// xdid -j [NAME] [ID] [SWITCH] [0|1]
 	else if (flags[TEXT('j')] && numtok > 3) {
-		const int i = input.gettok( 4 ).to_int();
+		const int i = input.getnexttok( ).to_int();	// tok 4
 
 		if (i) {
 			this->addStyle(ES_PASSWORD);
@@ -348,14 +383,14 @@ void DcxEdit::parseCommandRequest( const TString &input) {
 	}
    // xdid -l [NAME] [ID] [SWITCH] [ON|OFF]
    else if (flags[TEXT('l')] && numtok > 3) {
-      const BOOL enabled = (input.gettok(4).to_int() > 0 ? TRUE : FALSE);
+      const BOOL enabled = (input.getnexttok( ).to_int() > 0 ? TRUE : FALSE);	// tok 4
 
       SendMessage(this->m_Hwnd, EM_SETREADONLY, enabled, NULL);
    }
 	// xdid -o [NAME] [ID] [SWITCH] [N] [TEXT]
 	else if (flags[TEXT('o')] && numtok > 3) {
 		if (this->isStyle(ES_MULTILINE)) {
-			const int nLine = input.gettok( 4 ).to_int();
+			const int nLine = input.getnexttok( ).to_int();	// tok 4
 			this->m_tsText.puttok(input.gettok(5, -1).to_chr(), nLine, TEXT("\r\n"));
 		}
 		else
@@ -368,7 +403,7 @@ void DcxEdit::parseCommandRequest( const TString &input) {
 	}
 	// xdid -q [NAME] [ID] [SWITCH] [SIZE]
 	else if (flags[TEXT('q')] && numtok > 3) {
-		const int N = input.gettok( 4 ).to_int();
+		const int N = input.getnexttok( ).to_int();	// tok 4
 
 		if (N > -1)
 			Edit_LimitText(this->m_Hwnd, N);
@@ -399,11 +434,11 @@ void DcxEdit::parseCommandRequest( const TString &input) {
 	}
 	// xdid -S [NAME] [ID] [SWITCH] [START] [END]
 	else if (flags[TEXT('S')] && numtok > 3) {
-		const int istart = input.gettok( 4 ).to_int();
+		const int istart = input.getnexttok( ).to_int();	// tok 4
 		int iend;
 		
 		if (numtok > 4)
-			iend = input.gettok( 5 ).to_int();
+			iend = input.getnexttok( ).to_int();	// tok 5
 		else
 			iend = istart;
 
@@ -417,7 +452,7 @@ void DcxEdit::parseCommandRequest( const TString &input) {
 	}
 	// xdid -y [NAME] [ID] [SWITCH] [0|1]
 	else if (flags[TEXT('y')] && numtok > 3) {
-		const int state = input.gettok(4).to_int();
+		const int state = input.getnexttok( ).to_int();	// tok 4
 
 		this->m_bIgnoreRepeat = (state > 0 ? TRUE : FALSE);
 	}

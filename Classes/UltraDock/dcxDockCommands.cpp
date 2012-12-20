@@ -279,7 +279,7 @@ mIRC(xdock) {
 		return 0;
 	}
 
-	const TString switches(input.gettok( 1 ));
+	const TString switches(input.getfirsttok( 1 ));
 
 	// update mirc
 	// /xdock -p
@@ -294,12 +294,14 @@ mIRC(xdock) {
 		return 0;
 	}
 
+	HWND dockHwnd = (HWND) input.getnexttok( ).to_num();
+
 	// show/hide switchbar
 	// [-S] [1|0]
 	if ((switches[1] == TEXT('S')) && (numtok == 2)) {
-		if ((input.gettok( 2 ).to_int() > 0) && !IsWindowVisible(Dcx::mIRC.getSwitchbar()))
+		if ((dockHwnd > 0) && !IsWindowVisible(Dcx::mIRC.getSwitchbar()))
 			SendMessage(mIRCWnd, WM_COMMAND, (WPARAM) MAKEWPARAM(112,0), 0);
-		else if ((input.gettok( 2 ).to_int() == 0) && IsWindowVisible(Dcx::mIRC.getSwitchbar()))
+		else if ((dockHwnd == 0) && IsWindowVisible(Dcx::mIRC.getSwitchbar()))
 			SendMessage(mIRCWnd, WM_COMMAND, (WPARAM) MAKEWPARAM(112,0), 0);
 
 		return 1;
@@ -307,9 +309,9 @@ mIRC(xdock) {
 	// show/hide toolbar
 	// [-T] [1|0]
 	else if ((switches[1] == TEXT('T')) && (numtok == 2)) {
-		if ((input.gettok( 2 ).to_int() > 0) && (!IsWindowVisible(Dcx::mIRC.getToolbar())))
+		if ((dockHwnd > 0) && (!IsWindowVisible(Dcx::mIRC.getToolbar())))
 			SendMessage(mIRCWnd, WM_COMMAND, (WPARAM) MAKEWPARAM(111,0), 0);
-		else if ((input.gettok( 2 ).to_int() == 0) && (IsWindowVisible(Dcx::mIRC.getToolbar())))
+		else if ((dockHwnd == 0) && (IsWindowVisible(Dcx::mIRC.getToolbar())))
 			SendMessage(mIRCWnd, WM_COMMAND, (WPARAM) MAKEWPARAM(111,0), 0);
 
 		return 1;
@@ -317,9 +319,9 @@ mIRC(xdock) {
 	// show/hide treebar
 	// [-R] [1|0]
 	else if ((switches[1] == TEXT('R')) && (numtok == 2)) {
-		if ((input.gettok( 2 ).to_int() > 0) && (!IsWindowVisible(Dcx::mIRC.getTreebar())))
+		if ((dockHwnd > 0) && (!IsWindowVisible(Dcx::mIRC.getTreebar())))
 			SendMessage(mIRCWnd, WM_COMMAND, (WPARAM) MAKEWPARAM(210,0), 0);
-		else if ((input.gettok( 2 ).to_int() == 0) && (IsWindowVisible(Dcx::mIRC.getTreebar())))
+		else if ((dockHwnd == 0) && (IsWindowVisible(Dcx::mIRC.getTreebar())))
 			SendMessage(mIRCWnd, WM_COMMAND, (WPARAM) MAKEWPARAM(210,0), 0);
 
 		return 1;
@@ -327,22 +329,20 @@ mIRC(xdock) {
 	// show/hide menubar
 	// [-M] [1|0]
 	else if ((switches[1] == TEXT('M')) && (numtok == 2)) {
-		if ((input.gettok( 2 ).to_int() > 0) && (!GetMenu(mIRCWnd)))
+		if ((dockHwnd > 0) && (!GetMenu(mIRCWnd)))
 			SendMessage(mIRCWnd, WM_COMMAND, (WPARAM) MAKEWPARAM(110,0), 0);
-		else if ((input.gettok( 2 ).to_int() == 0) && (GetMenu(mIRCWnd)))
+		else if ((dockHwnd == 0) && (GetMenu(mIRCWnd)))
 			SendMessage(mIRCWnd, WM_COMMAND, (WPARAM) MAKEWPARAM(110,0), 0);
 
 		return 1;
 	}
-
-	HWND dockHwnd = (HWND) input.gettok( 2 ).to_num();
 
 	if (!IsWindow(dockHwnd)) {
 		Dcx::error(TEXT("/xdock"),TEXT("Invalid Window to dock"));
 		return 0;
 	}
 
-	const TString flags(input.gettok( 3 ));
+	const TString flags(input.getnexttok( ));
 
 	if ((numtok > 2) && (flags[0] != TEXT('+'))) {
 		Dcx::error(TEXT("/xdock"),TEXT("Invalid flag format"));
@@ -362,7 +362,7 @@ mIRC(xdock) {
 	// dock to nicklist/sidelistbox
 	// [-n] [hwnd to dock] [+options] [hwnd to dock with]
 	else if ((switches[1] == TEXT('n')) && (numtok > 3)) {
-		mWnd = (HWND) input.gettok( 4 ).to_num();
+		mWnd = (HWND) input.getnexttok( ).to_num();
 
 		if (IsWindow(mWnd))
 			DockWindow(mWnd, dockHwnd, TEXT("ListBox"), flags);
@@ -374,7 +374,7 @@ mIRC(xdock) {
 	//dock to custom/channel/query/status
 	// [-c] [hwnd to dock] [+options] [hwnd to dock with]
 	else if ((switches[1] == TEXT('c')) && (numtok > 3)) {
-		mWnd = (HWND) input.gettok( 4 ).to_num();
+		mWnd = (HWND) input.getnexttok( ).to_num();
 
 		if (IsWindow(mWnd))
 			DockWindow(mWnd, dockHwnd, NULL, flags);
@@ -409,8 +409,8 @@ mIRC(xdock) {
 	// resize docked window
 	// [-r] [hwnd to dock] [+options] [W] [H]
 	else if ((switches[1] == TEXT('r')) && (numtok > 4)) {
-		const int w = input.gettok( 4 ).to_int();
-		const int h = input.gettok( 5 ).to_int();
+		const int w = input.getnexttok( ).to_int();
+		const int h = input.getnexttok( ).to_int();
 
 		LPDCXULTRADOCK ud = GetUltraDock(dockHwnd);
 		DWORD dflags = 0;
@@ -486,9 +486,9 @@ mIRC(_xdock)
 		ret(TEXT("D_ERR: Invalid xdock arguments"));
 	}
 
-	if (d.gettok( 1 ) == TEXT("mIRC")) {
+	if (d.getfirsttok( 1 ) == TEXT("mIRC")) {
 		static const TString poslist(TEXT("switchBarPos toolBarPos treeBarPos switchBarSize toolBarSize treeBarSize isSwitchBar isToolBar isTreeBar isMenuBar text switchBarHwnd toolBarHwnd treeBarHwnd"));
-		const int nType = poslist.findtok(d.gettok( 2 ).to_chr(),1);
+		const int nType = poslist.findtok(d.getnexttok( ).to_chr(),1);
 		switch (nType)
 		{
 		case 1: // switchBarPos
@@ -603,11 +603,11 @@ mIRC(_xdock)
 		}
 	}
 	else {
-		HWND hwnd = (HWND)d.gettok( 1 ).to_num();
+		HWND hwnd = (HWND)d.getfirsttok( 1 ).to_num();
 
 		if (IsWindow(hwnd)) {
 			static const TString poslist(TEXT("isDocked hasDocked isAutoV isAutoH isAutoS dockSide text"));
-			const int nType = poslist.findtok(d.gettok( 2 ).to_chr(),1);
+			const int nType = poslist.findtok(d.getnexttok( ).to_chr(),1);
 			switch (nType)
 			{
 			case 1: // isDocked

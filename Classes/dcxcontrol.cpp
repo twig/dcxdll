@@ -142,33 +142,64 @@ DcxControl::~DcxControl( ) {
 
 void DcxControl::parseGeneralControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme )
 {
-	const UINT numtok = styles.numtok( );
+	//const UINT numtok = styles.numtok( );
 
 	*Styles |= WS_CLIPCHILDREN | WS_VISIBLE;
 
-	for (UINT i = 1; i <= numtok; i++ )
+	//styles.getfirsttok( 0 );
+
+	//for (UINT i = 1; i <= numtok; i++ )
+	//{
+	//	const TString tsStyle(styles.getnexttok( )); // tok i
+
+	//	if ( tsStyle == TEXT("notheme") )
+	//		*bNoTheme = TRUE;
+	//	else if ( tsStyle == TEXT("tabstop") )
+	//		*Styles |= WS_TABSTOP;
+	//	else if ( tsStyle == TEXT("group") )
+	//		*Styles |= WS_GROUP;
+	//	else if ( tsStyle == TEXT("disabled") )
+	//		*Styles |= WS_DISABLED;
+	//	else if ( tsStyle == TEXT("transparent") )
+	//		*ExStyles |= WS_EX_TRANSPARENT;
+	//	else if ( tsStyle == TEXT("hidden") )
+	//		*Styles &= ~WS_VISIBLE;
+	//	else if ( tsStyle == TEXT("alpha") )
+	//		this->m_bAlphaBlend = true;
+	//	else if ( tsStyle == TEXT("shadow") )
+	//		this->m_bShadowText = true;
+	//	else if ( tsStyle == TEXT("noformat") )
+	//		this->m_bCtrlCodeText = false;
+	//	else if ( tsStyle == TEXT("hgradient") )
+	//		this->m_bGradientFill = true;
+	//	else if ( tsStyle == TEXT("vgradient") ) {
+	//		this->m_bGradientFill = true;
+	//		this->m_bGradientVertical = TRUE;
+	//	}
+	//}
+	for (TString tsStyle(styles.getfirsttok( 1 )); tsStyle != TEXT(""); tsStyle = styles.getnexttok( ))
 	{
-		if ( styles.gettok( i ) == TEXT("notheme") )
+		if ( tsStyle == TEXT("notheme") )
 			*bNoTheme = TRUE;
-		else if ( styles.gettok( i ) == TEXT("tabstop") )
+		else if ( tsStyle == TEXT("tabstop") )
 			*Styles |= WS_TABSTOP;
-		else if ( styles.gettok( i ) == TEXT("group") )
+		else if ( tsStyle == TEXT("group") )
 			*Styles |= WS_GROUP;
-		else if ( styles.gettok( i ) == TEXT("disabled") )
+		else if ( tsStyle == TEXT("disabled") )
 			*Styles |= WS_DISABLED;
-		else if ( styles.gettok( i ) == TEXT("transparent") )
+		else if ( tsStyle == TEXT("transparent") )
 			*ExStyles |= WS_EX_TRANSPARENT;
-		else if ( styles.gettok( i ) == TEXT("hidden") )
+		else if ( tsStyle == TEXT("hidden") )
 			*Styles &= ~WS_VISIBLE;
-		else if ( styles.gettok( i ) == TEXT("alpha") )
+		else if ( tsStyle == TEXT("alpha") )
 			this->m_bAlphaBlend = true;
-		else if (( styles.gettok( i ) == TEXT("shadow") ))
+		else if ( tsStyle == TEXT("shadow") )
 			this->m_bShadowText = true;
-		else if (( styles.gettok( i ) == TEXT("noformat") ))
+		else if ( tsStyle == TEXT("noformat") )
 			this->m_bCtrlCodeText = false;
-		else if ( styles.gettok( i ) == TEXT("hgradient") )
+		else if ( tsStyle == TEXT("hgradient") )
 			this->m_bGradientFill = true;
-		else if ( styles.gettok( i ) == TEXT("vgradient") ) {
+		else if ( tsStyle == TEXT("vgradient") ) {
 			this->m_bGradientFill = true;
 			this->m_bGradientVertical = TRUE;
 		}
@@ -223,7 +254,7 @@ bool DcxControl::execAliasEx( const TCHAR * szFormat, ... ) {
  */
 
 void DcxControl::parseGlobalCommandRequest( const TString & input, const XSwitchFlags & flags ) {
-	const int numtok = input.numtok( );
+	const unsigned int numtok = input.numtok( );
 
 	// xdid -f [NAME] [ID] [SWITCH] [+FLAGS] [CHARSET] [SIZE] [FONTNAME]
 	if ( flags[TEXT('f')] && numtok > 3 ) {
@@ -239,10 +270,10 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, const XSwitch
 	// xdid -p [NAME] [ID] [SWITCH] [X] [Y] [W] [H]
 	else if ( flags[TEXT('p')] && numtok > 6 ) {
 
-		const int x = input.gettok( 4 ).to_int( );
-		const int y = input.gettok( 5 ).to_int( );
-		const int w = input.gettok( 6 ).to_int( );
-		const int h = input.gettok( 7 ).to_int( );
+		const int x = input.getfirsttok( 4 ).to_int( );
+		const int y = input.getnexttok( ).to_int( );	// tok 5
+		const int w = input.getnexttok( ).to_int( );	// tok 6
+		const int h = input.getnexttok( ).to_int( );	// tok 7
 
 		MoveWindow( this->m_Hwnd, x, y, w, h, TRUE );
 		//this->InvalidateParentRect( this->m_Hwnd);
@@ -269,8 +300,8 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, const XSwitch
 	}
 	// xdid -C [NAME] [ID] [SWITCH] [+FLAGS] [COLOR]
 	else if ( flags[TEXT('C')] && numtok > 4 ) {
-		const UINT iFlags = this->parseColorFlags( input.gettok( 4 ) );
-		const COLORREF clrColor = (COLORREF)input.gettok( 5 ).to_num( );
+		const UINT iFlags = this->parseColorFlags( input.getfirsttok( 4 ) );
+		const COLORREF clrColor = (COLORREF)input.getnexttok( ).to_num( );	// tok 5
 
 		if ( iFlags & DCC_BKGCOLOR ) {
 			if ( this->m_hBackBrush != NULL ) {
@@ -316,7 +347,7 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, const XSwitch
 	}
 	// xdid -J [NAME] [ID] [SWITCH] [+FLAGS] [CURSOR|FILENAME]
 	else if ( flags[TEXT('J')] && numtok > 4 ) {
-		const UINT iFlags = this->parseCursorFlags( input.gettok( 4 ) );
+		const UINT iFlags = this->parseCursorFlags( input.getfirsttok( 4 ) );
 		HCURSOR hCursor = NULL;
 
 		if ( this->m_bCursorFromFile )
@@ -324,7 +355,7 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, const XSwitch
 		this->m_hCursor = NULL;
 		this->m_bCursorFromFile = FALSE;
 		if ( iFlags & DCCS_FROMRESSOURCE )
-			this->m_hCursor = LoadCursor( NULL, this->parseCursorType( input.gettok( 5 ) ) );
+			this->m_hCursor = LoadCursor( NULL, this->parseCursorType( input.getnexttok( ) ) );	// tok 5
 		else if ( iFlags & DCCS_FROMFILE ) {
 			TString filename(input.gettok( 5, -1 ));
 			if (IsFile(filename)) {
@@ -358,7 +389,7 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, const XSwitch
 	// xdid -Z [NAME] [ID] [SWITCH] [%]
 	else if ( flags[TEXT('Z')] && numtok > 3 ) {
 
-		const int perc = input.gettok( 4 ).to_int( );
+		const int perc = input.getfirsttok( 4 ).to_int( );
 
 		if ( perc >= 0 || perc <= 100 ) {
 
@@ -408,7 +439,7 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, const XSwitch
 		if (numtok > 4) {
 			AnimateWindow(this->m_Hwnd,
 				input.gettok(5).to_int(),
-				(AW_ACTIVATE | DcxDialog::getAnimateStyles(input.gettok(4))) & ~AW_HIDE);
+				(AW_ACTIVATE | DcxDialog::getAnimateStyles(input.gettok( 4 ))) & ~AW_HIDE);
 		}
 		else
 			ShowWindow(this->m_Hwnd, SW_SHOW);
@@ -443,7 +474,7 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, const XSwitch
 	}
 	// xdid -R [NAME] [ID] [SWITCH] [FLAG] [ARGS]
 	else if (flags[TEXT('R')] && numtok > 3) {
-		const XSwitchFlags xflags(input.gettok( 4 ));
+		const XSwitchFlags xflags(input.getfirsttok( 4 ));
 
 		if (!xflags[TEXT('+')]) {
 			this->showError(NULL, TEXT("-R"), TEXT("Invalid Flag"));
@@ -472,7 +503,7 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, const XSwitch
 				return;
 			}
 
-			const COLORREF tCol = (COLORREF)input.gettok( 5 ).to_num();
+			const COLORREF tCol = (COLORREF)input.getnexttok( ).to_num();	// tok 5
 			TString filename(input.gettok(6,-1));
 			HBITMAP m_bitmapBg = dcxLoadBitmap(NULL,filename);
 
@@ -491,7 +522,7 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, const XSwitch
 			int radius;
 
 			if (numtok > 4)
-				radius = input.gettok( 5 ).to_int();
+				radius = input.getnexttok( ).to_int();	// tok 5
 			else
 				radius = 20;
 
@@ -500,7 +531,7 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, const XSwitch
 		else if (xflags[TEXT('c')]) // circle - radius arg (optional)
 		{
 			if (numtok > 4) {
-				int radius = input.gettok( 5 ).to_int();
+				int radius = input.getnexttok( ).to_int();	// tok 5
 				if (radius < 1)
 					radius = 100; // handle cases where arg isnt a number or is a negative.
 				const int cx = ((rc.right - rc.left)/2);
@@ -529,11 +560,13 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, const XSwitch
 
 			POINT *pnts = new POINT[tPoints];
 
+			strPoints.getfirsttok( 0 );
+
 			for (int cnt = 1; cnt <= tPoints; cnt++)
 			{
-				strPoint = strPoints.gettok( cnt );
-				pnts[cnt-1].x = (LONG)strPoint.gettok(1, TSCOMMA).to_num();
-				pnts[cnt-1].y = (LONG)strPoint.gettok(2, TSCOMMA).to_num();
+				strPoint = strPoints.getnexttok( );	// tok cnt
+				pnts[cnt-1].x = (LONG)strPoint.getfirsttok(1, TSCOMMA).to_num();
+				pnts[cnt-1].y = (LONG)strPoint.getnexttok( TSCOMMA ).to_num();	// tok 2
 			}
 
 			m_Region = CreatePolygonRgn(pnts,tPoints,WINDING);
@@ -570,12 +603,12 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, const XSwitch
 				this->showError(NULL, TEXT("-R +b"), TEXT("Invalid Args"));
 				return;
 			}
-			if (input.gettok( 5 ).to_int() > 0)
+			if (input.getnexttok( ).to_int() > 0)	// tok 5
 				this->m_bAlphaBlend = true;
 			else
 				this->m_bAlphaBlend = false;
 
-			const BYTE alpha = (BYTE)(input.gettok( 6 ).to_int() & 0xFF);
+			const BYTE alpha = (BYTE)(input.getnexttok( ).to_int() & 0xFF);	// tok 6
 
 			if (alpha == 255)
 				this->m_bAlphaBlend = false;
@@ -787,7 +820,7 @@ PTCHAR DcxControl::parseCursorType( const TString & cursor ) {
 
 BOOL DcxControl::parseGlobalInfoRequest( const TString & input, TCHAR * szReturnValue ) const
 {
-	const TString prop(input.gettok( 3 ));
+	const TString prop(input.getfirsttok( 3 ));
 
 	if ( prop == TEXT("hwnd") ) {
 		wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), this->m_Hwnd );
@@ -1001,13 +1034,21 @@ LRESULT CALLBACK DcxControl::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LP
 
 DcxControl * DcxControl::controlFactory( DcxDialog * p_Dialog, const UINT mID, const TString & tsInput, unsigned int offset, const UINT64 mask, HWND hParent ) {
 
-	const TString type(tsInput.gettok( offset++ ));
+	//const TString type(tsInput.gettok( offset++ ));
+
+	//RECT rc;
+	//rc.left = (LONG)tsInput.gettok( offset++ ).to_num( );
+	//rc.top = (LONG)tsInput.gettok( offset++ ).to_num( );
+	//rc.right = rc.left + (LONG)tsInput.gettok( offset++ ).to_num( );
+	//rc.bottom = rc.top + (LONG)tsInput.gettok( offset ).to_num( );
+	const TString type(tsInput.getfirsttok( offset ));
 
 	RECT rc;
-	rc.left = (LONG)tsInput.gettok( offset++ ).to_num( );
-	rc.top = (LONG)tsInput.gettok( offset++ ).to_num( );
-	rc.right = rc.left + (LONG)tsInput.gettok( offset++ ).to_num( );
-	rc.bottom = rc.top + (LONG)tsInput.gettok( offset ).to_num( );
+	rc.left = (LONG)tsInput.getnexttok( ).to_num( );
+	rc.top = (LONG)tsInput.getnexttok( ).to_num( );
+	rc.right = rc.left + (LONG)tsInput.getnexttok( ).to_num( );
+	rc.bottom = rc.top + (LONG)tsInput.getnexttok( ).to_num( );
+	offset += 4;
 
 	TString styles;
 	if ( tsInput.numtok( ) > offset )

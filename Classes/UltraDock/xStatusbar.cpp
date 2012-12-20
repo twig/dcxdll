@@ -13,13 +13,13 @@ mIRC(xstatusbar) {
 	input.trim();
 	data[0] = 0;
 
-	const int numtok = input.numtok( );
+	const unsigned int numtok = input.numtok( );
 
 	if (numtok < 1) {
 		Dcx::error(TEXT("/xstatusbar"),TEXT("Invalid Parameters"));
 		return 0;
 	}
-	const TString switches(input.gettok(1));
+	const TString switches(input.getfirsttok(1));
 
 	switch (switches[1]) {
 		case TEXT('A'): // -A [0|1] (options)=notheme grip tooltips nodivider utf8
@@ -31,7 +31,7 @@ mIRC(xstatusbar) {
 				}
 				// Enable/Disable the Statusbar.
 				// -A [0|1] [options] = notheme grip tooltips nodivider utf8
-				if (input.gettok(2).to_int() > 0) {
+				if (input.getnexttok( ).to_int() > 0) {
 					if (!DcxDock::InitStatusbar(input.gettok(3,-1))) {
 						Dcx::error(TEXT("/xstatusbar -A"),TEXT("Unable to Create Statusbar"));
 						return 0;
@@ -66,7 +66,7 @@ mIRC(xstatusbar) {
 					return 0;
 				}
 
-				const int col = input.gettok( 2 ).to_int();
+				const int col = input.getnexttok( ).to_int();
 
 				if (col < 0)
 					DcxDock::status_setBkColor((COLORREF) CLR_DEFAULT);
@@ -82,12 +82,12 @@ mIRC(xstatusbar) {
 					return 0;
 				}
 
-				const int nParts = numtok - 1;
+				const UINT nParts = numtok - 1;
 				INT parts[256];
 
 				int c = 0, t = 0;
 				TString p;
-				for (int i = 0; i < nParts; i++ )
+				for (UINT i = 0; i < nParts; i++ )
 				{
 					if (c >= 100) {
 						Dcx::error(TEXT("/xstatusbar -l"),TEXT("Can't Allocate Over 100% of Statusbar!"));
@@ -111,23 +111,25 @@ mIRC(xstatusbar) {
 				DcxDock::status_updateParts();
 			}
 			break;
-		case TEXT('t'): // -t N [+FLAGS] [#ICON] (Cell Text)([TAB]Tooltip Text) : set part
+		case TEXT('t'): // -t N [+FLAGS] [#ICON] [BKGCOLOR] [TXTCOLOR] (Cell Text)([TAB]Tooltip Text) : set part
 			{
 				// check syntax (text can be blank)
-				if (numtok < 4) {
+				if (numtok < 6) {
 					Dcx::error(TEXT("/xstatusbar -t"),TEXT("Invalid Parameters"));
 					return 0;
 				}
 
-				const int nPos = (input.gettok( 2 ).to_int( ) - 1);
-				const TString flags(input.gettok( 3 ));
-				const int icon = (input.gettok( 4 ).to_int( ) - 1);
+				const int nPos = (input.getnexttok( ).to_int( ) - 1);
+				const TString flags(input.getnexttok( ));
+				const int icon = (input.getnexttok( ).to_int( ) - 1);
+				const COLORREF bkgClr = (COLORREF)input.getnexttok( ).to_int();
+				const COLORREF txtClr = (COLORREF)input.getnexttok( ).to_int();
 				const UINT iFlags = DcxDock::status_parseItemFlags( flags );
 
 				TString itemtext;
 
-				if ( input.gettok( 1, TSTAB ).numtok( ) > 4 )
-					itemtext = input.gettok( 1, TSTAB ).gettok( 5, -1).trim();
+				if ( input.gettok( 1, TSTAB ).numtok( ) > 6 )
+					itemtext = input.gettok( 1, TSTAB ).gettok( 7, -1).trim();
 
 				TString tooltip;
 
@@ -149,6 +151,14 @@ mIRC(xstatusbar) {
 					pPart->m_Child = NULL;
 					pPart->m_iIcon = icon;
 					pPart->m_Text = itemtext;
+					pPart->m_TxtCol = CLR_INVALID;
+					pPart->m_BkgCol = NULL;
+
+					if (bkgClr != CLR_INVALID)
+						pPart->m_BkgCol = CreateSolidBrush(bkgClr);
+					if (txtClr != CLR_INVALID)
+						pPart->m_TxtCol = txtClr;
+
 					DcxDock::status_setTipText( nPos, tooltip.to_chr() );
 					DcxDock::status_setPartInfo( nPos, iFlags, pPart );
 				}
@@ -160,28 +170,39 @@ mIRC(xstatusbar) {
 				}
 			}
 			break;
-		case TEXT('v'): // -v [N] (TEXT) : set parts text
+		case TEXT('v'): // -v [N] [BKGCOLOR] [TXTCOLOR] (TEXT) : set parts text
 			{
 				// check syntax (text can be blank)
-				if (numtok < 2) {
+				if (numtok < 4) {
 					Dcx::error(TEXT("/xstatusbar -v"),TEXT("Invalid Parameters"));
 					return 0;
 				}
 
-				const int nPos = (input.gettok( 2 ).to_int( ) - 1);
+				const int nPos = (input.getnexttok( ).to_int( ) - 1);
 
 				if ( nPos > -1 && nPos < DcxDock::status_getParts( 256, 0 ) ) {
 
 					TString itemtext;
-					if ( numtok > 2 )
-						itemtext = input.gettok( 3, -1 );
+
+					const COLORREF bkgClr = (COLORREF)input.getnexttok( ).to_int();
+					const COLORREF txtClr = (COLORREF)input.getnexttok( ).to_int();
+
+					if ( numtok > 4 )
+						itemtext = input.gettok( 5, -1 );
 
 					const UINT iFlags = DcxDock::status_getPartFlags( nPos );
 
 					if (iFlags & SBT_OWNERDRAW) {
 						LPSB_PARTINFO pPart = (LPSB_PARTINFO)DcxDock::status_getText(nPos, NULL);
 						if (pPart != NULL) {
+							if (pPart->m_BkgCol != NULL)
+								DeleteBrush(pPart->m_BkgCol);
+
 							pPart->m_Text = itemtext;
+							if (bkgClr != CLR_INVALID)
+								pPart->m_BkgCol = CreateSolidBrush(bkgClr);
+							pPart->m_TxtCol = txtClr;
+
 							DcxDock::status_setPartInfo( nPos, iFlags, pPart );
 						}
 						else {
@@ -212,8 +233,8 @@ mIRC(xstatusbar) {
 				}
 
 				HIMAGELIST himl = DcxDock::status_getImageList();
-				const TString flags(input.gettok( 2 ));
-				const int index = input.gettok( 3 ).to_int();
+				const TString flags(input.getnexttok( ));
+				const int index = input.getnexttok( ).to_int();
 				TString filename(input.gettok( 4, -1));
 
 				if (himl == NULL) {
@@ -262,7 +283,7 @@ mIRC(_xstatusbar)
 	data[0] = 0;
 
 	static const TString poslist(TEXT("visible text parts tooltip"));
-	const int nType = poslist.findtok(d.gettok( 2 ).to_chr(),1);
+	const int nType = poslist.findtok(d.getfirsttok( 2 ).to_chr(),1);
 	switch (nType)
 	{
 	case 1: // visible
@@ -275,7 +296,7 @@ mIRC(_xstatusbar)
 		break;
 	case 2: // text
 		{
-			const int iPart = (d.gettok( 3 ).to_int( ) -1), nParts = (int)DcxDock::status_getParts( 256, 0 );
+			const int iPart = (d.getnexttok( ).to_int( ) -1), nParts = (int)DcxDock::status_getParts( 256, 0 );
 
 			if ( iPart > -1 && iPart < nParts ) {
 				const UINT iFlags = DcxDock::status_getPartFlags( iPart );
@@ -316,7 +337,7 @@ mIRC(_xstatusbar)
 		break;
 	case 4: // tooltip
 		{
-			const int iPart = d.gettok( 3 ).to_int( ), nParts = (int)DcxDock::status_getParts( 256, 0 );
+			const int iPart = d.getnexttok( ).to_int( ), nParts = (int)DcxDock::status_getParts( 256, 0 );
 
 			if ( iPart > -1 && iPart < nParts )
 				DcxDock::status_getTipText( iPart, MIRC_BUFFER_SIZE_CCH, data );
