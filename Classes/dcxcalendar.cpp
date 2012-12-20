@@ -138,19 +138,32 @@ TString DcxCalendar::getValue(void) const
 
 void DcxCalendar::parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme)
 {
-	const UINT numtok = styles.numtok();
+	//const UINT numtok = styles.numtok();
 
-	for (UINT i = 1; i <= numtok; i++)
+	//for (UINT i = 1; i <= numtok; i++)
+	//{
+	//	if (styles.gettok(i) == TEXT("multi"))
+	//		*Styles |= MCS_MULTISELECT;
+	//	else if (styles.gettok(i) == TEXT("notoday"))
+	//		*Styles |= MCS_NOTODAY;
+	//	else if (styles.gettok(i) == TEXT("notodaycircle"))
+	//		*Styles |= MCS_NOTODAYCIRCLE;
+	//	else if (styles.gettok(i) == TEXT("weeknum"))
+	//		*Styles |= MCS_WEEKNUMBERS;
+	//	else if (styles.gettok(i) == TEXT("daystate"))
+	//		*Styles |= MCS_DAYSTATE;
+	//}
+	for (TString tsStyle(styles.getfirsttok( 1 )); tsStyle != TEXT(""); tsStyle = styles.getnexttok( ))
 	{
-		if (styles.gettok(i) == TEXT("multi"))
+		if (tsStyle == TEXT("multi"))
 			*Styles |= MCS_MULTISELECT;
-		else if (styles.gettok(i) == TEXT("notoday"))
+		else if (tsStyle == TEXT("notoday"))
 			*Styles |= MCS_NOTODAY;
-		else if (styles.gettok(i) == TEXT("notodaycircle"))
+		else if (tsStyle == TEXT("notodaycircle"))
 			*Styles |= MCS_NOTODAYCIRCLE;
-		else if (styles.gettok(i) == TEXT("weeknum"))
+		else if (tsStyle == TEXT("weeknum"))
 			*Styles |= MCS_WEEKNUMBERS;
-		else if (styles.gettok(i) == TEXT("daystate"))
+		else if (tsStyle == TEXT("daystate"))
 			*Styles |= MCS_DAYSTATE;
 	}
 
@@ -168,7 +181,7 @@ void DcxCalendar::parseControlStyles( const TString & styles, LONG * Styles, LON
 
 void DcxCalendar::parseInfoRequest(const TString &input, PTCHAR szReturnValue) const
 {
-	const TString prop(input.gettok( 3 ));
+	const TString prop(input.getfirsttok( 3 ));
 
 	// [NAME] [ID] [PROP]
 	if (prop == TEXT("value")) {
@@ -218,7 +231,7 @@ void DcxCalendar::parseInfoRequest(const TString &input, PTCHAR szReturnValue) c
  * blah
  */
 void DcxCalendar::parseCommandRequest( const TString &input) {
-	const XSwitchFlags flags(input.gettok(3));
+	const XSwitchFlags flags(input.getfirsttok( 3 ));
 
 //SetDayState
 
@@ -226,8 +239,8 @@ void DcxCalendar::parseCommandRequest( const TString &input) {
 
 	// xdid -k [NAME] [ID] [SWITCH] [+FLAGS] [$RGB]
 	if (flags[TEXT('k')] && numtok > 4) {
-		const XSwitchFlags xflags(input.gettok(4));
-		const COLORREF col = (COLORREF) input.gettok(5).to_int();
+		const XSwitchFlags xflags(input.getnexttok( ));	// tok 4
+		const COLORREF col = (COLORREF) input.getnexttok( ).to_int();	// tok 5
 
 		// Set the background color displayed between months.
 		if (xflags[TEXT('b')])
@@ -255,7 +268,7 @@ void DcxCalendar::parseCommandRequest( const TString &input) {
 	}
 	//xdid -m [NAME] [ID] [SWITCH] [MAX]
 	else if (flags[TEXT('m')] && numtok > 3) {
-		const int max = input.gettok(4).to_int();
+		const int max = input.getnexttok( ).to_int();	// tok 4
 
 		MonthCal_SetMaxSelCount(this->m_Hwnd, max);
 	}
@@ -266,13 +279,16 @@ void DcxCalendar::parseCommandRequest( const TString &input) {
 
 		ZeroMemory(range, sizeof(SYSTEMTIME) *2);
 
-		if (input.gettok(4) != TEXT("nolimit")) {
-			range[0] = MircTimeToSystemTime((long) input.gettok(4).to_num());
+		const TString tsMin(input.getnexttok( ));	// tok 4
+		const TString tsMax(input.getnexttok( ));	// tok 5
+
+		if (tsMin != TEXT("nolimit")) {
+			range[0] = MircTimeToSystemTime((long) tsMin.to_num());
 			dflags |= GDTR_MIN;
 		}
 
-		if (input.gettok(5) != TEXT("nolimit")) {
-			range[1] = MircTimeToSystemTime((long) input.gettok(5).to_num());
+		if (tsMax != TEXT("nolimit")) {
+			range[1] = MircTimeToSystemTime((long) tsMax.to_num());
 			dflags |= GDTR_MAX;
 		}
 
@@ -280,7 +296,7 @@ void DcxCalendar::parseCommandRequest( const TString &input) {
 	}
 	//xdid -s [NAME] [ID] [SWITCH] [MIN] (MAX)
 	else if (flags[TEXT('s')] && numtok > 3) {
-		const long min = (long) input.gettok(4).to_num();
+		const long min = (long) input.getnexttok( ).to_num();	// tok 4
 		long max = 0;
 		SYSTEMTIME range[2];
 
@@ -292,7 +308,7 @@ void DcxCalendar::parseCommandRequest( const TString &input) {
 			if (numtok < 5)
 				range[1] = range[0];
 			else {
-				max = (long) input.gettok(5).to_num();
+				max = (long) input.getnexttok( ).to_num();	// tok 5
 				range[1] = MircTimeToSystemTime(max);
 			}
 
@@ -304,7 +320,7 @@ void DcxCalendar::parseCommandRequest( const TString &input) {
 	}
 	//xdid -t [NAME] [ID] [SWITCH] [TIMESTAMP]
 	else if (flags[TEXT('t')] && numtok > 3) {
-		const long mircTime = (long) input.gettok(4).to_num();
+		const long mircTime = (long) input.getnexttok( ).to_num();	// tok 4
 		const SYSTEMTIME sysTime = MircTimeToSystemTime(mircTime);
 
 		MonthCal_SetToday(this->m_Hwnd, &sysTime);
@@ -340,10 +356,13 @@ LRESULT DcxCalendar::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 						mds[i] = (MONTHDAYSTATE) 0;
 
 						TString strDays(eval);
-						strDays.trim();
 
-						for (UINT x = 1; x <= strDays.numtok(TSCOMMA); x++)
-							BOLDDAY(mds[i], strDays.gettok(x, TSCOMMA).trim().to_int());
+						const UINT nTok = strDays.trim().numtok(TSCOMMA);
+
+						strDays.getfirsttok( 0, TSCOMMA);
+
+						for (UINT x = 1; x <= nTok; x++)
+							BOLDDAY(mds[i], strDays.getnexttok( TSCOMMA ).trim().to_int());
 
 						// increment the month so we get a proper offset
 						lpNMDayState->stStart.wMonth++;

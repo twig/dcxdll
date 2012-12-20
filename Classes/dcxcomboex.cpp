@@ -138,17 +138,27 @@ DcxComboEx::~DcxComboEx( ) {
 void DcxComboEx::parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme )
 {
 	//*ExStyles |= CBES_EX_NOSIZELIMIT;
-	const UINT numtok = styles.numtok( );
+	//const UINT numtok = styles.numtok( );
 
-	for (UINT i = 1; i <= numtok; i++)
+	//for (UINT i = 1; i <= numtok; i++)
+	//{
+	//	if ( styles.gettok( i ) == TEXT("simple") )
+	//		*Styles |= CBS_SIMPLE;
+	//	else if ( styles.gettok( i ) == TEXT("dropdown") )
+	//		*Styles |= CBS_DROPDOWNLIST;
+	//	else if ( styles.gettok( i ) == TEXT("dropedit") )
+	//		*Styles |= CBS_DROPDOWN;
+	//}
+	for (TString tsStyle(styles.getfirsttok( 1 )); tsStyle != ""; tsStyle = styles.getnexttok( ))
 	{
-		if ( styles.gettok( i ) == TEXT("simple") )
+		if ( tsStyle == TEXT("simple") )
 			*Styles |= CBS_SIMPLE;
-		else if ( styles.gettok( i ) == TEXT("dropdown") )
+		else if ( tsStyle == TEXT("dropdown") )
 			*Styles |= CBS_DROPDOWNLIST;
-		else if ( styles.gettok( i ) == TEXT("dropedit") )
+		else if ( tsStyle == TEXT("dropedit") )
 			*Styles |= CBS_DROPDOWN;
 	}
+
 	this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
 }
 
@@ -163,14 +173,14 @@ void DcxComboEx::parseControlStyles( const TString & styles, LONG * Styles, LONG
 
 void DcxComboEx::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) const
 {
-	const int numtok = input.numtok( );
+	const UINT numtok = input.numtok( );
 
-	const TString prop(input.gettok( 3 ));
+	const TString prop(input.getfirsttok( 3 ));
 
 	// [NAME] [ID] [PROP] [N]
 	if ( prop == TEXT("text") && numtok > 3 ) {
 
-		const int nItem = input.gettok( 4 ).to_int( ) - 1;
+		const int nItem = input.getnexttok( ).to_int( ) - 1;	// tok 4
 
 		if ( nItem > -1 ) {
 
@@ -230,19 +240,19 @@ void DcxComboEx::parseInfoRequest( const TString & input, PTCHAR szReturnValue )
 	// [NAME] [ID] [PROP] {TAB}[MATCHTEXT]{TAB} [T] [N]
 	else if ( prop == TEXT("find") && numtok > 5 ) {
 
-		const TString matchtext(input.gettok(2, TSTAB).trim());
-		const TString params(input.gettok(3, TSTAB).trim());
+		const TString matchtext(input.getfirsttok(2, TSTAB).trim());
+		const TString params(input.getnexttok( TSTAB).trim());	// tok 3
 
 		if ( matchtext.len( ) > 0 ) {
 
 			UINT SearchType;
 
-			if ( params.gettok( 1 ) == TEXT("R") )
+			if ( params.getfirsttok( 1 ) == TEXT("R") )
 				SearchType = CBEXSEARCH_R;
 			else
 				SearchType = CBEXSEARCH_W;
 
-			const int N = params.gettok( 2 ).to_int( );
+			const int N = params.getnexttok( ).to_int( );	// tok 2
 
 			const int nItems = this->getCount( );
 			int count = 0;
@@ -276,12 +286,25 @@ void DcxComboEx::parseInfoRequest( const TString & input, PTCHAR szReturnValue )
 		return;
 	}
 	// [NAME] [ID] [PROP] [ROW]
-	else if ( prop == TEXT("markeditem") && numtok == 3 ) {
+	else if ( prop == TEXT("markeditem") && numtok == 4 ) {
 
-		const int nItem = input.gettok( 4 ).to_int( ) - 1;
+		const int nItem = input.getnexttok( ).to_int( ) - 1;	// tok 4
 
-		if ( nItem > -1 && nItem < (int)m_vItemDataList.size())
-			lstrcpyn( szReturnValue,  m_vItemDataList.at( nItem ).tsMark.to_chr(), MIRC_BUFFER_SIZE_CCH );
+		COMBOBOXEXITEM cbi;
+		ZeroMemory( &cbi, sizeof( COMBOBOXEXITEM ) );
+
+		cbi.mask = CBEIF_LPARAM;
+		cbi.iItem = nItem;
+
+		this->getItem( &cbi );
+
+		LPDCXCBITEM mycbi = (LPDCXCBITEM)cbi.lParam;
+
+		if (mycbi != NULL) {
+			lstrcpyn(szReturnValue, mycbi->tsMark.to_chr(), MIRC_BUFFER_SIZE_CCH);
+			return;
+		}
+
 	}
 	else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
 		return;
@@ -296,7 +319,7 @@ void DcxComboEx::parseInfoRequest( const TString & input, PTCHAR szReturnValue )
 */
 
 void DcxComboEx::parseCommandRequest( const TString &input) {
-	const XSwitchFlags flags(input.gettok(3));
+	const XSwitchFlags flags(input.getfirsttok( 3 ));
 
 	const UINT numtok = input.numtok( );
 
@@ -306,12 +329,13 @@ void DcxComboEx::parseCommandRequest( const TString &input) {
 	}
 
 	// xdid -a [NAME] [ID] [SWITCH] [N] [INDENT] [ICON] [STATE] [OVERLAY] Item Text
+	// [NAME] [ID] -a [N] [INDENT] [ICON] [STATE] [OVERLAY] Item Text
 	if (flags[TEXT('a')] && numtok > 8) {
-		int nPos			= input.gettok( 4 ).to_int() -1;
-		const int indent	= input.gettok( 5 ).to_int();
-		const int icon		= input.gettok( 6 ).to_int() -1;
-		const int state		= input.gettok( 7 ).to_int() -1;
-		//int overlay = input.gettok( 8 ).to_int() - 1;
+		int nPos			= input.getnexttok( ).to_int() -1;	// tok 4
+		const int indent	= input.getnexttok( ).to_int();		// tok 5
+		const int icon		= input.getnexttok( ).to_int() -1;	// tok 6
+		const int state		= input.getnexttok( ).to_int() -1;	// tok 7
+		//int overlay = input.getnexttok( ).to_int() - 1;		// tok 8
 		const TString itemtext(input.gettok( 9, -1));
 
 		if (nPos == -2) {
@@ -325,18 +349,16 @@ void DcxComboEx::parseCommandRequest( const TString &input) {
 
 			ZeroMemory(&cbi, sizeof(COMBOBOXEXITEM));
 
-			cbi.mask = CBEIF_TEXT | CBEIF_INDENT | CBEIF_IMAGE | CBEIF_SELECTEDIMAGE;
+			cbi.mask = CBEIF_TEXT | CBEIF_INDENT | CBEIF_IMAGE | CBEIF_SELECTEDIMAGE | CBEIF_LPARAM;
 			cbi.iIndent = indent;
 			cbi.iImage = icon;
 			cbi.iSelectedImage = state;
 			//cbi.iOverlay = overlay;
 			cbi.pszText = itemtext.to_chr();
 			cbi.iItem = nPos;
-
-			DCXCBITEM mycbi;
+			cbi.lParam = (LPARAM)new DCXCBITEM;
 
 			nPos = this->insertItem(&cbi);
-			this->m_vItemDataList.insert(this->m_vItemDataList.begin() + nPos, (const DCXCBITEM)mycbi);
 
 			// Now update the horizontal scroller
 			HWND combo = (HWND)SendMessage(this->m_Hwnd, CBEM_GETCOMBOCONTROL, NULL, NULL);
@@ -368,15 +390,14 @@ void DcxComboEx::parseCommandRequest( const TString &input) {
 		}
 	}
 	// xdid -A [NAME] [ID] [ROW] [+FLAGS] [INFO]
+	// [NAME] [ID] -A [ROW] [+FLAGS] [INFO]
 	else if (flags[TEXT('A')]) {
-		const int n = input.numtok();
-
-		if (n < 5) {
+		if (numtok < 5) {
 			this->showErrorEx(NULL, TEXT("-A"), TEXT("Insufficient parameters"));
 			return;
 		}
 
-		int nRow = input.gettok(3).to_int();
+		int nRow = input.getnexttok( ).to_int();	// tok 4
 
 		// We're currently checking 1-based indexes.
 		if ((nRow < 1) || (nRow > this->getCount())) {
@@ -394,33 +415,36 @@ void DcxComboEx::parseCommandRequest( const TString &input) {
 		cbei.iItem = nRow;
 
 		// Couldnt retrieve info
-		if (!SendMessage(this->m_Hwnd, CBEM_GETITEM, NULL, (LPARAM)&cbei)) {
+		if (!this->getItem(&cbei)) {
 			this->showError(NULL, TEXT("-A"), TEXT("Unable to get item."));
 			return;
 		}
 
 		LPDCXCBITEM cbiDcx = (LPDCXCBITEM) cbei.lParam;
 
-		const XSwitchFlags xflags(input.gettok(6));
-		const TString info(input.gettok(7, -1));
+		if (cbiDcx != NULL) {
+			const XSwitchFlags xflags(input.getnexttok( ));	// tok 5
+			const TString info(input.gettok(6, -1));
 
-		if (xflags[TEXT('M')])
-			cbiDcx->tsMark = info;
+			if (xflags[TEXT('M')])
+				cbiDcx->tsMark = info;
+			else
+				this->showErrorEx(NULL, TEXT("-A"), TEXT("Unknown flags %s"), input.gettok( 5 ).to_chr());
+		}
 		else
-			this->showErrorEx(NULL, TEXT("-A"), TEXT("Unknown flags %s"), input.gettok(6).to_chr());
-
+			this->showError(NULL, TEXT("-A"), TEXT("Unable to get Item Info"));
 		return;
 	}
 	// xdid -c [NAME] [ID] [SWITCH] [N]
 	else if (flags[TEXT('c')] && numtok > 3) {
-		const int nItem = input.gettok( 4 ).to_int() -1;
+		const int nItem = input.getnexttok( ).to_int() -1;	// tok 4
 
 		if (nItem > -1)
 			this->setCurSel(nItem);
 	}
 	// xdid -d [NAME] [ID] [SWITCH] [N]
 	else if (flags[TEXT('d')] && numtok > 3) {
-		const int nItem = input.gettok( 4 ).to_int() -1;
+		const int nItem = input.getnexttok( ).to_int() -1;	// tok 4
 
 		if (nItem > -1 && nItem < this->getCount())
 			this->deleteItem(nItem);
@@ -439,8 +463,8 @@ void DcxComboEx::parseCommandRequest( const TString &input) {
 	}
 	// xdid -w [NAME] [ID] [SWITCH] [+FLAGS] [INDEX] [FILENAME]
 	else if (flags[TEXT('w')] && numtok > 5) {
-		const TString flag(input.gettok( 4 ));
-		const int index = input.gettok( 5 ).to_int();;
+		const TString flag(input.getnexttok( ));			// tok 4
+		const int index = input.getnexttok( ).to_int();;	// tok 5
 		TString filename(input.gettok(6, -1));
 
 		HIMAGELIST himl = this->getImageList();

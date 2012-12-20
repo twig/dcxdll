@@ -285,7 +285,7 @@ void XPopupMenuManager::parseCommand(const TString & input) {
 
 void XPopupMenuManager::parseCommand( const TString & input, XPopupMenu *p_Menu ) {
 	const XSwitchFlags flags(input.gettok(2));
-	const int numtok = input.numtok( );
+	const unsigned int numtok = input.numtok( );
 
 	// xpopup -b - [MENU] [SWITCH] [FILENAME]
 	if (flags[TEXT('b')]) {

@@ -185,6 +185,7 @@ public:
 
 	// Token Lib
 	void addtok( const TCHAR * cToken, const TCHAR * sepChars = SPACE );
+	void addtok( const __int64 nToken, const TCHAR * sepChars = SPACE );
 	//void addtok( const TString &cToken, const TCHAR * sepChars = SPACE );
 	void deltok( const unsigned int N, const TCHAR * sepChars = SPACE );
 	unsigned int findtok( const TCHAR * cToken, const unsigned int N, const TCHAR * sepChars = SPACE ) const;

@@ -95,7 +95,7 @@ void DcxColorCombo::parseInfoRequest( const TString & input, PTCHAR szReturnValu
 {
 	const UINT numtok = input.numtok( );
 
-	const TString prop(input.gettok( 3 ));
+	const TString prop(input.getfirsttok( 3 ));
 
 	// [NAME] [ID] [PROP]
 	if ( prop == TEXT("num") ) {
@@ -106,7 +106,7 @@ void DcxColorCombo::parseInfoRequest( const TString & input, PTCHAR szReturnValu
 	// [NAME] [ID] [PROP] [N]
 	else if ( prop == TEXT("color") && numtok > 3 ) {
 
-		const int nItem = input.gettok( 4 ).to_int( ) - 1;
+		const int nItem = input.getnexttok( ).to_int( ) - 1;	// tok 4
 
 		if ( nItem > -1 && nItem < this->getCount( ) ) {
 
@@ -141,8 +141,8 @@ void DcxColorCombo::parseInfoRequest( const TString & input, PTCHAR szReturnValu
  * blah
  */
 void DcxColorCombo::parseCommandRequest( const TString &input) {
-	const XSwitchFlags flags(input.gettok(3));
-	const int numtok = input.numtok( );
+	const XSwitchFlags flags(input.getfirsttok( 3 ));
+	const UINT numtok = input.numtok( );
 
 	// xdid -r [NAME] [ID] [SWITCH]
 	if (flags[TEXT('r')]) {
@@ -151,8 +151,8 @@ void DcxColorCombo::parseCommandRequest( const TString &input) {
 
 	// xdid -a [NAME] [ID] [SWITCH] [N] [RGB]
 	if (flags[TEXT('a')] && numtok > 4) {
-		int nItem = input.gettok(4).to_int() -1;
-		const COLORREF clrItem = (COLORREF)input.gettok( 5 ).to_num();
+		int nItem = input.getnexttok( ).to_int() -1;	// tok 4
+		const COLORREF clrItem = (COLORREF)input.getnexttok( ).to_num();	// tok 5
 
 		if (nItem >= this->getCount())
 			nItem = -1;
@@ -172,14 +172,14 @@ void DcxColorCombo::parseCommandRequest( const TString &input) {
 	}
 	// xdid -c [NAME] [ID] [SWITCH] [N]
 	else if (flags[TEXT('c')] && numtok > 3) {
-		const int nItem = input.gettok(4).to_int() -1;
+		const int nItem = input.getnexttok( ).to_int() -1;	// tok 4
 
 		if ((nItem > -2) && (nItem < this->getCount()))
 			this->setCurSel(nItem);
 	}
 	// xdid -d [NAME] [ID] [SWITCH] [N]
 	else if (flags[TEXT('d')] && numtok > 3) {
-		const int nItem = (int)input.gettok( 4 ).to_num() -1;
+		const int nItem = input.getnexttok( ).to_int() -1;	// tok 4
 
 		if (nItem > -1 && nItem < this->getCount()) {
 			this->deleteItem(nItem);
@@ -191,8 +191,8 @@ void DcxColorCombo::parseCommandRequest( const TString &input) {
 	}
 	// xdid -o [NAME] [ID] [SWITCH] [N] [RGB]
 	else if (flags[TEXT('o')] && numtok > 4) {
-		const int nItem = input.gettok( 4 ).to_int() -1;
-		const COLORREF clrItem = (COLORREF)input.gettok( 5 ).to_num();
+		const int nItem = input.getnexttok( ).to_int() -1;	// tok 4
+		const COLORREF clrItem = (COLORREF)input.getnexttok( ).to_num();	// tok 5
 
 		if (nItem > -1 && nItem < this->getCount()) {
 			LPDCXCCOMBOITEM lpdcxcci = (LPDCXCCOMBOITEM) this->getItemData(nItem);

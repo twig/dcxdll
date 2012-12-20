@@ -32,16 +32,16 @@ mIRC(TrayIcon) {
 	}
 
 	TString d(data);
-	d.trim();
-	int numtok = d.numtok( );
+
+	UINT numtok = d.trim().numtok( );
 
 	if (numtok < 2) {
 		Dcx::error(TEXT("/xtray"), TEXT("Insufficient parameters"));
 		return 0;
 	}
 
-	TString flags(d.gettok( 1 ));
-	int id = d.gettok( 2 ).to_int();
+	TString flags(d.getfirsttok( 1 ));
+	int id = d.getnexttok().to_int();	// tok 2
 
 	// create and edit can use the same function
 	if ((flags.find(TEXT('c'), 0) || flags.find(TEXT('e'), 0)) && numtok > 3) {
@@ -77,8 +77,8 @@ mIRC(TrayIcon) {
 		//Use a balloon ToolTip instead of a standard ToolTip. The szInfo, uTimeout, szInfoTitle, and dwInfoFlags members are valid.
 
 		// load the icon
-		TString iconFlags(d.gettok(3));
-		int index = d.gettok(4).to_int();
+		TString iconFlags(d.getnexttok( ));		// tok 3
+		int index = d.getnexttok( ).to_int();	// tok 4
 		TString filename(d.gettok(1, TSTAB).gettok(5, -1));
 
 		icon = dcxLoadIcon(index, filename, false, iconFlags);
@@ -102,8 +102,8 @@ mIRC(TrayIcon) {
 	else if (flags.find(TEXT('i'), 0) && (numtok > 4)) {
 		// set up info
 		HICON icon;
-		int index = d.gettok(4).to_int();
-		TString iconFlags = d.gettok(3);
+		TString iconFlags(d.getnexttok( ));	// tok 3
+		int index = d.getnexttok( ).to_int();	// tok 4
 		TString filename(d.gettok(5, -1).trim());
 
 		// TODO: twig
@@ -174,8 +174,10 @@ DcxTrayIcon::~DcxTrayIcon(void)
 			itStart++;
 		}
 
+		ids.getfirsttok( 0 );
+
 		for (unsigned int i = 1; i <= ids.numtok( ); i++) {
-			this->modifyIcon(ids.gettok( i ).to_int(), NIM_DELETE);
+			this->modifyIcon(ids.getnexttok( ).to_int(), NIM_DELETE);	// tok i
 		}
 
 		SetWindowLongPtr(this->m_hwnd, GWLP_WNDPROC, (LONG_PTR) this->m_wndProc);

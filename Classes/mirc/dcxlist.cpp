@@ -134,36 +134,65 @@ TString DcxList::getStyles(void) const
 
 void DcxList::parseControlStyles( const TString &styles, LONG *Styles, LONG *ExStyles, BOOL *bNoTheme)
 {
-	const UINT numtok = styles.numtok();
 	*Styles |= LBS_NOTIFY | LBS_HASSTRINGS | LBS_OWNERDRAWFIXED;
+	//const UINT numtok = styles.numtok();
 
-	for (UINT i = 1; i <= numtok; i++)
+	//for (UINT i = 1; i <= numtok; i++)
+	//{
+	//	if (styles.gettok(i) == TEXT("noscroll"))
+	//		*Styles |= LBS_DISABLENOSCROLL;
+	//	else if (styles.gettok(i) == TEXT("multi"))
+	//		*Styles |= LBS_MULTIPLESEL;
+	//	else if (styles.gettok(i) == TEXT("extsel"))
+	//		*Styles |= LBS_EXTENDEDSEL;
+	//	else if (styles.gettok(i) == TEXT("nointegral"))
+	//		*Styles |= LBS_NOINTEGRALHEIGHT;
+	//	else if (styles.gettok(i) == TEXT("nosel"))
+	//		*Styles |= LBS_NOSEL;
+	//	else if (styles.gettok(i) == TEXT("sort"))
+	//		*Styles |= LBS_SORT;
+	//	else if (styles.gettok(i) == TEXT("tabs"))
+	//		*Styles |= LBS_USETABSTOPS;
+	//	else if (styles.gettok(i) == TEXT("multicol"))
+	//		*Styles |= LBS_MULTICOLUMN;
+	//	else if (styles.gettok(i) == TEXT("vsbar"))
+	//		*Styles |= WS_VSCROLL;
+	//	else if (styles.gettok(i) == TEXT("hsbar"))
+	//		*Styles |= WS_HSCROLL;
+	//	else if (styles.gettok(i) == TEXT("dragline"))
+	//		this->m_bUseDrawInsert = FALSE;
+	//	else if (styles.gettok(i) == TEXT("noformat")) // dont remove from here
+	//		*Styles &= ~LBS_OWNERDRAWFIXED;
+	//	//else if (styles.gettok(i) == TEXT("shadow")) // looks crap
+	//	//	this->m_bShadowText = true;
+	//}
+	for (TString tsStyle(styles.getfirsttok( 1 )); tsStyle != ""; tsStyle = styles.getnexttok( ))
 	{
-		if (styles.gettok(i) == TEXT("noscroll"))
+		if (tsStyle == TEXT("noscroll"))
 			*Styles |= LBS_DISABLENOSCROLL;
-		else if (styles.gettok(i) == TEXT("multi"))
+		else if (tsStyle == TEXT("multi"))
 			*Styles |= LBS_MULTIPLESEL;
-		else if (styles.gettok(i) == TEXT("extsel"))
+		else if (tsStyle == TEXT("extsel"))
 			*Styles |= LBS_EXTENDEDSEL;
-		else if (styles.gettok(i) == TEXT("nointegral"))
+		else if (tsStyle == TEXT("nointegral"))
 			*Styles |= LBS_NOINTEGRALHEIGHT;
-		else if (styles.gettok(i) == TEXT("nosel"))
+		else if (tsStyle == TEXT("nosel"))
 			*Styles |= LBS_NOSEL;
-		else if (styles.gettok(i) == TEXT("sort"))
+		else if (tsStyle == TEXT("sort"))
 			*Styles |= LBS_SORT;
-		else if (styles.gettok(i) == TEXT("tabs"))
+		else if (tsStyle == TEXT("tabs"))
 			*Styles |= LBS_USETABSTOPS;
-		else if (styles.gettok(i) == TEXT("multicol"))
+		else if (tsStyle == TEXT("multicol"))
 			*Styles |= LBS_MULTICOLUMN;
-		else if (styles.gettok(i) == TEXT("vsbar"))
+		else if (tsStyle == TEXT("vsbar"))
 			*Styles |= WS_VSCROLL;
-		else if (styles.gettok(i) == TEXT("hsbar"))
+		else if (tsStyle == TEXT("hsbar"))
 			*Styles |= WS_HSCROLL;
-		else if (styles.gettok(i) == TEXT("dragline"))
+		else if (tsStyle == TEXT("dragline"))
 			this->m_bUseDrawInsert = FALSE;
-		else if (styles.gettok(i) == TEXT("noformat")) // dont remove from here
+		else if (tsStyle == TEXT("noformat")) // dont remove from here
 			*Styles &= ~LBS_OWNERDRAWFIXED;
-		//else if (styles.gettok(i) == TEXT("shadow")) // looks crap
+		//else if (tsStyle == TEXT("shadow")) // looks crap
 		//	this->m_bShadowText = true;
 	}
 
@@ -183,11 +212,11 @@ void DcxList::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) co
 {
 	const UINT numtok = input.numtok( );
 
-	const TString prop(input.gettok( 3 ));
+	const TString prop(input.getfirsttok( 3 ));
 
 	// [NAME] [ID] [PROP] [N]
 	if ( prop == TEXT("text") && numtok > 3 ) {
-		const int nSel = input.gettok( 4 ).to_int( ) - 1;
+		const int nSel = input.getnexttok( ).to_int( ) - 1;	// tok 4
 		if ( nSel > -1 && nSel < ListBox_GetCount( this->m_Hwnd ) ) {
 			const int l = ListBox_GetTextLen(this->m_Hwnd, nSel);
 			if (l != LB_ERR && l < MIRC_BUFFER_SIZE_CCH)
@@ -209,7 +238,7 @@ void DcxList::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) co
 
 				// get a unique value
 				if (numtok > 3) {
-					const int i = (input.gettok( 4 ).to_int() -1);
+					const int i = (input.getnexttok( ).to_int() -1);	// tok 4
 
 					if ((i >= 0) && (i < n))
 						nSel = p[i];
@@ -252,7 +281,7 @@ void DcxList::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) co
 
 				// get a unique value
 				if (numtok > 3) {
-					const int i = input.gettok( 4 ).to_int();
+					const int i = input.getnexttok( ).to_int();	// tok 4
 					TString value;
 
 					if (i == 0) {
@@ -271,11 +300,7 @@ void DcxList::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) co
 
 					for (int i = 0; i < n; i++)
 					{
-#ifdef VS2005
-						_itow(p[i] +1, num, 10);
-#else
-						itow(p[i] +1, num, 10);
-#endif // VS2005
+						dcx_itoa(p[i] +1, num, 10);
 						path.addtok(num, TSCOMMA);
 					}
 
@@ -311,19 +336,19 @@ void DcxList::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) co
 	}
 	// [NAME] [ID] [PROP] {TAB}[MATCHTEXT]{TAB} [T] [N]
 	else if ( prop == TEXT("find") && numtok > 5 ) {
-		const TString matchtext(input.gettok(2, TSTAB).trim());
-		const TString params(input.gettok(3, TSTAB).trim());
+		const TString matchtext(input.getfirsttok(2, TSTAB).trim());
+		const TString params(input.getnexttok( TSTAB).trim());	// tok 3
 
 		if ( matchtext.len( ) > 0 ) {
 
 			UINT SearchType;
 
-			if ( params.gettok( 1 ) == TEXT("R") )
+			if ( params.getfirsttok( 1 ) == TEXT("R") )
 				SearchType = LBSEARCH_R;
 			else
 				SearchType = LBSEARCH_W;
 
-			const int N = params.gettok( 2 ).to_int( );
+			const int N = params.getnexttok( ).to_int( );	// tok 2
 
 			// count total
 			if ( N == 0 ) {
@@ -375,8 +400,8 @@ void DcxList::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) co
  */
 
 void DcxList::parseCommandRequest( const TString & input ) {
-	const XSwitchFlags flags(input.gettok(3));
-	const int numtok = input.numtok( );
+	const XSwitchFlags flags(input.getfirsttok( 3 ));
+	const unsigned int numtok = input.numtok( );
 
 	//xdid -r [NAME] [ID] [SWITCH]
 	if (flags[TEXT('r')]) {
@@ -386,7 +411,7 @@ void DcxList::parseCommandRequest( const TString & input ) {
 	//xdid -a [NAME] [ID] [SWITCH] [N] [TEXT]
 	if ( flags[TEXT('a')] && numtok > 4 ) {
 
-		int nPos = input.gettok( 4 ).to_int( ) - 1;
+		int nPos = input.getnexttok( ).to_int( ) - 1;	// tok 4
 
 		if ( nPos == -1 )
 			nPos = ListBox_GetCount( this->m_Hwnd );
@@ -396,12 +421,12 @@ void DcxList::parseCommandRequest( const TString & input ) {
 	//xdid -A [NAME] [ID] [SWITCH] [N] [+FLAGS] [TEXT]
 	else if ( flags[TEXT('A')] && numtok > 5 ) {
 
-		int nPos = input.gettok( 4 ).to_int( ) - 1;
+		int nPos = input.getnexttok( ).to_int( ) - 1;	// tok 4
 
 		if ( nPos == -1 )
 			nPos = ListBox_GetCount( this->m_Hwnd );
 
-		const TString opts(input.gettok( 5 ));
+		const TString opts(input.getnexttok( ));	// tok 5
 		TString itemtext(input.gettok(6, -1).trim());
 		int nMaxStrlen = 0;
 		TString tsRes;
@@ -438,9 +463,9 @@ void DcxList::parseCommandRequest( const TString & input ) {
 		case TEXT('t'): // [TEXT] == [table] [startN] [endN]
 			{
 				if (itemtext.numtok() == 3) { // add contents of a hash table to list
-					const TString htable(itemtext.gettok( 1 ));
-					int startN = itemtext.gettok( 2 ).to_int();
-					int endN = itemtext.gettok( 3 ).to_int();
+					const TString htable(itemtext.getfirsttok( 1 ));
+					int startN = itemtext.getnexttok( ).to_int();	// tok 2
+					int endN = itemtext.getnexttok( ).to_int();		// tok 3
 
 					// get total items in table.
 					Dcx::mIRC.tsEvalex(tsRes, TEXT("$hget(%s,0).item"), htable.to_chr());
@@ -493,8 +518,8 @@ void DcxList::parseCommandRequest( const TString & input ) {
 		case TEXT('f'): // [TEXT] == [startN] [endN] [filename]
 			{
 				if (itemtext.numtok() > 2) { // add contents of a file to list
-					int startN = itemtext.gettok( 1 ).to_int();
-					int endN = itemtext.gettok( 2 ).to_int();
+					int startN = itemtext.getfirsttok( 1 ).to_int();
+					int endN = itemtext.getnexttok( ).to_int();	// tok 2
 					TString filename(itemtext.gettok( 3, -1));
 
 					if (IsFile(filename)) {
@@ -504,7 +529,7 @@ void DcxList::parseCommandRequest( const TString & input ) {
 							delete [] buf;
 							TCHAR *tok = TEXT("\r\n");
 
-							int max_lines = contents.numtok(tok);
+							UINT max_lines = contents.numtok(tok);
 							if (max_lines == 1) {
 								tok = TEXT("\n");
 								max_lines = contents.numtok(tok);
@@ -562,7 +587,7 @@ void DcxList::parseCommandRequest( const TString & input ) {
 			{
 				if (itemtext.numtok() > 1) { // add tokens to list
 					TCHAR tok[2];
-					tok[0] = (TCHAR)itemtext.gettok(1).to_int();
+					tok[0] = (TCHAR)itemtext.gettok( 1 ).to_int();
 					tok[1] = 0;
 					const TString contents(itemtext.gettok(2,-1));
 
@@ -570,8 +595,10 @@ void DcxList::parseCommandRequest( const TString & input ) {
 
 					this->setRedraw(FALSE);
 
+					contents.getfirsttok( 0, tok );
+
 					for (UINT i = 1; i <= iNumtok; i++) {
-						itemtext = contents.gettok( i, tok);
+						itemtext = contents.getnexttok( tok);
 						ListBox_InsertString( this->m_Hwnd, nPos++, itemtext.to_chr() );
 						const int len = itemtext.len();
 						if (len > nMaxStrlen)
@@ -624,13 +651,15 @@ void DcxList::parseCommandRequest( const TString & input ) {
 
 		if ( this->isStyle( LBS_MULTIPLESEL ) || this->isStyle( LBS_EXTENDEDSEL ) ) {
 
-			const TString Ns(input.gettok( 4 ));
+			const TString Ns(input.getnexttok( ));	// tok 4
 
 			const UINT n = Ns.numtok( TSCOMMA );
 
+			Ns.getfirsttok( 0, TSCOMMA );
+
 			for (UINT i = 1; i <= n; i++ )
 			{
-				int nSel = (Ns.gettok( i, TSCOMMA ).to_int( ) - 1);
+				int nSel = (Ns.getnexttok( TSCOMMA ).to_int( ) - 1);	// tok i
 
 				if (nSel == -1)
 					nSel = nItems -1;
@@ -641,7 +670,7 @@ void DcxList::parseCommandRequest( const TString & input ) {
 		}
 		else {
 
-			int nSel = (input.gettok( 4 ).to_int( ) - 1);
+			int nSel = (input.getnexttok( ).to_int( ) - 1);	// tok 4
 
 			if (nSel == -1)
 				nSel = nItems -1;
@@ -653,7 +682,7 @@ void DcxList::parseCommandRequest( const TString & input ) {
 	//xdid -d [NAME] [ID] [SWITCH] [N]
 	else if ( flags[TEXT('d')] && numtok > 3 ) {
 
-		int nPos = (input.gettok( 4 ).to_int( ) - 1);
+		int nPos = (input.getnexttok( ).to_int( ) - 1);	// tok 4
 
 		if (nPos == -1)
 			nPos = ListBox_GetCount( this->m_Hwnd ) -1;
@@ -675,12 +704,12 @@ void DcxList::parseCommandRequest( const TString & input ) {
 	}
 	//xdid -m [NAME] [ID] [SWITCH] [+FLAGS] [N](,[N]...)
 	else if ( flags[TEXT('m')] && numtok > 4 ) {
-		const XSwitchFlags xflags(input.gettok( 4 ));
+		const XSwitchFlags xflags(input.getnexttok( ));	// tok 4
 
 		if (xflags[TEXT('w')])
-			ListBox_SetColumnWidth( this->m_Hwnd, input.gettok( 5 ).to_int( ));
+			ListBox_SetColumnWidth( this->m_Hwnd, input.getnexttok( ).to_int( ));	// tok 5
 		else if (xflags[TEXT('t')]) {
-			const TString Ns(input.gettok( 5 ));
+			const TString Ns(input.getnexttok( ));	// tok 5
 
 			const UINT n = Ns.numtok( TSCOMMA );
 
@@ -694,8 +723,10 @@ void DcxList::parseCommandRequest( const TString & input ) {
 			else {
 				int *tabs = new int[n];
 
-				for (UINT i = 1; i <= n; i++ )
-					tabs[i-1] = Ns.gettok( i, TSCOMMA).to_int();
+				Ns.getfirsttok( 0, TSCOMMA );
+
+				for (UINT i = 0; i < n; i++ )
+					tabs[i] = Ns.getnexttok( TSCOMMA).to_int();	// tok i
 
 				ListBox_SetTabStops( this->m_Hwnd, n, tabs);
 				delete [] tabs;
@@ -706,7 +737,7 @@ void DcxList::parseCommandRequest( const TString & input ) {
 	}
 	//xdid -o [NAME] [ID] [N] [TEXT]
 	else if ( flags[TEXT('o')] ) {
-		int nPos = input.gettok( 4 ).to_int() - 1;
+		int nPos = input.getnexttok( ).to_int() - 1;	// tok 4
 
 		if (nPos == -1)
 			nPos = ListBox_GetCount( this->m_Hwnd ) -1;

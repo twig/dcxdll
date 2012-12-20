@@ -110,23 +110,40 @@ TString DcxDateTime::getStyles(void) const
  */
 void DcxDateTime::parseControlStyles( const TString &styles, LONG *Styles, LONG *ExStyles, BOOL *bNoTheme)
 {
-	const UINT numtok = styles.numtok();
+	//const UINT numtok = styles.numtok();
 
-	for (UINT i = 1; i <= numtok; i++)
+	//for (UINT i = 1; i <= numtok; i++)
+	//{
+	//	if (styles.gettok(i) == TEXT("longdateformat"))
+	//		*Styles |= DTS_LONGDATEFORMAT;
+	//	else if (styles.gettok(i) == TEXT("shortdateformat"))
+	//		*Styles |= DTS_SHORTDATEFORMAT;
+	//	else if (styles.gettok(i) == TEXT("shortdatecenturyformat"))
+	//		*Styles |= DTS_SHORTDATECENTURYFORMAT;
+	//	else if (styles.gettok(i) == TEXT("timeformat"))
+	//		*Styles |= DTS_TIMEFORMAT;
+	//	else if (styles.gettok(i) == TEXT("right"))
+	//		*Styles |= DTS_RIGHTALIGN;
+	//	else if (styles.gettok(i) == TEXT("shownone"))
+	//		*Styles |= DTS_SHOWNONE;
+	//	else if (styles.gettok(i) == TEXT("updown"))
+	//		*Styles |= DTS_UPDOWN;
+	//}
+	for (TString tsStyle(styles.getfirsttok( 1 )); tsStyle != ""; tsStyle = styles.getnexttok( ))
 	{
-		if (styles.gettok(i) == TEXT("longdateformat"))
+		if (tsStyle == TEXT("longdateformat"))
 			*Styles |= DTS_LONGDATEFORMAT;
-		else if (styles.gettok(i) == TEXT("shortdateformat"))
+		else if (tsStyle == TEXT("shortdateformat"))
 			*Styles |= DTS_SHORTDATEFORMAT;
-		else if (styles.gettok(i) == TEXT("shortdatecenturyformat"))
+		else if (tsStyle == TEXT("shortdatecenturyformat"))
 			*Styles |= DTS_SHORTDATECENTURYFORMAT;
-		else if (styles.gettok(i) == TEXT("timeformat"))
+		else if (tsStyle == TEXT("timeformat"))
 			*Styles |= DTS_TIMEFORMAT;
-		else if (styles.gettok(i) == TEXT("right"))
+		else if (tsStyle == TEXT("right"))
 			*Styles |= DTS_RIGHTALIGN;
-		else if (styles.gettok(i) == TEXT("shownone"))
+		else if (tsStyle == TEXT("shownone"))
 			*Styles |= DTS_SHOWNONE;
-		else if (styles.gettok(i) == TEXT("updown"))
+		else if (tsStyle == TEXT("updown"))
 			*Styles |= DTS_UPDOWN;
 	}
 

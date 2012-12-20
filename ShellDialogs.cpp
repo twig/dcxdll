@@ -25,7 +25,7 @@ mIRC(ColorDialog) {
 	BOOL retDefault = FALSE;
 	CHOOSECOLOR	cc;
 	static COLORREF clr[16];
-	const COLORREF	sel = (COLORREF) d.gettok(1).to_num();
+	const COLORREF	sel = (COLORREF) d.getfirsttok(1).to_num();
 	DWORD			styles = CC_RGBINIT;
 
 	ZeroMemory(&cc, sizeof(CHOOSECOLOR));
@@ -34,21 +34,19 @@ mIRC(ColorDialog) {
 	cc.lStructSize = sizeof(CHOOSECOLOR);
 	cc.hwndOwner = mWnd;
 
-	if (d.numtok() > 1) {
-		for (unsigned int i = 1; i <= d.numtok(); i++) {
-			if (d.gettok(i) == TEXT("anycolor"))
-				styles |= CC_ANYCOLOR;
-			else if (d.gettok(i) == TEXT("fullopen"))
-				styles |= CC_FULLOPEN;
-			else if (d.gettok(i) == TEXT("nofullopen"))
-				styles |= CC_PREVENTFULLOPEN;
-			else if (d.gettok(i) == TEXT("solidonly"))
-				styles |= CC_SOLIDCOLOR;
-			else if (d.gettok(i) == TEXT("owner"))
-				cc.hwndOwner = FindOwner(d, mWnd);
-			else if (d.gettok(i) == TEXT("returndefault"))
-				retDefault = TRUE;
-		}
+	for (TString tsStyle(d.getnexttok( )); tsStyle != TEXT(""); tsStyle = d.getnexttok( )) {
+		if (tsStyle == TEXT("anycolor"))
+			styles |= CC_ANYCOLOR;
+		else if (tsStyle == TEXT("fullopen"))
+			styles |= CC_FULLOPEN;
+		else if (tsStyle == TEXT("nofullopen"))
+			styles |= CC_PREVENTFULLOPEN;
+		else if (tsStyle == TEXT("solidonly"))
+			styles |= CC_SOLIDCOLOR;
+		else if (tsStyle == TEXT("owner"))
+			cc.hwndOwner = FindOwner(d, mWnd);
+		else if (tsStyle == TEXT("returndefault"))
+			retDefault = TRUE;
 	}
 
 	cc.rgbResult = (COLORREF) sel;
@@ -128,9 +126,9 @@ TString FileDialog(const TString & data, const TString &method, const HWND pWnd)
 	TCHAR szFilename[MIRC_BUFFER_SIZE_CCH];
 
 	// seperate the tokenz
-	const TString styles(data.gettok(1, TSTAB).trim());
-	const TString file(data.gettok(2, TSTAB).trim());
-	TString filter(data.gettok(3, TSTAB).trim());
+	const TString styles(data.getfirsttok(1, TSTAB).trim());
+	const TString file(data.getnexttok(TSTAB).trim());
+	TString filter(data.getnexttok(TSTAB).trim());
 
 	// Get Current dir for resetting later.
 	const UINT tsBufSize = GetCurrentDirectory(0, NULL);
@@ -155,35 +153,35 @@ TString FileDialog(const TString & data, const TString &method, const HWND pWnd)
 	ofn.nMaxFile = MIRC_BUFFER_SIZE_CCH;
 	ofn.lpstrDefExt = TEXT("");
 
-	for (unsigned int i = 1; i <= styles.numtok( ); i++) {
-		if (styles.gettok( i ) == TEXT("multisel"))
+	for (TString tsStyle(styles.getfirsttok( 1 )); tsStyle != TEXT(""); tsStyle = styles.getnexttok( )) {
+		if (tsStyle == TEXT("multisel"))
 			style |= OFN_ALLOWMULTISELECT;
-		else if (styles.gettok( i ) == TEXT("createprompt"))
+		else if (tsStyle == TEXT("createprompt"))
 			style |= OFN_CREATEPROMPT;
 		// FIXME: explorer style resizable on default, cant get rid of that shit
-		else if (styles.gettok( i ) == TEXT("enablesizing"))
+		else if (tsStyle == TEXT("enablesizing"))
 			style |= OFN_ENABLESIZING;
-		else if (styles.gettok( i ) == TEXT("filemustexist"))
+		else if (tsStyle == TEXT("filemustexist"))
 			style |= OFN_FILEMUSTEXIST; // (open)
-		else if (styles.gettok( i ) == TEXT("showhidden"))
+		else if (tsStyle == TEXT("showhidden"))
 			style |= OFN_FORCESHOWHIDDEN; // 2k/xp
-		else if (styles.gettok( i ) == TEXT("noreadonly"))
+		else if (tsStyle == TEXT("noreadonly"))
 			style |= OFN_HIDEREADONLY;
-		else if (styles.gettok( i ) == TEXT("nochangedir"))
+		else if (tsStyle == TEXT("nochangedir"))
 			style |= OFN_NOCHANGEDIR; // (save)
-		else if (styles.gettok( i ) == TEXT("getshortcuts"))
+		else if (tsStyle == TEXT("getshortcuts"))
 			style |= OFN_NODEREFERENCELINKS;
-		else if (styles.gettok( i ) == TEXT("nonetwork"))
+		else if (tsStyle == TEXT("nonetwork"))
 			style |= OFN_NONETWORKBUTTON;
-		else if (styles.gettok( i ) == TEXT("novalidate"))
+		else if (tsStyle == TEXT("novalidate"))
 			style |= OFN_NOVALIDATE;
-		else if (styles.gettok( i ) == TEXT("norecent"))
+		else if (tsStyle == TEXT("norecent"))
 			style |= OFN_DONTADDTORECENT; // 2k/xp
-		else if (styles.gettok( i ) == TEXT("overwriteprompt"))
+		else if (tsStyle == TEXT("overwriteprompt"))
 			style |= OFN_OVERWRITEPROMPT; // save
-		else if (styles.gettok( i ) == TEXT("pathmustexist"))
+		else if (tsStyle == TEXT("pathmustexist"))
 			style |= OFN_PATHMUSTEXIST;
-		else if (styles.gettok( i ) == TEXT("owner"))
+		else if (tsStyle == TEXT("owner"))
 			ofn.hwndOwner = FindOwner(styles, pWnd);
 	}
 
@@ -234,9 +232,6 @@ mIRC(BrowseDialog) {
 
 	// seperate the tokens (by tabs)
 	TString input(data);
-	TString param;
-	//int numtok;
-	int count;
 	int currentParam = 1;
 	bool bInitialFolder = false;
 	bool bDialogText = false;
@@ -248,7 +243,6 @@ mIRC(BrowseDialog) {
 	XBROWSEDIALOGSETTINGS extra;
 
 	input.trim();
-	//numtok = input.numtok(TSTAB);
 
 	// set up the BI structure
 	ZeroMemory(&bi, sizeof(BROWSEINFO));
@@ -260,10 +254,9 @@ mIRC(BrowseDialog) {
 	bi.lParam = (LPARAM) &extra;
 
 	// Parse styles
-	param = input.gettok(currentParam, TSTAB);
-	count = param.numtok();
+	TString param(input.gettok(currentParam, TSTAB));
 
-	for (int i = 1; i <= count; i++) {
+	for (TString flag(param.getfirsttok( 1 )); flag != TEXT(""); flag = param.getnexttok( ) ) {
 		/*
 		style1 style2 style3 $chr(9) initial folder
 
@@ -271,8 +264,6 @@ mIRC(BrowseDialog) {
 
 		http://msdn2.microsoft.com/en-us/library/bb773205.aspx
 		*/
-
-		const TString flag(param.gettok(i));
 
 		if (flag == TEXT("advanced"))
 			bi.ulFlags |= BIF_USENEWUI;
@@ -440,6 +431,7 @@ mIRC(FontDialog) {
 	// seperate the tokens (by tabs)
 	TString input(data);
 	input.trim();
+	const UINT nToks = input.numtok(TSTAB);
 
 	// set up the LF structure
 	ZeroMemory(&lf, sizeof(LOGFONT));
@@ -453,9 +445,12 @@ mIRC(FontDialog) {
 	cf.nSizeMin = 8;
 	cf.nSizeMax = 72;
 
-	for (unsigned int i = 1; i <= input.numtok(TSTAB); i++) {
-		const TString option(input.gettok(i, TSTAB).trim());
+	input.getfirsttok(0, TSTAB);
+
+	for (unsigned int i = 1; i <= nToks; i++) {
+		const TString option(input.getnexttok( TSTAB ).trim());
 		const unsigned int numtok = option.numtok( );
+		const TString tsType(option.getfirsttok( 1 ));
 
 		/*
 		default +flags(ibsua) charset size fontname
@@ -473,8 +468,8 @@ mIRC(FontDialog) {
 		*/
 
 		// flags +
-		if (option.gettok( 1 ) == TEXT("flags") && numtok > 1) {
-			const TString flag(option.gettok( 2 ));
+		if (tsType == TEXT("flags") && numtok > 1) {
+			const TString flag(option.getnexttok( ));
 			const int c = (int)flag.len();
 
 			for (int j = 0; j < c; j++)
@@ -516,18 +511,18 @@ mIRC(FontDialog) {
 			}
 		}
 		// defaults +flags(ibsua) charset size fontname
-		else if (option.gettok( 1 ) == TEXT("default") && numtok > 4)
+		else if (tsType == TEXT("default") && numtok > 4)
 			ParseCommandToLogfont(option.gettok(2, -1), &lf);
 		// color rgb
-		else if (option.gettok( 1 ) == TEXT("color") && numtok > 1)
-			cf.rgbColors = (COLORREF) option.gettok( 2 ).to_num();
+		else if (tsType == TEXT("color") && numtok > 1)
+			cf.rgbColors = (COLORREF) option.getnexttok( ).to_num();
 		// minmaxsize min max
-		else if (option.gettok( 1 ) == TEXT("minmaxsize") && numtok > 2) {
-			cf.nSizeMin = option.gettok( 2 ).to_int();
-			cf.nSizeMax = option.gettok( 3 ).to_int();
+		else if (tsType == TEXT("minmaxsize") && numtok > 2) {
+			cf.nSizeMin = option.getnexttok( ).to_int();
+			cf.nSizeMax = option.getnexttok( ).to_int();
 		}
 		// owner
-		else if (option.gettok( 1 ) == TEXT("owner") && numtok > 1)
+		else if (tsType == TEXT("owner") && numtok > 1)
 			cf.hwndOwner = FindOwner(option, mWnd);
 	}
 
@@ -562,65 +557,63 @@ mIRC(MsgBox) {
 		ret(TEXT("D_ERROR MessageBox: invalid parameters"));
 
 	DWORD			style     = MB_DEFBUTTON1;
-	TString			strStyles(d.gettok(1, TSTAB).trim());
-	const TString	strTitle(d.gettok(2, TSTAB).trim());
+	TString			strStyles(d.getfirsttok(1, TSTAB).trim());
+	const TString	strTitle(d.getnexttok(TSTAB).trim());
 	const TString	strMsg(d.gettok(3, -1, TSTAB).trim());
-	const int		n = strStyles.numtok( );
 	HWND			owner = aWnd;
 
-	for (int i = 1; i <= n; i++) {
+	for (TString tsStyle(strStyles.getfirsttok( 1 )); tsStyle != TEXT(""); tsStyle = strStyles.getnexttok( )) {
 //		MB_ABORTRETRYIGNORE
 //		MB_CANCELTRYCONTINUE && Dcx::XPPlusModule.isUseable()
-
-		if (strStyles.gettok( i ) == TEXT("ok"))
+		if (tsStyle == TEXT("ok"))
 			style |= MB_OK;
-		else if (strStyles.gettok( i ) == TEXT("okcancel"))
+		else if (tsStyle == TEXT("okcancel"))
 			style |= MB_OKCANCEL;
-		else if (strStyles.gettok( i ) == TEXT("retrycancel"))
+		else if (tsStyle == TEXT("retrycancel"))
 			style |= MB_RETRYCANCEL;
-		else if (strStyles.gettok( i ) == TEXT("yesno"))
+		else if (tsStyle == TEXT("yesno"))
 			style |= MB_YESNO;
-		else if (strStyles.gettok( i ) == TEXT("yesnocancel"))
+		else if (tsStyle == TEXT("yesnocancel"))
 			style |= MB_YESNOCANCEL;
-		else if (strStyles.gettok( i ) == TEXT("exclamation"))
+		else if (tsStyle == TEXT("exclamation"))
 			style |= MB_ICONEXCLAMATION;
-		else if (strStyles.gettok( i ) == TEXT("warning"))
+		else if (tsStyle == TEXT("warning"))
 			style |= MB_ICONWARNING;
-		else if (strStyles.gettok( i ) == TEXT("information"))
+		else if (tsStyle == TEXT("information"))
 			style |= MB_ICONINFORMATION;
-		else if (strStyles.gettok( i ) == TEXT("asterisk"))
+		else if (tsStyle == TEXT("asterisk"))
 			style |= MB_ICONASTERISK;
-		else if (strStyles.gettok( i ) == TEXT("question"))
+		else if (tsStyle == TEXT("question"))
 			style |= MB_ICONQUESTION;
-		else if (strStyles.gettok( i ) == TEXT("stop"))
+		else if (tsStyle == TEXT("stop"))
 			style |= MB_ICONSTOP;
-		else if (strStyles.gettok( i ) == TEXT("error"))
+		else if (tsStyle == TEXT("error"))
 			style |= MB_ICONERROR;
-		else if (strStyles.gettok( i ) == TEXT("hand"))
+		else if (tsStyle == TEXT("hand"))
 			style |= MB_ICONHAND;
-		//else if (strStyles.gettok( i ) == TEXT("help"))
+		//else if (tsStyle == TEXT("help"))
 		//	style |= MB_HELP;
-		else if (strStyles.gettok( i ) == TEXT("defbutton2"))
+		else if (tsStyle == TEXT("defbutton2"))
 			style |= MB_DEFBUTTON2;
-		else if (strStyles.gettok( i ) == TEXT("defbutton3"))
+		else if (tsStyle == TEXT("defbutton3"))
 			style |= MB_DEFBUTTON3;
-		else if (strStyles.gettok( i ) == TEXT("defbutton4"))
+		else if (tsStyle == TEXT("defbutton4"))
 			style |= MB_DEFBUTTON4;
-		else if (strStyles.gettok( i ) == TEXT("modal"))
+		else if (tsStyle == TEXT("modal"))
 			style |= MB_APPLMODAL;
-		else if (strStyles.gettok( i ) == TEXT("sysmodal"))
+		else if (tsStyle == TEXT("sysmodal"))
 			style |= MB_SYSTEMMODAL;
-		else if (strStyles.gettok( i ) == TEXT("taskmodal"))
+		else if (tsStyle == TEXT("taskmodal"))
 			style |= MB_TASKMODAL;
-		else if (strStyles.gettok( i ) == TEXT("right"))
+		else if (tsStyle == TEXT("right"))
 			style |= MB_RIGHT;
-		else if (strStyles.gettok( i ) == TEXT("rtl"))
+		else if (tsStyle == TEXT("rtl"))
 			style |= MB_RTLREADING;
-		else if (strStyles.gettok( i ) == TEXT("foreground"))
+		else if (tsStyle == TEXT("foreground"))
 			style |= MB_SETFOREGROUND;
-		else if (strStyles.gettok( i ) == TEXT("topmost"))
+		else if (tsStyle == TEXT("topmost"))
 			style |= MB_TOPMOST;
-		else if (strStyles.gettok( i ) == TEXT("owner"))
+		else if (tsStyle == TEXT("owner"))
 			owner = FindOwner(strStyles, mWnd);
 	}
 

@@ -1234,9 +1234,12 @@ int TString::find(const TCHAR chr, const int N) const {
 /****************************/
 unsigned int TString::findtok(const TCHAR * cToken, const unsigned int N, const TCHAR * sepChars) const {
 	unsigned int count = 0;
+	const unsigned int nToks = this->numtok(sepChars);
 
-	for (unsigned int i = 1; i <= this->numtok(sepChars); i++) {
-		if (this->gettok(i, sepChars) == cToken) {
+	this->getfirsttok( 0 );
+
+	for (unsigned int i = 1; i <= nToks; i++) {
+		if (this->getnexttok(sepChars) == cToken) {
 			count++;
 
 			if (count == N)
@@ -1909,6 +1912,17 @@ void TString::addtok( const TCHAR * cToken, const TCHAR * sepChars ) {
 //void TString::addtok( const TString &cToken, const TCHAR * sepChars ) {
 //	this->addtok(cToken.to_chr(), sepChars);
 //}
+void TString::addtok( const __int64 nToken, const TCHAR * sepChars ) {
+
+	if ( sepChars == NULL || this->m_pString == NULL )
+		return;
+
+	TString tmp;
+	tmp.tsprintf(TEXT("%s%s%d"),this->m_pString, sepChars, nToken);
+	this->deleteString();
+	this->m_pString = tmp.m_pString;
+	tmp.m_pString = NULL;
+}
 
 bool TString::istok(const TCHAR * cToken, const TCHAR * sepChars ) const {
 
@@ -2286,7 +2300,7 @@ int TString::match (register TCHAR *m, register TCHAR *n, const bool cs /* case 
 }
 TString TString::wildtok( TCHAR * wildString, int N, const TCHAR * sepChars ) const
 {
-	int cnt = 1, m = 0;
+	//int cnt = 1, m = 0;
 
 	if ( sepChars == NULL || this->m_pString == NULL )
 		return TEXT("");
@@ -2296,7 +2310,15 @@ TString TString::wildtok( TCHAR * wildString, int N, const TCHAR * sepChars ) co
 	if ( N > nToks )
 		return TEXT("");
 
-	for (TString tmp(this->gettok(cnt++,sepChars)); tmp != TEXT(""); tmp = this->gettok(cnt++,sepChars))
+	//for (TString tmp(this->gettok(cnt++,sepChars)); tmp != TEXT(""); tmp = this->gettok(cnt++,sepChars))
+	//{
+	//	if (match(wildString,tmp.to_chr(),false)) {
+	//		m++;
+	//		if (m == N) return tmp;
+	//	}
+	//}
+	int m = 0;
+	for (TString tmp(this->getfirsttok(1,sepChars)); tmp != TEXT(""); tmp = this->getnexttok(sepChars))
 	{
 		if (match(wildString,tmp.to_chr(),false)) {
 			m++;
@@ -2307,12 +2329,18 @@ TString TString::wildtok( TCHAR * wildString, int N, const TCHAR * sepChars ) co
 }
 int TString::nwildtok( TCHAR * wildString, const TCHAR * sepChars ) const
 {
-	int cnt = 1, m = 0;
+	//int cnt = 1, m = 0;
 
 	if ( sepChars == NULL || this->m_pString == NULL )
 		return 0;
 
-	for (TString tmp(this->gettok(cnt++,sepChars)); tmp != TEXT(""); tmp = this->gettok(cnt++,sepChars))
+	//for (TString tmp(this->gettok(cnt++,sepChars)); tmp != TEXT(""); tmp = this->gettok(cnt++,sepChars))
+	//{
+	//	if (match(wildString,tmp.to_chr(),false))
+	//		m++;
+	//}
+	int m = 0;
+	for (TString tmp(this->getfirsttok(1,sepChars)); tmp != TEXT(""); tmp = this->getnexttok(sepChars))
 	{
 		if (match(wildString,tmp.to_chr(),false))
 			m++;

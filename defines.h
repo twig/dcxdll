@@ -392,11 +392,25 @@ typedef std::vector<int> VectorOfInts; //<! Vector of int
 #define dcx_atoi64(x) _wtoi64(x)
 #define dcx_atof(x) _wtof(x)
 #define dcx_fopen(x,y) _wfopen(x,y)
+#define dcx_strstr(x,y) wcsstr((x),(y))
+#define dcx_strncmp(x,y,z) wcsncmp((x),(y),(z))
+#ifdef VS2005
+#define dcx_itoa(x,y,z) _itow((x), (y), (z))
+#else
+#define dcx_itoa(x,y,z) itow((x), (y), (z))
+#endif
 #else
 #define dcx_atoi(x) atoi(x)
 #define dcx_atoi64(x) _atoi64(x)
 #define dcx_atof(x) _atof(x)
 #define dcx_fopen(x,y) fopen(x,y)
+#define dcx_strstr(x,y) strstr((x),(y))
+#define dcx_strncmp(x,y,z) strncmp((x),(y),(z))
+#ifdef VS2005
+#define dcx_itoa(x,y,z) _itoa((x), (y), (z))
+#else
+#define dcx_itoa(x,y,z) itoa((x), (y), (z))
+#endif
 #endif
 // --------------------------------------------------
 // DLL routines

@@ -112,23 +112,42 @@ TString DcxCheck::getStyles(void) const {
 
 void DcxCheck::parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme )
 {
-	const UINT numtok = styles.numtok( );
-
 	*Styles |= BS_AUTOCHECKBOX;
 
-	for (UINT i = 1; i <= numtok; i++)
+	//const UINT numtok = styles.numtok( );
+	//styles.getfirsttok( 0 );
+	//for (UINT i = 1; i <= numtok; i++)
+	//{
+	//	const TString tsStyle(styles.getnexttok( ));	// tok i
+
+	//	if ( tsStyle == TEXT("rjustify") )
+	//		*Styles |= BS_RIGHT;
+	//	else if ( tsStyle == TEXT("center") )
+	//		*Styles |= BS_CENTER;
+	//	else if ( tsStyle == TEXT("ljustify") )
+	//		*Styles |= BS_LEFT;
+	//	else if ( tsStyle == TEXT("right") )
+	//		*Styles |= BS_RIGHTBUTTON;
+	//	else if ( tsStyle == TEXT("pushlike") )
+	//		*Styles |= BS_PUSHLIKE;
+	//	else if ( tsStyle == TEXT("3state") ) {
+	//		*Styles &= ~BS_AUTOCHECKBOX;
+	//		*Styles |= BS_AUTO3STATE;
+	//	}
+	//}
+	for (TString tsStyle(styles.getfirsttok( 1 )); tsStyle != ""; tsStyle = styles.getnexttok( ))
 	{
-		if ( styles.gettok( i ) == TEXT("rjustify") )
+		if ( tsStyle == TEXT("rjustify") )
 			*Styles |= BS_RIGHT;
-		else if ( styles.gettok( i ) == TEXT("center") )
+		else if ( tsStyle == TEXT("center") )
 			*Styles |= BS_CENTER;
-		else if ( styles.gettok( i ) == TEXT("ljustify") )
+		else if ( tsStyle == TEXT("ljustify") )
 			*Styles |= BS_LEFT;
-		else if ( styles.gettok( i ) == TEXT("right") )
+		else if ( tsStyle == TEXT("right") )
 			*Styles |= BS_RIGHTBUTTON;
-		else if ( styles.gettok( i ) == TEXT("pushlike") )
+		else if ( tsStyle == TEXT("pushlike") )
 			*Styles |= BS_PUSHLIKE;
-		else if ( styles.gettok( i ) == TEXT("3state") ) {
+		else if ( tsStyle == TEXT("3state") ) {
 			*Styles &= ~BS_AUTOCHECKBOX;
 			*Styles |= BS_AUTO3STATE;
 		}
@@ -148,7 +167,7 @@ void DcxCheck::parseControlStyles( const TString & styles, LONG * Styles, LONG *
 
 void DcxCheck::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) const
 {
-	const TString prop(input.gettok( 3 ));
+	const TString prop(input.getfirsttok( 3 ));
 
 	// [NAME] [ID] [PROP]
 	if ( prop == TEXT("text") ) {
@@ -181,7 +200,7 @@ void DcxCheck::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) c
  */
 
 void DcxCheck::parseCommandRequest( const TString & input ) {
-	const XSwitchFlags flags(input.gettok(3));
+	const XSwitchFlags flags(input.getfirsttok( 3 ));
 
 	//xdid -c [NAME] [ID] [SWITCH]
 	if (flags[TEXT('c')]) {
@@ -268,12 +287,21 @@ LRESULT DcxCheck::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 		case WM_PAINT:
 			{
 				bParsed = TRUE;
-				PAINTSTRUCT ps;
-				HDC hdc = BeginPaint( this->m_Hwnd, &ps );
+				if (GetUpdateRect( this->m_Hwnd, NULL, NULL)) {
+					PAINTSTRUCT ps;
+					HDC hdc = BeginPaint( this->m_Hwnd, &ps );
 
-				this->DrawClientArea( hdc, uMsg, lParam);
+					this->DrawClientArea( hdc, uMsg, lParam);
 
-				EndPaint( this->m_Hwnd, &ps );
+					EndPaint( this->m_Hwnd, &ps );
+				}
+				else {
+					HDC hdc = GetDC(this->m_Hwnd);
+
+					this->DrawClientArea( hdc, uMsg, lParam);
+
+					ReleaseDC(this->m_Hwnd, hdc);
+				}
 			}
 			break;
 
@@ -330,7 +358,8 @@ void DcxCheck::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 			RemStyles(this->m_Hwnd, GWL_EXSTYLE, WS_EX_TRANSPARENT);
 	}
 	else
-		CallWindowProc( this->m_DefaultWindowProc, this->m_Hwnd, uMsg, (WPARAM) hdc, lParam );
+		CallWindowProc( this->m_DefaultWindowProc, this->m_Hwnd, WM_PRINTCLIENT, (WPARAM) hdc, PRF_NONCLIENT|PRF_CLIENT|PRF_CHILDREN );
+		//CallWindowProc( this->m_DefaultWindowProc, this->m_Hwnd, uMsg, (WPARAM) hdc, lParam );
 
 	this->FinishAlphaBlend(ai);
 }

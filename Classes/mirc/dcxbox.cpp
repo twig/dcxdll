@@ -126,30 +126,57 @@ DcxBox::~DcxBox( ) {
 
 void DcxBox::parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme )
 {
-	const UINT numtok = styles.numtok( );
 	this->m_iBoxStyles = 0;
 
-	for (UINT i = 1; i <= numtok; i++ )
+	//const UINT numtok = styles.numtok( );
+	//styles.getfirsttok( 0 );
+	//for (UINT i = 1; i <= numtok; i++ )
+	//{
+	//	const TString tsStyle(styles.getnexttok( ));	// tok i
+
+	//	if (tsStyle == TEXT("right"))
+	//		this->m_iBoxStyles |= BOXS_RIGHT;
+	//	else if (tsStyle == TEXT("center"))
+	//		this->m_iBoxStyles |= BOXS_CENTER;
+	//	else if (tsStyle == TEXT("bottom"))
+	//		this->m_iBoxStyles |= BOXS_BOTTOM;
+	//	else if (tsStyle == TEXT("none"))
+	//		this->m_iBoxStyles |= BOXS_NONE;
+	//	else if (tsStyle == TEXT("rounded"))
+	//		this->m_iBoxStyles |= BOXS_ROUNDED;
+	//	else if (tsStyle == TEXT("check")) {
+	//		this->m_iBoxStyles &= ~BOXS_RADIO;
+	//		this->m_iBoxStyles |= BOXS_CHECK;
+	//	}
+	//	else if (tsStyle == TEXT("radio")) {
+	//		this->m_iBoxStyles &= ~BOXS_CHECK;
+	//		this->m_iBoxStyles |= BOXS_RADIO;
+	//	}
+	//	else if (tsStyle == TEXT("transparent"))
+	//		*ExStyles |= WS_EX_TRANSPARENT;
+	//}
+
+	for (TString tsStyle(styles.getfirsttok( 1 )); tsStyle != ""; tsStyle = styles.getnexttok( ))
 	{
-		if (styles.gettok( i ) == TEXT("right"))
+		if (tsStyle == TEXT("right"))
 			this->m_iBoxStyles |= BOXS_RIGHT;
-		else if (styles.gettok( i ) == TEXT("center"))
+		else if (tsStyle == TEXT("center"))
 			this->m_iBoxStyles |= BOXS_CENTER;
-		else if (styles.gettok( i ) == TEXT("bottom"))
+		else if (tsStyle == TEXT("bottom"))
 			this->m_iBoxStyles |= BOXS_BOTTOM;
-		else if (styles.gettok( i ) == TEXT("none"))
+		else if (tsStyle == TEXT("none"))
 			this->m_iBoxStyles |= BOXS_NONE;
-		else if (styles.gettok( i ) == TEXT("rounded"))
+		else if (tsStyle == TEXT("rounded"))
 			this->m_iBoxStyles |= BOXS_ROUNDED;
-		else if (styles.gettok( i ) == TEXT("check")) {
+		else if (tsStyle == TEXT("check")) {
 			this->m_iBoxStyles &= ~BOXS_RADIO;
 			this->m_iBoxStyles |= BOXS_CHECK;
 		}
-		else if (styles.gettok( i ) == TEXT("radio")) {
+		else if (tsStyle == TEXT("radio")) {
 			this->m_iBoxStyles &= ~BOXS_CHECK;
 			this->m_iBoxStyles |= BOXS_RADIO;
 		}
-		else if (styles.gettok( i ) == TEXT("transparent"))
+		else if (tsStyle == TEXT("transparent"))
 			*ExStyles |= WS_EX_TRANSPARENT;
 	}
 
@@ -167,9 +194,9 @@ void DcxBox::parseControlStyles( const TString & styles, LONG * Styles, LONG * E
 
 void DcxBox::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) const
 {
-	//  int numtok = input.numtok( );
+	//  unsigned int numtok = input.numtok( );
 
-	const TString prop(input.gettok( 3 ));
+	const TString prop(input.getfirsttok( 3 ));
 
 	// [NAME] [ID] [PROP]
 	if ( prop == TEXT("text") ) {
@@ -227,13 +254,13 @@ void DcxBox::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) con
 
 void DcxBox::parseCommandRequest( const TString & input ) {
 
-	const XSwitchFlags flags(input.gettok(3));
-	const int numtok = input.numtok( );
+	const XSwitchFlags flags(input.getfirsttok(3));
+	const unsigned int numtok = input.numtok( );
 
 	// xdid -c [NAME] [ID] [SWITCH] [ID] [CONTROL] [X] [Y] [W] [H] (OPTIONS)
 	if ( flags[TEXT('c')] && numtok > 8 ) {
 
-		const UINT ID = mIRC_ID_OFFSET + (UINT)input.gettok( 4 ).to_int( );
+		const UINT ID = mIRC_ID_OFFSET + (UINT)input.getnexttok( ).to_int( );	// tok 4
 
 		if ( (ID > mIRC_ID_OFFSET - 1) && 
 			!IsWindow( GetDlgItem( this->m_pParentDialog->getHwnd( ), ID ) ) && 
@@ -257,7 +284,7 @@ void DcxBox::parseCommandRequest( const TString & input ) {
 	// xdid -d [NAME] [ID] [SWITCH] [ID]
 	else if ( flags[TEXT('d')] && numtok > 3 ) {
 
-		const UINT ID = mIRC_ID_OFFSET + input.gettok( 4 ).to_int( );
+		const UINT ID = mIRC_ID_OFFSET + input.getnexttok( ).to_int( );	// tok 4
 		DcxControl * p_Control;
 
 		if ( IsWindow( GetDlgItem( this->m_Hwnd, ID ) ) && 
@@ -288,7 +315,9 @@ void DcxBox::parseCommandRequest( const TString & input ) {
 	*/
 	else if ( flags[TEXT('l')] && numtok > 3 ) {
 
-		if ( input.gettok( 4 ) == TEXT("update") ) {
+		const TString tsCmd(input.getnexttok( ));	// tok 4
+
+		if ( tsCmd == TEXT("update") ) {
 			if ( this->m_pLayoutManager != NULL ) {
 				RECT rc;
 				GetClientRect( this->m_Hwnd, &rc );
@@ -296,7 +325,7 @@ void DcxBox::parseCommandRequest( const TString & input ) {
 				this->redrawWindow();
 			}
 		}
-		else if (input.gettok( 4 ) == TEXT("clear")) {
+		else if (tsCmd == TEXT("clear")) {
 			if (this->m_pLayoutManager != NULL)
 				delete this->m_pLayoutManager;
 			this->m_pLayoutManager = new LayoutManager(this->m_Hwnd);
@@ -304,15 +333,17 @@ void DcxBox::parseCommandRequest( const TString & input ) {
 		}
 		else if ( numtok > 8 ) {
 
-			const TString com(input.gettok(1, TSTAB).gettok(4).trim());
-			const TString path(input.gettok(1, TSTAB).gettok(5, -1).trim());
-			const TString p2(input.gettok(2, TSTAB).trim());
+			const TString tsInput(input.getfirsttok(1, TSTAB));
+			const TString p2(input.getnexttok( TSTAB ).trim());	// tok 2
 
-			const UINT lflags = this->parseLayoutFlags( p2.gettok( 1 ) );
-			const UINT ID = p2.gettok( 2 ).to_int( );
-			const UINT WGT = p2.gettok( 3 ).to_int( );
-			const UINT W = p2.gettok( 4 ).to_int( );
-			const UINT H = p2.gettok( 5 ).to_int( );
+			const TString com(tsInput.gettok(4).trim());
+			const TString path(tsInput.gettok(5, -1).trim());
+
+			const UINT lflags = this->parseLayoutFlags( p2.getfirsttok( 1 ) );
+			const UINT ID = p2.getnexttok( ).to_int( );		// tok 2
+			const UINT WGT = p2.getnexttok( ).to_int( );	// tok 3
+			const UINT W = p2.getnexttok( ).to_int( );		// tok 4
+			const UINT H = p2.getnexttok( ).to_int( );		// tok 5
 
 			if ( com ==  TEXT("root") || com == TEXT("cell") ) {
 

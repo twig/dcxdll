@@ -124,8 +124,8 @@ SIZE XPopupMenuItem::getItemSize( const HWND mHwnd ) {
 		const TString tsType(this->m_pXParentMenu->getName( ));
 		if ( (tsType == TEXT("mirc")) || (tsType == TEXT("mircbar")) || (tsType == TEXT("dialog")) ) {
 			if ( this->m_tsItemText.numtok( TEXT("\v") ) > 1 ) {
-				this->m_nIcon = this->m_tsItemText.gettok( 1, TEXT("\v")).to_int( ) - 1;
-				this->m_tsItemText = this->m_tsItemText.gettok(2, TEXT("\v")).trim();
+				this->m_nIcon = this->m_tsItemText.getfirsttok( 1, TEXT("\v")).to_int( ) - 1;
+				this->m_tsItemText = this->m_tsItemText.getnexttok(TEXT("\v")).trim();
 			}
 		}
 		else
@@ -193,8 +193,8 @@ void XPopupMenuItem::DrawItem( const LPDRAWITEMSTRUCT lpdis ) {
 
 		if ( this->m_tsItemText.numtok( TEXT("\v") ) > 1 ) {
 
-			this->m_nIcon = this->m_tsItemText.gettok( 1, TEXT("\v")).to_int( ) - 1;
-			this->m_tsItemText = this->m_tsItemText.gettok( 2, TEXT("\v") ).trim();
+			this->m_nIcon = this->m_tsItemText.getfirsttok( 1, TEXT("\v")).to_int( ) - 1;
+			this->m_tsItemText = this->m_tsItemText.getnexttok( TEXT("\v") ).trim();
 		}
 	}
 
@@ -499,8 +499,8 @@ void XPopupMenuItem::DrawItemText( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUC
 
 	if ( txt.numtok( TSTAB ) > 1 ) {
 
-		const TString lefttext(txt.gettok(1, TSTAB).trim());
-		const TString righttext(txt.gettok(2, TSTAB).trim());
+		const TString lefttext(txt.getfirsttok(1, TSTAB).trim());
+		const TString righttext(txt.getnexttok( TSTAB).trim());
 
 		//DrawTextEx( lpdis->hDC, lefttext.to_chr( ), lefttext.len( ), &rc, DT_LEFT | DT_SINGLELINE | DT_VCENTER, NULL );
 		mIRC_DrawText( lpdis->hDC, lefttext, &rc, DT_LEFT | DT_SINGLELINE | DT_VCENTER, false);

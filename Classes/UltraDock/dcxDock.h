@@ -48,6 +48,8 @@ typedef struct tagSB_PARTINFO {
 	HWND		m_Child;
 	TString		m_Text;
 	int			m_iIcon;
+	COLORREF	m_TxtCol;	// colour of the text be default in this item.
+	HBRUSH		m_BkgCol;	// brush to be used when drawing the bkg in this item.
 } SB_PARTINFO, *LPSB_PARTINFO;
 
 typedef std::vector<LPSB_PARTINFO> VectorOfParts;

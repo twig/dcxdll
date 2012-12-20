@@ -106,23 +106,40 @@ void DcxLine::toXml(TiXmlElement * xml) const
 
 void DcxLine::parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme )
 {
-	const UINT numtok = styles.numtok( );
+	//const UINT numtok = styles.numtok( );
 
-	for (UINT i = 1; i <= numtok; i++ )
+	//for (UINT i = 1; i <= numtok; i++ )
+	//{
+	//	if ( styles.gettok( i ) == TEXT("vertical") )
+	//		this->m_bVertical = true;
+	//	else if (styles.gettok(i ) == TEXT("nowrap"))
+	//		*Styles |= SS_LEFTNOWORDWRAP;
+	//	else if (styles.gettok(i) == TEXT("center"))
+	//		*Styles |= SS_CENTER;
+	//	else if (styles.gettok(i) == TEXT("right"))
+	//		*Styles |= SS_RIGHT;
+	//	else if (styles.gettok(i) == TEXT("noprefix"))
+	//		*Styles |= SS_NOPREFIX;
+	//	else if (styles.gettok(i) == TEXT("endellipsis"))
+	//		*Styles |= SS_ENDELLIPSIS;
+	//	else if (styles.gettok(i) == TEXT("pathellipsis"))
+	//		*Styles |= SS_PATHELLIPSIS;
+	//}
+	for (TString tsStyle(styles.getfirsttok( 1 )); tsStyle != ""; tsStyle = styles.getnexttok( ))
 	{
-		if ( styles.gettok( i ) == TEXT("vertical") )
+		if ( tsStyle == TEXT("vertical") )
 			this->m_bVertical = true;
-		else if (styles.gettok(i ) == TEXT("nowrap"))
+		else if (tsStyle == TEXT("nowrap"))
 			*Styles |= SS_LEFTNOWORDWRAP;
-		else if (styles.gettok(i) == TEXT("center"))
+		else if (tsStyle == TEXT("center"))
 			*Styles |= SS_CENTER;
-		else if (styles.gettok(i) == TEXT("right"))
+		else if (tsStyle == TEXT("right"))
 			*Styles |= SS_RIGHT;
-		else if (styles.gettok(i) == TEXT("noprefix"))
+		else if (tsStyle == TEXT("noprefix"))
 			*Styles |= SS_NOPREFIX;
-		else if (styles.gettok(i) == TEXT("endellipsis"))
+		else if (tsStyle == TEXT("endellipsis"))
 			*Styles |= SS_ENDELLIPSIS;
-		else if (styles.gettok(i) == TEXT("pathellipsis"))
+		else if (tsStyle == TEXT("pathellipsis"))
 			*Styles |= SS_PATHELLIPSIS;
 	}
 	this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );

@@ -192,7 +192,7 @@ XPopupMenu::~XPopupMenu( ) {
  */
 
 void XPopupMenu::parseXPopCommand( const TString & input ) {
-	const XSwitchFlags flags(input.gettok(2));
+	const XSwitchFlags flags(input.gettok( 2 ));
 	const TString path(input.gettok(1, TSTAB).gettok(3, -1).trim());
 
 	HMENU hMenu;
@@ -218,10 +218,10 @@ void XPopupMenu::parseXPopCommand( const TString & input ) {
 			itemcom = input.gettok(2, TEXT(":")).trim();
 
 		int nPos = path.gettok( path.numtok( ) ).to_int( ) - 1;
-		const int mID = itemdata.gettok( 2 ).to_int( );
-		const int nIcon = itemdata.gettok( 3 ).to_int( ) - 1;
 
-		const XSwitchFlags xflags(itemdata.gettok( 1 ));
+		const XSwitchFlags xflags(itemdata.getfirsttok( 1 ));
+		const int mID = itemdata.getnexttok( ).to_int( );	// tok 2
+		const int nIcon = itemdata.getnexttok( ).to_int( ) - 1;	// tok 3
 		const TString itemtext(itemdata.gettok( 4, -1 ));
 
 		if ( nPos == -1 )

@@ -37,11 +37,11 @@ XMenuBar::~XMenuBar() {
  *
  */
 void XMenuBar::parseXMenuBarCommand(const TString &input) {
-	const XSwitchFlags flags(input.gettok(1));
+	const XSwitchFlags flags(input.getfirsttok( 1 ));
 	const int numtok = input.numtok();
 	XPopupMenu *p_Menu;
 	HMENU menuBar;
-	TString menuName;
+	const TString menuName(input.getnexttok( ));	// tok 2
 
 	// Check if a callback alias has been marked
 	if (!this->hasCallback() && !flags[TEXT('M')])
@@ -55,7 +55,7 @@ void XMenuBar::parseXMenuBarCommand(const TString &input) {
 	if (flags[TEXT('M')]) {
 		// Set alias.
 		if (numtok > 1) {
-			const TString alias(input.gettok(2));
+			const TString alias(menuName);
 
 			// Check if alias is valid.
 			if (!Dcx::mIRC.isAlias(alias.to_chr()))
@@ -85,7 +85,6 @@ void XMenuBar::parseXMenuBarCommand(const TString &input) {
 			return;
 		}
 
-		menuName = input.gettok(2);
 		p_Menu = Dcx::XPopups.getMenuByName(menuName, TRUE);
 
 		if (!validateMenu(p_Menu, TEXT("-a"), menuName))
@@ -109,7 +108,6 @@ void XMenuBar::parseXMenuBarCommand(const TString &input) {
 			return;
 		}
 
-		menuName = input.gettok(2);
 		p_Menu = Dcx::XPopups.getMenuByName(menuName, TRUE);
 
 		if (!validateMenu(p_Menu, TEXT("-d"), menuName))
@@ -136,7 +134,6 @@ void XMenuBar::parseXMenuBarCommand(const TString &input) {
 			return;
 		}
 
-		menuName = input.gettok(2);
 		p_Menu = Dcx::XPopups.getMenuByName(menuName, TRUE);
 
 		if (!validateMenu(p_Menu, TEXT("-l"), menuName))
@@ -164,7 +161,7 @@ void XMenuBar::parseXMenuBarCommand(const TString &input) {
 			return;
 		}
 
-		const int mID = input.gettok(2).to_int();
+		const int mID = menuName.to_int();
 
 		// MAKEWPARAM((# = Menu ID), (0 = Menu command));
 		SendMessage(Dcx::mIRC.getHWND(), WM_COMMAND, MAKEWPARAM(mID, 0) , NULL);
@@ -180,13 +177,13 @@ void XMenuBar::parseXMenuBarCommand(const TString &input) {
  */
 void XMenuBar::parseXMenuBarInfo(const TString &input, TCHAR *szReturnValue) const
 {
-	const TString prop(input.gettok(1));
+	const TString prop(input.getfirsttok( 1 ));
 
 	// Iterate through the names of menus added to XMenuBar.
 	// N = 0 returns total number of menus
 	// $xmenubar() [menu] [N]
 	if (prop == TEXT("menu")) {
-		const int i = input.gettok(2).to_int();
+		const int i = input.getnexttok( ).to_int();	// tok 2
 
 		if ((i < 0) || (i > (int) this->m_vpXMenuBar.size())) {
 			Dcx::errorex(TEXT("$!xpopup().menubar"), TEXT("Invalid index: %d"), i);

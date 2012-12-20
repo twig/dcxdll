@@ -82,11 +82,16 @@ DcxScroll::~DcxScroll( ) {
 
 void DcxScroll::parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme )
 {
-	const UINT numtok = styles.numtok( );
+	//const UINT numtok = styles.numtok( );
 
-	for (UINT i = 1; i <= numtok; i++)
+	//for (UINT i = 1; i <= numtok; i++)
+	//{
+	//	if ( styles.gettok( i ) == TEXT("vertical") )
+	//		*Styles |= SBS_VERT;
+	//}
+	for (TString tsStyle(styles.getfirsttok( 1 )); tsStyle != ""; tsStyle = styles.getnexttok( ))
 	{
-		if ( styles.gettok( i ) == TEXT("vertical") )
+		if ( tsStyle == TEXT("vertical") )
 			*Styles |= SBS_VERT;
 	}
 
@@ -104,7 +109,7 @@ void DcxScroll::parseControlStyles( const TString & styles, LONG * Styles, LONG 
 
 void DcxScroll::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) const
 {
-	const TString prop(input.gettok( 3 ));
+	const TString prop(input.getfirsttok( 3 ));
 
 	// [NAME] [ID] [PROP]
 	if ( prop == TEXT("value") ) {
@@ -152,13 +157,13 @@ void DcxScroll::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) 
  */
 
 void DcxScroll::parseCommandRequest( const TString & input ) {
-	const XSwitchFlags flags(input.gettok(3));
+	const XSwitchFlags flags(input.getfirsttok( 3 ));
 	const int numtok = input.numtok( );
 
 	//xdid -l [NAME] [ID] [SWITCH] [N]
 	if ( flags[TEXT('l')] && numtok > 3 ) {
 
-		const int nLine = input.gettok( 4 ).to_int( );
+		const int nLine = input.getnexttok( ).to_int( );	// tok 4
 
 		if ( nLine > 0 )
 			this->m_nLine = nLine;
@@ -166,7 +171,7 @@ void DcxScroll::parseCommandRequest( const TString & input ) {
 	//xdid -m [NAME] [ID] [SWITCH] [N]
 	else if ( flags[TEXT('m')] && numtok > 3 ) {
 
-		const int nPage = input.gettok( 4 ).to_int( );
+		const int nPage = input.getnexttok( ).to_int( );	// tok 4
 
 		if ( nPage > 0 )
 			this->m_nPage = nPage;
@@ -174,8 +179,8 @@ void DcxScroll::parseCommandRequest( const TString & input ) {
 	//xdid -r [NAME] [ID] [SWITCH] [L] [R]
 	else if ( flags[TEXT('r')] && numtok > 4 ) {
 
-		const INT L = input.gettok( 4 ).to_int( );
-		const INT R = input.gettok( 5 ).to_int( );
+		const INT L = input.getnexttok( ).to_int( );	// tok 4
+		const INT R = input.getnexttok( ).to_int( );	// tok 5
 
 		SCROLLINFO si;
 		si.cbSize = sizeof( SCROLLINFO );
@@ -187,7 +192,7 @@ void DcxScroll::parseCommandRequest( const TString & input ) {
 	//xdid -v [NAME] [ID] [SWITCH] [VALUE]
 	else if ( flags[TEXT('v')] && numtok > 3 ) {
 
-		const int pos = input.gettok( 4 ).to_int( );
+		const int pos = input.getnexttok( ).to_int( );	// tok 4
 
 		SCROLLINFO si;
 		si.cbSize = sizeof( SCROLLINFO );

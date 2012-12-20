@@ -318,14 +318,14 @@ void DcxDialog::parseComControlRequestEX(const int id, const TCHAR *szFormat, ..
 
 
 void DcxDialog::parseCommandRequest( const TString &input) {
-	const XSwitchFlags flags(input.gettok(2));
-	const int numtok = input.numtok( );
+	const XSwitchFlags flags(input.getfirsttok(2));
+	const unsigned int numtok = input.numtok( );
 
 	// xdialog -a [NAME] [SWITCH] [+FLAGS] [DURATION]
 	if (flags[TEXT('a')] && numtok > 3) {
 		AnimateWindow(this->m_Hwnd,
-			input.gettok( 4 ).to_int(), 
-			getAnimateStyles(input.gettok( 3 )));
+			input.gettok( 4 ).to_int(),
+			getAnimateStyles(input.getnexttok( )));	// tok 3
 
 		if (IsWindowVisible(this->m_Hwnd))
 			this->redrawWindow();
@@ -341,12 +341,13 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 		this->RemoveVistaStyle();
 
 		LONG Styles = 0, ExStyles = 0;
+		const TString tsStyles(input.getnexttok( ));
 
-		this->parseBorderStyles(input.gettok( 3 ), &Styles, &ExStyles);
+		this->parseBorderStyles(tsStyles, &Styles, &ExStyles);
 		this->addStyle(Styles);
 		this->addExStyle(ExStyles);
 
-		if (input.gettok( 3 ).find(TEXT('v'),0)) {
+		if (tsStyles.find(TEXT('v'),0)) {
 			// Vista Style Dialog
 			this->CreateVistaStyle();
 		}
@@ -356,7 +357,7 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 	}
 	// xdialog -c [NAME] [SWITCH] [ID] [CONTROL] [X] [Y] [W] [H] (OPTIONS)
 	else if (flags[TEXT('c')] && numtok > 7) {
-		const UINT ID = mIRC_ID_OFFSET + input.gettok( 3 ).to_int();
+		const UINT ID = mIRC_ID_OFFSET + input.getnexttok( ).to_int();
 
 		if (ID > mIRC_ID_OFFSET - 1)
 		{	// ID in valid range
@@ -388,7 +389,7 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 		else {
 		*/
 
-		const UINT ID = (mIRC_ID_OFFSET + input.gettok( 3 ).to_int());
+		const UINT ID = (mIRC_ID_OFFSET + input.getnexttok( ).to_int());
 
 		if (this->isIDValid(ID))
 		{
@@ -422,9 +423,9 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 	}
 	// xdialog -f [NAME] [SWITCH] [+FLAGS] [COUNT] [TIMEOUT]
 	else if (flags[TEXT('f')] && numtok > 4) {
-		const UINT iFlags = this->parseFlashFlags(input.gettok( 3 ));
-		const INT iCount = input.gettok( 4 ).to_int();
-		const DWORD dwTimeout = (DWORD)input.gettok( 5 ).to_num();
+		const UINT iFlags = this->parseFlashFlags(input.getnexttok( ));
+		const INT iCount = input.getnexttok( ).to_int();
+		const DWORD dwTimeout = (DWORD)input.getnexttok( ).to_num();
 		FLASHWINFO fli;
 
 		ZeroMemory(&fli, sizeof(FLASHWINFO));
@@ -438,10 +439,10 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 	}
 	// xdialog -g [NAME] [SWITCH] [+FLAGS] [COLOR|FILENAME]
 	else if (flags[TEXT('g')] && numtok > 3) {
-		this->m_uStyleBg = this->parseBkgFlags(input.gettok( 3 ));
+		this->m_uStyleBg = this->parseBkgFlags(input.getnexttok( ));
 
 		if (this->m_uStyleBg & DBS_BKGCOLOR) {
-			const COLORREF clrColor = (COLORREF)input.gettok( 4 ).to_num();
+			const COLORREF clrColor = (COLORREF)input.getnexttok( ).to_num();
 
 			if (this->m_hBackBrush != NULL) {
 				DeleteBrush(this->m_hBackBrush);
@@ -471,7 +472,7 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 	// xdialog -j [NAME] [SWITCH] (ID)
 	else if (flags[TEXT('j')]) {
 		if (numtok > 2) {
-			const UINT id = (mIRC_ID_OFFSET + input.gettok( 3 ).to_int());
+			const UINT id = (mIRC_ID_OFFSET + input.getnexttok( ).to_int());
 
 			if (this->isIDValid(id))
 				this->getControlByID(id)->redrawWindow();
@@ -504,7 +505,8 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 	space PATH[TAB]+ [L] [T] [R] [B]
 	*/
 	else if (flags[TEXT('l')] && numtok > 2) {
-		if (input.gettok( 3 ) == TEXT("update")) {
+		const TString tsCmd(input.getnexttok( ));	// tok 3
+		if (tsCmd == TEXT("update")) {
 			if (this->m_pLayoutManager != NULL) {
 				RECT rc;
 
@@ -513,22 +515,24 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 					this->redrawWindow();
 			}
 		}
-		else if (input.gettok( 3 ) == TEXT("clear")) {
+		else if (tsCmd == TEXT("clear")) {
 			if (this->m_pLayoutManager != NULL)
 				delete this->m_pLayoutManager;
 			this->m_pLayoutManager = new LayoutManager(this->m_Hwnd);
 			//this->redrawWindow(); // dont redraw here, leave that for an `update` cmd
 		}
 		else if (numtok > 7) {
-			const TString com(input.gettok(1, TSTAB).gettok(3).trim());
-			const TString path(input.gettok(1, TSTAB).gettok(4, -1).trim());
-			const TString p2(input.gettok(2, TSTAB).trim());
+			const TString tsInput(input.getfirsttok(1, TSTAB));
+			const TString p2(input.getnexttok( TSTAB ).trim());
 
-			const UINT lflags = this->parseLayoutFlags(p2.gettok( 1 ));
-			const UINT ID = p2.gettok( 2 ).to_int();
-			const UINT WGT = p2.gettok( 3 ).to_int();
-			const UINT W = p2.gettok( 4 ).to_int();
-			const UINT H = p2.gettok( 5 ).to_int();
+			const TString com(tsInput.gettok( 3 ).trim());
+			const TString path(tsInput.gettok(4, -1).trim());
+
+			const UINT lflags = this->parseLayoutFlags(p2.getfirsttok( 1 ));
+			const UINT ID = p2.getnexttok( ).to_int();	// tok 2
+			const UINT WGT = p2.getnexttok( ).to_int();	// tok 3
+			const UINT W = p2.getnexttok( ).to_int();	// tok 4
+			const UINT H = p2.getnexttok( ).to_int();	// tok 5
 
 			if (com == TEXT("root") || com == TEXT("cell")) {
 				HWND cHwnd = GetDlgItem(this->m_Hwnd, mIRC_ID_OFFSET + ID);
@@ -660,14 +664,14 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 		//	this->m_hCursor = LoadCursorFromFile(input.gettok(4, -1).to_chr());
 		//	this->m_bCursorFromFile = TRUE;
 		//}
-		const UINT iFlags = this->parseCursorFlags( input.gettok( 3 ) );
+		const UINT iFlags = this->parseCursorFlags( input.getnexttok( ) );	// tok 3
 		HCURSOR hCursor = NULL;
 		if ( this->m_bCursorFromFile )
 			hCursor = this->m_hCursor;
 		this->m_hCursor = NULL;
 		this->m_bCursorFromFile = FALSE;
 		if ( iFlags & DCCS_FROMRESSOURCE )
-			this->m_hCursor = LoadCursor( NULL, this->parseCursorType( input.gettok( 4 ) ) );
+			this->m_hCursor = LoadCursor( NULL, this->parseCursorType( input.getnexttok( ) ) );	// tok 4
 		else if ( iFlags & DCCS_FROMFILE ) {
 			TString filename(input.gettok( 4, -1 ));
 			if (IsFile(filename)) {
@@ -727,8 +731,10 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 	// xdialog -t [NAME] [SWITCH] [TYPE] [TYPE ARGS]
 	else if (flags[TEXT('t')] && numtok > 2) {
 		// Alpha transparency
-		if (input.gettok( 3 ) == TEXT("alpha")) {
-			if (input.gettok( 4 ) == TEXT("none")) {
+		const TString tsCmd(input.getnexttok( ));	// tok 3
+		if (tsCmd == TEXT("alpha")) {
+			const TString tsAlpha(input.getnexttok( ));	// tok 4
+			if (tsAlpha == TEXT("none")) {
 				this->m_iAlphaLevel = 255;
 				if (!this->m_bVistaStyle) {
 					if (GetWindowExStyle(this->m_Hwnd) & WS_EX_LAYERED) {
@@ -740,7 +746,7 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 				}
 			}
 			else {
-				const BYTE alpha = (BYTE)(input.gettok( 4 ).to_int() & 0xFF);
+				const BYTE alpha = (BYTE)(tsAlpha.to_int() & 0xFF);
 
 				//if (alpha > 255)
 				//	alpha = 255;
@@ -758,8 +764,9 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 			}
 		}
 		// Transparent color
-		else if (input.gettok( 3 ) == TEXT("transparentcolor")) {
-			if (input.gettok( 4 ) == TEXT("none")) {
+		else if (tsCmd == TEXT("transparentcolor")) {
+			const TString tsClr(input.getnexttok( ));	// tok 4
+			if (tsClr == TEXT("none")) {
 				this->m_cKeyColour = CLR_NONE;
 				this->m_bHaveKeyColour = false;
 				if (!this->m_bVistaStyle) {
@@ -772,7 +779,7 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 				}
 			}
 			else {
-				this->m_cKeyColour = (COLORREF)input.gettok( 4 ).to_int();
+				this->m_cKeyColour = (COLORREF)tsClr.to_int();
 				this->m_bHaveKeyColour = true;
 				if (!this->m_bVistaStyle) {
 					// Set WS_EX_LAYERED on this window
@@ -784,15 +791,15 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 			}
 		}
 		// Background color
-		else if (input.gettok( 3 ) == TEXT("bgcolor")) {
-			this->m_colTransparentBg = input.gettok( 4 ).to_int();
+		else if (tsCmd == TEXT("bgcolor")) {
+			this->m_colTransparentBg = input.getnexttok( ).to_int();	// tok 4
 		}
 		// TODO: not going to document this, have no way to redrawing the window.
 		// http://www.codeproject.com/KB/vb/ClickThroughWindows.aspx
 		// NB: may not be compatible with vista style.
 		// Click-through
-		else if (input.gettok(3) == TEXT("clickthrough")) {
-			if (input.gettok(4) == TEXT("none")) {
+		else if (tsCmd == TEXT("clickthrough")) {
+			if (input.getnexttok( ) == TEXT("none")) {	// tok 4
 				if (this->isExStyle(WS_EX_LAYERED|WS_EX_TRANSPARENT))
 					RemStyles(this->m_Hwnd, GWL_EXSTYLE, WS_EX_LAYERED | WS_EX_TRANSPARENT);
 				// re-apply any alpha or keycolour.
@@ -820,7 +827,7 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 			return;
 		}
 
-		const UINT styles = parseTooltipFlags(input.gettok( 3 ));
+		const UINT styles = parseTooltipFlags(input.getnexttok( ));	// tok 3
 
 		// http://msdn.microsoft.com/library/default.asp?url=/library/en-us/shellcc/platform/commctls/tooltip/styles.asp
 		this->m_ToolTipHWND = CreateWindowEx(WS_EX_TOPMOST,
@@ -839,16 +846,16 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 	}
 	// xdialog -w [NAME] [SWITCH] [+FLAGS] [INDEX] [FILENAME]
 	else if (flags[TEXT('w')] && numtok > 4) {
-		const TString tsFlags(input.gettok( 3 ));
-		const int index = input.gettok( 4 ).to_int();
+		const TString tsFlags(input.getnexttok( ));	// tok 3
+		const int index = input.getnexttok( ).to_int();	// tok 4
 		TString filename(input.gettok(5, -1).trim());
 
 		ChangeHwndIcon(this->m_Hwnd,tsFlags,index,filename);
 	}
 	// xdialog -z [NAME] [SWITCH] [+FLAGS] [N]
 	else if (flags[TEXT('z')] && numtok > 3) {
-		const TString flag(input.gettok( 3 ));
-		int n = input.gettok( 4 ).to_int();
+		const TString flag(input.getnexttok( ));	// tok 3
+		int n = input.getnexttok( ).to_int();		// tok 4
 		DcxControl* ctrl = NULL;
 
 		// invalid input for [N]
@@ -986,7 +993,7 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 	}
 	// xdialog -R [NAME] [SWITCH] [FLAG] [ARGS]
 	else if (flags[TEXT('R')] && numtok > 2) {
-		const XSwitchFlags xflags(input.gettok( 3 ));
+		const XSwitchFlags xflags(input.getnexttok( ));	// tok 3
 
 		if (!xflags[TEXT('+')]) {
 			this->showError(NULL, TEXT("-R"), TEXT("Invalid Flag"));
@@ -1019,7 +1026,7 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 
 			PreloadData();
 			//SetWindowRgn(this->m_Hwnd,NULL,TRUE);
-			this->m_colTransparentBg = (COLORREF)input.gettok( 4 ).to_num();
+			this->m_colTransparentBg = (COLORREF)input.getnexttok( ).to_num();	// tok 4
 			//this->m_uStyleBg = DBS_BKGBITMAP|DBS_BKGSTRETCH|DBS_BKGCENTER;
 			this->m_uStyleBg = DBS_BKGBITMAP;
 			TString filename(input.gettok(5,-1));
@@ -1035,7 +1042,7 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 			int radius;
 
 			if (numtok > 3)
-				radius = input.gettok( 4 ).to_int();
+				radius = input.getnexttok( ).to_int();	// tok 4
 			else
 				radius = 20;
 
@@ -1044,7 +1051,7 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 		else if (xflags[TEXT('c')]) // circle - radius arg (optional)
 		{
 			if (numtok > 3) {
-				int radius = input.gettok( 4 ).to_int();
+				int radius = input.getnexttok( ).to_int();	// tok 4
 				if (radius < 1)
 					radius = 100; // handle cases where arg isnt a number or is a negative.
 				const int cx = ((rc.right - rc.left)/2);
@@ -1056,14 +1063,14 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 		}
 		else if (xflags[TEXT('p')]) // polygon
 		{
-			// u need at least 3 points for a shape
+			// You need at least 3 points for a shape
 			if (numtok < 6) {
 				this->showError(NULL, TEXT("-R +p"), TEXT("Invalid arguments"));
 				return;
 			}
 
 			const TString strPoints(input.gettok(4, -1));
-			const int tPoints = strPoints.numtok( );
+			const unsigned int tPoints = strPoints.numtok( );
 
 			if (tPoints < 1) {
 				this->showError(NULL, TEXT("-R +p"), TEXT("Invalid Points"));
@@ -1074,11 +1081,13 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 				TString strPoint;
 				POINT *pnts = new POINT[tPoints];
 
-				for (int cnt = 1; cnt <= tPoints; cnt++)
+				strPoints.getfirsttok( 0 );
+
+				for (unsigned int cnt = 1; cnt <= tPoints; cnt++)
 				{
-					strPoint = strPoints.gettok( cnt );
-					pnts[cnt-1].x = (LONG)strPoint.gettok(1, TSCOMMA).to_num();
-					pnts[cnt-1].y = (LONG)strPoint.gettok(2, TSCOMMA).to_num();
+					strPoint = strPoints.getnexttok( );	// tok cnt
+					pnts[cnt-1].x = (LONG)strPoint.getfirsttok(1, TSCOMMA).to_num();
+					pnts[cnt-1].y = (LONG)strPoint.getnexttok( TSCOMMA ).to_num();	// tok 2
 				}
 
 				m_Region = CreatePolygonRgn(pnts,tPoints,WINDING);
@@ -1093,14 +1102,14 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 		else if (xflags[TEXT('d')]) // drag - <1|0>
 		{
 			noRegion = true;
-			if ((BOOL)input.gettok( 4 ).to_int())
+			if ((BOOL)input.getnexttok( ).to_int())	// tok 4
 				this->m_bDoDrag = true;
 			else
 				this->m_bDoDrag = false;
 		}
 		else if (xflags[TEXT('g')]) // ghost drag - <0-255>
 		{
-			const BYTE alpha = (BYTE)(input.gettok( 4 ).to_int() & 0xFF);
+			const BYTE alpha = (BYTE)(input.getnexttok( ).to_int() & 0xFF);	// tok 4
 			if (/*(alpha >= 0) &&*/ (alpha <= 255)) { // unsigned int will ALWAYS be >= 0 <= 255
 				noRegion = true;
 				this->m_bDoGhostDrag = alpha;
@@ -1114,12 +1123,12 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 		{
 			if (numtok == 9) {
 				noRegion = true;
-				const COLORREF s_clr = (COLORREF)input.gettok( 4 ).to_num();
-				const int s_sharp = input.gettok( 5 ).to_int();
-				const int s_dark = input.gettok( 6 ).to_int();
-				const int s_size = input.gettok( 7 ).to_int();
-				const int s_x = input.gettok( 8 ).to_int();
-				const int s_y = input.gettok( 9 ).to_int();
+				const COLORREF s_clr = (COLORREF)input.getnexttok( ).to_num();	// tok 4
+				const int s_sharp = input.getnexttok( ).to_int();	// tok 5
+				const int s_dark = input.getnexttok( ).to_int();	// tok 6
+				const int s_size = input.getnexttok( ).to_int();	// tok 7
+				const int s_x = input.getnexttok( ).to_int();		// tok 8
+				const int s_y = input.getnexttok( ).to_int();		// tok 9
 				this->AddShadow();
 				this->SetShadowColor(s_clr);
 				this->SetShadowSharpness(s_sharp);
@@ -1159,8 +1168,8 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 	// xdialog -E [NAME] [SWITCH] [+flags] [-flags]
 	else if (flags[TEXT('E')] && numtok > 3) {
 		DWORD mask = this->m_dEventMask;
-		const XSwitchFlags xpFlags(input.gettok( 3 ));
-		const XSwitchFlags xnFlags(input.gettok( 4 ));
+		const XSwitchFlags xpFlags(input.getnexttok( ));	// tok 3
+		const XSwitchFlags xnFlags(input.getnexttok( ));	// tok 4
 
 		if (!xpFlags[TEXT('+')] || !xnFlags[TEXT('-')]) {
 			this->showError(NULL,TEXT("-E"), TEXT("Invalid Flag"));
@@ -1212,10 +1221,10 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 	}
 	// xdialog -V [NAME] [SWITCH] [left] [right] [top] [bottom]
 	else if (flags[TEXT('V')] && numtok > 5) {
-		this->m_GlassOffsets.left = input.gettok( 3 ).to_int();
-		this->m_GlassOffsets.right = input.gettok( 4 ).to_int();
-		this->m_GlassOffsets.top = input.gettok( 5 ).to_int();
-		this->m_GlassOffsets.bottom = input.gettok( 6 ).to_int();
+		this->m_GlassOffsets.left = input.getnexttok( ).to_int();	// tok 3
+		this->m_GlassOffsets.right = input.getnexttok( ).to_int();	// tok 4
+		this->m_GlassOffsets.top = input.getnexttok( ).to_int();	// tok 5
+		this->m_GlassOffsets.bottom = input.getnexttok( ).to_int();	// tok 6
 
 		if (Dcx::VistaModule.isUseable()) {
 			const MARGINS margins = {this->m_GlassOffsets.left,this->m_GlassOffsets.right,this->m_GlassOffsets.top,this->m_GlassOffsets.bottom};
@@ -1229,10 +1238,10 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 	}
 	// xdialog -S [NAME] [SWITCH] [X Y W H]
 	else if (flags[TEXT('S')] && (numtok > 5)) {
-		int x = input.gettok( 3 ).to_int( );
-		int y = input.gettok( 4 ).to_int( );
-		int w = input.gettok( 5 ).to_int( );
-		int h = input.gettok( 6 ).to_int( );
+		int x = input.getnexttok( ).to_int( );	// tok 3
+		int y = input.getnexttok( ).to_int( );	// tok 4
+		int w = input.getnexttok( ).to_int( );	// tok 5
+		int h = input.getnexttok( ).to_int( );	// tok 6
 
 		RECT rcWindow, rcClient;
 		UINT iFlags = SWP_NOACTIVATE|SWP_NOZORDER|SWP_NOOWNERZORDER;
@@ -1557,12 +1566,12 @@ PTCHAR DcxDialog::parseCursorType(const TString &cursor) {
 
 void DcxDialog::parseInfoRequest( const TString &input, TCHAR *szReturnValue) const
 {
-	const int numtok = input.numtok( );
-	const TString prop(input.gettok( 2 ));
+	const unsigned int numtok = input.numtok( );
+	const TString prop(input.getfirsttok( 2 ));
 
 	// [NAME] [PROP] [ID]
 	if (prop == TEXT("isid") && numtok > 2) {
-		const int nID = input.gettok( 3 ).to_int();
+		const int nID = input.getnexttok( ).to_int();	// tok 3
 
 		if (IsWindow(GetDlgItem(this->m_Hwnd, nID + mIRC_ID_OFFSET)) || (this->getControlByID(nID + mIRC_ID_OFFSET) != NULL))
 			lstrcpyn(szReturnValue, TEXT("$true"), MIRC_BUFFER_SIZE_CCH);
@@ -1585,17 +1594,18 @@ void DcxDialog::parseInfoRequest( const TString &input, TCHAR *szReturnValue) co
 	}
 	// [NAME] [PROP] [N|NAMEDID]
 	if (prop == TEXT("id") && numtok > 2) {
-		const int N = input.gettok( 3 ).to_int() -1;
+		const TString tsID(input.getnexttok( ));	// tok 3
+		const int N = tsID.to_int() -1;
 
 		if (N == -1)
 		{
-			if (input.gettok( 3 ) == TEXT('0'))
+			if (tsID == TEXT('0'))	// check its an actual zero, not some text name (which also gives a zero result)
 				wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), this->m_vpControls.size());
 			else
 			{
 				for (IntegerHash::iterator it = const_cast<DcxDialog *>(this)->namedIds.begin(); it != this->namedIds.end(); ++it)
 				{
-					if (it->first == input.gettok( 3 )) 
+					if (it->first == tsID) 
 					{
 						wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%i"), it->second);
 						return;
@@ -1696,7 +1706,7 @@ void DcxDialog::parseInfoRequest( const TString &input, TCHAR *szReturnValue) co
 	}
 	// [NAME] [PROP] [N]
 	else if ((prop == TEXT("zlayer")) && (numtok > 2)) {
-		int n = input.gettok( 3 ).to_int();
+		int n = input.getnexttok( ).to_int();	// tok 3
 		const int size = (int) this->m_vZLayers.size();
 
 		// return total number of id's

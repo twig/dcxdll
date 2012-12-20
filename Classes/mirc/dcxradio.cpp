@@ -101,20 +101,33 @@ TString DcxRadio::getStyles(void) const
 
 void DcxRadio::parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme )
 {
-	const UINT numtok = styles.numtok( );
 	*Styles |= BS_AUTORADIOBUTTON;
+	//const UINT numtok = styles.numtok( );
 
-	for (UINT i = 1; i <= numtok; i++)
+	//for (UINT i = 1; i <= numtok; i++)
+	//{
+	//	if ( styles.gettok( i ) == TEXT("rjustify") )
+	//		*Styles |= BS_RIGHT;
+	//	else if ( styles.gettok( i ) == TEXT("center") )
+	//		*Styles |= BS_CENTER;
+	//	else if ( styles.gettok( i ) == TEXT("ljustify") )
+	//		*Styles |= BS_LEFT;
+	//	else if ( styles.gettok( i ) == TEXT("right") )
+	//		*Styles |= BS_RIGHTBUTTON;
+	//	else if ( styles.gettok( i ) == TEXT("pushlike") )
+	//		*Styles |= BS_PUSHLIKE;
+	//}
+	for (TString tsStyle(styles.getfirsttok( 1 )); tsStyle != ""; tsStyle = styles.getnexttok( ))
 	{
-		if ( styles.gettok( i ) == TEXT("rjustify") )
+		if ( tsStyle == TEXT("rjustify") )
 			*Styles |= BS_RIGHT;
-		else if ( styles.gettok( i ) == TEXT("center") )
+		else if ( tsStyle == TEXT("center") )
 			*Styles |= BS_CENTER;
-		else if ( styles.gettok( i ) == TEXT("ljustify") )
+		else if ( tsStyle == TEXT("ljustify") )
 			*Styles |= BS_LEFT;
-		else if ( styles.gettok( i ) == TEXT("right") )
+		else if ( tsStyle == TEXT("right") )
 			*Styles |= BS_RIGHTBUTTON;
-		else if ( styles.gettok( i ) == TEXT("pushlike") )
+		else if ( tsStyle == TEXT("pushlike") )
 			*Styles |= BS_PUSHLIKE;
 	}
 
@@ -132,7 +145,7 @@ void DcxRadio::parseControlStyles( const TString & styles, LONG * Styles, LONG *
 
 void DcxRadio::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) const
 {
-	const TString prop(input.gettok( 3 ));
+	const TString prop(input.getfirsttok( 3 ));
 
 	// [NAME] [ID] [PROP]
 	if ( prop == TEXT("text") ) {
@@ -163,7 +176,7 @@ void DcxRadio::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) c
  */
 
 void DcxRadio::parseCommandRequest( const TString & input ) {
-	const XSwitchFlags flags(input.gettok(3));
+	const XSwitchFlags flags(input.getfirsttok( 3 ));
 	const UINT numtok = input.numtok( );
 
 	//xdid -c [NAME] [ID] [SWITCH]
