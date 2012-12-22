@@ -86,13 +86,11 @@ void DcxPager::toXml(TiXmlElement * xml) const
 
 void DcxPager::parseControlStyles( const TString &styles, LONG *Styles, LONG *ExStyles, BOOL *bNoTheme)
 {
-	const UINT numtok = styles.numtok( );
-
-	for (UINT i = 1;  i <= numtok; i++ ) {
-
-		if (styles.gettok( i ) == TEXT("horizontal"))
+	for (TString tsStyle(styles.getfirsttok( 1 )); tsStyle != ""; tsStyle = styles.getnexttok( ))
+	{
+		if (tsStyle == TEXT("horizontal"))
 			*Styles |= PGS_HORZ;
-		else if (styles.gettok( i ) == TEXT("autoscroll"))
+		else if (tsStyle == TEXT("autoscroll"))
 			*Styles |= PGS_AUTOSCROLL;
 	}
 
@@ -138,12 +136,12 @@ void DcxPager::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) c
  */
 
 void DcxPager::parseCommandRequest( const TString & input ) {
-	const XSwitchFlags flags(input.gettok(3));
-	const int numtok = input.numtok();
+	const XSwitchFlags flags(input.getfirsttok( 3 ));
+	const UINT numtok = input.numtok();
 
 	// xdid -b [NAME] [ID] [SWITCH] [W]
 	if ( flags[TEXT('b')] && numtok > 3 ) {
-		this->setBorderSize(input.gettok( 4 ).to_int());
+		this->setBorderSize(input.getnexttok( ).to_int());	// tok 4
 	}
 	// xdid -c [NAME] [ID] [SWITCH] [ID] [CONTROL] [X] [Y] [W] [H] (OPTIONS)
 	else if ( flags[TEXT('c')] && numtok > 8 ) {
@@ -153,7 +151,7 @@ void DcxPager::parseCommandRequest( const TString & input ) {
 			//DCXError( TEXT("/xdid -c"),TEXT("Child Control already exists") );
 			return;
 		}
-		const UINT ID = mIRC_ID_OFFSET + (UINT)input.gettok( 4 ).to_int( );
+		const UINT ID = mIRC_ID_OFFSET + (UINT)input.getnexttok( ).to_int( );	// tok 4
 
 		if ( (ID > mIRC_ID_OFFSET - 1) && 
 			!IsWindow( GetDlgItem( this->m_pParentDialog->getHwnd( ), ID ) ) && 
@@ -189,7 +187,7 @@ void DcxPager::parseCommandRequest( const TString & input ) {
 	// xdid -d [NAME] [ID] [SWITCH] [ID]
 	else if ( flags[TEXT('d')] && numtok > 3 ) {
 
-		const UINT ID = mIRC_ID_OFFSET + input.gettok( 4 ).to_int( );
+		const UINT ID = mIRC_ID_OFFSET + input.getnexttok( ).to_int( );		// tok 4
 		DcxControl * p_Control;
 
 		if ( IsWindow( GetDlgItem( this->m_Hwnd, ID ) ) && (ID > mIRC_ID_OFFSET - 1) && ( p_Control = this->m_pParentDialog->getControlByID( ID ) ) != NULL ) 

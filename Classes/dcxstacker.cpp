@@ -106,17 +106,15 @@ void DcxStacker::parseControlStyles( const TString & styles, LONG * Styles, LONG
 	*Styles |= LBS_OWNERDRAWVARIABLE|LBS_NOTIFY;
 	this->m_dStyles = STACKERS_COLLAPSE;
 
-	const UINT numtok = styles.numtok( );
-
-	for (UINT i = 1; i <= numtok; i++ )
+	for (TString tsStyle(styles.getfirsttok( 1 )); tsStyle != TEXT(""); tsStyle = styles.getnexttok( ))
 	{
-		if ( styles.gettok( i ) == TEXT("vscroll") )
+		if ( tsStyle == TEXT("vscroll") )
 			*Styles |= WS_VSCROLL;
-		else if ( styles.gettok( i ) == TEXT("gradient") )
+		else if ( tsStyle == TEXT("gradient") )
 			this->m_dStyles |= STACKERS_GRAD;
-		else if ( styles.gettok( i ) == TEXT("arrows") )
+		else if ( tsStyle == TEXT("arrows") )
 			this->m_dStyles |= STACKERS_ARROW;
-		else if ( styles.gettok( i ) == TEXT("nocollapse") )
+		else if ( tsStyle == TEXT("nocollapse") )
 			this->m_dStyles &= ~STACKERS_COLLAPSE;
 	}
 	this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
@@ -133,12 +131,12 @@ void DcxStacker::parseControlStyles( const TString & styles, LONG * Styles, LONG
 
 void DcxStacker::parseInfoRequest( const TString & input, TCHAR * szReturnValue ) const {
 
-	const int numtok = input.numtok( );
-	const TString prop(input.gettok( 3 ));
+	const UINT numtok = input.numtok( );
+	const TString prop(input.getfirsttok( 3 ));
 
 	// [NAME] [ID] [PROP] [N]
 	if ( prop == TEXT("text") && numtok > 3 ) {
-		const int nSel = input.gettok( 4 ).to_int( ) - 1;
+		const int nSel = input.getnexttok( ).to_int( ) - 1;	// tok 4
 
 		if ( nSel > -1 && nSel < ListBox_GetCount( this->m_Hwnd ) ) {
 			LPDCXSITEM sitem = this->getItem(nSel);
@@ -159,7 +157,7 @@ void DcxStacker::parseInfoRequest( const TString & input, TCHAR * szReturnValue 
 	}
 	// [NAME] [ID] [PROP] [N]
 	else if ( prop == TEXT("haschild") && numtok > 3 ) {
-		const int nSel = input.gettok( 4 ).to_int( ) - 1;
+		const int nSel = input.getnexttok( ).to_int( ) - 1;	// tok 4
 
 		lstrcpyn(szReturnValue,TEXT("$false"), MIRC_BUFFER_SIZE_CCH);
 
@@ -174,7 +172,7 @@ void DcxStacker::parseInfoRequest( const TString & input, TCHAR * szReturnValue 
 	}
 	// [NAME] [ID] [PROP] [N]
 	else if ( prop == TEXT("childid") && numtok > 3 ) {
-		const int nSel = input.gettok( 4 ).to_int( ) - 1;
+		const int nSel = input.getnexttok( ).to_int( ) - 1;	// tok 4
 
 		lstrcpyn(szReturnValue,TEXT("0"), MIRC_BUFFER_SIZE_CCH);
 
@@ -200,7 +198,7 @@ void DcxStacker::parseInfoRequest( const TString & input, TCHAR * szReturnValue 
  */
 
 void DcxStacker::parseCommandRequest( const TString &input) {
-	const XSwitchFlags flags(input.gettok(3));
+	const XSwitchFlags flags(input.getfirsttok( 3 ));
 
 	const int numtok = input.numtok( );
 
@@ -209,20 +207,8 @@ void DcxStacker::parseCommandRequest( const TString &input) {
 		SendMessage(this->m_Hwnd, LB_RESETCONTENT, (WPARAM) 0, (LPARAM) 0);
 	}
 
-	//xdid -a [NAME] [ID] [SWITCH] [N] [+FLAGS] [IMAGE] [SIMAGE] [COLOR] [BGCOLOR] Item Text [TAB] [ID] [CONTROL] [X] [Y] [W] [H] (OPTIONS)
+	//xdid -a -> [NAME] [ID] -a [N] [+FLAGS] [IMAGE] [SIMAGE] [COLOR] [BGCOLOR] Item Text [TAB] [ID] [CONTROL] [X] [Y] [W] [H] (OPTIONS)
 	if (flags[TEXT('a')] && numtok > 9) {
-		const TString item(input.gettok(1,TSTAB).trim());
-		const TString ctrl(input.gettok(2,TSTAB).trim());
-
-		//TString flag(item.gettok( 5 ));
-		//flag.trim();
-
-		int nPos = item.gettok( 4 ).to_int( ) - 1;
-
-		if ( nPos < 0 )
-			nPos = ListBox_GetCount( this->m_Hwnd );
-		if (nPos == LB_ERR)
-			nPos = 0;
 
 		LPDCXSITEM sitem = new DCXSITEM;
 
@@ -230,14 +216,23 @@ void DcxStacker::parseCommandRequest( const TString &input) {
 			this->showError(NULL, TEXT("-a"), TEXT("Error adding item to control: No Memory"));
 			return;
 		}
+		const TString item(input.getfirsttok(1,TSTAB).trim());
+		const TString ctrl(input.getnexttok(TSTAB).trim());			// tok 2
 
-		sitem->clrBack = (COLORREF)input.gettok(9).to_num();
-		sitem->clrText = (COLORREF)input.gettok(8).to_num();
+		int nPos = item.getfirsttok( 4 ).to_int( ) - 1;
+		const TString flag(item.getnexttok( ).trim());				// tok 5	?? flag never used ??
+		sitem->iItemImg = item.getnexttok( ).to_int() -1;			// tok 6
+		sitem->iSelectedItemImg = item.getnexttok( ).to_int() -1;	// tok 7
+		sitem->clrText = (COLORREF)item.getnexttok( ).to_num();		// tok 8
+		sitem->clrBack = (COLORREF)item.getnexttok( ).to_num();		// tok 9
 		sitem->pChild = NULL;
 		sitem->hFont = NULL;
-		sitem->iItemImg = input.gettok(6).to_int() -1;
-		sitem->iSelectedItemImg = input.gettok(7).to_int() -1;
 		sitem->tsCaption = item.gettok(10,-1);
+
+		if ( nPos < 0 )
+			nPos = ListBox_GetCount( this->m_Hwnd );
+		if (nPos == LB_ERR)
+			nPos = 0;
 
 		if (ctrl.len() > 0) {
 			const UINT ID = mIRC_ID_OFFSET + (UINT)ctrl.gettok( 1 ).to_int( );
@@ -274,14 +269,14 @@ void DcxStacker::parseCommandRequest( const TString &input) {
 	}
 	// xdid -c [NAME] [ID] [SWITCH] [N]
 	else if (flags[TEXT('c')] && numtok > 3) {
-		const int nPos = input.gettok( 4 ).to_int( ) - 1;
+		const int nPos = input.getnexttok( ).to_int( ) - 1;		// tok 4
 
 		if ( nPos > -1 && nPos < ListBox_GetCount( this->m_Hwnd ) )
 			SendMessage(this->m_Hwnd,LB_SETCURSEL,nPos,NULL);
 	}
 	// xdid -d [NAME] [ID] [SWITCH] [N]
 	else if (flags[TEXT('d')] && (numtok > 3)) {
-		const int nPos = input.gettok( 4 ).to_int( ) - 1;
+		const int nPos = input.getnexttok( ).to_int( ) - 1;	// tok 4
 
 		if ( nPos > -1 && nPos < ListBox_GetCount( this->m_Hwnd ) )
 			ListBox_DeleteString( this->m_Hwnd, nPos );
@@ -296,7 +291,7 @@ void DcxStacker::parseCommandRequest( const TString &input) {
 	}
 	// xdid -T [NAME] [ID] [SWITCH] [N] (ToolTipText)
 	else if (flags[TEXT('T')] && numtok > 3) {
-		const int nPos = input.gettok( 4 ).to_int( ) - 1;
+		const int nPos = input.getnexttok( ).to_int( ) - 1;	// tok 4
 
 		if ( nPos > -1 && nPos < ListBox_GetCount( this->m_Hwnd ) ) {
 			LPDCXSITEM sitem = this->getItem(nPos);
@@ -307,8 +302,8 @@ void DcxStacker::parseCommandRequest( const TString &input) {
 	}
 	//xdid -w [NAME] [ID] [SWITCH] [+FLAGS] [FILE]
 	else if ( flags[TEXT('w')] && (numtok > 4)) {
-		const TString flag(input.gettok( 4 ));
-		TString filename(input.gettok( 5 ).trim());
+		const TString flag(input.getnexttok( ));		// tok 4
+		TString filename(input.getnexttok( ).trim());	// tok 5
 
 		if (!IsFile(filename)) {
 			this->showErrorEx(NULL, TEXT("-w"), TEXT("Unable to Access File: %s"), filename.to_chr());
@@ -329,7 +324,6 @@ int DcxStacker::getItemID(void) const {
 	POINT pt;
 	GetCursorPos( &pt );
 	MapWindowPoints(NULL, this->m_Hwnd, &pt, 1);
-	//ScreenToClient( this->m_Hwnd, &pt );
 	return (int)(LOWORD((DWORD)SendMessage(this->m_Hwnd,LB_ITEMFROMPOINT,NULL,MAKELPARAM(pt.x,pt.y))) +1);
 }
 

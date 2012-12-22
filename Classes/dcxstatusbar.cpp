@@ -93,32 +93,30 @@ DcxStatusBar::~DcxStatusBar( ) {
 
 void DcxStatusBar::parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme )
 {
-	const unsigned int numtok = styles.numtok( );
-
-	for (UINT i = 1; i <= numtok; i++ )
+	for (TString tsStyle(styles.getfirsttok( 1 )); tsStyle != TEXT(""); tsStyle = styles.getnexttok( ))
 	{
-		if ( styles.gettok( i ) == TEXT("grip") )
+		if ( tsStyle == TEXT("grip") )
 			*Styles |= SBARS_SIZEGRIP;
-		else if ( styles.gettok( i ) == TEXT("tooltips") )
+		else if ( tsStyle == TEXT("tooltips") )
 			*Styles |= SBARS_TOOLTIPS;
-		else if ( styles.gettok( i ) == TEXT("nodivider") )
+		else if ( tsStyle == TEXT("nodivider") )
 			*Styles |= CCS_NODIVIDER;
-		else if ( styles.gettok( i ) == TEXT("top") ) {
+		else if ( tsStyle == TEXT("top") ) {
 			*Styles |= CCS_TOP;
 			*Styles &= ~SBARS_SIZEGRIP; // size grip doesn't work for left or top styles.
 		}
-		else if ( styles.gettok( i ) == TEXT("noresize") )
+		else if ( tsStyle == TEXT("noresize") )
 			*Styles |= CCS_NORESIZE;
-		else if ( styles.gettok( i ) == TEXT("noparentalign") )
+		else if ( tsStyle == TEXT("noparentalign") )
 			*Styles |= CCS_NOPARENTALIGN ;
-		else if ( styles.gettok( i ) == TEXT("noauto") )
+		else if ( tsStyle == TEXT("noauto") )
 			*Styles |= CCS_NOPARENTALIGN | CCS_NORESIZE;
-		//else if ( styles.gettok( i ) == TEXT("left") )
+		//else if ( tsStyle == TEXT("left") )
 		//{ // NB: left & right styles don't render the parts vertically.
 		//	*Styles |= CCS_LEFT;
 		//	*Styles &= ~SBARS_SIZEGRIP;
 		//}
-		//else if ( styles.gettok( i ) == TEXT("right") )
+		//else if ( tsStyle == TEXT("right") )
 		//	*Styles |= CCS_RIGHT;
 	}
 	this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
@@ -216,20 +214,20 @@ void DcxStatusBar::deletePartInfo(const int iPart)
  */
 
 void DcxStatusBar::parseCommandRequest( const TString & input ) {
-	const XSwitchFlags flags(input.gettok(3));
+	const XSwitchFlags flags(input.getfirsttok( 3 ));
 
-	const unsigned int numtok = input.numtok( );
+	const UINT numtok = input.numtok( );
 
 	// xdid -k [NAME] [ID] [SWITCH] [COLOR]
 	if (flags[TEXT('k')] && numtok > 3) {
-		const int col = input.gettok( 4 ).to_int();
+		const int col = input.getnexttok( ).to_int();	// tok 4
 
 		if (col < 0)
 			this->setBkColor((COLORREF) CLR_DEFAULT);
 		else
 			this->setBkColor((COLORREF) col);
 	}
-	// xdid -l [NAME] [ID] [SWITCH] [POS [POS POS ...]]
+	// xdid -l -> [NAME] [ID] -l [POS [POS POS ...]]
 	else if ( flags[TEXT('l')] && numtok > 3 ) {
 
 		const unsigned int nParts = numtok - 3;
@@ -244,7 +242,7 @@ void DcxStatusBar::parseCommandRequest( const TString & input ) {
 				return;
 			}
 
-			p = input.gettok( i+4 );
+			p = input.getnexttok( );	// tok i+4
 			t = p.to_int();
 
 			if (p.right(1) == TEXT('%')) {

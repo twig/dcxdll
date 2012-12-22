@@ -102,27 +102,26 @@ void DcxRichEdit::parseControlStyles( const TString &styles, LONG *Styles, LONG 
 {
 	//*Styles |= ES_READONLY;
 	//ES_NOHIDESEL
-	const unsigned int numtok = styles.numtok( );
 
-	for (UINT i = 1; i <= numtok; i++)
+	for (TString tsStyle(styles.getfirsttok( 1 )); tsStyle != TEXT(""); tsStyle = styles.getnexttok( ))
 	{
-		if (styles.gettok( i ) == TEXT("multi"))
+		if (tsStyle == TEXT("multi"))
 			*Styles |= ES_MULTILINE | ES_WANTRETURN;
-		else if (styles.gettok( i ) == TEXT("readonly"))
+		else if (tsStyle == TEXT("readonly"))
 			*Styles |= ES_READONLY;
-		else if (styles.gettok( i ) == TEXT("center"))
+		else if (tsStyle == TEXT("center"))
 			*Styles |= ES_CENTER;
-		else if (styles.gettok( i ) == TEXT("right"))
+		else if (tsStyle == TEXT("right"))
 			*Styles |= ES_RIGHT;
-		else if (styles.gettok( i ) == TEXT("autohs"))
+		else if (tsStyle == TEXT("autohs"))
 			*Styles |= ES_AUTOHSCROLL;
-		else if (styles.gettok( i ) == TEXT("autovs"))
+		else if (tsStyle == TEXT("autovs"))
 			*Styles |= ES_AUTOVSCROLL;
-		else if (styles.gettok( i ) == TEXT("vsbar"))
+		else if (tsStyle == TEXT("vsbar"))
 			*Styles |= WS_VSCROLL;
-		else if (styles.gettok( i ) == TEXT("hsbar"))
+		else if (tsStyle == TEXT("hsbar"))
 			*Styles |= WS_HSCROLL;
-		else if (styles.gettok( i ) == TEXT("disablescroll"))
+		else if (tsStyle == TEXT("disablescroll"))
 			*Styles |= ES_DISABLENOSCROLL;
 	}
 
@@ -139,8 +138,8 @@ void DcxRichEdit::parseControlStyles( const TString &styles, LONG *Styles, LONG 
 */
 void DcxRichEdit::parseInfoRequest( const TString &input, TCHAR *szReturnValue) const
 {
-	const int numtok = input.numtok( );
-	const TString prop(input.gettok( 3 ));
+	const UINT numtok = input.numtok( );
+	const TString prop(input.getfirsttok( 3 ));
 
 	// [NAME] [ID] [PROP] [N]
 	if (prop == TEXT("text")) {
@@ -148,7 +147,7 @@ void DcxRichEdit::parseInfoRequest( const TString &input, TCHAR *szReturnValue) 
 		int line = 0;
 
 		if (numtok > 3)
-			line = input.gettok( 4 ).to_int() -1;
+			line = input.getnexttok( ).to_int() -1;		// tok 4
 
 		if ((line < 0) || (line >= Edit_GetLineCount(this->m_Hwnd))) {
 			Dcx::error(TEXT("text"), TEXT("Invalid line number."));
@@ -247,8 +246,8 @@ void DcxRichEdit::parseInfoRequest( const TString &input, TCHAR *szReturnValue) 
 * blah
 */
 void DcxRichEdit::parseCommandRequest(const TString &input) {
-	const XSwitchFlags flags(input.gettok(3));
-	const int numtok = input.numtok();
+	const XSwitchFlags flags(input.getfirsttok( 3 ));
+	const UINT numtok = input.numtok();
 
 	// xdid -r [NAME] [ID] [SWITCH]
 	if (flags[TEXT('r')]) {
@@ -272,7 +271,7 @@ void DcxRichEdit::parseCommandRequest(const TString &input) {
 	// xdid -d [NAME] [ID] [SWITCH] [N]
 	else if (flags[TEXT('d')] && numtok > 3) {
 		if (this->isStyle(ES_MULTILINE)) {
-			const int nLine = input.gettok( 4 ).to_int();
+			const int nLine = input.getnexttok( ).to_int();	// tok 4
 			this->m_tsText.deltok(nLine, TEXT("\r\n"));
 		}
 
@@ -281,7 +280,7 @@ void DcxRichEdit::parseCommandRequest(const TString &input) {
 	// special richedit interception for font change
 	// xdid -f [NAME] [ID] [SWITCH] [+FLAGS] [CHARSET] [SIZE] [FONTNAME]
 	else if (flags[TEXT('f')] && numtok > 3) {
-		const UINT iFontFlags = parseFontFlags(input.gettok( 4 ));
+		const UINT iFontFlags = parseFontFlags(input.getnexttok( ));	// tok 4
 
 		if (iFontFlags & DCF_DEFAULT) {
 			this->m_clrBackText = GetSysColor(COLOR_WINDOW);
@@ -297,8 +296,8 @@ void DcxRichEdit::parseCommandRequest(const TString &input) {
 		else if (numtok > 5) {
 			this->setRedraw(FALSE);
 
-			this->m_byteCharset = (BYTE)parseFontCharSet(input.gettok( 5 ));
-			this->m_iFontSize = 20 * input.gettok( 6 ).to_int();
+			this->m_byteCharset = (BYTE)parseFontCharSet(input.getnexttok( ));	// tok 5
+			this->m_iFontSize = 20 * input.getnexttok( ).to_int();				// tok 6
 			this->m_tsFontFaceName = input.gettok(7, -1).trim();
 
 			//HDC hdc = GetDC( NULL );
@@ -333,7 +332,7 @@ void DcxRichEdit::parseCommandRequest(const TString &input) {
 	// xdid -i [NAME] [ID] [SWITCH] [N] [TEXT]
 	else if (flags[TEXT('i')] && numtok > 4) {
 		if (this->isStyle(ES_MULTILINE)) {
-			const int nLine = input.gettok( 4 ).to_int();
+			const int nLine = input.getnexttok( ).to_int();	// tok 4
 			this->m_tsText.instok(input.gettok(5, -1).to_chr(), nLine, TEXT("\r\n"));
 		}
 		else {
@@ -344,7 +343,7 @@ void DcxRichEdit::parseCommandRequest(const TString &input) {
 	}
 	// xdid -k [NAME] [ID] [SWITCH] [COLOR]
 	else if (flags[TEXT('k')] && numtok > 3) {
-		const COLORREF clrColor = (COLORREF)input.gettok( 4 ).to_num();
+		const COLORREF clrColor = (COLORREF)input.getnexttok( ).to_num();	// tok 4
 
 		if (clrColor == -1)
 			SendMessage(this->m_Hwnd, EM_SETBKGNDCOLOR, (WPARAM) 1, (LPARAM) GetSysColor(COLOR_WINDOWTEXT));
@@ -356,10 +355,10 @@ void DcxRichEdit::parseCommandRequest(const TString &input) {
 	}
 	// xdid -l [NAME] [ID] [SWITCH] [N] [COLOR]
 	else if (flags[TEXT('l')] && numtok > 4) {
-		const int nColor = input.gettok( 4 ).to_int() -1;
+		const int nColor = input.getnexttok( ).to_int() -1;	// tok 4
 
 		if (nColor > -1 && nColor < 16) {
-			this->m_aColorPalette[nColor] = (COLORREF)input.gettok( 5 ).to_num();
+			this->m_aColorPalette[nColor] = (COLORREF)input.getnexttok( ).to_num();	// tok 5
 			this->parseContents(TRUE);
 		}
 	}
@@ -370,14 +369,14 @@ void DcxRichEdit::parseCommandRequest(const TString &input) {
 	}
 	// xdid -n [NAME] [ID] [SWITCH] [BOOL]
 	else if (flags[TEXT('n')] && numtok > 3) {
-		const int b = input.gettok( 4 ).to_int();
+		const int b = input.getnexttok( ).to_int();	// tok 4
 
 		this->setAutoUrlDetect(b ? TRUE : FALSE);
 	}
 	// xdid -o [NAME] [ID] [SWITCH] [N] [TEXT]
 	else if (flags[TEXT('o')] && numtok > 4) {
 		if (this->isStyle(ES_MULTILINE)) {
-			const int nLine = input.gettok( 4 ).to_int();
+			const int nLine = input.getnexttok( ).to_int();	// tok 4
 			this->m_tsText.puttok(input.gettok(5, -1).to_chr(), nLine, TEXT("\r\n"));
 		}
 		else
@@ -389,12 +388,12 @@ void DcxRichEdit::parseCommandRequest(const TString &input) {
 	else if (flags[TEXT('P')] && numtok > 1) {
 		SendMessage(this->getHwnd(),WM_PASTE,NULL,NULL);
 	}
-	// xdid -q [NAME] [ID] [SWITCH] [COLOR1] ... [COLOR16]
+	// xdid -q -> [NAME] [ID] -q [COLOR1] ... [COLOR16]
 	else if (flags[TEXT('q')] && numtok > 3) {
-		const int len = input.gettok(4, -1).numtok( );
+		const int len = numtok - 3;
 
 		for (int i = 0; (i < len && i < 16); i++)
-			this->m_aColorPalette[i] = (COLORREF)input.gettok( 4 + i ).to_num();
+			this->m_aColorPalette[i] = (COLORREF)input.getnexttok( ).to_num();	// tok 4 + i
 
 		this->parseContents(TRUE);
 	}
@@ -429,10 +428,10 @@ void DcxRichEdit::parseCommandRequest(const TString &input) {
 	else if (flags[TEXT('S')] && numtok > 3) {
 		CHARRANGE c;
 
-		c.cpMin = input.gettok( 4 ).to_int();
+		c.cpMin = input.getnexttok( ).to_int();	// tok 4
 
 		if (numtok > 4)
-			c.cpMax = input.gettok( 5 ).to_int();
+			c.cpMax = input.getnexttok( ).to_int();	// tok 5
 		else
 			c.cpMax = c.cpMin;
 
@@ -459,14 +458,14 @@ void DcxRichEdit::parseCommandRequest(const TString &input) {
 	}
 	// xdid -y [NAME] [ID] [SWITCH] [0|1]
 	else if (flags[TEXT('y')] && numtok > 3) {
-		const int state = input.gettok(4).to_int();
+		const int state = input.getnexttok( ).to_int();	// tok 4
 
 		this->m_bIgnoreRepeat = (state > 0 ? TRUE : FALSE);
 	}
 	// xdid -Z [NAME] [ID] [SWITCH] [NUMERATOR] [DENOMINATOR]
 	else if (flags[TEXT('Z')] && numtok > 4) {
-		const int num = input.gettok( 4 ).to_int();
-		const int den = input.gettok( 5 ).to_int();
+		const int num = input.getnexttok( ).to_int();	// tok 4
+		const int den = input.getnexttok( ).to_int();	// tok 5
 
 		if (!SendMessage(this->m_Hwnd, EM_SETZOOM, (WPARAM) num, (LPARAM) den))
 			this->showError(NULL, TEXT("-Z"), TEXT("Richedit zooming error"));
@@ -485,10 +484,12 @@ void DcxRichEdit::loadmIRCPalette() {
 	static const TCHAR com[] = TEXT("$color(0) $color(1) $color(2) $color(3) $color(4) $color(5) $color(6) $color(7) $color(8) $color(9) $color(10) $color(11) $color(12) $color(13) $color(14) $color(15)");
 	Dcx::mIRC.tsEval(colors, com);
 
-	const int len = colors.numtok( );
+	const UINT len = colors.numtok( );
 
-	for (int i = 0; i < len; i++)
-		this->m_aColorPalette[i] = (COLORREF)colors.gettok( i +1 ).to_num();
+	colors.getfirsttok( 0 );
+
+	for (UINT i = 0; i < len; i++)
+		this->m_aColorPalette[i] = (COLORREF)colors.getnexttok( ).to_num();	// tok i + 1
 }
 
 /*!

@@ -197,44 +197,7 @@ void DcxListView::parseControlStyles( const TString & styles, LONG * Styles, LON
 {
 	*ExStyles = WS_EX_CLIENTEDGE;
 
-	//const UINT numtok = styles.numtok( );
-
-	//for (UINT i = 1; i <= numtok; i++)
-	//{
-	//	if ( styles.gettok( i ) == TEXT("report") ) 
-	//		*Styles |= LVS_REPORT;
-	//	else if ( styles.gettok( i ) == TEXT("icon") ) 
-	//		*Styles |= LVS_ICON;
-	//	else if ( styles.gettok( i ) == TEXT("smallicon") ) 
-	//		*Styles |= LVS_SMALLICON;
-	//	else if ( styles.gettok( i ) == TEXT("list") ) 
-	//		*Styles |= LVS_LIST;
-	//	else if ( styles.gettok( i ) == TEXT("noheader") ) 
-	//		*Styles |= LVS_NOCOLUMNHEADER;
-	//	else if ( styles.gettok( i ) == TEXT("alignleft") ) 
-	//		*Styles |= LVS_ALIGNLEFT;
-	//	else if ( styles.gettok( i ) == TEXT("aligntop") ) 
-	//		*Styles |= LVS_ALIGNTOP;
-	//	else if ( styles.gettok( i ) == TEXT("autoarrange") ) 
-	//		*Styles |= LVS_AUTOARRANGE;
-	//	else if ( styles.gettok( i ) == TEXT("nolabelwrap") ) 
-	//		*Styles |= LVS_NOLABELWRAP;
-	//	else if ( styles.gettok( i ) == TEXT("showsel") ) 
-	//		*Styles |= LVS_SHOWSELALWAYS;
-	//	else if ( styles.gettok( i ) == TEXT("singlesel") ) 
-	//		*Styles |= LVS_SINGLESEL;
-	//	else if ( styles.gettok( i ) == TEXT("editlabel") ) 
-	//		*Styles |= LVS_EDITLABELS;
-	//	else if ( styles.gettok( i ) == TEXT("sortasc") ) 
-	//		*Styles |= LVS_SORTASCENDING;
-	//	else if ( styles.gettok( i ) == TEXT("sortdesc") ) 
-	//		*Styles |= LVS_SORTDESCENDING;
-	//	else if ( styles.gettok( i ) == TEXT("noscroll") ) 
-	//		*Styles |= LVS_NOSCROLL;
-	//	else if ( styles.gettok( i ) == TEXT("noheadersort") ) 
-	//		*Styles |= LVS_NOSORTHEADER;
-	//}
-	for (TString tsStyle(styles.getfirsttok( 1 )); tsStyle != ""; tsStyle = styles.getnexttok( ))
+	for (TString tsStyle(styles.getfirsttok( 1 )); tsStyle != TEXT(""); tsStyle = styles.getnexttok( ))
 	{
 		if ( tsStyle == TEXT("report") )
 			*Styles |= LVS_REPORT;
@@ -594,8 +557,8 @@ void DcxListView::parseInfoRequest( const TString &input, PTCHAR szReturnValue) 
 	// [NAME] [ID] [PROP] {TAB}[MATCHTEXT]{TAB} [T] [COLUMN] [N]
 	else if ( prop == TEXT("find") && numtok > 6 ) {
 
-		const TString matchtext(input.gettok(2, TSTAB).trim());
-		const TString params(input.gettok(3, TSTAB).trim());
+		const TString matchtext(input.getfirsttok(2, TSTAB).trim());
+		const TString params(input.getnexttok( TSTAB).trim());			// tok 3
 
 		if ( matchtext.len( ) > 0 ) {
 
@@ -1228,20 +1191,21 @@ void DcxListView::parseCommandRequest( const TString &input) {
 	// xdid -i [NAME] [ID] [SWITCH] [+FLAGS] [COLOR]
 	else if (flags[TEXT('i')] && numtok > 4) {
 		const UINT iColorFlags = this->parseColorFlags(input.getnexttok( ));	// tok 4
-		const COLORREF clrColor = (COLORREF)input.getnexttok( ).to_num();		// tok 5
+		const TString tsClr(input.getnexttok( ));	// tok 5
+		const COLORREF clrColor = (COLORREF)tsClr.to_num();
 
 		if (iColorFlags & LVCS_TEXT)
 			ListView_SetTextColor(this->m_Hwnd, clrColor);
 
 		if (iColorFlags & LVCS_BKG) {
-			if (input.gettok( 5 ) == TEXT("none"))
+			if (tsClr == TEXT("none"))
 				ListView_SetBkColor(this->m_Hwnd, CLR_NONE);
 			else
 				ListView_SetBkColor(this->m_Hwnd, clrColor);
 		}
 
 		if (iColorFlags & LVCS_BKGTEXT) {
-			if (input.gettok( 5 ) == TEXT("none"))
+			if (tsClr == TEXT("none"))
 				ListView_SetTextBkColor(this->m_Hwnd, CLR_NONE);
 			else
 				ListView_SetTextBkColor(this->m_Hwnd, clrColor);
