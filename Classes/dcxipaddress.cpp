@@ -145,7 +145,7 @@ void DcxIpAddress::parseInfoRequest( const TString & input, PTCHAR szReturnValue
  */
 
 void DcxIpAddress::parseCommandRequest( const TString &input) {
-	const XSwitchFlags flags(input.gettok(3));
+	const XSwitchFlags flags(input.getfirsttok( 3 ));
 
 	const UINT numtok = input.numtok( );
 
@@ -156,13 +156,18 @@ void DcxIpAddress::parseCommandRequest( const TString &input) {
 
 	// xdid -a [NAME] [ID] [SWITCH] IP.IP.IP.IP
 	if (flags[TEXT('a')] && numtok > 3) {
-		const TString IP(input.gettok(4).trim());
+		const TString IP(input.getnexttok( ).trim());	// tok 4
 
 		if (IP.numtok(TEXT(".")) == 4) {
 			BYTE b[4];
 
-			for (int i = 0; i < 4; i++)
-				b[i] = (BYTE) IP.gettok(i +1, TEXT(".")).to_int();
+			b[0] = (BYTE)(IP.getfirsttok( 1, TEXT(".")).to_int() & 0xFF);
+			b[1] = (BYTE)(IP.getnexttok( TEXT(".")).to_int() & 0xFF);
+			b[2] = (BYTE)(IP.getnexttok( TEXT(".")).to_int() & 0xFF);
+			b[3] = (BYTE)(IP.getnexttok( TEXT(".")).to_int() & 0xFF);
+
+			//for (unsigned int i = 0; i < 4; i++)
+			//	b[i] = (BYTE) IP.gettok(i +1, TEXT(".")).to_int();
 
 			const DWORD adr = MAKEIPADDRESS(b[0], b[1], b[2], b[3]);
 			this->setAddress(adr);
@@ -172,16 +177,16 @@ void DcxIpAddress::parseCommandRequest( const TString &input) {
 	}
 	// xdid -g [NAME] [ID] [SWITCH] [N] [MIN] [MAX]
 	else if (flags[TEXT('g')] && numtok > 5) {
-		const int nField	= input.gettok( 4 ).to_int() -1;
-		const BYTE min		= (BYTE)input.gettok( 5 ).to_int();
-		const BYTE max		= (BYTE)input.gettok( 6 ).to_int();
+		const int nField	= input.getnexttok( ).to_int() -1;				// tok 4
+		const BYTE min		= (BYTE)(input.getnexttok( ).to_int() & 0xFF);	// tok 5
+		const BYTE max		= (BYTE)(input.getnexttok( ).to_int() & 0xFF);	// tok 6
 
 		if (nField > -1 && nField < 4)
 			this->setRange(nField, min, max);
 	}
 	// xdid -j [NAME] [ID] [SWITCH] [N]
 	else if (flags[TEXT('j')] && numtok > 3) {
-		const int nField = input.gettok( 4 ).to_int() -1;
+		const int nField = input.getnexttok( ).to_int() -1;	// tok 4
 
 		if (nField > -1 && nField < 4)
 			this->setFocus(nField);

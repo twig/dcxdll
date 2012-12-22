@@ -160,7 +160,7 @@ void DcxDateTime::parseControlStyles( const TString &styles, LONG *Styles, LONG 
  */
 void DcxDateTime::parseInfoRequest( const TString &input, PTCHAR szReturnValue) const {
 
-	const TString prop(input.gettok( 3 ));
+	const TString prop(input.getfirsttok( 3 ));
 
 	// [NAME] [ID] [PROP]
 	if (prop == TEXT("range")) {
@@ -203,7 +203,7 @@ void DcxDateTime::parseInfoRequest( const TString &input, PTCHAR szReturnValue) 
  */
 // TODO: find a way to change state of checkbox /xdid -c
 void DcxDateTime::parseCommandRequest( const TString &input) {
-	const XSwitchFlags flags(input.gettok(3));
+	const XSwitchFlags flags(input.getfirsttok( 3 ));
 
 	const UINT numtok = input.numtok();
 
@@ -225,14 +225,17 @@ void DcxDateTime::parseCommandRequest( const TString &input) {
 
 		ZeroMemory(range, sizeof(SYSTEMTIME) *2);
 
-		if (input.gettok(4) != TEXT("nolimit")) {
-			const long min = (long) input.gettok(4).to_num();
+		const TString tsMin(input.getnexttok( ));	// tok 4
+		const TString tsMax(input.getnexttok( ));	// tok 5
+
+		if (tsMin != TEXT("nolimit")) {
+			const long min = (long) tsMin.to_num();
 			range[0] = MircTimeToSystemTime(min);
 			dflags |= GDTR_MIN;
 		}
 
-		if (input.gettok(5) != TEXT("nolimit")) {
-			const long max = (long) input.gettok(5).to_num();
+		if (tsMax != TEXT("nolimit")) {
+			const long max = (long) tsMax.to_num();
 			range[1] = MircTimeToSystemTime(max);
 			dflags |= GDTR_MAX;
 		}
@@ -241,7 +244,7 @@ void DcxDateTime::parseCommandRequest( const TString &input) {
 	}
 	//xdid -t [NAME] [ID] [SWITCH] [TIMESTAMP]
 	else if (flags[TEXT('t')] && numtok > 3) {
-		const TString ts(input.gettok(4));
+		const TString ts(input.getnexttok( ));	// tok 4
 
 		if (ts == TEXT("reset")) {
 			if (isStyle(DTS_SHOWNONE))

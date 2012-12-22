@@ -119,7 +119,7 @@ void DcxDirectshow::parseControlStyles( const TString & styles, LONG * Styles, L
 
 void DcxDirectshow::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) const
 {
-	const TString prop(input.gettok( 3 ));
+	const TString prop(input.getfirsttok( 3 ));
 
 	if (this->m_pGraph == NULL) {
 		// [NAME] [ID] [PROP]
@@ -321,12 +321,12 @@ void DcxDirectshow::parseInfoRequest( const TString & input, PTCHAR szReturnValu
  */
 
 void DcxDirectshow::parseCommandRequest( const TString &input) {
-	const XSwitchFlags flags(input.gettok(3));
+	const XSwitchFlags flags(input.getfirsttok( 3 ));
 	const unsigned int numtok = input.numtok( );
 
 	// xdid -a [NAME] [ID] [SWITCH] [+FLAGS] [FILE]
 	if ( flags[TEXT('a')] && numtok > 4 ) {
-		const XSwitchFlags xflags(input.gettok(4).trim());
+		const XSwitchFlags xflags(input.getnexttok( ).trim());	// tok 4
 		TString filename(input.gettok(5,-1).trim());
 
 		this->ReleaseAll();
@@ -465,7 +465,7 @@ void DcxDirectshow::parseCommandRequest( const TString &input) {
 	else if ( flags[TEXT('c')] && numtok > 3 ) {
 		if (this->m_pControl != NULL) {
 			static const TString cmdlist(TEXT("play pause stop close seek"));
-			const int nType = cmdlist.findtok(input.gettok(4).to_chr(),1);
+			const int nType = cmdlist.findtok(input.getnexttok( ).to_chr(),1);	// tok 4
 			switch (nType)
 			{
 			case 1: // play
@@ -490,7 +490,7 @@ void DcxDirectshow::parseCommandRequest( const TString &input) {
 			case 5: // seek
 				{
 					this->m_pControl->Pause(); // pause play
-					this->setPosition(input.gettok(5).to_num());
+					this->setPosition(input.getnexttok( ).to_num());	// tok 5
 					this->m_pControl->StopWhenReady(); // causes new image to be rendered.
 				}
 				break;
@@ -517,7 +517,7 @@ void DcxDirectshow::parseCommandRequest( const TString &input) {
 	}
 	// xdid -V [NAME] [ID] [SWITCH] [+FLAGS] [ARGS]
 	else if ( flags[TEXT('V')] && numtok > 4 ) {
-		const TString flag(input.gettok( 4 ));
+		const TString flag(input.getnexttok( ));	// tok 4
 
 		if (flag[0] != TEXT('+')) {
 			this->showError(NULL, TEXT("-V"), TEXT("Invalid Flags Identifier"));
@@ -530,7 +530,7 @@ void DcxDirectshow::parseCommandRequest( const TString &input) {
 		switch (flag[1]) {
 			case TEXT('v'): // Volume
 				{
-					HRESULT hr = this->setVolume((float)input.gettok(5).to_float());
+					HRESULT hr = this->setVolume((float)input.getnexttok( ).to_float());	// tok 5
 					if (FAILED(hr)) {
 						this->showError(NULL,TEXT("-V +v"), TEXT("Unable to Set Volume"));
 						DX_ERR(NULL,TEXT("-V +v"), hr);

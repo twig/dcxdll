@@ -103,18 +103,17 @@ TString DcxProgressBar::getStyles(void) const
 
 void DcxProgressBar::parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme )
 {
-	const UINT numtok = styles.numtok( );
 	this->m_bIsGrad = FALSE;
 
-	for (UINT i = 1;  i <= numtok; i++ )
+	for (TString tsStyle(styles.getfirsttok( 1 )); tsStyle != TEXT(""); tsStyle = styles.getnexttok( ))
 	{
-		if ( styles.gettok( i ) == TEXT("smooth") ) 
+		if ( tsStyle == TEXT("smooth") ) 
 			*Styles |= PBS_SMOOTH;
-		else if ( styles.gettok( i ) == TEXT("vertical") ) 
+		else if ( tsStyle == TEXT("vertical") ) 
 			*Styles |= PBS_VERTICAL;
-		else if ( styles.gettok( i ) == TEXT("marquee") ) 
+		else if ( tsStyle == TEXT("marquee") ) 
 			*Styles |= PBS_MARQUEE;
-		else if ( styles.gettok( i ) == TEXT("gradient") ) {
+		else if ( tsStyle == TEXT("gradient") ) {
 			*Styles |= PBS_SMOOTH;
 			this->m_bIsGrad = TRUE;
 		}
@@ -133,7 +132,7 @@ void DcxProgressBar::parseControlStyles( const TString & styles, LONG * Styles, 
 
 void DcxProgressBar::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) const
 {
-	const TString prop(input.gettok( 3 ));
+	const TString prop(input.getfirsttok( 3 ));
 
 	if ( prop == TEXT("value") ) {
 		wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), this->getPosition( ) );
@@ -161,12 +160,12 @@ void DcxProgressBar::parseInfoRequest( const TString & input, PTCHAR szReturnVal
  */
 
 void DcxProgressBar::parseCommandRequest( const TString &input) {
-	const XSwitchFlags flags(input.gettok(3));
-	const int numtok = input.numtok();
+	const XSwitchFlags flags(input.getfirsttok( 3 ));
+	const UINT numtok = input.numtok();
 
 	// xdid -c name ID $rgb(color)
 	if (flags[TEXT('c')]) {
-		this->setBarColor((COLORREF) input.gettok( 4 ).to_num());
+		this->setBarColor((COLORREF) input.getnexttok( ).to_num());	// tok 4
 	}
 	//// xdid -g name ID [1|0]
 	//else if ( flags[TEXT('g')] ) {
@@ -174,7 +173,7 @@ void DcxProgressBar::parseCommandRequest( const TString &input) {
 	//}
 	// xdid -i name ID (TEXT)
 	else if (flags[TEXT('i')]) {
-		if (input.numtok( ) > 3)
+		if (numtok > 3)
 			this->m_tsText = input.gettok(4, -1);
 		else
 			this->m_tsText = TEXT("");
@@ -183,7 +182,7 @@ void DcxProgressBar::parseCommandRequest( const TString &input) {
 	}
 	// xdid -j name ID [a|p]
 	else if (flags[TEXT('j')]) {
-		if (input.gettok( 4 ) == TEXT('a'))
+		if (input.getnexttok( ) == TEXT('a'))	// tok 4
 			this->m_bIsAbsoluteValue = TRUE;
 		else
 			this->m_bIsAbsoluteValue = FALSE;
@@ -192,20 +191,20 @@ void DcxProgressBar::parseCommandRequest( const TString &input) {
 	}
 	// xdid -k name ID $rgb(color)
 	else if (flags[TEXT('k')]) {
-		this->setBKColor((COLORREF) input.gettok( 4 ).to_num());
+		this->setBKColor((COLORREF) input.getnexttok( ).to_num());	// tok 4
 	}
 	// xdid -m(o|g) name ID N
 	else if (flags[TEXT('m')]) {
 		// -mo
 		if (flags[TEXT('o')])
-			this->setMarquee(TRUE, (int)input.gettok( 4 ).to_num());
+			this->setMarquee(TRUE, input.getnexttok( ).to_int());	// tok 4
 		// -mg
 		else if (flags[TEXT('g')])
 			this->setMarquee(FALSE, 0);
 	}
 	// xdid -q name ID [COLOR]
 	else if ( flags[TEXT('q')] ) {
-		this->m_clrText = (COLORREF) input.gettok( 4 ).to_num();
+		this->m_clrText = (COLORREF) input.getnexttok( ).to_num();	// tok 4
 		this->redrawWindow();
 	}
 	// xdid -r name ID RLow RHigh
@@ -219,12 +218,12 @@ void DcxProgressBar::parseCommandRequest( const TString &input) {
 	}
 	// xdid -u name ID N
 	else if (flags[TEXT('u')]) {
-		this->setStep(input.gettok( 4 ).to_int());
+		this->setStep(input.getnexttok( ).to_int());	// tok 4
 	}
 	// xdid -v name ID N
 	else if (flags[TEXT('v')]) {
 		if (numtok > 3)
-			this->setPosition(input.gettok( 4 ).to_int());
+			this->setPosition(input.getnexttok( ).to_int());	// tok 4
 	}
 	// xdid [-o] [NAME] [ID] [ENABLED]
 	// vertical fonts [1|0]
@@ -236,7 +235,7 @@ void DcxProgressBar::parseCommandRequest( const TString &input) {
 		ZeroMemory(&lfCurrent, sizeof(LOGFONT));
 
 		GetObject(this->m_hFont, sizeof(LOGFONT), &lfCurrent);
-		const int angle = input.gettok( 4 ).to_int();
+		const int angle = input.getnexttok( ).to_int();	// tok 4
 
 		//TODO: let user specify angle of text?
 		if (angle) {

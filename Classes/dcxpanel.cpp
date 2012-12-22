@@ -114,13 +114,13 @@ void DcxPanel::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) c
  */
 
 void DcxPanel::parseCommandRequest( const TString & input ) {
-	const XSwitchFlags flags(input.gettok(3));
-	const int numtok = input.numtok( );
+	const XSwitchFlags flags(input.getfirsttok( 3 ));
+	const UINT numtok = input.numtok( );
 
 	// xdid -c [NAME] [ID] [SWITCH] [ID] [CONTROL] [X] [Y] [W] [H] (OPTIONS)
 	if ( flags[TEXT('c')] && numtok > 8 ) {
 
-		const UINT ID = mIRC_ID_OFFSET + input.gettok( 4 ).to_int( );
+		const UINT ID = mIRC_ID_OFFSET + input.getnexttok( ).to_int( );	// tok 4
 
 		if ( (ID > mIRC_ID_OFFSET - 1) && 
 			!IsWindow( GetDlgItem( this->m_pParentDialog->getHwnd( ), ID ) ) && 
@@ -144,7 +144,7 @@ void DcxPanel::parseCommandRequest( const TString & input ) {
 	// xdid -d [NAME] [ID] [SWITCH] [ID]
 	else if ( flags[TEXT('d')] && numtok > 3 ) {
 
-		const UINT ID = mIRC_ID_OFFSET + input.gettok( 4 ).to_int( );
+		const UINT ID = mIRC_ID_OFFSET + input.getnexttok( ).to_int( );	// tok 4
 		DcxControl * p_Control;
 
 		if ( IsWindow( GetDlgItem( this->m_Hwnd, ID ) ) && 
@@ -175,7 +175,9 @@ void DcxPanel::parseCommandRequest( const TString & input ) {
 	*/
 	else if ( flags[TEXT('l')] && numtok > 3 ) {
 
-		if ( input.gettok( 4 ) == TEXT("update") ) {
+		const TString tsCmd(input.getnexttok( ));	// tok 4
+
+		if ( tsCmd == TEXT("update") ) {
 
 			if ( this->m_pLayoutManager != NULL ) {
 
@@ -185,7 +187,7 @@ void DcxPanel::parseCommandRequest( const TString & input ) {
 				this->redrawWindow();
 			}
 		}
-		else if (input.gettok( 4 ) == TEXT("clear")) {
+		else if (tsCmd == TEXT("clear")) {
 			if (this->m_pLayoutManager != NULL)
 				delete this->m_pLayoutManager;
 			this->m_pLayoutManager = new LayoutManager(this->m_Hwnd);
@@ -193,14 +195,14 @@ void DcxPanel::parseCommandRequest( const TString & input ) {
 		}
 		else if ( numtok > 8 ) {
 			const TString com(input.gettok(1, TSTAB).gettok(4).trim());
-			const TString path(input.gettok(1, TSTAB).gettok(5, -1).trim());
-			const TString p2(input.gettok(2, TSTAB).trim());
+			const TString path(input.getfirsttok(1, TSTAB).gettok(5, -1).trim());
+			const TString p2(input.getnexttok( TSTAB).trim());	// tok 2
 
-			const UINT iflags = this->parseLayoutFlags( p2.gettok( 1 ) );
-			const UINT ID = p2.gettok( 2 ).to_int( );
-			const UINT WGT = p2.gettok( 3 ).to_int( );
-			const UINT W = p2.gettok( 4 ).to_int( );
-			const UINT H = p2.gettok( 5 ).to_int( );
+			const UINT iflags = this->parseLayoutFlags( p2.getfirsttok( 1 ) );
+			const UINT ID = p2.getnexttok( ).to_int( );		// tok 2
+			const UINT WGT = p2.getnexttok( ).to_int( );	// tok 3
+			const UINT W = p2.getnexttok( ).to_int( );		// tok 4
+			const UINT H = p2.getnexttok( ).to_int( );		// tok 5
 
 			if ( com ==  TEXT("root") || com == TEXT("cell") ) {
 

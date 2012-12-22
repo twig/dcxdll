@@ -112,7 +112,7 @@ void DcxDivider::parseControlStyles( const TString & styles, LONG * Styles, LONG
 
 void DcxDivider::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) const
 {
-	const TString prop(input.gettok(3));
+	const TString prop(input.getfirsttok( 3 ));
 
 	// [NAME] [ID] [PROP]
 	if (prop == TEXT("position")) {
@@ -139,7 +139,7 @@ void DcxDivider::parseInfoRequest( const TString & input, PTCHAR szReturnValue )
  */
 
 void DcxDivider::parseCommandRequest( const TString & input ) {
-	const XSwitchFlags flags(input.gettok(3));
+	const XSwitchFlags flags(input.getfirsttok( 3 ));
 
 	const int numtok = input.numtok( );
 
@@ -150,15 +150,15 @@ void DcxDivider::parseCommandRequest( const TString & input ) {
 		ZeroMemory( &dvpi, sizeof( DVPANEINFO ) );
 		dvpi.cbSize = sizeof( DVPANEINFO );
 
-		const TString data(input.gettok(1, TSTAB).trim());
+		const TString data(input.getfirsttok(1, TSTAB).trim());
 		TString control_data;
 
 		if ( input.numtok( TSTAB ) > 1 )
-			control_data = input.gettok(2, TSTAB).trim();
+			control_data = input.getnexttok( TSTAB ).trim();	// tok 2
 
 		dvpi.fMask = DVPIM_CHILD | DVPIM_MIN | DVPIM_IDEAL;
-		dvpi.cxMin = data.gettok( 4 ).to_int( );
-		dvpi.cxIdeal = data.gettok( 5 ).to_int( );
+		dvpi.cxMin = data.getfirsttok( 4 ).to_int( );
+		dvpi.cxIdeal = data.getnexttok( ).to_int( );	// tok 5
 
 		if ( control_data.numtok( ) > 5 ) {
 
@@ -195,7 +195,7 @@ void DcxDivider::parseCommandRequest( const TString & input ) {
 	}
 	// xdid -v [NAME] [ID] [SWITCH] [POS]
 	else if (flags[TEXT('v')] && numtok > 3) {
-		if (!this->setDivPos(input.gettok(4).to_int()))
+		if (!this->setDivPos(input.getnexttok( ).to_int()))	// tok 4
 			this->showError(NULL, TEXT("-v"), TEXT("Divider position must be between bounds."));
 	}
 	else

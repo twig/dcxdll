@@ -124,7 +124,7 @@ void DcxMDialog::parseInfoRequest( const TString &input, PTCHAR szReturnValue) c
  */
 
 void DcxMDialog::parseCommandRequest( const TString & input ) {
-	const XSwitchFlags flags(input.gettok(3));
+	const XSwitchFlags flags(input.getfirsttok( 3 ));
 
 	this->parseGlobalCommandRequest(input, flags);
 }
