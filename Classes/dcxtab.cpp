@@ -103,41 +103,39 @@ DcxTab::~DcxTab( ) {
 
 void DcxTab::parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ) {
 
-	const unsigned int numtok = styles.numtok( );
-
 	//*ExStyles = WS_EX_CONTROLPARENT;
 
-	for (UINT i = 1; i <= numtok; i++ )
+	for (TString tsStyle(styles.getfirsttok( 1 )); tsStyle != TEXT(""); tsStyle = styles.getnexttok( ))
 	{
-		if ( styles.gettok( i ) == TEXT("vertical") )
+		if ( tsStyle == TEXT("vertical") )
 			*Styles |= TCS_VERTICAL;
-		else if ( styles.gettok( i ) == TEXT("bottom") )
+		else if ( tsStyle == TEXT("bottom") )
 			*Styles |= TCS_BOTTOM;
-		else if ( styles.gettok( i ) == TEXT("right") )
+		else if ( tsStyle == TEXT("right") )
 			*Styles |= TCS_RIGHT;
-		else if ( styles.gettok( i ) == TEXT("fixedwidth") )
+		else if ( tsStyle == TEXT("fixedwidth") )
 			*Styles |= TCS_FIXEDWIDTH;
-		else if ( styles.gettok( i ) == TEXT("buttons") )
+		else if ( tsStyle == TEXT("buttons") )
 			*Styles |= TCS_BUTTONS;
-		else if ( styles.gettok( i ) == TEXT("flat") )
+		else if ( tsStyle == TEXT("flat") )
 			*Styles |= TCS_FLATBUTTONS;
-		else if ( styles.gettok( i ) == TEXT("hot") )
+		else if ( tsStyle == TEXT("hot") )
 			*Styles |= TCS_HOTTRACK;
-		else if ( styles.gettok( i ) == TEXT("multiline") )
+		else if ( tsStyle == TEXT("multiline") )
 			*Styles |= TCS_MULTILINE;
-		else if ( styles.gettok( i ) == TEXT("rightjustify") )
+		else if ( tsStyle == TEXT("rightjustify") )
 			*Styles |= TCS_RIGHTJUSTIFY;
-		else if ( styles.gettok( i ) == TEXT("scrollopposite") )
+		else if ( tsStyle == TEXT("scrollopposite") )
 			*Styles |= TCS_SCROLLOPPOSITE;
-		//else if ( styles.gettok( i ) == TEXT("tooltips") )
+		//else if ( tsStyle == TEXT("tooltips") )
 		//  *Styles |= TCS_TOOLTIPS;
-		else if ( styles.gettok( i ) == TEXT("flatseps") )
+		else if ( tsStyle == TEXT("flatseps") )
 			*ExStyles |= TCS_EX_FLATSEPARATORS;
-		else if (styles.gettok(i) == TEXT("closable")) {
+		else if ( tsStyle == TEXT("closable")) {
 			this->m_bClosable = true;
 			*Styles |= TCS_OWNERDRAWFIXED;
 		}
-		else if ( styles.gettok( i ) == TEXT("gradient") )
+		else if ( tsStyle == TEXT("gradient") )
 			this->m_bGradient = true;
 	}
 	this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
@@ -154,12 +152,12 @@ void DcxTab::parseControlStyles( const TString & styles, LONG * Styles, LONG * E
 
 void DcxTab::parseInfoRequest( const TString & input, TCHAR * szReturnValue ) const {
 
-	const int numtok = input.numtok( );
-	const TString prop(input.gettok( 3 ));
+	const UINT numtok = input.numtok( );
+	const TString prop(input.getfirsttok( 3 ));
 
 	if ( prop == TEXT("text") && numtok > 3 ) {
 
-		const int nItem = input.gettok( 4 ).to_int( ) - 1;
+		const int nItem = input.getnexttok( ).to_int( ) - 1;	// tok 4
 
 		if ( nItem > -1 && nItem < TabCtrl_GetItemCount( this->m_Hwnd ) ) {
 
@@ -182,7 +180,7 @@ void DcxTab::parseInfoRequest( const TString & input, TCHAR * szReturnValue ) co
 	// [NAME] [ID] [PROP] [N]
 	else if ( prop == TEXT("icon") && numtok > 3 ) {
 
-		const int iTab = input.gettok( 4 ).to_int( ) - 1;
+		const int iTab = input.getnexttok( ).to_int( ) - 1;		// tok 4
 
 		if ( iTab > -1 && iTab < TabCtrl_GetItemCount( this->m_Hwnd ) ) {
 
@@ -226,7 +224,7 @@ void DcxTab::parseInfoRequest( const TString & input, TCHAR * szReturnValue ) co
 	}
 	else if ( prop == TEXT("childid") && numtok > 3 ) {
 
-		const int nItem = input.gettok( 4 ).to_int( ) - 1;
+		const int nItem = input.getnexttok( ).to_int( ) - 1;	// tok 4
 
 		if ( nItem > -1 && nItem < TabCtrl_GetItemCount( this->m_Hwnd ) ) {
 
@@ -273,8 +271,8 @@ void DcxTab::parseInfoRequest( const TString & input, TCHAR * szReturnValue ) co
  */
 
 void DcxTab::parseCommandRequest( const TString & input ) {
-	const XSwitchFlags flags(input.gettok(3));
-	const int numtok = input.numtok( );
+	const XSwitchFlags flags(input.getfirsttok( 3 ));
+	const UINT numtok = input.numtok( );
 
 	// xdid -r [NAME] [ID] [SWITCH]
 	if (flags[TEXT('r')]) {
@@ -306,22 +304,25 @@ void DcxTab::parseCommandRequest( const TString & input ) {
 		ZeroMemory( &tci, sizeof( TCITEM ) );
 		tci.mask = TCIF_IMAGE | TCIF_PARAM;
 
-		const TString data(input.gettok( 1, TSTAB ).trim());
+		const TString data(input.getfirsttok( 1, TSTAB ).trim());
 
 		TString control_data;
-		if ( input.numtok( TSTAB ) > 1 )
-			control_data = input.gettok( 2, TSTAB ).trim();
-
 		TString tooltip;
-		if ( input.numtok( TSTAB ) > 2 )
-			tooltip = input.gettok( 3, -1, TSTAB ).trim();
+		const UINT nToks = input.numtok( TSTAB );
 
-		int nIndex = data.gettok( 4 ).to_int( ) - 1;
+		if ( nToks > 1 ) {
+			control_data = input.getnexttok( TSTAB ).trim();	// tok 2
+
+			if ( nToks > 2 )
+				tooltip = input.gettok( 3, -1, TSTAB ).trim();
+		}
+
+		int nIndex = data.getfirsttok( 4 ).to_int( ) - 1;
 
 		if ( nIndex == -1 )
 			nIndex += TabCtrl_GetItemCount( this->m_Hwnd ) + 1;
 
-		tci.iImage = data.gettok( 5 ).to_int( ) - 1;
+		tci.iImage = data.getnexttok( ).to_int( ) - 1;	// tok 5
 
 		// Extra params
 		LPDCXTCITEM lpdtci = new DCXTCITEM;
@@ -386,7 +387,7 @@ void DcxTab::parseCommandRequest( const TString & input ) {
 	}
 	// xdid -c [NAME] [ID] [SWITCH] [N]
 	else if ( flags[TEXT('c')] && numtok > 3 ) {
-		const int nItem = input.gettok( 4 ).to_int( ) - 1;
+		const int nItem = input.getnexttok( ).to_int( ) - 1;	// tok 4
 
 		if ( nItem > -1 && nItem < TabCtrl_GetItemCount( this->m_Hwnd ) ) {
 			TabCtrl_SetCurSel( this->m_Hwnd, nItem );
@@ -395,7 +396,7 @@ void DcxTab::parseCommandRequest( const TString & input ) {
 	}
 	// xdid -d [NAME] [ID] [SWITCH] [N]
 	else if ( flags[TEXT('d')] && numtok > 3 ) {
-		const int nItem = input.gettok( 4 ).to_int( ) - 1;
+		const int nItem = input.getnexttok( ).to_int( ) - 1;	// tok 4
 
 		// if a valid item to delete
 		if ( nItem > -1 && nItem < TabCtrl_GetItemCount( this->m_Hwnd ) ) {
@@ -429,8 +430,8 @@ void DcxTab::parseCommandRequest( const TString & input ) {
 	}
 	// xdid -l [NAME] [ID] [SWITCH] [N] [ICON]
 	else if ( flags[TEXT('l')] && numtok > 4 ) {
-		const int nItem = input.gettok( 4 ).to_int( ) - 1;
-		const int nIcon = input.gettok( 5 ).to_int( ) - 1;
+		const int nItem = input.getnexttok( ).to_int( ) - 1;	// tok 4
+		const int nIcon = input.getnexttok( ).to_int( ) - 1;	// tok 5
 
 		if ( nItem > -1 && nItem < TabCtrl_GetItemCount( this->m_Hwnd ) ) {
 			TCITEM tci;
@@ -444,8 +445,8 @@ void DcxTab::parseCommandRequest( const TString & input ) {
 	// xdid -m [NAME] [ID] [SWITCH] [X] [Y]
 	else if ( flags[TEXT('m')] && numtok > 4 ) {
 
-		const int X = input.gettok( 4 ).to_int( );
-		const int Y = input.gettok( 5 ).to_int( );
+		const int X = input.getnexttok( ).to_int( );	// tok 4
+		const int Y = input.getnexttok( ).to_int( );	// tok 5
 
 		TabCtrl_SetItemSize( this->m_Hwnd, X, Y );
 	}
@@ -456,7 +457,7 @@ void DcxTab::parseCommandRequest( const TString & input ) {
 	// xdid -t [NAME] [ID] [SWITCH] [N] (text)
 	else if ( flags[TEXT('t')] && numtok > 3 ) {
 
-		const int nItem = input.gettok( 4 ).to_int( ) - 1;
+		const int nItem = input.getnexttok( ).to_int( ) - 1;	// tok 4
 
 		if ( nItem > -1 && nItem < TabCtrl_GetItemCount( this->m_Hwnd ) ) {
 
@@ -465,7 +466,6 @@ void DcxTab::parseCommandRequest( const TString & input ) {
 			TCITEM tci;
 			ZeroMemory( &tci, sizeof( TCITEM ) );
 			tci.mask = TCIF_TEXT;
-
 
 			if ( numtok > 4 )
 				itemtext = input.gettok( 5, -1 ).trim();
@@ -478,8 +478,8 @@ void DcxTab::parseCommandRequest( const TString & input ) {
 
 	// xdid -v [DNAME] [ID] [SWITCH] [N] [POS]
 	else if (flags[TEXT('v')] && numtok > 4) {
-		int nItem = input.gettok(4).to_int();
-		const int pos = input.gettok(5).to_int();
+		int nItem = input.getnexttok( ).to_int();		// tok 4
+		const int pos = input.getnexttok( ).to_int();	// tok 5
 		BOOL adjustDelete = FALSE;
 
 		if (nItem == pos)
@@ -517,8 +517,8 @@ void DcxTab::parseCommandRequest( const TString & input ) {
 
 	// xdid -w [NAME] [ID] [SWITCH] [FLAGS] [INDEX] [FILENAME]
 	else if (flags[TEXT('w')] && numtok > 5) {
-		const TString flag(input.gettok( 4 ));
-		const int index = input.gettok( 5 ).to_int();
+		const TString flag(input.getnexttok( ));		// tok 4
+		const int index = input.getnexttok( ).to_int();	// tok 5
 		TString filename(input.gettok(6, -1));
 
 		HIMAGELIST himl = this->getImageList();
