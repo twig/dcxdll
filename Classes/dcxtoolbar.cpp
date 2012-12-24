@@ -111,41 +111,39 @@ void DcxToolBar::parseControlStyles( const TString & styles, LONG * Styles, LONG
 {
 
 	//*Styles |= CCS_ADJUSTABLE;
-	const UINT numtok = styles.numtok( );
-
-	for (UINT i = 1; i <= numtok; i++)
+	for (TString tsStyle(styles.getfirsttok( 1 )); tsStyle != TEXT(""); tsStyle = styles.getnexttok( ))
 	{
-		if ( styles.gettok( i ) == TEXT("flat") )
+		if ( tsStyle == TEXT("flat") )
 			*Styles |= TBSTYLE_FLAT;
-		else if ( styles.gettok( i ) == TEXT("tooltips") )
+		else if ( tsStyle == TEXT("tooltips") )
 			*Styles |= TBSTYLE_TOOLTIPS;
-		else if ( styles.gettok( i ) == TEXT("transparent") )
+		else if ( tsStyle == TEXT("transparent") )
 			*Styles |= TBSTYLE_TRANSPARENT;
-		else if ( styles.gettok( i ) == TEXT("nodivider") )
+		else if ( tsStyle == TEXT("nodivider") )
 			*Styles |= CCS_NODIVIDER;
-		else if ( styles.gettok( i ) == TEXT("top") )
+		else if ( tsStyle == TEXT("top") )
 			*Styles |= CCS_TOP;
-		else if ( styles.gettok( i ) == TEXT("bottom") )
+		else if ( tsStyle == TEXT("bottom") )
 			*Styles |= CCS_BOTTOM;
-		else if ( styles.gettok( i ) == TEXT("left") )
+		else if ( tsStyle == TEXT("left") )
 			*Styles |= CCS_LEFT;
-		else if ( styles.gettok( i ) == TEXT("right") )
+		else if ( tsStyle == TEXT("right") )
 			*Styles |= CCS_RIGHT;
-		//else if ( styles.gettok( i ) == TEXT("noresize") ) 
+		//else if ( tsStyle == TEXT("noresize") ) 
 		//  *Styles |= CCS_NORESIZE;
-		//else if ( styles.gettok( i ) == TEXT("noparentalign") ) 
+		//else if ( tsStyle == TEXT("noparentalign") ) 
 		//  *Styles |= CCS_NOPARENTALIGN ;
-		else if ( styles.gettok( i ) == TEXT("noauto") )
+		else if ( tsStyle == TEXT("noauto") )
 			*Styles |= CCS_NOPARENTALIGN | CCS_NORESIZE;
-		else if ( styles.gettok( i ) == TEXT("adjustable") )
+		else if ( tsStyle == TEXT("adjustable") )
 			*Styles |= CCS_ADJUSTABLE;
-		else if ( styles.gettok( i ) == TEXT("list") )
+		else if ( tsStyle == TEXT("list") )
 			*Styles |= TBSTYLE_LIST;
-		else if ( styles.gettok( i ) == TEXT("wrap") )
+		else if ( tsStyle == TEXT("wrap") )
 			*Styles |= TBSTYLE_WRAPABLE;
-		else if ( styles.gettok( i ) == TEXT("arrows") )
+		else if ( tsStyle == TEXT("arrows") )
 			*ExStylesTb |= TBSTYLE_EX_DRAWDDARROWS;
-		else if ( styles.gettok( i ) == TEXT("override") )
+		else if ( tsStyle == TEXT("override") )
 			this->m_bOverrideTheme = true;
 	}
 	this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
@@ -162,8 +160,8 @@ void DcxToolBar::parseControlStyles( const TString & styles, LONG * Styles, LONG
 
 void DcxToolBar::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) const {
 
-	const int numtok = input.numtok( );
-	const TString prop(input.gettok( 3 ));
+	const UINT numtok = input.numtok( );
+	const TString prop(input.getfirsttok( 3 ));
 
 	// [NAME] [ID] [PROP]
 	if ( prop == TEXT("num") ) {
@@ -180,7 +178,7 @@ void DcxToolBar::parseInfoRequest( const TString & input, PTCHAR szReturnValue )
 	// [NAME] [ID] [PROP]
 	else if ( prop == TEXT("text") && numtok > 3 ) {
 
-		const int nButton = input.gettok( 4 ).to_int( ) - 1;
+		const int nButton = input.getnexttok( ).to_int( ) - 1;	// tok 4
 
 		if ( nButton > -1 && nButton < this->getButtonCount( ) ) {
 
@@ -202,7 +200,7 @@ void DcxToolBar::parseInfoRequest( const TString & input, PTCHAR szReturnValue )
 	// [NAME] [ID] [PROP] [N]
 	else if ( prop == TEXT("icon") && numtok > 3 ) {
 
-		const int iButton = input.gettok( 4 ).to_int( ) - 1;
+		const int iButton = input.getnexttok( ).to_int( ) - 1;	// tok 4
 
 		if ( iButton > -1 && iButton < this->getButtonCount( ) ) {
 
@@ -219,7 +217,7 @@ void DcxToolBar::parseInfoRequest( const TString & input, PTCHAR szReturnValue )
 	// [NAME] [ID] [PROP] [N]
 	else if ( prop == TEXT("state") && numtok > 3 ) {
 
-		const int iButton = input.gettok( 4 ).to_int( ) - 1;
+		const int iButton = input.getnexttok( ).to_int( ) - 1;	// tok 4
 
 		if ( iButton > -1 && iButton < this->getButtonCount( ) ) {
 
@@ -255,7 +253,7 @@ void DcxToolBar::parseInfoRequest( const TString & input, PTCHAR szReturnValue )
 	// [NAME] [ID] [PROP] [N]
 	else if ( prop == TEXT("tooltip") && numtok > 3 ) {
 
-		const int iButton = input.gettok( 4 ).to_int( ) - 1;
+		const int iButton = input.getnexttok( ).to_int( ) - 1;	// tok 4
 
 		if ( iButton > -1 && iButton < this->getButtonCount( ) ) {
 
@@ -277,7 +275,7 @@ void DcxToolBar::parseInfoRequest( const TString & input, PTCHAR szReturnValue )
 		RECT rc;
 
 		ZeroMemory(&rc, sizeof(RECT));
-		const int iButton = input.gettok(4).to_int() -1;
+		const int iButton = input.getnexttok( ).to_int() -1;	// tok 4
 
 		// out of range;
 		if ((iButton < 0) || (iButton >= this->getButtonCount())) {
@@ -303,8 +301,8 @@ void DcxToolBar::parseInfoRequest( const TString & input, PTCHAR szReturnValue )
 */
 
 void DcxToolBar::parseCommandRequest( const TString & input ) {
-	const XSwitchFlags flags(input.gettok(3));
-	const int numtok = input.numtok( );
+	const XSwitchFlags flags(input.getfirsttok( 3 ));
+	const UINT numtok = input.numtok( );
 
 	// xdid -r [NAME] [ID] [SWITCH]
 	if (flags[TEXT('r')]) {
@@ -314,16 +312,16 @@ void DcxToolBar::parseCommandRequest( const TString & input ) {
 	// xdid -a [NAME] [ID] [SWITCH] [N] [+FLAGS] [WIDTH] [#ICON] [COLOR] (Button Text) [TAB] Tooltip Text
 	if ( flags[TEXT('a')] && numtok > 4 ) {
 
-		int nPos = input.gettok( 4 ).to_int( ) - 1;
+		int nPos = input.getnexttok( ).to_int( ) - 1;	// tok 4
 
 		if ( nPos == -1 )
 			nPos += this->getButtonCount( ) + 1;
 
-		const TString tsFlags(input.gettok( 5 ));
-		const int width = input.gettok( 6 ).to_int( );
-		const int icon = input.gettok( 7 ).to_int( ) - 1;
-		const COLORREF clrText = (COLORREF) input.gettok( 8 ).to_num( );
-		const int iNumtok = input.gettok( 1, TSTAB ).numtok( );
+		const TString tsFlags(input.getnexttok( ));							// tok 5
+		const int width = input.getnexttok( ).to_int( );					// tok 6
+		const int icon = input.getnexttok( ).to_int( ) - 1;					// tok 7
+		const COLORREF clrText = (COLORREF) input.getnexttok( ).to_num( );	// tok 8
+		const UINT iNumtok = input.gettok( 1, TSTAB ).numtok( );
 
 		TBBUTTON tbb;
 		ZeroMemory( &tbb, sizeof( TBBUTTON ) );
@@ -422,10 +420,10 @@ void DcxToolBar::parseCommandRequest( const TString & input ) {
 	// xdid -c [NAME] [ID] [SWITCH] [N] [+FLAGS] [RGB] [+REMOVEFLAGS]
 	else if ( flags[TEXT('c')] && numtok > 5 ) {
 
-		const int nButton = input.gettok( 4 ).to_int( ) - 1;
-		const UINT buttonStyles = parseButtonStyleFlags( input.gettok( 5 ) );
-		const UINT removeButtonStyles = parseButtonStyleFlags( input.gettok( 7 ) );
-		const COLORREF clrColor = (COLORREF)input.gettok( 6 ).to_num( );
+		const int nButton = input.getnexttok( ).to_int( ) - 1;							// tok 4
+		const UINT buttonStyles = parseButtonStyleFlags( input.getnexttok( ) );			// tok 5
+		const COLORREF clrColor = (COLORREF)input.getnexttok( ).to_num( );				// tok 6
+		const UINT removeButtonStyles = parseButtonStyleFlags( input.getnexttok( ) );	// tok 7
 
 		if (nButton == -1 && this->m_ToolTipHWND != NULL) {
 			if (buttonStyles & BTNS_TBKGCOLOR)
@@ -498,7 +496,7 @@ void DcxToolBar::parseCommandRequest( const TString & input ) {
 	}
 	// xdid -d [NAME] [ID] [SWITCH] [N]
 	else if ( flags[TEXT('d')] && numtok > 3 ) {
-		const int nButton = input.gettok( 4 ).to_int( ) - 1;
+		const int nButton = input.getnexttok( ).to_int( ) - 1;	// tok 4
 
 		if (nButton > -1)
 			this->deleteButton(nButton);
@@ -506,8 +504,8 @@ void DcxToolBar::parseCommandRequest( const TString & input ) {
 	// xdid -i [NAME] [ID] [SWITCH] [N] [IMAGE]
 	else if ( flags[TEXT('i')] && numtok > 4 ) {
 
-		const int nButton = input.gettok( 4 ).to_int( ) - 1;
-		int iImage = input.gettok( 5 ).to_int( ) - 1;
+		const int nButton = input.getnexttok( ).to_int( ) - 1;	// tok 4
+		int iImage = input.getnexttok( ).to_int( ) - 1;			// tok 5
 
 		if (iImage < 0)
 			iImage = I_IMAGENONE;
@@ -520,11 +518,11 @@ void DcxToolBar::parseCommandRequest( const TString & input ) {
 
 		this->setButtonInfo( nButton /*this->getIndexToCommand( nButton )*/, &tbbi );
 	}
-	// xdid -j [NAME] [ID] [SWITCH] [MIN] [MAX]
+	// xdid -j -> [NAME] [ID] -j [MIN] [MAX]
 	else if ( flags[TEXT('j')] && numtok > 4 ) {
 
-		const int nMin = input.gettok( 4 ).to_int( );
-		const int nMax = input.gettok( 4 ).to_int( );
+		const int nMin = input.getnexttok( ).to_int( );	// tok 4
+		const int nMax = input.getnexttok( ).to_int( );	// tok 5	// was tok 4 should be 5
 
 		this->setButtonWidth( nMin, nMax );
 	}
@@ -532,7 +530,7 @@ void DcxToolBar::parseCommandRequest( const TString & input ) {
 	else if (flags[TEXT('l')] && numtok > 3) {
 		HIMAGELIST himl;
 
-		int size = input.gettok( 4 ).to_int();
+		UINT size = input.getnexttok( ).to_int();	// tok 4
 
 		// these are destroyed after being removed from toolbar by setImageList() function.
 		//ImageList_Destroy(this->getImageList(TB_IML_NORMAL));
@@ -556,7 +554,7 @@ void DcxToolBar::parseCommandRequest( const TString & input ) {
 	// xdid -m [NAME] [ID] [SWITCH] [1|0]
 	else if ( flags[TEXT('m')] && numtok > 3 ) {
 
-		if ( input.gettok( 4 ) == TEXT('1') ) {
+		if ( input.getnexttok( ) == TEXT('1') ) {	// tok 4
 
 			this->m_bAutoStretch = TRUE;
 			this->autoStretchButtons( );
@@ -566,7 +564,7 @@ void DcxToolBar::parseCommandRequest( const TString & input ) {
 	}
 	// xdid -q [NAME] [ID] [SWITCH] [N] (TIPTEXT)
 	else if (flags[TEXT('q')] && numtok > 3) {
-		const int nButton = input.gettok( 4 ).to_int() -1;
+		const int nButton = input.getnexttok( ).to_int() -1;	// tok 4
 
 		if (nButton > -1 && nButton < this->getButtonCount()) {
 			//int idButton = this->getIndexToCommand(nButton);
@@ -593,8 +591,8 @@ void DcxToolBar::parseCommandRequest( const TString & input ) {
 	// xdid -t [NAME] [ID] [SWITCH] [N] [+FLAGS]
 	else if ( flags[TEXT('t')] && numtok > 4 ) {
 
-		const int nButton = input.gettok( 4 ).to_int( ) - 1;
-		const UINT fStates = parseButtonStateFlags( input.gettok( 5 ) );
+		const int nButton = input.getnexttok( ).to_int( ) - 1;				// tok 4
+		const UINT fStates = parseButtonStateFlags( input.getnexttok( ) );	// tok 5
 
 		const int idButton = this->getIndexToCommand( nButton );
 
@@ -604,15 +602,15 @@ void DcxToolBar::parseCommandRequest( const TString & input ) {
 	// xdid -u [NAME] [ID] [SWITCH] [DX] [DY]
 	else if ( flags[TEXT('u')] && numtok > 4 ) {
 
-		const int dxButton = input.gettok( 4 ).to_int( );
-		const int dyButton = input.gettok( 5 ).to_int( );
+		const int dxButton = input.getnexttok( ).to_int( );		// tok 4
+		const int dyButton = input.getnexttok( ).to_int( );		// tok 5
 
 		this->setButtonSize( dxButton, dyButton );
 	}
 	// xdid -v [NAME] [ID] [SWITCH] [N] (TEXT)
 	else if ( flags[TEXT('v')] && numtok > 3 ) {
 
-		const int nButton = input.gettok( 4 ).to_int( ) - 1;
+		const int nButton = input.getnexttok( ).to_int( ) - 1;		// tok 4
 		if ( nButton > -1 && nButton < this->getButtonCount( ) ) {
 			const int nIndex = this->getIndexToCommand(nButton);
 			TBBUTTONINFO tbbi;
@@ -636,15 +634,16 @@ void DcxToolBar::parseCommandRequest( const TString & input ) {
 	}
 	// xdid -w [NAME] [ID] [SWITCH] [+FLAGS] [INDEX] [FILENAME]
 	else if (flags[TEXT('w')] && numtok > 5) {
-		const UINT iFlags = this->parseImageListFlags(input.gettok( 4 ));
+		const TString tsFlags(input.getnexttok( ));	// tok 4
+		const UINT iFlags = this->parseImageListFlags(tsFlags);
 
-		if (input.gettok( 4 )[0] != TEXT('+')) {
+		if (tsFlags[0] != TEXT('+')) {
 			this->showError(NULL, TEXT("-w"), TEXT("Invalid Flags"));
 			return;
 		}
 
 		HICON icon = NULL;
-		const int index = input.gettok( 5 ).to_int();
+		const int index = input.getnexttok( ).to_int();	// tok 5
 		TString filename(input.gettok(6, -1));
 
 		HIMAGELIST himl = this->getImageList(TB_IML_NORMAL);
@@ -655,9 +654,9 @@ void DcxToolBar::parseCommandRequest( const TString & input ) {
 			ImageList_GetIconSize(himl, &cx, &cy);
 
 			if (cx > 16)
-				icon = dcxLoadIcon(index, filename, true, input.gettok( 4 ));
+				icon = dcxLoadIcon(index, filename, true, tsFlags);
 			else
-				icon = dcxLoadIcon(index, filename, false, input.gettok( 4 ));
+				icon = dcxLoadIcon(index, filename, false, tsFlags);
 		}
 		else
 			this->showError(NULL, TEXT("-w"), TEXT("Unable to get Normal Image List"));

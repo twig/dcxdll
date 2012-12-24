@@ -261,9 +261,9 @@ void DcxStatusBar::parseCommandRequest( const TString & input ) {
 	// xdid -t [NAME] [ID] [SWITCH] N [+c] [#ICON] [CID] [CTRL] [X] [Y] [W] [H] (OPTIONS)
 	else if ( flags[TEXT('t')] && numtok > 5 ) {
 
-		const int nPos = input.gettok( 4 ).to_int( ) - 1;
-		const TString flag(input.gettok( 5 ));
-		const int icon = input.gettok( 6 ).to_int( ) - 1;
+		const int nPos = input.getnexttok( ).to_int( ) - 1;	// tok 4
+		const TString flag(input.getnexttok( ));			// tok 5
+		const int icon = input.getnexttok( ).to_int( ) - 1;	// tok 6
 
 		if ( nPos < 0 || nPos >= this->getParts( 256, 0 ) ) {
 			this->showError(NULL, TEXT("-t"), TEXT("Invalid Part"));
@@ -352,7 +352,7 @@ void DcxStatusBar::parseCommandRequest( const TString & input ) {
 	// xdid -v [NAME] [ID] [SWITCH] [N] (TEXT)
 	else if ( flags[TEXT('v')] && numtok > 3 ) {
 
-		const int nPos = input.gettok( 4 ).to_int( ) - 1;
+		const int nPos = input.getnexttok( ).to_int( ) - 1;	// tok 4
 
 		if ( nPos > -1 && nPos < this->getParts( 256, 0 ) ) {
 
@@ -375,8 +375,8 @@ void DcxStatusBar::parseCommandRequest( const TString & input ) {
 	}
 	// xdid -w [NAME] [ID] [SWITCH] [FLAGS] [INDEX] [FILENAME]
 	else if (flags[TEXT('w')] && numtok > 5) {
-		const TString flag(input.gettok( 4 ));
-		const int index = input.gettok( 5 ).to_int();
+		const TString flag(input.getnexttok( ));			// tok 4
+		const int index = input.getnexttok( ).to_int();		// tok 5
 		TString filename(input.gettok(6, -1));
 
 		HIMAGELIST himl = this->getImageList();
