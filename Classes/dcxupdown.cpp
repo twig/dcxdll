@@ -81,26 +81,25 @@ DcxUpDown::~DcxUpDown( ) {
 
 void DcxUpDown::parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ) {
 
-	const unsigned int numtok = styles.numtok( );
 	*Styles |= UDS_ALIGNRIGHT;
 
-	for (UINT i = 1; i <= numtok; i++)
+	for (TString tsStyle(styles.getfirsttok( 1 )); tsStyle != TEXT(""); tsStyle = styles.getnexttok( ))
 	{
-		if ( styles.gettok( i ) == TEXT("left") ) {
+		if ( tsStyle == TEXT("left") ) {
 			*Styles &= ~UDS_ALIGNRIGHT;
 			*Styles |= UDS_ALIGNLEFT;
 		}
-		else if ( styles.gettok( i ) == TEXT("arrowkeys") )
+		else if ( tsStyle == TEXT("arrowkeys") )
 			*Styles |= UDS_ARROWKEYS;
-		else if ( styles.gettok( i ) == TEXT("horz") )
+		else if ( tsStyle == TEXT("horz") )
 			*Styles |= UDS_HORZ;
-		else if ( styles.gettok( i ) == TEXT("hottrack") )
+		else if ( tsStyle == TEXT("hottrack") )
 			*Styles |= UDS_HOTTRACK;
-		else if ( styles.gettok( i ) == TEXT("nothousands") )
+		else if ( tsStyle == TEXT("nothousands") )
 			*Styles |= UDS_NOTHOUSANDS;
-		else if ( styles.gettok( i ) == TEXT("buddyint") )
+		else if ( tsStyle == TEXT("buddyint") )
 			*Styles |= UDS_SETBUDDYINT;
-		else if ( styles.gettok( i ) == TEXT("wrap") )
+		else if ( tsStyle == TEXT("wrap") )
 			*Styles |= UDS_WRAP;
 	}
 	this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
@@ -117,7 +116,7 @@ void DcxUpDown::parseControlStyles( const TString & styles, LONG * Styles, LONG 
 
 void DcxUpDown::parseInfoRequest( const TString & input, TCHAR * szReturnValue ) const
 {
-	const TString prop(input.gettok( 3 ));
+	const TString prop(input.getfirsttok( 3 ));
 
 	// [NAME] [ID] [PROP]
 	if ( prop == TEXT("value") ) {
@@ -147,13 +146,13 @@ void DcxUpDown::parseInfoRequest( const TString & input, TCHAR * szReturnValue )
  */
 
 void DcxUpDown::parseCommandRequest( const TString & input ) {
-	const XSwitchFlags flags(input.gettok(3));
-	const int numtok = input.numtok( );
+	const XSwitchFlags flags(input.getfirsttok( 3 ));
+	const UINT numtok = input.numtok( );
 
 	// xdid -c [NAME] [ID] [SWITCH] [BUDDYID]
 	if ( flags[TEXT('c')] && numtok > 3 ) {
 
-		DcxControl * p_Control = this->m_pParentDialog->getControlByID( (UINT) input.gettok( 4 ).to_int( ) + mIRC_ID_OFFSET );
+		DcxControl * p_Control = this->m_pParentDialog->getControlByID( (UINT) input.getnexttok( ).to_int( ) + mIRC_ID_OFFSET );	// tok 4
 
 		if ( p_Control != NULL ) {
 
@@ -170,22 +169,22 @@ void DcxUpDown::parseCommandRequest( const TString & input ) {
 	// xdid -r [NAME] [ID] [SWITCH] [MIN] [MAX]
 	else if ( flags[TEXT('r')] && numtok > 4 ) {
 
-		const int iMin = input.gettok( 4 ).to_int( );
-		const int iMax = input.gettok( 5 ).to_int( );
+		const int iMin = input.getnexttok( ).to_int( );	// tok 4
+		const int iMax = input.getnexttok( ).to_int( );	// tok 5
 
 		this->setRange32( iMin, iMax );
 	}
 	// xdid -t [NAME] [ID] [SWITCH] [BASE]
 	else if ( flags[TEXT('t')] && numtok > 3 ) {
 
-		const int nBase = input.gettok( 4 ).to_int( );
+		const int nBase = input.getnexttok( ).to_int( );	// tok 4
 
 		this->setBase( nBase );
 	}
 	// xdid -v [NAME] [ID] [SWITCH] [POS]
 	else if ( flags[TEXT('v')] && numtok > 3 ) {
 
-		const int nPos = input.gettok( 4 ).to_int( );
+		const int nPos = input.getnexttok( ).to_int( );	// tok 4
 
 		this->setPos32( nPos );
 	}

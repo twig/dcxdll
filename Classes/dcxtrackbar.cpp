@@ -97,38 +97,37 @@ DcxTrackBar::~DcxTrackBar( ) {
 
 void DcxTrackBar::parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ) {
 	*Styles |= TBS_FIXEDLENGTH;
-	const unsigned int numtok = styles.numtok( );
 
-	for (UINT i = 1; i <= numtok; i++)
+	for (TString tsStyle(styles.getfirsttok( 1 )); tsStyle != TEXT(""); tsStyle = styles.getnexttok( ))
 	{
-		if ( styles.gettok( i ) == TEXT("autoticks") ) 
+		if ( tsStyle == TEXT("autoticks") ) 
 			*Styles |= TBS_AUTOTICKS;
-		else if ( styles.gettok( i ) == TEXT("both") ) 
+		else if ( tsStyle == TEXT("both") ) 
 			*Styles |= TBS_BOTH;
-		else if ( styles.gettok( i ) == TEXT("top") ) 
+		else if ( tsStyle == TEXT("top") ) 
 			*Styles |= TBS_TOP;
-		else if ( styles.gettok( i ) == TEXT("bottom") ) 
+		else if ( tsStyle == TEXT("bottom") ) 
 			*Styles |= TBS_BOTTOM; // == TBS_RIGHT == 0, so never set.... should just remove TBS_RIGHT/TOP ?
-		else if ( styles.gettok( i ) == TEXT("left") ) 
+		else if ( tsStyle == TEXT("left") ) 
 			*Styles |= TBS_LEFT;
-		else if ( styles.gettok( i ) == TEXT("right") ) 
+		else if ( tsStyle == TEXT("right") ) 
 			*Styles |= TBS_RIGHT;
-		else if ( styles.gettok( i ) == TEXT("select") ) 
+		else if ( tsStyle == TEXT("select") ) 
 			*Styles |= TBS_ENABLESELRANGE;
-		else if ( styles.gettok( i ) == TEXT("vertical") ) 
+		else if ( tsStyle == TEXT("vertical") ) 
 			*Styles |= TBS_VERT;
-		else if ( styles.gettok( i ) == TEXT("nothumb") ) 
+		else if ( tsStyle == TEXT("nothumb") ) 
 			*Styles |= TBS_NOTHUMB;
-		else if ( styles.gettok( i ) == TEXT("noticks") ) 
+		else if ( tsStyle == TEXT("noticks") ) 
 			*Styles |= TBS_NOTICKS;
-		else if ( styles.gettok( i ) == TEXT("reversed") ) 
+		else if ( tsStyle == TEXT("reversed") ) 
 			*Styles |= TBS_REVERSED;
-		else if ( styles.gettok( i ) == TEXT("downisleft") ) 
+		else if ( tsStyle == TEXT("downisleft") ) 
 			*Styles |= TBS_DOWNISLEFT;
-		else if ( styles.gettok( i ) == TEXT("tooltips") ) 
+		else if ( tsStyle == TEXT("tooltips") ) 
 			*Styles |= TBS_TOOLTIPS;
 #ifdef DCX_USE_WINSDK
-		else if ( styles.gettok( i ) == TEXT("transparentbkg") )
+		else if ( tsStyle == TEXT("transparentbkg") )
 			*Styles |= TBS_TRANSPARENTBKGND;
 #endif
 	}
@@ -146,7 +145,7 @@ void DcxTrackBar::parseControlStyles( const TString & styles, LONG * Styles, LON
 
 void DcxTrackBar::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) const
 {
-	const TString prop(input.gettok( 3 ));
+	const TString prop(input.getfirsttok( 3 ));
 
 	if ( prop == TEXT("value") ) {
 		wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), this->getPos( ) );
@@ -180,18 +179,18 @@ void DcxTrackBar::parseInfoRequest( const TString & input, PTCHAR szReturnValue 
  */
 
 void DcxTrackBar::parseCommandRequest( const TString & input ) {
-	const XSwitchFlags flags(input.gettok(3));
-	const int numtok = input.numtok( );
+	const XSwitchFlags flags(input.getfirsttok( 3 ));
+	const UINT numtok = input.numtok( );
 
 	// xdid -c [NAME] [ID] [SWITCH] [VALUE]
 	if ( flags[TEXT('c')] && numtok > 3 ) {
 
-		const LONG lPosition = (LONG)input.gettok( 4 ).to_num( );
+		const LONG lPosition = (LONG)input.getnexttok( ).to_num( );	// tok 4
 		this->setTic( lPosition );
 	}
 	// xdid -g [NAME] [ID] [SWITCH] [FLAGS] [FILE]
 	else if (flags[TEXT('g')] && numtok > 4) {
-		const UINT tflags = parseImageFlags(input.gettok( 4 ));
+		const UINT tflags = parseImageFlags(input.getnexttok( ));	// tok 4
 		TString filename(input.gettok(5, -1).trim());
 
 		// background
@@ -214,26 +213,26 @@ void DcxTrackBar::parseCommandRequest( const TString & input ) {
 	// xdid -j [NAME] [ID] [SWITCH] [MIN] [MAX]
 	else if ( flags[TEXT('j')] && numtok > 4 ) {
 
-		const LONG iMin = (LONG)input.gettok( 4 ).to_num( );
-		const LONG iMax = (LONG)input.gettok( 5 ).to_num( );
+		const LONG iMin = (LONG)input.getnexttok( ).to_num( );	// tok 4
+		const LONG iMax = (LONG)input.getnexttok( ).to_num( );	// tok 5
 		this->setSel( iMin, iMax );
 	}
 	// xdid -l [NAME] [ID] [SWITCH] [VALUE]
 	else if ( flags[TEXT('l')] && numtok > 3 ) {
 
-		const LONG lLineSize = (LONG)input.gettok( 4 ).to_num( );
+		const LONG lLineSize = (LONG)input.getnexttok( ).to_num( );	// tok 4
 		this->setLineSize( lLineSize );
 	}
 	// xdid -m [NAME] [ID] [SWITCH] [VALUE]
 	else if ( flags[TEXT('m')] && numtok > 3 ) {
 
-		const LONG lPageSize = (LONG)input.gettok( 4 ).to_num( );
+		const LONG lPageSize = (LONG)input.getnexttok( ).to_num( );	// tok 4
 		this->setPageSize( lPageSize );
 	}
 	// xdid -n [NAME] [ID] [SWITCH] [VALUE]
 	else if ( flags[TEXT('n')] && numtok > 3 ) {
 
-		const int iTicFreq = input.gettok( 4 ).to_int( );
+		const int iTicFreq = input.getnexttok( ).to_int( );	// tok 4
 		this->setTicFreq( iTicFreq );
 	}
 	// xdid -q [NAME] [ID] [SWITCH] [VALUE]
@@ -244,21 +243,21 @@ void DcxTrackBar::parseCommandRequest( const TString & input ) {
 	// xdid -r [NAME] [ID] [SWITCH] [MIN] [MAX]
 	else if ( flags[TEXT('r')] && numtok > 4 ) {
 
-		const LONG lMinRange = (LONG)input.gettok( 4 ).to_num( );
-		const LONG lMaxRange = (LONG)input.gettok( 5 ).to_num( );
+		const LONG lMinRange = (LONG)input.getnexttok( ).to_num( );	// tok 4
+		const LONG lMaxRange = (LONG)input.getnexttok( ).to_num( );	// tok 5
 
 		this->setRangeMin( lMinRange );
 		this->setRangeMax( lMaxRange );
 	}
 	// xdid -o [NAME] [ID] [SWITCH] [VALUE]
 	else if (flags[TEXT('o')] && numtok > 3) {
-		m_colTransparent = (COLORREF)input.gettok( 4 ).to_num();
+		m_colTransparent = (COLORREF)input.getnexttok( ).to_num();	// tok 4
 		this->redrawWindow();
 	}
 	// xdid -t [NAME] [ID] [SWITCH] [VALUE]
 	else if ( flags[TEXT('t')] && numtok > 3 ) {
 
-		const TString value(input.gettok( 4 ));
+		const TString value(input.getnexttok( ));	// tok 4
 
 		if ( value == TEXT("left") )
 			this->setTipSide( TBTS_LEFT );
@@ -272,14 +271,14 @@ void DcxTrackBar::parseCommandRequest( const TString & input ) {
 	// xdid -u [NAME] [ID] [SWITCH] [VALUE]
 	else if ( flags[TEXT('u')] && numtok > 3 ) {
 
-		const LONG lLength = (LONG)input.gettok( 4 ).to_num( );
+		const LONG lLength = (LONG)input.getnexttok( ).to_num( );	// tok 4
 
 		this->setThumbLength( lLength );
 	}
 	// xdid -v [NAME] [ID] [SWITCH] [VALUE]
 	else if ( flags[TEXT('v')] && numtok > 3 ) {
 
-		const LONG lPosition = (LONG)input.gettok( 4 ).to_num( );
+		const LONG lPosition = (LONG)input.getnexttok( ).to_num( );	// tok 4
 
 		this->setPos( lPosition );
 	}
