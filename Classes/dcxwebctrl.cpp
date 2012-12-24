@@ -141,7 +141,7 @@ void DcxWebControl::parseControlStyles( const TString &styles, LONG *Styles, LON
 
 void DcxWebControl::parseInfoRequest( const TString & input, TCHAR * szReturnValue ) const
 {
-	const TString prop(input.gettok( 3 ));
+	const TString prop(input.getfirsttok( 3 ));
 
 	// [NAME] [ID] [PROP]
 	if ( prop == TEXT("url") ) {
@@ -183,8 +183,8 @@ void DcxWebControl::parseInfoRequest( const TString & input, TCHAR * szReturnVal
  */
 
 void DcxWebControl::parseCommandRequest( const TString & input) {
-	const XSwitchFlags flags(input.gettok(3));
-	const int numtok = input.numtok( );
+	const XSwitchFlags flags(input.getfirsttok( 3 ));
+	const UINT numtok = input.numtok( );
 
 	// xdid -g [NAME] [ID] [SWITCH]
 	if ( flags[TEXT('g')] ) {

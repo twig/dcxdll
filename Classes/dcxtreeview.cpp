@@ -124,31 +124,29 @@ void DcxTreeView::parseControlStyles( const TString & styles, LONG * Styles, LON
 
 	*Styles |= TVS_INFOTIP;
 
-	const unsigned int numtok = styles.numtok( );
-
-	for (UINT i = 1; i <= numtok; i++)
+	for (TString tsStyle(styles.getfirsttok( 1 )); tsStyle != TEXT(""); tsStyle = styles.getnexttok( ))
 	{
-		if ( styles.gettok( i ) == TEXT("haslines") ) 
+		if ( tsStyle == TEXT("haslines") ) 
 			*Styles |= TVS_HASLINES;
-		else if ( styles.gettok( i ) == TEXT("hasbuttons") ) 
+		else if ( tsStyle == TEXT("hasbuttons") ) 
 			*Styles |= TVS_HASBUTTONS;
-		else if ( styles.gettok( i ) == TEXT("linesatroot") ) 
+		else if ( tsStyle == TEXT("linesatroot") ) 
 			*Styles |= TVS_LINESATROOT;
-		else if ( styles.gettok( i ) == TEXT("showsel") ) 
+		else if ( tsStyle == TEXT("showsel") ) 
 			*Styles |= TVS_SHOWSELALWAYS;
-		else if ( styles.gettok( i ) == TEXT("editlabel") ) 
+		else if ( tsStyle == TEXT("editlabel") ) 
 			*Styles |= TVS_EDITLABELS;
-		else if ( styles.gettok( i ) == TEXT("nohscroll") ) 
+		else if ( tsStyle == TEXT("nohscroll") ) 
 			*Styles |= TVS_NOHSCROLL;
-		else if ( styles.gettok( i ) == TEXT("notooltips") ) 
+		else if ( tsStyle == TEXT("notooltips") ) 
 			*Styles |= TVS_NOTOOLTIPS;
-		else if ( styles.gettok( i ) == TEXT("noscroll") ) 
+		else if ( tsStyle == TEXT("noscroll") ) 
 			*Styles |= TVS_NOSCROLL;
-		else if ( styles.gettok( i ) == TEXT("fullrow") ) 
+		else if ( tsStyle == TEXT("fullrow") ) 
 			*Styles |= TVS_FULLROWSELECT;
-		else if ( styles.gettok( i ) == TEXT("singleexpand") ) 
+		else if ( tsStyle == TEXT("singleexpand") ) 
 			*Styles |= TVS_SINGLEEXPAND;
-		else if ( styles.gettok( i ) == TEXT("checkbox") ) 
+		else if ( tsStyle == TEXT("checkbox") ) 
 			*ExStyles |= TVS_CHECKBOXES;
 	}
 	this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
@@ -158,21 +156,19 @@ void DcxTreeView::parseControlStyles( const TString & styles, LONG * Styles, LON
 void DcxTreeView::parseTreeViewExStyles( const TString &styles, LONG * ExStyles ) {
 
 	// Vista+ ONLY!
-	const unsigned int numtok = styles.numtok( );
-
-	for (UINT i = 1; i <= numtok; i++)
+	for (TString tsStyle(styles.getfirsttok( 1 )); tsStyle != TEXT(""); tsStyle = styles.getnexttok( ))
 	{
-		if ( styles.gettok( i ) == TEXT("fadebuttons") )
+		if ( tsStyle == TEXT("fadebuttons") )
 			*ExStyles |= TVS_EX_FADEINOUTEXPANDOS;
-		else if ( styles.gettok( i ) == TEXT("doublebuffer") )
+		else if ( tsStyle == TEXT("doublebuffer") )
 			*ExStyles |= TVS_EX_DOUBLEBUFFER;
-		//else if ( styles.gettok( i ) == TEXT("multi") )
+		//else if ( tsStyle == TEXT("multi") )
 		//  *ExStyles |= TVS_EX_MULTISELECT; // Style NOT to be used (unsupported by commctrl)
-		else if ( styles.gettok( i ) == TEXT("noident") )
+		else if ( tsStyle == TEXT("noident") )
 			*ExStyles |= TVS_EX_NOINDENTSTATE;
-		else if ( styles.gettok( i ) == TEXT("richtooltip") )
+		else if ( tsStyle == TEXT("richtooltip") )
 			*ExStyles |= TVS_EX_RICHTOOLTIP;
-		else if ( styles.gettok( i ) == TEXT("autohscroll") )
+		else if ( tsStyle == TEXT("autohscroll") )
 			*ExStyles |= TVS_EX_AUTOHSCROLL;
 	}
 }
@@ -189,8 +185,8 @@ void DcxTreeView::parseTreeViewExStyles( const TString &styles, LONG * ExStyles 
 
 void DcxTreeView::parseInfoRequest( const TString &input, TCHAR *szReturnValue) const
 {
-	const int numtok = input.numtok();
-	const TString prop(input.gettok(3));
+	const UINT numtok = input.numtok();
+	const TString prop(input.getfirsttok( 3 ));
 
 	// [NAME] [ID] [PROP] [PATH]
 	if (prop == TEXT("text") && numtok > 3) {
@@ -262,8 +258,8 @@ void DcxTreeView::parseInfoRequest( const TString &input, TCHAR *szReturnValue) 
 	}
 	// [NAME] [ID] [PROP] {TAB}[MATCHTEXT]{TAB} [T] [N] [SUBPATH]
 	else if (prop == TEXT("find") && numtok > 5) {
-		const TString matchtext(input.gettok(2, TSTAB).trim());
-		const TString params(input.gettok(3, TSTAB).trim());
+		const TString matchtext(input.getfirsttok(2, TSTAB).trim());
+		const TString params(input.getnexttok( TSTAB ).trim());		// tok 3
 
 		if (matchtext.len() < 1) {
 			this->showErrorEx(TEXT("find"), NULL, TEXT("No matchtext specified."));
@@ -271,7 +267,7 @@ void DcxTreeView::parseInfoRequest( const TString &input, TCHAR *szReturnValue) 
 		}
 
 		UINT searchType;
-		const TString searchMode(params.gettok(1));
+		const TString searchMode(params.getfirsttok( 1 ));
 		HTREEITEM startingPoint = TVI_ROOT;
 		HTREEITEM result;
 
@@ -282,7 +278,7 @@ void DcxTreeView::parseInfoRequest( const TString &input, TCHAR *szReturnValue) 
 		else
 			searchType = TVSEARCH_E;
 
-		const int n = params.gettok(2).to_int();
+		const int n = params.getnexttok( ).to_int();	// tok 2
 		int matchCount = 0;
 
 		if (params.numtok() > 2) {
@@ -421,8 +417,8 @@ void DcxTreeView::parseInfoRequest( const TString &input, TCHAR *szReturnValue) 
  */
 
 void DcxTreeView::parseCommandRequest( const TString & input ) {
-	const XSwitchFlags flags(input.gettok(3));
-	const int numtok = input.numtok( );
+	const XSwitchFlags flags(input.getfirsttok( 3 ));
+	const UINT numtok = input.numtok( );
 
 	// xdid -r [NAME] [ID] [SWITCH]
 	if (flags[TEXT('r')]) {
@@ -439,8 +435,8 @@ void DcxTreeView::parseCommandRequest( const TString & input ) {
 		const int n = input.numtok(TSTAB);
 
 		if (n > 1) {
-			const TString path(input.gettok(1, TSTAB).gettok(4, -1).trim());
-			const TString data(input.gettok(2, TSTAB).trim());
+			const TString path(input.getfirsttok(1, TSTAB).gettok(4, -1).trim());
+			const TString data(input.getnexttok( TSTAB).trim());	// tok 2
 			TString tooltip;
 
 			if (n > 2)
@@ -458,8 +454,8 @@ void DcxTreeView::parseCommandRequest( const TString & input ) {
 			return;
 		}
 
-		TString path(input.gettok(1, TSTAB).trim());
-		const TString data(input.gettok(2, TSTAB).trim());
+		TString path(input.getfirsttok(1, TSTAB).trim());
+		const TString data(input.getnexttok( TSTAB).trim());	// tok 2
 		HTREEITEM item;
 
 		if (path.numtok() < 4) {
@@ -545,16 +541,16 @@ void DcxTreeView::parseCommandRequest( const TString & input ) {
 	}
 	// xdid -g [NAME] [ID] [SWITCH] [HEIGHT]
 	else if (flags[TEXT('g')] && numtok > 3) {
-		const int iHeight = input.gettok(4).to_int();
+		const int iHeight = input.getnexttok( ).to_int();	// tok 4
 
 		if (iHeight > -2)
 			TreeView_SetItemHeight(this->m_Hwnd, iHeight);
 	}
 	// xdid -i [NAME] [ID] [SWITCH] [+FLAGS] [COLOR]
 	else if ( flags[TEXT('i')] && numtok > 4 ) {
-		const UINT iFlags = this->parseColorFlags(input.gettok( 4 ));
+		const UINT iFlags = this->parseColorFlags(input.getnexttok( ));	// tok 4
 
-		const COLORREF clr = (COLORREF) input.gettok( 5 ).to_num( );
+		const COLORREF clr = (COLORREF) input.getnexttok( ).to_num( );	// tok 5
 
 		if (iFlags & TVCOLOR_B)
 			TreeView_SetBkColor( this->m_Hwnd, clr );
@@ -573,7 +569,7 @@ void DcxTreeView::parseCommandRequest( const TString & input ) {
 	// xdid -j [NAME] [ID] [SWITCH] [+FLAGS] [N N N] [TAB] [ICON] [SICON] (OVERLAY)
 	else if (flags[TEXT('j')] && numtok > 5) {
 		HTREEITEM item;
-		const TString path(input.gettok(1, TSTAB).gettok(4, -1).trim());
+		const TString path(input.getfirsttok(1, TSTAB).gettok(4, -1).trim());
 
 		// Invalid parameters, missing icons segment.
 		if (input.numtok(TSTAB) < 2) {
@@ -581,7 +577,7 @@ void DcxTreeView::parseCommandRequest( const TString & input ) {
 			return;
 		}
 
-		const TString icons(input.gettok(2, TSTAB).trim());
+		const TString icons(input.getnexttok( TSTAB).trim());	// tok 2
 
 		// Invalid parameters, missing icon args.
 		if (icons.numtok() < 2) {
@@ -596,8 +592,8 @@ void DcxTreeView::parseCommandRequest( const TString & input ) {
 			return;
 		}
 
-		int nIcon = icons.gettok(1).to_int() -1;
-		int sIcon = icons.gettok(2).to_int() -1;
+		int nIcon = icons.getfirsttok( 1 ).to_int() -1;
+		int sIcon = icons.getnexttok( ).to_int() -1;	// tok 2
 		TVITEMEX tvi;
 
 		tvi.mask = TVIF_HANDLE;
@@ -612,7 +608,7 @@ void DcxTreeView::parseCommandRequest( const TString & input ) {
 
 		// overlay
 		if (icons.numtok() > 2) {
-			const int oIcon = icons.gettok(3).to_int();
+			const int oIcon = icons.getnexttok( ).to_int();	// tok 3
 
 			// overlay is 1-based index
 			if (oIcon > -1)
@@ -660,13 +656,13 @@ void DcxTreeView::parseCommandRequest( const TString & input ) {
 			return;
 		}
 
-		const UINT state = input.gettok(4).to_int();
+		const UINT state = input.getnexttok( ).to_int();	// tok 4
 
 		TreeView_SetItemState(this->m_Hwnd, item, INDEXTOSTATEIMAGEMASK(state), TVIS_STATEIMAGEMASK);
 	}
 	// xdid -l [NAME] [ID] [SWITCH] [SIZE]
 	else if ( flags[TEXT('l')] && numtok > 3 ) {
-		int size = input.gettok( 4 ).to_int( );
+		UINT size = input.getnexttok( ).to_int( );	// tok 4
 
 		if ( size != 32 && size != 24 )
 			size = 16;
@@ -675,8 +671,8 @@ void DcxTreeView::parseCommandRequest( const TString & input ) {
 	}
 	// xdid -m [NAME] [ID] [SWITCH] N N N{TAB}N N N
 	else if (flags[TEXT('m')] && numtok > 3 && input.numtok(TSTAB) > 1) {
-		const TString pathFrom(input.gettok(1, TSTAB).gettok(4, -1).trim());
-		const TString pathTo(input.gettok(2, TSTAB).trim());
+		const TString pathFrom(input.getfirsttok(1, TSTAB).gettok(4, -1).trim());
+		const TString pathTo(input.getnexttok( TSTAB).trim());	// tok 2
 
 		HTREEITEM item = this->parsePath(&pathFrom);
 		HTREEITEM hParentTo = TVI_ROOT;
@@ -719,8 +715,8 @@ void DcxTreeView::parseCommandRequest( const TString & input ) {
 	}
 	// xdid -n [NAME] [ID] [SWITCH] N N N{TAB}N N N
 	else if (flags[TEXT('n')] && numtok > 3 && input.numtok(TSTAB) > 1) {
-		const TString pathFrom(input.gettok(1, TSTAB).gettok(4, -1).trim());
-		const TString pathTo(input.gettok(2, TSTAB).trim());
+		const TString pathFrom(input.getfirsttok(1, TSTAB).gettok(4, -1).trim());
+		const TString pathTo(input.getnexttok( TSTAB).trim());	// tok 2
 
 		HTREEITEM item;
 		HTREEITEM hParentTo = TVI_ROOT;
@@ -765,11 +761,11 @@ void DcxTreeView::parseCommandRequest( const TString & input ) {
 	}
 	// xdid -o [NAME] [ID] [SWITCH] N N N [TAB] (Tooltip Text)
 	else if (flags[TEXT('o')] && numtok > 3) {
-		const TString path(input.gettok(1, TSTAB).gettok(4, -1).trim());
+		const TString path(input.getfirsttok(1, TSTAB).gettok(4, -1).trim());
 		TString tiptext;
 		
 		if (input.numtok(TSTAB) > 1)
-			tiptext = input.gettok(2, TSTAB).trim();
+			tiptext = input.getnexttok( TSTAB).trim();	// tok 2
 
 		HTREEITEM item = this->parsePath(&path);
 
@@ -792,9 +788,10 @@ void DcxTreeView::parseCommandRequest( const TString & input ) {
 	}
 	// xdid -Q [NAME] [ID] [SWITCH] [+FLAGS] [COLOR] N N N
 	else if ( flags[TEXT('Q')] && numtok > 5 ) {
+		const int iFlags = this->parseItemFlags(input.getnexttok( ));		// tok 4
+		const COLORREF clrText = (COLORREF) input.getnexttok( ).to_num();	// tok 5
 		const TString path(input.gettok(6, -1));
 		HTREEITEM item = this->parsePath(&path);
-		const COLORREF clrText = (COLORREF) input.gettok(5).to_num();
 
 		if (item == NULL) {
 			this->showErrorEx(NULL, TEXT("-Q"), TEXT("Unable to parse path: %s"), path.to_chr());
@@ -817,8 +814,6 @@ void DcxTreeView::parseCommandRequest( const TString & input ) {
 			this->showErrorEx(NULL, TEXT("-Q"), TEXT("Unable to retrieve tag: %s"), path.to_chr());
 			return;
 		}
-
-		const int iFlags = this->parseItemFlags(input.gettok(4));
 
 		if (iFlags & TVIS_UNDERLINE)
 			lpdcxtvitem->bUline = TRUE;
@@ -848,9 +843,10 @@ void DcxTreeView::parseCommandRequest( const TString & input ) {
 	}
 	// xdid -t [NAME] [ID] [SWITCH] [+FLAGS] N N N
 	else if (flags[TEXT('t')] && numtok > 4) {
-		const UINT iFlags = this->parseToggleFlags(input.gettok(4));
+		const UINT iFlags = this->parseToggleFlags(input.getnexttok( ));	// tok 4
+		const TString path(input.gettok(5, -1));
 
-		if (input.gettok(5, -1) == TEXT("root")) {
+		if (path == TEXT("root")) {
 			HTREEITEM hStart = TVI_ROOT;
 
 			if (iFlags & TVIE_EXPALL)
@@ -861,7 +857,6 @@ void DcxTreeView::parseCommandRequest( const TString & input ) {
 			return;
 		}
 
-		const TString path(input.gettok(5, -1));
 		HTREEITEM item = this->parsePath(&path);
 
 		if (item == NULL) {
@@ -886,11 +881,11 @@ void DcxTreeView::parseCommandRequest( const TString & input ) {
 	}
 	// xdid -v [NAME] [ID] [SWITCH] N N N [TAB] (Item Text)
 	else if (flags[TEXT('v')] && numtok > 3) {
-		const TString path(input.gettok(1, TSTAB).gettok(4, -1).trim());
+		const TString path(input.getfirsttok(1, TSTAB).gettok(4, -1).trim());
 		TString itemtext;
 
 		if (input.numtok(TSTAB) > 1)
-			itemtext = input.gettok(2, TSTAB).trim();
+			itemtext = input.getnexttok( TSTAB).trim();	// tok 2
 
 		HTREEITEM item = this->parsePath(&path);
 
@@ -908,12 +903,12 @@ void DcxTreeView::parseCommandRequest( const TString & input ) {
 	}
 	// xdid -w [NAME] [ID] [SWITCH] [+FLAGS] [INDEX] [FILENAME]
 	else if (flags[TEXT('w')] && numtok > 5) {
-		const TString tsFlags(input.gettok(4));
+		const TString tsFlags(input.getnexttok( ));	// tok 4
 		const UINT iFlags = this->parseIconFlagOptions(tsFlags);
 
 		HICON icon = NULL;
 
-		const int index = input.gettok( 5 ).to_int();
+		const int index = input.getnexttok( ).to_int();	// tok 5
 		TString filename(input.gettok(6, -1));
 		const bool bLarge = (this->m_iIconSize > 16);
 
@@ -981,7 +976,7 @@ void DcxTreeView::parseCommandRequest( const TString & input ) {
 	}
 	// xdid -y [NAME] [ID] [SWITCH] [+FLAGS]
 	else if ( flags[TEXT('y')] && numtok > 3 ) {
-		const UINT iFlags = this->parseIconFlagOptions( input.gettok( 4 ) );
+		const UINT iFlags = this->parseIconFlagOptions( input.getnexttok( ) );	// tok 4
 
 		HIMAGELIST himl;
 
@@ -1008,9 +1003,7 @@ void DcxTreeView::parseCommandRequest( const TString & input ) {
 		DCXTVSORT dtvs;
 		TVSORTCB tvs;
 
-		dtvs.iSortFlags = 0;
 		dtvs.pthis = NULL;
-		//ZeroMemory(&dtvs, sizeof(DCXTVSORT)); // zeromem's an object.
 		dtvs.iSortFlags = this->parseSortFlags(input.gettok(4));
 		dtvs.pthis = this;
 
@@ -1041,9 +1034,9 @@ void DcxTreeView::parseCommandRequest( const TString & input ) {
 	}
 	// xdid -G [NAME] [ID] [SWITCH] [+FLAGS] [X] [Y] (FILENAME)
 	else if (flags[TEXT('G')] && numtok > 6) {
-		const TString flag(input.gettok( 4 ));
-		this->m_iXOffset = input.gettok( 5 ).to_int();
-		this->m_iYOffset = input.gettok( 6 ).to_int();
+		const TString flag(input.getnexttok( ));			// tok 4
+		this->m_iXOffset = input.getnexttok( ).to_int();	// tok 5
+		this->m_iYOffset = input.getnexttok( ).to_int();	// tok 6
 		TString filename(input.gettok( 7, -1));
 		if (!this->m_bTransparent)
 			this->removeExStyle(WS_EX_TRANSPARENT);
