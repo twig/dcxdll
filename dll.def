@@ -19,6 +19,7 @@ Version
 GetTaskbarPos
 MsgBox
 PickIcon
+CountIcons
 TrayIcon
 WindowProps
 ActiveWindow

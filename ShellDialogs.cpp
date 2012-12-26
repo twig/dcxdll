@@ -690,3 +690,21 @@ int dcxPickIconDlg(HWND hwnd, LPWSTR pszIconPath, UINT cchIconPath, int *piIconI
 {
 	return PickIconDlg(hwnd, pszIconPath, cchIconPath, piIconIndex);
 }
+
+/*
+	$dcx(CountIcons,filename)
+*/
+mIRC(CountIcons) {
+	TString filename(data);
+	filename.trim();
+
+	if (filename == TEXT(""))
+		ret(TEXT("D_ERROR CountIcons: Invalid parameters"));
+
+	if (!IsFile(filename))
+		ret(TEXT("D_ERROR CountIcons: Invalid filename"));
+
+	wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("D_OK %d %s"), ExtractIconEx(filename.to_chr(), -1, NULL, NULL, 0), filename.to_chr());
+
+	return 3;
+}
