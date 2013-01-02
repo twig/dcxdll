@@ -51,6 +51,7 @@ protected:
 
 	void DrawDragLine(const int location);
 	BOOL matchItemText( const int nItem, const TString * search, const UINT SearchType ) const;
+	static void getItemRange(const TString tsItems, const int nItemCnt, int *iStart, int *iEnd);
 
 	UINT m_iDragList;
 	int m_iLastDrawnLine;

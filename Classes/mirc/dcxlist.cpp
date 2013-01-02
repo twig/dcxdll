@@ -644,7 +644,8 @@ void DcxList::parseCommandRequest( const TString & input ) {
 		if (nMaxStrlen > nHorizExtent)
 			ListBox_SetHorizontalExtent( this->m_Hwnd, nMaxStrlen);
 	}
-	//xdid -c [NAME] [ID] [SWITCH] [N,[N,[...]]]
+	//xdid -c [NAME] [ID] [N,[N,[...]]]
+	//xdid -c -> [NAME] [ID] -c [N,[N,[...]]]
 	else if ( flags[TEXT('c')] && numtok > 3 ) {
 
 		const int nItems = ListBox_GetCount( this->m_Hwnd );
@@ -653,18 +654,14 @@ void DcxList::parseCommandRequest( const TString & input ) {
 
 			const TString Ns(input.getnexttok( ));	// tok 4
 
-			const UINT n = Ns.numtok( TSCOMMA );
-
-			Ns.getfirsttok( 0, TSCOMMA );
-
-			for (UINT i = 1; i <= n; i++ )
-			{
-				int nSel = (Ns.getnexttok( TSCOMMA ).to_int( ) - 1);	// tok i
-
-				if (nSel == -1)
-					nSel = nItems -1;
-
-				if ( nSel > -1 && nSel < nItems )
+			for (TString tsLine(Ns.getfirsttok(1, TSCOMMA)); tsLine != TEXT(""); tsLine = Ns.getnexttok(TSCOMMA)) {
+				int iStart = 0, iEnd = 0;
+				this->getItemRange(tsLine, nItems, &iStart, &iEnd);
+				if ( (iStart < 0) || (iEnd < 0) || (iStart >= nItems) || (iEnd >= nItems) ) {
+					this->showErrorEx(NULL, TEXT("-c"), TEXT("Invalid index %s."), tsLine.to_chr());
+					return;
+				}
+				for (int nSel = iStart; nSel <= iEnd; nSel++)
 					ListBox_SetSel( this->m_Hwnd, TRUE, nSel );
 			}
 		}
@@ -680,15 +677,22 @@ void DcxList::parseCommandRequest( const TString & input ) {
 		}
 	}
 	//xdid -d [NAME] [ID] [SWITCH] [N]
+	//xdid -d -> [NAME] [ID] -d [N]
 	else if ( flags[TEXT('d')] && numtok > 3 ) {
 
-		int nPos = (input.getnexttok( ).to_int( ) - 1);	// tok 4
+		const TString Ns(input.getnexttok( ));	// tok 4
+		const int nItems = ListBox_GetCount( this->m_Hwnd );
 
-		if (nPos == -1)
-			nPos = ListBox_GetCount( this->m_Hwnd ) -1;
-
-		if ( nPos > -1 && nPos < ListBox_GetCount( this->m_Hwnd ) )
-			ListBox_DeleteString( this->m_Hwnd, nPos );
+		for (TString tsLine(Ns.getfirsttok(1, TSCOMMA)); tsLine != TEXT(""); tsLine = Ns.getnexttok(TSCOMMA)) {
+			int iStart = 0, iEnd = 0;
+			this->getItemRange(tsLine, nItems, &iStart, &iEnd);
+			if ( (iStart < 0) || (iEnd < 0) || (iStart >= nItems) || (iEnd >= nItems) ) {
+				this->showErrorEx(NULL, TEXT("-d"), TEXT("Invalid index %s."), tsLine.to_chr());
+				return;
+			}
+			for (int nPos = iStart; nPos <= iEnd; nPos++)
+				ListBox_DeleteString( this->m_Hwnd, nPos );
+		}
 	}
 	// Used to prevent invalid flag message.
 	//xdid -r [NAME] [ID] [SWITCH]
@@ -1049,4 +1053,25 @@ BOOL DcxList::matchItemText( const int nItem, const TString * search, const UINT
 
 	delete [] itemtext;
 	return bRes;
+}
+void DcxList::getItemRange(const TString tsItems, const int nItemCnt, int *iStart_range, int *iEnd_range)
+{
+	int iStart, iEnd;
+	if (tsItems.numtok(TEXT("-")) == 2) {
+		iStart = tsItems.getfirsttok(1, TEXT("-")).to_int() -1;
+		iEnd = tsItems.getnexttok(TEXT("-")).to_int() -1;
+
+		if (iEnd == -1)	// special case
+			iEnd = nItemCnt -1;
+	}
+	else {
+		iEnd = tsItems.to_int() -1;
+
+		if (iEnd == -1)	// special case
+			iStart = iEnd = nItemCnt -1;
+		else
+			iStart = iEnd;
+	}
+	*iStart_range = iStart;
+	*iEnd_range = iEnd;
 }
