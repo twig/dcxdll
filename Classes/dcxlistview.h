@@ -127,7 +127,7 @@ public:
 
 	BOOL isListViewStyle( const long dwView ) const;
 
-	int getColumnCount( ) const;
+	UINT getColumnCount( ) const;
 
 	static LRESULT CALLBACK EditLabelProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
 
@@ -171,6 +171,7 @@ private:
 	bool ctrlLoadListview(const int nPos, const TString &tsData);
 	bool xLoadListview(const int nPos, const TString &tsData, const TCHAR *sTest, const TCHAR *sCount, const TCHAR *sGet, const TCHAR *sGetNamed);
 	void massSetItem(const int nPos, const TString &input);
+	void setHeaderStyle(HWND h, const int nCol, const TString info);
 	static UINT parseMassItemFlags( const TString & flags );
 	static void parseText2Item(const TString & tsTxt, TString & tsItem, const TString &tsData);
 	//

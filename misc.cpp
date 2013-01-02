@@ -950,7 +950,7 @@ int unfoldColor(const WCHAR *color) {
 
 void mIRC_OutText(HDC hdc, TString &txt, LPRECT rcOut, const LPLOGFONT lf, const UINT iStyle, const COLORREF clrFG, const bool shadow)
 {
-	int len = (int)txt.len();
+	const int len = (int)txt.len();
 	if (len > 0) {
 		TEXTMETRICW tm;
 		HFONT hOldFont = SelectFont( hdc, CreateFontIndirect( lf ) );
@@ -967,7 +967,7 @@ void mIRC_OutText(HDC hdc, TString &txt, LPRECT rcOut, const LPLOGFONT lf, const
 			dcxDrawShadowText(hdc,txt.to_chr(), len, &rcTmp, iStyle, clrFG, 0, 5, 5);
 		else
 			DrawText(hdc, txt.to_chr(), len, &rcTmp, iStyle);
-		rcOut->left += (rcTmp.right - rcTmp.left) /*- tm.tmOverhang*/;
+		rcOut->left += (rcTmp.right - rcTmp.left) - tm.tmOverhang;
 		DeleteFont(SelectFont( hdc, hOldFont ));
 	}
 	txt = TEXT("");
@@ -977,10 +977,11 @@ void mIRC_DrawText(HDC hdc, const TString &txt, LPRECT rc, const UINT style, con
 {
 	LOGFONT lf;
 	const WCHAR *wtxt = txt.to_chr();
-	int /*savedDC,*/ pos = 0, len = (int)txt.len();
+	/*int savedDC;*/
+	const UINT len = txt.len();
 	TString tmp;
 	RECT rcOut = *rc;
-	UINT iStyle = (style & ~(DT_CENTER|DT_RIGHT|DT_VCENTER)) | DT_LEFT; // make sure its to left
+	UINT pos = 0, iStyle = (style & ~(DT_CENTER|DT_RIGHT|DT_VCENTER)) | DT_LEFT; // make sure its to left
 	bool /*usingBGclr = false,*/ usingRevTxt = false;
 
 	if ((len == 0) || (wtxt == NULL)) // if no text just exit.
@@ -1012,6 +1013,13 @@ void mIRC_DrawText(HDC hdc, const TString &txt, LPRECT rc, const UINT style, con
 
 	GetObject(hFont, sizeof(LOGFONT), &lf);
 
+	// bug #721 -> http://dcx.scriptsdb.org/bug/index.php?do=details&task_id=721
+	/*TEXTMETRIC tm;
+	GetTextMetrics(hdc, &tm);*/
+	/*DRAWTEXTPARAMS dtp = {0};
+	dtp.cbSize = sizeof(DRAWTEXTPARAMS);
+	dtp.iTabLength = 4;*/
+
 	LONG origWeight = lf.lfWeight;
 	LONG origLeft = rc->left;
 
@@ -1023,7 +1031,13 @@ void mIRC_DrawText(HDC hdc, const TString &txt, LPRECT rc, const UINT style, con
 			// strip out ctrl codes to correctly position text.
 			RECT rcTmp = *rc;
 			TString t(txt);
-			DrawText(hdc, t.strip().to_chr(), t.len(), &rcTmp, style | DT_CALCRECT);
+			if ((style & DT_SINGLELINE) == DT_SINGLELINE) {
+				t.replace(TEXT('\n'), TEXT(' '));
+				t.replace(TEXT('\r'), TEXT(' '));
+			}
+			DrawText(hdc, t.strip().to_chr(), t.len(), &rcTmp, style | DT_CALCRECT /*| DT_NOPREFIX*/);
+			//DrawText(hdc, txt, lstrlen(txt), &rcTmp, style | DT_CALCRECT /*| DT_NOPREFIX*/);
+			//DrawTextEx(hdc, t.strip().to_chr(), t.len(), &rcTmp, style | DT_CALCRECT /*| DT_NOPREFIX*/, &dtp);
 			// style can be either center or right, not both, but it can be center+vcenter or right+vcenter
 			if ((style & DT_CENTER) == DT_CENTER) { // get center text start offset
 				// (total width) - (required width) / 2 = equal space to each side.
@@ -1031,7 +1045,11 @@ void mIRC_DrawText(HDC hdc, const TString &txt, LPRECT rc, const UINT style, con
 			}
 			else if ((style & DT_RIGHT) == DT_RIGHT) { // get right text start offset
 				// adjust start to right
-				origLeft = rcOut.left = rcOut.right - (rcTmp.right - rcTmp.left);
+				origLeft = rcOut.left = (rcOut.right - (rcTmp.right - rcTmp.left));
+				//origLeft = rcOut.left = (rcOut.right - (rcTmp.right - rcTmp.left) - 3);
+				//origLeft = rcOut.left = (rcOut.right - (rcTmp.right - rcTmp.left) - tm.tmMaxCharWidth);
+				//origLeft = rcOut.left = (rcOut.right - (rcTmp.right - rcTmp.left) - tm.tmAveCharWidth);
+				//origLeft = rcOut.left = rcTmp.left;
 			}
 			if ((style & DT_VCENTER) == DT_VCENTER) { // get Veritcal center text start offset
 				rcOut.top += (((rcOut.bottom - rcOut.top) - (rcTmp.bottom - rcTmp.top)) / 2);
@@ -1171,7 +1189,10 @@ void mIRC_DrawText(HDC hdc, const TString &txt, LPRECT rc, const UINT style, con
 					if (tlen > 0)
 						mIRC_OutText(hdc, tmp, &rcOut, &lf, iStyle, clrFG, shadow);
 					rcOut.top += sz.cy;
-					rcOut.left = rc->left;
+					if ((style & DT_RIGHT) == DT_RIGHT)
+						rcOut.left = origLeft;
+					else
+						rcOut.left = rc->left;
 				}
 			}
 			break;
