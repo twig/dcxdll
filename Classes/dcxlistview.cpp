@@ -1079,7 +1079,8 @@ void DcxListView::parseCommandRequest( const TString &input) {
 		
 		return;
 	}
-	// xdid -B [NAME] [ID] [SWITCH] [N]
+	// xdid -B [NAME] [ID] [N]
+	// xdid -B -> [NAME] [ID] -B [N]
 	else if (flags[TEXT('B')] && numtok > 3) {
 		int nItem = input.getnexttok( ).to_int() -1;	// tok 4
 
@@ -1101,7 +1102,8 @@ void DcxListView::parseCommandRequest( const TString &input) {
 			SetFocus(this->m_Hwnd);
 		ListView_EditLabel(this->m_Hwnd, nItem);
 	}
-	// xdid -c [NAME] [ID] [SWITCH] [N]
+	// xdid -c [NAME] [ID] [N]
+	// xdid -c -> [NAME] [ID] -c [N]
 	else if (flags[TEXT('c')] && numtok > 3) {
 		int nItemCnt = ListView_GetItemCount(this->m_Hwnd);
 		if (nItemCnt < 1) {
@@ -1119,40 +1121,50 @@ void DcxListView::parseCommandRequest( const TString &input) {
 		}
 		else {
 			const TString Ns(input.getnexttok( ));	// tok 4
-			const int n = Ns.numtok(TSCOMMA);
-			const int nItems = nItemCnt--;
-
-			for (int i = 1; i <= n; i++)
-			{
-				int nItem = Ns.gettok(i, TSCOMMA).to_int() -1;
-
-				if (nItem == -1)
-					nItem = nItemCnt;
-
-				if (nItem > -1 && nItem < nItems)
+			for (TString tsLine(Ns.getfirsttok(1, TSCOMMA)); tsLine != TEXT(""); tsLine = Ns.getnexttok(TSCOMMA)) {
+				int iStart = 0, iEnd = 0;
+				this->getItemRange(tsLine, nItemCnt, &iStart, &iEnd);
+				if ( (iStart < 0) || (iEnd < 0) || (iStart >= nItemCnt) || (iEnd >= nItemCnt) ) {
+					this->showErrorEx(NULL, TEXT("-c"), TEXT("Invalid index %s."), tsLine.to_chr());
+					return;
+				}
+				for (int nItem = iStart; nItem <= iEnd; nItem++)
 					ListView_SetItemState(this->m_Hwnd, nItem, LVIS_SELECTED, LVIS_SELECTED);
 			}
 		}
 	}
 	// xdid -d [NAME] [ID] [SWITCH] [N]
 	else if (flags[TEXT('d')] && (numtok > 3)) {
-		int nItem = input.getnexttok( ).to_int() -1;	// tok 4
+		//int nItem = input.getnexttok( ).to_int() -1;	// tok 4
 
-		// check if item supplied was 0 (now -1), last item in list.
-		if (nItem == -1) {
-			nItem = ListView_GetItemCount(this->m_Hwnd) -1;
+		//// check if item supplied was 0 (now -1), last item in list.
+		//if (nItem == -1) {
+		//	nItem = ListView_GetItemCount(this->m_Hwnd) -1;
 
-			if (nItem < 0) {
-				this->showError(NULL,TEXT("-d"), TEXT("Invalid Item: No Items in list"));
+		//	if (nItem < 0) {
+		//		this->showError(NULL,TEXT("-d"), TEXT("Invalid Item: No Items in list"));
+		//		return;
+		//	}
+		//}
+		//if (nItem < 0) {
+		//	this->showError(NULL,TEXT("-d"), TEXT("Invalid Item"));
+		//	return;
+		//}
+
+		//ListView_DeleteItem(this->m_Hwnd, nItem);
+		const TString Ns(input.getnexttok( ));	// tok 4
+		const int nItemCnt = ListView_GetItemCount(this->m_Hwnd);
+
+		for (TString tsLine(Ns.getfirsttok(1, TSCOMMA)); tsLine != TEXT(""); tsLine = Ns.getnexttok(TSCOMMA)) {
+			int iStart = 0, iEnd = 0;
+			this->getItemRange(tsLine, nItemCnt, &iStart, &iEnd);
+			if ( (iStart < 0) || (iEnd < 0) || (iStart >= nItemCnt) || (iEnd >= nItemCnt) ) {
+				this->showErrorEx(NULL, TEXT("-d"), TEXT("Invalid index %s."), tsLine.to_chr());
 				return;
 			}
+			for (int nItem = iStart; nItem <= iEnd; nItem++)
+				ListView_DeleteItem(this->m_Hwnd, nItem);
 		}
-		if (nItem < 0) {
-			this->showError(NULL,TEXT("-d"), TEXT("Invalid Item"));
-			return;
-		}
-
-		ListView_DeleteItem(this->m_Hwnd, nItem);
 	}
 	// xdid -g [NAME] [ID] [SWITCH] [+FLAGS] [X] [Y] (FILENAME) ([tab] watermark filename)
 	else if (flags[TEXT('g')] && numtok > 5) {
@@ -1277,25 +1289,39 @@ void DcxListView::parseCommandRequest( const TString &input) {
 			this->showError(NULL, TEXT("-j"), TEXT("No DCX Item Information, somethings very wrong"));
 	}
 	// xdid -k [NAME] [ID] [SWITCH] [STATE] [N]
+	// xdid -k -> [NAME] [ID] -k [STATE] [N]
 	else if (flags[TEXT('k')] && numtok > 4) {
 		const int state = input.getnexttok( ).to_int();	// tok 4
-		int nItem = input.getnexttok( ).to_int() -1;	// tok 5
+		//int nItem = input.getnexttok( ).to_int() -1;	// tok 5
 
-		// check if item supplied was 0 (now -1), last item in list.
-		if (nItem == -1) {
-			nItem = ListView_GetItemCount(this->m_Hwnd) -1;
+		//// check if item supplied was 0 (now -1), last item in list.
+		//if (nItem == -1) {
+		//	nItem = ListView_GetItemCount(this->m_Hwnd) -1;
 
-			if (nItem < 0) {
-				this->showError(NULL,TEXT("-k"), TEXT("Invalid Item: No Items in list"));
+		//	if (nItem < 0) {
+		//		this->showError(NULL,TEXT("-k"), TEXT("Invalid Item: No Items in list"));
+		//		return;
+		//	}
+		//}
+		//if (nItem < 0) {
+		//	this->showError(NULL,TEXT("-k"), TEXT("Invalid Item"));
+		//	return;
+		//}
+
+		//ListView_SetItemState(this->m_Hwnd, nItem, INDEXTOSTATEIMAGEMASK(state), LVIS_STATEIMAGEMASK);
+		const TString Ns(input.getnexttok( ));	// tok 5
+		const int nItemCnt = ListView_GetItemCount(this->m_Hwnd);
+
+		for (TString tsLine(Ns.getfirsttok(1, TSCOMMA)); tsLine != TEXT(""); tsLine = Ns.getnexttok(TSCOMMA)) {
+			int iStart = 0, iEnd = 0;
+			this->getItemRange(tsLine, nItemCnt, &iStart, &iEnd);
+			if ( (iStart < 0) || (iEnd < 0) || (iStart >= nItemCnt) || (iEnd >= nItemCnt) ) {
+				this->showErrorEx(NULL, TEXT("-k"), TEXT("Invalid index %s."), tsLine.to_chr());
 				return;
 			}
+			for (int nItem = iStart; nItem <= iEnd; nItem++)
+				ListView_SetItemState(this->m_Hwnd, nItem, INDEXTOSTATEIMAGEMASK(state), LVIS_STATEIMAGEMASK);
 		}
-		if (nItem < 0) {
-			this->showError(NULL,TEXT("-k"), TEXT("Invalid Item"));
-			return;
-		}
-
-		ListView_SetItemState(this->m_Hwnd, nItem, INDEXTOSTATEIMAGEMASK(state), LVIS_STATEIMAGEMASK);
 	}
 	// xdid -l [NAME] [ID] [SWITCH] [N] [M] [ICON] (OVERLAY)
 	else if (flags[TEXT('l')] && numtok > 5) {
@@ -1950,36 +1976,16 @@ void DcxListView::parseCommandRequest( const TString &input) {
 			return;
 		}
 
-		const UINT col_count = this->getColumnCount();
+		const int col_count = this->getColumnCount();
 
 		for (TString col(tsCols.getfirsttok(1, TSCOMMA)); col != TEXT(""); col = tsCols.getnexttok(TSCOMMA)) {
-			UINT col_start = 0, col_end = 0;
-			if (col.numtok(TEXT("-")) == 2) {
-				col_start = col.getfirsttok(1, TEXT("-")).to_int() -1;
-				col_end = col.getnexttok(TEXT("-")).to_int() -1;
-
-				if (col_end == -1)	// special case
-					col_end = col_count -1;
-			}
-			else {
-				col_end = col.to_int() -1;
-
-				if (col_end == -1) {	// special case
-					col_end = col_count -1;
-					col_start = 0;
-				}
-				else
-					col_start = col_end;
-			}
+			int col_start = 0, col_end = 0;
+			this->getItemRange(col, col_count, &col_start, &col_end);
 			if ( (col_start < 0) || (col_end < 0) || (col_start >= col_count) || (col_end >= col_count) ) {
 				this->showErrorEx(NULL, TEXT("-H"), TEXT("Invalid column index %s."), col.to_chr());
 				return;
 			}
-			for (UINT nCol = col_start; nCol <= col_end; nCol++) {
-				if ((nCol < 0) || (nCol > col_count)) {
-					this->showErrorEx(NULL, TEXT("-H"), TEXT("Invalid column index %d."), nCol +1);
-					return;
-				}
+			for (int nCol = col_start; nCol <= col_end; nCol++) {
 				if (xflag['s']) {	// change header style
 					this->setHeaderStyle(h, nCol, info);
 				}
@@ -2475,13 +2481,13 @@ BOOL DcxListView::matchItemText( const int nItem, const int nSubItem, const TStr
 * blah
 */
 
-UINT DcxListView::getColumnCount( ) const
+int DcxListView::getColumnCount( ) const
 {
 	LVCOLUMN lvc;
 	ZeroMemory( &lvc, sizeof(LVCOLUMN) );
 	lvc.mask = LVCF_WIDTH;
 
-	UINT i = 0;
+	int i = 0;
 	while ( ListView_GetColumn( this->m_Hwnd, i, &lvc ) != FALSE )
 		i++;
 
@@ -3389,7 +3395,7 @@ void DcxListView::ScrollPbars(const int row) {
 
 	ZeroMemory(lvi, sizeof(LVITEM));
 
-	const UINT nCols = this->getColumnCount();
+	const int nCols = this->getColumnCount();
 
 	for (int col = 0; col < nCols; col++) {
 		lvi->iItem = row;
@@ -4075,3 +4081,24 @@ void DcxListView::parseText2Item(const TString &tsTxt, TString &tsItem, const TS
 	}
 }
 
+void DcxListView::getItemRange(const TString tsItems, const int nItemCnt, int *iStart_range, int *iEnd_range)
+{
+	int iStart, iEnd;
+	if (tsItems.numtok(TEXT("-")) == 2) {
+		iStart = tsItems.getfirsttok(1, TEXT("-")).to_int() -1;
+		iEnd = tsItems.getnexttok(TEXT("-")).to_int() -1;
+
+		if (iEnd == -1)	// special case
+			iEnd = nItemCnt -1;
+	}
+	else {
+		iEnd = tsItems.to_int() -1;
+
+		if (iEnd == -1)	// special case
+			iStart = iEnd = nItemCnt -1;
+		else
+			iStart = iEnd;
+	}
+	*iStart_range = iStart;
+	*iEnd_range = iEnd;
+}
