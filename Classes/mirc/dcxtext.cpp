@@ -90,38 +90,39 @@ DcxText::~DcxText( ) {
 void DcxText::parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme)
 {
 	*Styles |= SS_NOTIFY;
-	//const UINT numtok = styles.numtok( );
-
-	//for (UINT i = 1; i <= numtok; i++)
+	//for (TString tsStyle(styles.getfirsttok( 1 )); tsStyle != ""; tsStyle = styles.getnexttok( ))
 	//{
-	//	if (styles.gettok( i ) == TEXT("nowrap"))
+	//	if (tsStyle == TEXT("nowrap"))
 	//		*Styles |= SS_LEFTNOWORDWRAP;
-	//	else if (styles.gettok( i ) == TEXT("center"))
+	//	else if (tsStyle == TEXT("center"))
 	//		*Styles |= SS_CENTER;
-	//	else if (styles.gettok( i ) == TEXT("right"))
+	//	else if (tsStyle == TEXT("right"))
 	//		*Styles |= SS_RIGHT;
-	//	else if (styles.gettok( i ) == TEXT("noprefix"))
+	//	else if (tsStyle == TEXT("noprefix"))
 	//		*Styles |= SS_NOPREFIX;
-	//	else if (styles.gettok( i ) == TEXT("endellipsis"))
+	//	else if (tsStyle == TEXT("endellipsis"))
 	//		*Styles |= SS_ENDELLIPSIS;
-	//	else if (styles.gettok( i ) == TEXT("pathellipsis"))
+	//	else if (tsStyle == TEXT("pathellipsis"))
 	//		*Styles |= SS_PATHELLIPSIS;
 	//}
+	this->m_uiStyle = DT_LEFT;
+
 	for (TString tsStyle(styles.getfirsttok( 1 )); tsStyle != ""; tsStyle = styles.getnexttok( ))
 	{
 		if (tsStyle == TEXT("nowrap"))
-			*Styles |= SS_LEFTNOWORDWRAP;
+			this->m_uiStyle |= DT_SINGLELINE;
 		else if (tsStyle == TEXT("center"))
-			*Styles |= SS_CENTER;
+			this->m_uiStyle |= DT_CENTER;
 		else if (tsStyle == TEXT("right"))
-			*Styles |= SS_RIGHT;
+			this->m_uiStyle |= DT_RIGHT;
 		else if (tsStyle == TEXT("noprefix"))
-			*Styles |= SS_NOPREFIX;
+			this->m_uiStyle |= DT_NOPREFIX;
 		else if (tsStyle == TEXT("endellipsis"))
-			*Styles |= SS_ENDELLIPSIS;
+			this->m_uiStyle |= DT_END_ELLIPSIS;
 		else if (tsStyle == TEXT("pathellipsis"))
-			*Styles |= SS_PATHELLIPSIS;
+			this->m_uiStyle |= DT_PATH_ELLIPSIS;
 	}
+	if ((this->m_uiStyle & DT_SINGLELINE) != DT_SINGLELINE) this->m_uiStyle |= DT_WORDBREAK;
 
 	this->parseGeneralControlStyles(styles, Styles, ExStyles, bNoTheme);
 }
@@ -292,23 +293,25 @@ void DcxText::DrawClientArea(HDC hdc)
 		oldBkgClr = SetBkColor(hdc, GetSysColor(COLOR_3DFACE));
 	}
 
-	UINT style = DT_LEFT;
-	if (this->isStyle(SS_CENTER))
-		style = DT_CENTER;
-	if (this->isStyle(SS_RIGHT))
-		style = DT_RIGHT;
-	if (this->isStyle(SS_ENDELLIPSIS))
-		style |= DT_END_ELLIPSIS;
-	if (this->isStyle(SS_PATHELLIPSIS))
-		style |= DT_PATH_ELLIPSIS;
-	if (this->isStyle(SS_NOPREFIX))
-		style |= DT_NOPREFIX;
-	if (this->isStyle(SS_LEFTNOWORDWRAP))
-		style |= DT_SINGLELINE;
-	else
-		style |= DT_WORDBREAK; // changed for autowrap between words
+	//UINT style = DT_LEFT;
+	//if (this->isStyle(SS_CENTER))
+	//	style = DT_CENTER;
+	//if (this->isStyle(SS_RIGHT))
+	//	style = DT_RIGHT;
+	//if (this->isStyle(SS_ENDELLIPSIS))
+	//	style |= DT_END_ELLIPSIS;
+	//if (this->isStyle(SS_PATHELLIPSIS))
+	//	style |= DT_PATH_ELLIPSIS;
+	//if (this->isStyle(SS_NOPREFIX))
+	//	style |= DT_NOPREFIX;
+	//if (this->isStyle(SS_LEFTNOWORDWRAP))
+	//	style |= DT_SINGLELINE;
+	//else
+	//	style |= DT_WORDBREAK; // changed for autowrap between words
 
-	this->ctrlDrawText(hdc, wtext, &r, style);
+	//this->ctrlDrawText(hdc, wtext, &r, style);
+
+	this->ctrlDrawText(hdc, wtext, &r, this->m_uiStyle);
 
 	if (oldBkgClr != CLR_INVALID)
 		SetBkColor(hdc, oldBkgClr);

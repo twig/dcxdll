@@ -43,7 +43,8 @@ public:
 	inline TString getType( ) const { return TString( TEXT("text") ); };
 
 protected:
-	TString m_tsText; // Edit Text
+	TString m_tsText;	// Edit Text
+	UINT m_uiStyle;		// text style
 	void DrawClientArea(HDC hdc);
 };
 

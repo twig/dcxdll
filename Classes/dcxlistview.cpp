@@ -1927,22 +1927,17 @@ void DcxListView::parseCommandRequest( const TString &input) {
 		}
 	}
 	// xdid -H [NAME] [ID] [COL] [+FLAGS] [ARGS]
+	// xdid -H [NAME] [ID] -H [COL|COL1-COL2|COL1,COL2|COL1,COL2-COL3 etc..] [+FLAGS] [ARGS]
 	else if (flags[TEXT('H')]) {
 		if (numtok < 4) {
 			this->showErrorEx(NULL, TEXT("-H"), TEXT("Insufficient parameters"));
 			return;
 		}
 
-		const int nCol = (input.getnexttok( ).to_int() -1);	// tok 4
+		const TString tsCols(input.getnexttok( ));			// tok 4
 		const XSwitchFlags xflag(input.getnexttok( ));		// tok 5
 		const TString info(input.gettok(6, -1));
-		const UINT ntok = info.numtok();
-
-		if ((nCol < 0) || (nCol > this->getColumnCount())) {
-			this->showErrorEx(NULL, TEXT("-H"), TEXT("Invalid column index %d."), nCol +1);
-			return;
-		}
-
+		//const UINT ntok = info.numtok();
 
 		if (!xflag[TEXT('+')]) {
 			this->showError(NULL, TEXT("-H"), TEXT("Missing '+' in flags"));
@@ -1955,64 +1950,44 @@ void DcxListView::parseCommandRequest( const TString &input) {
 			return;
 		}
 
-		if (xflag['s']) {	// change header style
-			HDITEM hdr = {0};
-			hdr.mask = HDI_FORMAT;
-			if (Header_GetItem(h, nCol, &hdr)) {
-				static const TString header_styles(TEXT("sortdown sortup checkbox checked nocheckbox unchecked nosort"));
-				for (UINT i = 1; i <= ntok; i++)
-				{
-					switch (header_styles.findtok(info.gettok(i).to_chr(),1))
-					{
-					case 1:	// sortdown
-						{
-							hdr.fmt &= ~HDF_SORTUP;
-							hdr.fmt |= HDF_SORTDOWN;
-						}
-						break;
-					case 2:	// sortup
-						{
-							hdr.fmt &= ~HDF_SORTDOWN;
-							hdr.fmt |= HDF_SORTUP;
-						}
-						break;
-					case 3:	// checkbox
-						{
-							hdr.fmt |= HDF_CHECKBOX;
-						}
-						break;
-					case 4:	// checked
-						{
-							hdr.fmt |= HDF_CHECKED;
-						}
-						break;
-					case 5:	// nocheckbox
-						{
-							hdr.fmt &= ~(HDF_CHECKBOX|HDF_CHECKED);
-						}
-						break;
-					case 6:	// unchecked
-						{
-							hdr.fmt &= ~HDF_CHECKED;
-						}
-						break;
-					case 7:	// nosort
-						{
-							hdr.fmt &= ~(HDF_SORTUP|HDF_SORTDOWN);
-						}
-						break;
-					case 0:		//error
-					default:	//error
-						break;
-					}
-				}
-				Header_SetItem(h, nCol, &hdr);
+		const UINT col_count = this->getColumnCount();
+
+		for (TString col(tsCols.getfirsttok(1, TSCOMMA)); col != TEXT(""); col = tsCols.getnexttok(TSCOMMA)) {
+			UINT col_start = 0, col_end = 0;
+			if (col.numtok(TEXT("-")) == 2) {
+				col_start = col.getfirsttok(1, TEXT("-")).to_int() -1;
+				col_end = col.getnexttok(TEXT("-")).to_int() -1;
+
+				if (col_end == -1)	// special case
+					col_end = col_count -1;
 			}
-			else
-				this->showErrorEx(NULL, TEXT("-A"), TEXT("Unable to get item: %d"), nCol +1);
+			else {
+				col_end = col.to_int() -1;
+
+				if (col_end == -1) {	// special case
+					col_end = col_count -1;
+					col_start = 0;
+				}
+				else
+					col_start = col_end;
+			}
+			if ( (col_start < 0) || (col_end < 0) || (col_start >= col_count) || (col_end >= col_count) ) {
+				this->showErrorEx(NULL, TEXT("-H"), TEXT("Invalid column index %s."), col.to_chr());
+				return;
+			}
+			for (UINT nCol = col_start; nCol <= col_end; nCol++) {
+				if ((nCol < 0) || (nCol > col_count)) {
+					this->showErrorEx(NULL, TEXT("-H"), TEXT("Invalid column index %d."), nCol +1);
+					return;
+				}
+				if (xflag['s']) {	// change header style
+					this->setHeaderStyle(h, nCol, info);
+				}
+				else
+					this->showErrorEx(NULL, TEXT("-H"), TEXT("Unknown flags %s"), input.gettok(5).to_chr());
+			}
 		}
-		else
-			this->showErrorEx(NULL, TEXT("-H"), TEXT("Unknown flags %s"), input.gettok(5).to_chr());
+
 	}
 	// xdid -G [NAME] [ID] [SWITCH] [GID] [+MASK] [+STATES]
 	else if (flags[TEXT('G')] && numtok == 6) {
@@ -2035,6 +2010,66 @@ void DcxListView::parseCommandRequest( const TString &input) {
 	}
 	else
 		this->parseGlobalCommandRequest(input, flags);
+}
+
+void DcxListView::setHeaderStyle(HWND h, const int nCol, const TString info)
+{
+	HDITEM hdr = {0};
+	hdr.mask = HDI_FORMAT;
+	const UINT ntok = info.numtok();
+
+	if (Header_GetItem(h, nCol, &hdr)) {
+		static const TString header_styles(TEXT("sortdown sortup checkbox checked nocheckbox unchecked nosort"));
+		for (UINT i = 1; i <= ntok; i++)
+		{
+			switch (header_styles.findtok(info.gettok(i).to_chr(),1))
+			{
+			case 1:	// sortdown
+				{
+					hdr.fmt &= ~HDF_SORTUP;
+					hdr.fmt |= HDF_SORTDOWN;
+				}
+				break;
+			case 2:	// sortup
+				{
+					hdr.fmt &= ~HDF_SORTDOWN;
+					hdr.fmt |= HDF_SORTUP;
+				}
+				break;
+			case 3:	// checkbox
+				{
+					hdr.fmt |= HDF_CHECKBOX;
+				}
+				break;
+			case 4:	// checked
+				{
+					hdr.fmt |= HDF_CHECKED;
+				}
+				break;
+			case 5:	// nocheckbox
+				{
+					hdr.fmt &= ~(HDF_CHECKBOX|HDF_CHECKED);
+				}
+				break;
+			case 6:	// unchecked
+				{
+					hdr.fmt &= ~HDF_CHECKED;
+				}
+				break;
+			case 7:	// nosort
+				{
+					hdr.fmt &= ~(HDF_SORTUP|HDF_SORTDOWN);
+				}
+				break;
+			case 0:		//error
+			default:	//error
+				break;
+			}
+		}
+		Header_SetItem(h, nCol, &hdr);
+	}
+	else
+		this->showErrorEx(NULL, TEXT("-H"), TEXT("Unable to get item: %d"), nCol +1);
 }
 
 /*
@@ -2440,13 +2475,13 @@ BOOL DcxListView::matchItemText( const int nItem, const int nSubItem, const TStr
 * blah
 */
 
-int DcxListView::getColumnCount( ) const
+UINT DcxListView::getColumnCount( ) const
 {
 	LVCOLUMN lvc;
 	ZeroMemory( &lvc, sizeof(LVCOLUMN) );
 	lvc.mask = LVCF_WIDTH;
 
-	int i = 0;
+	UINT i = 0;
 	while ( ListView_GetColumn( this->m_Hwnd, i, &lvc ) != FALSE )
 		i++;
 
@@ -3349,9 +3384,14 @@ void DcxListView::UpdateScrollPbars(void) {
 void DcxListView::ScrollPbars(const int row) {
 	LPLVITEM lvi = new LVITEM;
 
+	if (lvi == NULL)
+		return;
+
 	ZeroMemory(lvi, sizeof(LVITEM));
 
-	for (int col = 0; col < this->getColumnCount(); col++) {
+	const UINT nCols = this->getColumnCount();
+
+	for (int col = 0; col < nCols; col++) {
 		lvi->iItem = row;
 		lvi->iSubItem = col;
 		lvi->mask = LVIF_PARAM;
