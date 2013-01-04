@@ -200,7 +200,7 @@ void DcxStacker::parseInfoRequest( const TString & input, TCHAR * szReturnValue 
 void DcxStacker::parseCommandRequest( const TString &input) {
 	const XSwitchFlags flags(input.getfirsttok( 3 ));
 
-	const int numtok = input.numtok( );
+	const UINT numtok = input.numtok( );
 
 	// xdid -r [NAME] [ID] [SWITCH]
 	if (flags[TEXT('r')]) {
@@ -302,6 +302,8 @@ void DcxStacker::parseCommandRequest( const TString &input) {
 	}
 	//xdid -w [NAME] [ID] [SWITCH] [+FLAGS] [FILE]
 	else if ( flags[TEXT('w')] && (numtok > 4)) {
+#ifdef DCX_USE_GDIPLUS
+
 		const TString flag(input.getnexttok( ));		// tok 4
 		TString filename(input.getnexttok( ).trim());	// tok 5
 
@@ -310,6 +312,7 @@ void DcxStacker::parseCommandRequest( const TString &input) {
 			return;
 		}
 		this->m_vImageList.push_back(new Image(filename.to_chr()));
+#endif
 	}
 	//xdid -y [NAME] [ID] [SWITCH]
 	else if ( flags[TEXT('y')] ) {

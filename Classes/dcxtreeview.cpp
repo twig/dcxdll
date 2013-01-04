@@ -1533,7 +1533,8 @@ TString DcxTreeView::getPathFromItem(HTREEITEM *item) const {
 		if (result == TEXT(""))
 			result.tsprintf(TEXT("%d"), *itStart);
 		else
-			result.tsprintf(TEXT("%s %d"), result.to_chr(), *itStart);
+			result.addtok(*itStart);
+			//result.tsprintf(TEXT("%s %d"), result.to_chr(), *itStart);
 
 		itStart++;
 	}
