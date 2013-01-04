@@ -928,18 +928,22 @@ BOOL DcxControl::parseGlobalInfoRequest( const TString & input, TCHAR * szReturn
 			lstrcpyn(szReturnValue, TEXT("$true"), MIRC_BUFFER_SIZE_CCH);
 		else
 			lstrcpyn(szReturnValue, TEXT("$false"), MIRC_BUFFER_SIZE_CCH);
+		return TRUE;
 	}
 	// [NAME] [ID] [PROP]
 	else if (prop == TEXT("textcolor")) {
 		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), this->m_clrText);
+		return TRUE;
 	}
 	// [NAME] [ID] [PROP]
 	else if (prop == TEXT("textbgcolor")) {
 		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), this->m_clrBackText);
+		return TRUE;
 	}
 	// [NAME] [ID] [PROP]
 	else if (prop == TEXT("bgcolor")) {
 		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), this->m_clrBackground);
+		return TRUE;
 	}
 	else
 		this->showError(prop.to_chr(),NULL,TEXT("Invalid property or number of arguments"));
