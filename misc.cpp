@@ -112,15 +112,25 @@ BOOL CopyToClipboard(const HWND owner, const TString & str) {
 
 	TCHAR *strCopy = (TCHAR *) GlobalLock(hglbCopy);
 
-	// original code, limited and doesnt copy large chunks
-	//wnsprintf(strCopy, MIRC_BUFFER_SIZE_CCH, TEXT("%s"), str.to_chr());
+	if (strCopy == NULL) {
+		//GlobalUnlock(hglbCopy);
+		GlobalFree(hglbCopy);
+		CloseClipboard();
+		Dcx::error(TEXT("CopyToClipboard"),TEXT("Couldn't lock global memory"));
+		return FALSE;
+	}
 
 	// demo code from msdn, copies everything
-	memcpy(strCopy, str.to_chr(), cbsize);
-	strCopy[cbsize] = (TCHAR) 0; // null character
+	//memcpy(strCopy, str.to_chr(), cbsize); // <- broken cbsize == char byte too many
+	//strCopy[cbsize] = (TCHAR) 0; // null character
+	lstrcpyn(strCopy, str.to_chr(), cbsize);
 
 	GlobalUnlock(hglbCopy);
+#if UNICODE
+	SetClipboardData(CF_UNICODETEXT, hglbCopy);
+#else
 	SetClipboardData(CF_TEXT, hglbCopy);
+#endif
 	CloseClipboard();
 
 	return TRUE;
