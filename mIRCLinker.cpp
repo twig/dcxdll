@@ -63,7 +63,9 @@ void mIRCLinker::load(LOADINFO * lInfo) {
 	tsEval(isDebug, TEXT("$debug"));
 
 	m_bDebug = (isDebug.trim().len() > 0);
-	DCX_DEBUG(debug,TEXT("LoadmIRCLink"), TEXT("Debug mode detected..."));
+	if (m_bDebug) {
+		DCX_DEBUG(debug,TEXT("LoadmIRCLink"), TEXT("Debug mode detected..."));
+	}
 
 	if (this->getMainVersion() == 7) {
 		DCX_DEBUG(debug,TEXT("LoadmIRCLink"), TEXT("mIRC V7 detected..."));
@@ -78,14 +80,15 @@ void mIRCLinker::load(LOADINFO * lInfo) {
 	DCX_DEBUG(debug,TEXT("LoadmIRCLink"), TEXT("Finding mIRC_SwitchBar..."));
 	m_hSwitchbar = FindWindowEx(m_mIRCHWND,NULL,TEXT("mIRC_SwitchBar"),NULL);
 
-	if (isOrNewerVersion(6,30)) { // class renamed for 6.30+
+	// v2 dll for mirc V7+ anyway.
+	//if (isOrNewerVersion(6,30)) { // class renamed for 6.30+
 		DCX_DEBUG(debug,TEXT("LoadmIRCLink"), TEXT("Finding mIRC_TreeBar..."));
 		m_hTreebar = FindWindowEx(m_mIRCHWND,NULL,TEXT("mIRC_TreeBar"),NULL);
-	}
-	else {
-		DCX_DEBUG(debug,TEXT("LoadmIRCLink"), TEXT("Finding mIRC_TreeList..."));
-		m_hTreebar = FindWindowEx(m_mIRCHWND,NULL,TEXT("mIRC_TreeList"),NULL);
-	}
+	//}
+	//else {
+	//	DCX_DEBUG(debug,TEXT("LoadmIRCLink"), TEXT("Finding mIRC_TreeList..."));
+	//	m_hTreebar = FindWindowEx(m_mIRCHWND,NULL,TEXT("mIRC_TreeList"),NULL);
+	//}
 
 	if (IsWindow(m_hTreebar)) {
 		//m_hTreeview = GetWindow(mIRCLink.m_hTreebar,GW_CHILD);
