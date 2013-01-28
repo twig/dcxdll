@@ -540,13 +540,13 @@ LRESULT CALLBACK Dcx::mIRCSubClassWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 			break;
 		}
 
-		case WM_CLOSE:
-		{
-			Dcx::mIRC.resetWindowProc();
-			PostMessage(mHwnd, uMsg, 0, 0);
-			return 0L;
-			//break;
-		}
+		// This msg will cause the close request dialog to mess up mirc.
+		//case WM_CLOSE:
+		//{
+		//	Dcx::mIRC.resetWindowProc();
+		//	PostMessage(mHwnd, uMsg, 0, 0);
+		//	return 0L;
+		//}
 		// ghost drag stuff
 		case WM_ENTERSIZEMOVE:
 			{
