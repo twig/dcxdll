@@ -272,7 +272,7 @@ mIRC(xdock) {
 	}
 #endif
 
-	const int numtok = input.numtok( );
+	const unsigned int numtok = input.numtok( );
 
 	if (numtok < 1) {
 		Dcx::error(TEXT("/xdock"),TEXT("Invalid Parameters"));
