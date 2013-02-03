@@ -412,11 +412,39 @@ void DcxList::parseCommandRequest( const TString & input ) {
 	if ( flags[TEXT('a')] && numtok > 4 ) {
 
 		int nPos = input.getnexttok( ).to_int( ) - 1;	// tok 4
+		TString tsItem(input.gettok( 5, -1 ));
 
 		if ( nPos == -1 )
 			nPos = ListBox_GetCount( this->m_Hwnd );
 
-		ListBox_InsertString( this->m_Hwnd, nPos, input.gettok( 5, -1 ).to_chr( ) );
+		ListBox_InsertString( this->m_Hwnd, nPos, tsItem.to_chr( ) );
+
+		// Now update the horizontal scroller
+		//const int nHorizExtent = ListBox_GetHorizontalExtent( this->m_Hwnd );
+		//int nMaxStrlen = tsItem.len();
+
+		//{ // Get Font sizes (best way i can find atm, if you know something better then please let me know)
+		//	HDC hdc = GetDC( this->m_Hwnd);
+		//	TEXTMETRIC tm;
+		//	HFONT hFont = this->getFont();
+
+		//	HFONT hOldFont = SelectFont(hdc, hFont);
+
+		//	GetTextMetrics(hdc, &tm);
+
+		//	SelectFont(hdc, hOldFont);
+
+		//	ReleaseDC( this->m_Hwnd, hdc);
+
+		//	// Multiply max str len by font average width + 1
+		//	nMaxStrlen *= (tm.tmAveCharWidth + tm.tmOverhang);
+		//	// Add 2 * chars as spacer.
+		//	nMaxStrlen += (tm.tmAveCharWidth * 2);
+		//}
+
+		//if (nMaxStrlen > nHorizExtent)
+		//	ListBox_SetHorizontalExtent( this->m_Hwnd, nMaxStrlen);
+
 	}
 	//xdid -A [NAME] [ID] [SWITCH] [N] [+FLAGS] [TEXT]
 	else if ( flags[TEXT('A')] && numtok > 5 ) {
@@ -751,6 +779,41 @@ void DcxList::parseCommandRequest( const TString & input ) {
 			ListBox_DeleteString(this->m_Hwnd, nPos);
 			ListBox_InsertString(this->m_Hwnd, nPos, input.gettok( 5, -1 ).to_chr( ));
 		}
+	}
+	//xdid -z [NAME] [ID]
+	// update horiz scrollbar
+	else if ( flags[TEXT('z')] ) {
+		// Now update the horizontal scroller
+		const int nHorizExtent = ListBox_GetHorizontalExtent( this->m_Hwnd );
+		int nMaxStrlen = 0, nTotalItems = ListBox_GetCount(this->m_Hwnd);
+
+		for (int i = 0; i < nTotalItems; i++) {
+			int nLen = ListBox_GetTextLen(this->m_Hwnd, i);
+			if (nLen > nMaxStrlen)
+				nMaxStrlen = nLen;
+		}
+
+		{ // Get Font sizes (best way i can find atm, if you know something better then please let me know)
+			HDC hdc = GetDC( this->m_Hwnd);
+			TEXTMETRIC tm;
+			HFONT hFont = this->getFont();
+
+			HFONT hOldFont = SelectFont(hdc, hFont);
+
+			GetTextMetrics(hdc, &tm);
+
+			SelectFont(hdc, hOldFont);
+
+			ReleaseDC( this->m_Hwnd, hdc);
+
+			// Multiply max str len by font average width + 1
+			nMaxStrlen *= (tm.tmAveCharWidth + tm.tmOverhang);
+			// Add 2 * chars as spacer.
+			nMaxStrlen += (tm.tmAveCharWidth * 2);
+		}
+
+		if (nMaxStrlen > nHorizExtent)
+			ListBox_SetHorizontalExtent( this->m_Hwnd, nMaxStrlen);
 	}
 	else
 		this->parseGlobalCommandRequest( input, flags );

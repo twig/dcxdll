@@ -222,6 +222,7 @@ using namespace Gdiplus;
 #endif
 
 #ifdef DCX_USE_DXSDK
+#include <Dxsdkver.h>
 #ifdef DCX_DX_ERR
 #include <Dxerr.h>
 #pragma comment(lib, "DxErr.lib")

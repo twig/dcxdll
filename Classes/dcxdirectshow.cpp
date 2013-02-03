@@ -40,6 +40,8 @@ DcxDirectshow::DcxDirectshow( const UINT ID, DcxDialog * p_Dialog, const HWND mP
 , m_bKeepRatio(false)
 , m_bLoop(false)
 {
+	assert(_DXSDK_BUILD_MAJOR == 1962);  //this checks that the DirectX SDK (June 2010) build is installed.
+
 	LONG Styles = 0, ExStyles = 0;
 	BOOL bNoTheme = FALSE;
 	this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
