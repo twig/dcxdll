@@ -69,11 +69,15 @@ DcxWebControl::DcxWebControl( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, R
 		this->registreDefaultWindowProc( );
 		SetProp( this->m_Hwnd, TEXT("dcx_cthis"), (HANDLE) this );
 
-		TString url(TEXT("about:blank"));
-		VARIANT v;
-		VariantInit( &v );
-		this->m_pWebBrowser2->Navigate( url.to_chr(), &v, &v, &v, &v );  // dont use L""
-		VariantClear( &v );
+		BSTR url = SysAllocString(TEXT("about:blank"));
+		if (url != NULL) {
+			VARIANT v;
+			VariantInit( &v );
+			this->m_pWebBrowser2->Navigate( url, &v, &v, &v, &v );  // dont use L""
+
+			VariantClear( &v );
+			SysFreeString(url);
+		}
 	}
 	else {
 		//Release all Web Control pointers
@@ -88,6 +92,7 @@ DcxWebControl::DcxWebControl( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, R
 			this->m_pOleObject->Close( OLECLOSE_NOSAVE );
 			this->m_pOleObject->Release( );
 		}
+		this->m_pWebBrowser2->Quit();
 		this->m_pWebBrowser2->Release( );
 		DestroyWindow(this->m_Hwnd);
 		throw TEXT("Unable To Create Browser Window");
@@ -114,6 +119,7 @@ DcxWebControl::~DcxWebControl( ) {
 		this->m_pOleObject->Close( OLECLOSE_NOSAVE );
 		this->m_pOleObject->Release( );
 	}
+	this->m_pWebBrowser2->Quit();
 	this->m_pWebBrowser2->Release( );
 
 	this->unregistreDefaultWindowProc( );
@@ -170,6 +176,32 @@ void DcxWebControl::parseInfoRequest( const TString & input, TCHAR * szReturnVal
 		lstrcpyn( szReturnValue, TEXT("$false"), MIRC_BUFFER_SIZE_CCH );
 		return;
 	}
+	// [NAME] [ID] [PROP]
+	else if ( prop == TEXT("statusbar") ) {
+
+		VARIANT_BOOL bState;
+		if ( SUCCEEDED( this->m_pWebBrowser2->get_StatusBar(&bState) ) ) {
+
+			if ( bState == VARIANT_TRUE ) {
+
+				lstrcpyn( szReturnValue, TEXT("$true"), MIRC_BUFFER_SIZE_CCH );
+				return;
+			}
+		}
+		lstrcpyn( szReturnValue, TEXT("$false"), MIRC_BUFFER_SIZE_CCH );
+		return;
+	}
+	else if ( prop == TEXT("statustext") ) {
+
+		BSTR str;
+
+		if( SUCCEEDED( this->m_pWebBrowser2->get_StatusText( &str ) ) ) {
+
+			wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%ws"), str ); // possible overflow, needs fixing at some point.
+			SysFreeString( str );
+			return;
+		}
+	}
 	else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
 		return;
 
@@ -216,11 +248,15 @@ void DcxWebControl::parseCommandRequest( const TString & input) {
 
 					if ( SUCCEEDED( doc->get_parentWindow( &window ) ) ) { 
 
-						TString CMD(input.gettok( 4, -1 ).trim());
+						const TString CMD(input.gettok( 4, -1 ).trim());
 
 						VARIANT v;
 						VariantInit( &v );
-						window->execScript( CMD.to_chr(), NULL, &v );
+						BSTR strCMD = SysAllocString(CMD.to_chr());
+						if (strCMD != NULL) {
+							window->execScript( strCMD, NULL, &v );
+							SysFreeString(strCMD);
+						}
 						VariantClear( &v );
 
 						window->Release( );
@@ -238,14 +274,83 @@ void DcxWebControl::parseCommandRequest( const TString & input) {
 
 		this->m_pWebBrowser2->GoBack( );
 	}
+	// xdid -m [NAME] [ID] [SWITCH] [+FLAGS] [+MASK] (URL)
+	// [NAME] [ID] -m [+FLAGS] [+MASK] (URL)
+	else if ( flags[TEXT('m')] && numtok > 4 ) {
+
+		const XSwitchFlags xflags(input.getnexttok());		// tok 4 flags to change
+		const XSwitchFlags xmask(input.getnexttok());		// tok 5 state mask, flags here are enabled, otherwise they are disabled.
+		const TString URL(input.gettok( 6, -1 ).trim());	// optional
+
+		VARIANT vEmpty;
+		VARIANT vFlags;
+		VARIANT_BOOL bEnabled;
+		VariantInit( &vEmpty );
+		V_VT(&vFlags);
+		V_I4(&vFlags) = 0;
+
+		if (xflags['h'] && xmask['h']) // no history
+			V_I4(&vFlags) |= navNoHistory;
+		if (xflags['r'] && xmask['r']) // no read from cache
+			V_I4(&vFlags) |= navNoReadFromCache;
+		if (xflags['w'] && xmask['w']) // no write to cache
+			V_I4(&vFlags) |= navNoWriteToCache;
+		if (xflags['a'] && xmask['a']) // allow auto search
+			V_I4(&vFlags) |= navAllowAutosearch;
+		if (xflags['e'] && xmask['e']) // enforce restricted zone
+			V_I4(&vFlags) |= navEnforceRestricted;
+		if (xflags['m'] && xmask['m']) // Manage popup windows.
+			V_I4(&vFlags) |= navNewWindowsManaged;
+		if (xflags['u'] && xmask['u']) // dont allow downloads.
+			V_I4(&vFlags) |= navUntrustedForDownload;
+		if (xflags['x'] && xmask['x']) // allow active x install prompts (doesnt auto install, you still need to ok the prompt)
+			V_I4(&vFlags) |= navTrustedForActiveX;
+		if (xflags['b']) { // toggle address bar on/off
+			if (xmask['b'])
+				bEnabled = VARIANT_TRUE;
+			else
+				bEnabled = VARIANT_FALSE;
+			this->m_pWebBrowser2->put_AddressBar(bEnabled);
+		}
+		if (xflags['f']) { // fullscreen on/off
+			if (xmask['f'])
+				bEnabled = VARIANT_TRUE;
+			else
+				bEnabled = VARIANT_FALSE;
+			this->m_pWebBrowser2->put_FullScreen(bEnabled);
+		}
+		if (xflags['s']) { // statusbar on/off
+			if (xmask['s'])
+				bEnabled = VARIANT_TRUE;
+			else
+				bEnabled = VARIANT_FALSE;
+			this->m_pWebBrowser2->put_StatusBar(bEnabled);
+		}
+		// only open url if one supplied.
+		if (URL.len() > 0) {
+			BSTR bstrUrl = SysAllocString(URL.to_chr());
+			if (bstrUrl != NULL) {
+				this->m_pWebBrowser2->Navigate( bstrUrl, &vFlags, &vEmpty, &vEmpty, &vEmpty );
+				SysFreeString(bstrUrl);
+			}
+		}
+
+		VariantClear( &vEmpty );
+	}
 	// xdid -n [NAME] [ID] [SWITCH] [URL]
+	// [NAME] [ID] -n [URL]
 	else if ( flags[TEXT('n')] && numtok > 3 ) {
 
 		const TString URL(input.gettok( 4, -1 ).trim());
 
 		VARIANT v;
 		VariantInit( &v );
-		this->m_pWebBrowser2->Navigate( URL.to_chr(), &v, &v, &v, &v );
+		BSTR bstrUrl = SysAllocString(URL.to_chr());
+		if (bstrUrl != NULL) {
+			this->m_pWebBrowser2->Navigate( bstrUrl, &v, &v, &v, &v );
+			SysFreeString(bstrUrl);
+		}
+
 		VariantClear( &v );
 	}
 	// xdid -r [NAME] [ID] [SWITCH]
