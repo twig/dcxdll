@@ -29,8 +29,7 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
-				CommandLine="del /F $(mIRCDir)\dcx\dcx.dll"
-				ExcludedFromBuild="true"
+				CommandLine="del /F $(mIRCDir)\dcx\dcx.dll&#x0D;&#x0A;SubWCRev.exe $(InputDir) svnTemplate.txt svnBuild.h"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -106,7 +105,6 @@
 				Name="VCPostBuildEventTool"
 				Description="Copy compiled dcx.dll to mIRC dir"
 				CommandLine="copy /B /-Y $(TargetPath) $(mIRCDir)\dcx\"
-				ExcludedFromBuild="true"
 			/>
 		</Configuration>
 		<Configuration
@@ -177,6 +175,7 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
+				CommandLine="del /F $(mIRCDir)\dcx\dcx.dll&#x0D;&#x0A;SubWCRev.exe $(InputDir) svnTemplate.txt svnBuild.h"
 				ExcludedFromBuild="true"
 			/>
 			<Tool
@@ -256,7 +255,6 @@
 				Name="VCPostBuildEventTool"
 				Description="UPX Compress Dll..."
 				CommandLine="$(InputDir)..\upx --ultra-brute &quot;$(TargetPath)&quot;"
-				ExcludedFromBuild="true"
 			/>
 		</Configuration>
 		<Configuration
@@ -324,6 +322,7 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
+				CommandLine="del /F $(mIRCDir)\dcx\dcx.dll&#x0D;&#x0A;SubWCRev.exe $(InputDir) svnTemplate.txt svnBuild.h"
 				ExcludedFromBuild="true"
 			/>
 			<Tool
@@ -404,7 +403,6 @@
 				Name="VCPostBuildEventTool"
 				Description="UPX Compress Dll..."
 				CommandLine="$(InputDir)..\upx --ultra-brute &quot;$(TargetPath)&quot;"
-				ExcludedFromBuild="true"
 			/>
 		</Configuration>
 		<Configuration
@@ -472,6 +470,7 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
+				CommandLine="del /F $(mIRCDir)\dcx\dcx.dll&#x0D;&#x0A;SubWCRev.exe $(InputDir) svnTemplate.txt svnBuild.h"
 				ExcludedFromBuild="true"
 			/>
 			<Tool
@@ -555,7 +554,6 @@
 				Name="VCPostBuildEventTool"
 				Description="UPX Compress Dll..."
 				CommandLine="$(InputDir)..\upx --ultra-brute &quot;$(TargetPath)&quot;"
-				ExcludedFromBuild="true"
 			/>
 		</Configuration>
 		<Configuration
@@ -623,6 +621,7 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
+				CommandLine="del /F $(mIRCDir)\dcx\dcx.dll&#x0D;&#x0A;SubWCRev.exe $(InputDir) svnTemplate.txt svnBuild.h"
 				ExcludedFromBuild="true"
 			/>
 			<Tool
@@ -700,7 +699,6 @@
 				Name="VCPostBuildEventTool"
 				Description="UPX Compress Dll..."
 				CommandLine="$(InputDir)..\upx --ultra-brute &quot;$(TargetPath)&quot;"
-				ExcludedFromBuild="true"
 			/>
 		</Configuration>
 		<Configuration
@@ -1532,6 +1530,13 @@
 				<File
 					RelativePath=".\DcxXPPlusModule.h"
 					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCustomBuildTool"
+						/>
+					</FileConfiguration>
 				</File>
 			</Filter>
 		</Filter>
@@ -1544,10 +1549,18 @@
 				RelativePath=".\dll.def"
 				>
 			</File>
+			<File
+				RelativePath=".\svnTemplate.txt"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Scripts"
 			>
+			<File
+				RelativePath=".\dcx_zip\dc.xml"
+				>
+			</File>
 			<File
 				RelativePath=".\dcx_zip\dcx.mrc"
 				>

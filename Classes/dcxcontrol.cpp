@@ -143,12 +143,11 @@ DcxControl::~DcxControl( ) {
 
 void DcxControl::parseGeneralControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ) {
 
-	unsigned int i = 1, numtok = styles.numtok( );
+	const UINT numtok = styles.numtok( );
 
 	*Styles |= WS_CLIPCHILDREN | WS_VISIBLE;
 
-	while ( i <= numtok ) {
-
+	for (UINT i = 1; i <= numtok; i++) {
 		if ( styles.gettok( i ) == "notheme" )
 			*bNoTheme = TRUE;
 		else if ( styles.gettok( i ) == "tabstop" )
@@ -175,8 +174,6 @@ void DcxControl::parseGeneralControlStyles( const TString & styles, LONG * Style
 		}
 		else if ( styles.gettok( i ) == "utf8" )
 			this->m_bUseUTF8 = true;
-
-		i++;
 	}
 }
 
@@ -227,8 +224,8 @@ bool DcxControl::execAliasEx( const char * szFormat, ... ) {
  * blah
  */
 
-void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags & flags ) {
-	int numtok = input.numtok( );
+void DcxControl::parseGlobalCommandRequest( const TString & input, const XSwitchFlags & flags ) {
+	const UINT numtok = input.numtok( );
 
 	// xdid -f [NAME] [ID] [SWITCH] [+FLAGS] [CHARSET] [SIZE] [FONTNAME]
 	if ( flags['f'] && numtok > 3 ) {
@@ -244,10 +241,10 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags 
 	// xdid -p [NAME] [ID] [SWITCH] [X] [Y] [W] [H]
 	else if ( flags['p'] && numtok > 6 ) {
 
-		int x = input.gettok( 4 ).to_int( );
-		int y = input.gettok( 5 ).to_int( );
-		int w = input.gettok( 6 ).to_int( );
-		int h = input.gettok( 7 ).to_int( );
+		const int x = input.gettok( 4 ).to_int( );
+		const int y = input.gettok( 5 ).to_int( );
+		const int w = input.gettok( 6 ).to_int( );
+		const int h = input.gettok( 7 ).to_int( );
 
 		MoveWindow( this->m_Hwnd, x, y, w, h, FALSE );
 		//this->InvalidateParentRect( this->m_Hwnd);
@@ -273,8 +270,8 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags 
 	}
 	// xdid -C [NAME] [ID] [SWITCH] [+FLAGS] [COLOR]
 	else if ( flags['C'] && numtok > 4 ) {
-		UINT iFlags = this->parseColorFlags( input.gettok( 4 ) );
-		COLORREF clrColor = (COLORREF)input.gettok( 5 ).to_num( );
+		const UINT iFlags = this->parseColorFlags( input.gettok( 4 ) );
+		const COLORREF clrColor = (COLORREF)input.gettok( 5 ).to_num( );
 
 		if ( iFlags & DCC_BKGCOLOR ) {
 			if ( this->m_hBackBrush != NULL ) {
@@ -320,7 +317,7 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags 
 	}
 	// xdid -J [NAME] [ID] [SWITCH] [+FLAGS] [CURSOR|FILENAME]
 	else if ( flags['J'] && numtok > 4 ) {
-		UINT iFlags = this->parseCursorFlags( input.gettok( 4 ) );
+		const UINT iFlags = this->parseCursorFlags( input.gettok( 4 ) );
 		HCURSOR hCursor = NULL;
 		if ( this->m_bCursorFromFile )
 			hCursor = this->m_hCursor;
@@ -361,7 +358,7 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags 
 	// xdid -Z [NAME] [ID] [SWITCH] [%]
 	else if ( flags['Z'] && numtok > 3 ) {
 
-		int perc = input.gettok( 4 ).to_int( );
+		const int perc = input.gettok( 4 ).to_int( );
 
 		if ( perc >= 0 || perc <= 100 ) {
 
@@ -483,9 +480,9 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags 
 	}
 	// xdid -R [NAME] [ID] [SWITCH] [FLAG] [ARGS]
 	else if (flags['R'] && numtok > 3) {
-		TString flag(input.gettok( 4 ));
+		const XSwitchFlags xflags(input.gettok( 4 ));
 
-		if ((flag.len() < 2) || (flag[0] != '+')) {
+		if (!xflags['+']) {
 			this->showError(NULL, "-R", "Invalid Flag");
 			return;
 		}
@@ -496,28 +493,28 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags 
 		bool noRegion = false;
 		GetWindowRect(this->m_Hwnd,&rc);
 
-		if (flag.find('o',0))
+		if (xflags['o'])
 			RegionMode = RGN_OR;
-		else if (flag.find('a',0))
+		else if (xflags['a'])
 			RegionMode = RGN_AND;
-		else if (flag.find('i',0))
+		else if (xflags['i'])
 			RegionMode = RGN_DIFF;
-		else if (flag.find('x',0))
+		else if (xflags['x'])
 			RegionMode = RGN_XOR;
 
-		if (flag.find('f',0)) // image file - [COLOR] [FILE]
+		if (xflags['f']) // image file - [COLOR] [FILE]
 		{
 			if (numtok < 6) {
 				this->showError(NULL, "-R +f", "Invalid Arguments");
 				return;
 			}
 
-			COLORREF tCol = (COLORREF)input.gettok( 5 ).to_num();
+			const COLORREF tCol = (COLORREF)input.gettok( 5 ).to_num();
 			TString filename(input.gettok(6,-1));
 			HBITMAP m_bitmapBg = dcxLoadBitmap(NULL,filename);
 
 			if (m_bitmapBg != NULL) {
-				if (flag.find('R',0)) // now resize image to match control.
+				if (xflags['R']) // now resize image to match control.
 					m_bitmapBg = DcxControl::resizeBitmap(m_bitmapBg, &rc);
 				m_Region = BitmapRegion(m_bitmapBg,tCol,((tCol != -1) ? TRUE : FALSE));
 
@@ -526,7 +523,7 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags 
 			else
 				this->showError(NULL,"-R +f", "Unable To Load Image file.");
 		}
-		else if (flag.find('r',0)) // rounded rect - radius args (optional)
+		else if (xflags['r']) // rounded rect - radius args (optional)
 		{
 			int radius;
 
@@ -537,43 +534,43 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags 
 
 			m_Region = CreateRoundRectRgn(0,0,rc.right - rc.left,rc.bottom - rc.top, radius, radius);
 		}
-		else if (flag.find('c',0)) // circle - radius arg (optional)
+		else if (xflags['c']) // circle - radius arg (optional)
 		{
 			if (numtok > 4) {
 				int radius = input.gettok( 5 ).to_int();
-				if (radius < 1) radius = 100; // handle cases where arg isnt a number or is a negative.
-				int cx = ((rc.right - rc.left)/2);
-				int cy = ((rc.bottom - rc.top)/2);
+				if (radius < 1)
+					radius = 100; // handle cases where arg isnt a number or is a negative.
+				const int cx = ((rc.right - rc.left)/2);
+				const int cy = ((rc.bottom - rc.top)/2);
 				m_Region = CreateEllipticRgn(cx-radius,cy-radius,cx+radius,cy+radius);
 			}
 			else
 				m_Region = CreateEllipticRgn(0,0,rc.right - rc.left,rc.bottom - rc.top);
 		}
-		else if (flag.find('p',0)) // polygon
+		else if (xflags['p']) // polygon
 		{
-			// u need at least 3 points for a shape
+			// you need at least 3 points for a shape
 			if (numtok < 7) {
 				this->showError(NULL, "-R +p", "Invalid Arguments");
 				return;
 			}
 
-			TString strPoints(input.gettok(5, -1));
+			const TString strPoints(input.gettok(5, -1));
 			TString strPoint;
-			int tPoints = strPoints.numtok( );
+			const UINT tPoints = strPoints.numtok( );
 
 			if (tPoints < 3) {
 				this->showError(NULL, "-R +p", "Invalid Points: At least 3 points required.");
 				return;
 			}
 
-			int cnt = 1;
 			POINT *pnts = new POINT[tPoints];
 
-			while (cnt <= tPoints) {
+			for (UINT cnt = 1; cnt <= tPoints; cnt++)
+			{
 				strPoint = strPoints.gettok( cnt );
 				pnts[cnt-1].x = (LONG)strPoint.gettok(1, TSCOMMA).to_num();
 				pnts[cnt-1].y = (LONG)strPoint.gettok(2, TSCOMMA).to_num();
-				cnt++;
 			}
 
 			m_Region = CreatePolygonRgn(pnts,tPoints,WINDING);
@@ -581,7 +578,7 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags 
 			delete [] pnts;
 		}
 		// Doesn't work with child controls :/ (yet)
-		//else if (flag.find('s',0)) // shadow - <colour> <sharpness> <darkness> <size> <xoffset> <yoffset>
+		//else if (xflags['s']) // shadow - <colour> <sharpness> <darkness> <size> <xoffset> <yoffset>
 		//{
 		//	if (numtok == 10) {
 		//		noRegion = true;
@@ -604,7 +601,7 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags 
 		//		return;
 		//	}
 		//}
-		else if (flag.find('b',0)) { // alpha [1|0] [level]
+		else if (xflags['b']) { // alpha [1|0] [level]
 			noRegion = true;
 			if (numtok != 6) {
 				this->showError(NULL, "-R +b", "Invalid Args");
@@ -615,16 +612,13 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, XSwitchFlags 
 			else
 				this->m_bAlphaBlend = false;
 
-			BYTE alpha = (BYTE)(input.gettok( 6 ).to_int() & 0xFF);
-
-			if (alpha > 255)
-				alpha = 255;
+			const BYTE alpha = (BYTE)(input.gettok( 6 ).to_int() & 0xFF);
 
 			if (alpha == 255)
 				this->m_bAlphaBlend = false;
 			this->m_iAlphaLevel = alpha;
 		}
-		else if (flag.find('n',0)) { // none, no args
+		else if (xflags['n']) { // none, no args
 			noRegion = true;
 			SetWindowRgn(this->m_Hwnd,NULL,TRUE);
 		}
@@ -665,7 +659,7 @@ HBITMAP DcxControl::resizeBitmap(HBITMAP srcBM, const LPRECT rc)
 		// create temp dest hdc to render into.
 		HDC destDC = CreateCompatibleDC(srcDC);
 		if (destDC != NULL) {
-			int w = (rc->right - rc->left), h = (rc->bottom - rc->top);
+			const int w = (rc->right - rc->left), h = (rc->bottom - rc->top);
 			// create dest bitmap.
 			HBITMAP newBM = CreateCompatibleBitmap(srcDC,w,h);
 			if (newBM != NULL) {
@@ -707,29 +701,26 @@ HBITMAP DcxControl::resizeBitmap(HBITMAP srcBM, const LPRECT rc)
 
 UINT DcxControl::parseColorFlags( const TString & flags ) {
 
-	INT i = 1, len = (INT)flags.len( ), iFlags = 0;
+	const XSwitchFlags xflags(flags);
+	UINT iFlags = 0;
 
 	// no +sign, missing params
-	if ( flags[0] != '+' ) 
+	if ( !xflags['+'] ) 
 		return iFlags;
 
-	while ( i < len ) {
+	if ( xflags['b'] )
+		iFlags |= DCC_BKGCOLOR;
+	if ( xflags['k'] )
+		iFlags |= DCC_TEXTBKGCOLOR;
+	if ( xflags['t'] )
+		iFlags |= DCC_TEXTCOLOR;
+	if ( xflags['r'] )
+		iFlags |= DCC_BORDERCOLOR;
+	if ( xflags['g'] )
+		iFlags |= DCC_GRADSTARTCOLOR;
+	if ( xflags['G'] )
+		iFlags |= DCC_GRADENDCOLOR;
 
-		if ( flags[i] == 'b' )
-			iFlags |= DCC_BKGCOLOR;
-		else if ( flags[i] == 'k' )
-			iFlags |= DCC_TEXTBKGCOLOR;
-		else if ( flags[i] == 't' )
-			iFlags |= DCC_TEXTCOLOR;
-		else if ( flags[i] == 'r' )
-			iFlags |= DCC_BORDERCOLOR;
-		else if ( flags[i] == 'g' )
-			iFlags |= DCC_GRADSTARTCOLOR;
-		else if ( flags[i] == 'G' )
-			iFlags |= DCC_GRADENDCOLOR;
-
-		++i;
-	}
 	return iFlags;
 }
 
@@ -741,29 +732,25 @@ UINT DcxControl::parseColorFlags( const TString & flags ) {
 
 void DcxControl::parseBorderStyles( const TString & flags, LONG * Styles, LONG * ExStyles ) {
 
-  INT i = 1, len = flags.len( );
+	const XSwitchFlags xflags(flags);
 
-  // no +sign, missing params
-  if ( flags[0] != '+' ) 
-    return;
+	// no +sign, missing params
+	if ( !xflags['+'] ) 
+		return;
 
-  while ( i < len ) {
+	if ( xflags['b'] )
+		*Styles |= WS_BORDER;
+	if ( xflags['c'] )
+		*ExStyles |= WS_EX_CLIENTEDGE;
+	if ( xflags['d'] )
+		*Styles |= WS_DLGFRAME ;
+	if ( xflags['f'] )
+		*ExStyles |= WS_EX_DLGMODALFRAME;
+	if ( xflags['s'] )
+		*ExStyles |= WS_EX_STATICEDGE;
+	if ( xflags['w'] )
+		*ExStyles |= WS_EX_WINDOWEDGE;
 
-    if ( flags[i] == 'b' )
-      *Styles |= WS_BORDER;
-    else if ( flags[i] == 'c' )
-      *ExStyles |= WS_EX_CLIENTEDGE;
-    else if ( flags[i] == 'd' )
-      *Styles |= WS_DLGFRAME ;
-    else if ( flags[i] == 'f' )
-      *ExStyles |= WS_EX_DLGMODALFRAME;
-    else if ( flags[i] == 's' )
-      *ExStyles |= WS_EX_STATICEDGE;
-    else if ( flags[i] == 'w' )
-      *ExStyles |= WS_EX_WINDOWEDGE;
-
-    ++i;
-  }
 }
 
 /*!
@@ -774,24 +761,19 @@ void DcxControl::parseBorderStyles( const TString & flags, LONG * Styles, LONG *
 
 UINT DcxControl::parseCursorFlags( const TString & flags ) {
 
-  INT i = 1, len = (INT)flags.len( );
-  UINT iFlags = 0;
+	const XSwitchFlags xflags(flags);
+	UINT iFlags = 0;
 
-  // no +sign, missing params
-  if ( flags[0] != '+' ) 
-    return iFlags;
+	// no +sign, missing params
+	if ( !xflags['+'] ) 
+		return iFlags;
 
-  while ( i < len ) {
+	if ( xflags['f'] )
+		iFlags |= DCCS_FROMFILE;
+	if ( xflags['r'] )
+		iFlags |= DCCS_FROMRESSOURCE;
 
-    if ( flags[i] == 'f' )
-      iFlags |= DCCS_FROMFILE;
-    else if ( flags[i] == 'r' )
-      iFlags |= DCCS_FROMRESSOURCE;
-
-    ++i;
-  }
-
-  return iFlags;
+	return iFlags;
 }
 
 /*!
@@ -842,7 +824,7 @@ LPSTR DcxControl::parseCursorType( const TString & cursor ) {
 
 BOOL DcxControl::parseGlobalInfoRequest( const TString & input, char * szReturnValue ) {
 
-	TString prop(input.gettok( 3 ));
+	const TString prop(input.gettok( 3 ));
 
 	if ( prop == "hwnd" ) {
 		wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, "%d", this->m_Hwnd );
@@ -863,8 +845,7 @@ BOOL DcxControl::parseGlobalInfoRequest( const TString & input, char * szReturnV
 		return TRUE;    
 	}
 	else if ( prop == "pos" ) {
-		RECT rc;
-		rc = getPosition();
+		const RECT rc = getPosition();
 		wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, "%d %d %d %d", rc.left, rc.top, rc.right-rc.left, rc.bottom-rc.top );
 		return TRUE;
 	}
@@ -1063,9 +1044,9 @@ LRESULT CALLBACK DcxControl::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LP
  * Input [NAME] [SWITCH] [ID] [CONTROL] [X] [Y] [W] [H] (OPTIONS)
  */
 
-DcxControl * DcxControl::controlFactory( DcxDialog * p_Dialog, const UINT mID, const TString & tsInput, int offset, const UINT64 mask, HWND hParent ) {
+DcxControl * DcxControl::controlFactory( DcxDialog * p_Dialog, const UINT mID, const TString & tsInput, UINT offset, const UINT64 mask, HWND hParent ) {
 
-	TString type(tsInput.gettok( offset++ ));
+	const TString type(tsInput.gettok( offset++ ));
 
 	RECT rc;
 	rc.left = (LONG)tsInput.gettok( offset++ ).to_num( );
@@ -1308,10 +1289,10 @@ void DcxControl::DrawCtrlBackground(const HDC hdc, const DcxControl *p_this, con
 		else
 			CopyRect(&rc, rwnd);
 		if (!IsWindowEnabled(p_this->m_Hwnd)) {// use disabled colouring when windows disabled.
-			if (hTheme && !p_this->m_bNoTheme && Dcx::XPPlusModule.dcxIsThemeActive()) {
-				if (Dcx::XPPlusModule.dcxIsThemeBackgroundPartiallyTransparent(hTheme, iPartId, iStateId))
-					Dcx::XPPlusModule.dcxDrawThemeParentBackground(p_this->m_Hwnd, hdc, &rc);
-				Dcx::XPPlusModule.dcxDrawThemeBackground(hTheme, hdc, iPartId, iStateId, &rc, NULL);
+			if (hTheme && !p_this->m_bNoTheme && Dcx::UXModule.dcxIsThemeActive()) {
+				if (Dcx::UXModule.dcxIsThemeBackgroundPartiallyTransparent(hTheme, iPartId, iStateId))
+					Dcx::UXModule.dcxDrawThemeParentBackground(p_this->m_Hwnd, hdc, &rc);
+				Dcx::UXModule.dcxDrawThemeBackground(hTheme, hdc, iPartId, iStateId, &rc, NULL);
 			}
 			else
 				FillRect( hdc, &rc, GetSysColorBrush(COLOR_3DFACE) );
@@ -1330,10 +1311,10 @@ void DcxControl::DrawCtrlBackground(const HDC hdc, const DcxControl *p_this, con
 		else {
 			HBRUSH hBrush = p_this->getBackClrBrush();
 			if (hBrush == NULL) {
-				if (hTheme && !p_this->m_bNoTheme && Dcx::XPPlusModule.dcxIsThemeActive()) {
-					if (Dcx::XPPlusModule.dcxIsThemeBackgroundPartiallyTransparent(hTheme, iPartId, iStateId))
-						Dcx::XPPlusModule.dcxDrawThemeParentBackground(p_this->m_Hwnd, hdc, &rc);
-					Dcx::XPPlusModule.dcxDrawThemeBackground(hTheme, hdc, iPartId, iStateId, &rc, NULL);
+				if (hTheme && !p_this->m_bNoTheme && Dcx::UXModule.dcxIsThemeActive()) {
+					if (Dcx::UXModule.dcxIsThemeBackgroundPartiallyTransparent(hTheme, iPartId, iStateId))
+						Dcx::UXModule.dcxDrawThemeParentBackground(p_this->m_Hwnd, hdc, &rc);
+					Dcx::UXModule.dcxDrawThemeBackground(hTheme, hdc, iPartId, iStateId, &rc, NULL);
 					return;
 				}
 				else
@@ -1371,11 +1352,11 @@ void DcxControl::DrawControl(HDC hDC, HWND hwnd)
 	HDC hdcMemory = ::CreateCompatibleDC(hDC);
 
 	if (hdcMemory != NULL) {
-		int w = (rc.right - rc.left), h = (rc.bottom - rc.top);
+		const int w = (rc.right - rc.left), h = (rc.bottom - rc.top);
 		HBITMAP hBitmap = ::CreateCompatibleBitmap( hDC, w, h);
 
 		if (hBitmap != NULL) {
-			HBITMAP hbmpOld = SelectBitmap( hdcMemory, hBitmap);
+			const HBITMAP hbmpOld = SelectBitmap( hdcMemory, hBitmap);
 
 			::SendMessage( hwnd, WM_ERASEBKGND, (WPARAM)hdcMemory,1L); // HACK: using 1L instead of NULL as a workaround for stacker.
 			::SendMessage( hwnd, WM_PRINT, (WPARAM)hdcMemory, (LPARAM)PRF_NONCLIENT | PRF_CLIENT | PRF_CHILDREN | PRF_CHECKVISIBLE /*| PRF_ERASEBKGND*/);
@@ -1536,7 +1517,7 @@ LPALPHAINFO DcxControl::SetupAlphaBlend(HDC *hdc, const bool DoubleBuffer)
 		4: alpha blend temp hdc to hdc
 	*/
 #ifdef DCX_USE_WINSDK
-	if (Dcx::XPPlusModule.IsBufferedPaintSupported()) {
+	if (Dcx::UXModule.IsBufferedPaintSupported()) {
 		BP_PAINTPARAMS paintParams = {0};
 		paintParams.cbSize = sizeof(paintParams);
 		paintParams.dwFlags = BPPF_ERASE;
@@ -1548,9 +1529,9 @@ LPALPHAINFO DcxControl::SetupAlphaBlend(HDC *hdc, const bool DoubleBuffer)
 
 		GetClientRect(this->m_Hwnd,&ai->ai_rcClient);
 		GetWindowRect(this->m_Hwnd,&ai->ai_rcWin);
-		ai->ai_Buffer = Dcx::XPPlusModule.dcxBeginBufferedPaint(*hdc, &ai->ai_rcClient, BPBF_COMPATIBLEBITMAP, &paintParams, &ai->ai_hdc);
+		ai->ai_Buffer = Dcx::UXModule.dcxBeginBufferedPaint(*hdc, &ai->ai_rcClient, BPBF_COMPATIBLEBITMAP, &paintParams, &ai->ai_hdc);
 		if (ai->ai_Buffer != NULL) {
-			//Dcx::XPPlusModule.dcxDrawThemeParentBackground(this->m_Hwnd, ai->ai_hdc, &ai->ai_rcClient);
+			//Dcx::UXModule.dcxDrawThemeParentBackground(this->m_Hwnd, ai->ai_hdc, &ai->ai_rcClient);
 			this->DrawParentsBackground(ai->ai_hdc, &ai->ai_rcClient);
 			BitBlt( *hdc, ai->ai_rcClient.left, ai->ai_rcClient.top, ai->ai_rcClient.right - ai->ai_rcClient.left, ai->ai_rcClient.bottom - ai->ai_rcClient.top, ai->ai_hdc, ai->ai_rcClient.left, ai->ai_rcClient.top, SRCCOPY);
 			*hdc = ai->ai_hdc;
@@ -1637,7 +1618,7 @@ void DcxControl::FinishAlphaBlend(LPALPHAINFO ai)
 
 #ifdef DCX_USE_WINSDK
 	if (ai->ai_Buffer != NULL) {
-		Dcx::XPPlusModule.dcxEndBufferedPaint(ai->ai_Buffer, TRUE);
+		Dcx::UXModule.dcxEndBufferedPaint(ai->ai_Buffer, TRUE);
 		return;
 	}
 #endif
@@ -1675,14 +1656,14 @@ void DcxControl::FinishAlphaBlend(LPALPHAINFO ai)
 	//delete ai;
 	// if we can't do Vista method, try do our own
 	if (ai->ai_hdcBuffer != NULL) {
-		int w = (ai->ai_rcClient.right - ai->ai_rcClient.left), h = (ai->ai_rcClient.bottom - ai->ai_rcClient.top);
+		const int w = (ai->ai_rcClient.right - ai->ai_rcClient.left), h = (ai->ai_rcClient.bottom - ai->ai_rcClient.top);
 		if (this->m_bAlphaBlend) {
 			if (ai->ai_bkg != NULL) {
 				// create a new HDC for alpha blending. (doing things this way avoids any flicker)
 				HDC hdcbkg = CreateCompatibleDC( ai->ai_Oldhdc);
 				if (hdcbkg != NULL) {
 					// associate bitmap with hdc
-					HBITMAP oldBM = SelectBitmap( hdcbkg, ai->ai_bkg );
+					const HBITMAP oldBM = SelectBitmap( hdcbkg, ai->ai_bkg );
 					// alpha blend finished button with parents background
 					ai->ai_bf.AlphaFormat = AC_SRC_OVER;
 					ai->ai_bf.SourceConstantAlpha = this->m_iAlphaLevel; // 0x7f half of 0xff = 50% transparency
@@ -1799,17 +1780,17 @@ LRESULT DcxControl::CommonMessage( const UINT uMsg, WPARAM wParam, LPARAM lParam
 
 				if ( p_Control != NULL ) {
 
-					COLORREF clrText = p_Control->getTextColor( );
-					COLORREF clrBackText = p_Control->getBackColor( );
+					const COLORREF clrText = p_Control->getTextColor( );
+					const COLORREF clrBackText = p_Control->getBackColor( );
 					HBRUSH hBackBrush = p_Control->getBackClrBrush( );
 
 					bParsed = TRUE;
 					lRes = CallWindowProc(this->m_DefaultWindowProc, this->m_Hwnd, uMsg, wParam, lParam);
 
-					if ( clrText != -1 )
+					if ( clrText != CLR_INVALID )
 						SetTextColor( (HDC) wParam, clrText );
 
-					if ( clrBackText != -1 )
+					if ( clrBackText != CLR_INVALID )
 						SetBkColor( (HDC) wParam, clrBackText );
 
 					if (p_Control->isExStyle(WS_EX_TRANSPARENT)) {
@@ -1883,7 +1864,7 @@ LRESULT DcxControl::CommonMessage( const UINT uMsg, WPARAM wParam, LPARAM lParam
 		{
 			HDROP files = (HDROP) wParam;
 			char filename[500];
-			int count = DragQueryFile(files, 0xFFFFFFFF,  filename, 500);
+			const int count = DragQueryFile(files, 0xFFFFFFFF,  filename, 500);
 
 			if (count) {
 				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_DRAG) {
@@ -2023,7 +2004,7 @@ void DcxControl::calcTextRect(HDC hdc, const TString &txt, LPRECT rc, const UINT
 void DcxControl::ctrlDrawText(HDC hdc, const TString &txt, const LPRECT rc, const UINT style)
 {
 	if (!this->m_bCtrlCodeText) {
-		int oldBkgMode = SetBkMode(hdc, TRANSPARENT);
+		const int oldBkgMode = SetBkMode(hdc, TRANSPARENT);
 		if (this->m_bShadowText)
 			dcxDrawShadowText(hdc, const_cast<TString &>(txt).to_wchr(this->m_bUseUTF8), txt.wlen(), rc, style, this->m_clrText, 0, 5, 5);
 		else
@@ -2036,11 +2017,10 @@ void DcxControl::ctrlDrawText(HDC hdc, const TString &txt, const LPRECT rc, cons
 
 TString DcxControl::getStyles(void) {
 	TString result;
-	DWORD exStyles, Styles;
-	exStyles = GetWindowExStyle(this->m_Hwnd);
-	Styles = GetWindowStyle(this->m_Hwnd);
-	if ( Dcx::XPPlusModule.dcxGetWindowTheme(this->m_Hwnd) == NULL )
-		result = "notheme ";
+	const DWORD exStyles = GetWindowExStyle(this->m_Hwnd);
+	const DWORD Styles = GetWindowStyle(this->m_Hwnd);
+	if ( Dcx::UXModule.dcxGetWindowTheme(this->m_Hwnd) == NULL )
+		result = "notheme";
 	if ( Styles & WS_TABSTOP ) 
 		result.addtok("tabstop");
 	if ( Styles & WS_GROUP ) 
@@ -2070,9 +2050,8 @@ TString DcxControl::getStyles(void) {
 
 TString DcxControl::getBorderStyles(void) {
 	TString bstyles;
-	DWORD exStyles, Styles;
-	exStyles = GetWindowExStyle(this->m_Hwnd);
-	Styles = GetWindowStyle(this->m_Hwnd);
+	const DWORD exStyles = GetWindowExStyle(this->m_Hwnd);
+	const DWORD Styles = GetWindowStyle(this->m_Hwnd);
 	if (Styles & WS_BORDER)
 		bstyles += 'b';
 	if (exStyles & WS_EX_CLIENTEDGE)
@@ -2089,11 +2068,12 @@ TString DcxControl::getBorderStyles(void) {
 }
 
 void DcxControl::toXml(TiXmlElement * xml) {
-	TString styles(getStyles());
+	const TString styles(getStyles());
 
 	xml->SetAttribute("id", getUserID());
 	xml->SetAttribute("type", getType().to_chr());
-	if (styles.len() > 0) xml->SetAttribute("styles", styles.to_chr());
+	if (styles.len() > 0)
+		xml->SetAttribute("styles", styles.to_chr());
 }
 
 TiXmlElement * DcxControl::toXml(void) {

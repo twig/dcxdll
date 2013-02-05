@@ -189,13 +189,13 @@ public:
 	void addtok( const char * cToken, const char * sepChars = SPACE );
 	//void addtok( const TString &cToken, const char * sepChars = SPACE );
 	void deltok( const int N, const char * sepChars = SPACE );
-	int findtok( const char * cToken, const int N, const char * sepChars = SPACE ) const;
+	unsigned int findtok( const char * cToken, const int N, const char * sepChars = SPACE ) const;
 	TString gettok( int N, const char * sepChars = SPACE ) const;
 	TString gettok( int N, int M, const char * sepChars = SPACE ) const;
 	void instok( const char * cToken, const int N, const char * sepChars = SPACE );
 	bool istok( const char * cToken, const char * sepChars = SPACE ) const;
 	TString matchtok( char * mString, int N, const char * sepChars = SPACE ) const;
-	int numtok( const char * sepChars = SPACE ) const;
+	unsigned int numtok( const char * sepChars = SPACE ) const;
 	void puttok( const char * cToken, int N, const char * sepChars = SPACE );
 	void remtok( const char * cToken, int N, const char * sepChars = SPACE );
 	void reptok( const char * cToken, const char * newToken, int N, const char * sepChars = SPACE );

@@ -49,7 +49,7 @@ m_bUpdatingTooltip(false)
 		throw "Unable To Create Window";
 
   if ( bNoTheme )
-    Dcx::XPPlusModule.dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
+    Dcx::UXModule.dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
 	this->m_hbmp[TBBMP_BACK] = NULL;
 	this->m_hbmp[TBBMP_THUMB] = NULL;

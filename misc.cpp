@@ -58,7 +58,7 @@ char* readFile(const char *filename) {
 		return NULL;
 
 	// Read pointer location, because pointer is at the end, results into file size
-	unsigned long size = ftell(file);
+	const unsigned long size = ftell(file);
 
 	// Get back to file beginning
 	if (fseek(file, 0, SEEK_SET))
@@ -75,7 +75,7 @@ char* readFile(const char *filename) {
 
 	// read the file, fails, destroy memory and return NULL
 	if (fread(fileContents, 1, size, file) != size) {
-		delete fileContents;
+		delete [] fileContents;
 		return NULL;
 	}
 
@@ -100,7 +100,7 @@ BOOL CopyToClipboard(const HWND owner, const TString & str) {
 		return FALSE;
 	}
 
-	int cbsize = (int)(str.len() +1) * sizeof(TCHAR);
+	const int cbsize = (int)(str.len() +1) * sizeof(TCHAR);
 	EmptyClipboard();
 	HGLOBAL hglbCopy = GlobalAlloc(GMEM_MOVEABLE, cbsize);
 
@@ -116,11 +116,16 @@ BOOL CopyToClipboard(const HWND owner, const TString & str) {
 	//wnsprintf(strCopy, cbsize, "%s", str.to_chr());
 
 	// demo code from msdn, copies everything
-	memcpy(strCopy, str.to_chr(), cbsize);
-	strCopy[cbsize] = (TCHAR) 0; // null character
+	//memcpy(strCopy, str.to_chr(), cbsize);
+	//strCopy[cbsize] = (TCHAR) 0; // null character
+	lstrcpyn(strCopy, str.to_chr(), cbsize);
 
 	GlobalUnlock(hglbCopy);
+#if UNICODE
+	SetClipboardData(CF_UNICODETEXT, hglbCopy);
+#else
 	SetClipboardData(CF_TEXT, hglbCopy);
+#endif
 	CloseClipboard();
 
 	return TRUE;
@@ -133,7 +138,7 @@ BOOL ParseCommandToLogfont(const TString& cmd, LPLOGFONT lf) {
 		return FALSE;
 
 	ZeroMemory(lf, sizeof(LOGFONT));
-	UINT flags = parseFontFlags(cmd.gettok( 1 ));
+	const UINT flags = parseFontFlags(cmd.gettok( 1 ));
 
 	if (flags & DCF_DEFAULT) {
 		HFONT hf = (HFONT) GetStockObject(DEFAULT_GUI_FONT);
@@ -141,8 +146,8 @@ BOOL ParseCommandToLogfont(const TString& cmd, LPLOGFONT lf) {
 		return TRUE;
 	}
 	else {
-		int fSize = cmd.gettok( 3 ).to_int();
-		TString fName(cmd.gettok(4, -1).trim());
+		const int fSize = cmd.gettok( 3 ).to_int();
+		const TString fName(cmd.gettok(4, -1).trim());
 
 		if (!fSize)
 			return FALSE;
@@ -183,28 +188,26 @@ BOOL ParseCommandToLogfont(const TString& cmd, LPLOGFONT lf) {
  * blah
  */
 UINT parseFontFlags(const TString &flags) {
-	INT i = 1, len = (int)flags.len(), iFlags = 0;
+
+	XSwitchFlags xflags(flags);
+	UINT iFlags = 0;
 
 	// no +sign, missing params
-	if (flags[0] != '+')
+	if (!xflags['+'])
 		return iFlags;
 
-	while (i < len) {
-		if (flags[i] == 'a')
-			iFlags |= DCF_ANTIALIASE;
-		else if (flags[i] == 'b')
-			iFlags |= DCF_BOLD;
-		else if (flags[i] == 'd')
-			iFlags |= DCF_DEFAULT;
-		else if (flags[i] == 'i')
-			iFlags |= DCF_ITALIC;
-		else if (flags[i] == 's')
-			iFlags |= DCF_STRIKEOUT;
-		else if (flags[i] == 'u')
-			iFlags |= DCF_UNDERLINE;
-
-		++i;
-	}
+	if (xflags['a'])
+		iFlags |= DCF_ANTIALIASE;
+	if (xflags['b'])
+		iFlags |= DCF_BOLD;
+	if (xflags['d'])
+		iFlags |= DCF_DEFAULT;
+	if (xflags['i'])
+		iFlags |= DCF_ITALIC;
+	if (xflags['s'])
+		iFlags |= DCF_STRIKEOUT;
+	if (xflags['u'])
+		iFlags |= DCF_UNDERLINE;
 
 	return iFlags;
 }
@@ -295,7 +298,7 @@ TString ParseLogfontToCommand(const LPLOGFONT lf) {
 	GetTextMetrics(hdc, &tm);
 
 	//int ptSize = (int) (-1 * (lfCurrent.lfHeight * 72 / GetDeviceCaps(hdc, LOGPIXELSY)));
-	int ptSize = MulDiv(tm.tmHeight - tm.tmInternalLeading, 72, GetDeviceCaps(hdc, LOGPIXELSY));
+	const int ptSize = MulDiv(tm.tmHeight - tm.tmInternalLeading, 72, GetDeviceCaps(hdc, LOGPIXELSY));
 	SelectFont(hdc,oldhf);
 	DeleteFont(hf);
 	ReleaseDC(NULL, hdc);
@@ -870,24 +873,12 @@ void getmIRCPalette(COLORREF *Palette, const int PaletteItems)
 	static const char com[] = "$color(0) $color(1) $color(2) $color(3) $color(4) $color(5) $color(6) $color(7) $color(8) $color(9) $color(10) $color(11) $color(12) $color(13) $color(14) $color(15)";
 	Dcx::mIRC.tsEval(colors, com);
 
-	int i = 0;
-
-	while (i < PaletteItems) {
+	for (int i = 0; i < PaletteItems; i++)
 		Palette[i] = (COLORREF)colors.gettok( i +1 ).to_num();
-		i++;
-	}
 }
 
 int unfoldColor(const WCHAR *color) {
-	UINT len = (2*(lstrlenW(color)+1));
-	CHAR *strTmp = new CHAR[len]; // SIZE equals (2*(sizeof(tstr)+1)). This ensures enough
-										 // room for the multibyte characters if they are two
-										 // bytes long and a terminating null character.
-
-	wcstombs(strTmp, (const wchar_t *) color, len);
-	int nColor = atoi(strTmp);
-	delete [] strTmp;
-	//int nColor = atoi(color);
+	int nColor = _wtoi(color);
 
 	while (nColor > 15) {
 		nColor -=16;
@@ -952,10 +943,10 @@ int unfoldColor(const WCHAR *color) {
 
 void mIRC_OutText(HDC hdc, TString &txt, LPRECT rcOut, const LPLOGFONT lf, const UINT iStyle, const COLORREF clrFG, const bool shadow, const bool tryutf8)
 {
-	int len = (int)txt.wlen();
+	const int len = (int)txt.wlen();
 	if (len > 0) {
 		TEXTMETRICW tm;
-		HFONT hOldFont = SelectFont( hdc, CreateFontIndirect( lf ) );
+		const HFONT hOldFont = SelectFont( hdc, CreateFontIndirect( lf ) );
 		GetTextMetricsW(hdc, &tm);
 		RECT rcTmp = *rcOut;
 		if ((iStyle & DT_CALCRECT) != DT_CALCRECT) {	// if DT_CALCRECT flag NOT given then do calcrect here.
@@ -979,10 +970,11 @@ void mIRC_DrawText(HDC hdc, const TString &txt, const LPRECT rc, const UINT styl
 {
 	LOGFONT lf;
 	const WCHAR *wtxt = const_cast<TString &>(txt).to_wchr(tryutf8);
-	int /*savedDC,*/ pos = 0, len = (int)txt.wlen();
+	int /*savedDC,*/ pos = 0;
+	const int len = (int)txt.wlen();
 	TString tmp;
 	RECT rcOut = *rc;
-	UINT iStyle = (style & ~(DT_CENTER|DT_RIGHT|DT_VCENTER)) | DT_LEFT; // make sure its to left
+	const UINT iStyle = (style & ~(DT_CENTER|DT_RIGHT|DT_VCENTER)) | DT_LEFT; // make sure its to left
 	bool /*usingBGclr = false,*/ usingRevTxt = false;
 
 	if ((len == 0) || (wtxt == NULL)) // if no text just exit.
@@ -1062,6 +1054,7 @@ void mIRC_DrawText(HDC hdc, const TString &txt, const LPRECT rc, const UINT styl
 					WCHAR colbuf[3];
 					colbuf[0] = wtxt[pos +1];
 					colbuf[1] = L'\0';
+					colbuf[2] = L'\0';
 					++pos;
 
 					if (wtxt[pos +1] >= L'0' && wtxt[pos +1] <= L'9') {
@@ -1078,13 +1071,15 @@ void mIRC_DrawText(HDC hdc, const TString &txt, const LPRECT rc, const UINT styl
 
 						if (wtxt[pos +1] >= L'0' && wtxt[pos +1] <= L'9') {
 							colbuf[0] = wtxt[pos +1];
-							colbuf[1] = L'\0';
 							pos++;
 
 							if (wtxt[pos +1] >= L'0' && wtxt[pos +1] <= L'9') {
 								colbuf[1] = wtxt[pos +1];
 								++pos;
 							}
+							else
+								colbuf[1] = L'\0';
+
 
 							// color code number
 							clrBG = cPalette[unfoldColor(colbuf)];
@@ -1093,7 +1088,7 @@ void mIRC_DrawText(HDC hdc, const TString &txt, const LPRECT rc, const UINT styl
 						}
 					}
 					if (usingRevTxt) { // reverse text swap fg & bg colours
-						COLORREF ct = clrFG;
+						const COLORREF ct = clrFG;
 						clrFG = clrBG;
 						clrBG = ct;
 						SetBkMode(hdc,OPAQUE);
@@ -1132,7 +1127,7 @@ void mIRC_DrawText(HDC hdc, const TString &txt, const LPRECT rc, const UINT styl
 					SetBkMode(hdc,OPAQUE);
 				else
 					SetBkMode(hdc,TRANSPARENT);
-				COLORREF ct = clrBG;
+				const COLORREF ct = clrBG;
 				clrBG = clrFG;
 				clrFG = ct;
 				SetTextColor(hdc, clrFG);
@@ -1162,7 +1157,7 @@ void mIRC_DrawText(HDC hdc, const TString &txt, const LPRECT rc, const UINT styl
 				}
 				else {
 					SIZE sz;
-					int tlen = (int)tmp.wlen();
+					const int tlen = (int)tmp.wlen();
 					GetTextExtentPoint32W(hdc, tmp.to_wchr(), tlen, &sz);
 					if (tlen > 0)
 						mIRC_OutText(hdc, tmp, &rcOut, &lf, iStyle, clrFG, shadow, tryutf8);
@@ -1174,14 +1169,14 @@ void mIRC_DrawText(HDC hdc, const TString &txt, const LPRECT rc, const UINT styl
 		default: // normal char
 			{
 				if (!(iStyle & DT_SINGLELINE)) { // don't bother if a single line.
-					int tlen = (int)tmp.wlen();
+					const int tlen = (int)tmp.wlen();
 					if (tlen > 0) {
 						SIZE sz;
 						int nFit;
 						GetTextExtentExPointW(hdc, const_cast<TString &>(txt).to_wchr(tryutf8), tlen, (rcOut.right - rcOut.left), &nFit, NULL, &sz);
 						if (nFit < tlen) {
 							if (nFit > 0) {
-								WCHAR o = tmp.to_wchr(tryutf8)[nFit];
+								const WCHAR o = tmp.to_wchr(tryutf8)[nFit];
 								//mIRC_OutText(hdc, tmp.wsub(0,nFit), &rcOut, &lf, iStyle, clrFG, shadow, tryutf8);
 								TString tsSub(tmp.wsub(0,nFit));
 								mIRC_OutText(hdc, tsSub, &rcOut, &lf, iStyle, clrFG, shadow, tryutf8);
@@ -1342,7 +1337,7 @@ void FreeOSCompatibility(void)
 
 	if (UXModule != NULL) {
 #ifdef DCX_USE_WINSDK
-		Dcx::XPPlusModule.dcxBufferedPaintUnInit();
+		Dcx::UXModule.dcxBufferedPaintUnInit();
 #endif
 
 		FreeLibrary(UXModule);
@@ -1520,7 +1515,7 @@ void DrawRotatedText(const TString &strDraw, LPRECT rc, HDC hDC, const int nAngl
 
 	// Set the background mode to transparent for the
 	// text-output operation.
-	int nOldBkMode = SetBkMode(hDC, TRANSPARENT);
+	const int nOldBkMode = SetBkMode(hDC, TRANSPARENT);
 	// Specify the angle to draw line
 	lf.lfEscapement = nAngleLine*10;
 	int nOldGMode;
@@ -1538,7 +1533,7 @@ void DrawRotatedText(const TString &strDraw, LPRECT rc, HDC hDC, const int nAngl
 	// Select the new font created
 	hFont = CreateFontIndirect(&lf);
 	if (hFont != NULL) {
-		HFONT hPrevFont = SelectFont(hDC, hFont);
+		const HFONT hPrevFont = SelectFont(hDC, hFont);
 		// Draw text to screen
 		//TextOut(hDC, rc->right / 2, rc->bottom / 2, strDraw.to_chr(), strDraw.len());
 		TextOut(hDC, rc->left, rc->bottom, strDraw.to_chr(), strDraw.len());

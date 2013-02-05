@@ -10,7 +10,8 @@ mIRCLinker Dcx::mIRC;
 TString Dcx::m_sLastError;
 IClassFactory * Dcx::m_pClassFactory;
 DcxGDIModule Dcx::GDIModule;
-DcxUXModule Dcx::XPPlusModule;
+DcxXPPlusModule Dcx::XPPlusModule;
+DcxUXModule Dcx::UXModule;
 DcxDWMModule Dcx::VistaModule;
 DcxDialogCollection Dcx::Dialogs;
 XPopupMenuManager Dcx::XPopups;
@@ -34,6 +35,8 @@ void Dcx::load(LOADINFO * lInfo)
 	GDIModule.load(mIRC);
 
 	XPPlusModule.load(mIRC);
+
+	UXModule.load(mIRC);
 
 	VistaModule.load(mIRC);
 
@@ -596,13 +599,13 @@ LRESULT CALLBACK Dcx::mIRCSubClassWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 			break;
 		}
 
-		case WM_CLOSE:
-		{
-			Dcx::mIRC.resetWindowProc();
-			PostMessage(mHwnd, uMsg, 0, 0);
-			return 0L;
-			//break;
-		}
+		// Processing this msg messes up mIRC's quit request dialog.
+		//case WM_CLOSE:
+		//{
+		//	Dcx::mIRC.resetWindowProc();
+		//	PostMessage(mHwnd, uMsg, 0, 0);
+		//	return 0L;
+		//}
 		// ghost drag stuff
 		case WM_ENTERSIZEMOVE:
 			{

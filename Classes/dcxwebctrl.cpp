@@ -50,7 +50,7 @@ DcxWebControl::DcxWebControl( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, R
 		throw "Unable To Create Window";
 
 	if ( bNoTheme )
-		Dcx::XPPlusModule.dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
+		Dcx::UXModule.dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
 	/* Web Control Stuff */
 
@@ -69,11 +69,14 @@ DcxWebControl::DcxWebControl( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, R
 		this->registreDefaultWindowProc( );
 		SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
 
-		TString url("about:blank");
-		VARIANT v;
-		VariantInit( &v );
-		this->m_pWebBrowser2->Navigate( url.to_wchr(this->m_bUseUTF8), &v, &v, &v, &v );  // dont use L""
-		VariantClear( &v );
+		BSTR bstrURL = SysAllocString(L"about:blank");
+		if (bstrURL != NULL) {
+			VARIANT v;
+			VariantInit( &v );
+			this->m_pWebBrowser2->Navigate( bstrURL, &v, &v, &v, &v );  // dont use L""
+			VariantClear( &v );
+			SysFreeString(bstrURL);
+		}
 	}
 	else {
 		//Release all Web Control pointers
@@ -88,6 +91,7 @@ DcxWebControl::DcxWebControl( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, R
 			this->m_pOleObject->Close( OLECLOSE_NOSAVE );
 			this->m_pOleObject->Release( );
 		}
+		this->m_pWebBrowser2->Quit();
 		this->m_pWebBrowser2->Release( );
 		DestroyWindow(this->m_Hwnd);
 		throw "Unable To Create Browser Window";
@@ -102,21 +106,22 @@ DcxWebControl::DcxWebControl( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, R
 
 DcxWebControl::~DcxWebControl( ) {
 
-  //Release all Web Control pointers
-  if ( this->m_dwCookie )
-    this->m_pCP->Unadvise( this->m_dwCookie );
+	//Release all Web Control pointers
+	if ( this->m_dwCookie )
+		this->m_pCP->Unadvise( this->m_dwCookie );
 
-  this->m_pCP->Release( );
-  this->m_pCPC->Release( );
-  this->m_pOleInPlaceObject->Release( );
-  if ( this->m_pOleObject != NULL ) {
+	this->m_pCP->Release( );
+	this->m_pCPC->Release( );
+	this->m_pOleInPlaceObject->Release( );
+	if ( this->m_pOleObject != NULL ) {
 
-    this->m_pOleObject->Close( OLECLOSE_NOSAVE );
-    this->m_pOleObject->Release( );
-  }
-  this->m_pWebBrowser2->Release( );
+		this->m_pOleObject->Close( OLECLOSE_NOSAVE );
+		this->m_pOleObject->Release( );
+	}
+	this->m_pWebBrowser2->Quit();
+	this->m_pWebBrowser2->Release( );
 
-  this->unregistreDefaultWindowProc( );
+	this->unregistreDefaultWindowProc( );
 }
 
 /*!
@@ -209,8 +214,8 @@ void DcxWebControl::parseInfoRequest( TString & input, char * szReturnValue )
  */
 
 void DcxWebControl::parseCommandRequest(TString & input) {
-	XSwitchFlags flags(input.gettok(3));
-	int numtok = input.numtok( );
+	const XSwitchFlags flags(input.gettok(3));
+	const unsigned int numtok = input.numtok( );
 
 	// xdid -g [NAME] [ID] [SWITCH]
 	if ( flags['g'] ) {
@@ -244,10 +249,14 @@ void DcxWebControl::parseCommandRequest(TString & input) {
 
 						TString CMD(input.gettok( 4, -1 ).trim());
 
-						VARIANT v;
-						VariantInit( &v );
-						window->execScript( CMD.to_wchr(this->m_bUseUTF8), NULL, &v );
-						VariantClear( &v );
+						BSTR bstrCMD = SysAllocString(CMD.to_wchr(this->m_bUseUTF8));
+						if (bstrCMD != NULL) {
+							VARIANT v;
+							VariantInit( &v );
+							window->execScript( bstrCMD, NULL, &v );
+							VariantClear( &v );
+							SysFreeString(bstrCMD);
+						}
 
 						window->Release( );
 					}
@@ -269,10 +278,14 @@ void DcxWebControl::parseCommandRequest(TString & input) {
 
 		TString URL(input.gettok( 4, -1 ).trim());
 
-		VARIANT v;
-		VariantInit( &v );			
-		this->m_pWebBrowser2->Navigate( URL.to_wchr(this->m_bUseUTF8), &v, &v, &v, &v );
-		VariantClear( &v );
+		BSTR bstrURL = SysAllocString(URL.to_wchr(this->m_bUseUTF8));
+		if (bstrURL != NULL) {
+			VARIANT v;
+			VariantInit( &v );			
+			this->m_pWebBrowser2->Navigate( bstrURL, &v, &v, &v, &v );
+			VariantClear( &v );
+			SysFreeString(bstrURL);
+		}
 	}
 	// xdid -r [NAME] [ID] [SWITCH]
 	else if ( flags['r'] ) {

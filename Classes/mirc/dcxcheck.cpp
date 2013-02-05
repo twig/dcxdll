@@ -50,7 +50,7 @@ DcxCheck::DcxCheck( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd,
 		throw "Unable To Create Window";
 
 	if ( bNoTheme )
-		Dcx::XPPlusModule.dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
+		Dcx::UXModule.dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
 	this->m_bNoTheme = (bNoTheme ? true : false);
 
@@ -88,20 +88,20 @@ void DcxCheck::toXml(TiXmlElement * xml) {
 
 TString DcxCheck::getStyles(void) {
 	TString styles(__super::getStyles());
-	DWORD Styles;
-	Styles = GetWindowStyle(this->m_Hwnd);
+	const DWORD Styles = GetWindowStyle(this->m_Hwnd);
+
 	if (Styles & BS_RIGHT)
-		styles.addtok("rjustify", " ");
+		styles.addtok("rjustify");
 	if (Styles & BS_CENTER)
-		styles.addtok("center", " ");
+		styles.addtok("center");
 	if (Styles & BS_LEFT)
-		styles.addtok("ljustify", " ");
+		styles.addtok("ljustify");
 	if (Styles & BS_RIGHTBUTTON)
-		styles.addtok("right", " ");
+		styles.addtok("right");
 	if (Styles & BS_PUSHLIKE)
-		styles.addtok("pushlike", " ");
+		styles.addtok("pushlike");
 	if (Styles & BS_AUTO3STATE)
-		styles.addtok("3state", " ");
+		styles.addtok("3state");
 	return styles;
 }
 
@@ -113,11 +113,11 @@ TString DcxCheck::getStyles(void) {
 
 void DcxCheck::parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ) {
 
-	unsigned int i = 1, numtok = styles.numtok( );
+	const UINT numtok = styles.numtok( );
 	*Styles |= BS_AUTOCHECKBOX;
 
-	while ( i <= numtok ) {
-
+	for (UINT i = 1; i <= numtok; i++ )
+	{
 		if ( styles.gettok( i ) == "rjustify" )
 			*Styles |= BS_RIGHT;
 		else if ( styles.gettok( i ) == "center" )
@@ -132,7 +132,6 @@ void DcxCheck::parseControlStyles( TString & styles, LONG * Styles, LONG * ExSty
 			*Styles &= ~BS_AUTOCHECKBOX;
 			*Styles |= BS_AUTO3STATE;
 		}
-		i++;
 	}
 
 	this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
@@ -149,32 +148,30 @@ void DcxCheck::parseControlStyles( TString & styles, LONG * Styles, LONG * ExSty
 
 void DcxCheck::parseInfoRequest( TString & input, char * szReturnValue ) {
 
-//  int numtok = input.numtok( );
+	const TString prop(input.gettok( 3 ));
 
-	TString prop(input.gettok( 3 ));
+	// [NAME] [ID] [PROP]
+	if ( prop == "text" ) {
 
-  // [NAME] [ID] [PROP]
-  if ( prop == "text" ) {
+		GetWindowText( this->m_Hwnd, szReturnValue, MIRC_BUFFER_SIZE_CCH );
+		return;
+	}
+	// [NAME] [ID] [PROP]
+	else if ( prop == "state" ) {
 
-    GetWindowText( this->m_Hwnd, szReturnValue, MIRC_BUFFER_SIZE_CCH );
-    return;
-  }
-  // [NAME] [ID] [PROP]
-  else if ( prop == "state" ) {
+		if ( Button_GetCheck( this->m_Hwnd ) & BST_INDETERMINATE )
+			lstrcpy( szReturnValue, "2" );
+		else if ( Button_GetCheck( this->m_Hwnd ) & BST_CHECKED )
+			lstrcpy( szReturnValue, "1" );
+		else
+			lstrcpy( szReturnValue, "0" );
 
-    if ( Button_GetCheck( this->m_Hwnd ) & BST_INDETERMINATE )
-      lstrcpy( szReturnValue, "2" );
-    else if ( Button_GetCheck( this->m_Hwnd ) & BST_CHECKED )
-      lstrcpy( szReturnValue, "1" );
-    else
-      lstrcpy( szReturnValue, "0" );
+		return;
+	}
+	else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
+		return;
 
-    return;
-  }
-  else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
-    return;
-  
-  szReturnValue[0] = 0;
+	szReturnValue[0] = 0;
 }
 
 /*!
@@ -184,9 +181,7 @@ void DcxCheck::parseInfoRequest( TString & input, char * szReturnValue ) {
  */
 
 void DcxCheck::parseCommandRequest( TString & input ) {
-	XSwitchFlags flags(input.gettok(3));
-
-	//  int numtok = input.numtok( );
+	const XSwitchFlags flags(input.gettok(3));
 
 	//xdid -c [NAME] [ID] [SWITCH]
 	if (flags['c']) {
@@ -200,13 +195,13 @@ void DcxCheck::parseCommandRequest( TString & input ) {
 	else if (flags['t']) {
 		SetWindowText(this->m_Hwnd, input.gettok(4, -1).trim().to_chr());
 	}
-  //xdid -u [NAME] [ID] [SWITCH]
-  else if ( flags['u'] ) {
+	//xdid -u [NAME] [ID] [SWITCH]
+	else if ( flags['u'] ) {
 
-    Button_SetCheck( this->m_Hwnd, BST_UNCHECKED );
-  }
-  else
-    this->parseGlobalCommandRequest( input, flags );
+		Button_SetCheck( this->m_Hwnd, BST_UNCHECKED );
+	}
+	else
+		this->parseGlobalCommandRequest( input, flags );
 }
 
 /*!
@@ -215,40 +210,40 @@ void DcxCheck::parseCommandRequest( TString & input ) {
  * blah
  */
 LRESULT DcxCheck::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
-   switch (uMsg)
-   {
-      case WM_COMMAND:
-      {
-         switch (HIWORD(wParam))
-         {
-            // catch this so we can use $xdid(checkbox).state in sclick callback
-            case BN_CLICKED:
-            {
-               if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-               {
-                  //this->execAliasEx("%s,%d", "sclick", this->getUserID());
+	switch (uMsg)
+	{
+	case WM_COMMAND:
+		{
+			switch (HIWORD(wParam))
+			{
+				// catch this so we can use $xdid(checkbox).state in sclick callback
+			case BN_CLICKED:
+				{
+					if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
+					{
+						//this->execAliasEx("%s,%d", "sclick", this->getUserID());
 
-                  // /.timer repetitions delay alias dialog event id
-                  Dcx::mIRC.execex("/.timer 1 0 %s %s %s %d",
-                     this->m_pParentDialog->getAliasName().to_chr(),
-                     this->m_pParentDialog->getName().to_chr(),
-                     "sclick",
-                     this->getUserID());
-               }
+						// /.timer repetitions delay alias dialog event id
+						Dcx::mIRC.execex("/.timer 1 0 %s %s %s %d",
+							this->m_pParentDialog->getAliasName().to_chr(),
+							this->m_pParentDialog->getName().to_chr(),
+							"sclick",
+							this->getUserID());
+					}
 
-               break;
-            }
-         }
+					break;
+				}
+			}
 
-         break;
-      }
-   }
+			break;
+		}
+	}
 
 	return 0L;
 }
 LRESULT DcxCheck::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
 
-  switch( uMsg ) {
+	switch( uMsg ) {
 
 		case WM_LBUTTONUP:
 			{
@@ -302,11 +297,11 @@ void DcxCheck::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 	// Setup alpha blend if any.
 	LPALPHAINFO ai = this->SetupAlphaBlend(&hdc);
 
-	if (this->m_bNoTheme || !Dcx::XPPlusModule.dcxIsThemeActive()) {
-		if (this->m_clrBackText != -1)
+	if (this->m_bNoTheme || !Dcx::UXModule.dcxIsThemeActive()) {
+		if (this->m_clrBackText != CLR_INVALID)
 			SetBkColor(hdc, this->m_clrBackText);
 
-		if (this->m_clrText != -1)
+		if (this->m_clrText != CLR_INVALID)
 			SetTextColor(hdc, this->m_clrText);
 
 		RECT rcClient;

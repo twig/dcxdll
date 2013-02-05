@@ -216,76 +216,46 @@ void DcxmlParser::parseAttributes(const TiXmlElement* element) {
 	elem = element->Value();
 	parentelem = parent->Value();
 	parenttype = queryAttribute(parent, "type", "panel");
-	temp = element->Attribute("weight");
-	weigth = (temp != NULL) ? temp : "1";
-	temp = element->Attribute("height");
-	height = (temp != NULL) ? temp : "0";
-	temp = element->Attribute("width");
-	width = (temp != NULL) ? temp : "0";
-	temp = element->Attribute("margin");
-	margin = (temp != NULL) ? temp : "0 0 0 0";
-	temp = element->Attribute("styles");
-	styles = (temp != NULL) ? temp : "";
+	weigth = queryAttribute(element,"weight","1");
+	height = queryAttribute(element,"height","0");
+	width = queryAttribute(element,"width","0");
+	margin = queryAttribute(element,"margin","0 0 0 0");
+	styles = queryAttribute(element,"styles","");
 	temp = element->Attribute("caption");
 	if (temp == NULL)
 		temp = element->GetText();
 	caption = (temp != NULL) ? temp : "";
-	temp = element->Attribute("tooltip");
-	tooltip = (temp != NULL) ? temp : "";
-	temp = element->Attribute("cascade");
-	cascade = (temp != NULL) ? temp : "";
-	temp = element->Attribute("icon");
-	icon = (temp != NULL) ? temp : "0";
-	temp = element->Attribute("integral");
-	integral = (temp != NULL) ? temp : "0";
-	temp = element->Attribute("state");
-	state = (temp != NULL) ? temp : "0";
-	temp = element->Attribute("indent");
-	indent = (temp != NULL) ? temp : "0";
+	tooltip = queryAttribute(element,"tooltip","");
+	cascade = queryAttribute(element,"cascade","");
+	icon = queryAttribute(element,"icon","0");
+	integral = queryAttribute(element,"integral","0");
+	state = queryAttribute(element,"state","0");
+	indent = queryAttribute(element,"indent","0");
 	//flags attribute defaults different per type/item
 	tFlags = element->Attribute("flags");
-	temp = element->Attribute("src");
-	src = (temp != NULL) ? temp : "";
-	temp = element->Attribute("cells");
-	cells = (temp != NULL) ? temp : "-1";
-	temp = element->Attribute("minheight");
-	rebarMinHeight = (temp != NULL) ? temp : "0";
-	temp = element->Attribute("minwidth");
-	rebarMinWidth = (temp != NULL) ? temp : "0";
-	temp = element->Attribute("iconsize");
-	iconsize = (temp != NULL) ? temp : "16";
-	eval = (element->QueryIntAttribute("eval",&eval) == TIXML_SUCCESS) ? eval : 0;
+	src = queryAttribute(element,"src","");
+	cells = queryAttribute(element,"cells","-1");
+	rebarMinHeight = queryAttribute(element,"minheight","0");
+	rebarMinWidth = queryAttribute(element,"minwidth","0");
+	iconsize = queryAttribute(element,"iconsize","16");
+	eval = queryIntAttribute(element,"eval",0);
 
-	temp = element->Attribute("fontstyle");
-	fontstyle = (temp != NULL) ? temp : "d";
-	temp = element->Attribute("charset");
-	charset = (temp != NULL) ? temp : "ansi";
-	temp = element->Attribute("fontsize");
-	fontsize = (temp != NULL) ? temp : "";
-	temp = element->Attribute("fontname");
-	fontname = (temp != NULL) ? temp : "";
-	temp = element->Attribute("border");
-	border = (temp != NULL) ? temp : "";
-	temp = element->Attribute("cursor");
-	cursor = (temp != NULL) ? temp : "arrow";
-	temp = element->Attribute("bgcolour");
-	bgcolour = (temp != NULL) ? temp : "0";
-	temp = element->Attribute("textbgcolour");
-	textbgcolour = (temp != NULL) ? temp : "";
-	temp = element->Attribute("textcolour");
-	textcolour = (temp != NULL) ? temp : "0";
+	fontstyle = queryAttribute(element,"fontstyle","d");
+	charset = queryAttribute(element,"charset","ansi");
+	fontsize = queryAttribute(element,"fontsize","");
+	fontname = queryAttribute(element,"fontname","");
+	border = queryAttribute(element,"border","");
+	cursor = queryAttribute(element,"cursor","arrow");
+	bgcolour = queryAttribute(element,"bgcolour","0");
+	textbgcolour = queryAttribute(element,"textbgcolour","");
+	textcolour = queryAttribute(element,"textcolour","0");
 
-	temp = element->Attribute("gradientstart");
-	gradientstart = (temp != NULL) ? temp : "";
-	temp = element->Attribute("gradientend");
-	gradientend = (temp != NULL) ? temp : "";
+	gradientstart = queryAttribute(element,"gradientstart","");
+	gradientend = queryAttribute(element,"gradientend","");
 
-	temp = element->Attribute("disabledsrc");
-	disabledsrc = (temp != NULL) ? temp : "";
-	temp = element->Attribute("hoversrc");
-	hoversrc = (temp != NULL) ? temp : "";
-	temp = element->Attribute("selectedsrc");
-	selectedsrc = (temp != NULL) ? temp : "";
+	disabledsrc = queryAttribute(element,"disabledsrc","");
+	hoversrc = queryAttribute(element,"hoversrc","");
+	selectedsrc = queryAttribute(element,"selectedsrc","");
 }
 /* parseControl() : if current element is a control perform some extra commands*/
 void DcxmlParser::parseControl() { 
@@ -296,10 +266,9 @@ void DcxmlParser::parseControl() {
 	}
 	//        padding = (temp = element->Attribute("padding")) ? temp : "0 0 0 0";
 
-	if (0==lstrcmp(parenttype, "divider")) {
-		temp = element->Attribute("width");
-		xdidEX(parentid,"-v","%s",((temp != NULL) ? temp : "100"));
-	}
+	if (0==lstrcmp(parenttype, "divider"))
+		xdidEX(parentid,"-v","%s",queryAttribute(element,"width","0"));
+
 	if (((0==lstrcmp(type, "toolbar")) || (0==lstrcmp(type, "button"))) || (0==lstrcmp(type, "treeview")))
 			xdidEX(id,"-l","%s",iconsize);
 	if ((0==lstrcmp(type, "toolbar")) || (0==lstrcmp(type, "treeview")) || (0==lstrcmp(type, "comboex")) || (0==lstrcmp(type, "list")) || (0==lstrcmp(type, "listview")))
@@ -316,8 +285,10 @@ void DcxmlParser::parseControl() {
 	else if (0==lstrcmp(type, "text")) { 
 		if (caption != NULL) { 
 			TString mystring(caption);
-			if (mystring.left(2) == "\r\n") mystring = mystring.right(-2);
-			else if (mystring.left(1) == "\n") mystring = mystring.right(-1);
+			if (mystring.left(2) == "\r\n")
+				mystring = mystring.right(-2);
+			else if (mystring.left(1) == "\n")
+				mystring = mystring.right(-1);
 			//mystring.replace("\t","");
 			mystring -= "\t";
 			TString printstring;
@@ -381,10 +352,8 @@ void DcxmlParser::parseControl() {
 		this->xdidEX(id,"-l","%s",cells);
 		this->parseItems(element);
 	}
-	temp = element->Attribute("disabledsrc");
-	disabledsrc = (temp != NULL) ? temp : "";
-	temp = element->Attribute("hoversrc");
-	hoversrc = (temp != NULL) ? temp : "";
+	disabledsrc = queryAttribute(element,"disabledsrc","");
+	hoversrc = queryAttribute(element,"hoversrc","");
 }
 /* xdialogEX(switch,format[,args[]]) : performs an xdialog command internally or through mIRC */
 void DcxmlParser::xdialogEX(const char *sw,const char *dFormat, ...) {
@@ -474,33 +443,24 @@ TString DcxmlParser::parseCLA(const int cCla) {
 void DcxmlParser::setStyle(const TiXmlElement* style) {
 	//style attributes evaluate by default unless eval="0" is set on the element explicitly
 
-	eval = (style->QueryIntAttribute("eval",&eval) == TIXML_SUCCESS) ? eval : 1;
+	eval = queryIntAttribute(style,"eval",1);
 
 	//font
-	temp = style->Attribute("fontstyle");
-	fontstyle = (temp != NULL) ? temp : "d";
-	temp = style->Attribute("charset");
-	charset = (temp != NULL) ? temp : "ansi";
-	temp = style->Attribute("fontsize");
-	fontsize = (temp != NULL) ? temp : "";
-	temp = style->Attribute("fontname");
-	fontname = (temp != NULL) ? temp : "";
+	fontstyle = queryAttribute(style,"fontstyle","d");
+	charset = queryAttribute(style,"charset","ansi");
+	fontsize = queryAttribute(style,"fontsize","");
+	fontname = queryAttribute(style,"fontname","");
 	if ((style->Attribute("fontsize") != NULL) || (style->Attribute("fontname") != NULL))
 		this->xdidEX(id,"-f","+%s %s %s %s", fontstyle, charset, fontsize, fontname);
 	//border
-	temp = style->Attribute("border");
-	border = (temp != NULL) ? temp : "";
-	if (temp != NULL)
+	border = queryAttribute(style,"border","");
+	if (lstrlen(border) > 0)
 		this->xdidEX(id,"-x","+%s",border);
 	//colours
-	temp = style->Attribute("cursor");
-	cursor = (temp != NULL) ? temp : "arrow";
-	temp = style->Attribute("bgcolour");
-	bgcolour = (temp != NULL) ? temp : "";
-	temp = style->Attribute("textbgcolour");
-	textbgcolour = (temp != NULL) ? temp : "";
-	temp = style->Attribute("textcolour");
-	textcolour = (temp != NULL) ? temp : "";
+	cursor = queryAttribute(style,"cursor","arrow");
+	bgcolour = queryAttribute(style,"bgcolour","");
+	textbgcolour = queryAttribute(style,"textbgcolour","");
+	textcolour = queryAttribute(style,"textcolour","");
 	if (style->Attribute("bgcolour") != NULL) { 
 		this->xdidEX(id,"-C","+b %s",bgcolour);
 		if (0==lstrcmp(type, "pbar")) 
@@ -630,13 +590,11 @@ void DcxmlParser::parseIcons(int depth) {
 			icon = NULL;
 
 		if (icon != NULL) {
-			temp = icon->Attribute("flags");
-			const char *flags = (temp != NULL) ? temp : "ndhs";
-			temp = icon->Attribute("index");
-			const char *index = (temp != NULL) ? temp : "0";
+			const char *flags = queryAttribute(icon,"flags","n");
+			const char *index = queryAttribute(icon,"index","0");
 			const char *src = icon->Attribute("src");
-			int indexmin = (icon->QueryIntAttribute("indexmin",&indexmin) == TIXML_SUCCESS) ? indexmin : 0;
-			int indexmax = (icon->QueryIntAttribute("indexmax",&indexmax) == TIXML_SUCCESS) ? indexmax : -1;
+			const int indexmin = queryIntAttribute(icon,"indexmin",0);
+			const int indexmax = queryIntAttribute(icon,"indexmax",-1);
 			if (src != NULL) {
 				if (indexmin <= indexmax) 
 					//method sucks but looping in C++ is WAYYY too fast for mIRC
@@ -649,10 +607,8 @@ void DcxmlParser::parseIcons(int depth) {
 			else
 			{
 				for(const TiXmlElement *iconchild = icon->FirstChildElement("icon"); iconchild != NULL; iconchild = iconchild->NextSiblingElement()) {
-					temp = iconchild->Attribute("flags");
-					const char *tflags = (temp != NULL) ? temp : "ndhs";
-					temp = iconchild->Attribute("index");
-					const char *tindex = (temp != NULL) ? temp : "0";
+					const char *tflags = queryAttribute(iconchild,"flags","n");
+					const char *tindex = queryAttribute(iconchild,"index","0");
 					const char *tsrc = iconchild->Attribute("src");
 					if (tsrc != NULL)
 						Dcx::mIRC.execex("//xdid -w %s %i +%s %s %s",this->getDialogMark(),id,tflags,tindex,tsrc);
@@ -816,7 +772,8 @@ void DcxmlParser::parseDialog(int depth,const char *claPath,const int passedid,c
 		{ 
 			controls++;
 			id = this->parseId(element);
-			id = (id > 0) ? id : 2000 + controls;
+			if (id <= 0)
+				id = 2000 + controls;
 			this->registerId(element,id); // does this twice??
 			this->registerId(element,id);
 		}
@@ -843,7 +800,8 @@ void DcxmlParser::parseDialog(int depth,const char *claPath,const int passedid,c
 		if (parenttype == NULL)
 			parenttype = "panel";
 		parentid = this->parseId(parent);
-		parentid = (parentid > 0) ? parentid : passedid;
+		if (parentid <= 0)
+			parentid = passedid;
 		//IF TEMPLATE ELEMENT REROUTE TO TEMPLATE DEFINITION
 
 
@@ -883,7 +841,7 @@ void DcxmlParser::parseDialog(int depth,const char *claPath,const int passedid,c
 		}
 		//Set CLA for control or pane
 		g_claPath = claPath;
-		TString claPathx(this->parseCLA(cCla));
+		const TString claPathx(this->parseCLA(cCla));
 
 		//Perform some control specific commands
 		if (0==lstrcmp(elem, "control")) {

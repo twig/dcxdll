@@ -47,7 +47,7 @@ DcxDivider::DcxDivider( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * 
 		throw "Unable To Create Window";
 
 	if ( bNoTheme )
-		Dcx::XPPlusModule.dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
+		Dcx::UXModule.dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
 	this->registreDefaultWindowProc( );
 	SetProp( this->m_Hwnd, "dcx_cthis", (HANDLE) this );
@@ -72,25 +72,24 @@ DcxDivider::~DcxDivider( ) {
 
 TString DcxDivider::getStyles(void) {
 	TString styles(__super::getStyles());
-	DWORD Styles;
-	Styles = GetWindowStyle(this->m_Hwnd);
+	const DWORD Styles = GetWindowStyle(this->m_Hwnd);
+
 	if (Styles & DVS_VERT)
-		styles.addtok("vertical", " ");
+		styles.addtok("vertical");
+
 	return styles;
 }
 
 
 void DcxDivider::parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ) {
 
-	unsigned int i = 1, numtok = styles.numtok( );
+	const UINT numtok = styles.numtok( );
 	*Styles |= DVS_HORZ;
 
-	while ( i <= numtok ) {
-
+	for (UINT i = 1; i <= numtok; i++ )
+	{
 		if ( styles.gettok( i ) == "vertical" )
 			*Styles |= DVS_VERT;
-
-		i++;
 	}
 	this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
 }
@@ -106,26 +105,25 @@ void DcxDivider::parseControlStyles( TString & styles, LONG * Styles, LONG * ExS
 
 void DcxDivider::parseInfoRequest( TString & input, char * szReturnValue ) {
 
-  //int numtok = input.numtok( );
-  TString prop(input.gettok(3));
+	const TString prop(input.gettok(3));
 
-  // [NAME] [ID] [PROP]
-  if (prop == "position") {
-    int iDivPos = 0;
+	// [NAME] [ID] [PROP]
+	if (prop == "position") {
+		int iDivPos = 0;
 
-    SendMessage(this->m_Hwnd, DV_GETDIVPOS, (WPARAM) NULL, (LPARAM) &iDivPos);
-    wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, "%d", iDivPos);
-    return;
-  }
-  else if (prop == "isvertical") {
-    wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, "%d", (GetWindowStyle(this->m_Hwnd) & DVS_VERT));
-    return;
-  }
+		SendMessage(this->m_Hwnd, DV_GETDIVPOS, (WPARAM) NULL, (LPARAM) &iDivPos);
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, "%d", iDivPos);
+		return;
+	}
+	else if (prop == "isvertical") {
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, "%d", (GetWindowStyle(this->m_Hwnd) & DVS_VERT));
+		return;
+	}
 
-  if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
-    return;
-  
-  szReturnValue[0] = 0;
+	if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
+		return;
+
+	szReturnValue[0] = 0;
 }
 
 /*!
@@ -135,9 +133,9 @@ void DcxDivider::parseInfoRequest( TString & input, char * szReturnValue ) {
  */
 
 void DcxDivider::parseCommandRequest( TString & input ) {
-	XSwitchFlags flags(input.gettok(3));
+	const XSwitchFlags flags(input.gettok(3));
 
-	int numtok = input.numtok( );
+	const UINT numtok = input.numtok( );
 
 	// xdid -l|r [NAME] [ID] [SWITCH] [MIN] [IDEAL][TAB][ID] [CONTROL] [X] [Y] [W] [H] (OPTIONS)
 	if ( ( flags['l'] || flags['r'] )&& numtok > 9 ) {
@@ -146,7 +144,7 @@ void DcxDivider::parseCommandRequest( TString & input ) {
 		ZeroMemory( &dvpi, sizeof( DVPANEINFO ) );
 		dvpi.cbSize = sizeof( DVPANEINFO );
 
-		TString data(input.gettok(1, TSTAB).trim());
+		const TString data(input.gettok(1, TSTAB).trim());
 		TString control_data;
 
 		if ( input.numtok( TSTAB ) > 1 )
@@ -158,25 +156,14 @@ void DcxDivider::parseCommandRequest( TString & input ) {
 
 		if ( control_data.numtok( ) > 5 ) {
 
-			UINT ID = mIRC_ID_OFFSET + control_data.gettok( 1 ).to_int( );
+			const UINT ID = (mIRC_ID_OFFSET + control_data.gettok( 1 ).to_int( ));
 
 			if ( ID > mIRC_ID_OFFSET - 1 && 
 				!IsWindow( GetDlgItem( this->m_pParentDialog->getHwnd( ), ID ) ) && 
 				this->m_pParentDialog->getControlByID( ID ) == NULL ) 
 			{
 				try {
-					DcxControl * p_Control = DcxControl::controlFactory(this->m_pParentDialog,ID,control_data,2,
-						CTLF_ALLOW_PBAR|CTLF_ALLOW_TRACKBAR|CTLF_ALLOW_COMBOEX|
-						CTLF_ALLOW_COLORCOMBO|CTLF_ALLOW_STATUSBAR|CTLF_ALLOW_TOOLBAR|
-						CTLF_ALLOW_TREEVIEW|CTLF_ALLOW_LISTVIEW|CTLF_ALLOW_REBAR|
-						CTLF_ALLOW_BUTTON|CTLF_ALLOW_RICHEDIT|CTLF_ALLOW_EDIT|
-						CTLF_ALLOW_UPDOWN| CTLF_ALLOW_IPADDRESS|CTLF_ALLOW_WEBCTRL|
-						CTLF_ALLOW_CALANDER|CTLF_ALLOW_DIVIDER|CTLF_ALLOW_PANEL|
-						CTLF_ALLOW_TAB|CTLF_ALLOW_LINE|CTLF_ALLOW_BOX|CTLF_ALLOW_RADIO|
-						CTLF_ALLOW_CHECK|CTLF_ALLOW_TEXT|CTLF_ALLOW_SCROLL|CTLF_ALLOW_LIST|
-						CTLF_ALLOW_LINK|CTLF_ALLOW_IMAGE|CTLF_ALLOW_PAGER|CTLF_ALLOW_DATETIME|
-						CTLF_ALLOW_STACKER|CTLF_ALLOW_DIRECTSHOW
-						,this->m_Hwnd);
+					DcxControl * p_Control = DcxControl::controlFactory(this->m_pParentDialog,ID,control_data,2,CTLF_ALLOW_ALLBUTDOCK,this->m_Hwnd);
 
 					if ( p_Control != NULL ) {
 
@@ -237,12 +224,10 @@ void DcxDivider::toXml(TiXmlElement * xml) {
 	__super::toXml(xml);
 	DVPANEINFO left = {0};
 	DVPANEINFO right = {0};
-	DcxControl * dcxcleft = NULL;
-	DcxControl * dcxcright = NULL;
 	Divider_GetChildControl(this->m_Hwnd, DVF_PANELEFT, &left);
-	Divider_GetChildControl(this->m_Hwnd, DVF_PANELEFT, &right);
+	Divider_GetChildControl(this->m_Hwnd, DVF_PANERIGHT, &right);
 	if (left.hChild != NULL) {
-		dcxcleft = this->m_pParentDialog->getControlByHWND(left.hChild);
+		DcxControl * dcxcleft = this->m_pParentDialog->getControlByHWND(left.hChild);
 		if (dcxcleft != NULL)
 			xml->LinkEndChild(dcxcleft->toXml());
 		else
@@ -251,7 +236,7 @@ void DcxDivider::toXml(TiXmlElement * xml) {
 	else
 		xml->LinkEndChild(new TiXmlElement("control"));
 	if (right.hChild != NULL) {
-		dcxcright = this->m_pParentDialog->getControlByHWND(right.hChild);
+		DcxControl * dcxcright = this->m_pParentDialog->getControlByHWND(right.hChild);
 		if (dcxcright != NULL)
 			xml->LinkEndChild(dcxcright->toXml());
 		else
@@ -354,8 +339,8 @@ LRESULT DcxDivider::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 
 	case DV_CHANGEPOS:
 		{
-			int phase = (int) wParam;
-			LPPOINT pt = (LPPOINT) lParam;
+			const int phase = (int) wParam;
+			const LPPOINT pt = (LPPOINT) lParam;
 
 			this->execAliasEx("%s,%d,%d,%d", (phase == DVNM_DRAG_START ? "dragbegin" : (phase == DVNM_DRAG_END ? "dragfinish" : "drag")), this->getUserID(), pt->x, pt->y);
 		}

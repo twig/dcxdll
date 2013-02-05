@@ -2,6 +2,7 @@
 //#include "defines.h"
 #include "mIRCLinker.h"
 #include "DcxUXModule.h"
+#include "DcxXPPlusModule.h"
 #include "DcxGDIModule.h"
 #include "DcxDWMModule.h"
 #include "Classes/xpopup/XPopupMenuManager.h"
@@ -30,7 +31,8 @@ public:
 	static mIRCLinker mIRC;
 	static DcxDialogCollection Dialogs;
 	static DcxGDIModule GDIModule;
-	static DcxUXModule XPPlusModule;
+	static DcxXPPlusModule XPPlusModule;
+	static DcxUXModule UXModule;
 	static DcxDWMModule VistaModule;
 
 	/* additions */

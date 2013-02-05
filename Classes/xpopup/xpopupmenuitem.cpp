@@ -121,7 +121,7 @@ SIZE XPopupMenuItem::getItemSize( const HWND mHwnd ) {
 
 		HDC hdc = GetDC( mHwnd );
 
-		TString tsType(this->m_pXParentMenu->getName( ));
+		const TString tsType(this->m_pXParentMenu->getName( ));
 		if ( (tsType == "mirc") || (tsType == "mircbar") || (tsType == "dialog") ) {
 			if ( this->m_tsItemText.numtok( "\v" ) > 1 ) {
 				this->m_nIcon = this->m_tsItemText.gettok( 1, "\v").to_int( ) - 1;
@@ -168,7 +168,7 @@ void XPopupMenuItem::DrawItem( const LPDRAWITEMSTRUCT lpdis ) {
 #if !DCX_FOR_XP_ONLY
 	if (SetLayeredWindowAttributesUx != NULL) {
 #endif
-		BYTE alpha = this->m_pXParentMenu->IsAlpha();
+		const BYTE alpha = this->m_pXParentMenu->IsAlpha();
 
 		// If alpha == 255 then menu is fully opaque so no need to change to layered.
 		if (alpha < 255) {
@@ -198,7 +198,7 @@ void XPopupMenuItem::DrawItem( const LPDRAWITEMSTRUCT lpdis ) {
 	this->DrawItemBackground( lpdis, lpcol );
 	this->DrawItemBox( lpdis, lpcol );
 
-	TString tsType(this->m_pXParentMenu->getName( ));
+	const TString tsType(this->m_pXParentMenu->getName( ));
 	if (( tsType == "mircbar" ) || ( tsType == "dialog")) {
 
 		if ( this->m_tsItemText.numtok( "\v" ) > 1 ) {
@@ -378,11 +378,11 @@ void XPopupMenuItem::DrawItemSelection( const LPDRAWITEMSTRUCT lpdis, const LPXP
 
 	if (hPen == NULL)
 		return;
-	HPEN hOldPen = SelectPen( lpdis->hDC, hPen );
+	const HPEN hOldPen = SelectPen( lpdis->hDC, hPen );
 
 	HBRUSH hBrush = CreateSolidBrush( bDis?lpcol->m_clrDisabledSelection:lpcol->m_clrSelection );
 	if (hBrush != NULL) {
-		HBRUSH hOldBrush = SelectBrush( lpdis->hDC, hBrush );
+		const HBRUSH hOldBrush = SelectBrush( lpdis->hDC, hBrush );
 
 		RECT rc;
 		CopyRect( &rc, &lpdis->rcItem );
@@ -416,8 +416,8 @@ void XPopupMenuItem::DrawItemCheckBox( const LPDRAWITEMSTRUCT lpdis, const LPXPM
 		return;
 	}
 
-	HBRUSH hOldBrush = SelectBrush( lpdis->hDC, hBrush );
-	HPEN hOldPen = SelectPen( lpdis->hDC, hPenBorder );
+	const HBRUSH hOldBrush = SelectBrush( lpdis->hDC, hBrush );
+	const HPEN hOldPen = SelectPen( lpdis->hDC, hPenBorder );
 
 	RECT rc;
 	CopyRect( &rc, &lpdis->rcItem );
@@ -429,8 +429,8 @@ void XPopupMenuItem::DrawItemCheckBox( const LPDRAWITEMSTRUCT lpdis, const LPXPM
 
 	SelectPen( lpdis->hDC, hPenText );
 
-	int x = ( rc.right + rc.left ) / 2 - 3;
-	int y = ( rc.bottom + rc.top ) / 2 - 3;
+	const int x = ( rc.right + rc.left ) / 2 - 3;
+	const int y = ( rc.bottom + rc.top ) / 2 - 3;
 
 	MoveToEx( lpdis->hDC, x, y+2, NULL );
 	LineTo( lpdis->hDC, x, y+5 );
@@ -460,9 +460,9 @@ void XPopupMenuItem::DrawItemCheckBox( const LPDRAWITEMSTRUCT lpdis, const LPXPM
 
 void XPopupMenuItem::DrawItemText( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol, const BOOL bDis ) {
 
-	COLORREF oldClr = SetTextColor( lpdis->hDC, (bDis?lpcol->m_clrDisabledText:((lpdis->itemState & ODS_SELECTED)?lpcol->m_clrSelectedText:lpcol->m_clrText)) );
+	const COLORREF oldClr = SetTextColor( lpdis->hDC, (bDis?lpcol->m_clrDisabledText:((lpdis->itemState & ODS_SELECTED)?lpcol->m_clrSelectedText:lpcol->m_clrText)) );
 
-	int oldMode = SetBkMode( lpdis->hDC, TRANSPARENT );
+	const int oldMode = SetBkMode( lpdis->hDC, TRANSPARENT );
 
 	RECT rc;
 	CopyRect( &rc, &lpdis->rcItem );
@@ -481,8 +481,8 @@ void XPopupMenuItem::DrawItemText( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUC
 
 	if ( txt.numtok( TSTAB ) > 1 ) {
 
-		TString lefttext(txt.gettok(1, TSTAB).trim());
-		TString righttext(txt.gettok(2, TSTAB).trim());
+		const TString lefttext(txt.gettok(1, TSTAB).trim());
+		const TString righttext(txt.gettok(2, TSTAB).trim());
 
 		//DrawTextEx( lpdis->hDC, lefttext.to_chr( ), lefttext.len( ), &rc, 
 		//  DT_LEFT | DT_SINGLELINE | DT_VCENTER, NULL );
@@ -515,8 +515,8 @@ void XPopupMenuItem::DrawItemIcon( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUC
 
 	HIMAGELIST himl = this->m_pXParentMenu->getImageList( );
 
-	int x = ( XPMI_BOXLPAD + XPMI_BOXLPAD + XPMI_BOXWIDTH - XPMI_ICONSIZE ) / 2;
-	int y = ( lpdis->rcItem.top + lpdis->rcItem.bottom - XPMI_ICONSIZE ) / 2;
+	const int x = ( XPMI_BOXLPAD + XPMI_BOXLPAD + XPMI_BOXWIDTH - XPMI_ICONSIZE ) / 2;
+	const int y = ( lpdis->rcItem.top + lpdis->rcItem.bottom - XPMI_ICONSIZE ) / 2;
 
 	if ( himl != NULL && this->m_nIcon > -1 && this->m_nIcon < ImageList_GetImageCount( himl ) ) {
 
@@ -564,10 +564,10 @@ void XPopupMenuItem::DrawItemSubArrow( const LPDRAWITEMSTRUCT lpdis, const LPXPM
 	if (hPen == NULL)
 		return;
 
-	HPEN hOldPen = SelectPen( lpdis->hDC, hPen );
+	const HPEN hOldPen = SelectPen( lpdis->hDC, hPen );
 
-	int x = lpdis->rcItem.right - 9;
-	int y = ( lpdis->rcItem.bottom + lpdis->rcItem.top ) / 2 - 5;
+	const int x = lpdis->rcItem.right - 9;
+	const int y = ( lpdis->rcItem.bottom + lpdis->rcItem.top ) / 2 - 5;
 
 	MoveToEx( lpdis->hDC, x, y, NULL );
 	LineTo( lpdis->hDC, x+1, y );
@@ -610,9 +610,9 @@ void XPopupMenuItem::DrawItemSeparator( const LPDRAWITEMSTRUCT lpdis, const LPXP
 
 			HPEN hPen = CreatePen( PS_SOLID, 1, lpcol->m_clrSeparatorLine );
 			if (hPen != NULL) {
-				int x1 = lpdis->rcItem.left;
-				int x2 = lpdis->rcItem.right;
-				int y = ( lpdis->rcItem.bottom + lpdis->rcItem.top) / 2;
+				const int x1 = lpdis->rcItem.left;
+				const int x2 = lpdis->rcItem.right;
+				const int y = ( lpdis->rcItem.bottom + lpdis->rcItem.top) / 2;
 
 				HPEN oldPen = SelectPen( lpdis->hDC, hPen) ;
 				MoveToEx( lpdis->hDC, x1, y, NULL );
@@ -631,9 +631,9 @@ void XPopupMenuItem::DrawItemSeparator( const LPDRAWITEMSTRUCT lpdis, const LPXP
 			HPEN hPen = CreatePen( PS_SOLID, 1, lpcol->m_clrSeparatorLine );
 
 			if (hPen != NULL) {
-				int x1 = XPMI_BOXLPAD + XPMI_BOXWIDTH + XPMI_BOXRPAD;
-				int x2 = lpdis->rcItem.right;
-				int y = ( lpdis->rcItem.bottom + lpdis->rcItem.top) / 2;
+				const int x1 = XPMI_BOXLPAD + XPMI_BOXWIDTH + XPMI_BOXRPAD;
+				const int x2 = lpdis->rcItem.right;
+				const int y = ( lpdis->rcItem.bottom + lpdis->rcItem.top) / 2;
 
 				HPEN oldPen = SelectPen( lpdis->hDC, hPen) ;
 				MoveToEx( lpdis->hDC, x1, y, NULL );
@@ -652,13 +652,13 @@ void XPopupMenuItem::DrawItemSeparator( const LPDRAWITEMSTRUCT lpdis, const LPXP
 
 void XPopupMenuItem::DrawGradient( const HDC hdc, const LPRECT lprc, const COLORREF clrStart, const COLORREF clrEnd, const BOOL bHorz ) {
 
-	BYTE StartRed   = GetRValue( clrStart );
-	BYTE StartGreen = GetGValue( (clrStart & 0xFFFF) );
-	BYTE StartBlue  = GetBValue( clrStart );
+	const BYTE StartRed   = GetRValue( clrStart );
+	const BYTE StartGreen = GetGValue( (clrStart & 0xFFFF) );
+	const BYTE StartBlue  = GetBValue( clrStart );
 
-	BYTE EndRed    = GetRValue( clrEnd );
-	BYTE EndGreen  = GetGValue( (clrEnd & 0xFFFF) );
-	BYTE EndBlue   = GetBValue( clrEnd );
+	const BYTE EndRed    = GetRValue( clrEnd );
+	const BYTE EndGreen  = GetGValue( (clrEnd & 0xFFFF) );
+	const BYTE EndBlue   = GetBValue( clrEnd );
 
 	TRIVERTEX        vert[2];
 	GRADIENT_RECT    gRect;
@@ -699,9 +699,9 @@ void XPopupMenuItem::DrawGradient( const HDC hdc, const LPRECT lprc, const COLOR
 
 		for ( int dn = 0; dn <= n; dn += dy ) {
 
-			BYTE Red = (BYTE)( MulDiv( int( EndRed ) - StartRed , dn, n ) + StartRed );
-			BYTE Green = (BYTE)( MulDiv( int( EndGreen ) - StartGreen, dn, n ) + StartGreen );
-			BYTE Blue = (BYTE)( MulDiv( int( EndBlue ) - StartBlue, dn, n ) + StartBlue );
+			const BYTE Red = (BYTE)( MulDiv( int( EndRed ) - StartRed , dn, n ) + StartRed );
+			const BYTE Green = (BYTE)( MulDiv( int( EndGreen ) - StartGreen, dn, n ) + StartGreen );
+			const BYTE Blue = (BYTE)( MulDiv( int( EndBlue ) - StartBlue, dn, n ) + StartBlue );
 
 			if ( bHorz == TRUE )
 				SetRect( &rc, lprc->left, lprc->top + dn, lprc->right , lprc->top + dn + dy );
@@ -737,7 +737,7 @@ void XPopupMenuItem::DrawVerticalBar(const LPDRAWITEMSTRUCT lpdis, const LPXPMEN
 	// using bitmap height like this fixes that.
 	BITMAP bm;
 	GetObject((HBITMAP)GetCurrentObject(lpdis->hDC, OBJ_BITMAP), sizeof(BITMAP), &bm);
-	int menuH = bm.bmHeight;
+	const int menuH = bm.bmHeight;
 
 	RECT rcIntersect;
 	RECT rcBar;
@@ -783,9 +783,9 @@ void XPopupMenuItem::DrawVerticalBar(const LPDRAWITEMSTRUCT lpdis, const LPXPMEN
 
 COLORREF XPopupMenuItem::LightenColor( const unsigned int iScale, const COLORREF clrColor ) { 
 
-	long R = MulDiv( 255 - GetRValue( clrColor ), iScale, 255 ) + GetRValue( clrColor );
-	long G = MulDiv( 255 - GetGValue( (clrColor & 0xFFFF) ), iScale, 255 ) + GetGValue( (clrColor & 0xFFFF) );
-	long B = MulDiv( 255 - GetBValue( clrColor ), iScale, 255 ) + GetBValue( clrColor );
+	const long R = MulDiv( 255 - GetRValue( clrColor ), iScale, 255 ) + GetRValue( clrColor );
+	const long G = MulDiv( 255 - GetGValue( (clrColor & 0xFFFF) ), iScale, 255 ) + GetGValue( (clrColor & 0xFFFF) );
+	const long B = MulDiv( 255 - GetBValue( clrColor ), iScale, 255 ) + GetBValue( clrColor );
 
 	return RGB( R, G, B ); 
 }
@@ -798,9 +798,9 @@ COLORREF XPopupMenuItem::LightenColor( const unsigned int iScale, const COLORREF
 
 COLORREF XPopupMenuItem::DarkenColor( const unsigned int iScale, const COLORREF clrColor )
 { 
-	long R = MulDiv( GetRValue( clrColor ), ( 255 - iScale ), 255 );
-	long G = MulDiv( GetGValue( clrColor ), ( 255 - iScale ), 255 );
-	long B = MulDiv( GetBValue( clrColor ), ( 255 - iScale ), 255 );
+	const long R = MulDiv( GetRValue( clrColor ), ( 255 - iScale ), 255 );
+	const long G = MulDiv( GetGValue( clrColor ), ( 255 - iScale ), 255 );
+	const long B = MulDiv( GetBValue( clrColor ), ( 255 - iScale ), 255 );
 
 	return RGB( R, G, B ); 
 }

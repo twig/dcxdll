@@ -49,7 +49,7 @@ DcxTab::DcxTab( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TStr
 		throw "Unable To Create Window";
 
   if ( bNoTheme )
-    Dcx::XPPlusModule.dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
+    Dcx::UXModule.dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
   /*
   HWND hHwndTip = TabCtrl_GetToolTips( this->m_Hwnd );
@@ -909,7 +909,7 @@ LRESULT DcxTab::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bPa
 
 					rect.right = rcCloseButton.left - 2;
 				}
-				COLORREF crOldColor;
+				COLORREF crOldColor = 0;
 
 				if (tci.dwState & TCIS_HIGHLIGHTED)
 					crOldColor = SetTextColor(idata->hDC, GetSysColor(COLOR_HIGHLIGHTTEXT));

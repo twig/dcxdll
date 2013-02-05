@@ -51,7 +51,7 @@ DcxPanel::DcxPanel( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, 
 		throw "Unable To Create Window";
 
 	if ( bNoTheme )
-		Dcx::XPPlusModule.dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
+		Dcx::UXModule.dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
 	this->m_pLayoutManager = new LayoutManager( this->m_Hwnd );
 
@@ -348,32 +348,27 @@ void DcxPanel::parseCommandRequest( TString & input ) {
 
 UINT DcxPanel::parseLayoutFlags( const TString & flags ) {
 
-	INT i = 1, len = flags.len( );
+	XSwitchFlags xflags(flags);
 	UINT iFlags = 0;
 
 	// no +sign, missing params
-	if ( flags[0] != '+' ) 
+	if ( !xflags['+'] ) 
 		return iFlags;
 
-	while ( i < len ) {
-
-		if ( flags[i] == 'f' )
-			iFlags |= LAYOUTFIXED;
-		else if ( flags[i] == 'h' )
-			iFlags |= LAYOUTHORZ;
-		else if ( flags[i] == 'i' )
-			iFlags |= LAYOUTID;
-		else if ( flags[i] == 'l' )
-			iFlags |= LAYOUTFILL ;
-		else if ( flags[i] == 'p' )
-			iFlags |= LAYOUTPANE;
-		else if ( flags[i] == 'v' )
-			iFlags |= LAYOUTVERT;
-		else if ( flags[i] == 'w' )
-			iFlags |= LAYOUTDIM;
-
-		++i;
-	}
+	if ( xflags['f'] )
+		iFlags |= LAYOUTFIXED;
+	if ( xflags['h'] )
+		iFlags |= LAYOUTHORZ;
+	if ( xflags['i'] )
+		iFlags |= LAYOUTID;
+	if ( xflags['l'] )
+		iFlags |= LAYOUTFILL ;
+	if ( xflags['p'] )
+		iFlags |= LAYOUTPANE;
+	if ( xflags['v'] )
+		iFlags |= LAYOUTVERT;
+	if ( xflags['w'] )
+		iFlags |= LAYOUTDIM;
 
 	return iFlags;
 }
@@ -489,11 +484,23 @@ LRESULT DcxPanel::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_SIZE)
 					this->execAliasEx("%s,%d", "sizing", this->getUserID( ) );
 
-				if (this->m_pLayoutManager != NULL) {
-					RECT rc;
-					SetRect( &rc, 0, 0, LOWORD( lParam ), HIWORD( lParam ) );
-					if (this->m_pLayoutManager->updateLayout( rc ))
-						this->redrawWindow( );
+				//if (this->m_pLayoutManager != NULL) {
+				//	RECT rc;
+				//	SetRect( &rc, 0, 0, LOWORD( lParam ), HIWORD( lParam ) );
+				//	if (this->m_pLayoutManager->updateLayout( rc ))
+				//		this->redrawWindow( );
+				//}
+			}
+			break;
+		case WM_WINDOWPOSCHANGING:
+			{
+				if (lParam != NULL) {
+					WINDOWPOS * wp = (WINDOWPOS *) lParam;
+					if (this->m_pLayoutManager != NULL) {
+						RECT rc;
+						SetRect( &rc, 0, 0, wp->cx, wp->cy );
+						this->m_pLayoutManager->updateLayout( rc );
+					}
 				}
 			}
 			break;

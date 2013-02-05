@@ -39,7 +39,7 @@ on *:dialog:mydialog:init:*:{
 }
 alias events { 
   tokenize 32 $1-
-  ;echo -a $1-
+  if ($2 == error) echo -s DCXError: $1 ID: $3 Type: $4 Prop: $5 Cmd: $6 Error: $7-
   if ($1 == mydialog) { 
     if ($2 == selchange) {
       if (($3 == $xdialog($1,tvMenu).id) && ($4)) { 

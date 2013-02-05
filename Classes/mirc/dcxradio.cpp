@@ -33,21 +33,21 @@ DcxRadio::DcxRadio( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, 
 	this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
 
 	this->m_Hwnd = CreateWindowEx(	
-		ExStyles, 
-		"BUTTON", 
+		ExStyles,
+		"BUTTON",
 		NULL,
-		WS_CHILD | Styles, 
+		WS_CHILD | Styles,
 		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
 		mParentHwnd,
 		(HMENU) ID,
-		GetModuleHandle(NULL), 
+		GetModuleHandle(NULL),
 		NULL);
 
 	if (!IsWindow(this->m_Hwnd))
 		throw "Unable To Create Window";
 
 	if ( bNoTheme )
-		Dcx::XPPlusModule.dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
+		Dcx::UXModule.dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
 	this->m_bNoTheme = (bNoTheme ? true : false);
 
@@ -75,18 +75,19 @@ DcxRadio::~DcxRadio( ) {
 
 TString DcxRadio::getStyles(void) {
 	TString styles(__super::getStyles());
-	DWORD Styles;
-	Styles = GetWindowStyle(this->m_Hwnd);
+	const DWORD Styles = GetWindowStyle(this->m_Hwnd);
+
 	if (Styles & BS_RIGHT)
-		styles.addtok("rjustify", " ");
+		styles.addtok("rjustify");
 	if (Styles & BS_CENTER)
-		styles.addtok("center", " ");
+		styles.addtok("center");
 	if (Styles & BS_LEFT)
-		styles.addtok("ljustify", " ");
+		styles.addtok("ljustify");
 	if (Styles & BS_RIGHTBUTTON)
-		styles.addtok("right", " ");
+		styles.addtok("right");
 	if (Styles & BS_PUSHLIKE)
-		styles.addtok("pushlike", " ");
+		styles.addtok("pushlike");
+
 	return styles;
 
 }
@@ -99,11 +100,11 @@ TString DcxRadio::getStyles(void) {
 
 void DcxRadio::parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ) {
 
-	unsigned int i = 1, numtok = styles.numtok( );
+	const UINT numtok = styles.numtok( );
 	*Styles |= BS_AUTORADIOBUTTON;
 
-	while ( i <= numtok ) {
-
+	for (UINT i = 1; i <= numtok; i++ )
+	{
 		if ( styles.gettok( i ) == "rjustify" )
 			*Styles |= BS_RIGHT;
 		else if ( styles.gettok( i ) == "center" )
@@ -114,8 +115,6 @@ void DcxRadio::parseControlStyles( TString & styles, LONG * Styles, LONG * ExSty
 			*Styles |= BS_RIGHTBUTTON;
 		else if ( styles.gettok( i ) == "pushlike" )
 			*Styles |= BS_PUSHLIKE;
-
-		i++;
 	}
 
 	this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
@@ -132,30 +131,28 @@ void DcxRadio::parseControlStyles( TString & styles, LONG * Styles, LONG * ExSty
 
 void DcxRadio::parseInfoRequest( TString & input, char * szReturnValue ) {
 
-//  int numtok = input.numtok( );
+	const TString prop(input.gettok( 3 ));
 
-	TString prop(input.gettok( 3 ));
+	// [NAME] [ID] [PROP]
+	if ( prop == "text" ) {
 
-  // [NAME] [ID] [PROP]
-  if ( prop == "text" ) {
+		GetWindowText( this->m_Hwnd, szReturnValue, MIRC_BUFFER_SIZE_CCH );
+		return;
+	}
+	// [NAME] [ID] [PROP]
+	else if ( prop == "state" ) {
 
-    GetWindowText( this->m_Hwnd, szReturnValue, MIRC_BUFFER_SIZE_CCH );
-    return;
-  }
-  // [NAME] [ID] [PROP]
-  else if ( prop == "state" ) {
+		if ( Button_GetCheck( this->m_Hwnd ) & BST_CHECKED )
+			lstrcpy( szReturnValue, "1" );
+		else
+			lstrcpy( szReturnValue, "0" );
 
-    if ( Button_GetCheck( this->m_Hwnd ) & BST_CHECKED )
-      lstrcpy( szReturnValue, "1" );
-    else
-      lstrcpy( szReturnValue, "0" );
+		return;
+	}
+	else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
+		return;
 
-    return;
-  }
-  else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
-    return;
-  
-  szReturnValue[0] = 0;
+	szReturnValue[0] = 0;
 }
 
 /*!
@@ -165,8 +162,8 @@ void DcxRadio::parseInfoRequest( TString & input, char * szReturnValue ) {
  */
 
 void DcxRadio::parseCommandRequest( TString & input ) {
-	XSwitchFlags flags(input.gettok(3));
-	int numtok = input.numtok( );
+	const XSwitchFlags flags(input.gettok(3));
+	const UINT numtok = input.numtok( );
 
 	//xdid -c [NAME] [ID] [SWITCH]
 	if ( flags['c'] ) {
@@ -190,21 +187,6 @@ void DcxRadio::parseCommandRequest( TString & input ) {
  * blah
  */
 LRESULT DcxRadio::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
- // switch( uMsg ) {
- //   case WM_COMMAND:
- //     {
- //       switch ( HIWORD( wParam ) ) {
-
- //         case BN_CLICKED:
- //           {
-	//						if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-	//			        this->execAliasEx("%s,%d", "sclick", this->getUserID( ) );
- //           }
- //           break;
- //       }
- //     }
- //     break;
-	//}
 	return 0L;
 }
 
@@ -258,11 +240,11 @@ void DcxRadio::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 	// Setup alpha blend if any.
 	LPALPHAINFO ai = this->SetupAlphaBlend(&hdc);
 
-	if (this->m_bNoTheme || !Dcx::XPPlusModule.dcxIsThemeActive()) {
-		if (this->m_clrBackText != -1)
+	if (this->m_bNoTheme || !Dcx::UXModule.dcxIsThemeActive()) {
+		if (this->m_clrBackText != CLR_INVALID)
 			SetBkColor(hdc, this->m_clrBackText);
 
-		if (this->m_clrText != -1)
+		if (this->m_clrText != CLR_INVALID)
 			SetTextColor(hdc, this->m_clrText);
 
 		RECT rcClient;

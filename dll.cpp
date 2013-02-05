@@ -182,11 +182,11 @@ _INTEL_DLL_ int WINAPI UnloadDll(int timeout) {
 mIRC(Version) {
 #ifdef DCX_DEV_BUILD
 	wnsprintf(data, MIRC_BUFFER_SIZE_CCH,
-		"DCX (XPopup) DLL %d.%d.%d %s%d by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2006-2009",
+		"DCX (XPopup) DLL %d.%d.%d %s%d by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2006-2013",
 		DLL_VERSION, DLL_SUBVERSION, DLL_BUILD, DLL_STATE, DLL_DEV_BUILD);
 #else
 	wnsprintf(data, MIRC_BUFFER_SIZE_CCH,
-		"DCX (XPopup) DLL %d.%d.%d %s by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2006-2009",
+		"DCX (XPopup) DLL %d.%d.%d %s by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2006-2013",
 		DLL_VERSION, DLL_SUBVERSION, DLL_BUILD, DLL_STATE);
 #endif
 	return 3;
@@ -239,7 +239,7 @@ mIRC(IsUnloadSafe) {
 * \brief Check if windows is themed
 */
 mIRC(IsThemedXP) {
-	ret((Dcx::XPPlusModule.dcxIsThemeActive() ? "$true" : "$false"));
+	ret((Dcx::UXModule.dcxIsThemeActive() ? "$true" : "$false"));
 }
 
 /*!
@@ -278,7 +278,7 @@ mIRC(GetSystemColor) {
 	}
 
 	int col;
-	TString coltype(d.gettok(1));
+	const TString coltype(d.gettok(1));
 
 	if      (coltype == "COLOR_3DDKSHADOW"		) { col = COLOR_3DDKSHADOW; }
 	else if (coltype == "COLOR_3DFACE"			) { col = COLOR_3DFACE; }
@@ -349,14 +349,15 @@ mIRC(xdid) {
 		return 0;
 	}
 
-	TString IDs(d.gettok( 2 )), d2;
+	const TString IDs(d.gettok( 2 ));
+	TString d2;
 	DcxControl * p_Control;
-	int n = IDs.numtok(TSCOMMA);
+	const int n = IDs.numtok(TSCOMMA);
 
 	// Multiple IDs id,id,id,id-id,id-id
 	if (n > 1) {
 		for (int i = 1; i <= n; i++) {
-			TString tsID(IDs.gettok(i, TSCOMMA));
+			const TString tsID(IDs.gettok(i, TSCOMMA));
 			UINT id_start = 0, id_end = 0;
 			if (tsID.numtok("-") == 2) {
 				id_start = tsID.gettok(1, "-").to_int();
@@ -728,8 +729,8 @@ mIRC(xSignal) {
 
 // /dcx WindowProps [HWND] [+FLAGS] (ARGS)
 mIRC(WindowProps) {
-	TString input(data);
-	int numtok = input.numtok( );
+	const TString input(data);
+	const int numtok = input.numtok( );
 
 	if (numtok < 2) {
 		Dcx::error("/dcx WindowProps", "Insuffient parameters");
@@ -743,10 +744,10 @@ mIRC(WindowProps) {
 		return 0;
 	}
 
-	TString flags(input.gettok( 2 ).trim());
-	XSwitchFlags xflags(flags);
+	const TString flags(input.gettok( 2 ).trim());
+	const XSwitchFlags xflags(flags);
 
-	if ((flags[0] != '+') || (flags.len() < 2)) {
+	if ((!xflags['+']) || (flags.len() < 2)) {
 		Dcx::error("/dcx WindowProps","No Flags Found");
 		return 0;
 	}
@@ -760,7 +761,7 @@ mIRC(WindowProps) {
 	// +T
 	if (xflags['T']) {
 		if (Dcx::XPPlusModule.isUseable()) {
-			if (Dcx::XPPlusModule.dcxSetWindowTheme(hwnd,L" ",L" ") != S_OK)
+			if (Dcx::UXModule.dcxSetWindowTheme(hwnd,L" ",L" ") != S_OK)
 				Dcx::error("/dcx WindowProps", "Unable to set theme");
 		}
 	}
@@ -772,7 +773,7 @@ mIRC(WindowProps) {
 			Dcx::error("/dcx WindowProps", "Invalid Args");
 			return 0;
 		}
-		int index = input.gettok( 3 ).to_int();
+		const int index = input.gettok( 3 ).to_int();
 		TString filename(input.gettok(1,TSTAB).gettok(4, -1).trim());
 
 		if (!ChangeHwndIcon(hwnd,flags,index,filename))
@@ -796,8 +797,8 @@ mIRC(WindowProps) {
 	// RMB click hwnd at pos.
 	// +r [X] [Y]
 	if (xflags['r']) {
-		UINT x = (UINT)input.gettok( 3 ).to_num();
-		UINT y = (UINT)input.gettok( 4 ).to_num();
+		const UINT x = (UINT)input.gettok( 3 ).to_num();
+		const UINT y = (UINT)input.gettok( 4 ).to_num();
 		LPARAM parm = MAKELONG(x,y);
 		SendMessage(hwnd,WM_RBUTTONDOWN,MK_RBUTTON,parm);
 		PostMessage(hwnd,WM_RBUTTONUP,MK_RBUTTON,parm); // MUST be a PostMessage or the dll hangs untill the menu is closed.
@@ -836,7 +837,7 @@ mIRC(ActiveWindow) {
 
 	data[0] = 0;
 
-	int numtok = input.numtok();
+	const int numtok = input.numtok();
 
 	if (numtok < 1) {
 		Dcx::error("$!dcx(ActiveWindow)", "Insufficient parameters");
@@ -850,7 +851,7 @@ mIRC(ActiveWindow) {
 		return 0;
 	}
 
-	TString prop(input.gettok(1));
+	const TString prop(input.gettok(1));
 	WINDOWINFO wi;
 
 	ZeroMemory(&wi, sizeof(WINDOWINFO));
@@ -891,7 +892,7 @@ mIRC(GhostDrag) {
 	}
 
 	// [0-255] enable or (255 == disable) ghost drag for main mIRC window.
-	BYTE alpha = (BYTE)(input.gettok(1).to_int() & 0xFF);
+	const BYTE alpha = (BYTE)(input.gettok(1).to_int() & 0xFF);
 
 	if (!Dcx::setGhostDrag(alpha))
 	{

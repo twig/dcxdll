@@ -31,7 +31,7 @@ class XMenuBar {
 		void parseXMenuBarCommand(const TString &input);
 		void parseXMenuBarInfo(const TString &input, char *szReturnValue);
 
-		bool addToMenuBar(HMENU menubar, XPopupMenu *p_Menu, TString label);
+		bool addToMenuBar(HMENU menubar, XPopupMenu *p_Menu, const TString &label);
 		void removeFromMenuBar(HMENU menubar, XPopupMenu *p_Menu);
 		void setMenuBar(HMENU oldMenuBar, HMENU newMenuBar);
 
@@ -43,7 +43,7 @@ class XMenuBar {
 	protected:
 		VectorOfXPopupMenu m_vpXMenuBar; //!< Vector of XPopupMenu objects added to the menubar.
 
-		static UINT parseTrackFlags(TString &flags);
+		//static UINT parseTrackFlags(const TString &flags);
 
 		int findMenuOffset(HMENU menubar, const XPopupMenu *p_menu) const;
 		bool validateMenu(const XPopupMenu *menu, const TString &flag, const TString &name) const;

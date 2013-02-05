@@ -114,7 +114,7 @@ public:
 	void parseXPopIdentifier( const TString & input, char * szReturnValue );
 	static XPopupMenu::MenuStyle parseStyle(const TString &style);
 
-	static HMENU parsePath( const TString & path, const HMENU hParent, const int depth = 1 );
+	static HMENU parsePath( const TString & path, const HMENU hParent, const unsigned int depth = 1 );
 
 	HIMAGELIST getImageList( );
 	void destroyImageList( );
@@ -127,7 +127,7 @@ public:
 	void deleteMenuItemData( XPopupMenuItem * p_Item, LPMENUITEMINFO mii = NULL);
 	void deleteAllItemData( HMENU hMenu );
 
-	TString getName( ) const;
+	const TString &getName( ) const;
 
 	HMENU getMenuHandle( ) const { return this->m_hMenu; };
 
@@ -148,18 +148,18 @@ public:
 	HBITMAP getBackBitmap( ) const;
 	void setBackBitmap( HBITMAP hBitmap );
 
-	bool IsRounded(void) const { return this->m_bRoundedSel; };
-	BYTE IsAlpha(void) const { return this->m_uiAlpha; };
-	void SetRounded(bool rounded) { this->m_bRoundedSel = rounded; };
-	void SetAlpha(BYTE alpha) { this->m_uiAlpha = alpha; };
+	const bool IsRounded(void) const { return this->m_bRoundedSel; };
+	const BYTE IsAlpha(void) const { return this->m_uiAlpha; };
+	void SetRounded(const bool rounded) { this->m_bRoundedSel = rounded; };
+	void SetAlpha(const BYTE alpha) { this->m_uiAlpha = alpha; };
 
 	// Methods to attach and detach from mIRC menu.
-	bool attachToMenuBar(HMENU menubar, TString label);
+	bool attachToMenuBar(HMENU menubar, const TString &label);
 	void detachFromMenuBar(HMENU menubar);
 
 	// Methods to access marked text.
-	void setMarkedText(TString text);
-	TString getMarkedText();
+	void setMarkedText(const TString &text);
+	const TString &getMarkedText() const;
 
 	VectorOfXPopupMenuItem m_vpMenuItem; //!< Vector of XPopupMenuItem Objects
 

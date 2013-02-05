@@ -51,7 +51,7 @@ DcxText::DcxText( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TS
 	this->removeExStyle( WS_EX_CLIENTEDGE|WS_EX_DLGMODALFRAME|WS_EX_STATICEDGE|WS_EX_WINDOWEDGE );
 
 	if ( bNoTheme )
-		Dcx::XPPlusModule.dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
+		Dcx::UXModule.dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
 	//this->m_tsText = ""; // pointless, alrdy is "".
 	this->m_clrText = GetSysColor(COLOR_WINDOWTEXT);
@@ -88,10 +88,11 @@ DcxText::~DcxText( ) {
  */
 
 void DcxText::parseControlStyles(TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme) {
-	unsigned int i = 1, numtok = styles.numtok( );
+	const UINT numtok = styles.numtok( );
 	*Styles |= SS_NOTIFY;
 
-	while (i <= numtok) {
+	for (UINT i = 1; i <= numtok; i++)
+	{
 		if (styles.gettok( i ) == "nowrap")
 			*Styles |= SS_LEFTNOWORDWRAP;
 		else if (styles.gettok( i ) == "center")
@@ -104,8 +105,6 @@ void DcxText::parseControlStyles(TString & styles, LONG * Styles, LONG * ExStyle
 			*Styles |= SS_ENDELLIPSIS;
 		else if (styles.gettok( i ) == "pathellipsis")
 			*Styles |= SS_PATHELLIPSIS;
-
-		i++;
 	}
 
 	this->parseGeneralControlStyles(styles, Styles, ExStyles, bNoTheme);
@@ -122,18 +121,16 @@ void DcxText::parseControlStyles(TString & styles, LONG * Styles, LONG * ExStyle
 
 void DcxText::parseInfoRequest( TString & input, char * szReturnValue ) {
 
-//  int numtok = input.numtok( );
+	// [NAME] [ID] [PROP]
+	if ( input.gettok( 3 ) == "text" ) {
 
-  // [NAME] [ID] [PROP]
-  if ( input.gettok( 3 ) == "text" ) {
+		GetWindowText( this->m_Hwnd, szReturnValue, MIRC_BUFFER_SIZE_CCH );
+		return;
+	}
+	else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
+		return;
 
-    GetWindowText( this->m_Hwnd, szReturnValue, MIRC_BUFFER_SIZE_CCH );
-    return;
-  }
-  else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
-    return;
-  
-  szReturnValue[0] = 0;
+	szReturnValue[0] = 0;
 }
 
 /*!
@@ -143,8 +140,8 @@ void DcxText::parseInfoRequest( TString & input, char * szReturnValue ) {
  */
 
 void DcxText::parseCommandRequest(TString &input) {
-	XSwitchFlags flags(input.gettok(3));
-	int numtok = input.numtok( );
+	const XSwitchFlags flags(input.gettok(3));
+	const UINT numtok = input.numtok( );
 
 	// xdid -r [NAME] [ID] [SWITCH]
 	if (flags['r']) {
@@ -189,43 +186,21 @@ void DcxText::parseCommandRequest(TString &input) {
  * blah
  */
 LRESULT DcxText::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
- // switch( uMsg ) {
- //   case WM_COMMAND:
- //     {
- //       switch ( HIWORD( wParam ) ) {
-
- //         case STN_CLICKED:
- //           {
-	//						if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-	//			        this->execAliasEx("%s,%d", "sclick", this->getUserID( ) );
- //           }
- //           break;
-
- //         case STN_DBLCLK:
- //           {
-	//						if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-	//			        this->execAliasEx("%s,%d", "dclick", this->getUserID( ) );
- //           }
- //           break;
- //       }
- //     }
- //     break;
-	//}
 	return 0L;
 }
 
 LRESULT DcxText::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
 
-  switch( uMsg ) {
+	switch( uMsg ) {
 
 		case WM_ERASEBKGND:
-		{
-			if (this->isExStyle(WS_EX_TRANSPARENT)) {
-				bParsed = TRUE;
-				return TRUE;
+			{
+				if (this->isExStyle(WS_EX_TRANSPARENT)) {
+					bParsed = TRUE;
+					return TRUE;
+				}
+				break;
 			}
-			break;
-		}
 
 		case WM_PRINTCLIENT:
 			{
@@ -254,19 +229,19 @@ LRESULT DcxText::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 			}
 			break;
 
-    case WM_DESTROY:
-      {
-        delete this;
-        bParsed = TRUE;
-      }
-      break;
+		case WM_DESTROY:
+			{
+				delete this;
+				bParsed = TRUE;
+			}
+			break;
 
-    default:
+		default:
 			return this->CommonMessage( uMsg, wParam, lParam, bParsed);
-      break;
-  }
+			break;
+	}
 
-  return 0L;
+	return 0L;
 }
 
 void DcxText::DrawClientArea(HDC hdc)

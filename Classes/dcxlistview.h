@@ -61,6 +61,8 @@ class DcxDialog;
 #define LVSEARCH_R 0x02 //!< ListView Regex Search
 #define LVSEARCH_E 0x04 //!< ListView Exact Match
 
+#define LVSCW_AUTOSIZE_MAX	-3	// Max of LVSCW_AUTOSIZE & LVSCW_AUTOSIZE_USEHEADER
+
 /*!
  * \brief blah
  *
@@ -145,10 +147,12 @@ protected:
 	static UINT parseItemFlags( const TString & flags );
 	static UINT parseHeaderFlags( const TString & flags );
 	static INT parseHeaderFlags2( const TString & flags );
+	static INT parseHeaderFlags2( const XSwitchFlags & xflags );
 	static UINT parseSortFlags( const TString & flags );
 	static UINT parseColorFlags( const TString & flags );
 	static UINT parseImageFlags( const TString & flags );
 	static UINT parseGroupFlags( const TString & flags );
+	static UINT parseGroupState( const TString & flags );
 
 	BOOL matchItemText( const int nItem, const int nSubItem, const TString * search, const UINT SearchType );
 
@@ -163,7 +167,7 @@ private:
 	void UpdateScrollPbars(void);
 	HIMAGELIST initImageList(const int iImageList);
 	bool xmlLoadListview(const int nPos, const TString &dataset, TString &filename);
-	void xmlSetItem(const int nItem, const int nSubItem, TiXmlElement *xNode, LPLVITEM lvi, LPDCXLVITEM lpmylvi);
+	void xmlSetItem(const int nItem, const int nSubItem, const TiXmlElement *xNode, LPLVITEM lvi, LPDCXLVITEM lpmylvi);
 	bool ctrlLoadListview(const int nPos, const TString &tsData);
 	bool xLoadListview(const int nPos, const TString &tsData, const char *sTest, const char *sCount, const char *sGet, const char *sGetNamed);
 	void massSetItem(const int nPos, const TString &input);

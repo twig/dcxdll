@@ -48,7 +48,7 @@ DcxLine::DcxLine( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd, c
 		throw "Unable To Create Window";
 
 	if ( bNoTheme )
-		Dcx::XPPlusModule.dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
+		Dcx::UXModule.dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
 	this->setControlFont( GetStockFont( DEFAULT_GUI_FONT ), FALSE );
 	this->registreDefaultWindowProc( );
@@ -68,22 +68,23 @@ DcxLine::~DcxLine( ) {
 
 TString DcxLine::getStyles(void) {
 	TString styles(__super::getStyles());
-	DWORD Styles;
-	Styles = GetWindowStyle(this->m_Hwnd);
+	const DWORD Styles = GetWindowStyle(this->m_Hwnd);
+
 	if (this->m_bVertical)
-		styles.addtok("vertical", " ");
+		styles.addtok("vertical");
 	if (Styles & SS_LEFTNOWORDWRAP)
-		styles.addtok("nowrap", " ");
+		styles.addtok("nowrap");
 	if (Styles & SS_CENTER)
-		styles.addtok("center", " ");
+		styles.addtok("center");
 	if (Styles & SS_RIGHT)
-		styles.addtok("right", " ");
+		styles.addtok("right");
 	if (Styles & SS_NOPREFIX)
-		styles.addtok("noprefix", " ");
+		styles.addtok("noprefix");
 	if (Styles & SS_ENDELLIPSIS)
-		styles.addtok("endellipsis", " ");
+		styles.addtok("endellipsis");
 	if (Styles & SS_PATHELLIPSIS)
-		styles.addtok("pathellipsis", " ");
+		styles.addtok("pathellipsis");
+
 	return styles;
 
 }
@@ -92,9 +93,12 @@ void DcxLine::toXml(TiXmlElement * xml) {
 	__super::toXml(xml);
 	TString styles(xml->Attribute("styles"));
 	styles.remtok("transparent", 1); // line always has transparent style (why?)
-	if (styles.len() > 0) xml->SetAttribute("styles", styles.to_chr());
-	else xml->RemoveAttribute("styles");
-	if (this->m_sText.len() > 0) xml->SetAttribute("caption", this->m_sText.to_chr());
+	if (styles.len() > 0)
+		xml->SetAttribute("styles", styles.to_chr());
+	else
+		xml->RemoveAttribute("styles");
+	if (this->m_sText.len() > 0)
+		xml->SetAttribute("caption", this->m_sText.to_chr());
 }
 
 /*!
@@ -105,10 +109,10 @@ void DcxLine::toXml(TiXmlElement * xml) {
 
 void DcxLine::parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ) {
 
-	unsigned int i = 1, numtok = styles.numtok( );
+	const unsigned int numtok = styles.numtok( );
 
-	while ( i <= numtok ) {
-
+	for (UINT i = 1; i <= numtok; i++ )
+	{
 		if ( styles.gettok( i ) == "vertical" )
 			this->m_bVertical = true;
 		else if (styles.gettok(i ) == "nowrap")
@@ -123,8 +127,6 @@ void DcxLine::parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyl
 			*Styles |= SS_ENDELLIPSIS;
 		else if (styles.gettok(i) == "pathellipsis")
 			*Styles |= SS_PATHELLIPSIS;
-
-		i++;
 	}
 	this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
 }
@@ -140,7 +142,6 @@ void DcxLine::parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyl
 
 void DcxLine::parseInfoRequest( TString & input, char * szReturnValue ) {
 
-//  int numtok = input.numtok( );
 	if ( input.gettok( 3 ) == "text" ) {
 		lstrcpyn(szReturnValue, this->m_sText.to_chr(), MIRC_BUFFER_SIZE_CCH);
 		return;
@@ -158,27 +159,12 @@ void DcxLine::parseInfoRequest( TString & input, char * szReturnValue ) {
  */
 
 void DcxLine::parseCommandRequest( TString & input ) {
-	XSwitchFlags flags(input.gettok(3));
-
-//  int numtok = input.numtok( );
+	const XSwitchFlags flags(input.gettok(3));
 
 	//xdid -t [NAME] [ID] [SWITCH] [TEXT]
 	if (flags['t']) {
 		this->m_sText = input.gettok(4, -1).trim();
 
-		//if (this->m_bVertical) {
-		//	HFONT hFont = (HFONT)this->getFont(), hVFont = NULL;
-		//	if (hFont == NULL)
-		//		hFont = GetStockFont(DEFAULT_GUI_FONT);
-		//	LOGFONT lf;
-		//	ZeroMemory(&lf, sizeof(LOGFONT));
-		//	GetObject(hFont, sizeof(LOGFONT), &lf);
-		//	lf.lfEscapement = 900;
-		//	lf.lfOrientation = 900;
-		//	hVFont = CreateFontIndirect(&lf);
-		//	if (hVFont != NULL)
-		//		this->setControlFont(hVFont, FALSE);
-		//}
 		// redraw if transparent
 		if (this->isExStyle(WS_EX_TRANSPARENT)) {
 
@@ -202,7 +188,7 @@ LRESULT DcxLine::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
 
 LRESULT DcxLine::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
 
-  switch( uMsg ) {
+	switch( uMsg ) {
 
 		case WM_ERASEBKGND:
 			{
@@ -231,19 +217,19 @@ LRESULT DcxLine::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 			}
 			break;
 
-    case WM_DESTROY:
-      {
-        delete this;
-        bParsed = TRUE;
-      }
-      break;
+		case WM_DESTROY:
+			{
+				delete this;
+				bParsed = TRUE;
+			}
+			break;
 
-    default:
+		default:
 			return this->CommonMessage( uMsg, wParam, lParam, bParsed);
-      break;
-  }
+			break;
+	}
 
-  return 0L;
+	return 0L;
 }
 
 void DcxLine::DrawClientArea(HDC hdc)
@@ -284,21 +270,9 @@ void DcxLine::DrawClientArea(HDC hdc)
 		if (this->isStyle(SS_LEFTNOWORDWRAP))
 			style |= DT_SINGLELINE;
 		if (this->m_bVertical) {
-			// orig ver, relies on vertical font being set when -t command is used.
-			//SIZE sz;
-			//int oMode = SetBkMode(hdc, TRANSPARENT);
-			//GetTextExtentPoint32(hdc,this->m_sText.to_chr(),this->m_sText.len(), &sz);
-			//rcText.bottom = rcText.top + sz.cx;
-			//rcText.right = rcText.left + sz.cy;
-			//if (this->isStyle(SS_CENTER))
-			//	OffsetRect(&rcText,((rcClient.right - rcClient.left)/2) - ((rcText.right - rcText.left)/2),((rcClient.bottom - rcClient.top)/2) - ((rcText.bottom - rcText.top)/2));
-			//else if (this->isStyle(SS_RIGHT))
-			//	OffsetRect(&rcText,((rcClient.right - rcClient.left)/2) - ((rcText.right - rcText.left)/2),rcClient.bottom - (rcText.bottom - rcText.top));
-			//TextOut(hdc,rcText.left, rcText.bottom, this->m_sText.to_chr(), this->m_sText.len());
-			//SetBkMode(hdc, oMode);
 			// new working ver that does the same as the orig but using the current font.
 			SIZE sz;
-			int oMode = SetBkMode(hdc, TRANSPARENT);
+			const int oMode = SetBkMode(hdc, TRANSPARENT);
 			GetTextExtentPoint32(hdc,this->m_sText.to_chr(),this->m_sText.len(), &sz);
 			rcText.bottom = rcText.top + sz.cx;
 			rcText.right = rcText.left + sz.cy;

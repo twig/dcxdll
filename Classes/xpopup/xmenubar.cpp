@@ -37,11 +37,11 @@ XMenuBar::~XMenuBar() {
  *
  */
 void XMenuBar::parseXMenuBarCommand(const TString &input) {
-	XSwitchFlags flags(input.gettok(1));
-	int numtok = input.numtok();
+	const XSwitchFlags flags(input.gettok(1));
+	const int numtok = input.numtok();
 	XPopupMenu *p_Menu;
 	HMENU menuBar;
-	TString menuName;
+	const TString menuName(input.gettok(2));
 
 	// Check if a callback alias has been marked
 	if (!this->hasCallback() && !flags['M'])
@@ -55,17 +55,14 @@ void XMenuBar::parseXMenuBarCommand(const TString &input) {
 	if (flags['M']) {
 		// Set alias.
 		if (numtok > 1) {
-			TString result((UINT) 100);
-			TString alias(input.gettok(2));
-
 			// Check if alias is valid.
-			if (!Dcx::mIRC.isAlias(alias.to_chr()))
+			if (!Dcx::mIRC.isAlias(menuName.to_chr()))
 			{
 				Dcx::error("-M", "Invalid callback alias specified");
 				return;
 			}
 
-			this->m_callback = alias;
+			this->m_callback = menuName;
 		}
 		// Reset alias and xmenubar.
 		else {
@@ -86,7 +83,6 @@ void XMenuBar::parseXMenuBarCommand(const TString &input) {
 			return;
 		}
 
-		menuName = input.gettok(2);
 		p_Menu = Dcx::XPopups.getMenuByName(menuName, TRUE);
 
 		if (!validateMenu(p_Menu, "-a", menuName))
@@ -110,7 +106,6 @@ void XMenuBar::parseXMenuBarCommand(const TString &input) {
 			return;
 		}
 
-		menuName = input.gettok(2);
 		p_Menu = Dcx::XPopups.getMenuByName(menuName, TRUE);
 
 		if (!validateMenu(p_Menu, "-d", menuName))
@@ -137,13 +132,12 @@ void XMenuBar::parseXMenuBarCommand(const TString &input) {
 			return;
 		}
 
-		menuName = input.gettok(2);
 		p_Menu = Dcx::XPopups.getMenuByName(menuName, TRUE);
 
 		if (!validateMenu(p_Menu, "-l", menuName))
 			return;
 
-		int offset = this->findMenuOffset(menuBar, p_Menu);
+		const int offset = this->findMenuOffset(menuBar, p_Menu);
 
 		if (offset < 0) {
 			Dcx::errorex("-l", "\"%s\" menu not found in XMenuBar.", p_Menu->getName().to_chr());
@@ -165,7 +159,7 @@ void XMenuBar::parseXMenuBarCommand(const TString &input) {
 			return;
 		}
 
-		int mID = input.gettok(2).to_int();
+		const int mID = menuName.to_int();
 
 		// MAKEWPARAM((# = Menu ID), (0 = Menu command));
 		SendMessage(Dcx::mIRC.getHWND(), WM_COMMAND, MAKEWPARAM(mID, 0) , NULL);
@@ -180,14 +174,13 @@ void XMenuBar::parseXMenuBarCommand(const TString &input) {
  *
  */
 void XMenuBar::parseXMenuBarInfo(const TString &input, char *szReturnValue) {
-	//int numtok = input.numtok();
-	TString prop(input.gettok(1));
+	const TString prop(input.gettok(1));
 
 	// Iterate through the names of menus added to XMenuBar.
 	// N = 0 returns total number of menus
 	// $xmenubar() [menu] [N]
 	if (prop == "menu") {
-		int i = input.gettok(2).to_int();
+		const int i = input.gettok(2).to_int();
 
 		if ((i < 0) || (i > (int) this->m_vpXMenuBar.size())) {
 			Dcx::errorex("$!xpopup().menubar", "Invalid index: %d", i);
@@ -200,7 +193,6 @@ void XMenuBar::parseXMenuBarInfo(const TString &input, char *szReturnValue) {
 		// Return name of specified menu.
 		else
 			lstrcpyn(szReturnValue, this->m_vpXMenuBar[i -1]->getName().to_chr(), MIRC_BUFFER_SIZE_CCH);
-			//wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, "%s", this->m_vpXMenuBar[i -1]->getName().to_chr());
 
 		return;
 	}
@@ -211,7 +203,7 @@ void XMenuBar::parseXMenuBarInfo(const TString &input, char *szReturnValue) {
 /*
  * Adds the menu to the current menubar.
  */
-bool XMenuBar::addToMenuBar(HMENU menubar, XPopupMenu *p_Menu, TString label) {
+bool XMenuBar::addToMenuBar(HMENU menubar, XPopupMenu *p_Menu, const TString &label) {
 	m_vpXMenuBar.push_back(p_Menu);
 	return (AppendMenu(menubar, MF_POPUP, (UINT_PTR) p_Menu->getMenuHandle(), label.to_chr()) != 0);
 }
@@ -244,7 +236,7 @@ void XMenuBar::removeFromMenuBar(HMENU menubar, XPopupMenu *p_Menu) {
 		++itStart;
 	}
 
-	int offset = findMenuOffset(menubar, p_Menu);
+	const int offset = findMenuOffset(menubar, p_Menu);
 
 	if (offset > 0)
 		RemoveMenu(menubar, offset, MF_BYPOSITION);

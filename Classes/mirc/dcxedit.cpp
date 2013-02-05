@@ -47,7 +47,7 @@ DcxEdit::DcxEdit(const UINT ID, DcxDialog *p_Dialog, const HWND mParentHwnd, con
 		throw "Unable To Create Window";
 
 	if (bNoTheme)
-		Dcx::XPPlusModule.dcxSetWindowTheme(this->m_Hwnd , L" ", L" ");
+		Dcx::UXModule.dcxSetWindowTheme(this->m_Hwnd , L" ", L" ");
 
 	Edit_LimitText(this->m_Hwnd, 0);
 	//this->m_tsText = "";
@@ -80,36 +80,36 @@ DcxEdit::~DcxEdit() {
 
 TString DcxEdit::getStyles(void) {
 	TString styles(__super::getStyles());
-	DWORD Styles;
-	Styles = GetWindowStyle(this->m_Hwnd);
+	const DWORD Styles = GetWindowStyle(this->m_Hwnd);
+
 	if (Styles & ES_MULTILINE)
-		styles.addtok("multi", " ");
+		styles.addtok("multi");
 	if (Styles & ES_CENTER)
-		styles.addtok("center", " ");
+		styles.addtok("center");
 	if (Styles & ES_RIGHT)
-		styles.addtok("right", " ");
+		styles.addtok("right");
 	if (Styles & ES_AUTOHSCROLL)
-		styles.addtok("autohs", " ");
+		styles.addtok("autohs");
 	if (Styles & ES_AUTOVSCROLL)
-		styles.addtok("autovs", " ");
+		styles.addtok("autovs");
 	if (Styles & WS_VSCROLL)
-		styles.addtok("vsbar", " ");
+		styles.addtok("vsbar");
 	if (Styles & WS_HSCROLL)
-		styles.addtok("hsbar", " ");
+		styles.addtok("hsbar");
 	if (Styles & ES_LOWERCASE)
-		styles.addtok("lowercase", " ");
+		styles.addtok("lowercase");
 	if (Styles & ES_NUMBER)
-		styles.addtok("number", " ");
+		styles.addtok("number");
 	if (Styles & ES_PASSWORD)
-		styles.addtok("password", " ");
+		styles.addtok("password");
 	if (Styles & ES_UPPERCASE)
-		styles.addtok("uppercase", " ");
+		styles.addtok("uppercase");
 	if (Styles & ES_WANTRETURN)
-		styles.addtok("return", " ");
+		styles.addtok("return");
 	if (Styles & ES_READONLY)
-		styles.addtok("readonly", " ");
+		styles.addtok("readonly");
 	if (Styles & ES_NOHIDESEL)
-		styles.addtok("showsel", " ");
+		styles.addtok("showsel");
 	return styles;
 }
 
@@ -124,9 +124,10 @@ void DcxEdit::toXml(TiXmlElement * xml) {
 * blah
 */
 void DcxEdit::parseControlStyles(TString &styles, LONG *Styles, LONG *ExStyles, BOOL *bNoTheme) {
-	unsigned int i = 1, numtok = styles.numtok( );
+	const unsigned int numtok = styles.numtok( );
 
-	while (i <= numtok) {
+	for (UINT i = 1; i <= numtok; i++)
+	{
 		if (styles.gettok( i ) == "multi") 
 			*Styles |= ES_MULTILINE;
 		else if (styles.gettok( i ) == "center")
@@ -155,8 +156,6 @@ void DcxEdit::parseControlStyles(TString &styles, LONG *Styles, LONG *ExStyles, 
 			*Styles |= ES_READONLY;
 		else if (styles.gettok( i ) == "showsel")
 			*Styles |= ES_NOHIDESEL;
-
-		i++;
 	}
 
 	this->parseGeneralControlStyles(styles, Styles, ExStyles, bNoTheme);
@@ -171,15 +170,15 @@ void DcxEdit::parseControlStyles(TString &styles, LONG *Styles, LONG *ExStyles, 
 * \return > void
 */
 void DcxEdit::parseInfoRequest(TString &input, char *szReturnValue) {
-	int numtok = input.numtok( );
+	const int numtok = input.numtok( );
 
-	TString prop(input.gettok( 3 ));
+	const TString prop(input.gettok( 3 ));
 
 	// [NAME] [ID] [PROP] [N]
 	if (prop == "text") {
 		if (this->isStyle(ES_MULTILINE)) {
 			if (numtok > 3) {
-				int nLine = input.gettok( 4 ).to_int();
+				const int nLine = input.gettok( 4 ).to_int();
 
 				if (nLine > 0 && nLine <= this->m_tsText.numtok("\r\n")) {
 					lstrcpyn(szReturnValue, this->m_tsText.gettok(nLine, "\r\n").to_chr(), MIRC_BUFFER_SIZE_CCH);
@@ -226,13 +225,10 @@ void DcxEdit::parseInfoRequest(TString &input, char *szReturnValue) {
 		SendMessage(this->m_Hwnd, EM_GETSEL, (WPARAM) &dwAbsoluteStartSelPos, NULL);
 
 		if (this->isStyle(ES_MULTILINE)) {
-			int iLinePos = 0;
-			int iAbsoluteCharPos = 0;
-
 			// current line
-			iLinePos = SendMessage(this->m_Hwnd, EM_LINEFROMCHAR, (WPARAM)-1, NULL);
+			const int iLinePos = SendMessage(this->m_Hwnd, EM_LINEFROMCHAR, (WPARAM)-1, NULL);
 			// line offset
-			iAbsoluteCharPos = (int) SendMessage(this->m_Hwnd, EM_LINEINDEX, (WPARAM)-1, NULL);
+			const int iAbsoluteCharPos = (int) SendMessage(this->m_Hwnd, EM_LINEINDEX, (WPARAM)-1, NULL);
 
 			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, "%d %d", iLinePos +1, dwAbsoluteStartSelPos - iAbsoluteCharPos);
 		}
@@ -290,8 +286,8 @@ void DcxEdit::parseInfoRequest(TString &input, char *szReturnValue) {
 * blah
 */
 void DcxEdit::parseCommandRequest(TString &input) {
-	XSwitchFlags flags(input.gettok(3));
-	int numtok = input.numtok( );
+	const XSwitchFlags flags(input.gettok(3));
+	const int numtok = input.numtok( );
 
 	// xdid -r [NAME] [ID] [SWITCH]
 	if (flags['r']) {
@@ -311,7 +307,7 @@ void DcxEdit::parseCommandRequest(TString &input) {
 	// xdid -d [NAME] [ID] [SWITCH] [N]
 	else if (flags['d'] && numtok > 3) {
 		if (this->isStyle(ES_MULTILINE)) {
-			int nLine = input.gettok( 4 ).to_int();
+			const int nLine = input.gettok( 4 ).to_int();
 			this->m_tsText.deltok(nLine, "\r\n");
 			SetWindowTextW(this->m_Hwnd, this->m_tsText.to_wchr(this->m_bUseUTF8));
 		}
@@ -319,7 +315,7 @@ void DcxEdit::parseCommandRequest(TString &input) {
 	// xdid -i [NAME] [ID] [SWITCH] [N] [TEXT]
 	else if (flags['i'] && numtok > 4) {
 		if (this->isStyle(ES_MULTILINE)) {
-			int nLine = input.gettok( 4 ).to_int();
+			const int nLine = input.gettok( 4 ).to_int();
 			this->m_tsText.instok(input.gettok(5, -1).to_chr(), nLine, "\r\n");
 		}
 		else
@@ -328,9 +324,9 @@ void DcxEdit::parseCommandRequest(TString &input) {
 	}
 	// xdid -j [NAME] [ID] [SWITCH] [0|1]
 	else if (flags['j'] && numtok > 3) {
-		int i = input.gettok( 4 ).to_int();
+		const unsigned int i = input.gettok( 4 ).to_int();
 
-		if (i) {
+		if (i > 0) {
 			this->addStyle(ES_PASSWORD);
 			TCHAR c = Edit_GetPasswordChar(this->m_Hwnd);
 			// XP actually uses the unicode `Black Circle` char U+25CF (9679)
@@ -354,14 +350,14 @@ void DcxEdit::parseCommandRequest(TString &input) {
 	}
    // xdid -l [NAME] [ID] [SWITCH] [ON|OFF]
    else if (flags['l'] && numtok > 3) {
-      BOOL enabled = (input.gettok(4).to_int() > 0 ? TRUE : FALSE);
+      const BOOL enabled = (input.gettok(4).to_int() > 0 ? TRUE : FALSE);
 
       SendMessage(this->m_Hwnd, EM_SETREADONLY, enabled, NULL);
    }
 	// xdid -o [NAME] [ID] [SWITCH] [N] [TEXT]
 	else if (flags['o'] && numtok > 3) {
 		if (this->isStyle(ES_MULTILINE)) {
-			int nLine = input.gettok( 4 ).to_int();
+			const int nLine = input.gettok( 4 ).to_int();
 			this->m_tsText.puttok(input.gettok(5, -1).to_chr(), nLine, "\r\n");
 		}
 		else
@@ -374,11 +370,10 @@ void DcxEdit::parseCommandRequest(TString &input) {
 	}
 	// xdid -q [NAME] [ID] [SWITCH] [SIZE]
 	else if (flags['q'] && numtok > 3) {
-		int N = input.gettok( 4 ).to_int();
+		const int N = input.gettok( 4 ).to_int();
 
-		if (N > -1) {
+		if (N > -1)
 			Edit_LimitText(this->m_Hwnd, N);
-		}
 	}
 	// Used to prevent invalid flag message.
 	// xdid -r [NAME] [ID] [SWITCH]
@@ -406,7 +401,7 @@ void DcxEdit::parseCommandRequest(TString &input) {
 	}
 	// xdid -S [NAME] [ID] [SWITCH] [START] [END]
 	else if (flags['S'] && numtok > 3) {
-		int istart = input.gettok( 4 ).to_int();
+		const int istart = input.gettok( 4 ).to_int();
 		int iend;
 		
 		if (numtok > 4)
@@ -424,7 +419,7 @@ void DcxEdit::parseCommandRequest(TString &input) {
 	}
 	// xdid -y [NAME] [ID] [SWITCH] [0|1]
 	else if (flags['y'] && numtok > 3) {
-		int state = input.gettok(4).to_int();
+		const int state = input.gettok(4).to_int();
 
 		this->m_bIgnoreRepeat = (state > 0 ? TRUE : FALSE);
 	}

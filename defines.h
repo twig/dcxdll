@@ -136,12 +136,15 @@ http://symbiancorner.blogspot.com/2007/05/how-to-detect-version-of-ms-visual.htm
 #endif
 // end of VS 2005
 
+// Includes created svn build info header...
+#include "svnBuild.h"
+
 // --------------------------------------------------
 // DCX build version
 // --------------------------------------------------
 #define DLL_VERSION    1
 #define DLL_SUBVERSION 4
-#define DLL_BUILD      1
+#define DLL_BUILD      SVN_BUILD
 #define DLL_DEV_BUILD  19
 
 #ifdef NDEBUG

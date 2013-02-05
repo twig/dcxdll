@@ -22,10 +22,10 @@
 * Returns the owner HWND
 */
 HWND FindOwner(const TString & data, const HWND defaultWnd) {
-	int i = data.findtok("owner", 1);
+	const unsigned int i = data.findtok("owner", 1);
 
 	// 'owner' token not found in data
-	if (!i)
+	if (i == 0)
 		return defaultWnd;
 
 	// if there is a token after 'owner'
@@ -350,9 +350,9 @@ bool ChangeHwndIcon(const HWND hwnd, const TString &flags, const int index, TStr
 	HICON iconSmall = NULL;
 	HICON iconLarge = NULL;
 	// check for +s small icon flag
-	bool doSmall = (flags.find('s',0) ? true : false);
+	const bool doSmall = (flags.find('s',0) ? true : false);
 	// check for +b big icon flag
-	bool doBig = (flags.find('b',0) ? true : false);
+	const bool doBig = (flags.find('b',0) ? true : false);
 
 	if (doSmall || doBig) {
 		// doing big &/or small icon

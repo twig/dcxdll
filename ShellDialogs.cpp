@@ -24,7 +24,7 @@ mIRC(ColorDialog) {
 
 	BOOL retDefault = FALSE;
 	CHOOSECOLOR	cc;
-	static COLORREF clr[16];
+	static COLORREF clr[16] = {CLR_INVALID};
 	COLORREF		sel = (COLORREF) d.gettok(1).to_num();
 	DWORD			styles = CC_RGBINIT;
 
@@ -35,7 +35,7 @@ mIRC(ColorDialog) {
 	cc.hwndOwner = mWnd;
 
 	if (d.numtok() > 1) {
-		for (int i = 1; i <= d.numtok(); i++) {
+		for (unsigned int i = 1; i <= d.numtok(); i++) {
 			if (d.gettok(i) == "anycolor")
 				styles |= CC_ANYCOLOR;
 			else if (d.gettok(i) == "fullopen")
@@ -127,12 +127,12 @@ TString FileDialog(const TString & data, const TString &method, const HWND pWnd)
 	char szFilename[MIRC_BUFFER_SIZE_CCH];
 
 	// seperate the tokenz
-	TString styles(data.gettok(1, TSTAB).trim());
-	TString file(data.gettok(2, TSTAB).trim());
+	const TString styles(data.gettok(1, TSTAB).trim());
+	const TString file(data.gettok(2, TSTAB).trim());
 	TString filter(data.gettok(3, TSTAB).trim());
 
 	// Get Current dir for resetting later.
-	UINT tsBufSize = GetCurrentDirectory(0, NULL);
+	const UINT tsBufSize = GetCurrentDirectory(0, NULL);
 	TString tsCurrentDir((UINT)tsBufSize);
 	GetCurrentDirectory(tsBufSize,tsCurrentDir.to_chr());
 
@@ -154,7 +154,7 @@ TString FileDialog(const TString & data, const TString &method, const HWND pWnd)
 	ofn.nMaxFile = MIRC_BUFFER_SIZE_CCH;
 	ofn.lpstrDefExt = "";
 
-	for (int i = 1; i <= styles.numtok( ); i++) {
+	for (unsigned int i = 1; i <= styles.numtok( ); i++) {
 		if (styles.gettok( i ) == "multisel")
 			style |= OFN_ALLOWMULTISELECT;
 		else if (styles.gettok( i ) == "createprompt")
@@ -229,25 +229,13 @@ TString FileDialog(const TString & data, const TString &method, const HWND pWnd)
 *         > TString [SELECTED_ITEM]
 */
 mIRC(BrowseDialog) {
-	BROWSEINFO bi;
-
 	// seperate the tokens (by tabs)
 	TString input(data);
-	TString param;
-	//int numtok;
-	int count;
-	int currentParam = 1;
-	bool bInitialFolder = false;
-	bool bDialogText = false;
-
-	TString initPath((UINT) MAX_PATH);
-	TString displayPath((UINT) MAX_PATH);
-	LPITEMIDLIST pidlRoot = NULL;
-	LPITEMIDLIST pidl;
-	XBROWSEDIALOGSETTINGS extra;
-
 	input.trim();
-	//numtok = input.numtok(TSTAB);
+
+	TString displayPath((UINT) MAX_PATH);
+	BROWSEINFO bi;
+	XBROWSEDIALOGSETTINGS extra;
 
 	// set up the BI structure
 	ZeroMemory(&bi, sizeof(BROWSEINFO));
@@ -259,8 +247,11 @@ mIRC(BrowseDialog) {
 	bi.lParam = (LPARAM) &extra;
 
 	// Parse styles
-	param = input.gettok(currentParam, TSTAB);
-	count = param.numtok();
+	TString param(input.gettok(1, TSTAB));
+	const int count = param.numtok();
+	bool bInitialFolder = false;
+	bool bDialogText = false;
+	LPITEMIDLIST pidlRoot = NULL;
 
 	for (int i = 1; i <= count; i++) {
 		/*
@@ -271,7 +262,7 @@ mIRC(BrowseDialog) {
 		http://msdn2.microsoft.com/en-us/library/bb773205.aspx
 		*/
 
-		TString flag(param.gettok(i));
+		const TString flag(param.gettok(i));
 
 		if (flag == "advanced")
 			bi.ulFlags |= BIF_USENEWUI;
@@ -309,6 +300,9 @@ mIRC(BrowseDialog) {
 			bi.hwndOwner = FindOwner(param, mWnd);
 	}
 
+	int currentParam = 1;
+	TString initPath((UINT) MAX_PATH);
+
 	// Set initial folder
 	if (bInitialFolder && (pidlRoot == NULL)) {
 		currentParam++;
@@ -330,7 +324,7 @@ mIRC(BrowseDialog) {
 		bi.pidlRoot = pidlRoot;
 
 	extra.flags = bi.ulFlags;
-	pidl = SHBrowseForFolder(&bi);
+	LPITEMIDLIST pidl = SHBrowseForFolder(&bi);
 
 	// User cancelled
 	if (pidl == NULL) {
@@ -450,9 +444,9 @@ mIRC(FontDialog) {
 	cf.nSizeMin = 8;
 	cf.nSizeMax = 72;
 
-	for (int i = 1; i <= input.numtok(TSTAB); i++) {
-		TString option(input.gettok(i, TSTAB).trim());
-		int numtok = option.numtok( );
+	for (unsigned int i = 1; i <= input.numtok(TSTAB); i++) {
+		const TString option(input.gettok(i, TSTAB).trim());
+		const int numtok = option.numtok( );
 
 		/*
 		default +flags(ibsua) charset size fontname
@@ -471,7 +465,7 @@ mIRC(FontDialog) {
 
 		// flags +
 		if (option.gettok( 1 ) == "flags" && numtok > 1) {
-			XSwitchFlags xflag(option.gettok( 2 ));
+			const XSwitchFlags xflag(option.gettok( 2 ));
 			if (xflag['a'])
 				style |= CF_NOFACESEL;
 			if (xflag['b'])
@@ -507,48 +501,6 @@ mIRC(FontDialog) {
 			if (xflag['z'])
 				style |= CF_NOSIZESEL;
 
-			//TString flag(option.gettok( 2 ));
-			//int c = (int)flag.len();
-			//int j = 0;
-
-			//while (j < c) {
-			//	if (flag[j] == 'a')
-			//		style |= CF_NOFACESEL;
-			//	else if (flag[j] == 'b')
-			//		style |= CF_SCRIPTSONLY;
-			//	else if (flag[j] == 'c')
-			//		style |= CF_SCALABLEONLY;// (Scalable fonts include vector fonts, scalable printer fonts, TrueType fonts, and fonts scaled by other technologies.)
-			//	else if (flag[j] == 'e')
-			//		style |= CF_EFFECTS;
-			//	else if (flag[j] == 'f')
-			//		style |= CF_FORCEFONTEXIST;
-			//	else if (flag[j] == 'h')
-			//		style |= CF_NOSCRIPTSEL;
-			//	else if (flag[j] == 'i')
-			//		style |= CF_NOSIMULATIONS;
-			//	else if (flag[j] == 'm')
-			//		style |= CF_SELECTSCRIPT;
-			//	else if (flag[j] == 'n')
-			//		style |= CF_PRINTERFONTS;
-			//	else if (flag[j] == 'p')
-			//		style |= CF_FIXEDPITCHONLY;
-			//	else if (flag[j] == 'r')
-			//		style |= CF_NOVERTFONTS;
-			//	else if (flag[j] == 's')
-			//		style |= CF_SCREENFONTS;
-			//	else if (flag[j] == 't')
-			//		style |= CF_TTONLY;
-			//	else if (flag[j] == 'v')
-			//		style |= CF_NOVECTORFONTS;
-			//	else if (flag[j] == 'w')
-			//		style |= CF_WYSIWYG;
-			//	else if (flag[j] == 'y')
-			//		style |= CF_NOSTYLESEL;
-			//	else if (flag[j] == 'z')
-			//		style |= CF_NOSIZESEL;
-
-			//	j++;
-			//}
 		}
 		// defaults +flags(ibsua) charset size fontname
 		else if (option.gettok( 1 ) == "default" && numtok > 4)
@@ -575,7 +527,7 @@ mIRC(FontDialog) {
 
 	// show the dialog
 	if (ChooseFont(&cf)) {
-		TString fntflags(ParseLogfontToCommand(&lf));
+		const TString fntflags(ParseLogfontToCommand(&lf));
 
 		// color flags font info
 		wnsprintf(data, MIRC_BUFFER_SIZE_CCH, "%d %s", cf.rgbColors, fntflags.to_chr());
@@ -599,11 +551,11 @@ mIRC(MsgBox) {
 		ret("D_ERROR MessageBox: invalid parameters");
 
 	DWORD   style     = MB_DEFBUTTON1;
-	TString strStyles(d.gettok(1, TSTAB).trim());
-	TString strTitle(d.gettok(2, TSTAB).trim());
-	TString strMsg(d.gettok(3, -1, TSTAB).trim());
-	int     n         = strStyles.numtok( );
-	HWND    owner     = aWnd;
+	const TString strStyles(d.gettok(1, TSTAB).trim());
+	const TString strTitle(d.gettok(2, TSTAB).trim());
+	const TString strMsg(d.gettok(3, -1, TSTAB).trim());
+	const int n = strStyles.numtok( );
+	HWND owner = aWnd;
 
 	for (int i = 1; i <= n; i++) {
 //		MB_ABORTRETRYIGNORE

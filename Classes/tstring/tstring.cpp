@@ -1145,10 +1145,10 @@ int TString::find(const char chr, const int N) const {
     \note > Index starts at \b 1 \n
 */
 /****************************/
-int TString::findtok(const char * cToken, const int N, const char * sepChars) const {
-	int count = 0;
+unsigned int TString::findtok(const char * cToken, const int N, const char * sepChars) const {
+	unsigned int count = 0;
 
-	for (int i = 1; i <= this->numtok(sepChars); i++) {
+	for (unsigned int i = 1; i <= this->numtok(sepChars); i++) {
 		if (this->gettok(i, sepChars) == cToken) {
 			count++;
 
@@ -1501,7 +1501,7 @@ TString TString::gettok( int N, int M, const char * sepChars ) const {
  * blah
  */
 
-int TString::numtok( const char * sepChars ) const {
+unsigned int TString::numtok( const char * sepChars ) const {
 
 	if ( sepChars == NULL || this->m_pString == NULL)
 		return 0;
@@ -1510,8 +1510,8 @@ int TString::numtok( const char * sepChars ) const {
 		return 0;
 
 	char * p_cStart = this->m_pString, * p_cEnd;
-	int iCount = 0;
-	int sepl = lstrlen( sepChars ); // Ook
+	unsigned int iCount = 0;
+	const unsigned int sepl = lstrlen( sepChars ); // Ook
 
 	while ( ( p_cEnd = strstr( p_cStart, sepChars ) ) != NULL ) {
 

@@ -61,7 +61,7 @@ DcxBox::DcxBox( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd, con
 	this->removeExStyle( WS_EX_CLIENTEDGE|WS_EX_DLGMODALFRAME|WS_EX_STATICEDGE|WS_EX_WINDOWEDGE );
 
 	if ( bNoTheme )
-		Dcx::XPPlusModule.dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
+		Dcx::UXModule.dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
 	this->m_pLayoutManager = new LayoutManager( this->m_Hwnd );
 
@@ -95,12 +95,12 @@ DcxBox::DcxBox( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd, con
 	}
 	if (IsWindow(this->m_TitleButton)) {
 		if ( bNoTheme )
-			Dcx::XPPlusModule.dcxSetWindowTheme( this->m_TitleButton , L" ", L" " );
+			Dcx::UXModule.dcxSetWindowTheme( this->m_TitleButton , L" ", L" " );
 		if (!(Styles & WS_DISABLED))
 			SendMessage(this->m_TitleButton,BM_SETCHECK,BST_CHECKED,0L);
 	}
 	if (Dcx::XPPlusModule.isUseable())
-		this->_hTheme = Dcx::XPPlusModule.dcxOpenThemeData(this->m_Hwnd,L"BUTTON");
+		this->_hTheme = Dcx::UXModule.dcxOpenThemeData(this->m_Hwnd,L"BUTTON");
 }
 
 /*!
@@ -114,7 +114,7 @@ DcxBox::~DcxBox( ) {
 	if ( this->m_pLayoutManager != NULL )
 		delete this->m_pLayoutManager;
 	if (this->_hTheme)
-		Dcx::XPPlusModule.dcxCloseThemeData(this->_hTheme);
+		Dcx::UXModule.dcxCloseThemeData(this->_hTheme);
 	this->unregistreDefaultWindowProc( );
 }
 
@@ -126,11 +126,11 @@ DcxBox::~DcxBox( ) {
 
 void DcxBox::parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ) {
 
-	unsigned int i = 1, numtok = styles.numtok( );
+	const UINT numtok = styles.numtok( );
 	this->m_iBoxStyles = 0;
 
-	while ( i <= numtok ) {
-
+	for (UINT i = 1; i <= numtok; i++ )
+	{
 		if (styles.gettok( i ) == "right")
 			this->m_iBoxStyles |= BOXS_RIGHT;
 		else if (styles.gettok( i ) == "center")
@@ -151,8 +151,6 @@ void DcxBox::parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyle
 		}
 		else if (styles.gettok( i ) == "transparent")
 			*ExStyles |= WS_EX_TRANSPARENT;
-
-		i++;
 	}
 
 	this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
@@ -169,59 +167,59 @@ void DcxBox::parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyle
 
 void DcxBox::parseInfoRequest( TString & input, char * szReturnValue ) {
 
-//  int numtok = input.numtok( );
+	const TString prop(input.gettok( 3 ));
 
-	TString prop(input.gettok( 3 ));
+	// [NAME] [ID] [PROP]
+	if ( prop == "text" ) {
 
-  // [NAME] [ID] [PROP]
-  if ( prop == "text" ) {
+		GetWindowText( this->m_Hwnd, szReturnValue, MIRC_BUFFER_SIZE_CCH );
+		return;
+	}
+	else if ( prop == "inbox" ) {
 
-    GetWindowText( this->m_Hwnd, szReturnValue, MIRC_BUFFER_SIZE_CCH );
-    return;
-  }
-  else if ( prop == "inbox" ) {
+		RECT rc;
+		GetClientRect( this->m_Hwnd, &rc );
 
-	  RECT rc, rcText;
-	  GetClientRect( this->m_Hwnd, &rc );
+		//const int n = GetWindowTextLength( this->m_Hwnd );
 
-	  int n = GetWindowTextLength( this->m_Hwnd );
+		InflateRect( &rc, -2, -2 );
+		if ( GetWindowTextLength( this->m_Hwnd ) > 0 ) {
 
-	  InflateRect( &rc, -2, -2 );
-	  if ( n > 0 ) {
+			HDC hdc = GetDC( this->m_Hwnd );
+			HFONT oldFont = NULL;
+			RECT rcText = rc;
 
-		  HDC hdc = GetDC( this->m_Hwnd );
-		  HFONT oldFont = NULL;
+			if (this->m_hFont != NULL)
+				oldFont = SelectFont(hdc, this->m_hFont);
 
-		  if (this->m_hFont != NULL)
-			  oldFont = SelectFont(hdc, this->m_hFont);
+			//TString text((UINT)n+1);
+			//GetWindowText( this->m_Hwnd, text.to_chr(), n+1 );
+			//DrawText( hdc, text.to_chr(), n, &rcText, DT_CALCRECT );
+			TString text;
+			TGetWindowText(this->m_Hwnd, text);
+			this->calcTextRect(hdc, text, &rcText, 0);
 
-		  TString text((UINT)n+1);
-		  GetWindowText( this->m_Hwnd, text.to_chr(), n+1 );
-		  DrawText( hdc, text.to_chr(), n, &rcText, DT_CALCRECT );
+			if (this->m_hFont != NULL)
+				SelectFont(hdc, oldFont);
 
-		  if (this->m_hFont != NULL)
-			  SelectFont(hdc, oldFont);
+			ReleaseDC( this->m_Hwnd, hdc );
 
-		  ReleaseDC( this->m_Hwnd, hdc );
+			//const int w = rcText.right - rcText.left;
+			const int h = rcText.bottom - rcText.top;
 
-		  //int w = rcText.right - rcText.left;
-		  int h = rcText.bottom - rcText.top;
+			if ( this->m_iBoxStyles & BOXS_BOTTOM )
+				rc.bottom -= (h + 2);
+			else
+				rc.top += (h - 2);
+		}
 
-		  if ( this->m_iBoxStyles & BOXS_BOTTOM ) {
-			  rc.bottom = rc.bottom - h + 2;
-		  }
-		  else {
-			  rc.top = rc.top + h - 2;
-		  }
-	  }
+		wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, "%d %d %d %d", rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top );
+		return;
+	}
+	else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
+		return;
 
-	  wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, "%d %d %d %d", rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top );
-	  return;
-  }
-  else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
-    return;
-  
-  szReturnValue[0] = 0;
+	szReturnValue[0] = 0;
 }
 
 /*!
@@ -232,15 +230,15 @@ void DcxBox::parseInfoRequest( TString & input, char * szReturnValue ) {
 
 void DcxBox::parseCommandRequest( TString & input ) {
 
-	XSwitchFlags flags(input.gettok(3));
-	int numtok = input.numtok( );
+	const XSwitchFlags flags(input.gettok(3));
+	const int numtok = input.numtok( );
 
 	// xdid -c [NAME] [ID] [SWITCH] [ID] [CONTROL] [X] [Y] [W] [H] (OPTIONS)
 	if ( flags['c'] && numtok > 8 ) {
 
-		UINT ID = mIRC_ID_OFFSET + (UINT)input.gettok( 4 ).to_int( );
+		const UINT ID = mIRC_ID_OFFSET + (UINT)input.gettok( 4 ).to_int( );
 
-		if ( ID > mIRC_ID_OFFSET - 1 && 
+		if ( (ID > mIRC_ID_OFFSET - 1) && 
 			!IsWindow( GetDlgItem( this->m_pParentDialog->getHwnd( ), ID ) ) && 
 			this->m_pParentDialog->getControlByID( ID ) == NULL ) 
 		{
@@ -262,7 +260,7 @@ void DcxBox::parseCommandRequest( TString & input ) {
 	// xdid -d [NAME] [ID] [SWITCH] [ID]
 	else if ( flags['d'] && numtok > 3 ) {
 
-		UINT ID = mIRC_ID_OFFSET + input.gettok( 4 ).to_int( );
+		const UINT ID = mIRC_ID_OFFSET + input.gettok( 4 ).to_int( );
 		DcxControl * p_Control;
 
 		if ( IsWindow( GetDlgItem( this->m_Hwnd, ID ) ) && 
@@ -309,15 +307,15 @@ void DcxBox::parseCommandRequest( TString & input ) {
 		}
 		else if ( numtok > 8 ) {
 
-			TString com(input.gettok(1, TSTAB).gettok(4).trim());
-			TString path(input.gettok(1, TSTAB).gettok(5, -1).trim());
-			TString p2(input.gettok(2, TSTAB).trim());
+			const TString com(input.gettok(1, TSTAB).gettok(4).trim());
+			const TString path(input.gettok(1, TSTAB).gettok(5, -1).trim());
+			const TString p2(input.gettok(2, TSTAB).trim());
 
-			UINT lflags = this->parseLayoutFlags( p2.gettok( 1 ) );
-			UINT ID = p2.gettok( 2 ).to_int( );
-			UINT WGT = p2.gettok( 3 ).to_int( );
-			UINT W = p2.gettok( 4 ).to_int( );
-			UINT H = p2.gettok( 5 ).to_int( );
+			const UINT lflags = this->parseLayoutFlags( p2.gettok( 1 ) );
+			const UINT ID = p2.gettok( 2 ).to_int( );
+			const UINT WGT = p2.gettok( 3 ).to_int( );
+			const UINT W = p2.gettok( 4 ).to_int( );
+			const UINT H = p2.gettok( 5 ).to_int( );
 
 			if ( com ==  "root" || com == "cell" ) {
 
@@ -463,34 +461,29 @@ void DcxBox::parseCommandRequest( TString & input ) {
 
 UINT DcxBox::parseLayoutFlags( const TString & flags ) {
 
-  INT i = 1, len = (INT)flags.len( );
-  UINT iFlags = 0;
+	XSwitchFlags xflags(flags);
+	UINT iFlags = 0;
 
-  // no +sign, missing params
-  if ( flags[0] != '+' ) 
-    return iFlags;
+	// no +sign, missing params
+	if ( !xflags['+'] ) 
+		return iFlags;
 
-  while ( i < len ) {
+	if ( xflags['f'] )
+		iFlags |= LAYOUTFIXED;
+	if ( xflags['h'] )
+		iFlags |= LAYOUTHORZ;
+	if ( xflags['i'] )
+		iFlags |= LAYOUTID;
+	if ( xflags['l'] )
+		iFlags |= LAYOUTFILL ;
+	if ( xflags['p'] )
+		iFlags |= LAYOUTPANE;
+	if ( xflags['v'] )
+		iFlags |= LAYOUTVERT;
+	if ( xflags['w'] )
+		iFlags |= LAYOUTDIM;
 
-    if ( flags[i] == 'f' )
-      iFlags |= LAYOUTFIXED;
-    else if ( flags[i] == 'h' )
-      iFlags |= LAYOUTHORZ;
-    else if ( flags[i] == 'i' )
-      iFlags |= LAYOUTID;
-    else if ( flags[i] == 'l' )
-      iFlags |= LAYOUTFILL ;
-    else if ( flags[i] == 'p' )
-      iFlags |= LAYOUTPANE;
-    else if ( flags[i] == 'v' )
-      iFlags |= LAYOUTVERT;
-    else if ( flags[i] == 'w' )
-      iFlags |= LAYOUTDIM;
-
-    ++i;
-  }
-
-  return iFlags;
+	return iFlags;
 }
 BOOL CALLBACK DcxBox::EnumBoxChildren(HWND hwnd,LPDCXENUM de)
 {
@@ -665,11 +658,23 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_SIZE)
 					this->execAliasEx("%s,%d", "sizing", this->getUserID( ) );
 
-				if (this->m_pLayoutManager != NULL) {
-					RECT rc;
-					SetRect( &rc, 0, 0, LOWORD( lParam ), HIWORD( lParam ) );
-					if (this->m_pLayoutManager->updateLayout( rc ))
-						this->redrawWindow( );
+				//if (this->m_pLayoutManager != NULL) {
+				//	RECT rc;
+				//	SetRect( &rc, 0, 0, LOWORD( lParam ), HIWORD( lParam ) );
+				//	if (this->m_pLayoutManager->updateLayout( rc ))
+				//		this->redrawWindow( );
+				//}
+			}
+			break;
+		case WM_WINDOWPOSCHANGING:
+			{
+				if (lParam != NULL) {
+					WINDOWPOS * wp = (WINDOWPOS *) lParam;
+					if (this->m_pLayoutManager != NULL) {
+						RECT rc;
+						SetRect( &rc, 0, 0, wp->cx, wp->cy );
+						this->m_pLayoutManager->updateLayout( rc );
+					}
 				}
 			}
 			break;
@@ -710,8 +715,8 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 		case WM_THEMECHANGED:
 			{
 				if (this->_hTheme != NULL) {
-					Dcx::XPPlusModule.dcxCloseThemeData(this->_hTheme);
-					this->_hTheme = Dcx::XPPlusModule.dcxOpenThemeData(this->m_Hwnd,L"BUTTON");
+					Dcx::UXModule.dcxCloseThemeData(this->_hTheme);
+					this->_hTheme = Dcx::UXModule.dcxOpenThemeData(this->m_Hwnd,L"BUTTON");
 				}
 			}
 			break;

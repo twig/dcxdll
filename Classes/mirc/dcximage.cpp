@@ -66,7 +66,7 @@ DcxImage::DcxImage( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd,
 		throw "Unable To Create Window";
 
 	if ( bNoTheme )
-		Dcx::XPPlusModule.dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
+		Dcx::UXModule.dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
 	if (p_Dialog->getToolTip() != NULL) {
 		if (styles.istok("tooltips")) {
@@ -103,13 +103,7 @@ DcxImage::~DcxImage() {
  */
 
 void DcxImage::parseControlStyles(TString &styles, LONG *Styles, LONG *ExStyles, BOOL *bNoTheme) {
-	//unsigned int i = 1, numtok = styles.numtok( );
 	*Styles |= SS_NOTIFY;
-
-	//while ( i <= numtok ) {
-
-	//	i++;
-	//}
 
 	this->parseGeneralControlStyles(styles, Styles, ExStyles, bNoTheme);
 }
@@ -125,19 +119,17 @@ void DcxImage::parseControlStyles(TString &styles, LONG *Styles, LONG *ExStyles,
 
 void DcxImage::parseInfoRequest( TString & input, char * szReturnValue ) {
 
-	//int numtok = input.numtok( );
-
-	TString prop(input.gettok( 3 ));
+	const TString prop(input.gettok( 3 ));
 
 	// [NAME] [ID] [PROP]
 	if ( prop == "fname") {
 		lstrcpyn(szReturnValue,this->m_tsFilename.to_chr(), MIRC_BUFFER_SIZE_CCH);
 		return;
 	}
-  else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
-    return;
-  
-  szReturnValue[0] = 0;
+	else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
+		return;
+
+	szReturnValue[0] = 0;
 }
 
 // clears existing image and icon data and sets pointers to null
@@ -182,7 +174,9 @@ bool DcxImage::LoadGDIPlusImage(const TString &flags, TString &filename) {
 		return false;
 	}
 
-	if (flags.find('h',0)) { // High Quality
+	const XSwitchFlags xflags(flags);
+
+	if (xflags[TEXT('h')]) { // High Quality
 		this->m_CQuality = CompositingQualityHighQuality;
 		this->m_IMode = InterpolationModeHighQualityBicubic;
 	}
@@ -191,17 +185,17 @@ bool DcxImage::LoadGDIPlusImage(const TString &flags, TString &filename) {
 		this->m_IMode = InterpolationModeDefault;
 	}
 
-	if (flags.find('b',0)) // Blend Image
+	if (xflags[TEXT('b')]) // Blend Image
 		this->m_CMode = CompositingModeSourceOver;
 	else
 		this->m_CMode = CompositingModeSourceCopy;
 
-	if (flags.find('a',0)) // Anti-Aliased
+	if (xflags[TEXT('a')]) // Anti-Aliased
 		this->m_SMode = SmoothingModeAntiAlias;
 	else
 		this->m_SMode = SmoothingModeDefault;
 
-	if (flags.find('t',0)) // Tile
+	if (xflags[TEXT('t')]) // Tile
 		this->m_bTileImage = true;
 	else
 		this->m_bTileImage = false;
@@ -217,14 +211,14 @@ bool DcxImage::LoadGDIPlusImage(const TString &flags, TString &filename) {
  */
 
 void DcxImage::parseCommandRequest(TString & input) {
-	XSwitchFlags flags(input.gettok(3));
-	int numtok = input.numtok( );
+	const XSwitchFlags flags(input.gettok(3));
+	const int numtok = input.numtok( );
 
 	// xdid -w [NAME] [ID] [SWITCH] [+FLAGS] [INDEX] [SIZE] [FILENAME]
 	if (flags['w'] && numtok > 6) {
-		TString flag(input.gettok( 4 ));
-		int index = input.gettok( 5 ).to_int();
-		int size = input.gettok( 6 ).to_int();
+		const TString flag(input.gettok( 4 ));
+		const int index = input.gettok( 5 ).to_int();
+		const int size = input.gettok( 6 ).to_int();
 		TString filename(input.gettok(7, -1).trim());
 
 		PreloadData();
@@ -251,7 +245,7 @@ void DcxImage::parseCommandRequest(TString & input) {
 	}
 	//xdid -i [NAME] [ID] [SWITCH] [+FLAGS] [IMAGE]
 	else if (flags['i'] && numtok > 4) {
-		TString flag(input.gettok(4).trim());
+		const TString flag(input.gettok(4).trim());
 		TString filename(input.gettok(5, -1).trim());
 
 		PreloadData();
@@ -354,7 +348,7 @@ void DcxImage::DrawBMPImage(HDC hdc, int x, int y, int w, int h)
 	GetObject( this->m_hBitmap, sizeof(BITMAP), &bmp );
 	HBITMAP oldBitmap = SelectBitmap( hdcbmp, this->m_hBitmap );
 
-	if (this->m_clrTransColor != -1)
+	if (this->m_clrTransColor != CLR_INVALID)
 		TransparentBlt(hdc, x, y, w, h, hdcbmp, 0, 0, bmp.bmWidth, bmp.bmHeight, this->m_clrTransColor);
 	else
 		StretchBlt( hdc, x, y, w, h, hdcbmp, 0, 0, bmp.bmWidth, bmp.bmHeight, SRCCOPY);
@@ -365,7 +359,8 @@ void DcxImage::DrawBMPImage(HDC hdc, int x, int y, int w, int h)
 
 void DcxImage::toXml(TiXmlElement * xml) {
 	__super::toXml(xml);
-	if (this->m_tsFilename.len() > 0) xml->SetAttribute("src", m_tsFilename.to_chr());
+	if (this->m_tsFilename.len() > 0)
+		xml->SetAttribute("src", m_tsFilename.to_chr());
 }
 
 /*!
@@ -444,7 +439,7 @@ void DcxImage::DrawClientArea(HDC hdc)
 	// default paint method
 	GetClientRect(this->m_Hwnd, &rect);
 
-	int w = (rect.right - rect.left), h = (rect.bottom - rect.top), x = rect.left, y = rect.top;
+	const int w = (rect.right - rect.left), h = (rect.bottom - rect.top), x = rect.left, y = rect.top;
 
 	// Setup alpha blend if any.
 	// Double Buffer required for GDI+ to look right in WS_EX_COMPOSITED

@@ -38,7 +38,7 @@ DcxPager::DcxPager( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, 
 		throw "Unable To Create Window";
 
   if ( bNoTheme )
-    Dcx::XPPlusModule.dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
+    Dcx::UXModule.dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
 	//Pager_SetButtonSize(this->m_Hwnd,15);
 	//Pager_SetBkColor(this->m_Hwnd,0);

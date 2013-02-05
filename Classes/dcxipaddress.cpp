@@ -47,7 +47,7 @@ DcxIpAddress::DcxIpAddress( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, REC
 		throw "Unable To Create Window";
 
 	if ( bNoTheme )
-		Dcx::XPPlusModule.dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
+		Dcx::UXModule.dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
 	this->setControlFont( GetStockFont( DEFAULT_GUI_FONT ), FALSE );
 	this->registreDefaultWindowProc( );
@@ -83,9 +83,10 @@ DcxIpAddress::~DcxIpAddress( ) {
 
 void DcxIpAddress::toXml(TiXmlElement * xml) {
 	DWORD ip = 0;
-	char buf[64];
+	char buf[128];
 	this->getAddress( &ip );
-	wnsprintf( buf, 64, "%d.%d.%d.%d", FIRST_IPADDRESS( ip ),
+	wnsprintf( buf, 128, "%d.%d.%d.%d",
+		FIRST_IPADDRESS( ip ),
 		SECOND_IPADDRESS( ip ),
 		THIRD_IPADDRESS( ip ),
 		FOURTH_IPADDRESS( ip ) );
@@ -101,19 +102,6 @@ void DcxIpAddress::toXml(TiXmlElement * xml) {
  */
 
 void DcxIpAddress::parseControlStyles(TString &styles, LONG *Styles, LONG *ExStyles, BOOL *bNoTheme) {
-	//unsigned int i = 1, numtok = styles.numtok( );
-/*
-  while ( i <= numtok ) {
-
-    if ( styles.gettok( i ) == "bitmap" )
-      *Styles |= BS_BITMAP;
-    else if ( styles.gettok( i ) == "default" )
-      *Styles |= BS_DEFPUSHBUTTON;
-
-    i++;
-  }
-*/
-
 	this->parseGeneralControlStyles(styles, Styles, ExStyles, bNoTheme);
 }
 
@@ -155,9 +143,9 @@ void DcxIpAddress::parseInfoRequest( TString & input, char * szReturnValue ) {
  */
 
 void DcxIpAddress::parseCommandRequest(TString &input) {
-	XSwitchFlags flags(input.gettok(3));
+	const XSwitchFlags flags(input.gettok(3));
 
-	int numtok = input.numtok( );
+	const UINT numtok = input.numtok( );
 
 	// xdid -r [NAME] [ID] [SWITCH]
 	if (flags['r']) {
@@ -166,31 +154,32 @@ void DcxIpAddress::parseCommandRequest(TString &input) {
 
 	// xdid -a [NAME] [ID] [SWITCH] IP.IP.IP.IP
 	if (flags['a'] && numtok > 3) {
-		TString IP(input.gettok(4).trim());
+		const TString IP(input.gettok(4).trim());
 
 		if (IP.numtok(".") == 4) {
 			BYTE b[4];
 
-			for (int i = 0; i < 4; i++) {
+			for (int i = 0; i < 4; i++)
 				b[i] = (BYTE) IP.gettok(i +1, ".").to_int();
-			}
 
-			DWORD adr = MAKEIPADDRESS(b[0], b[1], b[2], b[3]);
+			const DWORD adr = MAKEIPADDRESS(b[0], b[1], b[2], b[3]);
 			this->setAddress(adr);
 		}
+		else
+			this->showErrorEx(NULL, TEXT("-a"), TEXT("Invalid Address: %s"), IP.to_chr());
 	}
 	// xdid -g [NAME] [ID] [SWITCH] [N] [MIN] [MAX]
 	else if (flags['g'] && numtok > 5) {
-		int nField	= input.gettok( 4 ).to_int() -1;
-		BYTE min		= (BYTE)input.gettok( 5 ).to_int();
-		BYTE max		= (BYTE)input.gettok( 6 ).to_int();
+		const int nField	= input.gettok( 4 ).to_int() -1;
+		const BYTE min		= (BYTE)input.gettok( 5 ).to_int();
+		const BYTE max		= (BYTE)input.gettok( 6 ).to_int();
 
 		if (nField > -1 && nField < 4)
 			this->setRange(nField, min, max);
 	}
 	// xdid -j [NAME] [ID] [SWITCH] [N]
 	else if (flags['j'] && numtok > 3) {
-		int nField = input.gettok( 4 ).to_int() -1;
+		const int nField = input.gettok( 4 ).to_int() -1;
 
 		if (nField > -1 && nField < 4)
 			this->setFocus(nField);
@@ -260,32 +249,29 @@ LRESULT DcxIpAddress::clearAddress( ) {
  * blah
  */
 LRESULT DcxIpAddress::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
-  switch( uMsg ) {
-    case WM_NOTIFY : 
-      {
-        LPNMHDR hdr = (LPNMHDR) lParam;
+	switch( uMsg ) {
+	case WM_NOTIFY:
+		{
+			LPNMHDR hdr = (LPNMHDR) lParam;
 
-        if (!hdr)
-          break;
+			if (!hdr)
+				break;
 
-        switch( hdr->code ) {
-          case IPN_FIELDCHANGED:
-            {
-							if (this->m_pParentDialog->getEventMask() & DCX_EVENT_EDIT)
-	              this->execAliasEx("%s,%d", "edit", this->getUserID( ) );
-              bParsed = TRUE;
-            }
-            break;
-        }
-      }
-      break;
+			if ( hdr->code == IPN_FIELDCHANGED)
+			{
+				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_EDIT)
+					this->execAliasEx("%s,%d", "edit", this->getUserID( ) );
+				bParsed = TRUE;
+			}
+		}
+		break;
 	}
 	return 0L;
 }
 
 LRESULT DcxIpAddress::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
 
-  switch( uMsg ) {
+	switch( uMsg ) {
 
 		case WM_LBUTTONUP:
 		case WM_RBUTTONUP:
@@ -314,22 +300,22 @@ LRESULT DcxIpAddress::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 				return MA_NOACTIVATE;
 			}
 			break;
-		//case WM_SIZE:
-		//	{
-		//		this->redrawWindow();
-		//	}
-		//	break;
-    case WM_DESTROY:
-      {
-        delete this;
-        bParsed = TRUE;
-      }
-      break;
+			//case WM_SIZE:
+			//	{
+			//		this->redrawWindow();
+			//	}
+			//	break;
+		case WM_DESTROY:
+			{
+				delete this;
+				bParsed = TRUE;
+			}
+			break;
 
-    default:
+		default:
 			return this->CommonMessage( uMsg, wParam, lParam, bParsed);
-      break;
-  }
+			break;
+	}
 
-  return 0L;
+	return 0L;
 }

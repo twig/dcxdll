@@ -62,6 +62,7 @@
 #define CTLF_ALLOW_STACKER			0x080000000
 #define CTLF_ALLOW_DIRECTSHOW		0x100000000
 #define CTLF_ALLOW_ALL				0xFFFFFFFFFFFFFFFF
+#define CTLF_ALLOW_ALLBUTDOCK		(CTLF_ALLOW_ALL & ~CTLF_ALLOW_DOCK)
 
 class DcxDialog;
 
@@ -128,7 +129,7 @@ public:
 	COLORREF getEndGradientColor(void) const { return this->m_clrEndGradient; };
 	RECT getPosition(void) const;
 
-	static DcxControl * controlFactory( DcxDialog * p_Dialog, const UINT mID, const TString & input, int offset, const UINT64 mask = CTLF_ALLOW_ALL, HWND hParent = NULL);
+	static DcxControl * controlFactory( DcxDialog * p_Dialog, const UINT mID, const TString & input, UINT offset, const UINT64 mask = CTLF_ALLOW_ALL, HWND hParent = NULL);
 
 	virtual TString getType( ) = 0;
 	virtual TString getStyles(void);
@@ -191,7 +192,7 @@ protected:
 	//int m_iThemePartId;
 	/* ***** */
 
-	void parseGlobalCommandRequest(const TString & input, XSwitchFlags & flags );
+	void parseGlobalCommandRequest(const TString & input, const XSwitchFlags & flags );
 	BOOL parseGlobalInfoRequest( const TString & input, char * szReturnValue );
 
 	static UINT parseColorFlags( const TString & flags );

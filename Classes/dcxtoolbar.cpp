@@ -55,7 +55,7 @@ DcxToolBar::DcxToolBar( const UINT ID, DcxDialog * p_Dialog, const HWND mParentH
 		throw "Unable To Create Window";
 
 	if ( bNoTheme )
-		Dcx::XPPlusModule.dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
+		Dcx::UXModule.dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
 	if ( ExStylesTb != 0 )
 		SendMessage( this->m_Hwnd, TB_SETEXTENDEDSTYLE, (WPARAM) 0, (LPARAM) ExStylesTb );
@@ -308,7 +308,7 @@ void DcxToolBar::parseInfoRequest( TString & input, char * szReturnValue ) {
 
 void DcxToolBar::parseCommandRequest( TString & input ) {
 	XSwitchFlags flags(input.gettok(3));
-	int numtok = input.numtok( );
+	const UINT numtok = input.numtok( );
 
 	// xdid -r [NAME] [ID] [SWITCH]
 	if (flags['r']) {
@@ -526,7 +526,7 @@ void DcxToolBar::parseCommandRequest( TString & input ) {
 	else if ( flags['j'] && numtok > 4 ) {
 
 		int nMin = input.gettok( 4 ).to_int( );
-		int nMax = input.gettok( 4 ).to_int( );
+		int nMax = input.gettok( 5 ).to_int( );
 
 		this->setButtonWidth( nMin, nMax );
 	}
@@ -638,16 +638,17 @@ void DcxToolBar::parseCommandRequest( TString & input ) {
 	}
 	// xdid -w [NAME] [ID] [SWITCH] [+FLAGS] [INDEX] [FILENAME]
 	else if (flags['w'] && numtok > 5) {
-		UINT iFlags = this->parseImageListFlags(input.gettok( 4 ));
+		const TString tsFlags(input.gettok( 4 ));
+		const UINT iFlags = this->parseImageListFlags(tsFlags);
 
-		if (input.gettok( 4 )[0] != '+') {
+		if (tsFlags[0] != '+') {
 			this->showError(NULL, "-w", "Invalid Flags");
 			return;
 		}
 
 		HIMAGELIST himl;
 		HICON icon = NULL;
-		int index = input.gettok( 5 ).to_int();
+		const int index = input.gettok( 5 ).to_int();
 		TString filename(input.gettok(6, -1));
 
 		himl = this->getImageList(TB_IML_NORMAL);
@@ -658,9 +659,9 @@ void DcxToolBar::parseCommandRequest( TString & input ) {
 			ImageList_GetIconSize(himl, &cx, &cy);
 
 			if (cx > 16)
-				icon = dcxLoadIcon(index, filename, true, input.gettok( 4 ));
+				icon = dcxLoadIcon(index, filename, true, tsFlags);
 			else
-				icon = dcxLoadIcon(index, filename, false, input.gettok( 4 ));
+				icon = dcxLoadIcon(index, filename, false, tsFlags);
 
 			// Grayscale the icon
 			//if ((iFlags & TB_ICO_GREY) && icon)

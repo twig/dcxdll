@@ -49,7 +49,7 @@ DcxScroll::DcxScroll( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc
 		throw "Unable To Create Window";
 
 	if ( bNoTheme )
-		Dcx::XPPlusModule.dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
+		Dcx::UXModule.dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
 	SCROLLINFO si;
 	si.cbSize = sizeof( SCROLLINFO );
@@ -82,14 +82,12 @@ DcxScroll::~DcxScroll( ) {
 
 void DcxScroll::parseControlStyles( TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ) {
 
-	unsigned int i = 1, numtok = styles.numtok( );
+	const UINT numtok = styles.numtok( );
 
-	while ( i <= numtok ) {
-
+	for (UINT i = 1; i <= numtok; i++ )
+	{
 		if ( styles.gettok( i ) == "vertical" )
 			*Styles |= SBS_VERT;
-
-		i++;
 	}
 
 	this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
@@ -106,47 +104,45 @@ void DcxScroll::parseControlStyles( TString & styles, LONG * Styles, LONG * ExSt
 
 void DcxScroll::parseInfoRequest( TString & input, char * szReturnValue ) {
 
-//  int numtok = input.numtok( );
+	const TString prop(input.gettok( 3 ));
 
-	TString prop(input.gettok( 3 ));
+	// [NAME] [ID] [PROP]
+	if ( prop == "value" ) {
 
-  // [NAME] [ID] [PROP]
-  if ( prop == "value" ) {
+		SCROLLINFO si;
+		si.cbSize = sizeof( SCROLLINFO );
+		si.fMask = SIF_POS;
+		GetScrollInfo( this->m_Hwnd, SB_CTL, &si );
 
-    SCROLLINFO si;
-    si.cbSize = sizeof( SCROLLINFO );
-    si.fMask = SIF_POS;
-    GetScrollInfo( this->m_Hwnd, SB_CTL, &si );
+		wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, "%d", si.nPos );
+		return;
+	}
+	// [NAME] [ID] [PROP]
+	else if ( prop == "range" ) {
 
-    wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, "%d", si.nPos );
-    return;
-  }
-  // [NAME] [ID] [PROP]
-  else if ( prop == "range" ) {
+		SCROLLINFO si;
+		si.cbSize = sizeof( SCROLLINFO );
+		si.fMask = SIF_RANGE;
+		GetScrollInfo( this->m_Hwnd, SB_CTL, &si );
+		wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, "%d %d", si.nMin, si.nMax );
+		return;
+	}
+	// [NAME] [ID] [PROP]
+	else if ( prop == "line" ) {
 
-    SCROLLINFO si;
-    si.cbSize = sizeof( SCROLLINFO );
-    si.fMask = SIF_RANGE;
-    GetScrollInfo( this->m_Hwnd, SB_CTL, &si );
-    wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, "%d %d", si.nMin, si.nMax );
-    return;
-  }
-  // [NAME] [ID] [PROP]
-  else if ( prop == "line" ) {
+		wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, "%d %d", this->m_nLine );
+		return;
+	}
+	// [NAME] [ID] [PROP]
+	else if ( prop == "page" ) {
 
-    wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, "%d %d", this->m_nLine );
-    return;
-  }
-  // [NAME] [ID] [PROP]
-  else if ( prop == "page" ) {
+		wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, "%d", this->m_nPage );
+		return;
+	}
+	else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
+		return;
 
-    wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, "%d", this->m_nPage );
-    return;
-  }
-  else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
-    return;
-
-  szReturnValue[0] = 0;
+	szReturnValue[0] = 0;
 }
 
 /*!
@@ -156,59 +152,60 @@ void DcxScroll::parseInfoRequest( TString & input, char * szReturnValue ) {
  */
 
 void DcxScroll::parseCommandRequest( TString & input ) {
-	XSwitchFlags flags(input.gettok(3));
-	int numtok = input.numtok( );
+	const XSwitchFlags flags(input.gettok(3));
+	const UINT numtok = input.numtok( );
 
-  //xdid -l [NAME] [ID] [SWITCH] [N]
-  if ( flags['l'] && numtok > 3 ) {
+	//xdid -l [NAME] [ID] [SWITCH] [N]
+	if ( flags['l'] && numtok > 3 ) {
 
-    int nLine = input.gettok( 4 ).to_int( );
+		const int nLine = input.gettok( 4 ).to_int( );
 
-    if ( nLine > 0 )
-      this->m_nLine = nLine;
-  }
-  //xdid -m [NAME] [ID] [SWITCH] [N]
-  else if ( flags['m'] && numtok > 3 ) {
+		if ( nLine > 0 )
+			this->m_nLine = nLine;
+	}
+	//xdid -m [NAME] [ID] [SWITCH] [N]
+	else if ( flags['m'] && numtok > 3 ) {
 
-    int nPage = input.gettok( 4 ).to_int( );
+		const int nPage = input.gettok( 4 ).to_int( );
 
-    if ( nPage > 0 )
-      this->m_nPage = nPage;
-  }
-  //xdid -r [NAME] [ID] [SWITCH] [L] [R]
-  else if ( flags['r'] && numtok > 4 ) {
+		if ( nPage > 0 )
+			this->m_nPage = nPage;
+	}
+	//xdid -r [NAME] [ID] [SWITCH] [L] [R]
+	else if ( flags['r'] && numtok > 4 ) {
 
-    INT L = input.gettok( 4 ).to_int( );
-    INT R = input.gettok( 5 ).to_int( );
+		const INT L = input.gettok( 4 ).to_int( );
+		const INT R = input.gettok( 5 ).to_int( );
 
-    SCROLLINFO si;
-    si.cbSize = sizeof( SCROLLINFO );
-    si.fMask = SIF_RANGE;
-    si.nMin = L;
-    si.nMax = R;
-    SetScrollInfo( this->m_Hwnd, SB_CTL, &si, TRUE );
-  }
-  //xdid -v [NAME] [ID] [SWITCH] [VALUE]
-  else if ( flags['v'] && numtok > 3 ) {
+		SCROLLINFO si;
+		si.cbSize = sizeof( SCROLLINFO );
+		si.fMask = SIF_RANGE;
+		si.nMin = L;
+		si.nMax = R;
+		SetScrollInfo( this->m_Hwnd, SB_CTL, &si, TRUE );
+	}
+	//xdid -v [NAME] [ID] [SWITCH] [VALUE]
+	else if ( flags['v'] && numtok > 3 ) {
 
-    int pos = input.gettok( 4 ).to_int( );
+		const int pos = input.gettok( 4 ).to_int( );
 
-    SCROLLINFO si;
-    si.cbSize = sizeof( SCROLLINFO );
-    si.fMask = SIF_POS;
-    si.nPos = pos;
-    SetScrollInfo( this->m_Hwnd, SB_CTL, &si, TRUE );
-  }
-  else
-    this->parseGlobalCommandRequest( input, flags );
+		SCROLLINFO si;
+		si.cbSize = sizeof( SCROLLINFO );
+		si.fMask = SIF_POS;
+		si.nPos = pos;
+		SetScrollInfo( this->m_Hwnd, SB_CTL, &si, TRUE );
+	}
+	else
+		this->parseGlobalCommandRequest( input, flags );
 }
 
 TString DcxScroll::getStyles(void) {
 	TString styles(__super::getStyles());
-	DWORD Styles;
-	Styles = GetWindowStyle(this->m_Hwnd);
+	const DWORD Styles = GetWindowStyle(this->m_Hwnd);
+
 	if (Styles & SBS_VERT)
-		styles.addtok("vertical", " ");
+		styles.addtok("vertical");
+
 	return styles;
 }
 

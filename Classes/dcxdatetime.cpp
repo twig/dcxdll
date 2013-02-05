@@ -50,7 +50,7 @@ DcxDateTime::DcxDateTime(UINT ID, DcxDialog *p_Dialog, HWND mParentHwnd, RECT *r
 		throw "Unable To Create Window";
 
 	if (bNoTheme)
-		Dcx::XPPlusModule.dcxSetWindowTheme(this->m_Hwnd , L" ", L" ");
+		Dcx::UXModule.dcxSetWindowTheme(this->m_Hwnd , L" ", L" ");
 
 	this->setControlFont((HFONT) GetStockObject(DEFAULT_GUI_FONT), FALSE);
 	this->registreDefaultWindowProc();
@@ -81,22 +81,23 @@ void DcxDateTime::toXml(TiXmlElement * xml) {
 
 TString DcxDateTime::getStyles(void) {
 	TString styles(__super::getStyles());
-	DWORD Styles;
-	Styles = GetWindowStyle(this->m_Hwnd);
+	const DWORD Styles = GetWindowStyle(this->m_Hwnd);
+
 	if (Styles & DTS_LONGDATEFORMAT)
 		styles.addtok("longdateformat");
-	if (Styles & DTS_SHORTDATEFORMAT) 
+	if (Styles & DTS_SHORTDATEFORMAT)
 		styles.addtok("shortdateformat");
-	if (Styles & DTS_SHORTDATECENTURYFORMAT) 
+	if (Styles & DTS_SHORTDATECENTURYFORMAT)
 		styles.addtok("shortdatecenturyformat");
-	if (Styles & DTS_TIMEFORMAT) 
+	if (Styles & DTS_TIMEFORMAT)
 		styles.addtok("timeformat");
-	if (Styles & DTS_RIGHTALIGN) 
+	if (Styles & DTS_RIGHTALIGN)
 		styles.addtok("right");
-	if (Styles & DTS_SHOWNONE) 
+	if (Styles & DTS_SHOWNONE)
 		styles.addtok("shownone");
-	if (Styles & DTS_UPDOWN) 
+	if (Styles & DTS_UPDOWN)
 		styles.addtok("updown");
+
 	return styles;
 }
 
@@ -106,9 +107,10 @@ TString DcxDateTime::getStyles(void) {
  * blah
  */
 void DcxDateTime::parseControlStyles(TString &styles, LONG *Styles, LONG *ExStyles, BOOL *bNoTheme) {
-	unsigned int i = 1, numtok = styles.numtok();
+	const UINT numtok = styles.numtok();
 
-	while (i <= numtok) {
+	for (UINT i = 1; i <= numtok; i++)
+	{
 		if (styles.gettok(i) == "longdateformat")
 			*Styles |= DTS_LONGDATEFORMAT;
 		else if (styles.gettok(i) == "shortdateformat")
@@ -123,8 +125,6 @@ void DcxDateTime::parseControlStyles(TString &styles, LONG *Styles, LONG *ExStyl
 			*Styles |= DTS_SHOWNONE;
 		else if (styles.gettok(i) == "updown")
 			*Styles |= DTS_UPDOWN;
-
-		i++;
 	}
 
 	this->parseGeneralControlStyles(styles, Styles, ExStyles, bNoTheme);
@@ -139,32 +139,26 @@ void DcxDateTime::parseControlStyles(TString &styles, LONG *Styles, LONG *ExStyl
  * \return > void
  */
 void DcxDateTime::parseInfoRequest(TString &input, char *szReturnValue) {
-	//int numtok = input.numtok();
 
-	TString prop(input.gettok( 3 ));
+	const TString prop(input.gettok( 3 ));
 
 	// [NAME] [ID] [PROP]
 	if (prop == "range") {
 		SYSTEMTIME st[2];
-		TString min;
-		TString max;
-		DWORD val;
+		TString dmin("nolimit");
+		TString dmax("nolimit");
 
 		ZeroMemory(st, sizeof(SYSTEMTIME) *2);
 
-		val = DateTime_GetRange(this->m_Hwnd, st);
+		const DWORD val = DateTime_GetRange(this->m_Hwnd, st);
 
 		if (val & GDTR_MIN)
-			min.tsprintf("%ld", SystemTimeToMircTime(&(st[0])));
-		else
-			min = "nolimit";
+			dmin.tsprintf("%ld", SystemTimeToMircTime(&(st[0])));
 
 		if (val & GDTR_MAX)
-			max.tsprintf("%ld", SystemTimeToMircTime(&(st[1])));
-		else
-			max = "nolimit";
+			dmax.tsprintf("%ld", SystemTimeToMircTime(&(st[1])));
 
-		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, "%s %s", min.to_chr(), max.to_chr()); // going to be within MIRC_BUFFER_SIZE_CCH limit anyway.
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, "%s %s", dmin.to_chr(), dmax.to_chr()); // going to be within MIRC_BUFFER_SIZE_CCH limit anyway.
 		return;
 	}
 	else if (prop == "value") {
@@ -190,14 +184,14 @@ void DcxDateTime::parseInfoRequest(TString &input, char *szReturnValue) {
  */
 // TODO: find a way to change state of checkbox /xdid -c
 void DcxDateTime::parseCommandRequest(TString &input) {
-	XSwitchFlags flags(input.gettok(3));
+	const XSwitchFlags flags(input.gettok(3));
 
-	int numtok = input.numtok();
+	const UINT numtok = input.numtok();
 
 	// xdid -f [NAME] [ID] [SWITCH] (FORMAT)
 	if (flags['f']) {
 		if (numtok > 3) {
-			TString format(input.gettok(4, -1));
+			const TString format(input.gettok(4, -1));
 			DateTime_SetFormat(this->m_Hwnd, format.to_chr());
 		}
 		else {
@@ -213,13 +207,13 @@ void DcxDateTime::parseCommandRequest(TString &input) {
 		ZeroMemory(range, sizeof(SYSTEMTIME) *2);
 
 		if (input.gettok(4) != "nolimit") {
-			long min = (long) input.gettok(4).to_num();
+			const long min = (long) input.gettok(4).to_num();
 			range[0] = MircTimeToSystemTime(min);
 			dflags |= GDTR_MIN;
 		}
 
 		if (input.gettok(5) != "nolimit") {
-			long max = (long) input.gettok(5).to_num();
+			const long max = (long) input.gettok(5).to_num();
 			range[1] = MircTimeToSystemTime(max);
 			dflags |= GDTR_MAX;
 		}
@@ -228,18 +222,16 @@ void DcxDateTime::parseCommandRequest(TString &input) {
 	}
 	//xdid -t [NAME] [ID] [SWITCH] [TIMESTAMP]
 	else if (flags['t'] && numtok > 3) {
-		TString ts(input.gettok(4));
+		const TString ts(input.gettok(4));
 
 		if (ts == "reset") {
-			if (isStyle(DTS_SHOWNONE)) {
+			if (isStyle(DTS_SHOWNONE))
 				DateTime_SetSystemtime(this->m_Hwnd, GDT_NONE, NULL);
-			}
 		}
 		else {
-			SYSTEMTIME sysTime;
-			long mircTime = (long) ts.to_num();
+			const long mircTime = (long) ts.to_num();
+			const SYSTEMTIME sysTime = MircTimeToSystemTime(mircTime);
 
-			sysTime = MircTimeToSystemTime(mircTime);
 			DateTime_SetSystemtime(this->m_Hwnd, GDT_VALID, &sysTime);
 		}
 	}
