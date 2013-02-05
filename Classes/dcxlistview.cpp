@@ -1860,19 +1860,16 @@ void DcxListView::parseCommandRequest( const TString &input) {
 	// xdid -Z [NAME] [ID] [SWITCH] [%]
 	else if (flags[TEXT('Z')] && numtok > 3) {
 		// only works for this one so far
-		if (!this->isStyle(LVS_REPORT))
-			return;
+		//if (!this->isStyle(LVS_REPORT))
+		//	return;
 
 		int pos = input.getnexttok( ).to_int();	// tok 4
 		int count = ListView_GetItemCount(this->m_Hwnd);
 		RECT rc;
 
 		// no items - no need to view
-		if (count == 0)
-			return;
-
 		// check boundaries
-		if ((pos < 0) || (pos > 100))
+		if ((count == 0) || (pos < 0) || (pos > 100))
 			return;
 
 		// subtract the number of visible items
@@ -1886,6 +1883,9 @@ void DcxListView::parseCommandRequest( const TString &input) {
 
 		ListView_EnsureVisible(this->m_Hwnd, 0, FALSE);
 		ListView_Scroll(this->m_Hwnd, 0, pos);
+		//int nItem = round((float)count / (float)100.0 * (float)pos);
+		//ListView_EnsureVisible(this->m_Hwnd, 0, FALSE);
+		//ListView_EnsureVisible(this->m_Hwnd, --nItem, FALSE);
 	}
 	// xdid -V [NAME] [ID] [SWITCH] [nItem]
 	else if (flags[TEXT('V')] && numtok > 3) {

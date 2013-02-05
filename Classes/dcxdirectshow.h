@@ -24,6 +24,7 @@
 #include <qnetwork.h>
 #include <d3d9.h>
 #include <vmr9.h>
+//#include <DXGIDebug.h> // win8 only
 
 class DcxDialog;
 
