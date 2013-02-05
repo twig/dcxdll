@@ -47,7 +47,8 @@ void Dcx::load(LOADINFO * lInfo)
 	DCX_DEBUG(debug,TEXT("LoadDLL"), TEXT("Generating class for WebBrowser..."));
 	CoGetClassObject(CLSID_WebBrowser, CLSCTX_INPROC_SERVER, 0, IID_IClassFactory, (void**) &m_pClassFactory);
 	//6BF52A52-394A-11D3-B153-00C04F79FAA6
-
+	//0x000006BA: The RPC server is unavailable.
+	//Js::JavascriptExceptionObject
 	// RichEdit DLL Loading
 	DCX_DEBUG(mIRC.debug,TEXT("LoadDLL"), TEXT("Generating class for RichEdit..."));
 	LoadLibrary(TEXT("RICHED20.DLL"));
@@ -65,6 +66,7 @@ void Dcx::load(LOADINFO * lInfo)
 	dcxSignal.xdock = false;
 	dcxSignal.xstatusbar = true;
 	dcxSignal.xtray = true;
+	//ReportLiveObjects();
 }
 
 void Dcx::unload(void)
