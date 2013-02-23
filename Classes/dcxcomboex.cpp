@@ -138,17 +138,7 @@ DcxComboEx::~DcxComboEx( ) {
 void DcxComboEx::parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme )
 {
 	//*ExStyles |= CBES_EX_NOSIZELIMIT;
-	//const UINT numtok = styles.numtok( );
 
-	//for (UINT i = 1; i <= numtok; i++)
-	//{
-	//	if ( styles.gettok( i ) == TEXT("simple") )
-	//		*Styles |= CBS_SIMPLE;
-	//	else if ( styles.gettok( i ) == TEXT("dropdown") )
-	//		*Styles |= CBS_DROPDOWNLIST;
-	//	else if ( styles.gettok( i ) == TEXT("dropedit") )
-	//		*Styles |= CBS_DROPDOWN;
-	//}
 	for (TString tsStyle(styles.getfirsttok( 1 )); tsStyle != ""; tsStyle = styles.getnexttok( ))
 	{
 		if ( tsStyle == TEXT("simple") )

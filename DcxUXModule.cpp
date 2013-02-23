@@ -44,7 +44,7 @@ bool DcxUXModule::load(mIRCLinker &mIRCLink)
 	DCX_DEBUG(mIRCLink.debug,TEXT("LoadDLL"), TEXT("Loading UXTHEME.DLL..."));
 	m_hModule = LoadLibrary(TEXT("UXTHEME.DLL"));
 
-	if (m_hModule) {
+	if (m_hModule != NULL) {
 		// Get XP+ function pointers.
 		SetWindowThemeUx = (PFNSETTHEME) GetProcAddress(m_hModule, "SetWindowTheme");
 		IsThemeActiveUx = (PFNISTHEMEACTIVE) GetProcAddress(m_hModule, "IsThemeActive");
@@ -181,7 +181,7 @@ BOOL DcxUXModule::dcxIsThemeBackgroundPartiallyTransparent(HTHEME hTheme, int iP
 {
 	if (IsThemeBackgroundPartiallyTransparentUx != NULL)
 		return IsThemeBackgroundPartiallyTransparentUx(hTheme, iPartId, iStateId);
-	return NULL;
+	return FALSE;
 }
 
 HRESULT DcxUXModule::dcxDrawThemeBackground(HTHEME hTheme, HDC hdc, int iPartId, int iStateId, LPCRECT pRect, LPCRECT pClipRect)

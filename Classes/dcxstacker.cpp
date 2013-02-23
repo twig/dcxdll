@@ -261,6 +261,7 @@ void DcxStacker::parseCommandRequest( const TString &input) {
 				return;
 			}
 		}
+		//ListBox_InsertString(this->m_Hwnd, nPos, (LPARAM)sitem);
 		if (SendMessage(this->m_Hwnd,LB_INSERTSTRING,nPos,(LPARAM)sitem) < 0) {
 			delete sitem;
 			this->showError(NULL, TEXT("-a"), TEXT("Error adding item to control"));
@@ -377,10 +378,17 @@ void DcxStacker::DrawAliasedTriangle(const HDC hdc, const LPRECT rc, const COLOR
 	//gfx.SetCompositingQuality
 	SolidBrush blackBrush(Color(128, GetRValue(clrShape), GetGValue(clrShape), GetBValue(clrShape)));
 	// Create an array of Point objects that define the polygon.
-	Point point1(rc->left, rc->top);
-	Point point2(rc->right, rc->top);
-	Point point3(rc->left + (rc->right - rc->left)/2, rc->bottom);
-	Point points[3] = {point1, point2, point3};
+	//Point point1(rc->left, rc->top);
+	//Point point2(rc->right, rc->top);
+	//Point point3(rc->left + (rc->right - rc->left)/2, rc->bottom);
+	//Point points[3] = {point1, point2, point3};
+	Point points[3];
+	points[0].X = rc->left;
+	points[0].Y = rc->top;
+	points[1].X = rc->right;
+	points[1].Y = rc->top;
+	points[2].X = (rc->left + (rc->right - rc->left)/2);
+	points[2].Y = rc->bottom;
 	// Fill the polygon.
 	gfx.FillPolygon(&blackBrush, points, 3);
 #endif
@@ -448,6 +456,8 @@ void DcxStacker::DrawSItem(const LPDRAWITEMSTRUCT idata)
 		style |= DFCS_INACTIVE;
 	if (idata->itemState & ODS_SELECTED)
 		style |= DFCS_PUSHED;
+	//if (idata->itemState & ODS_HOTLIGHT)
+	//	style |= DFCS_HOT;
 
 	DrawFrameControl(memDC,&rcText,DFC_BUTTON,style);
 	rcText.right -= GetSystemMetrics(SM_CXEDGE); // move in right side past border
@@ -484,17 +494,27 @@ void DcxStacker::DrawSItem(const LPDRAWITEMSTRUCT idata)
 	if (sitem->tsCaption.len()) {
 		HFONT oldFont = SelectFont(memDC,hFont);
 		// get text colour.
-		COLORREF clrText = sitem->clrText;
+		COLORREF clrText = sitem->clrText, oldClr = CLR_INVALID;
 		if (clrText == CLR_INVALID)
 			clrText = GetSysColor(COLOR_BTNTEXT);
 		// draw the text
+		if (clrText != CLR_INVALID)
+			oldClr = SetTextColor(memDC,clrText);
+
 		this->ctrlDrawText(memDC, sitem->tsCaption, &rcText, DT_CENTER | DT_END_ELLIPSIS);
+
+		if (oldClr != CLR_INVALID)
+			SetTextColor(memDC,oldClr);
+		//COLORREF clrText = sitem->clrText;
+		//if (clrText == CLR_INVALID)
+		//	clrText = GetSysColor(COLOR_BTNTEXT);
+		// draw the text
 		//if (!this->m_bCtrlCodeText) {
 		//	SetBkMode(memDC,TRANSPARENT);
 		//	if (this->m_bShadowText)
 		//		dcxDrawShadowText(memDC,sitem->tsCaption.to_chr(), sitem->tsCaption.len(),&rcText, DT_END_ELLIPSIS | DT_CENTER, clrText, 0, 5, 5);
 		//	else {
-		//		if (clrText != -1)
+		//		if (clrText != CLR_INVALID)
 		//			SetTextColor(memDC,clrText);
 		//		DrawTextW(memDC, sitem->tsCaption.to_chr(), sitem->tsCaption.len(), &rcText, DT_CENTER | DT_END_ELLIPSIS);
 		//	}

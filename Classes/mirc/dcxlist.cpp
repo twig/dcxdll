@@ -135,37 +135,7 @@ TString DcxList::getStyles(void) const
 void DcxList::parseControlStyles( const TString &styles, LONG *Styles, LONG *ExStyles, BOOL *bNoTheme)
 {
 	*Styles |= LBS_NOTIFY | LBS_HASSTRINGS | LBS_OWNERDRAWFIXED;
-	//const UINT numtok = styles.numtok();
 
-	//for (UINT i = 1; i <= numtok; i++)
-	//{
-	//	if (styles.gettok(i) == TEXT("noscroll"))
-	//		*Styles |= LBS_DISABLENOSCROLL;
-	//	else if (styles.gettok(i) == TEXT("multi"))
-	//		*Styles |= LBS_MULTIPLESEL;
-	//	else if (styles.gettok(i) == TEXT("extsel"))
-	//		*Styles |= LBS_EXTENDEDSEL;
-	//	else if (styles.gettok(i) == TEXT("nointegral"))
-	//		*Styles |= LBS_NOINTEGRALHEIGHT;
-	//	else if (styles.gettok(i) == TEXT("nosel"))
-	//		*Styles |= LBS_NOSEL;
-	//	else if (styles.gettok(i) == TEXT("sort"))
-	//		*Styles |= LBS_SORT;
-	//	else if (styles.gettok(i) == TEXT("tabs"))
-	//		*Styles |= LBS_USETABSTOPS;
-	//	else if (styles.gettok(i) == TEXT("multicol"))
-	//		*Styles |= LBS_MULTICOLUMN;
-	//	else if (styles.gettok(i) == TEXT("vsbar"))
-	//		*Styles |= WS_VSCROLL;
-	//	else if (styles.gettok(i) == TEXT("hsbar"))
-	//		*Styles |= WS_HSCROLL;
-	//	else if (styles.gettok(i) == TEXT("dragline"))
-	//		this->m_bUseDrawInsert = FALSE;
-	//	else if (styles.gettok(i) == TEXT("noformat")) // dont remove from here
-	//		*Styles &= ~LBS_OWNERDRAWFIXED;
-	//	//else if (styles.gettok(i) == TEXT("shadow")) // looks crap
-	//	//	this->m_bShadowText = true;
-	//}
 	for (TString tsStyle(styles.getfirsttok( 1 )); tsStyle != ""; tsStyle = styles.getnexttok( ))
 	{
 		if (tsStyle == TEXT("noscroll"))
@@ -423,24 +393,7 @@ void DcxList::parseCommandRequest( const TString & input ) {
 		//const int nHorizExtent = ListBox_GetHorizontalExtent( this->m_Hwnd );
 		//int nMaxStrlen = tsItem.len();
 
-		//{ // Get Font sizes (best way i can find atm, if you know something better then please let me know)
-		//	HDC hdc = GetDC( this->m_Hwnd);
-		//	TEXTMETRIC tm;
-		//	HFONT hFont = this->getFont();
-
-		//	HFONT hOldFont = SelectFont(hdc, hFont);
-
-		//	GetTextMetrics(hdc, &tm);
-
-		//	SelectFont(hdc, hOldFont);
-
-		//	ReleaseDC( this->m_Hwnd, hdc);
-
-		//	// Multiply max str len by font average width + 1
-		//	nMaxStrlen *= (tm.tmAveCharWidth + tm.tmOverhang);
-		//	// Add 2 * chars as spacer.
-		//	nMaxStrlen += (tm.tmAveCharWidth * 2);
-		//}
+		//this->StrLenToExtent(&nMaxStrlen);
 
 		//if (nMaxStrlen > nHorizExtent)
 		//	ListBox_SetHorizontalExtent( this->m_Hwnd, nMaxStrlen);
@@ -650,24 +603,7 @@ void DcxList::parseCommandRequest( const TString & input ) {
 		// Now update the horizontal scroller
 		const int nHorizExtent = ListBox_GetHorizontalExtent( this->m_Hwnd );
 
-		{ // Get Font sizes (best way i can find atm, if you know something better then please let me know)
-			HDC hdc = GetDC( this->m_Hwnd);
-			TEXTMETRIC tm;
-			HFONT hFont = this->getFont();
-
-			HFONT hOldFont = SelectFont(hdc, hFont);
-
-			GetTextMetrics(hdc, &tm);
-
-			SelectFont(hdc, hOldFont);
-
-			ReleaseDC( this->m_Hwnd, hdc);
-
-			// Multiply max str len by font average width + 1
-			nMaxStrlen *= (tm.tmAveCharWidth + tm.tmOverhang);
-			// Add 2 * chars as spacer.
-			nMaxStrlen += (tm.tmAveCharWidth * 2);
-		}
+		this->StrLenToExtent(&nMaxStrlen);
 
 		if (nMaxStrlen > nHorizExtent)
 			ListBox_SetHorizontalExtent( this->m_Hwnd, nMaxStrlen);
@@ -775,7 +711,7 @@ void DcxList::parseCommandRequest( const TString & input ) {
 			nPos = ListBox_GetCount( this->m_Hwnd ) -1;
 
 		if (nPos > -1 && nPos < ListBox_GetCount(this->m_Hwnd)) {
-			//ListBox_SetItemData(this->m_Hwnd, nPos, input.to_chr()); //.gettok(5, -1).to_chr());
+			//ListBox_SetItemData(this->m_Hwnd, nPos, input.gettok(5, -1).to_chr());
 			ListBox_DeleteString(this->m_Hwnd, nPos);
 			ListBox_InsertString(this->m_Hwnd, nPos, input.gettok( 5, -1 ).to_chr( ));
 		}
@@ -784,8 +720,8 @@ void DcxList::parseCommandRequest( const TString & input ) {
 	// update horiz scrollbar
 	else if ( flags[TEXT('z')] ) {
 		// Now update the horizontal scroller
-		const int nHorizExtent = ListBox_GetHorizontalExtent( this->m_Hwnd );
-		int nMaxStrlen = 0, nTotalItems = ListBox_GetCount(this->m_Hwnd);
+		const int nHorizExtent = ListBox_GetHorizontalExtent( this->m_Hwnd ), nTotalItems = ListBox_GetCount(this->m_Hwnd);
+		int nMaxStrlen = 0;
 
 		for (int i = 0; i < nTotalItems; i++) {
 			int nLen = ListBox_GetTextLen(this->m_Hwnd, i);
@@ -793,24 +729,7 @@ void DcxList::parseCommandRequest( const TString & input ) {
 				nMaxStrlen = nLen;
 		}
 
-		{ // Get Font sizes (best way i can find atm, if you know something better then please let me know)
-			HDC hdc = GetDC( this->m_Hwnd);
-			TEXTMETRIC tm;
-			HFONT hFont = this->getFont();
-
-			HFONT hOldFont = SelectFont(hdc, hFont);
-
-			GetTextMetrics(hdc, &tm);
-
-			SelectFont(hdc, hOldFont);
-
-			ReleaseDC( this->m_Hwnd, hdc);
-
-			// Multiply max str len by font average width + 1
-			nMaxStrlen *= (tm.tmAveCharWidth + tm.tmOverhang);
-			// Add 2 * chars as spacer.
-			nMaxStrlen += (tm.tmAveCharWidth * 2);
-		}
+		this->StrLenToExtent(&nMaxStrlen);
 
 		if (nMaxStrlen > nHorizExtent)
 			ListBox_SetHorizontalExtent( this->m_Hwnd, nMaxStrlen);
@@ -830,68 +749,72 @@ LRESULT DcxList::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 		bParsed = TRUE;
 
 		LPDRAGLISTINFO dli = (LPDRAGLISTINFO) lParam;
-		int item;
-		int sel = ListBox_GetCurSel(this->m_Hwnd) +1;
+		const int sel = ListBox_GetCurSel(this->m_Hwnd) +1;
 		TCHAR ret[20];
 
 		switch (dli->uNotification)
 		{
 			// begin dragging item
 		case DL_BEGINDRAG:
-			// callback DIALOG itemdragbegin THIS_ID DRAGGEDITEM
-			evalAliasEx(ret, 255, TEXT("%s,%d,%d"), TEXT("itemdragbegin"), this->getUserID(), sel);
+			{
+				// callback DIALOG itemdragbegin THIS_ID DRAGGEDITEM
+				evalAliasEx(ret, 255, TEXT("%s,%d,%d"), TEXT("itemdragbegin"), this->getUserID(), sel);
 
-			// cancel drag event
-			if (lstrcmpi(ret, TEXT("nodrag")) == 0)
-				return FALSE;
+				// cancel drag event
+				if (lstrcmpi(ret, TEXT("nodrag")) == 0)
+					return FALSE;
 
-			return TRUE;
-
+				return TRUE;
+			}
 			// cancel drag
 		case DL_CANCELDRAG:
-			// callback DIALOG itemdragcancel THIS_ID DRAGGEDITEM
-			evalAliasEx(ret, 255, TEXT("%s,%d,%d"), TEXT("itemdragcancel"), this->getUserID(), sel);
+			{
+				// callback DIALOG itemdragcancel THIS_ID DRAGGEDITEM
+				evalAliasEx(ret, 255, TEXT("%s,%d,%d"), TEXT("itemdragcancel"), this->getUserID(), sel);
 
-			if (m_bUseDrawInsert)
-				this->m_pParentDialog->redrawWindow();
-			else
-				this->redrawWindow();
-
+				if (m_bUseDrawInsert)
+					this->m_pParentDialog->redrawWindow();
+				else
+					this->redrawWindow();
+			}
 			break;
 
 			// current dragging, as mirc if it needs to change the cursor or not
 		case DL_DRAGGING:
-			item = LBItemFromPt(this->m_Hwnd, dli->ptCursor, TRUE);
+			{
+				const int item = LBItemFromPt(this->m_Hwnd, dli->ptCursor, TRUE);
 
-			if (m_bUseDrawInsert)
-				DrawInsert(this->m_pParentHWND, this->m_Hwnd, item);
-			else
-				DrawDragLine(item);
+				if (m_bUseDrawInsert)
+					DrawInsert(this->m_pParentHWND, this->m_Hwnd, item);
+				else
+					DrawDragLine(item);
 
-			// callback DIALOG itemdrag THIS_ID SEL_ITEM MOUSE_OVER_ITEM
-			evalAliasEx(ret, 255, TEXT("%s,%d,%d,%d"), TEXT("itemdrag"), this->getUserID(), sel, item +1);
+				// callback DIALOG itemdrag THIS_ID SEL_ITEM MOUSE_OVER_ITEM
+				evalAliasEx(ret, 255, TEXT("%s,%d,%d,%d"), TEXT("itemdrag"), this->getUserID(), sel, item +1);
 
-			if (lstrcmpi(ret, TEXT("stop")) == 0)
-				return DL_STOPCURSOR;
-			else if (lstrcmpi(ret, TEXT("copy")) == 0)
-				return DL_COPYCURSOR;
+				if (lstrcmpi(ret, TEXT("stop")) == 0)
+					return DL_STOPCURSOR;
+				else if (lstrcmpi(ret, TEXT("copy")) == 0)
+					return DL_COPYCURSOR;
 
-			return DL_MOVECURSOR;
+				return DL_MOVECURSOR;
+			}
 			break;
 
 			// finish dragging
 		case DL_DROPPED:
-			// callback DIALOG itemdragfinish THIS_ID SEL_ITEM MOUSE_OVER_ITEM
-			item = LBItemFromPt(this->m_Hwnd, dli->ptCursor, TRUE);
+			{
+				// callback DIALOG itemdragfinish THIS_ID SEL_ITEM MOUSE_OVER_ITEM
+				const int item = LBItemFromPt(this->m_Hwnd, dli->ptCursor, TRUE);
 
-			execAliasEx(TEXT("%s,%d,%d,%d"), TEXT("itemdragfinish"), this->getUserID(), sel, item +1);
+				execAliasEx(TEXT("%s,%d,%d,%d"), TEXT("itemdragfinish"), this->getUserID(), sel, item +1);
 
-			if (m_bUseDrawInsert)
-				// refresh parent to remove drawing leftovers
-				this->m_pParentDialog->redrawWindow();
-			else
-				this->redrawWindow();
-
+				if (m_bUseDrawInsert)
+					// refresh parent to remove drawing leftovers
+					this->m_pParentDialog->redrawWindow();
+				else
+					this->redrawWindow();
+			}
 			break;
 		}
 
@@ -1062,7 +985,8 @@ void DcxList::DrawDragLine(const int location)
 	HDC  hDC;
 	HPEN hPen;
 
-	ListBox_GetItemRect(this->m_Hwnd, location, &rc);
+	if (ListBox_GetItemRect(this->m_Hwnd, location, &rc) == LB_ERR)
+		return;
 
 	if (location != m_iLastDrawnLine)
 	{
@@ -1071,31 +995,38 @@ void DcxList::DrawDragLine(const int location)
 	}
 
 	hDC = GetDC(this->m_Hwnd);
+
+	if (hDC == NULL)
+		return;
+
 	hPen = CreatePen(PS_SOLID, 1, GetSysColor(COLOR_WINDOWTEXT));
 
-	SelectPen(hDC, hPen);
+	if (hPen != NULL) {
+		HPEN hOldPen = SelectPen(hDC, hPen);
 
-	// get width
-	const int lWidth = (rc.right - rc.left);
+		// get width
+		const int lWidth = (rc.right - rc.left);
 
-	MoveToEx(hDC, 0, rc.top, 0);
-	LineTo(hDC, lWidth, rc.top);
-	MoveToEx(hDC, 0, rc.top -1, 0);
-	LineTo(hDC, lWidth, rc.top -1);
+		MoveToEx(hDC, 0, rc.top, 0);
+		LineTo(hDC, lWidth, rc.top);
+		MoveToEx(hDC, 0, rc.top -1, 0);
+		LineTo(hDC, lWidth, rc.top -1);
 
-	// Spitze links:
-	MoveToEx(hDC, 0, rc.top -3, 0);
-	LineTo(hDC, 0, rc.top +3);
-	MoveToEx(hDC, 1, rc.top -2, 0);
-	LineTo(hDC, 1, rc.top +2);
+		// Spitze links:
+		MoveToEx(hDC, 0, rc.top -3, 0);
+		LineTo(hDC, 0, rc.top +3);
+		MoveToEx(hDC, 1, rc.top -2, 0);
+		LineTo(hDC, 1, rc.top +2);
 
-	// Spitze rechts:
-	MoveToEx(hDC, lWidth -1, rc.top -3, 0);
-	LineTo(hDC, lWidth -1, rc.top +3);
-	MoveToEx(hDC, lWidth -2, rc.top -2, 0);
-	LineTo(hDC, lWidth -2, rc.top +2);
+		// Spitze rechts:
+		MoveToEx(hDC, lWidth -1, rc.top -3, 0);
+		LineTo(hDC, lWidth -1, rc.top +3);
+		MoveToEx(hDC, lWidth -2, rc.top -2, 0);
+		LineTo(hDC, lWidth -2, rc.top +2);
 
-	DeletePen(hPen);
+		SelectPen(hDC,hOldPen);
+		DeletePen(hPen);
+	}
 	ReleaseDC(this->m_Hwnd, hDC);
 }
 
@@ -1137,4 +1068,34 @@ void DcxList::getItemRange(const TString tsItems, const int nItemCnt, int *iStar
 	}
 	*iStart_range = iStart;
 	*iEnd_range = iEnd;
+}
+
+void DcxList::StrLenToExtent(int *nLineExtent)
+{ // Get Font sizes (best way i can find atm, if you know something better then please let me know)
+
+	HFONT hFont = this->getFont();
+
+	if (hFont == NULL)
+		return;
+
+	HDC hdc = GetDC( this->m_Hwnd);
+
+	if (hdc == NULL)
+		return;
+
+	TEXTMETRIC tm;
+
+	HFONT hOldFont = SelectFont(hdc, hFont);
+
+	GetTextMetrics(hdc, &tm);
+
+	SelectFont(hdc, hOldFont);
+
+	ReleaseDC( this->m_Hwnd, hdc);
+
+	// Multiply max str len by font average width + 1
+	*nLineExtent *= (tm.tmAveCharWidth + tm.tmOverhang);
+	// Add 2 * chars as spacer.
+	*nLineExtent += (tm.tmAveCharWidth * 2);
+	//*nLineExtent++;
 }
