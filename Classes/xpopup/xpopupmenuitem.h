@@ -54,6 +54,7 @@ public:
 	void DrawItemIcon( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol, const UINT iExStyles, const BOOL bSel = FALSE, const BOOL bDis = FALSE );
 	static void DrawItemSubArrow( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol, const BOOL bDis = FALSE );
 	void DrawItemSeparator( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol );
+    static bool DrawMenuBitmap(const LPDRAWITEMSTRUCT lpdis, const bool bBigImage, const HBITMAP bmImage);
 
 	SIZE getItemSize( const HWND mHwnd );
 
@@ -81,7 +82,7 @@ protected:
 	int m_nIcon; //!< Menu Item Icon Index
 	XPopupMenu * m_pXParentMenu; //!< Parent XPopupMenu
 	ULONG_PTR m_dwItemDataBackup;
-
+	bool m_bBigBitmap;				//!< Single large bitmap image used for whole menu?
 };
 
 typedef std::vector<XPopupMenuItem *> VectorOfXPopupMenuItem; //!< Vector of XPopupMenuItem Objects

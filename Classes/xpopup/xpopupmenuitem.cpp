@@ -23,7 +23,8 @@
  */
 
 XPopupMenuItem::XPopupMenuItem( XPopupMenu * Parent, const BOOL bSep, ULONG_PTR dwDataBackup )
-: m_pXParentMenu( Parent ), m_bSep( bSep ), m_nIcon(-1), m_bSubMenu(FALSE), m_dwItemDataBackup(dwDataBackup) {
+: m_pXParentMenu( Parent ), m_bSep( bSep ), m_nIcon(-1), m_bSubMenu(FALSE), m_dwItemDataBackup(dwDataBackup), m_bBigBitmap(false)
+{
 }
 
 /*!
@@ -33,7 +34,7 @@ XPopupMenuItem::XPopupMenuItem( XPopupMenu * Parent, const BOOL bSep, ULONG_PTR 
  */
 
 XPopupMenuItem::XPopupMenuItem( XPopupMenu * Parent, const TString &tsItemText, const int nIcon, const BOOL bSubMenu, ULONG_PTR dwDataBackup ) 
-: m_pXParentMenu( Parent ), m_tsItemText( tsItemText ), m_nIcon( nIcon ), m_bSubMenu( bSubMenu ), m_bSep( FALSE ), m_dwItemDataBackup(dwDataBackup)
+: m_pXParentMenu( Parent ), m_tsItemText( tsItemText ), m_nIcon( nIcon ), m_bSubMenu( bSubMenu ), m_bSep( FALSE ), m_dwItemDataBackup(dwDataBackup), m_bBigBitmap(false)
 {
 	this->m_tsItemText.trim();
 }
@@ -164,26 +165,27 @@ void XPopupMenuItem::DrawItem( const LPDRAWITEMSTRUCT lpdis ) {
 	const LPXPMENUCOLORS lpcol = this->m_pXParentMenu->getColors( );
 	const UINT iItemStyle = this->m_pXParentMenu->getItemStyle( );
 
-	// playing around with menu transparency
-	const BYTE alpha = this->m_pXParentMenu->IsAlpha();
+	//// playing around with menu transparency
+	//const BYTE alpha = this->m_pXParentMenu->IsAlpha();
 
-	// If alpha == 255 then menu is fully opaque so no need to change to layered.
-	if (alpha < 255) {
-		HWND hMenuWnd = WindowFromDC(lpdis->hDC);
+	//// If alpha == 255 then menu is fully opaque so no need to change to layered.
+	//if (alpha < 255) {
+	//	HWND hMenuWnd = WindowFromDC(lpdis->hDC);
 
-		if (IsWindow(hMenuWnd)) {
-			DWORD dwStyle = GetWindowExStyle(hMenuWnd);
+	//	if (IsWindow(hMenuWnd)) {
+	//		DWORD dwStyle = GetWindowExStyle(hMenuWnd);
 
-			if (!(dwStyle & WS_EX_LAYERED)) {
-				SetWindowLong(hMenuWnd, GWL_EXSTYLE, dwStyle | WS_EX_LAYERED);
-				SetLayeredWindowAttributes(hMenuWnd, 0, (BYTE)alpha, LWA_ALPHA); // 0xCC = 80% Opaque
-				//RedrawWindow(hMenuWnd, NULL, NULL, RDW_INTERNALPAINT|RDW_ALLCHILDREN|RDW_UPDATENOW|RDW_INVALIDATE);
-				// NB: Menus on XP will not show as transparent straight away when a transition effect is used when displaying the menu.
-				// This can't be fixed at this time, live with it.
-				// NB: Menus on Vista/Win7 also suffer from this.
-			}
-		}
-	}
+	//		if (!(dwStyle & WS_EX_LAYERED)) {
+	//			SetWindowLong(hMenuWnd, GWL_EXSTYLE, dwStyle | WS_EX_LAYERED);
+	//			SetLayeredWindowAttributes(hMenuWnd, 0, (BYTE)alpha, LWA_ALPHA); // 0xCC = 80% Opaque
+	//			//RedrawWindow(hMenuWnd, NULL, NULL, RDW_INTERNALPAINT|RDW_ALLCHILDREN|RDW_UPDATENOW|RDW_INVALIDATE);
+	//			// NB: Menus on XP will not show as transparent straight away when a transition effect is used when displaying the menu.
+	//			// This can't be fixed at this time, live with it.
+	//			// NB: Menus on Vista/Win7 also suffer from this.
+	//		}
+	//	}
+	//}
+
 	// All Items
 	this->DrawItemBackground( lpdis, lpcol );
 	this->DrawItemBox( lpdis, lpcol );
@@ -199,17 +201,18 @@ void XPopupMenuItem::DrawItem( const LPDRAWITEMSTRUCT lpdis ) {
 	}
 
 	// Item is selected
-	if ( lpdis->itemState & ODS_SELECTED ) {
+	if (this->m_pXParentMenu->getStyle() != XPopupMenu::XPMS_BUTTON) {
+		if ( lpdis->itemState & ODS_SELECTED ) {
 
-		if ( lpdis->itemState & ODS_GRAYED ) {
+			if ( lpdis->itemState & ODS_GRAYED ) {
 
-			if ( iItemStyle & XPS_DISABLEDSEL )
-				this->DrawItemSelection( lpdis, lpcol, TRUE, this->m_pXParentMenu->IsRounded() );
+				if ( iItemStyle & XPS_DISABLEDSEL )
+					this->DrawItemSelection( lpdis, lpcol, TRUE, this->m_pXParentMenu->IsRounded() );
+			}
+			else
+				this->DrawItemSelection( lpdis, lpcol, FALSE, this->m_pXParentMenu->IsRounded() );
 		}
-		else
-			this->DrawItemSelection( lpdis, lpcol, FALSE, this->m_pXParentMenu->IsRounded() );
 	}
-
 	if ( lpdis->itemState & ODS_CHECKED && this->m_bSep == FALSE )
 		this->DrawItemCheckBox( lpdis, lpcol, lpdis->itemState & ODS_GRAYED?TRUE:FALSE );
 
@@ -220,10 +223,8 @@ void XPopupMenuItem::DrawItem( const LPDRAWITEMSTRUCT lpdis ) {
 	else {
 		this->DrawItemText( lpdis, lpcol, lpdis->itemState & ODS_GRAYED?TRUE:FALSE );
 
-		if ( !( lpdis->itemState & ODS_CHECKED ) || this->m_nIcon > -1 ) {
-			this->DrawItemIcon( lpdis, lpcol, iItemStyle, lpdis->itemState & ODS_SELECTED?TRUE:FALSE, 
-				lpdis->itemState & ODS_GRAYED?TRUE:FALSE );
-		}
+		if ( !( lpdis->itemState & ODS_CHECKED ) || this->m_nIcon > -1 )
+			this->DrawItemIcon( lpdis, lpcol, iItemStyle, lpdis->itemState & ODS_SELECTED?TRUE:FALSE, lpdis->itemState & ODS_GRAYED?TRUE:FALSE );
 		if ( this->m_bSubMenu == TRUE )
 			this->DrawItemSubArrow( lpdis, lpcol, lpdis->itemState & ODS_GRAYED?TRUE:FALSE );
 	}
@@ -264,6 +265,7 @@ void XPopupMenuItem::DrawItemBackground(const LPDRAWITEMSTRUCT lpdis, const LPXP
 			break;
 
 		case XPopupMenu::XPMS_CUSTOM:
+		case XPopupMenu::XPMS_CUSTOMBIG:
 			{
 				//HBITMAP hBitmap = this->m_pXParentMenu->getBackBitmap();
 
@@ -279,42 +281,19 @@ void XPopupMenuItem::DrawItemBackground(const LPDRAWITEMSTRUCT lpdis, const LPXP
 
 				//		SelectBitmap(hdcbmp, hOldBm);
 				//		DeleteDC(hdcbmp);
+				//		break;
 				//	}
 				//}
-				//else {
-				//	// when no bitmap is supplied do colour fill as with standard menu styles.
-				//	// fixes bug: http://dcx.scriptsdb.org/bug/index.php?do=details&task_id=723
-				//	HBRUSH hBrush = CreateSolidBrush(lpcol->m_clrBack);
 
-				//	if (hBrush != NULL) {
-				//		FillRect(lpdis->hDC, &lpdis->rcItem, hBrush);
-				//		DeleteBrush(hBrush);
-				//		// NB: atm we simply silently fail when we can't make a brush. (so drawing errors will occur when create fails)
-				//	}
-				//}
-				HBITMAP hBitmap = this->m_pXParentMenu->getBackBitmap();
-
-				if (hBitmap != NULL) {
-					HDC hdcbmp = CreateCompatibleDC(lpdis->hDC);
-					if (hdcbmp != NULL) {
-						BITMAP bmp;
-
-						GetObject(hBitmap, sizeof(BITMAP), &bmp);
-						HBITMAP hOldBm = SelectBitmap(hdcbmp, hBitmap);
-						StretchBlt(lpdis->hDC, lpdis->rcItem.left, lpdis->rcItem.top, lpdis->rcItem.right - lpdis->rcItem.left, 
-							lpdis->rcItem.bottom - lpdis->rcItem.top, hdcbmp, 0, 0, bmp.bmWidth, bmp.bmHeight, SRCCOPY);
-
-						SelectBitmap(hdcbmp, hOldBm);
-						DeleteDC(hdcbmp);
-						break;
-					}
-				}
+				if (this->DrawMenuBitmap(lpdis, (this->m_pXParentMenu->getStyle() == XPopupMenu::XPMS_CUSTOMBIG), this->m_pXParentMenu->getBackBitmap()))
+					break;
 			}
 			// fall through when unable to draw bitmap (no bitmap or error)
 		case XPopupMenu::XPMS_OFFICEXP:
 		case XPopupMenu::XPMS_NORMAL:
 		case XPopupMenu::XPMS_OFFICE2003_REV:
 		case XPopupMenu::XPMS_OFFICE2003:
+		case XPopupMenu::XPMS_BUTTON:
 		default:
 			{
 				HBRUSH hBrush = CreateSolidBrush(lpcol->m_clrBack);
@@ -369,7 +348,29 @@ void XPopupMenuItem::DrawItemBox(const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOL
 		case XPopupMenu::XPMS_GRADE:
 		case XPopupMenu::XPMS_GRADE_REV:
 		case XPopupMenu::XPMS_CUSTOM:
+		case XPopupMenu::XPMS_CUSTOMBIG:
 		case XPopupMenu::XPMS_NORMAL:
+			break;
+
+		case XPopupMenu::XPMS_BUTTON:
+			{
+				if (this->m_bSep)
+					break;
+
+				RECT rc;
+				CopyRect(&rc, &lpdis->rcItem);
+
+				UINT uiStyle = DFCS_BUTTONPUSH|DFCS_ADJUSTRECT;
+				if (lpdis->itemState & ODS_SELECTED)
+					uiStyle |= DFCS_PUSHED;
+				if (lpdis->itemState & ODS_GRAYED)
+					uiStyle |= DFCS_INACTIVE;
+				
+				DrawFrameControl(lpdis->hDC,&lpdis->rcItem,DFC_BUTTON,uiStyle);
+				if (lpdis->itemState & ODS_SELECTED)
+					this->DrawItemSelection(lpdis, lpcol, (lpdis->itemState & ODS_GRAYED), FALSE);
+				CopyRect(&lpdis->rcItem, &rc);
+			}
 			break;
 
 		case XPopupMenu::XPMS_OFFICE2003:
@@ -391,6 +392,12 @@ void XPopupMenuItem::DrawItemBox(const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOL
  */
 
 void XPopupMenuItem::DrawItemSelection( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol, const BOOL bDis, const BOOL bRounded ) {
+
+	//if (lpdis->itemState & ODS_HOTLIGHT)
+	//{
+	//	DrawFrameControl(lpdis->hDC,&lpdis->rcItem,DFC_BUTTON,(bDis)?(DFCS_BUTTONPUSH|DFCS_INACTIVE):(DFCS_BUTTONPUSH|DFCS_HOT));
+	//	return;
+	//}
 
 	HPEN hPen = CreatePen( PS_SOLID, 1, lpcol->m_clrSelectionBorder );
 
@@ -446,6 +453,7 @@ void XPopupMenuItem::DrawItemCheckBox( const LPDRAWITEMSTRUCT lpdis, const LPXPM
 	rc.left += 1;
 	rc.right = rc.left + rc.bottom - rc.top;
 
+	//RoundRect( lpdis->hDC, rc.left, rc.top, rc.right, rc.bottom, 5, 5 );
 	Rectangle( lpdis->hDC, rc.left, rc.top, rc.right, rc.bottom );
 
 	SelectPen( lpdis->hDC, hPenText );
@@ -572,7 +580,64 @@ void XPopupMenuItem::DrawItemIcon( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUC
  */
 
 void XPopupMenuItem::DrawItemSubArrow( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol, const BOOL bDis ) {
-
+//#ifdef DCX_USE_GDIPLUS
+//	const int x = lpdis->rcItem.right - 9;
+//	const int y = ( lpdis->rcItem.bottom + lpdis->rcItem.top ) / 2 - 5;
+//
+//	if (!Dcx::GDIModule.isUseable())
+//	{
+//		HPEN hPen = CreatePen( PS_SOLID, 1, bDis?lpcol->m_clrDisabledText:lpcol->m_clrText );
+//
+//		if (hPen == NULL)
+//			return;
+//
+//		const HPEN hOldPen = SelectPen( lpdis->hDC, hPen );
+//
+//		MoveToEx( lpdis->hDC, x, y, NULL );
+//		LineTo( lpdis->hDC, x+1, y );
+//		MoveToEx( lpdis->hDC, x, y+1, NULL );
+//		LineTo( lpdis->hDC, x+2, y+1 );
+//		MoveToEx( lpdis->hDC, x, y+2, NULL );
+//		LineTo( lpdis->hDC, x+3, y+2 );
+//		MoveToEx( lpdis->hDC, x, y+3, NULL );
+//		LineTo( lpdis->hDC, x+4, y+3 );
+//		MoveToEx( lpdis->hDC, x, y+4, NULL );
+//		LineTo( lpdis->hDC, x+5, y+4 );
+//		MoveToEx( lpdis->hDC, x, y+5, NULL );
+//		LineTo( lpdis->hDC, x+4, y+5 );
+//		MoveToEx( lpdis->hDC, x, y+6, NULL );
+//		LineTo( lpdis->hDC, x+3, y+6 );
+//		MoveToEx( lpdis->hDC, x, y+7, NULL );
+//		LineTo( lpdis->hDC, x+2, y+7 );
+//		MoveToEx( lpdis->hDC, x, y+8, NULL );
+//		LineTo( lpdis->hDC, x+1, y+8 );
+//
+//		SelectPen( lpdis->hDC, hOldPen );
+//		DeletePen( hPen );
+//	}
+//	else {
+//		Graphics gfx( lpdis->hDC );
+//		const COLORREF clrShape = bDis?lpcol->m_clrDisabledText:lpcol->m_clrText;
+//		RECT rc = {x,y,x+5,y+8};
+//
+//		gfx.SetSmoothingMode(SmoothingModeAntiAlias8x8);
+//		//gfx.SetCompositingMode(CompositingModeSourceOver);
+//		gfx.SetCompositingMode(CompositingModeSourceCopy);
+//		gfx.SetCompositingQuality(CompositingQualityHighQuality);
+//		SolidBrush blackBrush(Color(128, GetRValue(clrShape), GetGValue(clrShape), GetBValue(clrShape)));
+//		// Create an array of Point objects that define the polygon.
+//		Point points[3];
+//		points[0].X = rc.left;
+//		points[0].Y = rc.top;
+//		points[1].X = rc.right;
+//		points[1].Y = (rc.top + ((rc.bottom - rc.top)/2));
+//		points[2].X = rc.left;
+//		points[2].Y = rc.bottom;
+//		// Fill the polygon.
+//		gfx.FillPolygon(&blackBrush, points, 3);
+//	}
+//	ExcludeClipRect( lpdis->hDC, lpdis->rcItem.right - 10, lpdis->rcItem.top, lpdis->rcItem.right, lpdis->rcItem.bottom );
+//#else
 	HPEN hPen = CreatePen( PS_SOLID, 1, bDis?lpcol->m_clrDisabledText:lpcol->m_clrText );
 
 	if (hPen == NULL)
@@ -606,6 +671,7 @@ void XPopupMenuItem::DrawItemSubArrow( const LPDRAWITEMSTRUCT lpdis, const LPXPM
 
 	SelectPen( lpdis->hDC, hOldPen );
 	DeletePen( hPen );
+//#endif
 }
 
 /*!
@@ -621,6 +687,7 @@ void XPopupMenuItem::DrawItemSeparator( const LPDRAWITEMSTRUCT lpdis, const LPXP
 	case XPopupMenu::XPMS_ICY:
 	case XPopupMenu::XPMS_ICY_REV:
 	case XPopupMenu::XPMS_NORMAL:
+	case XPopupMenu::XPMS_BUTTON:
 		{
 
 			HPEN hPen = CreatePen( PS_SOLID, 1, lpcol->m_clrSeparatorLine );
@@ -630,7 +697,7 @@ void XPopupMenuItem::DrawItemSeparator( const LPDRAWITEMSTRUCT lpdis, const LPXP
 				const int x2 = lpdis->rcItem.right;
 				const int y = ( lpdis->rcItem.bottom + lpdis->rcItem.top) / 2;
 
-				const HPEN oldPen = SelectPen( lpdis->hDC, hPen) ;
+				const HPEN oldPen = SelectPen( lpdis->hDC, hPen);
 				MoveToEx( lpdis->hDC, x1, y, NULL );
 				LineTo( lpdis->hDC, x2, y );
 				SelectPen( lpdis->hDC, oldPen );
@@ -695,6 +762,7 @@ void XPopupMenuItem::DrawGradient( const HDC hdc, const LPRECT lprc, const COLOR
 	vert [1] .Green  = (COLOR16)((EndGreen & 0xff) << 8);
 	vert [1] .Blue   = (COLOR16)((EndBlue & 0xff) << 8);
 	vert [1] .Alpha  = 0xff00;
+	//vert [1] .Alpha  = 0x0C00;
 
 	gRect.UpperLeft  = 0;
 	gRect.LowerRight = 1;
@@ -734,7 +802,6 @@ void XPopupMenuItem::DrawGradient( const HDC hdc, const LPRECT lprc, const COLOR
 		}
 	}
 }
-
 
 void XPopupMenuItem::DrawVerticalBar(const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol, const BOOLEAN bReversed) {
 	// Working code: Calculates height of complete menu, and draws gradient to fill. Samples taken off complete gradient when needed.
@@ -819,4 +886,66 @@ COLORREF XPopupMenuItem::DarkenColor( const unsigned int iScale, const COLORREF 
 	const long B = MulDiv( GetBValue( clrColor ), ( 255 - iScale ), 255 );
 
 	return RGB( R, G, B ); 
+}
+
+bool XPopupMenuItem::DrawMenuBitmap(const LPDRAWITEMSTRUCT lpdis, const bool bBigImage, const HBITMAP bmImage)
+{
+	if ((lpdis == NULL) || (bmImage == NULL))
+		return false;
+
+	if (!bBigImage)
+	{
+		HDC hdcbmp = CreateCompatibleDC(lpdis->hDC);
+
+		if (hdcbmp == NULL)
+			return false;
+
+		BITMAP bmp;
+
+		GetObject(bmImage, sizeof(BITMAP), &bmp);
+		HBITMAP hOldBm = SelectBitmap(hdcbmp, bmImage);
+
+		StretchBlt(lpdis->hDC, lpdis->rcItem.left, lpdis->rcItem.top, lpdis->rcItem.right - lpdis->rcItem.left, lpdis->rcItem.bottom - lpdis->rcItem.top, hdcbmp, 0, 0, bmp.bmWidth, bmp.bmHeight, SRCCOPY);
+
+		SelectBitmap(hdcbmp, hOldBm);
+		DeleteDC(hdcbmp);
+	}
+	else {
+		BITMAP bm;
+		GetObject((HBITMAP)GetCurrentObject(lpdis->hDC, OBJ_BITMAP), sizeof(BITMAP), &bm);
+
+		RECT rcIntersect;
+		RECT rcBar;
+
+		// get the size of the whole menu.
+		SetRect(&rcBar, 0, 0, bm.bmWidth, bm.bmHeight);
+
+		// get the rect of the box which will draw JUST the box (prevents redraw over items already done)
+		SetRect(&rcIntersect, rcBar.left, lpdis->rcItem.top, rcBar.right, lpdis->rcItem.bottom);
+
+		// set up a buffer to draw the whole whole menus background.
+		HDC *hdcBuffer = CreateHDCBuffer(lpdis->hDC, &rcBar);
+
+		if (hdcBuffer == NULL)
+			return false;
+
+		// draw into the buffer
+		HDC hdcbmp = CreateCompatibleDC(lpdis->hDC);
+		if (hdcbmp != NULL) {
+			BITMAP bmp;
+
+			GetObject(bmImage, sizeof(BITMAP), &bmp);
+			const HBITMAP hOldBm = SelectBitmap(hdcbmp, bmImage);
+
+			StretchBlt(*hdcBuffer, rcBar.left, rcBar.top, rcBar.right - rcBar.left, rcBar.bottom - rcBar.top, hdcbmp, 0, 0, bmp.bmWidth, bmp.bmHeight, SRCCOPY);
+
+			SelectBitmap(hdcbmp, hOldBm);
+			DeleteDC(hdcbmp);
+
+			// copy the box we want from the whole gradient bar
+			BitBlt(lpdis->hDC, rcIntersect.left, rcIntersect.top, rcIntersect.right - rcIntersect.left, rcIntersect.bottom - rcIntersect.top, *hdcBuffer, rcIntersect.left, rcIntersect.top, SRCCOPY);
+		}
+		DeleteHDCBuffer(hdcBuffer);
+	}
+	return true;
 }

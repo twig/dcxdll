@@ -1137,33 +1137,39 @@ LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPAR
 		return DefWindowProc( mHwnd, uMsg, wParam, lParam);
 
 	switch (uMsg) {
-		//case WM_NCCREATE:
+		case WM_NCCREATE:
+			{
+				CREATESTRUCT *cs = (CREATESTRUCT *)lParam;
+				cs->dwExStyle |= WS_EX_LAYERED;
+				//return TRUE;
+				//return CallWindowProc(XPopupMenuManager::g_OldmIRCMenusWindowProc, mHwnd, uMsg, wParam, lParam);
+			}
+			break;
+		case WM_CREATE:
+			{
+				//CREATESTRUCT *cs = (CREATESTRUCT *)lParam;
+				SetLayeredWindowAttributes(mHwnd, 0, (BYTE)0xCC, LWA_ALPHA); // 0xCC = 80% Opaque
+			}
+			break;
+		//case WM_ERASEBKGND:
 		//	{
-		//		CREATESTRUCT *cs = (CREATESTRUCT *)lParam;
-		//		cs->dwExStyle |= WS_EX_LAYERED;
-		//		
-		//		//return CallWindowProc(XPopupMenuManager::g_OldmIRCMenusWindowProc, mHwnd, uMsg, wParam, lParam);
+		//		if (GetProp(mHwnd, TEXT("dcx_ghosted")) == NULL) {
+		//			SetProp(mHwnd, TEXT("dcx_ghosted"), (HANDLE)1);
+		//			LRESULT lRes = CallWindowProc(XPopupMenuManager::g_OldmIRCMenusWindowProc, mHwnd, uMsg, wParam, lParam);
+		//			AddStyles(mHwnd, GWL_EXSTYLE, WS_EX_LAYERED);
+		//			SetLayeredWindowAttributes(mHwnd, 0, (BYTE)0xCC, LWA_ALPHA); // 0xCC = 80% Opaque
+		//			RedrawWindow(mHwnd, NULL, NULL, RDW_INTERNALPAINT|RDW_ALLCHILDREN|RDW_UPDATENOW|RDW_INVALIDATE|RDW_ERASE|RDW_FRAME);
+		//			return lRes;
+		//		}
 		//	}
 		//	break;
-		case WM_ERASEBKGND:
-			{
-				if (GetProp(mHwnd, TEXT("dcx_ghosted")) == NULL) {
-					SetProp(mHwnd, TEXT("dcx_ghosted"), (HANDLE)1);
-					LRESULT lRes = CallWindowProc(XPopupMenuManager::g_OldmIRCMenusWindowProc, mHwnd, uMsg, wParam, lParam);
-					AddStyles(mHwnd, GWL_EXSTYLE, WS_EX_LAYERED);
-					SetLayeredWindowAttributes(mHwnd, 0, (BYTE)0xCC, LWA_ALPHA); // 0xCC = 80% Opaque
-					RedrawWindow(mHwnd, NULL, NULL, RDW_INTERNALPAINT|RDW_ALLCHILDREN|RDW_UPDATENOW|RDW_INVALIDATE|RDW_ERASE|RDW_FRAME);
-					return lRes;
-				}
-			}
-			break;
-		case WM_DESTROY:
-			{
-				if (GetProp(mHwnd, TEXT("dcx_ghosted")) != NULL) {
-					RemoveProp(mHwnd, TEXT("dcx_ghosted"));
-				}
-			}
-			break;
+		//case WM_DESTROY:
+		//	{
+		//		if (GetProp(mHwnd, TEXT("dcx_ghosted")) != NULL) {
+		//			RemoveProp(mHwnd, TEXT("dcx_ghosted"));
+		//		}
+		//	}
+		//	break;
 
 		//case WM_ERASEBKGND:
 		//	{

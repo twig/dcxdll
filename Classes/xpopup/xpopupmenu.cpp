@@ -907,20 +907,16 @@ LRESULT CALLBACK XPopupMenu::XPopupWinProc( HWND mHwnd, UINT uMsg, WPARAM wParam
 	case WM_MEASUREITEM:
 		{
 			LPMEASUREITEMSTRUCT lpms = (LPMEASUREITEMSTRUCT) lParam;
-			if ( lpms->CtlType == ODT_MENU ) {
-				OnMeasureItem( mHwnd, lpms );
-				return TRUE; 
-			}
+			if ( lpms->CtlType == ODT_MENU )
+				return OnMeasureItem( mHwnd, lpms );
 		}
 		break;
 
 	case WM_DRAWITEM:
 		{
 			LPDRAWITEMSTRUCT lpdis = (LPDRAWITEMSTRUCT) lParam;
-			if ( lpdis->CtlType == ODT_MENU ) {
-				OnDrawItem( mHwnd, lpdis ); 
-				return TRUE; 
-			}
+			if ( lpdis->CtlType == ODT_MENU )
+				return OnDrawItem( mHwnd, lpdis );
 		}
 		break;
 	}
@@ -1154,6 +1150,10 @@ XPopupMenu::MenuStyle XPopupMenu::parseStyle(const TString &tsStyle) {
 		style = XPopupMenu::XPMS_NORMAL;
 	else if (tsStyle == TEXT("custom"))
 		style = XPopupMenu::XPMS_CUSTOM;
+	else if (tsStyle == TEXT("button"))
+		style = XPopupMenu::XPMS_BUTTON;
+	else if (tsStyle == TEXT("custombig"))
+		style = XPopupMenu::XPMS_CUSTOMBIG;
 
 	return style;
 }

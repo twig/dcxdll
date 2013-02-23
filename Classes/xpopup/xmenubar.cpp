@@ -38,7 +38,7 @@ XMenuBar::~XMenuBar() {
  */
 void XMenuBar::parseXMenuBarCommand(const TString &input) {
 	const XSwitchFlags flags(input.getfirsttok( 1 ));
-	const int numtok = input.numtok();
+	const UINT numtok = input.numtok();
 	XPopupMenu *p_Menu;
 	HMENU menuBar;
 	const TString menuName(input.getnexttok( ));	// tok 2
@@ -124,7 +124,7 @@ void XMenuBar::parseXMenuBarCommand(const TString &input) {
 		this->setMenuBar(menuBar, newMenu);
 
 		// Redraws to include the system icons from MDI child.
-		Dcx::mIRC.exec(TEXT("//window -a \" $+ $active $+ \""));
+		Dcx::mIRC.exec(TEXT("//window -a $qt($active)"));
 	}
 	// Change the label on the menu
 	// xmenubar [-l] [MENU] [LABEL]
