@@ -267,24 +267,6 @@ void XPopupMenuItem::DrawItemBackground(const LPDRAWITEMSTRUCT lpdis, const LPXP
 		case XPopupMenu::XPMS_CUSTOM:
 		case XPopupMenu::XPMS_CUSTOMBIG:
 			{
-				//HBITMAP hBitmap = this->m_pXParentMenu->getBackBitmap();
-
-				//if (hBitmap != NULL) {
-				//	HDC hdcbmp = CreateCompatibleDC(lpdis->hDC);
-				//	if (hdcbmp != NULL) {
-				//		BITMAP bmp;
-
-				//		GetObject(hBitmap, sizeof(BITMAP), &bmp);
-				//		HBITMAP hOldBm = SelectBitmap(hdcbmp, hBitmap);
-				//		StretchBlt(lpdis->hDC, lpdis->rcItem.left, lpdis->rcItem.top, lpdis->rcItem.right - lpdis->rcItem.left, 
-				//			lpdis->rcItem.bottom - lpdis->rcItem.top, hdcbmp, 0, 0, bmp.bmWidth, bmp.bmHeight, SRCCOPY);
-
-				//		SelectBitmap(hdcbmp, hOldBm);
-				//		DeleteDC(hdcbmp);
-				//		break;
-				//	}
-				//}
-
 				if (this->DrawMenuBitmap(lpdis, (this->m_pXParentMenu->getStyle() == XPopupMenu::XPMS_CUSTOMBIG), this->m_pXParentMenu->getBackBitmap()))
 					break;
 			}

@@ -47,7 +47,8 @@ BYTE *readFile(const PTCHAR filename) {
 	if (filename == NULL)
 		return NULL;
 
-	FILE *file = _wfopen(filename, TEXT("rb"));
+	//FILE *file = _wfopen(filename, TEXT("rb"));
+	FILE *file = dcx_fopen(filename, TEXT("rb"));
 
 	// Open file in binary mode and read
 	if (file == NULL)
@@ -193,28 +194,48 @@ BOOL ParseCommandToLogfont(const TString& cmd, LPLOGFONT lf) {
  * blah
  */
 UINT parseFontFlags(const TString &flags) {
-	INT i = 1, len = (int)flags.len(), iFlags = 0;
 
-	// no +sign, missing params
-	if (flags[0] != TEXT('+'))
+	//const INT len = (int)flags.len();
+	//INT iFlags = 0;
+
+	//// no +sign, missing params
+	//if (flags[0] != TEXT('+'))
+	//	return iFlags;
+
+	//for (int i = 1; i < len; i++)
+	//{
+	//	if (flags[i] == TEXT('a'))
+	//		iFlags |= DCF_ANTIALIASE;
+	//	else if (flags[i] == TEXT('b'))
+	//		iFlags |= DCF_BOLD;
+	//	else if (flags[i] == TEXT('d'))
+	//		iFlags |= DCF_DEFAULT;
+	//	else if (flags[i] == TEXT('i'))
+	//		iFlags |= DCF_ITALIC;
+	//	else if (flags[i] == TEXT('s'))
+	//		iFlags |= DCF_STRIKEOUT;
+	//	else if (flags[i] == TEXT('u'))
+	//		iFlags |= DCF_UNDERLINE;
+	//}
+
+	UINT iFlags = 0;
+	const XSwitchFlags xflags(flags);
+
+	if (!xflags[TEXT('+')])
 		return iFlags;
 
-	while (i < len) {
-		if (flags[i] == TEXT('a'))
-			iFlags |= DCF_ANTIALIASE;
-		else if (flags[i] == TEXT('b'))
-			iFlags |= DCF_BOLD;
-		else if (flags[i] == TEXT('d'))
-			iFlags |= DCF_DEFAULT;
-		else if (flags[i] == TEXT('i'))
-			iFlags |= DCF_ITALIC;
-		else if (flags[i] == TEXT('s'))
-			iFlags |= DCF_STRIKEOUT;
-		else if (flags[i] == TEXT('u'))
-			iFlags |= DCF_UNDERLINE;
-
-		++i;
-	}
+	if (xflags[TEXT('a')])
+		iFlags |= DCF_ANTIALIASE;
+	if (xflags[TEXT('b')])
+		iFlags |= DCF_BOLD;
+	if (xflags[TEXT('d')])
+		iFlags |= DCF_DEFAULT;
+	if (xflags[TEXT('i')])
+		iFlags |= DCF_ITALIC;
+	if (xflags[TEXT('s')])
+		iFlags |= DCF_STRIKEOUT;
+	if (xflags[TEXT('u')])
+		iFlags |= DCF_UNDERLINE;
 
 	return iFlags;
 }
@@ -261,25 +282,24 @@ UINT parseFontCharSet(const TString &charset) {
 
 
 TString ParseLogfontToCommand(const LPLOGFONT lf) {
-	TString flags(TEXT("+"));
-	TString charset(TEXT("default"));
+	TString flags(TEXT("+")), charset(TEXT("default")), tmp;
 
 	// get charset
 	switch (lf->lfCharSet) {
 		case ANSI_CHARSET			: charset = TEXT("ansi"); break;
-		case BALTIC_CHARSET		: charset = TEXT("baltic"); break;
-		case CHINESEBIG5_CHARSET: charset = TEXT("chinesebig"); break;
-		case EASTEUROPE_CHARSET	: charset = TEXT("easteurope"); break;
-		case GB2312_CHARSET		: charset = TEXT("gb2312"); break;
-		case GREEK_CHARSET		: charset = TEXT("greek"); break;
-		case HANGUL_CHARSET		: charset = TEXT("hangul"); break;
+		case BALTIC_CHARSET			: charset = TEXT("baltic"); break;
+		case CHINESEBIG5_CHARSET	: charset = TEXT("chinesebig"); break;
+		case EASTEUROPE_CHARSET		: charset = TEXT("easteurope"); break;
+		case GB2312_CHARSET			: charset = TEXT("gb2312"); break;
+		case GREEK_CHARSET			: charset = TEXT("greek"); break;
+		case HANGUL_CHARSET			: charset = TEXT("hangul"); break;
 		case MAC_CHARSET			: charset = TEXT("mac"); break;
 		case OEM_CHARSET			: charset = TEXT("oem"); break;
 		case RUSSIAN_CHARSET		: charset = TEXT("russian"); break;
-		case SHIFTJIS_CHARSET	: charset = TEXT("shiftjis"); break;
-		case SYMBOL_CHARSET		: charset = TEXT("symbol"); break;
+		case SHIFTJIS_CHARSET		: charset = TEXT("shiftjis"); break;
+		case SYMBOL_CHARSET			: charset = TEXT("symbol"); break;
 		case TURKISH_CHARSET		: charset = TEXT("turkish"); break;
-		case VIETNAMESE_CHARSET	: charset = TEXT("vietnamese"); break;
+		case VIETNAMESE_CHARSET		: charset = TEXT("vietnamese"); break;
 		case DEFAULT_CHARSET		:
 		default						: charset = TEXT("default"); break;
 	}
@@ -298,22 +318,27 @@ TString ParseLogfontToCommand(const LPLOGFONT lf) {
 
 	//lf.lfHeight = -MulDiv( fSize, GetDeviceCaps(hdc, LOGPIXELSY ), 72 );
 	HDC hdc = GetDC(NULL);
-	HFONT hf = CreateFontIndirect(lf), oldhf = NULL;
-	TEXTMETRIC tm;
 
-	oldhf = SelectFont(hdc, hf);
-	GetTextMetrics(hdc, &tm);
+	if (hdc == NULL)
+		return tmp;
 
-	//int ptSize = (int) (-1 * (lfCurrent.lfHeight * 72 / GetDeviceCaps(hdc, LOGPIXELSY)));
-	int ptSize = MulDiv(tm.tmHeight - tm.tmInternalLeading, 72, GetDeviceCaps(hdc, LOGPIXELSY));
-	SelectFont(hdc,oldhf);
-	DeleteFont(hf);
+	HFONT hf = CreateFontIndirect(lf);
+
+	if (hf != NULL) {
+		TEXTMETRIC tm;
+
+		const HFONT oldhf = SelectFont(hdc, hf);
+		GetTextMetrics(hdc, &tm);
+
+		//int ptSize = (int) (-1 * (lfCurrent.lfHeight * 72 / GetDeviceCaps(hdc, LOGPIXELSY)));
+		const int ptSize = MulDiv(tm.tmHeight - tm.tmInternalLeading, 72, GetDeviceCaps(hdc, LOGPIXELSY));
+		SelectFont(hdc,oldhf);
+		DeleteFont(hf);
+		// [+FLAGS] [CHARSET] [SIZE] [FONTNAME]
+		tmp.tsprintf(TEXT("%s %s %d %s"), flags.to_chr(), charset.to_chr(), ptSize, lf->lfFaceName);
+	}
 	ReleaseDC(NULL, hdc);
 
-	// [+FLAGS] [CHARSET] [SIZE] [FONTNAME]
-	TString tmp;
-	
-	tmp.tsprintf(TEXT("%s %s %d %s"), flags.to_chr(), charset.to_chr(), ptSize, lf->lfFaceName);
 	return tmp;
 }
 
@@ -341,8 +366,7 @@ HICON dcxLoadIcon(const int index, TString &filename, const bool large, const TS
 		ZeroMemory(&shfi, sizeof(SHFILEINFO));
 		filetype.tsprintf(TEXT(".%s"), filename.to_chr());
 		
-		SHGetFileInfo(filetype.to_chr(), FILE_ATTRIBUTE_NORMAL, &shfi, sizeof(SHFILEINFO),
-			SHGFI_ICON | SHGFI_USEFILEATTRIBUTES | (large ? SHGFI_LARGEICON : SHGFI_SMALLICON));
+		SHGetFileInfo(filetype.to_chr(), FILE_ATTRIBUTE_NORMAL, &shfi, sizeof(SHFILEINFO), SHGFI_ICON | SHGFI_USEFILEATTRIBUTES | (large ? SHGFI_LARGEICON : SHGFI_SMALLICON));
 
 		return shfi.hIcon;
 	}
@@ -900,7 +924,7 @@ int unfoldColor(const WCHAR *color) {
 	int nColor = _wtoi(color);
 
 	while (nColor > 15) {
-		nColor -=16;
+		nColor -= 16;
 	}
 
 	return nColor;
@@ -1564,7 +1588,7 @@ void DrawRotatedText(const TString &strDraw, LPRECT rc, HDC hDC, const int nAngl
 
 	// Set the background mode to transparent for the
 	// text-output operation.
-	int nOldBkMode = SetBkMode(hDC, TRANSPARENT);
+	const int nOldBkMode = SetBkMode(hDC, TRANSPARENT);
 	// Specify the angle to draw line
 	lf.lfEscapement = nAngleLine*10;
 	int nOldGMode;
