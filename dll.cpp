@@ -60,6 +60,9 @@ SIGNALSWITCH dcxSignal;
 HANDLE hDcxMutex = NULL;
 //extern BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved );
 
+/*! \brief DllMain function is used to ensure that only one copy of DCX is loaded at a time.
+ *
+ */
 BOOL WINAPI DllMain(
 					HINSTANCE hinstDLL,  // handle to DLL module
 					DWORD fdwReason,     // reason for calling function
@@ -838,7 +841,15 @@ mIRC(WindowProps) {
 	return 1;
 }
 
-// $dcx(ActiveWindow, property)
+/*! \brief $dcx(ActiveWindow, property)
+ *
+ * $dcx(ActiveWindow, x)
+ * $dcx(ActiveWindow, y)
+ * $dcx(ActiveWindow, w)
+ * $dcx(ActiveWindow, h)
+ * $dcx(ActiveWindow, caption)
+ * $dcx(ActiveWindow, hwnd)
+ */
 mIRC(ActiveWindow) {
 	TString input(data);
 	input.trim();
@@ -885,6 +896,9 @@ mIRC(ActiveWindow) {
 	return 3;
 }
 
+/*! \brief /dcx GhostDrag 0-255
+ *
+ */
 mIRC(GhostDrag) {
 	TString input(data);
 	input.trim();

@@ -19,6 +19,11 @@ extern bool FindTreebarDock(const HWND hwnd);
 extern LPDCXULTRADOCK GetTreebarDock(const HWND hwnd);
 void UnDock(const HWND hwnd);
 
+/*! \brief DCXDOCK structure, used when adding docked windows.
+ *
+ * Added as "dcx_dock" to docked windows via AddProp()
+ */
+
 typedef struct tagDCXDOCK {
 	WNDPROC oldProc;
 	HWND win;
@@ -28,7 +33,7 @@ typedef struct tagDCXDOCK {
 
 typedef struct tagDCXDOCSIZE {
 	DWORD	width;
-	DWORD height;
+	DWORD	height;
 } DCXDOCKSIZE, *LPDCXDOCKSIZE;
 
 BOOL CALLBACK EnumDocked(HWND hwnd,LPARAM lParam)
@@ -161,6 +166,7 @@ bool DockWindow(const HWND mWnd, const HWND temp, const TCHAR *find, const TStri
 {
 	RECT rc;
 	HWND sWnd;
+	const XSwitchFlags xflags(flag);
 
 	if ((FindUltraDock(temp)) || (GetProp(temp,TEXT("dcx_docked")) != NULL)) {
 		Dcx::error(TEXT("/xdock"),TEXT("Window is Already docked."));
@@ -175,6 +181,11 @@ bool DockWindow(const HWND mWnd, const HWND temp, const TCHAR *find, const TStri
 
 	if (!IsWindow(sWnd)) {
 		Dcx::error(TEXT("/xdock"),TEXT("Unable to Find Host Window."));
+		return false;
+	}
+
+	if (!xflags['+']) {
+		Dcx::error(TEXT("/xdock"),TEXT("Invalid Flags: Flags must start with a '+'"));
 		return false;
 	}
 
@@ -208,46 +219,20 @@ bool DockWindow(const HWND mWnd, const HWND temp, const TCHAR *find, const TStri
 			return false;
 		}
 	}
-	//DWORD flags = DOCKF_NORMAL;
-	//if (flag.len() > 1) {
-	//	switch(flag[1])
-	//	{
-	//		case TEXT('s'):
-	//			flags = DOCKF_SIZE;
-	//			break;
-
-	//		case TEXT('h'):
-	//			flags = DOCKF_AUTOH;
-	//			break;
-
-	//		case TEXT('v'):
-	//			flags = DOCKF_AUTOV;
-	//			break;
-
-	//		default:
-	//			flags = DOCKF_NORMAL;
-	//			break;
-	//	}
-	//	if (flag.find(TEXT('b'),0))
-	//		flags |= DOCKF_NOSCROLLBARS;
-	//	else if (flag.find(TEXT('B'),0))
-	//		flags |= DOCKF_SHOWSCROLLBARS;
-	//}
 	DWORD flags = DOCKF_NORMAL;
-	XSwitchFlags xflags(flag);
 	if (xflags[TEXT('s')])
-		flags = DOCKF_SIZE;
+		flags = DOCKF_SIZE;				// Auto size Horizontal & Vertical
 
 	if (xflags[TEXT('h')])
-		flags = DOCKF_AUTOH;
+		flags = DOCKF_AUTOH;			// Auto Size Horizontal
 
 	if (xflags[TEXT('v')])
-		flags = DOCKF_AUTOV;
+		flags = DOCKF_AUTOV;			// Auto Size Vertical
 
 	if (xflags[TEXT('b')])
-		flags |= DOCKF_NOSCROLLBARS;
+		flags |= DOCKF_NOSCROLLBARS;	// disable scrollbars
 	if (xflags[TEXT('B')])
-		flags |= DOCKF_SHOWSCROLLBARS;
+		flags |= DOCKF_SHOWSCROLLBARS;	// make scrollbars visible & don't overlap them.
 
 	SetProp(temp,TEXT("dcx_docked"),(HANDLE) flags);
 	//ShowScrollBar(sWnd,SB_BOTH,FALSE);
@@ -259,7 +244,21 @@ bool DockWindow(const HWND mWnd, const HWND temp, const TCHAR *find, const TStri
 	return true;
 }
 
-// [SWITCH] [hwnd to dock] [+options] (destination hwnd)
+/*! \brief xdock [SWITCH] [hwnd to dock] [+options] (destination hwnd)
+ *
+ * xdock -p
+ * xdock -S [1|0]
+ * xdock -T [1|0]
+ * xdock -R [1|0]
+ * xdock -M [1|0]
+ *
+ * xdock -b [hwnd to dock] [+options]
+ * xdock -c [hwnd to dock] [+options] [destination hwnd]
+ * xdock -u [hwnd to undock]
+ * xdock -n [hwnd to dock] [+options] [destination hwnd]
+ * xdock -m [hwnd to dock] [+options]
+ * xdock -r [hwnd to dock] [+options] [W] [H]
+ */
 mIRC(xdock) {
 	HWND mIRCWnd = Dcx::mIRC.getHWND();
 	TString input(data);
@@ -294,7 +293,7 @@ mIRC(xdock) {
 		return 0;
 	}
 
-	HWND dockHwnd = (HWND) input.getnexttok( ).to_num();
+	HWND dockHwnd = (HWND) input.getnexttok( ).to_num(); // tok 2
 
 	// show/hide switchbar
 	// [-S] [1|0]
@@ -342,7 +341,7 @@ mIRC(xdock) {
 		return 0;
 	}
 
-	const TString flags(input.getnexttok( ));
+	const TString flags(input.getnexttok( )); // tok 3
 
 	if ((numtok > 2) && (flags[0] != TEXT('+'))) {
 		Dcx::error(TEXT("/xdock"),TEXT("Invalid flag format"));
@@ -362,7 +361,7 @@ mIRC(xdock) {
 	// dock to nicklist/sidelistbox
 	// [-n] [hwnd to dock] [+options] [hwnd to dock with]
 	else if ((switches[1] == TEXT('n')) && (numtok > 3)) {
-		mWnd = (HWND) input.getnexttok( ).to_num();
+		mWnd = (HWND) input.getnexttok( ).to_num(); // tok 4
 
 		if (IsWindow(mWnd))
 			DockWindow(mWnd, dockHwnd, TEXT("ListBox"), flags);
@@ -374,7 +373,7 @@ mIRC(xdock) {
 	//dock to custom/channel/query/status
 	// [-c] [hwnd to dock] [+options] [hwnd to dock with]
 	else if ((switches[1] == TEXT('c')) && (numtok > 3)) {
-		mWnd = (HWND) input.getnexttok( ).to_num();
+		mWnd = (HWND) input.getnexttok( ).to_num(); // tok 4
 
 		if (IsWindow(mWnd))
 			DockWindow(mWnd, dockHwnd, NULL, flags);
@@ -409,8 +408,8 @@ mIRC(xdock) {
 	// resize docked window
 	// [-r] [hwnd to dock] [+options] [W] [H]
 	else if ((switches[1] == TEXT('r')) && (numtok > 4)) {
-		const int w = input.getnexttok( ).to_int();
-		const int h = input.getnexttok( ).to_int();
+		const int w = input.getnexttok( ).to_int(); // tok 4
+		const int h = input.getnexttok( ).to_int(); // tok 5
 
 		LPDCXULTRADOCK ud = GetUltraDock(dockHwnd);
 		DWORD dflags = 0;
@@ -473,7 +472,32 @@ mIRC(xdock) {
 	return 1;
 }
 
-// hwnd|mIRC prop
+/*! \brief $xdock(hwnd|mIRC).prop
+ *
+ * $xdock(mIRC).switchBarPos
+ * $xdock(mIRC).toolBarPos
+ * $xdock(mIRC).treeBarPos
+ * $xdock(mIRC).switchBarSize
+ * $xdock(mIRC).toolBarSize
+ * $xdock(mIRC).treeBarSize
+ * $xdock(mIRC).isSwitchBar
+ * $xdock(mIRC).isToolBar
+ * $xdock(mIRC).isTreeBar
+ * $xdock(mIRC).isMenuBar
+ * $xdock(mIRC).switchBarHwnd
+ * $xdock(mIRC).toolBarHwnd
+ * $xdock(mIRC).treeBarHwnd
+ * $xdock(mIRC).text
+ *
+ * $xdock(hwnd).isDocked
+ * $xdock(hwnd).hasDocked
+ * $xdock(hwnd).isAutoV
+ * $xdock(hwnd).isAutoH
+ * $xdock(hwnd).isAutoS
+ * $xdock(hwnd).dockSide
+ * $xdock(hwnd).text
+ *
+ */
 mIRC(_xdock)
 {
 	TString d(data);
