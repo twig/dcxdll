@@ -155,7 +155,8 @@ void mIRCLinker::initMapFile() {
 		m_hFileMap = CreateFileMapping(INVALID_HANDLE_VALUE, 0, PAGE_READWRITE, 0, MIRC_MAP_SIZE, TEXT("mIRC"));
 	}
 
-	m_pData = (PTCHAR) MapViewOfFile(m_hFileMap, FILE_MAP_ALL_ACCESS, 0, 0, 0);
+	if (m_hFileMap != NULL)
+		m_pData = (PTCHAR) MapViewOfFile(m_hFileMap, FILE_MAP_ALL_ACCESS, 0, 0, 0);
 }
 
 HWND mIRCLinker::getSwitchbar() const

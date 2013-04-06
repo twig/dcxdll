@@ -929,27 +929,29 @@ void DcxTreeView::parseCommandRequest( const TString & input ) {
 					this->setImageList(himl, TVSIL_NORMAL);
 			}
 
-			if (index < 0) {
-				if (!AddFileIcons(himl, filename, bLarge, -1)) {
-					this->showErrorEx(NULL, TEXT("-w"), TEXT("Unable to Add %s's Icons"), filename.to_chr());
-					return;
-				}
-			}
-			else {
-				const int i = ImageList_AddIcon(himl, icon);
-
-				if (tsFlags.find(TEXT('o'),0)) {
-					// overlay image
-					const int io = tsFlags.find(TEXT('o'),1) +1;
-					int o = tsFlags.mid(io, (tsFlags.len() - io)).to_int();
-
-					if (o < 1 || o > 15) {
-						this->showError(NULL, TEXT("-w"), TEXT("Overlay index out of range (1 -> 15)"));
-						o = 0;
+			if (himl != NULL) {
+				if (index < 0) {
+					if (!AddFileIcons(himl, filename, bLarge, -1)) {
+						this->showErrorEx(NULL, TEXT("-w"), TEXT("Unable to Add %s's Icons"), filename.to_chr());
+						return;
 					}
+				}
+				else {
+					const int i = ImageList_AddIcon(himl, icon);
 
-					if (o > 0)
-						ImageList_SetOverlayImage(himl, i, o);
+					if (tsFlags.find(TEXT('o'),0)) {
+						// overlay image
+						const int io = tsFlags.find(TEXT('o'),1) +1;
+						int o = tsFlags.mid(io, (tsFlags.len() - io)).to_int();
+
+						if (o < 1 || o > 15) {
+							this->showError(NULL, TEXT("-w"), TEXT("Overlay index out of range (1 -> 15)"));
+							o = 0;
+						}
+
+						if (o > 0)
+							ImageList_SetOverlayImage(himl, i, o);
+					}
 				}
 			}
 		}
@@ -963,16 +965,19 @@ void DcxTreeView::parseCommandRequest( const TString & input ) {
 					this->setImageList(himl, TVSIL_STATE);
 			}
 
-			if (index < 0) {
-				if (!AddFileIcons(himl, filename, bLarge, -1)) {
-					this->showErrorEx(NULL, TEXT("-w"), TEXT("Unable to Add %s's Icons"), filename.to_chr());
-					return;
+			if (himl != NULL) {
+				if (index < 0) {
+					if (!AddFileIcons(himl, filename, bLarge, -1)) {
+						this->showErrorEx(NULL, TEXT("-w"), TEXT("Unable to Add %s's Icons"), filename.to_chr());
+						return;
+					}
 				}
+				else
+					ImageList_AddIcon(himl, icon);
 			}
-			else
-				ImageList_AddIcon(himl, icon);
 		}
-		DestroyIcon(icon);
+		if (icon != NULL)
+			DestroyIcon(icon);
 	}
 	// xdid -y [NAME] [ID] [SWITCH] [+FLAGS]
 	else if ( flags[TEXT('y')] && numtok > 3 ) {
@@ -1000,15 +1005,15 @@ void DcxTreeView::parseCommandRequest( const TString & input ) {
 	// xdid -z [NAME] [ID] [SWITCH] [+FLAGS] N N N [TAB] [ALIAS]
 	else if (flags[TEXT('z')] && numtok > 4) {
 		const TString path(input.gettok(1, TSTAB).gettok(5, -1).trim());
-		DCXTVSORT dtvs;
+		LPDCXTVSORT dtvs = new DCXTVSORT;	// too big for stack, use heap.
 		TVSORTCB tvs;
 
-		dtvs.pthis = NULL;
-		dtvs.iSortFlags = this->parseSortFlags(input.gettok(4));
-		dtvs.pthis = this;
+		dtvs->pthis = NULL;
+		dtvs->iSortFlags = this->parseSortFlags(input.gettok(4));
+		dtvs->pthis = this;
 
 		if (input.numtok(TSTAB) > 1)
-			dtvs.tsCustomAlias = input.gettok(2, TSTAB).trim();
+			dtvs->tsCustomAlias = input.gettok(2, TSTAB).trim();
 
 		ZeroMemory( &tvs, sizeof(TVSORTCB) );
 		tvs.lpfnCompare = DcxTreeView::sortItemsEx;
@@ -1022,15 +1027,17 @@ void DcxTreeView::parseCommandRequest( const TString & input ) {
 
 			if (item == NULL) {
 				this->showErrorEx(NULL, TEXT("-z"), TEXT("Unable to parse path: %s"), path.to_chr());
+				delete dtvs;
 				return;
 			}
 
 			tvs.hParent = item;
 		}
-		if (dtvs.iSortFlags & TVSS_ALL)
+		if (dtvs->iSortFlags & TVSS_ALL)
 			TreeView_SortChildrenCB(this->m_Hwnd, &tvs, TRUE); // NB: doesnt recurse!! This is a OS problem.
-		else if (dtvs.iSortFlags & TVSS_SINGLE)
+		else if (dtvs->iSortFlags & TVSS_SINGLE)
 			TreeView_SortChildrenCB(this->m_Hwnd, &tvs, FALSE);
+		delete dtvs;
 	}
 	// xdid -G [NAME] [ID] [SWITCH] [+FLAGS] [X] [Y] (FILENAME)
 	else if (flags[TEXT('G')] && numtok > 6) {
@@ -1219,7 +1226,8 @@ void DcxTreeView::insertItem(const TString * path, const TString * data, const T
 
 	if (itemtext.len() > 0) {
 		tvi.pszText = itemtext.to_chr();
-		tvi.cchTextMax = sizeof(tvi.pszText) / sizeof(tvi.pszText[0]);
+		//tvi.cchTextMax = sizeof(tvi.pszText) / sizeof(tvi.pszText[0]);	// WTF??
+		tvi.cchTextMax = itemtext.len();
 		tvi.mask |= TVIF_TEXT;
 	}
 	// icons
@@ -1428,20 +1436,20 @@ UINT DcxTreeView::parseToggleFlags( const TString & flags ) {
 int CALLBACK DcxTreeView::sortItemsEx( LPARAM lParam1, LPARAM lParam2, LPARAM lParamSort ) {
 
 	LPDCXTVSORT ptvsort = (LPDCXTVSORT) lParamSort;
-	TCHAR itemtext1[MIRC_BUFFER_SIZE_CCH];
-	TCHAR itemtext2[MIRC_BUFFER_SIZE_CCH];
-
 	LPDCXTVITEM lptvi1 = (LPDCXTVITEM) lParam1;
 	LPDCXTVITEM lptvi2 = (LPDCXTVITEM) lParam2;
 
-	ptvsort->pthis->getItemText( &lptvi1->hHandle, itemtext1, MIRC_BUFFER_SIZE_CCH );
-	ptvsort->pthis->getItemText( &lptvi2->hHandle, itemtext2, MIRC_BUFFER_SIZE_CCH );
+	if ((ptvsort == NULL) || (lptvi1 == NULL) || (lptvi2 == NULL))
+		return 0;
+
+	ptvsort->pthis->getItemText( &lptvi1->hHandle, ptvsort->itemtext1, MIRC_BUFFER_SIZE_CCH );
+	ptvsort->pthis->getItemText( &lptvi2->hHandle, ptvsort->itemtext2, MIRC_BUFFER_SIZE_CCH );
 
 	// CUSTOM Sort
 	if ( ptvsort->iSortFlags & TVSS_CUSTOM ) {
 
 		TCHAR res[20];
-		Dcx::mIRC.evalex( res, 20, TEXT("$%s(%s,%s)"), ptvsort->tsCustomAlias.to_chr( ), itemtext1, itemtext2 );
+		Dcx::mIRC.evalex( res, 20, TEXT("$%s(%s,%s)"), ptvsort->tsCustomAlias.to_chr( ), ptvsort->itemtext1, ptvsort->itemtext2 );
 
 		int ires = dcx_atoi(res);
 
@@ -1463,8 +1471,8 @@ int CALLBACK DcxTreeView::sortItemsEx( LPARAM lParam1, LPARAM lParam2, LPARAM lP
 	// NUMERIC Sort
 	else if ( ptvsort->iSortFlags & TVSS_NUMERIC ) {
 
-		const int i1 = dcx_atoi( itemtext1 );
-		const int i2 = dcx_atoi( itemtext2 );
+		const int i1 = dcx_atoi( ptvsort->itemtext1 );
+		const int i2 = dcx_atoi( ptvsort->itemtext2 );
 
 		if ( ptvsort->iSortFlags & TVSS_DESC ) {
 
@@ -1486,15 +1494,15 @@ int CALLBACK DcxTreeView::sortItemsEx( LPARAM lParam1, LPARAM lParam2, LPARAM lP
 
 		if ( ptvsort->iSortFlags & TVSS_DESC ) {
 			if ( ptvsort->iSortFlags & TVSS_CASE )
-				return -lstrcmp( itemtext1, itemtext2 );
+				return -lstrcmp( ptvsort->itemtext1, ptvsort->itemtext2 );
 			else
-				return -lstrcmpi( itemtext1, itemtext2 );
+				return -lstrcmpi( ptvsort->itemtext1, ptvsort->itemtext2 );
 		}
 		else {
 			if ( ptvsort->iSortFlags & TVSS_CASE )
-				return lstrcmp( itemtext1, itemtext2 );
+				return lstrcmp( ptvsort->itemtext1, ptvsort->itemtext2 );
 			else
-				return lstrcmpi( itemtext1, itemtext2 );
+				return lstrcmpi( ptvsort->itemtext1, ptvsort->itemtext2 );
 		}
 	}
 

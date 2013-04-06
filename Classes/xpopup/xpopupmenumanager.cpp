@@ -474,126 +474,259 @@ void XPopupMenuManager::parseCommand( const TString & input, XPopupMenu *p_Menu 
 
 void XPopupMenuManager::parseIdentifier( const TString & input, TCHAR * szReturnValue ) const
 {
-	const int numtok = input.numtok( );
+	const UINT numtok = input.numtok( );
 	const TString tsMenuName(input.getfirsttok( 1 ));
 	const TString prop(input.getnexttok( ));	// tok 2
 
 	XPopupMenu * p_Menu = const_cast<XPopupMenuManager *>(this)->getMenuByName(tsMenuName, TRUE);
 
-	if ((p_Menu == NULL) && (prop != TEXT("ismenu")) && (prop != TEXT("menuname")) && (prop != TEXT("menubar"))) {
+	static const TString propList(TEXT("ismenu menuname menubar style exstyle colors color isrounded alpha marked"));
+	const int nType = propList.findtok(prop.to_chr(),1);
+
+	if ((p_Menu == NULL) && (nType > 3)) {
 		Dcx::errorex(TEXT("$!xpopup()"), TEXT("\"%s\" doesn't exist, see /xpopup -c"), tsMenuName.to_chr());
 		return;
 	}
 
-	if (prop == TEXT("ismenu")) {
-		lstrcpyn( szReturnValue, ((p_Menu != NULL)?TEXT("$true"):TEXT("$false")), MIRC_BUFFER_SIZE_CCH );
-		return;
-	}
-	else if (prop == TEXT("menuname")) {
-		const int i = tsMenuName.to_int();
-
-		if ((i < 0) || (i > (int) this->m_vpXPMenu.size()))
+	switch (nType) {
+	case 1: // ismenu
 		{
-			Dcx::errorex(TEXT("$!xpopup().menuname"), TEXT("Invalid index: %d"), i);
-			return;
+			lstrcpyn( szReturnValue, ((p_Menu != NULL)?TEXT("$true"):TEXT("$false")), MIRC_BUFFER_SIZE_CCH );
 		}
+		break;
+	case 2: // menuname
+		{
+			const int i = tsMenuName.to_int();
 
-		// Return number of menus.
-		if (i == 0)
-			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), (int) this->m_vpXPMenu.size());
-		// Return name of specified menu.
-		else
-			lstrcpyn(szReturnValue, this->m_vpXPMenu[i -1]->getName().to_chr(),MIRC_BUFFER_SIZE_CCH);
+			if ((i < 0) || (i > (int) this->m_vpXPMenu.size()))
+			{
+				szReturnValue[0] = 0;
+				Dcx::errorex(TEXT("$!xpopup().menuname"), TEXT("Invalid index: %d"), i);
+				return;
+			}
 
-		return;
-	}
-	else if ( prop == TEXT("style") ) {
-
-		switch (p_Menu->getStyle( )) {
-			case XPopupMenu::XPMS_OFFICE2003:
-				lstrcpyn( szReturnValue, TEXT("office2003"), MIRC_BUFFER_SIZE_CCH );
-				break;
-			case XPopupMenu::XPMS_OFFICE2003_REV:
-				lstrcpyn( szReturnValue, TEXT("office2003rev"), MIRC_BUFFER_SIZE_CCH );
-				break;
-			case XPopupMenu::XPMS_OFFICEXP:
-				lstrcpyn( szReturnValue, TEXT("officeXP"), MIRC_BUFFER_SIZE_CCH );
-				break;
-			case XPopupMenu::XPMS_ICY:
-				lstrcpyn( szReturnValue, TEXT("icy"), MIRC_BUFFER_SIZE_CCH );
-				break;
-			case XPopupMenu::XPMS_ICY_REV:
-				lstrcpyn( szReturnValue, TEXT("icyrev"), MIRC_BUFFER_SIZE_CCH );
-				break;
-			case XPopupMenu::XPMS_GRADE:
-				lstrcpyn( szReturnValue, TEXT("grade"), MIRC_BUFFER_SIZE_CCH );
-				break;
-			case XPopupMenu::XPMS_GRADE_REV:
-				lstrcpyn( szReturnValue, TEXT("graderev"), MIRC_BUFFER_SIZE_CCH );
-				break;
-			case XPopupMenu::XPMS_VERTICAL:
-				lstrcpyn( szReturnValue, TEXT("vertical"), MIRC_BUFFER_SIZE_CCH );
-				break;
-			case XPopupMenu::XPMS_VERTICAL_REV:
-				lstrcpyn( szReturnValue, TEXT("verticalrev"), MIRC_BUFFER_SIZE_CCH );
-				break;
-			case XPopupMenu::XPMS_NORMAL:
-				lstrcpyn( szReturnValue, TEXT("normal"), MIRC_BUFFER_SIZE_CCH );
-				break;
-			case XPopupMenu::XPMS_CUSTOM:
-				lstrcpyn( szReturnValue, TEXT("custom"), MIRC_BUFFER_SIZE_CCH );
-				break;
-			default:
-				lstrcpyn( szReturnValue, TEXT("unknown"), MIRC_BUFFER_SIZE_CCH );
-				break;
+			// Return number of menus.
+			if (i == 0)
+				wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), (int) this->m_vpXPMenu.size());
+			// Return name of specified menu.
+			else
+				lstrcpyn(szReturnValue, this->m_vpXPMenu[i -1]->getName().to_chr(),MIRC_BUFFER_SIZE_CCH);
 		}
-		return;
-	}
-	else if ( prop == TEXT("exstyle") ) {
-
-		TString styles(TEXT('+'));
-		const UINT iExStyles = p_Menu->getItemStyle( );
-
-		if ( iExStyles & XPS_ICON3D )
-			styles += TEXT('i');
-		if ( iExStyles & XPS_DISABLEDSEL )
-			styles += TEXT('d');
-		if ( iExStyles & XPS_ICON3DSHADOW )
-			styles += TEXT('p');
-
-		lstrcpyn( szReturnValue, styles.to_chr( ), MIRC_BUFFER_SIZE_CCH );
-		return;
-	}
-	else if ( prop == TEXT("colors") ) {
-
-		wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%ld %ld %ld %ld %ld %ld %ld %ld %ld %ld %ld"), p_Menu->getColor( 1 ), p_Menu->getColor( 2 ),
-			p_Menu->getColor( 3 ), p_Menu->getColor( 3 ), p_Menu->getColor( 5 ), p_Menu->getColor( 6 ),
-			p_Menu->getColor( 7 ), p_Menu->getColor( 8 ), p_Menu->getColor( 9 ), p_Menu->getColor( 10 ), p_Menu->getColor( 11 ) );
-		return;
-
-	}
-	else if ( prop == TEXT("color") && numtok > 2 ) {
-
-		const int nColor = input.getnexttok( ).to_int( );	// tok 3
-		if ( nColor > 0 && nColor < 11 ) {
-
-			wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%ld"), p_Menu->getColor( nColor ) );
-			return;
+		break;
+	case 3: // menubar
+		break;
+	case 4: // style
+		{
+			switch (p_Menu->getStyle( )) {
+				case XPopupMenu::XPMS_OFFICE2003:
+					lstrcpyn( szReturnValue, TEXT("office2003"), MIRC_BUFFER_SIZE_CCH );
+					break;
+				case XPopupMenu::XPMS_OFFICE2003_REV:
+					lstrcpyn( szReturnValue, TEXT("office2003rev"), MIRC_BUFFER_SIZE_CCH );
+					break;
+				case XPopupMenu::XPMS_OFFICEXP:
+					lstrcpyn( szReturnValue, TEXT("officeXP"), MIRC_BUFFER_SIZE_CCH );
+					break;
+				case XPopupMenu::XPMS_ICY:
+					lstrcpyn( szReturnValue, TEXT("icy"), MIRC_BUFFER_SIZE_CCH );
+					break;
+				case XPopupMenu::XPMS_ICY_REV:
+					lstrcpyn( szReturnValue, TEXT("icyrev"), MIRC_BUFFER_SIZE_CCH );
+					break;
+				case XPopupMenu::XPMS_GRADE:
+					lstrcpyn( szReturnValue, TEXT("grade"), MIRC_BUFFER_SIZE_CCH );
+					break;
+				case XPopupMenu::XPMS_GRADE_REV:
+					lstrcpyn( szReturnValue, TEXT("graderev"), MIRC_BUFFER_SIZE_CCH );
+					break;
+				case XPopupMenu::XPMS_VERTICAL:
+					lstrcpyn( szReturnValue, TEXT("vertical"), MIRC_BUFFER_SIZE_CCH );
+					break;
+				case XPopupMenu::XPMS_VERTICAL_REV:
+					lstrcpyn( szReturnValue, TEXT("verticalrev"), MIRC_BUFFER_SIZE_CCH );
+					break;
+				case XPopupMenu::XPMS_NORMAL:
+					lstrcpyn( szReturnValue, TEXT("normal"), MIRC_BUFFER_SIZE_CCH );
+					break;
+				case XPopupMenu::XPMS_CUSTOM:
+					lstrcpyn( szReturnValue, TEXT("custom"), MIRC_BUFFER_SIZE_CCH );
+					break;
+				default:
+					lstrcpyn( szReturnValue, TEXT("unknown"), MIRC_BUFFER_SIZE_CCH );
+					break;
+			}
 		}
+		break;
+	case 5: // exstyle
+		{
+			TString styles(TEXT('+'));
+			const UINT iExStyles = p_Menu->getItemStyle( );
+
+			if ( iExStyles & XPS_ICON3D )
+				styles += TEXT('i');
+			if ( iExStyles & XPS_DISABLEDSEL )
+				styles += TEXT('d');
+			if ( iExStyles & XPS_ICON3DSHADOW )
+				styles += TEXT('p');
+
+			lstrcpyn( szReturnValue, styles.to_chr( ), MIRC_BUFFER_SIZE_CCH );
+		}
+		break;
+	case 6: // colors
+		{
+			wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%ld %ld %ld %ld %ld %ld %ld %ld %ld %ld %ld"), p_Menu->getColor( 1 ), p_Menu->getColor( 2 ),
+				p_Menu->getColor( 3 ), p_Menu->getColor( 3 ), p_Menu->getColor( 5 ), p_Menu->getColor( 6 ),
+				p_Menu->getColor( 7 ), p_Menu->getColor( 8 ), p_Menu->getColor( 9 ), p_Menu->getColor( 10 ), p_Menu->getColor( 11 ) );
+		}
+		break;
+	case 7: // color
+		{
+			if (numtok > 2) {
+				const int nColor = input.getnexttok( ).to_int( );	// tok 3
+				if ( nColor > 0 && nColor < 11 )
+					wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%ld"), p_Menu->getColor( nColor ) );
+			}
+			else
+				szReturnValue[0] = 0;
+
+		}
+		break;
+	case 8: // isrounded
+		{
+			lstrcpyn( szReturnValue, ((p_Menu->IsRounded() ? TEXT("$true") : TEXT("$false"))), MIRC_BUFFER_SIZE_CCH);
+		}
+		break;
+	case 9: // alpha
+		{
+			wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%ld"), p_Menu->IsAlpha());
+		}
+		break;
+	case 10: // marked
+		{
+			lstrcpyn(szReturnValue, p_Menu->getMarkedText().to_chr(), MIRC_BUFFER_SIZE_CCH);
+		}
+		break;
+	case 0:
+	default:
+		szReturnValue[0] = 0;
+		Dcx::errorex(TEXT("$!xpopup()"), TEXT("Unknown prop \"%s\""), prop.to_chr());
+		break;
 	}
-	else if ( prop == TEXT("isrounded")) {
-		lstrcpyn( szReturnValue, ((p_Menu->IsRounded() ? TEXT("$true") : TEXT("$false"))), MIRC_BUFFER_SIZE_CCH);
-		return;
-	}
-	else if ( prop == TEXT("alpha")) {
-		wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%ld"), p_Menu->IsAlpha());
-		return;
-	}
-	else if (prop == TEXT("marked")) {
-		lstrcpyn(szReturnValue, p_Menu->getMarkedText().to_chr(), MIRC_BUFFER_SIZE_CCH);
-		return;
-	}
-	szReturnValue[0] = 0;
+
+	//if ((p_Menu == NULL) && ((prop != TEXT("ismenu") && (prop != TEXT("menuname")) && (prop != TEXT("menubar")))) {
+	//	Dcx::errorex(TEXT("$!xpopup()"), TEXT("\"%s\" doesn't exist, see /xpopup -c"), tsMenuName.to_chr());
+	//	return;
+	//}
+
+	//if (prop == TEXT("ismenu")) {
+	//	lstrcpyn( szReturnValue, ((p_Menu != NULL)?TEXT("$true"):TEXT("$false")), MIRC_BUFFER_SIZE_CCH );
+	//	return;
+	//}
+	//else if (prop == TEXT("menuname")) {
+	//	const int i = tsMenuName.to_int();
+
+	//	if ((i < 0) || (i > (int) this->m_vpXPMenu.size()))
+	//	{
+	//		Dcx::errorex(TEXT("$!xpopup().menuname"), TEXT("Invalid index: %d"), i);
+	//		return;
+	//	}
+
+	//	// Return number of menus.
+	//	if (i == 0)
+	//		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), (int) this->m_vpXPMenu.size());
+	//	// Return name of specified menu.
+	//	else
+	//		lstrcpyn(szReturnValue, this->m_vpXPMenu[i -1]->getName().to_chr(),MIRC_BUFFER_SIZE_CCH);
+
+	//	return;
+	//}
+	//else if ( prop == TEXT("style") ) {
+
+	//	switch (p_Menu->getStyle( )) {
+	//		case XPopupMenu::XPMS_OFFICE2003:
+	//			lstrcpyn( szReturnValue, TEXT("office2003"), MIRC_BUFFER_SIZE_CCH );
+	//			break;
+	//		case XPopupMenu::XPMS_OFFICE2003_REV:
+	//			lstrcpyn( szReturnValue, TEXT("office2003rev"), MIRC_BUFFER_SIZE_CCH );
+	//			break;
+	//		case XPopupMenu::XPMS_OFFICEXP:
+	//			lstrcpyn( szReturnValue, TEXT("officeXP"), MIRC_BUFFER_SIZE_CCH );
+	//			break;
+	//		case XPopupMenu::XPMS_ICY:
+	//			lstrcpyn( szReturnValue, TEXT("icy"), MIRC_BUFFER_SIZE_CCH );
+	//			break;
+	//		case XPopupMenu::XPMS_ICY_REV:
+	//			lstrcpyn( szReturnValue, TEXT("icyrev"), MIRC_BUFFER_SIZE_CCH );
+	//			break;
+	//		case XPopupMenu::XPMS_GRADE:
+	//			lstrcpyn( szReturnValue, TEXT("grade"), MIRC_BUFFER_SIZE_CCH );
+	//			break;
+	//		case XPopupMenu::XPMS_GRADE_REV:
+	//			lstrcpyn( szReturnValue, TEXT("graderev"), MIRC_BUFFER_SIZE_CCH );
+	//			break;
+	//		case XPopupMenu::XPMS_VERTICAL:
+	//			lstrcpyn( szReturnValue, TEXT("vertical"), MIRC_BUFFER_SIZE_CCH );
+	//			break;
+	//		case XPopupMenu::XPMS_VERTICAL_REV:
+	//			lstrcpyn( szReturnValue, TEXT("verticalrev"), MIRC_BUFFER_SIZE_CCH );
+	//			break;
+	//		case XPopupMenu::XPMS_NORMAL:
+	//			lstrcpyn( szReturnValue, TEXT("normal"), MIRC_BUFFER_SIZE_CCH );
+	//			break;
+	//		case XPopupMenu::XPMS_CUSTOM:
+	//			lstrcpyn( szReturnValue, TEXT("custom"), MIRC_BUFFER_SIZE_CCH );
+	//			break;
+	//		default:
+	//			lstrcpyn( szReturnValue, TEXT("unknown"), MIRC_BUFFER_SIZE_CCH );
+	//			break;
+	//	}
+	//	return;
+	//}
+	//else if ( prop == TEXT("exstyle") ) {
+
+	//	TString styles(TEXT('+'));
+	//	const UINT iExStyles = p_Menu->getItemStyle( );
+
+	//	if ( iExStyles & XPS_ICON3D )
+	//		styles += TEXT('i');
+	//	if ( iExStyles & XPS_DISABLEDSEL )
+	//		styles += TEXT('d');
+	//	if ( iExStyles & XPS_ICON3DSHADOW )
+	//		styles += TEXT('p');
+
+	//	lstrcpyn( szReturnValue, styles.to_chr( ), MIRC_BUFFER_SIZE_CCH );
+	//	return;
+	//}
+	//else if ( prop == TEXT("colors") ) {
+
+	//	wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%ld %ld %ld %ld %ld %ld %ld %ld %ld %ld %ld"), p_Menu->getColor( 1 ), p_Menu->getColor( 2 ),
+	//		p_Menu->getColor( 3 ), p_Menu->getColor( 3 ), p_Menu->getColor( 5 ), p_Menu->getColor( 6 ),
+	//		p_Menu->getColor( 7 ), p_Menu->getColor( 8 ), p_Menu->getColor( 9 ), p_Menu->getColor( 10 ), p_Menu->getColor( 11 ) );
+	//	return;
+
+	//}
+	//else if ( prop == TEXT("color") && numtok > 2 ) {
+
+	//	const int nColor = input.getnexttok( ).to_int( );	// tok 3
+	//	if ( nColor > 0 && nColor < 11 ) {
+
+	//		wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%ld"), p_Menu->getColor( nColor ) );
+	//		return;
+	//	}
+	//}
+	//else if ( prop == TEXT("isrounded")) {
+	//	lstrcpyn( szReturnValue, ((p_Menu->IsRounded() ? TEXT("$true") : TEXT("$false"))), MIRC_BUFFER_SIZE_CCH);
+	//	return;
+	//}
+	//else if ( prop == TEXT("alpha")) {
+	//	wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%ld"), p_Menu->IsAlpha());
+	//	return;
+	//}
+	//else if (prop == TEXT("marked")) {
+	//	lstrcpyn(szReturnValue, p_Menu->getMarkedText().to_chr(), MIRC_BUFFER_SIZE_CCH);
+	//	return;
+	//}
+	//szReturnValue[0] = 0;
 }
 	
 int XPopupMenuManager::parseMPopup(const TString & input)

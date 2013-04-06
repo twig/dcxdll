@@ -29,7 +29,6 @@ LRESULT CALLBACK DividerWndProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lP
       {
         
         LPDVCONTROLDATA lpdvdata = new DVCONTROLDATA;
-        SetProp( mHwnd, TEXT("dvc_data"), (HANDLE) lpdvdata );
         ZeroMemory( lpdvdata, sizeof( DVCONTROLDATA ) );
 
         lpdvdata->m_bDragging = FALSE;
@@ -39,6 +38,8 @@ LRESULT CALLBACK DividerWndProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lP
 
         lpdvdata->m_Panes[0].cbSize = sizeof( DVPANEINFO );
         lpdvdata->m_Panes[1].cbSize = sizeof( DVPANEINFO );
+
+        SetProp( mHwnd, TEXT("dvc_data"), (HANDLE) lpdvdata );
 
         /*
        

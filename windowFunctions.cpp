@@ -187,134 +187,137 @@ HRGN BitmapRegion(HBITMAP hBitmap,COLORREF cTransparentColor,BOOL bIsTransparent
 			
 			// We create the memory data
 			HANDLE hData=GlobalAlloc(GMEM_MOVEABLE,sizeof(RGNDATAHEADER)+(sizeof(RECT)*maxRect));
-			RGNDATA *pData=(RGNDATA*) GlobalLock(hData);
-			pData->rdh.dwSize=sizeof(RGNDATAHEADER);
-			pData->rdh.iType=RDH_RECTANGLES;
-			pData->rdh.nCount=pData->rdh.nRgnSize=0;
-			SetRect(&pData->rdh.rcBound,MAXLONG,MAXLONG,0,0);
 
-			// We study each pixel on the bitmap...
-			BYTE *Pixeles=(BYTE*) bmNewBitmap.bmBits+(bmNewBitmap.bmHeight-1)*bmNewBitmap.bmWidthBytes;
+			if (hData != NULL) {
+				RGNDATA *pData=(RGNDATA*) GlobalLock(hData);
+				pData->rdh.dwSize=sizeof(RGNDATAHEADER);
+				pData->rdh.iType=RDH_RECTANGLES;
+				pData->rdh.nCount=pData->rdh.nRgnSize=0;
+				SetRect(&pData->rdh.rcBound,MAXLONG,MAXLONG,0,0);
+
+				// We study each pixel on the bitmap...
+				BYTE *Pixeles=(BYTE*) bmNewBitmap.bmBits+(bmNewBitmap.bmHeight-1)*bmNewBitmap.bmWidthBytes;
 			
-			// Main loop
-			for(int Row=0;Row<bmBitmap.bmHeight;Row++) 
-			{
-				// Horizontal loop
-				for(int Column=0;Column<bmBitmap.bmWidth;Column++)
-				{		
-					// We optimized searching for adjacent transparent pixels!
-					int Xo=Column;
-					RGBQUAD *Pixel=(RGBQUAD*) Pixeles+Column;
-
-					while(Column<bmBitmap.bmWidth) 
-					{
-						BOOL bInRange=FALSE;
-
-						// If the color is that indicated as transparent...
-						if(	Pixel->rgbRed==GetRValue(cTransparentColor) &&
-							Pixel->rgbGreen==GetGValue((cTransparentColor & 0xFFFF)) &&
-							Pixel->rgbBlue==GetBValue(cTransparentColor) )
-							bInRange=TRUE;
-
-						if((bIsTransparent) && (bInRange))
-							break;
-
-						if((!bIsTransparent) && (!bInRange))
-							break;
-
-						Pixel++;
-						Column++;
-					} // while (Column < bm.bmWidth)
-
-					if(Column>Xo) 
-					{
-						// We add the rectangle (Xo,Row),(Column,Row+1) to the region
-
-						// If the number of rectangles is greater then NUMRECT, we claim
-						// another pack of NUMRECT memory places!
-						if (pData->rdh.nCount>=maxRect)
-						{
-							GlobalUnlock(hData);
-							maxRect+=NUMRECT;
-							hData=GlobalReAlloc(hData,sizeof(RGNDATAHEADER)+(sizeof(RECT)*maxRect),GMEM_MOVEABLE);
-							pData=(RGNDATA *)GlobalLock(hData);
-						}
-
-						RECT *pRect=(RECT*) &pData->Buffer;
-						SetRect(&pRect[pData->rdh.nCount],Xo,Row,Column,Row+1);
-								
-						if(Xo<pData->rdh.rcBound.left)
-							pData->rdh.rcBound.left=Xo;
-
-						if(Row<pData->rdh.rcBound.top)
-							pData->rdh.rcBound.top=Row;
-
-						if(Column>pData->rdh.rcBound.right)
-							pData->rdh.rcBound.right=Column;
-						
-						if(Row+1>pData->rdh.rcBound.bottom)
-							pData->rdh.rcBound.bottom=Row+1;
-		
-						pData->rdh.nCount++;
-
-						// In Win95/08 there is a limitation on the maximum number of
-						// rectangles a RGN_DATA can store (aprox. 4500), so we call
-						// the API for a creation and combination with the main region
-						// each 2000 rectangles. This is a good optimization, because
-						// instead of calling the routines for combining for each new
-						// rectangle found, we call them every 2000 rectangles!!!
-						if(pData->rdh.nCount==2000)
-						{						
-							HRGN hNewRegion=ExtCreateRegion(NULL,sizeof(RGNDATAHEADER) + (sizeof(RECT) * maxRect),pData);
-							if (hNewRegion != NULL) {
-								// Si ya existe la región principal,sumamos la nueva,
-								// si no,entonces de momento la principal coincide con
-								// la nueva región.
-								if (hRegion) {
-									CombineRgn(hRegion,hRegion,hNewRegion,RGN_OR);									
-									DeleteObject(hNewRegion);
-								} else
-									hRegion=hNewRegion;
-								
-								
-							}
-							// Volvemos a comenzar la suma de rectángulos
-							pData->rdh.nCount=0;
-							SetRect(&pData->rdh.rcBound,MAXLONG,MAXLONG,0,0);
-						}			
-					
-					} // if (Column > Xo)
-				} // for (int  Column ...)
-
-				// Nueva Row. Lo del negativo se debe a que el bitmap está invertido
-				// verticalmente.
-				Pixeles -= bmNewBitmap.bmWidthBytes;
-
-			} // for (int Row...)			
-
-			if (pData->rdh.nCount > 0) {
-				// Una vez finalizado el proceso,procedemos a la fusión de la
-				// región remanente desde la última fusión hasta el final			
-				HRGN hNewRegion=ExtCreateRegion(NULL,sizeof(RGNDATAHEADER)+(sizeof(RECT)*maxRect),pData);
-
-				if(hNewRegion != NULL)
+				// Main loop
+				for(int Row=0;Row<bmBitmap.bmHeight;Row++) 
 				{
-					// If the main region does already exist, we add the new one,
-					if(hRegion)
+					// Horizontal loop
+					for(int Column=0;Column<bmBitmap.bmWidth;Column++)
+					{		
+						// We optimized searching for adjacent transparent pixels!
+						int Xo=Column;
+						RGBQUAD *Pixel=(RGBQUAD*) Pixeles+Column;
+
+						while(Column<bmBitmap.bmWidth) 
+						{
+							BOOL bInRange=FALSE;
+
+							// If the color is that indicated as transparent...
+							if(	Pixel->rgbRed==GetRValue(cTransparentColor) &&
+								Pixel->rgbGreen==GetGValue((cTransparentColor & 0xFFFF)) &&
+								Pixel->rgbBlue==GetBValue(cTransparentColor) )
+								bInRange=TRUE;
+
+							if((bIsTransparent) && (bInRange))
+								break;
+
+							if((!bIsTransparent) && (!bInRange))
+								break;
+
+							Pixel++;
+							Column++;
+						} // while (Column < bm.bmWidth)
+
+						if(Column>Xo) 
+						{
+							// We add the rectangle (Xo,Row),(Column,Row+1) to the region
+
+							// If the number of rectangles is greater then NUMRECT, we claim
+							// another pack of NUMRECT memory places!
+							if (pData->rdh.nCount>=maxRect)
+							{
+								GlobalUnlock(hData);
+								maxRect+=NUMRECT;
+								hData=GlobalReAlloc(hData,sizeof(RGNDATAHEADER)+(sizeof(RECT)*maxRect),GMEM_MOVEABLE);
+								pData=(RGNDATA *)GlobalLock(hData);
+							}	// if (pData->rdh.nCount>=maxRect)
+
+							RECT *pRect=(RECT*) &pData->Buffer;
+							SetRect(&pRect[pData->rdh.nCount],Xo,Row,Column,Row+1);
+								
+							if(Xo<pData->rdh.rcBound.left)
+								pData->rdh.rcBound.left=Xo;
+
+							if(Row<pData->rdh.rcBound.top)
+								pData->rdh.rcBound.top=Row;
+
+							if(Column>pData->rdh.rcBound.right)
+								pData->rdh.rcBound.right=Column;
+						
+							if(Row+1>pData->rdh.rcBound.bottom)
+								pData->rdh.rcBound.bottom=Row+1;
+		
+							pData->rdh.nCount++;
+
+							// In Win95/08 there is a limitation on the maximum number of
+							// rectangles a RGN_DATA can store (aprox. 4500), so we call
+							// the API for a creation and combination with the main region
+							// each 2000 rectangles. This is a good optimization, because
+							// instead of calling the routines for combining for each new
+							// rectangle found, we call them every 2000 rectangles!!!
+							if(pData->rdh.nCount==2000)
+							{						
+								HRGN hNewRegion=ExtCreateRegion(NULL,sizeof(RGNDATAHEADER) + (sizeof(RECT) * maxRect),pData);
+								if (hNewRegion != NULL) {
+									// Si ya existe la región principal,sumamos la nueva,
+									// si no,entonces de momento la principal coincide con
+									// la nueva región.
+									if (hRegion) {
+										CombineRgn(hRegion,hRegion,hNewRegion,RGN_OR);									
+										DeleteObject(hNewRegion);
+									} else
+										hRegion=hNewRegion;
+								
+								
+								}	// if (hNewRegion != NULL)
+								// Volvemos a comenzar la suma de rectángulos
+								pData->rdh.nCount=0;
+								SetRect(&pData->rdh.rcBound,MAXLONG,MAXLONG,0,0);
+							}	// if(pData->rdh.nCount==2000)
+					
+						} // if (Column > Xo)
+					} // for (int  Column ...)
+
+					// Nueva Row. Lo del negativo se debe a que el bitmap está invertido
+					// verticalmente.
+					Pixeles -= bmNewBitmap.bmWidthBytes;
+
+				} // for (int Row...)			
+
+				if (pData->rdh.nCount > 0) {
+					// Una vez finalizado el proceso,procedemos a la fusión de la
+					// región remanente desde la última fusión hasta el final			
+					HRGN hNewRegion=ExtCreateRegion(NULL,sizeof(RGNDATAHEADER)+(sizeof(RECT)*maxRect),pData);
+
+					if(hNewRegion != NULL)
 					{
-						CombineRgn(hRegion,hRegion,hNewRegion,RGN_OR);
-						DeleteObject(hNewRegion);
-					}
-					else
-						// if not, we consider the new one to be the main region at first!
-						hRegion=hNewRegion;
-				}
-			}
-			// We free the allocated memory and the rest of used ressources
-			GlobalUnlock(hData);
-			GlobalFree(hData);
-			SelectObject(hDC,hPrevBmpOrg); // don't del prev bitmap, as its our supplied one.
-			DeleteDC(hDC);
+						// If the main region does already exist, we add the new one,
+						if(hRegion)
+						{
+							CombineRgn(hRegion,hRegion,hNewRegion,RGN_OR);
+							DeleteObject(hNewRegion);
+						}
+						else
+							// if not, we consider the new one to be the main region at first!
+							hRegion=hNewRegion;
+					}	// if(hNewRegion != NULL)
+				}	// if (pData->rdh.nCount > 0)
+				// We free the allocated memory and the rest of used ressources
+				GlobalUnlock(hData);
+				GlobalFree(hData);
+				SelectObject(hDC,hPrevBmpOrg); // don't del prev bitmap, as its our supplied one.
+				DeleteDC(hDC);
+			}	// if (hData != NULL)
 
 		}// if (hDC)
 

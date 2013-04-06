@@ -605,17 +605,17 @@ mIRC(_xdock)
 			break;
 		case 12: // switchBarHwnd
 			{
-				wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), Dcx::mIRC.getSwitchbar());
+				wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%ld"), (DWORD)Dcx::mIRC.getSwitchbar()); // don't use %p as this gives a hex result.
 			}
 			break;
 		case 13: // toolBarHwnd
 			{
-				wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), Dcx::mIRC.getToolbar());
+				wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%ld"), (DWORD)Dcx::mIRC.getToolbar());
 			}
 			break;
 		case 14: // treeBarHwnd
 			{
-				wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), Dcx::mIRC.getTreebar());
+				wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%ld"), (DWORD)Dcx::mIRC.getTreebar());
 			}
 			break;
 		case 0: // error

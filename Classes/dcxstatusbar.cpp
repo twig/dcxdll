@@ -388,11 +388,13 @@ void DcxStatusBar::parseCommandRequest( const TString & input ) {
 				this->setImageList(himl);
 		}
 
-		HICON icon = dcxLoadIcon(index, filename, false, flag);
+		if (himl != NULL) {
+			HICON icon = dcxLoadIcon(index, filename, false, flag);
 
-		if (icon != NULL) {
-			ImageList_AddIcon(himl, icon);
-			DestroyIcon(icon);
+			if (icon != NULL) {
+				ImageList_AddIcon(himl, icon);
+				DestroyIcon(icon);
+			}
 		}
 	}
 	// xdid -y [NAME] [ID] [SWITCH] [+FLAGS]

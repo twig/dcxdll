@@ -637,60 +637,64 @@ HICON CreateGrayscaleIcon( HICON hIcon, COLORREF* pPalette )
 
 	if (::GetIconInfo(hIcon, &icInfo))
 	{
-		if (::GetDIBits(hdc, icInfo.hbmColor, 0, 0, NULL, &bmpInfo, DIB_RGB_COLORS) != 0)
+		if (icInfo.hbmColor != NULL)
 		{
-			SIZE sz;
-			bmpInfo.bmiHeader.biCompression = BI_RGB;
-
-			sz.cx = bmpInfo.bmiHeader.biWidth;
-			sz.cy = bmpInfo.bmiHeader.biHeight;
-			DWORD c1 = sz.cx * sz.cy;
-
-			LPDWORD lpBits = (LPDWORD)::GlobalAlloc(GMEM_FIXED, (c1) * 4);
-
-			if (lpBits && ::GetDIBits(hdc, icInfo.hbmColor, 0, sz.cy, lpBits, &bmpInfo, DIB_RGB_COLORS) != 0)
+			if (::GetDIBits(hdc, icInfo.hbmColor, 0, 0, NULL, &bmpInfo, DIB_RGB_COLORS) != 0)
 			{
-				LPBYTE lpBitsPtr     = (LPBYTE)lpBits;
-				//UINT off      = 0;
+				SIZE sz;
+				bmpInfo.bmiHeader.biCompression = BI_RGB;
 
-				for (UINT i = 0; i < c1; i++)
+				sz.cx = bmpInfo.bmiHeader.biWidth;
+				sz.cy = bmpInfo.bmiHeader.biHeight;
+				DWORD c1 = sz.cx * sz.cy;
+
+				LPDWORD lpBits = (LPDWORD)::GlobalAlloc(GMEM_FIXED, (c1) * 4);
+
+				if (lpBits && ::GetDIBits(hdc, icInfo.hbmColor, 0, sz.cy, lpBits, &bmpInfo, DIB_RGB_COLORS) != 0)
 				{
-					UINT off = (UINT)( 255 - (( lpBitsPtr[0] + lpBitsPtr[1] + lpBitsPtr[2] ) / 3) );
+					LPBYTE lpBitsPtr     = (LPBYTE)lpBits;
+					//UINT off      = 0;
 
-					if (lpBitsPtr[3] != 0 || off != 255)
+					for (UINT i = 0; i < c1; i++)
 					{
-						if (off == 0)
+						UINT off = (UINT)( 255 - (( lpBitsPtr[0] + lpBitsPtr[1] + lpBitsPtr[2] ) / 3) );
+
+						if (lpBitsPtr[3] != 0 || off != 255)
 						{
-							off = 1;
+							if (off == 0)
+							{
+								off = 1;
+							}
+
+							lpBits[i] = pPalette[off] | ( lpBitsPtr[3] << 24 );
 						}
 
-						lpBits[i] = pPalette[off] | ( lpBitsPtr[3] << 24 );
+						lpBitsPtr += 4;
 					}
 
-					lpBitsPtr += 4;
+					icGrayInfo.hbmColor = ::CreateCompatibleBitmap(hdc, sz.cx, sz.cy);
+
+					if (icGrayInfo.hbmColor != NULL)
+					{
+						::SetDIBits(hdc, icGrayInfo.hbmColor, 0, sz.cy, lpBits, &bmpInfo, DIB_RGB_COLORS);
+
+						icGrayInfo.hbmMask = icInfo.hbmMask;
+						icGrayInfo.fIcon   = TRUE;
+
+						hGrayIcon = ::CreateIconIndirect(&icGrayInfo);
+
+						::DeleteObject(icGrayInfo.hbmColor);
+					}
+
+					::GlobalFree(lpBits);
+					//lpBits = NULL;
 				}
-
-				icGrayInfo.hbmColor = ::CreateCompatibleBitmap(hdc, sz.cx, sz.cy);
-
-				if (icGrayInfo.hbmColor != NULL)
-				{
-					::SetDIBits(hdc, icGrayInfo.hbmColor, 0, sz.cy, lpBits, &bmpInfo, DIB_RGB_COLORS);
-
-					icGrayInfo.hbmMask = icInfo.hbmMask;
-					icGrayInfo.fIcon   = TRUE;
-
-					hGrayIcon = ::CreateIconIndirect(&icGrayInfo);
-
-					::DeleteObject(icGrayInfo.hbmColor);
-				}
-
-				::GlobalFree(lpBits);
-				//lpBits = NULL;
 			}
-		}
 
-		::DeleteObject(icInfo.hbmColor);
-		::DeleteObject(icInfo.hbmMask);
+			::DeleteObject(icInfo.hbmColor);
+			if (icInfo.hbmMask != NULL)
+				::DeleteObject(icInfo.hbmMask);
+		}
 	}
 
 	::ReleaseDC(NULL,hdc);
@@ -707,6 +711,7 @@ HICON CreateGrayscaleIcon( HICON hIcon )
 
 	if (!bGrayPaletteSet)
 	{
+		//#pragma loop(hint_parallel(2))
 		for(int i = 0; i < 256; i++)
 		{
 			defaultGrayPalette[i] = RGB(255-i, 255-i, 255-i);
@@ -1375,9 +1380,9 @@ void DeleteHDCBuffer(HDC *hBuffer)
 
 int TGetWindowText(HWND hwnd, TString &txt)
 {
-	int nText = GetWindowTextLength(hwnd);
+	const int nText = GetWindowTextLength(hwnd);
 	if (nText > 0) {
-		PTCHAR text = new TCHAR[++nText];
+		PTCHAR text = new TCHAR[nText+1];
 		GetWindowText(hwnd, text, nText);
 		txt = text;
 		delete [] text;
@@ -1423,6 +1428,11 @@ void FreeOSCompatibility(void)
 
 BOOL isRegexMatch(const TCHAR *matchtext, const TCHAR *pattern)
 {
+#ifdef DCX_USE_CREGEX
+	std::cmatch mr;
+	std::regex rx(TEXT("ABC"));
+	std::regex_constants::match_flag_type fl = std::regex_constants::match_default;
+#else
 #ifdef DCX_USE_BOOST
 		try {
 			//TString pat(pattern);
@@ -1530,6 +1540,7 @@ BOOL isRegexMatch(const TCHAR *matchtext, const TCHAR *pattern)
 			return TRUE;
 #endif // DCX_USE_PCRE
 #endif // DCX_USE_BOOST
+#endif // DCX_USE_CREGEX
 		return FALSE;
 }
 

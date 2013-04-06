@@ -65,7 +65,8 @@ const TCHAR *TString::m_cTab = TEXT("\t");
 
 TString::TString( )
 : m_pWString(NULL),
- m_pString(NULL)
+ m_pString(NULL),
+ m_savedtotaltoks(0)
 {
 	this->m_pString = new TCHAR[1];
 	this->m_pString[0] = 0;
@@ -81,7 +82,8 @@ TString::TString( )
 
 TString::TString( const char * cString )
 : m_pWString(NULL),
- m_pString(NULL)
+ m_pString(NULL),
+ m_savedtotaltoks(0)
 {
 #ifdef UNICODE
 	this->m_pString = charToWchar(cString);
@@ -110,7 +112,8 @@ TString::TString( const char * cString )
 
 TString::TString( const WCHAR * cString )
 : m_pWString(NULL),
- m_pString(NULL)
+ m_pString(NULL),
+ m_savedtotaltoks(0)
 {
 #ifdef UNICODE
 	if ( cString != NULL ) {
@@ -141,7 +144,8 @@ TString::TString( const WCHAR * cString )
 
 TString::TString( const WCHAR chr )
 : m_pWString(NULL),
- m_pString(NULL)
+ m_pString(NULL),
+ m_savedtotaltoks(0)
 {
 #ifdef UNICODE
 	this->m_pString = new WCHAR [2];
@@ -156,7 +160,8 @@ TString::TString( const WCHAR chr )
 
 TString::TString( const char chr )
 : m_pWString(NULL),
- m_pString(NULL)
+ m_pString(NULL),
+ m_savedtotaltoks(0)
 {
 #ifdef UNICODE
 	char cString[2];
@@ -190,7 +195,8 @@ TString::TString( const char chr )
 
 TString::TString( const TString & tString )
 : m_pWString(NULL),
- m_pString(NULL)
+ m_pString(NULL),
+ m_savedtotaltoks(0)
 {
 	if ( tString.m_pString != NULL ) {
 		const int l = lstrlen( tString.m_pString ) +1;
@@ -205,7 +211,8 @@ TString::TString( const TString & tString )
 
 TString::TString( const TCHAR *pStart, const TCHAR *pEnd )
 : m_pWString(NULL),
- m_pString(NULL)
+ m_pString(NULL),
+ m_savedtotaltoks(0)
 {
 	if ((pStart != NULL) && (pEnd != NULL) && (pEnd > pStart)) {
 #ifdef UNICODE
@@ -227,7 +234,8 @@ TString::TString( const TCHAR *pStart, const TCHAR *pEnd )
 // NB tsSize is in characters! not bytes.
 TString::TString( const unsigned int tsSize )
 : m_pWString(NULL),
- m_pString(NULL)
+ m_pString(NULL),
+ m_savedtotaltoks(0)
 {
 	this->m_pString = new TCHAR[tsSize+1];
 	ZeroMemory(this->m_pString,((tsSize+1)*sizeof(TCHAR)));
@@ -255,6 +263,7 @@ void TString::deleteWString( ) {
 		delete [] this->m_pWString; 
 		this->m_pWString = NULL;
 	}
+	this->m_savedtotaltoks = 0;
 }
 
 /****************************/
@@ -487,7 +496,7 @@ TString TString::operator -( const TString & tString ) {
 TString & TString::operator +=( const TCHAR * cString ) {
 
 	if ( cString != NULL ) {
-		int l = (lstrlen( this->m_pString ) + lstrlen( cString ) + 1);
+		const int l = (lstrlen( this->m_pString ) + lstrlen( cString ) + 1);
 		TCHAR * temp = new TCHAR [ l ];
 		lstrcpyn( temp, this->m_pString, l );
 		lstrcat( temp, cString );
@@ -520,6 +529,7 @@ TString & TString::operator +=( const TCHAR chr ) {
 		this->m_pString = new TCHAR[2];
 		this->m_pString[0] = chr;
 		this->m_pString[1] = 0;
+		this->m_savedtotaltoks = 0;
 	}
 	return *this;
 }
@@ -534,7 +544,7 @@ TString & TString::operator +=( const TCHAR chr ) {
 
 TString & TString::operator +=( const TString & tString ) {
 
-	if ( tString.m_pString ) {
+	if ( tString.m_pString != NULL ) {
 		const int l = (lstrlen( this->m_pString ) + lstrlen( tString.m_pString ) + 1);
 		TCHAR * temp = new TCHAR [ l ];
 		lstrcpyn( temp, this->m_pString, l );
@@ -1107,6 +1117,7 @@ TString & TString::operator *=( const int &N ) {
 		lstrcat( this->m_pString, temp );
 
 	delete [] temp;
+	this->m_savedtotaltoks = 0;
 	return *this;
 }
 
@@ -1128,7 +1139,7 @@ TCHAR & TString::operator []( long int N ) const {
 	static TCHAR chr = TEXT('\0');
 
 	if ( this->m_pString ) {
-		long int size = (long int) lstrlen( this->m_pString );
+		const long int size = (long int) lstrlen( this->m_pString );
 		if (N < 0) N += size;
 
 		if ( N > size - 1 || N < 0 ) 
@@ -1706,6 +1717,9 @@ unsigned int TString::numtok( const TCHAR * sepChars ) const {
 	if ( sepChars == NULL || this->m_pString == NULL)
 		return 0;
 
+	//if (this->m_savedtotaltoks > 0)
+	//	return this->m_savedtotaltoks;
+
 	if (lstrlen(this->m_pString) == 0)
 		return 0;
 
@@ -1721,6 +1735,8 @@ unsigned int TString::numtok( const TCHAR * sepChars ) const {
 		iCount++;
 		p_cStart = p_cEnd + sepl; // Ook
 	}
+	//const_cast< TString * >(this)->m_savedtotaltoks = iCount + 1;
+	//return this->m_savedtotaltoks;
 	return iCount + 1;
 }
 
@@ -1762,19 +1778,8 @@ void TString::deltok( const unsigned int N, const TCHAR * sepChars ) {
 		p_cStart = p_cEnd + sepl; // Ook
 	}
 
-	// delete the first token
-	if ( p_cStart == this->m_pString ) {
-
-		p_cEnd++;
-
-		const int l = lstrlen( p_cEnd ) + 1;
-		TCHAR * pNew = new TCHAR[ l ];
-		lstrcpyn( pNew, p_cEnd, l );
-		this->deleteString();
-		this->m_pString = pNew;
-	}
 	// last token
-	else if ( p_cEnd == NULL ) {
+	if ( p_cEnd == NULL ) {
 
 		p_cStart--;
 		*p_cStart = 0;
@@ -1782,6 +1787,17 @@ void TString::deltok( const unsigned int N, const TCHAR * sepChars ) {
 		const int l = lstrlen( this->m_pString ) + 1;
 		TCHAR * pNew = new TCHAR[ l ];
 		lstrcpyn( pNew, this->m_pString, l );
+		this->deleteString();
+		this->m_pString = pNew;
+	}
+	// delete the first token
+	else if ( p_cStart == this->m_pString ) {
+
+		p_cEnd++;
+
+		const int l = lstrlen( p_cEnd ) + 1;
+		TCHAR * pNew = new TCHAR[ l ];
+		lstrcpyn( pNew, p_cEnd, l );
 		this->deleteString();
 		this->m_pString = pNew;
 	}
@@ -1922,6 +1938,7 @@ void TString::addtok( const __int64 nToken, const TCHAR * sepChars ) {
 	this->deleteString();
 	this->m_pString = tmp.m_pString;
 	tmp.m_pString = NULL;
+	this->m_savedtotaltoks = 0;
 }
 
 bool TString::istok(const TCHAR * cToken, const TCHAR * sepChars ) const {
@@ -1982,18 +1999,8 @@ void TString::puttok( const TCHAR * cToken, int N, const TCHAR * sepChars ) {
 		p_cStart = p_cEnd + sepl; // Ook
 	}
 
-	// delete the first token
-	if ( p_cStart == this->m_pString ) {
-
-		TCHAR * pNew = new TCHAR[ lstrlen( cToken ) + lstrlen( p_cEnd ) + 1 ];
-
-		lstrcpy( pNew, cToken );
-		lstrcat( pNew, p_cEnd );
-		this->deleteString();
-		this->m_pString = pNew;
-	}
 	// last token
-	else if ( p_cEnd == NULL ) {
+	if ( p_cEnd == NULL ) {
 
 		*p_cStart = 0;
 
@@ -2001,6 +2008,16 @@ void TString::puttok( const TCHAR * cToken, int N, const TCHAR * sepChars ) {
 
 		lstrcpy( pNew, this->m_pString );
 		lstrcat( pNew, cToken );
+		this->deleteString();
+		this->m_pString = pNew;
+	}
+	// delete the first token
+	else if ( p_cStart == this->m_pString ) {
+
+		TCHAR * pNew = new TCHAR[ lstrlen( cToken ) + lstrlen( p_cEnd ) + 1 ];
+
+		lstrcpy( pNew, cToken );
+		lstrcat( pNew, p_cEnd );
 		this->deleteString();
 		this->m_pString = pNew;
 	}
@@ -2504,10 +2521,10 @@ WCHAR *TString::charToWchar(const char *cString)
 }
 char *TString::WcharTochar(const WCHAR *wString)
 {
-	int l = WideCharToMultiByte( CP_UTF8, 0, wString, -1, NULL, 0, NULL, NULL );
+	const int l = WideCharToMultiByte( CP_UTF8, 0, wString, -1, NULL, 0, NULL, NULL );
 	char *res = NULL;
 	if (l > 0) {
-		res = new char[++l];
+		res = new char[l+1];
 		WideCharToMultiByte( CP_UTF8, 0, wString, -1, res, l, NULL, NULL );
 	}
 	return res;

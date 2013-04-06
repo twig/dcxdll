@@ -2002,7 +2002,10 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 		case WM_DRAWITEM:
 			{
 				DRAWITEMSTRUCT *idata = (DRAWITEMSTRUCT *)lParam;
-				if ((idata != NULL) && (IsWindow(idata->hwndItem))) {
+				if (idata == NULL)
+					break;
+
+				if (IsWindow(idata->hwndItem)) {
 					DcxControl *c_this = (DcxControl *) GetProp(idata->hwndItem,TEXT("dcx_cthis"));
 					if (c_this != NULL)
 						lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
@@ -2095,7 +2098,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 
 				case SC_SIZE:
 					{
-						TCHAR ret[256];
+						TCHAR ret[256] = {0};
 
 						if (p_this->m_dEventMask & DCX_EVENT_SIZE) // mask only controls sending of event, if event isnt sent then DefWindowProc should still be called.
 							p_this->evalAliasEx(ret, 255, TEXT("%s,%d"), TEXT("beginsize"), 0);
@@ -2872,24 +2875,30 @@ void DcxDialog::UpdateShadow(void)
 	BYTE *pvBits;          // pointer to DIB section
 	HBITMAP hbitmap = CreateDIBSection(NULL, &bmi, DIB_RGB_COLORS, (void **)&pvBits, NULL, 0);
 
+	if (hbitmap == NULL)
+		return;
+
 	ZeroMemory(pvBits, bmi.bmiHeader.biSizeImage);
 	MakeShadow((UINT32 *)pvBits, this->m_Hwnd, &WndRect);
 
 	HDC hMemDC = CreateCompatibleDC(NULL);
-	HBITMAP hOriBmp = SelectBitmap(hMemDC, hbitmap);
+	if (hMemDC != NULL)
+	{
+		HBITMAP hOriBmp = SelectBitmap(hMemDC, hbitmap);
 
-	POINT ptDst = {WndRect.left + this->m_Shadow.nxOffset - this->m_Shadow.nSize, WndRect.top + this->m_Shadow.nyOffset - this->m_Shadow.nSize};
-	POINT ptSrc = {0, 0};
-	SIZE WndSize = {nShadWndWid, nShadWndHei};
-	BLENDFUNCTION blendPixelFunction= { AC_SRC_OVER, 0, 255, AC_SRC_ALPHA };
+		POINT ptDst = {WndRect.left + this->m_Shadow.nxOffset - this->m_Shadow.nSize, WndRect.top + this->m_Shadow.nyOffset - this->m_Shadow.nSize};
+		POINT ptSrc = {0, 0};
+		SIZE WndSize = {nShadWndWid, nShadWndHei};
+		BLENDFUNCTION blendPixelFunction= { AC_SRC_OVER, 0, 255, AC_SRC_ALPHA };
 
-	MoveWindow(this->m_Shadow.hWin, ptDst.x, ptDst.y, nShadWndWid, nShadWndHei, FALSE);
+		MoveWindow(this->m_Shadow.hWin, ptDst.x, ptDst.y, nShadWndWid, nShadWndHei, FALSE);
 
-	UpdateLayeredWindow(this->m_Shadow.hWin, NULL, &ptDst, &WndSize, hMemDC, &ptSrc, 0, &blendPixelFunction, ULW_ALPHA);
+		UpdateLayeredWindow(this->m_Shadow.hWin, NULL, &ptDst, &WndSize, hMemDC, &ptSrc, 0, &blendPixelFunction, ULW_ALPHA);
 
-	// Delete used resources
-	DeleteBitmap(SelectBitmap(hMemDC, hOriBmp));
-	DeleteDC(hMemDC);
+		// Delete used resources
+		DeleteBitmap(SelectBitmap(hMemDC, hOriBmp));
+		DeleteDC(hMemDC);
+	}
 }
 
 bool DcxDialog::isShadowed(void) const

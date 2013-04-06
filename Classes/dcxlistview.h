@@ -71,10 +71,12 @@ class DcxDialog;
 
 typedef struct tagDCXLVSORT {
 
-  TString tsCustomAlias;  //!< Custom Sorting Alias
-  UINT iSortFlags;        //!< Sorting Flags
-  HWND m_Hwnd;            //!< ListView Handle
-  int nColumn;            //!< Sorting Column
+	TString tsCustomAlias;  //!< Custom Sorting Alias
+	UINT iSortFlags;        //!< Sorting Flags
+	HWND m_Hwnd;            //!< ListView Handle
+	int nColumn;            //!< Sorting Column
+	TCHAR itemtext1[MIRC_BUFFER_SIZE_CCH];
+	TCHAR itemtext2[MIRC_BUFFER_SIZE_CCH];
 
 } DCXLVSORT,*LPDCXLVSORT;
 

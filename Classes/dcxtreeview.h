@@ -75,10 +75,11 @@ class DcxTreeView;
 
 typedef struct tagDCXTVSORT {
 
-  TString tsCustomAlias;  //!< Custom Sorting Alias
-  UINT iSortFlags;        //!< Sorting Flags
-  DcxTreeView * pthis;    //!< TreeView control object pointer
-
+	TString tsCustomAlias;  //!< Custom Sorting Alias
+	UINT iSortFlags;        //!< Sorting Flags
+	DcxTreeView * pthis;    //!< TreeView control object pointer
+	TCHAR itemtext1[MIRC_BUFFER_SIZE_CCH];	// Item text buffer One
+	TCHAR itemtext2[MIRC_BUFFER_SIZE_CCH];	// Item Text Buffer Two
 } DCXTVSORT,*LPDCXTVSORT;
 
 /*!

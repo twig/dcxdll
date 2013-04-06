@@ -135,7 +135,7 @@ void DcxScroll::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) 
 	// [NAME] [ID] [PROP]
 	else if ( prop == TEXT("line") ) {
 
-		wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d"), this->m_nLine );
+		wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), this->m_nLine );
 		return;
 	}
 	// [NAME] [ID] [PROP]
