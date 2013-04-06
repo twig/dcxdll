@@ -147,15 +147,16 @@ TiXmlNode::TiXmlNode( NodeType _type ) : TiXmlBase()
 
 TiXmlNode::~TiXmlNode()
 {
-	TiXmlNode* node = firstChild;
-	TiXmlNode* temp = 0;
+	//TiXmlNode* node = firstChild;
+	//TiXmlNode* temp = 0;
 
-	while ( node )
-	{
-		temp = node;
-		node = node->next;
-		delete temp;
-	}	
+	//while ( node )
+	//{
+	//	temp = node;
+	//	node = node->next;
+	//	delete temp;
+	//}	
+	this->Clear();
 }
 
 
@@ -169,16 +170,20 @@ void TiXmlNode::CopyTo( TiXmlNode* target ) const
 
 void TiXmlNode::Clear()
 {
-	TiXmlNode* node = firstChild;
-	TiXmlNode* temp = 0;
+	//TiXmlNode* node = firstChild;
+	//TiXmlNode* temp = 0;
 
-	while ( node )
+	//while ( node )
+	//{
+	//	temp = node;
+	//	node = node->next;
+	//	delete temp;
+	//}	
+	for (TiXmlNode *node = firstChild, *temp = NULL; node; node = temp)
 	{
-		temp = node;
-		node = node->next;
-		delete temp;
-	}	
-
+		temp = node->next;
+		delete node;
+	}
 	firstChild = 0;
 	lastChild = 0;
 }

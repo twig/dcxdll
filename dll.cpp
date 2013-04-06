@@ -877,7 +877,7 @@ mIRC(ActiveWindow) {
 	GetWindowInfo(hwnd, &wi);
 
 	if (prop == TEXT("hwnd"))         // handle
-		wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), hwnd);
+		wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%ld"), (DWORD)hwnd);	// don't use %p is this gives a hex result.
 	else if (prop == TEXT("x"))       // left
 		wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), wi.rcWindow.left);
 	else if (prop == TEXT("y"))       // top

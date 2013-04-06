@@ -9,13 +9,15 @@
 
 //extern DcxTrayIcon *trayIcons;
 
-// xTray [+flags] [id] [icon index] [icon file] $tab [tooltip]
-// Create : xTray +c [id] [+flags] [icon index] [icon file] $tab [tooltip]
-// -------> xTray +h [id] [hwnd] $tab [tooltip]
-// Edit   : xTray +e [id] [+flags] [icon index] [icon file] $tab [tooltip]
-// Icon   : xTray +i [id] [+flags] [icon index] [icon file]
-// Tooltip: xTray +T [id] (text)
-// Delete : xTray +d [id]
+/*! \brief xTray [+flags] [id] [icon index] [icon file] $tab [tooltip]
+ *
+ * Create : xTray +c [id] [+flags] [icon index] [icon file] $tab [tooltip]
+ * -------> xTray +h [id] [hwnd] $tab [tooltip]
+ * Edit   : xTray +e [id] [+flags] [icon index] [icon file] $tab [tooltip]
+ * Icon   : xTray +i [id] [+flags] [icon index] [icon file]
+ * Tooltip: xTray +T [id] (text)
+ * Delete : xTray +d [id]
+*/
 mIRC(TrayIcon) {
 	if (trayIcons == NULL) {
 		trayIcons = new DcxTrayIcon();
@@ -26,38 +28,38 @@ mIRC(TrayIcon) {
 		}
 	}
 
-	if (!trayIcons->GetHwnd()) {
+	if (trayIcons->GetHwnd() == NULL) {
 		Dcx::error(TEXT("/xtray"), TEXT("Could not start trayicon manager"));
 		return 0;
 	}
 
 	TString d(data);
 
-	UINT numtok = d.trim().numtok( );
+	const UINT numtok = d.trim().numtok( );
 
 	if (numtok < 2) {
 		Dcx::error(TEXT("/xtray"), TEXT("Insufficient parameters"));
 		return 0;
 	}
 
-	TString flags(d.getfirsttok( 1 ));
-	int id = d.getnexttok().to_int();	// tok 2
+	const XSwitchFlags xflags(d.getfirsttok( 1 ));
+	const int id = d.getnexttok().to_int();	// tok 2
 
 	// create and edit can use the same function
-	if ((flags.find(TEXT('c'), 0) || flags.find(TEXT('e'), 0)) && numtok > 3) {
+	if ((xflags[TEXT('c')] || xflags[TEXT('e')]) && numtok > 3) {
 		// find icon id in vector
-		bool exists = (trayIcons->idExists(id) ? true : false);
+		const bool bExists = (trayIcons->idExists(id) ? true : false);
 		DWORD msg = NIM_ADD;
 
 		// if create and it already exists
-		if (flags.find(TEXT('c'), 0) && (exists)) {
+		if (xflags[TEXT('c')] && (bExists)) {
 			Dcx::errorex(TEXT("/xtray"), TEXT("Cannot create trayicon: id %d already exists"), id);
 			return 0;
 		}
 
 		// if edit and it doesnt exist
-		if (flags.find(TEXT('e'), 0)) {
-			if (!exists) {
+		if (xflags[TEXT('e')]) {
+			if (!bExists) {
 				Dcx::errorex(TEXT("/xtray"), TEXT("Cannot edit trayicon: id %d does not exists"), id);
 				return 0;
 			}
@@ -66,7 +68,6 @@ mIRC(TrayIcon) {
 		}
 
 		// set up info
-		HICON icon;
 		TString tooltip;
 
 		// if theres a tooltip text
@@ -77,11 +78,11 @@ mIRC(TrayIcon) {
 		//Use a balloon ToolTip instead of a standard ToolTip. The szInfo, uTimeout, szInfoTitle, and dwInfoFlags members are valid.
 
 		// load the icon
-		TString iconFlags(d.getnexttok( ));		// tok 3
-		int index = d.getnexttok( ).to_int();	// tok 4
+		const TString iconFlags(d.getnexttok( ));	// tok 3
+		const int index = d.getnexttok( ).to_int();	// tok 4
 		TString filename(d.gettok(1, TSTAB).gettok(5, -1));
 
-		icon = dcxLoadIcon(index, filename, false, iconFlags);
+		HICON icon = dcxLoadIcon(index, filename, false, iconFlags);
 
 		// add/edit the icon
 		if (!trayIcons->modifyIcon(id, msg, icon, &tooltip)) {
@@ -92,18 +93,18 @@ mIRC(TrayIcon) {
 		}
 	}
 	// delete trayicon
-	else if (flags.find(TEXT('d'), 0)) {
+	else if (xflags[TEXT('d')]) {
 		if (!trayIcons->modifyIcon(id, NIM_DELETE)) {
 			Dcx::error(TEXT("/xtray"), TEXT("Error deleting trayicon"));
 		}
 	}
 	// change icon
 	// Icon   : xTray +i [id] [+flags] [icon index] [icon file]
-	else if (flags.find(TEXT('i'), 0) && (numtok > 4)) {
+	else if (xflags[TEXT('i')] && (numtok > 4)) {
 		// set up info
 		HICON icon;
-		TString iconFlags(d.getnexttok( ));	// tok 3
-		int index = d.getnexttok( ).to_int();	// tok 4
+		const TString iconFlags(d.getnexttok( ));	// tok 3
+		const int index = d.getnexttok( ).to_int();	// tok 4
 		TString filename(d.gettok(5, -1).trim());
 
 		// TODO: twig
@@ -118,7 +119,7 @@ mIRC(TrayIcon) {
 		}
 	}
 	// change tooltip
-	else if (flags.find(TEXT('T'), 0)) {
+	else if (xflags[TEXT('T')]) {
 		TString tip;
 
 		if (numtok > 2)

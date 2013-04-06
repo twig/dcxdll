@@ -240,50 +240,6 @@ void DcxListView::parseListviewExStyles( const TString & styles, LONG * ExStyles
 {
 	*ExStyles = LVS_EX_DOUBLEBUFFER;
 
-//	const unsigned int numtok = styles.numtok( );
-//
-//	for (unsigned int i = 1; i <= numtok; i++ )
-//	{
-//		if ( styles.gettok( i ) == TEXT("grid") ) 
-//			*ExStyles |= LVS_EX_GRIDLINES;
-//		else if ( styles.gettok( i ) == TEXT("borderselect") ) 
-//			*ExStyles |= LVS_EX_BORDERSELECT;
-//		else if ( styles.gettok( i ) == TEXT("flatsb") ) 
-//			*ExStyles |= LVS_EX_FLATSB;
-//		else if ( styles.gettok( i ) == TEXT("fullrow") ) 
-//			*ExStyles |= LVS_EX_FULLROWSELECT;
-//		else if ( styles.gettok( i ) == TEXT("checkbox") ) 
-//			*ExStyles |= LVS_EX_CHECKBOXES;
-//		else if ( styles.gettok( i ) == TEXT("headerdrag") ) 
-//			*ExStyles |= LVS_EX_HEADERDRAGDROP;
-//		else if ( styles.gettok( i ) == TEXT("hottrack") ) 
-//			*ExStyles |= LVS_EX_TRACKSELECT;
-//		else if ( styles.gettok( i ) == TEXT("oneclick") ) 
-//			*ExStyles |= LVS_EX_ONECLICKACTIVATE;
-//		else if ( styles.gettok( i ) == TEXT("twoclick") ) 
-//			*ExStyles |= LVS_EX_TWOCLICKACTIVATE;
-//		else if ( styles.gettok( i ) == TEXT("underlinehot") ) 
-//			*ExStyles |= LVS_EX_UNDERLINEHOT;
-//		else if ( styles.gettok( i ) == TEXT("underlinecold") ) 
-//			*ExStyles |= LVS_EX_UNDERLINECOLD;
-//		else if ( styles.gettok( i ) == TEXT("subitemimage") ) 
-//			*ExStyles |= LVS_EX_SUBITEMIMAGES;
-//		else if ( styles.gettok( i ) == TEXT("tooltip") )
-//			*ExStyles |= LVS_EX_LABELTIP | LVS_EX_INFOTIP;
-//#ifdef DCX_USE_WINSDK
-//		else if ( styles.gettok( i ) == TEXT("transparentbkg") )
-//			*ExStyles |= LVS_EX_TRANSPARENTBKGND;
-//		else if ( styles.gettok( i ) == TEXT("shadowtext") )
-//			*ExStyles |= LVS_EX_TRANSPARENTSHADOWTEXT;
-//		else if ( styles.gettok( i ) == TEXT("autosize") )
-//			*ExStyles |= LVS_EX_AUTOSIZECOLUMNS;
-//		else if ( styles.gettok( i ) == TEXT("headeralways") )
-//			*ExStyles |= LVS_EX_HEADERINALLVIEWS;
-//		else if ( styles.gettok( i ) == TEXT("hidelabels") )
-//			*ExStyles |= LVS_EX_HIDELABELS;
-//		// LVS_EX_AUTOCHECKSELECT LVS_EX_COLUMNSNAPPOINTS LVS_EX_JUSTIFYCOLUMNS LVS_EX_SNAPTOGRID LVS_EX_AUTOAUTOARRANGE
-//#endif
-//	}
 	for (TString tsStyle(styles.getfirsttok( 1 )); tsStyle != ""; tsStyle = styles.getnexttok( ))
 	{
 		if ( tsStyle == TEXT("grid") ) 
@@ -783,6 +739,7 @@ void DcxListView::parseInfoRequest( const TString &input, PTCHAR szReturnValue) 
 		const int GID = input.getnexttok( ).to_int( );	// tok 4
 
 		WCHAR wstr[MIRC_BUFFER_SIZE_CCH + 1];
+		wstr[0] = TEXT('\0');
 
 		LVGROUP lvg;
 		ZeroMemory( &lvg, sizeof( LVGROUP ) );
@@ -981,6 +938,7 @@ void DcxListView::parseCommandRequest( const TString &input) {
 	}
 
 	//xdid -a [NAME] [ID] [SWITCH] [N] [INDENT] [+FLAGS] [#ICON] [#STATE] [#OVERLAY] [#GROUPID] [COLOR] [BGCOLOR] Item Text {TAB}[+FLAGS] [#ICON] [#OVERLAY] [COLOR] [BGCOLOR] Item Text ...
+	//xdid -a -> [NAME] [ID] -a [N] [INDENT] [+FLAGS] [#ICON] [#STATE] [#OVERLAY] [#GROUPID] [COLOR] [BGCOLOR] Item Text {TAB}[+FLAGS] [#ICON] [#OVERLAY] [COLOR] [BGCOLOR] Item Text ...
 	if (flags[TEXT('a')] && numtok > 12) {
 		LVITEM lvi;
 		ZeroMemory(&lvi, sizeof(LVITEM));
@@ -1796,23 +1754,28 @@ void DcxListView::parseCommandRequest( const TString &input) {
 	}
 	// xdid -z [NAME] [ID] [SWITCH] [+FLAGS] [N] (ALIAS)
 	else if (flags[TEXT('z')] && numtok > 4) {
-		DCXLVSORT lvsort;
+		LPDCXLVSORT lvsort = new DCXLVSORT;	// too big for stack, use heap.
 
-		lvsort.iSortFlags = this->parseSortFlags(input.getnexttok( ));	// tok 4
+		lvsort->iSortFlags = this->parseSortFlags(input.getnexttok( ));	// tok 4
 		const int nColumn = input.getnexttok( ).to_int() -1;	// tok 5
 
-		lvsort.m_Hwnd = this->m_Hwnd;
-		lvsort.nColumn = nColumn;
+		lvsort->m_Hwnd = this->m_Hwnd;
+		lvsort->nColumn = nColumn;
 
-		if (nColumn < 0 || nColumn >= this->getColumnCount())
+		if (nColumn < 0 || nColumn >= this->getColumnCount()) {
+			delete lvsort;
 			return;
+		}
 
-		if (lvsort.iSortFlags & LVSS_CUSTOM && numtok < 6)
+		if (lvsort->iSortFlags & LVSS_CUSTOM && numtok < 6) {
+			delete lvsort;
 			return;
+		}
 		else
-			lvsort.tsCustomAlias = input.getnexttok( );		// tok 6
+			lvsort->tsCustomAlias = input.getnexttok( );		// tok 6
 
-		ListView_SortItemsEx(this->m_Hwnd, DcxListView::sortItemsEx, &lvsort);
+		ListView_SortItemsEx(this->m_Hwnd, DcxListView::sortItemsEx, lvsort);
+		delete lvsort;
 	}
 	// xdid -T [NAME] [ID] [SWITCH] [nItem] [nSubItem] (ToolTipText)
 	// atm this only seems works for subitem 0. Mainly due to the callback LVN_GETINFOTIP only being sent for sub 0.
@@ -2461,6 +2424,8 @@ BOOL DcxListView::isListViewStyle( const long dwView ) const {
 BOOL DcxListView::matchItemText( const int nItem, const int nSubItem, const TString * search, const UINT SearchType ) const
 {
 	TCHAR itemtext[MIRC_BUFFER_SIZE_CCH];
+	itemtext[0] = TEXT('\0');
+
 	ListView_GetItemText( this->m_Hwnd, nItem, nSubItem, itemtext, MIRC_BUFFER_SIZE_CCH );
 
 	switch (SearchType) {
@@ -2532,11 +2497,11 @@ int DcxListView::getBottomIndex( ) const {
 int CALLBACK DcxListView::sortItemsEx( LPARAM lParam1, LPARAM lParam2, LPARAM lParamSort ) {
 
 	LPDCXLVSORT plvsort = (LPDCXLVSORT) lParamSort;
-	TCHAR itemtext1[MIRC_BUFFER_SIZE_CCH];
-	TCHAR itemtext2[MIRC_BUFFER_SIZE_CCH];
+	plvsort->itemtext1[0] = TEXT('\0');
+	plvsort->itemtext2[0] = TEXT('\0');
 
-	ListView_GetItemText( plvsort->m_Hwnd, lParam1, plvsort->nColumn, itemtext1, MIRC_BUFFER_SIZE_CCH );
-	ListView_GetItemText( plvsort->m_Hwnd, lParam2, plvsort->nColumn, itemtext2, MIRC_BUFFER_SIZE_CCH );
+	ListView_GetItemText( plvsort->m_Hwnd, lParam1, plvsort->nColumn, plvsort->itemtext1, MIRC_BUFFER_SIZE_CCH );
+	ListView_GetItemText( plvsort->m_Hwnd, lParam2, plvsort->nColumn, plvsort->itemtext2, MIRC_BUFFER_SIZE_CCH );
 
 	// CUSTOM Sort
 	if ( plvsort->iSortFlags & LVSS_CUSTOM ) {
@@ -2544,9 +2509,9 @@ int CALLBACK DcxListView::sortItemsEx( LPARAM lParam1, LPARAM lParam2, LPARAM lP
 
 		// testing new sort call... new ver doesnt pass item text directly via alias, but instead sets a %var with the text & passes the %var name to the alias.
 		// Should solve some item name issues.
-		Dcx::mIRC.execex(TEXT("/!set -nu1 %%dcx_1sort%d %s"), itemtext1, itemtext1 );
-		Dcx::mIRC.execex(TEXT("/!set -nu1 %%dcx_2sort%d %s"), itemtext2, itemtext2 );
-		Dcx::mIRC.evalex( res, 20, TEXT("$%s(%%dcx_1sort%d,%%dcx_2sort%d)"), plvsort->tsCustomAlias.to_chr( ), itemtext1, itemtext2 );
+		Dcx::mIRC.execex(TEXT("/!set -nu1 %%dcx_1sort%d %s"), plvsort->itemtext1, plvsort->itemtext1 );
+		Dcx::mIRC.execex(TEXT("/!set -nu1 %%dcx_2sort%d %s"), plvsort->itemtext2, plvsort->itemtext2 );
+		Dcx::mIRC.evalex( res, 20, TEXT("$%s(%%dcx_1sort%d,%%dcx_2sort%d)"), plvsort->tsCustomAlias.to_chr( ), plvsort->itemtext1, plvsort->itemtext2 );
 		//
 		//Dcx::mIRC.evalex( res, 20, TEXT("$%s(%s,%s)"), plvsort->tsCustomAlias.to_chr( ), itemtext1, itemtext2 );
 
@@ -2569,8 +2534,8 @@ int CALLBACK DcxListView::sortItemsEx( LPARAM lParam1, LPARAM lParam2, LPARAM lP
 	}
 	// NUMERIC Sort
 	else if ( plvsort->iSortFlags & LVSS_NUMERIC ) {
-		const int i1 = dcx_atoi( itemtext1 );
-		const int i2 = dcx_atoi( itemtext2 );
+		const int i1 = dcx_atoi( plvsort->itemtext1 );
+		const int i2 = dcx_atoi( plvsort->itemtext2 );
 
 		if ( plvsort->iSortFlags & LVSS_DESC ) {
 
@@ -2592,15 +2557,15 @@ int CALLBACK DcxListView::sortItemsEx( LPARAM lParam1, LPARAM lParam2, LPARAM lP
 
 		if ( plvsort->iSortFlags & LVSS_DESC ) {
 			if ( plvsort->iSortFlags & LVSS_CASE )
-				return -lstrcmp( itemtext1, itemtext2 );
+				return -lstrcmp( plvsort->itemtext1, plvsort->itemtext2 );
 			else
-				return -lstrcmpi( itemtext1, itemtext2 );
+				return -lstrcmpi( plvsort->itemtext1, plvsort->itemtext2 );
 		}
 		else {
 			if ( plvsort->iSortFlags & LVSS_CASE )
-				return lstrcmp( itemtext1, itemtext2 );
+				return lstrcmp( plvsort->itemtext1, plvsort->itemtext2 );
 			else
-				return lstrcmpi( itemtext1, itemtext2 );
+				return lstrcmpi( plvsort->itemtext1, plvsort->itemtext2 );
 		}
 	}
 
@@ -2644,7 +2609,7 @@ LRESULT DcxListView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 								else if (lvh.flags & LVHT_NOWHERE)
 									this->execAliasEx(TEXT("%s,%d"), TEXT("sclick"), this->getUserID());
 
-#if !defined(NDEBUG) || defined(DCX_DEV_BUILD)
+//#if !defined(NDEBUG) || defined(DCX_DEV_BUILD)
 								if (!(lvexstyles & LVS_EX_FULLROWSELECT))
 								{ // make subitem show as selected. TEST CODE!!!!
 									LVITEM lvi = { 0 };
@@ -2665,7 +2630,7 @@ LRESULT DcxListView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 									lvi.stateMask = LVIS_SELECTED;
 									ListView_SetItem(this->m_Hwnd, &lvi);
 								}
-#endif
+//#endif
 							}
 						}
 						break;

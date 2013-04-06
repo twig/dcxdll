@@ -747,7 +747,11 @@ void DcxmlParser::parseDialog(int depth,const char *claPath,const int passedid,c
 			}
 			else break;    
 		}
-		parenttype = parent->Attribute("type");
+		if (parent != NULL)
+			parenttype = parent->Attribute("type");
+		else
+			parenttype = NULL;
+
 		if (parenttype == NULL)
 			parenttype = "panel";
 		parentid = this->parseId(parent);
@@ -841,6 +845,9 @@ void DcxmlParser::registerId(const TiXmlElement *idElement,const int id)
 }
 int DcxmlParser::parseId(const TiXmlElement* idElement)
 {
+	if (idElement == NULL)
+		return 0;
+
 	//<! if id attribute is already integer return it
 	int id = 0;
 	if (idElement->QueryIntAttribute("id",&id) == TIXML_SUCCESS)

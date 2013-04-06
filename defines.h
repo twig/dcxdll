@@ -13,7 +13,9 @@
 Some useful values for _MSC_VER if you need to target to a specific compiler.
 http://symbiancorner.blogspot.com/2007/05/how-to-detect-version-of-ms-visual.html
 
-#if _MSC_VER >= 1500 // Visual C++ 2008
+#if _MSC_VER >= 1700 // Visual C++ 2012
+#elif _MSC_VER >= 1600 // Visual C++ 2010 ?
+#elif _MSC_VER >= 1500 // Visual C++ 2008
 #elif _MSC_VER >= 1400 // Visual C++ 2005
 #elif _MSC_VER >= 1310 // Visual C++ .NET 2003
 #elif _MSC_VER > 1300 // Visual C++ .NET 2002
@@ -76,12 +78,23 @@ http://symbiancorner.blogspot.com/2007/05/how-to-detect-version-of-ms-visual.htm
 #define PCRE_STATIC 1
 // end of PCRE
 
+// DCX Using C++11 regex
+// NB: Can't be used with either BOOST OR PCRE enabled.
+//#define DCX_USE_CREGEX 1
+
+#ifdef DCX_USE_PCRE
+#undef DCX_USE_CREGEX
+#endif
 #ifdef DCX_USE_BOOST
 #undef DCX_USE_PCRE
 #endif
 
 #if defined(DCX_USE_PCRE)
 #pragma comment(lib, "pcre.lib")
+#endif
+
+#if defined(DCX_USE_CREGEX)
+#include <regex>
 #endif
 
 // --------------------------------------------------
@@ -121,8 +134,14 @@ http://symbiancorner.blogspot.com/2007/05/how-to-detect-version-of-ms-visual.htm
 //#define GDIPVER 0x0110
 
 // Windows 7 + IE V8 + GDI+ 1.1
+//#define _WIN32_WINNT 0x0601
+//#define _WIN32_IE 0x0800
+//#define WINVER 0x0601
+//#define GDIPVER 0x0110
+
+// Windows 7 + IE V10 + GDI+ 1.1
 #define _WIN32_WINNT 0x0601
-#define _WIN32_IE 0x0800
+#define _WIN32_IE 0x1000
 #define WINVER 0x0601
 #define GDIPVER 0x0110
 
@@ -142,7 +161,7 @@ http://symbiancorner.blogspot.com/2007/05/how-to-detect-version-of-ms-visual.htm
 #define DLL_VERSION    2
 #define DLL_SUBVERSION 0
 #define DLL_BUILD      SVN_BUILD
-#define DLL_DEV_BUILD  19
+#define DLL_DEV_BUILD  20
 
 #ifdef NDEBUG
 #ifdef DCX_DEV_BUILD

@@ -84,16 +84,21 @@ DcxWebControl::DcxWebControl( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, R
 		if ( this->m_dwCookie )
 			this->m_pCP->Unadvise( this->m_dwCookie );
 
-		this->m_pCP->Release( );
-		this->m_pCPC->Release( );
-		this->m_pOleInPlaceObject->Release( );
+		if (this->m_pCP != NULL)
+			this->m_pCP->Release( );
+		if (this->m_pCPC != NULL)
+			this->m_pCPC->Release( );
+		if (this->m_pOleInPlaceObject != NULL)
+			this->m_pOleInPlaceObject->Release( );
 		if ( this->m_pOleObject != NULL ) {
 
 			this->m_pOleObject->Close( OLECLOSE_NOSAVE );
 			this->m_pOleObject->Release( );
 		}
-		this->m_pWebBrowser2->Quit();
-		this->m_pWebBrowser2->Release( );
+		if (this->m_pWebBrowser2 != NULL) {
+			this->m_pWebBrowser2->Quit();
+			this->m_pWebBrowser2->Release( );
+		}
 		DestroyWindow(this->m_Hwnd);
 		throw TEXT("Unable To Create Browser Window");
 	}
@@ -565,6 +570,9 @@ LRESULT DcxWebControl::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, B
 
 LRESULT DcxWebControl::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed )
 {
+#if DCX_DEBUG_OUTPUT
+	Dcx::mIRC.signalex(true,TEXT("debug %ld"), uMsg);
+#endif
 	switch( uMsg ) {
 
 	case WM_CHILDACTIVATE:
@@ -573,6 +581,7 @@ LRESULT DcxWebControl::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 			RECT rc; 
 			GetClientRect( this->m_Hwnd, &rc );
 			this->m_pOleInPlaceObject->SetObjectRects( &rc, &rc );
+			//return 0L;
 		}
 		break;
 

@@ -680,6 +680,7 @@ LRESULT DcxComboEx::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 			if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
 				this->execAliasEx(TEXT("%s,%d,%d"), TEXT("sclick"), this->getUserID( ), this->getCurSel( ) + 1 );
 			TCHAR itemtext[MIRC_BUFFER_SIZE_CCH];
+			itemtext[0] = TEXT('\0');
 			COMBOBOXEXITEM cbex;
 			ZeroMemory( &cbex, sizeof( COMBOBOXEXITEM ) );
 			cbex.mask = CBEIF_TEXT;

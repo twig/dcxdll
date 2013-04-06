@@ -611,6 +611,9 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 		case WM_HSCROLL:
 		case WM_VSCROLL:
 			{
+				if (lParam == NULL)
+					break;
+
 				if (IsWindow((HWND) lParam)) {
 					DcxControl *c_this = (DcxControl *) GetProp((HWND) lParam,TEXT("dcx_cthis"));
 					if (c_this != NULL)

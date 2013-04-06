@@ -457,6 +457,7 @@ mIRC(_xtreebar)
 				wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), cnt);
 			else {
 				TCHAR szbuf[MIRC_BUFFER_SIZE_CCH];
+				szbuf[0] = TEXT('\0');
 				item.hItem = TreeView_MapAccIDToHTREEITEM(Dcx::mIRC.getTreeview(), index);
 				item.mask = TVIF_TEXT;
 				item.pszText = szbuf;

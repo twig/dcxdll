@@ -647,6 +647,10 @@ HBITMAP DcxControl::resizeBitmap(HBITMAP srcBM, const LPRECT rc)
 {
 	// set result to original bitmap incase resize fails at some point.
 	HBITMAP hRes = srcBM;
+
+	if (srcBM == NULL)
+		return NULL;
+
 	// create temp hdc to render from
 	HDC srcDC = CreateCompatibleDC(NULL);
 	if (srcDC != NULL) {
@@ -823,7 +827,7 @@ BOOL DcxControl::parseGlobalInfoRequest( const TString & input, TCHAR * szReturn
 	const TString prop(input.getfirsttok( 3 ));
 
 	if ( prop == TEXT("hwnd") ) {
-		wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), this->m_Hwnd );
+		wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%ld"), (DWORD)this->m_Hwnd );	// can't use %p as this gives a hex result.
 		return TRUE;
 	}
 	else if ( prop == TEXT("visible") ) {
