@@ -15,7 +15,7 @@ ColorDialog
 FontDialog
 OpenDialog
 SaveDialog
-?Version@@YGHPAUHWND__@@0PA_W1HH@Z
+Version=?Version@@YGHPAUHWND__@@0PA_W1HH@Z
 GetTaskbarPos
 MsgBox
 PickIcon
