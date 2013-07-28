@@ -318,11 +318,20 @@ mIRC(GetSystemColor) {
 	else if (coltype == TEXT("COLOR_WINDOW")			) { col = COLOR_WINDOW; }
 	else if (coltype == TEXT("COLOR_WINDOWFRAME")		) { col = COLOR_WINDOWFRAME; }
 	else if (coltype == TEXT("COLOR_WINDOWTEXT")		) { col = COLOR_WINDOWTEXT; }
+	else if (coltype == TEXT("COLOR_GLASS")				) { col = -1; }
 	else
 		ret(TEXT("D_ERROR GetSystemColor: Invalid parameter specified"));
 
-	// max of 8 digits, 9 for null terminator
-	wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), GetSysColor(col));
+	if (col == -1) {
+		RGBQUAD clr = {0};
+		BOOL bOpaque = FALSE;
+		Dcx::VistaModule.dcxDwmGetColorizationColor((DWORD *)&clr, &bOpaque);
+		wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), RGB(clr.rgbRed,clr.rgbGreen,clr.rgbBlue));
+	}
+	else {
+		// max of 8 digits, 9 for null terminator
+		wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), GetSysColor(col));
+	}
 	return 3;
 }
 
@@ -833,6 +842,11 @@ mIRC(WindowProps) {
 		//RGBQUAD clr = {0};
 		//BOOL bOpaque = FALSE;
 		//Dcx::VistaModule.dcxDwmGetColorizationColor((DWORD *)&clr, &bOpaque);
+		//HDC vhdc = GetDC(hwnd);
+		//if (vhdc != NULL) {
+		//	SetBkColor(vhdc,RGB(clr.rgbRed,clr.rgbGreen,clr.rgbBlue));
+		//	ReleaseDC(hwnd,vhdc);
+		//}
 		//SetLayeredWindowAttributes(hwnd, RGB(clr.rgbRed,clr.rgbGreen,clr.rgbBlue), 0, LWA_COLORKEY);
 		Dcx::VistaModule.dcxDwmExtendFrameIntoClientArea(hwnd, &margin);
 		RedrawWindow( hwnd, NULL, NULL, RDW_INTERNALPAINT|RDW_ALLCHILDREN|RDW_INVALIDATE|RDW_ERASE|RDW_FRAME|RDW_UPDATENOW);

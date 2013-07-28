@@ -49,6 +49,9 @@
 // Required for VS 2005
 #define _CRT_SECURE_NO_DEPRECATE 1
 // end VS2005
+// for VS2012
+#define _CRT_SECURE_NO_WARNINGS 1
+// end VS2012
 
 #include <windows.h>
 
@@ -1481,7 +1484,7 @@ TString TString::gettok( int N, const TCHAR * sepChars ) const {
 
 	const unsigned int nToks = this->numtok( sepChars );
 
-	if ( N > nToks )
+	if ( N > (int)nToks )
 		return TEXT("");
 
 	if ( N < 0 ) {
@@ -1551,7 +1554,7 @@ TString TString::gettok( int N, int M, const TCHAR * sepChars ) const {
 
 	const unsigned int nToks = this->numtok( sepChars );
 
-	if ( N > nToks )
+	if ( N > (int)nToks )
 		return TEXT("");
 
 	if ( N < 0 ) {
@@ -1561,7 +1564,7 @@ TString TString::gettok( int N, int M, const TCHAR * sepChars ) const {
 			return TEXT("");
 	}
 
-	if ( M > nToks - 1 )
+	if ( M > (int)(nToks - 1) )
 		M = -1;
 
 	TCHAR * p_cStart = this->m_pString, * p_cEnd = NULL;
@@ -1576,7 +1579,7 @@ TString TString::gettok( int N, int M, const TCHAR * sepChars ) const {
 #endif
 		iCount++;
 
-		if ( iCount == N ) {
+		if ( (int)iCount == N ) {
 
 			p_cFirst = p_cStart;
 
@@ -1584,7 +1587,7 @@ TString TString::gettok( int N, int M, const TCHAR * sepChars ) const {
 				break;
 		}
 
-		if ( iCount == M ) {
+		if ( (int)iCount == M ) {
 
 			p_cLast = p_cStart;
 			break;

@@ -74,9 +74,7 @@ DcxStatusBar::~DcxStatusBar( ) {
 	VectorOfParts::iterator itEnd = this->m_vParts.end();
 
 	while (itStart != itEnd) {
-		if (*itStart != NULL) {
-			delete *itStart;
-		}
+		delete *itStart;
 		itStart++;
 	}
 	this->cleanPartIcons( );
@@ -191,11 +189,15 @@ void DcxStatusBar::deletePartInfo(const int iPart)
 {
 	if (HIWORD( this->getTextLength( iPart ) ) & SBT_OWNERDRAW) {
 		LPSB_PARTINFO pPart = (LPSB_PARTINFO)this->getText(iPart, NULL);
+
+		if (pPart == NULL)
+			return;
+
 		VectorOfParts::iterator itStart = this->m_vParts.begin();
 		VectorOfParts::iterator itEnd = this->m_vParts.end();
 
 		while (itStart != itEnd) {
-			if (*itStart != NULL && ((LPSB_PARTINFO)*itStart) == pPart) {
+			if (((LPSB_PARTINFO)*itStart) == pPart) {
 				this->setText( iPart, SBT_OWNERDRAW, NULL);
 				delete pPart->m_Child;
 				delete pPart;

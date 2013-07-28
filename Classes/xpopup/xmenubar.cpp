@@ -288,25 +288,35 @@ void XMenuBar::setMenuBar(HMENU oldMenuBar, HMENU newMenuBar) {
 	SetMenu(Dcx::mIRC.getHWND(), newMenuBar);
 
 	// Go through old menubar items and detach them
-	VectorOfXPopupMenu temp;
-	VectorOfXPopupMenu::iterator itStart = this->m_vpXMenuBar.begin();
-	VectorOfXPopupMenu::iterator itEnd = this->m_vpXMenuBar.end();
+	//VectorOfXPopupMenu temp;
+	//VectorOfXPopupMenu::iterator itStart = this->m_vpXMenuBar.begin();
+	//VectorOfXPopupMenu::iterator itEnd = this->m_vpXMenuBar.end();
+
+	//// Add menus to a temporary list to prevent errors in looping
+	//while (itStart != itEnd) {
+	//	temp.push_back(*itStart);
+	//	++itStart;
+	//}
+
+	//itStart = temp.begin();
+	//itEnd = temp.end();
 
 	// Add menus to a temporary list to prevent errors in looping
-	while (itStart != itEnd) {
-		temp.push_back(*itStart);
-		++itStart;
+	VectorOfXPopupMenu temp(this->m_vpXMenuBar);
+#if DCX_USE_C11
+	for (const auto &x: temp) {
+		x->detachFromMenuBar(oldMenuBar);
 	}
-
-	itStart = temp.begin();
-	itEnd = temp.end();
+#else
+	VectorOfXPopupMenu::iterator itStart = temp.begin();
+	VectorOfXPopupMenu::iterator itEnd = temp.end();
 
 	// Begin detaching ...
 	while (itStart != itEnd) {
 		(*itStart)->detachFromMenuBar(oldMenuBar);
 		++itStart;
 	}
-
+#endif
 	// Destroy the menu if it isnt the original mIRC menubar.
 	if (g_OriginalMenuBar == NULL)
 		g_OriginalMenuBar = oldMenuBar;

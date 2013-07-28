@@ -158,6 +158,14 @@ void DcxDock::UnDockAll(void)
 
 bool DcxDock::FindDock(const HWND hwnd)
 {
+#if DCX_USE_C11
+	for (const auto &x: this->m_VectorDocks) {
+		if (x != NULL) {
+			if (x->hwnd == hwnd)
+				return true;
+		}
+	}
+#else
 	VectorOfDocks::iterator itStart = this->m_VectorDocks.begin();
 	VectorOfDocks::iterator itEnd = this->m_VectorDocks.end();
 
@@ -170,11 +178,20 @@ bool DcxDock::FindDock(const HWND hwnd)
 
 		itStart++;
 	}
+#endif
 	return false;
 }
 
 LPDCXULTRADOCK DcxDock::GetDock(const HWND hwnd)
 {
+#if DCX_USE_C11
+	for (const auto &x: this->m_VectorDocks) {
+		if (x != NULL) {
+			if (x->hwnd == hwnd)
+				return x;
+		}
+	}
+#else
 	VectorOfDocks::iterator itStart = this->m_VectorDocks.begin();
 	VectorOfDocks::iterator itEnd = this->m_VectorDocks.end();
 
@@ -187,6 +204,7 @@ LPDCXULTRADOCK DcxDock::GetDock(const HWND hwnd)
 
 		itStart++;
 	}
+#endif
 	return NULL;
 }
 
@@ -202,13 +220,21 @@ void DcxDock::AdjustRect(WINDOWPOS *wp)
 	if ((wp->flags & SWP_NOSIZE) && (wp->flags & SWP_NOMOVE)) // handle min/max case;
 		return;
 
-	VectorOfDocks::iterator itStart = this->m_VectorDocks.begin();
-	VectorOfDocks::iterator itEnd = this->m_VectorDocks.end();
 	RECT rcDocked;
 	int xleftoffset = 0, xrightoffset = 0, ytopoffset = 0, ybottomoffset = 0;
 	int x,y,w,h,refw,refh,nWin = 0; //nWin = this->m_VectorDocks.size();
 
 	// count visible docked windows.
+#if DCX_USE_C11
+	for (const auto &x: this->m_VectorDocks) {
+		if ((x != NULL) && IsWindowVisible(x->hwnd))
+			nWin++;
+	}
+	if (nWin == 0) return;
+#else
+	VectorOfDocks::iterator itStart = this->m_VectorDocks.begin();
+	VectorOfDocks::iterator itEnd = this->m_VectorDocks.end();
+
 	while (itStart != itEnd) {
 		if ((*itStart != NULL) && (IsWindowVisible(((LPDCXULTRADOCK)*itStart)->hwnd))) {
 			nWin++; // count docked windows.
@@ -217,6 +243,7 @@ void DcxDock::AdjustRect(WINDOWPOS *wp)
 	}
 	if (nWin == 0) return;
 	itStart = this->m_VectorDocks.begin();
+#endif
 	refh = wp->cy;
 	refw = wp->cx;
 
@@ -229,6 +256,61 @@ void DcxDock::AdjustRect(WINDOWPOS *wp)
 	HDWP tmp;
 
 	// size docks
+#if DCX_USE_C11
+	for (const auto &ud: this->m_VectorDocks) {
+		if (ud != NULL) {
+			if (IsWindowVisible(ud->hwnd)) {
+				GetWindowRect(ud->hwnd,&rcDocked);
+				OffsetRect(&rcDocked,-rcDocked.left,-rcDocked.top);
+				switch (ud->flags)
+				{
+				case DOCKF_LEFT:
+					{ // docked to left
+						x = xleftoffset;
+						y = ytopoffset;
+						w = rcDocked.right;
+						h = refh;
+						xleftoffset += rcDocked.right;
+						refw -= rcDocked.right;
+					}
+					break;
+				case DOCKF_RIGHT:
+					{ // docked to right
+						x = xrightoffset - rcDocked.right;
+						y = ytopoffset;
+						w = rcDocked.right;
+						h = refh;
+						xrightoffset += rcDocked.right;
+						refw -= rcDocked.right;
+					}
+					break;
+				case DOCKF_TOP:
+					{ // dock to top
+						x = xleftoffset;
+						y = ytopoffset;
+						w = refw;
+						h = rcDocked.bottom;
+						ytopoffset += rcDocked.bottom;
+						refh -= rcDocked.bottom;
+					}
+					break;
+				default:
+					{ // dock to bottom
+						x = xleftoffset;
+						y = ybottomoffset - rcDocked.bottom;
+						w = refw;
+						h = rcDocked.bottom;
+						ybottomoffset -= rcDocked.bottom;
+						refh -= rcDocked.bottom;
+					}
+					break;
+				}
+				tmp = DeferWindowPos(hdwp,ud->hwnd,NULL,x,y,w,h,SWP_NOZORDER|SWP_NOOWNERZORDER|SWP_NOACTIVATE);
+				if (tmp != NULL) hdwp = tmp;
+			}
+		}
+	}
+#else
 	while (itStart != itEnd) {
 		if (*itStart != NULL) {
 			LPDCXULTRADOCK ud = (LPDCXULTRADOCK)*itStart;
@@ -285,6 +367,7 @@ void DcxDock::AdjustRect(WINDOWPOS *wp)
 
 		itStart++;
 	}
+#endif
 	wp->x = xleftoffset;
 	wp->y = ytopoffset;
 	wp->cx = refw;

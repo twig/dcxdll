@@ -40,7 +40,8 @@ DcxDirectshow::DcxDirectshow( const UINT ID, DcxDialog * p_Dialog, const HWND mP
 , m_bKeepRatio(false)
 , m_bLoop(false)
 {
-	assert(_DXSDK_BUILD_MAJOR == 1962);  //this checks that the DirectX SDK (June 2010) build is installed.
+	//assert(_DXSDK_BUILD_MAJOR == 1962);  //this checks that the DirectX SDK (June 2010) build is installed. (directx sdk is now included in windows sdk 8.0+)
+	assert(DIRECT3D_VERSION >= 9);	// make sure directx version 9+ is available.
 
 	LONG Styles = 0, ExStyles = 0;
 	BOOL bNoTheme = FALSE;

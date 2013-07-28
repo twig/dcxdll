@@ -217,7 +217,7 @@ void DcxEdit::parseInfoRequest( const TString &input, PTCHAR szReturnValue) cons
 			if (numtok > 3) {
 				const int nLine = input.getnexttok( ).to_int();	// tok 4
 
-				if (nLine > 0 && nLine <= this->m_tsText.numtok(TEXT("\r\n"))) {
+				if (nLine > 0 && nLine <= (int)this->m_tsText.numtok(TEXT("\r\n"))) {
 					lstrcpyn(szReturnValue, this->m_tsText.gettok(nLine, TEXT("\r\n")).to_chr(), MIRC_BUFFER_SIZE_CCH);
 					return;
 				}

@@ -532,7 +532,7 @@ void DcxList::parseCommandRequest( const TString & input ) {
 							if (endN < 0)
 								endN = (max_lines + endN);
 							// if endN > max or == 0, set to max, allows 0 for end meaning all
-							else if ((endN > max_lines) || (endN == 0))
+							else if ((endN > (int)max_lines) || (endN == 0))
 								endN = max_lines;
 
 							// if endN < 1 set it to 1

@@ -161,10 +161,18 @@ DcxTrayIcon::DcxTrayIcon(void)
 DcxTrayIcon::~DcxTrayIcon(void)
 {
 	if (this->m_hwnd) {
+		TString ids;
+
+#if DCX_USE_C11
+		for (const auto &x: this->trayIconIDs) {
+			if (ids.len() == 0)
+				ids.tsprintf(TEXT("%d"), x);
+			else
+				ids.tsprintf(TEXT("%s %d"), ids.to_chr(), x);
+		}
+#else
 		VectorOfInts::iterator itStart = this->trayIconIDs.begin();
 		VectorOfInts::iterator itEnd = this->trayIconIDs.end();
-
-		TString ids;
 
 		while (itStart != itEnd) {
 			if (ids.len() == 0)
@@ -174,6 +182,7 @@ DcxTrayIcon::~DcxTrayIcon(void)
 
 			itStart++;
 		}
+#endif
 
 		ids.getfirsttok( 0 );
 
@@ -233,11 +242,11 @@ LRESULT CALLBACK DcxTrayIcon::TrayWndProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 }
 
 
-void DcxTrayIcon::AddIconId(int id) {
+void DcxTrayIcon::AddIconId(const int id) {
 	this->trayIconIDs.push_back(id);
 }
 
-bool DcxTrayIcon::DeleteIconId(int id) {
+bool DcxTrayIcon::DeleteIconId(const int id) {
 	// remove from internal vector list
 	VectorOfInts::iterator itStart = trayIconIDs.begin();
 	VectorOfInts::iterator itEnd = trayIconIDs.end();
@@ -254,10 +263,17 @@ bool DcxTrayIcon::DeleteIconId(int id) {
 	return false;
 }
 
-bool DcxTrayIcon::idExists(int id) {
+bool DcxTrayIcon::idExists(const int id) const {
 	// find in internal vector list
-	VectorOfInts::iterator itStart = trayIconIDs.begin();
-	VectorOfInts::iterator itEnd = trayIconIDs.end();
+#if DCX_USE_C11
+	for (const auto &x: trayIconIDs) {
+		if (x == id)
+			return true;
+	}
+	return false;
+#else
+	VectorOfInts::iterator itStart = const_cast<VectorOfInts &>(trayIconIDs).begin();
+	VectorOfInts::iterator itEnd = const_cast<VectorOfInts &>(trayIconIDs).end();
 
 	while (itStart != itEnd) {
 		if (*itStart == id)
@@ -267,9 +283,10 @@ bool DcxTrayIcon::idExists(int id) {
 	}
 
 	return false;
+#endif
 }
 
-bool DcxTrayIcon::modifyIcon(int id, DWORD msg, HICON icon, TString *tooltip) {
+bool DcxTrayIcon::modifyIcon(const int id, DWORD msg, HICON icon, TString *tooltip) {
 	// set up the icon info struct
 	bool res = false;
 	NOTIFYICONDATA nid;
