@@ -195,8 +195,6 @@ protected:
 	BOOL parseGlobalInfoRequest( const TString & input, TCHAR * szReturnValue ) const;
 
 	static UINT parseColorFlags( const TString & flags );
-	static UINT parseCursorFlags( const TString & flags );
-	static PTCHAR parseCursorType( const TString & cursor );
 
 	void registreDefaultWindowProc( );
 	void unregistreDefaultWindowProc( );

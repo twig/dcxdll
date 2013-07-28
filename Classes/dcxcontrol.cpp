@@ -94,6 +94,24 @@ DcxControl::DcxControl( const UINT mID, DcxDialog * p_Dialog )
 , m_ToolTipHWND(NULL)
 {
 	this->m_dEventMask = p_Dialog->getEventMask();
+#if DCX_USE_C11
+	if (IDC_map.size() == 0) {
+		IDC_map[TEXT("appstarting")] = IDC_APPSTARTING;
+		IDC_map[TEXT("arrow")] = IDC_ARROW;
+		IDC_map[TEXT("cross")] = IDC_CROSS;
+		IDC_map[TEXT("hand")] = IDC_HAND;
+		IDC_map[TEXT("help")] = IDC_HELP;
+		IDC_map[TEXT("ibeam")] = IDC_IBEAM;
+		IDC_map[TEXT("no")] = IDC_NO;
+		IDC_map[TEXT("sizeall")] = IDC_SIZEALL;
+		IDC_map[TEXT("sizenesw")] = IDC_SIZENESW;
+		IDC_map[TEXT("sizens")] = IDC_SIZENS;
+		IDC_map[TEXT("sizenwse")] = IDC_SIZENWSE;
+		IDC_map[TEXT("sizewe")] = IDC_SIZEWE;
+		IDC_map[TEXT("uparrow")] = IDC_UPARROW;
+		IDC_map[TEXT("wait")] = IDC_WAIT;
+	}
+#endif
 }
 
 /*!
@@ -751,69 +769,6 @@ void DcxControl::parseBorderStyles( const TString & flags, LONG * Styles, LONG *
 	if ( xflags[TEXT('w')] )
 		*ExStyles |= WS_EX_WINDOWEDGE;
 
-}
-
-/*!
- * \brief blah
- *
- * blah
- */
-
-UINT DcxControl::parseCursorFlags( const TString & flags ) {
-
-	const XSwitchFlags xflags(flags);
-	UINT iFlags = 0;
-
-	// no +sign, missing params
-	if ( !xflags[TEXT('+')] ) 
-		return iFlags;
-
-	if ( xflags[TEXT('f')] )
-		iFlags |= DCCS_FROMFILE;
-	if ( xflags[TEXT('r')] )
-		iFlags |= DCCS_FROMRESSOURCE;
-
-	return iFlags;
-}
-
-/*!
- * \brief blah
- *
- * blah
- */
-
-PTCHAR DcxControl::parseCursorType( const TString & cursor ) {
-
-  if ( cursor == TEXT("appstarting") )
-    return IDC_APPSTARTING;
-  else if ( cursor == TEXT("arrow") )
-    return IDC_ARROW;
-  else if ( cursor == TEXT("cross") )
-    return IDC_CROSS;
-  else if ( cursor == TEXT("hand") )
-    return IDC_HAND;
-  else if ( cursor == TEXT("help") )
-    return IDC_HELP;
-  else if ( cursor == TEXT("ibeam") )
-    return IDC_IBEAM;
-  else if ( cursor == TEXT("no") )
-    return IDC_NO;
-  else if ( cursor == TEXT("sizeall") )
-    return IDC_SIZEALL;
-  else if ( cursor == TEXT("sizenesw") )
-    return IDC_SIZENESW;
-  else if ( cursor == TEXT("sizens") )
-    return IDC_SIZENS;
-  else if ( cursor == TEXT("sizenwse") )
-    return IDC_SIZENWSE;
-  else if ( cursor == TEXT("sizewe") )
-    return IDC_SIZEWE;
-  else if ( cursor == TEXT("uparrow") )
-    return IDC_UPARROW;
-  else if ( cursor == TEXT("wait") )
-    return IDC_WAIT;
-
-  return NULL;
 }
 
 /*!
