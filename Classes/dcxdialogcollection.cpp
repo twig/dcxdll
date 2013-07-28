@@ -59,6 +59,13 @@ void DcxDialogCollection::markDialog( const HWND mHwnd, const TString & tsName, 
 
 DcxDialog * DcxDialogCollection::getDialogByHandle( const HWND mHwnd ) {
 
+#if DCX_USE_C11
+	for (const auto &x: this->m_vpDialog) {
+		if (x->getHwnd() == mHwnd)
+			return x;
+	}
+	return NULL;
+#else
 	VectorOfDialogPtrs::iterator itStart = this->m_vpDialog.begin( );
 	VectorOfDialogPtrs::iterator itEnd = this->m_vpDialog.end( );
 
@@ -71,6 +78,7 @@ DcxDialog * DcxDialogCollection::getDialogByHandle( const HWND mHwnd ) {
 	}
 
 	return NULL;
+#endif
 }
 
 /*!
@@ -81,6 +89,13 @@ DcxDialog * DcxDialogCollection::getDialogByHandle( const HWND mHwnd ) {
 
 DcxDialog * DcxDialogCollection::getDialogByChildHandle( const HWND mHwnd ) {
 
+#if DCX_USE_C11
+	for (const auto &x: this->m_vpDialog) {
+		if (x->getControlByHWND(mHwnd) != NULL)
+			return x;
+	}
+	return NULL;
+#else
 	VectorOfDialogPtrs::iterator itStart = this->m_vpDialog.begin( );
 	VectorOfDialogPtrs::iterator itEnd = this->m_vpDialog.end( );
 
@@ -93,6 +108,7 @@ DcxDialog * DcxDialogCollection::getDialogByChildHandle( const HWND mHwnd ) {
 	}
 
 	return NULL;
+#endif
 }
 
 /*!
@@ -102,7 +118,13 @@ DcxDialog * DcxDialogCollection::getDialogByChildHandle( const HWND mHwnd ) {
  */
 
 DcxDialog * DcxDialogCollection::getDialogByName( const TString & tsName ) {
-
+#if DCX_USE_C11
+	for (const auto &x: this->m_vpDialog) {
+		if (x->getName() == tsName)
+			return x;
+	}
+	return NULL;
+#else
 	VectorOfDialogPtrs::iterator itStart = this->m_vpDialog.begin( );
 	VectorOfDialogPtrs::iterator itEnd = this->m_vpDialog.end( );
 
@@ -124,6 +146,7 @@ DcxDialog * DcxDialogCollection::getDialogByName( const TString & tsName ) {
 	//mIRCError( "Returning NULL" );
 
 	return NULL;
+#endif
 }
 
 /*!
@@ -160,7 +183,13 @@ void DcxDialogCollection::deleteDialog( DcxDialog * p_Dialog ) {
  */
 
 bool DcxDialogCollection::safeToCloseAll(void) const {
-
+#if DCX_USE_C11
+	for (const auto &x: this->m_vpDialog) {
+		if (x->getRefCount() != 0)
+			return false;
+	}
+	return true;
+#else
 	VectorOfDialogPtrs::iterator itStart = const_cast<DcxDialogCollection *>(this)->m_vpDialog.begin( );
 	VectorOfDialogPtrs::iterator itEnd = const_cast<DcxDialogCollection *>(this)->m_vpDialog.end( );
 
@@ -173,6 +202,7 @@ bool DcxDialogCollection::safeToCloseAll(void) const {
 		itStart++;
 	}
 	return true;
+#endif
 }
 
 /*!
@@ -190,7 +220,6 @@ bool DcxDialogCollection::closeDialogs( ) {
 	VectorOfDialogPtrs::iterator itStart = this->m_vpDialog.begin( );
 	VectorOfDialogPtrs::iterator itEnd = this->m_vpDialog.end( );
 
-	//itStart = this->m_vpDialog.begin( ); // look up, we just assigned this....
 	while ( itStart != itEnd ) {
 
 		if ( *itStart != NULL ) {

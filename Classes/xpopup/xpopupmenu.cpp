@@ -1053,10 +1053,7 @@ void XPopupMenu::clearAllMenuItems( ) {
 	VectorOfXPopupMenuItem::iterator itEnd = this->m_vpMenuItem.end( );
 
 	while ( itStart != itEnd ) {
-
-		if ( *itStart != NULL )
-			delete *itStart;
-
+		delete *itStart;
 		++itStart;
 	}
 

@@ -2907,8 +2907,7 @@ LRESULT DcxListView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 								VectorOfRenderInfo::iterator itEnd = lpdcxlvi->vInfo.end();
 
 								while (itStart != itEnd) {
-									if (*itStart != NULL)
-										delete (LPDCXLVRENDERINFO)*itStart;
+									delete (LPDCXLVRENDERINFO)*itStart;
 									itStart++;
 								}
 								lpdcxlvi->vInfo.clear();

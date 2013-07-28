@@ -237,6 +237,13 @@ void DcxDialog::deleteAllControls() {
  * The ID must include the mIRC_ID_OFFSET of 6000.
  */
 DcxControl *DcxDialog::getControlByID(const UINT ID) const {
+#if DCX_USE_C11
+	for (const auto &x: this->m_vpControls) {
+		if (x->getID() == ID)
+			return x;
+	}
+	return NULL;
+#else
 	VectorOfControlPtrs::iterator itStart = const_cast<DcxDialog *>(this)->m_vpControls.begin();
 	VectorOfControlPtrs::iterator itEnd = const_cast<DcxDialog *>(this)->m_vpControls.end();
 
@@ -248,6 +255,7 @@ DcxControl *DcxDialog::getControlByID(const UINT ID) const {
 	}
 
 	return NULL;
+#endif
 }
 
 /*!
@@ -257,12 +265,15 @@ DcxControl *DcxDialog::getControlByID(const UINT ID) const {
  */
 
 DcxControl *DcxDialog::getControlByHWND(const HWND mHwnd) const {
-	//const VectorOfControlPtrs::iterator itStart = this->m_vpControls.begin();
-	//const VectorOfControlPtrs::iterator itEnd = this->m_vpControls.end();
+#if DCX_USE_C11
+	for (const auto &x: this->m_vpControls) {
+		if (x->getHwnd() == mHwnd)
+			return x;
+	}
+	return NULL;
+#else
 	VectorOfControlPtrs::iterator itStart = const_cast<DcxDialog *>(this)->m_vpControls.begin();
 	VectorOfControlPtrs::iterator itEnd = const_cast<DcxDialog *>(this)->m_vpControls.end();
-	//VectorOfControlPtrs::iterator itStart = this->m_vpControls.begin();
-	//VectorOfControlPtrs::iterator itEnd = this->m_vpControls.end();
 
 	while (itStart != itEnd) {
 		if ((*itStart)->getHwnd() == mHwnd)
@@ -272,6 +283,7 @@ DcxControl *DcxDialog::getControlByHWND(const HWND mHwnd) const {
 	}
 
 	return NULL;
+#endif
 }
 
 // clears existing image and icon data and sets pointers to null
@@ -867,12 +879,20 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 		// adding control ID to list
 		if (flag[1] == TEXT('a'))
 		{
-			// check if the ID is already in the list
-			VectorOfInts::iterator itStart = this->m_vZLayers.begin();
-			VectorOfInts::iterator itEnd = this->m_vZLayers.end();
-
 			// add mIRC offset since getControlByID() needs it
 			n += mIRC_ID_OFFSET;
+
+			// check if the ID is already in the list
+#if DCX_USE_C11
+			for (const auto &x: this->m_vZLayers) {
+				if (x == n) {
+					this->showErrorEx(NULL,TEXT("-z"),TEXT("control %d already in list"), n);
+					return;
+				}
+			}
+#else
+			VectorOfInts::iterator itStart = this->m_vZLayers.begin();
+			VectorOfInts::iterator itEnd = this->m_vZLayers.end();
 
 			while (itStart != itEnd) {
 				if (*itStart == n) {
@@ -882,6 +902,7 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 
 				itStart++;
 			}
+#endif
 
 			// if the specified control exists on the dialog, hide it
 			ctrl = getControlByID(n);
@@ -911,6 +932,28 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 				return;
 			}
 
+#if DCX_USE_C11
+			// variables used to move control
+			RECT r;
+
+			// figure out coordinates of control
+			GetWindowRect(ctrl->getHwnd(), &r);
+			MapWindowRect(NULL, GetParent(ctrl->getHwnd()), &r);
+
+			// for each control in the internal list
+			for (const auto &x: this->m_vZLayers) {
+				// ignore target control
+				if (x != n) {
+					// get control to be moved
+					ctrl = getControlByID(x);
+
+					// if it exists, move it
+					if (ctrl)
+						MoveWindow(ctrl->getHwnd(), r.left, r.top, r.right - r.left, r.bottom - r.top, FALSE);
+				}
+			}
+		}
+#else
 			// variables used to move control
 			VectorOfInts::iterator itStart = this->m_vZLayers.begin();
 			VectorOfInts::iterator itEnd = this->m_vZLayers.end();
@@ -934,7 +977,7 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 
 				itStart++;
 			}
-		}
+#endif
 		// show index [N]
 		else if (flag[1] == TEXT('s')) {
 			// minus since indexes are zero-based
@@ -1083,12 +1126,25 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 
 				strPoints.getfirsttok( 0 );
 
-				for (unsigned int cnt = 1; cnt <= tPoints; cnt++)
+				// Ook: testing change here....
+				//for (unsigned int cnt = 1; cnt <= tPoints; cnt++)
+				//{
+				//	strPoint = strPoints.getnexttok( );	// tok cnt
+				//	pnts[cnt-1].x = (LONG)strPoint.getfirsttok(1, TSCOMMA).to_num();
+				//	pnts[cnt-1].y = (LONG)strPoint.getnexttok( TSCOMMA ).to_num();	// tok 2
+				//}
+				for (unsigned int cnt = 0; cnt < tPoints; cnt++)
 				{
 					strPoint = strPoints.getnexttok( );	// tok cnt
-					pnts[cnt-1].x = (LONG)strPoint.getfirsttok(1, TSCOMMA).to_num();
-					pnts[cnt-1].y = (LONG)strPoint.getnexttok( TSCOMMA ).to_num();	// tok 2
+					pnts[cnt].x = (LONG)strPoint.getfirsttok(1, TSCOMMA).to_num();
+					pnts[cnt].y = (LONG)strPoint.getnexttok( TSCOMMA ).to_num();	// tok 2
 				}
+				//for (auto &x: pnts)
+				//{
+				//	strPoint = strPoints.getnexttok( );	// tok cnt
+				//	x.x = (LONG)strPoint.getfirsttok(1, TSCOMMA).to_num();
+				//	x.y = (LONG)strPoint.getnexttok( TSCOMMA ).to_num();	// tok 2
+				//}
 
 				m_Region = CreatePolygonRgn(pnts,tPoints,WINDING);
 
@@ -1524,39 +1580,65 @@ UINT DcxDialog::parseCursorFlags(const TString &flags) {
  *
  * blah
  */
+// Ook: how to pre load with static data....?
+std::map<TString, PTCHAR> IDC_map;
 
 PTCHAR DcxDialog::parseCursorType(const TString &cursor) {
-	if (cursor == TEXT("appstarting"))
-		return IDC_APPSTARTING;
-	else if (cursor == TEXT("arrow"))
-		return IDC_ARROW;
-	else if (cursor == TEXT("cross"))
-		return IDC_CROSS;
-	else if (cursor == TEXT("hand"))
-		return IDC_HAND;
-	else if (cursor == TEXT("help"))
-		return IDC_HELP;
-	else if (cursor == TEXT("ibeam"))
-		return IDC_IBEAM;
-	else if (cursor == TEXT("no"))
-		return IDC_NO;
-	else if (cursor == TEXT("sizeall"))
-		return IDC_SIZEALL;
-	else if (cursor == TEXT("sizenesw"))
-		return IDC_SIZENESW;
-	else if (cursor == TEXT("sizens"))
-		return IDC_SIZENS;
-	else if (cursor == TEXT("sizenwse"))
-		return IDC_SIZENWSE;
-	else if (cursor == TEXT("sizewe"))
-		return IDC_SIZEWE;
-	else if (cursor == TEXT("uparrow"))
-		return IDC_UPARROW;
-	else if (cursor == TEXT("wait"))
-		return IDC_WAIT;
+	if (IDC_map.size() == 0) {
+		IDC_map[TEXT("appstarting")] = IDC_APPSTARTING;
+		IDC_map[TEXT("arrow")] = IDC_ARROW;
+		IDC_map[TEXT("cross")] = IDC_CROSS;
+		IDC_map[TEXT("hand")] = IDC_HAND;
+		IDC_map[TEXT("help")] = IDC_HELP;
+		IDC_map[TEXT("ibeam")] = IDC_IBEAM;
+		IDC_map[TEXT("no")] = IDC_NO;
+		IDC_map[TEXT("sizeall")] = IDC_SIZEALL;
+		IDC_map[TEXT("sizenesw")] = IDC_SIZENESW;
+		IDC_map[TEXT("sizens")] = IDC_SIZENS;
+		IDC_map[TEXT("sizenwse")] = IDC_SIZENWSE;
+		IDC_map[TEXT("sizewe")] = IDC_SIZEWE;
+		IDC_map[TEXT("uparrow")] = IDC_UPARROW;
+		IDC_map[TEXT("wait")] = IDC_WAIT;
+	}
+	std::map<TString, PTCHAR>::iterator got = IDC_map.find(cursor);
 
+	if (got != IDC_map.end())
+		return got->second;
 	return NULL;
 }
+
+//PTCHAR DcxDialog::parseCursorType(const TString &cursor) {
+//	if (cursor == TEXT("appstarting"))
+//		return IDC_APPSTARTING;
+//	else if (cursor == TEXT("arrow"))
+//		return IDC_ARROW;
+//	else if (cursor == TEXT("cross"))
+//		return IDC_CROSS;
+//	else if (cursor == TEXT("hand"))
+//		return IDC_HAND;
+//	else if (cursor == TEXT("help"))
+//		return IDC_HELP;
+//	else if (cursor == TEXT("ibeam"))
+//		return IDC_IBEAM;
+//	else if (cursor == TEXT("no"))
+//		return IDC_NO;
+//	else if (cursor == TEXT("sizeall"))
+//		return IDC_SIZEALL;
+//	else if (cursor == TEXT("sizenesw"))
+//		return IDC_SIZENESW;
+//	else if (cursor == TEXT("sizens"))
+//		return IDC_SIZENS;
+//	else if (cursor == TEXT("sizenwse"))
+//		return IDC_SIZENWSE;
+//	else if (cursor == TEXT("sizewe"))
+//		return IDC_SIZEWE;
+//	else if (cursor == TEXT("uparrow"))
+//		return IDC_UPARROW;
+//	else if (cursor == TEXT("wait"))
+//		return IDC_WAIT;
+//
+//	return NULL;
+//}
 
 /*!
  * \brief blah
@@ -1603,6 +1685,14 @@ void DcxDialog::parseInfoRequest( const TString &input, TCHAR *szReturnValue) co
 				wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), this->m_vpControls.size());
 			else
 			{
+#if DCX_USE_C11
+				for (const auto &x: this->namedIds) {
+					if (x.first == tsID) {
+						wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%i"), x.second);
+						return;
+					}
+				}
+#else
 				for (IntegerHash::iterator it = const_cast<DcxDialog *>(this)->namedIds.begin(); it != this->namedIds.end(); ++it)
 				{
 					if (it->first == tsID) 
@@ -1611,6 +1701,7 @@ void DcxDialog::parseInfoRequest( const TString &input, TCHAR *szReturnValue) co
 						return;
 					}
 				}
+#endif
 				szReturnValue[0] = TEXT('\0');
 				return;
 			}
@@ -3322,8 +3413,7 @@ void DcxDialog::DrawCaret(Graphics & graph)
 	POINT pt;
 	GetCaretPos(&pt);
 	MapWindowPoints(pWnd, this->m_hFakeHwnd, &pt, 1);
-
-	Pen pen( Color::Black, 1.0f);
+	Pen pen(Color(0,0,0), 1.0f);	// black
 	graph.DrawLine( &pen, pt.x, pt.y, pt.x, pt.y + 13);
 }
 
@@ -3615,21 +3705,31 @@ void DcxDialog::UnregisterDragList(DcxList* list)
 // Checks if the message should be parsed
 LRESULT DcxDialog::ProcessDragListMessage(DcxDialog* p_this, UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bParsed)
 {
-   VectorOfDragListPtrs::iterator itStart = p_this->m_vDragLists.begin();
-   VectorOfDragListPtrs::iterator itEnd = p_this->m_vDragLists.end();
-   DcxList* list;
+#if DCX_USE_C11
+	for (auto &x: p_this->m_vDragLists)
+	{
+		if (x->getDragListId() == uMsg)
+			return x->ParentMessage(uMsg, wParam, lParam, bParsed);
+	}
 
-   while (itStart != itEnd)
-   {
-      list = *itStart;
+	return 0L;
+#else
+	VectorOfDragListPtrs::iterator itStart = p_this->m_vDragLists.begin();
+	VectorOfDragListPtrs::iterator itEnd = p_this->m_vDragLists.end();
+	DcxList* list;
 
-      if (list->getDragListId() == uMsg)
-         return list->ParentMessage(uMsg, wParam, lParam, bParsed);
+	while (itStart != itEnd)
+	{
+		list = *itStart;
 
-      itStart++;
-   }
+		if (list->getDragListId() == uMsg)
+			return list->ParentMessage(uMsg, wParam, lParam, bParsed);
 
-   return 0L;
+		itStart++;
+	}
+
+	return 0L;
+#endif
 }
 
 void DcxDialog::toXml(TiXmlElement * xml) const

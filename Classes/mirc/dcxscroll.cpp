@@ -82,13 +82,6 @@ DcxScroll::~DcxScroll( ) {
 
 void DcxScroll::parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme )
 {
-	//const UINT numtok = styles.numtok( );
-
-	//for (UINT i = 1; i <= numtok; i++)
-	//{
-	//	if ( styles.gettok( i ) == TEXT("vertical") )
-	//		*Styles |= SBS_VERT;
-	//}
 	for (TString tsStyle(styles.getfirsttok( 1 )); tsStyle != ""; tsStyle = styles.getnexttok( ))
 	{
 		if ( tsStyle == TEXT("vertical") )

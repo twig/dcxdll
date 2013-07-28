@@ -1534,6 +1534,16 @@ TString DcxTreeView::getPathFromItem(HTREEITEM *item) const {
 	} while ((parent = TreeView_GetParent(this->m_Hwnd, parent)) != NULL);
 
 	// Construct the string containing the path backwards, as we traced it backwards.
+//#if DCX_USE_C11
+//	// NB: error path reversed...
+//	for (const auto &x: vec) {
+//		if (result == TEXT(""))
+//			result.tsprintf(TEXT("%d"), x);
+//		else
+//			result.addtok(x);
+//	}
+//	return result.trim();
+//#else
 	VectorOfInts::reverse_iterator itStart = vec.rbegin( );
 	VectorOfInts::reverse_iterator itEnd   = vec.rend( );
 
@@ -1549,6 +1559,7 @@ TString DcxTreeView::getPathFromItem(HTREEITEM *item) const {
 
 	// Trim to ensure clean path.
 	return result.trim();
+//#endif
 }
 
 /*!

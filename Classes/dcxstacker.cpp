@@ -92,8 +92,7 @@ void DcxStacker::clearImageList(void)
 	VectorOfImages::iterator itEnd = this->m_vImageList.end();
 
 	while (itStart != itEnd) {
-		if (*itStart != NULL)
-			delete (Image *)*itStart;
+		delete *itStart;
 		itStart++;
 	}
 	this->m_vImageList.clear();

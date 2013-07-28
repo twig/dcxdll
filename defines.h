@@ -45,7 +45,19 @@ http://symbiancorner.blogspot.com/2007/05/how-to-detect-version-of-ms-visual.htm
 #pragma warning( disable : 4100 ) // unreferenced formal parameter
 #pragma warning( disable : 4530 )
 #pragma warning( disable : 4995 ) // name was marked as #pragma deprecated
+#if _MSC_VER >= 1700
+#define _INTEL_DLL_ __declspec(dllexport)
+#else
 #define _INTEL_DLL_
+#endif
+#endif
+
+// Build DCX using C++11?
+// VS2012+ only
+#if _MSC_VER < 1700
+#define DCX_USE_C11 0
+#else
+#define DCX_USE_C11 1
 #endif
 
 // --------------------------------------------------
@@ -80,7 +92,9 @@ http://symbiancorner.blogspot.com/2007/05/how-to-detect-version-of-ms-visual.htm
 
 // DCX Using C++11 regex
 // NB: Can't be used with either BOOST OR PCRE enabled.
+//#if DCX_USE_C11
 //#define DCX_USE_CREGEX 1
+//#endif
 
 #ifdef DCX_USE_PCRE
 #undef DCX_USE_CREGEX
@@ -91,10 +105,6 @@ http://symbiancorner.blogspot.com/2007/05/how-to-detect-version-of-ms-visual.htm
 
 #if defined(DCX_USE_PCRE)
 #pragma comment(lib, "pcre.lib")
-#endif
-
-#if defined(DCX_USE_CREGEX)
-#include <regex>
 #endif
 
 // --------------------------------------------------
@@ -140,8 +150,14 @@ http://symbiancorner.blogspot.com/2007/05/how-to-detect-version-of-ms-visual.htm
 //#define GDIPVER 0x0110
 
 // Windows 7 + IE V10 + GDI+ 1.1
-#define _WIN32_WINNT 0x0601
-#define _WIN32_IE 0x1000
+//#define _WIN32_WINNT 0x0601
+//#define _WIN32_IE 0x0A00
+//#define WINVER 0x0601
+//#define GDIPVER 0x0110
+
+// Windows 8 + IE V10 + GDI+ 1.1
+#define _WIN32_WINNT 0x0602
+#define _WIN32_IE 0x0A00
 #define WINVER 0x0601
 #define GDIPVER 0x0110
 
@@ -149,8 +165,10 @@ http://symbiancorner.blogspot.com/2007/05/how-to-detect-version-of-ms-visual.htm
 #if _MSC_VER >= 1400
 #define VS2005 1
 #define _CRT_SECURE_NO_DEPRECATE 1
-#endif
-// end of VS 2005
+#if _MSC_VER >= 1700
+#define _CRT_SECURE_NO_WARNINGS 1
+#endif	// VS2012
+#endif	// VS2005
 
 // Includes created svn build info header...
 #include "svnBuild.h"
@@ -161,7 +179,7 @@ http://symbiancorner.blogspot.com/2007/05/how-to-detect-version-of-ms-visual.htm
 #define DLL_VERSION    2
 #define DLL_SUBVERSION 0
 #define DLL_BUILD      SVN_BUILD
-#define DLL_DEV_BUILD  20
+#define DLL_DEV_BUILD  21
 
 #ifdef NDEBUG
 #ifdef DCX_DEV_BUILD
@@ -202,6 +220,10 @@ http://symbiancorner.blogspot.com/2007/05/how-to-detect-version-of-ms-visual.htm
 #include <vector>
 #include <commctrl.h>
 #include <richedit.h>
+
+#if defined(DCX_USE_CREGEX) && DCX_USE_C11
+#include <regex>
+#endif
 
 #include "Classes/TString/tstring.h"
 #include "XSwitchFlags.h"

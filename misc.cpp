@@ -1428,10 +1428,20 @@ void FreeOSCompatibility(void)
 
 BOOL isRegexMatch(const TCHAR *matchtext, const TCHAR *pattern)
 {
+	// NB: BOOST, PCRE, & CREGEX version are incomplete
 #ifdef DCX_USE_CREGEX
-	std::cmatch mr;
-	std::regex rx(TEXT("ABC"));
-	std::regex_constants::match_flag_type fl = std::regex_constants::match_default;
+	try {
+#if UNICODE
+		std::wregex r(pattern,std::regex_constants::ECMAScript);
+#else
+		std::regex r(pattern,std::regex_constants::ECMAScript);
+#endif
+		if (std::regex_match(matchtext, r, std::regex_constants::match_default))
+			return TRUE;
+	}
+	catch (std::regex_error) {
+		return FALSE;
+	}
 #else
 #ifdef DCX_USE_BOOST
 		try {
@@ -1532,16 +1542,16 @@ BOOL isRegexMatch(const TCHAR *matchtext, const TCHAR *pattern)
 			return TRUE;
 	}
 #else
-		TCHAR res[10];
-		Dcx::mIRC.execex(TEXT("/set -nu1 %%dcx_text %s"), matchtext );
-		Dcx::mIRC.execex(TEXT("/set -nu1 %%dcx_regex %s"), pattern );
-		Dcx::mIRC.eval(res, 10, TEXT("$regex(%dcx_text,%dcx_regex)"));
-		if ( dcx_atoi(res) > 0 )
-			return TRUE;
+	TCHAR res[10];
+	Dcx::mIRC.execex(TEXT("/set -nu1 %%dcx_text %s"), matchtext );
+	Dcx::mIRC.execex(TEXT("/set -nu1 %%dcx_regex %s"), pattern );
+	Dcx::mIRC.eval(res, 10, TEXT("$regex(%dcx_text,%dcx_regex)"));
+	if ( dcx_atoi(res) > 0 )
+		return TRUE;
 #endif // DCX_USE_PCRE
 #endif // DCX_USE_BOOST
 #endif // DCX_USE_CREGEX
-		return FALSE;
+	return FALSE;
 }
 
 bool AddFileIcons(HIMAGELIST himl, TString &filename, const bool bLarge, const int iIndex)

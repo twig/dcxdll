@@ -800,16 +800,13 @@ void XPopupMenuManager::deleteMenu( XPopupMenu * p_Menu ) {
 
 void XPopupMenuManager::clearMenus( ) {
 
-  VectorOfXPopupMenu::iterator itStart = this->m_vpXPMenu.begin( );
-  VectorOfXPopupMenu::iterator itEnd = this->m_vpXPMenu.end( );
+	VectorOfXPopupMenu::iterator itStart = this->m_vpXPMenu.begin( );
+	VectorOfXPopupMenu::iterator itEnd = this->m_vpXPMenu.end( );
 
-  while ( itStart != itEnd ) {
-
-    if ( *itStart != NULL )
-      delete *itStart;
-
-    ++itStart;
-  }
+	while ( itStart != itEnd ) {
+		delete *itStart;
+		++itStart;
+	}
 }
 
 void XPopupMenuManager::setIsMenuBar(bool value)
@@ -832,7 +829,14 @@ XPopupMenu * XPopupMenuManager::getMenuByName(const TString &tsName, BOOL checkS
 		else if (tsName == TEXT("scriptpopup"))
 			return g_mIRCScriptMenu;
 	}
-
+#if DCX_USE_C11
+	for (const auto &x: this->m_vpXPMenu) {
+		if (x != NULL) {
+			if (x->getName() == tsName)
+				return x;
+		}
+	}
+#else
 	VectorOfXPopupMenu::iterator itStart = this->m_vpXPMenu.begin();
 	VectorOfXPopupMenu::iterator itEnd = this->m_vpXPMenu.end();
 
@@ -842,7 +846,7 @@ XPopupMenu * XPopupMenuManager::getMenuByName(const TString &tsName, BOOL checkS
 
 		++itStart;
 	}
-
+#endif
 	return NULL;
 }
 
@@ -857,7 +861,14 @@ XPopupMenu* XPopupMenuManager::getMenuByHandle(const HMENU hMenu) {
 		return Dcx::XPopups.getmIRCPopup();
 	else if (hMenu == g_mIRCScriptMenu->getMenuHandle())
 		return g_mIRCScriptMenu;
-
+#if DCX_USE_C11
+	for (const auto &x: this->m_vpXPMenu) {
+		if (x != NULL) {
+			if (hMenu == x->getMenuHandle())
+				return x;
+		}
+	}
+#else
 	VectorOfXPopupMenu::iterator itStart = this->m_vpXPMenu.begin();
 	VectorOfXPopupMenu::iterator itEnd = this->m_vpXPMenu.end();
 
@@ -867,7 +878,7 @@ XPopupMenu* XPopupMenuManager::getMenuByHandle(const HMENU hMenu) {
 
 		++itStart;
 	}
-
+#endif
 	return NULL;
 }
 
@@ -884,7 +895,14 @@ XPopupMenu* XPopupMenuManager::getmIRCMenuBar(void)
  * Check if menu handle is a custom menu (don't include converted mIRC menus)
  */
 bool XPopupMenuManager::isCustomMenu(const HMENU hMenu) {
-
+#if DCX_USE_C11
+	for (const auto &x: this->m_vpXPMenu) {
+		if (x != NULL) {
+			if (hMenu == x->getMenuHandle())
+				return true;
+		}
+	}
+#else
 	VectorOfXPopupMenu::iterator itStart = this->m_vpXPMenu.begin();
 	VectorOfXPopupMenu::iterator itEnd = this->m_vpXPMenu.end();
 
@@ -894,7 +912,7 @@ bool XPopupMenuManager::isCustomMenu(const HMENU hMenu) {
 
 		++itStart;
 	}
-
+#endif
 	return false;
 }
 
