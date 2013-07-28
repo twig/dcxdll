@@ -218,6 +218,7 @@ http://symbiancorner.blogspot.com/2007/05/how-to-detect-version-of-ms-visual.htm
 #include <windows.h>
 #include <windowsx.h>
 #include <vector>
+#include <map>
 #include <commctrl.h>
 #include <richedit.h>
 

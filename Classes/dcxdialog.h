@@ -240,8 +240,6 @@ protected:
 	static UINT parseLayoutFlags( const TString & flags );
 	static UINT parseBkgFlags( const TString & flags );
 	static UINT parseFlashFlags( const TString & flags );
-	static UINT parseCursorFlags( const TString & flags );
-	static PTCHAR parseCursorType( const TString & cursor );
 	static UINT parseTooltipFlags( const TString &flags);
 
 	// Fill in the shadow window alpha blend bitmap with shadow image pixels

@@ -15,6 +15,7 @@
 #ifndef _DCXWINDOW_H_
 #define _DCXWINDOW_H_
 
+#include <map>
 #include "Classes/tinyxml/tinyxml.h"
 
 /*!
@@ -56,8 +57,14 @@ protected:
 	HWND m_Hwnd;
 	UINT m_ID;
 
+#if DCX_USE_C11
+	static std::map<TString, PTCHAR> IDC_map;
+#endif
+
 	virtual void parseCommandRequest( const TString & input ) = 0;
 	virtual void parseInfoRequest( const TString & input, TCHAR * szReturnValue ) const = 0;
+	static PTCHAR parseCursorType( const TString & cursor );
+	static UINT parseCursorFlags( const TString & flags );
 
 };
 #ifdef __INTEL_COMPILER // Defined when using Intel C++ Compiler.

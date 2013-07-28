@@ -23,7 +23,24 @@
  */
 
 DcxWindow::DcxWindow( const HWND mHwnd, const UINT mID ) : m_Hwnd( mHwnd ), m_ID( mID ) {
-
+#if DCX_USE_C11
+	if (IDC_map.size() == 0) {
+		IDC_map[TEXT("appstarting")] = IDC_APPSTARTING;
+		IDC_map[TEXT("arrow")] = IDC_ARROW;
+		IDC_map[TEXT("cross")] = IDC_CROSS;
+		IDC_map[TEXT("hand")] = IDC_HAND;
+		IDC_map[TEXT("help")] = IDC_HELP;
+		IDC_map[TEXT("ibeam")] = IDC_IBEAM;
+		IDC_map[TEXT("no")] = IDC_NO;
+		IDC_map[TEXT("sizeall")] = IDC_SIZEALL;
+		IDC_map[TEXT("sizenesw")] = IDC_SIZENESW;
+		IDC_map[TEXT("sizens")] = IDC_SIZENS;
+		IDC_map[TEXT("sizenwse")] = IDC_SIZENWSE;
+		IDC_map[TEXT("sizewe")] = IDC_SIZEWE;
+		IDC_map[TEXT("uparrow")] = IDC_UPARROW;
+		IDC_map[TEXT("wait")] = IDC_WAIT;
+	}
+#endif
 }
 
 /*!
@@ -33,7 +50,24 @@ DcxWindow::DcxWindow( const HWND mHwnd, const UINT mID ) : m_Hwnd( mHwnd ), m_ID
  */
 
 DcxWindow::DcxWindow( const UINT mID ) : m_ID( mID ) {
-
+#if DCX_USE_C11
+	if (IDC_map.size() == 0) {
+		IDC_map[TEXT("appstarting")] = IDC_APPSTARTING;
+		IDC_map[TEXT("arrow")] = IDC_ARROW;
+		IDC_map[TEXT("cross")] = IDC_CROSS;
+		IDC_map[TEXT("hand")] = IDC_HAND;
+		IDC_map[TEXT("help")] = IDC_HELP;
+		IDC_map[TEXT("ibeam")] = IDC_IBEAM;
+		IDC_map[TEXT("no")] = IDC_NO;
+		IDC_map[TEXT("sizeall")] = IDC_SIZEALL;
+		IDC_map[TEXT("sizenesw")] = IDC_SIZENESW;
+		IDC_map[TEXT("sizens")] = IDC_SIZENS;
+		IDC_map[TEXT("sizenwse")] = IDC_SIZENWSE;
+		IDC_map[TEXT("sizewe")] = IDC_SIZEWE;
+		IDC_map[TEXT("uparrow")] = IDC_UPARROW;
+		IDC_map[TEXT("wait")] = IDC_WAIT;
+	}
+#endif
 }
 
 /*!
@@ -209,4 +243,78 @@ void DcxWindow::redrawBufferedWindow( ) {
 		ReleaseDC(this->m_Hwnd, hdc);
 		ValidateRect(this->m_Hwnd, NULL);
 	}
+}
+
+/*!
+ * \brief blah
+ *
+ * blah
+ */
+#if DCX_USE_C11
+std::map<TString, PTCHAR> DcxWindow::IDC_map;
+
+PTCHAR DcxWindow::parseCursorType( const TString & cursor )
+{
+	std::map<TString, PTCHAR>::iterator got = IDC_map.find(cursor);
+
+	if (got != IDC_map.end())
+		return got->second;
+	return NULL;
+}
+#else
+PTCHAR DcxWindow::parseCursorType( const TString & cursor )
+{
+	if ( cursor == TEXT("appstarting") )
+		return IDC_APPSTARTING;
+	else if ( cursor == TEXT("arrow") )
+		return IDC_ARROW;
+	else if ( cursor == TEXT("cross") )
+		return IDC_CROSS;
+	else if ( cursor == TEXT("hand") )
+		return IDC_HAND;
+	else if ( cursor == TEXT("help") )
+		return IDC_HELP;
+	else if ( cursor == TEXT("ibeam") )
+		return IDC_IBEAM;
+	else if ( cursor == TEXT("no") )
+		return IDC_NO;
+	else if ( cursor == TEXT("sizeall") )
+		return IDC_SIZEALL;
+	else if ( cursor == TEXT("sizenesw") )
+		return IDC_SIZENESW;
+	else if ( cursor == TEXT("sizens") )
+		return IDC_SIZENS;
+	else if ( cursor == TEXT("sizenwse") )
+		return IDC_SIZENWSE;
+	else if ( cursor == TEXT("sizewe") )
+		return IDC_SIZEWE;
+	else if ( cursor == TEXT("uparrow") )
+		return IDC_UPARROW;
+	else if ( cursor == TEXT("wait") )
+		return IDC_WAIT;
+
+	return NULL;
+}
+#endif
+
+/*!
+ * \brief blah
+ *
+ * blah
+ */
+
+UINT DcxWindow::parseCursorFlags(const TString &flags) {
+	UINT iFlags = 0;
+	const XSwitchFlags xflags(flags);
+
+	// no +sign, missing params
+	if (!xflags[TEXT('+')])
+		return iFlags;
+
+	if (xflags[TEXT('f')])
+		iFlags |= DCCS_FROMFILE;
+	if (xflags[TEXT('r')])
+		iFlags |= DCCS_FROMRESSOURCE;
+
+	return iFlags;
 }
