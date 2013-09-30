@@ -22,8 +22,11 @@
  * \param mID Window ID
  */
 
-DcxWindow::DcxWindow( const HWND mHwnd, const UINT mID ) : m_Hwnd( mHwnd ), m_ID( mID ) {
 #if DCX_USE_C11
+DcxWindow::DcxWindow( const HWND mHwnd, const UINT mID )
+	: m_Hwnd( mHwnd )
+	, m_ID( mID )
+{
 	if (IDC_map.size() == 0) {
 		IDC_map[TEXT("appstarting")] = IDC_APPSTARTING;
 		IDC_map[TEXT("arrow")] = IDC_ARROW;
@@ -40,7 +43,36 @@ DcxWindow::DcxWindow( const HWND mHwnd, const UINT mID ) : m_Hwnd( mHwnd ), m_ID
 		IDC_map[TEXT("uparrow")] = IDC_UPARROW;
 		IDC_map[TEXT("wait")] = IDC_WAIT;
 	}
-#endif
+}
+
+/*!
+ * \brief Constructor
+ *
+ * \param mID Window ID
+ */
+
+DcxWindow::DcxWindow( const UINT mID )
+	: m_ID( mID )
+{
+	if (IDC_map.size() == 0) {
+		IDC_map[TEXT("appstarting")] = IDC_APPSTARTING;
+		IDC_map[TEXT("arrow")] = IDC_ARROW;
+		IDC_map[TEXT("cross")] = IDC_CROSS;
+		IDC_map[TEXT("hand")] = IDC_HAND;
+		IDC_map[TEXT("help")] = IDC_HELP;
+		IDC_map[TEXT("ibeam")] = IDC_IBEAM;
+		IDC_map[TEXT("no")] = IDC_NO;
+		IDC_map[TEXT("sizeall")] = IDC_SIZEALL;
+		IDC_map[TEXT("sizenesw")] = IDC_SIZENESW;
+		IDC_map[TEXT("sizens")] = IDC_SIZENS;
+		IDC_map[TEXT("sizenwse")] = IDC_SIZENWSE;
+		IDC_map[TEXT("sizewe")] = IDC_SIZEWE;
+		IDC_map[TEXT("uparrow")] = IDC_UPARROW;
+		IDC_map[TEXT("wait")] = IDC_WAIT;
+	}
+}
+#else
+DcxWindow::DcxWindow( const HWND mHwnd, const UINT mID ) : m_Hwnd( mHwnd ), m_ID( mID ) {
 }
 
 /*!
@@ -50,25 +82,8 @@ DcxWindow::DcxWindow( const HWND mHwnd, const UINT mID ) : m_Hwnd( mHwnd ), m_ID
  */
 
 DcxWindow::DcxWindow( const UINT mID ) : m_ID( mID ) {
-#if DCX_USE_C11
-	if (IDC_map.size() == 0) {
-		IDC_map[TEXT("appstarting")] = IDC_APPSTARTING;
-		IDC_map[TEXT("arrow")] = IDC_ARROW;
-		IDC_map[TEXT("cross")] = IDC_CROSS;
-		IDC_map[TEXT("hand")] = IDC_HAND;
-		IDC_map[TEXT("help")] = IDC_HELP;
-		IDC_map[TEXT("ibeam")] = IDC_IBEAM;
-		IDC_map[TEXT("no")] = IDC_NO;
-		IDC_map[TEXT("sizeall")] = IDC_SIZEALL;
-		IDC_map[TEXT("sizenesw")] = IDC_SIZENESW;
-		IDC_map[TEXT("sizens")] = IDC_SIZENS;
-		IDC_map[TEXT("sizenwse")] = IDC_SIZENWSE;
-		IDC_map[TEXT("sizewe")] = IDC_SIZEWE;
-		IDC_map[TEXT("uparrow")] = IDC_UPARROW;
-		IDC_map[TEXT("wait")] = IDC_WAIT;
-	}
-#endif
 }
+#endif
 
 /*!
  * \brief Destructor

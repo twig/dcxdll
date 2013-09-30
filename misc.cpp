@@ -1382,8 +1382,8 @@ int TGetWindowText(HWND hwnd, TString &txt)
 {
 	const int nText = GetWindowTextLength(hwnd);
 	if (nText > 0) {
-		PTCHAR text = new TCHAR[nText+1];
-		GetWindowText(hwnd, text, nText);
+		PTCHAR text = new TCHAR[nText+2];
+		GetWindowText(hwnd, text, nText+1);	// NB: needs to include space for end 0
 		txt = text;
 		delete [] text;
 	}

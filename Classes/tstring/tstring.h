@@ -82,17 +82,17 @@ private:
 	static WCHAR *charToWchar(const char *cString);
 	static char *WcharTochar(const WCHAR *wString);
 
-	TCHAR			*m_savedpos;
-	unsigned int	m_savedtotaltoks;
-	unsigned int	m_savedcurrenttok;
+	mutable TCHAR			*m_savedpos;
+	mutable unsigned int	m_savedtotaltoks;
+	mutable unsigned int	m_savedcurrenttok;
 
 public:
 
 	TCHAR * m_pString; //!< String buffer
 #ifdef UNICODE
-	char * m_pWString;
+	mutable char * m_pWString;
 #else
-	WCHAR * m_pWString;
+	mutable WCHAR * m_pWString;
 #endif
 	static const TCHAR *m_cSpace;
 	static const TCHAR *m_cComma;
