@@ -234,7 +234,12 @@ TString::TString( const TCHAR *pStart, const TCHAR *pEnd )
 		this->m_pString[0] = 0;
 	}
 }
-// NB tsSize is in characters! not bytes.
+/*!
+ * \brief Allocates a buffer tsSize long.
+ *
+ * NB tsSize is in characters! not bytes.
+ *
+ */
 TString::TString( const unsigned int tsSize )
 : m_pWString(NULL),
  m_pString(NULL),
@@ -1326,33 +1331,53 @@ int TString::i_remove(const TCHAR *subString)
 	// may change this.
 	if ((subl == 0) || (ol == 0))
 		return 0;
-	// see if we have any matches & how many.
+	// allocate new string
+	PTCHAR tmp = new TCHAR[ol+1];
 #if UNICODE
 	while ((sub = wcsstr(p,subString)) != NULL) {
+		wcsncat(tmp,p,(sub - p)); // copy bit before substring. if any.
 #else
 	while ((sub = strstr(p,subString)) != NULL) {
+		::strncat(tmp,p,(sub - p)); // copy bit before substring. if any.
 #endif
 		cnt++;
-		p = sub + subl;
+		p = sub + subl; // update pointer to skip substring.
 	}
-	// make final string if we have any matches.
+
 	if (cnt > 0) {
-		p = this->m_pString;
-		TCHAR *out = new TCHAR [ (ol - (cnt * subl)) +1 ]; // allocate new string.
-		out[0] = 0;
-#if UNICODE
-		while ((sub = wcsstr(p,subString)) != NULL) {
-			wcsncat(out,p,(sub - p)); // copy bit before substring. if any.
-#else
-		while ((sub = strstr(p,subString)) != NULL) {
-			::strncat(out,p,(sub - p)); // copy bit before substring. if any.
-#endif
-			p = sub + subl; // update pointer to skip substring.
-		}
-		lstrcat(out,p); // append the end text, if any.
+		lstrcat(tmp,p); // append the end text, if any.
 		this->deleteString(); // delete old string
-		this->m_pString = out; // save new one.
+		this->m_pString = tmp; // save new one.
 	}
+	else delete [] tmp;
+
+//	// see if we have any matches & how many.
+//#if UNICODE
+//	while ((sub = wcsstr(p,subString)) != NULL) {
+//#else
+//	while ((sub = strstr(p,subString)) != NULL) {
+//#endif
+//		cnt++;
+//		p = sub + subl;
+//	}
+//	// make final string if we have any matches.
+//	if (cnt > 0) {
+//		p = this->m_pString;
+//		TCHAR *out = new TCHAR [ (ol - (cnt * subl)) +1 ]; // allocate new string.
+//		out[0] = 0;
+//#if UNICODE
+//		while ((sub = wcsstr(p,subString)) != NULL) {
+//			wcsncat(out,p,(sub - p)); // copy bit before substring. if any.
+//#else
+//		while ((sub = strstr(p,subString)) != NULL) {
+//			::strncat(out,p,(sub - p)); // copy bit before substring. if any.
+//#endif
+//			p = sub + subl; // update pointer to skip substring.
+//		}
+//		lstrcat(out,p); // append the end text, if any.
+//		this->deleteString(); // delete old string
+//		this->m_pString = out; // save new one.
+//	}
 	return cnt;
 }
 
@@ -1448,17 +1473,6 @@ int TString::replace( const TCHAR chr, const TCHAR * rString ) {
 
 int TString::replace( const TCHAR chr, const TCHAR rchr ) {
 
-	//int cnt = 0;
-	//TCHAR *p = this->m_pString;
-	//if (p == NULL) return 0;
-	//while (*p) {
-	//	if (*p == chr) {
-	//		*p = rchr;
-	//		cnt++;
-	//	}
-	//	p++;
-	//}
-	//return cnt;
 	int cnt = 0;
 	
 	for (TCHAR *p = this->m_pString; *p != TEXT('\0'); p++)
@@ -1615,9 +1629,9 @@ TString TString::getfirsttok( const unsigned int N, const TCHAR * sepChars ) con
 	if ( sepChars == NULL || this->m_pString == NULL )
 		return *this;
 
-	const_cast< TString * >(this)->m_savedtotaltoks = this->numtok( sepChars );
-	const_cast< TString * >(this)->m_savedpos = this->m_pString;
-	const_cast< TString * >(this)->m_savedcurrenttok = N;
+	this->m_savedtotaltoks = this->numtok( sepChars );
+	this->m_savedpos = this->m_pString;
+	this->m_savedcurrenttok = N;
 	// N == 0 is used top pre load the vars for a loop of next toks where we need to start at 1
 
 	if ( (N > this->m_savedtotaltoks) || (N == 0))
@@ -1642,13 +1656,13 @@ TString TString::getfirsttok( const unsigned int N, const TCHAR * sepChars ) con
 			delete [] token.m_pString; // change by Ook
 			token.m_pString = new TCHAR [len];
 			lstrcpyn( token.m_pString, p_cStart, len );
-			const_cast< TString * >(this)->m_savedpos = p_cEnd + sepl;
+			this->m_savedpos = p_cEnd + sepl;
 
 			break;
 		}
 		p_cStart = p_cEnd + sepl; // Ook
 		if (p_cStart >= p_fEnd) {
-			const_cast< TString * >(this)->m_savedpos = NULL;
+			this->m_savedpos = NULL;
 			break;
 		}
 	}
@@ -1662,7 +1676,7 @@ TString TString::getfirsttok( const unsigned int N, const TCHAR * sepChars ) con
 		token.m_pString = new TCHAR [len];
 		lstrcpyn( token.m_pString, p_cStart, len );
 
-		const_cast< TString * >(this)->m_savedpos = NULL;
+		this->m_savedpos = NULL;
 	}
 
 	return token;
@@ -1673,7 +1687,7 @@ TString TString::getnexttok( const TCHAR * sepChars ) const {
 	if ( sepChars == NULL || this->m_pString == NULL )
 		return *this;
 
-	const_cast< TString * >(this)->m_savedcurrenttok++;
+	this->m_savedcurrenttok++;
 	TString token;
 	TCHAR * p_cStart = this->m_savedpos, * p_cEnd = this->m_savedpos;
 	const int sepl = lstrlen( sepChars ); // Ook
@@ -1704,7 +1718,7 @@ TString TString::getnexttok( const TCHAR * sepChars ) const {
 		p_cStart = p_cEnd + sepl; // Ook
 	}
 
-	const_cast< TString * >(this)->m_savedpos = p_cStart;
+	this->m_savedpos = p_cStart;
 
 	return token;
 }
@@ -1738,7 +1752,7 @@ unsigned int TString::numtok( const TCHAR * sepChars ) const {
 		iCount++;
 		p_cStart = p_cEnd + sepl; // Ook
 	}
-	//const_cast< TString * >(this)->m_savedtotaltoks = iCount + 1;
+	//this->m_savedtotaltoks = iCount + 1;
 	//return this->m_savedtotaltoks;
 	return iCount + 1;
 }
@@ -2103,20 +2117,21 @@ TString TString::mid(const int pos, int n) const
 // if n > string length its truncated, n can be < 0
 TString TString::left(int n) const
 {
-	TString tmp;
-	const int l = (int)lstrlen(this->m_pString);
-	if ((l == 0) || (n == 0))
-		return tmp;
-	if (n < 0)
-		n = l + n;
-	if (n > l)
-		n = l;
-	n++;
-	TCHAR *p = new TCHAR[n];
-	lstrcpyn(p,this->m_pString,n);
-	tmp.deleteString();
-	tmp.m_pString = p;
-	return tmp;
+	//TString tmp;
+	//const int l = (int)lstrlen(this->m_pString);
+	//if ((l == 0) || (n == 0))
+	//	return tmp;
+	//if (n < 0)
+	//	n = l + n;
+	//if (n > l)
+	//	n = l;
+	//n++;
+	//TCHAR *p = new TCHAR[n];
+	//lstrcpyn(p,this->m_pString,n);
+	//tmp.deleteString();
+	//tmp.m_pString = p;
+	//return tmp;
+	return this->mid(0,n);
 }
 // if n > string length its truncated, n can be < 0
 TString TString::right(int n) const
@@ -2138,6 +2153,8 @@ TString TString::right(int n) const
 	tmp.deleteString();
 	tmp.m_pString = p;
 	return tmp;
+	//const int l = lstrlen(this->m_pString);
+	//return this->mid(l - n,l);
 }
 #if UNICODE
 char *TString::c_str(void) const
@@ -2146,7 +2163,7 @@ char *TString::c_str(void) const
 		return NULL;
 
 	if (this->m_pWString == NULL)
-		const_cast< TString * >( this )->m_pWString = TString::WcharTochar(this->m_pString);
+		this->m_pWString = TString::WcharTochar(this->m_pString);
 	return this->m_pWString;
 }
 #endif
@@ -2320,8 +2337,6 @@ int TString::match (register TCHAR *m, register TCHAR *n, const bool cs /* case 
 }
 TString TString::wildtok( TCHAR * wildString, int N, const TCHAR * sepChars ) const
 {
-	//int cnt = 1, m = 0;
-
 	if ( sepChars == NULL || this->m_pString == NULL )
 		return TEXT("");
 
@@ -2330,13 +2345,6 @@ TString TString::wildtok( TCHAR * wildString, int N, const TCHAR * sepChars ) co
 	if ( N > nToks )
 		return TEXT("");
 
-	//for (TString tmp(this->gettok(cnt++,sepChars)); tmp != TEXT(""); tmp = this->gettok(cnt++,sepChars))
-	//{
-	//	if (match(wildString,tmp.to_chr(),false)) {
-	//		m++;
-	//		if (m == N) return tmp;
-	//	}
-	//}
 	int m = 0;
 	for (TString tmp(this->getfirsttok(1,sepChars)); tmp != TEXT(""); tmp = this->getnexttok(sepChars))
 	{
@@ -2349,16 +2357,9 @@ TString TString::wildtok( TCHAR * wildString, int N, const TCHAR * sepChars ) co
 }
 int TString::nwildtok( TCHAR * wildString, const TCHAR * sepChars ) const
 {
-	//int cnt = 1, m = 0;
-
 	if ( sepChars == NULL || this->m_pString == NULL )
 		return 0;
 
-	//for (TString tmp(this->gettok(cnt++,sepChars)); tmp != TEXT(""); tmp = this->gettok(cnt++,sepChars))
-	//{
-	//	if (match(wildString,tmp.to_chr(),false))
-	//		m++;
-	//}
 	int m = 0;
 	for (TString tmp(this->getfirsttok(1,sepChars)); tmp != TEXT(""); tmp = this->getnexttok(sepChars))
 	{
@@ -2554,7 +2555,7 @@ TString &TString::strip() {
 	const size_t new_len = (end - start) +1;
 
 	TCHAR *temp = new TCHAR[new_len +1];
-	temp[new_len] = 0;
+	temp[0] = 0;
 
 	// now strip all ctrl codes.
 	TCHAR *wtxt = start, *p = temp;

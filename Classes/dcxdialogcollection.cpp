@@ -137,7 +137,8 @@ DcxDialog * DcxDialogCollection::getDialogByName( const TString & tsName ) {
 		mIRCError( "Not In GetDialog By Name" );
 		*/
 
-		if ( *itStart != NULL && const_cast< TString &>((*itStart)->getName( )) == tsName )
+		//if ( *itStart != NULL && const_cast< TString &>((*itStart)->getName( )) == tsName )
+		if ( *itStart != NULL && (*itStart)->getName( ) == tsName )
 			return *itStart;
 
 		itStart++;
