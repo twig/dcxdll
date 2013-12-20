@@ -86,7 +86,7 @@ void DcxPager::toXml(TiXmlElement * xml) const
 
 void DcxPager::parseControlStyles( const TString &styles, LONG *Styles, LONG *ExStyles, BOOL *bNoTheme)
 {
-	for (TString tsStyle(styles.getfirsttok( 1 )); tsStyle != ""; tsStyle = styles.getnexttok( ))
+	for (TString tsStyle(styles.getfirsttok( 1 )); tsStyle != TEXT(""); tsStyle = styles.getnexttok( ))
 	{
 		if (tsStyle == TEXT("horizontal"))
 			*Styles |= PGS_HORZ;

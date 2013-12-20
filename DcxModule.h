@@ -27,6 +27,7 @@ public:
 	virtual ~DcxModule(void);
 
 	bool isUseable() const;
+	static bool GetWindowVersion(DWORD *dMajor, DWORD *dMinor);
 
 	virtual bool load(mIRCLinker &mIRCLink);
 	virtual bool unload() = 0;

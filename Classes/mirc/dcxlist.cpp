@@ -136,7 +136,7 @@ void DcxList::parseControlStyles( const TString &styles, LONG *Styles, LONG *ExS
 {
 	*Styles |= LBS_NOTIFY | LBS_HASSTRINGS | LBS_OWNERDRAWFIXED;
 
-	for (TString tsStyle(styles.getfirsttok( 1 )); tsStyle != ""; tsStyle = styles.getnexttok( ))
+	for (TString tsStyle(styles.getfirsttok( 1 )); tsStyle != TEXT(""); tsStyle = styles.getnexttok( ))
 	{
 		if (tsStyle == TEXT("noscroll"))
 			*Styles |= LBS_DISABLENOSCROLL;

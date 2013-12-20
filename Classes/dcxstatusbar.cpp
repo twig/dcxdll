@@ -726,9 +726,11 @@ LRESULT DcxStatusBar::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 					RECT rc = lpDrawItem->rcItem;
 					if (pPart->m_iIcon > -1) {
 						IMAGEINFO ii;
-						ImageList_GetImageInfo(this->m_hImageList, pPart->m_iIcon, &ii);
-						ImageList_Draw(this->m_hImageList, pPart->m_iIcon, lpDrawItem->hDC, rc.left, rc.top + ((rc.bottom - rc.top) - (ii.rcImage.bottom - ii.rcImage.top)) / 2, ILD_TRANSPARENT);
-						rc.left += (ii.rcImage.right - ii.rcImage.left) +5;
+						if (ImageList_GetImageInfo(this->m_hImageList, pPart->m_iIcon, &ii))
+						{
+							if (ImageList_Draw(this->m_hImageList, pPart->m_iIcon, lpDrawItem->hDC, rc.left, rc.top + ((rc.bottom - rc.top) - (ii.rcImage.bottom - ii.rcImage.top)) / 2, ILD_TRANSPARENT))
+								rc.left += (ii.rcImage.right - ii.rcImage.left) + 5;
+						}
 					}
 					if (pPart->m_Text.len() > 0)
 						mIRC_DrawText(lpDrawItem->hDC, pPart->m_Text, &rc, DT_LEFT | DT_VCENTER | DT_SINGLELINE, false);

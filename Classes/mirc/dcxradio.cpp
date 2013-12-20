@@ -117,7 +117,7 @@ void DcxRadio::parseControlStyles( const TString & styles, LONG * Styles, LONG *
 	//	else if ( styles.gettok( i ) == TEXT("pushlike") )
 	//		*Styles |= BS_PUSHLIKE;
 	//}
-	for (TString tsStyle(styles.getfirsttok( 1 )); tsStyle != ""; tsStyle = styles.getnexttok( ))
+	for (TString tsStyle(styles.getfirsttok( 1 )); tsStyle != TEXT(""); tsStyle = styles.getnexttok( ))
 	{
 		if ( tsStyle == TEXT("rjustify") )
 			*Styles |= BS_RIGHT;

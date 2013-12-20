@@ -107,7 +107,7 @@ void DcxText::parseControlStyles( const TString & styles, LONG * Styles, LONG * 
 	//}
 	this->m_uiStyle = DT_LEFT;
 
-	for (TString tsStyle(styles.getfirsttok( 1 )); tsStyle != ""; tsStyle = styles.getnexttok( ))
+	for (TString tsStyle(styles.getfirsttok( 1 )); tsStyle != TEXT(""); tsStyle = styles.getnexttok( ))
 	{
 		if (tsStyle == TEXT("nowrap"))
 			this->m_uiStyle |= DT_SINGLELINE;

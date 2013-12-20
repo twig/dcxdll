@@ -102,7 +102,7 @@ void DcxDirectshow::parseControlStyles( const TString & styles, LONG * Styles, L
 	//	if (( styles.gettok( i ) == TEXT("fixratio") ))
 	//		this->m_bKeepRatio = true;
 	//}
-	for (TString tsStyle(styles.getfirsttok( 1 )); tsStyle != ""; tsStyle = styles.getnexttok( ))
+	for (TString tsStyle(styles.getfirsttok( 1 )); tsStyle != TEXT(""); tsStyle = styles.getnexttok( ))
 	{
 		if (( tsStyle == TEXT("fixratio") ))
 			this->m_bKeepRatio = true;
@@ -420,12 +420,19 @@ void DcxDirectshow::parseCommandRequest( const TString &input) {
 						p_Video->put_Owner((OAHWND)this->m_Hwnd);
 						p_Video->put_MessageDrain((OAHWND)this->m_Hwnd);
 						DWORD styles = 0;
-						p_Video->get_WindowStyle((long *)&styles);
-						styles &= ~(WS_OVERLAPPEDWINDOW|WS_POPUPWINDOW|WS_DLGFRAME);
-						styles |= WS_CHILD;
-						p_Video->put_WindowStyle(styles);
-						p_Video->put_Left(0);
-						p_Video->put_Top(0);
+						hr2 = p_Video->get_WindowStyle((long *)&styles);
+						if (FAILED(hr2))
+						{
+							this->showError(NULL, TEXT("-a"), TEXT("Unable to get window styles"));
+							DX_ERR(NULL, TEXT("-a"), hr2);
+						}
+						else {
+							styles &= ~(WS_OVERLAPPEDWINDOW | WS_POPUPWINDOW | WS_DLGFRAME);
+							styles |= WS_CHILD;
+							p_Video->put_WindowStyle(styles);
+							p_Video->put_Left(0);
+							p_Video->put_Top(0);
+						}
 						p_Video->Release();
 					}
 				}
@@ -1082,11 +1089,14 @@ UINT64 DcxDirectshow::getPosition() const
 		*	However, the Filter Graph Manager's implementation of IMediaSeeking::GetCurrentPosition is based on the reference clock,
 		*	so you can call this method even if the capabilities flags do not include AM_SEEKING_CanGetCurrentPos.
 	*/
-	LONGLONG pos = 0;
-	this->m_pSeek->GetCurrentPosition(&pos);
+	UINT64 pos;
+	if (SUCCEEDED(this->m_pSeek->GetCurrentPosition((INT64 *)&pos)))
+	{
+		// Format result into milliseconds
+		return pos / 10000;
+	}
 
-	// Format result into milliseconds
-	return ((UINT64)pos / 10000);
+	return 0;
 }
 HRESULT DcxDirectshow::setPosition(const UINT64 pos)
 {
@@ -1107,14 +1117,15 @@ UINT64 DcxDirectshow::getDuration() const
 	if (this->m_pSeek == NULL)
 		return 0;
 
-	LONGLONG pos = 0;
+	UINT64 pos;
 	DWORD dwCaps = AM_SEEKING_CanGetDuration;
 	if (this->CheckSeekCapabilities(dwCaps) & AM_SEEKING_CanGetDuration) { // can get current pos
-		this->m_pSeek->GetDuration(&pos);
+		if (SUCCEEDED(this->m_pSeek->GetDuration((INT64 *)&pos)))
+			// Format result into milliseconds
+			return pos / 10000;
 	}
 
-	// Format result into milliseconds
-	return ((UINT64)pos / 10000);
+	return 0;
 }
 DWORD DcxDirectshow::CheckSeekCapabilities(DWORD dwCaps) const
 {

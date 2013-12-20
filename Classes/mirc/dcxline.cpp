@@ -125,7 +125,7 @@ void DcxLine::parseControlStyles( const TString & styles, LONG * Styles, LONG * 
 	//	else if (styles.gettok(i) == TEXT("pathellipsis"))
 	//		*Styles |= SS_PATHELLIPSIS;
 	//}
-	for (TString tsStyle(styles.getfirsttok( 1 )); tsStyle != ""; tsStyle = styles.getnexttok( ))
+	for (TString tsStyle(styles.getfirsttok( 1 )); tsStyle != TEXT(""); tsStyle = styles.getnexttok( ))
 	{
 		if ( tsStyle == TEXT("vertical") )
 			this->m_bVertical = true;

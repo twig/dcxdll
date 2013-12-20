@@ -139,7 +139,7 @@ void DcxComboEx::parseControlStyles( const TString & styles, LONG * Styles, LONG
 {
 	//*ExStyles |= CBES_EX_NOSIZELIMIT;
 
-	for (TString tsStyle(styles.getfirsttok( 1 )); tsStyle != ""; tsStyle = styles.getnexttok( ))
+	for (TString tsStyle(styles.getfirsttok( 1 )); tsStyle != TEXT(""); tsStyle = styles.getnexttok( ))
 	{
 		if ( tsStyle == TEXT("simple") )
 			*Styles |= CBS_SIMPLE;

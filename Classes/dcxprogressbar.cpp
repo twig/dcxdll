@@ -412,7 +412,7 @@ LRESULT DcxProgressBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 					RECT rc;
 					GetClientRect( this->m_Hwnd, &rc );
 
-					const int nPos = iLower + round( (float)( nXPos * iHigher ) / ( rc.right - rc.left - 1 ) );
+					const int nPos = iLower + dcx_round( (float)( nXPos * iHigher ) / ( rc.right - rc.left - 1 ) );
 
 					this->execAliasEx(TEXT("%s,%d,%d,%d,%d,%d"), TEXT("sclick"), this->getUserID(), nPos, iLower, iHigher, this->getPosition());
 				}
@@ -429,7 +429,7 @@ LRESULT DcxProgressBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 					RECT rc;
 					GetClientRect( this->m_Hwnd, &rc );
 
-					const int nPos = iLower + round( (float)( nXPos * iHigher ) / ( rc.right - rc.left - 1 ) );
+					const int nPos = iLower + dcx_round( (float)( nXPos * iHigher ) / ( rc.right - rc.left - 1 ) );
 
 					this->execAliasEx(TEXT("%s,%d,%d,%d,%d,%d"), TEXT("rclick"), this->getUserID(), nPos, iLower, iHigher, this->getPosition());
 				}

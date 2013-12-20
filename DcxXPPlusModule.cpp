@@ -13,14 +13,11 @@ bool DcxXPPlusModule::load(mIRCLinker &mIRCLink)
 {
 	if (isUseable()) return false;
 
-	OSVERSIONINFO osvi;
+	DWORD winMajor = 0, winMinor = 0;
+	if (!GetWindowVersion(&winMajor, &winMinor))
+		return false;
 
-	ZeroMemory(&osvi, sizeof(OSVERSIONINFO));
-	osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
-
-	GetVersionEx(&osvi);
-
-	const bool bIsWindowsXPorLater = ( (osvi.dwMajorVersion > 5) || ( (osvi.dwMajorVersion == 5) && (osvi.dwMinorVersion >= 1) ));
+	const bool bIsWindowsXPorLater = ( (winMajor > 5) || ( (winMajor == 5) && (winMinor >= 1) ));
 
 	if (bIsWindowsXPorLater)
 		m_hModule = (HMODULE)1;

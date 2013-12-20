@@ -162,7 +162,7 @@ void DcxEdit::parseControlStyles( const TString &styles, LONG *Styles, LONG *ExS
 	//	else if (tsStyle == TEXT("showsel"))
 	//		*Styles |= ES_NOHIDESEL;
 	//}
-	for (TString tsStyle(styles.getfirsttok( 1 )); tsStyle != ""; tsStyle = styles.getnexttok( ))
+	for (TString tsStyle(styles.getfirsttok( 1 )); tsStyle != TEXT(""); tsStyle = styles.getnexttok( ))
 	{
 		if (tsStyle == TEXT("multi")) 
 			*Styles |= ES_MULTILINE;

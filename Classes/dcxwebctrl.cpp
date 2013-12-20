@@ -393,26 +393,24 @@ HRESULT DcxWebControl::Invoke( DISPID dispIdMember,
 	VARIANT arg1, arg2;
 	VariantInit( &arg1 );
 	VariantInit( &arg2 );
-	DispGetParam( pDispParams, 0, VT_BSTR, &arg1, &err );
-	DispGetParam( pDispParams, 1, VT_BSTR, &arg2, &err );
-
-	switch (dispIdMember) {
-
-	case DISPID_NAVIGATECOMPLETE2:
+	if (SUCCEEDED(DispGetParam(pDispParams, 0, VT_BSTR, &arg1, &err)) && SUCCEEDED(DispGetParam(pDispParams, 1, VT_BSTR, &arg2, &err)))
+	{
+		switch (dispIdMember) {
+		case DISPID_NAVIGATECOMPLETE2:
 		{
 			if (!this->m_bHideEvents)
-				this->execAliasEx(TEXT("%s,%d,%ws"), TEXT("nav_complete"), this->getUserID( ), arg2.bstrVal );
+				this->execAliasEx(TEXT("%s,%d,%ws"), TEXT("nav_complete"), this->getUserID(), arg2.bstrVal);
 		}
 		break;
 
-	case DISPID_BEFORENAVIGATE2:
+		case DISPID_BEFORENAVIGATE2:
 		{
 			if (!this->m_bHideEvents)
 			{
 				TCHAR ret[256];
-				this->evalAliasEx( ret, 255, TEXT("%s,%d,%ws"), TEXT("nav_begin"), this->getUserID( ), arg2.bstrVal );
+				this->evalAliasEx(ret, 255, TEXT("%s,%d,%ws"), TEXT("nav_begin"), this->getUserID(), arg2.bstrVal);
 
-				if ( lstrcmpi( ret, TEXT("cancel")) == 0 )
+				if (lstrcmpi(ret, TEXT("cancel")) == 0)
 					*pDispParams->rgvarg->pboolVal = VARIANT_TRUE;
 				else
 					*pDispParams->rgvarg->pboolVal = VARIANT_FALSE;
@@ -420,37 +418,37 @@ HRESULT DcxWebControl::Invoke( DISPID dispIdMember,
 		}
 		break;
 
-	case DISPID_DOCUMENTCOMPLETE:
+		case DISPID_DOCUMENTCOMPLETE:
 		{
 			if (!this->m_bHideEvents)
-				this->execAliasEx(TEXT("%s,%d,%ws"), TEXT("doc_complete"), this->getUserID( ), arg2.bstrVal );
+				this->execAliasEx(TEXT("%s,%d,%ws"), TEXT("doc_complete"), this->getUserID(), arg2.bstrVal);
 			else
 				this->m_bHideEvents = false; // allow events to be seen after first doc loads `about:blank`
 		}
 		break;
 
-	case DISPID_DOWNLOADBEGIN:
+		case DISPID_DOWNLOADBEGIN:
 		{
 			if (!this->m_bHideEvents)
-				this->execAliasEx(TEXT("%s,%d"), TEXT("dl_begin"), this->getUserID( ) );
+				this->execAliasEx(TEXT("%s,%d"), TEXT("dl_begin"), this->getUserID());
 		}
 		break;
 
-	case DISPID_DOWNLOADCOMPLETE:
+		case DISPID_DOWNLOADCOMPLETE:
 		{
 			if (!this->m_bHideEvents)
-				this->execAliasEx(TEXT("%s,%d"), TEXT("dl_complete"), this->getUserID( ) );
+				this->execAliasEx(TEXT("%s,%d"), TEXT("dl_complete"), this->getUserID());
 		}
 		break;
 
-	case DISPID_NEWWINDOW2:
+		case DISPID_NEWWINDOW2:
 		{
 			if (!this->m_bHideEvents)
 			{
 				TCHAR ret[256];
-				this->evalAliasEx( ret, 255, TEXT("%s,%d"), TEXT("win_open"), this->getUserID( ) );
+				this->evalAliasEx(ret, 255, TEXT("%s,%d"), TEXT("win_open"), this->getUserID());
 
-				if ( lstrcmpi( ret, TEXT("cancel")) == 0 )
+				if (lstrcmpi(ret, TEXT("cancel")) == 0)
 					*pDispParams->rgvarg->pboolVal = VARIANT_TRUE;
 				else
 					*pDispParams->rgvarg->pboolVal = VARIANT_FALSE;
@@ -458,52 +456,50 @@ HRESULT DcxWebControl::Invoke( DISPID dispIdMember,
 		}
 		break;
 
-	case DISPID_STATUSTEXTCHANGE:
+		case DISPID_STATUSTEXTCHANGE:
 		{
 			if (!this->m_bHideEvents)
-				this->execAliasEx(TEXT("%s,%d,%ws"), TEXT("status"), this->getUserID( ), arg1.bstrVal );
+				this->execAliasEx(TEXT("%s,%d,%ws"), TEXT("status"), this->getUserID(), arg1.bstrVal);
 		}
 		break;
 
-	case DISPID_TITLECHANGE:
+		case DISPID_TITLECHANGE:
 		{
 			if (!this->m_bHideEvents)
-				this->execAliasEx(TEXT("%s,%d,%ws"), TEXT("title"), this->getUserID( ), arg1.bstrVal );
+				this->execAliasEx(TEXT("%s,%d,%ws"), TEXT("title"), this->getUserID(), arg1.bstrVal);
 		}
 		break;
 
-	case DISPID_PROGRESSCHANGE:
+		case DISPID_PROGRESSCHANGE:
 		{
 			if (!this->m_bHideEvents)
-				this->execAliasEx(TEXT("%s,%d,%ws,%ws"), TEXT("dl_progress"), this->getUserID( ), arg1.bstrVal, arg2.bstrVal );
+				this->execAliasEx(TEXT("%s,%d,%ws,%ws"), TEXT("dl_progress"), this->getUserID(), arg1.bstrVal, arg2.bstrVal);
 		}
 		break;
 
-	case DISPID_COMMANDSTATECHANGE:
+		case DISPID_COMMANDSTATECHANGE:
 		{
 			if (!this->m_bHideEvents)
 			{
-				switch( arg1.bstrVal[0] ) {
+				switch (arg1.bstrVal[0]) {
+					case L'1':
+						this->execAliasEx(TEXT("%s,%d,%s"), TEXT("forward"), this->getUserID(), arg2.boolVal ? TEXT("$true") : TEXT("$false"));
+						break;
 
-				case L'1':
-					{
-						this->execAliasEx(TEXT("%s,%d,%s"), TEXT("forward"), this->getUserID( ), arg2.boolVal ? TEXT("$true") : TEXT("$false") );
-					}
-					break;
-
-				case L'2':
-					{
-						this->execAliasEx(TEXT("%s,%d,%s"), TEXT("back"), this->getUserID( ), arg2.boolVal ? TEXT("$true") : TEXT("$false") );
-					}
-					break;
+					case L'2':
+						this->execAliasEx(TEXT("%s,%d,%s"), TEXT("back"), this->getUserID(), arg2.boolVal ? TEXT("$true") : TEXT("$false"));
+						break;
 				}
 			}
 		}
 		break;
+		}
+		VariantClear(&arg1);
+		VariantClear(&arg2);
 	}
-
-	VariantClear( &arg1 );
-	VariantClear( &arg2 );
+	else {
+		this->showErrorEx(NULL, TEXT("DcxWebControl::Invoke()"), TEXT("Unable to get object state: %ld"), err);
+	}
 
 	return S_OK;
 }
