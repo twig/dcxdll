@@ -28,8 +28,12 @@ void Dcx::load(LOADINFO * lInfo)
 
 	// Initializing OLE Support
 	DCX_DEBUG(debug,TEXT("LoadDLL"), TEXT("Initializing OLE Support..."));
-	OleInitialize(NULL);
-
+	HRESULT hr = OleInitialize(NULL);
+	if ((hr == OLE_E_WRONGCOMPOBJ) || (hr == RPC_E_CHANGED_MODE))
+	{
+		// init failed...
+		DCX_DEBUG(debug, TEXT("LoadDLL"), TEXT("OLE Failed to init"));
+	}
 	// Initializing GDI
 	GDIModule.load(mIRC);
 
@@ -45,7 +49,11 @@ void Dcx::load(LOADINFO * lInfo)
 
 	//get IClassFactory* for WebBrowser
 	DCX_DEBUG(debug,TEXT("LoadDLL"), TEXT("Generating class for WebBrowser..."));
-	CoGetClassObject(CLSID_WebBrowser, CLSCTX_INPROC_SERVER, 0, IID_IClassFactory, (void**) &m_pClassFactory);
+	if (FAILED(CoGetClassObject(CLSID_WebBrowser, CLSCTX_INPROC_SERVER, 0, IID_IClassFactory, (void**)&m_pClassFactory)))
+	{
+		// failed...
+		DCX_DEBUG(debug, TEXT("LoadDLL"), TEXT("Unable to get WebBrowser..."));
+	}
 	//6BF52A52-394A-11D3-B153-00C04F79FAA6
 	//0x000006BA: The RPC server is unavailable.
 	//Js::JavascriptExceptionObject
@@ -61,7 +69,10 @@ void Dcx::load(LOADINFO * lInfo)
 	icex.dwICC  = ICC_TREEVIEW_CLASSES | ICC_BAR_CLASSES | ICC_PROGRESS_CLASS | ICC_LISTVIEW_CLASSES | 
 		ICC_USEREX_CLASSES | ICC_COOL_CLASSES | ICC_STANDARD_CLASSES | ICC_UPDOWN_CLASS | ICC_DATE_CLASSES | 
 		ICC_TAB_CLASSES | ICC_INTERNET_CLASSES | ICC_PAGESCROLLER_CLASS;
-	InitCommonControlsEx( &icex ); 
+	if (!InitCommonControlsEx(&icex))
+	{
+		DCX_DEBUG(debug, TEXT("LoadDLL"), TEXT("Unable to init common controls"));
+	}
 	// Initialise signals of diff types
 	dcxSignal.xdock = false;
 	dcxSignal.xstatusbar = true;

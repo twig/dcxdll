@@ -430,6 +430,7 @@ mIRC(xdock) {
 		RECT rc;
 		GetWindowRect(dockHwnd, &rc);
 		OffsetRect(&rc, -rc.left, -rc.top); // right & bottom now == width & height
+		dflags &= ~(DOCKF_NOSCROLLBARS|DOCKF_SHOWSCROLLBARS);	// ignore scrollbar flags
 
 		switch(dflags)
 		{

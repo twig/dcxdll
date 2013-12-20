@@ -31,12 +31,11 @@
 /*!
 * \brief Rounding function
 */
-int round(const float x) {
+int dcx_round(const float x) {
 	if (x - (float) (int) x > 0.5)
 		return (int) x +1;
 	return (int) x;
 }
-
 /*!
 * \brief Read File Contents
 *

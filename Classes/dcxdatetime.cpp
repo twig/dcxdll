@@ -129,7 +129,7 @@ void DcxDateTime::parseControlStyles( const TString &styles, LONG *Styles, LONG 
 	//	else if (styles.gettok(i) == TEXT("updown"))
 	//		*Styles |= DTS_UPDOWN;
 	//}
-	for (TString tsStyle(styles.getfirsttok( 1 )); tsStyle != ""; tsStyle = styles.getnexttok( ))
+	for (TString tsStyle(styles.getfirsttok( 1 )); tsStyle != TEXT(""); tsStyle = styles.getnexttok( ))
 	{
 		if (tsStyle == TEXT("longdateformat"))
 			*Styles |= DTS_LONGDATEFORMAT;

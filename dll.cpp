@@ -325,8 +325,10 @@ mIRC(GetSystemColor) {
 	if (col == -1) {
 		RGBQUAD clr = {0};
 		BOOL bOpaque = FALSE;
-		Dcx::VistaModule.dcxDwmGetColorizationColor((DWORD *)&clr, &bOpaque);
-		wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), RGB(clr.rgbRed,clr.rgbGreen,clr.rgbBlue));
+		if (SUCCEEDED(Dcx::VistaModule.dcxDwmGetColorizationColor((DWORD *)&clr, &bOpaque)))
+			wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), RGB(clr.rgbRed,clr.rgbGreen,clr.rgbBlue));
+		else
+			ret(TEXT("D_ERROR GetSystemColor: Unable to get glass colour."));
 	}
 	else {
 		// max of 8 digits, 9 for null terminator

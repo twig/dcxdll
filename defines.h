@@ -179,7 +179,7 @@ http://symbiancorner.blogspot.com/2007/05/how-to-detect-version-of-ms-visual.htm
 #define DLL_VERSION    2
 #define DLL_SUBVERSION 0
 #define DLL_BUILD      SVN_BUILD
-#define DLL_DEV_BUILD  23
+#define DLL_DEV_BUILD  24
 
 #ifdef NDEBUG
 #ifdef DCX_DEV_BUILD
@@ -459,7 +459,7 @@ typedef std::vector<int> VectorOfInts; //<! Vector of int
 // DLL routines
 // --------------------------------------------------
 
-int round(const float x);
+int dcx_round(const float x);
 BOOL ParseCommandToLogfont(const TString& cmd, LPLOGFONT lf);
 TString ParseLogfontToCommand(const LPLOGFONT lf);
 UINT parseFontFlags(const TString &flags);

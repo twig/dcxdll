@@ -417,7 +417,7 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, const XSwitch
 			//scrollbar is defined and has visible range
 			if ( min != 0 || max != 0 ) {
 
-				const int pos = round( (float) ( max - min ) * (float) perc / (float) 100.0 );
+				const int pos = dcx_round( (float) ( max - min ) * (float) perc / (float) 100.0 );
 
 				SCROLLINFO si;
 				ZeroMemory( &si, sizeof ( SCROLLINFO ) );

@@ -227,26 +227,26 @@ void DcxToolBar::parseInfoRequest( const TString & input, PTCHAR szReturnValue )
 			tbbi.dwMask = TBIF_STATE | TBIF_BYINDEX;
 			this->getButtonInfo( iButton, &tbbi );
 
-			lstrcpyn( szReturnValue, TEXT("+"), MIRC_BUFFER_SIZE_CCH );
+			if (lstrcpyn(szReturnValue, TEXT("+"), MIRC_BUFFER_SIZE_CCH) != NULL)
+			{
+				if (!(tbbi.fsState & TBSTATE_ENABLED))
+					lstrcat(szReturnValue, TEXT("d"));
 
-			if ( !( tbbi.fsState & TBSTATE_ENABLED ) )
-				lstrcat( szReturnValue,TEXT("d") );
+				if (tbbi.fsState & TBSTATE_INDETERMINATE)
+					lstrcat(szReturnValue, TEXT("i"));
 
-			if ( tbbi.fsState & TBSTATE_INDETERMINATE )
-				lstrcat( szReturnValue,TEXT("i") );
+				if (tbbi.fsState & TBSTATE_HIDDEN)
+					lstrcat(szReturnValue, TEXT("h"));
 
-			if ( tbbi.fsState & TBSTATE_HIDDEN )
-				lstrcat( szReturnValue,TEXT("h") );
+				if (tbbi.fsState & TBSTATE_PRESSED)
+					lstrcat(szReturnValue, TEXT("p"));
 
-			if ( tbbi.fsState & TBSTATE_PRESSED )
-				lstrcat( szReturnValue,TEXT("p") );
+				if (tbbi.fsState & TBSTATE_CHECKED)
+					lstrcat(szReturnValue, TEXT("x"));
 
-			if ( tbbi.fsState & TBSTATE_CHECKED )
-				lstrcat( szReturnValue,TEXT("x") );
-
-			if ( tbbi.fsState & TBSTATE_WRAP )
-				lstrcat( szReturnValue,TEXT("w") );
-
+				if (tbbi.fsState & TBSTATE_WRAP)
+					lstrcat(szReturnValue, TEXT("w"));
+			}
 			return;
 		}
 	}
@@ -651,12 +651,15 @@ void DcxToolBar::parseCommandRequest( const TString & input ) {
 		// load the icon
 		if (himl != NULL) {
 			int cx, cy;
-			ImageList_GetIconSize(himl, &cx, &cy);
-
-			if (cx > 16)
-				icon = dcxLoadIcon(index, filename, true, tsFlags);
+			if (ImageList_GetIconSize(himl, &cx, &cy))
+			{
+				if (cx > 16)
+					icon = dcxLoadIcon(index, filename, true, tsFlags);
+				else
+					icon = dcxLoadIcon(index, filename, false, tsFlags);
+			}
 			else
-				icon = dcxLoadIcon(index, filename, false, tsFlags);
+				this->showError(NULL, TEXT("-w"), TEXT("Unable to get Icon Size"));
 		}
 		else
 			this->showError(NULL, TEXT("-w"), TEXT("Unable to get Normal Image List"));

@@ -156,7 +156,7 @@ void DcxBox::parseControlStyles( const TString & styles, LONG * Styles, LONG * E
 	//		*ExStyles |= WS_EX_TRANSPARENT;
 	//}
 
-	for (TString tsStyle(styles.getfirsttok( 1 )); tsStyle != ""; tsStyle = styles.getnexttok( ))
+	for (TString tsStyle(styles.getfirsttok( 1 )); tsStyle != TEXT(""); tsStyle = styles.getnexttok( ))
 	{
 		if (tsStyle == TEXT("right"))
 			this->m_iBoxStyles |= BOXS_RIGHT;

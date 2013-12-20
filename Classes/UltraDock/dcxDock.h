@@ -15,12 +15,12 @@
 #define DOCKF_AUTOH						0x002	//!< Auto Horizontal size.
 #define DOCKF_AUTOV						0x004	//!< Auto Vertical size.
 #define DOCKF_SIZE						0x008	//!< Auto Horizontal & Vertical size.
-#define DOCKF_LEFT						0x010 //!< Dock to left. (UltraDock)
+#define DOCKF_LEFT						0x010	//!< Dock to left. (UltraDock)
 #define DOCKF_RIGHT						0x020	//!< Dock to right. (UltraDock)
 #define DOCKF_TOP						0x040	//!< Dock to top. (UltraDock)
 #define DOCKF_BOTTOM					0x080	//!< Dock to bottom. (UltraDock)
-#define DOCKF_NOSCROLLBARS				0x100	//!< Disable parenst scrollbars.
-#define DOCKF_SHOWSCROLLBARS			0x200 //!< Stop the auto-sized window from covering the scrollbars of its parent.
+#define DOCKF_NOSCROLLBARS				0x100	//!< Disable parents scrollbars.
+#define DOCKF_SHOWSCROLLBARS			0x200	//!< Stop the auto-sized window from covering the scrollbars of its parent.
 
 #define TREEBAR_COLOUR_SELECTED			0
 #define TREEBAR_COLOUR_SELECTED_BKG		1

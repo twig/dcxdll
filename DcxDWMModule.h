@@ -19,6 +19,7 @@ class DcxDWMModule :
 	bool m_bAero;
 	bool m_bVista;
 	bool m_bWin7;
+	bool m_bWin8;
 	static PFNDWMISCOMPOSITIONENABLED DwmIsCompositionEnabledUx;
 	static PFNDWMGETWINDOWATTRIBUTE DwmGetWindowAttributeUx;
 	static PFNDWMSETWINDOWATTRIBUTE DwmSetWindowAttributeUx;
@@ -43,4 +44,5 @@ public:
 	bool isAero(void) const { return this->m_bAero; };
 	bool isVista(void) const { return this->m_bVista; };
 	bool isWin7(void) const { return this->m_bWin7; };
+	bool isWin8(void) const { return this->m_bWin8; };
 };

@@ -883,10 +883,12 @@ LRESULT DcxTab::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bPa
 
 				// Draw icon on left side if the item has an icon
 				if (tci.iImage != -1) {
-					ImageList_DrawEx( this->getImageList(), tci.iImage, idata->hDC, rect.left, rect.top, 0, 0, CLR_NONE, CLR_NONE, ILD_TRANSPARENT );
-					IMAGEINFO ii;
-					ImageList_GetImageInfo( this->getImageList(), tci.iImage, &ii);
-					rect.left += (ii.rcImage.right - ii.rcImage.left);
+					if (ImageList_DrawEx(this->getImageList(), tci.iImage, idata->hDC, rect.left, rect.top, 0, 0, CLR_NONE, CLR_NONE, ILD_TRANSPARENT))
+					{
+						IMAGEINFO ii;
+						if (ImageList_GetImageInfo(this->getImageList(), tci.iImage, &ii))
+							rect.left += (ii.rcImage.right - ii.rcImage.left);
+					}
 				}
 				// Draw TEXT('Close button') at right side
 				if (m_bClosable) {

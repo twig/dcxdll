@@ -240,7 +240,7 @@ void DcxListView::parseListviewExStyles( const TString & styles, LONG * ExStyles
 {
 	*ExStyles = LVS_EX_DOUBLEBUFFER;
 
-	for (TString tsStyle(styles.getfirsttok( 1 )); tsStyle != ""; tsStyle = styles.getnexttok( ))
+	for (TString tsStyle(styles.getfirsttok( 1 )); tsStyle != TEXT(""); tsStyle = styles.getnexttok( ))
 	{
 		if ( tsStyle == TEXT("grid") ) 
 			*ExStyles |= LVS_EX_GRIDLINES;
@@ -1842,7 +1842,7 @@ void DcxListView::parseCommandRequest( const TString &input) {
 		ListView_GetItemRect(this->m_Hwnd, 0, &rc, LVIR_BOUNDS);
 		const int height = count * (rc.bottom - rc.top);
 
-		pos = round((float) height * (float) pos / (float) 100.0);
+		pos = dcx_round((float) height * (float) pos / (float) 100.0);
 
 		ListView_EnsureVisible(this->m_Hwnd, 0, FALSE);
 		ListView_Scroll(this->m_Hwnd, 0, pos);

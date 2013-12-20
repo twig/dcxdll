@@ -244,11 +244,14 @@ LRESULT mIRCLinker::callDefaultWindowProc(HWND hWnd, UINT Msg, WPARAM wParam, LP
  * Allow sufficient characters to be returned.
  */
 bool mIRCLinker::eval(TCHAR *res, const int maxlen, const TCHAR *data) {
-	lstrcpyn(m_pData, data, MIRC_BUFFER_SIZE_CCH);
-	SendMessage(m_mIRCHWND, WM_MEVALUATE, MIRCF_UNICODE, m_iMapCnt);
-	if (res != NULL) lstrcpyn(res, m_pData, maxlen);
-	if (lstrcmp(m_pData, TEXT("$false")) == 0) return false;
-	return true;
+	if (lstrcpyn(m_pData, data, MIRC_BUFFER_SIZE_CCH) != NULL)
+	{
+		SendMessage(m_mIRCHWND, WM_MEVALUATE, MIRCF_UNICODE, m_iMapCnt);
+		if (res != NULL) lstrcpyn(res, m_pData, maxlen);
+		if (lstrcmp(m_pData, TEXT("$false")) == 0) return false;
+		return true;
+	}
+	return false;
 }
 
 bool mIRCLinker::tsEval(TString &res, const TCHAR *data) {
@@ -260,11 +263,14 @@ bool mIRCLinker::tsEval(TString &res, const TCHAR *data) {
 }
 
 bool mIRCLinker::iEval(__int64  *res, const TCHAR *data) {
-	lstrcpyn(m_pData, data, MIRC_BUFFER_SIZE_CCH);
-	SendMessage(m_mIRCHWND, WM_MEVALUATE, MIRCF_UNICODE, m_iMapCnt);
-	*res = dcx_atoi64(m_pData);
-	if (*res == 0) return false;
-	return true;
+	if (lstrcpyn(m_pData, data, MIRC_BUFFER_SIZE_CCH) != NULL)
+	{
+		SendMessage(m_mIRCHWND, WM_MEVALUATE, MIRCF_UNICODE, m_iMapCnt);
+		*res = dcx_atoi64(m_pData);
+		if (*res == 0) return false;
+		return true;
+	}
+	return false;
 }
 
 /*!
@@ -298,9 +304,11 @@ bool mIRCLinker::tsEvalex(TString &res, const TCHAR *szFormat, ...)
 
 bool mIRCLinker::exec(const TCHAR *data)
 {
-	lstrcpyn(m_pData, data, MIRC_BUFFER_SIZE_CCH);
-	SendMessage(m_mIRCHWND, WM_MCOMMAND, MIRCF_UNICODE, m_iMapCnt);
-	if (lstrlen(m_pData) == 0) return true;
+	if (lstrcpyn(m_pData, data, MIRC_BUFFER_SIZE_CCH) != NULL)
+	{
+		SendMessage(m_mIRCHWND, WM_MCOMMAND, MIRCF_UNICODE, m_iMapCnt);
+		if (lstrlen(m_pData) == 0) return true;
+	}
 	return false;
 }
 

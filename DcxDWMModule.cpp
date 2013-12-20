@@ -8,9 +8,12 @@ PFNDWMEXTENDFRAMEINTOCLIENTAREA DcxDWMModule::DwmExtendFrameIntoClientAreaUx = N
 PFNDWMENABLEBLURBEHINDWINDOW DcxDWMModule::DwmEnableBlurBehindWindowUx = NULL;
 PFNDWMGETCOLORIZATIONCOLOR DcxDWMModule::DwmGetColorizationColorUx = NULL;
 
-DcxDWMModule::DcxDWMModule(void)
+DcxDWMModule::DcxDWMModule(void) :
+m_bAero(false),
+m_bVista(false),
+m_bWin7(false),
+m_bWin8(false)
 {
-	m_bAero = false;
 }
 
 DcxDWMModule::~DcxDWMModule(void)
@@ -23,16 +26,13 @@ bool DcxDWMModule::load(mIRCLinker &mIRCLink)
 	if (isUseable())
 		return false;
 
-	// get OS version.
-	OSVERSIONINFO osvi;
+	DWORD winMajor = 0;
+	if (!GetWindowVersion(&winMajor, NULL))
+		return false;
 
-	ZeroMemory(&osvi, sizeof(OSVERSIONINFO));
-	osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
-
-	GetVersionEx(&osvi);
-
-	this->m_bVista = (osvi.dwMajorVersion >= 6);	// OS is Vista+
-	this->m_bWin7 = (osvi.dwMajorVersion > 6);		// OS is Windows7+
+	this->m_bVista = (winMajor >= 6);	// OS is Vista+
+	this->m_bWin7 = (winMajor > 6);		// OS is Windows7+
+	this->m_bWin8 = (winMajor > 7);		// OS is Windows8+
 
 	DCX_DEBUG(mIRCLink.debug,TEXT("LoadDLL"), TEXT("Loading DWMAPI.DLL..."));
 	m_hModule = LoadLibrary(TEXT("dwmapi.dll"));

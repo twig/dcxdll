@@ -135,7 +135,7 @@ void DcxCheck::parseControlStyles( const TString & styles, LONG * Styles, LONG *
 	//		*Styles |= BS_AUTO3STATE;
 	//	}
 	//}
-	for (TString tsStyle(styles.getfirsttok( 1 )); tsStyle != ""; tsStyle = styles.getnexttok( ))
+	for (TString tsStyle(styles.getfirsttok( 1 )); tsStyle != TEXT(""); tsStyle = styles.getnexttok( ))
 	{
 		if ( tsStyle == TEXT("rjustify") )
 			*Styles |= BS_RIGHT;

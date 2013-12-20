@@ -1741,8 +1741,10 @@ void DcxDialog::parseInfoRequest( const TString &input, TCHAR *szReturnValue) co
 	else if (prop == TEXT("glasscolor")) {
 		RGBQUAD clr = {0};
 		BOOL bOpaque = FALSE;
-		Dcx::VistaModule.dcxDwmGetColorizationColor((DWORD *)&clr, &bOpaque);
-		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), RGB(clr.rgbRed,clr.rgbGreen,clr.rgbBlue));
+		if (SUCCEEDED(Dcx::VistaModule.dcxDwmGetColorizationColor((DWORD *)&clr, &bOpaque)))
+			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), RGB(clr.rgbRed, clr.rgbGreen, clr.rgbBlue));
+		else
+			lstrcpyn(szReturnValue, TEXT("-FAIL Unable to get Glass colour."), MIRC_BUFFER_SIZE_CCH);
 		return;
 	}
 	// invalid info request

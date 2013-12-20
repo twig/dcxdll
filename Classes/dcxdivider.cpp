@@ -92,7 +92,7 @@ void DcxDivider::parseControlStyles( const TString & styles, LONG * Styles, LONG
 	//	if ( styles.gettok( i ) == TEXT("vertical") )
 	//		*Styles |= DVS_VERT;
 	//}
-	for (TString tsStyle(styles.getfirsttok( 1 )); tsStyle != ""; tsStyle = styles.getnexttok( ))
+	for (TString tsStyle(styles.getfirsttok( 1 )); tsStyle != TEXT(""); tsStyle = styles.getnexttok( ))
 	{
 		if ( tsStyle == TEXT("vertical") )
 			*Styles |= DVS_VERT;

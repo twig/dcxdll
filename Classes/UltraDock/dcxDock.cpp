@@ -677,9 +677,11 @@ LRESULT CALLBACK DcxDock::mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 
 						if (pPart->m_iIcon > -1) {
 							IMAGEINFO ii;
-							ImageList_GetImageInfo(pthis->g_hImageList, pPart->m_iIcon, &ii);
-							ImageList_Draw(pthis->g_hImageList, pPart->m_iIcon, lpDrawItem->hDC, rc.left, rc.top + ((rc.bottom - rc.top) - (ii.rcImage.bottom - ii.rcImage.top)) / 2, ILD_TRANSPARENT);
-							rc.left += (ii.rcImage.right - ii.rcImage.left) +5;
+							if (ImageList_GetImageInfo(pthis->g_hImageList, pPart->m_iIcon, &ii))
+							{
+								if (ImageList_Draw(pthis->g_hImageList, pPart->m_iIcon, lpDrawItem->hDC, rc.left, rc.top + ((rc.bottom - rc.top) - (ii.rcImage.bottom - ii.rcImage.top)) / 2, ILD_TRANSPARENT))
+									rc.left += (ii.rcImage.right - ii.rcImage.left) + 5;
+							}
 						}
 
 						COLORREF oldTxtClr = CLR_INVALID;
