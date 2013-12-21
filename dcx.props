@@ -1,0 +1,34 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ImportGroup Label="PropertySheets">
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros">
+    <mIRCDir>C:\mIRC_Basic</mIRCDir>
+  </PropertyGroup>
+  <PropertyGroup>
+    <_ProjectFileVersion>11.0.50727.1</_ProjectFileVersion>
+    <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
+    <IntDir>$(OutDir)obj\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(SolutionDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Lib>
+      <OutputFile>$(OutDir)lib\$(ProjectName).lib</OutputFile>
+    </Lib>
+    <PostBuildEvent>
+      <Message>Copy compiled dcx.dll to mIRC dir</Message>
+      <Command>copy /B /-Y $(TargetPath) $(mIRCDir)\dcx\</Command>
+    </PostBuildEvent>
+    <PreBuildEvent>
+      <Message>Delete old dcx.dll from mIRC dir</Message>
+      <Command>del /F $(mIRCDir)\dcx\dcx.dll</Command>
+    </PreBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <BuildMacro Include="mIRCDir">
+      <Value>$(mIRCDir)</Value>
+    </BuildMacro>
+  </ItemGroup>
+</Project>
