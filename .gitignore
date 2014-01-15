@@ -1,13 +1,10 @@
-# Compiled Object files
-*.slo
-*.lo
-*.o
+# Compile directories
+/Debug
+/Release
 
-# Compiled Dynamic libraries
-*.so
-*.dylib
-
-# Compiled Static libraries
-*.lai
-*.la
-*.a
+# VS files (user specific, intelli sense, precompiled headers)
+/*.user
+/*.suo
+/*.opensdf
+/*.sdf
+/ipch
