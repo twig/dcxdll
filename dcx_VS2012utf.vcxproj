@@ -546,7 +546,6 @@
     <ClInclude Include="Classes\dcxdialog.h" />
     <ClInclude Include="Classes\dcxdialogcollection.h" />
     <ClInclude Include="Classes\dcxwindow.h" />
-    <ClInclude Include="svnBuild.h" />
     <ClInclude Include="Classes\xpopup\xmenubar.h" />
     <ClInclude Include="Classes\xpopup\xpopupmenu.h" />
     <ClInclude Include="Classes\xpopup\xpopupmenuitem.h" />
@@ -572,7 +571,6 @@
     <None Include="dll.def" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="svnTemplate.txt" />
     <Text Include="TODO.txt" />
   </ItemGroup>
   <ItemGroup>

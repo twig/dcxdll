@@ -1,3 +1,0 @@
-#pragma once
-#define SVN_BUILD $WCREV$
-#define SVN_DATE $WCDATE$
