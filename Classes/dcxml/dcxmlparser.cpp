@@ -174,7 +174,11 @@ void DcxmlParser::parseAttributes(const TiXmlElement* tElement) {
 	STclass = queryAttribute(element,"class","");
 	weigth = queryAttribute(tElement, "weight", "1");
 	height = queryAttribute(tElement, "height", "0");
-	dropdown = queryAttribute(tElement, "dropdown", "100");
+	if (0 == lstrcmpA(elem, "comboex") || 0 == lstrcmpA(elem, "colorcombo"))
+		dropdown = queryAttribute(tElement, "dropdown", "100");
+	else
+		dropdown = NULL;
+
 	width = queryAttribute(tElement, "width", "0");
 	margin = queryAttribute(tElement, "margin", "0 0 0 0");
 	styles = queryAttribute(tElement, "styles", "");
