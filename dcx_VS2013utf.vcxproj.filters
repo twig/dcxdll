@@ -1,0 +1,557 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Source Files\Controls">
+      <UniqueIdentifier>{780e5139-70ae-472d-afee-ef9bef3ced5a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Controls\Custom">
+      <UniqueIdentifier>{5f885467-d701-4397-b1c1-20778f129ebd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Controls\mIRC">
+      <UniqueIdentifier>{fccd84d6-a4fe-4dc8-8233-f0bd6927c295}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\TString">
+      <UniqueIdentifier>{ecf9d455-78a9-470a-a0b7-dfef80e78b1a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Layout">
+      <UniqueIdentifier>{e24d9f56-ed3c-4ff7-987f-a3368bf58e03}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\General">
+      <UniqueIdentifier>{3d89098d-5b14-4ad4-8e5a-d4062c14d1d4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\XPopup">
+      <UniqueIdentifier>{31dd4f61-7a5f-4596-824e-292a4c8df93a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\UltraDock">
+      <UniqueIdentifier>{18da8f7a-0bc4-4858-810d-af95e1b86fde}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\tinyxml">
+      <UniqueIdentifier>{a25148b2-217f-4dfe-a22e-a9c5a700d3da}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\dcxml">
+      <UniqueIdentifier>{55d6bc2a-1dfc-400a-a713-0175cbe62c31}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Modules">
+      <UniqueIdentifier>{3dfdfcc0-9516-4170-9418-f53107e9e399}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Header Files\Controls">
+      <UniqueIdentifier>{37031713-c46d-4bd2-b39c-c4df99ec1000}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Controls\Custom">
+      <UniqueIdentifier>{b1217a24-34de-4029-be91-838d4c7dc640}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Controls\mIRC">
+      <UniqueIdentifier>{cef1b1f5-7ba1-4bdb-bdc5-84e94b64e375}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\TString">
+      <UniqueIdentifier>{354b2589-3761-4021-abe7-1391601ffd22}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Layout">
+      <UniqueIdentifier>{b0a7e78f-ae96-4422-a898-d4a2bdc40dbc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\General">
+      <UniqueIdentifier>{ee8bf2c3-95fb-4f1d-84b7-14b3bbdc1192}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\XPopup">
+      <UniqueIdentifier>{6107b72a-8a91-4ceb-bc51-a43db0e8804d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\tinyxml">
+      <UniqueIdentifier>{3b8e4246-a856-4d40-9b0b-cc08fb600a09}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\UltraDock">
+      <UniqueIdentifier>{bbab7db6-3334-41c5-9139-5fd2d0c43d0b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\dcxml">
+      <UniqueIdentifier>{d12ca93d-e58d-4993-ad4f-53ec72a31e76}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Modules">
+      <UniqueIdentifier>{db8cf626-10a8-4eb1-bedf-bcc1d6a56553}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx</Extensions>
+    </Filter>
+    <Filter Include="Scripts">
+      <UniqueIdentifier>{ada752be-a6f2-4db4-bfed-85022327a9a8}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Dcx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Defines.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dll.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="getdxver.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mircFunctions.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mIRCLinker.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="misc.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ShellDialogs.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="windowFunctions.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="XSwitchFlags.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Classes\dcxbutton.cpp">
+      <Filter>Source Files\Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="Classes\dcxcalendar.cpp">
+      <Filter>Source Files\Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="Classes\dcxcolorcombo.cpp">
+      <Filter>Source Files\Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="Classes\dcxcomboex.cpp">
+      <Filter>Source Files\Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="Classes\dcxdatetime.cpp">
+      <Filter>Source Files\Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="Classes\dcxdirectshow.cpp">
+      <Filter>Source Files\Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="Classes\dcxdivider.cpp">
+      <Filter>Source Files\Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="Classes\dcxipaddress.cpp">
+      <Filter>Source Files\Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="Classes\dcxlistview.cpp">
+      <Filter>Source Files\Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="Classes\dcxmdialog.cpp">
+      <Filter>Source Files\Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="Classes\dcxmwindow.cpp">
+      <Filter>Source Files\Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="Classes\dcxpager.cpp">
+      <Filter>Source Files\Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="Classes\dcxpanel.cpp">
+      <Filter>Source Files\Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="Classes\dcxprogressbar.cpp">
+      <Filter>Source Files\Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="Classes\dcxrebar.cpp">
+      <Filter>Source Files\Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="Classes\dcxrichedit.cpp">
+      <Filter>Source Files\Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="Classes\dcxstacker.cpp">
+      <Filter>Source Files\Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="Classes\dcxstatusbar.cpp">
+      <Filter>Source Files\Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="Classes\dcxtab.cpp">
+      <Filter>Source Files\Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="Classes\dcxtoolbar.cpp">
+      <Filter>Source Files\Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="Classes\dcxtrackbar.cpp">
+      <Filter>Source Files\Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="Classes\dcxtreeview.cpp">
+      <Filter>Source Files\Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="Classes\dcxupdown.cpp">
+      <Filter>Source Files\Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="Classes\dcxwebctrl.cpp">
+      <Filter>Source Files\Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="Classes\custom\DcxTrayIcon.cpp">
+      <Filter>Source Files\Controls\Custom</Filter>
+    </ClCompile>
+    <ClCompile Include="Classes\custom\divider.cpp">
+      <Filter>Source Files\Controls\Custom</Filter>
+    </ClCompile>
+    <ClCompile Include="Classes\custom\RichEditThemed.cpp">
+      <Filter>Source Files\Controls\Custom</Filter>
+    </ClCompile>
+    <ClCompile Include="Classes\mirc\dcxbox.cpp">
+      <Filter>Source Files\Controls\mIRC</Filter>
+    </ClCompile>
+    <ClCompile Include="Classes\mirc\dcxcheck.cpp">
+      <Filter>Source Files\Controls\mIRC</Filter>
+    </ClCompile>
+    <ClCompile Include="Classes\mirc\dcxedit.cpp">
+      <Filter>Source Files\Controls\mIRC</Filter>
+    </ClCompile>
+    <ClCompile Include="Classes\mirc\dcximage.cpp">
+      <Filter>Source Files\Controls\mIRC</Filter>
+    </ClCompile>
+    <ClCompile Include="Classes\mirc\dcxline.cpp">
+      <Filter>Source Files\Controls\mIRC</Filter>
+    </ClCompile>
+    <ClCompile Include="Classes\mirc\dcxlink.cpp">
+      <Filter>Source Files\Controls\mIRC</Filter>
+    </ClCompile>
+    <ClCompile Include="Classes\mirc\dcxlist.cpp">
+      <Filter>Source Files\Controls\mIRC</Filter>
+    </ClCompile>
+    <ClCompile Include="Classes\mirc\dcxradio.cpp">
+      <Filter>Source Files\Controls\mIRC</Filter>
+    </ClCompile>
+    <ClCompile Include="Classes\mirc\dcxscroll.cpp">
+      <Filter>Source Files\Controls\mIRC</Filter>
+    </ClCompile>
+    <ClCompile Include="Classes\mirc\dcxtext.cpp">
+      <Filter>Source Files\Controls\mIRC</Filter>
+    </ClCompile>
+    <ClCompile Include="Classes\tstring\tstring.cpp">
+      <Filter>Source Files\TString</Filter>
+    </ClCompile>
+    <ClCompile Include="Classes\layout\layoutcell.cpp">
+      <Filter>Source Files\Layout</Filter>
+    </ClCompile>
+    <ClCompile Include="Classes\layout\layoutcellfill.cpp">
+      <Filter>Source Files\Layout</Filter>
+    </ClCompile>
+    <ClCompile Include="Classes\layout\layoutcellfixed.cpp">
+      <Filter>Source Files\Layout</Filter>
+    </ClCompile>
+    <ClCompile Include="Classes\layout\layoutcellpane.cpp">
+      <Filter>Source Files\Layout</Filter>
+    </ClCompile>
+    <ClCompile Include="Classes\layout\layoutmanager.cpp">
+      <Filter>Source Files\Layout</Filter>
+    </ClCompile>
+    <ClCompile Include="Classes\dcxcontrol.cpp">
+      <Filter>Source Files\General</Filter>
+    </ClCompile>
+    <ClCompile Include="Classes\dcxdialog.cpp">
+      <Filter>Source Files\General</Filter>
+    </ClCompile>
+    <ClCompile Include="Classes\dcxdialogcollection.cpp">
+      <Filter>Source Files\General</Filter>
+    </ClCompile>
+    <ClCompile Include="Classes\dcxwindow.cpp">
+      <Filter>Source Files\General</Filter>
+    </ClCompile>
+    <ClCompile Include="Classes\xpopup\xmenubar.cpp">
+      <Filter>Source Files\XPopup</Filter>
+    </ClCompile>
+    <ClCompile Include="Classes\xpopup\xpopupmenu.cpp">
+      <Filter>Source Files\XPopup</Filter>
+    </ClCompile>
+    <ClCompile Include="Classes\xpopup\xpopupmenuitem.cpp">
+      <Filter>Source Files\XPopup</Filter>
+    </ClCompile>
+    <ClCompile Include="Classes\xpopup\xpopupmenumanager.cpp">
+      <Filter>Source Files\XPopup</Filter>
+    </ClCompile>
+    <ClCompile Include="Classes\xpopup\xpopupmenuwindow.cpp">
+      <Filter>Source Files\XPopup</Filter>
+    </ClCompile>
+    <ClCompile Include="Classes\UltraDock\dcxDock.cpp">
+      <Filter>Source Files\UltraDock</Filter>
+    </ClCompile>
+    <ClCompile Include="Classes\UltraDock\dcxDockCommands.cpp">
+      <Filter>Source Files\UltraDock</Filter>
+    </ClCompile>
+    <ClCompile Include="Classes\UltraDock\dcxUltraDock.cpp">
+      <Filter>Source Files\UltraDock</Filter>
+    </ClCompile>
+    <ClCompile Include="Classes\UltraDock\xStatusbar.cpp">
+      <Filter>Source Files\UltraDock</Filter>
+    </ClCompile>
+    <ClCompile Include="Classes\UltraDock\xTreebar.cpp">
+      <Filter>Source Files\UltraDock</Filter>
+    </ClCompile>
+    <ClCompile Include="Classes\tinyxml\tinystr.cpp">
+      <Filter>Source Files\tinyxml</Filter>
+    </ClCompile>
+    <ClCompile Include="Classes\tinyxml\tinyxml.cpp">
+      <Filter>Source Files\tinyxml</Filter>
+    </ClCompile>
+    <ClCompile Include="Classes\tinyxml\tinyxmlerror.cpp">
+      <Filter>Source Files\tinyxml</Filter>
+    </ClCompile>
+    <ClCompile Include="Classes\tinyxml\tinyxmlparser.cpp">
+      <Filter>Source Files\tinyxml</Filter>
+    </ClCompile>
+    <ClCompile Include="Classes\dcxml\dcxml.cpp">
+      <Filter>Source Files\dcxml</Filter>
+    </ClCompile>
+    <ClCompile Include="Classes\dcxml\dcxmlparser.cpp">
+      <Filter>Source Files\dcxml</Filter>
+    </ClCompile>
+    <ClCompile Include="DcxDWMModule.cpp">
+      <Filter>Source Files\Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="DcxGDIModule.cpp">
+      <Filter>Source Files\Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="DcxModule.cpp">
+      <Filter>Source Files\Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="DcxUXModule.cpp">
+      <Filter>Source Files\Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="DcxXPPlusModule.cpp">
+      <Filter>Source Files\Modules</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="AggressiveOptimize.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Dcx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="defines.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="mIRCLinker.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="XSwitchFlags.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Classes\dcxbutton.h">
+      <Filter>Header Files\Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="Classes\dcxcalendar.h">
+      <Filter>Header Files\Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="Classes\dcxcolorcombo.h">
+      <Filter>Header Files\Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="Classes\dcxcomboex.h">
+      <Filter>Header Files\Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="Classes\dcxdatetime.h">
+      <Filter>Header Files\Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="Classes\dcxdirectshow.h">
+      <Filter>Header Files\Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="Classes\dcxdivider.h">
+      <Filter>Header Files\Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="Classes\dcxipaddress.h">
+      <Filter>Header Files\Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="Classes\dcxlistview.h">
+      <Filter>Header Files\Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="Classes\dcxmdialog.h">
+      <Filter>Header Files\Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="Classes\dcxmwindow.h">
+      <Filter>Header Files\Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="Classes\dcxpager.h">
+      <Filter>Header Files\Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="Classes\dcxpanel.h">
+      <Filter>Header Files\Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="Classes\dcxprogressbar.h">
+      <Filter>Header Files\Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="Classes\dcxrebar.h">
+      <Filter>Header Files\Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="Classes\dcxrichedit.h">
+      <Filter>Header Files\Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="Classes\dcxstacker.h">
+      <Filter>Header Files\Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="Classes\dcxstatusbar.h">
+      <Filter>Header Files\Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="Classes\dcxtab.h">
+      <Filter>Header Files\Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="Classes\dcxtoolbar.h">
+      <Filter>Header Files\Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="Classes\dcxtrackbar.h">
+      <Filter>Header Files\Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="Classes\dcxtreeview.h">
+      <Filter>Header Files\Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="Classes\dcxupdown.h">
+      <Filter>Header Files\Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="Classes\dcxwebctrl.h">
+      <Filter>Header Files\Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="Classes\custom\DcxTrayIcon.h">
+      <Filter>Header Files\Controls\Custom</Filter>
+    </ClInclude>
+    <ClInclude Include="Classes\custom\divider.h">
+      <Filter>Header Files\Controls\Custom</Filter>
+    </ClInclude>
+    <ClInclude Include="Classes\custom\RichEditThemed.h">
+      <Filter>Header Files\Controls\Custom</Filter>
+    </ClInclude>
+    <ClInclude Include="Classes\mirc\dcxbox.h">
+      <Filter>Header Files\Controls\mIRC</Filter>
+    </ClInclude>
+    <ClInclude Include="Classes\mirc\dcxcheck.h">
+      <Filter>Header Files\Controls\mIRC</Filter>
+    </ClInclude>
+    <ClInclude Include="Classes\mirc\dcxedit.h">
+      <Filter>Header Files\Controls\mIRC</Filter>
+    </ClInclude>
+    <ClInclude Include="Classes\mirc\dcximage.h">
+      <Filter>Header Files\Controls\mIRC</Filter>
+    </ClInclude>
+    <ClInclude Include="Classes\mirc\dcxline.h">
+      <Filter>Header Files\Controls\mIRC</Filter>
+    </ClInclude>
+    <ClInclude Include="Classes\mirc\dcxlink.h">
+      <Filter>Header Files\Controls\mIRC</Filter>
+    </ClInclude>
+    <ClInclude Include="Classes\mirc\dcxlist.h">
+      <Filter>Header Files\Controls\mIRC</Filter>
+    </ClInclude>
+    <ClInclude Include="Classes\mirc\dcxradio.h">
+      <Filter>Header Files\Controls\mIRC</Filter>
+    </ClInclude>
+    <ClInclude Include="Classes\mirc\dcxscroll.h">
+      <Filter>Header Files\Controls\mIRC</Filter>
+    </ClInclude>
+    <ClInclude Include="Classes\mirc\dcxtext.h">
+      <Filter>Header Files\Controls\mIRC</Filter>
+    </ClInclude>
+    <ClInclude Include="Classes\tstring\tstring.h">
+      <Filter>Header Files\TString</Filter>
+    </ClInclude>
+    <ClInclude Include="Classes\layout\layoutcell.h">
+      <Filter>Header Files\Layout</Filter>
+    </ClInclude>
+    <ClInclude Include="Classes\layout\layoutcellfill.h">
+      <Filter>Header Files\Layout</Filter>
+    </ClInclude>
+    <ClInclude Include="Classes\layout\layoutcellfixed.h">
+      <Filter>Header Files\Layout</Filter>
+    </ClInclude>
+    <ClInclude Include="Classes\layout\layoutcellpane.h">
+      <Filter>Header Files\Layout</Filter>
+    </ClInclude>
+    <ClInclude Include="Classes\layout\layoutmanager.h">
+      <Filter>Header Files\Layout</Filter>
+    </ClInclude>
+    <ClInclude Include="Classes\dcxcontrol.h">
+      <Filter>Header Files\General</Filter>
+    </ClInclude>
+    <ClInclude Include="Classes\dcxdialog.h">
+      <Filter>Header Files\General</Filter>
+    </ClInclude>
+    <ClInclude Include="Classes\dcxdialogcollection.h">
+      <Filter>Header Files\General</Filter>
+    </ClInclude>
+    <ClInclude Include="Classes\dcxwindow.h">
+      <Filter>Header Files\General</Filter>
+    </ClInclude>
+    <ClInclude Include="svnBuild.h">
+      <Filter>Header Files\General</Filter>
+    </ClInclude>
+    <ClInclude Include="Classes\xpopup\xmenubar.h">
+      <Filter>Header Files\XPopup</Filter>
+    </ClInclude>
+    <ClInclude Include="Classes\xpopup\xpopupmenu.h">
+      <Filter>Header Files\XPopup</Filter>
+    </ClInclude>
+    <ClInclude Include="Classes\xpopup\xpopupmenuitem.h">
+      <Filter>Header Files\XPopup</Filter>
+    </ClInclude>
+    <ClInclude Include="Classes\xpopup\xpopupmenumanager.h">
+      <Filter>Header Files\XPopup</Filter>
+    </ClInclude>
+    <ClInclude Include="Classes\xpopup\xpopupmenuwindow.h">
+      <Filter>Header Files\XPopup</Filter>
+    </ClInclude>
+    <ClInclude Include="Classes\tinyxml\tinystr.h">
+      <Filter>Header Files\tinyxml</Filter>
+    </ClInclude>
+    <ClInclude Include="Classes\tinyxml\tinyxml.h">
+      <Filter>Header Files\tinyxml</Filter>
+    </ClInclude>
+    <ClInclude Include="Classes\UltraDock\dcxDock.h">
+      <Filter>Header Files\UltraDock</Filter>
+    </ClInclude>
+    <ClInclude Include="Classes\dcxml\dcxmlincludes.h">
+      <Filter>Header Files\dcxml</Filter>
+    </ClInclude>
+    <ClInclude Include="Classes\dcxml\dcxmlparser.h">
+      <Filter>Header Files\dcxml</Filter>
+    </ClInclude>
+    <ClInclude Include="DcxDWMModule.h">
+      <Filter>Header Files\Modules</Filter>
+    </ClInclude>
+    <ClInclude Include="DcxGDIModule.h">
+      <Filter>Header Files\Modules</Filter>
+    </ClInclude>
+    <ClInclude Include="DcxModule.h">
+      <Filter>Header Files\Modules</Filter>
+    </ClInclude>
+    <ClInclude Include="DcxUXModule.h">
+      <Filter>Header Files\Modules</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="dcx_zip\dcx.mrc">
+      <Filter>Scripts</Filter>
+    </None>
+    <None Include="dcx_zip\dcx_demo.mrc">
+      <Filter>Scripts</Filter>
+    </None>
+    <None Include="dcx_zip\dcx_tools.mrc">
+      <Filter>Scripts</Filter>
+    </None>
+    <None Include="dll.def">
+      <Filter>Resource Files</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="svnTemplate.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="TODO.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <Xml Include="dcx_zip\dc.xml">
+      <Filter>Scripts</Filter>
+    </Xml>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="DcxXPPlusModule.h">
+      <Filter>Header Files\Modules</Filter>
+    </CustomBuild>
+  </ItemGroup>
+</Project>
