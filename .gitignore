@@ -8,3 +8,9 @@
 /*.opensdf
 /*.sdf
 /ipch
+Release Optimal
+Debug
+Development
+Release
+Release Dll
+/gitBuild.h

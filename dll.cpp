@@ -171,25 +171,25 @@ mIRC(Version) {
 	if (Dcx::mIRC.isUnicode())
 	{
 		wnsprintf(data, MIRC_BUFFER_SIZE_CCH,
-			TEXT("DCX (XPopup) DLL %d.%d.%d %s%d UTF by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2006-2013"),
-			DLL_VERSION, DLL_SUBVERSION, DLL_BUILD, DLL_STATE, DLL_DEV_BUILD);
+			TEXT("DCX (XPopup) DLL %s %s%d UTF by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2006-2014"),
+			DLL_VERSION, DLL_STATE, DLL_DEV_BUILD);
 	}
 	else {
 		wnsprintfA((char *)data, MIRC_BUFFER_SIZE_CCH,
-			"DCX (XPopup) DLL %d.%d.%d %S%d UTF by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2006-2013",
-			DLL_VERSION, DLL_SUBVERSION, DLL_BUILD, DLL_STATE, DLL_DEV_BUILD);
+			"DCX (XPopup) DLL %S %S%d UTF by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2006-2014",
+			DLL_VERSION, DLL_STATE, DLL_DEV_BUILD);
 	}
 #else
 	if (Dcx::mIRC.isUnicode())
 	{
 		wnsprintf(data, MIRC_BUFFER_SIZE_CCH,
-			TEXT("DCX (XPopup) DLL %d.%d.%d %s UTF by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2006-2013"),
-			DLL_VERSION, DLL_SUBVERSION, DLL_BUILD, DLL_STATE);
+			TEXT("DCX (XPopup) DLL %s %s UTF by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2006-2014"),
+			DLL_VERSION, DLL_STATE);
 	}
 	else {
 		wnsprintfA((char *)data, MIRC_BUFFER_SIZE_CCH,
-			"DCX (XPopup) DLL %d.%d.%d %S UTF by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2006-2013",
-			DLL_VERSION, DLL_SUBVERSION, DLL_BUILD, DLL_STATE);
+			"DCX (XPopup) DLL %S %S UTF by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2006-2014",
+			DLL_VERSION, DLL_STATE);
 	}
 #endif
 	return 3;
