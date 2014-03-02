@@ -6,7 +6,7 @@ REM Entry Point
 REM ===================
 :START
 ECHO.
-SET CACHE_FILE=%~s1\GIT_VERSION
+SET CACHE_FILE=%~s1GIT_VERSION
 SET HEADER_OUT_FILE=%2
 
 CALL :INIT_VARS
@@ -30,11 +30,13 @@ GOTO :EOF
 :: --------------------
 :CHECK_CACHE
 :: --------------------
-IF EXIST "%CACHE_FILE%" (
-  FOR /F %%A IN (%CACHE_FILE%) DO (
-    IF "%%A" == "%strFILE_DESCRIBE%" (
-      ECHO Build version is assumed unchanged from: %strFILE_DESCRIBE%.
-      SET fLEAVE_NOW=1
+IF EXIST %HEADER_OUT_FILE% (
+  IF EXIST "%CACHE_FILE%" (
+    FOR /F %%A IN (%CACHE_FILE%) DO (
+      IF "%%A" == "%strFILE_DESCRIBE%" (
+        ECHO Build version is assumed unchanged from: %strFILE_DESCRIBE%.
+        SET fLEAVE_NOW=1
+      )
     )
   )
 )

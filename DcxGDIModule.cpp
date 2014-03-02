@@ -5,6 +5,7 @@
 
 
 DcxGDIModule::DcxGDIModule()
+: m_GDIToken(NULL)
 {
 }
 

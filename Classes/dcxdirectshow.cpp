@@ -127,13 +127,13 @@ void DcxDirectshow::parseInfoRequest( const TString & input, PTCHAR szReturnValu
 	if (this->m_pGraph == NULL) {
 		// [NAME] [ID] [PROP]
 		if ( prop == TEXT("isloaded")) {
-			lstrcpyn(szReturnValue,TEXT("$false"), MIRC_BUFFER_SIZE_CCH);
-			return;
+			if (lstrcpyn(szReturnValue,TEXT("$false"), MIRC_BUFFER_SIZE_CCH) != NULL)
+				return;
 		}
 		// [NAME] [ID] [PROP]
 		else if ( prop == TEXT("state")) {
-			lstrcpyn(szReturnValue,TEXT("D_OK nofile"), MIRC_BUFFER_SIZE_CCH);
-			return;
+			if (lstrcpyn(szReturnValue,TEXT("D_OK nofile"), MIRC_BUFFER_SIZE_CCH) != NULL)
+				return;
 		}
 		else if (this->parseGlobalInfoRequest( input, szReturnValue ))
 			return;
@@ -142,13 +142,13 @@ void DcxDirectshow::parseInfoRequest( const TString & input, PTCHAR szReturnValu
 	}
 	// [NAME] [ID] [PROP]
 	else if ( prop == TEXT("isloaded")) {
-		lstrcpyn(szReturnValue,TEXT("$true"), MIRC_BUFFER_SIZE_CCH);
-		return;
+		if (lstrcpyn(szReturnValue,TEXT("$true"), MIRC_BUFFER_SIZE_CCH) != NULL)
+			return;
 	}
 	// [NAME] [ID] [PROP]
 	else if ( prop == TEXT("fname")) {
-		lstrcpyn(szReturnValue,this->m_tsFilename.to_chr(), MIRC_BUFFER_SIZE_CCH);
-		return;
+		if (lstrcpyn(szReturnValue,this->m_tsFilename.to_chr(), MIRC_BUFFER_SIZE_CCH) != NULL)
+			return;
 	}
 	// [NAME] [ID] [PROP]
 	else if ( prop == TEXT("size")) {
@@ -263,7 +263,8 @@ void DcxDirectshow::parseInfoRequest( const TString & input, PTCHAR szReturnValu
 		if (this->CheckSeekCapabilities(AM_SEEKING_CanGetDuration) & AM_SEEKING_CanGetDuration)
 			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("D_OK %I64d"), this->getDuration());
 		else
-			lstrcpyn(szReturnValue,TEXT("D_ERROR Method Not Supported"), MIRC_BUFFER_SIZE_CCH);
+			dcx_strcpyn(szReturnValue, TEXT("D_ERROR Method Not Supported"), MIRC_BUFFER_SIZE_CCH);
+
 		return;
 	}
 	// [NAME] [ID] [PROP]
@@ -307,7 +308,7 @@ void DcxDirectshow::parseInfoRequest( const TString & input, PTCHAR szReturnValu
 		else {
 			this->showError(prop.to_chr(),NULL,TEXT("Unable to get State Information"));
 			DX_ERR(prop.to_chr(),NULL, hr);
-			lstrcpyn(szReturnValue,TEXT("D_ERROR Unable To Get State"), MIRC_BUFFER_SIZE_CCH);
+			dcx_strcpyn(szReturnValue, TEXT("D_ERROR Unable To Get State"), MIRC_BUFFER_SIZE_CCH);
 		}
 		return;
 	}
@@ -458,7 +459,7 @@ void DcxDirectshow::parseCommandRequest( const TString &input) {
 			this->showError(NULL,TEXT("-a"), TEXT("Unable to Set Aspect"));
 			DX_ERR(NULL,TEXT("-a"), hr);
 			//DCXError(TEXT("/xdid -a"),TEXT("Unable to Set Aspect"));
-			inErr = true;
+			//inErr = true;
 		}
 		if (!SUCCEEDED(hr)) { // if anything failed, release all & show error.
 			this->ReleaseAll();
@@ -834,11 +835,13 @@ HRESULT DcxDirectshow::getProperty(TCHAR *prop, const int type) const
 			SysFreeString(com_prop);
 		}
 		else
-			lstrcpyn(prop,TEXT("Not Supported"), MIRC_BUFFER_SIZE_CCH);
+			dcx_strcpyn(prop, TEXT("Not Supported"), MIRC_BUFFER_SIZE_CCH);
+
 		iam->Release();
 	}
 	else
-		lstrcpyn(prop,TEXT("failed"), MIRC_BUFFER_SIZE_CCH);
+		dcx_strcpyn(prop, TEXT("failed"), MIRC_BUFFER_SIZE_CCH);
+
 	return hr;
 }
 
@@ -847,12 +850,12 @@ HRESULT DcxDirectshow::setAlpha(float alpha)
 	if ((alpha < 0) || (alpha > 1.0))
 		alpha = 1.0;
 
-	IBaseFilter* pVmr = NULL; 
+	IBaseFilter* pVmr = NULL;
 
-	HRESULT hr = this->m_pGraph->FindFilterByName(L"Video Mixing Renderer",&pVmr);
+	HRESULT hr = this->m_pGraph->FindFilterByName(L"Video Mixing Renderer", &pVmr);
 
 	if (FAILED(hr))
-			return hr;
+		return hr;
 
 	IVMRMixerControl9 *pMixer = NULL;
 	hr = pVmr->QueryInterface(IID_IVMRMixerControl9, (void**)&pMixer);
@@ -861,10 +864,10 @@ HRESULT DcxDirectshow::setAlpha(float alpha)
 		//hr = pMixer->SetAlpha(0,alpha);
 		// Get the current mixing preferences.
 		DWORD dwPrefs;
-		pMixer->GetMixingPrefs(&dwPrefs);  
+		pMixer->GetMixingPrefs(&dwPrefs);
 
 		// Remove the current render target flag.
-		dwPrefs &= ~MixerPref_RenderTargetMask; 
+		dwPrefs &= ~MixerPref_RenderTargetMask;
 
 		// Add the render target flag that we want.
 		dwPrefs |= MixerPref_RenderTargetYUV;
@@ -893,7 +896,7 @@ HRESULT DcxDirectshow::setAlpha(float alpha)
 				hr = this->m_pWc->GetNativeVideoSize(&cx, &cy, NULL, NULL);
 				if (SUCCEEDED(hr)) {
 					VMR9AlphaBitmap bmpInfo;
-					ZeroMemory(&bmpInfo, sizeof(bmpInfo) );
+					ZeroMemory(&bmpInfo, sizeof(bmpInfo));
 					const int w = (rcWin.right - rcWin.left), h = (rcWin.bottom - rcWin.top);
 
 					bmpInfo.dwFlags = VMR9AlphaBitmap_hDC;
@@ -909,43 +912,45 @@ HRESULT DcxDirectshow::setAlpha(float alpha)
 					bmpInfo.rDest.right = 1.0; //(float)w / cx;
 					bmpInfo.rDest.bottom = 1.0; //(float)h / cy;
 					hr = pBm->SetAlphaBitmap(&bmpInfo);
-					ZeroMemory(&bmpInfo, sizeof(bmpInfo) );
-					bmpInfo.dwFlags = VMR9AlphaBitmap_SrcRect;
-					bmpInfo.hdc = NULL;
-					// Set the transparency value (1.0 is opaque, 0.0 is transparent).
-					bmpInfo.fAlpha = alpha;
-					//POINT pt;
-					//pt.x = rcWin.left;
-					//pt.y = rcWin.top;
-					//ScreenToClient(GetParent(this->m_Hwnd),&pt);
-					//CopyRect(&bmpInfo.rSrc, &rcWin);
-					//SetRect(&bmpInfo.rSrc, pt.x, pt.y, pt.x + w, pt.y + h);
-					CopyRect(&bmpInfo.rSrc, &rcClient);
-					bmpInfo.rDest.left = 0.f;
-					bmpInfo.rDest.top = 0.f;
-					bmpInfo.rDest.right = 1.0; //(float)(rcClient.right - rcClient.left) / cx;
-					bmpInfo.rDest.bottom = 1.0; //(float)(rcClient.bottom - rcClient.top) / cy;
-					hr = pBm->UpdateAlphaBitmapParameters(&bmpInfo);
+					if (SUCCEEDED(hr)) {
+						ZeroMemory(&bmpInfo, sizeof(bmpInfo));
+						bmpInfo.dwFlags = VMR9AlphaBitmap_SrcRect;
+						bmpInfo.hdc = NULL;
+						// Set the transparency value (1.0 is opaque, 0.0 is transparent).
+						bmpInfo.fAlpha = alpha;
+						//POINT pt;
+						//pt.x = rcWin.left;
+						//pt.y = rcWin.top;
+						//ScreenToClient(GetParent(this->m_Hwnd),&pt);
+						//CopyRect(&bmpInfo.rSrc, &rcWin);
+						//SetRect(&bmpInfo.rSrc, pt.x, pt.y, pt.x + w, pt.y + h);
+						CopyRect(&bmpInfo.rSrc, &rcClient);
+						bmpInfo.rDest.left = 0.f;
+						bmpInfo.rDest.top = 0.f;
+						bmpInfo.rDest.right = 1.0; //(float)(rcClient.right - rcClient.left) / cx;
+						bmpInfo.rDest.bottom = 1.0; //(float)(rcClient.bottom - rcClient.top) / cy;
+						hr = pBm->UpdateAlphaBitmapParameters(&bmpInfo);
+					}
 				}
 				DeleteHDCBuffer(hdcBuf);
 			}
-/*
-			HDC hdcbkg = CreateCompatibleDC( hdc );
-			if (hdcbkg != NULL) {
-				RECT rcClient, rcWin;
-				GetClientRect(this->m_Hwnd, &rcClient);
-				GetWindowRect(this->m_Hwnd, &rcWin);
-				const int w = (rcWin.right - rcWin.left), h = (rcWin.bottom - rcWin.top);
-				HBITMAP memBM = CreateCompatibleBitmap ( hdc, w, h );
-				if (memBM != NULL) {
-					// associate bitmap with HDC
-					const HBITMAP oldBM = SelectBitmap ( hdcbkg, memBM );
+			/*
+						HDC hdcbkg = CreateCompatibleDC( hdc );
+						if (hdcbkg != NULL) {
+						RECT rcClient, rcWin;
+						GetClientRect(this->m_Hwnd, &rcClient);
+						GetWindowRect(this->m_Hwnd, &rcWin);
+						const int w = (rcWin.right - rcWin.left), h = (rcWin.bottom - rcWin.top);
+						HBITMAP memBM = CreateCompatibleBitmap ( hdc, w, h );
+						if (memBM != NULL) {
+						// associate bitmap with HDC
+						const HBITMAP oldBM = SelectBitmap ( hdcbkg, memBM );
 
-					this->DrawParentsBackground(hdcbkg, &rcClient);
+						this->DrawParentsBackground(hdcbkg, &rcClient);
 
-					long cx, cy;
-					hr = this->m_pWc->GetNativeVideoSize(&cx, &cy, NULL, NULL);
-					if (SUCCEEDED(hr)) {
+						long cx, cy;
+						hr = this->m_pWc->GetNativeVideoSize(&cx, &cy, NULL, NULL);
+						if (SUCCEEDED(hr)) {
 						VMR9AlphaBitmap bmpInfo;
 						ZeroMemory(&bmpInfo, sizeof(bmpInfo) );
 						bmpInfo.dwFlags = VMR9AlphaBitmap_hDC;
@@ -978,24 +983,24 @@ HRESULT DcxDirectshow::setAlpha(float alpha)
 						bmpInfo.rDest.right = 1.0; //(float)(rcClient.right - rcClient.left) / cx;
 						bmpInfo.rDest.bottom = 1.0; //(float)(rcClient.bottom - rcClient.top) / cy;
 						hr = pBm->UpdateAlphaBitmapParameters(&bmpInfo);
-					}
-					DeleteBitmap(SelectBitmap(hdcbkg,oldBM));
-				}
-				else
-					hr = E_FAIL;
-				DeleteDC( hdcbkg );
-			}
-			else
-				hr = E_FAIL;
-			ReleaseDC(this->m_Hwnd, hdc);
-			*/
+						}
+						DeleteBitmap(SelectBitmap(hdcbkg,oldBM));
+						}
+						else
+						hr = E_FAIL;
+						DeleteDC( hdcbkg );
+						}
+						else
+						hr = E_FAIL;
+						ReleaseDC(this->m_Hwnd, hdc);
+						*/
 		}
 		else
 			hr = E_FAIL;
 		pBm->Release();
 	}
-	pVmr->Release(); 
-	return hr; 
+	pVmr->Release();
+	return hr;
 }
 HRESULT DcxDirectshow::setVideo(const TString flags, const float brightness, const float contrast, const float hue, const float saturation)
 {

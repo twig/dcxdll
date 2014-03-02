@@ -68,9 +68,8 @@ const TCHAR *TString::m_cTab = TEXT("\t");
 /****************************/
 
 TString::TString( )
-: m_pTempString(NULL),
- m_pString(NULL),
- m_savedtotaltoks(0)
+: m_pTempString(NULL), m_pString(NULL),
+m_savedtotaltoks(0), m_savedcurrenttok(0), m_savedpos(0)
 {
 	this->m_pString = allocstr_cch(1);
 	this->m_pString[0] = 0;
@@ -85,9 +84,8 @@ TString::TString( )
 /****************************/
 
 TString::TString( const char * cString )
-: m_pTempString(NULL),
- m_pString(NULL),
- m_savedtotaltoks(0)
+: m_pTempString(NULL), m_pString(NULL),
+ m_savedtotaltoks(0), m_savedcurrenttok(0), m_savedpos(0)
 {
 #ifdef UNICODE
 	TCHAR *temp = NULL;
@@ -115,9 +113,8 @@ TString::TString( const char * cString )
 }
 
 TString::TString( const WCHAR * cString )
-: m_pTempString(NULL),
- m_pString(NULL),
- m_savedtotaltoks(0)
+: m_pTempString(NULL), m_pString(NULL),
+m_savedtotaltoks(0), m_savedcurrenttok(0), m_savedpos(0)
 {
 #ifdef UNICODE
 	if (cString != NULL) {
@@ -153,9 +150,8 @@ TString::TString( const WCHAR * cString )
 /****************************/
 
 TString::TString( const WCHAR chr )
-: m_pTempString(NULL),
- m_pString(NULL),
- m_savedtotaltoks(0)
+: m_pTempString(NULL), m_pString(NULL),
+m_savedtotaltoks(0), m_savedcurrenttok(0), m_savedpos(0)
 {
 #ifdef UNICODE
 	this->m_pString = allocstr_cch(2);
@@ -184,9 +180,8 @@ TString::TString( const WCHAR chr )
 }
 
 TString::TString( const char chr )
-: m_pTempString(NULL),
- m_pString(NULL),
- m_savedtotaltoks(0)
+: m_pTempString(NULL), m_pString(NULL),
+m_savedtotaltoks(0), m_savedcurrenttok(0), m_savedpos(0)
 {
 #ifdef UNICODE
 	TCHAR *temp = NULL;
@@ -221,9 +216,8 @@ TString::TString( const char chr )
 /****************************/
 
 TString::TString( const TString & tString )
-: m_pTempString(NULL),
- m_pString(NULL),
- m_savedtotaltoks(0)
+: m_pTempString(NULL), m_pString(NULL),
+m_savedtotaltoks(0), m_savedcurrenttok(0), m_savedpos(0)
 {
 	if (tString.m_pString != NULL) {
 		//const int l = ts_strlen( tString.m_pString ) +1;
@@ -241,9 +235,8 @@ TString::TString( const TString & tString )
 }
 
 TString::TString( const TCHAR *pStart, const TCHAR *pEnd )
-: m_pTempString(NULL),
- m_pString(NULL),
- m_savedtotaltoks(0)
+: m_pTempString(NULL), m_pString(NULL),
+m_savedtotaltoks(0), m_savedcurrenttok(0), m_savedpos(0)
 {
 	if ((pStart != NULL) && (pEnd != NULL) && (pEnd > pStart)) {
 		const size_t size = (pEnd - pStart);
@@ -264,9 +257,8 @@ TString::TString( const TCHAR *pStart, const TCHAR *pEnd )
  *
  */
 TString::TString( const unsigned int tsSize )
-: m_pTempString(NULL),
- m_pString(NULL),
- m_savedtotaltoks(0)
+: m_pTempString(NULL), m_pString(NULL),
+m_savedtotaltoks(0), m_savedcurrenttok(0), m_savedpos(0)
 {
 	this->m_pString = allocstr_cch(tsSize + 1);
 	ZeroMemory(this->m_pString, ((tsSize + 1)*sizeof(TCHAR)));

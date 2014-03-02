@@ -196,7 +196,7 @@ void DcxDialog::deleteControl(DcxControl *p_Control) {
 			return;
 		}
 
-		itStart++;
+		++itStart;
 	}
 }
 
@@ -1017,11 +1017,10 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 	}
 	// xdialog -P [NAME] [SWITCH] ([+FLAGS] (FLAG OPTIONS))
 	else if (flags[TEXT('P')]) {
-		HMENU menu = NULL;
 
 		// create the menu
 		if (this->m_popup == NULL) {
-			menu = GetMenu(this->m_Hwnd);
+			HMENU menu = GetMenu(this->m_Hwnd);
 
 			if (menu != NULL)
 				this->m_popup = new XPopupMenu(TEXT("dialog"), menu);
@@ -1567,13 +1566,15 @@ void DcxDialog::parseInfoRequest( const TString &input, TCHAR *szReturnValue) co
 	// [NAME] [PROP] [ID]
 	if (prop == TEXT("isid") && numtok > 2) {
 		const int nID = input.getnexttok( ).to_int();	// tok 3
+		dcx_ConRet(IsWindow(GetDlgItem(this->m_Hwnd, nID + mIRC_ID_OFFSET)) || (this->getControlByID(nID + mIRC_ID_OFFSET) != NULL), szReturnValue);
+		//TCHAR *p;
+		//if (IsWindow(GetDlgItem(this->m_Hwnd, nID + mIRC_ID_OFFSET)) || (this->getControlByID(nID + mIRC_ID_OFFSET) != NULL))
+		//	p = lstrcpyn(szReturnValue, TEXT("$true"), MIRC_BUFFER_SIZE_CCH);
+		//else
+		//	p = lstrcpyn(szReturnValue, TEXT("$false"), MIRC_BUFFER_SIZE_CCH);
 
-		if (IsWindow(GetDlgItem(this->m_Hwnd, nID + mIRC_ID_OFFSET)) || (this->getControlByID(nID + mIRC_ID_OFFSET) != NULL))
-			lstrcpyn(szReturnValue, TEXT("$true"), MIRC_BUFFER_SIZE_CCH);
-		else
-			lstrcpyn(szReturnValue, TEXT("$false"), MIRC_BUFFER_SIZE_CCH);
-
-		return;
+		//if (p != NULL)
+		//	return;
 	}
 	// [NAME] [PROP]
 	else if (prop == TEXT("nextid")) {
@@ -1626,26 +1627,32 @@ void DcxDialog::parseInfoRequest( const TString &input, TCHAR *szReturnValue) co
 	}
 	// [NAME] [PROP]
 	else if (prop == TEXT("ismenu")) {
-		if (GetMenu(this->m_Hwnd) != NULL)
-			lstrcpyn(szReturnValue, TEXT("$true"), MIRC_BUFFER_SIZE_CCH);
-		else
-			lstrcpyn(szReturnValue, TEXT("$false"), MIRC_BUFFER_SIZE_CCH);
+		dcx_ConRet(GetMenu(this->m_Hwnd) != NULL, szReturnValue);
+		//TCHAR *p;
+		//if (GetMenu(this->m_Hwnd) != NULL)
+		//	p = lstrcpyn(szReturnValue, TEXT("$true"), MIRC_BUFFER_SIZE_CCH);
+		//else
+		//	p = lstrcpyn(szReturnValue, TEXT("$false"), MIRC_BUFFER_SIZE_CCH);
 
-		return;
+		//if (p != NULL)
+		//	return;
 	}
 	// [NAME] [PROP]
 	else if (prop == TEXT("ismarked")) {
-		if (Dcx::Dialogs.getDialogByHandle(this->m_Hwnd) != NULL)
-			lstrcpyn(szReturnValue, TEXT("$true"), MIRC_BUFFER_SIZE_CCH);
-		else
-			lstrcpyn(szReturnValue, TEXT("$false"), MIRC_BUFFER_SIZE_CCH);
+		dcx_ConRet(Dcx::Dialogs.getDialogByHandle(this->m_Hwnd) != NULL, szReturnValue);
+		//TCHAR *p;
+		//if (Dcx::Dialogs.getDialogByHandle(this->m_Hwnd) != NULL)
+		//	p = lstrcpyn(szReturnValue, TEXT("$true"), MIRC_BUFFER_SIZE_CCH);
+		//else
+		//	p = lstrcpyn(szReturnValue, TEXT("$false"), MIRC_BUFFER_SIZE_CCH);
 
-		return;
+		//if (p != NULL)
+		//	return;
 	}
 	// [NAME] [PROP]
 	else if (prop == TEXT("parent")) {
-		lstrcpyn(szReturnValue, this->getParentName().to_chr(), MIRC_BUFFER_SIZE_CCH);
-		return;
+		if (lstrcpyn(szReturnValue, this->getParentName().to_chr(), MIRC_BUFFER_SIZE_CCH) != NULL)
+			return;
 	}
 	// [NAME] [PROP]
 	else if (prop == TEXT("mouseid")) {
@@ -1705,8 +1712,8 @@ void DcxDialog::parseInfoRequest( const TString &input, TCHAR *szReturnValue) co
 	}
 	// [NAME] [PROP]
 	else if (prop == TEXT("alias")) {
-		lstrcpyn(szReturnValue, this->getAliasName().to_chr(), MIRC_BUFFER_SIZE_CCH);
-		return;
+		if (lstrcpyn(szReturnValue, this->getAliasName().to_chr(), MIRC_BUFFER_SIZE_CCH) != NULL)
+			return;
 	}
 	// [NAME] [PROP] [N]
 	else if ((prop == TEXT("zlayer")) && (numtok > 2)) {
@@ -1731,11 +1738,12 @@ void DcxDialog::parseInfoRequest( const TString &input, TCHAR *szReturnValue) co
 	}
 	// [NAME] [PROP]
 	else if (prop == TEXT("visible")) {
-		if (IsWindowVisible(this->m_Hwnd))
-			lstrcpyn(szReturnValue, TEXT("$true"), MIRC_BUFFER_SIZE_CCH);
-		else
-			lstrcpyn(szReturnValue, TEXT("$false"), MIRC_BUFFER_SIZE_CCH);
-		return;
+		dcx_ConRet(IsWindowVisible(this->m_Hwnd), szReturnValue);
+		//if (IsWindowVisible(this->m_Hwnd))
+		//	lstrcpyn(szReturnValue, TEXT("$true"), MIRC_BUFFER_SIZE_CCH);
+		//else
+		//	lstrcpyn(szReturnValue, TEXT("$false"), MIRC_BUFFER_SIZE_CCH);
+		//return;
 	}
 	// [NAME] [PROP]
 	else if (prop == TEXT("glasscolor")) {
@@ -1743,8 +1751,9 @@ void DcxDialog::parseInfoRequest( const TString &input, TCHAR *szReturnValue) co
 		BOOL bOpaque = FALSE;
 		if (SUCCEEDED(Dcx::VistaModule.dcxDwmGetColorizationColor((DWORD *)&clr, &bOpaque)))
 			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), RGB(clr.rgbRed, clr.rgbGreen, clr.rgbBlue));
-		else
-			lstrcpyn(szReturnValue, TEXT("-FAIL Unable to get Glass colour."), MIRC_BUFFER_SIZE_CCH);
+		else if (lstrcpyn(szReturnValue, TEXT("-FAIL Unable to get Glass colour."), MIRC_BUFFER_SIZE_CCH) == NULL)
+			szReturnValue[0] = 0;
+
 		return;
 	}
 	// invalid info request
@@ -3046,9 +3055,9 @@ void DcxDialog::MakeShadow(UINT32 *pShadBits, const HWND hParent, const RECT *rc
 	// Generate blurred border
 	for(int i = nKernelSize; i < szShadow.cy - nKernelSize; i++)
 	{
-		int j;
 		if(ptAnchors[i][0] < ptAnchors[i][1])
 		{
+			int j;
 
 			// Start of line
 			for(j = ptAnchors[i][0];
@@ -3613,7 +3622,7 @@ void DcxDialog::UnregisterDragList(DcxList* list)
          return;
       }
 
-      itStart++;
+	  ++itStart;
    }
 }
 

@@ -54,21 +54,27 @@ BYTE *readFile(const PTCHAR filename) {
 		return NULL;
 
 	// Seek End of file
-	if (fseek(file, 0, SEEK_END))
+	if (fseek(file, 0, SEEK_END)) {
+		fclose(file);
 		return NULL;
+	}
 
 	// Read pointer location, because pointer is at the end, results into file size
 	unsigned long size = ftell(file);
 
 	// Get back to file beginning
-	if (fseek(file, 0, SEEK_SET))
+	if (fseek(file, 0, SEEK_SET)) {
+		fclose(file);
 		return NULL;
+	}
 
 	// make data container for file contents
 	BYTE * fileContents = new BYTE[size + 1];
 
-	if (fileContents == NULL)
-		return NULL;
+	//if (fileContents == NULL) {
+	//	fclose(file);
+	//	return NULL;
+	//}
 
 	// Null terminate the string
 	fileContents[size] = 0;
@@ -76,7 +82,7 @@ BYTE *readFile(const PTCHAR filename) {
 	// read the file, fails, destroy memory and return NULL
 	if (fread(fileContents, 1, size, file) != size) {
 		delete [] fileContents;
-		return NULL;
+		fileContents = NULL;
 	}
 
 	// close file
@@ -1275,7 +1281,7 @@ void mIRC_DrawText(HDC hdc, const TString &txt, LPRECT rc, const UINT style, con
 		CopyRect(rc, &rcOut);
 	}
 
-	hdc = oldHDC;
+	//hdc = oldHDC;
 	DeleteHDCBuffer(hBuffer);
 }
 

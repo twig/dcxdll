@@ -121,13 +121,11 @@ TString DcxReBar::getStyles(void) const
 void DcxReBar::toXml(TiXmlElement * xml) const {
 	__super::toXml(xml);
 	const int count = this->getBandCount( );
-	TiXmlElement * subs;
-	const DcxControl * c;
 	if (count > 0) {
 		for (int i = 0; i < count; i++) {
-			c = this->getControl(i);
+			const DcxControl * c = this->getControl(i);
 			if (c != NULL) {
-				subs = new TiXmlElement("control");
+				TiXmlElement * subs = new TiXmlElement("control");
 				c->toXml(subs);
 				xml->LinkEndChild(subs);
 			}

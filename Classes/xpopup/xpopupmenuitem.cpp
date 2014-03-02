@@ -763,7 +763,6 @@ void XPopupMenuItem::DrawGradient( const HDC hdc, const LPRECT lprc, const COLOR
 			n = lprc->right - lprc->left - dy;
 
 		RECT rc;
-		HBRUSH hBrush;
 
 		for ( int dn = 0; dn <= n; dn += dy ) {
 
@@ -776,7 +775,7 @@ void XPopupMenuItem::DrawGradient( const HDC hdc, const LPRECT lprc, const COLOR
 			else
 				SetRect( &rc, lprc->left + dn, lprc->top, lprc->left + dn + dy, lprc->bottom );
 
-			hBrush = CreateSolidBrush( RGB( Red, Green, Blue ) );
+			HBRUSH hBrush = CreateSolidBrush(RGB(Red, Green, Blue));
 			if (hBrush != NULL) {
 				FillRect( hdc, &rc, hBrush );
 				DeleteBrush( hBrush );

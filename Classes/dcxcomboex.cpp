@@ -291,8 +291,8 @@ void DcxComboEx::parseInfoRequest( const TString & input, PTCHAR szReturnValue )
 		LPDCXCBITEM mycbi = (LPDCXCBITEM)cbi.lParam;
 
 		if (mycbi != NULL) {
-			lstrcpyn(szReturnValue, mycbi->tsMark.to_chr(), MIRC_BUFFER_SIZE_CCH);
-			return;
+			if (lstrcpyn(szReturnValue, mycbi->tsMark.to_chr(), MIRC_BUFFER_SIZE_CCH) != NULL)
+				return;
 		}
 
 	}
@@ -348,7 +348,8 @@ void DcxComboEx::parseCommandRequest( const TString &input) {
 			cbi.iItem = nPos;
 			cbi.lParam = (LPARAM)new DCXCBITEM;
 
-			nPos = this->insertItem(&cbi);
+			//nPos = this->insertItem(&cbi);
+			this->insertItem(&cbi);
 
 			// Now update the horizontal scroller
 			HWND combo = (HWND)SendMessage(this->m_Hwnd, CBEM_GETCOMBOCONTROL, NULL, NULL);

@@ -2903,13 +2903,19 @@ LRESULT DcxListView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 								if (lpdcxlvi->pbar != NULL)
 									DestroyWindow(lpdcxlvi->pbar->getHwnd());
 
+#if DCX_USE_C11
+								for (auto &x : lpdcxlvi->vInfo)
+									delete x;
+#else
 								VectorOfRenderInfo::iterator itStart = lpdcxlvi->vInfo.begin();
 								VectorOfRenderInfo::iterator itEnd = lpdcxlvi->vInfo.end();
 
 								while (itStart != itEnd) {
 									delete (LPDCXLVRENDERINFO)*itStart;
-									itStart++;
+									++itStart;
 								}
+#endif
+
 								lpdcxlvi->vInfo.clear();
 
 								delete lpdcxlvi;
@@ -3461,7 +3467,6 @@ bool DcxListView::xmlLoadListview(const int nPos, const TString &name, TString &
 	this->setRedraw(FALSE);
 
 	int i = 0, nItem = nPos;
-	const char *attr = NULL;
 	LVITEM lvi;
 
 	for (const TiXmlElement *xNode = xElm->FirstChildElement("lvitem"); xNode != NULL; xNode = xNode->NextSiblingElement("lvitem"))
@@ -3482,7 +3487,7 @@ bool DcxListView::xmlLoadListview(const int nPos, const TString &name, TString &
 
 		// Items state icon.
 		int stateicon = -1;
-		attr = xNode->Attribute("stateicon",&i);
+		const char *attr = xNode->Attribute("stateicon", &i);
 		if (attr != NULL && i > -1)
 			stateicon = i;
 

@@ -46,7 +46,6 @@
     </NMakeReBuildCommandLine>
     <NMakePreprocessorDefinitions>WIN32;_DEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
     <ExecutablePath>C:\Program Files %28x86%29\Git\bin;$(ExecutablePath)</ExecutablePath>
-    <IntDir>$(OutDir)obj\$(ProjectName)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <NMakeBuildCommandLine>CALL $(ProjectDir)GIT-VS-VERSION-GEN.bat "$(IntDir)" "$(SolutionDir)gitBuild.h"</NMakeBuildCommandLine>
@@ -56,7 +55,6 @@
     </NMakeReBuildCommandLine>
     <NMakePreprocessorDefinitions>WIN32;NDEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
     <ExecutablePath>C:\Program Files %28x86%29\Git\bin;$(ExecutablePath)</ExecutablePath>
-    <IntDir>$(OutDir)obj\$(ProjectName)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup>
   </ItemDefinitionGroup>

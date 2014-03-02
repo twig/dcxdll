@@ -91,7 +91,7 @@ public:
 
 protected:
 
-	static const char* XPopupMenuManager::GetMenuAttributeFromXML(const char *attrib, const TiXmlElement *popup, const TiXmlElement *global);
+	static const char *GetMenuAttributeFromXML(const char *attrib, const TiXmlElement *popup, const TiXmlElement *global);
 
 	VectorOfXPopupMenu m_vpXPMenu; //!< Vector of XPopupMenu Objects
 
@@ -100,7 +100,7 @@ protected:
 	//bool m_bPatched;
 #ifdef DEBUG
 	static WNDPROC g_OldmIRCMenusWindowProc;
-	static LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+	static LRESULT CALLBACK mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 #endif
 };
 

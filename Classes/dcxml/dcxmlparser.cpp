@@ -21,7 +21,39 @@
 dcxml [-FLAGS] [DNAME] [DATASET] "[PATH]"
 */
 DcxmlParser::DcxmlParser() :
-	loadSuccess(false)
+	loadSuccess(false),
+	d_Host(NULL),
+	root(NULL),
+	dialogs(NULL), dialog(NULL),
+	element(NULL), parent(NULL),
+	controls(0),
+	zlayered(0),
+	id(0), parentid(0),
+	elem(NULL),	parentelem(NULL), parenttype(NULL),	type(NULL),
+	STclass(NULL),
+	weight(NULL), height(NULL), dropdown(NULL), width(NULL), margin(NULL),
+	styles(NULL),
+	caption(NULL),
+	tooltip(NULL),
+	cascade(NULL),
+	icon(NULL),
+	tFlags(NULL),
+	integral(NULL), state(NULL), indent(NULL),
+	src(NULL),
+	cells(NULL),
+	rebarMinHeight(NULL), rebarMinWidth(NULL),
+	iconsize(NULL),
+	fontstyle(NULL), charset(NULL), fontsize(NULL), fontname(NULL),
+	border(NULL),
+	cursor(NULL),
+	bgcolour(NULL), textbgcolour(NULL), textcolour(NULL),
+	gradientend(NULL), gradientstart(NULL),
+	disabledsrc(NULL), hoversrc(NULL), selectedsrc(NULL),
+	templateRef(NULL), templateRefcCla(0), templateRefclaPath(NULL),
+	eval(0),
+	temp(NULL),
+	g_claPath(NULL), g_claPathx(NULL), g_resetcla(0),
+	_verbose(false), _autoClose(false), _zlayered(false), _dcxDialog(NULL), _rootElement(NULL), _dialogElement(NULL), _dialogsElement(NULL)
 {
 }
 DcxmlParser::~DcxmlParser() {
@@ -172,7 +204,7 @@ void DcxmlParser::parseAttributes(const TiXmlElement* tElement) {
 	parenttype = queryAttribute(parent, "type", "panel");
 	type = queryAttribute(element,"type","panel");
 	STclass = queryAttribute(element,"class","");
-	weigth = queryAttribute(tElement, "weight", "1");
+	weight = queryAttribute(tElement, "weight", "1");
 	height = queryAttribute(tElement, "height", "0");
 	if (0 == lstrcmpA(elem, "comboex") || 0 == lstrcmpA(elem, "colorcombo"))
 		dropdown = queryAttribute(tElement, "dropdown", "100");
@@ -362,29 +394,29 @@ TString DcxmlParser::parseCLA(const int cCla) {
 		const char * fHeigth = "";
 		const char * fWidth = "";
 		const char * fixed = "l";
-		if (element->Attribute("height") != NULL) { fHeigth = "v"; fixed = "f"; weigth = "0"; }
-		if (element->Attribute("width") != NULL) { fWidth = "h"; fixed = "f"; weigth = "0"; }
+		if (element->Attribute("height") != NULL) { fHeigth = "v"; fixed = "f"; weight = "0"; }
+		if (element->Attribute("width") != NULL) { fWidth = "h"; fixed = "f"; weight = "0"; }
 		if (0==lstrcmpA(parentelem, "dialog"))
-			this->xdialogEX(TEXT("-l"),TEXT("cell %S \t +%S%S%Si %i %S %S %S"),	g_claPath,fixed,fHeigth,fWidth,id,weigth,width,height);
+			this->xdialogEX(TEXT("-l"),TEXT("cell %S \t +%S%S%Si %i %S %S %S"),	g_claPath,fixed,fHeigth,fWidth,id,weight,width,height);
 		else if (0==lstrcmpA(parentelem, "control")) {
 			const char *t_type = parent->Attribute("type");
 			if ((t_type != NULL) && (parentid > 0)) {
 				if (0==lstrcmpA(t_type, "panel"))
-					this->xdidEX(parentid,TEXT("-l"),TEXT("cell %S \t +%S%S%Si %i %S %S %S"), g_claPath,fixed,fHeigth,fWidth,id,weigth,width,height); 
+					this->xdidEX(parentid,TEXT("-l"),TEXT("cell %S \t +%S%S%Si %i %S %S %S"), g_claPath,fixed,fHeigth,fWidth,id,weight,width,height); 
 				else if (0==lstrcmpA(t_type, "box"))
-					this->xdidEX(parentid,TEXT("-l"),TEXT("cell %S \t +%S%S%Si %i %S %S %S"), g_claPath,fixed,fHeigth,fWidth,id,weigth,width,height); 
+					this->xdidEX(parentid,TEXT("-l"),TEXT("cell %S \t +%S%S%Si %i %S %S %S"), g_claPath,fixed,fHeigth,fWidth,id,weight,width,height); 
 			}
 		}
 	}
 	else if (0==lstrcmpA(elem, "pane")) {
 		if (0==lstrcmpA(parentelem, "dialog"))
-			this->xdialogEX(TEXT("-l"),TEXT("cell %S \t +p%S 0 %S 0 0"),g_claPath,cascade,weigth);
+			this->xdialogEX(TEXT("-l"),TEXT("cell %S \t +p%S 0 %S 0 0"),g_claPath,cascade,weight);
 		else if (0==lstrcmpA(parentelem, "control")) {
 			if ((parenttype != NULL) && (parentid > 0)) {
 				if (0==lstrcmpA(parenttype, "panel"))
-					this->xdidEX(parentid,TEXT("-l"),TEXT("cell %S \t +p%S 0 %S 0 0"),g_claPath,cascade,weigth);
+					this->xdidEX(parentid,TEXT("-l"),TEXT("cell %S \t +p%S 0 %S 0 0"),g_claPath,cascade,weight);
 				else if (0==lstrcmpA(parenttype, "box"))
-					this->xdidEX(parentid,TEXT("-l"),TEXT("cell %S \t +p%S 0 %S 0 0"),g_claPath,cascade,weigth);
+					this->xdidEX(parentid,TEXT("-l"),TEXT("cell %S \t +p%S 0 %S 0 0"),g_claPath,cascade,weight);
 			}
 		}
 	}
@@ -696,23 +728,22 @@ void DcxmlParser::parseDialog(int depth,const char *claPath,const int passedid,c
 				const char * t_claPathx = 0;
 				wnsprintfA(t_buffer, 100, "%i",cCla);
 				t_claPathx = t_buffer;
-				const char *name;
 				const char *value;
 				for (const TiXmlAttribute *attribute = element->FirstAttribute() ; attribute != NULL ; attribute = attribute->Next())
 				{
-					name = attribute->Name();
+					const char *name = attribute->Name();
 					value = attribute->Value();
 					if (0==lstrcmpA(name, "name")) continue;
 					this->template_vars[name] = value;
 				}
 				std::map<const char*,const char*>::iterator iter;
-				for( iter = this->template_vars.begin(); iter != this->template_vars.end(); iter++ ) {
+				for( iter = this->template_vars.begin(); iter != this->template_vars.end(); ++iter ) {
 					Dcx::mIRC.execex(TEXT("//set %%%S %S"),iter->first,iter->second);
 				}
 				templateRefclaPath = t_claPathx;
 				this->parseTemplate(depth,claPath,passedid);
 				templateRef = 0;
-				for( iter = this->template_vars.begin(); iter != this->template_vars.end(); iter++ ) {
+				for( iter = this->template_vars.begin(); iter != this->template_vars.end(); ++iter ) {
 					Dcx::mIRC.execex(TEXT("//unset %%%S"),iter->first);
 				}
 				this->template_vars.clear();

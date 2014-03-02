@@ -185,8 +185,8 @@ void DcxCalendar::parseInfoRequest(const TString &input, PTCHAR szReturnValue) c
 
 	// [NAME] [ID] [PROP]
 	if (prop == TEXT("value")) {
-		lstrcpyn(szReturnValue,this->getValue().to_chr(), MIRC_BUFFER_SIZE_CCH);
-		return;
+		if (lstrcpyn(szReturnValue,this->getValue().to_chr(), MIRC_BUFFER_SIZE_CCH) != NULL)
+			return;
 	}
 	else if (prop == TEXT("range")) {
 		SYSTEMTIME st[2];
@@ -297,7 +297,6 @@ void DcxCalendar::parseCommandRequest( const TString &input) {
 	//xdid -s [NAME] [ID] [SWITCH] [MIN] (MAX)
 	else if (flags[TEXT('s')] && numtok > 3) {
 		const long min = (long) input.getnexttok( ).to_num();	// tok 4
-		long max = 0;
 		SYSTEMTIME range[2];
 
 		ZeroMemory(range, sizeof(SYSTEMTIME) *2);
@@ -308,7 +307,7 @@ void DcxCalendar::parseCommandRequest( const TString &input) {
 			if (numtok < 5)
 				range[1] = range[0];
 			else {
-				max = (long) input.getnexttok( ).to_num();	// tok 5
+				const long max = (long) input.getnexttok( ).to_num();	// tok 5
 				range[1] = MircTimeToSystemTime(max);
 			}
 

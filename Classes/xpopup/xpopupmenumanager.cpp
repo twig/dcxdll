@@ -917,12 +917,12 @@ bool XPopupMenuManager::isCustomMenu(const HMENU hMenu) {
 }
 
 bool XPopupMenuManager::isMenuBarMenu(const HMENU hMenu, const HMENU hMatch) {
-	HMENU hTemp;
 	const int n = GetMenuItemCount(hMenu);
 
 	for (int i = 0; i < n; i++)
 	{
-		if ((hTemp = GetSubMenu(hMenu, i)) != NULL) {
+		HMENU hTemp = GetSubMenu(hMenu, i);
+		if (hTemp != NULL) {
 			if (hTemp == hMatch)
 				return true;
 

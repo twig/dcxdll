@@ -180,7 +180,7 @@ DcxTrayIcon::~DcxTrayIcon(void)
 			else
 				ids.tsprintf(TEXT("%s %d"), ids.to_chr(), *itStart);
 
-			itStart++;
+			++itStart;
 		}
 #endif
 
@@ -257,7 +257,7 @@ bool DcxTrayIcon::DeleteIconId(const int id) {
 			return true;
 		}
 
-		itStart++;
+		++itStart;
 	}
 
 	return false;
@@ -279,7 +279,7 @@ bool DcxTrayIcon::idExists(const int id) const {
 		if (*itStart == id)
 			return true;
 
-		itStart++;
+		++itStart;
 	}
 
 	return false;

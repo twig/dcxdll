@@ -46,7 +46,7 @@ LayoutCellPane::~LayoutCellPane( ) {
 
 		delete (*itStart).first;
 
-		itStart++;
+		++itStart;
 	}
 #endif
 }
@@ -128,7 +128,7 @@ void LayoutCellPane::LayoutChild( ) {
 		if ( (*itStart).first != NULL )
 			(*itStart).first->LayoutChild( );
 
-		itStart++;
+		++itStart;
 	}
 #endif
 }
@@ -157,7 +157,7 @@ HDWP LayoutCellPane::ExecuteLayout( HDWP hdwp ) {
 		if ( (*itStart).first != NULL )
 			hdwpdef = (*itStart).first->ExecuteLayout( hdwpdef );
 
-		itStart++;
+		++itStart;
 	}
 #endif
 	return hdwpdef;
@@ -248,7 +248,7 @@ void LayoutCellPane::getMinMaxInfo( CellMinMaxInfo * pCMMI ) {
 			}
 		}
 
-		itStart++;
+		++itStart;
 	}
 
 	pCMMI->m_MinSize.x = max( pCMMI->m_MinSize.x, 0 );
@@ -277,9 +277,6 @@ void LayoutCellPane::toXml(TiXmlElement *xml) {
 	//		xml->LinkEndChild(inner);
 	//	}
 	//}
-	TiXmlElement * inner;
-	LayoutCell * lc;
-	unsigned int weight;
 
 	if (this->m_nType == LayoutCellPane::HORZ)
 		xml->SetAttribute("cascade", "h");
@@ -288,9 +285,9 @@ void LayoutCellPane::toXml(TiXmlElement *xml) {
 
 #if DCX_USE_C11
 	for (const auto &x: this->m_vpCells) {
-		lc = x.first;
-		weight = x.second;
-		inner = lc->toXml();
+		LayoutCell * lc = x.first;
+		const unsigned int weight = x.second;
+		TiXmlElement * inner = lc->toXml();
 		if (weight != 0)
 			inner->SetAttribute("weight", weight);
 		xml->LinkEndChild(inner);
@@ -301,14 +298,14 @@ void LayoutCellPane::toXml(TiXmlElement *xml) {
 
 	while ( itStart != itEnd ) {
 
-		lc = itStart->first;
-		weight = itStart->second;
-		inner = lc->toXml();
+		LayoutCell * lc = itStart->first;
+		const unsigned int weight = itStart->second;
+		TiXmlElement * inner = lc->toXml();
 		if (weight != 0)
 			inner->SetAttribute("weight", weight);
 		xml->LinkEndChild(inner);
 
-		itStart++;
+		++itStart;
 	}
 #endif
 }
@@ -388,7 +385,7 @@ void LayoutCellPane::AdjustMinSize( int & nSizeLeft, int & nTotalWeight ) {
 
 		if ( pChild->isVisible( ) == FALSE ) {
 
-			itStart++;
+			++itStart;
 			continue;
 		}
 
@@ -418,7 +415,7 @@ void LayoutCellPane::AdjustMinSize( int & nSizeLeft, int & nTotalWeight ) {
 		nTotalWeight += nWeight;
 		pChild->setRect( rect );
 
-		itStart++;
+		++itStart;
 	}
 #endif
 }
@@ -513,7 +510,7 @@ void LayoutCellPane::AdjustSize( int & nSizeLeft, int & nTotalWeight ) {
 		// don't put extra width/height on items of zero weight
 		if ( nWeight == 0 || pChild->isVisible( ) == FALSE ) {
 
-			itStart++;
+			++itStart;
 			continue;
 		}
 
@@ -571,7 +568,7 @@ void LayoutCellPane::AdjustSize( int & nSizeLeft, int & nTotalWeight ) {
 			}
 		}
 
-		itStart++;
+		++itStart;
 	}
 #endif
 	nTotalWeight = nNewTotalWeight;
@@ -629,7 +626,7 @@ void LayoutCellPane::AdjustPos( ) {
 
 		if ( pChild->isVisible( ) == FALSE ) {
 
-			itStart++;
+			++itStart;
 			continue;
 		}
 
@@ -648,7 +645,7 @@ void LayoutCellPane::AdjustPos( ) {
 		}
 		pChild->setRect( rectChild );
 
-		itStart++;
+		++itStart;
 	}
 #endif
 }

@@ -70,7 +70,7 @@ public:
 	const char *parenttype;
 	const char *type;
 	const char *STclass;
-	const char *weigth;
+	const char *weight;
 	const char *height;
 	const char *dropdown;
 	const char *width;

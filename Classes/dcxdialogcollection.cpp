@@ -74,7 +74,7 @@ DcxDialog * DcxDialogCollection::getDialogByHandle( const HWND mHwnd ) {
 		if ( (*itStart)->getHwnd( ) == mHwnd ) 
 			return *itStart;
 
-		itStart++;
+		++itStart;
 	}
 
 	return NULL;
@@ -104,7 +104,7 @@ DcxDialog * DcxDialogCollection::getDialogByChildHandle( const HWND mHwnd ) {
 		if ((*itStart)->getControlByHWND(mHwnd) != NULL) 
 			return *itStart;
 
-		itStart++;
+		++itStart;
 	}
 
 	return NULL;
@@ -141,7 +141,7 @@ DcxDialog * DcxDialogCollection::getDialogByName( const TString & tsName ) {
 		if ( *itStart != NULL && (*itStart)->getName( ) == tsName )
 			return *itStart;
 
-		itStart++;
+		++itStart;
 	}
 
 	//mIRCError( "Returning NULL" );
@@ -173,7 +173,7 @@ void DcxDialogCollection::deleteDialog( DcxDialog * p_Dialog ) {
 			return;
 		} 
 
-		itStart++;
+		++itStart;
 	}
 }
 
@@ -200,7 +200,7 @@ bool DcxDialogCollection::safeToCloseAll(void) const {
 			if ((*itStart)->getRefCount() != 0)
 				return false;
 		}
-		itStart++;
+		++itStart;
 	}
 	return true;
 #endif
@@ -218,6 +218,10 @@ bool DcxDialogCollection::closeDialogs( ) {
 		return true;
 
 	this->m_closeall = true;
+#if DCX_USE_C11
+	for (auto &x: this->m_vpDialog)
+		DestroyWindow(x->getHwnd());
+#else
 	VectorOfDialogPtrs::iterator itStart = this->m_vpDialog.begin( );
 	VectorOfDialogPtrs::iterator itEnd = this->m_vpDialog.end( );
 
@@ -227,8 +231,9 @@ bool DcxDialogCollection::closeDialogs( ) {
 			DestroyWindow( (*itStart)->getHwnd( ) );
 		}
 
-		itStart++;
+		++itStart;
 	}
+#endif
 	this->m_vpDialog.clear(); // clear list.
 	this->m_closeall = false;
 	return false;

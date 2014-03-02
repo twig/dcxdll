@@ -131,7 +131,7 @@ void DcxDock::UnDockWindow(HWND hwnd)
 				return;
 			}
 		}
-		itStart++;
+		++itStart;
 	}
 }
 
@@ -151,7 +151,7 @@ void DcxDock::UnDockAll(void)
 			SetWindowPos(ud->hwnd, HWND_TOP, ud->rc.left, ud->rc.top, ud->rc.right - ud->rc.left, ud->rc.bottom - ud->rc.top, SWP_NOZORDER|SWP_FRAMECHANGED|SWP_NOACTIVATE);
 			delete ud;
 		}
-		itStart++;
+		++itStart;
 	}
 	this->m_VectorDocks.clear();
 }
@@ -176,7 +176,7 @@ bool DcxDock::FindDock(const HWND hwnd)
 				return true;
 		}
 
-		itStart++;
+		++itStart;
 	}
 #endif
 	return false;
@@ -202,7 +202,7 @@ LPDCXULTRADOCK DcxDock::GetDock(const HWND hwnd)
 				return ud;
 		}
 
-		itStart++;
+		++itStart;
 	}
 #endif
 	return NULL;
@@ -239,7 +239,7 @@ void DcxDock::AdjustRect(WINDOWPOS *wp)
 		if ((*itStart != NULL) && (IsWindowVisible(((LPDCXULTRADOCK)*itStart)->hwnd))) {
 			nWin++; // count docked windows.
 		}
-		itStart++;
+		++itStart;
 	}
 	if (nWin == 0) return;
 	itStart = this->m_VectorDocks.begin();
@@ -365,7 +365,7 @@ void DcxDock::AdjustRect(WINDOWPOS *wp)
 			}
 		}
 
-		itStart++;
+		++itStart;
 	}
 #endif
 	wp->x = xleftoffset;
@@ -616,7 +616,7 @@ LRESULT CALLBACK DcxDock::mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 									Dcx::mIRC.tsEvalex(buf, TEXT("$xtreebar_callback(gettooltip,%s,%%dcx_%d)"), tsType.to_chr(), item.lParam);
 
 									if (buf.len() > 0)
-										lstrcpyn(tcgit->pszText, buf.to_chr(), tcgit->cchTextMax);
+										dcx_strcpyn(tcgit->pszText, buf.to_chr(), tcgit->cchTextMax);
 								}
 							}
 							return 0L;
@@ -774,7 +774,7 @@ void DcxDock::UnInitStatusbar(void)
 					DeleteBrush(((LPSB_PARTINFO)*itStart)->m_BkgCol);
 				delete *itStart;
 			}
-			itStart++;
+			++itStart;
 		}
 	}
 	g_StatusBar = NULL;
@@ -886,7 +886,7 @@ void DcxDock::status_deletePartInfo(const int iPart)
 				DcxDock::g_vParts.erase(itStart);
 				return;
 			}
-			itStart++;
+			++itStart;
 		}
 	}
 }

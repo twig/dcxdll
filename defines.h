@@ -407,7 +407,7 @@ typedef struct tagMYDCXWINDOW {
 #define mIRC(x) _INTEL_DLL_ int WINAPI x(HWND mWnd, HWND aWnd, TCHAR * data, TCHAR * parms, BOOL, BOOL)
 
 // Return String DLL Alias (data is limited to MIRC_BUFFER_SIZE_CCH)
-#define ret(x) { lstrcpyn(data, (x), MIRC_BUFFER_SIZE_CCH); return 3; }
+#define ret(x) { if (lstrcpyn(data, (x), MIRC_BUFFER_SIZE_CCH) == NULL) data[0] = 0; return 3; }
 
 #define PACKVERSION(major,minor) MAKELONG(minor,major)
 
@@ -454,6 +454,21 @@ typedef std::vector<int> VectorOfInts; //<! Vector of int
 #define dcx_itoa(x,y,z) itoa((x), (y), (z))
 #endif
 #endif
+
+#define dcx_Con(x,y) { \
+	TCHAR *p; if ((x)) p = lstrcpyn((y), TEXT("$true"), MIRC_BUFFER_SIZE_CCH); else p = lstrcpyn((y), TEXT("$false"), MIRC_BUFFER_SIZE_CCH); \
+	if (p == NULL) (y)[0] = 0; \
+}
+#define dcx_ConRet(x,y) { \
+	TCHAR *p; if ((x)) p = lstrcpyn((y), TEXT("$true"), MIRC_BUFFER_SIZE_CCH); else p = lstrcpyn((y), TEXT("$false"), MIRC_BUFFER_SIZE_CCH); \
+	if (p != NULL) return; \
+}
+#define dcx_ConRetState(x,y) { \
+	TCHAR *p; if ((x)) p = lstrcpyn((y), TEXT("$true"), MIRC_BUFFER_SIZE_CCH); else p = lstrcpyn((y), TEXT("$false"), MIRC_BUFFER_SIZE_CCH); \
+	if (p != NULL) return TRUE; \
+}
+#define dcx_strcpyn(x, y, z) if (lstrcpyn((x), (y), (z)) == NULL) (x)[0] = 0;
+
 // --------------------------------------------------
 // DLL routines
 // --------------------------------------------------

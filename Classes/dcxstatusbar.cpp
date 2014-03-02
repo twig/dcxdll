@@ -75,7 +75,7 @@ DcxStatusBar::~DcxStatusBar( ) {
 
 	while (itStart != itEnd) {
 		delete *itStart;
-		itStart++;
+		++itStart;
 	}
 	this->cleanPartIcons( );
 	ImageList_Destroy( this->getImageList( ) );
@@ -204,7 +204,7 @@ void DcxStatusBar::deletePartInfo(const int iPart)
 				this->m_vParts.erase(itStart);
 				return;
 			}
-			itStart++;
+			++itStart;
 		}
 	}
 }
@@ -235,7 +235,7 @@ void DcxStatusBar::parseCommandRequest( const TString & input ) {
 		const unsigned int nParts = numtok - 3;
 		INT parts[256];
 
-		int c = 0, t = 0;
+		int c = 0;
 		TString p;
 		for (unsigned int i = 0; i < nParts; i++ )
 		{
@@ -245,7 +245,7 @@ void DcxStatusBar::parseCommandRequest( const TString & input ) {
 			}
 
 			p = input.getnexttok( );	// tok i+4
-			t = p.to_int();
+			const int t = p.to_int();
 
 			if (p.right(1) == TEXT('%')) {
 				this->m_iDynamicParts[i] = t;

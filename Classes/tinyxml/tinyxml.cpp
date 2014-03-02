@@ -529,10 +529,11 @@ TiXmlElement::TiXmlElement( const TiXmlElement& copy)
 }
 
 
-void TiXmlElement::operator=( const TiXmlElement& base )
+TiXmlElement &TiXmlElement::operator=(const TiXmlElement& base)
 {
 	ClearThis();
 	base.CopyTo( this );
+	return *this;
 }
 
 
@@ -878,10 +879,11 @@ TiXmlDocument::TiXmlDocument( const TiXmlDocument& copy ) : TiXmlNode( TiXmlNode
 }
 
 
-void TiXmlDocument::operator=( const TiXmlDocument& copy )
+TiXmlDocument &TiXmlDocument::operator=(const TiXmlDocument& copy)
 {
 	Clear();
 	copy.CopyTo( this );
+	return *this;
 }
 
 
@@ -1219,10 +1221,11 @@ TiXmlComment::TiXmlComment( const TiXmlComment& copy ) : TiXmlNode( TiXmlNode::T
 }
 
 
-void TiXmlComment::operator=( const TiXmlComment& base )
+TiXmlComment &TiXmlComment::operator=(const TiXmlComment& base)
 {
 	Clear();
 	base.CopyTo( this );
+	return *this;
 }
 
 
@@ -1308,26 +1311,16 @@ TiXmlNode* TiXmlText::Clone() const
 }
 
 
-TiXmlDeclaration::TiXmlDeclaration( const char * _version,
-									const char * _encoding,
-									const char * _standalone )
-	: TiXmlNode( TiXmlNode::TINYXML_DECLARATION )
+TiXmlDeclaration::TiXmlDeclaration( const char * _version, const char * _encoding, const char * _standalone )
+: TiXmlNode(TiXmlNode::TINYXML_DECLARATION), version(_version), encoding(_encoding), standalone(_standalone)
 {
-	version = _version;
-	encoding = _encoding;
-	standalone = _standalone;
 }
 
 
 #ifdef TIXML_USE_STL
-TiXmlDeclaration::TiXmlDeclaration(	const std::string& _version,
-									const std::string& _encoding,
-									const std::string& _standalone )
-	: TiXmlNode( TiXmlNode::TINYXML_DECLARATION )
+TiXmlDeclaration::TiXmlDeclaration(	const std::string& _version, const std::string& _encoding, const std::string& _standalone )
+: TiXmlNode(TiXmlNode::TINYXML_DECLARATION), version(_version), encoding(_encoding), standalone(_standalone)
 {
-	version = _version;
-	encoding = _encoding;
-	standalone = _standalone;
 }
 #endif
 
@@ -1339,10 +1332,11 @@ TiXmlDeclaration::TiXmlDeclaration( const TiXmlDeclaration& copy )
 }
 
 
-void TiXmlDeclaration::operator=( const TiXmlDeclaration& copy )
+TiXmlDeclaration &TiXmlDeclaration::operator=(const TiXmlDeclaration& copy)
 {
 	Clear();
 	copy.CopyTo( this );
+	return *this;
 }
 
 

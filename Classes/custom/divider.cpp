@@ -244,32 +244,33 @@ LRESULT CALLBACK DividerWndProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lP
 
         LPDVCONTROLDATA lpdvdata = (LPDVCONTROLDATA) GetProp( mHwnd, TEXT("dvc_data") );
 
-        // Clear Panes and delete child windows
-        // Send Notifications to Parent Window About deletion of child windows
+		if (lpdvdata != NULL) {
+			// Clear Panes and delete child windows
+			// Send Notifications to Parent Window About deletion of child windows
 
-        NMDIVIDER nmdv;
-        ZeroMemory( &nmdv, sizeof( NMDIVIDER ) );
-        nmdv.hdr.hwndFrom = mHwnd;
-        nmdv.hdr.idFrom = GetWindowLong( mHwnd, GWL_ID );
-        nmdv.hdr.code = DVN_DELETEDPANE;
-        nmdv.fMask = DVNM_LPARAM | DVNM_PANEID;
+			NMDIVIDER nmdv;
+			ZeroMemory(&nmdv, sizeof(NMDIVIDER));
+			nmdv.hdr.hwndFrom = mHwnd;
+			nmdv.hdr.idFrom = GetWindowLong(mHwnd, GWL_ID);
+			nmdv.hdr.code = DVN_DELETEDPANE;
+			nmdv.fMask = DVNM_LPARAM | DVNM_PANEID;
 
-        nmdv.iPaneId = DVF_PANELEFT;
-        nmdv.lParam = lpdvdata->m_Panes[0].lParam;
-        SendMessage( GetParent( mHwnd ), WM_NOTIFY, (WPARAM) nmdv.hdr.idFrom, (LPARAM) &nmdv ); 
+			nmdv.iPaneId = DVF_PANELEFT;
+			nmdv.lParam = lpdvdata->m_Panes[0].lParam;
+			SendMessage(GetParent(mHwnd), WM_NOTIFY, (WPARAM)nmdv.hdr.idFrom, (LPARAM)&nmdv);
 
-        nmdv.iPaneId = DVF_PANERIGHT;
-        nmdv.lParam = lpdvdata->m_Panes[1].lParam;
-        SendMessage( GetParent( mHwnd ), WM_NOTIFY, (WPARAM) nmdv.hdr.idFrom, (LPARAM) &nmdv ); 
+			nmdv.iPaneId = DVF_PANERIGHT;
+			nmdv.lParam = lpdvdata->m_Panes[1].lParam;
+			SendMessage(GetParent(mHwnd), WM_NOTIFY, (WPARAM)nmdv.hdr.idFrom, (LPARAM)&nmdv);
 
-        if ( IsWindow( lpdvdata->m_Panes[0].hChild ) )
-          DestroyWindow( lpdvdata->m_Panes[0].hChild );
+			if (IsWindow(lpdvdata->m_Panes[0].hChild))
+				DestroyWindow(lpdvdata->m_Panes[0].hChild);
 
-        if ( IsWindow( lpdvdata->m_Panes[1].hChild ) )          
-          DestroyWindow( lpdvdata->m_Panes[1].hChild );
+			if (IsWindow(lpdvdata->m_Panes[1].hChild))
+				DestroyWindow(lpdvdata->m_Panes[1].hChild);
 
-        if ( lpdvdata != NULL )
-          delete lpdvdata;
+			delete lpdvdata;
+		}
 
         RemoveProp( mHwnd, TEXT("dvc_data") );
 

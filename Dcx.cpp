@@ -449,8 +449,6 @@ void Dcx::errorex(const TCHAR *cmd, const TCHAR *szFormat, ...)
 
 int Dcx::mark(TCHAR* data, const TString & tsDName, const TString & tsCallbackName)
 {
-	TCHAR res[40];
-
 	// check if the alias exists
 	if (!mIRC.isAlias(tsCallbackName.to_chr())) {
 		errorex(TEXT("Mark"), TEXT("No such alias : %s"), tsCallbackName.to_chr());
@@ -473,6 +471,7 @@ int Dcx::mark(TCHAR* data, const TString & tsDName, const TString & tsCallbackNa
 	{
 		DcxDialog *pTmp = Dialogs.getDialogByHandle(mHwnd);
 		if (pTmp != NULL) {
+			TCHAR res[40];
 			pTmp->evalAliasEx(res, 40, TEXT("isverbose,0"));
 
 			if (lstrcmp(res, TEXT("$false")) == 0)

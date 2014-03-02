@@ -89,16 +89,15 @@ void DcxStacker::clearImageList(void)
 {
 #ifdef DCX_USE_GDIPLUS
 #if DCX_USE_C11
-	for (auto &x: this->m_vImageList) {
+	for (auto &x: this->m_vImageList)
 		delete x;
-	}
 #else
 	VectorOfImages::iterator itStart = this->m_vImageList.begin();
 	VectorOfImages::iterator itEnd = this->m_vImageList.end();
 
 	while (itStart != itEnd) {
 		delete *itStart;
-		itStart++;
+		++itStart;
 	}
 #endif
 	this->m_vImageList.clear();

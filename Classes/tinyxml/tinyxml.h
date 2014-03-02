@@ -348,7 +348,7 @@ protected:
 		{
 			//strncpy( _value, p, *length );	// lots of compilers don't like this function (unsafe),
 												// and the null terminator isn't needed
-			for( int i=0; p[i] && i<*length; ++i ) {
+			for (int i = 0; i<*length && p[i]; ++i) {
 				_value[i] = p[i];
 			}
 			return p + (*length);
@@ -782,30 +782,23 @@ class TiXmlAttribute : public TiXmlBase
 
 public:
 	/// Construct an empty attribute.
-	TiXmlAttribute() : TiXmlBase()
+	TiXmlAttribute()
+		: TiXmlBase(), document(0), prev(NULL), next(NULL)
 	{
-		document = 0;
-		prev = next = 0;
 	}
 
 	#ifdef TIXML_USE_STL
 	/// std::string constructor.
 	TiXmlAttribute( const std::string& _name, const std::string& _value )
+		: name(_name), value(_value), document(0), prev(NULL), next(NULL)
 	{
-		name = _name;
-		value = _value;
-		document = 0;
-		prev = next = 0;
 	}
 	#endif
 
 	/// Construct an attribute with a name and value.
 	TiXmlAttribute( const char * _name, const char * _value )
+		: name(_name), value(_value), document(0), prev(NULL), next(NULL)
 	{
-		name = _name;
-		value = _value;
-		document = 0;
-		prev = next = 0;
 	}
 
 	const char*		Name()  const		{ return name.c_str(); }		///< Return the name of this attribute.
@@ -950,7 +943,7 @@ public:
 
 	TiXmlElement( const TiXmlElement& );
 
-	void operator=( const TiXmlElement& base );
+	TiXmlElement &operator=(const TiXmlElement& base);
 
 	virtual ~TiXmlElement();
 
@@ -1162,7 +1155,7 @@ public:
 		SetValue( _value );
 	}
 	TiXmlComment( const TiXmlComment& );
-	void operator=( const TiXmlComment& base );
+	TiXmlComment &operator=(const TiXmlComment& base);
 
 	virtual ~TiXmlComment()	{}
 
@@ -1227,7 +1220,7 @@ public:
 	#endif
 
 	TiXmlText( const TiXmlText& copy ) : TiXmlNode( TiXmlNode::TINYXML_TEXT )	{ copy.CopyTo( this ); }
-	void operator=( const TiXmlText& base )							 	{ base.CopyTo( this ); }
+	TiXmlText &operator=(const TiXmlText& base)									{ base.CopyTo(this); return *this; }
 
 	// Write this text object to a FILE stream.
 	virtual void Print( FILE* cfile, int depth ) const;
@@ -1294,7 +1287,7 @@ public:
 						const char* _standalone );
 
 	TiXmlDeclaration( const TiXmlDeclaration& copy );
-	void operator=( const TiXmlDeclaration& copy );
+	TiXmlDeclaration &operator=(const TiXmlDeclaration& copy);
 
 	virtual ~TiXmlDeclaration()	{}
 
@@ -1351,7 +1344,7 @@ public:
 	virtual ~TiXmlUnknown() {}
 
 	TiXmlUnknown( const TiXmlUnknown& copy ) : TiXmlNode( TiXmlNode::TINYXML_UNKNOWN )		{ copy.CopyTo( this ); }
-	void operator=( const TiXmlUnknown& copy )										{ copy.CopyTo( this ); }
+	TiXmlUnknown &operator=(const TiXmlUnknown& copy)										{ copy.CopyTo(this); return *this; }
 
 	/// Creates a copy of this Unknown and returns it.
 	virtual TiXmlNode* Clone() const;
@@ -1397,7 +1390,7 @@ public:
 	#endif
 
 	TiXmlDocument( const TiXmlDocument& copy );
-	void operator=( const TiXmlDocument& copy );
+	TiXmlDocument &operator=(const TiXmlDocument& copy);
 
 	virtual ~TiXmlDocument() {}
 
@@ -1635,7 +1628,7 @@ public:
 	TiXmlHandle( TiXmlNode* _node )					{ this->node = _node; }
 	/// Copy constructor
 	TiXmlHandle( const TiXmlHandle& ref )			{ this->node = ref.node; }
-	TiXmlHandle operator=( const TiXmlHandle& ref ) { this->node = ref.node; return *this; }
+	TiXmlHandle &operator=( const TiXmlHandle& ref ) { this->node = ref.node; return *this; }
 
 	/// Return a handle to the first child node.
 	TiXmlHandle FirstChild() const;

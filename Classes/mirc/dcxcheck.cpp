@@ -178,14 +178,15 @@ void DcxCheck::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) c
 	// [NAME] [ID] [PROP]
 	else if ( prop == TEXT("state") ) {
 
-		if ( Button_GetCheck( this->m_Hwnd ) & BST_INDETERMINATE )
-			lstrcpyn( szReturnValue, TEXT("2"), MIRC_BUFFER_SIZE_CCH );
-		else if ( Button_GetCheck( this->m_Hwnd ) & BST_CHECKED )
-			lstrcpyn( szReturnValue, TEXT("1"), MIRC_BUFFER_SIZE_CCH );
-		else
-			lstrcpyn( szReturnValue, TEXT("0"), MIRC_BUFFER_SIZE_CCH );
+		TCHAR p = TEXT('0');
 
-		return;
+		if ( Button_GetCheck( this->m_Hwnd ) & BST_INDETERMINATE )
+			p = TEXT('2');
+		else if ( Button_GetCheck( this->m_Hwnd ) & BST_CHECKED )
+			p = TEXT('1');
+
+		szReturnValue[0] = p;
+		szReturnValue[1] = 0;
 	}
 	else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
 		return;

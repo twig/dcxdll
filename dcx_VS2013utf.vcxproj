@@ -179,6 +179,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <PreBuildEvent>
       <Command>del /F $(mIRCDir)\dcx\dcx.dll
+
 </Command>
     </PreBuildEvent>
     <ClCompile>
@@ -218,6 +219,10 @@
       <Command>copy /B /-Y "$(TargetPath)" $(mIRCDir)\dcx\</Command>
     </PostBuildEvent>
     <ProjectReference />
+    <PreLinkEvent>
+      <Message>
+      </Message>
+    </PreLinkEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <PreBuildEvent>
@@ -490,6 +495,7 @@
     <ClInclude Include="Dcx.h" />
     <ClInclude Include="defines.h" />
     <ClInclude Include="mIRCLinker.h" />
+    <ClInclude Include="resource.h" />
     <ClInclude Include="XSwitchFlags.h" />
     <ClInclude Include="Classes\dcxbutton.h" />
     <ClInclude Include="Classes\dcxcalendar.h" />
@@ -567,6 +573,9 @@
   </ItemGroup>
   <ItemGroup>
     <Xml Include="dcx_zip\dc.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="dcx.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -1554,7 +1554,7 @@ TString DcxTreeView::getPathFromItem(HTREEITEM *item) const {
 			result.addtok(*itStart);
 			//result.tsprintf(TEXT("%s %d"), result.to_chr(), *itStart);
 
-		itStart++;
+		++itStart;
 	}
 
 	// Trim to ensure clean path.
@@ -2450,7 +2450,6 @@ bool DcxTreeView::xmlGetItems(HTREEITEM hFirstSibling, TiXmlElement *xElm, TCHAR
 const TiXmlElement *DcxTreeView::xmlInsertItems(HTREEITEM hParent, HTREEITEM &hInsertAfter, const TiXmlElement *xElm)
 {
 	TVINSERTSTRUCT tvins;
-	int i = 0;
 	const char *attr = NULL;
 	const TiXmlElement *xRes = xElm;
 
@@ -2629,7 +2628,7 @@ const TiXmlElement *DcxTreeView::xmlInsertItems(HTREEITEM hParent, HTREEITEM &hI
 		lpmytvi->hHandle = hInsertAfter;
 
 		// Items state icon.
-		i = this->queryIntAttribute(xNode, "state");
+		int i = this->queryIntAttribute(xNode, "state");
 		if (i < 5) // zero means no state icon anyway.
 			TreeView_SetItemState(this->m_Hwnd, hInsertAfter, INDEXTOSTATEIMAGEMASK(i), TVIS_STATEIMAGEMASK);
 
@@ -2684,7 +2683,6 @@ HTREEITEM DcxTreeView::parsePath(const TString *path, HTREEITEM *hParent, HTREEI
 	HTREEITEM current = TVI_ROOT;
 	HTREEITEM foundSoFar = current;
 	const int count = path->numtok();
-	int dir;
 	int i;                             // iterator for counting the Nth directory
 	//int k = 1;                         // iterator for path directories
 	const bool bFillLocation = ((hParent != NULL) && (hInsertAt != NULL));
@@ -2697,7 +2695,7 @@ HTREEITEM DcxTreeView::parsePath(const TString *path, HTREEITEM *hParent, HTREEI
 	for (int k = 1; k <= count; k++)
 	{
 		// Convert the path directory.
-		dir = path->gettok(k).to_int();
+		const int dir = path->gettok(k).to_int();
 
 		// Keep track of the current parent.
 		if (bFillLocation)

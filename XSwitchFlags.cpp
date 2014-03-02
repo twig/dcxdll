@@ -14,12 +14,11 @@ XSwitchFlags::XSwitchFlags(const TString &switches) {
 		return;
 
 	const unsigned int len = (UINT)switches.len();
-	TCHAR c;
 
 	// Parse the switches
 	for (UINT i = 1; i < len; i++)
 	{
-		c = switches[i];
+		const TCHAR c = switches[i];
 
 		// Check if its in the right range
 		if (c >= TEXT('a') && c <= TEXT('z'))

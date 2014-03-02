@@ -409,7 +409,7 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, const XSwitch
 
 		const int perc = input.getfirsttok( 4 ).to_int( );
 
-		if ( perc >= 0 || perc <= 100 ) {
+		if ( perc >= 0 && perc <= 100 ) {
 
 			int min, max;
 			GetScrollRange( this->m_Hwnd, SB_VERT, &min, &max );
@@ -786,18 +786,26 @@ BOOL DcxControl::parseGlobalInfoRequest( const TString & input, TCHAR * szReturn
 		return TRUE;
 	}
 	else if ( prop == TEXT("visible") ) {
-		if ( IsWindowVisible( this->m_Hwnd ) )
-			lstrcpyn( szReturnValue, TEXT("$true"), MIRC_BUFFER_SIZE_CCH );
-		else
-			lstrcpyn( szReturnValue, TEXT("$false"), MIRC_BUFFER_SIZE_CCH );
-		return TRUE;
+		dcx_ConRetState(IsWindowVisible(this->m_Hwnd), szReturnValue);
+		//TCHAR *p;
+		//if ( IsWindowVisible( this->m_Hwnd ) )
+		//	p = lstrcpyn( szReturnValue, TEXT("$true"), MIRC_BUFFER_SIZE_CCH );
+		//else
+		//	p = lstrcpyn( szReturnValue, TEXT("$false"), MIRC_BUFFER_SIZE_CCH );
+
+		//if (p != NULL)
+		//	return TRUE;
 	}
 	else if ( prop == TEXT("enabled") ) {
-		if ( IsWindowEnabled( this->m_Hwnd ) )
-			lstrcpyn( szReturnValue, TEXT("$true"), MIRC_BUFFER_SIZE_CCH );
-		else
-			lstrcpyn( szReturnValue, TEXT("$false"), MIRC_BUFFER_SIZE_CCH );
-		return TRUE;    
+		dcx_ConRetState(IsWindowEnabled(this->m_Hwnd), szReturnValue);
+		//TCHAR *p;
+		//if ( IsWindowEnabled( this->m_Hwnd ) )
+		//	p = lstrcpyn( szReturnValue, TEXT("$true"), MIRC_BUFFER_SIZE_CCH );
+		//else
+		//	p = lstrcpyn( szReturnValue, TEXT("$false"), MIRC_BUFFER_SIZE_CCH );
+
+		//if (p != NULL)
+		//	return TRUE;    
 	}
 	else if ( prop == TEXT("pos") ) {
 		const RECT rc = getPosition();
@@ -813,8 +821,8 @@ BOOL DcxControl::parseGlobalInfoRequest( const TString & input, TCHAR * szReturn
 		return TRUE;
 	}
 	else if ( prop == TEXT("mark") ) {
-		lstrcpyn( szReturnValue, this->m_tsMark.to_chr( ), MIRC_BUFFER_SIZE_CCH );
-		return TRUE;
+		if (lstrcpyn( szReturnValue, this->m_tsMark.to_chr( ), MIRC_BUFFER_SIZE_CCH ) != NULL)
+			return TRUE;
 	}
 	else if ( prop == TEXT("mouse") ) {
 		POINT pt;
@@ -827,8 +835,11 @@ BOOL DcxControl::parseGlobalInfoRequest( const TString & input, TCHAR * szReturn
 		TCHAR classname[257];
 		GetClassName( GetParent( this->m_Hwnd ), classname, 256 );
 
-		if ( lstrcmp( classname, TEXT("#32770") ) == 0 )
-			lstrcpyn( szReturnValue, TEXT("0"), MIRC_BUFFER_SIZE_CCH );
+		if (lstrcmp(classname, TEXT("#32770")) == 0) {
+			szReturnValue[0] = TEXT('0');
+			szReturnValue[1] = TEXT('\0');
+			//lstrcpyn(szReturnValue, TEXT("0"), MIRC_BUFFER_SIZE_CCH);
+		}
 		else
 			wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"),  this->m_pParentDialog->getControlByHWND( GetParent( this->m_Hwnd ) )->getUserID( ) );
 
@@ -836,12 +847,12 @@ BOOL DcxControl::parseGlobalInfoRequest( const TString & input, TCHAR * szReturn
 	}
 	else if ( prop == TEXT("type") ) {
 
-		lstrcpyn( szReturnValue, this->getType( ).to_chr( ), MIRC_BUFFER_SIZE_CCH );
-		return TRUE;
+		if (lstrcpyn( szReturnValue, this->getType( ).to_chr( ), MIRC_BUFFER_SIZE_CCH ) != NULL)
+			return TRUE;
 	}
 	else if ( prop == TEXT("styles") ) {
-		lstrcpyn( szReturnValue, this->getStyles( ).to_chr( ), MIRC_BUFFER_SIZE_CCH );
-		return TRUE;
+		if (lstrcpyn( szReturnValue, this->getStyles( ).to_chr( ), MIRC_BUFFER_SIZE_CCH ) != NULL)
+			return TRUE;
 	}
 	else if ( prop == TEXT("font")) {
 		HFONT hFontControl = this->m_hFont;
@@ -857,8 +868,8 @@ BOOL DcxControl::parseGlobalInfoRequest( const TString & input, TCHAR * szReturn
 			ZeroMemory(&lfCurrent, sizeof(LOGFONT));
 			GetObject(hFontControl, sizeof(LOGFONT), &lfCurrent);
 
-			lstrcpyn(szReturnValue, ParseLogfontToCommand(&lfCurrent).to_chr(), MIRC_BUFFER_SIZE_CCH);
-			return TRUE;
+			if (lstrcpyn(szReturnValue, ParseLogfontToCommand(&lfCurrent).to_chr(), MIRC_BUFFER_SIZE_CCH) != NULL)
+				return TRUE;
 		}
 	}
 	// [NAME] [ID] [PROP]
@@ -883,11 +894,15 @@ BOOL DcxControl::parseGlobalInfoRequest( const TString & input, TCHAR * szReturn
 	}
 	// [NAME] [ID] [PROP]
 	else if (prop == TEXT("alpha")) {
-		if (this->m_bAlphaBlend)
-			lstrcpyn(szReturnValue, TEXT("$true"), MIRC_BUFFER_SIZE_CCH);
-		else
-			lstrcpyn(szReturnValue, TEXT("$false"), MIRC_BUFFER_SIZE_CCH);
-		return TRUE;
+		dcx_ConRetState(this->m_bAlphaBlend, szReturnValue);
+		//TCHAR *p;
+		//if (this->m_bAlphaBlend)
+		//	p = lstrcpyn(szReturnValue, TEXT("$true"), MIRC_BUFFER_SIZE_CCH);
+		//else
+		//	p = lstrcpyn(szReturnValue, TEXT("$false"), MIRC_BUFFER_SIZE_CCH);
+
+		//if (p != NULL)
+		//	return TRUE;
 	}
 	// [NAME] [ID] [PROP]
 	else if (prop == TEXT("textcolor")) {

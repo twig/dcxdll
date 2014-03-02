@@ -146,9 +146,9 @@ void DcxButton::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) 
 {
 	// [NAME] [ID] [PROP]
 	if ( input.gettok( 3 ) == TEXT("text") ) {
-
-		lstrcpyn( szReturnValue, this->m_tsCaption.to_chr( ), MIRC_BUFFER_SIZE_CCH );
-		return;
+		// if copy fails drop through
+		if (lstrcpyn( szReturnValue, this->m_tsCaption.to_chr( ), MIRC_BUFFER_SIZE_CCH ) != NULL)
+			return;
 	}
 	else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
 		return;

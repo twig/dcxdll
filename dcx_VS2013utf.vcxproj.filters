@@ -476,9 +476,6 @@
     <ClInclude Include="Classes\dcxwindow.h">
       <Filter>Header Files\General</Filter>
     </ClInclude>
-    <ClInclude Include="svnBuild.h">
-      <Filter>Header Files\General</Filter>
-    </ClInclude>
     <ClInclude Include="Classes\xpopup\xmenubar.h">
       <Filter>Header Files\XPopup</Filter>
     </ClInclude>
@@ -521,6 +518,9 @@
     <ClInclude Include="DcxUXModule.h">
       <Filter>Header Files\Modules</Filter>
     </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="dcx_zip\dcx.mrc">
@@ -537,9 +537,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="svnTemplate.txt">
-      <Filter>Resource Files</Filter>
-    </Text>
     <Text Include="TODO.txt">
       <Filter>Resource Files</Filter>
     </Text>
@@ -553,5 +550,10 @@
     <CustomBuild Include="DcxXPPlusModule.h">
       <Filter>Header Files\Modules</Filter>
     </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="dcx.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
   </ItemGroup>
 </Project>

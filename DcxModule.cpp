@@ -2,8 +2,8 @@
 #include "DcxModule.h"
 
 DcxModule::DcxModule(void)
+: m_hModule(NULL), m_mIRCLink(NULL)
 {
-	m_hModule = NULL;
 }
 
 DcxModule::~DcxModule(void) 

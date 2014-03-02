@@ -24,10 +24,9 @@
 
 #if DCX_USE_C11
 DcxWindow::DcxWindow( const HWND mHwnd, const UINT mID )
-	: m_Hwnd( mHwnd )
-	, m_ID( mID )
+	: m_Hwnd( mHwnd ), m_ID( mID )
 {
-	if (IDC_map.size() == 0) {
+	if (IDC_map.empty()) {
 		IDC_map[TEXT("appstarting")] = IDC_APPSTARTING;
 		IDC_map[TEXT("arrow")] = IDC_ARROW;
 		IDC_map[TEXT("cross")] = IDC_CROSS;
@@ -52,9 +51,9 @@ DcxWindow::DcxWindow( const HWND mHwnd, const UINT mID )
  */
 
 DcxWindow::DcxWindow( const UINT mID )
-	: m_ID( mID )
+	: m_ID( mID ), m_Hwnd(NULL)
 {
-	if (IDC_map.size() == 0) {
+	if (IDC_map.empty()) {
 		IDC_map[TEXT("appstarting")] = IDC_APPSTARTING;
 		IDC_map[TEXT("arrow")] = IDC_ARROW;
 		IDC_map[TEXT("cross")] = IDC_CROSS;
@@ -72,7 +71,9 @@ DcxWindow::DcxWindow( const UINT mID )
 	}
 }
 #else
-DcxWindow::DcxWindow( const HWND mHwnd, const UINT mID ) : m_Hwnd( mHwnd ), m_ID( mID ) {
+DcxWindow::DcxWindow( const HWND mHwnd, const UINT mID )
+	: m_Hwnd( mHwnd ), m_ID( mID )
+{
 }
 
 /*!
@@ -81,7 +82,9 @@ DcxWindow::DcxWindow( const HWND mHwnd, const UINT mID ) : m_Hwnd( mHwnd ), m_ID
  * \param mID Window ID
  */
 
-DcxWindow::DcxWindow( const UINT mID ) : m_ID( mID ) {
+DcxWindow::DcxWindow( const UINT mID )
+	: m_ID( mID ), m_Hwnd(NULL)
+{
 }
 #endif
 
