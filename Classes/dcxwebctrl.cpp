@@ -174,11 +174,11 @@ void DcxWebControl::parseInfoRequest( const TString & input, TCHAR * szReturnVal
 
 			if ( ready_state == READYSTATE_COMPLETE ) {
 
-				lstrcpyn( szReturnValue, TEXT("$true"), MIRC_BUFFER_SIZE_CCH );
+				dcx_strcpyn( szReturnValue, TEXT("$true"), MIRC_BUFFER_SIZE_CCH );
 				return;
 			}
 		}
-		lstrcpyn( szReturnValue, TEXT("$false"), MIRC_BUFFER_SIZE_CCH );
+		dcx_strcpyn( szReturnValue, TEXT("$false"), MIRC_BUFFER_SIZE_CCH );
 		return;
 	}
 	// [NAME] [ID] [PROP]
@@ -189,11 +189,11 @@ void DcxWebControl::parseInfoRequest( const TString & input, TCHAR * szReturnVal
 
 			if ( bState == VARIANT_TRUE ) {
 
-				lstrcpyn( szReturnValue, TEXT("$true"), MIRC_BUFFER_SIZE_CCH );
+				dcx_strcpyn( szReturnValue, TEXT("$true"), MIRC_BUFFER_SIZE_CCH );
 				return;
 			}
 		}
-		lstrcpyn( szReturnValue, TEXT("$false"), MIRC_BUFFER_SIZE_CCH );
+		dcx_strcpyn( szReturnValue, TEXT("$false"), MIRC_BUFFER_SIZE_CCH );
 		return;
 	}
 	else if ( prop == TEXT("statustext") ) {
@@ -393,19 +393,136 @@ HRESULT DcxWebControl::Invoke( DISPID dispIdMember,
 	VARIANT arg1, arg2;
 	VariantInit( &arg1 );
 	VariantInit( &arg2 );
-	if (SUCCEEDED(DispGetParam(pDispParams, 0, VT_BSTR, &arg1, &err)) && SUCCEEDED(DispGetParam(pDispParams, 1, VT_BSTR, &arg2, &err)))
+	//if (SUCCEEDED(DispGetParam(pDispParams, 0, VT_BSTR, &arg1, &err)) && SUCCEEDED(DispGetParam(pDispParams, 1, VT_BSTR, &arg2, &err)))
+	//{
+	//	switch (dispIdMember) {
+	//	case DISPID_NAVIGATECOMPLETE2:
+	//	{
+	//									 if (!this->m_bHideEvents)
+	//											 this->execAliasEx(TEXT("%s,%d,%ws"), TEXT("nav_complete"), this->getUserID(), arg2.bstrVal);
+	//	}
+	//		break;
+
+	//	case DISPID_BEFORENAVIGATE2:
+	//	{
+	//								   if (!this->m_bHideEvents)
+	//								   {
+	//										   TCHAR ret[256];
+	//										   this->evalAliasEx(ret, 255, TEXT("%s,%d,%ws"), TEXT("nav_begin"), this->getUserID(), arg2.bstrVal);
+
+	//										   if (lstrcmpi(ret, TEXT("cancel")) == 0)
+	//											   *pDispParams->rgvarg->pboolVal = VARIANT_TRUE;
+	//										   else
+	//											   *pDispParams->rgvarg->pboolVal = VARIANT_FALSE;
+	//								   }
+	//	}
+	//		break;
+
+	//	case DISPID_DOCUMENTCOMPLETE:
+	//	{
+	//									if (!this->m_bHideEvents)
+	//									{
+	//											this->execAliasEx(TEXT("%s,%d,%ws"), TEXT("doc_complete"), this->getUserID(), arg2.bstrVal);
+	//									}
+	//									else
+	//										this->m_bHideEvents = false; // allow events to be seen after first doc loads `about:blank`
+	//	}
+	//		break;
+
+	//	case DISPID_DOWNLOADBEGIN:
+	//	{
+	//								 if (!this->m_bHideEvents)
+	//									 this->execAliasEx(TEXT("%s,%d"), TEXT("dl_begin"), this->getUserID());
+	//	}
+	//		break;
+
+	//	case DISPID_DOWNLOADCOMPLETE:
+	//	{
+	//									if (!this->m_bHideEvents)
+	//										this->execAliasEx(TEXT("%s,%d"), TEXT("dl_complete"), this->getUserID());
+	//	}
+	//		break;
+
+	//	case DISPID_NEWWINDOW2:
+	//	{
+	//							  if (!this->m_bHideEvents)
+	//							  {
+	//								  TCHAR ret[256];
+	//								  this->evalAliasEx(ret, 255, TEXT("%s,%d"), TEXT("win_open"), this->getUserID());
+
+	//								  if (lstrcmpi(ret, TEXT("cancel")) == 0)
+	//									  *pDispParams->rgvarg->pboolVal = VARIANT_TRUE;
+	//								  else
+	//									  *pDispParams->rgvarg->pboolVal = VARIANT_FALSE;
+	//							  }
+	//	}
+	//		break;
+
+	//	case DISPID_STATUSTEXTCHANGE:
+	//	{
+	//									if (!this->m_bHideEvents)
+	//										this->execAliasEx(TEXT("%s,%d,%ws"), TEXT("status"), this->getUserID(), arg1.bstrVal);
+	//	}
+	//		break;
+
+	//	case DISPID_TITLECHANGE:
+	//	{
+	//							   if (!this->m_bHideEvents)
+	//								   this->execAliasEx(TEXT("%s,%d,%ws"), TEXT("title"), this->getUserID(), arg1.bstrVal);
+	//	}
+	//		break;
+
+	//	case DISPID_PROGRESSCHANGE:
+	//	{
+	//								  if (!this->m_bHideEvents)
+	//									  this->execAliasEx(TEXT("%s,%d,%ws,%ws"), TEXT("dl_progress"), this->getUserID(), arg1.bstrVal, arg2.bstrVal);
+	//	}
+	//		break;
+
+	//	case DISPID_COMMANDSTATECHANGE:
+	//	{
+	//									  if (!this->m_bHideEvents)
+	//									  {
+	//										  switch (arg1.bstrVal[0]) {
+	//										  case L'1':
+	//											  this->execAliasEx(TEXT("%s,%d,%s"), TEXT("forward"), this->getUserID(), arg2.boolVal ? TEXT("$true") : TEXT("$false"));
+	//											  break;
+
+	//										  case L'2':
+	//											  this->execAliasEx(TEXT("%s,%d,%s"), TEXT("back"), this->getUserID(), arg2.boolVal ? TEXT("$true") : TEXT("$false"));
+	//											  break;
+	//										  }
+	//									  }
+	//	}
+	//		break;
+	//	}
+	//	VariantClear(&arg1);
+	//	VariantClear(&arg2);
+	//}
+	//else
+	//	this->showErrorEx(NULL, TEXT("DcxWebControl::Invoke()"), TEXT("Unable to get object state: %ld"), err);
+
+	//return S_OK;
+
+	HRESULT hRes = S_OK;
+
+	if (!this->m_bHideEvents)
 	{
 		switch (dispIdMember) {
 		case DISPID_NAVIGATECOMPLETE2:
 		{
-			if (!this->m_bHideEvents)
+			hRes = DispGetParam(pDispParams, 1, VT_BSTR, &arg2, &err);
+			if (SUCCEEDED(hRes))
 				this->execAliasEx(TEXT("%s,%d,%ws"), TEXT("nav_complete"), this->getUserID(), arg2.bstrVal);
+			else
+				this->showErrorEx(NULL, TEXT("DcxWebControl::Invoke(DISPID_NAVIGATECOMPLETE2)"), TEXT("Unable to get Params: %ld"), err);
 		}
 		break;
 
 		case DISPID_BEFORENAVIGATE2:
 		{
-			if (!this->m_bHideEvents)
+			hRes = DispGetParam(pDispParams, 1, VT_BSTR, &arg2, &err);
+			if (SUCCEEDED(hRes))
 			{
 				TCHAR ret[256];
 				this->evalAliasEx(ret, 255, TEXT("%s,%d,%ws"), TEXT("nav_begin"), this->getUserID(), arg2.bstrVal);
@@ -415,73 +532,86 @@ HRESULT DcxWebControl::Invoke( DISPID dispIdMember,
 				else
 					*pDispParams->rgvarg->pboolVal = VARIANT_FALSE;
 			}
+			else
+				this->showErrorEx(NULL, TEXT("DcxWebControl::Invoke(DISPID_BEFORENAVIGATE2)"), TEXT("Unable to get Params: %ld"), err);
 		}
 		break;
 
 		case DISPID_DOCUMENTCOMPLETE:
 		{
-			if (!this->m_bHideEvents)
+			hRes = DispGetParam(pDispParams, 1, VT_BSTR, &arg2, &err);
+			if (SUCCEEDED(hRes))
 				this->execAliasEx(TEXT("%s,%d,%ws"), TEXT("doc_complete"), this->getUserID(), arg2.bstrVal);
 			else
-				this->m_bHideEvents = false; // allow events to be seen after first doc loads `about:blank`
+				this->showErrorEx(NULL, TEXT("DcxWebControl::Invoke(DISPID_DOCUMENTCOMPLETE)"), TEXT("Unable to get Params: %ld"), err);
 		}
 		break;
 
 		case DISPID_DOWNLOADBEGIN:
-		{
-			if (!this->m_bHideEvents)
-				this->execAliasEx(TEXT("%s,%d"), TEXT("dl_begin"), this->getUserID());
-		}
-		break;
+			 this->execAliasEx(TEXT("%s,%d"), TEXT("dl_begin"), this->getUserID());
+			break;
 
 		case DISPID_DOWNLOADCOMPLETE:
-		{
-			if (!this->m_bHideEvents)
-				this->execAliasEx(TEXT("%s,%d"), TEXT("dl_complete"), this->getUserID());
-		}
-		break;
+			this->execAliasEx(TEXT("%s,%d"), TEXT("dl_complete"), this->getUserID());
+			break;
 
 		case DISPID_NEWWINDOW2:
 		{
-			if (!this->m_bHideEvents)
-			{
-				TCHAR ret[256];
-				this->evalAliasEx(ret, 255, TEXT("%s,%d"), TEXT("win_open"), this->getUserID());
+			TCHAR ret[256];
+			this->evalAliasEx(ret, 255, TEXT("%s,%d"), TEXT("win_open"), this->getUserID());
 
-				if (lstrcmpi(ret, TEXT("cancel")) == 0)
-					*pDispParams->rgvarg->pboolVal = VARIANT_TRUE;
-				else
-					*pDispParams->rgvarg->pboolVal = VARIANT_FALSE;
-			}
+			if (lstrcmpi(ret, TEXT("cancel")) == 0)
+				*pDispParams->rgvarg->pboolVal = VARIANT_TRUE;
+			else
+				*pDispParams->rgvarg->pboolVal = VARIANT_FALSE;
 		}
 		break;
 
 		case DISPID_STATUSTEXTCHANGE:
 		{
-			if (!this->m_bHideEvents)
+			hRes = DispGetParam(pDispParams, 0, VT_BSTR, &arg1, &err);
+			if (SUCCEEDED(hRes))
 				this->execAliasEx(TEXT("%s,%d,%ws"), TEXT("status"), this->getUserID(), arg1.bstrVal);
+			else
+				this->showErrorEx(NULL, TEXT("DcxWebControl::Invoke(DISPID_STATUSTEXTCHANGE)"), TEXT("Unable to get Params: %ld"), err);
 		}
 		break;
 
 		case DISPID_TITLECHANGE:
 		{
-			if (!this->m_bHideEvents)
+			hRes = DispGetParam(pDispParams, 0, VT_BSTR, &arg1, &err);
+			if (SUCCEEDED(hRes))
 				this->execAliasEx(TEXT("%s,%d,%ws"), TEXT("title"), this->getUserID(), arg1.bstrVal);
+			else
+				this->showErrorEx(NULL, TEXT("DcxWebControl::Invoke(DISPID_TITLECHANGE)"), TEXT("Unable to get Params: %ld"), err);
 		}
 		break;
 
 		case DISPID_PROGRESSCHANGE:
 		{
-			if (!this->m_bHideEvents)
-				this->execAliasEx(TEXT("%s,%d,%ws,%ws"), TEXT("dl_progress"), this->getUserID(), arg1.bstrVal, arg2.bstrVal);
+			hRes = DispGetParam(pDispParams, 0, VT_BSTR, &arg1, &err);
+			if (SUCCEEDED(hRes))
+			{
+				hRes = DispGetParam(pDispParams, 1, VT_BSTR, &arg2, &err);
+				if (SUCCEEDED(hRes))
+					this->execAliasEx(TEXT("%s,%d,%ws,%ws"), TEXT("dl_progress"), this->getUserID(), arg1.bstrVal, arg2.bstrVal);
+				else
+					this->showErrorEx(NULL, TEXT("DcxWebControl::Invoke(DISPID_PROGRESSCHANGE)"), TEXT("Unable to get Params: %ld"), err);
+			}
+			else
+				this->showErrorEx(NULL, TEXT("DcxWebControl::Invoke(DISPID_PROGRESSCHANGE)"), TEXT("Unable to get Params: %ld"), err);
 		}
 		break;
 
 		case DISPID_COMMANDSTATECHANGE:
 		{
-			if (!this->m_bHideEvents)
+			hRes = DispGetParam(pDispParams, 0, VT_BSTR, &arg1, &err);
+			if (SUCCEEDED(hRes))
 			{
-				switch (arg1.bstrVal[0]) {
+				hRes = DispGetParam(pDispParams, 1, VT_BSTR, &arg2, &err);
+				if (SUCCEEDED(hRes))
+				{
+					switch (arg1.bstrVal[0]) {
 					case L'1':
 						this->execAliasEx(TEXT("%s,%d,%s"), TEXT("forward"), this->getUserID(), arg2.boolVal ? TEXT("$true") : TEXT("$false"));
 						break;
@@ -489,19 +619,24 @@ HRESULT DcxWebControl::Invoke( DISPID dispIdMember,
 					case L'2':
 						this->execAliasEx(TEXT("%s,%d,%s"), TEXT("back"), this->getUserID(), arg2.boolVal ? TEXT("$true") : TEXT("$false"));
 						break;
+					}
 				}
+				else
+					this->showErrorEx(NULL, TEXT("DcxWebControl::Invoke(DISPID_COMMANDSTATECHANGE)"), TEXT("Unable to get Params: %ld"), err);
 			}
+			else
+				this->showErrorEx(NULL, TEXT("DcxWebControl::Invoke(DISPID_COMMANDSTATECHANGE)"), TEXT("Unable to get Params: %ld"), err);
 		}
 		break;
 		}
-		VariantClear(&arg1);
-		VariantClear(&arg2);
 	}
-	else {
-		this->showErrorEx(NULL, TEXT("DcxWebControl::Invoke()"), TEXT("Unable to get object state: %ld"), err);
-	}
+	else if (dispIdMember == DISPID_DOCUMENTCOMPLETE)
+		this->m_bHideEvents = false; // allow events to be seen after first doc loads `about:blank`
 
-	return S_OK;
+	VariantClear(&arg1);
+	VariantClear(&arg2);
+
+	return hRes;
 }
 
 /*!
