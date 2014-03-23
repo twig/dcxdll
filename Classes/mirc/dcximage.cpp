@@ -124,7 +124,7 @@ void DcxImage::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) c
 
 	// [NAME] [ID] [PROP]
 	if ( prop == TEXT("fname")) {
-		lstrcpyn(szReturnValue,this->m_tsFilename.to_chr(), MIRC_BUFFER_SIZE_CCH);
+		dcx_strcpyn(szReturnValue,this->m_tsFilename.to_chr(), MIRC_BUFFER_SIZE_CCH);
 		return;
 	}
 	else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )

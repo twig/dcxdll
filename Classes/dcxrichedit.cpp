@@ -167,7 +167,7 @@ void DcxRichEdit::parseInfoRequest( const TString &input, TCHAR *szReturnValue) 
 		p[len -1] = TEXT('\0');
 
 		// copy to result
-		lstrcpyn(szReturnValue, p, MIRC_BUFFER_SIZE_CCH);
+		dcx_strcpyn(szReturnValue, p, MIRC_BUFFER_SIZE_CCH);
 		delete [] p;
 		return;
 	}
@@ -176,8 +176,13 @@ void DcxRichEdit::parseInfoRequest( const TString &input, TCHAR *szReturnValue) 
 		if (this->isStyle(ES_MULTILINE))
 			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), (int)SendMessage(this->m_Hwnd, EM_GETLINECOUNT, 0, 0L));
 			//wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), this->m_tsText.numtok(TEXT("\r\n")));
-		else
-			lstrcpyn(szReturnValue,TEXT("1"), MIRC_BUFFER_SIZE_CCH);	// single line control so always 1 line.
+		else {
+			// single line control so always 1 line.
+			szReturnValue[0] = TEXT('1');
+			szReturnValue[1] = 0;
+		}
+		//else
+		//	dcx_strcpyn(szReturnValue,TEXT("1"), MIRC_BUFFER_SIZE_CCH);	// single line control so always 1 line.
 		return;
 	}
 	// [NAME] [ID] [PROP]
@@ -230,7 +235,7 @@ void DcxRichEdit::parseInfoRequest( const TString &input, TCHAR *szReturnValue) 
 		TCHAR *buffer = new TCHAR[c.cpMax - c.cpMin];
 
 		SendMessage(this->m_Hwnd, EM_GETSELTEXT, NULL, (LPARAM) buffer);
-		lstrcpyn(szReturnValue, buffer, MIRC_BUFFER_SIZE_CCH);
+		dcx_strcpyn(szReturnValue, buffer, MIRC_BUFFER_SIZE_CCH);
 		delete [] buffer;
 		return;
 	}
@@ -521,7 +526,7 @@ void DcxRichEdit::setContentsFont() {
 		chrf.dwEffects |= CFE_UNDERLINE;
 
 	if (this->m_tsFontFaceName != TEXT("")) {
-		lstrcpyn(chrf.szFaceName, this->m_tsFontFaceName.to_chr(), 31);
+		dcx_strcpyn(chrf.szFaceName, this->m_tsFontFaceName.to_chr(), 31);
 		chrf.szFaceName[31] = 0;
 	}
 
@@ -722,7 +727,7 @@ void DcxRichEdit::insertText(TCHAR *text, bool bline, bool uline, bool bcolor, C
 		chrf.dwEffects |= CFE_UNDERLINE;
 
 	if (this->m_tsFontFaceName != TEXT(""))
-		lstrcpyn(chrf.szFaceName, this->m_tsFontFaceName.to_chr(), 32);
+		dcx_strcpyn(chrf.szFaceName, this->m_tsFontFaceName.to_chr(), 32);
 
 	if (bcolor == true)
 		chrf.crTextColor = color;

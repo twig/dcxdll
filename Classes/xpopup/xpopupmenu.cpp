@@ -495,10 +495,17 @@ void XPopupMenu::parseXPopIdentifier( const TString & input, TCHAR * szReturnVal
 
 			if ( GetMenuItemInfo( hMenu, nPos, TRUE, &mii ) == TRUE ) {
 
-				if ( prop == TEXT("checked") ) 
-					lstrcpyn( szReturnValue, (mii.fState & MFS_CHECKED?TEXT("$true"):TEXT("$false")), MIRC_BUFFER_SIZE_CCH );
-				else if ( prop == TEXT("enabled") )
-					lstrcpyn( szReturnValue, (!(mii.fState & MFS_GRAYED)?TEXT("$true"):TEXT("$false")), MIRC_BUFFER_SIZE_CCH );
+				//if ( prop == TEXT("checked") ) 
+				//	lstrcpyn( szReturnValue, (mii.fState & MFS_CHECKED?TEXT("$true"):TEXT("$false")), MIRC_BUFFER_SIZE_CCH );
+				//else if ( prop == TEXT("enabled") )
+				//	lstrcpyn( szReturnValue, (!(mii.fState & MFS_GRAYED)?TEXT("$true"):TEXT("$false")), MIRC_BUFFER_SIZE_CCH );
+
+				if (prop == TEXT("checked")) {
+					dcx_Con(mii.fState & MFS_CHECKED, szReturnValue);
+				}
+				else if (prop == TEXT("enabled")) {
+					dcx_Con(!(mii.fState & MFS_GRAYED), szReturnValue);
+				}
 				return;
 			}
 		}
@@ -525,10 +532,11 @@ void XPopupMenu::parseXPopIdentifier( const TString & input, TCHAR * szReturnVal
 
 			if ( GetMenuItemInfo( hMenu, nPos, TRUE, &mii ) == TRUE ) {
 
-				if ( mii.hSubMenu == NULL )
-					lstrcpyn( szReturnValue, TEXT("0"), MIRC_BUFFER_SIZE_CCH );
-				else
-					lstrcpyn( szReturnValue, TEXT("1"), MIRC_BUFFER_SIZE_CCH );
+				//if ( mii.hSubMenu == NULL )
+				//	lstrcpyn( szReturnValue, TEXT("0"), MIRC_BUFFER_SIZE_CCH );
+				//else
+				//	lstrcpyn( szReturnValue, TEXT("1"), MIRC_BUFFER_SIZE_CCH );
+				dcx_ConChar(mii.hSubMenu != NULL, szReturnValue);
 
 				return;
 			}

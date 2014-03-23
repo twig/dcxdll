@@ -288,10 +288,11 @@ mIRC(_xstatusbar)
 	{
 	case 1: // visible
 		{
-			if (DcxDock::IsStatusbar())
-				lstrcpyn(data,TEXT("$true"), MIRC_BUFFER_SIZE_CCH);
-			else
-				lstrcpyn(data,TEXT("$false"), MIRC_BUFFER_SIZE_CCH);
+			//if (DcxDock::IsStatusbar())
+			//	lstrcpyn(data,TEXT("$true"), MIRC_BUFFER_SIZE_CCH);
+			//else
+			//	lstrcpyn(data,TEXT("$false"), MIRC_BUFFER_SIZE_CCH);
+			dcx_Con(DcxDock::IsStatusbar(), data);
 		}
 		break;
 	case 2: // text

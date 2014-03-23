@@ -299,7 +299,7 @@ void DcxReBar::parseInfoRequest( const TString & input, TCHAR * szReturnValue ) 
 		this->getBandInfo(n, &rbi);
 		pdcxrbb = (LPDCXRBBAND) rbi.lParam;
 
-		lstrcpyn(szReturnValue, pdcxrbb->tsMarkText.to_chr(), MIRC_BUFFER_SIZE_CCH);
+		dcx_strcpyn(szReturnValue, pdcxrbb->tsMarkText.to_chr(), MIRC_BUFFER_SIZE_CCH);
 		return;
 	}
 	else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )

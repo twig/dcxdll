@@ -95,7 +95,9 @@ mIRC(_dcxml)
 		ret(TEXT("D_ERROR Invalid Args: A prop is required."));
 	}
 
-	if (d.gettok( 1 ) == TEXT("Loaded"))
-		lstrcpyn(data, ((Parser.loadSuccess) ? TEXT("$true") : TEXT("$false")), MIRC_BUFFER_SIZE_CCH);
+	if (d.gettok(1) == TEXT("Loaded")) {
+		//dcx_strcpyn(data, ((Parser.loadSuccess) ? TEXT("$true") : TEXT("$false")), MIRC_BUFFER_SIZE_CCH);
+		dcx_Con(Parser.loadSuccess, data);
+	}
 	return 3;
 }

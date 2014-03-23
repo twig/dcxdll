@@ -156,10 +156,13 @@ void DcxRadio::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) c
 	// [NAME] [ID] [PROP]
 	else if ( prop == TEXT("state") ) {
 
-		if ( Button_GetCheck( this->m_Hwnd ) & BST_CHECKED )
-			lstrcpyn( szReturnValue, TEXT("1"), MIRC_BUFFER_SIZE_CCH );
-		else
-			lstrcpyn( szReturnValue, TEXT("0"), MIRC_BUFFER_SIZE_CCH );
+		//if (Button_GetCheck(this->m_Hwnd) & BST_CHECKED) {
+		//	dcx_strcpyn(szReturnValue, TEXT("1"), MIRC_BUFFER_SIZE_CCH);
+		//}
+		//else
+		//	dcx_strcpyn( szReturnValue, TEXT("0"), MIRC_BUFFER_SIZE_CCH );
+
+		dcx_ConChar(Button_GetCheck(this->m_Hwnd) & BST_CHECKED, szReturnValue);
 
 		return;
 	}

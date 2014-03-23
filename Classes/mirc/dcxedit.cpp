@@ -218,13 +218,13 @@ void DcxEdit::parseInfoRequest( const TString &input, PTCHAR szReturnValue) cons
 				const int nLine = input.getnexttok( ).to_int();	// tok 4
 
 				if (nLine > 0 && nLine <= (int)this->m_tsText.numtok(TEXT("\r\n"))) {
-					lstrcpyn(szReturnValue, this->m_tsText.gettok(nLine, TEXT("\r\n")).to_chr(), MIRC_BUFFER_SIZE_CCH);
+					dcx_strcpyn(szReturnValue, this->m_tsText.gettok(nLine, TEXT("\r\n")).to_chr(), MIRC_BUFFER_SIZE_CCH);
 					return;
 				}
 			}
 		}
 		else {
-			lstrcpyn(szReturnValue, this->m_tsText.to_chr(), MIRC_BUFFER_SIZE_CCH);
+			dcx_strcpyn(szReturnValue, this->m_tsText.to_chr(), MIRC_BUFFER_SIZE_CCH);
 			return;
 		}
 	}
@@ -232,25 +232,35 @@ void DcxEdit::parseInfoRequest( const TString &input, PTCHAR szReturnValue) cons
 	else if (prop == TEXT("num")) {
 		if (this->isStyle(ES_MULTILINE))
 			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), this->m_tsText.numtok(TEXT("\r\n")));
-		else
-			lstrcpyn(szReturnValue,TEXT("1"), MIRC_BUFFER_SIZE_CCH);	// single line control so always 1 line.
+		else {
+			// single line control so always 1 line.
+			szReturnValue[0] = TEXT('1');
+			szReturnValue[1] = 0;
+		}
+			//dcx_strcpyn(szReturnValue,TEXT("1"), MIRC_BUFFER_SIZE_CCH);	// single line control so always 1 line.
 		return;
 	}
 	// [NAME] [ID] [PROP]
 	else if (prop == TEXT("ispass")) {
-		if (this->isStyle(ES_PASSWORD))
-			lstrcpyn(szReturnValue, TEXT("$true"), MIRC_BUFFER_SIZE_CCH);
-		else
-			lstrcpyn(szReturnValue, TEXT("$false"), MIRC_BUFFER_SIZE_CCH);
+		//if (this->isStyle(ES_PASSWORD)) {
+		//	dcx_strcpyn(szReturnValue, TEXT("$true"), MIRC_BUFFER_SIZE_CCH);
+		//}
+		//else
+		//	dcx_strcpyn(szReturnValue, TEXT("$false"), MIRC_BUFFER_SIZE_CCH);
+
+		dcx_Con(this->isStyle(ES_PASSWORD), szReturnValue);
 
 		return;
 	}
    // [NAME] [ID] [PROP]
 	else if (prop == TEXT("isreadonly")) {
-      if (this->isStyle(ES_READONLY))
-			lstrcpyn(szReturnValue, TEXT("$true"), MIRC_BUFFER_SIZE_CCH);
-		else
-			lstrcpyn(szReturnValue, TEXT("$false"), MIRC_BUFFER_SIZE_CCH);
+		//if (this->isStyle(ES_READONLY)) {
+		//	dcx_strcpyn(szReturnValue, TEXT("$true"), MIRC_BUFFER_SIZE_CCH);
+		//}
+		//else
+		//	dcx_strcpyn(szReturnValue, TEXT("$false"), MIRC_BUFFER_SIZE_CCH);
+
+		dcx_Con(this->isStyle(ES_READONLY), szReturnValue);
 
 		return;
 	}
@@ -303,12 +313,12 @@ void DcxEdit::parseInfoRequest( const TString &input, PTCHAR szReturnValue) cons
 		DWORD dwSelEnd = 0;   // selection range ending position
 
 		SendMessage(this->m_Hwnd, EM_GETSEL, (WPARAM) &dwSelStart, (LPARAM) &dwSelEnd);
-		lstrcpyn(szReturnValue, this->m_tsText.mid(dwSelStart, dwSelEnd - dwSelStart).to_chr(), MIRC_BUFFER_SIZE_CCH);
+		dcx_strcpyn(szReturnValue, this->m_tsText.mid(dwSelStart, dwSelEnd - dwSelStart).to_chr(), MIRC_BUFFER_SIZE_CCH);
 		return;
 	}
 	else if (prop == TEXT("cue")) {
 		if (this->m_tsCue.len())
-			lstrcpyn(szReturnValue, this->m_tsCue.to_chr(), MIRC_BUFFER_SIZE_CCH);
+			dcx_strcpyn(szReturnValue, this->m_tsCue.to_chr(), MIRC_BUFFER_SIZE_CCH);
 		return;
 	}
 	else if (this->parseGlobalInfoRequest(input, szReturnValue))

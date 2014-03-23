@@ -157,7 +157,7 @@ void DcxLine::parseControlStyles( const TString & styles, LONG * Styles, LONG * 
 void DcxLine::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) const
 {
 	if ( input.gettok( 3 ) == TEXT("text") ) {
-		lstrcpyn(szReturnValue, this->m_sText.to_chr(), MIRC_BUFFER_SIZE_CCH);
+		dcx_strcpyn(szReturnValue, this->m_sText.to_chr(), MIRC_BUFFER_SIZE_CCH);
 		return;
 	}
 	else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )

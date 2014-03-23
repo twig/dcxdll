@@ -256,11 +256,11 @@ void DcxList::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) co
 
 					if (i == 0) {
 						value.tsprintf(TEXT("%d"), n);
-						lstrcpyn(szReturnValue, value.to_chr(), MIRC_BUFFER_SIZE_CCH);
+						dcx_strcpyn(szReturnValue, value.to_chr(), MIRC_BUFFER_SIZE_CCH);
 					}
 					else if ((i > 0) && (i <= n)) {
 						value.tsprintf(TEXT("%d"), p[i -1] +1);
-						lstrcpyn(szReturnValue, value.to_chr(), MIRC_BUFFER_SIZE_CCH);
+						dcx_strcpyn(szReturnValue, value.to_chr(), MIRC_BUFFER_SIZE_CCH);
 					}
 				}
 				else {
@@ -274,7 +274,7 @@ void DcxList::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) co
 						path.addtok(num, TSCOMMA);
 					}
 
-					lstrcpyn(szReturnValue, path.to_chr(), MIRC_BUFFER_SIZE_CCH);
+					dcx_strcpyn(szReturnValue, path.to_chr(), MIRC_BUFFER_SIZE_CCH);
 				}
 				delete [] p;
 				return;

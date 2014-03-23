@@ -193,7 +193,7 @@ void DcxToolBar::parseInfoRequest( const TString & input, PTCHAR szReturnValue )
 			LPDCXTBBUTTON lpdcxtbb = (LPDCXTBBUTTON) tbbi.lParam;
 
 			if ( lpdcxtbb != NULL )
-				lstrcpyn( szReturnValue, lpdcxtbb->bText.to_chr( ), MIRC_BUFFER_SIZE_CCH );
+				dcx_strcpyn( szReturnValue, lpdcxtbb->bText.to_chr( ), MIRC_BUFFER_SIZE_CCH );
 			return;
 		}
 	}
@@ -266,7 +266,7 @@ void DcxToolBar::parseInfoRequest( const TString & input, PTCHAR szReturnValue )
 			LPDCXTBBUTTON lpdcxtbb = (LPDCXTBBUTTON) tbbi.lParam;
 
 			if ( lpdcxtbb != NULL )
-				lstrcpyn( szReturnValue, lpdcxtbb->tsTipText.to_chr( ), MIRC_BUFFER_SIZE_CCH );
+				dcx_strcpyn( szReturnValue, lpdcxtbb->tsTipText.to_chr( ), MIRC_BUFFER_SIZE_CCH );
 			return;
 		}
 	}
@@ -1353,7 +1353,7 @@ LRESULT DcxToolBar::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 							LPDCXTBBUTTON lpdtbb = (LPDCXTBBUTTON) tcgit->lParam;
 
 							if (( lpdtbb != NULL ) && (tcgit->pszText != NULL))
-								lstrcpyn(tcgit->pszText,lpdtbb->tsTipText.to_chr(), tcgit->cchTextMax);
+								dcx_strcpyn(tcgit->pszText,lpdtbb->tsTipText.to_chr(), tcgit->cchTextMax);
 						}
 						bParsed = TRUE;
 					}

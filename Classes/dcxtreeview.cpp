@@ -237,7 +237,7 @@ void DcxTreeView::parseInfoRequest( const TString &input, TCHAR *szReturnValue) 
 		LPDCXTVITEM lpdcxtvi = (LPDCXTVITEM) tvi.lParam;
 
 		if (lpdcxtvi != NULL)
-			lstrcpyn(szReturnValue, lpdcxtvi->tsTipText.to_chr(), MIRC_BUFFER_SIZE_CCH);
+			dcx_strcpyn(szReturnValue, lpdcxtvi->tsTipText.to_chr(), MIRC_BUFFER_SIZE_CCH);
 
 		return;
 	}
@@ -253,7 +253,7 @@ void DcxTreeView::parseInfoRequest( const TString &input, TCHAR *szReturnValue) 
 		HTREEITEM hItem = TreeView_GetSelection(this->m_Hwnd);
 		const TString path(this->getPathFromItem(&hItem));
 
-		lstrcpyn(szReturnValue, path.to_chr(), MIRC_BUFFER_SIZE_CCH);
+		dcx_strcpyn(szReturnValue, path.to_chr(), MIRC_BUFFER_SIZE_CCH);
 		return;
 	}
 	// [NAME] [ID] [PROP] {TAB}[MATCHTEXT]{TAB} [T] [N] [SUBPATH]
@@ -294,7 +294,7 @@ void DcxTreeView::parseInfoRequest( const TString &input, TCHAR *szReturnValue) 
 
 		if (this->findItemText(&startingPoint, &result, &matchtext, n, &matchCount, searchType)) {
 			const TString path(this->getPathFromItem(&result));
-			lstrcpyn(szReturnValue, path.to_chr(), MIRC_BUFFER_SIZE_CCH);
+			dcx_strcpyn(szReturnValue, path.to_chr(), MIRC_BUFFER_SIZE_CCH);
 		}
 		else if (n == 0)
 			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), matchCount);
@@ -314,12 +314,18 @@ void DcxTreeView::parseInfoRequest( const TString &input, TCHAR *szReturnValue) 
 		if (this->isStyle(TVS_CHECKBOXES)) {
 			const int state = TreeView_GetCheckState(this->m_Hwnd, item);
 
-			if (state == 1)
-				lstrcpyn(szReturnValue, TEXT("2"), MIRC_BUFFER_SIZE_CCH);
-			else if (state == 0)
-				lstrcpyn(szReturnValue, TEXT("1"), MIRC_BUFFER_SIZE_CCH);
+			//if (state == 1)
+			//	dcx_strcpyn(szReturnValue, TEXT("2"), MIRC_BUFFER_SIZE_CCH)
+			//else if (state == 0)
+			//	dcx_strcpyn(szReturnValue, TEXT("1"), MIRC_BUFFER_SIZE_CCH)
+			//else
+			//	dcx_strcpyn(szReturnValue, TEXT("0"), MIRC_BUFFER_SIZE_CCH);
+
+			if (state == 1) {
+				dcx_strcpyn(szReturnValue, TEXT("2"), MIRC_BUFFER_SIZE_CCH);
+			}
 			else
-				lstrcpyn(szReturnValue, TEXT("0"), MIRC_BUFFER_SIZE_CCH);
+				dcx_ConChar(state == 0, szReturnValue);
 			return;
 		}
 		else {
@@ -358,11 +364,12 @@ void DcxTreeView::parseInfoRequest( const TString &input, TCHAR *szReturnValue) 
 			return;
 		}
 
-		if (TreeView_GetItemState(this->m_Hwnd, item, TVIS_EXPANDED) & TVIS_EXPANDED)
-			lstrcpyn(szReturnValue, TEXT("1"), MIRC_BUFFER_SIZE_CCH);
-		else
-			lstrcpyn(szReturnValue, TEXT("0"), MIRC_BUFFER_SIZE_CCH);
+		//if (TreeView_GetItemState(this->m_Hwnd, item, TVIS_EXPANDED) & TVIS_EXPANDED)
+		//	dcx_strcpyn(szReturnValue, TEXT("1"), MIRC_BUFFER_SIZE_CCH)
+		//else
+		//	dcx_strcpyn(szReturnValue, TEXT("0"), MIRC_BUFFER_SIZE_CCH);
 
+		dcx_ConChar(TreeView_GetItemState(this->m_Hwnd, item, TVIS_EXPANDED) & TVIS_EXPANDED, szReturnValue);
 		return;
 	}
 	// [NAME] [ID] [PROP]

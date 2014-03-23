@@ -165,7 +165,7 @@ protected:
 
 private:
 	DcxControl* CreatePbar(LPLVITEM lvi, const TString &style);
-	void ScrollPbars(const int row);
+	void ScrollPbars(const int row, const int nCols, const int iTop, const int iBottom, LPLVITEM lvi);
 	void UpdateScrollPbars(void);
 	HIMAGELIST initImageList(const int iImageList);
 	bool xmlLoadListview(const int nPos, const TString &dataset, TString &filename);
@@ -182,6 +182,7 @@ private:
 	HFONT m_hOldItemFont; // Font used for specific item changes.
 	int m_iSelectedItem;
 	int m_iSelectedSubItem;
+	bool m_bHasPBars;			// true if listview has pbars at all, if it does a slower update is used that check & moves pbars. (better system needed)
 };
 
 #endif // _DCXLISTVIEW_H_

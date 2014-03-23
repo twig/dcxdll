@@ -491,7 +491,8 @@ void XPopupMenuManager::parseIdentifier( const TString & input, TCHAR * szReturn
 	switch (nType) {
 	case 1: // ismenu
 		{
-			lstrcpyn( szReturnValue, ((p_Menu != NULL)?TEXT("$true"):TEXT("$false")), MIRC_BUFFER_SIZE_CCH );
+			//lstrcpyn( szReturnValue, ((p_Menu != NULL)?TEXT("$true"):TEXT("$false")), MIRC_BUFFER_SIZE_CCH );
+			dcx_Con(p_Menu != NULL, szReturnValue);
 		}
 		break;
 	case 2: // menuname
@@ -510,7 +511,7 @@ void XPopupMenuManager::parseIdentifier( const TString & input, TCHAR * szReturn
 				wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), (int) this->m_vpXPMenu.size());
 			// Return name of specified menu.
 			else
-				lstrcpyn(szReturnValue, this->m_vpXPMenu[i -1]->getName().to_chr(),MIRC_BUFFER_SIZE_CCH);
+				dcx_strcpyn(szReturnValue, this->m_vpXPMenu[i -1]->getName().to_chr(),MIRC_BUFFER_SIZE_CCH);
 		}
 		break;
 	case 3: // menubar
@@ -569,7 +570,7 @@ void XPopupMenuManager::parseIdentifier( const TString & input, TCHAR * szReturn
 			if ( iExStyles & XPS_ICON3DSHADOW )
 				styles += TEXT('p');
 
-			lstrcpyn( szReturnValue, styles.to_chr( ), MIRC_BUFFER_SIZE_CCH );
+			dcx_strcpyn( szReturnValue, styles.to_chr( ), MIRC_BUFFER_SIZE_CCH );
 		}
 		break;
 	case 6: // colors
@@ -593,7 +594,8 @@ void XPopupMenuManager::parseIdentifier( const TString & input, TCHAR * szReturn
 		break;
 	case 8: // isrounded
 		{
-			lstrcpyn( szReturnValue, ((p_Menu->IsRounded() ? TEXT("$true") : TEXT("$false"))), MIRC_BUFFER_SIZE_CCH);
+			//lstrcpyn( szReturnValue, ((p_Menu->IsRounded() ? TEXT("$true") : TEXT("$false"))), MIRC_BUFFER_SIZE_CCH);
+			dcx_Con(p_Menu->IsRounded(), szReturnValue);
 		}
 		break;
 	case 9: // alpha
@@ -603,7 +605,7 @@ void XPopupMenuManager::parseIdentifier( const TString & input, TCHAR * szReturn
 		break;
 	case 10: // marked
 		{
-			lstrcpyn(szReturnValue, p_Menu->getMarkedText().to_chr(), MIRC_BUFFER_SIZE_CCH);
+			dcx_strcpyn(szReturnValue, p_Menu->getMarkedText().to_chr(), MIRC_BUFFER_SIZE_CCH);
 		}
 		break;
 	case 0:

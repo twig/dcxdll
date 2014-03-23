@@ -33,14 +33,15 @@
 * \param styles Window Style Tokenized List
 */
 
-DcxListView::DcxListView( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, const TString & styles )
-: DcxControl( ID, p_Dialog )
+DcxListView::DcxListView(UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, const TString & styles)
+: DcxControl(ID, p_Dialog)
 , m_bDrag(false)
 , m_hItemFont(NULL)
 , m_hOldItemFont(NULL)
 , m_OrigEditProc(NULL)
 , m_iSelectedItem(0)
 , m_iSelectedSubItem(0)
+, m_bHasPBars(false)
 {
 	LONG Styles = 0, ExStyles = 0;
 	BOOL bNoTheme = FALSE;
@@ -348,7 +349,7 @@ void DcxListView::parseInfoRequest( const TString &input, PTCHAR szReturnValue) 
 		for (int i = 0; i < count; i++)
 			buff.addtok(val[i]);
 
-		lstrcpyn(szReturnValue, buff.trim().to_chr(), MIRC_BUFFER_SIZE_CCH);
+		dcx_strcpyn(szReturnValue, buff.trim().to_chr(), MIRC_BUFFER_SIZE_CCH);
 		delete [] val;
 		return;
 	}
@@ -390,7 +391,8 @@ void DcxListView::parseInfoRequest( const TString &input, PTCHAR szReturnValue) 
 		// In range
 		if ((nItem > 0) && (nItem < ListView_GetItemCount(this->m_Hwnd))) {
 			const BOOL selected = ListView_GetItemState(this->m_Hwnd, nItem -1, LVIS_SELECTED) & LVIS_SELECTED;
-			lstrcpyn(szReturnValue, (selected ? TEXT("$true") : TEXT("$false")), MIRC_BUFFER_SIZE_CCH);
+			//dcx_strcpyn(szReturnValue, (selected ? TEXT("$true") : TEXT("$false")), MIRC_BUFFER_SIZE_CCH);
+			dcx_Con(selected, szReturnValue);
 			return;
 		}
 	}
@@ -470,7 +472,7 @@ void DcxListView::parseInfoRequest( const TString &input, PTCHAR szReturnValue) 
 						list.addtok((nItem +1), TSCOMMA);
 				}
 
-				lstrcpyn(szReturnValue, list.to_chr(), MIRC_BUFFER_SIZE_CCH);
+				dcx_strcpyn(szReturnValue, list.to_chr(), MIRC_BUFFER_SIZE_CCH);
 			}
 			return;
 		}
@@ -492,12 +494,19 @@ void DcxListView::parseInfoRequest( const TString &input, PTCHAR szReturnValue) 
 
 				const unsigned int state = ListView_GetItemState( this->m_Hwnd, nItem, LVIS_STATEIMAGEMASK );
 
-				if ( state == 8192 )
-					lstrcpyn( szReturnValue, TEXT("2"), MIRC_BUFFER_SIZE_CCH );
-				else if ( state == 4096 )
-					lstrcpyn( szReturnValue, TEXT("1"), MIRC_BUFFER_SIZE_CCH );
+				//if (state == 8192) {
+				//	dcx_strcpyn(szReturnValue, TEXT("2"), MIRC_BUFFER_SIZE_CCH);
+				//}
+				//else if (state == 4096) {
+				//	dcx_strcpyn(szReturnValue, TEXT("1"), MIRC_BUFFER_SIZE_CCH);
+				//}
+				//else
+				//	dcx_strcpyn( szReturnValue, TEXT("0"), MIRC_BUFFER_SIZE_CCH );
+				if (state == 8192) {
+					dcx_strcpyn(szReturnValue, TEXT("2"), MIRC_BUFFER_SIZE_CCH);
+				}
 				else
-					lstrcpyn( szReturnValue, TEXT("0"), MIRC_BUFFER_SIZE_CCH );
+					dcx_ConChar(state == 4096, szReturnValue);
 			}
 			else
 				wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), ListView_GetItemState( this->m_Hwnd, nItem, LVIS_STATEIMAGEMASK ) );
@@ -625,7 +634,7 @@ void DcxListView::parseInfoRequest( const TString &input, PTCHAR szReturnValue) 
 		if ( lvh.flags & LVHT_ONITEM )
 			wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d"), lvh.iItem + 1, lvh.iSubItem +1 );
 		else
-			lstrcpyn( szReturnValue, TEXT("-1 -1"), MIRC_BUFFER_SIZE_CCH);
+			dcx_strcpyn( szReturnValue, TEXT("-1 -1"), MIRC_BUFFER_SIZE_CCH);
 
 		return;
 	}
@@ -647,7 +656,7 @@ void DcxListView::parseInfoRequest( const TString &input, PTCHAR szReturnValue) 
 			for (int i = 0; i < count; i++)
 				buff.addtok( ListView_GetColumnWidth(this->m_Hwnd, i) );
 
-			lstrcpyn(szReturnValue, buff.trim().to_chr(), MIRC_BUFFER_SIZE_CCH);
+			dcx_strcpyn(szReturnValue, buff.trim().to_chr(), MIRC_BUFFER_SIZE_CCH);
 			return;
 		}
 		else if (nColumn > -1 && nColumn < count) {
@@ -723,7 +732,7 @@ void DcxListView::parseInfoRequest( const TString &input, PTCHAR szReturnValue) 
 					if (hdr.fmt & HDF_SPLITBUTTON)
 						tsRes.addtok(TEXT("dropdown"));
 #endif
-					lstrcpyn(szReturnValue, tsRes.to_chr(), MIRC_BUFFER_SIZE_CCH);
+					dcx_strcpyn(szReturnValue, tsRes.to_chr(), MIRC_BUFFER_SIZE_CCH);
 					return;
 				}
 				else
@@ -749,17 +758,20 @@ void DcxListView::parseInfoRequest( const TString &input, PTCHAR szReturnValue) 
 		lvg.pszHeader = wstr;
 
 		if ( ListView_GetGroupInfo( this->m_Hwnd, GID, &lvg ) != -1 ) {
-			lstrcpyn(szReturnValue, lvg.pszHeader, MIRC_BUFFER_SIZE_CCH);
+			dcx_strcpyn(szReturnValue, lvg.pszHeader, MIRC_BUFFER_SIZE_CCH);
 			return;
 		}
 	}
 	// [NAME] [ID] [PROP] [N]
 	else if ( prop == TEXT("genabled") ) {
 
-		if ( ListView_IsGroupViewEnabled( this->m_Hwnd ) )
-			lstrcpyn( szReturnValue, TEXT("$true"), MIRC_BUFFER_SIZE_CCH );
-		else
-			lstrcpyn( szReturnValue, TEXT("$false"), MIRC_BUFFER_SIZE_CCH );
+		//if (ListView_IsGroupViewEnabled(this->m_Hwnd)) {
+		//	dcx_strcpyn(szReturnValue, TEXT("$true"), MIRC_BUFFER_SIZE_CCH);
+		//}
+		//else
+		//	dcx_strcpyn( szReturnValue, TEXT("$false"), MIRC_BUFFER_SIZE_CCH );
+
+		dcx_Con(ListView_IsGroupViewEnabled(this->m_Hwnd), szReturnValue);
 
 		return;
 	}
@@ -856,9 +868,12 @@ void DcxListView::parseInfoRequest( const TString &input, PTCHAR szReturnValue) 
 		lvi.iItem = nRow;
 		lvi.iSubItem = nCol;
 
-		ListView_GetItem(this->m_Hwnd, &lvi);
-		lstrcpyn(szReturnValue, ((LPDCXLVITEM) lvi.lParam)->tsMark.to_chr(), MIRC_BUFFER_SIZE_CCH);
-		return;
+		if (ListView_GetItem(this->m_Hwnd, &lvi)) {
+			dcx_strcpyn(szReturnValue, ((LPDCXLVITEM)lvi.lParam)->tsMark.to_chr(), MIRC_BUFFER_SIZE_CCH);
+			return;
+		}
+		else
+			this->showErrorEx(TEXT("markeditem"), NULL, TEXT("Unable to get item: %d %d"), nRow, nCol);
 	}
 	// [NAME] [ID] [PROP]
 	else if (prop == TEXT("emptytext")) {
@@ -891,7 +906,7 @@ void DcxListView::parseInfoRequest( const TString &input, PTCHAR szReturnValue) 
 			if ((iState & LVGS_SELECTED) == LVGS_SELECTED)
 				tsFlags += 'S';
 		}
-		lstrcpyn(szReturnValue, tsFlags.to_chr(), MIRC_BUFFER_SIZE_CCH);
+		dcx_strcpyn(szReturnValue, tsFlags.to_chr(), MIRC_BUFFER_SIZE_CCH);
 		return;
 	}
 	else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
@@ -2469,8 +2484,8 @@ int DcxListView::getTopIndex( ) const {
 
 	if ( ListView_GetItemCount( this->m_Hwnd) > 0 )
 		return ListView_GetTopIndex( this->m_Hwnd );
-	else
-		return -1;
+
+	return -1;
 }
 
 /*!
@@ -2592,46 +2607,48 @@ LRESULT DcxListView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 						{
 							bParsed = TRUE;
 
-							if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
-								LVHITTESTINFO lvh;
-								LPNMITEMACTIVATE nmia = (LPNMITEMACTIVATE)lParam;
-								lvh.pt = nmia->ptAction;
-								ListView_SubItemHitTest( this->m_Hwnd, &lvh );
-								DWORD lvexstyles = ListView_GetExtendedListViewStyle( this->m_Hwnd );
+							LVHITTESTINFO lvh;
+							LPNMITEMACTIVATE nmia = (LPNMITEMACTIVATE)lParam;
+							lvh.pt = nmia->ptAction;
 
-								if ( ( lvh.flags & LVHT_ONITEMSTATEICON ) && ( lvexstyles & LVS_EX_CHECKBOXES ) && !( lvh.flags & LVHT_ONITEMICON ) && !( lvh.flags & LVHT_ONITEMLABEL ) ) 
+							ListView_SubItemHitTest(this->m_Hwnd, &lvh);
+
+							const DWORD lvexstyles = ListView_GetExtendedListViewStyle(this->m_Hwnd);
+
+							if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
+
+								if ((lvh.flags & LVHT_ONITEMSTATEICON) && (lvexstyles & LVS_EX_CHECKBOXES) && !(lvh.flags & LVHT_ONITEMICON) && !(lvh.flags & LVHT_ONITEMLABEL))
 								{
 									//TODO: int state = ListView_GetCheckState(this->m_Hwnd, lvh.iItem);
-									this->execAliasEx(TEXT("%s,%d,%d,%d"), TEXT("stateclick"), this->getUserID( ), lvh.iItem + 1, lvh.iSubItem +1);
+									this->execAliasEx(TEXT("%s,%d,%d,%d"), TEXT("stateclick"), this->getUserID(), lvh.iItem + 1, lvh.iSubItem + 1);
 								}
-								else if ( lvh.flags & LVHT_ONITEM )
-									this->execAliasEx(TEXT("%s,%d,%d,%d"), TEXT("sclick"), this->getUserID( ), lvh.iItem + 1, lvh.iSubItem +1);
+								else if (lvh.flags & LVHT_ONITEM)
+									this->execAliasEx(TEXT("%s,%d,%d,%d"), TEXT("sclick"), this->getUserID(), lvh.iItem + 1, lvh.iSubItem + 1);
 								else if (lvh.flags & LVHT_NOWHERE)
 									this->execAliasEx(TEXT("%s,%d"), TEXT("sclick"), this->getUserID());
-
-//#if !defined(NDEBUG) || defined(DCX_DEV_BUILD)
-								if (!(lvexstyles & LVS_EX_FULLROWSELECT))
-								{ // make subitem show as selected. TEST CODE!!!!
-									LVITEM lvi = { 0 };
-									// deselect previous
-									lvi.iItem = this->m_iSelectedItem;
-									lvi.iSubItem = this->m_iSelectedSubItem;
-									lvi.mask = LVIF_STATE;
-									lvi.state = 0;
-									lvi.stateMask = LVIS_SELECTED;
-									ListView_SetItem(this->m_Hwnd, &lvi);
-									// select new
-									this->m_iSelectedItem = lvh.iItem;
-									this->m_iSelectedSubItem = lvh.iSubItem;
-									lvi.iItem = lvh.iItem;
-									lvi.iSubItem = lvh.iSubItem;
-									lvi.mask = LVIF_STATE;
-									lvi.state = LVIS_SELECTED;
-									lvi.stateMask = LVIS_SELECTED;
-									ListView_SetItem(this->m_Hwnd, &lvi);
-								}
-//#endif
 							}
+//#if !defined(NDEBUG) || defined(DCX_DEV_BUILD)
+							if (!(lvexstyles & LVS_EX_FULLROWSELECT))
+							{ // make subitem show as selected. TEST CODE!!!!
+								LVITEM lvi = { 0 };
+								// deselect previous
+								lvi.iItem = this->m_iSelectedItem;
+								lvi.iSubItem = this->m_iSelectedSubItem;
+								lvi.mask = LVIF_STATE;
+								lvi.state = 0;
+								lvi.stateMask = LVIS_SELECTED;
+								ListView_SetItem(this->m_Hwnd, &lvi);
+								// select new
+								this->m_iSelectedItem = lvh.iItem;
+								this->m_iSelectedSubItem = lvh.iSubItem;
+								lvi.iItem = lvh.iItem;
+								lvi.iSubItem = lvh.iSubItem;
+								lvi.mask = LVIF_STATE;
+								lvi.state = LVIS_SELECTED;
+								lvi.stateMask = LVIS_SELECTED;
+								ListView_SetItem(this->m_Hwnd, &lvi);
+							}
+//#endif
 						}
 						break;
 
@@ -2753,6 +2770,12 @@ LRESULT DcxListView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 							const LPNMLVCUSTOMDRAW lplvcd = (LPNMLVCUSTOMDRAW) lParam;
 							bParsed = TRUE;
 
+							if (lplvcd == NULL)
+								return CDRF_DODEFAULT;
+
+							//if (!ListView_IsItemVisible(this->m_Hwnd, lplvcd->nmcd.dwItemSpec))
+							//	return CDRF_DODEFAULT;
+
 							switch( lplvcd->nmcd.dwDrawStage ) {
 								case CDDS_PREPAINT:
 									return ( CDRF_NOTIFYITEMDRAW | CDRF_NOTIFYSUBITEMDRAW | CDRF_NOTIFYPOSTPAINT );
@@ -2767,38 +2790,40 @@ LRESULT DcxListView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 										if ( lpdcxlvi == NULL )
 											return CDRF_DODEFAULT;
 
-										if ((UINT)lplvcd->iSubItem >= lpdcxlvi->vInfo.size())
-											return CDRF_DODEFAULT;
+										if (lpdcxlvi->pbar == NULL) {
+											if ((UINT)lplvcd->iSubItem >= lpdcxlvi->vInfo.size())
+												return CDRF_DODEFAULT;
 
-										LPDCXLVRENDERINFO ri = lpdcxlvi->vInfo[lplvcd->iSubItem];
-										if ( ri->m_cText != CLR_INVALID )
-											lplvcd->clrText = ri->m_cText;
+											LPDCXLVRENDERINFO ri = lpdcxlvi->vInfo[lplvcd->iSubItem];
+											if (ri->m_cText != CLR_INVALID)
+												lplvcd->clrText = ri->m_cText;
 
-										if ( ri->m_cBg != CLR_INVALID )
-											lplvcd->clrTextBk = ri->m_cBg;
-										//if (lplvcd->nmcd.uItemState & CDIS_SELECTED)
-										//if (lplvcd->nmcd.uItemState & CDIS_FOCUS)
-										//	lplvcd->clrTextBk = RGB(255,0,0);
-										//else if ( ri->m_cBg != -1 )
-										//	lplvcd->clrTextBk = ri->m_cBg;
-										//lplvcd->clrFace = RGB(0,255,0);
+											if (ri->m_cBg != CLR_INVALID)
+												lplvcd->clrTextBk = ri->m_cBg;
+											//if (lplvcd->nmcd.uItemState & CDIS_SELECTED)
+											//if (lplvcd->nmcd.uItemState & CDIS_FOCUS)
+											//	lplvcd->clrTextBk = RGB(255,0,0);
+											//else if ( ri->m_cBg != -1 )
+											//	lplvcd->clrTextBk = ri->m_cBg;
+											//lplvcd->clrFace = RGB(0,255,0);
 
-										if (ri->m_dFlags & LVIS_UNDERLINE || ri->m_dFlags & LVIS_BOLD || ri->m_dFlags & LVIS_ITALIC) {
-											const HFONT hFont = GetWindowFont(this->m_Hwnd);
-											LOGFONT lf;
+											if (ri->m_dFlags & LVIS_UNDERLINE || ri->m_dFlags & LVIS_BOLD || ri->m_dFlags & LVIS_ITALIC) {
+												const HFONT hFont = GetWindowFont(this->m_Hwnd);
+												LOGFONT lf;
 
-											GetObject(hFont, sizeof(LOGFONT), &lf);
+												GetObject(hFont, sizeof(LOGFONT), &lf);
 
-											if (ri->m_dFlags & LVIS_BOLD)
-												lf.lfWeight |= FW_BOLD;
-											if (ri->m_dFlags & LVIS_UNDERLINE)
-												lf.lfUnderline = true;
-											if (ri->m_dFlags & LVIS_ITALIC)
-												lf.lfItalic = true;
+												if (ri->m_dFlags & LVIS_BOLD)
+													lf.lfWeight |= FW_BOLD;
+												if (ri->m_dFlags & LVIS_UNDERLINE)
+													lf.lfUnderline = true;
+												if (ri->m_dFlags & LVIS_ITALIC)
+													lf.lfItalic = true;
 
-											this->m_hItemFont = CreateFontIndirect( &lf );
-											if (this->m_hItemFont != NULL)
-												this->m_hOldItemFont = SelectFont( lplvcd->nmcd.hdc, this->m_hItemFont );
+												this->m_hItemFont = CreateFontIndirect(&lf);
+												if (this->m_hItemFont != NULL)
+													this->m_hOldItemFont = SelectFont(lplvcd->nmcd.hdc, this->m_hItemFont);
+											}
 										}
 
 										// NB: CDRF_NOTIFYPOSTPAINT required to get the post paint message.
@@ -2811,23 +2836,23 @@ LRESULT DcxListView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 										//LVITEM lvi;
 										//ZeroMemory(&lvi, sizeof(LVITEM));
 										//HIMAGELIST himl = this->getImageList(LVSIL_SMALL);
-
+										//
 										//lvi.mask = LVIF_IMAGE|LVIF_STATE|LVIF_TEXT;
 										//lvi.pszText = tsText.to_chr();
 										//lvi.cchTextMax = 1023;
 										//lvi.iItem = lplvcd->nmcd.dwItemSpec;
 										//lvi.iSubItem = lplvcd->iSubItem;
-
+										//
 										//ListView_GetItem(this->m_Hwnd, &lvi);
-
+										//
 										//ListView_GetSubItemRect(this->m_Hwnd, lplvcd->nmcd.dwItemSpec, lplvcd->iSubItem, LVIR_BOUNDS, &rcBounds);
 										//ListView_GetSubItemRect(this->m_Hwnd, lplvcd->nmcd.dwItemSpec, lplvcd->iSubItem, LVIR_ICON, &rcIcon);
-
+										//
 										//rcText = rcBounds;
 										//rcText.left = rcIcon.right + 1;
-
+										//
 										//DrawTextW(lplvcd->nmcd.hdc, tsText.to_wchr(this->m_bUseUTF8), tsText.wlen(), &rcText, style | DT_CALCRECT);
-
+										//
 										//if (lplvcd->nmcd.uItemState & CDIS_SELECTED) {
 										//	// fill background with selected colour.
 										//	FillRect(lplvcd->nmcd.hdc, &rcBounds, GetSysColorBrush(COLOR_HIGHLIGHT));
@@ -2840,11 +2865,11 @@ LRESULT DcxListView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 										//	// set text colour.
 										//	clrText = SetTextColor(lplvcd->nmcd.hdc, lplvcd->clrText);
 										//}
-
+										//
 										//if ((himl != NULL) && (lvi.iImage > -1)) {
 										//	ImageList_Draw(himl, lvi.iImage, lplvcd->nmcd.hdc, rcIcon.left, rcIcon.top, ILD_TRANSPARENT);
 										//}
-
+										//
 										//if (!this->m_bCtrlCodeText) {
 										//	if (this->m_bShadowText)
 										//		dcxDrawShadowText(lplvcd->nmcd.hdc, tsText.to_wchr(this->m_bUseUTF8), tsText.wlen(), &rcText, style, lplvcd->clrText, 0, 5, 5);
@@ -2853,10 +2878,10 @@ LRESULT DcxListView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 										//}
 										//else
 										//	mIRC_DrawText(lplvcd->nmcd.hdc, tsText, &rcText, style, this->m_bShadowText, this->m_bUseUTF8);
-
+										//
 										//if (clrText != CLR_INVALID)
 										//	SetTextColor(lplvcd->nmcd.hdc, clrText);
-
+										//
 										//// NB: CDRF_NOTIFYPOSTPAINT required to get the post paint message.
 										//return ( CDRF_NEWFONT|CDRF_NOTIFYPOSTPAINT|CDRF_SKIPDEFAULT );
 									}
@@ -2864,23 +2889,55 @@ LRESULT DcxListView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 
 								case CDDS_ITEMPOSTPAINT | CDDS_SUBITEM:
 									{
-										if (this->m_hOldItemFont != NULL) {
-											SelectFont( lplvcd->nmcd.hdc, this->m_hOldItemFont);
-											this->m_hOldItemFont = NULL;
+										LPDCXLVITEM lpdcxlvi = (LPDCXLVITEM)lplvcd->nmcd.lItemlParam;
+
+										if (lpdcxlvi == NULL)
+											return CDRF_DODEFAULT;
+
+										if (lpdcxlvi->pbar == NULL) {
+											if (this->m_hOldItemFont != NULL) {
+												SelectFont(lplvcd->nmcd.hdc, this->m_hOldItemFont);
+												this->m_hOldItemFont = NULL;
+											}
+											if (this->m_hItemFont != NULL) {
+												DeleteFont(this->m_hItemFont);
+												this->m_hItemFont = NULL;
+											}
 										}
-										if (this->m_hItemFont != NULL) {
-											DeleteFont(this->m_hItemFont);
-											this->m_hItemFont = NULL;
-										}
+										//else if (lpdcxlvi->iPbarCol == lplvcd->iSubItem) {
+
+										//	//this->isListViewStyle(LVS_REPORT)
+										//	HWND pbarHwnd = lpdcxlvi->pbar->getHwnd();
+
+										//	ShowWindow(pbarHwnd, SW_SHOW);
+
+										//	RECT rItem, rcWin;
+
+										//	CopyRect(&rItem, &lplvcd->nmcd.rc);
+
+										//	// show borders correctly
+										//	rItem.bottom--;
+										//	rItem.top++;
+										//	rItem.left++;
+										//	rItem.right--;
+
+										//	GetWindowRect(pbarHwnd, &rcWin);
+										//	MapWindowRect(NULL, this->m_Hwnd, &rcWin);
+										//	if (!EqualRect(&rcWin, &rItem)) {
+										//		MoveWindow(pbarHwnd, rItem.left, rItem.top, (rItem.right - rItem.left), (rItem.bottom - rItem.top), FALSE);
+										//		InvalidateRect(pbarHwnd, NULL, TRUE);
+										//	}
+										//}
 										return CDRF_DODEFAULT;
 									}
 
 								case CDDS_POSTPAINT:
-									// update the pbar positions
-									//this->ScrollPbars((int) lplvcd->nmcd.dwItemSpec);
-									this->UpdateScrollPbars();
-									return CDRF_DODEFAULT;
-
+									{
+										// update the pbar positions
+										//this->ScrollPbars((int)lplvcd->nmcd.dwItemSpec);
+										// NB: This method updates all progress bars each time ANY item is drawn, to do this it itterates ALL items!! This is VERY slow!
+										this->UpdateScrollPbars();
+									}
 								default:
 									return CDRF_DODEFAULT;
 							}
@@ -3235,11 +3292,30 @@ LRESULT DcxListView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
 				//		lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 				//	}
 				//	else {
-				if (LOWORD(wParam) == SB_ENDSCROLL)
-					this->execAliasEx(TEXT("%s,%d"), TEXT("scrollend"), this->getUserID());
 
+			   if (LOWORD(wParam) == SB_ENDSCROLL)
+				   this->execAliasEx(TEXT("%s,%d"), TEXT("scrollend"), this->getUserID());
+
+			   //UINT sbAction = LOWORD(wParam);
+
+			   //switch (sbAction) {
+			   //case SB_ENDSCROLL:
+				  // this->execAliasEx(TEXT("%s,%d"), TEXT("scrollend"), this->getUserID());
+			   //case SB_PAGEUP:
+			   //case SB_PAGEDOWN:
+				  // this->UpdateScrollPbars();
+				  // break;
+			   ////default:
+				  //// int iTop = this->getTopIndex() - 1;
+				  //// int iBottom = this->getBottomIndex() + 1;
+				  //// if (iTop >= 0)
+					 ////  ScrollPbars(iTop);
+				  //// if ((iBottom >= 0) && (iTop != iBottom))
+					 ////  ScrollPbars(iBottom);
+			   //}
 				if (ListView_GetExtendedListViewStyle(this->m_Hwnd) & LVS_EX_GRIDLINES)
 					this->redrawWindow();
+
 				//	}
 				//}
 				break;
@@ -3329,7 +3405,7 @@ DcxControl* DcxListView::CreatePbar(LPLVITEM lvi, const TString &styles) {
 
 	lpdcxlvi->iPbarCol = lvi->iSubItem;
 	// controls within a listview have a problem in that they cant set an item height,
-	// so they all appear very small, & dont look very good.
+	// so they all appear very small, & dont look very good. (this can maybe be solved within NM_CUSTOMDRAW prepaint stage)
 	//UINT ID = mIRC_ID_OFFSET + styles.gettok( 1 ).to_int();
 	//if ( ID > mIRC_ID_OFFSET - 1 && 
 	//	!IsWindow( GetDlgItem( this->m_pParentDialog->getHwnd( ), ID ) ) && 
@@ -3340,40 +3416,53 @@ DcxControl* DcxListView::CreatePbar(LPLVITEM lvi, const TString &styles) {
 	//	lpdcxlvi->pbar = DcxControl::controlFactory(this->m_pParentDialog,ID,ctrl_args,1,-1,this->m_Hwnd);
 	//}
 	try {
-		//lpdcxlvi->pbar = (DcxControl *)new DcxProgressBar(this->getID(), this->m_pParentDialog, this->m_Hwnd, &rItem, const_cast<TString &>(styles));
 		lpdcxlvi->pbar = (DcxControl *)new DcxProgressBar(this->getID(), this->m_pParentDialog, this->m_Hwnd, &rItem, styles);
 	}
 	catch ( TCHAR *err ) {
 		this->showErrorEx(NULL, TEXT("-a"), TEXT("Unable To Create ProgressBar: %s"), err);
 	}
+
+	if (lpdcxlvi->pbar != NULL)
+		this->m_bHasPBars = true;
+
 	return lpdcxlvi->pbar;
 }
 
 
 void DcxListView::UpdateScrollPbars(void) {
-	for (int row = 0; row < ListView_GetItemCount(this->m_Hwnd); row++) {
-		this->ScrollPbars(row);
+
+	if (!this->m_bHasPBars)
+		return;
+
+	const int nCount = ListView_GetItemCount(this->m_Hwnd);
+	const int nCols = this->getColumnCount();
+	const int iTop = this->getTopIndex();
+	const int iBottom = this->getBottomIndex() + 1;
+
+	LPLVITEM lvi = new LVITEM;
+
+	//if (lvi == NULL)
+	//	return;
+
+	ZeroMemory(lvi, sizeof(LVITEM));
+
+	for (int row = 0; row < nCount; row++) {
+		this->ScrollPbars(row, nCols, iTop, iBottom, lvi);
 	}
+	delete lvi;
 }
 
 // BUG: when listview has horiz scrollbars pbar will be moved oddly when listview is scrolled horiz.
 //			pbars are positioned relative to visible area of control & as such arn't scrolled.
-void DcxListView::ScrollPbars(const int row) {
-	LPLVITEM lvi = new LVITEM;
-
-	if (lvi == NULL)
-		return;
-
-	ZeroMemory(lvi, sizeof(LVITEM));
-
-	const int nCols = this->getColumnCount();
+void DcxListView::ScrollPbars(const int row, const int nCols, const int iTop, const int iBottom, LPLVITEM lvi) {
 
 	for (int col = 0; col < nCols; col++) {
 		lvi->iItem = row;
 		lvi->iSubItem = col;
 		lvi->mask = LVIF_PARAM;
 
-		ListView_GetItem(this->m_Hwnd, lvi);
+		if (!ListView_GetItem(this->m_Hwnd, lvi))
+			continue;
 
 		if (!lvi->lParam)
 			continue;
@@ -3384,14 +3473,14 @@ void DcxListView::ScrollPbars(const int row) {
 			continue;
 
 		// isnt the right column to move it to
-		if (lpdcxlvi->iPbarCol != col) {
+		if (lpdcxlvi->iPbarCol != col)
 			continue;
-		}
 
 		RECT rItem;
 
 		// hide it if its scrolled off visible range
-		if ((lvi->iItem < this->getTopIndex()) || (lvi->iItem > this->getBottomIndex() +1)) {
+		//if (!ListView_IsItemVisible(this->m_Hwnd, lvi->iItem)) {
+		if ((lvi->iItem < iTop) || (lvi->iItem > iBottom)) {
 			ShowWindow(lpdcxlvi->pbar->getHwnd(), SW_HIDE);
 			break;
 		}
@@ -3421,8 +3510,6 @@ void DcxListView::ScrollPbars(const int row) {
 		}
 		break;
 	}
-
-	delete lvi;
 }
 
 /*
@@ -3831,8 +3918,8 @@ void DcxListView::massSetItem(const int nPos, const TString &input)
 
 	LPDCXLVITEM lpmylvi = new DCXLVITEM;
 
-	if (lpmylvi == NULL)
-		return;
+	//if (lpmylvi == NULL)
+	//	return;
 
 	lpmylvi->iPbarCol = 0;
 	lpmylvi->pbar = NULL;
@@ -3840,10 +3927,10 @@ void DcxListView::massSetItem(const int nPos, const TString &input)
 
 	LPDCXLVRENDERINFO ri = new DCXLVRENDERINFO;
 
-	if (ri == NULL) {
-		delete lpmylvi;
-		return;
-	}
+	//if (ri == NULL) {
+	//	delete lpmylvi;
+	//	return;
+	//}
 
 	// setup colum zero
 	ri->m_dFlags = stateFlags;

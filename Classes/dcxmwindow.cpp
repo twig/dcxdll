@@ -106,7 +106,7 @@ void DcxMWindow::parseInfoRequest( const TString & input, PTCHAR szReturnValue )
 
 	// [NAME] [ID] [PROP]
 	if (input.gettok( 3 ) == TEXT("wname")) {
-		lstrcpyn(szReturnValue, this->m_OrigName.to_chr(), MIRC_BUFFER_SIZE_CCH);
+		dcx_strcpyn(szReturnValue, this->m_OrigName.to_chr(), MIRC_BUFFER_SIZE_CCH);
 		return;
 	}
 	else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )

@@ -301,7 +301,7 @@ bool DcxTrayIcon::modifyIcon(const int id, DWORD msg, HICON icon, TString *toolt
 	if (tooltip != NULL && tooltip->len() > 0) {
 		nid.uFlags |= NIF_TIP;
 		//wnsprintf(nid.szTip, 128, TEXT("%s"), tooltip->to_chr());
-		lstrcpyn(nid.szTip, tooltip->to_chr(), 128); // 128 max
+		dcx_strcpyn(nid.szTip, tooltip->to_chr(), 128); // 128 max
 	}
 
 	if (icon != NULL) {

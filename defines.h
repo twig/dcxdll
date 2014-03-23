@@ -178,7 +178,7 @@ http://symbiancorner.blogspot.com/2007/05/how-to-detect-version-of-ms-visual.htm
 // --------------------------------------------------
 #define DLL_VERSION    GIT_DESCRIBE
 #define DLL_BUILD      GIT_HASH
-#define DLL_DEV_BUILD  24
+#define DLL_DEV_BUILD  26
 
 #ifdef NDEBUG
 #ifdef DCX_DEV_BUILD
@@ -455,19 +455,21 @@ typedef std::vector<int> VectorOfInts; //<! Vector of int
 #endif
 #endif
 
-#define dcx_Con(x,y) { \
-	TCHAR *p; if ((x)) p = lstrcpyn((y), TEXT("$true"), MIRC_BUFFER_SIZE_CCH); else p = lstrcpyn((y), TEXT("$false"), MIRC_BUFFER_SIZE_CCH); \
-	if (p == NULL) (y)[0] = 0; \
-}
+#define dcx_strcpyn(x, y, z) { if (lstrcpyn((x), (y), (z)) == NULL) (x)[0] = 0; }
+
+#define dcx_Con(x,y) dcx_strcpyn((y), (((x)) ? TEXT("$true") : TEXT("$false")), MIRC_BUFFER_SIZE_CCH);
+
 #define dcx_ConRet(x,y) { \
-	TCHAR *p; if ((x)) p = lstrcpyn((y), TEXT("$true"), MIRC_BUFFER_SIZE_CCH); else p = lstrcpyn((y), TEXT("$false"), MIRC_BUFFER_SIZE_CCH); \
-	if (p != NULL) return; \
+	if (lstrcpyn((y), (((x)) ? TEXT("$true") : TEXT("$false")), MIRC_BUFFER_SIZE_CCH) != NULL) return; \
 }
 #define dcx_ConRetState(x,y) { \
-	TCHAR *p; if ((x)) p = lstrcpyn((y), TEXT("$true"), MIRC_BUFFER_SIZE_CCH); else p = lstrcpyn((y), TEXT("$false"), MIRC_BUFFER_SIZE_CCH); \
-	if (p != NULL) return TRUE; \
+	if (lstrcpyn((y), (((x)) ? TEXT("$true") : TEXT("$false")), MIRC_BUFFER_SIZE_CCH) != NULL) return TRUE; \
 }
-#define dcx_strcpyn(x, y, z) if (lstrcpyn((x), (y), (z)) == NULL) (x)[0] = 0;
+#define dcx_ConChar(x,y) { \
+	if ((x)) (y)[0] = TEXT('1'); \
+	else (y)[0] = TEXT('0'); \
+	(y)[1] = 0; \
+}
 
 // --------------------------------------------------
 // DLL routines
