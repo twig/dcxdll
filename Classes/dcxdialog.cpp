@@ -1251,7 +1251,7 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 		if (xpFlags[TEXT('M')])
 			mask |= DCX_EVENT_MOVE;
 
-		if (xpFlags[TEXT('c')])
+		if (xnFlags[TEXT('c')])
 			mask &= ~DCX_EVENT_CLICK;
 		if (xnFlags[TEXT('d')])
 			mask &= ~DCX_EVENT_DRAG;
