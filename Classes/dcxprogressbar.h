@@ -59,7 +59,7 @@ public:
 
 protected:
 
-	COLORREF m_clrText;       //!< Caption Text Color
+	//COLORREF m_clrText;       //!< Caption Text Color
 	TString m_tsText;         //!< Caption Text
 	BOOL m_bIsAbsoluteValue;  //!< Caption Numerical Placeholder Format
 	HFONT m_hfontVertical;

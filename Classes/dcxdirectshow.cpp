@@ -1002,7 +1002,7 @@ HRESULT DcxDirectshow::setAlpha(float alpha)
 	pVmr->Release();
 	return hr;
 }
-HRESULT DcxDirectshow::setVideo(const TString flags, const float brightness, const float contrast, const float hue, const float saturation)
+HRESULT DcxDirectshow::setVideo(const TString &flags, const float brightness, const float contrast, const float hue, const float saturation)
 {
 	IBaseFilter* pVmr = NULL; 
 

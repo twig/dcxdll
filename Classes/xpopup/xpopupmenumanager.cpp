@@ -26,7 +26,14 @@ WNDPROC XPopupMenuManager::g_OldmIRCMenusWindowProc = NULL;
  */
 
 XPopupMenuManager::XPopupMenuManager()
-//: m_bPatched(false)
+: m_mIRCPopupMenu(NULL)
+, m_mIRCMenuBar(NULL)
+, m_bIsActiveMircMenubarPopup(false)
+, m_bIsActiveMircPopup(false)
+, m_bIsMenuBar(false)
+, m_bIsSysMenu(false)
+, m_hMenuCustom(NULL)
+, m_hMenuOwner(NULL)
 {
 }
 

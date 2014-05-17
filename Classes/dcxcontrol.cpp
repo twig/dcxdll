@@ -92,6 +92,7 @@ DcxControl::DcxControl( const UINT mID, DcxDialog * p_Dialog )
 , m_clrEndGradient(CLR_INVALID)
 , m_bGradientVertical(FALSE)
 , m_ToolTipHWND(NULL)
+, m_colTransparentBg(CLR_INVALID)
 {
 	this->m_dEventMask = p_Dialog->getEventMask();
 #if DCX_USE_C11
@@ -1109,11 +1110,19 @@ DcxControl * DcxControl::controlFactory( DcxDialog * p_Dialog, const UINT mID, c
 
 	else if (( type == TEXT("window") ) && (mask & CTLF_ALLOW_DOCK)) {
 		if ( tsInput.numtok( ) > offset ) {
-			HWND winHwnd = (HWND)tsInput.gettok( offset +1 ).to_num();
+			const TString tsWin(tsInput.gettok(offset + 1));
+
+			if (tsWin.len() < 2) {
+				// this helps stop '@' being passed as $window(@).hwnd == $window(-2).hwnd & usually causes a crash.
+				Dcx::errorex(TEXT("ControlFactory"), TEXT("Docking (No such window %s)"), tsWin.to_chr());
+				throw TEXT("No such window");
+			}
+
+			HWND winHwnd = (HWND)tsWin.to_num();
 			if (!IsWindow(winHwnd)) {
 				TCHAR windowHwnd[30];
 
-				Dcx::mIRC.evalex(windowHwnd, 30, TEXT("$window(%s).hwnd"), tsInput.gettok( offset +1 ).to_chr( ) );
+				Dcx::mIRC.evalex(windowHwnd, 30, TEXT("$window(%s).hwnd"), tsWin.to_chr( ) );
 
 				winHwnd = (HWND) dcx_atoi( windowHwnd );
 			}
@@ -1123,7 +1132,7 @@ DcxControl * DcxControl::controlFactory( DcxDialog * p_Dialog, const UINT mID, c
 					return new DcxMWindow(winHwnd, hParent, mID, p_Dialog, &rc, styles);
 			}
 			else {
-				Dcx::errorex(TEXT("ControlFactory"), TEXT("Docking (No such window %s)"), tsInput.gettok( offset +1 ).to_chr());
+				Dcx::errorex(TEXT("ControlFactory"), TEXT("Docking (No such window %s)"), tsWin.to_chr());
 				throw TEXT("No such window");
 			}
 		}

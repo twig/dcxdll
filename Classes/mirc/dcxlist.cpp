@@ -1048,7 +1048,7 @@ BOOL DcxList::matchItemText( const int nItem, const TString * search, const UINT
 	delete [] itemtext;
 	return bRes;
 }
-void DcxList::getItemRange(const TString tsItems, const int nItemCnt, int *iStart_range, int *iEnd_range)
+void DcxList::getItemRange(const TString &tsItems, const int nItemCnt, int *iStart_range, int *iEnd_range)
 {
 	int iStart, iEnd;
 	if (tsItems.numtok(TEXT("-")) == 2) {

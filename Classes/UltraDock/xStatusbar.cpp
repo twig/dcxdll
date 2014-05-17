@@ -85,7 +85,7 @@ mIRC(xstatusbar) {
 				const UINT nParts = numtok - 1;
 				INT parts[256];
 
-				int c = 0, t = 0;
+				int c = 0;
 				TString p;
 				for (UINT i = 0; i < nParts; i++ )
 				{
@@ -96,7 +96,7 @@ mIRC(xstatusbar) {
 
 					p = input.gettok( i+2 );
 
-					t = p.to_int();
+					const int t = p.to_int();
 
 					if (p.right( 1 ) == TEXT("%")) {
 						DcxDock::g_iDynamicParts[i] = t;

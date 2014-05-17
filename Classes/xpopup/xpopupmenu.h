@@ -108,7 +108,7 @@ public:
 	static const int XPMC_TEXT = 10;
 	static const int XPMC_SELECTEDTEXT = 11;
 
-	XPopupMenu( const TString tsName, HMENU hMenu );
+	XPopupMenu( const TString &tsName, HMENU hMenu );
 	XPopupMenu( const TString & tsMenuName, MenuStyle mStyle );
 	virtual ~XPopupMenu( );
 

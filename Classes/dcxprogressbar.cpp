@@ -27,7 +27,7 @@
 
 DcxProgressBar::DcxProgressBar( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, const TString & styles )
 : DcxControl( ID, p_Dialog ) 
-, m_clrText(0)
+//, m_clrText(0)
 , m_bIsAbsoluteValue(FALSE)
 , m_hfontVertical(NULL)
 , m_bIsGrad(FALSE)
@@ -527,8 +527,11 @@ void DcxProgressBar::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 		CallWindowProc(this->m_DefaultWindowProc, this->m_Hwnd, uMsg, (WPARAM) hdc, lParam);
 
 	if (this->m_tsText.len() > 0) {
-		int oldMode = SetBkMode(hdc, TRANSPARENT);
-		COLORREF oldColour = SetTextColor(hdc, this->m_clrText);
+		const int oldMode = SetBkMode(hdc, TRANSPARENT);
+		COLORREF oldColour = CLR_INVALID;
+
+		if (this->m_clrText != CLR_INVALID)
+			oldColour = SetTextColor(hdc, this->m_clrText);
 
 		// rect for control
 		//RECT rc;
@@ -577,7 +580,8 @@ void DcxProgressBar::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 
 		if (oldfont != NULL)
 			SelectFont(hdc, oldfont);
-		SetTextColor(hdc, oldColour);
+		if (oldColour != CLR_INVALID)
+			SetTextColor(hdc, oldColour);
 		SetBkMode(hdc, oldMode);
 	}
 

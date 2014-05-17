@@ -271,7 +271,8 @@ LRESULT DcxDivider::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 				break;
 
 			if (IsWindow(hdr->hwndFrom)) {
-				DcxControl *c_this = (DcxControl *) GetProp(hdr->hwndFrom,TEXT("dcx_cthis"));
+				DcxControl *c_this = (DcxControl *)GetProp(hdr->hwndFrom, TEXT("dcx_cthis"));
+				//DcxControl *c_this = static_cast<DcxControl *>(GetProp(hdr->hwndFrom, TEXT("dcx_cthis")));
 				if (c_this != NULL)
 					lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 			}
@@ -284,6 +285,7 @@ LRESULT DcxDivider::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 		{
 			if (IsWindow((HWND) lParam)) {
 				DcxControl *c_this = (DcxControl *) GetProp((HWND) lParam,TEXT("dcx_cthis"));
+				//DcxControl *c_this = static_cast<DcxControl *>(GetProp((HWND)lParam, TEXT("dcx_cthis")));
 				if (c_this != NULL)
 					lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 			}

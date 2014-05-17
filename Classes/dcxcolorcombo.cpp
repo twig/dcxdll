@@ -222,19 +222,18 @@ void DcxColorCombo::setmIRCPalette( ) {
 	TString cols;
 	Dcx::mIRC.tsEval( cols, com );
 
-	LPDCXCCOMBOITEM lpdcxcci;
 
 	const UINT len = cols.numtok( );
 
 	for (UINT i = 1; i <= len; i++ )
 	{
-		lpdcxcci = new DCXCCOMBOITEM;
+		LPDCXCCOMBOITEM lpdcxcci = new DCXCCOMBOITEM;
 
-		if (lpdcxcci != NULL) {
+		//if (lpdcxcci != NULL) {
 			lpdcxcci->clrItem = (COLORREF) cols.gettok( i ).to_num( );
 			//lpmycci->itemtext = "";
 			this->insertItem( -1, (LPARAM) lpdcxcci );
-		}
+		//}
 	}
 }
 

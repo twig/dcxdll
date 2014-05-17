@@ -1996,7 +1996,7 @@ void DcxListView::parseCommandRequest( const TString &input) {
 		this->parseGlobalCommandRequest(input, flags);
 }
 
-void DcxListView::setHeaderStyle(HWND h, const int nCol, const TString info)
+void DcxListView::setHeaderStyle(HWND h, const int nCol, const TString &info)
 {
 	HDITEM hdr = {0};
 	hdr.mask = HDI_FORMAT;
@@ -4138,7 +4138,7 @@ void DcxListView::parseText2Item(const TString &tsTxt, TString &tsItem, const TS
 	}
 }
 
-void DcxListView::getItemRange(const TString tsItems, const int nItemCnt, int *iStart_range, int *iEnd_range)
+void DcxListView::getItemRange(const TString &tsItems, const int nItemCnt, int *iStart_range, int *iEnd_range)
 {
 	int iStart, iEnd;
 	if (tsItems.numtok(TEXT("-")) == 2) {

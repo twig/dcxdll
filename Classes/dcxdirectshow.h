@@ -58,7 +58,7 @@ protected:
 	enum Properties { PROP_AUTHOR = 0, PROP_TITLE, PROP_RATING, PROP_DESCRIPTION };
 	HRESULT getProperty(TCHAR *prop, const int type) const;
 	HRESULT setAlpha(float alpha);
-	HRESULT setVideo(const TString flags, const float brightness, const float contrast, const float hue, const float saturation);
+	HRESULT setVideo(const TString &flags, const float brightness, const float contrast, const float hue, const float saturation);
 	HRESULT getVideo(VMR9ProcAmpControl *amc) const;
 	HRESULT getVideoRange(VMR9ProcAmpControlFlags prop, VMR9ProcAmpControlRange *acr) const;
 	UINT64 getPosition(void) const; //!< gets video position within stream

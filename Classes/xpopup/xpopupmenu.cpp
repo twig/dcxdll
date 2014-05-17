@@ -51,7 +51,7 @@ m_hBitmap(NULL), m_bRoundedSel(false), m_uiAlpha(255), m_bAttachedToMenuBar(fals
  * Default constructor for testing
  */
 
-XPopupMenu::XPopupMenu(const TString tsName, HMENU hMenu )
+XPopupMenu::XPopupMenu(const TString &tsName, HMENU hMenu )
 : m_hMenu(hMenu), m_MenuItemStyles(0), m_MenuStyle(XPMS_OFFICE2003), m_hImageList(NULL), m_hBitmap(NULL)
 , m_tsMenuName(tsName), m_bRoundedSel(false), m_uiAlpha(255), m_bAttachedToMenuBar(false)
 {

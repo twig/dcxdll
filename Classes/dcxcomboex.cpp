@@ -856,8 +856,8 @@ LRESULT CALLBACK DcxComboEx::ComboExEditProc( HWND mHwnd, UINT uMsg, WPARAM wPar
 		{
 
 			WNDPROC OldProc = lpce->OldProc;
-			if ( lpce )
-				delete lpce;
+
+			delete lpce;
 
 			return CallWindowProc( OldProc, mHwnd, uMsg, wParam, lParam );
 		}
