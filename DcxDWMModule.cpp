@@ -21,7 +21,7 @@ DcxDWMModule::~DcxDWMModule(void)
 	if (isUseable()) unload();
 }
 
-bool DcxDWMModule::load(mIRCLinker &mIRCLink)
+bool DcxDWMModule::load(void)
 {
 	if (isUseable())
 		return false;
@@ -34,10 +34,10 @@ bool DcxDWMModule::load(mIRCLinker &mIRCLink)
 	this->m_bWin7 = (winMajor > 6);		// OS is Windows7+
 	this->m_bWin8 = (winMajor > 7);		// OS is Windows8+
 
-	DCX_DEBUG(mIRCLink.debug,TEXT("LoadDLL"), TEXT("Loading DWMAPI.DLL..."));
+	DCX_DEBUG(mIRCLinker::debug, TEXT("LoadDLL"), TEXT("Loading DWMAPI.DLL..."));
 	m_hModule = LoadLibrary(TEXT("dwmapi.dll"));
 	if (m_hModule != NULL) {
-		DCX_DEBUG(mIRCLink.debug,TEXT("LoadDLL"), TEXT("DWMAPI.DLL Loaded, Vista+ OS Assumed"));
+		DCX_DEBUG(mIRCLinker::debug, TEXT("LoadDLL"), TEXT("DWMAPI.DLL Loaded, Vista+ OS Assumed"));
 
 		DwmIsCompositionEnabledUx = (PFNDWMISCOMPOSITIONENABLED) GetProcAddress(m_hModule, "DwmIsCompositionEnabled"); // Vista ONLY!
 		DwmGetWindowAttributeUx = (PFNDWMGETWINDOWATTRIBUTE) GetProcAddress(m_hModule, "DwmGetWindowAttribute"); // Vista ONLY!
@@ -48,7 +48,7 @@ bool DcxDWMModule::load(mIRCLinker &mIRCLink)
 
 #if DCX_DEBUG_OUTPUT
 		if (DwmIsCompositionEnabledUx != NULL)
-			mIRCLink.debug(TEXT("LoadDLL"), TEXT("Found Vista DWM Functions"));
+			mIRCLinker::debug(TEXT("LoadDLL"), TEXT("Found Vista DWM Functions"));
 #endif
 
 		refreshComposite();

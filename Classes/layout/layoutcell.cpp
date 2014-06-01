@@ -25,16 +25,15 @@
  * blah
  */
 
-LayoutCell::LayoutCell( ) {
-
-  SetRectEmpty( &this->m_rcBorders );
-  SetRectEmpty( &this->m_rcWindow );
-
-  this->m_Hwnd = NULL;
-
-  this->m_Parent = NULL;
-  this->m_FirstChild = NULL;
-  this->m_NextSibling = NULL;
+LayoutCell::LayoutCell()
+: m_Hwnd(NULL)
+, m_Parent(NULL)
+, m_FirstChild(NULL)
+, m_NextSibling(NULL)
+, m_BaseControl(NULL)
+{
+	SetRectEmpty(&this->m_rcBorders);
+	SetRectEmpty(&this->m_rcWindow);
 }
 
 /*!
@@ -43,25 +42,26 @@ LayoutCell::LayoutCell( ) {
  * blah
  */
 
-LayoutCell::LayoutCell( const HWND mHwnd ) : m_Hwnd( mHwnd ) {
+LayoutCell::LayoutCell(const HWND mHwnd)
+: m_Hwnd(mHwnd)
+, m_Parent(NULL)
+, m_FirstChild(NULL)
+, m_NextSibling(NULL)
+, m_BaseControl(NULL)
+{
+	if (mHwnd != NULL)
+		GetWindowRect(mHwnd, &this->m_rcWindow);
+	else
+		SetRectEmpty(&this->m_rcWindow);
 
-  if ( mHwnd != NULL )
-    GetWindowRect( mHwnd, &this->m_rcWindow );
-  else
-    SetRectEmpty( &this->m_rcWindow );
+	SetRectEmpty(&this->m_rcBorders);
 
-  SetRectEmpty( &this->m_rcBorders );
-  DcxDialog * d;
-
-  this->m_Parent = NULL;
-  this->m_FirstChild = NULL;
-  this->m_NextSibling = NULL;
-  this->m_BaseControl = NULL;
-  d = Dcx::Dialogs.getDialogByHandle(mHwnd);
-  if (d == NULL) {
-	  d = Dcx::Dialogs.getDialogByChildHandle(mHwnd);
-	  if (d != NULL) this->m_BaseControl = d->getControlByHWND(mHwnd);
-  }  
+	DcxDialog * d = Dcx::Dialogs.getDialogByHandle(mHwnd);
+	if (d == NULL) {
+		d = Dcx::Dialogs.getDialogByChildHandle(mHwnd);
+		if (d != NULL)
+			this->m_BaseControl = d->getControlByHWND(mHwnd);
+	}
 }
 
 /*!
@@ -70,38 +70,57 @@ LayoutCell::LayoutCell( const HWND mHwnd ) : m_Hwnd( mHwnd ) {
  * blah
  */
 
-LayoutCell::LayoutCell( const HWND mHwnd, const RECT & rc ) : m_Hwnd( mHwnd ), m_rcWindow( rc ) {
+LayoutCell::LayoutCell(const HWND mHwnd, const RECT & rc)
+: m_Hwnd(mHwnd)
+, m_rcWindow(rc)
+, m_Parent(NULL)
+, m_FirstChild(NULL)
+, m_NextSibling(NULL)
+, m_BaseControl(NULL)
+{
+	SetRectEmpty(&this->m_rcBorders);
 
-  SetRectEmpty( &this->m_rcBorders );
-  DcxDialog * d;
-
-  this->m_Parent = NULL;
-  this->m_FirstChild = NULL;
-  this->m_NextSibling = NULL;
-  this->m_BaseControl = NULL;
-  d = Dcx::Dialogs.getDialogByHandle(mHwnd);
-  if (d == NULL) {
-	  d = Dcx::Dialogs.getDialogByChildHandle(mHwnd);
-	  if (d != NULL) this->m_BaseControl = d->getControlByHWND(mHwnd);
-  }  
+	if (mHwnd != NULL) {
+		DcxDialog * d = Dcx::Dialogs.getDialogByHandle(mHwnd);
+		if (d == NULL) {
+			d = Dcx::Dialogs.getDialogByChildHandle(mHwnd);
+			if (d != NULL)
+				this->m_BaseControl = d->getControlByHWND(mHwnd);
+		}
+	}
 }
 
-LayoutCell::LayoutCell( DcxControl * dcxc ) {
-  HWND mHwnd;
-  mHwnd = dcxc->getHwnd();
-  if ( mHwnd != NULL )
-    GetWindowRect( mHwnd, &this->m_rcWindow );
-  else
-    SetRectEmpty( &this->m_rcWindow );
+//LayoutCell::LayoutCell( DcxControl * dcxc )
+//: m_Hwnd(NULL)
+//, m_Parent(NULL)
+//, m_FirstChild(NULL)
+//, m_NextSibling(NULL)
+//, m_BaseControl(dcxc)
+//{
+//  HWND mHwnd = dcxc->getHwnd();
+//  if ( mHwnd != NULL )
+//    GetWindowRect( mHwnd, &this->m_rcWindow );
+//  else
+//    SetRectEmpty( &this->m_rcWindow );
+//
+//  SetRectEmpty( &this->m_rcBorders );
+//}
 
-  SetRectEmpty( &this->m_rcBorders );
+LayoutCell::LayoutCell(DcxControl * dcxc)
+: m_Hwnd(NULL)
+, m_Parent(NULL)
+, m_FirstChild(NULL)
+, m_NextSibling(NULL)
+, m_BaseControl(dcxc)
+{
+	m_Hwnd = dcxc->getHwnd();
+	if (m_Hwnd != NULL)
+		GetWindowRect(m_Hwnd, &this->m_rcWindow);
+	else
+		SetRectEmpty(&this->m_rcWindow);
 
-  this->m_Parent = NULL;
-  this->m_FirstChild = NULL;
-  this->m_NextSibling = NULL;
-  this->m_BaseControl = dcxc;
+	SetRectEmpty(&this->m_rcBorders);
 }
-
 /*!
  * \brief Destructor
  *

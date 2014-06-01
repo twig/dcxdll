@@ -2,7 +2,7 @@
 #include "DcxModule.h"
 
 DcxModule::DcxModule(void)
-: m_hModule(NULL), m_mIRCLink(NULL)
+: m_hModule(NULL)
 {
 }
 
@@ -15,7 +15,7 @@ bool DcxModule::isUseable() const
 	return !(m_hModule == NULL);
 }
 
-bool DcxModule::load(mIRCLinker &mIRCLink) 
+bool DcxModule::load(void)
 {
 	return true;
 }

@@ -323,6 +323,19 @@ using namespace Gdiplus;
 #define MIRCF_CMD		2
 #define MIRCF_FLOOD		4
 #define MIRCF_UNICODE	8
+// causes mIRC 7.33Beta+ to return more detailed error information
+#define MIRCF_ENHANCEDERRORS	16
+// stand alone flag used by mIRC 7.33Beta+ to get info about mIRC
+#define MIRCF_INFO		-1
+// mIRC v7.33Beta+ SendMessage() enhanced error codes
+//The return values are: 0 = success, 1 = failure or'd with 2 = bad mapfile name, 4 = bad mapfile size, 8 = bad eventid, 16 = bad server, 32 = bad script.
+#define MIRCF_ERR_FAILED		1
+#define MIRCF_ERR_MAP_NAME		2
+#define MIRCF_ERR_MAP_SIZE		4
+#define MIRCF_ERR_EVENTID		8
+#define MIRCF_ERR_SERVER		16
+#define MIRCF_ERR_SCRIPT		32
+
 // size of data buffer for mirc in characters!
 #define MIRC_BUFFER_SIZE_CCH	4100
 // size of same data buffer in bytes.

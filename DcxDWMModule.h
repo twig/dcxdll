@@ -31,7 +31,7 @@ public:
 	DcxDWMModule(void);
 	~DcxDWMModule(void);
 
-	bool load(mIRCLinker &mIRCLink);
+	bool load(void);
 	bool unload(void);
 	bool refreshComposite();
 	HRESULT dcxDwmSetWindowAttribute(HWND hwnd, DWORD dwAttribute, LPCVOID pvAttribute, DWORD cbAttribute);

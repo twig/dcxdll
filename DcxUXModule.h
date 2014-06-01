@@ -59,7 +59,7 @@ public:
 	DcxUXModule(void);
 	~DcxUXModule(void);
 
-	bool load(mIRCLinker &mIRCLink);
+	bool load(void);
 	bool unload(void);
 
 	static BOOL dcxIsThemeActive(void);

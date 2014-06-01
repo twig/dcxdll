@@ -130,7 +130,7 @@ SIZE XPopupMenuItem::getItemSize( const HWND mHwnd ) {
 			}
 		}
 		else
-			Dcx::mIRC.tsEval( this->m_tsItemText, this->m_tsItemText.to_chr( ) );
+			mIRCLinker::tsEval( this->m_tsItemText, this->m_tsItemText.to_chr( ) );
 
 		// Odd error in size returned by GetTextExtentPoint32() when dealing with utf text, length is cut short for some reason...
 		//GetTextExtentPoint32( hdc, this->m_tsItemText.to_chr( ), this->m_tsItemText.len( ), &size );
@@ -791,7 +791,7 @@ void XPopupMenuItem::DrawVerticalBar(const LPDRAWITEMSTRUCT lpdis, const LPXPMEN
 			//int menuH = 0;
 			//int i = 0;
 	// GetMenuItemRect() calls here cause submenus to fails to render on first opening for some reason.
-			//while (GetMenuItemRect(Dcx::mIRC.getHWND(), (HMENU) lpdis->hwndItem, i, &rc) != FALSE) {
+			//while (GetMenuItemRect(mIRCLinker::getHWND(), (HMENU) lpdis->hwndItem, i, &rc) != FALSE) {
 			//	menuH += (rc.bottom - rc.top);
 			//	i++;
 			//}

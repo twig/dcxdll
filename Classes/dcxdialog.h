@@ -58,7 +58,7 @@ enum ShadowStatus
 // dummy runtime classe definition
 class DcxControl;
 class DcxList;
-class Dcx;
+//class Dcx;
 
 typedef std::vector<DcxControl *> VectorOfControlPtrs; //!< blah
 typedef std::vector<DcxList *> VectorOfDragListPtrs; //!< Vector of draglists

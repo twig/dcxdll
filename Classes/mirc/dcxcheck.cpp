@@ -187,6 +187,7 @@ void DcxCheck::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) c
 
 		szReturnValue[0] = p;
 		szReturnValue[1] = 0;
+		return;
 	}
 	else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
 		return;
@@ -200,8 +201,8 @@ void DcxCheck::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) c
  * blah
  */
 
-void DcxCheck::parseCommandRequest( const TString & input ) {
-	const XSwitchFlags flags(input.getfirsttok( 3 ));
+void DcxCheck::parseCommandRequest(const TString & input) {
+	const XSwitchFlags flags(input.getfirsttok(3));
 
 	//xdid -c [NAME] [ID] [SWITCH]
 	if (flags[TEXT('c')]) {
@@ -215,13 +216,13 @@ void DcxCheck::parseCommandRequest( const TString & input ) {
 	else if (flags[TEXT('t')]) {
 		SetWindowText(this->m_Hwnd, input.gettok(4, -1).trim().to_chr());
 	}
-  //xdid -u [NAME] [ID] [SWITCH]
-  else if ( flags[TEXT('u')] ) {
+	//xdid -u [NAME] [ID] [SWITCH]
+	else if (flags[TEXT('u')]) {
 
-    Button_SetCheck( this->m_Hwnd, BST_UNCHECKED );
-  }
-  else
-    this->parseGlobalCommandRequest( input, flags );
+		Button_SetCheck(this->m_Hwnd, BST_UNCHECKED);
+	}
+	else
+		this->parseGlobalCommandRequest(input, flags);
 }
 
 /*!
@@ -229,35 +230,35 @@ void DcxCheck::parseCommandRequest( const TString & input ) {
  *
  * blah
  */
-LRESULT DcxCheck::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
-   switch (uMsg)
-   {
-      case WM_COMMAND:
-      {
-         switch (HIWORD(wParam))
-         {
-            // catch this so we can use $xdid(checkbox).state in sclick callback
-            case BN_CLICKED:
-            {
-               if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-               {
-                  //this->execAliasEx(TEXT("%s,%d"), TEXT("sclick"), this->getUserID());
+LRESULT DcxCheck::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) {
+	switch (uMsg)
+	{
+		case WM_COMMAND:
+		{
+			switch (HIWORD(wParam))
+			{
+				// catch this so we can use $xdid(checkbox).state in sclick callback
+				case BN_CLICKED:
+				{
+					if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
+					{
+						//this->execAliasEx(TEXT("%s,%d"), TEXT("sclick"), this->getUserID());
 
-                  // /.timer repetitions delay alias dialog event id
-                  Dcx::mIRC.execex(TEXT("/.timer 1 0 %s %s %s %d"),
-                     this->m_pParentDialog->getAliasName().to_chr(),
-                     this->m_pParentDialog->getName().to_chr(),
-                     TEXT("sclick"),
-                     this->getUserID());
-               }
+						// /.timer repetitions delay alias dialog event id
+						mIRCLinker::execex(TEXT("/.timer 1 0 %s %s %s %d"),
+							this->m_pParentDialog->getAliasName().to_chr(),
+							this->m_pParentDialog->getName().to_chr(),
+							TEXT("sclick"),
+							this->getUserID());
+					}
 
-               break;
-            }
-         }
+					break;
+				}
+			}
 
-         break;
-      }
-   }
+			break;
+		}
+	}
 
 	return 0L;
 }

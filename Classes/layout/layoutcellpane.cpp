@@ -23,8 +23,10 @@
  * blah
  */
 
-LayoutCellPane::LayoutCellPane( const PaneType nType ) : LayoutCell( ), m_nType( nType ) {
-
+LayoutCellPane::LayoutCellPane( const PaneType nType )
+: LayoutCell( )
+, m_nType( nType )
+{
 }
 
 /*!

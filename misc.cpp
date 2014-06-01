@@ -902,7 +902,7 @@ void getmIRCPalette(COLORREF *Palette, const int PaletteItems)
 {
 	TString colors;
 	static const TCHAR com[] = TEXT("$color(0) $color(1) $color(2) $color(3) $color(4) $color(5) $color(6) $color(7) $color(8) $color(9) $color(10) $color(11) $color(12) $color(13) $color(14) $color(15)");
-	Dcx::mIRC.tsEval(colors, com);
+	mIRCLinker::tsEval(colors, com);
 
 	//int i = 0;
 	//while (i < PaletteItems) {
@@ -1336,7 +1336,7 @@ HDC *CreateHDCBuffer(HDC hdc, const LPRECT rc)
 		DWORD err = GetLastError(), errBufSize = 16;
 		LPTSTR errBuf = NULL;
 		if (FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM|FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_IGNORE_INSERTS, NULL, err, 0, (LPTSTR)&errBuf, errBufSize, NULL) != 0) {
-			Dcx::mIRC.debug(TEXT("CreateHDCBuffer"),errBuf);
+			mIRCLinker::debug(TEXT("CreateHDCBuffer"),errBuf);
 			LocalFree(errBuf);
 		}
 #endif
@@ -1548,9 +1548,9 @@ BOOL isRegexMatch(const TCHAR *matchtext, const TCHAR *pattern)
 	}
 #else
 	TCHAR res[10];
-	Dcx::mIRC.execex(TEXT("/set -nu1 %%dcx_text %s"), matchtext );
-	Dcx::mIRC.execex(TEXT("/set -nu1 %%dcx_regex %s"), pattern );
-	Dcx::mIRC.eval(res, 10, TEXT("$regex(%dcx_text,%dcx_regex)"));
+	mIRCLinker::execex(TEXT("/set -nu1 %%dcx_text %s"), matchtext);
+	mIRCLinker::execex(TEXT("/set -nu1 %%dcx_regex %s"), pattern);
+	mIRCLinker::eval(res, 10, TEXT("$regex(%dcx_text,%dcx_regex)"));
 	if ( dcx_atoi(res) > 0 )
 		return TRUE;
 #endif // DCX_USE_PCRE

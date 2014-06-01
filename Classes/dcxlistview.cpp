@@ -1910,7 +1910,7 @@ void DcxListView::parseCommandRequest( const TString &input) {
 			{
 				TString res;
 				// check window exists
-				Dcx::mIRC.tsEvalex(res, TEXT("$window(%s)"), tsArgs.to_chr());
+				mIRCLinker::tsEvalex(res, TEXT("$window(%s)"), tsArgs.to_chr());
 				// if not exit
 				if (tsArgs != res) {
 					this->showErrorEx(NULL, TEXT("-S"), TEXT("Invalid window: %s"), tsArgs.to_chr());
@@ -2524,11 +2524,11 @@ int CALLBACK DcxListView::sortItemsEx( LPARAM lParam1, LPARAM lParam2, LPARAM lP
 
 		// testing new sort call... new ver doesnt pass item text directly via alias, but instead sets a %var with the text & passes the %var name to the alias.
 		// Should solve some item name issues.
-		Dcx::mIRC.execex(TEXT("/!set -nu1 %%dcx_1sort%d %s"), plvsort->itemtext1, plvsort->itemtext1 );
-		Dcx::mIRC.execex(TEXT("/!set -nu1 %%dcx_2sort%d %s"), plvsort->itemtext2, plvsort->itemtext2 );
-		Dcx::mIRC.evalex( res, 20, TEXT("$%s(%%dcx_1sort%d,%%dcx_2sort%d)"), plvsort->tsCustomAlias.to_chr( ), plvsort->itemtext1, plvsort->itemtext2 );
+		mIRCLinker::execex(TEXT("/!set -nu1 %%dcx_1sort%d %s"), plvsort->itemtext1, plvsort->itemtext1 );
+		mIRCLinker::execex(TEXT("/!set -nu1 %%dcx_2sort%d %s"), plvsort->itemtext2, plvsort->itemtext2 );
+		mIRCLinker::evalex( res, 20, TEXT("$%s(%%dcx_1sort%d,%%dcx_2sort%d)"), plvsort->tsCustomAlias.to_chr( ), plvsort->itemtext1, plvsort->itemtext2 );
 		//
-		//Dcx::mIRC.evalex( res, 20, TEXT("$%s(%s,%s)"), plvsort->tsCustomAlias.to_chr( ), itemtext1, itemtext2 );
+		//mIRCLinker::evalex( res, 20, TEXT("$%s(%s,%s)"), plvsort->tsCustomAlias.to_chr( ), itemtext1, itemtext2 );
 
 		int ires = dcx_atoi(res);
 
@@ -3781,7 +3781,7 @@ bool DcxListView::ctrlLoadListview(const int nPos, const TString &tsData)
 	//	this->showErrorEx(NULL, TEXT("-a"), TEXT("Invalid control id: %d Only DCX controls are supported."), ctrl_ID);
 	//	return false;
 	//}
-	////Dcx::mIRC.evalex();
+	////mIRCLinker::evalex();
 	return false;
 }
 //[NAME] [ID] [SWITCH] [N] [INDENT] [+FLAGS] [#ICON] [#STATE] [#OVERLAY] [#GROUPID] [COLOR] [BGCOLOR] Item Text {TAB}[+FLAGS] [#ICON] [#OVERLAY] [COLOR] [BGCOLOR] Item Text ...
@@ -3794,14 +3794,14 @@ bool DcxListView::xLoadListview(const int nPos, const TString &tsData, const TCH
 	const TString tsItem(tsData.gettok( 12, -1 ));
 
 	// check table/window exists
-	Dcx::mIRC.tsEvalex(res, sTest, tsName.to_chr());
+	mIRCLinker::tsEvalex(res, sTest, tsName.to_chr());
 	// if not exit
 	if (tsName != res) {
 		this->showErrorEx(NULL, TEXT("-a"), TEXT("Invalid hashtable/window: %s"), tsName.to_chr());
 		return false;
 	}
 	// get the total number of items in the table.
-	Dcx::mIRC.tsEvalex(res, sCount, tsName.to_chr());
+	mIRCLinker::tsEvalex(res, sCount, tsName.to_chr());
 	const UINT iTotal = res.to_int();
 	// if no items then exit.
 	if (iTotal == 0)
@@ -3819,7 +3819,7 @@ bool DcxListView::xLoadListview(const int nPos, const TString &tsData, const TCH
 			return false;
 		}
 		// add a single named item
-		Dcx::mIRC.tsEvalex(res, sGetNamed, tsName.to_chr(), tsItem.to_chr());
+		mIRCLinker::tsEvalex(res, sGetNamed, tsName.to_chr(), tsItem.to_chr());
 		if (iFlags & LVIMF_ALLINFO)
 			// add items data from [INDENT] onwards is taken from hashtable, including subitems.
 			//[NAME] [ID] [SWITCH] [N] [INDENT] [+FLAGS] [#ICON] [#STATE] [#OVERLAY] [#GROUPID] [COLOR] [BGCOLOR] Item Text {TAB}[+FLAGS] [#ICON] [#OVERLAY] [COLOR] [BGCOLOR] Item Text ...
@@ -3870,7 +3870,7 @@ bool DcxListView::xLoadListview(const int nPos, const TString &tsData, const TCH
 	for (int nItem = nPos; iStart <= iEnd; iStart++)
 	{
 		// get items data
-		Dcx::mIRC.tsEvalex(res, sGet, tsName.to_chr(), iStart);
+		mIRCLinker::tsEvalex(res, sGet, tsName.to_chr(), iStart);
 		if (iFlags & LVIMF_ALLINFO)
 			// add items data from [INDENT] onwards is taken from hashtable, including subitems.
 			//[NAME] [ID] [SWITCH] [N] [INDENT] [+FLAGS] [#ICON] [#STATE] [#OVERLAY] [#GROUPID] [COLOR] [BGCOLOR] Item Text {TAB}[+FLAGS] [#ICON] [#OVERLAY] [COLOR] [BGCOLOR] Item Text ...
@@ -3952,11 +3952,11 @@ void DcxListView::massSetItem(const int nPos, const TString &input)
 
 		TString res;
 		if (stateFlags & LVIS_HASHITEM) {
-			Dcx::mIRC.tsEvalex(res, TEXT("$hget(%s,%s)"), itemtext.gettok( 1 ).to_chr(), itemtext.gettok( 2 ).to_chr());
+			mIRCLinker::tsEvalex(res, TEXT("$hget(%s,%s)"), itemtext.gettok( 1 ).to_chr(), itemtext.gettok( 2 ).to_chr());
 			itemtext = res;
 		}
 		else if (stateFlags & LVIS_HASHNUMBER) {
-			Dcx::mIRC.tsEvalex(res,  TEXT("$hget(%s,%s).data"), itemtext.gettok( 1 ).to_chr(), itemtext.gettok( 2 ).to_chr());
+			mIRCLinker::tsEvalex(res,  TEXT("$hget(%s,%s).data"), itemtext.gettok( 1 ).to_chr(), itemtext.gettok( 2 ).to_chr());
 			itemtext = res;
 		}
 	}
@@ -4075,11 +4075,11 @@ void DcxListView::massSetItem(const int nPos, const TString &input)
 
 				TString res;
 				if ((stateFlags & LVIS_HASHITEM) && (itemtext.numtok() == 2)) {
-					Dcx::mIRC.tsEvalex(res, TEXT("$hget(%s,%s)"), itemtext.gettok( 1 ).to_chr(), itemtext.gettok( 2 ).to_chr());
+					mIRCLinker::tsEvalex(res, TEXT("$hget(%s,%s)"), itemtext.gettok( 1 ).to_chr(), itemtext.gettok( 2 ).to_chr());
 					itemtext = res;
 				}
 				else if ((stateFlags & LVIS_HASHNUMBER) && (itemtext.numtok() == 2)) {
-					Dcx::mIRC.tsEvalex(res,  TEXT("$hget(%s,%s).data"), itemtext.gettok( 1 ).to_chr(), itemtext.gettok( 2 ).to_chr());
+					mIRCLinker::tsEvalex(res,  TEXT("$hget(%s,%s).data"), itemtext.gettok( 1 ).to_chr(), itemtext.gettok( 2 ).to_chr());
 					itemtext = res;
 				}
 			}

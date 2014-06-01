@@ -1222,11 +1222,11 @@ void DcxTreeView::insertItem(const TString * path, const TString * data, const T
 	{
 		TString tsRes;
 		if ((iFlags & TVIS_HASHITEM) && (itemtext.numtok() == 2)) {
-			Dcx::mIRC.tsEvalex(tsRes, TEXT("$hget(%s,%s)"), itemtext.gettok( 1 ).to_chr(), itemtext.gettok( 2 ).to_chr());
+			mIRCLinker::tsEvalex(tsRes, TEXT("$hget(%s,%s)"), itemtext.gettok( 1 ).to_chr(), itemtext.gettok( 2 ).to_chr());
 			itemtext = tsRes;
 		}
 		else if ((iFlags & TVIS_HASHNUMBER) && (itemtext.numtok() == 2)) {
-			Dcx::mIRC.tsEvalex(tsRes,  TEXT("$hget(%s,%s).data"), itemtext.gettok( 1 ).to_chr(), itemtext.gettok( 2 ).to_chr());
+			mIRCLinker::tsEvalex(tsRes,  TEXT("$hget(%s,%s).data"), itemtext.gettok( 1 ).to_chr(), itemtext.gettok( 2 ).to_chr());
 			itemtext = tsRes;
 		}
 	}
@@ -1456,7 +1456,7 @@ int CALLBACK DcxTreeView::sortItemsEx( LPARAM lParam1, LPARAM lParam2, LPARAM lP
 	if ( ptvsort->iSortFlags & TVSS_CUSTOM ) {
 
 		TCHAR res[20];
-		Dcx::mIRC.evalex( res, 20, TEXT("$%s(%s,%s)"), ptvsort->tsCustomAlias.to_chr( ), ptvsort->itemtext1, ptvsort->itemtext2 );
+		mIRCLinker::evalex( res, 20, TEXT("$%s(%s,%s)"), ptvsort->tsCustomAlias.to_chr( ), ptvsort->itemtext1, ptvsort->itemtext2 );
 
 		int ires = dcx_atoi(res);
 

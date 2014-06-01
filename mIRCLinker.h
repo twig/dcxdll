@@ -1,52 +1,49 @@
 #pragma once
-#ifdef __INTEL_COMPILER // Defined when using Intel C++ Compiler.
-#pragma warning( push )
-#pragma warning( disable : 2292 ) //warning #2292: destructor is declared but copy constructor and assignment operator are not
-#endif
+//#ifdef __INTEL_COMPILER // Defined when using Intel C++ Compiler.
+//#pragma warning( push )
+//#pragma warning( disable : 2292 ) //warning #2292: destructor is declared but copy constructor and assignment operator are not
+//#endif
 
-class mIRCLinker
+namespace mIRCLinker
 {
-	HANDLE		m_hFileMap; //!< Handle to the mIRC DLL File Map
-	PTCHAR		m_pData;    //!< Pointer to a character buffer of size MIRC_BUFFER_SIZE_CCH to send mIRC custom commands
-	HWND		m_mIRCHWND; //!< mIRC Window Handle
-	DWORD		m_dwVersion;
-	int			m_iMapCnt;  //!< MapFile counter.
-	bool		m_bDebug;    //!< is mIRC is using /debug upon DCX LoadDLL().
-	HWND		m_hSwitchbar; //!< The Switchbars HWND
-	HWND		m_hToolbar; //!< The Toolbars HWND
-	HWND		m_hMDI; //!< The MDIClients HWND
-	HWND		m_hTreebar; //!< The Treebars HWND
-	HWND		m_hTreeview; //!< The TreeView control child of the Treebar.
-	HFONT		m_hTreeFont; //!< The Treebars original font.
-	HIMAGELIST  m_hTreeImages; //!< The Treebars original image list.
-	TString		m_sLastError;
-	WNDPROC		m_wpmIRCDefaultWndProc;
-	bool		m_bUnicodemIRC;
+	extern HANDLE		m_hFileMap;		//!< Handle to the mIRC DLL File Map
+	extern PTCHAR		m_pData;		//!< Pointer to a character buffer of size MIRC_BUFFER_SIZE_CCH to send mIRC custom commands
+	extern HWND			m_mIRCHWND;		//!< mIRC Window Handle
+	extern DWORD		m_dwVersion;
+	extern int			m_iMapCnt;		//!< MapFile counter.
+	extern bool			m_bDebug;		//!< is mIRC is using /debug upon DCX LoadDLL().
+	extern HWND			m_hSwitchbar;	//!< The Switchbars HWND
+	extern HWND			m_hToolbar;		//!< The Toolbars HWND
+	extern HWND			m_hMDI;			//!< The MDIClients HWND
+	extern HWND			m_hTreebar;		//!< The Treebars HWND
+	extern HWND			m_hTreeview;	//!< The TreeView control child of the Treebar.
+	extern HFONT		m_hTreeFont;	//!< The Treebars original font.
+	extern HIMAGELIST	m_hTreeImages;	//!< The Treebars original image list.
+	extern TString		m_sLastError;
+	extern WNDPROC		m_wpmIRCDefaultWndProc;
+	extern bool			m_bUnicodemIRC;
 
 	void initMapFile();
 
-public:
-	mIRCLinker(void);
-	~mIRCLinker(void);
-	HWND getSwitchbar() const;
-	HWND getToolbar() const;
-	HWND getTreebar() const;
-	HWND getTreeview() const;
-	HIMAGELIST getTreeImages() const;
-	HFONT getTreeFont() const;
-	HWND getMDIClient() const;
-	HWND getHWND() const;
-	DWORD getVersion() const;
-	WORD getMainVersion() const;
-	WORD getSubVersion() const;
-	const TString & getLastError() const;
+	HWND getSwitchbar();
+	HWND getToolbar();
+	HWND getTreebar();
+	HWND getTreeview();
+	HIMAGELIST getTreeImages();
+	HFONT getTreeFont();
+	HWND getMDIClient();
+	HWND getHWND();
+	DWORD getVersion();
+	WORD getMainVersion();
+	WORD getSubVersion();
+	const TString & getLastError();
 	bool setTreeFont(HFONT newFont);
-	bool isOrNewerVersion(const WORD main, const WORD sub) const;
-	bool isVersion(const WORD main, const WORD sub) const;
-	//bool isAero() const;
-	//bool isVista() const;
-	bool isDebug() const;
-	bool isUnicode() const { return this->m_bUnicodemIRC; };
+	bool isOrNewerVersion(const WORD main, const WORD sub);
+	bool isVersion(const WORD main, const WORD sub);
+	//bool isAero();
+	//bool isVista();
+	bool isDebug();
+	__inline bool isUnicode() { return m_bUnicodemIRC; };
 
 	//bool isDXInstalled9();
 	bool isAlias(const TCHAR * aliasName);
@@ -58,6 +55,7 @@ public:
 	void resetWindowProc(void);
 	LRESULT callDefaultWindowProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam);
 
+	bool mIRC_SndMsg(const UINT uMsg);
 	bool eval(TCHAR *res, const int maxlen, const TCHAR *data);
 	bool tsEval(TString &res, const TCHAR *data);
 	bool iEval(__int64 *res, const TCHAR *data);
@@ -72,6 +70,6 @@ public:
 	void debug(const TCHAR *cmd, const TCHAR *msg);
 #endif
 };
-#ifdef __INTEL_COMPILER // Defined when using Intel C++ Compiler.
-#pragma warning( pop )
-#endif
+//#ifdef __INTEL_COMPILER // Defined when using Intel C++ Compiler.
+//#pragma warning( pop )
+//#endif

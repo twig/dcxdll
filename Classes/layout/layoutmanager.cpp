@@ -20,10 +20,10 @@
  * blah
  */
 
-LayoutManager::LayoutManager( ) {
-
-  this->m_pRoot = NULL;
-  this->m_Hwnd = NULL;
+LayoutManager::LayoutManager( )
+: m_pRoot(NULL)
+, m_Hwnd(NULL)
+{
 }
 
 /*!
@@ -32,9 +32,10 @@ LayoutManager::LayoutManager( ) {
  * blah
  */
 
-LayoutManager::LayoutManager( HWND mHwnd ) : m_Hwnd( mHwnd ) {
-
-  this->m_pRoot = NULL;
+LayoutManager::LayoutManager( HWND mHwnd )
+: m_pRoot(NULL)
+, m_Hwnd(mHwnd)
+{
 }
 
 /*!
@@ -66,7 +67,7 @@ BOOL LayoutManager::updateLayout( RECT & rc ) {
 
 #if DCX_DEBUG_OUTPUT
 	if (hdwp == NULL) {
-		Dcx::debug(TEXT("updateLayout()"),TEXT("DeferWindowPos() failed"));
+		mIRCLinker::debug(TEXT("updateLayout()"),TEXT("DeferWindowPos() failed"));
 		return FALSE;
 	}
 #endif
@@ -82,7 +83,7 @@ BOOL LayoutManager::updateLayout( RECT & rc ) {
 void LayoutManager::setRoot( LayoutCell * p_Root ) {
 
   // clean memory in case we use more than once
-  if ( this->m_pRoot != NULL )
+  //if ( this->m_pRoot != NULL )	// unneeded null check
     delete this->m_pRoot;
 
   this->m_pRoot = p_Root;

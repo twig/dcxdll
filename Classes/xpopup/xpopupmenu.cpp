@@ -940,7 +940,8 @@ LRESULT CALLBACK XPopupMenu::XPopupWinProc( HWND mHwnd, UINT uMsg, WPARAM wParam
 
 LRESULT XPopupMenu::OnMeasureItem( const HWND mHwnd, LPMEASUREITEMSTRUCT lpmis )
 {
-	XPopupMenuItem * p_Item = (XPopupMenuItem *) lpmis->itemData;
+	//XPopupMenuItem * p_Item = (XPopupMenuItem *) lpmis->itemData;
+	XPopupMenuItem * p_Item = reinterpret_cast<XPopupMenuItem *>(lpmis->itemData);
 
 	if ( p_Item != NULL ) {
 		const SIZE size = p_Item->getItemSize( mHwnd );
@@ -959,7 +960,8 @@ LRESULT XPopupMenu::OnMeasureItem( const HWND mHwnd, LPMEASUREITEMSTRUCT lpmis )
 
 LRESULT XPopupMenu::OnDrawItem( const HWND mHwnd, LPDRAWITEMSTRUCT lpdis )
 {
-	XPopupMenuItem * p_Item = (XPopupMenuItem *) lpdis->itemData;
+	//XPopupMenuItem * p_Item = (XPopupMenuItem *) lpdis->itemData;
+	XPopupMenuItem * p_Item = reinterpret_cast<XPopupMenuItem *>(lpdis->itemData);
 
 	if ( p_Item != NULL )
 		p_Item->DrawItem( lpdis );
@@ -1000,7 +1002,7 @@ void XPopupMenu::convertMenu( HMENU hMenu, const BOOL bForce )
 				// fixes identifiers in the dialog menu not being resolved. 
 				// TODO Needs testing to see if it causes any other issues, like double eval's)
 				if (bForce && this->getName() == TEXT("dialog"))
-					Dcx::mIRC.tsEval(tsItem, tsItem.to_chr()); // we can use tsItem for both args as the second arg is copied & used before the first arg is set with the return value.
+					mIRCLinker::tsEval(tsItem, tsItem.to_chr()); // we can use tsItem for both args as the second arg is copied & used before the first arg is set with the return value.
 
 				if ( mii.fType & MFT_SEPARATOR )
 					p_Item = new XPopupMenuItem( this, TRUE, mii.dwItemData );

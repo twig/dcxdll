@@ -422,7 +422,7 @@ void DcxList::parseCommandRequest( const TString & input ) {
 		case TEXT('H'): // [TEXT] == [table] [item]
 			{
 				if (itemtext.numtok() == 2) { // load single item from hash table by item name
-					Dcx::mIRC.tsEvalex(tsRes, TEXT("$hget(%s,%s)"), itemtext.gettok( 1 ).to_chr(), itemtext.gettok( 2 ).to_chr());
+					mIRCLinker::tsEvalex(tsRes, TEXT("$hget(%s,%s)"), itemtext.gettok( 1 ).to_chr(), itemtext.gettok( 2 ).to_chr());
 					ListBox_InsertString( this->m_Hwnd, nPos, tsRes.to_chr() );
 					nMaxStrlen = tsRes.len();
 				}
@@ -433,7 +433,7 @@ void DcxList::parseCommandRequest( const TString & input ) {
 		case TEXT('n'): // [TEXT] == [table] [N]
 			{
 				if (itemtext.numtok() == 2) { // load single item from hash table by index
-					Dcx::mIRC.tsEvalex(tsRes, TEXT("$hget(%s,%s).data"), itemtext.gettok( 1 ).to_chr(), itemtext.gettok( 2 ).to_chr());
+					mIRCLinker::tsEvalex(tsRes, TEXT("$hget(%s,%s).data"), itemtext.gettok( 1 ).to_chr(), itemtext.gettok( 2 ).to_chr());
 					ListBox_InsertString( this->m_Hwnd, nPos, tsRes.to_chr() );
 					nMaxStrlen = tsRes.len();
 				}
@@ -449,7 +449,7 @@ void DcxList::parseCommandRequest( const TString & input ) {
 					int endN = itemtext.getnexttok( ).to_int();		// tok 3
 
 					// get total items in table.
-					Dcx::mIRC.tsEvalex(tsRes, TEXT("$hget(%s,0).item"), htable.to_chr());
+					mIRCLinker::tsEvalex(tsRes, TEXT("$hget(%s,0).item"), htable.to_chr());
 					const int max_items = tsRes.to_int();
 
 					// no items in table.
@@ -483,7 +483,7 @@ void DcxList::parseCommandRequest( const TString & input ) {
 
 					this->setRedraw(FALSE);
 					for (int i = startN; i <= endN; i++) {
-						Dcx::mIRC.tsEvalex(tsRes, TEXT("$hget(%s,%d).data"), htable.to_chr(), i);
+						mIRCLinker::tsEvalex(tsRes, TEXT("$hget(%s,%d).data"), htable.to_chr(), i);
 						ListBox_InsertString( this->m_Hwnd, nPos++, tsRes.to_chr() );
 						const int len = tsRes.len();
 						if (len > nMaxStrlen)

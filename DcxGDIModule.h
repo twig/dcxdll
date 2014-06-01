@@ -10,6 +10,6 @@ public:
 	DcxGDIModule(void);
 	~DcxGDIModule(void);
 
-	bool load(mIRCLinker &mIRCLink);
+	bool load(void);
 	bool unload(void);
 };

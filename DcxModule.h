@@ -8,7 +8,7 @@
 #include <shlwapi.h>
 #include "mIRCLinker.h"
 
-class Dcx;
+//class Dcx;
 
 #ifdef __INTEL_COMPILER // Defined when using Intel C++ Compiler.
 #pragma warning( push )
@@ -17,7 +17,7 @@ class Dcx;
 
 class DcxModule
 {
-	mIRCLinker * m_mIRCLink;
+	//mIRCLinker * m_mIRCLink;
 	
 protected:
 	HMODULE m_hModule;
@@ -29,7 +29,7 @@ public:
 	bool isUseable() const;
 	static bool GetWindowVersion(DWORD *dMajor, DWORD *dMinor);
 
-	virtual bool load(mIRCLinker &mIRCLink);
+	virtual bool load();
 	virtual bool unload() = 0;
 };
 

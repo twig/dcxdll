@@ -209,28 +209,28 @@ LRESULT CALLBACK DcxTrayIcon::TrayWndProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 		switch (uMouseMsg)
 		{
 			case WM_LBUTTONDBLCLK:
-				Dcx::mIRC.signalex(dcxSignal.xtray, TEXT("trayicon %s %d"), TEXT("dclick"), id);
+				mIRCLinker::signalex(dcxSignal.xtray, TEXT("trayicon %s %d"), TEXT("dclick"), id);
 				break;
 
 			case WM_LBUTTONUP:
-				Dcx::mIRC.signalex(dcxSignal.xtray, TEXT("trayicon %s %d"), TEXT("sclick"), id);
+				mIRCLinker::signalex(dcxSignal.xtray, TEXT("trayicon %s %d"), TEXT("sclick"), id);
 				break;
 
 			case WM_RBUTTONUP:
 			case WM_CONTEXTMENU:
-				Dcx::mIRC.signalex(dcxSignal.xtray, TEXT("trayicon %s %d"), TEXT("rclick"), id);
+				mIRCLinker::signalex(dcxSignal.xtray, TEXT("trayicon %s %d"), TEXT("rclick"), id);
 				break;
 
 			case WM_RBUTTONDBLCLK:
-				Dcx::mIRC.signalex(dcxSignal.xtray, TEXT("trayicon %s %d"), TEXT("rdclick"), id);
+				mIRCLinker::signalex(dcxSignal.xtray, TEXT("trayicon %s %d"), TEXT("rdclick"), id);
 				break;
 
 			case WM_MBUTTONUP:
-				Dcx::mIRC.signalex(dcxSignal.xtray, TEXT("trayicon %s %d"), TEXT("mclick"), id);
+				mIRCLinker::signalex(dcxSignal.xtray, TEXT("trayicon %s %d"), TEXT("mclick"), id);
 				break;
 
 			case WM_MBUTTONDBLCLK:
-				Dcx::mIRC.signalex(dcxSignal.xtray, TEXT("trayicon %s %d"), TEXT("mdclick"), id);
+				mIRCLinker::signalex(dcxSignal.xtray, TEXT("trayicon %s %d"), TEXT("mdclick"), id);
 				break;
 
 			default:

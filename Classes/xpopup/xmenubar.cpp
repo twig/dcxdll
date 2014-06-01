@@ -58,7 +58,7 @@ void XMenuBar::parseXMenuBarCommand(const TString &input) {
 			const TString alias(menuName);
 
 			// Check if alias is valid.
-			if (!Dcx::mIRC.isAlias(alias.to_chr()))
+			if (!mIRCLinker::isAlias(alias.to_chr()))
 			{
 				Dcx::error(TEXT("-M"), TEXT("Invalid callback alias specified"));
 				return;
@@ -75,7 +75,7 @@ void XMenuBar::parseXMenuBarCommand(const TString &input) {
 		return;
 	}
 
-	menuBar = GetMenu(Dcx::mIRC.getHWND());
+	menuBar = GetMenu(mIRCLinker::getHWND());
 
 	// Add menu
 	// xmenubar [-a] [MENU] [LABEL]
@@ -124,7 +124,7 @@ void XMenuBar::parseXMenuBarCommand(const TString &input) {
 		this->setMenuBar(menuBar, newMenu);
 
 		// Redraws to include the system icons from MDI child.
-		Dcx::mIRC.exec(TEXT("//window -a $qt($active)"));
+		mIRCLinker::exec(TEXT("//window -a $qt($active)"));
 	}
 	// Change the label on the menu
 	// xmenubar [-l] [MENU] [LABEL]
@@ -164,12 +164,12 @@ void XMenuBar::parseXMenuBarCommand(const TString &input) {
 		const int mID = menuName.to_int();
 
 		// MAKEWPARAM((# = Menu ID), (0 = Menu command));
-		SendMessage(Dcx::mIRC.getHWND(), WM_COMMAND, MAKEWPARAM(mID, 0) , NULL);
+		SendMessage(mIRCLinker::getHWND(), WM_COMMAND, MAKEWPARAM(mID, 0) , NULL);
 		return;
 	}
 
 	// Force redraw so the updates are shown.
-	DrawMenuBar(Dcx::mIRC.getHWND());
+	DrawMenuBar(mIRCLinker::getHWND());
 }
 
 /*
@@ -220,7 +220,7 @@ void XMenuBar::removeFromMenuBar(HMENU menubar, XPopupMenu *p_Menu) {
 
 	// If no menubar is specified, get current menubar.
 	if (menubar == NULL) {
-		menubar = GetMenu(Dcx::mIRC.getHWND());
+		menubar = GetMenu(mIRCLinker::getHWND());
 
 		if (!IsMenu(menubar))
 			return;
@@ -244,7 +244,7 @@ void XMenuBar::removeFromMenuBar(HMENU menubar, XPopupMenu *p_Menu) {
 	if (offset > 0)
 		RemoveMenu(menubar, offset, MF_BYPOSITION);
 
-	DrawMenuBar(Dcx::mIRC.getHWND());
+	DrawMenuBar(mIRCLinker::getHWND());
 }
 
 /*
@@ -285,7 +285,7 @@ void XMenuBar::setMenuBar(HMENU oldMenuBar, HMENU newMenuBar) {
 		SetMenuInfo(newMenuBar, &mi);
 	}
 
-	SetMenu(Dcx::mIRC.getHWND(), newMenuBar);
+	SetMenu(mIRCLinker::getHWND(), newMenuBar);
 
 	// Go through old menubar items and detach them
 	//VectorOfXPopupMenu temp;
@@ -323,7 +323,7 @@ void XMenuBar::setMenuBar(HMENU oldMenuBar, HMENU newMenuBar) {
 	else
 		DestroyMenu(oldMenuBar);
 
-	DrawMenuBar(Dcx::mIRC.getHWND());
+	DrawMenuBar(mIRCLinker::getHWND());
 }
 
 /*
@@ -348,7 +348,7 @@ bool XMenuBar::validateMenu(const XPopupMenu *menu, const TString &flag, const T
  */
 void XMenuBar::resetMenuBar() {
 	if (g_OriginalMenuBar != NULL) {
-		HMENU menubar = GetMenu(Dcx::mIRC.getHWND());
+		HMENU menubar = GetMenu(mIRCLinker::getHWND());
 
 		this->setMenuBar(menubar, g_OriginalMenuBar);
 		g_OriginalMenuBar = NULL;
@@ -374,7 +374,7 @@ bool XMenuBar::hasCallback() const {
 bool XMenuBar::parseCallback(const UINT menuID) {
 	TString result;
 
-	Dcx::mIRC.tsEvalex(result, TEXT("$%s(%d)"), this->m_callback.to_chr(), menuID);
+	mIRCLinker::tsEvalex(result, TEXT("$%s(%d)"), this->m_callback.to_chr(), menuID);
 
 	if (result == TEXT("$true"))
 		return true;

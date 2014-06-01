@@ -57,8 +57,10 @@ void DcxDialogCollection::markDialog( const HWND mHwnd, const TString & tsName, 
  * blah
  */
 
-DcxDialog * DcxDialogCollection::getDialogByHandle( const HWND mHwnd ) {
-
+DcxDialog * DcxDialogCollection::getDialogByHandle( const HWND mHwnd )
+{
+	if (mHwnd == NULL)
+		return NULL;
 #if DCX_USE_C11
 	for (const auto &x: this->m_vpDialog) {
 		if (x->getHwnd() == mHwnd)
@@ -87,8 +89,10 @@ DcxDialog * DcxDialogCollection::getDialogByHandle( const HWND mHwnd ) {
  * blah
  */
 
-DcxDialog * DcxDialogCollection::getDialogByChildHandle( const HWND mHwnd ) {
-
+DcxDialog * DcxDialogCollection::getDialogByChildHandle( const HWND mHwnd )
+{
+	if (mHwnd == NULL)
+		return NULL;
 #if DCX_USE_C11
 	for (const auto &x: this->m_vpDialog) {
 		if (x->getControlByHWND(mHwnd) != NULL)
@@ -117,7 +121,10 @@ DcxDialog * DcxDialogCollection::getDialogByChildHandle( const HWND mHwnd ) {
  * blah
  */
 
-DcxDialog * DcxDialogCollection::getDialogByName( const TString & tsName ) {
+DcxDialog * DcxDialogCollection::getDialogByName( const TString & tsName )
+{
+	if (tsName.len() == 0)
+		return NULL;
 #if DCX_USE_C11
 	for (const auto &x: this->m_vpDialog) {
 		if (x->getName() == tsName)

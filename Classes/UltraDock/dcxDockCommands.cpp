@@ -31,10 +31,10 @@ typedef struct tagDCXDOCK {
 	DWORD flags;
 } DCXDOCK, *LPDCXDOCK;
 
-typedef struct tagDCXDOCSIZE {
-	DWORD	width;
-	DWORD	height;
-} DCXDOCKSIZE, *LPDCXDOCKSIZE;
+//typedef struct tagDCXDOCSIZE {
+//	DWORD	width;
+//	DWORD	height;
+//} DCXDOCKSIZE, *LPDCXDOCKSIZE;
 
 BOOL CALLBACK EnumDocked(HWND hwnd,LPARAM lParam)
 {
@@ -97,7 +97,7 @@ LRESULT CALLBACK mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lP
 {
 	LPDCXDOCK dd = (LPDCXDOCK)GetProp(mHwnd,TEXT("dcx_dock"));
 #ifndef NDEBUG
-	Dcx::mIRC.signalex(dcxSignal.xdock, TEXT("debug %d"), uMsg);
+	mIRCLinker::signalex(dcxSignal.xdock, TEXT("debug %d"), uMsg);
 #endif
 	if (dd == NULL)
 		return DefWindowProc(mHwnd,uMsg, wParam, lParam);
@@ -106,9 +106,9 @@ LRESULT CALLBACK mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lP
 	case WM_SIZE:
 		{
 			if (dd->type.len())
-				Dcx::mIRC.signalex(dcxSignal.xdock, TEXT("size %s %d %d %d"), dd->type.to_chr(), dd->win, LOWORD(lParam), HIWORD(lParam));
+				mIRCLinker::signalex(dcxSignal.xdock, TEXT("size %s %d %d %d"), dd->type.to_chr(), dd->win, LOWORD(lParam), HIWORD(lParam));
 			else
-				Dcx::mIRC.signalex(dcxSignal.xdock, TEXT("size Custom %d %d %d"), dd->win, LOWORD(lParam), HIWORD(lParam));
+				mIRCLinker::signalex(dcxSignal.xdock, TEXT("size Custom %d %d %d"), dd->win, LOWORD(lParam), HIWORD(lParam));
 
 			EnumChildWindows(mHwnd,(WNDENUMPROC)SizeDocked,NULL);
 		}
@@ -123,9 +123,9 @@ LRESULT CALLBACK mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lP
 	case WM_CLOSE:
 		{
 			if (dd->type.len())
-				Dcx::mIRC.signalex(dcxSignal.xdock, TEXT("close %s %d"), dd->type.to_chr(), dd->win);
+				mIRCLinker::signalex(dcxSignal.xdock, TEXT("close %s %d"), dd->type.to_chr(), dd->win);
 			else
-				Dcx::mIRC.signalex(dcxSignal.xdock, TEXT("close Custom %d"), dd->win);
+				mIRCLinker::signalex(dcxSignal.xdock, TEXT("close Custom %d"), dd->win);
 		}
 		break;
 #endif
@@ -260,14 +260,14 @@ bool DockWindow(const HWND mWnd, const HWND temp, const TCHAR *find, const TStri
  * xdock -r [hwnd to dock] [+options] [W] [H]
  */
 mIRC(xdock) {
-	HWND mIRCWnd = Dcx::mIRC.getHWND();
+	HWND mIRCWnd = mIRCLinker::getHWND();
 	TString input(data);
 	input.trim();
 	data[0] = 0;
 
 #ifdef DEBUG
-	if (Dcx::mIRC.getMainVersion() == 7) {
-		DCX_DEBUG(Dcx::debug,TEXT("xdock"), TEXT("mIRC V7 detected..."));
+	if (mIRCLinker::getMainVersion() >= 7) {
+		DCX_DEBUG(mIRCLinker::debug,TEXT("xdock"), TEXT("mIRC V7+ detected..."));
 	}
 #endif
 
@@ -298,9 +298,9 @@ mIRC(xdock) {
 	// show/hide switchbar
 	// [-S] [1|0]
 	if ((switches[1] == TEXT('S')) && (numtok == 2)) {
-		if ((dockHwnd > 0) && !IsWindowVisible(Dcx::mIRC.getSwitchbar()))
+		if ((dockHwnd > 0) && !IsWindowVisible(mIRCLinker::getSwitchbar()))
 			SendMessage(mIRCWnd, WM_COMMAND, (WPARAM) MAKEWPARAM(112,0), 0);
-		else if ((dockHwnd == 0) && IsWindowVisible(Dcx::mIRC.getSwitchbar()))
+		else if ((dockHwnd == 0) && IsWindowVisible(mIRCLinker::getSwitchbar()))
 			SendMessage(mIRCWnd, WM_COMMAND, (WPARAM) MAKEWPARAM(112,0), 0);
 
 		return 1;
@@ -308,9 +308,9 @@ mIRC(xdock) {
 	// show/hide toolbar
 	// [-T] [1|0]
 	else if ((switches[1] == TEXT('T')) && (numtok == 2)) {
-		if ((dockHwnd > 0) && (!IsWindowVisible(Dcx::mIRC.getToolbar())))
+		if ((dockHwnd > 0) && (!IsWindowVisible(mIRCLinker::getToolbar())))
 			SendMessage(mIRCWnd, WM_COMMAND, (WPARAM) MAKEWPARAM(111,0), 0);
-		else if ((dockHwnd == 0) && (IsWindowVisible(Dcx::mIRC.getToolbar())))
+		else if ((dockHwnd == 0) && (IsWindowVisible(mIRCLinker::getToolbar())))
 			SendMessage(mIRCWnd, WM_COMMAND, (WPARAM) MAKEWPARAM(111,0), 0);
 
 		return 1;
@@ -318,9 +318,9 @@ mIRC(xdock) {
 	// show/hide treebar
 	// [-R] [1|0]
 	else if ((switches[1] == TEXT('R')) && (numtok == 2)) {
-		if ((dockHwnd > 0) && (!IsWindowVisible(Dcx::mIRC.getTreebar())))
+		if ((dockHwnd > 0) && (!IsWindowVisible(mIRCLinker::getTreebar())))
 			SendMessage(mIRCWnd, WM_COMMAND, (WPARAM) MAKEWPARAM(210,0), 0);
-		else if ((dockHwnd == 0) && (IsWindowVisible(Dcx::mIRC.getTreebar())))
+		else if ((dockHwnd == 0) && (IsWindowVisible(mIRCLinker::getTreebar())))
 			SendMessage(mIRCWnd, WM_COMMAND, (WPARAM) MAKEWPARAM(210,0), 0);
 
 		return 1;
@@ -386,7 +386,8 @@ mIRC(xdock) {
 	// [-b] [hwnd to dock] [+options]
 	else if ((switches[1] == TEXT('b')) && (numtok > 2)) {
 		if (flags.find(TEXT('o'),0)) // o for Overlay, old style docking with no layout adjustment
-			DockWindow(mWnd, dockHwnd, (Dcx::mIRC.isOrNewerVersion(6, 30) ? TEXT("mIRC_TreeBar") : TEXT("mIRC_TreeList")), flags);
+			//DockWindow(mWnd, dockHwnd, (mIRCLinker::isOrNewerVersion(6, 30) ? TEXT("mIRC_TreeBar") : TEXT("mIRC_TreeList")), flags);
+			DockWindow(mWnd, dockHwnd, TEXT("mIRC_TreeBar"), flags);	// v2 dll is mirc v7+
 		else
 			TreebarDock(dockHwnd, flags);
 	}
@@ -463,7 +464,7 @@ mIRC(xdock) {
 		// x & y handled by mIRC update, only change width & height.
 		SetWindowPos(dockHwnd, NULL, 0, 0, rc.right, rc.bottom, SWP_NOMOVE | SWP_NOSENDCHANGING | SWP_NOZORDER | SWP_NOOWNERZORDER);
 		UpdatemIRC();
-		RedrawWindow(Dcx::mIRC.getHWND(), NULL, NULL, RDW_INTERNALPAINT|RDW_ALLCHILDREN|RDW_INVALIDATE|RDW_ERASE );
+		RedrawWindow(mIRCLinker::getHWND(), NULL, NULL, RDW_INTERNALPAINT | RDW_ALLCHILDREN | RDW_INVALIDATE | RDW_ERASE);
 	}
 	else {
 		Dcx::error(TEXT("/xdock"), TEXT("Unknown command or invalid syntax"));
@@ -548,28 +549,28 @@ mIRC(_xdock)
 		case 4: // switchBarSize
 			{
 				RECT rc;
-				GetWindowRect(Dcx::mIRC.getSwitchbar(), &rc);
+				GetWindowRect(mIRCLinker::getSwitchbar(), &rc);
 				wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d %d %d"), rc.left, rc.top, rc.right-rc.left, rc.bottom-rc.top);
 			}
 			break;
 		case 5: // toolBarSize
 			{
 				RECT rc;
-				GetWindowRect(Dcx::mIRC.getToolbar(), &rc);
+				GetWindowRect(mIRCLinker::getToolbar(), &rc);
 				wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d %d %d"), rc.left, rc.top, rc.right-rc.left, rc.bottom-rc.top);
 			}
 			break;
 		case 6: // treeBarSize
 			{
 				RECT rc;
-				GetWindowRect(Dcx::mIRC.getTreebar(), &rc);
+				GetWindowRect(mIRCLinker::getTreebar(), &rc);
 				wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d %d %d"), rc.left, rc.top, rc.right-rc.left, rc.bottom-rc.top);
 			}
 			break;
 		case 7: // isSwitchBar
 			{
-				dcx_Con(IsWindowVisible(Dcx::mIRC.getSwitchbar()), data);
-				//if (IsWindowVisible(Dcx::mIRC.getSwitchbar()))
+					dcx_Con(IsWindowVisible(mIRCLinker::getSwitchbar()), data);
+				//if (IsWindowVisible(mIRCLinker::getSwitchbar()))
 				//	lstrcpyn(data, TEXT("$true"), MIRC_BUFFER_SIZE_CCH);
 				//else
 				//	lstrcpyn(data,TEXT("$false"), MIRC_BUFFER_SIZE_CCH);
@@ -577,8 +578,8 @@ mIRC(_xdock)
 			break;
 		case 8: // isToolBar
 			{
-				dcx_Con(IsWindowVisible(Dcx::mIRC.getToolbar()), data);
-				//if (IsWindowVisible(Dcx::mIRC.getToolbar()))
+					dcx_Con(IsWindowVisible(mIRCLinker::getToolbar()), data);
+				//if (IsWindowVisible(mIRCLinker::getToolbar()))
 				//	lstrcpyn(data, TEXT("$true"), MIRC_BUFFER_SIZE_CCH);
 				//else
 				//	lstrcpyn(data,TEXT("$false"), MIRC_BUFFER_SIZE_CCH);
@@ -586,8 +587,8 @@ mIRC(_xdock)
 			break;
 		case 9: // isTreeBar
 			{
-				dcx_Con(IsWindowVisible(Dcx::mIRC.getTreebar()), data);
-				//if (IsWindowVisible(Dcx::mIRC.getTreebar()))
+					dcx_Con(IsWindowVisible(mIRCLinker::getTreebar()), data);
+				//if (IsWindowVisible(mIRCLinker::getTreebar()))
 				//	lstrcpyn(data,TEXT("$true"), MIRC_BUFFER_SIZE_CCH);
 				//else
 				//	lstrcpyn(data,TEXT("$false"), MIRC_BUFFER_SIZE_CCH);
@@ -595,8 +596,8 @@ mIRC(_xdock)
 			break;
 		case 10: // isMenuBar
 			{
-				 dcx_Con(GetMenu(Dcx::mIRC.getHWND()), data);
-				//if (GetMenu(Dcx::mIRC.getHWND()))
+					 dcx_Con(GetMenu(mIRCLinker::getHWND()), data);
+				//if (GetMenu(mIRCLinker::getHWND()))
 				//	lstrcpyn(data,TEXT("$true"), MIRC_BUFFER_SIZE_CCH);
 				//else
 				//	lstrcpyn(data,TEXT("$false"), MIRC_BUFFER_SIZE_CCH);
@@ -604,23 +605,23 @@ mIRC(_xdock)
 			break;
 		case 11: // text
 			{
-				if (GetWindowTextLength(Dcx::mIRC.getHWND()) > 0)
-					GetWindowText(Dcx::mIRC.getHWND(),data,MIRC_BUFFER_SIZE_CCH);
+					 if (GetWindowTextLength(mIRCLinker::getHWND()) > 0)
+					GetWindowText(mIRCLinker::getHWND(), data, MIRC_BUFFER_SIZE_CCH);
 			}
 			break;
 		case 12: // switchBarHwnd
 			{
-				wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%ld"), (DWORD)Dcx::mIRC.getSwitchbar()); // don't use %p as this gives a hex result.
+					 wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%ld"), (DWORD)mIRCLinker::getSwitchbar()); // don't use %p as this gives a hex result.
 			}
 			break;
 		case 13: // toolBarHwnd
 			{
-				wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%ld"), (DWORD)Dcx::mIRC.getToolbar());
+					 wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%ld"), (DWORD)mIRCLinker::getToolbar());
 			}
 			break;
 		case 14: // treeBarHwnd
 			{
-				wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%ld"), (DWORD)Dcx::mIRC.getTreebar());
+					 wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%ld"), (DWORD)mIRCLinker::getTreebar());
 			}
 			break;
 		case 0: // error
@@ -955,9 +956,9 @@ mIRC(_xdock)
 //	// [-S] [1|0]
 //	if ((switches[1] == TEXT('S')) && (numtok == 2)) {
 //		if ((input.gettok(2, TEXT(" ")).to_int() > 0) && (!IsWindowVisible(mIRCLink.m_hSwitchbar)))
-//			SendMessage(Dcx::mIRC.getHWND(), WM_COMMAND, (WPARAM) MAKEWPARAM(112,0), 0);
+//			SendMessage(mIRCLinker::getHWND(), WM_COMMAND, (WPARAM) MAKEWPARAM(112,0), 0);
 //		else if ((input.gettok(2, TEXT(" ")).to_int() == 0) && (IsWindowVisible(mIRCLink.m_hSwitchbar)))
-//			SendMessage(Dcx::mIRC.getHWND(), WM_COMMAND, (WPARAM) MAKEWPARAM(112,0), 0);
+//			SendMessage(mIRCLinker::getHWND(), WM_COMMAND, (WPARAM) MAKEWPARAM(112,0), 0);
 //
 //		return 1;
 //	}
@@ -965,9 +966,9 @@ mIRC(_xdock)
 //	// [-T] [1|0]
 //	else if ((switches[1] == TEXT('T')) && (numtok == 2)) {
 //		if ((input.gettok(2, TEXT(" ")).to_int() > 0) && (!IsWindowVisible(mIRCLink.m_hToolbar)))
-//			SendMessage(Dcx::mIRC.getHWND(), WM_COMMAND, (WPARAM) MAKEWPARAM(111,0), 0);
+//			SendMessage(mIRCLinker::getHWND(), WM_COMMAND, (WPARAM) MAKEWPARAM(111,0), 0);
 //		else if ((input.gettok(2, TEXT(" ")).to_int() == 0) && (IsWindowVisible(mIRCLink.m_hToolbar)))
-//			SendMessage(Dcx::mIRC.getHWND(), WM_COMMAND, (WPARAM) MAKEWPARAM(111,0), 0);
+//			SendMessage(mIRCLinker::getHWND(), WM_COMMAND, (WPARAM) MAKEWPARAM(111,0), 0);
 //
 //		return 1;
 //	}
@@ -975,19 +976,19 @@ mIRC(_xdock)
 //	// [-R [1|0]
 //	else if ((switches[1] == TEXT('R')) && (numtok == 2)) {
 //		if ((input.gettok(2, TEXT(" ")).to_int() > 0) && (!IsWindowVisible(mIRCLink.m_hTreebar)))
-//			SendMessage(Dcx::mIRC.getHWND(), WM_COMMAND, (WPARAM) MAKEWPARAM(210,0), 0);
+//			SendMessage(mIRCLinker::getHWND(), WM_COMMAND, (WPARAM) MAKEWPARAM(210,0), 0);
 //		else if ((input.gettok(2, TEXT(" ")).to_int() == 0) && (IsWindowVisible(mIRCLink.m_hTreebar)))
-//			SendMessage(Dcx::mIRC.getHWND(), WM_COMMAND, (WPARAM) MAKEWPARAM(210,0), 0);
+//			SendMessage(mIRCLinker::getHWND(), WM_COMMAND, (WPARAM) MAKEWPARAM(210,0), 0);
 //
 //		return 1;
 //	}
 //	// show/hide menubar
 //	// [-M] [1|0]
 //	else if ((switches[1] == TEXT('M')) && (numtok == 2)) {
-//		if ((input.gettok(2, TEXT(" ")).to_int() > 0) && (!GetMenu(Dcx::mIRC.getHWND())))
-//			SendMessage(Dcx::mIRC.getHWND(), WM_COMMAND, (WPARAM) MAKEWPARAM(110,0), 0);
-//		else if ((input.gettok(2, TEXT(" ")).to_int() == 0) && (GetMenu(Dcx::mIRC.getHWND())))
-//			SendMessage(Dcx::mIRC.getHWND(), WM_COMMAND, (WPARAM) MAKEWPARAM(110,0), 0);
+//		if ((input.gettok(2, TEXT(" ")).to_int() > 0) && (!GetMenu(mIRCLinker::getHWND())))
+//			SendMessage(mIRCLinker::getHWND(), WM_COMMAND, (WPARAM) MAKEWPARAM(110,0), 0);
+//		else if ((input.gettok(2, TEXT(" ")).to_int() == 0) && (GetMenu(mIRCLinker::getHWND())))
+//			SendMessage(mIRCLinker::getHWND(), WM_COMMAND, (WPARAM) MAKEWPARAM(110,0), 0);
 //
 //		return 1;
 //	}
@@ -1007,7 +1008,7 @@ mIRC(_xdock)
 //	// [-F] [+flag] [args]
 //	else if ((switches[1] == TEXT('F')) && (numtok > 2)) {
 //		//treeb_hwnd
-//		if (IsWindow(Dcx::mIRC.getTreeview())) {
+//		if (IsWindow(mIRCLinker::getTreeview())) {
 //			TString flag(input.gettok(2));
 //			switch(flag[1])
 //			{
@@ -1022,11 +1023,11 @@ mIRC(_xdock)
 //					if (ParseCommandToLogfont(input.gettok(3, -1, TEXT(" ")), &lf)) {
 //						HFONT hFont = CreateFontIndirect(&lf);
 //						if (hFont != NULL) {
-//							HFONT f = (HFONT)SendMessage(Dcx::mIRC.getTreeview(),WM_GETFONT,0,0);
-//							if (Dcx::mIRC.getTreeFont() == NULL)
+//							HFONT f = (HFONT)SendMessage(mIRCLinker::getTreeview(),WM_GETFONT,0,0);
+//							if (mIRCLinker::getTreeFont() == NULL)
 //								mIRCLink.m_hTreeFont = f;
-//							SendMessage( Dcx::mIRC.getTreeview(), WM_SETFONT, (WPARAM) hFont, (LPARAM) MAKELPARAM(TRUE,0));
-//							if (f != Dcx::mIRC.getTreeFont())
+//							SendMessage( mIRCLinker::getTreeview(), WM_SETFONT, (WPARAM) hFont, (LPARAM) MAKELPARAM(TRUE,0));
+//							if (f != mIRCLinker::getTreeFont())
 //								DeleteObject(f);
 //						}
 //					}
@@ -1045,17 +1046,17 @@ mIRC(_xdock)
 //					{
 //					case TEXT('t'): // text colour
 //						{
-//							TreeView_SetTextColor(Dcx::mIRC.getTreeview(),clr);
+//							TreeView_SetTextColor(mIRCLinker::getTreeview(),clr);
 //						}
 //						break;
 //					case TEXT('b'): // bkg colour
 //						{
-//							TreeView_SetBkColor(Dcx::mIRC.getTreeview(),clr);
+//							TreeView_SetBkColor(mIRCLinker::getTreeview(),clr);
 //						}
 //						break;
 //					case TEXT('l'): // line colour
 //						{
-//							TreeView_SetLineColor(Dcx::mIRC.getTreeview(),clr);
+//							TreeView_SetLineColor(mIRCLinker::getTreeview(),clr);
 //						}
 //						break;
 //					default:
@@ -1075,7 +1076,7 @@ mIRC(_xdock)
 //					}
 //					static const TString treebar_styles(TEXT("trackselect notrackselect tooltips notooltips infotip noinfotip hasbuttons nohasbuttons rootlines norootlines singleexpand nosingleexpand scroll noscroll"));
 //					int i = 3, numtok = input.numtok();
-//					DWORD stylef = GetWindowLong(Dcx::mIRC.getTreeview(),GWL_STYLE);
+//					DWORD stylef = GetWindowLong(mIRCLinker::getTreeview(),GWL_STYLE);
 //					while (i <= numtok) {
 //						switch (treebar_styles.findtok(input.gettok(i).to_chr(),1))
 //						{
@@ -1126,28 +1127,28 @@ mIRC(_xdock)
 //						}
 //						i++;
 //					}
-//					SetWindowLong(Dcx::mIRC.getTreeview(),GWL_STYLE, stylef);
-//					RedrawWindow(Dcx::mIRC.getTreeview(), NULL, NULL, RDW_INTERNALPAINT|RDW_ALLCHILDREN|RDW_INVALIDATE|RDW_ERASE );
+//					SetWindowLong(mIRCLinker::getTreeview(),GWL_STYLE, stylef);
+//					RedrawWindow(mIRCLinker::getTreeview(), NULL, NULL, RDW_INTERNALPAINT|RDW_ALLCHILDREN|RDW_INVALIDATE|RDW_ERASE );
 //				}
 //				break;
 //			case TEXT('i'): // set image list [+flags] [index] [file]
 //				{
-//					if (Dcx::mIRC.getTreeImages() == NULL) {
+//					if (mIRCLinker::getTreeImages() == NULL) {
 //						DCXError(TEXT("xdock -F"), TEXT("No Valid TreeView Image List"));
 //						return 0;
 //					}
 //					if (input.gettok(3) == TEXT("clear")) {
-//						HIMAGELIST o = TreeView_SetImageList(Dcx::mIRC.getTreeview(),NULL,TVSIL_NORMAL);
-//						if (o != NULL && o != Dcx::mIRC.getTreeImages())
+//						HIMAGELIST o = TreeView_SetImageList(mIRCLinker::getTreeview(),NULL,TVSIL_NORMAL);
+//						if (o != NULL && o != mIRCLinker::getTreeImages())
 //							ImageList_Destroy(o);
 //					}
 //					else if (input.gettok(3) == TEXT("default")) {
-//						HIMAGELIST o = TreeView_SetImageList(Dcx::mIRC.getTreeview(),Dcx::mIRC.getTreeImages(),TVSIL_NORMAL);
-//						if (o != NULL && o != Dcx::mIRC.getTreeImages())
+//						HIMAGELIST o = TreeView_SetImageList(mIRCLinker::getTreeview(),mIRCLinker::getTreeImages(),TVSIL_NORMAL);
+//						if (o != NULL && o != mIRCLinker::getTreeImages())
 //							ImageList_Destroy(o);
 //					}
 //					else {
-//						HIMAGELIST himl = ImageList_Duplicate( TreeView_GetImageList( Dcx::mIRC.getTreeview(), TVSIL_NORMAL) );
+//						HIMAGELIST himl = ImageList_Duplicate( TreeView_GetImageList( mIRCLinker::getTreeview(), TVSIL_NORMAL) );
 //						if (himl != NULL) {
 //							int type = 0, index = input.gettok(4).to_int();
 //							TString cflag(input.gettok(3));
@@ -1186,13 +1187,13 @@ mIRC(_xdock)
 //								mIRCDebug(TEXT("replace: %d"), ImageList_ReplaceIcon(himl,type,hIcon));
 //								TVITEMEX item;
 //								ZeroMemory(&item,sizeof(item));
-//								item.hItem = TreeView_GetFirstVisible(Dcx::mIRC.getTreeview());
-//								item.hItem = TreeView_GetNextVisible(Dcx::mIRC.getTreeview(), item.hItem);
+//								item.hItem = TreeView_GetFirstVisible(mIRCLinker::getTreeview());
+//								item.hItem = TreeView_GetNextVisible(mIRCLinker::getTreeview(), item.hItem);
 //								item.mask = TVIF_IMAGE|TVIF_SELECTEDIMAGE; //I_IMAGECALLBACK == -1
-//								mIRCDebug(TEXT("getitem: %d"), TreeView_GetItem(Dcx::mIRC.getTreeview(),&item));
+//								mIRCDebug(TEXT("getitem: %d"), TreeView_GetItem(mIRCLinker::getTreeview(),&item));
 //								mIRCDebug(TEXT("image: %d selected: %d"), item.iImage, item.iSelectedImage);
-//								HIMAGELIST o = TreeView_SetImageList(Dcx::mIRC.getTreeview(), himl, TVSIL_NORMAL);
-//								if (o != NULL && o != Dcx::mIRC.getTreeImages())
+//								HIMAGELIST o = TreeView_SetImageList(mIRCLinker::getTreeview(), himl, TVSIL_NORMAL);
+//								if (o != NULL && o != mIRCLinker::getTreeImages())
 //									ImageList_Destroy(o);
 //								DestroyIcon(hIcon);
 //							}
@@ -1333,7 +1334,7 @@ mIRC(_xdock)
 //		// x & y handled by mIRC update, only change width & height.
 //		SetWindowPos(dockHwnd, NULL, 0, 0, rc.right, rc.bottom, SWP_NOMOVE | SWP_NOSENDCHANGING | SWP_NOZORDER | SWP_NOOWNERZORDER);
 //		UpdatemIRC();
-//		RedrawWindow( Dcx::mIRC.getHWND(), NULL, NULL, RDW_INTERNALPAINT|RDW_ALLCHILDREN|RDW_INVALIDATE|RDW_ERASE );
+//		RedrawWindow( mIRCLinker::getHWND(), NULL, NULL, RDW_INTERNALPAINT|RDW_ALLCHILDREN|RDW_INVALIDATE|RDW_ERASE );
 //	}
 //	else {
 //		DCXError(TEXT("/xdock"),TEXT("Invalid Flag"));
@@ -1440,7 +1441,7 @@ mIRC(_xdock)
 //			break;
 //		case 10: // isMenuBar
 //			{
-//				if (GetMenu(Dcx::mIRC.getHWND()))
+//				if (GetMenu(mIRCLinker::getHWND()))
 //					lstrcpyn(data,TEXT("$true"));
 //				else
 //					lstrcpyn(data,TEXT("$false"));
@@ -1448,8 +1449,8 @@ mIRC(_xdock)
 //			break;
 //		case 11: // text
 //			{
-//				if (GetWindowTextLength(Dcx::mIRC.getHWND()) > 0)
-//					GetWindowText(Dcx::mIRC.getHWND(),data,MIRC_BUFFER_SIZE_CCH);
+//				if (GetWindowTextLength(mIRCLinker::getHWND()) > 0)
+//					GetWindowText(mIRCLinker::getHWND(),data,MIRC_BUFFER_SIZE_CCH);
 //			}
 //			break;
 //		case 0: // error

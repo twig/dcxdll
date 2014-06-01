@@ -500,12 +500,12 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 	// TODO: doesnt work. xdialog -k [NAME] [SWITCH] [STATE]
 	//else if (flags[TEXT('k')] && numtok > 2) {
 	//	bool state = (input.gettok(3).to_int() > 0);
-	//	LONG styles = GetWindowLong(Dcx::mIRC.getHWND(), GWL_EXSTYLE);
+	//	LONG styles = GetWindowLong(mIRCLinker::getHWND(), GWL_EXSTYLE);
 
 	//	if (state)
-	//		SetWindowLong(Dcx::mIRC.getHWND(), GWL_EXSTYLE, styles | WS_EX_APPWINDOW);
+	//		SetWindowLong(mIRCLinker::getHWND(), GWL_EXSTYLE, styles | WS_EX_APPWINDOW);
 	//	else
-	//		SetWindowLong(Dcx::mIRC.getHWND(), GWL_EXSTYLE, styles & ~WS_EX_APPWINDOW);
+	//		SetWindowLong(mIRCLinker::getHWND(), GWL_EXSTYLE, styles & ~WS_EX_APPWINDOW);
 	//}
 	/*
 	//xdialog -l [NAME] [SWITCH] [OPTIONS]
@@ -635,7 +635,8 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 						}
 
 						if (p_GetCell->getType() == LayoutCell::PANE) {
-							LayoutCellPane *p_PaneCell = (LayoutCellPane*) p_GetCell;
+							//LayoutCellPane *p_PaneCell = (LayoutCellPane*) p_GetCell;
+							LayoutCellPane *p_PaneCell = static_cast<LayoutCellPane *>(p_GetCell);
 							p_PaneCell->addChild(p_Cell, WGT);
 						}
 					}
@@ -711,14 +712,14 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 			//DestroyWindow(this->m_Hwnd);
 			//SendMessage(this->m_Hwnd,WM_CLOSE,NULL,NULL); // this allows the dialogs WndProc to EndDialog() if needed.
 			TCHAR ret[32];
-			Dcx::mIRC.evalex(ret, 32, TEXT("$dialog(%s).modal"), this->m_tsName.to_chr());
+			mIRCLinker::evalex(ret, 32, TEXT("$dialog(%s).modal"), this->m_tsName.to_chr());
 			if (lstrcmp(ret, TEXT("$true")) == 0) // Modal Dialog
 				SendMessage(this->m_Hwnd,WM_CLOSE,NULL,NULL); // this allows the dialogs WndProc to EndDialog() if needed.
 			else // Modeless Dialog
 				DestroyWindow(this->m_Hwnd);
 		}
 		else
-			Dcx::mIRC.execex(TEXT("/.timer -m 1 0 xdialog -x %s"), this->getName().to_chr());
+			mIRCLinker::execex(TEXT("/.timer -m 1 0 xdialog -x %s"), this->getName().to_chr());
 	}
 	// xdialog -h [NAME]
 	else if (flags[TEXT('h')]) {
@@ -1784,9 +1785,9 @@ bool DcxDialog::evalAlias(TCHAR *szReturn, const int maxlen, const TCHAR *szArgs
 	//// create a temp %var for the args
 	//// This solves the ,() in args bugs, but causes problems with the , that we want.
 	//int rCnt = this->getRefCount();
-	//Dcx::mIRC.execex(TEXT("/set -n %%d%d %s"), rCnt, params);
+	//mIRCLinker::execex(TEXT("/set -n %%d%d %s"), rCnt, params);
 	this->incRef();
-	const bool res = Dcx::mIRC.evalex(szReturn, maxlen, TEXT("$%s(%s,%s)"), this->getAliasName().to_chr(), this->getName().to_chr(), szArgs);
+	const bool res = mIRCLinker::evalex(szReturn, maxlen, TEXT("$%s(%s,%s)"), this->getAliasName().to_chr(), this->getName().to_chr(), szArgs);
 	this->decRef();
 	return res;
 }
@@ -1804,7 +1805,7 @@ bool DcxDialog::execAliasEx(const TCHAR *szFormat, ...) {
 
 bool DcxDialog::execAlias(const TCHAR *szArgs) {
 	this->incRef();
-	const bool res = Dcx::mIRC.evalex(NULL, 0, TEXT("$%s(%s,%s)"), this->getAliasName().to_chr(), this->getName().to_chr(), szArgs);
+	const bool res = mIRCLinker::evalex(NULL, 0, TEXT("$%s(%s,%s)"), this->getAliasName().to_chr(), this->getName().to_chr(), szArgs);
 	this->decRef();
 	return res;
 }
@@ -1941,7 +1942,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 						// This stops a crash when someone uses /dialog -x within the callback alias without a /timer
 						// NB: After this is done you must use /xdialog -x to close the dialog, /dialog -x will no longer work.
 						bParsed = TRUE;
-						Dcx::mIRC.execex(TEXT("/.timer -m 1 0 xdialog -x %s"), p_this->getName().to_chr());
+						mIRCLinker::execex(TEXT("/.timer -m 1 0 xdialog -x %s"), p_this->getName().to_chr());
 					}
 					else if (p_this->m_dEventMask & DCX_EVENT_CLOSE) {
 						TCHAR ret[256];
@@ -3204,7 +3205,7 @@ void DcxDialog::showError(const TCHAR *prop, const TCHAR *cmd, const TCHAR *err)
 			res.tsprintf(TEXT("D_IERROR xdialog(%s).%s: %s"), this->getName().to_chr(), prop, err);
 		else
 			res.tsprintf(TEXT("D_CERROR xdialog %s %s: %s"), cmd, this->getName().to_chr(), err);
-		Dcx::mIRC.echo(res.to_chr());
+		mIRCLinker::echo(res.to_chr());
 	}
 
 	const_cast<DcxDialog *>(this)->execAliasEx(TEXT("error,0,dialog,%s,%s,%s"), (prop != NULL ? prop : TEXT("none")), (cmd != NULL ? cmd : TEXT("none")), err);

@@ -1114,15 +1114,18 @@ DcxControl * DcxControl::controlFactory( DcxDialog * p_Dialog, const UINT mID, c
 
 			if (tsWin.len() < 2) {
 				// this helps stop '@' being passed as $window(@).hwnd == $window(-2).hwnd & usually causes a crash.
-				Dcx::errorex(TEXT("ControlFactory"), TEXT("Docking (No such window %s)"), tsWin.to_chr());
-				throw TEXT("No such window");
+				TString tsErr(TEXT("No such window: "));
+				tsErr += tsWin;
+				throw tsErr.to_chr();
+				//Dcx::errorex(TEXT("ControlFactory"), TEXT("Docking (No such window %s)"), tsWin.to_chr());
+				//throw TEXT("No such window");
 			}
 
 			HWND winHwnd = (HWND)tsWin.to_num();
 			if (!IsWindow(winHwnd)) {
 				TCHAR windowHwnd[30];
 
-				Dcx::mIRC.evalex(windowHwnd, 30, TEXT("$window(%s).hwnd"), tsWin.to_chr( ) );
+				mIRCLinker::evalex(windowHwnd, 30, TEXT("$window(%s).hwnd"), tsWin.to_chr( ) );
 
 				winHwnd = (HWND) dcx_atoi( windowHwnd );
 			}
@@ -1132,8 +1135,11 @@ DcxControl * DcxControl::controlFactory( DcxDialog * p_Dialog, const UINT mID, c
 					return new DcxMWindow(winHwnd, hParent, mID, p_Dialog, &rc, styles);
 			}
 			else {
-				Dcx::errorex(TEXT("ControlFactory"), TEXT("Docking (No such window %s)"), tsWin.to_chr());
-				throw TEXT("No such window");
+				TString tsErr(TEXT("No such window: "));
+				tsErr += tsWin;
+				throw tsErr.to_chr();
+				//Dcx::errorex(TEXT("ControlFactory"), TEXT("Docking (No such window %s)"), tsWin.to_chr());
+				//throw TEXT("No such window");
 			}
 		}
 	}
@@ -1154,8 +1160,11 @@ DcxControl * DcxControl::controlFactory( DcxDialog * p_Dialog, const UINT mID, c
 				}
 			}
 			else {
-				Dcx::errorex(TEXT("ControlFactory"),TEXT("Docking (No such dialog %s)"), tsInput.gettok( offset +1 ).to_chr());
-				throw TEXT("No such dialog");
+				TString tsErr(TEXT("No such dialog: "));
+				tsErr += tsInput.gettok(offset + 1);
+				throw tsErr.to_chr();
+				//Dcx::errorex(TEXT("ControlFactory"),TEXT("Docking (No such dialog %s)"), tsInput.gettok( offset +1 ).to_chr());
+				//throw TEXT("No such dialog");
 			}
 		}
 	}

@@ -125,7 +125,7 @@ BOOL WINAPI DllMain(
 _INTEL_DLL_ void WINAPI LoadDll(LOADINFO * load) {
 	Dcx::load(load);
 
-	DCX_DEBUG(Dcx::debug,TEXT("LoadDLL"), TEXT("Initialising UltraDock..."));
+	DCX_DEBUG(mIRCLinker::debug, TEXT("LoadDLL"), TEXT("Initialising UltraDock..."));
 	InitUltraDock();
 //#ifndef NDEBUG
 //	InitCustomDock();
@@ -168,7 +168,7 @@ _INTEL_DLL_ int WINAPI UnloadDll(int timeout) {
 */
 mIRC(Version) {
 #ifdef DCX_DEV_BUILD
-	if (Dcx::mIRC.isUnicode())
+	if (mIRCLinker::isUnicode())
 	{
 		wnsprintf(data, MIRC_BUFFER_SIZE_CCH,
 			TEXT("DCX (XPopup) DLL %s %s%d UTF by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2006-2014"),
@@ -180,7 +180,7 @@ mIRC(Version) {
 			DLL_VERSION, DLL_STATE, DLL_DEV_BUILD);
 	}
 #else
-	if (Dcx::mIRC.isUnicode())
+	if (mIRCLinker::isUnicode())
 	{
 		wnsprintf(data, MIRC_BUFFER_SIZE_CCH,
 			TEXT("DCX (XPopup) DLL %s %s UTF by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2006-2014"),

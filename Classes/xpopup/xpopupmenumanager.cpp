@@ -69,7 +69,7 @@ void XPopupMenuManager::load(void)
 //		DCX_DEBUG(Dcx::debug,TEXT("LoadDLL"), TEXT("Subclassed Menu Class"));
 //	}
 //#endif
-	DCX_DEBUG(Dcx::debug,TEXT("LoadDLL"), TEXT("Registering XPopup..."));
+	DCX_DEBUG(mIRCLinker::debug,TEXT("LoadDLL"), TEXT("Registering XPopup..."));
 
 	wc.cbSize = sizeof(WNDCLASSEX);
 	wc.style         = 0;
@@ -85,15 +85,15 @@ void XPopupMenuManager::load(void)
 	wc.hIconSm       = NULL;
 	RegisterClassEx(&wc);
 
-	DCX_DEBUG(Dcx::debug,TEXT("LoadDLL"), TEXT("Creating menu owner..."));
+	DCX_DEBUG(mIRCLinker::debug,TEXT("LoadDLL"), TEXT("Creating menu owner..."));
 	m_hMenuOwner = CreateWindow(XPOPUPMENUCLASS, NULL, 0, 0, 0, 0, 0, HWND_MESSAGE, 0, GetModuleHandle(NULL), 0);
 
 	m_mIRCPopupMenu = new XPopupMenu(TEXT("mirc"),(HMENU)NULL);
-	m_mIRCMenuBar = new XPopupMenu(TEXT("mircbar"),GetMenu(Dcx::mIRC.getHWND()));
+	m_mIRCMenuBar = new XPopupMenu(TEXT("mircbar"),GetMenu(mIRCLinker::getHWND()));
 
 
 	// XMenuBar stuff
-	HMENU menu = GetMenu(Dcx::mIRC.getHWND());
+	HMENU menu = GetMenu(mIRCLinker::getHWND());
 	int i = 0;
 	const unsigned int buffSize = 30;
 	TString label(buffSize);
@@ -134,12 +134,12 @@ void XPopupMenuManager::unload(void)
 //		}
 //	}
 //#endif
-	Dcx::mIRC.resetWindowProc();
+	mIRCLinker::resetWindowProc();
 
 	clearMenus();
 	delete m_mIRCPopupMenu;
 
-	m_mIRCMenuBar->cleanMenu(GetMenu(Dcx::mIRC.getHWND()));
+	m_mIRCMenuBar->cleanMenu(GetMenu(mIRCLinker::getHWND()));
 	delete m_mIRCMenuBar;
 
 	if (m_hMenuOwner != NULL)
@@ -152,7 +152,7 @@ LRESULT XPopupMenuManager::OnInitMenuPopup(HWND mHwnd, WPARAM wParam, LPARAM lPa
 {
 	HMENU menu = (HMENU)wParam;
 	const bool isWinMenu = HIWORD(lParam) == TRUE ? true : false;
-	HMENU currentMenubar = GetMenu(Dcx::mIRC.getHWND());
+	HMENU currentMenubar = GetMenu(mIRCLinker::getHWND());
 	const bool switchMenu = (g_mIRCScriptMenu != NULL) &&                  // The mIRC scriptpopup menu has been wrapped,
 		              (menu == g_mIRCScriptMenu->getMenuHandle()) && // The menu the same as the one just shown,
 					  (currentMenubar != g_OriginalMenuBar) &&       // The menubar is our generated menubar,
@@ -160,20 +160,20 @@ LRESULT XPopupMenuManager::OnInitMenuPopup(HWND mHwnd, WPARAM wParam, LPARAM lPa
 
 	if (!isWinMenu) {
 		if (switchMenu)
-			SetMenu(Dcx::mIRC.getHWND(), g_OriginalMenuBar);
+			SetMenu(mIRCLinker::getHWND(), g_OriginalMenuBar);
 
 		// let mIRC populate the menus dynamically
-		LRESULT lRes = Dcx::mIRC.callDefaultWindowProc(mHwnd, WM_INITMENUPOPUP, wParam, lParam);
+		LRESULT lRes = mIRCLinker::callDefaultWindowProc(mHwnd, WM_INITMENUPOPUP, wParam, lParam);
 
 		if (switchMenu)
-			SetMenu(Dcx::mIRC.getHWND(), currentMenubar);
+			SetMenu(mIRCLinker::getHWND(), currentMenubar);
 
 		if (isMenuBarMenu(GetMenu(mHwnd), menu)) {
 			m_bIsMenuBar = true;
 
 			if (m_bIsActiveMircMenubarPopup)
 			{
-				HWND hActive = (HWND)SendMessage(Dcx::mIRC.getMDIClient(), WM_MDIGETACTIVE, NULL, NULL);
+				HWND hActive = (HWND)SendMessage(mIRCLinker::getMDIClient(), WM_MDIGETACTIVE, NULL, NULL);
 				bool isCustomMenu = Dcx::XPopups.isCustomMenu(menu);
 
 				// Store the handle of the menu being displayed.
@@ -196,7 +196,7 @@ LRESULT XPopupMenuManager::OnInitMenuPopup(HWND mHwnd, WPARAM wParam, LPARAM lPa
 	}
 	else
 		m_bIsSysMenu = true;
-	return Dcx::mIRC.callDefaultWindowProc(mHwnd, WM_INITMENUPOPUP, wParam, lParam);
+	return mIRCLinker::callDefaultWindowProc(mHwnd, WM_INITMENUPOPUP, wParam, lParam);
 }
 
 LRESULT XPopupMenuManager::OnUninitMenuPopup(HWND mHwnd, WPARAM wParam, LPARAM lParam)
@@ -209,14 +209,14 @@ LRESULT XPopupMenuManager::OnUninitMenuPopup(HWND mHwnd, WPARAM wParam, LPARAM l
 
 	if (m_bIsMenuBar && !m_bIsSysMenu && m_bIsActiveMircMenubarPopup)
 		m_mIRCMenuBar->deleteAllItemData(menu);
-	return Dcx::mIRC.callDefaultWindowProc(mHwnd, WM_UNINITMENUPOPUP, wParam, lParam);
+	return mIRCLinker::callDefaultWindowProc(mHwnd, WM_UNINITMENUPOPUP, wParam, lParam);
 }
 	
 LRESULT XPopupMenuManager::OnExitMenuLoop(HWND mHwnd, WPARAM wParam, LPARAM lParam)
 {
 	if (!m_bIsMenuBar && m_bIsActiveMircPopup)
 		m_mIRCMenuBar->clearAllMenuItems();
-	return Dcx::mIRC.callDefaultWindowProc(mHwnd, WM_EXITMENULOOP, wParam, lParam);
+	return mIRCLinker::callDefaultWindowProc(mHwnd, WM_EXITMENULOOP, wParam, lParam);
 }
 
 LRESULT XPopupMenuManager::OnCommand(HWND mHwnd, WPARAM wParam, LPARAM lParam)
@@ -242,33 +242,33 @@ LRESULT XPopupMenuManager::OnCommand(HWND mHwnd, WPARAM wParam, LPARAM lParam)
 		//	break;
 		case 111: // toolbar
 			{
-				if (IsWindowVisible(Dcx::mIRC.getToolbar()))
-					Dcx::mIRC.signalex(dcxSignal.xdock, TEXT("toolbar disabled"));
+				if (IsWindowVisible(mIRCLinker::getToolbar()))
+					mIRCLinker::signalex(dcxSignal.xdock, TEXT("toolbar disabled"));
 				else
-					Dcx::mIRC.signalex(dcxSignal.xdock, TEXT("toolbar enabled"));
+					mIRCLinker::signalex(dcxSignal.xdock, TEXT("toolbar enabled"));
 			}
 			break;
 		case 112: // switchbar
 			{
-				if (IsWindowVisible(Dcx::mIRC.getSwitchbar()))
-					Dcx::mIRC.signalex(dcxSignal.xdock, TEXT("switchbar disabled"));
+				if (IsWindowVisible(mIRCLinker::getSwitchbar()))
+					mIRCLinker::signalex(dcxSignal.xdock, TEXT("switchbar disabled"));
 				else
-					Dcx::mIRC.signalex(dcxSignal.xdock, TEXT("switchbar enabled"));
+					mIRCLinker::signalex(dcxSignal.xdock, TEXT("switchbar enabled"));
 			}
 			break;
 		case 210: // treebar
 			{
-				if (IsWindowVisible(Dcx::mIRC.getTreebar()))
-					Dcx::mIRC.signalex(dcxSignal.xdock, TEXT("treebar disabled"));
+				if (IsWindowVisible(mIRCLinker::getTreebar()))
+					mIRCLinker::signalex(dcxSignal.xdock, TEXT("treebar disabled"));
 				else
-					Dcx::mIRC.signalex(dcxSignal.xdock, TEXT("treebar enabled"));
+					mIRCLinker::signalex(dcxSignal.xdock, TEXT("treebar enabled"));
 			}
 			break;
 		default:
 			break;
 		}
 	}
-	return Dcx::mIRC.callDefaultWindowProc(mHwnd, WM_COMMAND, wParam, lParam);
+	return mIRCLinker::callDefaultWindowProc(mHwnd, WM_COMMAND, wParam, lParam);
 }
 
 /*!
@@ -368,7 +368,7 @@ void XPopupMenuManager::parseCommand( const TString & input, XPopupMenu *p_Menu 
 	// xpopup -m -> mirc -m
 	else if ( flags[TEXT('m')] && numtok == 2 && tsMenuName == TEXT("mirc")) {
 		// do nothing in utf dll as this dll is mirc v7+ only.
-		//if (!this->m_bPatched && Dcx::mIRC.isVersion(6,20)) {
+		//if (!this->m_bPatched && mIRCLinker::isVersion(6,20)) {
 		//	XPopupMenuManager::InterceptAPI(GetModuleHandle(NULL), TEXT("User32.dll"), "TrackPopupMenu", (DWORD)XPopupMenuManager::XTrackPopupMenu, (DWORD)XPopupMenuManager::TrampolineTrackPopupMenu, 5);
 		//	XPopupMenuManager::InterceptAPI(GetModuleHandle(NULL), TEXT("User32.dll"), "TrackPopupMenuEx", (DWORD)XPopupMenuManager::XTrackPopupMenuEx, (DWORD)XPopupMenuManager::TrampolineTrackPopupMenuEx, 5);
 		//	this->m_bPatched = true;
@@ -417,7 +417,7 @@ void XPopupMenuManager::parseCommand( const TString & input, XPopupMenu *p_Menu 
 			// Adjust relative location to take multi-monitor into account
 			HMONITOR hMon;
 			MONITORINFO mi;
-			hMon = MonitorFromWindow(Dcx::mIRC.getHWND(), MONITOR_DEFAULTTONEAREST);
+			hMon = MonitorFromWindow(mIRCLinker::getHWND(), MONITOR_DEFAULTTONEAREST);
 
 			mi.cbSize = sizeof(mi);
 			GetMonitorInfo(hMon, &mi);
@@ -428,7 +428,7 @@ void XPopupMenuManager::parseCommand( const TString & input, XPopupMenu *p_Menu 
 
 		const UINT ID = TrackPopupMenuEx( p_Menu->getMenuHandle( ), TPM_RETURNCMD | mflags, x, y, m_hMenuOwner, NULL );
 
-		Dcx::mIRC.execex(TEXT("//.signal -n XPopup-%s %d"), p_Menu->getName( ).to_chr( ), ID );
+		mIRCLinker::execex(TEXT("//.signal -n XPopup-%s %d"), p_Menu->getName( ).to_chr( ), ID );
 	}
 	// xpopup -t -> [MENU] [SWITCH] [STYLE]
 	else if (flags[TEXT('t')] && numtok > 2) {
@@ -759,7 +759,7 @@ int XPopupMenuManager::parseMPopup(const TString & input)
 			m_bIsActiveMircMenubarPopup = true;
 		else {
 			m_bIsActiveMircMenubarPopup = false;
-			m_mIRCMenuBar->cleanMenu(GetMenu(Dcx::mIRC.getHWND()));
+			m_mIRCMenuBar->cleanMenu(GetMenu(mIRCLinker::getHWND()));
 		}
 	}
 	return 3;
@@ -1141,7 +1141,7 @@ void XPopupMenuManager::LoadPopupsFromXML(const TiXmlElement *popups, const TiXm
 
 		if (attr != NULL) {
 			TString tsBuff(attr);
-			Dcx::mIRC.tsEval(tsBuff, tsBuff.to_chr());
+			mIRCLinker::tsEval(tsBuff, tsBuff.to_chr());
 			menu->setColor(i, (COLORREF)tsBuff.to_int());
 		}
 	}
@@ -1150,7 +1150,7 @@ void XPopupMenuManager::LoadPopupsFromXML(const TiXmlElement *popups, const TiXm
 	if (style == XPopupMenu::XPMS_CUSTOM) {
 		TString filename;
 
-		Dcx::mIRC.tsEval(filename, TString(popup->Attribute("background")).to_chr());
+		mIRCLinker::tsEval(filename, TString(popup->Attribute("background")).to_chr());
 
 		HBITMAP hBitmap = dcxLoadBitmap(NULL, filename);
 
@@ -1182,7 +1182,7 @@ void XPopupMenuManager::LoadPopupsFromXML(const TiXmlElement *popups, const TiXm
 
 			// Filename
 			TString tsFilename;
-			Dcx::mIRC.tsEval(tsFilename, TString(element->Attribute("src")).to_chr());
+			mIRCLinker::tsEval(tsFilename, TString(element->Attribute("src")).to_chr());
 
 			tmp = element->Attribute("index");
 

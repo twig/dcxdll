@@ -21,8 +21,9 @@
  * blah
  */
 
-LayoutCellFill::LayoutCellFill( ) : LayoutCell( ) {
-
+LayoutCellFill::LayoutCellFill( )
+: LayoutCell( )
+{
 }
 
 /*!
@@ -31,8 +32,9 @@ LayoutCellFill::LayoutCellFill( ) : LayoutCell( ) {
  * blah
  */
 
-LayoutCellFill::LayoutCellFill( const HWND mHwnd ) : LayoutCell( mHwnd ) {
-
+LayoutCellFill::LayoutCellFill( const HWND mHwnd )
+: LayoutCell( mHwnd )
+{
 }
 
 /*!
@@ -41,8 +43,9 @@ LayoutCellFill::LayoutCellFill( const HWND mHwnd ) : LayoutCell( mHwnd ) {
  * blah
  */
 
-LayoutCellFill::LayoutCellFill( DcxControl * dcxc ) : LayoutCell( dcxc ) {
-
+LayoutCellFill::LayoutCellFill( DcxControl * dcxc )
+: LayoutCell( dcxc )
+{
 }
 
 /*!
