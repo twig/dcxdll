@@ -140,10 +140,37 @@ void DcxStatusBar::parseInfoRequest( const TString & input, PTCHAR szReturnValue
 		const int iPart = input.getnexttok( ).to_int( ) -1, nParts = this->getParts( 256, 0 );	// tok 4
 
 		if ( iPart > -1 && iPart < nParts ) {
+			
+			//if (this->getTextLength(iPart) < MIRC_BUFFER_SIZE_CCH)
+			//	this->getText( iPart, szReturnValue );
+			//else
+			//	this->showError(TEXT("text"), NULL, TEXT("Text too long for buffer"));
+			//return;
+			const UINT iFlags = this->getPartFlags(iPart);
 
-			this->getText( iPart, szReturnValue ); // possible overflow, needs fixed at some point.
-			return;
+			if (iFlags & SBT_OWNERDRAW) {
+				LPSB_PARTINFO pPart = (LPSB_PARTINFO)this->getText(iPart, NULL);
+				if (pPart != NULL) {
+					dcx_strcpyn(szReturnValue, pPart->m_Text.to_chr(), MIRC_BUFFER_SIZE_CCH);
+					return;
+				}
+			}
+			else {
+				const UINT len = this->getTextLength(iPart);
+				try {
+					WCHAR *text = new WCHAR[len + 1];
+					this->getText(iPart, text);
+					dcx_strcpyn(szReturnValue, text, MIRC_BUFFER_SIZE_CCH);
+					delete[] text;
+					return;
+				}
+				catch (std::bad_alloc) {
+					this->showError(TEXT("text"), NULL, TEXT("Unable to Allocate Memory"));
+				}
+			}
 		}
+		else
+			this->showErrorEx(TEXT("text"), NULL, TEXT("Invalid part: %d"), iPart);
 	}
 	// [NAME] [ID] [PROP]
 	else if ( prop == TEXT("parts") ) {
@@ -176,11 +203,11 @@ void DcxStatusBar::parseInfoRequest( const TString & input, PTCHAR szReturnValue
 			this->getTipText( iPart, MIRC_BUFFER_SIZE_CCH, szReturnValue );
 			return;
 		}
+		else
+			this->showErrorEx(TEXT("tooltip"), NULL, TEXT("Invalid part: %d"), iPart);
 	}
-	else if ( this->parseGlobalInfoRequest( input, szReturnValue ) ) {
-
+	else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
 		return;
-	}
 
 	szReturnValue[0] = 0;
 }
@@ -630,6 +657,16 @@ LRESULT DcxStatusBar::setIcon( const int iPart, const HICON hIcon ) {
 
 LRESULT DcxStatusBar::getIcon( const int iPart ) const {
   return SendMessage( this->m_Hwnd, SB_GETICON, (WPARAM) iPart, (LPARAM) 0 );
+}
+
+/*!
+* \brief blah
+*
+* blah
+*/
+
+UINT DcxStatusBar::getPartFlags(const int iPart) const {
+	return (UINT)HIWORD(SendMessage(this->m_Hwnd, SB_GETTEXTLENGTH, (WPARAM)iPart, NULL));
 }
 
 /*!

@@ -3366,7 +3366,11 @@ LRESULT DcxListView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
 
 LRESULT CALLBACK DcxListView::EditLabelProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam ) {
 
-	DcxListView * pthis = (DcxListView *) GetProp( mHwnd, TEXT("dcx_pthis") );
+	//DcxListView * pthis = (DcxListView *) GetProp( mHwnd, TEXT("dcx_pthis") );
+	DcxListView * pthis = static_cast<DcxListView *>(GetProp(mHwnd, TEXT("dcx_pthis")));
+
+	if (pthis == NULL)
+		return DefWindowProc(mHwnd, uMsg, wParam, lParam);
 
 	switch( uMsg ) {
 
@@ -3416,7 +3420,8 @@ DcxControl* DcxListView::CreatePbar(LPLVITEM lvi, const TString &styles) {
 	//	lpdcxlvi->pbar = DcxControl::controlFactory(this->m_pParentDialog,ID,ctrl_args,1,-1,this->m_Hwnd);
 	//}
 	try {
-		lpdcxlvi->pbar = (DcxControl *)new DcxProgressBar(this->getID(), this->m_pParentDialog, this->m_Hwnd, &rItem, styles);
+		//lpdcxlvi->pbar = (DcxControl *)new DcxProgressBar(this->getID(), this->m_pParentDialog, this->m_Hwnd, &rItem, styles);
+		lpdcxlvi->pbar = static_cast<DcxControl *>(new DcxProgressBar(this->getID(), this->m_pParentDialog, this->m_Hwnd, &rItem, styles));
 	}
 	catch ( TCHAR *err ) {
 		this->showErrorEx(NULL, TEXT("-a"), TEXT("Unable To Create ProgressBar: %s"), err);

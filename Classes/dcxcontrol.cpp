@@ -95,24 +95,24 @@ DcxControl::DcxControl( const UINT mID, DcxDialog * p_Dialog )
 , m_colTransparentBg(CLR_INVALID)
 {
 	this->m_dEventMask = p_Dialog->getEventMask();
-#if DCX_USE_C11
-	if (IDC_map.size() == 0) {
-		IDC_map[TEXT("appstarting")] = IDC_APPSTARTING;
-		IDC_map[TEXT("arrow")] = IDC_ARROW;
-		IDC_map[TEXT("cross")] = IDC_CROSS;
-		IDC_map[TEXT("hand")] = IDC_HAND;
-		IDC_map[TEXT("help")] = IDC_HELP;
-		IDC_map[TEXT("ibeam")] = IDC_IBEAM;
-		IDC_map[TEXT("no")] = IDC_NO;
-		IDC_map[TEXT("sizeall")] = IDC_SIZEALL;
-		IDC_map[TEXT("sizenesw")] = IDC_SIZENESW;
-		IDC_map[TEXT("sizens")] = IDC_SIZENS;
-		IDC_map[TEXT("sizenwse")] = IDC_SIZENWSE;
-		IDC_map[TEXT("sizewe")] = IDC_SIZEWE;
-		IDC_map[TEXT("uparrow")] = IDC_UPARROW;
-		IDC_map[TEXT("wait")] = IDC_WAIT;
-	}
-#endif
+//#if DCX_USE_C11
+//	if (IDC_map.empty()) {
+//		IDC_map[TEXT("appstarting")] = IDC_APPSTARTING;
+//		IDC_map[TEXT("arrow")] = IDC_ARROW;
+//		IDC_map[TEXT("cross")] = IDC_CROSS;
+//		IDC_map[TEXT("hand")] = IDC_HAND;
+//		IDC_map[TEXT("help")] = IDC_HELP;
+//		IDC_map[TEXT("ibeam")] = IDC_IBEAM;
+//		IDC_map[TEXT("no")] = IDC_NO;
+//		IDC_map[TEXT("sizeall")] = IDC_SIZEALL;
+//		IDC_map[TEXT("sizenesw")] = IDC_SIZENESW;
+//		IDC_map[TEXT("sizens")] = IDC_SIZENS;
+//		IDC_map[TEXT("sizenwse")] = IDC_SIZENWSE;
+//		IDC_map[TEXT("sizewe")] = IDC_SIZEWE;
+//		IDC_map[TEXT("uparrow")] = IDC_UPARROW;
+//		IDC_map[TEXT("wait")] = IDC_WAIT;
+//	}
+//#endif
 }
 
 /*!
@@ -958,7 +958,8 @@ void DcxControl::unregistreDefaultWindowProc( ) {
  */
 
 LRESULT CALLBACK DcxControl::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
-	DcxControl *pthis = (DcxControl*) GetProp(mHwnd, TEXT("dcx_cthis"));
+	//DcxControl *pthis = (DcxControl*) GetProp(mHwnd, TEXT("dcx_cthis"));
+	DcxControl *pthis = static_cast<DcxControl*>(GetProp(mHwnd, TEXT("dcx_cthis")));
 
 	// sanity check, see that prop exists.
 	if (pthis == NULL)

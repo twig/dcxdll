@@ -1875,7 +1875,8 @@ void DcxDialog::setFocusControl(const UINT mUID) {
  */
 
 LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
-	DcxDialog *p_this = (DcxDialog*) GetProp(mHwnd, TEXT("dcx_this"));
+	//DcxDialog *p_this = (DcxDialog*) GetProp(mHwnd, TEXT("dcx_this"));
+	DcxDialog *p_this = static_cast<DcxDialog *>(GetProp(mHwnd, TEXT("dcx_this")));
 
 	// sanity check for prop existing.
 	if (p_this == NULL)
@@ -1929,7 +1930,8 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 					break;
 
 				if (IsWindow(hdr->hwndFrom)) {
-					DcxControl *c_this = (DcxControl *) GetProp(hdr->hwndFrom,TEXT("dcx_cthis"));
+					//DcxControl *c_this = (DcxControl *) GetProp(hdr->hwndFrom,TEXT("dcx_cthis"));
+					DcxControl *c_this = static_cast<DcxControl *>(GetProp(hdr->hwndFrom, TEXT("dcx_cthis")));
 					if (c_this != NULL)
 						lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 				}
@@ -1960,7 +1962,8 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 		case WM_VSCROLL:
 			{
 				if (IsWindow((HWND) lParam)) {
-					DcxControl *c_this = (DcxControl *) GetProp((HWND) lParam,TEXT("dcx_cthis"));
+					//DcxControl *c_this = (DcxControl *) GetProp((HWND) lParam,TEXT("dcx_cthis"));
+					DcxControl *c_this = static_cast<DcxControl *>(GetProp((HWND)lParam, TEXT("dcx_cthis")));
 					if (c_this != NULL)
 						lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 				}
@@ -1971,7 +1974,8 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 			{
 				LPCOMPAREITEMSTRUCT idata = (LPCOMPAREITEMSTRUCT)lParam;
 				if ((idata != NULL) && (IsWindow(idata->hwndItem))) {
-					DcxControl *c_this = (DcxControl *) GetProp(idata->hwndItem,TEXT("dcx_cthis"));
+					//DcxControl *c_this = (DcxControl *) GetProp(idata->hwndItem,TEXT("dcx_cthis"));
+					DcxControl *c_this = static_cast<DcxControl *>(GetProp(idata->hwndItem, TEXT("dcx_cthis")));
 					if (c_this != NULL)
 						lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 				}
@@ -1982,7 +1986,8 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 			{
 				DELETEITEMSTRUCT *idata = (DELETEITEMSTRUCT *)lParam;
 				if ((idata != NULL) && (IsWindow(idata->hwndItem))) {
-					DcxControl *c_this = (DcxControl *) GetProp(idata->hwndItem,TEXT("dcx_cthis"));
+					//DcxControl *c_this = (DcxControl *) GetProp(idata->hwndItem,TEXT("dcx_cthis"));
+					DcxControl *c_this = static_cast<DcxControl *>(GetProp(idata->hwndItem, TEXT("dcx_cthis")));
 					if (c_this != NULL)
 						lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 				}
@@ -1993,7 +1998,8 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 			{
 				HWND cHwnd = GetDlgItem(mHwnd, wParam);
 				if (IsWindow(cHwnd)) {
-					DcxControl *c_this = (DcxControl *) GetProp(cHwnd,TEXT("dcx_cthis"));
+					//DcxControl *c_this = (DcxControl *) GetProp(cHwnd,TEXT("dcx_cthis"));
+					DcxControl *c_this = static_cast<DcxControl *>(GetProp(cHwnd, TEXT("dcx_cthis")));
 					if (c_this != NULL)
 						lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 				}
@@ -2001,7 +2007,8 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 				LPMEASUREITEMSTRUCT lpmis = (LPMEASUREITEMSTRUCT) lParam;
 
 				if (p_this->m_popup != NULL && lpmis->CtlType == ODT_MENU) {
-					XPopupMenuItem *p_Item = (XPopupMenuItem*) lpmis->itemData;
+					//XPopupMenuItem *p_Item = (XPopupMenuItem*) lpmis->itemData;
+					XPopupMenuItem *p_Item = reinterpret_cast<XPopupMenuItem*>(lpmis->itemData);
 
 					if (p_Item != NULL) {
 						const SIZE size = p_Item->getItemSize(mHwnd);
@@ -2022,12 +2029,14 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 					break;
 
 				if (IsWindow(idata->hwndItem)) {
-					DcxControl *c_this = (DcxControl *) GetProp(idata->hwndItem,TEXT("dcx_cthis"));
+					//DcxControl *c_this = (DcxControl *) GetProp(idata->hwndItem,TEXT("dcx_cthis"));
+					DcxControl *c_this = static_cast<DcxControl *>(GetProp(idata->hwndItem, TEXT("dcx_cthis")));
 					if (c_this != NULL)
 						lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 				}
 				else if (p_this->m_popup != NULL && idata->CtlType == ODT_MENU) {
-					XPopupMenuItem *p_Item = (XPopupMenuItem*) idata->itemData;
+					//XPopupMenuItem *p_Item = (XPopupMenuItem*) idata->itemData;
+					XPopupMenuItem *p_Item = reinterpret_cast<XPopupMenuItem*>(idata->itemData);
 
 					if (p_Item != NULL) {
 						p_Item->DrawItem(idata);
@@ -2252,9 +2261,10 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 				}
 
 				while ((bars = FindWindowEx(mHwnd, bars, DCX_TOOLBARCLASS, NULL)) != NULL) {
-					DcxToolBar *t = (DcxToolBar*) p_this->getControlByHWND(bars);
-
-					t->autoPosition(LOWORD(lParam), HIWORD(lParam));
+					//DcxToolBar *t = (DcxToolBar*) p_this->getControlByHWND(bars);
+					DcxToolBar *t = static_cast<DcxToolBar*>(p_this->getControlByHWND(bars));
+					if (t != NULL)
+						t->autoPosition(LOWORD(lParam), HIWORD(lParam));
 					//SendMessage( bars, WM_SIZE, (WPARAM) 0, (LPARAM) lParam );
 				}
 

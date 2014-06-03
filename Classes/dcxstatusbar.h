@@ -69,6 +69,7 @@ public:
 	LRESULT getRect( const int iPart, LPRECT lprc ) const;
 	LRESULT setIcon( const int iPart, const HICON hIcon );
 	LRESULT getIcon( const int iPart ) const;
+	UINT getPartFlags(const int iPart) const;
 	void updateParts(void);
 
 	int hitTest( const POINT & pt ) const;

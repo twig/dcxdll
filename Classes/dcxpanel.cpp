@@ -308,8 +308,9 @@ void DcxPanel::parseCommandRequest( const TString & input ) {
 
 						if ( p_GetCell->getType( ) == LayoutCell::PANE ) {
 
-							LayoutCellPane * p_PaneCell = (LayoutCellPane *) p_GetCell;
-							p_PaneCell->addChild( p_Cell, WGT );
+							//LayoutCellPane * p_PaneCell = (LayoutCellPane *) p_GetCell;
+							LayoutCellPane * p_PaneCell = reinterpret_cast<LayoutCellPane *>(p_GetCell);
+							p_PaneCell->addChild(p_Cell, WGT);
 						}
 					}
 				} // else if ( com == TEXT("cell") )

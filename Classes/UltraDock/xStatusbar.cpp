@@ -211,12 +211,12 @@ mIRC(xstatusbar) {
 						}
 					}
 					else {
-						WCHAR *text = new WCHAR[DcxDock::status_getTextLength(nPos) + 1];
-						if (text != NULL) {
-							DcxDock::status_setText( nPos, HIWORD( DcxDock::status_getText( nPos, text ) ), itemtext.to_chr() );
+						try {
+							WCHAR *text = new WCHAR[DcxDock::status_getTextLength(nPos) + 1];
+							DcxDock::status_setText(nPos, HIWORD(DcxDock::status_getText(nPos, text)), itemtext.to_chr());
 							delete [] text;
 						}
-						else {
+						catch (std::bad_alloc) {
 							Dcx::error(TEXT("/xstatusbar -v"),TEXT("Unable to Allocate Memory"));
 							return 0;
 						}
@@ -305,14 +305,19 @@ mIRC(_xstatusbar)
 				if (iFlags & SBT_OWNERDRAW) {
 					LPSB_PARTINFO pPart = (LPSB_PARTINFO)DcxDock::status_getText(iPart, NULL);
 					if (pPart != NULL)
-						lstrcpyn(data, pPart->m_Text.to_chr(), MIRC_BUFFER_SIZE_CCH);
+						dcx_strcpyn(data, pPart->m_Text.to_chr(), MIRC_BUFFER_SIZE_CCH);
 				}
 				else {
 					const UINT len = DcxDock::status_getTextLength( iPart );
-					WCHAR *text = new WCHAR[len + 1];
-					DcxDock::status_getText( iPart, text );
-					lstrcpyn(data, text, MIRC_BUFFER_SIZE_CCH);
-					delete [] text;
+					try {
+						WCHAR *text = new WCHAR[len + 1];
+						DcxDock::status_getText(iPart, text);
+						dcx_strcpyn(data, text, MIRC_BUFFER_SIZE_CCH);
+						delete[] text;
+					}
+					catch (std::bad_alloc) {
+						Dcx::error(TEXT("/xstatusbar -v"), TEXT("Unable to Allocate Memory"));
+					}
 				}
 			}
 		}
