@@ -295,7 +295,7 @@ void DcxStatusBar::parseCommandRequest( const TString & input ) {
 		const int icon = input.getnexttok( ).to_int( ) - 1;	// tok 6
 
 		if ( nPos < 0 || nPos >= this->getParts( 256, 0 ) ) {
-			this->showError(NULL, TEXT("-t"), TEXT("Invalid Part"));
+			this->showErrorEx(NULL, TEXT("-t"), TEXT("Invalid Part: %d"), nPos);
 			return;
 		}
 
