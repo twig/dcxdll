@@ -174,15 +174,20 @@ private:
 	bool xLoadListview(const int nPos, const TString &tsData, const TCHAR *sTest, const TCHAR *sCount, const TCHAR *sGet, const TCHAR *sGetNamed);
 	void massSetItem(const int nPos, const TString &input);
 	void setHeaderStyle(HWND h, const int nCol, const TString &info);
+	void DeleteColumns(const int nColumn);
+
+	// static functions.
 	static void getItemRange(const TString &tsItems, const int nItemCnt, int *iStart_range, int *iEnd_range);
 	static UINT parseMassItemFlags( const TString & flags );
 	static void parseText2Item(const TString & tsTxt, TString & tsItem, const TString &tsData);
+
 	//
 	HFONT m_hItemFont; // Font used for specific item changes.
 	HFONT m_hOldItemFont; // Font used for specific item changes.
 	int m_iSelectedItem;
 	int m_iSelectedSubItem;
 	bool m_bHasPBars;			// true if listview has pbars at all, if it does a slower update is used that check & moves pbars. (better system needed)
+	mutable int m_iColumnCount;			// the number of columns in the listview, a -1 value mean "dont know"
 };
 
 #endif // _DCXLISTVIEW_H_

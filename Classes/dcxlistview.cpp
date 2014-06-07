@@ -42,6 +42,7 @@ DcxListView::DcxListView(UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT *
 , m_iSelectedItem(0)
 , m_iSelectedSubItem(0)
 , m_bHasPBars(false)
+, m_iColumnCount(-1)
 {
 	LONG Styles = 0, ExStyles = 0;
 	BOOL bNoTheme = FALSE;
@@ -1106,7 +1107,7 @@ void DcxListView::parseCommandRequest( const TString &input) {
 			}
 		}
 	}
-	// xdid -d [NAME] [ID] [SWITCH] [N]
+	// xdid -d [NAME] [ID] [SWITCH] [N,N2,N3-N4...]
 	else if (flags[TEXT('d')] && (numtok > 3)) {
 		//int nItem = input.getnexttok( ).to_int() -1;	// tok 4
 
@@ -1126,12 +1127,12 @@ void DcxListView::parseCommandRequest( const TString &input) {
 
 		//ListView_DeleteItem(this->m_Hwnd, nItem);
 		const TString Ns(input.getnexttok( ));	// tok 4
-		const int nItemCnt = ListView_GetItemCount(this->m_Hwnd);
 
 		for (TString tsLine(Ns.getfirsttok(1, TSCOMMA)); tsLine != TEXT(""); tsLine = Ns.getnexttok(TSCOMMA)) {
 			int iStart = 0, iEnd = 0;
+			const int nItemCnt = ListView_GetItemCount(this->m_Hwnd);
 			this->getItemRange(tsLine, nItemCnt, &iStart, &iEnd);
-			if ( (iStart < 0) || (iEnd < 0) || (iStart >= nItemCnt) || (iEnd >= nItemCnt) ) {
+			if ( (iStart < 0) || (iEnd < iStart) || (iStart >= nItemCnt) || (iEnd >= nItemCnt) ) {
 				this->showErrorEx(NULL, TEXT("-d"), TEXT("Invalid index %s."), tsLine.to_chr());
 				return;
 			}
@@ -1364,65 +1365,125 @@ void DcxListView::parseCommandRequest( const TString &input) {
 
 		// manually set widths for all specified columns
 		if (xflags[TEXT('m')]) {
-			const TString widths(input.gettok(6, -1));
+			//const TString widths(input.gettok(6, -1));
 
-			if (widths.numtok() < iTotal) {
+			//if (widths.numtok() < iTotal) {
+			//	this->showError(NULL, TEXT("-n"), TEXT("Insufficient number of widths specified for +m flag"));
+			//	return;
+			//}
+
+			//for (UINT i = 1; i <= iTotal; i++)
+			//	ListView_SetColumnWidth(this->m_Hwnd, i -1, widths.gettok(i).to_int());
+
+			//return;
+
+			if ((numtok - 6) < iTotal) {
 				this->showError(NULL, TEXT("-n"), TEXT("Insufficient number of widths specified for +m flag"));
 				return;
 			}
 
+			this->setRedraw(FALSE);	// disable redraw while setting sizes
 			for (UINT i = 1; i <= iTotal; i++)
-				ListView_SetColumnWidth(this->m_Hwnd, i -1, widths.gettok(i).to_int());
+				ListView_SetColumnWidth(this->m_Hwnd, i - 1, input.getnexttok().to_int());	// tok 6+
+			this->setRedraw(TRUE);	// re-enable redraw
 
 			return;
 		}
 
-		const int iFlags = this->parseHeaderFlags2(xflags), iWidth = input.getnexttok( ).to_int();	// tok 6
+		const int iFlags = this->parseHeaderFlags2(xflags);
+		const int iWidth = input.getnexttok().to_int();	// tok 6
+		UINT iCount;
 
-		if (nColumn > -1 && (UINT)nColumn < iTotal) {	// set width for a single specific column
-			if (iFlags == LVSCW_AUTOSIZE_MAX) { // +s
-				int n = 0;
-				ListView_SetColumnWidth(this->m_Hwnd, nColumn, LVSCW_AUTOSIZE);
-				n = ListView_GetColumnWidth(this->m_Hwnd, nColumn);
-				ListView_SetColumnWidth(this->m_Hwnd, nColumn, LVSCW_AUTOSIZE_USEHEADER);
-				n = max(ListView_GetColumnWidth(this->m_Hwnd, nColumn),n);
-				ListView_SetColumnWidth(this->m_Hwnd, nColumn, n);
-			}
-			else if (iFlags == LVSCW_AUTOSIZE) // +a
-				ListView_SetColumnWidth(this->m_Hwnd, nColumn, LVSCW_AUTOSIZE);
-			else if (iFlags == LVSCW_AUTOSIZE_USEHEADER) // +h
-				ListView_SetColumnWidth(this->m_Hwnd, nColumn, LVSCW_AUTOSIZE_USEHEADER);
-			else { // fixed width
+		this->setRedraw(FALSE);	// disable redraw while setting sizes
+
+		if (nColumn > -1 && (UINT)nColumn < iTotal)	// set width for a single specific column
+			iCount = 1;	// do single column
+		else {
+			iCount = iTotal;	// do all columns
+			nColumn = 0;
+		}
+		for (UINT n = 0; n < iCount; n++)
+		{
+			if (iFlags == 0)
+			{
 				if (numtok > 5)
 					ListView_SetColumnWidth(this->m_Hwnd, nColumn, iWidth);
-				else
+				else {
 					this->showError(NULL, TEXT("-n"), TEXT("No width specified"));
-			}
-		}
-		else {	// set width for all columns
-			// nColumn < 0, so make it 0 & inc until its == getColumnCount() & set all column widths.
-			for (nColumn = 0; (UINT)nColumn < iTotal; nColumn++)
-			{
-				if (iFlags == LVSCW_AUTOSIZE_MAX) { // +s
-					int n = 0;
-					ListView_SetColumnWidth(this->m_Hwnd, nColumn, LVSCW_AUTOSIZE);
-					n = ListView_GetColumnWidth(this->m_Hwnd, nColumn);
-					ListView_SetColumnWidth(this->m_Hwnd, nColumn, LVSCW_AUTOSIZE_USEHEADER);
-					n = max(ListView_GetColumnWidth(this->m_Hwnd, nColumn),n);
-					ListView_SetColumnWidth(this->m_Hwnd, nColumn, n);
-				}
-				else if (iFlags == LVSCW_AUTOSIZE) // +a
-					ListView_SetColumnWidth(this->m_Hwnd, nColumn, LVSCW_AUTOSIZE);
-				else if (iFlags == LVSCW_AUTOSIZE_USEHEADER) // +h
-					ListView_SetColumnWidth(this->m_Hwnd, nColumn, LVSCW_AUTOSIZE_USEHEADER);
-				else { // fixed width
-					if (numtok > 5)
-						ListView_SetColumnWidth(this->m_Hwnd, nColumn, iWidth);
-					else
-						this->showError(NULL, TEXT("-n"), TEXT("No width specified"));
+					break;
 				}
 			}
+			else
+				this->autoSize(nColumn, iFlags);
+			nColumn++;
 		}
+		//if (nColumn > -1 && (UINT)nColumn < iTotal) {	// set width for a single specific column
+		//	if (iFlags == 0)
+		//	{
+		//		if (numtok > 5)
+		//			ListView_SetColumnWidth(this->m_Hwnd, nColumn, iWidth);
+		//		else
+		//			this->showError(NULL, TEXT("-n"), TEXT("No width specified"));
+		//	}
+		//	else
+		//		this->autoSize(nColumn, iFlags);
+		//	//if (iFlags == LVSCW_AUTOSIZE_MAX) { // +s
+		//	//	int n = 0;
+		//	//	ListView_SetColumnWidth(this->m_Hwnd, nColumn, LVSCW_AUTOSIZE);
+		//	//	n = ListView_GetColumnWidth(this->m_Hwnd, nColumn);
+		//	//	ListView_SetColumnWidth(this->m_Hwnd, nColumn, LVSCW_AUTOSIZE_USEHEADER);
+		//	//	n = max(ListView_GetColumnWidth(this->m_Hwnd, nColumn),n);
+		//	//	ListView_SetColumnWidth(this->m_Hwnd, nColumn, n);
+		//	//}
+		//	//else if (iFlags == LVSCW_AUTOSIZE) // +a
+		//	//	ListView_SetColumnWidth(this->m_Hwnd, nColumn, LVSCW_AUTOSIZE);
+		//	//else if (iFlags == LVSCW_AUTOSIZE_USEHEADER) // +h
+		//	//	ListView_SetColumnWidth(this->m_Hwnd, nColumn, LVSCW_AUTOSIZE_USEHEADER);
+		//	//else { // fixed width
+		//	//	if (numtok > 5)
+		//	//		ListView_SetColumnWidth(this->m_Hwnd, nColumn, iWidth);
+		//	//	else
+		//	//		this->showError(NULL, TEXT("-n"), TEXT("No width specified"));
+		//	//}
+		//}
+		//else {	// set width for all columns
+		//	// nColumn < 0, so make it 0 & inc until its == getColumnCount() & set all column widths.
+		//	for (nColumn = 0; (UINT)nColumn < iTotal; nColumn++)
+		//	{
+		//		if (iFlags == 0)
+		//		{
+		//			if (numtok > 5)
+		//				ListView_SetColumnWidth(this->m_Hwnd, nColumn, iWidth);
+		//			else {
+		//				this->showError(NULL, TEXT("-n"), TEXT("No width specified"));
+		//				break;
+		//			}
+		//		}
+		//		else
+		//			this->autoSize(nColumn, iFlags);
+		//		//if (iFlags == LVSCW_AUTOSIZE_MAX) { // +s
+		//		//	int n = 0;
+		//		//	ListView_SetColumnWidth(this->m_Hwnd, nColumn, LVSCW_AUTOSIZE);
+		//		//	n = ListView_GetColumnWidth(this->m_Hwnd, nColumn);
+		//		//	ListView_SetColumnWidth(this->m_Hwnd, nColumn, LVSCW_AUTOSIZE_USEHEADER);
+		//		//	n = max(ListView_GetColumnWidth(this->m_Hwnd, nColumn),n);
+		//		//	ListView_SetColumnWidth(this->m_Hwnd, nColumn, n);
+		//		//}
+		//		//else if (iFlags == LVSCW_AUTOSIZE) // +a
+		//		//	ListView_SetColumnWidth(this->m_Hwnd, nColumn, LVSCW_AUTOSIZE);
+		//		//else if (iFlags == LVSCW_AUTOSIZE_USEHEADER) // +h
+		//		//	ListView_SetColumnWidth(this->m_Hwnd, nColumn, LVSCW_AUTOSIZE_USEHEADER);
+		//		//else { // fixed width
+		//		//	if (numtok > 5)
+		//		//		ListView_SetColumnWidth(this->m_Hwnd, nColumn, iWidth);
+		//		//	else {
+		//		//		this->showError(NULL, TEXT("-n"), TEXT("No width specified"));
+		//		//		break;
+		//		//	}
+		//		//}
+		//	}
+		//}
+		this->setRedraw(TRUE);	// re-enable redraw
 	}
 	// xdid -o [NAME] [ID] [SWITCH] [ORDER ...]
 	else if (flags[TEXT('o')] && numtok > 3) {
@@ -1494,12 +1555,8 @@ void DcxListView::parseCommandRequest( const TString &input) {
 	}
 	// xdid -t [NAME] [ID] [SWITCH] [+FLAGS] [#ICON] [WIDTH] (Header text) [{TAB} [+FLAGS] [#ICON] [WIDTH] Header text {TAB} ... ]
 	else if (flags[TEXT('t')] && numtok > 5) {
-		int nCol = this->getColumnCount();
 
-		if (nCol > 0) {
-			while (--nCol > 0)
-				ListView_DeleteColumn(this->m_Hwnd, nCol);
-		}
+		this->DeleteColumns(-1);
 
 		LVCOLUMN lvc;
 		ZeroMemory(&lvc, sizeof(LVCOLUMN));
@@ -1525,10 +1582,18 @@ void DcxListView::parseCommandRequest( const TString &input) {
 			lvc.iImage = icon;
 		}
 
-		if (this->getColumnCount() > 0)
-			ListView_SetColumn(this->m_Hwnd, nColumn, &lvc);
-		else
-			ListView_InsertColumn(this->m_Hwnd, nColumn, &lvc);
+		//if (this->getColumnCount() > 0)
+		//	ListView_SetColumn(this->m_Hwnd, nColumn, &lvc);
+		//else
+		//	ListView_InsertColumn(this->m_Hwnd, nColumn, &lvc);
+
+		// column count always zero here, since we just deleted them all
+		if (ListView_InsertColumn(this->m_Hwnd, nColumn, &lvc) == -1) {
+			this->showErrorEx(NULL, TEXT("-t"), TEXT("Unable to add column: %d"), nColumn);
+			return;
+		}
+		this->m_iColumnCount++;
+
 		/*
 		*	These flags do NOT make the columns auto size as text is added
 		* They auto size the columns to match the text already present (none).
@@ -1564,9 +1629,15 @@ void DcxListView::parseCommandRequest( const TString &input) {
 					lvc.iImage = icon;
 				}
 
-				ListView_InsertColumn(this->m_Hwnd, nColumn, &lvc);
+				if (ListView_InsertColumn(this->m_Hwnd, nColumn, &lvc) != -1) {
+					this->m_iColumnCount++;
 
-				this->autoSize(nColumn,tsflags);
+					this->autoSize(nColumn, tsflags);
+				}
+				else {
+					this->showErrorEx(NULL, TEXT("-t"), TEXT("Unable to add column: %d"), nColumn);
+					return;
+				}
 			}
 		}
 	}
@@ -2463,15 +2534,21 @@ BOOL DcxListView::matchItemText( const int nItem, const int nSubItem, const TStr
 
 int DcxListView::getColumnCount( ) const
 {
-	LVCOLUMN lvc;
-	ZeroMemory( &lvc, sizeof(LVCOLUMN) );
-	lvc.mask = LVCF_WIDTH;
+	if (m_iColumnCount >= 0)
+		return m_iColumnCount;
+	else {
+		LVCOLUMN lvc;
+		ZeroMemory(&lvc, sizeof(LVCOLUMN));
+		lvc.mask = LVCF_WIDTH;
 
-	int i = 0;
-	while ( ListView_GetColumn( this->m_Hwnd, i, &lvc ) != FALSE )
-		i++;
+		int i = 0;
+		while (ListView_GetColumn(this->m_Hwnd, i, &lvc) != FALSE)
+			i++;
 
-	return i;
+		m_iColumnCount = i;
+
+		return i;
+	}
 }
 
 /*!
@@ -2497,8 +2574,9 @@ int DcxListView::getTopIndex( ) const {
 int DcxListView::getBottomIndex( ) const {
 
 	int nBottomIndex = (ListView_GetTopIndex( this->m_Hwnd ) + ListView_GetCountPerPage( this->m_Hwnd ));
-	if ( nBottomIndex > ListView_GetItemCount( this->m_Hwnd ) )
-		nBottomIndex = ListView_GetItemCount( this->m_Hwnd );
+	const int nCount = ListView_GetItemCount(this->m_Hwnd);
+	if (nBottomIndex > nCount)
+		nBottomIndex = nCount;
 
 	return --nBottomIndex;
 }
@@ -4163,4 +4241,23 @@ void DcxListView::getItemRange(const TString &tsItems, const int nItemCnt, int *
 	}
 	*iStart_range = iStart;
 	*iEnd_range = iEnd;
+}
+
+void DcxListView::DeleteColumns(const int nColumn)
+{
+	if (nColumn == -1) {
+		// delete all columns
+		int nCol = this->getColumnCount();
+
+		if (nCol > 0) {
+			while (--nCol > 0)
+				ListView_DeleteColumn(this->m_Hwnd, nCol);
+		}
+		this->m_iColumnCount = 0;
+	}
+	else {
+		// delete specific column
+		ListView_DeleteColumn(this->m_Hwnd, nColumn);
+		this->m_iColumnCount--;
+	}
 }
