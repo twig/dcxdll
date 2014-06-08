@@ -140,6 +140,8 @@ public:
 	static DWORD getAnimateStyles( const TString & flags );
 	void showError(const TCHAR *prop, const TCHAR *cmd, const TCHAR *err) const;
 	void showErrorEx(const TCHAR *prop, const TCHAR *cmd, const TCHAR *fmt, ...) const;
+	void showControlError(const TCHAR *prop, const TCHAR *cmd, const TCHAR *err) const;
+	void showControlErrorEx(const TCHAR *prop, const TCHAR *cmd, const TCHAR *fmt, ...) const;
 #ifdef DCX_USE_GDIPLUS
 	void DrawCaret(Graphics & graph);
 	void DrawCtrl( Graphics & graphics, HDC hDC, HWND hWnd);
@@ -169,7 +171,7 @@ public:
 	TiXmlElement * toXml() const;
 	TiXmlElement * toXml(const TString &name) const;
 	void toXml(TiXmlElement * xml, const TString &name) const;
-	bool isIDValid(const UINT ID) const;
+	bool isIDValid(const UINT ID, const bool bUnused = false) const;
 
 protected:
 

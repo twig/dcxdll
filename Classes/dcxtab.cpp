@@ -325,13 +325,21 @@ void DcxTab::parseCommandRequest( const TString & input ) {
 		tci.iImage = data.getnexttok( ).to_int( ) - 1;	// tok 5
 
 		// Extra params
-		LPDCXTCITEM lpdtci = new DCXTCITEM;
+		//LPDCXTCITEM lpdtci = new DCXTCITEM;
 
-		if (lpdtci == NULL) {
+		//if (lpdtci == NULL) {
+		//	this->showError(NULL, TEXT("-a"), TEXT("Unable to Allocate Memory"));
+		//	return;
+		//}
+		LPDCXTCITEM lpdtci;
+
+		try {
+			lpdtci = new DCXTCITEM;
+		}
+		catch (std::bad_alloc) {
 			this->showError(NULL, TEXT("-a"), TEXT("Unable to Allocate Memory"));
 			return;
 		}
-
 		lpdtci->tsTipText = tooltip;
 		tci.lParam = (LPARAM) lpdtci;
 
@@ -348,11 +356,9 @@ void DcxTab::parseCommandRequest( const TString & input ) {
 		}
 
 		if ( control_data.numtok( ) > 5 ) {
-			UINT ID = mIRC_ID_OFFSET + (UINT)control_data.gettok( 1 ).to_int( );
+			const UINT ID = mIRC_ID_OFFSET + (UINT)control_data.gettok( 1 ).to_int( );
 
-			if ( ID > mIRC_ID_OFFSET - 1 && 
-				!IsWindow( GetDlgItem( this->m_pParentDialog->getHwnd( ), ID ) ) && 
-				this->m_pParentDialog->getControlByID( ID ) == NULL ) 
+			if (this->m_pParentDialog->isIDValid(ID, true))
 			{
 				try {
 					DcxControl * p_Control = DcxControl::controlFactory(this->m_pParentDialog,ID,control_data,2,
@@ -393,6 +399,8 @@ void DcxTab::parseCommandRequest( const TString & input ) {
 			TabCtrl_SetCurSel( this->m_Hwnd, nItem );
 			this->activateSelectedTab( );
 		}
+		else
+			this->showErrorEx(NULL, TEXT("-c"), TEXT("Invalid tab: %d"), nItem +1);
 	}
 	// xdid -d [NAME] [ID] [SWITCH] [N]
 	else if ( flags[TEXT('d')] && numtok > 3 ) {
@@ -407,7 +415,8 @@ void DcxTab::parseCommandRequest( const TString & input ) {
 			tci.mask = TCIF_PARAM;
 
 			if (TabCtrl_GetItem(this->m_Hwnd, nItem, &tci)) {
-				LPDCXTCITEM lpdtci = (LPDCXTCITEM) tci.lParam;
+				//LPDCXTCITEM lpdtci = (LPDCXTCITEM) tci.lParam;
+				LPDCXTCITEM lpdtci = reinterpret_cast<LPDCXTCITEM>(tci.lParam);
 
 				if ( lpdtci != NULL && lpdtci->mChildHwnd != NULL && IsWindow( lpdtci->mChildHwnd ) ) {
 					DestroyWindow( lpdtci->mChildHwnd );
@@ -427,6 +436,8 @@ void DcxTab::parseCommandRequest( const TString & input ) {
 				this->activateSelectedTab( );
 			}
 		}
+		else
+			this->showErrorEx(NULL, TEXT("-d"), TEXT("Invalid tab: %d"), nItem + 1);
 	}
 	// xdid -l [NAME] [ID] [SWITCH] [N] [ICON]
 	else if ( flags[TEXT('l')] && numtok > 4 ) {
@@ -441,6 +452,8 @@ void DcxTab::parseCommandRequest( const TString & input ) {
 
 			TabCtrl_SetItem( this->m_Hwnd, nItem, &tci );
 		}
+		else
+			this->showErrorEx(NULL, TEXT("-l"), TEXT("Invalid tab: %d"), nItem + 1);
 	}
 	// xdid -m [NAME] [ID] [SWITCH] [X] [Y]
 	else if ( flags[TEXT('m')] && numtok > 4 ) {
@@ -474,6 +487,8 @@ void DcxTab::parseCommandRequest( const TString & input ) {
 
 			TabCtrl_SetItem( this->m_Hwnd, nItem, &tci );
 		}
+		else
+			this->showErrorEx(NULL, TEXT("-t"), TEXT("Invalid tab: %d"), nItem + 1);
 	}
 
 	// xdid -v [DNAME] [ID] [SWITCH] [N] [POS]
@@ -497,22 +512,27 @@ void DcxTab::parseCommandRequest( const TString & input ) {
 		nItem--;
 
 		// get the item we're moving
-		TCHAR* text = new TCHAR[MIRC_BUFFER_SIZE_CCH];
-		TCITEM tci;
-		ZeroMemory(&tci, sizeof(TCITEM));
+		try {
+			TCHAR* text = new TCHAR[MIRC_BUFFER_SIZE_CCH];
+			TCITEM tci;
+			ZeroMemory(&tci, sizeof(TCITEM));
 
-		tci.pszText = text;
-		tci.cchTextMax = MIRC_BUFFER_SIZE_CCH;
-		tci.mask = TCIF_IMAGE | TCIF_PARAM | TCIF_TEXT | TCIF_STATE;
+			tci.pszText = text;
+			tci.cchTextMax = MIRC_BUFFER_SIZE_CCH;
+			tci.mask = TCIF_IMAGE | TCIF_PARAM | TCIF_TEXT | TCIF_STATE;
 
-		TabCtrl_GetItem(this->m_Hwnd, nItem, &tci);
+			TabCtrl_GetItem(this->m_Hwnd, nItem, &tci);
 
-		// insert it into the new position
-		TabCtrl_InsertItem(this->m_Hwnd, pos, &tci);
+			// insert it into the new position
+			TabCtrl_InsertItem(this->m_Hwnd, pos, &tci);
 
-		// remove the old tab item
-		TabCtrl_DeleteItem(this->m_Hwnd, (adjustDelete ? nItem +1 : nItem));
-		delete [] text; // delete text buffer allocated above.
+			// remove the old tab item
+			TabCtrl_DeleteItem(this->m_Hwnd, (adjustDelete ? nItem + 1 : nItem));
+			delete[] text; // delete text buffer allocated above.
+		}
+		catch (std::bad_alloc) {
+			this->showError(NULL, TEXT("-v"), TEXT("Unable to allocate memory"));
+		}
 	}
 
 	// xdid -w [NAME] [ID] [SWITCH] [FLAGS] [INDEX] [FILENAME]

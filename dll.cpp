@@ -389,7 +389,7 @@ mIRC(xdid) {
 				p_Control = p_Dialog->getControlByID(id + mIRC_ID_OFFSET);
 
 				if (p_Control == NULL) {
-					p_Dialog->showErrorEx(NULL,tsArgs.gettok( 1 ).to_chr(), TEXT("(xdid) Invalid ID : %ld (dialog : %s)"), id, tsDname.to_chr());
+					p_Dialog->showControlErrorEx(NULL,tsArgs.gettok( 1 ).to_chr(), TEXT("Invalid ID : %ld (dialog : %s)"), id, tsDname.to_chr());
 					return 0;
 				}
 
@@ -413,7 +413,7 @@ mIRC(xdid) {
 			p_Control = p_Dialog->getControlByID(id + mIRC_ID_OFFSET);
 
 			if (p_Control == NULL) {
-				p_Dialog->showErrorEx(NULL,tsArgs.gettok( 1 ).to_chr(), TEXT("(xdid) Invalid ID : %ld (dialog : %s)"), id, tsDname.to_chr());
+				p_Dialog->showControlErrorEx(NULL,tsArgs.gettok( 1 ).to_chr(), TEXT("Invalid ID : %ld (dialog : %s)"), id, tsDname.to_chr());
 				return 0;
 			}
 
@@ -455,7 +455,7 @@ mIRC(_xdid) {
 	const DcxControl * p_Control = p_Dialog->getControlByID((UINT) tsID.to_int() + mIRC_ID_OFFSET);
 
 	if (p_Control == NULL) {
-		p_Dialog->showErrorEx(d.getnexttok( ).to_chr(), NULL, TEXT("Invalid ID : %s (dialog %s)"), tsID.to_chr(), tsDname.to_chr());
+		p_Dialog->showControlErrorEx(d.getnexttok( ).to_chr(), NULL, TEXT("Invalid ID : %s (dialog %s)"), tsID.to_chr(), tsDname.to_chr());
 		return 0;
 	}
 

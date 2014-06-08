@@ -373,7 +373,7 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 
 		if (ID > mIRC_ID_OFFSET - 1)
 		{	// ID in valid range
-			if (!this->isIDValid(ID))
+			if (this->isIDValid(ID, true))
 			{	// ID not in use
 				try {
 					DcxControl *p_Control = DcxControl::controlFactory(this, ID, input,4);
@@ -3206,6 +3206,10 @@ bool DcxDialog::SetShadowColor(COLORREF NewColor)
 	return true;
 }
 // .... CWndShadow
+
+/*
+**	Show error messages related to /xdialog & $xdialog() calls
+*/
 void DcxDialog::showError(const TCHAR *prop, const TCHAR *cmd, const TCHAR *err) const
 {
 	if (this->IsVerbose())
@@ -3231,6 +3235,36 @@ void DcxDialog::showErrorEx(const TCHAR *prop, const TCHAR *cmd, const TCHAR *fm
 	va_end( args );
 
 	this->showError(prop, cmd, err.to_chr());
+}
+
+/*
+**	Show error messages related to /xdid & $xdid() calls
+*/
+void DcxDialog::showControlError(const TCHAR *prop, const TCHAR *cmd, const TCHAR *err) const
+{
+	if (this->IsVerbose())
+	{
+		TString res;
+		if (prop != NULL)
+			res.tsprintf(TEXT("D_IERROR xdid(%s).%s: %s"), this->getName().to_chr(), prop, err);
+		else
+			res.tsprintf(TEXT("D_CERROR xdid %s %s: %s"), cmd, this->getName().to_chr(), err);
+		mIRCLinker::echo(res.to_chr());
+	}
+
+	const_cast<DcxDialog *>(this)->execAliasEx(TEXT("error,0,dialog,%s,%s,%s"), (prop != NULL ? prop : TEXT("none")), (cmd != NULL ? cmd : TEXT("none")), err);
+}
+
+void DcxDialog::showControlErrorEx(const TCHAR *prop, const TCHAR *cmd, const TCHAR *fmt, ...) const
+{
+	TString err;
+	va_list args;
+
+	va_start(args, fmt);
+	err.tvprintf(fmt, &args);
+	va_end(args);
+
+	this->showControlError(prop, cmd, err.to_chr());
 }
 
 void DcxDialog::CreateVistaStyle(void)
@@ -3721,7 +3755,10 @@ TiXmlElement * DcxDialog::toXml(const TString & name) const
 //}
 //#endif
 
-bool DcxDialog::isIDValid(const UINT ID) const
+bool DcxDialog::isIDValid(const UINT ID, const bool bUnused) const
 {
+	if (bUnused)	// a valid ID thats NOT in use
+		return ((ID > (mIRC_ID_OFFSET - 1)) && IsWindow(GetDlgItem(this->m_Hwnd, ID)) && (this->getControlByID(ID) == NULL));
+	//a control that already exists.
 	return ((ID > (mIRC_ID_OFFSET - 1)) && IsWindow(GetDlgItem(this->m_Hwnd, ID)) && (this->getControlByID(ID) != NULL));
 }
