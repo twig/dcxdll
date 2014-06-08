@@ -241,7 +241,7 @@ void DcxStacker::parseCommandRequest( const TString &input) {
 		if (ctrl.len() > 0) {
 			const UINT ID = mIRC_ID_OFFSET + (UINT)ctrl.gettok( 1 ).to_int( );
 
-			if ( (ID > mIRC_ID_OFFSET - 1) && !IsWindow( GetDlgItem( this->m_pParentDialog->getHwnd( ), ID ) ) && (this->m_pParentDialog->getControlByID( ID ) == NULL) )
+			if (this->m_pParentDialog->isIDValid(ID, true))
 			{
 				try {
 					DcxControl * p_Control = DcxControl::controlFactory(this->m_pParentDialog,ID,ctrl,2,CTLF_ALLOW_ALL,this->m_Hwnd);

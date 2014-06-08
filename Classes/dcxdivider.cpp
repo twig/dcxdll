@@ -164,9 +164,7 @@ void DcxDivider::parseCommandRequest( const TString & input ) {
 
 			const UINT ID = mIRC_ID_OFFSET + control_data.gettok( 1 ).to_int( );
 
-			if ( (ID > mIRC_ID_OFFSET - 1) && 
-				!IsWindow( GetDlgItem( this->m_pParentDialog->getHwnd( ), ID ) ) && 
-				this->m_pParentDialog->getControlByID( ID ) == NULL ) 
+			if (this->m_pParentDialog->isIDValid(ID, true))
 			{
 				try {
 					DcxControl * p_Control = DcxControl::controlFactory(this->m_pParentDialog,ID,control_data,2,CTLF_ALLOW_ALLBUTDOCK,this->m_Hwnd);

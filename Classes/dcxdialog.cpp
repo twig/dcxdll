@@ -3758,7 +3758,7 @@ TiXmlElement * DcxDialog::toXml(const TString & name) const
 bool DcxDialog::isIDValid(const UINT ID, const bool bUnused) const
 {
 	if (bUnused)	// a valid ID thats NOT in use
-		return ((ID > (mIRC_ID_OFFSET - 1)) && IsWindow(GetDlgItem(this->m_Hwnd, ID)) && (this->getControlByID(ID) == NULL));
+		return ((ID > (mIRC_ID_OFFSET - 1)) && !IsWindow(GetDlgItem(this->m_Hwnd, ID)) && (this->getControlByID(ID) == NULL));
 	//a control that already exists.
 	return ((ID > (mIRC_ID_OFFSET - 1)) && IsWindow(GetDlgItem(this->m_Hwnd, ID)) && (this->getControlByID(ID) != NULL));
 }

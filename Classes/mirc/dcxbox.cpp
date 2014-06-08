@@ -262,9 +262,7 @@ void DcxBox::parseCommandRequest( const TString & input ) {
 
 		const UINT ID = mIRC_ID_OFFSET + (UINT)input.getnexttok( ).to_int( );	// tok 4
 
-		if ( (ID > mIRC_ID_OFFSET - 1) && 
-			!IsWindow( GetDlgItem( this->m_pParentDialog->getHwnd( ), ID ) ) && 
-			this->m_pParentDialog->getControlByID( ID ) == NULL ) 
+		if (this->m_pParentDialog->isIDValid(ID, true))
 		{
 			try {
 				DcxControl * p_Control = DcxControl::controlFactory(this->m_pParentDialog,ID,input,5,CTLF_ALLOW_ALL,this->m_Hwnd);
@@ -285,12 +283,10 @@ void DcxBox::parseCommandRequest( const TString & input ) {
 	else if ( flags[TEXT('d')] && numtok > 3 ) {
 
 		const UINT ID = mIRC_ID_OFFSET + input.getnexttok( ).to_int( );	// tok 4
-		DcxControl * p_Control;
 
-		if ( IsWindow( GetDlgItem( this->m_Hwnd, ID ) ) && 
-			(ID > mIRC_ID_OFFSET - 1) &&
-			( p_Control = this->m_pParentDialog->getControlByID( ID ) ) != NULL ) 
+		if (this->m_pParentDialog->isIDValid(ID))
 		{
+			DcxControl * p_Control = this->m_pParentDialog->getControlByID(ID);
 			HWND cHwnd = p_Control->getHwnd( );
 			if ( p_Control->getType( ) == TEXT("dialog") || p_Control->getType( ) == TEXT("window") )
 				delete p_Control;

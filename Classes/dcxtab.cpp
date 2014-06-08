@@ -427,8 +427,9 @@ void DcxTab::parseCommandRequest( const TString & input ) {
 			TabCtrl_DeleteItem( this->m_Hwnd, nItem );
 
 			// select the next tab item if its the current one
-			if (curSel == nItem) {
-				if (nItem < TabCtrl_GetItemCount(this->m_Hwnd))
+			const int iTotal = TabCtrl_GetItemCount(this->m_Hwnd);
+			if ((curSel == nItem) && (iTotal > 0)) {
+				if (nItem < iTotal)
 					TabCtrl_SetCurSel(this->m_Hwnd, nItem);
 				else
 					TabCtrl_SetCurSel(this->m_Hwnd, nItem -1);
