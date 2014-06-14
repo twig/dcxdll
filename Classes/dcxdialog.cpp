@@ -1302,9 +1302,18 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 		RECT rcWindow, rcClient;
 		UINT iFlags = SWP_NOACTIVATE|SWP_NOZORDER|SWP_NOOWNERZORDER;
 
-		GetClientRect(this->m_Hwnd, &rcClient);
+		if (!GetClientRect(this->m_Hwnd, &rcClient))
+		{
+			this->showError(NULL, TEXT("-S"), TEXT("Unable to get client rect!"));
+			return;
+		}
 
-		dcxGetWindowRect(this->m_Hwnd, &rcWindow);
+		if (!dcxGetWindowRect(this->m_Hwnd, &rcWindow))
+		//if (!GetWindowRect(this->m_Hwnd, &rcWindow))
+		{
+			this->showError(NULL, TEXT("-S"), TEXT("Unable to get window rect!"));
+			return;
+		}
 
 		// Convert windows screen position to its position within it's parent.
 		if (this->isStyle(WS_CHILD))
@@ -1326,15 +1335,17 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 
 		// This handles the case where either w or h are < 0 but the other isn't.
 		if (w < 0)
-			w = (rcWindow.right - rcWindow.left);
+			w = rcClient.right;
 		if (h < 0)
-			h = (rcWindow.bottom - rcWindow.top);
+			h = rcClient.bottom;
 
 		// Calculate the actual sizes without the window border
 		// http://windows-programming.suite101.com/article.cfm/client_area_size_with_movewindow
 		POINT ptDiff;
-		ptDiff.x = (rcWindow.right - rcWindow.left) - (rcClient.right - rcClient.left);
-		ptDiff.y = (rcWindow.bottom - rcWindow.top) - (rcClient.bottom - rcClient.top);
+		//ptDiff.x = (rcWindow.right - rcWindow.left) - (rcClient.right - rcClient.left);
+		//ptDiff.y = (rcWindow.bottom - rcWindow.top) - (rcClient.bottom - rcClient.top);
+		ptDiff.x = (rcWindow.right - rcWindow.left) - rcClient.right;
+		ptDiff.y = (rcWindow.bottom - rcWindow.top) - rcClient.bottom;
 
 		SetWindowPos( this->m_Hwnd, NULL, x, y, w + ptDiff.x, h + ptDiff.y, iFlags );
 	}
