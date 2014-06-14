@@ -1,4 +1,4 @@
-/*!
+ï»¿/*!
 * \file dcxedit.cpp
 * \brief blah
 *
@@ -9,7 +9,7 @@
 *
 * \b Revisions
 *
-* © ScriptsDB.org - 2006
+* Â© ScriptsDB.org - 2006
 */
 #include "defines.h"
 #include "Classes/mirc/dcxedit.h"
@@ -27,6 +27,8 @@
 
 DcxEdit::DcxEdit(const UINT ID, DcxDialog *p_Dialog, const HWND mParentHwnd, const RECT *rc, const TString &styles)
 : DcxControl(ID, p_Dialog)
+, m_bIgnoreRepeat(FALSE)
+, m_PassChar(0)
 {
 	LONG Styles = 0, ExStyles = 0;
 	BOOL bNoTheme = FALSE;
@@ -373,20 +375,34 @@ void DcxEdit::parseCommandRequest( const TString &input) {
 	else if (flags[TEXT('j')] && numtok > 3) {
 		const int i = input.getnexttok( ).to_int();	// tok 4
 
+		TCHAR c = Edit_GetPasswordChar(this->m_Hwnd);
+		if (c == 0)
+			c = this->m_PassChar;
+		// XP actually uses the unicode `Black Circle` char U+25CF (9679)
+		// The problem is getting the char set to a unicode (2-byte) one, so far it always sets to CF (207)
+		if (c == 0) {
+			if (Dcx::VistaModule.isVista())
+			{
+				if (Dcx::VistaModule.isWin7())
+				{
+					c = TEXT('\u25CF');	// Win7 char
+				}
+				else
+					c = TEXT('â€¢'); // Vista char (unsure if this is the right char)
+			}
+			else
+				c = TEXT('â€¢'); // XP char
+			//c = TEXT('*'); // before win xp
+		}
 		if (i) {
 			this->addStyle(ES_PASSWORD);
-			TCHAR c = Edit_GetPasswordChar(this->m_Hwnd);
-			// XP actually uses the unicode `Black Circle` char U+25CF (9679)
-			// The problem is getting the char set to a unicode (2-byte) one, so far it always sets to CF (207)
-			if (c == 0)
-				c = TEXT('•'); //(Dcx::XPPlusModule.isUseable()() ? TEXT('•') : TEXT('*'));
-				//c = TEXT('*'); //(Dcx::XPPlusModule.isUseable()() ? TEXT('•') : TEXT('*'));
 
 			Edit_SetPasswordChar(this->m_Hwnd, c);
 		}
 		else {
 			this->removeStyle(ES_PASSWORD);
 			Edit_SetPasswordChar(this->m_Hwnd, 0);
+			this->m_PassChar = c;	// save pass char used for later
 		}
 
 		this->redrawWindow();

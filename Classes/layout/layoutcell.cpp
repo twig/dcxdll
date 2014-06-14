@@ -307,10 +307,11 @@ void LayoutCell::getBorder( RECT & rc ) const {
  * blah
  */
 
-BOOL LayoutCell::isVisible( ) const {
+BOOL LayoutCell::isVisible() const {
 
-  if ( this->m_Hwnd != NULL && IsWindow( this->m_Hwnd ) && IsWindowVisible( this->m_Hwnd ) == FALSE )
-    return FALSE;
+	//if ( this->m_Hwnd != NULL && IsWindow( this->m_Hwnd ) && IsWindowVisible( this->m_Hwnd ) == FALSE )
+	//  return FALSE;
 
-  return TRUE;
+	//return TRUE;
+	return (this->m_Hwnd == NULL || (IsWindow(this->m_Hwnd) && IsWindowVisible(this->m_Hwnd)));
 }

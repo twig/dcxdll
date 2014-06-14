@@ -511,6 +511,11 @@ void DcxTab::parseCommandRequest( const TString & input ) {
 
 		// decrement coz of 0-index
 		nItem--;
+		int curSel = TabCtrl_GetCurSel(this->m_Hwnd);
+		if (curSel == nItem)
+			curSel = pos;
+		else if (curSel > nItem)
+			curSel--;
 
 		// get the item we're moving
 		try {
@@ -533,6 +538,13 @@ void DcxTab::parseCommandRequest( const TString & input ) {
 		}
 		catch (std::bad_alloc) {
 			this->showError(NULL, TEXT("-v"), TEXT("Unable to allocate memory"));
+			return;
+		}
+		// select the next tab item if its the current one
+		if (curSel >= 0) {
+			TabCtrl_SetCurSel(this->m_Hwnd, curSel);
+
+			this->activateSelectedTab();
 		}
 	}
 
@@ -659,8 +671,15 @@ void DcxTab::activateSelectedTab( ) {
 		ZeroMemory( &tci, sizeof( TCITEM ) );
 		tci.mask = TCIF_PARAM;
 
-		HDWP hdwp = BeginDeferWindowPos( 0 );
-		while ( nTab-- > 0 ) {
+		//HDWP hdwp = BeginDeferWindowPos( 0 );
+		HDWP hdwp = BeginDeferWindowPos( nTab );
+
+		if (hdwp == NULL)
+		{
+			this->showError(NULL, TEXT("activateSelectedTab()"), TEXT("Unable to size tabs"));
+			return;
+		}
+		while (nTab-- > 0) {
 
 			TabCtrl_GetItem( this->m_Hwnd, nTab, &tci );
 			LPDCXTCITEM lpdtci = (LPDCXTCITEM) tci.lParam;
@@ -671,12 +690,14 @@ void DcxTab::activateSelectedTab( ) {
 
 					hdwp = DeferWindowPos( hdwp, lpdtci->mChildHwnd, NULL, 
 						tabrect.left, tabrect.top, tabrect.right-tabrect.left, tabrect.bottom-tabrect.top, 
-						SWP_SHOWWINDOW | SWP_NOZORDER | SWP_NOOWNERZORDER );
+						SWP_SHOWWINDOW | SWP_NOZORDER | SWP_NOOWNERZORDER |SWP_DRAWFRAME|SWP_FRAMECHANGED);
 				}
 				else {
 					hdwp = DeferWindowPos( hdwp, lpdtci->mChildHwnd, NULL, 0, 0, 0, 0, 
 						SWP_HIDEWINDOW | SWP_NOSIZE | SWP_NOMOVE | SWP_NOZORDER | SWP_NOREDRAW | SWP_NOACTIVATE | SWP_NOOWNERZORDER );
 				}
+				if (hdwp == NULL)
+					break;
 			}
 		}
 		EndDeferWindowPos( hdwp );
@@ -895,7 +916,7 @@ LRESULT DcxTab::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bPa
 
 				const TString label(szLabel);
 
-				// fill the rect so it appears to TEXT("merge") with the tab page content
+				// fill the rect so it appears to "merge" with the tab page content
 				//if (!dcxIsThemeActive())
 				//FillRect(idata->hDC, &rect, GetSysColorBrush(COLOR_BTNFACE));
 
@@ -911,7 +932,7 @@ LRESULT DcxTab::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bPa
 							rect.left += (ii.rcImage.right - ii.rcImage.left);
 					}
 				}
-				// Draw TEXT('Close button') at right side
+				// Draw 'Close button' at right side
 				if (m_bClosable) {
 					RECT rcCloseButton;
 					GetCloseButtonRect(rect, rcCloseButton);

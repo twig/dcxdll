@@ -48,6 +48,7 @@ public:
 protected:
 	TString m_tsText; // Edit Text
 	TString m_tsCue; // Cue Text
+	TCHAR	m_PassChar;	// Password char
 
 	BOOL m_bIgnoreRepeat;
 };

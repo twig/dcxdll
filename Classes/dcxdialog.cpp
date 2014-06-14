@@ -528,8 +528,7 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 			}
 		}
 		else if (tsCmd == TEXT("clear")) {
-			if (this->m_pLayoutManager != NULL)
-				delete this->m_pLayoutManager;
+			delete this->m_pLayoutManager;
 			this->m_pLayoutManager = new LayoutManager(this->m_Hwnd);
 			//this->redrawWindow(); // dont redraw here, leave that for an `update` cmd
 		}
