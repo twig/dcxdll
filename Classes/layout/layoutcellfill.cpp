@@ -21,8 +21,8 @@
  * blah
  */
 
-LayoutCellFill::LayoutCellFill( )
-: LayoutCell( )
+LayoutCellFill::LayoutCellFill()
+: LayoutCell()
 {
 }
 
@@ -32,8 +32,8 @@ LayoutCellFill::LayoutCellFill( )
  * blah
  */
 
-LayoutCellFill::LayoutCellFill( const HWND mHwnd )
-: LayoutCell( mHwnd )
+LayoutCellFill::LayoutCellFill(const HWND mHwnd)
+: LayoutCell(mHwnd)
 {
 }
 
@@ -43,8 +43,8 @@ LayoutCellFill::LayoutCellFill( const HWND mHwnd )
  * blah
  */
 
-LayoutCellFill::LayoutCellFill( DcxControl * dcxc )
-: LayoutCell( dcxc )
+LayoutCellFill::LayoutCellFill(DcxControl * dcxc)
+: LayoutCell(dcxc)
 {
 }
 
@@ -54,7 +54,7 @@ LayoutCellFill::LayoutCellFill( DcxControl * dcxc )
  * blah
  */
 
-LayoutCellFill::~LayoutCellFill( ) {
+LayoutCellFill::~LayoutCellFill() {
 
 }
 
@@ -64,9 +64,9 @@ LayoutCellFill::~LayoutCellFill( ) {
  * blah
  */
 
-LayoutCell::CellType LayoutCellFill::getType( ) const {
+LayoutCell::CellType LayoutCellFill::getType() const {
 
-  return FILL;
+	return FILL;
 }
 
 /*!
@@ -75,7 +75,7 @@ LayoutCell::CellType LayoutCellFill::getType( ) const {
  * blah
  */
 
-void LayoutCellFill::LayoutChild( ) {
+void LayoutCellFill::LayoutChild() {
 
 }
 
@@ -85,17 +85,17 @@ void LayoutCellFill::LayoutChild( ) {
  * blah
  */
 
-HDWP LayoutCellFill::ExecuteLayout( HDWP hdwp ) {
+HDWP LayoutCellFill::ExecuteLayout(HDWP hdwp) {
 
-	HDWP hdwpdef = hdwp; 
+	HDWP hdwpdef = hdwp;
 
-	if ( this->m_Hwnd != NULL && IsWindow( this->m_Hwnd ) ) {
+	if (this->m_Hwnd != NULL && IsWindow(this->m_Hwnd)) {
 
 		RECT rc;
-		this->getClientRect( rc );
+		this->getClientRect(rc);
 
-		//hdwpdef = DeferWindowPos( hdwpdef, this->m_Hwnd, NULL, rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top, SWP_NOZORDER );
-		hdwpdef = DeferWindowPos( hdwpdef, this->m_Hwnd, NULL, rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top, SWP_NOZORDER | SWP_NOREDRAW | SWP_NOACTIVATE | SWP_NOOWNERZORDER );
+		hdwpdef = DeferWindowPos(hdwpdef, this->m_Hwnd, NULL, rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top, SWP_NOZORDER);
+		//hdwpdef = DeferWindowPos( hdwpdef, this->m_Hwnd, NULL, rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top, SWP_NOZORDER | SWP_NOREDRAW | SWP_NOACTIVATE | SWP_NOOWNERZORDER );
 		//hdwpdef = DeferWindowPos( hdwpdef, this->m_Hwnd, NULL, rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top, SWP_NOZORDER | SWP_NOREDRAW | SWP_NOACTIVATE | SWP_NOOWNERZORDER | SWP_FRAMECHANGED);
 	}
 	return hdwpdef;
@@ -107,27 +107,27 @@ HDWP LayoutCellFill::ExecuteLayout( HDWP hdwp ) {
  * blah
  */
 
-void LayoutCellFill::getMinMaxInfo( CellMinMaxInfo * pCMMI ) {
+void LayoutCellFill::getMinMaxInfo(CellMinMaxInfo * pCMMI) {
 
-  if ( this->isVisible( ) ) {
+	if (this->isVisible()) {
 
-    pCMMI->m_MinSize.x = this->m_rcBorders.left + this->m_rcBorders.right;
-    pCMMI->m_MinSize.y = this->m_rcBorders.top + this->m_rcBorders.bottom;
+		pCMMI->m_MinSize.x = this->m_rcBorders.left + this->m_rcBorders.right;
+		pCMMI->m_MinSize.y = this->m_rcBorders.top + this->m_rcBorders.bottom;
 
-    pCMMI->m_MinSize.x = max( pCMMI->m_MinSize.x, 0 );
-    pCMMI->m_MinSize.y = max( pCMMI->m_MinSize.y, 0 );
-    pCMMI->m_MaxSize.x = min( pCMMI->m_MaxSize.x, GetSystemMetrics( SM_CXMAXTRACK ) );
-    pCMMI->m_MaxSize.y = min( pCMMI->m_MaxSize.y, GetSystemMetrics( SM_CYMAXTRACK ) );
-  }
-  else
-    ZeroMemory( pCMMI, sizeof( CellMinMaxInfo ) );
+		pCMMI->m_MinSize.x = max(pCMMI->m_MinSize.x, 0);
+		pCMMI->m_MinSize.y = max(pCMMI->m_MinSize.y, 0);
+		pCMMI->m_MaxSize.x = min(pCMMI->m_MaxSize.x, GetSystemMetrics(SM_CXMAXTRACK));
+		pCMMI->m_MaxSize.y = min(pCMMI->m_MaxSize.y, GetSystemMetrics(SM_CYMAXTRACK));
+	}
+	else
+		ZeroMemory(pCMMI, sizeof(CellMinMaxInfo));
 }
 
 void LayoutCellFill::toXml(TiXmlElement * xml) {
-	TString margin;
-	if (this->m_BaseControl)
+	if (this->m_BaseControl != NULL)
 		this->m_BaseControl->toXml(xml);
 	if (m_rcBorders.top != 0 || m_rcBorders.bottom != 0 || m_rcBorders.left != 0 || m_rcBorders.right != 0) {
+		TString margin;
 		margin.tsprintf(TEXT("%d %d %d %d"), m_rcBorders.left, m_rcBorders.top, m_rcBorders.right, m_rcBorders.bottom);
 		xml->SetAttribute("margin", margin.c_str());
 	}
@@ -135,5 +135,9 @@ void LayoutCellFill::toXml(TiXmlElement * xml) {
 
 
 TiXmlElement * LayoutCellFill::toXml(void) {
-	return this->m_BaseControl->toXml();
+	// Ook: should margin be added here too?
+	if (this->m_BaseControl != NULL)
+		return this->m_BaseControl->toXml();
+	return NULL;
+	//return this->m_BaseControl->toXml();
 }

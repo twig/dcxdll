@@ -127,7 +127,7 @@ LayoutCell::LayoutCell(DcxControl * dcxc)
  * blah
  */
 
-LayoutCell::~LayoutCell( ) {
+LayoutCell::~LayoutCell() {
 
 
 }
@@ -138,9 +138,9 @@ LayoutCell::~LayoutCell( ) {
  * blah
  */
 
-void LayoutCell::setParent( LayoutCell * p_Cell ) {
+void LayoutCell::setParent(LayoutCell * p_Cell) {
 
-  this->m_Parent = p_Cell;
+	this->m_Parent = p_Cell;
 }
 
 /*!
@@ -149,9 +149,9 @@ void LayoutCell::setParent( LayoutCell * p_Cell ) {
  * blah
  */
 
-void LayoutCell::setSibling( LayoutCell * p_Cell ) {
+void LayoutCell::setSibling(LayoutCell * p_Cell) {
 
-  this->m_NextSibling = p_Cell;
+	this->m_NextSibling = p_Cell;
 }
 
 /*!
@@ -160,9 +160,9 @@ void LayoutCell::setSibling( LayoutCell * p_Cell ) {
  * blah
  */
 
-LayoutCell * LayoutCell::getFirstChild( ) const {
+LayoutCell * LayoutCell::getFirstChild() const {
 
-  return this->m_FirstChild;
+	return this->m_FirstChild;
 }
 
 /*!
@@ -171,9 +171,9 @@ LayoutCell * LayoutCell::getFirstChild( ) const {
  * blah
  */
 
-LayoutCell * LayoutCell::getParent( ) const {
+LayoutCell * LayoutCell::getParent() const {
 
-  return this->m_Parent;
+	return this->m_Parent;
 }
 
 /*!
@@ -182,9 +182,9 @@ LayoutCell * LayoutCell::getParent( ) const {
  * blah
  */
 
-LayoutCell * LayoutCell::getNextSibling( ) const {
+LayoutCell * LayoutCell::getNextSibling() const {
 
-  return this->m_NextSibling;
+	return this->m_NextSibling;
 }
 
 /*!
@@ -193,34 +193,34 @@ LayoutCell * LayoutCell::getNextSibling( ) const {
  * blah
  */
 
-void LayoutCell::setRect( RECT & rc ) {
+void LayoutCell::setRect(RECT & rc) {
 
-  //RECT rect;
-  //this->getClientRect( rect );
+	//RECT rect;
+	//this->getClientRect( rect );
 
-  //MessageBox( hwndChild3, "blah", "blah", MB_OK );
+	//MessageBox( hwndChild3, "blah", "blah", MB_OK );
 
-  CellMinMaxInfo cmmi;
-  cmmi.m_MinSize.x = 0;
-  cmmi.m_MinSize.y = 0;
-  cmmi.m_MaxSize.x = rc.right - rc.left;
-  cmmi.m_MaxSize.y = rc.bottom - rc.top;
+	CellMinMaxInfo cmmi;
+	cmmi.m_MinSize.x = 0;
+	cmmi.m_MinSize.y = 0;
+	cmmi.m_MaxSize.x = rc.right - rc.left;
+	cmmi.m_MaxSize.y = rc.bottom - rc.top;
 
-  this->getMinMaxInfo( &cmmi );
+	this->getMinMaxInfo(&cmmi);
 
-  if ( rc.right - rc.left < cmmi.m_MinSize.x )
+	if (rc.right - rc.left < cmmi.m_MinSize.x)
 		rc.right = rc.left + cmmi.m_MinSize.x;
-	if ( rc.right - rc.left > cmmi.m_MaxSize.x )
+	if (rc.right - rc.left > cmmi.m_MaxSize.x)
 		rc.right = rc.left + cmmi.m_MaxSize.x;
-	if ( rc.bottom - rc.top < cmmi.m_MinSize.y )
+	if (rc.bottom - rc.top < cmmi.m_MinSize.y)
 		rc.bottom = rc.top + cmmi.m_MinSize.y;
-	if ( rc.bottom - rc.top > cmmi.m_MaxSize.y )
+	if (rc.bottom - rc.top > cmmi.m_MaxSize.y)
 		rc.bottom = rc.top + cmmi.m_MaxSize.y;
-  
-  if ( EqualRect( &rc, &this->m_rcWindow ) )
-    return;
 
-  this->m_rcWindow = rc;
+	if (EqualRect(&rc, &this->m_rcWindow))
+		return;
+
+	this->m_rcWindow = rc;
 }
 
 /*!
@@ -229,9 +229,9 @@ void LayoutCell::setRect( RECT & rc ) {
  * blah
  */
 
-void LayoutCell::getRect( RECT & rc ) const {
+void LayoutCell::getRect(RECT & rc) const {
 
-  rc = this->m_rcWindow;
+	rc = this->m_rcWindow;
 }
 
 /*!
@@ -240,11 +240,11 @@ void LayoutCell::getRect( RECT & rc ) const {
  * blah
  */
 
-void LayoutCell::getClientRect( RECT & rc ) const {
+void LayoutCell::getClientRect(RECT & rc) const {
 
-  CopyRect( &rc, &this->m_rcWindow );
+	CopyRect(&rc, &this->m_rcWindow);
 
-  rc.left += this->m_rcBorders.left;
+	rc.left += this->m_rcBorders.left;
 	rc.right -= this->m_rcBorders.right;
 	rc.top += this->m_rcBorders.top;
 	rc.bottom -= this->m_rcBorders.bottom;
@@ -256,16 +256,16 @@ void LayoutCell::getClientRect( RECT & rc ) const {
  * blah
  */
 
-void LayoutCell::setBorder( const RECT & rc ) {
+void LayoutCell::setBorder(const RECT & rc) {
 
-  // remove old borders
-  this->m_rcWindow.right -= this->m_rcBorders.left + this->m_rcBorders.right;
-  this->m_rcWindow.bottom -= this->m_rcBorders.top + this->m_rcBorders.bottom;
+	// remove old borders
+	this->m_rcWindow.right -= this->m_rcBorders.left + this->m_rcBorders.right;
+	this->m_rcWindow.bottom -= this->m_rcBorders.top + this->m_rcBorders.bottom;
 
-  // new borders
-  CopyRect( &this->m_rcBorders, &rc );
+	// new borders
+	CopyRect(&this->m_rcBorders, &rc);
 
-  // re-add new border settings
+	// re-add new border settings
 	this->m_rcWindow.right += this->m_rcBorders.left + this->m_rcBorders.right;
 	this->m_rcWindow.bottom += this->m_rcBorders.top + this->m_rcBorders.bottom;
 }
@@ -276,16 +276,16 @@ void LayoutCell::setBorder( const RECT & rc ) {
  * blah
  */
 
-void LayoutCell::setBorder( const unsigned int nBorder ) {
+void LayoutCell::setBorder(const unsigned int nBorder) {
 
-  // remove old borders
-  this->m_rcWindow.right -= this->m_rcBorders.left + this->m_rcBorders.right;
-  this->m_rcWindow.bottom -= this->m_rcBorders.top + this->m_rcBorders.bottom;
+	// remove old borders
+	this->m_rcWindow.right -= this->m_rcBorders.left + this->m_rcBorders.right;
+	this->m_rcWindow.bottom -= this->m_rcBorders.top + this->m_rcBorders.bottom;
 
-  // new borders
-  SetRect( &this->m_rcBorders, nBorder, nBorder, nBorder, nBorder );
+	// new borders
+	SetRect(&this->m_rcBorders, nBorder, nBorder, nBorder, nBorder);
 
-  // re-add new border settings
+	// re-add new border settings
 	this->m_rcWindow.right += this->m_rcBorders.left + this->m_rcBorders.right;
 	this->m_rcWindow.bottom += this->m_rcBorders.top + this->m_rcBorders.bottom;
 }
@@ -296,9 +296,9 @@ void LayoutCell::setBorder( const unsigned int nBorder ) {
  * blah
  */
 
-void LayoutCell::getBorder( RECT & rc ) const {
+void LayoutCell::getBorder(RECT & rc) const {
 
-  rc = this->m_rcBorders;
+	rc = this->m_rcBorders;
 }
 
 /*!

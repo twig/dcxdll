@@ -407,198 +407,189 @@ void DcxList::parseCommandRequest( const TString & input ) {
 		if ( nPos == -1 )
 			nPos = ListBox_GetCount( this->m_Hwnd );
 
-		const TString opts(input.getnexttok( ));	// tok 5
+		const XSwitchFlags xOpts(input.getnexttok());		// tok 5
 		TString itemtext(input.gettok(6, -1).trim());
 		int nMaxStrlen = 0;
 		TString tsRes;
 
-		if (opts[0] != TEXT('+')) {
+		if (!xOpts[TEXT('+')]) {
 			this->showError(NULL, TEXT("-A"), TEXT("Invalid Flags"));
 			return;
 		}
 
-		switch (opts[1])
+		if (xOpts[TEXT('H')]) // [TEXT] == [table] [item]
 		{
-		case TEXT('H'): // [TEXT] == [table] [item]
-			{
-				if (itemtext.numtok() == 2) { // load single item from hash table by item name
-					mIRCLinker::tsEvalex(tsRes, TEXT("$hget(%s,%s)"), itemtext.gettok( 1 ).to_chr(), itemtext.gettok( 2 ).to_chr());
-					ListBox_InsertString( this->m_Hwnd, nPos, tsRes.to_chr() );
-					nMaxStrlen = tsRes.len();
-				}
-				else
-					this->showError(NULL, TEXT("-A +h"), TEXT("Invalid Syntax"));
+			if (itemtext.numtok() == 2) { // load single item from hash table by item name
+				mIRCLinker::tsEvalex(tsRes, TEXT("$hget(%s,%s)"), itemtext.gettok( 1 ).to_chr(), itemtext.gettok( 2 ).to_chr());
+				ListBox_InsertString( this->m_Hwnd, nPos, tsRes.to_chr() );
+				nMaxStrlen = tsRes.len();
 			}
-			break;
-		case TEXT('n'): // [TEXT] == [table] [N]
-			{
-				if (itemtext.numtok() == 2) { // load single item from hash table by index
-					mIRCLinker::tsEvalex(tsRes, TEXT("$hget(%s,%s).data"), itemtext.gettok( 1 ).to_chr(), itemtext.gettok( 2 ).to_chr());
-					ListBox_InsertString( this->m_Hwnd, nPos, tsRes.to_chr() );
-					nMaxStrlen = tsRes.len();
-				}
-				else
-					this->showError(NULL, TEXT("-A +n"), TEXT("Invalid Syntax"));
+			else
+				this->showError(NULL, TEXT("-A +h"), TEXT("Invalid Syntax"));
+		}
+		else if(xOpts[TEXT('n')]) // [TEXT] == [table] [N]
+		{
+			if (itemtext.numtok() == 2) { // load single item from hash table by index
+				mIRCLinker::tsEvalex(tsRes, TEXT("$hget(%s,%s).data"), itemtext.gettok( 1 ).to_chr(), itemtext.gettok( 2 ).to_chr());
+				ListBox_InsertString( this->m_Hwnd, nPos, tsRes.to_chr() );
+				nMaxStrlen = tsRes.len();
 			}
-			break;
-		case TEXT('t'): // [TEXT] == [table] [startN] [endN]
-			{
-				if (itemtext.numtok() == 3) { // add contents of a hash table to list
-					const TString htable(itemtext.getfirsttok( 1 ));
-					int startN = itemtext.getnexttok( ).to_int();	// tok 2
-					int endN = itemtext.getnexttok( ).to_int();		// tok 3
+			else
+				this->showError(NULL, TEXT("-A +n"), TEXT("Invalid Syntax"));
+		}
+		else if(xOpts[TEXT('t')]) // [TEXT] == [table] [startN] [endN]
+		{
+			if (itemtext.numtok() == 3) { // add contents of a hash table to list
+				const TString htable(itemtext.getfirsttok( 1 ));
+				int startN = itemtext.getnexttok( ).to_int();	// tok 2
+				int endN = itemtext.getnexttok( ).to_int();		// tok 3
 
-					// get total items in table.
-					mIRCLinker::tsEvalex(tsRes, TEXT("$hget(%s,0).item"), htable.to_chr());
-					const int max_items = tsRes.to_int();
+				// get total items in table.
+				mIRCLinker::tsEvalex(tsRes, TEXT("$hget(%s,0).item"), htable.to_chr());
+				const int max_items = tsRes.to_int();
 
-					// no items in table.
-					if (max_items == 0)
-						return;
+				// no items in table.
+				if (max_items == 0)
+					return;
 
-					// If neg number is given start from (last item) - startN
-					if (startN < 0)
-						startN = (max_items + startN);
+				// If neg number is given start from (last item) - startN
+				if (startN < 0)
+					startN = (max_items + startN);
 
-					// if start N < 1, make it 1. Allows 0 item. Or case where higher neg number was supplied than items avail.
-					if (startN < 1)
-						startN = 1;
+				// if start N < 1, make it 1. Allows 0 item. Or case where higher neg number was supplied than items avail.
+				if (startN < 1)
+					startN = 1;
 
-					// If neg number is given set end to (last item) - endN
-					if (endN < 0)
-						endN = (max_items + endN);
-					// if endN > max or == 0, set to max, allows 0 item for end meaning all
-					else if ((endN > max_items) || (endN == 0))
-						endN = max_items;
+				// If neg number is given set end to (last item) - endN
+				if (endN < 0)
+					endN = (max_items + endN);
+				// if endN > max or == 0, set to max, allows 0 item for end meaning all
+				else if ((endN > max_items) || (endN == 0))
+					endN = max_items;
 
-					// if endN < 1 set it to 1
-					if (endN < 1)
-						endN = 1;
+				// if endN < 1 set it to 1
+				if (endN < 1)
+					endN = 1;
 
-					// check endN comes after startN
-					if (endN < startN) {
-						this->showError(NULL, TEXT("-A +t"), TEXT("Invalid Range"));
-						return;
-					}
-
-					this->setRedraw(FALSE);
-					for (int i = startN; i <= endN; i++) {
-						mIRCLinker::tsEvalex(tsRes, TEXT("$hget(%s,%d).data"), htable.to_chr(), i);
-						ListBox_InsertString( this->m_Hwnd, nPos++, tsRes.to_chr() );
-						const int len = tsRes.len();
-						if (len > nMaxStrlen)
-							nMaxStrlen = len;
-					}
-					this->setRedraw(TRUE);
-					this->redrawWindow();
+				// check endN comes after startN
+				if (endN < startN) {
+					this->showError(NULL, TEXT("-A +t"), TEXT("Invalid Range"));
+					return;
 				}
-				else
-					this->showError(NULL, TEXT("-A +t"), TEXT("Invalid Syntax"));
+
+				this->setRedraw(FALSE);
+				for (int i = startN; i <= endN; i++) {
+					mIRCLinker::tsEvalex(tsRes, TEXT("$hget(%s,%d).data"), htable.to_chr(), i);
+					ListBox_InsertString( this->m_Hwnd, nPos++, tsRes.to_chr() );
+					const int len = tsRes.len();
+					if (len > nMaxStrlen)
+						nMaxStrlen = len;
+				}
+				this->setRedraw(TRUE);
+				this->redrawWindow();
 			}
-			break;
-		case TEXT('f'): // [TEXT] == [startN] [endN] [filename]
-			{
-				if (itemtext.numtok() > 2) { // add contents of a file to list
-					int startN = itemtext.getfirsttok( 1 ).to_int();
-					int endN = itemtext.getnexttok( ).to_int();	// tok 2
-					TString filename(itemtext.gettok( 3, -1));
+			else
+				this->showError(NULL, TEXT("-A +t"), TEXT("Invalid Syntax"));
+		}
+		else if(xOpts[TEXT('f')]) // [TEXT] == [startN] [endN] [filename]
+		{
+			if (itemtext.numtok() > 2) { // add contents of a file to list
+				int startN = itemtext.getfirsttok( 1 ).to_int();
+				int endN = itemtext.getnexttok( ).to_int();	// tok 2
+				TString filename(itemtext.gettok( 3, -1));
 
-					if (IsFile(filename)) {
-						PTCHAR buf = (PTCHAR)readFile(filename.to_chr());
-						if (buf != NULL) {
-							const TString contents(buf);
-							delete [] buf;
-							TCHAR *tok = TEXT("\r\n");
+				if (IsFile(filename)) {
+					PTCHAR buf = (PTCHAR)readFile(filename.to_chr());
+					if (buf != NULL) {
+						const TString contents(buf);
+						delete [] buf;
+						TCHAR *tok = TEXT("\r\n");
 
-							UINT max_lines = contents.numtok(tok);
-							if (max_lines == 1) {
-								tok = TEXT("\n");
-								max_lines = contents.numtok(tok);
-							}
-
-							// no data in file.
-							if (max_lines == 0)
-								return;
-
-							// If neg number is given start from (last line) - startN
-							if (startN < 0)
-								startN = (max_lines + startN);
-
-							// if start N < 1, make it 1. Allows 0 item. Or case where higher neg number was supplied than lines avail.
-							if (startN < 1)
-								startN = 1;
-
-							// If neg number is given set end to (last line) - endN
-							if (endN < 0)
-								endN = (max_lines + endN);
-							// if endN > max or == 0, set to max, allows 0 for end meaning all
-							else if ((endN > (int)max_lines) || (endN == 0))
-								endN = max_lines;
-
-							// if endN < 1 set it to 1
-							if (endN < 1)
-								endN = 1;
-
-							// check endN comes after startN
-							if (endN < startN) {
-								this->showError(NULL, TEXT("-A +f"), TEXT("Invalid Range"));
-								return;
-							}
-							this->setRedraw(FALSE);
-
-							for (int i = startN; i <= endN; i++) {
-								itemtext = contents.gettok( i, tok);
-								ListBox_InsertString( this->m_Hwnd, nPos++, itemtext.to_chr() );
-								const int len = itemtext.len();
-								if (len > nMaxStrlen)
-									nMaxStrlen = len;
-							}
-							this->setRedraw(TRUE);
-							this->redrawWindow();
+						UINT max_lines = contents.numtok(tok);
+						if (max_lines == 1) {
+							tok = TEXT("\n");
+							max_lines = contents.numtok(tok);
 						}
+
+						// no data in file.
+						if (max_lines == 0)
+							return;
+
+						// If neg number is given start from (last line) - startN
+						if (startN < 0)
+							startN = (max_lines + startN);
+
+						// if start N < 1, make it 1. Allows 0 item. Or case where higher neg number was supplied than lines avail.
+						if (startN < 1)
+							startN = 1;
+
+						// If neg number is given set end to (last line) - endN
+						if (endN < 0)
+							endN = (max_lines + endN);
+						// if endN > max or == 0, set to max, allows 0 for end meaning all
+						else if ((endN > (int)max_lines) || (endN == 0))
+							endN = max_lines;
+
+						// if endN < 1 set it to 1
+						if (endN < 1)
+							endN = 1;
+
+						// check endN comes after startN
+						if (endN < startN) {
+							this->showError(NULL, TEXT("-A +f"), TEXT("Invalid Range"));
+							return;
+						}
+						this->setRedraw(FALSE);
+
+						for (int i = startN; i <= endN; i++) {
+							itemtext = contents.gettok( i, tok);
+							ListBox_InsertString( this->m_Hwnd, nPos++, itemtext.to_chr() );
+							const int len = itemtext.len();
+							if (len > nMaxStrlen)
+								nMaxStrlen = len;
+						}
+						this->setRedraw(TRUE);
+						this->redrawWindow();
 					}
-					else
-						this->showErrorEx(NULL, TEXT("-A"), TEXT("Unable To Access File: %s"), itemtext.to_chr());
 				}
 				else
-					this->showError(NULL, TEXT("-A +f"), TEXT("Invalid Syntax"));
+					this->showErrorEx(NULL, TEXT("-A"), TEXT("Unable To Access File: %s"), itemtext.to_chr());
 			}
-			break;
-		case TEXT('T'): // [TEXT] == [C] [text][c][text]......
-			{
-				if (itemtext.numtok() > 1) { // add tokens to list
-					TCHAR tok[2];
-					tok[0] = (TCHAR)itemtext.gettok( 1 ).to_int();
-					tok[1] = 0;
-					const TString contents(itemtext.gettok(2,-1));
+			else
+				this->showError(NULL, TEXT("-A +f"), TEXT("Invalid Syntax"));
+		}
+		else if (xOpts[TEXT('T')]) // [TEXT] == [C] [text][c][text]......
+		{
+			if (itemtext.numtok() > 1) { // add tokens to list
+				TCHAR tok[2];
+				tok[0] = (TCHAR)itemtext.gettok( 1 ).to_int();
+				tok[1] = 0;
+				const TString contents(itemtext.gettok(2,-1));
 
-					const UINT iNumtok = contents.numtok(tok);
+				const UINT iNumtok = contents.numtok(tok);
 
-					this->setRedraw(FALSE);
+				this->setRedraw(FALSE);
 
-					contents.getfirsttok( 0, tok );
+				contents.getfirsttok( 0, tok );
 
-					for (UINT i = 1; i <= iNumtok; i++) {
-						itemtext = contents.getnexttok( tok);
-						ListBox_InsertString( this->m_Hwnd, nPos++, itemtext.to_chr() );
-						const int len = itemtext.len();
-						if (len > nMaxStrlen)
-							nMaxStrlen = len;
-					}
-
-					this->setRedraw(TRUE);
-					this->redrawWindow();
+				for (UINT i = 1; i <= iNumtok; i++) {
+					itemtext = contents.getnexttok( tok);
+					ListBox_InsertString( this->m_Hwnd, nPos++, itemtext.to_chr() );
+					const int len = itemtext.len();
+					if (len > nMaxStrlen)
+						nMaxStrlen = len;
 				}
-				else
-					this->showError(NULL, TEXT("-A +T"), TEXT("Invalid Syntax"));
+
+				this->setRedraw(TRUE);
+				this->redrawWindow();
 			}
-			break;
-		default:
-			{
-				ListBox_InsertString( this->m_Hwnd, nPos, itemtext.to_chr( ) );
-				nMaxStrlen = itemtext.len();
-			}
-			break;
+			else
+				this->showError(NULL, TEXT("-A +T"), TEXT("Invalid Syntax"));
+		}
+		else
+		{
+			ListBox_InsertString( this->m_Hwnd, nPos, itemtext.to_chr( ) );
+			nMaxStrlen = itemtext.len();
 		}
 		// Now update the horizontal scroller
 		const int nHorizExtent = ListBox_GetHorizontalExtent( this->m_Hwnd );

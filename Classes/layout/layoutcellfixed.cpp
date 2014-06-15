@@ -20,9 +20,9 @@
  * blah
  */
 
-LayoutCellFixed::LayoutCellFixed( DcxControl * dcxc, const FixedType nType )
-: LayoutCell( dcxc )
-, m_nType( nType )
+LayoutCellFixed::LayoutCellFixed(DcxControl * dcxc, const FixedType nType)
+: LayoutCell(dcxc)
+, m_nType(nType)
 {
 }
 
@@ -32,9 +32,9 @@ LayoutCellFixed::LayoutCellFixed( DcxControl * dcxc, const FixedType nType )
  * blah
  */
 
-LayoutCellFixed::LayoutCellFixed( const HWND mHwnd, const FixedType nType )
-: LayoutCell( mHwnd )
-, m_nType( nType )
+LayoutCellFixed::LayoutCellFixed(const HWND mHwnd, const FixedType nType)
+: LayoutCell(mHwnd)
+, m_nType(nType)
 {
 }
 
@@ -83,7 +83,7 @@ LayoutCellFixed::LayoutCellFixed(const HWND mHwnd, const RECT & rc, const FixedT
  * blah
  */
 
-LayoutCellFixed::~LayoutCellFixed( ) {
+LayoutCellFixed::~LayoutCellFixed() {
 
 }
 
@@ -93,7 +93,7 @@ LayoutCellFixed::~LayoutCellFixed( ) {
  * blah
  */
 
-LayoutCell::CellType LayoutCellFixed::getType( ) const {
+LayoutCell::CellType LayoutCellFixed::getType() const {
 
 	return FIXED;
 }
@@ -104,13 +104,16 @@ LayoutCell::CellType LayoutCellFixed::getType( ) const {
  * blah
  */
 
-void LayoutCellFixed::LayoutChild( ) {
+void LayoutCellFixed::LayoutChild() {
 
 }
 
 
 TiXmlElement * LayoutCellFixed::toXml(void) {
-	TiXmlElement * base = m_BaseControl->toXml();
+	if (this->m_BaseControl == NULL)
+		return NULL;
+
+	TiXmlElement * base = this->m_BaseControl->toXml();
 	if (this->m_nType & HEIGHT)
 		base->SetAttribute("height", this->m_rcWindow.bottom - this->m_rcWindow.top);
 	if (this->m_nType & WIDTH)
@@ -119,7 +122,7 @@ TiXmlElement * LayoutCellFixed::toXml(void) {
 }
 
 void LayoutCellFixed::toXml(TiXmlElement * xml) {
-	if (this->m_BaseControl)
+	if (this->m_BaseControl != NULL)
 		this->m_BaseControl->toXml(xml);
 	if (this->m_nType & HEIGHT)
 		xml->SetAttribute("height", this->m_rcWindow.bottom - this->m_rcWindow.top);
@@ -133,19 +136,19 @@ void LayoutCellFixed::toXml(TiXmlElement * xml) {
  * blah
  */
 
-HDWP LayoutCellFixed::ExecuteLayout( HDWP hdwp ) {
+HDWP LayoutCellFixed::ExecuteLayout(HDWP hdwp) {
 
-	HDWP hdwpdef = hdwp; 
+	HDWP hdwpdef = hdwp;
 
-	if ( this->m_Hwnd != NULL && IsWindow( this->m_Hwnd ) ) {
+	if (this->m_Hwnd != NULL && IsWindow(this->m_Hwnd)) {
 
 		RECT rc;
-		this->getClientRect( rc );
+		this->getClientRect(rc);
 
-		//hdwpdef = DeferWindowPos( hdwpdef, this->m_Hwnd, NULL, rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top, SWP_NOZORDER );
-		hdwpdef = DeferWindowPos( hdwpdef, this->m_Hwnd, NULL, rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top, SWP_NOZORDER | SWP_NOREDRAW | SWP_NOACTIVATE | SWP_NOOWNERZORDER );
+		hdwpdef = DeferWindowPos(hdwpdef, this->m_Hwnd, NULL, rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top, SWP_NOZORDER);
+		//hdwpdef = DeferWindowPos( hdwpdef, this->m_Hwnd, NULL, rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top, SWP_NOZORDER | SWP_NOREDRAW | SWP_NOACTIVATE | SWP_NOOWNERZORDER );
 	}
-	return hdwpdef; 
+	return hdwpdef;
 }
 
 /*!
@@ -154,18 +157,18 @@ HDWP LayoutCellFixed::ExecuteLayout( HDWP hdwp ) {
  * blah
  */
 
-void LayoutCellFixed::getMinMaxInfo( CellMinMaxInfo * pCMMI ) {
+void LayoutCellFixed::getMinMaxInfo(CellMinMaxInfo * pCMMI) {
 
-	if ( this->isVisible( ) ) {
+	if (this->isVisible()) {
 		RECT rc;
-		CopyRect( &rc, &this->m_rcWindow );
+		CopyRect(&rc, &this->m_rcWindow);
 
 		//pCMMI->m_MinSize.x = this->m_rcBorders.left + this->m_rcBorders.right;
 		//pCMMI->m_MinSize.y = this->m_rcBorders.top + this->m_rcBorders.bottom;
 
-		if ( m_nType & WIDTH ) {
+		if (m_nType & WIDTH) {
 
-			if ( m_nType != BOTH )
+			if (m_nType != BOTH)
 				pCMMI->m_MinSize.y = this->m_rcBorders.top + this->m_rcBorders.bottom;
 
 			pCMMI->m_MinSize.x = rc.right - rc.left;
@@ -173,21 +176,21 @@ void LayoutCellFixed::getMinMaxInfo( CellMinMaxInfo * pCMMI ) {
 
 		}
 
-		if ( m_nType & HEIGHT ) {
+		if (m_nType & HEIGHT) {
 
-			if ( m_nType != BOTH )
+			if (m_nType != BOTH)
 				pCMMI->m_MinSize.x = this->m_rcBorders.left + this->m_rcBorders.right;
 
 			pCMMI->m_MinSize.y = rc.bottom - rc.top;
 			pCMMI->m_MaxSize.y = pCMMI->m_MinSize.y;
 		}
 
-		pCMMI->m_MinSize.x = max( pCMMI->m_MinSize.x, 0 );
-		pCMMI->m_MinSize.y = max( pCMMI->m_MinSize.y, 0 );
-		pCMMI->m_MaxSize.x = min( pCMMI->m_MaxSize.x, GetSystemMetrics( SM_CXMAXTRACK ) );
-		pCMMI->m_MaxSize.y = min( pCMMI->m_MaxSize.y, GetSystemMetrics( SM_CYMAXTRACK ) );
+		pCMMI->m_MinSize.x = max(pCMMI->m_MinSize.x, 0);
+		pCMMI->m_MinSize.y = max(pCMMI->m_MinSize.y, 0);
+		pCMMI->m_MaxSize.x = min(pCMMI->m_MaxSize.x, GetSystemMetrics(SM_CXMAXTRACK));
+		pCMMI->m_MaxSize.y = min(pCMMI->m_MaxSize.y, GetSystemMetrics(SM_CYMAXTRACK));
 	}
 	else
-		ZeroMemory( pCMMI, sizeof( CellMinMaxInfo ) );
+		ZeroMemory(pCMMI, sizeof(CellMinMaxInfo));
 }
 
