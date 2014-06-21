@@ -131,7 +131,7 @@ public:
 
 	const TString &getName( ) const;
 
-	HMENU getMenuHandle( ) const { return this->m_hMenu; };
+	const HMENU &getMenuHandle( ) const { return this->m_hMenu; };
 
 	LPXPMENUCOLORS getColors( ) const;
 	void setColor( const int nColor, const COLORREF clrColor );
@@ -150,8 +150,8 @@ public:
 	HBITMAP getBackBitmap( ) const;
 	void setBackBitmap( HBITMAP hBitmap );
 
-	bool IsRounded(void) const { return this->m_bRoundedSel; };
-	BYTE IsAlpha(void) const { return this->m_uiAlpha; };
+	const bool &IsRounded(void) const { return this->m_bRoundedSel; };
+	const BYTE &IsAlpha(void) const { return this->m_uiAlpha; };
 	void SetRounded(const bool rounded) { this->m_bRoundedSel = rounded; };
 	void SetAlpha(const BYTE alpha) { this->m_uiAlpha = alpha; };
 

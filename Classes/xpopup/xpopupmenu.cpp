@@ -465,7 +465,7 @@ void XPopupMenu::parseXPopIdentifier( const TString & input, TCHAR * szReturnVal
 				if ( p_Item != NULL ) {
 
 					if ( prop == TEXT("text") ) 
-						lstrcpyn( szReturnValue, p_Item->getItemText( )->to_chr( ), MIRC_BUFFER_SIZE_CCH );
+						lstrcpyn( szReturnValue, p_Item->getItemText( ).to_chr( ), MIRC_BUFFER_SIZE_CCH );
 					else if ( prop == TEXT("icon") )
 						wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), p_Item->getItemIcon( ) + 1 );
 					return;

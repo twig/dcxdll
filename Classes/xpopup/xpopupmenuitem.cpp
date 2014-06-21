@@ -90,9 +90,9 @@ void XPopupMenuItem::setItemIcon( const int nIcon ) {
  * blah
  */
 
-const TString * XPopupMenuItem::getItemText( ) const {
+const TString &XPopupMenuItem::getItemText( ) const {
 
-	return &this->m_tsItemText;
+	return this->m_tsItemText;
 }
 
 /*!
@@ -101,7 +101,7 @@ const TString * XPopupMenuItem::getItemText( ) const {
  * blah
  */
 
-int XPopupMenuItem::getItemIcon(  ) const {
+const int &XPopupMenuItem::getItemIcon(  ) const {
 
 	return this->m_nIcon;
 }

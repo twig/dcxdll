@@ -891,11 +891,11 @@ XPopupMenu* XPopupMenuManager::getMenuByHandle(const HMENU hMenu) {
 	return NULL;
 }
 
-XPopupMenu* XPopupMenuManager::getmIRCPopup(void)
+XPopupMenu* XPopupMenuManager::getmIRCPopup(void) const
 {
 	return m_mIRCPopupMenu;
 }
-XPopupMenu* XPopupMenuManager::getmIRCMenuBar(void)
+XPopupMenu* XPopupMenuManager::getmIRCMenuBar(void) const
 {
 	return m_mIRCMenuBar;
 }
@@ -903,7 +903,7 @@ XPopupMenu* XPopupMenuManager::getmIRCMenuBar(void)
 /*
  * Check if menu handle is a custom menu (don't include converted mIRC menus)
  */
-bool XPopupMenuManager::isCustomMenu(const HMENU hMenu) {
+bool XPopupMenuManager::isCustomMenu(const HMENU hMenu) const {
 #if DCX_USE_C11
 	for (const auto &x: this->m_vpXPMenu) {
 		if (x != NULL) {
@@ -949,7 +949,7 @@ bool XPopupMenuManager::isMenuBarMenu(const HMENU hMenu, const HMENU hMatch) {
  * blah
  */
 
-UINT XPopupMenuManager::parseTrackFlags( const TString & flags ) {
+const UINT XPopupMenuManager::parseTrackFlags( const TString & flags ) {
 
 	UINT iFlags = 0;
 	const XSwitchFlags xflags(flags);

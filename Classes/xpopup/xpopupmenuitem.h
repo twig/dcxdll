@@ -68,8 +68,8 @@ public:
 	void setSubMenu( const BOOL bSubMenu );
 	void setItemText( const TString & tsItemText );
 	void setItemIcon( const int nIcon );
-	const TString * getItemText( ) const;
-	int getItemIcon(  ) const;
+	const TString &getItemText( ) const;
+	const int &getItemIcon(  ) const;
 
 	ULONG_PTR getItemDataBackup() const;
 

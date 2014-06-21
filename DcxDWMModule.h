@@ -41,8 +41,8 @@ public:
 	HRESULT dcxDwmEnableBlurBehindWindow(HWND hwnd, __in const DWM_BLURBEHIND *pBlurBehind);
 	HRESULT dcxDwmGetColorizationColor( __out  DWORD *pcrColorization, __out  BOOL *pfOpaqueBlend);
 
-	bool isAero(void) const { return this->m_bAero; };
-	bool isVista(void) const { return this->m_bVista; };
-	bool isWin7(void) const { return this->m_bWin7; };
-	bool isWin8(void) const { return this->m_bWin8; };
+	const bool &isAero(void) const { return this->m_bAero; };
+	const bool &isVista(void) const { return this->m_bVista; };
+	const bool &isWin7(void) const { return this->m_bWin7; };
+	const bool &isWin8(void) const { return this->m_bWin8; };
 };

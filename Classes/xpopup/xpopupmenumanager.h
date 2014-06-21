@@ -65,13 +65,13 @@ public:
 
 	XPopupMenu* getMenuByName(const TString &tsName, BOOL checkSpecial);
 	XPopupMenu* getMenuByHandle(const HMENU hMenu);
-	XPopupMenu* getmIRCPopup(void);
-	XPopupMenu* getmIRCMenuBar(void);
-	bool isCustomMenu(const HMENU hMenu);
+	XPopupMenu* getmIRCPopup(void) const;
+	XPopupMenu* getmIRCMenuBar(void) const;
+	bool isCustomMenu(const HMENU hMenu) const;
 	static bool isMenuBarMenu(const HMENU hMenu, const HMENU hMatch);
 
 	bool isPatched(void) const { return false; };
-	//bool isPatched(void) const { return this->m_bPatched; };
+	//const bool &isPatched(void) const { return this->m_bPatched; };
 
 	//static BOOL InterceptAPI(HMODULE hLocalModule, const TCHAR* c_szDllName, const char* c_szApiName, DWORD dwReplaced, DWORD dwTrampoline, int offset);
 	//static BOOL WINAPI XTrackPopupMenu(HMENU hMenu, UINT uFlags, int x, int y, int nReserved, HWND hWnd, const RECT * prcRect);
@@ -95,7 +95,7 @@ protected:
 
 	VectorOfXPopupMenu m_vpXPMenu; //!< Vector of XPopupMenu Objects
 
-	static UINT parseTrackFlags( const TString & flags );
+	static const UINT parseTrackFlags( const TString & flags );
 
 	//bool m_bPatched;
 #ifdef DEBUG
