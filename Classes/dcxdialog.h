@@ -105,9 +105,9 @@ public:
 	void deleteControl( DcxControl * p_Control );
 	void deleteAllControls( );
 
-	bool updateLayout( RECT & rc );
+	const bool updateLayout( RECT & rc );
 
-	HBRUSH getBackClrBrush( ) const;
+	const HBRUSH &getBackClrBrush( ) const;
 
 	void setMouseControl( const UINT mUID );
 	void setFocusControl( const UINT mUID );
@@ -117,14 +117,14 @@ public:
 
 	LayoutManager * m_pLayoutManager; //!< Layout Manager Object
 
-	inline HCURSOR getCursor( ) const { return this->m_hCursor; };
-	inline HWND getToolTip(void) const { return this->m_ToolTipHWND; };
+	inline const HCURSOR &getCursor( ) const { return this->m_hCursor; };
+	inline const HWND &getToolTip(void) const { return this->m_ToolTipHWND; };
 	inline void incRef( ) { ++this->m_iRefCount; };
 	inline void decRef( ) { --this->m_iRefCount; };
-	inline UINT getRefCount( ) const { return this->m_iRefCount; };
-	inline DWORD getEventMask( ) const { return this->m_dEventMask; };
-	HBITMAP getBgBitmap() const { return this->m_bitmapBg; };
-	COLORREF getBgTransparentCol() const { return this->m_colTransparentBg; };
+	inline const UINT &getRefCount( ) const { return this->m_iRefCount; };
+	inline const DWORD &getEventMask( ) const { return this->m_dEventMask; };
+	inline const HBITMAP &getBgBitmap() const { return this->m_bitmapBg; };
+	inline const COLORREF &getBgTransparentCol() const { return this->m_colTransparentBg; };
 	static void DrawDialogBackground(HDC hdc, DcxDialog *p_this, LPCRECT rwnd);
 	bool AddShadow(void);
 	void RemoveShadow(void);
@@ -153,12 +153,12 @@ public:
 	void UpdateVistaStyle(LPRECT rcUpdate = NULL);
 	void SetVistaStylePos(void);
 	void SetVistaStyleSize(void);
-	bool IsVistaStyle(void) const { return this->m_bVistaStyle; };
-	HDC GetVistaHDC(void) const { return this->m_hVistaHDC; };
-	HWND GetVistaHWND(void) const { return this->m_hFakeHwnd; };
-	SIZE GetVistaOffsets(void) const { return this->m_sVistaOffsets; };
-	HBITMAP GetVistaBitmap(void) const { return this->m_hVistaBitmap; };
-	IntegerHash getNamedIds(void) const { return this->namedIds; };
+	const bool &IsVistaStyle(void) const { return this->m_bVistaStyle; };
+	const HDC &GetVistaHDC(void) const { return this->m_hVistaHDC; };
+	const HWND &GetVistaHWND(void) const { return this->m_hFakeHwnd; };
+	const SIZE &GetVistaOffsets(void) const { return this->m_sVistaOffsets; };
+	const HBITMAP &GetVistaBitmap(void) const { return this->m_hVistaBitmap; };
+	const IntegerHash &getNamedIds(void) const { return this->namedIds; };
 	IntegerHash namedIds; //!< map of named Id's
 	void MapVistaRect(HWND hwnd, LPRECT rc) const;
 
@@ -166,12 +166,12 @@ public:
 	void UnregisterDragList(DcxList* list);
 
 	void SetVerbose(const bool state) { this->m_bVerboseErrors = state; };
-	bool IsVerbose(void) const { return this->m_bVerboseErrors; };
+	const bool &IsVerbose(void) const { return this->m_bVerboseErrors; };
 	void toXml(TiXmlElement * xml) const;
 	TiXmlElement * toXml() const;
 	TiXmlElement * toXml(const TString &name) const;
 	void toXml(TiXmlElement * xml, const TString &name) const;
-	bool isIDValid(const UINT ID, const bool bUnused = false) const;
+	const bool isIDValid(const UINT ID, const bool bUnused = false) const;
 
 protected:
 
@@ -239,7 +239,7 @@ protected:
 
 	static void parseBorderStyles( const TString & flags, LONG * Styles, LONG * ExStyles );
 
-	static UINT parseLayoutFlags( const TString & flags );
+	static const UINT parseLayoutFlags( const TString & flags );
 	static UINT parseBkgFlags( const TString & flags );
 	static UINT parseFlashFlags( const TString & flags );
 	static UINT parseTooltipFlags( const TString &flags);

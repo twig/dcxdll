@@ -335,6 +335,7 @@ using namespace Gdiplus;
 #define MIRCF_ERR_EVENTID		8
 #define MIRCF_ERR_SERVER		16
 #define MIRCF_ERR_SCRIPT		32
+#define MIRCF_ERR_DISABLED		64
 
 // size of data buffer for mirc in characters!
 #define MIRC_BUFFER_SIZE_CCH	4100

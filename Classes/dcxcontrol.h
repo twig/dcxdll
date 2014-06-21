@@ -108,7 +108,7 @@ public:
 
 	bool execAliasEx(const TCHAR * szFormat, ... );
 
-	UINT getUserID( ) const;
+	const UINT getUserID( ) const;
 
 	static LRESULT CALLBACK WindowProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
 
@@ -122,12 +122,12 @@ public:
 
 	LRESULT setRedraw( const BOOL fView );
 
-	HBRUSH getBackClrBrush( ) const;
-	COLORREF getBackColor( ) const;
-	COLORREF getTextColor( ) const;
-	COLORREF getStartGradientColor(void) const { return this->m_clrStartGradient; };
-	COLORREF getEndGradientColor(void) const { return this->m_clrEndGradient; };
-	RECT getPosition(void) const;
+	const HBRUSH &getBackClrBrush( ) const;
+	const COLORREF &getBackColor( ) const;
+	const COLORREF &getTextColor( ) const;
+	const COLORREF &getStartGradientColor(void) const { return this->m_clrStartGradient; };
+	const COLORREF &getEndGradientColor(void) const { return this->m_clrEndGradient; };
+	const RECT getWindowPosition(void) const;
 
 	static DcxControl * controlFactory( DcxDialog * p_Dialog, const UINT mID, const TString & input, unsigned int offset, const UINT64 mask = CTLF_ALLOW_ALL, HWND hParent = NULL);
 
@@ -139,7 +139,7 @@ public:
 
 	inline void incRef( ) { ++this->m_iRefCount; };
 	inline void decRef( ) { --this->m_iRefCount; };
-	inline UINT getRefCount( ) const { return this->m_iRefCount; };
+	inline const UINT &getRefCount( ) const { return this->m_iRefCount; };
 	//DcxControl *getParentCtrl() const { return this->m_pParentCtrl; };
 	void updateParentCtrl(void); //!< updates controls host control pointers, MUST be called before these pointers are used.
 	static void DrawCtrlBackground(const HDC hdc, const DcxControl *p_this, const LPRECT rwnd = NULL, HTHEME hTheme = NULL, const int iPartId = 0, const int iStateId = 0);
@@ -194,7 +194,7 @@ protected:
 	void parseGlobalCommandRequest(const TString & input, const XSwitchFlags & flags );
 	BOOL parseGlobalInfoRequest( const TString & input, TCHAR * szReturnValue ) const;
 
-	static UINT parseColorFlags( const TString & flags );
+	static const UINT parseColorFlags( const TString & flags );
 
 	void registreDefaultWindowProc( );
 	void unregistreDefaultWindowProc( );

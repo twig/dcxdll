@@ -203,7 +203,7 @@ LONG DcxWindow::setExStyle( const LONG Styles ) {
  * blah
  */
 
-UINT DcxWindow::getID( ) const {
+const UINT &DcxWindow::getID( ) const {
 
 	return this->m_ID;
 }
@@ -214,7 +214,7 @@ UINT DcxWindow::getID( ) const {
  * blah
  */
 
-HWND DcxWindow::getHwnd( ) const {
+const HWND &DcxWindow::getHwnd( ) const {
 
 	return this->m_Hwnd;
 }

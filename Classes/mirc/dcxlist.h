@@ -41,7 +41,7 @@ public:
 	void parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
 
 	inline TString getType( ) const { return TString( TEXT("list") ); };
-	inline UINT getDragListId() const { return m_iDragList; };
+	inline const UINT &getDragListId() const { return m_iDragList; };
 	TString getStyles(void) const;
 
 	static void registerClass(void);

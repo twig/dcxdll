@@ -1441,7 +1441,7 @@ DWORD DcxDialog::getAnimateStyles( const TString &flags) {
  *
  * blah
  */
-UINT DcxDialog::parseLayoutFlags(const TString &flags) {
+const UINT DcxDialog::parseLayoutFlags(const TString &flags) {
 	UINT iFlags = 0;
 	const XSwitchFlags xflags(flags);
 
@@ -1826,7 +1826,7 @@ bool DcxDialog::execAlias(const TCHAR *szArgs) {
  * blah
  */
 
-bool DcxDialog::updateLayout(RECT &rc) {
+const bool DcxDialog::updateLayout(RECT &rc) {
 	if (this->m_pLayoutManager == NULL)
 		return false;
 	//if (this->m_pLayoutManager->getRoot() == NULL) // updateLayout() does root check for us.
@@ -1840,7 +1840,7 @@ bool DcxDialog::updateLayout(RECT &rc) {
  * blah
  */
 
-HBRUSH DcxDialog::getBackClrBrush() const {
+const HBRUSH &DcxDialog::getBackClrBrush() const {
 	return this->m_hBackBrush;
 }
 
@@ -3765,7 +3765,7 @@ TiXmlElement * DcxDialog::toXml(const TString & name) const
 //}
 //#endif
 
-bool DcxDialog::isIDValid(const UINT ID, const bool bUnused) const
+const bool DcxDialog::isIDValid(const UINT ID, const bool bUnused) const
 {
 	if (bUnused)	// a valid ID thats NOT in use
 		return ((ID > (mIRC_ID_OFFSET - 1)) && !IsWindow(GetDlgItem(this->m_Hwnd, ID)) && (this->getControlByID(ID) == NULL));

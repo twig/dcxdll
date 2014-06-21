@@ -61,16 +61,19 @@ BOOL LayoutManager::updateLayout( RECT & rc ) {
 
 	HDWP hdwp = BeginDeferWindowPos( 1 );
 
-	this->m_pRoot->setRect( rc );
+	if (hdwp == NULL) {
+		DCX_DEBUG(mIRCLinker::debug,TEXT("updateLayout()"), TEXT("BeginDeferWindowPos() failed"));
+		return FALSE;
+	}
+
+	this->m_pRoot->setRect(rc);
 	this->m_pRoot->LayoutChild( );
 	hdwp = this->m_pRoot->ExecuteLayout( hdwp );
 
-#if DCX_DEBUG_OUTPUT
 	if (hdwp == NULL) {
-		mIRCLinker::debug(TEXT("updateLayout()"),TEXT("DeferWindowPos() failed"));
+		DCX_DEBUG(mIRCLinker::debug,TEXT("updateLayout()"), TEXT("DeferWindowPos() failed"));
 		return FALSE;
 	}
-#endif
 	return EndDeferWindowPos( hdwp );
 }
 

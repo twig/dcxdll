@@ -491,7 +491,7 @@ void DcxComboEx::parseCommandRequest( const TString &input) {
 * blah
 */
 
-HIMAGELIST DcxComboEx::getImageList(  ) {
+HIMAGELIST DcxComboEx::getImageList(  ) const {
 
 	return (HIMAGELIST) SendMessage( this->m_Hwnd, CBEM_GETIMAGELIST, (WPARAM) 0, (LPARAM) 0 );
 }

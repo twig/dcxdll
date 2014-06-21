@@ -226,23 +226,30 @@ void DcxDock::AdjustRect(WINDOWPOS *wp)
 
 	// count visible docked windows.
 #if DCX_USE_C11
-	for (const auto &x: this->m_VectorDocks) {
-		if ((x != NULL) && IsWindowVisible(x->hwnd))
-			nWin++;
-	}
+	//for (const auto &x: this->m_VectorDocks) {
+	//	if ((x != NULL) && IsWindowVisible(x->hwnd))
+	//		nWin++;
+	//}
+	nWin = this->m_VectorDocks.size(); // for loop unneeded, max size will do
 	if (nWin == 0) return;
 #else
+	//VectorOfDocks::iterator itStart = this->m_VectorDocks.begin();
+	//VectorOfDocks::iterator itEnd = this->m_VectorDocks.end();
+
+	//while (itStart != itEnd) {
+	//	if ((*itStart != NULL) && (IsWindowVisible(((LPDCXULTRADOCK)*itStart)->hwnd))) {
+	//		nWin++; // count docked windows.
+	//	}
+	//	++itStart;
+	//}
+	//if (nWin == 0) return;
+	//itStart = this->m_VectorDocks.begin();
+
 	VectorOfDocks::iterator itStart = this->m_VectorDocks.begin();
 	VectorOfDocks::iterator itEnd = this->m_VectorDocks.end();
 
-	while (itStart != itEnd) {
-		if ((*itStart != NULL) && (IsWindowVisible(((LPDCXULTRADOCK)*itStart)->hwnd))) {
-			nWin++; // count docked windows.
-		}
-		++itStart;
-	}
+	nWin = this->m_VectorDocks.size(); // for loop unneeded, max size will do
 	if (nWin == 0) return;
-	itStart = this->m_VectorDocks.begin();
 #endif
 	refh = wp->cy;
 	refw = wp->cx;

@@ -483,7 +483,7 @@ void DcxBox::parseCommandRequest( const TString & input ) {
  * blah
  */
 
-UINT DcxBox::parseLayoutFlags( const TString & flags ) {
+const UINT DcxBox::parseLayoutFlags( const TString & flags ) {
 
 	const XSwitchFlags xflags(flags);
 	UINT iFlags = 0;

@@ -45,8 +45,8 @@ public:
 	LONG addExStyle( const LONG Styles );
 	LONG setExStyle( const LONG Styles );
 
-	HWND getHwnd( ) const;
-	UINT getID( ) const;
+	const HWND &getHwnd( ) const;
+	const UINT &getID( ) const;
 
 	void redrawWindow( );
 	void redrawBufferedWindow( );

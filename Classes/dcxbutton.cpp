@@ -294,7 +294,7 @@ void DcxButton::parseCommandRequest( const TString & input ) {
  * blah
  */
 
-UINT DcxButton::parseColorFlags(const TString & flags) {
+const UINT DcxButton::parseColorFlags(const TString & flags) {
 
 	const XSwitchFlags xflags(flags);
 	UINT iFlags = 0;
@@ -325,7 +325,7 @@ UINT DcxButton::parseColorFlags(const TString & flags) {
  * blah
  */
 
-HIMAGELIST DcxButton::getImageList(  ) const {
+const HIMAGELIST &DcxButton::getImageList(  ) const {
 
 	return this->m_ImageList;
 }

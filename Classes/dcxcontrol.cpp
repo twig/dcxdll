@@ -231,7 +231,7 @@ void DcxControl::parseGeneralControlStyles( const TString & styles, LONG * Style
  * blah
  */
 
-UINT DcxControl::getUserID( ) const {
+const UINT DcxControl::getUserID( ) const {
 
 	return this->getID( ) - mIRC_ID_OFFSET;
 }
@@ -718,7 +718,7 @@ HBITMAP DcxControl::resizeBitmap(HBITMAP srcBM, const LPRECT rc)
  * blah
  */
 
-UINT DcxControl::parseColorFlags( const TString & flags ) {
+const UINT DcxControl::parseColorFlags( const TString & flags ) {
 
 	const XSwitchFlags xflags(flags);
 	UINT iFlags = 0;
@@ -809,7 +809,7 @@ BOOL DcxControl::parseGlobalInfoRequest( const TString & input, TCHAR * szReturn
 		//	return TRUE;    
 	}
 	else if ( prop == TEXT("pos") ) {
-		const RECT rc = getPosition();
+		const RECT rc = getWindowPosition();
 		wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d %d %d"), rc.left, rc.top, rc.right-rc.left, rc.bottom-rc.top );
 		return TRUE;
 	}
@@ -1234,7 +1234,7 @@ void DcxControl::setControlFont( const HFONT hFont, const BOOL fRedraw ) {
  * blah
  */
 
-HBRUSH DcxControl::getBackClrBrush( ) const {
+const HBRUSH &DcxControl::getBackClrBrush( ) const {
 
   return this->m_hBackBrush;
 }
@@ -1245,7 +1245,7 @@ HBRUSH DcxControl::getBackClrBrush( ) const {
  * blah
  */
 
-COLORREF DcxControl::getBackColor( ) const {
+const COLORREF &DcxControl::getBackColor( ) const {
 	return this->m_clrBackText;
 }
 
@@ -1255,11 +1255,11 @@ COLORREF DcxControl::getBackColor( ) const {
  * blah
  */
 
-COLORREF DcxControl::getTextColor( ) const {
+const COLORREF &DcxControl::getTextColor( ) const {
 	return this->m_clrText;
 }
 
-RECT DcxControl::getPosition(void) const {
+const RECT DcxControl::getWindowPosition(void) const {
 	RECT rc;
 	GetWindowRect( this->m_Hwnd, &rc );
 	MapWindowRect(NULL, GetParent( this->m_Hwnd ), &rc);
