@@ -44,13 +44,6 @@ LayoutCellFixed::LayoutCellFixed(const HWND mHwnd, const FixedType nType)
  * blah
  */
 
-//LayoutCellFixed::LayoutCellFixed( const RECT & rc, const FixedType nType )
-//: LayoutCell( )
-//, m_nType( nType )
-//{
-//	CopyRect( &this->m_rcWindow, &rc );
-//}
-
 LayoutCellFixed::LayoutCellFixed(const RECT & rc, const FixedType nType)
 : LayoutCell(NULL, rc)
 , m_nType(nType)
@@ -62,14 +55,6 @@ LayoutCellFixed::LayoutCellFixed(const RECT & rc, const FixedType nType)
  *
  * blah
  */
-
-//LayoutCellFixed::LayoutCellFixed( const HWND mHwnd, const RECT & rc, const FixedType nType )
-//: LayoutCell( )
-//, m_nType( nType )
-//{
-//	this->m_Hwnd = mHwnd;
-//	CopyRect( &this->m_rcWindow, &rc );
-//}
 
 LayoutCellFixed::LayoutCellFixed(const HWND mHwnd, const RECT & rc, const FixedType nType)
 : LayoutCell(mHwnd, rc)

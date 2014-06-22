@@ -389,7 +389,7 @@ HRESULT DcxWebControl::Invoke( DISPID dispIdMember,
 {
 	//if (this->m_bHideEvents) return S_OK; // cant do this here :/
 
-	UINT err;
+	UINT err = 0;
 	VARIANT arg1, arg2;
 	VariantInit( &arg1 );
 	VariantInit( &arg2 );

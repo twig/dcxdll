@@ -239,7 +239,7 @@ protected:
 
 	static void parseBorderStyles( const TString & flags, LONG * Styles, LONG * ExStyles );
 
-	static const UINT parseLayoutFlags( const TString & flags );
+	//static const UINT parseLayoutFlags( const TString & flags );
 	static UINT parseBkgFlags( const TString & flags );
 	static UINT parseFlashFlags( const TString & flags );
 	static UINT parseTooltipFlags( const TString &flags);

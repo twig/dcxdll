@@ -527,7 +527,7 @@ void XPopupMenuManager::parseIdentifier( const TString & input, TCHAR * szReturn
 		{
 			switch (p_Menu->getStyle( )) {
 				case XPopupMenu::XPMS_OFFICE2003:
-					lstrcpyn( szReturnValue, TEXT("office2003"), MIRC_BUFFER_SIZE_CCH );
+					dcx_strcpyn( szReturnValue, TEXT("office2003"), MIRC_BUFFER_SIZE_CCH );
 					break;
 				case XPopupMenu::XPMS_OFFICE2003_REV:
 					lstrcpyn( szReturnValue, TEXT("office2003rev"), MIRC_BUFFER_SIZE_CCH );

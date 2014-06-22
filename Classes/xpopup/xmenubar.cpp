@@ -195,7 +195,7 @@ void XMenuBar::parseXMenuBarInfo(const TString &input, TCHAR *szReturnValue) con
 			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), (int) this->m_vpXMenuBar.size());
 		// Return name of specified menu.
 		else
-			lstrcpyn(szReturnValue, this->m_vpXMenuBar[i -1]->getName().to_chr(), MIRC_BUFFER_SIZE_CCH);
+			dcx_strcpyn(szReturnValue, this->m_vpXMenuBar[i -1]->getName().to_chr(), MIRC_BUFFER_SIZE_CCH);
 
 		return;
 	}

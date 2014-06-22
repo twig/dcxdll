@@ -739,7 +739,8 @@ LRESULT DcxStacker::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 	case WM_COMMAND:
 		{
 			if (IsWindow((HWND) lParam)) {
-				DcxControl *c_this = (DcxControl *) GetProp((HWND) lParam,TEXT("dcx_cthis"));
+				//DcxControl *c_this = (DcxControl *) GetProp((HWND) lParam,TEXT("dcx_cthis"));
+				DcxControl *c_this = static_cast<DcxControl *>(GetProp((HWND)lParam, TEXT("dcx_cthis")));
 				if (c_this != NULL)
 					lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 			}
@@ -750,7 +751,8 @@ LRESULT DcxStacker::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 		{
 			LPCOMPAREITEMSTRUCT idata = (LPCOMPAREITEMSTRUCT)lParam;
 			if ((idata != NULL) && (IsWindow(idata->hwndItem))) {
-				DcxControl *c_this = (DcxControl *) GetProp(idata->hwndItem,TEXT("dcx_cthis"));
+				//DcxControl *c_this = (DcxControl *)GetProp(idata->hwndItem, TEXT("dcx_cthis"));
+				DcxControl *c_this = static_cast<DcxControl *>(GetProp(idata->hwndItem, TEXT("dcx_cthis")));
 				if (c_this != NULL)
 					lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 			}
@@ -761,7 +763,8 @@ LRESULT DcxStacker::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 		{
 			DELETEITEMSTRUCT *idata = (DELETEITEMSTRUCT *)lParam;
 			if ((idata != NULL) && (IsWindow(idata->hwndItem))) {
-				DcxControl *c_this = (DcxControl *) GetProp(idata->hwndItem,TEXT("dcx_cthis"));
+				//DcxControl *c_this = (DcxControl *)GetProp(idata->hwndItem, TEXT("dcx_cthis"));
+				DcxControl *c_this = static_cast<DcxControl *>(GetProp(idata->hwndItem, TEXT("dcx_cthis")));
 				if (c_this != NULL)
 					lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 			}
@@ -772,7 +775,8 @@ LRESULT DcxStacker::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 		{
 			HWND cHwnd = GetDlgItem(this->m_Hwnd, wParam);
 			if (IsWindow(cHwnd)) {
-				DcxControl *c_this = (DcxControl *) GetProp(cHwnd,TEXT("dcx_cthis"));
+				//DcxControl *c_this = (DcxControl *)GetProp(cHwnd, TEXT("dcx_cthis"));
+				DcxControl *c_this = static_cast<DcxControl *>(GetProp(cHwnd, TEXT("dcx_cthis")));
 				if (c_this != NULL)
 					lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 			}
@@ -783,7 +787,8 @@ LRESULT DcxStacker::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 		{
 			DRAWITEMSTRUCT *idata = (DRAWITEMSTRUCT *)lParam;
 			if ((idata != NULL) && (IsWindow(idata->hwndItem))) {
-				DcxControl *c_this = (DcxControl *) GetProp(idata->hwndItem,TEXT("dcx_cthis"));
+				//DcxControl *c_this = (DcxControl *)GetProp(idata->hwndItem, TEXT("dcx_cthis"));
+				DcxControl *c_this = static_cast<DcxControl *>(GetProp(idata->hwndItem, TEXT("dcx_cthis")));
 				if (c_this != NULL)
 					lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 			}
@@ -822,7 +827,8 @@ LRESULT DcxStacker::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 			else if (this->m_Hwnd != hdr->hwndFrom)
 			{
 				if (IsWindow(hdr->hwndFrom)) {
-					DcxControl *c_this = (DcxControl *) GetProp(hdr->hwndFrom,TEXT("dcx_cthis"));
+					//DcxControl *c_this = (DcxControl *)GetProp(hdr->hwndFrom, TEXT("dcx_cthis"));
+					DcxControl *c_this = static_cast<DcxControl *>(GetProp(hdr->hwndFrom, TEXT("dcx_cthis")));
 					if (c_this != NULL)
 						lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 				}

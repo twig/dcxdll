@@ -90,6 +90,9 @@ public:
 
 	BOOL isVisible( ) const;
 
+	const size_t	&size(void) const { return this->m_iCount; }
+	const bool		empty(void) const { return (this->m_iCount == 0); }
+
 protected:
 
 	HWND m_Hwnd; //!< Cell Control Window Handle (NULL if Container Cell)
@@ -102,6 +105,7 @@ protected:
 	LayoutCell * m_FirstChild; //!< Used for navigation
 	LayoutCell * m_NextSibling; //!< Used for navigation
 
+	size_t		m_iCount;
 };
 #ifdef __INTEL_COMPILER // Defined when using Intel C++ Compiler.
 #pragma warning( pop )

@@ -129,7 +129,7 @@ BOOL CopyToClipboard(const HWND owner, const TString & str) {
 	// demo code from msdn, copies everything
 	//memcpy(strCopy, str.to_chr(), cbsize); // <- broken cbsize == char byte too many
 	//strCopy[cbsize] = (TCHAR) 0; // null character
-	lstrcpyn(strCopy, str.to_chr(), cbsize);
+	dcx_strcpyn(strCopy, str.to_chr(), cbsize);
 
 	GlobalUnlock(hglbCopy);
 #if UNICODE
@@ -186,7 +186,7 @@ BOOL ParseCommandToLogfont(const TString& cmd, LPLOGFONT lf) {
 		if (flags & DCF_UNDERLINE)
 			lf->lfUnderline = TRUE;
 
-		lstrcpyn(lf->lfFaceName, fName.to_chr(), 31);
+		dcx_strcpyn(lf->lfFaceName, fName.to_chr(), 31);
 		lf->lfFaceName[31] = 0;
 		return TRUE;
 	}
@@ -744,6 +744,9 @@ void AddToolTipToolInfo(const HWND tiphwnd, const HWND ctrl)
 
 void dcxDrawShadowText(HDC hdc, LPCWSTR pszText, UINT cch, RECT *pRect, DWORD dwFlags, COLORREF crText, COLORREF crShadow, int ixOffset, int iyOffset)
 {
+	if ((hdc == NULL) || (pszText == NULL) || (pRect == NULL))
+		return;
+
 	if (DrawShadowText(hdc, pszText, cch, pRect, dwFlags, crText, crShadow, ixOffset, iyOffset) == 0)
 	{
 		if (dwFlags & DT_CALCRECT) {

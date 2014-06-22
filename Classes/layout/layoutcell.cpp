@@ -31,6 +31,7 @@ LayoutCell::LayoutCell()
 , m_FirstChild(NULL)
 , m_NextSibling(NULL)
 , m_BaseControl(NULL)
+, m_iCount(0)
 {
 	SetRectEmpty(&this->m_rcBorders);
 	SetRectEmpty(&this->m_rcWindow);
@@ -43,25 +44,10 @@ LayoutCell::LayoutCell()
  */
 
 LayoutCell::LayoutCell(const HWND mHwnd)
-: m_Hwnd(mHwnd)
-, m_Parent(NULL)
-, m_FirstChild(NULL)
-, m_NextSibling(NULL)
-, m_BaseControl(NULL)
+: LayoutCell(mHwnd, RECT())
 {
-	if (mHwnd != NULL)
-		GetWindowRect(mHwnd, &this->m_rcWindow);
-	else
-		SetRectEmpty(&this->m_rcWindow);
-
-	SetRectEmpty(&this->m_rcBorders);
-
-	DcxDialog * d = Dcx::Dialogs.getDialogByHandle(mHwnd);
-	if (d == NULL) {
-		d = Dcx::Dialogs.getDialogByChildHandle(mHwnd);
-		if (d != NULL)
-			this->m_BaseControl = d->getControlByHWND(mHwnd);
-	}
+	if (m_Hwnd != NULL)
+		GetWindowRect(m_Hwnd, &this->m_rcWindow);
 }
 
 /*!
@@ -77,6 +63,7 @@ LayoutCell::LayoutCell(const HWND mHwnd, const RECT & rc)
 , m_FirstChild(NULL)
 , m_NextSibling(NULL)
 , m_BaseControl(NULL)
+, m_iCount(0)
 {
 	SetRectEmpty(&this->m_rcBorders);
 
@@ -90,36 +77,16 @@ LayoutCell::LayoutCell(const HWND mHwnd, const RECT & rc)
 	}
 }
 
-//LayoutCell::LayoutCell( DcxControl * dcxc )
-//: m_Hwnd(NULL)
-//, m_Parent(NULL)
-//, m_FirstChild(NULL)
-//, m_NextSibling(NULL)
-//, m_BaseControl(dcxc)
-//{
-//  HWND mHwnd = dcxc->getHwnd();
-//  if ( mHwnd != NULL )
-//    GetWindowRect( mHwnd, &this->m_rcWindow );
-//  else
-//    SetRectEmpty( &this->m_rcWindow );
-//
-//  SetRectEmpty( &this->m_rcBorders );
-//}
-
 LayoutCell::LayoutCell(DcxControl * dcxc)
-: m_Hwnd(NULL)
-, m_Parent(NULL)
-, m_FirstChild(NULL)
-, m_NextSibling(NULL)
-, m_BaseControl(dcxc)
+: LayoutCell()
 {
-	m_Hwnd = dcxc->getHwnd();
+	m_BaseControl = dcxc;
+
+	if (dcxc != NULL)
+		m_Hwnd = dcxc->getHwnd();
+
 	if (m_Hwnd != NULL)
 		GetWindowRect(m_Hwnd, &this->m_rcWindow);
-	else
-		SetRectEmpty(&this->m_rcWindow);
-
-	SetRectEmpty(&this->m_rcBorders);
 }
 /*!
  * \brief Destructor

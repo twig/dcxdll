@@ -322,150 +322,159 @@ void DcxBox::parseCommandRequest( const TString & input ) {
 			}
 		}
 		else if (tsCmd == TEXT("clear")) {
-			if (this->m_pLayoutManager != NULL)
-				delete this->m_pLayoutManager;
+			delete this->m_pLayoutManager;
 			this->m_pLayoutManager = new LayoutManager(this->m_Hwnd);
 			//this->redrawWindow(); // dont redraw here, leave that for an `update` cmd
 		}
 		else if ( numtok > 8 ) {
+			try {
+				this->m_pLayoutManager->AddCell(input, 4);
+			}
+			catch (const TCHAR *errStr)
+			{
+				this->showError(NULL, TEXT("-l"), errStr);
+			}
+			catch (std::bad_alloc)
+			{
+				this->showError(NULL, TEXT("-l"), TEXT("Unable to allocate memory!"));
+			}
+			//const TString tsInput(input.getfirsttok(1, TSTAB));
+			//const TString p2(input.getnexttok( TSTAB ).trim());	// tok 2
 
-			const TString tsInput(input.getfirsttok(1, TSTAB));
-			const TString p2(input.getnexttok( TSTAB ).trim());	// tok 2
+			//const TString com(tsInput.gettok(4).trim());
+			//const TString path(tsInput.gettok(5, -1).trim());
 
-			const TString com(tsInput.gettok(4).trim());
-			const TString path(tsInput.gettok(5, -1).trim());
+			//const UINT lflags = this->parseLayoutFlags( p2.getfirsttok( 1 ) );
+			//const UINT ID = p2.getnexttok( ).to_int( );		// tok 2
+			//const UINT WGT = p2.getnexttok( ).to_int( );		// tok 3
+			//const UINT W = p2.getnexttok( ).to_int( );		// tok 4
+			//const UINT H = p2.getnexttok( ).to_int( );		// tok 5
 
-			const UINT lflags = this->parseLayoutFlags( p2.getfirsttok( 1 ) );
-			const UINT ID = p2.getnexttok( ).to_int( );		// tok 2
-			const UINT WGT = p2.getnexttok( ).to_int( );	// tok 3
-			const UINT W = p2.getnexttok( ).to_int( );		// tok 4
-			const UINT H = p2.getnexttok( ).to_int( );		// tok 5
+			//if ( com ==  TEXT("root") || com == TEXT("cell") ) {
 
-			if ( com ==  TEXT("root") || com == TEXT("cell") ) {
+			//	HWND cHwnd = GetDlgItem( this->m_Hwnd, mIRC_ID_OFFSET + ID );
 
-				HWND cHwnd = GetDlgItem( this->m_Hwnd, mIRC_ID_OFFSET + ID );
+			//	LayoutCell * p_Cell = NULL;
 
-				LayoutCell * p_Cell = NULL;
+			//	// LayoutCellPane
+			//	if ( lflags & LAYOUTPANE ) {
 
-				// LayoutCellPane
-				if ( lflags & LAYOUTPANE ) {
+			//		if ( lflags & LAYOUTHORZ )
+			//			p_Cell = new LayoutCellPane( LayoutCellPane::HORZ );
+			//		else
+			//			p_Cell = new LayoutCellPane( LayoutCellPane::VERT );
+			//	} // if ( lflags & LAYOUTPANE )
+			//	// LayoutFill Cell
+			//	else if ( lflags & LAYOUTFILL ) {
+			//		if ( lflags & LAYOUTID ) {
+			//			if ( cHwnd != NULL && IsWindow( cHwnd ) )
+			//				p_Cell = new LayoutCellFill( cHwnd );
+			//			else {
+			//				this->showErrorEx(NULL,TEXT("-l"), TEXT("Cell Fill -> Invalid ID : %d"), ID );
+			//				return;
+			//			}
+			//		}
+			//		else {
+			//			p_Cell = new LayoutCellFill( );
+			//		}
+			//	} // else if ( lflags & LAYOUTFILL )
+			//	// LayoutCellFixed
+			//	else if ( lflags & LAYOUTFIXED ) {
 
-					if ( lflags & LAYOUTHORZ )
-						p_Cell = new LayoutCellPane( LayoutCellPane::HORZ );
-					else
-						p_Cell = new LayoutCellPane( LayoutCellPane::VERT );
-				} // if ( lflags & LAYOUTPANE )
-				// LayoutFill Cell
-				else if ( lflags & LAYOUTFILL ) {
-					if ( lflags & LAYOUTID ) {
-						if ( cHwnd != NULL && IsWindow( cHwnd ) )
-							p_Cell = new LayoutCellFill( cHwnd );
-						else {
-							this->showErrorEx(NULL,TEXT("-l"), TEXT("Cell Fill -> Invalid ID : %d"), ID );
-							return;
-						}
-					}
-					else {
-						p_Cell = new LayoutCellFill( );
-					}
-				} // else if ( lflags & LAYOUTFILL )
-				// LayoutCellFixed
-				else if ( lflags & LAYOUTFIXED ) {
+			//		LayoutCellFixed::FixedType type;
 
-					LayoutCellFixed::FixedType type;
+			//		if ( lflags & LAYOUTVERT && lflags & LAYOUTHORZ )
+			//			type = LayoutCellFixed::BOTH;
+			//		else if ( lflags & LAYOUTVERT )
+			//			type = LayoutCellFixed::HEIGHT;
+			//		else
+			//			type = LayoutCellFixed::WIDTH;
 
-					if ( lflags & LAYOUTVERT && lflags & LAYOUTHORZ )
-						type = LayoutCellFixed::BOTH;
-					else if ( lflags & LAYOUTVERT )
-						type = LayoutCellFixed::HEIGHT;
-					else
-						type = LayoutCellFixed::WIDTH;
+			//		// Defined Rectangle
+			//		if ( lflags & LAYOUTDIM ) {
 
-					// Defined Rectangle
-					if ( lflags & LAYOUTDIM ) {
+			//			RECT rc;
+			//			SetRect( &rc, 0, 0, W, H );
 
-						RECT rc;
-						SetRect( &rc, 0, 0, W, H );
+			//			if ( lflags & LAYOUTID ) {
 
-						if ( lflags & LAYOUTID ) {
+			//				if ( cHwnd != NULL && IsWindow( cHwnd ) )
+			//					p_Cell = new LayoutCellFixed( cHwnd, rc, type );
+			//				else {
+			//					this->showErrorEx(NULL,TEXT("-l"), TEXT("Cell Fixed -> Invalid ID : %d"), ID );
+			//					return;
+			//				}
+			//			}
+			//			else
+			//				p_Cell = new LayoutCellFixed( rc, type );
 
-							if ( cHwnd != NULL && IsWindow( cHwnd ) )
-								p_Cell = new LayoutCellFixed( cHwnd, rc, type );
-							else {
-								this->showErrorEx(NULL,TEXT("-l"), TEXT("Cell Fixed -> Invalid ID : %d"), ID );
-								return;
-							}
-						}
-						else
-							p_Cell = new LayoutCellFixed( rc, type );
+			//		}
+			//		// No defined Rectangle
+			//		else {
 
-					}
-					// No defined Rectangle
-					else {
+			//			if ( lflags & LAYOUTID ) {
 
-						if ( lflags & LAYOUTID ) {
+			//				if ( cHwnd != NULL && IsWindow( cHwnd ) )
+			//					p_Cell = new LayoutCellFixed( cHwnd, type );
+			//				else {
+			//					this->showErrorEx(NULL,TEXT("-l"), TEXT("Cell Fixed -> Invalid ID : %d"), ID );
+			//					return;
+			//				}
+			//			}
+			//		} //else
+			//	} // else if ( lflags & LAYOUTFIXED )
+			//	else {
+			//		this->showError(NULL,TEXT("-l"), TEXT("Unknown Cell Type"));
+			//		return;
+			//	}
 
-							if ( cHwnd != NULL && IsWindow( cHwnd ) )
-								p_Cell = new LayoutCellFixed( cHwnd, type );
-							else {
-								this->showErrorEx(NULL,TEXT("-l"), TEXT("Cell Fixed -> Invalid ID : %d"), ID );
-								return;
-							}
-						}
-					} //else
-				} // else if ( lflags & LAYOUTFIXED )
-				else {
-					this->showError(NULL,TEXT("-l"), TEXT("Unknown Cell Type"));
-					return;
-				}
+			//	if ( com == TEXT("root") ) {
 
-				if ( com == TEXT("root") ) {
+			//		if ( p_Cell != NULL )
+			//			this->m_pLayoutManager->setRoot( p_Cell );
 
-					if ( p_Cell != NULL )
-						this->m_pLayoutManager->setRoot( p_Cell );
+			//	} // if ( com == TEXT("root") )
+			//	else if ( com == TEXT("cell") ) {
 
-				} // if ( com == TEXT("root") )
-				else if ( com == TEXT("cell") ) {
+			//		if ( p_Cell != NULL ) {
 
-					if ( p_Cell != NULL ) {
+			//			LayoutCell * p_GetCell;
 
-						LayoutCell * p_GetCell;
+			//			if ( path == TEXT("root") )
+			//				p_GetCell = this->m_pLayoutManager->getRoot( );
+			//			else
+			//				p_GetCell = this->m_pLayoutManager->getCell( path );
 
-						if ( path == TEXT("root") )
-							p_GetCell = this->m_pLayoutManager->getRoot( );
-						else
-							p_GetCell = this->m_pLayoutManager->getCell( path );
+			//			if ( p_GetCell == NULL ) {
+			//				this->showErrorEx(NULL,TEXT("-l"), TEXT("Invalid item path: %s"), path.to_chr( ) );
+			//				delete p_Cell;
+			//				return;
+			//			}
 
-						if ( p_GetCell == NULL ) {
-							this->showErrorEx(NULL,TEXT("-l"), TEXT("Invalid item path: %s"), path.to_chr( ) );
-							delete p_Cell;
-							return;
-						}
+			//			if ( p_GetCell->getType( ) == LayoutCell::PANE ) {
 
-						if ( p_GetCell->getType( ) == LayoutCell::PANE ) {
+			//				LayoutCellPane * p_PaneCell = (LayoutCellPane *) p_GetCell;
+			//				p_PaneCell->addChild( p_Cell, WGT );
+			//			}
+			//		}
+			//	} // else if ( com == TEXT("cell") )
+			//} // if ( com ==  TEXT("root") || com == TEXT("cell") )
+			//else if ( com ==  TEXT("space") ) {
 
-							LayoutCellPane * p_PaneCell = (LayoutCellPane *) p_GetCell;
-							p_PaneCell->addChild( p_Cell, WGT );
-						}
-					}
-				} // else if ( com == TEXT("cell") )
-			} // if ( com ==  TEXT("root") || com == TEXT("cell") )
-			else if ( com ==  TEXT("space") ) {
+			//	LayoutCell * p_GetCell;
 
-				LayoutCell * p_GetCell;
+			//	if ( path == TEXT("root") )
+			//		p_GetCell = this->m_pLayoutManager->getRoot( );
+			//	else
+			//		p_GetCell = this->m_pLayoutManager->getCell( path );
 
-				if ( path == TEXT("root") )
-					p_GetCell = this->m_pLayoutManager->getRoot( );
-				else
-					p_GetCell = this->m_pLayoutManager->getCell( path );
+			//	if ( p_GetCell != NULL ) {
 
-				if ( p_GetCell != NULL ) {
-
-					RECT rc;
-					SetRect( &rc, ID, WGT, W, H );
-					p_GetCell->setBorder( rc );
-				}
-			} // else if ( com == TEXT("space") )
+			//		RECT rc;
+			//		SetRect( &rc, ID, WGT, W, H );
+			//		p_GetCell->setBorder( rc );
+			//	}
+			//} // else if ( com == TEXT("space") )
 		} // if ( numtok > 7 )
 	}
 	//xdid -t [NAME] [ID] [SWITCH]
@@ -483,32 +492,33 @@ void DcxBox::parseCommandRequest( const TString & input ) {
  * blah
  */
 
-const UINT DcxBox::parseLayoutFlags( const TString & flags ) {
+//const UINT DcxBox::parseLayoutFlags( const TString & flags ) {
+//
+//	const XSwitchFlags xflags(flags);
+//	UINT iFlags = 0;
+//
+//	// no +sign, missing params
+//	if ( !xflags[TEXT('+')] ) 
+//		return iFlags;
+//
+//	if ( xflags[TEXT('f')] )
+//		iFlags |= LAYOUTFIXED;
+//	if ( xflags[TEXT('h')] )
+//		iFlags |= LAYOUTHORZ;
+//	if ( xflags[TEXT('i')] )
+//		iFlags |= LAYOUTID;
+//	if ( xflags[TEXT('l')] )
+//		iFlags |= LAYOUTFILL ;
+//	if ( xflags[TEXT('p')] )
+//		iFlags |= LAYOUTPANE;
+//	if ( xflags[TEXT('v')] )
+//		iFlags |= LAYOUTVERT;
+//	if ( xflags[TEXT('w')] )
+//		iFlags |= LAYOUTDIM;
+//
+//	return iFlags;
+//}
 
-	const XSwitchFlags xflags(flags);
-	UINT iFlags = 0;
-
-	// no +sign, missing params
-	if ( !xflags[TEXT('+')] ) 
-		return iFlags;
-
-	if ( xflags[TEXT('f')] )
-		iFlags |= LAYOUTFIXED;
-	if ( xflags[TEXT('h')] )
-		iFlags |= LAYOUTHORZ;
-	if ( xflags[TEXT('i')] )
-		iFlags |= LAYOUTID;
-	if ( xflags[TEXT('l')] )
-		iFlags |= LAYOUTFILL ;
-	if ( xflags[TEXT('p')] )
-		iFlags |= LAYOUTPANE;
-	if ( xflags[TEXT('v')] )
-		iFlags |= LAYOUTVERT;
-	if ( xflags[TEXT('w')] )
-		iFlags |= LAYOUTDIM;
-
-	return iFlags;
-}
 BOOL CALLBACK DcxBox::EnumBoxChildren(HWND hwnd,LPDCXENUM de)
 {
 	//LPDCXENUM de = (LPDCXENUM)lParam;

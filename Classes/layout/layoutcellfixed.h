@@ -41,8 +41,8 @@ public:
 
 	explicit LayoutCellFixed( DcxControl * dcxc, const FixedType nType = BOTH );
 	explicit LayoutCellFixed( const HWND mHwnd, const FixedType nType = BOTH );
-	LayoutCellFixed( const HWND mHwnd, const RECT & rc, const FixedType nType = BOTH );
-	explicit LayoutCellFixed( const RECT & rc, const FixedType nType = BOTH );
+	explicit LayoutCellFixed(const RECT & rc, const FixedType nType = BOTH);
+	LayoutCellFixed(const HWND mHwnd, const RECT & rc, const FixedType nType = BOTH);
 	virtual ~LayoutCellFixed( );
 
 	virtual void LayoutChild( );

@@ -144,7 +144,7 @@ TString FileDialog(const TString & data, const TString &method, const HWND pWnd)
 
 	// set up the OFN struct
 	ZeroMemory(&ofn, sizeof(ofn));
-	lstrcpyn(szFilename, file.to_chr(), MIRC_BUFFER_SIZE_CCH);
+	dcx_strcpyn(szFilename, file.to_chr(), MIRC_BUFFER_SIZE_CCH);
 
 	ofn.lStructSize = sizeof(ofn); // SEE NOTE BELOW
 	ofn.hwndOwner = pWnd;
@@ -337,7 +337,7 @@ mIRC(BrowseDialog) {
 	else {
 		SHGetPathFromIDList(pidl, initPath.to_chr());
 		//wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%s"), initPath.to_chr());
-		lstrcpyn(data, initPath.to_chr(), MIRC_BUFFER_SIZE_CCH);
+		dcx_strcpyn(data, initPath.to_chr(), MIRC_BUFFER_SIZE_CCH);
 	}
 
 	CoTaskMemFree(pidl);

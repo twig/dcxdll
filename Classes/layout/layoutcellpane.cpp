@@ -15,8 +15,6 @@
 #include "layoutcellpane.h"
 #include <windowsx.h>
 
-//extern HWND hwndChild4;
-
 /*!
  * \brief Constructor
  *
@@ -61,14 +59,14 @@ LayoutCellPane::~LayoutCellPane( ) {
 
 LayoutCell * LayoutCellPane::addChild( LayoutCell * p_Cell, const int nWeight ) {
 
-	if ( this->m_vpCells.size( ) == 0 )
+	if ( this->m_vpCells.empty() )
 		this->m_FirstChild = p_Cell;
 
 	if ( p_Cell != NULL ) {
 
 		p_Cell->setParent( this );
 
-		if ( this->m_vpCells.size( ) > 0 ) {
+		if ( !this->m_vpCells.empty() ) {
 
 			LayoutCell * p_Last = this->m_vpCells.back( ).first;
 			if ( p_Last != NULL )
@@ -77,6 +75,7 @@ LayoutCell * LayoutCellPane::addChild( LayoutCell * p_Cell, const int nWeight ) 
 	}
 
 	this->m_vpCells.push_back( CellNode( p_Cell, nWeight ) );
+	m_iCount++;
 
 	return p_Cell;
 }
