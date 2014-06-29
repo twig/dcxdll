@@ -47,16 +47,10 @@
  * © ScriptsDB.org - 2005
  */
 #include "defines.h"
-// Required for VS 2005
-#define _CRT_SECURE_NO_DEPRECATE 1
-// end VS2005
-// for VS2012
-#define _CRT_SECURE_NO_WARNINGS 1
-// end VS2012
 
-#include <windows.h>
+//#include <windows.h>
 
-#include "tstring.h"
+#include "TString.h"
 
 const TCHAR *TString::m_cSpace = TEXT(" ");
 const TCHAR *TString::m_cComma = TEXT(",");
@@ -67,12 +61,16 @@ const TCHAR *TString::m_cTab = TEXT("\t");
  */
 /****************************/
 
-TString::TString( )
-: m_pTempString(NULL), m_pString(NULL),
-m_savedtotaltoks(0), m_savedcurrenttok(0), m_savedpos(0)
+//TString::TString( )
+//: m_pTempString(NULL), m_pString(NULL)
+//, m_savedtotaltoks(0), m_savedcurrenttok(0), m_savedpos(0)
+//{
+//	this->m_pString = allocstr_cch(1);
+//	this->m_pString[0] = 0;
+//}
+TString::TString()
+: TString((UINT)0)
 {
-	this->m_pString = allocstr_cch(1);
-	this->m_pString[0] = 0;
 }
 
 /****************************/
@@ -103,7 +101,10 @@ TString::TString( const char * cString )
 	if ( cString != NULL ) {
 		const int l = ts_strlen( cString ) + 1;
 		this->m_pString = allocstr_cch( l );
-		ts_strcpyn( this->m_pString, cString, l );
+		if (ts_strcpyn(this->m_pString, cString, l ) == NULL)
+		{
+			throw std::logic_error("strcpyn() failed!");
+		}
 	}
 	else {
 		this->m_pString = allocstr_cch( 1 );
@@ -120,7 +121,10 @@ m_savedtotaltoks(0), m_savedcurrenttok(0), m_savedpos(0)
 	if (cString != NULL) {
 		const int l = ts_strlen(cString) + 1;
 		this->m_pString = allocstr_cch(l);
-		ts_strcpyn(this->m_pString, cString, l);
+		if (ts_strcpyn(this->m_pString, cString, l) == NULL)
+		{
+			throw std::logic_error("strcpyn() failed!");
+		}
 	}
 	else {
 		this->m_pString = allocstr_cch(1);
@@ -234,14 +238,31 @@ m_savedtotaltoks(0), m_savedcurrenttok(0), m_savedpos(0)
 	}
 }
 
-TString::TString( const TCHAR *pStart, const TCHAR *pEnd )
+/****************************/
+/*! \fn TString::TString( const TString && tString )
+\brief Move Constructor
+
+\param tString TString object to copy
+*/
+/****************************/
+
+TString::TString(TString && tString)
+: TString()
+{
+	swap(tString);
+}
+
+TString::TString(const TCHAR *pStart, const TCHAR *pEnd)
 : m_pTempString(NULL), m_pString(NULL),
 m_savedtotaltoks(0), m_savedcurrenttok(0), m_savedpos(0)
 {
 	if ((pStart != NULL) && (pEnd != NULL) && (pEnd > pStart)) {
 		const size_t size = (pEnd - pStart);
 		this->m_pString = allocstr_cch(size + 1);
-		ts_strcpyn(this->m_pString, pStart, size);
+		if (ts_strcpyn(this->m_pString, pStart, size) == NULL)
+		{
+			throw std::logic_error("strcpyn() failed!");
+		}
 		//CopyMemory(this->m_pString, pStart, size*sizeof(TCHAR));
 		//this->m_pString[size] = TEXT('\0');
 	}
@@ -261,7 +282,8 @@ TString::TString( const unsigned int tsSize )
 m_savedtotaltoks(0), m_savedcurrenttok(0), m_savedpos(0)
 {
 	this->m_pString = allocstr_cch(tsSize + 1);
-	ZeroMemory(this->m_pString, ((tsSize + 1)*sizeof(TCHAR)));
+	ZeroMemory(this->m_pString, this->m_buffersize);
+	//ZeroMemory(this->m_pString, ((tsSize + 1)*sizeof(TCHAR)));
 }
 
 TString::~TString( ) {
@@ -278,28 +300,57 @@ void TString::deleteString(const bool bKeepBufferSize) {
 		delete [] this->m_pString; 
 		this->m_pString = NULL;
 	}
-	this->deleteWString(bKeepBufferSize);
+	this->deleteTempString(bKeepBufferSize);
 }
-void TString::deleteWString(const bool bKeepBufferSize) {
+void TString::deleteTempString(const bool bKeepBufferSize) {
 
 	if ( this->m_pTempString != NULL ) {
 		delete [] this->m_pTempString; 
 		this->m_pTempString = NULL;
 	}
 	this->m_savedtotaltoks = 0;
+	this->m_savedcurrenttok = 0;
+	this->m_savedpos = 0;
 	if (!bKeepBufferSize)
 		this->m_buffersize = 0;
 }
 
+///****************************/
+//TString& TString::operator =( const TString & tString ) {
+//
+//	//this->deleteString( );
+//
+//	//if (tString.m_pString != NULL) {
+//	//	this->m_pString = allocstr_bytes(tString.m_buffersize);
+//	//	CopyMemory(this->m_pString, tString.m_pString, m_buffersize);
+//	//}
+//	//return *this;
+//
+//	// attempted assignment to self...
+//	if (this != &tString)
+//	{
+//		TCHAR *newStr = NULL;
+//		size_t iActual = 0;
+//
+//		// check if any data to copy...
+//		if (tString.m_pString != NULL) {
+//			// if so, allocate new data BEFORE deleting old.... this allows new to throw & leave the current data in place.
+//			newStr = allocstr_bytes(tString.m_buffersize, iActual);
+//
+//			CopyMemory(newStr, tString.m_pString, tString.m_buffersize);
+//		}
+//		this->deleteString();
+//		this->m_pString = newStr;
+//		this->m_buffersize = iActual;
+//	}
+//	return *this;
+//}
+
 /****************************/
-TString& TString::operator =( const TString & tString ) {
+TString& TString::operator =(TString tString)
+{
+	this->swap(tString);
 
-	this->deleteString( );
-
-	if (tString.m_pString != NULL) {
-		this->m_pString = allocstr_bytes(tString.m_buffersize);
-		CopyMemory(this->m_pString, tString.m_pString, m_buffersize);
-	}
 	return *this;
 }
 
@@ -311,43 +362,96 @@ TString& TString::operator =( const TString & tString ) {
 */
 /****************************/
 TString& TString::operator =( const WCHAR * cString ) {
-#ifdef UNICODE
-	this->deleteString();
+//#ifdef UNICODE
+//	// attempted assignment to self...
+//	if (this->m_pString != cString)
+//	{
+//		TCHAR *newStr = NULL;
+//		size_t iActual = 0;
+//
+//		// check if any data to copy...
+//		if (cString != NULL) {
+//			// if so, allocate new data BEFORE deleting old.... this allows new to throw & leave the current data in place.
+//			const int l = ts_strlen(cString) + 1;
+//			newStr = allocstr_cch(l, iActual);
+//
+//			if (ts_strcpyn(newStr, cString, l) == NULL)
+//			{
+//				delete[] newStr;
+//				throw std::logic_error("strcpyn() failed!");
+//			}
+//		}
+//		this->deleteString();
+//		this->m_pString = newStr;
+//		this->m_buffersize = iActual;
+//	}
+//
+//	return *this;
+//#else
+//	TCHAR *newStr = NULL;
+//	size_t iActual = 0;
+//
+//	// check if any data to copy...
+//	if (cString != NULL) {
+//		// if so, allocate new data BEFORE deleting old.... this allows new to throw & leave the current data in place.
+//		newStr = WcharTochar( cString, &iActual);
+//	}
+//	this->deleteString();
+//	this->m_pString = newStr;
+//	this->m_buffersize = iActual;
+//
+//	return *this;
+//#endif
 
-	if (cString != NULL) {
-		const int l = ts_strlen(cString) + 1;
-		this->m_pString = allocstr_cch(l);
-		ts_strcpyn(this->m_pString, cString, l);
-	}
+	TString tmp(cString);
+	this->swap(tmp);
+
 	return *this;
-#else
-	this->deleteString( );
-
-	if ( cString != NULL )
-		this->m_pString = WcharTochar( cString, &m_buffersize);
-
-	return *this;
-#endif
 }
+
 /****************************/
 TString& TString::operator =( const char * cString ) {
-#ifdef UNICODE
-	this->deleteString();
+//#ifdef UNICODE
+//	TCHAR *newStr = NULL;
+//	size_t iActual = 0;
+//
+//	// check if any data to copy...
+//	if (cString != NULL) {
+//		// if so, allocate new data BEFORE deleting old.... this allows new to throw & leave the current data in place.
+//		newStr = charToWchar(cString, &iActual);
+//	}
+//	this->deleteString();
+//
+//	this->m_pString = newStr;
+//	this->m_buffersize = iActual;
+//
+//	return *this;
+//#else
+//	TCHAR *newStr = NULL;
+//	size_t iActual = 0;
+//
+//	// check if any data to copy...
+//	if (cString != NULL) {
+//		// if so, allocate new data BEFORE deleting old.... this allows new to throw & leave the current data in place.
+//		const int l = ts_strlen(cString) + 1;
+//		newStr = allocstr_cch(l, iActual);
+//		if (ts_strcpyn(newStr, cString, l) == NULL)
+//		{
+//			delete [] newStr;
+//			throw std::logic_error("strcpyn() failed!");
+//		}
+//	}
+//	this->deleteString();
+//	this->m_pString = newStr;
+//	this->m_buffersize = iActual;
+//
+//	return *this;
+//#endif
 
-	if (cString != NULL)
-		this->m_pString = charToWchar(cString, &m_buffersize);
+	TString tmp(cString);
+	this->swap(tmp);
 
 	return *this;
-#else
-	this->deleteString( );
-
-	if ( cString != NULL ) {
-		const int l = ts_strlen(cString) + 1;
-		this->m_pString = allocstr_cch(l);
-		ts_strcpyn(this->m_pString, cString, l);
-	}
-	return *this;
-#endif
 }
 
 /****************************/
@@ -358,76 +462,68 @@ TString& TString::operator =( const char * cString ) {
 */
 /****************************/
 TString& TString::operator =( const WCHAR chr ) {
-#ifdef UNICODE
-	this->deleteString();
+//#ifdef UNICODE
+//	TCHAR *newStr = NULL;
+//	size_t iActual = 0;
+//
+//	// if so, allocate new data BEFORE deleting old.... this allows new to throw & leave the current data in place.
+//	newStr = allocstr_cch(2, iActual);
+//	newStr[0] = chr;
+//	newStr[1] = TEXT('\0');
+//
+//	this->deleteString();
+//
+//	this->m_pString = newStr;
+//	this->m_buffersize = iActual;
+//
+//	return *this;
+//#else
+//	WCHAR wStr[2];
+//	wStr[0] = chr;
+//	wStr[1] = L'\0';
+//
+//	*this = wStr;
+//
+//	return *this;
+//#endif
 
-	this->m_pString = allocstr_cch(2);
-	this->m_pString[0] = chr;
-	this->m_pString[1] = TEXT('\0');
+	TString tmp(chr);
+	this->swap(tmp);
 
 	return *this;
-#else
-	//this->deleteString( );
-
-	WCHAR wStr[2];
-	wStr[0] = chr;
-	wStr[1] = L'\0';
-
-	*this = wStr;
-
-	//TCHAR *temp = WcharTochar( wStr, &m_buffersize );
-
-	//if (temp != NULL) {
-	//	this->m_pString = allocstr_cch( 2 );
-
-	//	this->m_pString[0] = temp[0];
-	//	this->m_pString[1] = TEXT('\0');
-
-	//	delete [] temp;
-	//}
-	//else {
-	//	this->m_pString = allocstr_cch( 1 );
-	//	this->m_pString[0] = TEXT('\0');
-	//}
-	return *this;
-#endif
 }
 
 /****************************/
 TString& TString::operator =( const char chr ) {
-#ifdef UNICODE
-	//this->deleteString();
-	char str[2];
-	str[0] = chr;
-	str[1] = 0;
+//#ifdef UNICODE
+//	char str[2];
+//	str[0] = chr;
+//	str[1] = 0;
+//
+//	*this = str;
+//
+//	return *this;
+//#else
+//	TCHAR *newStr = NULL;
+//	size_t iActual = 0;
+//
+//	// if so, allocate new data BEFORE deleting old.... this allows new to throw & leave the current data in place.
+//	newStr = allocstr_cch(2, iActual);
+//	newStr[0] = chr;
+//	newStr[1] = TEXT('\0');
+//
+//	this->deleteString();
+//
+//	this->m_pString = newStr;
+//	this->m_buffersize = iActual;
+//
+//	return *this;
+//#endif
 
-	*this = str;
-
-	//TCHAR *temp = charToWchar(str, &m_buffersize);
-
-	//if (temp != NULL) {
-	//	this->m_pString = allocstr_cch( 2 );
-
-	//	this->m_pString[0] = temp[0];
-	//	this->m_pString[1] = TEXT('\0');
-
-	//	delete [] temp;
-	//}
-	//else {
-	//	this->m_pString = allocstr_cch( 1 );
-	//	this->m_pString[0] = 0;
-	//}
-
-	return *this;
-#else
-	this->deleteString();
-
-	this->m_pString = allocstr_cch(2);
-	this->m_pString[0] = chr;
-	this->m_pString[1] = 0;
+	TString tmp(chr);
+	this->swap(tmp);
 
 	return *this;
-#endif
 }
 
 /****************************/
@@ -443,11 +539,19 @@ TString& TString::operator =( const char chr ) {
 TString TString::operator +( const TCHAR * cString ) {
 
 	if (cString != NULL) {
-		const size_t l = (ts_strlen(this->m_pString) + ts_strlen(cString) + 1);
+		const size_t sz = this->len();
+		const size_t l = (sz + ts_strlen(cString) + 1);
 		TString newTString((UINT)l);
 
-		ts_strcpyn(newTString.m_pString, this->m_pString, l);
-		ts_strcat(newTString.m_pString, cString);
+		if (sz > 0)
+		{
+			if (ts_strcpyn(newTString.m_pString, this->m_pString, l) == NULL)
+				throw std::logic_error("strcpyn() failed!");
+		}
+		// NB: Buffer is zerod for us already.
+		if (ts_strcat(newTString.m_pString, cString) == NULL)
+			throw std::logic_error("strcat() failed!");
+
 		return newTString;
 	}
 	return *this; // return an object not a ref or pointer to object, so object is copied on return.
@@ -465,10 +569,15 @@ TString TString::operator +( const TCHAR * cString ) {
 
 TString TString::operator +( const TCHAR chr ) {
 
-	const size_t size = ts_strlen(this->m_pString);
+	const size_t size = this->len();
 	TString newTString((UINT)(size + 2));
 
-	ts_strcpyn(newTString.m_pString, this->m_pString, size + 1);
+	if (size > 0)
+	{
+		if (ts_strcpyn(newTString.m_pString, this->m_pString, size + 1) == NULL)
+			throw std::logic_error("strcpyn() failed!");
+	}
+
 	newTString.m_pString[size] = chr;
 	newTString.m_pString[size + 1] = 0;
 
@@ -487,12 +596,19 @@ TString TString::operator +( const TCHAR chr ) {
 
 TString TString::operator +( const TString & tString ) {
 
-	if (tString.m_pString) {
-		const size_t l = (ts_strlen(this->m_pString) + ts_strlen(tString.m_pString) + 1);	// we could use the 2x m_buffersize instead, but this could lead to a very large unneeded buffer.
+	if (tString.m_pString != NULL) {
+		const size_t sz = this->len();
+		const size_t l = (sz + ts_strlen(tString.m_pString) + 1);	// we could use the 2x m_buffersize instead, but this could lead to a very large unneeded buffer.
+
 		TString newTString((UINT)l);
 
-		ts_strcpyn(newTString.m_pString, this->m_pString, l);
-		ts_strcat(newTString.m_pString, tString.m_pString);
+		if (sz > 0) {
+			if (ts_strcpyn(newTString.m_pString, this->m_pString, l) == NULL)
+				throw std::logic_error("strcpyn() failed!");
+		}
+		if (ts_strcat(newTString.m_pString, tString.m_pString) == NULL)
+			throw std::logic_error("strcat() failed!");
+
 		return newTString;
 	}
 	return *this;
@@ -551,20 +667,22 @@ TString TString::operator -( const TString & tString ) {
 TString & TString::operator +=( const TCHAR * cString ) {
 
 	if (cString != NULL) {
-		const size_t l = (ts_strlen(this->m_pString) + ts_strlen(cString) + 1);
+		const size_t l = (this->len() + ts_strlen(cString) + 1);
 
 		if ((l * sizeof(TCHAR)) <= m_buffersize) {
 			// new text fits within existing buffer, so append.
-			ts_strcat(this->m_pString, cString);
+			if (ts_strcat(this->m_pString, cString) == NULL)
+				throw std::logic_error("strcat() failed!");
 		}
 		else {
-			TCHAR * temp = allocstr_cch(l);
+			TString tmp((UINT)l);
 
-			ts_strcpyn(temp, this->m_pString, l);
-			ts_strcat(temp, cString);
+			if (ts_strcpyn(tmp.m_pString, this->m_pString, l) == NULL)
+				throw std::logic_error("strcpyn() failed!");
+			if (ts_strcat(tmp.m_pString, cString) == NULL)
+				throw std::logic_error("strcat() failed!");
 
-			this->deleteString(true);
-			this->m_pString = temp;
+			this->swap(tmp);
 		}
 	}
 	return *this;
@@ -588,14 +706,14 @@ TString & TString::operator +=( const TCHAR chr ) {
 			this->m_pString[len + 1] = TEXT('\0');
 		}
 		else {
-			TCHAR * temp = allocstr_cch(len + 2);
+			TString tmp((UINT)(len + 2));
 
-			ts_strcpyn(temp, this->m_pString, len + 1);
-			temp[len] = chr;
-			temp[len + 1] = TEXT('\0');
+			if (ts_strcpyn(tmp.m_pString, this->m_pString, len + 1) == NULL)
+				throw std::logic_error("strcpyn() failed!");
+			tmp.m_pString[len] = chr;
+			tmp.m_pString[len + 1] = TEXT('\0');
 
-			this->deleteString(true);
-			this->m_pString = temp;
+			this->swap(tmp);
 		}
 	}
 	else {
@@ -616,23 +734,43 @@ TString & TString::operator +=( const TCHAR chr ) {
 
 TString & TString::operator +=( const TString & tString ) {
 
-	if (tString.m_pString) {
-		const size_t l = (ts_strlen(this->m_pString) + ts_strlen(tString.m_pString) + 1);
+	if (tString.m_pString != NULL) {
+		const size_t l = (this->len() + ts_strlen(tString.m_pString) + 1);
 
 		if ((l * sizeof(TCHAR)) <= m_buffersize) {
-			ts_strcat(this->m_pString, tString.m_pString);
+			if (ts_strcat(this->m_pString, tString.m_pString) == NULL)
+				throw std::logic_error("strcat() failed!");
 		}
 		else {
-			TCHAR * temp = allocstr_cch(l);
+			TString tmp((UINT)l);
 
-			ts_strcpyn(temp, this->m_pString, l);
-			ts_strcat(temp, tString.m_pString);
+			if (ts_strcpyn(tmp.m_pString, this->m_pString, l) == NULL)
+				throw std::logic_error("strcpyn() failed!");
+			if (ts_strcat(tmp.m_pString, tString.m_pString) == NULL)
+				throw std::logic_error("strcat() failed!");
 
-			this->deleteString(true);
-			this->m_pString = temp;
+			this->swap(tmp);
 		}
 	}
 	return *this;
+}
+
+/****************************/
+/*! \fn void TString::operator +=( const int num )
+\brief Symbol Overload - TString and INT concatenation
+
+\param num Number to concatenate (is converted to text)
+*/
+/****************************/
+
+TString & TString::operator +=(const int num) {
+
+	TCHAR tNum[36];
+	tNum[0] = TEXT('\0');
+
+	ts_itoa(num, tNum, 10);
+
+	return operator += (tNum);
 }
 
 /****************************/
@@ -682,7 +820,7 @@ TString & TString::operator -=( const TString &tString ) {
 
 bool TString::operator ==( const int iNull ) const {
 
-	if ( !this->m_pString && !iNull )
+	if ( this->m_pString == NULL && !iNull )
 		return true;
 
 	return false;
@@ -703,7 +841,7 @@ bool TString::operator ==( const int iNull ) const {
 
 bool TString::operator ==( const TCHAR * cString ) const {
 
-	if ( cString && this->m_pString ) {
+	if ( cString != NULL && this->m_pString != NULL) {
 		if ( ts_strcmp( this->m_pString, cString ) == 0)
 			return true;
 	}
@@ -725,7 +863,7 @@ bool TString::operator ==( const TCHAR * cString ) const {
 
 bool TString::operator ==( const TCHAR chr ) const {
 
-	if ( this->m_pString ) {
+	if ( this->m_pString != NULL) {
 
 		TCHAR temp[2];
 		temp[0] = chr;
@@ -752,7 +890,7 @@ bool TString::operator ==( const TCHAR chr ) const {
 
 bool TString::operator ==( const TString & tString ) const {
 
-	if ( this->m_pString && tString.m_pString ) {
+	if ( this->m_pString != NULL && tString.m_pString != NULL) {
 		if ( ts_strcmp( this->m_pString, tString.m_pString ) == 0)
 			return true;
 	}
@@ -770,7 +908,7 @@ bool TString::operator ==( const TString & tString ) const {
 
 bool TString::operator !=( const int iNull ) const {
 
-	if ( this->m_pString && !iNull )
+	if ( this->m_pString != NULL && !iNull )
 		return true;
 
 	return false;
@@ -1160,12 +1298,20 @@ TString TString::operator *( const int &N ) {
 	if (N == 0)
 		return TEXT("");
 
-	TString tmp((UINT)((ts_strlen(this->m_pString) *N) + 1));
+	const size_t sz = this->len();
 
-	for (int i = 0; i < N; i++)
-		ts_strcat(tmp.m_pString, this->m_pString);
+	if (sz > 0)
+	{
+		TString tmp((UINT)((sz *N) + 1));
 
-	return tmp;
+		for (int i = 0; i < N; i++)
+		{
+			if (ts_strcat(tmp.m_pString, this->m_pString) == NULL)
+				throw std::logic_error("strcat() failed!");
+		}
+		return tmp;
+	}
+	return *this;
 }
 
 /****************************/
@@ -1185,20 +1331,21 @@ TString & TString::operator *=( const int &N ) {
 		return *this;
 	}
 
-	// if string is null just return.
-	if ((N == 1) || (this->m_pString == NULL))
-		return *this;
-	const size_t l = (ts_strlen(this->m_pString)*N) + 1;
-	TCHAR *temp = this->m_pString;
+	const size_t sz = this->len();
 
-	this->m_pString = allocstr_cch(l);
-	this->m_pString[0] = 0;
+	// if string is null just return.
+	if ((N == 1) || (sz == 0))
+		return *this;
+
+	TString tmp((UINT)((sz * N) + 1));
 
 	for (int i = 0; i < N; i++)
-		ts_strcat(this->m_pString, temp);
-	this->m_savedtotaltoks = 0;
+	{
+		if (ts_strcat(tmp.m_pString, this->m_pString) == NULL)
+			throw std::logic_error("strcat() failed!");
+	}
 
-	delete[] temp;
+	this->swap(tmp);
 
 	return *this;
 }
@@ -1221,7 +1368,8 @@ TCHAR & TString::operator []( long int N ) const {
 	static TCHAR chr = TEXT('\0');
 
 	if (this->m_pString) {
-		long int size = (long int)ts_strlen(this->m_pString);
+		//long int size = (long int)ts_strlen(this->m_pString);
+		long int size = this->m_buffersize;
 		if (N < 0) N += size;
 
 		if ((N >(size - 1)) || (N < 0))
@@ -1230,6 +1378,26 @@ TCHAR & TString::operator []( long int N ) const {
 		return this->m_pString[N];
 	}
 	return chr;
+}
+
+TString operator +(const TString & tString, const TCHAR * cString)
+{
+
+	if (cString != NULL) {
+		const size_t sz = tString.len();
+		TString newTString((UINT)(sz + ts_strlen(cString)) + 1);
+
+		if (sz > 0) {
+			if (ts_strcpy(newTString.m_pString, tString.m_pString) == NULL)
+				throw std::logic_error("strcpy() failed!");
+		}
+		if (ts_strcat(newTString.m_pString, cString) == NULL)
+			throw std::logic_error("strcat() failed!");
+
+		return newTString;
+	}
+
+	return tString;
 }
 
 /****************************/
@@ -1378,7 +1546,10 @@ TString TString::sub( int N, int M ) const {
 		TCHAR * temp = this->m_pString;
 		temp += N;
 
-		ts_strcpyn(newTString.m_pString, temp, M + 1);
+		if (ts_strcpyn(newTString.m_pString, temp, M + 1) == NULL)
+		{
+			throw std::logic_error("strcpyn() failed!");
+		}
 		newTString.m_pString[M] = 0;
 	}
 	return newTString;
@@ -1407,14 +1578,24 @@ int TString::i_remove(const TCHAR *subString)
 	const size_t l = TS_getmemsize(ol + 1);
 	PTCHAR tmp = new TCHAR[l];
 	while ((sub = ts_strstr(p, subString)) != NULL) {
-		ts_strncat(tmp, p, (sub - p)); // copy bit before substring. if any.
+		if (ts_strncat(tmp, p, (sub - p)) == NULL) // copy bit before substring. if any.
+		{
+			delete[] tmp;
+			throw std::logic_error("strcat() failed!");
+		}
 		cnt++;
 		p = sub + subl; // update pointer to skip substring.
 	}
 
 	if (cnt > 0) {
-		ts_strcat(tmp, p); // append the end text, if any.
+		if (ts_strcat(tmp, p) == NULL) // append the end text, if any.
+		{
+			delete[] tmp;
+			throw std::logic_error("strcat() failed!");
+		}
+
 		this->deleteString(); // delete old string
+
 		this->m_pString = tmp; // save new one.
 		this->m_buffersize = l;
 	}
@@ -1449,11 +1630,23 @@ int TString::i_replace(const TCHAR *subString, const TCHAR *rString)
 		TCHAR *out = allocstr_cch((cnt * repl) + (ol - (cnt * subl)) + 1); // allocate new string.
 		out[0] = 0;
 		while ((sub = ts_strstr(p, subString)) != NULL) {
-			ts_strncat(out, p, (sub - p)); // copy bit before substring. if any.
-			ts_strcat(out,rString); // append new replacement string.
+			if (ts_strncat(out, p, (sub - p)) == NULL) // copy bit before substring. if any.
+			{
+				delete[] out;
+				throw std::logic_error("strncat() failed!");
+			}
+			if (ts_strcat(out, rString) == NULL) // append new replacement string.
+			{
+				delete[] out;
+				throw std::logic_error("strcat() failed!");
+			}
 			p = sub + subl; // update pointer to skip substring.
 		}
-		ts_strcat(out, p); // append the end text, if any.
+		if (ts_strcat(out, p) == NULL) // append the end text, if any.
+		{
+			delete[] out;
+			throw std::logic_error("strcat() failed!");
+		}
 		this->deleteString(true); // delete old string
 		this->m_pString = out; // save new one.
 	}
@@ -1574,7 +1767,10 @@ TString TString::gettok( int N, const TCHAR * sepChars ) const {
 			const size_t len = p_cEnd - p_cStart; // gives cch diff
 			token.deleteString();
 			token.m_pString = token.allocstr_cch(len + 1);
-			ts_strcpyn(token.m_pString, p_cStart, len + 1);
+			if (ts_strcpyn(token.m_pString, p_cStart, len + 1) == NULL)
+			{
+				throw std::logic_error("strcpyn() failed!");
+			}
 
 			break;
 		}
@@ -1588,7 +1784,10 @@ TString TString::gettok( int N, const TCHAR * sepChars ) const {
 
 		token.deleteString();
 		token.m_pString = token.allocstr_cch(len + 1);
-		ts_strcpyn(token.m_pString, p_cStart, len + 1);
+		if (ts_strcpyn(token.m_pString, p_cStart, len + 1) == NULL)
+		{
+			throw std::logic_error("strcpyn() failed!");
+		}
 	}
 
 	return token;
@@ -1692,7 +1891,10 @@ TString TString::getfirsttok( const unsigned int N, const TCHAR * sepChars ) con
 			const int len = (p_cEnd - p_cStart) + 1; // gives cch diff
 			delete [] token.m_pString; // change by Ook
 			token.m_pString = token.allocstr_cch(len);
-			ts_strcpyn(token.m_pString, p_cStart, len);
+			if (ts_strcpyn(token.m_pString, p_cStart, len) == NULL)
+			{
+				throw std::logic_error("strcpyn() failed!");
+			}
 			this->m_savedpos = p_cEnd + sepl;
 
 			break;
@@ -1711,7 +1913,10 @@ TString TString::getfirsttok( const unsigned int N, const TCHAR * sepChars ) con
 
 		delete [] token.m_pString; // change by Ook
 		token.m_pString = token.allocstr_cch(len);
-		ts_strcpyn(token.m_pString, p_cStart, len);
+		if (ts_strcpyn(token.m_pString, p_cStart, len) == NULL)
+		{
+			throw std::logic_error("strcpyn() failed!");
+		}
 
 		this->m_savedpos = NULL;
 	}
@@ -1738,7 +1943,10 @@ TString TString::getnexttok( const TCHAR * sepChars ) const {
 
 		delete [] token.m_pString; // change by Ook
 		token.m_pString = token.allocstr_cch(len);
-		ts_strcpyn(token.m_pString, p_cStart, len);
+		if (ts_strcpyn(token.m_pString, p_cStart, len) == NULL)
+		{
+			throw std::logic_error("strcpyn() failed!");
+		}
 
 		p_cStart = NULL;
 	}
@@ -1746,7 +1954,10 @@ TString TString::getnexttok( const TCHAR * sepChars ) const {
 		const unsigned int len = (p_cEnd - p_cStart) + 1; // gives cch diff
 		delete [] token.m_pString; // change by Ook
 		token.m_pString = token.allocstr_cch(len);
-		ts_strcpyn(token.m_pString, p_cStart, len);
+		if (ts_strcpyn(token.m_pString, p_cStart, len) == NULL)
+		{
+			throw std::logic_error("strcpyn() failed!");
+		}
 
 		p_cStart = p_cEnd + sepl; // Ook
 	}
@@ -1828,7 +2039,11 @@ void TString::deltok( const unsigned int N, const TCHAR * sepChars ) {
 
 		const int l = lstrlen( this->m_pString ) + 1;
 		TCHAR * pNew = allocstr_cch(l);
-		ts_strcpyn(pNew, this->m_pString, l);
+		if (ts_strcpyn(pNew, this->m_pString, l) == NULL)
+		{
+			delete[] pNew;
+			throw std::logic_error("strcpyn() failed!");
+		}
 		this->deleteString(true);
 		this->m_pString = pNew;
 	}
@@ -1839,7 +2054,11 @@ void TString::deltok( const unsigned int N, const TCHAR * sepChars ) {
 
 		const int l = lstrlen( p_cEnd ) + 1;
 		TCHAR * pNew = allocstr_cch(l);
-		ts_strcpyn(pNew, p_cEnd, l);
+		if (ts_strcpyn(pNew, p_cEnd, l) == NULL)
+		{
+			delete[] pNew;
+			throw std::logic_error("strcpyn() failed!");
+		}
 		this->deleteString(true);
 		this->m_pString = pNew;
 	}
@@ -1851,8 +2070,16 @@ void TString::deltok( const unsigned int N, const TCHAR * sepChars ) {
 
 		const size_t l = (ts_strlen( this->m_pString ) + ts_strlen( p_cEnd ) + 1);
 		TCHAR * pNew = allocstr_cch(l);
-		ts_strcpyn(pNew, this->m_pString, l);
-		ts_strcat(pNew, p_cEnd);
+		if (ts_strcpyn(pNew, this->m_pString, l) == NULL)
+		{
+			delete[] pNew;
+			throw std::logic_error("strcpyn() failed!");
+		}
+		if (ts_strcat(pNew, p_cEnd) == NULL)
+		{
+			delete[] pNew;
+			throw std::logic_error("strcpyn() failed!");
+		}
 
 		this->deleteString(true);
 		this->m_pString = pNew;
@@ -1888,11 +2115,23 @@ void TString::instok( const TCHAR * cToken, const unsigned int N, const TCHAR * 
 	TCHAR * pNew = allocstr_cch(ts_strlen(cToken) + ts_strlen(this->m_pString) + (ts_strlen(sepChars) *2) + 1);
 
 	// delete the first token
-	if ( p_cStart == this->m_pString ) {
+	if (p_cStart == this->m_pString) {
 
-		ts_strcpy(pNew, cToken);
-		ts_strcat(pNew, sepChars);
-		ts_strcat(pNew, this->m_pString);
+		if (ts_strcpy(pNew, cToken) == NULL)
+		{
+			delete[] pNew;
+			throw std::logic_error("strcpyn() failed!");
+		}
+		if (ts_strcat(pNew, sepChars) == NULL)
+		{
+			delete[] pNew;
+			throw std::logic_error("strcat() failed!");
+		}
+		if (ts_strcat(pNew, this->m_pString) == NULL)
+		{
+			delete[] pNew;
+			throw std::logic_error("strcat() failed!");
+		}
 	}
 	else if ( p_cEnd == NULL ) {
 
@@ -1902,16 +2141,48 @@ void TString::instok( const TCHAR * cToken, const unsigned int N, const TCHAR * 
 			*p_cStart = 0;
 			p_cStart += sepl; // Ook
 
-			ts_strcpy(pNew, this->m_pString);
-			ts_strcat(pNew, sepChars);
-			ts_strcat(pNew, cToken);
-			ts_strcat(pNew, sepChars);
-			ts_strcat(pNew, p_cStart);
+			if (ts_strcpy(pNew, this->m_pString) == NULL)
+			{
+				delete[] pNew;
+				throw std::logic_error("strcpy() failed!");
+			}
+			if (ts_strcat(pNew, sepChars) == NULL)
+			{
+				delete[] pNew;
+				throw std::logic_error("strcat() failed!");
+			}
+			if (ts_strcat(pNew, cToken) == NULL)
+			{
+				delete[] pNew;
+				throw std::logic_error("strcat() failed!");
+			}
+			if (ts_strcat(pNew, sepChars) == NULL)
+			{
+				delete[] pNew;
+				throw std::logic_error("strcat() failed!");
+			}
+			if (ts_strcat(pNew, p_cStart) == NULL)
+			{
+				delete[] pNew;
+				throw std::logic_error("strcat() failed!");
+			}
 		}
 		else {
-			ts_strcpy(pNew, this->m_pString);
-			ts_strcat(pNew, sepChars);
-			ts_strcat(pNew, cToken);
+			if (ts_strcpy(pNew, this->m_pString) == NULL)
+			{
+				delete[] pNew;
+				throw std::logic_error("strcpy() failed!");
+			}
+			if (ts_strcat(pNew, sepChars) == NULL)
+			{
+				delete[] pNew;
+				throw std::logic_error("strcat() failed!");
+			}
+			if (ts_strcat(pNew, cToken) == NULL)
+			{
+				delete[] pNew;
+				throw std::logic_error("strcat() failed!");
+			}
 		}
 	}
 	else {
@@ -1919,11 +2190,31 @@ void TString::instok( const TCHAR * cToken, const unsigned int N, const TCHAR * 
 		*p_cStart = 0;
 		p_cStart += sepl; // Ook
 
-		ts_strcpy(pNew, this->m_pString);
-		ts_strcat(pNew, sepChars);
-		ts_strcat(pNew, cToken);
-		ts_strcat(pNew, sepChars);
-		ts_strcat(pNew, p_cStart);
+		if (ts_strcpy(pNew, this->m_pString) == NULL)
+		{
+			delete[] pNew;
+			throw std::logic_error("strcpy() failed!");
+		}
+		if (ts_strcat(pNew, sepChars) == NULL)
+		{
+			delete[] pNew;
+			throw std::logic_error("strcat() failed!");
+		}
+		if (ts_strcat(pNew, cToken) == NULL)
+		{
+			delete[] pNew;
+			throw std::logic_error("strcat() failed!");
+		}
+		if (ts_strcat(pNew, sepChars) == NULL)
+		{
+			delete[] pNew;
+			throw std::logic_error("strcat() failed!");
+		}
+		if (ts_strcat(pNew, p_cStart) == NULL)
+		{
+			delete[] pNew;
+			throw std::logic_error("strcat() failed!");
+		}
 	}
 	this->deleteString(true);
 	this->m_pString = pNew;
@@ -1945,22 +2236,51 @@ void TString::addtok( const TCHAR * cToken, const TCHAR * sepChars ) {
 	if (m_buffersize >= (l *sizeof(TCHAR)))
 	{
 		if (mp_len) {
-			ts_strcat(this->m_pString, sepChars);
-			ts_strcat(this->m_pString, cToken);
+			if (ts_strcat(this->m_pString, sepChars) == NULL)
+			{
+				throw std::logic_error("strcat() failed!");
+			}
+			if (ts_strcat(this->m_pString, cToken) == NULL)
+			{
+				throw std::logic_error("strcat() failed!");
+			}
 		}
 		else
-			ts_strcpyn(this->m_pString, cToken, l);
+		{
+			if (ts_strcpyn(this->m_pString, cToken, l) == NULL)
+			{
+				throw std::logic_error("strcpyn() failed!");
+			}
+		}
 	}
 	else {
 		TCHAR *pNew = allocstr_cch(l);
 
 		if (mp_len) {
-			ts_strcpy(pNew, this->m_pString);
-			ts_strcat(pNew, sepChars);
-			ts_strcat(pNew, cToken);
+			if (ts_strcpy(pNew, this->m_pString) == NULL)
+			{
+				delete[] pNew;
+				throw std::logic_error("strcpyn() failed!");
+			}
+			if (ts_strcat(pNew, sepChars) == NULL)
+			{
+				delete[] pNew;
+				throw std::logic_error("strcat() failed!");
+			}
+			if (ts_strcat(pNew, cToken) == NULL)
+			{
+				delete[] pNew;
+				throw std::logic_error("strcat() failed!");
+			}
 		}
 		else
-			ts_strcpyn(pNew, cToken, l);
+		{
+			if (ts_strcpyn(pNew, cToken, l) == NULL)
+			{
+				delete[] pNew;
+				throw std::logic_error("strcat() failed!");
+			}
+		}
 
 		this->deleteString(true);
 		this->m_pString = pNew;
@@ -2094,7 +2414,11 @@ TString &TString::trim() {
 
 		TCHAR *temp = allocstr_cch(new_len);
 
-		ts_strcpyn(temp, start, new_len);
+		if (ts_strcpyn(temp, start, new_len) == NULL)
+		{
+			delete[] temp;
+			throw std::logic_error("strcpyn() failed!");
+		}
 
 		this->deleteString(true);
 
@@ -2102,6 +2426,141 @@ TString &TString::trim() {
 	}
 	return *this;
 }
+
+#ifdef INCLUDE_MIRC_EXTRAS
+/*
+* isnum(option)
+*   returns TRUE if string is a valid number, if option is > 0,
+*   it'll take negative numbers as valid numbers
+*   returns FALSE in an invalid string
+*/
+bool TString::isnum(const int f) const
+{
+	char *p = this->m_pString;
+	int c = 0;
+	if (*p == '-') {
+		if (f)
+			return false;
+		++p;
+	}
+	if (!f && *p == '-')
+		return false;
+	while (*p) {
+		if (*p < '0' || *p > '9')
+			return false;
+		++c;
+		++p;
+	}
+	return c ? true : false;
+}
+
+/*
+* isincs(letter)
+*   returns TRUE if letter is in word (case sensitive)
+*   otherwise, a FALSE is returned
+*/
+bool TString::isincs(const char let) const
+{
+	char *tmp = this->m_pString;
+	while (*tmp) {
+		if (*tmp++ == let)
+			return true;
+	}
+	return false;
+}
+
+/*
+* countchar(character)
+*/
+unsigned int TString::countchar(const TCHAR chr) const
+{
+	unsigned int r = 0;
+
+	for (TCHAR *aux = this->m_pString; *aux; ++aux) {
+		if (*aux == chr)
+			++r;
+	}
+	return r;
+}
+
+/*
+* ishostmask(mask)
+*/
+bool TString::ishostmask(void) const
+{
+	register bool nick = false, s1 = false, ident = false, s2 = false, host = false;
+	register TCHAR *c = this->m_pString;
+	while (*c) {
+		if (*c == ' ')
+			return false;
+		else if (*c == TEXT('!')) {
+			if (s1)
+				return false;
+			s1 = true;
+		}
+		else if (*c == TEXT('@')) {
+			if (!s1 || s2)
+				return false;
+			s2 = true;
+		}
+		else if (s1 && s2) {
+			if (!host && *c == TEXT('.'))
+				return false;
+			host = true;
+		}
+		else if (s1)
+			ident = true;
+		else
+			nick = true;
+		++c;
+	}
+	if (host) {
+		if (*--c == TEXT('.'))
+			return false;
+		return true;
+	}
+	return false;
+}
+
+TString TString::toupper(void) const
+{
+	//TString tmp(*this);
+	//unsigned int c = 0;
+	//char *p = tmp.to_chr();
+	//const UINT l = tmp.len();
+
+	//while (c < l) {
+	//	p[c] = (char)rfc_toupper(p[c]);
+	//	c++;
+	//}
+
+	TString tmp(*this);
+	UINT c = 0;
+	const UINT l = tmp.len();
+	for (TCHAR *p = tmp.to_chr(); c < l; c++)
+		p[c] = ts_toupper(p[c]);
+
+	return tmp;
+}
+TString TString::tolower(void) const
+{
+	//TString tmp(*this);
+	//unsigned int c = 0;
+	//char *p = tmp.to_chr();
+	//while (c < tmp.len()) {
+	//	p[c] = (char)rfc_tolower(p[c]);
+	//	c++;
+	//}
+
+	TString tmp(*this);
+	UINT c = 0;
+	const UINT l = tmp.len();
+	for (TCHAR *p = tmp.to_chr(); c < l; c++)
+		p[c] = ts_tolower(p[c]);
+
+	return tmp;
+}
+#endif
 
 // pos must be within length of string, n can be < 0
 TString TString::mid(const int pos, int n) const
@@ -2188,7 +2647,7 @@ inline int TString::rfc_tolower(const int c)
 	//tmp[1] = 0;
 	//_wcslwr(tmp);
 	//return (int)tmp[0];
-	return tolower(c);
+	return ::tolower(c);
 }
 inline int TString::rfc_toupper(const int c)
 {
@@ -2197,7 +2656,7 @@ inline int TString::rfc_toupper(const int c)
 	//tmp[1] = 0;
 	//_wcsupr(tmp);
 	//return (int)tmp[0];
-	return toupper(c);
+	return ::toupper(c);
 }
 #else
 unsigned char TString::tolowertab[] = { 0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xa, 0xb, 0xc, 0xd, 0xe, 0xf, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d, 0x1e, 0x1f, TEXT(' '), TEXT('!'), TEXT('"'), TEXT('#'), TEXT('$'), TEXT('%'), TEXT('&'), 0x27, TEXT('('), TEXT(')'), TEXT('*'), TEXT('+'), TEXT(','), TEXT('-'), TEXT('.'), TEXT('/'), TEXT('0'), TEXT('1'), TEXT('2'), TEXT('3'), TEXT('4'), TEXT('5'), TEXT('6'), TEXT('7'), TEXT('8'), TEXT('9'), TEXT(':'), TEXT(';'), TEXT('<'), TEXT('='), TEXT('>'), TEXT('?'), TEXT('@'), TEXT('a'), TEXT('b'), TEXT('c'), TEXT('d'), TEXT('e'), TEXT('f'), TEXT('g'), TEXT('h'), TEXT('i'), TEXT('j'), TEXT('k'), TEXT('l'), TEXT('m'), TEXT('n'), TEXT('o'), TEXT('p'), TEXT('q'), TEXT('r'), TEXT('s'), TEXT('t'), TEXT('u'), TEXT('v'), TEXT('w'), TEXT('x'), TEXT('y'), TEXT('z'), TEXT('{'), TEXT('|'),  TEXT('}'), TEXT('~'), TEXT('_'),  TEXT('`'), TEXT('a'), TEXT('b'), TEXT('c'), TEXT('d'), TEXT('e'), TEXT('f'), TEXT('g'), TEXT('h'), TEXT('i'), TEXT('j'), TEXT('k'), TEXT('l'), TEXT('m'), TEXT('n'), TEXT('o'), TEXT('p'), TEXT('q'), TEXT('r'), TEXT('s'), TEXT('t'), TEXT('u'), TEXT('v'), TEXT('w'), TEXT('x'), TEXT('y'), TEXT('z'), TEXT('{'), TEXT('|'),  TEXT('}'), TEXT('~'), 0x7f, 0x80, 0x81, 0x82, 0x83, 0x84, 0x85, 0x86, 0x87, 0x88, 0x89, 0x8a, 0x8b, 0x8c, 0x8d, 0x8e, 0x8f, 0x90, 0x91, 0x92, 0x93, 0x94, 0x95, 0x96, 0x97, 0x98, 0x99, 0x9a, 0x9b, 0x9c, 0x9d, 0x9e, 0x9f, 0xa0, 0xa1, 0xa2, 0xa3, 0xa4, 0xa5, 0xa6, 0xa7, 0xa8, 0xa9, 0xaa, 0xab, 0xac, 0xad, 0xae, 0xaf, 0xb0, 0xb1, 0xb2, 0xb3, 0xb4, 0xb5, 0xb6, 0xb7, 0xb8, 0xb9, 0xba, 0xbb, 0xbc, 0xbd, 0xbe, 0xbf, 0xc0, 0xc1, 0xc2, 0xc3, 0xc4, 0xc5, 0xc6, 0xc7, 0xc8, 0xc9, 0xca, 0xcb, 0xcc, 0xcd, 0xce, 0xcf, 0xd0, 0xd1, 0xd2, 0xd3, 0xd4, 0xd5, 0xd6, 0xd7, 0xd8, 0xd9, 0xda, 0xdb, 0xdc, 0xdd, 0xde, 0xdf, 0xe0, 0xe1, 0xe2, 0xe3, 0xe4, 0xe5, 0xe6, 0xe7, 0xe8, 0xe9, 0xea, 0xeb, 0xec, 0xed, 0xee, 0xef, 0xf0, 0xf1, 0xf2, 0xf3, 0xf4, 0xf5, 0xf6, 0xf7, 0xf8, 0xf9, 0xfa, 0xfb, 0xfc, 0xfd, 0xfe, 0xff };
@@ -2494,31 +2953,52 @@ WCHAR *TString::charToWchar(const char *cString, size_t *buffer_size)
 {
 	// try UTF8 encoded first, but error on invalid chars.
 	WCHAR *res = NULL;
+	WCHAR *normRes = NULL;
 	size_t buf_size = 0;
 	if ( cString != NULL ) {
-		int widelen = MultiByteToWideChar(CP_UTF8,MB_ERR_INVALID_CHARS,cString,-1, NULL, 0);
-		if (widelen == 0) {
-			// zero result, error maybe?
-			if (GetLastError() == ERROR_NO_UNICODE_TRANSLATION) {
-				// invalid chars, assume its NOT a utf8 string then, try ascii->utf16
-				widelen = MultiByteToWideChar(CP_ACP,MB_PRECOMPOSED,cString,-1, NULL, 0);
-				if (widelen != 0) {
-					buf_size = TS_wgetmemsize(widelen + 1);
-					res = new WCHAR[buf_size];	// TS_getmemsize() gives a much larger buffer than we really want, but it will do.
-					MultiByteToWideChar(CP_ACP,MB_PRECOMPOSED,cString,-1, res, widelen);
+		try {
+			int widelen = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, cString, -1, NULL, 0);
+			if (widelen == 0) {
+				// zero result, error maybe?
+				if (GetLastError() == ERROR_NO_UNICODE_TRANSLATION) {
+					// invalid chars, assume its NOT a utf8 string then, try ascii->utf16
+					widelen = MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, cString, -1, NULL, 0);
+					if (widelen != 0) {
+						buf_size = TS_wgetmemsize(widelen + 1);
+						res = new WCHAR[buf_size];	// TS_getmemsize() gives a much larger buffer than we really want, but it will do.
+						if (MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, cString, -1, res, widelen) == 0)
+							res[0] = L'\0';
+					}
+				}
+				else {
+					// if no error, assume zero length string.
+					buf_size = TS_wgetmemsize(1);
+					res = new WCHAR[buf_size];
+					res[0] = L'\0';
 				}
 			}
 			else {
-				// if no error, assume zero length string.
-				buf_size = TS_wgetmemsize(1);
+				buf_size = TS_wgetmemsize(widelen + 1);
 				res = new WCHAR[buf_size];
-				res[0] = L'\0';
+				if (MultiByteToWideChar(CP_UTF8, 0, cString, -1, res, widelen) == 0)
+					res[0] = L'\0';
+			}
+			// NB: NormalizeString() is Vista+ ONLY
+			int normLen = NormalizeString(NormalizationC, res, -1, NULL, 0);
+			if (normLen > 0) {
+				normLen++;
+				normRes = new WCHAR[normLen];
+				if (NormalizeString(NormalizationC, res, -1, normRes, normLen) > 0)
+				{
+					delete[] res;
+					res = normRes;
+				}
 			}
 		}
-		else {
-			buf_size = TS_wgetmemsize(widelen + 1);
-			res = new WCHAR[buf_size];
-			MultiByteToWideChar(CP_UTF8,0,cString,-1, res, widelen);
+		catch (std::bad_alloc)
+		{
+			delete[] res;
+			delete[] normRes;
 		}
 	}
 	if (buffer_size != NULL)
@@ -2535,7 +3015,8 @@ char *TString::WcharTochar(const WCHAR *wString, size_t *buffer_size)
 	if (l > 0) {
 		buf_size = TS_getmemsize(l + 1);
 		res = new char[buf_size];
-		WideCharToMultiByte( CP_UTF8, 0, wString, -1, res, l, NULL, NULL );
+		if (WideCharToMultiByte(CP_UTF8, 0, wString, -1, res, l, NULL, NULL) == 0)
+			res[0] = '\0';
 	}
 	if (buffer_size != NULL)
 		*buffer_size = buf_size;
@@ -2614,4 +3095,31 @@ TString &TString::strip() {
 	this->m_pString = temp;
 
 	return *this;
+}
+
+// swap function taken from: http://stackoverflow.com/questions/3279543/what-is-the-copy-and-swap-idiom
+void TString::swap(TString &second) // nothrow
+{
+	// enable ADL (not necessary in our case, but good practice)
+	using std::swap;
+
+	// by swapping the members of two classes,
+	// the two classes are effectively swapped
+	swap(this->m_pString, second.m_pString);
+	swap(this->m_pTempString, second.m_pTempString);
+	swap(this->m_buffersize, second.m_buffersize);
+	swap(this->m_savedcurrenttok, second.m_savedcurrenttok);
+	swap(this->m_savedpos, second.m_savedpos);
+	swap(this->m_savedtotaltoks, second.m_savedtotaltoks);
+}
+
+ULONG TString::to_addr() {
+	BYTE first, second, third, forth;
+	this->strip();
+	first = (BYTE)this->gettok(1, TEXT(".")).to_int();
+	second = (BYTE)this->gettok(2, TEXT(".")).to_int();
+	third = (BYTE)this->gettok(3, TEXT(".")).to_int();
+	forth = (BYTE)this->gettok(4, TEXT(".")).to_int();
+	//return MAKELONG(MAKEWORD(first,second),MAKEWORD(third,forth));
+	return MAKELONG(MAKEWORD(forth, third), MAKEWORD(second, first));
 }
