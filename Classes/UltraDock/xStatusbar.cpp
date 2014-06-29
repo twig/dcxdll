@@ -98,7 +98,7 @@ mIRC(xstatusbar) {
 
 					const int t = p.to_int();
 
-					if (p.right( 1 ) == TEXT("%")) {
+					if (p.right( 1 ) == TEXT('%')) {
 						DcxDock::g_iDynamicParts[i] = t;
 						c += t;
 					}

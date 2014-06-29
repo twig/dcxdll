@@ -136,7 +136,12 @@ mIRC(TrayIcon) {
 
 
 DcxTrayIcon::DcxTrayIcon(void)
+: m_hwnd(NULL)
+, m_hwndTooltip(NULL)
+, m_wndProc(NULL)
 {
+	trayIconIDs.clear();
+
 	// create a "dialog" and dont bother showing it
 	this->m_hwnd = CreateWindow(TEXT("#32770"), TEXT(""), NULL, 0, 0, 48, 48, NULL, NULL, GetModuleHandle(NULL), NULL);
 
@@ -144,51 +149,50 @@ DcxTrayIcon::DcxTrayIcon(void)
 		this->m_wndProc = (WNDPROC) SetWindowLongPtr(this->m_hwnd, GWLP_WNDPROC, (LONG_PTR) DcxTrayIcon::TrayWndProc);
 	else
 		Dcx::error(TEXT("/xtray"), TEXT("Problem initialising trayicons"));
-
-	m_hwndTooltip = NULL;
-
-	//if (Dcx::XPPlusModule.isUseable()())
-	//	DCXError(TEXT("/xTrayIcon"),TEXT("Try to create tooltip"));
-
-	//if (m_hwndTooltip != NULL)
-	//	DCXError(TEXT("/xTrayIcon"),TEXT("Tooltip available"));
-	//else
-	//	DCXError(TEXT("/xTrayIcon"),TEXT("Balloon tooltips will not be available for TrayIcon"));
-
-	trayIconIDs.clear();
 }
 
 DcxTrayIcon::~DcxTrayIcon(void)
 {
 	if (this->m_hwnd) {
-		TString ids;
+//		TString ids;
+//
+//#if DCX_USE_C11
+//		for (const auto &x: this->trayIconIDs)
+//			ids.addtok(x);
+//#else
+//		VectorOfInts::iterator itStart = this->trayIconIDs.begin();
+//		VectorOfInts::iterator itEnd = this->trayIconIDs.end();
+//
+//		while (itStart != itEnd) {
+//			ids.addtok(*itStart);
+//
+//			++itStart;
+//		}
+//#endif
+//
+//		ids.getfirsttok( 0 );
+//
+//		for (unsigned int i = 1; i <= ids.numtok( ); i++) {
+//			this->modifyIcon(ids.getnexttok( ).to_int(), NIM_DELETE);	// tok i
+//		}
 
+		// make copy of vector
+		VectorOfInts TempIDs(this->trayIconIDs);
+
+		// use temp vector to delete icons (this modifies the original vector)
 #if DCX_USE_C11
-		for (const auto &x: this->trayIconIDs) {
-			if (ids.len() == 0)
-				ids.tsprintf(TEXT("%d"), x);
-			else
-				ids.tsprintf(TEXT("%s %d"), ids.to_chr(), x);
-		}
+		for (const auto &x : TempIDs)
+			this->modifyIcon(x, NIM_DELETE);
 #else
-		VectorOfInts::iterator itStart = this->trayIconIDs.begin();
-		VectorOfInts::iterator itEnd = this->trayIconIDs.end();
-
+		VectorOfInts::iterator itStart = TempIDs.begin();
+		VectorOfInts::iterator itEnd = TempIDs.end();
+		
 		while (itStart != itEnd) {
-			if (ids.len() == 0)
-				ids.tsprintf(TEXT("%d"), *itStart);
-			else
-				ids.tsprintf(TEXT("%s %d"), ids.to_chr(), *itStart);
+			this->modifyIcon(*itStart, NIM_DELETE);
 
 			++itStart;
 		}
 #endif
-
-		ids.getfirsttok( 0 );
-
-		for (unsigned int i = 1; i <= ids.numtok( ); i++) {
-			this->modifyIcon(ids.getnexttok( ).to_int(), NIM_DELETE);	// tok i
-		}
 
 		SetWindowLongPtr(this->m_hwnd, GWLP_WNDPROC, (LONG_PTR) this->m_wndProc);
 		this->m_hwndTooltip = NULL;
@@ -203,8 +207,8 @@ HWND DcxTrayIcon::GetHwnd() {
 
 LRESULT CALLBACK DcxTrayIcon::TrayWndProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
 	if (uMsg == DCXM_TRAYICON) {
-		UINT uMouseMsg = (UINT) lParam;
-		UINT id = (UINT) wParam;
+		const UINT uMouseMsg = (UINT) lParam;
+		const UINT id = (UINT) wParam;
 
 		switch (uMouseMsg)
 		{
@@ -300,7 +304,6 @@ bool DcxTrayIcon::modifyIcon(const int id, DWORD msg, HICON icon, TString *toolt
 
 	if (tooltip != NULL && tooltip->len() > 0) {
 		nid.uFlags |= NIF_TIP;
-		//wnsprintf(nid.szTip, 128, TEXT("%s"), tooltip->to_chr());
 		dcx_strcpyn(nid.szTip, tooltip->to_chr(), 128); // 128 max
 	}
 

@@ -281,7 +281,7 @@ void DcxmlParser::parseControl() {
 			TString mystring(caption);
 			if (mystring.left(2) == TEXT("\r\n"))
 				mystring = mystring.right(-2);
-			else if (mystring.left(1) == TEXT('\n'))
+			else if (mystring[0] == TEXT('\n'))
 				mystring = mystring.right(-1);
 			//mystring.replace(TEXT("\t"),TEXT(""));
 			mystring -= TEXT("\t"); // remove all '\t' from text.
@@ -308,7 +308,7 @@ void DcxmlParser::parseControl() {
 			TString mystring(caption);
 			if (mystring.left(2) == TEXT("\r\n"))
 				mystring = mystring.right(-2);
-			else if (mystring.left(1) == TEXT('\n'))
+			else if (mystring[0] == TEXT('\n'))
 				mystring = mystring.right(-1);
 			//mystring.replace(TEXT("\t"),TEXT(""));
 			mystring -= TEXT("\t"); // remove all '\t' from text.
@@ -320,12 +320,12 @@ void DcxmlParser::parseControl() {
 			}
 		}
 	}
-	else if (0==lstrcmpA(type, "richedit")) { 
+	else if (0==lstrcmpA(type, "richedit")) {
 		if (caption != NULL) {
 			TString mystring(caption);
 			if (mystring.left(2) == TEXT("\r\n"))
 				mystring = mystring.right(-2);
-			else if (mystring.left(1) == TEXT('\n'))
+			else if (mystring[0] == TEXT('\n'))
 				mystring = mystring.right(-1);
 			//mystring.replace(TEXT("\t"),TEXT(""));
 			mystring -= TEXT("\t"); // remove all '\t' from text.
