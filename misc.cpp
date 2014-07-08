@@ -1079,10 +1079,12 @@ void mIRC_DrawText(HDC hdc, const TString &txt, LPRECT rc, const UINT style, con
 			RECT rcTmp = *rc;
 			TString t(txt);
 			if ((style & DT_SINGLELINE) == DT_SINGLELINE) {
-				t.replace(TEXT('\n'), TEXT(' '));
-				t.replace(TEXT('\r'), TEXT(' '));
+				//t.replace(TEXT('\n'), TEXT(' '));
+				//t.replace(TEXT('\r'), TEXT(' '));
+				t.mreplace(TEXT(' '), TEXT("\n\r"));
 			}
-			DrawText(hdc, t.strip().to_chr(), t.len(), &rcTmp, style | DT_CALCRECT /*| DT_NOPREFIX*/);
+			DrawText(hdc, t.strip().to_chr(), -1, &rcTmp, style | DT_CALCRECT /*| DT_NOPREFIX*/);	// using t.len() gives invalid length
+			//DrawText(hdc, t.strip().to_chr(), t.len(), &rcTmp, style | DT_CALCRECT /*| DT_NOPREFIX*/);
 			//DrawText(hdc, txt, lstrlen(txt), &rcTmp, style | DT_CALCRECT /*| DT_NOPREFIX*/);
 			//DrawTextEx(hdc, t.strip().to_chr(), t.len(), &rcTmp, style | DT_CALCRECT /*| DT_NOPREFIX*/, &dtp);
 			// style can be either center or right, not both, but it can be center+vcenter or right+vcenter

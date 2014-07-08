@@ -48,7 +48,8 @@ mIRC(TrayIcon) {
 	// create and edit can use the same function
 	if ((xflags[TEXT('c')] || xflags[TEXT('e')]) && numtok > 3) {
 		// find icon id in vector
-		const bool bExists = (trayIcons->idExists(id) ? true : false);
+		//const bool bExists = (trayIcons->idExists(id) ? true : false);
+		const bool bExists = trayIcons->idExists(id);
 		DWORD msg = NIM_ADD;
 
 		// if create and it already exists
@@ -201,7 +202,7 @@ DcxTrayIcon::~DcxTrayIcon(void)
 	}
 }
 
-HWND DcxTrayIcon::GetHwnd() {
+HWND DcxTrayIcon::GetHwnd() const {
 	return this->m_hwnd;
 }
 

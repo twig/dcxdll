@@ -308,7 +308,7 @@ void DcxText::DrawClientArea(HDC hdc)
 	//	style |= DT_SINGLELINE;
 	//else
 	//	style |= DT_WORDBREAK; // changed for autowrap between words
-
+	//
 	//this->ctrlDrawText(hdc, wtext, &r, style);
 
 	this->ctrlDrawText(hdc, wtext, &r, this->m_uiStyle);

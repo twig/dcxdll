@@ -18,7 +18,7 @@ public:
 	DcxTrayIcon(void);
 	~DcxTrayIcon(void);
 
-	HWND GetHwnd();
+	HWND GetHwnd() const;
 	bool idExists(const int id) const;
 	bool modifyIcon(const int id, DWORD msg, HICON icon = NULL, TString *tooltip = NULL);
 

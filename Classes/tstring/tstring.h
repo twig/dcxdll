@@ -247,6 +247,8 @@ public:
 	// General String Lib
 	size_t len( ) const;
 	const size_t &size() const { return m_buffersize; };
+	void clear();
+	void shrink_to_fit();
 
 	int find( const TCHAR * substring, const int N ) const;
 	int find( const TCHAR chr, const int N ) const;

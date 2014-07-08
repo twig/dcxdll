@@ -102,9 +102,7 @@ TString::TString( const char * cString )
 		const int l = ts_strlen( cString ) + 1;
 		this->m_pString = allocstr_cch( l );
 		if (ts_strcpyn(this->m_pString, cString, l ) == NULL)
-		{
 			throw std::logic_error("strcpyn() failed!");
-		}
 	}
 	else {
 		this->m_pString = allocstr_cch( 1 );
@@ -122,9 +120,7 @@ m_savedtotaltoks(0), m_savedcurrenttok(0), m_savedpos(0)
 		const int l = ts_strlen(cString) + 1;
 		this->m_pString = allocstr_cch(l);
 		if (ts_strcpyn(this->m_pString, cString, l) == NULL)
-		{
 			throw std::logic_error("strcpyn() failed!");
-		}
 	}
 	else {
 		this->m_pString = allocstr_cch(1);
@@ -259,10 +255,9 @@ m_savedtotaltoks(0), m_savedcurrenttok(0), m_savedpos(0)
 	if ((pStart != NULL) && (pEnd != NULL) && (pEnd > pStart)) {
 		const size_t size = (pEnd - pStart);
 		this->m_pString = allocstr_cch(size + 1);
-		if (ts_strcpyn(this->m_pString, pStart, size) == NULL)
-		{
+		if (ts_strcpyn(this->m_pString, pStart, size + 1) == NULL)
 			throw std::logic_error("strcpyn() failed!");
-		}
+
 		//CopyMemory(this->m_pString, pStart, size*sizeof(TCHAR));
 		//this->m_pString[size] = TEXT('\0');
 	}
@@ -296,18 +291,16 @@ TString::~TString( ) {
  */
 void TString::deleteString(const bool bKeepBufferSize) {
 
-	if ( this->m_pString != NULL ) {
-		delete [] this->m_pString; 
-		this->m_pString = NULL;
-	}
+	delete [] this->m_pString; 
+	this->m_pString = NULL;
+
 	this->deleteTempString(bKeepBufferSize);
 }
 void TString::deleteTempString(const bool bKeepBufferSize) {
 
-	if ( this->m_pTempString != NULL ) {
-		delete [] this->m_pTempString; 
-		this->m_pTempString = NULL;
-	}
+	delete [] this->m_pTempString; 
+
+	this->m_pTempString = NULL;
 	this->m_savedtotaltoks = 0;
 	this->m_savedcurrenttok = 0;
 	this->m_savedpos = 0;
@@ -1327,7 +1320,8 @@ TString TString::operator *( const int &N ) {
 TString & TString::operator *=( const int &N ) {
 
 	if (N == 0) {
-		this->deleteString();
+		//this->deleteString();
+		this->clear();
 		return *this;
 	}
 
@@ -1367,7 +1361,7 @@ TCHAR & TString::operator []( long int N ) const {
 
 	static TCHAR chr = TEXT('\0');
 
-	if (this->m_pString) {
+	if (this->m_pString != NULL) {
 		//long int size = (long int)ts_strlen(this->m_pString);
 		long int size = this->m_buffersize;
 		if (N < 0) N += size;
@@ -1408,7 +1402,7 @@ TString operator +(const TString & tString, const TCHAR * cString)
 */
 
 size_t TString::len( ) const {
-	if (this->m_pString)
+	if (this->m_pString != NULL)
 		return (size_t)ts_strlen(this->m_pString);
 
 	return 0;
@@ -1490,12 +1484,12 @@ int TString::find(const TCHAR chr, const int N) const {
 */
 /****************************/
 size_t TString::findtok(const TCHAR * cToken, const unsigned int N, const TCHAR * sepChars) const {
-	size_t count = 0;
+
 	const unsigned int nToks = this->numtok(sepChars);
 
 	this->getfirsttok( 0 );
 
-	for (unsigned int i = 1; i <= nToks; i++) {
+	for (unsigned int i = 1, count = 0; i <= nToks; i++) {
 		if (this->getnexttok(sepChars) == cToken) {
 			count++;
 
@@ -1524,35 +1518,52 @@ size_t TString::findtok(const TCHAR * cToken, const unsigned int N, const TCHAR 
 
 TString TString::sub( int N, int M ) const {
 
-	TString newTString;
+	//TString newTString;
+	//
+	//if (this->m_pString != NULL) {
+	//
+	//	const int size = (int)ts_strlen(this->m_pString);
+	//
+	//	if (N < 0) N += size;
+	//
+	//	if (N > size - 1 || N < 0)
+	//		return newTString;
+	//
+	//	if (N + M > size)
+	//		M = size - N;
+	//
+	//	delete[] newTString.m_pString; // change by Ook
+	//
+	//	newTString.m_pString = newTString.allocstr_cch(M + 1);
+	//	newTString.m_pString[0] = 0;
+	//
+	//	TCHAR * temp = this->m_pString;
+	//	temp += N;
+	//
+	//	if (ts_strcpyn(newTString.m_pString, temp, M + 1) == NULL)
+	//		throw std::logic_error("strcpyn() failed!");
+	//
+	//	newTString.m_pString[M] = 0;
+	//}
+	//return newTString;
 
-	if (this->m_pString) {
 
-		const int size = (int)ts_strlen(this->m_pString);
+	if (this->m_pString == NULL)
+		return TEXT("");
 
-		if (N < 0) N += size;
+	const int size = (int)ts_strlen(this->m_pString);
 
-		if (N > size - 1 || N < 0)
-			return newTString;
+	if (N < 0) N += size;
 
-		if (N + M > size)
-			M = size - N;
+	if (N > size - 1 || N < 0)
+		return TEXT("");
 
-		delete[] newTString.m_pString; // change by Ook
+	if (N + M > size)
+		M = size - N;
 
-		newTString.m_pString = newTString.allocstr_cch(M + 1);
-		newTString.m_pString[0] = 0;
+	const TCHAR * temp = (this->m_pString + N);
 
-		TCHAR * temp = this->m_pString;
-		temp += N;
-
-		if (ts_strcpyn(newTString.m_pString, temp, M + 1) == NULL)
-		{
-			throw std::logic_error("strcpyn() failed!");
-		}
-		newTString.m_pString[M] = 0;
-	}
-	return newTString;
+	return TString(temp, (temp + M));
 }
 
 /*
@@ -1574,32 +1585,50 @@ int TString::i_remove(const TCHAR *subString)
 	// may change this.
 	if ((subl == 0) || (ol == 0))
 		return 0;
+
 	// allocate new string
-	const size_t l = TS_getmemsize(ol + 1);
-	PTCHAR tmp = new TCHAR[l];
+	//const size_t l = TS_getmemsize(ol + 1);
+	//PTCHAR tmp = new TCHAR[l];
+	//while ((sub = ts_strstr(p, subString)) != NULL) {
+	//	if (ts_strncat(tmp, p, (sub - p)) == NULL) // copy bit before substring. if any.
+	//	{
+	//		delete[] tmp;
+	//		throw std::logic_error("strcat() failed!");
+	//	}
+	//	cnt++;
+	//	p = sub + subl; // update pointer to skip substring.
+	//}
+	//
+	//if (cnt > 0) {
+	//	if (ts_strcat(tmp, p) == NULL) // append the end text, if any.
+	//	{
+	//		delete[] tmp;
+	//		throw std::logic_error("strcat() failed!");
+	//	}
+	//
+	//	this->deleteString(); // delete old string
+	//
+	//	this->m_pString = tmp; // save new one.
+	//	this->m_buffersize = l;
+	//}
+	//else delete[] tmp;
+
+	TString tmp((UINT)(ol + 1));
+
 	while ((sub = ts_strstr(p, subString)) != NULL) {
-		if (ts_strncat(tmp, p, (sub - p)) == NULL) // copy bit before substring. if any.
-		{
-			delete[] tmp;
+		if (ts_strncat(tmp.m_pString, p, (sub - p)) == NULL) // copy bit before substring. if any.
 			throw std::logic_error("strcat() failed!");
-		}
+
 		cnt++;
 		p = sub + subl; // update pointer to skip substring.
 	}
 
 	if (cnt > 0) {
-		if (ts_strcat(tmp, p) == NULL) // append the end text, if any.
-		{
-			delete[] tmp;
+		if (ts_strcat(tmp.m_pString, p) == NULL) // append the end text, if any.
 			throw std::logic_error("strcat() failed!");
-		}
 
-		this->deleteString(); // delete old string
-
-		this->m_pString = tmp; // save new one.
-		this->m_buffersize = l;
+		this->swap(tmp);
 	}
-	else delete[] tmp;
 
 	return cnt;
 }
@@ -1627,28 +1656,43 @@ int TString::i_replace(const TCHAR *subString, const TCHAR *rString)
 	// make final string if we have any matches.
 	if (cnt > 0) {
 		p = this->m_pString;
-		TCHAR *out = allocstr_cch((cnt * repl) + (ol - (cnt * subl)) + 1); // allocate new string.
-		out[0] = 0;
+		//TCHAR *out = allocstr_cch((cnt * repl) + (ol - (cnt * subl)) + 1); // allocate new string.
+		//out[0] = 0;
+		//while ((sub = ts_strstr(p, subString)) != NULL) {
+		//	if (ts_strncat(out, p, (sub - p)) == NULL) // copy bit before substring. if any.
+		//	{
+		//		delete[] out;
+		//		throw std::logic_error("strncat() failed!");
+		//	}
+		//	if (ts_strcat(out, rString) == NULL) // append new replacement string.
+		//	{
+		//		delete[] out;
+		//		throw std::logic_error("strcat() failed!");
+		//	}
+		//	p = sub + subl; // update pointer to skip substring.
+		//}
+		//if (ts_strcat(out, p) == NULL) // append the end text, if any.
+		//{
+		//	delete[] out;
+		//	throw std::logic_error("strcat() failed!");
+		//}
+		//this->deleteString(true); // delete old string
+		//this->m_pString = out; // save new one.
+
+		TString tmp((UINT)((cnt * repl) + (ol - (cnt * subl)) + 1)); // allocate new string.
+
 		while ((sub = ts_strstr(p, subString)) != NULL) {
-			if (ts_strncat(out, p, (sub - p)) == NULL) // copy bit before substring. if any.
-			{
-				delete[] out;
+			if (ts_strncat(tmp.m_pString, p, (sub - p)) == NULL) // copy bit before substring. if any.
 				throw std::logic_error("strncat() failed!");
-			}
-			if (ts_strcat(out, rString) == NULL) // append new replacement string.
-			{
-				delete[] out;
+			if (ts_strcat(tmp.m_pString, rString) == NULL) // append new replacement string.
 				throw std::logic_error("strcat() failed!");
-			}
+
 			p = sub + subl; // update pointer to skip substring.
 		}
-		if (ts_strcat(out, p) == NULL) // append the end text, if any.
-		{
-			delete[] out;
+		if (ts_strcat(tmp.m_pString, p) == NULL) // append the end text, if any.
 			throw std::logic_error("strcat() failed!");
-		}
-		this->deleteString(true); // delete old string
-		this->m_pString = out; // save new one.
+
+		this->swap(tmp);
 	}
 	return cnt;
 }
@@ -1711,6 +1755,11 @@ int TString::replace( const TCHAR chr, const TCHAR rchr ) {
 	return cnt;
 }
 
+/****************************/
+/*! \fn int TString::mreplace( const TCHAR chr, const TCHAR *fmt )
+\brief replace every character in string that matches a character in `fmt` with `chr`
+*/
+/****************************/
 int TString::mreplace(const TCHAR chr, const TCHAR *fmt)
 {
 	int cnt = 0;
@@ -1743,17 +1792,52 @@ TString TString::gettok( int N, const TCHAR * sepChars ) const {
 
 	const int nToks = this->numtok(sepChars);
 
-	TString token;
-
 	if (N > nToks)
-		return token;
+		return TEXT("");
 
 	if (N < 0) {
 
 		N += (nToks + 1);
 		if (N < 1)
-			return token;
+			return TEXT("");
 	}
+
+	//TString token;
+	//
+	//TCHAR * p_cStart = this->m_pString, *p_cEnd = this->m_pString;
+	//long iCount = 0;
+	//const size_t sepl = ts_strlen(sepChars); // Ook
+	//
+	//while ((p_cEnd = ts_strstr(p_cStart, sepChars)) != NULL) {
+	//	iCount++;
+	//
+	//	if (iCount == N) {
+	//
+	//		const size_t len = p_cEnd - p_cStart; // gives cch diff
+	//		token.deleteString();
+	//		token.m_pString = token.allocstr_cch(len + 1);
+	//
+	//		if (ts_strcpyn(token.m_pString, p_cStart, len + 1) == NULL)
+	//			throw std::logic_error("strcpyn() failed!");
+	//
+	//		break;
+	//	}
+	//	p_cStart = p_cEnd + sepl; // Ook
+	//}
+	//
+	//if (iCount == N - 1) {
+	//
+	//	p_cEnd = this->m_pString + ts_strlen(this->m_pString);
+	//	const size_t len = p_cEnd - p_cStart;
+	//
+	//	token.deleteString();
+	//	token.m_pString = token.allocstr_cch(len + 1);
+	//
+	//	if (ts_strcpyn(token.m_pString, p_cStart, len + 1) == NULL)
+	//		throw std::logic_error("strcpyn() failed!");
+	//}
+	//
+	//return token;
 
 	TCHAR * p_cStart = this->m_pString, *p_cEnd = this->m_pString;
 	long iCount = 0;
@@ -1762,35 +1846,16 @@ TString TString::gettok( int N, const TCHAR * sepChars ) const {
 	while ((p_cEnd = ts_strstr(p_cStart, sepChars)) != NULL) {
 		iCount++;
 
-		if (iCount == N) {
+		if (iCount == N)
+			return TString(p_cStart, p_cEnd);
 
-			const size_t len = p_cEnd - p_cStart; // gives cch diff
-			token.deleteString();
-			token.m_pString = token.allocstr_cch(len + 1);
-			if (ts_strcpyn(token.m_pString, p_cStart, len + 1) == NULL)
-			{
-				throw std::logic_error("strcpyn() failed!");
-			}
-
-			break;
-		}
 		p_cStart = p_cEnd + sepl; // Ook
 	}
 
-	if (iCount == N - 1) {
+	if (iCount == N - 1)
+		return p_cStart;
 
-		p_cEnd = this->m_pString + ts_strlen(this->m_pString);
-		const size_t len = p_cEnd - p_cStart;
-
-		token.deleteString();
-		token.m_pString = token.allocstr_cch(len + 1);
-		if (ts_strcpyn(token.m_pString, p_cStart, len + 1) == NULL)
-		{
-			throw std::logic_error("strcpyn() failed!");
-		}
-	}
-
-	return token;
+	return TEXT("");
 }
 
 /*!
@@ -1866,38 +1931,72 @@ TString TString::gettok( int N, int M, const TCHAR * sepChars ) const {
 
 TString TString::getfirsttok( const unsigned int N, const TCHAR * sepChars ) const {
 
-	if ( sepChars == NULL || this->m_pString == NULL )
+	if (sepChars == NULL || this->m_pString == NULL)
 		return *this;
 
-	this->m_savedtotaltoks = this->numtok( sepChars );
+	this->m_savedtotaltoks = this->numtok(sepChars);
 	this->m_savedpos = this->m_pString;
 	this->m_savedcurrenttok = N;
 	// N == 0 is used top pre load the vars for a loop of next toks where we need to start at 1
 
-	if ( (N > this->m_savedtotaltoks) || (N == 0))
+	if ((N > this->m_savedtotaltoks) || (N == 0))
 		return TEXT("");
 
-	TString token; // no need to set token to contents of this here?
+	//TString token; // no need to set token to contents of this here?
+	//
+	//TCHAR * p_cStart = this->m_pString, * p_cEnd = this->m_pString, * p_fEnd = (this->m_pString + ts_strlen(this->m_pString));
+	//unsigned int iCount = 0;
+	//const int sepl = ts_strlen( sepChars ); // Ook
+	//
+	//while ( ( p_cEnd = ts_strstr( p_cStart, sepChars ) ) != NULL ) {
+	//	iCount++;
+	//
+	//	if ( iCount == N ) {
+	//
+	//		const int len = (p_cEnd - p_cStart) + 1; // gives cch diff
+	//		delete [] token.m_pString; // change by Ook
+	//		token.m_pString = token.allocstr_cch(len);
+	//
+	//		if (ts_strcpyn(token.m_pString, p_cStart, len) == NULL)
+	//			throw std::logic_error("strcpyn() failed!");
+	//
+	//		this->m_savedpos = p_cEnd + sepl;
+	//
+	//		break;
+	//	}
+	//	p_cStart = p_cEnd + sepl; // Ook
+	//	if (p_cStart >= p_fEnd) {
+	//		this->m_savedpos = NULL;
+	//		break;
+	//	}
+	//}
+	//
+	//if ( iCount == N - 1 ) {
+	//
+	//	p_cEnd = p_fEnd;
+	//	const size_t len = (p_cEnd - p_cStart) + 1;
+	//	
+	//	delete [] token.m_pString; // change by Ook
+	//	token.m_pString = token.allocstr_cch(len);
+	//	
+	//	if (ts_strcpyn(token.m_pString, p_cStart, len) == NULL)
+	//		throw std::logic_error("strcpyn() failed!");
+	//	
+	//	this->m_savedpos = NULL;
+	//}
+	//
+	//return token;
 
-	TCHAR * p_cStart = this->m_pString, * p_cEnd = this->m_pString, * p_fEnd = (this->m_pString + ts_strlen(this->m_pString));
+	TCHAR * p_cStart = this->m_pString, *p_cEnd = this->m_pString, *p_fEnd = (this->m_pString + ts_strlen(this->m_pString));
 	unsigned int iCount = 0;
-	const int sepl = ts_strlen( sepChars ); // Ook
+	const int sepl = ts_strlen(sepChars); // Ook
 
-	while ( ( p_cEnd = ts_strstr( p_cStart, sepChars ) ) != NULL ) {
+	while ((p_cEnd = ts_strstr(p_cStart, sepChars)) != NULL) {
 		iCount++;
 
-		if ( iCount == N ) {
-
-			const int len = (p_cEnd - p_cStart) + 1; // gives cch diff
-			delete [] token.m_pString; // change by Ook
-			token.m_pString = token.allocstr_cch(len);
-			if (ts_strcpyn(token.m_pString, p_cStart, len) == NULL)
-			{
-				throw std::logic_error("strcpyn() failed!");
-			}
+		if (iCount == N) {
 			this->m_savedpos = p_cEnd + sepl;
-
-			break;
+			return TString(p_cStart, p_cEnd);
 		}
 		p_cStart = p_cEnd + sepl; // Ook
 		if (p_cStart >= p_fEnd) {
@@ -1906,65 +2005,65 @@ TString TString::getfirsttok( const unsigned int N, const TCHAR * sepChars ) con
 		}
 	}
 
-	if ( iCount == N - 1 ) {
-
-		p_cEnd = p_fEnd;
-		const size_t len = (p_cEnd - p_cStart) + 1;
-
-		delete [] token.m_pString; // change by Ook
-		token.m_pString = token.allocstr_cch(len);
-		if (ts_strcpyn(token.m_pString, p_cStart, len) == NULL)
-		{
-			throw std::logic_error("strcpyn() failed!");
-		}
-
+	if (iCount == N - 1) {
 		this->m_savedpos = NULL;
+		return TString(p_cStart, p_fEnd);
 	}
 
-	return token;
+	return TEXT("");
 }
 
 TString TString::getnexttok( const TCHAR * sepChars ) const {
 
-	if ( sepChars == NULL || this->m_pString == NULL )
+	if (sepChars == NULL || this->m_pString == NULL)
 		return *this;
 
 	this->m_savedcurrenttok++;
-	TString token;
-	TCHAR * p_cStart = this->m_savedpos, * p_cEnd = this->m_savedpos;
-	const int sepl = ts_strlen( sepChars ); // Ook
+	TCHAR * p_cStart = this->m_savedpos, *p_cEnd = this->m_savedpos;
 
-	if ( (this->m_savedcurrenttok > this->m_savedtotaltoks ) || (p_cStart == NULL) )
-		return token;
+	if ((this->m_savedcurrenttok > this->m_savedtotaltoks) || (p_cStart == NULL))
+		return TEXT("");
 
-	if ( this->m_savedcurrenttok == this->m_savedtotaltoks ) {
-		p_cEnd = (this->m_pString + ts_strlen(this->m_pString));
-		const int len = (p_cEnd - p_cStart) + 1;
+	//TString token;
+	//
+	//if ( this->m_savedcurrenttok == this->m_savedtotaltoks ) {
+	//	p_cEnd = (this->m_pString + ts_strlen(this->m_pString));
+	//	const int len = (p_cEnd - p_cStart) + 1;
+	//	
+	//	delete [] token.m_pString; // change by Ook
+	//	token.m_pString = token.allocstr_cch(len);
+	//	
+	//	if (ts_strcpyn(token.m_pString, p_cStart, len) == NULL)
+	//		throw std::logic_error("strcpyn() failed!");
+	//	
+	//	p_cStart = NULL;
+	//}
+	//else if ( ( p_cEnd = ts_strstr( p_cStart, sepChars ) ) != NULL ) {
+	//	const int sepl = ts_strlen(sepChars); // Ook
+	//	const unsigned int len = (p_cEnd - p_cStart) + 1; // gives cch diff
+	//	
+	//	delete [] token.m_pString; // change by Ook
+	//	token.m_pString = token.allocstr_cch(len);
+	//	
+	//	if (ts_strcpyn(token.m_pString, p_cStart, len) == NULL)
+	//		throw std::logic_error("strcpyn() failed!");
+	//	
+	//	p_cStart = p_cEnd + sepl; // Ook
+	//}
+	//
+	//this->m_savedpos = p_cStart;
+	//
+	//return token;
 
-		delete [] token.m_pString; // change by Ook
-		token.m_pString = token.allocstr_cch(len);
-		if (ts_strcpyn(token.m_pString, p_cStart, len) == NULL)
-		{
-			throw std::logic_error("strcpyn() failed!");
-		}
-
-		p_cStart = NULL;
+	if (this->m_savedcurrenttok == this->m_savedtotaltoks) {
+		this->m_savedpos = NULL;
+		return p_cStart;
 	}
-	else if ( ( p_cEnd = ts_strstr( p_cStart, sepChars ) ) != NULL ) {
-		const unsigned int len = (p_cEnd - p_cStart) + 1; // gives cch diff
-		delete [] token.m_pString; // change by Ook
-		token.m_pString = token.allocstr_cch(len);
-		if (ts_strcpyn(token.m_pString, p_cStart, len) == NULL)
-		{
-			throw std::logic_error("strcpyn() failed!");
-		}
-
-		p_cStart = p_cEnd + sepl; // Ook
+	else if ((p_cEnd = ts_strstr(p_cStart, sepChars)) != NULL) {
+		this->m_savedpos = p_cEnd + ts_strlen(sepChars);
+		return TString(p_cStart, p_cEnd);
 	}
-
-	this->m_savedpos = p_cStart;
-
-	return token;
+	return TEXT("");
 }
 
 /*!
@@ -1981,7 +2080,7 @@ unsigned int TString::numtok( const TCHAR * sepChars ) const {
 	//if (this->m_savedtotaltoks > 0)
 	//	return this->m_savedtotaltoks;
 
-	if (lstrlen(this->m_pString) == 0)
+	if (ts_strlen(this->m_pString) == 0)
 		return 0;
 
 	TCHAR * p_cStart = this->m_pString, * p_cEnd = NULL;
@@ -2014,7 +2113,8 @@ void TString::deltok( const unsigned int N, const TCHAR * sepChars ) {
 		return;
 
 	if ( N == 1 && nToks == 1 ) {
-		this->deleteString();
+		this->clear();
+		//this->deleteString();
 		return;
 	}
 
@@ -2031,59 +2131,85 @@ void TString::deltok( const unsigned int N, const TCHAR * sepChars ) {
 		p_cStart = p_cEnd + sepl; // Ook
 	}
 
+	//// last token
+	//if ( p_cEnd == NULL ) {
+	//
+	//	p_cStart--;
+	//	*p_cStart = 0;
+	//
+	//	const int l = ts_strlen( this->m_pString ) + 1;
+	//	TCHAR * pNew = allocstr_cch(l);
+	//	if (ts_strcpyn(pNew, this->m_pString, l) == NULL)
+	//	{
+	//		delete[] pNew;
+	//		throw std::logic_error("strcpyn() failed!");
+	//	}
+	//	this->deleteString(true);
+	//	this->m_pString = pNew;
+	//}
+	//// delete the first token
+	//else if ( p_cStart == this->m_pString ) {
+	//
+	//	p_cEnd++;
+	//
+	//	const int l = ts_strlen( p_cEnd ) + 1;
+	//	TCHAR * pNew = allocstr_cch(l);
+	//	if (ts_strcpyn(pNew, p_cEnd, l) == NULL)
+	//	{
+	//		delete[] pNew;
+	//		throw std::logic_error("strcpyn() failed!");
+	//	}
+	//	this->deleteString(true);
+	//	this->m_pString = pNew;
+	//}
+	//// inbound token
+	//else {
+	//
+	//	*p_cStart = 0;
+	//	p_cEnd++;
+	//
+	//	const size_t l = (ts_strlen( this->m_pString ) + ts_strlen( p_cEnd ) + 1);
+	//	TCHAR * pNew = allocstr_cch(l);
+	//	if (ts_strcpyn(pNew, this->m_pString, l) == NULL)
+	//	{
+	//		delete[] pNew;
+	//		throw std::logic_error("strcpyn() failed!");
+	//	}
+	//	if (ts_strcat(pNew, p_cEnd) == NULL)
+	//	{
+	//		delete[] pNew;
+	//		throw std::logic_error("strcpyn() failed!");
+	//	}
+	//
+	//	this->deleteString(true);
+	//	this->m_pString = pNew;
+	//}
+
+	const size_t l = this->len();
+
+	TString tmp((UINT)l);
+
 	// last token
 	if ( p_cEnd == NULL ) {
-
 		p_cStart--;
 		*p_cStart = 0;
-
-		const int l = lstrlen( this->m_pString ) + 1;
-		TCHAR * pNew = allocstr_cch(l);
-		if (ts_strcpyn(pNew, this->m_pString, l) == NULL)
-		{
-			delete[] pNew;
-			throw std::logic_error("strcpyn() failed!");
-		}
-		this->deleteString(true);
-		this->m_pString = pNew;
+		p_cEnd = this->m_pString;
 	}
 	// delete the first token
-	else if ( p_cStart == this->m_pString ) {
-
-		p_cEnd++;
-
-		const int l = lstrlen( p_cEnd ) + 1;
-		TCHAR * pNew = allocstr_cch(l);
-		if (ts_strcpyn(pNew, p_cEnd, l) == NULL)
-		{
-			delete[] pNew;
-			throw std::logic_error("strcpyn() failed!");
-		}
-		this->deleteString(true);
-		this->m_pString = pNew;
-	}
+	else if ( p_cStart == this->m_pString )
+		p_cEnd++;	
 	// inbound token
 	else {
-
 		*p_cStart = 0;
 		p_cEnd++;
-
-		const size_t l = (ts_strlen( this->m_pString ) + ts_strlen( p_cEnd ) + 1);
-		TCHAR * pNew = allocstr_cch(l);
-		if (ts_strcpyn(pNew, this->m_pString, l) == NULL)
-		{
-			delete[] pNew;
+	
+		if (ts_strncat(tmp.m_pString, this->m_pString, l) == NULL)
 			throw std::logic_error("strcpyn() failed!");
-		}
-		if (ts_strcat(pNew, p_cEnd) == NULL)
-		{
-			delete[] pNew;
-			throw std::logic_error("strcpyn() failed!");
-		}
-
-		this->deleteString(true);
-		this->m_pString = pNew;
 	}
+	if (ts_strncat(tmp.m_pString, p_cEnd, l) == NULL)
+		throw std::logic_error("strcpyn() failed!");
+
+	this->swap(tmp);
 }
 /*!
  * \brief blah
@@ -2112,112 +2238,174 @@ void TString::instok( const TCHAR * cToken, const unsigned int N, const TCHAR * 
 		p_cStart = p_cEnd + sepl; // Ook
 	}
 
-	TCHAR * pNew = allocstr_cch(ts_strlen(cToken) + ts_strlen(this->m_pString) + (ts_strlen(sepChars) *2) + 1);
+	//TCHAR * pNew = allocstr_cch(ts_strlen(cToken) + ts_strlen(this->m_pString) + (sepl *2) + 1);
+	//
+	//// delete the first token
+	//if (p_cStart == this->m_pString) {
+	//
+	//	if (ts_strcpy(pNew, cToken) == NULL)
+	//	{
+	//		delete[] pNew;
+	//		throw std::logic_error("strcpyn() failed!");
+	//	}
+	//	if (ts_strcat(pNew, sepChars) == NULL)
+	//	{
+	//		delete[] pNew;
+	//		throw std::logic_error("strcat() failed!");
+	//	}
+	//	if (ts_strcat(pNew, this->m_pString) == NULL)
+	//	{
+	//		delete[] pNew;
+	//		throw std::logic_error("strcat() failed!");
+	//	}
+	//}
+	//else if ( p_cEnd == NULL ) {
+	//
+	//	if ( i == N ) {
+	//
+	//		p_cStart -= sepl; // Ook
+	//		*p_cStart = 0;
+	//		p_cStart += sepl; // Ook
+	//
+	//		if (ts_strcpy(pNew, this->m_pString) == NULL)
+	//		{
+	//			delete[] pNew;
+	//			throw std::logic_error("strcpy() failed!");
+	//		}
+	//		if (ts_strcat(pNew, sepChars) == NULL)
+	//		{
+	//			delete[] pNew;
+	//			throw std::logic_error("strcat() failed!");
+	//		}
+	//		if (ts_strcat(pNew, cToken) == NULL)
+	//		{
+	//			delete[] pNew;
+	//			throw std::logic_error("strcat() failed!");
+	//		}
+	//		if (ts_strcat(pNew, sepChars) == NULL)
+	//		{
+	//			delete[] pNew;
+	//			throw std::logic_error("strcat() failed!");
+	//		}
+	//		if (ts_strcat(pNew, p_cStart) == NULL)
+	//		{
+	//			delete[] pNew;
+	//			throw std::logic_error("strcat() failed!");
+	//		}
+	//	}
+	//	else {
+	//		if (ts_strcpy(pNew, this->m_pString) == NULL)
+	//		{
+	//			delete[] pNew;
+	//			throw std::logic_error("strcpy() failed!");
+	//		}
+	//		if (ts_strcat(pNew, sepChars) == NULL)
+	//		{
+	//			delete[] pNew;
+	//			throw std::logic_error("strcat() failed!");
+	//		}
+	//		if (ts_strcat(pNew, cToken) == NULL)
+	//		{
+	//			delete[] pNew;
+	//			throw std::logic_error("strcat() failed!");
+	//		}
+	//	}
+	//}
+	//else {
+	//	p_cStart -= sepl; // Ook
+	//	*p_cStart = 0;
+	//	p_cStart += sepl; // Ook
+	//
+	//	if (ts_strcpy(pNew, this->m_pString) == NULL)
+	//	{
+	//		delete[] pNew;
+	//		throw std::logic_error("strcpy() failed!");
+	//	}
+	//	if (ts_strcat(pNew, sepChars) == NULL)
+	//	{
+	//		delete[] pNew;
+	//		throw std::logic_error("strcat() failed!");
+	//	}
+	//	if (ts_strcat(pNew, cToken) == NULL)
+	//	{
+	//		delete[] pNew;
+	//		throw std::logic_error("strcat() failed!");
+	//	}
+	//	if (ts_strcat(pNew, sepChars) == NULL)
+	//	{
+	//		delete[] pNew;
+	//		throw std::logic_error("strcat() failed!");
+	//	}
+	//	if (ts_strcat(pNew, p_cStart) == NULL)
+	//	{
+	//		delete[] pNew;
+	//		throw std::logic_error("strcat() failed!");
+	//	}
+	//}
+	//this->deleteString(true);
+	//this->m_pString = pNew;
 
-	// delete the first token
+	const size_t l = (ts_strlen(cToken) + ts_strlen(this->m_pString) + (sepl * 2) + 1);
+
+	TString tmp((UINT)l);
+
+	// insert at start
 	if (p_cStart == this->m_pString) {
 
-		if (ts_strcpy(pNew, cToken) == NULL)
-		{
-			delete[] pNew;
+		if (ts_strcpyn(tmp.m_pString, cToken, l) == NULL)
 			throw std::logic_error("strcpyn() failed!");
-		}
-		if (ts_strcat(pNew, sepChars) == NULL)
-		{
-			delete[] pNew;
+		if (ts_strcat(tmp.m_pString, sepChars) == NULL)
 			throw std::logic_error("strcat() failed!");
-		}
-		if (ts_strcat(pNew, this->m_pString) == NULL)
-		{
-			delete[] pNew;
+		if (ts_strcat(tmp.m_pString, this->m_pString) == NULL)
 			throw std::logic_error("strcat() failed!");
-		}
 	}
-	else if ( p_cEnd == NULL ) {
-
-		if ( i == N ) {
-
+	else if (p_cEnd == NULL) {
+		if (i == N) {
+			// insert at pos
 			p_cStart -= sepl; // Ook
 			*p_cStart = 0;
 			p_cStart += sepl; // Ook
 
-			if (ts_strcpy(pNew, this->m_pString) == NULL)
-			{
-				delete[] pNew;
-				throw std::logic_error("strcpy() failed!");
-			}
-			if (ts_strcat(pNew, sepChars) == NULL)
-			{
-				delete[] pNew;
+			if (ts_strcpyn(tmp.m_pString, this->m_pString, l) == NULL)
+				throw std::logic_error("strcpyn() failed!");
+			if (ts_strcat(tmp.m_pString, sepChars) == NULL)
 				throw std::logic_error("strcat() failed!");
-			}
-			if (ts_strcat(pNew, cToken) == NULL)
-			{
-				delete[] pNew;
+			if (ts_strcat(tmp.m_pString, cToken) == NULL)
 				throw std::logic_error("strcat() failed!");
-			}
-			if (ts_strcat(pNew, sepChars) == NULL)
-			{
-				delete[] pNew;
+			if (ts_strcat(tmp.m_pString, sepChars) == NULL)
 				throw std::logic_error("strcat() failed!");
-			}
-			if (ts_strcat(pNew, p_cStart) == NULL)
-			{
-				delete[] pNew;
+			if (ts_strcat(tmp.m_pString, p_cStart) == NULL)
 				throw std::logic_error("strcat() failed!");
-			}
 		}
 		else {
-			if (ts_strcpy(pNew, this->m_pString) == NULL)
-			{
-				delete[] pNew;
-				throw std::logic_error("strcpy() failed!");
-			}
-			if (ts_strcat(pNew, sepChars) == NULL)
-			{
-				delete[] pNew;
+			// insert at end
+			if (ts_strcpyn(tmp.m_pString, this->m_pString, l) == NULL)
+				throw std::logic_error("strcpyn() failed!");
+			if (ts_strcat(tmp.m_pString, sepChars) == NULL)
 				throw std::logic_error("strcat() failed!");
-			}
-			if (ts_strcat(pNew, cToken) == NULL)
-			{
-				delete[] pNew;
+			if (ts_strcat(tmp.m_pString, cToken) == NULL)
 				throw std::logic_error("strcat() failed!");
-			}
 		}
 	}
 	else {
+		// insert at pos
 		p_cStart -= sepl; // Ook
 		*p_cStart = 0;
 		p_cStart += sepl; // Ook
 
-		if (ts_strcpy(pNew, this->m_pString) == NULL)
-		{
-			delete[] pNew;
-			throw std::logic_error("strcpy() failed!");
-		}
-		if (ts_strcat(pNew, sepChars) == NULL)
-		{
-			delete[] pNew;
+		if (ts_strcpyn(tmp.m_pString, this->m_pString, l) == NULL)
+			throw std::logic_error("strcpyn() failed!");
+		if (ts_strcat(tmp.m_pString, sepChars) == NULL)
 			throw std::logic_error("strcat() failed!");
-		}
-		if (ts_strcat(pNew, cToken) == NULL)
-		{
-			delete[] pNew;
+		if (ts_strcat(tmp.m_pString, cToken) == NULL)
 			throw std::logic_error("strcat() failed!");
-		}
-		if (ts_strcat(pNew, sepChars) == NULL)
-		{
-			delete[] pNew;
+		if (ts_strcat(tmp.m_pString, sepChars) == NULL)
 			throw std::logic_error("strcat() failed!");
-		}
-		if (ts_strcat(pNew, p_cStart) == NULL)
-		{
-			delete[] pNew;
+		if (ts_strcat(tmp.m_pString, p_cStart) == NULL)
 			throw std::logic_error("strcat() failed!");
-		}
 	}
-	this->deleteString(true);
-	this->m_pString = pNew;
+
+	this->swap(tmp);
 }
 
 /*!
@@ -2237,70 +2425,85 @@ void TString::addtok( const TCHAR * cToken, const TCHAR * sepChars ) {
 	{
 		if (mp_len) {
 			if (ts_strcat(this->m_pString, sepChars) == NULL)
-			{
 				throw std::logic_error("strcat() failed!");
-			}
 			if (ts_strcat(this->m_pString, cToken) == NULL)
-			{
 				throw std::logic_error("strcat() failed!");
-			}
 		}
 		else
 		{
 			if (ts_strcpyn(this->m_pString, cToken, l) == NULL)
-			{
 				throw std::logic_error("strcpyn() failed!");
-			}
 		}
 	}
 	else {
-		TCHAR *pNew = allocstr_cch(l);
+		//TCHAR *pNew = allocstr_cch(l);
+		//
+		//if (mp_len) {
+		//	if (ts_strcpy(pNew, this->m_pString) == NULL)
+		//	{
+		//		delete[] pNew;
+		//		throw std::logic_error("strcpyn() failed!");
+		//	}
+		//	if (ts_strcat(pNew, sepChars) == NULL)
+		//	{
+		//		delete[] pNew;
+		//		throw std::logic_error("strcat() failed!");
+		//	}
+		//	if (ts_strcat(pNew, cToken) == NULL)
+		//	{
+		//		delete[] pNew;
+		//		throw std::logic_error("strcat() failed!");
+		//	}
+		//}
+		//else
+		//{
+		//	if (ts_strcpyn(pNew, cToken, l) == NULL)
+		//	{
+		//		delete[] pNew;
+		//		throw std::logic_error("strcat() failed!");
+		//	}
+		//}
+		//
+		//this->deleteString(true);
+		//this->m_pString = pNew;
 
-		if (mp_len) {
-			if (ts_strcpy(pNew, this->m_pString) == NULL)
-			{
-				delete[] pNew;
-				throw std::logic_error("strcpyn() failed!");
-			}
-			if (ts_strcat(pNew, sepChars) == NULL)
-			{
-				delete[] pNew;
-				throw std::logic_error("strcat() failed!");
-			}
-			if (ts_strcat(pNew, cToken) == NULL)
-			{
-				delete[] pNew;
-				throw std::logic_error("strcat() failed!");
-			}
-		}
-		else
-		{
-			if (ts_strcpyn(pNew, cToken, l) == NULL)
-			{
-				delete[] pNew;
-				throw std::logic_error("strcat() failed!");
-			}
-		}
+		TString tmp((UINT)l);
 
-		this->deleteString(true);
-		this->m_pString = pNew;
+		if (mp_len > 0) {
+			if (ts_strcpy(tmp.m_pString, this->m_pString) == NULL)
+				throw std::logic_error("strcpy() failed!");
+			if (ts_strcat(tmp.m_pString, sepChars) == NULL)
+				throw std::logic_error("strcat() failed!");
+		}
+		if (ts_strcat(tmp.m_pString, cToken) == NULL)
+			throw std::logic_error("strcat() failed!");
+
+		this->swap(tmp);
 	}
 }
-//void TString::addtok( const TString &cToken, const TCHAR * sepChars ) {
-//	this->addtok(cToken.to_chr(), sepChars);
-//}
+
 void TString::addtok( const __int64 nToken, const TCHAR * sepChars ) {
 
 	if ( sepChars == NULL || this->m_pString == NULL )
 		return;
 
+	//TString tmp;
+	//tmp.tsprintf(TEXT("%s%s%d"),this->m_pString, sepChars, nToken);
+	//this->deleteString();
+	//this->m_pString = tmp.m_pString;
+	//this->m_buffersize = tmp.m_buffersize;
+	//tmp.m_pString = NULL;
+	//this->m_savedtotaltoks = 0;
+
 	TString tmp;
-	tmp.tsprintf(TEXT("%s%s%d"),this->m_pString, sepChars, nToken);
-	this->deleteString();
-	this->m_pString = tmp.m_pString;
-	this->m_buffersize = tmp.m_buffersize;
-	tmp.m_pString = NULL;
-	this->m_savedtotaltoks = 0;
+	tmp.tsprintf(TEXT("%s%s%I64d"), this->m_pString, sepChars, nToken);
+
+	//TString tmp(*this);
+	//
+	//tmp += sepChars;
+	//tmp += (int)nToken;
+
+	this->swap(tmp);
 }
 
 bool TString::istok(const TCHAR * cToken, const TCHAR * sepChars ) const {
@@ -2314,11 +2517,13 @@ bool TString::istok(const TCHAR * cToken, const TCHAR * sepChars ) const {
 	while ( ( p_cEnd = ts_strstr( p_cStart, sepChars ) ) != NULL ) {
 		const size_t l = (p_cEnd - p_cStart);
 		if (l > 0) {
-			if (ts_strncmp(cToken,p_cStart,l) == 0) return true;
+			if (ts_strncmp(cToken,p_cStart,l) == 0)
+				return true;
 		}
 		p_cStart = p_cEnd + sepl;
 	}
-	if (ts_strcmp(cToken,p_cStart) == 0) return true;
+	if (ts_strcmp(cToken,p_cStart) == 0)
+		return true;
 
 	return false;
 }
@@ -2331,55 +2536,92 @@ bool TString::istok(const TCHAR * cToken, const TCHAR * sepChars ) const {
 
 void TString::puttok( const TCHAR * cToken, int N, const TCHAR * sepChars ) {
 
-	if ( cToken == NULL || sepChars == NULL || this->m_pString == NULL )
+	//if ( cToken == NULL || sepChars == NULL || this->m_pString == NULL )
+	//	return;
+	//
+	//TCHAR * p_cStart = this->m_pString, * p_cEnd = NULL;
+	//long int i = 0;
+	//const UINT sepl = ts_strlen( sepChars ); // Ook
+	//const size_t tok_len = ts_strlen(cToken);
+	//
+	//while ( ( p_cEnd = ts_strstr( p_cStart, sepChars ) ) != NULL ) {
+	//	i++;
+	//
+	//	if ( i == N )
+	//		break;
+	//
+	//	p_cStart = p_cEnd + sepl; // Ook
+	//}
+	//
+	//TCHAR *pNew = NULL;
+	//
+	//// last token
+	//if ( p_cEnd == NULL ) {
+	//
+	//	*p_cStart = 0;
+	//
+	//	pNew = allocstr_cch(tok_len + ts_strlen(this->m_pString) + 1);
+	//
+	//	ts_strcpy( pNew, this->m_pString );
+	//	ts_strcat( pNew, cToken );
+	//}
+	//// delete the first token
+	//else if ( p_cStart == this->m_pString ) {
+	//
+	//	pNew = allocstr_cch(tok_len + ts_strlen(p_cEnd) + 1);
+	//
+	//	ts_strcpy(pNew, cToken);
+	//	ts_strcat(pNew, p_cEnd);
+	//}
+	//// inbound token
+	//else {
+	//
+	//	*p_cStart = 0;
+	//
+	//	pNew = allocstr_cch(ts_strlen(this->m_pString) + tok_len + ts_strlen(p_cEnd) + 1);
+	//
+	//	ts_strcpy(pNew, this->m_pString);
+	//	ts_strcat(pNew, cToken);
+	//	ts_strcat(pNew, p_cEnd);
+	//}
+	//this->deleteString(true);
+	//this->m_pString = pNew;
+
+	if (cToken == NULL || sepChars == NULL || this->m_pString == NULL)
 		return;
 
-	TCHAR * p_cStart = this->m_pString, * p_cEnd = NULL;
+	TCHAR * p_cStart = this->m_pString, *p_cEnd = NULL;
 	long int i = 0;
-	const int sepl = ts_strlen( sepChars ); // Ook
+	const UINT sepl = ts_strlen(sepChars); // Ook
+	const size_t tok_len = ts_strlen(cToken);
 
-	while ( ( p_cEnd = ts_strstr( p_cStart, sepChars ) ) != NULL ) {
+	while ((p_cEnd = ts_strstr(p_cStart, sepChars)) != NULL) {
 		i++;
 
-		if ( i == N )
+		if (i == N)
 			break;
 
 		p_cStart = p_cEnd + sepl; // Ook
 	}
 
-	TCHAR *pNew = NULL;
+	TString tmp((UINT)(tok_len + this->len() + 1));	// max size that could be needed
 
-	// last token
-	if ( p_cEnd == NULL ) {
-
+	// replace the first token?
+	if (p_cStart != this->m_pString) {
 		*p_cStart = 0;
 
-		pNew = allocstr_cch(ts_strlen(cToken) + ts_strlen(this->m_pString) + 1);
-
-		ts_strcpy( pNew, this->m_pString );
-		ts_strcat( pNew, cToken );
+		if (ts_strcpy(tmp.m_pString, this->m_pString) == NULL)
+			throw std::logic_error("strcpy() failed!");
 	}
-	// delete the first token
-	else if ( p_cStart == this->m_pString ) {
-
-		pNew = allocstr_cch(ts_strlen(cToken) + ts_strlen(p_cEnd) + 1);
-
-		ts_strcpy(pNew, cToken);
-		ts_strcat(pNew, p_cEnd);
+	if (ts_strcat(tmp.m_pString, cToken) == NULL)
+		throw std::logic_error("strcat() failed!");
+	if (p_cEnd != NULL) {
+		if (ts_strcat(tmp.m_pString, p_cEnd) == NULL)
+			throw std::logic_error("strcat() failed!");
 	}
-	// inbound token
-	else {
 
-		*p_cStart = 0;
-
-		pNew = allocstr_cch(ts_strlen(this->m_pString) + ts_strlen(cToken) + ts_strlen(p_cEnd) + 1);
-
-		ts_strcpy(pNew, this->m_pString);
-		ts_strcat(pNew, cToken);
-		ts_strcat(pNew, p_cEnd);
-	}
-	this->deleteString(true);
-	this->m_pString = pNew;
+	// do shrink_to_fit() here?
+	this->swap(tmp);
 }
 
 void TString::remtok(const TCHAR * cToken, int N, const TCHAR * sepChars) {
@@ -2394,10 +2636,10 @@ void TString::remtok(const TCHAR * cToken, int N, const TCHAR * sepChars) {
  */
 TString &TString::trim() {
 	TCHAR *start = this->m_pString;
-	TCHAR *end = this->m_pString + ts_strlen(this->m_pString);
+	TCHAR *end = this->m_pString + this->len();
 	const TCHAR *oldEnd = end;
 
-	if ((start == NULL) || (end == NULL))
+	if ((start == NULL) || (end == NULL) || (start == end))
 		return *this;
 
 	// Trim from start
@@ -2412,17 +2654,24 @@ TString &TString::trim() {
 	{
 		const size_t new_len = (end - start) + 2;
 
-		TCHAR *temp = allocstr_cch(new_len);
+		//TCHAR *temp = allocstr_cch(new_len);
+		//
+		//if (ts_strcpyn(temp, start, new_len) == NULL)
+		//{
+		//	delete[] temp;
+		//	throw std::logic_error("strcpyn() failed!");
+		//}
+		//
+		//this->deleteString(true);
+		//
+		//this->m_pString = temp;
 
-		if (ts_strcpyn(temp, start, new_len) == NULL)
-		{
-			delete[] temp;
+		TString tmp((UINT)new_len);
+
+		if (ts_strcpyn(tmp.m_pString, start, new_len) == NULL)
 			throw std::logic_error("strcpyn() failed!");
-		}
 
-		this->deleteString(true);
-
-		this->m_pString = temp;
+		this->swap(tmp);
 	}
 	return *this;
 }
@@ -2488,7 +2737,7 @@ unsigned int TString::countchar(const TCHAR chr) const
 */
 bool TString::ishostmask(void) const
 {
-	register bool nick = false, s1 = false, ident = false, s2 = false, host = false;
+	register bool /*nick = false,*/ s1 = false, /*ident = false,*/ s2 = false, host = false;
 	register TCHAR *c = this->m_pString;
 	while (*c) {
 		if (*c == ' ')
@@ -2508,10 +2757,10 @@ bool TString::ishostmask(void) const
 				return false;
 			host = true;
 		}
-		else if (s1)
-			ident = true;
-		else
-			nick = true;
+		//else if (s1)
+		//	ident = true;
+		//else
+		//	nick = true;
 		++c;
 	}
 	if (host) {
@@ -2565,22 +2814,23 @@ TString TString::tolower(void) const
 // pos must be within length of string, n can be < 0
 TString TString::mid(const int pos, int n) const
 {
-	TString tmp;
-	const int l = ts_strlen(this->m_pString);
+	const int l = this->len();
 	if ((n == 0) || (l == 0) || (pos > l) || (pos < 0))
-		return tmp;
+		return TEXT("");
 	if (n < 0)
 		n = l - pos + n;
 	else if ((pos + n) > l)
 		n = l - pos;
 	if (n < 1)
-		return tmp;
+		return TEXT("");
 	n++;
-	tmp.deleteString();
-	TCHAR *p = tmp.allocstr_cch(n);
-	ts_strcpyn(p, &this->m_pString[pos], n);
-	tmp.m_pString = p;
-	return tmp;
+
+	//TString tmp((UINT)n);
+
+	//ts_strcpyn(tmp.m_pString, &this->m_pString[pos], n);
+
+	//return tmp;
+	return TString(&this->m_pString[pos], &this->m_pString[pos + n]);
 }
 // if n > string length its truncated, n can be < 0
 TString TString::left(int n) const
@@ -2604,24 +2854,26 @@ TString TString::left(int n) const
 // if n > string length its truncated, n can be < 0
 TString TString::right(int n) const
 {
-	TString tmp;
-	const int l = ts_strlen(this->m_pString);
+	const int l = this->len();
 	if ((n == 0) || (l == 0))
-		return tmp;
+		return TEXT("");
 	if (n > l)
 		n = l;
 	int start = l - n, len = n + 1;
 	if (n < 0) {
 		start = abs(n);
-		if (start > l) return tmp;
+		if (start > l)
+			return TEXT("");
 		len = (l - start) + 1;
 	}
-	tmp.deleteString();
 
-	TCHAR *p = tmp.allocstr_cch(len);
-	ts_strcpyn(p, &this->m_pString[start], len);
-	tmp.m_pString = p;
-	return tmp;
+	//TString tmp((UINT)len);
+
+	//ts_strcpyn(tmp.m_pString, &this->m_pString[start], len);
+
+	//return tmp;
+	return TString(&this->m_pString[start], &this->m_pString[start + len]);
+
 	//const int l = lstrlen(this->m_pString);
 	//return this->mid(l - n,l);
 }
@@ -2807,6 +3059,7 @@ int TString::match (register TCHAR *m, register TCHAR *n, const bool cs /* case 
 		m++;			/* Zap leftover %s & *s */
 	return (*m) ? NOMATCH : MATCH;	/* End of both = match */
 }
+
 TString TString::wildtok( TCHAR * wildString, int N, const TCHAR * sepChars ) const
 {
 	if ( sepChars == NULL || this->m_pString == NULL )
@@ -2827,6 +3080,7 @@ TString TString::wildtok( TCHAR * wildString, int N, const TCHAR * sepChars ) co
 	}
 	return TEXT("");
 }
+
 int TString::nwildtok( TCHAR * wildString, const TCHAR * sepChars ) const
 {
 	if ( sepChars == NULL || this->m_pString == NULL )
@@ -2840,6 +3094,7 @@ int TString::nwildtok( TCHAR * wildString, const TCHAR * sepChars ) const
 	}
 	return m;
 }
+
 int TString::tsprintf(const TCHAR *fmt, ...)
 {
 	va_list args;
@@ -2853,14 +3108,13 @@ int TString::tvprintf(const TCHAR *fmt, va_list * args)
 {
 	int cnt = ts_vscprintf(fmt, *args);
 	if (cnt > 0) {
-		TCHAR *txt = allocstr_cch(cnt + 2);
+		TString tmp((UINT)(cnt + 2));
 
 		// warning C4996: 'vsprintf' was declared deprecated
 		// http://forums.microsoft.com/MSDN/ShowPost.aspx?PostID=10254&SiteID=1
-		ts_vsprintf(txt, cnt + 1, fmt, *args);
+		ts_vsprintf(tmp.m_pString, cnt + 1, fmt, *args);
 
-		this->deleteString(true);
-		this->m_pString = txt;
+		this->swap(tmp);
 	}
 	return cnt;
 }
@@ -2886,34 +3140,6 @@ bool TString::iswmcs(TCHAR *a) const
 {
 	return match(a, this->m_pString,true)?true:false;
 }
-//void TString::strncpy(const TCHAR *cString, const int n)
-//{
-//	this->deleteString();
-//	this->m_pString = new TCHAR[n+1];
-//	lstrcpyn(this->m_pString,cString,n);
-//}
-//void TString::strncpy(const TString &tString, const int n)
-//{
-//	this->deleteString();
-//	this->m_pString = new TCHAR[n+1];
-//	lstrcpyn(this->m_pString,tString.to_chr(),n);
-//}
-//void TString::strncat(const TCHAR *cString, const int n)
-//{
-//	TCHAR *tmp = new TCHAR[n + lstrlen(this->m_pString) + 1];
-//	lstrcpy(tmp,this->m_pString);
-//	::strncat(tmp,cString,n);
-//	this->deleteString();
-//	this->m_pString = tmp;
-//}
-//void TString::strncat(const TString &tString, const int n)
-//{
-//	TCHAR *tmp = new TCHAR[n + lstrlen(this->m_pString) + 1];
-//	lstrcpy(tmp,this->m_pString);
-//	::strncat(tmp,tString.to_chr(),n);
-//	this->deleteString();
-//	this->m_pString = tmp;
-//}
 //int wildcmp(const TCHAR *wild, const TCHAR *string) {
 //	// Written by Jack Handy - jakkhandy@hotmail.com
 //	const TCHAR *cp = NULL, *mp = NULL;
@@ -2993,12 +3219,15 @@ WCHAR *TString::charToWchar(const char *cString, size_t *buffer_size)
 					delete[] res;
 					res = normRes;
 				}
+				else
+					delete[] normRes;
 			}
 		}
 		catch (std::bad_alloc)
 		{
 			delete[] res;
 			delete[] normRes;
+			res = NULL;
 		}
 	}
 	if (buffer_size != NULL)
@@ -3029,10 +3258,77 @@ char *TString::WcharTochar(const WCHAR *wString, size_t *buffer_size)
  * blah
  */
 TString &TString::strip() {
-	TCHAR *start = this->m_pString;
-	TCHAR *end = this->m_pString + ts_strlen(this->m_pString);
+	//TCHAR *start = this->m_pString;
+	//TCHAR *end = this->m_pString + this->len();
+	//
+	//if ((start == NULL) || (end == NULL) || (start == end))
+	//	return *this;
+	//
+	//// Trim from start
+	//while (start != end && *start == TEXT(' '))
+	//	start++;
+	//
+	//// Trim from end
+	//while (end != start && *(--end) == TEXT(' '));
+	//
+	//const size_t new_len = (end - start) +1;
+	//
+	//TCHAR *temp = allocstr_cch(new_len + 1);
+	//temp[0] = 0;
+	//
+	//// now strip all ctrl codes.
+	//TCHAR *wtxt = start, *p = temp;
+	//UINT pos = 0, tpos = 0;
+	//
+	//// strip out ctrl codes to correctly position text.
+	//for (TCHAR c = wtxt[pos]; pos < new_len; c = wtxt[++pos]) {
+	//	switch (c)
+	//	{
+	//	case 2:  // ctrl-b Bold
+	//	case 15: // ctrl-o
+	//	case 22: // ctrl-r Reverse
+	//	case 29: // ctrl-i Italics
+	//	case 31: // ctrl-u Underline
+	//		break;
+	//	case 3: // ctrl-k Colour
+	//		{
+	//			while (wtxt[pos+1] == 3) pos++; // remove multiple consecutive ctrl-k's
+	//			if (wtxt[pos +1] >= TEXT('0') && wtxt[pos +1] <= TEXT('9')) {
+	//				++pos;
+	//
+	//				if (wtxt[pos +1] >= TEXT('0') && wtxt[pos +1] <= TEXT('9'))
+	//					pos++;
+	//
+	//				// maybe a background color
+	//				if (wtxt[pos+1] == TEXT(',')) {
+	//					++pos;
+	//
+	//					if (wtxt[pos +1] >= TEXT('0') && wtxt[pos +1] <= TEXT('9')) {
+	//						pos++;
+	//
+	//						if (wtxt[pos +1] >= TEXT('0') && wtxt[pos +1] <= TEXT('9'))
+	//							++pos;
+	//					}
+	//				}
+	//			}
+	//		}
+	//		break;
+	//	default:
+	//		p[tpos++] = c;
+	//		break;
+	//	}
+	//}
+	//p[tpos] = 0;
+	//
+	//this->deleteString(true);
+	//this->m_pString = temp;
+	//
+	//return *this;
 
-	if ((start == NULL) || (end == NULL))
+	TCHAR *start = this->m_pString;
+	TCHAR *end = this->m_pString + this->len();
+
+	if ((start == NULL) || (end == NULL) || (start == end))
 		return *this;
 
 	// Trim from start
@@ -3042,14 +3338,13 @@ TString &TString::strip() {
 	// Trim from end
 	while (end != start && *(--end) == TEXT(' '));
 
-	const size_t new_len = (end - start) +1;
+	const size_t new_len = (end - start) + 1;
 
-	TCHAR *temp = allocstr_cch(new_len + 1);
-	temp[0] = 0;
+	TString tmp((UINT)new_len + 1);
 
 	// now strip all ctrl codes.
-	TCHAR *wtxt = start, *p = temp;
-	UINT pos = 0, tpos = 0;
+	TCHAR *wtxt = start, *p = tmp.m_pString;
+	UINT pos = 0;
 
 	// strip out ctrl codes to correctly position text.
 	for (TCHAR c = wtxt[pos]; pos < new_len; c = wtxt[++pos]) {
@@ -3063,21 +3358,23 @@ TString &TString::strip() {
 			break;
 		case 3: // ctrl-k Colour
 			{
-				while (wtxt[pos+1] == 3) pos++; // remove multiple consecutive ctrl-k's
-				if (wtxt[pos +1] >= TEXT('0') && wtxt[pos +1] <= TEXT('9')) {
+				while (wtxt[pos + 1] == 3)
+					pos++; // remove multiple consecutive ctrl-k's
+
+				if (wtxt[pos + 1] >= TEXT('0') && wtxt[pos + 1] <= TEXT('9')) {
 					++pos;
 
-					if (wtxt[pos +1] >= TEXT('0') && wtxt[pos +1] <= TEXT('9'))
+					if (wtxt[pos + 1] >= TEXT('0') && wtxt[pos + 1] <= TEXT('9'))
 						pos++;
 
 					// maybe a background color
-					if (wtxt[pos+1] == TEXT(',')) {
+					if (wtxt[pos + 1] == TEXT(',')) {
 						++pos;
 
-						if (wtxt[pos +1] >= TEXT('0') && wtxt[pos +1] <= TEXT('9')) {
+						if (wtxt[pos + 1] >= TEXT('0') && wtxt[pos + 1] <= TEXT('9')) {
 							pos++;
 
-							if (wtxt[pos +1] >= TEXT('0') && wtxt[pos +1] <= TEXT('9'))
+							if (wtxt[pos + 1] >= TEXT('0') && wtxt[pos + 1] <= TEXT('9'))
 								++pos;
 						}
 					}
@@ -3085,14 +3382,12 @@ TString &TString::strip() {
 			}
 			break;
 		default:
-			p[tpos++] = c;
+			*p++ = c;
 			break;
 		}
 	}
-	p[tpos] = 0;
 
-	this->deleteString(true);
-	this->m_pString = temp;
+	this->swap(tmp);
 
 	return *this;
 }
@@ -3122,4 +3417,36 @@ ULONG TString::to_addr() {
 	forth = (BYTE)this->gettok(4, TEXT(".")).to_int();
 	//return MAKELONG(MAKEWORD(first,second),MAKEWORD(third,forth));
 	return MAKELONG(MAKEWORD(forth, third), MAKEWORD(second, first));
+}
+
+void TString::clear(void)
+{
+	if (this->m_pString == NULL)
+		this->m_pString = allocstr_bytes(1);
+
+	delete[] this->m_pTempString;
+
+	this->m_pTempString = NULL;
+	this->m_savedcurrenttok = 0;
+	this->m_savedpos = NULL;
+	this->m_savedtotaltoks = 0;
+
+	ZeroMemory(this->m_pString, this->m_buffersize);
+}
+
+void TString::shrink_to_fit(void)
+{
+	const size_t l = this->len();
+
+	if (m_buffersize <= TS_getmemsize(l * sizeof(TCHAR)))
+		return;
+
+	TString tmp((UINT)l + 1);
+
+	if (l > 0) {
+		if (ts_strcpyn(tmp.m_pString, this->m_pString, l + 1) == NULL)
+			throw std::logic_error("strcpyn() failed!");
+	}
+
+	this->swap(tmp);
 }
