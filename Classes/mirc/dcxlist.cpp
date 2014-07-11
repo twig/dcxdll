@@ -255,23 +255,26 @@ void DcxList::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) co
 					TString value;
 
 					if (i == 0) {
-						value.tsprintf(TEXT("%d"), n);
+						//value.tsprintf(TEXT("%d"), n);
+						value += n;
 						dcx_strcpyn(szReturnValue, value.to_chr(), MIRC_BUFFER_SIZE_CCH);
 					}
 					else if ((i > 0) && (i <= n)) {
-						value.tsprintf(TEXT("%d"), p[i -1] +1);
+						//value.tsprintf(TEXT("%d"), p[i -1] +1);
+						value += (p[i - 1] + 1);
 						dcx_strcpyn(szReturnValue, value.to_chr(), MIRC_BUFFER_SIZE_CCH);
 					}
 				}
 				else {
 					// get all items in a long comma seperated string
 					TString path;
-					TCHAR num[11];
+					//TCHAR num[36];
 
 					for (int i = 0; i < n; i++)
 					{
-						dcx_itoa(p[i] +1, num, 10);
-						path.addtok(num, TSCOMMA);
+						//dcx_itoa(p[i] +1, num, 10);
+						//path.addtok(num, TSCOMMA);
+						path.addtok((p[i] + 1), TSCOMMA);
 					}
 
 					dcx_strcpyn(szReturnValue, path.to_chr(), MIRC_BUFFER_SIZE_CCH);
@@ -735,7 +738,7 @@ void DcxList::parseCommandRequest( const TString & input ) {
  * blah
  */
 LRESULT DcxList::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
-	if ((int) uMsg == this->m_iDragList)
+	if ( uMsg == this->m_iDragList)
 	{
 		bParsed = TRUE;
 
@@ -851,14 +854,12 @@ LRESULT DcxList::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 	case WM_DRAWITEM:
 		{
 			LPDRAWITEMSTRUCT lpDrawItem = (LPDRAWITEMSTRUCT) lParam;
+
 			const int len = ListBox_GetTextLen(lpDrawItem->hwndItem, lpDrawItem->itemID);
 			if (len == LB_ERR)
 				break;
 
 			bParsed = TRUE;
-			TString txt((UINT)len+1);
-
-			ListBox_GetText(lpDrawItem->hwndItem, lpDrawItem->itemID, txt.to_chr());
 
 			RECT rc;
 			COLORREF clrText = CLR_INVALID;
@@ -885,6 +886,11 @@ LRESULT DcxList::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 			}
 
 			if (len > 0) { // Only do all this if theres any text to draw.
+
+				TString txt((UINT)len + 1);
+
+				ListBox_GetText(lpDrawItem->hwndItem, lpDrawItem->itemID, txt.to_chr());
+
 				rc.left += 2;
 
 				UINT style = DT_LEFT|DT_VCENTER|DT_SINGLELINE;
@@ -1027,16 +1033,18 @@ BOOL DcxList::matchItemText( const int nItem, const TString * search, const UINT
 
 	const int len = ListBox_GetTextLen( this->m_Hwnd, nItem );
 
-	TCHAR *itemtext = new TCHAR[len + 1];
+	if (len > 0) {
+		TCHAR *itemtext = new TCHAR[len + 1];
 
-	ListBox_GetText( this->m_Hwnd, nItem, itemtext );
+		ListBox_GetText(this->m_Hwnd, nItem, itemtext);
 
-	if (SearchType == LBSEARCH_R)
-		bRes = isRegexMatch(itemtext, search->to_chr());
-	else
-		bRes = TString(itemtext).iswm(search->to_chr());
+		if (SearchType == LBSEARCH_R)
+			bRes = isRegexMatch(itemtext, search->to_chr());
+		else
+			bRes = TString(itemtext).iswm(search->to_chr());
 
-	delete [] itemtext;
+		delete[] itemtext;
+	}
 	return bRes;
 }
 void DcxList::getItemRange(const TString &tsItems, const int nItemCnt, int *iStart_range, int *iEnd_range)

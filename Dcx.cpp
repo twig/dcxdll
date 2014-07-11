@@ -356,7 +356,7 @@ namespace Dcx {
 		return m_pClassFactory;
 	}
 
-	BYTE getGhostDrag()
+	const BYTE &getGhostDrag()
 	{
 		return m_iGhostDrag;
 	}
@@ -368,7 +368,7 @@ namespace Dcx {
 		return true;
 	}
 
-	bool isDX9Installed()
+	const bool &isDX9Installed()
 	{
 		return m_bDX9Installed;
 	}
@@ -378,12 +378,12 @@ namespace Dcx {
 		return Dialogs.safeToCloseAll() && !XPopups.isPatched();
 	}
 
-	bool initDirectX()
+	const bool &initDirectX()
 	{
 		return initDirectX(NULL, 0);
 	}
 
-	bool initDirectX(TCHAR *dxResult, int dxSize)
+	const bool &initDirectX(TCHAR *dxResult, int dxSize)
 	{
 #ifdef DCX_USE_DXSDK
 		DCX_DEBUG(mIRCLinker::debug, TEXT("DXSetup"), TEXT("Checking DirectX Version..."));
@@ -407,22 +407,18 @@ namespace Dcx {
 	}
 
 	/*!
-	* \brief Displays output text to the mIRC status window.
-	*/
-//#if DCX_DEBUG_OUTPUT
-//	void debug(const TCHAR *cmd, const TCHAR *msg)
-//	{
-//		mIRCLinker::debug(cmd, msg);
-//	}
-//#endif
-
-	/*!
 	 * \brief Sends an error message to mIRC.
 	 */
 	void error(const TCHAR *cmd, const TCHAR *msg)
 	{
 		m_sLastError.tsprintf(TEXT("D_ERROR %s (%s)"), cmd, msg);
-		mIRCLinker::echo(m_sLastError.to_chr());
+		if (mIRCLinker::m_bSendMessageDisabled)
+		{
+			m_sLastError.addtok(TEXT("SendMessage() disabled, re-enable this in mIRC's Lock Options"), TEXT("\r\n"));
+			MessageBox(mIRCLinker::m_mIRCHWND, m_sLastError.to_chr(), NULL, MB_OK);
+		}
+		else
+			mIRCLinker::echo(m_sLastError.to_chr());
 	}
 
 	/*

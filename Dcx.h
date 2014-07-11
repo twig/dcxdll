@@ -32,20 +32,17 @@ namespace Dcx
 
 	IClassFactory* getClassFactory();
 	const TCHAR * getLastError();
-	BYTE getGhostDrag();
+	const BYTE &getGhostDrag();
 	bool setGhostDrag(const BYTE newAlpha);
-	bool isDX9Installed();
+	const bool &isDX9Installed();
 	bool isUnloadSave();
 	bool isFile(const WCHAR* file);
 	bool isFile(LPCSTR file);
 
 	void load(LOADINFO * lInfo);
 	void unload(void);
-	bool initDirectX();
-	bool initDirectX(TCHAR *dxResult, int dxSize);
-//#if DCX_DEBUG_OUTPUT
-//	void debug(const TCHAR *cmd, const TCHAR *msg);
-//#endif
+	const bool &initDirectX();
+	const bool &initDirectX(TCHAR *dxResult, int dxSize);
 	void error(const TCHAR *cmd, const TCHAR *msg);
 	void errorex(const TCHAR *cmd, const TCHAR *szFormat, ...);
 	int mark(TCHAR* data, const TString & tsDName, const TString & tsCallbackName);

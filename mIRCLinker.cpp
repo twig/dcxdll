@@ -18,8 +18,9 @@ namespace mIRCLinker {
 	TString		m_sLastError;
 	WNDPROC		m_wpmIRCDefaultWndProc	= NULL;
 	bool		m_bUnicodemIRC			= false;
+	bool		m_bSendMessageDisabled	= false;
 
-	bool mIRCLinker::isDebug()
+	bool &mIRCLinker::isDebug()
 	{
 		return m_bDebug;
 	}
@@ -42,15 +43,10 @@ namespace mIRCLinker {
 		m_mIRCHWND = lInfo->mHwnd;
 		m_dwVersion = lInfo->mVersion;
 		// v2 dll for mirc V7+ anyway.
-		//if (HIWORD(m_dwVersion) == 2) {	//Fix the problem that mIRC v6.20 reports itself as 6.2
-		//	m_dwVersion -= 2;
-		//	m_dwVersion += 20; // err how exactly does this fix it?
-		//}
 		lInfo->mKeep = TRUE;
-		if (getMainVersion() >= 7) {
-			lInfo->mUnicode = TRUE;
-			m_bUnicodemIRC = true;
-		}
+		lInfo->mUnicode = TRUE;
+		m_bUnicodemIRC = true;
+
 		initMapFile();
 
 		// Check if we're in debug mode
@@ -77,14 +73,8 @@ namespace mIRCLinker {
 		m_hSwitchbar = FindWindowEx(m_mIRCHWND, NULL, TEXT("mIRC_SwitchBar"), NULL);
 
 		// v2 dll for mirc V7+ anyway.
-		//if (isOrNewerVersion(6,30)) { // class renamed for 6.30+
 		DCX_DEBUG(debug, TEXT("LoadmIRCLink"), TEXT("Finding mIRC_TreeBar..."));
 		m_hTreebar = FindWindowEx(m_mIRCHWND, NULL, TEXT("mIRC_TreeBar"), NULL);
-		//}
-		//else {
-		//	DCX_DEBUG(debug,TEXT("LoadmIRCLink"), TEXT("Finding mIRC_TreeList..."));
-		//	m_hTreebar = FindWindowEx(m_mIRCHWND,NULL,TEXT("mIRC_TreeList"),NULL);
-		//}
 
 		if (IsWindow(m_hTreebar)) {
 			//m_hTreeview = GetWindow(mIRCLink.m_hTreebar,GW_CHILD);
@@ -113,7 +103,6 @@ namespace mIRCLinker {
 	void mIRCLinker::initMapFile() {
 		int cnt = 0;
 		// v2 dll for mirc V7+ anyway.
-		//if (isOrNewerVersion(6,20)) {
 		TString map_name;
 		cnt = 1;
 		m_hFileMap = NULL;
@@ -143,7 +132,6 @@ namespace mIRCLinker {
 
 		if (cnt == 256)
 			cnt = 0;
-		//}
 
 		m_iMapCnt = cnt; // set mapfile counter for SendMessage()'s
 
@@ -156,48 +144,48 @@ namespace mIRCLinker {
 			m_pData = (PTCHAR)MapViewOfFile(m_hFileMap, FILE_MAP_ALL_ACCESS, 0, 0, 0);
 	}
 
-	HWND mIRCLinker::getSwitchbar()
+	HWND &mIRCLinker::getSwitchbar()
 	{
 		return m_hSwitchbar;
 	}
 
-	HWND mIRCLinker::getToolbar()
+	HWND &mIRCLinker::getToolbar()
 	{
 		return m_hToolbar;
 	}
 
-	HWND mIRCLinker::getTreebar()
+	HWND &mIRCLinker::getTreebar()
 	{
 		return m_hTreebar;
 	}
 
-	HWND mIRCLinker::getTreeview()
+	HWND &mIRCLinker::getTreeview()
 	{
 		return m_hTreeview;
 	}
 
-	HIMAGELIST mIRCLinker::getTreeImages()
+	HIMAGELIST &mIRCLinker::getTreeImages()
 	{
 		return m_hTreeImages;
 	}
 
-	HFONT mIRCLinker::getTreeFont()
+	HFONT &mIRCLinker::getTreeFont()
 	{
 		return m_hTreeFont;
 	}
 
 
-	HWND mIRCLinker::getMDIClient()
+	HWND &mIRCLinker::getMDIClient()
 	{
 		return m_hMDI;
 	}
 
 
-	HWND mIRCLinker::getHWND()
+	HWND &mIRCLinker::getHWND()
 	{
 		return m_mIRCHWND;
 	}
-	DWORD mIRCLinker::getVersion()
+	DWORD &mIRCLinker::getVersion()
 	{
 		return m_dwVersion;
 	}
@@ -240,26 +228,37 @@ namespace mIRCLinker {
 
 	bool mIRCLinker::mIRC_SndMsg(const UINT uMsg)
 	{
-		if (SendMessage(m_mIRCHWND, uMsg, MIRCF_UNICODE, m_iMapCnt) == 0) return false;
+		if (mIRCLinker::isOrNewerVersion(7,34))
+		{
+			m_bSendMessageDisabled = false;
+			const LRESULT err = SendMessage(m_mIRCHWND, uMsg, MAKEWPARAM(MIRCF_UNICODE | MIRCF_ENHANCEDERRORS, 0), m_iMapCnt);
+			if ((err & MIRCF_ERR_FAILED))
+			{
+				// failed
+				if (err & MIRCF_ERR_DISABLED) {
+					m_bSendMessageDisabled = true;
+					Dcx::error(TEXT("mIRCLinker::eval()"), TEXT("SendMessage() - failed: Disabled"));
+				}
+				if (err & MIRCF_ERR_MAP_NAME)
+					Dcx::error(TEXT("mIRCLinker::eval()"), TEXT("SendMessage() - failed: Invalid mapfile name"));
+				else if (err & MIRCF_ERR_MAP_SIZE)
+					Dcx::error(TEXT("mIRCLinker::eval()"), TEXT("SendMessage() - failed: Invalid mapfile size"));
+				else if (err & MIRCF_ERR_EVENTID)
+					Dcx::error(TEXT("mIRCLinker::eval()"), TEXT("SendMessage() - failed: Invalid eventid"));
+				else if (err & MIRCF_ERR_SERVER)
+					Dcx::error(TEXT("mIRCLinker::eval()"), TEXT("SendMessage() - failed: Bad Server"));
+				else if (err & MIRCF_ERR_SCRIPT)
+					Dcx::error(TEXT("mIRCLinker::eval()"), TEXT("SendMessage() - failed: Bad Script"));
+				else
+					Dcx::error(TEXT("mIRCLinker::eval()"), TEXT("SendMessage() - failed"));
+				return false;
+			}
+		}
+		else {
+			if (SendMessage(m_mIRCHWND, uMsg, MIRCF_UNICODE, m_iMapCnt) == 0)
+				return false;
+		}
 		return true;
-		//const LRESULT err = SendMessage(m_mIRCHWND, uMsg, MIRCF_UNICODE | MIRCF_ENHANCEDERRORS, m_iMapCnt);
-		//if ((err & MIRCF_ERR_FAILED))
-		//{
-		//	// failed
-		//	if (err & MIRCF_ERR_MAP_NAME)
-		//		Dcx::error(TEXT("mIRCLinker::eval()"), TEXT("SendMessage() - failed: Invalid mapfile name"));
-		//	if (err & MIRCF_ERR_MAP_SIZE)
-		//		Dcx::error(TEXT("mIRCLinker::eval()"), TEXT("SendMessage() - failed: Invalid mapfile size"));
-		//	if (err & MIRCF_ERR_EVENTID)
-		//		Dcx::error(TEXT("mIRCLinker::eval()"), TEXT("SendMessage() - failed: Invalid eventid"));
-		//	if (err & MIRCF_ERR_SERVER)
-		//		Dcx::error(TEXT("mIRCLinker::eval()"), TEXT("SendMessage() - failed: Bad Server"));
-		//	if (err & MIRCF_ERR_SCRIPT)
-		//		Dcx::error(TEXT("mIRCLinker::eval()"), TEXT("SendMessage() - failed: Bad Script"));
-		//	Dcx::error(TEXT("mIRCLinker::eval()"), TEXT("SendMessage() - failed"));
-		//	return false;
-		//}
-		//return true;
 	}
 
 	/*!

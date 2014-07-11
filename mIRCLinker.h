@@ -22,18 +22,19 @@ namespace mIRCLinker
 	extern TString		m_sLastError;
 	extern WNDPROC		m_wpmIRCDefaultWndProc;
 	extern bool			m_bUnicodemIRC;
+	extern bool			m_bSendMessageDisabled;
 
 	void initMapFile();
 
-	HWND getSwitchbar();
-	HWND getToolbar();
-	HWND getTreebar();
-	HWND getTreeview();
-	HIMAGELIST getTreeImages();
-	HFONT getTreeFont();
-	HWND getMDIClient();
-	HWND getHWND();
-	DWORD getVersion();
+	HWND &getSwitchbar();
+	HWND &getToolbar();
+	HWND &getTreebar();
+	HWND &getTreeview();
+	HIMAGELIST &getTreeImages();
+	HFONT &getTreeFont();
+	HWND &getMDIClient();
+	HWND &getHWND();
+	DWORD &getVersion();
 	WORD getMainVersion();
 	WORD getSubVersion();
 	const TString & getLastError();
@@ -42,7 +43,7 @@ namespace mIRCLinker
 	bool isVersion(const WORD main, const WORD sub);
 	//bool isAero();
 	//bool isVista();
-	bool isDebug();
+	bool &isDebug();
 	__inline bool isUnicode() { return m_bUnicodemIRC; };
 
 	//bool isDXInstalled9();
