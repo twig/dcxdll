@@ -215,7 +215,7 @@ bool XMenuBar::addToMenuBar(HMENU menubar, XPopupMenu *p_Menu, const TString &la
  *
  */
 void XMenuBar::removeFromMenuBar(HMENU menubar, XPopupMenu *p_Menu) {
-	if ((int) m_vpXMenuBar.size() == 0)
+	if (m_vpXMenuBar.empty())
 		return;
 
 	// If no menubar is specified, get current menubar.
@@ -288,18 +288,6 @@ void XMenuBar::setMenuBar(HMENU oldMenuBar, HMENU newMenuBar) {
 	SetMenu(mIRCLinker::getHWND(), newMenuBar);
 
 	// Go through old menubar items and detach them
-	//VectorOfXPopupMenu temp;
-	//VectorOfXPopupMenu::iterator itStart = this->m_vpXMenuBar.begin();
-	//VectorOfXPopupMenu::iterator itEnd = this->m_vpXMenuBar.end();
-
-	//// Add menus to a temporary list to prevent errors in looping
-	//while (itStart != itEnd) {
-	//	temp.push_back(*itStart);
-	//	++itStart;
-	//}
-
-	//itStart = temp.begin();
-	//itEnd = temp.end();
 
 	// Add menus to a temporary list to prevent errors in looping
 	VectorOfXPopupMenu temp(this->m_vpXMenuBar);
@@ -367,9 +355,9 @@ bool XMenuBar::hasCallback() const {
 
 /*
  * Passes the clicked information back to the callback.
- * Returns TEXT('true') it should halt default processing.
+ * Returns '$true' it should halt default processing.
  *
- * User should return TEXT('$true') from the callback to prevent default processing.
+ * User should return '$true' from the callback to prevent default processing.
  */
 bool XMenuBar::parseCallback(const UINT menuID) {
 	TString result;

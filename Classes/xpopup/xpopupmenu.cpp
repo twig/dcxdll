@@ -283,8 +283,9 @@ void XPopupMenu::parseXPopCommand( const TString & input ) {
 
 			mii.hSubMenu = CreatePopupMenu( );
 
-			XPopupMenuItem * p_Item = (XPopupMenuItem *) mii.dwItemData;
-			if ( p_Item != NULL )
+			//XPopupMenuItem * p_Item = (XPopupMenuItem *) mii.dwItemData;
+			XPopupMenuItem * p_Item = reinterpret_cast<XPopupMenuItem *>(mii.dwItemData);
+			if (p_Item != NULL)
 				p_Item->setSubMenu( TRUE );
 
 			mii.fMask = MIIM_SUBMENU;
@@ -310,8 +311,9 @@ void XPopupMenu::parseXPopCommand( const TString & input ) {
 				DestroyMenu( mii.hSubMenu );
 			}
 
-			XPopupMenuItem * p_Item = (XPopupMenuItem *) mii.dwItemData;
-			if ( p_Item != NULL )
+			//XPopupMenuItem * p_Item = (XPopupMenuItem *) mii.dwItemData;
+			XPopupMenuItem * p_Item = reinterpret_cast<XPopupMenuItem *>(mii.dwItemData);
+			if (p_Item != NULL)
 				p_Item->setSubMenu( FALSE );
 
 			mii.hSubMenu = NULL;
@@ -338,8 +340,9 @@ void XPopupMenu::parseXPopCommand( const TString & input ) {
 				DestroyMenu( mii.hSubMenu );
 			}
 
-			XPopupMenuItem * p_Item = (XPopupMenuItem *) mii.dwItemData;
-			if ( p_Item != NULL )
+			//XPopupMenuItem * p_Item = (XPopupMenuItem *) mii.dwItemData;
+			XPopupMenuItem * p_Item = reinterpret_cast<XPopupMenuItem *>(mii.dwItemData);
+			if (p_Item != NULL)
 				this->deleteMenuItemData( p_Item, NULL );
 
 			DeleteMenu( hMenu, nPos, MF_BYPOSITION );
@@ -360,8 +363,9 @@ void XPopupMenu::parseXPopCommand( const TString & input ) {
 
 			GetMenuItemInfo( hMenu, nPos, TRUE, &mii );
 
-			XPopupMenuItem * p_Item = (XPopupMenuItem *) mii.dwItemData;
-			if ( p_Item != NULL )
+			//XPopupMenuItem * p_Item = (XPopupMenuItem *) mii.dwItemData;
+			XPopupMenuItem * p_Item = reinterpret_cast<XPopupMenuItem *>(mii.dwItemData);
+			if (p_Item != NULL)
 				p_Item->setItemIcon( nIcon );
 		}
 	}
@@ -401,8 +405,9 @@ void XPopupMenu::parseXPopCommand( const TString & input ) {
 
 			GetMenuItemInfo( hMenu, nPos, TRUE, &mii );
 
-			XPopupMenuItem * p_Item = (XPopupMenuItem *) mii.dwItemData;
-			if ( p_Item != NULL )
+			//XPopupMenuItem * p_Item = (XPopupMenuItem *) mii.dwItemData;
+			XPopupMenuItem * p_Item = reinterpret_cast<XPopupMenuItem *>(mii.dwItemData);
+			if (p_Item != NULL)
 				p_Item->setItemText( itemtext );
 
 			// this is to make sure system resets the measurement of the itemwidth on next display
@@ -461,8 +466,9 @@ void XPopupMenu::parseXPopIdentifier( const TString & input, TCHAR * szReturnVal
 
 			if ( GetMenuItemInfo( hMenu, nPos, TRUE, &mii ) == TRUE ) {
 
-				const XPopupMenuItem * p_Item = (XPopupMenuItem *) mii.dwItemData;
-				if ( p_Item != NULL ) {
+				//const XPopupMenuItem * p_Item = (XPopupMenuItem *) mii.dwItemData;
+				const XPopupMenuItem * p_Item = reinterpret_cast<XPopupMenuItem *>(mii.dwItemData);
+				if (p_Item != NULL) {
 
 					if ( prop == TEXT("text") )
 						dcx_strcpyn( szReturnValue, p_Item->getItemText( ).to_chr( ), MIRC_BUFFER_SIZE_CCH )
@@ -864,8 +870,9 @@ void XPopupMenu::deleteAllItemData( HMENU hMenu ) {
 
 		if ( GetMenuItemInfo( hMenu, i, TRUE, &mii ) == TRUE ) {
 
-			XPopupMenuItem * p_Item = (XPopupMenuItem *) mii.dwItemData;
-			if ( p_Item != NULL ) {
+			//XPopupMenuItem * p_Item = (XPopupMenuItem *) mii.dwItemData;
+			XPopupMenuItem * p_Item = reinterpret_cast<XPopupMenuItem *>(mii.dwItemData);
+			if (p_Item != NULL) {
 				// load the old dwItemData value back to make mIRC happy
 				this->deleteMenuItemData( p_Item, &mii );
 				mii.fMask = MIIM_DATA;

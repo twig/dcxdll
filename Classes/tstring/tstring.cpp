@@ -2345,6 +2345,68 @@ void TString::instok( const TCHAR * cToken, const unsigned int N, const TCHAR * 
 	//this->deleteString(true);
 	//this->m_pString = pNew;
 
+	//const size_t l = (ts_strlen(cToken) + ts_strlen(this->m_pString) + (sepl * 2) + 1);
+	//
+	//TString tmp((UINT)l);
+	//
+	//// insert at start
+	//if (p_cStart == this->m_pString) {
+	//
+	//	if (ts_strcpyn(tmp.m_pString, cToken, l) == NULL)
+	//		throw std::logic_error("strcpyn() failed!");
+	//	if (ts_strcat(tmp.m_pString, sepChars) == NULL)
+	//		throw std::logic_error("strcat() failed!");
+	//	if (ts_strcat(tmp.m_pString, this->m_pString) == NULL)
+	//		throw std::logic_error("strcat() failed!");
+	//}
+	//else if (p_cEnd == NULL) {
+	//	if (i == N) {
+	//		// insert at pos
+	//		p_cStart -= sepl; // Ook
+	//		*p_cStart = 0;
+	//		p_cStart += sepl; // Ook
+	//
+	//		if (ts_strcpyn(tmp.m_pString, this->m_pString, l) == NULL)
+	//			throw std::logic_error("strcpyn() failed!");
+	//		if (ts_strcat(tmp.m_pString, sepChars) == NULL)
+	//			throw std::logic_error("strcat() failed!");
+	//		if (ts_strcat(tmp.m_pString, cToken) == NULL)
+	//			throw std::logic_error("strcat() failed!");
+	//		if (ts_strcat(tmp.m_pString, sepChars) == NULL)
+	//			throw std::logic_error("strcat() failed!");
+	//		if (ts_strcat(tmp.m_pString, p_cStart) == NULL)
+	//			throw std::logic_error("strcat() failed!");
+	//	}
+	//	else {
+	//		// insert at end
+	//		if (ts_strcpyn(tmp.m_pString, this->m_pString, l) == NULL)
+	//			throw std::logic_error("strcpyn() failed!");
+	//		if (ts_strcat(tmp.m_pString, sepChars) == NULL)
+	//			throw std::logic_error("strcat() failed!");
+	//		if (ts_strcat(tmp.m_pString, cToken) == NULL)
+	//			throw std::logic_error("strcat() failed!");
+	//	}
+	//}
+	//else {
+	//	// insert at pos
+	//	p_cStart -= sepl; // Ook
+	//	*p_cStart = 0;
+	//	p_cStart += sepl; // Ook
+	//
+	//	if (ts_strcpyn(tmp.m_pString, this->m_pString, l) == NULL)
+	//		throw std::logic_error("strcpyn() failed!");
+	//	if (ts_strcat(tmp.m_pString, sepChars) == NULL)
+	//		throw std::logic_error("strcat() failed!");
+	//	if (ts_strcat(tmp.m_pString, cToken) == NULL)
+	//		throw std::logic_error("strcat() failed!");
+	//	if (ts_strcat(tmp.m_pString, sepChars) == NULL)
+	//		throw std::logic_error("strcat() failed!");
+	//	if (ts_strcat(tmp.m_pString, p_cStart) == NULL)
+	//		throw std::logic_error("strcat() failed!");
+	//}
+	//
+	//this->swap(tmp);
+
 	const size_t l = (ts_strlen(cToken) + ts_strlen(this->m_pString) + (sepl * 2) + 1);
 
 	TString tmp((UINT)l);
@@ -2359,50 +2421,27 @@ void TString::instok( const TCHAR * cToken, const unsigned int N, const TCHAR * 
 		if (ts_strcat(tmp.m_pString, this->m_pString) == NULL)
 			throw std::logic_error("strcat() failed!");
 	}
-	else if (p_cEnd == NULL) {
+	else {
 		if (i == N) {
-			// insert at pos
+			// insert at pos N
 			p_cStart -= sepl; // Ook
 			*p_cStart = 0;
 			p_cStart += sepl; // Ook
-
-			if (ts_strcpyn(tmp.m_pString, this->m_pString, l) == NULL)
-				throw std::logic_error("strcpyn() failed!");
-			if (ts_strcat(tmp.m_pString, sepChars) == NULL)
-				throw std::logic_error("strcat() failed!");
-			if (ts_strcat(tmp.m_pString, cToken) == NULL)
-				throw std::logic_error("strcat() failed!");
-			if (ts_strcat(tmp.m_pString, sepChars) == NULL)
-				throw std::logic_error("strcat() failed!");
-			if (ts_strcat(tmp.m_pString, p_cStart) == NULL)
-				throw std::logic_error("strcat() failed!");
 		}
-		else {
-			// insert at end
-			if (ts_strcpyn(tmp.m_pString, this->m_pString, l) == NULL)
-				throw std::logic_error("strcpyn() failed!");
-			if (ts_strcat(tmp.m_pString, sepChars) == NULL)
-				throw std::logic_error("strcat() failed!");
-			if (ts_strcat(tmp.m_pString, cToken) == NULL)
-				throw std::logic_error("strcat() failed!");
-		}
-	}
-	else {
-		// insert at pos
-		p_cStart -= sepl; // Ook
-		*p_cStart = 0;
-		p_cStart += sepl; // Ook
-
+		// common code to insert at pos N & insert at end
 		if (ts_strcpyn(tmp.m_pString, this->m_pString, l) == NULL)
 			throw std::logic_error("strcpyn() failed!");
 		if (ts_strcat(tmp.m_pString, sepChars) == NULL)
 			throw std::logic_error("strcat() failed!");
 		if (ts_strcat(tmp.m_pString, cToken) == NULL)
 			throw std::logic_error("strcat() failed!");
-		if (ts_strcat(tmp.m_pString, sepChars) == NULL)
-			throw std::logic_error("strcat() failed!");
-		if (ts_strcat(tmp.m_pString, p_cStart) == NULL)
-			throw std::logic_error("strcat() failed!");
+
+		if (i == N) {
+			if (ts_strcat(tmp.m_pString, sepChars) == NULL)
+				throw std::logic_error("strcat() failed!");
+			if (ts_strcat(tmp.m_pString, p_cStart) == NULL)
+				throw std::logic_error("strcat() failed!");
+		}
 	}
 
 	this->swap(tmp);
@@ -2531,7 +2570,7 @@ bool TString::istok(const TCHAR * cToken, const TCHAR * sepChars ) const {
 /*!
  * \brief blah
  *
- * blah
+ * Overwrite the Nth token
  */
 
 void TString::puttok( const TCHAR * cToken, int N, const TCHAR * sepChars ) {
@@ -2608,13 +2647,16 @@ void TString::puttok( const TCHAR * cToken, int N, const TCHAR * sepChars ) {
 
 	// replace the first token?
 	if (p_cStart != this->m_pString) {
+		// no, so fix end of first part & copy
 		*p_cStart = 0;
 
 		if (ts_strcpy(tmp.m_pString, this->m_pString) == NULL)
 			throw std::logic_error("strcpy() failed!");
 	}
+	// add token at either start or middle or end
 	if (ts_strcat(tmp.m_pString, cToken) == NULL)
 		throw std::logic_error("strcat() failed!");
+	// add end of string if any.
 	if (p_cEnd != NULL) {
 		if (ts_strcat(tmp.m_pString, p_cEnd) == NULL)
 			throw std::logic_error("strcat() failed!");
@@ -3174,7 +3216,11 @@ bool TString::iswmcs(TCHAR *a) const
 //	return !*wild;
 //}
 
-// convert a cstring/utf8 string to a utf16 string
+/*!
+* \brief blah
+*
+* Convert a cstring/utf8 string to a utf16 string
+*/
 WCHAR *TString::charToWchar(const char *cString, size_t *buffer_size)
 {
 	// try UTF8 encoded first, but error on invalid chars.
@@ -3235,6 +3281,12 @@ WCHAR *TString::charToWchar(const char *cString, size_t *buffer_size)
 
 	return res;
 }
+
+/*!
+* \brief blah
+*
+* Convert a utf16 string to a utf8 string
+*/
 char *TString::WcharTochar(const WCHAR *wString, size_t *buffer_size)
 {
 	const int l = WideCharToMultiByte( CP_UTF8, 0, wString, -1, NULL, 0, NULL, NULL );
@@ -3252,6 +3304,7 @@ char *TString::WcharTochar(const WCHAR *wString, size_t *buffer_size)
 
 	return res;
 }
+
 /*!
  * \brief blah
  *

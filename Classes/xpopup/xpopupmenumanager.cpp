@@ -785,20 +785,23 @@ void XPopupMenuManager::addMenu( XPopupMenu * p_Menu ) {
 
 void XPopupMenuManager::deleteMenu( XPopupMenu * p_Menu ) {
 
-  VectorOfXPopupMenu::iterator itStart = this->m_vpXPMenu.begin( );
-  VectorOfXPopupMenu::iterator itEnd = this->m_vpXPMenu.end( );
+	if (this->m_vpXPMenu.empty())
+		return;
 
-  while ( itStart != itEnd ) {
+	VectorOfXPopupMenu::iterator itStart = this->m_vpXPMenu.begin();
+	VectorOfXPopupMenu::iterator itEnd = this->m_vpXPMenu.end();
 
-    if ( *itStart == p_Menu ) {
+	while (itStart != itEnd) {
 
-      delete *itStart;
-      this->m_vpXPMenu.erase( itStart );
-      return;
-    }
+		if (*itStart == p_Menu) {
 
-    ++itStart;
-  }
+			delete *itStart;
+			this->m_vpXPMenu.erase(itStart);
+			return;
+		}
+
+		++itStart;
+	}
 }
 
 /*!
@@ -809,13 +812,19 @@ void XPopupMenuManager::deleteMenu( XPopupMenu * p_Menu ) {
 
 void XPopupMenuManager::clearMenus( ) {
 
-	VectorOfXPopupMenu::iterator itStart = this->m_vpXPMenu.begin( );
+#if DCX_USE_C11
+	for (auto &a: this->m_vpXPMenu)
+		delete a;
+#else
+	VectorOfXPopupMenu::iterator itStart = this->m_vpXPMenu.begin();
 	VectorOfXPopupMenu::iterator itEnd = this->m_vpXPMenu.end( );
 
 	while ( itStart != itEnd ) {
 		delete *itStart;
 		++itStart;
 	}
+#endif
+	this->m_vpXPMenu.clear();
 }
 
 void XPopupMenuManager::setIsMenuBar(bool value)
