@@ -71,11 +71,6 @@ BYTE *readFile(const PTCHAR filename) {
 	// make data container for file contents
 	BYTE * fileContents = new BYTE[size + 1];
 
-	//if (fileContents == NULL) {
-	//	fclose(file);
-	//	return NULL;
-	//}
-
 	// Null terminate the string
 	fileContents[size] = 0;
 
@@ -92,6 +87,18 @@ BYTE *readFile(const PTCHAR filename) {
 	return fileContents;
 }
 
+bool SaveDataToFile(const TString &tsFile, const TString &tsData)
+{
+	FILE *file = dcx_fopen(tsFile.to_chr(), TEXT("wb"));
+
+	if (file != NULL)
+		return false;
+
+	fwrite(tsData.to_chr(), sizeof(TCHAR), tsData.len(), file);
+	fflush(file);
+	fclose(file);
+	return true;
+}
 
 /*!
 * \brief Copies string to the clipboard

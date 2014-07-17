@@ -450,13 +450,7 @@ void DcxEdit::parseCommandRequest( const TString &input) {
 	}
 	// xdid -u [NAME] [ID] [SWITCH] [FILENAME]
 	else if (flags[TEXT('u')] && numtok > 3) {
-		FILE *file = dcx_fopen(input.gettok(4, -1).to_chr(), TEXT("wb"));
-
-		if (file != NULL) {
-			fwrite(this->m_tsText.to_chr(), sizeof(TCHAR), this->m_tsText.len(), file);
-			fflush(file);
-			fclose(file);
-		}
+		SaveDataToFile(input.gettok(4, -1), this->m_tsText);
 	}
 	// xdid -S [NAME] [ID] [SWITCH] [START] [END]
 	else if (flags[TEXT('S')] && numtok > 3) {

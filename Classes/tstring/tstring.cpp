@@ -659,26 +659,27 @@ TString TString::operator -( const TString & tString ) {
 
 TString & TString::operator +=( const TCHAR * cString ) {
 
-	if (cString != NULL) {
-		const size_t l = (this->len() + ts_strlen(cString) + 1);
-
-		if ((l * sizeof(TCHAR)) <= m_buffersize) {
-			// new text fits within existing buffer, so append.
-			if (ts_strcat(this->m_pString, cString) == NULL)
-				throw std::logic_error("strcat() failed!");
-		}
-		else {
-			TString tmp((UINT)l);
-
-			if (ts_strcpyn(tmp.m_pString, this->m_pString, l) == NULL)
-				throw std::logic_error("strcpyn() failed!");
-			if (ts_strcat(tmp.m_pString, cString) == NULL)
-				throw std::logic_error("strcat() failed!");
-
-			this->swap(tmp);
-		}
-	}
-	return *this;
+	//if (cString != NULL) {
+	//	const size_t l = (this->len() + ts_strlen(cString) + 1);
+	//
+	//	if ((l * sizeof(TCHAR)) <= m_buffersize) {
+	//		// new text fits within existing buffer, so append.
+	//		if (ts_strcat(this->m_pString, cString) == NULL)
+	//			throw std::logic_error("strcat() failed!");
+	//	}
+	//	else {
+	//		TString tmp((UINT)l);
+	//
+	//		if (ts_strcpyn(tmp.m_pString, this->m_pString, l) == NULL)
+	//			throw std::logic_error("strcpyn() failed!");
+	//		if (ts_strcat(tmp.m_pString, cString) == NULL)
+	//			throw std::logic_error("strcat() failed!");
+	//
+	//		this->swap(tmp);
+	//	}
+	//}
+	//return *this;
+	return append(cString);
 }
 
 /****************************/
@@ -691,30 +692,35 @@ TString & TString::operator +=( const TCHAR * cString ) {
 
 TString & TString::operator +=( const TCHAR chr ) {
 
-	if (this->m_pString != NULL) {
-		const size_t len = ts_strlen(this->m_pString);
+	//if (this->m_pString != NULL) {
+	//	const size_t len = ts_strlen(this->m_pString);
+	//
+	//	if (((len + 1) * sizeof(TCHAR)) < m_buffersize) {
+	//		this->m_pString[len] = chr;
+	//		this->m_pString[len + 1] = TEXT('\0');
+	//	}
+	//	else {
+	//		TString tmp((UINT)(len + 2));
+	//
+	//		if (ts_strcpyn(tmp.m_pString, this->m_pString, len + 1) == NULL)
+	//			throw std::logic_error("strcpyn() failed!");
+	//		tmp.m_pString[len] = chr;
+	//		tmp.m_pString[len + 1] = TEXT('\0');
+	//
+	//		this->swap(tmp);
+	//	}
+	//}
+	//else {
+	//	this->m_pString = allocstr_cch(2);
+	//	this->m_pString[0] = chr;
+	//	this->m_pString[1] = 0;
+	//}
+	//return *this;
 
-		if (((len + 1) * sizeof(TCHAR)) < m_buffersize) {
-			this->m_pString[len] = chr;
-			this->m_pString[len + 1] = TEXT('\0');
-		}
-		else {
-			TString tmp((UINT)(len + 2));
-
-			if (ts_strcpyn(tmp.m_pString, this->m_pString, len + 1) == NULL)
-				throw std::logic_error("strcpyn() failed!");
-			tmp.m_pString[len] = chr;
-			tmp.m_pString[len + 1] = TEXT('\0');
-
-			this->swap(tmp);
-		}
-	}
-	else {
-		this->m_pString = allocstr_cch(2);
-		this->m_pString[0] = chr;
-		this->m_pString[1] = 0;
-	}
-	return *this;
+	TCHAR tmp[2];
+	tmp[0] = chr;
+	tmp[1] = 0;
+	return append(tmp);
 }
 
 /****************************/
@@ -727,25 +733,27 @@ TString & TString::operator +=( const TCHAR chr ) {
 
 TString & TString::operator +=( const TString & tString ) {
 
-	if (tString.m_pString != NULL) {
-		const size_t l = (this->len() + ts_strlen(tString.m_pString) + 1);
+	//if (tString.m_pString != NULL) {
+	//	const size_t l = (this->len() + ts_strlen(tString.m_pString) + 1);
+	//
+	//	if ((l * sizeof(TCHAR)) <= m_buffersize) {
+	//		if (ts_strcat(this->m_pString, tString.m_pString) == NULL)
+	//			throw std::logic_error("strcat() failed!");
+	//	}
+	//	else {
+	//		TString tmp((UINT)l);
+	//
+	//		if (ts_strcpyn(tmp.m_pString, this->m_pString, l) == NULL)
+	//			throw std::logic_error("strcpyn() failed!");
+	//		if (ts_strcat(tmp.m_pString, tString.m_pString) == NULL)
+	//			throw std::logic_error("strcat() failed!");
+	//
+	//		this->swap(tmp);
+	//	}
+	//}
+	//return *this;
 
-		if ((l * sizeof(TCHAR)) <= m_buffersize) {
-			if (ts_strcat(this->m_pString, tString.m_pString) == NULL)
-				throw std::logic_error("strcat() failed!");
-		}
-		else {
-			TString tmp((UINT)l);
-
-			if (ts_strcpyn(tmp.m_pString, this->m_pString, l) == NULL)
-				throw std::logic_error("strcpyn() failed!");
-			if (ts_strcat(tmp.m_pString, tString.m_pString) == NULL)
-				throw std::logic_error("strcat() failed!");
-
-			this->swap(tmp);
-		}
-	}
-	return *this;
+	return append(tString);
 }
 
 /****************************/
@@ -758,12 +766,19 @@ TString & TString::operator +=( const TString & tString ) {
 
 TString & TString::operator +=(const int num) {
 
+	//TCHAR tNum[36];
+	//tNum[0] = TEXT('\0');
+	//
+	//ts_itoa(num, tNum, 10);
+	//
+	//return operator += (tNum);
+
 	TCHAR tNum[36];
 	tNum[0] = TEXT('\0');
 
 	ts_itoa(num, tNum, 10);
 
-	return operator += (tNum);
+	return append(tNum);
 }
 
 /****************************/
@@ -1293,18 +1308,17 @@ TString TString::operator *( const int &N ) {
 
 	const size_t sz = this->len();
 
-	if (sz > 0)
-	{
-		TString tmp((UINT)((sz *N) + 1));
+	if (sz == 0)
+		return *this;
 
-		for (int i = 0; i < N; i++)
-		{
-			if (ts_strcat(tmp.m_pString, this->m_pString) == NULL)
-				throw std::logic_error("strcat() failed!");
-		}
-		return tmp;
+	TString tmp((UINT)((sz *N) + 1));
+
+	for (int i = 0; i < N; i++)
+	{
+		if (ts_strcat(tmp.m_pString, this->m_pString) == NULL)
+			throw std::logic_error("strcat() failed!");
 	}
-	return *this;
+	return tmp;
 }
 
 /****************************/
@@ -1401,7 +1415,7 @@ TString operator +(const TString & tString, const TCHAR * cString)
     \return String length
 */
 
-size_t TString::len( ) const {
+const size_t TString::len( ) const {
 	if (this->m_pString != NULL)
 		return (size_t)ts_strlen(this->m_pString);
 
@@ -3502,4 +3516,65 @@ void TString::shrink_to_fit(void)
 	}
 
 	this->swap(tmp);
+}
+
+TString &TString::append(const WCHAR *cString)
+{
+#ifdef UNICODE
+	if (cString != NULL)
+		append(cString, ts_strlen(cString));
+
+	return *this;
+#else
+	const TString tmp(cString);
+	return append(tmp);
+#endif
+}
+
+TString &TString::append(const char *cString)
+{
+#ifdef UNICODE
+	const TString tmp(cString);
+	return append(tmp);
+#else
+	if (cString != NULL)
+		append(cString, ts_strlen(cString));
+
+	return *this;
+
+#endif
+
+}
+
+TString &TString::append(const TString &tString)
+{
+	return append(tString.m_pString, tString.len());
+}
+
+TString &TString::append(const TCHAR *cString, const size_t iChars)
+{
+	if ((cString != NULL) && (iChars != 0))
+	{
+		const size_t sz = this->len();
+		const size_t l = (sz + iChars + 1);
+
+		if ((l * sizeof(TCHAR)) <= m_buffersize) {
+			// new text fits within existing buffer, so append.
+			if (ts_strncat(this->m_pString, cString, iChars) == NULL)
+				throw std::logic_error("strcat() failed!");
+		}
+		else {
+			TString tmp((UINT)l);
+
+			if (sz > 0) {
+				if (ts_strcpyn(tmp.m_pString, this->m_pString, l) == NULL)
+					throw std::logic_error("strcpyn() failed!");
+			}
+			if (ts_strncat(tmp.m_pString, cString, iChars) == NULL)
+				throw std::logic_error("strcat() failed!");
+
+			this->swap(tmp);
+		}
+	}
+	return *this;
 }

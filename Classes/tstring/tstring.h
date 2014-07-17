@@ -184,7 +184,6 @@ public:
 	~TString( );
 
 	// Operator Overloads
-	//TString & operator =( const TString & tString );
 	TString & operator =( TString tString );		// allows use of swap()
 	TString & operator =(const WCHAR * cString);
 	TString & operator =( const WCHAR chr );
@@ -245,10 +244,23 @@ public:
 	friend TString operator +(const TString & tString, const TCHAR *cString);
 
 	// General String Lib
-	size_t len( ) const;
+
+	// get length of string in characters
+	const size_t len( ) const;
+	// get size of string buffer in bytes
 	const size_t &size() const { return m_buffersize; };
+	// clear string buffer & reset all vars & pointers (doesn't free buffer, just zeros it)
 	void clear();
+	// shrink string buffer to min size required for string (while still being a multiple of 16)
 	void shrink_to_fit();
+	// append a wide char string.
+	TString &append(const WCHAR *cString);
+	// append a char string.
+	TString &append(const char *cString);
+	// append another TString object
+	TString &append(const TString &tString);
+	// append a string thats limited to iChars characters.
+	TString &append(const TCHAR *cString, const size_t iChars);
 
 	int find( const TCHAR * substring, const int N ) const;
 	int find( const TCHAR chr, const int N ) const;

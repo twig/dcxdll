@@ -496,6 +496,7 @@ UINT parseFontFlags(const TString &flags);
 UINT parseFontCharSet(const TString &charset);
 
 BYTE *readFile(const PTCHAR filename);
+bool SaveDataToFile(const TString &tsFile, const TString &tsData);
 TString FileDialog(const TString & data, const TString &method, const HWND pWnd);
 
 int CALLBACK BrowseFolderCallback(HWND hwnd, UINT uMsg, LPARAM lParam, LPARAM lpData);
