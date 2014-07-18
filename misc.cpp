@@ -36,10 +36,135 @@ int dcx_round(const float x) {
 		return (int) x +1;
 	return (int) x;
 }
+
+// taken from: http://www.codeproject.com/Tips/317642/Handling-simple-text-files-in-C-Cplusplus
+//PTSTR Normalise(PBYTE pBuffer)
+//{
+//	PTSTR			ptText;		// pointer to the text char* or wchar_t* depending on UNICODE setting
+//	PWSTR			pwStr;		// pointer to a wchar_t buffer
+//	int				nLength;	// a useful integer variable
+//
+//	//IsTextUnicode(pBuffer, iSize, iRes);
+//
+//	// obtain a wide character pointer to check BOMs
+//	pwStr = reinterpret_cast<PWSTR>(pBuffer);
+//
+//	// check if the first word is a Unicode Byte Order Mark
+//	if (*pwStr == 0xFFFE || *pwStr == 0xFEFF)
+//	{
+//		// Yes, this is Unicode data
+//		if (*pwStr++ == 0xFFFE)
+//		{
+//			// BOM says this is Big Endian so we need
+//			// to swap bytes in each word of the text
+//			while (*pwStr)
+//			{
+//				// swap bytes in each word of the buffer
+//				WCHAR	wcTemp = *pwStr >> 8;
+//				wcTemp |= *pwStr << 8;
+//				*pwStr = wcTemp;
+//				++pwStr;
+//			}
+//			// point back to the start of the text
+//			pwStr = reinterpret_cast<PWSTR>(pBuffer + 2);
+//		}
+//#if !defined(UNICODE)
+//		// This is a non-Unicode project so we need
+//		// to convert wide characters to multi-byte
+//
+//		// get calculated buffer size
+//		nLength = WideCharToMultiByte(CP_UTF8, 0, pwStr, -1, NULL, 0, NULL, NULL);
+//		// obtain a new buffer for the converted characters
+//		ptText = new TCHAR[nLength];
+//		// convert to multi-byte characters
+//		nLength = WideCharToMultiByte(CP_UTF8, 0, pwStr, -1, ptText, nLength, NULL, NULL);
+//#else
+//		nLength = wcslen(pwStr) + 1;    // if Unicode, then copy the input text
+//		ptText = new WCHAR[nLength];    // to a new output buffer
+//		nLength *= sizeof(WCHAR);       // adjust to size in bytes
+//		memcpy_s(ptText, nLength, pwStr, nLength);
+//#endif
+//	}
+//	else
+//	{
+//		// The text data is UTF-8 or Ansi
+//#if defined(UNICODE)
+//		// This is a Unicode project so we need to convert
+//		// multi-byte or Ansi characters to Unicode.
+//
+//		// get calculated buffer size
+//		nLength = MultiByteToWideChar(CP_UTF8, 0, reinterpret_cast<PCSTR>(pBuffer), -1, NULL, 0);
+//		// obtain a new buffer for the converted characters
+//		ptText = new TCHAR[nLength];
+//		// convert to Unicode characters
+//		nLength = MultiByteToWideChar(CP_UTF8, 0, reinterpret_cast<PCSTR>(pBuffer), -1, ptText, nLength);
+//#else
+//		// This is a non-Unicode project so we just need
+//		// to skip the UTF-8 BOM, if present
+//		if (memcmp(pBuffer, "\xEF\xBB\xBF", 3) == 0)
+//		{
+//			// UTF-8
+//			pBuffer += 3;
+//		}
+//		nLength = strlen(reinterpret_cast<PSTR>(pBuffer)) + 1;  // if UTF-8/ANSI, then copy the input text
+//		ptText = new char[nLength];                             // to a new output buffer
+//		memcpy_s(ptText, nLength, pBuffer, nLength);
+//#endif
+//	}
+//
+//	// return pointer to the (possibly converted) text buffer.
+//	return ptText;
+//}
+
+TString Normalise(PBYTE pBuffer)
+{
+	PWSTR			pwStr;		// pointer to a wchar_t buffer
+
+	// obtain a wide character pointer to check BOMs
+	pwStr = reinterpret_cast<PWSTR>(pBuffer);
+
+	// check if the first word is a Unicode Byte Order Mark
+	if (*pwStr == 0xFFFE || *pwStr == 0xFEFF)
+	{
+		// Yes, this is Unicode data
+		if (*pwStr++ == 0xFFFE)
+		{
+			// BOM says this is Big Endian so we need
+			// to swap bytes in each word of the text
+			while (*pwStr)
+			{
+				// swap bytes in each word of the buffer
+				WCHAR	wcTemp = *pwStr >> 8;
+				wcTemp |= *pwStr << 8;
+				*pwStr = wcTemp;
+				++pwStr;
+			}
+			// point back to the start of the text
+			pwStr = reinterpret_cast<PWSTR>(pBuffer + 2);
+		}
+		// creation of TString object handles any conversions & memory allocations etc..
+		return pwStr;
+	}
+	else
+	{
+		// The text data is UTF-8 or Ansi
+		// skip the UTF-8 BOM, if present
+		if (memcmp(pBuffer, "\xEF\xBB\xBF", 3) == 0)
+		{
+			// UTF-8
+			pBuffer += 3;
+		}
+	}
+
+	// return pointer to the (possibly converted) text buffer.
+	// creation of TString object handles any conversions & memory allocations etc..
+	return reinterpret_cast<PCSTR>(pBuffer);
+}
+
 /*!
 * \brief Read File Contents
 *
-* TODO: Fix this function to correctly handle BOM types, or write a new text loading function that does.
+* TODO: Fix this function to correctly handle BOM types, or write a new text loading function that does. (done! see readTextFile() )
 */
 BYTE *readFile(const PTCHAR filename) {
 	//Ouvrir le fichier, read en mode binaire
@@ -69,10 +194,11 @@ BYTE *readFile(const PTCHAR filename) {
 	}
 
 	// make data container for file contents
-	BYTE * fileContents = new BYTE[size + 1];
+	BYTE * fileContents = new BYTE[size + 2];
 
-	// Null terminate the string
+	// Null terminate the string (use double zero)
 	fileContents[size] = 0;
+	fileContents[size+1] = 0;
 
 	// read the file, fails, destroy memory and return NULL
 	if (fread(fileContents, 1, size, file) != size) {
@@ -87,6 +213,30 @@ BYTE *readFile(const PTCHAR filename) {
 	return fileContents;
 }
 
+/*!
+* \brief Read Text File Contents
+*
+* This function correctly handles BOM types for ascii,utf8,utf16,utf16LE & returns text in a TString object.
+*/
+TString readTextFile(const PTCHAR tFile)
+{
+	LPBYTE data = readFile(tFile);
+
+	if (data == NULL)
+		return TEXT("");
+
+	TString tsRes(Normalise(data));
+
+	delete[] data;
+
+	return tsRes;
+}
+
+/*!
+* \brief Save a TString object to file as text
+*
+* TODO: add BOM type saving...
+*/
 bool SaveDataToFile(const TString &tsFile, const TString &tsData)
 {
 	FILE *file = dcx_fopen(tsFile.to_chr(), TEXT("wb"));

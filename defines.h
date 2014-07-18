@@ -496,6 +496,7 @@ UINT parseFontFlags(const TString &flags);
 UINT parseFontCharSet(const TString &charset);
 
 BYTE *readFile(const PTCHAR filename);
+TString readTextFile(const PTCHAR tFile);
 bool SaveDataToFile(const TString &tsFile, const TString &tsData);
 TString FileDialog(const TString & data, const TString &method, const HWND pWnd);
 

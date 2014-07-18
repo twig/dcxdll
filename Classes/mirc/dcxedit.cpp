@@ -440,13 +440,16 @@ void DcxEdit::parseCommandRequest( const TString &input) {
 	}
 	// xdid -t [NAME] [ID] [SWITCH] [FILENAME]
 	else if (flags[TEXT('t')] && numtok > 3) {
-		const BYTE * contents = readFile(input.gettok(4, -1).to_chr());
+		//const BYTE * contents = readFile(input.gettok(4, -1).to_chr());
+		//
+		//if (contents != NULL) {
+		//	this->m_tsText = (PTCHAR)contents;
+		//	SetWindowTextW(this->m_Hwnd, this->m_tsText.to_chr());
+		//	delete [] contents;
+		//}
 
-		if (contents != NULL) {
-			this->m_tsText = (PTCHAR)contents;
-			SetWindowTextW(this->m_Hwnd, this->m_tsText.to_chr());
-			delete [] contents;
-		}
+		this->m_tsText = readTextFile(input.gettok(4, -1).to_chr());
+		SetWindowTextW(this->m_Hwnd, this->m_tsText.to_chr());
 	}
 	// xdid -u [NAME] [ID] [SWITCH] [FILENAME]
 	else if (flags[TEXT('u')] && numtok > 3) {
