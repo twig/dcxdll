@@ -241,7 +241,7 @@ bool SaveDataToFile(const TString &tsFile, const TString &tsData)
 {
 	FILE *file = dcx_fopen(tsFile.to_chr(), TEXT("wb"));
 
-	if (file != NULL)
+	if (file == NULL)
 		return false;
 
 	fwrite(tsData.to_chr(), sizeof(TCHAR), tsData.len(), file);

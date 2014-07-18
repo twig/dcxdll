@@ -2118,7 +2118,7 @@ LRESULT DcxTreeView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
 
 LRESULT CALLBACK DcxTreeView::EditLabelProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam ) {
 
-	DcxTreeView * pthis = (DcxTreeView *) GetProp( mHwnd, TEXT("dcx_pthis") );
+	DcxTreeView * pthis = reinterpret_cast<DcxTreeView *>(GetProp(mHwnd, TEXT("dcx_pthis")));
 
 	switch( uMsg ) {
 
@@ -2334,7 +2334,7 @@ bool DcxTreeView::xmlSaveTree(HTREEITEM hFromItem, const TString &name, TString 
 	}
 	TiXmlElement *xRoot = doc.FirstChildElement("dcxml");
 	if (xRoot == NULL) {
-		xRoot = (TiXmlElement *)doc.InsertEndChild(TiXmlElement("dcxml"));
+		xRoot = reinterpret_cast<TiXmlElement *>(doc.InsertEndChild(TiXmlElement("dcxml")));
 
 		if (xRoot == NULL) {
 			this->showErrorEx(NULL, TEXT("-S"), TEXT("Unable To Add Root <dcxml>"));
@@ -2344,14 +2344,14 @@ bool DcxTreeView::xmlSaveTree(HTREEITEM hFromItem, const TString &name, TString 
 
 	TiXmlElement *xData = xRoot->FirstChildElement("treeview_data");
 	if (xData == NULL) {
-		xData = (TiXmlElement *)xRoot->InsertEndChild(TiXmlElement("treeview_data"));
+		xData = reinterpret_cast<TiXmlElement *>(xRoot->InsertEndChild(TiXmlElement("treeview_data")));
 		if (xData == NULL)
 			return false;
 	}
 
 	TiXmlElement *xElm = xData->FirstChildElement(name.c_str());
 	if (xElm == NULL) {
-		xElm = (TiXmlElement *)xData->InsertEndChild(TiXmlElement(name.c_str()));
+		xElm = reinterpret_cast<TiXmlElement *>(xData->InsertEndChild(TiXmlElement(name.c_str())));
 		if (xElm == NULL)
 			return false;
 	}
