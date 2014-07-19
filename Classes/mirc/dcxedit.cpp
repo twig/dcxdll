@@ -448,12 +448,22 @@ void DcxEdit::parseCommandRequest( const TString &input) {
 		//	delete [] contents;
 		//}
 
-		this->m_tsText = readTextFile(input.gettok(4, -1).to_chr());
-		SetWindowTextW(this->m_Hwnd, this->m_tsText.to_chr());
+		TString tsFile(input.gettok(4, -1).trim());
+
+		if (IsFile(tsFile))
+		{
+			this->m_tsText = readTextFile(tsFile.to_chr());
+			SetWindowTextW(this->m_Hwnd, this->m_tsText.to_chr());
+		}
+		else
+			showErrorEx(NULL, TEXT("-t"), TEXT("Unable to open: %s"), tsFile.to_chr());
 	}
 	// xdid -u [NAME] [ID] [SWITCH] [FILENAME]
 	else if (flags[TEXT('u')] && numtok > 3) {
-		SaveDataToFile(input.gettok(4, -1), this->m_tsText);
+		const TString tsFile(input.gettok(4, -1).trim());
+
+		if (!SaveDataToFile(tsFile, this->m_tsText))
+			this->showErrorEx(NULL, TEXT("-u"), TEXT("Unable to save: %s"), tsFile.to_chr());
 	}
 	// xdid -S [NAME] [ID] [SWITCH] [START] [END]
 	else if (flags[TEXT('S')] && numtok > 3) {

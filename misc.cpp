@@ -235,7 +235,7 @@ TString readTextFile(const PTCHAR tFile)
 /*!
 * \brief Save a TString object to file as text
 *
-* TODO: add BOM type saving...
+* TODO: ...
 */
 bool SaveDataToFile(const TString &tsFile, const TString &tsData)
 {
@@ -243,7 +243,12 @@ bool SaveDataToFile(const TString &tsFile, const TString &tsData)
 
 	if (file == NULL)
 		return false;
+#ifdef UNICODE
+	TCHAR tBOM = 0xFEFF;	// unicode BOM
 
+	fwrite(&tBOM, sizeof(TCHAR), 1, file);
+#endif
+	// if not in unicode mode then save without BOM as ascii/utf8
 	fwrite(tsData.to_chr(), sizeof(TCHAR), tsData.len(), file);
 	fflush(file);
 	fclose(file);
