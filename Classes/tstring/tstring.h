@@ -157,6 +157,8 @@ private:
 	mutable unsigned int	m_savedcurrenttok;
 	size_t					m_buffersize;	// size of string buffer in use. (size in bytes)
 
+	//mutable std::vector<TString>	m_SplitParts;
+
 public:
 
 	TCHAR * m_pString; //!< String buffer
@@ -286,6 +288,7 @@ public:
 	TString gettok( int N, int M, const TCHAR * sepChars = SPACE ) const;
 	TString getfirsttok( const unsigned int N, const TCHAR * sepChars = SPACE ) const;	// must becalled before the first getnexttok()
 	TString getnexttok( const TCHAR * sepChars = SPACE ) const;							// gets subsequent tokens after a getfirsttok() call.
+	TString getlasttoks() const;														// gets all remaining tokens after a getfirsttok()/getnexttok() call.
 	void instok( const TCHAR * cToken, const unsigned int N, const TCHAR * sepChars = SPACE );
 	bool istok( const TCHAR * cToken, const TCHAR * sepChars = SPACE ) const;
 	TString matchtok( TCHAR * mString, int N, const TCHAR * sepChars = SPACE ) const;
@@ -298,6 +301,11 @@ public:
 	// added by Ook
 	TString wildtok( TCHAR * wildString, int N, const TCHAR * sepChars = SPACE ) const;
 	int nwildtok( TCHAR * wildString, const TCHAR * sepChars = SPACE ) const;
+
+	//size_t split(const TCHAR * sepChars = SPACE) const;
+	//const TString &part(const size_t N) const;
+	//const std::vector<TString> &parts(const TCHAR *sepChars = SPACE) const;
+	//void ClearParts() const { m_SplitParts.clear(); }
 
 #ifdef INCLUDE_MIRC_EXTRAS
 	// extras for mIRC

@@ -1417,8 +1417,12 @@ TString operator +(const TString & tString, const TCHAR * cString)
 
 const size_t TString::len( ) const {
 	if (this->m_pString != NULL)
-		return (size_t)ts_strlen(this->m_pString);
+	{
+		if (this->m_pString[0] == TEXT('\0'))	// check for zero length string.
+			return 0;
 
+		return (size_t)ts_strlen(this->m_pString);
+	}
 	return 0;
 }
 
@@ -1951,7 +1955,7 @@ TString TString::getfirsttok( const unsigned int N, const TCHAR * sepChars ) con
 	this->m_savedtotaltoks = this->numtok(sepChars);
 	this->m_savedpos = this->m_pString;
 	this->m_savedcurrenttok = N;
-	// N == 0 is used top pre load the vars for a loop of next toks where we need to start at 1
+	// N == 0 is used to pre load the vars for a loop of next toks where we need to start at 1
 
 	if ((N > this->m_savedtotaltoks) || (N == 0))
 		return TEXT("");
@@ -2080,6 +2084,21 @@ TString TString::getnexttok( const TCHAR * sepChars ) const {
 	return TEXT("");
 }
 
+TString TString::getlasttoks( ) const
+{
+	if (this->m_pString == NULL)
+		return TEXT("");
+
+	this->m_savedcurrenttok++;
+	const TCHAR * p_cStart = this->m_savedpos;
+
+	if ((this->m_savedcurrenttok > this->m_savedtotaltoks) || (p_cStart == NULL))
+		return TEXT("");
+
+	this->m_savedpos = NULL;
+	return p_cStart;
+}
+
 /*!
  * \brief blah
  *
@@ -2094,7 +2113,7 @@ unsigned int TString::numtok( const TCHAR * sepChars ) const {
 	//if (this->m_savedtotaltoks > 0)
 	//	return this->m_savedtotaltoks;
 
-	if (ts_strlen(this->m_pString) == 0)
+	if (this->m_pString[0] == TEXT('\0'))
 		return 0;
 
 	TCHAR * p_cStart = this->m_pString, * p_cEnd = NULL;
@@ -3497,6 +3516,7 @@ void TString::clear(void)
 	this->m_savedcurrenttok = 0;
 	this->m_savedpos = NULL;
 	this->m_savedtotaltoks = 0;
+	//this->m_SplitParts.clear();
 
 	ZeroMemory(this->m_pString, this->m_buffersize);
 }
@@ -3578,3 +3598,59 @@ TString &TString::append(const TCHAR *cString, const size_t iChars)
 	}
 	return *this;
 }
+
+//size_t TString::split(const TCHAR * sepChars) const
+//{
+//	if (sepChars == NULL || this->m_pString == NULL)
+//		return 0;
+//
+//	if ((this->m_pString[0] == TEXT('\0')) || (sepChars[0] == TEXT('\0')))
+//		return 0;
+//
+//	TCHAR * p_cStart = this->m_pString, *p_cEnd = this->m_pString;
+//	size_t iCount = 0;
+//	const int sepl = ts_strlen(sepChars);
+//
+//	m_SplitParts.clear();
+//
+//	while ((p_cEnd = ts_strstr(p_cStart, sepChars)) != NULL) {
+//		iCount++;
+//		m_SplitParts.push_back(TString(p_cStart, p_cEnd));
+//
+//		p_cStart += sepl;
+//	}
+//
+//	return iCount;
+//}
+//
+//const TString &TString::part(const size_t N) const
+//{
+//	static TString tsNull;
+//
+//	if (m_SplitParts.empty())
+//		return tsNull;
+//
+//	return m_SplitParts[N];
+//}
+//
+//const std::vector<TString> &TString::parts(const TCHAR *sepChars) const
+//{
+//	if (m_SplitParts.empty())
+//	{
+//		if ((m_pString != NULL) && (sepChars != NULL))
+//		{
+//			if ((this->m_pString[0] != TEXT('\0')) && (sepChars[0] != TEXT('\0')))
+//			{
+//				TCHAR * p_cStart = this->m_pString, *p_cEnd = this->m_pString;
+//				const int sepl = ts_strlen(sepChars);
+//
+//				while ((p_cEnd = ts_strstr(p_cStart, sepChars)) != NULL) {
+//					m_SplitParts.push_back(TString(p_cStart, p_cEnd));
+//
+//					p_cStart += sepl;
+//				}
+//			}
+//		}
+//	}
+//	return m_SplitParts;
+//}
