@@ -290,17 +290,14 @@ void DcxmlParser::parseControl() {
 			while(mystring.gettok(1) != TEXT("")) { 
 				printstring.addtok(mystring.gettok(1).to_chr());
 				if (printstring.len() > (MIRC_BUFFER_SIZE_CCH -100)) {
-					//this->xdidEX(id,TEXT("-a"),TEXT("%i %s"),textspace,printstring.gettok(1,-1).to_chr());
 					this->xdidEX(id,TEXT("-a"),TEXT("%i %s"),textspace,printstring.to_chr());
 					printstring = TEXT("");
 					textspace = 1;
 				}
 				mystring.deltok(1);
 			}
-			if (printstring != TEXT("")) { 
-				//this->xdidEX(id,TEXT("-a"),TEXT("%i %s"),textspace,printstring.gettok(1,-1).to_chr());
+			if (printstring != TEXT(""))
 				this->xdidEX(id,TEXT("-a"),TEXT("%i %s"),textspace,printstring.to_chr());
-			}
 		}
 	}
 	else if (0==lstrcmpA(type, "edit")) { 

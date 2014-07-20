@@ -39,18 +39,24 @@ mIRC(dcxml) {
 
 	// Parse XDialog XML.
 	if (flags[TEXT('d')]) {
-		TString tsFilename(input.gettok( 4, -1 ).trim());
+		const TString tsMark(input.getnexttok());			// tok 2
+		const TString tsName(input.getnexttok());			// tok 3
+		TString tsFilename(input.getlasttoks( ).trim());	// tok 4, -1
+
 		if (!IsFile(tsFilename)) {
 			Dcx::errorex(TEXT("/dcxml -d"), TEXT("Unable To Access File: %s"), tsFilename.to_chr());
 			return 0;
 		}
-		Parser.ParseXML(tsFilename, input.gettok(2), input.gettok(3), (flags[TEXT('v')]), (flags[TEXT('x')]) );
+		Parser.ParseXML(tsFilename, tsMark, tsName, (flags[TEXT('v')]), (flags[TEXT('x')]) );
 		return (Parser.loadSuccess) ? 1 : 0;
 	}
 	// Parse XPopup DCXML.
 
 	else if (flags[TEXT('p')]) {
-		TString tsFilename(input.gettok( 4, -1 ).trim());
+		const TString popupName(input.getnexttok());		// tok 2
+		const TString popupDataset(input.getnexttok());		// tok 3
+		TString tsFilename(input.getlasttoks().trim());		// tok 4, -1
+
 		if (!IsFile(tsFilename)) {
 			Dcx::errorex(TEXT("/dcxml -p"), TEXT("Unable To Access File: %s"), tsFilename.to_chr());
 			return 0;
@@ -61,9 +67,6 @@ mIRC(dcxml) {
 			return 0;
 		}
 		TiXmlElement *popups = doc.FirstChildElement("dcxml")->FirstChildElement("popups");
-		TiXmlElement *popup = NULL;
-		const TString popupName(input.getnexttok());		// tok 2
-		const TString popupDataset(input.getnexttok( ));	// tok 3
 
 		if ((popupName == TEXT("mircbar")) || (popupName == TEXT("mirc")) || (popupName == TEXT("scriptpopup"))) {
 			Dcx::errorex(TEXT("/dcxml"), TEXT("Menu name TEXT('%s') is reserved."), popupName.to_chr());
@@ -76,7 +79,7 @@ mIRC(dcxml) {
 			return 0;
 		}
 
-		XPopupMenuManager::LoadPopupsFromXML(popups, popup, popupName, popupDataset);
+		XPopupMenuManager::LoadPopupsFromXML(popups, NULL, popupName, popupDataset);
 		return 1;
 	}
 
