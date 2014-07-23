@@ -72,10 +72,6 @@ bool DcxDock::DockWindow(HWND hwnd, const TString &flag)
 	}
 	LPDCXULTRADOCK ud = new DCXULTRADOCK;
 
-	if (ud == NULL) {
-		Dcx::error(TEXT("xdock"), TEXT("No Memory"));
-		return false;
-	}
 	ud->hwnd = hwnd;
 	ud->old_exstyles = GetWindowExStyle(hwnd);
 	ud->old_styles = GetWindowStyle(hwnd);

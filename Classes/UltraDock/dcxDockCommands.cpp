@@ -201,23 +201,26 @@ bool DockWindow(const HWND mWnd, const HWND temp, const TCHAR *find, const TStri
 	if (GetProp(sWnd,TEXT("dcx_dock")) == NULL)
 	{
 		// subclass window.
-		LPDCXDOCK dd = new DCXDOCK;
+		try {
+			LPDCXDOCK dd = new DCXDOCK;
 
-		if (dd == NULL) {
-			Dcx::error(TEXT("/xdock"),TEXT("Unable to Allocate Memory."));
+			if (SetProp(sWnd, TEXT("dcx_dock"), dd)) {
+				dd->oldProc = SubclassWindow(sWnd, mIRCDockWinProc);
+				dd->win = mWnd;
+				dd->type = find;
+			}
+			else {
+				delete dd;
+				Dcx::error(TEXT("/xdock"), TEXT("Unable to SetProp"));
+				return false;
+			}
+		}
+		catch (std::bad_alloc)
+		{
+			Dcx::error(TEXT("/xdock"), TEXT("Unable to Allocate Memory."));
 			return false;
 		}
 
-		if (SetProp(sWnd, TEXT("dcx_dock"), dd)) {
-			dd->oldProc = SubclassWindow(sWnd, mIRCDockWinProc);
-			dd->win = mWnd;
-			dd->type = find;
-		}
-		else {
-			delete dd;
-			Dcx::error(TEXT("/xdock"),TEXT("Unable to SetProp"));
-			return false;
-		}
 	}
 	DWORD flags = DOCKF_NORMAL;
 	if (xflags[TEXT('s')])

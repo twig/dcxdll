@@ -83,7 +83,13 @@ void UltraDock(const HWND mWnd, HWND temp, const TString &flag)
 		Dcx::error(TEXT("/xdock -m"),TEXT("Window already docked"));
 		return;
 	}
-	g_dockMDI->DockWindow(temp, flag);
+	try {
+		g_dockMDI->DockWindow(temp, flag);
+	}
+	catch (std::bad_alloc)
+	{
+		Dcx::error(TEXT("/xdock -m"), TEXT("No Memory"));
+	}
 }
 
 void UltraUnDock(const HWND hwnd)
@@ -108,7 +114,13 @@ void TreebarDock(HWND temp, const TString &flag)
 		Dcx::error(TEXT("/xdock -b"),TEXT("Window already docked"));
 		return;
 	}
-	g_dockTreebar->DockWindow(temp, flag);
+	try {
+		g_dockTreebar->DockWindow(temp, flag);
+	}
+	catch (std::bad_alloc)
+	{
+		Dcx::error(TEXT("/xdock -b"), TEXT("No Memory"));
+	}
 	UpdatemIRC(); // seems needed to force the size update
 }
 
