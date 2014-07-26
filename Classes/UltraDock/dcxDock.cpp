@@ -63,7 +63,7 @@ DcxDock::~DcxDock(void)
 bool DcxDock::DockWindow(HWND hwnd, const TString &flag)
 {
 	if (isDocked(hwnd)) {
-		Dcx::errorex(TEXT("xdock"), TEXT("Window (%d) is already docked"), hwnd);
+		Dcx::errorex(TEXT("xdock"), TEXT("Window (%u) is already docked"), hwnd);
 		return false;
 	}
 	if (!IsWindow(this->m_hParent)) {

@@ -20,9 +20,11 @@
 */
 mIRC(TrayIcon) {
 	if (trayIcons == NULL) {
-		trayIcons = new DcxTrayIcon();
-
-		if (trayIcons == NULL) {
+		try {
+			trayIcons = new DcxTrayIcon();
+		}
+		catch (std::bad_alloc)
+		{
 			Dcx::error(TEXT("/xtray"), TEXT("There was a problem creating the trayicon manager"));
 			return 0;
 		}
@@ -106,7 +108,7 @@ mIRC(TrayIcon) {
 		HICON icon;
 		const TString iconFlags(d.getnexttok( ));	// tok 3
 		const int index = d.getnexttok( ).to_int();	// tok 4
-		TString filename(d.gettok(5, -1).trim());
+		TString filename(d.getlasttoks().trim());	// tok 5, -1
 
 		// TODO: twig
 		//NIF_INFO
@@ -124,7 +126,7 @@ mIRC(TrayIcon) {
 		TString tip;
 
 		if (numtok > 2)
-			tip = d.gettok(3, -1);
+			tip = d.getlasttoks();	// tok 3, -1
 
 		if (!trayIcons->modifyIcon(id, NIM_MODIFY, NULL, &tip))
 			Dcx::error(TEXT("/xtray"), TEXT("Error changing trayicon tooltip"));

@@ -717,9 +717,8 @@ mIRC(_xdock)
 						}
 						if (p == NULL) data[0] = 0;
 					}
-					else {
+					else
 						Dcx::errorex(TEXT("$!xdock"), TEXT("Window not docked to main mIRC window (%d).%s"), hwnd, d.gettok(2).to_chr());
-					}
 				}
 				break;
 			case 7: // text
