@@ -125,8 +125,8 @@ SIZE XPopupMenuItem::getItemSize( const HWND mHwnd ) {
 		const TString tsType(this->m_pXParentMenu->getName( ));
 		if ( (tsType == TEXT("mirc")) || (tsType == TEXT("mircbar")) || (tsType == TEXT("dialog")) ) {
 			if ( this->m_tsItemText.numtok( TEXT("\v") ) > 1 ) {
-				this->m_nIcon = this->m_tsItemText.getfirsttok( 1, TEXT("\v")).to_int( ) - 1;
-				this->m_tsItemText = this->m_tsItemText.getnexttok(TEXT("\v")).trim();
+				this->m_nIcon = this->m_tsItemText.getfirsttok( 1, TEXT("\v")).to_int( ) - 1;		// tok 1, TEXT("\v")
+				this->m_tsItemText = this->m_tsItemText.getnexttok(TEXT("\v")).trim();				// tok 2, TEXT("\v")
 			}
 		}
 		else
@@ -142,7 +142,7 @@ SIZE XPopupMenuItem::getItemSize( const HWND mHwnd ) {
 	}
 
 	size.cx += XPMI_BOXLPAD + XPMI_BOXWIDTH + XPMI_BOXRPAD;
-	if ( this->m_bSep == TRUE )
+	if ( this->m_bSep )
 		size.cy = 3;
 	else
 		size.cy = XPMI_HEIGHT;
@@ -217,7 +217,7 @@ void XPopupMenuItem::DrawItem( const LPDRAWITEMSTRUCT lpdis ) {
 		this->DrawItemCheckBox( lpdis, lpcol, lpdis->itemState & ODS_GRAYED?TRUE:FALSE );
 
 	// Separator
-	if ( this->m_bSep == TRUE )
+	if ( this->m_bSep )
 		this->DrawItemSeparator( lpdis, lpcol );
 	// Regular Item
 	else {
@@ -225,7 +225,7 @@ void XPopupMenuItem::DrawItem( const LPDRAWITEMSTRUCT lpdis ) {
 
 		if ( !( lpdis->itemState & ODS_CHECKED ) || this->m_nIcon > -1 )
 			this->DrawItemIcon( lpdis, lpcol, iItemStyle, lpdis->itemState & ODS_SELECTED?TRUE:FALSE, lpdis->itemState & ODS_GRAYED?TRUE:FALSE );
-		if ( this->m_bSubMenu == TRUE )
+		if ( this->m_bSubMenu )
 			this->DrawItemSubArrow( lpdis, lpcol, lpdis->itemState & ODS_GRAYED?TRUE:FALSE );
 	}
 }
@@ -525,10 +525,10 @@ void XPopupMenuItem::DrawItemIcon( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUC
 	if ( himl != NULL && this->m_nIcon > -1 && this->m_nIcon < ImageList_GetImageCount( himl ) ) {
 
 		// Selected Item
-		if ( bSel == TRUE ) {
+		if ( bSel ) {
 
 			// Disabled
-			if ( bDis == TRUE )
+			if ( bDis )
 				ImageList_DrawEx( himl, this->m_nIcon, lpdis->hDC, x, y, 0, 0, CLR_NONE, CLR_NONE, ILD_TRANSPARENT | ILD_BLEND50 );
 			else {
 
@@ -547,7 +547,7 @@ void XPopupMenuItem::DrawItemIcon( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUC
 		// Not selected
 		else {
 
-			if ( bDis == TRUE )
+			if ( bDis )
 				ImageList_DrawEx( himl, this->m_nIcon, lpdis->hDC, x, y, 0, 0, CLR_NONE, CLR_NONE, ILD_TRANSPARENT | ILD_BLEND50 );
 			else
 				ImageList_DrawEx( himl, this->m_nIcon, lpdis->hDC, x, y, 0, 0, CLR_NONE, RGB(0,0,0), ILD_TRANSPARENT );
@@ -757,7 +757,7 @@ void XPopupMenuItem::DrawGradient( const HDC hdc, const LPRECT lprc, const COLOR
 		int n;
 		const int dy = 2;
 
-		if ( bHorz == TRUE )
+		if ( bHorz )
 			n = lprc->bottom - lprc->top - dy;
 		else
 			n = lprc->right - lprc->left - dy;
@@ -770,7 +770,7 @@ void XPopupMenuItem::DrawGradient( const HDC hdc, const LPRECT lprc, const COLOR
 			const BYTE Green = (BYTE)( MulDiv( int( EndGreen ) - StartGreen, dn, n ) + StartGreen );
 			const BYTE Blue = (BYTE)( MulDiv( int( EndBlue ) - StartBlue, dn, n ) + StartBlue );
 
-			if ( bHorz == TRUE )
+			if ( bHorz )
 				SetRect( &rc, lprc->left, lprc->top + dn, lprc->right , lprc->top + dn + dy );
 			else
 				SetRect( &rc, lprc->left + dn, lprc->top, lprc->left + dn + dy, lprc->bottom );

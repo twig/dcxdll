@@ -293,14 +293,14 @@ void XPopupMenuManager::parseCommand(const TString & input) {
 void XPopupMenuManager::parseCommand( const TString & input, XPopupMenu *p_Menu ) {
 	const TString tsMenuName(input.getfirsttok( 1 ));
 	const XSwitchFlags flags(input.getnexttok( ));	// tok 2
-	const unsigned int numtok = input.numtok( );
+	const UINT numtok = input.numtok( );
 
 	// xpopup -b - [MENU] [SWITCH] [FILENAME]
 	if (flags[TEXT('b')]) {
 		HBITMAP hBitmap = NULL;
 
 		if (numtok > 2) {
-			TString filename(input.gettok(3, -1 ).trim());
+			TString filename(input.getlasttoks().trim());	// tok 3, -1
 
 			if (filename == TEXT("none")) {
 				// ignore TEXT('none') to maintain compatibility
@@ -336,10 +336,12 @@ void XPopupMenuManager::parseCommand( const TString & input, XPopupMenu *p_Menu 
 	// xpopup -i -> [MENU] -i [FLAGS] [INDEX] [FILENAME]
 	else if ( flags[TEXT('i')] && numtok > 4 ) {
 		HIMAGELIST himl = p_Menu->getImageList( );
-		const int index = input.gettok( 4 ).to_int( );
-		TString filename(input.gettok( 5, -1 ));
+		const TString tsFlags(input.getnexttok());			// tok 3
+		const int index = input.getnexttok( ).to_int( );	// tok 4
+		TString filename(input.getlasttoks());				// tok 5, -1
+
 		if (IsFile(filename)) {
-			const HICON icon = dcxLoadIcon(index, filename, false, input.gettok( 3 ));
+			const HICON icon = dcxLoadIcon(index, filename, false, tsFlags);
 			if (icon != NULL) {
 				ImageList_AddIcon( himl, icon );
 				DestroyIcon( icon );
@@ -376,20 +378,24 @@ void XPopupMenuManager::parseCommand( const TString & input, XPopupMenu *p_Menu 
 	}
 	// xpopup -M -> [MENU] [SWITCH] (TEXT)
 	else if (flags[TEXT('M')]) {
-		p_Menu->setMarkedText(input.gettok(3, -1));
+		p_Menu->setMarkedText(input.getlasttoks());	// tok 3, -1
 	}
 	// xpopup -p -> [MENU] [SWITCH] [COLORS]
 	else if ( flags[TEXT('p')] && numtok > 2 ) {
 
-		const TString colors(input.gettok( 3, -1 ));
+		const TString colors(input.getlasttoks());	// tok 3, -1
 		const UINT len = colors.numtok( );
+
+		colors.getfirsttok(0);
 
 		for (UINT i = 1; i <= len; i++ )
 		{
-			if (colors.gettok( i ) == TEXT("default"))
+			const TString tmp(colors.getnexttok());		// tok i
+
+			if (tmp == TEXT("default"))
 				p_Menu->setDefaultColor( i );
 			else
-				p_Menu->setColor( i, (COLORREF)colors.gettok( i ).to_num( ) );
+				p_Menu->setColor( i, (COLORREF)tmp.to_num( ) );
 		}
 	}
 	// xpopup -s -> [MENU] [SWITCH] [+FLAGS] [X] [Y] (OVER HWND)
@@ -530,37 +536,37 @@ void XPopupMenuManager::parseIdentifier( const TString & input, TCHAR * szReturn
 					dcx_strcpyn( szReturnValue, TEXT("office2003"), MIRC_BUFFER_SIZE_CCH );
 					break;
 				case XPopupMenu::XPMS_OFFICE2003_REV:
-					lstrcpyn( szReturnValue, TEXT("office2003rev"), MIRC_BUFFER_SIZE_CCH );
+					dcx_strcpyn(szReturnValue, TEXT("office2003rev"), MIRC_BUFFER_SIZE_CCH);
 					break;
 				case XPopupMenu::XPMS_OFFICEXP:
-					lstrcpyn( szReturnValue, TEXT("officeXP"), MIRC_BUFFER_SIZE_CCH );
+					dcx_strcpyn(szReturnValue, TEXT("officeXP"), MIRC_BUFFER_SIZE_CCH);
 					break;
 				case XPopupMenu::XPMS_ICY:
-					lstrcpyn( szReturnValue, TEXT("icy"), MIRC_BUFFER_SIZE_CCH );
+					dcx_strcpyn(szReturnValue, TEXT("icy"), MIRC_BUFFER_SIZE_CCH);
 					break;
 				case XPopupMenu::XPMS_ICY_REV:
-					lstrcpyn( szReturnValue, TEXT("icyrev"), MIRC_BUFFER_SIZE_CCH );
+					dcx_strcpyn(szReturnValue, TEXT("icyrev"), MIRC_BUFFER_SIZE_CCH);
 					break;
 				case XPopupMenu::XPMS_GRADE:
-					lstrcpyn( szReturnValue, TEXT("grade"), MIRC_BUFFER_SIZE_CCH );
+					dcx_strcpyn(szReturnValue, TEXT("grade"), MIRC_BUFFER_SIZE_CCH);
 					break;
 				case XPopupMenu::XPMS_GRADE_REV:
-					lstrcpyn( szReturnValue, TEXT("graderev"), MIRC_BUFFER_SIZE_CCH );
+					dcx_strcpyn(szReturnValue, TEXT("graderev"), MIRC_BUFFER_SIZE_CCH);
 					break;
 				case XPopupMenu::XPMS_VERTICAL:
-					lstrcpyn( szReturnValue, TEXT("vertical"), MIRC_BUFFER_SIZE_CCH );
+					dcx_strcpyn(szReturnValue, TEXT("vertical"), MIRC_BUFFER_SIZE_CCH);
 					break;
 				case XPopupMenu::XPMS_VERTICAL_REV:
-					lstrcpyn( szReturnValue, TEXT("verticalrev"), MIRC_BUFFER_SIZE_CCH );
+					dcx_strcpyn(szReturnValue, TEXT("verticalrev"), MIRC_BUFFER_SIZE_CCH);
 					break;
 				case XPopupMenu::XPMS_NORMAL:
-					lstrcpyn( szReturnValue, TEXT("normal"), MIRC_BUFFER_SIZE_CCH );
+					dcx_strcpyn(szReturnValue, TEXT("normal"), MIRC_BUFFER_SIZE_CCH);
 					break;
 				case XPopupMenu::XPMS_CUSTOM:
-					lstrcpyn( szReturnValue, TEXT("custom"), MIRC_BUFFER_SIZE_CCH );
+					dcx_strcpyn(szReturnValue, TEXT("custom"), MIRC_BUFFER_SIZE_CCH);
 					break;
 				default:
-					lstrcpyn( szReturnValue, TEXT("unknown"), MIRC_BUFFER_SIZE_CCH );
+					dcx_strcpyn(szReturnValue, TEXT("unknown"), MIRC_BUFFER_SIZE_CCH);
 					break;
 			}
 		}
@@ -626,31 +632,31 @@ void XPopupMenuManager::parseIdentifier( const TString & input, TCHAR * szReturn
 	//	Dcx::errorex(TEXT("$!xpopup()"), TEXT("\"%s\" doesn't exist, see /xpopup -c"), tsMenuName.to_chr());
 	//	return;
 	//}
-
+	//
 	//if (prop == TEXT("ismenu")) {
 	//	lstrcpyn( szReturnValue, ((p_Menu != NULL)?TEXT("$true"):TEXT("$false")), MIRC_BUFFER_SIZE_CCH );
 	//	return;
 	//}
 	//else if (prop == TEXT("menuname")) {
 	//	const int i = tsMenuName.to_int();
-
+	//
 	//	if ((i < 0) || (i > (int) this->m_vpXPMenu.size()))
 	//	{
 	//		Dcx::errorex(TEXT("$!xpopup().menuname"), TEXT("Invalid index: %d"), i);
 	//		return;
 	//	}
-
+	//
 	//	// Return number of menus.
 	//	if (i == 0)
 	//		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), (int) this->m_vpXPMenu.size());
 	//	// Return name of specified menu.
 	//	else
 	//		lstrcpyn(szReturnValue, this->m_vpXPMenu[i -1]->getName().to_chr(),MIRC_BUFFER_SIZE_CCH);
-
+	//
 	//	return;
 	//}
 	//else if ( prop == TEXT("style") ) {
-
+	//
 	//	switch (p_Menu->getStyle( )) {
 	//		case XPopupMenu::XPMS_OFFICE2003:
 	//			lstrcpyn( szReturnValue, TEXT("office2003"), MIRC_BUFFER_SIZE_CCH );
@@ -692,33 +698,33 @@ void XPopupMenuManager::parseIdentifier( const TString & input, TCHAR * szReturn
 	//	return;
 	//}
 	//else if ( prop == TEXT("exstyle") ) {
-
+	//
 	//	TString styles(TEXT('+'));
 	//	const UINT iExStyles = p_Menu->getItemStyle( );
-
+	//
 	//	if ( iExStyles & XPS_ICON3D )
 	//		styles += TEXT('i');
 	//	if ( iExStyles & XPS_DISABLEDSEL )
 	//		styles += TEXT('d');
 	//	if ( iExStyles & XPS_ICON3DSHADOW )
 	//		styles += TEXT('p');
-
+	//
 	//	lstrcpyn( szReturnValue, styles.to_chr( ), MIRC_BUFFER_SIZE_CCH );
 	//	return;
 	//}
 	//else if ( prop == TEXT("colors") ) {
-
+	//
 	//	wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%ld %ld %ld %ld %ld %ld %ld %ld %ld %ld %ld"), p_Menu->getColor( 1 ), p_Menu->getColor( 2 ),
 	//		p_Menu->getColor( 3 ), p_Menu->getColor( 3 ), p_Menu->getColor( 5 ), p_Menu->getColor( 6 ),
 	//		p_Menu->getColor( 7 ), p_Menu->getColor( 8 ), p_Menu->getColor( 9 ), p_Menu->getColor( 10 ), p_Menu->getColor( 11 ) );
 	//	return;
-
+	//
 	//}
 	//else if ( prop == TEXT("color") && numtok > 2 ) {
-
+	//
 	//	const int nColor = input.getnexttok( ).to_int( );	// tok 3
 	//	if ( nColor > 0 && nColor < 11 ) {
-
+	//
 	//		wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%ld"), p_Menu->getColor( nColor ) );
 	//		return;
 	//	}
@@ -746,16 +752,16 @@ int XPopupMenuManager::parseMPopup(const TString & input)
 	}
 
 	const TString tsMenuName(input.getfirsttok( 1 ));
-	const TString tsArgs(input.getnexttok( ));	// tok 2
+	const UINT iEnable = input.getnexttok( ).to_int();	// tok 2
 
 	if (tsMenuName == TEXT("mirc")) {
-		if (tsArgs == TEXT('1'))
+		if (iEnable == 1)
 			m_bIsActiveMircPopup = true;
 		else
 			m_bIsActiveMircPopup = false;
 	}
 	else if (tsMenuName == TEXT("mircbar")) {
-		if (tsArgs == TEXT('1'))
+		if (iEnable == 1)
 			m_bIsActiveMircMenubarPopup = true;
 		else {
 			m_bIsActiveMircMenubarPopup = false;

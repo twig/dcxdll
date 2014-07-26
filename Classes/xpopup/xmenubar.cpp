@@ -98,7 +98,7 @@ void XMenuBar::parseXMenuBarCommand(const TString &input) {
 			}
 		}
 
-		p_Menu->attachToMenuBar(menuBar, input.gettok(3, -1));
+		p_Menu->attachToMenuBar(menuBar, input.getlasttoks());	// tok 3, -1
 	}
 	// Removes menu
 	// xmenubar [-d] [MENU]
@@ -146,7 +146,7 @@ void XMenuBar::parseXMenuBarCommand(const TString &input) {
 			return;
 		}
 
-		ModifyMenu(menuBar, offset, MF_BYPOSITION, MF_STRING, input.gettok(3, -1).to_chr());
+		ModifyMenu(menuBar, offset, MF_BYPOSITION, MF_STRING, input.getlasttoks().to_chr());	// tok 3, -1
 	}
 	// Resets to original mIRC menubar
 	// xmenubar [-r]
