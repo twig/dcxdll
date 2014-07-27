@@ -154,7 +154,7 @@ private:
 	static WCHAR *charToWchar(const char *cString, size_t *buffer_size = NULL);
 	static char *WcharTochar(const WCHAR *wString, size_t *buffer_size = NULL);
 
-	mutable TCHAR	*m_savedpos;
+	mutable const TCHAR	*m_savedpos;
 	mutable UINT	m_savedtotaltoks;
 	mutable UINT	m_savedcurrenttok;
 	size_t			m_buffersize;	// size of string buffer in use. (size in bytes)
