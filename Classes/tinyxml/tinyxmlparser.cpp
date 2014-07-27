@@ -1139,37 +1139,39 @@ const char* TiXmlElement::Parse( const char* p, TiXmlParsingData* data, TiXmlEnc
 		else
 		{
 			// Try to read an attribute:
-			TiXmlAttribute* attrib = new TiXmlAttribute();
-			if ( !attrib )
-			{
-				return 0;
+			try {
+				TiXmlAttribute* attrib = new TiXmlAttribute();
+
+				attrib->SetDocument(document);
+				pErr = p;
+				p = attrib->Parse(p, data, encoding);
+
+				if (!p || !*p)
+				{
+					if (document) document->SetError(TIXML_ERROR_PARSING_ELEMENT, pErr, data, encoding);
+					delete attrib;
+					return 0;
+				}
+
+				// Handle the strange case of double attributes:
+#ifdef TIXML_USE_STL
+				TiXmlAttribute* node = attributeSet.Find( attrib->NameTStr() );
+#else
+				TiXmlAttribute* node = attributeSet.Find(attrib->Name());
+#endif
+				if (node)
+				{
+					if (document) document->SetError(TIXML_ERROR_PARSING_ELEMENT, pErr, data, encoding);
+					delete attrib;
+					return 0;
+				}
+
+				attributeSet.Add(attrib);
 			}
-
-			attrib->SetDocument( document );
-			pErr = p;
-			p = attrib->Parse( p, data, encoding );
-
-			if ( !p || !*p )
+			catch (std::bad_alloc)
 			{
-				if ( document ) document->SetError( TIXML_ERROR_PARSING_ELEMENT, pErr, data, encoding );
-				delete attrib;
-				return 0;
+				return NULL;
 			}
-
-			// Handle the strange case of double attributes:
-			#ifdef TIXML_USE_STL
-			TiXmlAttribute* node = attributeSet.Find( attrib->NameTStr() );
-			#else
-			TiXmlAttribute* node = attributeSet.Find( attrib->Name() );
-			#endif
-			if ( node )
-			{
-				if ( document ) document->SetError( TIXML_ERROR_PARSING_ELEMENT, pErr, data, encoding );
-				delete attrib;
-				return 0;
-			}
-
-			attributeSet.Add( attrib );
 		}
 	}
 	return p;
@@ -1189,27 +1191,30 @@ const char* TiXmlElement::ReadValue( const char* p, TiXmlParsingData* data, TiXm
 		if ( *p != '<' )
 		{
 			// Take what we have, make a text element.
-			TiXmlText* textNode = new TiXmlText( "" );
+			try {
+				TiXmlText* textNode = new TiXmlText("");
 
-			if ( textNode == NULL )
-			    return 0;
+				if (TiXmlBase::IsWhiteSpaceCondensed())
+				{
+					p = textNode->Parse(p, data, encoding);
+				}
+				else
+				{
+					// Special case: we want to keep the white space
+					// so that leading spaces aren't removed.
+					p = textNode->Parse(pWithWhiteSpace, data, encoding);
+				}
 
-			if ( TiXmlBase::IsWhiteSpaceCondensed() )
-			{
-				p = textNode->Parse( p, data, encoding );
+				if (!textNode->Blank())
+					LinkEndChild(textNode);
+				else
+					delete textNode;
 			}
-			else
+			catch (std::bad_alloc)
 			{
-				// Special case: we want to keep the white space
-				// so that leading spaces aren't removed.
-				p = textNode->Parse( pWithWhiteSpace, data, encoding );
+				return NULL;
 			}
-
-			if ( !textNode->Blank() )
-				LinkEndChild( textNode );
-			else
-				delete textNode;
-		} 
+		}
 		else 
 		{
 			// We hit a '<'

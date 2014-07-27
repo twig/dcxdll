@@ -96,6 +96,7 @@ protected:
 	VectorOfXPopupMenu m_vpXPMenu; //!< Vector of XPopupMenu Objects
 
 	static const UINT parseTrackFlags( const TString & flags );
+	static int queryIntAttribute(const TiXmlElement *element, const char *attribute, const int defaultValue);
 
 	//bool m_bPatched;
 #ifdef DEBUG

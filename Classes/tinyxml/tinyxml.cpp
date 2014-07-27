@@ -639,7 +639,7 @@ const std::string* TiXmlElement::Attribute( const std::string& name, double* d )
 #endif
 
 
-int TiXmlElement::QueryIntAttribute( const char* name, int* ival ) const
+int TiXmlElement::QueryIntAttribute( const char* name, int *const ival ) const
 {
 	const TiXmlAttribute* attrib = attributeSet.Find( name );
 	if ( attrib == NULL )
@@ -649,7 +649,7 @@ int TiXmlElement::QueryIntAttribute( const char* name, int* ival ) const
 
 
 #ifdef TIXML_USE_STL
-int TiXmlElement::QueryIntAttribute( const std::string& name, int* ival ) const
+int TiXmlElement::QueryIntAttribute( const std::string& name, int *const ival ) const
 {
 	const TiXmlAttribute* attrib = attributeSet.Find( name );
 	if ( !attrib )
@@ -659,7 +659,7 @@ int TiXmlElement::QueryIntAttribute( const std::string& name, int* ival ) const
 #endif
 
 
-int TiXmlElement::QueryDoubleAttribute( const char* name, double* dval ) const
+int TiXmlElement::QueryDoubleAttribute( const char* name, double *const dval ) const
 {
 	const TiXmlAttribute* attrib = attributeSet.Find( name );
 	if ( attrib == NULL )
@@ -669,7 +669,7 @@ int TiXmlElement::QueryDoubleAttribute( const char* name, double* dval ) const
 
 
 #ifdef TIXML_USE_STL
-int TiXmlElement::QueryDoubleAttribute( const std::string& name, double* dval ) const
+int TiXmlElement::QueryDoubleAttribute( const std::string& name, double *const dval ) const
 {
 	const TiXmlAttribute* attrib = attributeSet.Find( name );
 	if ( !attrib )
@@ -824,12 +824,16 @@ bool TiXmlElement::Accept( TiXmlVisitor* visitor ) const
 
 TiXmlNode* TiXmlElement::Clone() const
 {
-	TiXmlElement* clone = new TiXmlElement( Value() );
-	if ( !clone )
-		return 0;
+	try {
+		TiXmlElement* clone = new TiXmlElement(Value());
 
-	CopyTo( clone );
-	return clone;
+		CopyTo(clone);
+		return clone;
+	}
+	catch (std::bad_alloc)
+	{
+		return 0;
+	}
 }
 
 
@@ -1068,12 +1072,16 @@ void TiXmlDocument::CopyTo( TiXmlDocument* target ) const
 
 TiXmlNode* TiXmlDocument::Clone() const
 {
-	TiXmlDocument* clone = new TiXmlDocument();
-	if ( clone == NULL )
-		return NULL;
+	try {
+		TiXmlDocument* clone = new TiXmlDocument();
 
-	CopyTo( clone );
-	return clone;
+		CopyTo(clone);
+		return clone;
+	}
+	catch (std::bad_alloc)
+	{
+		return NULL;
+	}
 }
 
 
@@ -1146,43 +1154,43 @@ void TiXmlAttribute::Print( FILE* cfile, int /*depth*/, TIXML_STRING* str ) cons
 {
 	TIXML_STRING n, v;
 
-	EncodeString( name, &n );
-	EncodeString( value, &v );
+	EncodeString(name, &n);
+	EncodeString(value, &v);
 
-	if (value.find ('\"') == TIXML_STRING::npos) {
-		if ( cfile ) {
-		fprintf (cfile, "%s=\"%s\"", n.c_str(), v.c_str() );
+	if (value.find('\"') == TIXML_STRING::npos) {
+		if (cfile) {
+			fprintf(cfile, "%s=\"%s\"", n.c_str(), v.c_str());
 		}
-		if ( str ) {
+		if (str) {
 			(*str) += n; (*str) += "=\""; (*str) += v; (*str) += "\"";
 		}
 	}
 	else {
-		if ( cfile ) {
-		fprintf (cfile, "%s='%s'", n.c_str(), v.c_str() );
+		if (cfile) {
+			fprintf(cfile, "%s='%s'", n.c_str(), v.c_str());
 		}
-		if ( str ) {
+		if (str) {
 			(*str) += n; (*str) += "='"; (*str) += v; (*str) += "'";
 		}
 	}
 }
 
 
-int TiXmlAttribute::QueryIntValue( int* ival ) const
+int TiXmlAttribute::QueryIntValue( int *const ival ) const
 {
 	if ( TIXML_SSCANF( value.c_str(), "%d", ival ) == 1 )
 		return TIXML_SUCCESS;
 	return TIXML_WRONG_TYPE;
 }
 
-int TiXmlAttribute::QueryDoubleValue( double* dval ) const
+int TiXmlAttribute::QueryDoubleValue( double *const dval ) const
 {
 	if ( TIXML_SSCANF( value.c_str(), "%lf", dval ) == 1 )
 		return TIXML_SUCCESS;
 	return TIXML_WRONG_TYPE;
 }
 
-void TiXmlAttribute::SetIntValue( int _value )
+void TiXmlAttribute::SetIntValue( const int _value )
 {
 	char buf [64];
 	#if defined(TIXML_SNPRINTF)		
@@ -1193,7 +1201,7 @@ void TiXmlAttribute::SetIntValue( int _value )
 	SetValue (buf);
 }
 
-void TiXmlAttribute::SetDoubleValue( double _value )
+void TiXmlAttribute::SetDoubleValue( const double _value )
 {
 	char buf [256];
 	#if defined(TIXML_SNPRINTF)		
@@ -1254,13 +1262,16 @@ bool TiXmlComment::Accept( TiXmlVisitor* visitor ) const
 
 TiXmlNode* TiXmlComment::Clone() const
 {
-	TiXmlComment* clone = new TiXmlComment();
+	try {
+		TiXmlComment* clone = new TiXmlComment();
 
-	if ( !clone )
-		return 0;
-
-	CopyTo( clone );
-	return clone;
+		CopyTo(clone);
+		return clone;
+	}
+	catch (std::bad_alloc)
+	{
+		return NULL;
+	}
 }
 
 
@@ -1299,15 +1310,17 @@ bool TiXmlText::Accept( TiXmlVisitor* visitor ) const
 
 
 TiXmlNode* TiXmlText::Clone() const
-{	
-	TiXmlText* clone = 0;
-	clone = new TiXmlText( "" );
+{
+	try {
+		TiXmlText* clone = new TiXmlText("");
 
-	if ( clone == NULL )
-		return 0;
-
-	CopyTo( clone );
-	return clone;
+		CopyTo(clone);
+		return clone;
+	}
+	catch (std::bad_alloc)
+	{
+		return NULL;
+	}
 }
 
 
@@ -1379,14 +1392,17 @@ bool TiXmlDeclaration::Accept( TiXmlVisitor* visitor ) const
 
 
 TiXmlNode* TiXmlDeclaration::Clone() const
-{	
-	TiXmlDeclaration* clone = new TiXmlDeclaration();
+{
+	try {
+		TiXmlDeclaration* clone = new TiXmlDeclaration();
 
-	if ( clone == NULL )
-		return 0;
-
-	CopyTo( clone );
-	return clone;
+		CopyTo(clone);
+		return clone;
+	}
+	catch (std::bad_alloc)
+	{
+		return NULL;
+	}
 }
 
 
@@ -1412,13 +1428,16 @@ bool TiXmlUnknown::Accept( TiXmlVisitor* visitor ) const
 
 TiXmlNode* TiXmlUnknown::Clone() const
 {
-	TiXmlUnknown* clone = new TiXmlUnknown();
+	try {
+		TiXmlUnknown* clone = new TiXmlUnknown();
 
-	if ( clone == NULL )
-		return 0;
-
-	CopyTo( clone );
-	return clone;
+		CopyTo(clone);
+		return clone;
+	}
+	catch (std::bad_alloc)
+	{
+		return NULL;
+	}
 }
 
 

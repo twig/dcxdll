@@ -94,8 +94,8 @@ void XPopupMenuManager::load(void)
 
 	// XMenuBar stuff
 	HMENU menu = GetMenu(mIRCLinker::getHWND());
-	int i = 0;
-	const unsigned int buffSize = 30;
+	//int i = 0;
+	const UINT buffSize = 30;
 	TString label(buffSize);
 	MENUITEMINFO mii;
 
@@ -105,10 +105,26 @@ void XPopupMenuManager::load(void)
 	mii.cch = buffSize;
 	mii.dwTypeData = label.to_chr();
 
-	while (GetMenuItemInfo(menu, i, TRUE, &mii)) {
+	//while (GetMenuItemInfo(menu, i, TRUE, &mii)) {
+	//	// We've found the tools menu, next one is the scriptable popup.
+	//	if (label == TEXT("&Tools")) {
+	//		HMENU scriptable = GetSubMenu(menu, i +1);;
+	//
+	//		// TODO: check if the next one is "&Window"
+	//		g_mIRCScriptMenu = new XPopupMenu(TEXT("scriptpopup"), scriptable);
+	//		break;
+	//	}
+	//
+	//	// Reset buffer size
+	//	mii.cch = buffSize;
+	//	i++;
+	//}
+
+	for (UINT i = 0; GetMenuItemInfo(menu, i, TRUE, &mii); i++)
+	{
 		// We've found the tools menu, next one is the scriptable popup.
 		if (label == TEXT("&Tools")) {
-			HMENU scriptable = GetSubMenu(menu, i +1);;
+			HMENU scriptable = GetSubMenu(menu, i + 1);;
 
 			// TODO: check if the next one is "&Window"
 			g_mIRCScriptMenu = new XPopupMenu(TEXT("scriptpopup"), scriptable);
@@ -117,7 +133,6 @@ void XPopupMenuManager::load(void)
 
 		// Reset buffer size
 		mii.cch = buffSize;
-		i++;
 	}
 }
 
@@ -174,7 +189,7 @@ LRESULT XPopupMenuManager::OnInitMenuPopup(HWND mHwnd, WPARAM wParam, LPARAM lPa
 			if (m_bIsActiveMircMenubarPopup)
 			{
 				HWND hActive = (HWND)SendMessage(mIRCLinker::getMDIClient(), WM_MDIGETACTIVE, NULL, NULL);
-				bool isCustomMenu = Dcx::XPopups.isCustomMenu(menu);
+				const bool isCustomMenu = Dcx::XPopups.isCustomMenu(menu);
 
 				// Store the handle of the menu being displayed.
 				if (isCustomMenu && (m_hMenuCustom == NULL))
@@ -1148,11 +1163,38 @@ void XPopupMenuManager::LoadPopupsFromXML(const TiXmlElement *popups, const TiXm
 	style = XPopupMenu::parseStyle(attr);
 	menu = new XPopupMenu(popupName, style);
 
+	//const TString colors(TEXT("bgcolour iconcolour cbcolour discbcolour disselcolour distextcolour selcolour selbordercolour seperatorcolour textcolour seltextcolour"));
+	//totalIndexes = colors.numtok();
+	//
+	//for (int i = 1; i <= totalIndexes; i++) {
+	//	attr = GetMenuAttributeFromXML(colors.gettok(i).c_str(), popup, globalStyles);
+	//
+	//	if (attr != NULL) {
+	//		TString tsBuff(attr);
+	//		mIRCLinker::tsEval(tsBuff, tsBuff.to_chr());
+	//		menu->setColor(i, (COLORREF)tsBuff.to_int());
+	//	}
+	//}
+	//
+	//// Set background image if CUSTOM style used
+	//if (style == XPopupMenu::XPMS_CUSTOM) {
+	//	TString filename;
+	//
+	//	mIRCLinker::tsEval(filename, TString(popup->Attribute("background")).to_chr());
+	//
+	//	HBITMAP hBitmap = dcxLoadBitmap(NULL, filename);
+	//
+	//	if (hBitmap != NULL)
+	//		menu->setBackBitmap(hBitmap);
+	//}
+
 	const TString colors(TEXT("bgcolour iconcolour cbcolour discbcolour disselcolour distextcolour selcolour selbordercolour seperatorcolour textcolour seltextcolour"));
 	totalIndexes = colors.numtok();
 
+	colors.getfirsttok(0);
+
 	for (int i = 1; i <= totalIndexes; i++) {
-		attr = GetMenuAttributeFromXML(colors.gettok(i).c_str(), popup, globalStyles);
+		attr = GetMenuAttributeFromXML(colors.getnexttok().c_str(), popup, globalStyles);
 
 		if (attr != NULL) {
 			TString tsBuff(attr);
@@ -1164,8 +1206,9 @@ void XPopupMenuManager::LoadPopupsFromXML(const TiXmlElement *popups, const TiXm
 	// Set background image if CUSTOM style used
 	if (style == XPopupMenu::XPMS_CUSTOM) {
 		TString filename;
+		const TString tsBkg(popup->Attribute("background"));
 
-		mIRCLinker::tsEval(filename, TString(popup->Attribute("background")).to_chr());
+		mIRCLinker::tsEval(filename, tsBkg.to_chr());
 
 		HBITMAP hBitmap = dcxLoadBitmap(NULL, filename);
 
@@ -1247,9 +1290,8 @@ bool XPopupMenuManager::LoadPopupItemsFromXML(XPopupMenu *menu, HMENU hMenu, con
 			item = new XPopupMenuItem(menu, TRUE);
 		}
 		else {
-			int defNum = -1;
-			const int mID = element->QueryIntAttribute("id", &defNum);
-			const int mIcon = element->QueryIntAttribute("icon", &defNum) -1;
+			const int mID = queryIntAttribute(element, "id", -1);
+			const int mIcon = queryIntAttribute(element, "icon", 0) - 1;
 			const TString state(element->Attribute("state"));
 
 			mii.fMask = MIIM_DATA | MIIM_FTYPE | MIIM_STATE | MIIM_ID;
@@ -1304,6 +1346,17 @@ const char* XPopupMenuManager::GetMenuAttributeFromXML(const char *attrib, const
 	return global->Attribute(attrib);
 	//return NULL;
 }
+
+int XPopupMenuManager::queryIntAttribute(const TiXmlElement *element, const char *attribute, const int defaultValue)
+{
+	int integer = defaultValue;
+	if (element->QueryIntAttribute(attribute, &integer) == TIXML_SUCCESS) {
+		if (integer < 0)
+			integer = defaultValue;
+	}
+	return integer;
+}
+
 #ifdef DEBUG
 LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
 

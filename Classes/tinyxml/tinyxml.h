@@ -821,15 +821,15 @@ public:
 		A specialized but useful call. Note that for success it returns 0,
 		which is the opposite of almost all other TinyXml calls.
 	*/
-	int QueryIntValue( int* _value ) const;
+	int QueryIntValue( int *const _value ) const;
 	/// QueryDoubleValue examines the value string. See QueryIntValue().
-	int QueryDoubleValue( double* _value ) const;
+	int QueryDoubleValue( double *const _value ) const;
 
 	void SetName( const char* _name )	{ name = _name; }				///< Set the name of this attribute.
 	void SetValue( const char* _value )	{ value = _value; }				///< Set the value.
 
-	void SetIntValue( int _value );										///< Set the value from an integer.
-	void SetDoubleValue( double _value );								///< Set the value from a double.
+	void SetIntValue( const int _value );										///< Set the value from an integer.
+	void SetDoubleValue( const double _value );								///< Set the value from a double.
 
     #ifdef TIXML_USE_STL
 	/// STL std::string form.
@@ -975,11 +975,11 @@ public:
 		an integer, it returns TIXML_WRONG_TYPE. If the attribute
 		does not exist, then TIXML_NO_ATTRIBUTE is returned.
 	*/	
-	int QueryIntAttribute( const char* name, int* _value ) const;
+	int QueryIntAttribute( const char* name, int *const _value ) const;
 	/// QueryDoubleAttribute examines the attribute - see QueryIntAttribute().
-	int QueryDoubleAttribute( const char* name, double* _value ) const;
+	int QueryDoubleAttribute( const char* name, double *const _value ) const;
 	/// QueryFloatAttribute examines the attribute - see QueryIntAttribute().
-	int QueryFloatAttribute( const char* name, float* _value ) const {
+	int QueryFloatAttribute( const char* name, float *const _value ) const {
 		double d;
 		int result = QueryDoubleAttribute( name, &d );
 		if ( result == TIXML_SUCCESS ) {

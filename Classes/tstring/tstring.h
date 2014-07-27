@@ -301,8 +301,8 @@ public:
 	void sorttok( TCHAR * sortOptions, const TCHAR * sepChars = SPACE );
 
 	// added by Ook
-	TString wildtok( TCHAR * wildString, int N, const TCHAR * sepChars = SPACE ) const;
-	int nwildtok( TCHAR * wildString, const TCHAR * sepChars = SPACE ) const;
+	TString wildtok( TCHAR * wildString, UINT N, const TCHAR * sepChars = SPACE ) const;
+	UINT nwildtok( TCHAR * wildString, const TCHAR * sepChars = SPACE ) const;
 
 	//size_t split(const TCHAR * sepChars = SPACE) const;
 	//const TString &part(const size_t N) const;
