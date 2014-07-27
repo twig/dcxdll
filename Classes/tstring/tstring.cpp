@@ -39,8 +39,8 @@
  *		Added strip() function.
  *	1.12
  *		changed gettok() to not copy the contents to token first.
- *		changed findtok() to take an unsigned int arg.
- *		changed deltok() to take an unsigned int arg.
+ *		changed findtok() to take an UINT arg.
+ *		changed deltok() to take an UINT arg.
  *		changed instok() to take an unsigned arg.
  *		and loads more...
  *
@@ -162,9 +162,10 @@ m_savedtotaltoks(0), m_savedcurrenttok(0), m_savedpos(0)
 
 	if (chr != L'\0')
 	{
-		WCHAR wStr[2];
-		wStr[0] = chr;
-		wStr[1] = L'\0';
+		WCHAR wStr[] = { chr, L'\0' };
+		//WCHAR wStr[2];
+		//wStr[0] = chr;
+		//wStr[1] = L'\0';
 
 		temp = this->WcharTochar(wStr, &m_buffersize);
 	}
@@ -187,9 +188,10 @@ m_savedtotaltoks(0), m_savedcurrenttok(0), m_savedpos(0)
 	TCHAR *temp = NULL;
 
 	if (chr != '\0') {
-		char cString[2];
-		cString[0] = chr;
-		cString[1] = '\0';
+		char cString[] = { chr, '\0' };
+		//char cString[2];
+		//cString[0] = chr;
+		//cString[1] = '\0';
 
 		temp = charToWchar(cString, &m_buffersize);
 	}
@@ -241,13 +243,20 @@ m_savedtotaltoks(0), m_savedcurrenttok(0), m_savedpos(0)
 \param tString TString object to copy
 */
 /****************************/
-
 TString::TString(TString && tString)
 : TString()
 {
 	swap(tString);
 }
 
+/****************************/
+/*! \fn TString::TString(const TCHAR *pStart, const TCHAR *pEnd)
+\brief Constructor
+
+\param pStart	- pointer to start of string to turn into a TString
+\param pEnd		- pointer to end of string
+*/
+/****************************/
 TString::TString(const TCHAR *pStart, const TCHAR *pEnd)
 : m_pTempString(NULL), m_pString(NULL),
 m_savedtotaltoks(0), m_savedcurrenttok(0), m_savedpos(0)
@@ -266,13 +275,14 @@ m_savedtotaltoks(0), m_savedcurrenttok(0), m_savedpos(0)
 		this->m_pString[0] = TEXT('\0');
 	}
 }
+
 /*!
  * \brief Allocates a buffer tsSize long.
  *
  * NB tsSize is in characters! not bytes.
  *
  */
-TString::TString( const unsigned int tsSize )
+TString::TString( const UINT tsSize )
 : m_pTempString(NULL), m_pString(NULL),
 m_savedtotaltoks(0), m_savedcurrenttok(0), m_savedpos(0)
 {
@@ -1375,17 +1385,18 @@ TCHAR & TString::operator []( long int N ) const {
 
 	static TCHAR chr = TEXT('\0');
 
-	if (this->m_pString != NULL) {
-		//long int size = (long int)ts_strlen(this->m_pString);
-		long int size = this->m_buffersize;
-		if (N < 0) N += size;
+	if (this->m_pString == NULL)
+		return chr;
 
-		if ((N >(size - 1)) || (N < 0))
-			return chr;
+	// NB: size needs to be in characters, m_buffersize is in bytes
+	const long int size = (this->m_buffersize / sizeof(TCHAR));
 
-		return this->m_pString[N];
-	}
-	return chr;
+	if (N < 0) N += size;
+
+	if ((N >(size - 1)) || (N < 0))
+		return chr;
+
+	return this->m_pString[N];
 }
 
 TString operator +(const TString & tString, const TCHAR * cString)
@@ -1501,13 +1512,13 @@ int TString::find(const TCHAR chr, const int N) const {
     \note > Index starts at \b 1 \n
 */
 /****************************/
-size_t TString::findtok(const TCHAR * cToken, const unsigned int N, const TCHAR * sepChars) const {
+size_t TString::findtok(const TCHAR * cToken, const UINT N, const TCHAR * sepChars) const {
 
-	const unsigned int nToks = this->numtok(sepChars);
+	const UINT nToks = this->numtok(sepChars);
 
 	this->getfirsttok( 0 );
 
-	for (unsigned int i = 1, count = 0; i <= nToks; i++) {
+	for (UINT i = 1, count = 0; i <= nToks; i++) {
 		if (this->getnexttok(sepChars) == cToken) {
 			count++;
 
@@ -1893,7 +1904,7 @@ TString TString::gettok( int N, int M, const TCHAR * sepChars ) const {
 	if ( M <= N && M != -1 )
 		return TEXT("");
 
-	const unsigned int nToks = this->numtok( sepChars );
+	const UINT nToks = this->numtok( sepChars );
 
 	if ( N > (int)nToks )
 		return TEXT("");
@@ -1947,7 +1958,7 @@ TString TString::gettok( int N, int M, const TCHAR * sepChars ) const {
 }
 
 
-TString TString::getfirsttok( const unsigned int N, const TCHAR * sepChars ) const {
+TString TString::getfirsttok( const UINT N, const TCHAR * sepChars ) const {
 
 	if (sepChars == NULL || this->m_pString == NULL)
 		return *this;
@@ -1963,7 +1974,7 @@ TString TString::getfirsttok( const unsigned int N, const TCHAR * sepChars ) con
 	//TString token; // no need to set token to contents of this here?
 	//
 	//TCHAR * p_cStart = this->m_pString, * p_cEnd = this->m_pString, * p_fEnd = (this->m_pString + ts_strlen(this->m_pString));
-	//unsigned int iCount = 0;
+	//UINT iCount = 0;
 	//const int sepl = ts_strlen( sepChars ); // Ook
 	//
 	//while ( ( p_cEnd = ts_strstr( p_cStart, sepChars ) ) != NULL ) {
@@ -2006,7 +2017,7 @@ TString TString::getfirsttok( const unsigned int N, const TCHAR * sepChars ) con
 	//return token;
 
 	TCHAR * p_cStart = this->m_pString, *p_cEnd = this->m_pString, *p_fEnd = (this->m_pString + ts_strlen(this->m_pString));
-	unsigned int iCount = 0;
+	UINT iCount = 0;
 	const int sepl = ts_strlen(sepChars); // Ook
 
 	while ((p_cEnd = ts_strstr(p_cStart, sepChars)) != NULL) {
@@ -2058,7 +2069,7 @@ TString TString::getnexttok( const TCHAR * sepChars ) const {
 	//}
 	//else if ( ( p_cEnd = ts_strstr( p_cStart, sepChars ) ) != NULL ) {
 	//	const int sepl = ts_strlen(sepChars); // Ook
-	//	const unsigned int len = (p_cEnd - p_cStart) + 1; // gives cch diff
+	//	const UINT len = (p_cEnd - p_cStart) + 1; // gives cch diff
 	//	
 	//	delete [] token.m_pString; // change by Ook
 	//	token.m_pString = token.allocstr_cch(len);
@@ -2105,7 +2116,7 @@ TString TString::getlasttoks( ) const
  * blah
  */
 
-unsigned int TString::numtok( const TCHAR * sepChars ) const {
+UINT TString::numtok( const TCHAR * sepChars ) const {
 
 	if ( sepChars == NULL || this->m_pString == NULL)
 		return 0;
@@ -2117,8 +2128,8 @@ unsigned int TString::numtok( const TCHAR * sepChars ) const {
 		return 0;
 
 	TCHAR * p_cStart = this->m_pString, * p_cEnd = NULL;
-	unsigned int iCount = 0;
-	const unsigned int sepl = ts_strlen( sepChars ); // Ook
+	UINT iCount = 0;
+	const UINT sepl = ts_strlen( sepChars ); // Ook
 
 	while ( ( p_cEnd = ts_strstr( p_cStart, sepChars ) ) != NULL ) {
 		iCount++;
@@ -2135,12 +2146,12 @@ unsigned int TString::numtok( const TCHAR * sepChars ) const {
  * blah
  */
 
-void TString::deltok( const unsigned int N, const TCHAR * sepChars ) {
+void TString::deltok( const UINT N, const TCHAR * sepChars ) {
 
 	if ( sepChars == NULL || this->m_pString == NULL )
 		return;
 
-	const unsigned int nToks = this->numtok( sepChars );
+	const UINT nToks = this->numtok( sepChars );
 
 	if ( N > nToks || N < 1 )
 		return;
@@ -2250,7 +2261,7 @@ void TString::deltok( const unsigned int N, const TCHAR * sepChars ) {
  * blah
  */
 
-void TString::instok( const TCHAR * cToken, const unsigned int N, const TCHAR * sepChars ) {
+void TString::instok( const TCHAR * cToken, const UINT N, const TCHAR * sepChars ) {
 
 	if ( cToken == NULL || sepChars == NULL || this->m_pString == NULL )
 		return;
@@ -2700,7 +2711,7 @@ void TString::puttok( const TCHAR * cToken, int N, const TCHAR * sepChars ) {
 }
 
 void TString::remtok(const TCHAR * cToken, int N, const TCHAR * sepChars) {
-	const unsigned int tokennr = findtok(cToken, N, sepChars);
+	const UINT tokennr = findtok(cToken, N, sepChars);
 	if (tokennr > 0)
 		deltok(tokennr, sepChars);
 }
@@ -2796,9 +2807,9 @@ bool TString::isincs(const char let) const
 /*
 * countchar(character)
 */
-unsigned int TString::countchar(const TCHAR chr) const
+UINT TString::countchar(const TCHAR chr) const
 {
-	unsigned int r = 0;
+	UINT r = 0;
 
 	for (TCHAR *aux = this->m_pString; *aux; ++aux) {
 		if (*aux == chr)
@@ -2849,7 +2860,7 @@ bool TString::ishostmask(void) const
 TString TString::toupper(void) const
 {
 	//TString tmp(*this);
-	//unsigned int c = 0;
+	//UINT c = 0;
 	//char *p = tmp.to_chr();
 	//const UINT l = tmp.len();
 
@@ -2869,7 +2880,7 @@ TString TString::toupper(void) const
 TString TString::tolower(void) const
 {
 	//TString tmp(*this);
-	//unsigned int c = 0;
+	//UINT c = 0;
 	//char *p = tmp.to_chr();
 	//while (c < tmp.len()) {
 	//	p[c] = (char)rfc_tolower(p[c]);
@@ -3022,7 +3033,7 @@ int TString::match (register TCHAR *m, register TCHAR *n, const bool cs /* case 
 {
 	TCHAR *ma = m, *lsm = 0, *lsn = 0, *lpm = 0, *lpn = 0;
 	int match = 1, saved = 0;
-	register unsigned int sofar = 0;
+	register UINT sofar = 0;
 
 #ifdef WILDT
   int space;
@@ -3174,14 +3185,14 @@ int TString::tsprintf(const TCHAR *fmt, ...)
 {
 	va_list args;
 	va_start( args, fmt );
-	int cnt = tvprintf(fmt, &args);
+	const int cnt = tvprintf(fmt, &args);
 	va_end( args );
 	return cnt;
 }
 
 int TString::tvprintf(const TCHAR *fmt, va_list * args)
 {
-	int cnt = ts_vscprintf(fmt, *args);
+	const int cnt = ts_vscprintf(fmt, *args);
 	if (cnt > 0) {
 		TString tmp((UINT)(cnt + 2));
 
@@ -3411,8 +3422,8 @@ TString &TString::strip() {
 	//
 	//return *this;
 
-	TCHAR *start = this->m_pString;
-	TCHAR *end = this->m_pString + this->len();
+	const TCHAR *start = this->m_pString;
+	const TCHAR *end = this->m_pString + this->len();
 
 	if ((start == NULL) || (end == NULL) || (start == end))
 		return *this;
@@ -3429,8 +3440,9 @@ TString &TString::strip() {
 	TString tmp((UINT)new_len + 1);
 
 	// now strip all ctrl codes.
-	TCHAR *wtxt = start, *p = tmp.m_pString;
-	UINT pos = 0;
+	const TCHAR *const wtxt = start;
+	TCHAR *p = tmp.m_pString;
+	size_t pos = 0;
 
 	// strip out ctrl codes to correctly position text.
 	for (TCHAR c = wtxt[pos]; pos < new_len; c = wtxt[++pos]) {
@@ -3467,6 +3479,12 @@ TString &TString::strip() {
 				}
 			}
 			break;
+		case 32:	// space character
+		{
+				   while (wtxt[pos + 1] == 32)
+					   pos++; // remove multiple consecutive spaces
+				   // fall through to save first space
+		}
 		default:
 			*p++ = c;
 			break;
@@ -3494,15 +3512,19 @@ void TString::swap(TString &second) // nothrow
 	swap(this->m_savedtotaltoks, second.m_savedtotaltoks);
 }
 
-ULONG TString::to_addr() {
+ULONG TString::to_addr() const
+{
 	BYTE first, second, third, forth;
-	this->strip();
-	first = (BYTE)this->gettok(1, TEXT(".")).to_int();
-	second = (BYTE)this->gettok(2, TEXT(".")).to_int();
-	third = (BYTE)this->gettok(3, TEXT(".")).to_int();
-	forth = (BYTE)this->gettok(4, TEXT(".")).to_int();
+	//this->strip();
+
+	first = (BYTE)(this->getfirsttok(1, TEXT(".")).to_int() & 0xFF);
+	second = (BYTE)(this->getnexttok(TEXT(".")).to_int() & 0xFF);
+	third = (BYTE)(this->getnexttok(TEXT(".")).to_int() & 0xFF);
+	forth = (BYTE)(this->getnexttok(TEXT(".")).to_int() & 0xFF);
+
 	//return MAKELONG(MAKEWORD(first,second),MAKEWORD(third,forth));
-	return MAKELONG(MAKEWORD(forth, third), MAKEWORD(second, first));
+	//return MAKELONG(MAKEWORD(forth, third), MAKEWORD(second, first));
+	return MAKEIPADDRESS(first, second, third, forth);
 }
 
 void TString::clear(void)

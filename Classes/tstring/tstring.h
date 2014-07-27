@@ -39,8 +39,8 @@
  *		Added strip() function.
  *	1.12
  *		changed gettok() to not copy the contents to token first.
- *		changed findtok() to take an unsigned int arg.
- *		changed deltok() to take an unsigned int arg.
+ *		changed findtok() to take an UINT arg.
+ *		changed deltok() to take an UINT arg.
  *		changed instok() to take an unsigned arg.
  *		and loads more...
  *
@@ -133,15 +133,17 @@ private:
 	int i_remove(const TCHAR *subString);
 	static int match(register TCHAR *m, register TCHAR *n, const bool cs /* case sensitive */);
 
-	size_t set_buffersize(const size_t size) { m_buffersize = TS_getmemsize(size); return m_buffersize; };	// make buffersize a multiple of 16
+	const size_t set_buffersize(const size_t size) { m_buffersize = TS_getmemsize(size); return m_buffersize; };	// make buffersize a multiple of 16
 	//allocate a buffer thats sized to multiples of 16 bytes, (%byte + (16 - (%byte % 16)))
-	TCHAR *allocstr_bytes(const size_t size) { return (TCHAR *)(new BYTE[set_buffersize(size)]); };
+	//TCHAR *allocstr_bytes(const size_t size) { return (TCHAR *)(new BYTE[set_buffersize(size)]); };
+	TCHAR *allocstr_bytes(const size_t size) { return allocstr_bytes(size, m_buffersize); };
 	//allocate a buffer thats sized to multiples of 16 bytes, (%byte + (16 - (%byte % 16))), iActual contains the buffer size allocated
-	TCHAR *allocstr_bytes(const size_t size, size_t &iActual) { iActual = TS_getmemsize(size); return (TCHAR *)(new BYTE[iActual]); };
+	TCHAR *allocstr_bytes(const size_t size, size_t &iActual) const { iActual = TS_getmemsize(size); return (TCHAR *)(new BYTE[iActual]); };
 	// allocate a buffer thats size characters long & its a multiple of 16bytes.
-	TCHAR *allocstr_cch(const size_t size) { return allocstr_bytes(size*sizeof(TCHAR)); };
+	//TCHAR *allocstr_cch(const size_t size) { return allocstr_bytes(size*sizeof(TCHAR)); };
+	TCHAR *allocstr_cch(const size_t size) { return allocstr_bytes(size*sizeof(TCHAR), m_buffersize); };
 	// allocate a buffer thats size characters long & its a multiple of 16bytes. NB: iActual contains the buffer size in BYTES
-	TCHAR *allocstr_cch(const size_t size, size_t &iActual) { return allocstr_bytes(size*sizeof(TCHAR), iActual); };
+	TCHAR *allocstr_cch(const size_t size, size_t &iActual) const { return allocstr_bytes(size*sizeof(TCHAR), iActual); };
 	// swap contents of second with this
 	void swap(TString &second); // nothrow
 
@@ -152,10 +154,10 @@ private:
 	static WCHAR *charToWchar(const char *cString, size_t *buffer_size = NULL);
 	static char *WcharTochar(const WCHAR *wString, size_t *buffer_size = NULL);
 
-	mutable TCHAR			*m_savedpos;
-	mutable unsigned int	m_savedtotaltoks;
-	mutable unsigned int	m_savedcurrenttok;
-	size_t					m_buffersize;	// size of string buffer in use. (size in bytes)
+	mutable TCHAR	*m_savedpos;
+	mutable UINT	m_savedtotaltoks;
+	mutable UINT	m_savedcurrenttok;
+	size_t			m_buffersize;	// size of string buffer in use. (size in bytes)
 
 	//mutable std::vector<TString>	m_SplitParts;
 
@@ -180,7 +182,7 @@ public:
 
 	explicit TString(const WCHAR chr);
 	explicit TString(const char chr);
-	explicit TString(const unsigned int tsSize);
+	explicit TString(const UINT tsSize);
 
 	//! Destructor
 	~TString( );
@@ -282,17 +284,17 @@ public:
 	void addtok( const TCHAR * cToken, const TCHAR * sepChars = SPACE );
 	void addtok( const __int64 nToken, const TCHAR * sepChars = SPACE );
 	//void addtok( const TString &cToken, const TCHAR * sepChars = SPACE );
-	void deltok( const unsigned int N, const TCHAR * sepChars = SPACE );
-	size_t findtok( const TCHAR * cToken, const unsigned int N, const TCHAR * sepChars = SPACE ) const;
+	void deltok( const UINT N, const TCHAR * sepChars = SPACE );
+	size_t findtok( const TCHAR * cToken, const UINT N, const TCHAR * sepChars = SPACE ) const;
 	TString gettok( int N, const TCHAR * sepChars = SPACE ) const;
 	TString gettok( int N, int M, const TCHAR * sepChars = SPACE ) const;
-	TString getfirsttok( const unsigned int N, const TCHAR * sepChars = SPACE ) const;	// must becalled before the first getnexttok()
+	TString getfirsttok( const UINT N, const TCHAR * sepChars = SPACE ) const;	// must becalled before the first getnexttok()
 	TString getnexttok( const TCHAR * sepChars = SPACE ) const;							// gets subsequent tokens after a getfirsttok() call.
 	TString getlasttoks() const;														// gets all remaining tokens after a getfirsttok()/getnexttok() call.
-	void instok( const TCHAR * cToken, const unsigned int N, const TCHAR * sepChars = SPACE );
+	void instok( const TCHAR * cToken, const UINT N, const TCHAR * sepChars = SPACE );
 	bool istok( const TCHAR * cToken, const TCHAR * sepChars = SPACE ) const;
 	TString matchtok( TCHAR * mString, int N, const TCHAR * sepChars = SPACE ) const;
-	unsigned int numtok( const TCHAR * sepChars = SPACE ) const;
+	UINT numtok( const TCHAR * sepChars = SPACE ) const;
 	void puttok( const TCHAR * cToken, int N, const TCHAR * sepChars = SPACE );
 	void remtok( const TCHAR * cToken, int N, const TCHAR * sepChars = SPACE );
 	void reptok( const TCHAR * cToken, const TCHAR * newToken, int N, const TCHAR * sepChars = SPACE );
@@ -311,7 +313,7 @@ public:
 	// extras for mIRC
 	bool isnum(const int f) const;
 	bool isincs(const TCHAR let) const;
-	unsigned int countchar(const TCHAR chr) const;
+	UINT countchar(const TCHAR chr) const;
 	bool ishostmask(void) const;
 
 	TString toupper(void) const;
@@ -341,7 +343,7 @@ public:
 	int to_int() const { return ts_atoi(this->m_pString); };
 	__int64 to_num() const { return ts_atoi64(this->m_pString); };
 	double to_float() const { return ts_atof(this->m_pString); };
-	ULONG to_addr();
+	ULONG to_addr() const;
 
 	static inline int rfc_tolower(const int c);
 	static inline int rfc_toupper(const int c);
