@@ -174,10 +174,10 @@ public:
 	static const TCHAR *m_cTab;
 
 	TString();
-	TString(const WCHAR * cString); // we don't want these 3 as explicits
-	TString(const char * cString);
+	TString(const WCHAR *const cString); // we don't want these 3 as explicits
+	TString(const char *const cString);
 	TString(const TString & tString);
-	TString(const TCHAR *pStart, const TCHAR *pEnd);
+	TString(const TCHAR *const pStart, const TCHAR *const pEnd);
 	TString(TString &&tString);	// move constructor C++11 only
 
 	explicit TString(const WCHAR chr);
@@ -189,51 +189,51 @@ public:
 
 	// Operator Overloads
 	TString & operator =( TString tString );		// allows use of swap()
-	TString & operator =(const WCHAR * cString);
+	TString & operator =(const WCHAR *const cString);
 	TString & operator =( const WCHAR chr );
-	TString & operator =( const char * cString );
+	TString & operator =( const char *const cString );
 	TString & operator =( const char chr );
 
-	TString operator +( const TCHAR * cString );
+	TString operator +( const TCHAR *const cString );
 	TString operator +( const TCHAR chr );
 	TString operator +( const TString & tString );
 
-	TString operator -( const TCHAR * cString );
+	TString operator -( const TCHAR *const cString );
 	TString operator -( const TCHAR chr );
 	TString operator -( const TString & tString );
 
-	TString & operator +=( const TCHAR * cString );
+	TString & operator +=( const TCHAR *const cString );
 	TString & operator +=( const TCHAR chr );
 	TString & operator +=( const TString & tString );
 	TString & operator +=(const int num);
 
-	TString & operator -=( const TCHAR * cString );
+	TString & operator -=( const TCHAR *const cString );
 	TString & operator -=( const TCHAR chr );
 	TString & operator -=( const TString & tString );
 
 	bool operator ==( const int iNull ) const;
-	bool operator ==( const TCHAR * cString ) const;
+	bool operator ==( const TCHAR *const cString ) const;
 	bool operator ==( const TCHAR chr ) const;
 	bool operator ==( const TString & tString ) const;
 
 	bool operator !=( const int iNull ) const;
-	bool operator !=( const TCHAR * cString ) const;
+	bool operator !=( const TCHAR *const cString ) const;
 	bool operator !=( const TCHAR chr ) const;
 	bool operator !=( const TString & tString ) const;
 
-	bool operator >( const TCHAR * cString ) const;
+	bool operator >( const TCHAR *const cString ) const;
 	bool operator >( const TCHAR chr ) const;
 	bool operator >( const TString & tString ) const;
 
-	bool operator >=( const TCHAR * cString ) const;
+	bool operator >=( const TCHAR *const cString ) const;
 	bool operator >=( const TCHAR chr ) const;
 	bool operator >=( const TString & tString ) const;
 
-	bool operator <( const TCHAR * cString ) const;
+	bool operator <( const TCHAR *const cString ) const;
 	bool operator <( const TCHAR chr ) const;
 	bool operator <( const TString & tString ) const;
 
-	bool operator <=( const TCHAR * cString ) const;
+	bool operator <=( const TCHAR *const cString ) const;
 	bool operator <=( const TCHAR chr ) const;
 	bool operator <=( const TString & tString ) const;
 
@@ -245,7 +245,7 @@ public:
 	operator __int64() { return this->to_num(); }
 	operator double() { return this->to_float(); }
 
-	friend TString operator +(const TString & tString, const TCHAR *cString);
+	friend TString operator +(const TString & tString, const TCHAR *const cString);
 
 	// General String Lib
 
@@ -265,6 +265,8 @@ public:
 	TString &append(const TString &tString);
 	// append a string thats limited to iChars characters.
 	TString &append(const TCHAR *cString, const size_t iChars);
+	// is string empty?
+	const bool empty() const { return (m_pString == NULL || m_pString[0] == TEXT('\0')); };
 
 	int find( const TCHAR * substring, const int N ) const;
 	int find( const TCHAR chr, const int N ) const;

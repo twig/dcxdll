@@ -81,7 +81,7 @@ TString::TString()
 */
 /****************************/
 
-TString::TString( const char * cString )
+TString::TString( const char *const cString )
 : m_pTempString(NULL), m_pString(NULL),
  m_savedtotaltoks(0), m_savedcurrenttok(0), m_savedpos(0)
 {
@@ -111,7 +111,7 @@ TString::TString( const char * cString )
 #endif
 }
 
-TString::TString( const WCHAR * cString )
+TString::TString( const WCHAR *const cString )
 : m_pTempString(NULL), m_pString(NULL),
 m_savedtotaltoks(0), m_savedcurrenttok(0), m_savedpos(0)
 {
@@ -257,7 +257,7 @@ TString::TString(TString && tString)
 \param pEnd		- pointer to end of string
 */
 /****************************/
-TString::TString(const TCHAR *pStart, const TCHAR *pEnd)
+TString::TString(const TCHAR *const pStart, const TCHAR *const pEnd)
 : m_pTempString(NULL), m_pString(NULL),
 m_savedtotaltoks(0), m_savedcurrenttok(0), m_savedpos(0)
 {
@@ -364,7 +364,7 @@ TString& TString::operator =(TString tString)
     \param cString Character string to assign string to
 */
 /****************************/
-TString& TString::operator =( const WCHAR * cString ) {
+TString& TString::operator =( const WCHAR *const cString ) {
 //#ifdef UNICODE
 //	// attempted assignment to self...
 //	if (this->m_pString != cString)
@@ -413,7 +413,7 @@ TString& TString::operator =( const WCHAR * cString ) {
 }
 
 /****************************/
-TString& TString::operator =( const char * cString ) {
+TString& TString::operator =( const char *const cString ) {
 //#ifdef UNICODE
 //	TCHAR *newStr = NULL;
 //	size_t iActual = 0;
@@ -539,7 +539,7 @@ TString& TString::operator =( const char chr ) {
 */
 /****************************/
 
-TString TString::operator +( const TCHAR * cString ) {
+TString TString::operator +( const TCHAR *const cString ) {
 
 	if (cString == NULL)
 		return *this; // return an object not a ref or pointer to object, so object is copied on return.
@@ -627,7 +627,7 @@ TString TString::operator +( const TString & tString ) {
 */
 /****************************/
 
-TString TString::operator -( const TCHAR * cString ) {
+TString TString::operator -( const TCHAR *const cString ) {
 
 	if ( cString == NULL )
 		return *this;
@@ -669,7 +669,7 @@ TString TString::operator -( const TString & tString ) {
 */
 /****************************/
 
-TString & TString::operator +=( const TCHAR * cString ) {
+TString & TString::operator +=( const TCHAR *const cString ) {
 
 	//if (cString != NULL) {
 	//	const size_t l = (this->len() + ts_strlen(cString) + 1);
@@ -802,7 +802,7 @@ TString & TString::operator +=(const int num) {
 */
 /****************************/
 
-TString & TString::operator -=( const TCHAR * cString ) {
+TString & TString::operator -=( const TCHAR *const cString ) {
 
 	if ( cString != NULL )
 		this->i_remove(cString);
@@ -861,7 +861,7 @@ bool TString::operator ==( const int iNull ) const {
 */
 /****************************/
 
-bool TString::operator ==( const TCHAR * cString ) const {
+bool TString::operator ==( const TCHAR *const cString ) const {
 
 	if ( cString != NULL && this->m_pString != NULL) {
 		if ( ts_strcmp( this->m_pString, cString ) == 0)
@@ -950,7 +950,7 @@ bool TString::operator !=( const int iNull ) const {
 */
 /****************************/
 
-bool TString::operator !=( const TCHAR * cString ) const {
+bool TString::operator !=( const TCHAR *const cString ) const {
 
 	if ( cString && this->m_pString ) {
 
@@ -1024,7 +1024,7 @@ bool TString::operator !=( const TString & tString ) const {
 */
 /****************************/
 
-bool TString::operator >( const TCHAR * cString ) const {
+bool TString::operator >( const TCHAR *const cString ) const {
 
 	if ( cString != NULL && this->m_pString != NULL ) {
 		if ( ts_strcmp( this->m_pString, cString ) > 0 )
@@ -1097,7 +1097,7 @@ bool TString::operator >( const TString & tString ) const {
 */
 /****************************/
 
-bool TString::operator >=( const TCHAR * cString ) const {
+bool TString::operator >=( const TCHAR *const cString ) const {
 
 	if ( cString != NULL && this->m_pString != NULL ) {
 
@@ -1171,7 +1171,7 @@ bool TString::operator >=( const TString & tString ) const {
 */
 /****************************/
 
-bool TString::operator <( const TCHAR * cString ) const {
+bool TString::operator <( const TCHAR *const cString ) const {
 
 	if ( cString != NULL && this->m_pString != NULL ) {
 
@@ -1245,7 +1245,7 @@ bool TString::operator <( const TString & tString ) const {
 */
 /****************************/
 
-bool TString::operator <=( const TCHAR * cString ) const {
+bool TString::operator <=( const TCHAR *const cString ) const {
 
 	if ( cString != NULL && this->m_pString != NULL ) {
 
@@ -1409,7 +1409,7 @@ TCHAR & TString::operator []( long int N ) const {
 	return this->m_pString[N];
 }
 
-TString operator +(const TString & tString, const TCHAR * cString)
+TString operator +(const TString & tString, const TCHAR *const cString)
 {
 
 	if (cString == NULL)
@@ -2904,7 +2904,7 @@ TString TString::toupper(void) const
 	//UINT c = 0;
 	//char *p = tmp.to_chr();
 	//const UINT l = tmp.len();
-
+	//
 	//while (c < l) {
 	//	p[c] = (char)rfc_toupper(p[c]);
 	//	c++;
@@ -3198,7 +3198,8 @@ TString TString::wildtok( TCHAR * wildString, UINT N, const TCHAR * sepChars ) c
 		return TEXT("");
 
 	UINT m = 0;
-	for (TString tmp(this->getfirsttok(1,sepChars)); tmp != TEXT(""); tmp = this->getnexttok(sepChars))
+
+	for (TString tmp(this->getfirsttok(1, sepChars)); !tmp.empty(); tmp = this->getnexttok(sepChars))
 	{
 		if (match(wildString,tmp.to_chr(),false)) {
 			m++;
@@ -3215,7 +3216,7 @@ UINT TString::nwildtok( TCHAR * wildString, const TCHAR * sepChars ) const
 		return 0;
 
 	UINT m = 0;
-	for (TString tmp(this->getfirsttok(1,sepChars)); tmp != TEXT(""); tmp = this->getnexttok(sepChars))
+	for (TString tmp(this->getfirsttok(1, sepChars)); !tmp.empty(); tmp = this->getnexttok(sepChars))
 	{
 		if (match(wildString,tmp.to_chr(),false))
 			m++;
