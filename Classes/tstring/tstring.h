@@ -129,9 +129,9 @@ private:
 
 	void deleteString(const bool bKeepBufferSize = false);
 	void deleteTempString(const bool bKeepBufferSize = false);
-	int i_replace(const TCHAR *subString, const TCHAR *rString); // Ook
-	int i_remove(const TCHAR *subString);
-	static int match(register TCHAR *m, register TCHAR *n, const bool cs /* case sensitive */);
+	int i_replace(const TCHAR *const subString, const TCHAR *const rString); // Ook
+	int i_remove(const TCHAR *const subString);
+	static int match(register const TCHAR *m, register const TCHAR *n, const bool cs /* case sensitive */);
 
 	const size_t set_buffersize(const size_t size) { m_buffersize = TS_getmemsize(size); return m_buffersize; };	// make buffersize a multiple of 16
 	//allocate a buffer thats sized to multiples of 16 bytes, (%byte + (16 - (%byte % 16)))
@@ -151,8 +151,8 @@ private:
 	static unsigned char tolowertab[];
 	static unsigned char touppertab[];
 #endif
-	static WCHAR *charToWchar(const char *cString, size_t *buffer_size = NULL);
-	static char *WcharTochar(const WCHAR *wString, size_t *buffer_size = NULL);
+	static WCHAR *charToWchar(const char *cString, size_t *const buffer_size = NULL);
+	static char *WcharTochar(const WCHAR *wString, size_t *const buffer_size = NULL);
 
 	mutable const TCHAR	*m_savedpos;
 	mutable UINT	m_savedtotaltoks;
@@ -258,17 +258,17 @@ public:
 	// shrink string buffer to min size required for string (while still being a multiple of 16)
 	void shrink_to_fit();
 	// append a wide char string.
-	TString &append(const WCHAR *cString);
+	TString &append(const WCHAR *const cString);
 	// append a char string.
-	TString &append(const char *cString);
+	TString &append(const char *const cString);
 	// append another TString object
 	TString &append(const TString &tString);
 	// append a string thats limited to iChars characters.
-	TString &append(const TCHAR *cString, const size_t iChars);
+	TString &append(const TCHAR *const cString, const size_t iChars);
 	// is string empty?
 	const bool empty() const { return (m_pString == NULL || m_pString[0] == TEXT('\0')); };
 
-	int find( const TCHAR * substring, const int N ) const;
+	int find(const TCHAR *const substring, const int N) const;
 	int find( const TCHAR chr, const int N ) const;
 
 	TString sub( int N, int M ) const;
@@ -276,39 +276,39 @@ public:
 	TString &trim();	// removes spaces at start & end of text.
 	TString &strip();	// removes spaces at start & end of text & all ctrl codes in text.
 
-	int replace( const TCHAR * subString, const TCHAR * rString );
-	int replace( const TCHAR * subString, const TCHAR rchr );
-	int replace( const TCHAR chr, const TCHAR * rString );
+	int replace(const TCHAR *const subString, const TCHAR *const rString);
+	int replace(const TCHAR *const subString, const TCHAR rchr);
+	int replace(const TCHAR chr, const TCHAR *const rString);
 	int replace( const TCHAR chr, const TCHAR rchr );
-	int mreplace(const TCHAR chr, const TCHAR *rchr);
+	int mreplace(const TCHAR chr, const TCHAR *const fmt);
 
 	// Token Lib
-	void addtok( const TCHAR * cToken, const TCHAR * sepChars = SPACE );
-	void addtok( const __int64 nToken, const TCHAR * sepChars = SPACE );
+	void addtok( const TCHAR *const cToken, const TCHAR *const sepChars = SPACE );
+	void addtok( const __int64 nToken, const TCHAR *const sepChars = SPACE );
 	//void addtok( const TString &cToken, const TCHAR * sepChars = SPACE );
-	void deltok( const UINT N, const TCHAR * sepChars = SPACE );
-	size_t findtok( const TCHAR * cToken, const UINT N, const TCHAR * sepChars = SPACE ) const;
-	TString gettok( int N, const TCHAR * sepChars = SPACE ) const;
-	TString gettok( int N, int M, const TCHAR * sepChars = SPACE ) const;
-	TString getfirsttok( const UINT N, const TCHAR * sepChars = SPACE ) const;	// must becalled before the first getnexttok()
-	TString getnexttok( const TCHAR * sepChars = SPACE ) const;							// gets subsequent tokens after a getfirsttok() call.
+	void deltok(const UINT N, const TCHAR *const sepChars = SPACE);
+	size_t findtok(const TCHAR *const cToken, const UINT N, const TCHAR *const sepChars = SPACE) const;
+	TString gettok(int N, const TCHAR *const sepChars = SPACE) const;
+	TString gettok(int N, int M, const TCHAR *const sepChars = SPACE) const;
+	TString getfirsttok(const UINT N, const TCHAR *const sepChars = SPACE) const;	// must becalled before the first getnexttok()
+	TString getnexttok(const TCHAR * sepCharsconst = SPACE) const;							// gets subsequent tokens after a getfirsttok() call.
 	TString getlasttoks() const;														// gets all remaining tokens after a getfirsttok()/getnexttok() call.
-	void instok( const TCHAR * cToken, const UINT N, const TCHAR * sepChars = SPACE );
-	bool istok( const TCHAR * cToken, const TCHAR * sepChars = SPACE ) const;
-	TString matchtok( TCHAR * mString, int N, const TCHAR * sepChars = SPACE ) const;
-	UINT numtok( const TCHAR * sepChars = SPACE ) const;
-	void puttok( const TCHAR * cToken, int N, const TCHAR * sepChars = SPACE );
-	void remtok( const TCHAR * cToken, int N, const TCHAR * sepChars = SPACE );
-	void reptok( const TCHAR * cToken, const TCHAR * newToken, int N, const TCHAR * sepChars = SPACE );
-	void sorttok( TCHAR * sortOptions, const TCHAR * sepChars = SPACE );
+	void instok(const TCHAR *const cToken, const UINT N, const TCHAR *const sepChars = SPACE);
+	bool istok( const TCHAR *const cToken, const TCHAR *const sepChars = SPACE ) const;
+	TString matchtok(TCHAR * mString, int N, const TCHAR *const sepChars = SPACE) const;
+	UINT numtok(const TCHAR *const sepChars = SPACE) const;
+	void puttok(const TCHAR *const cToken, const UINT N, const TCHAR *const sepChars = SPACE);
+	void remtok(const TCHAR *const cToken, const UINT N, const TCHAR *const sepChars = SPACE);
+	void reptok(const TCHAR *const cToken, const TCHAR *const newToken, int N, const TCHAR *const sepChars = SPACE);
+	void sorttok(const TCHAR *const sortOptions, const TCHAR *const sepChars = SPACE);
 
 	// added by Ook
-	TString wildtok( TCHAR * wildString, UINT N, const TCHAR * sepChars = SPACE ) const;
-	UINT nwildtok( TCHAR * wildString, const TCHAR * sepChars = SPACE ) const;
+	TString wildtok(const TCHAR *const wildString, const UINT N, const TCHAR *const sepChars = SPACE) const;
+	UINT nwildtok(const TCHAR *const wildString, const TCHAR *const sepChars = SPACE) const;
 
-	//size_t split(const TCHAR * sepChars = SPACE) const;
+	//size_t split(const TCHAR *const sepChars = SPACE) const;
 	//const TString &part(const size_t N) const;
-	//const std::vector<TString> &parts(const TCHAR *sepChars = SPACE) const;
+	//const std::vector<TString> &parts(const TCHAR *const sepChars = SPACE) const;
 	//void ClearParts() const { m_SplitParts.clear(); }
 
 #ifdef INCLUDE_MIRC_EXTRAS
@@ -323,16 +323,16 @@ public:
 
 #endif
 
-	bool iswm(TCHAR *a) const;
-	bool iswmcs(TCHAR *a) const;
+	bool iswm(const TCHAR *const a) const;
+	bool iswmcs(const TCHAR *const a) const;
 
 	// extract left/right/mid
 	TString mid(const int pos, int n) const;
 	TString left(int n) const;
 	TString right(int n) const;
 
-	int tsprintf(const TCHAR *fmt, ...);
-	int tvprintf(const TCHAR *fmt, va_list * args);
+	int tsprintf(const TCHAR *const fmt, ...);
+	int tvprintf(const TCHAR *const fmt, va_list * args);
 
 	TCHAR * to_chr() const { return this->m_pString; };	// returns the string in the projects current format.
 #ifdef UNICODE
