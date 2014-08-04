@@ -193,7 +193,7 @@ protected:
 	HTREEITEM xmlLoadTree(HTREEITEM hInsertAfter, HTREEITEM hParent, const TString &name, TString &filename);
 	const TiXmlElement *xmlInsertItems(HTREEITEM hParent, HTREEITEM &hInsertAfter, const TiXmlElement *xElm);
 	TString getStyles(void);
-	static int queryIntAttribute(const TiXmlElement *element,const char *attribute,const int defaultValue = 0);
+	//static int queryIntAttribute(const TiXmlElement *element,const char *attribute,const int defaultValue = 0);
 };
 
 #endif // _DCXTREEVIEW_H_

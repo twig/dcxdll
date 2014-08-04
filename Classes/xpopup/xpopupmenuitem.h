@@ -62,8 +62,8 @@ public:
 
 	static void DrawGradient( const HDC hdc, const LPRECT lprc, const COLORREF clrStart, const COLORREF clrEnd, const BOOL bHorz = FALSE );
 	static void DrawVerticalBar( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol, const BOOLEAN bReversed);
-	static COLORREF LightenColor( const unsigned int iScale, const COLORREF clrColor );
-	static COLORREF DarkenColor( const unsigned int iScale, const COLORREF clrColor );
+	static COLORREF LightenColor( const UINT iScale, const COLORREF clrColor );
+	static COLORREF DarkenColor( const UINT iScale, const COLORREF clrColor );
 
 	void setSubMenu( const BOOL bSubMenu );
 	void setItemText( const TString & tsItemText );

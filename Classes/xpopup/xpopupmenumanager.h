@@ -53,8 +53,8 @@ public:
 	void unload(void);
 
 	void parseCommand( const TString & input );
-	void parseCommand( const TString & input, XPopupMenu *p_Menu );
-	void parseIdentifier( const TString & input, TCHAR * szReturnValue ) const;
+	void parseCommand( const TString & input, XPopupMenu *const p_Menu );
+	void parseIdentifier( const TString & input, TCHAR *const szReturnValue ) const;
 	int parseMPopup(const TString & input);
 
 	void addMenu( XPopupMenu * p_Menu );
@@ -96,7 +96,7 @@ protected:
 	VectorOfXPopupMenu m_vpXPMenu; //!< Vector of XPopupMenu Objects
 
 	static const UINT parseTrackFlags( const TString & flags );
-	static int queryIntAttribute(const TiXmlElement *element, const char *attribute, const int defaultValue);
+	//static int queryIntAttribute(const TiXmlElement *element, const char *attribute, const int defaultValue);
 
 	//bool m_bPatched;
 #ifdef DEBUG

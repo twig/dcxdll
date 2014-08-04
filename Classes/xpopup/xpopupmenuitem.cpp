@@ -167,14 +167,14 @@ void XPopupMenuItem::DrawItem( const LPDRAWITEMSTRUCT lpdis ) {
 
 	//// playing around with menu transparency
 	//const BYTE alpha = this->m_pXParentMenu->IsAlpha();
-
+	//
 	//// If alpha == 255 then menu is fully opaque so no need to change to layered.
 	//if (alpha < 255) {
 	//	HWND hMenuWnd = WindowFromDC(lpdis->hDC);
-
+	//
 	//	if (IsWindow(hMenuWnd)) {
 	//		DWORD dwStyle = GetWindowExStyle(hMenuWnd);
-
+	//
 	//		if (!(dwStyle & WS_EX_LAYERED)) {
 	//			SetWindowLong(hMenuWnd, GWL_EXSTYLE, dwStyle | WS_EX_LAYERED);
 	//			SetLayeredWindowAttributes(hMenuWnd, 0, (BYTE)alpha, LWA_ALPHA); // 0xCC = 80% Opaque
@@ -495,7 +495,7 @@ void XPopupMenuItem::DrawItemText( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUC
 		//DrawTextEx( lpdis->hDC, lefttext.to_chr( ), lefttext.len( ), &rc, DT_LEFT | DT_SINGLELINE | DT_VCENTER, NULL );
 		mIRC_DrawText( lpdis->hDC, lefttext, &rc, DT_LEFT | DT_SINGLELINE | DT_VCENTER, false);
 
-		if ( righttext.len( ) > 0 ) {
+		if (!righttext.empty()) {
 
 			rc.right -= 15;
 			//DrawTextEx( lpdis->hDC, righttext.to_chr( ), righttext.len( ), &rc, DT_RIGHT | DT_SINGLELINE | DT_VCENTER, NULL );
@@ -845,7 +845,7 @@ void XPopupMenuItem::DrawVerticalBar(const LPDRAWITEMSTRUCT lpdis, const LPXPMEN
  * blah
  */
 
-COLORREF XPopupMenuItem::LightenColor( const unsigned int iScale, const COLORREF clrColor )
+COLORREF XPopupMenuItem::LightenColor( const UINT iScale, const COLORREF clrColor )
 {
 	const long R = MulDiv( 255 - GetRValue( clrColor ), iScale, 255 ) + GetRValue( clrColor );
 	const long G = MulDiv( 255 - GetGValue( (clrColor & 0xFFFF) ), iScale, 255 ) + GetGValue( (clrColor & 0xFFFF) );
@@ -860,7 +860,7 @@ COLORREF XPopupMenuItem::LightenColor( const unsigned int iScale, const COLORREF
 * blah
 */
 
-COLORREF XPopupMenuItem::DarkenColor( const unsigned int iScale, const COLORREF clrColor )
+COLORREF XPopupMenuItem::DarkenColor( const UINT iScale, const COLORREF clrColor )
 {
 	const long R = MulDiv( GetRValue( clrColor ), ( 255 - iScale ), 255 );
 	const long G = MulDiv( GetGValue( clrColor ), ( 255 - iScale ), 255 );

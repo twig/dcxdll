@@ -116,7 +116,7 @@ public:
 	void parseXPopIdentifier( const TString & input, TCHAR * szReturnValue ) const;
 	static XPopupMenu::MenuStyle parseStyle(const TString &style);
 
-	static HMENU parsePath( const TString & path, const HMENU hParent, const unsigned int depth = 1 );
+	static HMENU parsePath( const TString & path, const HMENU hParent, const UINT depth = 1 );
 
 	HIMAGELIST getImageList( );
 	void destroyImageList( );

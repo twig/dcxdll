@@ -68,7 +68,7 @@ void XMenuBar::parseXMenuBarCommand(const TString &input) {
 		}
 		// Reset alias and xmenubar.
 		else {
-			this->m_callback = TEXT("");
+			this->m_callback.clear();	// = TEXT("");
 			this->resetMenuBar();
 		}
 
@@ -192,7 +192,7 @@ void XMenuBar::parseXMenuBarInfo(const TString &input, TCHAR *szReturnValue) con
 
 		// Return number of menus in menubar.
 		if (i == 0)
-			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), (int) this->m_vpXMenuBar.size());
+			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), this->m_vpXMenuBar.size());
 		// Return name of specified menu.
 		else
 			dcx_strcpyn(szReturnValue, this->m_vpXMenuBar[i -1]->getName().to_chr(), MIRC_BUFFER_SIZE_CCH);
@@ -347,7 +347,7 @@ void XMenuBar::resetMenuBar() {
  *
  */
 bool XMenuBar::hasCallback() const {
-	if (this->m_callback.len() == 0)
+	if (this->m_callback.empty())
 		return false;
 
 	return true;

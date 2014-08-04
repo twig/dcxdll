@@ -216,7 +216,7 @@ BYTE *readFile(const PTCHAR filename) {
 /*!
 * \brief Read Text File Contents
 *
-* This function correctly handles BOM types for ascii,utf8,utf16,utf16LE & returns text in a TString object.
+* This function correctly handles BOM types for ascii,utf8,utf16BE,utf16LE & returns text in a TString object.
 */
 TString readTextFile(const PTCHAR tFile)
 {
@@ -225,7 +225,7 @@ TString readTextFile(const PTCHAR tFile)
 	if (data == NULL)
 		return TEXT("");
 
-	TString tsRes(Normalise(data));
+	const TString tsRes(Normalise(data));
 
 	delete[] data;
 
@@ -244,7 +244,7 @@ bool SaveDataToFile(const TString &tsFile, const TString &tsData)
 	if (file == NULL)
 		return false;
 #ifdef UNICODE
-	TCHAR tBOM = 0xFEFF;	// unicode BOM
+	const TCHAR tBOM = 0xFEFF;	// unicode BOM
 
 	fwrite(&tBOM, sizeof(TCHAR), 1, file);
 #endif
@@ -268,7 +268,7 @@ BOOL CopyToClipboard(const HWND owner, const TString & str) {
 		return FALSE;
 	}
 
-	int cbsize = (int)(str.len() +1) * sizeof(TCHAR);
+	const size_t cbsize = (str.len() +1) * sizeof(TCHAR);
 	EmptyClipboard();
 	HGLOBAL hglbCopy = GlobalAlloc(GMEM_MOVEABLE, cbsize);
 
@@ -320,8 +320,8 @@ BOOL ParseCommandToLogfont(const TString& cmd, LPLOGFONT lf) {
 	}
 	else {
 		lf->lfCharSet = (BYTE)parseFontCharSet(cmd.getnexttok( ));	// tok 2
-		const int fSize = cmd.getnexttok( ).to_int();	// tok 3
-		const TString fName(cmd.gettok(4, -1).trim());
+		const int fSize = cmd.getnexttok( ).to_int();				// tok 3
+		const TString fName(cmd.getlasttoks( ).trim());				// tok 4, -1
 
 		if (!fSize)
 			return FALSE;
@@ -364,11 +364,11 @@ UINT parseFontFlags(const TString &flags) {
 
 	//const INT len = (int)flags.len();
 	//INT iFlags = 0;
-
+	//
 	//// no +sign, missing params
 	//if (flags[0] != TEXT('+'))
 	//	return iFlags;
-
+	//
 	//for (int i = 1; i < len; i++)
 	//{
 	//	if (flags[i] == TEXT('a'))
@@ -558,34 +558,39 @@ HICON dcxLoadIcon(const int index, TString &filename, const bool large, const TS
 			return NULL;
 		}
 
-		Bitmap *p_Img = new Bitmap(filename.to_chr());
-		if (p_Img == NULL)
-			return NULL;
-		// for some reason this returns `OutOfMemory` when the file doesnt exist instead of `FileNotFound`
-		Status status = p_Img->GetLastStatus();
-		if (status != Ok)
-			Dcx::error(TEXT("dcxLoadIcon"), GetLastStatusStr(status));
-		else {
-			//int w = 0, h = 0;
-			//if (large) {
-			//	w = GetSystemMetrics(SM_CXICON);
-			//	h = GetSystemMetrics(SM_CYICON);
-			//}
-			//else {
-			//	w = GetSystemMetrics(SM_CXSMICON);
-			//	h = GetSystemMetrics(SM_CYSMICON);
-			//}
-			//Bitmap *p_Thumb = p_Img->GetThumbnailImage(w,h);
-			//if (p_Thumb != NULL) {
-			//	p_Thumb->GetHICON(&icon);
-			//	delete p_Thumb;
-			//}
-			status = p_Img->GetHICON(&icon); // for reasons unknown this causes a `first chance exception` to show in debug log.
+		try {
+			Bitmap *p_Img = new Bitmap(filename.to_chr());
+
+			// for some reason this returns `OutOfMemory` when the file doesnt exist instead of `FileNotFound`
+			Status status = p_Img->GetLastStatus();
 			if (status != Ok)
 				Dcx::error(TEXT("dcxLoadIcon"), GetLastStatusStr(status));
-			GdiFlush();
+			else {
+				//int w = 0, h = 0;
+				//if (large) {
+				//	w = GetSystemMetrics(SM_CXICON);
+				//	h = GetSystemMetrics(SM_CYICON);
+				//}
+				//else {
+				//	w = GetSystemMetrics(SM_CXSMICON);
+				//	h = GetSystemMetrics(SM_CYSMICON);
+				//}
+				//Bitmap *p_Thumb = p_Img->GetThumbnailImage(w,h);
+				//if (p_Thumb != NULL) {
+				//	p_Thumb->GetHICON(&icon);
+				//	delete p_Thumb;
+				//}
+				status = p_Img->GetHICON(&icon); // for reasons unknown this causes a `first chance exception` to show in debug log.
+				if (status != Ok)
+					Dcx::error(TEXT("dcxLoadIcon"), GetLastStatusStr(status));
+				GdiFlush();
+			}
+			delete p_Img;
 		}
-		delete p_Img;
+		catch (std::bad_alloc)
+		{
+			return NULL;
+		}
 	}
 #endif
 	else {
@@ -648,19 +653,19 @@ HBITMAP dcxLoadBitmap(HBITMAP dest, TString &filename) {
 
 #ifdef DCX_USE_GDIPLUS
 	if (Dcx::GDIModule.isUseable()) {
+		try {
 #if UNICODE
-		Bitmap *p_Img = new Bitmap(filename.to_chr());
+			Bitmap *p_Img = new Bitmap(filename.to_chr());
 #else
-		Bitmap *p_Img = new Bitmap(filename.to_wchr());
+			Bitmap *p_Img = new Bitmap(filename.to_wchr());
 #endif
-		if (p_Img != NULL) {
 			// for some reason this returns `OutOfMemory` when the file doesnt exist instead of `FileNotFound`
 			Status status = p_Img->GetLastStatus();
 			if (status != Ok)
 				Dcx::error(TEXT("dcxLoadBitmap"), GetLastStatusStr(status));
 			else {
-				if ((status = p_Img->GetHBITMAP(Color(),&dest)) != Ok) {
-					Dcx::error(TEXT("dcxLoadBitmap"),TEXT("Unable to Get GDI+ Bitmap Info"));
+				if ((status = p_Img->GetHBITMAP(Color(), &dest)) != Ok) {
+					Dcx::error(TEXT("dcxLoadBitmap"), TEXT("Unable to Get GDI+ Bitmap Info"));
 					Dcx::error(TEXT("dcxLoadBitmap"), GetLastStatusStr(status));
 					dest = NULL;
 				}
@@ -671,8 +676,10 @@ HBITMAP dcxLoadBitmap(HBITMAP dest, TString &filename) {
 			}
 			delete p_Img;
 		}
-		else
+		catch (std::bad_alloc)
+		{
 			Dcx::error(TEXT("dcxLoadBitmap"), TEXT("Unable to Allocate Image Object"));
+		}
 	}
 	else
 		dest = (HBITMAP) LoadImage(GetModuleHandle(NULL), filename.to_chr(), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE);
@@ -969,7 +976,7 @@ const TCHAR *GetLastStatusStr(Status status)
 */
 bool IsFile(TString &filename)
 {
-	if (filename.len() <= 0)
+	if (filename.empty())
 		return false;
 
 	PathUnquoteSpaces(filename.to_chr()); // Removes any "" around the path.
@@ -1159,7 +1166,7 @@ int unfoldColor(const WCHAR *color) {
 
 void mIRC_OutText(HDC hdc, TString &txt, LPRECT rcOut, const LPLOGFONT lf, const UINT iStyle, const COLORREF clrFG, const bool shadow)
 {
-	const int len = (int)txt.len();
+	const UINT len = txt.len();
 	if (len > 0) {
 		TEXTMETRICW tm;
 		HFONT hOldFont = SelectFont( hdc, CreateFontIndirect( lf ) );
@@ -1179,7 +1186,7 @@ void mIRC_OutText(HDC hdc, TString &txt, LPRECT rcOut, const LPLOGFONT lf, const
 		rcOut->left += (rcTmp.right - rcTmp.left) - tm.tmOverhang;
 		DeleteFont(SelectFont( hdc, hOldFont ));
 	}
-	txt = TEXT("");
+	txt.clear();	// txt = TEXT("");
 }
 
 void mIRC_DrawText(HDC hdc, const TString &txt, LPRECT rc, const UINT style, const bool shadow)
@@ -1273,7 +1280,7 @@ void mIRC_DrawText(HDC hdc, const TString &txt, LPRECT rc, const UINT style, con
 		{
 		case 2: // Bold
 			{
-				if (tmp.len() > 0)
+				if (!tmp.empty())
 					mIRC_OutText(hdc, tmp, &rcOut, &lf, iStyle, clrFG, shadow);
 				if (lf.lfWeight == FW_BOLD)
 					lf.lfWeight = origWeight;
@@ -1283,7 +1290,7 @@ void mIRC_DrawText(HDC hdc, const TString &txt, LPRECT rc, const UINT style, con
 			break;
 		case 3: // Colour
 			{
-				if (tmp.len() > 0)
+				if (!tmp.empty())
 					mIRC_OutText(hdc, tmp, &rcOut, &lf, iStyle, clrFG, shadow);
 				while (wtxt[pos+1] == 3) pos++; // remove multiple consecutive ctrl-k's
 				SetBkMode(hdc,TRANSPARENT);
@@ -1342,7 +1349,7 @@ void mIRC_DrawText(HDC hdc, const TString &txt, LPRECT rc, const UINT style, con
 			break;
 		case 15: // ctrl+o
 			{
-				if (tmp.len() > 0)
+				if (!tmp.empty())
 					mIRC_OutText(hdc, tmp, &rcOut, &lf, iStyle, clrFG, shadow);
 				while (wtxt[pos+1] == 15) pos++; // remove multiple consecutive ctrl-o's
 				lf.lfWeight = origWeight;
@@ -1358,7 +1365,7 @@ void mIRC_DrawText(HDC hdc, const TString &txt, LPRECT rc, const UINT style, con
 			break;
 		case 22: // ctrl+r
 			{
-				if (tmp.len() > 0)
+				if (!tmp.empty())
 					mIRC_OutText(hdc, tmp, &rcOut, &lf, iStyle, clrFG, shadow);
 				usingRevTxt = (usingRevTxt ? false : true);
 				if (usingRevTxt)
@@ -1374,14 +1381,14 @@ void mIRC_DrawText(HDC hdc, const TString &txt, LPRECT rc, const UINT style, con
 			break;
 		case 29: // ctrl-i Italics
 			{
-				if (tmp.len() > 0)
+				if (!tmp.empty())
 					mIRC_OutText(hdc, tmp, &rcOut, &lf, iStyle, clrFG, shadow);
 				lf.lfItalic = (BYTE)(lf.lfItalic ? 0 : 1);
 			}
 			break;
 		case 31: // ctrl+u
 			{
-				if (tmp.len() > 0)
+				if (!tmp.empty())
 					mIRC_OutText(hdc, tmp, &rcOut, &lf, iStyle, clrFG, shadow);
 				lf.lfUnderline = (BYTE)(lf.lfUnderline ? 0 : 1);
 			}
@@ -1396,10 +1403,13 @@ void mIRC_DrawText(HDC hdc, const TString &txt, LPRECT rc, const UINT style, con
 				else {
 					SIZE sz;
 					const int tlen = (int)tmp.len();
-					GetTextExtentPoint32(hdc, tmp.to_chr(), tlen, &sz);
 					if (tlen > 0)
+					{
+						GetTextExtentPoint32(hdc, tmp.to_chr(), tlen, &sz);
 						mIRC_OutText(hdc, tmp, &rcOut, &lf, iStyle, clrFG, shadow);
-					rcOut.top += sz.cy;
+						rcOut.top += sz.cy;
+					}
+
 					if ((style & DT_RIGHT) == DT_RIGHT)
 						rcOut.left = origLeft;
 					else
@@ -1419,7 +1429,7 @@ void mIRC_DrawText(HDC hdc, const TString &txt, LPRECT rc, const UINT style, con
 							if (nFit > 0) {
 								WCHAR o = tmp.to_chr()[nFit];
 								//mIRC_OutText(hdc, tmp.wsub(0,nFit), &rcOut, &lf, iStyle, clrFG, shadow);
-								TString tsSub(tmp.sub(0,nFit));
+								TString tsSub(tmp.sub(0, nFit));
 								mIRC_OutText(hdc, tsSub, &rcOut, &lf, iStyle, clrFG, shadow);
 								//tmp = "";
 								rcOut.top += sz.cy;
@@ -1428,7 +1438,7 @@ void mIRC_DrawText(HDC hdc, const TString &txt, LPRECT rc, const UINT style, con
 								//mIRC_OutText(hdc, tmp, &rcOut, &lf, iStyle, clrFG, shadow);
 							}
 							else
-								tmp = TEXT("");
+								tmp.clear();	// tmp = TEXT("");
 						}
 					}
 				}
@@ -1437,7 +1447,7 @@ void mIRC_DrawText(HDC hdc, const TString &txt, LPRECT rc, const UINT style, con
 			break;
 		}
 	}
-	if (tmp.len() > 0)
+	if (!tmp.empty())
 		mIRC_OutText(hdc, tmp, &rcOut, &lf, iStyle, clrFG, shadow);
 	//RestoreDC(hdc, savedDC);
 
@@ -1466,9 +1476,6 @@ HDC *CreateHDCBuffer(HDC hdc, const LPRECT rc)
 
 	// alloc buffer data
 	LPHDCBuffer buf = new HDCBuffer;
-
-	if (buf == NULL)
-		return NULL;
 
 	// create HDC for buffer.
 	buf->m_hHDC = CreateCompatibleDC(hdc);
@@ -1554,13 +1561,13 @@ int TGetWindowText(HWND hwnd, TString &txt)
 {
 	const int nText = GetWindowTextLength(hwnd);
 	if (nText > 0) {
-		PTCHAR text = new TCHAR[nText+2];
-		GetWindowText(hwnd, text, nText+1);	// NB: needs to include space for end 0
+		PTCHAR text = new TCHAR[nText + 2];
+		GetWindowText(hwnd, text, nText + 1);	// NB: needs to include space for end 0
 		txt = text;
-		delete [] text;
+		delete[] text;
 	}
 	else
-		txt = TEXT("");
+		txt.clear();	// txt = TEXT("");
 	return nText;
 }
 
@@ -1810,4 +1817,15 @@ void DrawRotatedText(const TString &strDraw, LPRECT rc, HDC hDC, const int nAngl
 	// Restore old values
 	SetBkMode( hDC, nOldBkMode );
 	SetGraphicsMode( hDC, nOldGMode );
-} 
+}
+
+const char *queryAttribute(const TiXmlElement *element, const char *attribute, const char *defaultValue)
+{
+	const char *t = element->Attribute(attribute);
+	return (t != NULL) ? t : defaultValue;
+}
+int queryIntAttribute(const TiXmlElement *element, const char *attribute, const int defaultValue)
+{
+	int integer = defaultValue;
+	return (element->QueryIntAttribute(attribute, &integer) == TIXML_SUCCESS) ? integer : defaultValue;
+}
