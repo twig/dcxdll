@@ -119,7 +119,7 @@ void DcxCheck::parseControlStyles( const TString & styles, LONG * Styles, LONG *
 	//for (UINT i = 1; i <= numtok; i++)
 	//{
 	//	const TString tsStyle(styles.getnexttok( ));	// tok i
-
+	//
 	//	if ( tsStyle == TEXT("rjustify") )
 	//		*Styles |= BS_RIGHT;
 	//	else if ( tsStyle == TEXT("center") )
@@ -135,7 +135,7 @@ void DcxCheck::parseControlStyles( const TString & styles, LONG * Styles, LONG *
 	//		*Styles |= BS_AUTO3STATE;
 	//	}
 	//}
-	for (TString tsStyle(styles.getfirsttok( 1 )); tsStyle != TEXT(""); tsStyle = styles.getnexttok( ))
+	for (TString tsStyle(styles.getfirsttok( 1 )); !tsStyle.empty(); tsStyle = styles.getnexttok( ))
 	{
 		if ( tsStyle == TEXT("rjustify") )
 			*Styles |= BS_RIGHT;
@@ -214,7 +214,7 @@ void DcxCheck::parseCommandRequest(const TString & input) {
 	}
 	//xdid -t [NAME] [ID] [SWITCH] ItemText
 	else if (flags[TEXT('t')]) {
-		SetWindowText(this->m_Hwnd, input.gettok(4, -1).trim().to_chr());
+		SetWindowText(this->m_Hwnd, input.getlasttoks().trim().to_chr());	// tok 4, -1
 	}
 	//xdid -u [NAME] [ID] [SWITCH]
 	else if (flags[TEXT('u')]) {
@@ -269,7 +269,7 @@ LRESULT DcxCheck::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 		case WM_LBUTTONUP:
 			{
 				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-					this->execAliasEx(TEXT("%s,%d"), TEXT("lbup"), this->getUserID( ) );
+					this->execAliasEx(TEXT("%s,%u"), TEXT("lbup"), this->getUserID( ) );
 			}
 			break;
 

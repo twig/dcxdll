@@ -79,8 +79,8 @@ public:
 	//static BOOL WINAPI TrampolineTrackPopupMenu(HMENU hMenu, UINT uFlags, int x, int y, int nReserved, HWND hWnd, const RECT * prcRect);
 	//static BOOL WINAPI TrampolineTrackPopupMenuEx(HMENU hMenu, UINT fuFlags, int x, int y, HWND hwnd, LPTPMPARAMS lptpm);
 
-	static void LoadPopupsFromXML(const TiXmlElement *popups, const TiXmlElement *popup, const TString &popupName, const TString &popupDataset);
-	static bool LoadPopupItemsFromXML(XPopupMenu *menu, HMENU hMenu, const TiXmlElement *items);
+	static void LoadPopupsFromXML(const TiXmlElement *const popups, const TiXmlElement *popup, const TString &popupName, const TString &popupDataset);
+	static bool LoadPopupItemsFromXML(XPopupMenu *menu, HMENU hMenu, const TiXmlElement *const items);
 
 	// following methods are called by dcx's mIRC WinProc
 
@@ -91,7 +91,7 @@ public:
 
 protected:
 
-	static const char *GetMenuAttributeFromXML(const char *attrib, const TiXmlElement *popup, const TiXmlElement *global);
+	static const char *GetMenuAttributeFromXML(const char *const attrib, const TiXmlElement *const popup, const TiXmlElement *const global);
 
 	VectorOfXPopupMenu m_vpXPMenu; //!< Vector of XPopupMenu Objects
 
@@ -99,10 +99,10 @@ protected:
 	//static int queryIntAttribute(const TiXmlElement *element, const char *attribute, const int defaultValue);
 
 	//bool m_bPatched;
-#ifdef DEBUG
-	static WNDPROC g_OldmIRCMenusWindowProc;
-	static LRESULT CALLBACK mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-#endif
+//#ifdef DEBUG
+//	static WNDPROC g_OldmIRCMenusWindowProc;
+//	static LRESULT CALLBACK mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+//#endif
 };
 
 extern HMENU g_OriginalMenuBar;

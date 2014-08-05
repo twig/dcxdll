@@ -210,7 +210,7 @@ LRESULT CALLBACK DividerWndProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lP
 
         RECT rc;
         GetClientRect( mHwnd, &rc );
-        UINT iPos = (UINT) lParam;
+        const UINT iPos = (UINT) lParam;
 
         UINT width;
         if ( GetWindowStyle( mHwnd ) & DVS_VERT )
@@ -310,7 +310,7 @@ void Divider_SizeWindowContents( HWND mHwnd, int nWidth, int nHeight ) {
  * blah
  */
 
-void DrawXorBar( HDC hdc, int x1, int y1, int width, int height )
+void DrawXorBar(HDC hdc, const int x1, const int y1, const int width, const int height)
 {
 	static WORD _dotPatternBmp[8] = 
 	{ 
@@ -322,20 +322,25 @@ void DrawXorBar( HDC hdc, int x1, int y1, int width, int height )
 	HBRUSH  hbr, hbrushOld;
 
 	hbm = CreateBitmap( 8, 8, 1, 1, _dotPatternBmp );
-	hbr = CreatePatternBrush(hbm);
-	
-	SetBrushOrgEx( hdc, x1, y1, 0 );
-	hbrushOld = (HBRUSH) SelectObject( hdc, hbr );
-	
-	PatBlt( hdc, x1, y1, width, height, PATINVERT );
-	
-	SelectObject ( hdc, hbrushOld );
-	
-	DeleteObject( hbr );
-	DeleteObject( hbm );
+	if (hbm != NULL)
+	{
+		hbr = CreatePatternBrush(hbm);
+		if (hbr != NULL)
+		{
+			SetBrushOrgEx(hdc, x1, y1, 0);
+			hbrushOld = SelectBrush(hdc, hbr);
+
+			PatBlt(hdc, x1, y1, width, height, PATINVERT);
+
+			SelectBrush(hdc, hbrushOld);
+
+			DeleteBrush(hbr);
+		}
+		DeleteBitmap(hbm);
+	}
 }
 
-void Divider_GetChildControl( HWND mHwnd, UINT pane, LPDVPANEINFO result) {
+void Divider_GetChildControl(HWND mHwnd, const UINT pane, LPDVPANEINFO result) {
 	SendMessage(mHwnd, DV_GETPANE, pane, (LPARAM)result);
 }
 
@@ -351,7 +356,9 @@ void Divider_CalcBarPos( HWND mHwnd, POINT * pt, RECT * rect ) {
 
   GetWindowRect( mHwnd, rect );
 
-  ClientToScreen( mHwnd, pt );
+  //ClientToScreen( mHwnd, pt );
+  MapWindowPoints(mHwnd, NULL, pt, 1);
+
   pt->x -= rect->left;
   pt->y -= rect->top;
 
@@ -390,7 +397,7 @@ void Divider_CalcBarPos( HWND mHwnd, POINT * pt, RECT * rect ) {
  * blah
  */
 
-LRESULT Divider_OnLButtonDown( HWND mHwnd, UINT iMsg, WPARAM wParam, LPARAM lParam )
+LRESULT Divider_OnLButtonDown(HWND mHwnd, const UINT iMsg, WPARAM wParam, LPARAM lParam)
 {
 	POINT pt;
 	HDC hdc;
@@ -431,7 +438,7 @@ LRESULT Divider_OnLButtonDown( HWND mHwnd, UINT iMsg, WPARAM wParam, LPARAM lPar
  * blah
  */
 
-LRESULT Divider_OnLButtonUp( HWND mHwnd, UINT iMsg, WPARAM wParam, LPARAM lParam )
+LRESULT Divider_OnLButtonUp(HWND mHwnd, const UINT iMsg, WPARAM wParam, LPARAM lParam)
 {
 	HDC hdc;
 	RECT rect;
@@ -493,56 +500,56 @@ LRESULT Divider_OnLButtonUp( HWND mHwnd, UINT iMsg, WPARAM wParam, LPARAM lParam
  * blah
  */
 
-LRESULT Divider_OnMouseMove( HWND mHwnd, UINT iMsg, WPARAM wParam, LPARAM lParam )
+LRESULT Divider_OnMouseMove(HWND mHwnd, const UINT iMsg, WPARAM wParam, LPARAM lParam)
 {
 	HDC hdc;
 	RECT rect;
 	POINT pt;
 
-  LPDVCONTROLDATA lpdvdata = (LPDVCONTROLDATA) GetProp( mHwnd, TEXT("dvc_data") );
+	LPDVCONTROLDATA lpdvdata = (LPDVCONTROLDATA)GetProp(mHwnd, TEXT("dvc_data"));
 
-  if ( lpdvdata->m_bDragging == FALSE )
-    return 0L;
- 
-	pt.x = (short) LOWORD( lParam );  // horizontal position of cursor 
-	pt.y = (short) HIWORD( lParam );
+	if (lpdvdata->m_bDragging == FALSE)
+		return 0L;
 
-  Divider_CalcBarPos( mHwnd, &pt, &rect );
+	pt.x = (short)LOWORD(lParam);  // horizontal position of cursor 
+	pt.y = (short)HIWORD(lParam);
 
-  /*
-  if( pt.y != lpdvdata->m_iOldPos && wParam & MK_LBUTTON )
-  {
-  hdc = GetWindowDC( mHwnd );
-  */
+	Divider_CalcBarPos(mHwnd, &pt, &rect);
 
-  if ( GetWindowStyle( mHwnd ) & DVS_VERT ) {
+	/*
+	if( pt.y != lpdvdata->m_iOldPos && wParam & MK_LBUTTON )
+	{
+	hdc = GetWindowDC( mHwnd );
+	*/
 
-    if( pt.x != lpdvdata->m_iOldPos && wParam & MK_LBUTTON )
-    {
-      hdc = GetWindowDC( mHwnd );
+	if (GetWindowStyle(mHwnd) & DVS_VERT) {
 
-      DrawXorBar( hdc, lpdvdata->m_iOldPos - 2, 1, 4, rect.bottom - 2 );
-      DrawXorBar( hdc, pt.x - 2, 1, 4, rect.bottom - 2 );
-      lpdvdata->m_iOldPos = pt.x;
+		if (pt.x != lpdvdata->m_iOldPos && wParam & MK_LBUTTON)
+		{
+			hdc = GetWindowDC(mHwnd);
 
-      ReleaseDC( mHwnd, hdc );
-    }
-  }
-  else {
+			DrawXorBar(hdc, lpdvdata->m_iOldPos - 2, 1, 4, rect.bottom - 2);
+			DrawXorBar(hdc, pt.x - 2, 1, 4, rect.bottom - 2);
+			lpdvdata->m_iOldPos = pt.x;
 
-    if( pt.y != lpdvdata->m_iOldPos && wParam & MK_LBUTTON ) {
+			ReleaseDC(mHwnd, hdc);
+		}
+	}
+	else {
 
-      hdc = GetWindowDC( mHwnd );
+		if (pt.y != lpdvdata->m_iOldPos && wParam & MK_LBUTTON) {
 
-      DrawXorBar( hdc, 1, lpdvdata->m_iOldPos - 2, rect.right - 2, 4 );
-      DrawXorBar( hdc, 1, pt.y - 2, rect.right - 2, 4 );
-      lpdvdata->m_iOldPos = pt.y;
+			hdc = GetWindowDC(mHwnd);
 
-      ReleaseDC( mHwnd, hdc );
-    }
-  }
+			DrawXorBar(hdc, 1, lpdvdata->m_iOldPos - 2, rect.right - 2, 4);
+			DrawXorBar(hdc, 1, pt.y - 2, rect.right - 2, 4);
+			lpdvdata->m_iOldPos = pt.y;
 
-  SendMessage(mHwnd, DV_CHANGEPOS, (WPARAM) DVNM_DRAG_DRAG, (LPARAM) &pt);
+			ReleaseDC(mHwnd, hdc);
+		}
+	}
 
-  return 0L;
+	SendMessage(mHwnd, DV_CHANGEPOS, (WPARAM)DVNM_DRAG_DRAG, (LPARAM)&pt);
+
+	return 0L;
 }

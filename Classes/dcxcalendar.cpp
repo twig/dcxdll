@@ -40,6 +40,19 @@ DcxCalendar::DcxCalendar( const UINT ID, DcxDialog * p_Dialog, const HWND mParen
 	BOOL bNoTheme = FALSE;
 	this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
 
+	m_MonthDayStates[0] = 0;
+	m_MonthDayStates[1] = 0;
+	m_MonthDayStates[2] = 0;
+	m_MonthDayStates[3] = 0;
+	m_MonthDayStates[4] = 0;
+	m_MonthDayStates[5] = 0;
+	m_MonthDayStates[6] = 0;
+	m_MonthDayStates[7] = 0;
+	m_MonthDayStates[8] = 0;
+	m_MonthDayStates[9] = 0;
+	m_MonthDayStates[10] = 0;
+	m_MonthDayStates[11] = 0;
+
 	this->m_Hwnd = CreateWindowEx(	
 		ExStyles | WS_EX_CLIENTEDGE, 
 		DCX_CALENDARCLASS, 
@@ -153,7 +166,7 @@ void DcxCalendar::parseControlStyles( const TString & styles, LONG * Styles, LON
 	//	else if (styles.gettok(i) == TEXT("daystate"))
 	//		*Styles |= MCS_DAYSTATE;
 	//}
-	for (TString tsStyle(styles.getfirsttok( 1 )); tsStyle != TEXT(""); tsStyle = styles.getnexttok( ))
+	for (TString tsStyle(styles.getfirsttok(1)); !tsStyle.empty(); tsStyle = styles.getnexttok())
 	{
 		if (tsStyle == TEXT("multi"))
 			*Styles |= MCS_MULTISELECT;
@@ -216,7 +229,7 @@ void DcxCalendar::parseInfoRequest(const TString &input, PTCHAR szReturnValue) c
 		return;
 	}
 	else if (prop == TEXT("selcount")) {
-		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), MonthCal_GetMaxSelCount(this->m_Hwnd));
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), MonthCal_GetMaxSelCount(this->m_Hwnd));
 		return;
 	}
 	else if (this->parseGlobalInfoRequest(input, szReturnValue))
@@ -344,7 +357,6 @@ LRESULT DcxCalendar::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 			switch(hdr->code) {
 				case MCN_GETDAYSTATE: {
 					LPNMDAYSTATE lpNMDayState = (LPNMDAYSTATE) lParam;
-					MONTHDAYSTATE mds[12];
 
 					const int iMax = lpNMDayState->cDayState;
 					TCHAR eval[100];
@@ -352,7 +364,7 @@ LRESULT DcxCalendar::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 					for (int i = 0; i < iMax; i++) {
 						// daystate ctrlid startdate
 						this->evalAliasEx(eval, 100, TEXT("%s,%d,%d"), TEXT("daystate"), this->getUserID(), SystemTimeToMircTime(&(lpNMDayState->stStart)));
-						mds[i] = (MONTHDAYSTATE) 0;
+						m_MonthDayStates[i] = (MONTHDAYSTATE) 0;
 
 						TString strDays(eval);
 
@@ -361,7 +373,7 @@ LRESULT DcxCalendar::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 						strDays.getfirsttok( 0, TSCOMMA);
 
 						for (UINT x = 1; x <= nTok; x++)
-							BOLDDAY(mds[i], strDays.getnexttok( TSCOMMA ).trim().to_int());
+							BOLDDAY(m_MonthDayStates[i], strDays.getnexttok(TSCOMMA).trim().to_int());
 
 						// increment the month so we get a proper offset
 						lpNMDayState->stStart.wMonth++;
@@ -372,7 +384,7 @@ LRESULT DcxCalendar::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 						}
 					}
 
-					lpNMDayState->prgDayState = mds;
+					lpNMDayState->prgDayState = m_MonthDayStates;
 					bParsed = TRUE;
 					return FALSE;
 				}

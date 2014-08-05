@@ -105,7 +105,7 @@ LRESULT CALLBACK mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lP
 	switch (uMsg) {
 	case WM_SIZE:
 		{
-			if (dd->type.len())
+			if (!dd->type.empty())
 				mIRCLinker::signalex(dcxSignal.xdock, TEXT("size %s %d %d %d"), dd->type.to_chr(), dd->win, LOWORD(lParam), HIWORD(lParam));
 			else
 				mIRCLinker::signalex(dcxSignal.xdock, TEXT("size Custom %d %d %d"), dd->win, LOWORD(lParam), HIWORD(lParam));
@@ -122,7 +122,7 @@ LRESULT CALLBACK mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lP
 #ifndef NDEBUG
 	case WM_CLOSE:
 		{
-			if (dd->type.len())
+			if (!dd->type.empty())
 				mIRCLinker::signalex(dcxSignal.xdock, TEXT("close %s %d"), dd->type.to_chr(), dd->win);
 			else
 				mIRCLinker::signalex(dcxSignal.xdock, TEXT("close Custom %d"), dd->win);
@@ -274,7 +274,7 @@ mIRC(xdock) {
 	}
 #endif
 
-	const unsigned int numtok = input.numtok( );
+	const UINT numtok = input.numtok( );
 
 	if (numtok < 1) {
 		Dcx::error(TEXT("/xdock"),TEXT("Invalid Parameters"));
@@ -614,17 +614,17 @@ mIRC(_xdock)
 			break;
 		case 12: // switchBarHwnd
 			{
-					 wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%ld"), (DWORD)mIRCLinker::getSwitchbar()); // don't use %p as this gives a hex result.
+					 wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%lu"), (DWORD)mIRCLinker::getSwitchbar()); // don't use %p as this gives a hex result.
 			}
 			break;
 		case 13: // toolBarHwnd
 			{
-					 wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%ld"), (DWORD)mIRCLinker::getToolbar());
+					 wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%lu"), (DWORD)mIRCLinker::getToolbar());
 			}
 			break;
 		case 14: // treeBarHwnd
 			{
-					 wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%ld"), (DWORD)mIRCLinker::getTreebar());
+					 wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%lu"), (DWORD)mIRCLinker::getTreebar());
 			}
 			break;
 		case 0: // error

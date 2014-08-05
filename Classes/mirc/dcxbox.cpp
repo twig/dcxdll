@@ -111,8 +111,8 @@ DcxBox::DcxBox( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd, con
 
 DcxBox::~DcxBox( ) {
 
-	if ( this->m_pLayoutManager != NULL )
-		delete this->m_pLayoutManager;
+	delete this->m_pLayoutManager;
+
 	if (this->_hTheme)
 		Dcx::UXModule.dcxCloseThemeData(this->_hTheme);
 	this->unregistreDefaultWindowProc( );
@@ -133,7 +133,7 @@ void DcxBox::parseControlStyles( const TString & styles, LONG * Styles, LONG * E
 	//for (UINT i = 1; i <= numtok; i++ )
 	//{
 	//	const TString tsStyle(styles.getnexttok( ));	// tok i
-
+	//
 	//	if (tsStyle == TEXT("right"))
 	//		this->m_iBoxStyles |= BOXS_RIGHT;
 	//	else if (tsStyle == TEXT("center"))
@@ -156,7 +156,7 @@ void DcxBox::parseControlStyles( const TString & styles, LONG * Styles, LONG * E
 	//		*ExStyles |= WS_EX_TRANSPARENT;
 	//}
 
-	for (TString tsStyle(styles.getfirsttok( 1 )); tsStyle != TEXT(""); tsStyle = styles.getnexttok( ))
+	for (TString tsStyle(styles.getfirsttok( 1 )); !tsStyle.empty(); tsStyle = styles.getnexttok( ))
 	{
 		if (tsStyle == TEXT("right"))
 			this->m_iBoxStyles |= BOXS_RIGHT;
@@ -180,6 +180,30 @@ void DcxBox::parseControlStyles( const TString & styles, LONG * Styles, LONG * E
 			*ExStyles |= WS_EX_TRANSPARENT;
 	}
 
+	//for (const auto &a : styles.parts())
+	//{
+	//	if (a == TEXT("right"))
+	//		this->m_iBoxStyles |= BOXS_RIGHT;
+	//	else if (a == TEXT("center"))
+	//		this->m_iBoxStyles |= BOXS_CENTER;
+	//	else if (a == TEXT("bottom"))
+	//		this->m_iBoxStyles |= BOXS_BOTTOM;
+	//	else if (a == TEXT("none"))
+	//		this->m_iBoxStyles |= BOXS_NONE;
+	//	else if (a == TEXT("rounded"))
+	//		this->m_iBoxStyles |= BOXS_ROUNDED;
+	//	else if (a == TEXT("check")) {
+	//		this->m_iBoxStyles &= ~BOXS_RADIO;
+	//		this->m_iBoxStyles |= BOXS_CHECK;
+	//	}
+	//	else if (a == TEXT("radio")) {
+	//		this->m_iBoxStyles &= ~BOXS_CHECK;
+	//		this->m_iBoxStyles |= BOXS_RADIO;
+	//	}
+	//	else if (a == TEXT("transparent"))
+	//		*ExStyles |= WS_EX_TRANSPARENT;
+	//}
+
 	this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
 }
 
@@ -194,7 +218,7 @@ void DcxBox::parseControlStyles( const TString & styles, LONG * Styles, LONG * E
 
 void DcxBox::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) const
 {
-	//  unsigned int numtok = input.numtok( );
+	//  UINT numtok = input.numtok( );
 
 	const TString prop(input.getfirsttok( 3 ));
 
@@ -255,7 +279,7 @@ void DcxBox::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) con
 void DcxBox::parseCommandRequest( const TString & input ) {
 
 	const XSwitchFlags flags(input.getfirsttok(3));
-	const unsigned int numtok = input.numtok( );
+	const UINT numtok = input.numtok( );
 
 	// xdid -c [NAME] [ID] [SWITCH] [ID] [CONTROL] [X] [Y] [W] [H] (OPTIONS)
 	if ( flags[TEXT('c')] && numtok > 8 ) {
@@ -340,25 +364,25 @@ void DcxBox::parseCommandRequest( const TString & input ) {
 			}
 			//const TString tsInput(input.getfirsttok(1, TSTAB));
 			//const TString p2(input.getnexttok( TSTAB ).trim());	// tok 2
-
+			//
 			//const TString com(tsInput.gettok(4).trim());
 			//const TString path(tsInput.gettok(5, -1).trim());
-
+			//
 			//const UINT lflags = this->parseLayoutFlags( p2.getfirsttok( 1 ) );
 			//const UINT ID = p2.getnexttok( ).to_int( );		// tok 2
 			//const UINT WGT = p2.getnexttok( ).to_int( );		// tok 3
 			//const UINT W = p2.getnexttok( ).to_int( );		// tok 4
 			//const UINT H = p2.getnexttok( ).to_int( );		// tok 5
-
+			//
 			//if ( com ==  TEXT("root") || com == TEXT("cell") ) {
-
+			//
 			//	HWND cHwnd = GetDlgItem( this->m_Hwnd, mIRC_ID_OFFSET + ID );
-
+			//
 			//	LayoutCell * p_Cell = NULL;
-
+			//
 			//	// LayoutCellPane
 			//	if ( lflags & LAYOUTPANE ) {
-
+			//
 			//		if ( lflags & LAYOUTHORZ )
 			//			p_Cell = new LayoutCellPane( LayoutCellPane::HORZ );
 			//		else
@@ -380,24 +404,24 @@ void DcxBox::parseCommandRequest( const TString & input ) {
 			//	} // else if ( lflags & LAYOUTFILL )
 			//	// LayoutCellFixed
 			//	else if ( lflags & LAYOUTFIXED ) {
-
+			//
 			//		LayoutCellFixed::FixedType type;
-
+			//
 			//		if ( lflags & LAYOUTVERT && lflags & LAYOUTHORZ )
 			//			type = LayoutCellFixed::BOTH;
 			//		else if ( lflags & LAYOUTVERT )
 			//			type = LayoutCellFixed::HEIGHT;
 			//		else
 			//			type = LayoutCellFixed::WIDTH;
-
+			//
 			//		// Defined Rectangle
 			//		if ( lflags & LAYOUTDIM ) {
-
+			//
 			//			RECT rc;
 			//			SetRect( &rc, 0, 0, W, H );
-
+			//
 			//			if ( lflags & LAYOUTID ) {
-
+			//
 			//				if ( cHwnd != NULL && IsWindow( cHwnd ) )
 			//					p_Cell = new LayoutCellFixed( cHwnd, rc, type );
 			//				else {
@@ -407,13 +431,13 @@ void DcxBox::parseCommandRequest( const TString & input ) {
 			//			}
 			//			else
 			//				p_Cell = new LayoutCellFixed( rc, type );
-
+			//
 			//		}
 			//		// No defined Rectangle
 			//		else {
-
+			//
 			//			if ( lflags & LAYOUTID ) {
-
+			//
 			//				if ( cHwnd != NULL && IsWindow( cHwnd ) )
 			//					p_Cell = new LayoutCellFixed( cHwnd, type );
 			//				else {
@@ -427,32 +451,32 @@ void DcxBox::parseCommandRequest( const TString & input ) {
 			//		this->showError(NULL,TEXT("-l"), TEXT("Unknown Cell Type"));
 			//		return;
 			//	}
-
+			//
 			//	if ( com == TEXT("root") ) {
-
+			//
 			//		if ( p_Cell != NULL )
 			//			this->m_pLayoutManager->setRoot( p_Cell );
-
+			//
 			//	} // if ( com == TEXT("root") )
 			//	else if ( com == TEXT("cell") ) {
-
+//
 			//		if ( p_Cell != NULL ) {
-
+			//
 			//			LayoutCell * p_GetCell;
-
+//
 			//			if ( path == TEXT("root") )
 			//				p_GetCell = this->m_pLayoutManager->getRoot( );
 			//			else
 			//				p_GetCell = this->m_pLayoutManager->getCell( path );
-
+//
 			//			if ( p_GetCell == NULL ) {
 			//				this->showErrorEx(NULL,TEXT("-l"), TEXT("Invalid item path: %s"), path.to_chr( ) );
 			//				delete p_Cell;
 			//				return;
 			//			}
-
+//
 			//			if ( p_GetCell->getType( ) == LayoutCell::PANE ) {
-
+//
 			//				LayoutCellPane * p_PaneCell = (LayoutCellPane *) p_GetCell;
 			//				p_PaneCell->addChild( p_Cell, WGT );
 			//			}
@@ -460,16 +484,16 @@ void DcxBox::parseCommandRequest( const TString & input ) {
 			//	} // else if ( com == TEXT("cell") )
 			//} // if ( com ==  TEXT("root") || com == TEXT("cell") )
 			//else if ( com ==  TEXT("space") ) {
-
+//
 			//	LayoutCell * p_GetCell;
-
+//
 			//	if ( path == TEXT("root") )
 			//		p_GetCell = this->m_pLayoutManager->getRoot( );
 			//	else
 			//		p_GetCell = this->m_pLayoutManager->getCell( path );
-
+//
 			//	if ( p_GetCell != NULL ) {
-
+//
 			//		RECT rc;
 			//		SetRect( &rc, ID, WGT, W, H );
 			//		p_GetCell->setBorder( rc );
@@ -479,7 +503,7 @@ void DcxBox::parseCommandRequest( const TString & input ) {
 	}
 	//xdid -t [NAME] [ID] [SWITCH]
 	else if ( flags[TEXT('t')] ) {
-		SetWindowText(this->m_Hwnd, input.gettok(4, -1).trim().to_chr());
+		SetWindowText(this->m_Hwnd, input.getlasttoks().trim().to_chr());	// tok 4, -1
 		this->redrawWindow( );
 	}
 	else

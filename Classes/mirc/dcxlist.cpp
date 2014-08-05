@@ -136,7 +136,7 @@ void DcxList::parseControlStyles( const TString &styles, LONG *Styles, LONG *ExS
 {
 	*Styles |= LBS_NOTIFY | LBS_HASSTRINGS | LBS_OWNERDRAWFIXED;
 
-	for (TString tsStyle(styles.getfirsttok( 1 )); tsStyle != TEXT(""); tsStyle = styles.getnexttok( ))
+	for (TString tsStyle(styles.getfirsttok(1)); !tsStyle.empty(); tsStyle = styles.getnexttok())
 	{
 		if (tsStyle == TEXT("noscroll"))
 			*Styles |= LBS_DISABLENOSCROLL;
@@ -374,7 +374,7 @@ void DcxList::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) co
 
 void DcxList::parseCommandRequest( const TString & input ) {
 	const XSwitchFlags flags(input.getfirsttok( 3 ));
-	const unsigned int numtok = input.numtok( );
+	const UINT numtok = input.numtok( );
 
 	//xdid -r [NAME] [ID] [SWITCH]
 	if (flags[TEXT('r')]) {
@@ -385,7 +385,7 @@ void DcxList::parseCommandRequest( const TString & input ) {
 	if ( flags[TEXT('a')] && numtok > 4 ) {
 
 		int nPos = input.getnexttok( ).to_int( ) - 1;	// tok 4
-		TString tsItem(input.gettok( 5, -1 ));
+		const TString tsItem(input.getlasttoks());			// tok 5, -1
 
 		if ( nPos == -1 )
 			nPos = ListBox_GetCount( this->m_Hwnd );
@@ -395,9 +395,9 @@ void DcxList::parseCommandRequest( const TString & input ) {
 		// Now update the horizontal scroller
 		//const int nHorizExtent = ListBox_GetHorizontalExtent( this->m_Hwnd );
 		//int nMaxStrlen = tsItem.len();
-
+		//
 		//this->StrLenToExtent(&nMaxStrlen);
-
+		//
 		//if (nMaxStrlen > nHorizExtent)
 		//	ListBox_SetHorizontalExtent( this->m_Hwnd, nMaxStrlen);
 
@@ -411,7 +411,7 @@ void DcxList::parseCommandRequest( const TString & input ) {
 			nPos = ListBox_GetCount( this->m_Hwnd );
 
 		const XSwitchFlags xOpts(input.getnexttok());		// tok 5
-		TString itemtext(input.gettok(6, -1).trim());
+		TString itemtext(input.getlasttoks().trim());		// tok 6, -1
 		int nMaxStrlen = 0;
 		TString tsRes;
 
@@ -499,61 +499,115 @@ void DcxList::parseCommandRequest( const TString & input ) {
 			if (itemtext.numtok() > 2) { // add contents of a file to list
 				int startN = itemtext.getfirsttok( 1 ).to_int();
 				int endN = itemtext.getnexttok( ).to_int();	// tok 2
-				TString filename(itemtext.gettok( 3, -1));
+				TString filename(itemtext.getlasttoks());	// tok 3, -1
 
 				if (IsFile(filename)) {
-					PTCHAR buf = (PTCHAR)readFile(filename.to_chr());
-					if (buf != NULL) {
-						const TString contents(buf);
-						delete [] buf;
-						TCHAR *tok = TEXT("\r\n");
+					//PTCHAR buf = (PTCHAR)readFile(filename.to_chr());
+					//if (buf != NULL) {
+					//	const TString contents(buf);
+					//	delete [] buf;
+					//	TCHAR *tok = TEXT("\r\n");
+					//
+					//	UINT max_lines = contents.numtok(tok);
+					//	if (max_lines == 1) {
+					//		tok = TEXT("\n");
+					//		max_lines = contents.numtok(tok);
+					//	}
+					//
+					//	// no data in file.
+					//	if (max_lines == 0)
+					//		return;
+					//
+					//	// If neg number is given start from (last line) - startN
+					//	if (startN < 0)
+					//		startN = (max_lines + startN);
+					//
+					//	// if start N < 1, make it 1. Allows 0 item. Or case where higher neg number was supplied than lines avail.
+					//	if (startN < 1)
+					//		startN = 1;
+					//
+					//	// If neg number is given set end to (last line) - endN
+					//	if (endN < 0)
+					//		endN = (max_lines + endN);
+					//	// if endN > max or == 0, set to max, allows 0 for end meaning all
+					//	else if ((endN > (int)max_lines) || (endN == 0))
+					//		endN = max_lines;
+					//
+					//	// if endN < 1 set it to 1
+					//	if (endN < 1)
+					//		endN = 1;
+					//
+					//	// check endN comes after startN
+					//	if (endN < startN) {
+					//		this->showError(NULL, TEXT("-A +f"), TEXT("Invalid Range"));
+					//		return;
+					//	}
+					//	this->setRedraw(FALSE);
+					//
+					//	for (int i = startN; i <= endN; i++) {
+					//		itemtext = contents.gettok( i, tok);
+					//		ListBox_InsertString( this->m_Hwnd, nPos++, itemtext.to_chr() );
+					//		const int len = itemtext.len();
+					//		if (len > nMaxStrlen)
+					//			nMaxStrlen = len;
+					//	}
+					//	this->setRedraw(TRUE);
+					//	this->redrawWindow();
+					//}
 
-						UINT max_lines = contents.numtok(tok);
-						if (max_lines == 1) {
-							tok = TEXT("\n");
-							max_lines = contents.numtok(tok);
-						}
+					const TString contents(readTextFile(filename.to_chr()));
+					if (contents.empty())
+						return;
 
-						// no data in file.
-						if (max_lines == 0)
-							return;
+					TCHAR *tok = TEXT("\r\n");
 
-						// If neg number is given start from (last line) - startN
-						if (startN < 0)
-							startN = (max_lines + startN);
-
-						// if start N < 1, make it 1. Allows 0 item. Or case where higher neg number was supplied than lines avail.
-						if (startN < 1)
-							startN = 1;
-
-						// If neg number is given set end to (last line) - endN
-						if (endN < 0)
-							endN = (max_lines + endN);
-						// if endN > max or == 0, set to max, allows 0 for end meaning all
-						else if ((endN > (int)max_lines) || (endN == 0))
-							endN = max_lines;
-
-						// if endN < 1 set it to 1
-						if (endN < 1)
-							endN = 1;
-
-						// check endN comes after startN
-						if (endN < startN) {
-							this->showError(NULL, TEXT("-A +f"), TEXT("Invalid Range"));
-							return;
-						}
-						this->setRedraw(FALSE);
-
-						for (int i = startN; i <= endN; i++) {
-							itemtext = contents.gettok( i, tok);
-							ListBox_InsertString( this->m_Hwnd, nPos++, itemtext.to_chr() );
-							const int len = itemtext.len();
-							if (len > nMaxStrlen)
-								nMaxStrlen = len;
-						}
-						this->setRedraw(TRUE);
-						this->redrawWindow();
+					UINT max_lines = contents.numtok(tok);
+					if (max_lines == 1) {
+						tok = TEXT("\n");
+						max_lines = contents.numtok(tok);
 					}
+
+					// no data in file.
+					if (max_lines == 0)
+						return;
+
+					// If neg number is given start from (last line) - startN
+					if (startN < 0)
+						startN = (max_lines + startN);
+
+					// if start N < 1, make it 1. Allows 0 item. Or case where higher neg number was supplied than lines avail.
+					if (startN < 1)
+						startN = 1;
+
+					// If neg number is given set end to (last line) - endN
+					if (endN < 0)
+						endN = (max_lines + endN);
+					// if endN > max or == 0, set to max, allows 0 for end meaning all
+					else if ((endN >(int)max_lines) || (endN == 0))
+						endN = max_lines;
+
+					// if endN < 1 set it to 1
+					if (endN < 1)
+						endN = 1;
+
+					// check endN comes after startN
+					if (endN < startN) {
+						this->showError(NULL, TEXT("-A +f"), TEXT("Invalid Range"));
+						return;
+					}
+					this->setRedraw(FALSE);
+
+					contents.getfirsttok(0, tok);
+
+					for (int i = startN; i <= endN; i++) {
+						itemtext = contents.getnexttok(tok);	// tok i, tok
+						ListBox_InsertString(this->m_Hwnd, nPos++, itemtext.to_chr());
+						const int len = itemtext.len();
+						if (len > nMaxStrlen)
+							nMaxStrlen = len;
+					}
+					this->setRedraw(TRUE);
+					this->redrawWindow();
 				}
 				else
 					this->showErrorEx(NULL, TEXT("-A"), TEXT("Unable To Access File: %s"), itemtext.to_chr());
@@ -565,9 +619,9 @@ void DcxList::parseCommandRequest( const TString & input ) {
 		{
 			if (itemtext.numtok() > 1) { // add tokens to list
 				TCHAR tok[2];
-				tok[0] = (TCHAR)itemtext.gettok( 1 ).to_int();
+				tok[0] = (TCHAR)itemtext.getfirsttok( 1 ).to_int();
 				tok[1] = 0;
-				const TString contents(itemtext.gettok(2,-1));
+				const TString contents(itemtext.getlasttoks( ));	// tok 2, -1
 
 				const UINT iNumtok = contents.numtok(tok);
 
@@ -612,7 +666,7 @@ void DcxList::parseCommandRequest( const TString & input ) {
 
 			const TString Ns(input.getnexttok( ));	// tok 4
 
-			for (TString tsLine(Ns.getfirsttok(1, TSCOMMA)); tsLine != TEXT(""); tsLine = Ns.getnexttok(TSCOMMA)) {
+			for (TString tsLine(Ns.getfirsttok(1, TSCOMMA)); !tsLine.empty(); tsLine = Ns.getnexttok(TSCOMMA)) {
 				int iStart = 0, iEnd = 0;
 				this->getItemRange(tsLine, nItems, &iStart, &iEnd);
 				if ( (iStart < 0) || (iEnd < 0) || (iStart >= nItems) || (iEnd >= nItems) ) {
@@ -641,7 +695,7 @@ void DcxList::parseCommandRequest( const TString & input ) {
 		const TString Ns(input.getnexttok( ));	// tok 4
 		const int nItems = ListBox_GetCount( this->m_Hwnd );
 
-		for (TString tsLine(Ns.getfirsttok(1, TSCOMMA)); tsLine != TEXT(""); tsLine = Ns.getnexttok(TSCOMMA)) {
+		for (TString tsLine(Ns.getfirsttok(1, TSCOMMA)); !tsLine.empty(); tsLine = Ns.getnexttok(TSCOMMA)) {
 			int iStart = 0, iEnd = 0;
 			this->getItemRange(tsLine, nItems, &iStart, &iEnd);
 			if ( (iStart < 0) || (iEnd < 0) || (iStart >= nItems) || (iEnd >= nItems) ) {
@@ -705,9 +759,8 @@ void DcxList::parseCommandRequest( const TString & input ) {
 			nPos = ListBox_GetCount( this->m_Hwnd ) -1;
 
 		if (nPos > -1 && nPos < ListBox_GetCount(this->m_Hwnd)) {
-			//ListBox_SetItemData(this->m_Hwnd, nPos, input.gettok(5, -1).to_chr());
 			ListBox_DeleteString(this->m_Hwnd, nPos);
-			ListBox_InsertString(this->m_Hwnd, nPos, input.gettok( 5, -1 ).to_chr( ));
+			ListBox_InsertString(this->m_Hwnd, nPos, input.getlasttoks().to_chr( ));	// tok 5, -1
 		}
 	}
 	//xdid -z [NAME] [ID]

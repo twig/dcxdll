@@ -17,12 +17,14 @@ namespace Dcx {
 	XMenuBar XMenubar;
 	BYTE m_iGhostDrag;
 	bool m_bDX9Installed;
+	HMODULE m_hRichEditLib;
 
-	void load(LOADINFO * lInfo)
+	void load(LOADINFO *const lInfo)
 	{
 		m_iGhostDrag = 255;
 		m_bDX9Installed = false;
 		m_pClassFactory = NULL;
+		m_hRichEditLib = NULL;
 
 		// Initialize mIRCLinker
 		mIRCLinker::load(lInfo);
@@ -60,7 +62,7 @@ namespace Dcx {
 		//Js::JavascriptExceptionObject
 		// RichEdit DLL Loading
 		DCX_DEBUG(mIRCLinker::debug, TEXT("LoadDLL"), TEXT("Generating class for RichEdit..."));
-		LoadLibrary(TEXT("RICHED20.DLL"));
+		m_hRichEditLib = LoadLibrary(TEXT("RICHED20.DLL"));
 
 		// Load Control definitions
 		DCX_DEBUG(mIRCLinker::debug, TEXT("LoadDLL"), TEXT("Loading control classes"));
@@ -122,10 +124,8 @@ namespace Dcx {
 
 
 		/***** TrayIcon Stuff *****/
-		if (trayIcons != NULL) {
-			delete trayIcons;
-			trayIcons = NULL;
-		}
+		delete trayIcons;
+		trayIcons = NULL;
 
 		// reset the treebars font if it's been changed.
 		if (mIRCLinker::getTreeFont() != NULL) {
@@ -138,6 +138,9 @@ namespace Dcx {
 
 		/***** XMenuBar Stuff *****/
 		XMenubar.resetMenuBar();
+
+		if (m_hRichEditLib != NULL)
+			FreeLibrary(m_hRichEditLib);
 
 		XPopups.unload();
 
@@ -363,7 +366,6 @@ namespace Dcx {
 
 	bool setGhostDrag(const BYTE newAlpha)
 	{
-		if (newAlpha > 255) return false;
 		m_iGhostDrag = newAlpha;
 		return true;
 	}
@@ -373,9 +375,9 @@ namespace Dcx {
 		return m_bDX9Installed;
 	}
 
-	bool isUnloadSave()
+	bool isUnloadSafe()
 	{
-		return Dialogs.safeToCloseAll() && !XPopups.isPatched();
+		return Dialogs.safeToCloseAll()/* && !XPopups.isPatched()*/;
 	}
 
 	const bool &initDirectX()
@@ -409,7 +411,7 @@ namespace Dcx {
 	/*!
 	 * \brief Sends an error message to mIRC.
 	 */
-	void error(const TCHAR *cmd, const TCHAR *msg)
+	void error(const TCHAR *const cmd, const TCHAR *const msg)
 	{
 		m_sLastError.tsprintf(TEXT("D_ERROR %s (%s)"), cmd, msg);
 		if (mIRCLinker::m_bSendMessageDisabled)
@@ -424,7 +426,7 @@ namespace Dcx {
 	/*
 	 * Variable argument error message.
 	 */
-	void errorex(const TCHAR *cmd, const TCHAR *szFormat, ...)
+	void errorex(const TCHAR *const cmd, const TCHAR *const szFormat, ...)
 	{
 		TString temp;
 		va_list args;
@@ -436,7 +438,7 @@ namespace Dcx {
 		error(cmd, temp.to_chr());
 	}
 
-	int mark(TCHAR* data, const TString & tsDName, const TString & tsCallbackName)
+	int mark(TCHAR *const data, const TString & tsDName, const TString & tsCallbackName)
 	{
 		// check if the alias exists
 		if (!mIRCLinker::isAlias(tsCallbackName.to_chr())) {
@@ -560,7 +562,7 @@ namespace Dcx {
 		case WM_ENTERSIZEMOVE:
 		{
 								 if (getGhostDrag() < 255) {
-									 const long style = GetWindowExStyle(mIRCLinker::getHWND());
+									 const DWORD style = GetWindowExStyle(mIRCLinker::getHWND());
 									 // Set WS_EX_LAYERED on this window
 									 if (!(style & WS_EX_LAYERED))
 										 SetWindowLongPtr(mIRCLinker::getHWND(), GWL_EXSTYLE, style | WS_EX_LAYERED);
@@ -594,20 +596,16 @@ namespace Dcx {
 
 		return mIRCLinker::callDefaultWindowProc(mHwnd, uMsg, wParam, lParam);
 	}
-	bool isFile(const WCHAR* file) {
+	bool isFile(const WCHAR *const file) {
 		struct _stat64i32 stFileInfo;
-		if (_wstat(file, &stFileInfo) == 0)
+		return (_wstat(file, &stFileInfo) == 0);
 			// We were able to get the file attributes
 			// so the file obviously exists.
-			return true;
-		return false;
 	}
-	bool isFile(LPCSTR file) {
+	bool isFile(LPCSTR const file) {
 		struct stat stFileInfo;
-		if (stat(file, &stFileInfo) == 0)
+		return (stat(file, &stFileInfo) == 0);
 			// We were able to get the file attributes
 			// so the file obviously exists.
-			return true;
-		return false;
 	}
 }

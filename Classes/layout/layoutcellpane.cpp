@@ -262,14 +262,14 @@ void LayoutCellPane::getMinMaxInfo( CellMinMaxInfo * pCMMI ) {
 void LayoutCellPane::toXml(TiXmlElement *xml) {
 	//TiXmlElement * inner;
 	//LayoutCell * lc;
-	//const unsigned int count = this->m_vpCells.size();
-	//unsigned int weight;
+	//const UINT count = this->m_vpCells.size();
+	//UINT weight;
 	//if (this->m_nType == LayoutCellPane::HORZ)
 	//	xml->SetAttribute("cascade", "h");
 	//else if (this->m_nType == LayoutCellPane::VERT)
 	//	xml->SetAttribute("cascade", "v");
 	//if (count > 0) {
-	//	for (unsigned int i = 0; i < count; i++) {
+	//	for (UINT i = 0; i < count; i++) {
 	//		lc = this->m_vpCells[i].first;
 	//		weight = this->m_vpCells[i].second;
 	//		inner = lc->toXml();
@@ -287,7 +287,7 @@ void LayoutCellPane::toXml(TiXmlElement *xml) {
 #if DCX_USE_C11
 	for (const auto &x: this->m_vpCells) {
 		LayoutCell * lc = x.first;
-		const unsigned int weight = x.second;
+		const UINT weight = x.second;
 		TiXmlElement * inner = lc->toXml();
 		if (weight != 0)
 			inner->SetAttribute("weight", weight);
@@ -300,7 +300,7 @@ void LayoutCellPane::toXml(TiXmlElement *xml) {
 	while ( itStart != itEnd ) {
 
 		LayoutCell * lc = itStart->first;
-		const unsigned int weight = itStart->second;
+		const UINT weight = itStart->second;
 		TiXmlElement * inner = lc->toXml();
 		if (weight != 0)
 			inner->SetAttribute("weight", weight);

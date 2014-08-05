@@ -97,12 +97,12 @@ typedef struct tagDVCONTROLDATA {
 
 LRESULT CALLBACK DividerWndProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
 
-void Divider_SizeWindowContents( HWND mHwnd, int nWidth, int nHeight );
-LRESULT Divider_OnLButtonDown( HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
-void DrawXorBar(HDC hdc, int x1, int y1, int width, int height );
-LRESULT Divider_OnLButtonUp( HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
-LRESULT Divider_OnMouseMove( HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
+void Divider_SizeWindowContents(HWND mHwnd, const int nWidth, const int nHeight);
+LRESULT Divider_OnLButtonDown(HWND mHwnd, const UINT uMsg, WPARAM wParam, LPARAM lParam);
+void DrawXorBar(HDC hdc, const int x1, const int y1, const int width, const int height);
+LRESULT Divider_OnLButtonUp(HWND mHwnd, const UINT uMsg, WPARAM wParam, LPARAM lParam);
+LRESULT Divider_OnMouseMove(HWND mHwnd, const UINT uMsg, WPARAM wParam, LPARAM lParam);
 void Divider_CalcBarPos( HWND mHwnd, POINT * pt, RECT * rect );
-void Divider_GetChildControl( HWND mHwnd, UINT pane, LPDVPANEINFO result);
+void Divider_GetChildControl(HWND mHwnd, const UINT pane, LPDVPANEINFO result);
 
 #endif // _DIVIDER_H_

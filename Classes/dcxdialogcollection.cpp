@@ -123,7 +123,7 @@ DcxDialog * DcxDialogCollection::getDialogByChildHandle( const HWND mHwnd )
 
 DcxDialog * DcxDialogCollection::getDialogByName( const TString & tsName )
 {
-	if (tsName.len() == 0)
+	if (tsName.empty())
 		return NULL;
 #if DCX_USE_C11
 	for (const auto &x: this->m_vpDialog) {
@@ -163,12 +163,11 @@ DcxDialog * DcxDialogCollection::getDialogByName( const TString & tsName )
  * blah
  */
 
-void DcxDialogCollection::deleteDialog( DcxDialog * p_Dialog ) {
+void DcxDialogCollection::deleteDialog( const DcxDialog *const p_Dialog ) {
 
-	if ( p_Dialog == NULL )
+	if (( p_Dialog == NULL ) || (this->m_closeall))
 		return;
-	if (this->m_closeall)
-		return;
+
 	VectorOfDialogPtrs::iterator itStart = this->m_vpDialog.begin( );
 	VectorOfDialogPtrs::iterator itEnd = this->m_vpDialog.end( );
 
@@ -226,7 +225,7 @@ bool DcxDialogCollection::closeDialogs( ) {
 
 	this->m_closeall = true;
 #if DCX_USE_C11
-	for (auto &x: this->m_vpDialog)
+	for (const auto &x: this->m_vpDialog)
 		DestroyWindow(x->getHwnd());
 #else
 	VectorOfDialogPtrs::iterator itStart = this->m_vpDialog.begin( );

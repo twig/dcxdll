@@ -131,8 +131,8 @@ public:
 	void UpdateShadow(void);
 	bool isShadowed(void) const;
 	bool SetShadowSize(int NewSize = 0);
-	bool SetShadowSharpness(unsigned int NewSharpness = 5);
-	bool SetShadowDarkness(unsigned int NewDarkness = 200);
+	bool SetShadowSharpness(UINT NewSharpness = 5);
+	bool SetShadowDarkness(UINT NewDarkness = 200);
 	bool SetShadowPosition(int NewXOffset = 5, int NewYOffset = 5);
 	bool SetShadowColor(COLORREF NewColor = 0);
 	void ShowShadow(void);
@@ -217,6 +217,10 @@ protected:
 
 	struct {
 		HWND hWin; //!< The shadow window.
+		// Restore last parent window size, used to determine the update strategy when parent window is resized
+		LPARAM WndSize;
+		COLORREF Color;	// Color of shadow
+
 		BYTE Status; //!< The shadow windows status.
 		unsigned char nDarkness;	// Darkness, transparency of blurred area
 		unsigned char nSharpness;	// Sharpness, width of blurred border of shadow window
@@ -227,13 +231,8 @@ protected:
 		signed char nxOffset;
 		signed char nyOffset;
 
-		// Restore last parent window size, used to determine the update strategy when parent window is resized
-		LPARAM WndSize;
-
 		// Set this to true if the shadow should not be update until next WM_PAINT is received
 		bool bUpdate;
-
-		COLORREF Color;	// Color of shadow
 	} m_Shadow;
 	/* **** */
 

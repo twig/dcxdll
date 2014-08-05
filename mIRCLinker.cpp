@@ -3,11 +3,11 @@
 
 namespace mIRCLinker {
 	HANDLE		m_hFileMap				= NULL; //!< Handle to the mIRC DLL File Map
-	PTCHAR		m_pData					= NULL;    //!< Pointer to a character buffer of size MIRC_BUFFER_SIZE_CCH to send mIRC custom commands
+	PTCHAR		m_pData					= NULL; //!< Pointer to a character buffer of size MIRC_BUFFER_SIZE_CCH to send mIRC custom commands
 	HWND		m_mIRCHWND				= NULL; //!< mIRC Window Handle
-	DWORD		m_dwVersion				= 0;
-	int			m_iMapCnt				= 0;  //!< MapFile counter.
-	bool		m_bDebug				= false;    //!< is mIRC is using /debug upon DCX LoadDLL().
+	DWORD		m_dwVersion				= 0;	//!< mIRC Version info.
+	int			m_iMapCnt				= 0;	//!< MapFile counter.
+	bool		m_bDebug				= false;//!< is mIRC is using /debug upon DCX LoadDLL().
 	HWND		m_hSwitchbar			= NULL; //!< The Switchbars HWND
 	HWND		m_hToolbar				= NULL; //!< The Toolbars HWND
 	HWND		m_hMDI					= NULL; //!< The MDIClients HWND
@@ -53,7 +53,7 @@ namespace mIRCLinker {
 		TString isDebug;
 		tsEval(isDebug, TEXT("$debug"));
 
-		m_bDebug = (isDebug.trim().len() > 0);
+		m_bDebug = (!isDebug.trim().empty());
 #ifdef DCX_DEBUG_OUTPUT
 		if (m_bDebug) {
 			DCX_DEBUG(debug, TEXT("LoadmIRCLink"), TEXT("Debug mode detected..."));
@@ -87,6 +87,7 @@ namespace mIRCLinker {
 	void mIRCLinker::unload() {
 		// Reset mIRC's WndProc if changed
 		resetWindowProc();
+
 		UnmapViewOfFile(m_pData);
 		CloseHandle(m_hFileMap);
 
@@ -217,13 +218,26 @@ namespace mIRCLinker {
 	}
 
 	void mIRCLinker::resetWindowProc(void) {
-		if (m_wpmIRCDefaultWndProc != NULL)
-			SubclassWindow(m_mIRCHWND, m_wpmIRCDefaultWndProc);
+		//if (m_wpmIRCDefaultWndProc != NULL)
+		//	SubclassWindow(m_mIRCHWND, m_wpmIRCDefaultWndProc);
+		//m_wpmIRCDefaultWndProc = NULL;
+
+		if (m_wpmIRCDefaultWndProc == NULL)
+			return;
+
+		if (IsWindow(m_mIRCHWND))
+		{
+			if ((WNDPROC)GetWindowLongPtr(m_mIRCHWND, GWLP_WNDPROC) == Dcx::mIRCSubClassWinProc)
+				SubclassWindow(m_mIRCHWND, m_wpmIRCDefaultWndProc);
+		}
+		m_wpmIRCDefaultWndProc = NULL;
 	}
 
 	LRESULT mIRCLinker::callDefaultWindowProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
 	{
-		return CallWindowProc(m_wpmIRCDefaultWndProc, hWnd, Msg, wParam, lParam);
+		if (m_wpmIRCDefaultWndProc != NULL)
+			return CallWindowProc(m_wpmIRCDefaultWndProc, hWnd, Msg, wParam, lParam);
+		return DefWindowProc(hWnd, Msg, wParam, lParam);
 	}
 
 	bool mIRCLinker::mIRC_SndMsg(const UINT uMsg)
@@ -340,7 +354,8 @@ namespace mIRCLinker {
 		{
 			// SendMessage(mHwnd, WM_MCOMMAND, MAKEWPARAM(cMethod, cEventId), cIndex)
 			if (mIRC_SndMsg(WM_MCOMMAND)) {
-				if (lstrlen(m_pData) == 0) return true;
+				if (m_pData[0] == TEXT('\0'))
+					return true;
 			}
 		}
 		return false;

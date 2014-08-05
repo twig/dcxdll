@@ -156,21 +156,20 @@ void DcxIpAddress::parseCommandRequest( const TString &input) {
 
 	// xdid -a [NAME] [ID] [SWITCH] IP.IP.IP.IP
 	if (flags[TEXT('a')] && numtok > 3) {
-		const TString IP(input.getnexttok( ).trim());	// tok 4
+		const TString IP(input.getnexttok( ).strip());	// tok 4
 
 		if (IP.numtok(TEXT(".")) == 4) {
-			BYTE b[4];
+			//BYTE b[4];
+			//
+			//b[0] = (BYTE)(IP.getfirsttok( 1, TEXT(".")).to_int() & 0xFF);
+			//b[1] = (BYTE)(IP.getnexttok( TEXT(".")).to_int() & 0xFF);
+			//b[2] = (BYTE)(IP.getnexttok( TEXT(".")).to_int() & 0xFF);
+			//b[3] = (BYTE)(IP.getnexttok( TEXT(".")).to_int() & 0xFF);
+			//
+			//const DWORD adr = MAKEIPADDRESS(b[0], b[1], b[2], b[3]);
+			//this->setAddress(adr);
 
-			b[0] = (BYTE)(IP.getfirsttok( 1, TEXT(".")).to_int() & 0xFF);
-			b[1] = (BYTE)(IP.getnexttok( TEXT(".")).to_int() & 0xFF);
-			b[2] = (BYTE)(IP.getnexttok( TEXT(".")).to_int() & 0xFF);
-			b[3] = (BYTE)(IP.getnexttok( TEXT(".")).to_int() & 0xFF);
-
-			//for (unsigned int i = 0; i < 4; i++)
-			//	b[i] = (BYTE) IP.gettok(i +1, TEXT(".")).to_int();
-
-			const DWORD adr = MAKEIPADDRESS(b[0], b[1], b[2], b[3]);
-			this->setAddress(adr);
+			this->setAddress(IP.to_addr());
 		}
 		else
 			this->showErrorEx(NULL, TEXT("-a"), TEXT("Invalid Address: %s"), IP.to_chr());

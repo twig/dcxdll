@@ -111,7 +111,7 @@ TString DcxDateTime::getStyles(void) const
 void DcxDateTime::parseControlStyles( const TString &styles, LONG *Styles, LONG *ExStyles, BOOL *bNoTheme)
 {
 	//const UINT numtok = styles.numtok();
-
+	//
 	//for (UINT i = 1; i <= numtok; i++)
 	//{
 	//	if (styles.gettok(i) == TEXT("longdateformat"))
@@ -129,7 +129,7 @@ void DcxDateTime::parseControlStyles( const TString &styles, LONG *Styles, LONG 
 	//	else if (styles.gettok(i) == TEXT("updown"))
 	//		*Styles |= DTS_UPDOWN;
 	//}
-	for (TString tsStyle(styles.getfirsttok( 1 )); tsStyle != TEXT(""); tsStyle = styles.getnexttok( ))
+	for (TString tsStyle(styles.getfirsttok(1)); !tsStyle.empty(); tsStyle = styles.getnexttok())
 	{
 		if (tsStyle == TEXT("longdateformat"))
 			*Styles |= DTS_LONGDATEFORMAT;
@@ -210,7 +210,7 @@ void DcxDateTime::parseCommandRequest( const TString &input) {
 	// xdid -f [NAME] [ID] [SWITCH] (FORMAT)
 	if (flags[TEXT('f')]) {
 		if (numtok > 3) {
-			const TString format(input.gettok(4, -1));
+			const TString format(input.getlasttoks());	// tok 4, -1
 			DateTime_SetFormat(this->m_Hwnd, format.to_chr());
 		}
 		else {
@@ -288,7 +288,7 @@ LRESULT DcxDateTime::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 
 					this->callAliasEx(buff.to_chr(), TEXT("%s,%d"), TEXT("open"), this->getUserID());
 
-					if (buff.len() > 0) {
+					if (!buff.empty()) {
 						int i = 1;
 						int numtok = buff.numtok();
 						TString style;

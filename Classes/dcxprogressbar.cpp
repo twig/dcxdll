@@ -105,7 +105,7 @@ void DcxProgressBar::parseControlStyles( const TString & styles, LONG * Styles, 
 {
 	this->m_bIsGrad = FALSE;
 
-	for (TString tsStyle(styles.getfirsttok( 1 )); tsStyle != TEXT(""); tsStyle = styles.getnexttok( ))
+	for (TString tsStyle(styles.getfirsttok(1)); !tsStyle.empty(); tsStyle = styles.getnexttok())
 	{
 		if ( tsStyle == TEXT("smooth") ) 
 			*Styles |= PBS_SMOOTH;
@@ -174,9 +174,9 @@ void DcxProgressBar::parseCommandRequest( const TString &input) {
 	// xdid -i name ID (TEXT)
 	else if (flags[TEXT('i')]) {
 		if (numtok > 3)
-			this->m_tsText = input.gettok(4, -1);
+			this->m_tsText = input.getlasttoks();	// tok 4, -1
 		else
-			this->m_tsText = TEXT("");
+			this->m_tsText.clear();	// = TEXT("");
 
 		this->redrawWindow();
 	}
@@ -526,7 +526,7 @@ void DcxProgressBar::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 	else
 		CallWindowProc(this->m_DefaultWindowProc, this->m_Hwnd, uMsg, (WPARAM) hdc, lParam);
 
-	if (this->m_tsText.len() > 0) {
+	if (!this->m_tsText.empty()) {
 		const int oldMode = SetBkMode(hdc, TRANSPARENT);
 		COLORREF oldColour = CLR_INVALID;
 

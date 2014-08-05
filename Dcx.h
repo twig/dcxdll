@@ -17,6 +17,7 @@ namespace Dcx
 	extern BYTE m_iGhostDrag;
 	extern IClassFactory *m_pClassFactory;
 	extern bool m_bDX9Installed;
+	extern HMODULE m_hRichEditLib;
 
 	extern DcxDialogCollection Dialogs;
 	extern DcxGDIModule GDIModule;
@@ -35,16 +36,16 @@ namespace Dcx
 	const BYTE &getGhostDrag();
 	bool setGhostDrag(const BYTE newAlpha);
 	const bool &isDX9Installed();
-	bool isUnloadSave();
-	bool isFile(const WCHAR* file);
-	bool isFile(LPCSTR file);
+	bool isUnloadSafe();
+	bool isFile(const WCHAR *const file);
+	bool isFile(LPCSTR const file);
 
-	void load(LOADINFO * lInfo);
+	void load(LOADINFO *const lInfo);
 	void unload(void);
 	const bool &initDirectX();
 	const bool &initDirectX(TCHAR *dxResult, int dxSize);
-	void error(const TCHAR *cmd, const TCHAR *msg);
-	void errorex(const TCHAR *cmd, const TCHAR *szFormat, ...);
-	int mark(TCHAR* data, const TString & tsDName, const TString & tsCallbackName);
+	void error(const TCHAR *const cmd, const TCHAR *const msg);
+	void errorex(const TCHAR *const cmd, const TCHAR *const szFormat, ...);
+	int mark(TCHAR *const data, const TString & tsDName, const TString & tsCallbackName);
 	LRESULT CALLBACK mIRCSubClassWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 }

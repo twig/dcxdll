@@ -98,7 +98,7 @@ DcxTrackBar::~DcxTrackBar( ) {
 void DcxTrackBar::parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ) {
 	*Styles |= TBS_FIXEDLENGTH;
 
-	for (TString tsStyle(styles.getfirsttok( 1 )); tsStyle != TEXT(""); tsStyle = styles.getnexttok( ))
+	for (TString tsStyle(styles.getfirsttok(1)); !tsStyle.empty(); tsStyle = styles.getnexttok())
 	{
 		if ( tsStyle == TEXT("autoticks") ) 
 			*Styles |= TBS_AUTOTICKS;
@@ -191,7 +191,7 @@ void DcxTrackBar::parseCommandRequest( const TString & input ) {
 	// xdid -g [NAME] [ID] [SWITCH] [FLAGS] [FILE]
 	else if (flags[TEXT('g')] && numtok > 4) {
 		const UINT tflags = parseImageFlags(input.getnexttok( ));	// tok 4
-		TString filename(input.gettok(5, -1).trim());
+		TString filename(input.getlasttoks().trim());				// tok 5, -1
 
 		// background
 		if (tflags & TBCS_BACK)
@@ -693,7 +693,7 @@ LRESULT DcxTrackBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
 
 						this->evalAliasEx(buff.to_chr(), 79, TEXT("%s,%d,%d"), TEXT("showtip"), this->getUserID(), this->getPos());
 
-						if (buff.len() > 0) {
+						if (!buff.empty()) {
 							TOOLINFO ti;
 
 							ZeroMemory(&ti, sizeof(TOOLINFO));

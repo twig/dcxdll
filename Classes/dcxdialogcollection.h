@@ -35,7 +35,7 @@ public:
 	virtual ~DcxDialogCollection( );
 
 	void markDialog( const HWND mHwnd, const TString & tsName, const TString & tsAliasName );
-	void deleteDialog( DcxDialog * p_Dialog );
+	void deleteDialog( const DcxDialog *const p_Dialog );
 	DcxDialog * getDialogByHandle( const HWND mHwnd );
 	DcxDialog * getDialogByChildHandle( const HWND mHwnd );
 	DcxDialog * getDialogByName( const TString & tsName );

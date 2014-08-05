@@ -146,16 +146,6 @@ _INTEL_DLL_ int WINAPI UnloadDll(int timeout) {
 	if (timeout != 1) {
 		Dcx::unload();
 
-
-		/***** TrayIcon Stuff *****/
-		if (trayIcons != NULL) {
-			delete trayIcons;
-			trayIcons = NULL;
-		}
-
-		/***** XMenuBar Stuff *****/
-		//g_XMenuBar.resetMenuBar();
-
 		return 1;
 	}
 	// keep DLL in memory
@@ -166,7 +156,65 @@ _INTEL_DLL_ int WINAPI UnloadDll(int timeout) {
 /*!
 * \brief DCX DLL Version Function
 */
+#include <ColourString.h>
 mIRC(Version) {
+#if DCX_DEBUG_OUTPUT
+	TString tmp(TEXT("This is a token string    "));
+
+	tmp.trim();
+
+	tmp.addtok(100);	// "This is a token string 100"
+	mIRCLinker::execex(TEXT("/echo -a test: %s"), tmp.to_chr());
+
+	tmp.addtok(TEXT("chars"));	// "This is a token string 100 chars"
+	mIRCLinker::execex(TEXT("/echo -a test: %s"), tmp.to_chr());
+
+	tmp.instok(TEXT("m_inserted"),5); // "This is a token m_inserted string 100 chars"
+	mIRCLinker::execex(TEXT("/echo -a test: %s"), tmp.to_chr());
+
+	tmp.instok(TEXT("s_inserted"), 1); // "s_inserted This is a token m_inserted string 100 chars"
+	mIRCLinker::execex(TEXT("/echo -a test: %s"), tmp.to_chr());
+
+	tmp.instok(TEXT("e_inserted"), 10);	// "s_inserted This is a token m_inserted string 100 chars e_inserted"
+	mIRCLinker::execex(TEXT("/echo -a test: %s"), tmp.to_chr());
+
+	tmp.deltok(2);	// "s_inserted is a token m_inserted string 100 chars e_inserted"
+	mIRCLinker::execex(TEXT("/echo -a test: %s"), tmp.to_chr());
+
+	tmp.deltok(1);	// "is a token m_inserted string 100 chars e_inserted"
+	mIRCLinker::execex(TEXT("/echo -a test: %s"), tmp.to_chr());
+
+	tmp.deltok(8);	// "is a token m_inserted string 100 chars"
+	mIRCLinker::execex(TEXT("/echo -a test: %s"), tmp.to_chr());
+
+	tmp.puttok(TEXT("put"), 4);	// "is a token put string 100 chars"
+	mIRCLinker::execex(TEXT("/echo -a test: %s"), tmp.to_chr());
+
+	tmp.puttok(TEXT("putter"), 1);	// "putter a token put string 100 chars"
+	mIRCLinker::execex(TEXT("/echo -a test: %s"), tmp.to_chr());
+
+	tmp.puttok(TEXT("putted!"), 8);	// "putter a token put string 100 putted!"
+	mIRCLinker::execex(TEXT("/echo -a test: %s"), tmp.to_chr());
+
+	mIRCLinker::execex(TEXT("/echo -a test: %s"), tmp.gettok(2,2).to_chr()); // "a"
+	mIRCLinker::execex(TEXT("/echo -a test: %s"), tmp.gettok(2, 3).to_chr()); // "a token"
+	mIRCLinker::execex(TEXT("/echo -a test: %s"), tmp.gettok(2, -1).to_chr()); // "a token put string 100 putted!"
+
+	TCHAR ctrlk = TEXT('\x03');
+	std::basic_string<TCHAR> str(TEXT("test "));
+	str += ctrlk;
+	str += TEXT("04red");
+	str += ctrlk;
+	str += TEXT("\x02 bold\x02 ");	// space between \x02 & bold required, as it sees \x02 as \x02b otherwise
+	str += TEXT(" \x1Funderline\x1F ");
+	str += TEXT(" \x1Ditalic\x1D ");
+	str += TEXT(" \x16reverse\x16 ");
+	str += TEXT("\xF end");
+	ColourString<TCHAR> cc(str);
+	mIRCLinker::execex(TEXT("/echo -a test: %s"), cc.ToString().c_str());
+
+#endif
+
 #ifdef DCX_DEV_BUILD
 	if (mIRCLinker::isUnicode())
 	{
@@ -235,7 +283,7 @@ mIRC(IsUsingGDI) {
 * \brief Check if it's safe to unload DLL
 */
 mIRC(IsUnloadSafe) {
-	ret((Dcx::isUnloadSave() ? TEXT("$true") : TEXT("$false")));
+	ret((Dcx::isUnloadSafe() ? TEXT("$true") : TEXT("$false")));
 }
 
 /*!
@@ -326,13 +374,13 @@ mIRC(GetSystemColor) {
 		RGBQUAD clr = {0};
 		BOOL bOpaque = FALSE;
 		if (SUCCEEDED(Dcx::VistaModule.dcxDwmGetColorizationColor((DWORD *)&clr, &bOpaque)))
-			wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), RGB(clr.rgbRed,clr.rgbGreen,clr.rgbBlue));
+			wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), RGB(clr.rgbRed,clr.rgbGreen,clr.rgbBlue));
 		else
 			ret(TEXT("D_ERROR GetSystemColor: Unable to get glass colour."));
 	}
 	else {
 		// max of 8 digits, 9 for null terminator
-		wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), GetSysColor(col));
+		wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), GetSysColor(col));
 	}
 	return 3;
 }
@@ -364,8 +412,8 @@ mIRC(xdid) {
 		return 0;
 	}
 
-	const TString IDs(d.getnexttok( ));	// tok 2
-	const TString tsArgs(d.gettok(3, -1));
+	const TString IDs(d.getnexttok( ));			// tok 2
+	const TString tsArgs(d.getlasttoks( ));		// tok 3, -1
 	TString d2;
 	DcxControl * p_Control;
 	const int n = IDs.numtok(TSCOMMA);
@@ -714,27 +762,28 @@ mIRC(mpopup) {
 // /dcx xSignal [1|0] (+FLAGS)
 mIRC(xSignal) {
 	TString d(data);
-	TString flags;
-	bool state;
+	TString flags(d.trim().gettok(2));
+	bool state = false;
+
 	data[0] = 0;
 
-	d.trim();
-
-	// flags specified
-	if (d.numtok() > 1)
-		flags = d.gettok(2);
 	// if no flags specified, set all states
-	else
+	if (flags.empty())
 		flags = TEXT("+dst");
 
+	if (flags[0] != TEXT('+'))
+	{
+		Dcx::error(TEXT("/dcx xSignal"), TEXT("flags must start with a '+'"));
+		return 0;
+	}
 	// determine state
 	if (d.to_num() > 0)
 		state = true;
-	else
-		state = false;
+
+	const UINT l = flags.len();
 
 	// start from 1 because we expect it to be the TEXT('+') symbol
-	for (int i = 1; i < (int) flags.len(); i++) {
+	for (UINT i = 1; i < l; i++) {
 		switch (flags[i]){
 			case TEXT('d'):
 				dcxSignal.xdock = state;
@@ -759,7 +808,7 @@ mIRC(xSignal) {
 // /dcx WindowProps [HWND] [+FLAGS] (ARGS)
 mIRC(WindowProps) {
 	const TString input(data);
-	const unsigned int numtok = input.numtok( );
+	const UINT numtok = input.numtok( );
 	data[0] = TEXT('\0');
 
 	if (numtok < 2) {
@@ -767,14 +816,14 @@ mIRC(WindowProps) {
 		return 0;
 	}
 
-	HWND hwnd = (HWND) input.getfirsttok(1).to_int();
+	HWND hwnd = (HWND) input.getfirsttok(1).to_int();	// tok 1
 
 	if (!IsWindow(hwnd)) {
 		Dcx::error(TEXT("/dcx WindowProps"), TEXT("Invalid window"));
 		return 0;
 	}
 
-	const TString flags(input.getnexttok( ).trim());
+	const TString flags(input.getnexttok( ).trim());	// tok 2
 	const XSwitchFlags xflags(flags);
 
 	if (!xflags[TEXT('+')] || (flags.len() < 2)) {
@@ -819,7 +868,7 @@ mIRC(WindowProps) {
 				txt = input.gettok(2,-1,TSTAB);
 		}
 		else if (numtok > 2)
-			txt = input.gettok(3, -1);
+			txt = input.getlasttoks();	// tok 3, -1
 
 		SetWindowText(hwnd, txt.trim().to_chr());
 	}
@@ -872,7 +921,7 @@ mIRC(ActiveWindow) {
 
 	data[0] = 0;
 
-	const unsigned int numtok = input.numtok();
+	const UINT numtok = input.numtok();
 
 	if (numtok < 1) {
 		Dcx::error(TEXT("$!dcx(ActiveWindow)"), TEXT("Insufficient parameters"));
@@ -893,7 +942,7 @@ mIRC(ActiveWindow) {
 	GetWindowInfo(hwnd, &wi);
 
 	if (prop == TEXT("hwnd"))         // handle
-		wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%ld"), (DWORD)hwnd);	// don't use %p is this gives a hex result.
+		wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%lu"), (DWORD)hwnd);	// don't use %p is this gives a hex result.
 	else if (prop == TEXT("x"))       // left
 		wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), wi.rcWindow.left);
 	else if (prop == TEXT("y"))       // top
@@ -920,7 +969,7 @@ mIRC(GhostDrag) {
 	input.trim();
 	data[0] = 0;
 
-	if (input == TEXT(""))
+	if (input.empty())
 	{
 		Dcx::error(TEXT("/dcx GhostDrag"), TEXT("Invalid parameters"));
 		return 0;

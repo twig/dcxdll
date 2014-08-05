@@ -91,7 +91,7 @@ DcxStatusBar::~DcxStatusBar( ) {
 
 void DcxStatusBar::parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme )
 {
-	for (TString tsStyle(styles.getfirsttok( 1 )); tsStyle != TEXT(""); tsStyle = styles.getnexttok( ))
+	for (TString tsStyle(styles.getfirsttok(1)); !tsStyle.empty(); tsStyle = styles.getnexttok())
 	{
 		if ( tsStyle == TEXT("grip") )
 			*Styles |= SBARS_SIZEGRIP;
@@ -259,12 +259,12 @@ void DcxStatusBar::parseCommandRequest( const TString & input ) {
 	// xdid -l -> [NAME] [ID] -l [POS [POS POS ...]]
 	else if ( flags[TEXT('l')] && numtok > 3 ) {
 
-		const unsigned int nParts = numtok - 3;
+		const UINT nParts = numtok - 3;
 		INT parts[256];
 
 		int c = 0;
 		TString p;
-		for (unsigned int i = 0; i < nParts; i++ )
+		for (UINT i = 0; i < nParts; i++ )
 		{
 			if (c >= 100) {
 				this->showError(NULL, TEXT("-l"), TEXT("Can't Allocate Over 100% of Statusbar!"));
@@ -315,9 +315,13 @@ void DcxStatusBar::parseCommandRequest( const TString & input ) {
 			tooltip = input.gettok( 2, TSTAB ).trim();
 
 		if (iFlags & SBT_OWNERDRAW) {
-			LPSB_PARTINFO pPart = new SB_PARTINFO;
+			LPSB_PARTINFO pPart;
 
-			if (pPart == NULL) {
+			try {
+				pPart = new SB_PARTINFO;
+			}
+			catch (std::bad_alloc)
+			{
 				this->showError(NULL, TEXT("-t"), TEXT("Error adding item to control: No Memory"));
 				return;
 			}
@@ -387,7 +391,7 @@ void DcxStatusBar::parseCommandRequest( const TString & input ) {
 
 			TString itemtext;
 			if ( numtok > 4 )
-				itemtext = input.gettok( 5, -1 );
+				itemtext = input.getlasttoks();	// tok 5, -1
 
 			if (HIWORD( this->getTextLength( nPos ) ) & SBT_OWNERDRAW) {
 				LPSB_PARTINFO pPart = (LPSB_PARTINFO)this->getText(nPos, NULL);
@@ -406,7 +410,7 @@ void DcxStatusBar::parseCommandRequest( const TString & input ) {
 	else if (flags[TEXT('w')] && numtok > 5) {
 		const TString flag(input.getnexttok( ));			// tok 4
 		const int index = input.getnexttok( ).to_int();		// tok 5
-		TString filename(input.gettok(6, -1));
+		TString filename(input.getlasttoks());				// tok 6, -1
 
 		HIMAGELIST himl = this->getImageList();
 
@@ -769,7 +773,7 @@ LRESULT DcxStatusBar::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 								rc.left += (ii.rcImage.right - ii.rcImage.left) + 5;
 						}
 					}
-					if (pPart->m_Text.len() > 0)
+					if (!pPart->m_Text.empty())
 						mIRC_DrawText(lpDrawItem->hDC, pPart->m_Text, &rc, DT_LEFT | DT_VCENTER | DT_SINGLELINE, false);
 					else if (pPart->m_Child != NULL) {
 						SetWindowPos(pPart->m_Child->getHwnd(), NULL, rc.left, rc.top,

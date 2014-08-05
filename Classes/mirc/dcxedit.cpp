@@ -52,7 +52,6 @@ DcxEdit::DcxEdit(const UINT ID, DcxDialog *p_Dialog, const HWND mParentHwnd, con
 		Dcx::UXModule.dcxSetWindowTheme(this->m_Hwnd , L" ", L" ");
 
 	Edit_LimitText(this->m_Hwnd, 0);
-	//this->m_tsText = TEXT("");
 
 	//SendMessage(this->m_Hwnd, CCM_SETUNICODEFORMAT, TRUE, NULL);
 
@@ -128,13 +127,13 @@ void DcxEdit::toXml(TiXmlElement * xml) const
 void DcxEdit::parseControlStyles( const TString &styles, LONG *Styles, LONG *ExStyles, BOOL *bNoTheme)
 {
 	//const UINT numtok = styles.numtok( );
-
+	//
 	//styles.getfirsttok( 0 );
-
+	//
 	//for (UINT i = 1; i <= numtok; i++)
 	//{
 	//	const TString tsStyle(styles.getnexttok( ));	// tok i
-
+	//
 	//	if (tsStyle == TEXT("multi")) 
 	//		*Styles |= ES_MULTILINE;
 	//	else if (tsStyle == TEXT("center"))
@@ -164,7 +163,7 @@ void DcxEdit::parseControlStyles( const TString &styles, LONG *Styles, LONG *ExS
 	//	else if (tsStyle == TEXT("showsel"))
 	//		*Styles |= ES_NOHIDESEL;
 	//}
-	for (TString tsStyle(styles.getfirsttok( 1 )); tsStyle != TEXT(""); tsStyle = styles.getnexttok( ))
+	for (TString tsStyle(styles.getfirsttok( 1 )); !tsStyle.empty(); tsStyle = styles.getnexttok( ))
 	{
 		if (tsStyle == TEXT("multi")) 
 			*Styles |= ES_MULTILINE;
@@ -209,7 +208,7 @@ void DcxEdit::parseControlStyles( const TString &styles, LONG *Styles, LONG *ExS
 */
 void DcxEdit::parseInfoRequest( const TString &input, PTCHAR szReturnValue) const
 {
-	const unsigned int numtok = input.numtok( );
+	const UINT numtok = input.numtok( );
 
 	const TString prop(input.getfirsttok( 3 ));
 
@@ -233,7 +232,7 @@ void DcxEdit::parseInfoRequest( const TString &input, PTCHAR szReturnValue) cons
 	// [NAME] [ID] [PROP]
 	else if (prop == TEXT("num")) {
 		if (this->isStyle(ES_MULTILINE))
-			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), this->m_tsText.numtok(TEXT("\r\n")));
+			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), this->m_tsText.numtok(TEXT("\r\n")));
 		else {
 			// single line control so always 1 line.
 			szReturnValue[0] = TEXT('1');
@@ -279,11 +278,11 @@ void DcxEdit::parseInfoRequest( const TString &input, PTCHAR szReturnValue) cons
 			// line offset
 			const int iAbsoluteCharPos = (int) SendMessage(this->m_Hwnd, EM_LINEINDEX, (WPARAM)-1, NULL);
 
-			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d"), iLinePos +1, dwAbsoluteStartSelPos - iAbsoluteCharPos);
+			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d %u"), iLinePos +1, dwAbsoluteStartSelPos - iAbsoluteCharPos);
 		}
 		else {
 			// return selstart
-			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d"), 1, dwAbsoluteStartSelPos);
+			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("1 %u"), dwAbsoluteStartSelPos);
 		}
 
 		return;
@@ -292,14 +291,14 @@ void DcxEdit::parseInfoRequest( const TString &input, PTCHAR szReturnValue) cons
 		DWORD dwSelStart = 0; // selection range starting position
 
 		SendMessage(this->m_Hwnd, EM_GETSEL, (WPARAM) &dwSelStart, NULL);
-		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), dwSelStart);
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), dwSelStart);
 		return;
 	}
 	else if (prop == TEXT("selend")) {
 		DWORD dwSelEnd = 0;   // selection range ending position
 
 		SendMessage(this->m_Hwnd, EM_GETSEL, NULL, (LPARAM) &dwSelEnd);
-		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), dwSelEnd);
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), dwSelEnd);
 		return;
 	}
 	else if (prop == TEXT("sel")) {
@@ -307,7 +306,7 @@ void DcxEdit::parseInfoRequest( const TString &input, PTCHAR szReturnValue) cons
 		DWORD dwSelEnd = 0;   // selection range ending position
 
 		SendMessage(this->m_Hwnd, EM_GETSEL, (WPARAM) &dwSelStart, (LPARAM) &dwSelEnd);
-		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d"), dwSelStart, dwSelEnd);
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u %u"), dwSelStart, dwSelEnd);
 		return;
 	}
 	else if (prop == TEXT("seltext")) {
@@ -319,9 +318,11 @@ void DcxEdit::parseInfoRequest( const TString &input, PTCHAR szReturnValue) cons
 		return;
 	}
 	else if (prop == TEXT("cue")) {
-		if (this->m_tsCue.len())
+		if (!this->m_tsCue.empty())
+		{
 			dcx_strcpyn(szReturnValue, this->m_tsCue.to_chr(), MIRC_BUFFER_SIZE_CCH);
-		return;
+			return;
+		}
 	}
 	else if (this->parseGlobalInfoRequest(input, szReturnValue))
 		return;
@@ -336,18 +337,18 @@ void DcxEdit::parseInfoRequest( const TString &input, PTCHAR szReturnValue) cons
 */
 void DcxEdit::parseCommandRequest( const TString &input) {
 	const XSwitchFlags flags(input.getfirsttok( 3 ));
-	const unsigned int numtok = input.numtok( );
+	const UINT numtok = input.numtok( );
 
 	// xdid -r [NAME] [ID] [SWITCH]
 	if (flags[TEXT('r')]) {
-		this->m_tsText = TEXT("");
+		this->m_tsText.clear();	// = TEXT("");
 		SetWindowTextW(this->m_Hwnd, L"");
 	}
 
 	// xdid -a [NAME] [ID] [SWITCH] [TEXT]
 	if (flags[TEXT('a')] && numtok > 3) {
-		this->m_tsText += input.gettok(4, -1);
-		SetWindowTextW(this->m_Hwnd, this->m_tsText.to_chr());
+		this->m_tsText += input.getlasttoks();	// tok 4, -1
+		SetWindowTextW(this->m_Hwnd, this->m_tsText.to_wchr());
 	}
 	// xdid -c [NAME] [ID] [SWITCH]
 	else if (flags[TEXT('c')] && numtok > 2) {
@@ -358,18 +359,18 @@ void DcxEdit::parseCommandRequest( const TString &input) {
 		if (this->isStyle(ES_MULTILINE)) {
 			const int nLine = input.getnexttok( ).to_int();	// tok 4
 			this->m_tsText.deltok(nLine, TEXT("\r\n"));
-			SetWindowTextW(this->m_Hwnd, this->m_tsText.to_chr());
+			SetWindowTextW(this->m_Hwnd, this->m_tsText.to_wchr());
 		}
 	}
 	// xdid -i [NAME] [ID] [SWITCH] [N] [TEXT]
 	else if (flags[TEXT('i')] && numtok > 4) {
 		if (this->isStyle(ES_MULTILINE)) {
 			const int nLine = input.getnexttok( ).to_int();	// tok 4
-			this->m_tsText.instok(input.gettok(5, -1).to_chr(), nLine, TEXT("\r\n"));
+			this->m_tsText.instok(input.getlasttoks().to_chr(), nLine, TEXT("\r\n"));	// tok 5, -1
 		}
 		else
-			this->m_tsText = input.gettok(5, -1);
-		SetWindowTextW(this->m_Hwnd, this->m_tsText.to_chr());
+			this->m_tsText = input.getlasttoks();	// tok 5, -1
+		SetWindowTextW(this->m_Hwnd, this->m_tsText.to_wchr());
 	}
 	// xdid -j [NAME] [ID] [SWITCH] [0|1]
 	else if (flags[TEXT('j')] && numtok > 3) {
@@ -417,11 +418,11 @@ void DcxEdit::parseCommandRequest( const TString &input) {
 	else if (flags[TEXT('o')] && numtok > 3) {
 		if (this->isStyle(ES_MULTILINE)) {
 			const int nLine = input.getnexttok( ).to_int();	// tok 4
-			this->m_tsText.puttok(input.gettok(5, -1).to_chr(), nLine, TEXT("\r\n"));
+			this->m_tsText.puttok(input.getlasttoks().to_chr(), nLine, TEXT("\r\n"));	// tok 5, -1
 		}
 		else
-			this->m_tsText = input.gettok(4, -1);
-		SetWindowTextW(this->m_Hwnd, this->m_tsText.to_chr());
+			this->m_tsText = input.getlasttoks();	// tok 4, -1
+		SetWindowTextW(this->m_Hwnd, this->m_tsText.to_wchr());
 	}
 	// xdid -P [NAME] [ID]
 	else if (flags[TEXT('P')] && numtok > 1) {
@@ -448,19 +449,19 @@ void DcxEdit::parseCommandRequest( const TString &input) {
 		//	delete [] contents;
 		//}
 
-		TString tsFile(input.gettok(4, -1).trim());
+		TString tsFile(input.getlasttoks().trim());	// tok 4, -1
 
 		if (IsFile(tsFile))
 		{
 			this->m_tsText = readTextFile(tsFile.to_chr());
-			SetWindowTextW(this->m_Hwnd, this->m_tsText.to_chr());
+			SetWindowTextW(this->m_Hwnd, this->m_tsText.to_wchr());
 		}
 		else
 			showErrorEx(NULL, TEXT("-t"), TEXT("Unable to open: %s"), tsFile.to_chr());
 	}
 	// xdid -u [NAME] [ID] [SWITCH] [FILENAME]
 	else if (flags[TEXT('u')] && numtok > 3) {
-		const TString tsFile(input.gettok(4, -1).trim());
+		const TString tsFile(input.getlasttoks().trim());	// tok 4, -1
 
 		if (!SaveDataToFile(tsFile, this->m_tsText))
 			this->showErrorEx(NULL, TEXT("-u"), TEXT("Unable to save: %s"), tsFile.to_chr());
@@ -480,8 +481,8 @@ void DcxEdit::parseCommandRequest( const TString &input) {
 	}
 	// xdid -E [NAME] [ID] [SWITCH] [CUE TEXT]
 	else if (flags[TEXT('E')] && numtok > 3) {
-		this->m_tsCue = input.gettok(4, -1);
-		Edit_SetCueBannerText(this->m_Hwnd,this->m_tsCue.to_chr());
+		this->m_tsCue = input.getlasttoks();	// tok 4, -1
+		Edit_SetCueBannerText(this->m_Hwnd,this->m_tsCue.to_wchr());
 	}
 	// xdid -y [NAME] [ID] [SWITCH] [0|1]
 	else if (flags[TEXT('y')] && numtok > 3) {
@@ -507,7 +508,7 @@ LRESULT DcxEdit::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bP
 				{
 					TGetWindowText(this->m_Hwnd, this->m_tsText);
 					if (this->m_pParentDialog->getEventMask() & DCX_EVENT_EDIT)
-						this->execAliasEx(TEXT("%s,%d"), TEXT("edit"), this->getUserID());
+						this->execAliasEx(TEXT("%s,%u"), TEXT("edit"), this->getUserID());
 				}
 
 				break;
@@ -539,12 +540,12 @@ LRESULT DcxEdit::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bPar
 				//	bParsed = TRUE; // prevents parent window closing.
 				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_EDIT) {
 					if (wParam == VK_RETURN)
-						this->execAliasEx(TEXT("%s,%d"), TEXT("return"), this->getUserID());
+						this->execAliasEx(TEXT("%s,%u"), TEXT("return"), this->getUserID());
 
 					if ((this->m_bIgnoreRepeat) && (lParam & 0x40000000)) // ignore repeats
 						break;
 
-					this->execAliasEx(TEXT("%s,%d,%d"), TEXT("keydown"), this->getUserID(), wParam);
+					this->execAliasEx(TEXT("%s,%u,%u"), TEXT("keydown"), this->getUserID(), wParam);
 				}
 				/*
 				// CTRL+A, select text and return so control doesnt beep
@@ -564,7 +565,7 @@ LRESULT DcxEdit::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bPar
 				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_EDIT) {
 					TCHAR ret[256];
 
-					this->evalAliasEx(ret, 255, TEXT("%s,%d"), TEXT("copy"), this->getUserID());
+					this->evalAliasEx(ret, 255, TEXT("%s,%u"), TEXT("copy"), this->getUserID());
 
 					if (lstrcmp(TEXT("nocopy"), ret) == 0) {
 						bParsed = TRUE;
@@ -578,7 +579,7 @@ LRESULT DcxEdit::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bPar
 				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_EDIT) {
 					TCHAR ret[256];
 
-					this->evalAliasEx(ret, 255, TEXT("%s,%d"), TEXT("cut"), this->getUserID());
+					this->evalAliasEx(ret, 255, TEXT("%s,%u"), TEXT("cut"), this->getUserID());
 
 					if (lstrcmp(TEXT("nocut"), ret) == 0) {
 						bParsed = TRUE;
@@ -592,7 +593,7 @@ LRESULT DcxEdit::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bPar
 				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_EDIT) {
 					TCHAR ret[256];
 
-					this->evalAliasEx(ret, 255, TEXT("%s,%d"), TEXT("paste"), this->getUserID());
+					this->evalAliasEx(ret, 255, TEXT("%s,%u"), TEXT("paste"), this->getUserID());
 
 					if (lstrcmp(TEXT("nopaste"), ret) == 0) {
 						bParsed = TRUE;
@@ -604,7 +605,7 @@ LRESULT DcxEdit::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bPar
 		case WM_KEYUP:
 			{
 				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_EDIT)
-					this->execAliasEx(TEXT("%s,%d,%d"), TEXT("keyup"), this->getUserID(), wParam);
+					this->execAliasEx(TEXT("%s,%u,%u"), TEXT("keyup"), this->getUserID(), wParam);
 				break;
 			}
 		case WM_PAINT:
@@ -624,7 +625,7 @@ LRESULT DcxEdit::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bPar
 
 				//RECT rcTxt;
 				//GetClientRect(this->m_Hwnd, &rcTxt);
-
+				//
 				//// fill background.
 				//if (this->isExStyle(WS_EX_TRANSPARENT))
 				//{
@@ -633,11 +634,11 @@ LRESULT DcxEdit::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bPar
 				//}
 				//else
 				//	DcxControl::DrawCtrlBackground(hdc,this,&rcTxt);
-
+				//
 				//HFONT oldFont = NULL;
 				//COLORREF oldClr = CLR_INVALID;
 				//COLORREF oldBkgClr = CLR_INVALID;
-
+				//
 				//// check if font is valid & set it.
 				//if (this->m_hFont != NULL)
 				//	oldFont = SelectFont(hdc, this->m_hFont);
@@ -652,7 +653,7 @@ LRESULT DcxEdit::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bPar
 				//	oldClr = SetTextColor(hdc, GetSysColor(COLOR_GRAYTEXT));
 				//	oldBkgClr = SetBkColor(hdc, GetSysColor(COLOR_3DFACE));
 				//}
-
+				//
 				//UINT style = DT_LEFT|DT_NOPREFIX|DT_VCENTER;
 				//if (this->isStyle(ES_CENTER))
 				//	style = DT_CENTER|DT_NOPREFIX|DT_VCENTER;
@@ -660,7 +661,7 @@ LRESULT DcxEdit::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bPar
 				//	style = DT_RIGHT|DT_NOPREFIX|DT_VCENTER;
 				//if (!this->isStyle(ES_MULTILINE))
 				//	style |= DT_SINGLELINE;
-
+				//
 				//if (!this->m_bCtrlCodeText) {
 				//	int oldBkgMode = SetBkMode(hdc, TRANSPARENT);
 				//	if (this->m_bShadowText)
@@ -671,7 +672,7 @@ LRESULT DcxEdit::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bPar
 				//}
 				//else
 				//	mIRC_DrawText(hdc, this->m_tsText, &rcTxt, style, this->m_bShadowText);
-
+				//
 				//if (oldBkgClr != CLR_INVALID)
 				//	SetBkColor(hdc, oldBkgClr);
 				//if (oldClr != CLR_INVALID)

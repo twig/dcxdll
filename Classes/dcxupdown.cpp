@@ -83,7 +83,7 @@ void DcxUpDown::parseControlStyles( const TString & styles, LONG * Styles, LONG 
 
 	*Styles |= UDS_ALIGNRIGHT;
 
-	for (TString tsStyle(styles.getfirsttok( 1 )); tsStyle != TEXT(""); tsStyle = styles.getnexttok( ))
+	for (TString tsStyle(styles.getfirsttok(1)); !tsStyle.empty(); tsStyle = styles.getnexttok())
 	{
 		if ( tsStyle == TEXT("left") ) {
 			*Styles &= ~UDS_ALIGNRIGHT;

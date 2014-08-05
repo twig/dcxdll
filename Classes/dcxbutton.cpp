@@ -64,8 +64,10 @@ DcxButton::DcxButton( const UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, REC
 	ZeroMemory( &this->m_aTransp, 4*sizeof(COLORREF) );
 
 	this->m_aColors[0] = GetSysColor(COLOR_BTNTEXT); // normal
-	this->m_aColors[1] = GetSysColor(COLOR_BTNTEXT); // hover
-	this->m_aColors[2] = GetSysColor(COLOR_BTNTEXT); // pushed
+	//this->m_aColors[1] = GetSysColor(COLOR_BTNTEXT); // hover
+	//this->m_aColors[2] = GetSysColor(COLOR_BTNTEXT); // pushed
+	this->m_aColors[1] = this->m_aColors[0]; // hover
+	this->m_aColors[2] = this->m_aColors[0]; // pushed
 	this->m_aColors[3] = GetSysColor(COLOR_GRAYTEXT); // disabled
 
 	this->setControlFont( GetStockFont( DEFAULT_GUI_FONT ), FALSE );
@@ -122,7 +124,7 @@ void DcxButton::parseControlStyles( const TString & styles, LONG * Styles, LONG 
 	//	else if ( styles.gettok( i ) == TEXT("default") )
 	//		*Styles |= BS_DEFPUSHBUTTON;
 	//}
-	for (TString tsStyle(styles.getfirsttok( 1 )); tsStyle != TEXT(""); tsStyle = styles.getnexttok( ))
+	for (TString tsStyle(styles.getfirsttok(1)); !tsStyle.empty(); tsStyle = styles.getnexttok())
 	{
 		if ( tsStyle == TEXT("bitmap") )
 			*Styles |= BS_BITMAP;
@@ -187,7 +189,7 @@ void DcxButton::parseCommandRequest( const TString & input ) {
 		const UINT iColorStyles = this->parseColorFlags(input.getnexttok( ));	// tok 4
 		const COLORREF clrColor = (COLORREF)input.getnexttok( ).to_num();	// tok 5
 
-		TString filename(input.gettok(6, -1).trim());
+		TString filename(input.getlasttoks().trim());	// tok 6, -1
 
 		if (iColorStyles & BTNCS_NORMAL) {
 			this->m_aBitmaps[0] = dcxLoadBitmap(this->m_aBitmaps[0], filename);
@@ -225,7 +227,7 @@ void DcxButton::parseCommandRequest( const TString & input ) {
 	}
 	// xdid -t [NAME] [ID] [SWITCH] ItemText
 	else if ( flags[TEXT('t')] && numtok > 2 ) {
-		this->m_tsCaption = (numtok > 3 ? input.gettok(4, -1).trim() : TEXT(""));
+		this->m_tsCaption = (numtok > 3 ? input.getlasttoks().trim() : TEXT(""));	// tok 4, -1
 		this->redrawWindow();
 	}
 	// xdid -w [NAME] [ID] [SWITCH] [FLAGS] [INDEX] [FILENAME]
@@ -235,7 +237,7 @@ void DcxButton::parseCommandRequest( const TString & input ) {
 		const TString tflags(input.getnexttok( ));		// tok 4
 		const int index = input.getnexttok( ).to_int();	// tok 5
 		const UINT flag = parseColorFlags(tflags);
-		TString filename(input.gettok(6, -1));
+		TString filename(input.getlasttoks());			// tok 6, -1
 
 		// load the icon
 		if (this->m_iIconSize > 16)
@@ -677,39 +679,39 @@ void DcxButton::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 		}
 
 		//HFONT hFontOld = SelectFont( hdc, this->m_hFont );
-
+		//
 		//RECT rcTxt;
 		//SetRectEmpty( &rcTxt );
-
+		//
 		//SetBkMode( hdc, TRANSPARENT );
-
+		//
 		//HIMAGELIST himl = this->getImageList( );
-
+		//
 		//SetTextColor(hdc, this->m_aColors[nState]);
-
+		//
 		////if ( this->m_tsCaption.len( ) > 0 )
 		////	DrawTextW(hdc, this->m_tsCaption.to_chr(), -1, &rcTxt, DT_CALCRECT | DT_SINGLELINE);
 		//if ( this->m_tsCaption.len( ) > 0 )
 		//	this->calcTextRect(hdc, this->m_tsCaption, &rcTxt, /*DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP |*/ DT_SINGLELINE);
-
+		//
 		//int iCenter = w / 2;
 		//int iVCenter = h / 2;
 		//int iTextW = ( rcTxt.right - rcTxt.left );
 		//int iTextH = ( rcTxt.bottom - rcTxt.top );
-
+		//
 		//// If there is an icon
 		//if (himl != NULL && this->m_bHasIcons) {
 		//	int iIconLeft = iCenter - (this->m_iIconSize + ICON_XPAD + iTextW) / 2;
 		//	int iIconTop = iVCenter - this->m_iIconSize / 2;
-
+		//
 		//	if (iIconLeft < BUTTON_XPAD)
 		//		iIconLeft = BUTTON_XPAD;
-
+		//
 		//	if (iIconTop < BUTTON_YPAD)
 		//		iIconTop = BUTTON_YPAD;
-
+		//
 		//	rcTxt.left = iIconLeft + this->m_iIconSize + ICON_XPAD;
-
+		//
 		//	if (nState == 3) // disabled
 		//		ImageList_Draw(himl, nState, hdc, iIconLeft, iIconTop, ILD_TRANSPARENT | ILD_BLEND50);
 		//	else
@@ -720,13 +722,13 @@ void DcxButton::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 		//	if ( rcTxt.left < BUTTON_XPAD )
 		//		rcTxt.left = BUTTON_XPAD;
 		//}
-
+		//
 		//if ( iTextW > 0 ) {
 		//	rcTxt.top = iVCenter - iTextH / 2;
-
+		//
 		//	if ( rcTxt.top < BUTTON_YPAD )
 		//		rcTxt.top = BUTTON_YPAD;
-
+		//
 		//	rcTxt.right = rcClient.right - BUTTON_XPAD;
 		//	rcTxt.bottom = rcClient.bottom - BUTTON_YPAD;
 		//	//this->ctrlDrawText(hdc,this->m_tsCaption, &rcTxt, DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP | DT_SINGLELINE);

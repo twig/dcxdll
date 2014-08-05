@@ -129,7 +129,7 @@ public:
 	const COLORREF &getEndGradientColor(void) const { return this->m_clrEndGradient; };
 	const RECT getWindowPosition(void) const;
 
-	static DcxControl * controlFactory( DcxDialog * p_Dialog, const UINT mID, const TString & input, unsigned int offset, const UINT64 mask = CTLF_ALLOW_ALL, HWND hParent = NULL);
+	static DcxControl * controlFactory( DcxDialog * p_Dialog, const UINT mID, const TString & input, UINT offset, const UINT64 mask = CTLF_ALLOW_ALL, HWND hParent = NULL);
 
 	virtual TString getType( ) const = 0;
 	virtual TString getStyles(void) const;

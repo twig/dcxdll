@@ -139,7 +139,7 @@ void DcxComboEx::parseControlStyles( const TString & styles, LONG * Styles, LONG
 {
 	//*ExStyles |= CBES_EX_NOSIZELIMIT;
 
-	for (TString tsStyle(styles.getfirsttok( 1 )); tsStyle != TEXT(""); tsStyle = styles.getnexttok( ))
+	for (TString tsStyle(styles.getfirsttok(1)); !tsStyle.empty(); tsStyle = styles.getnexttok())
 	{
 		if ( tsStyle == TEXT("simple") )
 			*Styles |= CBS_SIMPLE;
@@ -325,8 +325,8 @@ void DcxComboEx::parseCommandRequest( const TString &input) {
 		const int indent	= input.getnexttok( ).to_int();		// tok 5
 		const int icon		= input.getnexttok( ).to_int() -1;	// tok 6
 		const int state		= input.getnexttok( ).to_int() -1;	// tok 7
-		//int overlay = input.getnexttok( ).to_int() - 1;		// tok 8
-		const TString itemtext(input.gettok( 9, -1));
+		const int overlay	= input.getnexttok( ).to_int();		// tok 8		(never used, here for spacing only atm)
+		const TString itemtext(input.getlasttoks());			// tok 9, -1
 
 		if (nPos == -2) {
 			if (IsWindow(this->m_EditHwnd))
@@ -343,7 +343,7 @@ void DcxComboEx::parseCommandRequest( const TString &input) {
 			cbi.iIndent = indent;
 			cbi.iImage = icon;
 			cbi.iSelectedImage = state;
-			//cbi.iOverlay = overlay;
+			cbi.iOverlay = overlay;
 			cbi.pszText = itemtext.to_chr();
 			cbi.iItem = nPos;
 			cbi.lParam = (LPARAM)new DCXCBITEM;
@@ -356,27 +356,46 @@ void DcxComboEx::parseCommandRequest( const TString &input) {
 
 			if (IsWindow(combo)) {
 				// Get Font sizes (best way i can find atm, if you know something better then please let me know)
-				int nMaxStrlen = itemtext.len();
-				const int nHorizExtent = (int)SendMessage( combo, CB_GETHORIZONTALEXTENT, NULL, NULL );
+
+				//int nMaxStrlen = itemtext.len();
+				//const int nHorizExtent = (int)SendMessage( combo, CB_GETHORIZONTALEXTENT, NULL, NULL );
+				//
+				//HDC hdc = GetDC( this->m_Hwnd );
+				//TEXTMETRIC tm;
+				//HFONT hFont = this->getFont();
+				//
+				//HFONT hOldFont = SelectFont(hdc, hFont);
+				//
+				//GetTextMetrics(hdc, &tm);
+				//
+				//SelectFont(hdc, hOldFont);
+				//
+				//ReleaseDC( this->m_Hwnd, hdc);
+				//
+				//// Multiply max str len by font average width + 1
+				//nMaxStrlen *= (tm.tmAveCharWidth + tm.tmOverhang);
+				//// Add 2 * chars as spacer.
+				//nMaxStrlen += (tm.tmAveCharWidth * 2);
+				//
+				//if (nMaxStrlen > nHorizExtent)
+				//	SendMessage(combo, CB_SETHORIZONTALEXTENT, nMaxStrlen, NULL);
+
+				const int nHorizExtent = (int)SendMessage(combo, CB_GETHORIZONTALEXTENT, NULL, NULL);
+
+				SIZE sz;
 				HDC hdc = GetDC( this->m_Hwnd );
-				TEXTMETRIC tm;
 				HFONT hFont = this->getFont();
 
 				HFONT hOldFont = SelectFont(hdc, hFont);
 
-				GetTextMetrics(hdc, &tm);
+				GetTextExtentPoint32(hdc, itemtext.to_chr(), itemtext.len(), &sz);
 
 				SelectFont(hdc, hOldFont);
-
+				
 				ReleaseDC( this->m_Hwnd, hdc);
 
-				// Multiply max str len by font average width + 1
-				nMaxStrlen *= (tm.tmAveCharWidth + tm.tmOverhang);
-				// Add 2 * chars as spacer.
-				nMaxStrlen += (tm.tmAveCharWidth * 2);
-
-				if (nMaxStrlen > nHorizExtent)
-					SendMessage( combo, CB_SETHORIZONTALEXTENT, nMaxStrlen, NULL);
+				if (sz.cx > nHorizExtent)
+					SendMessage( combo, CB_SETHORIZONTALEXTENT, sz.cx, NULL);
 			}
 		}
 	}
@@ -415,7 +434,7 @@ void DcxComboEx::parseCommandRequest( const TString &input) {
 
 		if (cbiDcx != NULL) {
 			const XSwitchFlags xflags(input.getnexttok( ));	// tok 5
-			const TString info(input.gettok(6, -1));
+			const TString info(input.getlasttoks());		// tok 6, -1
 
 			if (xflags[TEXT('M')])
 				cbiDcx->tsMark = info;
@@ -456,7 +475,7 @@ void DcxComboEx::parseCommandRequest( const TString &input) {
 	else if (flags[TEXT('w')] && numtok > 5) {
 		const TString flag(input.getnexttok( ));			// tok 4
 		const int index = input.getnexttok( ).to_int();;	// tok 5
-		TString filename(input.gettok(6, -1));
+		TString filename(input.getlasttoks());				// tok 6, -1
 
 		HIMAGELIST himl = this->getImageList();
 
@@ -723,8 +742,7 @@ LRESULT DcxComboEx::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 				PNMCOMBOBOXEX lpcb = (PNMCOMBOBOXEX ) lParam;
 				LPDCXCBITEM lpdcxcbi = (LPDCXCBITEM) lpcb->ceItem.lParam;
 
-				if (lpdcxcbi != NULL)
-					delete lpdcxcbi;
+				delete lpdcxcbi;
 
 				bParsed = TRUE; // message has been handled
 			}

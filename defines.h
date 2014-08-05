@@ -274,6 +274,7 @@ using namespace Gdiplus;
 #endif
 
 #include "classes/dcxdialogcollection.h"
+#include "Classes\tinyxml\tinyxml.h"
 
 #include "AggressiveOptimize.h"
 
@@ -533,6 +534,8 @@ int TGetWindowText(HWND hwnd, TString &txt);
 void FreeOSCompatibility(void);
 BOOL isRegexMatch(const TCHAR *matchtext, const TCHAR *pattern);
 void DrawRotatedText(const TString &strDraw, LPRECT rc, HDC hDC, const int nAngleLine = 0, const bool bEnableAngleChar = false, const int nAngleChar = 0);
+const char *queryAttribute(const TiXmlElement *element,const char *attribute,const char *defaultValue = "");
+int queryIntAttribute(const TiXmlElement *element,const char *attribute,const int defaultValue = 0);
 
 // UltraDock
 void RemStyles(HWND hwnd,int parm,long RemStyles);

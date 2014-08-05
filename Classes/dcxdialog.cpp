@@ -133,11 +133,9 @@ DcxDialog::DcxDialog(const HWND mHwnd, const TString &tsName, const TString &tsA
  */
 
 DcxDialog::~DcxDialog() {
-	if (this->m_pLayoutManager != NULL)
-		delete this->m_pLayoutManager;
+	delete this->m_pLayoutManager;
 
-	if (this->m_popup != NULL)
-		delete this->m_popup;
+	delete this->m_popup;
 
 	PreloadData();
 	this->RemoveShadow();
@@ -330,8 +328,8 @@ void DcxDialog::parseComControlRequestEX(const int id, const TCHAR *szFormat, ..
 
 
 void DcxDialog::parseCommandRequest( const TString &input) {
-	const XSwitchFlags flags(input.getfirsttok(2));
-	const unsigned int numtok = input.numtok( );
+	const XSwitchFlags flags(input.getfirsttok(2));		// tok 2
+	const UINT numtok = input.numtok( );
 
 	// xdialog -a [NAME] [SWITCH] [+FLAGS] [DURATION]
 	if (flags[TEXT('a')] && numtok > 3) {
@@ -353,7 +351,7 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 		this->RemoveVistaStyle();
 
 		LONG Styles = 0, ExStyles = 0;
-		const TString tsStyles(input.getnexttok( ));
+		const TString tsStyles(input.getnexttok( ));	// tok 3
 
 		this->parseBorderStyles(tsStyles, &Styles, &ExStyles);
 		this->addStyle(Styles);
@@ -369,7 +367,7 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 	}
 	// xdialog -c [NAME] [SWITCH] [ID] [CONTROL] [X] [Y] [W] [H] (OPTIONS)
 	else if (flags[TEXT('c')] && numtok > 7) {
-		const UINT ID = mIRC_ID_OFFSET + input.getnexttok( ).to_int();
+		const UINT ID = mIRC_ID_OFFSET + input.getnexttok( ).to_int();	// tok 3
 
 		if (ID > mIRC_ID_OFFSET - 1)
 		{	// ID in valid range
@@ -401,7 +399,7 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 		else {
 		*/
 
-		const UINT ID = (mIRC_ID_OFFSET + input.getnexttok( ).to_int());
+		const UINT ID = (mIRC_ID_OFFSET + input.getnexttok( ).to_int());	// tok 3
 
 		if (this->isIDValid(ID))
 		{
@@ -435,9 +433,9 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 	}
 	// xdialog -f [NAME] [SWITCH] [+FLAGS] [COUNT] [TIMEOUT]
 	else if (flags[TEXT('f')] && numtok > 4) {
-		const UINT iFlags = this->parseFlashFlags(input.getnexttok( ));
-		const INT iCount = input.getnexttok( ).to_int();
-		const DWORD dwTimeout = (DWORD)input.getnexttok( ).to_num();
+		const UINT iFlags = this->parseFlashFlags(input.getnexttok( ));	// tok 3
+		const INT iCount = input.getnexttok( ).to_int();				// tok 4
+		const DWORD dwTimeout = (DWORD)input.getnexttok( ).to_num();	// tok 5
 		FLASHWINFO fli;
 
 		ZeroMemory(&fli, sizeof(FLASHWINFO));
@@ -451,23 +449,23 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 	}
 	// xdialog -g [NAME] [SWITCH] [+FLAGS] [COLOR|FILENAME]
 	else if (flags[TEXT('g')] && numtok > 3) {
-		this->m_uStyleBg = this->parseBkgFlags(input.getnexttok( ));
+		this->m_uStyleBg = this->parseBkgFlags(input.getnexttok( ));			// tok 3
 
 		if (this->m_uStyleBg & DBS_BKGCOLOR) {
-			const COLORREF clrColor = (COLORREF)input.getnexttok( ).to_num();
+			const COLORREF clrColor = (COLORREF)input.getnexttok( ).to_num();	// tok 4
 
 			if (this->m_hBackBrush != NULL) {
 				DeleteBrush(this->m_hBackBrush);
 				this->m_hBackBrush = NULL;
 			}
 
-			if (clrColor != -1)
+			if (clrColor != CLR_INVALID)
 				this->m_hBackBrush = CreateSolidBrush(clrColor);
 		}
 		else if (this->m_uStyleBg & DBS_BKGBITMAP) {
 			PreloadData();
 
-			TString filename(input.gettok(4, -1).trim());
+			TString filename(input.getlasttoks().trim());	// tok 4, -1
 
 			if (filename != TEXT("none")) {
 				this->m_bitmapBg = dcxLoadBitmap(this->m_bitmapBg, filename);
@@ -484,7 +482,7 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 	// xdialog -j [NAME] [SWITCH] (ID)
 	else if (flags[TEXT('j')]) {
 		if (numtok > 2) {
-			const UINT id = (mIRC_ID_OFFSET + input.getnexttok( ).to_int());
+			const UINT id = (mIRC_ID_OFFSET + input.getnexttok( ).to_int());	// tok 3
 
 			if (this->isIDValid(id))
 				this->getControlByID(id)->redrawWindow();
@@ -501,12 +499,13 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 	//else if (flags[TEXT('k')] && numtok > 2) {
 	//	bool state = (input.gettok(3).to_int() > 0);
 	//	LONG styles = GetWindowLong(mIRCLinker::getHWND(), GWL_EXSTYLE);
-
+	//
 	//	if (state)
 	//		SetWindowLong(mIRCLinker::getHWND(), GWL_EXSTYLE, styles | WS_EX_APPWINDOW);
 	//	else
 	//		SetWindowLong(mIRCLinker::getHWND(), GWL_EXSTYLE, styles & ~WS_EX_APPWINDOW);
 	//}
+
 	/*
 	//xdialog -l [NAME] [SWITCH] [OPTIONS]
 
@@ -546,20 +545,20 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 			}
 			//const TString tsInput(input.getfirsttok(1, TSTAB));
 			//const TString p2(input.getnexttok( TSTAB ).trim());
-
+			//
 			//const TString com(tsInput.gettok( 3 ).trim());
 			//const TString path(tsInput.gettok(4, -1).trim());
-
+			//
 			//const UINT lflags = this->parseLayoutFlags(p2.getfirsttok( 1 ));
 			//const UINT ID = p2.getnexttok( ).to_int();	// tok 2
 			//const UINT WGT = p2.getnexttok( ).to_int();	// tok 3
 			//const UINT W = p2.getnexttok( ).to_int();	// tok 4
 			//const UINT H = p2.getnexttok( ).to_int();	// tok 5
-
+			//
 			//if (com == TEXT("root") || com == TEXT("cell")) {
 			//	HWND cHwnd = GetDlgItem(this->m_Hwnd, mIRC_ID_OFFSET + ID);
 			//	LayoutCell * p_Cell = NULL;
-
+			//
 			//	// LayoutCellPane
 			//	if (lflags & LAYOUTPANE) {
 			//		if (lflags & LAYOUTHORZ)
@@ -584,19 +583,19 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 			//	// LayoutCellFixed
 			//	else if (lflags & LAYOUTFIXED) {
 			//		LayoutCellFixed::FixedType type;
-
+			//
 			//		if (lflags & LAYOUTVERT && lflags & LAYOUTHORZ)
 			//			type = LayoutCellFixed::BOTH;
 			//		else if (lflags & LAYOUTVERT)
 			//			type = LayoutCellFixed::HEIGHT;
 			//		else
 			//			type = LayoutCellFixed::WIDTH;
-
+			//
 			//		// Defined Rectangle
 			//		if (lflags & LAYOUTDIM) {
 			//			RECT rc;
 			//			SetRect(&rc, 0, 0, W, H);
-
+			//
 			//			if (lflags & LAYOUTID) {
 			//				if (cHwnd != NULL && IsWindow(cHwnd))
 			//					p_Cell = new LayoutCellFixed(cHwnd, rc, type);
@@ -624,7 +623,7 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 			//		this->showError(NULL, TEXT("-l"), TEXT("Unknown Cell Type"));
 			//		return;
 			//	}
-
+			//
 			//	if (com == TEXT("root")) {
 			//		if (p_Cell != NULL)
 			//			this->m_pLayoutManager->setRoot(p_Cell);
@@ -632,18 +631,18 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 			//	else if (com == TEXT("cell")) {
 			//		if (p_Cell != NULL) {
 			//			LayoutCell * p_GetCell;
-
+			//
 			//			if (path == TEXT("root"))
 			//				p_GetCell = this->m_pLayoutManager->getRoot();
 			//			else
 			//				p_GetCell = this->m_pLayoutManager->getCell(path);
-
+			//
 			//			if (p_GetCell == NULL) {
 			//				this->showErrorEx(NULL, TEXT("-l"), TEXT("Invalid item path: %s"), path.to_chr());
 			//				delete p_Cell;
 			//				return;
 			//			}
-
+			//
 			//			if (p_GetCell->getType() == LayoutCell::PANE) {
 			//				//LayoutCellPane *p_PaneCell = (LayoutCellPane*) p_GetCell;
 			//				LayoutCellPane *p_PaneCell = static_cast<LayoutCellPane *>(p_GetCell);
@@ -654,15 +653,15 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 			//} // if ( com ==  TEXT("root") || com == TEXT("cell") )
 			//else if (com ==  TEXT("space")) {
 			//	LayoutCell * p_GetCell;
-
+//
 			//	if (path == TEXT("root"))
 			//		p_GetCell = this->m_pLayoutManager->getRoot();
 			//	else
 			//		p_GetCell = this->m_pLayoutManager->getCell(path);
-
+//
 			//	if (p_GetCell != NULL) {
 			//		RECT rc;
-
+//
 			//		SetRect(&rc, ID, WGT, W, H);
 			//		p_GetCell->setBorder(rc);
 			//	}
@@ -678,9 +677,9 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 		//}
 		//else
 		//	this->m_hCursor = NULL;
-
+		//
 		//UINT iFlags = this->parseCursorFlags(input.gettok( 3 ));
-
+		//
 		//if (iFlags & DCCS_FROMRESSOURCE)
 		//	this->m_hCursor = LoadCursor(NULL, this->parseCursorType(input.gettok( 4 )));
 		//else if (iFlags & DCCS_FROMFILE) {
@@ -696,7 +695,7 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 		if ( iFlags & DCCS_FROMRESSOURCE )
 			this->m_hCursor = LoadCursor( NULL, this->parseCursorType( input.getnexttok( ) ) );	// tok 4
 		else if ( iFlags & DCCS_FROMFILE ) {
-			TString filename(input.gettok( 4, -1 ));
+			TString filename(input.getlasttoks());	// tok 4, -1
 			if (IsFile(filename)) {
 				this->m_hCursor = (HCURSOR)LoadImage(NULL, filename.to_chr(), IMAGE_CURSOR, 0,0, LR_DEFAULTSIZE|LR_LOADFROMFILE );
 				this->m_bCursorFromFile = TRUE;
@@ -770,11 +769,6 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 			}
 			else {
 				const BYTE alpha = (BYTE)(tsAlpha.to_int() & 0xFF);
-
-				//if (alpha > 255)
-				//	alpha = 255;
-				//else if (alpha < 0) // can only be >= 0
-				//	alpha = 0;
 
 				this->m_iAlphaLevel = alpha;
 				if (!this->m_bVistaStyle) {
@@ -869,9 +863,9 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 	}
 	// xdialog -w [NAME] [SWITCH] [+FLAGS] [INDEX] [FILENAME]
 	else if (flags[TEXT('w')] && numtok > 4) {
-		const TString tsFlags(input.getnexttok( ));	// tok 3
+		const TString tsFlags(input.getnexttok( ));		// tok 3
 		const int index = input.getnexttok( ).to_int();	// tok 4
-		TString filename(input.gettok(5, -1).trim());
+		TString filename(input.getlasttoks().trim());	// tok 5, -1
 
 		ChangeHwndIcon(this->m_Hwnd,tsFlags,index,filename);
 	}
@@ -1040,7 +1034,7 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 		}
 		if (this->m_popup != NULL) {
 			TString menuargs;
-			menuargs.tsprintf(TEXT("dialog %s"), input.gettok( 3, -1).to_chr());
+			menuargs.tsprintf(TEXT("dialog %s"), input.getlasttoks().to_chr());	// tok 3, -1
 			Dcx::XPopups.parseCommand(menuargs, this->m_popup);
 		}
 	}
@@ -1082,7 +1076,7 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 			this->m_colTransparentBg = (COLORREF)input.getnexttok( ).to_num();	// tok 4
 			//this->m_uStyleBg = DBS_BKGBITMAP|DBS_BKGSTRETCH|DBS_BKGCENTER;
 			this->m_uStyleBg = DBS_BKGBITMAP;
-			TString filename(input.gettok(5,-1));
+			TString filename(input.getlasttoks());								// tok 5, -1
 			this->m_bitmapBg = dcxLoadBitmap(this->m_bitmapBg,filename);
 
 			if (this->m_bitmapBg != NULL)
@@ -1122,8 +1116,8 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 				return;
 			}
 
-			const TString strPoints(input.gettok(4, -1));
-			const unsigned int tPoints = strPoints.numtok( );
+			const TString strPoints(input.getlasttoks());	// tok 4, -1
+			const UINT tPoints = strPoints.numtok( );
 
 			if (tPoints < 1) {
 				this->showError(NULL, TEXT("-R +p"), TEXT("Invalid Points"));
@@ -1137,13 +1131,13 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 				strPoints.getfirsttok( 0 );
 
 				// Ook: testing change here....
-				//for (unsigned int cnt = 1; cnt <= tPoints; cnt++)
+				//for (UINT cnt = 1; cnt <= tPoints; cnt++)
 				//{
 				//	strPoint = strPoints.getnexttok( );	// tok cnt
 				//	pnts[cnt-1].x = (LONG)strPoint.getfirsttok(1, TSCOMMA).to_num();
 				//	pnts[cnt-1].y = (LONG)strPoint.getnexttok( TSCOMMA ).to_num();	// tok 2
 				//}
-				for (unsigned int cnt = 0; cnt < tPoints; cnt++)
+				for (UINT cnt = 0; cnt < tPoints; cnt++)
 				{
 					strPoint = strPoints.getnexttok( );	// tok cnt
 					pnts[cnt].x = (LONG)strPoint.getfirsttok(1, TSCOMMA).to_num();
@@ -1175,15 +1169,9 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 		}
 		else if (xflags[TEXT('g')]) // ghost drag - <0-255>
 		{
-			const BYTE alpha = (BYTE)(input.getnexttok( ).to_int() & 0xFF);	// tok 4
-			if (/*(alpha >= 0) &&*/ (alpha <= 255)) { // unsigned int will ALWAYS be >= 0 <= 255
-				noRegion = true;
-				this->m_bDoGhostDrag = alpha;
-			}
-			else {
-				this->showError(NULL,TEXT("-R +g"), TEXT("Alpha Out Of Range"));
-				return;
-			}
+			this->m_bDoGhostDrag = (BYTE)(input.getnexttok().to_int() & 0xFF);	// tok 4
+
+			noRegion = true;
 		}
 		else if (xflags[TEXT('s')]) // shadow - <colour> <sharpness> <darkness> <size> <xoffset> <yoffset>
 		{
@@ -1582,7 +1570,7 @@ UINT DcxDialog::parseFlashFlags(const TString &flags) {
 
 void DcxDialog::parseInfoRequest( const TString &input, TCHAR *szReturnValue) const
 {
-	const unsigned int numtok = input.numtok( );
+	const UINT numtok = input.numtok( );
 	const TString prop(input.getfirsttok( 2 ));
 
 	// [NAME] [PROP] [ID]
@@ -1594,7 +1582,7 @@ void DcxDialog::parseInfoRequest( const TString &input, TCHAR *szReturnValue) co
 		//	p = lstrcpyn(szReturnValue, TEXT("$true"), MIRC_BUFFER_SIZE_CCH);
 		//else
 		//	p = lstrcpyn(szReturnValue, TEXT("$false"), MIRC_BUFFER_SIZE_CCH);
-
+		//
 		//if (p != NULL)
 		//	return;
 	}
@@ -1618,7 +1606,7 @@ void DcxDialog::parseInfoRequest( const TString &input, TCHAR *szReturnValue) co
 		if (N == -1)
 		{
 			if (tsID == TEXT('0'))	// check its an actual zero, not some text name (which also gives a zero result)
-				wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), this->m_vpControls.size());
+				wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), this->m_vpControls.size());
 			else
 			{
 #if DCX_USE_C11
@@ -1643,7 +1631,7 @@ void DcxDialog::parseInfoRequest( const TString &input, TCHAR *szReturnValue) co
 			}
 		}
 		else if ((N > -1) && (N < (int) this->m_vpControls.size()))
-			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), this->m_vpControls[N]->getUserID());
+			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), this->m_vpControls[N]->getUserID());
 
 		return;
 	}
@@ -1655,7 +1643,7 @@ void DcxDialog::parseInfoRequest( const TString &input, TCHAR *szReturnValue) co
 		//	p = lstrcpyn(szReturnValue, TEXT("$true"), MIRC_BUFFER_SIZE_CCH);
 		//else
 		//	p = lstrcpyn(szReturnValue, TEXT("$false"), MIRC_BUFFER_SIZE_CCH);
-
+		//
 		//if (p != NULL)
 		//	return;
 	}
@@ -1667,7 +1655,7 @@ void DcxDialog::parseInfoRequest( const TString &input, TCHAR *szReturnValue) co
 		//	p = lstrcpyn(szReturnValue, TEXT("$true"), MIRC_BUFFER_SIZE_CCH);
 		//else
 		//	p = lstrcpyn(szReturnValue, TEXT("$false"), MIRC_BUFFER_SIZE_CCH);
-
+		//
 		//if (p != NULL)
 		//	return;
 	}
@@ -1678,12 +1666,12 @@ void DcxDialog::parseInfoRequest( const TString &input, TCHAR *szReturnValue) co
 	}
 	// [NAME] [PROP]
 	else if (prop == TEXT("mouseid")) {
-		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), this->m_MouseID);
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), this->m_MouseID);
 		return;
 	}
 	// [NAME] [PROP]
 	else if (prop == TEXT("focusid")) {
-		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), this->m_FocusID);
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), this->m_FocusID);
 		return;
 	}
 	// [NAME] [PROP]
@@ -1729,7 +1717,7 @@ void DcxDialog::parseInfoRequest( const TString &input, TCHAR *szReturnValue) co
 		if (GetAsyncKeyState(VK_CAPITAL) < 0)
 			iKeyState |= 8192;
 
-		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), iKeyState);
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), iKeyState);
 		return;
 	}
 	// [NAME] [PROP]
@@ -1772,7 +1760,7 @@ void DcxDialog::parseInfoRequest( const TString &input, TCHAR *szReturnValue) co
 		RGBQUAD clr = {0};
 		BOOL bOpaque = FALSE;
 		if (SUCCEEDED(Dcx::VistaModule.dcxDwmGetColorizationColor((DWORD *)&clr, &bOpaque)))
-			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), RGB(clr.rgbRed, clr.rgbGreen, clr.rgbBlue));
+			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), RGB(clr.rgbRed, clr.rgbGreen, clr.rgbBlue));
 		else if (lstrcpyn(szReturnValue, TEXT("-FAIL Unable to get Glass colour."), MIRC_BUFFER_SIZE_CCH) == NULL)
 			szReturnValue[0] = 0;
 
@@ -2742,6 +2730,12 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 
 		case WM_NCDESTROY:
 			{
+							 if (IsWindow(mHwnd))
+							 {
+								 if ((WNDPROC)GetWindowLongPtr(mHwnd, GWLP_WNDPROC) == DcxDialog::WindowProc)
+									 SubclassWindow(mHwnd, p_this->m_hOldWindowProc);
+							 }
+
 				lRes = CallWindowProc(p_this->m_hOldWindowProc, mHwnd, uMsg, wParam, lParam);
 
 				Dcx::Dialogs.deleteDialog(p_this);
@@ -3184,7 +3178,7 @@ bool DcxDialog::SetShadowSize(int NewSize)
 	return true;
 }
 
-bool DcxDialog::SetShadowSharpness(unsigned int NewSharpness)
+bool DcxDialog::SetShadowSharpness(UINT NewSharpness)
 {
 	if(NewSharpness > 20)
 		return false;
@@ -3195,7 +3189,7 @@ bool DcxDialog::SetShadowSharpness(unsigned int NewSharpness)
 	return true;
 }
 
-bool DcxDialog::SetShadowDarkness(unsigned int NewDarkness)
+bool DcxDialog::SetShadowDarkness(UINT NewDarkness)
 {
 	if(NewDarkness > 255)
 		return false;

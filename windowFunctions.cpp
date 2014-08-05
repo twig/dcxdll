@@ -22,7 +22,7 @@
 * Returns the owner HWND
 */
 HWND FindOwner(const TString & data, const HWND defaultWnd) {
-	const unsigned int i = data.findtok(TEXT("owner"), 1);
+	const UINT i = data.findtok(TEXT("owner"), 1);
 
 	// 'owner' token not found in data
 	if (i == 0)

@@ -136,38 +136,40 @@ void DcxLink::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) co
  */
 
 void DcxLink::parseCommandRequest( const TString & input ) {
-	const XSwitchFlags flags(input.gettok(3));
+	const XSwitchFlags flags(input.getfirsttok(3));		// tok 3
 
 	const UINT numtok = input.numtok( );
 
 	// xdid -l [NAME] [ID] [SWITCH] [N] [COLOR]
 	if ( flags[TEXT('l')] && numtok > 4 ) {
 
-		const int nColor = input.gettok( 4 ).to_int( ) - 1;
+		const int nColor = (input.getnexttok( ).to_int( ) - 1);	// tok 4
 
 		if ( nColor > -1 && nColor < 4 )
-			this->m_aColors[nColor] = (COLORREF)input.gettok( 5 ).to_num( );
+			this->m_aColors[nColor] = (COLORREF)input.getnexttok( ).to_num( );	// tok 5
 	}
 	// xdid -q [NAME] [ID] [SWITCH] [COLOR1] ... [COLOR4]
 	else if ( flags[TEXT('q')] && numtok > 3 ) {
+		const TString tsArgs(input.getlasttoks());			// tok 4, -1
+		const UINT len = tsArgs.numtok();
 
-		const UINT len = input.gettok( 4, -1 ).numtok( );
+		tsArgs.getfirsttok(0);
+
 		for (UINT i = 0; (i < len && i < 4 ); i++)
-			this->m_aColors[i] = (COLORREF)input.gettok( 4 + i ).to_num( );
+			this->m_aColors[i] = (COLORREF)tsArgs.getnexttok( ).to_num( );	// tok i+1
 	}
 	//xdid -t [NAME] [ID] [SWITCH] (TEXT)
 	else if ( flags[TEXT('t')] ) {
 
-		const TString text(input.gettok( 4, -1 ));
-		//text.trim( );
+		const TString text(input.getlasttoks());	// tok 4, -1
 		SetWindowText( this->m_Hwnd, text.to_chr( ) );
 		this->redrawWindow( );
 	}
 	// xdid -w [NAME] [ID] [SWITCH] [+FLAGS] [INDEX] [FILENAME]
 	else if (flags[TEXT('w')] && numtok > 5) {
-		const TString flag(input.gettok( 4 ));
-		const int index = input.gettok( 5 ).to_int();
-		TString filename(input.gettok(6, -1));
+		const TString flag(input.getnexttok( ));		// tok 4
+		const int index = input.getnexttok( ).to_int();	// tok 5
+		TString filename(input.getlasttoks());			// tok 6, -1
 
 		if (this->m_hIcon != NULL)
 			DestroyIcon(this->m_hIcon);

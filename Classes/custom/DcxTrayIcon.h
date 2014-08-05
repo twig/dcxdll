@@ -20,7 +20,7 @@ public:
 
 	HWND GetHwnd() const;
 	bool idExists(const int id) const;
-	bool modifyIcon(const int id, DWORD msg, HICON icon = NULL, TString *tooltip = NULL);
+	bool modifyIcon(const int id, const DWORD msg, const HICON icon = NULL, const TString *const tooltip = NULL);
 
 	static LRESULT CALLBACK TrayWndProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 

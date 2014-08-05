@@ -110,7 +110,7 @@ void DcxStacker::parseControlStyles( const TString & styles, LONG * Styles, LONG
 	*Styles |= LBS_OWNERDRAWVARIABLE|LBS_NOTIFY;
 	this->m_dStyles = STACKERS_COLLAPSE;
 
-	for (TString tsStyle(styles.getfirsttok( 1 )); tsStyle != TEXT(""); tsStyle = styles.getnexttok( ))
+	for (TString tsStyle(styles.getfirsttok(1)); !tsStyle.empty(); tsStyle = styles.getnexttok())
 	{
 		if ( tsStyle == TEXT("vscroll") )
 			*Styles |= WS_VSCROLL;
@@ -184,7 +184,7 @@ void DcxStacker::parseInfoRequest( const TString & input, TCHAR * szReturnValue 
 			LPDCXSITEM sitem = this->getItem(nSel);
 			if (sitem != NULL && sitem != (LPDCXSITEM)LB_ERR) {
 				if (sitem->pChild != NULL)
-					wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"),sitem->pChild->getUserID());
+					wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"),sitem->pChild->getUserID());
 			}
 			return;
 		}
@@ -214,16 +214,20 @@ void DcxStacker::parseCommandRequest( const TString &input) {
 	//xdid -a -> [NAME] [ID] -a [N] [+FLAGS] [IMAGE] [SIMAGE] [COLOR] [BGCOLOR] Item Text [TAB] [ID] [CONTROL] [X] [Y] [W] [H] (OPTIONS)
 	if (flags[TEXT('a')] && numtok > 9) {
 
-		LPDCXSITEM sitem = new DCXSITEM;
+		LPDCXSITEM sitem;
 
-		if (sitem == NULL) {
+		try {
+			sitem = new DCXSITEM;
+		}
+		catch (std::bad_alloc)
+		{
 			this->showError(NULL, TEXT("-a"), TEXT("Error adding item to control: No Memory"));
 			return;
 		}
-		const TString item(input.getfirsttok(1,TSTAB).trim());
-		const TString ctrl(input.getnexttok(TSTAB).trim());			// tok 2
+		const TString item(input.getfirsttok(1,TSTAB).trim());		// tok 1, TSTAB
+		const TString ctrl(input.getnexttok(TSTAB).trim());			// tok 2, TSTAB
 
-		int nPos = item.getfirsttok( 4 ).to_int( ) - 1;
+		int nPos = item.getfirsttok( 4 ).to_int( ) - 1;				// tok 4
 		const TString flag(item.getnexttok( ).trim());				// tok 5	?? flag never used ??
 		sitem->iItemImg = item.getnexttok( ).to_int() -1;			// tok 6
 		sitem->iSelectedItemImg = item.getnexttok( ).to_int() -1;	// tok 7
@@ -231,14 +235,14 @@ void DcxStacker::parseCommandRequest( const TString &input) {
 		sitem->clrBack = (COLORREF)item.getnexttok( ).to_num();		// tok 9
 		sitem->pChild = NULL;
 		sitem->hFont = NULL;
-		sitem->tsCaption = item.gettok(10,-1);
+		sitem->tsCaption = item.getlasttoks();						// tok 10, -1
 
 		if ( nPos < 0 )
 			nPos = ListBox_GetCount( this->m_Hwnd );
 		if (nPos == LB_ERR)
 			nPos = 0;
 
-		if (ctrl.len() > 0) {
+		if (!ctrl.empty()) {
 			const UINT ID = mIRC_ID_OFFSET + (UINT)ctrl.gettok( 1 ).to_int( );
 
 			if (this->m_pParentDialog->isIDValid(ID, true))
@@ -301,7 +305,7 @@ void DcxStacker::parseCommandRequest( const TString &input) {
 		if ( nPos > -1 && nPos < ListBox_GetCount( this->m_Hwnd ) ) {
 			LPDCXSITEM sitem = this->getItem(nPos);
 			if (sitem != NULL && sitem != (LPDCXSITEM)LB_ERR) {
-				sitem->tsTipText = (numtok > 4 ? input.gettok(5, -1).trim() : TEXT(""));
+				sitem->tsTipText = (numtok > 4 ? input.getlasttoks().trim() : TEXT(""));	// tok 5, -1
 			}
 		}
 	}
@@ -495,7 +499,7 @@ void DcxStacker::DrawSItem(const LPDRAWITEMSTRUCT idata)
 	}
 
 	// draw text if any
-	if (sitem->tsCaption.len()) {
+	if (!sitem->tsCaption.empty()) {
 		HFONT oldFont = SelectFont(memDC,hFont);
 		// get text colour.
 		COLORREF clrText = sitem->clrText, oldClr = CLR_INVALID;

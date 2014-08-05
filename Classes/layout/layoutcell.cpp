@@ -243,7 +243,7 @@ void LayoutCell::setBorder(const RECT & rc) {
  * blah
  */
 
-void LayoutCell::setBorder(const unsigned int nBorder) {
+void LayoutCell::setBorder(const UINT nBorder) {
 
 	// remove old borders
 	this->m_rcWindow.right -= this->m_rcBorders.left + this->m_rcBorders.right;

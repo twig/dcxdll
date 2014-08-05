@@ -86,7 +86,7 @@ void DcxPager::toXml(TiXmlElement * xml) const
 
 void DcxPager::parseControlStyles( const TString &styles, LONG *Styles, LONG *ExStyles, BOOL *bNoTheme)
 {
-	for (TString tsStyle(styles.getfirsttok( 1 )); tsStyle != TEXT(""); tsStyle = styles.getnexttok( ))
+	for (TString tsStyle(styles.getfirsttok(1)); !tsStyle.empty(); tsStyle = styles.getnexttok())
 	{
 		if (tsStyle == TEXT("horizontal"))
 			*Styles |= PGS_HORZ;
@@ -112,7 +112,7 @@ void DcxPager::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) c
 	const TString prop(input.gettok( 3 ));
 
 	if ( prop == TEXT("color")) {
-		wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), Pager_GetBkColor(this->m_Hwnd) );
+		wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), Pager_GetBkColor(this->m_Hwnd) );
 		return;
 	}
 	else if ( prop == TEXT("bsize")) {
@@ -207,11 +207,11 @@ void DcxPager::parseCommandRequest( const TString & input ) {
 	}
 	// xdid -s [NAME] [ID] [SWITCH] [SIZE]
 	else if (flags[TEXT('s')] && numtok > 3) {
-		this->setButtonSize((LONG)input.gettok(4, -1).to_num());
+		this->setButtonSize((LONG)input.getlasttoks().to_num());	// tok 4, -1
 	}
 	// xdid -t [NAME] [ID] [SWITCH] [COLOR]
 	else if (flags[TEXT('t')] && numtok > 3) {
-		this->setBkColor((COLORREF)input.gettok(4, -1).to_num());
+		this->setBkColor((COLORREF)input.getlasttoks().to_num());	// tok 4, -1
 	}
 	// xdid -z [NAME] [ID] [SWITCH]
 	else if (flags[TEXT('z')] && numtok > 2) {

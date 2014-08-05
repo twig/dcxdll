@@ -151,7 +151,7 @@ void DcxImage::PreloadData() {
 		this->m_pImage = NULL;
 	}
 #endif
-	this->m_tsFilename = TEXT("");
+	this->m_tsFilename.clear();	// = TEXT("");
 }
 
 #ifdef DCX_USE_GDIPLUS
@@ -213,14 +213,14 @@ bool DcxImage::LoadGDIPlusImage(const TString &flags, TString &filename) {
 
 void DcxImage::parseCommandRequest( const TString & input) {
 	const XSwitchFlags flags(input.getfirsttok(3));
-	const unsigned int numtok = input.numtok( );
+	const UINT numtok = input.numtok( );
 
 	// xdid -w [NAME] [ID] [SWITCH] [+FLAGS] [INDEX] [SIZE] [FILENAME]
 	if (flags[TEXT('w')] && numtok > 6) {
 		const TString flag(input.getnexttok( ));		// tok 4
 		const int index = input.getnexttok( ).to_int();	// tok 5
 		const int size = input.getnexttok( ).to_int();	// tok 6
-		TString filename(input.gettok(7, -1).trim());
+		TString filename(input.getlasttoks().trim());	// tok 7, -1
 
 		PreloadData();
 
@@ -247,7 +247,7 @@ void DcxImage::parseCommandRequest( const TString & input) {
 	//xdid -i [NAME] [ID] [SWITCH] [+FLAGS] [IMAGE]
 	else if (flags[TEXT('i')] && numtok > 4) {
 		const TString flag(input.getnexttok( ).trim());	// tok 4
-		TString filename(input.gettok(5, -1).trim());
+		TString filename(input.getlasttoks().trim());	// tok 5, -1
 
 		PreloadData();
 
@@ -361,7 +361,7 @@ void DcxImage::DrawBMPImage(HDC hdc, const int x, const int y, const int w, cons
 void DcxImage::toXml(TiXmlElement * xml) const
 {
 	__super::toXml(xml);
-	if (this->m_tsFilename.len() > 0)
+	if (!this->m_tsFilename.empty())
 		xml->SetAttribute("src", m_tsFilename.c_str());
 }
 

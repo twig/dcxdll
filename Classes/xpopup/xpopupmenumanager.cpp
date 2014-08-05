@@ -15,9 +15,9 @@
 #include "Classes/xpopup/xpopupmenumanager.h"
 #include "Dcx.h"
 
-#ifdef DEBUG
-WNDPROC XPopupMenuManager::g_OldmIRCMenusWindowProc = NULL;
-#endif
+//#ifdef DEBUG
+//WNDPROC XPopupMenuManager::g_OldmIRCMenusWindowProc = NULL;
+//#endif
 
 /*!
  * \brief Constructor
@@ -149,7 +149,8 @@ void XPopupMenuManager::unload(void)
 //		}
 //	}
 //#endif
-	mIRCLinker::resetWindowProc();
+
+	//mIRCLinker::resetWindowProc();
 
 	clearMenus();
 	delete m_mIRCPopupMenu;
@@ -1120,7 +1121,7 @@ const UINT XPopupMenuManager::parseTrackFlags( const TString & flags ) {
 /*
  * Parses the menu information and returns a valid XPopupMenu.
  */
-void XPopupMenuManager::LoadPopupsFromXML(const TiXmlElement *popups, const TiXmlElement *popup, const TString &popupName, const TString &popupDataset) {
+void XPopupMenuManager::LoadPopupsFromXML(const TiXmlElement *const popups, const TiXmlElement *popup, const TString &popupName, const TString &popupDataset) {
 	const TiXmlElement *globalStyles;
 	const TiXmlElement *element;
 	XPopupMenu::MenuStyle style;
@@ -1227,7 +1228,6 @@ void XPopupMenuManager::LoadPopupsFromXML(const TiXmlElement *popups, const TiXm
 	if (element != NULL) {
 		TString command;
 		TString tsFilename;
-		int nIcon;
 
 		for (element = element->FirstChildElement("icon"); element != NULL; element = element->NextSiblingElement("icon")) {
 			// Flags
@@ -1247,24 +1247,26 @@ void XPopupMenuManager::LoadPopupsFromXML(const TiXmlElement *popups, const TiXm
 					indexes.getfirsttok(0, TSCOMMA);
 
 					for (UINT i = 1; i <= totalIndexes; i++) {
-						nIcon = indexes.getnexttok(TSCOMMA).to_int();	// tok i
+						const int nIcon = indexes.getnexttok(TSCOMMA).to_int();	// tok i
 						//xpudemo -i + 114 dcxstudio_gfx\shell.dll
 						command.tsprintf(TEXT("%s -i %s %d %s"), popupName.to_chr(), flags.to_chr(), nIcon, tsFilename.to_chr());
 						Dcx::XPopups.parseCommand(command, menu);
 					}
+					tsFilename.clear();
 				}
 			}
 		}
 	}
 
-	LoadPopupItemsFromXML(menu, menu->getMenuHandle(), popup);
+	if (!LoadPopupItemsFromXML(menu, menu->getMenuHandle(), popup))
+		Dcx::errorex(TEXT("/dcxml"), TEXT("Unable to load menu items: %s"), popupName.to_chr());
 }
 
 /*
  * Function to append submenu items into a menu.
  * This method is recursive in order to parse submenus correctly.
  */
-bool XPopupMenuManager::LoadPopupItemsFromXML(XPopupMenu *menu, HMENU hMenu, const TiXmlElement *items) {
+bool XPopupMenuManager::LoadPopupItemsFromXML(XPopupMenu *menu, HMENU hMenu, const TiXmlElement *const items) {
 
 	if ((menu == NULL) || (hMenu == NULL) || (items == NULL))
 		return false;
@@ -1328,7 +1330,7 @@ bool XPopupMenuManager::LoadPopupItemsFromXML(XPopupMenu *menu, HMENU hMenu, con
 	return true;
 }
 
-const char* XPopupMenuManager::GetMenuAttributeFromXML(const char *attrib, const TiXmlElement *popup, const TiXmlElement *global) {
+const char* XPopupMenuManager::GetMenuAttributeFromXML(const char *const attrib, const TiXmlElement *const popup, const TiXmlElement *const global) {
 	
 	const char *const tmp = popup->Attribute(attrib);
 
@@ -1341,7 +1343,6 @@ const char* XPopupMenuManager::GetMenuAttributeFromXML(const char *attrib, const
 		return NULL;
 
 	return global->Attribute(attrib);
-	//return NULL;
 }
 
 //int XPopupMenuManager::queryIntAttribute(const TiXmlElement *element, const char *attribute, const int defaultValue)
@@ -1354,55 +1355,55 @@ const char* XPopupMenuManager::GetMenuAttributeFromXML(const char *attrib, const
 //	return integer;
 //}
 
-#ifdef DEBUG
-LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
-
-	// Incase execution somehow ends up here without this pointer being set.
-	if (XPopupMenuManager::g_OldmIRCMenusWindowProc == NULL)
-		return DefWindowProc( mHwnd, uMsg, wParam, lParam);
-
-	switch (uMsg) {
-		case WM_NCCREATE:
-			{
-				CREATESTRUCT *cs = (CREATESTRUCT *)lParam;
-				cs->dwExStyle |= WS_EX_LAYERED;
-				//return TRUE;
-				//return CallWindowProc(XPopupMenuManager::g_OldmIRCMenusWindowProc, mHwnd, uMsg, wParam, lParam);
-			}
-			break;
-		case WM_CREATE:
-			{
-				//CREATESTRUCT *cs = (CREATESTRUCT *)lParam;
-				SetLayeredWindowAttributes(mHwnd, 0, (BYTE)0xCC, LWA_ALPHA); // 0xCC = 80% Opaque
-			}
-			break;
-		//case WM_ERASEBKGND:
-		//	{
-		//		if (GetProp(mHwnd, TEXT("dcx_ghosted")) == NULL) {
-		//			SetProp(mHwnd, TEXT("dcx_ghosted"), (HANDLE)1);
-		//			LRESULT lRes = CallWindowProc(XPopupMenuManager::g_OldmIRCMenusWindowProc, mHwnd, uMsg, wParam, lParam);
-		//			AddStyles(mHwnd, GWL_EXSTYLE, WS_EX_LAYERED);
-		//			SetLayeredWindowAttributes(mHwnd, 0, (BYTE)0xCC, LWA_ALPHA); // 0xCC = 80% Opaque
-		//			RedrawWindow(mHwnd, NULL, NULL, RDW_INTERNALPAINT|RDW_ALLCHILDREN|RDW_UPDATENOW|RDW_INVALIDATE|RDW_ERASE|RDW_FRAME);
-		//			return lRes;
-		//		}
-		//	}
-		//	break;
-		//case WM_DESTROY:
-		//	{
-		//		if (GetProp(mHwnd, TEXT("dcx_ghosted")) != NULL) {
-		//			RemoveProp(mHwnd, TEXT("dcx_ghosted"));
-		//		}
-		//	}
-		//	break;
-
-		//case WM_ERASEBKGND:
-		//	{
-		//		return TRUE;
-		//	}
-		//	break;
-	}
-
-	return CallWindowProc(XPopupMenuManager::g_OldmIRCMenusWindowProc, mHwnd, uMsg, wParam, lParam);
-}
-#endif
+//#ifdef DEBUG
+//LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
+//
+//	// Incase execution somehow ends up here without this pointer being set.
+//	if (XPopupMenuManager::g_OldmIRCMenusWindowProc == NULL)
+//		return DefWindowProc( mHwnd, uMsg, wParam, lParam);
+//
+//	switch (uMsg) {
+//		case WM_NCCREATE:
+//			{
+//				CREATESTRUCT *cs = (CREATESTRUCT *)lParam;
+//				cs->dwExStyle |= WS_EX_LAYERED;
+//				//return TRUE;
+//				//return CallWindowProc(XPopupMenuManager::g_OldmIRCMenusWindowProc, mHwnd, uMsg, wParam, lParam);
+//			}
+//			break;
+//		case WM_CREATE:
+//			{
+//				//CREATESTRUCT *cs = (CREATESTRUCT *)lParam;
+//				SetLayeredWindowAttributes(mHwnd, 0, (BYTE)0xCC, LWA_ALPHA); // 0xCC = 80% Opaque
+//			}
+//			break;
+//		//case WM_ERASEBKGND:
+//		//	{
+//		//		if (GetProp(mHwnd, TEXT("dcx_ghosted")) == NULL) {
+//		//			SetProp(mHwnd, TEXT("dcx_ghosted"), (HANDLE)1);
+//		//			LRESULT lRes = CallWindowProc(XPopupMenuManager::g_OldmIRCMenusWindowProc, mHwnd, uMsg, wParam, lParam);
+//		//			AddStyles(mHwnd, GWL_EXSTYLE, WS_EX_LAYERED);
+//		//			SetLayeredWindowAttributes(mHwnd, 0, (BYTE)0xCC, LWA_ALPHA); // 0xCC = 80% Opaque
+//		//			RedrawWindow(mHwnd, NULL, NULL, RDW_INTERNALPAINT|RDW_ALLCHILDREN|RDW_UPDATENOW|RDW_INVALIDATE|RDW_ERASE|RDW_FRAME);
+//		//			return lRes;
+//		//		}
+//		//	}
+//		//	break;
+//		//case WM_DESTROY:
+//		//	{
+//		//		if (GetProp(mHwnd, TEXT("dcx_ghosted")) != NULL) {
+//		//			RemoveProp(mHwnd, TEXT("dcx_ghosted"));
+//		//		}
+//		//	}
+//		//	break;
+//
+//		//case WM_ERASEBKGND:
+//		//	{
+//		//		return TRUE;
+//		//	}
+//		//	break;
+//	}
+//
+//	return CallWindowProc(XPopupMenuManager::g_OldmIRCMenusWindowProc, mHwnd, uMsg, wParam, lParam);
+//}
+//#endif

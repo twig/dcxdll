@@ -114,7 +114,7 @@ void DcxColorCombo::parseInfoRequest( const TString & input, PTCHAR szReturnValu
 
 			if ( lpdcxcci != NULL ) {
 
-				wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), lpdcxcci->clrItem );
+				wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), lpdcxcci->clrItem );
 				return;
 			}
 		}
@@ -158,16 +158,18 @@ void DcxColorCombo::parseCommandRequest( const TString &input) {
 			nItem = -1;
 
 		if (nItem > -2) {
-			LPDCXCCOMBOITEM lpdcxcci = new DCXCCOMBOITEM;
+			try {
+				LPDCXCCOMBOITEM lpdcxcci = new DCXCCOMBOITEM;
 
-			if (lpdcxcci == NULL) {
+				lpdcxcci->clrItem = clrItem;
+				//lpmycci->itemtext = "";
+				this->insertItem(nItem, (LPARAM)lpdcxcci);
+			}
+			catch (std::bad_alloc)
+			{
 				this->showError(NULL, TEXT("-a"), TEXT("Unable to Allocate Memory"));
 				return;
 			}
-
-			lpdcxcci->clrItem = clrItem;
-			//lpmycci->itemtext = "";
-			this->insertItem(nItem, (LPARAM) lpdcxcci);
 		}
 	}
 	// xdid -c [NAME] [ID] [SWITCH] [N]
@@ -330,8 +332,7 @@ LRESULT DcxColorCombo::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, B
 			PDELETEITEMSTRUCT delis = (PDELETEITEMSTRUCT) lParam;
 			LPDCXCCOMBOITEM lpdcxcci = (LPDCXCCOMBOITEM) delis->itemData;
 
-			if ( lpdcxcci != NULL )
-				delete lpdcxcci;
+			delete lpdcxcci;
 
 			bParsed = TRUE;
 			return TRUE;

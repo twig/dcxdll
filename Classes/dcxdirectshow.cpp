@@ -96,13 +96,13 @@ void DcxDirectshow::parseControlStyles( const TString & styles, LONG * Styles, L
 	*Styles |= SS_NOTIFY;
 
 	//const UINT numtok = styles.numtok( );
-
+	//
 	//for (UINT i = 1; i <= numtok; i++)
 	//{
 	//	if (( styles.gettok( i ) == TEXT("fixratio") ))
 	//		this->m_bKeepRatio = true;
 	//}
-	for (TString tsStyle(styles.getfirsttok( 1 )); tsStyle != TEXT(""); tsStyle = styles.getnexttok( ))
+	for (TString tsStyle(styles.getfirsttok(1)); !tsStyle.empty(); tsStyle = styles.getnexttok())
 	{
 		if (( tsStyle == TEXT("fixratio") ))
 			this->m_bKeepRatio = true;
@@ -255,13 +255,13 @@ void DcxDirectshow::parseInfoRequest( const TString & input, PTCHAR szReturnValu
 	}
 	// [NAME] [ID] [PROP]
 	else if ( prop == TEXT("currentpos")) {
-		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("D_OK %I64d"), this->getPosition());
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("D_OK %I64u"), this->getPosition());
 		return;
 	}
 	// [NAME] [ID] [PROP]
 	else if ( prop == TEXT("duration")) {
 		if (this->CheckSeekCapabilities(AM_SEEKING_CanGetDuration) & AM_SEEKING_CanGetDuration)
-			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("D_OK %I64d"), this->getDuration());
+			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("D_OK %I64u"), this->getDuration());
 		else
 			dcx_strcpyn(szReturnValue, TEXT("D_ERROR Method Not Supported"), MIRC_BUFFER_SIZE_CCH);
 
@@ -326,12 +326,12 @@ void DcxDirectshow::parseInfoRequest( const TString & input, PTCHAR szReturnValu
 
 void DcxDirectshow::parseCommandRequest( const TString &input) {
 	const XSwitchFlags flags(input.getfirsttok( 3 ));
-	const unsigned int numtok = input.numtok( );
+	const UINT numtok = input.numtok( );
 
 	// xdid -a [NAME] [ID] [SWITCH] [+FLAGS] [FILE]
 	if ( flags[TEXT('a')] && numtok > 4 ) {
 		const XSwitchFlags xflags(input.getnexttok( ).trim());	// tok 4
-		TString filename(input.gettok(5,-1).trim());
+		TString filename(input.getlasttoks().trim());			// tok 5, -1
 
 		this->ReleaseAll();
 
@@ -806,7 +806,7 @@ void DcxDirectshow::ReleaseAll(void)
 	this->m_pGraph = NULL;
 	this->m_pWc = NULL;
 	this->m_pSeek = NULL;
-	this->m_tsFilename = TEXT("");
+	this->m_tsFilename.clear();	// = TEXT("");
 }
 // getProperty() is non-functional atm. Where do i get this interface from? or a similar one.
 HRESULT DcxDirectshow::getProperty(TCHAR *prop, const int type) const

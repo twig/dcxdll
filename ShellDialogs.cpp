@@ -34,7 +34,7 @@ mIRC(ColorDialog) {
 	cc.lStructSize = sizeof(CHOOSECOLOR);
 	cc.hwndOwner = mWnd;
 
-	for (TString tsStyle(d.getnexttok( )); tsStyle != TEXT(""); tsStyle = d.getnexttok( )) {
+	for (TString tsStyle(d.getnexttok()); !tsStyle.empty(); tsStyle = d.getnexttok()) {
 		if (tsStyle == TEXT("anycolor"))
 			styles |= CC_ANYCOLOR;
 		else if (tsStyle == TEXT("fullopen"))
@@ -55,13 +55,13 @@ mIRC(ColorDialog) {
 
 	// User clicked OK
 	if (ChooseColor(&cc)) {
-		wsprintf(data, TEXT("%d"), cc.rgbResult);
-		wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), cc.rgbResult);
+		//wsprintf(data, TEXT("%u"), cc.rgbResult);
+		wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), cc.rgbResult);
 		return 3; //ret(data);
 	}
 	// User clicked cancel, return default color
 	else if (retDefault) {
-		wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), sel);
+		wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), sel);
 		return 3; //ret(data);
 	}
 	// User clicked cancel, dont bother with default color
@@ -136,7 +136,7 @@ TString FileDialog(const TString & data, const TString &method, const HWND pWnd)
 	GetCurrentDirectory(tsBufSize,tsCurrentDir.to_chr());
 
 	// format the filter into the format WinAPI wants, with double NULL TERMINATOR at end
-	if (filter == TEXT(""))
+	if (filter.empty())
 		filter = TEXT("All Files (*.*)|*.*");
 
 	filter += TEXT('\0');
@@ -153,7 +153,7 @@ TString FileDialog(const TString & data, const TString &method, const HWND pWnd)
 	ofn.nMaxFile = MIRC_BUFFER_SIZE_CCH;
 	ofn.lpstrDefExt = TEXT("");
 
-	for (TString tsStyle(styles.getfirsttok( 1 )); tsStyle != TEXT(""); tsStyle = styles.getnexttok( )) {
+	for (TString tsStyle(styles.getfirsttok(1)); !tsStyle.empty(); tsStyle = styles.getnexttok()) {
 		if (tsStyle == TEXT("multisel"))
 			style |= OFN_ALLOWMULTISELECT;
 		else if (tsStyle == TEXT("createprompt"))
@@ -196,7 +196,7 @@ TString FileDialog(const TString & data, const TString &method, const HWND pWnd)
 
 			// process the file name at p since its null terminated
 			while (*p != TEXT('\0')) { 
-				if (tsResult != TEXT(""))
+				if (!tsResult.empty())
 					tsResult += TEXT("|");
 
 				tsResult += p;
@@ -211,7 +211,7 @@ TString FileDialog(const TString & data, const TString &method, const HWND pWnd)
 		tsResult = szFilename;
 
 	// Reset current dir.
-	if (tsCurrentDir.len() > 0)
+	if (!tsCurrentDir.empty())
 		SetCurrentDirectory(tsCurrentDir.to_chr());
 
 	return tsResult;
@@ -256,7 +256,7 @@ mIRC(BrowseDialog) {
 	// Parse styles
 	TString param(input.gettok(currentParam, TSTAB));
 
-	for (TString flag(param.getfirsttok( 1 )); flag != TEXT(""); flag = param.getnexttok( ) ) {
+	for (TString flag(param.getfirsttok( 1 )); !flag.empty(); flag = param.getnexttok( ) ) {
 		/*
 		style1 style2 style3 $chr(9) initial folder
 
@@ -420,8 +420,8 @@ int CALLBACK BrowseFolderCallback(HWND hwnd, UINT uMsg, LPARAM lParam, LPARAM lp
 *
 * Shows and returns the file selected
 *
-* \return > TString "" if cancelled
-*         > TString +flags charset size fontname
+* \return > "" if cancelled
+*         > +flags charset size fontname
 */
 mIRC(FontDialog) {
 	DWORD style = CF_INITTOLOGFONTSTRUCT | CF_FORCEFONTEXIST | CF_LIMITSIZE;
@@ -447,10 +447,10 @@ mIRC(FontDialog) {
 
 	input.getfirsttok(0, TSTAB);
 
-	for (unsigned int i = 1; i <= nToks; i++) {
+	for (UINT i = 1; i <= nToks; i++) {
 		const TString option(input.getnexttok( TSTAB ).trim());
-		const unsigned int numtok = option.numtok( );
-		const TString tsType(option.getfirsttok( 1 ));
+		const UINT numtok = option.numtok( );
+		const TString tsType(option.getfirsttok( 1 ));	// tok 1
 
 		/*
 		default +flags(ibsua) charset size fontname
@@ -469,7 +469,7 @@ mIRC(FontDialog) {
 
 		// flags +
 		if (tsType == TEXT("flags") && numtok > 1) {
-			const TString flag(option.getnexttok( ));
+			const TString flag(option.getnexttok( ));	// tok 2
 			const int c = (int)flag.len();
 
 			for (int j = 0; j < c; j++)
@@ -512,14 +512,14 @@ mIRC(FontDialog) {
 		}
 		// defaults +flags(ibsua) charset size fontname
 		else if (tsType == TEXT("default") && numtok > 4)
-			ParseCommandToLogfont(option.gettok(2, -1), &lf);
+			ParseCommandToLogfont(option.getlasttoks(), &lf);	// tok 2, -1
 		// color rgb
 		else if (tsType == TEXT("color") && numtok > 1)
-			cf.rgbColors = (COLORREF) option.getnexttok( ).to_num();
+			cf.rgbColors = (COLORREF) option.getnexttok( ).to_num();	// tok 2
 		// minmaxsize min max
 		else if (tsType == TEXT("minmaxsize") && numtok > 2) {
-			cf.nSizeMin = option.getnexttok( ).to_int();
-			cf.nSizeMax = option.getnexttok( ).to_int();
+			cf.nSizeMin = option.getnexttok( ).to_int();	// tok 2
+			cf.nSizeMax = option.getnexttok( ).to_int();	// tok 3
 		}
 		// owner
 		else if (tsType == TEXT("owner") && numtok > 1)
@@ -540,7 +540,7 @@ mIRC(FontDialog) {
 		const TString fntflags(ParseLogfontToCommand(&lf));
 
 		// color flags font info
-		wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%d %s"), cf.rgbColors, fntflags.to_chr());
+		wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%u %s"), cf.rgbColors, fntflags.to_chr());
 	}
 	return 3;
 }
@@ -557,12 +557,12 @@ mIRC(MsgBox) {
 		ret(TEXT("D_ERROR MessageBox: invalid parameters"));
 
 	DWORD			style     = MB_DEFBUTTON1;
-	TString			strStyles(d.getfirsttok(1, TSTAB).trim());
-	const TString	strTitle(d.getnexttok(TSTAB).trim());
-	const TString	strMsg(d.gettok(3, -1, TSTAB).trim());
+	const TString	strStyles(d.getfirsttok(1, TSTAB).trim());		// tok 1
+	const TString	strTitle(d.getnexttok(TSTAB).trim());			// tok 2
+	const TString	strMsg(d.getlasttoks().trim());					// tok 3, -1
 	HWND			owner = aWnd;
 
-	for (TString tsStyle(strStyles.getfirsttok( 1 )); tsStyle != TEXT(""); tsStyle = strStyles.getnexttok( )) {
+	for (TString tsStyle(strStyles.getfirsttok(1)); !tsStyle.empty(); tsStyle = strStyles.getnexttok()) {
 //		MB_ABORTRETRYIGNORE
 //		MB_CANCELTRYCONTINUE && Dcx::XPPlusModule.isUseable()
 		if (tsStyle == TEXT("ok"))
@@ -667,8 +667,8 @@ mIRC(PickIcon) {
 	if (d.numtok( ) < 2)
 		ret(TEXT("D_ERROR PickIcon: Invalid parameters"));
 
-	int index = d.gettok( 1 ).to_int();
-	TString filename(d.gettok( 2, -1 ));
+	int index = d.getfirsttok( 1 ).to_int();	// tok 1
+	TString filename(d.getlasttoks());			// tok 2, -1
 
 	if (!IsFile(filename))
 		ret(TEXT("D_ERROR PickIcon: Invalid filename"));
@@ -698,13 +698,13 @@ mIRC(CountIcons) {
 	TString filename(data);
 	filename.trim();
 
-	if (filename == TEXT(""))
+	if (filename.empty())
 		ret(TEXT("D_ERROR CountIcons: Invalid parameters"));
 
 	if (!IsFile(filename))
 		ret(TEXT("D_ERROR CountIcons: Invalid filename"));
 
-	wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("D_OK %d %s"), ExtractIconEx(filename.to_chr(), -1, NULL, NULL, 0), filename.to_chr());
+	wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("D_OK %u %s"), ExtractIconEx(filename.to_chr(), -1, NULL, NULL, 0), filename.to_chr());
 
 	return 3;
 }

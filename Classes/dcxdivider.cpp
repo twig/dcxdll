@@ -86,13 +86,13 @@ void DcxDivider::parseControlStyles( const TString & styles, LONG * Styles, LONG
 {
 	*Styles |= DVS_HORZ;
 	//const UINT numtok = styles.numtok( );
-
+	//
 	//for (UINT i = 1; i <= numtok; i++)
 	//{
 	//	if ( styles.gettok( i ) == TEXT("vertical") )
 	//		*Styles |= DVS_VERT;
 	//}
-	for (TString tsStyle(styles.getfirsttok( 1 )); tsStyle != TEXT(""); tsStyle = styles.getnexttok( ))
+	for (TString tsStyle(styles.getfirsttok(1)); !tsStyle.empty(); tsStyle = styles.getnexttok())
 	{
 		if ( tsStyle == TEXT("vertical") )
 			*Styles |= DVS_VERT;

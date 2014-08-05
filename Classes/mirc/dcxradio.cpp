@@ -117,7 +117,7 @@ void DcxRadio::parseControlStyles( const TString & styles, LONG * Styles, LONG *
 	//	else if ( styles.gettok( i ) == TEXT("pushlike") )
 	//		*Styles |= BS_PUSHLIKE;
 	//}
-	for (TString tsStyle(styles.getfirsttok( 1 )); tsStyle != TEXT(""); tsStyle = styles.getnexttok( ))
+	for (TString tsStyle(styles.getfirsttok(1)); !tsStyle.empty(); tsStyle = styles.getnexttok())
 	{
 		if ( tsStyle == TEXT("rjustify") )
 			*Styles |= BS_RIGHT;
@@ -188,7 +188,7 @@ void DcxRadio::parseCommandRequest( const TString & input ) {
 	}
 	//xdid -t [NAME] [ID] [SWITCH]
 	else if ( flags[TEXT('t')] && numtok > 3 ) {
-		SetWindowText(this->m_Hwnd, input.gettok(4, -1).trim().to_chr());
+		SetWindowText(this->m_Hwnd, input.getlasttoks().trim().to_chr());	// tok 4, -1
 	}
 	//xdid -u [NAME] [ID] [SWITCH]
 	else if ( flags[TEXT('u')] ) {

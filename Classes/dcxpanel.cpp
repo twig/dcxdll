@@ -67,8 +67,7 @@ DcxPanel::DcxPanel( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, 
 
 DcxPanel::~DcxPanel( ) {
 
-	if ( this->m_pLayoutManager != NULL )
-		delete this->m_pLayoutManager;
+	delete this->m_pLayoutManager;
 
 	this->unregistreDefaultWindowProc( );
 }
@@ -159,7 +158,7 @@ void DcxPanel::parseCommandRequest( const TString & input ) {
 					this->showErrorEx(NULL, TEXT("-d"), TEXT("Can't delete control with ID \"%d\" when it is inside it's own event (dialog %s)"), p_Control->getUserID(), this->m_pParentDialog->getName().to_chr());
 			}
 			else
-				this->showErrorEx(NULL, TEXT("-d"), TEXT("Unable to get control with ID \"%d\" (dialog %s)"), p_Control->getUserID(), this->m_pParentDialog->getName().to_chr());
+				this->showErrorEx(NULL, TEXT("-d"), TEXT("Unable to get control with ID \"%d\" (dialog %s)"), ID - mIRC_ID_OFFSET, this->m_pParentDialog->getName().to_chr());
 		}
 		else
 			this->showErrorEx(NULL, TEXT("-d"), TEXT("Unknown control with ID \"%d\" (dialog %s)"), ID - mIRC_ID_OFFSET, this->m_pParentDialog->getName( ).to_chr( ) );
@@ -207,22 +206,22 @@ void DcxPanel::parseCommandRequest( const TString & input ) {
 			//const TString com(input.gettok(1, TSTAB).gettok(4).trim());
 			//const TString path(input.getfirsttok(1, TSTAB).gettok(5, -1).trim());
 			//const TString p2(input.getnexttok( TSTAB).trim());	// tok 2
-
+			//
 			//const UINT iflags = this->parseLayoutFlags( p2.getfirsttok( 1 ) );
 			//const UINT ID = p2.getnexttok( ).to_int( );		// tok 2
 			//const UINT WGT = p2.getnexttok( ).to_int( );	// tok 3
 			//const UINT W = p2.getnexttok( ).to_int( );		// tok 4
 			//const UINT H = p2.getnexttok( ).to_int( );		// tok 5
-
+			//
 			//if ( com ==  TEXT("root") || com == TEXT("cell") ) {
-
+			//
 			//	HWND cHwnd = GetDlgItem( this->m_Hwnd, mIRC_ID_OFFSET + ID );
-
+			//
 			//	LayoutCell * p_Cell = NULL;
-
+			//
 			//	// LayoutCellPane
 			//	if ( iflags & LAYOUTPANE ) {
-
+			//
 			//		if ( iflags & LAYOUTHORZ )
 			//			p_Cell = new LayoutCellPane( LayoutCellPane::HORZ );
 			//		else
@@ -244,24 +243,24 @@ void DcxPanel::parseCommandRequest( const TString & input ) {
 			//	} // else if ( flags & LAYOUTFILL )
 			//	// LayoutCellFixed
 			//	else if ( iflags & LAYOUTFIXED ) {
-
+			//
 			//		LayoutCellFixed::FixedType type;
-
+			//
 			//		if ( iflags & LAYOUTVERT && iflags & LAYOUTHORZ )
 			//			type = LayoutCellFixed::BOTH;
 			//		else if ( iflags & LAYOUTVERT )
 			//			type = LayoutCellFixed::HEIGHT;
 			//		else
 			//			type = LayoutCellFixed::WIDTH;
-
+			//
 			//		// Defined Rectangle
 			//		if ( iflags & LAYOUTDIM ) {
-
+			//
 			//			RECT rc;
 			//			SetRect( &rc, 0, 0, W, H );
-
+			//
 			//			if ( iflags & LAYOUTID ) {
-
+			//
 			//				if ( cHwnd != NULL && IsWindow( cHwnd ) )
 			//					p_Cell = new LayoutCellFixed( cHwnd, rc, type );
 			//				else {
@@ -271,13 +270,13 @@ void DcxPanel::parseCommandRequest( const TString & input ) {
 			//			}
 			//			else
 			//				p_Cell = new LayoutCellFixed( rc, type );
-
+			//
 			//		}
 			//		// No defined Rectangle
 			//		else {
-
+			//
 			//			if ( iflags & LAYOUTID ) {
-
+			//
 			//				if ( cHwnd != NULL && IsWindow( cHwnd ) )
 			//					p_Cell = new LayoutCellFixed( cHwnd, type );
 			//				else {
@@ -292,32 +291,32 @@ void DcxPanel::parseCommandRequest( const TString & input ) {
 			//		//DCXError(TEXT("/xdid -l"), TEXT("Unknown Cell Type") );
 			//		return;
 			//	}
-
+			//
 			//	if ( com == TEXT("root") ) {
-
+			//
 			//		if ( p_Cell != NULL )
 			//			this->m_pLayoutManager->setRoot( p_Cell );
-
+			//
 			//	} // if ( com == TEXT("root") )
 			//	else if ( com == TEXT("cell") ) {
-
+			//
 			//		if ( p_Cell != NULL ) {
-
+//
 			//			LayoutCell * p_GetCell;
-
+//
 			//			if ( path == TEXT("root") )
 			//				p_GetCell = this->m_pLayoutManager->getRoot( );
 			//			else
 			//				p_GetCell = this->m_pLayoutManager->getCell( path );
-
+//
 			//			if ( p_GetCell == NULL ) {
 			//				this->showErrorEx(NULL, TEXT("-l"), TEXT("Invalid item path: %s"), path.to_chr( ) );
 			//				delete p_Cell;
 			//				return;
 			//			}
-
+//
 			//			if ( p_GetCell->getType( ) == LayoutCell::PANE ) {
-
+//
 			//				//LayoutCellPane * p_PaneCell = (LayoutCellPane *) p_GetCell;
 			//				LayoutCellPane * p_PaneCell = reinterpret_cast<LayoutCellPane *>(p_GetCell);
 			//				p_PaneCell->addChild(p_Cell, WGT);
@@ -326,20 +325,20 @@ void DcxPanel::parseCommandRequest( const TString & input ) {
 			//	} // else if ( com == TEXT("cell") )
 			//} // if ( com ==  TEXT("root") || com == TEXT("cell") )
 			//else if ( com ==  TEXT("space") ) {
-
+//
 			//	LayoutCell * p_GetCell;
-
+//
 			//	if ( path == TEXT("root") )
 			//		p_GetCell = this->m_pLayoutManager->getRoot( );
 			//	else
 			//		p_GetCell = this->m_pLayoutManager->getCell( path );
-
+//
 			//	if ( p_GetCell == NULL ) {
 			//		this->showErrorEx(NULL, TEXT("-l"), TEXT("Invalid item path: %s"), path.to_chr( ) );
 			//		return;
 			//	}
 			//	else {
-
+//
 			//		RECT rc;
 			//		SetRect( &rc, ID, WGT, W, H );
 			//		p_GetCell->setBorder( rc );
@@ -349,7 +348,7 @@ void DcxPanel::parseCommandRequest( const TString & input ) {
 	}
 	// xdid -t [NAME] [ID] [SWITCH] [TEXT]
 	else if (flags[TEXT('t')] && numtok > 3) {
-		SetWindowText(this->m_Hwnd, input.gettok(4, -1).to_chr());
+		SetWindowText(this->m_Hwnd, input.getlasttoks().to_chr());	// tok 4, -1
 	}
 	else
 		this->parseGlobalCommandRequest( input, flags );

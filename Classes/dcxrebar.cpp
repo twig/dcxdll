@@ -161,7 +161,7 @@ void DcxReBar::parseControlStyles( const TString & styles, LONG * Styles, LONG *
 
 	//*ExStyles |= WS_EX_CONTROLPARENT;
 
-	for (TString tsStyle(styles.getfirsttok( 1 )); tsStyle != TEXT(""); tsStyle = styles.getnexttok( ))
+	for (TString tsStyle(styles.getfirsttok(1)); !tsStyle.empty(); tsStyle = styles.getnexttok())
 	{
 		if ( tsStyle == TEXT("borders") ) 
 			*Styles |= RBS_BANDBORDERS;
@@ -275,7 +275,7 @@ void DcxReBar::parseInfoRequest( const TString & input, TCHAR * szReturnValue ) 
 		const int nItem = input.getnexttok( ).to_int( ) - 1; // tok 4
 		const DcxControl * c = this->getControl(nItem);
 		if ( c != NULL )
-			wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), c->getUserID( ) );
+			wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), c->getUserID( ) );
 
 		return;
 	}
@@ -362,16 +362,20 @@ void DcxReBar::parseCommandRequest( const TString & input ) {
 
 		TString itemtext;
 		if ( data.numtok( ) > 10 ) {
-			itemtext = data.gettok(11, -1).trim();
+			itemtext = data.getlasttoks().trim();	// tok 11, -1
 			rbBand.fMask |= RBBIM_TEXT;
 			rbBand.lpText = itemtext.to_chr( );
 			//rbBand.cch = itemtext.len();
 		}
 
 		// Tooltip Handling
-		LPDCXRBBAND lpdcxrbb = new DCXRBBAND;
+		LPDCXRBBAND lpdcxrbb;
 
-		if (lpdcxrbb == NULL) {
+		try {
+			lpdcxrbb = new DCXRBBAND;
+		}
+		catch (std::bad_alloc)
+		{
 			this->showError(NULL, TEXT("-a"), TEXT("Unable to Allocate Memory"));
 			return;
 		}
@@ -485,7 +489,7 @@ void DcxReBar::parseCommandRequest( const TString & input ) {
 		rbi.fMask = RBBIM_LPARAM;
 		this->getBandInfo(n, &rbi);
 		pdcxrbb = (LPDCXRBBAND) rbi.lParam;
-		pdcxrbb->tsMarkText = (numtok > 4 ? input.gettok(5, -1) : TEXT(""));
+		pdcxrbb->tsMarkText = (numtok > 4 ? input.getlasttoks() : TEXT(""));	// tok 5, -1
 	}
 	// xdid -d [NAME] [ID] [SWITCH] [N]
 	else if ( flags[TEXT('d')] && numtok > 3 ) {
@@ -609,7 +613,7 @@ void DcxReBar::parseCommandRequest( const TString & input ) {
 
 			TString itemtext;
 			if ( numtok > 4 )
-				itemtext = input.gettok(5, -1).trim();
+				itemtext = input.getlasttoks().trim();	// tok 5, -1
 
 			rbBand.lpText = itemtext.to_chr( );
 			this->setBandInfo( nIndex, &rbBand );
@@ -664,7 +668,7 @@ void DcxReBar::parseCommandRequest( const TString & input ) {
 	else if (flags[TEXT('w')] && numtok > 5) {
 		const TString flag(input.getnexttok( ));		// tok 4
 		const int index = input.getnexttok( ).to_int();	// tok 5
-		TString filename(input.gettok( 6, -1 ));
+		TString filename(input.getlasttoks());			// tok 6, -1
 
 		HIMAGELIST himl = this->getImageList();
 
@@ -1008,8 +1012,7 @@ LRESULT DcxReBar::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 						}
 
 						LPDCXRBBAND lpdcxrbb = (LPDCXRBBAND) lpnmrb->lParam;
-						if ( lpdcxrbb != NULL )
-							delete lpdcxrbb;
+						delete lpdcxrbb;
 					}
 				}
 				break;

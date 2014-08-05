@@ -13,12 +13,12 @@
 
 #include <windows.h>
 #include <stdio.h>
+#pragma warning(push)
 #pragma warning(disable: 4005 4995)
 #include <tchar.h>
-#pragma warning(default: 4005 4995)
 #pragma warning( disable : 4996 ) // disable deprecated warning 
 #include <strsafe.h>
-#pragma warning( default : 4996 ) 
+#pragma warning(pop)
 #include <dxdiag.h>
 
 #ifdef __INTEL_COMPILER
@@ -123,9 +123,9 @@ HRESULT GetDXVersion(DWORD* pdwDirectXVersion, TCHAR* strDirectXVersion, int cch
 		// If strDirectXVersion is non-NULL, then set it to something
 		// like "8.1b" which would represent DirectX8.1b
 		if (cDirectXVersionLetter == TEXT(' '))
-			StringCchPrintf(strDirectXVersion, cchDirectXVersion, TEXT("%d.%d"), dwDirectXVersionMajor, dwDirectXVersionMinor);
+			StringCchPrintf(strDirectXVersion, cchDirectXVersion, TEXT("%u.%u"), dwDirectXVersionMajor, dwDirectXVersionMinor);
 		else
-			StringCchPrintf(strDirectXVersion, cchDirectXVersion, TEXT("%d.%d%c"), dwDirectXVersionMajor, dwDirectXVersionMinor, cDirectXVersionLetter);
+			StringCchPrintf(strDirectXVersion, cchDirectXVersion, TEXT("%u.%u%c"), dwDirectXVersionMajor, dwDirectXVersionMinor, cDirectXVersionLetter);
 	}
 
 	return S_OK;
@@ -501,9 +501,15 @@ HRESULT GetFileVersion(TCHAR* szPath, ULARGE_INTEGER* pllFileVersion)
 	cb = GetFileVersionInfoSize(szPath, &dwHandle);
 	if (cb > 0)
 	{
-		BYTE* pFileVersionBuffer = new BYTE[cb];
-		if (pFileVersionBuffer == NULL)
+		BYTE* pFileVersionBuffer;
+
+		try {
+			pFileVersionBuffer = new BYTE[cb];
+		}
+		catch (std::bad_alloc)
+		{
 			return E_OUTOFMEMORY;
+		}
 
 		if (GetFileVersionInfo(szPath, 0, cb, pFileVersionBuffer))
 		{

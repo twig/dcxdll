@@ -70,7 +70,7 @@ public:
 	void getRect( RECT & rc ) const;
 	void getClientRect( RECT & rc ) const;
 	void setBorder( const RECT & rc );
-	void setBorder( const unsigned int nBorder );
+	void setBorder( const UINT nBorder );
 	void getBorder( RECT & rc ) const;
 
 	virtual void LayoutChild( ) = 0;

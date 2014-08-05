@@ -93,9 +93,12 @@ void DcxLine::toXml(TiXmlElement * xml) const
 	__super::toXml(xml);
 	TString styles(xml->Attribute("styles"));
 	styles.remtok(TEXT("transparent"), 1); // line always has transparent style (why?)
-	if (styles.len() > 0) xml->SetAttribute("styles", styles.c_str());
-	else xml->RemoveAttribute("styles");
-	if (this->m_sText.len() > 0) xml->SetAttribute("caption", this->m_sText.c_str());
+	if (!styles.empty())
+		xml->SetAttribute("styles", styles.c_str());
+	else
+		xml->RemoveAttribute("styles");
+	if (!this->m_sText.empty())
+		xml->SetAttribute("caption", this->m_sText.c_str());
 }
 
 /*!
@@ -125,7 +128,7 @@ void DcxLine::parseControlStyles( const TString & styles, LONG * Styles, LONG * 
 	//	else if (styles.gettok(i) == TEXT("pathellipsis"))
 	//		*Styles |= SS_PATHELLIPSIS;
 	//}
-	for (TString tsStyle(styles.getfirsttok( 1 )); tsStyle != TEXT(""); tsStyle = styles.getnexttok( ))
+	for (TString tsStyle(styles.getfirsttok( 1 )); !tsStyle.empty(); tsStyle = styles.getnexttok( ))
 	{
 		if ( tsStyle == TEXT("vertical") )
 			this->m_bVertical = true;
@@ -177,7 +180,7 @@ void DcxLine::parseCommandRequest( const TString & input ) {
 
 	//xdid -t [NAME] [ID] [SWITCH] [TEXT]
 	if (flags[TEXT('t')]) {
-		this->m_sText = input.gettok(4, -1).trim();
+		this->m_sText = input.getlasttoks().trim();	// tok 4, -1
 
 		// redraw if transparent
 		if (this->isExStyle(WS_EX_TRANSPARENT)) {
@@ -264,7 +267,7 @@ void DcxLine::DrawClientArea(HDC hdc)
 	rcText = rcClient;
 
 	// draw text if any.
-	if (this->m_sText.len() > 0) {
+	if (!this->m_sText.empty()) {
 		HFONT oldhFont = NULL;
 		if (this->m_hFont != NULL)
 			oldhFont = SelectFont(hdc, this->m_hFont);

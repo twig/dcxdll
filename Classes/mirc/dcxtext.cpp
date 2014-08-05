@@ -53,7 +53,6 @@ DcxText::DcxText( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, co
 	if ( bNoTheme )
 		Dcx::UXModule.dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
-	//this->m_tsText = TEXT(""); // pointless, alrdy is "".
 	this->m_clrText = GetSysColor(COLOR_WINDOWTEXT);
 
 	this->setControlFont( GetStockFont( DEFAULT_GUI_FONT ), FALSE );
@@ -107,7 +106,7 @@ void DcxText::parseControlStyles( const TString & styles, LONG * Styles, LONG * 
 	//}
 	this->m_uiStyle = DT_LEFT;
 
-	for (TString tsStyle(styles.getfirsttok( 1 )); tsStyle != TEXT(""); tsStyle = styles.getnexttok( ))
+	for (TString tsStyle(styles.getfirsttok(1)); !tsStyle.empty(); tsStyle = styles.getnexttok())
 	{
 		if (tsStyle == TEXT("nowrap"))
 			this->m_uiStyle |= DT_SINGLELINE;
@@ -162,7 +161,7 @@ void DcxText::parseCommandRequest(const TString &input) {
 
 	// xdid -r [NAME] [ID] [SWITCH]
 	if (flags[TEXT('r')]) {
-		this->m_tsText = TEXT("");
+		this->m_tsText.clear();	// = TEXT("");
 		SetWindowText(this->m_Hwnd, TEXT(""));
 	}
 
@@ -171,7 +170,7 @@ void DcxText::parseCommandRequest(const TString &input) {
 		if (input.getnexttok( ).to_int() == 1)	// tok 4
 			this->m_tsText += TEXT(" ");
 
-		this->m_tsText += input.gettok(5, -1);
+		this->m_tsText += input.getlasttoks();	// tok 5, -1
 		SetWindowText(this->m_Hwnd, this->m_tsText.to_chr());
 
 		// redraw if transparent
@@ -185,7 +184,7 @@ void DcxText::parseCommandRequest(const TString &input) {
 	}
 	//xdid -t [NAME] [ID] [SWITCH] [TEXT]
 	else if (flags[TEXT('t')]) {
-		this->m_tsText = input.gettok(4, -1);
+		this->m_tsText = input.getlasttoks();	// tok 4, -1
 		SetWindowText(this->m_Hwnd, this->m_tsText.to_chr());
 
 		// redraw if transparent

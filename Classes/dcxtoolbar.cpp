@@ -111,7 +111,7 @@ void DcxToolBar::parseControlStyles( const TString & styles, LONG * Styles, LONG
 {
 
 	//*Styles |= CCS_ADJUSTABLE;
-	for (TString tsStyle(styles.getfirsttok( 1 )); tsStyle != TEXT(""); tsStyle = styles.getnexttok( ))
+	for (TString tsStyle(styles.getfirsttok(1)); !tsStyle.empty(); tsStyle = styles.getnexttok())
 	{
 		if ( tsStyle == TEXT("flat") )
 			*Styles |= TBSTYLE_FLAT;
@@ -358,13 +358,16 @@ void DcxToolBar::parseCommandRequest( const TString & input ) {
 		}
 
 		// Tooltip Handling
-		LPDCXTBBUTTON lpdcxtbb = new DCXTBBUTTON;
+		LPDCXTBBUTTON lpdcxtbb;
 
-		if (lpdcxtbb == NULL) {
+		try {
+			lpdcxtbb = new DCXTBBUTTON;
+		}
+		catch (std::bad_alloc)
+		{
 			this->showError(NULL, TEXT("-a"), TEXT("Unable to Allocate Memory"));
 			return;
 		}
-		//lpdcxtbb->tsTipText = TEXT("");
 
 		if ( input.numtok( TSTAB ) > 1 )
 			lpdcxtbb->tsTipText = input.gettok( 2, -1, TSTAB ).trim();
@@ -578,9 +581,9 @@ void DcxToolBar::parseCommandRequest( const TString & input ) {
 				LPDCXTBBUTTON lpdcxtbb = (LPDCXTBBUTTON) tbbi.lParam;
 
 				if (numtok > 4)	// has a new tooltip
-					lpdcxtbb->tsTipText = input.gettok(5, -1);
+					lpdcxtbb->tsTipText = input.getlasttoks();	// tok 5, -1
 				else					// no tooltip
-					lpdcxtbb->tsTipText = TEXT("");
+					lpdcxtbb->tsTipText.clear();	// = TEXT("");
 			}
 		}
 	}
@@ -620,10 +623,10 @@ void DcxToolBar::parseCommandRequest( const TString & input ) {
 			tbbi.dwMask = TBIF_LPARAM;
 			if (this->getButtonInfo(nIndex, &tbbi) > -1) {
 				LPDCXTBBUTTON lpdcxtbb = (LPDCXTBBUTTON) tbbi.lParam;
-				if ( numtok > 4 )
-					lpdcxtbb->bText = input.gettok( 5, -1 );
+				if (numtok > 4)
+					lpdcxtbb->bText = input.getlasttoks();	// tok 5, -1
 				else
-					lpdcxtbb->bText = TEXT("");
+					lpdcxtbb->bText.clear();	// = TEXT("");
 				ZeroMemory( &tbbi, sizeof( TBBUTTONINFO ) );
 				tbbi.cbSize = sizeof( TBBUTTONINFO );
 				tbbi.dwMask = TBIF_TEXT;
@@ -644,7 +647,7 @@ void DcxToolBar::parseCommandRequest( const TString & input ) {
 
 		HICON icon = NULL;
 		const int index = input.getnexttok( ).to_int();	// tok 5
-		TString filename(input.gettok(6, -1));
+		TString filename(input.getlasttoks());			// tok 6, -1
 
 		HIMAGELIST himl = this->getImageList(TB_IML_NORMAL);
 

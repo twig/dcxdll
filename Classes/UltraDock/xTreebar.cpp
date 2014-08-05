@@ -87,7 +87,7 @@ mIRC(xtreebar) {
 		return 0;
 	}
 
-	const TString switches(input.getfirsttok( 1 ));
+	const TString switches(input.getfirsttok( 1 ));		// tok 1
 
 	if (switches[0] != TEXT('-')) {
 		Dcx::error(TEXT("/xtreebar"), TEXT("Invalid Switch"));
@@ -107,7 +107,8 @@ mIRC(xtreebar) {
 				}
 				LOGFONT lf;
 
-				if (ParseCommandToLogfont(input.gettok(2, -1), &lf)) {
+				if (ParseCommandToLogfont(input.getlasttoks(), &lf))	// tok 2, -1
+				{
 					HFONT hFont = CreateFontIndirect(&lf);
 					if (hFont != NULL) {
 						mIRCLinker::setTreeFont(hFont);
@@ -143,7 +144,7 @@ mIRC(xtreebar) {
 				};
 				for (int i = 2; i <= numtok; i++)
 				{
-					switch (treebar_styles.findtok(input.getnexttok( ).to_chr(),1))
+					switch (treebar_styles.findtok(input.getnexttok( ).to_chr(),1))		// tok 2+
 					{
 					case TS_TRACK: // trackselect (off by default)
 						stylef |= TVS_TRACKSELECT;
@@ -278,8 +279,8 @@ mIRC(xtreebar) {
 					Dcx::error(TEXT("/xtreebar -c"), TEXT("Invalid Colour Args"));
 					return 0;
 				}
-				const TString cflag(input.getnexttok( ));
-				const COLORREF clr = (COLORREF)input.getnexttok( ).to_num();
+				const TString cflag(input.getnexttok( ));						// tok 2
+				const COLORREF clr = (COLORREF)input.getnexttok( ).to_num();	// tok 3
 
 				if (cflag[0] != TEXT('+')) {
 					Dcx::error(TEXT("/xtreebar -c"),TEXT("Invalid Colour flag"));
@@ -342,7 +343,7 @@ mIRC(xtreebar) {
 					Dcx::error(TEXT("/xtreebar -w"), TEXT("No Valid TreeView Image List"));
 					return 0;
 				}
-				const TString tsIndex(input.getnexttok( ));
+				const TString tsIndex(input.getnexttok( ));		// tok 2
 				if (tsIndex == TEXT("clear")) { // no images.
 					HIMAGELIST o = TreeView_SetImageList(mIRCLinker::getTreeview(),NULL,TVSIL_NORMAL);
 					if (o != NULL && o != mIRCLinker::getTreeImages())
@@ -368,9 +369,9 @@ mIRC(xtreebar) {
 					}
 					if (himl != NULL) {
 						int iIndex = tsIndex.to_int() -1;
-						const TString cflag(input.getnexttok( ).trim());
-						const int fIndex = input.getnexttok( ).to_int(), iCnt = ImageList_GetImageCount(himl) -1;
-						TString filename(input.gettok(5,-1).trim());
+						const TString cflag(input.getnexttok( ).trim());	// tok 3
+						const int fIndex = input.getnexttok( ).to_int(), iCnt = ImageList_GetImageCount(himl) -1;	// tok 4
+						TString filename(input.getlasttoks().trim());	// tok 5, -1
 
 						// check index is within range.
 						if (iCnt < iIndex) {
@@ -407,7 +408,7 @@ mIRC(xtreebar) {
 			break;
 		case TEXT('T'): // [1|0]
 			{ // Take over Treebar drawing
-				DcxDock::g_bTakeOverTreebar = (input.getnexttok( ).to_int() ? true : false);
+				DcxDock::g_bTakeOverTreebar = (input.getnexttok( ).to_int() ? true : false);	// tok 2
 				if (DcxDock::g_bTakeOverTreebar) {
 					if (mIRCLinker::isAlias(TEXT("xtreebar_callback")))
 						TraverseTreebarItems();
@@ -463,9 +464,9 @@ mIRC(_xtreebar)
 				item.pszText = szbuf;
 				item.cchTextMax = MIRC_BUFFER_SIZE_CCH;
 				if (TreeView_GetItem(mIRCLinker::getTreeview(),&item))
-					lstrcpyn(data, item.pszText, MIRC_BUFFER_SIZE_CCH);
+					dcx_strcpyn(data, item.pszText, MIRC_BUFFER_SIZE_CCH)
 				else
-					lstrcpyn(data, TEXT("D_ERROR Unable To Get Item"), MIRC_BUFFER_SIZE_CCH);
+					dcx_strcpyn(data, TEXT("D_ERROR Unable To Get Item"), MIRC_BUFFER_SIZE_CCH);
 			}
 		}
 		break;
@@ -479,7 +480,7 @@ mIRC(_xtreebar)
 			if (TreeView_GetItem(mIRCLinker::getTreeview(),&item))
 				wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d"), item.iImage, item.iSelectedImage);
 			else
-				lstrcpyn(data, TEXT("D_ERROR Unable To Get Item"), MIRC_BUFFER_SIZE_CCH);
+				dcx_strcpyn(data, TEXT("D_ERROR Unable To Get Item"), MIRC_BUFFER_SIZE_CCH);
 		}
 		break;
 	case 0: // error

@@ -13,7 +13,7 @@ XSwitchFlags::XSwitchFlags(const TString &switches) {
 	else
 		return;
 
-	const unsigned int len = (UINT)switches.len();
+	const UINT len = (UINT)switches.len();
 
 	// Parse the switches
 	for (UINT i = 1; i < len; i++)

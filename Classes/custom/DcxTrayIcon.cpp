@@ -71,19 +71,16 @@ mIRC(TrayIcon) {
 		}
 
 		// set up info
-		TString tooltip;
-
-		// if theres a tooltip text
-		if (d.numtok(TSTAB) > 1)
-			tooltip = d.gettok(2, -1, TSTAB).trim();
+		const TString tsTabOne(d.getfirsttok(1, TSTAB).trim());
+		const TString tooltip(d.getlasttoks( ).trim());
 
 		//NIF_INFO
 		//Use a balloon ToolTip instead of a standard ToolTip. The szInfo, uTimeout, szInfoTitle, and dwInfoFlags members are valid.
 
 		// load the icon
-		const TString iconFlags(d.getnexttok( ));	// tok 3
-		const int index = d.getnexttok( ).to_int();	// tok 4
-		TString filename(d.gettok(1, TSTAB).gettok(5, -1));
+		const TString iconFlags(tsTabOne.getfirsttok( 3 ));	// tok 3
+		const int index = tsTabOne.getnexttok().to_int();	// tok 4
+		TString filename(tsTabOne.getlasttoks( ));			// tok 5, -1
 
 		HICON icon = dcxLoadIcon(index, filename, false, iconFlags);
 
@@ -175,7 +172,7 @@ DcxTrayIcon::~DcxTrayIcon(void)
 //
 //		ids.getfirsttok( 0 );
 //
-//		for (unsigned int i = 1; i <= ids.numtok( ); i++) {
+//		for (UINT i = 1; i <= ids.numtok( ); i++) {
 //			this->modifyIcon(ids.getnexttok( ).to_int(), NIM_DELETE);	// tok i
 //		}
 
@@ -293,7 +290,7 @@ bool DcxTrayIcon::idExists(const int id) const {
 #endif
 }
 
-bool DcxTrayIcon::modifyIcon(const int id, DWORD msg, HICON icon, TString *tooltip) {
+bool DcxTrayIcon::modifyIcon(const int id, const DWORD msg, const HICON icon, const TString *const tooltip) {
 	// set up the icon info struct
 	bool res = false;
 	NOTIFYICONDATA nid;
@@ -305,7 +302,7 @@ bool DcxTrayIcon::modifyIcon(const int id, DWORD msg, HICON icon, TString *toolt
 	nid.hWnd = this->GetHwnd();
 	nid.uCallbackMessage = DCXM_TRAYICON;
 
-	if (tooltip != NULL && tooltip->len() > 0) {
+	if (tooltip != NULL && !tooltip->empty()) {
 		nid.uFlags |= NIF_TIP;
 		dcx_strcpyn(nid.szTip, tooltip->to_chr(), 128); // 128 max
 	}
@@ -325,7 +322,7 @@ bool DcxTrayIcon::modifyIcon(const int id, DWORD msg, HICON icon, TString *toolt
 		res = true;
 	}
 
-	if (icon)
+	if (icon != NULL)
 		DestroyIcon(icon);
 
 	return res;

@@ -13,13 +13,13 @@ mIRC(xstatusbar) {
 	input.trim();
 	data[0] = 0;
 
-	const unsigned int numtok = input.numtok( );
+	const UINT numtok = input.numtok( );
 
 	if (numtok < 1) {
 		Dcx::error(TEXT("/xstatusbar"),TEXT("Invalid Parameters"));
 		return 0;
 	}
-	const TString switches(input.getfirsttok(1));
+	const TString switches(input.getfirsttok(1));	// tok 1
 
 	switch (switches[1]) {
 		case TEXT('A'): // -A [0|1] (options)=notheme grip tooltips nodivider utf8
@@ -31,8 +31,10 @@ mIRC(xstatusbar) {
 				}
 				// Enable/Disable the Statusbar.
 				// -A [0|1] [options] = notheme grip tooltips nodivider utf8
-				if (input.getnexttok( ).to_int() > 0) {
-					if (!DcxDock::InitStatusbar(input.gettok(3,-1))) {
+				if (input.getnexttok( ).to_int() > 0)					// tok 2
+				{
+					if (!DcxDock::InitStatusbar(input.getlasttoks()))	// tok 3, -1
+					{
 						Dcx::error(TEXT("/xstatusbar -A"),TEXT("Unable to Create Statusbar"));
 						return 0;
 					}
@@ -53,9 +55,8 @@ mIRC(xstatusbar) {
 					return 0;
 				}
 
-				if (ParseCommandToLogfont(input.gettok(2, -1), &lf)) {
+				if (ParseCommandToLogfont(input.getlasttoks(), &lf))	// tok 2, -1
 					DcxDock::status_setFont(CreateFontIndirect(&lf));
-				}
 			}
 			break;
 		case TEXT('k'): // -k [clr] : background colour.
@@ -66,7 +67,7 @@ mIRC(xstatusbar) {
 					return 0;
 				}
 
-				const int col = input.getnexttok( ).to_int();
+				const int col = input.getnexttok( ).to_int();	// tok 2
 
 				if (col < 0)
 					DcxDock::status_setBkColor((COLORREF) CLR_DEFAULT);
@@ -94,7 +95,7 @@ mIRC(xstatusbar) {
 						return 0;
 					}
 
-					p = input.gettok( i+2 );
+					p = input.getnexttok( );	// tok i+2
 
 					const int t = p.to_int();
 
@@ -118,32 +119,32 @@ mIRC(xstatusbar) {
 					Dcx::error(TEXT("/xstatusbar -t"),TEXT("Invalid Parameters"));
 					return 0;
 				}
-
-				const int nPos = (input.getnexttok( ).to_int( ) - 1);
-				const TString flags(input.getnexttok( ));
-				const int icon = (input.getnexttok( ).to_int( ) - 1);
-				const COLORREF bkgClr = (COLORREF)input.getnexttok( ).to_int();
-				const COLORREF txtClr = (COLORREF)input.getnexttok( ).to_int();
-				const UINT iFlags = DcxDock::status_parseItemFlags( flags );
-
+				const TString tsTabOne(input.getfirsttok(1, TSTAB));	// tok 1, TSTAB
+				const TString tooltip(input.getnexttok(TSTAB).trim());	// tok 2, TSTAB;
 				TString itemtext;
 
-				if ( input.gettok( 1, TSTAB ).numtok( ) > 6 )
-					itemtext = input.gettok( 1, TSTAB ).gettok( 7, -1).trim();
+				const int nPos = (tsTabOne.getfirsttok(2).to_int() - 1);			// tok 2
+				const TString flags(tsTabOne.getnexttok());							// tok 3
+				const int icon = (tsTabOne.getnexttok().to_int() - 1);				// tok 4
+				const COLORREF bkgClr = (COLORREF)tsTabOne.getnexttok().to_int();	// tok 5
+				const COLORREF txtClr = (COLORREF)tsTabOne.getnexttok().to_int();	// tok 6
+				const UINT iFlags = DcxDock::status_parseItemFlags( flags );
 
-				TString tooltip;
-
-				if ( input.numtok( TSTAB ) > 1 )
-					tooltip = input.gettok( 2, TSTAB ).trim();
+				if ( tsTabOne.numtok( ) > 6 )
+					itemtext = tsTabOne.getlasttoks().trim();						// tok 7, -1
 
 				DcxDock::status_deletePartInfo(nPos); // delete custom info if any.
 				DestroyIcon( (HICON) DcxDock::status_getIcon( nPos ) );
 				DcxDock::status_setIcon( nPos, NULL );
 
 				if (iFlags & SBT_OWNERDRAW) {
-					LPSB_PARTINFO pPart = new SB_PARTINFO;
+					LPSB_PARTINFO pPart;
 
-					if (pPart == NULL) {
+					try {
+						pPart = new SB_PARTINFO;
+					}
+					catch (std::bad_alloc)
+					{
 						Dcx::error(TEXT("/xstatusbar -t"),TEXT("Unable to Allocate Memory"));
 						return 0;
 					}
@@ -178,17 +179,17 @@ mIRC(xstatusbar) {
 					return 0;
 				}
 
-				const int nPos = (input.getnexttok( ).to_int( ) - 1);
+				const int nPos = (input.getnexttok( ).to_int( ) - 1);	// tok 2
 
 				if ( nPos > -1 && nPos < DcxDock::status_getParts( 256, 0 ) ) {
 
 					TString itemtext;
 
-					const COLORREF bkgClr = (COLORREF)input.getnexttok( ).to_int();
-					const COLORREF txtClr = (COLORREF)input.getnexttok( ).to_int();
+					const COLORREF bkgClr = (COLORREF)input.getnexttok( ).to_int();	// tok 3
+					const COLORREF txtClr = (COLORREF)input.getnexttok( ).to_int();	// tok 4
 
 					if ( numtok > 4 )
-						itemtext = input.gettok( 5, -1 );
+						itemtext = input.getlasttoks();	// tok 5, -1
 
 					const UINT iFlags = DcxDock::status_getPartFlags( nPos );
 
@@ -233,9 +234,9 @@ mIRC(xstatusbar) {
 				}
 
 				HIMAGELIST himl = DcxDock::status_getImageList();
-				const TString flags(input.getnexttok( ));
-				const int index = input.getnexttok( ).to_int();
-				TString filename(input.gettok( 4, -1));
+				const TString flags(input.getnexttok( ));			// tok 2
+				const int index = input.getnexttok( ).to_int();		// tok 3
+				TString filename(input.getlasttoks());				// tok 4, -1
 
 				if (himl == NULL) {
 					himl = DcxDock::status_createImageList();
@@ -329,16 +330,23 @@ mIRC(_xstatusbar)
 
 			DcxDock::status_getParts( 256, parts );
 
-			TCHAR dd[10];
+			//TCHAR dd[10];
+			//
+			//for (int i = 0; i < nParts; i++ )
+			//{
+			//	wnsprintf( dd, 10, TEXT("%d"), parts[i] );
+			//
+			//	if ( i != 0 )
+			//		lstrcat( data, TEXT(" ") );
+			//	lstrcat( data, dd );
+			//}
+
+			TString tsOut((UINT)MIRC_BUFFER_SIZE_CCH);
 
 			for (int i = 0; i < nParts; i++ )
-			{
-				wnsprintf( dd, 10, TEXT("%d"), parts[i] );
+				tsOut.addtok(parts[i]);
 
-				if ( i != 0 )
-					lstrcat( data, TEXT(" ") );
-				lstrcat( data, dd );
-			}
+			dcx_strcpyn(data, tsOut.to_chr(), MIRC_BUFFER_SIZE_CCH);
 		}
 		break;
 	case 4: // tooltip

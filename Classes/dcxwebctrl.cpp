@@ -81,11 +81,13 @@ DcxWebControl::DcxWebControl( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, R
 	}
 	else {
 		//Release all Web Control pointers
-		if ( this->m_dwCookie )
-			this->m_pCP->Unadvise( this->m_dwCookie );
-
 		if (this->m_pCP != NULL)
-			this->m_pCP->Release( );
+		{
+			if (this->m_dwCookie)
+				this->m_pCP->Unadvise(this->m_dwCookie);
+
+			this->m_pCP->Release();
+		}
 		if (this->m_pCPC != NULL)
 			this->m_pCPC->Release( );
 		if (this->m_pOleInPlaceObject != NULL)
@@ -253,7 +255,7 @@ void DcxWebControl::parseCommandRequest( const TString & input) {
 
 					if ( SUCCEEDED( doc->get_parentWindow( &window ) ) ) { 
 
-						const TString CMD(input.gettok( 4, -1 ).trim());
+						const TString CMD(input.getlasttoks().trim());		// tok 4, -1
 
 						VARIANT v;
 						VariantInit( &v );
@@ -285,7 +287,7 @@ void DcxWebControl::parseCommandRequest( const TString & input) {
 
 		const XSwitchFlags xflags(input.getnexttok());		// tok 4 flags to change
 		const XSwitchFlags xmask(input.getnexttok());		// tok 5 state mask, flags here are enabled, otherwise they are disabled.
-		const TString URL(input.gettok( 6, -1 ).trim());	// optional
+		const TString URL(input.getlasttoks().trim());		// tok 6, -1 optional
 
 		VARIANT vEmpty;
 		VARIANT vFlags;
@@ -332,7 +334,7 @@ void DcxWebControl::parseCommandRequest( const TString & input) {
 			this->m_pWebBrowser2->put_StatusBar(bEnabled);
 		}
 		// only open url if one supplied.
-		if (URL.len() > 0) {
+		if (!URL.empty()) {
 			BSTR bstrUrl = SysAllocString(URL.to_chr());
 			if (bstrUrl != NULL) {
 				this->m_pWebBrowser2->Navigate( bstrUrl, &vFlags, &vEmpty, &vEmpty, &vEmpty );
@@ -346,7 +348,7 @@ void DcxWebControl::parseCommandRequest( const TString & input) {
 	// [NAME] [ID] -n [URL]
 	else if ( flags[TEXT('n')] && numtok > 3 ) {
 
-		const TString URL(input.gettok( 4, -1 ).trim());
+		const TString URL(input.getlasttoks().trim());	// tok 4, -1
 
 		VARIANT v;
 		VariantInit( &v );
@@ -402,14 +404,14 @@ HRESULT DcxWebControl::Invoke( DISPID dispIdMember,
 	//											 this->execAliasEx(TEXT("%s,%d,%ws"), TEXT("nav_complete"), this->getUserID(), arg2.bstrVal);
 	//	}
 	//		break;
-
+	//
 	//	case DISPID_BEFORENAVIGATE2:
 	//	{
 	//								   if (!this->m_bHideEvents)
 	//								   {
 	//										   TCHAR ret[256];
 	//										   this->evalAliasEx(ret, 255, TEXT("%s,%d,%ws"), TEXT("nav_begin"), this->getUserID(), arg2.bstrVal);
-
+	//
 	//										   if (lstrcmpi(ret, TEXT("cancel")) == 0)
 	//											   *pDispParams->rgvarg->pboolVal = VARIANT_TRUE;
 	//										   else
@@ -417,7 +419,7 @@ HRESULT DcxWebControl::Invoke( DISPID dispIdMember,
 	//								   }
 	//	}
 	//		break;
-
+	//
 	//	case DISPID_DOCUMENTCOMPLETE:
 	//	{
 	//									if (!this->m_bHideEvents)
@@ -428,28 +430,28 @@ HRESULT DcxWebControl::Invoke( DISPID dispIdMember,
 	//										this->m_bHideEvents = false; // allow events to be seen after first doc loads `about:blank`
 	//	}
 	//		break;
-
+	//
 	//	case DISPID_DOWNLOADBEGIN:
 	//	{
 	//								 if (!this->m_bHideEvents)
 	//									 this->execAliasEx(TEXT("%s,%d"), TEXT("dl_begin"), this->getUserID());
 	//	}
 	//		break;
-
+	//
 	//	case DISPID_DOWNLOADCOMPLETE:
 	//	{
 	//									if (!this->m_bHideEvents)
 	//										this->execAliasEx(TEXT("%s,%d"), TEXT("dl_complete"), this->getUserID());
 	//	}
 	//		break;
-
+	//
 	//	case DISPID_NEWWINDOW2:
 	//	{
 	//							  if (!this->m_bHideEvents)
 	//							  {
 	//								  TCHAR ret[256];
 	//								  this->evalAliasEx(ret, 255, TEXT("%s,%d"), TEXT("win_open"), this->getUserID());
-
+	//
 	//								  if (lstrcmpi(ret, TEXT("cancel")) == 0)
 	//									  *pDispParams->rgvarg->pboolVal = VARIANT_TRUE;
 	//								  else
@@ -457,28 +459,28 @@ HRESULT DcxWebControl::Invoke( DISPID dispIdMember,
 	//							  }
 	//	}
 	//		break;
-
+	//
 	//	case DISPID_STATUSTEXTCHANGE:
 	//	{
 	//									if (!this->m_bHideEvents)
 	//										this->execAliasEx(TEXT("%s,%d,%ws"), TEXT("status"), this->getUserID(), arg1.bstrVal);
 	//	}
 	//		break;
-
+	//
 	//	case DISPID_TITLECHANGE:
 	//	{
 	//							   if (!this->m_bHideEvents)
 	//								   this->execAliasEx(TEXT("%s,%d,%ws"), TEXT("title"), this->getUserID(), arg1.bstrVal);
 	//	}
 	//		break;
-
+	//
 	//	case DISPID_PROGRESSCHANGE:
 	//	{
 	//								  if (!this->m_bHideEvents)
 	//									  this->execAliasEx(TEXT("%s,%d,%ws,%ws"), TEXT("dl_progress"), this->getUserID(), arg1.bstrVal, arg2.bstrVal);
 	//	}
 	//		break;
-
+	//
 	//	case DISPID_COMMANDSTATECHANGE:
 	//	{
 	//									  if (!this->m_bHideEvents)
@@ -487,7 +489,7 @@ HRESULT DcxWebControl::Invoke( DISPID dispIdMember,
 	//										  case L'1':
 	//											  this->execAliasEx(TEXT("%s,%d,%s"), TEXT("forward"), this->getUserID(), arg2.boolVal ? TEXT("$true") : TEXT("$false"));
 	//											  break;
-
+	//
 	//										  case L'2':
 	//											  this->execAliasEx(TEXT("%s,%d,%s"), TEXT("back"), this->getUserID(), arg2.boolVal ? TEXT("$true") : TEXT("$false"));
 	//											  break;
@@ -501,7 +503,7 @@ HRESULT DcxWebControl::Invoke( DISPID dispIdMember,
 	//}
 	//else
 	//	this->showErrorEx(NULL, TEXT("DcxWebControl::Invoke()"), TEXT("Unable to get object state: %ld"), err);
-
+//
 	//return S_OK;
 
 	HRESULT hRes = S_OK;

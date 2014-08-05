@@ -196,7 +196,7 @@ void DcxControl::parseGeneralControlStyles( const TString & styles, LONG * Style
 	//		this->m_bGradientVertical = TRUE;
 	//	}
 	//}
-	for (TString tsStyle(styles.getfirsttok( 1 )); tsStyle != TEXT(""); tsStyle = styles.getnexttok( ))
+	for (TString tsStyle(styles.getfirsttok(1)); !tsStyle.empty(); tsStyle = styles.getnexttok())
 	{
 		if ( tsStyle == TEXT("notheme") )
 			*bNoTheme = TRUE;
@@ -273,7 +273,7 @@ bool DcxControl::execAliasEx( const TCHAR * szFormat, ... ) {
  */
 
 void DcxControl::parseGlobalCommandRequest( const TString & input, const XSwitchFlags & flags ) {
-	const unsigned int numtok = input.numtok( );
+	const UINT  numtok = input.numtok( );
 
 	// xdid -f [NAME] [ID] [SWITCH] [+FLAGS] [CHARSET] [SIZE] [FONTNAME]
 	if ( flags[TEXT('f')] && numtok > 3 ) {
@@ -376,7 +376,7 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, const XSwitch
 		if ( iFlags & DCCS_FROMRESSOURCE )
 			this->m_hCursor = LoadCursor( NULL, this->parseCursorType( input.getnexttok( ) ) );	// tok 5
 		else if ( iFlags & DCCS_FROMFILE ) {
-			TString filename(input.gettok( 5, -1 ));
+			TString filename(input.getlasttoks());	// tok 5, -1
 			if (IsFile(filename)) {
 				this->m_hCursor = (HCURSOR)LoadImage(NULL, filename.to_chr(), IMAGE_CURSOR, 0,0, LR_DEFAULTSIZE|LR_LOADFROMFILE );
 				this->m_bCursorFromFile = TRUE;
@@ -523,15 +523,15 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, const XSwitch
 			}
 
 			const COLORREF tCol = (COLORREF)input.getnexttok( ).to_num();	// tok 5
-			TString filename(input.gettok(6,-1));
-			HBITMAP m_bitmapBg = dcxLoadBitmap(NULL,filename);
+			TString filename(input.getlasttoks());							// tok 6, -1
+			HBITMAP bitmapRgn = dcxLoadBitmap(NULL,filename);
 
-			if (m_bitmapBg != NULL) {
+			if (bitmapRgn != NULL) {
 				if (xflags[TEXT('R')]) // now resize image to match control.
-					m_bitmapBg = DcxControl::resizeBitmap(m_bitmapBg, &rc);
-				m_Region = BitmapRegion(m_bitmapBg,tCol,((tCol != -1) ? TRUE : FALSE));
+					bitmapRgn = DcxControl::resizeBitmap(bitmapRgn, &rc);
+				m_Region = BitmapRegion(bitmapRgn, tCol, ((tCol != -1) ? TRUE : FALSE));
 
-				DeleteBitmap(m_bitmapBg);
+				DeleteBitmap(bitmapRgn);
 			}
 			else
 				this->showError(NULL,TEXT("-R +f"), TEXT("Unable To Load Image file."));
@@ -568,7 +568,7 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, const XSwitch
 				return;
 			}
 
-			const TString strPoints(input.gettok(5, -1));
+			const TString strPoints(input.getlasttoks());	// tok 5, -1
 			TString strPoint;
 			const int tPoints = strPoints.numtok( );
 
@@ -783,7 +783,7 @@ BOOL DcxControl::parseGlobalInfoRequest( const TString & input, TCHAR * szReturn
 	const TString prop(input.getfirsttok( 3 ));
 
 	if ( prop == TEXT("hwnd") ) {
-		wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%ld"), (DWORD)this->m_Hwnd );	// can't use %p as this gives a hex result.
+		wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%lu"), (DWORD)this->m_Hwnd );	// can't use %p as this gives a hex result.
 		return TRUE;
 	}
 	else if ( prop == TEXT("visible") ) {
@@ -842,7 +842,7 @@ BOOL DcxControl::parseGlobalInfoRequest( const TString & input, TCHAR * szReturn
 			//lstrcpyn(szReturnValue, TEXT("0"), MIRC_BUFFER_SIZE_CCH);
 		}
 		else
-			wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"),  this->m_pParentDialog->getControlByHWND( GetParent( this->m_Hwnd ) )->getUserID( ) );
+			wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"),  this->m_pParentDialog->getControlByHWND( GetParent( this->m_Hwnd ) )->getUserID( ) );
 
 		return TRUE;
 	}
@@ -880,7 +880,7 @@ BOOL DcxControl::parseGlobalInfoRequest( const TString & input, TCHAR * szReturn
 		if (this->m_ToolTipHWND != NULL)
 			cref = (DWORD) SendMessage(this->m_ToolTipHWND,TTM_GETTIPBKCOLOR, NULL, NULL);
 
-		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%ld"), cref);
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%lu"), cref);
 		return TRUE;
 	}
 	// [NAME] [ID] [PROP]
@@ -890,7 +890,7 @@ BOOL DcxControl::parseGlobalInfoRequest( const TString & input, TCHAR * szReturn
 		if (this->m_ToolTipHWND != NULL)
 			cref = (DWORD) SendMessage(this->m_ToolTipHWND, TTM_GETTIPTEXTCOLOR, NULL, NULL);
 
-		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%ld"), cref);
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%lu"), cref);
 		return TRUE;
 	}
 	// [NAME] [ID] [PROP]
@@ -907,17 +907,17 @@ BOOL DcxControl::parseGlobalInfoRequest( const TString & input, TCHAR * szReturn
 	}
 	// [NAME] [ID] [PROP]
 	else if (prop == TEXT("textcolor")) {
-		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), this->m_clrText);
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), this->m_clrText);
 		return TRUE;
 	}
 	// [NAME] [ID] [PROP]
 	else if (prop == TEXT("textbgcolor")) {
-		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), this->m_clrBackText);
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), this->m_clrBackText);
 		return TRUE;
 	}
 	// [NAME] [ID] [PROP]
 	else if (prop == TEXT("bgcolor")) {
-		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), this->m_clrBackground);
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), this->m_clrBackground);
 		return TRUE;
 	}
 	else
@@ -1012,7 +1012,7 @@ LRESULT CALLBACK DcxControl::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LP
  * Input [NAME] [SWITCH] [ID] [CONTROL] [X] [Y] [W] [H] (OPTIONS)
  */
 
-DcxControl * DcxControl::controlFactory( DcxDialog * p_Dialog, const UINT mID, const TString & tsInput, unsigned int offset, const UINT64 mask, HWND hParent ) {
+DcxControl * DcxControl::controlFactory( DcxDialog * p_Dialog, const UINT mID, const TString & tsInput, UINT offset, const UINT64 mask, HWND hParent ) {
 
 	//const TString type(tsInput.gettok( offset++ ));
 
@@ -1501,10 +1501,15 @@ LPALPHAINFO DcxControl::SetupAlphaBlend(HDC *hdc, const bool DoubleBuffer)
 	if ((hdc == NULL) || (*hdc == NULL) || (!this->m_bAlphaBlend && !DoubleBuffer))
 		return NULL;
 
-	LPALPHAINFO ai = new ALPHAINFO;
+	LPALPHAINFO ai;
 
-	if (ai == NULL)
+	try {
+		ai = new ALPHAINFO;
+	}
+	catch (std::bad_alloc)
+	{
 		return NULL;
+	}
 
 	ZeroMemory(ai,sizeof(ALPHAINFO));
 	/*
@@ -1692,7 +1697,7 @@ void DcxControl::showError(const TCHAR *prop, const TCHAR *cmd, const TCHAR *err
 		Dcx::error(cmd, res.to_chr());
 	}
 
-	if (this->m_pParentDialog->getAliasName().len() > 0)
+	if (!this->m_pParentDialog->getAliasName().empty())
 		const_cast<DcxControl *>(this)->execAliasEx(TEXT("error,%d,%s,%s,%s,%s"), this->getUserID(), this->getType().to_chr(), (prop != NULL ? prop : TEXT("none")), (cmd != NULL ? cmd : TEXT("none")), err);
 }
 void DcxControl::showErrorEx(const TCHAR *prop, const TCHAR *cmd, const TCHAR *fmt, ...) const
@@ -1898,7 +1903,7 @@ LRESULT DcxControl::CommonMessage( const UINT uMsg, WPARAM wParam, LPARAM lParam
 				switch( hdr->code ) {
 					case TTN_GETDISPINFO:
 						{
-							if (this->m_tsToolTip.len() > 0) {
+							if (!this->m_tsToolTip.empty()) {
 								LPNMTTDISPINFO di = (LPNMTTDISPINFO)lParam;
 								di->lpszText = this->m_tsToolTip.to_chr();
 								di->hinst = NULL;
@@ -1954,15 +1959,15 @@ LRESULT DcxControl::CommonMessage( const UINT uMsg, WPARAM wParam, LPARAM lParam
 		//{
 		//	if (this->m_pParentDialog->getEventMask() & DCX_EVENT_MOVE) {
 		//		WINDOWPOS *wp = (WINDOWPOS *) lParam;
-
+//
 		//		// break if nomove & nosize specified, since thats all we care about.
 		//		if ((wp->flags & SWP_NOMOVE) && (wp->flags & SWP_NOSIZE))
 		//			break;
-
+//
 		//		TCHAR ret[256];
-
+//
 		//		this->callAliasEx(ret, "changing,%d,%d,%d,%d,%d,%d", this->getUserID(), (wp->flags & 3),wp->x, wp->y, wp->cx, wp->cy);
-
+//
 		//		if (wp != NULL) {
 		//			if (lstrcmp(TEXT("nosize"), ret) == 0)
 		//				wp->flags |= SWP_NOSIZE;
@@ -2073,7 +2078,7 @@ void DcxControl::toXml(TiXmlElement * xml) const
 
 	xml->SetAttribute("id", getUserID());
 	xml->SetAttribute("type", getType().c_str());
-	if (styles.len() > 0)
+	if (!styles.empty())
 		xml->SetAttribute("styles", styles.c_str());
 }
 

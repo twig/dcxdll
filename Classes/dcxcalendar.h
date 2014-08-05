@@ -46,6 +46,9 @@ public:
 	void toXml(TiXmlElement * xml) const;
 	TString getStyles(void) const;
 	TString getValue(void) const;
+
+private:
+	MONTHDAYSTATE m_MonthDayStates[12];
 };
 
 #endif // _DCXCALENDAR_H_
