@@ -13,27 +13,27 @@ public:
 	bool ParseXML(const TString &tsFilePath, const TString &tsDialogMark,const TString &DialogName,const bool verbose, const bool autoClose);
 	//virtual ~DCXML( );
 	void parseAttributes();
-	void parseAttributes(const TiXmlElement* tElement);
+	void parseAttributes(const TiXmlElement *const tElement);
 	void parseControl();
 	TString parseCLA(const int cCla);
 	bool loadSuccess;
 
-	void setStyle(const TiXmlElement* style);
+	void setStyle(const TiXmlElement *const style);
 	void parseStyle(int depth = 0);
 	void parseIcons(int depth = 0);
-	void parseItems(const TiXmlElement* element,int depth = 0,char *itemPath = "");
-	void parseTemplate(int dialogDepth=0,const char *claPath = "root",const int passedid = 2000);
-	void parseDialog(int depth=0,const char *claPath = "root",const int passedid = 2000,const int ignoreParent = 0);
+	void parseItems(const TiXmlElement *const element, const UINT depth = 0, const char *const itemPath = "");
+	void parseTemplate(const UINT dialogDepth=0, const char *const claPath = "root", const UINT passedid = 2000);
+	void parseDialog(const UINT depth=0,const char *claPath = "root",const UINT passedid = 2000,const bool ignoreParent = false);
 
-	const char *queryAttribute(const TiXmlElement *element,const char *attribute,const char *defaultValue = "") const;
-	int queryIntAttribute(const TiXmlElement *element,const char *attribute,const int defaultValue = 0) const;
+	//static const char *queryAttribute(const TiXmlElement *element,const char *attribute,const char *defaultValue = "");
+	//static int queryIntAttribute(const TiXmlElement *element,const char *attribute,const int defaultValue = 0);
 
 	void setDialog(const TString &dialogMark);
 	void setDialogMark (const TString &v) { this->_dialogMark = v; }
 	void setDialogName (const TString &v) { this->_dialogName = v; }
-	void setRootElement (const TiXmlElement * element) { this->_rootElement = element; }
-	void setDialogsElement (const TiXmlElement * element) { this->_dialogsElement = element; }
-	void setDialogElement (const TiXmlElement * element) { this->_dialogElement = element; }
+	void setRootElement (const TiXmlElement *const ti) { this->_rootElement = ti; }
+	void setDialogsElement (const TiXmlElement *const ti) { this->_dialogsElement = ti; }
+	void setDialogElement (const TiXmlElement *const ti) { this->_dialogElement = ti; }
 
 	bool loadDocument();
 	bool loadDialog();
@@ -127,16 +127,16 @@ public:
 private:
 	bool _verbose;
 	void isVerbose(const bool b) { this->_verbose = b; }
-	bool isVerbose() const { return this->_verbose; }
+	const bool &isVerbose() const { return this->_verbose; }
 	bool _autoClose;
 	void isAutoClose(const bool b) { this->_autoClose = b; }
-	bool isAutoClose() const { return this->_autoClose; }
+	const bool &isAutoClose() const { return this->_autoClose; }
 
-	void xdialogEX(const TCHAR *sw,const TCHAR *dFormat, ...);
-	int mIRCEvalToUnsignedInt (const char *value);
-	void registerId(const TiXmlElement *idElement,const int id);
-	int parseId(const TiXmlElement* idElement);
-	void xdidEX(const int id,const TCHAR *sw,const TCHAR *dFormat, ...);
+	void xdialogEX(const TCHAR *const sw,const TCHAR *const dFormat, ...);
+	int mIRCEvalToUnsignedInt (const char *const value);
+	void registerId(const TiXmlElement *const idElement,const int id);
+	int parseId(const TiXmlElement *const idElement);
+	void xdidEX(const int cid,const TCHAR *const sw,const TCHAR *const dFormat, ...);
 
 	//TiXmlElement *getDialogElement () { return this->_dialogElement; }
 	typedef std::map<const char, const char> AttributesMap;

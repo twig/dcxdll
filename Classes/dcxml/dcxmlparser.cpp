@@ -75,45 +75,47 @@ bool DcxmlParser::ParseXML(const TString &tsFilePath,const TString &tsDialogMark
 	{
 		this->loadSuccess = false;
 		if ((this->getDialog() != NULL) && this->isAutoClose())
-			mIRCLinker::execex(TEXT("/xdialog -x %s"),this->getDialogName().to_chr());
+			mIRCLinker::execex(TEXT("/xdialog -x %s"),tsDialogName.to_chr());
 
 		return false;
 	}
 
+	const TiXmlElement *const tx = this->getDialogElement();
+
 	mIRCLinker::execex(TEXT("/dialog -s %s %i %i %i %i"), //!< Sets the dialog size.
-		this->getDialogMark().to_chr(),
-		this->queryIntAttribute(this->getDialogElement(),"x",-1),
-		this->queryIntAttribute(this->getDialogElement(),"y",-1),
-		this->queryIntAttribute(this->getDialogElement(),"w",-1),
-		this->queryIntAttribute(this->getDialogElement(),"h",-1)
+		tsDialogMark.to_chr(),
+		queryIntAttribute(tx,"x",-1),
+		queryIntAttribute(tx, "y", -1),
+		queryIntAttribute(tx, "w", -1),
+		queryIntAttribute(tx, "h", -1)
 		);
 
 	this->setZlayered(false);
 
-	const char *cascade = this->queryAttribute(this->getDialogElement(),"cascade","v");
-	const char *margin = this->queryAttribute(this->getDialogElement(),"margin","0 0 0 0");
-	const char *caption = this->queryAttribute(this->getDialogElement(),"caption",this->getDialogName().c_str());
-	const char *border = this->getDialogElement()->Attribute("border");
+	const char *const tCascade = queryAttribute(tx, "cascade", "v");
+	const char *const tMargin = queryAttribute(tx, "margin", "0 0 0 0");
+	const char *const tCaption = queryAttribute(tx, "caption", tsDialogName.c_str());
+	const char *const tBorder = tx->Attribute("border");
 	this->controls = 0;
 	//margin = (temp = element->Attribute("padding")) ? temp : "0 0 0 0";
 
-	if (this->getDialogElement()->Attribute("border") != NULL) //!< set border ONLY if defined on <dialog>
-		this->xdialogEX(TEXT("-b"),TEXT("+%S"),border);
+	if (tBorder != NULL) //!< set border ONLY if defined on <dialog>
+		this->xdialogEX(TEXT("-b"),TEXT("+%S"),tBorder);
 
-	mIRCLinker::execex(TEXT("//dialog -t %s %S"), this->getDialogMark().to_chr(), caption); 
-	this->xdialogEX(TEXT("-l"),TEXT("root \t +p%S 0 0 0 0"), cascade);
-	this->xdialogEX(TEXT("-l"),TEXT("space root \t + %S"), margin);
+	mIRCLinker::execex(TEXT("//dialog -t %s %S"), tsDialogMark.to_chr(), tCaption);
+	this->xdialogEX(TEXT("-l"),TEXT("root \t +p%S 0 0 0 0"), tCascade);
+	this->xdialogEX(TEXT("-l"),TEXT("space root \t + %S"), tMargin);
 
 	this->parseDialog(); //!< Parse <dialog> children onto the dialog
 
-	if (this->getDialogElement()->Attribute("center") != NULL) //!< Centers the dialog
-		mIRCLinker::execex(TEXT("/dialog -r %s"), this->getDialogMark().to_chr());
+	if (tx->Attribute("center") != NULL) //!< Centers the dialog
+		mIRCLinker::execex(TEXT("/dialog -r %s"), tsDialogMark.to_chr());
 
 	//This "Shite" is to activate the first zlayer, added a check if this command starts returning an error
 	if (this->getZlayered())
 		this->xdialogEX(TEXT("-z"),TEXT("+s 1"));
 
-	mIRCLinker::execex(TEXT("/.timer 1 0 %s %s ready"), this->getDialog()->getAliasName().to_chr(), this->getDialogMark().to_chr()); //!< Tell user that dcxml is finished, & they can do a cla update or whatever.
+	mIRCLinker::execex(TEXT("/.timer 1 0 %s %s ready"), this->getDialog()->getAliasName().to_chr(), tsDialogMark.to_chr()); //!< Tell user that dcxml is finished, & they can do a cla update or whatever.
 	return this->loadSuccess;
 }
 
@@ -121,20 +123,22 @@ void DcxmlParser::setDialog(const TString &tsDialogMark) { this->_dcxDialog = Dc
 
 bool DcxmlParser::loadDocument()
 {
-	if (!Dcx::isFile(this->getFilePath().to_chr()))
+	const TString tsPath(this->getFilePath());
+
+	if (!Dcx::isFile(tsPath.to_chr()))
 	{
 		Dcx::errorex(TEXT("/dcxml"), TEXT("File \"%s\" does not exist or is in use by another process "), this->getFilePath().to_chr());
 		return false;
 	}
 	TiXmlBase::SetCondenseWhiteSpace(false);
-	TiXmlDocument doc(this->getFilePath().c_str());
+	TiXmlDocument doc(tsPath.c_str());
 	this->loadSuccess = doc.LoadFile();
 	if (!this->loadSuccess) { 
 		Dcx::errorex(TEXT("/dcxml"), TEXT("XML error in \"%s\" (row %i column %i) %S"),
-			this->getFilePath().to_chr(),
-			this->getDocument()->ErrorRow(),
-			this->getDocument()->ErrorCol(),
-			this->getDocument()->ErrorDesc());
+			tsPath.to_chr(),
+			doc.ErrorRow(),
+			doc.ErrorCol(),
+			doc.ErrorDesc());
 		return false;
 	}
 	this->_document = doc; 
@@ -151,6 +155,7 @@ bool DcxmlParser::loadDialog()
 	}
 	return true;
 }
+
 bool DcxmlParser::loadDialogElement()
 {
 	this->setRootElement(this->getDocument()->FirstChildElement("dcxml"));
@@ -183,22 +188,22 @@ bool DcxmlParser::loadDialogElement()
 	return false;
 }
 
-
-const char *DcxmlParser::queryAttribute(const TiXmlElement *element,const char *attribute,const char *defaultValue) const
-{
-	const char *t = element->Attribute(attribute);
-	return (t != NULL) ? t : defaultValue;
-}
-int DcxmlParser::queryIntAttribute(const TiXmlElement *element,const char *attribute,const int defaultValue) const
-{
-	int integer = defaultValue;
-	return (element->QueryIntAttribute(attribute,&integer) == TIXML_SUCCESS) ? integer : defaultValue;
-}
+//const char *DcxmlParser::queryAttribute(const TiXmlElement *element,const char *attribute,const char *defaultValue)
+//{
+//	const char *t = element->Attribute(attribute);
+//	return (t != NULL) ? t : defaultValue;
+//}
+//int DcxmlParser::queryIntAttribute(const TiXmlElement *element,const char *attribute,const int defaultValue)
+//{
+//	int integer = defaultValue;
+//	return (element->QueryIntAttribute(attribute,&integer) == TIXML_SUCCESS) ? integer : defaultValue;
+//}
 
 void DcxmlParser::parseAttributes() {
 	parseAttributes(element);
 }
-void DcxmlParser::parseAttributes(const TiXmlElement* tElement) {
+
+void DcxmlParser::parseAttributes(const TiXmlElement *const tElement) {
 	elem = tElement->Value();
 	parentelem = parent->Value();
 	parenttype = queryAttribute(parent, "type", "panel");
@@ -231,7 +236,7 @@ void DcxmlParser::parseAttributes(const TiXmlElement* tElement) {
 	rebarMinHeight = queryAttribute(tElement, "minheight", "0");
 	rebarMinWidth = queryAttribute(tElement, "minwidth", "0");
 	iconsize = queryAttribute(tElement, "iconsize", "16");
-	eval = this->queryIntAttribute(tElement, "eval");
+	eval = queryIntAttribute(tElement, "eval");
 
 	fontstyle = queryAttribute(tElement, "fontstyle", "d");
 	charset = queryAttribute(tElement, "charset", "ansi");
@@ -250,6 +255,7 @@ void DcxmlParser::parseAttributes(const TiXmlElement* tElement) {
 	hoversrc = queryAttribute(tElement, "hoversrc", "");
 	selectedsrc = queryAttribute(tElement, "selectedsrc", "");
 }
+
 /* parseControl() : if current element is a control perform some extra commands*/
 void DcxmlParser::parseControl() { 
 	//DcxControl *control = this->getDialog()->getControlByID(id + mIRC_ID_OFFSET);
@@ -258,100 +264,221 @@ void DcxmlParser::parseControl() {
 		this->setZlayered(true);
 	}
 	//        padding = (temp = element->Attribute("padding")) ? temp : "0 0 0 0";
+	const TString tsParent(parenttype);
+	static const TString poslist(TEXT("divider toolbar button treeview comboex list listview radio link check box ipaddress webctrl text edit richedit pbar statusbar image"));
+	const UINT nType = poslist.findtok(tsParent.to_chr(), 1);
 
-	if (0==lstrcmpA(parenttype, "divider"))
-		xdidEX(parentid,TEXT("-v"),TEXT("%d"),this->queryIntAttribute(element, "width", 0));
-		//xdidEX(parentid,TEXT("-v"),TEXT("%d"),this->queryIntAttribute(element, "width", 100));
-	if (((0==lstrcmpA(type, "toolbar")) || (0==lstrcmpA(type, "button"))) || (0==lstrcmpA(type, "treeview")))
-			xdidEX(id,TEXT("-l"),TEXT("%S"),iconsize);
-	if ((0==lstrcmpA(type, "toolbar")) || (0==lstrcmpA(type, "treeview")) || (0==lstrcmpA(type, "comboex")) || (0==lstrcmpA(type, "list")) || (0==lstrcmpA(type, "listview")))
-		this->parseItems(element);
-
-	if (((((0==lstrcmpA(type, "box")) || (0==lstrcmpA(type, "check"))) || (0==lstrcmpA(type, "link"))) || (0==lstrcmpA(type, "radio"))) || (0==lstrcmpA(type, "button")))
+	switch (nType)
 	{
+	case 1:		//	divider
+		xdidEX(parentid, TEXT("-v"), TEXT("%d"), queryIntAttribute(element, "width", 0));
+		break;
+	case 3:		//	button
+		xdidEX(id, TEXT("-l"), TEXT("%S"), iconsize);
+	case 8:		//	radio
+	case 9:		//	link
+	case 10:	//	check
+	case 11:	//	box
 		if (caption != NULL)
-			xdidEX(id,TEXT("-t"),TEXT("%S"),caption);
-	}
-	if ((0==lstrcmpA(type, "ipaddress")) && (caption != NULL))
-		this->xdidEX(id,TEXT("-a"),TEXT("%S"),caption);
-	if ((0==lstrcmpA(type, "webctrl")) && (src != NULL))
-		this->xdidEX(id,TEXT("-n"),TEXT("%S"),src);
-	else if (0==lstrcmpA(type, "text")) {
+			xdidEX(id, TEXT("-t"), TEXT("%S"), caption);
+		break;
+	case 2:		//	toolbar
+	case 4:		//	treeview
+		xdidEX(id, TEXT("-l"), TEXT("%S"), iconsize);
+	case 5:		//	comboex
+	case 6:		//	list
+	case 7:		//	listview
+		this->parseItems(element);
+		break;
+	case 12:	//	ipaddress
+		this->xdidEX(id, TEXT("-a"), TEXT("%S"), caption);
+		break;
+	case 13:	//	webctrl
+		this->xdidEX(id, TEXT("-n"), TEXT("%S"), src);
+		break;
+	case 14:	//	text
 		if (caption != NULL) {
 			TString mystring(caption);
+
 			if (mystring.left(2) == TEXT("\r\n"))
 				mystring = mystring.right(-2);
 			else if (mystring[0] == TEXT('\n'))
 				mystring = mystring.right(-1);
-			//mystring.replace(TEXT("\t"),TEXT(""));
+
 			mystring -= TEXT("\t"); // remove all '\t' from text.
 			TString printstring;
 			int textspace = 0;
-			while(mystring.gettok(1) != TEXT("")) { 
-				printstring.addtok(mystring.gettok(1).to_chr());
-				if (printstring.len() > (MIRC_BUFFER_SIZE_CCH -100)) {
-					this->xdidEX(id,TEXT("-a"),TEXT("%i %s"),textspace,printstring.to_chr());
-					printstring = TEXT("");
+			for (TString tsTmp(mystring.getfirsttok(1)); !tsTmp.empty(); tsTmp = mystring.getnexttok())
+			{
+				printstring.addtok(tsTmp.to_chr());
+				if (printstring.len() > (MIRC_BUFFER_SIZE_CCH - 100)) {
+					this->xdidEX(id, TEXT("-a"), TEXT("%i %s"), textspace, printstring.to_chr());
+					printstring.clear();	// = TEXT("");
 					textspace = 1;
 				}
-				mystring.deltok(1);
 			}
-			if (printstring != TEXT(""))
-				this->xdidEX(id,TEXT("-a"),TEXT("%i %s"),textspace,printstring.to_chr());
+			if (!printstring.empty())
+				this->xdidEX(id, TEXT("-a"), TEXT("%i %s"), textspace, printstring.to_chr());
 		}
-	}
-	else if (0==lstrcmpA(type, "edit")) { 
-		if (caption != NULL) { 
-			TString mystring(caption);
-			if (mystring.left(2) == TEXT("\r\n"))
-				mystring = mystring.right(-2);
-			else if (mystring[0] == TEXT('\n'))
-				mystring = mystring.right(-1);
-			//mystring.replace(TEXT("\t"),TEXT(""));
-			mystring -= TEXT("\t"); // remove all '\t' from text.
-			int line = 0;
-			while(mystring.gettok(1,TEXT("\r\n")) != TEXT("")) { 
-				line++;
-				this->xdidEX(id,TEXT("-i"),TEXT("%i %s"),line,mystring.gettok(1,TEXT("\r\n")).to_chr());
-				mystring.deltok(1,TEXT("\r\n"));
-			}
-		}
-	}
-	else if (0==lstrcmpA(type, "richedit")) {
+		break;
+	case 15:	//	edit
+	case 16:	//	richedit
 		if (caption != NULL) {
 			TString mystring(caption);
+
 			if (mystring.left(2) == TEXT("\r\n"))
 				mystring = mystring.right(-2);
 			else if (mystring[0] == TEXT('\n'))
 				mystring = mystring.right(-1);
-			//mystring.replace(TEXT("\t"),TEXT(""));
+
 			mystring -= TEXT("\t"); // remove all '\t' from text.
-			mystring.replace(TEXT("\\c"),TEXT(""));
-			mystring.replace(TEXT("\\b"),TEXT(""));
-			mystring.replace(TEXT("\\r"),TEXT(""));
-			int line = 0;
-			while(mystring.gettok(1,TEXT("\r\n")) != TEXT("")) { 
+			if (nType == 16) {	// richedit
+				mystring -= TEXT("\\c");
+				mystring -= TEXT("\\b");
+				mystring -= TEXT("\\r");
+			}
+			UINT line = 0;
+			for (TString tsTmp(mystring.getfirsttok(1, TEXT("\r\n"))); !tsTmp.empty(); tsTmp = mystring.getnexttok(TEXT("\r\n")))
+			{
 				line++;
-				this->xdidEX(id,TEXT("-i"),TEXT("%i %s"),line,mystring.gettok(1,TEXT("\r\n")).to_chr());
-				mystring.deltok(1,TEXT("\r\n"));
+				this->xdidEX(id, TEXT("-i"), TEXT("%u %s"), line, tsTmp.to_chr());
 			}
 		}
-	}
-	else if (0==lstrcmpA(type, "pbar")) { 
+		break;
+	case 17:	//	pbar
 		if (caption != NULL)
-			this->xdidEX(id,TEXT("-i"),TEXT("%S"),caption);
-	}
-	else if (0==lstrcmpA(type, "image"))
-		this->xdidEX(id,TEXT("-i"),TEXT("+%S %S"),((tFlags != NULL) ? tFlags : ""),src);
-	else if (0==lstrcmpA(type, "statusbar")) {
-		this->xdidEX(id,TEXT("-l"),TEXT("%S"),cells);
+			this->xdidEX(id, TEXT("-i"), TEXT("%S"), caption);
+		break;
+	case 18:	//	statusbar
+		this->xdidEX(id, TEXT("-l"), TEXT("%S"), cells);
 		this->parseItems(element);
+		break;
+	case 19:	//	image
+		this->xdidEX(id, TEXT("-i"), TEXT("+%S %S"), ((tFlags != NULL) ? tFlags : ""), src);
+	default:	//	unknown?!?!?!
+		break;
 	}
+
+	//if (0==lstrcmpA(parenttype, "divider"))
+	//	xdidEX(parentid,TEXT("-v"),TEXT("%d"),queryIntAttribute(element, "width", 0));
+	//	//xdidEX(parentid,TEXT("-v"),TEXT("%d"),queryIntAttribute(element, "width", 100));
+	//if (((0==lstrcmpA(type, "toolbar")) || (0==lstrcmpA(type, "button"))) || (0==lstrcmpA(type, "treeview")))
+	//		xdidEX(id,TEXT("-l"),TEXT("%S"),iconsize);
+	//if ((0==lstrcmpA(type, "toolbar")) || (0==lstrcmpA(type, "treeview")) || (0==lstrcmpA(type, "comboex")) || (0==lstrcmpA(type, "list")) || (0==lstrcmpA(type, "listview")))
+	//	this->parseItems(element);
+	//
+	//if (((((0==lstrcmpA(type, "box")) || (0==lstrcmpA(type, "check"))) || (0==lstrcmpA(type, "link"))) || (0==lstrcmpA(type, "radio"))) || (0==lstrcmpA(type, "button")))
+	//{
+	//	if (caption != NULL)
+	//		xdidEX(id,TEXT("-t"),TEXT("%S"),caption);
+	//}
+	//if ((0==lstrcmpA(type, "ipaddress")) && (caption != NULL))
+	//	this->xdidEX(id,TEXT("-a"),TEXT("%S"),caption);
+	//if ((0==lstrcmpA(type, "webctrl")) && (src != NULL))
+	//	this->xdidEX(id,TEXT("-n"),TEXT("%S"),src);
+	//else if (0==lstrcmpA(type, "text")) {
+	//	if (caption != NULL) {
+	//		TString mystring(caption);
+	//
+	//		if (mystring.left(2) == TEXT("\r\n"))
+	//			mystring = mystring.right(-2);
+	//		else if (mystring[0] == TEXT('\n'))
+	//			mystring = mystring.right(-1);
+	//
+	//		mystring -= TEXT("\t"); // remove all '\t' from text.
+	//		TString printstring;
+	//		int textspace = 0;
+	//		// Ook: this loop needs looked at, im not happy with the repeat calls to gettok(1)
+	//		//while(!mystring.gettok(1).empty()) {
+	//		//	printstring.addtok(mystring.gettok(1).to_chr());
+	//		//	if (printstring.len() > (MIRC_BUFFER_SIZE_CCH -100)) {
+	//		//		this->xdidEX(id,TEXT("-a"),TEXT("%i %s"),textspace,printstring.to_chr());
+	//		//		printstring.clear();	// = TEXT("");
+	//		//		textspace = 1;
+	//		//	}
+	//		//	mystring.deltok(1);
+	//		//}
+	//		for (TString tsTmp(mystring.getfirsttok(1)); !tsTmp.empty(); tsTmp = mystring.getnexttok())
+	//		{
+	//			printstring.addtok(tsTmp.to_chr());
+	//			if (printstring.len() > (MIRC_BUFFER_SIZE_CCH - 100)) {
+	//				this->xdidEX(id, TEXT("-a"), TEXT("%i %s"), textspace, printstring.to_chr());
+	//				printstring.clear();	// = TEXT("");
+	//				textspace = 1;
+	//			}
+	//		}
+	//		if (!printstring.empty())
+	//			this->xdidEX(id,TEXT("-a"),TEXT("%i %s"),textspace,printstring.to_chr());
+	//	}
+	//}
+	//else if (0==lstrcmpA(type, "edit")) { 
+	//	if (caption != NULL) { 
+	//		TString mystring(caption);
+	//
+	//		if (mystring.left(2) == TEXT("\r\n"))
+	//			mystring = mystring.right(-2);
+	//		else if (mystring[0] == TEXT('\n'))
+	//			mystring = mystring.right(-1);
+	//
+	//		mystring -= TEXT("\t"); // remove all '\t' from text.
+	//		UINT line = 0;
+	//		// Ook: again loop needs looked at
+	//		//while(!mystring.gettok(1,TEXT("\r\n")).empty()) { 
+	//		//	line++;
+	//		//	this->xdidEX(id,TEXT("-i"),TEXT("%i %s"),line,mystring.gettok(1,TEXT("\r\n")).to_chr());
+	//		//	mystring.deltok(1,TEXT("\r\n"));
+	//		//}
+	//		for (TString tsTmp(mystring.getfirsttok(1, TEXT("\r\n"))); !tsTmp.empty(); tsTmp = mystring.getnexttok(TEXT("\r\n")))
+	//		{
+	//			line++;
+	//			this->xdidEX(id, TEXT("-i"), TEXT("%u %s"), line, tsTmp.to_chr());
+	//		}
+	//	}
+	//}
+	//else if (0==lstrcmpA(type, "richedit")) {
+	//	if (caption != NULL) {
+	//		TString mystring(caption);
+	//
+	//		if (mystring.left(2) == TEXT("\r\n"))
+	//			mystring = mystring.right(-2);
+	//		else if (mystring[0] == TEXT('\n'))
+	//			mystring = mystring.right(-1);
+	//
+	//		mystring -= TEXT("\t"); // remove all '\t' from text.
+	//		mystring.replace(TEXT("\\c"),TEXT(""));
+	//		mystring.replace(TEXT("\\b"),TEXT(""));
+	//		mystring.replace(TEXT("\\r"),TEXT(""));
+	//		// Ook: yet again needs looked at
+	//		UINT line = 0;
+	//		//while(!mystring.gettok(1,TEXT("\r\n")).empty()) { 
+	//		//	line++;
+	//		//	this->xdidEX(id,TEXT("-i"),TEXT("%u %s"),line,mystring.gettok(1,TEXT("\r\n")).to_chr());
+	//		//	mystring.deltok(1,TEXT("\r\n"));
+	//		//}
+	//		for (TString tsTmp(mystring.getfirsttok(1, TEXT("\r\n"))); !tsTmp.empty(); tsTmp = mystring.getnexttok(TEXT("\r\n")))
+	//		{
+	//			line++;
+	//			this->xdidEX(id, TEXT("-i"), TEXT("%u %s"), line, tsTmp.to_chr());
+	//		}
+	//	}
+	//}
+	//else if (0==lstrcmpA(type, "pbar")) { 
+	//	if (caption != NULL)
+	//		this->xdidEX(id,TEXT("-i"),TEXT("%S"),caption);
+	//}
+	//else if (0==lstrcmpA(type, "image"))
+	//	this->xdidEX(id,TEXT("-i"),TEXT("+%S %S"),((tFlags != NULL) ? tFlags : ""),src);
+	//else if (0==lstrcmpA(type, "statusbar")) {
+	//	this->xdidEX(id,TEXT("-l"),TEXT("%S"),cells);
+	//	this->parseItems(element);
+	//}
+
 	disabledsrc = queryAttribute(element, "disabledsrc", "");
 	hoversrc = queryAttribute(element, "hoversrc", "");
 }
+
 /* xdialogEX(switch,format[,args[]]) : performs an xdialog command internally or through mIRC */
-void DcxmlParser::xdialogEX(const TCHAR *sw,const TCHAR *dFormat, ...) { 
+void DcxmlParser::xdialogEX(const TCHAR *const sw,const TCHAR *const dFormat, ...) { 
 	va_list args;
 	TString txt;
 
@@ -365,8 +492,9 @@ void DcxmlParser::xdialogEX(const TCHAR *sw,const TCHAR *dFormat, ...) {
 	if (eval > 0) mIRCLinker::execex(TEXT("//xdialog %s %s %s"),sw,this->getDialogMark().to_chr(),txt.to_chr());
 	else this->getDialog()->parseCommandRequestEX(TEXT("%s %s %s"),this->getDialogMark().to_chr(),sw,txt.to_chr());
 }
+
 /* xdidEX(controlId,switch,format[,args[]]) : performs an xdid command internally or through mIRC on the specified id */
-void DcxmlParser::xdidEX(const int id,const TCHAR *sw,const TCHAR *dFormat, ...) { 
+void DcxmlParser::xdidEX(const int cid,const TCHAR *const sw,const TCHAR *const dFormat, ...) { 
 	va_list args;
 	TString txt;
 
@@ -375,11 +503,12 @@ void DcxmlParser::xdidEX(const int id,const TCHAR *sw,const TCHAR *dFormat, ...)
 	va_end(args);
 
 	if (this->isVerbose())
-		mIRCLinker::execex(TEXT("/echo -a dcxml debug: /xdid %s %s %i %s"),sw,this->getDialogMark().to_chr(),id,txt.to_chr());
+		mIRCLinker::execex(TEXT("/echo -a dcxml debug: /xdid %s %s %i %s"),sw,this->getDialogMark().to_chr(),cid,txt.to_chr());
 
-	if (eval > 0) mIRCLinker::execex(TEXT("//xdid %s %s %i %s"),sw,this->getDialogMark().to_chr(),id,txt.to_chr());
-	else this->getDialog()->parseComControlRequestEX(id,TEXT("%s %i %s %s"),this->getDialogMark().to_chr(),id,sw,txt.to_chr());
+	if (eval > 0) mIRCLinker::execex(TEXT("//xdid %s %s %i %s"),sw,this->getDialogMark().to_chr(),cid,txt.to_chr());
+	else this->getDialog()->parseComControlRequestEX(cid,TEXT("%s %i %s %s"),this->getDialogMark().to_chr(),cid,sw,txt.to_chr());
 }
+
 /* parseCLA(int numberOfClaControlsInCurrentBranch) : parses control and pane elements and applies the right CLA commands */
 TString DcxmlParser::parseCLA(const int cCla) { 
 	if (0==lstrcmpA(elem, "control")) {
@@ -434,8 +563,9 @@ TString DcxmlParser::parseCLA(const int cCla) {
 	g_resetcla = 0;
 	return claPathx;
 }
+
 /* setStyle(TiXmlElement*) : Applies the styles described on the element found by parseStyle() */
-void DcxmlParser::setStyle(const TiXmlElement* style) {
+void DcxmlParser::setStyle(const TiXmlElement *const style) {
 	//style attributes evaluate by default unless eval="0" is set on the element explicitly
 
 	eval = queryIntAttribute(style,"eval",1);
@@ -520,7 +650,7 @@ void DcxmlParser::parseStyle(int depth) {
 	if (depth > 2)
 		return;
 	depth++;
-	const TiXmlElement* styles = NULL;
+	const TiXmlElement* tiStyles = NULL;
 	const TiXmlElement* style = NULL;
 	const TiXmlElement* ClassElement = 0;
 	const TiXmlElement* TypeElement = 0;
@@ -528,14 +658,14 @@ void DcxmlParser::parseStyle(int depth) {
 	if (depth == 3)
 		style = this->element;
 	else if (depth == 1)
-		styles = this->getDialogsElement()->FirstChildElement("styles");
+		tiStyles = this->getDialogsElement()->FirstChildElement("styles");
 	else if (depth == 2)
-		styles = this->getDialogElement()->FirstChildElement("styles");
+		tiStyles = this->getDialogElement()->FirstChildElement("styles");
 	if (styles != NULL) {
-		style = styles->FirstChildElement("all");
+		style = tiStyles->FirstChildElement("all");
 		if (style != NULL)
 			setStyle(style);
-		for( style = styles->FirstChildElement("style"); style != NULL; style = style->NextSiblingElement()) {
+		for( style = tiStyles->FirstChildElement("style"); style != NULL; style = style->NextSiblingElement()) {
 			if (0==lstrcmpA(style->Attribute("class"), STclass))
 				ClassElement = style;
 			if (0==lstrcmpA(style->Attribute("type"), type))
@@ -554,6 +684,7 @@ void DcxmlParser::parseStyle(int depth) {
 		this->setStyle(style);
 	this->parseStyle(depth);
 }
+
 /* parseIcons(recursionDepth) : Simple recursive method to cascade find the right icons to apply to an element */
 void DcxmlParser::parseIcons(int depth) { 
 	if (depth > 1)
@@ -567,45 +698,49 @@ void DcxmlParser::parseIcons(int depth) {
 		icons = this->getDialogElement()->FirstChildElement("icons");
 	else if (depth == 2)
 		icons = this->getDialogsElement()->FirstChildElement("icons");
+
 	if (icons != NULL) {
-		const TiXmlElement* icon;
-		for( icon = icons->FirstChildElement("icon"); icon != NULL; icon = icon->NextSiblingElement()) {
-			if (0==lstrcmpA(icon->Attribute("class"), STclass))
-				ClassElement = icon;
-			if (0==lstrcmpA(icon->Attribute("type"), type))
-				TypeElement = icon;
-			const int t_id = this->parseId(icon);
+		const TiXmlElement* tiIcon;
+
+		for( tiIcon = icons->FirstChildElement("icon"); icon != NULL; tiIcon = tiIcon->NextSiblingElement()) {
+			if (0==lstrcmpA(tiIcon->Attribute("class"), STclass))
+				ClassElement = tiIcon;
+			if (0==lstrcmpA(tiIcon->Attribute("type"), type))
+				TypeElement = tiIcon;
+			const int t_id = this->parseId(tiIcon);
 			if (t_id == id)
-				IdElement = icon;
+				IdElement = tiIcon;
 		}
+
 		if (IdElement != NULL)
-			icon = IdElement;
+			tiIcon = IdElement;
 		else if (ClassElement != NULL)
-			icon = ClassElement;
+			tiIcon = ClassElement;
 		else if (TypeElement != NULL)
-			icon = TypeElement;
+			tiIcon = TypeElement;
 		else
-			icon = NULL;
-		if (icon != NULL) {
-			const char *flags = this->queryAttribute(icon, "flags", "n");
-			const char *index = this->queryAttribute(icon, "index", "0");
-			const char *src = icon->Attribute("src");
-			const int indexmin = this->queryIntAttribute(icon,"indexmin",0);
-			const int indexmax = this->queryIntAttribute(icon,"indexmax",-1);
-			if (src != NULL) {
+			tiIcon = NULL;
+
+		if (tiIcon != NULL) {
+			const char *flags = queryAttribute(tiIcon, "flags", "n");
+			const char *index = queryAttribute(tiIcon, "index", "0");
+			const char *tIconSrc = tiIcon->Attribute("src");
+			const int indexmin = queryIntAttribute(tiIcon,"indexmin",0);
+			const int indexmax = queryIntAttribute(tiIcon,"indexmax",-1);
+			if (tIconSrc != NULL) {
 				if (indexmin <= indexmax) 
 					//method sucks but looping in C++ is WAYYY too fast for mIRC
 				{
-					mIRCLinker::execex(TEXT("//var %%x = %i | while (%%x <= %i ) { xdid -w %s %i +%S %%x %S | inc %%x }"), indexmin,indexmax,this->getDialogMark().to_chr(),id,flags,src);
+					mIRCLinker::execex(TEXT("//var %%x = %i | while (%%x <= %i ) { xdid -w %s %i +%S %%x %S | inc %%x }"), indexmin,indexmax,this->getDialogMark().to_chr(),id,flags,tIconSrc);
 				}
 				else 
-					mIRCLinker::execex(TEXT("//xdid -w %s %i +%S %S %S"),this->getDialogMark().to_chr(),id,flags,index,src);
+					mIRCLinker::execex(TEXT("//xdid -w %s %i +%S %S %S"),this->getDialogMark().to_chr(),id,flags,index,tIconSrc);
 			}
 			else
 			{
-				for(const TiXmlElement *iconchild = icon->FirstChildElement("icon"); iconchild != NULL; iconchild = iconchild->NextSiblingElement()) {
-					const char *tflags = this->queryAttribute(iconchild, "flags", "n");
-					const char *tindex = this->queryAttribute(iconchild, "index", "0");
+				for(const TiXmlElement *iconchild = tiIcon->FirstChildElement("icon"); iconchild != NULL; iconchild = iconchild->NextSiblingElement()) {
+					const char *tflags = queryAttribute(iconchild, "flags", "n");
+					const char *tindex = queryAttribute(iconchild, "index", "0");
 					const char *tsrc = iconchild->Attribute("src");
 					if (tsrc != NULL)
 						mIRCLinker::execex(TEXT("//xdid -w %s %i +%S %S %S"),this->getDialogMark().to_chr(),id,tflags,tindex,tsrc);
@@ -616,12 +751,13 @@ void DcxmlParser::parseIcons(int depth) {
 	else
 		parseIcons(depth);
 }
+
 /* parseItems(XmlElement,recursionDepth,itemPath) : recursively applies items for a control */
-void DcxmlParser::parseItems(const TiXmlElement* element,int depth,char *itemPath) { 
+void DcxmlParser::parseItems(const TiXmlElement *const tiElement,const UINT depth, const char *itemPath) { 
 	int item = 0;
 	int cell = 0;
 
-	for(const TiXmlElement *child = element->FirstChildElement(); child != NULL; child = child->NextSiblingElement() )
+	for(const TiXmlElement *child = tiElement->FirstChildElement(); child != NULL; child = child->NextSiblingElement() )
 	{
 		const char *childelem = child->Value();
 		if (0==lstrcmpA(childelem, "columns"))
@@ -632,12 +768,12 @@ void DcxmlParser::parseItems(const TiXmlElement* element,int depth,char *itemPat
 				TString buffer;
 				for(const TiXmlElement *column = child->FirstChildElement("column"); column; column = column->NextSiblingElement("column") ) 
 				{
-					const char *width = this->queryAttribute(column, "width", "0");
-					const char *caption = this->queryAttribute(column, "caption", "");
-					const char *flags = this->queryAttribute(column, "flags", "l");
-					const char *icon = this->queryAttribute(column, "icon", "0");
+					const char *tWidth = queryAttribute(column, "width", "0");
+					const char *tCaption = queryAttribute(column, "caption", "");
+					const char *tFlags = queryAttribute(column, "flags", "l");
+					const char *tIcon = queryAttribute(column, "icon", "0");
 
-					buffer.tsprintf(TEXT("+%S %S %S %S "),flags,icon,width,caption);
+					buffer.tsprintf(TEXT("+%S %S %S %S "),tFlags,tIcon,tWidth,tCaption);
 					arguments.addtok(buffer.to_chr(),TEXT("\t"));
 				}
 				if (arguments.numtok() > 0)
@@ -675,7 +811,7 @@ void DcxmlParser::parseItems(const TiXmlElement* element,int depth,char *itemPat
 }
 
 /* parseTemplate(recursionDepth,claPath,firstFreeControlId) : finds a template and parses it into the current dialog */
-void DcxmlParser::parseTemplate(int dialogDepth,const char *claPath,const int passedid)
+void DcxmlParser::parseTemplate(const UINT dialogDepth,const char *const claPath,const UINT passedid)
 {
 	const TiXmlElement *found = NULL;
 	const TiXmlElement *lookIn = this->getDialogsElement()->FirstChildElement("templates");
@@ -697,8 +833,9 @@ void DcxmlParser::parseTemplate(int dialogDepth,const char *claPath,const int pa
 		this->parseDialog(dialogDepth,claPath,passedid,1);
 	}
 }
+
 /* parseDialog(recursionDepth,claPath,firstFreeControlId,ignoreParentFlag) : finds a template and parses it into the current dialog */
-void DcxmlParser::parseDialog(int depth,const char *claPath,const int passedid,const int ignoreParent) { 
+void DcxmlParser::parseDialog(const UINT depth,const char *claPath,const UINT passedid,const bool ignoreParent) { 
 	int control = 0, cCla = 0, cell = 0;
 	g_claPath = NULL;
 	g_claPathx = NULL;
@@ -839,20 +976,21 @@ void DcxmlParser::parseDialog(int depth,const char *claPath,const int passedid,c
 		}
 		//char *claPathx = "root";
 		//mIRCLinker::execex(TEXT("//echo -a clapath:%s"),claPathx);
-		this->parseDialog(depth+1,claPathx.c_str(),id,0);
+		this->parseDialog(depth+1,claPathx.c_str(),id);
 	}
 } 
 
 // NB: never returns a ZERO, other code relies on this.
-int DcxmlParser::mIRCEvalToUnsignedInt (const char *value)
+int DcxmlParser::mIRCEvalToUnsignedInt (const char *const value)
 {
 	//Todo: method returns -1 for failure which odd for a *ToUnsignedInt method.
-	TString buf(value);
-	__int64 id;
-	mIRCLinker::iEval(&id, buf.to_chr());
-	return (int)((id > 0) ? id : -1);
+	const TString buf(value);
+	__int64 iNum;
+	mIRCLinker::iEval(&iNum, buf.to_chr());
+	return (int)((iNum > 0) ? iNum : -1);
 }
-void DcxmlParser::registerId(const TiXmlElement *idElement,const int id)
+
+void DcxmlParser::registerId(const TiXmlElement *const idElement,const int iNewID)
 {
 	//int elementId;
 	//if (idElement->QueryIntAttribute("id",&elementId) != TIXML_SUCCESS) //<! id attr. is not an int
@@ -870,12 +1008,13 @@ void DcxmlParser::registerId(const TiXmlElement *idElement,const int id)
 		if (elementNamedId != NULL) {
 			if (this->mIRCEvalToUnsignedInt(elementNamedId) < 0) //<! id attr. doesn't evaluate to an int
 			{
-				this->getDialog()->namedIds[elementNamedId] = id;
+				this->getDialog()->namedIds[elementNamedId] = iNewID;
 			}
 		}
 	}
 }
-int DcxmlParser::parseId(const TiXmlElement* idElement)
+
+int DcxmlParser::parseId(const TiXmlElement *const idElement)
 {
 	if (idElement == NULL)
 		return 0;
@@ -896,17 +1035,17 @@ int DcxmlParser::parseId(const TiXmlElement* idElement)
 	//id = mIRCEvalToUnsignedInt(attributeIdValue);
 	//if (id > 0)
 	//	return id;
-
+	//
 	//TString value(attributeIdValue);
-
+	//
 	////Otherwise if it's a namedId return it .find(attributeIdValue) never returned :(;
 	//for(IntegerHash::const_iterator it = this->getDialog()->namedIds.begin(); it != this->getDialog()->namedIds.end(); ++it)
 	//	if (it->first == value)
 	//		return it->second;	
-
+	//
 	//return 0;
 
-	const char *attributeIdValue = idElement->Attribute("id");
+	const char *const attributeIdValue = idElement->Attribute("id");
 	if (attributeIdValue != NULL)
 	{
 		// got ID attrib, evaluate it to try & resolve to a number.
