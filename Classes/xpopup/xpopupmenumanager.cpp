@@ -1291,18 +1291,18 @@ bool XPopupMenuManager::LoadPopupItemsFromXML(XPopupMenu *menu, HMENU hMenu, con
 		else {
 			const int mID = queryIntAttribute(element, "id", -1);
 			const int mIcon = queryIntAttribute(element, "icon", 0) - 1;
-			const TString state(element->Attribute("state"));
+			const XSwitchFlags xState(element->Attribute("state"));
 
 			mii.fMask = MIIM_DATA | MIIM_FTYPE | MIIM_STATE | MIIM_ID;
 			mii.fType = MFT_OWNERDRAW;
 			mii.wID = mID;
 
 			// Checked
-			if (state.find(TEXT('c'), 0))
+			if (xState[TEXT('c')])
 				mii.fState |= MFS_CHECKED;
 			
 			// Gray
-			if (state.find(TEXT('g'), 0))
+			if (xState[TEXT('g')])
 				mii.fState |= MFS_GRAYED;
 
 			// Submenu
@@ -1320,11 +1320,10 @@ bool XPopupMenuManager::LoadPopupItemsFromXML(XPopupMenu *menu, HMENU hMenu, con
 			item = new XPopupMenuItem(menu, caption, mIcon, mii.hSubMenu != NULL ? TRUE : FALSE);
 		}
 
-		if (item != NULL) {
-			menu->m_vpMenuItem.push_back(item);
-			mii.dwItemData = (ULONG_PTR) item;
-			InsertMenuItem(hMenu, nPos, TRUE, &mii);
-		}
+		// item never NULL here
+		menu->m_vpMenuItem.push_back(item);
+		mii.dwItemData = (ULONG_PTR) item;
+		InsertMenuItem(hMenu, nPos, TRUE, &mii);
 	}
 
 	return true;

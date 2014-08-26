@@ -81,6 +81,7 @@
 #define ts_atoi(x) _wtoi((x))
 #define ts_atoi64(x) _wtoi64((x));
 #define ts_atof(x) _wtof((x));
+#define ts_strtoul(x) wcstoul((x), NULL, 10)
 #define ts_itoa(x,y,z) _itow((x),(y),(z))
 #define ts_upr(x,y) _wcsupr_s((x),(y))
 #define ts_strstr(x,y) wcsstr((x),(y))
@@ -100,6 +101,7 @@
 #define ts_atoi(x) atoi((x))
 #define ts_atoi64(x) _atoi64((x));
 #define ts_atof(x) atof((x));
+#define ts_strtoul(x) strtoul((x), NULL, 10)
 #define ts_itoa(x,y,z) _itoa((x),(y),(z))
 #define ts_upr(x,y) _strupr_s((x),(y))
 #define ts_strstr(x,y) strstr((x),(y))
@@ -151,8 +153,8 @@ private:
 	static unsigned char tolowertab[];
 	static unsigned char touppertab[];
 #endif
-	static WCHAR *charToWchar(const char *cString, size_t *const buffer_size = NULL);
-	static char *WcharTochar(const WCHAR *wString, size_t *const buffer_size = NULL);
+	static WCHAR *charToWchar(const char *const cString, size_t *const buffer_size = NULL);
+	static char *WcharTochar(const WCHAR *const wString, size_t *const buffer_size = NULL);
 
 	mutable const TCHAR	*m_savedpos;
 	mutable UINT	m_savedtotaltoks;
@@ -241,9 +243,9 @@ public:
 	TString & operator *=( const int &N );
 
 	TCHAR & operator []( long int N ) const;
-	operator int() { return this->to_int(); }
-	operator __int64() { return this->to_num(); }
-	operator double() { return this->to_float(); }
+	operator int() const { return this->to_int(); }
+	operator __int64() const { return this->to_num(); }
+	operator double() const { return this->to_float(); }
 
 	friend TString operator +(const TString & tString, const TCHAR *const cString);
 
@@ -291,11 +293,11 @@ public:
 	TString gettok(int N, const TCHAR *const sepChars = SPACE) const;
 	TString gettok(int N, int M, const TCHAR *const sepChars = SPACE) const;
 	TString getfirsttok(const UINT N, const TCHAR *const sepChars = SPACE) const;	// must becalled before the first getnexttok()
-	TString getnexttok(const TCHAR * sepCharsconst = SPACE) const;							// gets subsequent tokens after a getfirsttok() call.
+	TString getnexttok(const TCHAR *const sepChars = SPACE) const;							// gets subsequent tokens after a getfirsttok() call.
 	TString getlasttoks() const;														// gets all remaining tokens after a getfirsttok()/getnexttok() call.
 	void instok(const TCHAR *const cToken, const UINT N, const TCHAR *const sepChars = SPACE);
 	bool istok( const TCHAR *const cToken, const TCHAR *const sepChars = SPACE ) const;
-	TString matchtok(TCHAR * mString, int N, const TCHAR *const sepChars = SPACE) const;
+	TString matchtok(const TCHAR *const mString, int N, const TCHAR *const sepChars = SPACE) const;
 	UINT numtok(const TCHAR *const sepChars = SPACE) const;
 	void puttok(const TCHAR *const cToken, const UINT N, const TCHAR *const sepChars = SPACE);
 	void remtok(const TCHAR *const cToken, const UINT N, const TCHAR *const sepChars = SPACE);
@@ -346,6 +348,7 @@ public:
 	__int64 to_num() const { return ts_atoi64(this->m_pString); };
 	double to_float() const { return ts_atof(this->m_pString); };
 	ULONG to_addr() const;
+	DWORD to_dword() const { return ts_strtoul(this->m_pString); };
 
 	static inline int rfc_tolower(const int c);
 	static inline int rfc_toupper(const int c);

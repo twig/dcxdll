@@ -221,7 +221,7 @@ TString::TString( const TString & tString )
 : m_pTempString(NULL), m_pString(NULL),
 m_savedtotaltoks(0), m_savedcurrenttok(0), m_savedpos(0)
 {
-	if (tString.m_pString != NULL) {
+	if (!tString.empty()) {
 		//const int l = ts_strlen( tString.m_pString ) +1;
 		//this->m_pString = allocstr_cch( l );
 		//ts_strcpyn( this->m_pString, tString.m_pString, l );
@@ -2619,14 +2619,9 @@ void TString::addtok( const TCHAR *const cToken, const TCHAR *const sepChars ) {
 		if (mp_len > 0) {
 			if (ts_strcat(this->m_pString, sepChars) == NULL)
 				throw std::logic_error("strcat() failed!");
-			if (ts_strcat(this->m_pString, cToken) == NULL)
-				throw std::logic_error("strcat() failed!");
 		}
-		else
-		{
-			if (ts_strcpyn(this->m_pString, cToken, l) == NULL)
-				throw std::logic_error("strcpyn() failed!");
-		}
+		if (ts_strcat(this->m_pString, cToken) == NULL)
+			throw std::logic_error("strcat() failed!");
 	}
 	else {
 		//TCHAR *pNew = allocstr_cch(l);
@@ -2905,17 +2900,17 @@ TString &TString::trim()
 */
 bool TString::isnum(const int f) const
 {
-	char *p = this->m_pString;
+	TCHAR *p = this->m_pString;
 	int c = 0;
-	if (*p == '-') {
+	if (*p == TEXT('-')) {
 		if (f)
 			return false;
 		++p;
 	}
-	if (!f && *p == '-')
+	if (!f && *p == TEXT('-'))
 		return false;
 	while (*p) {
-		if (*p < '0' || *p > '9')
+		if (*p < TEXT('0') || *p > TEXT('9'))
 			return false;
 		++c;
 		++p;
@@ -2930,7 +2925,7 @@ bool TString::isnum(const int f) const
 */
 bool TString::isincs(const char let) const
 {
-	char *tmp = this->m_pString;
+	TCHAR *tmp = this->m_pString;
 	while (*tmp) {
 		if (*tmp++ == let)
 			return true;

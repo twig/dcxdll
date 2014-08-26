@@ -28,6 +28,8 @@ namespace Dcx
 	extern XPopupMenuManager XPopups;
 	extern XMenuBar XMenubar;
 	
+	extern bool m_bErrorTriggered;
+
 	void setupOSCompatibility(void);
 	void freeOSCompatibility(void);
 

@@ -533,9 +533,11 @@ HICON dcxLoadIcon(const int index, TString &filename, const bool large, const TS
 		ZeroMemory(&shfi, sizeof(SHFILEINFO));
 		filetype.tsprintf(TEXT(".%s"), filename.to_chr());
 		
-		SHGetFileInfo(filetype.to_chr(), FILE_ATTRIBUTE_NORMAL, &shfi, sizeof(SHFILEINFO), SHGFI_ICON | SHGFI_USEFILEATTRIBUTES | (large ? SHGFI_LARGEICON : SHGFI_SMALLICON));
+		if (SHGetFileInfo(filetype.to_chr(), FILE_ATTRIBUTE_NORMAL, &shfi, sizeof(SHFILEINFO), SHGFI_ICON | SHGFI_USEFILEATTRIBUTES | (large ? SHGFI_LARGEICON : SHGFI_SMALLICON)) != 0)
+			return shfi.hIcon;
 
-		return shfi.hIcon;
+		Dcx::error(TEXT("dcxLoadIcon"), TEXT("Unable to get filetype icon"));
+		return NULL;
 	}
 
 	// Check for valid filename

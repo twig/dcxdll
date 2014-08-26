@@ -1,7 +1,8 @@
 #include "defines.h"
 
 // Constructor
-XSwitchFlags::XSwitchFlags(const TString &switches) {
+XSwitchFlags::XSwitchFlags(const TString &switches)
+{
 	ZeroMemory(flags, sizeof(bool) * 28);
 	ZeroMemory(flags_cap, sizeof(bool) * 26);
 

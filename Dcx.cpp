@@ -18,6 +18,7 @@ namespace Dcx {
 	BYTE m_iGhostDrag;
 	bool m_bDX9Installed;
 	HMODULE m_hRichEditLib;
+	bool m_bErrorTriggered;
 
 	void load(LOADINFO *const lInfo)
 	{
@@ -25,6 +26,7 @@ namespace Dcx {
 		m_bDX9Installed = false;
 		m_pClassFactory = NULL;
 		m_hRichEditLib = NULL;
+		m_bErrorTriggered = false;
 
 		// Initialize mIRCLinker
 		mIRCLinker::load(lInfo);
@@ -157,6 +159,13 @@ namespace Dcx {
 #define dcxRegisterClass(szClass, szDcxClass) { \
 	GetClassInfoEx(NULL, (TCHAR *)(szClass), &wc); \
 	wc.lpszClassName = (TCHAR *)(szDcxClass); \
+	RegisterClassEx(&wc); \
+		};
+#define _dcxRegisterClass(szClass, szDcxClass, pClassObj) { \
+	GetClassInfoEx(NULL, (TCHAR *)(szClass), &wc); \
+	wc.lpszClassName = (TCHAR *)(szDcxClass); \
+	reinterpret_cast<DcxControl *>(pClassObj)->m_DefaultWindowProc = wc.lpfnWndProc; \
+	wc.lpfnWndProc = reinterpret_cast<DcxControl *>(pClassObj)->WindowProc; \
 	RegisterClassEx(&wc); \
 		};
 
@@ -414,6 +423,11 @@ namespace Dcx {
 	void error(const TCHAR *const cmd, const TCHAR *const msg)
 	{
 		m_sLastError.tsprintf(TEXT("D_ERROR %s (%s)"), cmd, msg);
+
+		if (m_bErrorTriggered)
+			return;
+		m_bErrorTriggered = true;
+
 		if (mIRCLinker::m_bSendMessageDisabled)
 		{
 			m_sLastError.addtok(TEXT("SendMessage() disabled, re-enable this in mIRC's Lock Options"), TEXT("\r\n"));
@@ -421,6 +435,8 @@ namespace Dcx {
 		}
 		else
 			mIRCLinker::echo(m_sLastError.to_chr());
+
+		m_bErrorTriggered = false;
 	}
 
 	/*
