@@ -119,14 +119,14 @@ LayoutCell * LayoutManager::getCell(const TString & path) const {
  * blah
  */
 
-LayoutCell * LayoutManager::parsePath(const TString & path, LayoutCell * hParent, const int depth) {
+LayoutCell * LayoutManager::parsePath(const TString & path, LayoutCell * hParent, const UINT depth) {
 
 	if (hParent == NULL)
 		return NULL;
 
-	int i = 1;
-	const int n = path.numtok();
-	const int k = path.gettok(depth).to_int();
+	UINT i = 1;
+	const UINT n = path.numtok();
+	const UINT k = path.gettok(depth).to_int();
 	LayoutCell * hCurrentCell;
 
 	if (k < 1)

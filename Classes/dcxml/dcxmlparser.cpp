@@ -661,7 +661,8 @@ void DcxmlParser::parseStyle(int depth) {
 		tiStyles = this->getDialogsElement()->FirstChildElement("styles");
 	else if (depth == 2)
 		tiStyles = this->getDialogElement()->FirstChildElement("styles");
-	if (styles != NULL) {
+
+	if (tiStyles != NULL) {
 		style = tiStyles->FirstChildElement("all");
 		if (style != NULL)
 			setStyle(style);
@@ -1001,6 +1002,7 @@ void DcxmlParser::registerId(const TiXmlElement *const idElement,const int iNewI
 	//		this->getDialog()->namedIds[elementNamedId] = id;
 	//	}
 	//}
+
 	int elementId;
 	if (idElement->QueryIntAttribute("id",&elementId) != TIXML_SUCCESS) //<! id attr. is not an int
 	{
@@ -1054,15 +1056,26 @@ int DcxmlParser::parseId(const TiXmlElement *const idElement)
 		if (id > 0)
 			return id;
 
-		//TString value(attributeIdValue);
-
 		//Otherwise if it's a namedId return it .find(attributeIdValue) never returned :(;
-		for(IntegerHash::const_iterator it = this->getDialog()->namedIds.begin(); it != this->getDialog()->namedIds.end(); ++it)
+
+#if DCX_USE_C11
+		for (const auto &x : this->getDialog()->getNamedIds())
+		{
+			if (x.first == attributeIdValue)
+				return x.second;
+		}
+#else
+		const IntegerHash IDHashes(this->getDialog()->getNamedIds());
+		
+		for(IntegerHash::const_iterator it(IDHashes.begin()), itEnd(IDHashes.end()); it != itEnd; ++it)
 		{
 			if (it->first == attributeIdValue)
 				return it->second;
 		}
-
+		//IntegerHash::const_iterator it(IDHashes.find(attributeIdValue));
+		//if (it != IDHashes.end())
+		//	return it->second;
+#endif
 	}
 	return 0;
 }

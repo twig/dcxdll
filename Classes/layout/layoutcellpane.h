@@ -43,7 +43,7 @@ public:
 
 	virtual void LayoutChild( );
 	virtual HDWP ExecuteLayout( HDWP hdwp );
-	virtual void getMinMaxInfo( CellMinMaxInfo * pCMMI );
+	virtual void getMinMaxInfo( CellMinMaxInfo * pCMMI ) const;
 
 
 	LayoutCell * addChild( LayoutCell * p_Cell, const int nWeight );

@@ -66,7 +66,7 @@ mIRC(dcxml) {
 			Dcx::error(TEXT("/dcxml"), TEXT("Unable to load XML file"));
 			return 0;
 		}
-		TiXmlElement *popups = doc.FirstChildElement("dcxml")->FirstChildElement("popups");
+		const TiXmlElement *const popups = doc.FirstChildElement("dcxml")->FirstChildElement("popups");
 
 		if ((popupName == TEXT("mircbar")) || (popupName == TEXT("mirc")) || (popupName == TEXT("scriptpopup"))) {
 			Dcx::errorex(TEXT("/dcxml"), TEXT("Menu name TEXT('%s') is reserved."), popupName.to_chr());

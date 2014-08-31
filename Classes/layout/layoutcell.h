@@ -75,7 +75,7 @@ public:
 
 	virtual void LayoutChild( ) = 0;
 	virtual HDWP ExecuteLayout( HDWP hdwp ) = 0;
-	virtual void getMinMaxInfo( CellMinMaxInfo * pCMMI ) = 0;
+	virtual void getMinMaxInfo( CellMinMaxInfo * pCMMI ) const = 0;
 	virtual void toXml(TiXmlElement * xml) = 0;
 	virtual TiXmlElement * toXml(void) = 0;
 

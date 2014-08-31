@@ -278,7 +278,7 @@ BOOL LayoutCell::isVisible() const {
 
 	//if ( this->m_Hwnd != NULL && IsWindow( this->m_Hwnd ) && IsWindowVisible( this->m_Hwnd ) == FALSE )
 	//  return FALSE;
-
+	//
 	//return TRUE;
 	return (this->m_Hwnd == NULL || (IsWindow(this->m_Hwnd) && IsWindowVisible(this->m_Hwnd)));
 }

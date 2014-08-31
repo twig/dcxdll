@@ -340,6 +340,8 @@ void DcxWebControl::parseCommandRequest( const TString & input) {
 				this->m_pWebBrowser2->Navigate( bstrUrl, &vFlags, &vEmpty, &vEmpty, &vEmpty );
 				SysFreeString(bstrUrl);
 			}
+			else
+				this->showError(NULL, TEXT("-m"), TEXT("Unable to Allocate Memory"));
 		}
 
 		VariantClear( &vEmpty );
@@ -354,9 +356,11 @@ void DcxWebControl::parseCommandRequest( const TString & input) {
 		VariantInit( &v );
 		BSTR bstrUrl = SysAllocString(URL.to_chr());
 		if (bstrUrl != NULL) {
-			this->m_pWebBrowser2->Navigate( bstrUrl, &v, &v, &v, &v );
+			this->m_pWebBrowser2->Navigate(bstrUrl, &v, &v, &v, &v);
 			SysFreeString(bstrUrl);
 		}
+		else
+			this->showError(NULL, TEXT("-n"), TEXT("Unable to Allocate Memory"));
 
 		VariantClear( &v );
 	}
@@ -704,7 +708,7 @@ LRESULT DcxWebControl::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, B
 LRESULT DcxWebControl::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed )
 {
 #if DCX_DEBUG_OUTPUT
-	mIRCLinker::signalex(true,TEXT("debug %ld"), uMsg);
+	mIRCLinker::signalex(true,TEXT("debug %lu"), uMsg);
 #endif
 	switch( uMsg ) {
 

@@ -142,7 +142,8 @@ HDWP LayoutCellFixed::ExecuteLayout(HDWP hdwp) {
  * blah
  */
 
-void LayoutCellFixed::getMinMaxInfo(CellMinMaxInfo * pCMMI) {
+void LayoutCellFixed::getMinMaxInfo(CellMinMaxInfo * pCMMI) const
+{
 
 	if (this->isVisible()) {
 		RECT rc;

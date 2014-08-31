@@ -50,13 +50,13 @@ public:
 	const size_t &size(void) const { return this->m_iCount; }
 	const bool empty(void) const { return (this->m_pRoot == NULL); }
 
-	static LayoutCell * parsePath(const TString & path, LayoutCell * hParent, const int depth);
+	static LayoutCell * parsePath(const TString & path, LayoutCell * hParent, const UINT depth);
 	static const UINT parseLayoutFlags(const TString & flags);
 
 	// this is here for refrence only
 	//typedef class std::vector<LayoutCell *>::iterator iterator;
 	//typedef class std::vector<LayoutCell *>::const_iterator const_iterator;
-
+	//
 	//iterator begin() { return m_data.begin(); }
 	//const_iterator begin() const { return m_data.begin(); }
 	//const_iterator cbegin() const { return m_data.cbegin(); }

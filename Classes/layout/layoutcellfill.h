@@ -34,7 +34,7 @@ public:
 
 	virtual void LayoutChild( );
 	virtual HDWP ExecuteLayout( HDWP hdwp );
-	virtual void getMinMaxInfo( CellMinMaxInfo * pCMMI );
+	virtual void getMinMaxInfo( CellMinMaxInfo * pCMMI ) const;
 	virtual void toXml(TiXmlElement * xml);
 	virtual TiXmlElement * toXml(void);
 

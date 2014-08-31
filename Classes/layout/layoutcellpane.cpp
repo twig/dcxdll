@@ -170,13 +170,14 @@ HDWP LayoutCellPane::ExecuteLayout( HDWP hdwp ) {
  * blah
  */
 
-void LayoutCellPane::getMinMaxInfo( CellMinMaxInfo * pCMMI ) {
+void LayoutCellPane::getMinMaxInfo( CellMinMaxInfo * pCMMI ) const
+{
 #if DCX_USE_C11
 	const int nMaxWidthX = pCMMI->m_MaxSize.x;
 	const int nMaxWidthY = pCMMI->m_MaxSize.y;
 
 	for (const auto &x: this->m_vpCells) {
-		LayoutCell *pChild = x.first;
+		const LayoutCell *pChild = x.first;
 		if (pChild != NULL) {
 			if (pChild->isVisible()) {
 				CellMinMaxInfo cmmiChild;
@@ -599,7 +600,7 @@ void LayoutCellPane::AdjustPos( ) {
 		if (pChild == NULL)
 			continue;
 
-		if ( pChild->isVisible( ) == FALSE )
+		if (!pChild->isVisible( ))
 			continue;
 
 		RECT rectChild;

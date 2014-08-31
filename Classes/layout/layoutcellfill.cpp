@@ -107,8 +107,8 @@ HDWP LayoutCellFill::ExecuteLayout(HDWP hdwp) {
  * blah
  */
 
-void LayoutCellFill::getMinMaxInfo(CellMinMaxInfo * pCMMI) {
-
+void LayoutCellFill::getMinMaxInfo(CellMinMaxInfo * pCMMI) const
+{
 	if (this->isVisible()) {
 
 		pCMMI->m_MinSize.x = this->m_rcBorders.left + this->m_rcBorders.right;
