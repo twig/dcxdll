@@ -312,13 +312,14 @@ void DcxList::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) co
 		const TString matchtext(input.getfirsttok(2, TSTAB).trim());
 		const TString params(input.getnexttok( TSTAB).trim());	// tok 3
 
-		if ( matchtext.len( ) > 0 ) {
+		if (!matchtext.empty()) {
 
-			UINT SearchType;
+			UINT SearchType = LBSEARCH_E;	// default to exact match
+			const TString tsSearchType(params.getfirsttok(1));
 
-			if ( params.getfirsttok( 1 ) == TEXT("R") )
+			if (tsSearchType == TEXT("R"))
 				SearchType = LBSEARCH_R;
-			else
+			else if (tsSearchType == TEXT("W"))
 				SearchType = LBSEARCH_W;
 
 			const int N = params.getnexttok( ).to_int( );	// tok 2
@@ -357,8 +358,8 @@ void DcxList::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) co
 					}
 				}
 			} // else
+			return;
 		}
-		return;
 	}
 	else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
 		return;
@@ -382,6 +383,7 @@ void DcxList::parseCommandRequest( const TString & input ) {
 	}
 
 	//xdid -a [NAME] [ID] [SWITCH] [N] [TEXT]
+	//xdid -a -> [NAME] [ID] -a [N] [TEXT]
 	if ( flags[TEXT('a')] && numtok > 4 ) {
 
 		int nPos = input.getnexttok( ).to_int( ) - 1;	// tok 4
@@ -403,7 +405,8 @@ void DcxList::parseCommandRequest( const TString & input ) {
 
 	}
 	//xdid -A [NAME] [ID] [SWITCH] [N] [+FLAGS] [TEXT]
-	else if ( flags[TEXT('A')] && numtok > 5 ) {
+	//xdid -A -> [NAME] [ID] -A [N] [+FLAGS] [TEXT]
+	else if (flags[TEXT('A')] && numtok > 5) {
 
 		int nPos = input.getnexttok( ).to_int( ) - 1;	// tok 4
 
@@ -688,22 +691,43 @@ void DcxList::parseCommandRequest( const TString & input ) {
 				ListBox_SetCurSel( this->m_Hwnd, nSel );
 		}
 	}
-	//xdid -d [NAME] [ID] [SWITCH] [N]
-	//xdid -d -> [NAME] [ID] -d [N]
+	//xdid -d [NAME] [ID] [SWITCH] [N](,[N],[N1]-N2],...)
+	//xdid -d -> [NAME] [ID] -d [N](,[N],[N1]-N2],...)
+	//xdid -d -> [NAME] [ID] -d [N] [+flags] [match text]
 	else if ( flags[TEXT('d')] && numtok > 3 ) {
 
-		const TString Ns(input.getnexttok( ));	// tok 4
+		const TString Ns(input.getnexttok( ));			// tok 4
+		const XSwitchFlags xFlags(input.getnexttok());	// tok 5
 		const int nItems = ListBox_GetCount( this->m_Hwnd );
 
-		for (TString tsLine(Ns.getfirsttok(1, TSCOMMA)); !tsLine.empty(); tsLine = Ns.getnexttok(TSCOMMA)) {
-			int iStart = 0, iEnd = 0;
-			this->getItemRange(tsLine, nItems, &iStart, &iEnd);
-			if ( (iStart < 0) || (iEnd < 0) || (iStart >= nItems) || (iEnd >= nItems) ) {
-				this->showErrorEx(NULL, TEXT("-d"), TEXT("Invalid index %s."), tsLine.to_chr());
-				return;
+		if (xFlags[TEXT('+')])
+		{
+			// have flags, so its a match text delete
+			const TString tsMatchText(input.getnexttok());
+			UINT SearchType = LBSEARCH_E;	// plain text exact match delete
+
+			if (xFlags[TEXT('w')])
+				SearchType = LBSEARCH_W;	// wildcard delete
+			else if (xFlags[TEXT('r')])
+				SearchType = LBSEARCH_R;	// regex delete
+
+			for (int nPos = Ns.to_int(); nPos < nItems; nPos++) {
+
+				if (this->matchItemText(nPos, &tsMatchText, SearchType))
+					ListBox_DeleteString(this->m_Hwnd, nPos--);		// NB: we do nPos-- here as a lines just been removed so we have to check the same nPos again
 			}
-			for (int nPos = iStart; nPos <= iEnd; nPos++)
-				ListBox_DeleteString( this->m_Hwnd, nPos );
+		}
+		else {
+			for (TString tsLine(Ns.getfirsttok(1, TSCOMMA)); !tsLine.empty(); tsLine = Ns.getnexttok(TSCOMMA)) {
+				int iStart = 0, iEnd = 0;
+				this->getItemRange(tsLine, nItems, &iStart, &iEnd);
+				if ((iStart < 0) || (iEnd < 0) || (iStart >= nItems) || (iEnd >= nItems)) {
+					this->showErrorEx(NULL, TEXT("-d"), TEXT("Invalid index %s."), tsLine.to_chr());
+					return;
+				}
+				for (int nPos = iStart; nPos <= iEnd; nPos++)
+					ListBox_DeleteString(this->m_Hwnd, nPos);
+			}
 		}
 	}
 	// Used to prevent invalid flag message.
@@ -719,7 +743,8 @@ void DcxList::parseCommandRequest( const TString & input ) {
 			ListBox_SetCurSel( this->m_Hwnd, -1 );
 	}
 	//xdid -m [NAME] [ID] [SWITCH] [+FLAGS] [N](,[N]...)
-	else if ( flags[TEXT('m')] && numtok > 4 ) {
+	//xdid -m -> [NAME] [ID] -m [+FLAGS] [N](,[N]...)
+	else if (flags[TEXT('m')] && numtok > 4) {
 		const XSwitchFlags xflags(input.getnexttok( ));	// tok 4
 
 		if (xflags[TEXT('w')])
@@ -752,7 +777,8 @@ void DcxList::parseCommandRequest( const TString & input ) {
 			this->showError(NULL, TEXT("-m"), TEXT("Invalid Flags"));
 	}
 	//xdid -o [NAME] [ID] [N] [TEXT]
-	else if ( flags[TEXT('o')] ) {
+	//xdid -o -> [NAME] [ID] -o [N] [TEXT]
+	else if (flags[TEXT('o')]) {
 		int nPos = input.getnexttok( ).to_int() - 1;	// tok 4
 
 		if (nPos == -1)
@@ -1091,10 +1117,12 @@ BOOL DcxList::matchItemText( const int nItem, const TString * search, const UINT
 
 		ListBox_GetText(this->m_Hwnd, nItem, itemtext);
 
-		if (SearchType == LBSEARCH_R)
+		if (SearchType == LBSEARCH_R)	// regex match
 			bRes = isRegexMatch(itemtext, search->to_chr());
-		else
+		else if (SearchType == LBSEARCH_W)	// wildcard match
 			bRes = TString(itemtext).iswm(search->to_chr());
+		else   // exact match
+			bRes = (dcx_strncmp(itemtext, search->to_chr(), len) == 0);
 
 		delete[] itemtext;
 	}

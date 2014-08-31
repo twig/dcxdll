@@ -47,7 +47,7 @@ public:
 	static void registerClass(void);
 
 protected:
-	enum SearchTypes { LBSEARCH_W = 1, LBSEARCH_R };
+	enum SearchTypes { LBSEARCH_E = 0, LBSEARCH_W, LBSEARCH_R };
 
 	void DrawDragLine(const int location);
 	BOOL matchItemText( const int nItem, const TString * search, const UINT SearchType ) const;
