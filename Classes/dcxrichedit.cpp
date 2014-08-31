@@ -103,7 +103,7 @@ void DcxRichEdit::parseControlStyles( const TString &styles, LONG *Styles, LONG 
 	//*Styles |= ES_READONLY;
 	//ES_NOHIDESEL
 
-	for (TString tsStyle(styles.getfirsttok( 1 )); tsStyle != TEXT(""); tsStyle = styles.getnexttok( ))
+	for (TString tsStyle(styles.getfirsttok(1)); !tsStyle.empty(); tsStyle = styles.getnexttok())
 	{
 		if (tsStyle == TEXT("multi"))
 			*Styles |= ES_MULTILINE | ES_WANTRETURN;
@@ -169,6 +169,27 @@ void DcxRichEdit::parseInfoRequest( const TString &input, TCHAR *szReturnValue) 
 		// copy to result
 		dcx_strcpyn(szReturnValue, p, MIRC_BUFFER_SIZE_CCH);
 		delete [] p;
+
+		//GETTEXTLENGTHEX gtle;
+		//gtle.codepage = 1200;
+		//gtle.flags = GTL_DEFAULT;
+		//const size_t len = SendMessage(this->m_Hwnd, EM_GETTEXTLENGTHEX, (WPARAM)&gtle, 0);
+
+		//if (len != E_INVALIDARG)
+		//{
+		//	GETTEXTEX gt;
+		//	gt.cb = (len+1)*sizeof(TCHAR);
+		//	gt.codepage = 1200;
+		//	gt.lpDefaultChar = NULL;
+		//	gt.lpUsedDefChar = NULL;
+		//	gt.flags = GT_RAWTEXT;
+
+		//	TCHAR *p = new TCHAR[len+1];
+		//	SendMessage(this->m_Hwnd, EM_GETTEXTEX, (WPARAM)&gt, (LPARAM)p);
+		//	// copy to result
+		//	dcx_strcpyn(szReturnValue, p, MIRC_BUFFER_SIZE_CCH);
+		//	delete [] p;
+		//}
 		return;
 	}
 	// [NAME] [ID] [PROP]
@@ -198,15 +219,16 @@ void DcxRichEdit::parseInfoRequest( const TString &input, TCHAR *szReturnValue) 
 			// line offset
 			const int iAbsoluteCharPos = (int) SendMessage(this->m_Hwnd, EM_LINEINDEX, (WPARAM)-1, NULL);
 
-			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d"), iLinePos +1, dwAbsoluteStartSelPos - iAbsoluteCharPos);
+			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d %u"), iLinePos +1, dwAbsoluteStartSelPos - iAbsoluteCharPos);
 		}
 		else {
 			// return selstart
-			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d"), 1, dwAbsoluteStartSelPos);
+			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d %u"), 1, dwAbsoluteStartSelPos);
 		}
 
 		return;
 	}
+	// [NAME] [ID] [PROP]
 	else if (prop == TEXT("selstart")) {
 		CHARRANGE c;
 
@@ -214,6 +236,7 @@ void DcxRichEdit::parseInfoRequest( const TString &input, TCHAR *szReturnValue) 
 		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), c.cpMin);
 		return;
 	}
+	// [NAME] [ID] [PROP]
 	else if (prop == TEXT("selend")) {
 		CHARRANGE c;
 
@@ -221,6 +244,7 @@ void DcxRichEdit::parseInfoRequest( const TString &input, TCHAR *szReturnValue) 
 		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), c.cpMax);
 		return;
 	}
+	// [NAME] [ID] [PROP]
 	else if (prop == TEXT("sel")) {
 		CHARRANGE c;
 
@@ -228,6 +252,7 @@ void DcxRichEdit::parseInfoRequest( const TString &input, TCHAR *szReturnValue) 
 		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d"), c.cpMin, c.cpMax);
 		return;
 	}
+	// [NAME] [ID] [PROP]
 	else if (prop == TEXT("seltext")) {
 		CHARRANGE c;
 
@@ -239,10 +264,126 @@ void DcxRichEdit::parseInfoRequest( const TString &input, TCHAR *szReturnValue) 
 		delete [] buffer;
 		return;
 	}
+	// [NAME] [ID] [PROP] [utf8|...]
+	else if (prop == TEXT("rtftext")) {
+
+		UINT iFlags = SF_RTF;
+		const TString tsFlags(input.getnexttok());
+
+		std::stringstream rtf;
+		
+		EDITSTREAM es = { 0 };
+		es.dwCookie = (DWORD_PTR)&rtf;
+		es.pfnCallback = &StreamOutToVarCallback;
+
+		if (tsFlags == TEXT("utf8"))
+			iFlags = (UINT)((CP_UTF8 << 16) | SF_USECODEPAGE | SF_RTF);
+
+		SendMessage(this->m_Hwnd, EM_STREAMOUT, (WPARAM)iFlags, (LPARAM)&es);
+
+		const TString tsOut(rtf.str().c_str());	// handles any char convertions needed.
+		dcx_strcpyn(szReturnValue, tsOut.to_chr(), MIRC_BUFFER_SIZE_CCH);
+
+		//TString rtf;
+		//
+		//EDITSTREAM es = { 0 };
+		//es.dwCookie = (DWORD_PTR)&rtf;
+		//es.pfnCallback = &EditStreamOutCallback;
+		//
+		//if (tsFlags == TEXT("utf8"))
+		//	iFlags = (UINT)((CP_UTF8 << 16) | SF_USECODEPAGE | SF_RTF);
+		//
+		//SendMessage(this->m_Hwnd, EM_STREAMOUT, (WPARAM)iFlags, (LPARAM)&es);
+		//
+		//dcx_strcpyn(szReturnValue, rtf.to_chr(), MIRC_BUFFER_SIZE_CCH);
+
+		return;
+	}
 	else if (this->parseGlobalInfoRequest(input, szReturnValue))
 		return;
 
 	szReturnValue[0] = 0;
+}
+
+bool DcxRichEdit::SaveRichTextToFile(HWND hWnd, const TCHAR *const filename)
+{
+	HANDLE hFile = CreateFile(filename, GENERIC_WRITE, 0, NULL,	CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+	if (hFile == INVALID_HANDLE_VALUE)
+	{
+		//handle errors
+		return false;
+	}
+	EDITSTREAM es = { 0 };
+	es.dwCookie = (DWORD)hFile;
+	es.pfnCallback = StreamOutToFileCallback;
+	SendMessage(hWnd, EM_STREAMOUT, SF_RTF, (LPARAM)&es);
+	CloseHandle(hFile);
+	if (es.dwError != 0)
+		return false;
+	return true;
+}
+
+bool DcxRichEdit::LoadRichTextFromFile(HWND hWnd, const TCHAR *const filename)
+{
+	HANDLE hFile = CreateFile(filename, GENERIC_READ, 0, NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+	if (hFile == INVALID_HANDLE_VALUE)
+	{
+		//handle errors
+		return false;
+	}
+	EDITSTREAM es = { 0 };
+	es.dwCookie = (DWORD)hFile;
+	es.pfnCallback = StreamInFromFileCallback;
+	SendMessage(hWnd, EM_STREAMIN, SF_RTF, (LPARAM)&es);
+	CloseHandle(hFile);
+	if (es.dwError != 0)
+		return false;
+	return true;
+}
+
+DWORD CALLBACK DcxRichEdit::StreamOutToVarCallback(DWORD_PTR dwCookie, LPBYTE pbBuff, LONG cb, LONG *pcb)
+{
+	std::stringstream *rtf = reinterpret_cast<std::stringstream *>(dwCookie);
+
+	rtf->write((char *)pbBuff, cb);
+
+	*pcb = cb;
+	return 0;
+
+	//TString *rtf = reinterpret_cast<TString *>(dwCookie);
+	//
+	//rtf->append((char *)pbBuff, cb);
+	//
+	//*pcb = cb;
+	//return 0;
+}
+
+DWORD CALLBACK DcxRichEdit::StreamOutToFileCallback(DWORD_PTR dwCookie, LPBYTE pbBuff, LONG cb, LONG *pcb)
+{
+	HANDLE hFile = (HANDLE)dwCookie;
+	DWORD NumberOfBytesWritten;
+	if (!WriteFile(hFile, pbBuff, cb, &NumberOfBytesWritten, NULL))
+	{
+		//handle errors
+		return 1;
+		// or perhaps return GetLastError();
+	}
+	*pcb = NumberOfBytesWritten;
+	return 0;
+}
+
+DWORD CALLBACK DcxRichEdit::StreamInFromFileCallback(DWORD_PTR dwCookie, LPBYTE pbBuff, LONG cb, LONG *pcb)
+{
+	HANDLE hFile = (HANDLE)dwCookie;
+	DWORD NumberOfBytesRead;
+	if (!ReadFile(hFile, pbBuff, cb, &NumberOfBytesRead, NULL))
+	{
+		//handle errors
+		return 1;
+		// or perhaps return GetLastError();
+	}
+	*pcb = NumberOfBytesRead;
+	return 0;
 }
 
 /*!
@@ -256,18 +397,19 @@ void DcxRichEdit::parseCommandRequest(const TString &input) {
 
 	// xdid -r [NAME] [ID] [SWITCH]
 	if (flags[TEXT('r')]) {
-		this->m_tsText = TEXT("");
+		this->m_tsText.clear();	// = TEXT("");
 		this->clearContents();
 	}
 
 	// xdid -a [NAME] [ID] [SWITCH] [TEXT]
 	if (flags[TEXT('a')] && numtok > 3) {
-		this->m_tsText += input.gettok(4, -1);
-		this->parseContents(TRUE);
-		//DCXSTREAM ds;
-		//EDITSTREAM es = {0};
-		//es.dwCookie = (DWORD_PTR)&ds;
-		//SendMessage(this->m_Hwnd,EM_STREAMIN
+		//this->m_tsText += input.gettok(4, -1);
+		//this->parseContents(TRUE);
+
+		const TString tmp(input.getlasttoks());	// tok 4, -1
+
+		this->m_tsText += tmp;
+		this->parseStringContents(tmp, TRUE);
 	}
 	// xdid -c [NAME] [ID] [SWITCH]
 	else if (flags[TEXT('c')] && numtok > 2) {
@@ -303,7 +445,7 @@ void DcxRichEdit::parseCommandRequest(const TString &input) {
 
 			this->m_byteCharset = (BYTE)parseFontCharSet(input.getnexttok( ));	// tok 5
 			this->m_iFontSize = 20 * input.getnexttok( ).to_int();				// tok 6
-			this->m_tsFontFaceName = input.gettok(7, -1).trim();
+			this->m_tsFontFaceName = input.getlasttoks().trim();				// tok 7, -1
 
 			//HDC hdc = GetDC( NULL );
 			//chrf.yHeight = 20 * -MulDiv( fSize, GetDeviceCaps( hdc, LOGPIXELSY ), 72 );
@@ -337,12 +479,11 @@ void DcxRichEdit::parseCommandRequest(const TString &input) {
 	// xdid -i [NAME] [ID] [SWITCH] [N] [TEXT]
 	else if (flags[TEXT('i')] && numtok > 4) {
 		if (this->isStyle(ES_MULTILINE)) {
-			const int nLine = input.getnexttok( ).to_int();	// tok 4
-			this->m_tsText.instok(input.gettok(5, -1).to_chr(), nLine, TEXT("\r\n"));
+			const int nLine = input.getnexttok().to_int();								// tok 4
+			this->m_tsText.instok(input.getlasttoks().to_chr(), nLine, TEXT("\r\n"));	// tok 5, -1
 		}
-		else {
-			this->m_tsText = input.gettok(4, -1);
-		}
+		else
+			this->m_tsText = input.getlasttoks();										// tok 4, -1
 
 		this->parseContents(TRUE);
 	}
@@ -381,11 +522,11 @@ void DcxRichEdit::parseCommandRequest(const TString &input) {
 	// xdid -o [NAME] [ID] [SWITCH] [N] [TEXT]
 	else if (flags[TEXT('o')] && numtok > 4) {
 		if (this->isStyle(ES_MULTILINE)) {
-			const int nLine = input.getnexttok( ).to_int();	// tok 4
-			this->m_tsText.puttok(input.gettok(5, -1).to_chr(), nLine, TEXT("\r\n"));
+			const int nLine = input.getnexttok( ).to_int();								// tok 4
+			this->m_tsText.puttok(input.getlasttoks( ).to_chr(), nLine, TEXT("\r\n"));	// tok 5, -1
 		}
 		else
-			this->m_tsText = input.gettok(4, -1);
+			this->m_tsText = input.getlasttoks( );	// tok 4, -1
 
 		this->parseContents(TRUE);
 	}
@@ -407,27 +548,84 @@ void DcxRichEdit::parseCommandRequest(const TString &input) {
 	else if (flags[TEXT('r')]) {
 	}
 	// xdid -t [NAME] [ID] [SWITCH] [FILENAME]
-	else if (flags[TEXT('t')] && numtok > 3) { // TODO: replace all this with an EM_STREAMIN message & callback
-		PTCHAR contents = (PTCHAR)readFile(input.gettok(4, -1).to_chr());
+	// xdid -t [NAME] [ID] [SWITCH] [+FLAGS] [FILENAME]
+	else if (flags[TEXT('t')] && numtok > 3) {
+		const XSwitchFlags xflags(input.getnexttok().trim());	// tok 4
+		bool bOldMethod = false;
+		TString tsFile;
 
-		if (contents != NULL) {
-			this->m_tsText = contents;
-			delete [] contents;
+		if (!xflags[TEXT('+')])
+		{
+			bOldMethod = true;
+			tsFile = input.gettok(4, -1 ).trim();	// 4, -1
+		}
+		else
+			tsFile = input.getlasttoks( ).trim();	// 5, -1
+
+		if (!IsFile(tsFile))
+		{
+			this->showErrorEx(NULL, TEXT("-t"), TEXT("Unable to open: %s"), tsFile.to_chr());
+			return;
+		}
+
+		if (xflags[TEXT('o')])
+			bOldMethod = true;
+
+		if (bOldMethod)
+		{
+			//PTCHAR contents = (PTCHAR)readFile(tsFile.to_chr());
+			//
+			//if (contents != NULL) {
+			//	this->m_tsText = contents;
+			//	delete[] contents;
+			//	const DWORD mask = this->m_dEventMask;
+			//	this->m_dEventMask = 0;
+			//	this->parseContents(TRUE);
+			//	this->m_dEventMask = mask;
+			//}
+
+			this->m_tsText = readTextFile(tsFile.to_chr());
+
 			const DWORD mask = this->m_dEventMask;
 			this->m_dEventMask = 0;
 			this->parseContents(TRUE);
 			this->m_dEventMask = mask;
 		}
+		else {
+			// new methods... load rtf...
+			if (!LoadRichTextFromFile(this->m_Hwnd, tsFile.to_chr()))
+				this->showErrorEx(NULL, TEXT("-t"), TEXT("Unable to open: %s"), tsFile.to_chr());
+		}
 	}
 	// xdid -u [NAME] [ID] [SWITCH] [FILENAME]
+	// xdid -u [NAME] [ID] [SWITCH] [+FLAGS] [FILENAME]
 	else if (flags[TEXT('u')] && numtok > 3) {
-		FILE *file = dcx_fopen(input.gettok(4, -1).to_chr(), TEXT("wb"));
+		const XSwitchFlags xflags(input.getnexttok().trim());	// tok 4
+		bool bOldMethod = false, bRes = false;
+		TString tsFile;
 
-		if (file != NULL) {
-			fwrite(this->m_tsText.to_chr(), sizeof(TCHAR), this->m_tsText.len(), file);
-			fflush(file);
-			fclose(file);
+		if (!xflags[TEXT('+')])
+		{
+			bOldMethod = true;
+			tsFile = input.gettok(4, -1).trim();	// 4, -1
 		}
+		else
+			tsFile = input.getlasttoks().trim();	// 5, -1
+
+		if (xflags[TEXT('o')])
+			bOldMethod = true;
+
+		if (bOldMethod)
+		{
+			// old way if no flags provided or old method selected.
+			bRes = SaveDataToFile(tsFile, this->m_tsText);
+		}
+		else {
+			// new method's...
+			bRes = SaveRichTextToFile(this->m_Hwnd, tsFile.to_chr());
+		}
+		if (!bRes)
+			this->showErrorEx(NULL, TEXT("-u"), TEXT("Unable to save: %s"), tsFile.to_chr());
 	}
 	// xdid -S [NAME] [ID] [SWITCH] [START] [END]
 	else if (flags[TEXT('S')] && numtok > 3) {
@@ -446,10 +644,10 @@ void DcxRichEdit::parseCommandRequest(const TString &input) {
 		//DWORD dwAbsoluteStartSelPos = 0;
 		//// caret startsel position
 		//SendMessage(this->m_Hwnd, EM_GETSEL, (WPARAM) &dwAbsoluteStartSelPos, NULL);
-
+		//
 		//if (this->isStyle(ES_MULTILINE)) {
 		//	int iLinePos = 0;
-
+		//
 		//	// current line
 		//	iLinePos = SendMessage(this->m_Hwnd, EM_LINEFROMCHAR, -1, NULL);
 		//	POINT pt = {0};
@@ -467,13 +665,13 @@ void DcxRichEdit::parseCommandRequest(const TString &input) {
 
 		this->m_bIgnoreRepeat = (state > 0 ? TRUE : FALSE);
 	}
-	// xdid -Z [NAME] [ID] [SWITCH] [NUMERATOR] [DENOMINATOR]
-	else if (flags[TEXT('Z')] && numtok > 4) {
+	// xdid -z [NAME] [ID] [SWITCH] [NUMERATOR] [DENOMINATOR]
+	else if (flags[TEXT('z')] && numtok > 4) {
 		const int num = input.getnexttok( ).to_int();	// tok 4
 		const int den = input.getnexttok( ).to_int();	// tok 5
 
 		if (!SendMessage(this->m_Hwnd, EM_SETZOOM, (WPARAM) num, (LPARAM) den))
-			this->showError(NULL, TEXT("-Z"), TEXT("Richedit zooming error"));
+			this->showError(NULL, TEXT("-z"), TEXT("Richedit zooming error"));
 	}
 	else
 		this->parseGlobalCommandRequest(input, flags);
@@ -525,7 +723,7 @@ void DcxRichEdit::setContentsFont() {
 	if (this->m_bFontUnderline)
 		chrf.dwEffects |= CFE_UNDERLINE;
 
-	if (this->m_tsFontFaceName != TEXT("")) {
+	if (!this->m_tsFontFaceName.empty()) {
 		dcx_strcpyn(chrf.szFaceName, this->m_tsFontFaceName.to_chr(), 31);
 		chrf.szFaceName[31] = 0;
 	}
@@ -561,12 +759,211 @@ void DcxRichEdit::parseContents(const BOOL fNewLine) { // old function
 	this->setRedraw(FALSE);
 	this->clearContents();
 
-	TCHAR *text = this->m_tsText.to_chr();
+	//TCHAR *text = this->m_tsText.to_chr();
+	//
+	//bool uline = false;
+	//bool bline = false;
+	//COLORREF mcolor = 0;
+	//COLORREF bkgcolor = 0;
+	//
+	//bool bmcolor = true;
+	//bool bbkgcolor = false;
+	//
+	//TCHAR cbuf[2];
+	//TCHAR colbuf[3];
+	//cbuf[1] = TEXT('\0');
+	//colbuf[2] = TEXT('\0');
+	//
+	//for (int i = 0; text[i] != TEXT('\0'); i++)
+	//{
+	//	cbuf[0] = text[i];
+	//
+	//	//// if current TCHAR is a control code
+	//	//if (text[i] == 2 || text[i] == 3 || text[i] == 15 || text[i] == 22 || text[i] == 31) {
+	//	//	// CTRL+B Parsing
+	//	//	if (text[i] == 2)
+	//	//		bline = !(bline);
+	//	//
+	//	//	// CTRL+K Parsing
+	//	//	else if (text[i] == 3) {
+	//	//		if (text[i +1] >= TEXT('0') && text[i +1] <= TEXT('9')) {
+	//	//			colbuf[0] = text[i +1];
+	//	//			colbuf[1] = TEXT('\0');
+	//	//			++i;
+	//	//
+	//	//			if (text[i +1] >= TEXT('0') && text[i +1] <= TEXT('9')) {
+	//	//				colbuf[1] = text[i +1];
+	//	//				i++;
+	//	//			}
+	//	//
+	//	//			// color code number
+	//	//			bmcolor = true;
+	//	//			mcolor = this->m_aColorPalette[this->unfoldColor(colbuf)];
+	//	//
+	//	//			// maybe a background color
+	//	//			if (text[i+1] == TEXT(',')) {
+	//	//				++i;
+	//	//
+	//	//				if (text[i +1] >= TEXT('0') && text[i +1] <= TEXT('9')) {
+	//	//					colbuf[0] = text[i +1];
+	//	//					colbuf[1] = TEXT('\0');
+	//	//					i++;
+	//	//
+	//	//					if (text[i +1] >= TEXT('0') && text[i +1] <= TEXT('9')) {
+	//	//						colbuf[1] = text[i +1];
+	//	//						++i;
+	//	//					}
+	//	//
+	//	//					// color code number
+	//	//					bbkgcolor = true;
+	//	//					bkgcolor = this->m_aColorPalette[this->unfoldColor(colbuf)];
+	//	//				}
+	//	//			}
+	//	//		}
+	//	//		else {
+	//	//			bmcolor = false;
+	//	//			bbkgcolor = false;
+	//	//		}
+	//	//	}
+	//	//	// CTRL+O Parsing
+	//	//	else if (text[i] == 15) {
+	//	//		bline = false;
+	//	//		uline = false;
+	//	//		mcolor = CLR_INVALID;
+	//	//		bkgcolor = CLR_INVALID;
+	//	//	}
+	//	//	// CTRL+R Parsing
+	//	//	else if (text[i] == 22) {
+	//	//		bline = false;
+	//	//		uline = false;
+	//	//	}
+	//	//	// CTRL+U Parsing
+	//	//	else if (text[i] == 31) {
+	//	//		uline = !(uline);
+	//	//	}
+	//	//}
+	//	//// regular TCHAR
+	//	//else if (fNewLine && text[i] == TEXT('\r') && text[i +1] == TEXT('\n')) {
+	//	//	bline = false;
+	//	//	uline = false;
+	//	//	mcolor = CLR_INVALID;
+	//	//	bkgcolor = CLR_INVALID;
+	//	//
+	//	//	//cbuf[0] = text[i];
+	//	//	//this->insertText( cbuf, bline, uline, bmcolor, mcolor, bbkgcolor, bkgcolor, 0 );
+	//	//	++i;
+	//	//	cbuf[0] = text[i];
+	//	//	this->insertText(cbuf, bline, uline, bmcolor, mcolor, bbkgcolor, bkgcolor, 0);
+	//	//}
+	//	//else {
+	//	//	this->insertText(cbuf, bline, uline, bmcolor, mcolor, bbkgcolor, bkgcolor, 0);
+	//	//}
+//
+	//	switch (text[i])
+	//	{
+	//		// CTRL+B Parsing
+	//	case 2:
+	//		bline = !(bline);
+	//		break;
+	//		// CTRL+K Parsing
+	//	case 3:
+	//	{
+	//			  if (text[i + 1] >= TEXT('0') && text[i + 1] <= TEXT('9')) {
+	//				  colbuf[0] = text[i + 1];
+	//				  colbuf[1] = TEXT('\0');
+	//				  ++i;
+//
+	//				  if (text[i + 1] >= TEXT('0') && text[i + 1] <= TEXT('9')) {
+	//					  colbuf[1] = text[i + 1];
+	//					  i++;
+	//				  }
+//
+	//				  // color code number
+	//				  bmcolor = true;
+	//				  mcolor = this->m_aColorPalette[this->unfoldColor(colbuf)];
+//
+	//				  // maybe a background color
+	//				  if (text[i + 1] == TEXT(',')) {
+	//					  ++i;
+//
+	//					  if (text[i + 1] >= TEXT('0') && text[i + 1] <= TEXT('9')) {
+	//						  colbuf[0] = text[i + 1];
+	//						  colbuf[1] = TEXT('\0');
+	//						  i++;
+//
+	//						  if (text[i + 1] >= TEXT('0') && text[i + 1] <= TEXT('9')) {
+	//							  colbuf[1] = text[i + 1];
+	//							  ++i;
+	//						  }
+//
+	//						  // color code number
+	//						  bbkgcolor = true;
+	//						  bkgcolor = this->m_aColorPalette[this->unfoldColor(colbuf)];
+	//					  }
+	//				  }
+	//			  }
+	//			  else {
+	//				  bmcolor = false;
+	//				  bbkgcolor = false;
+	//			  }
+	//	}
+	//		break;
+	//		// CTRL+O Parsing
+	//	case 15:
+	//	{
+	//			   bline = false;
+	//			   uline = false;
+	//			   mcolor = CLR_INVALID;
+	//			   bkgcolor = CLR_INVALID;
+	//	}
+	//		break;
+	//		// CTRL+R Parsing
+	//	case 22:
+	//	{
+	//			   bline = false;
+	//			   uline = false;
+	//	}
+	//		break;
+	//		// CTRL+U Parsing
+	//	case 31:
+	//		uline = !(uline);
+	//		break;
+	//		// regular TCHAR
+	//	default:
+	//	{
+	//			   if (fNewLine && text[i] == TEXT('\r') && text[i + 1] == TEXT('\n'))
+	//			   {
+	//				   bline = false;
+	//				   uline = false;
+	//				   mcolor = CLR_INVALID;
+	//				   bkgcolor = CLR_INVALID;
+//
+	//				   ++i;
+	//				   cbuf[0] = TEXT('\n');
+	//			   }
+	//			   this->insertText(cbuf, bline, uline, bmcolor, mcolor, bbkgcolor, bkgcolor, 0);
+	//	}
+	//	}
+	//}
+	//this->setSel(0, 0);
+	//this->setRedraw(TRUE);
+	//this->redrawWindow();
+//
+	//this->m_bIgnoreInput = FALSE;
+
+	this->parseStringContents(this->m_tsText, fNewLine);
+}
+
+void DcxRichEdit::parseStringContents(const TString &tsStr, const BOOL fNewLine)
+{
+	this->m_bIgnoreInput = TRUE;
+	this->setRedraw(FALSE);
+
+	const TCHAR *const text = tsStr.to_chr();
 
 	bool uline = false;
 	bool bline = false;
-	//int mcolor = -1;
-	//int bkgcolor = -1;
+	bool iline = false;
 	COLORREF mcolor = 0;
 	COLORREF bkgcolor = 0;
 
@@ -580,90 +977,101 @@ void DcxRichEdit::parseContents(const BOOL fNewLine) { // old function
 
 	for (int i = 0; text[i] != TEXT('\0'); i++)
 	{
-		cbuf[0] = text[i];
-
-		// if current TCHAR is a control code
-		if (text[i] == 2 || text[i] == 3 || text[i] == 15 || text[i] == 22 || text[i] == 31) {
+		switch (text[i])
+		{
 			// CTRL+B Parsing
-			if (text[i] == 2)
-				bline = !(bline);
-
+		case 2:
+			bline = !(bline);
+			break;
 			// CTRL+K Parsing
-			else if (text[i] == 3) {
-				if (text[i +1] >= TEXT('0') && text[i +1] <= TEXT('9')) {
-					colbuf[0] = text[i +1];
-					colbuf[1] = TEXT('\0');
-					++i;
+		case 3:
+		{
+				  if (text[i + 1] >= TEXT('0') && text[i + 1] <= TEXT('9')) {
+					  colbuf[0] = text[i + 1];
+					  colbuf[1] = TEXT('\0');
+					  ++i;
 
-					if (text[i +1] >= TEXT('0') && text[i +1] <= TEXT('9')) {
-						colbuf[1] = text[i +1];
-						i++;
-					}
+					  if (text[i + 1] >= TEXT('0') && text[i + 1] <= TEXT('9')) {
+						  colbuf[1] = text[i + 1];
+						  i++;
+					  }
 
-					// color code number
-					bmcolor = true;
-					mcolor = this->m_aColorPalette[this->unfoldColor(colbuf)];
+					  // color code number
+					  bmcolor = true;
+					  mcolor = this->m_aColorPalette[this->unfoldColor(colbuf)];
 
-					// maybe a background color
-					if (text[i+1] == TEXT(',')) {
-						++i;
+					  // maybe a background color
+					  if (text[i + 1] == TEXT(',')) {
+						  ++i;
 
-						if (text[i +1] >= TEXT('0') && text[i +1] <= TEXT('9')) {
-							colbuf[0] = text[i +1];
-							colbuf[1] = TEXT('\0');
-							i++;
+						  if (text[i + 1] >= TEXT('0') && text[i + 1] <= TEXT('9')) {
+							  colbuf[0] = text[i + 1];
+							  colbuf[1] = TEXT('\0');
+							  i++;
 
-							if (text[i +1] >= TEXT('0') && text[i +1] <= TEXT('9')) {
-								colbuf[1] = text[i +1];
-								++i;
-							}
+							  if (text[i + 1] >= TEXT('0') && text[i + 1] <= TEXT('9')) {
+								  colbuf[1] = text[i + 1];
+								  ++i;
+							  }
 
-							// color code number
-							bbkgcolor = true;
-							bkgcolor = this->m_aColorPalette[this->unfoldColor(colbuf)];
-						}
-					}
-				}
-				else {
-					bmcolor = false;
-					bbkgcolor = false;
-				}
-			}
+							  // color code number
+							  bbkgcolor = true;
+							  bkgcolor = this->m_aColorPalette[this->unfoldColor(colbuf)];
+						  }
+					  }
+				  }
+				  else {
+					  bmcolor = false;
+					  bbkgcolor = false;
+				  }
+		}
+			break;
 			// CTRL+O Parsing
-			else if (text[i] == 15) {
-				bline = false;
-				uline = false;
-				mcolor = CLR_INVALID;
-				bkgcolor = CLR_INVALID;
-			}
+		case 15:
+		{
+				   bline = false;
+				   uline = false;
+				   iline = false;
+				   mcolor = CLR_INVALID;
+				   bkgcolor = CLR_INVALID;
+		}
+			break;
 			// CTRL+R Parsing
-			else if (text[i] == 22) {
-				bline = false;
-				uline = false;
-			}
+		case 22:
+		{
+				   bline = false;
+				   uline = false;
+				   iline = false;
+		}
+			break;
+			// CTRL+I Parsing
+		case 29:
+			iline = !(iline);
+			break;
 			// CTRL+U Parsing
-			else if (text[i] == 31) {
-				uline = !(uline);
-			}
-		}
-		// regular TCHAR
-		else if (fNewLine && text[i] == TEXT('\r') && text[i +1] == TEXT('\n')) {
-			bline = false;
-			uline = false;
-			mcolor = CLR_INVALID;
-			bkgcolor = CLR_INVALID;
+		case 31:
+			uline = !(uline);
+			break;
+			// regular TCHAR
+		default:
+		{
+				   if (fNewLine && text[i] == TEXT('\r') && text[i + 1] == TEXT('\n'))
+				   {
+					   bline = false;
+					   uline = false;
+					   mcolor = CLR_INVALID;
+					   bkgcolor = CLR_INVALID;
 
-			//cbuf[0] = text[i];
-			//this->insertText( cbuf, bline, uline, bmcolor, mcolor, bbkgcolor, bkgcolor, 0 );
-			++i;
-			cbuf[0] = text[i];
-			this->insertText(cbuf, bline, uline, bmcolor, mcolor, bbkgcolor, bkgcolor, 0);
+					   ++i;
+					   cbuf[0] = TEXT('\n');
+				   }
+				   else
+					   cbuf[0] = text[i];
+
+				   this->insertText(cbuf, bline, uline, iline, bmcolor, mcolor, bbkgcolor, bkgcolor, 0);
 		}
-		else {
-			this->insertText(cbuf, bline, uline, bmcolor, mcolor, bbkgcolor, bkgcolor, 0);
 		}
 	}
-
 	this->setSel(0, 0);
 	this->setRedraw(TRUE);
 	this->redrawWindow();
@@ -691,7 +1099,7 @@ int DcxRichEdit::unfoldColor(const TCHAR *color) {
 *
 * blah
 */
-void DcxRichEdit::insertText(TCHAR *text, bool bline, bool uline, bool bcolor, COLORREF color, bool bbkgcolor, COLORREF bkgcolor, int reverse) {
+void DcxRichEdit::insertText(TCHAR *text, bool bline, bool uline, bool iline, bool bcolor, COLORREF color, bool bbkgcolor, COLORREF bkgcolor, int reverse) {
 	// get total length
 	int len = GetWindowTextLength(this->m_Hwnd);
 	// get line TCHAR number from end TCHAR pos
@@ -726,17 +1134,19 @@ void DcxRichEdit::insertText(TCHAR *text, bool bline, bool uline, bool bcolor, C
 	if (this->m_bFontUnderline)
 		chrf.dwEffects |= CFE_UNDERLINE;
 
-	if (this->m_tsFontFaceName != TEXT(""))
+	if (!this->m_tsFontFaceName.empty())
 		dcx_strcpyn(chrf.szFaceName, this->m_tsFontFaceName.to_chr(), 32);
 
-	if (bcolor == true)
+	if (bcolor)
 		chrf.crTextColor = color;
-	if (bbkgcolor == true)
+	if (bbkgcolor)
 		chrf.crBackColor = bkgcolor;
-	if (bline == true)
+	if (bline)
 		chrf.dwEffects |= CFE_BOLD;
-	if (uline == true)
+	if (uline)
 		chrf.dwEffects |= CFE_UNDERLINE;
+	if (iline)
+		chrf.dwEffects |= CFE_ITALIC;
 
 	this->hideSelection(TRUE);
 	this->setSel(len, -1);
@@ -925,7 +1335,7 @@ LRESULT DcxRichEdit::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 				if ((this->m_bIgnoreRepeat) && (lParam & 0x40000000)) // ignore repeats
 					break;
 
-				this->execAliasEx(TEXT("%s,%d,%d:"), TEXT("keydown"), this->getUserID(), wParam);
+				this->execAliasEx(TEXT("%s,%d,%d"), TEXT("keydown"), this->getUserID(), wParam);
 			}
 			break;
 		}
@@ -941,23 +1351,23 @@ LRESULT DcxRichEdit::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 		//			break;
 		//		PAINTSTRUCT ps;
 		//		HDC hdc;
-
+		//
 		//		hdc = BeginPaint( this->m_Hwnd, &ps );
-
+		//
 		//		LRESULT res = 0L;
 		//		bParsed = TRUE;
-
+		//
 		//		// Setup alpha blend if any.
 		//		LPALPHAINFO ai = this->SetupAlphaBlend(&hdc);
-
+		//
 		//		// fill background.
 		//		//DcxControl::DrawCtrlBackground(hdc,this,&ps.rcPaint);
-
+		//
 		//		res = CallWindowProc( this->m_DefaultWindowProc, this->m_Hwnd, uMsg, (WPARAM) hdc, lParam );
 		//		//res = CallWindowProc( this->m_DefaultWindowProc, this->m_Hwnd, WM_PRINT, (WPARAM) hdc, (LPARAM) (PRF_CLIENT|PRF_NONCLIENT|PRF_CHILDREN|PRF_OWNED) );
-
+		//
 		//		this->FinishAlphaBlend(ai);
-
+		//
 		//		EndPaint( this->m_Hwnd, &ps );
 		//		return res;
 		//	}
@@ -966,29 +1376,29 @@ LRESULT DcxRichEdit::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 		//	{
 		//		HDC hdc = (HDC)wParam;
 		//		bParsed = TRUE;
-
+		//
 		//		if (lParam & PRF_ERASEBKGND)
 		//			SendMessage(this->m_Hwnd, WM_ERASEBKGND, wParam, 0L);
-
+		//
 		//		if (lParam & PRF_CLIENT)
 		//			SendMessage(this->m_Hwnd, WM_PRINTCLIENT, wParam, 0L);
-
+		//
 		//	}
 		//	break;
-
+		//
 		//case WM_PRINTCLIENT:
 		//	{
 		//		HDC hdc = (HDC)wParam;
 		//		bParsed = TRUE;
-
+		//
 		//		HDC tHDC = GetDC(this->m_Hwnd);
 		//		BITMAP bm;
 		//		HBITMAP cBmp = (HBITMAP)GetCurrentObject(hdc, OBJ_BITMAP);
-
+		//
 		//		GetObject(cBmp, sizeof(BITMAP), &bm);
-
+		//
 		//		BitBlt(hdc,0,0,bm.bmWidth, bm.bmHeight, tHDC,0,0, SRCCOPY);
-
+		//
 		//		ReleaseDC(this->m_Hwnd, tHDC);
 		//	}
 		//	break;

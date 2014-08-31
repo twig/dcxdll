@@ -18,6 +18,7 @@
 #include "defines.h"
 #include "Classes/dcxcontrol.h"
 #include <richedit.h>
+#include <sstream>
 
 class DcxDialog;
 
@@ -56,7 +57,6 @@ public:
 	void setContentsFont();
 	void clearContents();
 	void parseContents(const BOOL fNewLine);
-	void insertText(TCHAR *text, bool bline, bool uline, bool bcolor, COLORREF color, bool bbkgcolor, COLORREF bkgcolor, int reverse);
 
 	LRESULT setAutoUrlDetect(const BOOL iEnable);
 	LRESULT hideSelection(const BOOL iHide);
@@ -89,6 +89,14 @@ protected:
 	BOOL m_bIgnoreRepeat;
 
 	static int unfoldColor(const TCHAR *color);
+	static DWORD CALLBACK StreamOutToVarCallback(DWORD_PTR dwCookie, LPBYTE pbBuff, LONG cb, LONG *pcb);
+	static DWORD CALLBACK StreamOutToFileCallback(DWORD_PTR dwCookie, LPBYTE pbBuff, LONG cb, LONG *pcb);
+	static DWORD CALLBACK StreamInFromFileCallback(DWORD_PTR dwCookie, LPBYTE pbBuff, LONG cb, LONG *pcb);
+	static bool SaveRichTextToFile(HWND hWnd, const TCHAR *const filename);
+	static bool LoadRichTextFromFile(HWND hWnd, const TCHAR *const filename);
+
+	void insertText(TCHAR *text, bool bline, bool uline, bool iline, bool bcolor, COLORREF color, bool bbkgcolor, COLORREF bkgcolor, int reverse);
+	void parseStringContents(const TString &tsStr, const BOOL fNewLine);
 };
 
 #endif // _DCXRICHEDIT_H_

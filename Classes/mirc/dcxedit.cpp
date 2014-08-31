@@ -466,6 +466,10 @@ void DcxEdit::parseCommandRequest( const TString &input) {
 		if (!SaveDataToFile(tsFile, this->m_tsText))
 			this->showErrorEx(NULL, TEXT("-u"), TEXT("Unable to save: %s"), tsFile.to_chr());
 	}
+	// xdid -V [NAME] [ID]
+	else if (flags[TEXT('V')]) {
+		SendMessage(this->m_Hwnd, EM_SCROLLCARET, NULL, NULL);
+	}
 	// xdid -S [NAME] [ID] [SWITCH] [START] [END]
 	else if (flags[TEXT('S')] && numtok > 3) {
 		const int istart = input.getnexttok( ).to_int();	// tok 4
