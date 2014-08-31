@@ -408,26 +408,27 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, const XSwitch
 	// xdid -Z [NAME] [ID] [SWITCH] [%]
 	else if ( flags[TEXT('Z')] && numtok > 3 ) {
 
-		const int perc = input.getfirsttok( 4 ).to_int( );
+		const UINT perc = (UINT)(input.getfirsttok(4).to_int() & 0xFF);
 
-		if ( perc >= 0 && perc <= 100 ) {
+		if (perc > 100) {
+			this->showErrorEx(NULL, TEXT("-Z"), TEXT("Invalid Percentage: %u"), perc);
+			return;
+		}
+		int min, max;
+		GetScrollRange( this->m_Hwnd, SB_VERT, &min, &max );
 
-			int min, max;
-			GetScrollRange( this->m_Hwnd, SB_VERT, &min, &max );
+		//scrollbar is defined and has visible range
+		if ( min != 0 || max != 0 ) {
 
-			//scrollbar is defined and has visible range
-			if ( min != 0 || max != 0 ) {
+			const int pos = dcx_round( (float) ( max - min ) * (float) perc / (float) 100.0 );
 
-				const int pos = dcx_round( (float) ( max - min ) * (float) perc / (float) 100.0 );
-
-				SCROLLINFO si;
-				ZeroMemory( &si, sizeof ( SCROLLINFO ) );
-				si.cbSize = sizeof( SCROLLINFO );
-				GetScrollInfo( this->m_Hwnd, SB_VERT, &si );
-				si.nPos = pos;
-				SetScrollInfo( this->m_Hwnd, SB_VERT, &si, TRUE );
-				SendMessage( this->m_Hwnd, WM_VSCROLL, MAKEWPARAM( SB_THUMBPOSITION, si.nPos ), NULL );
-			}
+			SCROLLINFO si;
+			ZeroMemory( &si, sizeof ( SCROLLINFO ) );
+			si.cbSize = sizeof( SCROLLINFO );
+			GetScrollInfo( this->m_Hwnd, SB_VERT, &si );
+			si.nPos = pos;
+			SetScrollInfo( this->m_Hwnd, SB_VERT, &si, TRUE );
+			SendMessage( this->m_Hwnd, WM_VSCROLL, MAKEWPARAM( SB_THUMBPOSITION, si.nPos ), NULL );
 		}
 	}
 

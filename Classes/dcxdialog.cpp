@@ -105,10 +105,16 @@ DcxDialog::DcxDialog(const HWND mHwnd, const TString &tsName, const TString &tsA
 , m_hVistaBitmap(NULL)
 , m_hVistaHDC(NULL)
 , m_bVerboseErrors(true)
+, m_bErrorTriggered(false)
 //#ifdef DCX_USE_GDIPLUS
 //, m_pImage(NULL)
 //#endif
 {
+	//this->m_vpControls.clear();
+	//this->m_vDragLists.clear();
+	//this->m_vZLayers.clear();
+	//this->namedIds.clear();
+
 	this->addStyle(WS_CLIPCHILDREN);
 
 	//this->addExStyle(WS_EX_TRANSPARENT); // WS_EX_TRANSPARENT|WS_EX_LAYERED gives a window u can click through to the win behind.
@@ -1306,8 +1312,8 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 			return;
 		}
 
-		if (!dcxGetWindowRect(this->m_Hwnd, &rcWindow))
-		//if (!GetWindowRect(this->m_Hwnd, &rcWindow))
+		//if (!dcxGetWindowRect(this->m_Hwnd, &rcWindow))
+		if (!GetWindowRect(this->m_Hwnd, &rcWindow))
 		{
 			this->showError(NULL, TEXT("-S"), TEXT("Unable to get window rect!"));
 			return;
@@ -1599,7 +1605,7 @@ void DcxDialog::parseInfoRequest( const TString &input, TCHAR *szReturnValue) co
 		return;
 	}
 	// [NAME] [PROP] [N|NAMEDID]
-	if (prop == TEXT("id") && numtok > 2) {
+	else if (prop == TEXT("id") && numtok > 2) {
 		const TString tsID(input.getnexttok( ));	// tok 3
 		const int N = tsID.to_int() -1;
 
@@ -1649,7 +1655,12 @@ void DcxDialog::parseInfoRequest( const TString &input, TCHAR *szReturnValue) co
 	}
 	// [NAME] [PROP]
 	else if (prop == TEXT("ismarked")) {
-		dcx_ConRet(Dcx::Dialogs.getDialogByHandle(this->m_Hwnd) != NULL, szReturnValue);
+		// no need to test anything, if it got here we already know its marked.
+		if (lstrcpyn(szReturnValue, TEXT("$true"), MIRC_BUFFER_SIZE_CCH) != NULL)
+			return;
+
+		//dcx_ConRet(Dcx::Dialogs.getDialogByHandle(this->m_Hwnd) != NULL, szReturnValue);
+
 		//TCHAR *p;
 		//if (Dcx::Dialogs.getDialogByHandle(this->m_Hwnd) != NULL)
 		//	p = lstrcpyn(szReturnValue, TEXT("$true"), MIRC_BUFFER_SIZE_CCH);
@@ -1749,6 +1760,7 @@ void DcxDialog::parseInfoRequest( const TString &input, TCHAR *szReturnValue) co
 	// [NAME] [PROP]
 	else if (prop == TEXT("visible")) {
 		dcx_ConRet(IsWindowVisible(this->m_Hwnd), szReturnValue);
+
 		//if (IsWindowVisible(this->m_Hwnd))
 		//	lstrcpyn(szReturnValue, TEXT("$true"), MIRC_BUFFER_SIZE_CCH);
 		//else
@@ -2727,7 +2739,25 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 				}
 			}
 			break;
+		case WM_KEYDOWN:
+		{
+						   if (p_this->getEventMask() & DCX_EVENT_EDIT) {
+							   if (wParam == VK_RETURN)
+								   p_this->execAliasEx(TEXT("%s,%d"), TEXT("return"), 0);
 
+							   //if ((p_this->m_bIgnoreRepeat) && (lParam & 0x40000000)) // ignore repeats
+								  // break;
+
+							   p_this->execAliasEx(TEXT("%s,%d,%d"), TEXT("keydown"), 0, wParam);
+						   }
+						   break;
+		}
+		case WM_KEYUP:
+		{
+						 if (p_this->getEventMask() & DCX_EVENT_EDIT)
+							 p_this->execAliasEx(TEXT("%s,%d,%d"), TEXT("keyup"), 0, wParam);
+						 break;
+		}
 		case WM_NCDESTROY:
 			{
 							 if (IsWindow(mHwnd))
@@ -3227,6 +3257,11 @@ bool DcxDialog::SetShadowColor(COLORREF NewColor)
 */
 void DcxDialog::showError(const TCHAR *prop, const TCHAR *cmd, const TCHAR *err) const
 {
+	if (this->m_bErrorTriggered)
+		return;
+
+	this->m_bErrorTriggered = true;
+
 	if (this->IsVerbose())
 	{
 		TString res;
@@ -3238,6 +3273,8 @@ void DcxDialog::showError(const TCHAR *prop, const TCHAR *cmd, const TCHAR *err)
 	}
 
 	const_cast<DcxDialog *>(this)->execAliasEx(TEXT("error,0,dialog,%s,%s,%s"), (prop != NULL ? prop : TEXT("none")), (cmd != NULL ? cmd : TEXT("none")), err);
+
+	this->m_bErrorTriggered = false;
 }
 
 void DcxDialog::showErrorEx(const TCHAR *prop, const TCHAR *cmd, const TCHAR *fmt, ...) const
@@ -3257,6 +3294,11 @@ void DcxDialog::showErrorEx(const TCHAR *prop, const TCHAR *cmd, const TCHAR *fm
 */
 void DcxDialog::showControlError(const TCHAR *prop, const TCHAR *cmd, const TCHAR *err) const
 {
+	if (this->m_bErrorTriggered)
+		return;
+
+	this->m_bErrorTriggered = true;
+
 	if (this->IsVerbose())
 	{
 		TString res;
@@ -3268,6 +3310,8 @@ void DcxDialog::showControlError(const TCHAR *prop, const TCHAR *cmd, const TCHA
 	}
 
 	const_cast<DcxDialog *>(this)->execAliasEx(TEXT("error,0,dialog,%s,%s,%s"), (prop != NULL ? prop : TEXT("none")), (cmd != NULL ? cmd : TEXT("none")), err);
+
+	this->m_bErrorTriggered = false;
 }
 
 void DcxDialog::showControlErrorEx(const TCHAR *prop, const TCHAR *cmd, const TCHAR *fmt, ...) const

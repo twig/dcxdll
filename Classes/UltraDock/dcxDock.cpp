@@ -405,28 +405,28 @@ LRESULT CALLBACK DcxDock::mIRCRefWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, L
 		//			PAINTSTRUCT ps;
 		//			RECT rcClient, rcParent;
 		//			HDC hdc, *hBuffer;
-
+//
 		//			// get treeviews rect
 		//			GetClientRect(mHwnd,&rcClient);
 		//			GetClientRect(mIRCLink.m_hTreebar, &rcParent);
-
+//
 		//			hdc = BeginPaint(mHwnd, &ps);
-
+//
 		//			//hBuffer = CreateHDCBuffer(hdc, &rcParent);
-
+//
 		//			////SendMessage(mIRCLink.m_hTreebar, WM_ERASEBKGND, (WPARAM)*hBuffer, NULL);
 		//			//SendMessage(mIRCLink.m_hTreebar, WM_PRINT, (WPARAM)*hBuffer, PRF_CLIENT|PRF_ERASEBKGND);
 		//			////SendMessage(mIRCLink.m_hTreebar, WM_PRINTCLIENT, (WPARAM)*hBuffer, PRF_CLIENT);
-
+//
 		//			//CopyRect(&rcParent, &rcClient);
 		//			//MapWindowRect(mHwnd, mIRCLink.m_hTreebar, &rcParent);
-
+//
 		//			//BitBlt(hdc, rcClient.left, rcClient.top, (rcClient.right - rcClient.left), (rcClient.bottom - rcClient.top), *hBuffer, rcParent.left, rcParent.top, SRCCOPY);
-
+//
 		//			//DeleteHDCBuffer(hBuffer);
-
+//
 		//			//LRESULT lRes = CallWindowProc(pthis->m_OldRefWndProc, mHwnd, uMsg, (WPARAM)hdc, lParam);
-
+//
 		//			EndPaint(mHwnd, &ps);
 		//			//return lRes;
 		//			return 0L;
@@ -475,6 +475,18 @@ LRESULT CALLBACK DcxDock::mIRCRefWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, L
 				}
 			}
 			break;
+		case WM_DESTROY:
+		{
+						   if (IsWindow(mHwnd))
+						   {
+							   if ((WNDPROC)GetWindowLongPtr(mHwnd, GWLP_WNDPROC) == DcxDock::mIRCRefWinProc)
+								   SubclassWindow(mHwnd, pthis->m_OldRefWndProc);
+						   }
+
+						   LRESULT lRes = CallWindowProc(pthis->m_OldRefWndProc, mHwnd, uMsg, wParam, lParam);
+
+						   return lRes;
+		}
 	}
 	return CallWindowProc(pthis->m_OldRefWndProc, mHwnd, uMsg, wParam, lParam);
 }
@@ -571,7 +583,7 @@ LRESULT CALLBACK DcxDock::mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 												//tvi.mask = TVIF_CHILDREN|TVIF_STATE;
 												//tvi.hItem = hItem;
 												//tvi.stateMask = TVIS_EXPANDED;
-
+												//
 												//if (TreeView_GetItem(lpntvcd->nmcd.hdr.hwndFrom, &tvi))
 												//{
 												//	if (tvi.cChildren && !(tvi.state & TVIS_EXPANDED)) { // has children & not expanded
@@ -581,7 +593,7 @@ LRESULT CALLBACK DcxDock::mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 												const int wid = HIWORD(lpntvcd->nmcd.lItemlParam);
 												TString buf;
 												mIRCLinker::tsEvalex(buf, TEXT("$window(@%d).sbcolor"), wid);
-												if (buf.len() > 0) {
+												if (!buf.empty()) {
 													static const TString sbcolor(TEXT("s s message s event s highlight")); // 's' is used as a spacer.
 													const int clr = sbcolor.findtok(buf.to_chr(), 1);
 													if (clr == 0) // no match, do normal colours
@@ -620,7 +632,7 @@ LRESULT CALLBACK DcxDock::mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 									mIRCLinker::execex(TEXT("/!set -nu1 %%dcx_%d %s"), item.lParam, item.pszText); // <- had wrong args causing instant crash when showing tooltips
 									mIRCLinker::tsEvalex(buf, TEXT("$xtreebar_callback(gettooltip,%s,%%dcx_%d)"), tsType.to_chr(), item.lParam);
 
-									if (buf.len() > 0)
+									if (!buf.empty())
 										dcx_strcpyn(tcgit->pszText, buf.to_chr(), tcgit->cchTextMax);
 								}
 							}
@@ -695,7 +707,7 @@ LRESULT CALLBACK DcxDock::mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 
 						const int oldbkg = SetBkMode( lpDrawItem->hDC, TRANSPARENT );
 
-						if (pPart->m_Text.len() > 0)
+						if (!pPart->m_Text.empty())
 							mIRC_DrawText(lpDrawItem->hDC, pPart->m_Text, &rc, DT_LEFT | DT_VCENTER | DT_SINGLELINE, false);
 						else if (IsWindow(pPart->m_Child))
 							SetWindowPos(pPart->m_Child, NULL, rc.left, rc.top, (rc.right - rc.left), (rc.bottom - rc.top), SWP_NOZORDER|SWP_NOOWNERZORDER|SWP_SHOWWINDOW|SWP_NOACTIVATE);
@@ -726,10 +738,20 @@ LRESULT CALLBACK DcxDock::mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 			break;
 		case WM_DESTROY:
 		{
-			delete pthis;
-			PostMessage(mHwnd, uMsg, 0, 0);
-			return 0L;
-			//break;
+			//delete pthis;
+			//PostMessage(mHwnd, uMsg, 0, 0);
+			//return 0L;
+						   if (IsWindow(mHwnd))
+						   {
+							   if ((WNDPROC)GetWindowLongPtr(mHwnd, GWLP_WNDPROC) == DcxDock::mIRCDockWinProc)
+								   SubclassWindow(mHwnd, pthis->m_OldDockWndProc);
+						   }
+
+						  LRESULT lRes = CallWindowProc(pthis->m_OldDockWndProc, mHwnd, uMsg, wParam, lParam);
+
+						  delete pthis;
+
+						  return lRes;
 		}
 	}
 	return CallWindowProc(pthis->m_OldDockWndProc, mHwnd, uMsg, wParam, lParam);
@@ -803,7 +825,7 @@ void DcxDock::status_parseControlStyles( const TString & styles, LONG * Styles, 
 {
 	*Styles = WS_CHILD|WS_VISIBLE|WS_CLIPCHILDREN|WS_CLIPSIBLINGS;
 
-	for (TString tsStyle(styles.getfirsttok( 1 )); tsStyle != TEXT(""); tsStyle = styles.getnexttok()) {
+	for (TString tsStyle(styles.getfirsttok(1)); !tsStyle.empty(); tsStyle = styles.getnexttok()) {
 		if ( tsStyle == TEXT("grip") )
 			*Styles |= SBARS_SIZEGRIP;
 		else if ( tsStyle == TEXT("tooltips") )
@@ -1031,7 +1053,7 @@ void DcxDock::getTreebarItemType(TString &tsType, const LPARAM lParam)
 	default:
 		{
 			mIRCLinker::tsEvalex(tsType, TEXT("$window(@%d).type"), wid);
-			if (tsType.len() < 1)
+			if (tsType.empty())
 				tsType = TEXT("notify");
 		}
 		break;

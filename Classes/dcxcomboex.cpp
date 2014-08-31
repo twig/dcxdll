@@ -233,7 +233,7 @@ void DcxComboEx::parseInfoRequest( const TString & input, PTCHAR szReturnValue )
 		const TString matchtext(input.getfirsttok(2, TSTAB).trim());
 		const TString params(input.getnexttok( TSTAB).trim());	// tok 3
 
-		if ( matchtext.len( ) > 0 ) {
+		if ( !matchtext.empty() ) {
 
 			UINT SearchType;
 

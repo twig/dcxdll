@@ -270,6 +270,8 @@ protected:
 	HDC m_hVistaHDC;
 	SIZE m_sVistaOffsets;
 
+	mutable bool m_bErrorTriggered;		// set to true when an error has been triggered & used to avoid error loops
+
 	static LRESULT ProcessDragListMessage(DcxDialog* p_this, UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bParsed);
 };
 #ifdef __INTEL_COMPILER // Defined when using Intel C++ Compiler.
