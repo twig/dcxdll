@@ -161,13 +161,6 @@ namespace Dcx {
 	wc.lpszClassName = (TCHAR *)(szDcxClass); \
 	RegisterClassEx(&wc); \
 		};
-#define _dcxRegisterClass(szClass, szDcxClass, pClassObj) { \
-	GetClassInfoEx(NULL, (TCHAR *)(szClass), &wc); \
-	wc.lpszClassName = (TCHAR *)(szDcxClass); \
-	reinterpret_cast<DcxControl *>(pClassObj)->m_DefaultWindowProc = wc.lpfnWndProc; \
-	wc.lpfnWndProc = reinterpret_cast<DcxControl *>(pClassObj)->WindowProc; \
-	RegisterClassEx(&wc); \
-		};
 
 		// Custom ProgressBar
 		DCX_DEBUG(mIRCLinker::debug, TEXT("LoadDLL"), TEXT("Registering ProgressBar..."));

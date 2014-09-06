@@ -1955,6 +1955,25 @@ LRESULT DcxControl::CommonMessage( const UINT uMsg, WPARAM wParam, LPARAM lParam
 					bParsed = TRUE;
 			}
 			break;
+		case WM_KEYDOWN:
+		{
+						   if (this->m_pParentDialog->getEventMask() & DCX_EVENT_EDIT) {
+							   if (wParam == VK_RETURN)
+								  this->execAliasEx(TEXT("%s,%d"), TEXT("return"), this->getUserID());
+
+							   //if ((this->m_bIgnoreRepeat) && (lParam & 0x40000000)) // ignore repeats
+							   // break;
+
+							   this->execAliasEx(TEXT("%s,%d,%d"), TEXT("keydown"), this->getUserID(), wParam);
+						   }
+						   break;
+		}
+		case WM_KEYUP:
+		{
+						 if (this->m_pParentDialog->getEventMask() & DCX_EVENT_EDIT)
+							 this->execAliasEx(TEXT("%s,%d,%d"), TEXT("keyup"), this->getUserID(), wParam);
+						 break;
+		}
 
 		//case WM_WINDOWPOSCHANGING:
 		//{
