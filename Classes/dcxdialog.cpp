@@ -2294,6 +2294,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 				SetRect(&rc, 0, 0, LOWORD(lParam), HIWORD(lParam));
 				p_this->SetVistaStyleSize();
 				p_this->updateLayout(rc);
+
 				//SendMessage(mHwnd, WM_SETREDRAW, TRUE, 0);
 				//This is needed (or some other solution) to update the bkg image & transp controls on it
 //#if defined(NDEBUG) && !defined(DCX_DEV_BUILD)
@@ -2320,38 +2321,45 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 
 		case WM_WINDOWPOSCHANGING:
 			{
-				if (p_this->m_dEventMask & DCX_EVENT_MOVE) {
-					WINDOWPOS *wp = (WINDOWPOS *) lParam;
+									 WINDOWPOS *wp = (WINDOWPOS *)lParam;
+									 if (p_this->m_dEventMask & DCX_EVENT_MOVE) {
 
-					// break if nomove & nosize specified, since thats all we care about.
-					if ((wp == NULL) || ((wp->flags & SWP_NOMOVE) && (wp->flags & SWP_NOSIZE)))
-						break;
+										 // break if nomove & nosize specified, since thats all we care about.
+										 if ((wp == NULL) || ((wp->flags & SWP_NOMOVE) && (wp->flags & SWP_NOSIZE)))
+											 break;
 
-					TCHAR ret[256], *p = NULL;
+										 TCHAR ret[256], *p = NULL;
 
-					switch ((wp->flags & (SWP_NOSIZE|SWP_NOMOVE))) {
-					case SWP_NOSIZE:
-						p = TEXT("moving");
-						break;
-					case SWP_NOMOVE:
-						p = TEXT("sizing");
-						break;
-					default:
-						p = TEXT("both");
-						break;
-					}
+										 switch ((wp->flags & (SWP_NOSIZE | SWP_NOMOVE))) {
+										 case SWP_NOSIZE:
+											 p = TEXT("moving");
+											 break;
+										 case SWP_NOMOVE:
+											 p = TEXT("sizing");
+											 break;
+										 case (SWP_NOSIZE | SWP_NOMOVE) :
+											 p = TEXT("neither");
+											 break;
+										 default:
+											 p = TEXT("both");
+											 break;
+										 }
 
-					//p_this->callAliasEx(ret, TEXT("changing,0,%d,%d,%d,%d,%d"), (wp->flags & 3),wp->x, wp->y, wp->cx, wp->cy);
-					p_this->evalAliasEx(ret, 255, TEXT("changing,0,%s,%d,%d,%d,%d"), p,wp->x, wp->y, wp->cx, wp->cy);
+										 //p_this->callAliasEx(ret, TEXT("changing,0,%d,%d,%d,%d,%d"), (wp->flags & 3),wp->x, wp->y, wp->cx, wp->cy);
+										 p_this->evalAliasEx(ret, 255, TEXT("changing,0,%s,%d,%d,%d,%d"), p, wp->x, wp->y, wp->cx, wp->cy);
 
-					if (lstrcmp(TEXT("nosize"), ret) == 0)
-						wp->flags |= SWP_NOSIZE;
-					else if (lstrcmp(TEXT("nomove"), ret) == 0)
-						wp->flags |= SWP_NOMOVE;
-					else if (lstrcmp(TEXT("nochange"), ret) == 0)
-						wp->flags |= SWP_NOSIZE | SWP_NOMOVE;
-				}
-				break;
+										 if (lstrcmp(TEXT("nosize"), ret) == 0)
+											 wp->flags |= SWP_NOSIZE;
+										 else if (lstrcmp(TEXT("nomove"), ret) == 0)
+											 wp->flags |= SWP_NOMOVE;
+										 else if (lstrcmp(TEXT("nochange"), ret) == 0)
+											 wp->flags |= SWP_NOSIZE | SWP_NOMOVE;
+									 }
+									 //RECT rc;
+
+									 //SetRect(&rc, 0, 0, (wp->cx - wp->x), (wp->cy - wp->y));
+									 //p_this->updateLayout(rc);
+									 break;
 			}
 
 		case WM_ERASEBKGND:
@@ -2360,12 +2368,14 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 					break;
 				RECT rwnd;
 
-				GetClientRect(mHwnd, &rwnd);
+				if (GetClientRect(mHwnd, &rwnd))
+				{
 
-				DcxDialog::DrawDialogBackground((HDC) wParam,p_this,&rwnd);
+					DcxDialog::DrawDialogBackground((HDC)wParam, p_this, &rwnd);
 
-				bParsed = TRUE;
-				lRes = TRUE;
+					bParsed = TRUE;
+					lRes = TRUE;
+				}
 				break;
 			}
 
@@ -2435,7 +2445,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 					tme.dwHoverTime = HOVER_DEFAULT; //1;
 					p_this->m_bTracking = (BOOL) _TrackMouseEvent( &tme );
 					if (p_this->m_dEventMask & DCX_EVENT_MOUSE)
-						p_this->execAliasEx(TEXT("%s,%d"), TEXT("denter"), 0); // this tells you when the mouse enters or
+						p_this->execAliasEx(TEXT("%s,%u"), TEXT("denter"), 0); // this tells you when the mouse enters or
 					p_this->UpdateVistaStyle();
 				}
 				break;
@@ -2446,7 +2456,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 				if ( p_this->m_bTracking ) {
 					p_this->m_bTracking = FALSE;
 					if (p_this->m_dEventMask & DCX_EVENT_MOUSE)
-						p_this->execAliasEx(TEXT("%s,%d"), TEXT("dleave"), 0); // leaves a dialogs client area.
+						p_this->execAliasEx(TEXT("%s,%u"), TEXT("dleave"), 0); // leaves a dialogs client area.
 				}
 				p_this->UpdateVistaStyle();
 			}
@@ -2455,7 +2465,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 		case WM_LBUTTONDOWN:
 			{
 				if (p_this->m_dEventMask & DCX_EVENT_CLICK)
-					p_this->execAliasEx(TEXT("%s,%d"), TEXT("lbdown"), 0);
+					p_this->execAliasEx(TEXT("%s,%u"), TEXT("lbdown"), 0);
 				if (p_this->m_bDoDrag)
 					p_this->m_bDrag = true;
 				break;
@@ -2464,8 +2474,8 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 		case WM_LBUTTONUP:
 			{
 				if (p_this->m_dEventMask & DCX_EVENT_CLICK) {
-					p_this->execAliasEx(TEXT("%s,%d"), TEXT("lbup"), 0);
-					p_this->execAliasEx(TEXT("%s,%d"), TEXT("sclick"), 0);
+					p_this->execAliasEx(TEXT("%s,%u"), TEXT("lbup"), 0);
+					p_this->execAliasEx(TEXT("%s,%u"), TEXT("sclick"), 0);
 				}
 				break;
 			}
@@ -2473,8 +2483,8 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 		case WM_LBUTTONDBLCLK:
 			{
 				if (p_this->m_dEventMask & DCX_EVENT_CLICK) {
-					p_this->execAliasEx(TEXT("%s,%d"), TEXT("dclick"), 0);
-					p_this->execAliasEx(TEXT("%s,%d"), TEXT("lbdblclk"), 0);
+					p_this->execAliasEx(TEXT("%s,%u"), TEXT("dclick"), 0);
+					p_this->execAliasEx(TEXT("%s,%u"), TEXT("lbdblclk"), 0);
 				}
 				break;
 			}
@@ -2482,15 +2492,15 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 		case WM_RBUTTONDOWN:
 			{
 				if (p_this->m_dEventMask & DCX_EVENT_CLICK)
-					p_this->execAliasEx(TEXT("%s,%d"), TEXT("rbdown"), 0);
+					p_this->execAliasEx(TEXT("%s,%u"), TEXT("rbdown"), 0);
 				break;
 			}
 
 		case WM_RBUTTONUP:
 			{
 				if (p_this->m_dEventMask & DCX_EVENT_CLICK) {
-					p_this->execAliasEx(TEXT("%s,%d"), TEXT("rbup"), 0);
-					p_this->execAliasEx(TEXT("%s,%d"), TEXT("rclick"), 0);
+					p_this->execAliasEx(TEXT("%s,%u"), TEXT("rbup"), 0);
+					p_this->execAliasEx(TEXT("%s,%u"), TEXT("rclick"), 0);
 				}
 				break;
 			}
@@ -2498,28 +2508,28 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 		case WM_RBUTTONDBLCLK:
 			{
 				if (p_this->m_dEventMask & DCX_EVENT_CLICK)
-					p_this->execAliasEx(TEXT("%s,%d"), TEXT("rbdblclk"), 0);
+					p_this->execAliasEx(TEXT("%s,%u"), TEXT("rbdblclk"), 0);
 				break;
 			}
 
 		case WM_MBUTTONDOWN:
 			{
 				if (p_this->m_dEventMask & DCX_EVENT_CLICK)
-					p_this->execAliasEx(TEXT("%s,%d"), TEXT("mbdown"), 0);
+					p_this->execAliasEx(TEXT("%s,%u"), TEXT("mbdown"), 0);
 				break;
 			}
 
 		case WM_MBUTTONUP:
 			{
 				if (p_this->m_dEventMask & DCX_EVENT_CLICK)
-					p_this->execAliasEx(TEXT("%s,%d"), TEXT("mbup"), 0);
+					p_this->execAliasEx(TEXT("%s,%u"), TEXT("mbup"), 0);
 				break;
 			}
 
 		case WM_MBUTTONDBLCLK:
 			{
 				if (p_this->m_dEventMask & DCX_EVENT_CLICK)
-					p_this->execAliasEx(TEXT("%s,%d"), TEXT("mbdblclk"), 0);
+					p_this->execAliasEx(TEXT("%s,%u"), TEXT("mbdblclk"), 0);
 				break;
 			}
 
@@ -2541,7 +2551,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 					if (fwKeys & MK_SHIFT) // shift button
 						flags += TEXT('s');
 
-					p_this->execAliasEx(TEXT("%s,%d,%s,%s"),
+					p_this->execAliasEx(TEXT("%s,%u,%s,%s"),
 						TEXT("mwheel"),
 						p_this->m_MouseID,
 						((int) zDelta > 0 ? TEXT("up") : TEXT("down")),
@@ -2599,13 +2609,13 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 			{
 				HDROP files = (HDROP) wParam;
 				TCHAR filename[500];
-				const int count = DragQueryFile(files, 0xFFFFFFFF,  filename, 500);
+				const UINT count = DragQueryFile(files, 0xFFFFFFFF,  filename, 500);
 
 				if (count > 0) {
 					if (p_this->m_dEventMask & DCX_EVENT_DRAG) {
 						TCHAR ret[20];
 
-						p_this->evalAliasEx(ret, 19, TEXT("%s,%d,%d"), TEXT("dragbegin"), 0, count);
+						p_this->evalAliasEx(ret, 19, TEXT("%s,%u,%u"), TEXT("dragbegin"), 0, count);
 
 						// cancel drag drop event
 						if (lstrcmpi(ret, TEXT("cancel")) == 0) {
@@ -2614,12 +2624,12 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 							break;
 						}
 						// for each file, send callback message
-						for (int i = 0; i < count; i++) {
+						for (UINT i = 0; i < count; i++) {
 							if (DragQueryFile(files, i, filename, 500))
-								p_this->execAliasEx(TEXT("%s,%d,%s"), TEXT("dragfile"), 0, filename);
+								p_this->execAliasEx(TEXT("%s,%u,%s"), TEXT("dragfile"), 0, filename);
 						}
 
-						p_this->execAliasEx(TEXT("%s,%d"), TEXT("dragfinish"), 0);
+						p_this->execAliasEx(TEXT("%s,%u"), TEXT("dragfinish"), 0);
 					}
 				}
 
@@ -2640,13 +2650,13 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 					case WA_ACTIVE:
 					case WA_CLICKACTIVE:
 						{
-							p_this->execAliasEx(TEXT("%s,%d"), TEXT("activate"), 0);
+							p_this->execAliasEx(TEXT("%s,%u"), TEXT("activate"), 0);
 							break;
 						}
 
 					case WA_INACTIVE:
 						{
-							p_this->execAliasEx(TEXT("%s,%d"), TEXT("deactivate"), 0);
+							p_this->execAliasEx(TEXT("%s,%u"), TEXT("deactivate"), 0);
 							break;
 						}
 					} // switch
@@ -2776,7 +2786,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 		default:
 			{
 				// Try to process DragList events
-				if (p_this->m_vDragLists.size() != 0)
+				if (!p_this->m_vDragLists.empty())
 					lRes = ProcessDragListMessage(p_this, uMsg, wParam, lParam, bParsed);
 			}
 			break;

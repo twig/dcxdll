@@ -318,17 +318,14 @@ void DrawXorBar(HDC hdc, const int x1, const int y1, const int width, const int 
 		0x00aa, 0x0055, 0x00aa, 0x0055
 	};
 
-	HBITMAP hbm;
-	HBRUSH  hbr, hbrushOld;
-
-	hbm = CreateBitmap( 8, 8, 1, 1, _dotPatternBmp );
+	HBITMAP hbm = CreateBitmap( 8, 8, 1, 1, _dotPatternBmp );
 	if (hbm != NULL)
 	{
-		hbr = CreatePatternBrush(hbm);
+		HBRUSH hbr = CreatePatternBrush(hbm);
 		if (hbr != NULL)
 		{
 			SetBrushOrgEx(hdc, x1, y1, 0);
-			hbrushOld = SelectBrush(hdc, hbr);
+			HBRUSH hbrushOld = SelectBrush(hdc, hbr);
 
 			PatBlt(hdc, x1, y1, width, height, PATINVERT);
 

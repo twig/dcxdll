@@ -328,7 +328,7 @@ void DcxComboEx::parseCommandRequest( const TString &input) {
 		const int overlay	= input.getnexttok( ).to_int();		// tok 8		(never used, here for spacing only atm)
 		const TString itemtext(input.getlasttoks());			// tok 9, -1
 
-		if (nPos == -2) {
+		if (nPos < -1) {
 			if (IsWindow(this->m_EditHwnd))
 				SetWindowText(this->m_EditHwnd, itemtext.to_chr());
 
@@ -349,53 +349,64 @@ void DcxComboEx::parseCommandRequest( const TString &input) {
 			cbi.lParam = (LPARAM)new DCXCBITEM;
 
 			//nPos = this->insertItem(&cbi);
-			this->insertItem(&cbi);
+			if (this->insertItem(&cbi) != -1)
+			{
+				// Now update the horizontal scroller
+				HWND combo = (HWND)SendMessage(this->m_Hwnd, CBEM_GETCOMBOCONTROL, NULL, NULL);
 
-			// Now update the horizontal scroller
-			HWND combo = (HWND)SendMessage(this->m_Hwnd, CBEM_GETCOMBOCONTROL, NULL, NULL);
+				if (IsWindow(combo)) {
+					// Get Font sizes (best way i can find atm, if you know something better then please let me know)
 
-			if (IsWindow(combo)) {
-				// Get Font sizes (best way i can find atm, if you know something better then please let me know)
+					//int nMaxStrlen = itemtext.len();
+					//const int nHorizExtent = (int)SendMessage( combo, CB_GETHORIZONTALEXTENT, NULL, NULL );
+					//
+					//HDC hdc = GetDC( this->m_Hwnd );
+					//TEXTMETRIC tm;
+					//HFONT hFont = this->getFont();
+					//
+					//HFONT hOldFont = SelectFont(hdc, hFont);
+					//
+					//GetTextMetrics(hdc, &tm);
+					//
+					//SelectFont(hdc, hOldFont);
+					//
+					//ReleaseDC( this->m_Hwnd, hdc);
+					//
+					//// Multiply max str len by font average width + 1
+					//nMaxStrlen *= (tm.tmAveCharWidth + tm.tmOverhang);
+					//// Add 2 * chars as spacer.
+					//nMaxStrlen += (tm.tmAveCharWidth * 2);
+					//
+					//if (nMaxStrlen > nHorizExtent)
+					//	SendMessage(combo, CB_SETHORIZONTALEXTENT, nMaxStrlen, NULL);
 
-				//int nMaxStrlen = itemtext.len();
-				//const int nHorizExtent = (int)SendMessage( combo, CB_GETHORIZONTALEXTENT, NULL, NULL );
-				//
-				//HDC hdc = GetDC( this->m_Hwnd );
-				//TEXTMETRIC tm;
-				//HFONT hFont = this->getFont();
-				//
-				//HFONT hOldFont = SelectFont(hdc, hFont);
-				//
-				//GetTextMetrics(hdc, &tm);
-				//
-				//SelectFont(hdc, hOldFont);
-				//
-				//ReleaseDC( this->m_Hwnd, hdc);
-				//
-				//// Multiply max str len by font average width + 1
-				//nMaxStrlen *= (tm.tmAveCharWidth + tm.tmOverhang);
-				//// Add 2 * chars as spacer.
-				//nMaxStrlen += (tm.tmAveCharWidth * 2);
-				//
-				//if (nMaxStrlen > nHorizExtent)
-				//	SendMessage(combo, CB_SETHORIZONTALEXTENT, nMaxStrlen, NULL);
+					const int nHorizExtent = (int)SendMessage(combo, CB_GETHORIZONTALEXTENT, NULL, NULL);
 
-				const int nHorizExtent = (int)SendMessage(combo, CB_GETHORIZONTALEXTENT, NULL, NULL);
+					HDC hdc = GetDC(this->m_Hwnd);
+					if (hdc != NULL)
+					{
+						HFONT hFont = this->getFont(), hOldFont = NULL;
+						SIZE sz = { 0 };
 
-				SIZE sz;
-				HDC hdc = GetDC( this->m_Hwnd );
-				HFONT hFont = this->getFont();
+						if (hFont != NULL)
+							hOldFont = SelectFont(hdc, hFont);
 
-				HFONT hOldFont = SelectFont(hdc, hFont);
+						if (GetTextExtentPoint32(hdc, itemtext.to_chr(), itemtext.len(), &sz))
+						{
+							if (sz.cx > nHorizExtent)
+								SendMessage(combo, CB_SETHORIZONTALEXTENT, sz.cx, NULL);
+						}
 
-				GetTextExtentPoint32(hdc, itemtext.to_chr(), itemtext.len(), &sz);
+						if (hFont != NULL)
+							SelectFont(hdc, hOldFont);
 
-				SelectFont(hdc, hOldFont);
-				
-				ReleaseDC( this->m_Hwnd, hdc);
-
-				if (sz.cx > nHorizExtent)
-					SendMessage( combo, CB_SETHORIZONTALEXTENT, sz.cx, NULL);
+						ReleaseDC(this->m_Hwnd, hdc);
+					}
+				}
+			}
+			else {
+				delete reinterpret_cast<DCXCBITEM *>(cbi.lParam);
+				this->showErrorEx(NULL, TEXT("-a"), TEXT("Unable to add item."));
 			}
 		}
 	}
@@ -430,7 +441,7 @@ void DcxComboEx::parseCommandRequest( const TString &input) {
 			return;
 		}
 
-		LPDCXCBITEM cbiDcx = (LPDCXCBITEM) cbei.lParam;
+		LPDCXCBITEM cbiDcx = reinterpret_cast<LPDCXCBITEM>(cbei.lParam);
 
 		if (cbiDcx != NULL) {
 			const XSwitchFlags xflags(input.getnexttok( ));	// tok 5

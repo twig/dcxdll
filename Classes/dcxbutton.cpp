@@ -115,15 +115,7 @@ DcxButton::~DcxButton( ) {
 void DcxButton::parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme )
 {
 	*Styles |= BS_NOTIFY;
-	//const UINT numtok = styles.numtok( );
 
-	//for (UINT i = 1; i <= numtok; i++ )
-	//{
-	//	if ( styles.gettok( i ) == TEXT("bitmap") )
-	//		*Styles |= BS_BITMAP;
-	//	else if ( styles.gettok( i ) == TEXT("default") )
-	//		*Styles |= BS_DEFPUSHBUTTON;
-	//}
 	for (TString tsStyle(styles.getfirsttok(1)); !tsStyle.empty(); tsStyle = styles.getnexttok())
 	{
 		if ( tsStyle == TEXT("bitmap") )
@@ -542,7 +534,9 @@ void DcxButton::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 	RECT rcClient;
 
 	// get controls client area
-	GetClientRect( this->m_Hwnd, &rcClient );
+	if (!GetClientRect(this->m_Hwnd, &rcClient))
+		return;
+
 	// get controls width & height.
 	const int w = (rcClient.right - rcClient.left), h = (rcClient.bottom - rcClient.top);
 
@@ -754,7 +748,7 @@ void DcxButton::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 		rcTxt.bottom = (rcClient.bottom - BUTTON_YPAD);
 		rcTxt.left = BUTTON_XPAD;
 
-		if ( this->m_tsCaption.len( ) > 0 ) {
+		if ( !this->m_tsCaption.empty() ) {
 			//this->calcTextRect(hdc, this->m_tsCaption, &rcTxt, DT_WORD_ELLIPSIS | DT_SINGLELINE);
 			TString t(this->m_tsCaption);
 			if (this->m_bCtrlCodeText)
@@ -813,7 +807,7 @@ void DcxButton::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 					DrawTextW( hdc, this->m_tsCaption.to_chr(), (int)this->m_tsCaption.len( ), &rcTxt, DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP | DT_SINGLELINE );
 			}
 			else
-				mIRC_DrawText(hdc, this->m_tsCaption, &rcTxt, DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP | DT_SINGLELINE, ((!this->m_bSelected && this->m_bShadowText) ? true : false));
+				mIRC_DrawText(hdc, this->m_tsCaption, &rcTxt, DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP | DT_SINGLELINE, (!this->m_bSelected && this->m_bShadowText));
 
 			SetTextColor(hdc, oldClr);
 		}

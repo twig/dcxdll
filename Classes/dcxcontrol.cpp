@@ -161,41 +161,8 @@ DcxControl::~DcxControl( ) {
 
 void DcxControl::parseGeneralControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme )
 {
-	//const UINT numtok = styles.numtok( );
-
 	*Styles |= WS_CLIPCHILDREN | WS_VISIBLE;
 
-	//styles.getfirsttok( 0 );
-
-	//for (UINT i = 1; i <= numtok; i++ )
-	//{
-	//	const TString tsStyle(styles.getnexttok( )); // tok i
-
-	//	if ( tsStyle == TEXT("notheme") )
-	//		*bNoTheme = TRUE;
-	//	else if ( tsStyle == TEXT("tabstop") )
-	//		*Styles |= WS_TABSTOP;
-	//	else if ( tsStyle == TEXT("group") )
-	//		*Styles |= WS_GROUP;
-	//	else if ( tsStyle == TEXT("disabled") )
-	//		*Styles |= WS_DISABLED;
-	//	else if ( tsStyle == TEXT("transparent") )
-	//		*ExStyles |= WS_EX_TRANSPARENT;
-	//	else if ( tsStyle == TEXT("hidden") )
-	//		*Styles &= ~WS_VISIBLE;
-	//	else if ( tsStyle == TEXT("alpha") )
-	//		this->m_bAlphaBlend = true;
-	//	else if ( tsStyle == TEXT("shadow") )
-	//		this->m_bShadowText = true;
-	//	else if ( tsStyle == TEXT("noformat") )
-	//		this->m_bCtrlCodeText = false;
-	//	else if ( tsStyle == TEXT("hgradient") )
-	//		this->m_bGradientFill = true;
-	//	else if ( tsStyle == TEXT("vgradient") ) {
-	//		this->m_bGradientFill = true;
-	//		this->m_bGradientVertical = TRUE;
-	//	}
-	//}
 	for (TString tsStyle(styles.getfirsttok(1)); !tsStyle.empty(); tsStyle = styles.getnexttok())
 	{
 		if ( tsStyle == TEXT("notheme") )
