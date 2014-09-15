@@ -106,6 +106,7 @@ DcxDialog::DcxDialog(const HWND mHwnd, const TString &tsName, const TString &tsA
 , m_hVistaHDC(NULL)
 , m_bVerboseErrors(true)
 , m_bErrorTriggered(false)
+, m_bDialogActive(true)
 //#ifdef DCX_USE_GDIPLUS
 //, m_pImage(NULL)
 //#endif
@@ -2639,30 +2640,57 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 
 		case WM_ACTIVATE:
 			{
-				if (wParam == WA_ACTIVE && p_this->m_bVistaStyle) {
-					bParsed = TRUE;
-					lRes = CallWindowProc(p_this->m_hOldWindowProc, mHwnd, uMsg, wParam, lParam);
-					InvalidateRect(mHwnd, NULL, TRUE);
-				}
+				//if (wParam == WA_ACTIVE && p_this->m_bVistaStyle) {
+				//	bParsed = TRUE;
+				//	lRes = CallWindowProc(p_this->m_hOldWindowProc, mHwnd, uMsg, wParam, lParam);
+				//	InvalidateRect(mHwnd, NULL, TRUE);
+				//}
 
-				if (p_this->m_dEventMask & DCX_EVENT_FOCUS) {
-					switch (wParam) {
-					case WA_ACTIVE:
-					case WA_CLICKACTIVE:
-						{
-							p_this->execAliasEx(TEXT("%s,%u"), TEXT("activate"), 0);
-							break;
-						}
+				//if (p_this->m_dEventMask & DCX_EVENT_FOCUS) {
+				//	switch (wParam) {
+				//	case WA_ACTIVE:
+				//	case WA_CLICKACTIVE:
+				//		{
+				//			p_this->execAliasEx(TEXT("%s,%u"), TEXT("activate"), 0);
+				//			break;
+				//		}
 
-					case WA_INACTIVE:
-						{
-							p_this->execAliasEx(TEXT("%s,%u"), TEXT("deactivate"), 0);
+				//	case WA_INACTIVE:
+				//		{
+				//			p_this->execAliasEx(TEXT("%s,%u"), TEXT("deactivate"), 0);
+				//			break;
+				//		}
+				//	} // switch
+				//}
+				//break;
+
+							switch (wParam) {
+							case WA_ACTIVE:
+							{
+											  if (p_this->m_bVistaStyle) {
+												  bParsed = TRUE;
+												  lRes = CallWindowProc(p_this->m_hOldWindowProc, mHwnd, uMsg, wParam, lParam);
+												  InvalidateRect(mHwnd, NULL, TRUE);
+											  }
+							}
+							case WA_CLICKACTIVE:
+							{
+													if (p_this->m_dEventMask & DCX_EVENT_FOCUS)
+														p_this->execAliasEx(TEXT("%s,%u"), TEXT("activate"), 0);
+													p_this->m_bDialogActive = true;
+													break;
+							}
+
+							case WA_INACTIVE:
+							{
+												if (p_this->m_dEventMask & DCX_EVENT_FOCUS)
+													p_this->execAliasEx(TEXT("%s,%u"), TEXT("deactivate"), 0);
+												p_this->m_bDialogActive = false;
+												break;
+							}
+							} // switch
 							break;
-						}
-					} // switch
-				}
-				break;
-			}
+		}
 		case LB_GETITEMRECT:
 			{
 				/*

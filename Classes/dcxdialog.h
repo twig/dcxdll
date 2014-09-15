@@ -111,6 +111,7 @@ public:
 
 	void setMouseControl( const UINT mUID );
 	void setFocusControl( const UINT mUID );
+	const UINT &getFocusControl() const { return m_FocusID; };
 
 	void setParentName(const TString &strParent);
 	const TString &getParentName() const;
@@ -167,11 +168,14 @@ public:
 
 	void SetVerbose(const bool state) { this->m_bVerboseErrors = state; };
 	const bool &IsVerbose(void) const { return this->m_bVerboseErrors; };
+
 	void toXml(TiXmlElement * xml) const;
 	TiXmlElement * toXml() const;
 	TiXmlElement * toXml(const TString &name) const;
 	void toXml(TiXmlElement * xml, const TString &name) const;
+
 	const bool isIDValid(const UINT ID, const bool bUnused = false) const;
+	const bool &isDialogActive(void) const { return m_bDialogActive; };	// returns dialogs active state
 
 protected:
 
@@ -271,6 +275,7 @@ protected:
 	SIZE m_sVistaOffsets;
 
 	mutable bool m_bErrorTriggered;		// set to true when an error has been triggered & used to avoid error loops
+	mutable bool m_bDialogActive;		// set to true when dialog is active
 
 	static LRESULT ProcessDragListMessage(DcxDialog* p_this, UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bParsed);
 };

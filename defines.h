@@ -481,10 +481,11 @@ typedef std::vector<int> VectorOfInts; //<! Vector of int
 	if (lstrcpyn((y), (((x)) ? TEXT("$true") : TEXT("$false")), MIRC_BUFFER_SIZE_CCH) != NULL) return TRUE; \
 }
 #define dcx_ConChar(x,y) { \
-	if ((x)) (y)[0] = TEXT('1'); \
+if ((x)) (y)[0] = TEXT('1'); \
 	else (y)[0] = TEXT('0'); \
 	(y)[1] = 0; \
 }
+#define dcx_testflag(x,y) (((x) & (y)) == (y))
 
 // --------------------------------------------------
 // DLL routines
