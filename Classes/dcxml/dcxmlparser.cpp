@@ -769,15 +769,15 @@ void DcxmlParser::parseItems(const TiXmlElement *const tiElement,const UINT dept
 				TString buffer;
 				for(const TiXmlElement *column = child->FirstChildElement("column"); column; column = column->NextSiblingElement("column") ) 
 				{
-					const char *tWidth = queryAttribute(column, "width", "0");
-					const char *tCaption = queryAttribute(column, "caption", "");
-					const char *tFlags = queryAttribute(column, "flags", "l");
-					const char *tIcon = queryAttribute(column, "icon", "0");
+					const char *local_tWidth = queryAttribute(column, "width", "0");
+					const char *local_tCaption = queryAttribute(column, "caption", "");
+					const char *local_tFlags = queryAttribute(column, "flags", "l");
+					const char *local_tIcon = queryAttribute(column, "icon", "0");
 
-					buffer.tsprintf(TEXT("+%S %S %S %S "),tFlags,tIcon,tWidth,tCaption);
+					buffer.tsprintf(TEXT("+%S %S %S %S "), local_tFlags, local_tIcon, local_tWidth, local_tCaption);
 					arguments.addtok(buffer.to_chr(),TEXT("\t"));
 				}
-				if (arguments.numtok() > 0)
+				if (!arguments.empty())
 					this->xdidEX(id,TEXT("-t"),TEXT("%s"),arguments.to_chr());
 			}
 			if (0==lstrcmpA(childelem, "dataset"))
@@ -1022,12 +1022,12 @@ int DcxmlParser::parseId(const TiXmlElement *const idElement)
 		return 0;
 
 	//<! if id attribute is already integer return it
-	int id = 0;
-	if (idElement->QueryIntAttribute("id",&id) == TIXML_SUCCESS)
+	int local_id = 0;
+	if (idElement->QueryIntAttribute("id", &local_id) == TIXML_SUCCESS)
 	{
 		// found ID as a number,  if its not a negative, return it.
-		if (id >= 0)
-			return id;
+		if (local_id >= 0)
+			return local_id;
 		// id was a negative so return 0
 		return 0;
 	}
@@ -1051,10 +1051,10 @@ int DcxmlParser::parseId(const TiXmlElement *const idElement)
 	if (attributeIdValue != NULL)
 	{
 		// got ID attrib, evaluate it to try & resolve to a number.
-		id = mIRCEvalToUnsignedInt(attributeIdValue);
+		local_id = mIRCEvalToUnsignedInt(attributeIdValue);
 		// if ID is > zero return it.
-		if (id > 0)
-			return id;
+		if (local_id > 0)
+			return local_id;
 
 		//Otherwise if it's a namedId return it .find(attributeIdValue) never returned :(;
 

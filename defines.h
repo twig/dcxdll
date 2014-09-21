@@ -178,7 +178,7 @@ http://symbiancorner.blogspot.com/2007/05/how-to-detect-version-of-ms-visual.htm
 // --------------------------------------------------
 #define DLL_VERSION    GIT_DESCRIBE
 #define DLL_BUILD      GIT_HASH
-#define DLL_DEV_BUILD  36
+#define DLL_DEV_BUILD  37
 
 #ifdef NDEBUG
 #ifdef DCX_DEV_BUILD
@@ -553,6 +553,8 @@ bool InitCustomDock(void);
 
 // DirectX
 HRESULT GetDXVersion( DWORD* pdwDirectXVersion, TCHAR* strDirectXVersion, int cchDirectXVersion );
+
+TString MakeTextmIRCSafe(const TCHAR *const tString);
 
 extern SIGNALSWITCH dcxSignal;
 

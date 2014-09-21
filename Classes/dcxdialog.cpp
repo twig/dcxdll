@@ -298,10 +298,8 @@ void DcxDialog::PreloadData() {
 		this->m_bitmapBg = NULL;
 	}
 //#ifdef DCX_USE_GDIPLUS
-//	if (this->m_pImage != NULL) {
-//		delete this->m_pImage;
-//		this->m_pImage = NULL;
-//	}
+//	delete this->m_pImage;
+//	this->m_pImage = NULL;
 //#endif
 }
 
@@ -311,17 +309,15 @@ void DcxDialog::PreloadData() {
  * blah
  */
 void DcxDialog::parseCommandRequestEX(const TCHAR *szFormat, ...) {
-	//TString msg((UINT)2048);
 	TString msg;
 	va_list args;
 	va_start(args, szFormat);
 	msg.tvprintf(szFormat, &args);
-	//vswprintf(msg.to_chr(), 2028, szFormat, args);
 	this->parseCommandRequest(msg);
 	va_end(args);
 }
-void DcxDialog::parseComControlRequestEX(const int id, const TCHAR *szFormat, ...) {
-	DcxControl * p_Control = this->getControlByID((UINT) id + mIRC_ID_OFFSET);
+void DcxDialog::parseComControlRequestEX(const UINT id, const TCHAR *szFormat, ...) {
+	DcxControl * p_Control = this->getControlByID( id + mIRC_ID_OFFSET);
 	if (p_Control != NULL) {
 		TString msg;
 		va_list args;
@@ -528,9 +524,13 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 			if (this->m_pLayoutManager != NULL) {
 				RECT rc;
 
-				GetClientRect(this->m_Hwnd, &rc);
-				if (this->updateLayout(rc))
-					this->redrawWindow();
+				if (GetClientRect(this->m_Hwnd, &rc))
+				{
+					if (this->updateLayout(rc))
+						this->redrawWindow();
+				}
+				else
+					this->showError(NULL, TEXT("-l"), TEXT("Unable to get client rect!"));
 			}
 		}
 		else if (tsCmd == TEXT("clear")) {
@@ -775,9 +775,8 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 				}
 			}
 			else {
-				const BYTE alpha = (BYTE)(tsAlpha.to_int() & 0xFF);
+				this->m_iAlphaLevel = (BYTE)(tsAlpha.to_int() & 0xFF);
 
-				this->m_iAlphaLevel = alpha;
 				if (!this->m_bVistaStyle) {
 					// Set WS_EX_LAYERED on this window
 					AddStyles(this->m_Hwnd, GWL_EXSTYLE, WS_EX_LAYERED);
@@ -878,18 +877,18 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 	}
 	// xdialog -z [NAME] [SWITCH] [+FLAGS] [N]
 	else if (flags[TEXT('z')] && numtok > 3) {
-		const TString flag(input.getnexttok( ));	// tok 3
+		const XSwitchFlags xflag(input.getnexttok( ));	// tok 3
 		int n = input.getnexttok( ).to_int();		// tok 4
 		DcxControl* ctrl = NULL;
 
 		// invalid input for [N]
-		if (n <= 0) {
+		if ((n <= 0) || (!xflag[TEXT('+')])) {
 			this->showError(NULL,TEXT("-z"), TEXT("Invalid Parameters"));
 			return;
 		}
 
 		// adding control ID to list
-		if (flag[1] == TEXT('a'))
+		if (xflag[TEXT('a')])
 		{
 			// add mIRC offset since getControlByID() needs it
 			n += mIRC_ID_OFFSET;
@@ -898,7 +897,7 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 #if DCX_USE_C11
 			for (const auto &x: this->m_vZLayers) {
 				if (x == n) {
-					this->showErrorEx(NULL,TEXT("-z"),TEXT("control %d already in list"), n);
+					this->showErrorEx(NULL,TEXT("-z +a"),TEXT("control %d already in list"), n);
 					return;
 				}
 			}
@@ -922,16 +921,20 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 			if (ctrl) {
 				ShowWindow(ctrl->getHwnd(), SW_HIDE);
 				RECT rc;
-				GetClientRect(this->getHwnd(), &rc);
-				if (this->updateLayout(rc))
-					this->redrawWindow();
+				if (GetClientRect(this->getHwnd(), &rc))
+				{
+					if (this->updateLayout(rc))
+						this->redrawWindow();
+				}
+				else
+					this->showError(NULL, TEXT("-z +a"), TEXT("Unable to get client rect!"));
 			}
 
 			// append the item to the end of the list
 			this->m_vZLayers.push_back(n);
 		}
 		// position to match CID [CID]
-		else if (flag[1] == TEXT('p')) {
+		else if (xflag[TEXT('p')]) {
 			// add mIRC offset since getControlByID() needs it
 			n += mIRC_ID_OFFSET;
 
@@ -940,7 +943,7 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 
 			// target control not found
 			if (!ctrl) {
-				this->showError(NULL,TEXT("-z"),TEXT("No such control"));
+				this->showError(NULL,TEXT("-z +p"),TEXT("No such control"));
 				return;
 			}
 
@@ -949,21 +952,25 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 			RECT r;
 
 			// figure out coordinates of control
-			GetWindowRect(ctrl->getHwnd(), &r);
-			MapWindowRect(NULL, GetParent(ctrl->getHwnd()), &r);
+			if (GetWindowRect(ctrl->getHwnd(), &r))
+			{
+				MapWindowRect(NULL, GetParent(ctrl->getHwnd()), &r);
 
-			// for each control in the internal list
-			for (const auto &x: this->m_vZLayers) {
-				// ignore target control
-				if (x != n) {
-					// get control to be moved
-					ctrl = getControlByID(x);
+				// for each control in the internal list
+				for (const auto &x : this->m_vZLayers) {
+					// ignore target control
+					if (x != n) {
+						// get control to be moved
+						ctrl = getControlByID(x);
 
-					// if it exists, move it
-					if (ctrl)
-						MoveWindow(ctrl->getHwnd(), r.left, r.top, r.right - r.left, r.bottom - r.top, FALSE);
+						// if it exists, move it
+						if (ctrl)
+							MoveWindow(ctrl->getHwnd(), r.left, r.top, r.right - r.left, r.bottom - r.top, FALSE);
+					}
 				}
 			}
+			else
+				this->showError(NULL,TEXT("-z +p"), TEXT("Unable to get window rect!"));
 		}
 #else
 			// variables used to move control
@@ -991,13 +998,13 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 			}
 #endif
 		// show index [N]
-		else if (flag[1] == TEXT('s')) {
+		else if (xflag[TEXT('s')]) {
 			// minus since indexes are zero-based
 			n--;
 
 			// if the index is out of bounds
 			if (n >= (int) this->m_vZLayers.size()) {
-				this->showError(NULL,TEXT("-z"),TEXT("Index array out of bounds"));
+				this->showError(NULL,TEXT("-z +s"),TEXT("Index array out of bounds"));
 				return;
 			}
 
@@ -1017,12 +1024,16 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 			if (ctrl != NULL) { 
 				ShowWindow(ctrl->getHwnd(), SW_SHOW);
 				RECT rc;
-				GetClientRect(this->getHwnd(), &rc);
-				if (this->updateLayout(rc))
-					this->redrawWindow();
+				if (GetClientRect(this->getHwnd(), &rc))
+				{
+					if (this->updateLayout(rc))
+						this->redrawWindow();
+				}
+				else
+					this->showError(NULL, TEXT("-z +s"), TEXT("Unable to get client rect!"));
 			}
 			else
-				this->showError(NULL,TEXT("-z"),TEXT("Invalid Control ID"));
+				this->showError(NULL,TEXT("-z +s"),TEXT("Invalid Control ID"));
 		}
 
 		return;
@@ -1055,7 +1066,11 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 		}
 
 		RECT rc;
-		dcxGetWindowRect(this->m_Hwnd,&rc);
+		if (!dcxGetWindowRect(this->m_Hwnd, &rc))
+		{
+			this->showError(NULL, TEXT("-R"), TEXT("Unable to get window rect!"));
+			return;
+		}
 
 		HRGN m_Region = NULL;
 		int RegionMode = 0;
@@ -1216,7 +1231,7 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 					if (wrgn != NULL) {
 						if (GetWindowRgn(this->m_Hwnd,wrgn) != ERROR)
 							CombineRgn(m_Region,m_Region,wrgn,RegionMode);
-						DeleteObject(wrgn);
+						DeleteRgn(wrgn);
 					}
 				}
 				SetWindowRgn(this->m_Hwnd,m_Region,TRUE);
@@ -1447,31 +1462,6 @@ DWORD DcxDialog::getAnimateStyles( const TString &flags) {
  *
  * blah
  */
-//const UINT DcxDialog::parseLayoutFlags(const TString &flags) {
-//	UINT iFlags = 0;
-//	const XSwitchFlags xflags(flags);
-//
-//	// no +sign, missing params
-//	if (!xflags[TEXT('+')]) 
-//		return iFlags;
-//
-//	if (xflags[TEXT('f')])
-//		iFlags |= LAYOUTFIXED;
-//	if (xflags[TEXT('h')])
-//		iFlags |= LAYOUTHORZ;
-//	if (xflags[TEXT('i')])
-//		iFlags |= LAYOUTID;
-//	if (xflags[TEXT('l')])
-//		iFlags |= LAYOUTFILL ;
-//	if (xflags[TEXT('p')])
-//		iFlags |= LAYOUTPANE;
-//	if (xflags[TEXT('v')])
-//		iFlags |= LAYOUTVERT;
-//	if (xflags[TEXT('w')])
-//		iFlags |= LAYOUTDIM;
-//
-//	return iFlags;
-//}
 
 UINT DcxDialog::parseTooltipFlags(const TString &flags) {
 	UINT iFlags = 0;
@@ -1688,12 +1678,12 @@ void DcxDialog::parseInfoRequest( const TString &input, TCHAR *szReturnValue) co
 	}
 	// [NAME] [PROP]
 	else if (prop == TEXT("mouse")) {
-		POINT pt;
+		POINT pt = { 0 };
 
-		GetCursorPos(&pt);
-		MapWindowPoints(NULL, this->m_Hwnd, &pt, 1);
+		if (GetCursorPos(&pt))
+			MapWindowPoints(NULL, this->m_Hwnd, &pt, 1);
+
 		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d"), pt.x, pt.y);
-
 		return;
 	}
 	// [NAME] [PROP]
@@ -1803,15 +1793,27 @@ bool DcxDialog::evalAliasEx(TCHAR *szReturn, const int maxlen, const TCHAR *szFo
 	return evalAlias(szReturn, maxlen, line.to_chr());
 }
 
-bool DcxDialog::evalAlias(TCHAR *szReturn, const int maxlen, const TCHAR *szArgs) {
-	//// create a temp %var for the args
-	//// This solves the ,() in args bugs, but causes problems with the , that we want.
-	//int rCnt = this->getRefCount();
-	//mIRCLinker::execex(TEXT("/set -n %%d%d %s"), rCnt, params);
+bool DcxDialog::evalAlias(TCHAR *szReturn, const int maxlen, const TCHAR *szArgs)
+{
 	this->incRef();
-	const bool res = mIRCLinker::evalex(szReturn, maxlen, TEXT("$%s(%s,%s)"), this->getAliasName().to_chr(), this->getName().to_chr(), szArgs);
+	const bool res = mIRCLinker::evalex(szReturn, maxlen, TEXT("$%s(%s,%s)"), this->getAliasName().to_chr(), this->getName().to_chr(), MakeTextmIRCSafe(szArgs).to_chr());
 	this->decRef();
 	return res;
+
+	// create a temp %var for the args
+	// This solves the ,() in args bugs, but causes problems with the , that we want,
+	// as szArgs can be multiple arg,arg,arg's
+	//this->incRef();
+	//const UINT rCnt = this->getRefCount();
+	//mIRCLinker::execex(TEXT("/set -nu1 %%d%u %s"), rCnt, szArgs);
+	//const bool res = mIRCLinker::evalex(szReturn, maxlen, TEXT("$%s(%s,%%d%u)"), this->getAliasName().to_chr(), this->getName().to_chr(), rCnt);
+	//this->decRef();
+	//return res;
+
+	//this->incRef();
+	//const bool res = mIRCLinker::evalex(szReturn, maxlen, TEXT("$%s(%s,%s)"), this->getAliasName().to_chr(), this->getName().to_chr(), szArgs);
+	//this->decRef();
+	//return res;
 }
 
 bool DcxDialog::execAliasEx(const TCHAR *szFormat, ...) {
@@ -1825,11 +1827,27 @@ bool DcxDialog::execAliasEx(const TCHAR *szFormat, ...) {
 	return execAlias(line.to_chr());
 }
 
-bool DcxDialog::execAlias(const TCHAR *szArgs) {
+bool DcxDialog::execAlias(const TCHAR *szArgs)
+{
 	this->incRef();
-	const bool res = mIRCLinker::evalex(NULL, 0, TEXT("$%s(%s,%s)"), this->getAliasName().to_chr(), this->getName().to_chr(), szArgs);
+	const bool res = mIRCLinker::evalex(NULL, 0, TEXT("$%s(%s,%s)"), this->getAliasName().to_chr(), this->getName().to_chr(), MakeTextmIRCSafe(szArgs).to_chr());
 	this->decRef();
 	return res;
+
+	// create a temp %var for the args
+	// This solves the ,() in args bugs, but causes problems with the , that we want,
+	// as szArgs can be multiple arg,arg,arg's
+	//this->incRef();
+	//const UINT rCnt = this->getRefCount();
+	//mIRCLinker::execex(TEXT("/set -nu1 %%d%u %s"), rCnt, szArgs);
+	//const bool res = mIRCLinker::evalex(NULL, 0, TEXT("$%s(%s,%%d%u)"), this->getAliasName().to_chr(), this->getName().to_chr(), rCnt);
+	//this->decRef();
+	//return res;
+
+	//this->incRef();
+	//const bool res = mIRCLinker::evalex(NULL, 0, TEXT("$%s(%s,%s)"), this->getAliasName().to_chr(), this->getName().to_chr(), szArgs);
+	//this->decRef();
+	//return res;
 }
 
 /*!

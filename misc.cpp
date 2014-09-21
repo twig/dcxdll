@@ -362,29 +362,6 @@ BOOL ParseCommandToLogfont(const TString& cmd, LPLOGFONT lf) {
  */
 UINT parseFontFlags(const TString &flags) {
 
-	//const INT len = (int)flags.len();
-	//INT iFlags = 0;
-	//
-	//// no +sign, missing params
-	//if (flags[0] != TEXT('+'))
-	//	return iFlags;
-	//
-	//for (int i = 1; i < len; i++)
-	//{
-	//	if (flags[i] == TEXT('a'))
-	//		iFlags |= DCF_ANTIALIASE;
-	//	else if (flags[i] == TEXT('b'))
-	//		iFlags |= DCF_BOLD;
-	//	else if (flags[i] == TEXT('d'))
-	//		iFlags |= DCF_DEFAULT;
-	//	else if (flags[i] == TEXT('i'))
-	//		iFlags |= DCF_ITALIC;
-	//	else if (flags[i] == TEXT('s'))
-	//		iFlags |= DCF_STRIKEOUT;
-	//	else if (flags[i] == TEXT('u'))
-	//		iFlags |= DCF_UNDERLINE;
-	//}
-
 	UINT iFlags = 0;
 	const XSwitchFlags xflags(flags);
 
@@ -1487,7 +1464,7 @@ HDC *CreateHDCBuffer(HDC hdc, const LPRECT rc)
 	}
 
 	// get size of bitmap to alloc.
-	BITMAP bm;
+	BITMAP bm = { 0 };
 	int x, y;
 
 	if (rc == NULL) {
@@ -1830,4 +1807,74 @@ int queryIntAttribute(const TiXmlElement *element, const char *attribute, const 
 {
 	int integer = defaultValue;
 	return (element->QueryIntAttribute(attribute, &integer) == TIXML_SUCCESS) ? integer : defaultValue;
+}
+
+/*
+	TString MakeTextmIRCSafe(const TCHAR *const tString)
+
+	Make the text safe for passing to the callback alias
+
+	Change special characters $%()[]; into there $chr() equivalents
+*/
+
+TString MakeTextmIRCSafe(const TCHAR *const tString)
+{
+	size_t len = lstrlen(tString);
+	bool bLastWasSpace = true;	// start as true as the beginning of the line is treated the same as a space here
+	TString tsRes;
+
+	// look for ()[]%$; we dont want to change , as this is needed
+	for (size_t i = 0; i < len; i++)
+	{
+		const TCHAR c = tString[i];
+		switch (c)
+		{
+		case TEXT('('):
+		case TEXT(')'):
+		case TEXT('['):
+		case TEXT(']'):
+		case TEXT('%'):
+		case TEXT('$'):
+		case TEXT(';'):
+			if (!bLastWasSpace)
+				tsRes += TEXT(" $+ ");
+
+			switch (c)
+			{
+			case TEXT('('):
+				tsRes += TEXT("$chr(40)");
+				break;
+			case TEXT(')'):
+				tsRes += TEXT("$chr(41)");
+				break;
+			case TEXT('['):
+				tsRes += TEXT("$chr(91)");
+				break;
+			case TEXT(']'):
+				tsRes += TEXT("$chr(93)");
+				break;
+			case TEXT('%'):
+				tsRes += TEXT("$chr(37)");
+				break;
+			case TEXT('$'):
+				tsRes += TEXT("$chr(36)");
+				break;
+			case TEXT(';'):
+				tsRes += TEXT("$chr(59)");
+				break;
+			}
+
+			if (tString[i + 1] != TEXT(' '))
+				tsRes += TEXT(" $+ ");
+
+			bLastWasSpace = false;
+			break;
+		case TEXT(' '):
+			bLastWasSpace = true;
+		default:
+			tsRes += c;
+			break;
+		}
+	}
+	return tsRes;
 }

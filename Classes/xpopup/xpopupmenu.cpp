@@ -986,14 +986,10 @@ void XPopupMenu::convertMenu( HMENU hMenu, const BOOL bForce )
 	int k = 0;
 	const int n = GetMenuItemCount( hMenu );
 
-	// Ook: for some reason this crashes, dunno why yet...
-	//TString tsItem((UINT)MIRC_BUFFER_SIZE_CCH);
-
 	for (int i = 0; i < n; i++ )
 	{
 		TCHAR string[MIRC_BUFFER_SIZE_CCH];
 		mii.dwTypeData = string;
-		//mii.dwTypeData = tsItem.to_chr();
 		mii.cch = MIRC_BUFFER_SIZE_CCH;
 
 		if ( GetMenuItemInfo( hMenu, i, TRUE, &mii ) ) {

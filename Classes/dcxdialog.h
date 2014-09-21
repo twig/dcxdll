@@ -89,7 +89,7 @@ public:
 
 	void parseCommandRequest( const TString & input );
 	void parseCommandRequestEX(const TCHAR *szFormat, ...);
-	void parseComControlRequestEX(const int id,const TCHAR *szFormat, ...);
+	void parseComControlRequestEX(const UINT id,const TCHAR *szFormat, ...);
 	void parseInfoRequest( const TString & input, TCHAR * szReturnValue ) const;
 
 	bool evalAliasEx( TCHAR * szReturn, const int maxlen, const TCHAR * szFormat, ... );
