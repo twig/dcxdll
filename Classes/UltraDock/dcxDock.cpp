@@ -857,7 +857,7 @@ LRESULT DcxDock::status_getParts( const int nParts, LPINT aWidths ) {
 	return SendMessage( g_StatusBar, SB_GETPARTS, (WPARAM) nParts, (LPARAM) aWidths );
 }
 
-void DcxDock::status_setText( const int iPart, const int Style, const LPWSTR lpstr ) {
+void DcxDock::status_setText(const int iPart, const int Style, const WCHAR *const lpstr) {
 	SendMessage( g_StatusBar, SB_SETTEXTW, (WPARAM) iPart | Style, (LPARAM) lpstr );
 }
 
@@ -873,7 +873,7 @@ LRESULT DcxDock::status_getText( const int iPart, LPWSTR lpstr ) {
 	return SendMessage( g_StatusBar, SB_GETTEXTW, (WPARAM) iPart, (LPARAM) lpstr );
 }
 
-void DcxDock::status_setTipText( const int iPart, const LPWSTR lpstr ) {
+void DcxDock::status_setTipText( const int iPart, const WCHAR *const lpstr ) {
 	SendMessage( g_StatusBar, SB_SETTIPTEXTW, (WPARAM) iPart, (LPARAM) lpstr );
 }
 

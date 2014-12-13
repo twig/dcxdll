@@ -16,7 +16,10 @@ class DcxTrayIcon
 {
 public:
 	DcxTrayIcon(void);
+	DcxTrayIcon(DcxTrayIcon &) = delete;	// no copy
 	~DcxTrayIcon(void);
+
+	DcxTrayIcon &operator =(const DcxTrayIcon &) = delete;	// No assignments!
 
 	HWND GetHwnd() const;
 	bool idExists(const int id) const;

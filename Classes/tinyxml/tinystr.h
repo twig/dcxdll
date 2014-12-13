@@ -213,6 +213,10 @@ class TiXmlString
 		Rep* r = rep_;
 		rep_ = other.rep_;
 		other.rep_ = r;
+
+		//using std::swap;
+
+		//swap(rep_, other.rep_);
 	}
 
   private:

@@ -167,7 +167,7 @@ mIRC(xstatusbar) {
 					if ( icon > -1 )
 						DcxDock::status_setIcon( nPos, ImageList_GetIcon( DcxDock::status_getImageList( ), icon, ILD_TRANSPARENT ) );
 					DcxDock::status_setText( nPos, iFlags, itemtext.to_chr() );
-					DcxDock::status_setTipText( nPos, tooltip.to_chr() );
+					DcxDock::status_setTipText(nPos, tooltip.to_chr());
 				}
 			}
 			break;
@@ -213,9 +213,14 @@ mIRC(xstatusbar) {
 					}
 					else {
 						try {
+#ifdef DCX_USE_C11
+							std::unique_ptr<WCHAR> text(new WCHAR[DcxDock::status_getTextLength(nPos) + 1]);
+							DcxDock::status_setText(nPos, HIWORD(DcxDock::status_getText(nPos, text.get())), itemtext.to_chr());
+#else
 							WCHAR *text = new WCHAR[DcxDock::status_getTextLength(nPos) + 1];
 							DcxDock::status_setText(nPos, HIWORD(DcxDock::status_getText(nPos, text)), itemtext.to_chr());
 							delete [] text;
+#endif
 						}
 						catch (std::bad_alloc) {
 							Dcx::error(TEXT("/xstatusbar -v"),TEXT("Unable to Allocate Memory"));
@@ -311,10 +316,16 @@ mIRC(_xstatusbar)
 				else {
 					const UINT len = DcxDock::status_getTextLength( iPart );
 					try {
+#ifdef DCX_USE_C11
+						std::unique_ptr<WCHAR> text(new WCHAR[len + 1]);
+						DcxDock::status_getText(iPart, text.get());
+						dcx_strcpyn(data, text.get(), MIRC_BUFFER_SIZE_CCH);
+#else
 						WCHAR *text = new WCHAR[len + 1];
 						DcxDock::status_getText(iPart, text);
 						dcx_strcpyn(data, text, MIRC_BUFFER_SIZE_CCH);
 						delete[] text;
+#endif
 					}
 					catch (std::bad_alloc) {
 						Dcx::error(TEXT("/xstatusbar -v"), TEXT("Unable to Allocate Memory"));

@@ -84,11 +84,11 @@ public:
 	static void status_setBkColor(const COLORREF clr);
 	static void status_setParts( const int nParts, const LPINT aWidths );
 	static LRESULT status_getParts( const int nParts, LPINT aWidths );
-	static void status_setText( const int iPart, const int Style, const LPWSTR lpstr );
+	static void status_setText(const int iPart, const int Style, const WCHAR *const lpstr);
 	static LRESULT status_getText( const int iPart, LPWSTR lpstr );
 	static UINT status_getTextLength( const int iPart );
 	static UINT status_getPartFlags( const int iPart );
-	static void status_setTipText( const int iPart, const LPWSTR lpstr );
+	static void status_setTipText( const int iPart, const WCHAR *const lpstr );
 	static void status_getTipText( const int iPart, const int nSize, LPWSTR lpstr );
 	static void status_getRect( const int iPart, LPRECT lprc );
 	static void status_setIcon( const int iPart, const HICON hIcon );

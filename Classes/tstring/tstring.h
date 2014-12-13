@@ -43,8 +43,10 @@
  *		changed deltok() to take an UINT arg.
  *		changed instok() to take an unsigned arg.
  *		and loads more...
+ *	1.13
+ *      loads of changes !!!
  *
- * © ScriptsDB.org - 2013
+ * © ScriptsDB.org - 2005-2014
  */
 #if _MSC_VER > 1000
 #pragma once
@@ -67,6 +69,16 @@
 // enable this define if you wish to use the mIRC extra functions
 //#define INCLUDE_MIRC_EXTRAS 1
 
+// enable this define to include code to support: for (auto x: TString)
+#define TSTRING_PARTS 1
+
+// enable this to include a small internal buffer that avoids an allocation for small strings.
+#define TSTRING_INTERNALBUFFER 1
+// internal buffer size in characters
+#define TSTRING_INTERNALBUFFERSIZE_CCH 64
+// internal buffer size in bytes
+#define TSTRING_INTERNALBUFFERSIZE_BYTES (TSTRING_INTERNALBUFFERSIZE_CCH*sizeof(TCHAR))
+
 #define SPACE m_cSpace
 #define COMMA m_cComma
 #define TAB m_cTab
@@ -75,6 +87,12 @@
 #pragma warning( push )
 #pragma warning( disable : 2304 )
 #pragma warning( disable : 2287 )
+#endif
+
+#ifdef TSTRING_PARTS
+class TString;
+
+typedef std::vector<TString> TStringList;
 #endif
 
 #ifdef UNICODE
@@ -119,8 +137,16 @@
 #define ts_vscprintf(fmt, args) _vscprintf((fmt), (args))
 #define ts_vsprintf(txt, cnt, fmt, args ) vsprintf_s((txt), (cnt), (fmt), (args))
 #endif
+
 #define TS_getmemsize(x) ((x) + (16 - ((x) % 16)))
 #define TS_wgetmemsize(x) (unsigned long)((((x)*sizeof(WCHAR)) + (16 - (((x)*sizeof(WCHAR)) % 16)))/sizeof(WCHAR))
+#define ts_copymem(dest,src,sz) CopyMemory((dest),(src),(sz))
+#define ts_zeromem(dest, sz) ZeroMemory((dest),(sz))
+
+#define ts_strcat_throw(x,y) if (ts_strcat((x), (y)) == nullptr) throw std::logic_error("strcat() failed!");
+#define ts_strncat_throw(x,y,z) if (ts_strncat((x), (y), (z)) == nullptr) throw std::logic_error("strncat() failed!");
+#define ts_strcpy_throw(x,y) if (ts_strcpy((x), (y)) == nullptr) throw std::logic_error("strcpy() failed!");
+#define ts_strcpyn_throw(x,y,z) if (ts_strcpyn((x), (y), (z)) == nullptr) throw std::logic_error("strcpyn() failed!");
 
 /*!
  * \brief String and Token Management Class
@@ -135,37 +161,90 @@ private:
 	int i_remove(const TCHAR *const subString);
 	static int match(register const TCHAR *m, register const TCHAR *n, const bool cs /* case sensitive */);
 
-	const size_t set_buffersize(const size_t size) { m_buffersize = TS_getmemsize(size); return m_buffersize; };	// make buffersize a multiple of 16
+	//const size_t set_buffersize(const size_t size) { m_buffersize = TS_getmemsize(size); return m_buffersize; };	// make buffersize a multiple of 16
 	//allocate a buffer thats sized to multiples of 16 bytes, (%byte + (16 - (%byte % 16)))
 	//TCHAR *allocstr_bytes(const size_t size) { return (TCHAR *)(new BYTE[set_buffersize(size)]); };
-	TCHAR *allocstr_bytes(const size_t size) { return allocstr_bytes(size, m_buffersize); };
+	TCHAR *allocstr_bytes(const size_t size) {
+#if TSTRING_INTERNALBUFFER
+		if (size <= TSTRING_INTERNALBUFFERSIZE_BYTES)
+		{
+			m_bUsingInternal = true;
+			m_InternalBuffer[0] = TEXT('\0');
+			//m_iLen = 0;
+			//m_bDirty = true;
+			m_buffersize = TSTRING_INTERNALBUFFERSIZE_BYTES;
+			return m_InternalBuffer;
+		}
+		else
+			m_bUsingInternal = false;
+#endif
+		return allocstr_bytes(size, m_buffersize);
+	};
 	//allocate a buffer thats sized to multiples of 16 bytes, (%byte + (16 - (%byte % 16))), iActual contains the buffer size allocated
-	TCHAR *allocstr_bytes(const size_t size, size_t &iActual) const { iActual = TS_getmemsize(size); return (TCHAR *)(new BYTE[iActual]); };
+	static TCHAR *allocstr_bytes(const size_t size, size_t &iActual)
+	{
+		iActual = TS_getmemsize(size);
+		return (TCHAR *)(new BYTE[iActual]);
+	};
 	// allocate a buffer thats size characters long & its a multiple of 16bytes.
-	//TCHAR *allocstr_cch(const size_t size) { return allocstr_bytes(size*sizeof(TCHAR)); };
-	TCHAR *allocstr_cch(const size_t size) { return allocstr_bytes(size*sizeof(TCHAR), m_buffersize); };
+	TCHAR *allocstr_cch(const size_t size) { return allocstr_bytes(size*sizeof(TCHAR)); };
+	//TCHAR *allocstr_cch(const size_t size) { return allocstr_bytes(size*sizeof(TCHAR), m_buffersize); };
 	// allocate a buffer thats size characters long & its a multiple of 16bytes. NB: iActual contains the buffer size in BYTES
-	TCHAR *allocstr_cch(const size_t size, size_t &iActual) const { return allocstr_bytes(size*sizeof(TCHAR), iActual); };
+	static TCHAR *allocstr_cch(const size_t size, size_t &iActual) { return allocstr_bytes(size*sizeof(TCHAR), iActual); };
+
 	// swap contents of second with this
 	void swap(TString &second); // nothrow
+
+	// make test string m_pTempString which is m_pString converted to either WCHAR or char
+	void MakeTemp() const
+	{
+		if (this->m_pString == nullptr)
+			return;
+
+#if UNICODE
+		if (this->m_pTempString == nullptr)
+			this->m_pTempString = TString::WcharTochar(this->m_pString);
+#else
+		if (this->m_pTempString == nullptr)
+			this->m_pTempString = TString::charToWchar(this->m_pString);
+#endif
+	}
+
+	// check if requested character is within buffer (not within string)
+	void CheckRange(long int N) const
+	{
+		if ((N < 0) || (N >= (long int)(m_buffersize / sizeof(TCHAR))))
+			throw std::out_of_range("TString::at()");
+	}
 
 #if !UNICODE
 	static unsigned char tolowertab[];
 	static unsigned char touppertab[];
 #endif
-	static WCHAR *charToWchar(const char *const cString, size_t *const buffer_size = NULL);
-	static char *WcharTochar(const WCHAR *const wString, size_t *const buffer_size = NULL);
+	static WCHAR *charToWchar(const char *const cString, size_t *const buffer_size = nullptr);
+	static char *WcharTochar(const WCHAR *const wString, size_t *const buffer_size = nullptr);
 
 	mutable const TCHAR	*m_savedpos;
 	mutable UINT	m_savedtotaltoks;
 	mutable UINT	m_savedcurrenttok;
 	size_t			m_buffersize;	// size of string buffer in use. (size in bytes)
+	mutable bool	m_bDirty;		// is buffer `dirty` (string length is unknown)?
+	mutable size_t	m_iLen;			// the string length of m_pString
 
-	//mutable std::vector<TString>	m_SplitParts;
+#if TSTRING_INTERNALBUFFER
+	mutable TCHAR	m_InternalBuffer[TSTRING_INTERNALBUFFERSIZE_CCH];
+	mutable bool	m_bUsingInternal;
+#endif
+
+#ifdef TSTRING_PARTS
+	mutable TStringList	m_SplitParts;
+#endif
 
 public:
 
 	TCHAR * m_pString; //!< String buffer
+	// Temp string buffer used for string conversion to/from wchar/char or vice versa depending on what TCHAR is.
+	// changes made to m_pTempString are NOT reflected in m_pString!
 #ifdef UNICODE
 	mutable char * m_pTempString;
 #else
@@ -176,11 +255,12 @@ public:
 	static const TCHAR *m_cTab;
 
 	TString();
-	TString(const WCHAR *const cString); // we don't want these 3 as explicits
+	TString(const WCHAR *const cString);		// we don't want these 3 as explicits
 	TString(const char *const cString);
 	TString(const TString & tString);
 	TString(const TCHAR *const pStart, const TCHAR *const pEnd);
-	TString(TString &&tString);	// move constructor C++11 only
+	TString(TString &&tString);					// move constructor C++11 only
+	TString(const std::initializer_list<TString> lt);	// Initializer list constructor (allows TString name{ "text", "text2", othertstring } )
 
 	explicit TString(const WCHAR chr);
 	explicit TString(const char chr);
@@ -190,7 +270,8 @@ public:
 	~TString( );
 
 	// Operator Overloads
-	TString & operator =( TString tString );		// allows use of swap()
+	TString & operator =( const TString &tString );
+	TString & operator =(TString &&tString);		// move assignment...
 	TString & operator =(const WCHAR *const cString);
 	TString & operator =( const WCHAR chr );
 	TString & operator =( const char *const cString );
@@ -242,7 +323,9 @@ public:
 	TString operator *( const int &N );
 	TString & operator *=( const int &N );
 
-	TCHAR & operator []( long int N ) const;
+	TCHAR & operator []( long int N );
+	TCHAR operator [](long int N) const;
+
 	operator int() const { return this->to_int(); }
 	operator __int64() const { return this->to_num(); }
 	operator double() const { return this->to_float(); }
@@ -253,8 +336,10 @@ public:
 
 	// get length of string in characters
 	const size_t len( ) const;
-	// get size of string buffer in bytes
-	const size_t &size() const { return m_buffersize; };
+	// alias for len()
+	const size_t size() const { return len(); };
+	// capacity of buffer
+	const size_t &capacity() const { return m_buffersize; }
 	// clear string buffer & reset all vars & pointers (doesn't free buffer, just zeros it)
 	void clear();
 	// shrink string buffer to min size required for string (while still being a multiple of 16)
@@ -268,21 +353,39 @@ public:
 	// append a string thats limited to iChars characters.
 	TString &append(const TCHAR *const cString, const size_t iChars);
 	// is string empty?
-	const bool empty() const { return (m_pString == NULL || m_pString[0] == TEXT('\0')); };
+	const bool empty() const { return (m_pString == nullptr || m_pString[0] == TEXT('\0')); };
+	// refrence to char at N
+	TCHAR &at(long int N)
+	{
+		CheckRange(N);
+		return m_pString[N];
+	}
+	// copy of char at N
+	TCHAR at(long int N) const
+	{
+		CheckRange(N);
+		return m_pString[N];
+	}
+	// allocate memory for string, preserves contents...
+	void reserve(const size_t tsSize);
+	// copy string...
+	void copy(TString other);
+	// compare strings...
+	int compare(const TString &other) const;
 
-	int find(const TCHAR *const substring, const int N) const;
-	int find( const TCHAR chr, const int N ) const;
+	int find(const TCHAR *const substring, const int N) const;	// find Nth matching subString
+	int find( const TCHAR chr, const int N ) const;				// find Nth matching chr
 
 	TString sub( int N, int M ) const;
 
 	TString &trim();	// removes spaces at start & end of text.
 	TString &strip();	// removes spaces at start & end of text & all ctrl codes in text.
 
-	int replace(const TCHAR *const subString, const TCHAR *const rString);
-	int replace(const TCHAR *const subString, const TCHAR rchr);
-	int replace(const TCHAR chr, const TCHAR *const rString);
-	int replace( const TCHAR chr, const TCHAR rchr );
-	int mreplace(const TCHAR chr, const TCHAR *const fmt);
+	int replace(const TCHAR *const subString, const TCHAR *const rString);	// replace subString with rString
+	int replace(const TCHAR *const subString, const TCHAR rchr);			// replace subString with rchr
+	int replace(const TCHAR chr, const TCHAR *const rString);				// replace chr with rString
+	int replace(const TCHAR chr, const TCHAR rchr );						// replace chr with rchr
+	int mreplace(const TCHAR chr, const TCHAR *const fmt);					// replace any char in fmt with chr
 
 	// Token Lib
 	void addtok( const TCHAR *const cToken, const TCHAR *const sepChars = SPACE );
@@ -292,9 +395,9 @@ public:
 	size_t findtok(const TCHAR *const cToken, const UINT N, const TCHAR *const sepChars = SPACE) const;
 	TString gettok(int N, const TCHAR *const sepChars = SPACE) const;
 	TString gettok(int N, int M, const TCHAR *const sepChars = SPACE) const;
-	TString getfirsttok(const UINT N, const TCHAR *const sepChars = SPACE) const;	// must becalled before the first getnexttok()
+	TString getfirsttok(const UINT N, const TCHAR *const sepChars = SPACE) const;			// must becalled before the first getnexttok()
 	TString getnexttok(const TCHAR *const sepChars = SPACE) const;							// gets subsequent tokens after a getfirsttok() call.
-	TString getlasttoks() const;														// gets all remaining tokens after a getfirsttok()/getnexttok() call.
+	TString getlasttoks() const;															// gets all remaining tokens after a getfirsttok()/getnexttok() call.
 	void instok(const TCHAR *const cToken, const UINT N, const TCHAR *const sepChars = SPACE);
 	bool istok( const TCHAR *const cToken, const TCHAR *const sepChars = SPACE ) const;
 	TString matchtok(const TCHAR *const mString, int N, const TCHAR *const sepChars = SPACE) const;
@@ -308,10 +411,16 @@ public:
 	TString wildtok(const TCHAR *const wildString, const UINT N, const TCHAR *const sepChars = SPACE) const;
 	UINT nwildtok(const TCHAR *const wildString, const TCHAR *const sepChars = SPACE) const;
 
-	//size_t split(const TCHAR *const sepChars = SPACE) const;
-	//const TString &part(const size_t N) const;
-	//const std::vector<TString> &parts(const TCHAR *const sepChars = SPACE) const;
-	//void ClearParts() const { m_SplitParts.clear(); }
+#ifdef TSTRING_PARTS
+	size_t split(const TCHAR *const sepChars = SPACE) const;
+	const TString &part(const size_t N) const;
+	const TStringList &parts(const TCHAR *const sepChars = SPACE) const;
+	void ClearParts() const { m_SplitParts.clear(); }
+	TStringList::iterator begin();
+	TStringList::iterator end();
+	const TStringList::const_iterator begin() const;
+	const TStringList::const_iterator end() const;
+#endif
 
 #ifdef INCLUDE_MIRC_EXTRAS
 	// extras for mIRC
@@ -336,19 +445,52 @@ public:
 	int tsprintf(const TCHAR *const fmt, ...);
 	int tvprintf(const TCHAR *const fmt, va_list * args);
 
-	TCHAR * to_chr() const { return this->m_pString; };	// returns the string in the projects current format.
+	TCHAR * to_chr() { m_bDirty = true;  return this->m_pString; };	// returns the string in the projects current format.
+	const TCHAR * to_chr() const { return this->m_pString; };	// returns the string in the projects current format.
 #ifdef UNICODE
-	WCHAR *to_wchr(bool tryutf8 = false) const { return this->m_pString; };	// returns the string in wide format
-	char * c_str(void) const;	// returns the string as a char *
+	WCHAR *to_wchr() { m_bDirty = true;  return this->m_pString; };	// returns the string in wide format
+	const WCHAR *to_wchr() const { return this->m_pString; };	// returns the string in wide format
+	char * c_str(void)	// returns the string as a char *
+	{
+		MakeTemp();
+		return m_pTempString;
+	}
+	const char * c_str(void) const	// returns the string as a char *
+	{
+		MakeTemp();
+		return m_pTempString;
+	}
 #else
-	WCHAR *to_wchr(bool tryutf8 = false);	// returns the string in wide format
-	char * c_str( ) const { return this->m_pString; };	// returns the string as a char *
+	WCHAR *to_wchr()	// returns the string in wide format
+	{
+		MakeTemp();
+		return m_pTempString;
+	}
+	const WCHAR *to_wchr() const	// returns the string in wide format
+	{
+		MakeTemp();
+		return m_pTempString;
+	}
+	char * c_str() { m_bDirty = true;  return this->m_pString; };	// returns the string as a char *
+	const char * c_str() const { return this->m_pString; };	// returns the string as a char *
 #endif
+	ULONG to_addr() const;
+
 	int to_int() const { return ts_atoi(this->m_pString); };
 	__int64 to_num() const { return ts_atoi64(this->m_pString); };
 	double to_float() const { return ts_atof(this->m_pString); };
-	ULONG to_addr() const;
 	DWORD to_dword() const { return ts_strtoul(this->m_pString); };
+
+	//template <typename T>
+	//T tsConvert() const {
+	//	std::basic_istringstream<TCHAR> ss(this->m_pString);	// makes copy of string :(
+	//	T result;
+	//	return ss >> result ? result : 0;
+	//}
+	//int to_int() const { return tsConvert<int>(); };
+	//__int64 to_num() const { return tsConvert<__int64>(); };
+	//double to_float() const { return tsConvert<float>(); };
+	//DWORD to_dword() const { return tsConvert<DWORD>(); };
 
 	static inline int rfc_tolower(const int c);
 	static inline int rfc_toupper(const int c);

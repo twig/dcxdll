@@ -42,8 +42,11 @@ public:
 	static bool Attach(HWND hRichEdit);
 
 private:
+	CRichEditThemed() = delete;
 	explicit CRichEditThemed(HWND hRichEdit);
 	~CRichEditThemed();
+
+	CRichEditThemed &operator =(const CRichEditThemed &) = delete;	// No assignments!
 
 	void VerifyThemedBorderState();
 	bool OnNCPaint();

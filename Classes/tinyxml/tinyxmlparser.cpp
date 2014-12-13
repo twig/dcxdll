@@ -1293,16 +1293,18 @@ const char* TiXmlUnknown::Parse( const char* p, TiXmlParsingData* data, TiXmlEnc
 	++p;
     value = "";
 
-	while ( p && *p && *p != '>' )
+	//while (p && *p && *p != '>') // unneeded null check, p is never null here (see above)
+	while (*p && *p != '>')
 	{
 		value += *p;
 		++p;
 	}
 
-	if ( !p )
-	{
-		if ( document )	document->SetError( TIXML_ERROR_PARSING_UNKNOWN, 0, 0, encoding );
-	}
+	// unneeded null check, p is never null here
+	//if ( !p )
+	//{
+	//	if ( document )	document->SetError( TIXML_ERROR_PARSING_UNKNOWN, 0, 0, encoding );
+	//}
 	if ( *p == '>' )
 		return p+1;
 	return p;

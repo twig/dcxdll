@@ -461,7 +461,7 @@ mIRC(_xtreebar)
 				szbuf[0] = TEXT('\0');
 				item.hItem = TreeView_MapAccIDToHTREEITEM(mIRCLinker::getTreeview(), index);
 				item.mask = TVIF_TEXT;
-				item.pszText = szbuf;
+				item.pszText = szbuf;	// PVS-Studio reports `V507 pointer stored outside of scope` this is fine.
 				item.cchTextMax = MIRC_BUFFER_SIZE_CCH;
 				if (TreeView_GetItem(mIRCLinker::getTreeview(),&item))
 					dcx_strcpyn(data, item.pszText, MIRC_BUFFER_SIZE_CCH)
