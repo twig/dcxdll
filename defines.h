@@ -52,12 +52,9 @@ http://symbiancorner.blogspot.com/2007/05/how-to-detect-version-of-ms-visual.htm
 #endif
 #endif
 
-// Build DCX using C++11?
 // VS2012+ only
 #if _MSC_VER < 1700
-#define DCX_USE_C11 0
-#else
-#define DCX_USE_C11 1
+#error "This version of DCX needs C++11 or newer"
 #endif
 
 // --------------------------------------------------
@@ -68,15 +65,13 @@ http://symbiancorner.blogspot.com/2007/05/how-to-detect-version-of-ms-visual.htm
 #define DCX_USE_DXSDK 1
 // end of DirectX SDK
 
+// always 1
+#define DCX_USE_WINSDK 1
+
 // DCX using GDI+? (Required for advanced graphics routines)
 #define DCX_USE_GDIPLUS 1
 #define DCX_MAX_GDI_ERRORS 21
 // end of GDI+
-
-// DCX using Windows SDK? (Required for Vista routines)
-// If not, get off your arse & install it!
-#define DCX_USE_WINSDK 1
-// end of Windows SDK
 
 // DCX Using the Boost C++ libs
 // Boost is used for the regex matches when enabled.
@@ -156,19 +151,19 @@ http://symbiancorner.blogspot.com/2007/05/how-to-detect-version-of-ms-visual.htm
 //#define GDIPVER 0x0110
 
 // Windows 8 + IE V10 + GDI+ 1.1
-#define _WIN32_WINNT 0x0602
+//#define _WIN32_WINNT 0x0602
+//#define _WIN32_IE 0x0A00
+//#define WINVER 0x0602
+//#define GDIPVER 0x0110
+
+// Windows 8.1 + IE V10 + GDI+ 1.1
+#define _WIN32_WINNT 0x0603
 #define _WIN32_IE 0x0A00
-#define WINVER 0x0601
+#define WINVER 0x0603
 #define GDIPVER 0x0110
 
-// Required for VS 2005
-#if _MSC_VER >= 1400
-#define VS2005 1
 #define _CRT_SECURE_NO_DEPRECATE 1
-#if _MSC_VER >= 1700
 #define _CRT_SECURE_NO_WARNINGS 1
-#endif	// VS2012
-#endif	// VS2005
 
 // Includes created svn build info header...
 #include "gitBuild.h"
@@ -202,6 +197,10 @@ http://symbiancorner.blogspot.com/2007/05/how-to-detect-version-of-ms-visual.htm
 #define DLL_STATE      TEXT("Debug Build")
 // Link with DirectX error lib, enables extra error reporting.
 #define DCX_DX_ERR	1
+#if DCX_USE_C11
+// Use Object switch code (testing only)
+#define DCX_SWITCH_OBJ 1
+#endif
 #endif
 
 // --------------------------------------------------
@@ -213,6 +212,8 @@ http://symbiancorner.blogspot.com/2007/05/how-to-detect-version-of-ms-visual.htm
 #define NOKANJI
 #define NOHELP
 #define NOMCX
+#define OEMRESOURCE
+
 //#include <vld.h>
 #include <windows.h>
 #include <windowsx.h>
@@ -225,6 +226,9 @@ http://symbiancorner.blogspot.com/2007/05/how-to-detect-version-of-ms-visual.htm
 #include <regex>
 #endif
 
+#include <memory>
+#include "AutoRelease.h"
+
 #include "Classes/TString/tstring.h"
 #include "XSwitchFlags.h"
 
@@ -232,29 +236,14 @@ http://symbiancorner.blogspot.com/2007/05/how-to-detect-version-of-ms-visual.htm
 #include <shlobj.h>
 
 #include <uxtheme.h>
-//#if _MSC_VER >= 1500 // Visual C++ 2008 (WRONG not for VS2008, for Windows SDK when compiled for Vista+)
-#if DCX_USE_WINSDK && WINVER >= 0x600
+
+#if WINVER >= 0x600
 #include <vssym32.h>
 #else
 #include <tmschema.h>
 #endif
 
-#if DCX_USE_WINSDK
 #include <dwmapi.h>
-#else
-typedef enum _DWMWINDOWATTRIBUTE {
-    DWMWA_NCRENDERING_ENABLED = 1,
-    DWMWA_NCRENDERING_POLICY,
-    DWMWA_TRANSITIONS_FORCEDISABLED,
-    DWMWA_ALLOW_NCPAINT,
-    DWMWA_CAPTION_BUTTON_BOUNDS,
-    DWMWA_NONCLIENT_RTL_LAYOUT,
-    DWMWA_FORCE_ICONIC_REPRESENTATION,
-    DWMWA_FLIP3D_POLICY,
-    DWMWA_EXTENDED_FRAME_BOUNDS,
-    DWMWA_LAST
-} DWMWINDOWATTRIBUTE;
-#endif
 
 #ifdef DCX_USE_GDIPLUS
 #include <gdiplus.h>
@@ -402,11 +391,8 @@ using namespace Gdiplus;
 // --------------------------------------------------
 // Ultradock stuff
 // --------------------------------------------------
-#define SWB_NONE    0
-#define SWB_LEFT    1
-#define SWB_RIGHT   2
-#define SWB_TOP     3
-#define SWB_BOTTOM  4
+
+enum SwitchBarPos: UINT { SWB_NONE = 0, SWB_LEFT, SWB_RIGHT, SWB_TOP, SWB_BOTTOM };
 
 // Dialog info structure
 typedef struct tagMYDCXWINDOW {
@@ -422,7 +408,7 @@ typedef struct tagMYDCXWINDOW {
 #define mIRC(x) _INTEL_DLL_ int WINAPI x(HWND mWnd, HWND aWnd, TCHAR * data, TCHAR * parms, BOOL, BOOL)
 
 // Return String DLL Alias (data is limited to MIRC_BUFFER_SIZE_CCH)
-#define ret(x) { if (lstrcpyn(data, (x), MIRC_BUFFER_SIZE_CCH) == NULL) data[0] = 0; return 3; }
+#define ret(x) { if (lstrcpyn(data, (x), MIRC_BUFFER_SIZE_CCH) == nullptr) data[0] = 0; return 3; }
 
 #define PACKVERSION(major,minor) MAKELONG(minor,major)
 
@@ -451,11 +437,7 @@ typedef std::vector<int> VectorOfInts; //<! Vector of int
 #define dcx_fopen(x,y) _wfopen(x,y)
 #define dcx_strstr(x,y) wcsstr((x),(y))
 #define dcx_strncmp(x,y,z) wcsncmp((x),(y),(z))
-#ifdef VS2005
 #define dcx_itoa(x,y,z) _itow((x), (y), (z))
-#else
-#define dcx_itoa(x,y,z) itow((x), (y), (z))
-#endif
 #else
 #define dcx_atoi(x) atoi(x)
 #define dcx_atoi64(x) _atoi64(x)
@@ -463,22 +445,18 @@ typedef std::vector<int> VectorOfInts; //<! Vector of int
 #define dcx_fopen(x,y) fopen(x,y)
 #define dcx_strstr(x,y) strstr((x),(y))
 #define dcx_strncmp(x,y,z) strncmp((x),(y),(z))
-#ifdef VS2005
 #define dcx_itoa(x,y,z) _itoa((x), (y), (z))
-#else
-#define dcx_itoa(x,y,z) itoa((x), (y), (z))
-#endif
 #endif
 
-#define dcx_strcpyn(x, y, z) { if (lstrcpyn((x), (y), (z)) == NULL) (x)[0] = 0; }
+#define dcx_strcpyn(x, y, z) { if (lstrcpyn((x), (y), (z)) == nullptr) (x)[0] = 0; }
 
 #define dcx_Con(x,y) dcx_strcpyn((y), (((x)) ? TEXT("$true") : TEXT("$false")), MIRC_BUFFER_SIZE_CCH);
 
 #define dcx_ConRet(x,y) { \
-	if (lstrcpyn((y), (((x)) ? TEXT("$true") : TEXT("$false")), MIRC_BUFFER_SIZE_CCH) != NULL) return; \
+	if (lstrcpyn((y), (((x)) ? TEXT("$true") : TEXT("$false")), MIRC_BUFFER_SIZE_CCH) != nullptr) return; \
 }
 #define dcx_ConRetState(x,y) { \
-	if (lstrcpyn((y), (((x)) ? TEXT("$true") : TEXT("$false")), MIRC_BUFFER_SIZE_CCH) != NULL) return TRUE; \
+	if (lstrcpyn((y), (((x)) ? TEXT("$true") : TEXT("$false")), MIRC_BUFFER_SIZE_CCH) != nullptr) return TRUE; \
 }
 #define dcx_ConChar(x,y) { \
 if ((x)) (y)[0] = TEXT('1'); \
@@ -497,7 +475,7 @@ TString ParseLogfontToCommand(const LPLOGFONT lf);
 UINT parseFontFlags(const TString &flags);
 UINT parseFontCharSet(const TString &charset);
 
-BYTE *readFile(const PTCHAR filename);
+std::unique_ptr<BYTE[]> readFile(const PTCHAR filename);
 TString readTextFile(const PTCHAR tFile);
 bool SaveDataToFile(const TString &tsFile, const TString &tsData);
 TString FileDialog(const TString & data, const TString &method, const HWND pWnd);
@@ -514,7 +492,7 @@ HICON dcxLoadIcon(const int index, TString &filename, const bool large, const TS
 HICON CreateGrayscaleIcon(HICON hIcon);
 HRGN BitmapRegion(HBITMAP hBitmap,COLORREF cTransparentColor,BOOL bIsTransparent);
 bool ChangeHwndIcon(const HWND hwnd, const TString &flags, const int index, TString &filename);
-bool AddFileIcons(HIMAGELIST himl, TString &filename, const bool bLarge, const int iIndex);
+bool AddFileIcons(HIMAGELIST himl, TString &filename, const bool bLarge, const int iIndex, const int iStart = 0, const int iEnd = -1);
 BOOL dcxGetWindowRect(HWND hWnd, LPRECT lpRect);
 int dcxPickIconDlg(HWND hwnd, LPWSTR pszIconPath, UINT cchIconPath, int *piIconIndex);
 
@@ -537,6 +515,7 @@ BOOL isRegexMatch(const TCHAR *matchtext, const TCHAR *pattern);
 void DrawRotatedText(const TString &strDraw, LPRECT rc, HDC hDC, const int nAngleLine = 0, const bool bEnableAngleChar = false, const int nAngleChar = 0);
 const char *queryAttribute(const TiXmlElement *element,const char *attribute,const char *defaultValue = "");
 int queryIntAttribute(const TiXmlElement *element,const char *attribute,const int defaultValue = 0);
+void getmIRCPalette(COLORREF *const Palette, const int PaletteItems);
 
 // UltraDock
 void RemStyles(HWND hwnd,int parm,long RemStyles);
