@@ -72,7 +72,7 @@ const TCHAR *TString::m_cTab = TEXT("\t");
 //}
 
 TString::TString()
-	: TString((UINT)0)
+	: TString((UINT)1)
 {
 }
 
@@ -84,36 +84,38 @@ TString::TString()
 */
 /****************************/
 
-TString::TString( const char *const cString )
+TString::TString(const char *const cString)
 	: m_pTempString(nullptr), m_pString(nullptr)
 	, m_savedtotaltoks(0), m_savedcurrenttok(0), m_savedpos(nullptr)
-	, m_bUsingInternal(false), m_bDirty(true), m_iLen(0)
+	, m_bDirty(true), m_iLen(0)
+#if TSTRING_INTERNALBUFFER
+	, m_bUsingInternal(false)
+#endif
 {
 #ifdef UNICODE
 	if (cString != nullptr)
 		this->m_pString = charToWchar(cString, &m_buffersize);
-
-	if (this->m_pString == nullptr) {
-		this->m_pString = allocstr_cch( 1 );
-		this->m_pString[0] = TEXT('\0');
-	}
 #else
-	if ( cString != nullptr ) {
-		const int l = ts_strlen( cString ) + 1;
-		this->m_pString = allocstr_cch( l );
-		ts_strcpyn_throw(this->m_pString, cString, l );
-	}
-	else {
-		this->m_pString = allocstr_cch( 1 );
-		this->m_pString[0] = 0;
+	if (cString != nullptr) {
+		const int l = ts_strlen(cString) + 1;
+		this->m_pString = allocstr_cch(l);
+		ts_strcpyn_throw(this->m_pString, cString, l);
 	}
 #endif
+
+	if (this->m_pString == nullptr) {
+		this->m_pString = allocstr_cch(1);
+		this->m_pString[0] = TEXT('\0');
+	}
 }
 
 TString::TString( const WCHAR *const cString )
 	: m_pTempString(nullptr), m_pString(nullptr)
 	, m_savedtotaltoks(0), m_savedcurrenttok(0), m_savedpos(nullptr)
-	, m_bUsingInternal(false), m_bDirty(true), m_iLen(0)
+	, m_bDirty(true), m_iLen(0)
+#if TSTRING_INTERNALBUFFER
+	, m_bUsingInternal(false)
+#endif
 {
 #ifdef UNICODE
 	if (cString != nullptr) {
@@ -121,39 +123,55 @@ TString::TString( const WCHAR *const cString )
 		this->m_pString = allocstr_cch(l);
 		ts_strcpyn_throw(this->m_pString, cString, l);
 	}
-	else {
-		this->m_pString = allocstr_cch(1);
-		this->m_pString[0] = 0;
-	}
 #else
 	if (cString != nullptr)
 		this->m_pString = WcharTochar(cString, &m_buffersize);
+#endif
 
 	if (this->m_pString == nullptr) {
 		this->m_pString = allocstr_cch( 1 );
 		this->m_pString[0] = TEXT('\0');
 	}
-#endif
 }
 
 /****************************/
-/*! \fn TString::TString( const TCHAR chr )
-    \brief Constructor input from C TCHAR
+/*! \fn TString::TString( const WCHAR chr )
+    \brief Constructor input from C WCHAR
 
     \param chr Character to initialize string to
 */
 /****************************/
 
+#ifdef UNICODE
+#if TSTRING_INTERNALBUFFER
+TString::TString(const WCHAR chr)
+	: m_pTempString(nullptr), m_pString(m_InternalBuffer)
+	, m_savedtotaltoks(0), m_savedcurrenttok(0), m_savedpos(nullptr)
+	, m_bUsingInternal(true), m_bDirty(true), m_iLen(0), m_buffersize(TSTRING_INTERNALBUFFERSIZE_BYTES)
+{
+	this->m_pString[0] = chr;
+	this->m_pString[1] = TEXT('\0');
+}
+#else
+TString::TString(const WCHAR chr)
+	: m_pTempString(nullptr), m_pString(nullptr)
+	, m_savedtotaltoks(0), m_savedcurrenttok(0), m_savedpos(nullptr)
+	, m_bDirty(true), m_iLen(0)
+{
+	this->m_pString = this->allocstr_cch(2);
+	this->m_pString[0] = chr;
+	this->m_pString[1] = TEXT('\0');
+}
+#endif
+#else
 TString::TString( const WCHAR chr )
 	: m_pTempString(nullptr), m_pString(nullptr)
 	, m_savedtotaltoks(0), m_savedcurrenttok(0), m_savedpos(nullptr)
-	, m_bUsingInternal(false), m_bDirty(true), m_iLen(0)
+	, m_bDirty(true), m_iLen(0)
+#if TSTRING_INTERNALBUFFER
+	, m_bUsingInternal(false)
+#endif
 {
-#ifdef UNICODE
-	this->m_pString = allocstr_cch(2);
-	this->m_pString[0] = chr;
-	this->m_pString[1] = TEXT('\0');
-#else
 	if (chr != L'\0')
 	{
 		const WCHAR wStr[] = { chr, L'\0' };
@@ -166,15 +184,26 @@ TString::TString( const WCHAR chr )
 		this->m_pString = allocstr_cch(1);
 		this->m_pString[0] = 0;
 	}
-#endif
 }
+#endif
 
-TString::TString( const char chr )
+/****************************/
+/*! \fn TString::TString( const char chr )
+\brief Constructor input from C char
+
+\param chr Character to initialize string to
+*/
+/****************************/
+
+#ifdef UNICODE
+TString::TString(const char chr)
 	: m_pTempString(nullptr), m_pString(nullptr)
 	, m_savedtotaltoks(0), m_savedcurrenttok(0), m_savedpos(nullptr)
-	, m_bUsingInternal(false), m_bDirty(true), m_iLen(0)
+	, m_bDirty(true), m_iLen(0)
+#if TSTRING_INTERNALBUFFER
+	, m_bUsingInternal(false)
+#endif
 {
-#ifdef UNICODE
 	if (chr != '\0') {
 		const char cString[] = { chr, '\0' };
 
@@ -185,12 +214,29 @@ TString::TString( const char chr )
 		this->m_pString = allocstr_cch(1);
 		this->m_pString[0] = TEXT('\0');
 	}
+}
 #else
+#if TSTRING_INTERNALBUFFER
+TString::TString( const char chr )
+	: m_pTempString(nullptr), m_pString(m_InternalBuffer)
+	, m_savedtotaltoks(0), m_savedcurrenttok(0), m_savedpos(nullptr)
+	, m_bUsingInternal(true), m_bDirty(true), m_iLen(0), m_buffersize(TSTRING_INTERNALBUFFERSIZE_BYTES)
+{
+	this->m_pString[0] = chr;
+	this->m_pString[1] = 0;
+}
+#else
+TString::TString( const char chr )
+	: m_pTempString(nullptr), m_pString(nullptr)
+	, m_savedtotaltoks(0), m_savedcurrenttok(0), m_savedpos(nullptr)
+	, m_bDirty(true), m_iLen(0)
+{
 	this->m_pString = allocstr_cch(2);
 	this->m_pString[0] = chr;
 	this->m_pString[1] = 0;
-#endif
 }
+#endif
+#endif
 
 /****************************/
 /*! \fn TString::TString( const TString & tString )
@@ -200,10 +246,26 @@ TString::TString( const char chr )
 */
 /****************************/
 
-TString::TString( const TString & tString )
+#if TSTRING_INTERNALBUFFER
+TString::TString(const TString & tString)
+	: m_pTempString(nullptr), m_pString(m_InternalBuffer)
+	, m_savedtotaltoks(0), m_savedcurrenttok(0), m_savedpos(nullptr)
+	, m_bDirty(true), m_iLen(0), m_buffersize(TSTRING_INTERNALBUFFERSIZE_BYTES)
+	, m_bUsingInternal(true)
+{
+	this->m_InternalBuffer[0] = 0;
+
+	if (!tString.empty()) {
+		// copy full buffer from source TString object, this buffer supplies any zero byte.
+		this->m_pString = allocstr_bytes(tString.m_buffersize);
+		ts_copymem(this->m_pString, tString.m_pString, tString.m_buffersize);
+	}
+}
+#else
+TString::TString(const TString & tString)
 	: m_pTempString(nullptr), m_pString(nullptr)
 	, m_savedtotaltoks(0), m_savedcurrenttok(0), m_savedpos(nullptr)
-	, m_bUsingInternal(false), m_bDirty(true), m_iLen(0)
+	, m_bDirty(true), m_iLen(0)
 {
 	if (!tString.empty()) {
 		// copy full buffer from source TString object, this buffer supplies any zero byte.
@@ -215,6 +277,7 @@ TString::TString( const TString & tString )
 		this->m_pString[0] = 0;
 	}
 }
+#endif
 
 /****************************/
 /*! \fn TString::TString( const TString && tString )
@@ -256,13 +319,25 @@ TString::TString(TString && tString)
 \param lt - List of TString objects to concate into the new TString object.
 */
 /****************************/
-TString::TString(const std::initializer_list<TString> lt)
+TString::TString(const std::initializer_list<TString> &lt)
 	: TString()
 {
 	for (const auto &s : lt)
 	{
 		append(s);
 	}
+}
+
+/****************************/
+/*! \fn TString::TString(const std::unique_ptr<TCHAR[]> &unique)
+\brief unique_ptr constructor
+
+\param unique - A unique_ptr object to an array of TCHAR's
+*/
+/****************************/
+TString::TString(const std::unique_ptr<TCHAR[]> &unique)
+	: TString(unique.get())
+{
 }
 
 /****************************/
@@ -276,7 +351,10 @@ TString::TString(const std::initializer_list<TString> lt)
 TString::TString(const TCHAR *const pStart, const TCHAR *const pEnd)
 	: m_pTempString(nullptr), m_pString(nullptr)
 	, m_savedtotaltoks(0), m_savedcurrenttok(0), m_savedpos(nullptr)
-	, m_bUsingInternal(false), m_bDirty(true), m_iLen(0)
+	, m_bDirty(true), m_iLen(0)
+#if TSTRING_INTERNALBUFFER
+	, m_bUsingInternal(false)
+#endif
 {
 	if ((pStart != nullptr) && (pEnd != nullptr) && (pEnd > pStart)) {
 		const size_t size = (pEnd - pStart);
@@ -298,7 +376,10 @@ TString::TString(const TCHAR *const pStart, const TCHAR *const pEnd)
 TString::TString( const UINT tsSize )
 	: m_pTempString(nullptr), m_pString(nullptr)
 	, m_savedtotaltoks(0), m_savedcurrenttok(0), m_savedpos(nullptr)
-	, m_bUsingInternal(false), m_bDirty(true), m_iLen(0)
+	, m_bDirty(true), m_iLen(0)
+#if TSTRING_INTERNALBUFFER
+	, m_bUsingInternal(false)
+#endif
 {
 	this->m_pString = allocstr_cch(tsSize + 1);
 	ts_zeromem(this->m_pString, this->m_buffersize);
@@ -314,8 +395,12 @@ TString::~TString( ) {
  */
 void TString::deleteString(const bool bKeepBufferSize)
 {
+#if TSTRING_INTERNALBUFFER
 	if (!m_bUsingInternal)
 		delete [] this->m_pString; 
+#else
+	delete[] this->m_pString;
+#endif
 
 	this->m_pString = nullptr;
 
@@ -431,21 +516,24 @@ TString& TString::operator =( const char chr )
 
 TString TString::operator +( const TCHAR *const cString ) {
 
-	if (cString == nullptr)
-		return *this; // return an object not a ref or pointer to object, so object is copied on return.
+	//if (cString == nullptr)
+	//	return *this; // return an object not a ref or pointer to object, so object is copied on return.
+	//
+	//const size_t sz = this->len();
+	//const size_t l = (sz + ts_strlen(cString) + 1);
+	//TString newTString((UINT)l);
+	//
+	//if (sz > 0)
+	//{
+	//	ts_strcpyn_throw(newTString.m_pString, this->m_pString, l);
+	//}
+	//// NB: Buffer is zerod for us already.
+	//ts_strcat_throw(newTString.m_pString, cString);
+	//
+	//return newTString;
 
-	const size_t sz = this->len();
-	const size_t l = (sz + ts_strlen(cString) + 1);
-	TString newTString((UINT)l);
-
-	if (sz > 0)
-	{
-		ts_strcpyn_throw(newTString.m_pString, this->m_pString, l);
-	}
-	// NB: Buffer is zerod for us already.
-	ts_strcat_throw(newTString.m_pString, cString);
-
-	return newTString;
+	TString newTString(*this);
+	return newTString.append(cString);
 }
 
 /****************************/
@@ -458,19 +546,23 @@ TString TString::operator +( const TCHAR *const cString ) {
 */
 /****************************/
 
-TString TString::operator +( const TCHAR chr ) {
+TString TString::operator +( const TCHAR chr )
+{
+	//const size_t size = this->len();
+	//TString newTString((UINT)(size + 2));
+	//
+	//if (size > 0)
+	//{
+	//	ts_strcpyn_throw(newTString.m_pString, this->m_pString, size + 1);
+	//}
+	//
+	//newTString.m_pString[size] = chr;
+	//newTString.m_pString[size + 1] = 0;
+	//
+	//return newTString;
 
-	const size_t size = this->len();
-	TString newTString((UINT)(size + 2));
-
-	if (size > 0)
-	{
-		ts_strcpyn_throw(newTString.m_pString, this->m_pString, size + 1);
-	}
-
-	newTString.m_pString[size] = chr;
-	newTString.m_pString[size + 1] = 0;
-
+	TString newTString(*this);
+	newTString += chr;
 	return newTString;
 }
 
@@ -486,20 +578,23 @@ TString TString::operator +( const TCHAR chr ) {
 
 TString TString::operator +( const TString & tString ) {
 
-	if (tString.empty())
-		return *this;
+	//if (tString.empty())
+	//	return *this;
+	//
+	//const size_t sz = this->len();
+	//const size_t l = (sz + tString.len() + 1);	// we could use the 2x m_buffersize instead, but this could lead to a very large unneeded buffer.
+	//
+	//TString newTString((UINT)l);
+	//
+	//if (sz > 0) {
+	//	ts_strcpyn_throw(newTString.m_pString, this->m_pString, l);
+	//}
+	//ts_strcat_throw(newTString.m_pString, tString.m_pString);
+	//
+	//return newTString;
 
-	const size_t sz = this->len();
-	const size_t l = (sz + tString.len() + 1);	// we could use the 2x m_buffersize instead, but this could lead to a very large unneeded buffer.
-
-	TString newTString((UINT)l);
-
-	if (sz > 0) {
-		ts_strcpyn_throw(newTString.m_pString, this->m_pString, l);
-	}
-	ts_strcat_throw(newTString.m_pString, tString.m_pString);
-
-	return newTString;
+	TString newTString(*this);
+	return newTString.append(tString);
 }
 
 /****************************/
@@ -1121,7 +1216,8 @@ TString & TString::operator *=( const int &N ) {
 TCHAR & TString::operator []( long int N )
 {
 	// NB: size needs to be in characters, m_buffersize is in bytes (multiples of TCHAR)
-	if (N < 0) N += (this->m_buffersize / sizeof(TCHAR));
+	if (N < 0)
+		N += (this->m_buffersize / sizeof(TCHAR));
 
 	CheckRange(N);
 
@@ -1375,33 +1471,6 @@ int TString::i_remove(const TCHAR *const subString)
 	// may change this.
 	if (subl == 0)
 		return 0;
-
-	// allocate new string
-	//const size_t l = TS_getmemsize(ol + 1);
-	//PTCHAR tmp = new TCHAR[l];
-	//while ((sub = ts_strstr(p, subString)) != NULL) {
-	//	if (ts_strncat(tmp, p, (sub - p)) == NULL) // copy bit before substring. if any.
-	//	{
-	//		delete[] tmp;
-	//		throw std::logic_error("strcat() failed!");
-	//	}
-	//	cnt++;
-	//	p = sub + subl; // update pointer to skip substring.
-	//}
-	//
-	//if (cnt > 0) {
-	//	if (ts_strcat(tmp, p) == NULL) // append the end text, if any.
-	//	{
-	//		delete[] tmp;
-	//		throw std::logic_error("strcat() failed!");
-	//	}
-	//
-	//	this->deleteString(); // delete old string
-	//
-	//	this->m_pString = tmp; // save new one.
-	//	this->m_buffersize = l;
-	//}
-	//else delete[] tmp;
 
 	TString tmp((UINT)(ol + 1));
 
@@ -2992,7 +3061,7 @@ WCHAR *TString::charToWchar(const char *const cString, size_t *const buffer_size
 			// NB: NormalizeString() is Vista+ ONLY
 			int normLen = NormalizeString(NormalizationC, res, -1, nullptr, 0);
 			if (normLen > 0) {
-				normLen++;
+				normLen = TS_wgetmemsize(normLen + 1);
 				normRes = new WCHAR[normLen];
 				if (NormalizeString(NormalizationC, res, -1, normRes, normLen) > 0)
 				{
@@ -3011,7 +3080,7 @@ WCHAR *TString::charToWchar(const char *const cString, size_t *const buffer_size
 		}
 	}
 	if (buffer_size != nullptr)
-		*buffer_size = buf_size;
+		*buffer_size = (buf_size *sizeof(WCHAR));
 
 	return res;
 }
@@ -3121,43 +3190,52 @@ TString &TString::strip()
 }
 
 // swap function taken from: http://stackoverflow.com/questions/3279543/what-is-the-copy-and-swap-idiom
-void TString::swap(TString &second) // nothrow
+void TString::swap(TString &second) // nothrow noexcept
 {
 	// enable ADL (not necessary in our case, but good practice)
 	using std::swap;
 
+	// NB: 'second' is expected to be disposed of after the swap, not used, some mods are needed to make it fully usable when using internal buffers.
+
 	// by swapping the members of two classes,
 	// the two classes are effectively swapped
-#if TSTRING_INTERNALBUFFER
-	if (second.m_bUsingInternal)
-	{
-		if (!this->m_bUsingInternal)
-			swap(this->m_pString, second.m_pString);
-
-		ts_copymem(m_InternalBuffer, second.m_InternalBuffer, TSTRING_INTERNALBUFFERSIZE_BYTES);
-		second.m_InternalBuffer[0] = TEXT('\0');
-
-		this->m_pString = m_InternalBuffer;
-	}
-	else
-		swap(this->m_pString, second.m_pString);
-	swap(this->m_bUsingInternal, second.m_bUsingInternal);
-#else
 	swap(this->m_pString, second.m_pString);
-#endif
+	swap(this->m_savedpos, second.m_savedpos);
+	swap(this->m_bUsingInternal, second.m_bUsingInternal);
 	swap(this->m_pTempString, second.m_pTempString);
 	swap(this->m_buffersize, second.m_buffersize);
 	swap(this->m_savedcurrenttok, second.m_savedcurrenttok);
-	swap(this->m_savedpos, second.m_savedpos);
 	swap(this->m_savedtotaltoks, second.m_savedtotaltoks);
 #ifdef TSTRING_PARTS
 	swap(this->m_SplitParts, second.m_SplitParts);
 #endif
 	swap(this->m_bDirty, second.m_bDirty);
 	swap(this->m_iLen, second.m_iLen);
+
+#if TSTRING_INTERNALBUFFER
+	if (this->m_bUsingInternal)
+	{
+		ts_copymem(m_InternalBuffer, second.m_InternalBuffer, TSTRING_INTERNALBUFFERSIZE_BYTES);
+
+		this->m_pString = m_InternalBuffer;
+		// make savedpos point to the same offset within our buffer...
+		if (this->m_savedpos != nullptr)
+			this->m_savedpos = (this->m_pString + (this->m_savedpos - second.m_InternalBuffer));
+	}
+	if (second.m_bUsingInternal)
+	{
+		second.m_pString = second.m_InternalBuffer;
+		//if (second.m_savedpos != nullptr)
+		//	second.m_savedpos = (second.m_pString + (second.m_savedpos - this->m_InternalBuffer));
+		second.m_savedpos = nullptr;
+		second.m_iLen = 0;
+		second.m_bDirty = false;
+		second.m_InternalBuffer[0] = TEXT('\0');
+	}
+#endif
 }
 
-void TString::copy(TString other)
+void TString::copy(TString other) // <- copy made here, so just swap them
 {
 	this->swap(other);
 }
@@ -3207,7 +3285,7 @@ void TString::clear(void)
 
 	// this method differs from above in that it does free the memory.
 	TString tmp;
-	swap(tmp);
+	this->swap(tmp);
 }
 
 void TString::shrink_to_fit(void)
@@ -3238,7 +3316,7 @@ void TString::reserve(const size_t tsSize)
 
 	TString tmp((UINT)tsSize);
 	ts_strcpy_throw(tmp.m_pString, this->m_pString);
-	swap(tmp);
+	this->swap(tmp);
 }
 
 TString &TString::append(const WCHAR *const cString)
@@ -3339,47 +3417,72 @@ const TString &TString::part(const size_t N) const
 
 const TStringList &TString::parts(const TCHAR *const sepChars) const
 {
-	//if (m_SplitParts.empty() && !this->empty() && (sepChars != nullptr) && (sepChars[0] != TEXT('\0')))
-	//{
-	//	TCHAR * p_cStart = this->m_pString, *p_cEnd = this->m_pString;
-	//	const int sepl = ts_strlen(sepChars);
-	//
-	//	while ((p_cEnd = ts_strstr(p_cStart, sepChars)) != nullptr) {
-	//		m_SplitParts.push_back(TString(p_cStart, p_cEnd));
-	//
-	//		p_cStart = p_cEnd + sepl;
-	//	}
-	//	if (p_cStart[0] != TEXT('\0'))
-	//		m_SplitParts.push_back(TString(p_cStart));
-	//}
-	//return m_SplitParts;
-
 	if (m_SplitParts.empty())
 		split(sepChars);
 	return m_SplitParts;
 }
 
-TStringList::iterator TString::begin()
+TString::iterator TString::begin()
 {
 	parts();
 	return m_SplitParts.begin();
 }
 
-TStringList::iterator TString::end()
+TString::iterator TString::begin(const TCHAR *const sepChars)
+{
+	parts(sepChars);
+	return m_SplitParts.begin();
+}
+
+TString::iterator TString::end()
 {
 	return m_SplitParts.end();
 }
 
-const TStringList::const_iterator TString::begin() const
+const TString::const_iterator TString::begin() const
 {
 	return parts().begin();
 }
 
-const TStringList::const_iterator TString::end() const
+const TString::const_iterator TString::begin(const TCHAR *const sepChars) const
+{
+	parts(sepChars);
+	return m_SplitParts.cbegin();
+}
+
+const TString::const_iterator TString::end() const
 {
 	return m_SplitParts.end();
 }
 #endif
+
+//#ifdef TSTRING_PARTS
+//void TString::split(const TCHAR *const sepChars) const
+//{
+//	this->getfirsttok(0, sepChars);
+//}
+//
+//TString::iterator TString::begin()
+//{
+//	split();
+//	return m_SplitParts.begin();
+//}
+//
+//TString::iterator TString::end()
+//{
+//	return m_SplitParts.end();
+//}
+//
+//const TString::const_iterator TString::begin() const
+//{
+//	return parts().begin();
+//}
+//
+//const TString::const_iterator TString::end() const
+//{
+//	return m_SplitParts.end();
+//}
+//#endif
 
 #if _MSC_VER > 1800
 // literal operator

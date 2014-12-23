@@ -65,6 +65,11 @@
 #include <stdlib.h>
 //#include <string.h>
 #include <stdexcept>
+#include <memory>
+
+#define TS_getmemsize(x) (((x) - 1) + (16 - (((x) - 1) % 16) ))
+//#define TS_wgetmemsize(x) (unsigned long)(((((x) - 1)*sizeof(WCHAR)) + (16 - ((((x) - 1)*sizeof(WCHAR)) % 16)))/sizeof(WCHAR))
+#define TS_wgetmemsize(x) (TS_getmemsize((x)*sizeof(WCHAR))/sizeof(WCHAR))
 
 // enable this define if you wish to use the mIRC extra functions
 //#define INCLUDE_MIRC_EXTRAS 1
@@ -72,10 +77,14 @@
 // enable this define to include code to support: for (auto x: TString)
 #define TSTRING_PARTS 1
 
+#ifdef TSTRING_PARTS
+#include <iterator>
+#endif
+
 // enable this to include a small internal buffer that avoids an allocation for small strings.
 #define TSTRING_INTERNALBUFFER 1
 // internal buffer size in characters
-#define TSTRING_INTERNALBUFFERSIZE_CCH 64
+#define TSTRING_INTERNALBUFFERSIZE_CCH TS_getmemsize(64)
 // internal buffer size in bytes
 #define TSTRING_INTERNALBUFFERSIZE_BYTES (TSTRING_INTERNALBUFFERSIZE_CCH*sizeof(TCHAR))
 
@@ -99,7 +108,7 @@ typedef std::vector<TString> TStringList;
 #define ts_atoi(x) _wtoi((x))
 #define ts_atoi64(x) _wtoi64((x));
 #define ts_atof(x) _wtof((x));
-#define ts_strtoul(x) wcstoul((x), NULL, 10)
+#define ts_strtoul(x) wcstoul((x), nullptr, 10)
 #define ts_itoa(x,y,z) _itow((x),(y),(z))
 #define ts_upr(x,y) _wcsupr_s((x),(y))
 #define ts_strstr(x,y) wcsstr((x),(y))
@@ -119,7 +128,7 @@ typedef std::vector<TString> TStringList;
 #define ts_atoi(x) atoi((x))
 #define ts_atoi64(x) _atoi64((x));
 #define ts_atof(x) atof((x));
-#define ts_strtoul(x) strtoul((x), NULL, 10)
+#define ts_strtoul(x) strtoul((x), nullptr, 10)
 #define ts_itoa(x,y,z) _itoa((x),(y),(z))
 #define ts_upr(x,y) _strupr_s((x),(y))
 #define ts_strstr(x,y) strstr((x),(y))
@@ -138,8 +147,6 @@ typedef std::vector<TString> TStringList;
 #define ts_vsprintf(txt, cnt, fmt, args ) vsprintf_s((txt), (cnt), (fmt), (args))
 #endif
 
-#define TS_getmemsize(x) ((x) + (16 - ((x) % 16)))
-#define TS_wgetmemsize(x) (unsigned long)((((x)*sizeof(WCHAR)) + (16 - (((x)*sizeof(WCHAR)) % 16)))/sizeof(WCHAR))
 #define ts_copymem(dest,src,sz) CopyMemory((dest),(src),(sz))
 #define ts_zeromem(dest, sz) ZeroMemory((dest),(sz))
 
@@ -184,7 +191,7 @@ private:
 	static TCHAR *allocstr_bytes(const size_t size, size_t &iActual)
 	{
 		iActual = TS_getmemsize(size);
-		return (TCHAR *)(new BYTE[iActual]);
+		return reinterpret_cast<TCHAR *>(new BYTE[iActual]);
 	};
 	// allocate a buffer thats size characters long & its a multiple of 16bytes.
 	TCHAR *allocstr_cch(const size_t size) { return allocstr_bytes(size*sizeof(TCHAR)); };
@@ -203,17 +210,17 @@ private:
 
 #if UNICODE
 		if (this->m_pTempString == nullptr)
-			this->m_pTempString = TString::WcharTochar(this->m_pString);
+			this->m_pTempString = WcharTochar(this->m_pString);
 #else
 		if (this->m_pTempString == nullptr)
-			this->m_pTempString = TString::charToWchar(this->m_pString);
+			this->m_pTempString = charToWchar(this->m_pString);
 #endif
 	}
 
 	// check if requested character is within buffer (not within string)
 	void CheckRange(long int N) const
 	{
-		if ((N < 0) || (N >= (long int)(m_buffersize / sizeof(TCHAR))))
+		if ((N < 0) || (N >= static_cast<long int>(m_buffersize / sizeof(TCHAR))))
 			throw std::out_of_range("TString::at()");
 	}
 
@@ -238,6 +245,8 @@ private:
 
 #ifdef TSTRING_PARTS
 	mutable TStringList	m_SplitParts;
+	typedef TStringList::iterator iterator;
+	typedef TStringList::const_iterator const_iterator;
 #endif
 
 public:
@@ -260,7 +269,8 @@ public:
 	TString(const TString & tString);
 	TString(const TCHAR *const pStart, const TCHAR *const pEnd);
 	TString(TString &&tString);					// move constructor C++11 only
-	TString(const std::initializer_list<TString> lt);	// Initializer list constructor (allows TString name{ "text", "text2", othertstring } )
+	TString(const std::initializer_list<TString> &lt);	// Initializer list constructor (allows TString name{ "text", "text2", othertstring } )
+	TString(const std::unique_ptr<TCHAR[]> &unique);
 
 	explicit TString(const WCHAR chr);
 	explicit TString(const char chr);
@@ -416,11 +426,101 @@ public:
 	const TString &part(const size_t N) const;
 	const TStringList &parts(const TCHAR *const sepChars = SPACE) const;
 	void ClearParts() const { m_SplitParts.clear(); }
-	TStringList::iterator begin();
-	TStringList::iterator end();
-	const TStringList::const_iterator begin() const;
-	const TStringList::const_iterator end() const;
+	iterator begin();
+	iterator begin(const TCHAR *const sepChars);
+	iterator end();
+	const const_iterator begin() const;
+	const const_iterator begin(const TCHAR *const sepChars) const;
+	const const_iterator end() const;
 #endif
+
+	////-------------------------------------------------------------------
+	//// Raw iterator with random access
+	////-------------------------------------------------------------------
+	//template<typename blDataType>
+	//class blRawIterator : public std::iterator<std::random_access_iterator_tag,
+	//	blDataType,
+	//	ptrdiff_t,
+	//	blDataType*,
+	//	blDataType&>
+	//{
+	//public:
+	//
+	//	blRawIterator(blDataType* ptr = nullptr){ m_ptr = ptr; }
+	//	blRawIterator(const blRawIterator<blDataType>& rawIterator) = default;
+	//	~blRawIterator(){}
+	//
+	//	blRawIterator<blDataType>&                  operator=(const blRawIterator<blDataType>& rawIterator) = default;
+	//	blRawIterator<blDataType>&                  operator=(blDataType* ptr){ m_ptr = ptr; return (*this); }
+	//
+	//	operator bool()const
+	//	{
+	//		if (m_ptr)
+	//			return true;
+	//		else
+	//			return false;
+	//	}
+	//
+	//	bool                                        operator==(const blRawIterator<blDataType>& rawIterator)const{ return (m_ptr == rawIterator.getConstPtr()); }
+	//	bool                                        operator!=(const blRawIterator<blDataType>& rawIterator)const{ return (m_ptr != rawIterator.getConstPtr()); }
+	//
+	//	blRawIterator<blDataType>&                  operator+=(const ptrdiff_t& movement){ m_ptr += movement; return (*this); }
+	//	blRawIterator<blDataType>&                  operator-=(const ptrdiff_t& movement){ m_ptr -= movement; return (*this); }
+	//	blRawIterator<blDataType>&                  operator++(){ ++m_ptr; return (*this); }
+	//	blRawIterator<blDataType>&                  operator--(){ --m_ptr; return (*this); }
+	//	blRawIterator<blDataType>                   operator++(ptrdiff_t){ auto temp(*this); ++m_ptr; return temp; }
+	//	blRawIterator<blDataType>                   operator--(ptrdiff_t){ auto temp(*this); --m_ptr; return temp; }
+	//	blRawIterator<blDataType>                   operator+(const ptrdiff_t& movement){ auto oldPtr = m_ptr; m_ptr += movement; auto temp(*this); m_ptr = oldPtr; return temp; }
+	//	blRawIterator<blDataType>                   operator-(const ptrdiff_t& movement){ auto oldPtr = m_ptr; m_ptr -= movement; auto temp(*this); m_ptr = oldPtr; return temp; }
+	//
+	//	ptrdiff_t                                   operator-(const blRawIterator<blDataType>& rawIterator){ return std::distance(rawIterator.getPtr(), this->getPtr()); }
+	//
+	//	blDataType&                                 operator*(){ return *m_ptr; }
+	//	const blDataType&                           operator*()const{ return *m_ptr; }
+	//	blDataType*                                 operator->(){ return m_ptr; }
+	//
+	//	blDataType*                                 getPtr()const{ return m_ptr; }
+	//	const blDataType*                           getConstPtr()const{ return m_ptr; }
+	//
+	//protected:
+	//
+	//	blDataType*                                 m_ptr;
+	//};
+	////-------------------------------------------------------------------
+
+//#ifdef TSTRING_PARTS
+//	template <typename tsType>
+//	class tsIterator
+//		: public std::iterator<std::forward_iterator_tag, tsType, ptrdiff_t, tsType*, tsType&>
+//	{
+//		tsIterator(const tsIterator<tsType> &other) = default;
+//		tsIterator(tsType *ptr = nullptr) : m_ptr(ptr) {}
+//		~tsIterator(){}
+//
+//		tsIterator<tsType> &operator = (const tsIterator<tsType> &other) = default;
+//		tsIterator<tsType> &operator = (tsType *ptr) { m_ptr = ptr; return *this; }
+//
+//		operator bool() const { return (m_ptr != nullptr); }
+//
+//		bool operator == (const tsIterator<tsType> &other)const{ return (m_ptr == other.getConstPtr()); }
+//		bool operator != (const tsIterator<tsType> &other)const{ return (m_ptr != other.getConstPtr()); }
+//
+//		tsType *getPtr() const { return m_ptr; }
+//		const tsType *getConstPtr() const { return m_ptr; }
+//
+//	protected:
+//		tsType *m_ptr;
+//		TCHAR m_sepChars[16];
+//	};
+//	typedef tsIterator<TString> iterator;
+//	typedef tsIterator<const TString> const_iterator;
+//
+//	//void split(const TCHAR *const sepChars = SPACE) const;
+//	//TString::iterator begin();
+//	//TString::iterator end();
+//	//const TString::const_iterator begin() const;
+//	//const TString::const_iterator end() const;
+//#endif
 
 #ifdef INCLUDE_MIRC_EXTRAS
 	// extras for mIRC
@@ -472,7 +572,7 @@ public:
 		return m_pTempString;
 	}
 	char * c_str() { m_bDirty = true;  return this->m_pString; };	// returns the string as a char *
-	const char * c_str() const { return this->m_pString; };	// returns the string as a char *
+	const char * c_str() const { return this->m_pString; };	// returns the string as a const char *
 #endif
 	ULONG to_addr() const;
 
