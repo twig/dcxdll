@@ -61,6 +61,7 @@
 //#define _CRT_SECURE_NO_WARNINGS 1
 // end VS2012
 
+#include <tchar.h>
 #include <stdio.h>
 #include <stdlib.h>
 //#include <string.h>
@@ -77,8 +78,15 @@
 // enable this define to include code to support: for (auto x: TString)
 #define TSTRING_PARTS 1
 
+// enable this define to enable using templates to convert TString to numbers. (TString->to_<int>() etc..)
+#define TSTRING_TEMPLATES 1
+
 #ifdef TSTRING_PARTS
 #include <iterator>
+#endif
+
+#ifdef TSTRING_TEMPLATES
+#include <sstream>
 #endif
 
 // enable this to include a small internal buffer that avoids an allocation for small strings.
@@ -234,6 +242,9 @@ private:
 	mutable const TCHAR	*m_savedpos;
 	mutable UINT	m_savedtotaltoks;
 	mutable UINT	m_savedcurrenttok;
+	//mutable std::unique_ptr<TCHAR[]> m_tSavedSepChars;
+	//mutable size_t	m_savedSepCharsLength;
+
 	size_t			m_buffersize;	// size of string buffer in use. (size in bytes)
 	mutable bool	m_bDirty;		// is buffer `dirty` (string length is unknown)?
 	mutable size_t	m_iLen;			// the string length of m_pString
@@ -271,6 +282,11 @@ public:
 	TString(TString &&tString);					// move constructor C++11 only
 	TString(const std::initializer_list<TString> &lt);	// Initializer list constructor (allows TString name{ "text", "text2", othertstring } )
 	TString(const std::unique_ptr<TCHAR[]> &unique);
+	//template <typename T>
+	//TString::TString(const std::unique_ptr<T> &unique)
+	//	: TString(unique.get())
+	//{
+	//}
 
 	explicit TString(const WCHAR chr);
 	explicit TString(const char chr);
@@ -333,12 +349,36 @@ public:
 	TString operator *( const int &N );
 	TString & operator *=( const int &N );
 
+	TString operator ++(int N) const {
+		// testing this code for getting multiple tokens in a row
+		// NB: only works with space token
+		// NB: post-increment works for us as we want to return a copy (the token)
+		// NB: pre-increment doesn't work for this
+		if (this->m_savedpos == nullptr) return this->getfirsttok(1);
+		return this->getnexttok();
+	}
+
 	TCHAR & operator []( long int N );
 	TCHAR operator [](long int N) const;
 
+	//conversion operators.
+#ifdef TSTRING_TEMPLATES
+	//friend TString &operator <<(TString &other, const int &N) { other += N; return other; }
+	//friend TString &operator >>(TString &other, int &N) { N = other.to_int(); return other; }
+	template <class T>
+	friend TString &operator <<(TString &other, const T &N) { other += N; return other; }
+	template <class T>
+	friend TString &operator >>(TString &other, T &N) { N = other.to_<T>(); return other; }
+	//template <class T>
+	//operator T() const { return to_<T>(); }
+	operator int() const { return this->to_<int>(); }
+	operator __int64() const { return this->to_<__int64>(); }
+	operator double() const { return this->to_<double>(); }
+#else
 	operator int() const { return this->to_int(); }
 	operator __int64() const { return this->to_num(); }
 	operator double() const { return this->to_float(); }
+#endif
 
 	friend TString operator +(const TString & tString, const TCHAR *const cString);
 
@@ -488,13 +528,55 @@ public:
 	//};
 	////-------------------------------------------------------------------
 
+	//template <typename A, typename T>
+	//class CTypeArrayIterator
+	//{
+	//public:
+	//	CTypeArrayIterator(A& collection, INT_PTR const index) :
+	//		m_index(index),
+	//		m_collection(collection)
+	//	{
+	//	}
+	//
+	//	bool operator!= (CTypeArrayIterator const & other) const
+	//	{
+	//		return m_index != other.m_index;
+	//	}
+	//
+	//	T& operator* () const
+	//	{
+	//		return m_collection[m_index];
+	//	}
+	//
+	//	CTypeArrayIterator const & operator++ ()
+	//	{
+	//		++m_index;
+	//		return *this;
+	//	}
+	//
+	//private:
+	//	INT_PTR  m_index;
+	//	A&       m_collection;
+	//};
+	//
+	//inline CTypeArrayIterator<CStringArray, CString> begin(CStringArray& collection)
+	//{
+	//	return CTypeArrayIterator<CStringArray, CString>(collection, 0);
+	//}
+	//
+	//inline CTypeArrayIterator<CStringArray, CString> end(CStringArray& collection)
+	//{
+	//	return CTypeArrayIterator<CStringArray, CString>(collection, collection.GetCount());
+	//}
+
 //#ifdef TSTRING_PARTS
-//	template <typename tsType>
+//	template <typename tsType, typename T>
 //	class tsIterator
 //		: public std::iterator<std::forward_iterator_tag, tsType, ptrdiff_t, tsType*, tsType&>
 //	{
 //		tsIterator(const tsIterator<tsType> &other) = default;
-//		tsIterator(tsType *ptr = nullptr) : m_ptr(ptr) {}
+//		tsIterator(tsType *ptr = nullptr) : m_ptr(ptr), m_iIndex(0), m_sepChars(TSSPACE) {}
+//		tsIterator(tsType *ptr, T *sepChars) : m_ptr(ptr), m_iIndex(0), m_sepChars(sepChars) {}
 //		~tsIterator(){}
 //
 //		tsIterator<tsType> &operator = (const tsIterator<tsType> &other) = default;
@@ -505,21 +587,35 @@ public:
 //		bool operator == (const tsIterator<tsType> &other)const{ return (m_ptr == other.getConstPtr()); }
 //		bool operator != (const tsIterator<tsType> &other)const{ return (m_ptr != other.getConstPtr()); }
 //
+//		const tsIterator &operator++ ()
+//		{
+//			++m_index;
+//			return *this;
+//		}
+//
+//		tsType &operator* () const
+//		{
+//			return m_ptr->gettok(m_iIndex, m_sepChars);
+//		}
+//
 //		tsType *getPtr() const { return m_ptr; }
 //		const tsType *getConstPtr() const { return m_ptr; }
 //
 //	protected:
 //		tsType *m_ptr;
-//		TCHAR m_sepChars[16];
+//		size_t	m_iIndex;
+//		T *m_sepChars;
 //	};
-//	typedef tsIterator<TString> iterator;
-//	typedef tsIterator<const TString> const_iterator;
+//	typedef tsIterator<TString, TCHAR> iterator;
+//	typedef tsIterator<const TString, TCHAR> const_iterator;
 //
 //	//void split(const TCHAR *const sepChars = SPACE) const;
-//	//TString::iterator begin();
-//	//TString::iterator end();
-//	//const TString::const_iterator begin() const;
-//	//const TString::const_iterator end() const;
+//	iterator begin() { return iterator(this); }
+//	iterator begin(TCHAR *sepChars) { return iterator(this, sepChars); }
+//	iterator end() { return iterator(); }
+//	const const_iterator begin() const;
+//	const const_iterator begin(TCHAR *sepChars) const;
+//	const const_iterator end() const;
 //#endif
 
 #ifdef INCLUDE_MIRC_EXTRAS
@@ -576,21 +672,47 @@ public:
 #endif
 	ULONG to_addr() const;
 
+#ifdef TSTRING_TEMPLATES
+	template <typename T>
+	T to_() const {
+		static_assert(std::is_pod<T>::value, "Type T must be Plain Old Data (int, long, float, double, ....)");
+		//static_assert(std::is_same<chr, WCHAR>::value || std::is_same<chr, CHAR>::value, "Type T must be WCHAR, CHAR, or TCHAR");
+
+		//std::basic_istringstream<chr> ss(this->m_pString);	// makes copy of string :(
+		std::basic_istringstream<TCHAR> ss(this->m_pString);	// makes copy of string :(
+		T result;
+		return ss >> result ? result : 0;
+	}
+	template <typename T>
+	TString &append_number(T Number)
+	{
+		static_assert(std::is_pod<T>::value, "Type T must be Plain Old Data (int, long, float, double, ....)");
+
+		//std::basic_ostringstream<TCHAR> ss;
+		//ss << Number;
+		//return this->append(ss.str().data());
+
+		//if (sizeof(TCHAR) == sizeof(WCHAR))
+		//	return this->append(std::to_wstring(Number).data());
+		//
+		//return this->append(std::to_string(Number).data());
+
+#ifdef UNICODE
+		return this->append(std::to_wstring(Number).data());
+#else
+		return this->append(std::to_string(Number).data());
+#endif
+	}
+	int to_int() const { return to_<int>(); };
+	__int64 to_num() const { return to_<__int64>(); };
+	float to_float() const { return to_<float>(); };
+	DWORD to_dword() const { return to_<DWORD>(); };
+#else
 	int to_int() const { return ts_atoi(this->m_pString); };
 	__int64 to_num() const { return ts_atoi64(this->m_pString); };
 	double to_float() const { return ts_atof(this->m_pString); };
 	DWORD to_dword() const { return ts_strtoul(this->m_pString); };
-
-	//template <typename T>
-	//T tsConvert() const {
-	//	std::basic_istringstream<TCHAR> ss(this->m_pString);	// makes copy of string :(
-	//	T result;
-	//	return ss >> result ? result : 0;
-	//}
-	//int to_int() const { return tsConvert<int>(); };
-	//__int64 to_num() const { return tsConvert<__int64>(); };
-	//double to_float() const { return tsConvert<float>(); };
-	//DWORD to_dword() const { return tsConvert<DWORD>(); };
+#endif
 
 	static inline int rfc_tolower(const int c);
 	static inline int rfc_toupper(const int c);

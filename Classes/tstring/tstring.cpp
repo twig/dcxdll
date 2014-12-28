@@ -97,7 +97,7 @@ TString::TString(const char *const cString)
 		this->m_pString = charToWchar(cString, &m_buffersize);
 #else
 	if (cString != nullptr) {
-		const int l = ts_strlen(cString) + 1;
+		const auto l = ts_strlen(cString) + 1;
 		this->m_pString = allocstr_cch(l);
 		ts_strcpyn_throw(this->m_pString, cString, l);
 	}
@@ -119,7 +119,7 @@ TString::TString( const WCHAR *const cString )
 {
 #ifdef UNICODE
 	if (cString != nullptr) {
-		const int l = ts_strlen(cString) + 1;
+		const auto l = ts_strlen(cString) + 1;
 		this->m_pString = allocstr_cch(l);
 		ts_strcpyn_throw(this->m_pString, cString, l);
 	}
@@ -335,6 +335,7 @@ TString::TString(const std::initializer_list<TString> &lt)
 \param unique - A unique_ptr object to an array of TCHAR's
 */
 /****************************/
+
 TString::TString(const std::unique_ptr<TCHAR[]> &unique)
 	: TString(unique.get())
 {
@@ -687,6 +688,9 @@ TString & TString::operator +=( const TString & tString ) {
 */
 /****************************/
 
+#ifdef TSTRING_TEMPLATES
+TString & TString::operator +=(const int num) {	return append_number(num); }
+#else
 TString & TString::operator +=(const int num) {
 
 	TCHAR tNum[36];
@@ -696,6 +700,7 @@ TString & TString::operator +=(const int num) {
 
 	return append(tNum);
 }
+#endif
 
 /****************************/
 /*! \fn void TString::operator -=( const TCHAR * string )
@@ -1800,6 +1805,7 @@ TString TString::getfirsttok(const UINT N, const TCHAR *const sepChars) const
 	this->m_savedtotaltoks = this->numtok(sepChars);
 	this->m_savedpos = this->m_pString;
 	this->m_savedcurrenttok = N;
+
 	// N == 0 is used to pre load the vars for a loop of next toks where we need to start at 1
 
 	if (sepChars == nullptr)
@@ -1808,54 +1814,13 @@ TString TString::getfirsttok(const UINT N, const TCHAR *const sepChars) const
 	if ((N > this->m_savedtotaltoks) || (N == 0))
 		return TEXT("");
 
-	//TString token; // no need to set token to contents of this here?
-	//
-	//TCHAR * p_cStart = this->m_pString, * p_cEnd = this->m_pString, * p_fEnd = (this->m_pString + ts_strlen(this->m_pString));
-	//UINT iCount = 0;
-	//const int sepl = ts_strlen( sepChars ); // Ook
-	//
-	//while ( ( p_cEnd = ts_strstr( p_cStart, sepChars ) ) != NULL ) {
-	//	iCount++;
-	//
-	//	if ( iCount == N ) {
-	//
-	//		const int len = (p_cEnd - p_cStart) + 1; // gives cch diff
-	//		delete [] token.m_pString; // change by Ook
-	//		token.m_pString = token.allocstr_cch(len);
-	//
-	//		if (ts_strcpyn(token.m_pString, p_cStart, len) == NULL)
-	//			throw std::logic_error("strcpyn() failed!");
-	//
-	//		this->m_savedpos = p_cEnd + sepl;
-	//
-	//		break;
-	//	}
-	//	p_cStart = p_cEnd + sepl; // Ook
-	//	if (p_cStart >= p_fEnd) {
-	//		this->m_savedpos = NULL;
-	//		break;
-	//	}
-	//}
-	//
-	//if ( iCount == N - 1 ) {
-	//
-	//	p_cEnd = p_fEnd;
-	//	const size_t len = (p_cEnd - p_cStart) + 1;
-	//	
-	//	delete [] token.m_pString; // change by Ook
-	//	token.m_pString = token.allocstr_cch(len);
-	//	
-	//	if (ts_strcpyn(token.m_pString, p_cStart, len) == NULL)
-	//		throw std::logic_error("strcpyn() failed!");
-	//	
-	//	this->m_savedpos = NULL;
-	//}
-	//
-	//return token;
-
 	const TCHAR * p_cStart = this->m_pString, *p_cEnd = this->m_pString, *const p_fEnd = (this->m_pString + this->len());
 	UINT iCount = 0;
 	const size_t sepl = ts_strlen(sepChars); // Ook
+
+	//this->m_savedSepCharsLength = sepl;
+	//this->m_tSavedSepChars = std::make_unique<TCHAR[]>(sepl);
+	//ts_strcpy_throw(this->m_tSavedSepChars.get(), sepChars);
 
 	while ((p_cEnd = ts_strstr(p_cStart, sepChars)) != nullptr) {
 		iCount++;
@@ -3457,20 +3422,23 @@ const TString::const_iterator TString::end() const
 #endif
 
 //#ifdef TSTRING_PARTS
-//void TString::split(const TCHAR *const sepChars) const
+//inline TString::iterator begin(TString& collection)
 //{
-//	this->getfirsttok(0, sepChars);
+//	return TString::iterator(collection);
 //}
 //
-//TString::iterator TString::begin()
+//inline TString::iterator end(TString &collection)
 //{
-//	split();
-//	return m_SplitParts.begin();
+//	return TString::iterator(collection);
+//}
+//TString::iterator TString::begin(TCHAR *sepChars)
+//{
+//	return TString::iterator(this, sepChars);
 //}
 //
-//TString::iterator TString::end()
+//const TString::const_iterator TString::begin() const
 //{
-//	return m_SplitParts.end();
+//	return parts().begin();
 //}
 //
 //const TString::const_iterator TString::begin() const
@@ -3492,3 +3460,8 @@ TString operator"" ts(const char *p, size_t)
 	return TString{ p };
 }
 #endif
+
+//#ifdef TSTRING_TEMPLATES
+//template <class T>
+//TString &operator >>(TString &ts, T &N) const { N = ts.to_<T>(); return ts; }
+//#endif
