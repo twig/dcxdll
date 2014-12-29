@@ -73,11 +73,6 @@ http://symbiancorner.blogspot.com/2007/05/how-to-detect-version-of-ms-visual.htm
 #define DCX_MAX_GDI_ERRORS 21
 // end of GDI+
 
-// DCX Using the Boost C++ libs
-// Boost is used for the regex matches when enabled.
-//#define DCX_USE_BOOST 1
-// end of Boost
-
 // DCX Using the pcre lib
 // PCRE is used for the regex pattern matching
 // NB: CANT BE USED WITH BOOST ENABLED
@@ -87,15 +82,10 @@ http://symbiancorner.blogspot.com/2007/05/how-to-detect-version-of-ms-visual.htm
 
 // DCX Using C++11 regex
 // NB: Can't be used with either BOOST OR PCRE enabled.
-//#if DCX_USE_C11
 //#define DCX_USE_CREGEX 1
-//#endif
 
 #ifdef DCX_USE_PCRE
 #undef DCX_USE_CREGEX
-#endif
-#ifdef DCX_USE_BOOST
-#undef DCX_USE_PCRE
 #endif
 
 #if defined(DCX_USE_PCRE)
@@ -197,10 +187,8 @@ http://symbiancorner.blogspot.com/2007/05/how-to-detect-version-of-ms-visual.htm
 #define DLL_STATE      TEXT("Debug Build")
 // Link with DirectX error lib, enables extra error reporting.
 #define DCX_DX_ERR	1
-#if DCX_USE_C11
 // Use Object switch code (testing only)
 #define DCX_SWITCH_OBJ 1
-#endif
 #endif
 
 // --------------------------------------------------
@@ -222,15 +210,11 @@ http://symbiancorner.blogspot.com/2007/05/how-to-detect-version-of-ms-visual.htm
 #include <commctrl.h>
 #include <richedit.h>
 
-#if defined(DCX_USE_CREGEX) && DCX_USE_C11
+#if defined(DCX_USE_CREGEX)
 #include <regex>
 #endif
 
 #include <memory>
-#include "AutoRelease.h"
-
-#include "Classes/TString/tstring.h"
-#include "XSwitchFlags.h"
 
 // BrowseFolder
 #include <shlobj.h>
@@ -261,6 +245,11 @@ using namespace Gdiplus;
 #define DX_ERR(prop,cmd,hr)
 #endif
 #endif
+
+#include "AutoRelease.h"
+
+#include "Classes/TString/tstring.h"
+#include "XSwitchFlags.h"
 
 #include "classes/dcxdialogcollection.h"
 #include "Classes\tinyxml\tinyxml.h"
@@ -365,23 +354,27 @@ using namespace Gdiplus;
 // --------------------------------------------------
 // CLA constants
 // --------------------------------------------------
-#define LAYOUTFIXED 0x01  //!< Layout Cell Fixed Type
-#define LAYOUTFILL  0x02  //!< Layout Cell Fill Type
-#define LAYOUTPANE  0x04  //!< Layout Cell Pane Type
-#define LAYOUTID    0x08  //!< Layout Control ID is Valid
-#define LAYOUTDIM   0x10  //!< Layout Control Dimensions are Valid (Only works with fixed)
-#define LAYOUTVERT  0x20  //!< Layout Cell Vertical Style (LayoutCellPane and LayoutCellFixed)
-#define LAYOUTHORZ  0x40  //!< Layout Cell Horizontal Style (LayoutCellPane and LayoutCellFixed)
+enum CLATypes: UINT {
+	LAYOUTFIXED	= 0x01,  //!< Layout Cell Fixed Type
+	LAYOUTFILL	= 0x02,  //!< Layout Cell Fill Type
+	LAYOUTPANE	= 0x04,  //!< Layout Cell Pane Type
+	LAYOUTID	= 0x08,  //!< Layout Control ID is Valid
+	LAYOUTDIM	= 0x10,  //!< Layout Control Dimensions are Valid (Only works with fixed)
+	LAYOUTVERT	= 0x20,  //!< Layout Cell Vertical Style (LayoutCellPane and LayoutCellFixed)
+	LAYOUTHORZ	= 0x40  //!< Layout Cell Horizontal Style (LayoutCellPane and LayoutCellFixed)
+};
 
 // --------------------------------------------------
 // DCX Font stuff
 // --------------------------------------------------
-#define DCF_ANTIALIASE    0x01 //!< Control Font Anti-Aliase Style
-#define DCF_BOLD          0x02 //!< Control Font Bold Style
-#define DCF_ITALIC        0x04 //!< Control Font Italic Style
-#define DCF_STRIKEOUT     0x08 //!< Control Font Strikeout Style
-#define DCF_UNDERLINE     0x10 //!< Control Font Underline Style
-#define DCF_DEFAULT       0x20 //!< Control Font Default Style
+enum dcxFontFlags: UINT {
+	DCF_ANTIALIASE	= 0x01, //!< Control Font Anti-Aliase Style
+	DCF_BOLD		= 0x02, //!< Control Font Bold Style
+	DCF_ITALIC		= 0x04, //!< Control Font Italic Style
+	DCF_STRIKEOUT	= 0x08, //!< Control Font Strikeout Style
+	DCF_UNDERLINE	= 0x10, //!< Control Font Underline Style
+	DCF_DEFAULT		= 0x20	//!< Control Font Default Style
+};
 
 // --------------------------------------------------
 // XPopup stuff
