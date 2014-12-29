@@ -226,9 +226,9 @@ private:
 	}
 
 	// check if requested character is within buffer (not within string)
-	void CheckRange(long int N) const
+	void CheckRange(size_t N) const
 	{
-		if ((N < 0) || (N >= static_cast<long int>(m_buffersize / sizeof(TCHAR))))
+		if ((m_pString == nullptr) || (N >= (m_buffersize / sizeof(TCHAR))))
 			throw std::out_of_range("TString::at()");
 	}
 
@@ -358,8 +358,8 @@ public:
 		return this->getnexttok();
 	}
 
-	TCHAR & operator []( long int N );
-	TCHAR operator [](long int N) const;
+	TCHAR & operator []( size_t N );
+	TCHAR operator [](size_t N) const;
 
 	//conversion operators.
 #ifdef TSTRING_TEMPLATES
