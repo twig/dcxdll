@@ -6,10 +6,16 @@
 
 #include "defines.h"
 
-#define DOCK_TYPE_SWITCH	0x00
-#define DOCK_TYPE_TOOL		0x01
-#define DOCK_TYPE_TREE		0x02
-#define DOCK_TYPE_MDI		0x03
+enum DockTypes : UINT {
+	DOCK_TYPE_SWITCH,
+	DOCK_TYPE_TOOL,
+	DOCK_TYPE_TREE,
+	DOCK_TYPE_MDI
+};
+//#define DOCK_TYPE_SWITCH	0x00
+//#define DOCK_TYPE_TOOL		0x01
+//#define DOCK_TYPE_TREE		0x02
+//#define DOCK_TYPE_MDI		0x03
 
 #define DOCKF_NORMAL					0x001	//!< No special flags.
 #define DOCKF_AUTOH						0x002	//!< Auto Horizontal size.
@@ -22,17 +28,31 @@
 #define DOCKF_NOSCROLLBARS				0x100	//!< Disable parents scrollbars.
 #define DOCKF_SHOWSCROLLBARS			0x200	//!< Stop the auto-sized window from covering the scrollbars of its parent.
 
-#define TREEBAR_COLOUR_SELECTED			0
-#define TREEBAR_COLOUR_SELECTED_BKG		1
-#define TREEBAR_COLOUR_MESSAGE			2
-#define TREEBAR_COLOUR_MESSAGE_BKG		3
-#define TREEBAR_COLOUR_EVENT			4
-#define TREEBAR_COLOUR_EVENT_BKG		5
-#define TREEBAR_COLOUR_HIGHLIGHT		6
-#define TREEBAR_COLOUR_HIGHLIGHT_BKG	7
-#define TREEBAR_COLOUR_HOT_TEXT			8
-#define TREEBAR_COLOUR_HOT_BKG			9
-#define TREEBAR_COLOUR_MAX				9
+//#define TREEBAR_COLOUR_SELECTED			0
+//#define TREEBAR_COLOUR_SELECTED_BKG		1
+//#define TREEBAR_COLOUR_MESSAGE			2
+//#define TREEBAR_COLOUR_MESSAGE_BKG		3
+//#define TREEBAR_COLOUR_EVENT			4
+//#define TREEBAR_COLOUR_EVENT_BKG		5
+//#define TREEBAR_COLOUR_HIGHLIGHT		6
+//#define TREEBAR_COLOUR_HIGHLIGHT_BKG	7
+//#define TREEBAR_COLOUR_HOT_TEXT			8
+//#define TREEBAR_COLOUR_HOT_BKG			9
+//#define TREEBAR_COLOUR_MAX				9
+
+enum TreeBarColours : UINT {
+	TREEBAR_COLOUR_SELECTED,
+	TREEBAR_COLOUR_SELECTED_BKG,
+	TREEBAR_COLOUR_MESSAGE,
+	TREEBAR_COLOUR_MESSAGE_BKG,
+	TREEBAR_COLOUR_EVENT,
+	TREEBAR_COLOUR_EVENT_BKG,
+	TREEBAR_COLOUR_HIGHLIGHT,
+	TREEBAR_COLOUR_HIGHLIGHT_BKG,
+	TREEBAR_COLOUR_HOT_TEXT,
+	TREEBAR_COLOUR_HOT_BKG,
+	TREEBAR_COLOUR_MAX = TreeBarColours::TREEBAR_COLOUR_HOT_BKG
+};
 
 typedef struct tagDCXULTRADOCK {
 	HWND hwnd;
@@ -54,6 +74,11 @@ typedef struct tagSB_PARTINFO {
 
 typedef std::vector<LPSB_PARTINFO> VectorOfParts;
 
+//typedef struct tagCursor_Data {
+//	HCURSOR	m_hCursor;
+//	bool	m_bNoDestroy;
+//} Cursor_Data, *LPCursor_Data;
+
 #ifdef __INTEL_COMPILER // Defined when using Intel C++ Compiler.
 #pragma warning( push )
 #pragma warning( disable : 2292 ) //warning #2292: destructor is declared but copy constructor and assignment operator are not
@@ -74,6 +99,23 @@ public:
 	LPDCXULTRADOCK GetDock(const HWND hwnd);
 	virtual void AdjustRect(WINDOWPOS *wp);
 	void RedrawRef(void);
+	//HCURSOR getCursor(const UINT iType)
+	//{
+	//	MapOfCursors::iterator it = m_vMapOfCursors.find(iType);
+	//	if (it != m_vMapOfCursors.end())
+	//		return it->second.m_hCursor;
+
+	//	return nullptr;
+	//}
+	//void setCursor(const Cursor_Data &hCursor, const UINT iType) {
+	//	MapOfCursors::iterator it = m_vMapOfCursors.find(iType);
+	//	if (it != m_vMapOfCursors.end())
+	//	{
+	//		if (!it->second.m_bNoDestroy)
+	//			DestroyCursor(it->second.m_hCursor);
+	//	}
+	//	m_vMapOfCursors[iType] = hCursor;
+	//}
 
 	// Statusbar Functions.
 	static bool InitStatusbar(const TString &styles);
@@ -104,22 +146,11 @@ public:
 	static LRESULT status_setPartInfo( const int iPart, const int Style, const LPSB_PARTINFO pPart);
 	static void status_deletePartInfo(const int iPart);
 	//
-	static int getPos(const int x, const int y, const int w, const int h);
+	static UINT getPos(const int x, const int y, const int w, const int h);
 	//
 	static void getTreebarItemType(TString &tsType, const LPARAM lParam);
 	//static UINT getTreebarChildState(const HTREEITEM hParent, LPTVITEMEX pitem);
 
-protected:
-	static LRESULT CALLBACK mIRCRefWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-	static LRESULT CALLBACK mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-	VectorOfDocks m_VectorDocks; //!< list of windows docked here.
-	//static VectorOfDocks g_VectorAllDocks; //!< list of all docked windows.
-	WNDPROC m_OldRefWndProc; //!< The Windows Old WndProc.
-	WNDPROC m_OldDockWndProc; //!< The Windows Old WndProc.
-	HWND m_RefHwnd; //!< The HWND that windows are docked around, usually the main child window. This window is subclassed.
-	HWND m_hParent; //!< The HWND that docked windows are docked too. This window is subclassed.
-	int m_iType; //!< The dock type.
-public:
 	// statusbar stuff
 	static HWND g_StatusBar; //!< The Statusbar for the main mIRC window.
 	static HIMAGELIST g_hImageList; //!< The Statusbar's image list.
@@ -132,6 +163,22 @@ public:
 	// 0 = selected, 1 = selected bkg, 2 = message, 3 = message bkg
 	// 4 = event, 5 = event bkg, 6 = highlight, 7 = highlight bkg
 	static COLORREF g_clrTreebarColours[TREEBAR_COLOUR_MAX +1];
+
+protected:
+	static LRESULT CALLBACK mIRCRefWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+	static LRESULT CALLBACK mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+	VectorOfDocks m_VectorDocks; //!< list of windows docked here.
+	//static VectorOfDocks g_VectorAllDocks; //!< list of all docked windows.
+	WNDPROC m_OldRefWndProc; //!< The Windows Old WndProc.
+	WNDPROC m_OldDockWndProc; //!< The Windows Old WndProc.
+	HWND m_RefHwnd; //!< The HWND that windows are docked around, usually the main child window. This window is subclassed.
+	HWND m_hParent; //!< The HWND that docked windows are docked too. This window is subclassed.
+	int m_iType; //!< The dock type.
+
+//private:
+//	typedef std::map<UINT, Cursor_Data> MapOfCursors;
+//
+//	MapOfCursors	m_vMapOfCursors;
 };
 
 #ifdef __INTEL_COMPILER // Defined when using Intel C++ Compiler.

@@ -5,14 +5,12 @@
 #include "Classes/UltraDock/dcxDock.h"
 #include "Dcx.h"
 
-
-
 BOOL CALLBACK EnumDocked(HWND hwnd,LPARAM lParam);
 
-DcxDock *g_dockMDI = NULL;
-DcxDock *g_dockTreebar = NULL;
-DcxDock *g_dockSwitchbar = NULL; // needed to adjust size for statusbar.
-DcxDock *g_dockToolbar = NULL; // needed to adjust size for statusbar.
+DcxDock *g_dockMDI = nullptr;
+DcxDock *g_dockTreebar = nullptr;
+DcxDock *g_dockSwitchbar = nullptr; // needed to adjust size for statusbar.
+DcxDock *g_dockToolbar = nullptr; // needed to adjust size for statusbar.
 
 // force a window update.
 void UpdatemIRC(void) {
@@ -30,15 +28,15 @@ void InitUltraDock(void)
 
 	g_dockMDI = new DcxDock(mIRCLinker::getMDIClient(), mIRCLinker::getHWND(), DOCK_TYPE_MDI);
 	g_dockTreebar = new DcxDock(mIRCLinker::getTreeview(), mIRCLinker::getTreebar(), DOCK_TYPE_TREE);
-	g_dockSwitchbar = new DcxDock(NULL, mIRCLinker::getSwitchbar(), DOCK_TYPE_SWITCH);
-	g_dockToolbar = new DcxDock(NULL, mIRCLinker::getToolbar(), DOCK_TYPE_TOOL);
+	g_dockSwitchbar = new DcxDock(nullptr, mIRCLinker::getSwitchbar(), DOCK_TYPE_SWITCH);
+	g_dockToolbar = new DcxDock(nullptr, mIRCLinker::getToolbar(), DOCK_TYPE_TOOL);
 }
 /*
 	*	Eject ALL Docked dialogs.
 */
 void CloseUltraDock(void)
 {
-	EnumChildWindows(mIRCLinker::getHWND(),(WNDENUMPROC)EnumDocked,NULL);
+	EnumChildWindows(mIRCLinker::getHWND(),(WNDENUMPROC)EnumDocked, NULL);
 
 	DcxDock::UnInitStatusbar();
 
@@ -47,86 +45,76 @@ void CloseUltraDock(void)
 	delete g_dockTreebar;
 	delete g_dockMDI;
 
-	if (IsWindow(mIRCLinker::getTreeview()) && mIRCLinker::getTreeImages() != NULL) {
+	if (IsWindow(mIRCLinker::getTreeview()) && mIRCLinker::getTreeImages() != nullptr) {
 		HIMAGELIST o = TreeView_SetImageList(mIRCLinker::getTreeview(),mIRCLinker::getTreeImages(),TVSIL_NORMAL);
-		if (o != NULL && o != mIRCLinker::getTreeImages())
+		if (o != nullptr && o != mIRCLinker::getTreeImages())
 			ImageList_Destroy(o);
 	}
 
 	UpdatemIRC();
 }
+
 bool FindUltraDock(const HWND hwnd)
 {
-	if (g_dockMDI == NULL)
+	if (g_dockMDI == nullptr)
 		return false;
 	return g_dockMDI->FindDock(hwnd);
 }
+
 bool FindTreebarDock(const HWND hwnd)
 {
-	if (g_dockTreebar == NULL)
+	if (g_dockTreebar == nullptr)
 		return false;
 	return g_dockTreebar->FindDock(hwnd);
 }
+
 LPDCXULTRADOCK GetUltraDock(const HWND hwnd)
 {
-	if (g_dockMDI == NULL)
-		return NULL;
+	if (g_dockMDI == nullptr)
+		return nullptr;
 	return g_dockMDI->GetDock(hwnd);
 }
 
 void UltraDock(const HWND mWnd, HWND temp, const TString &flag)
 {
 	// mWnd is unused.
-	if (g_dockMDI == NULL)
+	if (g_dockMDI == nullptr)
 		return;
-	if ((FindUltraDock(temp)) || (FindTreebarDock(temp)) || (GetProp(temp,TEXT("dcx_docked")) != NULL)) {
-		Dcx::error(TEXT("/xdock -m"),TEXT("Window already docked"));
-		return;
-	}
-	try {
-		g_dockMDI->DockWindow(temp, flag);
-	}
-	catch (std::bad_alloc)
-	{
-		Dcx::error(TEXT("/xdock -m"), TEXT("No Memory"));
-	}
+	if ((FindUltraDock(temp)) || (FindTreebarDock(temp)) || (GetProp(temp,TEXT("dcx_docked")) != nullptr))
+		throw std::invalid_argument("Window already docked");
+
+	g_dockMDI->DockWindow(temp, flag);
 }
 
 void UltraUnDock(const HWND hwnd)
 {
-	if (g_dockMDI == NULL)
+	if (g_dockMDI == nullptr)
 		return;
 	g_dockMDI->UnDockWindow(hwnd);
 }
 LPDCXULTRADOCK GetTreebarDock(const HWND hwnd)
 {
-	if (g_dockTreebar == NULL)
-		return NULL;
+	if (g_dockTreebar == nullptr)
+		return nullptr;
 	return g_dockTreebar->GetDock(hwnd);
 }
 
 void TreebarDock(HWND temp, const TString &flag)
 {
 	// mWnd is unused.
-	if (g_dockTreebar == NULL)
+	if (g_dockTreebar == nullptr)
 		return;
-	if ((FindUltraDock(temp)) || (FindTreebarDock(temp)) || (GetProp(temp,TEXT("dcx_docked")) != NULL)) {
-		Dcx::error(TEXT("/xdock -b"),TEXT("Window already docked"));
-		return;
-	}
-	try {
-		g_dockTreebar->DockWindow(temp, flag);
-	}
-	catch (std::bad_alloc)
-	{
-		Dcx::error(TEXT("/xdock -b"), TEXT("No Memory"));
-	}
+	if ((FindUltraDock(temp)) || (FindTreebarDock(temp)) || (GetProp(temp,TEXT("dcx_docked")) != nullptr))
+		throw std::invalid_argument("Window already docked");
+	
+	g_dockTreebar->DockWindow(temp, flag);
+
 	UpdatemIRC(); // seems needed to force the size update
 }
 
 void TreebarUnDock(const HWND hwnd)
 {
-	if (g_dockTreebar == NULL)
+	if (g_dockTreebar == nullptr)
 		return;
 	g_dockTreebar->UnDockWindow(hwnd);
 }
@@ -151,18 +139,16 @@ int SwitchbarPos(const int type)
 		hwnd = mIRCLinker::getSwitchbar();
 		break;
 	}
-	if (IsWindowVisible(hwnd)) {
-		GetWindowRect(hwnd,&swb_rc);
-		GetWindowRect(mIRCLinker::getMDIClient(),&mdi_rc);
-		if (swb_rc.left >= mdi_rc.right)
-			return SWB_RIGHT;
-		if (swb_rc.top >= mdi_rc.bottom)
-			return SWB_BOTTOM;
-		if (swb_rc.bottom <= mdi_rc.top)
-			return SWB_TOP;
-		return SWB_LEFT;
-	}
-	return SWB_NONE;
+	if (!IsWindowVisible(hwnd) || !GetWindowRect(hwnd, &swb_rc) || !GetWindowRect(mIRCLinker::getMDIClient(), &mdi_rc))
+		return SWB_NONE;
+
+	if (swb_rc.left >= mdi_rc.right)
+		return SWB_RIGHT;
+	if (swb_rc.top >= mdi_rc.bottom)
+		return SWB_BOTTOM;
+	if (swb_rc.bottom <= mdi_rc.top)
+		return SWB_TOP;
+	return SWB_LEFT;
 }
 
 // Below is the old code, this is kept for refrence & will be removed when the new code is finished.
@@ -179,7 +165,7 @@ int SwitchbarPos(const int type)
 //
 //// force a window update.
 //void UpdatemIRC(void) {
-//	SendMessage(mIRCLinker::getHWND(), WM_SIZE, NULL, NULL);
+//	SendMessage(mIRCLinker::getHWND(), WM_SIZE, nullptr, NULL);
 //}
 ///*
 //	* Setup Everything for UltraDock
@@ -188,16 +174,16 @@ int SwitchbarPos(const int type)
 //{
 //	/* UltraDock stuff */
 //	DCX_DEBUG(TEXT("InitUltraDock"), TEXT("Finding mIRC_Toolbar..."));
-//	mIRCLink.m_hToolbar = FindWindowEx(mIRCLinker::getHWND(),NULL,TEXT("mIRC_Toolbar"),NULL);
+//	mIRCLink.m_hToolbar = FindWindowEx(mIRCLinker::getHWND(),nullptr,TEXT("mIRC_Toolbar"),nullptr);
 //
 //	DCX_DEBUG(TEXT("InitUltraDock"), TEXT("Finding MDIClient..."));
-//	mIRCLink.m_hMDI = FindWindowEx(mIRCLinker::getHWND(),NULL,TEXT("MDIClient"),NULL);
+//	mIRCLink.m_hMDI = FindWindowEx(mIRCLinker::getHWND(),nullptr,TEXT("MDIClient"),nullptr);
 //
 //	DCX_DEBUG(TEXT("InitUltraDock"), TEXT("Finding mIRC_SwitchBar..."));
-//	mIRCLink.m_hSwitchbar = FindWindowEx(mIRCLinker::getHWND(),NULL,TEXT("mIRC_SwitchBar"),NULL);
+//	mIRCLink.m_hSwitchbar = FindWindowEx(mIRCLinker::getHWND(),nullptr,TEXT("mIRC_SwitchBar"),nullptr);
 //
 //	DCX_DEBUG(TEXT("InitUltraDock"), TEXT("Finding mIRC_TreeList..."));
-//	mIRCLink.m_hTreebar = FindWindowEx(mIRCLinker::getHWND(),NULL,TEXT("mIRC_TreeList"),NULL);
+//	mIRCLink.m_hTreebar = FindWindowEx(mIRCLinker::getHWND(),nullptr,TEXT("mIRC_TreeList"),nullptr);
 //
 //	if (IsWindow(mIRCLink.m_hTreebar)) {
 //		mIRCLinker::getTreeview() = GetWindow(mIRCLink.m_hTreebar,GW_CHILD);
@@ -215,17 +201,17 @@ int SwitchbarPos(const int type)
 //*/
 //void CloseUltraDock(void)
 //{
-//	EnumChildWindows(mIRCLinker::getHWND(),(WNDENUMPROC)EnumDocked,NULL);
+//	EnumChildWindows(mIRCLinker::getHWND(),(WNDENUMPROC)EnumDocked,nullptr);
 //	VectorOfDocks::iterator itStart = v_docks.begin();
 //	VectorOfDocks::iterator itEnd = v_docks.end();
 //
 //	while (itStart != itEnd) {
-//		if (*itStart != NULL) {
+//		if (*itStart != nullptr) {
 //			LPDCXULTRADOCK ud = (LPDCXULTRADOCK)*itStart;
 //			SetWindowLong(ud->hwnd,GWL_STYLE, ud->old_styles);
 //			SetWindowLong(ud->hwnd,GWL_EXSTYLE, ud->old_exstyles);
 //		  RemStyles(ud->hwnd,GWL_STYLE,WS_CHILDWINDOW);
-//			SetParent(ud->hwnd, NULL);
+//			SetParent(ud->hwnd, nullptr);
 //			SetWindowPos(ud->hwnd, HWND_TOP, ud->rc.left, ud->rc.top, ud->rc.right - ud->rc.left, ud->rc.bottom - ud->rc.top, SWP_NOZORDER|SWP_FRAMECHANGED|SWP_NOACTIVATE);
 //			delete ud;
 //		}
@@ -233,12 +219,12 @@ int SwitchbarPos(const int type)
 //	}
 //	v_docks.clear();
 //
-//	if (oldMDIProc != NULL)
+//	if (oldMDIProc != nullptr)
 //		SetWindowLongPtr(mIRCLink.m_hMDI, GWLP_WNDPROC, (LONG_PTR)oldMDIProc);
 //
-//	if (IsWindow(mIRCLinker::getTreeview()) && mIRCLinker::getTreeImages() != NULL) {
+//	if (IsWindow(mIRCLinker::getTreeview()) && mIRCLinker::getTreeImages() != nullptr) {
 //		HIMAGELIST o = TreeView_SetImageList(mIRCLinker::getTreeview(),mIRCLinker::getTreeImages(),TVSIL_NORMAL);
-//		if (o != NULL && o != mIRCLinker::getTreeImages())
+//		if (o != nullptr && o != mIRCLinker::getTreeImages())
 //			ImageList_Destroy(o);
 //	}
 //
@@ -251,7 +237,7 @@ int SwitchbarPos(const int type)
 //	VectorOfDocks::iterator itEnd = v_docks.end();
 //
 //	while (itStart != itEnd) {
-//		if (*itStart != NULL) {
+//		if (*itStart != nullptr) {
 //			LPDCXULTRADOCK ud = (LPDCXULTRADOCK)*itStart;
 //			if (ud->hwnd == hwnd)
 //				return true;
@@ -267,7 +253,7 @@ int SwitchbarPos(const int type)
 //	VectorOfDocks::iterator itEnd = v_docks.end();
 //
 //	while (itStart != itEnd) {
-//		if (*itStart != NULL) {
+//		if (*itStart != nullptr) {
 //			LPDCXULTRADOCK ud = (LPDCXULTRADOCK)*itStart;
 //			if (ud->hwnd == hwnd)
 //				return ud;
@@ -275,12 +261,12 @@ int SwitchbarPos(const int type)
 //
 //		itStart++;
 //	}
-//	return NULL;
+//	return nullptr;
 //}
 //
 //void UltraDock(const HWND mWnd, HWND temp, TString &flag)
 //{
-//	if ((FindUltraDock(temp)) || (GetProp(temp,TEXT("dcx_docked")) != NULL)) {
+//	if ((FindUltraDock(temp)) || (GetProp(temp,TEXT("dcx_docked")) != nullptr)) {
 //		DCXError(TEXT("/xdock -m"),TEXT("Window already docked"));
 //		return;
 //	}
@@ -327,14 +313,14 @@ int SwitchbarPos(const int type)
 //	VectorOfDocks::iterator itEnd = v_docks.end();
 //
 //	while (itStart != itEnd) {
-//		if (*itStart != NULL) {
+//		if (*itStart != nullptr) {
 //			LPDCXULTRADOCK ud = (LPDCXULTRADOCK)*itStart;
 //			if (ud->hwnd == hwnd) {
 //				v_docks.erase(itStart);
 //				SetWindowLong(ud->hwnd,GWL_STYLE, ud->old_styles);
 //				SetWindowLong(ud->hwnd,GWL_EXSTYLE, ud->old_exstyles);
 //			  RemStyles(ud->hwnd,GWL_STYLE,WS_CHILDWINDOW);
-//				SetParent(ud->hwnd, NULL);
+//				SetParent(ud->hwnd, nullptr);
 //				SetWindowPos(ud->hwnd, HWND_TOP, ud->rc.left, ud->rc.top, ud->rc.right - ud->rc.left, ud->rc.bottom - ud->rc.top, SWP_NOZORDER|SWP_FRAMECHANGED);
 //				delete ud;
 //				UpdatemIRC();
@@ -347,7 +333,7 @@ int SwitchbarPos(const int type)
 //void AdjustMDIRect(WINDOWPOS *wp)
 //{
 //	if ((wp->flags & SWP_NOSIZE) && (wp->flags & SWP_NOMOVE)) { // handle min/max case;
-//		//HWND cwin = (HWND)SendMessage(mdi_hwnd,WM_MDIGETACTIVE,NULL,NULL);
+//		//HWND cwin = (HWND)SendMessage(mdi_hwnd,WM_MDIGETACTIVE,nullptr,nullptr);
 //		//if (IsWindow(cwin)) {
 //		//	SendMessage(mdi_hwnd,WM_MDIREFRESHMENU,0,0);
 //		//	DrawMenuBar(cwin);
@@ -363,7 +349,7 @@ int SwitchbarPos(const int type)
 //
 //	// count visible docked windows.
 //	while (itStart != itEnd) {
-//		if ((*itStart != NULL) && (IsWindowVisible(((LPDCXULTRADOCK)*itStart)->hwnd))) {
+//		if ((*itStart != nullptr) && (IsWindowVisible(((LPDCXULTRADOCK)*itStart)->hwnd))) {
 //			nWin++; // count docked windows.
 //		}
 //		itStart++;
@@ -383,7 +369,7 @@ int SwitchbarPos(const int type)
 //
 //	// size docks
 //	while (itStart != itEnd) {
-//		if (*itStart != NULL) {
+//		if (*itStart != nullptr) {
 //			LPDCXULTRADOCK ud = (LPDCXULTRADOCK)*itStart;
 //			if (IsWindowVisible(ud->hwnd)) {
 //				GetWindowRect(ud->hwnd,&rcDocked);
@@ -431,8 +417,8 @@ int SwitchbarPos(const int type)
 //					}
 //					break;
 //				}
-//				tmp = DeferWindowPos(hdwp,ud->hwnd,NULL,x,y,w,h,SWP_NOZORDER|SWP_NOOWNERZORDER|SWP_NOACTIVATE);
-//				if (tmp != NULL) hdwp = tmp;
+//				tmp = DeferWindowPos(hdwp,ud->hwnd,nullptr,x,y,w,h,SWP_NOZORDER|SWP_NOOWNERZORDER|SWP_NOACTIVATE);
+//				if (tmp != nullptr) hdwp = tmp;
 //			}
 //		}
 //
@@ -484,7 +470,7 @@ int SwitchbarPos(const int type)
 //		case WM_WINDOWPOSCHANGING:
 //			{
 //				WINDOWPOS *wp = (WINDOWPOS *) lParam;
-//				if (wp != NULL)
+//				if (wp != nullptr)
 //					AdjustMDIRect(wp);
 //			}
 //			break;
