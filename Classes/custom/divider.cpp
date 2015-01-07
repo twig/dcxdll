@@ -21,230 +21,198 @@
  * blah
  */
 
-LRESULT CALLBACK DividerWndProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam ) {
+LRESULT CALLBACK DividerWndProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
 
-  switch( uMsg ) {
+	switch (uMsg) {
 
-    case WM_CREATE:
-      {
-        
-        LPDVCONTROLDATA lpdvdata = new DVCONTROLDATA;
-        ZeroMemory( lpdvdata, sizeof( DVCONTROLDATA ) );
+	case WM_CREATE:
+	{
 
-        lpdvdata->m_bDragging = FALSE;
-        lpdvdata->m_iLineWidth = 2;
-        lpdvdata->m_iBarPos = 100;
-        lpdvdata->m_iOldPos = 0;
+		LPDVCONTROLDATA lpdvdata = new DVCONTROLDATA;
+		ZeroMemory(lpdvdata, sizeof(DVCONTROLDATA));
 
-        lpdvdata->m_Panes[0].cbSize = sizeof( DVPANEINFO );
-        lpdvdata->m_Panes[1].cbSize = sizeof( DVPANEINFO );
+		lpdvdata->m_bDragging = FALSE;
+		lpdvdata->m_iLineWidth = 2;
+		lpdvdata->m_iBarPos = 100;
+		lpdvdata->m_iOldPos = 0;
 
-        SetProp( mHwnd, TEXT("dvc_data"), (HANDLE) lpdvdata );
+		lpdvdata->m_Panes[0].cbSize = sizeof(DVPANEINFO);
+		lpdvdata->m_Panes[1].cbSize = sizeof(DVPANEINFO);
 
-        /*
-       
-        HWND hwndChildz1;
-        HWND hwndChildz2;
-        
-        hwndChildz1 = CreateWindowEx(WS_EX_CLIENTEDGE,
-          TEXT("EDIT"), TEXT(""), 
-          WS_VISIBLE|WS_CHILD|ES_MULTILINE|ES_AUTOVSCROLL,
-          0,0,0,0,mHwnd, 0, GetModuleHandle( NULL ), 0);		
+		SetProp(mHwnd, TEXT("dvc_data"), (HANDLE)lpdvdata);
 
-        hwndChildz2 = CreateWindowEx(WS_EX_CLIENTEDGE,
-          TEXT("EDIT"), TEXT(""), 
-          WS_VISIBLE|WS_CHILD|ES_MULTILINE|ES_AUTOVSCROLL,
-          0,0,0,0,mHwnd, 0, GetModuleHandle( NULL ), 0);
+		return 0L;
+	}
+	break;
 
-        DVPANEINFO dvpi;
-        ZeroMemory( &dvpi, sizeof( DVPANEINFO ) );
-        dvpi.cbSize = sizeof( DVPANEINFO );
-        dvpi.fMask = DVPIM_CHILD | DVPIM_MIN | DVPIM_IDEAL;
-        dvpi.cxIdeal = 100;
-        dvpi.cxMin = 50;
-        dvpi.hChild = hwndChildz1;
+	case WM_SIZE:
+	{
+		Divider_SizeWindowContents(mHwnd, LOWORD(lParam), HIWORD(lParam));
+		return 0L;
+	}
+	break;
 
-        SendMessage( mHwnd, DV_SETPANE, (WPARAM) DVF_PANELEFT, (LPARAM) &dvpi );
+	case WM_LBUTTONDOWN:
+	{
+		Divider_OnLButtonDown(mHwnd, uMsg, wParam, lParam);
+		return 0L;
+	}
+	break;
 
-        dvpi.hChild = hwndChildz2;
+	case WM_LBUTTONUP:
+	{
+		Divider_OnLButtonUp(mHwnd, uMsg, wParam, lParam);
+		return 0L;
+	}
+	break;
 
-        SendMessage( mHwnd, DV_SETPANE, (WPARAM) DVF_PANERIGHT, (LPARAM) &dvpi );
-        
-        */
+	case WM_MOUSEMOVE:
+	{
+		Divider_OnMouseMove(mHwnd, uMsg, wParam, lParam);
+		return 0;
+	}
+	break;
 
-        return 0L;
-      }
-      break;
+	case WM_SETCURSOR:
+	{
+		if (LOWORD(lParam) == HTCLIENT && (HWND)wParam == mHwnd) {
 
-    case WM_SIZE:
-      {
-        Divider_SizeWindowContents( mHwnd, LOWORD(lParam), HIWORD(lParam) );
-        return 0L;
-      }
-      break;
+			HCURSOR hCursor = nullptr;
 
-    case WM_LBUTTONDOWN:
-      {
-        Divider_OnLButtonDown(mHwnd, uMsg, wParam, lParam);
-        return 0L;
-      }
-      break;
+			if (GetWindowStyle(mHwnd) & DVS_VERT)
+				hCursor = LoadCursor(nullptr, IDC_SIZEWE);
+			else
+				hCursor = LoadCursor(nullptr, IDC_SIZENS);
+			if (GetCursor() != hCursor)
+				SetCursor(hCursor);
+			return TRUE;
+		}
+	}
+	break;
 
-    case WM_LBUTTONUP:
-      {
-        Divider_OnLButtonUp(mHwnd, uMsg, wParam, lParam);
-        return 0L;
-      }
-      break;
+	// wParam == PANE ID, lParam == pointer to a pane item
+	case DV_SETPANE:
+	{
 
-    case WM_MOUSEMOVE:
-      {
-        Divider_OnMouseMove(mHwnd, uMsg, wParam, lParam);
-        return 0;
-      }
-      break;
+		LPDVCONTROLDATA lpdvdata = (LPDVCONTROLDATA)GetProp(mHwnd, TEXT("dvc_data"));
 
-    case WM_SETCURSOR:
-      {
-        if ( LOWORD( lParam ) == HTCLIENT && (HWND) wParam == mHwnd ) {
+		if (lpdvdata == nullptr)
+			return FALSE;
 
-          HCURSOR hCursor = NULL;
+		LPDVPANEINFO lpdvpi = (LPDVPANEINFO)lParam;
 
-          if ( GetWindowStyle( mHwnd ) & DVS_VERT )
-            hCursor = LoadCursor( NULL, IDC_SIZEWE );
-          else
-            hCursor = LoadCursor( NULL, IDC_SIZENS );
-					if (GetCursor() != hCursor)
-	          SetCursor( hCursor );
-          return TRUE;
-        }
-      }
-      break;
+		if (lpdvpi == nullptr)
+			return FALSE;
 
-    // wParam == PANE ID, lParam == pointer to a pane item
-    case DV_SETPANE:
-      {
+		// Left/Top Pane
+		if (wParam == DVF_PANELEFT) {
 
-        LPDVCONTROLDATA lpdvdata = (LPDVCONTROLDATA) GetProp( mHwnd, TEXT("dvc_data") );
+			// Invalid structure size
+			if (lpdvpi->cbSize != lpdvdata->m_Panes[0].cbSize)
+				return FALSE;
 
-        if ( lpdvdata == NULL )
-          return FALSE;
+			//MessageBox( mHwnd, TEXT("Received DV_SETPANE"), TEXT("DV_SETPANE"), MB_OK );
 
-        LPDVPANEINFO lpdvpi = (LPDVPANEINFO) lParam;
-        
-        if ( lpdvpi == NULL )
-          return FALSE;
+			if (lpdvpi->fMask & DVPIM_CHILD) {
+				lpdvdata->m_Panes[0].hChild = lpdvpi->hChild;
+			}
+			if (lpdvpi->fMask & DVPIM_IDEAL) {
+				lpdvdata->m_Panes[0].cxIdeal = lpdvpi->cxIdeal;
+			}
+			if (lpdvpi->fMask & DVPIM_MIN) {
+				lpdvdata->m_Panes[0].cxMin = lpdvpi->cxMin;
+			}
+			if (lpdvpi->fMask & DVPIM_STYLE) {
+				lpdvdata->m_Panes[0].fStyle = lpdvpi->fStyle;
+			}
+		}
+		// Right/Bottom Pane
+		else if (wParam == DVF_PANERIGHT) {
 
-        // Left/Top Pane
-        if ( wParam == DVF_PANELEFT ) {
+			// Invalid structure size
+			if (lpdvpi->cbSize != lpdvdata->m_Panes[1].cbSize)
+				return FALSE;
 
-          // Invalid structure size
-          if ( lpdvpi->cbSize != lpdvdata->m_Panes[0].cbSize )
-            return FALSE;
+			if (lpdvpi->fMask & DVPIM_CHILD) {
+				lpdvdata->m_Panes[1].hChild = lpdvpi->hChild;
+			}
+			if (lpdvpi->fMask & DVPIM_IDEAL) {
+				lpdvdata->m_Panes[1].cxIdeal = lpdvpi->cxIdeal;
+			}
+			if (lpdvpi->fMask & DVPIM_MIN) {
+				lpdvdata->m_Panes[1].cxMin = lpdvpi->cxMin;
+			}
+			if (lpdvpi->fMask & DVPIM_STYLE) {
+				lpdvdata->m_Panes[1].fStyle = lpdvpi->fStyle;
+			}
+		}
 
-          //MessageBox( mHwnd, TEXT("Received DV_SETPANE"), TEXT("DV_SETPANE"), MB_OK );
+		RECT rc;
+		if (GetClientRect(mHwnd, &rc))
+			Divider_SizeWindowContents(mHwnd, rc.right - rc.left, rc.bottom - rc.top);
 
-          if ( lpdvpi->fMask & DVPIM_CHILD ) {
-            lpdvdata->m_Panes[0].hChild = lpdvpi->hChild;
-          }
-          if ( lpdvpi->fMask & DVPIM_IDEAL ) {
-            lpdvdata->m_Panes[0].cxIdeal = lpdvpi->cxIdeal;
-          }
-          if ( lpdvpi->fMask & DVPIM_MIN ) {
-            lpdvdata->m_Panes[0].cxMin = lpdvpi->cxMin;
-          }
-          if ( lpdvpi->fMask & DVPIM_STYLE ) {
-            lpdvdata->m_Panes[0].fStyle = lpdvpi->fStyle;
-          }
-        }
-        // Right/Bottom Pane
-        else if ( wParam == DVF_PANERIGHT ) {
+		return TRUE;
+	}
+	break;
 
-          // Invalid structure size
-          if ( lpdvpi->cbSize != lpdvdata->m_Panes[1].cbSize )
-            return FALSE;
-
-          if ( lpdvpi->fMask & DVPIM_CHILD ) {
-            lpdvdata->m_Panes[1].hChild = lpdvpi->hChild;
-          }
-          if ( lpdvpi->fMask & DVPIM_IDEAL ) {
-            lpdvdata->m_Panes[1].cxIdeal = lpdvpi->cxIdeal;
-          }
-          if ( lpdvpi->fMask & DVPIM_MIN ) {
-            lpdvdata->m_Panes[1].cxMin = lpdvpi->cxMin;
-          }
-          if ( lpdvpi->fMask & DVPIM_STYLE ) {
-            lpdvdata->m_Panes[1].fStyle = lpdvpi->fStyle;
-          }
-        }
-
-        RECT rc;
-        GetClientRect( mHwnd, &rc );
-
-        Divider_SizeWindowContents( mHwnd, rc.right - rc.left, rc.bottom - rc.top );
-
-        return TRUE;
-      }
-      break;
-
-    case DV_GETPANE:
-      {
-		LPDVCONTROLDATA lpdvdata = (LPDVCONTROLDATA) GetProp( mHwnd, TEXT("dvc_data") );
+	case DV_GETPANE:
+	{
+		LPDVCONTROLDATA lpdvdata = (LPDVCONTROLDATA)GetProp(mHwnd, TEXT("dvc_data"));
 		switch (wParam) {
-			case DVF_PANELEFT:
-				*((LPDVPANEINFO)lParam) = lpdvdata->m_Panes[0];
+		case DVF_PANELEFT:
+			*((LPDVPANEINFO)lParam) = lpdvdata->m_Panes[0];
 			break;
-			case DVF_PANERIGHT:
-				*((LPDVPANEINFO)lParam) = lpdvdata->m_Panes[1];
+		case DVF_PANERIGHT:
+			*((LPDVPANEINFO)lParam) = lpdvdata->m_Panes[1];
 			break;
 		}
 
-      }
-      break;
+	}
+	break;
 
-    // wParam == NULL, lParam == POSITION VALUE
-    case DV_SETDIVPOS:
-      {
+	// wParam == nullptr, lParam == POSITION VALUE
+	case DV_SETDIVPOS:
+	{
+		LPDVCONTROLDATA lpdvdata = (LPDVCONTROLDATA)GetProp(mHwnd, TEXT("dvc_data"));
 
-        LPDVCONTROLDATA lpdvdata = (LPDVCONTROLDATA) GetProp( mHwnd, TEXT("dvc_data") );
+		RECT rc;
+		if (!GetClientRect(mHwnd, &rc))
+			return FALSE;
 
-        RECT rc;
-        GetClientRect( mHwnd, &rc );
-        const UINT iPos = (UINT) lParam;
+		const UINT iPos = (UINT)lParam;
 
-        UINT width;
-        if ( GetWindowStyle( mHwnd ) & DVS_VERT )
-          width = rc.right - rc.left;
-        else
-          width = rc.bottom - rc.top;
+		UINT width;
+		if (GetWindowStyle(mHwnd) & DVS_VERT)
+			width = rc.right - rc.left;
+		else
+			width = rc.bottom - rc.top;
 
-        if ((iPos >= lpdvdata->m_Panes[0].cxMin) && (iPos <= (width - lpdvdata->m_Panes[1].cxMin))) {
-          lpdvdata->m_iBarPos = iPos;
-          Divider_SizeWindowContents(mHwnd, rc.right - rc.left, rc.bottom - rc.top);
-          return TRUE;
-        }
-        else {
-          return FALSE;
-        }
-      }
-      break;
+		if ((iPos >= lpdvdata->m_Panes[0].cxMin) && (iPos <= (width - lpdvdata->m_Panes[1].cxMin))) {
+			lpdvdata->m_iBarPos = iPos;
+			Divider_SizeWindowContents(mHwnd, rc.right - rc.left, rc.bottom - rc.top);
+			return TRUE;
+		}
+		else
+			return FALSE;
+	}
+	break;
 
-    // wParam == (OUT) BOOL isVertical?, lParam == (OUT) integer bar_position
-    case DV_GETDIVPOS:
-    {
-      LPDVCONTROLDATA lpdvdata = (LPDVCONTROLDATA) GetProp(mHwnd, TEXT("dvc_data"));
+	// wParam == (OUT) BOOL isVertical?, lParam == (OUT) integer bar_position
+	case DV_GETDIVPOS:
+	{
+		LPDVCONTROLDATA lpdvdata = (LPDVCONTROLDATA)GetProp(mHwnd, TEXT("dvc_data"));
 
-      *((LPINT)lParam) = (lpdvdata->m_bDragging ? lpdvdata->m_iOldPos : lpdvdata->m_iBarPos);
-      return 0L;
-      //break;
-    }
+		*((LPINT)lParam) = (lpdvdata->m_bDragging ? lpdvdata->m_iOldPos : lpdvdata->m_iBarPos);
+		return 0L;
+		//break;
+	}
 
-    case WM_DESTROY:
-      {
+	case WM_DESTROY:
+	{
 
-        LPDVCONTROLDATA lpdvdata = (LPDVCONTROLDATA) GetProp( mHwnd, TEXT("dvc_data") );
+		LPDVCONTROLDATA lpdvdata = (LPDVCONTROLDATA)GetProp(mHwnd, TEXT("dvc_data"));
 
-		if (lpdvdata != NULL) {
+		if (lpdvdata != nullptr) {
 			// Clear Panes and delete child windows
 			// Send Notifications to Parent Window About deletion of child windows
 
@@ -272,13 +240,13 @@ LRESULT CALLBACK DividerWndProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lP
 			delete lpdvdata;
 		}
 
-        RemoveProp( mHwnd, TEXT("dvc_data") );
+		RemoveProp(mHwnd, TEXT("dvc_data"));
 
-        return 0L;
-      }
-      break;
-  }
-  return DefWindowProc( mHwnd, uMsg, wParam, lParam );
+		return 0L;
+	}
+	break;
+	}
+	return DefWindowProc(mHwnd, uMsg, wParam, lParam);
 }
 
 /*!
@@ -319,10 +287,10 @@ void DrawXorBar(HDC hdc, const int x1, const int y1, const int width, const int 
 	};
 
 	HBITMAP hbm = CreateBitmap( 8, 8, 1, 1, _dotPatternBmp );
-	if (hbm != NULL)
+	if (hbm != nullptr)
 	{
 		HBRUSH hbr = CreatePatternBrush(hbm);
-		if (hbr != NULL)
+		if (hbr != nullptr)
 		{
 			SetBrushOrgEx(hdc, x1, y1, 0);
 			HBRUSH hbrushOld = SelectBrush(hdc, hbr);
@@ -354,7 +322,7 @@ void Divider_CalcBarPos( HWND mHwnd, POINT * pt, RECT * rect ) {
   GetWindowRect( mHwnd, rect );
 
   //ClientToScreen( mHwnd, pt );
-  MapWindowPoints(mHwnd, NULL, pt, 1);
+  MapWindowPoints(mHwnd, nullptr, pt, 1);
 
   pt->x -= rect->left;
   pt->y -= rect->top;
@@ -412,18 +380,20 @@ LRESULT Divider_OnLButtonDown(HWND mHwnd, const UINT iMsg, WPARAM wParam, LPARAM
 	SetCapture( mHwnd );
 
 	hdc = GetWindowDC( mHwnd );
-	if ( GetWindowStyle( mHwnd ) & DVS_VERT ) {
+	if (hdc != nullptr)
+	{
+		if (GetWindowStyle(mHwnd) & DVS_VERT) {
 
-		DrawXorBar( hdc, pt.x - 2, 1, 4, rect.bottom - 2 );
-		lpdvdata->m_iOldPos = pt.x;
+			DrawXorBar(hdc, pt.x - 2, 1, 4, rect.bottom - 2);
+			lpdvdata->m_iOldPos = pt.x;
+		}
+		else {
+
+			DrawXorBar(hdc, 1, pt.y - 2, rect.right - 2, 4);
+			lpdvdata->m_iOldPos = pt.y;
+		}
+		ReleaseDC(mHwnd, hdc);
 	}
-	else {
-
-		DrawXorBar( hdc, 1, pt.y - 2, rect.right - 2, 4 );
-		lpdvdata->m_iOldPos = pt.y;
-	}
-	ReleaseDC( mHwnd, hdc );
-
 	SendMessage(mHwnd, DV_CHANGEPOS, (WPARAM) DVNM_DRAG_START, (LPARAM) &pt);
 
 	return 0L;
@@ -453,41 +423,44 @@ LRESULT Divider_OnLButtonUp(HWND mHwnd, const UINT iMsg, WPARAM wParam, LPARAM l
 
 	hdc = GetWindowDC( mHwnd );
 
-	if ( GetWindowStyle( mHwnd ) & DVS_VERT ) {
+	if (hdc != nullptr)
+	{
+		if (GetWindowStyle(mHwnd) & DVS_VERT) {
 
-		DrawXorBar( hdc, lpdvdata->m_iOldPos - 2, 1, 4, rect.bottom - 2 );
-		lpdvdata->m_iOldPos = pt.x;
+			DrawXorBar(hdc, lpdvdata->m_iOldPos - 2, 1, 4, rect.bottom - 2);
+			lpdvdata->m_iOldPos = pt.x;
+		}
+		else {
+
+			DrawXorBar(hdc, 1, lpdvdata->m_iOldPos - 2, rect.right - 2, 4);
+			lpdvdata->m_iOldPos = pt.y;
+		}
+
+		ReleaseDC(mHwnd, hdc);
 	}
-	else {
-
-		DrawXorBar( hdc, 1, lpdvdata->m_iOldPos - 2, rect.right - 2, 4 );
-		lpdvdata->m_iOldPos = pt.y;
-	}
-
-	ReleaseDC( mHwnd, hdc );
-
 	lpdvdata->m_bDragging = FALSE;
 
 	//convert the divider position back to screen coords.
-	GetWindowRect( mHwnd, &rect );
-	pt.x += rect.left;
-	pt.y += rect.top;
+	if (GetWindowRect(mHwnd, &rect))
+	{
+		pt.x += rect.left;
+		pt.y += rect.top;
 
-	//now convert into CLIENT coordinates
-	MapWindowPoints(NULL, mHwnd, &pt, 1 );
-	GetClientRect( mHwnd, &rect );
+		//now convert into CLIENT coordinates
+		MapWindowPoints(nullptr, mHwnd, &pt, 1);
+		if (GetClientRect(mHwnd, &rect))
+		{
+			if (GetWindowStyle(mHwnd) & DVS_VERT)
+				lpdvdata->m_iBarPos = pt.x;
+			else
+				lpdvdata->m_iBarPos = pt.y;
 
-	if ( GetWindowStyle( mHwnd ) & DVS_VERT )
-		lpdvdata->m_iBarPos = pt.x;
-	else
-		lpdvdata->m_iBarPos = pt.y;
-
-	//position the child controls
-	Divider_SizeWindowContents( mHwnd, rect.right, rect.bottom );
-
-	ReleaseCapture( );
-	SendMessage(mHwnd, DV_CHANGEPOS, (WPARAM) DVNM_DRAG_END, (LPARAM) &pt);
-
+			//position the child controls
+			Divider_SizeWindowContents(mHwnd, rect.right, rect.bottom);
+		}
+	}
+	ReleaseCapture();
+	SendMessage(mHwnd, DV_CHANGEPOS, (WPARAM)DVNM_DRAG_END, (LPARAM)&pt);
 	return 0L;
 }
 
