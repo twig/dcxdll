@@ -46,7 +46,7 @@ void CloseUltraDock(void)
 	delete g_dockMDI;
 
 	if (IsWindow(mIRCLinker::getTreeview()) && mIRCLinker::getTreeImages() != nullptr) {
-		HIMAGELIST o = TreeView_SetImageList(mIRCLinker::getTreeview(),mIRCLinker::getTreeImages(),TVSIL_NORMAL);
+		auto o = TreeView_SetImageList(mIRCLinker::getTreeview(), mIRCLinker::getTreeImages(), TVSIL_NORMAL);
 		if (o != nullptr && o != mIRCLinker::getTreeImages())
 			ImageList_Destroy(o);
 	}
@@ -121,7 +121,7 @@ void TreebarUnDock(const HWND hwnd)
 
 // #####################################################################################
 // 0 == no swb, 1 == Left, 2 == Right, 3 == Top, 4 == Bottom
-int SwitchbarPos(const int type)
+SwitchBarPos SwitchbarPos(const DockTypes type)
 {
 	RECT swb_rc, mdi_rc;
 	HWND hwnd;
@@ -332,7 +332,7 @@ int SwitchbarPos(const int type)
 //}
 //void AdjustMDIRect(WINDOWPOS *wp)
 //{
-//	if ((wp->flags & SWP_NOSIZE) && (wp->flags & SWP_NOMOVE)) { // handle min/max case;
+//	if ((dcx_testflag(wp->flags, SWP_NOSIZE)) && (dcx_testflag(wp->flags, SWP_NOMOVE))) { // handle min/max case;
 //		//HWND cwin = (HWND)SendMessage(mdi_hwnd,WM_MDIGETACTIVE,nullptr,nullptr);
 //		//if (IsWindow(cwin)) {
 //		//	SendMessage(mdi_hwnd,WM_MDIREFRESHMENU,0,0);

@@ -12,21 +12,35 @@ enum DockTypes : UINT {
 	DOCK_TYPE_TREE,
 	DOCK_TYPE_MDI
 };
+
 //#define DOCK_TYPE_SWITCH	0x00
 //#define DOCK_TYPE_TOOL		0x01
 //#define DOCK_TYPE_TREE		0x02
 //#define DOCK_TYPE_MDI		0x03
 
-#define DOCKF_NORMAL					0x001	//!< No special flags.
-#define DOCKF_AUTOH						0x002	//!< Auto Horizontal size.
-#define DOCKF_AUTOV						0x004	//!< Auto Vertical size.
-#define DOCKF_SIZE						0x008	//!< Auto Horizontal & Vertical size.
-#define DOCKF_LEFT						0x010	//!< Dock to left. (UltraDock)
-#define DOCKF_RIGHT						0x020	//!< Dock to right. (UltraDock)
-#define DOCKF_TOP						0x040	//!< Dock to top. (UltraDock)
-#define DOCKF_BOTTOM					0x080	//!< Dock to bottom. (UltraDock)
-#define DOCKF_NOSCROLLBARS				0x100	//!< Disable parents scrollbars.
-#define DOCKF_SHOWSCROLLBARS			0x200	//!< Stop the auto-sized window from covering the scrollbars of its parent.
+enum DockFlags : UINT {
+	DOCKF_NORMAL = 0x001,			//!< No special flags.
+	DOCKF_AUTOH = 0x002,			//!< Auto Horizontal size.
+	DOCKF_AUTOV = 0x004,			//!< Auto Vertical size.
+	DOCKF_SIZE = 0x008,				//!< Auto Horizontal & Vertical size.
+	DOCKF_LEFT = 0x010,				//!< Dock to left. (UltraDock)
+	DOCKF_RIGHT = 0x020,			//!< Dock to right. (UltraDock)
+	DOCKF_TOP = 0x040,				//!< Dock to top. (UltraDock)
+	DOCKF_BOTTOM = 0x080,			//!< Dock to bottom. (UltraDock)
+	DOCKF_NOSCROLLBARS = 0x100,		//!< Disable parents scrollbars.
+	DOCKF_SHOWSCROLLBARS = 0x200	//!< Stop the auto-sized window from covering the scrollbars of its parent.
+};
+
+//#define DOCKF_NORMAL					0x001	//!< No special flags.
+//#define DOCKF_AUTOH						0x002	//!< Auto Horizontal size.
+//#define DOCKF_AUTOV						0x004	//!< Auto Vertical size.
+//#define DOCKF_SIZE						0x008	//!< Auto Horizontal & Vertical size.
+//#define DOCKF_LEFT						0x010	//!< Dock to left. (UltraDock)
+//#define DOCKF_RIGHT						0x020	//!< Dock to right. (UltraDock)
+//#define DOCKF_TOP						0x040	//!< Dock to top. (UltraDock)
+//#define DOCKF_BOTTOM					0x080	//!< Dock to bottom. (UltraDock)
+//#define DOCKF_NOSCROLLBARS				0x100	//!< Disable parents scrollbars.
+//#define DOCKF_SHOWSCROLLBARS			0x200	//!< Stop the auto-sized window from covering the scrollbars of its parent.
 
 //#define TREEBAR_COLOUR_SELECTED			0
 //#define TREEBAR_COLOUR_SELECTED_BKG		1
@@ -64,15 +78,15 @@ typedef struct tagDCXULTRADOCK {
 
 typedef std::vector<LPDCXULTRADOCK> VectorOfDocks;
 
-typedef struct tagSB_PARTINFO {
+typedef struct tagSB_PARTINFOD {
 	HWND		m_Child;
 	TString		m_Text;
 	int			m_iIcon;
 	COLORREF	m_TxtCol;	// colour of the text be default in this item.
 	HBRUSH		m_BkgCol;	// brush to be used when drawing the bkg in this item.
-} SB_PARTINFO, *LPSB_PARTINFO;
+} SB_PARTINFOD, *LPSB_PARTINFOD;
 
-typedef std::vector<LPSB_PARTINFO> VectorOfParts;
+typedef std::vector<LPSB_PARTINFOD> VectorOfDParts;
 
 //typedef struct tagCursor_Data {
 //	HCURSOR	m_hCursor;
@@ -87,7 +101,7 @@ typedef std::vector<LPSB_PARTINFO> VectorOfParts;
 class DcxDock
 {
 public:
-	DcxDock(HWND refHwnd, HWND dockHwnd, const int dockType);
+	DcxDock(HWND refHwnd, HWND dockHwnd, const DockTypes dockType);
 	virtual ~DcxDock(void);
 
 	virtual bool DockWindow(HWND hwnd, const TString &flag);
@@ -101,14 +115,14 @@ public:
 	void RedrawRef(void);
 	//HCURSOR getCursor(const UINT iType)
 	//{
-	//	MapOfCursors::iterator it = m_vMapOfCursors.find(iType);
+	//	auto it = m_vMapOfCursors.find(iType);
 	//	if (it != m_vMapOfCursors.end())
 	//		return it->second.m_hCursor;
-
+	//
 	//	return nullptr;
 	//}
 	//void setCursor(const Cursor_Data &hCursor, const UINT iType) {
-	//	MapOfCursors::iterator it = m_vMapOfCursors.find(iType);
+	//	auto it = m_vMapOfCursors.find(iType);
 	//	if (it != m_vMapOfCursors.end())
 	//	{
 	//		if (!it->second.m_bNoDestroy)
@@ -143,10 +157,10 @@ public:
 	static LRESULT status_getBorders( LPINT aWidths );
 	static void status_updateParts(void);
 	static void status_setFont(HFONT f);
-	static LRESULT status_setPartInfo( const int iPart, const int Style, const LPSB_PARTINFO pPart);
+	static LRESULT status_setPartInfo( const int iPart, const int Style, const LPSB_PARTINFOD pPart);
 	static void status_deletePartInfo(const int iPart);
 	//
-	static UINT getPos(const int x, const int y, const int w, const int h);
+	static SwitchBarPos getPos(const int x, const int y, const int w, const int h);
 	//
 	static void getTreebarItemType(TString &tsType, const LPARAM lParam);
 	//static UINT getTreebarChildState(const HTREEITEM hParent, LPTVITEMEX pitem);
@@ -157,7 +171,7 @@ public:
 	static INT g_iDynamicParts[256];
 	static INT g_iFixedParts[256];
 	static HFONT g_StatusFont; //!< Statusbar font.
-	static VectorOfParts g_vParts;	//!< Parts info for ownerdraw parts.
+	static VectorOfDParts g_vParts;	//!< Parts info for ownerdraw parts.
 	// treebar stuff
 	static bool g_bTakeOverTreebar; //!< take over the drawing of the treebar from mIRC.
 	// 0 = selected, 1 = selected bkg, 2 = message, 3 = message bkg
@@ -173,13 +187,18 @@ protected:
 	WNDPROC m_OldDockWndProc; //!< The Windows Old WndProc.
 	HWND m_RefHwnd; //!< The HWND that windows are docked around, usually the main child window. This window is subclassed.
 	HWND m_hParent; //!< The HWND that docked windows are docked too. This window is subclassed.
-	int m_iType; //!< The dock type.
+	DockTypes m_iType; //!< The dock type.
 
 //private:
 //	typedef std::map<UINT, Cursor_Data> MapOfCursors;
 //
 //	MapOfCursors	m_vMapOfCursors;
 };
+
+void InitUltraDock(void);
+void CloseUltraDock(void);
+SwitchBarPos SwitchbarPos(const DockTypes type);
+void UpdatemIRC(void);
 
 #ifdef __INTEL_COMPILER // Defined when using Intel C++ Compiler.
 #pragma warning( pop )
