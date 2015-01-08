@@ -440,7 +440,7 @@ mIRC(_xtreebar)
 		case 1: // item
 		{
 			if (index < 1) // if index < 1 return total items.
-				wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), cnt);
+				wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), cnt);
 			else {
 				TCHAR szbuf[MIRC_BUFFER_SIZE_CCH];
 				szbuf[0] = TEXT('\0');

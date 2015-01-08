@@ -103,7 +103,7 @@ bool DcxDock::DockWindow(HWND hwnd, const TString &flag)
 	return true;
 }
 
-void DcxDock::UnDockWindow(HWND hwnd)
+void DcxDock::UnDockWindow(const HWND hwnd)
 {
 	auto itStart = this->m_VectorDocks.begin();
 	auto itEnd = this->m_VectorDocks.end();
@@ -371,6 +371,32 @@ LRESULT CALLBACK DcxDock::mIRCRefWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, L
 				}
 			}
 			break;
+
+		//case WM_SETCURSOR:
+		//{
+		//	if (Dcx::SetCursorUx == nullptr)
+		//		break;
+//
+		//	const auto iType = (UINT)LOWORD(lParam);
+		//	auto hCursor = Dcx::AreaToCustomCursor(iType);
+		//	if (hCursor != nullptr)
+		//	{
+		//		Dcx::SetCursorUx(hCursor);
+		//		return TRUE;
+		//	}
+//
+		//	ShowCursor(FALSE);
+		//	Auto(ShowCursor(TRUE));
+//
+		//	auto lRes = mIRCLinker::callDefaultWindowProc(mHwnd, uMsg, wParam, lParam);
+		//	hCursor = Dcx::SystemToCustomCursor(GetCursor());
+		//	if (hCursor != nullptr)
+		//	{
+		//		Dcx::SetCursorUx(hCursor);
+		//		return TRUE;
+		//	}
+		//	return lRes;
+		//}
 
 		//	// Ook: TODO: add custom cursors!
 		//case WM_SETCURSOR:
@@ -660,6 +686,32 @@ LRESULT CALLBACK DcxDock::mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 					pthis->UnDockWindow((HWND)lParam);
 			}
 			break;
+
+		//case WM_SETCURSOR:
+		//{
+		//	if (Dcx::SetCursorUx == nullptr)
+		//		break;
+//
+		//	const auto iType = (UINT)LOWORD(lParam);
+		//	auto hCursor = Dcx::AreaToCustomCursor(iType);
+		//	if (hCursor != nullptr)
+		//	{
+		//		Dcx::SetCursorUx(hCursor);
+		//		return TRUE;
+		//	}
+			//
+		//	ShowCursor(FALSE);
+		//	Auto(ShowCursor(TRUE));
+			//
+		//	auto lRes = mIRCLinker::callDefaultWindowProc(mHwnd, uMsg, wParam, lParam);
+		//	hCursor = Dcx::SystemToCustomCursor(GetCursor());
+		//	if (hCursor != nullptr)
+		//	{
+		//		Dcx::SetCursorUx(hCursor);
+		//		return TRUE;
+		//	}
+		//	return lRes;
+		//}
 
 		//case WM_DESTROY:
 		//{

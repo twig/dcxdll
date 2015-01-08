@@ -36,7 +36,7 @@ void InitUltraDock(void)
 */
 void CloseUltraDock(void)
 {
-	EnumChildWindows(mIRCLinker::getHWND(),(WNDENUMPROC)EnumDocked, NULL);
+	EnumChildWindows(mIRCLinker::getHWND(),EnumDocked, NULL);
 
 	DcxDock::UnInitStatusbar();
 
