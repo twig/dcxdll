@@ -5,7 +5,7 @@ alias dcx {
 }
 
 alias udcx {
-  if ($dcx(IsUnloadSafe)) $iif($menu, .timer 1 0) dll -u dcx.dll
+  if ($dcx(IsUnloadSafe)) $iif($menu, .timer -o 1 0 editbox -ns) dll -u dcx.dll
   else echo 4 -qmlbfti2 [DCX] Unable to Unload Dll.
 }
 
