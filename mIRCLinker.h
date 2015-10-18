@@ -38,13 +38,13 @@ namespace mIRCLinker
 	WORD getMainVersion();
 	WORD getSubVersion();
 	const TString & getLastError();
-	bool setTreeFont(HFONT newFont);
+	bool setTreeFont(const HFONT newFont);
 	bool isOrNewerVersion(const WORD main, const WORD sub);
 	bool isVersion(const WORD main, const WORD sub);
 	//bool isAero();
 	//bool isVista();
 	bool &isDebug();
-	__inline bool isUnicode() { return m_bUnicodemIRC; };
+	__inline bool &isUnicode() { return m_bUnicodemIRC; };
 
 	//bool isDXInstalled9();
 	bool isAlias(const TCHAR * aliasName);
@@ -57,18 +57,18 @@ namespace mIRCLinker
 	LRESULT callDefaultWindowProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam);
 
 	bool mIRC_SndMsg(const UINT uMsg);
-	bool eval(TCHAR *res, const int maxlen, const TCHAR *data);
-	bool tsEval(TString &res, const TCHAR *data);
-	bool iEval(__int64 *res, const TCHAR *data);
-	bool evalex(TCHAR *res, const int maxlen, const TCHAR *szFormat, ...);
-	bool tsEvalex(TString &res, const TCHAR *szFormat, ...);
-	bool exec(const TCHAR *data);
-	bool execex(const TCHAR *szFormat, ...);
-	void signal(const TCHAR *msg);
-	void signalex(const bool allow, const TCHAR *szFormat, ...);
-	void echo(const TCHAR *data);
+	bool eval(TCHAR *res, const int maxlen, const TCHAR *const data);
+	bool tsEval(TString &res, const TCHAR *const data);
+	bool iEval(__int64 *const res, const TCHAR *const data);
+	bool evalex(TCHAR *const res, const int maxlen, const TCHAR *const szFormat, ...);
+	bool tsEvalex(TString &res, const TCHAR *const szFormat, ...);
+	bool exec(const TCHAR *const data);
+	bool execex(const TCHAR *const szFormat, ...);
+	void signal(const TCHAR *const msg);
+	void signalex(const bool allow, const TCHAR *const szFormat, ...);
+	void echo(const TCHAR *const data);
 #if DCX_DEBUG_OUTPUT
-	void debug(const TCHAR *cmd, const TCHAR *msg);
+	void debug(const TCHAR *const cmd, const TCHAR *const msg);
 #endif
 };
 //#ifdef __INTEL_COMPILER // Defined when using Intel C++ Compiler.
