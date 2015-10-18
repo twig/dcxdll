@@ -1,6 +1,10 @@
 #pragma once
 /*
 	Auto release resources on error...
+
+	By Marko Tintor (http://blog.memsql.com/c-error-handling-with-auto/)
+
+	Minimal changes made so it compiles ok with vs2013
 */
 //#include <stdexcept>	// for exceptions
 
