@@ -43,16 +43,22 @@
 
 class XSwitchFlags {
 	public:
+		XSwitchFlags() = delete;
 		explicit XSwitchFlags(const TString &switches);
 		~XSwitchFlags();
 
 		// Function checks if flag is set
-		bool isSet(const TCHAR c) const;
-		bool operator[](const TCHAR c) const;
+		const bool &isSet(const TCHAR c) const;
+		const bool &operator[](const TCHAR c) const;
+		XSwitchFlags &operator =(const XSwitchFlags &) = delete;	// No assignments!
 
 	protected:
 		bool flags[28];     //!< Lowercase switches a-z
 		bool flags_cap[26]; //!< Uppercase switches A-Z
 };
+
+#ifdef DCX_SWITCH_OBJ
+#include "SwitchObjects.h"
+#endif
 
 #endif // _XSWITCHFLAGS_H_

@@ -14,12 +14,12 @@ XSwitchFlags::XSwitchFlags(const TString &switches)
 	else
 		return;
 
-	const UINT len = (UINT)switches.len();
+	const auto len = switches.len();
 
 	// Parse the switches
-	for (UINT i = 1; i < len; i++)
+	for (std::remove_const_t<decltype(len)> i = 1; i < len; i++)
 	{
-		const TCHAR c = switches[i];
+		const auto c = switches[i];
 
 		// Check if its in the right range
 		if (c >= TEXT('a') && c <= TEXT('z'))
@@ -34,7 +34,10 @@ XSwitchFlags::~XSwitchFlags(void) {
 }
 
 // Checks if flags are set.
-bool XSwitchFlags::isSet(const TCHAR c) const {
+const bool &XSwitchFlags::isSet(const TCHAR c) const
+{
+	static const bool bFalse(false);
+
 	// Lower-case
 	if ((c >= TEXT('a')) && (c <= TEXT('z')))
 		return flags[(int) (c - TEXT('a'))];
@@ -46,10 +49,10 @@ bool XSwitchFlags::isSet(const TCHAR c) const {
 	else if (c == TEXT('+'))	// check if + flag identifier used.
 		return flags[27];
 
-	return false;
+	return bFalse;
 }
 
 // Wrapper for isSet()
-bool XSwitchFlags::operator[](const TCHAR c) const {
+const bool &XSwitchFlags::operator[](const TCHAR c) const {
 	return this->isSet(c);
 }
