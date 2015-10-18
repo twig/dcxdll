@@ -155,6 +155,8 @@ http://symbiancorner.blogspot.com/2007/05/how-to-detect-version-of-ms-visual.htm
 #define _CRT_SECURE_NO_DEPRECATE 1
 #define _CRT_SECURE_NO_WARNINGS 1
 
+#define _CRT_RAND_S 1
+
 // Includes created svn build info header...
 #include "gitBuild.h"
 
@@ -163,7 +165,7 @@ http://symbiancorner.blogspot.com/2007/05/how-to-detect-version-of-ms-visual.htm
 // --------------------------------------------------
 #define DLL_VERSION    GIT_DESCRIBE
 #define DLL_BUILD      GIT_HASH
-#define DLL_DEV_BUILD  37
+#define DLL_DEV_BUILD  38
 
 #ifdef NDEBUG
 #ifdef DCX_DEV_BUILD
@@ -286,11 +288,7 @@ using namespace Gdiplus;
 // Listview stuff
 // --------------------------------------------------
 #ifndef LPNMLVDISPINFO
-#ifdef UNICODE
 #define LPNMLVDISPINFO LPNMLVDISPINFOW
-#else
-#define LPNMLVDISPINFO LPNMLVDISPINFOA
-#endif
 #endif
 
 // --------------------------------------------------
@@ -347,7 +345,7 @@ using namespace Gdiplus;
 //#define DCX_RADIOCLASS       TEXT("DCXRadioClass")        //!< DCX Radio Class Name
 //#define DCX_CHECKCLASS       TEXT("DCXCheckClass")        //!< DCX Check Class Name
 //#define DCX_SCROLLBARCLASS   TEXT("DCXScrollBarClass")    //!< DCX ScrollBar Class Name
-#define DCX_SHADOWCLASS				TEXT("DCXShadowClass")			//!< DCX Shadow Class Name
+//#define DCX_SHADOWCLASS				TEXT("DCXShadowClass")			//!< DCX Shadow Class Name
 #define DCX_VISTACLASS				TEXT("DCXVistaClass")				//!< DCX Vista Dialog Class Name
 #define DCX_STACKERCLASS			TEXT("DCXStackerClass")			//!< DCX Stacker Class Name
 
@@ -385,7 +383,13 @@ enum dcxFontFlags: UINT {
 // Ultradock stuff
 // --------------------------------------------------
 
-enum SwitchBarPos: UINT { SWB_NONE = 0, SWB_LEFT, SWB_RIGHT, SWB_TOP, SWB_BOTTOM };
+enum SwitchBarPos: UINT {
+	SWB_NONE = 0,
+	SWB_LEFT,
+	SWB_RIGHT,
+	SWB_TOP,
+	SWB_BOTTOM
+};
 
 // Dialog info structure
 typedef struct tagMYDCXWINDOW {
@@ -423,25 +427,15 @@ typedef struct SIGNALSWITCH {
 typedef std::vector<int> VectorOfInts; //<! Vector of int
 
 // UNICODE/ANSI wrappers
-#if UNICODE
 #define dcx_atoi(x) _wtoi(x)
 #define dcx_atoi64(x) _wtoi64(x)
 #define dcx_atof(x) _wtof(x)
 #define dcx_fopen(x,y) _wfopen(x,y)
 #define dcx_strstr(x,y) wcsstr((x),(y))
-#define dcx_strncmp(x,y,z) wcsncmp((x),(y),(z))
+#define dcx_strncmp(x,y,z) wcsncmp((x),(y),(size_t)(z))
 #define dcx_itoa(x,y,z) _itow((x), (y), (z))
-#else
-#define dcx_atoi(x) atoi(x)
-#define dcx_atoi64(x) _atoi64(x)
-#define dcx_atof(x) _atof(x)
-#define dcx_fopen(x,y) fopen(x,y)
-#define dcx_strstr(x,y) strstr((x),(y))
-#define dcx_strncmp(x,y,z) strncmp((x),(y),(z))
-#define dcx_itoa(x,y,z) _itoa((x), (y), (z))
-#endif
 
-#define dcx_strcpyn(x, y, z) { if (lstrcpyn((x), (y), (z)) == nullptr) (x)[0] = 0; }
+#define dcx_strcpyn(x, y, z) { if (lstrcpyn((x), (y), (int)(z)) == nullptr) (x)[0] = 0; }
 
 #define dcx_Con(x,y) dcx_strcpyn((y), (((x)) ? TEXT("$true") : TEXT("$false")), MIRC_BUFFER_SIZE_CCH);
 
@@ -458,6 +452,9 @@ if ((x)) (y)[0] = TEXT('1'); \
 }
 #define dcx_testflag(x,y) (((x) & (y)) == (y))
 
+#define dcxlParam(x,y) auto y = reinterpret_cast<x>(lParam)
+#define dcxwParam(x,y) auto y = reinterpret_cast<x>(wParam)
+
 // --------------------------------------------------
 // DLL routines
 // --------------------------------------------------
@@ -468,7 +465,8 @@ TString ParseLogfontToCommand(const LPLOGFONT lf);
 UINT parseFontFlags(const TString &flags);
 UINT parseFontCharSet(const TString &charset);
 
-std::unique_ptr<BYTE[]> readFile(const PTCHAR filename);
+//std::unique_ptr<BYTE[]> readFile(const PTCHAR filename);
+auto readFile(const PTCHAR filename)->std::unique_ptr<BYTE[]>;
 TString readTextFile(const PTCHAR tFile);
 bool SaveDataToFile(const TString &tsFile, const TString &tsData);
 TString FileDialog(const TString & data, const TString &method, const HWND pWnd);
@@ -484,7 +482,7 @@ HBITMAP dcxLoadBitmap(HBITMAP dest, TString &filename);
 HICON dcxLoadIcon(const int index, TString &filename, const bool large, const TString &flags);
 HICON CreateGrayscaleIcon(HICON hIcon);
 HRGN BitmapRegion(HBITMAP hBitmap,COLORREF cTransparentColor,BOOL bIsTransparent);
-bool ChangeHwndIcon(const HWND hwnd, const TString &flags, const int index, TString &filename);
+void ChangeHwndIcon(const HWND hwnd, const TString &flags, const int index, TString &filename);
 bool AddFileIcons(HIMAGELIST himl, TString &filename, const bool bLarge, const int iIndex, const int iStart = 0, const int iEnd = -1);
 BOOL dcxGetWindowRect(HWND hWnd, LPRECT lpRect);
 int dcxPickIconDlg(HWND hwnd, LPWSTR pszIconPath, UINT cchIconPath, int *piIconIndex);
@@ -504,7 +502,7 @@ HDC *CreateHDCBuffer(HDC hdc, const LPRECT rc);
 void DeleteHDCBuffer(HDC *hBuffer);
 int TGetWindowText(HWND hwnd, TString &txt);
 void FreeOSCompatibility(void);
-BOOL isRegexMatch(const TCHAR *matchtext, const TCHAR *pattern);
+bool isRegexMatch(const TCHAR *matchtext, const TCHAR *pattern);
 void DrawRotatedText(const TString &strDraw, LPRECT rc, HDC hDC, const int nAngleLine = 0, const bool bEnableAngleChar = false, const int nAngleChar = 0);
 const char *queryAttribute(const TiXmlElement *element,const char *attribute,const char *defaultValue = "");
 int queryIntAttribute(const TiXmlElement *element,const char *attribute,const int defaultValue = 0);
@@ -513,10 +511,10 @@ void getmIRCPalette(COLORREF *const Palette, const int PaletteItems);
 // UltraDock
 void RemStyles(HWND hwnd,int parm,long RemStyles);
 void AddStyles(HWND hwnd,int parm,long AddStyles);
-void InitUltraDock(void);
-void CloseUltraDock(void);
-int SwitchbarPos(const int type);
-void UpdatemIRC(void);
+//void InitUltraDock(void);
+//void CloseUltraDock(void);
+//SwitchBarPos SwitchbarPos(const DockTypes type);
+//void UpdatemIRC(void);
 
 // CustomDock
 #ifndef NDEBUG
