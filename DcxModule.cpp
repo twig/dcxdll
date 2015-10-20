@@ -2,7 +2,7 @@
 #include "DcxModule.h"
 
 DcxModule::DcxModule(void)
-: m_hModule(NULL)
+: m_hModule(nullptr)
 {
 }
 
@@ -12,7 +12,7 @@ DcxModule::~DcxModule(void)
 
 bool DcxModule::isUseable() const
 {
-	return !(m_hModule == NULL);
+	return !(m_hModule == nullptr);
 }
 
 bool DcxModule::load(void)
@@ -31,9 +31,9 @@ bool DcxModule::GetWindowVersion(DWORD *dMajor, DWORD *dMinor)
 #pragma warning(push)
 #pragma warning(disable:4996)
 	if (GetVersionEx(&osvi)) {
-		if (dMajor != NULL)
+		if (dMajor != nullptr)
 			*dMajor = osvi.dwMajorVersion;
-		if (dMinor != NULL)
+		if (dMinor != nullptr)
 			*dMinor = osvi.dwMinorVersion;
 		return true;
 	}

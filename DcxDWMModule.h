@@ -8,11 +8,6 @@ typedef HRESULT (WINAPI *PFNDWMEXTENDFRAMEINTOCLIENTAREA)(HWND hWnd, const MARGI
 typedef HRESULT (WINAPI *PFNDWMENABLEBLURBEHINDWINDOW)(HWND hWnd, __in const DWM_BLURBEHIND *pBlurBehind);
 typedef HRESULT (WINAPI *PFNDWMGETCOLORIZATIONCOLOR)( __out  DWORD *pcrColorization, __out  BOOL *pfOpaqueBlend);
 
-// Missing defines, since the new module way of doing things doesnt work well with missing libraries
-#ifndef DCX_USE_WINSDK
-#define DWM_E_COMPOSITIONDISABLED 0x80263001
-#endif
-
 class DcxDWMModule :
 	public DcxModule
 {

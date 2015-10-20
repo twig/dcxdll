@@ -22,12 +22,10 @@ typedef HRESULT (WINAPI *PFNGETTHEMECOLOR)(HTHEME hTheme,int iPartId,int iStateI
 typedef HRESULT (WINAPI *PFNDRAWTHEMEPARENTBACKGROUNDEX)(HWND, HDC, DWORD, const RECT*);
 //typedef HRESULT (WINAPI *PFNGETTHEMEBITMAP)(HTHEME hTheme,int iPartId,int iStateId,int iPropId,ULONG dwFlags,HBITMAP *phBitmap);
 // Vista Function pointers.
-#ifdef DCX_USE_WINSDK
 typedef HRESULT (WINAPI *PFNBUFFEREDPAINTINIT)(VOID);
 typedef HRESULT (WINAPI *PFNBUFFEREDPAINTUNINIT)(VOID);
 typedef HPAINTBUFFER (WINAPI *PFNBEGINBUFFEREDPAINT)(HDC hdcTarget, const RECT *prcTarget, BP_BUFFERFORMAT dwFormat, BP_PAINTPARAMS *pPaintParams, HDC *phdc);
 typedef HRESULT (WINAPI *PFNENDBUFFEREDPAINT)(HPAINTBUFFER hBufferedPaint, BOOL fUpdateTarget);
-#endif
 
 class DcxUXModule :
 	public DcxModule
@@ -48,12 +46,12 @@ class DcxUXModule :
 	static PFNDRAWTHEMEPARENTBACKGROUNDEX DrawThemeParentBackgroundExUx;
 	//static PFNGETTHEMEBITMAP GetThemeBitmapUx;
 	// Vista Function pointers.
-#ifdef DCX_USE_WINSDK
 	static PFNBUFFEREDPAINTINIT BufferedPaintInitUx;
 	static PFNBUFFEREDPAINTUNINIT BufferedPaintUnInitUx;
 	static PFNBEGINBUFFEREDPAINT BeginBufferedPaintUx;
 	static PFNENDBUFFEREDPAINT EndBufferedPaintUx;
-#endif
+
+	static bool m_bBufferedPaintEnabled;
 
 public:
 	DcxUXModule(void);
@@ -76,12 +74,10 @@ public:
 	static HRESULT dcxDrawThemeEdge(HTHEME hTheme, HDC hdc, int iPartId, int iStateId, LPCRECT pDestRect, UINT uEdge, UINT uFlags, LPRECT pContentRect);
 	static HRESULT dcxGetThemeColor(HTHEME hTheme, int iPartId, int iStateId, int iPropId, COLORREF *pColor);
 	static HRESULT dcxDrawThemeParentBackgroundEx(HWND hwnd, HDC hdc, DWORD dwFlags, const RECT *prc);
-#ifdef DCX_USE_WINSDK
 	static bool IsBufferedPaintSupported(void);
 	static HRESULT dcxBufferedPaintInit(void);
 	static HRESULT dcxBufferedPaintUnInit(void);
 	static HPAINTBUFFER dcxBeginBufferedPaint(HDC hdcTarget, const RECT *prcTarget, BP_BUFFERFORMAT dwFormat, BP_PAINTPARAMS *pPaintParams, HDC *phdc);
 	static HRESULT dcxEndBufferedPaint(HPAINTBUFFER hBufferedPaint, BOOL fUpdateTarget);
-#endif
 };
 #endif // _DCXUXMODULES_H_
