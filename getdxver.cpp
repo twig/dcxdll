@@ -102,7 +102,7 @@ HRESULT GetDXVersion(DWORD* pdwDirectXVersion, TCHAR* strDirectXVersion, int cch
 		return E_FAIL;
 
 	// Set the output values to what we got and return
-	cDirectXVersionLetter = (char)tolower(cDirectXVersionLetter);
+	cDirectXVersionLetter = (TCHAR)tolower(cDirectXVersionLetter);
 
 	if (pdwDirectXVersion)
 	{
@@ -123,9 +123,9 @@ HRESULT GetDXVersion(DWORD* pdwDirectXVersion, TCHAR* strDirectXVersion, int cch
 		// If strDirectXVersion is non-NULL, then set it to something
 		// like "8.1b" which would represent DirectX8.1b
 		if (cDirectXVersionLetter == TEXT(' '))
-			StringCchPrintf(strDirectXVersion, cchDirectXVersion, TEXT("%u.%u"), dwDirectXVersionMajor, dwDirectXVersionMinor);
+			StringCchPrintf(strDirectXVersion, (size_t)cchDirectXVersion, TEXT("%u.%u"), dwDirectXVersionMajor, dwDirectXVersionMinor);
 		else
-			StringCchPrintf(strDirectXVersion, cchDirectXVersion, TEXT("%u.%u%c"), dwDirectXVersionMajor, dwDirectXVersionMinor, cDirectXVersionLetter);
+			StringCchPrintf(strDirectXVersion, (size_t)cchDirectXVersion, TEXT("%u.%u%c"), dwDirectXVersionMajor, dwDirectXVersionMinor, cDirectXVersionLetter);
 	}
 
 	return S_OK;
@@ -210,14 +210,7 @@ HRESULT GetDirectXVersionViaDxDiag(DWORD* pdwDirectXVersionMajor, DWORD* pdwDire
 					hr = pDxDiagSystemInfo->GetProp(L"szDirectXVersionLetter", &var);
 					if (SUCCEEDED(hr) && var.vt == VT_BSTR && SysStringLen(var.bstrVal) != 0)
 					{
-#ifdef UNICODE
 						*pcDirectXVersionLetter = var.bstrVal[0];
-#else
-						char strDestination[10];
-						WideCharToMultiByte( CP_ACP, 0, var.bstrVal, -1, strDestination, 10*sizeof(CHAR), NULL, NULL );
-						if( pcDirectXVersionLetter )
-							*pcDirectXVersionLetter = strDestination[0];
-#endif
 						bSuccessGettingLetter = true;
 					}
 					VariantClear(&var);
@@ -540,8 +533,8 @@ HRESULT GetFileVersion(TCHAR* szPath, ULARGE_INTEGER* pllFileVersion)
 ULARGE_INTEGER MakeInt64(WORD a, WORD b, WORD c, WORD d)
 {
 	ULARGE_INTEGER ull;
-	ull.HighPart = MAKELONG(b, a);
-	ull.LowPart = MAKELONG(d, c);
+	ull.HighPart = (DWORD)MAKELONG(b, a);
+	ull.LowPart = (DWORD)MAKELONG(d, c);
 	return ull;
 }
 

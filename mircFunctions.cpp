@@ -80,5 +80,5 @@ long SystemTimeToMircTime(const LPSYSTEMTIME pst) {
 		months[pst->wMonth -1],
 		pst->wYear);
 
-	return _wtol(ret);
+	return dcx_atoi(ret);
 }
