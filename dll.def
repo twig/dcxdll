@@ -24,6 +24,8 @@ TrayIcon
 WindowProps
 ActiveWindow
 GhostDrag
+SetSystemCursors
+SetmIRCCursors
 
 xdid
 _xdid
