@@ -18,6 +18,8 @@ namespace Dcx {
 	HMODULE m_hRichEditLib;
 	bool m_bErrorTriggered;
 	MapOfCursors	m_vMapOfCursors;
+	MapOfAreas		m_vMapOfAreas;
+	PFNSETCURSOR SetCursorUx = nullptr;
 
 	void load(LOADINFO *const lInfo)
 	{
@@ -38,13 +40,6 @@ namespace Dcx {
 			// init failed...
 			DCX_DEBUG(mIRCLinker::debug, TEXT("LoadDLL"), TEXT("OLE Failed to init"));
 		}
-		// Initializing GDI
-		GDIModule.load();
-
-		UXModule.load();
-
-		VistaModule.load();
-
 		setupOSCompatibility();
 
 		mIRCLinker::hookWindowProc(Dcx::mIRCSubClassWinProc);
@@ -82,6 +77,8 @@ namespace Dcx {
 		dcxSignal.xstatusbar = true;
 		dcxSignal.xtray = true;
 		//ReportLiveObjects();
+		
+		SetCursorUx = (PFNSETCURSOR)PatchAPI("User32.dll", "SetCursor", Dcx::XSetCursor);
 	}
 
 	void unload(void)
@@ -92,6 +89,8 @@ namespace Dcx {
 		}
 
 		CloseUltraDock(); // UnDock All.
+
+		RemovePatch(SetCursorUx, Dcx::XSetCursor);
 
 		UnregisterClass(DCX_PROGRESSBARCLASS, GetModuleHandle(nullptr));
 		UnregisterClass(DCX_TREEVIEWCLASS, GetModuleHandle(nullptr));
@@ -113,7 +112,7 @@ namespace Dcx {
 		UnregisterClass(DCX_CALENDARCLASS, GetModuleHandle(nullptr));
 		UnregisterClass(DCX_DATETIMECLASS, GetModuleHandle(nullptr));
 		UnregisterClass(DCX_PAGERCLASS, GetModuleHandle(nullptr));
-		UnregisterClass(DCX_SHADOWCLASS, GetModuleHandle(nullptr));
+		//UnregisterClass(DCX_SHADOWCLASS, GetModuleHandle(nullptr));
 		UnregisterClass(DCX_VISTACLASS, GetModuleHandle(nullptr));
 
 		// Class Factory of Web Control
@@ -147,14 +146,27 @@ namespace Dcx {
 
 		for (const auto &cd : m_vMapOfCursors)
 		{
-			if (!cd.second.m_bNoDestroy)
-				DestroyCursor(cd.second.m_hCursor);
+			DestroyCursor(cd.second);
 		}
+		m_vMapOfCursors.clear();
+		for (const auto &cd : m_vMapOfAreas)
+		{
+			DestroyCursor(cd.second);
+		}
+		m_vMapOfAreas.clear();
+
 		freeOSCompatibility();
 		mIRCLinker::unload();
 	}
 
-	void setupOSCompatibility(void) {
+	void setupOSCompatibility(void)
+	{
+		// Initializing GDI
+		GDIModule.load();
+
+		UXModule.load();
+
+		VistaModule.load();
 
 		WNDCLASSEX wc;
 		ZeroMemory((void*)&wc, sizeof(WNDCLASSEX));
@@ -315,21 +327,21 @@ namespace Dcx {
 		DCX_DEBUG(mIRCLinker::debug, TEXT("LoadDLL"), TEXT("Registering Pager..."));
 		dcxRegisterClass(WC_PAGESCROLLER, DCX_PAGERCLASS);
 
-		// Shadow Class
-		DCX_DEBUG(mIRCLinker::debug, TEXT("LoadDLL"), TEXT("Registering Shadow..."));
-		wc.cbSize = sizeof(WNDCLASSEX);
-		wc.style = CS_HREDRAW | CS_VREDRAW;
-		wc.lpfnWndProc = DefWindowProc;
-		wc.cbClsExtra = 0;
-		wc.cbWndExtra = 0;
-		wc.hInstance = GetModuleHandle(nullptr);
-		wc.hIcon = nullptr;
-		wc.hCursor = LoadCursor(nullptr, IDC_ARROW);
-		wc.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
-		wc.lpszMenuName = nullptr;
-		wc.lpszClassName = DCX_SHADOWCLASS;
-		wc.hIconSm = nullptr;
-		RegisterClassEx(&wc);
+		//// Shadow Class
+		//DCX_DEBUG(mIRCLinker::debug, TEXT("LoadDLL"), TEXT("Registering Shadow..."));
+		//wc.cbSize = sizeof(WNDCLASSEX);
+		//wc.style = CS_HREDRAW | CS_VREDRAW;
+		//wc.lpfnWndProc = DefWindowProc;
+		//wc.cbClsExtra = 0;
+		//wc.cbWndExtra = 0;
+		//wc.hInstance = GetModuleHandle(nullptr);
+		//wc.hIcon = nullptr;
+		//wc.hCursor = LoadCursor(nullptr, IDC_ARROW);
+		//wc.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
+		//wc.lpszMenuName = nullptr;
+		//wc.lpszClassName = DCX_SHADOWCLASS;
+		//wc.hIconSm = nullptr;
+		//RegisterClassEx(&wc);
 
 		// Vista Dialog Class
 		DCX_DEBUG(mIRCLinker::debug, TEXT("LoadDLL"), TEXT("Registering Vista Dialog..."));
@@ -350,9 +362,9 @@ namespace Dcx {
 
 	void freeOSCompatibility(void)
 	{
-		GDIModule.unload();
-		UXModule.unload();
 		VistaModule.unload();
+		UXModule.unload();
+		GDIModule.unload();
 	}
 
 	const TCHAR *getLastError()
@@ -446,7 +458,7 @@ namespace Dcx {
 		va_list args;
 
 		va_start(args, szFormat);
-		temp.tvprintf(szFormat, &args);
+		temp.tvprintf(szFormat, args);
 		va_end(args);
 
 		error(cmd, temp.to_chr());
@@ -459,7 +471,7 @@ namespace Dcx {
 			throw std::invalid_argument(Dcx::dcxGetFormattedString(TEXT("No such alias : %s"), tsCallbackName.to_chr()));
 
 		// check if valid dialog
-		HWND mHwnd = GetHwndFromString(tsDName.to_chr());
+		auto mHwnd = GetHwndFromString(tsDName.to_chr());
 
 		if (!IsWindow(mHwnd))
 			throw std::invalid_argument(Dcx::dcxGetFormattedString(TEXT("Invalid Dialog Window : %s"), tsDName.to_chr()));
@@ -469,7 +481,7 @@ namespace Dcx {
 
 		Dialogs.markDialog(mHwnd, tsDName, tsCallbackName);
 		{
-			DcxDialog *pTmp = Dialogs.getDialogByHandle(mHwnd);
+			auto pTmp = Dialogs.getDialogByHandle(mHwnd);
 			if (pTmp != nullptr) {
 				TCHAR res[40];
 				pTmp->evalAliasEx(res, 40, TEXT("isverbose,0"));
@@ -517,16 +529,16 @@ namespace Dcx {
 
 		case WM_MEASUREITEM:
 		{
-			LPMEASUREITEMSTRUCT lpmis = reinterpret_cast<LPMEASUREITEMSTRUCT>(lParam);
+			auto lpmis = reinterpret_cast<LPMEASUREITEMSTRUCT>(lParam);
 
 			if (lpmis->CtlType == ODT_MENU) {
-				XPopupMenuItem *p_Item = reinterpret_cast<XPopupMenuItem *>(lpmis->itemData);
+				auto p_Item = reinterpret_cast<XPopupMenuItem *>(lpmis->itemData);
 
 				if (p_Item != nullptr) {
-					const SIZE size = p_Item->getItemSize(mHwnd);
+					const auto size = p_Item->getItemSize(mHwnd);
 
-					lpmis->itemWidth = size.cx;
-					lpmis->itemHeight = size.cy;
+					lpmis->itemWidth = (UINT)size.cx;
+					lpmis->itemHeight = (UINT)size.cy;
 					return TRUE;
 				}
 			}
@@ -536,10 +548,10 @@ namespace Dcx {
 
 		case WM_DRAWITEM:
 		{
-			LPDRAWITEMSTRUCT lpdis = reinterpret_cast<LPDRAWITEMSTRUCT>(lParam);
+			auto lpdis = reinterpret_cast<LPDRAWITEMSTRUCT>(lParam);
 
 			if (lpdis->CtlType == ODT_MENU) {
-				XPopupMenuItem *p_Item = reinterpret_cast<XPopupMenuItem *>(lpdis->itemData);
+				auto p_Item = reinterpret_cast<XPopupMenuItem *>(lpdis->itemData);
 
 				if (p_Item != nullptr) {
 					p_Item->DrawItem(lpdis);
@@ -557,14 +569,15 @@ namespace Dcx {
 			//	PostMessage(mHwnd, uMsg, 0, 0);
 			//	return 0L;
 			//}
+
 			// ghost drag stuff
 		case WM_ENTERSIZEMOVE:
 		{
 			if (getGhostDrag() < 255) {
-				const DWORD style = GetWindowExStyle(mIRCLinker::getHWND());
+				const auto style = GetWindowExStyle(mIRCLinker::getHWND());
 				// Set WS_EX_LAYERED on this window
-				if (!(style & WS_EX_LAYERED))
-					SetWindowLongPtr(mIRCLinker::getHWND(), GWL_EXSTYLE, style | WS_EX_LAYERED);
+				if (!dcx_testflag(style, WS_EX_LAYERED))
+					SetWindowLongPtr(mIRCLinker::getHWND(), GWL_EXSTYLE, (LONG)(style | WS_EX_LAYERED));
 				// Make this window 75 alpha
 				SetLayeredWindowAttributes(mIRCLinker::getHWND(), 0, getGhostDrag(), LWA_ALPHA);
 				SetProp(mIRCLinker::getHWND(), TEXT("dcx_ghosted"), (HANDLE)1);
@@ -586,24 +599,106 @@ namespace Dcx {
 		case WM_DWMCOMPOSITIONCHANGED:
 		{
 			Dcx::VistaModule.refreshComposite();
-		}
 			break;
+		}
 
 			// Ook: TODO: add custom cursors!
+			// mostly done, needs more work to handle child windows in mirc.
+
+		//case WM_MOUSEMOVE:
+		//{
+		//	if (SetCursorUx == nullptr)
+		//		break;
+		//
+		//	ShowCursor(FALSE);
+		//	Auto(ShowCursor(TRUE));
+		//
+		//	auto lRes = mIRCLinker::callDefaultWindowProc(mHwnd, uMsg, wParam, lParam);
+		//	auto hCursor = SystemToCustomCursor(GetCursor());
+		//	if (hCursor != nullptr)
+		//	{
+		//		SetCursorUx(hCursor);
+		//		return 0;
+		//	}
+		//
+		//	return lRes;
+		//}
+
 		case WM_SETCURSOR:
 		{
-			//if ((HWND)wParam != mHwnd)
-			//	break;
+			if (SetCursorUx == nullptr)
+				break;
 
-			const UINT iType = LOWORD(lParam);
-			const auto hCursor = getCursor(iType);
-
+			const auto iType = (UINT)LOWORD(lParam);
+			auto hCursor = AreaToCustomCursor(iType);
 			if (hCursor != nullptr)
 			{
-				if (GetCursor() != hCursor)
-					SetCursor(hCursor);
+				SetCursorUx(hCursor);
 				return TRUE;
 			}
+
+			ShowCursor(FALSE);
+			Auto(ShowCursor(TRUE));
+
+			auto lRes = mIRCLinker::callDefaultWindowProc(mHwnd, uMsg, wParam, lParam);
+			hCursor = SystemToCustomCursor(GetCursor());
+			if (hCursor != nullptr)
+			{
+				SetCursorUx(hCursor);
+				return TRUE;
+			}
+			return lRes;
+
+			//const auto iType = (UINT)LOWORD(lParam);
+			//const auto hCursor = getCursor(iType);
+			//
+			//if (hCursor != nullptr)
+			//{
+			//	if (GetCursor() != hCursor)
+			//		SetCursor(hCursor);
+			//	return TRUE;
+			//}
+			//
+			//const auto iType = (UINT)LOWORD(lParam);
+			//auto hChild = (HWND)wParam;
+			//
+			//TString tsClass((UINT)32);
+			//if (GetClassName(hChild, tsClass.to_chr(), 32) != 0)
+			//{
+			//	HCURSOR hCursor = nullptr;
+			//	if (tsClass == TEXT("mIRC"))
+			//	{
+			//			hCursor = getCursor(IDC_ARROW);
+			//	}
+			//	else if (tsClass == TEXT("RichEdit20W"))
+			//	{
+			//		if (iType == HTCLIENT)
+			//			hCursor = getCursor(IDC_IBEAM);
+			//		else
+			//			hCursor = getCursor(IDC_ARROW);
+			//	}
+			//	else if (tsClass == TEXT("mIRC_Toolbar"))
+			//		hCursor = getCursor(IDC_ARROW);
+			//	else if (tsClass == TEXT("mIRC_Treebar"))
+			//		hCursor = getCursor(IDC_ARROW);
+			//	else if (tsClass == TEXT("mIRC_Switchbar"))
+			//		hCursor = getCursor(IDC_ARROW);
+			//	else if (tsClass == TEXT("mIRC_Status"))
+			//		hCursor = getCursor(IDC_ARROW);
+			//	else if (tsClass == TEXT("SysTreeView32"))
+			//		hCursor = getCursor(IDC_ARROW);
+			//	else if (tsClass == TEXT("MDIClient"))
+			//		hCursor = getCursor(IDC_ARROW);
+			//	else if (tsClass == TEXT("ScrollBar"))
+			//		hCursor = getCursor(IDC_ARROW);
+			//
+			//	if (hCursor != nullptr)
+			//	{
+			//		if (GetCursor() != hCursor)
+			//			SetCursor(hCursor);
+			//		return TRUE;
+			//	}
+			//}
 			break;
 		}
 
@@ -631,11 +726,41 @@ namespace Dcx {
 
 		va_list args;
 		va_start(args, fmt);
-		tsErr.tvprintf(fmt, &args);
+		tsErr.tvprintf(fmt, args);
 		va_end(args);
 
 		return tsErr.c_str();
 	}
+
+	const PTCHAR parseCursorType(const TString & cursor)
+	{
+		static std::map<TString, PTCHAR> IDC_map;
+
+		if (IDC_map.empty()) {
+			IDC_map[TEXT("appstarting")] = IDC_APPSTARTING;
+			IDC_map[TEXT("arrow")] = IDC_ARROW;
+			IDC_map[TEXT("cross")] = IDC_CROSS;
+			IDC_map[TEXT("hand")] = IDC_HAND;
+			IDC_map[TEXT("help")] = IDC_HELP;
+			IDC_map[TEXT("ibeam")] = IDC_IBEAM;
+			IDC_map[TEXT("no")] = IDC_NO;
+			IDC_map[TEXT("sizeall")] = IDC_SIZEALL;
+			IDC_map[TEXT("sizenesw")] = IDC_SIZENESW;
+			IDC_map[TEXT("sizens")] = IDC_SIZENS;
+			IDC_map[TEXT("sizenwse")] = IDC_SIZENWSE;
+			IDC_map[TEXT("sizewe")] = IDC_SIZEWE;
+			IDC_map[TEXT("uparrow")] = IDC_UPARROW;
+			IDC_map[TEXT("wait")] = IDC_WAIT;
+		}
+
+		auto got = IDC_map.find(cursor);
+
+		if (got != IDC_map.end())
+			return got->second;
+
+		return nullptr;
+	}
+
 	const DWORD parseSystemCursorType(const TString & cursor)
 	{
 		static std::map<TString, DWORD> IDC_SystemMap;
@@ -656,7 +781,7 @@ namespace Dcx {
 			IDC_SystemMap[TEXT("wait")] = OCR_WAIT;
 		}
 
-		std::map<TString, DWORD>::iterator got = IDC_SystemMap.find(cursor);
+		auto got = IDC_SystemMap.find(cursor);
 
 		if (got != IDC_SystemMap.end())
 			return got->second;
@@ -668,7 +793,7 @@ namespace Dcx {
 		static std::map<TString, DWORD> mIRC_AreaMap;
 		if (mIRC_AreaMap.empty()) {
 			mIRC_AreaMap[TEXT("client")] = HTCLIENT;
-			mIRC_AreaMap[TEXT("nowhere")] = HTNOWHERE;
+			//mIRC_AreaMap[TEXT("nowhere")] = HTNOWHERE;
 			mIRC_AreaMap[TEXT("caption")] = HTCAPTION;
 			mIRC_AreaMap[TEXT("sysmenu")] = HTSYSMENU;
 			mIRC_AreaMap[TEXT("size")] = HTGROWBOX;
@@ -690,17 +815,17 @@ namespace Dcx {
 			mIRC_AreaMap[TEXT("close")] = HTCLOSE;
 		}
 
-		std::map<TString, DWORD>::iterator got = mIRC_AreaMap.find(tsArea);
+		auto got = mIRC_AreaMap.find(tsArea);
 
-		if (got == mIRC_AreaMap.end())
-			throw std::invalid_argument("Invalid Area");
+		if (got != mIRC_AreaMap.end())
+			return got->second;
 
-		return got->second;
+		return 0;
 	}
 
 	HCURSOR dcxLoadCursorFromFile(const TString &filename)
 	{
-		HCURSOR hCursor = (HCURSOR)LoadImage(nullptr, filename.to_chr(), IMAGE_CURSOR, 0, 0, LR_DEFAULTSIZE | LR_LOADFROMFILE);
+		auto hCursor = (HCURSOR)LoadImage(nullptr, filename.to_chr(), IMAGE_CURSOR, 0, 0, LR_DEFAULTSIZE | LR_LOADFROMFILE);
 		if (hCursor == nullptr)
 			throw std::runtime_error("Unable to load cursor file");
 		return hCursor;
@@ -708,23 +833,11 @@ namespace Dcx {
 
 	HCURSOR dcxLoadCursorFromResource(const PTCHAR CursorType)
 	{
-		HCURSOR hCursor = (HCURSOR)LoadImage(nullptr, CursorType, IMAGE_CURSOR, 0, 0, LR_DEFAULTSIZE | LR_SHARED);
+		auto hCursor = (HCURSOR)LoadImage(nullptr, CursorType, IMAGE_CURSOR, 0, 0, LR_DEFAULTSIZE | LR_SHARED);
 		if (hCursor == nullptr)
 			throw std::runtime_error("Unable to load cursor resource");
 		return hCursor;
 	}
-
-	//void dcxDestroyCursor(HCURSOR hCursor)
-	//{
-	//	if (hCursor != nullptr)
-	//		DestroyCursor(hCursor);
-	//}
-
-	//void dcxDestroyIcon(HICON hIcon)
-	//{
-	//	if (hIcon != nullptr)
-	//		DestroyIcon(hIcon);
-	//}
 
 	HCURSOR dcxLoadCursor(const UINT iFlags, const PTCHAR CursorType, bool &bCursorFromFile, const HCURSOR oldCursor, TString &filename)
 	{
@@ -742,7 +855,7 @@ namespace Dcx {
 			if (!IsFile(filename))
 				throw std::invalid_argument(Dcx::dcxGetFormattedString(TEXT("Unable to Access File: %s"), filename.to_chr()));
 
-			newCursor = dcxLoadCursorFromFile(filename);
+			newCursor = Dcx::dcxLoadCursorFromFile(filename);
 
 			bCursorFromFile = true;
 		}
@@ -758,37 +871,90 @@ namespace Dcx {
 		return newCursor;
 	}
 
-	HCURSOR getCursor(const UINT iType)
+	void setAreaCursor(const HCURSOR hCursor, const UINT iType)
 	{
-		MapOfCursors::iterator it = m_vMapOfCursors.find(iType);
+		deleteAreaCursor(iType);
+		m_vMapOfAreas[iType] = hCursor;
+	}
+
+	void deleteAreaCursor(const UINT iType)
+	{
+		auto it = m_vMapOfAreas.find(iType);
+		if (it != m_vMapOfAreas.end())
+		{
+			DestroyCursor(it->second);
+			m_vMapOfAreas.erase(it);
+		}
+	}
+
+	HCURSOR SystemToCustomCursor(const HCURSOR hCursor)
+	{
+		auto it = m_vMapOfCursors.find(hCursor);
 		if (it != m_vMapOfCursors.end())
-			return it->second.m_hCursor;
+			return it->second;
+
+		return nullptr;
+	}
+	HCURSOR AreaToCustomCursor(const UINT iType)
+	{
+		auto it = m_vMapOfAreas.find(iType);
+		if (it != m_vMapOfAreas.end())
+			return it->second;
 
 		return nullptr;
 	}
 
-	void setCursor(const Cursor_Data &hCursor, const UINT iType)
+	void setCursor(const HCURSOR hSystemCursor, const HCURSOR hCustomCursor)
 	{
-		deleteCursor(iType);
-		m_vMapOfCursors[iType] = hCursor;
+		deleteCursor(hSystemCursor);
+		m_vMapOfCursors[hSystemCursor] = hCustomCursor;
 	}
 
-	void deleteCursor(const UINT iType)
+	void deleteCursor(const HCURSOR hCursor)
 	{
-		MapOfCursors::iterator it = m_vMapOfCursors.find(iType);
+		auto it = m_vMapOfCursors.find(hCursor);
 		if (it != m_vMapOfCursors.end())
 		{
-			if (!it->second.m_bNoDestroy)
-				DestroyCursor(it->second.m_hCursor);
+			DestroyCursor(it->second);
 			m_vMapOfCursors.erase(it);
 		}
 	}
-	//FILE *dcxfopen(const TCHAR *const filename, const TCHAR *const modes)
-	//{
-	//	return dcx_fopen(filename, modes);
-	//}
-	//void dcxfclose(FILE *file)
-	//{
-	//	fclose(file);
-	//}
+
+	PVOID PatchAPI(const char *const c_szDllName, const char *const c_szApiName, PVOID newfPtr)
+	{
+		DetourTransactionBegin();
+		DetourUpdateThread(GetCurrentThread());
+		PVOID fPtr = DetourFindFunction(c_szDllName, c_szApiName);
+		if (fPtr != nullptr)
+		{
+			DetourAttach(&fPtr, newfPtr);
+			DetourTransactionCommit();
+		}
+		else
+			DetourTransactionAbort();
+
+		return fPtr;
+	}
+
+	void RemovePatch(PVOID fPtr, PVOID newfPtr)
+	{
+		if (fPtr == nullptr || newfPtr == nullptr)
+			return;
+
+		DetourTransactionBegin();
+		DetourUpdateThread(GetCurrentThread());
+		DetourDetach(&fPtr, newfPtr);
+		DetourTransactionCommit();
+	}
+
+	HCURSOR WINAPI XSetCursor(HCURSOR hCursor)
+	{
+		if (hCursor == nullptr)
+			return SetCursorUx(hCursor);
+
+		auto hTemp = SystemToCustomCursor(hCursor);
+		if (hTemp == nullptr)
+			hTemp = hCursor;
+		return SetCursorUx(hTemp);
+	}
 }

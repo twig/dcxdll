@@ -7,9 +7,10 @@
 #include "Classes/xpopup/XPopupMenuManager.h"
 #include "Classes/xpopup/xmenubar.h"
 #include "Classes/DcxDialog.h"
-#include <sys/stat.h> 
+#include "Classes\UltraDock\dcxDock.h"
 
-// is it just me or is this class just a namespace?
+#include <sys/stat.h> 
+#include <detours.h>
 
 namespace Dcx
 {
@@ -34,15 +35,17 @@ namespace Dcx
 	HCURSOR dcxLoadCursorFromResource(const PTCHAR CursorType);
 
 	// make_resource() function by Eric Scott Barr (http://ericscottbarr.com/blog/2014/04/c-plus-plus-14-and-sdl2-managing-resources/)
-	//template<typename Creator, typename Destructor, typename... Arguments>
-	//auto make_resource(Creator c, Destructor d, Arguments&&... args)
-	//{
-	//	auto r = c(std::forward<Arguments>(args)...);
-	//	if (!r) { throw std::runtime_error{ "Unable to create resource" }; }
-	//	typedef typename std::decay<decltype(*r)>::type ResourceType;
-	//	return std::unique_ptr<ResourceType, void(*)(ResourceType*)>(r, d);
-	//}
-	
+
+#if _MSC_VER > 1800
+	template<typename Creator, typename Destructor, typename... Arguments>
+	auto make_resource(Creator c, Destructor d, Arguments&&... args)
+	{
+		auto r = c(std::forward<Arguments>(args)...);
+		if (!r) { throw std::runtime_error{ "Unable to create resource" }; }
+		typedef typename std::decay<decltype(*r)>::type ResourceType;
+		return std::unique_ptr<ResourceType, void(*)(ResourceType*)>(r, d);
+	}
+#else
 	template<typename Creator, typename Destructor, typename... Arguments>
 	auto make_resource(Creator c, Destructor d, Arguments&&... args)
 		-> std::unique_ptr<typename std::decay<decltype(*c(std::forward<Arguments>(args)...))>::type, void(*)(typename std::decay<decltype(*c(std::forward<Arguments>(args)...))>::type*)>
@@ -52,15 +55,15 @@ namespace Dcx
 		typedef typename std::decay<decltype(*r)>::type ResourceType;
 		return std::unique_ptr<ResourceType, void(*)(ResourceType*)>(r, d);
 	}
+#endif
 
 	typedef std::unique_ptr<HICON__, void(*)(HICON__ *)> dcxCursor_t;
 	typedef std::unique_ptr<HICON__, void(*)(HICON__ *)> dcxIcon_t;
 	typedef std::unique_ptr<FILE, void(*)(FILE *)> dcxFile_t;
-	typedef std::unique_ptr<HANDLE, void(*)(HANDLE)> dcxHandle_t;
+	typedef std::unique_ptr<HANDLE, void(*)(HANDLE)> dcxHandle_t; // <- error
+	typedef std::unique_ptr<HDC__, void(*)(HDC)> dcxHDC_t;
+	typedef std::unique_ptr<HBITMAP__, void(*)(HBITMAP)> dcxBitmap_t;
 
-	//inline dcxCursor_t make_cursor(TString &tsFilename) { return make_resource(dcxLoadCursorFromFile, dcxDestroyCursor, tsFilename); }
-	//inline dcxIcon_t make_icon(const int index, TString &filename, const bool large, const TString &flags) { return make_resource(dcxLoadIcon, dcxDestroyIcon, index,filename,large,flags); }
-	//inline dcxFile_t make_file(const WCHAR *file, const WCHAR *modes) { return make_resource(_wfopen, fclose, file, modes); }
 	inline dcxCursor_t make_cursor(TString &tsFilename) {
 		return make_resource(dcxLoadCursorFromFile, [](HCURSOR hCursor){ if (hCursor != nullptr) DestroyCursor(hCursor); }, tsFilename);
 	}
@@ -68,6 +71,20 @@ namespace Dcx
 		return make_resource(dcxLoadIcon, [](HICON hIcon){ if (hIcon != nullptr) DestroyIcon(hIcon); }, index, filename, large, flags);
 	}
 	inline dcxFile_t make_file(const WCHAR *file, const WCHAR *modes) { return make_resource(_wfopen, [](FILE *file){ fclose(file); }, file, modes); }
+	//enum class hdcTypes : UINT { CreateCompatiableDCType, CreateDCType };
+	//inline dcxHDC_t make_hdc(hdcTypes hType, HDC hdc, LPCTSTR lpszDriver, LPCTSTR lpszDevice, LPCTSTR lpszOutput, const DEVMODE *lpInitData)
+	//{
+	//	switch (hType)
+	//	{
+	//	case hdcTypes::CreateCompatiableDCType:
+	//		return make_resource(CreateCompatibleDC, [](HDC obj){ DeleteDC(obj); }, hdc);
+	//	case hdcTypes::CreateDCType:
+	//		return make_resource(CreateDC, [](HDC obj){ DeleteDC(obj); }, lpszDriver, lpszDevice, lpszOutput, lpInitData);
+	//	}
+	//}
+	inline dcxHDC_t make_hdc(HDC hdc) { return make_resource(CreateCompatibleDC, [](HDC obj){ DeleteDC(obj); }, hdc); }
+	inline dcxBitmap_t make_bitmap(HDC hdc, int x, int y) { return make_resource(CreateCompatibleBitmap, [](HBITMAP obj){ DeleteBitmap(obj); }, hdc, x, y); }
+
 	//inline dcxHandle_t make_filehandle(const TCHAR *file, DWORD dAccess, DWORD dShareMode, LPSECURITY_ATTRIBUTES lpSecurity, DWORD dCreation, DWORD dflags, HANDLE templateFile) {
 	//	return make_resource(CreateFile, [](HANDLE file){ CloseHandle(file); }, file, dAccess, dShareMode, lpSecurity, dCreation, dflags, templateFile);
 	//}
@@ -122,114 +139,120 @@ namespace Dcx
 
 	struct dcxCursor
 	{
+		dcxCursor() = delete;
+		dcxCursor(const dcxCursor &) = delete;
+		dcxCursor &operator =(const dcxCursor &) = delete;	// No assignments!
+
 		dcxCursor(TString &tsFilename)
 			: m_uni(make_cursor(tsFilename))
 		{
-			m_hObj = m_uni.get();
 		}
-		dcxCursor &operator =(dcxCursor &&other)
-		{
-			using std::swap;
 
-			swap(m_uni, other.m_uni);
-			swap(m_hObj, other.m_hObj);
-		}
-		operator HCURSOR() { return m_hObj; }
+		//dcxCursor &operator =(dcxCursor &&other)
+		//{
+		//	using std::swap;
+		//
+		//	swap(m_uni, other.m_uni);
+		//}
+		operator HCURSOR() { return m_uni.get(); }
 	private:
 		dcxCursor_t	m_uni;
-		HCURSOR		m_hObj;
 	};
+
 	struct dcxIcon
 	{
+		dcxIcon() = delete;
+		dcxIcon(const dcxIcon &) = delete;
+		dcxIcon &operator =(const dcxIcon &) = delete;	// No assignments!
+
 		dcxIcon(const int index, TString &filename, const bool large, const TString &flags)
 			: m_uni(make_icon(index, filename, large, flags))
 		{
-			m_hObj = m_uni.get();
 		}
-		dcxIcon &operator =(dcxIcon &&other)
-		{
-			using std::swap;
-
-			swap(m_uni, other.m_uni);
-			swap(m_hObj, other.m_hObj);
-		}
-		operator HICON() { return m_hObj; }
+		operator HICON() { return m_uni.get(); }
 
 	private:
 		dcxIcon_t	m_uni;
-		HICON		m_hObj;
 	};
+
 	struct dcxFile
 	{
-		//dcxFile(TString &tsFilename, const TString &tsMode)
-		//	: m_uni(make_file(tsFilename.to_chr(), tsMode.to_chr()))
-		//{
-		//	m_File = m_uni.get();
-		//}
+		dcxFile() = delete;
+		dcxFile(const dcxFile &) = delete;
+		dcxFile &operator =(const dcxFile &) = delete;	// No assignments!
+
 		dcxFile(const TCHAR *tsFilename, const TCHAR *tsMode)
 			: m_uni(make_file(tsFilename, tsMode))
 		{
-			m_hObj = m_uni.get();
 		}
-		dcxFile &operator =(dcxFile &&other)
-		{
-			using std::swap;
-
-			swap(m_uni, other.m_uni);
-			swap(m_hObj, other.m_hObj);
-		}
-		operator FILE *() { return m_hObj; }
+		operator FILE *() { return m_uni.get(); }
 
 	private:
 		dcxFile_t	m_uni;
-		FILE		*m_hObj;
 	};
 
-	//struct dcxFileHandle
+	struct dcxHDC
+	{
+		dcxHDC() = delete;
+		dcxHDC(const dcxHDC &) = delete;
+		dcxHDC &operator =(const dcxHDC &) = delete;	// No assignments!
+
+		dcxHDC(HDC hdc)
+			: m_uni(make_hdc(hdc))
+		{
+		}
+		//dcxHDC(HDC hdc)
+		//	: m_uni(make_hdc(hdcTypes::CreateCompatiableDCType, hdc, nullptr, nullptr, nullptr, nullptr))
+		//{
+		//}
+		//dcxHDC(LPCTSTR lpszDriver, LPCTSTR lpszDevice, LPCTSTR lpszOutput, const DEVMODE *lpInitData)
+		//	: m_uni(make_hdc(hdcTypes::CreateDCType, nullptr, lpszDriver, lpszDevice, lpszOutput, lpInitData))
+		//{
+		//}
+		operator HDC() { return m_uni.get(); }
+
+	private:
+		dcxHDC_t	m_uni;
+	};
+
+	struct dcxBitmap
+	{
+		dcxBitmap() = delete;
+		dcxBitmap(const dcxBitmap &) = delete;
+		dcxBitmap &operator =(const dcxBitmap &) = delete;	// No assignments!
+
+		dcxBitmap(HDC hdc, int x, int y)
+			: m_uni(make_bitmap(hdc,x,y))
+		{
+		}
+		operator HBITMAP() { return m_uni.get(); }
+
+	private:
+		dcxBitmap_t	m_uni;
+	};
+
+	typedef std::map<HCURSOR, HCURSOR> MapOfCursors;
+	typedef std::map<UINT, HCURSOR> MapOfAreas;
+
+	//template< typename T >
+	//struct range_t
 	//{
-	//	dcxFileHandle(const TCHAR *tsFilename, const TCHAR *tsMode)
-	//		: m_uni(make_file(tsFilename, tsMode))
+	//	struct iter
 	//	{
-	//		m_hObj = m_uni.get();
-	//	}
-	//	dcxFileHandle &operator =(dcxFileHandle &&other)
-	//	{
-	//		using std::swap;
-
-	//		swap(m_uni, other.m_uni);
-	//		swap(m_hObj, other.m_hObj);
-	//	}
-	//	operator FILE *() { return m_hObj; }
-
-	//private:
-	//	dcxFile_t	m_uni;
-	//	FILE		*m_hObj;
+	//		T operator * ()const noexcept{ return n; }
+	//		iter& operator ++()noexcept{ ++n; return *this; }
+	//			friend
+	//			bool operator != (iter const& lhs, iter const& rhs)noexcept
+	//		{ return lhs.n != rhs.n; }
+	//
+	//		T n;
+	//	};
+	//
+	//	iter begin()const noexcept{ return{ b }; }
+	//	iter end() const noexcept{ return{ e }; }
+	//	T b, e;
 	//};
-
-	typedef struct tagCursor_Data {
-		HCURSOR		m_hCursor;
-		bool		m_bNoDestroy;
-	} Cursor_Data, *LPCursor_Data;
-	
-	//struct Cursor_Data {
-	//	Cursor_Data() : m_hCursor(nullptr) {}
-	//	Cursor_Data(TString &tsFilename)
-	//		: m_hCursor(dcxLoadCursorFromFile(tsFilename))
-	//	{
-
-	//	}
-	//	~Cursor_Data()
-	//	{
-	//		if (m_hCursor != nullptr)
-	//			DestroyCursor(m_hCursor);
-	//	}
-	//	
-	//	HCURSOR		m_hCursor;
-	//};
-
-	typedef std::map<UINT, Cursor_Data> MapOfCursors;
-	
-	extern MapOfCursors	m_vMapOfCursors;
+	//template< typename T > range_t<T>  range(T b, T e){ return{ b, e }; }
 
 	void setupOSCompatibility(void);
 	void freeOSCompatibility(void);
@@ -252,19 +275,30 @@ namespace Dcx
 	int mark(TCHAR *const data, const TString & tsDName, const TString & tsCallbackName);
 	LRESULT CALLBACK mIRCSubClassWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 	const char *const dcxGetFormattedString(const TCHAR *const fmt, ...);
+	const PTCHAR parseCursorType(const TString & cursor);
 	const DWORD parseSystemCursorType(const TString & cursor);
 	const DWORD parseAreaType(const TString &tsArea);
 	HCURSOR dcxLoadCursor(const UINT iFlags, const PTCHAR CursorType, bool &bCursorFromFile, const HCURSOR oldCursor, TString &filename);
-	HCURSOR getCursor(const UINT iType);
-	void setCursor(const Cursor_Data &hCursor, const UINT iType);
-	void deleteCursor(const UINT iType);
+	void setAreaCursor(const HCURSOR hCursor, const UINT iType);
+	void deleteAreaCursor(const UINT iType);
+	HCURSOR SystemToCustomCursor(const HCURSOR hCursor);
+	HCURSOR AreaToCustomCursor(const UINT iType);
+	void setCursor(const HCURSOR hSystemCursor, const HCURSOR hCustomCursor);
+	void deleteCursor(const HCURSOR hCursor);
+	HCURSOR WINAPI XSetCursor(HCURSOR hCursor);
+	PVOID PatchAPI(const char *const c_szDllName, const char *const c_szApiName, PVOID newfPtr);
+	void RemovePatch(PVOID fPtr, PVOID newfPtr);
+
+	typedef HCURSOR(WINAPI *PFNSETCURSOR)(HCURSOR hCursor);
+
+	extern PFNSETCURSOR SetCursorUx;
 
 	// parse_string, taken from somewhere on stackoverflow (sorry can't remember where) & modified for our use.
 	template <typename RETURN_TYPE, typename STRING_TYPE>
 	RETURN_TYPE parse_string(const STRING_TYPE *str) {
-		static_assert(std::is_same<WCHAR, std::remove_pointer_t<STRING_TYPE>>::value || std::is_same<CHAR, std::remove_pointer_t<STRING_TYPE>>::value, "Only WCHAR, CHAR, or TCHAR type supported!");
+		static_assert(std::is_same<WCHAR, STRING_TYPE>::value || std::is_same<CHAR, STRING_TYPE>::value, "Only WCHAR, CHAR, or TCHAR type supported!");
 
-		std::basic_stringstream<std::remove_pointer_t<STRING_TYPE>> buf;
+		std::basic_stringstream<STRING_TYPE> buf;
 		buf << str;
 		RETURN_TYPE val;
 		buf >> val;
