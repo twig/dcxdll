@@ -138,8 +138,8 @@ public:
 	static void status_parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
 	static void status_getRect(LPRECT rc);
 	static void status_setBkColor(const COLORREF clr);
-	static void status_setParts( const int nParts, const LPINT aWidths );
-	static LRESULT status_getParts( const int nParts, LPINT aWidths );
+	static void status_setParts( const UINT nParts, const LPINT aWidths );
+	static UINT status_getParts( const UINT nParts, LPINT aWidths );
 	static void status_setText(const int iPart, const int Style, const WCHAR *const lpstr);
 	static LRESULT status_getText( const int iPart, LPWSTR lpstr );
 	static UINT status_getTextLength( const int iPart );

@@ -113,8 +113,8 @@ void DcxDock::UnDockWindow(const HWND hwnd)
 			auto ud = *itStart;
 			if (ud->hwnd == hwnd) {
 				this->m_VectorDocks.erase(itStart);
-				SetWindowLong(ud->hwnd,GWL_STYLE, ud->old_styles);
-				SetWindowLong(ud->hwnd,GWL_EXSTYLE, ud->old_exstyles);
+				SetWindowLongPtr(ud->hwnd,GWL_STYLE, (LONG)ud->old_styles);
+				SetWindowLongPtr(ud->hwnd,GWL_EXSTYLE, (LONG)ud->old_exstyles);
 				RemStyles(ud->hwnd,GWL_STYLE,WS_CHILDWINDOW);
 				SetParent(ud->hwnd, nullptr);
 				SetWindowPos(ud->hwnd, HWND_TOP, ud->rc.left, ud->rc.top, ud->rc.right - ud->rc.left, ud->rc.bottom - ud->rc.top, SWP_NOZORDER|SWP_FRAMECHANGED);
@@ -134,8 +134,8 @@ void DcxDock::UnDockAll(void)
 	{
 		if (ud != nullptr)
 		{
-			SetWindowLong(ud->hwnd, GWL_STYLE, ud->old_styles);
-			SetWindowLong(ud->hwnd, GWL_EXSTYLE, ud->old_exstyles);
+			SetWindowLongPtr(ud->hwnd, GWL_STYLE, (LONG)ud->old_styles);
+			SetWindowLongPtr(ud->hwnd, GWL_EXSTYLE, (LONG)ud->old_exstyles);
 			RemStyles(ud->hwnd, GWL_STYLE, WS_CHILDWINDOW);
 			SetParent(ud->hwnd, nullptr);
 			SetWindowPos(ud->hwnd, HWND_TOP, ud->rc.left, ud->rc.top, ud->rc.right - ud->rc.left, ud->rc.bottom - ud->rc.top, SWP_NOZORDER | SWP_FRAMECHANGED | SWP_NOACTIVATE);
@@ -197,7 +197,7 @@ void DcxDock::AdjustRect(WINDOWPOS *wp)
 	auto xleftoffset = wp->x;
 	auto xrightoffset = wp->x + refw;
 
-	auto hdwp = BeginDeferWindowPos(nWin);
+	auto hdwp = BeginDeferWindowPos((int)nWin);
 	HDWP tmp;
 
 	// size docks
@@ -273,7 +273,7 @@ LRESULT CALLBACK DcxDock::mIRCRefWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, L
 	switch (uMsg) {
 		case WM_WINDOWPOSCHANGING:
 			{
-				auto wp = reinterpret_cast<WINDOWPOS *>(lParam);
+				dcxlParam(LPWINDOWPOS,wp);
 
 				if (wp == nullptr)
 					break;
@@ -333,7 +333,7 @@ LRESULT CALLBACK DcxDock::mIRCRefWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, L
 				if ( pthis->m_iType != DOCK_TYPE_TREE || !DcxDock::g_bTakeOverTreebar)
 					break;
 
-				auto pitem = reinterpret_cast<LPTVITEMEX>(lParam);
+				dcxlParam(LPTVITEMEX, pitem);
 
 				if (pitem == nullptr)
 					break;
@@ -349,7 +349,7 @@ LRESULT CALLBACK DcxDock::mIRCRefWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, L
 				if (!DcxDock::g_bTakeOverTreebar)
 					break;
 
-				auto pTvis = reinterpret_cast<LPTVINSERTSTRUCT>(lParam);
+				dcxlParam(LPTVINSERTSTRUCT, pTvis);
 
 				if (pTvis == nullptr)
 					break;
@@ -372,9 +372,28 @@ LRESULT CALLBACK DcxDock::mIRCRefWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, L
 			}
 			break;
 
-		//case WM_SETCURSOR:
+		//case WM_MOUSEMOVE:
 		//{
 		//	if (Dcx::SetCursorUx == nullptr)
+		//		break;
+//
+		//	ShowCursor(FALSE);
+		//	Auto(ShowCursor(TRUE));
+//
+		//	auto lRes = mIRCLinker::callDefaultWindowProc(mHwnd, uMsg, wParam, lParam);
+		//	auto hCursor = Dcx::SystemToCustomCursor(GetCursor());
+		//	if (hCursor != nullptr)
+		//	{
+		//		Dcx::SetCursorUx(hCursor);
+		//		return 0;
+		//	}
+			//
+		//	return lRes;
+		//}
+
+		//case WM_SETCURSOR:
+		//{
+		//	if ((Dcx::SetCursorUx == nullptr) || (pthis->m_iType != DOCK_TYPE_MDI))
 		//		break;
 //
 		//	const auto iType = (UINT)LOWORD(lParam);
@@ -420,7 +439,7 @@ LRESULT CALLBACK DcxDock::mIRCRefWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, L
 		//	// do we need to swap back old windproc? window is being destroyed after all & its a static function...
 		//	if (IsWindow(mHwnd))
 		//		break;
-
+//
 		//	if ((pthis->m_OldRefWndProc != nullptr) && ((WNDPROC)GetWindowLongPtr(mHwnd, GWLP_WNDPROC) == DcxDock::mIRCRefWinProc))
 		//		SubclassWindow(mHwnd, pthis->m_OldRefWndProc);
 		//}
@@ -464,7 +483,7 @@ LRESULT CALLBACK DcxDock::mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 		case WM_WINDOWPOSCHANGING:
 			{
 				if ((lParam != NULL) && (pthis->m_iType != DOCK_TYPE_MDI) && DcxDock::IsStatusbar()) {
-					auto wp = reinterpret_cast<WINDOWPOS *>(lParam);
+					dcxlParam(LPWINDOWPOS, wp);
 
 					if ((dcx_testflag(wp->flags, SWP_NOSIZE)) && (dcx_testflag(wp->flags, SWP_NOMOVE)))
 						break;
@@ -485,7 +504,7 @@ LRESULT CALLBACK DcxDock::mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 		case WM_NOTIFY:
 			{
 				if (pthis->m_iType == DOCK_TYPE_TREE) {
-					auto hdr = reinterpret_cast<LPNMHDR>(lParam);
+					dcxlParam(LPNMHDR, hdr);
 
 					if (hdr == nullptr || !DcxDock::g_bTakeOverTreebar)
 						break;
@@ -493,7 +512,7 @@ LRESULT CALLBACK DcxDock::mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 					switch( hdr->code ) {
 						case NM_CUSTOMDRAW:
 							{
-								auto lpntvcd = reinterpret_cast<LPNMTVCUSTOMDRAW>(lParam);
+								dcxlParam(LPNMTVCUSTOMDRAW, lpntvcd);
 								switch (lpntvcd->nmcd.dwDrawStage) {
 									case CDDS_PREPAINT:
 										return CDRF_NOTIFYITEMDRAW;
@@ -539,7 +558,11 @@ LRESULT CALLBACK DcxDock::mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 												mIRCLinker::tsEvalex(buf, TEXT("$window(@%d).sbcolor"), wid);
 												if (!buf.empty()) {
 													static const TString sbcolor(TEXT("s s message s event s highlight")); // 's' is used as a spacer.
+#if TSTRING_TEMPLATES
+													const auto clr = sbcolor.findtok(buf, 1);
+#else
 													const auto clr = sbcolor.findtok(buf.to_chr(), 1);
+#endif
 													if (clr == 0) // no match, do normal colours
 														break;
 													if (DcxDock::g_clrTreebarColours[clr-1] != CLR_INVALID) // text colour
@@ -557,7 +580,7 @@ LRESULT CALLBACK DcxDock::mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 							break;
 					case TVN_GETINFOTIP:
 						{
-							auto tcgit = reinterpret_cast<LPNMTVGETINFOTIP>(lParam);
+							dcxlParam(LPNMTVGETINFOTIP, tcgit);
 							if (tcgit != nullptr) {
 								if (tcgit->cchTextMax < 1)
 									break;
@@ -586,7 +609,7 @@ LRESULT CALLBACK DcxDock::mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 					}
 				}
 				else if ((pthis->m_iType == DOCK_TYPE_MDI) && DcxDock::IsStatusbar()) {
-					auto hdr = reinterpret_cast<LPNMHDR>(lParam);
+					dcxlParam(LPNMHDR, hdr);
 
 					if (hdr == nullptr)
 						break;
@@ -627,7 +650,7 @@ LRESULT CALLBACK DcxDock::mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 			break;
 		case WM_DRAWITEM:
 			{
-				auto lpDrawItem = reinterpret_cast<LPDRAWITEMSTRUCT>(lParam);
+				dcxlParam(LPDRAWITEMSTRUCT, lpDrawItem);
 
 				if (lpDrawItem == nullptr)
 					break;
@@ -751,9 +774,9 @@ bool DcxDock::InitStatusbar(const TString &styles)
 	DcxDock::status_parseControlStyles(styles, &Styles, &ExStyles, &bNoTheme);
 
 	g_StatusBar = CreateWindowExW(
-		ExStyles,
+		(DWORD)ExStyles,
 		STATUSCLASSNAMEW,nullptr,
-		Styles,
+		(DWORD)Styles,
 		0, 0, 0, 0, mIRCLinker::getHWND(), (HMENU)(mIRC_ID_OFFSET - 1), nullptr, nullptr);
 
 	if (IsWindow(g_StatusBar)) {
@@ -772,16 +795,25 @@ void DcxDock::UnInitStatusbar(void)
 		DcxDock::status_cleanPartIcons();
 		DestroyWindow(g_StatusBar);
 
-		auto itStart = DcxDock::g_vParts.begin();
-		auto itEnd = DcxDock::g_vParts.end();
-		
-		while (itStart != itEnd) {
-			if (*itStart != nullptr) {
-				if ((*itStart)->m_BkgCol != nullptr)
-					DeleteBrush((*itStart)->m_BkgCol);
-				delete *itStart;
+		//auto itStart = DcxDock::g_vParts.begin();
+		//auto itEnd = DcxDock::g_vParts.end();
+		//
+		//while (itStart != itEnd) {
+		//	if (*itStart != nullptr) {
+		//		if ((*itStart)->m_BkgCol != nullptr)
+		//			DeleteBrush((*itStart)->m_BkgCol);
+		//		delete *itStart;
+		//	}
+		//	++itStart;
+		//}
+
+		for (const auto &x : DcxDock::g_vParts)
+		{
+			if (x != nullptr) {
+				if (x->m_BkgCol != nullptr)
+					DeleteBrush(x->m_BkgCol);
+				delete x;
 			}
-			++itStart;
 		}
 		DcxDock::g_vParts.clear();
 	}
@@ -847,12 +879,12 @@ void DcxDock::status_setBkColor( const COLORREF clrBk ) {
 	SendMessage( g_StatusBar, SB_SETBKCOLOR, (WPARAM) 0, (LPARAM) clrBk );
 }
 
-void DcxDock::status_setParts( const int nParts, const LPINT aWidths ) {
+void DcxDock::status_setParts( const UINT nParts, const LPINT aWidths ) {
 	SendMessage( g_StatusBar, SB_SETPARTS, (WPARAM) nParts, (LPARAM) aWidths );
 }
 
-LRESULT DcxDock::status_getParts( const int nParts, LPINT aWidths ) {
-	return SendMessage( g_StatusBar, SB_GETPARTS, (WPARAM) nParts, (LPARAM) aWidths );
+UINT DcxDock::status_getParts( const UINT nParts, LPINT aWidths ) {
+	return (UINT)SendMessage( g_StatusBar, SB_GETPARTS, (WPARAM) nParts, (LPARAM) aWidths );
 }
 
 void DcxDock::status_setText(const int iPart, const int Style, const WCHAR *const lpstr) {
@@ -899,19 +931,31 @@ void DcxDock::status_deletePartInfo(const int iPart)
 {
 	if (dcx_testflag(DcxDock::status_getPartFlags( iPart ),SBT_OWNERDRAW)) {
 		auto pPart = reinterpret_cast<LPSB_PARTINFOD>(DcxDock::status_getText(iPart, nullptr));
-		auto itStart = DcxDock::g_vParts.begin();
-		auto itEnd = DcxDock::g_vParts.end();
 
-		while (itStart != itEnd) {
-			if (*itStart != nullptr && *itStart == pPart) {
-				DcxDock::status_setText( iPart, SBT_OWNERDRAW, nullptr);
-				if (IsWindow(pPart->m_Child))
-					DestroyWindow(pPart->m_Child);
-				delete pPart;
-				DcxDock::g_vParts.erase(itStart);
-				return;
-			}
-			++itStart;
+		//auto itStart = DcxDock::g_vParts.begin();
+		//auto itEnd = DcxDock::g_vParts.end();
+		//
+		//while (itStart != itEnd) {
+		//	if (*itStart != nullptr && *itStart == pPart) {
+		//		DcxDock::status_setText( iPart, SBT_OWNERDRAW, nullptr);
+		//		if (IsWindow(pPart->m_Child))
+		//			DestroyWindow(pPart->m_Child);
+		//		delete pPart;
+		//		DcxDock::g_vParts.erase(itStart);
+		//		return;
+		//	}
+		//	++itStart;
+		//}
+
+		const auto itEnd = DcxDock::g_vParts.end();
+		const auto itGot = std::find(DcxDock::g_vParts.begin(), itEnd, pPart);
+		if (itGot != itEnd)
+		{
+			DcxDock::status_setText(iPart, SBT_OWNERDRAW, nullptr);
+			if (IsWindow(pPart->m_Child))
+				DestroyWindow(pPart->m_Child);
+			delete pPart;
+			DcxDock::g_vParts.erase(itGot);
 		}
 	}
 }
@@ -985,7 +1029,7 @@ LRESULT DcxDock::status_getBorders( LPINT aWidths ) {
 void DcxDock::status_updateParts(void) {
 	const auto nParts = DcxDock::status_getParts(0, nullptr);
 
-	if (nParts <= 0)
+	if (nParts == 0)
 		return;
 
 	RECT rcClient;
@@ -1002,7 +1046,7 @@ void DcxDock::status_updateParts(void) {
 
 	const auto w = (rcClient.right - rcClient.left) / 100; // - (2 * borders[1]);
 
-	for (int i = 0; i < nParts; i++) {
+	for (auto i = decltype(nParts){0}; i < nParts; i++) {
 		int pw;
 		if (DcxDock::g_iDynamicParts[i] != 0)
 			pw = w * DcxDock::g_iDynamicParts[i];
