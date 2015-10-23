@@ -132,7 +132,11 @@ mIRC(xtreebar) {
 			};
 			for (UINT i = 2; i <= numtok; i++)
 			{
+#if TSTRING_TEMPLATES
+				switch (treebar_styles.findtok(input.getnexttok(), 1))		// tok 2+
+#else
 				switch (treebar_styles.findtok(input.getnexttok().to_chr(), 1))		// tok 2+
+#endif
 				{
 				case TS_TRACK: // trackselect (off by default)
 					stylef |= TVS_TRACKSELECT;
@@ -262,8 +266,11 @@ mIRC(xtreebar) {
 				throw std::invalid_argument("Invalid Colour Args");
 
 			const auto cflag(input.getnexttok());						// tok 2
-			//const auto clr = (COLORREF)input.getnexttok().to_num();	// tok 3
+#if TSTRING_TEMPLATES
 			const auto clr = input.getnexttok().to_<COLORREF>();	// tok 3
+#else
+			const auto clr = (COLORREF)input.getnexttok().to_num();	// tok 3
+#endif
 
 			if (cflag[0] != TEXT('+'))
 				throw std::invalid_argument("Invalid Colour flag");
@@ -424,10 +431,15 @@ mIRC(_xtreebar)
 			throw std::invalid_argument("Invalid Args: An Index & a Prop are required.");
 
 		static const TString poslist(TEXT("item icons"));
+#if TSTRING_TEMPLATES
+		const auto nType = poslist.findtok(d.getfirsttok(2), 1);
+		const auto cnt = TreeView_GetCount(mIRCLinker::getTreeview());
+		auto index = d.getnexttok().to_<UINT>();
+#else
 		const auto nType = poslist.findtok(d.getfirsttok(2).to_chr(), 1);
 		const auto cnt = TreeView_GetCount(mIRCLinker::getTreeview());
-		//int index = d.getnexttok().to_int();
-		UINT index = d.getnexttok().to_<UINT>();
+		UINT index = (UINT)d.getnexttok().to_int();
+#endif
 
 		if (index > cnt)
 			throw std::invalid_argument("Invalid Item Index");

@@ -61,8 +61,11 @@ mIRC(xstatusbar) {
 			if (numtok != 2)
 				throw std::invalid_argument("Invalid Parameters");
 
-			//const auto col = input.getnexttok().to_int();	// tok 2
+#if TSTRING_TEMPLATES
 			const auto col = input.getnexttok().to_<COLORREF>();	// tok 2
+#else
+			const auto col = input.getnexttok().to_int();	// tok 2
+#endif
 
 			if (col == CLR_INVALID)
 				DcxDock::status_setBkColor(CLR_DEFAULT);
@@ -116,10 +119,13 @@ mIRC(xstatusbar) {
 			const auto nPos = (tsTabOne.getfirsttok(2).to_int() - 1);			// tok 2
 			const auto flags(tsTabOne.getnexttok());							// tok 3
 			const auto icon = (tsTabOne.getnexttok().to_int() - 1);				// tok 4
-			//const auto bkgClr = (COLORREF)tsTabOne.getnexttok().to_int();		// tok 5
-			//const auto txtClr = (COLORREF)tsTabOne.getnexttok().to_int();		// tok 6
+#if TSTRING_TEMPLATES
 			const auto bkgClr = tsTabOne.getnexttok().to_<COLORREF>();			// tok 5
 			const auto txtClr = tsTabOne.getnexttok().to_<COLORREF>();			// tok 6
+#else
+			const auto bkgClr = (COLORREF)tsTabOne.getnexttok().to_int();		// tok 5
+			const auto txtClr = (COLORREF)tsTabOne.getnexttok().to_int();		// tok 6
+#endif
 			const auto iFlags = DcxDock::status_parseItemFlags(flags);
 
 			if (tsTabOne.numtok() > 6)
@@ -144,12 +150,12 @@ mIRC(xstatusbar) {
 					pPart->m_TxtCol = txtClr;
 
 				DcxDock::status_setTipText(nPos, tooltip.to_chr());
-				DcxDock::status_setPartInfo(nPos, iFlags, pPart);
+				DcxDock::status_setPartInfo(nPos, (int)iFlags, pPart);
 			}
 			else {
 				if (icon > -1)
 					DcxDock::status_setIcon(nPos, ImageList_GetIcon(DcxDock::status_getImageList(), icon, ILD_TRANSPARENT));
-				DcxDock::status_setText(nPos, iFlags, itemtext.to_chr());
+				DcxDock::status_setText(nPos, (int)iFlags, itemtext.to_chr());
 				DcxDock::status_setTipText(nPos, tooltip.to_chr());
 			}
 		}
@@ -162,14 +168,16 @@ mIRC(xstatusbar) {
 
 			const auto nPos = (input.getnexttok().to_int() - 1);	// tok 2
 
-			if (nPos > -1 && nPos < DcxDock::status_getParts(256, 0)) {
+			if (nPos > -1 && (UINT)nPos < DcxDock::status_getParts(256, 0)) {
 
 				TString itemtext;
-
-				//const COLORREF bkgClr = (COLORREF)input.getnexttok().to_int();	// tok 3
-				//const COLORREF txtClr = (COLORREF)input.getnexttok().to_int();	// tok 4
+#if TSTRING_TEMPLATES
 				const auto bkgClr = input.getnexttok().to_<COLORREF>();	// tok 3
 				const auto txtClr = input.getnexttok().to_<COLORREF>();	// tok 4
+#else
+				const COLORREF bkgClr = (COLORREF)input.getnexttok().to_int();	// tok 3
+				const COLORREF txtClr = (COLORREF)input.getnexttok().to_int();	// tok 4
+#endif
 
 				if (numtok > 4)
 					itemtext = input.getlasttoks();	// tok 5, -1
@@ -187,7 +195,7 @@ mIRC(xstatusbar) {
 							pPart->m_BkgCol = CreateSolidBrush(bkgClr);
 						pPart->m_TxtCol = txtClr;
 
-						DcxDock::status_setPartInfo(nPos, iFlags, pPart);
+						DcxDock::status_setPartInfo(nPos, (int)iFlags, pPart);
 					}
 					else
 						throw std::runtime_error("Unable to set item text");
@@ -266,7 +274,11 @@ mIRC(_xstatusbar)
 		d.trim();
 
 		static const TString poslist(TEXT("visible text parts tooltip"));
+#if TSTRING_TEMPLATES
+		const auto nType = poslist.findtok(d.getfirsttok(2), 1);
+#else
 		const auto nType = poslist.findtok(d.getfirsttok(2).to_chr(), 1);
+#endif
 		switch (nType)
 		{
 		case 1: // visible
@@ -299,13 +311,13 @@ mIRC(_xstatusbar)
 		case 3: // parts
 		{
 			INT parts[256] = { 0 };
-			auto nParts = DcxDock::status_getParts(256, 0);
+			const auto nParts = DcxDock::status_getParts(256, 0);
 
 			DcxDock::status_getParts(256, parts);
 
 			TString tsOut((UINT)MIRC_BUFFER_SIZE_CCH);
 
-			for (decltype(nParts) i = 0; i < nParts; i++)
+			for (auto i = decltype(nParts){0}; i < nParts; i++)
 				tsOut.addtok(parts[i]);
 
 			dcx_strcpyn(data, tsOut.to_chr(), MIRC_BUFFER_SIZE_CCH);

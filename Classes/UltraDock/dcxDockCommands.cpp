@@ -515,7 +515,11 @@ mIRC(_xdock)
 
 		if (d.getfirsttok(1) == TEXT("mIRC")) {
 			static const TString poslist(TEXT("switchBarPos toolBarPos treeBarPos switchBarSize toolBarSize treeBarSize isSwitchBar isToolBar isTreeBar isMenuBar text switchBarHwnd toolBarHwnd treeBarHwnd"));
+#if TSTRING_TEMPLATES
+			const auto nType = poslist.findtok(d.getnexttok(), 1);
+#else
 			const auto nType = poslist.findtok(d.getnexttok().to_chr(), 1);
+#endif
 			switch (nType)
 			{
 			case 1: // switchBarPos
@@ -627,7 +631,11 @@ mIRC(_xdock)
 				throw std::invalid_argument(Dcx::dcxGetFormattedString(TEXT("Invalid window (%s)"), d.gettok(1).to_chr()));
 			
 			static const TString poslist(TEXT("isDocked hasDocked isAutoV isAutoH isAutoS dockSide text"));
+#if TSTRING_TEMPLATES
+			const auto nType = poslist.findtok(d.getnexttok(), 1);
+#else
 			const auto nType = poslist.findtok(d.getnexttok().to_chr(), 1);
+#endif
 			switch (nType)
 			{
 			case 1: // isDocked
