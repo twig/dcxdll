@@ -287,14 +287,14 @@ protected:
 
 	static const char* SkipWhiteSpace( const char*, TiXmlEncoding encoding );
 
-	inline static bool IsWhiteSpace( char c )		
-	{ 
-		return ( isspace( (unsigned char) c ) || c == '\n' || c == '\r' ); 
+	inline static bool IsWhiteSpace(char c)
+	{
+		return (isspace(static_cast<unsigned char>(c)) || c == '\n' || c == '\r');
 	}
 	inline static bool IsWhiteSpace( int c )
 	{
 		if ( c < 256 )
-			return IsWhiteSpace( (char) c );
+			return IsWhiteSpace( static_cast<char>(c) );
 		return false;	// Again, only truly correct for English/Latin...but usually works.
 	}
 
@@ -329,7 +329,7 @@ protected:
 		assert( p );
 		if ( encoding == TIXML_ENCODING_UTF8 )
 		{
-			*length = utf8ByteTable[ *((const unsigned char*)p) ];
+			*length = utf8ByteTable[ *(reinterpret_cast<const unsigned char*>(p)) ];
 			assert( *length >= 0 && *length < 5 );
 		}
 		else
@@ -394,8 +394,8 @@ protected:
 	static void ConvertUTF32ToUTF8( unsigned long input, char* output, int* length );
 
 private:
-	TiXmlBase( const TiXmlBase& );				// not implemented.
-	void operator=( const TiXmlBase& base );	// not allowed.
+	TiXmlBase( const TiXmlBase& ) = delete;				// not implemented.
+	void operator=( const TiXmlBase& base ) = delete;	// not allowed.
 
 	struct Entity
 	{
@@ -459,7 +459,7 @@ public:
 	/** The types of XML nodes supported by TinyXml. (All the
 			unsupported types are picked up by UNKNOWN.)
 	*/
-	enum NodeType
+	enum NodeType: UINT
 	{
 		TINYXML_DOCUMENT,
 		TINYXML_ELEMENT,
@@ -576,7 +576,7 @@ public:
 	#endif
 
 	/** Add a new node related to this. Adds a child past the LastChild.
-		Returns a pointer to the new object or NULL if an error occured.
+		Returns a pointer to the new object or nullptr if an error occured.
 	*/
 	TiXmlNode* InsertEndChild( const TiXmlNode& addThis );
 
@@ -593,17 +593,17 @@ public:
 	TiXmlNode* LinkEndChild( TiXmlNode* addThis );
 
 	/** Add a new node related to this. Adds a child before the specified child.
-		Returns a pointer to the new object or NULL if an error occured.
+		Returns a pointer to the new object or nullptr if an error occured.
 	*/
 	TiXmlNode* InsertBeforeChild( TiXmlNode* beforeThis, const TiXmlNode& addThis );
 
 	/** Add a new node related to this. Adds a child after the specified child.
-		Returns a pointer to the new object or NULL if an error occured.
+		Returns a pointer to the new object or nullptr if an error occured.
 	*/
 	TiXmlNode* InsertAfterChild(  TiXmlNode* afterThis, const TiXmlNode& addThis );
 
 	/** Replace a child of this node.
-		Returns a pointer to the new object or NULL if an error occured.
+		Returns a pointer to the new object or nullptr if an error occured.
 	*/
 	TiXmlNode* ReplaceChild( TiXmlNode* replaceThis, const TiXmlNode& withThis );
 
@@ -681,7 +681,7 @@ public:
 		The possible types are: DOCUMENT, ELEMENT, COMMENT,
 								UNKNOWN, TEXT, and DECLARATION.
 	*/
-	int Type() const	{ return type; }
+	const NodeType &Type() const { return type; }
 
 	/** Return a pointer to the Document this node lives in.
 		Returns null if not in a document.
@@ -783,21 +783,21 @@ class TiXmlAttribute : public TiXmlBase
 public:
 	/// Construct an empty attribute.
 	TiXmlAttribute()
-		: TiXmlBase(), document(0), prev(NULL), next(NULL)
+		: TiXmlBase(), document(0), prev(nullptr), next(nullptr)
 	{
 	}
 
 	#ifdef TIXML_USE_STL
 	/// std::string constructor.
 	TiXmlAttribute( const std::string& _name, const std::string& _value )
-		: name(_name), value(_value), document(0), prev(NULL), next(NULL)
+		: name(_name), value(_value), document(0), prev(nullptr), next(nullptr)
 	{
 	}
 	#endif
 
 	/// Construct an attribute with a name and value.
 	TiXmlAttribute( const char * _name, const char * _value )
-		: name(_name), value(_value), document(0), prev(NULL), next(NULL)
+		: name(_name), value(_value), document(0), prev(nullptr), next(nullptr)
 	{
 	}
 
@@ -900,7 +900,7 @@ public:
 	~TiXmlAttributeSet();
 
 	void Add( TiXmlAttribute* attribute );
-	void Remove( TiXmlAttribute* attribute );
+	void Remove( const TiXmlAttribute *const attribute );
 
 	const TiXmlAttribute* First()	const	{ return ( sentinel.next == &sentinel ) ? 0 : sentinel.next; }
 	TiXmlAttribute* First()					{ return ( sentinel.next == &sentinel ) ? 0 : sentinel.next; }
@@ -983,7 +983,7 @@ public:
 		double d;
 		int result = QueryDoubleAttribute( name, &d );
 		if ( result == TIXML_SUCCESS ) {
-			*_value = (float)d;
+			*_value = static_cast<float>(d);
 		}
 		return result;
 	}
@@ -1033,7 +1033,7 @@ public:
 	/** Sets an attribute of name to a given value. The attribute
 		will be created if it does not exist, or changed if it does.
 	*/
-	void SetAttribute( const char* name, const char * _value );
+	void SetAttribute( const char* cname, const char * cvalue );
 
     #ifdef TIXML_USE_STL
 	const std::string* Attribute( const std::string& name ) const;
@@ -1053,12 +1053,12 @@ public:
 	/** Sets an attribute of name to a given value. The attribute
 		will be created if it does not exist, or changed if it does.
 	*/
-	void SetAttribute( const char * name, int value );
+	void SetAttribute( const char * name, int val );
 
 	/** Sets an attribute of name to a given value. The attribute
 		will be created if it does not exist, or changed if it does.
 	*/
-	void SetDoubleAttribute( const char * name, double value );
+	void SetDoubleAttribute( const char * name, double val );
 
 	/** Deletes an attribute with the given name.
 	*/
@@ -1532,12 +1532,12 @@ protected :
 private:
 	void CopyTo( TiXmlDocument* target ) const;
 
-	bool error;
 	int  errorId;
 	TIXML_STRING errorDesc;
 	int tabsize;
 	TiXmlCursor errorLocation;
 	bool useMicrosoftBOM;		// the UTF-8 BOM were found when read. Note this, and try to write.
+	bool error;
 };
 
 
