@@ -232,7 +232,12 @@ http://symbiancorner.blogspot.com/2007/05/how-to-detect-version-of-ms-visual.htm
 #include <dwmapi.h>
 
 #ifdef DCX_USE_GDIPLUS
+// VS 2015 generates C4458 errors in GDI+ includes
+//c:\program files\windows kits\10\include\10.0.10240.0\um\GdiplusHeaders.h(701): warning C4458: declaration of 'nativeCap' hides class member
+#pragma warning(push)
+#pragma warning(disable: 4458)
 #include <gdiplus.h>
+#pragma warning(pop)
 using namespace Gdiplus;
 #pragma comment(lib, "gdiplus.lib")
 #endif
@@ -320,7 +325,9 @@ using namespace Gdiplus;
 #define MIRC_BUFFER_SIZE_BYTES (MIRC_BUFFER_SIZE_CCH * sizeof(TCHAR))
 // size of the mirc mapfile we will use in bytes.
 #define MIRC_MAP_SIZE		(8192 * sizeof(TCHAR))
-#define mIRC_ID_OFFSET 6000 //!< mIRC Dialog ID Offset
+#define mIRC_ID_OFFSET 6000U //!< mIRC Dialog ID Offset
+#define mIRC_ID_MAX (UINT_MAX -1)	//!< Highest ID allowed.
+#define mIRC_MAX_CONTROLS	10000U	//!< Max number of controls allowed per dialog.
 
 #define DCX_LISTVIEWCLASS    TEXT("DCXListViewClass")     //!< DCX Listview Class Name
 #define DCX_PROGRESSBARCLASS TEXT("DCXProgressBarClass")  //!< DCX ProgressBar Class Name
@@ -466,8 +473,8 @@ UINT parseFontFlags(const TString &flags);
 UINT parseFontCharSet(const TString &charset);
 
 //std::unique_ptr<BYTE[]> readFile(const PTCHAR filename);
-auto readFile(const PTCHAR filename)->std::unique_ptr<BYTE[]>;
-TString readTextFile(const PTCHAR tFile);
+auto readFile(const TString &filename)->std::unique_ptr<BYTE[]>;
+TString readTextFile(const TString &tFile);
 bool SaveDataToFile(const TString &tsFile, const TString &tsData);
 TString FileDialog(const TString & data, const TString &method, const HWND pWnd);
 

@@ -162,7 +162,7 @@ TString Normalise(PBYTE pBuffer)
 */
 //std::unique_ptr<BYTE[]> readFile(const PTCHAR filename)
 
-auto readFile(const PTCHAR filename)
+auto readFile(const TString &filename)
 -> std::unique_ptr<BYTE[]>
 {
 	//Ouvrir le fichier, read en mode binaire
@@ -177,7 +177,7 @@ auto readFile(const PTCHAR filename)
 	//
 	//Auto(fclose(file));
 
-	Dcx::dcxFile file(filename, TEXT("rb"));
+	Dcx::dcxFile file(filename.to_chr(), TEXT("rb"));
 
 	// Seek End of file
 	if (fseek(file, 0, SEEK_END))
@@ -209,7 +209,7 @@ auto readFile(const PTCHAR filename)
 *
 * This function correctly handles BOM types for ascii,utf8,utf16BE,utf16LE & returns text in a TString object.
 */
-TString readTextFile(const PTCHAR tFile)
+TString readTextFile(const TString &tFile)
 {
 	auto data = readFile(tFile);
 
@@ -662,8 +662,10 @@ HICON dcxLoadIcon(const int index, TString &filename, const bool large, const TS
 		//TString filetype;
 		//filetype.tsprintf(TEXT(".%s"), filename.to_chr());
 
-		TString filetype(TEXT('.'));
-		filetype += filename;
+		//TString filetype(TEXT('.'));
+		//filetype += filename;
+
+		TString filetype{ TEXT("."), filename };
 
 		ZeroMemory(&shfi, sizeof(SHFILEINFO));
 
@@ -680,7 +682,7 @@ HICON dcxLoadIcon(const int index, TString &filename, const bool large, const TS
 	HICON icon = nullptr;
 
 	if (xflags[TEXT('a')]) {
-		WORD wIndex = (WORD)index;
+		auto wIndex = (WORD)index;
 		icon = ExtractAssociatedIcon(nullptr, filename.to_chr(), &wIndex);
 	}
 #ifdef DCX_USE_GDIPLUS
@@ -688,7 +690,6 @@ HICON dcxLoadIcon(const int index, TString &filename, const bool large, const TS
 		if (!Dcx::GDIModule.isUseable())
 			throw std::invalid_argument("dcxLoadIcon: Invalid +P without GDI+.");
 
-		//std::unique_ptr<Bitmap> p_Img(new Bitmap(filename.to_chr()));
 		const auto p_Img = std::make_unique<Bitmap>(filename.to_chr());
 
 		// for some reason this returns `OutOfMemory` when the file doesnt exist instead of `FileNotFound`
@@ -963,6 +964,7 @@ HICON CreateGrayscaleIcon( HICON hIcon, COLORREF* pPalette )
 		return nullptr;
 
 	auto hdc = ::GetDC(nullptr);
+	Auto(::ReleaseDC(nullptr, hdc));
 
 	HICON      hGrayIcon = nullptr;
 	ICONINFO   icInfo         = { 0 };
@@ -978,6 +980,8 @@ HICON CreateGrayscaleIcon( HICON hIcon, COLORREF* pPalette )
 	{
 		if (icInfo.hbmColor != nullptr)
 		{
+			Auto(::DeleteObject(icInfo.hbmColor));
+
 			if (::GetDIBits(hdc, icInfo.hbmColor, 0, 0, nullptr, &bmpInfo, DIB_RGB_COLORS) != 0)
 			{
 				SIZE sz;
@@ -985,18 +989,17 @@ HICON CreateGrayscaleIcon( HICON hIcon, COLORREF* pPalette )
 
 				sz.cx = bmpInfo.bmiHeader.biWidth;
 				sz.cy = bmpInfo.bmiHeader.biHeight;
-				DWORD c1 = (DWORD)(sz.cx * sz.cy);
+				auto c1 = (DWORD)(sz.cx * sz.cy);
 
-				LPDWORD lpBits = (LPDWORD)::GlobalAlloc(GMEM_FIXED, (c1) * 4);
+				auto lpBits = (LPDWORD)::GlobalAlloc(GMEM_FIXED, (c1) * 4);
 
 				if (lpBits && ::GetDIBits(hdc, icInfo.hbmColor, 0, (UINT)sz.cy, lpBits, &bmpInfo, DIB_RGB_COLORS) != 0)
 				{
-					LPBYTE lpBitsPtr     = (LPBYTE)lpBits;
-					//UINT off      = 0;
+					auto lpBitsPtr     = (LPBYTE)lpBits;
 
-					for (UINT i = 0; i < c1; i++)
+					for (auto i = decltype(c1){0}; i < c1; i++)
 					{
-						UINT off = (UINT)( 255 - (( lpBitsPtr[0] + lpBitsPtr[1] + lpBitsPtr[2] ) / 3) );
+						auto off = (UINT)( 255 - (( lpBitsPtr[0] + lpBitsPtr[1] + lpBitsPtr[2] ) / 3) );
 
 						if (lpBitsPtr[3] != 0 || off != 255)
 						{
@@ -1014,14 +1017,14 @@ HICON CreateGrayscaleIcon( HICON hIcon, COLORREF* pPalette )
 
 					if (icGrayInfo.hbmColor != nullptr)
 					{
+						Auto(::DeleteObject(icGrayInfo.hbmColor));
+
 						::SetDIBits(hdc, icGrayInfo.hbmColor, 0, (UINT)sz.cy, lpBits, &bmpInfo, DIB_RGB_COLORS);
 
 						icGrayInfo.hbmMask = icInfo.hbmMask;
 						icGrayInfo.fIcon   = TRUE;
 
 						hGrayIcon = ::CreateIconIndirect(&icGrayInfo);
-
-						::DeleteObject(icGrayInfo.hbmColor);
 					}
 
 					::GlobalFree(lpBits);
@@ -1029,14 +1032,10 @@ HICON CreateGrayscaleIcon( HICON hIcon, COLORREF* pPalette )
 				}
 			}
 
-			::DeleteObject(icInfo.hbmColor);
 			if (icInfo.hbmMask != nullptr)
 				::DeleteObject(icInfo.hbmMask);
 		}
 	}
-
-	::ReleaseDC(nullptr, hdc);
-
 	return hGrayIcon;
 }
 
@@ -1048,7 +1047,7 @@ HICON CreateGrayscaleIcon( HICON hIcon )
 	if (!bGrayPaletteSet)
 	{
 		//#pragma loop(hint_parallel(2))
-		for(int i = 0; i < 256; i++)
+		for(auto i = 0U; i < 256U; i++)
 		{
 			defaultGrayPalette[i] = RGB(255-i, 255-i, 255-i);
 		}
@@ -1087,10 +1086,9 @@ void dcxDrawShadowText(HDC hdc, LPCWSTR pszText, UINT cch, RECT *pRect, DWORD dw
 		else {
 			// Normal DrawShadow Failed...
 			RECT rcOffset;
-			COLORREF old_clr;
 			CopyRect(&rcOffset, pRect);
 			OffsetRect(&rcOffset, ixOffset, iyOffset);
-			old_clr = SetTextColor(hdc, crShadow);
+			auto old_clr = SetTextColor(hdc, crShadow);
 			DrawTextW(hdc, pszText, (int)cch, &rcOffset, dwFlags);
 			SetTextColor(hdc, crText);
 			DrawTextW(hdc, pszText, (int)cch, (LPRECT)pRect, dwFlags);
@@ -1311,7 +1309,7 @@ void getmIRCPalette(COLORREF *const Palette, const int PaletteItems)
 }
 
 int unfoldColor(const WCHAR *color) {
-	int nColor = _wtoi(color);
+	auto nColor = _wtoi(color);
 
 	while (nColor > 15) {
 		nColor -= 16;
@@ -1677,12 +1675,12 @@ void mIRC_DrawText(HDC hdc, const TString &txt, LPRECT rc, const UINT style, con
 			break;
 		default: // normal TCHAR
 			{
-				if (dcx_testflag(iStyle, DT_SINGLELINE))
+				if (!dcx_testflag(iStyle, DT_SINGLELINE))
 				{ // don't bother if a single line.
-					const auto tlen = (int)tmp.len();
-					if (tlen > 0) {
+					if (!tmp.empty()) {
 						SIZE sz;
 						int nFit;
+						const auto tlen = (int)tmp.len();
 						GetTextExtentExPoint(hdc, txt.to_chr(), tlen, (rcOut.right - rcOut.left), &nFit, NULL, &sz);
 						if (nFit < tlen) {
 							if (nFit > 0) {
@@ -1928,7 +1926,7 @@ bool AddFileIcons(HIMAGELIST himl, TString &filename, const bool bLarge, const i
 
 	int fIndex = iStart, i = iIndex;
 	HICON hIcon = nullptr;
-	bool bAdded = false;
+	auto bAdded = false;
 
 	if (fIndex < 0 || (iEnd != -1 && fIndex > iEnd))
 		return bAdded;
@@ -1940,11 +1938,12 @@ bool AddFileIcons(HIMAGELIST himl, TString &filename, const bool bLarge, const i
 			ExtractIconEx(filename.to_chr(), fIndex, nullptr, &hIcon, 1);
 
 		if (hIcon != nullptr) {
+			Auto(DestroyIcon(hIcon));
+
 			if (i == -1)
 				ImageList_ReplaceIcon(himl, -1, hIcon);
 			else
 				ImageList_ReplaceIcon(himl, i++, hIcon);
-			DestroyIcon(hIcon);
 			bAdded = true;
 		}
 		fIndex++;
@@ -1977,11 +1976,14 @@ void DrawRotatedText(const TString &strDraw, LPRECT rc, HDC hDC, const int nAngl
 	LOGFONT lf = { 0 };
 	auto hFont = (HFONT)GetCurrentObject(hDC, OBJ_FONT);
 
-	GetObject(hFont, sizeof(LOGFONT), &lf);
+	if (GetObject(hFont, sizeof(LOGFONT), &lf) == 0)
+		return;
 
 	// Set the background mode to transparent for the
 	// text-output operation.
 	const auto nOldBkMode = SetBkMode(hDC, TRANSPARENT);
+	Auto(SetBkMode(hDC, nOldBkMode));
+
 	// Specify the angle to draw line
 	lf.lfEscapement = nAngleLine*10;
 	int nOldGMode;
@@ -2008,7 +2010,6 @@ void DrawRotatedText(const TString &strDraw, LPRECT rc, HDC hDC, const int nAngl
 		DeleteFont(hFont);
 	}
 	// Restore old values
-	SetBkMode( hDC, nOldBkMode );
 	SetGraphicsMode( hDC, nOldGMode );
 }
 
@@ -2068,7 +2069,7 @@ TString MakeTextmIRCSafe(const TCHAR *const tString)
 	TString tsRes((UINT)MIRC_BUFFER_SIZE_CCH);	// use MIRC_BUFFER_SIZE_CCH as starting buffer size (shouldnt be bigger...)
 
 	// look for ()[]%$; we dont want to change , as this is needed
-	for (std::remove_const_t<decltype(len)> i = 0; i < len; i++)
+	for (auto i = decltype(len){0}; i < len; i++)
 	{
 		const auto c = tString[i];
 		switch (c)
