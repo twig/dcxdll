@@ -41,24 +41,29 @@ class DcxDialog;
 class DcxButton : public DcxControl {
 
 public:
+	DcxButton() = delete;
+	DcxButton(const DcxButton &) = delete;
+	DcxButton &operator =(const DcxButton &) = delete;	// No assignments!
 
 	DcxButton( const UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, const TString & styles );
 	virtual ~DcxButton( );
 
-	LRESULT PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
-	LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
+	LRESULT PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) override;
+	LRESULT ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) override;
 
-	void parseInfoRequest( const TString & input, TCHAR * szReturnValue ) const;
-	void parseCommandRequest( const TString & input );
-	void parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
+	void parseInfoRequest(const TString & input, PTCHAR szReturnValue) const override;
+	void parseCommandRequest(const TString & input) override;
+	void parseControlStyles(const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme) override;
 
 	const HIMAGELIST &getImageList( ) const;
 	void setImageList( const HIMAGELIST himl );
 	HIMAGELIST createImageList( );
 
-	inline TString getType( ) const { return TString( TEXT("button") ); };
-	void toXml(TiXmlElement * xml) const;
-	TString getStyles(void) const;
+	inline const TString getType() const override { return TEXT("button"); };
+	inline const DcxControlTypes getControlType() const override { return DcxControlTypes::BUTTON; }
+
+	void toXml(TiXmlElement *const xml) const override;
+	const TString getStyles(void) const override;
 
 protected:
 
@@ -71,15 +76,15 @@ protected:
 	TString m_tsCaption; //!< Button Caption Text
 
 	BOOL m_bTracking; //!< Button Tracking Mouse Event State
-	BOOL m_bHover;    //!< Button Hovering State
-	BOOL m_bTouched;  //!< Button Touched by Mouse State
-	BOOL m_bSelected; //!< Button Selected State
+	bool m_bHover;    //!< Button Hovering State
+	bool m_bTouched;  //!< Button Touched by Mouse State
+	bool m_bSelected; //!< Button Selected State
 
 	UINT m_iIconSize; //!< Button Icon Size 16,24,32
 
 	static const UINT parseColorFlags(const TString & flags );
-	BOOL m_bBitmapText;
-	BOOL m_bHasIcons;
+	bool m_bBitmapText;
+	bool m_bHasIcons;
 	void DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam);
 };
 
