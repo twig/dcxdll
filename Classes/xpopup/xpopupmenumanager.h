@@ -44,43 +44,39 @@ private:
 	HMENU m_hMenuCustom;
 	HWND m_hMenuOwner; //!< Menu Owner Window Which Processes WM_ Menu Messages 
 
-
 public:
+
+	XPopupMenuManager(const XPopupMenuManager &) = delete;
+	XPopupMenuManager &operator = (const XPopupMenuManager &) = delete;
 
 	XPopupMenuManager( );
 	virtual ~XPopupMenuManager( );
+
 	void load(void);
 	void unload(void);
 
 	void parseCommand( const TString & input );
 	void parseCommand( const TString & input, XPopupMenu *const p_Menu );
 	void parseIdentifier( const TString & input, TCHAR *const szReturnValue ) const;
-	int parseMPopup(const TString & input);
+	const int parseMPopup(const TString & input);
 
-	void addMenu( XPopupMenu * p_Menu );
-	void deleteMenu( XPopupMenu * p_Menu );
+	void addMenu( XPopupMenu *const p_Menu );
+	void deleteMenu( const XPopupMenu *const p_Menu );
 	void clearMenus( );
 
-	void setIsMenuBar(bool value);
+	void setIsMenuBar(const bool value);
 
-	XPopupMenu* getMenuByName(const TString &tsName, BOOL checkSpecial);
-	XPopupMenu* getMenuByHandle(const HMENU hMenu);
+	XPopupMenu* getMenuByName(const TString &tsName, const bool checkSpecial) const;
+	XPopupMenu* getMenuByHandle(const HMENU hMenu) const;
 	XPopupMenu* getmIRCPopup(void) const;
 	XPopupMenu* getmIRCMenuBar(void) const;
-	bool isCustomMenu(const HMENU hMenu) const;
-	static bool isMenuBarMenu(const HMENU hMenu, const HMENU hMatch);
+	const bool isCustomMenu(const HMENU hMenu) const;
+	static const bool isMenuBarMenu(const HMENU hMenu, const HMENU hMatch);
 
-	bool isPatched(void) const { return false; };
-	//const bool &isPatched(void) const { return this->m_bPatched; };
-
-	//static BOOL InterceptAPI(HMODULE hLocalModule, const TCHAR* c_szDllName, const char* c_szApiName, DWORD dwReplaced, DWORD dwTrampoline, int offset);
-	//static BOOL WINAPI XTrackPopupMenu(HMENU hMenu, UINT uFlags, int x, int y, int nReserved, HWND hWnd, const RECT * prcRect);
-	//static BOOL WINAPI XTrackPopupMenuEx(HMENU hMenu, UINT fuFlags, int x, int y, HWND hwnd, LPTPMPARAMS lptpm);
-	//static BOOL WINAPI TrampolineTrackPopupMenu(HMENU hMenu, UINT uFlags, int x, int y, int nReserved, HWND hWnd, const RECT * prcRect);
-	//static BOOL WINAPI TrampolineTrackPopupMenuEx(HMENU hMenu, UINT fuFlags, int x, int y, HWND hwnd, LPTPMPARAMS lptpm);
+	const bool isPatched(void) const { return false; };
 
 	static void LoadPopupsFromXML(const TiXmlElement *const popups, const TiXmlElement *popup, const TString &popupName, const TString &popupDataset);
-	static bool LoadPopupItemsFromXML(XPopupMenu *menu, HMENU hMenu, const TiXmlElement *const items);
+	static const bool LoadPopupItemsFromXML(XPopupMenu *menu, HMENU hMenu, const TiXmlElement *const items);
 
 	// following methods are called by dcx's mIRC WinProc
 
@@ -92,13 +88,10 @@ public:
 protected:
 
 	static const char *GetMenuAttributeFromXML(const char *const attrib, const TiXmlElement *const popup, const TiXmlElement *const global);
+	static const UINT parseTrackFlags( const TString & flags );
 
 	VectorOfXPopupMenu m_vpXPMenu; //!< Vector of XPopupMenu Objects
 
-	static const UINT parseTrackFlags( const TString & flags );
-	//static int queryIntAttribute(const TiXmlElement *element, const char *attribute, const int defaultValue);
-
-	//bool m_bPatched;
 //#ifdef DEBUG
 //	static WNDPROC g_OldmIRCMenusWindowProc;
 //	static LRESULT CALLBACK mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);

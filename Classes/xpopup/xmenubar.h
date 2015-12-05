@@ -25,29 +25,28 @@
 
 class XMenuBar {
 	public:
-		XMenuBar( );
-		virtual ~XMenuBar( );
+		//XMenuBar( );
+		//virtual ~XMenuBar( );
+
+		XMenuBar &operator = (const XMenuBar &) = delete;
 
 		void parseXMenuBarCommand(const TString &input);
-		void parseXMenuBarInfo(const TString &input, TCHAR *szReturnValue) const;
+		void parseXMenuBarInfo(const TString &input, TCHAR *const szReturnValue) const;
 
-		bool addToMenuBar(HMENU menubar, XPopupMenu *p_Menu, const TString &label);
-		void removeFromMenuBar(HMENU menubar, XPopupMenu *p_Menu);
+		const bool addToMenuBar(HMENU menubar, XPopupMenu *const p_Menu, const TString &label);
+		void removeFromMenuBar(HMENU menubar, const XPopupMenu *const p_Menu);
 		void setMenuBar(HMENU oldMenuBar, HMENU newMenuBar);
 
 		void resetMenuBar();
 
-		bool hasCallback() const;
-		bool parseCallback(const UINT menuID);
+		const bool hasCallback() const;
+		const bool parseCallback(const UINT menuID);
 
 	protected:
 		VectorOfXPopupMenu m_vpXMenuBar; //!< Vector of XPopupMenu objects added to the menubar.
-
-		//static UINT parseTrackFlags(const TString &flags);
-
-		int findMenuOffset(HMENU menubar, const XPopupMenu *p_menu) const;
-		bool validateMenu(const XPopupMenu *menu, const TString &flag, const TString &name) const;
-
 		TString m_callback;
+
+		const int findMenuOffset(HMENU menubar, const XPopupMenu *const p_menu) const;
+		static void validateMenu(const XPopupMenu *const menu, const TString &name);
 };
 #endif // _XMENUBAR_H_

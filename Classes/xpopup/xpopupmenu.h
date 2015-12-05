@@ -65,7 +65,7 @@ public:
 	*
 	* Availbale XPopupMenu Styles
 	*/
-	enum MenuStyle {
+	enum MenuStyle: UINT {
 		XPMS_OFFICE2003,
 		XPMS_OFFICE2003_REV,
 		XPMS_OFFICEXP,
@@ -96,47 +96,66 @@ public:
 	11 	Selected text color
 	*/
 
-	static const int XPMC_BACKGROUND = 1;
-	static const int XPMC_ICONBOX = 2;
-	static const int XPMC_CHECKBOX = 3;
-	static const int XPMC_CHECKBOX_DISABLED= 4;
-	static const int XPMC_SELECTIONBOX_DISABLED = 5;
-	static const int XPMC_TEXT_DISABLED = 6;
-	static const int XPMC_SELECTIONBOX = 7;
-	static const int XPMC_SELECTIONBOX_BORDER = 8;
-	static const int XPMC_SEPARATOR = 9;
-	static const int XPMC_TEXT = 10;
-	static const int XPMC_SELECTEDTEXT = 11;
+	//static const int XPMC_BACKGROUND = 1;
+	//static const int XPMC_ICONBOX = 2;
+	//static const int XPMC_CHECKBOX = 3;
+	//static const int XPMC_CHECKBOX_DISABLED= 4;
+	//static const int XPMC_SELECTIONBOX_DISABLED = 5;
+	//static const int XPMC_TEXT_DISABLED = 6;
+	//static const int XPMC_SELECTIONBOX = 7;
+	//static const int XPMC_SELECTIONBOX_BORDER = 8;
+	//static const int XPMC_SEPARATOR = 9;
+	//static const int XPMC_TEXT = 10;
+	//static const int XPMC_SELECTEDTEXT = 11;
 
-	XPopupMenu( const TString &tsName, HMENU hMenu );
+	enum MenuColours : UINT {
+		XPMC_BACKGROUND = 1,
+		XPMC_ICONBOX,
+		XPMC_CHECKBOX,
+		XPMC_CHECKBOX_DISABLED,
+		XPMC_SELECTIONBOX_DISABLED,
+		XPMC_TEXT_DISABLED,
+		XPMC_SELECTIONBOX,
+		XPMC_SELECTIONBOX_BORDER,
+		XPMC_SEPARATOR,
+		XPMC_TEXT,
+		XPMC_SELECTEDTEXT,
+		XPMC_MAX
+	};
+
+	XPopupMenu() = delete;
+	XPopupMenu(const XPopupMenu &) = delete;
+	XPopupMenu &operator = (const XPopupMenu &) = delete;
+
+	XPopupMenu(const TString &tsName, HMENU hMenu);
 	XPopupMenu( const TString & tsMenuName, MenuStyle mStyle );
 	virtual ~XPopupMenu( );
 
-	void parseXPopCommand( const TString & input );
+	void parseXPopCommand(const TString & input);
 	void parseXPopIdentifier( const TString & input, TCHAR * szReturnValue ) const;
 	static XPopupMenu::MenuStyle parseStyle(const TString &style);
 
 	static HMENU parsePath( const TString & path, const HMENU hParent, const UINT depth = 1 );
 
-	HIMAGELIST getImageList( );
+	HIMAGELIST &getImageList( );
 	void destroyImageList( );
 
-	MenuStyle getStyle( ) const;
+	const MenuStyle &getStyle( ) const;
 	void setStyle( MenuStyle style );
-	UINT getItemStyle( ) const;
+	const UINT &getItemStyle( ) const;
 	void setItemStyle( const UINT iExStyles );
 
-	void deleteMenuItemData( XPopupMenuItem * p_Item, LPMENUITEMINFO mii = NULL);
+	void deleteMenuItemData(const XPopupMenuItem *const p_Item, LPMENUITEMINFO mii = nullptr);
 	void deleteAllItemData( HMENU hMenu );
 
 	const TString &getName( ) const;
 
-	const HMENU &getMenuHandle( ) const { return this->m_hMenu; };
+	const inline HMENU &getMenuHandle( ) const { return this->m_hMenu; };
 
-	LPXPMENUCOLORS getColors( ) const;
-	void setColor( const int nColor, const COLORREF clrColor );
-	COLORREF getColor( const int nColor ) const;
-	void setDefaultColor(const int nColor);
+	const LPXPMENUCOLORS getColors( ) const;
+	void setColor( const MenuColours nColor, const COLORREF clrColor );
+	COLORREF getColor( const MenuColours nColor ) const;
+	void setDefaultColor(const MenuColours nColor);
 
 	static LRESULT CALLBACK XPopupWinProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
 
@@ -150,8 +169,8 @@ public:
 	HBITMAP getBackBitmap( ) const;
 	void setBackBitmap( HBITMAP hBitmap );
 
-	const bool &IsRounded(void) const { return this->m_bRoundedSel; };
-	const BYTE &IsAlpha(void) const { return this->m_uiAlpha; };
+	const inline bool &IsRounded(void) const { return this->m_bRoundedSel; };
+	const inline BYTE &IsAlpha(void) const { return this->m_uiAlpha; };
 	void SetRounded(const bool rounded) { this->m_bRoundedSel = rounded; };
 	void SetAlpha(const BYTE alpha) { this->m_uiAlpha = alpha; };
 
@@ -162,6 +181,8 @@ public:
 	// Methods to access marked text.
 	void setMarkedText(const TString &text);
 	const TString &getMarkedText() const;
+
+	BOOL getMenuInfo(const UINT iMask, const TString &path, MENUITEMINFO &mii) const;
 
 	VectorOfXPopupMenuItem m_vpMenuItem; //!< Vector of XPopupMenuItem Objects
 
@@ -178,10 +199,11 @@ protected:
 
 	XPMENUCOLORS m_MenuColors; //!< Menu Colors
 
-	bool m_bRoundedSel; //!< Menu has rounded selection box.
 	BYTE m_uiAlpha;			//!< Menu is alpha blended. 0 -> 255
 
+	bool m_bRoundedSel; //!< Menu has rounded selection box.
 	bool m_bAttachedToMenuBar; //!< Is the menu attached to the mIRC window menubar?
+	bool m_bReserved[2];				//!< Reserved for future use.
 };
 #ifdef __INTEL_COMPILER // Defined when using Intel C++ Compiler.
 #pragma warning( pop )
