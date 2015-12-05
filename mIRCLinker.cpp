@@ -106,10 +106,9 @@ namespace mIRCLinker {
 	}
 
 	void mIRCLinker::initMapFile() {
-		int cnt = 0;
+		int cnt = 1;
 		// v2 dll for mirc V7+ anyway.
 		TString map_name;
-		cnt = 1;
 		m_hFileMap = nullptr;
 
 		while ((m_hFileMap == nullptr) && (cnt < 256)) {

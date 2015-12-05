@@ -599,7 +599,7 @@ mIRC(FontDialog) {
 #if TSTRING_ITERATOR
 		for (auto itStart = input.begin(TSTAB), itEnd = input.end(); itStart != itEnd; ++itStart)
 		{
-			const TString option(*itStart);
+			const auto option(*itStart);
 			const auto numtok = option.numtok();
 			const auto tsType(option.getfirsttok(1));	// tok 1
 
@@ -1063,13 +1063,15 @@ mIRC(PickIcon) {
 		if (!IsFile(filename))
 			throw std::invalid_argument("Invalid filename");
 
-		TCHAR iconPath[MAX_PATH + 1];
-		GetFullPathName(filename.to_chr(), MAX_PATH, iconPath, nullptr);
+		//TCHAR iconPath[MAX_PATH + 1];
+		auto iconPath = std::make_unique<TCHAR[]>(MAX_PATH + 1);
 
-		if (dcxPickIconDlg(aWnd, iconPath, MAX_PATH, &index))
-			wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("D_OK %d %s"), index, iconPath);
+		GetFullPathName(filename.to_chr(), MAX_PATH, iconPath.get(), nullptr);
+
+		if (dcxPickIconDlg(aWnd, iconPath.get(), MAX_PATH, &index))
+			wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("D_OK %d %s"), index, iconPath.get());
 		else
-			wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("D_ERROR %d %s"), index, iconPath);
+			wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("D_ERROR %d %s"), index, iconPath.get());
 		return 3;
 	}
 	catch (std::exception &e)

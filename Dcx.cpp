@@ -78,6 +78,7 @@ namespace Dcx {
 		dcxSignal.xtray = true;
 		//ReportLiveObjects();
 		
+		// Patch SetCursor() function for custom cursors
 		SetCursorUx = (PFNSETCURSOR)PatchAPI("User32.dll", "SetCursor", Dcx::XSetCursor);
 	}
 
@@ -144,6 +145,7 @@ namespace Dcx {
 
 		XPopups.unload();
 
+		// free up custom cursors data.
 		for (const auto &cd : m_vMapOfCursors)
 		{
 			DestroyCursor(cd.second);
@@ -529,7 +531,7 @@ namespace Dcx {
 
 		case WM_MEASUREITEM:
 		{
-			auto lpmis = reinterpret_cast<LPMEASUREITEMSTRUCT>(lParam);
+			dcxlParam(LPMEASUREITEMSTRUCT, lpmis);
 
 			if (lpmis->CtlType == ODT_MENU) {
 				auto p_Item = reinterpret_cast<XPopupMenuItem *>(lpmis->itemData);
@@ -548,7 +550,7 @@ namespace Dcx {
 
 		case WM_DRAWITEM:
 		{
-			auto lpdis = reinterpret_cast<LPDRAWITEMSTRUCT>(lParam);
+			dcxlParam(LPDRAWITEMSTRUCT, lpdis);
 
 			if (lpdis->CtlType == ODT_MENU) {
 				auto p_Item = reinterpret_cast<XPopupMenuItem *>(lpdis->itemData);
@@ -708,18 +710,24 @@ namespace Dcx {
 
 		return mIRCLinker::callDefaultWindowProc(mHwnd, uMsg, wParam, lParam);
 	}
+
+	// test if a file exists
 	bool isFile(const WCHAR *const file) {
 		struct _stat64i32 stFileInfo;
 		return (_wstat(file, &stFileInfo) == 0);
 			// We were able to get the file attributes
 			// so the file obviously exists.
 	}
+
+	// test if a file exists
 	bool isFile(LPCSTR const file) {
 		struct stat stFileInfo;
 		return (stat(file, &stFileInfo) == 0);
 			// We were able to get the file attributes
 			// so the file obviously exists.
 	}
+
+	// Generate a formatted error string for an exception
 	const char *const dcxGetFormattedString(const TCHAR *const fmt, ...)
 	{
 		static TString tsErr;
@@ -732,6 +740,19 @@ namespace Dcx {
 		return tsErr.c_str();
 	}
 
+	//void generate_invalid_argument(const TCHAR *const fmt, ...)
+	//{
+	//	static TString tsErr;
+	//
+	//	va_list args;
+	//	va_start(args, fmt);
+	//	tsErr.tvprintf(fmt, args);
+	//	va_end(args);
+	//
+	//	throw std::invalid_argument(tsErr.c_str());
+	//}
+
+	// convert a cursor name into a resource number.
 	const PTCHAR parseCursorType(const TString & cursor)
 	{
 		static std::map<TString, PTCHAR> IDC_map;
@@ -761,6 +782,7 @@ namespace Dcx {
 		return nullptr;
 	}
 
+	// convert a cursor name into a system resource number.
 	const DWORD parseSystemCursorType(const TString & cursor)
 	{
 		static std::map<TString, DWORD> IDC_SystemMap;
@@ -788,6 +810,7 @@ namespace Dcx {
 		return 0;
 	}
 
+	// convert an area name into a hit zone
 	const DWORD parseAreaType(const TString &tsArea)
 	{
 		static std::map<TString, DWORD> mIRC_AreaMap;
@@ -823,6 +846,8 @@ namespace Dcx {
 		return 0;
 	}
 
+	// load a cursor from a file
+	// throws a runtime_error on fail.
 	HCURSOR dcxLoadCursorFromFile(const TString &filename)
 	{
 		auto hCursor = (HCURSOR)LoadImage(nullptr, filename.to_chr(), IMAGE_CURSOR, 0, 0, LR_DEFAULTSIZE | LR_LOADFROMFILE);
@@ -831,6 +856,8 @@ namespace Dcx {
 		return hCursor;
 	}
 
+	// load a cursor from a resource
+	// throws a runtime_error on fail.
 	HCURSOR dcxLoadCursorFromResource(const PTCHAR CursorType)
 	{
 		auto hCursor = (HCURSOR)LoadImage(nullptr, CursorType, IMAGE_CURSOR, 0, 0, LR_DEFAULTSIZE | LR_SHARED);
@@ -839,6 +866,9 @@ namespace Dcx {
 		return hCursor;
 	}
 
+	// load a cursor from a file or resource, depending on flags
+	// throws a runtime_error on fail.
+	// throws an invalid_argument on failure to access file.
 	HCURSOR dcxLoadCursor(const UINT iFlags, const PTCHAR CursorType, bool &bCursorFromFile, const HCURSOR oldCursor, TString &filename)
 	{
 		HCURSOR hCursor = nullptr;
@@ -871,12 +901,14 @@ namespace Dcx {
 		return newCursor;
 	}
 
+	// sets custom cursor to use for a specific area
 	void setAreaCursor(const HCURSOR hCursor, const UINT iType)
 	{
 		deleteAreaCursor(iType);
 		m_vMapOfAreas[iType] = hCursor;
 	}
 
+	// delete custom cursor for specific area.
 	void deleteAreaCursor(const UINT iType)
 	{
 		auto it = m_vMapOfAreas.find(iType);
@@ -887,6 +919,7 @@ namespace Dcx {
 		}
 	}
 
+	// get custom cursor to use in place of specific system cursor.
 	HCURSOR SystemToCustomCursor(const HCURSOR hCursor)
 	{
 		auto it = m_vMapOfCursors.find(hCursor);
@@ -895,6 +928,8 @@ namespace Dcx {
 
 		return nullptr;
 	}
+
+	// get the custom cursor to use with a specific area
 	HCURSOR AreaToCustomCursor(const UINT iType)
 	{
 		auto it = m_vMapOfAreas.find(iType);
@@ -904,12 +939,14 @@ namespace Dcx {
 		return nullptr;
 	}
 
+	// set the custom cursor to use in place of a specific system cursor.
 	void setCursor(const HCURSOR hSystemCursor, const HCURSOR hCustomCursor)
 	{
 		deleteCursor(hSystemCursor);
 		m_vMapOfCursors[hSystemCursor] = hCustomCursor;
 	}
 
+	// delete a custom cursor.
 	void deleteCursor(const HCURSOR hCursor)
 	{
 		auto it = m_vMapOfCursors.find(hCursor);
@@ -920,6 +957,7 @@ namespace Dcx {
 		}
 	}
 
+	// patch a dll function using detours
 	PVOID PatchAPI(const char *const c_szDllName, const char *const c_szApiName, PVOID newfPtr)
 	{
 		DetourTransactionBegin();
@@ -936,6 +974,7 @@ namespace Dcx {
 		return fPtr;
 	}
 
+	// remove a detours patch
 	void RemovePatch(PVOID fPtr, PVOID newfPtr)
 	{
 		if (fPtr == nullptr || newfPtr == nullptr)
@@ -947,6 +986,7 @@ namespace Dcx {
 		DetourTransactionCommit();
 	}
 
+	// patch function for use in custom cursors
 	HCURSOR WINAPI XSetCursor(HCURSOR hCursor)
 	{
 		if (hCursor == nullptr)

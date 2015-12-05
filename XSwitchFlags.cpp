@@ -17,7 +17,7 @@ XSwitchFlags::XSwitchFlags(const TString &switches)
 	const auto len = switches.len();
 
 	// Parse the switches
-	for (std::remove_const_t<decltype(len)> i = 1; i < len; i++)
+	for (auto i = decltype(len){1}; i < len; i++)
 	{
 		const auto c = switches[i];
 

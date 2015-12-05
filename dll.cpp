@@ -923,7 +923,7 @@ mIRC(xpop) {
 		if ((tsMenu == TEXT("mirc")) || (tsMenu == TEXT("mircbar")))
 			throw std::invalid_argument("Invalid menu name : mirc or mircbar menus don't have access to this feature.");
 
-		auto p_Menu = Dcx::XPopups.getMenuByName(tsMenu, FALSE);
+		auto p_Menu = Dcx::XPopups.getMenuByName(tsMenu, false);
 
 		if (p_Menu == nullptr)
 			throw std::invalid_argument(Dcx::dcxGetFormattedString(TEXT("Unknown menu \"%s\": see /xpopup -c command"), tsMenu.to_chr()));
@@ -965,7 +965,7 @@ mIRC(_xpop) {
 		if ((tsMenu == TEXT("mirc")) || (tsMenu == TEXT("mircbar")))
 			throw std::invalid_argument("Invalid menu name : mirc or mircbar menus don't have access to this feature.");
 
-		const auto p_Menu = Dcx::XPopups.getMenuByName(tsMenu, FALSE);
+		const auto p_Menu = Dcx::XPopups.getMenuByName(tsMenu, false);
 
 		if (p_Menu == nullptr)
 			throw std::invalid_argument(Dcx::dcxGetFormattedString(TEXT("Unknown menu \"%s\": see /xpopup -c command"), tsMenu.to_chr()));
