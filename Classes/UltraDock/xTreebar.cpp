@@ -130,7 +130,8 @@ mIRC(xtreebar) {
 				TS_FADEBUTTONS, TS_NOFADEBUTTONS, TS_INDENT, TS_NOINDENT, TS_BUFFER, TS_NOBUFFER, TS_AUTOHSCROLL, TS_NOAUTOHSCROLL, TS_RICHTOOLTIP, TS_NORICHTOOLTIP,
 				TS_BALLOON, TS_NOBALLOON
 			};
-			for (UINT i = 2; i <= numtok; i++)
+
+			for (auto i = decltype(numtok){2}; i <= numtok; i++)
 			{
 #if TSTRING_TEMPLATES
 				switch (treebar_styles.findtok(input.getnexttok(), 1))		// tok 2+
@@ -389,7 +390,7 @@ mIRC(xtreebar) {
 		break;
 		case TEXT('T'): // [1|0]
 		{ // Take over Treebar drawing
-			DcxDock::g_bTakeOverTreebar = (input.getnexttok().to_int() ? true : false);	// tok 2
+			DcxDock::g_bTakeOverTreebar = (input.getnexttok().to_int() > 0);	// tok 2
 			if (DcxDock::g_bTakeOverTreebar) {
 				if (mIRCLinker::isAlias(TEXT("xtreebar_callback")))
 					TraverseTreebarItems();
