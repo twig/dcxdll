@@ -22,10 +22,8 @@ public:
 	DcxTrayIcon &operator =(const DcxTrayIcon &) = delete;	// No assignments!
 
 	HWND GetHwnd() const;
-	bool idExists(const int id) const;
-	bool modifyIcon(const int id, const DWORD msg, const HICON icon = NULL, const TString *const tooltip = NULL);
-
-	static LRESULT CALLBACK TrayWndProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+	const bool idExists(const int id) const;
+	const bool modifyIcon(const int id, const DWORD msg, const HICON icon = nullptr, const TString *const tooltip = nullptr);
 
 private:
 	VectorOfInts trayIconIDs;
@@ -34,8 +32,9 @@ private:
 
 	HWND m_hwndTooltip; //!< Balloon tooltip control
 
-	bool DeleteIconId(const int id);
+	const bool DeleteIconId(const int id);
 	void AddIconId(const int id);
+	static LRESULT CALLBACK TrayWndProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 };
 
 extern DcxTrayIcon *trayIcons;
