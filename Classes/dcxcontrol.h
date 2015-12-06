@@ -15,15 +15,15 @@
 #ifndef _DCXCONTROL_H_
 #define _DCXCONTROL_H_
 
-#define DCC_TEXTCOLOR     0x01 //!< Control Text Color
-#define DCC_TEXTBKGCOLOR  0x02 //!< Control Text Background Color
-#define DCC_BKGCOLOR      0x04 //!< Control Background Color
-#define DCC_BORDERCOLOR   0x08 //!< Control Border Color
-#define DCC_GRADSTARTCOLOR 0x10	//!< Colour At the start of the gradient
-#define DCC_GRADENDCOLOR   0x20 //!< Colour At the end of the gradient
+#define DCC_TEXTCOLOR		0x01	//!< Control Text Color
+#define DCC_TEXTBKGCOLOR	0x02	//!< Control Text Background Color
+#define DCC_BKGCOLOR		0x04	//!< Control Background Color
+#define DCC_BORDERCOLOR		0x08	//!< Control Border Color
+#define DCC_GRADSTARTCOLOR	0x10	//!< Colour At the start of the gradient
+#define DCC_GRADENDCOLOR	0x20	//!< Colour At the end of the gradient
 
-#define DCCS_FROMRESSOURCE 0x01 //!< Cursor from ressource
-#define DCCS_FROMFILE      0x02 //!< Cursor from File
+#define DCCS_FROMRESSOURCE	0x01	//!< Cursor from ressource
+#define DCCS_FROMFILE		0x02	//!< Cursor from File
 
 #include "../defines.h"
 #include "dcxwindow.h"
@@ -64,6 +64,15 @@
 #define CTLF_ALLOW_ALL				0xFFFFFFFFFFFFFFFF
 #define CTLF_ALLOW_ALLBUTDOCK		(CTLF_ALLOW_ALL & ~CTLF_ALLOW_DOCK)
 
+// Control types...
+enum DcxControlTypes : UINT {
+	UNKNOWN = 0, BOX = 1,
+	CHECK, EDIT, IMAGE, LINE, LINK, LIST, RADIO, SCROLL, TEXT, BUTTON, CALENDAR,
+	COLORCOMBO, COMBOEX, DATETIME, DIRECTSHOW, DIVIDER, IPADDRESS, LISTVIEW, DIALOG,
+	WINDOW, PAGER, PANEL, PROGRESSBAR, REBAR, RICHEDIT, STACKER, STATUSBAR, TABB, TOOLBAR,
+	TRACKBAR, TREEVIEW, UPDOWN, WEBCTRL
+};
+
 class DcxDialog;
 
 typedef struct {
@@ -76,9 +85,7 @@ typedef struct {
 	RECT ai_rcClient;
 	RECT ai_rcWin;
 	BLENDFUNCTION ai_bf;
-#ifdef DCX_USE_WINSDK
 	HPAINTBUFFER ai_Buffer;
-#endif
 } ALPHAINFO, *LPALPHAINFO;
 
 /*!
@@ -94,8 +101,11 @@ typedef struct {
 class DcxControl : public DcxWindow {
 
 public:
+	DcxControl() = delete;	// no default constructor
+	DcxControl(const DcxControl &other) = delete;	// no copy constructor
+	DcxControl &operator =(const DcxControl &) = delete;	// No assignments!
 
-	DcxControl( const UINT mID, DcxDialog * p_Dialog );
+	DcxControl( const UINT mID, DcxDialog *const p_Dialog );
 	virtual ~DcxControl( );
 
 	virtual void parseInfoRequest( const TString & input, PTCHAR szReturnValue ) const = 0;
@@ -104,13 +114,11 @@ public:
 
 	void parseGeneralControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
 
-	bool evalAliasEx(TCHAR * szReturn, const int maxlen, const TCHAR * szFormat, ... );
+	bool evalAliasEx(TCHAR *const szReturn, const int maxlen, const TCHAR *const szFormat, ... );
 
-	bool execAliasEx(const TCHAR * szFormat, ... );
+	bool execAliasEx(const TCHAR *const szFormat, ... );
 
 	const UINT getUserID( ) const;
-
-	static LRESULT CALLBACK WindowProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
 
 	virtual LRESULT PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) = 0;
 	virtual LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) = 0;
@@ -129,26 +137,31 @@ public:
 	const COLORREF &getEndGradientColor(void) const { return this->m_clrEndGradient; };
 	const RECT getWindowPosition(void) const;
 
-	static DcxControl * controlFactory( DcxDialog * p_Dialog, const UINT mID, const TString & input, UINT offset, const UINT64 mask = CTLF_ALLOW_ALL, HWND hParent = NULL);
+	virtual const TString getType( ) const = 0;
+	virtual const DcxControlTypes getControlType() const = 0;
 
-	virtual TString getType( ) const = 0;
-	virtual TString getStyles(void) const;
-	virtual TString getBorderStyles(void) const;
-	virtual void toXml(TiXmlElement * xml) const;
+	virtual const TString getStyles(void) const;
+	virtual const TString getBorderStyles(void) const;
+	virtual void toXml(TiXmlElement *const xml) const;
 	virtual TiXmlElement * toXml(void) const;
 
 	inline void incRef( ) { ++this->m_iRefCount; };
 	inline void decRef( ) { --this->m_iRefCount; };
 	inline const UINT &getRefCount( ) const { return this->m_iRefCount; };
+
 	//DcxControl *getParentCtrl() const { return this->m_pParentCtrl; };
 	void updateParentCtrl(void); //!< updates controls host control pointers, MUST be called before these pointers are used.
-	static void DrawCtrlBackground(const HDC hdc, const DcxControl *p_this, const LPRECT rwnd = NULL, HTHEME hTheme = NULL, const int iPartId = 0, const int iStateId = 0);
-	void DrawParentsBackground(const HDC hdc, const LPRECT rcBounds = NULL, const HWND dHwnd = NULL);
+	void DrawParentsBackground(const HDC hdc, const LPRECT rcBounds = nullptr, const HWND dHwnd = nullptr);
 	LPALPHAINFO SetupAlphaBlend(HDC *hdc, const bool DoubleBuffer = false);
 	void FinishAlphaBlend(LPALPHAINFO ai);
+	void showError(const TCHAR *const prop, const TCHAR *const cmd, const TCHAR *const err) const;
+	void showErrorEx(const TCHAR *const prop, const TCHAR *const cmd, const TCHAR *const fmt, ...) const;
+
+	static LRESULT CALLBACK WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+	static DcxControl * controlFactory(DcxDialog *const p_Dialog, const UINT mID, const TString & input, const UINT offset, const UINT64 mask = CTLF_ALLOW_ALL, HWND hParent = nullptr);
+	static void DrawCtrlBackground(const HDC hdc, const DcxControl *const p_this, const LPRECT rwnd = nullptr, HTHEME hTheme = nullptr, const int iPartId = 0, const int iStateId = 0);
 	static HBITMAP resizeBitmap(HBITMAP srcBM, const LPRECT rc);
-	void showError(const TCHAR *prop, const TCHAR *cmd, const TCHAR *err) const;
-	void showErrorEx(const TCHAR *prop, const TCHAR *cmd, const TCHAR *fmt, ...) const;
+	static DcxControlTypes TSTypeToControlType(const TString &t);
 
 protected:
 
@@ -159,52 +172,57 @@ protected:
 	HFONT m_hFont;					//!< Control Font
 
 	TString m_tsMark;				//!< Mark Information (see /xdid -M)
+	TString m_tsToolTip;			//!< This controls tooltip text (if any).
 
 	COLORREF m_clrText;				//!< Font color
 	COLORREF m_clrBackText;			//!< Font Back Color (not supported)
-	HBRUSH m_hBackBrush;			//!< Background control color
-	HBRUSH m_hBorderBrush;			//!< Controls Border Colour.
-	HBITMAP m_bitmapBg;				//!< Background bitmap
 	COLORREF m_colTransparentBg;
 	COLORREF m_clrBackground;		//!< Background Colour. (used to make m_hBackBrush)
 	COLORREF m_clrStartGradient;
 	COLORREF m_clrEndGradient;
 
+	HBRUSH m_hBackBrush;			//!< Background control color
+	HBRUSH m_hBorderBrush;			//!< Controls Border Colour.
+
+	HBITMAP m_bitmapBg;				//!< Background bitmap
+
 	UINT m_iRefCount;
 
 	HCURSOR m_hCursor;				//!< Cursor Handle
-	BOOL m_bCursorFromFile;			//!< Cursor comes from a file?
 
 	HWND m_ToolTipHWND;				//!< Tooltip window (if any)
-	TString m_tsToolTip;			//!< This controls tooltip text (if any).
-	DWORD m_dEventMask;
-	bool m_bAlphaBlend;				//!< Control is alpha blended.
-	BYTE m_iAlphaLevel;				//!< The amount the control is alpha blended.
-	bool m_bGradientFill;
-	BOOL m_bGradientVertical;
-	//DcxControl *m_pParentCtrl;
 	HWND m_pParentHWND;
+
+	DWORD m_dEventMask;
+
+	BYTE m_iAlphaLevel;				//!< The amount the control is alpha blended.
+
+	bool m_bCursorFromFile;			//!< Cursor comes from a file?
+	bool m_bAlphaBlend;				//!< Control is alpha blended.
+	bool m_bGradientFill;
+	bool m_bGradientVertical;
 	bool m_bInPrint;
 	bool m_bShadowText;				//!< Text is drawn with a shadow.
 	bool m_bCtrlCodeText;			//!< mIRCTEXT('s ctrl codes are used to change the text')s appearance.
 	bool m_bNoTheme;				//!< Control isn't themed.
 	//int m_iThemePartId;
+
 	/* ***** */
 
 	void parseGlobalCommandRequest(const TString & input, const XSwitchFlags & flags );
-	BOOL parseGlobalInfoRequest( const TString & input, TCHAR * szReturnValue ) const;
-
-	static const UINT parseColorFlags( const TString & flags );
+	BOOL parseGlobalInfoRequest(const TString & input, TCHAR *const szReturnValue) const;
 
 	void registreDefaultWindowProc( );
 	void unregistreDefaultWindowProc( );
 
-	static void parseBorderStyles( const TString & flags, LONG * Styles, LONG * ExStyles );
 	LRESULT CommonMessage( const UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
-	static void InvalidateParentRect(HWND hwnd);
 	void DrawControl(HDC hDC, HWND hwnd);
 	void ctrlDrawText(HDC hdc, const TString &txt, const LPRECT rc, const UINT style);
 	void calcTextRect(HDC hdc, const TString &txt, LPRECT rc, const UINT style);
+
+	static void parseBorderStyles(const TString & flags, LONG *const Styles, LONG *const ExStyles);
+	static void InvalidateParentRect(HWND hwnd);
+	static const UINT parseColorFlags(const TString & flags);
 };
 #ifdef __INTEL_COMPILER // Defined when using Intel C++ Compiler.
 #pragma warning( pop )

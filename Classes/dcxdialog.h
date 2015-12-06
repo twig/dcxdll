@@ -46,14 +46,14 @@
 #define DCX_EVENT_EDIT				0x00000200
 #define DCX_EVENT_ALL				0xFFFFFFFF
 
-// Shadow Status Flags
-enum ShadowStatus
-{
-	DCX_SS_ENABLED = 1,	// Shadow is enabled, if not, the following one is always false
-	DCX_SS_VISABLE = 1 << 1,	// Shadow window is visible
-	DCX_SS_PARENTVISIBLE = 1<< 2,	// Parent window is visible, if not, the above one is always false
-	DCX_SS_DISABLEDBYAERO = 1 << 3	// Shadow is enabled, but do not show because areo is enabled
-};
+//// Shadow Status Flags
+//enum ShadowStatus: UINT
+//{
+//	DCX_SS_ENABLED = 1,	// Shadow is enabled, if not, the following one is always false
+//	DCX_SS_VISABLE = 1 << 1,	// Shadow window is visible
+//	DCX_SS_PARENTVISIBLE = 1<< 2,	// Parent window is visible, if not, the above one is always false
+//	DCX_SS_DISABLEDBYAERO = 1 << 3	// Shadow is enabled, but do not show because areo is enabled
+//};
 
 // dummy runtime classe definition
 class DcxControl;
@@ -62,7 +62,7 @@ class DcxList;
 
 typedef std::vector<DcxControl *> VectorOfControlPtrs; //!< blah
 typedef std::vector<DcxList *> VectorOfDragListPtrs; //!< Vector of draglists
-typedef std::map<TString, int> IntegerHash;
+typedef std::map<TString, UINT> IntegerHash;
 
 /*!
  * \brief blah
@@ -78,32 +78,37 @@ typedef std::map<TString, int> IntegerHash;
 class DcxDialog : public DcxWindow {
 
 public:
+	DcxDialog() = delete;
+	DcxDialog(const DcxDialog &other) = delete;
 
 	DcxDialog( const HWND mHwnd, const TString & tsName, const TString & tsAliasName);
 	virtual ~DcxDialog( );
 
-	const TString &getName( ) const;
+	DcxDialog &operator =(const DcxDialog &) = delete;	// No assignments!
+
+	const TString &getName() const;
 	const TString &getAliasName( ) const;
 	
 	static LRESULT WINAPI WindowProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
 
 	void parseCommandRequest( const TString & input );
-	void parseCommandRequestEX(const TCHAR *szFormat, ...);
-	void parseComControlRequestEX(const UINT id,const TCHAR *szFormat, ...);
+	void parseCommandRequestEX(const TCHAR *const szFormat, ...);
+	void parseComControlRequestEX(const UINT id, const TCHAR *const szFormat, ...);
 	void parseInfoRequest( const TString & input, TCHAR * szReturnValue ) const;
 
-	bool evalAliasEx( TCHAR * szReturn, const int maxlen, const TCHAR * szFormat, ... );
-	bool evalAlias( TCHAR * szReturn, const int maxlen, const TCHAR * szArgs);
-	bool execAliasEx( const TCHAR * szFormat, ... );
-	bool execAlias( const TCHAR * szArgs);
+	bool evalAliasEx( TCHAR *const szReturn, const int maxlen, const TCHAR *const szFormat, ... );
+	bool evalAlias( TCHAR *const szReturn, const int maxlen, const TCHAR *const szArgs);
+	bool execAliasEx( const TCHAR *const szFormat, ... );
+	bool execAlias( const TCHAR *const szArgs);
 
 	DcxControl * getControlByID( const UINT ID ) const;
 	DcxControl * getControlByHWND( const HWND mHwnd ) const;
 	//DcxControl * m_pCacheControl;
 
 	void addControl( DcxControl * p_Control );
-	void deleteControl( DcxControl * p_Control );
-	void deleteAllControls( );
+	DcxControl *addControl(const TString & input, const UINT offset, const UINT64 mask, HWND hParent);
+	void deleteControl(const DcxControl *const p_Control);
+	//void deleteAllControls( );
 
 	const bool updateLayout( RECT & rc );
 
@@ -126,32 +131,33 @@ public:
 	inline const DWORD &getEventMask( ) const { return this->m_dEventMask; };
 	inline const HBITMAP &getBgBitmap() const { return this->m_bitmapBg; };
 	inline const COLORREF &getBgTransparentCol() const { return this->m_colTransparentBg; };
-	static void DrawDialogBackground(HDC hdc, DcxDialog *p_this, LPCRECT rwnd);
-	bool AddShadow(void);
-	void RemoveShadow(void);
-	void UpdateShadow(void);
-	bool isShadowed(void) const;
-	bool SetShadowSize(int NewSize = 0);
-	bool SetShadowSharpness(UINT NewSharpness = 5);
-	bool SetShadowDarkness(UINT NewDarkness = 200);
-	bool SetShadowPosition(int NewXOffset = 5, int NewYOffset = 5);
-	bool SetShadowColor(COLORREF NewColor = 0);
-	void ShowShadow(void);
+	static void DrawDialogBackground(HDC hdc, DcxDialog *const p_this, LPCRECT rwnd);
 
-	static DWORD getAnimateStyles( const TString & flags );
-	void showError(const TCHAR *prop, const TCHAR *cmd, const TCHAR *err) const;
-	void showErrorEx(const TCHAR *prop, const TCHAR *cmd, const TCHAR *fmt, ...) const;
-	void showControlError(const TCHAR *prop, const TCHAR *cmd, const TCHAR *err) const;
-	void showControlErrorEx(const TCHAR *prop, const TCHAR *cmd, const TCHAR *fmt, ...) const;
+	//const bool AddShadow(void);
+	//void RemoveShadow(void);
+	//void UpdateShadow(void);
+	//const bool isShadowed(void) const;
+	//const bool SetShadowSize(const int NewSize = 0);
+	//const bool SetShadowSharpness(const UINT NewSharpness = 5);
+	//const bool SetShadowDarkness(const UINT NewDarkness = 200);
+	//const bool SetShadowPosition(const int NewXOffset = 5, const int NewYOffset = 5);
+	//const bool SetShadowColor(const COLORREF NewColor = 0);
+	//void ShowShadow(void);
+
+	static const DWORD getAnimateStyles(const TString & flags);
+	void showError(const TCHAR *const prop, const TCHAR *const cmd, const TCHAR *const err) const;
+	void showErrorEx(const TCHAR *const prop, const TCHAR *const cmd, const TCHAR *const fmt, ...) const;
+	void showControlError(const TCHAR *const prop, const TCHAR *const cmd, const TCHAR *const err) const;
+	void showControlErrorEx(const TCHAR *const prop, const TCHAR *const cmd, const TCHAR *const fmt, ...) const;
 #ifdef DCX_USE_GDIPLUS
 	void DrawCaret(Graphics & graph);
 	void DrawCtrl( Graphics & graphics, HDC hDC, HWND hWnd);
 	void DrawDialog( Graphics & graphics, HDC hDC);
 #endif
 	void CreateVistaStyle(void);
-	bool CreateVistaStyleBitmap(const SIZE &szWin);
+	const bool CreateVistaStyleBitmap(const SIZE &szWin);
 	void RemoveVistaStyle(void);
-	void UpdateVistaStyle(LPRECT rcUpdate = NULL);
+	void UpdateVistaStyle(const LPRECT rcUpdate = nullptr);
 	void SetVistaStylePos(void);
 	void SetVistaStyleSize(void);
 	const bool &IsVistaStyle(void) const { return this->m_bVistaStyle; };
@@ -159,20 +165,89 @@ public:
 	const HWND &GetVistaHWND(void) const { return this->m_hFakeHwnd; };
 	const SIZE &GetVistaOffsets(void) const { return this->m_sVistaOffsets; };
 	const HBITMAP &GetVistaBitmap(void) const { return this->m_hVistaBitmap; };
-	const IntegerHash &getNamedIds(void) const { return this->namedIds; };
+	
 	IntegerHash namedIds; //!< map of named Id's
+
+	const IntegerHash &getNamedIds(void) const { return this->namedIds; };
+	const bool isNamedId(const TString &NamedID) const { return (namedIds.find(NamedID) != namedIds.end()); }
+	const bool AddNamedId(const TString &NamedID, const UINT local_id)
+	{
+		if (isNamedId(NamedID))
+			return false;
+
+		namedIds[NamedID] = local_id;
+		return true;
+	}
+	const UINT NameToID(const TString &NamedID) const
+	{
+		auto it = namedIds.find(NamedID);
+		if (it != namedIds.end())
+			return it->second;
+
+		return 0;
+	}
+	const TString &IDToName(const UINT local_id) const
+	{
+		//for (auto it = namedIds.begin(), itEnd = namedIds.end(); it != itEnd; ++it)
+		//{
+		//	if (local_id == it->second)
+		//		return it->first;
+		//}
+		//return TEXT("");
+
+		const auto itEnd = namedIds.end();
+		const auto itGot = std::find_if(namedIds.begin(), itEnd, [local_id](IntegerHash::const_reference arg) { return (arg.second == local_id); });
+		if (itGot != itEnd)
+			return itGot->first;
+
+		return TEXT("");
+	}
+	const UINT getUniqueID() const
+	{
+		for (auto iCount = 0U, i = mIRC_ID_OFFSET; iCount < mIRC_MAX_CONTROLS; iCount++) {
+			++i;
+			//UINT i = 0;
+			//if (rand_s(&i) != 0)
+			//	throw std::runtime_error("Unable to Generate ID");
+			//
+			//if (i <= mIRC_ID_OFFSET)
+			//	i += mIRC_ID_OFFSET + 1;
+
+			if (isIDValid(i, true))
+			{
+				//bool bIDTaken = false;
+				//for (auto it = namedIds.begin(), itEnd = namedIds.end(); it != itEnd; ++it)
+				//{
+				//	if (i == it->second)
+				//	{
+				//		bIDTaken = true;
+				//		break;
+				//	}
+				//}
+				//if (!bIDTaken)
+				//	return i;
+
+				const auto itEnd = namedIds.end();
+				const auto itGot = std::find_if(namedIds.begin(), itEnd, [i](IntegerHash::const_reference arg) { return (arg.second == i); });
+				if (itGot == itEnd)
+					return i;
+			}
+		}
+		return 0;
+	}
+
 	void MapVistaRect(HWND hwnd, LPRECT rc) const;
 
-	void RegisterDragList(DcxList* list);
-	void UnregisterDragList(DcxList* list);
+	void RegisterDragList(DcxList *const list);
+	void UnregisterDragList(const DcxList *const list);
 
 	void SetVerbose(const bool state) { this->m_bVerboseErrors = state; };
 	const bool &IsVerbose(void) const { return this->m_bVerboseErrors; };
 
-	void toXml(TiXmlElement * xml) const;
+	void toXml(TiXmlElement *const xml) const;
 	TiXmlElement * toXml() const;
 	TiXmlElement * toXml(const TString &name) const;
-	void toXml(TiXmlElement * xml, const TString &name) const;
+	void toXml(TiXmlElement *const xml, const TString &name) const;
 
 	const bool isIDValid(const UINT ID, const bool bUnused = false) const;
 	const bool &isDialogActive(void) const { return m_bDialogActive; };	// returns dialogs active state
@@ -187,97 +262,100 @@ protected:
 
 	VectorOfControlPtrs m_vpControls; //!< Vector of DCX Controls
 	VectorOfInts m_vZLayers;
-	int m_zLayerCurrent;
+	VectorOfInts::size_type m_zLayerCurrent;
 
 	VectorOfDragListPtrs m_vDragLists; //!< Registered draglists
-
-	bool m_bInSizing; //!< In Moving Motion
-	bool m_bInMoving; //!< In Sizing Motion
 
 	HBRUSH m_hBackBrush;    //!< Background control color
 
 	UINT m_MouseID; //!< Mouse Hover ID
 	UINT m_FocusID; //!< Mouse Hover ID
+	UINT m_uStyleBg;
+	UINT m_iRefCount;
 
 	XPopupMenu * m_popup;
 
 	HCURSOR m_hCursor;  //!< Cursor Handle
-	BOOL m_bCursorFromFile; //!< Cursor comes from a file?
+
 	HBITMAP m_bitmapBg;
-	UINT m_uStyleBg;
+	HBITMAP m_hVistaBitmap;
+
 	COLORREF m_colTransparentBg;
+	COLORREF m_cKeyColour;
+
 	HWND m_ToolTipHWND; //!< Dialogs general tooltip control for use with all controls that don't have their own tooltips.
-	UINT m_iRefCount;
+	HWND m_hFakeHwnd;
+
+	DWORD m_dEventMask;
+
+	BYTE m_iAlphaLevel;
+	BYTE m_bDoGhostDrag;
+	BOOL m_bTracking;
+
+	bool m_bInSizing; //!< In Moving Motion
+	bool m_bInMoving; //!< In Sizing Motion
+	bool m_bCursorFromFile; //!< Cursor comes from a file?
 	bool m_bDoDrag;
 	bool m_bDrag;
-	BYTE m_bDoGhostDrag;
 	bool m_bGhosted;
-	DWORD m_dEventMask;
-	BOOL m_bTracking;
 	bool m_bVerboseErrors; //!< Should all errors be echo'd to status?
-
-	static bool m_bIsMenuBar;
-	static bool m_bIsSysMenu;
-
-	struct {
-		HWND hWin; //!< The shadow window.
-		// Restore last parent window size, used to determine the update strategy when parent window is resized
-		LPARAM WndSize;
-		COLORREF Color;	// Color of shadow
-
-		BYTE Status; //!< The shadow windows status.
-		unsigned char nDarkness;	// Darkness, transparency of blurred area
-		unsigned char nSharpness;	// Sharpness, width of blurred border of shadow window
-		signed char nSize;	// Shadow window size, relative to parent window size
-
-		// The X and Y offsets of shadow window,
-		// relative to the parent window, at center of both windows (not top-left corner), signed
-		signed char nxOffset;
-		signed char nyOffset;
-
-		// Set this to true if the shadow should not be update until next WM_PAINT is received
-		bool bUpdate;
-	} m_Shadow;
-	/* **** */
-
-	static void parseBorderStyles( const TString & flags, LONG * Styles, LONG * ExStyles );
-
-	//static const UINT parseLayoutFlags( const TString & flags );
-	static UINT parseBkgFlags( const TString & flags );
-	static UINT parseFlashFlags( const TString & flags );
-	static UINT parseTooltipFlags( const TString &flags);
-
-	// Fill in the shadow window alpha blend bitmap with shadow image pixels
-	void MakeShadow(UINT32 *pShadBits, const HWND hParent, const RECT *rcParent);
-
-	// Helper to calculate the alpha-premultiled value for a pixel
-	static inline DWORD PreMultiply(const COLORREF cl, const unsigned char nAlpha)
-	{
-		// It's strange that the byte order of RGB in 32b BMP is reverse to in COLORREF
-		return (GetRValue(cl) * (DWORD)nAlpha / 255) << 16 |
-			(GetGValue((cl & 0xFFFF)) * (DWORD)nAlpha / 255) << 8 |
-			(GetBValue(cl) * (DWORD)nAlpha / 255);
-	}
-	void PreloadData(void);
-	//#ifdef DCX_USE_GDIPLUS
-	//	Image *m_pImage;
-	//	bool LoadGDIPlusImage(TString &filename);
-	//#endif
-	HWND m_hFakeHwnd;
-	BYTE m_iAlphaLevel;
-	COLORREF m_cKeyColour;
 	bool m_bHaveKeyColour;
 	bool m_bVistaStyle;
-	RECT m_GlassOffsets;
-	PVOID m_pVistaBits;
-	HBITMAP m_hVistaBitmap;
-	HDC m_hVistaHDC;
-	SIZE m_sVistaOffsets;
-
 	mutable bool m_bErrorTriggered;		// set to true when an error has been triggered & used to avoid error loops
 	mutable bool m_bDialogActive;		// set to true when dialog is active
+	static bool m_bIsMenuBar;
+	static bool m_bIsSysMenu;
+	bool m_bReserved;				//!< Reserved for future use.
 
-	static LRESULT ProcessDragListMessage(DcxDialog* p_this, UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bParsed);
+	//struct {
+	//	HWND hWin; //!< The shadow window.
+	//	// Restore last parent window size, used to determine the update strategy when parent window is resized
+	//	LPARAM WndSize;
+	//	COLORREF Color;	// Color of shadow
+	//
+	//	BYTE Status; //!< The shadow windows status.
+	//	unsigned char nDarkness;	// Darkness, transparency of blurred area
+	//	unsigned char nSharpness;	// Sharpness, width of blurred border of shadow window
+	//	signed char nSize;	// Shadow window size, relative to parent window size
+	//
+	//	// The X and Y offsets of shadow window,
+	//	// relative to the parent window, at center of both windows (not top-left corner), signed
+	//	signed char nxOffset;
+	//	signed char nyOffset;
+	//
+	//	// Set this to true if the shadow should not be update until next WM_PAINT is received
+	//	bool bUpdate;
+	//} m_Shadow;
+	/* **** */
+
+	PVOID m_pVistaBits;
+
+	HDC m_hVistaHDC;
+
+	SIZE m_sVistaOffsets;
+
+	RECT m_GlassOffsets;
+
+	//// Fill in the shadow window alpha blend bitmap with shadow image pixels
+	//void MakeShadow(UINT32 *const pShadBits, const HWND hParent, const RECT *const rcParent);
+
+	void PreloadData(void);
+
+	static void parseBorderStyles(const TString & flags, LONG *const Styles, LONG *const ExStyles);
+	static const UINT parseBkgFlags(const TString & flags);
+	static const UINT parseFlashFlags(const TString & flags);
+	static const UINT parseTooltipFlags(const TString &flags);
+
+	// Helper to calculate the alpha-premultiled value for a pixel
+	static inline const DWORD PreMultiply(const COLORREF cl, const unsigned char nAlpha)
+	{
+		// It's strange that the byte order of RGB in 32b BMP is reverse to in COLORREF
+		const DWORD dAlpha = static_cast<const DWORD>(nAlpha);
+		return (GetRValue(cl) * dAlpha / 255) << 16 |
+			(GetGValue((cl & 0xFFFF)) * dAlpha / 255) << 8 |
+			(GetBValue(cl) * dAlpha / 255);
+	}
+	static LRESULT ProcessDragListMessage(DcxDialog *const p_this, UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bParsed);
 };
 #ifdef __INTEL_COMPILER // Defined when using Intel C++ Compiler.
 #pragma warning( pop )
