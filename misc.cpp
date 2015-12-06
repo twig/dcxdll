@@ -956,7 +956,7 @@ update for 32bpp icons & rewrite
 //} // End of CreateGrayscaleIcon
 
 COLORREF defaultGrayPalette[256];
-BOOL bGrayPaletteSet = FALSE;
+bool bGrayPaletteSet = false;
 
 HICON CreateGrayscaleIcon( HICON hIcon, COLORREF* pPalette )
 {
@@ -1052,7 +1052,7 @@ HICON CreateGrayscaleIcon( HICON hIcon )
 			defaultGrayPalette[i] = RGB(255-i, 255-i, 255-i);
 		}
 
-		bGrayPaletteSet = TRUE;
+		bGrayPaletteSet = true;
 	}
 
 	return CreateGrayscaleIcon(hIcon, defaultGrayPalette);

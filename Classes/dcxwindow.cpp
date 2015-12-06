@@ -22,7 +22,6 @@
  * \param mID Window ID
  */
 
-#if DCX_USE_C11
 DcxWindow::DcxWindow( const HWND mHwnd, const UINT mID )
 	: m_Hwnd( mHwnd ), m_ID( mID )
 {
@@ -51,26 +50,9 @@ DcxWindow::DcxWindow( const HWND mHwnd, const UINT mID )
  */
 
 DcxWindow::DcxWindow( const UINT mID )
-: DcxWindow(NULL, mID)
+: DcxWindow(nullptr, mID)
 {
 }
-#else
-DcxWindow::DcxWindow( const HWND mHwnd, const UINT mID )
-	: m_Hwnd( mHwnd ), m_ID( mID )
-{
-}
-
-/*!
- * \brief Constructor
- *
- * \param mID Window ID
- */
-
-DcxWindow::DcxWindow( const UINT mID )
-	: m_ID( mID ), m_Hwnd(NULL)
-{
-}
-#endif
 
 /*!
  * \brief Destructor
@@ -91,10 +73,11 @@ DcxWindow::~DcxWindow( ) {
 
 BOOL DcxWindow::isStyle( const LONG Styles ) const {
 
-	if ( GetWindowStyle( this->m_Hwnd ) & Styles )
-		return TRUE;
-
-	return FALSE;
+	//if ( GetWindowStyle( this->m_Hwnd ) & Styles )
+	//	return TRUE;
+	//
+	//return FALSE;
+	return dcx_testflag(GetWindowStyle(this->m_Hwnd), (DWORD)Styles);	// this makes sure ALL flags match not just some.
 }
 
 /*!
@@ -105,8 +88,8 @@ BOOL DcxWindow::isStyle( const LONG Styles ) const {
 
 LONG DcxWindow::removeStyle( const LONG Styles ) {
 
-	LONG winStyles = GetWindowStyle( this->m_Hwnd );
-	return SetWindowLong( this->m_Hwnd, GWL_STYLE, winStyles &= ~Styles );
+	auto winStyles = GetWindowStyle(this->m_Hwnd);
+	return SetWindowLongPtr( this->m_Hwnd, GWL_STYLE, winStyles &= ~Styles );
 }
 
 /*!
@@ -117,8 +100,8 @@ LONG DcxWindow::removeStyle( const LONG Styles ) {
 
 LONG DcxWindow::addStyle( const LONG Styles ) {
 
-	LONG winStyles = GetWindowStyle( this->m_Hwnd );
-	return SetWindowLong( this->m_Hwnd, GWL_STYLE, winStyles |= Styles );
+	auto winStyles = GetWindowStyle(this->m_Hwnd);
+	return SetWindowLongPtr( this->m_Hwnd, GWL_STYLE, winStyles |= Styles );
 }
 
 /*!
@@ -129,7 +112,7 @@ LONG DcxWindow::addStyle( const LONG Styles ) {
 
 LONG DcxWindow::setStyle( const LONG Styles ) {
 
-	return SetWindowLong( this->m_Hwnd, GWL_STYLE, Styles );
+	return SetWindowLongPtr( this->m_Hwnd, GWL_STYLE, Styles );
 }
 
 /*!
@@ -140,10 +123,11 @@ LONG DcxWindow::setStyle( const LONG Styles ) {
 
 BOOL DcxWindow::isExStyle( const LONG Styles ) const {
 
-	if ( GetWindowExStyle( this->m_Hwnd ) & Styles )
-		return TRUE;
-
-	return FALSE;
+	//if ( GetWindowExStyle( this->m_Hwnd ) & Styles )
+	//	return TRUE;
+	//
+	//return FALSE;
+	return dcx_testflag(GetWindowExStyle(this->m_Hwnd), (DWORD)Styles);
 }
 
 /*!
@@ -154,8 +138,8 @@ BOOL DcxWindow::isExStyle( const LONG Styles ) const {
 
 LONG DcxWindow::removeExStyle( const LONG Styles ) {
 
-	LONG winStyles = GetWindowExStyle( this->m_Hwnd );
-	return SetWindowLong( this->m_Hwnd, GWL_EXSTYLE, winStyles &= ~Styles );
+	auto winStyles = GetWindowExStyle(this->m_Hwnd);
+	return SetWindowLongPtr( this->m_Hwnd, GWL_EXSTYLE, winStyles &= ~Styles );
 }
 
 /*!
@@ -166,8 +150,8 @@ LONG DcxWindow::removeExStyle( const LONG Styles ) {
 
 LONG DcxWindow::addExStyle( const LONG Styles ) {
 
-	LONG winStyles = GetWindowExStyle( this->m_Hwnd );
-	return SetWindowLong( this->m_Hwnd, GWL_EXSTYLE, winStyles |= Styles );
+	auto winStyles = GetWindowExStyle(this->m_Hwnd);
+	return SetWindowLongPtr( this->m_Hwnd, GWL_EXSTYLE, winStyles |= Styles );
 }
 
 /*!
@@ -178,7 +162,7 @@ LONG DcxWindow::addExStyle( const LONG Styles ) {
 
 LONG DcxWindow::setExStyle( const LONG Styles ) {
 
-	return SetWindowLong( this->m_Hwnd, GWL_EXSTYLE, Styles );
+	return SetWindowLongPtr( this->m_Hwnd, GWL_EXSTYLE, Styles );
 }
 
 /*!
@@ -211,7 +195,7 @@ const HWND &DcxWindow::getHwnd( ) const {
 
 void DcxWindow::redrawWindow( ) {
 
-	RedrawWindow( this->m_Hwnd, NULL, NULL, RDW_INTERNALPAINT|RDW_ALLCHILDREN|RDW_INVALIDATE|RDW_ERASE/*|RDW_FRAME|RDW_UPDATENOW*/ );
+	RedrawWindow( this->m_Hwnd, nullptr, nullptr, RDW_INTERNALPAINT|RDW_ALLCHILDREN|RDW_INVALIDATE|RDW_ERASE/*|RDW_FRAME|RDW_UPDATENOW*/ );
 }
 
 /*
@@ -227,24 +211,26 @@ void DcxWindow::redrawBufferedWindow( ) {
 		return;
 	}
 
-	HDC hdc = GetWindowDC(this->m_Hwnd);
+	auto hdc = GetWindowDC(this->m_Hwnd);
 
-	if (hdc != NULL) {
-		RECT rc;
-		GetWindowRect(this->m_Hwnd, &rc);
+	if (hdc == nullptr)
+		return;
+	Auto(ReleaseDC(this->m_Hwnd, hdc));
 
-		HDC *hBuffer = CreateHDCBuffer(hdc, &rc);
+	RECT rc;
+	if (GetWindowRect(this->m_Hwnd, &rc))
+	{
+		auto hBuffer = CreateHDCBuffer(hdc, &rc);
 
-		if (hBuffer != NULL) {
+		if (hBuffer != nullptr) {
+			Auto(DeleteHDCBuffer(hBuffer));
+
 			SendMessage(this->m_Hwnd, WM_PRINT, (WPARAM)*hBuffer, PRF_NONCLIENT | PRF_CLIENT | PRF_CHILDREN | PRF_CHECKVISIBLE | PRF_ERASEBKGND);
 
-			BitBlt(hdc, 0, 0, (rc.right - rc.left), (rc.bottom - rc.top), *hBuffer, 0,0, SRCCOPY);
-
-			DeleteHDCBuffer(hBuffer);
+			BitBlt(hdc, 0, 0, (rc.right - rc.left), (rc.bottom - rc.top), *hBuffer, 0, 0, SRCCOPY);
 		}
-		ReleaseDC(this->m_Hwnd, hdc);
-		ValidateRect(this->m_Hwnd, NULL);
 	}
+	ValidateRect(this->m_Hwnd, nullptr);
 }
 
 /*!
@@ -252,52 +238,16 @@ void DcxWindow::redrawBufferedWindow( ) {
  *
  * blah
  */
-#if DCX_USE_C11
 std::map<TString, PTCHAR> DcxWindow::IDC_map;
 
 PTCHAR DcxWindow::parseCursorType( const TString & cursor )
 {
-	std::map<TString, PTCHAR>::iterator got = IDC_map.find(cursor);
+	auto got = IDC_map.find(cursor);
 
 	if (got != IDC_map.end())
 		return got->second;
-	return NULL;
+	return nullptr;
 }
-#else
-PTCHAR DcxWindow::parseCursorType( const TString & cursor )
-{
-	if ( cursor == TEXT("appstarting") )
-		return IDC_APPSTARTING;
-	else if ( cursor == TEXT("arrow") )
-		return IDC_ARROW;
-	else if ( cursor == TEXT("cross") )
-		return IDC_CROSS;
-	else if ( cursor == TEXT("hand") )
-		return IDC_HAND;
-	else if ( cursor == TEXT("help") )
-		return IDC_HELP;
-	else if ( cursor == TEXT("ibeam") )
-		return IDC_IBEAM;
-	else if ( cursor == TEXT("no") )
-		return IDC_NO;
-	else if ( cursor == TEXT("sizeall") )
-		return IDC_SIZEALL;
-	else if ( cursor == TEXT("sizenesw") )
-		return IDC_SIZENESW;
-	else if ( cursor == TEXT("sizens") )
-		return IDC_SIZENS;
-	else if ( cursor == TEXT("sizenwse") )
-		return IDC_SIZENWSE;
-	else if ( cursor == TEXT("sizewe") )
-		return IDC_SIZEWE;
-	else if ( cursor == TEXT("uparrow") )
-		return IDC_UPARROW;
-	else if ( cursor == TEXT("wait") )
-		return IDC_WAIT;
-
-	return NULL;
-}
-#endif
 
 /*!
  * \brief blah

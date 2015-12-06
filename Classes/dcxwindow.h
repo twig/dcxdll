@@ -31,10 +31,14 @@
 class DcxWindow {
 
 public:
+	DcxWindow() = delete;
+	DcxWindow(const DcxWindow &other) = delete;
 
 	DcxWindow( const HWND mHwnd, const UINT mID );
 	explicit DcxWindow( const UINT mID );
 	virtual ~DcxWindow( );
+
+	DcxWindow &operator =(const DcxWindow &) = delete;	// No assignments!
 
 	BOOL isStyle( const LONG Styles ) const;
 	LONG removeStyle( const LONG Styles );
@@ -50,16 +54,14 @@ public:
 
 	void redrawWindow( );
 	void redrawBufferedWindow( );
-	virtual void toXml(TiXmlElement * xml) const = 0;
+	virtual void toXml(TiXmlElement *const xml) const = 0;
 
 protected:
 
 	HWND m_Hwnd;
 	UINT m_ID;
 
-#if DCX_USE_C11
 	static std::map<TString, PTCHAR> IDC_map;
-#endif
 
 	virtual void parseCommandRequest( const TString & input ) = 0;
 	virtual void parseInfoRequest( const TString & input, TCHAR * szReturnValue ) const = 0;
