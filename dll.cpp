@@ -201,8 +201,11 @@ mIRC(Version) {
 		tmp.puttok(TEXT("putter"), 1);	// "putter a token put string 100 chars"
 		mIRCLinker::execex(TEXT("/echo -a puttok(putter,1): %s"), tmp.to_chr());
 
-		tmp.puttok(TEXT("putted!"), 8);	// "putter a token put string 100 putted!"
-		mIRCLinker::execex(TEXT("/echo -a puttok(putted!,8): %s"), tmp.to_chr());
+		tmp.puttok(TEXT("putted"), 7);	// "putter a token put string 100 putted"
+		mIRCLinker::execex(TEXT("/echo -a puttok(putted,7): %s"), tmp.to_chr());
+
+		tmp.puttok(TEXT("e_put"), 8);	// "putter a token put string 100 putted e_put"
+		mIRCLinker::execex(TEXT("/echo -a puttok(e_putt,8): %s"), tmp.to_chr());
 
 		TString tsTestCrash;
 		tsTestCrash = tmp.gettok(2);
@@ -210,8 +213,9 @@ mIRC(Version) {
 
 		mIRCLinker::execex(TEXT("/echo -a gettok(2,2): %s"), tmp.gettok(2, 2).to_chr()); // "a"
 		mIRCLinker::execex(TEXT("/echo -a gettok(2,3): %s"), tmp.gettok(2, 3).to_chr()); // "a token"
-		mIRCLinker::execex(TEXT("/echo -a gettok(2,-1): %s"), tmp.gettok(2, -1).to_chr()); // "a token put string 100 putted!"
-		auto tsNum(tmp.gettok(6));
+		mIRCLinker::execex(TEXT("/echo -a gettok(2,numtok()): %s"), tmp.gettok(2, tmp.numtok()).to_chr()); // "a token put string 100 putted e_put"
+		mIRCLinker::execex(TEXT("/echo -a gettok(2,-1): %s"), tmp.gettok(2, -1).to_chr()); // "a token put string 100 putted e_put"
+		auto tsNum(tmp.gettok(6));	// "putter a token put string 100 putted e_put" == 100
 		auto t = 0;
 		//tsNum >> t;
 		//tsNum << " text " << t << TEXT(" some morer ");
@@ -240,20 +244,20 @@ mIRC(Version) {
 
 #if TSTRING_PARTS
 #if TSTRING_ITERATOR
-		//for (TString::iterator itStart = tmp.begin(), itEnd = tmp.end(); itStart != itEnd; ++itStart)
+		//for (auto itStart = tmp.begin(), itEnd = tmp.end(); itStart != itEnd; ++itStart)
 		//{
 		//	mIRCLinker::execex(TEXT("/echo -a test for: %s"), (*itStart).to_chr());
 		//}
 
-		TString::iterator itStart = tmp.begin(), itEnd = tmp.end(); 
+		auto itStart = tmp.begin(), itEnd = tmp.end(); 
 		while (itStart != itEnd)
 		{
 			const TString tsTmp(*itStart);
-			mIRCLinker::execex(TEXT("/echo -a test for: %s"), tsTmp.to_chr());
+			mIRCLinker::execex(TEXT("/echo -a iterate tmp: %u :: %s"), (size_t)itStart, tsTmp.to_chr());
 			++itStart;
 		}
 		tok.join(tmp, TEXT("!"));
-		mIRCLinker::execex(TEXT("/echo -a join: %s"), tok.to_chr());
+		mIRCLinker::execex(TEXT("/echo -a tok.join(tmp,!): %s"), tok.to_chr());
 #else
 		for (const auto &x : tmp)
 		{
@@ -263,12 +267,12 @@ mIRC(Version) {
 #endif
 
 		t = Dcx::parse_string<int>("200");
-		mIRCLinker::execex(TEXT("/echo -a convert4: %d"), t); // 100
+		mIRCLinker::execex(TEXT("/echo -a parse_string<int>(200): %d"), t); // 100
 
 #if TSTRING_TEMPLATES
 		tok.addtok(TEXT('b'), TEXT('n'));
 
-		mIRCLinker::execex(TEXT("/echo -a convert5: %s"), tok.to_chr());
+		mIRCLinker::execex(TEXT("/echo -a addtok(b,n): %s"), tok.to_chr());
 #endif
 		TCHAR ctrlk = TEXT('\x03');
 		std::basic_string<TCHAR> str(TEXT("test "));
@@ -281,30 +285,34 @@ mIRC(Version) {
 		str += TEXT(" \x16reverse\x16 ");
 		str += TEXT("\xF end");
 		ColourString<TCHAR> cc(str);
-		mIRCLinker::execex(TEXT("/echo -a test1: %s"), cc.ToString().c_str());
+		mIRCLinker::execex(TEXT("/echo -a cc.ToString().c_str(): %s"), cc.ToString().c_str());
 		ColourString<TCHAR> cc2(str);
-		mIRCLinker::execex(TEXT("/echo -a test2: %s"), cc2.ToString().c_str());
+		mIRCLinker::execex(TEXT("/echo -a cc2.ToString().c_str(): %s"), cc2.ToString().c_str());
 		if (cc == cc2)
-			mIRCLinker::execex(TEXT("/echo -a test3: The same '%s'"), cc2.ToString().c_str());
+			mIRCLinker::exec(TEXT("/echo -a cc == cc2"));
 		else
-			mIRCLinker::execex(TEXT("/echo -a test3: NOT The same '%s'"), cc2.ToString().c_str());
+			mIRCLinker::exec(TEXT("/echo -a cc != cc2"));
 
 		cc2 += TEXT(" some extra text");
+
+		mIRCLinker::execex(TEXT("/echo -a cc.ToString().c_str(): %s"), cc.ToString().c_str());
+		mIRCLinker::execex(TEXT("/echo -a cc2.ToString().c_str(): %s"), cc2.ToString().c_str());
+
 		if (cc == cc2)
-			mIRCLinker::execex(TEXT("/echo -a test4: The same '%s'"), cc2.ToString().c_str());
+			mIRCLinker::exec(TEXT("/echo -a cc == cc2"));
 		else
-			mIRCLinker::execex(TEXT("/echo -a test4: NOT The same '%s'"), cc2.ToString().c_str());
+			mIRCLinker::exec(TEXT("/echo -a cc != cc2"));
 
 		ColourString<TCHAR> cc3{ cc, TEXT(" "), cc2 };
-		mIRCLinker::execex(TEXT("/echo -a initilizer list test: %s"), cc3.ToString().c_str());
+		mIRCLinker::execex(TEXT("/echo -a ColourString<TCHAR> cc3{ cc, , cc2 }: %s"), cc3.ToString().c_str());
 
 		ColourString<char> cc4("test here");
-		mIRCLinker::execex(TEXT("/echo -a char test5: %S"), cc4.ToString().c_str());
+		mIRCLinker::execex(TEXT("/echo -a ColourString<char> cc4(test here): %S"), cc4.ToString().c_str());
 
-		if (cc != cc2)
-			mIRCLinker::execex(TEXT("/echo -a test6: NOT The same '%s'"), cc2.ToString().c_str());
+		if (cc3 != cc2)
+			mIRCLinker::exec(TEXT("/echo -a cc3 != cc2"));
 		else
-			mIRCLinker::execex(TEXT("/echo -a test6: The same '%s'"), cc2.ToString().c_str());
+			mIRCLinker::exec(TEXT("/echo -a cc3 == cc2"));
 
 		//mIRCLinker::execex(TEXT("/echo -a test7: rtf -> %s"), cc2.ToRtf().c_str());
 
@@ -320,20 +328,22 @@ mIRC(Version) {
 
 		//mIRCLinker::execex(TEXT("/echo -a my_strstr: %s"), tok.to_chr());
 
-		if (tok.istok(TEXT("extra"),TEXT("!")))
-			mIRCLinker::execex(TEXT("/echo -a istok: yes - %s"), tok.to_chr());
+		if (tok.istok(TEXT("m_inserted"),TEXT("!")))
+			mIRCLinker::execex(TEXT("/echo -a istok(m_inserted,!): yes - %s"), tok.to_chr());
 		else
-			mIRCLinker::execex(TEXT("/echo -a istok: no - %s"), tok.to_chr());
+			mIRCLinker::execex(TEXT("/echo -a istok(m_inserted,!): no - %s"), tok.to_chr());
 
 		if (tok.istok(TEXT("string"), TEXT("!")))
-			mIRCLinker::execex(TEXT("/echo -a istok: yes - %s"), tok.to_chr());
+			mIRCLinker::execex(TEXT("/echo -a istok(string,!): yes - %s"), tok.to_chr());
 		else
-			mIRCLinker::execex(TEXT("/echo -a istok: no - %s"), tok.to_chr());
+			mIRCLinker::execex(TEXT("/echo -a istok(string,!): no - %s"), tok.to_chr());
 
 		tok.reptok(TEXT("string"), TEXT("blobby"), 1, TEXT("!"));
-		mIRCLinker::execex(TEXT("/echo -a reptok: string -> blobby - %s"), tok.to_chr());
-		tok.reptok(TEXT("nb"), TEXT("blobby"), 1, TEXT("!"));
-		mIRCLinker::execex(TEXT("/echo -a reptok: nb -> blobby - %s"), tok.to_chr());
+		mIRCLinker::execex(TEXT("/echo -a reptok(string,blobby,1,!): %s"), tok.to_chr());
+		tok.reptok(TEXT("e_putnb"), TEXT("blobby"), 1, TEXT("!"));
+		mIRCLinker::execex(TEXT("/echo -a reptok(e_putnb,blobby,1,!): %s"), tok.to_chr());
+		tok.reptok(TEXT("blobby"), TEXT("mister"), 2, TEXT("!"));
+		mIRCLinker::execex(TEXT("/echo -a reptok(blobby,mister,2,!): %s"), tok.to_chr());
 
 		tok += TEXT("!101!102!200!4!5");
 
@@ -353,6 +363,16 @@ mIRC(Version) {
 		mIRCLinker::execex(TEXT("/echo -a sorttok(c): %s"), tok.to_chr());
 		tok.sorttok(TEXT("cr"), TEXT("!"));	// reverse channel prefix sort
 		mIRCLinker::execex(TEXT("/echo -a sorttok(cr): %s"), tok.to_chr());
+
+		mIRCLinker::execex(TEXT("/echo -a wildtok(put*,2,!): %s"), tok.wildtok(TEXT("put*"), 2, TEXT("!")).to_chr());
+		mIRCLinker::execex(TEXT("/echo -a nwildtok(put*,!): %u"), tok.nwildtok(TEXT("put*"), TEXT("!")));
+
+		mIRCLinker::execex(TEXT("/echo -a matchtok(put,1,!): %s"), tok.matchtok(TEXT("put"), 1, TEXT("!")).to_chr());
+		mIRCLinker::execex(TEXT("/echo -a matchtok(put,3,!): %s"), tok.matchtok(TEXT("put"), 3, TEXT("!")).to_chr());
+
+		// test exception code
+		//mIRCLinker::exec(TEXT("/echo -a Throwing exception"));
+		//dcx_exception_InvalidArgument(TEXT("No such exception: %"), tok);
 	}
 	catch (std::exception &e)
 	{
@@ -574,7 +594,7 @@ mIRC(xdid) {
 
 #if TSTRING_PARTS
 #if TSTRING_ITERATOR
-			for (TString::const_iterator itStart = IDs.begin(TSCOMMA), itEnd = IDs.end(); itStart != itEnd; ++itStart)
+			for (auto itStart = IDs.begin(TSCOMMA), itEnd = IDs.end(); itStart != itEnd; ++itStart)
 			{
 				UINT id_start = 0, id_end = 0;
 				const TString tsID(*itStart);
@@ -601,14 +621,16 @@ mIRC(xdid) {
 					auto p_Control = p_Dialog->getControlByID(id + mIRC_ID_OFFSET);
 
 					if (p_Control == nullptr)
+						//dcx_exception_InvalidArgument(TEXT("Invalid ID : % (dialog : %)"), id, tsDname);
 						throw std::invalid_argument(Dcx::dcxGetFormattedString(TEXT("Invalid ID : %lu (dialog : %s)"), id, tsDname.to_chr()));
-
+#if TSTRING_TEMPLATES
+					d2 = tsDname;
+					d2.addtok(id);
+					d2.addtok(tsArgs);
+#else
 					// this tsprintf() call does the same as the following addtok() calls (these addtok calls only work when templates are enabled)
 					d2.tsprintf(TEXT("%s %ld %s"), tsDname.to_chr(), id, tsArgs.to_chr());
-
-					//d2.addtok(tsDname);
-					//d2.addtok(id);
-					//d2.addtok(tsArgs);
+#endif
 
 					p_Control->parseCommandRequest(d2);
 				}
