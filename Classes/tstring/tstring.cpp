@@ -1190,17 +1190,31 @@ void TString::deltok(const UINT N, const TCHAR *const sepChars) {
 
 TString TString::matchtok(const TCHAR * const mString, UINT N, const TCHAR * const sepChars) const
 {
-	size_t count = 0;
-	for (auto itStart = begin(sepChars), itEnd = end(); itStart != itEnd; ++itStart)
-	{
-		const TString tmp((*itStart));
-		if (ts_strstr(tmp.to_chr(), mString) != nullptr)
-		{
+	//size_t count = 0;
+	//for (auto itStart = begin(sepChars), itEnd = end(); itStart != itEnd; ++itStart)
+	//{
+	//	const TString tmp((*itStart));
+	//	if (ts_strstr(tmp.to_chr(), mString) != nullptr)
+	//	{
+	//		++count;
+	//		if (count >= N)
+	//			return tmp;
+	//	}
+	//}
+	//return TString();
+
+	size_t count = 0U;
+	auto itEnd = end();
+	auto itGot = std::find_if(begin(sepChars), itEnd, [&count, &N, &mString](const auto &x) {
+		if (ts_strstr(x.to_chr(), mString) != nullptr) {
 			++count;
 			if (count >= N)
-				return tmp;
+				return true;
 		}
-	}
+		return false;
+	});
+	if (itGot != itEnd)
+		return *itGot;
 	return TString();
 }
 
@@ -1252,36 +1266,12 @@ void TString::sorttok(const TCHAR * const sortOptions, const TCHAR * const sepCh
 
 void TString::sorttok(const SortOptions &sortOptions, const TCHAR * const sepChars)
 {
-	//TString sortedList;
-	//for (auto itStart = begin(sepChars), itEnd = end(); itStart != itEnd; ++itStart)
-	//{
-	//	const TString x(*itStart);
-	//	if (sortedList.empty())
-	//		sortedList = x;
-	//	else {
-	//		UINT c = 0;
-	//		bool bInserted = false;
-	//		for (auto itStartSorted = sortedList.begin(sepChars), itEndSorted = sortedList.end(); itStartSorted != itEndSorted; ++itStartSorted)
-	//		{
-	//			const TString sortedx(*itStartSorted);
-	//			++c;
-	//			if (x < sortedx) {
-	//				sortedList.instok(x.to_chr(), c, sepChars);
-	//				bInserted = true;
-	//				break;
-	//			}
-	//		}
-	//		if (!bInserted)
-	//			sortedList.addtok(x, sepChars);
-	//	}
-	//}
-	//this->swap(sortedList);
-
+	// copy string into a vector, each vector entry is a token
 	std::vector<TString> v(begin(sepChars),end());
-	//expand(v, sepChars);
 
 	if (sortOptions.bAlpha)
 	{
+		// alpha or alphanumeric sort
 		if (sortOptions.bNumeric)
 		{
 			// alphanumeric sort (needs work)
@@ -1329,7 +1319,10 @@ void TString::sorttok(const SortOptions &sortOptions, const TCHAR * const sepCha
 			std::sort(v.begin(), v.end(), [](auto &a, auto &b) { return (a[0] < b[0]); });
 	}
 
+	// clear old unsorted data.
 	clear();
+
+	// join all tokens into a new sorted list
 	join(v, sepChars);
 }
 

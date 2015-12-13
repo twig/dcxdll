@@ -558,6 +558,7 @@ public:
 		//		return i;
 		//}
 		//return 0U;
+
 		auto itEnd = arr.end();
 		auto itGot = std::find(arr.begin(), itEnd, *this);
 		if (itGot != arr.end())
@@ -956,8 +957,11 @@ public:
 
 		tsType operator* () const
 		{
+			// should we return a blank/empty tsType here instead of throwing an exception?
 			if (m_ptr == nullptr)
 				throw std::out_of_range("TString::iterator");
+			//if (m_ptr == nullptr)
+			//	return TEXT("");
 
 			//return m_ptr->gettok((int)m_iIndex, m_sepChars);
 
@@ -1122,14 +1126,14 @@ TString operator"" _ts(const char *p, size_t);
 
 namespace detail {
 	template <typename Result, typename Format>
-	Result &tsprintf_do(Result &res, const Format &fmt)
+	Result &_ts_printf_do(Result &res, const Format &fmt)
 	{
 		res += fmt;
 		return res;
 	}
 
 	template <typename Result, typename Format, typename Value, typename... Arguments>
-	Result &tsprintf_do(Result &res, const Format &fmt, const Value val, Arguments&&... args)
+	Result &_ts_printf_do(Result &res, const Format &fmt, const Value val, Arguments&&... args)
 	{
 		auto i = 0U;
 		auto bSkip = false;
@@ -1145,7 +1149,7 @@ namespace detail {
 				if (c == decltype(c){'%'})
 				{
 					res += val;
-					return tsprintf_do(res, fmt + i + 1, args...);
+					return _ts_printf_do(res, fmt + i + 1, args...);
 				}
 			}
 			else
@@ -1177,7 +1181,7 @@ namespace detail {
 template <typename Result, typename Format, typename Value, typename... Arguments>
 Result &_ts_sprintf(Result &res, const Format &fmt, const Value val, Arguments&&... args)
 {
-	return detail::tsprintf_do(res, fmt, val, args...);
+	return detail::_ts_printf_do(res, fmt, val, args...);
 }
 
 template <class T>
