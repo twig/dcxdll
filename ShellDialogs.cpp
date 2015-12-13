@@ -285,9 +285,11 @@ TString FileDialog(const TString & data, const TString &method, const HWND pWnd)
 
 			// process the file name at p since its null terminated
 			while (*p != TEXT('\0')) {
-
+#if TSTRING_TEMPLATES
+				tsResult.addtok(p, TEXT('|'));
+#else
 				tsResult.addtok(p, TEXT("|"));
-
+#endif
 				p += lstrlen(p) + 1;
 			} 
 		}
