@@ -46,7 +46,7 @@
  *	1.13
  *      loads of changes !!!
  *
- * © ScriptsDB.org - 2005-2014
+ * © ScriptsDB.org - 2005-2015
  */
 #include "defines.h"
 
@@ -72,7 +72,7 @@ const TCHAR *TString::m_cTab = TEXT("\t");
 //}
 
 TString::TString()
-	: TString((UINT)1)
+	: TString((UINT)0)
 {
 }
 
@@ -85,53 +85,67 @@ TString::TString()
 /****************************/
 
 TString::TString(const char *const cString)
-	: m_pTempString(nullptr), m_pString(nullptr)
-	, m_savedtotaltoks(0), m_savedcurrenttok(0), m_savedpos(nullptr)
-	, m_bDirty(true), m_iLen(0)
-#if TSTRING_INTERNALBUFFER
-	, m_bUsingInternal(false)
-#endif
+	: TString()
 {
+
 #ifdef UNICODE
 	if (cString != nullptr)
 		this->m_pString = charToWchar(cString, &m_buffersize);
-#else
-	if (cString != nullptr) {
-		const auto l = ts_strlen(cString) + 1;
-		this->m_pString = allocstr_cch(l);
-		ts_strcpyn_throw(this->m_pString, cString, l);
-	}
-#endif
 
-	if (this->m_pString == nullptr) {
-		this->m_pString = allocstr_cch(1);
-		this->m_pString[0] = TEXT('\0');
-	}
-}
-
-TString::TString( const WCHAR *const cString )
-	: m_pTempString(nullptr), m_pString(nullptr)
-	, m_savedtotaltoks(0), m_savedcurrenttok(0), m_savedpos(nullptr)
-	, m_bDirty(true), m_iLen(0)
 #if TSTRING_INTERNALBUFFER
-	, m_bUsingInternal(false)
-#endif
-{
-#ifdef UNICODE
-	if (cString != nullptr) {
-		const auto l = ts_strlen(cString) + 1;
-		this->m_pString = allocstr_cch(l);
-		ts_strcpyn_throw(this->m_pString, cString, l);
-	}
+	if (this->m_pString == nullptr)
+		this->m_pString = m_InternalBuffer;
+	else
+		m_bUsingInternal = false;
 #else
-	if (cString != nullptr)
-		this->m_pString = WcharTochar(cString, &m_buffersize);
-#endif
-
 	if (this->m_pString == nullptr) {
 		this->m_pString = allocstr_cch( 1 );
 		this->m_pString[0] = TEXT('\0');
 	}
+#endif
+#else
+	if (cString != nullptr) {
+		const auto l = ts_strlen(cString) + 1;
+		this->m_pString = allocstr_cch(l);
+		ts_strcpyn_throw(this->m_pString, cString, l);
+	}
+	if (this->m_pString == nullptr) {
+		this->m_pString = allocstr_cch(1);
+		this->m_pString[0] = TEXT('\0');
+	}
+#endif
+}
+
+TString::TString( const WCHAR *const cString )
+	: TString()
+{
+
+#ifdef UNICODE
+	if (cString != nullptr) {
+		const auto l = ts_strlen(cString) + 1;
+		this->m_pString = allocstr_cch(l);
+		ts_strcpyn_throw(this->m_pString, cString, l);
+	}
+	if (this->m_pString == nullptr) {
+		this->m_pString = allocstr_cch( 1 );
+		this->m_pString[0] = TEXT('\0');
+	}
+#else
+	if (cString != nullptr)
+		this->m_pString = WcharTochar(cString, &m_buffersize);
+
+#if TSTRING_INTERNALBUFFER
+	if (this->m_pString == nullptr)
+		this->m_pString = m_InternalBuffer;
+	else
+		m_bUsingInternal = false;
+#else
+	if (this->m_pString == nullptr) {
+		this->m_pString = allocstr_cch(1);
+		this->m_pString[0] = TEXT('\0');
+	}
+#endif
+#endif
 }
 
 /****************************/
@@ -145,18 +159,14 @@ TString::TString( const WCHAR *const cString )
 #ifdef UNICODE
 #if TSTRING_INTERNALBUFFER
 TString::TString(const WCHAR chr)
-	: m_pTempString(nullptr), m_pString(m_InternalBuffer)
-	, m_savedtotaltoks(0), m_savedcurrenttok(0), m_savedpos(nullptr)
-	, m_bUsingInternal(true), m_bDirty(true), m_iLen(0), m_buffersize(TSTRING_INTERNALBUFFERSIZE_BYTES)
+	: TString()
 {
 	this->m_pString[0] = chr;
 	this->m_pString[1] = TEXT('\0');
 }
 #else
 TString::TString(const WCHAR chr)
-	: m_pTempString(nullptr), m_pString(nullptr)
-	, m_savedtotaltoks(0), m_savedcurrenttok(0), m_savedpos(nullptr)
-	, m_bDirty(true), m_iLen(0)
+	: TString()
 {
 	this->m_pString = this->allocstr_cch(2);
 	this->m_pString[0] = chr;
@@ -165,12 +175,7 @@ TString::TString(const WCHAR chr)
 #endif
 #else
 TString::TString( const WCHAR chr )
-	: m_pTempString(nullptr), m_pString(nullptr)
-	, m_savedtotaltoks(0), m_savedcurrenttok(0), m_savedpos(nullptr)
-	, m_bDirty(true), m_iLen(0)
-#if TSTRING_INTERNALBUFFER
-	, m_bUsingInternal(false)
-#endif
+	: TString()
 {
 	if (chr != L'\0')
 	{
@@ -179,11 +184,17 @@ TString::TString( const WCHAR chr )
 		this->m_pString = this->WcharTochar(wStr, &m_buffersize);
 	}
 
+#if TSTRING_INTERNALBUFFER
 	if (this->m_pString == nullptr)
-	{
+		this->m_pString = m_InternalBuffer;
+	else
+		m_bUsingInternal = false;
+#else
+	if (this->m_pString == nullptr) {
 		this->m_pString = allocstr_cch(1);
-		this->m_pString[0] = 0;
+		this->m_pString[0] = TEXT('\0');
 	}
+#endif
 }
 #endif
 
@@ -197,12 +208,7 @@ TString::TString( const WCHAR chr )
 
 #ifdef UNICODE
 TString::TString(const char chr)
-	: m_pTempString(nullptr), m_pString(nullptr)
-	, m_savedtotaltoks(0), m_savedcurrenttok(0), m_savedpos(nullptr)
-	, m_bDirty(true), m_iLen(0)
-#if TSTRING_INTERNALBUFFER
-	, m_bUsingInternal(false)
-#endif
+	: TString()
 {
 	if (chr != '\0') {
 		const char cString[] = { chr, '\0' };
@@ -210,26 +216,29 @@ TString::TString(const char chr)
 		this->m_pString = charToWchar(cString, &m_buffersize);
 	}
 
+#if TSTRING_INTERNALBUFFER
+	if (this->m_pString == nullptr)
+		this->m_pString = m_InternalBuffer;
+	else
+		m_bUsingInternal = false;
+#else
 	if (this->m_pString == nullptr) {
 		this->m_pString = allocstr_cch(1);
 		this->m_pString[0] = TEXT('\0');
 	}
+#endif
 }
 #else
 #if TSTRING_INTERNALBUFFER
 TString::TString( const char chr )
-	: m_pTempString(nullptr), m_pString(m_InternalBuffer)
-	, m_savedtotaltoks(0), m_savedcurrenttok(0), m_savedpos(nullptr)
-	, m_bUsingInternal(true), m_bDirty(true), m_iLen(0), m_buffersize(TSTRING_INTERNALBUFFERSIZE_BYTES)
+	: TString()
 {
 	this->m_pString[0] = chr;
 	this->m_pString[1] = 0;
 }
 #else
 TString::TString( const char chr )
-	: m_pTempString(nullptr), m_pString(nullptr)
-	, m_savedtotaltoks(0), m_savedcurrenttok(0), m_savedpos(nullptr)
-	, m_bDirty(true), m_iLen(0)
+	: TString()
 {
 	this->m_pString = allocstr_cch(2);
 	this->m_pString[0] = chr;
@@ -248,13 +257,8 @@ TString::TString( const char chr )
 
 #if TSTRING_INTERNALBUFFER
 TString::TString(const TString & tString)
-	: m_pTempString(nullptr), m_pString(m_InternalBuffer)
-	, m_savedtotaltoks(0), m_savedcurrenttok(0), m_savedpos(nullptr)
-	, m_bDirty(true), m_iLen(0), m_buffersize(TSTRING_INTERNALBUFFERSIZE_BYTES)
-	, m_bUsingInternal(true)
+	: TString()
 {
-	this->m_InternalBuffer[0] = 0;
-
 	if (!tString.empty()) {
 		// copy full buffer from source TString object, this buffer supplies any zero byte.
 		this->m_pString = allocstr_bytes(tString.m_buffersize);
@@ -263,9 +267,7 @@ TString::TString(const TString & tString)
 }
 #else
 TString::TString(const TString & tString)
-	: m_pTempString(nullptr), m_pString(nullptr)
-	, m_savedtotaltoks(0), m_savedcurrenttok(0), m_savedpos(nullptr)
-	, m_bDirty(true), m_iLen(0)
+	: TString()
 {
 	if (!tString.empty()) {
 		// copy full buffer from source TString object, this buffer supplies any zero byte.
@@ -329,19 +331,6 @@ TString::TString(const std::initializer_list<TString> &lt)
 }
 
 /****************************/
-/*! \fn TString::TString(const std::unique_ptr<TCHAR[]> &unique)
-\brief unique_ptr constructor
-
-\param unique - A unique_ptr object to an array of TCHAR's
-*/
-/****************************/
-
-TString::TString(const std::unique_ptr<TCHAR[]> &unique)
-	: TString(unique.get())
-{
-}
-
-/****************************/
 /*! \fn TString::TString(const TCHAR *pStart, const TCHAR *pEnd)
 \brief Constructor
 
@@ -350,15 +339,10 @@ TString::TString(const std::unique_ptr<TCHAR[]> &unique)
 */
 /****************************/
 TString::TString(const TCHAR *const pStart, const TCHAR *const pEnd)
-	: m_pTempString(nullptr), m_pString(nullptr)
-	, m_savedtotaltoks(0), m_savedcurrenttok(0), m_savedpos(nullptr)
-	, m_bDirty(true), m_iLen(0)
-#if TSTRING_INTERNALBUFFER
-	, m_bUsingInternal(false)
-#endif
+	: TString()
 {
 	if ((pStart != nullptr) && (pEnd != nullptr) && (pEnd > pStart)) {
-		const size_t size = (pEnd - pStart);
+		const auto size = (size_t)(pEnd - pStart);
 		this->m_pString = allocstr_cch(size + 1);
 		ts_strcpyn_throw(this->m_pString, pStart, size + 1);
 	}
@@ -374,17 +358,34 @@ TString::TString(const TCHAR *const pStart, const TCHAR *const pEnd)
  * NB tsSize is in characters! not bytes.
  *
  */
-TString::TString( const UINT tsSize )
-	: m_pTempString(nullptr), m_pString(nullptr)
+#if TSTRING_INTERNALBUFFER
+TString::TString(const UINT tsSize)
+	: m_pTempString(nullptr), m_pString(m_InternalBuffer)
 	, m_savedtotaltoks(0), m_savedcurrenttok(0), m_savedpos(nullptr)
 	, m_bDirty(true), m_iLen(0)
-#if TSTRING_INTERNALBUFFER
-	, m_bUsingInternal(false)
-#endif
+	, m_bUsingInternal(true)
 {
+	m_InternalBuffer[0] = TEXT('\0');
+
+	if (tsSize == 0)
+		return;
+
 	this->m_pString = allocstr_cch(tsSize + 1);
 	ts_zeromem(this->m_pString, this->m_buffersize);
 }
+#else
+TString::TString(const UINT tsSize)
+	: m_pTempString(nullptr), m_pString(nullptr)
+	, m_savedtotaltoks(0), m_savedcurrenttok(0), m_savedpos(nullptr)
+	, m_bDirty(true), m_iLen(0)
+{
+	if (tsSize == 0)
+		return;
+
+	this->m_pString = allocstr_cch(tsSize + 1);
+	ts_zeromem(this->m_pString, this->m_buffersize);
+}
+#endif
 
 TString::~TString( ) {
 
@@ -421,6 +422,18 @@ void TString::deleteTempString(const bool bKeepBufferSize) {
 }
 
 /****************************/
+TString& TString::operator =(TString &&tString)
+{
+	if (this == &tString)	// self assignment check.
+		return *this;
+
+	this->swap(tString);
+
+	return *this;
+}
+
+//#if !TSTRING_TEMPLATES
+/****************************/
 //TString& TString::operator =(TString tString)
 //{
 //	this->swap(tString);
@@ -434,17 +447,6 @@ TString& TString::operator =(const TString &tString)
 	//this->swap(tmp);
 
 	this->copy(tString);
-
-	return *this;
-}
-
-/****************************/
-TString& TString::operator =(TString &&tString)
-{
-	if (this == &tString)	// self assignment check.
-		return *this;
-
-	this->swap(tString);
 
 	return *this;
 }
@@ -504,636 +506,7 @@ TString& TString::operator =( const char chr )
 
 	return *this;
 }
-
-/****************************/
-/*! \fn TString TString::operator +( const TCHAR * string )
-    \brief Symbol Overload - TString and TCHAR string concatenation
-
-    \param cString Character string to concatenate
-
-    \return Returns the new TString object
-*/
-/****************************/
-
-TString TString::operator +( const TCHAR *const cString ) {
-
-	//if (cString == nullptr)
-	//	return *this; // return an object not a ref or pointer to object, so object is copied on return.
-	//
-	//const size_t sz = this->len();
-	//const size_t l = (sz + ts_strlen(cString) + 1);
-	//TString newTString((UINT)l);
-	//
-	//if (sz > 0)
-	//{
-	//	ts_strcpyn_throw(newTString.m_pString, this->m_pString, l);
-	//}
-	//// NB: Buffer is zerod for us already.
-	//ts_strcat_throw(newTString.m_pString, cString);
-	//
-	//return newTString;
-
-	TString newTString(*this);
-	return newTString.append(cString);
-}
-
-/****************************/
-/*! \fn TString TString::operator +( const TCHAR chr )
-    \brief Symbol Overload - TString and TCHAR concatenation
-
-    \param chr Character to concatenate
-
-    \return Returns the new TString object
-*/
-/****************************/
-
-TString TString::operator +( const TCHAR chr )
-{
-	//const size_t size = this->len();
-	//TString newTString((UINT)(size + 2));
-	//
-	//if (size > 0)
-	//{
-	//	ts_strcpyn_throw(newTString.m_pString, this->m_pString, size + 1);
-	//}
-	//
-	//newTString.m_pString[size] = chr;
-	//newTString.m_pString[size + 1] = 0;
-	//
-	//return newTString;
-
-	TString newTString(*this);
-	newTString += chr;
-	return newTString;
-}
-
-/****************************/
-/*! \fn TString TString::operator +( const TString & tString )
-    \brief Symbol Overload - TString and TString concatenation
-
-    \param tString TString object to concatenate
-
-    \return Returns the new TString object
-*/
-/****************************/
-
-TString TString::operator +( const TString & tString ) {
-
-	//if (tString.empty())
-	//	return *this;
-	//
-	//const size_t sz = this->len();
-	//const size_t l = (sz + tString.len() + 1);	// we could use the 2x m_buffersize instead, but this could lead to a very large unneeded buffer.
-	//
-	//TString newTString((UINT)l);
-	//
-	//if (sz > 0) {
-	//	ts_strcpyn_throw(newTString.m_pString, this->m_pString, l);
-	//}
-	//ts_strcat_throw(newTString.m_pString, tString.m_pString);
-	//
-	//return newTString;
-
-	TString newTString(*this);
-	return newTString.append(tString);
-}
-
-/****************************/
-/*! \fn TString TString::operator -( const TCHAR * string )
-    \brief Symbol Overload - remove TCHAR string from TString
-
-    \param cString Character string to remove
-
-    \return Returns the new TString object
-*/
-/****************************/
-
-TString TString::operator -( const TCHAR *const cString ) {
-
-	if (cString == nullptr)
-		return *this;
-
-	TString newTString(*this);
-	newTString.i_remove(cString);
-	return newTString;
-}
-
-TString TString::operator -( const TCHAR chr) {
-
-	if ( chr == 0 )
-		return *this;
-
-	TString newTString(*this);
-	const TCHAR str[] = { chr, TEXT('\0') };
-
-	newTString.i_remove(str);
-	return newTString;
-}
-
-TString TString::operator -( const TString & tString ) {
-
-	if ( tString.empty() )
-		return *this;
-
-	TString newTString(*this);
-	newTString.i_remove(tString.m_pString);
-	return newTString;
-}
-
-/****************************/
-/*! \fn void TString::operator +=( const TCHAR * string )
-    \brief Symbol Overload - TString and TCHAR string concatenation
-
-    \param cString Character string to concatenate
-*/
-/****************************/
-
-TString & TString::operator +=( const TCHAR *const cString ) {
-
-	return append(cString);
-}
-
-/****************************/
-/*! \fn void TString::operator +=( const TCHAR chr )
-    \brief Symbol Overload - TString and TCHAR concatenation
-
-    \param chr Character to concatenate
-*/
-/****************************/
-
-TString & TString::operator +=( const TCHAR chr ) {
-
-	const TCHAR tmp[] = { chr, TEXT('\0') };
-	return append(tmp, 1);
-}
-
-/****************************/
-/*! \fn void TString::operator +=( const TString & tString )
-    \brief Symbol Overload - TString and TString concatenation
-
-    \param tString TString object to concatenate
-*/
-/****************************/
-
-TString & TString::operator +=( const TString & tString ) {
-
-	return append(tString);
-}
-
-/****************************/
-/*! \fn void TString::operator +=( const int num )
-\brief Symbol Overload - TString and INT concatenation
-
-\param num Number to concatenate (is converted to text)
-*/
-/****************************/
-
-#ifdef TSTRING_TEMPLATES
-TString & TString::operator +=(const int num) {	return append_number(num); }
-#else
-TString & TString::operator +=(const int num) {
-
-	TCHAR tNum[36];
-	tNum[0] = TEXT('\0');
-
-	ts_itoa(num, tNum, 10);
-
-	return append(tNum);
-}
-#endif
-
-/****************************/
-/*! \fn void TString::operator -=( const TCHAR * string )
-\brief Symbol Overload - remove TCHAR string from TString
-
-\param cString Character string to remove
-*/
-/****************************/
-
-TString & TString::operator -=( const TCHAR *const cString ) {
-
-	if (cString != nullptr)
-		this->i_remove(cString);
-
-	return *this;
-}
-
-TString & TString::operator -=( const TCHAR chr ) {
-
-	if ( chr != 0 ) {
-		const TCHAR str[] = { chr, TEXT('\0') };
-		this->i_remove(str);
-	}
-
-	return *this;
-}
-
-TString & TString::operator -=( const TString &tString ) {
-
-	if ( !tString.empty() )
-		this->i_remove(tString.m_pString);
-
-	return *this;
-}
-
-/****************************/
-/*! \fn bool TString::operator ==( const int iNull )
-    \brief Symbol Overload - TString and NULL comparison
-
-    \param iNull Value of comparison (usually 0 for NULL)
-
-    \return Returns \b true or \b false based on the comparison
-*/
-
-bool TString::operator ==( const int iNull ) const {
-
-	return (this->m_pString == nullptr && !iNull);
-}
-
-/****************************/
-/*! \fn void TString::operator ==( const TCHAR * string )
-    \brief Symbol Overload - TString and TCHAR string comparison
-
-    \param cString Character string to compare
-
-    \return Returns \b true or \b false based on the comparison
-
-    \note Comparison si based on a regular string comparison
-    \note If the string in the TString object is empty, will return \b false
-*/
-/****************************/
-
-bool TString::operator ==( const TCHAR *const cString ) const
-{
-	if (cString == nullptr || this->m_pString == nullptr)
-		return false;
-
-	return (ts_strcmp(this->m_pString, cString) == 0);
-}
-
-/****************************/
-/*! \fn void TString::operator ==( const TCHAR chr )
-    \brief Symbol Overload - TString and TCHAR comparison
-
-    \param chr Character to compare
-
-    \return Returns \b true or \b false based on the comparison
-
-    \note Comparison si based on a regular string comparison
-    \note If the string in the TString object is empty, will return \b false
-*/
-/****************************/
-
-bool TString::operator ==( const TCHAR chr ) const
-{
-	if (this->m_pString == nullptr)
-		return false;
-
-	const TCHAR temp[] = { chr, TEXT('\0') };
-
-	return (ts_strcmp(this->m_pString, temp) == 0);
-}
-
-/****************************/
-/*! \fn void TString::operator ==( const TString & tString )
-    \brief Symbol Overload - TString and TString comparison
-
-    \param tString TString object to compare
-
-    \return Returns \b true or \b false based on the comparison
-
-    \note Comparison si based on a regular string comparison
-    \note If the string in the TString object is empty, will return \b false
-*/
-/****************************/
-
-bool TString::operator ==( const TString & tString ) const
-{
-	return (this->compare(tString) == 0);
-}
-
-/****************************/
-/*! \fn bool TString::operator !=( const int iNull )
-    \brief Symbol Overload - TString and NULL comparison
-
-    \param iNull Value of comparison (usually 0 for NULL)
-
-    \return Returns \b true or \b false based on the comparison
-*/
-
-bool TString::operator !=( const int iNull ) const
-{
-	return (this->m_pString != nullptr && !iNull);
-}
-
-/****************************/
-/*! \fn void TString::operator !=( const TCHAR * cString )
-    \brief Symbol Overload - TString and TCHAR string comparison
-
-    \param cString Character string to compare
-
-    \return Returns \b true or \b false based on the comparison
-
-    \note Comparison si based on a regular string comparison
-    \note If the string in the TString object is empty, will return \b false
-*/
-/****************************/
-
-bool TString::operator !=( const TCHAR *const cString ) const
-{
-	if (cString == nullptr || this->m_pString == nullptr)
-		return false;
-
-	return (ts_strcmp(this->m_pString, cString) != 0);
-}
-
-/****************************/
-/*! \fn void TString::operator !=( const TCHAR chr )
-    \brief Symbol Overload - TString and TCHAR comparison
-
-    \param chr Character to compare
-
-    \return Returns \b true or \b false based on the comparison
-
-    \note Comparison si based on a regular string comparison
-    \note If the string in the TString object is empty, will return \b false
-*/
-/****************************/
-
-bool TString::operator !=( const TCHAR chr ) const
-{
-	if (this->m_pString == nullptr)
-		return false;
-
-	const TCHAR temp[] = { chr, TEXT('\0') };
-
-	return (ts_strcmp(this->m_pString, temp) != 0);
-}
-
-/****************************/
-/*! \fn void TString::operator !=( const TString & tString )
-    \brief Symbol Overload - TString and TString comparison
-
-    \param tString TString object to compare
-
-    \return Returns \b true or \b false based on the comparison
-
-    \note Comparison si based on a regular string comparison
-    \note If the string in the TString object is empty, will return \b false
-*/
-/****************************/
-
-bool TString::operator !=( const TString & tString ) const
-{
-	return (this->compare(tString) != 0);
-}
-
-/****************************/
-/*! \fn void TString::operator >( const TCHAR * cString )
-    \brief Symbol Overload - TString and TCHAR string comparison
-
-    \param cString Character string to compare
-
-    \return Returns \b true or \b false based on the comparison
-
-    \note Comparison si based on a regular string comparison
-    \note If the string in the TString object is empty, will return \b false
-*/
-/****************************/
-
-bool TString::operator >( const TCHAR *const cString ) const {
-
-	if (cString == nullptr || this->m_pString == nullptr)
-		return false;
-
-	return (ts_strcmp(this->m_pString, cString) > 0);
-}
-
-/****************************/
-/*! \fn void TString::operator >( const TCHAR chr )
-    \brief Symbol Overload - TString and TCHAR comparison
-
-    \param chr Character to compare
-
-    \return Returns \b true or \b false based on the comparison
-
-    \note Comparison si based on a regular string comparison
-    \note If the string in the TString object is empty, will return \b false
-*/
-/****************************/
-
-bool TString::operator >( const TCHAR chr ) const {
-
-	if (this->m_pString == nullptr)
-		return false;
-
-	const TCHAR temp[] = { chr, TEXT('\0') };
-	return (ts_strcmp(this->m_pString, temp) > 0);
-}
-
-/****************************/
-/*! \fn void TString::operator >( const TString & tString )
-    \brief Symbol Overload - TString and TString comparison
-
-    \param tString TString object to compare
-
-    \return Returns \b true or \b false based on the comparison
-
-    \note Comparison si based on a regular string comparison
-    \note If the string in the TString object is empty, will return \b false
-*/
-/****************************/
-
-bool TString::operator >( const TString & tString ) const
-{
-	return (this->compare(tString) > 0);
-}
-
-/****************************/
-/*! \fn void TString::operator >=( const TCHAR * cString )
-    \brief Symbol Overload - TString and TCHAR string comparison
-
-    \param cString Character string to compare
-
-    \return Returns \b true or \b false based on the comparison
-
-    \note Comparison si based on a regular string comparison
-    \note If the string in the TString object is empty, will return \b false
-*/
-/****************************/
-
-bool TString::operator >=( const TCHAR *const cString ) const {
-
-	if (cString == nullptr || this->m_pString == nullptr)
-		return false;
-
-	return (ts_strcmp(this->m_pString, cString) >= 0);
-}
-
-/****************************/
-/*! \fn void TString::operator >=( const TCHAR chr )
-    \brief Symbol Overload - TString and TCHAR comparison
-
-    \param chr Character to compare
-
-    \return Returns \b true or \b false based on the comparison
-
-    \note Comparison si based on a regular string comparison
-    \note If the string in the TString object is empty, will return \b false
-*/
-/****************************/
-
-bool TString::operator >=( const TCHAR chr ) const {
-
-	if (this->m_pString == nullptr)
-		return false;
-
-	const TCHAR temp[] = { chr, TEXT('\0') };
-
-	return (ts_strcmp(this->m_pString, temp) >= 0);
-}
-
-/****************************/
-/*! \fn void TString::operator >=( const TString & tString )
-    \brief Symbol Overload - TString and TString comparison
-
-    \param tString TString object to compare
-
-    \return Returns \b true or \b false based on the comparison
-
-    \note Comparison si based on a regular string comparison
-    \note If the string in the TString object is empty, will return \b false
-*/
-/****************************/
-
-bool TString::operator >=( const TString & tString ) const
-{
-	return (this->compare(tString) >= 0);
-}
-
-/****************************/
-/*! \fn void TString::operator <( const TCHAR * cString )
-    \brief Symbol Overload - TString and TCHAR string comparison
-
-    \param cString Character string to compare
-
-    \return Returns \b true or \b false based on the comparison
-
-    \note Comparison si based on a regular string comparison
-    \note If the string in the TString object is empty, will return \b false
-*/
-/****************************/
-
-bool TString::operator <( const TCHAR *const cString ) const {
-
-	if (cString == nullptr || this->m_pString == nullptr)
-		return false;
-
-	return (ts_strcmp(this->m_pString, cString) < 0);
-}
-
-/****************************/
-/*! \fn void TString::operator <( const TCHAR chr )
-    \brief Symbol Overload - TString and TCHAR comparison
-
-    \param chr Character to compare
-
-    \return Returns \b true or \b false based on the comparison
-
-    \note Comparison si based on a regular string comparison
-    \note If the string in the TString object is empty, will return \b false
-*/
-/****************************/
-
-bool TString::operator <( const TCHAR chr ) const {
-
-	if (this->m_pString == nullptr)
-		return false;
-
-	const TCHAR temp[] = { chr, TEXT('\0') };
-
-	return (ts_strcmp(this->m_pString, temp) < 0);
-}
-
-/****************************/
-/*! \fn void TString::operator <( const TString & tString )
-    \brief Symbol Overload - TString and TString comparison
-
-    \param tString TString object to compare
-
-    \return Returns \b true or \b false based on the comparison
-
-    \note Comparison si based on a regular string comparison
-    \note If the string in the TString object is empty, will return \b false
-*/
-/****************************/
-
-bool TString::operator <( const TString & tString ) const
-{
-	return (this->compare(tString) < 0);
-}
-
-/****************************/
-/*! \fn void TString::operator <=( const TCHAR * cString )
-    \brief Symbol Overload - TString and TCHAR string comparison
-
-    \param cString Character string to compare
-
-    \return Returns \b true or \b false based on the comparison
-
-    \note Comparison si based on a regular string comparison
-    \note If the string in the TString object is empty, will return \b false
-*/
-/****************************/
-
-bool TString::operator <=( const TCHAR *const cString ) const {
-
-	if (cString == nullptr || this->m_pString == nullptr)
-		return false;
-
-	return (ts_strcmp(this->m_pString, cString) <= 0);
-}
-
-/****************************/
-/*! \fn void TString::operator <=( const TCHAR chr )
-    \brief Symbol Overload - TString and TCHAR comparison
-
-    \param chr Character to compare
-
-    \return Returns \b true or \b false based on the comparison
-
-    \note Comparison si based on a regular string comparison
-    \note If the string in the TString object is empty, will return \b false
-*/
-/****************************/
-
-bool TString::operator <=( const TCHAR chr ) const {
-
-	if (this->m_pString == nullptr)
-		return false;
-
-	const TCHAR temp[] = { chr, TEXT('\0') };
-
-	return (ts_strcmp(this->m_pString, temp) <= 0);
-}
-
-/****************************/
-/*! \fn void TString::operator <=( const TString & tString )
-    \brief Symbol Overload - TString and TString comparison
-
-    \param tString TString object to compare
-
-    \return Returns \b true or \b false based on the comparison
-
-    \note Comparison si based on a regular string comparison
-    \note If the string in the TString object is empty, will return \b false
-*/
-/****************************/
-
-bool TString::operator <=( const TString & tString ) const
-{
-	return (this->compare(tString) <= 0);
-}
+//#endif
 
 /****************************/
 /*! \fn TString TString::operator *( const int N )
@@ -1159,7 +532,7 @@ TString TString::operator *( const int &N ) {
 
 	TString tmp((UINT)((sz *N) + 1));
 
-	for (int i = 0; i < N; i++)
+	for (auto i = decltype(N){0}; i < N; i++)
 	{
 		//append(*this);
 		ts_strcat_throw(tmp.m_pString, this->m_pString);
@@ -1193,7 +566,7 @@ TString & TString::operator *=( const int &N ) {
 
 	TString tmp((UINT)((sz * N) + 1));
 
-	for (int i = 0; i < N; i++)
+	for (auto i = decltype(N){0}; i < N; i++)
 	{
 		//append(*this);
 		ts_strcat_throw(tmp.m_pString, this->m_pString);
@@ -1202,82 +575,6 @@ TString & TString::operator *=( const int &N ) {
 	this->swap(tmp);
 
 	return *this;
-}
-
-/****************************/
-/*! \fn TCHAR & TString::operator []( long int N )
-    \brief Symbol Overload - Array Subscript
-
-    \param N Character index
-
-    \return Returns the Nth TCHAR of string
-
-    \note > Index starts at \b 0 \n
-          > Index can be negative, \b -1 being last character
-		  > If Index is out of range throws std::out_of_range exception
-*/
-/****************************/
-
-TCHAR & TString::operator []( size_t N )
-{
-	// NB: size needs to be in characters, m_buffersize is in bytes (multiples of TCHAR)
-	//if (N < 0)
-	//	N += (this->m_buffersize / sizeof(TCHAR));
-
-	CheckRange(N);
-
-	m_bDirty = true;
-
-	return this->m_pString[N];
-}
-
-/****************************/
-/*! \fn TCHAR TString::operator []( long int N ) const
-	\brief Symbol Overload - Array Subscript
-
-	\param N Character index
-
-	\return Returns the Nth TCHAR of string
-
-	\note	> Index starts at \b 0 \n
-			> Index can be negative, \b -1 being last character
-			> If Index is out of range a 0 is returned.
-*/
-/****************************/
-TCHAR TString::operator [](size_t N) const {
-
-	//static TCHAR chr = TEXT('\0');
-
-	//if (this->m_pString == NULL)
-	//	return chr;
-
-	//// NB: size needs to be in characters, m_buffersize is in bytes (multiples of TCHAR)
-	//const auto size = (this->m_buffersize / sizeof(TCHAR));
-
-	//if (N < 0) N += size;
-
-	//if ((N >(size - 1)) || (N < 0))
-	//	return chr;
-
-	CheckRange(N);
-
-	return this->m_pString[N];
-}
-
-TString operator +(const TString & tString, const TCHAR *const cString)
-{
-	if ((cString == nullptr) || (cString[0] == TEXT('\0')))
-		return tString;
-
-	const auto sz = tString.len();
-	TString newTString((UINT)(sz + ts_strlen(cString)) + 1);
-
-	if (sz > 0) {
-		ts_strcpy_throw(newTString.m_pString, tString.m_pString);
-	}
-	ts_strcat_throw(newTString.m_pString, cString);
-
-	return newTString;
 }
 
 /****************************/
@@ -1321,7 +618,7 @@ int TString::find(const TCHAR *const substring, const int N) const {
 
 		const TCHAR * temp = nullptr, *temp2 = this->m_pString;
 
-		int i = 0;
+		auto i = decltype(N){0};
 		const auto subl = ts_strlen(substring); // Ook
 		while ((temp = ts_strstr(temp2, substring)) != nullptr) {
 			i++;
@@ -1342,10 +639,10 @@ int TString::find(const TCHAR *const substring, const int N) const {
 */
 /****************************/
 int TString::find(const TCHAR chr, const int N) const {
-	int c = 0;
+	auto c = decltype(N){0};
 	const auto len = this->len();
 
-	for (size_t i = 0U; i < len; i++) {
+	for (auto i = decltype(len){0}; i < len; i++) {
 		// found a match, increase counter
 		if (this->m_pString[i] == chr)
 			c++;
@@ -1363,38 +660,6 @@ int TString::find(const TCHAR chr, const int N) const {
 	return -1;
 }
 
-
-/****************************/
-/*! \fn TString TString::findtok(TCHAR * cToken, int N, TCHAR * sepChars)
-    \brief Returns the index of a specific token
-
-	 \param cToken the token to find
-    \param N the Nth match
-    \param sepChars separating character
-
-    \return index of found token
-
-    \note > Index starts at \b 1 \n
-*/
-/****************************/
-size_t TString::findtok(const TCHAR *const cToken, const UINT N, const TCHAR *const sepChars) const {
-
-	const auto nToks = this->numtok(sepChars);
-
-	this->getfirsttok( 0, sepChars );
-
-	for (UINT i = 1, count = 0; i <= nToks; i++) {
-		if (this->getnexttok(sepChars) == cToken) {
-			count++;
-
-			if (count == N)
-				return i;
-		}
-	}
-	return 0;
-}
-
-
 /****************************/
 /*! \fn TString TString::sub( int N, int M )
     \brief Returns a substring of the initial string
@@ -1411,36 +676,6 @@ size_t TString::findtok(const TCHAR *const cToken, const UINT N, const TCHAR *co
 
 TString TString::sub( int N, int M ) const {
 
-	//TString newTString;
-	//
-	//if (this->m_pString != NULL) {
-	//
-	//	const int size = (int)ts_strlen(this->m_pString);
-	//
-	//	if (N < 0) N += size;
-	//
-	//	if (N > size - 1 || N < 0)
-	//		return newTString;
-	//
-	//	if (N + M > size)
-	//		M = size - N;
-	//
-	//	delete[] newTString.m_pString; // change by Ook
-	//
-	//	newTString.m_pString = newTString.allocstr_cch(M + 1);
-	//	newTString.m_pString[0] = 0;
-	//
-	//	TCHAR * temp = this->m_pString;
-	//	temp += N;
-	//
-	//	if (ts_strcpyn(newTString.m_pString, temp, M + 1) == NULL)
-	//		throw std::logic_error("strcpyn() failed!");
-	//
-	//	newTString.m_pString[M] = 0;
-	//}
-	//return newTString;
-
-
 	if (this->empty())
 		return TEXT("");
 
@@ -1455,34 +690,31 @@ TString TString::sub( int N, int M ) const {
 	if (N + M > size)
 		M = size - N;
 
-	const TCHAR *const temp = (this->m_pString + N);
+	const auto *const temp = (this->m_pString + N);
 
 	return TString(temp, (temp + M));
 }
 
 /*
-internal remove function, called by the other remove()/-/-= functions.
+remove function, called by the other remove()/-/-= functions.
 Ook
 */
 
 // NB: This needs looked at!!!! doesnt remove all instances of substring correctly!
-int TString::i_remove(const TCHAR *const subString)
+TString &TString::remove(const TCHAR *const subString)
 {
 	// no str to remove or no str to remove from
-	if ((subString == nullptr) || (this->empty()))
-		return 0;
+	if ((subString == nullptr) || (this->empty()) || (subString[0] == TEXT('\0')))
+		return *this;
 
 	const TCHAR *sub, *p = this->m_pString;
-	int cnt = 0;
+	auto cnt = 0;
 	const auto subl = ts_strlen(subString);
-	// if length of sub string is 0 return 0
-	// may change this.
-	if (subl == 0)
-		return 0;
 
-	TString tmp((UINT)(this->len() + 1));
+	TString tmp;
+	tmp.reserve(len() + 1);
 
-	while ((sub = ts_strstr(p, subString)) != NULL) {
+	while ((sub = ts_strstr(p, subString)) != nullptr) {
 		ts_strncat_throw(tmp.m_pString, p, (sub - p)); // copy bit before substring. if any.
 
 		cnt++;
@@ -1495,20 +727,31 @@ int TString::i_remove(const TCHAR *const subString)
 		this->swap(tmp);
 	}
 
-	return cnt;
+	return *this;
+}
+
+TString &TString::remove(const TString &subString)
+{
+	return remove(subString.m_pString);
+}
+
+TString &TString::remove(const TCHAR &chr)
+{
+	const TCHAR tmp[] = { chr, TEXT('\0') };
+	return remove(tmp);
 }
 
 /*
 	internal replace function, called by the other replace() functions.
 	Ook
 */
-int TString::i_replace(const TCHAR *const subString, const TCHAR *const rString)
+UINT TString::i_replace(const TCHAR *const subString, const TCHAR *const rString)
 {
 	if ((subString == nullptr) || (rString == nullptr) || this->empty())
 		return 0;
 
 	const TCHAR *sub, *p = this->m_pString;
-	int cnt = 0;
+	auto cnt = 0U;
 	const auto subl = ts_strlen(subString);
 
 	// if length of sub string is 0 return 0
@@ -1525,28 +768,6 @@ int TString::i_replace(const TCHAR *const subString, const TCHAR *const rString)
 	// make final string if we have any matches.
 	if (cnt > 0) {
 		p = this->m_pString;
-		//TCHAR *out = allocstr_cch((cnt * repl) + (ol - (cnt * subl)) + 1); // allocate new string.
-		//out[0] = 0;
-		//while ((sub = ts_strstr(p, subString)) != NULL) {
-		//	if (ts_strncat(out, p, (sub - p)) == NULL) // copy bit before substring. if any.
-		//	{
-		//		delete[] out;
-		//		throw std::logic_error("strncat() failed!");
-		//	}
-		//	if (ts_strcat(out, rString) == NULL) // append new replacement string.
-		//	{
-		//		delete[] out;
-		//		throw std::logic_error("strcat() failed!");
-		//	}
-		//	p = sub + subl; // update pointer to skip substring.
-		//}
-		//if (ts_strcat(out, p) == NULL) // append the end text, if any.
-		//{
-		//	delete[] out;
-		//	throw std::logic_error("strcat() failed!");
-		//}
-		//this->deleteString(true); // delete old string
-		//this->m_pString = out; // save new one.
 
 		TString tmp((UINT)((cnt * ts_strlen(rString)) + (this->len() - (cnt * subl)) + 1)); // allocate new string.
 
@@ -1569,7 +790,7 @@ int TString::i_replace(const TCHAR *const subString, const TCHAR *const rString)
 */
 /****************************/
 
-int TString::replace(const TCHAR *const subString, const TCHAR *const rString) {
+UINT TString::replace(const TCHAR *const subString, const TCHAR *const rString) {
 	return this->i_replace(subString,rString);
 }
 
@@ -1579,7 +800,7 @@ int TString::replace(const TCHAR *const subString, const TCHAR *const rString) {
 */
 /****************************/
 
-int TString::replace(const TCHAR *const subString, const TCHAR rchr) {
+UINT TString::replace(const TCHAR *const subString, const TCHAR rchr) {
 
 	const TCHAR tmp[] = { rchr, TEXT('\0') };
 	return this->i_replace(subString,tmp);
@@ -1591,7 +812,7 @@ int TString::replace(const TCHAR *const subString, const TCHAR rchr) {
 */
 /****************************/
 
-int TString::replace(const TCHAR chr, const TCHAR *const rString) {
+UINT TString::replace(const TCHAR chr, const TCHAR *const rString) {
 
 	const TCHAR tmp[] = { chr, TEXT('\0') };
 	return this->i_replace(tmp,rString);
@@ -1603,9 +824,9 @@ int TString::replace(const TCHAR chr, const TCHAR *const rString) {
 */
 /****************************/
 
-int TString::replace( const TCHAR chr, const TCHAR rchr ) {
+UINT TString::replace( const TCHAR chr, const TCHAR rchr ) {
 
-	int cnt = 0;
+	auto cnt = 0U;
 	
 	for (auto p = this->m_pString; *p != TEXT('\0'); p++)
 	{
@@ -1622,13 +843,13 @@ int TString::replace( const TCHAR chr, const TCHAR rchr ) {
 \brief replace every character in string that matches a character in `fmt` with `chr`
 */
 /****************************/
-int TString::mreplace(const TCHAR chr, const TCHAR *const fmt)
+UINT TString::mreplace(const TCHAR chr, const TCHAR *const fmt)
 {
-	int cnt = 0;
+	auto cnt = 0U;
 
 	for (auto p = this->m_pString; *p != TEXT('\0'); p++)
 	{
-		UINT i = 0;
+		auto i = 0U;
 		for (auto rchr = fmt[0]; rchr != TEXT('\0'); rchr = fmt[i])
 		{
 			if (*p == rchr) {
@@ -1664,45 +885,8 @@ TString TString::gettok(int N, const TCHAR *const sepChars) const {
 			return TEXT("");
 	}
 
-	//TString token;
-	//
-	//TCHAR * p_cStart = this->m_pString, *p_cEnd = this->m_pString;
-	//long iCount = 0;
-	//const size_t sepl = ts_strlen(sepChars); // Ook
-	//
-	//while ((p_cEnd = ts_strstr(p_cStart, sepChars)) != NULL) {
-	//	iCount++;
-	//
-	//	if (iCount == N) {
-	//
-	//		const size_t len = p_cEnd - p_cStart; // gives cch diff
-	//		token.deleteString();
-	//		token.m_pString = token.allocstr_cch(len + 1);
-	//
-	//		if (ts_strcpyn(token.m_pString, p_cStart, len + 1) == NULL)
-	//			throw std::logic_error("strcpyn() failed!");
-	//
-	//		break;
-	//	}
-	//	p_cStart = p_cEnd + sepl; // Ook
-	//}
-	//
-	//if (iCount == N - 1) {
-	//
-	//	p_cEnd = this->m_pString + ts_strlen(this->m_pString);
-	//	const size_t len = p_cEnd - p_cStart;
-	//
-	//	token.deleteString();
-	//	token.m_pString = token.allocstr_cch(len + 1);
-	//
-	//	if (ts_strcpyn(token.m_pString, p_cStart, len + 1) == NULL)
-	//		throw std::logic_error("strcpyn() failed!");
-	//}
-	//
-	//return token;
-
 	const TCHAR *p_cStart = this->m_pString, *p_cEnd = nullptr, *const p_fEnd = this->m_pString + this->len();
-	long iCount = 0;
+	auto iCount = decltype(N){0};
 	const auto sepl = ts_strlen(sepChars); // Ook
 
 	while ((p_cEnd = ts_strstr(p_cStart, sepChars)) != nullptr) {
@@ -1723,7 +907,7 @@ TString TString::gettok(int N, const TCHAR *const sepChars) const {
 }
 
 /*!
- * \brief blah
+ * \brief Get the Nth token from the string
  *
  * params
  * N		-	the token number to retreive
@@ -1799,10 +983,23 @@ TString TString::gettok(int N, int M, const TCHAR *const sepChars) const {
 	}
 	if (iCount == nToks - 1)
 		p_cLast = p_cEnd;
-
+#ifndef NDEBUG
+	if (p_cFirst > p_cLast)
+		throw std::runtime_error("gettok(int,int,sepchars): start of string > end");
+#endif
 	return TString(p_cFirst, p_cLast);
 }
 
+/*!
+* \brief Get the first token from the string, used at the start of a getnexttok() sequence
+*
+* params
+* N		-	the token number to retreive
+*				If Zero - returns an empty string.
+*				If Negative gets adjusted to N + (total number of tokens + 1)
+* sepChars	-	The token seperator string
+*				If NULL returns the whole current string.
+*/
 TString TString::getfirsttok(const UINT N, const TCHAR *const sepChars) const
 {
 	this->m_savedtotaltoks = this->numtok(sepChars);
@@ -1817,8 +1014,8 @@ TString TString::getfirsttok(const UINT N, const TCHAR *const sepChars) const
 	if ((N > this->m_savedtotaltoks) || (N == 0))
 		return TEXT("");
 
-	const TCHAR * p_cStart = this->m_pString, *p_cEnd = this->m_pString, *const p_fEnd = (this->m_pString + this->len());
-	UINT iCount = 0;
+	const auto * p_cStart = this->m_pString, *p_cEnd = this->m_pString, *const p_fEnd = (this->m_pString + this->len());
+	auto iCount = decltype(N){0};
 	const auto sepl = ts_strlen(sepChars); // Ook
 
 	//this->m_savedSepCharsLength = sepl;
@@ -1847,6 +1044,13 @@ TString TString::getfirsttok(const UINT N, const TCHAR *const sepChars) const
 	return TEXT("");
 }
 
+/*!
+* \brief Get the next token from the string (can only be used after a getfirsttok() call)
+*
+* params
+* sepChars	-	The token seperator string
+*				If NULL returns the whole current string.
+*/
 TString TString::getnexttok(const TCHAR *const sepChars) const {
 
 	if (sepChars == nullptr || this->m_pString == nullptr)
@@ -1872,6 +1076,11 @@ TString TString::getnexttok(const TCHAR *const sepChars) const {
 	return TEXT("");
 }
 
+/*!
+* \brief Get the last tokens from the string (can only be called after a getfirsttok() call)
+*
+* params
+*/
 TString TString::getlasttoks( ) const
 {
 	if (this->empty())
@@ -1892,7 +1101,6 @@ TString TString::getlasttoks( ) const
  *
  * blah
  */
-
 UINT TString::numtok(const TCHAR *const sepChars) const {
 
 	if (sepChars == nullptr || this->empty())
@@ -1922,12 +1130,12 @@ UINT TString::numtok(const TCHAR *const sepChars) const {
 
 void TString::deltok(const UINT N, const TCHAR *const sepChars) {
 
-	if (sepChars == nullptr || this->empty())
+	if (sepChars == nullptr || N < 1 || this->empty())
 		return;
 
 	const auto nToks = this->numtok( sepChars );
 
-	if ( N > nToks || N < 1 )
+	if ( N > nToks )
 		return;
 
 	if ( N == 1 && nToks == 1 ) {
@@ -1937,7 +1145,7 @@ void TString::deltok(const UINT N, const TCHAR *const sepChars) {
 	}
 
 	TCHAR * p_cStart = this->m_pString, *p_cEnd = nullptr;
-	size_t i = 0;
+	auto i = decltype(N){0};
 	const auto sepl = ts_strlen( sepChars ); // Ook
 
 	while ((p_cEnd = ts_strstr(p_cStart, sepChars)) != nullptr) {
@@ -1973,188 +1181,156 @@ void TString::deltok(const UINT N, const TCHAR *const sepChars) {
 
 	this->swap(tmp);
 }
-/*!
- * \brief blah
- *
- * blah
- */
-
-void TString::instok(const TCHAR *const cToken, const UINT N, const TCHAR *const sepChars) {
-
-	if (cToken == nullptr || sepChars == nullptr || this->m_pString == nullptr)
-		return;
-
-	if ( N < 1 )
-		return;
-
-	TCHAR * p_cStart = this->m_pString, *p_cEnd = nullptr;
-	size_t i = 1;
-	const auto sepl = ts_strlen( sepChars ); // Ook
-
-	while ((p_cEnd = ts_strstr(p_cStart, sepChars)) != nullptr) {
-		if ( i == N )
-			break;
-
-		i++;
-
-		p_cStart = p_cEnd + sepl; // Ook
-	}
-
-	const auto l = (ts_strlen(cToken) + this->len() + (sepl * 2) + 1);
-
-	TString tmp((UINT)l);
-
-	// insert at start
-	if (p_cStart == this->m_pString) {
-
-		ts_strcpyn_throw(tmp.m_pString, cToken, l);
-		ts_strcat_throw(tmp.m_pString, sepChars);
-		ts_strcat_throw(tmp.m_pString, this->m_pString);
-	}
-	else {
-		if (i == N) {
-			// insert at pos N
-			p_cStart -= sepl; // Ook
-			*p_cStart = 0;
-			p_cStart += sepl; // Ook
-		}
-		// common code to insert at pos N & insert at end
-		ts_strcpyn_throw(tmp.m_pString, this->m_pString, l);
-		ts_strcat_throw(tmp.m_pString, sepChars);
-		ts_strcat_throw(tmp.m_pString, cToken);
-
-		if (i == N) {
-			ts_strcat_throw(tmp.m_pString, sepChars);
-			ts_strcat_throw(tmp.m_pString, p_cStart);
-		}
-	}
-
-	this->swap(tmp);
-}
 
 /*!
- * \brief blah
- * added by Ook
- * blah
- */
-void TString::addtok( const TCHAR *const cToken, const TCHAR *const sepChars )
+* \brief blah
+*
+* blah
+*/
+
+TString TString::matchtok(const TCHAR * const mString, UINT N, const TCHAR * const sepChars) const
 {
-	if (cToken == nullptr || sepChars == nullptr || this->m_pString == nullptr)
-		return;
-
-	//const auto mp_len = this->len();
-	//const auto l = (ts_strlen(cToken) + mp_len + ts_strlen(sepChars) + 1);
-	//
-	//if (m_buffersize >= (l *sizeof(TCHAR)))
-	//{
-	//	if (mp_len > 0) {
-	//		ts_strcat_throw(this->m_pString, sepChars);
-	//	}
-	//	ts_strcat_throw(this->m_pString, cToken);
-	//	m_bDirty = true;
-	//}
-	//else {
-	//	TString tmp((UINT)l);
-	//
-	//	if (mp_len > 0) {
-	//		ts_strcpy_throw(tmp.m_pString, this->m_pString);
-	//		ts_strcat_throw(tmp.m_pString, sepChars);
-	//	}
-	//	ts_strcat_throw(tmp.m_pString, cToken);
-	//
-	//	this->swap(tmp);
-	//}
-
-	if (!empty())
-		append(sepChars);
-	append(cToken);
-}
-
-void TString::addtok( const __int64 nToken, const TCHAR *const sepChars ) {
-
-	if (sepChars == nullptr)
-		return;
-
-	TString tmp;
-	if (this->empty())
-		tmp.tsprintf(TEXT("%I64d"), nToken);
-	else
-		tmp.tsprintf(TEXT("%s%s%I64d"), this->m_pString, sepChars, nToken);
-
-	this->swap(tmp);
-}
-
-bool TString::istok(const TCHAR *const cToken, const TCHAR *const sepChars ) const {
-
-	if (sepChars == nullptr || this->empty())
-		return false;
-
-	const TCHAR * p_cStart = this->m_pString, *p_cEnd = nullptr;
-	const auto sepl = ts_strlen( sepChars );
-
-	if (sepl == 0)
-		return false;
-
-	while ((p_cEnd = ts_strstr(p_cStart, sepChars)) != nullptr) {
-		const size_t l = (p_cEnd - p_cStart);
-		if (l > 0) {
-			if (ts_strncmp(cToken,p_cStart,l) == 0)
-				return true;
+	size_t count = 0;
+	for (auto itStart = begin(sepChars), itEnd = end(); itStart != itEnd; ++itStart)
+	{
+		const TString tmp((*itStart));
+		if (ts_strstr(tmp.to_chr(), mString) != nullptr)
+		{
+			++count;
+			if (count >= N)
+				return tmp;
 		}
-		p_cStart = p_cEnd + sepl;
 	}
-	return (ts_strcmp(cToken, p_cStart) == 0);
+	return TString();
 }
 
 /*!
- * \brief blah
- *
- * Overwrite the Nth token
- */
+* \brief blah
+*
+* blah
+*/
 
-void TString::puttok(const TCHAR *const cToken, const UINT N, const TCHAR *const sepChars) {
+//The default is an alphabetic sort, however you can specify n = numeric sort, c = channel nick prefix sort, r = reverse sort, a = alphanumeric sort.
+void TString::sorttok(const TCHAR * const sortOptions, const TCHAR * const sepChars)
+{
+	SortOptions opts;
+	auto p = sortOptions;
 
-	if (cToken == nullptr || sepChars == nullptr || this->m_pString == nullptr)
-		return;
-
-	TCHAR * p_cStart = this->m_pString, *p_cEnd = nullptr;
-	size_t i = 0;
-	const auto sepl = ts_strlen(sepChars); // Ook
-	const auto tok_len = ts_strlen(cToken);
-
-	while ((p_cEnd = ts_strstr(p_cStart, sepChars)) != nullptr) {
-		i++;
-
-		if (i == N)
+	while (*p) {
+		switch (*p) {
+		case TEXT('a'): {
+			opts.bAlpha = true;
+			opts.bNumeric = true;
 			break;
-
-		p_cStart = p_cEnd + sepl; // Ook
+		}
+		case TEXT('n'): {
+			opts.bNumeric = true;
+			break;
+		}
+		case TEXT('c'): {
+			opts.bPrefix = true;
+			break;
+		}
+		case TEXT('r'): {
+			opts.bReverse = true;
+			break;
+		}
+		}
+		++p;
 	}
+	if (!opts.bAlpha && !opts.bNumeric && !opts.bPrefix)
+		opts.bAlpha = true;
 
-	TString tmp((UINT)(tok_len + this->len() + 1));	// max size that could be needed
-
-	// replace the first token?
-	if (p_cStart != this->m_pString) {
-		// no, so fix end of first part & copy
-		*p_cStart = 0;
-
-		ts_strcpy_throw(tmp.m_pString, this->m_pString);
-	}
-	// add token at either start or middle or end
-	ts_strcat_throw(tmp.m_pString, cToken);
-	// add end of string if any.
-	if (p_cEnd != NULL) {
-		ts_strcat_throw(tmp.m_pString, p_cEnd);
-	}
-
-	// do shrink_to_fit() here?
-	this->swap(tmp);
+	sorttok(opts, sepChars);
 }
 
-void TString::remtok(const TCHAR *const cToken, const UINT N, const TCHAR *const sepChars) {
-	const UINT tokennr = findtok(cToken, N, sepChars);
-	if (tokennr > 0)
-		deltok(tokennr, sepChars);
+/*!
+* \brief blah
+*
+* blah
+*/
+
+void TString::sorttok(const SortOptions &sortOptions, const TCHAR * const sepChars)
+{
+	//TString sortedList;
+	//for (auto itStart = begin(sepChars), itEnd = end(); itStart != itEnd; ++itStart)
+	//{
+	//	const TString x(*itStart);
+	//	if (sortedList.empty())
+	//		sortedList = x;
+	//	else {
+	//		UINT c = 0;
+	//		bool bInserted = false;
+	//		for (auto itStartSorted = sortedList.begin(sepChars), itEndSorted = sortedList.end(); itStartSorted != itEndSorted; ++itStartSorted)
+	//		{
+	//			const TString sortedx(*itStartSorted);
+	//			++c;
+	//			if (x < sortedx) {
+	//				sortedList.instok(x.to_chr(), c, sepChars);
+	//				bInserted = true;
+	//				break;
+	//			}
+	//		}
+	//		if (!bInserted)
+	//			sortedList.addtok(x, sepChars);
+	//	}
+	//}
+	//this->swap(sortedList);
+
+	std::vector<TString> v(begin(sepChars),end());
+	//expand(v, sepChars);
+
+	if (sortOptions.bAlpha)
+	{
+		if (sortOptions.bNumeric)
+		{
+			// alphanumeric sort (needs work)
+			if (sortOptions.bReverse)
+				std::sort(v.begin(), v.end(),
+				[](auto &a, auto &b) {
+					if (!_istdigit(a[0]) || !_istdigit(b[0]))
+							return (a > b);
+					return (a.to_int() > b.to_int());
+				});
+			else
+				std::sort(v.begin(), v.end(),
+				[](auto &a, auto &b) {
+					if (!_istdigit(a[0]) || !_istdigit(b[0]))
+						return (a < b);
+					return (a.to_int() < b.to_int());
+				});
+		}
+		else {
+			// alpha sort
+			if (sortOptions.bReverse)
+				std::sort(v.begin(), v.end(), std::greater<TString>());
+			else
+				std::sort(v.begin(), v.end(), std::less<TString>());
+			//if (sortOptions.bReverse)
+			//	std::sort(v.begin(), v.end(), [](auto &a, auto &b) { return (a > b); });
+			//else
+			//	std::sort(v.begin(), v.end(), [](auto &a, auto &b) { return (a < b); });
+		}
+	}
+	else if (sortOptions.bNumeric)
+	{
+		// numeric sort
+		if (sortOptions.bReverse)
+			std::sort(v.begin(), v.end(), [](auto &a, auto &b) { return (a.to_int() > b.to_int()); });
+		else
+			std::sort(v.begin(), v.end(), [](auto &a, auto &b) { return (a.to_int() < b.to_int()); });
+	}
+	else if (sortOptions.bPrefix)
+	{
+		// prefix sort
+		if (sortOptions.bReverse)
+			std::sort(v.begin(), v.end(), [](auto &a, auto &b) { return (a[0] > b[0]); });
+		else
+			std::sort(v.begin(), v.end(), [](auto &a, auto &b) { return (a[0] < b[0]); });
+	}
+
+	clear();
+	join(v, sepChars);
 }
 
 /*!
@@ -2199,7 +1375,7 @@ TString &TString::trim()
 	return *this;
 }
 
-#ifdef INCLUDE_MIRC_EXTRAS
+#if INCLUDE_MIRC_EXTRAS
 /*
 * isnum(option)
 *   returns TRUE if string is a valid number, if option is > 0,
@@ -2209,7 +1385,7 @@ TString &TString::trim()
 bool TString::isnum(const int f) const
 {
 	auto *p = this->m_pString;
-	int c = 0;
+	auto c = 0;
 	if (*p == TEXT('-')) {
 		if (f)
 			return false;
@@ -2223,7 +1399,7 @@ bool TString::isnum(const int f) const
 		++c;
 		++p;
 	}
-	return c ? true : false;
+	return (c > 0);
 }
 
 /*
@@ -2231,9 +1407,9 @@ bool TString::isnum(const int f) const
 *   returns TRUE if letter is in word (case sensitive)
 *   otherwise, a FALSE is returned
 */
-bool TString::isincs(const char let) const
+bool TString::isincs(const TCHAR let) const
 {
-	//TCHAR *tmp = this->m_pString;
+	//auto tmp = this->m_pString;
 	//while (*tmp) {
 	//	if (*tmp++ == let)
 	//		return true;
@@ -2255,7 +1431,7 @@ UINT TString::countchar(const TCHAR chr) const
 {
 	UINT r = 0;
 
-	for (auto *aux = this->m_pString; *aux; ++aux) {
+	for (auto aux = this->m_pString; *aux; ++aux) {
 		if (*aux == chr)
 			++r;
 	}
@@ -2267,8 +1443,8 @@ UINT TString::countchar(const TCHAR chr) const
 */
 bool TString::ishostmask(void) const
 {
-	register bool /*nick = false,*/ s1 = false, /*ident = false,*/ s2 = false, host = false;
-	register auto *c = this->m_pString;
+	register auto /*nick = false,*/ s1 = false, /*ident = false,*/ s2 = false, host = false;
+	register auto c = this->m_pString;
 	while (*c) {
 		if (*c == ' ')
 			return false;
@@ -2313,10 +1489,10 @@ TString TString::toupper(void) const
 	//	c++;
 	//}
 
-	TString tmp(*this);
+	auto tmp(*this);
 	UINT c = 0;
-	const UINT l = tmp.len();
-	for (auto *p = tmp.to_chr(); c < l; c++)
+	const auto l = tmp.len();
+	for (auto p = tmp.to_chr(); c < l; c++)
 		p[c] = ts_toupper(p[c]);
 
 	return tmp;
@@ -2331,9 +1507,9 @@ TString TString::tolower(void) const
 	//	c++;
 	//}
 
-	TString tmp(*this);
-	UINT c = 0;
-	const UINT l = tmp.len();
+	auto tmp(*this);
+	const auto l = tmp.len();
+	auto c = decltype(l){0};
 	for (auto *p = tmp.to_chr(); c < l; c++)
 		p[c] = ts_tolower(p[c]);
 
@@ -2344,7 +1520,7 @@ TString TString::tolower(void) const
 // pos must be within length of string, n can be < 0
 TString TString::mid(const int pos, int n) const
 {
-	const int l = this->len();
+	const auto l = (int)this->len();
 	if ((n == 0) || (l == 0) || (pos > l) || (pos < 0))
 		return TEXT("");
 	if (n < 0)
@@ -2366,7 +1542,7 @@ TString TString::mid(const int pos, int n) const
 // if n > string length its truncated, n can be < 0
 TString TString::left(int n) const
 {
-	//const size_t l = ts_strlen(this->m_pString);
+	//const auto l = ts_strlen(this->m_pString);
 	//if ((l == 0) || (n == 0))
 	//	return TEXT("");
 	//if (n < 0)
@@ -2382,7 +1558,7 @@ TString TString::left(int n) const
 // if n > string length its truncated, n can be < 0
 TString TString::right(int n) const
 {
-	const int l = this->len();
+	const int l = (int)this->len();
 	if ((n == 0) || (l == 0))
 		return TEXT("");
 	if (n > l)
@@ -2461,10 +1637,10 @@ inline int TString::rfc_toupper(const int c)
  * Features:  Forward, case-insensitive, ?, *, %, ~(optional)
  * Best use:  Generic string matching, such as in IrcII-esque bindings
  */
-int TString::match(register const TCHAR *m, register const TCHAR *n, const bool cs /* case sensitive */)
+UINT TString::match(register const TCHAR *m, register const TCHAR *n, const bool cs /* case sensitive */)
 {
 	const TCHAR *ma = m, *lsm = 0, *lsn = 0, *lpm = 0, *lpn = 0;
-	int match = 1, saved = 0;
+	UINT match = 1, saved = 0;
 	register UINT sofar = 0;
 
 #ifdef WILDT
@@ -2580,7 +1756,7 @@ int TString::match(register const TCHAR *m, register const TCHAR *n, const bool 
 
 TString TString::wildtok(const TCHAR *const wildString, const UINT N, const TCHAR *const sepChars) const
 {
-	if (sepChars == nullptr || N == 0 || this->empty())
+	if (sepChars == nullptr || wildString == nullptr || N == 0 || this->empty())
 		return TEXT("");
 
 	const auto nToks = this->numtok( sepChars );
@@ -2588,70 +1764,74 @@ TString TString::wildtok(const TCHAR *const wildString, const UINT N, const TCHA
 	if ( N > nToks )
 		return TEXT("");
 
+	// code below is broken as it ignores the sepChars & just uses the default `space`
+	//auto m = 0U;
+	//for (const auto &tmp: *this)
+	//{
+	//	if (match(wildString,tmp.to_chr(),false) != NOMATCH) {
+	//		m++;
+	//		if (m == N)
+	//			return tmp;
+	//	}
+	//}
+	//return TEXT("");
+
 	auto m = 0U;
-#if TSTRING_PARTS
-	for (const auto &tmp: *this)
-	{
-		if (match(wildString,tmp.to_chr(),false) != NOMATCH) {
+	auto itEnd = end();
+	auto itGot = std::find_if(begin(sepChars), itEnd, [&wildString, &m, &N](const TString &x) {
+		if (match(wildString, x.to_chr(), false) != NOMATCH) {
 			m++;
 			if (m == N)
-				return tmp;
+				return true;
 		}
-	}
-#else
-	for (TString tmp(this->getfirsttok(1, sepChars)); !tmp.empty(); tmp = this->getnexttok(sepChars))
-	{
-		if (match(wildString,tmp.to_chr(),false) != NOMATCH) {
-			m++;
-			if (m == N)
-				return tmp;
-		}
-	}
-#endif
+		return false;
+	});
+
+	if (itGot != itEnd)
+		return *itGot;
 	return TEXT("");
 }
 
 UINT TString::nwildtok(const TCHAR *const wildString, const TCHAR *const sepChars) const
 {
-	if ( sepChars == nullptr || this->empty() )
+	if ( sepChars == nullptr || wildString == nullptr || this->empty() )
 		return 0;
 
+	// code below is broken as it ignores the sepChars & just uses the default `space`
+	//auto m = 0U;
+	//for (const auto &tmp: *this)
+	//{
+	//	if (match(wildString, tmp.to_chr(), false) != NOMATCH)
+	//		m++;
+	//}
+	//return m;
+
 	auto m = 0U;
-#if TSTRING_PARTS
-	for (const auto &tmp: *this)
-	{
-		if (match(wildString, tmp.to_chr(), false) != NOMATCH)
+	std::for_each(begin(sepChars), end(), [&wildString, &m](const TString &x) {
+		if (match(wildString, x.to_chr(), false) != NOMATCH)
 			m++;
-	}
+	});
 	return m;
-#else
-	for (TString tmp(this->getfirsttok(1, sepChars)); !tmp.empty(); tmp = this->getnexttok(sepChars))
-	{
-		if (match(wildString,tmp.to_chr(),false) != NOMATCH)
-			m++;
-	}
-	return m;
-#endif
 }
 
 int TString::tsprintf(const TCHAR *const fmt, ...)
 {
 	va_list args;
 	va_start( args, fmt );
-	const auto cnt = tvprintf(fmt, &args);
+	const auto cnt = tvprintf(fmt, args);
 	va_end( args );
 	return cnt;
 }
 
-int TString::tvprintf(const TCHAR *const fmt, va_list * args)
+int TString::tvprintf(const TCHAR *const fmt, va_list args)
 {
-	const auto cnt = ts_vscprintf(fmt, *args);
+	const auto cnt = ts_vscprintf(fmt, args);
 	if (cnt > 0) {
 		TString tmp((UINT)(cnt + 2));
 
 		// warning C4996: 'vsprintf' was declared deprecated
 		// http://forums.microsoft.com/MSDN/ShowPost.aspx?PostID=10254&SiteID=1
-		ts_vsprintf(tmp.m_pString, cnt + 1, fmt, *args);
+		ts_vsprintf(tmp.m_pString, cnt + 1, fmt, args);
 
 		this->swap(tmp);
 	}
@@ -2679,6 +1859,7 @@ bool TString::iswmcs(const TCHAR *const a) const
 {
 	return (match(a, this->m_pString, true) != NOMATCH);
 }
+
 //int wildcmp(const TCHAR *wild, const TCHAR *string) {
 //	// Written by Jack Handy - jakkhandy@hotmail.com
 //	const TCHAR *cp = NULL, *mp = NULL;
@@ -2723,7 +1904,7 @@ WCHAR *TString::charToWchar(const char *const cString, size_t *const buffer_size
 	// try UTF8 encoded first, but error on invalid chars.
 	WCHAR *res = nullptr;
 	WCHAR *normRes = nullptr;
-	size_t buf_size = 0;
+	auto buf_size = std::remove_pointer_t < decltype(buffer_size) > {0};
 	if (cString != nullptr) {
 		try {
 			auto widelen = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, cString, -1, nullptr, 0);
@@ -2764,6 +1945,8 @@ WCHAR *TString::charToWchar(const char *const cString, size_t *const buffer_size
 				}
 				else
 					delete[] normRes;
+
+				normRes = nullptr;
 			}
 		}
 		catch (std::bad_alloc)
@@ -2788,7 +1971,7 @@ char *TString::WcharTochar(const WCHAR *const wString, size_t *const buffer_size
 {
 	const auto l = WideCharToMultiByte(CP_UTF8, 0, wString, -1, nullptr, 0, nullptr, nullptr);
 	char *res = nullptr;
-	size_t buf_size = 0;
+	auto buf_size = std::remove_pointer_t < decltype(buffer_size) > {0};
 
 	if (l > 0) {
 		buf_size = TS_getmemsize(l + 1);
@@ -2822,14 +2005,14 @@ TString &TString::strip()
 	// Trim from end
 	while (end != start && *(--end) == TEXT(' '));
 
-	const size_t new_len = (end - start) + 1;	// add one to take into account the previous decrement
+	const size_t new_len = (size_t)(end - start) + 1;	// add one to take into account the previous decrement
 
 	TString tmp((UINT)new_len + 1);				// add one for zero byte.
 
 	// now strip all ctrl codes.
 	const auto *const wtxt = start;
 	auto *p = tmp.m_pString;
-	size_t pos = 0;
+	auto pos = decltype(new_len){0};
 
 	// strip out ctrl codes to correctly position text.
 	for (auto c = wtxt[pos]; pos < new_len; c = wtxt[++pos]) {
@@ -2884,7 +2067,8 @@ TString &TString::strip()
 }
 
 // swap function taken from: http://stackoverflow.com/questions/3279543/what-is-the-copy-and-swap-idiom
-void TString::swap(TString &second) // nothrow noexcept
+#if _MSC_VER > 1800
+void TString::swap(TString &second) noexcept
 {
 	// enable ADL (not necessary in our case, but good practice)
 	using std::swap;
@@ -2893,20 +2077,22 @@ void TString::swap(TString &second) // nothrow noexcept
 
 	// by swapping the members of two classes,
 	// the two classes are effectively swapped
+
+#if TSTRING_INTERNALBUFFER
 	swap(this->m_pString, second.m_pString);
 	swap(this->m_savedpos, second.m_savedpos);
-	swap(this->m_bUsingInternal, second.m_bUsingInternal);
 	swap(this->m_pTempString, second.m_pTempString);
 	swap(this->m_buffersize, second.m_buffersize);
 	swap(this->m_savedcurrenttok, second.m_savedcurrenttok);
 	swap(this->m_savedtotaltoks, second.m_savedtotaltoks);
-#ifdef TSTRING_PARTS
+#if TSTRING_PARTS && !TSTRING_ITERATOR
 	swap(this->m_SplitParts, second.m_SplitParts);
 #endif
 	swap(this->m_bDirty, second.m_bDirty);
 	swap(this->m_iLen, second.m_iLen);
+	swap(this->m_bUsingInternal, second.m_bUsingInternal);
+	m_InternalBuffer[0] = TEXT('\0');
 
-#if TSTRING_INTERNALBUFFER
 	if (this->m_bUsingInternal)
 	{
 		ts_copymem(m_InternalBuffer, second.m_InternalBuffer, TSTRING_INTERNALBUFFERSIZE_BYTES);
@@ -2916,6 +2102,7 @@ void TString::swap(TString &second) // nothrow noexcept
 		if (this->m_savedpos != nullptr)
 			this->m_savedpos = (this->m_pString + (this->m_savedpos - second.m_InternalBuffer));
 	}
+
 	if (second.m_bUsingInternal)
 	{
 		second.m_pString = second.m_InternalBuffer;
@@ -2926,8 +2113,81 @@ void TString::swap(TString &second) // nothrow noexcept
 		second.m_bDirty = false;
 		second.m_InternalBuffer[0] = TEXT('\0');
 	}
+#else
+	swap(this->m_pString, second.m_pString);
+	swap(this->m_savedpos, second.m_savedpos);
+	swap(this->m_pTempString, second.m_pTempString);
+	swap(this->m_buffersize, second.m_buffersize);
+	swap(this->m_savedcurrenttok, second.m_savedcurrenttok);
+	swap(this->m_savedtotaltoks, second.m_savedtotaltoks);
+	swap(this->m_bDirty, second.m_bDirty);
+	swap(this->m_iLen, second.m_iLen);
+#if TSTRING_PARTS && !TSTRING_ITERATOR
+	swap(this->m_SplitParts, second.m_SplitParts);
+#endif
 #endif
 }
+#else
+void TString::swap(TString &second) // nothrow noexcept
+{
+	// enable ADL (not necessary in our case, but good practice)
+	using std::swap;
+
+	// NB: 'second' is expected to be disposed of after the swap, not used, some mods are needed to make it fully usable when using internal buffers.
+
+	// by swapping the members of two classes,
+	// the two classes are effectively swapped
+
+#if TSTRING_INTERNALBUFFER
+	swap(this->m_pString, second.m_pString);
+	swap(this->m_savedpos, second.m_savedpos);
+	swap(this->m_pTempString, second.m_pTempString);
+	swap(this->m_buffersize, second.m_buffersize);
+	swap(this->m_savedcurrenttok, second.m_savedcurrenttok);
+	swap(this->m_savedtotaltoks, second.m_savedtotaltoks);
+#if TSTRING_PARTS && !TSTRING_ITERATOR
+	swap(this->m_SplitParts, second.m_SplitParts);
+#endif
+	swap(this->m_bDirty, second.m_bDirty);
+	swap(this->m_iLen, second.m_iLen);
+	swap(this->m_bUsingInternal, second.m_bUsingInternal);
+	m_InternalBuffer[0] = TEXT('\0');
+
+	if (this->m_bUsingInternal)
+	{
+		ts_copymem(m_InternalBuffer, second.m_InternalBuffer, TSTRING_INTERNALBUFFERSIZE_BYTES);
+
+		this->m_pString = m_InternalBuffer;
+		// make savedpos point to the same offset within our buffer...
+		if (this->m_savedpos != nullptr)
+			this->m_savedpos = (this->m_pString + (this->m_savedpos - second.m_InternalBuffer));
+	}
+
+	if (second.m_bUsingInternal)
+	{
+		second.m_pString = second.m_InternalBuffer;
+		//if (second.m_savedpos != nullptr)
+		//	second.m_savedpos = (second.m_pString + (second.m_savedpos - this->m_InternalBuffer));
+		second.m_savedpos = nullptr;
+		second.m_iLen = 0;
+		second.m_bDirty = false;
+		second.m_InternalBuffer[0] = TEXT('\0');
+	}
+#else
+	swap(this->m_pString, second.m_pString);
+	swap(this->m_savedpos, second.m_savedpos);
+	swap(this->m_pTempString, second.m_pTempString);
+	swap(this->m_buffersize, second.m_buffersize);
+	swap(this->m_savedcurrenttok, second.m_savedcurrenttok);
+	swap(this->m_savedtotaltoks, second.m_savedtotaltoks);
+	swap(this->m_bDirty, second.m_bDirty);
+	swap(this->m_iLen, second.m_iLen);
+#if TSTRING_PARTS && !TSTRING_ITERATOR
+	swap(this->m_SplitParts, second.m_SplitParts);
+#endif
+#endif
+}
+#endif
 
 void TString::copy(TString other) // <- copy made here, so just swap them
 {
@@ -2936,13 +2196,35 @@ void TString::copy(TString other) // <- copy made here, so just swap them
 
 int TString::compare(const TString &other) const
 {
-	if (this->m_pString == nullptr)
-		return (other.m_pString == nullptr) ? 0 : 1;
+	return this->compare(other.data(), other.length());
+}
 
-	if (other.m_pString == nullptr)
+int TString::compare(const TCHAR &other) const
+{
+	const TCHAR tmp[] = { other, TEXT('\0') };
+	return this->compare(tmp, 1);
+}
+
+int TString::compare(const TCHAR *const other) const
+{
+	if (this->m_pString == nullptr)
+		return (other == nullptr) ? 0 : 1;
+
+	if (other == nullptr)
 		return -1;
 
-	return (ts_strcmp(this->m_pString, other.m_pString));
+	return (ts_strcmp(this->m_pString, other));
+}
+
+int TString::compare(const TCHAR *const other, const size_t iLength) const
+{
+	if (this->m_pString == nullptr)
+		return (other == nullptr) ? 0 : 1;
+
+	if (other == nullptr)
+		return -1;
+
+	return (ts_strncmp(this->m_pString, other, iLength));
 }
 
 ULONG TString::to_addr() const
@@ -2954,9 +2236,9 @@ ULONG TString::to_addr() const
 	third = (BYTE)(this->getnexttok(TEXT(".")).to_int() & 0xFF);
 	forth = (BYTE)(this->getnexttok(TEXT(".")).to_int() & 0xFF);
 
-	//return MAKELONG(MAKEWORD(first,second),MAKEWORD(third,forth));
-	//return MAKELONG(MAKEWORD(forth, third), MAKEWORD(second, first));
-	return MAKEIPADDRESS(first, second, third, forth);
+	//return (ULONG)MAKELONG(MAKEWORD(first,second),MAKEWORD(third,forth));
+	//return (ULONG)MAKELONG(MAKEWORD(forth, third), MAKEWORD(second, first));
+	return (ULONG)MAKEIPADDRESS(first, second, third, forth);
 }
 
 void TString::clear(void)
@@ -3009,8 +2291,39 @@ void TString::reserve(const size_t tsSize)
 		return;
 
 	TString tmp((UINT)tsSize);
-	ts_strcpy_throw(tmp.m_pString, this->m_pString);
+	if ((this->m_pString != nullptr) && (tmp.m_pString != nullptr))
+		ts_strcpy_throw(tmp.m_pString, this->m_pString);
 	this->swap(tmp);
+}
+
+TString &TString::append(const WCHAR &chr)
+{
+#ifdef UNICODE
+	if (chr != L'\0')
+	{
+		const WCHAR tmp[] = { chr, L'\0' };
+		append(tmp, 1);
+	}
+	return *this;
+#else
+	const TString tmp(chr);
+	return append(tmp);
+#endif
+}
+
+TString &TString::append(const char &chr)
+{
+#ifdef UNICODE
+	const TString tmp(chr);
+	return append(tmp);
+#else
+	if (chr != '\0')
+	{
+		const char tmp[] = { chr, '\0' };
+		append(tmp, 1);
+	}
+	return *this;
+#endif
 }
 
 TString &TString::append(const WCHAR *const cString)
@@ -3043,7 +2356,7 @@ TString &TString::append(const char *const cString)
 
 TString &TString::append(const TString &tString)
 {
-	return append(tString.m_pString, tString.len());
+	return append(tString.data(), tString.length());
 }
 
 TString &TString::append(const TCHAR *const cString, const size_t iChars)
@@ -3051,7 +2364,7 @@ TString &TString::append(const TCHAR *const cString, const size_t iChars)
 	if ((cString != nullptr) && (iChars != 0))
 	{
 		const auto sz = this->len();
-		const decltype(sz) l = (sz + iChars + 1);	// plus 1 for zero byte.
+		decltype(sz) l = (sz + iChars + 1);	// plus 1 for zero byte.
 
 		if ((l * sizeof(TCHAR)) <= m_buffersize) {
 			// new text fits within existing buffer, so append.
@@ -3073,124 +2386,11 @@ TString &TString::append(const TCHAR *const cString, const size_t iChars)
 	return *this;
 }
 
-#ifdef TSTRING_PARTS
-size_t TString::split(const TCHAR *const sepChars) const
-{
-	m_SplitParts.clear();
-
-	if (sepChars == nullptr || this->empty() || (sepChars[0] == TEXT('\0')))
-		return 0;
-
-	auto * p_cStart = this->m_pString, *p_cEnd = this->m_pString;
-	size_t iCount = 0;
-	const auto sepl = ts_strlen(sepChars);
-
-	while ((p_cEnd = ts_strstr(p_cStart, sepChars)) != nullptr) {
-		iCount++;
-		m_SplitParts.push_back(TString(p_cStart, p_cEnd));
-
-		p_cStart = p_cEnd + sepl;
-	}
-	if (p_cStart[0] != TEXT('\0'))
-	{
-		m_SplitParts.push_back(TString(p_cStart));
-		iCount++;
-	}
-	return iCount;
-}
-
-const TString &TString::part(const size_t N) const
-{
-	static const TString tsNull;
-
-	if (m_SplitParts.empty())
-		return tsNull;
-
-	return m_SplitParts[N];
-}
-
-const TStringList &TString::parts(const TCHAR *const sepChars) const
-{
-	if (m_SplitParts.empty())
-		split(sepChars);
-	return m_SplitParts;
-}
-
-TString::iterator TString::begin()
-{
-	parts();
-	return m_SplitParts.begin();
-}
-
-TString::iterator TString::begin(const TCHAR *const sepChars)
-{
-	parts(sepChars);
-	return m_SplitParts.begin();
-}
-
-TString::iterator TString::end()
-{
-	return m_SplitParts.end();
-}
-
-const TString::const_iterator TString::begin() const
-{
-	return parts().begin();
-}
-
-const TString::const_iterator TString::begin(const TCHAR *const sepChars) const
-{
-	parts(sepChars);
-	return m_SplitParts.cbegin();
-}
-
-const TString::const_iterator TString::end() const
-{
-	return m_SplitParts.end();
-}
-#endif
-
-//#ifdef TSTRING_PARTS
-//inline TString::iterator begin(TString& collection)
-//{
-//	return TString::iterator(collection);
-//}
-//
-//inline TString::iterator end(TString &collection)
-//{
-//	return TString::iterator(collection);
-//}
-//TString::iterator TString::begin(TCHAR *sepChars)
-//{
-//	return TString::iterator(this, sepChars);
-//}
-//
-//const TString::const_iterator TString::begin() const
-//{
-//	return parts().begin();
-//}
-//
-//const TString::const_iterator TString::begin() const
-//{
-//	return parts().begin();
-//}
-//
-//const TString::const_iterator TString::end() const
-//{
-//	return m_SplitParts.end();
-//}
-//#endif
-
 #if _MSC_VER > 1800
 // literal operator
-// allows "sometext"ts to be interpreted as TString("sometext")
-TString operator"" ts(const char *p, size_t)
+// allows "sometext"_ts to be interpreted as TString("sometext")
+TString operator"" _ts(const char *p, size_t)
 {
 	return TString{ p };
 }
 #endif
-
-//#ifdef TSTRING_TEMPLATES
-//template <class T>
-//TString &operator >>(TString &ts, T &N) const { N = ts.to_<T>(); return ts; }
-//#endif
