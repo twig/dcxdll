@@ -22,18 +22,20 @@
 
 class DcxDialog;
 
-#define LVIS_BOLD       0x00100 //!< ListView Caption Bold Style
-#define LVIS_UNDERLINE  0x00200 //!< ListView Caption Underline Style
-#define LVIS_COLOR      0x00400 //!< ListView Caption Color Style
-#define LVIS_BGCOLOR    0x00800 //!< ListView Caption Background Color Style
-#define LVIS_PBAR       0x01000 //!< ListView ProgressBar Style
-#define LVIS_ITALIC     0x02000 //!< ListView Caption Italic Style
-#define LVIS_HASHITEM	0x04000 //!< ListView Item takes it's text from a hashtable. (text is `table item`) (to be replaced by LVIS_HASHTABLE)
-#define LVIS_HASHNUMBER	0x08000 //!< ListView Item takes it's text from a hashtable. (text is `table N`) (to be replaced by LVIS_HASHTABLE)
-#define LVIS_XML		0x10000 //!< ListView Item takes it's text from a xml file. (text is `dataset_name filename`) (adds all items in dataset_name)
-#define LVIS_HASHTABLE	0x20000	//!< ListView Item takes it's text from a hashtable. (text is `+flags hashtable (N|N1,N2|item)`) (can add multiple items)
-#define LVIS_WINDOW		0x40000	//!< ListView Item takes it's text from a custom window. (text is `+flags window (N|N1,N2)`) (can add multiple items)
-#define LVIS_CONTROL	0x80000	//!< ListView Item takes it's text from another DCX control. (text is `+flags dialog id (N|N1,N2)`) (can add multiple items)
+#define LVIS_BOLD       0x00000100	//!< ListView Caption Bold Style
+#define LVIS_UNDERLINE  0x00000200	//!< ListView Caption Underline Style
+#define LVIS_COLOR      0x00000400	//!< ListView Caption Color Style
+#define LVIS_BGCOLOR    0x00000800	//!< ListView Caption Background Color Style
+#define LVIS_PBAR       0x00001000	//!< ListView ProgressBar Style
+#define LVIS_ITALIC     0x00002000	//!< ListView Caption Italic Style
+#define LVIS_HASHITEM	0x00004000	//!< ListView Item takes it's text from a hashtable. (text is `table item`) (to be replaced by LVIS_HASHTABLE)
+#define LVIS_HASHNUMBER	0x00008000	//!< ListView Item takes it's text from a hashtable. (text is `table N`) (to be replaced by LVIS_HASHTABLE)
+#define LVIS_XML		0x00010000	//!< ListView Item takes it's text from a xml file. (text is `dataset_name filename`) (adds all items in dataset_name)
+#define LVIS_HASHTABLE	0x00020000	//!< ListView Item takes it's text from a hashtable. (text is `+flags hashtable (N|N1,N2|item)`) (can add multiple items)
+#define LVIS_WINDOW		0x00040000	//!< ListView Item takes it's text from a custom window. (text is `+flags window (N|N1,N2)`) (can add multiple items)
+#define LVIS_CONTROL	0x00080000	//!< ListView Item takes it's text from another DCX control. (text is `+flags dialog id (N|N1,N2)`) (can add multiple items)
+#define LVIS_CENTERICON	0x00100000	//!< ListView Item displays the icon centered if no text present.
+
 // +flags mentioned above tell the parser extra details about how the items are added.
 // +	:	single item is added as text only (N)
 // +a	:	items added include all info for the item not just it's text.
@@ -57,9 +59,15 @@ class DcxDialog;
 #define LVCS_BKG        0x04   //!< ListView Background Color Style
 #define LVCS_OUTLINE    0x08   //!< ListView Selection Outline Color Style
 
-#define LVSEARCH_W 0x01 //!< ListView WildCard Search
-#define LVSEARCH_R 0x02 //!< ListView Regex Search
-#define LVSEARCH_E 0x04 //!< ListView Exact Match
+enum ListView_SearchTypes : UINT {
+	LVSEARCH_W = 0x01,	//!< ListView WildCard Search
+	LVSEARCH_R,			//!< ListView Regex Search
+	LVSEARCH_E			//!< ListView Exact Match
+};
+
+//#define LVSEARCH_W 0x01 //!< ListView WildCard Search
+//#define LVSEARCH_R 0x02 //!< ListView Regex Search
+//#define LVSEARCH_E 0x04 //!< ListView Exact Match
 
 #define LVSCW_AUTOSIZE_MAX	-3	// Max of LVSCW_AUTOSIZE & LVSCW_AUTOSIZE_USEHEADER
 
@@ -89,6 +97,27 @@ typedef struct tagDCXLVRENDERINFO {
 typedef std::vector<LPDCXLVRENDERINFO> VectorOfRenderInfo;
 
 /*!
+* \brief blah
+*
+* blah
+*/
+
+#define DCX_LV_COLUMNF_AUTO			1		// uses LVSCW_AUTOSIZE
+#define DCX_LV_COLUMNF_AUTOHEADER	2		// uses LVSCW_AUTOSIZE_USEHEADER
+#define DCX_LV_COLUMNF_AUTOMAX		4		// uses both LVSCW_AUTOSIZE & LVSCW_AUTOSIZE_USEHEADER to find the largest.
+#define DCX_LV_COLUMNF_PERCENT		8		// m_iSize is a % width between 0 & 100 (zero width columns are hidden)
+#define DCX_LV_COLUMNF_FIXED		16		// m_iSize is the fixed width of the column
+
+typedef struct tagDCXLVCOLUMNINFO {
+	int			m_iColumn;	// the column affected by this info.
+	DWORD		m_dFlags;	// size flags (autosize, % width etc..)
+	int			m_iSize;	// size of column (meaning depends on flags)
+} DCXLVCOLUMNINFO, *LPDCXLVCOLUMNINFO;
+
+typedef std::vector<LPDCXLVCOLUMNINFO> VectorOfColumnInfo;
+//typedef std::map<int, int> ColumnWidths;
+
+/*!
  * \brief blah
  *
  * blah
@@ -97,7 +126,8 @@ typedef std::vector<LPDCXLVRENDERINFO> VectorOfRenderInfo;
 typedef struct tagDCXLVITEM {
 	TString tsTipText;	//!< Tooltip text
 	TString tsMark;		// Marked text
-	DcxControl *pbar;
+	//DcxControl *pbar;
+	DcxProgressBar *pbar;
 	int iPbarCol;
 	VectorOfRenderInfo	vInfo;	//!< Render Info for each colum
 } DCXLVITEM,*LPDCXLVITEM;
@@ -111,35 +141,33 @@ typedef struct tagDCXLVITEM {
 class DcxListView : public DcxControl {
 
 public:
+	DcxListView() = delete;
+	DcxListView(const DcxListView &) = delete;
+	DcxListView &operator =(const DcxListView &) = delete;	// No assignments!
 
-	DcxListView( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, const TString & styles );
+	DcxListView(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles );
 	virtual ~DcxListView( );
 
-	LRESULT PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
-	LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
+	LRESULT PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) override;
+	LRESULT ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) override;
 
-	void parseInfoRequest( const TString & input, TCHAR * szReturnValue ) const;
-	void parseCommandRequest( const TString & input );
-	void parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
-	static void parseListviewExStyles( const TString & styles, LONG * ExStyles );
+	void parseInfoRequest(const TString & input, PTCHAR szReturnValue) const override;
+	void parseCommandRequest(const TString & input) override;
+	void parseControlStyles(const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme) override;
 
-	HIMAGELIST getImageList( const int iImageList ) const;
-	void setImageList( HIMAGELIST himl, const int iImageList );
-	static HIMAGELIST createImageList( const BOOL bIcons );
+	HIMAGELIST getImageList(const int iImageList) const;
+	void setImageList( const HIMAGELIST himl, const int iImageList );
 
-	BOOL isListViewStyle( const long dwView ) const;
+	bool isListViewStyle( const DWORD dwView ) const;
 
-	int getColumnCount( ) const;
+	const int &getColumnCount( ) const;
 
-	static LRESULT CALLBACK EditLabelProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
-
-	static int CALLBACK sortItemsEx( LPARAM lParam1, LPARAM lParam2, LPARAM lParamSort );
-
-	inline TString getType( ) const { return TString( TEXT("listview") ); };
+	inline const TString getType() const override { return TEXT("listview"); };
+	inline const DcxControlTypes getControlType() const noexcept override { return DcxControlTypes::LISTVIEW; }
 
 	int getTopIndex( ) const;
 	int getBottomIndex( ) const;
-	TString getStyles(void) const;
+	const TString getStyles(void) const override;
 
 protected:
 
@@ -156,12 +184,12 @@ protected:
 	static UINT parseGroupFlags( const TString & flags );
 	static UINT parseGroupState( const TString & flags );
 
-	BOOL matchItemText( const int nItem, const int nSubItem, const TString * search, const UINT SearchType ) const;
+	bool matchItemText(const int nItem, const int nSubItem, const TString * search, const ListView_SearchTypes SearchType) const;
 
 	void autoSize(const int nColumn, const TString &flags);
-	void autoSize(const int nColumn, const int iFlags );
+	void autoSize(const int nColumn, const int iFlags , const int iWidth = 0);
 
-	BOOL m_bDrag; //!< Dragging Items ?
+	//bool m_bDrag; //!< Dragging Items ?
 
 private:
 	DcxControl* CreatePbar(LPLVITEM lvi, const TString &style);
@@ -180,14 +208,20 @@ private:
 	static void getItemRange(const TString &tsItems, const int nItemCnt, int *iStart_range, int *iEnd_range);
 	static UINT parseMassItemFlags( const TString & flags );
 	static void parseText2Item(const TString & tsTxt, TString & tsItem, const TString &tsData);
+	static int CALLBACK sortItemsEx(LPARAM lParam1, LPARAM lParam2, LPARAM lParamSort);
+	static LRESULT CALLBACK EditLabelProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+	static HIMAGELIST createImageList(const BOOL bIcons);
+	static void parseListviewExStyles(const TString & styles, LONG * ExStyles);
 
 	//
-	HFONT m_hItemFont; // Font used for specific item changes.
-	HFONT m_hOldItemFont; // Font used for specific item changes.
-	int m_iSelectedItem;
-	int m_iSelectedSubItem;
-	bool m_bHasPBars;			// true if listview has pbars at all, if it does a slower update is used that check & moves pbars. (better system needed)
+	HFONT m_hItemFont;					// Font used for specific item changes.
+	HFONT m_hOldItemFont;				// Font used for specific item changes.
+	int m_iSelectedItem;				// Items currently selected.
+	int m_iSelectedSubItem;				// SubItems currently selected.
 	mutable int m_iColumnCount;			// the number of columns in the listview, a -1 value mean "dont know"
+	VectorOfColumnInfo	m_vWidths;		// column widths for dynamic sizing of columns.
+	bool m_bHasPBars;					// true if listview has pbars at all, if it does, a slower update is used that checks & moves pbars. (better system needed)
+	bool m_bReserved[3];
 };
 
 #endif // _DCXLISTVIEW_H_
