@@ -156,7 +156,6 @@ TString::TString( const WCHAR *const cString )
 */
 /****************************/
 
-#ifdef UNICODE
 #if TSTRING_INTERNALBUFFER
 TString::TString(const WCHAR chr)
 	: TString()
@@ -173,30 +172,6 @@ TString::TString(const WCHAR chr)
 	this->m_pString[1] = TEXT('\0');
 }
 #endif
-#else
-TString::TString( const WCHAR chr )
-	: TString()
-{
-	if (chr != L'\0')
-	{
-		const WCHAR wStr[] = { chr, L'\0' };
-
-		this->m_pString = this->WcharTochar(wStr, &m_buffersize);
-	}
-
-#if TSTRING_INTERNALBUFFER
-	if (this->m_pString == nullptr)
-		this->m_pString = m_InternalBuffer;
-	else
-		m_bUsingInternal = false;
-#else
-	if (this->m_pString == nullptr) {
-		this->m_pString = allocstr_cch(1);
-		this->m_pString[0] = TEXT('\0');
-	}
-#endif
-}
-#endif
 
 /****************************/
 /*! \fn TString::TString( const char chr )
@@ -206,7 +181,6 @@ TString::TString( const WCHAR chr )
 */
 /****************************/
 
-#ifdef UNICODE
 TString::TString(const char chr)
 	: TString()
 {
@@ -228,24 +202,6 @@ TString::TString(const char chr)
 	}
 #endif
 }
-#else
-#if TSTRING_INTERNALBUFFER
-TString::TString( const char chr )
-	: TString()
-{
-	this->m_pString[0] = chr;
-	this->m_pString[1] = 0;
-}
-#else
-TString::TString( const char chr )
-	: TString()
-{
-	this->m_pString = allocstr_cch(2);
-	this->m_pString[0] = chr;
-	this->m_pString[1] = 0;
-}
-#endif
-#endif
 
 /****************************/
 /*! \fn TString::TString( const TString & tString )
@@ -520,7 +476,7 @@ TString& TString::operator =( const char chr )
 */
 /****************************/
 
-TString TString::operator *( const int &N ) {
+TString TString::operator *( const int &N ) const {
 
 	if (N < 0 || N == 1)
 		return *this;
@@ -584,7 +540,7 @@ TString & TString::operator *=( const int &N ) {
     \return String length
 */
 
-const size_t TString::len( ) const {
+const size_t TString::len( ) const noexcept {
 	if (this->m_pString == nullptr)
 		return 0;
 
@@ -1008,6 +964,8 @@ TString TString::getfirsttok(const UINT N, const TCHAR *const sepChars) const
 
 	// N == 0 is used to pre load the vars for a loop of next toks where we need to start at 1
 
+	//if ((sepChars == nullptr) || (N == m_savedtotaltoks))
+	//	return *this;
 	if (sepChars == nullptr)
 		return *this;
 
@@ -1037,7 +995,7 @@ TString TString::getfirsttok(const UINT N, const TCHAR *const sepChars) const
 	}
 
 	if (iCount == N - 1) {
-		this->m_savedpos = nullptr;
+		//this->m_savedpos = nullptr;	// this line causes TString++ operator to fail to get the last token correctly, instead it returns the whole string...
 		return TString(p_cStart, p_fEnd);
 	}
 
@@ -1577,7 +1535,6 @@ TString TString::right(int n) const
 
 // Ook - match() function taken from aircdll.dll by Tabo source.
 /* taken from the hybrid-5.3p7 source */
-#if UNICODE
 inline int TString::rfc_tolower(const int c)
 {
 	//TCHAR tmp[2];
@@ -1597,18 +1554,7 @@ inline int TString::rfc_toupper(const int c)
 	//return (int)tmp[0];
 	return ::toupper(c);
 }
-#else
-unsigned char TString::tolowertab[] = { 0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xa, 0xb, 0xc, 0xd, 0xe, 0xf, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d, 0x1e, 0x1f, TEXT(' '), TEXT('!'), TEXT('"'), TEXT('#'), TEXT('$'), TEXT('%'), TEXT('&'), 0x27, TEXT('('), TEXT(')'), TEXT('*'), TEXT('+'), TEXT(','), TEXT('-'), TEXT('.'), TEXT('/'), TEXT('0'), TEXT('1'), TEXT('2'), TEXT('3'), TEXT('4'), TEXT('5'), TEXT('6'), TEXT('7'), TEXT('8'), TEXT('9'), TEXT(':'), TEXT(';'), TEXT('<'), TEXT('='), TEXT('>'), TEXT('?'), TEXT('@'), TEXT('a'), TEXT('b'), TEXT('c'), TEXT('d'), TEXT('e'), TEXT('f'), TEXT('g'), TEXT('h'), TEXT('i'), TEXT('j'), TEXT('k'), TEXT('l'), TEXT('m'), TEXT('n'), TEXT('o'), TEXT('p'), TEXT('q'), TEXT('r'), TEXT('s'), TEXT('t'), TEXT('u'), TEXT('v'), TEXT('w'), TEXT('x'), TEXT('y'), TEXT('z'), TEXT('{'), TEXT('|'),  TEXT('}'), TEXT('~'), TEXT('_'),  TEXT('`'), TEXT('a'), TEXT('b'), TEXT('c'), TEXT('d'), TEXT('e'), TEXT('f'), TEXT('g'), TEXT('h'), TEXT('i'), TEXT('j'), TEXT('k'), TEXT('l'), TEXT('m'), TEXT('n'), TEXT('o'), TEXT('p'), TEXT('q'), TEXT('r'), TEXT('s'), TEXT('t'), TEXT('u'), TEXT('v'), TEXT('w'), TEXT('x'), TEXT('y'), TEXT('z'), TEXT('{'), TEXT('|'),  TEXT('}'), TEXT('~'), 0x7f, 0x80, 0x81, 0x82, 0x83, 0x84, 0x85, 0x86, 0x87, 0x88, 0x89, 0x8a, 0x8b, 0x8c, 0x8d, 0x8e, 0x8f, 0x90, 0x91, 0x92, 0x93, 0x94, 0x95, 0x96, 0x97, 0x98, 0x99, 0x9a, 0x9b, 0x9c, 0x9d, 0x9e, 0x9f, 0xa0, 0xa1, 0xa2, 0xa3, 0xa4, 0xa5, 0xa6, 0xa7, 0xa8, 0xa9, 0xaa, 0xab, 0xac, 0xad, 0xae, 0xaf, 0xb0, 0xb1, 0xb2, 0xb3, 0xb4, 0xb5, 0xb6, 0xb7, 0xb8, 0xb9, 0xba, 0xbb, 0xbc, 0xbd, 0xbe, 0xbf, 0xc0, 0xc1, 0xc2, 0xc3, 0xc4, 0xc5, 0xc6, 0xc7, 0xc8, 0xc9, 0xca, 0xcb, 0xcc, 0xcd, 0xce, 0xcf, 0xd0, 0xd1, 0xd2, 0xd3, 0xd4, 0xd5, 0xd6, 0xd7, 0xd8, 0xd9, 0xda, 0xdb, 0xdc, 0xdd, 0xde, 0xdf, 0xe0, 0xe1, 0xe2, 0xe3, 0xe4, 0xe5, 0xe6, 0xe7, 0xe8, 0xe9, 0xea, 0xeb, 0xec, 0xed, 0xee, 0xef, 0xf0, 0xf1, 0xf2, 0xf3, 0xf4, 0xf5, 0xf6, 0xf7, 0xf8, 0xf9, 0xfa, 0xfb, 0xfc, 0xfd, 0xfe, 0xff };
-unsigned char TString::touppertab[] = { 0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xa, 0xb, 0xc, 0xd, 0xe, 0xf, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d, 0x1e, 0x1f, TEXT(' '), TEXT('!'), TEXT('"'), TEXT('#'), TEXT('$'), TEXT('%'), TEXT('&'), 0x27, TEXT('('), TEXT(')'), TEXT('*'), TEXT('+'), TEXT(','), TEXT('-'), TEXT('.'), TEXT('/'), TEXT('0'), TEXT('1'), TEXT('2'), TEXT('3'), TEXT('4'), TEXT('5'), TEXT('6'), TEXT('7'), TEXT('8'), TEXT('9'), TEXT(':'), TEXT(';'), TEXT('<'), TEXT('='), TEXT('>'), TEXT('?'), TEXT('@'), TEXT('A'), TEXT('B'), TEXT('C'), TEXT('D'), TEXT('E'), TEXT('F'), TEXT('G'), TEXT('H'), TEXT('I'), TEXT('J'), TEXT('K'), TEXT('L'), TEXT('M'), TEXT('N'), TEXT('O'), TEXT('P'), TEXT('Q'), TEXT('R'), TEXT('S'), TEXT('T'), TEXT('U'), TEXT('V'), TEXT('W'), TEXT('X'), TEXT('Y'), TEXT('Z'), TEXT('['), TEXT('\\'), TEXT(']'), TEXT('^'), 0x5f, TEXT('`'), TEXT('A'), TEXT('B'), TEXT('C'), TEXT('D'), TEXT('E'), TEXT('F'), TEXT('G'), TEXT('H'), TEXT('I'), TEXT('J'), TEXT('K'), TEXT('L'), TEXT('M'), TEXT('N'), TEXT('O'), TEXT('P'), TEXT('Q'), TEXT('R'), TEXT('S'), TEXT('T'), TEXT('U'), TEXT('V'), TEXT('W'), TEXT('X'), TEXT('Y'), TEXT('Z'), TEXT('['), TEXT('\\'), TEXT(']'), TEXT('^'), 0x7f, 0x80, 0x81, 0x82, 0x83, 0x84, 0x85, 0x86, 0x87, 0x88, 0x89, 0x8a, 0x8b, 0x8c, 0x8d, 0x8e, 0x8f, 0x90, 0x91, 0x92, 0x93, 0x94, 0x95, 0x96, 0x97, 0x98, 0x99, 0x9a, 0x9b, 0x9c, 0x9d, 0x9e, 0x9f, 0xa0, 0xa1, 0xa2, 0xa3, 0xa4, 0xa5, 0xa6, 0xa7, 0xa8, 0xa9, 0xaa, 0xab, 0xac, 0xad, 0xae, 0xaf, 0xb0, 0xb1, 0xb2, 0xb3, 0xb4, 0xb5, 0xb6, 0xb7, 0xb8, 0xb9, 0xba, 0xbb, 0xbc, 0xbd, 0xbe, 0xbf, 0xc0, 0xc1, 0xc2, 0xc3, 0xc4, 0xc5, 0xc6, 0xc7, 0xc8, 0xc9, 0xca, 0xcb, 0xcc, 0xcd, 0xce, 0xcf, 0xd0, 0xd1, 0xd2, 0xd3, 0xd4, 0xd5, 0xd6, 0xd7, 0xd8, 0xd9, 0xda, 0xdb, 0xdc, 0xdd, 0xde, 0xdf, 0xe0, 0xe1, 0xe2, 0xe3, 0xe4, 0xe5, 0xe6, 0xe7, 0xe8, 0xe9, 0xea, 0xeb, 0xec, 0xed, 0xee, 0xef, 0xf0, 0xf1, 0xf2, 0xf3, 0xf4, 0xf5, 0xf6, 0xf7, 0xf8, 0xf9, 0xfa, 0xfb, 0xfc, 0xfd, 0xfe, 0xff };
-inline int TString::rfc_tolower(const int c)
-{
-  return tolowertab[(unsigned char)(c)];
-}
-inline int TString::rfc_toupper(const int c)
-{
-  return touppertab[(unsigned char)(c)];
-}
-#endif
+
 /*
  * The next function is based on eggdrop's wild_match (by robey pointer)
  * I added an option to perform a case sensitive match
@@ -1682,13 +1628,13 @@ UINT TString::match(register const TCHAR *m, register const TCHAR *n, const bool
 			case WILDP:
 				while (*(++m) == WILDP);	/* Zap redundant %s */
 				if (*m != WILDS) {		/* Don't both if next=* */
-					if (*n != TEXT(' ')) {	/* WILDS canTEXT('t match ') ' */
+					if (*n != TEXT(' ')) {	/* WILDS can't match ' ' */
 						lpm = m;
-						lpn = n;		/* Save TEXT('%') fallback spot */
+						lpn = n;		/* Save '%' fallback spot */
 						saved += sofar;
 						sofar = 0;		/* And save tally count */
 					}
-					continue;		/* Done with TEXT('%') */
+					continue;		/* Done with '%' */
 				}
 				/* FALL THROUGH */
 			case WILDS:
@@ -1697,10 +1643,10 @@ UINT TString::match(register const TCHAR *m, register const TCHAR *n, const bool
 				while ((*m == WILDS) || (*m == WILDP));
 				lsm = m;
 				lsn = n;
-				lpm = 0;		/* Save TEXT('*') fallback spot */
+				lpm = 0;		/* Save '*' fallback spot */
 				match += (saved + sofar);	/* Save tally count */
 				saved = sofar = 0;
-				continue;		/* Done with TEXT('*') */
+				continue;		/* Done with '*' */
 			case WILDQ:
 				m++;
 				n++;
@@ -1725,7 +1671,7 @@ UINT TString::match(register const TCHAR *m, register const TCHAR *n, const bool
 #ifdef WILDT
 		}
 #endif
-		if (lpm) {			/* Try to fallback on TEXT('%') */
+		if (lpm) {			/* Try to fallback on '%' */
 			n = ++lpn;
 			m = lpm;
 			sofar = 0;		/* Restore position */
@@ -1733,10 +1679,10 @@ UINT TString::match(register const TCHAR *m, register const TCHAR *n, const bool
 				lpm = 0;		/* CanTEXT('t match 0 or ') ' */
 			continue;			/* Next TCHAR, please */
 		}
-		if (lsm) {			/* Try to fallback on TEXT('*') */
+		if (lsm) {			/* Try to fallback on '*' */
 			n = ++lsn;
 			m = lsm;			/* Restore position */
-			/* Used to test for (!*n) here but it wasnTEXT('t necessary so it')s gone */
+			/* Used to test for (!*n) here but it wasn't necessary so it's gone */
 			saved = sofar = 0;
 			continue;			/* Next TCHAR, please */
 		}
@@ -1831,6 +1777,7 @@ int TString::tvprintf(const TCHAR *const fmt, va_list args)
 	return cnt;
 }
 
+#if !TSTRING_TEMPLATES
 /*
  * iswm(*mask*)
  *    returns TRUE if *mask* matches string
@@ -1839,8 +1786,10 @@ int TString::tvprintf(const TCHAR *const fmt, va_list args)
  */
 bool TString::iswm(const TCHAR *const a) const
 {
-	return (match(a, this->m_pString,false) != NOMATCH);
+	//return (match(a, this->m_pString,false) != NOMATCH);
+	return _ts_WildcardMatch(m_pString, a);
 }
+#endif
 
 /*
  * iswmcs(*mask*)
@@ -1851,6 +1800,7 @@ bool TString::iswm(const TCHAR *const a) const
 bool TString::iswmcs(const TCHAR *const a) const
 {
 	return (match(a, this->m_pString, true) != NOMATCH);
+	//return _ts_WildcardMatch(m_pString, a);
 }
 
 //int wildcmp(const TCHAR *wild, const TCHAR *string) {
@@ -1892,12 +1842,82 @@ bool TString::iswmcs(const TCHAR *const a) const
 *
 * Convert a cstring/utf8 string to a utf16 string
 */
+// this version works fine but uses to many allocation via new/delete
+//WCHAR *TString::charToWchar(const char *const cString, size_t *const buffer_size)
+//{
+//	// try UTF8 encoded first, but error on invalid chars.
+//	WCHAR *res = nullptr;
+//	WCHAR *normRes = nullptr;
+//	auto buf_size = std::remove_pointer_t < decltype(buffer_size) > {0};
+//	if (cString != nullptr) {
+//		try {
+//			auto widelen = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, cString, -1, nullptr, 0);
+//			if (widelen == 0) {
+//				// zero result, error maybe?
+//				if (GetLastError() == ERROR_NO_UNICODE_TRANSLATION) {
+//					// invalid chars, assume its NOT a utf8 string then, try ascii->utf16
+//					widelen = MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, cString, -1, nullptr, 0);
+//					if (widelen != 0) {
+//						buf_size = TS_wgetmemsize(widelen + 1);
+//						res = new WCHAR[buf_size];	// TS_getmemsize() gives a much larger buffer than we really want, but it will do.
+//						if (MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, cString, -1, res, widelen) == 0)
+//							res[0] = L'\0';
+//					}
+//				}
+//				else {
+//					// if no error, assume zero length string.
+//					buf_size = TS_wgetmemsize(1);
+//					res = new WCHAR[buf_size];
+//					res[0] = L'\0';
+//				}
+//			}
+//			else {
+//				buf_size = TS_wgetmemsize(widelen + 1);
+//				res = new WCHAR[buf_size];
+//				if (MultiByteToWideChar(CP_UTF8, 0, cString, -1, res, widelen) == 0)
+//					res[0] = L'\0';
+//			}
+//			// NB: NormalizeString() is Vista+ ONLY
+//			auto normLen = NormalizeString(NormalizationC, res, -1, nullptr, 0);
+//			if (normLen > 0) {
+//				normLen = TS_wgetmemsize(normLen + 1);
+//				normRes = new WCHAR[normLen];
+//				if (NormalizeString(NormalizationC, res, -1, normRes, normLen) > 0)
+//				{
+//					delete[] res;
+//					res = normRes;
+//				}
+//				else
+//					delete[] normRes;
+//
+//				normRes = nullptr;
+//			}
+//		}
+//		catch (std::bad_alloc)
+//		{
+//			delete[] res;
+//			delete[] normRes;
+//			res = nullptr;
+//		}
+//	}
+//	if (buffer_size != nullptr)
+//		*buffer_size = (buf_size *sizeof(WCHAR));
+//
+//	return res;
+//}
+
+/*!
+* \brief blah
+*
+* Convert a cstring/utf8 string to a utf16 string
+* New version using unique_ptr instead of new/delete
+*/
 WCHAR *TString::charToWchar(const char *const cString, size_t *const buffer_size)
 {
 	// try UTF8 encoded first, but error on invalid chars.
-	WCHAR *res = nullptr;
-	WCHAR *normRes = nullptr;
-	auto buf_size = std::remove_pointer_t < decltype(buffer_size) > {0};
+	std::unique_ptr<WCHAR[]> res;
+
+	auto buf_size = std::remove_pointer_t < decltype(buffer_size) >{ 0 };
 	if (cString != nullptr) {
 		try {
 			auto widelen = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, cString, -1, nullptr, 0);
@@ -1908,51 +1928,44 @@ WCHAR *TString::charToWchar(const char *const cString, size_t *const buffer_size
 					widelen = MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, cString, -1, nullptr, 0);
 					if (widelen != 0) {
 						buf_size = TS_wgetmemsize(widelen + 1);
-						res = new WCHAR[buf_size];	// TS_getmemsize() gives a much larger buffer than we really want, but it will do.
-						if (MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, cString, -1, res, widelen) == 0)
+						res = std::make_unique<WCHAR[]>(buf_size);	// TS_getmemsize() gives a much larger buffer than we really want, but it will do.
+						if (MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, cString, -1, res.get(), widelen) == 0)
 							res[0] = L'\0';
 					}
 				}
 				else {
 					// if no error, assume zero length string.
 					buf_size = TS_wgetmemsize(1);
-					res = new WCHAR[buf_size];
+					res = std::make_unique<WCHAR[]>(buf_size);
 					res[0] = L'\0';
 				}
 			}
 			else {
 				buf_size = TS_wgetmemsize(widelen + 1);
-				res = new WCHAR[buf_size];
-				if (MultiByteToWideChar(CP_UTF8, 0, cString, -1, res, widelen) == 0)
+				res = std::make_unique<WCHAR[]>(buf_size);
+				if (MultiByteToWideChar(CP_UTF8, 0, cString, -1, res.get(), widelen) == 0)
 					res[0] = L'\0';
 			}
 			// NB: NormalizeString() is Vista+ ONLY
-			auto normLen = NormalizeString(NormalizationC, res, -1, nullptr, 0);
+			auto normLen = NormalizeString(NormalizationC, res.get(), -1, nullptr, 0);
 			if (normLen > 0) {
 				normLen = TS_wgetmemsize(normLen + 1);
-				normRes = new WCHAR[normLen];
-				if (NormalizeString(NormalizationC, res, -1, normRes, normLen) > 0)
+				auto normRes = std::make_unique<WCHAR[]>(normLen);
+				if (NormalizeString(NormalizationC, res.get(), -1, normRes.get(), normLen) > 0)
 				{
-					delete[] res;
-					res = normRes;
+					res = std::move(normRes);
 				}
-				else
-					delete[] normRes;
-
-				normRes = nullptr;
 			}
 		}
 		catch (std::bad_alloc)
 		{
-			delete[] res;
-			delete[] normRes;
 			res = nullptr;
 		}
 	}
 	if (buffer_size != nullptr)
 		*buffer_size = (buf_size *sizeof(WCHAR));
 
-	return res;
+	return res.release();
 }
 
 /*!

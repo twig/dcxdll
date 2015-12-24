@@ -86,7 +86,7 @@
 #define TSTRING_TEMPLATES 1
 
 // Enable/Disable test code...
-#define TSTRING_TESTCODE 0
+#define TSTRING_TESTCODE 1
 
 #if TSTRING_PARTS
 #include <iterator>
@@ -113,7 +113,6 @@
 #pragma warning( disable : 2287 )
 #endif
 
-#ifdef UNICODE
 #define ts_atoi(x) _wtoi((x))
 #define ts_atoi64(x) _wtoi64((x));
 #define ts_atof(x) _wtof((x));
@@ -134,28 +133,6 @@
 #define ts_strncmp(x,y,z) wcsncmp((x),(y),(size_t)(z))
 #define ts_vscprintf(fmt, args) _vscwprintf((fmt), (args))
 #define ts_vsprintf(txt, cnt, fmt, args ) vswprintf((txt), (cnt), (fmt), (args))
-#else
-#define ts_atoi(x) atoi((x))
-#define ts_atoi64(x) _atoi64((x));
-#define ts_atof(x) atof((x));
-#define ts_strtoul(x) strtoul((x), nullptr, 10)
-#define ts_itoa(x,y,z) _itoa((x),(y),(z))
-#define ts_upr(x,y) _strupr_s((x),(y))
-#define ts_strstr(x,y) strstr((x),(y))
-#define ts_strcat_s(x,y,z) strcat_s((x),(z),(y))
-#define ts_strcat(x,y) lstrcat((x),(y))
-#define ts_strncat(x,y,z) strncat((x),(y),(z))
-//#define ts_toupper(c) ( (((c) >= TEXT('a')) && ((c) <= TEXT('z'))) ? _toupper((c)) : (c) )
-#define ts_toupper(c) rfc_toupper((c))
-#define ts_tolower(c) rfc_tolower((c))
-#define ts_strlen(x) lstrlen((x))
-#define ts_strcpyn(dest,src,len) lstrcpyn((dest),(src),(len))
-#define ts_strcpy(dest,src) lstrcpy((dest),(src))
-#define ts_strcmp(x,y) lstrcmp((x),(y))
-#define ts_strncmp(x,y,z) strncmp((x),(y),(z))
-#define ts_vscprintf(fmt, args) _vscprintf((fmt), (args))
-#define ts_vsprintf(txt, cnt, fmt, args ) vsprintf_s((txt), (cnt), (fmt), (args))
-#endif
 
 #define ts_copymem(dest,src,sz) CopyMemory((dest),(src),(sz))
 #define ts_zeromem(dest, sz) ZeroMemory((dest),(sz))
@@ -169,8 +146,6 @@
  * \brief String and Token Management Class
  */
 class TString {
-
-//#define is_Numeric(x) (std::is_arithmetic<x>::value && !std::is_same<x,WCHAR>::value && !std::is_same<x,CHAR>::value)
 
 	template<class _Ty>
 	struct is_Numeric
@@ -231,13 +206,8 @@ private:
 		if (this->m_pString == nullptr)
 			return;
 
-#if UNICODE
 		if (this->m_pTempString == nullptr)
 			this->m_pTempString = WcharTochar(this->m_pString);
-#else
-		if (this->m_pTempString == nullptr)
-			this->m_pTempString = charToWchar(this->m_pString);
-#endif
 	}
 
 	// check if requested character is within buffer (not within string)
@@ -258,10 +228,6 @@ private:
 			throw std::out_of_range("TString::at()");
 	}
 
-#if !UNICODE
-	static unsigned char tolowertab[];
-	static unsigned char touppertab[];
-#endif
 	static WCHAR *charToWchar(const char *const cString, size_t *const buffer_size = nullptr);
 	static char *WcharTochar(const WCHAR *const wString, size_t *const buffer_size = nullptr);
 
@@ -285,11 +251,7 @@ public:
 	TCHAR * m_pString; //!< String buffer
 	// Temp string buffer used for string conversion to/from wchar/char or vice versa depending on what TCHAR is.
 	// changes made to m_pTempString are NOT reflected in m_pString!
-#ifdef UNICODE
 	mutable char * m_pTempString;
-#else
-	mutable WCHAR * m_pTempString;
-#endif
 	static const TCHAR *m_cSpace;
 	static const TCHAR *m_cComma;
 	static const TCHAR *m_cTab;
@@ -357,21 +319,19 @@ public:
 	//	return *this;
 	//}
 
-	//TString & operator =(const TString &tString) = default;
-
 	// final version of the += operator, properly handles numeric types (char, wchar classified as non-numeric here)
 	template <class T>
 	std::enable_if_t<!is_Numeric<T>::value, TString> & operator +=(const T &other) { return append(other); }
 	template <class T>
 	std::enable_if_t<is_Numeric<T>::value, TString> & operator +=(const T &num) { return append_number(num); }
 
-	// code below is the same as above but without the is_Numeric() macro
+	// code below is the same as above but without the is_Numeric() macro (kept as reference only)
 	//template <class T>
 	//std::enable_if_t<!std::is_arithmetic<T>::value || std::is_same<T, WCHAR>::value || std::is_same<T, CHAR>::value, TString> & operator +=(const T &other) { return append(other); }
 	//template <class T>
 	//std::enable_if_t<std::is_arithmetic<T>::value && !std::is_same<T, WCHAR>::value && !std::is_same<T, CHAR>::value, TString> & operator +=(const T &num) { return append_number(num); }
 
-	// template below works great, but has limited type support for numbers
+	// template below works great, but has limited type support for numbers (kept as reference only)
 	//template <class T>
 	//TString & operator +=(const T &other) { return append(other); }
 	//template <>
@@ -422,7 +382,7 @@ public:
 		return remove(other);
 	}
 
-	TString operator *( const int &N );
+	TString operator *( const int &N ) const;
 	TString & operator *=( const int &N );
 
 #if TSTRING_TESTCODE
@@ -434,12 +394,27 @@ public:
 		if (this->m_savedpos == nullptr) return this->getfirsttok(1);
 		return this->getnexttok();
 	}
+
+	// returns the current token as set by ++ operator above (or getfirsttok()/getnexttok() with a space sepchar)
+	const TString operator* () const {
+		const TCHAR * p_cStart = m_pString;
+		if (m_savedpos != nullptr)
+			p_cStart = m_savedpos;
+		auto p_cEnd = ts_strstr(p_cStart, SPACE);
+		if (p_cEnd == nullptr)
+			return TString(p_cStart);
+
+		return TString(p_cStart, p_cEnd);
+	}
+
 #endif
 
 	template <class T>
-	TCHAR & operator [](const T &N)
+	TCHAR & operator [](const T &N) noexcept
 	{
-		CheckRange(N);
+#ifndef NDEBUG
+		CheckRange(N);	// only debug code checks range here
+#endif
 
 		m_bDirty = true;
 
@@ -447,10 +422,11 @@ public:
 	}
 
 	template <class T>
-	TCHAR operator [](const T &N) const
+	TCHAR operator [](const T &N) const noexcept
 	{
-		CheckRange(N);
-
+#ifndef NDEBUG
+		CheckRange(N);	// only debug code checks range here
+#endif
 		return m_pString[N];
 	}
 
@@ -473,20 +449,20 @@ public:
 	//operator __int64() const { return this->to_<__int64>(); }
 	//operator double() const { return this->to_<double>(); }
 
-	operator bool() const { return !empty(); }
+	operator bool() const noexcept { return !empty(); }
 
 	// General String Lib
 
 	// the actual string data
 	const TCHAR *const data() const noexcept { return m_pString; }
 	// get length of string in characters
-	const size_t len( ) const;
+	const size_t len( ) const noexcept;
 	// alias for len()
-	const size_t length() const { return len(); };
+	const size_t length() const noexcept { return len(); };
 	// alias for len()
-	const size_t size() const { return len(); };
+	const size_t size() const noexcept { return len(); };
 	// capacity of buffer
-	const size_t &capacity() const { return m_buffersize; }
+	const size_t &capacity() const noexcept { return m_buffersize; }
 	// clear string buffer & reset all vars & pointers (doesn't free buffer, just zeros it)
 	void clear();
 	// shrink string buffer to min size required for string (while still being a multiple of 16)
@@ -749,8 +725,8 @@ public:
 	TString getfirsttok(const UINT N, const TCHAR *const sepChars = SPACE) const;			// must be called before the first getnexttok()
 	TString getnexttok(const TCHAR *const sepChars = SPACE) const;							// gets subsequent tokens after a getfirsttok() call.
 	TString getlasttoks() const;															// gets all remaining tokens after a getfirsttok()/getnexttok() call.
-	const bool moretokens() const {	return (m_savedpos != nullptr);	}
-	void resettokens() const {
+	const bool moretokens() const noexcept {	return (m_savedpos != nullptr);	}
+	void resettokens() const noexcept {
 		m_savedcurrenttok = 0;
 		m_savedpos = nullptr;
 		m_savedtotaltoks = 0;
@@ -767,6 +743,7 @@ public:
 		SortOptions()
 			: bAlpha(false), bNumeric(false), bPrefix(false), bReverse(false) {}
 	};
+
 	void sorttok(const TCHAR *const sortOptions, const TCHAR *const sepChars = SPACE);		// The default is an alphabetic sort, however you can specify n = numeric sort, c = channel nick prefix sort, r = reverse sort, a = alphanumeric sort.
 	void sorttok(const SortOptions &sortOptions, const TCHAR *const sepChars = SPACE);		// The default is an alphabetic sort, however you can specify n = numeric sort, c = channel nick prefix sort, r = reverse sort, a = alphanumeric sort.
 
@@ -926,11 +903,11 @@ public:
 			return *this;
 		}
 
-		operator bool() const { return (m_ptr != nullptr); }
-		operator size_t() const { return m_iIndex; }
+		operator bool() const noexcept { return (m_ptr != nullptr); }
+		operator size_t() const noexcept { return m_iIndex; }
 
-		bool operator == (const tsIterator<tsType, T> &other)const{ return (m_ptr == other.getConstPtr()); }
-		bool operator != (const tsIterator<tsType, T> &other)const{ return (m_ptr != other.getConstPtr()); }
+		bool operator == (const tsIterator<tsType, T> &other) const noexcept { return (m_ptr == other.getConstPtr()); }
+		bool operator != (const tsIterator<tsType, T> &other) const noexcept { return (m_ptr != other.getConstPtr()); }
 
 		const tsIterator<tsType, T> &operator++ ()
 		{
@@ -980,9 +957,9 @@ public:
 			return tsType(m_savedStart, m_savedEnd);
 		}
 
-		tsType *getPtr() const { return m_ptr; }
-		const tsType *getConstPtr() const { return m_ptr; }
-		const size_t &getIndex() const { return m_iIndex; }
+		tsType *getPtr() const noexcept { return m_ptr; }
+		const tsType *getConstPtr() const noexcept { return m_ptr; }
+		const size_t &getIndex() const noexcept { return m_iIndex; }
 
 	//protected:
 	private:
@@ -1036,7 +1013,12 @@ public:
 
 #endif
 
+#if TSTRING_TEMPLATES
+	template <typename T> bool iswm(const T &a) { return _ts_WildcardMatch(*this, a); }
+#else
 	bool iswm(const TCHAR *const a) const;
+#endif
+
 	bool iswmcs(const TCHAR *const a) const;
 
 	// extract left/right/mid
@@ -1047,35 +1029,20 @@ public:
 	int tsprintf(const TCHAR *const fmt, ...);
 	int tvprintf(const TCHAR *const fmt, va_list args);
 
-	TCHAR * to_chr() { m_bDirty = true;  return this->m_pString; };	// returns the string in the projects current format.
-	const TCHAR * to_chr() const { return this->m_pString; };	// returns the string in the projects current format.
-#ifdef UNICODE
-	WCHAR *to_wchr() { m_bDirty = true;  return this->m_pString; };	// returns the string in wide format
-	const WCHAR *const to_wchr() const { return this->m_pString; };	// returns the string in wide format
-	char * c_str(void)	// returns the string as a char *
+	TCHAR * to_chr() noexcept { m_bDirty = true;  return this->m_pString; };	// returns the string in the projects current format. (string can be altered)
+	const TCHAR * to_chr() const noexcept { return this->m_pString; };	// returns the string in the projects current format. (string can't be altered)
+	WCHAR *to_wchr() noexcept { m_bDirty = true;  return this->m_pString; };	// returns the string in wide format (string can be altered)
+	const WCHAR *const to_wchr() const noexcept { return this->m_pString; };	// returns the string in wide format (string can't be altered)
+	char * c_str(void)	// returns the string as a char * (string can be altered)
 	{
 		MakeTemp();
 		return m_pTempString;
 	}
-	const char *const c_str(void) const	// returns the string as a char *
+	const char *const c_str(void) const	// returns the string as a char * (string can't be altered)
 	{
 		MakeTemp();
 		return m_pTempString;
 	}
-#else
-	WCHAR *to_wchr()	// returns the string in wide format
-	{
-		MakeTemp();
-		return m_pTempString;
-	}
-	const WCHAR *const to_wchr() const	// returns the string in wide format
-	{
-		MakeTemp();
-		return m_pTempString;
-	}
-	char * c_str() { m_bDirty = true;  return this->m_pString; };	// returns the string as a char *
-	const char *const c_str() const { return this->m_pString; };	// returns the string as a const char *
-#endif
 	ULONG to_addr() const;
 
 	template <typename T>
@@ -1100,11 +1067,7 @@ public:
 		//
 		//return this->append(std::to_string(Number).data());
 
-#ifdef UNICODE
 		return this->append(std::to_wstring(Number).data());
-#else
-		return this->append(std::to_string(Number).data());
-#endif
 	}
 	auto to_int() const { return to_<int>(); };
 	auto to_num() const { return to_<__int64>(); };
@@ -1188,6 +1151,81 @@ template <class T>
 T *_ts_strstr(T *input, const std::remove_const_t<T> *find)
 {
 	return detail::impl_strstr<T>()(input, find);
+}
+
+template <typename TameString, typename WildString>
+bool _ts_WildcardMatch(const TameString &pszString, const WildString &pszMatch)
+{
+	if ((pszMatch == nullptr) || (pszString == nullptr))
+		return false;
+
+	ptrdiff_t MatchPlaceholder = 0;
+	ptrdiff_t StringPlaceholder = 0;
+	ptrdiff_t iWildOffset = 0;
+	ptrdiff_t iTameOffset = 0;
+
+	while (pszString[iTameOffset])
+	{
+		if (pszMatch[iWildOffset] == TEXT('*'))
+		{
+			if (pszMatch[++iWildOffset] == TEXT('\0'))
+				return true;
+			MatchPlaceholder = iWildOffset;
+			StringPlaceholder = iTameOffset + 1;
+		}
+#if TSTRING_WILDT
+		else if (pszMatch[iWildOffset] == TEXT('~') && pszString[iTameOffset] == TEXT(' '))
+		{
+			iWildOffset++;
+			while (pszString[iTameOffset] == TEXT(' '))
+				iTameOffset++;
+		}
+#endif
+#if TSTRING_WILDA
+		else if (pszMatch[iWildOffset] == TEXT('^'))
+		{
+			iWildOffset++;
+			if (_toupper(pszMatch[iWildOffset]) == _toupper(pszString[iTameOffset]))
+				iTameOffset++;
+			iWildOffset++;
+		}
+#endif
+#if TSTRING_WILDE
+		else if (pszMatch[iWildOffset] == TEXT('\\'))
+		{
+			// any character following a '\' is taken as a literal character.
+			iWildOffset++;
+			if (_toupper(pszMatch[iWildOffset]) != _toupper(pszString[iTameOffset]))
+				return false;
+			iTameOffset++;
+		}
+#endif
+#if TSTRING_WILDW
+		else if (pszMatch[iWildOffset] == TEXT('#'))
+		{
+			iWildOffset++;
+			while (pszString[iTameOffset] && (pszString[iTameOffset] != TEXT(' ') || pszString[iTameOffset] != TEXT('\t') || pszString[iTameOffset] != TEXT('\n') || pszString[iTameOffset] != TEXT('\r')))
+				iTameOffset++;
+		}
+#endif
+		else if (pszMatch[iWildOffset] == TEXT('?')|| _toupper(pszMatch[iWildOffset]) == _toupper(pszString[iTameOffset]))
+		{
+			iWildOffset++;
+			iTameOffset++;
+		}
+		else if (StringPlaceholder == 0)
+			return false;
+		else
+		{
+			iWildOffset = MatchPlaceholder;
+			iTameOffset = StringPlaceholder++;
+		}
+	}
+
+	while (pszMatch[iWildOffset] == TEXT('*'))
+		iWildOffset++;
+
+	return (pszMatch[iWildOffset] == TEXT('\0'));
 }
 
 //#pragma comment(lib,"tstring.lib")
