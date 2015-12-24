@@ -46,16 +46,19 @@ typedef struct tagDCXRBBAND {
 class DcxReBar : public DcxControl {
 
 public:
+	DcxReBar() = delete;
+	DcxReBar(const DcxReBar &) = delete;
+	DcxReBar &operator =(const DcxReBar &) = delete;	// No assignments!
 
 	DcxReBar( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd, const RECT * rc, const TString & styles );
 	virtual ~DcxReBar( );
 
-	LRESULT PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
-	LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
+	LRESULT PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) override;
+	LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) override;
 
-	void parseInfoRequest( const TString & input, TCHAR * szReturnValue ) const;
-	void parseCommandRequest( const TString & input );
-	void parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
+	void parseInfoRequest( const TString & input, PTCHAR szReturnValue ) const override;
+	void parseCommandRequest( const TString & input ) override;
+	void parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ) override;
 
 	HIMAGELIST getImageList( ) const;
 	void setImageList( HIMAGELIST himl );
@@ -81,9 +84,11 @@ public:
 	LRESULT maxBand( const UINT uBand, const BOOL fIdeal );
 	LRESULT minBand( const UINT uBand, const BOOL fIdeal );
 
-	inline TString getType( ) const { return TString( TEXT("rebar") ); };
-	TString getStyles(void) const;
-	void toXml(TiXmlElement * xml) const;
+	inline const TString getType() const override { return TEXT("rebar"); };
+	inline const DcxControlTypes getControlType() const noexcept override { return DcxControlTypes::REBAR; }
+
+	const TString getStyles(void) const override;
+	void toXml(TiXmlElement *const xml) const override;
 	DcxControl * getControl(const int index) const;
 
 protected:

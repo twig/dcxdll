@@ -16,9 +16,6 @@
 #include "Classes/dcxdialog.h"
 #include "Dcx.h"
 
-//extern HWND hwndChild4;
-
-
 /*!
  * \brief Constructor
  *
@@ -26,11 +23,11 @@
  */
 
 LayoutCell::LayoutCell()
-: m_Hwnd(NULL)
-, m_Parent(NULL)
-, m_FirstChild(NULL)
-, m_NextSibling(NULL)
-, m_BaseControl(NULL)
+: m_Hwnd(nullptr)
+, m_Parent(nullptr)
+, m_FirstChild(nullptr)
+, m_NextSibling(nullptr)
+, m_BaseControl(nullptr)
 , m_iCount(0)
 {
 	SetRectEmpty(&this->m_rcBorders);
@@ -46,7 +43,7 @@ LayoutCell::LayoutCell()
 LayoutCell::LayoutCell(const HWND mHwnd)
 : LayoutCell(mHwnd, RECT())
 {
-	if (m_Hwnd != NULL)
+	if (m_Hwnd != nullptr)
 		GetWindowRect(m_Hwnd, &this->m_rcWindow);
 }
 
@@ -59,19 +56,19 @@ LayoutCell::LayoutCell(const HWND mHwnd)
 LayoutCell::LayoutCell(const HWND mHwnd, const RECT & rc)
 : m_Hwnd(mHwnd)
 , m_rcWindow(rc)
-, m_Parent(NULL)
-, m_FirstChild(NULL)
-, m_NextSibling(NULL)
-, m_BaseControl(NULL)
+, m_Parent(nullptr)
+, m_FirstChild(nullptr)
+, m_NextSibling(nullptr)
+, m_BaseControl(nullptr)
 , m_iCount(0)
 {
 	SetRectEmpty(&this->m_rcBorders);
 
-	if (mHwnd != NULL) {
-		DcxDialog * d = Dcx::Dialogs.getDialogByHandle(mHwnd);
-		if (d == NULL) {
+	if (mHwnd != nullptr) {
+		auto d = Dcx::Dialogs.getDialogByHandle(mHwnd);
+		if (d == nullptr) {
 			d = Dcx::Dialogs.getDialogByChildHandle(mHwnd);
-			if (d != NULL)
+			if (d != nullptr)
 				this->m_BaseControl = d->getControlByHWND(mHwnd);
 		}
 	}
@@ -82,10 +79,10 @@ LayoutCell::LayoutCell(DcxControl * dcxc)
 {
 	m_BaseControl = dcxc;
 
-	if (dcxc != NULL)
+	if (dcxc != nullptr)
 		m_Hwnd = dcxc->getHwnd();
 
-	if (m_Hwnd != NULL)
+	if (m_Hwnd != nullptr)
 		GetWindowRect(m_Hwnd, &this->m_rcWindow);
 }
 /*!
@@ -274,11 +271,7 @@ void LayoutCell::getBorder(RECT & rc) const {
  * blah
  */
 
-BOOL LayoutCell::isVisible() const {
+const bool LayoutCell::isVisible() const {
 
-	//if ( this->m_Hwnd != NULL && IsWindow( this->m_Hwnd ) && IsWindowVisible( this->m_Hwnd ) == FALSE )
-	//  return FALSE;
-	//
-	//return TRUE;
-	return (this->m_Hwnd == NULL || (IsWindow(this->m_Hwnd) && IsWindowVisible(this->m_Hwnd)));
+	return (this->m_Hwnd == nullptr || (IsWindow(this->m_Hwnd) && IsWindowVisible(this->m_Hwnd)));
 }

@@ -92,9 +92,12 @@ void XMenuBar::parseXMenuBarCommand(const TString &input) {
 			//		throw std::invalid_argument("Menu has already been added to XmenuBar.");
 			//}
 
-			const auto itEnd = m_vpXMenuBar.end();
-			const auto itGot = std::find(m_vpXMenuBar.begin(), itEnd, p_Menu);
-			if (itGot != itEnd)
+			//const auto itEnd = m_vpXMenuBar.end();
+			//const auto itGot = std::find(m_vpXMenuBar.begin(), itEnd, p_Menu);
+			//if (itGot != itEnd)
+			//	throw std::invalid_argument("Menu has already been added to XmenuBar.");
+
+			if (Dcx::find(m_vpXMenuBar, p_Menu))
 				throw std::invalid_argument("Menu has already been added to XmenuBar.");
 		}
 		p_Menu->attachToMenuBar(menuBar, input.getlasttoks());	// tok 3, -1
@@ -332,7 +335,7 @@ void XMenuBar::resetMenuBar() {
 /*
  *
  */
-const bool XMenuBar::hasCallback() const {
+const bool XMenuBar::hasCallback() const noexcept {
 	return (!this->m_callback.empty());
 }
 

@@ -29,16 +29,19 @@ class DcxDialog;
 class DcxIpAddress : public DcxControl {
 
 public:
+	DcxIpAddress() = delete;
+	DcxIpAddress(const DcxIpAddress &) = delete;
+	DcxIpAddress &operator =(const DcxIpAddress &) = delete;	// No assignments!
 
-	DcxIpAddress( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, const TString & styles );
+	DcxIpAddress(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles );
 	virtual ~DcxIpAddress( );
 
-	LRESULT PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
-	LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
+	LRESULT PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) override;
+	LRESULT ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) override;
 
-	void parseInfoRequest( const TString & input, TCHAR * szReturnValue ) const;
-	void parseCommandRequest( const TString & input );
-	void parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
+	void parseInfoRequest(const TString & input, PTCHAR szReturnValue) const override;
+	void parseCommandRequest(const TString & input) override;
+	void parseControlStyles(const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme) override;
 
 	LRESULT setRange( const int nField, const BYTE iMin, const BYTE iMax );
 	LRESULT setFocus( const int nField );
@@ -46,8 +49,10 @@ public:
 	LRESULT getAddress( LPDWORD lpdwIpAddress ) const;
 	LRESULT clearAddress( );
 
-	inline TString getType( ) const { return TString( TEXT("ipaddress") ); };
-	void toXml(TiXmlElement * xml) const;
+	inline const TString getType() const override { return TEXT("ipaddress"); };
+	inline const DcxControlTypes getControlType() const noexcept override { return DcxControlTypes::IPADDRESS; }
+
+	void toXml(TiXmlElement *const xml) const override;
 
 protected:
 

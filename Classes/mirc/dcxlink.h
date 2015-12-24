@@ -29,21 +29,24 @@ class DcxDialog;
 class DcxLink : public DcxControl {
 
 public:
+	DcxLink() = delete;
+	DcxLink(const DcxLink &) = delete;
+	DcxLink &operator =(const DcxLink &) = delete;	// No assignments!
 
-	DcxLink( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd, const RECT * rc, const TString & styles );
+	DcxLink( const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles );
 	virtual ~DcxLink( );
 
-	LRESULT PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
-	LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
+	LRESULT PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) override;
+	LRESULT ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) override;
 
-	void parseInfoRequest( const TString & input, TCHAR * szReturnValue ) const;
-	void parseCommandRequest( const TString & input );
-	void parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
+	void parseInfoRequest(const TString & input, PTCHAR szReturnValue) const override;
+	void parseCommandRequest(const TString & input) override;
+	void parseControlStyles(const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme) override;
 
-	inline TString getType( ) const { return TString( TEXT("link") ); };
-	void toXml(TiXmlElement * xml) const;
+	inline const TString getType() const override { return TEXT("link"); };
+	inline const DcxControlTypes getControlType() const noexcept override { return DcxControlTypes::LINK; }
 
-	static void registerClass(void);
+	void toXml(TiXmlElement *const xml) const override;
 
 protected:
 
@@ -51,8 +54,9 @@ protected:
 
 	COLORREF m_aColors[4]; //!< Link Colors 0 = normal, 1 = hot, 2 = visited, 3 = disabled
 
-	BOOL m_bHover; //!< Hover State
-	BOOL m_bVisited; //!< Visited State
+	bool m_bHover; //!< Hover State
+	bool m_bVisited; //!< Visited State
+	bool m_bReserved[2];
 	BOOL m_bTracking; //!< Mouse Tracking Var
 
 	//static TString UriEncode(const TString &sSrc);

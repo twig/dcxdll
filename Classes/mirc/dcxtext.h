@@ -17,6 +17,7 @@
 
 #include "defines.h"
 #include "Classes/dcxcontrol.h"
+//#include <ColourString.h>
 
 class DcxDialog;
 
@@ -29,18 +30,22 @@ class DcxDialog;
 class DcxText : public DcxControl {
 
 public:
+	DcxText() = delete;
+	DcxText(const DcxText &) = delete;
+	DcxText &operator =(const DcxText &) = delete;	// No assignments!
 
-	DcxText( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, const TString & styles );
+	DcxText(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles );
 	virtual ~DcxText( );
 
-	LRESULT PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
-	LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
+	LRESULT PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) override;
+	LRESULT ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) override;
 
-	void parseInfoRequest( const TString & input, TCHAR * szReturnValue ) const;
-	void parseCommandRequest( const TString & input );
-	void parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
+	void parseInfoRequest(const TString & input, PTCHAR szReturnValue) const override;
+	void parseCommandRequest(const TString & input) override;
+	void parseControlStyles(const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme) override;
 
-	inline TString getType( ) const { return TString( TEXT("text") ); };
+	inline const TString getType() const override { return TEXT("text"); };
+	inline const DcxControlTypes getControlType() const noexcept override { return DcxControlTypes::TEXT; }
 
 protected:
 	TString m_tsText;	// Edit Text

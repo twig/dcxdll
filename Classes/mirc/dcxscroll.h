@@ -29,19 +29,24 @@ class DcxDialog;
 class DcxScroll : public DcxControl {
 
 public:
+	DcxScroll() = delete;
+	DcxScroll(const DcxScroll &) = delete;
+	DcxScroll &operator =(const DcxScroll &) = delete;	// No assignments!
 
-	DcxScroll( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, const TString & styles );
+	DcxScroll(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles );
 	virtual ~DcxScroll( );
 
-	LRESULT PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
-	LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
+	LRESULT PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) override;
+	LRESULT ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) override;
 
-	void parseInfoRequest( const TString & input, TCHAR * szReturnValue ) const;
-	void parseCommandRequest( const TString & input );
-	void parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
+	void parseInfoRequest(const TString & input, PTCHAR szReturnValue) const override;
+	void parseCommandRequest(const TString & input) override;
+	void parseControlStyles(const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme) override;
 
-	inline TString getType( ) const { return TString( TEXT("scroll") ); };
-	TString getStyles(void) const;
+	inline const TString getType() const override { return TEXT("scroll"); };
+	inline const DcxControlTypes getControlType() const noexcept override { return DcxControlTypes::SCROLL; }
+
+	const TString getStyles(void) const override;
 
 protected:
 

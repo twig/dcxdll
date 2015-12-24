@@ -39,7 +39,7 @@ class XMenuBar {
 
 		void resetMenuBar();
 
-		const bool hasCallback() const;
+		const bool hasCallback() const noexcept;
 		const bool parseCallback(const UINT menuID);
 
 	protected:

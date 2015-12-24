@@ -30,18 +30,22 @@ class DcxDialog;
 class DcxMDialog : public DcxControl {
 
 public:
+	DcxMDialog() = delete;
+	DcxMDialog(const DcxMDialog &) = delete;
+	DcxMDialog &operator =(const DcxMDialog &) = delete;	// No assignments!
 
-	DcxMDialog( HWND cHwnd, HWND pHwnd, UINT ID, DcxDialog * p_Dialog, RECT * rc, const TString & styles );
+	DcxMDialog(const HWND cHwnd, const HWND pHwnd, const UINT ID, DcxDialog *const p_Dialog, const RECT *const rc, const TString & styles );
 	virtual ~DcxMDialog( );
 
-	LRESULT PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
-	LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
+	LRESULT PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) override;
+	LRESULT ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) override;
 
-	void parseInfoRequest( const TString & input, TCHAR * szReturnValue ) const;
-	void parseCommandRequest( const TString & input );
-	void parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
+	void parseInfoRequest(const TString & input, PTCHAR szReturnValue) const override;
+	void parseCommandRequest(const TString & input) override;
+	void parseControlStyles(const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme) override;
 
-	inline TString getType( ) const { return TString( TEXT("dialog") ); };
+	inline const TString getType() const override { return TEXT("dialog"); };
+	inline const DcxControlTypes getControlType() const noexcept override { return DcxControlTypes::DIALOG; }
 
 protected:
 

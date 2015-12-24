@@ -226,20 +226,26 @@ mIRC(Version) {
 		t = tsNum.to_<int>();
 #endif
 
-		mIRCLinker::execex(TEXT("/echo -a convert: %s :: %d"), tsNum.to_chr(), t); // "1003.140000"
+		mIRCLinker::execex(TEXT("/echo -a tsNum: %s :tsNum.to_<int>(): %d"), tsNum.to_chr(), t); // "1003.140000"
 
 #if TSTRING_TESTCODE
 		auto tok = tsNum++;
-		mIRCLinker::execex(TEXT("/echo -a convert2: %s"), tok.to_chr()); // "1003"
+		mIRCLinker::execex(TEXT("/echo -a tsNum++: %s"), tok.to_chr()); // "1003.140000"
 
 		tok = tsNum++;
-		mIRCLinker::execex(TEXT("/echo -a convert3: %s"), tok.to_chr()); // ""
+		mIRCLinker::execex(TEXT("/echo -a tsNum++: %s"), tok.to_chr()); // ""
+
+		tsNum = TEXT("blah1 blah2 blah3");
+		tsNum++;
+		tok = *tsNum;
+		mIRCLinker::execex(TEXT("/echo -a tsNum: %s"), tsNum.to_chr()); // ""
+		mIRCLinker::execex(TEXT("/echo -a *tsNum: %s"), tok.to_chr()); // ""
 #else
 		auto tok = tsNum.getfirsttok(1);
-		mIRCLinker::execex(TEXT("/echo -a convert2: %s"), tok.to_chr()); // "1003"
+		mIRCLinker::execex(TEXT("/echo -a tsNum.getfirsttok(1): %s"), tok.to_chr()); // "1003"
 
 		tok = tsNum.getnexttok();
-		mIRCLinker::execex(TEXT("/echo -a convert3: %s"), tok.to_chr()); // ""
+		mIRCLinker::execex(TEXT("/echo -a tsNum.getnexttok(): %s"), tok.to_chr()); // ""
 #endif
 
 #if TSTRING_PARTS
@@ -369,6 +375,16 @@ mIRC(Version) {
 
 		mIRCLinker::execex(TEXT("/echo -a matchtok(put,1,!): %s"), tok.matchtok(TEXT("put"), 1, TEXT("!")).to_chr());
 		mIRCLinker::execex(TEXT("/echo -a matchtok(put,3,!): %s"), tok.matchtok(TEXT("put"), 3, TEXT("!")).to_chr());
+
+		if (tok.iswm(TEXT("*put*")))
+			mIRCLinker::exec(TEXT("/echo -a tok.iswm(*put*) == true"));
+		else
+			mIRCLinker::exec(TEXT("/echo -a tok.iswm(*put*) == false"));
+
+		if (tok.iswmcs(TEXT("*put*")))
+			mIRCLinker::exec(TEXT("/echo -a tok.iswmcs(*put*) == true"));
+		else
+			mIRCLinker::exec(TEXT("/echo -a tok.iswmcs(*put*) == false"));
 
 		// test exception code
 		//mIRCLinker::exec(TEXT("/echo -a Throwing exception"));

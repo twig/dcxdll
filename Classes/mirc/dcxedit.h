@@ -29,28 +29,33 @@ class DcxDialog;
 class DcxEdit : public DcxControl {
 
 public:
-	DcxEdit(const UINT ID, DcxDialog *p_Dialog, const HWND mParentHwnd, const RECT *rc, const TString &styles);
+	DcxEdit() = delete;
+	DcxEdit(const DcxEdit &) = delete;
+	DcxEdit &operator =(const DcxEdit &) = delete;	// No assignments!
+
+	DcxEdit(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString &styles);
 	virtual ~DcxEdit();
 
-	LRESULT PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bParsed);
-	LRESULT ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bParsed);
+	LRESULT PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bParsed) override;
+	LRESULT ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bParsed) override;
 
-	void parseInfoRequest( const TString & input, TCHAR * szReturnValue ) const;
-	void parseCommandRequest( const TString & input );
-	void parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
+	void parseInfoRequest(const TString & input, PTCHAR szReturnValue) const override;
+	void parseCommandRequest(const TString & input) override;
+	void parseControlStyles(const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme) override;
 
-	inline TString getType() const { return TString(TEXT("edit")); };
-	TString getStyles(void) const;
-	void toXml(TiXmlElement * xml) const;
+	inline const TString getType() const override { return TEXT("edit"); };
+	inline const DcxControlTypes getControlType() const noexcept override { return DcxControlTypes::EDIT; }
 
-	static void registerClass(void);
+	const TString getStyles(void) const override;
+	void toXml(TiXmlElement *const xml) const override;
 
 protected:
 	TString m_tsText; // Edit Text
 	TString m_tsCue; // Cue Text
 	TCHAR	m_PassChar;	// Password char
 
-	BOOL m_bIgnoreRepeat;
+	bool m_bIgnoreRepeat;
+	bool m_bReserved;
 };
 
 #endif // _DCXEDIT_H_

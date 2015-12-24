@@ -15,6 +15,7 @@ class DcxDWMModule :
 	bool m_bVista;
 	bool m_bWin7;
 	bool m_bWin8;
+	bool m_bWin10;
 	static PFNDWMISCOMPOSITIONENABLED DwmIsCompositionEnabledUx;
 	static PFNDWMGETWINDOWATTRIBUTE DwmGetWindowAttributeUx;
 	static PFNDWMSETWINDOWATTRIBUTE DwmSetWindowAttributeUx;
@@ -36,8 +37,9 @@ public:
 	HRESULT dcxDwmEnableBlurBehindWindow(HWND hwnd, __in const DWM_BLURBEHIND *pBlurBehind);
 	HRESULT dcxDwmGetColorizationColor( __out  DWORD *pcrColorization, __out  BOOL *pfOpaqueBlend);
 
-	const bool &isAero(void) const { return this->m_bAero; };
-	const bool &isVista(void) const { return this->m_bVista; };
-	const bool &isWin7(void) const { return this->m_bWin7; };
-	const bool &isWin8(void) const { return this->m_bWin8; };
+	const bool &isAero(void) const noexcept { return this->m_bAero; };
+	const bool &isVista(void) const noexcept { return this->m_bVista; };
+	const bool &isWin7(void) const noexcept { return this->m_bWin7; };
+	const bool &isWin8(void) const noexcept { return this->m_bWin8; };
+	const bool &isWin10(void) const noexcept { return this->m_bWin10; };
 };

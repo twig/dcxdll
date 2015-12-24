@@ -257,11 +257,11 @@ namespace Dcx
 	void setupOSCompatibility(void);
 	void freeOSCompatibility(void);
 
-	IClassFactory* getClassFactory();
-	const TCHAR * getLastError();
-	const BYTE &getGhostDrag();
+	IClassFactory* getClassFactory() noexcept;
+	const TCHAR * getLastError() noexcept;
+	const BYTE &getGhostDrag() noexcept;
 	bool setGhostDrag(const BYTE newAlpha);
-	const bool &isDX9Installed();
+	const bool &isDX9Installed() noexcept;
 	bool isUnloadSafe();
 	bool isFile(const WCHAR *const file);
 	bool isFile(LPCSTR const file);
@@ -303,5 +303,37 @@ namespace Dcx
 		RETURN_TYPE val;
 		buf >> val;
 		return val;
+	}
+
+	// find() - takes an array object, & something to compare against. (same as std::find(begin(),end(),val) )
+	template <typename Res, typename obj, typename _Val>
+	Res find(obj &SourceObject, _Val &val)
+	{
+		return std::find(SourceObject.begin(), SourceObject.end(), val);
+	}
+
+	// find(obj &SourceObject, _Val &val)
+	// - takes an array object, & something to compare against. (same as std::find(begin(),end(),val) != end() )
+	// Result
+	//	true - If val is found in object otherwise false
+	template <typename obj, typename _Val>
+	bool find(obj &SourceObject, _Val &val)
+	{
+		auto itEnd = SourceObject.end();
+		return (std::find(SourceObject.begin(), itEnd, val) != itEnd);
+	}
+
+	// C++11 Better countof() for arrays, taken from http://www.g-truc.net/post-0708.html
+	template <typename T, std::size_t N>
+	constexpr std::size_t countof(T const (&)[N]) noexcept
+	{
+		return N;
+	}
+
+	// countof() for container objects
+	template <class C>
+	std::size_t countof(C const & c)
+	{
+		return c.size();
 	}
 }

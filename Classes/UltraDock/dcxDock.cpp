@@ -10,8 +10,8 @@
 // statusbar stuff
 HWND DcxDock::g_StatusBar = nullptr;
 HIMAGELIST DcxDock::g_hImageList = nullptr;
-INT DcxDock::g_iDynamicParts[256] = { 0 };
-INT DcxDock::g_iFixedParts[256] = { 0 };
+INT DcxDock::g_iDynamicParts[SB_MAX_PARTSD] = { 0 };
+INT DcxDock::g_iFixedParts[SB_MAX_PARTSD] = { 0 };
 HFONT DcxDock::g_StatusFont = nullptr;
 VectorOfDParts DcxDock::g_vParts;
 
@@ -105,26 +105,75 @@ bool DcxDock::DockWindow(HWND hwnd, const TString &flag)
 
 void DcxDock::UnDockWindow(const HWND hwnd)
 {
-	auto itStart = this->m_VectorDocks.begin();
-	auto itEnd = this->m_VectorDocks.end();
+	//for (const auto &ud : this->m_VectorDocks)
+	//{
+	//	if (ud != nullptr) {
+	//		if (ud->hwnd == hwnd) {
+	//			this->m_VectorDocks.erase(itStart);
+	//			SetWindowLongPtr(ud->hwnd, GWL_STYLE, (LONG)ud->old_styles);
+	//			SetWindowLongPtr(ud->hwnd, GWL_EXSTYLE, (LONG)ud->old_exstyles);
+	//			RemStyles(ud->hwnd, GWL_STYLE, WS_CHILDWINDOW);
+	//			SetParent(ud->hwnd, nullptr);
+	//			SetWindowPos(ud->hwnd, HWND_TOP, ud->rc.left, ud->rc.top, ud->rc.right - ud->rc.left, ud->rc.bottom - ud->rc.top, SWP_NOZORDER | SWP_FRAMECHANGED);
+	//			delete ud;
+	//			this->UpdateLayout();
+	//			return;
+	//		}
+	//	}
+	//}
 
-	while (itStart != itEnd) {
-		if (*itStart != nullptr) {
-			auto ud = *itStart;
-			if (ud->hwnd == hwnd) {
-				this->m_VectorDocks.erase(itStart);
-				SetWindowLongPtr(ud->hwnd,GWL_STYLE, (LONG)ud->old_styles);
-				SetWindowLongPtr(ud->hwnd,GWL_EXSTYLE, (LONG)ud->old_exstyles);
-				RemStyles(ud->hwnd,GWL_STYLE,WS_CHILDWINDOW);
-				SetParent(ud->hwnd, nullptr);
-				SetWindowPos(ud->hwnd, HWND_TOP, ud->rc.left, ud->rc.top, ud->rc.right - ud->rc.left, ud->rc.bottom - ud->rc.top, SWP_NOZORDER|SWP_FRAMECHANGED);
-				delete ud;
-				this->UpdateLayout();
-				return;
-			}
-		}
-		++itStart;
+	auto itEnd = m_VectorDocks.end();
+	auto itGot = std::find_if(m_VectorDocks.begin(), itEnd, [hwnd](const LPDCXULTRADOCK ud) { if (ud != nullptr) { return (ud->hwnd == hwnd); } return false; });
+	if (itGot != itEnd) {
+		auto ud = *itGot;
+		this->m_VectorDocks.erase(itGot);
+		SetWindowLongPtr(ud->hwnd, GWL_STYLE, (LONG)ud->old_styles);
+		SetWindowLongPtr(ud->hwnd, GWL_EXSTYLE, (LONG)ud->old_exstyles);
+		RemStyles(ud->hwnd, GWL_STYLE, WS_CHILDWINDOW);
+		SetParent(ud->hwnd, nullptr);
+		SetWindowPos(ud->hwnd, HWND_TOP, ud->rc.left, ud->rc.top, ud->rc.right - ud->rc.left, ud->rc.bottom - ud->rc.top, SWP_NOZORDER | SWP_FRAMECHANGED);
+		delete ud;
+		this->UpdateLayout();
 	}
+
+	//for (auto itStart = this->m_VectorDocks.begin(), itEnd = this->m_VectorDocks.end(); itStart != itEnd; ++itStart)
+	//{
+	//	if (*itStart != nullptr) {
+	//		auto ud = *itStart;
+	//		if (ud->hwnd == hwnd) {
+	//			this->m_VectorDocks.erase(itStart);
+	//			SetWindowLongPtr(ud->hwnd, GWL_STYLE, (LONG)ud->old_styles);
+	//			SetWindowLongPtr(ud->hwnd, GWL_EXSTYLE, (LONG)ud->old_exstyles);
+	//			RemStyles(ud->hwnd, GWL_STYLE, WS_CHILDWINDOW);
+	//			SetParent(ud->hwnd, nullptr);
+	//			SetWindowPos(ud->hwnd, HWND_TOP, ud->rc.left, ud->rc.top, ud->rc.right - ud->rc.left, ud->rc.bottom - ud->rc.top, SWP_NOZORDER | SWP_FRAMECHANGED);
+	//			delete ud;
+	//			this->UpdateLayout();
+	//			return;
+	//		}
+	//	}
+	//}
+
+	//auto itStart = this->m_VectorDocks.begin();
+	//auto itEnd = this->m_VectorDocks.end();
+	//
+	//while (itStart != itEnd) {
+	//	if (*itStart != nullptr) {
+	//		auto ud = *itStart;
+	//		if (ud->hwnd == hwnd) {
+	//			this->m_VectorDocks.erase(itStart);
+	//			SetWindowLongPtr(ud->hwnd,GWL_STYLE, (LONG)ud->old_styles);
+	//			SetWindowLongPtr(ud->hwnd,GWL_EXSTYLE, (LONG)ud->old_exstyles);
+	//			RemStyles(ud->hwnd,GWL_STYLE,WS_CHILDWINDOW);
+	//			SetParent(ud->hwnd, nullptr);
+	//			SetWindowPos(ud->hwnd, HWND_TOP, ud->rc.left, ud->rc.top, ud->rc.right - ud->rc.left, ud->rc.bottom - ud->rc.top, SWP_NOZORDER|SWP_FRAMECHANGED);
+	//			delete ud;
+	//			this->UpdateLayout();
+	//			return;
+	//		}
+	//	}
+	//	++itStart;
+	//}
 }
 
 void DcxDock::UnDockAll(void)
@@ -147,23 +196,32 @@ void DcxDock::UnDockAll(void)
 
 bool DcxDock::FindDock(const HWND hwnd)
 {
-	for (const auto &x: this->m_VectorDocks) {
-		if (x != nullptr) {
-			if (x->hwnd == hwnd)
-				return true;
-		}
-	}
-	return false;
+	//for (const auto &x: this->m_VectorDocks) {
+	//	if (x != nullptr) {
+	//		if (x->hwnd == hwnd)
+	//			return true;
+	//	}
+	//}
+	//return false;
+
+	auto itEnd = m_VectorDocks.end();
+	return (std::find_if(m_VectorDocks.begin(), itEnd, [hwnd](const LPDCXULTRADOCK ud) { if (ud != nullptr) { return (ud->hwnd == hwnd); } return false; }) != itEnd);
 }
 
 LPDCXULTRADOCK DcxDock::GetDock(const HWND hwnd)
 {
-	for (const auto &x: this->m_VectorDocks) {
-		if (x != nullptr) {
-			if (x->hwnd == hwnd)
-				return x;
-		}
-	}
+	//for (const auto &x: this->m_VectorDocks) {
+	//	if (x != nullptr) {
+	//		if (x->hwnd == hwnd)
+	//			return x;
+	//	}
+	//}
+	//return nullptr;
+
+	auto itEnd = m_VectorDocks.end();
+	auto itGot = std::find_if(m_VectorDocks.begin(), itEnd, [hwnd](const LPDCXULTRADOCK ud) { if (ud != nullptr) { return (ud->hwnd == hwnd); } return false; });
+	if (itGot != itEnd)
+		return *itGot;
 	return nullptr;
 }
 
@@ -563,7 +621,7 @@ LRESULT CALLBACK DcxDock::mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 #else
 													const auto clr = sbcolor.findtok(buf.to_chr(), 1);
 #endif
-													if (clr == 0) // no match, do normal colours
+													if ((clr == 0) || (clr >= Dcx::countof(DcxDock::g_clrTreebarColours))) // no match, do normal colours
 														break;
 													if (DcxDock::g_clrTreebarColours[clr-1] != CLR_INVALID) // text colour
 														lpntvcd->clrText = DcxDock::g_clrTreebarColours[clr-1];
@@ -581,11 +639,11 @@ LRESULT CALLBACK DcxDock::mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 					case TVN_GETINFOTIP:
 						{
 							dcxlParam(LPNMTVGETINFOTIP, tcgit);
+
 							if (tcgit != nullptr) {
 								if (tcgit->cchTextMax < 1)
 									break;
 
-								TString tsType;
 								TString buf((UINT)MIRC_BUFFER_SIZE_CCH);
 								TVITEMEX item;
 								ZeroMemory(&item, sizeof(item));
@@ -595,6 +653,7 @@ LRESULT CALLBACK DcxDock::mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 								item.cchTextMax = MIRC_BUFFER_SIZE_CCH;
 								item.mask = TVIF_TEXT;
 								if (TreeView_GetItem(mIRCLinker::getTreeview(), &item)) {
+									TString tsType;
 									DcxDock::getTreebarItemType(tsType, item.lParam);
 									mIRCLinker::execex(TEXT("/!set -nu1 %%dcx_%d %s"), item.lParam, item.pszText); // <- had wrong args causing instant crash when showing tooltips
 									mIRCLinker::tsEvalex(buf, TEXT("$xtreebar_callback(gettooltip,%s,%%dcx_%d)"), tsType.to_chr(), item.lParam);
@@ -827,11 +886,10 @@ void DcxDock::UnInitStatusbar(void)
 		DeleteFont(g_StatusFont);
 	g_StatusFont = nullptr;
 }
+
 bool DcxDock::IsStatusbar(void)
 {
-	if (IsWindow(g_StatusBar))
-		return true;
-	return false;
+	return (IsWindow(g_StatusBar) != FALSE);
 }
 
 void DcxDock::status_parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme )
@@ -960,7 +1018,7 @@ void DcxDock::status_deletePartInfo(const int iPart)
 	}
 }
 
-HIMAGELIST DcxDock::status_getImageList( ) {
+HIMAGELIST &DcxDock::status_getImageList( ) {
 
 	return g_hImageList;
 }
@@ -975,7 +1033,7 @@ HIMAGELIST DcxDock::status_createImageList( ) {
 	return ImageList_Create( 16, 16, ILC_COLOR32|ILC_MASK, 1, 0 );
 }
 
-UINT DcxDock::status_parseItemFlags( const TString & flags ) {
+const UINT DcxDock::status_parseItemFlags( const TString & flags ) {
 
 	//UINT len = flags.len( ), iFlags = 0;
 	//
@@ -1018,7 +1076,7 @@ UINT DcxDock::status_parseItemFlags( const TString & flags ) {
 
 void DcxDock::status_cleanPartIcons( ) {
 
-	for (int n = 0; n < 256; n++ )
+	for (auto n = 0; n < SB_MAX_PARTSD; n++ )
 		DestroyIcon( DcxDock::status_getIcon( n ) );
 }
 
@@ -1076,7 +1134,7 @@ void DcxDock::status_setFont(HFONT f)
 	}
 }
 
-SwitchBarPos DcxDock::getPos(const int x, const int y, const int w, const int h)
+const SwitchBarPos DcxDock::getPos(const int x, const int y, const int w, const int h)
 {
 	RECT rc;
 	if (!GetClientRect(mIRCLinker::getHWND(), &rc))

@@ -1734,7 +1734,7 @@ void mIRC_DrawText(HDC hdc, const TString &txt, LPRECT rc, const UINT style, con
 //	ri.ri_ixOffset = 2;
 //	ri.ri_iyOffset = 2;
 //
-//	getmIRCPalette(ri.ri_cPalette, _countof(ri.ri_cPalette)); // get mIRC palette
+//	getmIRCPalette(ri.ri_cPalette, Dcx::countof(ri.ri_cPalette)); // get mIRC palette
 //
 //	tmp.Render(hdc, rc, ri);
 //}
@@ -1899,7 +1899,7 @@ void FreeOSCompatibility(void)
 
 bool isRegexMatch(const TCHAR *matchtext, const TCHAR *pattern)
 {
-	// NB: BOOST, PCRE, & CREGEX version are incomplete
+	// NB: CREGEX version is incomplete
 #ifdef DCX_USE_CREGEX
 	try {
 		std::basic_regex<TCHAR> r(pattern, std::regex_constants::ECMAScript);

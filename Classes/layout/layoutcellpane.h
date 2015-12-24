@@ -32,37 +32,41 @@ public:
 	*
 	* blah
 	*/
-	enum PaneType
+	enum PaneType: UINT
 	{
 		HORZ=1,         //!< Horizontal Stacked LayoutCells
 		VERT=HORZ<<1   //!< Vertical Stacked LayoutCells
 	};
 
-	explicit LayoutCellPane( const PaneType nType = HORZ );
+	//LayoutCellPane() = delete;
+	LayoutCellPane(const LayoutCellPane &) = delete;
+	explicit LayoutCellPane(const PaneType nType = HORZ);
 	virtual ~LayoutCellPane( );
 
-	virtual void LayoutChild( );
-	virtual HDWP ExecuteLayout( HDWP hdwp );
-	virtual void getMinMaxInfo( CellMinMaxInfo * pCMMI ) const;
+	LayoutCellPane &operator =(const LayoutCellPane &) = delete;	// No assignments!
 
+	virtual void LayoutChild() final;
+	virtual HDWP ExecuteLayout( const HDWP hdwp ) final;
+	virtual void getMinMaxInfo( CellMinMaxInfo * pCMMI ) const final;
 
-	LayoutCell * addChild( LayoutCell * p_Cell, const int nWeight );
-	void toXml(TiXmlElement *xml);
-	TiXmlElement * toXml(void);
+	void toXml(TiXmlElement *xml) final;
+	TiXmlElement * toXml(void) final;
 
-	CellType getType( ) const;
+	const CellType getType( ) const final;
+
+	LayoutCell * addChild(LayoutCell * p_Cell, const UINT nWeight);
 
 protected:
 
 	PaneType m_nType; //!< Fixed Cell Type
 
-	typedef std::pair<LayoutCell *, int> CellNode;  //!< Child LayoutCell + Weight Pair
+	typedef std::pair<LayoutCell *, UINT> CellNode;  //!< Child LayoutCell + Weight Pair
 	typedef std::vector<CellNode> VectorOfNodePtrs; //!< Vector of Node pointers
 
 	VectorOfNodePtrs m_vpCells; //!< Vector Of Stacked LayoutCell
 
-	void AdjustMinSize( int & nSizeLeft, int & nTotalWeight );
-	void AdjustSize( int & nSizeLeft, int & nTotalWeight );
+	void AdjustMinSize( UINT & nSizeLeft, UINT & nTotalWeight );
+	void AdjustSize( UINT & nSizeLeft, UINT & nTotalWeight );
 	void AdjustPos( );
 
 };

@@ -20,16 +20,16 @@ namespace mIRCLinker {
 	bool		m_bUnicodemIRC			= false;
 	bool		m_bSendMessageDisabled	= false;
 
-	bool &mIRCLinker::isDebug()
+	bool &mIRCLinker::isDebug() noexcept
 	{
 		return m_bDebug;
 	}
 
-	bool mIRCLinker::isVersion(const WORD main, const WORD sub) {
+	bool mIRCLinker::isVersion(const WORD main, const WORD sub) noexcept {
 		return getMainVersion() == main && getSubVersion() == sub;
 	}
 
-	bool mIRCLinker::isOrNewerVersion(const WORD main, const WORD sub) {
+	bool mIRCLinker::isOrNewerVersion(const WORD main, const WORD sub) noexcept {
 		return getMainVersion() > main || (getMainVersion() == main && getSubVersion() >= sub);
 	}
 
@@ -148,59 +148,59 @@ namespace mIRCLinker {
 			m_pData = (PTCHAR)MapViewOfFile(m_hFileMap, FILE_MAP_ALL_ACCESS, 0, 0, 0);
 	}
 
-	HWND &mIRCLinker::getSwitchbar()
+	HWND &mIRCLinker::getSwitchbar() noexcept
 	{
 		return m_hSwitchbar;
 	}
 
-	HWND &mIRCLinker::getToolbar()
+	HWND &mIRCLinker::getToolbar() noexcept
 	{
 		return m_hToolbar;
 	}
 
-	HWND &mIRCLinker::getTreebar()
+	HWND &mIRCLinker::getTreebar() noexcept
 	{
 		return m_hTreebar;
 	}
 
-	HWND &mIRCLinker::getTreeview()
+	HWND &mIRCLinker::getTreeview() noexcept
 	{
 		return m_hTreeview;
 	}
 
-	HIMAGELIST &mIRCLinker::getTreeImages()
+	HIMAGELIST &mIRCLinker::getTreeImages() noexcept
 	{
 		return m_hTreeImages;
 	}
 
-	HFONT &mIRCLinker::getTreeFont()
+	HFONT &mIRCLinker::getTreeFont() noexcept
 	{
 		return m_hTreeFont;
 	}
 
 
-	HWND &mIRCLinker::getMDIClient()
+	HWND &mIRCLinker::getMDIClient() noexcept
 	{
 		return m_hMDI;
 	}
 
 
-	HWND &mIRCLinker::getHWND()
+	HWND &mIRCLinker::getHWND() noexcept
 	{
 		return m_mIRCHWND;
 	}
 	
-	DWORD &mIRCLinker::getVersion()
+	DWORD &mIRCLinker::getVersion() noexcept
 	{
 		return m_dwVersion;
 	}
 
-	WORD mIRCLinker::getMainVersion()
+	WORD mIRCLinker::getMainVersion() noexcept
 	{
 		return LOWORD(m_dwVersion);
 	}
 
-	WORD mIRCLinker::getSubVersion()
+	WORD mIRCLinker::getSubVersion() noexcept
 	{
 		return HIWORD(m_dwVersion);
 	}

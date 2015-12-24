@@ -25,7 +25,7 @@
  * \param styles Window Style Tokenized List
  */
 
-DcxButton::DcxButton(const UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, const TString & styles)
+DcxButton::DcxButton(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles)
 	: DcxControl(ID, p_Dialog)
 	, m_bBitmapText(FALSE)
 	, m_bHasIcons(FALSE)
@@ -97,7 +97,7 @@ DcxButton::~DcxButton() {
 
 	ImageList_Destroy(this->getImageList());
 
-	for (auto i = 0; i < _countof(this->m_aBitmaps); i++) {
+	for (auto i = 0U; i < Dcx::countof(this->m_aBitmaps); i++) {
 		if (this->m_aBitmaps[i] != nullptr)
 			DeleteBitmap(this->m_aBitmaps[i]);
 	}

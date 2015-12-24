@@ -29,22 +29,25 @@ class DcxDialog;
 class DcxCheck : public DcxControl {
 
 public:
+	DcxCheck() = delete;
+	DcxCheck(const DcxCheck &) = delete;
+	DcxCheck &operator =(const DcxCheck &) = delete;	// No assignments!
 
-	DcxCheck( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd, const RECT * rc, const TString & styles );
+	DcxCheck(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles);
 	virtual ~DcxCheck( );
 
-	LRESULT PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
-	LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
+	LRESULT PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) override;
+	LRESULT ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) override;
 
-	void parseInfoRequest( const TString & input, TCHAR * szReturnValue ) const;
-	void parseCommandRequest( const TString & input );
-	void parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
+	void parseInfoRequest(const TString & input, PTCHAR szReturnValue) const override;
+	void parseCommandRequest(const TString & input) override;
+	void parseControlStyles(const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme) override;
 
-	inline TString getType( ) const { return TString( TEXT("check") ); };
-	void toXml(TiXmlElement * xml) const;
-	TString getStyles(void) const;
+	inline const TString getType() const override { return TEXT("check"); };
+	inline const DcxControlTypes getControlType() const noexcept override { return DcxControlTypes::CHECK; }
 
-	static void registerClass(void);
+	void toXml(TiXmlElement *const xml) const override;
+	const TString getStyles(void) const override;
 
 protected:
 	void DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam);

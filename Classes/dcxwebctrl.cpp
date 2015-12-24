@@ -27,7 +27,7 @@
  * \param styles Window Style Tokenized List
  */
 
-DcxWebControl::DcxWebControl( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TString & styles ) 
+DcxWebControl::DcxWebControl(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles )
 : DcxControl( ID, p_Dialog )
 , m_bHideEvents(true)
 {
@@ -38,23 +38,23 @@ DcxWebControl::DcxWebControl( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, R
 	this->m_Hwnd = CreateWindowEx(	
 		ExStyles,
 		TEXT("STATIC"),
-		NULL,
+		nullptr,
 		WS_CHILD | WS_CLIPSIBLINGS | Styles,
 		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
 		mParentHwnd,
 		(HMENU) ID,
-		GetModuleHandle(NULL),
-		NULL);
+		GetModuleHandle(nullptr),
+		nullptr);
 
 	if (!IsWindow(this->m_Hwnd))
-		throw TEXT("Unable To Create Window");
+		throw std::runtime_error("Unable To Create Window");
 
 	if ( bNoTheme )
 		Dcx::UXModule.dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
 	/* Web Control Stuff */
 
-	if( Dcx::getClassFactory() != NULL &&
+	if( Dcx::getClassFactory() != nullptr &&
 		SUCCEEDED( Dcx::getClassFactory()->CreateInstance( 0, IID_IWebBrowser2, (void**) &this->m_pWebBrowser2 ) ) && 
 		SUCCEEDED( this->m_pWebBrowser2->QueryInterface( IID_IOleObject, (LPVOID*) &this->m_pOleObject ) ) && 
 		SUCCEEDED( this->m_pWebBrowser2->QueryInterface( IID_IOleInPlaceObject, (LPVOID*) &this->m_pOleInPlaceObject ) ) && 
@@ -69,8 +69,8 @@ DcxWebControl::DcxWebControl( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, R
 		this->registreDefaultWindowProc( );
 		SetProp( this->m_Hwnd, TEXT("dcx_cthis"), (HANDLE) this );
 
-		BSTR url = SysAllocString(TEXT("about:blank"));
-		if (url != NULL) {
+		auto url = SysAllocString(TEXT("about:blank"));
+		if (url != nullptr) {
 			VARIANT v;
 			VariantInit( &v );
 			this->m_pWebBrowser2->Navigate( url, &v, &v, &v, &v );  // dont use L""
@@ -81,28 +81,10 @@ DcxWebControl::DcxWebControl( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, R
 	}
 	else {
 		//Release all Web Control pointers
-		if (this->m_pCP != NULL)
-		{
-			if (this->m_dwCookie)
-				this->m_pCP->Unadvise(this->m_dwCookie);
+		SafeRelease();
 
-			this->m_pCP->Release();
-		}
-		if (this->m_pCPC != NULL)
-			this->m_pCPC->Release( );
-		if (this->m_pOleInPlaceObject != NULL)
-			this->m_pOleInPlaceObject->Release( );
-		if ( this->m_pOleObject != NULL ) {
-
-			this->m_pOleObject->Close( OLECLOSE_NOSAVE );
-			this->m_pOleObject->Release( );
-		}
-		if (this->m_pWebBrowser2 != NULL) {
-			this->m_pWebBrowser2->Quit();
-			this->m_pWebBrowser2->Release( );
-		}
 		DestroyWindow(this->m_Hwnd);
-		throw TEXT("Unable To Create Browser Window");
+		throw std::runtime_error("Unable To Create Browser Window");
 	}
 }
 
@@ -115,21 +97,34 @@ DcxWebControl::DcxWebControl( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, R
 DcxWebControl::~DcxWebControl( ) {
 
 	//Release all Web Control pointers
-	if ( this->m_dwCookie )
-		this->m_pCP->Unadvise( this->m_dwCookie );
-
-	this->m_pCP->Release( );
-	this->m_pCPC->Release( );
-	this->m_pOleInPlaceObject->Release( );
-	if ( this->m_pOleObject != NULL ) {
-
-		this->m_pOleObject->Close( OLECLOSE_NOSAVE );
-		this->m_pOleObject->Release( );
-	}
-	this->m_pWebBrowser2->Quit();
-	this->m_pWebBrowser2->Release( );
+	SafeRelease();
 
 	this->unregistreDefaultWindowProc( );
+}
+
+void DcxWebControl::SafeRelease()
+{
+	//Release all Web Control pointers
+	if (this->m_pCP != nullptr)
+	{
+		if (this->m_dwCookie)
+			this->m_pCP->Unadvise(this->m_dwCookie);
+
+		this->m_pCP->Release();
+	}
+	if (this->m_pCPC != nullptr)
+		this->m_pCPC->Release();
+	if (this->m_pOleInPlaceObject != nullptr)
+		this->m_pOleInPlaceObject->Release();
+	if (this->m_pOleObject != nullptr) {
+
+		this->m_pOleObject->Close(OLECLOSE_NOSAVE);
+		this->m_pOleObject->Release();
+	}
+	if (this->m_pWebBrowser2 != nullptr) {
+		this->m_pWebBrowser2->Quit();
+		this->m_pWebBrowser2->Release();
+	}
 }
 
 /*!
@@ -152,9 +147,9 @@ void DcxWebControl::parseControlStyles( const TString &styles, LONG *Styles, LON
  * \return > void
  */
 
-void DcxWebControl::parseInfoRequest( const TString & input, TCHAR * szReturnValue ) const
+void DcxWebControl::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) const
 {
-	const TString prop(input.getfirsttok( 3 ));
+	const auto prop(input.getfirsttok( 3 ));
 
 	// [NAME] [ID] [PROP]
 	if ( prop == TEXT("url") ) {
@@ -165,7 +160,6 @@ void DcxWebControl::parseInfoRequest( const TString & input, TCHAR * szReturnVal
 
 			wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%ws"), str ); // possible overflow, needs fixing at some point.
 			SysFreeString( str );
-			return;
 		}
 	}
 	// [NAME] [ID] [PROP]
@@ -181,7 +175,6 @@ void DcxWebControl::parseInfoRequest( const TString & input, TCHAR * szReturnVal
 			}
 		}
 		dcx_strcpyn( szReturnValue, TEXT("$false"), MIRC_BUFFER_SIZE_CCH );
-		return;
 	}
 	// [NAME] [ID] [PROP]
 	else if ( prop == TEXT("statusbar") ) {
@@ -196,7 +189,6 @@ void DcxWebControl::parseInfoRequest( const TString & input, TCHAR * szReturnVal
 			}
 		}
 		dcx_strcpyn( szReturnValue, TEXT("$false"), MIRC_BUFFER_SIZE_CCH );
-		return;
 	}
 	else if ( prop == TEXT("statustext") ) {
 
@@ -206,13 +198,10 @@ void DcxWebControl::parseInfoRequest( const TString & input, TCHAR * szReturnVal
 
 			wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%ws"), str ); // possible overflow, needs fixing at some point.
 			SysFreeString( str );
-			return;
 		}
 	}
-	else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
-		return;
-
-	szReturnValue[0] = 0;
+	else
+		this->parseGlobalInfoRequest(input, szReturnValue);
 }
 
 /*!
@@ -223,16 +212,13 @@ void DcxWebControl::parseInfoRequest( const TString & input, TCHAR * szReturnVal
 
 void DcxWebControl::parseCommandRequest( const TString & input) {
 	const XSwitchFlags flags(input.getfirsttok( 3 ));
-	const UINT numtok = input.numtok( );
+	const auto numtok = input.numtok();
 
 	// xdid -g [NAME] [ID] [SWITCH]
-	if ( flags[TEXT('g')] ) {
-
+	if ( flags[TEXT('g')] )
 		this->m_pWebBrowser2->GoHome( );
-	}
 	// xdid -i [NAME] [ID] [SWITCH]
 	else if ( flags[TEXT('i')] ) {
-
 		this->m_pWebBrowser2->GoForward( );
 	}
 	// xdid -j [NAME] [ID] [SWITCH] [JAVASCRIPT]
@@ -240,41 +226,42 @@ void DcxWebControl::parseCommandRequest( const TString & input) {
 
 		READYSTATE ready_state;
 
-		if ( SUCCEEDED( this->m_pWebBrowser2->get_ReadyState( &ready_state ) ) && 
-			ready_state == READYSTATE_COMPLETE )
+		if ( FAILED( this->m_pWebBrowser2->get_ReadyState( &ready_state ) ) || ready_state != READYSTATE_COMPLETE )
+			throw std::runtime_error("Browser NOT in Ready State");
+
+		IDispatch  * htmlDisp = nullptr;
+
+		if ( SUCCEEDED(this->m_pWebBrowser2->get_Document( &htmlDisp )))
 		{
+			Auto(htmlDisp->Release());
 
-			IDispatch  * htmlDisp = NULL;
+			IHTMLDocument2 * doc = nullptr;
+			if ( SUCCEEDED(htmlDisp->QueryInterface( IID_IHTMLDocument2, (void**) &doc )))
+			{
+				Auto(doc->Release());
 
-			if ( SUCCEEDED(this->m_pWebBrowser2->get_Document( &htmlDisp ))) {
+				IHTMLWindow2 * window;
 
-				IHTMLDocument2 * doc = NULL;
-				if ( SUCCEEDED(htmlDisp->QueryInterface( IID_IHTMLDocument2, (void**) &doc ))) {
+				if ( SUCCEEDED( doc->get_parentWindow( &window ) ) )
+				{
+					Auto(window->Release());
 
-					IHTMLWindow2 * window;
+					const auto CMD(input.getlasttoks().trim());		// tok 4, -1
 
-					if ( SUCCEEDED( doc->get_parentWindow( &window ) ) ) { 
+					VARIANT v;
+					VariantInit( &v );
+					Auto(VariantClear(&v));
 
-						const TString CMD(input.getlasttoks().trim());		// tok 4, -1
+					auto strCMD = SysAllocString(CMD.to_chr());
+					if (strCMD != nullptr)
+					{
+						Auto(SysFreeString(strCMD));
 
-						VARIANT v;
-						VariantInit( &v );
-						BSTR strCMD = SysAllocString(CMD.to_chr());
-						if (strCMD != NULL) {
-							window->execScript( strCMD, NULL, &v );
-							SysFreeString(strCMD);
-						}
-						VariantClear( &v );
-
-						window->Release( );
+						window->execScript( strCMD, nullptr, &v );
 					}
-					doc->Release( );
 				}
-				htmlDisp->Release( );
 			}
 		}
-		else
-			this->showError(NULL, TEXT("-j"), TEXT("Browser NOT in Ready State"));
 	}
 	// xdid -k [NAME] [ID] [SWITCH]
 	else if ( flags[TEXT('k')] ) {
@@ -287,12 +274,14 @@ void DcxWebControl::parseCommandRequest( const TString & input) {
 
 		const XSwitchFlags xflags(input.getnexttok());		// tok 4 flags to change
 		const XSwitchFlags xmask(input.getnexttok());		// tok 5 state mask, flags here are enabled, otherwise they are disabled.
-		const TString URL(input.getlasttoks().trim());		// tok 6, -1 optional
+		const auto URL(input.getlasttoks().trim());		// tok 6, -1 optional
 
 		VARIANT vEmpty;
 		VARIANT vFlags;
 		VARIANT_BOOL bEnabled;
 		VariantInit( &vEmpty );
+		Auto(VariantClear(&vEmpty));
+
 		V_VT(&vFlags);
 		V_I4(&vFlags) = 0;
 
@@ -335,34 +324,30 @@ void DcxWebControl::parseCommandRequest( const TString & input) {
 		}
 		// only open url if one supplied.
 		if (!URL.empty()) {
-			BSTR bstrUrl = SysAllocString(URL.to_chr());
-			if (bstrUrl != NULL) {
-				this->m_pWebBrowser2->Navigate( bstrUrl, &vFlags, &vEmpty, &vEmpty, &vEmpty );
-				SysFreeString(bstrUrl);
-			}
-			else
-				this->showError(NULL, TEXT("-m"), TEXT("Unable to Allocate Memory"));
-		}
+			auto bstrUrl = SysAllocString(URL.to_chr());
+			if (bstrUrl == nullptr)
+				throw std::runtime_error("Unable to Allocate Memory");
+			Auto(SysFreeString(bstrUrl));
 
-		VariantClear( &vEmpty );
+			this->m_pWebBrowser2->Navigate(bstrUrl, &vFlags, &vEmpty, &vEmpty, &vEmpty);
+		}
 	}
 	// xdid -n [NAME] [ID] [SWITCH] [URL]
 	// [NAME] [ID] -n [URL]
 	else if ( flags[TEXT('n')] && numtok > 3 ) {
 
-		const TString URL(input.getlasttoks().trim());	// tok 4, -1
+		const auto URL(input.getlasttoks().trim());	// tok 4, -1
 
 		VARIANT v;
 		VariantInit( &v );
-		BSTR bstrUrl = SysAllocString(URL.to_chr());
-		if (bstrUrl != NULL) {
-			this->m_pWebBrowser2->Navigate(bstrUrl, &v, &v, &v, &v);
-			SysFreeString(bstrUrl);
-		}
-		else
-			this->showError(NULL, TEXT("-n"), TEXT("Unable to Allocate Memory"));
+		Auto(VariantClear(&v));
 
-		VariantClear( &v );
+		auto bstrUrl = SysAllocString(URL.to_chr());
+		if (bstrUrl == nullptr)
+			throw std::runtime_error("Unable to Allocate Memory");
+		Auto(SysFreeString(bstrUrl));
+
+		this->m_pWebBrowser2->Navigate(bstrUrl, &v, &v, &v, &v);
 	}
 	// xdid -r [NAME] [ID] [SWITCH]
 	else if ( flags[TEXT('r')] ) {
@@ -399,6 +384,7 @@ HRESULT DcxWebControl::Invoke( DISPID dispIdMember,
 	VARIANT arg1, arg2;
 	VariantInit( &arg1 );
 	VariantInit( &arg2 );
+
 	//if (SUCCEEDED(DispGetParam(pDispParams, 0, VT_BSTR, &arg1, &err)) && SUCCEEDED(DispGetParam(pDispParams, 1, VT_BSTR, &arg2, &err)))
 	//{
 	//	switch (dispIdMember) {
@@ -506,30 +492,32 @@ HRESULT DcxWebControl::Invoke( DISPID dispIdMember,
 	//	VariantClear(&arg2);
 	//}
 	//else
-	//	this->showErrorEx(NULL, TEXT("DcxWebControl::Invoke()"), TEXT("Unable to get object state: %ld"), err);
+	//	this->showErrorEx(nullptr, TEXT("DcxWebControl::Invoke()"), TEXT("Unable to get object state: %ld"), err);
 //
 	//return S_OK;
 
 	HRESULT hRes = S_OK;
 
-	if (!this->m_bHideEvents)
-	{
-		switch (dispIdMember) {
-		case DISPID_NAVIGATECOMPLETE2:
+	try {
+		if (!this->m_bHideEvents)
 		{
-			hRes = DispGetParam(pDispParams, 1, VT_BSTR, &arg2, &err);
-			if (SUCCEEDED(hRes))
-				this->execAliasEx(TEXT("%s,%d,%ws"), TEXT("nav_complete"), this->getUserID(), arg2.bstrVal);
-			else
-				this->showErrorEx(NULL, TEXT("DcxWebControl::Invoke(DISPID_NAVIGATECOMPLETE2)"), TEXT("Unable to get Params: %ld"), err);
-		}
-		break;
-
-		case DISPID_BEFORENAVIGATE2:
-		{
-			hRes = DispGetParam(pDispParams, 1, VT_BSTR, &arg2, &err);
-			if (SUCCEEDED(hRes))
+			switch (dispIdMember) {
+			case DISPID_NAVIGATECOMPLETE2:
 			{
+				hRes = DispGetParam(pDispParams, 1, VT_BSTR, &arg2, &err);
+				if (FAILED(hRes))
+					throw std::runtime_error(Dcx::dcxGetFormattedString(TEXT("DcxWebControl::Invoke(DISPID_NAVIGATECOMPLETE2)"), TEXT("Unable to get Params: %ld"), err));
+
+				this->execAliasEx(TEXT("%s,%d,%ws"), TEXT("nav_complete"), this->getUserID(), arg2.bstrVal);
+			}
+			break;
+
+			case DISPID_BEFORENAVIGATE2:
+			{
+				hRes = DispGetParam(pDispParams, 1, VT_BSTR, &arg2, &err);
+				if (FAILED(hRes))
+					throw std::runtime_error(Dcx::dcxGetFormattedString(TEXT("DcxWebControl::Invoke(DISPID_BEFORENAVIGATE2)"), TEXT("Unable to get Params: %ld"), err));
+
 				TCHAR ret[256];
 				this->evalAliasEx(ret, 255, TEXT("%s,%d,%ws"), TEXT("nav_begin"), this->getUserID(), arg2.bstrVal);
 
@@ -538,110 +526,108 @@ HRESULT DcxWebControl::Invoke( DISPID dispIdMember,
 				else
 					*pDispParams->rgvarg->pboolVal = VARIANT_FALSE;
 			}
-			else
-				this->showErrorEx(NULL, TEXT("DcxWebControl::Invoke(DISPID_BEFORENAVIGATE2)"), TEXT("Unable to get Params: %ld"), err);
-		}
-		break;
+			break;
 
-		case DISPID_DOCUMENTCOMPLETE:
-		{
-			hRes = DispGetParam(pDispParams, 1, VT_BSTR, &arg2, &err);
-			if (SUCCEEDED(hRes))
+			case DISPID_DOCUMENTCOMPLETE:
+			{
+				hRes = DispGetParam(pDispParams, 1, VT_BSTR, &arg2, &err);
+				if (FAILED(hRes))
+					throw std::runtime_error(Dcx::dcxGetFormattedString(TEXT("DcxWebControl::Invoke(DISPID_DOCUMENTCOMPLETE)"), TEXT("Unable to get Params: %ld"), err));
+
 				this->execAliasEx(TEXT("%s,%d,%ws"), TEXT("doc_complete"), this->getUserID(), arg2.bstrVal);
-			else
-				this->showErrorEx(NULL, TEXT("DcxWebControl::Invoke(DISPID_DOCUMENTCOMPLETE)"), TEXT("Unable to get Params: %ld"), err);
-		}
-		break;
-
-		case DISPID_DOWNLOADBEGIN:
-			 this->execAliasEx(TEXT("%s,%d"), TEXT("dl_begin"), this->getUserID());
+			}
 			break;
 
-		case DISPID_DOWNLOADCOMPLETE:
-			this->execAliasEx(TEXT("%s,%d"), TEXT("dl_complete"), this->getUserID());
+			case DISPID_DOWNLOADBEGIN:
+				this->execAliasEx(TEXT("%s,%d"), TEXT("dl_begin"), this->getUserID());
+				break;
+
+			case DISPID_DOWNLOADCOMPLETE:
+				this->execAliasEx(TEXT("%s,%d"), TEXT("dl_complete"), this->getUserID());
+				break;
+
+			case DISPID_NEWWINDOW2:
+			{
+				TCHAR ret[256];
+				this->evalAliasEx(ret, 255, TEXT("%s,%d"), TEXT("win_open"), this->getUserID());
+
+				if (lstrcmpi(ret, TEXT("cancel")) == 0)
+					*pDispParams->rgvarg->pboolVal = VARIANT_TRUE;
+				else
+					*pDispParams->rgvarg->pboolVal = VARIANT_FALSE;
+			}
 			break;
 
-		case DISPID_NEWWINDOW2:
-		{
-			TCHAR ret[256];
-			this->evalAliasEx(ret, 255, TEXT("%s,%d"), TEXT("win_open"), this->getUserID());
+			case DISPID_STATUSTEXTCHANGE:
+			{
+				hRes = DispGetParam(pDispParams, 0, VT_BSTR, &arg1, &err);
+				if (FAILED(hRes))
+					throw std::runtime_error(Dcx::dcxGetFormattedString(TEXT("DcxWebControl::Invoke(DISPID_STATUSTEXTCHANGE)"), TEXT("Unable to get Params: %ld"), err));
 
-			if (lstrcmpi(ret, TEXT("cancel")) == 0)
-				*pDispParams->rgvarg->pboolVal = VARIANT_TRUE;
-			else
-				*pDispParams->rgvarg->pboolVal = VARIANT_FALSE;
-		}
-		break;
-
-		case DISPID_STATUSTEXTCHANGE:
-		{
-			hRes = DispGetParam(pDispParams, 0, VT_BSTR, &arg1, &err);
-			if (SUCCEEDED(hRes))
 				this->execAliasEx(TEXT("%s,%d,%ws"), TEXT("status"), this->getUserID(), arg1.bstrVal);
-			else
-				this->showErrorEx(NULL, TEXT("DcxWebControl::Invoke(DISPID_STATUSTEXTCHANGE)"), TEXT("Unable to get Params: %ld"), err);
-		}
-		break;
+			}
+			break;
 
-		case DISPID_TITLECHANGE:
-		{
-			hRes = DispGetParam(pDispParams, 0, VT_BSTR, &arg1, &err);
-			if (SUCCEEDED(hRes))
+			case DISPID_TITLECHANGE:
+			{
+				hRes = DispGetParam(pDispParams, 0, VT_BSTR, &arg1, &err);
+				if (FAILED(hRes))
+					throw std::runtime_error(Dcx::dcxGetFormattedString(TEXT("DcxWebControl::Invoke(DISPID_TITLECHANGE)"), TEXT("Unable to get Params: %ld"), err));
+
 				this->execAliasEx(TEXT("%s,%d,%ws"), TEXT("title"), this->getUserID(), arg1.bstrVal);
-			else
-				this->showErrorEx(NULL, TEXT("DcxWebControl::Invoke(DISPID_TITLECHANGE)"), TEXT("Unable to get Params: %ld"), err);
-		}
-		break;
-
-		case DISPID_PROGRESSCHANGE:
-		{
-			hRes = DispGetParam(pDispParams, 0, VT_BSTR, &arg1, &err);
-			if (SUCCEEDED(hRes))
-			{
-				hRes = DispGetParam(pDispParams, 1, VT_BSTR, &arg2, &err);
-				if (SUCCEEDED(hRes))
-					this->execAliasEx(TEXT("%s,%d,%ws,%ws"), TEXT("dl_progress"), this->getUserID(), arg1.bstrVal, arg2.bstrVal);
-				else
-					this->showErrorEx(NULL, TEXT("DcxWebControl::Invoke(DISPID_PROGRESSCHANGE)"), TEXT("Unable to get Params: %ld"), err);
 			}
-			else
-				this->showErrorEx(NULL, TEXT("DcxWebControl::Invoke(DISPID_PROGRESSCHANGE)"), TEXT("Unable to get Params: %ld"), err);
-		}
-		break;
+			break;
 
-		case DISPID_COMMANDSTATECHANGE:
-		{
-			hRes = DispGetParam(pDispParams, 0, VT_BSTR, &arg1, &err);
-			if (SUCCEEDED(hRes))
+			case DISPID_PROGRESSCHANGE:
 			{
-				hRes = DispGetParam(pDispParams, 1, VT_BSTR, &arg2, &err);
-				if (SUCCEEDED(hRes))
-				{
-					switch (arg1.bstrVal[0]) {
-					case L'1':
-						this->execAliasEx(TEXT("%s,%d,%s"), TEXT("forward"), this->getUserID(), arg2.boolVal ? TEXT("$true") : TEXT("$false"));
-						break;
+				hRes = DispGetParam(pDispParams, 0, VT_BSTR, &arg1, &err);
+				if (FAILED(hRes))
+					this->showErrorEx(nullptr, TEXT("DcxWebControl::Invoke(DISPID_PROGRESSCHANGE)"), TEXT("Unable to get Params: %ld"), err);
 
-					case L'2':
-						this->execAliasEx(TEXT("%s,%d,%s"), TEXT("back"), this->getUserID(), arg2.boolVal ? TEXT("$true") : TEXT("$false"));
-						break;
-					}
+				hRes = DispGetParam(pDispParams, 1, VT_BSTR, &arg2, &err);
+				if (FAILED(hRes))
+					throw std::runtime_error(Dcx::dcxGetFormattedString(TEXT("DcxWebControl::Invoke(DISPID_PROGRESSCHANGE)"), TEXT("Unable to get Params: %ld"), err));
+
+				this->execAliasEx(TEXT("%s,%d,%ws,%ws"), TEXT("dl_progress"), this->getUserID(), arg1.bstrVal, arg2.bstrVal);
+			}
+			break;
+
+			case DISPID_COMMANDSTATECHANGE:
+			{
+				hRes = DispGetParam(pDispParams, 0, VT_BSTR, &arg1, &err);
+				if (FAILED(hRes))
+					throw std::runtime_error(Dcx::dcxGetFormattedString(TEXT("DcxWebControl::Invoke(DISPID_COMMANDSTATECHANGE)"), TEXT("Unable to get Params: %ld"), err));
+
+				hRes = DispGetParam(pDispParams, 1, VT_BSTR, &arg2, &err);
+				if (FAILED(hRes))
+					throw std::runtime_error(Dcx::dcxGetFormattedString(TEXT("DcxWebControl::Invoke(DISPID_COMMANDSTATECHANGE)"), TEXT("Unable to get Params: %ld"), err));
+
+				switch (arg1.bstrVal[0]) {
+				case L'1':
+					this->execAliasEx(TEXT("%s,%d,%s"), TEXT("forward"), this->getUserID(), arg2.boolVal ? TEXT("$true") : TEXT("$false"));
+					break;
+
+				case L'2':
+					this->execAliasEx(TEXT("%s,%d,%s"), TEXT("back"), this->getUserID(), arg2.boolVal ? TEXT("$true") : TEXT("$false"));
+					break;
 				}
-				else
-					this->showErrorEx(NULL, TEXT("DcxWebControl::Invoke(DISPID_COMMANDSTATECHANGE)"), TEXT("Unable to get Params: %ld"), err);
 			}
-			else
-				this->showErrorEx(NULL, TEXT("DcxWebControl::Invoke(DISPID_COMMANDSTATECHANGE)"), TEXT("Unable to get Params: %ld"), err);
+			break;
+			}
 		}
-		break;
-		}
+		else if (dispIdMember == DISPID_DOCUMENTCOMPLETE)
+			this->m_bHideEvents = false; // allow events to be seen after first doc loads `about:blank`
 	}
-	else if (dispIdMember == DISPID_DOCUMENTCOMPLETE)
-		this->m_bHideEvents = false; // allow events to be seen after first doc loads `about:blank`
-
+	catch (std::exception &e)
+	{
+		this->showErrorEx(nullptr, TEXT("webctrl"), TEXT("error: %S"), e.what());
+	}
+	catch (...) {
+		// stop any left over exceptions...
+		this->showError(nullptr, TEXT("webctrl"), TEXT("error: Unknown Exception"));
+	}
 	VariantClear(&arg1);
 	VariantClear(&arg2);
-
 	return hRes;
 }
 
@@ -653,7 +639,7 @@ HRESULT DcxWebControl::Invoke( DISPID dispIdMember,
 
 HRESULT STDMETHODCALLTYPE DcxWebControl::QueryInterface( REFIID riid, void __RPC_FAR *__RPC_FAR * ppvObject )
 {
-	*ppvObject = NULL;
+	*ppvObject = nullptr;
 
 	if ( IID_IUnknown == riid ) { 
 		*ppvObject = (IUnknown*)(IOleClientSite*) this; 
@@ -680,8 +666,8 @@ HRESULT STDMETHODCALLTYPE DcxWebControl::GetWindowContext( IOleInPlaceFrame __RP
                                                           LPRECT pCR, 
                                                           LPOLEINPLACEFRAMEINFO pFI ) 
 {
-	*ppFrame = NULL;
-	*ppDoc = NULL;
+	*ppFrame = nullptr;
+	*ppDoc = nullptr;
 
 	GetClientRect( this->m_Hwnd, pPR );
 	CopyRect( pCR, pPR ); 
@@ -716,8 +702,8 @@ LRESULT DcxWebControl::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 	case WM_SIZE:
 		{
 			RECT rc; 
-			GetClientRect( this->m_Hwnd, &rc );
-			this->m_pOleInPlaceObject->SetObjectRects( &rc, &rc );
+			if (GetClientRect( this->m_Hwnd, &rc ))
+				this->m_pOleInPlaceObject->SetObjectRects( &rc, &rc );
 			//return 0L;
 		}
 		break;
@@ -725,7 +711,7 @@ LRESULT DcxWebControl::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 	case WM_MOUSEACTIVATE:
 		{
 			bParsed = TRUE;
-			//HWND web = NULL;
+			//HWND web = nullptr;
 			//HRESULT r = this->m_pWebBrowser2->get_HWND((long *)&web);
 			//if (SUCCEEDED(r)) {
 			//	mIRCError(TEXT("worked"));

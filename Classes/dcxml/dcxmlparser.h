@@ -10,13 +10,15 @@ public:
 	DcxmlParser();
 	~DcxmlParser();
 
+	DcxmlParser(const DcxmlParser &) = delete;
+	DcxmlParser &operator =(const DcxmlParser &) = delete;	// No assignments!
+
 	bool ParseXML(const TString &tsFilePath, const TString &tsDialogMark,const TString &DialogName,const bool verbose, const bool autoClose);
 	//virtual ~DCXML( );
 	void parseAttributes();
 	void parseAttributes(const TiXmlElement *const tElement);
 	void parseControl();
 	TString parseCLA(const int cCla);
-	bool loadSuccess;
 
 	void setStyle(const TiXmlElement *const style);
 	void parseStyle(int depth = 0);
@@ -31,27 +33,29 @@ public:
 	void setDialog(const TString &dialogMark);
 	void setDialogMark (const TString &v) { this->_dialogMark = v; }
 	void setDialogName (const TString &v) { this->_dialogName = v; }
-	void setRootElement (const TiXmlElement *const ti) { this->_rootElement = ti; }
-	void setDialogsElement (const TiXmlElement *const ti) { this->_dialogsElement = ti; }
-	void setDialogElement (const TiXmlElement *const ti) { this->_dialogElement = ti; }
+	void setRootElement (const TiXmlElement *const ti) noexcept { this->_rootElement = ti; }
+	void setDialogsElement (const TiXmlElement *const ti) noexcept { this->_dialogsElement = ti; }
+	void setDialogElement (const TiXmlElement *const ti) noexcept { this->_dialogElement = ti; }
 
-	bool loadDocument();
-	bool loadDialog();
-	bool loadDialogElement();
+	void loadDocument();
+	void loadDialog();
+	void loadDialogElement();
 
-	void setZlayered (const bool b) { this->_zlayered = b; }
+	void setZlayered (const bool b) noexcept { this->_zlayered = b; }
 
-	DcxDialog *getDialog () const { return this->_dcxDialog; }
-	bool getZlayered () const { return this->_zlayered; }
-	const TString &getDialogMark () const { return this->_dialogMark; }
-	const TString &getDialogName () const { return this->_dialogName; }
-	const TString &getFilePath () const { return this->_filePath; }
+	DcxDialog *getDialog () const noexcept { return this->_dcxDialog; }
+	const bool &getZlayered() const noexcept { return this->_zlayered; }
+	const TString &getDialogMark () const noexcept { return this->_dialogMark; }
+	const TString &getDialogName () const noexcept { return this->_dialogName; }
+	const TString &getFilePath () const noexcept { return this->_filePath; }
 
-	const TiXmlElement* getRootElement () const { return this->_rootElement; }
-	const TiXmlElement* getDialogsElement () const { return this->_dialogsElement; }
-	const TiXmlElement* getDialogElement () const { return this->_dialogElement; }
+	const TiXmlElement* getRootElement () const noexcept { return this->_rootElement; }
+	const TiXmlElement* getDialogsElement () const noexcept { return this->_dialogsElement; }
+	const TiXmlElement* getDialogElement () const noexcept { return this->_dialogElement; }
 
-	const TiXmlDocument * getDocument () const { return &this->_document; }
+	const TiXmlDocument * getDocument () const noexcept { return &this->_document; }
+
+	const bool &getLoaded() const noexcept { return loadSuccess; }
 
 	DcxDialog *d_Host;
 	const TiXmlElement *root; //!< dcxml root element
@@ -125,16 +129,15 @@ public:
 	const char *g_claPathx;
 	int g_resetcla;
 private:
-	bool _verbose;
-	void isVerbose(const bool b) { this->_verbose = b; }
-	const bool &isVerbose() const { return this->_verbose; }
-	bool _autoClose;
-	void isAutoClose(const bool b) { this->_autoClose = b; }
-	const bool &isAutoClose() const { return this->_autoClose; }
+
+	void isVerbose(const bool b) noexcept { this->_verbose = b; }
+	const bool &isVerbose() const noexcept { return this->_verbose; }
+	void isAutoClose(const bool b) noexcept { this->_autoClose = b; }
+	const bool &isAutoClose() const noexcept { return this->_autoClose; }
 
 	void xdialogEX(const TCHAR *const sw,const TCHAR *const dFormat, ...);
 	int mIRCEvalToUnsignedInt (const char *const value);
-	void registerId(const TiXmlElement *const idElement,const int id);
+	void registerId(const TiXmlElement *const idElement,const int iNewID);
 	int parseId(const TiXmlElement *const idElement);
 	void xdidEX(const int cid,const TCHAR *const sw,const TCHAR *const dFormat, ...);
 
@@ -145,7 +148,11 @@ private:
 
 	void setFilePath (const TString &tsFile) { this->_filePath = tsFile; }
 
+	bool loadSuccess;
+	bool _verbose;
+	bool _autoClose;
 	bool _zlayered;
+
 	TString _filePath;
 	TString _dialogMark;
 	TString _dialogName;

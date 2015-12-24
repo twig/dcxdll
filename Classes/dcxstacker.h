@@ -31,16 +31,16 @@
 #define STACKERF_SELECTED	0x01
 
 typedef struct tagDCXSITEM {
-	TString			tsTipText;	//!< Tooltip text
-	TString			tsCaption;	//!< Title Buttons text
-	COLORREF		clrBack;		//!< Line Background Caption Color
-	COLORREF		clrText;		//!< Line Caption Color
-	HFONT				hFont;			//!< Items font.
-	DcxControl *pChild;			//!< Items child control
-	int					iItemImg;		//!< Items Normal Image index.
-	int					iSelectedItemImg;		//!< Items Selected Image index.
-	RECT				itemrc;			//!< Items Rect.
-	DWORD				dFlags;			//!< Items flags.
+	TString			tsTipText;			//!< Tooltip text
+	TString			tsCaption;			//!< Title Buttons text
+	COLORREF		clrBack;			//!< Line Background Caption Color
+	COLORREF		clrText;			//!< Line Caption Color
+	HFONT			hFont;				//!< Items font.
+	DcxControl		*pChild;			//!< Items child control
+	int				iItemImg;			//!< Items Normal Image index.
+	int				iSelectedItemImg;	//!< Items Selected Image index.
+	RECT			itemrc;				//!< Items Rect.
+	DWORD			dFlags;				//!< Items flags.
 } DCXSITEM,*LPDCXSITEM;
 
 typedef std::vector<Image *> VectorOfImages;
@@ -55,19 +55,24 @@ typedef std::vector<LPDCXSITEM> VectorOfStackerItems;
 class DcxStacker : public DcxControl {
 
 public:
+	DcxStacker() = delete;
+	DcxStacker(const DcxStacker &) = delete;
+	DcxStacker &operator =(const DcxStacker &) = delete;	// No assignments!
 
-	DcxStacker( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd, const RECT * rc, const TString & styles );
+	DcxStacker( const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles );
 	virtual ~DcxStacker( );
 
-	LRESULT PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
-	LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
+	LRESULT PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) override;
+	LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) override;
 
-	void parseInfoRequest( const TString & input, TCHAR * szReturnValue ) const;
-	void parseCommandRequest( const TString & input );
-	void parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
+	void parseInfoRequest( const TString & input, PTCHAR szReturnValue ) const override;
+	void parseCommandRequest( const TString & input ) override;
+	void parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ) override;
 
-	inline TString getType( ) const { return TString( TEXT("stacker") ); };
-	TString getStyles(void) const;
+	inline const TString getType() const override { return TEXT("stacker"); };
+	inline const DcxControlTypes getControlType() const noexcept override { return DcxControlTypes::STACKER; }
+
+	const TString getStyles(void) const override;
 
 protected:
 	HWND m_hActive;

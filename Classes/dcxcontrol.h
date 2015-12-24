@@ -118,36 +118,36 @@ public:
 
 	bool execAliasEx(const TCHAR *const szFormat, ... );
 
-	const UINT getUserID( ) const;
+	const UINT getUserID( ) const noexcept;
 
 	virtual LRESULT PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) = 0;
 	virtual LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) = 0;
 
 	LRESULT setFont( const HFONT hFont, const BOOL fRedraw );
-	HFONT getFont( ) const;
+	HFONT getFont( ) const noexcept;
 
 	void setControlFont( const HFONT hFont, const BOOL fRedraw );
 
 	LRESULT setRedraw( const BOOL fView );
 
-	const HBRUSH &getBackClrBrush( ) const;
-	const COLORREF &getBackColor( ) const;
-	const COLORREF &getTextColor( ) const;
-	const COLORREF &getStartGradientColor(void) const { return this->m_clrStartGradient; };
-	const COLORREF &getEndGradientColor(void) const { return this->m_clrEndGradient; };
+	const HBRUSH &getBackClrBrush( ) const noexcept;
+	const COLORREF &getBackColor( ) const noexcept;
+	const COLORREF &getTextColor( ) const noexcept;
+	const COLORREF &getStartGradientColor(void) const noexcept { return this->m_clrStartGradient; };
+	const COLORREF &getEndGradientColor(void) const noexcept { return this->m_clrEndGradient; };
 	const RECT getWindowPosition(void) const;
 
 	virtual const TString getType( ) const = 0;
-	virtual const DcxControlTypes getControlType() const = 0;
+	virtual const DcxControlTypes getControlType() const noexcept = 0;
 
 	virtual const TString getStyles(void) const;
 	virtual const TString getBorderStyles(void) const;
 	virtual void toXml(TiXmlElement *const xml) const;
 	virtual TiXmlElement * toXml(void) const;
 
-	inline void incRef( ) { ++this->m_iRefCount; };
-	inline void decRef( ) { --this->m_iRefCount; };
-	inline const UINT &getRefCount( ) const { return this->m_iRefCount; };
+	inline void incRef( ) noexcept { ++this->m_iRefCount; };
+	inline void decRef( ) noexcept { --this->m_iRefCount; };
+	inline const UINT &getRefCount( ) const noexcept { return this->m_iRefCount; };
 
 	//DcxControl *getParentCtrl() const { return this->m_pParentCtrl; };
 	void updateParentCtrl(void); //!< updates controls host control pointers, MUST be called before these pointers are used.

@@ -33,6 +33,7 @@ bool DcxDWMModule::load(void)
 	this->m_bVista = (winMajor >= 6);	// OS is Vista+
 	this->m_bWin7 = (winMajor > 6);		// OS is Windows7+
 	this->m_bWin8 = (winMajor > 7);		// OS is Windows8+
+	this->m_bWin10 = (winMajor > 8);	// OS is Windows10+
 
 	DCX_DEBUG(mIRCLinker::debug, TEXT("LoadDLL"), TEXT("Loading DWMAPI.DLL..."));
 	m_hModule = LoadLibrary(TEXT("dwmapi.dll"));

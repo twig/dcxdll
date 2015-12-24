@@ -34,7 +34,7 @@ XSwitchFlags::~XSwitchFlags(void) {
 }
 
 // Checks if flags are set.
-const bool &XSwitchFlags::isSet(const TCHAR c) const
+const bool &XSwitchFlags::isSet(const TCHAR c) const noexcept
 {
 	static const bool bFalse(false);
 
@@ -53,6 +53,6 @@ const bool &XSwitchFlags::isSet(const TCHAR c) const
 }
 
 // Wrapper for isSet()
-const bool &XSwitchFlags::operator[](const TCHAR c) const {
+const bool &XSwitchFlags::operator[](const TCHAR c) const noexcept {
 	return this->isSet(c);
 }

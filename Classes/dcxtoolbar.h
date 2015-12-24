@@ -20,22 +20,43 @@
 
 class DcxDialog;
 
-#define TB_IML_NORMAL	0x01	//!< Toolbar Normal ImageList
-#define TB_IML_DISABLE	0x02	//!< Toolbar Disabled ImageList
-#define TB_IML_HOT		0x04	//!< Toolbar HotTrack ImageList
-#define TB_ICO_GREY		0x08	//!< Toolbar HotTrack ImageList
+enum dcxToolBar_ImageLists : UINT {
+	TB_IML_NORMAL	= 0x01,	//!< Toolbar Normal ImageList
+	TB_IML_DISABLE	= 0x02,	//!< Toolbar Disabled ImageList
+	TB_IML_HOT		= 0x04,	//!< Toolbar HotTrack ImageList
+	TB_ICO_GREY		= 0x08	//!< ???
+};
 
-#define BTNS_WIDTH				0x001000	//!< Toolbar Button Width Style
-#define BTNS_BOLD				0x002000	//!< Toolbar Button Caption Bold Style
-#define BTNS_UNDERLINE			0x004000	//!< Toolbar Button Caption Underline Style
-#define BTNS_COLOR				0x008000	//!< Toolbar Button Caption Color Style
-#define BTNS_TBKGCOLOR			0x010000	//!< Toolbar Tooltip Background Color Style
-#define BTNS_TTXTCOLOR			0x020000	//!< Toolbar Tooltip Text Color Style
-#define BTNS_HIGHLIGHT_TXTCOLOR	0x040000	//!< Toolbar Buttons Highlight Text colour.
-#define BTNS_MARK_BKGCOLOR		0x080000	//!< Toolbar Buttons background colour when marked.
-#define BTNS_BTNCOLOR			0x100000	//!< Toolbar Buttons colour.
-#define BTNS_HIGHLIGHT_BTNCOLOR	0x200000	//!< Toolbar Buttons colour when highlighted.
-#define BTNS_HOTTRACK_BTNCOLOR	0x400000	//!< Toolbar Buttons colour when hot.
+enum dcxToolBar_Styles : DWORD {
+	BTNS_WIDTH				= 0x00001000,	//!< Toolbar Button Width Style
+	BTNS_BOLD				= 0x00002000,	//!< Toolbar Button Caption Bold Style
+	BTNS_UNDERLINE			= 0x00004000,	//!< Toolbar Button Caption Underline Style
+	BTNS_COLOR				= 0x00008000,	//!< Toolbar Button Caption Color Style
+	BTNS_TBKGCOLOR			= 0x00010000,	//!< Toolbar Tooltip Background Color Style
+	BTNS_TTXTCOLOR			= 0x00020000,	//!< Toolbar Tooltip Text Color Style
+	BTNS_HIGHLIGHT_TXTCOLOR	= 0x00040000,	//!< Toolbar Buttons Highlight Text colour.
+	BTNS_MARK_BKGCOLOR		= 0x00080000,	//!< Toolbar Buttons background colour when marked.
+	BTNS_BTNCOLOR			= 0x00100000,	//!< Toolbar Buttons colour.
+	BTNS_HIGHLIGHT_BTNCOLOR	= 0x00200000,	//!< Toolbar Buttons colour when highlighted.
+	BTNS_HOTTRACK_BTNCOLOR	= 0x00400000	//!< Toolbar Buttons colour when hot.
+};
+
+//#define TB_IML_NORMAL	0x01	//!< Toolbar Normal ImageList
+//#define TB_IML_DISABLE	0x02	//!< Toolbar Disabled ImageList
+//#define TB_IML_HOT		0x04	//!< Toolbar HotTrack ImageList
+//#define TB_ICO_GREY		0x08	//!< Toolbar HotTrack ImageList
+
+//#define BTNS_WIDTH				0x001000	//!< Toolbar Button Width Style
+//#define BTNS_BOLD				0x002000	//!< Toolbar Button Caption Bold Style
+//#define BTNS_UNDERLINE			0x004000	//!< Toolbar Button Caption Underline Style
+//#define BTNS_COLOR				0x008000	//!< Toolbar Button Caption Color Style
+//#define BTNS_TBKGCOLOR			0x010000	//!< Toolbar Tooltip Background Color Style
+//#define BTNS_TTXTCOLOR			0x020000	//!< Toolbar Tooltip Text Color Style
+//#define BTNS_HIGHLIGHT_TXTCOLOR	0x040000	//!< Toolbar Buttons Highlight Text colour.
+//#define BTNS_MARK_BKGCOLOR		0x080000	//!< Toolbar Buttons background colour when marked.
+//#define BTNS_BTNCOLOR			0x100000	//!< Toolbar Buttons colour.
+//#define BTNS_HIGHLIGHT_BTNCOLOR	0x200000	//!< Toolbar Buttons colour when highlighted.
+//#define BTNS_HOTTRACK_BTNCOLOR	0x400000	//!< Toolbar Buttons colour when hot.
 
 /*!
  * \brief blah
@@ -74,21 +95,24 @@ typedef struct tagDCXTBBUTTON {
 class DcxToolBar : public DcxControl {
 
 public:
+	DcxToolBar() = delete;
+	DcxToolBar(const DcxToolBar &) = delete;
+	DcxToolBar &operator =(const DcxToolBar &) = delete;	// No assignments!
 
-	DcxToolBar( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd, const RECT * rc, const TString & styles );
+	DcxToolBar( const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles );
 	virtual ~DcxToolBar( );
 
-	LRESULT PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
-	LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
+	LRESULT PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) override;
+	LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) override;
 
-	void parseInfoRequest( const TString & input, TCHAR * szReturnValue ) const;
-	void parseCommandRequest( const TString & input );
-	void parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
+	void parseInfoRequest( const TString & input, PTCHAR szReturnValue ) const override;
+	void parseCommandRequest( const TString & input ) override;
+	void parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ) override;
 
 	void parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, LONG * ExStylesTb, BOOL * bNoTheme );
 
-	HIMAGELIST getImageList( const int iImageList );
-	void setImageList( HIMAGELIST himl, const int iImageList );
+	HIMAGELIST getImageList( const dcxToolBar_ImageLists iImageList ) const;
+	void setImageList(HIMAGELIST himl, const dcxToolBar_ImageLists iImageList);
 	static HIMAGELIST createImageList( const UINT iSize );
 
 	LRESULT autoSize( );
@@ -113,7 +137,8 @@ public:
 
 	void autoPosition( const int width, const int height );
 
-	inline TString getType( ) const { return TString( TEXT("toolbar") ); };
+	inline const TString getType() const override { return TEXT("toolbar"); };
+	inline const DcxControlTypes getControlType() const noexcept override { return DcxControlTypes::TOOLBAR; }
 
 protected:
 

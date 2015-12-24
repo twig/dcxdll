@@ -26,25 +26,22 @@ namespace mIRCLinker
 
 	void initMapFile();
 
-	HWND &getSwitchbar();
-	HWND &getToolbar();
-	HWND &getTreebar();
-	HWND &getTreeview();
-	HIMAGELIST &getTreeImages();
-	HFONT &getTreeFont();
-	HWND &getMDIClient();
-	HWND &getHWND();
-	DWORD &getVersion();
-	WORD getMainVersion();
-	WORD getSubVersion();
-	const TString & getLastError();
+	HWND &getSwitchbar() noexcept;
+	HWND &getToolbar() noexcept;
+	HWND &getTreebar() noexcept;
+	HWND &getTreeview() noexcept;
+	HIMAGELIST &getTreeImages() noexcept;
+	HFONT &getTreeFont() noexcept;
+	HWND &getMDIClient() noexcept;
+	HWND &getHWND() noexcept;
+	DWORD &getVersion() noexcept;
+	WORD getMainVersion() noexcept;
+	WORD getSubVersion() noexcept;
 	bool setTreeFont(const HFONT newFont);
-	bool isOrNewerVersion(const WORD main, const WORD sub);
-	bool isVersion(const WORD main, const WORD sub);
-	//bool isAero();
-	//bool isVista();
-	bool &isDebug();
-	__inline bool &isUnicode() { return m_bUnicodemIRC; };
+	bool isOrNewerVersion(const WORD main, const WORD sub) noexcept;
+	bool isVersion(const WORD main, const WORD sub) noexcept;
+	bool &isDebug() noexcept;
+	__inline bool &isUnicode() noexcept { return m_bUnicodemIRC; };
 
 	//bool isDXInstalled9();
 	bool isAlias(const TCHAR * aliasName);

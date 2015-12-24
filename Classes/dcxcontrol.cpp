@@ -215,7 +215,7 @@ void DcxControl::parseGeneralControlStyles( const TString & styles, LONG * Style
  * blah
  */
 
-const UINT DcxControl::getUserID( ) const {
+const UINT DcxControl::getUserID( ) const noexcept {
 
 	return this->getID( ) - mIRC_ID_OFFSET;
 }
@@ -1172,16 +1172,19 @@ DcxControl * DcxControl::controlFactory(DcxDialog *const p_Dialog, const UINT mI
 	}
 	else if ((dct == DcxControlTypes::DIALOG) && (dcx_testflag(mask, CTLF_ALLOW_DOCK))) {
 		if (styles.empty())
-			throw std::invalid_argument("No dialog name");
+			dcx_exception_InvalidArgument(TEXT("No dialog name"));
+		//throw std::invalid_argument("No dialog name");
 
 		const auto tsDname(styles.getfirsttok(1));
 		auto winHwnd = GetHwndFromString(tsDname);
 
 		if (IsWindow(winHwnd))
-			throw std::invalid_argument(Dcx::dcxGetFormattedString(TEXT("No such dialog: %s"), tsDname.to_chr()));
+			dcx_exception_InvalidArgument(TEXT("No such dialog: %"), tsDname);
+		//throw std::invalid_argument(Dcx::dcxGetFormattedString(TEXT("No such dialog: %s"), tsDname.to_chr()));
 
 		if (p_Dialog->getControlByHWND(winHwnd) != nullptr)
-			throw std::invalid_argument(Dcx::dcxGetFormattedString(TEXT("Control already exists : %s"), tsDname.to_chr()));
+			dcx_exception_InvalidArgument(TEXT("Control already exists : %"), tsDname);
+		//throw std::invalid_argument(Dcx::dcxGetFormattedString(TEXT("Control already exists : %s"), tsDname.to_chr()));
 
 		auto newDialog = new DcxMDialog(winHwnd, hParent, mID, p_Dialog, &rc, styles);
 		auto dlg = Dcx::Dialogs.getDialogByHandle(winHwnd);
@@ -1314,7 +1317,9 @@ DcxControl * DcxControl::controlFactory(DcxDialog *const p_Dialog, const UINT mI
 //
 //		return newDialog;
 //	}
-	throw std::runtime_error(Dcx::dcxGetFormattedString(TEXT("Control Type not supported: %s"), type.to_chr()));
+
+//throw std::runtime_error(Dcx::dcxGetFormattedString(TEXT("Control Type not supported: %s"), type.to_chr()));
+	dcx_exception_RuntimeError(TEXT("Control Type not supported: %"), type.to_chr());
 	return nullptr;
 }
 
@@ -1334,7 +1339,7 @@ LRESULT DcxControl::setFont( const HFONT hFont, const BOOL fRedraw ) {
  * blah
  */
 
-HFONT DcxControl::getFont( ) const {
+HFONT DcxControl::getFont( ) const noexcept {
   return GetWindowFont( this->m_Hwnd );
 }
 
@@ -1380,7 +1385,7 @@ void DcxControl::setControlFont( const HFONT hFont, const BOOL fRedraw ) {
  * blah
  */
 
-const HBRUSH &DcxControl::getBackClrBrush( ) const {
+const HBRUSH &DcxControl::getBackClrBrush( ) const noexcept {
 
   return this->m_hBackBrush;
 }
@@ -1391,7 +1396,7 @@ const HBRUSH &DcxControl::getBackClrBrush( ) const {
  * blah
  */
 
-const COLORREF &DcxControl::getBackColor( ) const {
+const COLORREF &DcxControl::getBackColor( ) const noexcept {
 	return this->m_clrBackText;
 }
 
@@ -1401,7 +1406,7 @@ const COLORREF &DcxControl::getBackColor( ) const {
  * blah
  */
 
-const COLORREF &DcxControl::getTextColor( ) const {
+const COLORREF &DcxControl::getTextColor( ) const noexcept {
 	return this->m_clrText;
 }
 

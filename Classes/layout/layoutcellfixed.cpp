@@ -45,7 +45,7 @@ LayoutCellFixed::LayoutCellFixed(const HWND mHwnd, const FixedType nType)
  */
 
 LayoutCellFixed::LayoutCellFixed(const RECT & rc, const FixedType nType)
-: LayoutCell(NULL, rc)
+: LayoutCell(nullptr, rc)
 , m_nType(nType)
 {
 }
@@ -78,7 +78,7 @@ LayoutCellFixed::~LayoutCellFixed() {
  * blah
  */
 
-LayoutCell::CellType LayoutCellFixed::getType() const {
+const LayoutCell::CellType LayoutCellFixed::getType() const {
 
 	return FIXED;
 }
@@ -95,23 +95,23 @@ void LayoutCellFixed::LayoutChild() {
 
 
 TiXmlElement * LayoutCellFixed::toXml(void) {
-	if (this->m_BaseControl == NULL)
-		return NULL;
+	if (this->m_BaseControl == nullptr)
+		return nullptr;
 
-	TiXmlElement * base = this->m_BaseControl->toXml();
-	if (this->m_nType & HEIGHT)
+	auto base = this->m_BaseControl->toXml();
+	if (dcx_testflag(this->m_nType,HEIGHT))
 		base->SetAttribute("height", this->m_rcWindow.bottom - this->m_rcWindow.top);
-	if (this->m_nType & WIDTH)
+	if (dcx_testflag(this->m_nType,WIDTH))
 		base->SetAttribute("width", this->m_rcWindow.right - this->m_rcWindow.left);
 	return base;
 }
 
 void LayoutCellFixed::toXml(TiXmlElement * xml) {
-	if (this->m_BaseControl != NULL)
+	if (this->m_BaseControl != nullptr)
 		this->m_BaseControl->toXml(xml);
-	if (this->m_nType & HEIGHT)
+	if (dcx_testflag(this->m_nType, HEIGHT))
 		xml->SetAttribute("height", this->m_rcWindow.bottom - this->m_rcWindow.top);
-	if (this->m_nType & WIDTH)
+	if (dcx_testflag(this->m_nType, WIDTH))
 		xml->SetAttribute("width", this->m_rcWindow.right - this->m_rcWindow.left);
 }
 
@@ -121,17 +121,17 @@ void LayoutCellFixed::toXml(TiXmlElement * xml) {
  * blah
  */
 
-HDWP LayoutCellFixed::ExecuteLayout(HDWP hdwp) {
+HDWP LayoutCellFixed::ExecuteLayout(const HDWP hdwp) {
 
-	HDWP hdwpdef = hdwp;
+	auto hdwpdef = hdwp;
 
-	if (this->m_Hwnd != NULL && IsWindow(this->m_Hwnd)) {
+	if (this->m_Hwnd != nullptr && IsWindow(this->m_Hwnd)) {
 
 		RECT rc;
 		this->getClientRect(rc);
 
-		hdwpdef = DeferWindowPos(hdwpdef, this->m_Hwnd, NULL, rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top, SWP_NOZORDER);
-		//hdwpdef = DeferWindowPos( hdwpdef, this->m_Hwnd, NULL, rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top, SWP_NOZORDER | SWP_NOREDRAW | SWP_NOACTIVATE | SWP_NOOWNERZORDER );
+		hdwpdef = DeferWindowPos(hdwpdef, this->m_Hwnd, nullptr, rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top, SWP_NOZORDER);
+		//hdwpdef = DeferWindowPos( hdwpdef, this->m_Hwnd, nullptr, rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top, SWP_NOZORDER | SWP_NOREDRAW | SWP_NOACTIVATE | SWP_NOOWNERZORDER );
 	}
 	return hdwpdef;
 }
@@ -152,8 +152,8 @@ void LayoutCellFixed::getMinMaxInfo(CellMinMaxInfo * pCMMI) const
 		//pCMMI->m_MinSize.x = this->m_rcBorders.left + this->m_rcBorders.right;
 		//pCMMI->m_MinSize.y = this->m_rcBorders.top + this->m_rcBorders.bottom;
 
-		if (m_nType & WIDTH) {
-
+		if (dcx_testflag(m_nType, WIDTH))
+		{
 			if (m_nType != BOTH)
 				pCMMI->m_MinSize.y = this->m_rcBorders.top + this->m_rcBorders.bottom;
 
@@ -162,8 +162,8 @@ void LayoutCellFixed::getMinMaxInfo(CellMinMaxInfo * pCMMI) const
 
 		}
 
-		if (m_nType & HEIGHT) {
-
+		if (dcx_testflag(m_nType, HEIGHT))
+		{
 			if (m_nType != BOTH)
 				pCMMI->m_MinSize.x = this->m_rcBorders.left + this->m_rcBorders.right;
 

@@ -34,16 +34,19 @@ class DcxDialog;
 class DcxWebControl : public DcxControl, public IOleClientSite, public IOleInPlaceSite, public DWebBrowserEvents2 {
 
 public:
+	DcxWebControl() = delete;
+	DcxWebControl(const DcxWebControl &) = delete;
+	DcxWebControl &operator =(const DcxWebControl &) = delete;	// No assignments!
 
-	DcxWebControl( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TString & styles );
+	DcxWebControl(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles );
 	virtual ~DcxWebControl( );
 
-	LRESULT PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
-	LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
+	LRESULT PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) override;
+	LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) override;
 
-	void parseInfoRequest( const TString & input, TCHAR * szReturnValue ) const;
-	void parseCommandRequest( const TString & input );
-	void parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
+	void parseInfoRequest( const TString & input, PTCHAR szReturnValue ) const override;
+	void parseCommandRequest( const TString & input ) override;
+	void parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ) override;
 
 	// IDispatch Interface
 	HRESULT STDMETHODCALLTYPE GetTypeInfoCount( UINT __RPC_FAR *pctinfo ) { *pctinfo = NULL; return S_OK; }
@@ -80,7 +83,11 @@ public:
 	ULONG STDMETHODCALLTYPE Release( ) { return 8; }
 	HRESULT STDMETHODCALLTYPE QueryInterface( REFIID, __RPC_FAR void* __RPC_FAR * );
 
-	inline TString getType( ) const { return TString( TEXT("webctrl") ); };
+	inline const TString getType() const override { return TEXT("webctrl"); };
+	inline const DcxControlTypes getControlType() const noexcept override { return DcxControlTypes::WEBCTRL; }
+
+private:
+	void SafeRelease();
 
 protected:
 

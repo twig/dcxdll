@@ -29,8 +29,8 @@
 
 typedef struct CellMinMaxInfo {
 
-  POINT m_MinSize; //!< Minimum Cell Size
-  POINT m_MaxSize; //!< Maximum Cell Size
+	POINT m_MinSize; //!< Minimum Cell Size
+	POINT m_MaxSize; //!< Maximum Cell Size
 
 } CellMinMaxInfo;
 
@@ -53,7 +53,7 @@ public:
 	*
 	* blah
 	*/
-	enum CellType {
+	enum CellType: UINT {
 
 		FIXED,
 		FILL,
@@ -61,12 +61,15 @@ public:
 	};
 
 	LayoutCell( );
+	LayoutCell(const LayoutCell &) = delete;
 	explicit LayoutCell( const HWND mHwnd );
 	LayoutCell( const HWND mHwnd, const RECT & rc );
 	explicit LayoutCell( DcxControl * dcxc );
 	virtual ~LayoutCell( );
 
-	void setRect( RECT & rc );
+	LayoutCell &operator =(const LayoutCell &) = delete;	// No assignments!
+
+	void setRect(RECT & rc);
 	void getRect( RECT & rc ) const;
 	void getClientRect( RECT & rc ) const;
 	void setBorder( const RECT & rc );
@@ -74,7 +77,7 @@ public:
 	void getBorder( RECT & rc ) const;
 
 	virtual void LayoutChild( ) = 0;
-	virtual HDWP ExecuteLayout( HDWP hdwp ) = 0;
+	virtual HDWP ExecuteLayout( const HDWP hdwp ) = 0;
 	virtual void getMinMaxInfo( CellMinMaxInfo * pCMMI ) const = 0;
 	virtual void toXml(TiXmlElement * xml) = 0;
 	virtual TiXmlElement * toXml(void) = 0;
@@ -82,20 +85,20 @@ public:
 	void setSibling( LayoutCell * p_Cell );
 	void setParent( LayoutCell * p_Cell );
 
-	virtual CellType getType( ) const = 0;
+	virtual const CellType getType( ) const = 0;
 
 	LayoutCell * getFirstChild( ) const;
 	LayoutCell * getParent( ) const;
 	LayoutCell * getNextSibling( ) const;
 
-	BOOL isVisible( ) const;
+	const bool isVisible( ) const;
 
-	const size_t	&size(void) const { return this->m_iCount; }
-	const bool		empty(void) const { return (this->m_iCount == 0); }
+	const size_t	&size(void) const noexcept { return this->m_iCount; }
+	const bool		empty(void) const noexcept { return (this->m_iCount == 0); }
 
 protected:
 
-	HWND m_Hwnd; //!< Cell Control Window Handle (NULL if Container Cell)
+	HWND m_Hwnd; //!< Cell Control Window Handle (nullptr if Container Cell)
 
 	RECT m_rcBorders; //!< Border defining rectangle
 	RECT m_rcWindow;  //!< Available Window defining rectangle including Borders

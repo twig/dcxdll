@@ -20,20 +20,25 @@ class DcxDialog;
 class DcxPager : public DcxControl {
 
 public:
+	DcxPager() = delete;
+	DcxPager(const DcxPager &) = delete;
+	DcxPager &operator =(const DcxPager &) = delete;	// No assignments!
 
-	DcxPager( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, const TString & styles );
+	DcxPager(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles );
 	virtual ~DcxPager( );
 
-	LRESULT PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
-	LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
+	LRESULT PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) override;
+	LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) override;
 
-	void parseInfoRequest( const TString & input, TCHAR * szReturnValue ) const;
-	void parseCommandRequest( const TString & input );
-	void parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
+	void parseInfoRequest( const TString & input, PTCHAR szReturnValue ) const override;
+	void parseCommandRequest( const TString & input ) override;
+	void parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ) override;
 
-	inline TString getType( ) const { return TString( TEXT("pager") ); };
-	TString getStyles(void) const;
-	void toXml(TiXmlElement * xml) const;
+	inline const TString getType() const override { return TEXT("pager"); };
+	inline const DcxControlTypes getControlType() const noexcept override { return DcxControlTypes::PAGER; }
+
+	const TString getStyles(void) const override;
+	void toXml(TiXmlElement *const xml) const override;
 
 	void setChild(const HWND child);
 	void setBkColor(const COLORREF c);

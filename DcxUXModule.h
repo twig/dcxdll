@@ -74,7 +74,7 @@ public:
 	static HRESULT dcxDrawThemeEdge(HTHEME hTheme, HDC hdc, int iPartId, int iStateId, LPCRECT pDestRect, UINT uEdge, UINT uFlags, LPRECT pContentRect);
 	static HRESULT dcxGetThemeColor(HTHEME hTheme, int iPartId, int iStateId, int iPropId, COLORREF *pColor);
 	static HRESULT dcxDrawThemeParentBackgroundEx(HWND hwnd, HDC hdc, DWORD dwFlags, const RECT *prc);
-	static bool IsBufferedPaintSupported(void);
+	static bool IsBufferedPaintSupported(void) noexcept;
 	static HRESULT dcxBufferedPaintInit(void);
 	static HRESULT dcxBufferedPaintUnInit(void);
 	static HPAINTBUFFER dcxBeginBufferedPaint(HDC hdcTarget, const RECT *prcTarget, BP_BUFFERFORMAT dwFormat, BP_PAINTPARAMS *pPaintParams, HDC *phdc);

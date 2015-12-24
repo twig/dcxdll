@@ -29,34 +29,40 @@ class DcxDialog;
 class DcxList : public DcxControl {
 
 public:
+	DcxList() = delete;
+	DcxList(const DcxList &) = delete;
+	DcxList &operator =(const DcxList &) = delete;	// No assignments!
 
-	DcxList( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, const TString & styles );
+	DcxList(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles );
 	virtual ~DcxList( );
 
-	LRESULT PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
-	LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
+	LRESULT PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) override;
+	LRESULT ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) override;
 
-	void parseInfoRequest( const TString & input, TCHAR * szReturnValue ) const;
-	void parseCommandRequest( const TString & input );
-	void parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
+	void parseInfoRequest(const TString & input, PTCHAR szReturnValue) const override;
+	void parseCommandRequest(const TString & input) override;
+	void parseControlStyles(const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme) override;
 
-	inline TString getType( ) const { return TString( TEXT("list") ); };
-	inline const UINT &getDragListId() const { return m_iDragList; };
-	TString getStyles(void) const;
+	inline const TString getType() const override { return TEXT("list"); };
+	inline const DcxControlTypes getControlType() const noexcept override { return DcxControlTypes::LIST; }
 
-	static void registerClass(void);
+	inline const UINT &getDragListId() const noexcept { return m_iDragList; };
+	const TString getStyles(void) const override;
 
 protected:
-	enum SearchTypes { LBSEARCH_E = 0, LBSEARCH_W, LBSEARCH_R };
+	enum List_SearchTypes: UINT { LBSEARCH_E = 0, LBSEARCH_W, LBSEARCH_R };
 
 	void DrawDragLine(const int location);
-	BOOL matchItemText( const int nItem, const TString * search, const UINT SearchType ) const;
+	bool matchItemText(const int nItem, const TString * search, const List_SearchTypes SearchType) const;
 	static void getItemRange(const TString &tsItems, const int nItemCnt, int *iStart, int *iEnd);
-	void StrLenToExtent(int *nLineExtent);
+	//void StrLenToExtent(int *nLineExtent);
+	void UpdateHorizExtent();
+	void UpdateHorizExtent(const int nPos);
 
 	UINT m_iDragList;
 	int m_iLastDrawnLine;
-	BOOL m_bUseDrawInsert;
+	bool m_bUseDrawInsert;
+	bool m_bReserved[3];
 };
 
 #endif // _DCXLIST_H_

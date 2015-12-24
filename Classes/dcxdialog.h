@@ -86,8 +86,8 @@ public:
 
 	DcxDialog &operator =(const DcxDialog &) = delete;	// No assignments!
 
-	const TString &getName() const;
-	const TString &getAliasName( ) const;
+	const TString &getName() const noexcept;
+	const TString &getAliasName( ) const noexcept;
 	
 	static LRESULT WINAPI WindowProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
 
@@ -119,18 +119,18 @@ public:
 	const UINT &getFocusControl() const { return m_FocusID; };
 
 	void setParentName(const TString &strParent);
-	const TString &getParentName() const;
+	const TString &getParentName() const noexcept;
 
 	LayoutManager * m_pLayoutManager; //!< Layout Manager Object
 
-	inline const HCURSOR &getCursor( ) const { return this->m_hCursor; };
-	inline const HWND &getToolTip(void) const { return this->m_ToolTipHWND; };
-	inline void incRef( ) { ++this->m_iRefCount; };
-	inline void decRef( ) { --this->m_iRefCount; };
-	inline const UINT &getRefCount( ) const { return this->m_iRefCount; };
-	inline const DWORD &getEventMask( ) const { return this->m_dEventMask; };
-	inline const HBITMAP &getBgBitmap() const { return this->m_bitmapBg; };
-	inline const COLORREF &getBgTransparentCol() const { return this->m_colTransparentBg; };
+	inline const HCURSOR &getCursor( ) const noexcept { return this->m_hCursor; };
+	inline const HWND &getToolTip(void) const noexcept { return this->m_ToolTipHWND; };
+	inline void incRef( ) noexcept { ++this->m_iRefCount; };
+	inline void decRef( ) noexcept { --this->m_iRefCount; };
+	inline const UINT &getRefCount( ) const noexcept { return this->m_iRefCount; };
+	inline const DWORD &getEventMask( ) const noexcept { return this->m_dEventMask; };
+	inline const HBITMAP &getBgBitmap() const noexcept { return this->m_bitmapBg; };
+	inline const COLORREF &getBgTransparentCol() const noexcept { return this->m_colTransparentBg; };
 	static void DrawDialogBackground(HDC hdc, DcxDialog *const p_this, LPCRECT rwnd);
 
 	//const bool AddShadow(void);
@@ -160,15 +160,15 @@ public:
 	void UpdateVistaStyle(const LPRECT rcUpdate = nullptr);
 	void SetVistaStylePos(void);
 	void SetVistaStyleSize(void);
-	const bool &IsVistaStyle(void) const { return this->m_bVistaStyle; };
-	const HDC &GetVistaHDC(void) const { return this->m_hVistaHDC; };
-	const HWND &GetVistaHWND(void) const { return this->m_hFakeHwnd; };
-	const SIZE &GetVistaOffsets(void) const { return this->m_sVistaOffsets; };
-	const HBITMAP &GetVistaBitmap(void) const { return this->m_hVistaBitmap; };
+	const bool &IsVistaStyle(void) const noexcept { return this->m_bVistaStyle; };
+	const HDC &GetVistaHDC(void) const noexcept { return this->m_hVistaHDC; };
+	const HWND &GetVistaHWND(void) const noexcept { return this->m_hFakeHwnd; };
+	const SIZE &GetVistaOffsets(void) const noexcept { return this->m_sVistaOffsets; };
+	const HBITMAP &GetVistaBitmap(void) const noexcept { return this->m_hVistaBitmap; };
 	
 	IntegerHash namedIds; //!< map of named Id's
 
-	const IntegerHash &getNamedIds(void) const { return this->namedIds; };
+	const IntegerHash &getNamedIds(void) const noexcept { return this->namedIds; };
 	const bool isNamedId(const TString &NamedID) const { return (namedIds.find(NamedID) != namedIds.end()); }
 	const bool AddNamedId(const TString &NamedID, const UINT local_id)
 	{
@@ -242,15 +242,15 @@ public:
 	void UnregisterDragList(const DcxList *const list);
 
 	void SetVerbose(const bool state) { this->m_bVerboseErrors = state; };
-	const bool &IsVerbose(void) const { return this->m_bVerboseErrors; };
+	const bool &IsVerbose(void) const noexcept { return this->m_bVerboseErrors; };
 
 	void toXml(TiXmlElement *const xml) const;
 	TiXmlElement * toXml() const;
 	TiXmlElement * toXml(const TString &name) const;
 	void toXml(TiXmlElement *const xml, const TString &name) const;
 
-	const bool isIDValid(const UINT ID, const bool bUnused = false) const;
-	const bool &isDialogActive(void) const { return m_bDialogActive; };	// returns dialogs active state
+	const bool isIDValid(_In_ const UINT ID, _In_ const bool bUnused = false) const;
+	const bool &isDialogActive(void) const noexcept { return m_bDialogActive; };	// returns dialogs active state
 
 protected:
 

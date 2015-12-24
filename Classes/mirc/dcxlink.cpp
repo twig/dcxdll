@@ -25,49 +25,52 @@
  * \param styles Window Style Tokenized List
  */
 
-DcxLink::DcxLink( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd, const RECT * rc, const TString & styles ) 
-: DcxControl( ID, p_Dialog )
+DcxLink::DcxLink(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles)
+	: DcxControl(ID, p_Dialog)
 {
 	LONG Styles = 0, ExStyles = 0;
 	BOOL bNoTheme = FALSE;
-	this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
+	this->parseControlStyles(styles, &Styles, &ExStyles, &bNoTheme);
 
-	this->m_Hwnd = CreateWindowEx(	
-		ExStyles, 
-		TEXT("STATIC"), 
-		NULL,
-		WS_CHILD | Styles, 
+	this->m_Hwnd = CreateWindowEx(
+		ExStyles,
+		TEXT("STATIC"),
+		nullptr,
+		WS_CHILD | Styles,
 		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
 		mParentHwnd,
-		(HMENU) ID,
-		GetModuleHandle(NULL), 
-		NULL);
+		(HMENU)ID,
+		GetModuleHandle(nullptr),
+		nullptr);
 
 	if (!IsWindow(this->m_Hwnd))
-		throw TEXT("Unable To Create Window");
+		throw std::runtime_error("Unable To Create Window");
 
-	if ( bNoTheme )
-		Dcx::UXModule.dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
+	if (bNoTheme)
+		Dcx::UXModule.dcxSetWindowTheme(this->m_Hwnd, L" ", L" ");
 
-	this->m_hIcon = NULL;
-	this->m_aColors[0] = RGB( 0, 0, 255 );
-	this->m_aColors[1] = RGB( 255, 0, 0 );
-	this->m_aColors[2] = RGB( 0, 0, 255 );
-	this->m_aColors[3] = RGB( 128, 128, 128 );
+	this->m_hIcon = nullptr;
+	this->m_aColors[0] = RGB(0, 0, 255);
+	this->m_aColors[1] = RGB(255, 0, 0);
+	this->m_aColors[2] = RGB(0, 0, 255);
+	this->m_aColors[3] = RGB(128, 128, 128);
 	this->m_bHover = FALSE;
 	this->m_bTracking = FALSE;
 	this->m_bVisited = FALSE;
 
-	if (p_Dialog->getToolTip() != NULL) {
+	if (p_Dialog->getToolTip() != nullptr) {
 		if (styles.istok(TEXT("tooltips"))) {
 			this->m_ToolTipHWND = p_Dialog->getToolTip();
+			if (!IsWindow(this->m_ToolTipHWND))
+				throw std::runtime_error("Unable to get ToolTips window");
+
 			AddToolTipToolInfo(this->m_ToolTipHWND, this->m_Hwnd);
 		}
 	}
 
-	this->setControlFont( GetStockFont( DEFAULT_GUI_FONT ), FALSE );
-	this->registreDefaultWindowProc( );
-	SetProp( this->m_Hwnd, TEXT("dcx_cthis"), (HANDLE) this );
+	this->setControlFont(GetStockFont(DEFAULT_GUI_FONT), FALSE);
+	this->registreDefaultWindowProc();
+	SetProp(this->m_Hwnd, TEXT("dcx_cthis"), (HANDLE) this);
 }
 
 /*!
@@ -78,14 +81,14 @@ DcxLink::DcxLink( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd, c
 
 DcxLink::~DcxLink( ) {
 
-	if ( this->m_hIcon != NULL )
+	if ( this->m_hIcon != nullptr )
 		DestroyIcon( this->m_hIcon );
 
 	this->unregistreDefaultWindowProc( );
 }
 
 
-void DcxLink::toXml(TiXmlElement * xml) const
+void DcxLink::toXml(TiXmlElement *const xml) const
 {
 	__super::toXml(xml);
 	TString buf;
@@ -118,15 +121,12 @@ void DcxLink::parseControlStyles( const TString &styles, LONG *Styles, LONG *ExS
 void DcxLink::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) const
 {
 	// [NAME] [ID] [PROP]
-	if ( input.gettok( 3 ) == TEXT("text") ) {
+	if (input.gettok(3) == TEXT("text")) {
 
-		GetWindowText( this->m_Hwnd, szReturnValue, MIRC_BUFFER_SIZE_CCH );
-		return;
+		GetWindowText(this->m_Hwnd, szReturnValue, MIRC_BUFFER_SIZE_CCH);
 	}
-	else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
-		return;
-
-	szReturnValue[0] = 0;
+	else
+		this->parseGlobalInfoRequest(input, szReturnValue);
 }
 
 /*!
@@ -138,40 +138,43 @@ void DcxLink::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) co
 void DcxLink::parseCommandRequest( const TString & input ) {
 	const XSwitchFlags flags(input.getfirsttok(3));		// tok 3
 
-	const UINT numtok = input.numtok( );
+	const auto numtok = input.numtok();
 
 	// xdid -l [NAME] [ID] [SWITCH] [N] [COLOR]
 	if ( flags[TEXT('l')] && numtok > 4 ) {
 
-		const int nColor = (input.getnexttok( ).to_int( ) - 1);	// tok 4
+		const auto nColor = (input.getnexttok().to_int() - 1);	// tok 4
 
-		if ( nColor > -1 && nColor < 4 )
-			this->m_aColors[nColor] = (COLORREF)input.getnexttok( ).to_num( );	// tok 5
+		if (nColor < 0 || nColor > 3)
+			throw std::invalid_argument("Invalid Colour Index");
+
+		this->m_aColors[nColor] = input.getnexttok( ).to_int( );	// tok 5
 	}
 	// xdid -q [NAME] [ID] [SWITCH] [COLOR1] ... [COLOR4]
 	else if ( flags[TEXT('q')] && numtok > 3 ) {
-		const TString tsArgs(input.getlasttoks());			// tok 4, -1
-		const UINT len = tsArgs.numtok();
+		const auto tsArgs(input.getlasttoks());			// tok 4, -1
 
-		tsArgs.getfirsttok(0);
-
-		for (UINT i = 0; (i < len && i < 4 ); i++)
-			this->m_aColors[i] = (COLORREF)tsArgs.getnexttok( ).to_num( );	// tok i+1
+		UINT i = 0;
+		for (const auto &arg: tsArgs)
+		{
+			this->m_aColors[i] = arg.to_<COLORREF>();	// tok i+1
+			++i;
+		}
 	}
 	//xdid -t [NAME] [ID] [SWITCH] (TEXT)
 	else if ( flags[TEXT('t')] ) {
 
-		const TString text(input.getlasttoks());	// tok 4, -1
+		const auto text(input.getlasttoks());	// tok 4, -1
 		SetWindowText( this->m_Hwnd, text.to_chr( ) );
 		this->redrawWindow( );
 	}
 	// xdid -w [NAME] [ID] [SWITCH] [+FLAGS] [INDEX] [FILENAME]
 	else if (flags[TEXT('w')] && numtok > 5) {
-		const TString flag(input.getnexttok( ));		// tok 4
-		const int index = input.getnexttok( ).to_int();	// tok 5
-		TString filename(input.getlasttoks());			// tok 6, -1
+		const auto flag(input.getnexttok());		// tok 4
+		const auto index = input.getnexttok().to_int();	// tok 5
+		auto filename(input.getlasttoks());			// tok 6, -1
 
-		if (this->m_hIcon != NULL)
+		if (this->m_hIcon != nullptr)
 			DestroyIcon(this->m_hIcon);
 
 		this->m_hIcon = dcxLoadIcon(index, filename, false, flag);
@@ -206,7 +209,7 @@ LRESULT DcxLink::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 				tme.hwndTrack = this->m_Hwnd;
 				tme.dwFlags = TME_LEAVE | TME_HOVER;
 				tme.dwHoverTime = HOVER_DEFAULT; //1;
-				this->m_bTracking = (BOOL) _TrackMouseEvent( &tme );		
+				this->m_bTracking = _TrackMouseEvent( &tme );		
 			}
 		}
 		break;
@@ -214,8 +217,8 @@ LRESULT DcxLink::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 	case WM_MOUSEHOVER:
 		{
 			if ( !this->m_bHover && this->m_bTracking ) {
-				this->m_bHover = TRUE;
-				InvalidateRect( this->m_Hwnd, NULL, FALSE );
+				this->m_bHover = true;
+				InvalidateRect( this->m_Hwnd, nullptr, FALSE );
 			}
 		}
 		break;
@@ -223,40 +226,40 @@ LRESULT DcxLink::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 	case WM_MOUSELEAVE:
 		{
 			if ( this->m_bTracking ) {
-				this->m_bHover = FALSE;
+				this->m_bHover = false;
 				this->m_bTracking = FALSE;
-				InvalidateRect( this->m_Hwnd, NULL, FALSE );
+				InvalidateRect( this->m_Hwnd, nullptr, FALSE );
 			}
 		}
 		break;
 
 	case WM_LBUTTONDOWN:
 		{
-			if ( this->m_bVisited == FALSE ) {
-				this->m_bVisited = TRUE;
-				InvalidateRect( this->m_Hwnd, NULL, FALSE );
+			if ( !this->m_bVisited ) {
+				this->m_bVisited = true;
+				InvalidateRect( this->m_Hwnd, nullptr, FALSE );
 			}
-			if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
+			if (dcx_testflag(this->m_pParentDialog->getEventMask(), DCX_EVENT_CLICK))
 				this->execAliasEx(TEXT("%s,%d"), TEXT("lbdown"), this->getUserID( ) );
 		}
 		break;
 
 	case WM_ENABLE:
 		{
-			InvalidateRect( this->m_Hwnd, NULL, FALSE );
+			InvalidateRect( this->m_Hwnd, nullptr, FALSE );
 		}
 		break;
 
 	case WM_SETCURSOR:
 		{
-			if (this->m_hCursor) {
+			if (this->m_hCursor != nullptr) {
 				if (GetCursor() != this->m_hCursor)
 					SetCursor( this->m_hCursor );
 				bParsed = TRUE;
 				return TRUE;
 			}
 			else if ( LOWORD( lParam ) == HTCLIENT && (HWND) wParam == this->m_Hwnd ) {
-				HCURSOR hCursor = LoadCursor( NULL, IDC_HAND );
+				auto hCursor = LoadCursor(nullptr, IDC_HAND);
 				if (GetCursor() != hCursor)
 					SetCursor( hCursor );
 				bParsed = TRUE;
@@ -284,9 +287,8 @@ LRESULT DcxLink::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 		{
 			bParsed = TRUE;
 			PAINTSTRUCT ps;
-			HDC hdc;
 
-			hdc = BeginPaint( this->m_Hwnd, &ps );
+			auto hdc = BeginPaint( this->m_Hwnd, &ps );
 
 			this->DrawClientArea(hdc);
 
@@ -426,67 +428,117 @@ LRESULT DcxLink::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 
 void DcxLink::DrawClientArea(HDC hdc)
 {
-	// Setup alpha blend if any.
-	LPALPHAINFO ai = this->SetupAlphaBlend(&hdc, true);
-
 	RECT rect;
-	GetClientRect( this->m_Hwnd, &rect );
+	if (!GetClientRect(this->m_Hwnd, &rect))
+		return;
+
+	// Setup alpha blend if any.
+	auto ai = this->SetupAlphaBlend(&hdc, true);
+	Auto(this->FinishAlphaBlend(ai));
 
 	// fill background.
-	DcxControl::DrawCtrlBackground(hdc,this,&rect);
+	DcxControl::DrawCtrlBackground(hdc, this, &rect);
 
-	HFONT hFont = this->m_hFont;
+	auto hFont = this->m_hFont;
 
-	if (hFont == NULL)
-		hFont = GetStockFont( DEFAULT_GUI_FONT /*SYSTEM_FONT*/ );
+	if (hFont == nullptr)
+		hFont = GetStockFont(DEFAULT_GUI_FONT /*SYSTEM_FONT*/);
 
 	LOGFONT lf;
-	GetObject( hFont, sizeof( LOGFONT ), &lf );
+	if (GetObject(hFont, sizeof(LOGFONT), &lf) != 0)
+	{
 
-	lf.lfUnderline = TRUE;
+		lf.lfUnderline = TRUE;
 
-	HFONT hNewFont = CreateFontIndirect( &lf );
-	HFONT hOldFont = SelectFont( hdc, hNewFont );
+		auto hNewFont = CreateFontIndirect(&lf);
+		if (hNewFont != nullptr)
+		{
+			Auto(DeleteFont(hNewFont));
 
-	const int oldMode = SetBkMode( hdc, TRANSPARENT );
+			auto hOldFont = SelectFont(hdc, hNewFont);
+			Auto(SelectFont(hdc, hOldFont));
 
-	if ( this->m_hIcon != NULL ) {
+			const auto oldMode = SetBkMode(hdc, TRANSPARENT);
+			Auto(SetBkMode(hdc, oldMode));
 
-		const int y = (( rect.top + rect.bottom - 16 ) / 2);
-		DrawIconEx( hdc, rect.left, y, this->m_hIcon, 0, 0, NULL, NULL, DI_NORMAL );
+			if (this->m_hIcon != nullptr) {
 
-		OffsetRect( &rect, 20, 0 );
+				const auto y = ((rect.top + rect.bottom - 16) / 2);
+				DrawIconEx(hdc, rect.left, y, this->m_hIcon, 0, 0, NULL, nullptr, DI_NORMAL);
+
+				OffsetRect(&rect, 20, 0);
+			}
+
+			if (IsWindowEnabled(this->m_Hwnd) == FALSE)
+				this->m_clrText = this->m_aColors[3];
+			else if (this->m_bHover)
+				this->m_clrText = this->m_aColors[1];
+			else if (this->m_bVisited)
+				this->m_clrText = this->m_aColors[2];
+			else
+				this->m_clrText = this->m_aColors[0];
+
+			TString wtext;
+
+			TGetWindowText(this->m_Hwnd, wtext);
+			this->ctrlDrawText(hdc, wtext, &rect, DT_LEFT | DT_NOPREFIX | DT_SINGLELINE | DT_VCENTER);
+		}
 	}
 
-	if ( IsWindowEnabled( this->m_Hwnd ) == FALSE )
-		this->m_clrText = this->m_aColors[3];
-	else if ( this->m_bHover )
-		this->m_clrText = this->m_aColors[1];
-	else if ( this->m_bVisited )
-		this->m_clrText = this->m_aColors[2];
-	else
-		this->m_clrText = this->m_aColors[0];
-
-	TString wtext;
-
-	TGetWindowText(this->m_Hwnd, wtext);
-	this->ctrlDrawText(hdc, wtext, &rect, DT_LEFT | DT_NOPREFIX | DT_SINGLELINE | DT_VCENTER);
-	//const int nText = TGetWindowText(this->m_Hwnd, wtext);
-	//if (!this->m_bCtrlCodeText) {
-	//	if (this->m_bShadowText) { // could cause problems with pre-XP as this is commctrl v6+
-	//		dcxDrawShadowText(hdc,wtext.to_chr(), wtext.len(), &rect, DT_LEFT | DT_NOPREFIX | DT_SINGLELINE | DT_VCENTER, this->m_clrText, 0, 5, 5);
-	//	}
-	//	else {
-	//		SetTextColor( hdc, this->m_clrText );
-	//		DrawTextW( hdc, wtext.to_chr(), nText, &rect, DT_LEFT | DT_NOPREFIX | DT_SINGLELINE | DT_VCENTER );
+	//RECT rect;
+	//if (!GetClientRect(this->m_Hwnd, &rect))
+	//	return;
+	//
+	//// Setup alpha blend if any.
+	//auto ai = this->SetupAlphaBlend(&hdc, true);
+	//
+	//// fill background.
+	//DcxControl::DrawCtrlBackground(hdc,this,&rect);
+	//
+	//auto hFont = this->m_hFont;
+	//
+	//if (hFont == nullptr)
+	//	hFont = GetStockFont( DEFAULT_GUI_FONT /*SYSTEM_FONT*/ );
+	//
+	//LOGFONT lf;
+	//if (GetObject(hFont, sizeof(LOGFONT), &lf) != 0)
+	//{
+	//
+	//	lf.lfUnderline = TRUE;
+	//
+	//	auto hNewFont = CreateFontIndirect(&lf);
+	//	if (hNewFont != nullptr)
+	//	{
+	//		auto hOldFont = SelectFont(hdc, hNewFont);
+	//
+	//		const auto oldMode = SetBkMode(hdc, TRANSPARENT);
+	//
+	//		if (this->m_hIcon != nullptr) {
+	//
+	//			const auto y = ((rect.top + rect.bottom - 16) / 2);
+	//			DrawIconEx(hdc, rect.left, y, this->m_hIcon, 0, 0, NULL, nullptr, DI_NORMAL);
+	//
+	//			OffsetRect(&rect, 20, 0);
+	//		}
+	//
+	//		if (IsWindowEnabled(this->m_Hwnd) == FALSE)
+	//			this->m_clrText = this->m_aColors[3];
+	//		else if (this->m_bHover)
+	//			this->m_clrText = this->m_aColors[1];
+	//		else if (this->m_bVisited)
+	//			this->m_clrText = this->m_aColors[2];
+	//		else
+	//			this->m_clrText = this->m_aColors[0];
+	//
+	//		TString wtext;
+	//
+	//		TGetWindowText(this->m_Hwnd, wtext);
+	//		this->ctrlDrawText(hdc, wtext, &rect, DT_LEFT | DT_NOPREFIX | DT_SINGLELINE | DT_VCENTER);
+	//
+	//		SetBkMode(hdc, oldMode);
+	//		SelectFont(hdc, hOldFont);
+	//		DeleteFont(hNewFont);
 	//	}
 	//}
-	//else
-	//	mIRC_DrawText(hdc, wtext, &rect, DT_LEFT | DT_NOPREFIX | DT_SINGLELINE | DT_VCENTER, this->m_bShadowText);
-
-	SetBkMode( hdc, oldMode );
-	SelectFont( hdc, hOldFont );
-	DeleteFont( hNewFont );
-
-	this->FinishAlphaBlend(ai);
+	//this->FinishAlphaBlend(ai);
 }

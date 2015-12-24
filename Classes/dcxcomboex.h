@@ -20,8 +20,14 @@
 
 class DcxDialog;
 
-#define CBEXSEARCH_W 0x01 //!< ComboEx WildCard Search
-#define CBEXSEARCH_R 0x02 //!< ComboEx Regex Search
+enum ComboEx_SearchTypes : UINT {
+	CBEXSEARCH_W = 0x01,	//!< ComboEx WildCard Search
+	CBEXSEARCH_R,			//!< ComboEx Regex Search
+	CBEXSEARCH_E			//!< ComboEx Exact Match Search
+};
+
+//#define CBEXSEARCH_W 0x01 //!< ComboEx WildCard Search
+//#define CBEXSEARCH_R 0x02 //!< ComboEx Regex Search
 
 /*!
  * \brief blah
@@ -51,22 +57,26 @@ typedef struct tagDCXCBITEM {
 class DcxComboEx : public DcxControl {
 
 public:
+	DcxComboEx() = delete;
+	DcxComboEx(const DcxComboEx &) = delete;
+	DcxComboEx &operator =(const DcxComboEx &) = delete;	// No assignments!
 
-	DcxComboEx( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, const TString & styles );
+	DcxComboEx(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles );
 	virtual ~DcxComboEx( );
 
-	LRESULT PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
-	LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
+	LRESULT PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) override;
+	LRESULT ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) override;
 
-	void parseInfoRequest( const TString & input, TCHAR * szReturnValue ) const;
-	void parseCommandRequest( const TString & input );
-	void parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
+	void parseInfoRequest(const TString & input, PTCHAR szReturnValue) const override;
+	void parseCommandRequest(const TString & input) override;
+	void parseControlStyles(const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme) override;
 
 	HIMAGELIST getImageList( ) const;
 	void setImageList( HIMAGELIST himl );
 	static HIMAGELIST createImageList( );
 
-	BOOL matchItemText( const int nItem, const TString * search, const UINT SearchType ) const;
+	bool matchItemText( const int nItem, const TString * search, const ComboEx_SearchTypes SearchType ) const;
+	static void getItemRange(const TString &tsItems, const int nItemCnt, int *iStart, int *iEnd);
 
 	LRESULT insertItem( const PCOMBOBOXEXITEM lpcCBItem );
 	LRESULT getItem( PCOMBOBOXEXITEM lpcCBItem ) const;
@@ -81,12 +91,17 @@ public:
 
 	static LRESULT CALLBACK ComboExEditProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
 
-	inline TString getType( ) const { return TString( TEXT("comboex") ); };
-	TString getStyles(void) const;
+	inline const TString getType() const override { return TEXT("comboex"); };
+	inline const DcxControlTypes getControlType() const noexcept override { return DcxControlTypes::COMBOEX; }
+
+	const TString getStyles(void) const override;
 
 protected:
 
-	HWND m_EditHwnd;  //!< Combo's Edit Control Handle
+	HWND				m_EditHwnd;	//!< Combo's Edit Control Handle
+
+private:
+	DCXCOMBOEXEDIT		m_exEdit;
 };
 
 #endif // _DCXCOMBOEX_H_

@@ -23,15 +23,15 @@
 class DcxDialog;
 
 typedef struct {
-	TString ds_tsBuffer;
-	FILE *	ds_pFile;
+	TString		ds_tsBuffer;
+	FILE *		ds_pFile;
 	bool		ds_bBold;
 	bool		ds_bUnderline;
 	bool		ds_bReverse;
 	bool		ds_bmcolor;
 	bool		ds_bbkgcolor;
-	COLORREF ds_mcolor;
-	COLORREF ds_bkgcolor;
+	COLORREF	ds_mcolor;
+	COLORREF	ds_bkgcolor;
 } DCXSTREAM, LPDCXSTREAM;
 
 /*!
@@ -42,15 +42,19 @@ typedef struct {
 
 class DcxRichEdit : public DcxControl {
 public:
-	DcxRichEdit(UINT ID, DcxDialog *p_Dialog, HWND mParentHwnd, RECT *rc, const TString &styles);
+	DcxRichEdit() = delete;
+	DcxRichEdit(const DcxRichEdit &) = delete;
+	DcxRichEdit &operator =(const DcxRichEdit &) = delete;	// No assignments!
+
+	DcxRichEdit(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString &styles);
 	virtual ~DcxRichEdit();
 
-	LRESULT PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bParsed);
-	LRESULT ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bParsed);
+	LRESULT PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bParsed) override;
+	LRESULT ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bParsed) override;
 
-	void parseInfoRequest( const TString & input, TCHAR * szReturnValue ) const;
-	void parseCommandRequest( const TString & input );
-	void parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
+	void parseInfoRequest( const TString & input, PTCHAR szReturnValue ) const override;
+	void parseCommandRequest( const TString & input ) override;
+	void parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ) override;
 
 	void loadmIRCPalette();
 
@@ -64,13 +68,14 @@ public:
 	LRESULT replaceSel(const BOOL bUndo, LPCTSTR lpstr);
 	LRESULT getCharFormat(const UINT iType, CHARFORMAT2 *cfm) const;
 	LRESULT setCharFormat(const UINT iType, CHARFORMAT2 *cfm);
-	void toXml(TiXmlElement * xml) const;
-	TString getStyles(void) const;
+	void toXml(TiXmlElement *const xml) const override;
+	const TString getStyles(void) const override;
 
 	//LRESULT getLineLength();
 	//LRESULT getLineIndex();
 
-	inline TString getType() const { return TString(TEXT("richedit")); };
+	inline const TString getType() const override { return TEXT("richedit"); };
+	inline const DcxControlTypes getControlType() const noexcept override { return DcxControlTypes::RICHEDIT; }
 
 protected:
 	TString m_tsText; //!< RichEdit Text contents
@@ -86,16 +91,16 @@ protected:
 	TString m_tsFontFaceName; //!< Font Face Name
 
 	BOOL m_bIgnoreInput;
-	BOOL m_bIgnoreRepeat;
+	bool m_bIgnoreRepeat;
 
 	static int unfoldColor(const TCHAR *color);
-	static DWORD CALLBACK StreamOutToVarCallback(DWORD_PTR dwCookie, LPBYTE pbBuff, LONG cb, LONG *pcb);
-	static DWORD CALLBACK StreamOutToFileCallback(DWORD_PTR dwCookie, LPBYTE pbBuff, LONG cb, LONG *pcb);
-	static DWORD CALLBACK StreamInFromFileCallback(DWORD_PTR dwCookie, LPBYTE pbBuff, LONG cb, LONG *pcb);
+	static DWORD CALLBACK StreamOutToVarCallback(DWORD_PTR dwCookie, const LPBYTE pbBuff, const LONG cb, LONG *pcb);
+	static DWORD CALLBACK StreamOutToFileCallback(DWORD_PTR dwCookie, const LPBYTE pbBuff, const LONG cb, LONG *pcb);
+	static DWORD CALLBACK StreamInFromFileCallback(DWORD_PTR dwCookie, LPBYTE pbBuff, const LONG cb, LONG *pcb);
 	static bool SaveRichTextToFile(HWND hWnd, const TCHAR *const filename);
 	static bool LoadRichTextFromFile(HWND hWnd, const TCHAR *const filename);
 
-	void insertText(TCHAR *text, bool bline, bool uline, bool iline, bool bcolor, COLORREF color, bool bbkgcolor, COLORREF bkgcolor, int reverse);
+	void insertText(const TCHAR *const text, bool bline, bool uline, bool iline, bool bcolor, COLORREF color, bool bbkgcolor, COLORREF bkgcolor, int reverse);
 	void parseStringContents(const TString &tsStr, const BOOL fNewLine);
 };
 

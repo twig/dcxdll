@@ -32,75 +32,75 @@
  * \param styles Window Style Tokenized List
  */
 
-DcxBox::DcxBox( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd, const RECT * rc, const TString & styles ) 
-: DcxControl( ID, p_Dialog )
-, m_TitleButton(NULL)
-, _hTheme(NULL)
+DcxBox::DcxBox(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles)
+	: DcxControl(ID, p_Dialog)
+	, m_TitleButton(nullptr)
+	, _hTheme(nullptr)
 {
 	LONG Styles = 0, ExStyles = 0;
 	BOOL bNoTheme = FALSE;
 
-	this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
+	this->parseControlStyles(styles, &Styles, &ExStyles, &bNoTheme);
 
 	this->m_Hwnd = CreateWindowEx(
 		ExStyles | WS_EX_CONTROLPARENT,
 		DCX_BOXCLASS,
-		NULL,
+		nullptr,
 		Styles | WS_CHILD,
 		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
 		mParentHwnd,
-		(HMENU) ID,
-		GetModuleHandle(NULL),
-		NULL);
+		(HMENU)ID,
+		GetModuleHandle(nullptr),
+		nullptr);
 
 	if (!IsWindow(this->m_Hwnd))
-		throw TEXT("Unable To Create Window");
+		throw std::runtime_error("Unable To Create Window");
 
 	// remove all borders
-	this->removeStyle( WS_BORDER|WS_DLGFRAME );
-	this->removeExStyle( WS_EX_CLIENTEDGE|WS_EX_DLGMODALFRAME|WS_EX_STATICEDGE|WS_EX_WINDOWEDGE );
+	this->removeStyle(WS_BORDER | WS_DLGFRAME);
+	this->removeExStyle(WS_EX_CLIENTEDGE | WS_EX_DLGMODALFRAME | WS_EX_STATICEDGE | WS_EX_WINDOWEDGE);
 
-	if ( bNoTheme )
-		Dcx::UXModule.dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
+	if (bNoTheme)
+		Dcx::UXModule.dcxSetWindowTheme(this->m_Hwnd, L" ", L" ");
 
-	this->m_pLayoutManager = new LayoutManager( this->m_Hwnd );
+	this->m_pLayoutManager = new LayoutManager(this->m_Hwnd);
 
-	this->setControlFont( GetStockFont( DEFAULT_GUI_FONT ), FALSE );
-	this->registreDefaultWindowProc( );
-	SetProp( this->m_Hwnd, TEXT("dcx_cthis"), (HANDLE) this );
+	this->setControlFont(GetStockFont(DEFAULT_GUI_FONT), FALSE);
+	this->registreDefaultWindowProc();
+	SetProp(this->m_Hwnd, TEXT("dcx_cthis"), (HANDLE) this);
 
-	if (this->m_iBoxStyles & BOXS_CHECK) {
+	if (dcx_testflag(this->m_iBoxStyles, BOXS_CHECK)) {
 		this->m_TitleButton = CreateWindowEx(
 			ExStyles,
 			TEXT("BUTTON"),
-			NULL,
+			nullptr,
 			WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | BS_AUTOCHECKBOX,
-			CW_USEDEFAULT,CW_USEDEFAULT,11,10,
+			CW_USEDEFAULT, CW_USEDEFAULT, 11, 10,
 			this->m_Hwnd,
-			(HMENU) ID,
-			GetModuleHandle(NULL), 
-			NULL);
+			(HMENU)ID,
+			GetModuleHandle(nullptr),
+			nullptr);
 	}
-	else if (this->m_iBoxStyles & BOXS_RADIO) {
+	else if (dcx_testflag(this->m_iBoxStyles, BOXS_RADIO)) {
 		this->m_TitleButton = CreateWindowEx(
 			ExStyles,
 			TEXT("BUTTON"),
-			NULL,
+			nullptr,
 			WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | BS_AUTORADIOBUTTON,
-			CW_USEDEFAULT,CW_USEDEFAULT,11,10,
+			CW_USEDEFAULT, CW_USEDEFAULT, 11, 10,
 			this->m_Hwnd,
-			(HMENU) ID,
-			GetModuleHandle(NULL),
-			NULL);
+			(HMENU)ID,
+			GetModuleHandle(nullptr),
+			nullptr);
 	}
 	if (IsWindow(this->m_TitleButton)) {
-		if ( bNoTheme )
-			Dcx::UXModule.dcxSetWindowTheme( this->m_TitleButton , L" ", L" " );
-		if (!(Styles & WS_DISABLED))
-			SendMessage(this->m_TitleButton,BM_SETCHECK,BST_CHECKED,0L);
+		if (bNoTheme)
+			Dcx::UXModule.dcxSetWindowTheme(this->m_TitleButton, L" ", L" ");
+		if (!dcx_testflag(Styles, WS_DISABLED))
+			SendMessage(this->m_TitleButton, BM_SETCHECK, BST_CHECKED, 0L);
 	}
 	if (Dcx::UXModule.isUseable())
-		this->_hTheme = Dcx::UXModule.dcxOpenThemeData(this->m_Hwnd,L"BUTTON");
+		this->_hTheme = Dcx::UXModule.dcxOpenThemeData(this->m_Hwnd, L"BUTTON");
 }
 
 /*!
@@ -109,13 +109,13 @@ DcxBox::DcxBox( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd, con
 * blah
 */
 
-DcxBox::~DcxBox( ) {
+DcxBox::~DcxBox() {
 
 	delete this->m_pLayoutManager;
 
 	if (this->_hTheme)
 		Dcx::UXModule.dcxCloseThemeData(this->_hTheme);
-	this->unregistreDefaultWindowProc( );
+	this->unregistreDefaultWindowProc();
 }
 
 /*!
@@ -128,35 +128,45 @@ void DcxBox::parseControlStyles( const TString & styles, LONG * Styles, LONG * E
 {
 	this->m_iBoxStyles = 0;
 
-	//const UINT numtok = styles.numtok( );
-	//styles.getfirsttok( 0 );
-	//for (UINT i = 1; i <= numtok; i++ )
-	//{
-	//	const TString tsStyle(styles.getnexttok( ));	// tok i
-	//
-	//	if (tsStyle == TEXT("right"))
-	//		this->m_iBoxStyles |= BOXS_RIGHT;
-	//	else if (tsStyle == TEXT("center"))
-	//		this->m_iBoxStyles |= BOXS_CENTER;
-	//	else if (tsStyle == TEXT("bottom"))
-	//		this->m_iBoxStyles |= BOXS_BOTTOM;
-	//	else if (tsStyle == TEXT("none"))
-	//		this->m_iBoxStyles |= BOXS_NONE;
-	//	else if (tsStyle == TEXT("rounded"))
-	//		this->m_iBoxStyles |= BOXS_ROUNDED;
-	//	else if (tsStyle == TEXT("check")) {
-	//		this->m_iBoxStyles &= ~BOXS_RADIO;
-	//		this->m_iBoxStyles |= BOXS_CHECK;
-	//	}
-	//	else if (tsStyle == TEXT("radio")) {
-	//		this->m_iBoxStyles &= ~BOXS_CHECK;
-	//		this->m_iBoxStyles |= BOXS_RADIO;
-	//	}
-	//	else if (tsStyle == TEXT("transparent"))
-	//		*ExStyles |= WS_EX_TRANSPARENT;
-	//}
+#if TSTRING_PARTS
+	for (const auto &a : styles)
+	{
+#if DCX_SWITCH_OBJ
+		Switch(a)
+			.Case(TEXT("right"), [this] { m_iBoxStyles |= BOXS_RIGHT; }).Break()
+			.Case(TEXT("center"), [this] { m_iBoxStyles |= BOXS_CENTER; }).Break()
+			.Case(TEXT("bottom"), [this] { m_iBoxStyles |= BOXS_BOTTOM; }).Break()
+			.Case(TEXT("none"), [this] { m_iBoxStyles |= BOXS_NONE; }).Break()
+			.Case(TEXT("rounded"), [this] { m_iBoxStyles |= BOXS_ROUNDED; }).Break()
+			.Case(TEXT("check"), [this] { m_iBoxStyles &= ~BOXS_RADIO; m_iBoxStyles |= BOXS_CHECK; }).Break()
+			.Case(TEXT("radio"), [this] { m_iBoxStyles &= ~BOXS_CHECK; m_iBoxStyles |= BOXS_RADIO; }).Break()
+			.Case(TEXT("transparent"), [ExStyles] { *ExStyles |= WS_EX_TRANSPARENT; }).Break();
+#else
+		if (a == TEXT("right"))
+			this->m_iBoxStyles |= BOXS_RIGHT;
+		else if (a == TEXT("center"))
+			this->m_iBoxStyles |= BOXS_CENTER;
+		else if (a == TEXT("bottom"))
+			this->m_iBoxStyles |= BOXS_BOTTOM;
+		else if (a == TEXT("none"))
+			this->m_iBoxStyles |= BOXS_NONE;
+		else if (a == TEXT("rounded"))
+			this->m_iBoxStyles |= BOXS_ROUNDED;
+		else if (a == TEXT("check")) {
+			this->m_iBoxStyles &= ~BOXS_RADIO;
+			this->m_iBoxStyles |= BOXS_CHECK;
+		}
+		else if (a == TEXT("radio")) {
+			this->m_iBoxStyles &= ~BOXS_CHECK;
+			this->m_iBoxStyles |= BOXS_RADIO;
+		}
+		else if (a == TEXT("transparent"))
+			*ExStyles |= WS_EX_TRANSPARENT;
+#endif
+	}
 
-	for (TString tsStyle(styles.getfirsttok( 1 )); !tsStyle.empty(); tsStyle = styles.getnexttok( ))
+#else
+	for (auto tsStyle(styles.getfirsttok( 1 )); !tsStyle.empty(); tsStyle = styles.getnexttok( ))
 	{
 		if (tsStyle == TEXT("right"))
 			this->m_iBoxStyles |= BOXS_RIGHT;
@@ -179,30 +189,7 @@ void DcxBox::parseControlStyles( const TString & styles, LONG * Styles, LONG * E
 		else if (tsStyle == TEXT("transparent"))
 			*ExStyles |= WS_EX_TRANSPARENT;
 	}
-
-	//for (const auto &a : styles.parts())
-	//{
-	//	if (a == TEXT("right"))
-	//		this->m_iBoxStyles |= BOXS_RIGHT;
-	//	else if (a == TEXT("center"))
-	//		this->m_iBoxStyles |= BOXS_CENTER;
-	//	else if (a == TEXT("bottom"))
-	//		this->m_iBoxStyles |= BOXS_BOTTOM;
-	//	else if (a == TEXT("none"))
-	//		this->m_iBoxStyles |= BOXS_NONE;
-	//	else if (a == TEXT("rounded"))
-	//		this->m_iBoxStyles |= BOXS_ROUNDED;
-	//	else if (a == TEXT("check")) {
-	//		this->m_iBoxStyles &= ~BOXS_RADIO;
-	//		this->m_iBoxStyles |= BOXS_CHECK;
-	//	}
-	//	else if (a == TEXT("radio")) {
-	//		this->m_iBoxStyles &= ~BOXS_CHECK;
-	//		this->m_iBoxStyles |= BOXS_RADIO;
-	//	}
-	//	else if (a == TEXT("transparent"))
-	//		*ExStyles |= WS_EX_TRANSPARENT;
-	//}
+#endif
 
 	this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
 }
@@ -216,59 +203,108 @@ void DcxBox::parseControlStyles( const TString & styles, LONG * Styles, LONG * E
  * \return > void
  */
 
+#ifndef DCX_SWITCH_OBJ
 void DcxBox::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) const
 {
-	//  UINT numtok = input.numtok( );
+	//  auto numtok = input.numtok( );
 
-	const TString prop(input.getfirsttok( 3 ));
+	const auto prop(input.getfirsttok( 3 ));
 
 	// [NAME] [ID] [PROP]
 	if ( prop == TEXT("text") ) {
 
 		GetWindowText( this->m_Hwnd, szReturnValue, MIRC_BUFFER_SIZE_CCH );
-		return;
 	}
 	else if ( prop == TEXT("inbox") ) {
 
 		RECT rc;
-		GetClientRect( this->m_Hwnd, &rc );
+		if (!GetClientRect(this->m_Hwnd, &rc))
+			throw std::runtime_error("Unable to get client rect!");
 
 		InflateRect( &rc, -2, -2 );
-		if ( GetWindowTextLength( this->m_Hwnd ) > 0 ) {
+		if ( GetWindowTextLength( this->m_Hwnd ) > 0 )
+		{
+			auto hdc = GetDC( this->m_Hwnd );
+			if (hdc != nullptr)
+			{
+				HFONT oldFont = nullptr;
+				RECT rcText = rc;
 
-			HDC hdc = GetDC( this->m_Hwnd );
-			HFONT oldFont = NULL;
-			RECT rcText = rc;
+				if (this->m_hFont != nullptr)
+					oldFont = SelectFont(hdc, this->m_hFont);
 
-			if (this->m_hFont != NULL)
-				oldFont = SelectFont(hdc, this->m_hFont);
+				TString text;
+				TGetWindowText(this->m_Hwnd, text);
+				DrawText(hdc, text.to_chr(), text.len(), &rcText, DT_CALCRECT);
 
-			TString text;
-			TGetWindowText( this->m_Hwnd, text );
-			DrawText( hdc, text.to_chr(), text.len(), &rcText, DT_CALCRECT );
+				if (oldFont != nullptr)
+					SelectFont(hdc, oldFont);
 
-			if (oldFont != NULL)
-				SelectFont(hdc, oldFont);
+				ReleaseDC(this->m_Hwnd, hdc);
 
-			ReleaseDC( this->m_Hwnd, hdc );
+				//const auto w = rcText.right - rcText.left;
+				const auto h = rcText.bottom - rcText.top;
 
-			//const int w = rcText.right - rcText.left;
-			const int h = rcText.bottom - rcText.top;
-
-			if ( this->m_iBoxStyles & BOXS_BOTTOM )
-				rc.bottom -= (h + 2);
-			else
-				rc.top += (h - 2);
+				if (dcx_testflag(this->m_iBoxStyles, BOXS_BOTTOM))
+					rc.bottom -= (h + 2);
+				else
+					rc.top += (h - 2);
+			}
 		}
 
 		wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d %d %d"), rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top );
-		return;
 	}
-	else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
-		return;
-
-	szReturnValue[0] = 0;
+	else
+		this->parseGlobalInfoRequest( input, szReturnValue );
 }
+#else
+void DcxBox::parseInfoRequest(const TString & input, PTCHAR szReturnValue) const
+{
+	szReturnValue[0] = 0;
+
+	Switch(input.getfirsttok(3))
+		.Case(TEXT("text"), [this, szReturnValue] { GetWindowText(m_Hwnd, szReturnValue, MIRC_BUFFER_SIZE_CCH); }).Break()
+		.Case(TEXT("inbox"), [this, szReturnValue] {
+			RECT rc;
+			if (!GetClientRect(this->m_Hwnd, &rc))
+				throw std::runtime_error("Unable to get client rect!");
+
+			InflateRect(&rc, -2, -2);
+			if (GetWindowTextLength(this->m_Hwnd) > 0)
+			{
+				auto hdc = GetDC(this->m_Hwnd);
+				if (hdc == nullptr)
+					throw std::runtime_error("Unable to get windows DC");
+
+				HFONT oldFont = nullptr;
+				RECT rcText = rc;
+
+				if (this->m_hFont != nullptr)
+					oldFont = SelectFont(hdc, this->m_hFont);
+
+				TString text;
+				TGetWindowText(this->m_Hwnd, text);
+				DrawText(hdc, text.to_chr(), text.len(), &rcText, DT_CALCRECT);
+
+				if (oldFont != nullptr)
+					SelectFont(hdc, oldFont);
+
+				ReleaseDC(this->m_Hwnd, hdc);
+
+				//const auto w = rcText.right - rcText.left;
+				const auto h = rcText.bottom - rcText.top;
+
+				if (dcx_testflag(this->m_iBoxStyles, BOXS_BOTTOM))
+					rc.bottom -= (h + 2);
+				else
+					rc.top += (h - 2);
+			}
+
+			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d %d %d"), rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top);
+	}).Break()
+		.Default([this, &input, szReturnValue] { this->parseGlobalInfoRequest(input, szReturnValue); });
+}
+#endif
 
 /*!
  * \brief blah
@@ -279,50 +315,64 @@ void DcxBox::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) con
 void DcxBox::parseCommandRequest( const TString & input ) {
 
 	const XSwitchFlags flags(input.getfirsttok(3));
-	const UINT numtok = input.numtok( );
+	const auto numtok = input.numtok();
 
 	// xdid -c [NAME] [ID] [SWITCH] [ID] [CONTROL] [X] [Y] [W] [H] (OPTIONS)
 	if ( flags[TEXT('c')] && numtok > 8 ) {
 
-		const UINT ID = mIRC_ID_OFFSET + (UINT)input.getnexttok( ).to_int( );	// tok 4
+		const auto ID = mIRC_ID_OFFSET + (UINT)input.getnexttok().to_int();	// tok 4
 
-		if (this->m_pParentDialog->isIDValid(ID, true))
-		{
-			try {
-				DcxControl * p_Control = DcxControl::controlFactory(this->m_pParentDialog,ID,input,5,CTLF_ALLOW_ALL,this->m_Hwnd);
+		if (!this->m_pParentDialog->isIDValid(ID, true))
+			throw std::invalid_argument(Dcx::dcxGetFormattedString(TEXT("Control with ID \"%d\" already exists"), ID - mIRC_ID_OFFSET));
 
-				if ( p_Control != NULL ) {
-					this->m_pParentDialog->addControl( p_Control );
-					this->redrawWindow( );
-				}
-			}
-			catch ( TCHAR *err ) {
-				this->showErrorEx(NULL, TEXT("-c"), TEXT("Unable To Create Control %d (%s)"), ID - mIRC_ID_OFFSET, err);
-			}
+		try {
+			//throw std::invalid_argument("test");
+
+			this->m_pParentDialog->addControl(DcxControl::controlFactory(this->m_pParentDialog, ID, input, 5, CTLF_ALLOW_ALL, this->m_Hwnd));
+			this->redrawWindow( );
 		}
-		else
-			this->showErrorEx(NULL,TEXT("-c"), TEXT("Control with ID \"%d\" already exists"), ID - mIRC_ID_OFFSET );
+		catch (std::exception &e)
+		{
+			this->showErrorEx(nullptr, TEXT("-c"), TEXT("Unable To Create Control %d (%S)"), ID - mIRC_ID_OFFSET, e.what());
+			throw;
+		}
 	}
 	// xdid -d [NAME] [ID] [SWITCH] [ID]
 	else if ( flags[TEXT('d')] && numtok > 3 ) {
 
-		const UINT ID = mIRC_ID_OFFSET + input.getnexttok( ).to_int( );	// tok 4
+		const auto ID = mIRC_ID_OFFSET + (UINT)input.getnexttok().to_int();	// tok 4
 
-		if (this->m_pParentDialog->isIDValid(ID))
-		{
-			DcxControl * p_Control = this->m_pParentDialog->getControlByID(ID);
-			HWND cHwnd = p_Control->getHwnd( );
-			if ( p_Control->getType( ) == TEXT("dialog") || p_Control->getType( ) == TEXT("window") )
-				delete p_Control;
-			else if ( p_Control->getRefCount( ) == 0 ) {
-				this->m_pParentDialog->deleteControl( p_Control ); // remove from internal list!
-				DestroyWindow( cHwnd );
-			}
-			else
-				this->showErrorEx(NULL,TEXT("-d"), TEXT("Can't delete control with ID \"%d\" when it is inside it's own event (dialog %s)"), p_Control->getUserID( ), this->m_pParentDialog->getName( ).to_chr( ) );
+		if (!this->m_pParentDialog->isIDValid(ID))
+			throw std::runtime_error(Dcx::dcxGetFormattedString(TEXT("Unknown control with ID \"%d\" (dialog %s)"), ID - mIRC_ID_OFFSET, this->m_pParentDialog->getName().to_chr()));
+
+		auto p_Control = this->m_pParentDialog->getControlByID(ID);
+
+		if (p_Control == nullptr)
+			throw std::runtime_error("Unable to get control");
+
+		const auto dct = p_Control->getControlType();
+
+		if (dct == DcxControlTypes::DIALOG || dct == DcxControlTypes::WINDOW)
+			delete p_Control;
+		else {
+			if (p_Control->getRefCount() != 0)
+				throw std::runtime_error(Dcx::dcxGetFormattedString(TEXT("Can't delete control with ID \"%d\" when it is inside it's own event (dialog %s)"), p_Control->getUserID(), this->m_pParentDialog->getName().to_chr()));
+
+			auto cHwnd = p_Control->getHwnd();
+			this->m_pParentDialog->deleteControl(p_Control); // remove from internal list!
+			DestroyWindow(cHwnd);
 		}
-		else
-			this->showErrorEx(NULL,TEXT("-d"), TEXT("Unknown control with ID \"%d\" (dialog %s)"), ID - mIRC_ID_OFFSET, this->m_pParentDialog->getName( ).to_chr( ) );
+
+		//if (p_Control->getType() == TEXT("dialog") || p_Control->getType() == TEXT("window"))
+		//	delete p_Control;
+		//else {
+		//	if (p_Control->getRefCount() != 0)
+		//		throw std::runtime_error(Dcx::dcxGetFormattedString(TEXT("Can't delete control with ID \"%d\" when it is inside it's own event (dialog %s)"), p_Control->getUserID(), this->m_pParentDialog->getName().to_chr()));
+		//
+		//	auto cHwnd = p_Control->getHwnd();
+		//	this->m_pParentDialog->deleteControl(p_Control); // remove from internal list!
+		//	DestroyWindow(cHwnd);
+		//}
 	}
 	/*
 	//xdid -l [NAME] [ID] [SWITCH] [OPTIONS]
@@ -335,13 +385,16 @@ void DcxBox::parseCommandRequest( const TString & input ) {
 	*/
 	else if ( flags[TEXT('l')] && numtok > 3 ) {
 
-		const TString tsCmd(input.getnexttok( ));	// tok 4
+		const auto tsCmd(input.getnexttok());	// tok 4
 
 		if ( tsCmd == TEXT("update") ) {
-			if ( this->m_pLayoutManager != NULL ) {
+			if ( this->m_pLayoutManager != nullptr ) {
 				RECT rc;
-				GetClientRect( this->m_Hwnd, &rc );
-				this->m_pLayoutManager->updateLayout( rc );
+				if (!GetClientRect( this->m_Hwnd, &rc ))
+					throw std::runtime_error("Unable to get client rect!");
+				
+				this->m_pLayoutManager->updateLayout(rc);
+
 				this->redrawWindow();
 			}
 		}
@@ -350,156 +403,8 @@ void DcxBox::parseCommandRequest( const TString & input ) {
 			this->m_pLayoutManager = new LayoutManager(this->m_Hwnd);
 			//this->redrawWindow(); // dont redraw here, leave that for an `update` cmd
 		}
-		else if ( numtok > 8 ) {
-			try {
-				this->m_pLayoutManager->AddCell(input, 4);
-			}
-			catch (const TCHAR *errStr)
-			{
-				this->showError(NULL, TEXT("-l"), errStr);
-			}
-			catch (std::bad_alloc)
-			{
-				this->showError(NULL, TEXT("-l"), TEXT("Unable to allocate memory!"));
-			}
-			//const TString tsInput(input.getfirsttok(1, TSTAB));
-			//const TString p2(input.getnexttok( TSTAB ).trim());	// tok 2
-			//
-			//const TString com(tsInput.gettok(4).trim());
-			//const TString path(tsInput.gettok(5, -1).trim());
-			//
-			//const UINT lflags = this->parseLayoutFlags( p2.getfirsttok( 1 ) );
-			//const UINT ID = p2.getnexttok( ).to_int( );		// tok 2
-			//const UINT WGT = p2.getnexttok( ).to_int( );		// tok 3
-			//const UINT W = p2.getnexttok( ).to_int( );		// tok 4
-			//const UINT H = p2.getnexttok( ).to_int( );		// tok 5
-			//
-			//if ( com ==  TEXT("root") || com == TEXT("cell") ) {
-			//
-			//	HWND cHwnd = GetDlgItem( this->m_Hwnd, mIRC_ID_OFFSET + ID );
-			//
-			//	LayoutCell * p_Cell = NULL;
-			//
-			//	// LayoutCellPane
-			//	if ( lflags & LAYOUTPANE ) {
-			//
-			//		if ( lflags & LAYOUTHORZ )
-			//			p_Cell = new LayoutCellPane( LayoutCellPane::HORZ );
-			//		else
-			//			p_Cell = new LayoutCellPane( LayoutCellPane::VERT );
-			//	} // if ( lflags & LAYOUTPANE )
-			//	// LayoutFill Cell
-			//	else if ( lflags & LAYOUTFILL ) {
-			//		if ( lflags & LAYOUTID ) {
-			//			if ( cHwnd != NULL && IsWindow( cHwnd ) )
-			//				p_Cell = new LayoutCellFill( cHwnd );
-			//			else {
-			//				this->showErrorEx(NULL,TEXT("-l"), TEXT("Cell Fill -> Invalid ID : %d"), ID );
-			//				return;
-			//			}
-			//		}
-			//		else {
-			//			p_Cell = new LayoutCellFill( );
-			//		}
-			//	} // else if ( lflags & LAYOUTFILL )
-			//	// LayoutCellFixed
-			//	else if ( lflags & LAYOUTFIXED ) {
-			//
-			//		LayoutCellFixed::FixedType type;
-			//
-			//		if ( lflags & LAYOUTVERT && lflags & LAYOUTHORZ )
-			//			type = LayoutCellFixed::BOTH;
-			//		else if ( lflags & LAYOUTVERT )
-			//			type = LayoutCellFixed::HEIGHT;
-			//		else
-			//			type = LayoutCellFixed::WIDTH;
-			//
-			//		// Defined Rectangle
-			//		if ( lflags & LAYOUTDIM ) {
-			//
-			//			RECT rc;
-			//			SetRect( &rc, 0, 0, W, H );
-			//
-			//			if ( lflags & LAYOUTID ) {
-			//
-			//				if ( cHwnd != NULL && IsWindow( cHwnd ) )
-			//					p_Cell = new LayoutCellFixed( cHwnd, rc, type );
-			//				else {
-			//					this->showErrorEx(NULL,TEXT("-l"), TEXT("Cell Fixed -> Invalid ID : %d"), ID );
-			//					return;
-			//				}
-			//			}
-			//			else
-			//				p_Cell = new LayoutCellFixed( rc, type );
-			//
-			//		}
-			//		// No defined Rectangle
-			//		else {
-			//
-			//			if ( lflags & LAYOUTID ) {
-			//
-			//				if ( cHwnd != NULL && IsWindow( cHwnd ) )
-			//					p_Cell = new LayoutCellFixed( cHwnd, type );
-			//				else {
-			//					this->showErrorEx(NULL,TEXT("-l"), TEXT("Cell Fixed -> Invalid ID : %d"), ID );
-			//					return;
-			//				}
-			//			}
-			//		} //else
-			//	} // else if ( lflags & LAYOUTFIXED )
-			//	else {
-			//		this->showError(NULL,TEXT("-l"), TEXT("Unknown Cell Type"));
-			//		return;
-			//	}
-			//
-			//	if ( com == TEXT("root") ) {
-			//
-			//		if ( p_Cell != NULL )
-			//			this->m_pLayoutManager->setRoot( p_Cell );
-			//
-			//	} // if ( com == TEXT("root") )
-			//	else if ( com == TEXT("cell") ) {
-//
-			//		if ( p_Cell != NULL ) {
-			//
-			//			LayoutCell * p_GetCell;
-//
-			//			if ( path == TEXT("root") )
-			//				p_GetCell = this->m_pLayoutManager->getRoot( );
-			//			else
-			//				p_GetCell = this->m_pLayoutManager->getCell( path );
-//
-			//			if ( p_GetCell == NULL ) {
-			//				this->showErrorEx(NULL,TEXT("-l"), TEXT("Invalid item path: %s"), path.to_chr( ) );
-			//				delete p_Cell;
-			//				return;
-			//			}
-//
-			//			if ( p_GetCell->getType( ) == LayoutCell::PANE ) {
-//
-			//				LayoutCellPane * p_PaneCell = (LayoutCellPane *) p_GetCell;
-			//				p_PaneCell->addChild( p_Cell, WGT );
-			//			}
-			//		}
-			//	} // else if ( com == TEXT("cell") )
-			//} // if ( com ==  TEXT("root") || com == TEXT("cell") )
-			//else if ( com ==  TEXT("space") ) {
-//
-			//	LayoutCell * p_GetCell;
-//
-			//	if ( path == TEXT("root") )
-			//		p_GetCell = this->m_pLayoutManager->getRoot( );
-			//	else
-			//		p_GetCell = this->m_pLayoutManager->getCell( path );
-//
-			//	if ( p_GetCell != NULL ) {
-//
-			//		RECT rc;
-			//		SetRect( &rc, ID, WGT, W, H );
-			//		p_GetCell->setBorder( rc );
-			//	}
-			//} // else if ( com == TEXT("space") )
-		} // if ( numtok > 7 )
+		else if ( numtok > 8 )
+			this->m_pLayoutManager->AddCell(input, 4);
 	}
 	//xdid -t [NAME] [ID] [SWITCH]
 	else if ( flags[TEXT('t')] ) {
@@ -516,43 +421,15 @@ void DcxBox::parseCommandRequest( const TString & input ) {
  * blah
  */
 
-//const UINT DcxBox::parseLayoutFlags( const TString & flags ) {
-//
-//	const XSwitchFlags xflags(flags);
-//	UINT iFlags = 0;
-//
-//	// no +sign, missing params
-//	if ( !xflags[TEXT('+')] ) 
-//		return iFlags;
-//
-//	if ( xflags[TEXT('f')] )
-//		iFlags |= LAYOUTFIXED;
-//	if ( xflags[TEXT('h')] )
-//		iFlags |= LAYOUTHORZ;
-//	if ( xflags[TEXT('i')] )
-//		iFlags |= LAYOUTID;
-//	if ( xflags[TEXT('l')] )
-//		iFlags |= LAYOUTFILL ;
-//	if ( xflags[TEXT('p')] )
-//		iFlags |= LAYOUTPANE;
-//	if ( xflags[TEXT('v')] )
-//		iFlags |= LAYOUTVERT;
-//	if ( xflags[TEXT('w')] )
-//		iFlags |= LAYOUTDIM;
-//
-//	return iFlags;
-//}
-
-BOOL CALLBACK DcxBox::EnumBoxChildren(HWND hwnd,LPDCXENUM de)
+BOOL CALLBACK DcxBox::EnumBoxChildren(HWND hwnd,const LPDCXENUM de)
 {
-	//LPDCXENUM de = (LPDCXENUM)lParam;
 	if ((de->mChildHwnd != hwnd) && (GetParent(hwnd) == de->mBox))
 		EnableWindow(hwnd,de->mState);
 
 	return TRUE;
 }
 
-void DcxBox::toXml(TiXmlElement * xml) const {
+void DcxBox::toXml(TiXmlElement *const xml) const {
 	TString wtext;
 	TGetWindowText(this->m_Hwnd, wtext);
 	__super::toXml(xml);
@@ -560,21 +437,22 @@ void DcxBox::toXml(TiXmlElement * xml) const {
 	this->m_pLayoutManager->getRoot()->toXml(xml);
 }
 
-TString DcxBox::getStyles(void) const {
-	TString result(__super::getStyles());
-	if (this->m_iBoxStyles & BOXS_RIGHT)
+const TString DcxBox::getStyles(void) const {
+	auto result(__super::getStyles());
+
+	if (dcx_testflag(this->m_iBoxStyles, BOXS_RIGHT))
 		result.addtok(TEXT("right"));
-	if (this->m_iBoxStyles & BOXS_CENTER)
+	if (dcx_testflag(this->m_iBoxStyles, BOXS_CENTER))
 		result.addtok(TEXT("center"));
-	if (this->m_iBoxStyles & BOXS_BOTTOM)
+	if (dcx_testflag(this->m_iBoxStyles, BOXS_BOTTOM))
 		result.addtok(TEXT("bottom"));
-	if (this->m_iBoxStyles & BOXS_NONE)
+	if (dcx_testflag(this->m_iBoxStyles, BOXS_NONE))
 		result.addtok(TEXT("none"));
-	if (this->m_iBoxStyles & BOXS_ROUNDED)
+	if (dcx_testflag(this->m_iBoxStyles, BOXS_ROUNDED))
 		result.addtok(TEXT("rounded"));
-	if (this->m_iBoxStyles & BOXS_CHECK)
+	if (dcx_testflag(this->m_iBoxStyles, BOXS_CHECK))
 		result.addtok(TEXT("check"));
-	else if (this->m_iBoxStyles & BOXS_RADIO)
+	else if (dcx_testflag(this->m_iBoxStyles, BOXS_RADIO))
 		result.addtok(TEXT("radio"));
 
 	return result;
@@ -596,14 +474,14 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 
 	case WM_NOTIFY:
 		{
-			LPNMHDR hdr = (LPNMHDR) lParam;
+			dcxlParam(LPNMHDR, hdr);
 
-			if (!hdr)
+			if (hdr == nullptr)
 				break;
 
 			if (IsWindow(hdr->hwndFrom)) {
-				DcxControl *c_this = reinterpret_cast<DcxControl *>(GetProp(hdr->hwndFrom, TEXT("dcx_cthis")));
-				if (c_this != NULL)
+				auto c_this = reinterpret_cast<DcxControl *>(GetProp(hdr->hwndFrom, TEXT("dcx_cthis")));
+				if (c_this != nullptr)
 					lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 			}
 		}
@@ -611,13 +489,13 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 
     case WM_COMMAND:
 			{
-				if (((HWND)lParam != NULL) && ((HWND)lParam == this->m_TitleButton) ) {
+				if (((HWND)lParam != nullptr) && ((HWND)lParam == this->m_TitleButton) ) {
 					switch ( HIWORD( wParam ) )
 					{
 						case BN_CLICKED:
 						{
-							const BOOL state = (SendMessage(this->m_TitleButton,BM_GETCHECK,0,0) == BST_CHECKED);
-							if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
+							const auto state = (SendMessage(this->m_TitleButton, BM_GETCHECK, 0, 0) == BST_CHECKED);
+							if (dcx_testflag(this->m_pParentDialog->getEventMask(), DCX_EVENT_CLICK)) {
 								TCHAR ret[10];
 
 								this->evalAliasEx(ret, 9, TEXT("%s,%d,%d"), TEXT("checkchange"), this->getUserID(), state);
@@ -641,12 +519,12 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 		case WM_HSCROLL:
 		case WM_VSCROLL:
 			{
-				if (lParam == NULL)
+				if (lParam == 0L)
 					break;
 
 				if (IsWindow((HWND) lParam)) {
-					DcxControl *c_this = reinterpret_cast<DcxControl *>(GetProp((HWND)lParam, TEXT("dcx_cthis")));
-					if (c_this != NULL)
+					auto c_this = reinterpret_cast<DcxControl *>(GetProp((HWND)lParam, TEXT("dcx_cthis")));
+					if (c_this != nullptr)
 						lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 				}
 			}
@@ -654,10 +532,11 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 
 		case WM_COMPAREITEM:
 			{
-				LPCOMPAREITEMSTRUCT idata = (LPCOMPAREITEMSTRUCT)lParam;
-				if ((idata != NULL) && (IsWindow(idata->hwndItem))) {
-					DcxControl *c_this = reinterpret_cast<DcxControl *>(GetProp(idata->hwndItem, TEXT("dcx_cthis")));
-					if (c_this != NULL)
+				dcxlParam(LPCOMPAREITEMSTRUCT, idata);
+
+				if ((idata != nullptr) && (IsWindow(idata->hwndItem))) {
+					auto c_this = reinterpret_cast<DcxControl *>(GetProp(idata->hwndItem, TEXT("dcx_cthis")));
+					if (c_this != nullptr)
 						lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 				}
 			}
@@ -665,10 +544,10 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 
 		case WM_DELETEITEM:
 			{
-				DELETEITEMSTRUCT *idata = (DELETEITEMSTRUCT *)lParam;
-				if ((idata != NULL) && (IsWindow(idata->hwndItem))) {
-					DcxControl *c_this = reinterpret_cast<DcxControl *>(GetProp(idata->hwndItem, TEXT("dcx_cthis")));
-					if (c_this != NULL)
+				dcxlParam(LPDELETEITEMSTRUCT, idata);
+				if ((idata != nullptr) && (IsWindow(idata->hwndItem))) {
+					auto c_this = reinterpret_cast<DcxControl *>(GetProp(idata->hwndItem, TEXT("dcx_cthis")));
+					if (c_this != nullptr)
 						lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 				}
 			}
@@ -676,10 +555,10 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 
 		case WM_MEASUREITEM:
 			{
-				HWND cHwnd = GetDlgItem(this->m_Hwnd, wParam);
+				auto cHwnd = GetDlgItem(this->m_Hwnd, wParam);
 				if (IsWindow(cHwnd)) {
-					DcxControl *c_this = reinterpret_cast<DcxControl *>(GetProp(cHwnd, TEXT("dcx_cthis")));
-					if (c_this != NULL)
+					auto c_this = reinterpret_cast<DcxControl *>(GetProp(cHwnd, TEXT("dcx_cthis")));
+					if (c_this != nullptr)
 						lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 				}
 			}
@@ -687,10 +566,11 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 
 		case WM_DRAWITEM:
 			{
-				DRAWITEMSTRUCT *idata = (DRAWITEMSTRUCT *)lParam;
-				if ((idata != NULL) && (IsWindow(idata->hwndItem))) {
-					DcxControl *c_this = reinterpret_cast<DcxControl *>(GetProp(idata->hwndItem, TEXT("dcx_cthis")));
-					if (c_this != NULL)
+				dcxlParam(LPDRAWITEMSTRUCT, idata);
+
+				if ((idata != nullptr) && (IsWindow(idata->hwndItem))) {
+					auto c_this = reinterpret_cast<DcxControl *>(GetProp(idata->hwndItem, TEXT("dcx_cthis")));
+					if (c_this != nullptr)
 						lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 				}
 			}
@@ -699,27 +579,27 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 		case WM_SIZE:
 			{
 
-				HWND bars = NULL;
+				HWND bars = nullptr;
 
-				while ( ( bars = FindWindowEx( this->m_Hwnd, bars, DCX_REBARCTRLCLASS, NULL ) ) != NULL ) {
-
-					SendMessage( bars, WM_SIZE, (WPARAM) 0, (LPARAM) 0 );
-				}
-
-				while ( ( bars = FindWindowEx( this->m_Hwnd, bars, DCX_STATUSBARCLASS, NULL ) ) != NULL ) {
+				while ( ( bars = FindWindowEx( this->m_Hwnd, bars, DCX_REBARCTRLCLASS, nullptr ) ) != nullptr ) {
 
 					SendMessage( bars, WM_SIZE, (WPARAM) 0, (LPARAM) 0 );
 				}
 
-				while ( ( bars = FindWindowEx( this->m_Hwnd, bars, DCX_TOOLBARCLASS, NULL ) ) != NULL ) {
+				while ( ( bars = FindWindowEx( this->m_Hwnd, bars, DCX_STATUSBARCLASS, nullptr ) ) != nullptr ) {
 
 					SendMessage( bars, WM_SIZE, (WPARAM) 0, (LPARAM) 0 );
 				}
 
-				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_SIZE)
+				while ( ( bars = FindWindowEx( this->m_Hwnd, bars, DCX_TOOLBARCLASS, nullptr ) ) != nullptr ) {
+
+					SendMessage( bars, WM_SIZE, (WPARAM) 0, (LPARAM) 0 );
+				}
+
+				if (dcx_testflag(this->m_pParentDialog->getEventMask(), DCX_EVENT_SIZE))
 					this->execAliasEx(TEXT("%s,%d"), TEXT("sizing"), this->getUserID( ) );
 
-				//if (this->m_pLayoutManager != NULL) {
+				//if (this->m_pLayoutManager != nullptr) {
 				//	RECT rc;
 				//	SetRect( &rc, 0, 0, LOWORD( lParam ), HIWORD( lParam ) );
 				//	if (this->m_pLayoutManager->updateLayout( rc ))
@@ -729,13 +609,15 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 			break;
 		case WM_WINDOWPOSCHANGING:
 			{
-				if (lParam != NULL) {
-					WINDOWPOS * wp = (WINDOWPOS *) lParam;
-					if (this->m_pLayoutManager != NULL) {
-						RECT rc;
-						SetRect( &rc, 0, 0, wp->cx, wp->cy );
-						this->m_pLayoutManager->updateLayout( rc );
-					}
+				if (lParam == 0L)
+					break;
+
+				if (this->m_pLayoutManager != nullptr) {
+					dcxlParam(LPWINDOWPOS, wp);
+
+					RECT rc;
+					SetRect( &rc, 0, 0, wp->cx, wp->cy );
+					this->m_pLayoutManager->updateLayout( rc );
 				}
 			}
 			break;
@@ -762,7 +644,8 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 		case WM_PAINT:
 			{
 				PAINTSTRUCT ps;
-				HDC hdc = BeginPaint(this->m_Hwnd, &ps);
+
+				auto hdc = BeginPaint(this->m_Hwnd, &ps);
 
 				this->DrawClientArea(hdc);
 
@@ -775,7 +658,7 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 
 		case WM_THEMECHANGED:
 			{
-				if (this->_hTheme != NULL) {
+				if (this->_hTheme != nullptr) {
 					Dcx::UXModule.dcxCloseThemeData(this->_hTheme);
 					this->_hTheme = Dcx::UXModule.dcxOpenThemeData(this->m_Hwnd,L"BUTTON");
 				}
@@ -798,30 +681,33 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 void DcxBox::EraseBackground(HDC hdc)
 {
 	RECT rc;
-	GetClientRect( this->m_Hwnd, &rc );
-	// fill background.
-	if (this->isExStyle(WS_EX_TRANSPARENT) || this->m_pParentDialog->isExStyle(WS_EX_COMPOSITED))
-		this->DrawParentsBackground(hdc, &rc);
-	else // normal bkg
-		DcxControl::DrawCtrlBackground(hdc, this, &rc);
-	// Update CLA if any.
-	if (this->m_pLayoutManager != NULL)
-		this->m_pLayoutManager->updateLayout( rc );
+	if (GetClientRect(this->m_Hwnd, &rc))
+	{
+		// fill background.
+		if (this->isExStyle(WS_EX_TRANSPARENT) || this->m_pParentDialog->isExStyle(WS_EX_COMPOSITED))
+			this->DrawParentsBackground(hdc, &rc);
+		else // normal bkg
+			DcxControl::DrawCtrlBackground(hdc, this, &rc);
+		// Update CLA if any.
+		if (this->m_pLayoutManager != nullptr)
+			this->m_pLayoutManager->updateLayout(rc);
+	}
 }
 
 void DcxBox::DrawClientArea(HDC hdc)
 {
 	RECT rc, rc2, rcText, rcText2;
 	TString wtext;
-	const int n = TGetWindowText(this->m_Hwnd, wtext);
+	const auto n = TGetWindowText(this->m_Hwnd, wtext);
 
-	GetClientRect(this->m_Hwnd, &rc);
+	if (!GetClientRect(this->m_Hwnd, &rc))
+		return;
 
 	// Setup alpha blend if any.
-	LPALPHAINFO ai = this->SetupAlphaBlend(&hdc,true);
+	auto ai = this->SetupAlphaBlend(&hdc, true);
 
 	// if no border, dont bother
-	if (this->m_iBoxStyles & BOXS_NONE) {
+	if (dcx_testflag(this->m_iBoxStyles, BOXS_NONE)) {
 		DcxControl::DrawCtrlBackground(hdc, this, &rc);
 		this->FinishAlphaBlend(ai);
 		return;
@@ -833,15 +719,15 @@ void DcxBox::DrawClientArea(HDC hdc)
 
 	// no text, no box!
 	if (n == 0) {
-		if (this->m_iBoxStyles & BOXS_ROUNDED) {
-			HRGN m_Region = CreateRoundRectRgn(rc2.left, rc2.top, rc2.right, rc2.bottom, 10, 10);
-			if (m_Region) {
+		if (dcx_testflag(this->m_iBoxStyles, BOXS_ROUNDED)) {
+			auto m_Region = CreateRoundRectRgn(rc2.left, rc2.top, rc2.right, rc2.bottom, 10, 10);
+			if (m_Region != nullptr) {
 				SelectClipRgn(hdc,m_Region);
 				DcxControl::DrawCtrlBackground(hdc, this, &rc2);
-				SelectClipRgn(hdc,NULL);
+				SelectClipRgn(hdc,nullptr);
 
-				HBRUSH hBorderBrush = this->m_hBorderBrush;
-				if (hBorderBrush == NULL)
+				auto hBorderBrush = this->m_hBorderBrush;
+				if (hBorderBrush == nullptr)
 					hBorderBrush = GetStockBrush(BLACK_BRUSH);
 
 				FrameRgn(hdc,m_Region,hBorderBrush,1,1);
@@ -853,12 +739,12 @@ void DcxBox::DrawClientArea(HDC hdc)
 			DrawEdge(hdc, &rc2, EDGE_ETCHED, BF_RECT);
 		}
 		if (IsWindow(this->m_TitleButton))
-			SetWindowPos(this->m_TitleButton,NULL,rc2.left,rc2.top,0,0,SWP_NOSIZE|SWP_NOZORDER|SWP_NOACTIVATE);
+			SetWindowPos(this->m_TitleButton,nullptr,rc2.left,rc2.top,0,0,SWP_NOSIZE|SWP_NOZORDER|SWP_NOACTIVATE);
 	}
 	// draw text
 	else {
 		// prepare for appearance
-		if (this->m_hFont != NULL)
+		if (this->m_hFont != nullptr)
 			SelectFont(hdc, this->m_hFont);
 
 		if (this->m_clrText != CLR_INVALID)
@@ -874,12 +760,12 @@ void DcxBox::DrawClientArea(HDC hdc)
 			rcText.right = min((rcText.right +6), rc.right);
 		}
 
-		const int w = rcText.right - rcText.left;
-		const int h = rcText.bottom - rcText.top;
+		const auto w = rcText.right - rcText.left;
+		const auto h = rcText.bottom - rcText.top;
 
 		// shift border and text locations
 		// text at bottom?
-		if (this->m_iBoxStyles & BOXS_BOTTOM) {
+		if (dcx_testflag(this->m_iBoxStyles, BOXS_BOTTOM)) {
 			rcText.top = rc2.bottom - h;
 			rc2.bottom -= h/2;
 		}
@@ -893,16 +779,16 @@ void DcxBox::DrawClientArea(HDC hdc)
 		rcText.bottom = rcText.top + h;
 
 		// align text horizontally
-		const int bw = rc.right - rc.left - (2 * DCX_BOXTEXTSPACING);
+		const auto bw = rc.right - rc.left - (2 * DCX_BOXTEXTSPACING);
 
 		if (w > bw) {
 			rcText.left = rc.left + DCX_BOXTEXTSPACING;
 			rcText.right = rc.right - DCX_BOXTEXTSPACING;
 		}
 		else {
-			if (this->m_iBoxStyles & BOXS_RIGHT)
+			if (dcx_testflag(this->m_iBoxStyles, BOXS_RIGHT))
 				rcText.left = rc.right - DCX_BOXTEXTSPACING - w;
-			else if (this->m_iBoxStyles & BOXS_CENTER)
+			else if (dcx_testflag(this->m_iBoxStyles, BOXS_CENTER))
 				rcText.left = (rc.left + rc.right - w) /2;
 			else
 				rcText.left = rc.left + DCX_BOXTEXTSPACING;
@@ -917,26 +803,28 @@ void DcxBox::DrawClientArea(HDC hdc)
 		if (IsWindow(this->m_TitleButton))
 		{
 			RECT bSZ;
-			GetWindowRect(this->m_TitleButton,&bSZ);
-			bSZ.bottom = (bSZ.right - bSZ.left);
-			SetWindowPos(this->m_TitleButton,NULL,rcText2.left,rcText2.top,bSZ.bottom,(rcText2.bottom - rcText2.top),SWP_NOZORDER|SWP_NOACTIVATE);
-			rcText.left += bSZ.bottom;
-			rcText.right += bSZ.bottom;
-			rcText2.left += bSZ.bottom;
-			rcText2.right += bSZ.bottom;
+			if (GetWindowRect(this->m_TitleButton, &bSZ))
+			{
+				bSZ.bottom = (bSZ.right - bSZ.left);
+				SetWindowPos(this->m_TitleButton, nullptr, rcText2.left, rcText2.top, bSZ.bottom, (rcText2.bottom - rcText2.top), SWP_NOZORDER | SWP_NOACTIVATE);
+				rcText.left += bSZ.bottom;
+				rcText.right += bSZ.bottom;
+				rcText2.left += bSZ.bottom;
+				rcText2.right += bSZ.bottom;
+			}
 		}
 
 		// draw the border
-		if (this->m_iBoxStyles & BOXS_ROUNDED) {
-			HRGN m_Region = CreateRoundRectRgn(rc2.left, rc2.top, rc2.right, rc2.bottom, 10, 10);
-			if (m_Region) {
+		if (dcx_testflag(this->m_iBoxStyles, BOXS_ROUNDED)) {
+			auto m_Region = CreateRoundRectRgn(rc2.left, rc2.top, rc2.right, rc2.bottom, 10, 10);
+			if (m_Region != nullptr) {
 				SelectClipRgn(hdc,m_Region);
 				DcxControl::DrawCtrlBackground(hdc, this, &rc2);
-				SelectClipRgn(hdc,NULL);
+				SelectClipRgn(hdc,nullptr);
 				ExcludeClipRect(hdc, rcText2.left, rcText2.top, rcText2.right, rcText2.bottom);
 
-				HBRUSH hBorderBrush = this->m_hBorderBrush;
-				if (hBorderBrush == NULL)
+				auto hBorderBrush = this->m_hBorderBrush;
+				if (hBorderBrush == nullptr)
 					hBorderBrush = GetStockBrush(BLACK_BRUSH);
 
 				FrameRgn(hdc,m_Region,hBorderBrush,1,1);
@@ -948,7 +836,7 @@ void DcxBox::DrawClientArea(HDC hdc)
 			ExcludeClipRect(hdc, rcText2.left, rcText2.top, rcText2.right, rcText2.bottom);
 			DrawEdge(hdc, &rc2, EDGE_ETCHED, BF_RECT);
 		}
-		SelectClipRgn(hdc,NULL);
+		SelectClipRgn(hdc,nullptr);
 
 		// draw the text
 		this->ctrlDrawText(hdc, wtext, &rcText, DT_LEFT | DT_END_ELLIPSIS |DT_SINGLELINE);

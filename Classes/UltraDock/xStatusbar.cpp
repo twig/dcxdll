@@ -80,11 +80,11 @@ mIRC(xstatusbar) {
 				throw std::invalid_argument("Invalid Parameters");
 
 			const auto nParts = numtok - 1;
-			INT parts[256];
+			INT parts[SB_MAX_PARTSD];
 
-			int c = 0;
+			auto c = 0U;
 			TString p;
-			for (UINT i = 0; i < nParts; i++)
+			for (auto i = decltype(nParts){0}; i < nParts; i++)
 			{
 				if (c >= 100)
 					throw std::invalid_argument("Can't Allocate Over 100% of Statusbar!");
@@ -136,13 +136,14 @@ mIRC(xstatusbar) {
 			DcxDock::status_setIcon(nPos, nullptr);
 
 			if (dcx_testflag(iFlags, SBT_OWNERDRAW)) {
-				auto pPart = new SB_PARTINFOD;
+				auto pPart = std::make_unique<SB_PARTINFOD>();
 
-				pPart->m_Child = nullptr;
+				// commented out parts alrdy set by SB_PARTINFOD constructor
+				//pPart->m_Child = nullptr;
 				pPart->m_iIcon = icon;
 				pPart->m_Text = itemtext;
-				pPart->m_TxtCol = CLR_INVALID;
-				pPart->m_BkgCol = nullptr;
+				//pPart->m_TxtCol = CLR_INVALID;
+				//pPart->m_BkgCol = nullptr;
 
 				if (bkgClr != CLR_INVALID)
 					pPart->m_BkgCol = CreateSolidBrush(bkgClr);
@@ -150,7 +151,7 @@ mIRC(xstatusbar) {
 					pPart->m_TxtCol = txtClr;
 
 				DcxDock::status_setTipText(nPos, tooltip.to_chr());
-				DcxDock::status_setPartInfo(nPos, (int)iFlags, pPart);
+				DcxDock::status_setPartInfo(nPos, (int)iFlags, pPart.release());
 			}
 			else {
 				if (icon > -1)
@@ -168,7 +169,7 @@ mIRC(xstatusbar) {
 
 			const auto nPos = (input.getnexttok().to_int() - 1);	// tok 2
 
-			if (nPos > -1 && (UINT)nPos < DcxDock::status_getParts(256, 0)) {
+			if (nPos > -1 && (UINT)nPos < DcxDock::status_getParts(SB_MAX_PARTSD, 0)) {
 
 				TString itemtext;
 #if TSTRING_TEMPLATES
@@ -288,7 +289,7 @@ mIRC(_xstatusbar)
 		break;
 		case 2: // text
 		{
-			const auto iPart = (d.getnexttok().to_int() - 1), nParts = (int)DcxDock::status_getParts(256, 0);
+			const auto iPart = (d.getnexttok().to_int() - 1), nParts = (int)DcxDock::status_getParts(SB_MAX_PARTSD, 0);
 
 			if (iPart > -1 && iPart < nParts) {
 				const auto iFlags = DcxDock::status_getPartFlags(iPart);
@@ -310,10 +311,10 @@ mIRC(_xstatusbar)
 		break;
 		case 3: // parts
 		{
-			INT parts[256] = { 0 };
-			const auto nParts = DcxDock::status_getParts(256, 0);
+			INT parts[SB_MAX_PARTSD] = { 0 };
+			const auto nParts = DcxDock::status_getParts(SB_MAX_PARTSD, 0);
 
-			DcxDock::status_getParts(256, parts);
+			DcxDock::status_getParts(SB_MAX_PARTSD, parts);
 
 			TString tsOut((UINT)MIRC_BUFFER_SIZE_CCH);
 
@@ -325,7 +326,7 @@ mIRC(_xstatusbar)
 		break;
 		case 4: // tooltip
 		{
-			const auto iPart = d.getnexttok().to_int(), nParts = (int)DcxDock::status_getParts(256, 0);
+			const auto iPart = d.getnexttok().to_int(), nParts = (int)DcxDock::status_getParts(SB_MAX_PARTSD, 0);
 
 			if (iPart > -1 && iPart < nParts)
 				DcxDock::status_getTipText(iPart, MIRC_BUFFER_SIZE_CCH, data);

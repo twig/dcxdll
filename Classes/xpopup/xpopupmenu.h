@@ -140,21 +140,21 @@ public:
 	HIMAGELIST &getImageList( );
 	void destroyImageList( );
 
-	const MenuStyle &getStyle( ) const;
+	const MenuStyle &getStyle( ) const noexcept;
 	void setStyle( MenuStyle style );
-	const UINT &getItemStyle( ) const;
+	const UINT &getItemStyle( ) const noexcept;
 	void setItemStyle( const UINT iExStyles );
 
 	void deleteMenuItemData(const XPopupMenuItem *const p_Item, LPMENUITEMINFO mii = nullptr);
 	void deleteAllItemData( HMENU hMenu );
 
-	const TString &getName( ) const;
+	const TString &getName( ) const noexcept;
 
-	const inline HMENU &getMenuHandle( ) const { return this->m_hMenu; };
+	const inline HMENU &getMenuHandle( ) const noexcept { return this->m_hMenu; };
 
-	const LPXPMENUCOLORS getColors( ) const;
+	const LPXPMENUCOLORS getColors( ) const noexcept;
 	void setColor( const MenuColours nColor, const COLORREF clrColor );
-	COLORREF getColor( const MenuColours nColor ) const;
+	COLORREF getColor( const MenuColours nColor ) const noexcept;
 	void setDefaultColor(const MenuColours nColor);
 
 	static LRESULT CALLBACK XPopupWinProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
@@ -166,11 +166,11 @@ public:
 	static void cleanMenu( HMENU hMenu );
 	void clearAllMenuItems( );
 
-	HBITMAP getBackBitmap( ) const;
+	HBITMAP getBackBitmap( ) const noexcept;
 	void setBackBitmap( HBITMAP hBitmap );
 
-	const inline bool &IsRounded(void) const { return this->m_bRoundedSel; };
-	const inline BYTE &IsAlpha(void) const { return this->m_uiAlpha; };
+	const inline bool &IsRounded(void) const noexcept { return this->m_bRoundedSel; };
+	const inline BYTE &IsAlpha(void) const noexcept { return this->m_uiAlpha; };
 	void SetRounded(const bool rounded) { this->m_bRoundedSel = rounded; };
 	void SetAlpha(const BYTE alpha) { this->m_uiAlpha = alpha; };
 
@@ -180,7 +180,7 @@ public:
 
 	// Methods to access marked text.
 	void setMarkedText(const TString &text);
-	const TString &getMarkedText() const;
+	const TString &getMarkedText() const noexcept;
 
 	BOOL getMenuInfo(const UINT iMask, const TString &path, MENUITEMINFO &mii) const;
 

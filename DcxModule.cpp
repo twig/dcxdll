@@ -10,7 +10,7 @@ DcxModule::~DcxModule(void)
 {
 }
 
-bool DcxModule::isUseable() const
+bool DcxModule::isUseable() const noexcept
 {
 	return !(m_hModule == nullptr);
 }
@@ -30,6 +30,7 @@ bool DcxModule::GetWindowVersion(DWORD *dMajor, DWORD *dMinor)
 
 #pragma warning(push)
 #pragma warning(disable:4996)
+	//VerifyVersionInfo()
 	if (GetVersionEx(&osvi)) {
 		if (dMajor != nullptr)
 			*dMajor = osvi.dwMajorVersion;

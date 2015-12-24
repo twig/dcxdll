@@ -154,7 +154,7 @@ DcxDialog::~DcxDialog() {
  *
  * blah
  */
-const TString &DcxDialog::getName() const {
+const TString &DcxDialog::getName() const noexcept {
 	return this->m_tsName;
 }
 
@@ -164,7 +164,7 @@ const TString &DcxDialog::getName() const {
  * blah
  */
 
-const TString &DcxDialog::getAliasName() const {
+const TString &DcxDialog::getAliasName() const noexcept {
   return this->m_tsAliasName;
 }
 
@@ -2592,7 +2592,7 @@ void DcxDialog::setParentName(const TString &strParent) {
 	this->m_tsParentName = strParent;
 }
 
-const TString &DcxDialog::getParentName() const {
+const TString &DcxDialog::getParentName() const noexcept {
 	return this->m_tsParentName;
 }
 
@@ -3571,7 +3571,6 @@ void DcxDialog::UnregisterDragList(const DcxList *const list)
 	auto itGot = std::find(m_vDragLists.begin(), itEnd, list);
 	if (itGot != itEnd)
 		m_vDragLists.erase(itGot);
-	return;
 }
 
 // Checks if the message should be parsed
@@ -3584,6 +3583,15 @@ LRESULT DcxDialog::ProcessDragListMessage(DcxDialog *const p_this, UINT uMsg, WP
 	}
 
 	return 0L;
+	//std::find(p_this->m_vDragLists, uMsg);
+
+	// would this not be better as a map?
+	// <UINT, DcxList *> where UINT is msg id, & DcxList is the list object for that msg id
+	// this would then allow:
+	//	auto itGot = std::find(m_vDragLists, uMsg);
+	//	if (itGot != m_vDragLists.end())
+	//		return itGot->second->ParentMessage(uMsg, wParam, lParam, bParsed);
+	//	return 0L;
 }
 
 void DcxDialog::toXml(TiXmlElement *const xml) const
@@ -3638,7 +3646,7 @@ TiXmlElement * DcxDialog::toXml(const TString & name) const
 //}
 //#endif
 
-const bool DcxDialog::isIDValid(const UINT ID, const bool bUnused) const
+const bool DcxDialog::isIDValid(_In_ const UINT ID, _In_ const bool bUnused) const
 {
 	if (bUnused)	// a valid ID thats NOT in use
 		return ((ID > (mIRC_ID_OFFSET - 1)) && !IsWindow(GetDlgItem(this->m_Hwnd, ID)) && (this->getControlByID(ID) == nullptr));

@@ -25,42 +25,42 @@
  * \param styles Window Style Tokenized List
  */
 
-DcxScroll::DcxScroll( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, const TString & styles ) 
-: DcxControl( ID, p_Dialog )
-, m_nPage(5)
-, m_nLine(1)
+DcxScroll::DcxScroll(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles)
+	: DcxControl(ID, p_Dialog)
+	, m_nPage(5)
+	, m_nLine(1)
 {
 	LONG Styles = 0, ExStyles = 0;
 	BOOL bNoTheme = FALSE;
-	this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
+	this->parseControlStyles(styles, &Styles, &ExStyles, &bNoTheme);
 
-	this->m_Hwnd = CreateWindowEx(	
-		ExStyles, 
-		TEXT("SCROLLBAR"), 
-		NULL,
-		WS_CHILD | Styles, 
+	this->m_Hwnd = CreateWindowEx(
+		(DWORD)ExStyles,
+		TEXT("SCROLLBAR"),
+		nullptr,
+		(DWORD)(WS_CHILD | Styles),
 		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
 		mParentHwnd,
-		(HMENU) ID,
-		GetModuleHandle(NULL), 
-		NULL);
+		(HMENU)ID,
+		GetModuleHandle(nullptr),
+		nullptr);
 
 	if (!IsWindow(this->m_Hwnd))
-		throw TEXT("Unable To Create Window");
+		throw std::runtime_error("Unable To Create Window");
 
-	if ( bNoTheme )
-		Dcx::UXModule.dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
+	if (bNoTheme)
+		Dcx::UXModule.dcxSetWindowTheme(this->m_Hwnd, L" ", L" ");
 
 	SCROLLINFO si;
-	si.cbSize = sizeof( SCROLLINFO );
+	si.cbSize = sizeof(SCROLLINFO);
 	si.fMask = SIF_POS | SIF_RANGE;
 	si.nPos = 0;
 	si.nMin = 0;
 	si.nMax = 100;
-	SetScrollInfo( this->m_Hwnd, SB_CTL, &si, TRUE );
+	SetScrollInfo(this->m_Hwnd, SB_CTL, &si, TRUE);
 
-	this->registreDefaultWindowProc( );
-	SetProp( this->m_Hwnd, TEXT("dcx_cthis"), (HANDLE) this );
+	this->registreDefaultWindowProc();
+	SetProp(this->m_Hwnd, TEXT("dcx_cthis"), (HANDLE) this);
 }
 
 /*!
@@ -82,13 +82,16 @@ DcxScroll::~DcxScroll( ) {
 
 void DcxScroll::parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme )
 {
-	for (TString tsStyle(styles.getfirsttok(1)); !tsStyle.empty(); tsStyle = styles.getnexttok())
-	{
-		if ( tsStyle == TEXT("vertical") )
-			*Styles |= SBS_VERT;
-	}
+	//for (auto tsStyle(styles.getfirsttok(1)); !tsStyle.empty(); tsStyle = styles.getnexttok())
+	//{
+	//	if ( tsStyle == TEXT("vertical") )
+	//		*Styles |= SBS_VERT;
+	//}
 
-	this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
+	if (styles.istok(TEXT("vertical")))
+		*Styles |= SBS_VERT;
+
+	this->parseGeneralControlStyles(styles, Styles, ExStyles, bNoTheme);
 }
 
 /*!
@@ -102,7 +105,7 @@ void DcxScroll::parseControlStyles( const TString & styles, LONG * Styles, LONG 
 
 void DcxScroll::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) const
 {
-	const TString prop(input.getfirsttok( 3 ));
+	const auto prop(input.getfirsttok(3));
 
 	// [NAME] [ID] [PROP]
 	if ( prop == TEXT("value") ) {
@@ -110,10 +113,10 @@ void DcxScroll::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) 
 		SCROLLINFO si;
 		si.cbSize = sizeof( SCROLLINFO );
 		si.fMask = SIF_POS;
-		GetScrollInfo( this->m_Hwnd, SB_CTL, &si );
+		if (!GetScrollInfo(this->m_Hwnd, SB_CTL, &si))
+			throw std::runtime_error("Unable to get scroll info");
 
 		wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), si.nPos );
-		return;
 	}
 	// [NAME] [ID] [PROP]
 	else if ( prop == TEXT("range") ) {
@@ -121,26 +124,23 @@ void DcxScroll::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) 
 		SCROLLINFO si;
 		si.cbSize = sizeof( SCROLLINFO );
 		si.fMask = SIF_RANGE;
-		GetScrollInfo( this->m_Hwnd, SB_CTL, &si );
-		wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d"), si.nMin, si.nMax );
-		return;
+		if (!GetScrollInfo(this->m_Hwnd, SB_CTL, &si))
+			throw std::runtime_error("Unable to get scroll info");
+
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d"), si.nMin, si.nMax);
 	}
 	// [NAME] [ID] [PROP]
 	else if ( prop == TEXT("line") ) {
 
 		wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), this->m_nLine );
-		return;
 	}
 	// [NAME] [ID] [PROP]
-	else if ( prop == TEXT("page") ) {
+	else if (prop == TEXT("page")) {
 
-		wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), this->m_nPage );
-		return;
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), this->m_nPage);
 	}
-	else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
-		return;
-
-	szReturnValue[0] = 0;
+	else
+		this->parseGlobalInfoRequest(input, szReturnValue);
 }
 
 /*!
@@ -151,12 +151,12 @@ void DcxScroll::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) 
 
 void DcxScroll::parseCommandRequest( const TString & input ) {
 	const XSwitchFlags flags(input.getfirsttok( 3 ));
-	const int numtok = input.numtok( );
+	const auto numtok = input.numtok();
 
 	//xdid -l [NAME] [ID] [SWITCH] [N]
 	if ( flags[TEXT('l')] && numtok > 3 ) {
 
-		const int nLine = input.getnexttok( ).to_int( );	// tok 4
+		const auto nLine = input.getnexttok().to_int();	// tok 4
 
 		if ( nLine > 0 )
 			this->m_nLine = nLine;
@@ -164,7 +164,7 @@ void DcxScroll::parseCommandRequest( const TString & input ) {
 	//xdid -m [NAME] [ID] [SWITCH] [N]
 	else if ( flags[TEXT('m')] && numtok > 3 ) {
 
-		const int nPage = input.getnexttok( ).to_int( );	// tok 4
+		const auto nPage = input.getnexttok().to_int();	// tok 4
 
 		if ( nPage > 0 )
 			this->m_nPage = nPage;
@@ -172,8 +172,8 @@ void DcxScroll::parseCommandRequest( const TString & input ) {
 	//xdid -r [NAME] [ID] [SWITCH] [L] [R]
 	else if ( flags[TEXT('r')] && numtok > 4 ) {
 
-		const INT L = input.getnexttok( ).to_int( );	// tok 4
-		const INT R = input.getnexttok( ).to_int( );	// tok 5
+		const auto L = input.getnexttok().to_int();	// tok 4
+		const auto R = input.getnexttok().to_int();	// tok 5
 
 		SCROLLINFO si;
 		si.cbSize = sizeof( SCROLLINFO );
@@ -185,7 +185,7 @@ void DcxScroll::parseCommandRequest( const TString & input ) {
 	//xdid -v [NAME] [ID] [SWITCH] [VALUE]
 	else if ( flags[TEXT('v')] && numtok > 3 ) {
 
-		const int pos = input.getnexttok( ).to_int( );	// tok 4
+		const auto pos = input.getnexttok().to_int();	// tok 4
 
 		SCROLLINFO si;
 		si.cbSize = sizeof( SCROLLINFO );
@@ -197,13 +197,15 @@ void DcxScroll::parseCommandRequest( const TString & input ) {
 		this->parseGlobalCommandRequest( input, flags );
 }
 
-TString DcxScroll::getStyles(void) const
+const TString DcxScroll::getStyles(void) const
 {
-	TString styles(__super::getStyles());
-	const DWORD Styles = GetWindowStyle(this->m_Hwnd);
-	if (Styles & SBS_VERT)
-		styles.addtok(TEXT("vertical"));
-	return styles;
+	auto tsStyles(__super::getStyles());
+	const auto Styles = GetWindowStyle(this->m_Hwnd);
+
+	if (dcx_testflag(Styles, SBS_VERT))
+		tsStyles.addtok(TEXT("vertical"));
+
+	return tsStyles;
 }
 
 /*!
@@ -218,7 +220,8 @@ LRESULT DcxScroll::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 			SCROLLINFO si;
 			si.cbSize = sizeof(SCROLLINFO);
 			si.fMask = SIF_PAGE | SIF_POS | SIF_RANGE | SIF_TRACKPOS;
-			GetScrollInfo(this->m_Hwnd, SB_CTL, &si);
+			if (!GetScrollInfo(this->m_Hwnd, SB_CTL, &si))
+				break;
 
 			switch (LOWORD(wParam)) {
 				case SB_TOP:
@@ -309,7 +312,8 @@ LRESULT DcxScroll::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 			SCROLLINFO si;
 			si.cbSize = sizeof(SCROLLINFO);
 			si.fMask = SIF_PAGE | SIF_POS | SIF_RANGE | SIF_TRACKPOS;
-			GetScrollInfo(this->m_Hwnd, SB_CTL, &si);
+			if (!GetScrollInfo(this->m_Hwnd, SB_CTL, &si))
+				break;
 
 			switch (LOWORD(wParam)) {
 				case SB_TOP:
@@ -407,17 +411,17 @@ LRESULT DcxScroll::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
 			{
 				if (!this->m_bAlphaBlend)
 					break;
-				PAINTSTRUCT ps;
-				HDC hdc;
 
-				hdc = BeginPaint( this->m_Hwnd, &ps );
+				PAINTSTRUCT ps;
+
+				auto hdc = BeginPaint(this->m_Hwnd, &ps);
 
 				bParsed = TRUE;
 
 				// Setup alpha blend if any.
-				LPALPHAINFO ai = this->SetupAlphaBlend(&hdc);
+				auto ai = this->SetupAlphaBlend(&hdc);
 
-				LRESULT res = CallWindowProc( this->m_DefaultWindowProc, this->m_Hwnd, uMsg, (WPARAM) hdc, lParam );
+				auto res = CallWindowProc(this->m_DefaultWindowProc, this->m_Hwnd, uMsg, (WPARAM)hdc, lParam);
 
 				this->FinishAlphaBlend(ai);
 

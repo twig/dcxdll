@@ -20,13 +20,20 @@
 
 class DcxDialog;
 
-typedef struct tagSB_PARTINFO {
-	DcxControl	*m_Child;
-	TString		m_Text;
-	int			m_iIcon;
-} SB_PARTINFO, *LPSB_PARTINFO;
+#define DCX_STATUSBAR_MAX_PARTS 256
 
-typedef std::vector<LPSB_PARTINFO> VectorOfParts;
+typedef struct tagSB_PARTINFOX {
+	DcxControl	*m_xChild;
+	TString		m_xText;
+	int			m_xiIcon;
+
+	tagSB_PARTINFOX()
+		: m_xChild(nullptr)
+		, m_xiIcon(-1)
+	{}
+} SB_PARTINFOX, *LPSB_PARTINFOX;
+
+typedef std::vector<LPSB_PARTINFOX> VectorOfXParts;
 
 /*!
  * \brief blah
@@ -37,31 +44,34 @@ typedef std::vector<LPSB_PARTINFO> VectorOfParts;
 class DcxStatusBar : public DcxControl {
 
 public:
+	DcxStatusBar() = delete;
+	DcxStatusBar(const DcxStatusBar &) = delete;
+	DcxStatusBar &operator =(const DcxStatusBar &) = delete;	// No assignments!
 
-	DcxStatusBar( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, const TString & styles );
+	DcxStatusBar(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles );
 	virtual ~DcxStatusBar( );
 
-	LRESULT PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
-	LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
+	LRESULT PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) override;
+	LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) override;
 
-	void parseInfoRequest( const TString & input, TCHAR * szReturnValue ) const;
-	void parseCommandRequest( const TString & input );
-	void parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
+	void parseInfoRequest( const TString & input, PTCHAR szReturnValue ) const override;
+	void parseCommandRequest( const TString & input ) override;
+	void parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ) override;
 
-	HIMAGELIST getImageList( );
+	HIMAGELIST getImageList( ) const noexcept;
 	void setImageList( HIMAGELIST himl );
 	static HIMAGELIST createImageList( );
 
 	static UINT parseItemFlags( const TString & flags );
 	void cleanPartIcons( );
-	TString getStyles(void) const;
+	const TString getStyles(void) const override;
 
 	LRESULT setParts( const int nParts, const LPINT aWidths );
 	LRESULT getParts( const int nParts, LPINT aWidths ) const;
 	LRESULT getBorders( LPINT aWidths ) const;
 	LRESULT setBkColor( const COLORREF clrBk );
 	LRESULT setText( const int iPart, const int Style, const PTCHAR lpstr );
-	LRESULT setPartInfo( const int iPart, const int Style, const LPSB_PARTINFO pPart );
+	LRESULT setPartInfo( const int iPart, const int Style, const LPSB_PARTINFOX pPart );
 	LRESULT getText( const int iPart, PTCHAR lpstr ) const;
 	LRESULT getTextLength( const int iPart ) const;
 	LRESULT setTipText( const int iPart, const PTCHAR lpstr );
@@ -76,14 +86,15 @@ public:
 
 	void deletePartInfo(const int iPart);
 
-	inline TString getType( ) const { return TString( TEXT("statusbar") ); };
+	inline const TString getType() const override { return TEXT("statusbar"); };
+	inline const DcxControlTypes getControlType() const noexcept override { return DcxControlTypes::STATUSBAR; }
 
 protected:
 
 	HIMAGELIST m_hImageList; //!< Internal Image List
-	VectorOfParts	m_vParts;	//!< Parts info for ownerdraw parts.
-	INT m_iDynamicParts[256]; // records parts with a percentage size.
-	INT m_iFixedParts[256]; // records parts with a fixed size.
+	VectorOfXParts	m_vParts;	//!< Parts info for ownerdraw parts.
+	INT m_iDynamicParts[DCX_STATUSBAR_MAX_PARTS]; // records parts with a percentage size.
+	INT m_iFixedParts[DCX_STATUSBAR_MAX_PARTS]; // records parts with a fixed size.
 };
 
 #endif // _DCXSTATUSBAR_H_

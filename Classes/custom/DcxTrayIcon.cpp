@@ -241,9 +241,11 @@ const bool DcxTrayIcon::idExists(const int id) const {
 	//}
 	//return false;
 
-	const auto itEnd = trayIconIDs.end();
-	const auto itGot = std::find(trayIconIDs.begin(), itEnd, id);
-	return (itGot != itEnd);
+	//const auto itEnd = trayIconIDs.end();
+	//const auto itGot = std::find(trayIconIDs.begin(), itEnd, id);
+	//return (itGot != itEnd);
+
+	return Dcx::find(trayIconIDs, id);
 }
 
 const bool DcxTrayIcon::modifyIcon(const int id, const DWORD msg, const HICON icon, const TString *const tooltip) {

@@ -32,26 +32,30 @@ public:
 	*
 	* blah
 	*/
-	enum FixedType
+	enum FixedType: UINT
 	{
 		HEIGHT=1,         //!< Fixed Size in Height
 		WIDTH=HEIGHT<<1,  //!< Fixed Size in Width
 		BOTH=HEIGHT|WIDTH //!< Fixed Size in Both
 	};
 
-	explicit LayoutCellFixed( DcxControl * dcxc, const FixedType nType = BOTH );
+	LayoutCellFixed() = delete;
+	LayoutCellFixed(const LayoutCellFixed &) = delete;
+	explicit LayoutCellFixed(DcxControl * dcxc, const FixedType nType = BOTH);
 	explicit LayoutCellFixed( const HWND mHwnd, const FixedType nType = BOTH );
 	explicit LayoutCellFixed(const RECT & rc, const FixedType nType = BOTH);
 	LayoutCellFixed(const HWND mHwnd, const RECT & rc, const FixedType nType = BOTH);
 	virtual ~LayoutCellFixed( );
 
-	virtual void LayoutChild( );
-	virtual HDWP ExecuteLayout( HDWP hdwp );
-	virtual void getMinMaxInfo( CellMinMaxInfo * pCMMI ) const;
-	virtual void toXml(TiXmlElement * xml);
-	virtual TiXmlElement * toXml(void);
+	LayoutCellFixed &operator =(const LayoutCellFixed &) = delete;	// No assignments!
 
-	CellType getType( ) const;
+	virtual void LayoutChild() final;
+	virtual HDWP ExecuteLayout( const HDWP hdwp ) final;
+	virtual void getMinMaxInfo( CellMinMaxInfo * pCMMI ) const final;
+	virtual void toXml(TiXmlElement * xml) final;
+	virtual TiXmlElement * toXml(void) final;
+
+	const CellType getType( ) const final;
 
 protected:
 

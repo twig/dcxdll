@@ -48,8 +48,8 @@ class XSwitchFlags {
 		~XSwitchFlags();
 
 		// Function checks if flag is set
-		const bool &isSet(const TCHAR c) const;
-		const bool &operator[](const TCHAR c) const;
+		const bool &isSet(const TCHAR c) const noexcept;
+		const bool &operator[](const TCHAR c) const noexcept;
 		XSwitchFlags &operator =(const XSwitchFlags &) = delete;	// No assignments!
 
 	protected:

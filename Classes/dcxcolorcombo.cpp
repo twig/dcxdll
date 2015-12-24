@@ -29,32 +29,32 @@
  * \param styles Window Style Tokenized List
  */
 
-DcxColorCombo::DcxColorCombo( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, const TString & styles ) 
-: DcxControl( ID, p_Dialog )
+DcxColorCombo::DcxColorCombo(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles)
+	: DcxControl(ID, p_Dialog)
 {
 	LONG Styles = 0, ExStyles = 0;
 	BOOL bNoTheme = FALSE;
-	this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
+	this->parseControlStyles(styles, &Styles, &ExStyles, &bNoTheme);
 
-	this->m_Hwnd = CreateWindowEx(	
-		ExStyles,
+	this->m_Hwnd = CreateWindowEx(
+		(DWORD)ExStyles,
 		DCX_COLORCOMBOCLASS,
-		NULL,
-		WS_CHILD | Styles, 
+		nullptr,
+		(DWORD)(WS_CHILD | Styles),
 		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
 		mParentHwnd,
-		(HMENU) ID,
-		GetModuleHandle(NULL), 
-		NULL);
+		(HMENU)ID,
+		GetModuleHandle(nullptr),
+		nullptr);
 
 	if (!IsWindow(this->m_Hwnd))
-		throw TEXT("Unable To Create Window");
+		throw std::runtime_error("Unable To Create Window");
 
-	if ( bNoTheme )
-		Dcx::UXModule.dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
+	if (bNoTheme)
+		Dcx::UXModule.dcxSetWindowTheme(this->m_Hwnd, L" ", L" ");
 
-	this->registreDefaultWindowProc( );
-	SetProp( this->m_Hwnd, TEXT("dcx_cthis"), (HANDLE) this );
+	this->registreDefaultWindowProc();
+	SetProp(this->m_Hwnd, TEXT("dcx_cthis"), (HANDLE) this);
 }
 
 /*!
@@ -63,10 +63,10 @@ DcxColorCombo::DcxColorCombo( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, R
  * blah
  */
 
-DcxColorCombo::~DcxColorCombo( ) {
+DcxColorCombo::~DcxColorCombo() {
 
-	this->resetContent( );
-	this->unregistreDefaultWindowProc( );
+	this->resetContent();
+	this->unregistreDefaultWindowProc();
 }
 
 /*!
@@ -93,46 +93,42 @@ void DcxColorCombo::parseControlStyles( const TString &styles, LONG *Styles, LON
 
 void DcxColorCombo::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) const
 {
-	const UINT numtok = input.numtok( );
+	const auto numtok = input.numtok();
 
-	const TString prop(input.getfirsttok( 3 ));
+	const auto prop(input.getfirsttok(3));
 
 	// [NAME] [ID] [PROP]
 	if ( prop == TEXT("num") ) {
 
 		wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), this->getCount( ) );
-		return;
 	}
 	// [NAME] [ID] [PROP] [N]
 	else if ( prop == TEXT("color") && numtok > 3 ) {
 
-		const int nItem = input.getnexttok( ).to_int( ) - 1;	// tok 4
+		const auto nItem = input.getnexttok().to_int() - 1;	// tok 4
 
-		if ( nItem > -1 && nItem < this->getCount( ) ) {
+		if (nItem < 0 && nItem >= this->getCount())
+			throw std::invalid_argument("Invalid Item");
 
-			LPDCXCCOMBOITEM lpdcxcci = (LPDCXCCOMBOITEM) this->getItemData( nItem );
+		auto lpdcxcci = reinterpret_cast<LPDCXCCOMBOITEM>(this->getItemData( nItem ));
 
-			if ( lpdcxcci != NULL ) {
+		if (lpdcxcci == nullptr)
+			throw std::runtime_error("Unable to get item data");
 
-				wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), lpdcxcci->clrItem );
-				return;
-			}
-		}
+		wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), lpdcxcci->clrItem );
 	}
 	// [NAME] [ID] [PROP]
-	else if ( prop == TEXT("sel") ) {
+	else if (prop == TEXT("sel")) {
 
-		const int nItem = (int)this->getCurSel( );
+		const auto nItem = static_cast<int>(this->getCurSel());
 
-		if (nItem != CB_ERR ) {
-			wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), nItem + 1 );
-			return;
-		}
+		// commented out to allow a zero result (CB_ERR + 1) to mean none selected.
+		//if (nItem != CB_ERR ) {
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), nItem + 1);
+		//}
 	}
-	else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
-		return;
-
-	szReturnValue[0] = 0;
+	else
+		this->parseGlobalInfoRequest(input, szReturnValue);
 }
 
 /*!
@@ -142,50 +138,49 @@ void DcxColorCombo::parseInfoRequest( const TString & input, PTCHAR szReturnValu
  */
 void DcxColorCombo::parseCommandRequest( const TString &input) {
 	const XSwitchFlags flags(input.getfirsttok( 3 ));
-	const UINT numtok = input.numtok( );
+	const auto numtok = input.numtok();
 
 	// xdid -r [NAME] [ID] [SWITCH]
-	if (flags[TEXT('r')]) {
+	if (flags[TEXT('r')])
 		this->resetContent();
-	}
 
 	// xdid -a [NAME] [ID] [SWITCH] [N] [RGB]
 	if (flags[TEXT('a')] && numtok > 4) {
-		int nItem = input.getnexttok( ).to_int() -1;	// tok 4
-		const COLORREF clrItem = (COLORREF)input.getnexttok( ).to_num();	// tok 5
+		auto nItem = input.getnexttok().to_int() - 1;	// tok 4
+#if TSTRING_TEMPLATES
+		const auto clrItem = input.getnexttok().to_<COLORREF>();	// tok 5
+#else
+		const auto clrItem = (COLORREF)input.getnexttok( ).to_num();	// tok 5
+#endif
 
 		if (nItem >= this->getCount())
 			nItem = -1;
 
 		if (nItem > -2) {
-			try {
-				LPDCXCCOMBOITEM lpdcxcci = new DCXCCOMBOITEM;
+			auto lpdcxcci = new DCXCCOMBOITEM;
 
-				lpdcxcci->clrItem = clrItem;
-				//lpmycci->itemtext = "";
-				this->insertItem(nItem, (LPARAM)lpdcxcci);
-			}
-			catch (std::bad_alloc)
-			{
-				this->showError(NULL, TEXT("-a"), TEXT("Unable to Allocate Memory"));
-				return;
-			}
+			lpdcxcci->clrItem = clrItem;
+			//lpmycci->itemtext = "";
+			this->insertItem(nItem, (LPARAM)lpdcxcci);
 		}
 	}
 	// xdid -c [NAME] [ID] [SWITCH] [N]
 	else if (flags[TEXT('c')] && numtok > 3) {
-		const int nItem = input.getnexttok( ).to_int() -1;	// tok 4
+		const auto nItem = input.getnexttok().to_int() - 1;	// tok 4
 
-		if ((nItem > -2) && (nItem < this->getCount()))
-			this->setCurSel(nItem);
+		if ((nItem < -1) || (nItem >= this->getCount()))
+			throw std::invalid_argument("Item out of range");
+	
+		this->setCurSel(nItem);
 	}
 	// xdid -d [NAME] [ID] [SWITCH] [N]
 	else if (flags[TEXT('d')] && numtok > 3) {
-		const int nItem = input.getnexttok( ).to_int() -1;	// tok 4
+		const auto nItem = input.getnexttok().to_int() - 1;	// tok 4
 
-		if (nItem > -1 && nItem < this->getCount()) {
-			this->deleteItem(nItem);
-		}
+		if ((nItem < -1) || (nItem >= this->getCount()))
+			throw std::invalid_argument("Item out of range");
+		
+		this->deleteItem(nItem);
 	}
 	// xdid -m [NAME] [ID] [SWITCH]
 	else if (flags[TEXT('m')]) {
@@ -193,15 +188,20 @@ void DcxColorCombo::parseCommandRequest( const TString &input) {
 	}
 	// xdid -o [NAME] [ID] [SWITCH] [N] [RGB]
 	else if (flags[TEXT('o')] && numtok > 4) {
-		const int nItem = input.getnexttok( ).to_int() -1;	// tok 4
-		const COLORREF clrItem = (COLORREF)input.getnexttok( ).to_num();	// tok 5
+		const auto nItem = input.getnexttok().to_int() - 1;	// tok 4
+#if TSTRING_TEMPLATES
+		const auto clrItem = input.getnexttok().to_<COLORREF>();	// tok 5
+#else
+		const auto clrItem = (COLORREF)input.getnexttok( ).to_num();	// tok 5
+#endif
 
-		if (nItem > -1 && nItem < this->getCount()) {
-			LPDCXCCOMBOITEM lpdcxcci = (LPDCXCCOMBOITEM) this->getItemData(nItem);
+		if ((nItem < -1) || (nItem >= this->getCount()))
+			throw std::invalid_argument("Item out of range");
 
-			if (lpdcxcci != NULL)
-				lpdcxcci->clrItem = clrItem;
-		}
+		auto lpdcxcci = reinterpret_cast<LPDCXCCOMBOITEM>(this->getItemData(nItem));
+
+		if (lpdcxcci != nullptr)
+			lpdcxcci->clrItem = clrItem;
 	}
 	// This is to avoid invalid flag message.
 	// xdid -r [NAME] [ID] [SWITCH]
@@ -224,19 +224,33 @@ void DcxColorCombo::setmIRCPalette( ) {
 	TString cols;
 	mIRCLinker::tsEval( cols, com );
 
-
-	const UINT len = cols.numtok( );
-
-	for (UINT i = 1; i <= len; i++ )
+#if TSTRING_PARTS
+	for (const auto &col: cols)
 	{
-		LPDCXCCOMBOITEM lpdcxcci = new DCXCCOMBOITEM;
+		auto lpdcxcci = new DCXCCOMBOITEM;
 
-		//if (lpdcxcci != NULL) {
-			lpdcxcci->clrItem = (COLORREF) cols.gettok( i ).to_num( );
-			//lpmycci->itemtext = "";
-			this->insertItem( -1, (LPARAM) lpdcxcci );
-		//}
+#if TSTRING_TEMPLATES
+		lpdcxcci->clrItem = col.to_<COLORREF>();
+#else
+		lpdcxcci->clrItem = (COLORREF)col.to_num();
+#endif
+		//lpmycci->itemtext = "";
+		this->insertItem( -1, (LPARAM) lpdcxcci );
 	}
+#else
+	for (auto col(cols.getfirsttok(1)); !col.empty(); col = cols.getnexttok())
+	{
+		auto lpdcxcci = new DCXCCOMBOITEM;
+
+#if TSTRING_TEMPLATES
+		lpdcxcci->clrItem = col.to_<COLORREF>();
+#else
+		lpdcxcci->clrItem = (COLORREF)col.to_num();
+#endif
+		//lpmycci->itemtext = "";
+		this->insertItem(-1, (LPARAM)lpdcxcci);
+	}
+#endif
 }
 
 /*!
@@ -246,7 +260,7 @@ void DcxColorCombo::setmIRCPalette( ) {
  */
 
 LRESULT DcxColorCombo::insertItem(  const int nPos, const LPARAM lParam ) {
-  return SendMessage( this->m_Hwnd, CB_INSERTSTRING, (WPARAM) nPos, lParam );
+  return SendMessage( this->m_Hwnd, CB_INSERTSTRING, static_cast<WPARAM>(nPos), lParam );
 }
 
 /*!
@@ -256,7 +270,7 @@ LRESULT DcxColorCombo::insertItem(  const int nPos, const LPARAM lParam ) {
  */
 
 LRESULT DcxColorCombo::getCount( ) const {
-  return SendMessage( this->m_Hwnd, CB_GETCOUNT, (WPARAM) 0, (LPARAM) 0 );
+  return SendMessage( this->m_Hwnd, CB_GETCOUNT, (WPARAM) 0U, (LPARAM) 0U );
 }
 
 /*!
@@ -266,7 +280,7 @@ LRESULT DcxColorCombo::getCount( ) const {
  */
 
 LRESULT DcxColorCombo::setCurSel( const int nPos ) {
-  return SendMessage( this->m_Hwnd, CB_SETCURSEL, (WPARAM) nPos, (LPARAM) 0 );
+  return SendMessage( this->m_Hwnd, CB_SETCURSEL, static_cast<WPARAM>(nPos), (LPARAM) 0U );
 }
 
 /*!
@@ -276,7 +290,7 @@ LRESULT DcxColorCombo::setCurSel( const int nPos ) {
  */
 
 LRESULT DcxColorCombo::getItemData( const int nItem ) const {
-  return SendMessage( this->m_Hwnd, CB_GETITEMDATA, (WPARAM) nItem, (LPARAM) 0 );
+  return SendMessage( this->m_Hwnd, CB_GETITEMDATA, static_cast<WPARAM>(nItem), (LPARAM) 0U );
 }
 
 /*!
@@ -286,7 +300,7 @@ LRESULT DcxColorCombo::getItemData( const int nItem ) const {
  */
 
 LRESULT DcxColorCombo::getCurSel( ) const {
-  return SendMessage( this->m_Hwnd, CB_GETCURSEL, (WPARAM) 0, (LPARAM) 0 );
+  return SendMessage( this->m_Hwnd, CB_GETCURSEL, (WPARAM) 0U, (LPARAM) 0U );
 }
 
 /*!
@@ -296,7 +310,7 @@ LRESULT DcxColorCombo::getCurSel( ) const {
  */
 
 LRESULT DcxColorCombo::deleteItem( const int nItem ) {
-  return SendMessage( this->m_Hwnd, CB_DELETESTRING, (WPARAM) nItem, (LPARAM) 0 );
+  return SendMessage( this->m_Hwnd, CB_DELETESTRING, static_cast<WPARAM>(nItem), (LPARAM) 0U );
 }
 
 /*!
@@ -306,7 +320,7 @@ LRESULT DcxColorCombo::deleteItem( const int nItem ) {
  */
 
 LRESULT DcxColorCombo::resetContent( ) {
-  return SendMessage( this->m_Hwnd, CB_RESETCONTENT, (WPARAM) 0, (LPARAM) 0 );
+  return SendMessage( this->m_Hwnd, CB_RESETCONTENT, (WPARAM) 0U, (LPARAM) 0U );
 }
 
 
@@ -320,7 +334,7 @@ LRESULT DcxColorCombo::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, B
 	case WM_COMMAND:
 		{
 			if ( HIWORD( wParam ) == CBN_SELENDOK ) {
-				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
+				if (dcx_testflag(this->m_pParentDialog->getEventMask(), DCX_EVENT_CLICK))
 					this->execAliasEx(TEXT("%s,%d,%d"), TEXT("sclick"), this->getUserID( ), this->getCurSel( ) + 1 );
 				bParsed = TRUE;
 				return 0L;
@@ -329,8 +343,12 @@ LRESULT DcxColorCombo::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, B
 		break;
 	case WM_DELETEITEM:
 		{
-			PDELETEITEMSTRUCT delis = (PDELETEITEMSTRUCT) lParam;
-			LPDCXCCOMBOITEM lpdcxcci = (LPDCXCCOMBOITEM) delis->itemData;
+			dcxlParam(PDELETEITEMSTRUCT, delis);
+
+			if (delis == nullptr)
+				break;
+
+			auto lpdcxcci = reinterpret_cast<LPDCXCCOMBOITEM>(delis->itemData);
 
 			delete lpdcxcci;
 
@@ -341,68 +359,71 @@ LRESULT DcxColorCombo::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, B
 
 	case WM_DRAWITEM:
 		{
-			LPDRAWITEMSTRUCT lpdis = (LPDRAWITEMSTRUCT) lParam;
+			dcxlParam(LPDRAWITEMSTRUCT, lpdis);
 
-			if ( lpdis != NULL && lpdis->itemID != -1 ) {
+			if (lpdis == nullptr || lpdis->itemID == -1)
+				break;
 
-				LPDCXCCOMBOITEM lpdcxcci = (LPDCXCCOMBOITEM) lpdis->itemData;
+			auto lpdcxcci = reinterpret_cast<LPDCXCCOMBOITEM>(lpdis->itemData);
 
-				if ( lpdcxcci != NULL ) {
+			if (lpdcxcci == nullptr)
+				break;
 
-					/*
-					if ( lpdis->itemState & ODS_SELECTED ) {
-					hPen = CreatePen( PS_SOLID, 2, RGB(0,0,0) );
-					mIRCError( TEXT("ODS_SELECTED") );
-					}
-					else
-					*/
-					HPEN hPen = CreatePen( PS_SOLID, 1, RGB(0,0,0) );
-
-					const HPEN oldPen = SelectPen( lpdis->hDC, hPen );
-
-					RECT rcItem = lpdis->rcItem;
-
-					// draw selection indicator
-					if (lpdis->itemState & ODS_COMBOBOXEDIT)
-						SetBkColor(lpdis->hDC, GetSysColor(COLOR_WINDOW));
-					else if (lpdis->itemState & ODS_SELECTED)
-						SetBkColor(lpdis->hDC, GetSysColor(COLOR_MENUHILIGHT));
-					else
-						SetBkColor(lpdis->hDC, GetSysColor(COLOR_WINDOW));
-					ExtTextOut( lpdis->hDC, rcItem.left, rcItem.top, ETO_CLIPPED | ETO_OPAQUE, &rcItem, TEXT(""), NULL, NULL );
-
-					InflateRect( &rcItem, -4, -2 );
-
-					SetBkColor( lpdis->hDC, lpdcxcci->clrItem );
-
-					ExtTextOut( lpdis->hDC, rcItem.left, rcItem.top, ETO_CLIPPED | ETO_OPAQUE, &rcItem, TEXT(""), NULL, NULL );
-
-					MoveToEx( lpdis->hDC, rcItem.left, rcItem.top, NULL );
-					LineTo( lpdis->hDC, rcItem.right, rcItem.top );
-
-					MoveToEx( lpdis->hDC, rcItem.right, rcItem.top, NULL );
-					LineTo( lpdis->hDC, rcItem.right, rcItem.bottom );
-
-					MoveToEx( lpdis->hDC, rcItem.right, rcItem.bottom, NULL );
-					LineTo( lpdis->hDC, rcItem.left, rcItem.bottom );
-
-					MoveToEx( lpdis->hDC, rcItem.left, rcItem.bottom, NULL );
-					LineTo( lpdis->hDC, rcItem.left, rcItem.top );
-
-					SelectPen( lpdis->hDC, oldPen );
-					DeletePen( hPen );
-				}
+			/*
+			if (dcx_testflag(lpdis->itemState, ODS_SELECTED)) {
+			hPen = CreatePen( PS_SOLID, 2, RGB(0,0,0) );
+			mIRCError( TEXT("ODS_SELECTED") );
 			}
+			else
+			*/
+			auto hPen = CreatePen(PS_SOLID, 1, RGB(0, 0, 0));
+			Auto(DeletePen(hPen));
+
+			const auto oldPen = SelectPen(lpdis->hDC, hPen);
+			Auto(SelectPen(lpdis->hDC, oldPen));
+
+			auto rcItem = lpdis->rcItem;
+
+			// draw selection indicator
+			if (dcx_testflag(lpdis->itemState, ODS_COMBOBOXEDIT))
+				SetBkColor(lpdis->hDC, GetSysColor(COLOR_WINDOW));
+			else if (dcx_testflag(lpdis->itemState, ODS_SELECTED))
+				SetBkColor(lpdis->hDC, GetSysColor(COLOR_MENUHILIGHT));
+			else
+				SetBkColor(lpdis->hDC, GetSysColor(COLOR_WINDOW));
+			ExtTextOut( lpdis->hDC, rcItem.left, rcItem.top, ETO_CLIPPED | ETO_OPAQUE, &rcItem, TEXT(""), NULL, nullptr );
+
+			InflateRect( &rcItem, -4, -2 );
+
+			SetBkColor( lpdis->hDC, lpdcxcci->clrItem );
+
+			ExtTextOut( lpdis->hDC, rcItem.left, rcItem.top, ETO_CLIPPED | ETO_OPAQUE, &rcItem, TEXT(""), NULL, nullptr );
+
+			MoveToEx( lpdis->hDC, rcItem.left, rcItem.top, nullptr );
+			LineTo( lpdis->hDC, rcItem.right, rcItem.top );
+
+			MoveToEx( lpdis->hDC, rcItem.right, rcItem.top, nullptr );
+			LineTo( lpdis->hDC, rcItem.right, rcItem.bottom );
+
+			MoveToEx( lpdis->hDC, rcItem.right, rcItem.bottom, nullptr );
+			LineTo( lpdis->hDC, rcItem.left, rcItem.bottom );
+
+			MoveToEx( lpdis->hDC, rcItem.left, rcItem.bottom, nullptr );
+			LineTo( lpdis->hDC, rcItem.left, rcItem.top );
+
 			bParsed = TRUE;
 			return TRUE;
 		}
 		break;
 	case WM_MEASUREITEM:
 		{
-			LPMEASUREITEMSTRUCT lpmis = (LPMEASUREITEMSTRUCT) lParam;
+			dcxlParam(LPMEASUREITEMSTRUCT, lpmis);
 
-			if (lpmis != NULL)
-				lpmis->itemHeight = 16; 
+			if (lpmis == nullptr)
+				break;
+
+			lpmis->itemHeight = 16; 
+
 			bParsed = TRUE;
 			return TRUE;
 		}
@@ -417,7 +438,7 @@ LRESULT DcxColorCombo::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 
 	case WM_LBUTTONUP:
 		{
-			if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
+			if (dcx_testflag(this->m_pParentDialog->getEventMask(), DCX_EVENT_CLICK))
 				this->execAliasEx(TEXT("%s,%d"), TEXT("lbup"), this->getUserID( ) );
 		}
 		break;

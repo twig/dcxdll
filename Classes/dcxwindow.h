@@ -33,24 +33,23 @@ class DcxWindow {
 public:
 	DcxWindow() = delete;
 	DcxWindow(const DcxWindow &other) = delete;
+	DcxWindow &operator =(const DcxWindow &) = delete;	// No assignments!
 
 	DcxWindow( const HWND mHwnd, const UINT mID );
 	explicit DcxWindow( const UINT mID );
 	virtual ~DcxWindow( );
 
-	DcxWindow &operator =(const DcxWindow &) = delete;	// No assignments!
-
-	BOOL isStyle( const LONG Styles ) const;
+	bool isStyle( const LONG Styles ) const noexcept;
 	LONG removeStyle( const LONG Styles );
 	LONG addStyle( const LONG Styles );
 	LONG setStyle( const LONG Styles );
-	BOOL isExStyle( const LONG Styles ) const;
+	bool isExStyle( const LONG Styles ) const noexcept;
 	LONG removeExStyle( const LONG Styles );
 	LONG addExStyle( const LONG Styles );
 	LONG setExStyle( const LONG Styles );
 
-	const HWND &getHwnd( ) const;
-	const UINT &getID( ) const;
+	const HWND &getHwnd( ) const noexcept;
+	const UINT &getID( ) const noexcept;
 
 	void redrawWindow( );
 	void redrawBufferedWindow( );

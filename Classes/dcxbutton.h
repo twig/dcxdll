@@ -45,7 +45,7 @@ public:
 	DcxButton(const DcxButton &) = delete;
 	DcxButton &operator =(const DcxButton &) = delete;	// No assignments!
 
-	DcxButton( const UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, const TString & styles );
+	DcxButton( const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles );
 	virtual ~DcxButton( );
 
 	LRESULT PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) override;
@@ -60,7 +60,7 @@ public:
 	HIMAGELIST createImageList( );
 
 	inline const TString getType() const override { return TEXT("button"); };
-	inline const DcxControlTypes getControlType() const override { return DcxControlTypes::BUTTON; }
+	inline const DcxControlTypes getControlType() const noexcept override { return DcxControlTypes::BUTTON; }
 
 	void toXml(TiXmlElement *const xml) const override;
 	const TString getStyles(void) const override;

@@ -38,7 +38,9 @@ public:
 	explicit LayoutManager( HWND mHwnd );
 	virtual ~LayoutManager( );
 
-	BOOL updateLayout( RECT & rc );
+	LayoutManager &operator =(const LayoutManager &) = delete;	// No assignments!
+
+	const bool updateLayout(RECT & rc);
 
 	void setRoot( LayoutCell * p_Root );
 	LayoutCell * getRoot( ) const;
@@ -47,10 +49,10 @@ public:
 
 	void AddCell(const TString &input, const UINT iOffset = 3);
 
-	const size_t &size(void) const { return this->m_iCount; }
-	const bool empty(void) const { return (this->m_pRoot == NULL); }
+	const size_t &size(void) const noexcept { return this->m_iCount; }
+	const bool empty(void) const noexcept { return (this->m_pRoot == nullptr); }
 
-	static LayoutCell * parsePath(const TString & path, LayoutCell * hParent, const UINT depth);
+	static LayoutCell * parsePath(const TString & path, const LayoutCell *const hParent, const UINT depth);
 	static const UINT parseLayoutFlags(const TString & flags);
 
 	// this is here for refrence only

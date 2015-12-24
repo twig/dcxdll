@@ -315,9 +315,6 @@
     <ClCompile Include="DcxUXModule.cpp">
       <Filter>Source Files\Modules</Filter>
     </ClCompile>
-    <ClCompile Include="DcxXPPlusModule.cpp">
-      <Filter>Source Files\Modules</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AggressiveOptimize.h">
@@ -521,6 +518,15 @@
     <ClInclude Include="resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ColourString.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="AutoRelease.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SwitchObjects.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="dcx_zip\dcx.mrc">
@@ -545,11 +551,6 @@
     <Xml Include="dcx_zip\dc.xml">
       <Filter>Scripts</Filter>
     </Xml>
-  </ItemGroup>
-  <ItemGroup>
-    <CustomBuild Include="DcxXPPlusModule.h">
-      <Filter>Header Files\Modules</Filter>
-    </CustomBuild>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="dcx.rc">

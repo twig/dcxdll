@@ -71,7 +71,7 @@ DcxWindow::~DcxWindow( ) {
  * blah
  */
 
-BOOL DcxWindow::isStyle( const LONG Styles ) const {
+bool DcxWindow::isStyle( const LONG Styles ) const noexcept {
 
 	//if ( GetWindowStyle( this->m_Hwnd ) & Styles )
 	//	return TRUE;
@@ -121,7 +121,7 @@ LONG DcxWindow::setStyle( const LONG Styles ) {
  * blah
  */
 
-BOOL DcxWindow::isExStyle( const LONG Styles ) const {
+bool DcxWindow::isExStyle( const LONG Styles ) const noexcept {
 
 	//if ( GetWindowExStyle( this->m_Hwnd ) & Styles )
 	//	return TRUE;
@@ -171,7 +171,7 @@ LONG DcxWindow::setExStyle( const LONG Styles ) {
  * blah
  */
 
-const UINT &DcxWindow::getID( ) const {
+const UINT &DcxWindow::getID( ) const noexcept {
 
 	return this->m_ID;
 }
@@ -182,7 +182,7 @@ const UINT &DcxWindow::getID( ) const {
  * blah
  */
 
-const HWND &DcxWindow::getHwnd( ) const {
+const HWND &DcxWindow::getHwnd( ) const noexcept {
 
 	return this->m_Hwnd;
 }

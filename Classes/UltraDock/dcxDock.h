@@ -6,6 +6,8 @@
 
 #include "defines.h"
 
+#define SB_MAX_PARTSD 256
+
 enum DockTypes : UINT {
 	DOCK_TYPE_SWITCH,
 	DOCK_TYPE_TOOL,
@@ -84,6 +86,13 @@ typedef struct tagSB_PARTINFOD {
 	int			m_iIcon;
 	COLORREF	m_TxtCol;	// colour of the text be default in this item.
 	HBRUSH		m_BkgCol;	// brush to be used when drawing the bkg in this item.
+
+	tagSB_PARTINFOD()
+		: m_Child(nullptr)
+		, m_iIcon(-1)
+		, m_TxtCol(CLR_INVALID)
+		, m_BkgCol(nullptr)
+	{}
 } SB_PARTINFOD, *LPSB_PARTINFOD;
 
 typedef std::vector<LPSB_PARTINFOD> VectorOfDParts;
@@ -112,7 +121,8 @@ public:
 	bool isDocked(const HWND hwnd);
 	LPDCXULTRADOCK GetDock(const HWND hwnd);
 	virtual void AdjustRect(WINDOWPOS *wp);
-	void RedrawRef(void);
+	//void RedrawRef(void);
+
 	//HCURSOR getCursor(const UINT iType)
 	//{
 	//	auto it = m_vMapOfCursors.find(iType);
@@ -149,10 +159,10 @@ public:
 	static void status_getRect( const int iPart, LPRECT lprc );
 	static void status_setIcon( const int iPart, const HICON hIcon );
 	static HICON status_getIcon( const int iPart );
-	static HIMAGELIST status_getImageList(void);
+	static HIMAGELIST &status_getImageList(void);
 	static void status_setImageList( HIMAGELIST himl );
 	static HIMAGELIST status_createImageList(void);
-	static UINT status_parseItemFlags( const TString & flags );
+	static const UINT status_parseItemFlags( const TString & flags );
 	static void status_cleanPartIcons( );
 	static LRESULT status_getBorders( LPINT aWidths );
 	static void status_updateParts(void);
@@ -160,7 +170,7 @@ public:
 	static LRESULT status_setPartInfo( const int iPart, const int Style, const LPSB_PARTINFOD pPart);
 	static void status_deletePartInfo(const int iPart);
 	//
-	static SwitchBarPos getPos(const int x, const int y, const int w, const int h);
+	static const SwitchBarPos getPos(const int x, const int y, const int w, const int h);
 	//
 	static void getTreebarItemType(TString &tsType, const LPARAM lParam);
 	//static UINT getTreebarChildState(const HTREEITEM hParent, LPTVITEMEX pitem);
@@ -168,8 +178,8 @@ public:
 	// statusbar stuff
 	static HWND g_StatusBar; //!< The Statusbar for the main mIRC window.
 	static HIMAGELIST g_hImageList; //!< The Statusbar's image list.
-	static INT g_iDynamicParts[256];
-	static INT g_iFixedParts[256];
+	static INT g_iDynamicParts[SB_MAX_PARTSD];
+	static INT g_iFixedParts[SB_MAX_PARTSD];
 	static HFONT g_StatusFont; //!< Statusbar font.
 	static VectorOfDParts g_vParts;	//!< Parts info for ownerdraw parts.
 	// treebar stuff
@@ -197,7 +207,7 @@ protected:
 
 void InitUltraDock(void);
 void CloseUltraDock(void);
-SwitchBarPos SwitchbarPos(const DockTypes type);
+const SwitchBarPos SwitchbarPos(const DockTypes type);
 void UpdatemIRC(void);
 
 #ifdef __INTEL_COMPILER // Defined when using Intel C++ Compiler.

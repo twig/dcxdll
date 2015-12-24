@@ -28,49 +28,52 @@
  * \param styles Window Style Tokenized List
  */
 
-DcxImage::DcxImage( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd, const RECT * rc, const TString & styles ) 
-: DcxControl( ID, p_Dialog )
-, m_bIsIcon(FALSE)
+DcxImage::DcxImage(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles)
+	: DcxControl(ID, p_Dialog)
+	, m_bIsIcon(false)
 #ifdef DCX_USE_GDIPLUS
-, m_pImage(NULL)
-, m_CMode(CompositingModeSourceCopy)
-, m_CQuality(CompositingQualityDefault)
-, m_IMode(InterpolationModeDefault)
-, m_SMode(SmoothingModeDefault)
+	, m_pImage(nullptr)
+	, m_CMode(CompositingModeSourceCopy)
+	, m_CQuality(CompositingQualityDefault)
+	, m_IMode(InterpolationModeDefault)
+	, m_SMode(SmoothingModeDefault)
 #endif
-, m_bResizeImage(true)
-, m_bTileImage(false)
-, m_hBitmap(NULL)
-, m_clrTransColor(CLR_INVALID)
-, m_hIcon(NULL)
-, m_bBuffer(false)
-, m_iXOffset(0)
-, m_iYOffset(0)
+	, m_bResizeImage(true)
+	, m_bTileImage(false)
+	, m_hBitmap(nullptr)
+	, m_clrTransColor(CLR_INVALID)
+	, m_hIcon(nullptr)
+	, m_bBuffer(false)
+	, m_iXOffset(0)
+	, m_iYOffset(0)
 {
 	LONG Styles = 0, ExStyles = 0;
 	BOOL bNoTheme = FALSE;
-	this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
+	this->parseControlStyles(styles, &Styles, &ExStyles, &bNoTheme);
 
-	this->m_Hwnd = CreateWindowEx(	
-		ExStyles,
+	this->m_Hwnd = CreateWindowEx(
+		(DWORD)ExStyles,
 		TEXT("STATIC"),
-		NULL,
-		WS_CHILD | Styles,
+		nullptr,
+		(DWORD)(WS_CHILD | Styles),
 		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
 		mParentHwnd,
-		(HMENU) ID,
-		GetModuleHandle(NULL),
-		NULL);
+		(HMENU)ID,
+		GetModuleHandle(nullptr),
+		nullptr);
 
 	if (!IsWindow(this->m_Hwnd))
-		throw TEXT("Unable To Create Window");
+		throw std::runtime_error("Unable To Create Window");
 
-	if ( bNoTheme )
-		Dcx::UXModule.dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
+	if (bNoTheme)
+		Dcx::UXModule.dcxSetWindowTheme(this->m_Hwnd, L" ", L" ");
 
-	if (p_Dialog->getToolTip() != NULL) {
+	if (p_Dialog->getToolTip() != nullptr) {
 		if (styles.istok(TEXT("tooltips"))) {
 			this->m_ToolTipHWND = p_Dialog->getToolTip();
+			if (!IsWindow(this->m_ToolTipHWND))
+				throw std::runtime_error("Unable to get ToolTips window");
+
 			AddToolTipToolInfo(this->m_ToolTipHWND, this->m_Hwnd);
 		}
 	}
@@ -80,8 +83,8 @@ DcxImage::DcxImage( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd,
 		this->m_bBuffer = true;
 #endif
 
-	this->registreDefaultWindowProc( );
-	SetProp( this->m_Hwnd, TEXT("dcx_cthis"), (HANDLE) this );
+	this->registreDefaultWindowProc();
+	SetProp(this->m_Hwnd, TEXT("dcx_cthis"), (HANDLE) this);
 }
 
 /*!
@@ -93,7 +96,7 @@ DcxImage::DcxImage( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd,
 DcxImage::~DcxImage() {
 	PreloadData();
 
-	this->unregistreDefaultWindowProc( );
+	this->unregistreDefaultWindowProc();
 }
 
 /*!
@@ -102,7 +105,7 @@ DcxImage::~DcxImage() {
  * blah
  */
 
-void DcxImage::parseControlStyles( const TString &styles, LONG *Styles, LONG *ExStyles, BOOL *bNoTheme)
+void DcxImage::parseControlStyles(const TString &styles, LONG *Styles, LONG *ExStyles, BOOL *bNoTheme)
 {
 	*Styles |= SS_NOTIFY;
 
@@ -120,59 +123,51 @@ void DcxImage::parseControlStyles( const TString &styles, LONG *Styles, LONG *Ex
 
 void DcxImage::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) const
 {
-	const TString prop(input.getfirsttok( 3 ));
+	const auto prop(input.getfirsttok(3));
 
 	// [NAME] [ID] [PROP]
-	if ( prop == TEXT("fname")) {
-		dcx_strcpyn(szReturnValue,this->m_tsFilename.to_chr(), MIRC_BUFFER_SIZE_CCH);
-		return;
+	if (prop == TEXT("fname")) {
+		dcx_strcpyn(szReturnValue, this->m_tsFilename.to_chr(), MIRC_BUFFER_SIZE_CCH);
 	}
-	else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
-		return;
-
-	szReturnValue[0] = 0;
+	else
+		this->parseGlobalInfoRequest(input, szReturnValue);
 }
 
 // clears existing image and icon data and sets pointers to null
 void DcxImage::PreloadData() {
-	if (this->m_hBitmap != NULL) {
+	if (this->m_hBitmap != nullptr) {
 		DeleteBitmap(this->m_hBitmap);
-		this->m_hBitmap = NULL;
+		this->m_hBitmap = nullptr;
 	}
 
-	if (this->m_hIcon != NULL) {
+	if (this->m_hIcon != nullptr) {
 		DestroyIcon(this->m_hIcon);
-		this->m_hIcon = NULL;
+		this->m_hIcon = nullptr;
 	}
 
 #ifdef DCX_USE_GDIPLUS
-	if (this->m_pImage != NULL) {
-		delete this->m_pImage;
-		this->m_pImage = NULL;
-	}
+	delete this->m_pImage;
+	this->m_pImage = nullptr;
 #endif
 	this->m_tsFilename.clear();	// = TEXT("");
 }
 
 #ifdef DCX_USE_GDIPLUS
 bool DcxImage::LoadGDIPlusImage(const TString &flags, TString &filename) {
-	if (!IsFile(filename)) {
-		this->showErrorEx(NULL,TEXT("LoadGDIPlusImage"), TEXT("Unable to Access File: %s"), filename.to_chr());
-		return false;
-	}
+	if (!IsFile(filename))
+		throw std::runtime_error(Dcx::dcxGetFormattedString(TEXT("Unable to Access File: %s"), filename.to_chr()));
+
 	this->m_pImage = new Image(filename.to_chr(),TRUE);
 
 	// couldnt allocate image object.
-	if (this->m_pImage == NULL) {
-		this->showError(NULL,TEXT("LoadGDIPlusImage"), TEXT("Couldn't allocate image object."));
-		return false;
-	}
+	if (this->m_pImage == nullptr)
+		throw std::runtime_error("Couldn't allocate image object.");
+
 	// for some reason this returns `OutOfMemory` when the file doesnt exist instead of `FileNotFound`
-	Status status = this->m_pImage->GetLastStatus();
+	const auto status = this->m_pImage->GetLastStatus();
 	if (status != Ok) {
-		this->showError(NULL,TEXT("LoadGDIPlusImage"), GetLastStatusStr(status));
 		PreloadData();
-		return false;
+		throw std::runtime_error(Dcx::dcxGetFormattedString(TEXT("Failed to load image: %s"),GetLastStatusStr(status)));
 	}
 
 	const XSwitchFlags xflags(flags);
@@ -213,68 +208,66 @@ bool DcxImage::LoadGDIPlusImage(const TString &flags, TString &filename) {
 
 void DcxImage::parseCommandRequest( const TString & input) {
 	const XSwitchFlags flags(input.getfirsttok(3));
-	const UINT numtok = input.numtok( );
+	const auto numtok = input.numtok();
 
 	// xdid -w [NAME] [ID] [SWITCH] [+FLAGS] [INDEX] [SIZE] [FILENAME]
 	if (flags[TEXT('w')] && numtok > 6) {
-		const TString flag(input.getnexttok( ));		// tok 4
-		const int index = input.getnexttok( ).to_int();	// tok 5
-		const int size = input.getnexttok( ).to_int();	// tok 6
-		TString filename(input.getlasttoks().trim());	// tok 7, -1
+		const auto flag(input.getnexttok());		// tok 4
+		const auto index = input.getnexttok().to_int();	// tok 5
+		const auto size = input.getnexttok().to_int();	// tok 6
+		auto filename(input.getlasttoks().trim());	// tok 7, -1
 
 		PreloadData();
 
-		if (size > 16)
-			this->m_hIcon = dcxLoadIcon(index, filename, true, flag);
-		else
-			this->m_hIcon = dcxLoadIcon(index, filename, false, flag);
+		this->m_hIcon = dcxLoadIcon(index, filename, (size > 16), flag);
 
-		if (this->m_hIcon != NULL)
-			this->m_tsFilename = filename;
+		this->m_tsFilename = filename;
 
 		this->m_iIconSize = size;
-		this->m_bIsIcon = TRUE;
+		this->m_bIsIcon = true;
 
 		// resize window to size of icon
 		RECT wnd;
 
-		GetWindowRect(this->m_Hwnd, &wnd);
+		if (!GetWindowRect(this->m_Hwnd, &wnd))
+			throw std::runtime_error("Unable to get windows rect");
 
-		MapWindowRect(NULL, GetParent(this->m_Hwnd), &wnd);
+		MapWindowRect(nullptr, GetParent(this->m_Hwnd), &wnd);
 		MoveWindow(this->m_Hwnd, wnd.left, wnd.top, size, size, TRUE);
 		this->redrawWindow();
 	}
 	//xdid -i [NAME] [ID] [SWITCH] [+FLAGS] [IMAGE]
 	else if (flags[TEXT('i')] && numtok > 4) {
-		const TString flag(input.getnexttok( ).trim());	// tok 4
-		TString filename(input.getlasttoks().trim());	// tok 5, -1
+		const auto flag(input.getnexttok().trim());	// tok 4
+		auto filename(input.getlasttoks().trim());	// tok 5, -1
 
 		PreloadData();
 
-		if (flag[0] != TEXT('+')) {
-			this->showError(NULL,TEXT("-i"), TEXT("Invalid Flags"));
-			return;
-		}
+		if (flag[0] != TEXT('+'))
+			throw std::invalid_argument("Invalid Flags");
 
 #ifdef DCX_USE_GDIPLUS
 		// using this method allows you to render BMP, ICON, GIF, JPEG, Exif, PNG, TIFF, WMF, and EMF (no animation)
 		//if (Dcx::GDIModule.isUseable() && flag.find(TEXT('g'),0)) { // makes GDI+ the default method, bitmap is only used when GDI+ isn't supported.
 		if (Dcx::GDIModule.isUseable()) {
 			if (!LoadGDIPlusImage(flag,filename))
-				this->showError(NULL,TEXT("-i"), TEXT("Unable to load Image with GDI+"));
+				throw std::runtime_error("Unable to load Image with GDI+"); // <- should never throw this
 		}
 		else
 			this->m_hBitmap = dcxLoadBitmap(this->m_hBitmap, filename);
-		if ((this->m_hBitmap != NULL) || (this->m_pImage != NULL))
-			this->m_tsFilename = filename;
+
+		if ((this->m_hBitmap == nullptr) && (this->m_pImage == nullptr))
+			throw std::runtime_error("Failed to load image");
+
+		this->m_tsFilename = filename;
 #else
 		this->m_hBitmap = dcxLoadBitmap(this->m_hBitmap, filename);
-		if (this->m_hBitmap != NULL)
+		if (this->m_hBitmap != nullptr)
 			this->m_tsFilename = filename;
 #endif
-		this->m_bIsIcon = FALSE;
+		this->m_bIsIcon = false;
 		//InvalidateParentRect(this->m_Hwnd);
-		InvalidateRect(this->m_Hwnd, NULL, TRUE);
+		InvalidateRect(this->m_Hwnd, nullptr, TRUE);
 	}
 	// xdid -k [NAME] [ID] [SWITCH] [COLOR]
 	else if (flags[TEXT('k')] && numtok > 3) {
@@ -283,8 +276,13 @@ void DcxImage::parseCommandRequest( const TString & input) {
 	}
 	// xdid -o [NAME] [ID] [SWITCH] [XOFFSET] [YOFFSET]
 	else if (flags[TEXT('o')] && numtok > 4) {
+#if TSTRING_TESTCODE
+		this->m_iXOffset = input++.to_int();	// tok 4
+		this->m_iYOffset = input++.to_int();	// tok 5
+#else
 		this->m_iXOffset = input.getnexttok( ).to_int();	// tok 4
 		this->m_iYOffset = input.getnexttok( ).to_int();	// tok 5
+#endif
 		this->redrawWindow();
 	}
 	// xdid -S [NAME] [ID] [SWITCH] [1|0]
@@ -294,7 +292,7 @@ void DcxImage::parseCommandRequest( const TString & input) {
 		else
 			this->m_bResizeImage = false;
 
-		InvalidateRect(this->m_Hwnd, NULL, TRUE);
+		InvalidateRect(this->m_Hwnd, nullptr, TRUE);
 		//UpdateWindow(this->m_Hwnd);
 		//this->redrawWindow();
 	}
@@ -339,30 +337,39 @@ void DcxImage::DrawGDIImage(HDC hdc, int x, int y, int w, int h)
 
 void DcxImage::DrawBMPImage(HDC hdc, const int x, const int y, const int w, const int h)
 {
-	HDC hdcbmp = CreateCompatibleDC(hdc);
+	auto hdcbmp = CreateCompatibleDC(hdc);
 
-	if (hdcbmp == NULL)
+	if (hdcbmp == nullptr)
 		return;
 
 	BITMAP bmp;
 
-	GetObject( this->m_hBitmap, sizeof(BITMAP), &bmp );
-	HBITMAP oldBitmap = SelectBitmap( hdcbmp, this->m_hBitmap );
+	if (GetObject(this->m_hBitmap, sizeof(BITMAP), &bmp) != 0)
+	{
+		auto oldBitmap = SelectBitmap(hdcbmp, this->m_hBitmap);
 
-	if (this->m_clrTransColor != CLR_INVALID)
-		TransparentBlt(hdc, x, y, w, h, hdcbmp, 0, 0, bmp.bmWidth, bmp.bmHeight, this->m_clrTransColor);
-	else
-		StretchBlt( hdc, x, y, w, h, hdcbmp, 0, 0, bmp.bmWidth, bmp.bmHeight, SRCCOPY);
+		if (this->m_clrTransColor != CLR_INVALID)
+			TransparentBlt(hdc, x, y, w, h, hdcbmp, 0, 0, bmp.bmWidth, bmp.bmHeight, this->m_clrTransColor);
+		else
+			StretchBlt(hdc, x, y, w, h, hdcbmp, 0, 0, bmp.bmWidth, bmp.bmHeight, SRCCOPY);
 
-	SelectBitmap(hdcbmp, oldBitmap);
+		SelectBitmap(hdcbmp, oldBitmap);
+	}
 	DeleteDC( hdcbmp );
 }
 
-void DcxImage::toXml(TiXmlElement * xml) const
+void DcxImage::toXml(TiXmlElement *const xml) const
 {
 	__super::toXml(xml);
 	if (!this->m_tsFilename.empty())
 		xml->SetAttribute("src", m_tsFilename.c_str());
+}
+
+TiXmlElement * DcxImage::toXml() const
+{
+	auto ti = __super::toXml();
+	//toXml(ti);
+	return ti;
 }
 
 /*!
@@ -404,9 +411,7 @@ LRESULT DcxImage::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 		{
 			bParsed = TRUE;
 			PAINTSTRUCT ps; 
-			HDC hdc;
-
-			hdc = BeginPaint(this->m_Hwnd, &ps);
+			auto hdc = BeginPaint(this->m_Hwnd, &ps);
 
 			this->DrawClientArea(hdc);
 
@@ -416,7 +421,7 @@ LRESULT DcxImage::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 
 	case WM_SIZE:
 		{
-			InvalidateRect( this->m_Hwnd, NULL, TRUE );
+			InvalidateRect( this->m_Hwnd, nullptr, TRUE );
 		}
 		break;
 
@@ -439,29 +444,30 @@ void DcxImage::DrawClientArea(HDC hdc)
 {
 	RECT rect;
 	// default paint method
-	GetClientRect(this->m_Hwnd, &rect);
+	if (!GetClientRect(this->m_Hwnd, &rect))
+		return;
 
-	const int w = (rect.right - rect.left), h = (rect.bottom - rect.top), x = rect.left, y = rect.top;
+	const auto w = (rect.right - rect.left), h = (rect.bottom - rect.top), x = rect.left, y = rect.top;
 
 	// Setup alpha blend if any.
 	// Double Buffer required for GDI+ to look right in WS_EX_COMPOSITED
-	LPALPHAINFO ai = this->SetupAlphaBlend(&hdc, this->m_bBuffer);
+	auto ai = this->SetupAlphaBlend(&hdc, this->m_bBuffer);
 
 	DcxControl::DrawCtrlBackground(hdc,this,&rect);
 
 	// draw bitmap
 #ifdef DCX_USE_GDIPLUS
-	if ((this->m_hBitmap != NULL) && (!this->m_bIsIcon) && (this->m_pImage == NULL)) {
+	if ((this->m_hBitmap != nullptr) && (!this->m_bIsIcon) && (this->m_pImage == nullptr)) {
 #else
-	if ((this->m_hBitmap != NULL) && (!this->m_bIsIcon)) {
+	if ((this->m_hBitmap != nullptr) && (!this->m_bIsIcon)) {
 #endif
 		this->DrawBMPImage(hdc, x, y, w, h);
 	}
 	// draw icon
-	else if ((this->m_hIcon != NULL) && (this->m_bIsIcon))
+	else if ((this->m_hIcon != nullptr) && (this->m_bIsIcon))
 		DrawIconEx(hdc, 0, 0, this->m_hIcon, this->m_iIconSize, this->m_iIconSize, 0, this->m_hBackBrush, DI_NORMAL | DI_COMPAT);
 #ifdef DCX_USE_GDIPLUS
-	else if ((this->m_pImage != NULL) && (Dcx::GDIModule.isUseable()))
+	else if ((this->m_pImage != nullptr) && (Dcx::GDIModule.isUseable()))
 		this->DrawGDIImage(hdc, x, y, w, h);
 #endif
 	this->FinishAlphaBlend(ai);

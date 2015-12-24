@@ -30,23 +30,28 @@ class DcxDialog;
 class DcxDivider : public DcxControl {
 
 public:
+	DcxDivider() = delete;
+	DcxDivider(const DcxDivider &) = delete;
+	DcxDivider &operator =(const DcxDivider &) = delete;	// No assignments!
 
-	DcxDivider( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, const TString & styles );
+	DcxDivider(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles );
 	virtual ~DcxDivider( );
 
-	LRESULT PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
-	LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
+	LRESULT PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) override;
+	LRESULT ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) override;
 
-	void parseInfoRequest( const TString & input, TCHAR * szReturnValue ) const;
-	void parseCommandRequest( const TString & input );
-	void parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
+	void parseInfoRequest(const TString & input, PTCHAR szReturnValue) const override;
+	void parseCommandRequest(const TString & input) override;
+	void parseControlStyles(const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme) override;
 
 	LRESULT setPane( const UINT iPaneId, LPDVPANEINFO lpdvpi );
 	LRESULT setDivPos( const UINT iDivPos );
 
-	inline TString getType( ) const { return TString( TEXT("divider") ); };
-	virtual TString getStyles(void) const;
-	void toXml(TiXmlElement * xml) const;
+	inline const TString getType() const override { return TEXT("divider"); };
+	inline const DcxControlTypes getControlType() const noexcept override { return DcxControlTypes::DIVIDER; }
+
+	virtual const TString getStyles(void) const override;
+	void toXml(TiXmlElement *const xml) const override;
 
 protected:
 	HWND m_leftPane;

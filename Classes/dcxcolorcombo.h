@@ -42,16 +42,19 @@ typedef struct tagDCXCCOMBOITEM {
 class DcxColorCombo : public DcxControl {
 
 public:
+	DcxColorCombo() = delete;
+	DcxColorCombo(const DcxColorCombo &) = delete;
+	DcxColorCombo &operator =(const DcxColorCombo &) = delete;	// No assignments!
 
-	DcxColorCombo( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, const TString & styles );
+	DcxColorCombo(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles );
 	virtual ~DcxColorCombo( );
 
-	LRESULT PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
-	LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
+	LRESULT PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) override;
+	LRESULT ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) override;
 
-	void parseInfoRequest( const TString & input, TCHAR * szReturnValue ) const;
-	void parseCommandRequest( const TString & input );
-	void parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
+	void parseInfoRequest(const TString & input, PTCHAR szReturnValue) const override;
+	void parseCommandRequest(const TString & input) override;
+	void parseControlStyles(const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme) override;
 
 	void setmIRCPalette( );
 
@@ -63,10 +66,10 @@ public:
 	LRESULT deleteItem( const int nItem );
 	LRESULT resetContent( );
 
-	inline TString getType( ) const { return TString( TEXT("colorcombo") ); };
+	inline const TString getType() const override { return TEXT("colorcombo"); };
+	inline const DcxControlTypes getControlType() const noexcept override { return DcxControlTypes::COLORCOMBO; }
 
-protected:
-
+	//using DcxControl::toXml;
 };
 
 #endif // _DCXCOLORCOMBO_H_

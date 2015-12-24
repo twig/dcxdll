@@ -280,7 +280,7 @@ HRESULT DcxUXModule::dcxBufferedPaintUnInit(void)
 	return NULL;
 }
 
-bool DcxUXModule::IsBufferedPaintSupported(void)
+bool DcxUXModule::IsBufferedPaintSupported(void) noexcept
 {
 	return ((BufferedPaintInitUx != nullptr) && (BufferedPaintUnInitUx != nullptr) && (BeginBufferedPaintUx != nullptr) && (EndBufferedPaintUx != nullptr) && m_bBufferedPaintEnabled);
 }

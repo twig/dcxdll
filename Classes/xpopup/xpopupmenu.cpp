@@ -514,7 +514,7 @@ void XPopupMenu::destroyImageList( ) {
  * blah
  */
 
-const XPopupMenu::MenuStyle &XPopupMenu::getStyle( ) const {
+const XPopupMenu::MenuStyle &XPopupMenu::getStyle( ) const noexcept {
 
   return this->m_MenuStyle;
 }
@@ -536,7 +536,7 @@ void XPopupMenu::setStyle( MenuStyle style ) {
  * blah
  */
 
-const UINT &XPopupMenu::getItemStyle( ) const {
+const UINT &XPopupMenu::getItemStyle( ) const noexcept {
 
   return this->m_MenuItemStyles;
 }
@@ -558,7 +558,7 @@ void XPopupMenu::setItemStyle( const UINT iExStyles ) {
  * blah
  */
 
-const TString &XPopupMenu::getName( ) const {
+const TString &XPopupMenu::getName( ) const noexcept {
 
   return this->m_tsMenuName;
 }
@@ -569,7 +569,7 @@ const TString &XPopupMenu::getName( ) const {
  * blah
  */
 
-const LPXPMENUCOLORS XPopupMenu::getColors( ) const {
+const LPXPMENUCOLORS XPopupMenu::getColors( ) const noexcept {
 
   return (LPXPMENUCOLORS) &m_MenuColors;
 }
@@ -639,7 +639,7 @@ void XPopupMenu::setColor( const MenuColours nColor, const COLORREF clrColor ) {
  * blah
  */
 
-COLORREF XPopupMenu::getColor(const MenuColours nColor) const {
+COLORREF XPopupMenu::getColor(const MenuColours nColor) const noexcept {
 
 	switch (nColor) {
 
@@ -1046,7 +1046,7 @@ void XPopupMenu::clearAllMenuItems( ) {
  * blah
  */
 
-HBITMAP XPopupMenu::getBackBitmap( ) const {
+HBITMAP XPopupMenu::getBackBitmap( ) const noexcept {
 
 	return this->m_hBitmap;
 }
@@ -1097,7 +1097,7 @@ void XPopupMenu::setMarkedText(const TString &text) {
 	this->m_tsMarkedText = text;
 }
 
-const TString &XPopupMenu::getMarkedText() const {
+const TString &XPopupMenu::getMarkedText() const noexcept {
 	return this->m_tsMarkedText;
 }
 

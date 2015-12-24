@@ -23,7 +23,7 @@ void UpdatemIRC(void) {
 void InitUltraDock(void)
 {
 	// set all colours as invalid
-	for (int i = 0; i <= TREEBAR_COLOUR_MAX; i++)
+	for (auto i = 0U; i < Dcx::countof(DcxDock::g_clrTreebarColours); i++)
 		DcxDock::g_clrTreebarColours[i] = CLR_INVALID;
 
 	g_dockMDI = new DcxDock(mIRCLinker::getMDIClient(), mIRCLinker::getHWND(), DOCK_TYPE_MDI);
@@ -31,6 +31,7 @@ void InitUltraDock(void)
 	g_dockSwitchbar = new DcxDock(nullptr, mIRCLinker::getSwitchbar(), DOCK_TYPE_SWITCH);
 	g_dockToolbar = new DcxDock(nullptr, mIRCLinker::getToolbar(), DOCK_TYPE_TOOL);
 }
+
 /*
 	*	Eject ALL Docked dialogs.
 */
@@ -92,6 +93,7 @@ void UltraUnDock(const HWND hwnd)
 		return;
 	g_dockMDI->UnDockWindow(hwnd);
 }
+
 LPDCXULTRADOCK GetTreebarDock(const HWND hwnd)
 {
 	if (g_dockTreebar == nullptr)
@@ -121,7 +123,7 @@ void TreebarUnDock(const HWND hwnd)
 
 // #####################################################################################
 // 0 == no swb, 1 == Left, 2 == Right, 3 == Top, 4 == Bottom
-SwitchBarPos SwitchbarPos(const DockTypes type)
+const SwitchBarPos SwitchbarPos(const DockTypes type)
 {
 	RECT swb_rc, mdi_rc;
 	HWND hwnd;

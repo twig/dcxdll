@@ -114,6 +114,7 @@ void TiXmlBase::EncodeString( const TIXML_STRING& str, TIXML_STRING* outString )
 			
 			#if defined(TIXML_SNPRINTF)		
 				TIXML_SNPRINTF( buf, sizeof(buf), "&#x%02X;", (unsigned) ( c & 0xff ) );
+				buf[31] = 0;	// Ook: make sure string is zero terminated. snprintf() can leave it non zero terminated...
 			#else
 				sprintf( buf, "&#x%02X;", (unsigned) ( c & 0xff ) );
 			#endif		

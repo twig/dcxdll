@@ -369,17 +369,17 @@ namespace Dcx {
 		GDIModule.unload();
 	}
 
-	const TCHAR *getLastError()
+	const TCHAR *getLastError() noexcept
 	{
 		return m_sLastError.to_chr();
 	}
 
-	IClassFactory *getClassFactory()
+	IClassFactory *getClassFactory() noexcept
 	{
 		return m_pClassFactory;
 	}
 
-	const BYTE &getGhostDrag()
+	const BYTE &getGhostDrag() noexcept
 	{
 		return m_iGhostDrag;
 	}
@@ -390,7 +390,7 @@ namespace Dcx {
 		return true;
 	}
 
-	const bool &isDX9Installed()
+	const bool &isDX9Installed() noexcept
 	{
 		return m_bDX9Installed;
 	}

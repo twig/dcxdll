@@ -48,13 +48,13 @@ class DcxTreeView;
 #define TVCOLOR_S 0x08        //!< TreeView Selection Color
 
 #define TVIS_DCXMASK		0xFF0000
-#define TVIS_UNDERLINE	0x010000 //!< TreeView Caption Underline Style
+#define TVIS_UNDERLINE		0x010000 //!< TreeView Caption Underline Style
 #define TVIS_COLOR			0x020000 //!< TreeView Caption Color Style
 #define TVIS_ITALIC			0x040000 //!< TreeView Caption Italic Style
-#define TVIS_BKG				0x080000 //!< TreeView Item blackground colour style.
+#define TVIS_BKG			0x080000 //!< TreeView Item blackground colour style.
 #define TVIS_HASHITEM		0x100000 //!< TreeView item text is taken from a hash table item
-#define TVIS_HASHNUMBER	0x200000 //!< TreeView item text is taken from a hash tabel item number
-#define TVIS_XML				0x400000 //!< TreeView item text is taken from an xml file.
+#define TVIS_HASHNUMBER		0x200000 //!< TreeView item text is taken from a hash tabel item number
+#define TVIS_XML			0x400000 //!< TreeView item text is taken from an xml file.
 
 #define TVIE_EXP     0x01     //!< TreeView Expand Branch Option
 #define TVIE_EXPALL  0x02     //!< TreeView Expandall Branch Option
@@ -75,11 +75,11 @@ class DcxTreeView;
 
 typedef struct tagDCXTVSORT {
 
-	TString tsCustomAlias;  //!< Custom Sorting Alias
-	UINT iSortFlags;        //!< Sorting Flags
-	DcxTreeView * pthis;    //!< TreeView control object pointer
-	TCHAR itemtext1[MIRC_BUFFER_SIZE_CCH];	// Item text buffer One
-	TCHAR itemtext2[MIRC_BUFFER_SIZE_CCH];	// Item Text Buffer Two
+	TString		tsCustomAlias;						//!< Custom Sorting Alias
+	UINT		iSortFlags;							//!< Sorting Flags
+	DcxTreeView *pthis;								//!< TreeView control object pointer
+	TCHAR		itemtext1[MIRC_BUFFER_SIZE_CCH];	// Item text buffer One
+	TCHAR		itemtext2[MIRC_BUFFER_SIZE_CCH];	// Item Text Buffer Two
 } DCXTVSORT,*LPDCXTVSORT;
 
 /*!
@@ -89,14 +89,14 @@ typedef struct tagDCXTVSORT {
  */
 
 typedef struct tagDCXTVITEM {
-	TString tsTipText;  //!< Tooltip text
-	COLORREF clrText;   //!< Item Caption Color
-	COLORREF clrBkg;		//!< Item background colour.
-	BOOL bBold;         //!< Is Item Caption Bold ?
-	BOOL bUline;        //!< Is Item Caption Underlined
-	BOOL bItalic;       //!< Is Item Caption Italicised
-	HTREEITEM hHandle;  //!< TreeView Item Handle (used for sorting)
-	TString tsMark;		// Marked item text.
+	TString		tsTipText;	//!< Tooltip text
+	COLORREF	clrText;	//!< Item Caption Color
+	COLORREF	clrBkg;		//!< Item background colour.
+	BOOL		bBold;		//!< Is Item Caption Bold ?
+	BOOL		bUline;		//!< Is Item Caption Underlined
+	BOOL		bItalic;	//!< Is Item Caption Italicised
+	HTREEITEM	hHandle;	//!< TreeView Item Handle (used for sorting)
+	TString		tsMark;		// Marked item text.
 } DCXTVITEM,*LPDCXTVITEM;
 
 /*!
@@ -108,21 +108,23 @@ typedef struct tagDCXTVITEM {
 class DcxTreeView : public DcxControl {
 
 public:
+	DcxTreeView() = delete;
+	DcxTreeView(const DcxTreeView &) = delete;
+	DcxTreeView &operator =(const DcxTreeView &) = delete;	// No assignments!
 
-	DcxTreeView( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd, const RECT * rc, TString & styles );
+	DcxTreeView( const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles );
 	virtual ~DcxTreeView( );
 
-	LRESULT PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
-	LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
+	LRESULT PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) override;
+	LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) override;
 
-	void parseInfoRequest( const TString & input, TCHAR * szReturnValue ) const;
-	void parseCommandRequest( const TString & input );
-	void parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
-#ifdef DCX_USE_WINSDK
+	void parseInfoRequest( const TString & input, PTCHAR szReturnValue ) const override;
+	void parseCommandRequest( const TString & input ) override;
+	void parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ) override;
+
 	static void parseTreeViewExStyles( const TString & styles, LONG * ExStyles );
-#endif
 
-	HIMAGELIST getImageList( const int type );
+	HIMAGELIST getImageList( const int type ) const;
 	void setImageList( HIMAGELIST himl, const int type );
 	HIMAGELIST createImageList( );
 
@@ -136,7 +138,10 @@ public:
 
 	static int CALLBACK sortItemsEx( LPARAM lParam1, LPARAM lParam2, LPARAM lParamSort );
 
-	inline TString getType( ) const { return TString( TEXT("treeview") ); };
+	inline const TString getType() const override { return TEXT("treeview"); };
+	inline const DcxControlTypes getControlType() const noexcept override { return DcxControlTypes::TREEVIEW; }
+
+	const TString getStyles(void) const override;
 
 protected:
 
@@ -150,16 +155,16 @@ protected:
 
 	/* *** */
 
-	HTREEITEM parsePath(const TString *path, HTREEITEM *hParent = NULL, HTREEITEM *hInsertAt = NULL) const;
+	HTREEITEM parsePath(const TString *path, HTREEITEM *hParent = nullptr, HTREEITEM *hInsertAt = nullptr) const;
 	TString getPathFromItem(HTREEITEM *item) const;
 
-
-	BOOL matchItemText( HTREEITEM * hItem, const TString * search, const UINT SearchType ) const;
-	BOOL findItemText( HTREEITEM * hStart, HTREEITEM * hItem, const TString * search, const int N, int * NC, const UINT SearchType ) const;
+	bool matchItemText( HTREEITEM * hItem, const TString * search, const UINT SearchType ) const;
+	bool findItemText( HTREEITEM * hStart, HTREEITEM * hItem, const TString * search, const int N, int * NC, const UINT SearchType ) const;
 	void expandAllItems( HTREEITEM * hStart, const UINT expandOption );
 
 	HTREEITEM cloneItem( HTREEITEM * hItem, HTREEITEM * hParentTo, HTREEITEM * hAfterTo );
 	void copyAllItems( HTREEITEM *hItem, HTREEITEM * hParentTo );
+	HTREEITEM copyAllItems(const TString &pathFrom, const TString &pathTo);
 
 	static UINT parseIconFlagOptions( const TString & flags );
 	static UINT parseItemFlags( const TString & flags );
@@ -176,6 +181,7 @@ protected:
 #ifdef DCX_USE_GDIPLUS
 	bool LoadGDIPlusImage(const TString &flags, TString &filename);
 	void DrawGDIPlusImage(HDC hdc);
+
 	Image *m_pImage;							// Background Image
 	CompositingQuality m_CQuality;// Image Rendering Quality
 	CompositingMode m_CMode;			// Image Rendering Mode
@@ -183,17 +189,15 @@ protected:
 	SmoothingMode m_SMode;				// Image Smoothing Mode
 	bool m_bTileImage;						// Tile Image?
 	bool m_bResizeImage;					// Resize Image?
+	bool m_bTransparent;					// Is Control Transparent?
 	int m_iXOffset;								// Images X Offset
 	int m_iYOffset;								// Images Y Offset
-	bool m_bTransparent;					// Is Control Transparent?
 #endif
 
 	bool xmlSaveTree(HTREEITEM hFromItem, const TString &name, TString &filename);
-	bool xmlGetItems(HTREEITEM hFirstSibling, TiXmlElement *xElm, TCHAR *buf);
+	bool xmlGetItems(const HTREEITEM hFirstSibling, TiXmlElement *xElm, TCHAR *buf);
 	HTREEITEM xmlLoadTree(HTREEITEM hInsertAfter, HTREEITEM hParent, const TString &name, TString &filename);
 	const TiXmlElement *xmlInsertItems(HTREEITEM hParent, HTREEITEM &hInsertAfter, const TiXmlElement *xElm);
-	TString getStyles(void);
-	//static int queryIntAttribute(const TiXmlElement *element,const char *attribute,const int defaultValue = 0);
 };
 
 #endif // _DCXTREEVIEW_H_

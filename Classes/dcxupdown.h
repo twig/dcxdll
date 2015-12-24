@@ -29,27 +29,31 @@ class DcxDialog;
 class DcxUpDown : public DcxControl {
 
 public:
+	DcxUpDown() = delete;
+	DcxUpDown(const DcxUpDown &) = delete;
+	DcxUpDown &operator =(const DcxUpDown &) = delete;	// No assignments!
 
-	DcxUpDown( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TString & styles );
+	DcxUpDown(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles );
 	virtual ~DcxUpDown( );
 
-	LRESULT PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
-	LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
+	LRESULT PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) override;
+	LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) override;
 
-	void parseInfoRequest( const TString & input, TCHAR * szReturnValue ) const;
-	void parseCommandRequest( const TString & input );
-	void parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
+	void parseInfoRequest( const TString & input, PTCHAR szReturnValue ) const override;
+	void parseCommandRequest( const TString & input ) override;
+	void parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ) override;
 
-	LRESULT setBuddy( HWND mHwnd );
+	LRESULT setBuddy( const HWND mHwnd );
 	LRESULT setRange32( const int iLow, const int iHigh );
 	LRESULT getRange32( LPINT iLow, LPINT iHigh ) const;
 	LRESULT setBase( const int iBase );
 	LRESULT getBase( ) const;
 	LRESULT setPos32( const INT nPos );
 	LRESULT getPos32( LPBOOL pfError ) const;
-	TString getStyles(void) const;
+	const TString getStyles(void) const override;
 
-	inline TString getType( ) const { return TString( TEXT("updown") ); };
+	inline const TString getType() const override { return TEXT("updown"); };
+	inline const DcxControlTypes getControlType() const noexcept override { return DcxControlTypes::UPDOWN; }
 
 protected:
 
