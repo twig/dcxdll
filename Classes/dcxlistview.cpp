@@ -3045,7 +3045,8 @@ LRESULT DcxListView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 											lvi.stateMask = LVIS_SELECTED|LVIS_FOCUSED;
 
 											if (ListView_GetItem(this->m_Hwnd, &lvi)) {
-												if ((lvi.iImage > I_IMAGECALLBACK) && (lstrlen(buf) <= 0))
+												//if ((lvi.iImage > I_IMAGECALLBACK) && (lstrlen(buf) <= 0))
+												if ((lvi.iImage > I_IMAGECALLBACK) && (buf[0] == TEXT('\0')))
 												{
 													// no text, but has image, so center image in item
 													auto himl = getImageList(LVSIL_SMALL);
