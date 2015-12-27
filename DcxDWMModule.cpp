@@ -12,7 +12,8 @@ DcxDWMModule::DcxDWMModule(void) :
 m_bAero(false),
 m_bVista(false),
 m_bWin7(false),
-m_bWin8(false)
+m_bWin8(false),
+m_bWin10(false)
 {
 }
 
