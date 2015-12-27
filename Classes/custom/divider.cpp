@@ -13,7 +13,6 @@
  */
 #include "defines.h"
 #include "divider.h"
-#include "AggressiveOptimize.h"
 
 /*!
  * \brief blah

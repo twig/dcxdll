@@ -21,9 +21,8 @@ http://symbiancorner.blogspot.com/2007/05/how-to-detect-version-of-ms-visual.htm
 #elif _MSC_VER > 1300 // Visual C++ .NET 2002
 #endif
 */
-#if _MSC_VER > 1000
 #pragma once
-#endif
+
 #ifndef _DEFINES_H_
 #define _DEFINES_H_
 
@@ -45,16 +44,12 @@ http://symbiancorner.blogspot.com/2007/05/how-to-detect-version-of-ms-visual.htm
 #pragma warning( disable : 4100 ) // unreferenced formal parameter
 #pragma warning( disable : 4530 )
 #pragma warning( disable : 4995 ) // name was marked as #pragma deprecated
-#if _MSC_VER >= 1700
 #define _INTEL_DLL_ __declspec(dllexport)
-#else
-#define _INTEL_DLL_
-#endif
 #endif
 
-// VS2012+ only
-#if _MSC_VER < 1700
-#error "This version of DCX needs C++11 or newer"
+// VS2015+ only
+#if _MSC_VER < 1900
+#error "This version of DCX needs Visual Studio 2015 or newer"
 #endif
 
 // --------------------------------------------------
@@ -73,24 +68,9 @@ http://symbiancorner.blogspot.com/2007/05/how-to-detect-version-of-ms-visual.htm
 #define DCX_MAX_GDI_ERRORS 21
 // end of GDI+
 
-// DCX Using the pcre lib
-// PCRE is used for the regex pattern matching
-// NB: CANT BE USED WITH BOOST ENABLED
-//#define DCX_USE_PCRE 1
-#define PCRE_STATIC 1
-// end of PCRE
-
 // DCX Using C++11 regex
 // NB: Can't be used with either BOOST OR PCRE enabled.
 //#define DCX_USE_CREGEX 1
-
-#ifdef DCX_USE_PCRE
-#undef DCX_USE_CREGEX
-#endif
-
-#if defined(DCX_USE_PCRE)
-#pragma comment(lib, "pcre.lib")
-#endif
 
 // --------------------------------------------------
 // Some compiler/library definitions
@@ -147,9 +127,15 @@ http://symbiancorner.blogspot.com/2007/05/how-to-detect-version-of-ms-visual.htm
 //#define GDIPVER 0x0110
 
 // Windows 8.1 + IE V10 + GDI+ 1.1
-#define _WIN32_WINNT 0x0603
+//#define _WIN32_WINNT 0x0603
+//#define _WIN32_IE 0x0A00
+//#define WINVER 0x0603
+//#define GDIPVER 0x0110
+
+// Windows 10 + IE V11 + GDI+ 1.1
+#define _WIN32_WINNT 0x0A00
 #define _WIN32_IE 0x0A00
-#define WINVER 0x0603
+#define WINVER 0x0A00
 #define GDIPVER 0x0110
 
 #define _CRT_SECURE_NO_DEPRECATE 1
@@ -264,7 +250,7 @@ using namespace Gdiplus;
 #include "classes/dcxdialogcollection.h"
 #include "Classes\tinyxml\tinyxml.h"
 
-#include "AggressiveOptimize.h"
+//#include "AggressiveOptimize.h"
 
 #include "dcxExceptions.h"
 

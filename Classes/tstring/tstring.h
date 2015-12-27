@@ -463,7 +463,7 @@ public:
 	const size_t size() const noexcept { return len(); };
 	// capacity of buffer
 	const size_t &capacity() const noexcept { return m_buffersize; }
-	// clear string buffer & reset all vars & pointers (doesn't free buffer, just zeros it)
+	// clear string buffer & reset all vars & pointers (frees buffer)
 	void clear();
 	// shrink string buffer to min size required for string (while still being a multiple of 16)
 	void shrink_to_fit();
