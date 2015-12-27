@@ -20,6 +20,8 @@ namespace Dcx {
 	MapOfCursors	m_vMapOfCursors;
 	MapOfAreas		m_vMapOfAreas;
 	PFNSETCURSOR SetCursorUx = nullptr;
+	TString dcxException::tsErr;
+
 
 	void load(LOADINFO *const lInfo)
 	{

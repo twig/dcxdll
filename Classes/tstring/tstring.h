@@ -443,13 +443,13 @@ public:
 	}
 
 	//conversion operators.
-	//template <class T, typename std::enable_if_t<is_Numeric(T),int> = 0>
-	//operator T() const { return to_<T>(); }
-	//operator int() const { return this->to_<int>(); }
-	//operator __int64() const { return this->to_<__int64>(); }
-	//operator double() const { return this->to_<double>(); }
-
-	operator bool() const noexcept { return !empty(); }
+	template <class T, typename std::enable_if_t<is_Numeric<T>::value,int> = 0>
+	//template <typename T>
+	operator T() const {
+		static_assert(is_Numeric<T>::value, "Type T must be (int, long, float, double, ....)");
+		return to_<T>();
+	}
+	explicit operator bool() const noexcept { return !empty(); }
 
 	// General String Lib
 
