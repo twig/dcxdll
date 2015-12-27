@@ -17,10 +17,6 @@
 
 #include <shlwapi.h>
 
-#ifdef DCX_USE_PCRE
-#include "pcre7.2/include/pcre.h"
-#endif
-
 // DCX Stuff
 
 /*!
@@ -1124,7 +1120,11 @@ static const TCHAR *GDIErrors[] = {
 };
 const TCHAR *GetLastStatusStr(Status status)
 {
-	if (status > DCX_MAX_GDI_ERRORS)
+	//if (status > DCX_MAX_GDI_ERRORS)
+	//	return GDIErrors[1]; // status not in table, return GenericError
+	//return GDIErrors[(UINT)status];
+
+	if ((UINT)status >= Dcx::countof(GDIErrors))
 		return GDIErrors[1]; // status not in table, return GenericError
 	return GDIErrors[(UINT)status];
 }
