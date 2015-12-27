@@ -890,11 +890,11 @@ TiXmlNode* TiXmlNode::Identify( const char* p, TiXmlEncoding encoding )
 		returnNode = new TiXmlUnknown();
 	}
 
-	if ( returnNode )
-	{
+	//if ( returnNode ) // null check unneeded at its allocated with new which throws an exception...
+	//{
 		// Set the parent, so it can report errors
 		returnNode->parent = this;
-	}
+	//}
 	return returnNode;
 }
 
