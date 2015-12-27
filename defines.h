@@ -203,6 +203,7 @@ http://symbiancorner.blogspot.com/2007/05/how-to-detect-version-of-ms-visual.htm
 #define NOHELP
 #define NOMCX
 #define OEMRESOURCE
+//#define NOMINMAX
 
 //#include <vld.h>
 #include <windows.h>
@@ -253,6 +254,8 @@ using namespace Gdiplus;
 #endif
 #endif
 
+#include "GSL\include\gsl.h"
+
 #include "AutoRelease.h"
 
 #include "Classes/TString/tstring.h"
@@ -262,6 +265,8 @@ using namespace Gdiplus;
 #include "Classes\tinyxml\tinyxml.h"
 
 #include "AggressiveOptimize.h"
+
+#include "dcxExceptions.h"
 
 // Win2000+ stuff for Win98+ compat (only used during testing)
 //#ifndef ICC_STANDARD_CLASSES
