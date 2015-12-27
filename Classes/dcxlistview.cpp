@@ -2010,21 +2010,16 @@ void DcxListView::parseCommandRequest( const TString &input) {
 		switch (tsFlags[1])
 		{
 		case TEXT('c'):
-			{
-				TString res;
-				// check window exists
-				mIRCLinker::tsEvalex(res, TEXT("$window(%s)"), tsArgs.to_chr());
-				// if not exit
-				if (tsArgs != res)
-					throw std::invalid_argument(Dcx::dcxGetFormattedString(TEXT("Invalid window: %s"), tsArgs.to_chr()));
-				//
-			}
+			xSaveListview(iN1, iN2, tsArgs, TEXT("$window(%s)"), TEXT("/echo %s %s"));
 			break;
 		case TEXT('f'):
+			//xSaveListview(iN1, iN2, tsArgs, TEXT("$window(%s)"), TEXT("echo %s %s"));
 			break;
 		case TEXT('h'):
+			xSaveListview(iN1, iN2, tsArgs, TEXT("$hget(%s)"), TEXT("/hadd %s %s"));
 			break;
 		case TEXT('x'):
+			//xSaveListview(iN1, iN2, tsArgs, TEXT("$window(%s)"), TEXT("echo %s %s"));
 			break;
 		default:
 			throw std::invalid_argument(Dcx::dcxGetFormattedString(TEXT("Invalid Flags: %s"), tsFlags.to_chr()));
@@ -2450,6 +2445,7 @@ INT DcxListView::parseHeaderFlags2( const TString & flags ) {
 	const XSwitchFlags xflags(flags);
 	return parseHeaderFlags2(xflags);
 }
+
 INT DcxListView::parseHeaderFlags2( const XSwitchFlags & xflags ) {
 
 	int iFlags = 0;
@@ -2526,6 +2522,7 @@ UINT DcxListView::parseGroupFlags( const TString & flags ) {
 
 	return iFlags;
 }
+
 UINT DcxListView::parseGroupState( const TString & flags ) {
 
 	const XSwitchFlags xflags(flags);
@@ -4462,4 +4459,81 @@ void DcxListView::DeleteColumns(const int nColumn)
 		ListView_DeleteColumn(this->m_Hwnd, nColumn);
 		this->m_iColumnCount--;
 	}
+}
+
+bool DcxListView::xSaveListview(const int nStartPos, const int nEndPos, const TString &tsData, const TCHAR *sTestCommand, const TCHAR *sStoreCommand)
+{
+	if (nStartPos > nEndPos)
+		return false;
+
+	TString res;
+	// check window exists
+	mIRCLinker::tsEvalex(res, sTestCommand, tsData.to_chr());
+	// if not exit
+	if (res.empty())
+		throw std::invalid_argument(Dcx::dcxGetFormattedString(TEXT("Invalid store: %s"), tsData.to_chr()));
+	{
+		auto iCount = ListView_GetItemCount(this->m_Hwnd);
+		if (nEndPos >= iCount)
+			return false;
+	}
+
+	auto iColumns = getColumnCount();
+	auto sTextBuffer = std::make_unique<TCHAR[]>(MIRC_BUFFER_SIZE_CCH);
+
+	for (auto nItem = nStartPos; nItem <= nEndPos; nItem++)
+	{
+		LVITEM lvitem = { 0 };
+
+		sTextBuffer[0] = TEXT('\0');
+
+		lvitem.cchTextMax = MIRC_BUFFER_SIZE_CCH;
+		lvitem.pszText = sTextBuffer.get();
+		lvitem.iItem = nItem;
+		lvitem.mask = LVIF_GROUPID | LVIF_IMAGE | LVIF_INDENT | LVIF_STATE | LVIF_TEXT;
+
+		res.clear();
+
+		if (ListView_GetItem(this->m_Hwnd, &lvitem))
+		{
+			// [INDENT] [+FLAGS] [#ICON] [#STATE] [#OVERLAY] [#GROUPID] [COLOR] [BGCOLOR] Item Text{ TAB }[+FLAGS][#ICON][#OVERLAY][COLOR][BGCOLOR] Item Text ...
+			res.addtok(lvitem.iIndent);		// INDENT
+			res.addtok(TEXT("+"));			// +flags
+			res.addtok(lvitem.iImage);		// ICON
+			res.addtok(lvitem.state);		// state
+			res.addtok(TEXT("0"));			// overlay
+			res.addtok(lvitem.iGroupId);	// group
+			res.addtok(TEXT("0"));			// colour
+			res.addtok(TEXT("0"));			// bgcolour
+
+			if (lvitem.pszText[0] != TEXT('\0'))
+				res.addtok(lvitem.pszText);	// item text
+
+			for (auto nSubItem = 0; nSubItem < iColumns; nSubItem++)
+			{
+				sTextBuffer[0] = TEXT('\0');
+
+				lvitem.iSubItem = nSubItem;
+				lvitem.cchTextMax = MIRC_BUFFER_SIZE_CCH;
+				lvitem.pszText = sTextBuffer.get();
+				lvitem.mask = LVIF_IMAGE | LVIF_TEXT;
+
+				if (ListView_GetItem(this->m_Hwnd, &lvitem))
+				{
+					// { TAB }[+FLAGS][#ICON][#OVERLAY][COLOR][BGCOLOR] Item Text ...
+					res += TEXT('\t');
+					res.addtok(TEXT("+"));			// +flags
+					res.addtok(lvitem.iImage);		// ICON
+					res.addtok(TEXT("0"));			// overlay
+					res.addtok(TEXT("0"));			// colour
+					res.addtok(TEXT("0"));			// bgcolour
+
+					if (lvitem.pszText[0] != TEXT('\0'))
+						res.addtok(lvitem.pszText);	// item text
+				}
+			}
+			mIRCLinker::execex(sStoreCommand, tsData.to_chr(), res.to_chr());
+		}
+	}
+	return true;
 }

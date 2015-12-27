@@ -203,6 +203,7 @@ private:
 	void massSetItem(const int nPos, const TString &input);
 	void setHeaderStyle(HWND h, const int nCol, const TString &info);
 	void DeleteColumns(const int nColumn);
+	bool xSaveListview(const int nStartPos, const int nEndPos, const TString & tsData, const TCHAR * sTestCommand, const TCHAR * sStoreCommand);
 
 	// static functions.
 	static void getItemRange(const TString &tsItems, const int nItemCnt, int *iStart_range, int *iEnd_range);
