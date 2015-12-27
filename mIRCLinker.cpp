@@ -15,7 +15,7 @@ namespace mIRCLinker {
 	HWND		m_hTreeview				= nullptr;	//!< The TreeView control child of the Treebar.
 	HFONT		m_hTreeFont				= nullptr;	//!< The Treebars original font.
 	HIMAGELIST  m_hTreeImages			= nullptr;	//!< The Treebars original image list.
-	TString		m_sLastError;
+	//TString		m_sLastError;
 	WNDPROC		m_wpmIRCDefaultWndProc	= nullptr;
 	bool		m_bUnicodemIRC			= false;
 	bool		m_bSendMessageDisabled	= false;

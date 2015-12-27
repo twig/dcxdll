@@ -19,7 +19,7 @@ namespace mIRCLinker
 	extern HWND			m_hTreeview;	//!< The TreeView control child of the Treebar.
 	extern HFONT		m_hTreeFont;	//!< The Treebars original font.
 	extern HIMAGELIST	m_hTreeImages;	//!< The Treebars original image list.
-	extern TString		m_sLastError;
+	//extern TString		m_sLastError;
 	extern WNDPROC		m_wpmIRCDefaultWndProc;
 	extern bool			m_bUnicodemIRC;
 	extern bool			m_bSendMessageDisabled;
