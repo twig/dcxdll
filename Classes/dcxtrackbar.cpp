@@ -807,7 +807,7 @@ UINT DcxTrackBar::parseImageFlags(const TString &flags) {
 	return iFlags;
 }
 
-bool DcxTrackBar::DrawTrackBarPart(HDC hdc, const TrackBarParts iPartId, const LPRECT rc)
+bool DcxTrackBar::DrawTrackBarPart(HDC hdc, const TrackBarParts iPartId, const RECT *const rc)
 {
 	if (this->m_hbmp[iPartId] == nullptr)
 		return false;

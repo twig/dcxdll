@@ -151,7 +151,7 @@ public:
 
 	//DcxControl *getParentCtrl() const { return this->m_pParentCtrl; };
 	void updateParentCtrl(void); //!< updates controls host control pointers, MUST be called before these pointers are used.
-	void DrawParentsBackground(const HDC hdc, const LPRECT rcBounds = nullptr, const HWND dHwnd = nullptr);
+	void DrawParentsBackground(const HDC hdc, const RECT *const rcBounds = nullptr, const HWND dHwnd = nullptr);
 	LPALPHAINFO SetupAlphaBlend(HDC *hdc, const bool DoubleBuffer = false);
 	void FinishAlphaBlend(LPALPHAINFO ai);
 	void showError(const TCHAR *const prop, const TCHAR *const cmd, const TCHAR *const err) const;
@@ -160,7 +160,7 @@ public:
 	static LRESULT CALLBACK WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 	static DcxControl * controlFactory(DcxDialog *const p_Dialog, const UINT mID, const TString & input, const UINT offset, const UINT64 mask = CTLF_ALLOW_ALL, HWND hParent = nullptr);
 	static void DrawCtrlBackground(const HDC hdc, const DcxControl *const p_this, const LPRECT rwnd = nullptr, HTHEME hTheme = nullptr, const int iPartId = 0, const int iStateId = 0);
-	static HBITMAP resizeBitmap(HBITMAP srcBM, const LPRECT rc);
+	static HBITMAP resizeBitmap(HBITMAP srcBM, const RECT *const rc);
 	static DcxControlTypes TSTypeToControlType(const TString &t);
 
 protected:

@@ -646,7 +646,7 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, const XSwitch
 		throw std::invalid_argument("Invalid Command");
 }
 
-HBITMAP DcxControl::resizeBitmap(HBITMAP srcBM, const LPRECT rc)
+HBITMAP DcxControl::resizeBitmap(HBITMAP srcBM, const RECT *const rc)
 {
 	// set result to original bitmap incase resize fails at some point.
 	auto hRes = srcBM;
@@ -1145,13 +1145,13 @@ DcxControl * DcxControl::controlFactory(DcxDialog *const p_Dialog, const UINT mI
 
 	else if ((dct == DcxControlTypes::WINDOW) && (dcx_testflag(mask, CTLF_ALLOW_DOCK))) {
 		if (styles.empty())
-			throw std::invalid_argument("No window name");
+			throw Dcx::dcxException("No window name");
 
 		const auto tsWin(styles.getfirsttok(1));
 
 		// this helps stop '@' being passed as $window(@).hwnd == $window(-2).hwnd & usually causes a crash.
 		if (tsWin.len() < 2)
-			throw std::invalid_argument(Dcx::dcxGetFormattedString(TEXT("No such window: %s"), tsWin.to_chr()));
+			throw Dcx::dcxException(TEXT("No such window: %s"), tsWin);
 
 		auto winHwnd = (HWND)tsWin.to_num();
 		if (!IsWindow(winHwnd)) {
@@ -1163,28 +1163,28 @@ DcxControl * DcxControl::controlFactory(DcxDialog *const p_Dialog, const UINT mI
 		}
 
 		if (!IsWindow(winHwnd))
-			throw std::invalid_argument(Dcx::dcxGetFormattedString(TEXT("No such window: %s"), tsWin.to_chr()));
+			throw Dcx::dcxException(TEXT("No such window: %s"), tsWin);
 
 		if (p_Dialog->getControlByHWND(winHwnd) != nullptr)
-			throw std::invalid_argument("Window already a DCX Control");
+			throw Dcx::dcxException("Window already a DCX Control");
 
 		return new DcxMWindow(winHwnd, hParent, mID, p_Dialog, &rc, styles);
 	}
 	else if ((dct == DcxControlTypes::DIALOG) && (dcx_testflag(mask, CTLF_ALLOW_DOCK))) {
 		if (styles.empty())
-			dcx_exception_InvalidArgument(TEXT("No dialog name"));
-		//throw std::invalid_argument("No dialog name");
+			throw Dcx::dcxException("No dialog name");
+			//throw std::invalid_argument("No dialog name");
 
 		const auto tsDname(styles.getfirsttok(1));
 		auto winHwnd = GetHwndFromString(tsDname);
 
 		if (IsWindow(winHwnd))
-			dcx_exception_InvalidArgument(TEXT("No such dialog: %"), tsDname);
-		//throw std::invalid_argument(Dcx::dcxGetFormattedString(TEXT("No such dialog: %s"), tsDname.to_chr()));
+			throw Dcx::dcxException(TEXT("No such dialog: %"), tsDname);
+			//throw std::invalid_argument(Dcx::dcxGetFormattedString(TEXT("No such dialog: %s"), tsDname.to_chr()));
 
 		if (p_Dialog->getControlByHWND(winHwnd) != nullptr)
-			dcx_exception_InvalidArgument(TEXT("Control already exists : %"), tsDname);
-		//throw std::invalid_argument(Dcx::dcxGetFormattedString(TEXT("Control already exists : %s"), tsDname.to_chr()));
+			Dcx::dcxException(TEXT("Control already exists : %"), tsDname);
+			//throw std::invalid_argument(Dcx::dcxGetFormattedString(TEXT("Control already exists : %s"), tsDname.to_chr()));
 
 		auto newDialog = new DcxMDialog(winHwnd, hParent, mID, p_Dialog, &rc, styles);
 		auto dlg = Dcx::Dialogs.getDialogByHandle(winHwnd);
@@ -1318,8 +1318,8 @@ DcxControl * DcxControl::controlFactory(DcxDialog *const p_Dialog, const UINT mI
 //		return newDialog;
 //	}
 
-//throw std::runtime_error(Dcx::dcxGetFormattedString(TEXT("Control Type not supported: %s"), type.to_chr()));
-	dcx_exception_RuntimeError(TEXT("Control Type not supported: %"), type.to_chr());
+	//throw std::runtime_error(Dcx::dcxGetFormattedString(TEXT("Control Type not supported: %s"), type.to_chr()));
+	throw Dcx::dcxException(TEXT("Control Type not supported: %"), type);
 	return nullptr;
 }
 
@@ -1526,7 +1526,7 @@ void DcxControl::DrawControl(HDC hDC, HWND hwnd)
 	BitBlt( hDC, rc.left, rc.top, w, h, hdcMemory, 0, 0, SRCCOPY);
 }
 
-void DcxControl::DrawParentsBackground(const HDC hdc, const LPRECT rcBounds, const HWND dHwnd)
+void DcxControl::DrawParentsBackground(const HDC hdc, const RECT *const rcBounds, const HWND dHwnd)
 {
 	// fill in parent bg
 	RECT rcClient;

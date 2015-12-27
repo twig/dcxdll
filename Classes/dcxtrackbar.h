@@ -86,7 +86,7 @@ public:
 	inline const DcxControlTypes getControlType() const noexcept override { return DcxControlTypes::TRACKBAR; }
 
 private:
-	bool DrawTrackBarPart(HDC hdc, const TrackBarParts iPartId, const LPRECT rc = nullptr);
+	bool DrawTrackBarPart(HDC hdc, const TrackBarParts iPartId, const RECT *const rc = nullptr);
 
 protected:
 	HBITMAP m_hbmp[sizeof(TrackBarParts)]; // refer to TBBMP_*

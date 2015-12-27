@@ -421,7 +421,7 @@ void DcxBox::parseCommandRequest( const TString & input ) {
  * blah
  */
 
-BOOL CALLBACK DcxBox::EnumBoxChildren(HWND hwnd,const LPDCXENUM de)
+BOOL CALLBACK DcxBox::EnumBoxChildren(HWND hwnd,const DCXENUM *const de)
 {
 	if ((de->mChildHwnd != hwnd) && (GetParent(hwnd) == de->mBox))
 		EnableWindow(hwnd,de->mState);

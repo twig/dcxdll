@@ -72,7 +72,7 @@ public:
 protected:
 
 	//static const UINT parseLayoutFlags( const TString & flags );
-	static BOOL CALLBACK EnumBoxChildren(HWND hwnd,const LPDCXENUM de);
+	static BOOL CALLBACK EnumBoxChildren(HWND hwnd,const DCXENUM *const de);
 	void EraseBackground(HDC hdc);
 	void DrawClientArea(HDC hdc);
 

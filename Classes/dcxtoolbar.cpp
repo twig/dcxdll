@@ -950,7 +950,8 @@ void DcxToolBar::autoStretchButtons( ) {
 	ZeroMemory( &tbbi, sizeof( TBBUTTONINFO ) );
 	tbbi.cbSize = sizeof( TBBUTTONINFO );
 	tbbi.dwMask = TBIF_SIZE;
-	tbbi.cx = (WORD)( (double) leftwidth / (double) nTotalButtons );
+	//tbbi.cx = (WORD)( (double) leftwidth / (double) nTotalButtons );
+	tbbi.cx = (WORD)dcx_round((float)((double)leftwidth / (double)nTotalButtons));
 
 	// Make sure the size is positive
 	if ( tbbi.cx > 0 ) {
