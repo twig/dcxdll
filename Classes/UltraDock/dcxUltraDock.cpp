@@ -82,7 +82,7 @@ void UltraDock(const HWND mWnd, HWND temp, const TString &flag)
 	if (g_dockMDI == nullptr)
 		return;
 	if ((FindUltraDock(temp)) || (FindTreebarDock(temp)) || (GetProp(temp,TEXT("dcx_docked")) != nullptr))
-		throw std::invalid_argument("Window already docked");
+		throw Dcx::dcxException("Window already docked");
 
 	g_dockMDI->DockWindow(temp, flag);
 }
@@ -107,7 +107,7 @@ void TreebarDock(HWND temp, const TString &flag)
 	if (g_dockTreebar == nullptr)
 		return;
 	if ((FindUltraDock(temp)) || (FindTreebarDock(temp)) || (GetProp(temp,TEXT("dcx_docked")) != nullptr))
-		throw std::invalid_argument("Window already docked");
+		throw Dcx::dcxException("Window already docked");
 	
 	g_dockTreebar->DockWindow(temp, flag);
 
@@ -142,15 +142,15 @@ const SwitchBarPos SwitchbarPos(const DockTypes type)
 		break;
 	}
 	if (!IsWindowVisible(hwnd) || !GetWindowRect(hwnd, &swb_rc) || !GetWindowRect(mIRCLinker::getMDIClient(), &mdi_rc))
-		return SWB_NONE;
+		return SwitchBarPos::SWB_NONE;
 
 	if (swb_rc.left >= mdi_rc.right)
-		return SWB_RIGHT;
+		return SwitchBarPos::SWB_RIGHT;
 	if (swb_rc.top >= mdi_rc.bottom)
-		return SWB_BOTTOM;
+		return SwitchBarPos::SWB_BOTTOM;
 	if (swb_rc.bottom <= mdi_rc.top)
-		return SWB_TOP;
-	return SWB_LEFT;
+		return SwitchBarPos::SWB_TOP;
+	return SwitchBarPos::SWB_LEFT;
 }
 
 // Below is the old code, this is kept for refrence & will be removed when the new code is finished.

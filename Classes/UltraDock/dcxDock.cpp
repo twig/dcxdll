@@ -61,10 +61,10 @@ DcxDock::~DcxDock(void)
 bool DcxDock::DockWindow(HWND hwnd, const TString &flag)
 {
 	if (isDocked(hwnd))
-		throw std::invalid_argument(Dcx::dcxGetFormattedString(TEXT("Window (%u) is already docked"), hwnd));
+		throw Dcx::dcxException(TEXT("Window (%) is already docked"), reinterpret_cast<DWORD>(hwnd));
 
 	if (!IsWindow(this->m_hParent))
-		throw std::invalid_argument("Invalid Dock Host Window");
+		throw Dcx::dcxException("Invalid Dock Host Window");
 
 	auto ud = new DCXULTRADOCK;
 
@@ -547,12 +547,12 @@ LRESULT CALLBACK DcxDock::mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 						break;
 
 					const auto pos = DcxDock::getPos(wp->x, wp->y, wp->cx, wp->cy);
-					if (pos == 3) // if at top then ignore it.
+					if (pos == SwitchBarPos::SWB_TOP) // if at top then ignore it.
 						break;
 
 					RECT rc;
 					DcxDock::status_getRect(&rc);
-					if (pos == 4) // if at bottom move it up.
+					if (pos == SwitchBarPos::SWB_BOTTOM) // if at bottom move it up.
 						wp->y -= (rc.bottom - rc.top);
 					else
 						wp->cy -= (rc.bottom - rc.top);
@@ -616,11 +616,7 @@ LRESULT CALLBACK DcxDock::mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 												mIRCLinker::tsEvalex(buf, TEXT("$window(@%d).sbcolor"), wid);
 												if (!buf.empty()) {
 													static const TString sbcolor(TEXT("s s message s event s highlight")); // 's' is used as a spacer.
-#if TSTRING_TEMPLATES
 													const auto clr = sbcolor.findtok(buf, 1);
-#else
-													const auto clr = sbcolor.findtok(buf.to_chr(), 1);
-#endif
 													if ((clr == 0) || (clr >= Dcx::countof(DcxDock::g_clrTreebarColours))) // no match, do normal colours
 														break;
 													if (DcxDock::g_clrTreebarColours[clr-1] != CLR_INVALID) // text colour
@@ -896,7 +892,6 @@ void DcxDock::status_parseControlStyles( const TString & styles, LONG * Styles, 
 {
 	*Styles = WS_CHILD|WS_VISIBLE|WS_CLIPCHILDREN|WS_CLIPSIBLINGS;
 
-#if TSTRING_PARTS
 	for (const auto &tsStyle: styles) {
 		if (tsStyle == TEXT("grip"))
 			*Styles |= SBARS_SIZEGRIP;
@@ -911,22 +906,6 @@ void DcxDock::status_parseControlStyles( const TString & styles, LONG * Styles, 
 		else if (tsStyle == TEXT("transparent"))
 			*ExStyles |= WS_EX_TRANSPARENT;
 	}
-#else
-	for (auto tsStyle(styles.getfirsttok(1)); !tsStyle.empty(); tsStyle = styles.getnexttok()) {
-		if ( tsStyle == TEXT("grip") )
-			*Styles |= SBARS_SIZEGRIP;
-		else if ( tsStyle == TEXT("tooltips") )
-			*Styles |= SBARS_TOOLTIPS;
-		else if ( tsStyle == TEXT("nodivider") )
-			*Styles |= CCS_NODIVIDER;
-		else if ( tsStyle == TEXT("notheme") )
-			*bNoTheme = TRUE;
-		else if ( tsStyle == TEXT("disabled") )
-			*Styles |= WS_DISABLED;
-		else if ( tsStyle == TEXT("transparent") )
-			*ExStyles |= WS_EX_TRANSPARENT;
-	}
-#endif
 }
 
 void DcxDock::status_getRect(LPRECT rc) {
@@ -1138,15 +1117,15 @@ const SwitchBarPos DcxDock::getPos(const int x, const int y, const int w, const 
 {
 	RECT rc;
 	if (!GetClientRect(mIRCLinker::getHWND(), &rc))
-		return SWB_NONE;
+		return SwitchBarPos::SWB_NONE;
 
 	if (x == rc.left && (y + h) == rc.bottom && (x + w) != rc.right)
-		return SWB_LEFT;
+		return SwitchBarPos::SWB_LEFT;
 	if (x == rc.left && (y + h) != rc.bottom && (x + w) == rc.right)
-		return SWB_TOP;
+		return SwitchBarPos::SWB_TOP;
 	if (x == rc.left && (y + h) == rc.bottom && (x + w) == rc.right)
-		return SWB_BOTTOM;
-	return SWB_RIGHT;
+		return SwitchBarPos::SWB_BOTTOM;
+	return SwitchBarPos::SWB_RIGHT;
 }
 
 void DcxDock::getTreebarItemType(TString &tsType, const LPARAM lParam)
