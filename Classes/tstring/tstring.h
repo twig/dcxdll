@@ -45,6 +45,8 @@
  *		and loads more...
  *	1.13
  *      loads of changes !!!
+ *  1.14
+ *		loads of changes again :)
  *
  * © ScriptsDB.org - 2005-2015
  */
@@ -88,13 +90,9 @@
 // Enable/Disable test code...
 #define TSTRING_TESTCODE 1
 
-#if TSTRING_PARTS
 #include <iterator>
-#endif
 
-#if TSTRING_TEMPLATES
 #include <sstream>
-#endif
 
 // enable this to include a small internal buffer that avoids an allocation for small strings.
 #define TSTRING_INTERNALBUFFER 0
@@ -194,11 +192,7 @@ private:
 	static auto allocstr_cch(const size_t size, size_t &iActual) { return allocstr_bytes(size*sizeof(TCHAR), iActual); };
 
 	// swap contents of second with this
-#if _MSC_VER > 1800
 	void swap(TString &second) noexcept;
-#else
-	void swap(TString &second);
-#endif
 
 	// make test string m_pTempString which is m_pString converted to either WCHAR or char
 	void MakeTemp() const
@@ -385,9 +379,7 @@ public:
 	TString operator *( const int &N ) const;
 	TString & operator *=( const int &N );
 
-#if TSTRING_TESTCODE
 	TString operator ++(int N) const {
-		// testing this code for getting multiple tokens in a row
 		// NB: only works with space token
 		// NB: post-increment works for us as we want to return a copy (the token)
 		// NB: pre-increment doesn't work for this
@@ -406,8 +398,6 @@ public:
 
 		return TString(p_cStart, p_cEnd);
 	}
-
-#endif
 
 	template <class T>
 	TCHAR & operator [](const T &N) noexcept
@@ -523,6 +513,7 @@ public:
 	}
 
 #ifdef GSL_GSL_H
+	// messing about with this, dont use in normal code.
 	template <typename T>
 	UINT acompare(const gsl::span<T> &arr) const
 	{
@@ -558,6 +549,7 @@ public:
 	UINT mreplace(const TCHAR chr, const TCHAR *const fmt);					// replace any char in fmt with chr
 
 #if 0
+	// messing about with this, dont use in normal code.
 	template <typename T, typename M>
 	UINT test_replace(const T &subString, const M &rString)
 	{
@@ -751,101 +743,6 @@ public:
 	TString wildtok(const TCHAR *const wildString, const UINT N, const TCHAR *const sepChars = SPACE) const;
 	UINT nwildtok(const TCHAR *const wildString, const TCHAR *const sepChars = SPACE) const;
 
-	////-------------------------------------------------------------------
-	//// Raw iterator with random access
-	////-------------------------------------------------------------------
-	//template<typename blDataType>
-	//class blRawIterator : public std::iterator<std::random_access_iterator_tag,
-	//	blDataType,
-	//	ptrdiff_t,
-	//	blDataType*,
-	//	blDataType&>
-	//{
-	//public:
-	//
-	//	blRawIterator(blDataType* ptr = nullptr){ m_ptr = ptr; }
-	//	blRawIterator(const blRawIterator<blDataType>& rawIterator) = default;
-	//	~blRawIterator(){}
-	//
-	//	blRawIterator<blDataType>&                  operator=(const blRawIterator<blDataType>& rawIterator) = default;
-	//	blRawIterator<blDataType>&                  operator=(blDataType* ptr){ m_ptr = ptr; return (*this); }
-	//
-	//	operator bool()const
-	//	{
-	//		if (m_ptr)
-	//			return true;
-	//		else
-	//			return false;
-	//	}
-	//
-	//	bool                                        operator==(const blRawIterator<blDataType>& rawIterator)const{ return (m_ptr == rawIterator.getConstPtr()); }
-	//	bool                                        operator!=(const blRawIterator<blDataType>& rawIterator)const{ return (m_ptr != rawIterator.getConstPtr()); }
-	//
-	//	blRawIterator<blDataType>&                  operator+=(const ptrdiff_t& movement){ m_ptr += movement; return (*this); }
-	//	blRawIterator<blDataType>&                  operator-=(const ptrdiff_t& movement){ m_ptr -= movement; return (*this); }
-	//	blRawIterator<blDataType>&                  operator++(){ ++m_ptr; return (*this); }
-	//	blRawIterator<blDataType>&                  operator--(){ --m_ptr; return (*this); }
-	//	blRawIterator<blDataType>                   operator++(ptrdiff_t){ auto temp(*this); ++m_ptr; return temp; }
-	//	blRawIterator<blDataType>                   operator--(ptrdiff_t){ auto temp(*this); --m_ptr; return temp; }
-	//	blRawIterator<blDataType>                   operator+(const ptrdiff_t& movement){ auto oldPtr = m_ptr; m_ptr += movement; auto temp(*this); m_ptr = oldPtr; return temp; }
-	//	blRawIterator<blDataType>                   operator-(const ptrdiff_t& movement){ auto oldPtr = m_ptr; m_ptr -= movement; auto temp(*this); m_ptr = oldPtr; return temp; }
-	//
-	//	ptrdiff_t                                   operator-(const blRawIterator<blDataType>& rawIterator){ return std::distance(rawIterator.getPtr(), this->getPtr()); }
-	//
-	//	blDataType&                                 operator*(){ return *m_ptr; }
-	//	const blDataType&                           operator*()const{ return *m_ptr; }
-	//	blDataType*                                 operator->(){ return m_ptr; }
-	//
-	//	blDataType*                                 getPtr()const{ return m_ptr; }
-	//	const blDataType*                           getConstPtr()const{ return m_ptr; }
-	//
-	//protected:
-	//
-	//	blDataType*                                 m_ptr;
-	//};
-	////-------------------------------------------------------------------
-
-	//template <typename A, typename T>
-	//class CTypeArrayIterator
-	//{
-	//public:
-	//	CTypeArrayIterator(A& collection, INT_PTR const index) :
-	//		m_index(index),
-	//		m_collection(collection)
-	//	{
-	//	}
-	//
-	//	bool operator!= (CTypeArrayIterator const & other) const
-	//	{
-	//		return m_index != other.m_index;
-	//	}
-	//
-	//	T& operator* () const
-	//	{
-	//		return m_collection[m_index];
-	//	}
-	//
-	//	CTypeArrayIterator const & operator++ ()
-	//	{
-	//		++m_index;
-	//		return *this;
-	//	}
-	//
-	//private:
-	//	INT_PTR  m_index;
-	//	A&       m_collection;
-	//};
-	//
-	//inline CTypeArrayIterator<CStringArray, CString> begin(CStringArray& collection)
-	//{
-	//	return CTypeArrayIterator<CStringArray, CString>(collection, 0);
-	//}
-	//
-	//inline CTypeArrayIterator<CStringArray, CString> end(CStringArray& collection)
-	//{
-	//	return CTypeArrayIterator<CStringArray, CString>(collection, collection.GetCount());
-	//}
-
 	template <typename tsType, typename T = const TCHAR>
 	class tsIterator
 		: public std::iterator<std::forward_iterator_tag, tsType, ptrdiff_t, tsType*, tsType&>
@@ -1013,7 +910,7 @@ public:
 
 #endif
 
-#if TSTRING_TEMPLATES
+#if TSTRING_TESTCODE
 	template <typename T> bool iswm(const T &a) { return _ts_WildcardMatch(*this, a); }
 #else
 	bool iswm(const TCHAR *const a) const;
@@ -1081,11 +978,10 @@ public:
 #define TSTAB TString::TAB
 #define TSSPACE TString::SPACE
 #define TSCOMMA TString::COMMA
-#if _MSC_VER > 1800
+
 // literal operator
 // allows "sometext"_ts to be interpreted as TString("sometext")
 TString operator"" _ts(const char *p, size_t);
-#endif
 
 namespace detail {
 	template <typename Result, typename Format>
@@ -1144,6 +1040,7 @@ namespace detail {
 template <typename Result, typename Format, typename Value, typename... Arguments>
 Result &_ts_sprintf(Result &res, const Format &fmt, const Value val, Arguments&&... args)
 {
+	res.clear();
 	return detail::_ts_printf_do(res, fmt, val, args...);
 }
 
