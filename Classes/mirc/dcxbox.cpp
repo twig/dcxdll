@@ -54,7 +54,7 @@ DcxBox::DcxBox(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd,
 		nullptr);
 
 	if (!IsWindow(this->m_Hwnd))
-		throw std::runtime_error("Unable To Create Window");
+		throw Dcx::dcxException("Unable To Create Window");
 
 	// remove all borders
 	this->removeStyle(WS_BORDER | WS_DLGFRAME);
@@ -128,7 +128,6 @@ void DcxBox::parseControlStyles( const TString & styles, LONG * Styles, LONG * E
 {
 	this->m_iBoxStyles = 0;
 
-#if TSTRING_PARTS
 	for (const auto &a : styles)
 	{
 #if DCX_SWITCH_OBJ
@@ -165,32 +164,6 @@ void DcxBox::parseControlStyles( const TString & styles, LONG * Styles, LONG * E
 #endif
 	}
 
-#else
-	for (auto tsStyle(styles.getfirsttok( 1 )); !tsStyle.empty(); tsStyle = styles.getnexttok( ))
-	{
-		if (tsStyle == TEXT("right"))
-			this->m_iBoxStyles |= BOXS_RIGHT;
-		else if (tsStyle == TEXT("center"))
-			this->m_iBoxStyles |= BOXS_CENTER;
-		else if (tsStyle == TEXT("bottom"))
-			this->m_iBoxStyles |= BOXS_BOTTOM;
-		else if (tsStyle == TEXT("none"))
-			this->m_iBoxStyles |= BOXS_NONE;
-		else if (tsStyle == TEXT("rounded"))
-			this->m_iBoxStyles |= BOXS_ROUNDED;
-		else if (tsStyle == TEXT("check")) {
-			this->m_iBoxStyles &= ~BOXS_RADIO;
-			this->m_iBoxStyles |= BOXS_CHECK;
-		}
-		else if (tsStyle == TEXT("radio")) {
-			this->m_iBoxStyles &= ~BOXS_CHECK;
-			this->m_iBoxStyles |= BOXS_RADIO;
-		}
-		else if (tsStyle == TEXT("transparent"))
-			*ExStyles |= WS_EX_TRANSPARENT;
-	}
-#endif
-
 	this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
 }
 
@@ -219,7 +192,7 @@ void DcxBox::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) con
 
 		RECT rc;
 		if (!GetClientRect(this->m_Hwnd, &rc))
-			throw std::runtime_error("Unable to get client rect!");
+			throw Dcx::dcxException("Unable to get client rect!");
 
 		InflateRect( &rc, -2, -2 );
 		if ( GetWindowTextLength( this->m_Hwnd ) > 0 )
@@ -267,14 +240,14 @@ void DcxBox::parseInfoRequest(const TString & input, PTCHAR szReturnValue) const
 		.Case(TEXT("inbox"), [this, szReturnValue] {
 			RECT rc;
 			if (!GetClientRect(this->m_Hwnd, &rc))
-				throw std::runtime_error("Unable to get client rect!");
+				throw Dcx::dcxException("Unable to get client rect!");
 
 			InflateRect(&rc, -2, -2);
 			if (GetWindowTextLength(this->m_Hwnd) > 0)
 			{
 				auto hdc = GetDC(this->m_Hwnd);
 				if (hdc == nullptr)
-					throw std::runtime_error("Unable to get windows DC");
+					throw Dcx::dcxException("Unable to get windows DC");
 
 				HFONT oldFont = nullptr;
 				RECT rcText = rc;
@@ -320,22 +293,25 @@ void DcxBox::parseCommandRequest( const TString & input ) {
 	// xdid -c [NAME] [ID] [SWITCH] [ID] [CONTROL] [X] [Y] [W] [H] (OPTIONS)
 	if ( flags[TEXT('c')] && numtok > 8 ) {
 
-		const auto ID = mIRC_ID_OFFSET + (UINT)input.getnexttok().to_int();	// tok 4
+		//const auto ID = mIRC_ID_OFFSET + (UINT)input.getnexttok().to_int();	// tok 4
+		//
+		//if (!this->m_pParentDialog->isIDValid(ID, true))
+		//	throw Dcx::dcxException(TEXT("Control with ID \"%\" already exists"), ID - mIRC_ID_OFFSET);
+		//
+		//try {
+		//	//throw Dcx::dcxException("test");
+		//
+		//	this->m_pParentDialog->addControl(DcxControl::controlFactory(this->m_pParentDialog, ID, input, 5, CTLF_ALLOW_ALL, this->m_Hwnd));
+		//	this->redrawWindow( );
+		//}
+		//catch (std::exception &e)
+		//{
+		//	this->showErrorEx(nullptr, TEXT("-c"), TEXT("Unable To Create Control %d (%S)"), ID - mIRC_ID_OFFSET, e.what());
+		//	throw;
+		//}
 
-		if (!this->m_pParentDialog->isIDValid(ID, true))
-			throw std::invalid_argument(Dcx::dcxGetFormattedString(TEXT("Control with ID \"%d\" already exists"), ID - mIRC_ID_OFFSET));
-
-		try {
-			//throw std::invalid_argument("test");
-
-			this->m_pParentDialog->addControl(DcxControl::controlFactory(this->m_pParentDialog, ID, input, 5, CTLF_ALLOW_ALL, this->m_Hwnd));
-			this->redrawWindow( );
-		}
-		catch (std::exception &e)
-		{
-			this->showErrorEx(nullptr, TEXT("-c"), TEXT("Unable To Create Control %d (%S)"), ID - mIRC_ID_OFFSET, e.what());
-			throw;
-		}
+		this->m_pParentDialog->addControl(input, 4, CTLF_ALLOW_ALL, this->m_Hwnd);
+		this->redrawWindow();
 	}
 	// xdid -d [NAME] [ID] [SWITCH] [ID]
 	else if ( flags[TEXT('d')] && numtok > 3 ) {
@@ -343,12 +319,12 @@ void DcxBox::parseCommandRequest( const TString & input ) {
 		const auto ID = mIRC_ID_OFFSET + (UINT)input.getnexttok().to_int();	// tok 4
 
 		if (!this->m_pParentDialog->isIDValid(ID))
-			throw std::runtime_error(Dcx::dcxGetFormattedString(TEXT("Unknown control with ID \"%d\" (dialog %s)"), ID - mIRC_ID_OFFSET, this->m_pParentDialog->getName().to_chr()));
+			throw Dcx::dcxException(TEXT("Unknown control with ID \"%\" (dialog %)"), ID - mIRC_ID_OFFSET, this->m_pParentDialog->getName());
 
 		auto p_Control = this->m_pParentDialog->getControlByID(ID);
 
 		if (p_Control == nullptr)
-			throw std::runtime_error("Unable to get control");
+			throw Dcx::dcxException("Unable to get control");
 
 		const auto dct = p_Control->getControlType();
 
@@ -356,7 +332,7 @@ void DcxBox::parseCommandRequest( const TString & input ) {
 			delete p_Control;
 		else {
 			if (p_Control->getRefCount() != 0)
-				throw std::runtime_error(Dcx::dcxGetFormattedString(TEXT("Can't delete control with ID \"%d\" when it is inside it's own event (dialog %s)"), p_Control->getUserID(), this->m_pParentDialog->getName().to_chr()));
+				throw Dcx::dcxException(TEXT("Can't delete control with ID \"%\" when it is inside it's own event (dialog %)"), p_Control->getUserID(), this->m_pParentDialog->getName());
 
 			auto cHwnd = p_Control->getHwnd();
 			this->m_pParentDialog->deleteControl(p_Control); // remove from internal list!
@@ -367,7 +343,7 @@ void DcxBox::parseCommandRequest( const TString & input ) {
 		//	delete p_Control;
 		//else {
 		//	if (p_Control->getRefCount() != 0)
-		//		throw std::runtime_error(Dcx::dcxGetFormattedString(TEXT("Can't delete control with ID \"%d\" when it is inside it's own event (dialog %s)"), p_Control->getUserID(), this->m_pParentDialog->getName().to_chr()));
+		//		throw Dcx::dcxException(TEXT("Can't delete control with ID \"%\" when it is inside it's own event (dialog %)"), p_Control->getUserID(), this->m_pParentDialog->getName());
 		//
 		//	auto cHwnd = p_Control->getHwnd();
 		//	this->m_pParentDialog->deleteControl(p_Control); // remove from internal list!
@@ -391,7 +367,7 @@ void DcxBox::parseCommandRequest( const TString & input ) {
 			if ( this->m_pLayoutManager != nullptr ) {
 				RECT rc;
 				if (!GetClientRect( this->m_Hwnd, &rc ))
-					throw std::runtime_error("Unable to get client rect!");
+					throw Dcx::dcxException("Unable to get client rect!");
 				
 				this->m_pLayoutManager->updateLayout(rc);
 

@@ -53,7 +53,7 @@ DcxRichEdit::DcxRichEdit(const UINT ID, DcxDialog *const p_Dialog, const HWND mP
 		nullptr);
 
 	if (!IsWindow(this->m_Hwnd))
-		throw std::runtime_error("Unable To Create Window");
+		throw Dcx::dcxException("Unable To Create Window");
 
 	if (bNoTheme)
 		Dcx::UXModule.dcxSetWindowTheme(this->m_Hwnd , L" ", L" ");
@@ -100,7 +100,6 @@ void DcxRichEdit::parseControlStyles( const TString &styles, LONG *Styles, LONG 
 {
 	//*Styles |= ES_READONLY;
 	//ES_NOHIDESEL
-#if TSTRING_PARTS
 	for (const auto &tsStyle: styles)
 	{
 		if (tsStyle == TEXT("multi"))
@@ -122,29 +121,7 @@ void DcxRichEdit::parseControlStyles( const TString &styles, LONG *Styles, LONG 
 		else if (tsStyle == TEXT("disablescroll"))
 			*Styles |= ES_DISABLENOSCROLL;
 	}
-#else
-	for (auto tsStyle(styles.getfirsttok(1)); !tsStyle.empty(); tsStyle = styles.getnexttok())
-	{
-		if (tsStyle == TEXT("multi"))
-			*Styles |= ES_MULTILINE | ES_WANTRETURN;
-		else if (tsStyle == TEXT("readonly"))
-			*Styles |= ES_READONLY;
-		else if (tsStyle == TEXT("center"))
-			*Styles |= ES_CENTER;
-		else if (tsStyle == TEXT("right"))
-			*Styles |= ES_RIGHT;
-		else if (tsStyle == TEXT("autohs"))
-			*Styles |= ES_AUTOHSCROLL;
-		else if (tsStyle == TEXT("autovs"))
-			*Styles |= ES_AUTOVSCROLL;
-		else if (tsStyle == TEXT("vsbar"))
-			*Styles |= WS_VSCROLL;
-		else if (tsStyle == TEXT("hsbar"))
-			*Styles |= WS_HSCROLL;
-		else if (tsStyle == TEXT("disablescroll"))
-			*Styles |= ES_DISABLENOSCROLL;
-	}
-#endif
+
 	this->parseGeneralControlStyles(styles, Styles, ExStyles, bNoTheme);
 }
 
@@ -170,7 +147,7 @@ void DcxRichEdit::parseInfoRequest( const TString &input, PTCHAR szReturnValue) 
 			line = input.getnexttok( ).to_int() -1;		// tok 4
 
 		if ((line < 0) || (line >= Edit_GetLineCount(this->m_Hwnd)))
-			throw std::invalid_argument("Invalid line number.");
+			throw Dcx::dcxException("Invalid line number.");
 
 		// get index of first character in line
 		const auto offset = SendMessage(this->m_Hwnd, EM_LINEINDEX, (WPARAM)line, NULL);
@@ -403,7 +380,7 @@ void DcxRichEdit::parseCommandRequest(const TString &input) {
 	else if (flags[TEXT('f')] && numtok > 3) {
 		const auto iFontFlags = parseFontFlags(input.getnexttok());	// tok 4
 
-		if (dcx_testflag(iFontFlags, DCF_DEFAULT)) {
+		if (dcx_testflag(iFontFlags, dcxFontFlags::DCF_DEFAULT)) {
 			this->m_clrBackText = GetSysColor(COLOR_WINDOW);
 			this->m_clrText = GetSysColor(COLOR_WINDOWTEXT);
 			this->m_iFontSize = 10 * 20;
@@ -421,22 +398,22 @@ void DcxRichEdit::parseCommandRequest(const TString &input) {
 			this->m_iFontSize = 20 * input.getnexttok( ).to_int();				// tok 6
 			this->m_tsFontFaceName = input.getlasttoks().trim();				// tok 7, -1
 
-			if (dcx_testflag(iFontFlags, DCF_BOLD))
+			if (dcx_testflag(iFontFlags, dcxFontFlags::DCF_BOLD))
 				this->m_bFontBold = TRUE;
 			else
 				this->m_bFontBold = FALSE;
 
-			if (dcx_testflag(iFontFlags, DCF_ITALIC))
+			if (dcx_testflag(iFontFlags, dcxFontFlags::DCF_ITALIC))
 				this->m_bFontItalic = TRUE;
 			else
 				this->m_bFontItalic = FALSE;
 
-			if (dcx_testflag(iFontFlags, DCF_STRIKEOUT))
+			if (dcx_testflag(iFontFlags, dcxFontFlags::DCF_STRIKEOUT))
 				this->m_bFontStrikeout = TRUE;
 			else
 				this->m_bFontStrikeout = FALSE;
 
-			if (dcx_testflag(iFontFlags, DCF_UNDERLINE))
+			if (dcx_testflag(iFontFlags, dcxFontFlags::DCF_UNDERLINE))
 				this->m_bFontUnderline = TRUE;
 			else
 				this->m_bFontUnderline = FALSE;
@@ -447,13 +424,8 @@ void DcxRichEdit::parseCommandRequest(const TString &input) {
 	// xdid -i [NAME] [ID] [SWITCH] [N] [TEXT]
 	else if (flags[TEXT('i')] && numtok > 4) {
 		if (this->isStyle(ES_MULTILINE)) {
-#if TSTRING_TEMPLATES
 			const auto nLine = input.getnexttok().to_<UINT>();								// tok 4
 			this->m_tsText.instok(input.getlasttoks(), nLine, TEXT("\r\n"));	// tok 5, -1
-#else
-			const auto nLine = input.getnexttok().to_int();								// tok 4
-			this->m_tsText.instok(input.getlasttoks().to_chr(), nLine, TEXT("\r\n"));	// tok 5, -1
-#endif
 		}
 		else
 			this->m_tsText = input.getlasttoks();										// tok 4, -1
@@ -462,11 +434,7 @@ void DcxRichEdit::parseCommandRequest(const TString &input) {
 	}
 	// xdid -k [NAME] [ID] [SWITCH] [COLOR]
 	else if (flags[TEXT('k')] && numtok > 3) {
-#if TSTRING_TEMPLATES
 		const auto clrColor = input.getnexttok().to_<COLORREF>();	// tok 4
-#else
-		const auto clrColor = (COLORREF)input.getnexttok().to_num();	// tok 4
-#endif
 
 		if (clrColor == CLR_INVALID)
 			SendMessage(this->m_Hwnd, EM_SETBKGNDCOLOR, (WPARAM) 1, (LPARAM) GetSysColor(COLOR_WINDOWTEXT));
@@ -481,13 +449,9 @@ void DcxRichEdit::parseCommandRequest(const TString &input) {
 		const auto nColor = input.getnexttok( ).to_int() -1;	// tok 4
 
 		if (nColor < 0 && nColor > 15)
-			throw std::invalid_argument("Invalid Colour");
+			throw Dcx::dcxException("Invalid Colour");
 
-#if TSTRING_TEMPLATES
 		this->m_aColorPalette[nColor] = input.getnexttok().to_<COLORREF>();	// tok 5
-#else
-		this->m_aColorPalette[nColor] = (COLORREF)input.getnexttok( ).to_num();	// tok 5
-#endif
 		this->parseContents(TRUE);
 	}
 	// xdid -m [NAME] [ID] [SWITCH]
@@ -504,13 +468,8 @@ void DcxRichEdit::parseCommandRequest(const TString &input) {
 	// xdid -o [NAME] [ID] [SWITCH] [N] [TEXT]
 	else if (flags[TEXT('o')] && numtok > 4) {
 		if (this->isStyle(ES_MULTILINE)) {
-#if TSTRING_TEMPLATES
 			const auto nLine = input.getnexttok().to_<UINT>();								// tok 4
 			this->m_tsText.puttok(input.getlasttoks(), nLine, TEXT("\r\n"));	// tok 5, -1
-#else
-			const auto nLine = input.getnexttok().to_int();								// tok 4
-			this->m_tsText.puttok(input.getlasttoks( ).to_chr(), nLine, TEXT("\r\n"));	// tok 5, -1
-#endif
 		}
 		else
 			this->m_tsText = input.getlasttoks( );	// tok 4, -1
@@ -526,14 +485,10 @@ void DcxRichEdit::parseCommandRequest(const TString &input) {
 		const auto nColor = numtok - 3;
 
 		if (nColor > 15)
-			throw std::invalid_argument("Invalid Colour");
+			throw Dcx::dcxException("Invalid Colour");
 
 		for (auto i = decltype(nColor){0}; (i < nColor && i < Dcx::countof(this->m_aColorPalette)); i++)
-#if TSTRING_TEMPLATES
 			this->m_aColorPalette[i] = input.getnexttok().to_<COLORREF>();	// tok 4 + i
-#else
-			this->m_aColorPalette[i] = (COLORREF)input.getnexttok( ).to_num();	// tok 4 + i
-#endif
 
 		this->parseContents(TRUE);
 	}
@@ -557,7 +512,7 @@ void DcxRichEdit::parseCommandRequest(const TString &input) {
 			tsFile = input.getlasttoks( ).trim();	// 5, -1
 
 		if (!IsFile(tsFile))
-			throw std::invalid_argument(Dcx::dcxGetFormattedString(TEXT("Unable to open: %s"), tsFile.to_chr()));
+			throw Dcx::dcxException(TEXT("Unable to open: %"), tsFile);
 
 		if (xflags[TEXT('o')])
 			bOldMethod = true;
@@ -574,7 +529,7 @@ void DcxRichEdit::parseCommandRequest(const TString &input) {
 		else {
 			// new methods... load rtf...
 			if (!LoadRichTextFromFile(this->m_Hwnd, tsFile.to_chr()))
-				throw std::runtime_error(Dcx::dcxGetFormattedString(TEXT("Unable to open: %s"), tsFile.to_chr()));
+				throw Dcx::dcxException(TEXT("Unable to open: %"), tsFile);
 		}
 	}
 	// xdid -u [NAME] [ID] [SWITCH] [FILENAME]
@@ -605,7 +560,7 @@ void DcxRichEdit::parseCommandRequest(const TString &input) {
 			bRes = SaveRichTextToFile(this->m_Hwnd, tsFile.to_chr());
 		}
 		if (!bRes)
-			throw std::runtime_error(Dcx::dcxGetFormattedString(TEXT("Unable to save: %s"), tsFile.to_chr()));
+			throw Dcx::dcxException(TEXT("Unable to save: %"), tsFile);
 	}
 	// xdid -S [NAME] [ID] [SWITCH] [START] [END]
 	else if (flags[TEXT('S')] && numtok > 3) {
@@ -651,7 +606,7 @@ void DcxRichEdit::parseCommandRequest(const TString &input) {
 		const auto den = input.getnexttok().to_int();	// tok 5
 
 		if (!SendMessage(this->m_Hwnd, EM_SETZOOM, (WPARAM) num, (LPARAM) den))
-			throw std::runtime_error("Richedit zooming error");
+			throw Dcx::dcxException("Richedit zooming error");
 	}
 	else
 		this->parseGlobalCommandRequest(input, flags);
@@ -671,23 +626,9 @@ void DcxRichEdit::loadmIRCPalette() {
 	if (len > Dcx::countof(this->m_aColorPalette))
 		return;	// something went very wrong...
 
-#if TSTRING_PARTS
 	UINT i = 0;
 	for (const auto &tmp: colors)
-#if TSTRING_TEMPLATES
 		this->m_aColorPalette[i++] = tmp.to_<COLORREF>();	// tok i + 1
-#else
-		this->m_aColorPalette[i++] = (COLORREF)tmp.to_num();	// tok i + 1
-#endif
-#else
-	//colors.getfirsttok(0);
-	//
-	//for (UINT i = 0; i < len; i++)
-	//	this->m_aColorPalette[i] = (COLORREF)colors.getnexttok().to_num();	// tok i + 1
-
-	for (auto tmp(colors.getfirsttok()); !tmp.empty(); tmp = colors.getnexttok())
-		this->m_aColorPalette[i++] = (COLORREF)tmp.to_num();	// tok i + 1
-#endif
 }
 
 /*!

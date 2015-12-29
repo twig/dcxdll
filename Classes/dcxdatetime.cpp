@@ -47,7 +47,7 @@ DcxDateTime::DcxDateTime(const UINT ID, DcxDialog *const p_Dialog, const HWND mP
 		nullptr);
 
 	if (!IsWindow(this->m_Hwnd))
-		throw std::runtime_error("Unable To Create Window");
+		throw Dcx::dcxException("Unable To Create Window");
 
 	if (bNoTheme)
 		Dcx::UXModule.dcxSetWindowTheme(this->m_Hwnd, L" ", L" ");
@@ -110,7 +110,6 @@ const TString DcxDateTime::getStyles(void) const
  */
 void DcxDateTime::parseControlStyles( const TString &styles, LONG *Styles, LONG *ExStyles, BOOL *bNoTheme)
 {
-#if TSTRING_PARTS
 	for (const auto &tsStyle: styles)
 	{
 		if (tsStyle == TEXT("longdateformat"))
@@ -128,25 +127,6 @@ void DcxDateTime::parseControlStyles( const TString &styles, LONG *Styles, LONG 
 		else if (tsStyle == TEXT("updown"))
 			*Styles |= DTS_UPDOWN;
 	}
-#else
-	for (auto tsStyle(styles.getfirsttok(1)); !tsStyle.empty(); tsStyle = styles.getnexttok())
-	{
-		if (tsStyle == TEXT("longdateformat"))
-			*Styles |= DTS_LONGDATEFORMAT;
-		else if (tsStyle == TEXT("shortdateformat"))
-			*Styles |= DTS_SHORTDATEFORMAT;
-		else if (tsStyle == TEXT("shortdatecenturyformat"))
-			*Styles |= DTS_SHORTDATECENTURYFORMAT;
-		else if (tsStyle == TEXT("timeformat"))
-			*Styles |= DTS_TIMEFORMAT;
-		else if (tsStyle == TEXT("right"))
-			*Styles |= DTS_RIGHTALIGN;
-		else if (tsStyle == TEXT("shownone"))
-			*Styles |= DTS_SHOWNONE;
-		else if (tsStyle == TEXT("updown"))
-			*Styles |= DTS_UPDOWN;
-	}
-#endif
 
 	this->parseGeneralControlStyles(styles, Styles, ExStyles, bNoTheme);
 }
@@ -220,30 +200,17 @@ void DcxDateTime::parseCommandRequest( const TString &input) {
 
 		ZeroMemory(range, sizeof(SYSTEMTIME) *2);
 
-#if TSTRING_TESTCODE
 		const auto tsMin(input++);	// tok 4
 		const auto tsMax(input++);	// tok 5
-#else
-		const auto tsMin(input.getnexttok( ));	// tok 4
-		const auto tsMax(input.getnexttok( ));	// tok 5
-#endif
 
 		if (tsMin != TEXT("nolimit")) {
-#if TSTRING_TEMPLATES
 			const auto min = tsMin.to_<long>();
-#else
-			const auto min = (long) tsMin.to_num();
-#endif
 			range[0] = MircTimeToSystemTime(min);
 			dflags |= GDTR_MIN;
 		}
 
 		if (tsMax != TEXT("nolimit")) {
-#if TSTRING_TEMPLATES
 			const auto max = tsMax.to_<long>();
-#else
-			const auto max = (long) tsMax.to_num();
-#endif
 			range[1] = MircTimeToSystemTime(max);
 			dflags |= GDTR_MAX;
 		}
@@ -252,22 +219,14 @@ void DcxDateTime::parseCommandRequest( const TString &input) {
 	}
 	//xdid -t [NAME] [ID] [SWITCH] [TIMESTAMP]
 	else if (flags[TEXT('t')] && numtok > 3) {
-#if TSTRING_TESTCODE
 		const auto ts(input++);	// tok 4
-#else
-		const auto ts(input.getnexttok( ));	// tok 4
-#endif
 
 		if (ts == TEXT("reset")) {
 			if (isStyle(DTS_SHOWNONE))
 				DateTime_SetSystemtime(this->m_Hwnd, GDT_NONE, nullptr);
 		}
 		else {
-#if TSTRING_TEMPLATES
 			const auto mircTime = ts.to_<long>();
-#else
-			const auto mircTime = (long) ts.to_num();
-#endif
 			const auto sysTime = MircTimeToSystemTime(mircTime);
 
 			DateTime_SetSystemtime(this->m_Hwnd, GDT_VALID, &sysTime);

@@ -299,7 +299,7 @@ void XPopupMenuManager::parseCommand(const TString & input) {
 
 	// Special mIRC Menu
 	if (p_Menu == nullptr && !flags[TEXT('c')])
-		throw std::invalid_argument(Dcx::dcxGetFormattedString(TEXT("\"%s\" doesn't exist : see /xpopup -c"), input.gettok(1).to_chr()));
+		throw Dcx::dcxException(TEXT("\"%\" doesn't exist : see /xpopup -c"), input.gettok(1));
 
 	parseCommand(input, p_Menu);
 }
@@ -321,12 +321,12 @@ void XPopupMenuManager::parseCommand( const TString & input, XPopupMenu *const p
 			}
 			else {
 				if (!IsFile(filename))
-					throw std::runtime_error(Dcx::dcxGetFormattedString(TEXT("Unable to Access File: %s"), filename.to_chr()));
+					throw Dcx::dcxException(TEXT("Unable to Access File: %"), filename);
 				
 				hBitmap = dcxLoadBitmap(hBitmap, filename);
 
 				if (hBitmap == nullptr)
-					throw std::runtime_error(Dcx::dcxGetFormattedString(TEXT("Unable to Load Image: %s"), filename.to_chr()));
+					throw Dcx::dcxException(TEXT("Unable to Load Image: %"), filename);
 			}
 		}
 
@@ -337,7 +337,7 @@ void XPopupMenuManager::parseCommand( const TString & input, XPopupMenu *const p
 	else if ((flags[TEXT('c')]) && (numtok > 2) && (tsMenuName != TEXT("mirc") || tsMenuName != TEXT("mircbar"))) {
 
 		if (p_Menu != nullptr)
-			throw std::invalid_argument(Dcx::dcxGetFormattedString(TEXT("\"%s\" already exists"), tsMenuName.to_chr()));
+			throw Dcx::dcxException(TEXT("\"%\" already exists"), tsMenuName);
 
 		auto style = XPopupMenu::parseStyle(input.getnexttok());	// tok 3
 		this->m_vpXPMenu.push_back(new XPopupMenu(tsMenuName, style));
@@ -356,7 +356,7 @@ void XPopupMenuManager::parseCommand( const TString & input, XPopupMenu *const p
 
 		//const HICON icon = dcxLoadIcon(index, filename, false, tsFlags);
 		//if (icon == nullptr)
-		//	throw std::invalid_argument(Dcx::dcxGetFormattedString(TEXT("Unable to Load Icon: %d in file: %s"), index, filename.to_chr()));
+		//	throw Dcx::dcxException(TEXT("Unable to Load Icon: % in file: %"), index, filename);
 		//
 		//ImageList_AddIcon(himl, icon);
 		//DestroyIcon(icon);
@@ -372,7 +372,6 @@ void XPopupMenuManager::parseCommand( const TString & input, XPopupMenu *const p
 	// xpopup -l -> [MENU] [SWITCH] [N] [COLOR | default]
 	else if ( flags[TEXT('l')] && numtok > 3 ) {
 
-#if TSTRING_TEMPLATES
 		const auto nColor = XPopupMenu::MenuColours(input.getnexttok( ).to_<UINT>( ));	// tok 3
 		const auto clr(input.getnexttok());				// tok 4
 
@@ -380,15 +379,6 @@ void XPopupMenuManager::parseCommand( const TString & input, XPopupMenu *const p
 			p_Menu->setDefaultColor(nColor);
 		else
 			p_Menu->setColor(nColor, clr.to_<COLORREF>());
-#else
-		const auto nColor = input.getnexttok().to_int();	// tok 3
-		const auto clr(input.getnexttok());				// tok 4
-
-		if (clr == TEXT("default"))
-			p_Menu->setDefaultColor(nColor);
-		else
-			p_Menu->setColor(nColor, (COLORREF)clr.to_num());
-#endif
 	}
 	// xpopup -m -> mirc -m
 	else if ( flags[TEXT('m')] && numtok == 2 && tsMenuName == TEXT("mirc")) {
@@ -408,44 +398,15 @@ void XPopupMenuManager::parseCommand( const TString & input, XPopupMenu *const p
 
 		const auto colors(input.getlasttoks());	// tok 3, -1
 
-#if TSTRING_PARTS
 		auto i = 1U;
 		for (const auto &tmp : colors)
 		{
 			if (tmp == TEXT("default"))
 				p_Menu->setDefaultColor(XPopupMenu::MenuColours(i));
 			else
-#if TSTRING_TEMPLATES
 				p_Menu->setColor(XPopupMenu::MenuColours(i), tmp.to_<COLORREF>());
-#else
-				p_Menu->setColor(XPopupMenu::MenuColours(i), (COLORREF)tmp.to_num());
-#endif
 			++i;
 		}
-#else
-		//const auto len = colors.numtok( );
-		//colors.getfirsttok(0);
-		//
-		//for (auto i = decltype(len){1}; i <= len; i++ )
-		//{
-		//	const auto tmp(colors.getnexttok());		// tok i
-		//
-		//	if (tmp == TEXT("default"))
-		//		p_Menu->setDefaultColor( i );
-		//	else
-		//		p_Menu->setColor( i, (COLORREF)tmp.to_num( ) );
-		//}
-
-		UINT i = 1;
-		for (auto tmp(colors.getfirsttok(1)); !tmp.empty(); tmp = colors.getnexttok())
-		{
-			if (tmp == TEXT("default"))
-				p_Menu->setDefaultColor(i);
-			else
-				p_Menu->setColor(XPopupMenu::MenuColours(i), (COLORREF)tmp.to_num());
-			++i;
-		}
-#endif
 	}
 	// xpopup -s -> [MENU] [SWITCH] [+FLAGS] [X] [Y] (OVER HWND)
 	else if ( flags[TEXT('s')] && numtok > 4 ) {
@@ -496,7 +457,7 @@ void XPopupMenuManager::parseCommand( const TString & input, XPopupMenu *const p
 		const XSwitchFlags xflags(input.getnexttok( ));	// tok 3
 
 		if (!xflags[TEXT('+')])
-			throw std::invalid_argument("Missing '+' in front of flags");
+			throw Dcx::dcxException("Missing '+' in front of flags");
 
 		UINT iStyles = 0;
 		if (xflags[TEXT('i')])
@@ -514,7 +475,7 @@ void XPopupMenuManager::parseCommand( const TString & input, XPopupMenu *const p
 		const XSwitchFlags xflags(input.getnexttok( ));	// tok 3
 
 		if (!xflags[TEXT('+')])
-			throw std::invalid_argument("Missing '+' in front of flags");
+			throw Dcx::dcxException("Missing '+' in front of flags");
 
 		if (xflags[TEXT('r')]) // Set Rounded Selector on/off
 			p_Menu->SetRounded(((input.getnexttok( ).to_int() > 0) ? true : false));	// tok 4
@@ -542,14 +503,10 @@ void XPopupMenuManager::parseIdentifier( const TString & input, TCHAR *const szR
 	const auto p_Menu = this->getMenuByName(tsMenuName, true);
 
 	static const TString propList(TEXT("ismenu menuname menubar style exstyle colors color isrounded alpha marked"));
-#if TSTRING_TEMPLATES
 	const auto nType = propList.findtok(prop, 1);
-#else
-	const auto nType = propList.findtok(prop.to_chr(), 1);
-#endif
 
 	if ((p_Menu == nullptr) && (nType > 3))
-		throw std::invalid_argument(Dcx::dcxGetFormattedString(TEXT("\"%s\" doesn't exist, see /xpopup -c"), tsMenuName.to_chr()));
+		throw Dcx::dcxException(TEXT("\"%\" doesn't exist, see /xpopup -c"), tsMenuName);
 
 	switch (nType) {
 	case 1: // ismenu
@@ -562,7 +519,7 @@ void XPopupMenuManager::parseIdentifier( const TString & input, TCHAR *const szR
 			const auto i = tsMenuName.to_dword();
 
 			if (i > this->m_vpXPMenu.size())
-				throw std::invalid_argument(Dcx::dcxGetFormattedString(TEXT("Invalid index: %u"), i));
+				throw Dcx::dcxException(TEXT("Invalid index: %"), i);
 
 			// Return number of menus.
 			if (i == 0)
@@ -641,11 +598,7 @@ void XPopupMenuManager::parseIdentifier( const TString & input, TCHAR *const szR
 	case 7: // color
 		{
 			if (numtok > 2) {
-#if TSTRING_TEMPLATES
 				const auto nColor = XPopupMenu::MenuColours(input.getnexttok().to_<UINT>());	// tok 3
-#else
-				const auto nColor = input.getnexttok().to_int();	// tok 3
-#endif
 				if ( nColor > 0 && nColor < XPopupMenu::MenuColours::XPMC_MAX )
 					wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%lu"), p_Menu->getColor( nColor ) );
 			}
@@ -671,7 +624,7 @@ void XPopupMenuManager::parseIdentifier( const TString & input, TCHAR *const szR
 		break;
 	case 0:
 	default:
-		throw std::invalid_argument(Dcx::dcxGetFormattedString(TEXT("Unknown prop \"%s\""), prop.to_chr()));
+		throw Dcx::dcxException(TEXT("Unknown prop \"%\""), prop);
 	}
 
 	//if ((p_Menu == nullptr) && ((prop != TEXT("ismenu") && (prop != TEXT("menuname")) && (prop != TEXT("menubar")))) {
@@ -793,7 +746,7 @@ void XPopupMenuManager::parseIdentifier( const TString & input, TCHAR *const szR
 const int XPopupMenuManager::parseMPopup(const TString & input)
 {
 	if (input.numtok( ) < 2)
-		throw std::invalid_argument("Invalid Arguments");
+		throw Dcx::dcxException("Invalid Arguments");
 
 	const auto tsMenuName(input.getfirsttok(1));
 	const auto iEnable = input.getnexttok().to_int();	// tok 2
@@ -1125,7 +1078,7 @@ void XPopupMenuManager::LoadPopupsFromXML(const TiXmlElement *const popups, cons
 
 	// Dataset not found.
 	if (popup == nullptr)
-		throw std::invalid_argument(Dcx::dcxGetFormattedString(TEXT("No Popup Dataset %s"), popupDataset.to_chr()));
+		throw Dcx::dcxException(TEXT("No Popup Dataset %"), popupDataset);
 
 	auto menu = Dcx::XPopups.getMenuByName(popupName, false);
 
@@ -1148,8 +1101,6 @@ void XPopupMenuManager::LoadPopupsFromXML(const TiXmlElement *const popups, cons
 
 	const TString colors(TEXT("bgcolour iconcolour cbcolour discbcolour disselcolour distextcolour selcolour selbordercolour seperatorcolour textcolour seltextcolour"));
 
-#if TSTRING_PARTS
-#if TSTRING_TEMPLATES
 	UINT i = 1;
 	for (const auto &tmp: colors)
 	{
@@ -1162,47 +1113,6 @@ void XPopupMenuManager::LoadPopupsFromXML(const TiXmlElement *const popups, cons
 		}
 		++i;
 	}
-#else
-	UINT i = 1;
-	for (const auto &tmp : colors)
-	{
-		const auto attr = GetMenuAttributeFromXML(tmp.c_str(), popup, globalStyles);	// tok i
-
-		if (attr != nullptr) {
-			TString tsBuff(attr);
-			mIRCLinker::tsEval(tsBuff, tsBuff.to_chr());
-			menu->setColor(XPopupMenu::MenuColours(i), (COLORREF)tsBuff.to_int());
-		}
-		++i;
-	}
-#endif
-#else
-	//UINT totalIndexes = colors.numtok();
-	//colors.getfirsttok(0);
-	//
-	//for (auto i = decltype(totalIndexes){1}; i <= totalIndexes; i++) {
-	//	attr = GetMenuAttributeFromXML(colors.getnexttok().c_str(), popup, globalStyles);	// tok i
-	//
-	//	if (attr != nullptr) {
-	//		TString tsBuff(attr);
-	//		mIRCLinker::tsEval(tsBuff, tsBuff.to_chr());
-	//		menu->setColor(i, (COLORREF)tsBuff.to_int());
-	//	}
-	//}
-
-	UINT i = 1;
-	for (auto tmp(colors.getfirsttok(1)); !tmp.empty(); tmp = colors.getnexttok())
-	{
-		attr = GetMenuAttributeFromXML(tmp.c_str(), popup, globalStyles);	// tok i
-
-		if (attr != nullptr) {
-			TString tsBuff(attr);
-			mIRCLinker::tsEval(tsBuff, tsBuff.to_chr());
-			menu->setColor(i, (COLORREF)tsBuff.to_int());
-		}
-		++i;
-	}
-#endif
 
 	// Set background image if CUSTOM style used
 	if (style == XPopupMenu::XPMS_CUSTOM) {
@@ -1244,8 +1154,6 @@ void XPopupMenuManager::LoadPopupsFromXML(const TiXmlElement *const popups, cons
 
 				if (!tsFilename.empty())
 				{
-#if TSTRING_PARTS
-#if TSTRING_ITERATOR
 					for (auto itStart = indexes.begin(TSCOMMA), itEnd = indexes.end(); itStart != itEnd; ++itStart)
 					{
 						// does (*itStart) NEED to be converted to an int?
@@ -1253,32 +1161,6 @@ void XPopupMenuManager::LoadPopupsFromXML(const TiXmlElement *const popups, cons
 						command.tsprintf(TEXT("%s -i %s %s %s"), popupName.to_chr(), flags.to_chr(), (*itStart).to_chr(), tsFilename.to_chr());
 						Dcx::XPopups.parseCommand(command, menu);
 					}
-#else
-					indexes.split(TSCOMMA);
-					for (const auto &tmp: indexes)
-					{
-						command.tsprintf(TEXT("%s -i %s %d %s"), popupName.to_chr(), flags.to_chr(), tmp.to_int(), tsFilename.to_chr());
-						Dcx::XPopups.parseCommand(command, menu);
-					}
-#endif
-#else
-					//totalIndexes = indexes.numtok(TEXT(","));
-					//
-					//indexes.getfirsttok(0, TSCOMMA);
-					//
-					//for (auto i = decltype(totalIndexes){1}; i <= totalIndexes; i++) {
-					//	const int nIcon = indexes.getnexttok(TSCOMMA).to_int();	// tok i
-					//	//xpudemo -i + 114 dcxstudio_gfx\shell.dll
-					//	command.tsprintf(TEXT("%s -i %s %d %s"), popupName.to_chr(), flags.to_chr(), nIcon, tsFilename.to_chr());
-					//	Dcx::XPopups.parseCommand(command, menu);
-					//}
-
-					for (auto tmp(indexes.getfirsttok(1, TSCOMMA)); !tmp.empty(); tmp = indexes.getnexttok(TSCOMMA))
-					{
-						command.tsprintf(TEXT("%s -i %s %d %s"), popupName.to_chr(), flags.to_chr(), tmp.to_int(), tsFilename.to_chr());
-						Dcx::XPopups.parseCommand(command, menu);
-					}
-#endif
 					tsFilename.clear();
 				}
 			}
@@ -1286,7 +1168,7 @@ void XPopupMenuManager::LoadPopupsFromXML(const TiXmlElement *const popups, cons
 	}
 
 	if (!LoadPopupItemsFromXML(menu, menu->getMenuHandle(), popup))
-		throw std::runtime_error(Dcx::dcxGetFormattedString(TEXT("Unable to load menu items: %s"), popupName.to_chr()));
+		throw Dcx::dcxException(TEXT("Unable to load menu items: %"), popupName);
 }
 
 /*

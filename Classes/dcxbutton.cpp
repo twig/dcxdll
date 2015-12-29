@@ -52,7 +52,7 @@ DcxButton::DcxButton(const UINT ID, DcxDialog *const p_Dialog, const HWND mParen
 		nullptr);
 
 	if (!IsWindow(this->m_Hwnd))
-		throw std::runtime_error("Unable To Create Window");
+		throw Dcx::dcxException("Unable To Create Window");
 
 	if (bNoTheme)
 		Dcx::UXModule.dcxSetWindowTheme(this->m_Hwnd, L" ", L" ");
@@ -76,7 +76,7 @@ DcxButton::DcxButton(const UINT ID, DcxDialog *const p_Dialog, const HWND mParen
 
 	if (styles.istok(TEXT("tooltips"))) {
 		if (!IsWindow(p_Dialog->getToolTip()))
-			throw std::runtime_error("Unable to Initialize Tooltips");
+			throw Dcx::dcxException("Unable to Initialize Tooltips");
 
 		this->m_ToolTipHWND = p_Dialog->getToolTip();
 		AddToolTipToolInfo(this->m_ToolTipHWND, this->m_Hwnd);
@@ -115,7 +115,6 @@ void DcxButton::parseControlStyles( const TString & styles, LONG * Styles, LONG 
 {
 	*Styles |= BS_NOTIFY;
 
-#if TSTRING_PARTS
 	for (const auto &tsStyle: styles)
 	{
 		if ( tsStyle == TEXT("bitmap") )
@@ -123,15 +122,6 @@ void DcxButton::parseControlStyles( const TString & styles, LONG * Styles, LONG 
 		else if ( tsStyle == TEXT("default") )
 			*Styles |= BS_DEFPUSHBUTTON;
 	}
-#else
-	for (auto tsStyle(styles.getfirsttok(1)); !tsStyle.empty(); tsStyle = styles.getnexttok())
-	{
-		if ( tsStyle == TEXT("bitmap") )
-			*Styles |= BS_BITMAP;
-		else if ( tsStyle == TEXT("default") )
-			*Styles |= BS_DEFPUSHBUTTON;
-	}
-#endif
 
 	this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
 }
@@ -150,7 +140,7 @@ void DcxButton::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) 
 	// [NAME] [ID] [PROP]
 	if (input.gettok(3) == TEXT("text")) {
 		// if copy fails drop through
-		dcx_strcpyn(szReturnValue, this->m_tsCaption.to_chr(), MIRC_BUFFER_SIZE_CCH)
+		dcx_strcpyn(szReturnValue, this->m_tsCaption.to_chr(), MIRC_BUFFER_SIZE_CCH);
 	}
 	else
 		this->parseGlobalInfoRequest(input, szReturnValue);
@@ -169,11 +159,7 @@ void DcxButton::parseCommandRequest( const TString & input ) {
 	// xdid -c [NAME] [ID] [SWITCH] [+FLAGS] [COLOR]
 	if (flags[TEXT('c')] && numtok > 4) {
 		const auto iColorStyles = this->parseColorFlags(input.getnexttok());	// tok 4
-#if TSTRING_TEMPLATES
 		const auto clrColor = input.getnexttok().to_<COLORREF>();		// tok 5
-#else
-		const auto clrColor = (COLORREF)input.getnexttok( ).to_num();		// tok 5
-#endif
 
 		if (dcx_testflag(iColorStyles, BTNCS_NORMAL))
 			this->m_aColors[0] = clrColor;
@@ -189,11 +175,7 @@ void DcxButton::parseCommandRequest( const TString & input ) {
 	// xdid -k [NAME] [ID] [SWITCH] [+FLAGS] [COLOR] [FILENAME]
 	else if (flags[TEXT('k')] && (numtok > 5) && (this->isStyle(BS_BITMAP) || this->isStyle(BS_OWNERDRAW))) {
 		const auto iColorStyles = this->parseColorFlags(input.getnexttok());	// tok 4
-#if TSTRING_TEMPLATES
 		const auto clrColor = input.getnexttok().to_<COLORREF>();		// tok 5
-#else
-		const auto clrColor = (COLORREF)input.getnexttok().to_num();		// tok 5
-#endif
 
 		auto filename(input.getlasttoks().trim());	// tok 6, -1
 
@@ -218,11 +200,7 @@ void DcxButton::parseCommandRequest( const TString & input ) {
 	}
 	// xdid -l [NAME] [ID] [SWITCH] [SIZE]
 	else if (flags[TEXT('l')] && numtok > 3) {
-#if TSTRING_TEMPLATES
 		const auto size = input.getnexttok().to_<UINT>();	// tok 4
-#else
-		const auto size = input.getnexttok().to_int();	// tok 4
-#endif
 
 		if (size == 32 || size == 24)
 			this->m_iIconSize = size;
@@ -252,7 +230,7 @@ void DcxButton::parseCommandRequest( const TString & input ) {
 		//auto icon = dcxLoadIcon(index, filename, (this->m_iIconSize > 16), tflags);
 		//
 		//if (icon == nullptr)
-		//	throw std::runtime_error("Unable to load icon");
+		//	throw Dcx::dcxException("Unable to load icon");
 		//
 		//// prepare the image list
 		//himl = this->getImageList();

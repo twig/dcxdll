@@ -47,7 +47,7 @@ LayoutCellPane::~LayoutCellPane( ) {
 LayoutCell * LayoutCellPane::addChild( LayoutCell * p_Cell, const UINT nWeight ) {
 
 	if (p_Cell == nullptr) // this should never happen :)
-		throw std::invalid_argument("addChild() - NULL Cell supplied");
+		throw Dcx::dcxException("addChild() - NULL Cell supplied");
 
 	if (this->m_vpCells.empty())
 		this->m_FirstChild = p_Cell;

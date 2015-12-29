@@ -60,7 +60,7 @@ DcxDirectshow::DcxDirectshow(const UINT ID, DcxDialog *const p_Dialog, const HWN
 		nullptr);
 
 	if (!IsWindow(this->m_Hwnd))
-		throw std::runtime_error("Unable To Create Window");
+		throw Dcx::dcxException("Unable To Create Window");
 
 	if (bNoTheme)
 		Dcx::UXModule.dcxSetWindowTheme(this->m_Hwnd, L" ", L" ");
@@ -131,7 +131,7 @@ void DcxDirectshow::parseInfoRequest( const TString & input, PTCHAR szReturnValu
 			dcx_strcpyn(szReturnValue, TEXT("D_OK nofile"), MIRC_BUFFER_SIZE_CCH);
 		}
 		else if (!this->parseGlobalInfoRequest(input, szReturnValue))
-			throw std::invalid_argument("No File Loaded");
+			throw Dcx::dcxException("No File Loaded");
 	}
 	// [NAME] [ID] [PROP]
 	else if ( prop == TEXT("isloaded")) {
@@ -147,7 +147,7 @@ void DcxDirectshow::parseInfoRequest( const TString & input, PTCHAR szReturnValu
 		auto hr = this->m_pWc->GetNativeVideoSize(&lWidth, &lHeight, &lARWidth, &lARHeight);
 		if (FAILED(hr)) {
 			DX_ERR(prop.to_chr(), nullptr, hr);
-			throw std::runtime_error("Unable to get Native Video Size");
+			throw Dcx::dcxException("Unable to get Native Video Size");
 		}
 
 		// width height arwidth arheight
@@ -167,7 +167,7 @@ void DcxDirectshow::parseInfoRequest( const TString & input, PTCHAR szReturnValu
 		auto hr = this->getVideo(&amc);
 		if (FAILED(hr)) {
 			DX_ERR(prop.to_chr(), nullptr, hr);
-			throw std::runtime_error("Unable to get Video Information");
+			throw Dcx::dcxException("Unable to get Video Information");
 		}
 
 		TString vflags(TEXT('+'));
@@ -189,7 +189,7 @@ void DcxDirectshow::parseInfoRequest( const TString & input, PTCHAR szReturnValu
 		auto hr = this->getVideoRange(ProcAmpControl9_Brightness, &acr);
 		if (FAILED(hr)) {
 			DX_ERR(prop.to_chr(), nullptr, hr);
-			throw std::runtime_error("Unable to get Video Information");
+			throw Dcx::dcxException("Unable to get Video Information");
 		}
 
 		swprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH,TEXT("%f %f %f %f"), acr.DefaultValue, acr.MinValue, acr.MaxValue, acr.StepSize);
@@ -201,7 +201,7 @@ void DcxDirectshow::parseInfoRequest( const TString & input, PTCHAR szReturnValu
 		auto hr = this->getVideoRange(ProcAmpControl9_Contrast, &acr);
 		if (FAILED(hr)) {
 			DX_ERR(prop.to_chr(), nullptr, hr);
-			throw std::runtime_error("Unable to get Video Information");
+			throw Dcx::dcxException("Unable to get Video Information");
 		}
 
 		swprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%f %f %f %f"), acr.DefaultValue, acr.MinValue, acr.MaxValue, acr.StepSize);
@@ -213,7 +213,7 @@ void DcxDirectshow::parseInfoRequest( const TString & input, PTCHAR szReturnValu
 		auto hr = this->getVideoRange(ProcAmpControl9_Hue, &acr);
 		if (FAILED(hr)) {
 			DX_ERR(prop.to_chr(), nullptr, hr);
-			throw std::runtime_error("Unable to get Video Information");
+			throw Dcx::dcxException("Unable to get Video Information");
 		}
 
 		swprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%f %f %f %f"), acr.DefaultValue, acr.MinValue, acr.MaxValue, acr.StepSize);
@@ -225,7 +225,7 @@ void DcxDirectshow::parseInfoRequest( const TString & input, PTCHAR szReturnValu
 		auto hr = this->getVideoRange(ProcAmpControl9_Saturation, &acr);
 		if (FAILED(hr)) {
 			DX_ERR(prop.to_chr(), nullptr, hr);
-			throw std::runtime_error("Unable to get Video Information");
+			throw Dcx::dcxException("Unable to get Video Information");
 		}
 
 		swprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%f %f %f %f"), acr.DefaultValue, acr.MinValue, acr.MaxValue, acr.StepSize);
@@ -281,7 +281,7 @@ void DcxDirectshow::parseInfoRequest( const TString & input, PTCHAR szReturnValu
 		}
 		else {
 			DX_ERR(prop.to_chr(), nullptr, hr);
-			throw std::runtime_error("Unable to get State Information");
+			throw Dcx::dcxException("Unable to get State Information");
 		}
 	}
 	else
@@ -309,13 +309,13 @@ void DcxDirectshow::parseCommandRequest( const TString &input) {
 			Dcx::initDirectX();
 
 		if (!Dcx::isDX9Installed())
-			throw std::runtime_error("Needs DirectX 9+");
+			throw Dcx::dcxException("Needs DirectX 9+");
 
 		if (!xflags[TEXT('+')])
-			throw std::invalid_argument("Invalid Flags");
+			throw Dcx::dcxException("Invalid Flags");
 
 		if (!IsFile(filename))
-			throw std::invalid_argument(Dcx::dcxGetFormattedString(TEXT("Unable to Access File: %s"), filename.to_chr()));
+			throw Dcx::dcxException(TEXT("Unable to Access File: %"), filename);
 
 		HRESULT hr = S_OK;
 
@@ -324,29 +324,29 @@ void DcxDirectshow::parseCommandRequest( const TString &input) {
 			hr = CoCreateInstance(CLSID_FilterGraph, nullptr, CLSCTX_INPROC_SERVER, IID_IGraphBuilder, (void **)&this->m_pGraph);
 
 			if (FAILED(hr))
-				throw std::runtime_error("Unable to Create FilterGraph");
+				throw Dcx::dcxException("Unable to Create FilterGraph");
 
 			hr = this->m_pGraph->QueryInterface(IID_IMediaControl, (void **)&this->m_pControl);
 			if (FAILED(hr))
-				throw std::runtime_error("Unable to Get IMediaControl");
+				throw Dcx::dcxException("Unable to Get IMediaControl");
 
 			hr = this->m_pGraph->QueryInterface(IID_IMediaEventEx, (void **)&this->m_pEvent);
 			if (FAILED(hr))
-				throw std::runtime_error("Unable to Get IMediaEventEx");
+				throw Dcx::dcxException("Unable to Get IMediaEventEx");
 			
 			hr = this->m_pGraph->QueryInterface(IID_IMediaSeeking, (void **)&this->m_pSeek);
 			if (FAILED(hr))
-				throw std::runtime_error("Unable to Get IMediaSeeking");
+				throw Dcx::dcxException("Unable to Get IMediaSeeking");
 			
 			hr = this->m_pEvent->SetNotifyWindow((OAHWND)this->m_Hwnd, WM_GRAPHNOTIFY, 0);
 			if (FAILED(hr))
-				throw std::runtime_error("Unable to Set Window Notify");
+				throw Dcx::dcxException("Unable to Set Window Notify");
 			
 			if (!xflags[TEXT('a')])
 				hr = DcxDirectshow::InitWindowlessVMR(this->m_Hwnd, this->m_pGraph, &this->m_pWc);
 
 			if (FAILED(hr))
-				throw std::runtime_error("Unable to Create VMR9");
+				throw Dcx::dcxException("Unable to Create VMR9");
 
 			if (this->m_pWc != nullptr) {
 				if (this->m_bKeepRatio)
@@ -355,17 +355,17 @@ void DcxDirectshow::parseCommandRequest( const TString &input) {
 					hr = this->m_pWc->SetAspectRatioMode(VMR9ARMode_None);
 
 				if (FAILED(hr))
-					throw std::runtime_error("Unable to Set Aspect");
+					throw Dcx::dcxException("Unable to Set Aspect");
 			}
 
 			hr = this->m_pGraph->RenderFile(filename.to_chr(), nullptr);
 			if (FAILED(hr))
-				throw std::runtime_error("Unable to render file (No codec for file format?)");
+				throw Dcx::dcxException("Unable to render file (No codec for file format?)");
 
 			if (this->m_pWc != nullptr) {
 				hr = this->SetVideoPos();
 				if (FAILED(hr))
-					throw std::runtime_error("Unable to set Video Position");
+					throw Dcx::dcxException("Unable to set Video Position");
 
 				if (this->m_bAlphaBlend)
 					this->setAlpha(0.5);
@@ -374,7 +374,7 @@ void DcxDirectshow::parseCommandRequest( const TString &input) {
 				IVideoWindow *p_Video;
 				hr = this->m_pGraph->QueryInterface(IID_IVideoWindow, (void **)&p_Video);
 				if (FAILED(hr))
-					throw std::runtime_error("Unable to get video window");
+					throw Dcx::dcxException("Unable to get video window");
 
 				Auto(p_Video->Release());
 
@@ -386,7 +386,7 @@ void DcxDirectshow::parseCommandRequest( const TString &input) {
 
 				hr = p_Video->get_WindowStyle((long *)&styles);
 				if (FAILED(hr))
-					throw std::runtime_error("Unable to get window styles");
+					throw Dcx::dcxException("Unable to get window styles");
 
 				styles &= ~(WS_OVERLAPPEDWINDOW | WS_POPUPWINDOW | WS_DLGFRAME);
 				styles |= WS_CHILD;
@@ -417,14 +417,10 @@ void DcxDirectshow::parseCommandRequest( const TString &input) {
 	// xdid -c [NAME] [ID] [SWITCH] [COMMAND]
 	else if ( flags[TEXT('c')] && numtok > 3 ) {
 		if (this->m_pControl == nullptr)
-			throw std::invalid_argument("No File Loaded");
+			throw Dcx::dcxException("No File Loaded");
 
 		static const TString cmdlist(TEXT("play pause stop close seek"));
-#if TSTRING_TEMPLATES
 		const auto nType = cmdlist.findtok(input.getnexttok(), 1);	// tok 4
-#else
-		const auto nType = cmdlist.findtok(input.getnexttok().to_chr(), 1);	// tok 4
-#endif
 		switch (nType)
 		{
 		case 1: // play
@@ -449,28 +445,24 @@ void DcxDirectshow::parseCommandRequest( const TString &input) {
 		case 5: // seek
 			{
 				this->m_pControl->Pause(); // pause play
-#if TSTRING_TEMPLATES
 				this->setPosition(input.getnexttok().to_<UINT64>());	// tok 5
-#else
-				this->setPosition(input.getnexttok( ).to_num());	// tok 5
-#endif
 				this->m_pControl->StopWhenReady(); // causes new image to be rendered.
 			}
 			break;
 		case 0: // error
 		default:
-			throw std::invalid_argument("Invalid Command");
+			throw Dcx::dcxException("Invalid Command");
 		}
 	}
 	// xdid -v [NAME] [ID] [SWITCH] [+FLAGS] [BRIGHTNESS] [CONTRAST] [HUE] [SATURATION]
 	else if ( flags[TEXT('v')] && numtok > 7 ) {
 		if (this->m_pControl == nullptr)
-			throw std::invalid_argument("No File Loaded");
+			throw Dcx::dcxException("No File Loaded");
 
 		auto hr = this->setVideo(input.gettok(4), input.gettok(5).to_float(), input.gettok(6).to_float(), input.gettok(7).to_float(), input.gettok(8).to_float());
 		if (FAILED(hr)) {
 			DX_ERR(nullptr,TEXT("-v"), hr);
-			throw std::runtime_error("Unable to set video");
+			throw Dcx::dcxException("Unable to set video");
 		}
 	}
 	// xdid -V [NAME] [ID] [SWITCH] [+FLAGS] [ARGS]
@@ -478,29 +470,25 @@ void DcxDirectshow::parseCommandRequest( const TString &input) {
 		const auto flag(input.getnexttok());	// tok 4
 
 		if (flag[0] != TEXT('+'))
-			throw std::invalid_argument("Invalid Flags Identifier");
+			throw Dcx::dcxException("Invalid Flags Identifier");
 
 		if (this->m_pControl == nullptr)
-			throw std::invalid_argument("No File Loaded");
+			throw Dcx::dcxException("No File Loaded");
 
 		switch (flag[1]) {
 			case TEXT('v'): // Volume
 				{
-#if TSTRING_TEMPLATES
 					auto hr = this->setVolume(input.getnexttok().to_<long>());	// tok 5
-#else
-					auto hr = this->setVolume(input.getnexttok().to_int());	// tok 5
-#endif
 					if (FAILED(hr)) {
 						DX_ERR(nullptr, TEXT("-V +v"), hr);
-						throw std::runtime_error("Unable to Set Volume");
+						throw Dcx::dcxException("Unable to Set Volume");
 					}
 				}
 				break;
 			case TEXT('b'): // Balance
 				break;
 			default:
-				throw std::invalid_argument("Unknown Flag");
+				throw Dcx::dcxException("Unknown Flag");
 		}
 	}
 	else
@@ -650,21 +638,21 @@ HRESULT DcxDirectshow::InitWindowlessVMR(
 		hr = CoCreateInstance(CLSID_VideoMixingRenderer9, nullptr, CLSCTX_INPROC, IID_IBaseFilter, (void**)&pVmr);
 
 		if (FAILED(hr))
-			throw std::runtime_error("InitWindowlessVMR() - Unable to Create Video Mixing Renderer9");
+			throw Dcx::dcxException("InitWindowlessVMR() - Unable to Create Video Mixing Renderer9");
 
 		Auto(pVmr->Release());
 
 		// Add the VMR to the filter graph.
 		hr = pGraph->AddFilter(pVmr, L"Video Mixing Renderer");	// dont use TEXT() here.
 		if (FAILED(hr))
-			throw std::runtime_error("InitWindowlessVMR() - Unable to Add Filter: Video Mixing Renderer");
+			throw Dcx::dcxException("InitWindowlessVMR() - Unable to Add Filter: Video Mixing Renderer");
 
 		// Set the rendering mode.
 		{
 			IVMRFilterConfig9* pConfig;
 			hr = pVmr->QueryInterface(IID_IVMRFilterConfig9, (void**)&pConfig);
 			if (FAILED(hr))
-				throw std::runtime_error("InitWindowlessVMR() - Unable to Get Filter Config9");
+				throw Dcx::dcxException("InitWindowlessVMR() - Unable to Get Filter Config9");
 			Auto(pConfig->Release());
 
 			hr = pConfig->SetRenderingMode(VMR9Mode_Windowless);
@@ -672,14 +660,14 @@ HRESULT DcxDirectshow::InitWindowlessVMR(
 				hr = pConfig->SetRenderingPrefs(RenderPrefs9_DoNotRenderBorder);
 
 			if (FAILED(hr))
-				throw std::runtime_error("InitWindowlessVMR() - Unable to Set Rendering Options");
+				throw Dcx::dcxException("InitWindowlessVMR() - Unable to Set Rendering Options");
 		}
 		// Set the window.
 		{
 			IVMRWindowlessControl9* pWc = nullptr;
 			hr = pVmr->QueryInterface(IID_IVMRWindowlessControl9, (void**)&pWc);
 			if (FAILED(hr))
-				throw std::runtime_error("InitWindowlessVMR() - Unable to Get Windowless Control9");
+				throw Dcx::dcxException("InitWindowlessVMR() - Unable to Get Windowless Control9");
 
 			hr = pWc->SetVideoClippingWindow(hwndApp);
 			//if (SUCCEEDED(hr)) {
@@ -694,7 +682,7 @@ HRESULT DcxDirectshow::InitWindowlessVMR(
 			{
 				// An error occurred, so release the interface.
 				pWc->Release();
-				throw std::runtime_error("InitWindowlessVMR() - Unable to Set Clipping Window");
+				throw Dcx::dcxException("InitWindowlessVMR() - Unable to Set Clipping Window");
 			}
 
 			*ppWc = pWc; // Return this as an AddRef'd pointer.

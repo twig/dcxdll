@@ -16,23 +16,6 @@
 #include "Classes/xpopup/xpopupmenumanager.h"
 #include "Dcx.h"
 
-
-
-//extern HMENU g_OriginalMenuBar;
-//extern XPopupMenu *g_mIRCScriptMenu;
-//
-//
-//
-//
-//XMenuBar::XMenuBar() {
-//}
-//
-//
-//
-//
-//XMenuBar::~XMenuBar() {
-//}
-
 /*
  *
  */
@@ -43,7 +26,7 @@ void XMenuBar::parseXMenuBarCommand(const TString &input) {
 
 	// Check if a callback alias has been marked
 	if (!this->hasCallback() && !flags[TEXT('M')])
-		throw std::runtime_error("No callback alias initialised. See /xmenubar -M");
+		throw Dcx::dcxException("No callback alias initialised. See /xmenubar -M");
 
 	// Initialise callback.
 	// xmenubar [-M] (ALIAS)
@@ -54,7 +37,7 @@ void XMenuBar::parseXMenuBarCommand(const TString &input) {
 
 			// Check if alias is valid.
 			if (!mIRCLinker::isAlias(menuName.to_chr()))
-				throw std::invalid_argument("Invalid callback alias specified");
+				throw Dcx::dcxException("Invalid callback alias specified");
 
 			this->m_callback = menuName;
 		}
@@ -73,7 +56,7 @@ void XMenuBar::parseXMenuBarCommand(const TString &input) {
 	// xmenubar [-a] [MENU] [LABEL]
 	if (flags[TEXT('a')]) {
 		if (numtok < 3)
-			throw std::invalid_argument("Insufficient parameters");
+			throw Dcx::dcxException("Insufficient parameters");
 
 		auto p_Menu = Dcx::XPopups.getMenuByName(menuName, true);
 
@@ -81,24 +64,8 @@ void XMenuBar::parseXMenuBarCommand(const TString &input) {
 
 		// Test if menu is already added.
 		{
-			//for (const auto &m : m_vpXMenuBar)
-			//{
-			//	if (m == p_Menu)
-			//		throw std::invalid_argument("Menu has already been added to XmenuBar.");
-			//}
-
-			//for (VectorOfXPopupMenu::size_type i = 0; i < m_vpXMenuBar.size(); i++) {
-			//	if (m_vpXMenuBar[i] == p_Menu)
-			//		throw std::invalid_argument("Menu has already been added to XmenuBar.");
-			//}
-
-			//const auto itEnd = m_vpXMenuBar.end();
-			//const auto itGot = std::find(m_vpXMenuBar.begin(), itEnd, p_Menu);
-			//if (itGot != itEnd)
-			//	throw std::invalid_argument("Menu has already been added to XmenuBar.");
-
 			if (Dcx::find(m_vpXMenuBar, p_Menu))
-				throw std::invalid_argument("Menu has already been added to XmenuBar.");
+				throw Dcx::dcxException("Menu has already been added to XmenuBar.");
 		}
 		p_Menu->attachToMenuBar(menuBar, input.getlasttoks());	// tok 3, -1
 	}
@@ -106,7 +73,7 @@ void XMenuBar::parseXMenuBarCommand(const TString &input) {
 	// xmenubar [-d] [MENU]
 	else if (flags[TEXT('d')]) {
 		if (numtok < 2)
-			throw std::invalid_argument("Insufficient parameters");
+			throw Dcx::dcxException("Insufficient parameters");
 
 		auto p_Menu = Dcx::XPopups.getMenuByName(menuName, true);
 
@@ -129,7 +96,7 @@ void XMenuBar::parseXMenuBarCommand(const TString &input) {
 	// xmenubar [-l] [MENU] [LABEL]
 	else if (flags[TEXT('l')]) {
 		if (numtok < 3)
-			throw std::invalid_argument("Insufficient parameters");
+			throw Dcx::dcxException("Insufficient parameters");
 
 		auto p_Menu = Dcx::XPopups.getMenuByName(menuName, true);
 
@@ -138,7 +105,7 @@ void XMenuBar::parseXMenuBarCommand(const TString &input) {
 		const auto offset = this->findMenuOffset(menuBar, p_Menu);
 
 		if (offset < 0)
-			throw std::invalid_argument(Dcx::dcxGetFormattedString(TEXT("\"%s\" menu not found in XMenuBar."), p_Menu->getName().to_chr()));
+			throw Dcx::dcxException(TEXT("\"%\" menu not found in XMenuBar."), p_Menu->getName());
 
 		ModifyMenu(menuBar, offset, MF_BYPOSITION, MF_STRING, input.getlasttoks().to_chr());	// tok 3, -1
 	}
@@ -151,7 +118,7 @@ void XMenuBar::parseXMenuBarCommand(const TString &input) {
 	// xmenubar [-s] [ID]
 	else if (flags[TEXT('s')]) {
 		if (numtok < 2)
-			throw std::invalid_argument("Insufficient parameters");
+			throw Dcx::dcxException("Insufficient parameters");
 
 		const auto mID = menuName.to_int();
 
@@ -176,16 +143,10 @@ void XMenuBar::parseXMenuBarInfo(const TString &input, TCHAR *const szReturnValu
 	// $xmenubar() [menu] [N]
 	if (prop == TEXT("menu")) {
 		const auto iSize = m_vpXMenuBar.size();
-#if TSTRING_TEMPLATES
 		const auto i = input.getnexttok().to_<VectorOfXPopupMenu::size_type>();	// tok 2
 
 		if (i > iSize)
-			throw std::invalid_argument(Dcx::dcxGetFormattedString(TEXT("Invalid index: %u"), i));
-#else
-		const VectorOfXPopupMenu::size_type i = input.getnexttok().to_int();	// tok 2
-		if (i > iSize)
-			throw std::invalid_argument(Dcx::dcxGetFormattedString(TEXT("Invalid index: %u"), i));
-#endif
+			throw Dcx::dcxException(TEXT("Invalid index: %"), i);
 
 		// Return number of menus in menubar.
 		if (i == 0)
@@ -313,11 +274,11 @@ void XMenuBar::setMenuBar(HMENU oldMenuBar, HMENU newMenuBar) {
 void XMenuBar::validateMenu(const XPopupMenu *const menu, const TString &name)
 {
 	if (menu == nullptr)
-		throw std::invalid_argument(Dcx::dcxGetFormattedString(TEXT("Cannot find menu \"%s\"."), name.to_chr()));
+		throw Dcx::dcxException(TEXT("Cannot find menu \"%\"."), name);
 
 	// Prevent users from adding special menus.
 	if ((menu == Dcx::XPopups.getmIRCPopup()) || (menu == Dcx::XPopups.getmIRCMenuBar()))
-		throw std::invalid_argument("Cannot add \"mirc\" or \"mircbar\" menus.");
+		throw Dcx::dcxException("Cannot add \"mirc\" or \"mircbar\" menus.");
 }
 
 /*

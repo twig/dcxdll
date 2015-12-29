@@ -44,7 +44,7 @@ DcxDivider::DcxDivider(const UINT ID, DcxDialog *const p_Dialog, const HWND mPar
 		nullptr);
 
 	if (!IsWindow(this->m_Hwnd))
-		throw std::runtime_error("Unable To Create Window");
+		throw Dcx::dcxException("Unable To Create Window");
 
 	if (bNoTheme)
 		Dcx::UXModule.dcxSetWindowTheme(this->m_Hwnd, L" ", L" ");
@@ -153,16 +153,12 @@ void DcxDivider::parseCommandRequest( const TString & input ) {
 		dvpi.cxIdeal = data.getnexttok( ).to_int( );	// tok 5
 
 		if (control_data.numtok() < 6)
-			throw std::invalid_argument("Insufficient Parameters");
+			throw Dcx::dcxException("Insufficient Parameters");
 
-#if TSTRING_TEMPLATES
 		const auto ID = mIRC_ID_OFFSET + control_data.gettok(1).to_<UINT>();
-#else
-		const auto ID = mIRC_ID_OFFSET + (UINT)control_data.gettok(1).to_int();
-#endif
 
 		if (!this->m_pParentDialog->isIDValid(ID, true))
-			throw std::invalid_argument(Dcx::dcxGetFormattedString(TEXT("Control with ID \"%d\" already exists"), this->getUserID()));
+			throw Dcx::dcxException(TEXT("Control with ID \"%\" already exists"), this->getUserID());
 
 		try {
 			auto p_Control = DcxControl::controlFactory(this->m_pParentDialog, ID, control_data, 2, CTLF_ALLOW_ALLBUTDOCK, this->m_Hwnd); // <- never NULL
@@ -186,7 +182,7 @@ void DcxDivider::parseCommandRequest( const TString & input ) {
 	// xdid -v [NAME] [ID] [SWITCH] [POS]
 	else if (flags[TEXT('v')] && numtok > 3) {
 		if (!this->setDivPos(input.getnexttok( ).to_int()))	// tok 4
-			throw std::invalid_argument("Divider position must be between bounds.");
+			throw Dcx::dcxException("Divider position must be between bounds.");
 	}
 	else
 		this->parseGlobalCommandRequest( input, flags );

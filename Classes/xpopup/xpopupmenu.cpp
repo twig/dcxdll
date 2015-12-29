@@ -105,7 +105,7 @@ void XPopupMenu::parseXPopCommand( const TString & input ) {
 		hMenu = this->parsePath( path.gettok( 1, path_toks - 1 ), this->m_hMenu );
 
 		if ( hMenu == nullptr )
-			throw std::invalid_argument("Invalid Menu Item Path");
+			throw Dcx::dcxException("Invalid Menu Item Path");
 	}
 
 	const auto numtok = input.numtok( );
@@ -121,17 +121,10 @@ void XPopupMenu::parseXPopCommand( const TString & input ) {
 		if (tsTabTwo.numtok(TEXT(":")) > 1)
 			itemcom = tsTabTwo.gettok(2, TEXT(":")).trim();
 
-#if TSTRING_TEMPLATES
 		const XSwitchFlags xflags(tsTabTwo.getfirsttok(1));
 		const auto mID = tsTabTwo.getnexttok().to_<UINT>();			// tok 2
 		const auto nIcon = tsTabTwo.getnexttok().to_int() - 1;	// tok 3
 		const auto itemtext(tsTabTwo.getlasttoks());			// tok 4, -1
-#else
-		const XSwitchFlags xflags(tsTabTwo.getfirsttok(1));
-		const auto mID = tsTabTwo.getnexttok().to_int();			// tok 2
-		const auto nIcon = tsTabTwo.getnexttok().to_int() - 1;	// tok 3
-		const auto itemtext(tsTabTwo.getlasttoks());			// tok 4, -1
-#endif
 
 		if ( nPos == -1 )
 			nPos += GetMenuItemCount( hMenu ) + 1;
@@ -156,7 +149,7 @@ void XPopupMenu::parseXPopCommand( const TString & input ) {
 			mii.wID = mID;
 
 			if (!xflags[TEXT('+')])
-				throw std::invalid_argument("Missing '+' in front of flags");
+				throw Dcx::dcxException("Missing '+' in front of flags");
 
 			// submenu
 			if ( xflags[TEXT('s')] ) {
@@ -183,7 +176,7 @@ void XPopupMenu::parseXPopCommand( const TString & input ) {
 	else if ( flags[TEXT('c')] && numtok > 2 ) {
 
 		if (nPos < 0)
-			throw std::invalid_argument("Invalid Path");
+			throw Dcx::dcxException("Invalid Path");
 
 		MENUITEMINFO mii;
 		ZeroMemory( &mii, sizeof( MENUITEMINFO ) );
@@ -191,7 +184,7 @@ void XPopupMenu::parseXPopCommand( const TString & input ) {
 		mii.fMask = MIIM_SUBMENU | MIIM_DATA;
 
 		if (GetMenuItemInfo(hMenu, (UINT)nPos, TRUE, &mii) == FALSE)
-			throw std::runtime_error("Unable to get menu item info");
+			throw Dcx::dcxException("Unable to get menu item info");
 
 		if (mii.hSubMenu != nullptr) {
 			this->deleteAllItemData(mii.hSubMenu);
@@ -212,7 +205,7 @@ void XPopupMenu::parseXPopCommand( const TString & input ) {
 	else if ( flags[TEXT('d')] && numtok > 2 ) {
 
 		if (nPos < 0)
-			throw std::invalid_argument("Invalid Path");
+			throw Dcx::dcxException("Invalid Path");
 
 		MENUITEMINFO mii;
 		ZeroMemory( &mii, sizeof( MENUITEMINFO ) );
@@ -220,7 +213,7 @@ void XPopupMenu::parseXPopCommand( const TString & input ) {
 		mii.fMask = MIIM_SUBMENU | MIIM_DATA;
 
 		if (GetMenuItemInfo(hMenu, (UINT)nPos, TRUE, &mii) == FALSE)
-			throw std::runtime_error("Unable to get menu item info");
+			throw Dcx::dcxException("Unable to get menu item info");
 
 		if (mii.hSubMenu != nullptr) {
 			this->deleteAllItemData(mii.hSubMenu);
@@ -240,7 +233,7 @@ void XPopupMenu::parseXPopCommand( const TString & input ) {
 	else if ( flags[TEXT('f')] && numtok > 2 ) {
 
 		if (nPos < 0)
-			throw std::invalid_argument("Invalid Path");
+			throw Dcx::dcxException("Invalid Path");
 
 		MENUITEMINFO mii;
 		ZeroMemory( &mii, sizeof( MENUITEMINFO ) );
@@ -248,7 +241,7 @@ void XPopupMenu::parseXPopCommand( const TString & input ) {
 		mii.fMask = MIIM_SUBMENU | MIIM_DATA;
 
 		if (GetMenuItemInfo(hMenu, (UINT)nPos, TRUE, &mii) == FALSE)
-			throw std::runtime_error("Unable to get menu item info");
+			throw Dcx::dcxException("Unable to get menu item info");
 
 		if (mii.hSubMenu != nullptr) {
 			this->deleteAllItemData(mii.hSubMenu);
@@ -267,7 +260,7 @@ void XPopupMenu::parseXPopCommand( const TString & input ) {
 		const auto nIcon = tsTabTwo.to_int();
 
 		if (nPos < 0)
-			throw std::invalid_argument("Invalid Path");
+			throw Dcx::dcxException("Invalid Path");
 
 		MENUITEMINFO mii;
 		ZeroMemory( &mii, sizeof( MENUITEMINFO ) );
@@ -275,7 +268,7 @@ void XPopupMenu::parseXPopCommand( const TString & input ) {
 		mii.fMask = MIIM_DATA;
 
 		if (GetMenuItemInfo(hMenu, (UINT)nPos, TRUE, &mii) == FALSE)
-			throw std::runtime_error("Unable to get menu item info");
+			throw Dcx::dcxException("Unable to get menu item info");
 
 		auto p_Item = reinterpret_cast<XPopupMenuItem *>(mii.dwItemData);
 		if (p_Item != nullptr)
@@ -287,7 +280,7 @@ void XPopupMenu::parseXPopCommand( const TString & input ) {
 		const XSwitchFlags xflags(tsTabTwo);
 
 		if (nPos < 0)
-			throw std::invalid_argument("Invalid Path");
+			throw Dcx::dcxException("Invalid Path");
 		
 		MENUITEMINFO mii;
 		ZeroMemory(&mii, sizeof(MENUITEMINFO));
@@ -309,7 +302,7 @@ void XPopupMenu::parseXPopCommand( const TString & input ) {
 	else if (flags[TEXT('t')] && tabtoks > 1 && toks_in_tab_two > 0) {
 		
 		if (nPos < 0)
-			throw std::invalid_argument("Invalid Path");
+			throw Dcx::dcxException("Invalid Path");
 
 		MENUITEMINFO mii;
 		ZeroMemory(&mii, sizeof(MENUITEMINFO));
@@ -317,7 +310,7 @@ void XPopupMenu::parseXPopCommand( const TString & input ) {
 		mii.fMask = MIIM_DATA | MIIM_STATE | MIIM_SUBMENU | MIIM_FTYPE | MIIM_ID;
 
 		if (GetMenuItemInfo(hMenu, (UINT)nPos, TRUE, &mii) == FALSE)
-			throw std::runtime_error("Unable to get menu item info");
+			throw Dcx::dcxException("Unable to get menu item info");
 		
 		auto p_Item = reinterpret_cast<XPopupMenuItem *>(mii.dwItemData);
 		if (p_Item != nullptr)
@@ -351,7 +344,7 @@ void XPopupMenu::parseXPopIdentifier( const TString & input, TCHAR * szReturnVal
 			hMenu = this->parsePath( path, this->m_hMenu );
 
 		if (hMenu == nullptr)
-			throw std::invalid_argument("Unable to get menu");
+			throw Dcx::dcxException("Unable to get menu");
 
 		wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), GetMenuItemCount( hMenu ) );
 	}
@@ -365,12 +358,12 @@ void XPopupMenu::parseXPopIdentifier( const TString & input, TCHAR * szReturnVal
 		//	hMenu = this->parsePath( path.gettok( 1, path.numtok( ) - 1 ), this->m_hMenu );
 		//
 		//if (hMenu == nullptr)
-		//	throw std::invalid_argument("Unable to get menu");
+		//	throw Dcx::dcxException("Unable to get menu");
 		//
 		//const auto nPos = path.gettok( path.numtok( ) ).to_int( ) - 1;
 		//
 		//if (nPos < 0)
-		//	throw std::invalid_argument("Invalid Path");
+		//	throw Dcx::dcxException("Invalid Path");
 		//
 		//MENUITEMINFO mii;
 		//ZeroMemory( &mii, sizeof( MENUITEMINFO ) );
@@ -381,7 +374,7 @@ void XPopupMenu::parseXPopIdentifier( const TString & input, TCHAR * szReturnVal
 		//
 		//	const auto p_Item = reinterpret_cast<XPopupMenuItem *>(mii.dwItemData);
 		//	if (p_Item == nullptr)
-		//		throw std::runtime_error("Unable to get menu data");
+		//		throw Dcx::dcxException("Unable to get menu data");
 		//
 		//	if ( prop == TEXT("text") )
 		//		dcx_strcpyn( szReturnValue, p_Item->getItemText( ).to_chr( ), MIRC_BUFFER_SIZE_CCH )
@@ -393,10 +386,10 @@ void XPopupMenu::parseXPopIdentifier( const TString & input, TCHAR * szReturnVal
 		{
 			const auto p_Item = reinterpret_cast<XPopupMenuItem *>(mii.dwItemData);
 			if (p_Item == nullptr)
-				throw std::runtime_error("Unable to get menu data");
+				throw Dcx::dcxException("Unable to get menu data");
 
-			if ( prop == TEXT("text") )
-				dcx_strcpyn( szReturnValue, p_Item->getItemText( ).to_chr( ), MIRC_BUFFER_SIZE_CCH )
+			if (prop == TEXT("text"))
+				dcx_strcpyn(szReturnValue, p_Item->getItemText().to_chr(), MIRC_BUFFER_SIZE_CCH);
 			else if ( prop == TEXT("icon") )
 				wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), p_Item->getItemIcon( ) + 1 );
 		}
@@ -411,12 +404,12 @@ void XPopupMenu::parseXPopIdentifier( const TString & input, TCHAR * szReturnVal
 		//	hMenu = this->parsePath( path.gettok( 1, path.numtok( ) - 1 ), this->m_hMenu );
 		//
 		//if (hMenu == nullptr)
-		//	throw std::invalid_argument("Unable to get menu");
+		//	throw Dcx::dcxException("Unable to get menu");
 		//
 		//const auto nPos = path.gettok(path.numtok()).to_int() - 1;
 		//
 		//if (nPos < 0)
-		//	throw std::invalid_argument("Invalid Path");
+		//	throw Dcx::dcxException("Invalid Path");
 		//
 		//MENUITEMINFO mii;
 		//ZeroMemory( &mii, sizeof( MENUITEMINFO ) );
@@ -455,12 +448,12 @@ void XPopupMenu::parseXPopIdentifier( const TString & input, TCHAR * szReturnVal
 		//	hMenu = this->parsePath( path.gettok( 1, path.numtok( ) - 1 ), this->m_hMenu );
 		//
 		//if (hMenu == nullptr)
-		//	throw std::invalid_argument("Unable to get menu");
+		//	throw Dcx::dcxException("Unable to get menu");
 		//
 		//const auto nPos = path.gettok(path.numtok()).to_int() - 1;
 		//
 		//if (nPos < 0)
-		//	throw std::invalid_argument("Invalid Path");
+		//	throw Dcx::dcxException("Invalid Path");
 		//
 		//MENUITEMINFO mii;
 		//ZeroMemory( &mii, sizeof( MENUITEMINFO ) );
@@ -1112,12 +1105,12 @@ BOOL XPopupMenu::getMenuInfo(const UINT iMask, const TString & path, MENUITEMINF
 		hMenu = this->parsePath(path.gettok(1, path_toks - 1), this->m_hMenu);
 
 	if (hMenu == nullptr)
-		throw std::invalid_argument("Unable to get menu");
+		throw Dcx::dcxException("Unable to get menu");
 
 	const auto nPos = path.gettok(path_toks).to_int() - 1;
 
 	if (nPos < 0)
-		throw std::invalid_argument("Invalid Path");
+		throw Dcx::dcxException("Invalid Path");
 
 	ZeroMemory(&mii, sizeof(MENUITEMINFO));
 	mii.cbSize = sizeof(MENUITEMINFO);

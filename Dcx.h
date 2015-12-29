@@ -41,7 +41,7 @@ namespace Dcx
 	auto make_resource(Creator c, Destructor d, Arguments&&... args)
 	{
 		auto r = c(std::forward<Arguments>(args)...);
-		if (!r) { throw std::runtime_error{ "Unable to create resource" }; }
+		if (!r) { throw std::runtime_error { "Unable to create resource" }; }
 		typedef typename std::decay<decltype(*r)>::type ResourceType;
 		return std::unique_ptr<ResourceType, void(*)(ResourceType*)>(r, d);
 	}
@@ -51,7 +51,7 @@ namespace Dcx
 		-> std::unique_ptr<typename std::decay<decltype(*c(std::forward<Arguments>(args)...))>::type, void(*)(typename std::decay<decltype(*c(std::forward<Arguments>(args)...))>::type*)>
 	{
 		auto r = c(std::forward<Arguments>(args)...);
-		if (!r) { throw std::runtime_error{ "Unable to create resource" }; }
+		if (!r) { throw std::runtime_error { "Unable to create resource" }; }
 		typedef typename std::decay<decltype(*r)>::type ResourceType;
 		return std::unique_ptr<ResourceType, void(*)(ResourceType*)>(r, d);
 	}
@@ -229,6 +229,119 @@ namespace Dcx
 
 	private:
 		dcxBitmap_t	m_uni;
+	};
+
+	struct dcxExtractIcon {
+		dcxExtractIcon() = delete;
+		dcxExtractIcon(const dcxExtractIcon &) = delete;
+		dcxExtractIcon &operator =(const dcxExtractIcon &) = delete;
+
+		dcxExtractIcon(const TString &filename, const int iIndex, const bool bLarge)
+			: m_hIcon(nullptr)
+		{
+			if (bLarge)
+				ExtractIconEx(filename.to_chr(), iIndex, &m_hIcon, nullptr, 1);
+			else
+				ExtractIconEx(filename.to_chr(), iIndex, nullptr, &m_hIcon, 1);
+
+		}
+		~dcxExtractIcon()
+		{
+			if (m_hIcon != nullptr)
+				DestroyIcon(m_hIcon);
+		}
+		operator HICON() const noexcept { return m_hIcon; }
+		explicit operator bool() const noexcept { return (m_hIcon != nullptr); }
+		HICON release() noexcept { HICON hTmp = m_hIcon; m_hIcon = nullptr; return hTmp; }
+	private:
+		HICON m_hIcon;
+	};
+
+	struct dcxHDCBuffer {
+		dcxHDCBuffer() = delete;
+		dcxHDCBuffer(const dcxHDCBuffer &) = delete;
+		dcxHDCBuffer &operator = (const dcxHDCBuffer &) = delete;
+
+		dcxHDCBuffer(const HDC hdc, RECT *rc)
+			: m_hHDC(nullptr)
+			, m_hBitmap(nullptr)
+			, m_hOldBitmap(nullptr)
+			, m_hOldFont(nullptr)
+		{
+			if (hdc == nullptr)
+				throw Dcx::dcxException("dcxHDCBuffer - Invalid HDC Supplied");
+
+			m_hHDC = CreateCompatibleDC(hdc);
+			if (m_hHDC == nullptr)
+				throw Dcx::dcxException("dcxHDCBuffer - Unable to create HDC");
+
+			// get size of bitmap to alloc.
+			BITMAP bm = { 0 };
+			int x, y;
+
+			if (rc == nullptr) {
+				// no size specified, use hdc's bitmap size.
+				if (GetObject((HBITMAP)GetCurrentObject(hdc, OBJ_BITMAP), sizeof(BITMAP), &bm) == 0)
+					throw Dcx::dcxException("dcxHDCBuffer - Unable to get hdc's bitmap");
+				x = 0;
+				y = 0;
+			}
+			else {
+				// use size specified.
+				bm.bmWidth = (rc->right - rc->left);
+				bm.bmHeight = (rc->bottom - rc->top);
+				x = rc->left;
+				y = rc->top;
+			}
+
+			// alloc bitmap for buffer.
+			m_hBitmap = CreateCompatibleBitmap(hdc, bm.bmWidth, bm.bmHeight);
+
+			if (m_hBitmap == nullptr)
+				throw Dcx::dcxException("dcxHDCBuffer - Unable to create bitmap");
+
+				// select bitmap into hdc
+			m_hOldBitmap = SelectBitmap(m_hHDC, m_hBitmap);
+
+			// copy settings from hdc to buffer's hdc.
+			SetDCBrushColor(m_hHDC, GetDCBrushColor(hdc));
+			SetDCPenColor(m_hHDC, GetDCPenColor(hdc));
+			SetLayout(m_hHDC, GetLayout(hdc));
+			m_hOldFont = SelectFont(m_hHDC, GetCurrentObject(hdc, OBJ_FONT));
+			SetTextColor(m_hHDC, GetTextColor(hdc));
+			SetBkColor(m_hHDC, GetBkColor(hdc));
+			SetBkMode(m_hHDC, GetBkMode(hdc));
+			SetROP2(m_hHDC, GetROP2(hdc));
+			SetMapMode(m_hHDC, GetMapMode(hdc));
+			SetPolyFillMode(m_hHDC, GetPolyFillMode(hdc));
+			SetStretchBltMode(m_hHDC, GetStretchBltMode(hdc));
+			SetGraphicsMode(m_hHDC, GetGraphicsMode(hdc));
+
+			// copy contents of hdc within area to buffer.
+			BitBlt(m_hHDC, 0, 0, bm.bmWidth, bm.bmHeight, hdc, x, y, SRCCOPY);
+
+			// buffer is an exact duplicate of the hdc within the area specified.
+		}
+		~dcxHDCBuffer()
+		{
+			GdiFlush();
+			if (m_hHDC != nullptr)
+			{
+				if (m_hOldFont != nullptr)
+					SelectFont(m_hHDC, m_hOldFont);
+				if (m_hOldBitmap != nullptr)
+					SelectBitmap(m_hHDC, m_hOldBitmap);
+				if (m_hBitmap != nullptr)
+					DeleteBitmap(m_hBitmap);
+				DeleteDC(m_hHDC);
+			}
+		}
+		operator HDC() const noexcept { return m_hHDC; }
+	private:
+		HDC m_hHDC;
+		HBITMAP m_hOldBitmap;
+		HBITMAP m_hBitmap;
+		HFONT m_hOldFont;
 	};
 
 	typedef std::map<HCURSOR, HCURSOR> MapOfCursors;

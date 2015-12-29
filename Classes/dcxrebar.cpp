@@ -49,7 +49,7 @@ DcxReBar::DcxReBar( const UINT ID, DcxDialog *const p_Dialog, const HWND mParent
 		nullptr);
 
 	if (!IsWindow(this->m_Hwnd))
-		throw std::runtime_error("Unable To Create Window");
+		throw Dcx::dcxException("Unable To Create Window");
 
 	if ( bNoTheme ) {
 		//SendMessage( this->m_Hwnd, RB_SETWINDOWTHEME, NULL, L" ");
@@ -160,7 +160,6 @@ void DcxReBar::parseControlStyles( const TString & styles, LONG * Styles, LONG *
 
 	//*ExStyles |= WS_EX_CONTROLPARENT;
 
-#if TSTRING_PARTS
 	for (const auto &tsStyle: styles)
 	{
 		if ( tsStyle == TEXT("borders") ) 
@@ -188,35 +187,7 @@ void DcxReBar::parseControlStyles( const TString & styles, LONG * Styles, LONG *
 		else if ( tsStyle == TEXT("noauto") )
 			*Styles |= CCS_NOPARENTALIGN | CCS_NORESIZE;
 	}
-#else
-	for (auto tsStyle(styles.getfirsttok(1)); !tsStyle.empty(); tsStyle = styles.getnexttok())
-	{
-		if ( tsStyle == TEXT("borders") ) 
-			*Styles |= RBS_BANDBORDERS;
-		else if ( tsStyle == TEXT("dblclktoggle") ) 
-			*Styles |= RBS_DBLCLKTOGGLE;
-		else if ( tsStyle == TEXT("fixedorder") ) 
-			*Styles |= RBS_FIXEDORDER;
-		else if ( tsStyle == TEXT("varheight") ) 
-			*Styles |= RBS_VARHEIGHT;
-		else if ( tsStyle == TEXT("tooltips") ) 
-			*Styles |= RBS_TOOLTIPS;
-		else if ( tsStyle == TEXT("verticalgrip") ) 
-			*Styles |= RBS_VERTICALGRIPPER;
-		else if ( tsStyle == TEXT("vertical") ) 
-			*Styles |= CCS_VERT;
-		else if ( tsStyle == TEXT("right") ) 
-			*Styles |= CCS_RIGHT;
-		else if ( tsStyle == TEXT("bottom") ) 
-			*Styles |= CCS_BOTTOM;
-		else if ( tsStyle == TEXT("noresize") ) 
-			*Styles |= CCS_NORESIZE;
-		else if ( tsStyle == TEXT("noparentalign") ) 
-			*Styles |= CCS_NOPARENTALIGN ;
-		else if ( tsStyle == TEXT("noauto") )
-			*Styles |= CCS_NOPARENTALIGN | CCS_NORESIZE;
-	}
-#endif
+
 	this->parseGeneralControlStyles(styles, Styles, ExStyles, bNoTheme);
 }
 
@@ -287,7 +258,7 @@ void DcxReBar::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) c
 		const auto nIndex = input.getnexttok().to_int() - 1;	// tok 4
 
 		if (nIndex < 0 || nIndex >= this->getBandCount())
-			throw std::invalid_argument("Invalid Index");
+			throw Dcx::dcxException("Invalid Index");
 
 		REBARBANDINFO rbBand;
 		ZeroMemory( &rbBand, sizeof( REBARBANDINFO ) );
@@ -302,7 +273,7 @@ void DcxReBar::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) c
 		const auto n = input.getnexttok().to_int() - 1; // tok 4
 
 		if (n < 0 || n >= this->getBandCount())
-			throw std::invalid_argument("Invalid Index");
+			throw Dcx::dcxException("Invalid Index");
 
 		const auto c = this->getControl(n);
 		if ( c != nullptr )
@@ -314,7 +285,7 @@ void DcxReBar::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) c
 		const auto n = input.getnexttok().to_int() - 1;	// tok 4
 
 		if (n < 0 || n >= this->getBandCount())
-			throw std::invalid_argument("Invalid Index");
+			throw Dcx::dcxException("Invalid Index");
 
 		ZeroMemory(&rbi, sizeof(REBARBANDINFO));
 		rbi.cbSize = sizeof(REBARBANDINFO);
@@ -359,7 +330,6 @@ void DcxReBar::parseCommandRequest( const TString & input ) {
 			if (nToks > 2)
 				tooltip = input.getnexttok( TSTAB).trim();		// tok 3
 		}
-#if TSTRING_TEMPLATES
 		auto nIndex = data.getfirsttok(4).to_<int>() - 1;
 		rbBand.fStyle = this->parseBandStyleFlags(data.getnexttok());	// tok 5
 		const auto cx = data.getnexttok().to_<UINT>();					// tok 6
@@ -367,15 +337,6 @@ void DcxReBar::parseCommandRequest( const TString & input ) {
 		const auto width = data.getnexttok().to_<UINT>();				// tok 8
 		const auto nIcon = data.getnexttok().to_<int>() - 1;			// tok 9
 		const auto clrText = data.getnexttok().to_<COLORREF>();			// tok 10
-#else
-		auto nIndex = data.getfirsttok(4).to_int() - 1;
-		rbBand.fStyle = this->parseBandStyleFlags( data.getnexttok( ) );	// tok 5
-		const auto cx = data.getnexttok().to_int();							// tok 6
-		const auto cy = data.getnexttok().to_int();							// tok 7
-		const auto width = data.getnexttok().to_int();						// tok 8
-		const auto nIcon = data.getnexttok().to_int() - 1;					// tok 9
-		const auto clrText = (COLORREF)data.getnexttok().to_num();			// tok 10
-#endif
 
 		if (nIndex < -1)
 			nIndex = -1;
@@ -450,7 +411,7 @@ void DcxReBar::parseCommandRequest( const TString & input ) {
 			//const auto ID = mIRC_ID_OFFSET + (UINT)control_data.gettok(1).to_int();
 			//
 			//if (this->m_pParentDialog->isIDValid(ID, true))
-			//	throw std::invalid_argument(Dcx::dcxGetFormattedString(TEXT("Control with ID \"%d\" already exists"), ID - mIRC_ID_OFFSET));
+			//	throw Dcx::dcxException(TEXT("Control with ID \"%\" already exists"), ID - mIRC_ID_OFFSET);
 			//
 			//try {
 			//	p_Control = DcxControl::controlFactory(this->m_pParentDialog,ID,control_data,2,
@@ -499,7 +460,7 @@ void DcxReBar::parseCommandRequest( const TString & input ) {
 			if (rbBand.hwndChild != nullptr)
 				DestroyWindow(rbBand.hwndChild);
 	
-			throw std::runtime_error("Unable To Add Band");
+			throw Dcx::dcxException("Unable To Add Band");
 		}
 		lpdcxrbb.release();
 	}
@@ -509,7 +470,7 @@ void DcxReBar::parseCommandRequest( const TString & input ) {
 		const auto n = input.getnexttok( ).to_int() - 1;	// tok 4
 
 		if (n < 0 || n >= this->getBandCount())
-			throw std::invalid_argument("Invalid Index");
+			throw Dcx::dcxException("Invalid Index");
 
 		ZeroMemory(&rbi, sizeof(REBARBANDINFO));
 		rbi.cbSize = sizeof(REBARBANDINFO);
@@ -524,7 +485,7 @@ void DcxReBar::parseCommandRequest( const TString & input ) {
 		const auto nIndex = input.getnexttok().to_int() - 1;	// tok 4
 
 		if (nIndex < 0 || nIndex >= this->getBandCount())
-			throw std::invalid_argument("Invalid Index");
+			throw Dcx::dcxException("Invalid Index");
 
 		this->deleteBand( nIndex );
 	}
@@ -534,7 +495,7 @@ void DcxReBar::parseCommandRequest( const TString & input ) {
 		const auto nIndex = input.getnexttok().to_int() - 1;	// tok 4
 
 		if (nIndex < 0 || nIndex >= this->getBandCount())
-			throw std::invalid_argument("Invalid Index");
+			throw Dcx::dcxException("Invalid Index");
 
 		this->showBand( nIndex, FALSE );
 	}
@@ -544,7 +505,7 @@ void DcxReBar::parseCommandRequest( const TString & input ) {
 		const auto nIndex = input.getnexttok().to_int() - 1;	// tok 4
 
 		if (nIndex < 0 || nIndex >= this->getBandCount())
-			throw std::invalid_argument("Invalid Index");
+			throw Dcx::dcxException("Invalid Index");
 
 		this->showBand( nIndex, TRUE );
 	}
@@ -560,7 +521,7 @@ void DcxReBar::parseCommandRequest( const TString & input ) {
 		const auto nIcon = input.getnexttok().to_int() - 1;	// tok 5
 
 		if (nIndex < 0 || nIcon < -1 || nIndex >= this->getBandCount())
-			throw std::invalid_argument("Invalid Index");
+			throw Dcx::dcxException("Invalid Index");
 
 		// Ook: TODO add check for nIcon being valid
 		rbBand.iImage = nIcon;
@@ -593,7 +554,7 @@ void DcxReBar::parseCommandRequest( const TString & input ) {
 			const auto nIndex = tsItem.to_int() - 1;
 
 			if ( nIndex < 0 || nIndex >= nItems || this->getBandInfo( nIndex, &rbBand ) == 0 )
-				throw std::invalid_argument("Invalid Index");
+				throw Dcx::dcxException("Invalid Index");
 
 			rbBand.fStyle |= RBBS_NOGRIPPER;
 			this->setBandInfo( nIndex, &rbBand );
@@ -605,7 +566,7 @@ void DcxReBar::parseCommandRequest( const TString & input ) {
 		const auto nIndex = input.getnexttok().to_int() - 1;	// tok 4
 
 		if (nIndex < 0 || nIndex >= this->getBandCount())
-			throw std::invalid_argument("Invalid Index");
+			throw Dcx::dcxException("Invalid Index");
 
 		this->maxBand( nIndex, FALSE );
 	}
@@ -615,7 +576,7 @@ void DcxReBar::parseCommandRequest( const TString & input ) {
 		const auto nIndex = input.getnexttok().to_int() - 1;	// tok 4
 
 		if (nIndex < 0 || nIndex >= this->getBandCount())
-			throw std::invalid_argument("Invalid Index");
+			throw Dcx::dcxException("Invalid Index");
 
 		this->minBand( nIndex, FALSE );
 	}
@@ -637,7 +598,7 @@ void DcxReBar::parseCommandRequest( const TString & input ) {
 
 		const auto nIndex = input.getnexttok().to_int() - 1;	// tok 4
 		if (nIndex < 0 || nIndex >= this->getBandCount())
-			throw std::invalid_argument("Invalid Index");
+			throw Dcx::dcxException("Invalid Index");
 
 		TString itemtext;
 		if ( numtok > 4 )
@@ -673,7 +634,7 @@ void DcxReBar::parseCommandRequest( const TString & input ) {
 			const auto nIndex = tsItem.to_int() - 1;
 
 			if ( nIndex < 0 || nIndex >= nItems || this->getBandInfo( nIndex, &rbBand ) == 0 )
-				throw std::invalid_argument("Invalid Index");
+				throw Dcx::dcxException("Invalid Index");
 
 			rbBand.fStyle &= ~RBBS_NOGRIPPER;
 			this->setBandInfo( nIndex, &rbBand );
@@ -687,7 +648,7 @@ void DcxReBar::parseCommandRequest( const TString & input ) {
 		const auto nItems = this->getBandCount();
 
 		if ( nIndexFrom < 0 || nIndexFrom >= nItems || nIndexTo < 0 || nIndexTo >= nItems )
-			throw std::invalid_argument("Invalid Index");
+			throw Dcx::dcxException("Invalid Index");
 
 		this->moveBand( nIndexFrom, nIndexTo );
 	}
@@ -707,7 +668,7 @@ void DcxReBar::parseCommandRequest( const TString & input ) {
 		}
 
 		if (himl == nullptr)
-			throw std::runtime_error("Unable to get imagelist");
+			throw Dcx::dcxException("Unable to get imagelist");
 
 		//HICON icon = dcxLoadIcon(index, filename, false, flag);
 		//

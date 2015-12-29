@@ -48,7 +48,7 @@ DcxStacker::DcxStacker( const UINT ID, DcxDialog *const p_Dialog, const HWND mPa
 		nullptr);
 
 	if (!IsWindow(this->m_Hwnd))
-		throw std::runtime_error("Unable To Create Window");
+		throw Dcx::dcxException("Unable To Create Window");
 
 	if ( bNoTheme )
 		Dcx::UXModule.dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
@@ -99,7 +99,6 @@ void DcxStacker::parseControlStyles( const TString & styles, LONG * Styles, LONG
 	*Styles |= LBS_OWNERDRAWVARIABLE|LBS_NOTIFY;
 	this->m_dStyles = STACKERS_COLLAPSE;
 
-#if TSTRING_PARTS
 	for (const auto &tsStyle: styles)
 	{
 		if ( tsStyle == TEXT("vscroll") )
@@ -111,19 +110,7 @@ void DcxStacker::parseControlStyles( const TString & styles, LONG * Styles, LONG
 		else if ( tsStyle == TEXT("nocollapse") )
 			this->m_dStyles &= ~STACKERS_COLLAPSE;
 	}
-#else
-	for (auto tsStyle(styles.getfirsttok(1)); !tsStyle.empty(); tsStyle = styles.getnexttok())
-	{
-		if ( tsStyle == TEXT("vscroll") )
-			*Styles |= WS_VSCROLL;
-		else if ( tsStyle == TEXT("gradient") )
-			this->m_dStyles |= STACKERS_GRAD;
-		else if ( tsStyle == TEXT("arrows") )
-			this->m_dStyles |= STACKERS_ARROW;
-		else if ( tsStyle == TEXT("nocollapse") )
-			this->m_dStyles &= ~STACKERS_COLLAPSE;
-	}
-#endif
+
 	this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
 }
 
@@ -146,11 +133,11 @@ void DcxStacker::parseInfoRequest( const TString & input, PTCHAR szReturnValue )
 		const auto nSel = input.getnexttok().to_int() - 1;	// tok 4
 
 		if (nSel < 0 && nSel >= ListBox_GetCount(this->m_Hwnd))
-			throw std::invalid_argument("Invalid Item");
+			throw Dcx::dcxException("Invalid Item");
 
 		auto sitem = this->getItem(nSel);
 		if (sitem == nullptr || sitem == (LPDCXSITEM)LB_ERR)
-			throw std::runtime_error("Unable to get Item");
+			throw Dcx::dcxException("Unable to get Item");
 
 		dcx_strcpyn(szReturnValue,sitem->tsCaption.to_chr(), MIRC_BUFFER_SIZE_CCH);
 	}
@@ -169,11 +156,11 @@ void DcxStacker::parseInfoRequest( const TString & input, PTCHAR szReturnValue )
 		dcx_strcpyn(szReturnValue,TEXT("$false"), MIRC_BUFFER_SIZE_CCH);
 
 		if (nSel < 0 && nSel >= ListBox_GetCount(this->m_Hwnd))
-			throw std::invalid_argument("Invalid Item");
+			throw Dcx::dcxException("Invalid Item");
 
 		auto sitem = this->getItem(nSel);
 		if (sitem == nullptr || sitem == (LPDCXSITEM)LB_ERR)
-			throw std::runtime_error("Unable to get Item");
+			throw Dcx::dcxException("Unable to get Item");
 		
 		if (sitem->pChild != nullptr)
 			dcx_strcpyn(szReturnValue,TEXT("$true"), MIRC_BUFFER_SIZE_CCH);
@@ -185,11 +172,11 @@ void DcxStacker::parseInfoRequest( const TString & input, PTCHAR szReturnValue )
 		dcx_strcpyn(szReturnValue, TEXT("0"), MIRC_BUFFER_SIZE_CCH);
 
 		if (nSel < 0 && nSel >= ListBox_GetCount(this->m_Hwnd))
-			throw std::invalid_argument("Invalid Item");
+			throw Dcx::dcxException("Invalid Item");
 
 		auto sitem = this->getItem(nSel);
 		if (sitem == nullptr || sitem == (LPDCXSITEM)LB_ERR)
-			throw std::runtime_error("Unable to get Item");
+			throw Dcx::dcxException("Unable to get Item");
 
 		if (sitem->pChild != nullptr)
 			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), sitem->pChild->getUserID());
@@ -226,13 +213,8 @@ void DcxStacker::parseCommandRequest( const TString &input) {
 
 		sitem->iItemImg = item.getnexttok( ).to_int() -1;			// tok 6
 		sitem->iSelectedItemImg = item.getnexttok( ).to_int() -1;	// tok 7
-#if TSTRING_TEMPLATES
 		sitem->clrText = item.getnexttok().to_<COLORREF>();		// tok 8
 		sitem->clrBack = item.getnexttok().to_<COLORREF>();		// tok 9
-#else
-		sitem->clrText = (COLORREF)item.getnexttok( ).to_num();		// tok 8
-		sitem->clrBack = (COLORREF)item.getnexttok( ).to_num();		// tok 9
-#endif
 		sitem->pChild = nullptr;
 		sitem->hFont = nullptr;
 		sitem->tsCaption = item.getlasttoks();						// tok 10, -1
@@ -252,7 +234,7 @@ void DcxStacker::parseCommandRequest( const TString &input) {
 			//const auto ID = mIRC_ID_OFFSET + (UINT)ctrl.gettok( 1 ).to_int( );
 			//
 			//if (!this->m_pParentDialog->isIDValid(ID, true))
-			//	throw std::invalid_argument(Dcx::dcxGetFormattedString(TEXT("Control with ID \"%d\" already exists"), ID - mIRC_ID_OFFSET));
+			//	throw Dcx::dcxException(TEXT("Control with ID \"%\" already exists"), ID - mIRC_ID_OFFSET);
 			//
 			//try {
 			//	auto p_Control = DcxControl::controlFactory(this->m_pParentDialog, ID, ctrl, 2, CTLF_ALLOW_ALL, this->m_Hwnd);
@@ -269,7 +251,7 @@ void DcxStacker::parseCommandRequest( const TString &input) {
 		}
 		//ListBox_InsertString(this->m_Hwnd, nPos, (LPARAM)sitem);
 		if (SendMessage(this->m_Hwnd,LB_INSERTSTRING,nPos,(LPARAM)sitem.get()) < 0)
-			throw std::runtime_error("Error adding item to control");
+			throw Dcx::dcxException("Error adding item to control");
 
 		sitem.release();
 	}
@@ -278,7 +260,7 @@ void DcxStacker::parseCommandRequest( const TString &input) {
 		const auto nPos = input.getnexttok().to_int() - 1;		// tok 4
 
 		if (nPos < 0 && nPos >= ListBox_GetCount(this->m_Hwnd))
-			throw std::invalid_argument("Invalid Item");
+			throw Dcx::dcxException("Invalid Item");
 		
 		SendMessage(this->m_Hwnd, LB_SETCURSEL, nPos, NULL);
 	}
@@ -287,7 +269,7 @@ void DcxStacker::parseCommandRequest( const TString &input) {
 		const auto nPos = input.getnexttok().to_int() - 1;	// tok 4
 
 		if (nPos < 0 && nPos >= ListBox_GetCount(this->m_Hwnd))
-			throw std::invalid_argument("Invalid Item");
+			throw Dcx::dcxException("Invalid Item");
 		
 		ListBox_DeleteString(this->m_Hwnd, nPos);
 	}
@@ -304,11 +286,11 @@ void DcxStacker::parseCommandRequest( const TString &input) {
 		const auto nPos = input.getnexttok().to_int() - 1;	// tok 4
 
 		if (nPos < 0 && nPos >= ListBox_GetCount(this->m_Hwnd))
-			throw std::invalid_argument("Invalid Item");
+			throw Dcx::dcxException("Invalid Item");
 		
 		auto sitem = this->getItem(nPos);
 		if (sitem == nullptr || sitem == (LPDCXSITEM)LB_ERR)
-			throw std::runtime_error("Unable to get Item");
+			throw Dcx::dcxException("Unable to get Item");
 
 		sitem->tsTipText = (numtok > 4 ? input.getlasttoks().trim() : TEXT(""));	// tok 5, -1
 	}
@@ -320,7 +302,7 @@ void DcxStacker::parseCommandRequest( const TString &input) {
 		auto filename(input.getnexttok().trim());	// tok 5
 
 		if (!IsFile(filename))
-			throw std::invalid_argument(Dcx::dcxGetFormattedString(TEXT("Unable to Access File: %s"), filename.to_chr()));
+			throw Dcx::dcxException(TEXT("Unable to Access File: %"), filename);
 
 		this->m_vImageList.push_back(new Image(filename.to_wchr()));
 #endif

@@ -49,7 +49,7 @@ DcxProgressBar::DcxProgressBar( _In_ const UINT ID, _In_ DcxDialog *const p_Dial
 		nullptr);
 
 	if (!IsWindow(this->m_Hwnd))
-		throw std::runtime_error("Unable To Create Window");
+		throw Dcx::dcxException("Unable To Create Window");
 
 	if ( bNoTheme )
 		Dcx::UXModule.dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
@@ -58,7 +58,7 @@ DcxProgressBar::DcxProgressBar( _In_ const UINT ID, _In_ DcxDialog *const p_Dial
 
 	if (styles.istok(TEXT("tooltips"))) {
 		if (!IsWindow(p_Dialog->getToolTip()))
-			throw std::runtime_error("Unable to Initialize Tooltips");
+			throw Dcx::dcxException("Unable to Initialize Tooltips");
 		
 		this->m_ToolTipHWND = p_Dialog->getToolTip();
 		AddToolTipToolInfo(this->m_ToolTipHWND, this->m_Hwnd);
@@ -105,7 +105,6 @@ void DcxProgressBar::parseControlStyles( const TString & styles, LONG * Styles, 
 {
 	this->m_bIsGrad = false;
 
-#if TSTRING_PARTS
 	for (const auto &tsStyle: styles)
 	{
 		if (tsStyle == TEXT("smooth"))
@@ -119,21 +118,7 @@ void DcxProgressBar::parseControlStyles( const TString & styles, LONG * Styles, 
 			this->m_bIsGrad = true;
 		}
 	}
-#else
-	for (auto tsStyle(styles.getfirsttok(1)); !tsStyle.empty(); tsStyle = styles.getnexttok())
-	{
-		if ( tsStyle == TEXT("smooth") ) 
-			*Styles |= PBS_SMOOTH;
-		else if ( tsStyle == TEXT("vertical") ) 
-			*Styles |= PBS_VERTICAL;
-		else if ( tsStyle == TEXT("marquee") ) 
-			*Styles |= PBS_MARQUEE;
-		else if ( tsStyle == TEXT("gradient") ) {
-			*Styles |= PBS_SMOOTH;
-			this->m_bIsGrad = true;
-		}
-}
-#endif
+
 	this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
 }
 
@@ -243,7 +228,7 @@ void DcxProgressBar::parseCommandRequest( const TString &input) {
 		ZeroMemory(&lfCurrent, sizeof(LOGFONT));
 
 		if (GetObject(this->m_hFont, sizeof(LOGFONT), &lfCurrent) == 0)
-			throw std::runtime_error("Unable to get LOGFONT");
+			throw Dcx::dcxException("Unable to get LOGFONT");
 
 		const auto angle = input.getnexttok().to_int();	// tok 4
 

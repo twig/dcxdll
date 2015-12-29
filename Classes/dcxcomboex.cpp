@@ -27,6 +27,7 @@
 
 DcxComboEx::DcxComboEx(const UINT ID, DcxDialog *const  p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles)
 	: DcxControl(ID, p_Dialog)
+	, m_tsSelected("")
 {
 	LONG Styles = 0, ExStyles = 0;
 	BOOL bNoTheme = FALSE;
@@ -44,7 +45,7 @@ DcxComboEx::DcxComboEx(const UINT ID, DcxDialog *const  p_Dialog, const HWND mPa
 		nullptr);
 
 	if (!IsWindow(this->m_Hwnd))
-		throw std::runtime_error("Unable To Create Window");
+		throw Dcx::dcxException("Unable To Create Window");
 
 	if (bNoTheme) {
 		Dcx::UXModule.dcxSetWindowTheme(this->m_Hwnd, L" ", L" ");
@@ -65,15 +66,15 @@ DcxComboEx::DcxComboEx(const UINT ID, DcxDialog *const  p_Dialog, const HWND mPa
 		SetWindowLongPtr(this->m_EditHwnd, GWLP_USERDATA, (LONG)&this->m_exEdit);
 	}
 
-	auto combo = (HWND)SendMessage(this->m_Hwnd, CBEM_GETCOMBOCONTROL, 0, 0);
-	if (IsWindow(combo)) {
+	this->m_hComboHwnd = (HWND)SendMessage(this->m_Hwnd, CBEM_GETCOMBOCONTROL, 0, 0);
+	if (IsWindow(this->m_hComboHwnd)) {
 		if (bNoTheme)
-			Dcx::UXModule.dcxSetWindowTheme(combo, L" ", L" ");
+			Dcx::UXModule.dcxSetWindowTheme(this->m_hComboHwnd, L" ", L" ");
 
 		COMBOBOXINFO cbi = { 0 };
 		cbi.cbSize = sizeof(cbi);
-		if (!GetComboBoxInfo(combo, &cbi))
-			throw std::runtime_error("Unable to get Combo Box Info");
+		if (!GetComboBoxInfo(this->m_hComboHwnd, &cbi))
+			throw Dcx::dcxException("Unable to get Combo Box Info");
 
 		if (styles.istok(TEXT("sort"))) { // doesnt work atm.
 			if (IsWindow(cbi.hwndList))
@@ -131,7 +132,6 @@ void DcxComboEx::parseControlStyles( const TString & styles, LONG * Styles, LONG
 {
 	//*ExStyles |= CBES_EX_NOSIZELIMIT;
 
-#if TSTRING_PARTS
 	for (const auto &tsStyle: styles)
 	{
 		if ( tsStyle == TEXT("simple") )
@@ -141,17 +141,6 @@ void DcxComboEx::parseControlStyles( const TString & styles, LONG * Styles, LONG
 		else if ( tsStyle == TEXT("dropedit") )
 			*Styles |= CBS_DROPDOWN;
 	}
-#else
-	for (auto tsStyle(styles.getfirsttok(1)); !tsStyle.empty(); tsStyle = styles.getnexttok())
-	{
-		if ( tsStyle == TEXT("simple") )
-			*Styles |= CBS_SIMPLE;
-		else if ( tsStyle == TEXT("dropdown") )
-			*Styles |= CBS_DROPDOWNLIST;
-		else if ( tsStyle == TEXT("dropedit") )
-			*Styles |= CBS_DROPDOWN;
-	}
-#endif
 
 	this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
 }
@@ -190,9 +179,13 @@ void DcxComboEx::parseInfoRequest( const TString & input, PTCHAR szReturnValue )
 		}
 		else {
 			if (nItem != -1 || (!this->isStyle(CBS_DROPDOWN) && !this->isStyle(CBS_SIMPLE)))
-				throw std::invalid_argument("Invalid Item");
+				throw Dcx::dcxException("Invalid Item");
 
-			GetWindowText((HWND) this->getEditControl(), szReturnValue, MIRC_BUFFER_SIZE_CCH);
+			//auto hEdit = (HWND)this->getEditControl();
+			//if (IsWindow(hEdit))
+			//	GetWindowText(hEdit, szReturnValue, MIRC_BUFFER_SIZE_CCH);
+
+			dcx_strcpyn(szReturnValue, m_tsSelected.to_chr(), MIRC_BUFFER_SIZE_CCH);
 		}
 	}
 	// [NAME] [ID] [PROP]
@@ -201,7 +194,7 @@ void DcxComboEx::parseInfoRequest( const TString & input, PTCHAR szReturnValue )
 		const auto nItem = this->getCurSel();
 
 		if ( nItem > -1 )
-			throw std::invalid_argument("Invalid Item");
+			throw Dcx::dcxException("Invalid Item");
 
 		COMBOBOXEXITEM cbi;
 		ZeroMemory( &cbi, sizeof( COMBOBOXEXITEM ) );
@@ -219,7 +212,7 @@ void DcxComboEx::parseInfoRequest( const TString & input, PTCHAR szReturnValue )
 		const auto nItem = this->getCurSel();
 
 		if ( nItem < 0 )
-			throw std::invalid_argument("Invalid Item");
+			throw Dcx::dcxException("Invalid Item");
 
 		wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), nItem + 1 );
 	}
@@ -237,11 +230,7 @@ void DcxComboEx::parseInfoRequest( const TString & input, PTCHAR szReturnValue )
 		if ( !matchtext.empty() ) {
 
 			ComboEx_SearchTypes SearchType = CBEXSEARCH_E;
-#if TSTRING_TESTCODE
 			const auto tsSearchType((params++)[0]);
-#else
-			const auto tsSearchType(params.getfirsttok(1)[0]);
-#endif
 
 			//if ( params.getfirsttok( 1 ) == TEXT("R") )
 			if (tsSearchType == TEXT('R'))
@@ -249,11 +238,7 @@ void DcxComboEx::parseInfoRequest( const TString & input, PTCHAR szReturnValue )
 			else if (tsSearchType == TEXT('W'))
 				SearchType = CBEXSEARCH_W;
 
-#if TSTRING_TESTCODE
 			const auto N = params++.to_<UINT>();	// tok 2
-#else
-			const auto N = params.getnexttok( ).to_<UINT>( );	// tok 2
-#endif
 
 			const auto nItems = this->getCount();
 			auto count = 0U;
@@ -300,7 +285,7 @@ void DcxComboEx::parseInfoRequest( const TString & input, PTCHAR szReturnValue )
 		auto mycbi = reinterpret_cast<LPDCXCBITEM>(cbi.lParam);
 
 		if (mycbi == nullptr)
-			throw std::runtime_error("Unable to get DCX Item");
+			throw Dcx::dcxException("Unable to get DCX Item");
 
 		dcx_strcpyn(szReturnValue, mycbi->tsMark.to_chr(), MIRC_BUFFER_SIZE_CCH);
 
@@ -358,7 +343,7 @@ void DcxComboEx::parseCommandRequest( const TString &input) {
 			if (this->insertItem(&cbi) == -1)
 			{
 				delete reinterpret_cast<DCXCBITEM *>(cbi.lParam);
-				throw std::runtime_error("Unable to add item.");
+				throw Dcx::dcxException("Unable to add item.");
 			}
 			// Now update the horizontal scroller
 			auto combo = (HWND)SendMessage(this->m_Hwnd, CBEM_GETCOMBOCONTROL, NULL, NULL);
@@ -419,13 +404,13 @@ void DcxComboEx::parseCommandRequest( const TString &input) {
 	// [NAME] [ID] -A [ROW] [+FLAGS] [INFO]
 	else if (flags[TEXT('A')]) {
 		if (numtok < 5)
-			throw std::invalid_argument("Insufficient parameters");
+			throw Dcx::dcxException("Insufficient parameters");
 
 		auto nRow = input.getnexttok().to_int();	// tok 4
 
 		// We're currently checking 1-based indexes.
 		if ((nRow < 1) || (nRow > this->getCount()))
-			throw std::invalid_argument(Dcx::dcxGetFormattedString(TEXT("Invalid row index %d."), nRow));
+			throw Dcx::dcxException(TEXT("Invalid row index %."), nRow);
 
 		// Convert to 0-based index.
 		nRow--;
@@ -438,18 +423,18 @@ void DcxComboEx::parseCommandRequest( const TString &input) {
 
 		// Couldn't retrieve info
 		if (!this->getItem(&cbei))
-			throw std::runtime_error("Unable to get item.");
+			throw Dcx::dcxException("Unable to get item.");
 
 		auto cbiDcx = reinterpret_cast<LPDCXCBITEM>(cbei.lParam);
 
 		if (cbiDcx == nullptr)
-			throw std::runtime_error("Unable to get Item Info");
+			throw Dcx::dcxException("Unable to get Item Info");
 		
 		const XSwitchFlags xflags(input.getnexttok());	// tok 5
 		const auto info(input.getlasttoks());		// tok 6, -1
 
 		if (!xflags[TEXT('M')])
-			throw std::invalid_argument(Dcx::dcxGetFormattedString(TEXT("Unknown flags %s"), input.gettok(5).to_chr()));
+			throw Dcx::dcxException(TEXT("Unknown flags %"), input.gettok(5));
 		
 		cbiDcx->tsMark = info;
 	}
@@ -486,44 +471,17 @@ void DcxComboEx::parseCommandRequest( const TString &input) {
 			}
 		}
 		else {
-#if TSTRING_PARTS
-#if TSTRING_ITERATOR
 			for (auto itStart = Ns.begin(TSCOMMA), itEnd = Ns.end(); itStart != itEnd; ++itStart)
 			{
 				auto iStart = 0, iEnd = 0;
 				const TString tsLine(*itStart);
 				this->getItemRange(tsLine, nItems, &iStart, &iEnd);
 				if ((iStart < 0) || (iEnd < 0) || (iStart >= nItems) || (iEnd >= nItems))
-					throw std::invalid_argument(Dcx::dcxGetFormattedString(TEXT("Invalid index %s."), tsLine.to_chr()));
+					throw Dcx::dcxException(TEXT("Invalid index %."), tsLine);
 
 				for (auto nPos = iStart; nPos <= iEnd; nPos++)
 					this->deleteItem(nPos);
 			}
-#else
-			Ns.split(TSCOMMA);
-
-			for (const auto &tsLine : Ns)
-			{
-				auto iStart = 0, iEnd = 0;
-				this->getItemRange(tsLine, nItems, &iStart, &iEnd);
-				if ((iStart < 0) || (iEnd < 0) || (iStart >= nItems) || (iEnd >= nItems))
-					throw std::invalid_argument(Dcx::dcxGetFormattedString(TEXT("Invalid index %s."), tsLine.to_chr()));
-
-				for (auto nPos = iStart; nPos <= iEnd; nPos++)
-					this->deleteItem(nPos);
-			}
-#endif
-#else
-			for (auto tsLine(Ns.getfirsttok(1, TSCOMMA)); !tsLine.empty(); tsLine = Ns.getnexttok(TSCOMMA)) {
-				auto iStart = 0, iEnd = 0;
-				this->getItemRange(tsLine, nItems, &iStart, &iEnd);
-				if ((iStart < 0) || (iEnd < 0) || (iStart >= nItems) || (iEnd >= nItems))
-					throw std::invalid_argument(Dcx::dcxGetFormattedString(TEXT("Invalid index %s."), tsLine.to_chr()));
-
-				for (auto nPos = iStart; nPos <= iEnd; nPos++)
-					this->deleteItem(nPos);
-			}
-#endif
 		}
 
 		if (!this->getCount())
@@ -540,15 +498,9 @@ void DcxComboEx::parseCommandRequest( const TString &input) {
 	}
 	// xdid -w [NAME] [ID] [SWITCH] [+FLAGS] [INDEX] [FILENAME]
 	else if (flags[TEXT('w')] && numtok > 5) {
-#if TSTRING_TESTCODE
 		const auto flag(input++);			// tok 4
 		const auto index = input++.to_<int>();		// tok 5
 		auto filename(input++);				// tok 6, -1
-#else
-		const auto flag(input.getnexttok( ));			// tok 4
-		const auto index = input.getnexttok( ).to_int();		// tok 5
-		auto filename(input.getlasttoks());				// tok 6, -1
-#endif
 
 		auto himl = this->getImageList();
 
@@ -808,13 +760,15 @@ LRESULT DcxComboEx::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 			TCHAR itemtext[MIRC_BUFFER_SIZE_CCH];
 			itemtext[0] = TEXT('\0');
 			COMBOBOXEXITEM cbex;
-			ZeroMemory( &cbex, sizeof( COMBOBOXEXITEM ) );
+			ZeroMemory(&cbex, sizeof(COMBOBOXEXITEM));
 			cbex.mask = CBEIF_TEXT;
 			cbex.pszText = itemtext;
 			cbex.cchTextMax = MIRC_BUFFER_SIZE_CCH;
-			cbex.iItem = this->getCurSel( );
-			this->getItem( &cbex );
-			SetWindowText( this->m_EditHwnd, itemtext );
+			cbex.iItem = this->getCurSel();
+			this->getItem(&cbex);
+			if (IsWindow(this->m_EditHwnd))
+				SetWindowText(this->m_EditHwnd, itemtext);
+			m_tsSelected = itemtext;
 
 			bParsed = TRUE;
 			return TRUE;

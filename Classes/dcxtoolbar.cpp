@@ -52,7 +52,7 @@ DcxToolBar::DcxToolBar(const UINT ID, DcxDialog *const p_Dialog, const HWND mPar
 		nullptr);
 
 	if (!IsWindow(this->m_Hwnd))
-		throw std::runtime_error("Unable To Create Window");
+		throw Dcx::dcxException("Unable To Create Window");
 
 	if (bNoTheme)
 		Dcx::UXModule.dcxSetWindowTheme(this->m_Hwnd, L" ", L" ");
@@ -109,7 +109,6 @@ void DcxToolBar::parseControlStyles( const TString & styles, LONG * Styles, LONG
  */
 void DcxToolBar::parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, LONG * ExStylesTb, BOOL * bNoTheme )
 {
-#if TSTRING_PARTS
 	//*Styles |= CCS_ADJUSTABLE;
 	for (const auto &tsStyle: styles)
 	{
@@ -146,44 +145,7 @@ void DcxToolBar::parseControlStyles( const TString & styles, LONG * Styles, LONG
 		else if ( tsStyle == TEXT("override") )
 			this->m_bOverrideTheme = true;
 	}
-#else
-	//*Styles |= CCS_ADJUSTABLE;
-	for (auto tsStyle(styles.getfirsttok(1)); !tsStyle.empty(); tsStyle = styles.getnexttok())
-	{
-		if ( tsStyle == TEXT("flat") )
-			*Styles |= TBSTYLE_FLAT;
-		else if ( tsStyle == TEXT("tooltips") )
-			*Styles |= TBSTYLE_TOOLTIPS;
-		else if ( tsStyle == TEXT("transparent") )
-			*Styles |= TBSTYLE_TRANSPARENT;
-		else if ( tsStyle == TEXT("nodivider") )
-			*Styles |= CCS_NODIVIDER;
-		else if ( tsStyle == TEXT("top") )
-			*Styles |= CCS_TOP;
-		else if ( tsStyle == TEXT("bottom") )
-			*Styles |= CCS_BOTTOM;
-		else if ( tsStyle == TEXT("left") )
-			*Styles |= CCS_LEFT;
-		else if ( tsStyle == TEXT("right") )
-			*Styles |= CCS_RIGHT;
-		//else if ( tsStyle == TEXT("noresize") ) 
-		//  *Styles |= CCS_NORESIZE;
-		//else if ( tsStyle == TEXT("noparentalign") ) 
-		//  *Styles |= CCS_NOPARENTALIGN ;
-		else if ( tsStyle == TEXT("noauto") )
-			*Styles |= CCS_NOPARENTALIGN | CCS_NORESIZE;
-		else if ( tsStyle == TEXT("adjustable") )
-			*Styles |= CCS_ADJUSTABLE;
-		else if ( tsStyle == TEXT("list") )
-			*Styles |= TBSTYLE_LIST;
-		else if ( tsStyle == TEXT("wrap") )
-			*Styles |= TBSTYLE_WRAPABLE;
-		else if ( tsStyle == TEXT("arrows") )
-			*ExStylesTb |= TBSTYLE_EX_DRAWDDARROWS;
-		else if ( tsStyle == TEXT("override") )
-			this->m_bOverrideTheme = true;
-	}
-#endif
+
 	this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
 }
 
@@ -217,7 +179,7 @@ void DcxToolBar::parseInfoRequest( const TString & input, PTCHAR szReturnValue )
 		const auto iButton = input.getnexttok().to_int() - 1;	// tok 4
 
 		if (iButton < 0 && iButton >= this->getButtonCount())
-			throw std::invalid_argument("Out of Range");
+			throw Dcx::dcxException("Out of Range");
 
 		// This way fails to give the correct result after buttons have been removed.
 		//this->getButtonText( this->getIndexToCommand( nButton ), szReturnValue ); // possible overflow, needs fixing at some point.
@@ -238,7 +200,7 @@ void DcxToolBar::parseInfoRequest( const TString & input, PTCHAR szReturnValue )
 		const auto iButton = input.getnexttok().to_int() - 1;	// tok 4
 
 		if (iButton < 0 && iButton >= this->getButtonCount())
-			throw std::invalid_argument("Out of Range");
+			throw Dcx::dcxException("Out of Range");
 
 		TBBUTTONINFO tbbi;
 		ZeroMemory( &tbbi, sizeof( TBBUTTONINFO ) );
@@ -254,7 +216,7 @@ void DcxToolBar::parseInfoRequest( const TString & input, PTCHAR szReturnValue )
 		const auto iButton = input.getnexttok().to_int() - 1;	// tok 4
 
 		if (iButton < 0 && iButton >= this->getButtonCount())
-			throw std::invalid_argument("Out of Range");
+			throw Dcx::dcxException("Out of Range");
 
 		TBBUTTONINFO tbbi;
 		ZeroMemory( &tbbi, sizeof( TBBUTTONINFO ) );
@@ -289,7 +251,7 @@ void DcxToolBar::parseInfoRequest( const TString & input, PTCHAR szReturnValue )
 		const auto iButton = input.getnexttok().to_int() - 1;	// tok 4
 
 		if (iButton < 0 && iButton >= this->getButtonCount())
-			throw std::invalid_argument("Out of Range");
+			throw Dcx::dcxException("Out of Range");
 
 		TBBUTTONINFO tbbi;
 		ZeroMemory( &tbbi, sizeof( TBBUTTONINFO ) );
@@ -311,7 +273,7 @@ void DcxToolBar::parseInfoRequest( const TString & input, PTCHAR szReturnValue )
 
 		// out of range;
 		if (iButton < 0 && iButton >= this->getButtonCount())
-			throw std::invalid_argument("Out of Range");
+			throw Dcx::dcxException("Out of Range");
 
 		this->getItemRect(iButton, &rc);
 		MapWindowPoints(this->m_Hwnd, nullptr, (LPPOINT)&rc, 2);
@@ -462,7 +424,7 @@ void DcxToolBar::parseCommandRequest( const TString & input ) {
 			tbbi.dwMask = TBIF_LPARAM | TBIF_BYINDEX;
 
 			if (this->getButtonInfo(iButton, &tbbi) == -1)
-				throw std::runtime_error("Unable to get button info");
+				throw Dcx::dcxException("Unable to get button info");
 
 			auto lpdcxtbb = reinterpret_cast<LPDCXTBBUTTON>(tbbi.lParam);
 
@@ -600,7 +562,7 @@ void DcxToolBar::parseCommandRequest( const TString & input ) {
 		tbbi.dwMask = TBIF_LPARAM | TBIF_BYINDEX;
 
 		if (this->getButtonInfo(nButton, &tbbi) < 0)
-			throw std::runtime_error("Unable to get button info");
+			throw Dcx::dcxException("Unable to get button info");
 
 		auto lpdcxtbb = reinterpret_cast<LPDCXTBBUTTON>(tbbi.lParam);
 
@@ -648,7 +610,7 @@ void DcxToolBar::parseCommandRequest( const TString & input ) {
 		tbbi.dwMask = TBIF_LPARAM;
 		
 		if (this->getButtonInfo(nIndex, &tbbi) < 0)
-			throw std::runtime_error("Unable to get button info");
+			throw Dcx::dcxException("Unable to get button info");
 		
 		auto lpdcxtbb = reinterpret_cast<LPDCXTBBUTTON>(tbbi.lParam);
 		if (numtok > 4)
@@ -668,7 +630,7 @@ void DcxToolBar::parseCommandRequest( const TString & input ) {
 		const auto iFlags = this->parseImageListFlags(tsFlags);
 
 		if (tsFlags[0] != TEXT('+'))
-			throw std::invalid_argument("Invalid Flags");
+			throw Dcx::dcxException("Invalid Flags");
 
 		const auto index = input.getnexttok().to_int();	// tok 5
 		auto filename(input.getlasttoks());			// tok 6, -1
@@ -677,17 +639,17 @@ void DcxToolBar::parseCommandRequest( const TString & input ) {
 
 		// load the icon
 		if (himl == nullptr)
-			throw std::runtime_error("Unable to get Normal Image List");
+			throw Dcx::dcxException("Unable to get Normal Image List");
 
 		int cx, cy;
 		if (!ImageList_GetIconSize(himl, &cx, &cy))
-			throw std::runtime_error("Unable to get Icon Size");
+			throw Dcx::dcxException("Unable to get Icon Size");
 
 		//auto icon = dcxLoadIcon(index, filename, (cx > 16), tsFlags);
 		//
 		//// if there is an icon to process
 		//if (icon == nullptr)
-		//	throw std::runtime_error(Dcx::dcxGetFormattedString(TEXT("Icon Failed To Load: %s"), filename.to_chr()));
+		//	throw Dcx::dcxException(TEXT("Icon Failed To Load: %"), filename);
 		//
 		//// NORMAL IML
 		//if (dcx_testflag(iFlags, TB_IML_NORMAL)) {

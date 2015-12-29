@@ -289,7 +289,7 @@ BOOL ParseCommandToLogfont(const TString& cmd, LPLOGFONT lf) {
 	ZeroMemory(lf, sizeof(LOGFONT));
 	const auto flags = parseFontFlags(cmd.getfirsttok( 1 ));
 
-	if (dcx_testflag(flags, DCF_DEFAULT))
+	if (dcx_testflag(flags, dcxFontFlags::DCF_DEFAULT))
 		return (GetObject((HFONT)GetStockObject(DEFAULT_GUI_FONT), sizeof(LOGFONT), lf) != 0);
 
 	lf->lfCharSet = (BYTE)parseFontCharSet(cmd.getnexttok( ));	// tok 2
@@ -304,21 +304,21 @@ BOOL ParseCommandToLogfont(const TString& cmd, LPLOGFONT lf) {
 
 	ReleaseDC(nullptr, hdc);
 
-	if (dcx_testflag(flags, DCF_ANTIALIASE))
+	if (dcx_testflag(flags, dcxFontFlags::DCF_ANTIALIASE))
 		lf->lfQuality = ANTIALIASED_QUALITY;
 
-	if (dcx_testflag(flags, DCF_BOLD))
+	if (dcx_testflag(flags, dcxFontFlags::DCF_BOLD))
 		lf->lfWeight = FW_BOLD;
 	else
 		lf->lfWeight = FW_NORMAL;
 
-	if (dcx_testflag(flags, DCF_ITALIC))
+	if (dcx_testflag(flags, dcxFontFlags::DCF_ITALIC))
 		lf->lfItalic = TRUE;
 
-	if (dcx_testflag(flags, DCF_STRIKEOUT))
+	if (dcx_testflag(flags, dcxFontFlags::DCF_STRIKEOUT))
 		lf->lfStrikeOut = TRUE;
 
-	if (dcx_testflag(flags, DCF_UNDERLINE))
+	if (dcx_testflag(flags, dcxFontFlags::DCF_UNDERLINE))
 		lf->lfUnderline = TRUE;
 
 	dcx_strcpyn(lf->lfFaceName, fName.to_chr(), 31);
@@ -341,17 +341,17 @@ UINT parseFontFlags(const TString &flags) {
 		return iFlags;
 
 	if (xflags[TEXT('a')])
-		iFlags |= DCF_ANTIALIASE;
+		iFlags |= dcxFontFlags::DCF_ANTIALIASE;
 	if (xflags[TEXT('b')])
-		iFlags |= DCF_BOLD;
+		iFlags |= dcxFontFlags::DCF_BOLD;
 	if (xflags[TEXT('d')])
-		iFlags |= DCF_DEFAULT;
+		iFlags |= dcxFontFlags::DCF_DEFAULT;
 	if (xflags[TEXT('i')])
-		iFlags |= DCF_ITALIC;
+		iFlags |= dcxFontFlags::DCF_ITALIC;
 	if (xflags[TEXT('s')])
-		iFlags |= DCF_STRIKEOUT;
+		iFlags |= dcxFontFlags::DCF_STRIKEOUT;
 	if (xflags[TEXT('u')])
-		iFlags |= DCF_UNDERLINE;
+		iFlags |= dcxFontFlags::DCF_UNDERLINE;
 
 	return iFlags;
 }
@@ -646,11 +646,11 @@ HICON dcxLoadIcon(const int index, TString &filename, const bool large, const TS
 	const XSwitchFlags xflags(flags);
 
 	if (!xflags[TEXT('+')])
-		throw std::invalid_argument("dcxLoadIcon: Invalid Flags");
+		throw Dcx::dcxException("dcxLoadIcon: Invalid Flags");
 
 	// index is -1
 	if (index < 0)
-		throw std::invalid_argument("dcxLoadIcon: Invalid Index");
+		throw Dcx::dcxException("dcxLoadIcon: Invalid Index");
 
 	// This doesnt require a valid filename.
 	if (xflags[TEXT('f')]) {
@@ -668,12 +668,12 @@ HICON dcxLoadIcon(const int index, TString &filename, const bool large, const TS
 		if (SHGetFileInfo(filetype.to_chr(), FILE_ATTRIBUTE_NORMAL, &shfi, sizeof(SHFILEINFO), (UINT)(SHGFI_ICON | SHGFI_USEFILEATTRIBUTES | (large ? SHGFI_LARGEICON : SHGFI_SMALLICON))) != 0)
 			return shfi.hIcon;
 
-		throw std::runtime_error("dcxLoadIcon: Unable to get filetype icon");
+		throw Dcx::dcxException("dcxLoadIcon: Unable to get filetype icon");
 	}
 
 	// Check for valid filename
 	if (!IsFile(filename))
-		throw std::runtime_error(Dcx::dcxGetFormattedString(TEXT("dcxLoadIcon: Could Not Access File: %s"), filename.to_chr()));
+		throw Dcx::dcxException(TEXT("dcxLoadIcon: Could Not Access File: %"), filename);
 
 	HICON icon = nullptr;
 
@@ -684,14 +684,14 @@ HICON dcxLoadIcon(const int index, TString &filename, const bool large, const TS
 #ifdef DCX_USE_GDIPLUS
 	else if (xflags[TEXT('P')]) {
 		if (!Dcx::GDIModule.isUseable())
-			throw std::invalid_argument("dcxLoadIcon: Invalid +P without GDI+.");
+			throw Dcx::dcxException("dcxLoadIcon: Invalid +P without GDI+.");
 
 		const auto p_Img = std::make_unique<Bitmap>(filename.to_chr());
 
 		// for some reason this returns `OutOfMemory` when the file doesnt exist instead of `FileNotFound`
 		auto status = p_Img->GetLastStatus();
 		if (status != Ok)
-			throw std::runtime_error(Dcx::dcxGetFormattedString(TEXT("dcxLoadIcon: %s"), GetLastStatusStr(status)));
+			throw Dcx::dcxException(TEXT("dcxLoadIcon: %"), GetLastStatusStr(status));
 
 		//int w = 0, h = 0;
 		//if (large) {
@@ -707,7 +707,7 @@ HICON dcxLoadIcon(const int index, TString &filename, const bool large, const TS
 
 		status = p_Img->GetHICON(&icon); // for reasons unknown this causes a `first chance exception` to show in debug log.
 		if (status != Ok)
-			throw std::runtime_error(Dcx::dcxGetFormattedString(TEXT("dcxLoadIcon: %s"), GetLastStatusStr(status)));
+			throw Dcx::dcxException(TEXT("dcxLoadIcon: %"), GetLastStatusStr(status));
 
 		GdiFlush();
 	}
@@ -723,7 +723,7 @@ HICON dcxLoadIcon(const int index, TString &filename, const bool large, const TS
 		icon = CreateGrayscaleIcon(icon);
 
 	if (icon == nullptr)
-		throw std::runtime_error("dcxLoadIcon: Unable to create icon");
+		throw Dcx::dcxException("dcxLoadIcon: Unable to create icon");
 
 	return icon;
 }
@@ -1294,18 +1294,9 @@ void getmIRCPalette(COLORREF *const Palette, const int PaletteItems)
 	//	Palette[i] = (COLORREF)colors.gettok( i +1 ).to_num();
 	//}
 
-#ifdef TSTRING_PARTS
 	size_t i = 0;
 	for (const auto &a : colors)
-	{
 		Palette[i++] = (COLORREF)a.to_dword();
-	}
-#else
-	Palette[0] = (COLORREF)colors.getfirsttok(1).to_num();
-	for (int i = 1; i < PaletteItems; i++) {
-		Palette[i] = (COLORREF)colors.getnexttok().to_num();
-	}
-#endif
 }
 
 int unfoldColor(const WCHAR *color) {
@@ -1739,17 +1730,19 @@ void mIRC_DrawText(HDC hdc, const TString &txt, LPRECT rc, const UINT style, con
 //	tmp.Render(hdc, rc, ri);
 //}
 
-typedef struct tagHDCBuffer {
+struct HDCBuffer {
 	HDC m_hHDC;
 	HBITMAP m_hOldBitmap;
 	HBITMAP m_hBitmap;
 	HFONT m_hOldFont;
-} HDCBuffer, *LPHDCBuffer;
+	// needs work...
+};
+using LPHDCBuffer = HDCBuffer *;
 
-HDC *CreateHDCBuffer(HDC hdc, const LPRECT rc)
+gsl::owner<HDC *>CreateHDCBuffer(gsl::not_null<HDC> hdc, const LPRECT rc)
 {
-	if ((hdc == nullptr) /*|| (rc == NULL)*/)
-		return nullptr;
+	//if ((hdc == nullptr) /*|| (rc == NULL)*/)
+	//	return nullptr;
 
 	// alloc buffer data
 	auto buf = std::make_unique<HDCBuffer>();
@@ -1815,10 +1808,11 @@ HDC *CreateHDCBuffer(HDC hdc, const LPRECT rc)
 
 	// buffer is an exact duplicate of the hdc within the area specified.
 	// return buffer typed as an HDC *
-	return (HDC *)buf.release();
+	//return (HDC *)buf.release();
+	return gsl::owner<HDC *>(buf.release());
 }
 
-void DeleteHDCBuffer(HDC *hBuffer)
+void DeleteHDCBuffer(gsl::owner<HDC *> hBuffer)
 {
 	if (hBuffer == nullptr)
 		return;
@@ -1849,10 +1843,13 @@ void DeleteHDCBuffer(HDC *hBuffer)
 
 int TGetWindowText(HWND hwnd, TString &txt)
 {
-	const auto nText = GetWindowTextLength(hwnd);
-	if (nText > 0) {
-		txt.reserve((UINT)(nText + 2));
-		if (GetWindowText(hwnd, txt.to_chr(), nText + 1) != 0)	// NB: needs to include space for end 0
+	if (hwnd == nullptr)
+		return 0;
+
+	const auto nText = GetWindowTextLength(hwnd) + 2;	// NB: needs to include space for end 0
+	if (nText > 2) {
+		txt.reserve((UINT)(nText));
+		if (GetWindowText(hwnd, txt.to_chr(), nText) != 0)
 			return nText;
 
 		//auto text = std::make_unique<TCHAR[]>(nText + 2);
@@ -1899,6 +1896,9 @@ void FreeOSCompatibility(void)
 
 bool isRegexMatch(const TCHAR *matchtext, const TCHAR *pattern)
 {
+	if ((matchtext == nullptr) || (pattern == nullptr))
+		return false;
+
 	// NB: CREGEX version is incomplete
 #ifdef DCX_USE_CREGEX
 	try {
@@ -1913,7 +1913,7 @@ bool isRegexMatch(const TCHAR *matchtext, const TCHAR *pattern)
 	TCHAR res[10];
 	mIRCLinker::execex(TEXT("/set -nu1 %%dcx_text %s"), matchtext);
 	mIRCLinker::execex(TEXT("/set -nu1 %%dcx_regex %s"), pattern);
-	mIRCLinker::eval(res, 10, TEXT("$regex(%dcx_text,%dcx_regex)"));
+	mIRCLinker::eval(res, Dcx::countof(res), TEXT("$regex(%dcx_text,%dcx_regex)"));
 
 	return (dcx_atoi(res) > 0);
 #endif // DCX_USE_CREGEX
@@ -1921,39 +1921,69 @@ bool isRegexMatch(const TCHAR *matchtext, const TCHAR *pattern)
 
 bool AddFileIcons(HIMAGELIST himl, TString &filename, const bool bLarge, const int iIndex, const int iStart, const int iEnd)
 {
+	if (himl == nullptr)
+		return false;
+
 	if (!IsFile(filename))
 		return false;
 
+	//int fIndex = iStart, i = iIndex;
+	//HICON hIcon = nullptr;
+	//auto bAdded = false;
+	//
+	//if (fIndex < 0 || (iEnd != -1 && fIndex > iEnd))
+	//	return bAdded;
+	//
+	//do {
+	//	if (bLarge)
+	//		ExtractIconEx(filename.to_chr(), fIndex, &hIcon, nullptr, 1);
+	//	else
+	//		ExtractIconEx(filename.to_chr(), fIndex, nullptr, &hIcon, 1);
+	//
+	//	if (hIcon != nullptr) {
+	//		// auto free handle hIcon when going out of scope or throwing an exception
+	//		//Auto(DestroyIcon(hIcon));
+	//
+	//		// auto free handle hIcon when going out of scope or throwing an exception
+	//		auto IconGuard = gsl::finally([hIcon]() { DestroyIcon(hIcon); });
+	//
+	//		if (i == -1)
+	//			ImageList_ReplaceIcon(himl, -1, hIcon);
+	//		else
+	//			ImageList_ReplaceIcon(himl, i++, hIcon);
+	//		bAdded = true;
+	//	}
+	//	fIndex++;
+	//	if (fIndex > iEnd)
+	//		break;
+	//} while (hIcon != nullptr);
+
 	int fIndex = iStart, i = iIndex;
-	HICON hIcon = nullptr;
-	auto bAdded = false;
+	auto bAdded = false, bGotIcon = false;
 
 	if (fIndex < 0 || (iEnd != -1 && fIndex > iEnd))
 		return bAdded;
 
 	do {
-		if (bLarge)
-			ExtractIconEx(filename.to_chr(), fIndex, &hIcon, nullptr, 1);
-		else
-			ExtractIconEx(filename.to_chr(), fIndex, nullptr, &hIcon, 1);
+		Dcx::dcxExtractIcon hIcon(filename, fIndex, bLarge);
 
-		if (hIcon != nullptr) {
-			Auto(DestroyIcon(hIcon));
-
+		bGotIcon = (hIcon != nullptr);
+		if (bGotIcon) {
 			if (i == -1)
-				ImageList_ReplaceIcon(himl, -1, hIcon);
+				ImageList_ReplaceIcon(himl, -1, hIcon);	// same as ImageList_AddIcon()
 			else
 				ImageList_ReplaceIcon(himl, i++, hIcon);
 			bAdded = true;
+			fIndex++;
+			if (fIndex > iEnd)
+				break;
 		}
-		fIndex++;
-		if (fIndex > iEnd)
-			break;
-	} while (hIcon != nullptr);
+	} while (bGotIcon);
+
 	return bAdded;
 }
 
-BOOL dcxGetWindowRect(HWND hWnd, LPRECT lpRect)
+BOOL dcxGetWindowRect(gsl::not_null<HWND> hWnd, gsl::not_null<LPRECT> lpRect)
 {
 	// as described in a comment at http://msdn.microsoft.com/en-us/library/ms633519(VS.85).aspx
 	// GetWindowRect does not return the real size of a window if u are using vista with areo glass
@@ -1966,7 +1996,7 @@ BOOL dcxGetWindowRect(HWND hWnd, LPRECT lpRect)
 /*
 	*	DrawRotatedText() function taken from ms example & modified for our needs.
 */
-void DrawRotatedText(const TString &strDraw, LPRECT rc, HDC hDC, const int nAngleLine/* = 0*/, const bool bEnableAngleChar /*= false*/, const int nAngleChar /*= 0*/) {
+void DrawRotatedText(const TString &strDraw, gsl::not_null<LPRECT> rc, gsl::not_null<HDC> hDC, const int nAngleLine/* = 0*/, const bool bEnableAngleChar /*= false*/, const int nAngleChar /*= 0*/) {
 
 	if ((nAngleLine == 0) && (!bEnableAngleChar)) {
 		TextOut(hDC, rc->left, rc->bottom, strDraw.to_chr(), (int)strDraw.len());
@@ -2042,13 +2072,13 @@ void DrawRotatedText(const TString &strDraw, LPRECT rc, HDC hDC, const int nAngl
 //		nOptions, rect, str, len, NULL);
 //}
 
-const char *queryAttribute(const TiXmlElement *element, const char *attribute, const char *defaultValue)
+const char *queryAttribute(gsl::not_null<const TiXmlElement *> element, gsl::not_null<const char *> attribute, const char *defaultValue)
 {
 	const auto t = element->Attribute(attribute);
 	return (t != nullptr) ? t : defaultValue;
 }
 
-int queryIntAttribute(const TiXmlElement *element, const char *attribute, const int defaultValue)
+int queryIntAttribute(gsl::not_null<const TiXmlElement *> element, gsl::not_null<const char *> attribute, const int defaultValue)
 {
 	auto integer = defaultValue;
 	return (element->QueryIntAttribute(attribute, &integer) == TIXML_SUCCESS) ? integer : defaultValue;
@@ -2064,9 +2094,13 @@ int queryIntAttribute(const TiXmlElement *element, const char *attribute, const 
 
 TString MakeTextmIRCSafe(const TCHAR *const tString)
 {
+	TString tsRes((UINT)MIRC_BUFFER_SIZE_CCH);	// use MIRC_BUFFER_SIZE_CCH as starting buffer size (shouldnt be bigger...)
+
+	if (tString == nullptr)
+		return tsRes;
+
 	const auto len = lstrlen(tString);
 	bool bLastWasSpace = true;	// start as true as the beginning of the line is treated the same as a space here
-	TString tsRes((UINT)MIRC_BUFFER_SIZE_CCH);	// use MIRC_BUFFER_SIZE_CCH as starting buffer size (shouldnt be bigger...)
 
 	// look for ()[]%$; we dont want to change , as this is needed
 	for (auto i = decltype(len){0}; i < len; i++)

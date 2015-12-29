@@ -45,9 +45,11 @@
 #pragma push_macro("constexpr")
 #define constexpr
 
-// addition by Ook to stop the "Not enough arguments for macro" errors caused by -> static const SizeType max_value = std::numeric_limits<SizeType>::max()
+// On Windows, if NOMINMAX is not defined, then windows.h defines the macro max
+#ifdef _WIN32
 #pragma push_macro("max")
 #undef max
+#endif
 
 // VS 2013 workarounds
 #if _MSC_VER <= 1800
@@ -2197,7 +2199,9 @@ general_span_iterator<Span> operator+(typename general_span_iterator<Span>::diff
 
 #ifdef _MSC_VER
 
+#ifdef _WIN32
 #pragma pop_macro("max")
+#endif
 
 #undef constexpr
 #pragma pop_macro("constexpr")

@@ -46,7 +46,7 @@ DcxEdit::DcxEdit(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwn
 		nullptr);
 
 	if (!IsWindow(this->m_Hwnd))
-		throw std::runtime_error("Unable To Create Window");
+		throw Dcx::dcxException("Unable To Create Window");
 
 	if (bNoTheme)
 		Dcx::UXModule.dcxSetWindowTheme(this->m_Hwnd, L" ", L" ");
@@ -127,7 +127,6 @@ void DcxEdit::toXml(TiXmlElement *const xml) const
 */
 void DcxEdit::parseControlStyles( const TString &styles, LONG *Styles, LONG *ExStyles, BOOL *bNoTheme)
 {
-#if TSTRING_PARTS
 	for (const auto &tsStyle : styles)
 	{
 		if (tsStyle == TEXT("multi")) 
@@ -159,39 +158,6 @@ void DcxEdit::parseControlStyles( const TString &styles, LONG *Styles, LONG *ExS
 		else if (tsStyle == TEXT("showsel"))
 			*Styles |= ES_NOHIDESEL;
 	}
-#else
-	for (auto tsStyle(styles.getfirsttok( 1 )); !tsStyle.empty(); tsStyle = styles.getnexttok( ))
-	{
-		if (tsStyle == TEXT("multi")) 
-			*Styles |= ES_MULTILINE;
-		else if (tsStyle == TEXT("center"))
-			*Styles |= ES_CENTER;
-		else if (tsStyle == TEXT("right"))
-			*Styles |= ES_RIGHT;
-		else if (tsStyle == TEXT("autohs"))
-			*Styles |= ES_AUTOHSCROLL;
-		else if (tsStyle == TEXT("autovs"))
-			*Styles |= ES_AUTOVSCROLL;
-		else if (tsStyle == TEXT("vsbar"))
-			*Styles |= WS_VSCROLL;
-		else if (tsStyle == TEXT("hsbar"))
-			*Styles |= WS_HSCROLL;
-		else if (tsStyle == TEXT("lowercase"))
-			*Styles |= ES_LOWERCASE;
-		else if (tsStyle == TEXT("number"))
-			*Styles |= ES_NUMBER;
-		else if (tsStyle == TEXT("password"))
-			*Styles |= ES_PASSWORD;
-		else if (tsStyle == TEXT("uppercase"))
-			*Styles |= ES_UPPERCASE;
-		else if (tsStyle == TEXT("return"))
-			*Styles |= ES_WANTRETURN;
-		else if (tsStyle == TEXT("readonly"))
-			*Styles |= ES_READONLY;
-		else if (tsStyle == TEXT("showsel"))
-			*Styles |= ES_NOHIDESEL;
-	}
-#endif
 
 	this->parseGeneralControlStyles(styles, Styles, ExStyles, bNoTheme);
 }
@@ -322,11 +288,7 @@ void DcxEdit::parseCommandRequest( const TString &input) {
 	// xdid -d [NAME] [ID] [SWITCH] [N]
 	else if (flags[TEXT('d')] && numtok > 3) {
 		if (this->isStyle(ES_MULTILINE)) {
-#if TSTRING_TEMPLATES
 			const auto nLine = input.getnexttok().to_<UINT>();	// tok 4
-#else
-			const auto nLine = input.getnexttok().to_int();	// tok 4
-#endif
 			this->m_tsText.deltok(nLine, TEXT("\r\n"));
 			SetWindowTextW(this->m_Hwnd, this->m_tsText.to_wchr());
 		}
@@ -334,13 +296,8 @@ void DcxEdit::parseCommandRequest( const TString &input) {
 	// xdid -i [NAME] [ID] [SWITCH] [N] [TEXT]
 	else if (flags[TEXT('i')] && numtok > 4) {
 		if (this->isStyle(ES_MULTILINE)) {
-#if TSTRING_TEMPLATES
 			const auto nLine = input.getnexttok().to_<UINT>();	// tok 4
 			this->m_tsText.instok(input.getlasttoks(), nLine, TEXT("\r\n"));	// tok 5, -1
-#else
-			const auto nLine = input.getnexttok().to_int();	// tok 4
-			this->m_tsText.instok(input.getlasttoks().to_chr(), nLine, TEXT("\r\n"));	// tok 5, -1
-#endif
 		}
 		else
 			this->m_tsText = input.getlasttoks();	// tok 5, -1
@@ -348,11 +305,7 @@ void DcxEdit::parseCommandRequest( const TString &input) {
 	}
 	// xdid -j [NAME] [ID] [SWITCH] [0|1]
 	else if (flags[TEXT('j')] && numtok > 3) {
-#if TSTRING_TEMPLATES
 		const auto i = input.getnexttok().to_<UINT>();	// tok 4
-#else
-		const auto i = input.getnexttok().to_int();	// tok 4
-#endif
 
 		auto c = Edit_GetPasswordChar(this->m_Hwnd);
 		if (c == 0)
@@ -395,13 +348,8 @@ void DcxEdit::parseCommandRequest( const TString &input) {
 	// xdid -o [NAME] [ID] [SWITCH] [N] [TEXT]
 	else if (flags[TEXT('o')] && numtok > 3) {
 		if (this->isStyle(ES_MULTILINE)) {
-#if TSTRING_TEMPLATES
 			const auto nLine = input.getnexttok().to_<UINT>();	// tok 4
 			this->m_tsText.puttok(input.getlasttoks(), nLine, TEXT("\r\n"));	// tok 5, -1
-#else
-			const auto nLine = input.getnexttok().to_int();	// tok 4
-			this->m_tsText.puttok(input.getlasttoks().to_chr(), nLine, TEXT("\r\n"));	// tok 5, -1
-#endif
 		}
 		else
 			this->m_tsText = input.getlasttoks();	// tok 4, -1
@@ -427,7 +375,7 @@ void DcxEdit::parseCommandRequest( const TString &input) {
 		auto tsFile(input.getlasttoks().trim());	// tok 4, -1
 
 		if (!IsFile(tsFile))
-			throw std::runtime_error(Dcx::dcxGetFormattedString(TEXT("Unable to open: %s"), tsFile.to_chr()));
+			throw Dcx::dcxException(TEXT("Unable to open: %"), tsFile);
 		
 		this->m_tsText = readTextFile(tsFile);
 		SetWindowTextW(this->m_Hwnd, this->m_tsText.to_wchr());
@@ -437,7 +385,7 @@ void DcxEdit::parseCommandRequest( const TString &input) {
 		const auto tsFile(input.getlasttoks().trim());	// tok 4, -1
 
 		if (!SaveDataToFile(tsFile, this->m_tsText))
-			throw std::runtime_error(Dcx::dcxGetFormattedString(TEXT("Unable to save: %s"), tsFile.to_chr()));
+			throw Dcx::dcxException(TEXT("Unable to save: %"), tsFile);
 	}
 	// xdid -V [NAME] [ID]
 	else if (flags[TEXT('V')]) {

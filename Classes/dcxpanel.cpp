@@ -47,7 +47,7 @@ DcxPanel::DcxPanel(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentH
 		nullptr);
 
 	if (!IsWindow(this->m_Hwnd))
-		throw std::runtime_error("Unable To Create Window");
+		throw Dcx::dcxException("Unable To Create Window");
 
 	if ( bNoTheme )
 		Dcx::UXModule.dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
@@ -118,7 +118,7 @@ void DcxPanel::parseCommandRequest( const TString & input ) {
 		//const auto ID = mIRC_ID_OFFSET + (UINT)input.getnexttok().to_int();	// tok 4
 		//
 		//if (!this->m_pParentDialog->isIDValid(ID, true))
-		//	throw std::invalid_argument(Dcx::dcxGetFormattedString(TEXT("Control with ID \"%d\" already exists"), ID - mIRC_ID_OFFSET));
+		//	throw Dcx::dcxException(TEXT("Control with ID \"%\" already exists"), ID - mIRC_ID_OFFSET);
 	//
 		//try {
 		//	this->m_pParentDialog->addControl(DcxControl::controlFactory(this->m_pParentDialog, ID, input, 5, CTLF_ALLOW_ALL, this->m_Hwnd));
@@ -138,11 +138,11 @@ void DcxPanel::parseCommandRequest( const TString & input ) {
 		const auto ID = mIRC_ID_OFFSET + (UINT)input.getnexttok().to_int();	// tok 4
 
 		if (!this->m_pParentDialog->isIDValid(ID))
-			throw std::invalid_argument(Dcx::dcxGetFormattedString(TEXT("Unknown control with ID \"%d\" (dialog %s)"), ID - mIRC_ID_OFFSET, this->m_pParentDialog->getName().to_chr()));
+			throw Dcx::dcxException(TEXT("Unknown control with ID \"%\" (dialog %)"), ID - mIRC_ID_OFFSET, this->m_pParentDialog->getName());
 
 		auto p_Control = this->m_pParentDialog->getControlByID(ID);
 		if (p_Control == nullptr)
-			throw std::runtime_error(Dcx::dcxGetFormattedString(TEXT("Unable to get control with ID \"%d\" (dialog %s)"), ID - mIRC_ID_OFFSET, this->m_pParentDialog->getName().to_chr()));
+			throw Dcx::dcxException(TEXT("Unable to get control with ID \"%\" (dialog %)"), ID - mIRC_ID_OFFSET, this->m_pParentDialog->getName());
 
 		const auto dct = p_Control->getControlType();
 
@@ -150,7 +150,7 @@ void DcxPanel::parseCommandRequest( const TString & input ) {
 			delete p_Control;
 		else {
 			if (p_Control->getRefCount() != 0)
-				throw std::runtime_error(Dcx::dcxGetFormattedString(TEXT("Can't delete control with ID \"%d\" when it is inside it's own event (dialog %s)"), p_Control->getUserID(), this->m_pParentDialog->getName().to_chr()));
+				throw Dcx::dcxException(TEXT("Can't delete control with ID \"%\" when it is inside it's own event (dialog %)"), p_Control->getUserID(), this->m_pParentDialog->getName());
 
 			auto cHwnd = p_Control->getHwnd();
 			this->m_pParentDialog->deleteControl(p_Control); // remove from internal list!
@@ -161,7 +161,7 @@ void DcxPanel::parseCommandRequest( const TString & input ) {
 		//	delete p_Control;
 		//else {
 		//	if (p_Control->getRefCount() != 0)
-		//		throw std::invalid_argument(Dcx::dcxGetFormattedString(TEXT("Can't delete control with ID \"%d\" when it is inside it's own event (dialog %s)"), p_Control->getUserID(), this->m_pParentDialog->getName().to_chr()));
+		//		throw Dcx::dcxException(TEXT("Can't delete control with ID \"%\" when it is inside it's own event (dialog %)"), p_Control->getUserID(), this->m_pParentDialog->getName());
 		//	
 		//	auto cHwnd = p_Control->getHwnd();
 		//	this->m_pParentDialog->deleteControl(p_Control); // remove from internal list!
@@ -182,13 +182,13 @@ void DcxPanel::parseCommandRequest( const TString & input ) {
 		const auto tsCmd(input.getnexttok());	// tok 4
 
 		if (this->m_pLayoutManager == nullptr)
-			throw std::runtime_error("No LayoutManager available");
+			throw Dcx::dcxException("No LayoutManager available");
 
 		if (tsCmd == TEXT("update"))
 		{
 			RECT rc;
 			if (!GetClientRect(this->m_Hwnd, &rc))
-				throw std::runtime_error("Unable to get window rect");
+				throw Dcx::dcxException("Unable to get window rect");
 
 			this->m_pLayoutManager->updateLayout( rc );
 			this->redrawWindow();

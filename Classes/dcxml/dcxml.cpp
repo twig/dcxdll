@@ -36,7 +36,7 @@ mIRC(dcxml) {
 		const auto numtok = input.numtok();
 
 		if (numtok < 3)
-			throw std::invalid_argument("Insuffient parameters");
+			throw Dcx::dcxException("Insuffient parameters");
 
 		// Parse XDialog XML.
 		if (flags[TEXT('d')]) {
@@ -45,7 +45,7 @@ mIRC(dcxml) {
 			auto tsFilename(input.getlasttoks().trim());	// tok 4, -1
 
 			if (!IsFile(tsFilename))
-				throw std::invalid_argument(Dcx::dcxGetFormattedString(TEXT("Unable To Access File: %s"), tsFilename.to_chr()));
+				throw Dcx::dcxException(TEXT("Unable To Access File: %"), tsFilename);
 
 			Parser.ParseXML(tsFilename, tsMark, tsName, (flags[TEXT('v')]), (flags[TEXT('x')]));
 			return 1;
@@ -58,11 +58,11 @@ mIRC(dcxml) {
 			auto tsFilename(input.getlasttoks().trim());		// tok 4, -1
 
 			if (!IsFile(tsFilename))
-				throw std::invalid_argument(Dcx::dcxGetFormattedString(TEXT("Unable To Access File: %s"), tsFilename.to_chr()));
+				throw Dcx::dcxException(TEXT("Unable To Access File: %"), tsFilename);
 
 			TiXmlDocument doc(tsFilename.c_str());
 			if (!doc.LoadFile())
-				throw std::runtime_error("Unable to load XML file");
+				throw Dcx::dcxException("Unable to load XML file");
 
 			const auto popups = doc.FirstChildElement("dcxml")->FirstChildElement("popups");
 			//std::array<TCHAR *, 3U> test = {
@@ -77,18 +77,18 @@ mIRC(dcxml) {
 			//	TEXT("scriptpopup")
 			//};
 			//if (popupName.acompare(menuNames) != 0)
-			//	throw std::invalid_argument(Dcx::dcxGetFormattedString(TEXT("Menu name TEXT('%s') is reserved."), popupName.to_chr()));
+			//	throw Dcx::dcxException(TEXT("Menu name '%' is reserved."), popupName);
 
 			static const TString menuNames(TEXT("mircbar mirc scriptpopup"));
 			if (menuNames.istok(popupName))
-				throw std::invalid_argument(Dcx::dcxGetFormattedString(TEXT("Menu name TEXT('%s') is reserved."), popupName.to_chr()));
+				throw Dcx::dcxException(TEXT("Menu name '%' is reserved."), popupName);
 
 			//if ((popupName == TEXT("mircbar")) || (popupName == TEXT("mirc")) || (popupName == TEXT("scriptpopup")))
-			//	throw std::invalid_argument(Dcx::dcxGetFormattedString(TEXT("Menu name TEXT('%s') is reserved."), popupName.to_chr()));
+			//	throw Dcx::dcxException(TEXT("Menu name '%s' is reserved."), popupName);
 
 			// Couldnt find popups group.
 			if (popups == nullptr)
-				throw std::invalid_argument("No 'popups' Group");
+				throw Dcx::dcxException("No 'popups' Group");
 
 			XPopupMenuManager::LoadPopupsFromXML(popups, nullptr, popupName, popupDataset);
 			return 1;
@@ -96,7 +96,7 @@ mIRC(dcxml) {
 
 		// Unknown flags.
 		else
-			throw std::invalid_argument(Dcx::dcxGetFormattedString(TEXT("Unknown flag %s"), input.gettok(1).to_chr()));
+			throw Dcx::dcxException(TEXT("Unknown flag %"), input.gettok(1));
 	}
 	catch (std::exception &e)
 	{
@@ -118,13 +118,13 @@ mIRC(_dcxml)
 		d.trim();
 
 		if (d.numtok() != 1)
-			throw std::invalid_argument("Invalid Args: A prop is required.");
+			throw Dcx::dcxException("Invalid Args: A prop is required.");
 
 		if (d.gettok(1) == TEXT("Loaded")) {
 			dcx_Con(Parser.getLoaded(), data);
 		}
 		else
-			throw std::invalid_argument("Unknown Property");
+			throw Dcx::dcxException("Unknown Property");
 
 		return 3;
 	}

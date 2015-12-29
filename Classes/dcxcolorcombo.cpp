@@ -48,7 +48,7 @@ DcxColorCombo::DcxColorCombo(const UINT ID, DcxDialog *const p_Dialog, const HWN
 		nullptr);
 
 	if (!IsWindow(this->m_Hwnd))
-		throw std::runtime_error("Unable To Create Window");
+		throw Dcx::dcxException("Unable To Create Window");
 
 	if (bNoTheme)
 		Dcx::UXModule.dcxSetWindowTheme(this->m_Hwnd, L" ", L" ");
@@ -108,12 +108,12 @@ void DcxColorCombo::parseInfoRequest( const TString & input, PTCHAR szReturnValu
 		const auto nItem = input.getnexttok().to_int() - 1;	// tok 4
 
 		if (nItem < 0 && nItem >= this->getCount())
-			throw std::invalid_argument("Invalid Item");
+			throw Dcx::dcxException("Invalid Item");
 
 		auto lpdcxcci = reinterpret_cast<LPDCXCCOMBOITEM>(this->getItemData( nItem ));
 
 		if (lpdcxcci == nullptr)
-			throw std::runtime_error("Unable to get item data");
+			throw Dcx::dcxException("Unable to get item data");
 
 		wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), lpdcxcci->clrItem );
 	}
@@ -147,11 +147,7 @@ void DcxColorCombo::parseCommandRequest( const TString &input) {
 	// xdid -a [NAME] [ID] [SWITCH] [N] [RGB]
 	if (flags[TEXT('a')] && numtok > 4) {
 		auto nItem = input.getnexttok().to_int() - 1;	// tok 4
-#if TSTRING_TEMPLATES
 		const auto clrItem = input.getnexttok().to_<COLORREF>();	// tok 5
-#else
-		const auto clrItem = (COLORREF)input.getnexttok( ).to_num();	// tok 5
-#endif
 
 		if (nItem >= this->getCount())
 			nItem = -1;
@@ -169,7 +165,7 @@ void DcxColorCombo::parseCommandRequest( const TString &input) {
 		const auto nItem = input.getnexttok().to_int() - 1;	// tok 4
 
 		if ((nItem < -1) || (nItem >= this->getCount()))
-			throw std::invalid_argument("Item out of range");
+			throw Dcx::dcxException("Item out of range");
 	
 		this->setCurSel(nItem);
 	}
@@ -178,7 +174,7 @@ void DcxColorCombo::parseCommandRequest( const TString &input) {
 		const auto nItem = input.getnexttok().to_int() - 1;	// tok 4
 
 		if ((nItem < -1) || (nItem >= this->getCount()))
-			throw std::invalid_argument("Item out of range");
+			throw Dcx::dcxException("Item out of range");
 		
 		this->deleteItem(nItem);
 	}
@@ -189,14 +185,10 @@ void DcxColorCombo::parseCommandRequest( const TString &input) {
 	// xdid -o [NAME] [ID] [SWITCH] [N] [RGB]
 	else if (flags[TEXT('o')] && numtok > 4) {
 		const auto nItem = input.getnexttok().to_int() - 1;	// tok 4
-#if TSTRING_TEMPLATES
 		const auto clrItem = input.getnexttok().to_<COLORREF>();	// tok 5
-#else
-		const auto clrItem = (COLORREF)input.getnexttok( ).to_num();	// tok 5
-#endif
 
 		if ((nItem < -1) || (nItem >= this->getCount()))
-			throw std::invalid_argument("Item out of range");
+			throw Dcx::dcxException("Item out of range");
 
 		auto lpdcxcci = reinterpret_cast<LPDCXCCOMBOITEM>(this->getItemData(nItem));
 
@@ -224,33 +216,14 @@ void DcxColorCombo::setmIRCPalette( ) {
 	TString cols;
 	mIRCLinker::tsEval( cols, com );
 
-#if TSTRING_PARTS
 	for (const auto &col: cols)
 	{
-		auto lpdcxcci = new DCXCCOMBOITEM;
+		auto lpdcxcci = std::make_unique<DCXCCOMBOITEM>();
 
-#if TSTRING_TEMPLATES
 		lpdcxcci->clrItem = col.to_<COLORREF>();
-#else
-		lpdcxcci->clrItem = (COLORREF)col.to_num();
-#endif
 		//lpmycci->itemtext = "";
-		this->insertItem( -1, (LPARAM) lpdcxcci );
+		this->insertItem( -1, (LPARAM) lpdcxcci.release() );
 	}
-#else
-	for (auto col(cols.getfirsttok(1)); !col.empty(); col = cols.getnexttok())
-	{
-		auto lpdcxcci = new DCXCCOMBOITEM;
-
-#if TSTRING_TEMPLATES
-		lpdcxcci->clrItem = col.to_<COLORREF>();
-#else
-		lpdcxcci->clrItem = (COLORREF)col.to_num();
-#endif
-		//lpmycci->itemtext = "";
-		this->insertItem(-1, (LPARAM)lpdcxcci);
-	}
-#endif
 }
 
 /*!

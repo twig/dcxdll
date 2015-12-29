@@ -34,6 +34,9 @@
 #if _MSC_VER <= 1800
 
 #define GSL_MSVC_HAS_TYPE_DEDUCTION_BUG
+#define GSL_MSVC_HAS_SFINAE_SUBSTITUTION_ICE
+#define GSL_MSVC_NO_CPP14_STD_EQUAL
+#define GSL_MSVC_NO_DEFAULT_MOVE_CTOR
 
 // noexcept is not understood
 #ifndef GSL_THROW_ON_CONTRACT_VIOLATION
@@ -235,13 +238,27 @@ public:
     constexpr basic_string_span(const basic_string_span& other) = default;
 
     // move
+#ifndef GSL_MSVC_NO_DEFAULT_MOVE_CTOR
     constexpr basic_string_span(basic_string_span&& other) = default;
+#else
+    constexpr basic_string_span(basic_string_span&& other)
+    	: span_(std::move(other.span_))
+    {}
+#endif
 
     // assign
     constexpr basic_string_span& operator=(const basic_string_span& other) = default;
 
     // move assign
+#ifndef GSL_MSVC_NO_DEFAULT_MOVE_CTOR
     constexpr basic_string_span& operator=(basic_string_span&& other) = default;
+#else
+    constexpr basic_string_span& operator=(basic_string_span&& other)
+    {
+        span_ = std::move(other.span_);
+        return *this;
+    }
+#endif
 
     // from nullptr
     constexpr basic_string_span(std::nullptr_t ptr) noexcept
@@ -294,14 +311,27 @@ public:
     >
     basic_string_span(Cont&& cont) = delete;
 
+#ifndef GSL_MSVC_HAS_SFINAE_SUBSTITUTION_ICE
     // from span
     template <typename OtherValueType, std::ptrdiff_t OtherExtent,
-        typename OtherBounds = static_bounds<OtherExtent>,
-        typename Dummy = std::enable_if_t<std::is_convertible<OtherValueType*, value_type*>::value && std::is_convertible<OtherBounds, bounds_type>::value>
+        typename Dummy = std::enable_if_t<
+        std::is_convertible<OtherValueType*, value_type*>::value
+        && std::is_convertible<static_bounds<OtherExtent>, bounds_type>::value>
     >
     constexpr basic_string_span(span<OtherValueType, OtherExtent> other) noexcept
         : span_(other)
     {}
+#else
+    // from span
+    constexpr basic_string_span(span<value_type, Extent> other) noexcept
+        : span_(other)
+    {}
+        
+    template <typename Dummy = std::enable_if_t<!std::is_same<std::remove_const_t<value_type>, value_type>::value>>
+    constexpr basic_string_span(span<std::remove_const_t<value_type>, Extent> other) noexcept
+        : span_(other)
+    {}
+#endif
 
     // from string_span
     template <typename OtherValueType, std::ptrdiff_t OtherExtent,
@@ -470,22 +500,22 @@ std::basic_string<typename std::remove_const<CharT>::type> to_string(basic_strin
 
 inline std::string to_string(cstring_span<> view)
 {
-    return{ view.data(), view.length() };
+    return{ view.data(), static_cast<size_t>(view.length()) };
 }
 
 inline std::string to_string(string_span<> view)
 {
-    return{ view.data(), view.length() };
+    return{ view.data(), static_cast<size_t>(view.length()) };
 }
 
 inline std::wstring to_string(cwstring_span<> view)
 {
-    return{ view.data(), view.length() };
+    return{ view.data(), static_cast<size_t>(view.length()) };
 }
 
 inline std::wstring to_string(wstring_span<> view)
 {
-    return{ view.data(), view.length() };
+    return{ view.data(), static_cast<size_t>(view.length()) };
 }
 
 #endif
@@ -536,7 +566,11 @@ template <typename CharT, std::ptrdiff_t Extent = gsl::dynamic_range, typename T
 bool operator==(gsl::basic_string_span<CharT, Extent> one, const T& other) noexcept
 {
     gsl::basic_string_span<std::add_const_t<CharT>, Extent> tmp(other);
+#ifdef GSL_MSVC_NO_CPP14_STD_EQUAL
+    return (one.size() == tmp.size()) && std::equal(one.begin(), one.end(), tmp.begin());
+#else
     return std::equal(one.begin(), one.end(), tmp.begin(), tmp.end());
+#endif
 }
 
 template <typename CharT, std::ptrdiff_t Extent = gsl::dynamic_range, typename T,
@@ -547,7 +581,11 @@ template <typename CharT, std::ptrdiff_t Extent = gsl::dynamic_range, typename T
 bool operator==(const T& one, gsl::basic_string_span<CharT, Extent> other) noexcept
 {
     gsl::basic_string_span<std::add_const_t<CharT>, Extent> tmp(one);
+#ifdef GSL_MSVC_NO_CPP14_STD_EQUAL
+    return (tmp.size() == other.size()) && std::equal(tmp.begin(), tmp.end(), other.begin());
+#else
     return std::equal(tmp.begin(), tmp.end(), other.begin(), other.end());
+#endif
 }
 
 #ifndef _MSC_VER 
@@ -856,14 +894,15 @@ bool operator>=(const T& one, gsl::basic_string_span<CharT, Extent> other) noexc
 
 #if _MSC_VER <= 1800
 
-#pragma warning(pop)
-
 #ifndef GSL_THROW_ON_CONTRACT_VIOLATION
 #undef noexcept
 #pragma pop_macro("noexcept")
 #endif // GSL_THROW_ON_CONTRACT_VIOLATION
 
 #undef GSL_MSVC_HAS_TYPE_DEDUCTION_BUG
+#undef GSL_MSVC_HAS_SFINAE_SUBSTITUTION_ICE
+#define GSL_MSVC_NO_CPP14_STD_EQUAL
+#undef GSL_MSVC_NO_DEFAULT_MOVE_CTOR
 
 #endif // _MSC_VER <= 1800
 #endif // _MSC_VER
@@ -877,5 +916,4 @@ bool operator>=(const T& one, gsl::basic_string_span<CharT, Extent> other) noexc
 #endif
 
 #endif // GSL_THROW_ON_CONTRACT_VIOLATION
-
 #endif // GSL_STRING_SPAN_H

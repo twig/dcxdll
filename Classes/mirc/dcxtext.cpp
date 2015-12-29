@@ -44,7 +44,7 @@ DcxText::DcxText(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwn
 		nullptr);
 
 	if (!IsWindow(this->m_Hwnd))
-		throw std::runtime_error("Unable To Create Window");
+		throw Dcx::dcxException("Unable To Create Window");
 
 	// remove all borders
 	this->removeStyle(WS_BORDER | WS_DLGFRAME);
@@ -61,7 +61,7 @@ DcxText::DcxText(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwn
 
 	if (styles.istok(TEXT("tooltips"))) {
 		if (!IsWindow(p_Dialog->getToolTip()))
-			throw std::runtime_error("Unable to Initialize Tooltips");
+			throw Dcx::dcxException("Unable to Initialize Tooltips");
 
 		this->m_ToolTipHWND = p_Dialog->getToolTip();
 		AddToolTipToolInfo(this->m_ToolTipHWND, this->m_Hwnd);
@@ -90,7 +90,6 @@ void DcxText::parseControlStyles( const TString & styles, LONG * Styles, LONG * 
 	*Styles |= SS_NOTIFY;
 	this->m_uiStyle = DT_LEFT;
 
-#if TSTRING_PARTS
 	for (const auto &tsStyle: styles)
 	{
 		if (tsStyle == TEXT("nowrap"))
@@ -106,23 +105,6 @@ void DcxText::parseControlStyles( const TString & styles, LONG * Styles, LONG * 
 		else if (tsStyle == TEXT("pathellipsis"))
 			this->m_uiStyle |= DT_PATH_ELLIPSIS;
 	}
-#else
-	for (auto tsStyle(styles.getfirsttok(1)); !tsStyle.empty(); tsStyle = styles.getnexttok())
-	{
-		if (tsStyle == TEXT("nowrap"))
-			this->m_uiStyle |= DT_SINGLELINE;
-		else if (tsStyle == TEXT("center"))
-			this->m_uiStyle |= DT_CENTER;
-		else if (tsStyle == TEXT("right"))
-			this->m_uiStyle |= DT_RIGHT;
-		else if (tsStyle == TEXT("noprefix"))
-			this->m_uiStyle |= DT_NOPREFIX;
-		else if (tsStyle == TEXT("endellipsis"))
-			this->m_uiStyle |= DT_END_ELLIPSIS;
-		else if (tsStyle == TEXT("pathellipsis"))
-			this->m_uiStyle |= DT_PATH_ELLIPSIS;
-	}
-#endif
 
 	if (!dcx_testflag(this->m_uiStyle, DT_SINGLELINE))
 		this->m_uiStyle |= DT_WORDBREAK;

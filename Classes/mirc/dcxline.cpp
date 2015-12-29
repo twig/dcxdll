@@ -45,7 +45,7 @@ DcxLine::DcxLine(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwn
 		nullptr);
 
 	if (!IsWindow(this->m_Hwnd))
-		throw std::runtime_error("Unable To Create Window");
+		throw Dcx::dcxException("Unable To Create Window");
 
 	if (bNoTheme)
 		Dcx::UXModule.dcxSetWindowTheme(this->m_Hwnd, L" ", L" ");
@@ -109,7 +109,6 @@ void DcxLine::toXml(TiXmlElement *const xml) const
 
 void DcxLine::parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme )
 {
-#if TSTRING_PARTS
 	for (const auto &tsStyle: styles)
 	{
 		if ( tsStyle == TEXT("vertical") )
@@ -127,25 +126,7 @@ void DcxLine::parseControlStyles( const TString & styles, LONG * Styles, LONG * 
 		else if (tsStyle == TEXT("pathellipsis"))
 			*Styles |= SS_PATHELLIPSIS;
 	}
-#else
-	for (auto tsStyle(styles.getfirsttok(1)); !tsStyle.empty(); tsStyle = styles.getnexttok())
-	{
-		if ( tsStyle == TEXT("vertical") )
-			this->m_bVertical = true;
-		else if (tsStyle == TEXT("nowrap"))
-			*Styles |= SS_LEFTNOWORDWRAP;
-		else if (tsStyle == TEXT("center"))
-			*Styles |= SS_CENTER;
-		else if (tsStyle == TEXT("right"))
-			*Styles |= SS_RIGHT;
-		else if (tsStyle == TEXT("noprefix"))
-			*Styles |= SS_NOPREFIX;
-		else if (tsStyle == TEXT("endellipsis"))
-			*Styles |= SS_ENDELLIPSIS;
-		else if (tsStyle == TEXT("pathellipsis"))
-			*Styles |= SS_PATHELLIPSIS;
-	}
-#endif
+
 	this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
 }
 

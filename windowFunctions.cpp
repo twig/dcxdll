@@ -22,6 +22,10 @@
 * Returns the owner HWND
 */
 HWND FindOwner(const TString & data, const HWND defaultWnd) {
+
+	if (data.empty())
+		return defaultWnd;
+
 	const auto i = data.findtok(TEXT("owner"), 1);
 
 	// 'owner' token not found in data
@@ -32,7 +36,7 @@ HWND FindOwner(const TString & data, const HWND defaultWnd) {
 	if (i < data.numtok( )) {
 		const auto tsHwnd(data.gettok((int)(i + 1)));
 		// if it is a number (HWND) passed
-		auto wnd = (HWND)tsHwnd.to_num();
+		auto wnd = (HWND)tsHwnd.to_dword();
 
 		if (wnd != nullptr)
 			return wnd;
@@ -51,28 +55,41 @@ HWND FindOwner(const TString & data, const HWND defaultWnd) {
 * \brief Retrieves a HWND from the string.
 */
 HWND GetHwndFromString(const TString &str) {
-	return GetHwndFromString(str.to_chr());
+	if (str.empty())
+		return 0;
+
+	//return GetHwndFromString(str.to_chr());
+
+	// test code to allow docking by hwnd (wtf its only 3 lines)
+	auto hwnd = reinterpret_cast<HWND>(str.to_<DWORD>());
+	if (IsWindow(hwnd))
+		return hwnd;
+
+	TString tsRes;
+	mIRCLinker::tsEvalex(tsRes, TEXT("$dialog(%s).hwnd"), str.to_chr());
+
+	return reinterpret_cast<HWND>(tsRes.to_<DWORD>());
 }
 
 /*!
 * \brief Retireves a HWND from the string.
 */
-HWND GetHwndFromString(const TCHAR *str) {
-
-	// test code to allow docking by hwnd (wtf its only 3 lines)
-	auto hwnd = (HWND)dcx_atoi64(str);
-	if (IsWindow(hwnd))
-		return hwnd;
-
-	TCHAR res[20];
-	res[0] = 0;
-	mIRCLinker::evalex( res, 20, TEXT("$dialog(%s).hwnd"), str);
-
-	return (HWND) dcx_atoi(res);
-}
+//HWND GetHwndFromString(gsl::not_null<const TCHAR *> str) {
+//
+//	// test code to allow docking by hwnd (wtf its only 3 lines)
+//	auto hwnd = (HWND)dcx_atoi64(str);
+//	if (IsWindow(hwnd))
+//		return hwnd;
+//
+//	TCHAR res[20];
+//	res[0] = 0;
+//	mIRCLinker::evalex( res, Dcx::countof(res), TEXT("$dialog(%s).hwnd"), str);
+//
+//	return (HWND) dcx_atoi(res);
+//}
 
 // Removes window style to a window
-void RemStyles(HWND hwnd,int parm,long RemStyles)
+void RemStyles(gsl::not_null<HWND> hwnd,int parm,long RemStyles)
 {
 	auto Styles = (DWORD)GetWindowLong(hwnd, parm);
 	Styles &= ~RemStyles;
@@ -80,7 +97,7 @@ void RemStyles(HWND hwnd,int parm,long RemStyles)
 }
 
 //	Adds window styles to a window
-void AddStyles(HWND hwnd,int parm,long AddStyles)
+void AddStyles(gsl::not_null<HWND> hwnd,int parm,long AddStyles)
 {
 	auto Styles = (DWORD)GetWindowLong(hwnd, parm);
 	Styles |= AddStyles;
@@ -152,7 +169,7 @@ void AddStyles(HWND hwnd,int parm,long AddStyles)
 //
 //	// If the creation process succeded...
 //	if (hNewBitmap == nullptr)
-//		throw std::invalid_argument("BitmapRegion() - CreateDIBSection() Failed: Invalid Parameter");
+//		throw Dcx::dcxException("BitmapRegion() - CreateDIBSection() Failed: Invalid Parameter");
 //
 //	Auto(DeleteBitmap(hNewBitmap));
 //
@@ -347,7 +364,7 @@ HRGN BitmapRegion(HBITMAP hBitmap, COLORREF cTransparentColor, BOOL bIsTranspare
 	BITMAP		bmBitmap;
 
 	if (GetObject(hBitmap, sizeof(bmBitmap), &bmBitmap) == 0)
-		throw std::runtime_error("BitmapRegion() - Unable to get bitmap info");
+		throw Dcx::dcxException("BitmapRegion() - Unable to get bitmap info");
 
 	// We create a memory context for working with the bitmap
 	// The memory context is compatible with the display context (screen)
@@ -355,7 +372,7 @@ HRGN BitmapRegion(HBITMAP hBitmap, COLORREF cTransparentColor, BOOL bIsTranspare
 
 	//// If no context is created, go away, too!
 	//if (hMemDC == nullptr)
-	//	throw std::runtime_error("BitmapRegion() - Unable to create DC");
+	//	throw Dcx::dcxException("BitmapRegion() - Unable to create DC");
 
 	//Auto(DeleteDC(hMemDC));
 
@@ -386,7 +403,7 @@ HRGN BitmapRegion(HBITMAP hBitmap, COLORREF cTransparentColor, BOOL bIsTranspare
 
 	// If the creation process succeded...
 	if (hNewBitmap == nullptr)
-		throw std::invalid_argument("BitmapRegion() - CreateDIBSection() Failed: Invalid Parameter");
+		throw Dcx::dcxException("BitmapRegion() - CreateDIBSection() Failed: Invalid Parameter");
 
 	Auto(DeleteBitmap(hNewBitmap));
 
@@ -402,7 +419,7 @@ HRGN BitmapRegion(HBITMAP hBitmap, COLORREF cTransparentColor, BOOL bIsTranspare
 
 	//// If success...
 	//if (hDC == nullptr)
-	//	throw std::runtime_error("BitmapRegion() - Unable to create DC");
+	//	throw Dcx::dcxException("BitmapRegion() - Unable to create DC");
 
 	//Auto(DeleteDC(hDC));
 
@@ -412,7 +429,7 @@ HRGN BitmapRegion(HBITMAP hBitmap, COLORREF cTransparentColor, BOOL bIsTranspare
 	BITMAP		bmNewBitmap;
 
 	if (GetObject(hNewBitmap, sizeof(bmNewBitmap), &bmNewBitmap) == 0)
-		throw std::runtime_error("BitmapRegion() - Unable to get bitmap info");
+		throw Dcx::dcxException("BitmapRegion() - Unable to get bitmap info");
 
 	while (bmNewBitmap.bmWidthBytes % 4)
 		bmNewBitmap.bmWidthBytes++;
@@ -441,7 +458,7 @@ HRGN BitmapRegion(HBITMAP hBitmap, COLORREF cTransparentColor, BOOL bIsTranspare
 	auto hData = GlobalAlloc(GMEM_MOVEABLE, sizeof(RGNDATAHEADER) + (sizeof(RECT)*maxRect));
 
 	if (hData == nullptr)
-		throw std::runtime_error("BitmapRegion() - GlobalAlloc() failed");
+		throw Dcx::dcxException("BitmapRegion() - GlobalAlloc() failed");
 
 	Auto(GlobalFree(hData));
 
@@ -587,10 +604,10 @@ void ChangeHwndIcon(const HWND hwnd, const TString &flags, const int index, TStr
 
 	filename.trim();
 	if (!xflags[TEXT('+')])
-		throw std::invalid_argument("ChangeHwndIcon() - Invalid Flags");
+		throw Dcx::dcxException("ChangeHwndIcon() - Invalid Flags");
 
 	if (!IsFile(filename))
-		throw std::runtime_error(Dcx::dcxGetFormattedString(TEXT("ChangeHwndIcon() - Unable to Access File: %s"), filename.to_chr()));
+		throw Dcx::dcxException(TEXT("ChangeHwndIcon() - Unable to Access File: %"), filename);
 
 	HICON iconSmall = nullptr;
 	HICON iconLarge = nullptr;

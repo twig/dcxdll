@@ -19,7 +19,7 @@ mIRC(xstatusbar) {
 		const auto numtok = input.numtok();
 
 		if (numtok < 1)
-			throw std::invalid_argument("Invalid Parameters");
+			throw Dcx::dcxException("Invalid Parameters");
 
 		const auto switches(input.getfirsttok(1));	// tok 1
 
@@ -28,14 +28,14 @@ mIRC(xstatusbar) {
 		{
 			// check syntax
 			if (numtok < 2)
-				throw std::invalid_argument("Invalid Parameters");
+				throw Dcx::dcxException("Invalid Parameters");
 
 			// Enable/Disable the Statusbar.
 			// -A [0|1] [options] = notheme grip tooltips nodivider utf8
 			if (input.getnexttok().to_int() > 0)					// tok 2
 			{
 				if (!DcxDock::InitStatusbar(input.getlasttoks()))	// tok 3, -1
-					throw std::runtime_error("Unable to Create Statusbar");
+					throw Dcx::dcxException("Unable to Create Statusbar");
 			}
 			else
 				DcxDock::UnInitStatusbar();
@@ -49,7 +49,7 @@ mIRC(xstatusbar) {
 
 			// check syntax
 			if (numtok < 5)
-				throw std::invalid_argument("Invalid Parameters");
+				throw Dcx::dcxException("Invalid Parameters");
 
 			if (ParseCommandToLogfont(input.getlasttoks(), &lf))	// tok 2, -1
 				DcxDock::status_setFont(CreateFontIndirect(&lf));
@@ -59,13 +59,9 @@ mIRC(xstatusbar) {
 		{
 			// check syntax
 			if (numtok != 2)
-				throw std::invalid_argument("Invalid Parameters");
+				throw Dcx::dcxException("Invalid Parameters");
 
-#if TSTRING_TEMPLATES
 			const auto col = input.getnexttok().to_<COLORREF>();	// tok 2
-#else
-			const auto col = input.getnexttok().to_int();	// tok 2
-#endif
 
 			if (col == CLR_INVALID)
 				DcxDock::status_setBkColor(CLR_DEFAULT);
@@ -77,7 +73,7 @@ mIRC(xstatusbar) {
 		{
 			// check syntax
 			if (numtok < 2)
-				throw std::invalid_argument("Invalid Parameters");
+				throw Dcx::dcxException("Invalid Parameters");
 
 			const auto nParts = numtok - 1;
 			INT parts[SB_MAX_PARTSD];
@@ -87,7 +83,7 @@ mIRC(xstatusbar) {
 			for (auto i = decltype(nParts){0}; i < nParts; i++)
 			{
 				if (c >= 100)
-					throw std::invalid_argument("Can't Allocate Over 100% of Statusbar!");
+					throw Dcx::dcxException("Can't Allocate Over 100% of Statusbar!");
 
 				p = input.getnexttok();	// tok i+2
 
@@ -110,7 +106,7 @@ mIRC(xstatusbar) {
 		{
 			// check syntax (text can be blank)
 			if (numtok < 6)
-				throw std::invalid_argument("Invalid Parameters");
+				throw Dcx::dcxException("Invalid Parameters");
 
 			const auto tsTabOne(input.getfirsttok(1, TSTAB));	// tok 1, TSTAB
 			const auto tooltip(input.getnexttok(TSTAB).trim());	// tok 2, TSTAB;
@@ -119,13 +115,8 @@ mIRC(xstatusbar) {
 			const auto nPos = (tsTabOne.getfirsttok(2).to_int() - 1);			// tok 2
 			const auto flags(tsTabOne.getnexttok());							// tok 3
 			const auto icon = (tsTabOne.getnexttok().to_int() - 1);				// tok 4
-#if TSTRING_TEMPLATES
 			const auto bkgClr = tsTabOne.getnexttok().to_<COLORREF>();			// tok 5
 			const auto txtClr = tsTabOne.getnexttok().to_<COLORREF>();			// tok 6
-#else
-			const auto bkgClr = (COLORREF)tsTabOne.getnexttok().to_int();		// tok 5
-			const auto txtClr = (COLORREF)tsTabOne.getnexttok().to_int();		// tok 6
-#endif
 			const auto iFlags = DcxDock::status_parseItemFlags(flags);
 
 			if (tsTabOne.numtok() > 6)
@@ -165,20 +156,15 @@ mIRC(xstatusbar) {
 		{
 			// check syntax (text can be blank)
 			if (numtok < 4)
-				throw std::invalid_argument("Invalid Parameters");
+				throw Dcx::dcxException("Invalid Parameters");
 
 			const auto nPos = (input.getnexttok().to_int() - 1);	// tok 2
 
 			if (nPos > -1 && (UINT)nPos < DcxDock::status_getParts(SB_MAX_PARTSD, 0)) {
 
 				TString itemtext;
-#if TSTRING_TEMPLATES
 				const auto bkgClr = input.getnexttok().to_<COLORREF>();	// tok 3
 				const auto txtClr = input.getnexttok().to_<COLORREF>();	// tok 4
-#else
-				const COLORREF bkgClr = (COLORREF)input.getnexttok().to_int();	// tok 3
-				const COLORREF txtClr = (COLORREF)input.getnexttok().to_int();	// tok 4
-#endif
 
 				if (numtok > 4)
 					itemtext = input.getlasttoks();	// tok 5, -1
@@ -199,7 +185,7 @@ mIRC(xstatusbar) {
 						DcxDock::status_setPartInfo(nPos, (int)iFlags, pPart);
 					}
 					else
-						throw std::runtime_error("Unable to set item text");
+						throw Dcx::dcxException("Unable to set item text");
 				}
 				else {
 					auto text = std::make_unique<WCHAR[]>(DcxDock::status_getTextLength(nPos) + 1);
@@ -212,7 +198,7 @@ mIRC(xstatusbar) {
 		{
 			// check syntax
 			if (numtok < 4)
-				throw std::invalid_argument("Invalid Parameters");
+				throw Dcx::dcxException("Invalid Parameters");
 
 			auto himl = DcxDock::status_getImageList();
 			const auto flags(input.getnexttok());				// tok 2
@@ -227,7 +213,7 @@ mIRC(xstatusbar) {
 			}
 
 			if (himl == nullptr)
-				throw std::invalid_argument("Unable To Create ImageList");
+				throw Dcx::dcxException("Unable To Create ImageList");
 
 			//auto icon = dcxLoadIcon(index, filename, false, flags);
 			//Auto(DestroyIcon(icon));
@@ -235,10 +221,10 @@ mIRC(xstatusbar) {
 			Dcx::dcxIcon icon(index, filename, false, flags);
 
 			if (icon == nullptr)
-				throw std::invalid_argument("Unable To Load Icon");
+				throw Dcx::dcxException("Unable To Load Icon");
 				
 			if (ImageList_AddIcon(himl, icon) == -1)
-				throw std::runtime_error("Unable To Add Image to ImageList");
+				throw Dcx::dcxException("Unable To Add Image to ImageList");
 		}
 		break;
 		case TEXT('y'): // destroy image list.
@@ -248,7 +234,7 @@ mIRC(xstatusbar) {
 		}
 		break;
 		default:
-			throw std::invalid_argument("Invalid Switch");
+			throw Dcx::dcxException("Invalid Switch");
 		}
 		return 1;
 	}
@@ -275,11 +261,7 @@ mIRC(_xstatusbar)
 		d.trim();
 
 		static const TString poslist(TEXT("visible text parts tooltip"));
-#if TSTRING_TEMPLATES
 		const auto nType = poslist.findtok(d.getfirsttok(2), 1);
-#else
-		const auto nType = poslist.findtok(d.getfirsttok(2).to_chr(), 1);
-#endif
 		switch (nType)
 		{
 		case 1: // visible
@@ -334,7 +316,7 @@ mIRC(_xstatusbar)
 		break;
 		case 0: // error
 		default:
-			throw std::invalid_argument(Dcx::dcxGetFormattedString(TEXT("Invalid prop ().%s"), d.gettok(2).to_chr()));
+			throw Dcx::dcxException(TEXT("Invalid prop ().%"), d.gettok(2));
 		}
 		return 3;
 	}

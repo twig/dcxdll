@@ -450,10 +450,8 @@ TString TString::operator *( const int &N ) const {
 	TString tmp((UINT)((sz *N) + 1));
 
 	for (auto i = decltype(N){0}; i < N; i++)
-	{
-		//append(*this);
 		ts_strcat_throw(tmp.m_pString, this->m_pString);
-	}
+
 	return tmp;
 }
 

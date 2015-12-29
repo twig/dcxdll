@@ -63,7 +63,7 @@ DcxImage::DcxImage(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentH
 		nullptr);
 
 	if (!IsWindow(this->m_Hwnd))
-		throw std::runtime_error("Unable To Create Window");
+		throw Dcx::dcxException("Unable To Create Window");
 
 	if (bNoTheme)
 		Dcx::UXModule.dcxSetWindowTheme(this->m_Hwnd, L" ", L" ");
@@ -72,7 +72,7 @@ DcxImage::DcxImage(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentH
 		if (styles.istok(TEXT("tooltips"))) {
 			this->m_ToolTipHWND = p_Dialog->getToolTip();
 			if (!IsWindow(this->m_ToolTipHWND))
-				throw std::runtime_error("Unable to get ToolTips window");
+				throw Dcx::dcxException("Unable to get ToolTips window");
 
 			AddToolTipToolInfo(this->m_ToolTipHWND, this->m_Hwnd);
 		}
@@ -155,19 +155,19 @@ void DcxImage::PreloadData() {
 #ifdef DCX_USE_GDIPLUS
 bool DcxImage::LoadGDIPlusImage(const TString &flags, TString &filename) {
 	if (!IsFile(filename))
-		throw std::runtime_error(Dcx::dcxGetFormattedString(TEXT("Unable to Access File: %s"), filename.to_chr()));
+		throw Dcx::dcxException(TEXT("Unable to Access File: %"), filename);
 
 	this->m_pImage = new Image(filename.to_chr(),TRUE);
 
 	// couldnt allocate image object.
 	if (this->m_pImage == nullptr)
-		throw std::runtime_error("Couldn't allocate image object.");
+		throw Dcx::dcxException("Couldn't allocate image object.");
 
 	// for some reason this returns `OutOfMemory` when the file doesnt exist instead of `FileNotFound`
 	const auto status = this->m_pImage->GetLastStatus();
 	if (status != Ok) {
 		PreloadData();
-		throw std::runtime_error(Dcx::dcxGetFormattedString(TEXT("Failed to load image: %s"),GetLastStatusStr(status)));
+		throw Dcx::dcxException(TEXT("Failed to load image: %"),GetLastStatusStr(status));
 	}
 
 	const XSwitchFlags xflags(flags);
@@ -230,7 +230,7 @@ void DcxImage::parseCommandRequest( const TString & input) {
 		RECT wnd;
 
 		if (!GetWindowRect(this->m_Hwnd, &wnd))
-			throw std::runtime_error("Unable to get windows rect");
+			throw Dcx::dcxException("Unable to get windows rect");
 
 		MapWindowRect(nullptr, GetParent(this->m_Hwnd), &wnd);
 		MoveWindow(this->m_Hwnd, wnd.left, wnd.top, size, size, TRUE);
@@ -244,20 +244,20 @@ void DcxImage::parseCommandRequest( const TString & input) {
 		PreloadData();
 
 		if (flag[0] != TEXT('+'))
-			throw std::invalid_argument("Invalid Flags");
+			throw Dcx::dcxException("Invalid Flags");
 
 #ifdef DCX_USE_GDIPLUS
 		// using this method allows you to render BMP, ICON, GIF, JPEG, Exif, PNG, TIFF, WMF, and EMF (no animation)
 		//if (Dcx::GDIModule.isUseable() && flag.find(TEXT('g'),0)) { // makes GDI+ the default method, bitmap is only used when GDI+ isn't supported.
 		if (Dcx::GDIModule.isUseable()) {
 			if (!LoadGDIPlusImage(flag,filename))
-				throw std::runtime_error("Unable to load Image with GDI+"); // <- should never throw this
+				throw Dcx::dcxException("Unable to load Image with GDI+"); // <- should never throw this
 		}
 		else
 			this->m_hBitmap = dcxLoadBitmap(this->m_hBitmap, filename);
 
 		if ((this->m_hBitmap == nullptr) && (this->m_pImage == nullptr))
-			throw std::runtime_error("Failed to load image");
+			throw Dcx::dcxException("Failed to load image");
 
 		this->m_tsFilename = filename;
 #else
@@ -276,13 +276,9 @@ void DcxImage::parseCommandRequest( const TString & input) {
 	}
 	// xdid -o [NAME] [ID] [SWITCH] [XOFFSET] [YOFFSET]
 	else if (flags[TEXT('o')] && numtok > 4) {
-#if TSTRING_TESTCODE
 		this->m_iXOffset = input++.to_int();	// tok 4
 		this->m_iYOffset = input++.to_int();	// tok 5
-#else
-		this->m_iXOffset = input.getnexttok( ).to_int();	// tok 4
-		this->m_iYOffset = input.getnexttok( ).to_int();	// tok 5
-#endif
+
 		this->redrawWindow();
 	}
 	// xdid -S [NAME] [ID] [SWITCH] [1|0]

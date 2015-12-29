@@ -84,12 +84,12 @@ mIRC(xtreebar) {
 		const auto numtok = input.numtok();
 
 		if (!IsWindow(mIRCLinker::getTreeview()))
-			throw std::runtime_error("No Treebar");
+			throw Dcx::dcxException("No Treebar");
 
 		const auto switches(input.getfirsttok(1));		// tok 1
 
 		if (switches[0] != TEXT('-'))
-			throw std::invalid_argument("Invalid Switch");
+			throw Dcx::dcxException("Invalid Switch");
 
 		switch (switches[1]) {
 			//case TEXT('a'):	// [] add items to treeview
@@ -99,7 +99,7 @@ mIRC(xtreebar) {
 		case TEXT('f'): // [+FONTFLAGS] [CHARSET] [SIZE] [FONTNAME]
 		{
 			if (numtok < 5)
-				throw std::invalid_argument("Invalid Font Args");
+				throw Dcx::dcxException("Invalid Font Args");
 
 			LOGFONT lf;
 
@@ -114,7 +114,7 @@ mIRC(xtreebar) {
 		case TEXT('s'): // [STYLES]
 		{
 			if (numtok < 2)
-				throw std::invalid_argument("Invalid Style Args");
+				throw Dcx::dcxException("Invalid Style Args");
 
 			static const TString treebar_styles(TEXT("trackselect notrackselect tooltips notooltips infotip noinfotip hasbuttons nohasbuttons rootlines norootlines singleexpand nosingleexpand scroll noscroll showsel noshowsel transparent notransparent fadebuttons nofadebuttons indent noident buffer nobuffer autohscroll noautohscroll richtooltip norichtooltip balloon noballoon"));
 			auto stylef = GetWindowStyle(mIRCLinker::getTreeview());
@@ -133,11 +133,7 @@ mIRC(xtreebar) {
 
 			for (auto i = decltype(numtok){2}; i <= numtok; i++)
 			{
-#if TSTRING_TEMPLATES
 				switch (treebar_styles.findtok(input.getnexttok(), 1))		// tok 2+
-#else
-				switch (treebar_styles.findtok(input.getnexttok().to_chr(), 1))		// tok 2+
-#endif
 				{
 				case TS_TRACK: // trackselect (off by default)
 					stylef |= TVS_TRACKSELECT;
@@ -248,7 +244,7 @@ mIRC(xtreebar) {
 				}
 				break;
 				default: // unknown style ignore.
-					throw std::invalid_argument(Dcx::dcxGetFormattedString(TEXT("Unknown Style: %s"), input.gettok(i).to_chr()));
+					throw Dcx::dcxException(TEXT("Unknown Style: %"), input.gettok(i));
 				}
 			}
 			SetWindowLongPtr(mIRCLinker::getTreeview(), GWL_STYLE, stylef);
@@ -264,17 +260,13 @@ mIRC(xtreebar) {
 		case TEXT('c'): // [COLOUR FLAGS] [COLOUR]
 		{
 			if (numtok < 3)
-				throw std::invalid_argument("Invalid Colour Args");
+				throw Dcx::dcxException("Invalid Colour Args");
 
 			const auto cflag(input.getnexttok());						// tok 2
-#if TSTRING_TEMPLATES
 			const auto clr = input.getnexttok().to_<COLORREF>();	// tok 3
-#else
-			const auto clr = (COLORREF)input.getnexttok().to_num();	// tok 3
-#endif
 
 			if (cflag[0] != TEXT('+'))
-				throw std::invalid_argument("Invalid Colour flag");
+				throw Dcx::dcxException("Invalid Colour flag");
 
 			switch (cflag[1])
 			{
@@ -321,14 +313,14 @@ mIRC(xtreebar) {
 				DcxDock::g_clrTreebarColours[TREEBAR_COLOUR_HOT_BKG] = clr;
 				break;
 			default:
-				throw std::invalid_argument("Invalid Colour flag");
+				throw Dcx::dcxException("Invalid Colour flag");
 			}
 		}
 		break;
 		case TEXT('w'): // [clear|default|mirc] | [index] [+flags] [icon index] [filename]
 		{
 			if (mIRCLinker::getTreeImages() == nullptr)
-				throw std::runtime_error("No Valid TreeView Image List");
+				throw Dcx::dcxException("No Valid TreeView Image List");
 
 			const auto tsIndex(input.getnexttok());		// tok 2
 			if (tsIndex == TEXT("clear")) { // no images.
@@ -355,7 +347,7 @@ mIRC(xtreebar) {
 						TreeView_SetImageList(mIRCLinker::getTreeview(), himl, TVSIL_NORMAL);
 				}
 				if (himl == nullptr)
-					throw std::runtime_error("Unable to Create ImageList");
+					throw Dcx::dcxException("Unable to Create ImageList");
 
 				auto iIndex = tsIndex.to_int() - 1;
 				const auto cflag(input.getnexttok().trim());	// tok 3
@@ -364,19 +356,19 @@ mIRC(xtreebar) {
 
 				// check index is within range.
 				if (iCnt < iIndex)
-					throw std::invalid_argument("Image Index Out Of Range");
+					throw Dcx::dcxException("Image Index Out Of Range");
 
 				if (iIndex < 0)
 					iIndex = -1; // append to end of list. make sure its only -1
 
 				if (fIndex < 0) { // file index is -1, so add ALL icons in file at iIndex pos.
 					if (!AddFileIcons(himl, filename, false, iIndex))
-						throw std::runtime_error(Dcx::dcxGetFormattedString(TEXT("Unable to Add %s's Icons"), filename.to_chr()));
+						throw Dcx::dcxException(TEXT("Unable to Add %'s Icons"), filename);
 				}
 				else {
 					//HICON hIcon = dcxLoadIcon(fIndex, filename, false, cflag);
 					//if (hIcon == nullptr)
-					//	throw std::runtime_error("Unable to load icon");
+					//	throw Dcx::dcxException("Unable to load icon");
 					//
 					//ImageList_ReplaceIcon(himl, iIndex, hIcon);
 					//DestroyIcon(hIcon);
@@ -396,13 +388,13 @@ mIRC(xtreebar) {
 					TraverseTreebarItems();
 				else {
 					DcxDock::g_bTakeOverTreebar = false;
-					throw std::runtime_error("No $xtreebar_callback() alias found");
+					throw Dcx::dcxException("No $xtreebar_callback() alias found");
 				}
 			}
 		}
 		break;
 		default:
-			throw std::invalid_argument("Invalid Flag");
+			throw Dcx::dcxException("Invalid Flag");
 		}
 		RedrawWindow(mIRCLinker::getTreeview(), nullptr, nullptr, RDW_INTERNALPAINT | RDW_ALLCHILDREN | RDW_INVALIDATE | RDW_ERASE);
 		return 1;
@@ -429,21 +421,15 @@ mIRC(_xtreebar)
 		d.trim();
 
 		if (d.numtok() != 3)
-			throw std::invalid_argument("Invalid Args: An Index & a Prop are required.");
+			throw Dcx::dcxException("Invalid Args: An Index & a Prop are required.");
 
 		static const TString poslist(TEXT("item icons"));
-#if TSTRING_TEMPLATES
 		const auto nType = poslist.findtok(d.getfirsttok(2), 1);
 		const auto cnt = TreeView_GetCount(mIRCLinker::getTreeview());
 		auto index = d.getnexttok().to_<UINT>();
-#else
-		const auto nType = poslist.findtok(d.getfirsttok(2).to_chr(), 1);
-		const auto cnt = TreeView_GetCount(mIRCLinker::getTreeview());
-		UINT index = (UINT)d.getnexttok().to_int();
-#endif
 
 		if (index > cnt)
-			throw std::invalid_argument("Invalid Item Index");
+			throw Dcx::dcxException("Invalid Item Index");
 
 		TVITEMEX item;
 		ZeroMemory(&item, sizeof(item));
@@ -462,9 +448,9 @@ mIRC(_xtreebar)
 				item.pszText = szbuf;	// PVS-Studio reports `V507 pointer stored outside of scope` this is fine.
 				item.cchTextMax = MIRC_BUFFER_SIZE_CCH;
 				if (!TreeView_GetItem(mIRCLinker::getTreeview(), &item))
-					throw std::runtime_error("Unable To Get Item");
+					throw Dcx::dcxException("Unable To Get Item");
 
-				dcx_strcpyn(data, item.pszText, MIRC_BUFFER_SIZE_CCH)
+				dcx_strcpyn(data, item.pszText, MIRC_BUFFER_SIZE_CCH);
 			}
 		}
 		break;
@@ -476,14 +462,14 @@ mIRC(_xtreebar)
 			item.hItem = TreeView_MapAccIDToHTREEITEM(mIRCLinker::getTreeview(), index);
 			item.mask = TVIF_IMAGE | TVIF_SELECTEDIMAGE;
 			if (!TreeView_GetItem(mIRCLinker::getTreeview(), &item))
-				throw std::runtime_error("Unable To Get Item");
+				throw Dcx::dcxException("Unable To Get Item");
 			
 			wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d"), item.iImage, item.iSelectedImage);
 		}
 		break;
 		case 0: // error
 		default:
-			throw std::invalid_argument(Dcx::dcxGetFormattedString(TEXT("Invalid prop ().%s"), d.gettok(2).to_chr()));
+			throw Dcx::dcxException(TEXT("Invalid prop ().%"), d.gettok(2));
 		}
 		return 3;
 	}

@@ -126,11 +126,7 @@ LayoutCell * LayoutManager::parsePath(const TString & path, const LayoutCell *co
 
 	UINT i = 1;
 	const auto n = path.numtok();
-#if TSTRING_TEMPLATES
 	const auto k = path.gettok(depth).to_<UINT>();
-#else
-	const UINT k = path.gettok(depth).to_int();
-#endif
 
 	if (k < 1)
 		return nullptr;
@@ -163,7 +159,6 @@ void LayoutManager::AddCell(const TString &input, const UINT iOffset)
 	const auto tsInput(input.getfirsttok(1, TSTAB));
 	const auto p2(input.getnexttok(TSTAB).trim());
 
-#if TSTRING_TEMPLATES
 	const auto com(tsInput.getfirsttok(iOffset).trim());		// 3
 	const auto path(tsInput.getlasttoks().trim());	// 4
 
@@ -172,16 +167,6 @@ void LayoutManager::AddCell(const TString &input, const UINT iOffset)
 	const auto WGT = p2.getnexttok().to_<UINT>();	// tok 3
 	const auto W = p2.getnexttok().to_<UINT>();	// tok 4
 	const auto H = p2.getnexttok().to_<UINT>();	// tok 5
-#else
-	const auto com(tsInput.gettok(iOffset).trim());		// 3
-	const auto path(tsInput.gettok(iOffset + 1, -1).trim());	// 4
-	
-	const auto iflags = this->parseLayoutFlags(p2.getfirsttok(1));
-	const auto ID = (UINT)p2.getnexttok().to_int();	// tok 2
-	const auto WGT = (UINT)p2.getnexttok().to_int();	// tok 3
-	const auto W = (UINT)p2.getnexttok().to_int();	// tok 4
-	const auto H = (UINT)p2.getnexttok().to_int();	// tok 5
-#endif
 
 	if (com == TEXT("root") || com == TEXT("cell")) {
 		auto cHwnd = GetDlgItem(this->m_Hwnd, mIRC_ID_OFFSET + ID);
@@ -200,7 +185,7 @@ void LayoutManager::AddCell(const TString &input, const UINT iOffset)
 		else if (dcx_testflag(iflags,LAYOUTFILL)) {
 			if (dcx_testflag(iflags,LAYOUTID)) {
 				if (cHwnd == nullptr || !IsWindow(cHwnd))
-					throw std::runtime_error("Cell Fill -> Invalid ID");
+					throw Dcx::dcxException("Cell Fill -> Invalid ID");
 				
 				p_Cell = new LayoutCellFill(cHwnd);
 			}
@@ -231,7 +216,7 @@ void LayoutManager::AddCell(const TString &input, const UINT iOffset)
 				if (dcx_testflag(iflags,LAYOUTID)) {
 
 					if (cHwnd == nullptr || !IsWindow(cHwnd))
-						throw std::runtime_error("Cell Fixed -> Invalid ID");
+						throw Dcx::dcxException("Cell Fixed -> Invalid ID");
 
 					p_Cell = new LayoutCellFixed(cHwnd, rc, type);
 				}
@@ -245,19 +230,19 @@ void LayoutManager::AddCell(const TString &input, const UINT iOffset)
 				if (dcx_testflag(iflags, LAYOUTID)) {
 
 					if (cHwnd == nullptr || !IsWindow(cHwnd))
-						throw std::runtime_error("Cell Fixed -> Invalid ID");
+						throw Dcx::dcxException("Cell Fixed -> Invalid ID");
 
 					p_Cell = new LayoutCellFixed(cHwnd, type);
 				}
 				else
-					throw std::invalid_argument("Missing control ID flag, can't create cell");
+					throw Dcx::dcxException("Missing control ID flag, can't create cell");
 			} //else
 		} // else if (dcx_testflag(flags, LAYOUTFIXED))
 		else
-			throw std::invalid_argument("Unknown Cell Type");
+			throw Dcx::dcxException("Unknown Cell Type");
 
 		if (p_Cell == nullptr)
-			throw std::runtime_error("Unable to Create Cell");
+			throw Dcx::dcxException("Unable to Create Cell");
 
 		if (com == TEXT("root")) {
 			this->setRoot(p_Cell);
@@ -273,12 +258,12 @@ void LayoutManager::AddCell(const TString &input, const UINT iOffset)
 
 			if (p_GetCell == nullptr) {
 				delete p_Cell;
-				throw std::invalid_argument("Invalid item path");
+				throw Dcx::dcxException("Invalid item path");
 			}
 
 			if (p_GetCell->getType() != LayoutCell::PANE) {
 				delete p_Cell;
-				throw std::runtime_error("Invalid parent Cell");
+				throw Dcx::dcxException("Invalid parent Cell");
 			}
 			auto p_PaneCell = reinterpret_cast<LayoutCellPane *>(p_GetCell);
 			p_PaneCell->addChild(p_Cell, WGT);
@@ -295,14 +280,14 @@ void LayoutManager::AddCell(const TString &input, const UINT iOffset)
 			p_GetCell = this->getCell(path);
 
 		if (p_GetCell == nullptr)
-			throw std::invalid_argument("Invalid item path");
+			throw Dcx::dcxException("Invalid item path");
 
 		RECT rc;
 		SetRect(&rc, ID, WGT, W, H);
 		p_GetCell->setBorder(rc);
 	} // else if ( com == TEXT("space") )
 	else
-		throw std::invalid_argument("Invalid command");
+		throw Dcx::dcxException("Invalid command");
 }
 
 const UINT LayoutManager::parseLayoutFlags(const TString & flags)
@@ -315,19 +300,19 @@ const UINT LayoutManager::parseLayoutFlags(const TString & flags)
 		return iFlags;
 
 	if (xflags[TEXT('f')])
-		iFlags |= LAYOUTFIXED;
+		iFlags |= CLATypes::LAYOUTFIXED;
 	if (xflags[TEXT('h')])
-		iFlags |= LAYOUTHORZ;
+		iFlags |= CLATypes::LAYOUTHORZ;
 	if (xflags[TEXT('i')])
-		iFlags |= LAYOUTID;
+		iFlags |= CLATypes::LAYOUTID;
 	if (xflags[TEXT('l')])
-		iFlags |= LAYOUTFILL;
+		iFlags |= CLATypes::LAYOUTFILL;
 	if (xflags[TEXT('p')])
-		iFlags |= LAYOUTPANE;
+		iFlags |= CLATypes::LAYOUTPANE;
 	if (xflags[TEXT('v')])
-		iFlags |= LAYOUTVERT;
+		iFlags |= CLATypes::LAYOUTVERT;
 	if (xflags[TEXT('w')])
-		iFlags |= LAYOUTDIM;
+		iFlags |= CLATypes::LAYOUTDIM;
 
 	return iFlags;
 }

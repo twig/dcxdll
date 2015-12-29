@@ -65,7 +65,7 @@ DcxCalendar::DcxCalendar(const UINT ID, DcxDialog *const p_Dialog, const HWND mP
 		nullptr);
 
 	if (!IsWindow(this->m_Hwnd))
-		throw std::runtime_error("Unable To Create Window");
+		throw Dcx::dcxException("Unable To Create Window");
 
 	if (bNoTheme)
 		Dcx::UXModule.dcxSetWindowTheme(this->m_Hwnd, L" ", L" ");
@@ -151,7 +151,6 @@ const TString DcxCalendar::getValue(void) const
 
 void DcxCalendar::parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme)
 {
-#if TSTRING_PARTS
 	for (const auto &tsStyle: styles)
 	{
 		if (tsStyle == TEXT("multi"))
@@ -165,21 +164,6 @@ void DcxCalendar::parseControlStyles( const TString & styles, LONG * Styles, LON
 		else if (tsStyle == TEXT("daystate"))
 			*Styles |= MCS_DAYSTATE;
 	}
-#else
-	for (auto tsStyle(styles.getfirsttok(1)); !tsStyle.empty(); tsStyle = styles.getnexttok())
-	{
-		if (tsStyle == TEXT("multi"))
-			*Styles |= MCS_MULTISELECT;
-		else if (tsStyle == TEXT("notoday"))
-			*Styles |= MCS_NOTODAY;
-		else if (tsStyle == TEXT("notodaycircle"))
-			*Styles |= MCS_NOTODAYCIRCLE;
-		else if (tsStyle == TEXT("weeknum"))
-			*Styles |= MCS_WEEKNUMBERS;
-		else if (tsStyle == TEXT("daystate"))
-			*Styles |= MCS_DAYSTATE;
-	}
-#endif
 
 	this->parseGeneralControlStyles(styles, Styles, ExStyles, bNoTheme);
 }
@@ -248,11 +232,7 @@ void DcxCalendar::parseCommandRequest( const TString &input) {
 	// xdid -k [NAME] [ID] [SWITCH] [+FLAGS] [$RGB]
 	if (flags[TEXT('k')] && numtok > 4) {
 		const XSwitchFlags xflags(input.getnexttok( ));	// tok 4
-#if TSTRING_TEMPLATES
 		const auto col = input.getnexttok().to_<COLORREF>();	// tok 5
-#else
-		const auto col = (COLORREF) input.getnexttok( ).to_int();	// tok 5
-#endif
 
 		// Set the background color displayed between months.
 		if (xflags[TEXT('b')])
@@ -308,11 +288,7 @@ void DcxCalendar::parseCommandRequest( const TString &input) {
 	}
 	//xdid -s [NAME] [ID] [SWITCH] [MIN] (MAX)
 	else if (flags[TEXT('s')] && numtok > 3) {
-#if TSTRING_TEMPLATES
 		const auto min = input.getnexttok().to_<long>();	// tok 4
-#else
-		const auto min = (long) input.getnexttok( ).to_num();	// tok 4
-#endif
 		SYSTEMTIME range[2];
 
 		ZeroMemory(range, sizeof(SYSTEMTIME) *2);
@@ -323,11 +299,7 @@ void DcxCalendar::parseCommandRequest( const TString &input) {
 			if (numtok < 5)
 				range[1] = range[0];
 			else {
-#if TSTRING_TEMPLATES
 				const auto max = input.getnexttok().to_<long>();	// tok 5
-#else
-				const auto max = (long) input.getnexttok( ).to_num();	// tok 5
-#endif
 				range[1] = MircTimeToSystemTime(max);
 			}
 
@@ -338,11 +310,7 @@ void DcxCalendar::parseCommandRequest( const TString &input) {
 	}
 	//xdid -t [NAME] [ID] [SWITCH] [TIMESTAMP]
 	else if (flags[TEXT('t')] && numtok > 3) {
-#if TSTRING_TEMPLATES
 		const auto mircTime = input.getnexttok().to_<long>();	// tok 4
-#else
-		const auto mircTime = (long) input.getnexttok( ).to_num();	// tok 4
-#endif
 		const auto sysTime = MircTimeToSystemTime(mircTime);
 
 		MonthCal_SetToday(this->m_Hwnd, &sysTime);
@@ -378,30 +346,10 @@ LRESULT DcxCalendar::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 
 						TString strDays(eval);
 
-#if TSTRING_PARTS
-#if TSTRING_ITERATOR
 						strDays.trim();
 
 						for (auto itStart = strDays.begin(TSCOMMA), itEnd = strDays.end(); itStart != itEnd; ++itStart)
 							BOLDDAY(m_MonthDayStates[i], (*itStart).to_int());
-#else
-						strDays.trim().split(TSCOMMA);
-
-						for (const auto &s: strDays)
-							BOLDDAY(m_MonthDayStates[i], s.to_int());
-#endif
-#else
-						//const auto nTok = strDays.trim().numtok(TSCOMMA);
-						//
-						//strDays.getfirsttok( 0, TSCOMMA);
-						//
-						//for (auto x = decltype(nTok){1}; x <= nTok; x++)
-						//	BOLDDAY(m_MonthDayStates[i], strDays.getnexttok(TSCOMMA).to_int());
-
-						for (auto tsDay(strDays.getfirtstok(1, TSCOMMA)); !tsDay.empty(); tsDay = strDays.getnexttok(TSCOMMA))
-							BOLDDAY(m_MonthDayStates[i], tsDays.to_int());
-
-#endif
 
 						// increment the month so we get a proper offset
 						lpNMDayState->stStart.wMonth++;

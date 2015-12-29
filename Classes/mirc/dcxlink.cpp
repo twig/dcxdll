@@ -44,7 +44,7 @@ DcxLink::DcxLink(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwn
 		nullptr);
 
 	if (!IsWindow(this->m_Hwnd))
-		throw std::runtime_error("Unable To Create Window");
+		throw Dcx::dcxException("Unable To Create Window");
 
 	if (bNoTheme)
 		Dcx::UXModule.dcxSetWindowTheme(this->m_Hwnd, L" ", L" ");
@@ -62,7 +62,7 @@ DcxLink::DcxLink(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwn
 		if (styles.istok(TEXT("tooltips"))) {
 			this->m_ToolTipHWND = p_Dialog->getToolTip();
 			if (!IsWindow(this->m_ToolTipHWND))
-				throw std::runtime_error("Unable to get ToolTips window");
+				throw Dcx::dcxException("Unable to get ToolTips window");
 
 			AddToolTipToolInfo(this->m_ToolTipHWND, this->m_Hwnd);
 		}
@@ -146,7 +146,7 @@ void DcxLink::parseCommandRequest( const TString & input ) {
 		const auto nColor = (input.getnexttok().to_int() - 1);	// tok 4
 
 		if (nColor < 0 || nColor > 3)
-			throw std::invalid_argument("Invalid Colour Index");
+			throw Dcx::dcxException("Invalid Colour Index");
 
 		this->m_aColors[nColor] = input.getnexttok( ).to_int( );	// tok 5
 	}

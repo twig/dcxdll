@@ -138,13 +138,13 @@ void DcxmlParser::loadDocument()
 	const auto tsPath(this->getFilePath());
 
 	if (!Dcx::isFile(tsPath.to_chr()))
-		throw std::invalid_argument(Dcx::dcxGetFormattedString(TEXT("File \"%s\" does not exist or is in use by another process "), this->getFilePath().to_chr()));
+		throw Dcx::dcxException(TEXT("File \"%\" does not exist or is in use by another process "), this->getFilePath());
 
 	TiXmlBase::SetCondenseWhiteSpace(false);
 	TiXmlDocument doc(tsPath.c_str());
 	this->loadSuccess = doc.LoadFile();
 	if (!this->loadSuccess)
-		throw std::runtime_error(Dcx::dcxGetFormattedString(TEXT("XML error in \"%s\" (row %i column %i) %S"), tsPath.to_chr(), doc.ErrorRow(), doc.ErrorCol(), doc.ErrorDesc()));
+		throw Dcx::dcxException(TEXT("XML error in \"%\" (row % column %) %"), tsPath, doc.ErrorRow(), doc.ErrorCol(), doc.ErrorDesc());
 
 	this->_document = doc; 
 }
@@ -153,18 +153,18 @@ void DcxmlParser::loadDialog()
 {
 	this->setDialog(this->getDialogMark());
 	if (this->getDialog() == nullptr)
-		throw std::invalid_argument(Dcx::dcxGetFormattedString(TEXT("No such dialog (\"%s\") has been marked with dcx."),this->getDialogMark().to_chr()));
+		throw Dcx::dcxException(TEXT("No such dialog (\"%\") has been marked with dcx."),this->getDialogMark());
 }
 
 void DcxmlParser::loadDialogElement()
 {
 	this->setRootElement(this->getDocument()->FirstChildElement("dcxml"));
 	if (this->getRootElement() == nullptr)
-		throw std::invalid_argument(Dcx::dcxGetFormattedString(TEXT("The document element should be <dcxml> in \"%s\""), this->getFilePath().to_chr()));
+		throw Dcx::dcxException(TEXT("The document element should be <dcxml> in \"%\""), this->getFilePath());
 
 	this->setDialogsElement(this->getRootElement()->FirstChildElement("dialogs"));
 	if (this->getDialogsElement() == nullptr) 
-		throw std::invalid_argument(Dcx::dcxGetFormattedString(TEXT("Theres no <dialogs> child for <dcxml> in \"%s\""), this->getFilePath().to_chr()));
+		throw Dcx::dcxException(TEXT("Theres no <dialogs> child for <dcxml> in \"%\""), this->getFilePath());
 
 	/*
 	* This finds the Dialog element. 
@@ -180,7 +180,7 @@ void DcxmlParser::loadDialogElement()
 			return;
 		}
 	}
-	throw std::invalid_argument(Dcx::dcxGetFormattedString(TEXT("Theres no <dialog> element with attribute name=\"%s\" in \"%s\""), this->getDialogName().to_chr(), this->getFilePath().to_chr()));
+	throw Dcx::dcxException(TEXT("Theres no <dialog> element with attribute name=\"%\" in \"%\""), this->getDialogName(), this->getFilePath());
 }
 
 void DcxmlParser::parseAttributes() {
@@ -249,11 +249,7 @@ void DcxmlParser::parseControl() {
 	//        padding = (temp = element->Attribute("padding")) ? temp : "0 0 0 0";
 	const TString tsParent(parenttype);
 	static const TString poslist(TEXT("divider toolbar button treeview comboex list listview radio link check box ipaddress webctrl text edit richedit pbar statusbar image"));
-#if TSTRING_TEMPLATES
 	const auto nType = poslist.findtok(tsParent, 1);
-#else
-	const auto nType = poslist.findtok(tsParent.to_chr(), 1);
-#endif
 
 	switch (nType)
 	{
@@ -296,15 +292,10 @@ void DcxmlParser::parseControl() {
 
 			int textspace = 0;
 
-#if TSTRING_PARTS
 			TString printstring;
 			for (const auto &tsTmp: mystring)
 			{
-#if TSTRING_TEMPLATES
 				printstring.addtok(tsTmp);
-#else
-				printstring.addtok(tsTmp.to_chr());
-#endif
 				if (printstring.len() > (MIRC_BUFFER_SIZE_CCH - 100)) {
 					this->xdidEX(id, TEXT("-a"), TEXT("%i %s"), textspace, printstring.to_chr());
 					printstring.clear();	// = TEXT("");
@@ -313,24 +304,6 @@ void DcxmlParser::parseControl() {
 			}
 			if (!printstring.empty())
 				this->xdidEX(id, TEXT("-a"), TEXT("%i %s"), textspace, printstring.to_chr());
-#else
-			TString printstring;
-			for (auto tsTmp(mystring.getfirsttok(1)); !tsTmp.empty(); tsTmp = mystring.getnexttok())
-			{
-#if TSTRING_TEMPLATES
-				printstring.addtok(tsTmp);
-#else
-				printstring.addtok(tsTmp.to_chr());
-#endif
-				if (printstring.len() > (MIRC_BUFFER_SIZE_CCH - 100)) {
-					this->xdidEX(id, TEXT("-a"), TEXT("%i %s"), textspace, printstring.to_chr());
-					printstring.clear();	// = TEXT("");
-					textspace = 1;
-				}
-			}
-			if (!printstring.empty())
-				this->xdidEX(id, TEXT("-a"), TEXT("%i %s"), textspace, printstring.to_chr());
-#endif
 		}
 		break;
 	case 15:	//	edit
@@ -350,28 +323,11 @@ void DcxmlParser::parseControl() {
 				mystring -= TEXT("\\r");
 			}
 			UINT line = 0;
-#if TSTRING_PARTS
-#if TSTRING_ITERATOR
 			for (auto itStart = mystring.begin(TEXT("\r\n")), itEnd = mystring.end(); itStart != itEnd; ++itStart)
 			{
 				line++;
 				this->xdidEX(id, TEXT("-i"), TEXT("%u %s"), line, (*itStart).to_chr());
 			}
-#else
-			mystring.split(TEXT("\r\n"));
-			for (const auto &tsTmp: mystring)
-			{
-				line++;
-				this->xdidEX(id, TEXT("-i"), TEXT("%u %s"), line, tsTmp.to_chr());
-			}
-#endif
-#else
-			for (auto tsTmp(mystring.getfirsttok(1, TEXT("\r\n"))); !tsTmp.empty(); tsTmp = mystring.getnexttok(TEXT("\r\n")))
-			{
-				line++;
-				this->xdidEX(id, TEXT("-i"), TEXT("%u %s"), line, tsTmp.to_chr());
-			}
-#endif
 		}
 		break;
 	case 17:	//	pbar
@@ -692,13 +648,8 @@ void DcxmlParser::parseItems(const TiXmlElement *const tiElement,const UINT dept
 					const auto local_tFlags = queryAttribute(column, "flags", "l");
 					const auto local_tIcon = queryAttribute(column, "icon", "0");
 
-#if TSTRING_TEMPLATES
 					tsBuffer.tsprintf(TEXT("+%S %S %S %S "), local_tFlags, local_tIcon, local_tWidth, local_tCaption);
 					tsArguments.addtok(tsBuffer, TEXT('\t'));
-#else
-					tsBuffer.tsprintf(TEXT("+%S %S %S %S "), local_tFlags, local_tIcon, local_tWidth, local_tCaption);
-					tsArguments.addtok(tsBuffer.to_chr(), TEXT("\t"));
-#endif
 				}
 				if (!tsArguments.empty())
 					this->xdidEX(id,TEXT("-t"),TEXT("%s"),tsArguments.to_chr());

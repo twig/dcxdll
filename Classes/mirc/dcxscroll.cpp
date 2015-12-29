@@ -46,7 +46,7 @@ DcxScroll::DcxScroll(const UINT ID, DcxDialog *const p_Dialog, const HWND mParen
 		nullptr);
 
 	if (!IsWindow(this->m_Hwnd))
-		throw std::runtime_error("Unable To Create Window");
+		throw Dcx::dcxException("Unable To Create Window");
 
 	if (bNoTheme)
 		Dcx::UXModule.dcxSetWindowTheme(this->m_Hwnd, L" ", L" ");
@@ -114,7 +114,7 @@ void DcxScroll::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) 
 		si.cbSize = sizeof( SCROLLINFO );
 		si.fMask = SIF_POS;
 		if (!GetScrollInfo(this->m_Hwnd, SB_CTL, &si))
-			throw std::runtime_error("Unable to get scroll info");
+			throw Dcx::dcxException("Unable to get scroll info");
 
 		wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), si.nPos );
 	}
@@ -125,7 +125,7 @@ void DcxScroll::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) 
 		si.cbSize = sizeof( SCROLLINFO );
 		si.fMask = SIF_RANGE;
 		if (!GetScrollInfo(this->m_Hwnd, SB_CTL, &si))
-			throw std::runtime_error("Unable to get scroll info");
+			throw Dcx::dcxException("Unable to get scroll info");
 
 		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d"), si.nMin, si.nMax);
 	}

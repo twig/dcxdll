@@ -186,6 +186,14 @@ public:
 
 		return 0;
 	}
+	const UINT NameToUserID(const TString &NamedID) const
+	{
+		auto it = namedIds.find(NamedID);
+		if (it != namedIds.end())
+			return it->second - mIRC_ID_OFFSET;
+
+		return 0;
+	}
 	const TString &IDToName(const UINT local_id) const
 	{
 		//for (auto it = namedIds.begin(), itEnd = namedIds.end(); it != itEnd; ++it)
@@ -208,7 +216,7 @@ public:
 			++i;
 			//UINT i = 0;
 			//if (rand_s(&i) != 0)
-			//	throw std::runtime_error("Unable to Generate ID");
+			//	throw Dcx::dcxException("Unable to Generate ID");
 			//
 			//if (i <= mIRC_ID_OFFSET)
 			//	i += mIRC_ID_OFFSET + 1;

@@ -44,14 +44,14 @@ DcxUpDown::DcxUpDown(const UINT ID, DcxDialog *const p_Dialog, const HWND mParen
 		nullptr);
 
 	if (!IsWindow(this->m_Hwnd))
-		throw std::runtime_error("Unable To Create Window");
+		throw Dcx::dcxException("Unable To Create Window");
 
 	if ( bNoTheme )
 		Dcx::UXModule.dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
 
 	if (styles.istok(TEXT("tooltips"))) {
 		if (IsWindow(p_Dialog->getToolTip()))
-			throw std::runtime_error("Unable to Initialize Tooltips");
+			throw Dcx::dcxException("Unable to Initialize Tooltips");
 		
 		this->m_ToolTipHWND = p_Dialog->getToolTip();
 		AddToolTipToolInfo(this->m_ToolTipHWND, this->m_Hwnd);
@@ -82,7 +82,6 @@ void DcxUpDown::parseControlStyles( const TString & styles, LONG * Styles, LONG 
 
 	*Styles |= UDS_ALIGNRIGHT;
 
-#if TSTRING_PARTS
 	for (const auto tsStyle: styles)
 	{
 		if ( tsStyle == TEXT("left") ) {
@@ -102,27 +101,7 @@ void DcxUpDown::parseControlStyles( const TString & styles, LONG * Styles, LONG 
 		else if ( tsStyle == TEXT("wrap") )
 			*Styles |= UDS_WRAP;
 	}
-#else
-	for (auto tsStyle(styles.getfirsttok(1)); !tsStyle.empty(); tsStyle = styles.getnexttok())
-	{
-		if ( tsStyle == TEXT("left") ) {
-			*Styles &= ~UDS_ALIGNRIGHT;
-			*Styles |= UDS_ALIGNLEFT;
-		}
-		else if ( tsStyle == TEXT("arrowkeys") )
-			*Styles |= UDS_ARROWKEYS;
-		else if ( tsStyle == TEXT("horz") )
-			*Styles |= UDS_HORZ;
-		else if ( tsStyle == TEXT("hottrack") )
-			*Styles |= UDS_HOTTRACK;
-		else if ( tsStyle == TEXT("nothousands") )
-			*Styles |= UDS_NOTHOUSANDS;
-		else if ( tsStyle == TEXT("buddyint") )
-			*Styles |= UDS_SETBUDDYINT;
-		else if ( tsStyle == TEXT("wrap") )
-			*Styles |= UDS_WRAP;
-	}
-#endif
+
 	this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
 }
 
@@ -172,7 +151,7 @@ void DcxUpDown::parseCommandRequest( const TString & input ) {
 		auto p_Control = this->m_pParentDialog->getControlByID((UINT)input.getnexttok().to_int() + mIRC_ID_OFFSET);	// tok 4
 
 		if (p_Control == nullptr)
-			throw std::invalid_argument("Unable to get control");
+			throw Dcx::dcxException("Unable to get control");
 
 		TCHAR ClassName[256];
 		GetClassName( p_Control->getHwnd( ), ClassName, 256 );

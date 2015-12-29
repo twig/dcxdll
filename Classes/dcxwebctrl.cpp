@@ -47,7 +47,7 @@ DcxWebControl::DcxWebControl(const UINT ID, DcxDialog *const p_Dialog, const HWN
 		nullptr);
 
 	if (!IsWindow(this->m_Hwnd))
-		throw std::runtime_error("Unable To Create Window");
+		throw Dcx::dcxException("Unable To Create Window");
 
 	if ( bNoTheme )
 		Dcx::UXModule.dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
@@ -84,7 +84,7 @@ DcxWebControl::DcxWebControl(const UINT ID, DcxDialog *const p_Dialog, const HWN
 		SafeRelease();
 
 		DestroyWindow(this->m_Hwnd);
-		throw std::runtime_error("Unable To Create Browser Window");
+		throw Dcx::dcxException("Unable To Create Browser Window");
 	}
 }
 
@@ -227,7 +227,7 @@ void DcxWebControl::parseCommandRequest( const TString & input) {
 		READYSTATE ready_state;
 
 		if ( FAILED( this->m_pWebBrowser2->get_ReadyState( &ready_state ) ) || ready_state != READYSTATE_COMPLETE )
-			throw std::runtime_error("Browser NOT in Ready State");
+			throw Dcx::dcxException("Browser NOT in Ready State");
 
 		IDispatch  * htmlDisp = nullptr;
 
@@ -326,7 +326,7 @@ void DcxWebControl::parseCommandRequest( const TString & input) {
 		if (!URL.empty()) {
 			auto bstrUrl = SysAllocString(URL.to_chr());
 			if (bstrUrl == nullptr)
-				throw std::runtime_error("Unable to Allocate Memory");
+				throw Dcx::dcxException("Unable to Allocate Memory");
 			Auto(SysFreeString(bstrUrl));
 
 			this->m_pWebBrowser2->Navigate(bstrUrl, &vFlags, &vEmpty, &vEmpty, &vEmpty);
@@ -344,7 +344,7 @@ void DcxWebControl::parseCommandRequest( const TString & input) {
 
 		auto bstrUrl = SysAllocString(URL.to_chr());
 		if (bstrUrl == nullptr)
-			throw std::runtime_error("Unable to Allocate Memory");
+			throw Dcx::dcxException("Unable to Allocate Memory");
 		Auto(SysFreeString(bstrUrl));
 
 		this->m_pWebBrowser2->Navigate(bstrUrl, &v, &v, &v, &v);
@@ -506,7 +506,7 @@ HRESULT DcxWebControl::Invoke( DISPID dispIdMember,
 			{
 				hRes = DispGetParam(pDispParams, 1, VT_BSTR, &arg2, &err);
 				if (FAILED(hRes))
-					throw std::runtime_error(Dcx::dcxGetFormattedString(TEXT("DcxWebControl::Invoke(DISPID_NAVIGATECOMPLETE2)"), TEXT("Unable to get Params: %ld"), err));
+					throw Dcx::dcxException(TEXT("DcxWebControl::Invoke(DISPID_NAVIGATECOMPLETE2) -> Unable to get Params: %"), err);
 
 				this->execAliasEx(TEXT("%s,%d,%ws"), TEXT("nav_complete"), this->getUserID(), arg2.bstrVal);
 			}
@@ -516,7 +516,7 @@ HRESULT DcxWebControl::Invoke( DISPID dispIdMember,
 			{
 				hRes = DispGetParam(pDispParams, 1, VT_BSTR, &arg2, &err);
 				if (FAILED(hRes))
-					throw std::runtime_error(Dcx::dcxGetFormattedString(TEXT("DcxWebControl::Invoke(DISPID_BEFORENAVIGATE2)"), TEXT("Unable to get Params: %ld"), err));
+					throw Dcx::dcxException(TEXT("DcxWebControl::Invoke(DISPID_BEFORENAVIGATE2) -> Unable to get Params: %"), err);
 
 				TCHAR ret[256];
 				this->evalAliasEx(ret, 255, TEXT("%s,%d,%ws"), TEXT("nav_begin"), this->getUserID(), arg2.bstrVal);
@@ -532,7 +532,7 @@ HRESULT DcxWebControl::Invoke( DISPID dispIdMember,
 			{
 				hRes = DispGetParam(pDispParams, 1, VT_BSTR, &arg2, &err);
 				if (FAILED(hRes))
-					throw std::runtime_error(Dcx::dcxGetFormattedString(TEXT("DcxWebControl::Invoke(DISPID_DOCUMENTCOMPLETE)"), TEXT("Unable to get Params: %ld"), err));
+					throw Dcx::dcxException(TEXT("DcxWebControl::Invoke(DISPID_DOCUMENTCOMPLETE) -> Unable to get Params: %"), err);
 
 				this->execAliasEx(TEXT("%s,%d,%ws"), TEXT("doc_complete"), this->getUserID(), arg2.bstrVal);
 			}
@@ -562,7 +562,7 @@ HRESULT DcxWebControl::Invoke( DISPID dispIdMember,
 			{
 				hRes = DispGetParam(pDispParams, 0, VT_BSTR, &arg1, &err);
 				if (FAILED(hRes))
-					throw std::runtime_error(Dcx::dcxGetFormattedString(TEXT("DcxWebControl::Invoke(DISPID_STATUSTEXTCHANGE)"), TEXT("Unable to get Params: %ld"), err));
+					throw Dcx::dcxException(TEXT("DcxWebControl::Invoke(DISPID_STATUSTEXTCHANGE) -> Unable to get Params: %"), err);
 
 				this->execAliasEx(TEXT("%s,%d,%ws"), TEXT("status"), this->getUserID(), arg1.bstrVal);
 			}
@@ -572,7 +572,7 @@ HRESULT DcxWebControl::Invoke( DISPID dispIdMember,
 			{
 				hRes = DispGetParam(pDispParams, 0, VT_BSTR, &arg1, &err);
 				if (FAILED(hRes))
-					throw std::runtime_error(Dcx::dcxGetFormattedString(TEXT("DcxWebControl::Invoke(DISPID_TITLECHANGE)"), TEXT("Unable to get Params: %ld"), err));
+					throw Dcx::dcxException(TEXT("DcxWebControl::Invoke(DISPID_TITLECHANGE) -> Unable to get Params: %"), err);
 
 				this->execAliasEx(TEXT("%s,%d,%ws"), TEXT("title"), this->getUserID(), arg1.bstrVal);
 			}
@@ -586,7 +586,7 @@ HRESULT DcxWebControl::Invoke( DISPID dispIdMember,
 
 				hRes = DispGetParam(pDispParams, 1, VT_BSTR, &arg2, &err);
 				if (FAILED(hRes))
-					throw std::runtime_error(Dcx::dcxGetFormattedString(TEXT("DcxWebControl::Invoke(DISPID_PROGRESSCHANGE)"), TEXT("Unable to get Params: %ld"), err));
+					throw Dcx::dcxException(TEXT("DcxWebControl::Invoke(DISPID_PROGRESSCHANGE) -> Unable to get Params: %"), err);
 
 				this->execAliasEx(TEXT("%s,%d,%ws,%ws"), TEXT("dl_progress"), this->getUserID(), arg1.bstrVal, arg2.bstrVal);
 			}
@@ -596,11 +596,11 @@ HRESULT DcxWebControl::Invoke( DISPID dispIdMember,
 			{
 				hRes = DispGetParam(pDispParams, 0, VT_BSTR, &arg1, &err);
 				if (FAILED(hRes))
-					throw std::runtime_error(Dcx::dcxGetFormattedString(TEXT("DcxWebControl::Invoke(DISPID_COMMANDSTATECHANGE)"), TEXT("Unable to get Params: %ld"), err));
+					throw Dcx::dcxException(TEXT("DcxWebControl::Invoke(DISPID_COMMANDSTATECHANGE) -> Unable to get Params: %"), err);
 
 				hRes = DispGetParam(pDispParams, 1, VT_BSTR, &arg2, &err);
 				if (FAILED(hRes))
-					throw std::runtime_error(Dcx::dcxGetFormattedString(TEXT("DcxWebControl::Invoke(DISPID_COMMANDSTATECHANGE)"), TEXT("Unable to get Params: %ld"), err));
+					throw Dcx::dcxException(TEXT("DcxWebControl::Invoke(DISPID_COMMANDSTATECHANGE) -> Unable to get Params: %"), err);
 
 				switch (arg1.bstrVal[0]) {
 				case L'1':

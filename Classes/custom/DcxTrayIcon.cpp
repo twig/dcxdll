@@ -26,12 +26,12 @@ mIRC(TrayIcon) {
 			trayIcons = new DcxTrayIcon();
 
 		if (trayIcons->GetHwnd() == nullptr)
-			throw std::runtime_error("Could not start trayicon manager");
+			throw Dcx::dcxException("Could not start trayicon manager");
 
 		const auto numtok = d.trim().numtok();
 
 		if (numtok < 2)
-			throw std::invalid_argument("Insufficient parameters");
+			throw Dcx::dcxException("Insufficient parameters");
 
 		const XSwitchFlags xflags(d.getfirsttok(1));
 		const auto id = d.getnexttok().to_int();	// tok 2
@@ -45,12 +45,12 @@ mIRC(TrayIcon) {
 
 			// if create and it already exists
 			if (xflags[TEXT('c')] && (bExists))
-				throw std::invalid_argument(Dcx::dcxGetFormattedString(TEXT("Cannot create trayicon: id %d already exists"), id));
+				throw Dcx::dcxException(TEXT("Cannot create trayicon: id % already exists"), id);
 
 			// if edit and it doesnt exist
 			if (xflags[TEXT('e')]) {
 				if (!bExists)
-					throw std::invalid_argument(Dcx::dcxGetFormattedString(TEXT("Cannot edit trayicon: id %d does not exists"), id));
+					throw Dcx::dcxException(TEXT("Cannot edit trayicon: id % does not exists"), id);
 
 				msg = NIM_MODIFY;
 			}
@@ -71,12 +71,12 @@ mIRC(TrayIcon) {
 
 			// add/edit the icon
 			if (!trayIcons->modifyIcon(id, msg, icon, &tooltip))
-				throw std::runtime_error("Modify trayicon failed");
+				throw Dcx::dcxException("Modify trayicon failed");
 		}
 		// delete trayicon
 		else if (xflags[TEXT('d')]) {
 			if (!trayIcons->modifyIcon(id, NIM_DELETE))
-				throw std::runtime_error("Error deleting trayicon");
+				throw Dcx::dcxException("Error deleting trayicon");
 		}
 		// change icon
 		// Icon   : xTray +i [id] [+flags] [icon index] [icon file]
@@ -94,7 +94,7 @@ mIRC(TrayIcon) {
 			auto icon = dcxLoadIcon(index, filename, false, iconFlags);
 
 			if (!trayIcons->modifyIcon(id, NIM_MODIFY, icon, nullptr))
-				throw std::runtime_error("Error changing trayicon icon");
+				throw Dcx::dcxException("Error changing trayicon icon");
 		}
 		// change tooltip
 		else if (xflags[TEXT('T')]) {
@@ -104,10 +104,10 @@ mIRC(TrayIcon) {
 				tip = d.getlasttoks();	// tok 3, -1
 
 			if (!trayIcons->modifyIcon(id, NIM_MODIFY, nullptr, &tip))
-				throw std::runtime_error("Error changing trayicon tooltip");
+				throw Dcx::dcxException("Error changing trayicon tooltip");
 		}
 		else
-			throw std::invalid_argument("Unknown flag or insufficient parameters");
+			throw Dcx::dcxException("Unknown flag or insufficient parameters");
 
 		return 1;
 	}
@@ -134,7 +134,7 @@ DcxTrayIcon::DcxTrayIcon(void)
 	this->m_hwnd = CreateWindow(TEXT("#32770"), TEXT(""), 0, 0, 0, 48, 48, nullptr, nullptr, GetModuleHandle(nullptr), nullptr);
 
 	if (!IsWindow(this->m_hwnd))
-		throw std::runtime_error("Problem initialising trayicons");
+		throw Dcx::dcxException("Problem initialising trayicons");
 
 	this->m_wndProc = SubclassWindow(this->m_hwnd, DcxTrayIcon::TrayWndProc);
 }

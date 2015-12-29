@@ -35,7 +35,7 @@ DcxPager::DcxPager(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentH
 		nullptr);
 
 	if (!IsWindow(this->m_Hwnd))
-		throw std::runtime_error("Unable To Create Window");
+		throw Dcx::dcxException("Unable To Create Window");
 
 	if ( bNoTheme )
 		Dcx::UXModule.dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
@@ -87,7 +87,6 @@ void DcxPager::toXml(TiXmlElement *const xml) const
 
 void DcxPager::parseControlStyles( const TString &styles, LONG *Styles, LONG *ExStyles, BOOL *bNoTheme)
 {
-#if TSTRING_PARTS
 	for (const auto &tsStyle: styles)
 	{
 		if (tsStyle == TEXT("horizontal"))
@@ -95,15 +94,6 @@ void DcxPager::parseControlStyles( const TString &styles, LONG *Styles, LONG *Ex
 		else if (tsStyle == TEXT("autoscroll"))
 			*Styles |= PGS_AUTOSCROLL;
 	}
-#else
-	for (auto tsStyle(styles.getfirsttok(1)); !tsStyle.empty(); tsStyle = styles.getnexttok())
-	{
-		if (tsStyle == TEXT("horizontal"))
-			*Styles |= PGS_HORZ;
-		else if (tsStyle == TEXT("autoscroll"))
-			*Styles |= PGS_AUTOSCROLL;
-	}
-#endif
 
 	this->parseGeneralControlStyles(styles, Styles, ExStyles, bNoTheme);
 }
@@ -150,7 +140,7 @@ void DcxPager::parseCommandRequest( const TString & input ) {
 	else if ( flags[TEXT('c')] && numtok > 8 ) {
 
 		if (IsWindow(this->m_ChildHWND))
-			throw std::invalid_argument("Child Control already exists");
+			throw Dcx::dcxException("Child Control already exists");
 
 		auto p_Control = this->m_pParentDialog->addControl(input, 4,
 			CTLF_ALLOW_TOOLBAR |
@@ -171,7 +161,7 @@ void DcxPager::parseCommandRequest( const TString & input ) {
 		//const auto ID = mIRC_ID_OFFSET + (UINT)input.getnexttok().to_int();	// tok 4
 		//
 		//if (!this->m_pParentDialog->isIDValid(ID, true))
-		//	throw std::invalid_argument(Dcx::dcxGetFormattedString(TEXT("Control with ID \"%d\" already exists"), ID - mIRC_ID_OFFSET));
+		//	throw Dcx::dcxException(TEXT("Control with ID \"%\" already exists"), ID - mIRC_ID_OFFSET);
 		//
 		//try {
 		//	auto p_Control = DcxControl::controlFactory(this->m_pParentDialog, ID, input, 5,
@@ -201,7 +191,7 @@ void DcxPager::parseCommandRequest( const TString & input ) {
 		const auto ID = mIRC_ID_OFFSET + (UINT)input.getnexttok( ).to_int( );		// tok 4
 
 		if ( !this->m_pParentDialog->isIDValid(ID) )
-			throw std::invalid_argument(Dcx::dcxGetFormattedString(TEXT("Unknown control with ID \"%d\" (dialog %s)"), ID - mIRC_ID_OFFSET, this->m_pParentDialog->getName().to_chr()));
+			throw Dcx::dcxException(TEXT("Unknown control with ID \"%\" (dialog %)"), ID - mIRC_ID_OFFSET, this->m_pParentDialog->getName());
 
 		auto p_Control = this->m_pParentDialog->getControlByID(ID);
 		// Ook: no ref count check for dialog or window? needs checked
@@ -212,7 +202,7 @@ void DcxPager::parseCommandRequest( const TString & input ) {
 			delete p_Control;
 		else {
 			if (p_Control->getRefCount() != 0)
-				throw std::runtime_error(Dcx::dcxGetFormattedString(TEXT("Can't delete control with ID \"%d\" when it is inside it's own event (dialog %s)"), p_Control->getUserID(), this->m_pParentDialog->getName().to_chr()));
+				throw Dcx::dcxException(TEXT("Can't delete control with ID \"%\" when it is inside it's own event (dialog %)"), p_Control->getUserID(), this->m_pParentDialog->getName());
 
 			auto cHwnd = p_Control->getHwnd();
 			this->m_pParentDialog->deleteControl(p_Control); // remove from internal list!
@@ -223,7 +213,7 @@ void DcxPager::parseCommandRequest( const TString & input ) {
 		//	delete p_Control;
 		//else {
 		//	if (p_Control->getRefCount() != 0)
-		//		throw std::runtime_error(Dcx::dcxGetFormattedString(TEXT("Can't delete control with ID \"%d\" when it is inside it's own event (dialog %s)"), p_Control->getUserID(), this->m_pParentDialog->getName().to_chr()));
+		//		throw Dcx::dcxException(TEXT("Can't delete control with ID \"%\" when it is inside it's own event (dialog %)"), p_Control->getUserID(), this->m_pParentDialog->getName());
 		//
 		//	auto cHwnd = p_Control->getHwnd();
 		//	this->m_pParentDialog->deleteControl(p_Control); // remove from internal list!
@@ -233,19 +223,11 @@ void DcxPager::parseCommandRequest( const TString & input ) {
 	}
 	// xdid -s [NAME] [ID] [SWITCH] [SIZE]
 	else if (flags[TEXT('s')] && numtok > 3) {
-#if TSTRING_TEMPLATES
 		this->setButtonSize(input.getlasttoks().to_<LONG>());	// tok 4, -1
-#else
-		this->setButtonSize((LONG)input.getlasttoks().to_num());	// tok 4, -1
-#endif
 	}
 	// xdid -t [NAME] [ID] [SWITCH] [COLOR]
 	else if (flags[TEXT('t')] && numtok > 3) {
-#if TSTRING_TEMPLATES
 		this->setBkColor(input.getlasttoks().to_<COLORREF>());	// tok 4, -1
-#else
-		this->setBkColor((COLORREF)input.getlasttoks().to_num());	// tok 4, -1
-#endif
 	}
 	// xdid -z [NAME] [ID] [SWITCH]
 	else if (flags[TEXT('z')] && numtok > 2) {

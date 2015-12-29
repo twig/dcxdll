@@ -99,7 +99,8 @@ public:
 protected:
 
 	HWND				m_EditHwnd;	//!< Combo's Edit Control Handle
-
+	HWND				m_hComboHwnd;	//!< Combo's handle
+	TString				m_tsSelected;
 private:
 	DCXCOMBOEXEDIT		m_exEdit;
 };

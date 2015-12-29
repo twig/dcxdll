@@ -25,6 +25,8 @@ namespace Dcx {
 
 	void load(LOADINFO *const lInfo)
 	{
+		//Expects(lInfo != nullptr);
+
 		m_iGhostDrag = 255;
 		m_bDX9Installed = false;
 		m_pClassFactory = nullptr;
@@ -437,6 +439,8 @@ namespace Dcx {
 	{
 		m_sLastError.tsprintf(TEXT("D_ERROR %s (%s)"), cmd, msg);
 
+		//_ts_sprintf(m_sLastError, TEXT("D_ERROR % (%)"), cmd, msg);
+
 		if (m_bErrorTriggered)
 			return;
 
@@ -472,23 +476,23 @@ namespace Dcx {
 	{
 		// check if the alias exists
 		if (!mIRCLinker::isAlias(tsCallbackName.to_chr()))
-			throw std::invalid_argument(Dcx::dcxGetFormattedString(TEXT("No such alias : %s"), tsCallbackName.to_chr()));
+			throw Dcx::dcxException(TEXT("No such alias : %"), tsCallbackName);
 
 		// check if valid dialog
-		auto mHwnd = GetHwndFromString(tsDName.to_chr());
+		auto mHwnd = GetHwndFromString(tsDName);
 
 		if (!IsWindow(mHwnd))
-			throw std::invalid_argument(Dcx::dcxGetFormattedString(TEXT("Invalid Dialog Window : %s"), tsDName.to_chr()));
+			throw Dcx::dcxException(TEXT("Invalid Dialog Window : %"), tsDName);
 
 		if (Dialogs.getDialogByHandle(mHwnd) != nullptr)
-			throw std::invalid_argument(Dcx::dcxGetFormattedString(TEXT("Window Already Marked : %s"), tsDName.to_chr()));
+			throw Dcx::dcxException(TEXT("Window Already Marked : %"), tsDName);
 
 		Dialogs.markDialog(mHwnd, tsDName, tsCallbackName);
 		{
 			auto pTmp = Dialogs.getDialogByHandle(mHwnd);
 			if (pTmp != nullptr) {
 				TCHAR res[40];
-				pTmp->evalAliasEx(res, 40, TEXT("isverbose,0"));
+				pTmp->evalAliasEx(res, countof(res), TEXT("isverbose,0"));
 
 				if (lstrcmp(res, TEXT("$false")) == 0)
 					pTmp->SetVerbose(false);
@@ -742,18 +746,6 @@ namespace Dcx {
 		return tsErr.c_str();
 	}
 
-	//void generate_invalid_argument(const TCHAR *const fmt, ...)
-	//{
-	//	static TString tsErr;
-	//
-	//	va_list args;
-	//	va_start(args, fmt);
-	//	tsErr.tvprintf(fmt, args);
-	//	va_end(args);
-	//
-	//	throw std::invalid_argument(tsErr.c_str());
-	//}
-
 	// convert a cursor name into a resource number.
 	const PTCHAR parseCursorType(const TString & cursor)
 	{
@@ -854,7 +846,7 @@ namespace Dcx {
 	{
 		auto hCursor = (HCURSOR)LoadImage(nullptr, filename.to_chr(), IMAGE_CURSOR, 0, 0, LR_DEFAULTSIZE | LR_LOADFROMFILE);
 		if (hCursor == nullptr)
-			throw std::runtime_error("Unable to load cursor file");
+			throw Dcx::dcxException("Unable to load cursor file");
 		return hCursor;
 	}
 
@@ -864,7 +856,7 @@ namespace Dcx {
 	{
 		auto hCursor = (HCURSOR)LoadImage(nullptr, CursorType, IMAGE_CURSOR, 0, 0, LR_DEFAULTSIZE | LR_SHARED);
 		if (hCursor == nullptr)
-			throw std::runtime_error("Unable to load cursor resource");
+			throw Dcx::dcxException("Unable to load cursor resource");
 		return hCursor;
 	}
 
@@ -885,14 +877,14 @@ namespace Dcx {
 			newCursor = dcxLoadCursorFromResource(CursorType);
 		else if (dcx_testflag(iFlags, DCCS_FROMFILE)) {
 			if (!IsFile(filename))
-				throw std::invalid_argument(Dcx::dcxGetFormattedString(TEXT("Unable to Access File: %s"), filename.to_chr()));
+				throw Dcx::dcxException(TEXT("Unable to Access File: %"), filename);
 
 			newCursor = Dcx::dcxLoadCursorFromFile(filename);
 
 			bCursorFromFile = true;
 		}
 		if (newCursor == nullptr)
-			throw std::runtime_error("Unable to Load Cursor");
+			throw Dcx::dcxException("Unable to Load Cursor");
 
 		if (GetCursor() == hCursor)
 			SetCursor(newCursor);

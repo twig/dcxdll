@@ -46,7 +46,7 @@ DcxTab::DcxTab(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd,
 		nullptr);
 
 	if (!IsWindow(this->m_Hwnd))
-		throw std::runtime_error("Unable To Create Window");
+		throw Dcx::dcxException("Unable To Create Window");
 
 	if ( bNoTheme )
 		Dcx::UXModule.dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
@@ -113,7 +113,6 @@ void DcxTab::parseControlStyles( const TString & styles, LONG * Styles, LONG * E
 	//*ExStyles = WS_EX_CONTROLPARENT;
 	*Styles |= TCS_OWNERDRAWFIXED;
 
-#if TSTRING_PARTS
 	for (const auto &tsStyle: styles)
 	{
 		if ( tsStyle == TEXT("vertical") )
@@ -147,41 +146,7 @@ void DcxTab::parseControlStyles( const TString & styles, LONG * Styles, LONG * E
 		else if ( tsStyle == TEXT("gradient") )
 			this->m_bGradient = true;
 	}
-#else
-	for (auto tsStyle(styles.getfirsttok(1)); !tsStyle.empty(); tsStyle = styles.getnexttok())
-	{
-		if ( tsStyle == TEXT("vertical") )
-			*Styles |= TCS_VERTICAL;
-		else if ( tsStyle == TEXT("bottom") )
-			*Styles |= TCS_BOTTOM;
-		else if ( tsStyle == TEXT("right") )
-			*Styles |= TCS_RIGHT;
-		else if ( tsStyle == TEXT("fixedwidth") )
-			*Styles |= TCS_FIXEDWIDTH;
-		else if ( tsStyle == TEXT("buttons") )
-			*Styles |= TCS_BUTTONS;
-		else if ( tsStyle == TEXT("flat") )
-			*Styles |= TCS_FLATBUTTONS;
-		else if ( tsStyle == TEXT("hot") )
-			*Styles |= TCS_HOTTRACK;
-		else if ( tsStyle == TEXT("multiline") )
-			*Styles |= TCS_MULTILINE;
-		else if ( tsStyle == TEXT("rightjustify") )
-			*Styles |= TCS_RIGHTJUSTIFY;
-		else if ( tsStyle == TEXT("scrollopposite") )
-			*Styles |= TCS_SCROLLOPPOSITE;
-		//else if ( tsStyle == TEXT("tooltips") )
-		//  *Styles |= TCS_TOOLTIPS;
-		else if ( tsStyle == TEXT("flatseps") )
-			*ExStyles |= TCS_EX_FLATSEPARATORS;
-		else if ( tsStyle == TEXT("closable")) {
-			this->m_bClosable = true;
-			//*Styles |= TCS_OWNERDRAWFIXED;
-		}
-		else if ( tsStyle == TEXT("gradient") )
-			this->m_bGradient = true;
-	}
-#endif
+
 	this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
 }
 
@@ -204,7 +169,7 @@ void DcxTab::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) con
 		const auto nItem = input.getnexttok().to_int() - 1;	// tok 4
 
 		if (nItem < 0 && nItem >= TabCtrl_GetItemCount(this->m_Hwnd))
-			throw std::invalid_argument("Invalid Item");
+			throw Dcx::dcxException("Invalid Item");
 
 		TCITEM tci;
 		ZeroMemory( &tci, sizeof( TCITEM ) );
@@ -225,7 +190,7 @@ void DcxTab::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) con
 		const auto iTab = input.getnexttok().to_int() - 1;		// tok 4
 
 		if (iTab < 0 && iTab >= TabCtrl_GetItemCount(this->m_Hwnd))
-			throw std::invalid_argument("Invalid Item");
+			throw Dcx::dcxException("Invalid Item");
 
 		TCITEM tci;
 		ZeroMemory( &tci, sizeof( TCITEM ) );
@@ -241,7 +206,7 @@ void DcxTab::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) con
 		const auto nItem = TabCtrl_GetCurSel(this->m_Hwnd);
 
 		if (nItem < 0 && nItem >= TabCtrl_GetItemCount(this->m_Hwnd))
-			throw std::invalid_argument("Invalid Item");
+			throw Dcx::dcxException("Invalid Item");
 
 		wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), nItem + 1 );
 	}
@@ -250,7 +215,7 @@ void DcxTab::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) con
 		const auto nItem = TabCtrl_GetCurSel(this->m_Hwnd);
 
 		if (nItem < 0 && nItem >= TabCtrl_GetItemCount(this->m_Hwnd))
-			throw std::invalid_argument("Invalid Item");
+			throw Dcx::dcxException("Invalid Item");
 
 		TCITEM tci;
 		ZeroMemory( &tci, sizeof( TCITEM ) );
@@ -266,7 +231,7 @@ void DcxTab::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) con
 		const auto nItem = input.getnexttok().to_int() - 1;	// tok 4
 
 		if (nItem < 0 && nItem >= TabCtrl_GetItemCount(this->m_Hwnd))
-			throw std::invalid_argument("Invalid Item");
+			throw Dcx::dcxException("Invalid Item");
 
 		TCITEM tci;
 		ZeroMemory( &tci, sizeof( TCITEM ) );
@@ -286,7 +251,7 @@ void DcxTab::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) con
 
 		tchi.flags = TCHT_ONITEM;
 		if (!GetCursorPos(&tchi.pt))
-			throw std::runtime_error("Unable to get cursor position");
+			throw Dcx::dcxException("Unable to get cursor position");
 
 		MapWindowPoints(nullptr, this->m_Hwnd, &tchi.pt, 1);
 
@@ -400,7 +365,7 @@ void DcxTab::parseCommandRequest( const TString & input ) {
 			//const auto ID = mIRC_ID_OFFSET + (UINT)control_data.gettok(1).to_int();
 			//
 			//if (!this->m_pParentDialog->isIDValid(ID, true))
-			//	throw std::invalid_argument(Dcx::dcxGetFormattedString(TEXT("Control with ID \"%d\" already exists"), ID - mIRC_ID_OFFSET));
+			//	throw Dcx::dcxException(TEXT("Control with ID \"%\" already exists"), ID - mIRC_ID_OFFSET);
 			//
 			//try {
 			//	auto p_Control = DcxControl::controlFactory(this->m_pParentDialog, ID, control_data, 2,
@@ -435,7 +400,7 @@ void DcxTab::parseCommandRequest( const TString & input ) {
 		const auto nItem = input.getnexttok().to_int() - 1;	// tok 4
 
 		if ( nItem < 0 && nItem >= TabCtrl_GetItemCount( this->m_Hwnd ) )
-			throw std::invalid_argument("Invalid Item");
+			throw Dcx::dcxException("Invalid Item");
 		
 		TabCtrl_SetCurSel(this->m_Hwnd, nItem);
 		this->activateSelectedTab( );
@@ -446,7 +411,7 @@ void DcxTab::parseCommandRequest( const TString & input ) {
 
 		// if a valid item to delete
 		if (nItem < 0 && nItem >= TabCtrl_GetItemCount(this->m_Hwnd))
-			throw std::invalid_argument("Invalid Item");
+			throw Dcx::dcxException("Invalid Item");
 		
 		const auto curSel = TabCtrl_GetCurSel(this->m_Hwnd);
 		TCITEM tci;
@@ -482,7 +447,7 @@ void DcxTab::parseCommandRequest( const TString & input ) {
 		const auto nIcon = input.getnexttok().to_int() - 1;	// tok 5
 
 		if (nItem < 0 && nItem >= TabCtrl_GetItemCount(this->m_Hwnd))
-			throw std::invalid_argument("Invalid Item");
+			throw Dcx::dcxException("Invalid Item");
 		
 		TCITEM tci;
 		ZeroMemory( &tci, sizeof( TCITEM ) );
@@ -509,7 +474,7 @@ void DcxTab::parseCommandRequest( const TString & input ) {
 		const auto nItem = input.getnexttok().to_int() - 1;	// tok 4
 
 		if (nItem < 0 && nItem >= TabCtrl_GetItemCount(this->m_Hwnd))
-			throw std::invalid_argument("Invalid Item");
+			throw Dcx::dcxException("Invalid Item");
 
 		TString itemtext;
 
@@ -532,10 +497,10 @@ void DcxTab::parseCommandRequest( const TString & input ) {
 		BOOL adjustDelete = FALSE;
 
 		if (nItem < 0 && nItem >= TabCtrl_GetItemCount(this->m_Hwnd))
-			throw std::invalid_argument("Invalid Item");
+			throw Dcx::dcxException("Invalid Item");
 
 		if (pos < 0 && pos >= TabCtrl_GetItemCount(this->m_Hwnd))
-			throw std::invalid_argument("Invalid Item");
+			throw Dcx::dcxException("Invalid Item");
 
 		if (nItem == pos)
 			return;
@@ -592,7 +557,7 @@ void DcxTab::parseCommandRequest( const TString & input ) {
 				this->setImageList(himl);
 		}
 		if (himl == nullptr)
-			throw std::runtime_error("Unable to get Image List");
+			throw Dcx::dcxException("Unable to get Image List");
 
 		//HICON icon = dcxLoadIcon(index, filename, false, flag);
 		//
@@ -713,7 +678,7 @@ void DcxTab::activateSelectedTab( ) {
 	auto hdwp = BeginDeferWindowPos(nTab + 1);
 
 	if (hdwp == nullptr)
-		throw std::runtime_error("activateSelectedTab() - Unable to size tabs");
+		throw Dcx::dcxException("activateSelectedTab() - Unable to size tabs");
 
 	//HWND hSelChild = nullptr;
 	//

@@ -355,7 +355,7 @@ enum CLATypes: UINT {
 	LAYOUTFILL	= 0x02,  //!< Layout Cell Fill Type
 	LAYOUTPANE	= 0x04,  //!< Layout Cell Pane Type
 	LAYOUTID	= 0x08,  //!< Layout Control ID is Valid
-	LAYOUTDIM	= 0x10,  //!< Layout Control Dimensions are Valid (Only works with fixed)
+	LAYOUTDIM	= 0x10,  //!< Layout Control Dimensions are Valid (Only works with LayoutCallFixed)
 	LAYOUTVERT	= 0x20,  //!< Layout Cell Vertical Style (LayoutCellPane and LayoutCellFixed)
 	LAYOUTHORZ	= 0x40  //!< Layout Cell Horizontal Style (LayoutCellPane and LayoutCellFixed)
 };
@@ -381,7 +381,7 @@ enum dcxFontFlags: UINT {
 // Ultradock stuff
 // --------------------------------------------------
 
-enum SwitchBarPos: UINT {
+enum class SwitchBarPos: UINT {
 	SWB_NONE = 0,
 	SWB_LEFT,
 	SWB_RIGHT,
@@ -430,25 +430,40 @@ typedef std::vector<int> VectorOfInts; //<! Vector of int
 #define dcx_atof(x) _wtof(x)
 #define dcx_fopen(x,y) _wfopen(x,y)
 #define dcx_strstr(x,y) wcsstr((x),(y))
-#define dcx_strncmp(x,y,z) wcsncmp((x),(y),(size_t)(z))
+#define dcx_strncmp(x,y,z) wcsncmp((x),(y),static_cast<size_t>((z)))
 #define dcx_itoa(x,y,z) _itow((x), (y), (z))
 
-#define dcx_strcpyn(x, y, z) { if (lstrcpyn((x), (y), (int)(z)) == nullptr) (x)[0] = 0; }
+//#define dcx_strcpyn(x, y, z) { if (lstrcpyn((x), (y), static_cast<int>((z))) == nullptr) (x)[0] = 0; }
 
-#define dcx_Con(x,y) dcx_strcpyn((y), (((x)) ? TEXT("$true") : TEXT("$false")), MIRC_BUFFER_SIZE_CCH);
+inline void dcx_strcpyn(gsl::not_null<TCHAR *> sDest, gsl::not_null<const TCHAR *> sSrc, int iSize) { if (lstrcpyn(sDest, sSrc, iSize) == nullptr) sDest[0] = 0; }
+
+constexpr const TCHAR *const dcx_truefalse(const bool &x) {	return (x) ? TEXT("$true") : TEXT("$false"); }
+
+//#define dcx_Con(x,y) dcx_strcpyn((y), (((x)) ? TEXT("$true") : TEXT("$false")), MIRC_BUFFER_SIZE_CCH);
+//#define dcx_ConRet(x,y) { \
+//	if (lstrcpyn((y), (((x)) ? TEXT("$true") : TEXT("$false")), MIRC_BUFFER_SIZE_CCH) != nullptr) return; \
+//}
+//#define dcx_ConRetState(x,y) { \
+//	if (lstrcpyn((y), (((x)) ? TEXT("$true") : TEXT("$false")), MIRC_BUFFER_SIZE_CCH) != nullptr) return TRUE; \
+//}
+
+#define dcx_Con(x,y) dcx_strcpyn((y), dcx_truefalse((x)), MIRC_BUFFER_SIZE_CCH);
 
 #define dcx_ConRet(x,y) { \
-	if (lstrcpyn((y), (((x)) ? TEXT("$true") : TEXT("$false")), MIRC_BUFFER_SIZE_CCH) != nullptr) return; \
+	if (lstrcpyn((y), dcx_truefalse((x)), MIRC_BUFFER_SIZE_CCH) != nullptr) return; \
 }
 #define dcx_ConRetState(x,y) { \
-	if (lstrcpyn((y), (((x)) ? TEXT("$true") : TEXT("$false")), MIRC_BUFFER_SIZE_CCH) != nullptr) return TRUE; \
+	if (lstrcpyn((y), dcx_truefalse((x)), MIRC_BUFFER_SIZE_CCH) != nullptr) return TRUE; \
 }
+
 #define dcx_ConChar(x,y) { \
 if ((x)) (y)[0] = TEXT('1'); \
 	else (y)[0] = TEXT('0'); \
 	(y)[1] = 0; \
 }
-#define dcx_testflag(x,y) (((x) & (y)) == (y))
+//#define dcx_testflag(x,y) (((x) & (y)) == (y))
+template <typename T, typename M>
+constexpr bool dcx_testflag(T x, M y) { return ((x & static_cast<T>(y)) == static_cast<T>(y)); }
 
 #define dcxlParam(x,y) auto y = reinterpret_cast<x>(lParam)
 #define dcxwParam(x,y) auto y = reinterpret_cast<x>(wParam)
@@ -470,10 +485,10 @@ bool SaveDataToFile(const TString &tsFile, const TString &tsData);
 TString FileDialog(const TString & data, const TString &method, const HWND pWnd);
 
 int CALLBACK BrowseFolderCallback(HWND hwnd, UINT uMsg, LPARAM lParam, LPARAM lpData);
-LPITEMIDLIST GetFolderFromCSIDL(const int nCsidl);
+gsl::owner<LPITEMIDLIST> GetFolderFromCSIDL(const int nCsidl);
 
 HWND GetHwndFromString(const TString &str);
-HWND GetHwndFromString(const TCHAR *str);
+//HWND GetHwndFromString(gsl::not_null<const TCHAR *> str);
 HWND FindOwner(const TString & data, const HWND defaultWnd);
 BOOL CopyToClipboard(const HWND owner, const TString & str);
 HBITMAP dcxLoadBitmap(HBITMAP dest, TString &filename);
@@ -482,8 +497,8 @@ HICON CreateGrayscaleIcon(HICON hIcon);
 HRGN BitmapRegion(HBITMAP hBitmap,COLORREF cTransparentColor,BOOL bIsTransparent);
 void ChangeHwndIcon(const HWND hwnd, const TString &flags, const int index, TString &filename);
 bool AddFileIcons(HIMAGELIST himl, TString &filename, const bool bLarge, const int iIndex, const int iStart = 0, const int iEnd = -1);
-BOOL dcxGetWindowRect(HWND hWnd, LPRECT lpRect);
-int dcxPickIconDlg(HWND hwnd, LPWSTR pszIconPath, UINT cchIconPath, int *piIconIndex);
+BOOL dcxGetWindowRect(gsl::not_null<HWND> hWnd, gsl::not_null<LPRECT> lpRect);
+int dcxPickIconDlg(gsl::not_null<HWND> hwnd, gsl::not_null<LPWSTR> pszIconPath, UINT cchIconPath, gsl::not_null<int *> piIconIndex);
 
 SYSTEMTIME MircTimeToSystemTime(const long mircTime);
 long SystemTimeToMircTime(const LPSYSTEMTIME pst);
@@ -496,19 +511,19 @@ const TCHAR *GetLastStatusStr(Status status);
 bool IsFile(TString &filename);
 //void calcStrippedRect(HDC hdc, const TString &txt, const UINT style, LPRECT rc, const bool ignoreleft);
 void mIRC_DrawText(HDC hdc, const TString &txt, LPRECT rc, const UINT style, const bool shadow);
-HDC *CreateHDCBuffer(HDC hdc, const LPRECT rc);
-void DeleteHDCBuffer(HDC *hBuffer);
+gsl::owner<HDC *>CreateHDCBuffer(gsl::not_null<HDC> hdc, const LPRECT rc);
+void DeleteHDCBuffer(gsl::owner<HDC *> hBuffer);
 int TGetWindowText(HWND hwnd, TString &txt);
 void FreeOSCompatibility(void);
 bool isRegexMatch(const TCHAR *matchtext, const TCHAR *pattern);
-void DrawRotatedText(const TString &strDraw, LPRECT rc, HDC hDC, const int nAngleLine = 0, const bool bEnableAngleChar = false, const int nAngleChar = 0);
-const char *queryAttribute(const TiXmlElement *element,const char *attribute,const char *defaultValue = "");
-int queryIntAttribute(const TiXmlElement *element,const char *attribute,const int defaultValue = 0);
+void DrawRotatedText(const TString &strDraw, gsl::not_null<LPRECT> rc, gsl::not_null<HDC> hDC, const int nAngleLine = 0, const bool bEnableAngleChar = false, const int nAngleChar = 0);
+const char *queryAttribute(gsl::not_null<const TiXmlElement *> element, gsl::not_null<const char *> attribute, const char *defaultValue = "");
+int queryIntAttribute(gsl::not_null<const TiXmlElement *> element, gsl::not_null<const char *> attribute, const int defaultValue = 0);
 void getmIRCPalette(COLORREF *const Palette, const int PaletteItems);
 
 // UltraDock
-void RemStyles(HWND hwnd,int parm,long RemStyles);
-void AddStyles(HWND hwnd,int parm,long AddStyles);
+void RemStyles(gsl::not_null<HWND> hwnd,int parm,long RemStyles);
+void AddStyles(gsl::not_null<HWND> hwnd,int parm,long AddStyles);
 //void InitUltraDock(void);
 //void CloseUltraDock(void);
 //SwitchBarPos SwitchbarPos(const DockTypes type);

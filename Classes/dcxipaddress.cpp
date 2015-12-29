@@ -44,7 +44,7 @@ DcxIpAddress::DcxIpAddress(const UINT ID, DcxDialog *const p_Dialog, const HWND 
 		nullptr);
 
 	if (!IsWindow(this->m_Hwnd))
-		throw std::runtime_error("Unable To Create Window");
+		throw Dcx::dcxException("Unable To Create Window");
 
 	if (bNoTheme)
 		Dcx::UXModule.dcxSetWindowTheme(this->m_Hwnd, L" ", L" ");
@@ -55,7 +55,7 @@ DcxIpAddress::DcxIpAddress(const UINT ID, DcxDialog *const p_Dialog, const HWND 
 
 	if (styles.istok(TEXT("tooltips"))) {
 		if (!IsWindow(p_Dialog->getToolTip()))
-			throw std::runtime_error("Unable to Initialize Tooltips");
+			throw Dcx::dcxException("Unable to Initialize Tooltips");
 
 		this->m_ToolTipHWND = p_Dialog->getToolTip();
 		AddToolTipToolInfo(this->m_ToolTipHWND, this->m_Hwnd);
@@ -152,7 +152,7 @@ void DcxIpAddress::parseCommandRequest( const TString &input) {
 		const auto IP(input.getnexttok().strip());	// tok 4
 
 		if (IP.numtok(TEXT(".")) != 4)
-			throw std::invalid_argument(Dcx::dcxGetFormattedString(TEXT("Invalid Address: %s"), IP.to_chr()));
+			throw Dcx::dcxException(TEXT("Invalid Address: %"), IP);
 
 		this->setAddress(IP.to_addr());
 	}
@@ -163,7 +163,7 @@ void DcxIpAddress::parseCommandRequest( const TString &input) {
 		const auto max = (BYTE)(input.getnexttok().to_int() & 0xFF);	// tok 6
 
 		if (nField < 0 || nField > 3)
-			throw std::invalid_argument("Out of Range");
+			throw Dcx::dcxException("Out of Range");
 
 		this->setRange(nField, min, max);
 	}
@@ -172,7 +172,7 @@ void DcxIpAddress::parseCommandRequest( const TString &input) {
 		const auto nField = input.getnexttok().to_int() - 1;	// tok 4
 
 		if (nField < 0 || nField > 3)
-			throw std::invalid_argument("Out of Range");
+			throw Dcx::dcxException("Out of Range");
 		
 		this->setFocus(nField);
 	}

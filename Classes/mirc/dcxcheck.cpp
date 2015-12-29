@@ -47,7 +47,7 @@ DcxCheck::DcxCheck(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentH
 		nullptr);
 
 	if (!IsWindow(this->m_Hwnd))
-		throw std::runtime_error("Unable To Create Window");
+		throw Dcx::dcxException("Unable To Create Window");
 
 	if (bNoTheme)
 		Dcx::UXModule.dcxSetWindowTheme(this->m_Hwnd, L" ", L" ");
@@ -58,7 +58,7 @@ DcxCheck::DcxCheck(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentH
 		if (styles.istok(TEXT("tooltips"))) {
 			this->m_ToolTipHWND = p_Dialog->getToolTip();
 			if (!IsWindow(this->m_ToolTipHWND))
-				throw std::runtime_error("Unable to get ToolTips window");
+				throw Dcx::dcxException("Unable to get ToolTips window");
 
 			AddToolTipToolInfo(this->m_ToolTipHWND, this->m_Hwnd);
 		}
@@ -116,7 +116,6 @@ void DcxCheck::parseControlStyles( const TString & styles, LONG * Styles, LONG *
 {
 	*Styles |= BS_AUTOCHECKBOX;
 
-#if TSTRING_PARTS
 	for (const auto &tsStyle: styles)
 	{
 		if ( tsStyle == TEXT("rjustify") )
@@ -134,25 +133,6 @@ void DcxCheck::parseControlStyles( const TString & styles, LONG * Styles, LONG *
 			*Styles |= BS_AUTO3STATE;
 		}
 	}
-#else
-	for (auto tsStyle(styles.getfirsttok( 1 )); !tsStyle.empty(); tsStyle = styles.getnexttok( ))
-	{
-		if ( tsStyle == TEXT("rjustify") )
-			*Styles |= BS_RIGHT;
-		else if ( tsStyle == TEXT("center") )
-			*Styles |= BS_CENTER;
-		else if ( tsStyle == TEXT("ljustify") )
-			*Styles |= BS_LEFT;
-		else if ( tsStyle == TEXT("right") )
-			*Styles |= BS_RIGHTBUTTON;
-		else if ( tsStyle == TEXT("pushlike") )
-			*Styles |= BS_PUSHLIKE;
-		else if ( tsStyle == TEXT("3state") ) {
-			*Styles &= ~BS_AUTOCHECKBOX;
-			*Styles |= BS_AUTO3STATE;
-		}
-	}
-#endif
 
 	this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
 }

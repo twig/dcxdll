@@ -219,16 +219,13 @@ mIRC(Version) {
 		auto t = 0;
 		//tsNum >> t;
 		//tsNum << " text " << t << TEXT(" some morer ");
-#if TSTRING_TEMPLATES
 
 		tsNum += 3.14;
 		tsNum += t;
 		t = tsNum.to_<int>();
-#endif
 
 		mIRCLinker::execex(TEXT("/echo -a tsNum: %s :tsNum.to_<int>(): %d"), tsNum.to_chr(), t); // "1003.140000"
 
-#if TSTRING_TESTCODE
 		auto tok = tsNum++;
 		mIRCLinker::execex(TEXT("/echo -a tsNum++: %s"), tok.to_chr()); // "1003.140000"
 
@@ -240,16 +237,7 @@ mIRC(Version) {
 		tok = *tsNum;
 		mIRCLinker::execex(TEXT("/echo -a tsNum: %s"), tsNum.to_chr()); // ""
 		mIRCLinker::execex(TEXT("/echo -a *tsNum: %s"), tok.to_chr()); // ""
-#else
-		auto tok = tsNum.getfirsttok(1);
-		mIRCLinker::execex(TEXT("/echo -a tsNum.getfirsttok(1): %s"), tok.to_chr()); // "1003"
 
-		tok = tsNum.getnexttok();
-		mIRCLinker::execex(TEXT("/echo -a tsNum.getnexttok(): %s"), tok.to_chr()); // ""
-#endif
-
-#if TSTRING_PARTS
-#if TSTRING_ITERATOR
 		//for (auto itStart = tmp.begin(), itEnd = tmp.end(); itStart != itEnd; ++itStart)
 		//{
 		//	mIRCLinker::execex(TEXT("/echo -a test for: %s"), (*itStart).to_chr());
@@ -264,22 +252,14 @@ mIRC(Version) {
 		}
 		tok.join(tmp, TEXT("!"));
 		mIRCLinker::execex(TEXT("/echo -a tok.join(tmp,!): %s"), tok.to_chr());
-#else
-		for (const auto &x : tmp)
-		{
-			mIRCLinker::execex(TEXT("/echo -a test for: %s"), x.to_chr());
-		}
-#endif
-#endif
 
 		t = Dcx::parse_string<int>("200");
 		mIRCLinker::execex(TEXT("/echo -a parse_string<int>(200): %d"), t); // 100
 
-#if TSTRING_TEMPLATES
 		tok.addtok(TEXT('b'), TEXT('n'));
 
 		mIRCLinker::execex(TEXT("/echo -a addtok(b,n): %s"), tok.to_chr());
-#endif
+
 		TCHAR ctrlk = TEXT('\x03');
 		std::basic_string<TCHAR> str(TEXT("test "));
 		str += ctrlk;
@@ -387,8 +367,10 @@ mIRC(Version) {
 			mIRCLinker::exec(TEXT("/echo -a tok.iswmcs(*put*) == false"));
 
 		// test exception code
-		//mIRCLinker::exec(TEXT("/echo -a Throwing exception"));
-		//dcx_exception_InvalidArgument(TEXT("No such exception: %"), tok);
+		tok = TEXT("123");
+		UINT iTest = tok;
+		//throw Dcx::dcxException(TEXT("No such Exception"));
+		throw Dcx::dcxException("No such Exception: % :: %", iTest, tok);
 	}
 	catch (std::exception &e)
 	{
@@ -476,7 +458,7 @@ mIRC(Mark) {
 		d.trim();
 
 		if (d.numtok() < 2)
-			throw std::invalid_argument("[NAME] [ALIAS]");
+			throw Dcx::dcxException("[NAME] [ALIAS]");
 
 		return Dcx::mark(data, d.gettok(1), d.gettok(2));
 	}
@@ -506,7 +488,7 @@ mIRC(GetSystemColor) {
 		d.trim();
 
 		if (d.numtok() < 1)
-			throw std::invalid_argument("Invalid Arguments");
+			throw Dcx::dcxException("Invalid Arguments");
 
 		int col;
 		const auto coltype(d.gettok(1));
@@ -548,13 +530,13 @@ mIRC(GetSystemColor) {
 		else if (coltype == TEXT("COLOR_WINDOWTEXT")) { col = COLOR_WINDOWTEXT; }
 		else if (coltype == TEXT("COLOR_GLASS")) { col = -1; }
 		else
-			throw std::invalid_argument("Invalid parameter specified");
+			throw Dcx::dcxException("Invalid parameter specified");
 
 		if (col == -1) {
 			RGBQUAD clr = { 0 };
 			BOOL bOpaque = FALSE;
 			if (FAILED(Dcx::VistaModule.dcxDwmGetColorizationColor((DWORD *)&clr, &bOpaque)))
-				throw std::runtime_error("Unable to get glass colour.");
+				throw Dcx::dcxException("Unable to get glass colour.");
 		
 			wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), RGB(clr.rgbRed, clr.rgbGreen, clr.rgbBlue));
 		}
@@ -592,13 +574,13 @@ mIRC(xdid) {
 		d.trim();
 
 		if (d.numtok() < 3)
-			throw std::invalid_argument("Invalid Arguments");
+			throw Dcx::dcxException("Invalid Arguments");
 
 		const auto tsDname(d.getfirsttok(1));
 		auto p_Dialog = Dcx::Dialogs.getDialogByName(tsDname);
 
 		if (p_Dialog == nullptr)
-			throw std::invalid_argument(Dcx::dcxGetFormattedString(TEXT("Unknown dialog \"%s\": see Mark command"), tsDname.to_chr()));
+			throw Dcx::dcxException(TEXT("Unknown dialog \"%\": see Mark command"), tsDname);
 
 		const auto IDs(d.getnexttok());			// tok 2
 		const auto tsArgs(d.getlasttoks());		// tok 3, -1
@@ -607,158 +589,60 @@ mIRC(xdid) {
 
 		// Multiple IDs id,id,id,id-id,id-id
 		if (n > 1) {
-
-#if TSTRING_PARTS
-#if TSTRING_ITERATOR
 			for (auto itStart = IDs.begin(TSCOMMA), itEnd = IDs.end(); itStart != itEnd; ++itStart)
 			{
 				UINT id_start = 0, id_end = 0;
 				const TString tsID(*itStart);
-#if TSTRING_TEMPLATES
 				if (tsID.numtok(TEXT("-")) == 2) {
 					id_start = tsID.getfirsttok(1, TEXT("-")).to_<UINT>();
 					id_end = tsID.getnexttok(TEXT("-")).to_<UINT>();
 				}
 				else
-					id_start = id_end = tsID.to_<UINT>();
-#else
-				if (tsID.numtok(TEXT("-")) == 2) {
-					id_start = tsID.getfirsttok(1, TEXT("-")).to_int();
-					id_end = tsID.getnexttok(TEXT("-")).to_int();
-				}
-				else
-					id_start = id_end = tsID.to_int();
-#endif
+					id_start = id_end = p_Dialog->NameToUserID(tsID);
 
 				if (id_end < id_start)
-					throw std::invalid_argument(Dcx::dcxGetFormattedString(TEXT("Invalid ID : %lu (dialog : %s)"), id_end, tsDname.to_chr()));
+					throw Dcx::dcxException(TEXT("Invalid ID : % (dialog : %)"), id_end, tsDname);
+				if (id_start == 0)
+					throw Dcx::dcxException(TEXT("Invalid ID : % (dialog : %)"), id_start, tsDname);
+				if (id_end == 0)
+					throw Dcx::dcxException(TEXT("Invalid ID : % (dialog : %)"), id_end, tsDname);
 
 				for (auto id = id_start; id <= id_end; id++) {
 					auto p_Control = p_Dialog->getControlByID(id + mIRC_ID_OFFSET);
 
 					if (p_Control == nullptr)
-						//dcx_exception_InvalidArgument(TEXT("Invalid ID : % (dialog : %)"), id, tsDname);
-						throw std::invalid_argument(Dcx::dcxGetFormattedString(TEXT("Invalid ID : %lu (dialog : %s)"), id, tsDname.to_chr()));
-#if TSTRING_TEMPLATES
+						throw Dcx::dcxException(TEXT("Unable to find control: % (dialog : %)"), id, tsDname);
 					d2 = tsDname;
 					d2.addtok(id);
 					d2.addtok(tsArgs);
-#else
-					// this tsprintf() call does the same as the following addtok() calls (these addtok calls only work when templates are enabled)
-					d2.tsprintf(TEXT("%s %ld %s"), tsDname.to_chr(), id, tsArgs.to_chr());
-#endif
 
 					p_Control->parseCommandRequest(d2);
 				}
 			}
-#else
-			IDs.split(TSCOMMA);
-			for (const auto tsID: IDs)
-			{
-				UINT id_start = 0, id_end = 0;
-				if (tsID.numtok(TEXT("-")) == 2) {
-					id_start = tsID.getfirsttok(1, TEXT("-")).to_int();
-					id_end = tsID.getnexttok(TEXT("-")).to_int();
-				}
-				else
-					id_start = id_end = tsID.to_int();
-
-				if (id_end < id_start)
-					throw std::invalid_argument(Dcx::dcxGetFormattedString(TEXT("Invalid ID : %lu (dialog : %s)"), id_end, tsDname.to_chr()));
-
-				for (auto id = id_start; id <= id_end; id++) {
-					auto p_Control = p_Dialog->getControlByID(id + mIRC_ID_OFFSET);
-
-					if (p_Control == nullptr)
-						throw std::invalid_argument(Dcx::dcxGetFormattedString(TEXT("Invalid ID : %lu (dialog : %s)"), id, tsDname.to_chr()));
-
-					d2.tsprintf(TEXT("%s %ld %s"), tsDname.to_chr(), id, tsArgs.to_chr());
-
-					p_Control->parseCommandRequest(d2);
-				}
-			}
-#endif
-#else
-			//IDs.getfirsttok(0, TSCOMMA);
-			//
-			//for (auto i = 1U; i <= n; i++) {
-			//	const auto tsID(IDs.getnexttok(TSCOMMA));	// tok i
-			//	UINT id_start = 0, id_end = 0;
-			//	if (tsID.numtok(TEXT("-")) == 2) {
-			//		id_start = tsID.getfirsttok(1, TEXT("-")).to_int();
-			//		id_end = tsID.getnexttok(TEXT("-")).to_int();
-			//	}
-			//	else
-			//		id_start = id_end = tsID.to_int();
-			//
-			//	if (id_end < id_start)
-			//		throw std::invalid_argument(Dcx::dcxGetFormattedString(TEXT("Invalid ID : %lu (dialog : %s)"), id_end, tsDname.to_chr()));
-			//
-			//	for (auto id = id_start; id <= id_end; id++) {
-			//		auto p_Control = p_Dialog->getControlByID(id + mIRC_ID_OFFSET);
-			//
-			//		if (p_Control == nullptr)
-			//			throw std::invalid_argument(Dcx::dcxGetFormattedString(TEXT("Invalid ID : %lu (dialog : %s)"), id, tsDname.to_chr()));
-			//
-			//		d2.tsprintf(TEXT("%s %ld %s"), tsDname.to_chr(), id, tsArgs.to_chr());
-			//
-			//		p_Control->parseCommandRequest(d2);
-			//	}
-			//}
-
-			for (auto tsID(IDs.getfirsttok(1, TSCOMMA)); !tsID.empty(); tsID = IDs.getnexttok(TSCOMMA))
-			{
-				UINT id_start = 0, id_end = 0;
-				if (tsID.numtok(TEXT("-")) == 2) {
-					id_start = tsID.getfirsttok(1, TEXT("-")).to_int();
-					id_end = tsID.getnexttok(TEXT("-")).to_int();
-				}
-				else
-					id_start = id_end = tsID.to_int();
-
-				if (id_end < id_start)
-					throw std::invalid_argument(Dcx::dcxGetFormattedString(TEXT("Invalid ID : %lu (dialog : %s)"), id_end, tsDname.to_chr()));
-
-				for (auto id = id_start; id <= id_end; id++) {
-					auto p_Control = p_Dialog->getControlByID(id + mIRC_ID_OFFSET);
-
-					if (p_Control == nullptr)
-						throw std::invalid_argument(Dcx::dcxGetFormattedString(TEXT("Invalid ID : %lu (dialog : %s)"), id, tsDname.to_chr()));
-
-					d2.tsprintf(TEXT("%s %ld %s"), tsDname.to_chr(), id, tsArgs.to_chr());
-
-					p_Control->parseCommandRequest(d2);
-				}
-			}
-#endif
 		}
 		//Single ID or single id-id
 		else {
 			UINT id_start = 0, id_end = 0;
-#if TSTRING_TEMPLATES
+
 			if (IDs.numtok(TEXT("-")) == 2) {
 				id_start = IDs.getfirsttok(1, TEXT("-")).to_<UINT>();
 				id_end = IDs.getnexttok(TEXT("-")).to_<UINT>();
 			}
 			else
-				id_start = id_end = IDs.to_<UINT>();
-#else
-			if (IDs.numtok(TEXT("-")) == 2) {
-				id_start = IDs.getfirsttok(1, TEXT("-")).to_int();
-				id_end = IDs.getnexttok(TEXT("-")).to_int();
-			}
-			else
-				id_start = id_end = IDs.to_int();
-#endif
+				id_start = id_end = p_Dialog->NameToUserID(IDs);
 
 			if (id_end < id_start)
-				throw std::invalid_argument(Dcx::dcxGetFormattedString(TEXT("Invalid ID : %lu (dialog : %s)"), id_end, tsDname.to_chr()));
+				throw Dcx::dcxException(TEXT("Invalid ID : % (dialog : %)"), id_end, tsDname);
+			if (id_start == 0)
+				throw Dcx::dcxException(TEXT("Invalid ID : % (dialog : %)"), id_start, tsDname);
+			if (id_end == 0)
+				throw Dcx::dcxException(TEXT("Invalid ID : % (dialog : %)"), id_end, tsDname);
 
 			for (auto id = id_start; id <= id_end; id++) {
 				auto p_Control = p_Dialog->getControlByID(id + mIRC_ID_OFFSET);
 
 				if (p_Control == nullptr)
-					throw std::invalid_argument(Dcx::dcxGetFormattedString(TEXT("Invalid ID : %lu (dialog : %s)"), id, tsDname.to_chr()));
+					throw Dcx::dcxException(TEXT("Unable to find control: % (dialog : %)"), id, tsDname);
 
 				p_Control->parseCommandRequest(d);
 			}
@@ -792,7 +676,7 @@ mIRC(_xdid) {
 		d.trim();
 
 		if (d.numtok() < 3)
-			throw std::invalid_argument("Invalid Arguments");
+			throw Dcx::dcxException("Invalid Arguments");
 
 		const auto tsDname(d.getfirsttok(1));
 		const auto tsID(d.getnexttok());
@@ -800,12 +684,15 @@ mIRC(_xdid) {
 		auto p_Dialog = Dcx::Dialogs.getDialogByName(tsDname);
 
 		if (p_Dialog == nullptr)
-			throw std::invalid_argument(Dcx::dcxGetFormattedString(TEXT("Unknown dialog \"%s\": see Mark command"), tsDname.to_chr()));
+			throw Dcx::dcxException(TEXT("Unknown dialog \"%\": see Mark command"), tsDname);
 
-		const auto p_Control = p_Dialog->getControlByID((UINT)tsID.to_int() + mIRC_ID_OFFSET);
+		if (!p_Dialog->isNamedId(tsID))
+			throw Dcx::dcxException(TEXT("Invalid ID : % (dialog %)"), tsID, tsDname);
+
+		const auto p_Control = p_Dialog->getControlByID(p_Dialog->NameToID(tsID));
 
 		if (p_Control == nullptr)
-			throw std::invalid_argument(Dcx::dcxGetFormattedString(TEXT("Invalid ID : %s (dialog %s)"), tsID.to_chr(), tsDname.to_chr()));
+			throw Dcx::dcxException(TEXT("Unable to find control: % (dialog %)"), tsID, tsDname);
 
 		p_Control->parseInfoRequest(d, data);
 		return 3;
@@ -832,12 +719,12 @@ mIRC(GetTaskbarPos) {
 		auto hTaskbar = FindWindow(TEXT("Shell_TrayWnd"), nullptr);
 
 		if (!IsWindow(hTaskbar))
-			throw std::runtime_error("could not find taskbar");
+			throw Dcx::dcxException("could not find taskbar");
 		
 		RECT rc;
 
 		if (!GetWindowRect(hTaskbar, &rc))
-			throw std::runtime_error("Unable to get window rect");
+			throw Dcx::dcxException("Unable to get window rect");
 
 		wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d %d %d"), rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top);
 		return 3;
@@ -871,12 +758,12 @@ mIRC(xdialog) {
 		const auto tsDname(d.gettok(1));
 
 		if (d.numtok() < 2)
-			throw std::invalid_argument(Dcx::dcxGetFormattedString(TEXT("Invalid arguments ( dialog %s)"), tsDname.to_chr()));
+			throw Dcx::dcxException(TEXT("Invalid arguments ( dialog %)"), tsDname);
 
 		auto p_Dialog = Dcx::Dialogs.getDialogByName(tsDname);
 
 		if (p_Dialog == nullptr)
-			throw std::invalid_argument(Dcx::dcxGetFormattedString(TEXT("Unknown dialog \"%s\": see Mark command"), tsDname.to_chr()));
+			throw Dcx::dcxException(TEXT("Unknown dialog \"%\": see Mark command"), tsDname);
 
 		p_Dialog->parseCommandRequest(d);
 		return 1;
@@ -911,13 +798,13 @@ mIRC(_xdialog) {
 		const auto tsDname(d.getfirsttok(1));
 
 		if (d.numtok() < 2)
-			throw std::invalid_argument(Dcx::dcxGetFormattedString(TEXT("Invalid arguments ( dialog %s)"), tsDname.to_chr()));
+			throw Dcx::dcxException(TEXT("Invalid arguments ( dialog %)"), tsDname);
 
 		const auto p_Dialog = Dcx::Dialogs.getDialogByName(tsDname);
 
 		if (p_Dialog == nullptr) {
 			if (d.getnexttok() != TEXT("ismarked"))
-				throw std::invalid_argument(Dcx::dcxGetFormattedString(TEXT("Unknown dialog \"%s\": see Mark command"), tsDname.to_chr()));
+				throw Dcx::dcxException(TEXT("Unknown dialog \"%\": see Mark command"), tsDname);
 
 			ret(TEXT("$false"));
 		}
@@ -954,17 +841,17 @@ mIRC(xpop) {
 		d.trim();
 
 		if (d.numtok() < 3)
-			throw std::invalid_argument("Invalid Arguments");
+			throw Dcx::dcxException("Invalid Arguments");
 
 		const auto tsMenu(d.gettok(1));
 
 		if ((tsMenu == TEXT("mirc")) || (tsMenu == TEXT("mircbar")))
-			throw std::invalid_argument("Invalid menu name : mirc or mircbar menus don't have access to this feature.");
+			throw Dcx::dcxException("Invalid menu name : mirc or mircbar menus don't have access to this feature.");
 
 		auto p_Menu = Dcx::XPopups.getMenuByName(tsMenu, false);
 
 		if (p_Menu == nullptr)
-			throw std::invalid_argument(Dcx::dcxGetFormattedString(TEXT("Unknown menu \"%s\": see /xpopup -c command"), tsMenu.to_chr()));
+			throw Dcx::dcxException(TEXT("Unknown menu \"%\": see /xpopup -c command"), tsMenu);
 
 		p_Menu->parseXPopCommand(d);
 		return 1;
@@ -996,17 +883,17 @@ mIRC(_xpop) {
 		d.trim();
 
 		if (d.numtok() < 3)
-			throw std::invalid_argument("Invalid Arguments");
+			throw Dcx::dcxException("Invalid Arguments");
 
 		const auto tsMenu(d.gettok(1));
 
 		if ((tsMenu == TEXT("mirc")) || (tsMenu == TEXT("mircbar")))
-			throw std::invalid_argument("Invalid menu name : mirc or mircbar menus don't have access to this feature.");
+			throw Dcx::dcxException("Invalid menu name : mirc or mircbar menus don't have access to this feature.");
 
 		const auto p_Menu = Dcx::XPopups.getMenuByName(tsMenu, false);
 
 		if (p_Menu == nullptr)
-			throw std::invalid_argument(Dcx::dcxGetFormattedString(TEXT("Unknown menu \"%s\": see /xpopup -c command"), tsMenu.to_chr()));
+			throw Dcx::dcxException(TEXT("Unknown menu \"%\": see /xpopup -c command"), tsMenu);
 
 		p_Menu->parseXPopIdentifier(d, data);
 		return 3;
@@ -1038,7 +925,7 @@ mIRC(xpopup) {
 		d.trim();
 
 		if (d.numtok() < 2)
-			throw std::invalid_argument("Invalid Arguments");
+			throw Dcx::dcxException("Invalid Arguments");
 
 		Dcx::XPopups.parseCommand(d);
 		return 1;
@@ -1070,7 +957,7 @@ mIRC(_xpopup) {
 		d.trim();
 
 		if (d.numtok() < 2)
-			throw std::invalid_argument("Invalid Arguments");
+			throw Dcx::dcxException("Invalid Arguments");
 
 		Dcx::XPopups.parseIdentifier(d, data);
 		return 3;
@@ -1187,7 +1074,7 @@ mIRC(xSignal) {
 		const XSwitchFlags xflags(flags);
 
 		if (!xflags[TEXT('+')])
-			throw std::invalid_argument("flags must start with a '+'");
+			throw Dcx::dcxException("flags must start with a '+'");
 
 		if (xflags[TEXT('d')])
 			dcxSignal.xdock = bState;
@@ -1196,7 +1083,7 @@ mIRC(xSignal) {
 		else if (xflags[TEXT('t')])
 			dcxSignal.xtray = bState;
 		else
-			throw std::invalid_argument("Unknown flag specified.");
+			throw Dcx::dcxException("Unknown flag specified.");
 
 		return 1;
 	}
@@ -1224,28 +1111,28 @@ mIRC(WindowProps) {
 		const auto numtok = input.numtok();
 
 		if (numtok < 2)
-			throw std::invalid_argument("Insuffient parameters");
+			throw Dcx::dcxException("Insuffient parameters");
 
 		auto hwnd = (HWND)input.getfirsttok(1).to_int();	// tok 1
 
 		if (!IsWindow(hwnd))
-			throw std::invalid_argument("Invalid window");
+			throw Dcx::dcxException("Invalid window");
 
 		const auto flags(input.getnexttok().trim());	// tok 2
 		const XSwitchFlags xflags(flags);
 
 		if (!xflags[TEXT('+')] || (flags.len() < 2))
-			throw std::invalid_argument("No Flags Found");
+			throw Dcx::dcxException("No Flags Found");
 
 		if (!xflags[TEXT('T')] && !xflags[TEXT('i')] && !xflags[TEXT('t')] && !xflags[TEXT('r')] && !xflags[TEXT('v')])
-			throw std::invalid_argument("Unknown Flags");
+			throw Dcx::dcxException("Unknown Flags");
 
 		// set hwnd NoTheme
 		// +T
 		if (xflags[TEXT('T')]) {
 			if (Dcx::UXModule.isUseable()) {
 				if (Dcx::UXModule.dcxSetWindowTheme(hwnd, TEXT(" "), TEXT(" ")) != S_OK)
-					throw std::runtime_error("Unable to set theme");
+					throw Dcx::dcxException("Unable to set theme");
 			}
 		}
 		// set hwnd's title icon
@@ -1253,7 +1140,7 @@ mIRC(WindowProps) {
 		if (xflags[TEXT('i')]) {
 			// invalid args
 			if (numtok < 3)
-				throw std::invalid_argument("Invalid Args");
+				throw Dcx::dcxException("Invalid Args");
 
 			const auto index = input.getnexttok().to_int();	// tok 3
 			//auto filename(input.gettok(1, TSTAB).gettok(4, -1).trim());
@@ -1278,13 +1165,8 @@ mIRC(WindowProps) {
 		// RMB click hwnd at pos.
 		// +r [X] [Y]
 		else if (xflags[TEXT('r')]) {
-#if TSTRING_TEMPLATES
 			const auto x = input.getnexttok().to_<UINT>();	// tok 3
 			const auto y = input.getnexttok().to_<UINT>();	// tok 4
-#else
-			const auto x = (UINT)input.getnexttok().to_num();	// tok 3
-			const auto y = (UINT)input.getnexttok().to_num();	// tok 4
-#endif
 			const LPARAM parm = MAKELONG(x, y);
 			SendMessage(hwnd, WM_RBUTTONDOWN, MK_RBUTTON, parm);
 			PostMessage(hwnd, WM_RBUTTONUP, MK_RBUTTON, parm); // MUST be a PostMessage or the dll hangs untill the menu is closed.
@@ -1347,19 +1229,19 @@ mIRC(ActiveWindow) {
 		const auto numtok = input.numtok();
 
 		if (numtok < 1)
-			throw std::invalid_argument("Insufficient parameters");
+			throw Dcx::dcxException("Insufficient parameters");
 
 		auto hwnd = GetForegroundWindow();
 
 		if (!IsWindow(hwnd))
-			throw std::invalid_argument("Unable to determine active window");
+			throw Dcx::dcxException("Unable to determine active window");
 
 		const auto prop(input.gettok(1));
 		WINDOWINFO wi;
 
 		ZeroMemory(&wi, sizeof(WINDOWINFO));
 		if (!GetWindowInfo(hwnd, &wi))
-			throw std::runtime_error("Unable to get window information");
+			throw Dcx::dcxException("Unable to get window information");
 
 		if (prop == TEXT("hwnd"))         // handle
 			wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%lu"), (DWORD)hwnd);	// don't use %p is this gives a hex result.
@@ -1374,7 +1256,7 @@ mIRC(ActiveWindow) {
 		else if (prop == TEXT("caption")) // title text
 			GetWindowText(hwnd, data, MIRC_BUFFER_SIZE_CCH);
 		else                      // otherwise
-			throw std::invalid_argument("Invalid parameters");
+			throw Dcx::dcxException("Invalid parameters");
 
 		return 3;
 	}
@@ -1403,13 +1285,13 @@ mIRC(GhostDrag) {
 		input.trim();
 
 		if (input.empty())
-			throw std::invalid_argument("Invalid parameters");
+			throw Dcx::dcxException("Invalid parameters");
 
 		// [0-255] enable or (255 == disable) ghost drag for main mIRC window.
 		const auto alpha = (BYTE)(input.gettok(1).to_int() & 0xFF);
 
 		if (!Dcx::setGhostDrag(alpha))
-			throw std::invalid_argument("Invalid alpha value");
+			throw Dcx::dcxException("Invalid alpha value");
 
 		return 1;
 	}
@@ -1442,22 +1324,22 @@ mIRC(SetSystemCursors) {
 		d.trim();
 
 		if (d.empty())
-			throw std::invalid_argument("Invalid Arguments");
+			throw Dcx::dcxException("Invalid Arguments");
 
 		const auto tsCursor(d.getfirsttok(1));
 		auto tsFilename(d.getlasttoks());
 		const auto systemCursorId = Dcx::parseSystemCursorType(tsCursor);
 
 		if (!IsFile(tsFilename))
-			throw std::invalid_argument("Unable to open file");
+			throw Dcx::dcxException("Unable to open file");
 
 		auto hCursor = (HCURSOR)LoadImage(nullptr, tsFilename.to_chr(), IMAGE_CURSOR, 0, 0, LR_DEFAULTSIZE | LR_LOADFROMFILE);
 
 		if (hCursor == nullptr)
-			throw std::runtime_error("Unable to load cursor");
+			throw Dcx::dcxException("Unable to load cursor");
 
 		if (!SetSystemCursor(hCursor, systemCursorId))
-			throw std::runtime_error("Unable to set system cursor");
+			throw Dcx::dcxException("Unable to set system cursor");
 
 		return 1;
 	}
@@ -1493,13 +1375,11 @@ mIRC(SetmIRCCursors)
 		d.trim();
 
 		if (d.empty())
-			throw std::invalid_argument("Invalid Arguments");
+			throw Dcx::dcxException("Invalid Arguments");
 
 		const auto tsCursor(d.getfirsttok(1));
 		auto tsFilename(d.getlasttoks());
-#if TSTRING_PARTS
-#if TSTRING_ITERATOR
-		for (TString::const_iterator itStart = tsCursor.begin(TSCOMMA), itEnd = tsCursor.end(); itStart != itEnd; ++itStart)
+		for (auto itStart = tsCursor.begin(TSCOMMA), itEnd = tsCursor.end(); itStart != itEnd; ++itStart)
 		{
 			const TString tsArea(*itStart);
 			const auto AreaId = Dcx::parseAreaType(tsArea);
@@ -1512,7 +1392,7 @@ mIRC(SetmIRCCursors)
 				}
 				else {
 					if (!IsFile(tsFilename))
-						throw std::invalid_argument("Unable to open file");
+						throw Dcx::dcxException("Unable to open file");
 
 					Dcx::setAreaCursor(Dcx::dcxLoadCursorFromFile(tsFilename), AreaId);
 				}
@@ -1520,7 +1400,7 @@ mIRC(SetmIRCCursors)
 			else {
 				const auto CursorId = Dcx::parseCursorType(tsArea);
 				if (CursorId == nullptr)
-					throw std::invalid_argument("Unknown cursor type");
+					throw Dcx::dcxException("Unknown cursor type");
 
 				auto hSystemCursor = Dcx::dcxLoadCursorFromResource(CursorId);
 
@@ -1532,123 +1412,12 @@ mIRC(SetmIRCCursors)
 				}
 				else {
 					if (!IsFile(tsFilename))
-						throw std::invalid_argument("Unable to open file");
+						throw Dcx::dcxException("Unable to open file");
 
 					Dcx::setCursor(hSystemCursor, Dcx::dcxLoadCursorFromFile(tsFilename));
 				}
 			}
 		}
-#else
-		tsCursor.split(TSCOMMA);
-		for (const auto &tsArea : tsCursor)
-		{
-			////const auto Id = Dcx::parseAreaType(tsArea);
-			//const auto Id = Dcx::parseCursorType(tsArea);
-			//if (Id == nullptr)
-			//	throw std::invalid_argument("Unknown cursor type");
-			//
-			//if (tsFilename.empty())
-			//{
-			//	// empty filename == remove custom cursor, if any.
-			//	Dcx::deleteCursor(Id);
-			//}
-			//else {
-			//	if (!IsFile(tsFilename))
-			//		throw std::invalid_argument("Unable to open file");
-			//
-			//	auto hCursor = Dcx::dcxLoadCursorFromFile(tsFilename);
-			//
-			//	Dcx::Cursor_Data cd;
-			//	cd.m_bNoDestroy = false;
-			//	cd.m_hCursor = hCursor;
-			//
-			//	Dcx::setCursor(cd, Id);
-			//}
-
-			const auto AreaId = Dcx::parseAreaType(tsArea);
-			if (AreaId > 0)
-			{
-				if (tsFilename.empty())
-				{
-					// empty filename == remove custom cursor, if any.
-					Dcx::deleteAreaCursor(AreaId);
-				}
-				else {
-					if (!IsFile(tsFilename))
-						throw std::invalid_argument("Unable to open file");
-								
-					Dcx::setAreaCursor(Dcx::dcxLoadCursorFromFile(tsFilename), AreaId);
-				}
-			}
-			else {
-				const auto CursorId = Dcx::parseCursorType(tsArea);
-				if (CursorId == nullptr)
-					throw std::invalid_argument("Unknown cursor type");
-
-				auto hSystemCursor = Dcx::dcxLoadCursorFromResource(CursorId);
-
-				if (tsFilename.empty())
-				{
-					// empty filename == remove custom cursor, if any.
-
-					Dcx::deleteCursor(hSystemCursor);
-				}
-				else {
-					if (!IsFile(tsFilename))
-						throw std::invalid_argument("Unable to open file");
-
-					Dcx::setCursor(hSystemCursor, Dcx::dcxLoadCursorFromFile(tsFilename));
-				}
-			}
-		}
-#endif
-#else
-		for (auto tsArea(tsCursor.getfirsttok(TSCOMMA)); !tsArea.empty(); tsArea = tsCursor.getnexttok(TSCOMMA))
-		{
-			//const auto AreaId = Dcx::parseAreaType(tsArea);
-			//
-			//if (tsFilename.empty())
-			//{
-			//	// empty filename == remove custom cursor, if any.
-			//	Dcx::deleteCursor(AreaId);
-			//}
-			//else {
-			//	if (!IsFile(tsFilename))
-			//		throw std::invalid_argument("Unable to open file");
-			//
-			//	auto hCursor = Dcx::dcxLoadCursorFromFile(tsFilename);
-			//
-			//	Dcx::Cursor_Data cd;
-			//	cd.m_bNoDestroy = false;
-			//	cd.m_hCursor = hCursor;
-			//
-			//	Dcx::setCursor(cd, AreaId);
-			//}
-	
-			const auto Id = Dcx::parseCursorType(tsArea);
-			if (Id == nullptr)
-				throw std::invalid_argument("Unknown cursor type");
-
-			auto hSystemCursor = Dcx::dcxLoadCursorFromResource(Id);
-			if (hSystemCursor == nullptr)
-				throw std::runtime_error("Unable to load cursor resource");
-
-			if (tsFilename.empty())
-			{
-				// empty filename == remove custom cursor, if any.
-
-				Dcx::deleteCursor(hSystemCursor);
-			}
-			else {
-				if (!IsFile(tsFilename))
-					throw std::invalid_argument("Unable to open file");
-
-				auto hCustomCursor = Dcx::dcxLoadCursorFromFile(tsFilename);
-
-				Dcx::setCursor(hSystemCursor, hCustomCursor);
-			}
-	}
-#endif
 		return 1;
 
 		//const auto AreaId = Dcx::parseAreaType(tsCursor);
@@ -1660,7 +1429,7 @@ mIRC(SetmIRCCursors)
 		//}
 		//else {
 		//	if (!IsFile(tsFilename))
-		//		throw std::invalid_argument("Unable to open file");
+		//		throw Dcx::dcxException("Unable to open file");
 		//
 		//	auto hCursor = Dcx::dcxLoadCursorFromFile(tsFilename);
 		//	Dcx::Cursor_Data cd;

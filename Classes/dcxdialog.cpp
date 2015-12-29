@@ -177,7 +177,7 @@ const TString &DcxDialog::getAliasName() const noexcept {
 void DcxDialog::addControl(DcxControl *p_Control)
 {
 	if (p_Control == nullptr)
-		throw std::invalid_argument("Invalid Argument");
+		throw Dcx::dcxException("Invalid Argument");
 
 	this->m_vpControls.push_back(p_Control);
 	p_Control->redrawWindow();
@@ -199,16 +199,16 @@ DcxControl *DcxDialog::addControl(const TString &input, const UINT offset, const
 		ID = mIRC_ID_OFFSET + tsID.to_<UINT>();
 
 	if (ID < mIRC_ID_OFFSET + 1)
-		throw std::invalid_argument(Dcx::dcxGetFormattedString(TEXT("Invalid ID \"%d\""), ID - mIRC_ID_OFFSET));
+		throw Dcx::dcxException(TEXT("Invalid ID \"%\""), ID - mIRC_ID_OFFSET);
 
 	if (!this->isIDValid(ID, true))
-		throw std::invalid_argument(Dcx::dcxGetFormattedString(TEXT("Control with ID \"%d\" already exists"), ID - mIRC_ID_OFFSET));
+		throw Dcx::dcxException(TEXT("Control with ID \"%\" already exists"), ID - mIRC_ID_OFFSET);
 
 	auto p_ctrl = DcxControl::controlFactory(this, ID, input, offset + 1, mask, hParent);
 
 	this->addControl(p_ctrl);
 
-	this->AddNamedId(tsID, ID);	// NB: adds numbers as names too: "200" == 200 allowing it to track all used id's
+	this->AddNamedId(tsID, ID);	// NB: adds numbers as names too: "200" == 6200 allowing it to track all used id's
 
 	return p_ctrl;
 }
@@ -308,7 +308,7 @@ void DcxDialog::parseCommandRequestEX(const TCHAR *const szFormat, ...) {
 void DcxDialog::parseComControlRequestEX(const UINT id, const TCHAR *const szFormat, ...) {
 	auto p_Control = this->getControlByID(id + mIRC_ID_OFFSET);
 	if (p_Control == nullptr)
-		throw std::invalid_argument("parseComControlRequestEX() - Unable to find control");
+		throw Dcx::dcxException("parseComControlRequestEX() - Unable to find control");
 
 	TString msg;
 
@@ -376,10 +376,10 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 		//	ID = mIRC_ID_OFFSET + tsID.to_<UINT>();
 		//
 		//if (ID < mIRC_ID_OFFSET + 1)
-		//	throw std::invalid_argument(Dcx::dcxGetFormattedString(TEXT("Invalid ID \"%d\""), ID - mIRC_ID_OFFSET));
+		//	throw Dcx::dcxException(TEXT("Invalid ID \"%\""), ID - mIRC_ID_OFFSET);
 		//
 		//if (!this->isIDValid(ID, true))
-		//	throw std::invalid_argument(Dcx::dcxGetFormattedString(TEXT("Control with ID \"%d\" already exists"), ID - mIRC_ID_OFFSET));
+		//	throw Dcx::dcxException(TEXT("Control with ID \"%\" already exists"), ID - mIRC_ID_OFFSET);
 		//
 		//try {
 		//	//throw std::exception("test");
@@ -416,13 +416,13 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 		const UINT ID = (mIRC_ID_OFFSET + input.getnexttok( ).to_int());	// tok 3
 
 		//if (!this->isIDValid(ID))
-		//	throw std::invalid_argument(Dcx::dcxGetFormattedString(TEXT("Unknown control with ID \"%d\" (dialog %s)"), ID - mIRC_ID_OFFSET, this->m_tsName.to_chr()));
+		//	throw Dcx::dcxException(TEXT("Unknown control with ID \"%\" (dialog %)"), ID - mIRC_ID_OFFSET, this->m_tsName);
 		//
 		//auto p_Control = this->getControlByID(ID);
 
 		auto p_Control = this->getControlByID(ID);
 		if (p_Control == nullptr)
-			throw std::invalid_argument(Dcx::dcxGetFormattedString(TEXT("Unknown control with ID \"%d\" (dialog %s)"), ID - mIRC_ID_OFFSET, this->m_tsName.to_chr()));
+			throw Dcx::dcxException(TEXT("Unknown control with ID \"%\" (dialog %)"), ID - mIRC_ID_OFFSET, this->m_tsName);
 
 		auto cHwnd = p_Control->getHwnd();
 		const auto cid = p_Control->getUserID();
@@ -444,7 +444,7 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 			delete p_Control;
 		else {
 			if (p_Control->getRefCount() != 0)
-				throw std::runtime_error(Dcx::dcxGetFormattedString(TEXT("Can't delete control with ID \"%d\" when it is inside it's own event (dialog %s)"), p_Control->getUserID(), this->m_tsName.to_chr()));
+				throw Dcx::dcxException(TEXT("Can't delete control with ID \"%\" when it is inside it's own event (dialog %)"), p_Control->getUserID(), this->m_tsName);
 					
 			this->deleteControl(p_Control); // remove control from internal list!
 			DestroyWindow(cHwnd);
@@ -454,7 +454,7 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 		//	delete p_Control;
 		//else {
 		//	if (p_Control->getRefCount() != 0)
-		//		throw std::runtime_error(Dcx::dcxGetFormattedString(TEXT("Can't delete control with ID \"%d\" when it is inside it's own event (dialog %s)"), p_Control->getUserID(), this->m_tsName.to_chr()));
+		//		throw Dcx::dcxException(TEXT("Can't delete control with ID \"%\" when it is inside it's own event (dialog %)"), p_Control->getUserID(), this->m_tsName);
 		//		
 		//	this->deleteControl(p_Control); // remove control from internal list!
 		//	DestroyWindow(cHwnd);
@@ -514,7 +514,7 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 			const UINT id = (mIRC_ID_OFFSET + input.getnexttok( ).to_int());	// tok 3
 
 			if (!this->isIDValid(id))
-				throw std::invalid_argument(Dcx::dcxGetFormattedString(TEXT("Could not find control %d"), id - mIRC_ID_OFFSET));
+				throw Dcx::dcxException(TEXT("Could not find control %"), id - mIRC_ID_OFFSET);
 			
 			this->getControlByID(id)->redrawWindow();
 		}
@@ -537,7 +537,7 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 				RECT rc;
 
 				if (!GetClientRect(this->m_Hwnd, &rc))
-					throw std::runtime_error("Unable to get client rect!");
+					throw Dcx::dcxException("Unable to get client rect!");
 
 				if (this->updateLayout(rc))
 					this->redrawWindow();
@@ -551,7 +551,7 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 		else if (numtok > 7)
 			this->m_pLayoutManager->AddCell(input);
 		else
-			throw std::invalid_argument("Invalid Arguments");
+			throw Dcx::dcxException("Invalid Arguments");
 	}
 	// xdialog -q [NAME] [SWITCH] [+FLAGS] [CURSOR|FILENAME]
 	else if (flags[TEXT('q')] && numtok > 3) {
@@ -567,13 +567,13 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 		//else if (dcx_testflag(iFlags, DCCS_FROMFILE)) {
 		//	TString filename(input.getlasttoks());	// tok 4, -1
 		//	if (!IsFile(filename))
-		//		throw std::invalid_argument(Dcx::dcxGetFormattedString(TEXT("Unable to Access File: %s"), filename.to_chr()));
+		//		throw Dcx::dcxException(TEXT("Unable to Access File: %"), filename);
 		//	
 		//	this->m_hCursor = (HCURSOR)LoadImage(nullptr, filename.to_chr(), IMAGE_CURSOR, 0, 0, LR_DEFAULTSIZE | LR_LOADFROMFILE);
 		//	this->m_bCursorFromFile = true;
 		//}
 		//if (this->m_hCursor == nullptr)
-		//	throw std::runtime_error("Unable to Load Cursor");
+		//	throw Dcx::dcxException("Unable to Load Cursor");
 		//
 		//if (GetCursor() == hCursor)
 		//	SetCursor(this->m_hCursor);
@@ -677,11 +677,7 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 				}
 			}
 			else {
-#if TSTRING_TEMPLATES
 				this->m_cKeyColour = tsClr.to_<COLORREF>();
-#else
-				this->m_cKeyColour = (COLORREF)tsClr.to_int();
-#endif
 				this->m_bHaveKeyColour = true;
 				if (!this->m_bVistaStyle) {
 					// Set WS_EX_LAYERED on this window
@@ -695,11 +691,7 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 		}
 		// Background color
 		else if (tsCmd == TEXT("bgcolor")) {
-#if TSTRING_TEMPLATES
 			this->m_colTransparentBg = input.getnexttok().to_<COLORREF>();	// tok 4
-#else
-			this->m_colTransparentBg = input.getnexttok( ).to_int();	// tok 4
-#endif
 		}
 		// TODO: not going to document this, have no way to redrawing the window.
 		// http://www.codeproject.com/KB/vb/ClickThroughWindows.aspx
@@ -725,14 +717,14 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 				this->addExStyle(WS_EX_LAYERED | WS_EX_TRANSPARENT);
 		}
 		else
-			throw std::invalid_argument("Unknown Switch");
+			throw Dcx::dcxException("Unknown Switch");
 
 		this->redrawWindow();
 	}
 	// xdialog -T [NAME] [SWITCH] [FLAGS] [STYLES]
 	else if (flags[TEXT('T')] && numtok > 2) {
 		if (IsWindow(this->m_ToolTipHWND))
-			throw std::runtime_error("Tooltip already exists. Cannot recreate");
+			throw Dcx::dcxException("Tooltip already exists. Cannot recreate");
 
 		const auto styles = parseTooltipFlags(input.getnexttok( ));	// tok 3
 
@@ -766,7 +758,7 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 
 		// invalid input for [N]
 		if ((n <= 0) || (!xflag[TEXT('+')]))
-			throw std::invalid_argument("Invalid Parameters");
+			throw Dcx::dcxException("Invalid Parameters");
 
 		// adding control ID to list
 		if (xflag[TEXT('a')])
@@ -777,7 +769,7 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 			// check if the ID is already in the list
 			for (const auto &x: this->m_vZLayers) {
 				if (x == n)
-					throw std::invalid_argument(Dcx::dcxGetFormattedString(TEXT("control %d already in list"), n));
+					throw Dcx::dcxException(TEXT("control % already in list"), n);
 			}
 
 			// if the specified control exists on the dialog, hide it
@@ -788,7 +780,7 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 				
 				RECT rc;
 				if (!GetClientRect(this->getHwnd(), &rc))
-					throw std::runtime_error("Unable to get client rect!");
+					throw Dcx::dcxException("Unable to get client rect!");
 				
 				if (this->updateLayout(rc))
 					this->redrawWindow();
@@ -807,14 +799,14 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 
 			// target control not found
 			if (ctrl == nullptr)
-				throw std::invalid_argument("No such control");
+				throw Dcx::dcxException("No such control");
 
 			// variables used to move control
 			RECT r;
 
 			// figure out coordinates of control
 			if (!GetWindowRect(ctrl->getHwnd(), &r))
-				throw std::runtime_error("Unable to get window rect!");
+				throw Dcx::dcxException("Unable to get window rect!");
 
 			MapWindowRect(nullptr, GetParent(ctrl->getHwnd()), &r);
 
@@ -838,7 +830,7 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 
 			// if the index is out of bounds
 			if (n >= (int) this->m_vZLayers.size())
-				throw std::invalid_argument("Index array out of bounds");
+				throw Dcx::dcxException("Index array out of bounds");
 
 			this->execAliasEx(TEXT("%s,%d,%d"), TEXT("zlayershow"), n +1, this->m_vZLayers[n] - mIRC_ID_OFFSET);
 
@@ -854,12 +846,12 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 
 			// if the selected control exists, show control
 			if (ctrl == nullptr)
-				throw std::invalid_argument("Invalid Control ID");
+				throw Dcx::dcxException("Invalid Control ID");
 	
 			ShowWindow(ctrl->getHwnd(), SW_SHOW);
 			RECT rc;
 			if (!GetClientRect(this->getHwnd(), &rc))
-				throw std::runtime_error("Unable to get client rect!");
+				throw Dcx::dcxException("Unable to get client rect!");
 				
 			if (this->updateLayout(rc))
 				this->redrawWindow();
@@ -875,7 +867,7 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 			auto menu = GetMenu(this->m_Hwnd);
 
 			if (menu == nullptr)
-				throw std::invalid_argument("Menu Does Not Exist");
+				throw Dcx::dcxException("Menu Does Not Exist");
 			
 			this->m_popup = new XPopupMenu(TEXT("dialog"), menu);
 		}
@@ -890,11 +882,11 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 		const XSwitchFlags xflags(input.getnexttok( ));	// tok 3
 
 		if (!xflags[TEXT('+')])
-			throw std::invalid_argument("Invalid Flag");
+			throw Dcx::dcxException("Invalid Flag");
 
 		RECT rc;
 		if (!dcxGetWindowRect(this->m_Hwnd, &rc))
-			throw std::runtime_error("Unable to get window rect!");
+			throw Dcx::dcxException("Unable to get window rect!");
 
 		HRGN m_Region = nullptr;
 		auto RegionMode = 0;
@@ -913,7 +905,7 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 		if (xflags[TEXT('f')])
 		{
 			if (numtok < 5)
-				throw std::invalid_argument("Invalid arguments");
+				throw Dcx::dcxException("Invalid arguments");
 
 			PreloadData();
 			//SetWindowRgn(this->m_Hwnd,nullptr,TRUE);
@@ -924,7 +916,7 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 			this->m_bitmapBg = dcxLoadBitmap(this->m_bitmapBg,filename);
 
 			if (this->m_bitmapBg == nullptr)
-				throw std::runtime_error("Unable To Load Image file.");
+				throw Dcx::dcxException("Unable To Load Image file.");
 			
 			m_Region = BitmapRegion(this->m_bitmapBg, this->m_colTransparentBg, TRUE);
 		}
@@ -956,55 +948,23 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 		{
 			// You need at least 3 points for a shape
 			if (numtok < 6)
-				throw std::invalid_argument("Invalid arguments");
+				throw Dcx::dcxException("Invalid arguments");
 
 			const auto strPoints(input.getlasttoks());	// tok 4, -1
 			const auto tPoints = strPoints.numtok();
 
 			if (tPoints < 1)
-				throw std::invalid_argument("Invalid Points");
+				throw Dcx::dcxException("Invalid Points");
 
 			auto pnts = std::make_unique<POINT[]>(tPoints);
 
-#if TSTRING_PARTS
 			UINT cnt = 0;
 			for (const auto &strPoint : strPoints)
 			{
-#if TSTRING_TEMPLATES
 				pnts[cnt].x = strPoint.getfirsttok(1, TSCOMMA).to_<LONG>();
 				pnts[cnt].y = strPoint.getnexttok(TSCOMMA).to_<LONG>();	// tok 2
-#else
-				pnts[cnt].x = (LONG)strPoint.getfirsttok(1, TSCOMMA).to_num();
-				pnts[cnt].y = (LONG)strPoint.getnexttok(TSCOMMA).to_num();	// tok 2
-#endif
 				++cnt;
 			}
-#else
-			TString strPoint;
-
-			strPoints.getfirsttok(0);
-
-			// Ook: testing change here....
-			//for (UINT cnt = 1; cnt <= tPoints; cnt++)
-			//{
-			//	strPoint = strPoints.getnexttok( );	// tok cnt
-			//	pnts[cnt-1].x = (LONG)strPoint.getfirsttok(1, TSCOMMA).to_num();
-			//	pnts[cnt-1].y = (LONG)strPoint.getnexttok( TSCOMMA ).to_num();	// tok 2
-			//}
-			for (UINT cnt = 0; cnt < tPoints; cnt++)
-			{
-				strPoint = strPoints.getnexttok( );	// tok cnt
-				pnts[cnt].x = (LONG)strPoint.getfirsttok(1, TSCOMMA).to_num();
-				pnts[cnt].y = (LONG)strPoint.getnexttok( TSCOMMA ).to_num();	// tok 2
-			}
-			//for (auto &x: pnts)
-			//{
-			//	strPoint = strPoints.getnexttok( );	// tok cnt
-			//	x.x = (LONG)strPoint.getfirsttok(1, TSCOMMA).to_num();
-			//	x.y = (LONG)strPoint.getnexttok( TSCOMMA ).to_num();	// tok 2
-			//}
-
-#endif
 			m_Region = CreatePolygonRgn(pnts.get(),tPoints,WINDING);
 		}
 		else if (xflags[TEXT('d')]) // drag - <1|0>
@@ -1050,11 +1010,11 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 			SetWindowRgn(this->m_Hwnd,nullptr,TRUE);
 		}
 		else
-			throw std::invalid_argument("Invalid Flag");
+			throw Dcx::dcxException("Invalid Flag");
 
 		if (!noRegion) {
 			if (m_Region != nullptr)
-				throw std::runtime_error("Unable to create region.");
+				throw Dcx::dcxException("Unable to create region.");
 
 			if (RegionMode != 0) {
 				auto wrgn = CreateRectRgn(0, 0, 0, 0);
@@ -1075,7 +1035,7 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 		const XSwitchFlags xnFlags(input.getnexttok( ));	// tok 4
 
 		if (!xpFlags[TEXT('+')] || !xnFlags[TEXT('-')])
-			throw std::invalid_argument("Invalid Flag");
+			throw Dcx::dcxException("Invalid Flag");
 
 		if (xpFlags[TEXT('c')])
 			mask |= DCX_EVENT_CLICK;
@@ -1149,11 +1109,11 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 		UINT iFlags = SWP_NOACTIVATE|SWP_NOZORDER|SWP_NOOWNERZORDER;
 
 		if (!GetClientRect(this->m_Hwnd, &rcClient))
-			throw std::runtime_error("Unable to get client rect!");
+			throw Dcx::dcxException("Unable to get client rect!");
 
 		//if (!dcxGetWindowRect(this->m_Hwnd, &rcWindow))
 		if (!GetWindowRect(this->m_Hwnd, &rcWindow))
-			throw std::runtime_error("Unable to get window rect!");
+			throw Dcx::dcxException("Unable to get window rect!");
 
 		// Convert windows screen position to its position within it's parent.
 		if (this->isStyle(WS_CHILD))
@@ -1191,7 +1151,7 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 	}
 	// invalid command
 	else
-		throw std::invalid_argument("Invalid Command");
+		throw Dcx::dcxException("Invalid Command");
 }
 
 /*!
@@ -1506,15 +1466,11 @@ void DcxDialog::parseInfoRequest( const TString &input, TCHAR *szReturnValue) co
 	}
 	// [NAME] [PROP] [N]
 	else if ((prop == TEXT("zlayer")) && (numtok > 2)) {
-#if TSTRING_TEMPLATES
 		const auto n = input.getnexttok().to_<VectorOfInts::size_type>();	// tok 3
-#else
-		VectorOfInts::size_type n = input.getnexttok().to_int();	// tok 3
-#endif
 		const auto size = this->m_vZLayers.size();
 
 		if (n > size)
-			throw std::invalid_argument("Out Of Range");
+			throw Dcx::dcxException("Out Of Range");
 
 		// return total number of id's
 		if (n == 0)
@@ -1529,7 +1485,7 @@ void DcxDialog::parseInfoRequest( const TString &input, TCHAR *szReturnValue) co
 	}
 	// [NAME] [PROP]
 	else if (prop == TEXT("visible")) {
-		dcx_ConRet(IsWindowVisible(this->m_Hwnd), szReturnValue);
+		dcx_ConRet((IsWindowVisible(this->m_Hwnd) != FALSE), szReturnValue);
 
 	}
 	// [NAME] [PROP]
@@ -1543,7 +1499,7 @@ void DcxDialog::parseInfoRequest( const TString &input, TCHAR *szReturnValue) co
 	}
 	// invalid info request
 	else
-		throw std::invalid_argument("Invalid property or parameters");
+		throw Dcx::dcxException("Invalid property or parameters");
 }
 
 /*!

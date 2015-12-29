@@ -104,7 +104,7 @@ bool DcxUXModule::load(void)
 			BeginBufferedPaintUx = nullptr;
 			EndBufferedPaintUx = nullptr;
 
-			throw std::runtime_error("There was a problem loading Theme Library");
+			throw Dcx::dcxException("There was a problem loading Theme Library");
 		}
 	}
 	return isUseable();

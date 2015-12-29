@@ -45,7 +45,7 @@ DcxStatusBar::DcxStatusBar(const UINT ID, DcxDialog *const p_Dialog, const HWND 
 		nullptr);
 
 	if (!IsWindow(this->m_Hwnd))
-		throw std::runtime_error("Unable To Create Window");
+		throw Dcx::dcxException("Unable To Create Window");
 
 	if ( bNoTheme )
 		Dcx::UXModule.dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
@@ -87,7 +87,6 @@ DcxStatusBar::~DcxStatusBar( )
 
 void DcxStatusBar::parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme )
 {
-#if TSTRING_PARTS
 	for (const auto &tsStyle: styles)
 	{
 		if (tsStyle == TEXT("grip"))
@@ -114,34 +113,7 @@ void DcxStatusBar::parseControlStyles( const TString & styles, LONG * Styles, LO
 		//else if ( tsStyle == TEXT("right") )
 		//	*Styles |= CCS_RIGHT;
 	}
-#else
-	for (auto tsStyle(styles.getfirsttok(1)); !tsStyle.empty(); tsStyle = styles.getnexttok())
-	{
-		if ( tsStyle == TEXT("grip") )
-			*Styles |= SBARS_SIZEGRIP;
-		else if ( tsStyle == TEXT("tooltips") )
-			*Styles |= SBARS_TOOLTIPS;
-		else if ( tsStyle == TEXT("nodivider") )
-			*Styles |= CCS_NODIVIDER;
-		else if ( tsStyle == TEXT("top") ) {
-			*Styles |= CCS_TOP;
-			*Styles &= ~SBARS_SIZEGRIP; // size grip doesn't work for left or top styles.
-		}
-		else if ( tsStyle == TEXT("noresize") )
-			*Styles |= CCS_NORESIZE;
-		else if ( tsStyle == TEXT("noparentalign") )
-			*Styles |= CCS_NOPARENTALIGN ;
-		else if ( tsStyle == TEXT("noauto") )
-			*Styles |= CCS_NOPARENTALIGN | CCS_NORESIZE;
-		//else if ( tsStyle == TEXT("left") )
-		//{ // NB: left & right styles don't render the parts vertically.
-		//	*Styles |= CCS_LEFT;
-		//	*Styles &= ~SBARS_SIZEGRIP;
-		//}
-		//else if ( tsStyle == TEXT("right") )
-		//	*Styles |= CCS_RIGHT;
-	}
-#endif
+
 	this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
 }
 
@@ -165,7 +137,7 @@ void DcxStatusBar::parseInfoRequest( const TString & input, PTCHAR szReturnValue
 		const int iPart = input.getnexttok( ).to_int( ) -1, nParts = this->getParts(DCX_STATUSBAR_MAX_PARTS, 0 );	// tok 4
 
 		if ( iPart < 0 && iPart >= nParts )
-			throw std::invalid_argument("Invalid Part");
+			throw Dcx::dcxException("Invalid Part");
 
 		const auto iFlags = this->getPartFlags(iPart);
 
@@ -204,7 +176,7 @@ void DcxStatusBar::parseInfoRequest( const TString & input, PTCHAR szReturnValue
 		const int iPart = input.getnexttok().to_int(), nParts = this->getParts(DCX_STATUSBAR_MAX_PARTS, 0);	// tok 4
 
 		if (iPart < 0 && iPart >= nParts)
-			throw std::invalid_argument("Invalid Part");
+			throw Dcx::dcxException("Invalid Part");
 
 		this->getTipText(iPart, MIRC_BUFFER_SIZE_CCH, szReturnValue);
 	}
@@ -247,11 +219,7 @@ void DcxStatusBar::parseCommandRequest( const TString & input ) {
 
 	// xdid -k [NAME] [ID] [SWITCH] [COLOR]
 	if (flags[TEXT('k')] && numtok > 3) {
-#if TSTRING_TEMPLATES
 		const auto col = input.getnexttok().to_<COLORREF>();	// tok 4
-#else
-		const auto col = (COLORREF)input.getnexttok().to_int();	// tok 4
-#endif
 		if (col == CLR_INVALID)
 			this->setBkColor(CLR_DEFAULT);
 		else
@@ -268,7 +236,7 @@ void DcxStatusBar::parseCommandRequest( const TString & input ) {
 		for (auto i = decltype(nParts){0}; i < nParts; i++)
 		{
 			if (c >= 100)
-				throw std::invalid_argument("Can't Allocate Over 100% of Statusbar!");
+				throw Dcx::dcxException("Can't Allocate Over 100% of Statusbar!");
 
 			p = input.getnexttok( );	// tok i+4
 			const auto t = p.to_int();
@@ -297,7 +265,7 @@ void DcxStatusBar::parseCommandRequest( const TString & input ) {
 		const auto tsTabTwo(input.getlasttoks().trim());
 
 		if ( nPos < 0 || nPos >= this->getParts(DCX_STATUSBAR_MAX_PARTS, 0 ) )
-			throw std::invalid_argument("Invalid Part");
+			throw Dcx::dcxException("Invalid Part");
 
 		TString itemtext;
 		TString tooltip;
@@ -345,7 +313,7 @@ void DcxStatusBar::parseCommandRequest( const TString & input ) {
 				//const auto ID = mIRC_ID_OFFSET + (UINT)itemtext.gettok(1).to_int();
 				//
 				//if (!this->m_pParentDialog->isIDValid(ID, true))
-				//	throw std::invalid_argument(Dcx::dcxGetFormattedString(TEXT("Control with ID \"%d\" already exists"), ID - mIRC_ID_OFFSET));
+				//	throw Dcx::dcxException(TEXT("Control with ID \"%\" already exists"), ID - mIRC_ID_OFFSET);
 				//
 				//try {
 				//	auto p_Control = DcxControl::controlFactory(this->m_pParentDialog, ID, itemtext, 2,
@@ -388,7 +356,7 @@ void DcxStatusBar::parseCommandRequest( const TString & input ) {
 		const auto nPos = input.getnexttok().to_int() - 1;	// tok 4
 
 		if (nPos < 0 || nPos >= this->getParts(DCX_STATUSBAR_MAX_PARTS, 0))
-			throw std::invalid_argument("Invalid Part");
+			throw Dcx::dcxException("Invalid Part");
 
 		TString itemtext;
 		if ( numtok > 4 )
@@ -421,12 +389,12 @@ void DcxStatusBar::parseCommandRequest( const TString & input ) {
 		}
 
 		if (himl == nullptr)
-			throw std::runtime_error("Unable to get imagelist");
+			throw Dcx::dcxException("Unable to get imagelist");
 
 		//HICON icon = dcxLoadIcon(index, filename, false, flag);
 		//
 		//if (icon == nullptr)
-		//	throw std::runtime_error("Unable to load icon");
+		//	throw Dcx::dcxException("Unable to load icon");
 		//
 		//ImageList_AddIcon(himl, icon);
 		//DestroyIcon(icon);
