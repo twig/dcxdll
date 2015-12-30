@@ -305,8 +305,8 @@ TString::TString(const UINT tsSize)
 	, m_savedtotaltoks(0), m_savedcurrenttok(0), m_savedpos(nullptr)
 	, m_bDirty(true), m_iLen(0)
 {
-	if (tsSize == 0)
-		return;
+	//if (tsSize == 0) // <- can cause crashes....
+	//	return;
 
 	this->m_pString = allocstr_cch(tsSize + 1);
 	ts_zeromem(this->m_pString, this->m_buffersize);

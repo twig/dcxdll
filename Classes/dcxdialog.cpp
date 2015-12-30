@@ -185,8 +185,8 @@ void DcxDialog::addControl(DcxControl *p_Control)
 
 DcxControl *DcxDialog::addControl(const TString &input, const UINT offset, const UINT64 mask, HWND hParent)
 {
-	const TString tsID(input.getfirsttok(offset));
-	UINT ID = 0U;
+	const auto tsID(input.getfirsttok(offset));
+	auto ID = 0U;
 
 	if (isalpha(tsID[0]))
 	{
@@ -228,6 +228,7 @@ void DcxDialog::deleteControl(const DcxControl *const p_Control) {
 
 	while (itStart != itEnd) {
 		if (*itStart == p_Control && *itStart != nullptr) {
+			deleteNamedID(p_Control->getID());
 			this->m_vpControls.erase(itStart);
 			return;
 		}

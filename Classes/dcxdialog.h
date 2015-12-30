@@ -169,7 +169,15 @@ public:
 	IntegerHash namedIds; //!< map of named Id's
 
 	const IntegerHash &getNamedIds(void) const noexcept { return this->namedIds; };
-	const bool isNamedId(const TString &NamedID) const { return (namedIds.find(NamedID) != namedIds.end()); }
+	//const bool isNamedId(const TString &NamedID) const { return (namedIds.find(NamedID) != namedIds.end()); }
+	const bool isNamedId(const TString &NamedID) const {
+		const auto local_id = NamedID.to_<UINT>() + mIRC_ID_OFFSET;
+		const auto itEnd = namedIds.end();
+
+		const auto itGot = std::find_if(namedIds.begin(), itEnd, [local_id,NamedID](IntegerHash::const_reference arg) { return ((arg.second == local_id) || (arg.first == NamedID)); });
+
+		return (itGot != itEnd);
+	}
 	const bool AddNamedId(const TString &NamedID, const UINT local_id)
 	{
 		if (isNamedId(NamedID))
@@ -180,17 +188,34 @@ public:
 	}
 	const UINT NameToID(const TString &NamedID) const
 	{
-		auto it = namedIds.find(NamedID);
-		if (it != namedIds.end())
-			return it->second;
+		//auto it = namedIds.find(NamedID);
+		//if (it != namedIds.end())
+		//	return it->second;
+		//return 0;
+
+		const auto local_id = NamedID.to_<UINT>() + mIRC_ID_OFFSET;
+		const auto itEnd = namedIds.end();
+
+		const auto itGot = std::find_if(namedIds.begin(), itEnd, [local_id, NamedID](IntegerHash::const_reference arg) { return ((arg.second == local_id) || (arg.first == NamedID)); });
+		if (itGot != itEnd)
+			return itGot->second;
 
 		return 0;
 	}
 	const UINT NameToUserID(const TString &NamedID) const
 	{
-		auto it = namedIds.find(NamedID);
-		if (it != namedIds.end())
-			return it->second - mIRC_ID_OFFSET;
+		//auto it = namedIds.find(NamedID);
+		//if (it != namedIds.end())
+		//	return it->second - mIRC_ID_OFFSET;
+		//
+		//return 0;
+
+		const auto local_id = NamedID.to_<UINT>() + mIRC_ID_OFFSET;
+		const auto itEnd = namedIds.end();
+
+		const auto itGot = std::find_if(namedIds.begin(), itEnd, [local_id, NamedID](IntegerHash::const_reference arg) { return ((arg.second == local_id) || (arg.first == NamedID)); });
+		if (itGot != itEnd)
+			return itGot->second - mIRC_ID_OFFSET;
 
 		return 0;
 	}
@@ -242,6 +267,28 @@ public:
 			}
 		}
 		return 0;
+	}
+	bool deleteNamedID(const UINT local_id)
+	{
+		const auto itEnd = namedIds.end();
+		const auto itGot = std::find_if(namedIds.begin(), itEnd, [local_id](IntegerHash::const_reference arg) { return (arg.second == local_id); });
+		if (itGot != itEnd)
+		{
+			namedIds.erase(itGot);
+			return true;
+		}
+		return false;
+	}
+	bool deleteNamedID(const TString &tsName)
+	{
+		const auto itEnd = namedIds.end();
+		const auto itGot = namedIds.find(tsName);
+		if (itGot != itEnd)
+		{
+			namedIds.erase(itGot);
+			return true;
+		}
+		return false;
 	}
 
 	void MapVistaRect(HWND hwnd, LPRECT rc) const;
