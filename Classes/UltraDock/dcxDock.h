@@ -159,7 +159,7 @@ public:
 	static void status_getRect( const int iPart, LPRECT lprc );
 	static void status_setIcon( const int iPart, const HICON hIcon );
 	static HICON status_getIcon( const int iPart );
-	static HIMAGELIST &status_getImageList(void);
+	static HIMAGELIST &status_getImageList(void) noexcept;
 	static void status_setImageList( HIMAGELIST himl );
 	static HIMAGELIST status_createImageList(void);
 	static const UINT status_parseItemFlags( const TString & flags );

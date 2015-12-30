@@ -385,7 +385,6 @@ LRESULT CALLBACK DcxDock::mIRCRefWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, L
 					//return ((GetWindowLong(mHwnd, GWL_EXSTYLE) & WS_EX_TRANSPARENT) ? TRUE : FALSE);
 			}
 			break;
-#if DCX_DEBUG_OUTPUT
 		case TVM_SETITEM:
 			{
 				if ( pthis->m_iType != DOCK_TYPE_TREE || !DcxDock::g_bTakeOverTreebar)
@@ -396,12 +395,17 @@ LRESULT CALLBACK DcxDock::mIRCRefWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, L
 				if (pitem == nullptr)
 					break;
 
-				TString buf;
-				DcxDock::getTreebarItemType(buf, pitem->lParam);
-				mIRCLinker::evalex(nullptr, 0, TEXT("$xtreebar_callback(setitem,%s,%ld,%ld)"), buf.to_chr(), pitem->hItem, pitem->lParam);
+				if (HIWORD(pitem->lParam) != 0)
+				{
+					TString buf;
+					DcxDock::getTreebarItemType(buf, pitem->lParam);
+					// <item type> <item pointer> <data1> <data2>
+					//mIRCLinker::evalex(nullptr, 0, TEXT("$xtreebar_callback(setitem,%s,%ld,%d,%d)"), buf.to_chr(), pitem->hItem, LOWORD(pitem->lParam), HIWORD(pitem->lParam));
+					// <item type> <wid> <status>
+					mIRCLinker::evalex(nullptr, 0, TEXT("$xtreebar_callback(setitem,%s,%d,%s)"), buf.to_chr(), HIWORD(pitem->lParam), dcx_testflag(LOWORD(pitem->lParam), 256) ? TEXT("selected") : TEXT("deselected"));
+				}
 			}
 			break;
-#endif
 		case TVM_INSERTITEM:
 			{
 				if (!DcxDock::g_bTakeOverTreebar)
@@ -997,7 +1001,7 @@ void DcxDock::status_deletePartInfo(const int iPart)
 	}
 }
 
-HIMAGELIST &DcxDock::status_getImageList( ) {
+HIMAGELIST &DcxDock::status_getImageList( ) noexcept {
 
 	return g_hImageList;
 }
@@ -1013,29 +1017,6 @@ HIMAGELIST DcxDock::status_createImageList( ) {
 }
 
 const UINT DcxDock::status_parseItemFlags( const TString & flags ) {
-
-	//UINT len = flags.len( ), iFlags = 0;
-	//
-	//// no +sign, missing params
-	//if ( flags[0] != TEXT('+') ) 
-	//	return iFlags;
-	//
-	//for (UINT i = 1; i < len; i++ )
-	//{
-	//	switch(flags[i])
-	//	{
-	//	case TEXT('n'):
-	//		iFlags |= SBT_NOBORDERS;
-	//		break;
-	//	case TEXT('p'):
-	//		iFlags |= SBT_POPOUT;
-	//		break;
-	//	case TEXT('f'):
-	//		iFlags |= SBT_OWNERDRAW;
-	//		break;
-	//	}
-	//}
-	//return iFlags;
 
 	const XSwitchFlags xflags(flags);
 	UINT iFlags = 0;
