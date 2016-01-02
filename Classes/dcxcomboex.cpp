@@ -519,7 +519,7 @@ void DcxComboEx::parseCommandRequest( const TString &input) {
 			//	DestroyIcon(icon);
 			//}
 
-			Dcx::dcxIcon icon(index, filename, false, flag);
+			Dcx::dcxIconResource icon(index, filename, false, flag);
 
 			ImageList_AddIcon(himl, icon);
 		}

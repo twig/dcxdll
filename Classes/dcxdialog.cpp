@@ -2569,18 +2569,20 @@ void DcxDialog::DrawDialogBackground(HDC hdc, DcxDialog *const p_this, LPCRECT r
 	if (GetObject(p_this->m_bitmapBg, sizeof(BITMAP), &bmp) == 0)
 		return;
 
-	auto hdcbmp = CreateCompatibleDC(hdc);
+	//auto hdcbmp = CreateCompatibleDC(hdc);
 
-	if (hdcbmp == nullptr)
-		return;
+	//if (hdcbmp == nullptr)
+	//	return;
 
-	Auto(DeleteDC(hdcbmp));
+	//Auto(DeleteDC(hdcbmp));
 
-	//Dcx::dcxHDC hdcbmp(hdc);
+	////Dcx::dcxHDC hdcbmp(hdc);
 
-	auto hOldBitmap = SelectBitmap(hdcbmp, p_this->m_bitmapBg);
+	//auto hOldBitmap = SelectBitmap(hdcbmp, p_this->m_bitmapBg);
 
-	Auto(SelectBitmap(hdcbmp, hOldBitmap));
+	//Auto(SelectBitmap(hdcbmp, hOldBitmap));
+
+	Dcx::dcxHDCBitmapResource hdcbmp(hdc, p_this->m_bitmapBg);
 
 	auto x = rwnd->left;
 	auto y = rwnd->top;

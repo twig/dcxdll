@@ -218,7 +218,7 @@ mIRC(xstatusbar) {
 			//auto icon = dcxLoadIcon(index, filename, false, flags);
 			//Auto(DestroyIcon(icon));
 
-			Dcx::dcxIcon icon(index, filename, false, flags);
+			Dcx::dcxIconResource icon(index, filename, false, flags);
 
 			if (icon == nullptr)
 				throw Dcx::dcxException("Unable To Load Icon");

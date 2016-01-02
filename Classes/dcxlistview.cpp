@@ -1503,7 +1503,7 @@ void DcxListView::parseCommandRequest( const TString &input) {
 				//
 				//DestroyIcon(icon);
 
-				Dcx::dcxIcon icon(index, filename, true, tflags);
+				Dcx::dcxIconResource icon(index, filename, true, tflags);
 
 				const auto i = ImageList_AddIcon(himl, icon);
 				if (overlayindex > 0)
@@ -1532,7 +1532,7 @@ void DcxListView::parseCommandRequest( const TString &input) {
 				//
 				//DestroyIcon(icon);
 
-				Dcx::dcxIcon icon(index, filename, false, tflags);
+				Dcx::dcxIconResource icon(index, filename, false, tflags);
 
 				const auto i = ImageList_AddIcon(himl, icon);
 
@@ -1561,7 +1561,7 @@ void DcxListView::parseCommandRequest( const TString &input) {
 				//
 				//DestroyIcon(icon);
 
-				Dcx::dcxIcon icon(index, filename, false, tflags);
+				Dcx::dcxIconResource icon(index, filename, false, tflags);
 
 				ImageList_AddIcon(himl, icon);
 			}

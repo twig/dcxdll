@@ -373,7 +373,7 @@ mIRC(xtreebar) {
 					//ImageList_ReplaceIcon(himl, iIndex, hIcon);
 					//DestroyIcon(hIcon);
 
-					Dcx::dcxIcon icon(fIndex, filename, false, cflag);
+					Dcx::dcxIconResource icon(fIndex, filename, false, cflag);
 
 					ImageList_ReplaceIcon(himl, iIndex, icon);
 				}

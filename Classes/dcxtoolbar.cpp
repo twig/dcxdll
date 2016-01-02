@@ -677,7 +677,7 @@ void DcxToolBar::parseCommandRequest( const TString & input ) {
 		//
 		//DestroyIcon(icon);
 
-		Dcx::dcxIcon icon(index, filename, (cx > 16), tsFlags);
+		Dcx::dcxIconResource icon(index, filename, (cx > 16), tsFlags);
 
 		// NORMAL IML
 		if (dcx_testflag(iFlags, TB_IML_NORMAL)) {

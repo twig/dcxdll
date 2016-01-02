@@ -361,7 +361,7 @@ void XPopupMenuManager::parseCommand( const TString & input, XPopupMenu *const p
 		//ImageList_AddIcon(himl, icon);
 		//DestroyIcon(icon);
 
-		Dcx::dcxIcon icon(index, filename, false, tsFlags);
+		Dcx::dcxIconResource icon(index, filename, false, tsFlags);
 
 		ImageList_AddIcon(himl, icon);
 	}

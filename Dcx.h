@@ -60,28 +60,17 @@ namespace Dcx
 	typedef std::unique_ptr<HICON__, void(*)(HICON__ *)> dcxCursor_t;
 	typedef std::unique_ptr<HICON__, void(*)(HICON__ *)> dcxIcon_t;
 	typedef std::unique_ptr<FILE, void(*)(FILE *)> dcxFile_t;
-	typedef std::unique_ptr<HANDLE, void(*)(HANDLE)> dcxHandle_t; // <- error
+	typedef std::unique_ptr<ULONG, void(*)(ULONG_PTR)> dcxHandle_t; // <- error
 	typedef std::unique_ptr<HDC__, void(*)(HDC)> dcxHDC_t;
 	typedef std::unique_ptr<HBITMAP__, void(*)(HBITMAP)> dcxBitmap_t;
 
-	inline dcxCursor_t make_cursor(TString &tsFilename) {
+	inline dcxCursor_t make_cursor(const TString &tsFilename) {
 		return make_resource(dcxLoadCursorFromFile, [](HCURSOR hCursor){ if (hCursor != nullptr) DestroyCursor(hCursor); }, tsFilename);
 	}
 	inline dcxIcon_t make_icon(const int index, TString &filename, const bool large, const TString &flags) {
 		return make_resource(dcxLoadIcon, [](HICON hIcon){ if (hIcon != nullptr) DestroyIcon(hIcon); }, index, filename, large, flags);
 	}
 	inline dcxFile_t make_file(const WCHAR *file, const WCHAR *modes) { return make_resource(_wfopen, [](FILE *file){ fclose(file); }, file, modes); }
-	//enum class hdcTypes : UINT { CreateCompatiableDCType, CreateDCType };
-	//inline dcxHDC_t make_hdc(hdcTypes hType, HDC hdc, LPCTSTR lpszDriver, LPCTSTR lpszDevice, LPCTSTR lpszOutput, const DEVMODE *lpInitData)
-	//{
-	//	switch (hType)
-	//	{
-	//	case hdcTypes::CreateCompatiableDCType:
-	//		return make_resource(CreateCompatibleDC, [](HDC obj){ DeleteDC(obj); }, hdc);
-	//	case hdcTypes::CreateDCType:
-	//		return make_resource(CreateDC, [](HDC obj){ DeleteDC(obj); }, lpszDriver, lpszDevice, lpszOutput, lpInitData);
-	//	}
-	//}
 	inline dcxHDC_t make_hdc(HDC hdc) { return make_resource(CreateCompatibleDC, [](HDC obj){ DeleteDC(obj); }, hdc); }
 	inline dcxBitmap_t make_bitmap(HDC hdc, int x, int y) { return make_resource(CreateCompatibleBitmap, [](HBITMAP obj){ DeleteBitmap(obj); }, hdc, x, y); }
 
@@ -89,192 +78,262 @@ namespace Dcx
 	//	return make_resource(CreateFile, [](HANDLE file){ CloseHandle(file); }, file, dAccess, dShareMode, lpSecurity, dCreation, dflags, templateFile);
 	//}
 
-	//template <typename obj, typename Creator, typename Destructor, typename... Arguments>
-	//struct dcxResource
-	//{
-	//	typedef std::unique_ptr<obj, void(*)(obj *)> dcxObj_t;
-	//	dcxResource(Creator c, Destructor d, Arguments &&... args)
-	//		: m_uni(make_resource(c, d, args))
-	//	{
-	//		m_hObj = m_uni.get();
-	//	}
-	//	dcxResource &operator =(dcxResource &&other)
-	//	{
-	//		using std::swap;
-	//
-	//		swap(m_uni, other.m_uni);
-	//		swap(m_hObj, other.m_hObj);
-	//	}
-	//	operator obj() { return m_hObj; }
-	//	dcxObj_t	m_uni;
-	//	obj			m_hObj;
-	//};
+	// NB: BaseType can be defined as some other pointer type
+	// so we static_cast it later on
+	template <typename Unique, typename BaseType = Unique::pointer>
+	struct dcxResource {
+		dcxResource() = delete;									// no default!
+		dcxResource(const dcxResource<Unique,BaseType> &) = delete;				// no copy!
+		dcxResource<Unique, BaseType> &operator =(const dcxResource<Unique, BaseType> &) = delete;	// No assignments!
 
-	//template <typename T>
-	//struct dcxTest : public dcxResource< FILE, _wfopen, [](FILE *file){ fclose(file); }, T>
-	//{
-	//	dcxTest(FILE *file)
-	//		: dcxResource < FILE, _wfopen, [](FILE *file){ fclose(file); }, file>
-	//	{
-	//
-	//	}
-	//};
+		dcxResource(Unique u)
+			: m_uni(std::move(u))
+		{
+		}
+		operator BaseType() const noexcept { return static_cast<BaseType>(m_uni.get()); }
+		explicit operator bool() const noexcept { return (m_uni != nullptr); }
+		BaseType release() noexcept { return static_cast<BaseType>(m_uni.release()); }
+	private:
+		Unique		m_uni;
+	};
 
-	//template <typename T>
-	//struct dcxResource {
-	//	operator T() { return m_hObj; }
-	//protected:
-	//	T		m_hObj;
-	//};
-	//struct dcxTest : dcxResource < FILE *>
+	struct dcxFileResource : dcxResource < dcxFile_t >
+	{
+		//dcxFileResource() = delete;									// no default!
+		//dcxFileResource(const dcxFileResource &) = delete;				// no copy!
+		//dcxFileResource &operator =(const dcxFileResource &) = delete;	// No assignments!
+
+		// calls _wfopen()
+		dcxFileResource(const WCHAR *tsFilename, const WCHAR *tsMode)
+			: dcxResource(make_file(tsFilename, tsMode))
+		{
+		}
+	};
+
+	struct dcxCursorResource : dcxResource < dcxCursor_t >
+	{
+		// calls dcxLoadCursorFromFile()
+		explicit dcxCursorResource(const TString &tsFilename)
+			: dcxResource(make_cursor(tsFilename))
+		{
+		}
+		// calls dcxLoadCursorFromResource()
+		explicit dcxCursorResource(const PTCHAR CursorType)
+			: dcxResource(make_resource(dcxLoadCursorFromResource, [](HCURSOR hCursor) { if (hCursor != nullptr) DestroyCursor(hCursor); }, CursorType))
+		{
+		}
+	};
+
+	struct dcxIconResource : dcxResource < dcxIcon_t >
+	{
+		// calls dcxLoadIcon()
+		dcxIconResource(const int index, TString &filename, const bool large, const TString &flags)
+			: dcxResource(make_icon(index, filename, large, flags))
+		{
+		}
+
+		// calls ExtractIconEx()
+		dcxIconResource(const TString &filename, const int fIndex, const bool bLarge)
+			: dcxResource(make_resource([](const TString &filename, const int fIndex, const bool bLarge) {
+			HICON m_hIcon;
+			if (bLarge)
+				ExtractIconEx(filename.to_chr(), fIndex, &m_hIcon, nullptr, 1);
+			else
+				ExtractIconEx(filename.to_chr(), fIndex, nullptr, &m_hIcon, 1);
+			return m_hIcon;
+		}, [](HICON hIcon) { if (hIcon != nullptr) DestroyIcon(hIcon); }, filename, fIndex, bLarge))
+		{
+		}
+	};
+
+	struct dcxHDCResource : dcxResource < dcxHDC_t >
+	{
+		// calls CreateCompatibleDC()
+		explicit dcxHDCResource(HDC hdc)
+			: dcxResource(make_hdc(hdc))
+		{
+		}
+		// calls CreateDC()
+		dcxHDCResource(HDC hdc, LPCTSTR lpszDriver, LPCTSTR lpszDevice, LPCTSTR lpszOutput, const DEVMODE *lpInitData)
+			: dcxResource(make_resource(CreateDC, [](HDC obj) { DeleteDC(obj); }, lpszDriver, lpszDevice, lpszOutput, lpInitData))
+		{
+		}
+		//// calls GetDC()
+		//explicit dcxHDCResource(HWND hWnd)
+		//	: dcxResource(make_resource(GetDC, [](HDC obj) { ReleaseDC(nullptr, obj); }, hWnd))
+		//{
+		//}
+	};
+
+	// Wraps the HDC resource & auto handles cleanup etc..
+	// calls CreateCompatableDC() & then SelectBitmap()'s the supplied bitmap into it
+	// oldbitmap is saved & selected back into the hdc on destruction.
+	struct dcxHDCBitmapResource : dcxHDCResource
+	{
+		//calls CreateCompatibleDC() then SelectBitmap()
+		dcxHDCBitmapResource(HDC hdc, HBITMAP hBitmap)
+			: dcxHDCResource(hdc)
+			, m_hOldBitmap(nullptr)
+		{
+			if (hBitmap != nullptr)
+				m_hOldBitmap = SelectBitmap(hdc, hBitmap);
+		}
+		~dcxHDCBitmapResource()
+		{
+			if (m_hOldBitmap != nullptr)
+				SelectBitmap((HDC)*this, m_hOldBitmap);
+		}
+	private:
+		HBITMAP	m_hOldBitmap;
+	};
+
+	struct dcxBitmapResource : dcxResource < dcxBitmap_t >
+	{
+		// calls CreateCompatibleBitmap()
+		dcxBitmapResource(HDC hdc, int x, int y)
+			: dcxResource(make_bitmap(hdc, x, y))
+		{
+		}
+		
+		//calls CreateDIBitmap();
+		dcxBitmapResource(HDC hdc, const BITMAPINFOHEADER *pbmih, DWORD flInit, const void *pjBits, const BITMAPINFO *pbmi, UINT iUsage)
+			: dcxResource(make_resource(CreateDIBitmap, [](HBITMAP obj) { DeleteBitmap(obj); }, hdc, pbmih, flInit, pjBits, pbmi, iUsage))
+		{
+		}
+
+		//calls CreateDIBSection();
+		dcxBitmapResource(HDC hdc,const BITMAPINFO *pbmi, UINT usage,void **ppvBits, HANDLE hSection, DWORD offset)
+			: dcxResource(make_resource(CreateDIBSection, [](HBITMAP obj) { DeleteBitmap(obj); }, hdc, pbmi, usage, ppvBits, hSection, offset))
+		{
+		}
+	};
+
+	//struct dcxCursor
 	//{
-	//	dcxTest(const TCHAR *tsFilename, const TCHAR *tsMode)
+	//	dcxCursor() = delete;
+	//	dcxCursor(const dcxCursor &) = delete;
+	//	dcxCursor &operator =(const dcxCursor &) = delete;	// No assignments!
+	//
+	//	dcxCursor(const TString &tsFilename)
+	//		: m_uni(make_cursor(tsFilename))
+	//	{
+	//	}
+	//
+	//	operator HCURSOR() { return m_uni.get(); }
+	//	HCURSOR release() noexcept { return m_uni.release(); }
+	//private:
+	//	dcxCursor_t	m_uni;
+	//};
+	//
+	//struct dcxIcon
+	//{
+	//	dcxIcon() = delete;								// no default
+	//	dcxIcon(const dcxIcon &) = delete;				// no copy!
+	//	dcxIcon &operator =(const dcxIcon &) = delete;	// No assignments!
+	//
+	//	dcxIcon(const int index, TString &filename, const bool large, const TString &flags)
+	//		: m_uni(make_icon(index, filename, large, flags))
+	//	{
+	//	}
+	//	operator HICON() { return m_uni.get(); }
+	//
+	//private:
+	//	dcxIcon_t	m_uni;
+	//};
+	//
+	//struct dcxFile
+	//{
+	//	dcxFile() = delete;
+	//	dcxFile(const dcxFile &) = delete;
+	//	dcxFile &operator =(const dcxFile &) = delete;	// No assignments!
+	//
+	//	dcxFile(const TCHAR *tsFilename, const TCHAR *tsMode)
 	//		: m_uni(make_file(tsFilename, tsMode))
 	//	{
-	//		m_hObj = m_uni.get();
 	//	}
+	//	operator FILE *() { return m_uni.get(); }
+	//
 	//private:
 	//	dcxFile_t	m_uni;
 	//};
+	//
+	//struct dcxHDC
+	//{
+	//	dcxHDC() = delete;
+	//	dcxHDC(const dcxHDC &) = delete;
+	//	dcxHDC &operator =(const dcxHDC &) = delete;	// No assignments!
+	//
+	//	dcxHDC(HDC hdc)
+	//		: m_uni(make_hdc(hdc))
+	//	{
+	//	}
+	//	//dcxHDC(HDC hdc)
+	//	//	: m_uni(make_hdc(hdcTypes::CreateCompatiableDCType, hdc, nullptr, nullptr, nullptr, nullptr))
+	//	//{
+	//	//}
+	//	//dcxHDC(LPCTSTR lpszDriver, LPCTSTR lpszDevice, LPCTSTR lpszOutput, const DEVMODE *lpInitData)
+	//	//	: m_uni(make_hdc(hdcTypes::CreateDCType, nullptr, lpszDriver, lpszDevice, lpszOutput, lpInitData))
+	//	//{
+	//	//}
+	//	operator HDC() { return m_uni.get(); }
+	//
+	//private:
+	//	dcxHDC_t	m_uni;
+	//};
+	//
+	//struct dcxBitmap
+	//{
+	//	dcxBitmap() = delete;
+	//	dcxBitmap(const dcxBitmap &) = delete;
+	//	dcxBitmap &operator =(const dcxBitmap &) = delete;	// No assignments!
+	//
+	//	dcxBitmap(HDC hdc, int x, int y)
+	//		: m_uni(make_bitmap(hdc,x,y))
+	//	{
+	//	}
+	//	operator HBITMAP() { return m_uni.get(); }
+	//
+	//private:
+	//	dcxBitmap_t	m_uni;
+	//};
+	//
+	//struct dcxExtractIcon {
+	//	dcxExtractIcon() = delete;
+	//	dcxExtractIcon(const dcxExtractIcon &) = delete;
+	//	dcxExtractIcon &operator =(const dcxExtractIcon &) = delete;
+	//
+	//	dcxExtractIcon(const TString &filename, const int iIndex, const bool bLarge)
+	//		: m_hIcon(nullptr)
+	//	{
+	//		if (bLarge)
+	//			ExtractIconEx(filename.to_chr(), iIndex, &m_hIcon, nullptr, 1);
+	//		else
+	//			ExtractIconEx(filename.to_chr(), iIndex, nullptr, &m_hIcon, 1);
+//
+	//	}
+	//	~dcxExtractIcon()
+	//	{
+	//		if (m_hIcon != nullptr)
+	//			DestroyIcon(m_hIcon);
+	//	}
+	//	operator HICON() const noexcept { return m_hIcon; }
+	//	explicit operator bool() const noexcept { return (m_hIcon != nullptr); }
+	//	HICON release() noexcept { HICON hTmp = m_hIcon; m_hIcon = nullptr; return hTmp; }
+	//private:
+	//	HICON m_hIcon;
+	//};
 
-	struct dcxCursor
-	{
-		dcxCursor() = delete;
-		dcxCursor(const dcxCursor &) = delete;
-		dcxCursor &operator =(const dcxCursor &) = delete;	// No assignments!
-
-		dcxCursor(TString &tsFilename)
-			: m_uni(make_cursor(tsFilename))
-		{
-		}
-
-		//dcxCursor &operator =(dcxCursor &&other)
-		//{
-		//	using std::swap;
-		//
-		//	swap(m_uni, other.m_uni);
-		//}
-		operator HCURSOR() { return m_uni.get(); }
-	private:
-		dcxCursor_t	m_uni;
-	};
-
-	struct dcxIcon
-	{
-		dcxIcon() = delete;
-		dcxIcon(const dcxIcon &) = delete;
-		dcxIcon &operator =(const dcxIcon &) = delete;	// No assignments!
-
-		dcxIcon(const int index, TString &filename, const bool large, const TString &flags)
-			: m_uni(make_icon(index, filename, large, flags))
-		{
-		}
-		operator HICON() { return m_uni.get(); }
-
-	private:
-		dcxIcon_t	m_uni;
-	};
-
-	struct dcxFile
-	{
-		dcxFile() = delete;
-		dcxFile(const dcxFile &) = delete;
-		dcxFile &operator =(const dcxFile &) = delete;	// No assignments!
-
-		dcxFile(const TCHAR *tsFilename, const TCHAR *tsMode)
-			: m_uni(make_file(tsFilename, tsMode))
-		{
-		}
-		operator FILE *() { return m_uni.get(); }
-
-	private:
-		dcxFile_t	m_uni;
-	};
-
-	struct dcxHDC
-	{
-		dcxHDC() = delete;
-		dcxHDC(const dcxHDC &) = delete;
-		dcxHDC &operator =(const dcxHDC &) = delete;	// No assignments!
-
-		dcxHDC(HDC hdc)
-			: m_uni(make_hdc(hdc))
-		{
-		}
-		//dcxHDC(HDC hdc)
-		//	: m_uni(make_hdc(hdcTypes::CreateCompatiableDCType, hdc, nullptr, nullptr, nullptr, nullptr))
-		//{
-		//}
-		//dcxHDC(LPCTSTR lpszDriver, LPCTSTR lpszDevice, LPCTSTR lpszOutput, const DEVMODE *lpInitData)
-		//	: m_uni(make_hdc(hdcTypes::CreateDCType, nullptr, lpszDriver, lpszDevice, lpszOutput, lpInitData))
-		//{
-		//}
-		operator HDC() { return m_uni.get(); }
-
-	private:
-		dcxHDC_t	m_uni;
-	};
-
-	struct dcxBitmap
-	{
-		dcxBitmap() = delete;
-		dcxBitmap(const dcxBitmap &) = delete;
-		dcxBitmap &operator =(const dcxBitmap &) = delete;	// No assignments!
-
-		dcxBitmap(HDC hdc, int x, int y)
-			: m_uni(make_bitmap(hdc,x,y))
-		{
-		}
-		operator HBITMAP() { return m_uni.get(); }
-
-	private:
-		dcxBitmap_t	m_uni;
-	};
-
-	struct dcxExtractIcon {
-		dcxExtractIcon() = delete;
-		dcxExtractIcon(const dcxExtractIcon &) = delete;
-		dcxExtractIcon &operator =(const dcxExtractIcon &) = delete;
-
-		dcxExtractIcon(const TString &filename, const int iIndex, const bool bLarge)
-			: m_hIcon(nullptr)
-		{
-			if (bLarge)
-				ExtractIconEx(filename.to_chr(), iIndex, &m_hIcon, nullptr, 1);
-			else
-				ExtractIconEx(filename.to_chr(), iIndex, nullptr, &m_hIcon, 1);
-
-		}
-		~dcxExtractIcon()
-		{
-			if (m_hIcon != nullptr)
-				DestroyIcon(m_hIcon);
-		}
-		operator HICON() const noexcept { return m_hIcon; }
-		explicit operator bool() const noexcept { return (m_hIcon != nullptr); }
-		HICON release() noexcept { HICON hTmp = m_hIcon; m_hIcon = nullptr; return hTmp; }
-	private:
-		HICON m_hIcon;
-	};
-
-	struct dcxHDCBuffer {
+	struct dcxHDCBuffer : dcxHDCResource {
 		dcxHDCBuffer() = delete;
 		dcxHDCBuffer(const dcxHDCBuffer &) = delete;
 		dcxHDCBuffer &operator = (const dcxHDCBuffer &) = delete;
 
 		dcxHDCBuffer(const HDC hdc, RECT *rc)
-			: m_hHDC(nullptr)
+			: dcxHDCResource(hdc)
 			, m_hBitmap(nullptr)
 			, m_hOldBitmap(nullptr)
 			, m_hOldFont(nullptr)
 		{
-			if (hdc == nullptr)
-				throw Dcx::dcxException("dcxHDCBuffer - Invalid HDC Supplied");
-
-			m_hHDC = CreateCompatibleDC(hdc);
-			if (m_hHDC == nullptr)
-				throw Dcx::dcxException("dcxHDCBuffer - Unable to create HDC");
-
 			// get size of bitmap to alloc.
 			BITMAP bm = { 0 };
 			int x, y;
@@ -299,46 +358,43 @@ namespace Dcx
 
 			if (m_hBitmap == nullptr)
 				throw Dcx::dcxException("dcxHDCBuffer - Unable to create bitmap");
-
+			
 				// select bitmap into hdc
-			m_hOldBitmap = SelectBitmap(m_hHDC, m_hBitmap);
+			m_hOldBitmap = SelectBitmap(*this, m_hBitmap);
 
 			// copy settings from hdc to buffer's hdc.
-			SetDCBrushColor(m_hHDC, GetDCBrushColor(hdc));
-			SetDCPenColor(m_hHDC, GetDCPenColor(hdc));
-			SetLayout(m_hHDC, GetLayout(hdc));
-			m_hOldFont = SelectFont(m_hHDC, GetCurrentObject(hdc, OBJ_FONT));
-			SetTextColor(m_hHDC, GetTextColor(hdc));
-			SetBkColor(m_hHDC, GetBkColor(hdc));
-			SetBkMode(m_hHDC, GetBkMode(hdc));
-			SetROP2(m_hHDC, GetROP2(hdc));
-			SetMapMode(m_hHDC, GetMapMode(hdc));
-			SetPolyFillMode(m_hHDC, GetPolyFillMode(hdc));
-			SetStretchBltMode(m_hHDC, GetStretchBltMode(hdc));
-			SetGraphicsMode(m_hHDC, GetGraphicsMode(hdc));
+			SetDCBrushColor(*this, GetDCBrushColor(hdc));
+			SetDCPenColor(*this, GetDCPenColor(hdc));
+			SetLayout(*this, GetLayout(hdc));
+			m_hOldFont = SelectFont(*this, GetCurrentObject(hdc, OBJ_FONT));
+			SetTextColor(*this, GetTextColor(hdc));
+			SetBkColor(*this, GetBkColor(hdc));
+			SetBkMode(*this, GetBkMode(hdc));
+			SetROP2(*this, GetROP2(hdc));
+			SetMapMode(*this, GetMapMode(hdc));
+			SetPolyFillMode(*this, GetPolyFillMode(hdc));
+			SetStretchBltMode(*this, GetStretchBltMode(hdc));
+			SetGraphicsMode(*this, GetGraphicsMode(hdc));
 
 			// copy contents of hdc within area to buffer.
-			BitBlt(m_hHDC, 0, 0, bm.bmWidth, bm.bmHeight, hdc, x, y, SRCCOPY);
+			BitBlt(*this, 0, 0, bm.bmWidth, bm.bmHeight, hdc, x, y, SRCCOPY);
 
 			// buffer is an exact duplicate of the hdc within the area specified.
 		}
 		~dcxHDCBuffer()
 		{
 			GdiFlush();
-			if (m_hHDC != nullptr)
+			if (*this != nullptr)
 			{
 				if (m_hOldFont != nullptr)
-					SelectFont(m_hHDC, m_hOldFont);
+					SelectFont(*this, m_hOldFont);
 				if (m_hOldBitmap != nullptr)
-					SelectBitmap(m_hHDC, m_hOldBitmap);
+					SelectBitmap(*this, m_hOldBitmap);
 				if (m_hBitmap != nullptr)
 					DeleteBitmap(m_hBitmap);
-				DeleteDC(m_hHDC);
 			}
 		}
-		operator HDC() const noexcept { return m_hHDC; }
 	private:
-		HDC m_hHDC;
 		HBITMAP m_hOldBitmap;
 		HBITMAP m_hBitmap;
 		HFONT m_hOldFont;

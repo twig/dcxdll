@@ -93,6 +93,7 @@ DcxControl::DcxControl( const UINT mID, DcxDialog *const p_Dialog )
 , m_bGradientVertical(false)
 , m_ToolTipHWND(nullptr)
 , m_colTransparentBg(CLR_INVALID)
+, m_DefaultWindowProc(nullptr)
 {
 	if (p_Dialog == nullptr)
 		throw Dcx::dcxException("DcxControl()");
@@ -1395,17 +1396,27 @@ void DcxControl::DrawParentsBackground(const HDC hdc, const RECT *const rcBounds
 	{
 		// When in composited mode underling controls have already been drawn
 		// So just grab image from windows DC.
+
 		auto hdcParent = GetDC(this->m_pParentHWND);
 		if (hdcParent != nullptr)
 		{
 			Auto(ReleaseDC(this->m_pParentHWND, hdcParent));
-
+		
 			auto rcWin = rcClient;
 			MapWindowRect(hwnd, this->m_pParentHWND, &rcWin);
-
+		
 			BitBlt(hdc, rcClient.left, rcClient.top, (rcClient.right - rcClient.left), (rcClient.bottom - rcClient.top),
 				hdcParent, rcWin.left, rcWin.top, SRCCOPY);
 		}
+
+		//Dcx::dcxHDCResource hdcParent(this->m_pParentHWND);
+		//
+		//auto rcWin = rcClient;
+		//MapWindowRect(hwnd, this->m_pParentHWND, &rcWin);
+		//
+		//BitBlt(hdc, rcClient.left, rcClient.top, (rcClient.right - rcClient.left), (rcClient.bottom - rcClient.top),
+		//	hdcParent, rcWin.left, rcWin.top, SRCCOPY);
+
 		return;
 	}
 	//// make a new HDC for background rendering
@@ -1453,26 +1464,26 @@ void DcxControl::DrawParentsBackground(const HDC hdc, const RECT *const rcBounds
 	if (!GetClientRect(this->m_pParentHWND, &rcParentWin))
 		return;
 
-	auto hdcbkg = CreateHDCBuffer(hdc, &rcParentWin);
-	if (hdcbkg == nullptr)
-		return;
-	Auto(DeleteHDCBuffer(hdcbkg));
+	//auto hdcbkg = CreateHDCBuffer(hdc, &rcParentWin);
+	//if (hdcbkg == nullptr)
+	//	return;
+	//Auto(DeleteHDCBuffer(hdcbkg));
 
-	//Dcx::dcxHDCBuffer hdcbkg(hdc, &rcParentWin);
+	Dcx::dcxHDCBuffer hdcbkg(hdc, &rcParentWin);
 
 	// get this controls x & y pos within its parent.
 	rcWin = rcClient;
 	MapWindowRect(hwnd, this->m_pParentHWND, &rcWin);
 	auto clipRgn = CreateRectRgnIndirect(&rcWin); // clip parents drawing to this controls rect.
 	if (clipRgn != nullptr) {
-		SelectClipRgn(*hdcbkg, clipRgn);
+		SelectClipRgn(hdcbkg, clipRgn);
 		DeleteRgn(clipRgn);
 	}
 	// Sending WM_ERASEBKGND followed by WM_PRINTCLIENT emulates the method used by DrawThemeParentBackgroundEx() on vista.
 	this->m_bInPrint = true; // this helps prevent long drawing loops
 	// fill in the parents image
-	::SendMessage(this->m_pParentHWND, WM_ERASEBKGND, (WPARAM)(HDC)*hdcbkg, 1L); // HACK: using 1L instead of NULL as a workaround for stacker.
-	::SendMessage(this->m_pParentHWND, WM_PRINTCLIENT, (WPARAM)(HDC)*hdcbkg, PRF_CLIENT);
+	::SendMessage(this->m_pParentHWND, WM_ERASEBKGND, (WPARAM)(HDC)hdcbkg, 1L); // HACK: using 1L instead of NULL as a workaround for stacker.
+	::SendMessage(this->m_pParentHWND, WM_PRINTCLIENT, (WPARAM)(HDC)hdcbkg, PRF_CLIENT);
 	//::SendMessage(this->m_pParentHWND, WM_PRINT, (WPARAM)*hdcbkg,PRF_CLIENT|PRF_ERASEBKGND);
 	// now draw all child controls within area of this control.
 	// NB: AVOID EnumChildWindows()
@@ -1482,12 +1493,12 @@ void DcxControl::DrawParentsBackground(const HDC hdc, const RECT *const rcBounds
 	//	child = GetWindow(child, GW_HWNDPREV);
 	//}
 	for (auto hChild = GetWindow(this->m_Hwnd, GW_HWNDPREV); hChild != nullptr; hChild = GetWindow(hChild, GW_HWNDPREV))
-		this->DrawControl(*hdcbkg, hChild);
+		this->DrawControl(hdcbkg, hChild);
 
 	this->m_bInPrint = false;
 	// draw background to main hdc
 	BitBlt(hdc, rcClient.left, rcClient.top, (rcClient.right - rcClient.left), (rcClient.bottom - rcClient.top),
-		*hdcbkg, rcWin.left, rcWin.top, SRCCOPY);
+		hdcbkg, rcWin.left, rcWin.top, SRCCOPY);
 }
 
 LPALPHAINFO DcxControl::SetupAlphaBlend(HDC *hdc, const bool DoubleBuffer)

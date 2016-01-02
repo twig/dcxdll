@@ -173,7 +173,8 @@ auto readFile(const TString &filename)
 	//
 	//Auto(fclose(file));
 
-	Dcx::dcxFile file(filename.to_chr(), TEXT("rb"));
+	//Dcx::dcxFile file(filename.to_chr(), TEXT("rb"));
+	Dcx::dcxFileResource file(filename.to_chr(), TEXT("rb"));
 
 	// Seek End of file
 	if (fseek(file, 0, SEEK_END))
@@ -229,7 +230,7 @@ bool SaveDataToFile(const TString &tsFile, const TString &tsData)
 	//
 	//Auto(fclose(file));
 
-	Dcx::dcxFile file(tsFile.to_chr(), TEXT("wb"));
+	Dcx::dcxFileResource file(tsFile.to_chr(), TEXT("wb"));
 
 	const static WCHAR tBOM = 0xFEFF;	// unicode BOM
 
@@ -1965,7 +1966,7 @@ bool AddFileIcons(HIMAGELIST himl, TString &filename, const bool bLarge, const i
 		return bAdded;
 
 	do {
-		Dcx::dcxExtractIcon hIcon(filename, fIndex, bLarge);
+		Dcx::dcxIconResource hIcon(filename, fIndex, bLarge);
 
 		bGotIcon = (hIcon != nullptr);
 		if (bGotIcon) {

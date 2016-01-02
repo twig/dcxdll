@@ -369,14 +369,14 @@ HRGN BitmapRegion(HBITMAP hBitmap, COLORREF cTransparentColor, BOOL bIsTranspare
 	// We create a memory context for working with the bitmap
 	// The memory context is compatible with the display context (screen)
 	//HDC hMemDC = CreateCompatibleDC(nullptr);
-
+	//
 	//// If no context is created, go away, too!
 	//if (hMemDC == nullptr)
 	//	throw Dcx::dcxException("BitmapRegion() - Unable to create DC");
-
+	//
 	//Auto(DeleteDC(hMemDC));
 
-	Dcx::dcxHDC hMemDC(nullptr);
+	Dcx::dcxHDCResource hMemDC(nullptr);
 
 	// In order to make the space for the region, we
 	// create a bitmap with 32bit depth color and with the
@@ -388,6 +388,7 @@ HRGN BitmapRegion(HBITMAP hBitmap, COLORREF cTransparentColor, BOOL bIsTranspare
 	//	bmBitmap.bmHeight, 
 	//	1,32,BI_RGB,0,0,0,0,0 
 	//};
+
 	BITMAPINFO RGB32BITSBITMAPINFO = {
 		sizeof(BITMAPINFOHEADER),
 		bmBitmap.bmWidth,
@@ -399,13 +400,15 @@ HRGN BitmapRegion(HBITMAP hBitmap, COLORREF cTransparentColor, BOOL bIsTranspare
 	VOID		*pBits;
 
 	// With the previous information, we create the new bitmap!
-	auto		hNewBitmap = CreateDIBSection(hMemDC, (BITMAPINFO *)&RGB32BITSBITMAPINFO, DIB_RGB_COLORS, &pBits, nullptr, 0);
+	//auto		hNewBitmap = CreateDIBSection(hMemDC, (BITMAPINFO *)&RGB32BITSBITMAPINFO, DIB_RGB_COLORS, &pBits, nullptr, 0);
+	//
+	//// If the creation process succeded...
+	//if (hNewBitmap == nullptr)
+	//	throw Dcx::dcxException("BitmapRegion() - CreateDIBSection() Failed: Invalid Parameter");
+	//
+	//Auto(DeleteBitmap(hNewBitmap));
 
-	// If the creation process succeded...
-	if (hNewBitmap == nullptr)
-		throw Dcx::dcxException("BitmapRegion() - CreateDIBSection() Failed: Invalid Parameter");
-
-	Auto(DeleteBitmap(hNewBitmap));
+	Dcx::dcxBitmapResource hNewBitmap(hMemDC, (BITMAPINFO *)&RGB32BITSBITMAPINFO, DIB_RGB_COLORS, &pBits, nullptr, 0);
 
 	GdiFlush();
 	// We select the bitmap onto the created memory context
@@ -416,14 +419,14 @@ HRGN BitmapRegion(HBITMAP hBitmap, COLORREF cTransparentColor, BOOL bIsTranspare
 
 	// We create another device context compatible with the first!
 	//HDC hDC = CreateCompatibleDC(hMemDC);
-
+	//
 	//// If success...
 	//if (hDC == nullptr)
 	//	throw Dcx::dcxException("BitmapRegion() - Unable to create DC");
-
+	//
 	//Auto(DeleteDC(hDC));
 
-	Dcx::dcxHDC hDC((HDC)hMemDC);
+	Dcx::dcxHDCResource hDC((HDC)hMemDC);
 
 	// We compute the number of bytes per row that the bitmap contains, rounding to 32 bit-multiples
 	BITMAP		bmNewBitmap;
