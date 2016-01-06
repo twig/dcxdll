@@ -2093,13 +2093,13 @@ void TString::copy(TString other) // <- copy made here, so just swap them
 
 int TString::compare(const TString &other) const
 {
-	return this->compare(other.data(), other.length());
+	return this->compare(other.data());
 }
 
 int TString::compare(const TCHAR &other) const
 {
 	const TCHAR tmp[] = { other, TEXT('\0') };
-	return this->compare(tmp, 1);
+	return this->compare(tmp);
 }
 
 int TString::compare(const TCHAR *const other) const
