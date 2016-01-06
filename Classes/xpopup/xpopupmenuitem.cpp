@@ -826,6 +826,19 @@ void XPopupMenuItem::DrawVerticalBar(const LPDRAWITEMSTRUCT lpdis, const LPXPMEN
 	// get the rect of the box which will draw JUST the box (prevents redraw over items already done)
 	SetRect(&rcIntersect, rcBar.left, lpdis->rcItem.top, rcBar.right, lpdis->rcItem.bottom);
 
+#if DCX_USE_WRAPPERS
+	// set up a buffer to draw the whole gradient bar
+	Dcx::dcxHDCBuffer hdcBuffer(lpdis->hDC, &rcBar);
+
+	// draw the gradient into the buffer
+	if (bReversed)
+		XPopupMenuItem::DrawGradient(hdcBuffer, &rcBar, lpcol->m_clrBox, LightenColor(200, lpcol->m_clrBox), TRUE);
+	else
+		XPopupMenuItem::DrawGradient(hdcBuffer, &rcBar, LightenColor(200, lpcol->m_clrBox), lpcol->m_clrBox, TRUE);
+
+	// copy the box we want from the whole gradient bar
+	BitBlt(lpdis->hDC, rcIntersect.left, rcIntersect.top, rcIntersect.right - rcIntersect.left, rcIntersect.bottom - rcIntersect.top, hdcBuffer, rcIntersect.left, rcIntersect.top, SRCCOPY);
+#else
 	// set up a buffer to draw the whole gradient bar
 	auto hdcBuffer = CreateHDCBuffer(lpdis->hDC, &rcBar);
 
@@ -848,6 +861,7 @@ void XPopupMenuItem::DrawVerticalBar(const LPDRAWITEMSTRUCT lpdis, const LPXPMEN
 		else
 			XPopupMenuItem::DrawGradient(lpdis->hDC, &rcIntersect, LightenColor(200, lpcol->m_clrBox), lpcol->m_clrBox, TRUE);
 	}
+#endif
 }
 
 /*!
@@ -882,6 +896,49 @@ COLORREF XPopupMenuItem::DarkenColor( const UINT iScale, const COLORREF clrColor
 
 bool XPopupMenuItem::DrawMenuBitmap(const LPDRAWITEMSTRUCT lpdis, const bool bBigImage, const HBITMAP bmImage)
 {
+#if DCX_USE_WRAPPERS
+	if ((lpdis == nullptr) || (bmImage == nullptr))
+		return false;
+
+	if (!bBigImage)
+	{
+		Dcx::dcxHDCBitmapResource hdcbmp(lpdis->hDC, bmImage);
+
+		BITMAP bmp;
+
+		if (GetObject(bmImage, sizeof(BITMAP), &bmp) != 0)
+			StretchBlt(lpdis->hDC, lpdis->rcItem.left, lpdis->rcItem.top, lpdis->rcItem.right - lpdis->rcItem.left, lpdis->rcItem.bottom - lpdis->rcItem.top, hdcbmp, 0, 0, bmp.bmWidth, bmp.bmHeight, SRCCOPY);
+	}
+	else {
+		BITMAP bm;
+		if (GetObject((HBITMAP)GetCurrentObject(lpdis->hDC, OBJ_BITMAP), sizeof(BITMAP), &bm) == 0)
+			return false;
+
+		RECT rcIntersect;
+		RECT rcBar;
+
+		// get the size of the whole menu.
+		SetRect(&rcBar, 0, 0, bm.bmWidth, bm.bmHeight);
+
+		// get the rect of the box which will draw JUST the box (prevents redraw over items already done)
+		SetRect(&rcIntersect, rcBar.left, lpdis->rcItem.top, rcBar.right, lpdis->rcItem.bottom);
+
+		// set up a buffer to draw the whole whole menus background.
+		Dcx::dcxHDCBuffer hdcBuffer(lpdis->hDC, &rcBar);
+
+		// draw into the buffer
+		Dcx::dcxHDCBitmapResource hdcbmp(lpdis->hDC, bmImage);
+
+		BITMAP bmp;
+
+		if (GetObject(bmImage, sizeof(BITMAP), &bmp) != 0)
+			StretchBlt(hdcBuffer, rcBar.left, rcBar.top, rcBar.right - rcBar.left, rcBar.bottom - rcBar.top, hdcbmp, 0, 0, bmp.bmWidth, bmp.bmHeight, SRCCOPY);
+
+		// copy the box we want from the whole gradient bar
+		BitBlt(lpdis->hDC, rcIntersect.left, rcIntersect.top, rcIntersect.right - rcIntersect.left, rcIntersect.bottom - rcIntersect.top, hdcBuffer, rcIntersect.left, rcIntersect.top, SRCCOPY);
+	}
+	return true;
+#else
 	if ((lpdis == nullptr) || (bmImage == nullptr))
 		return false;
 
@@ -944,4 +1001,5 @@ bool XPopupMenuItem::DrawMenuBitmap(const LPDRAWITEMSTRUCT lpdis, const bool bBi
 		}
 	}
 	return true;
+#endif
 }

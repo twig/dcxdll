@@ -381,6 +381,7 @@ void XPopupMenu::parseXPopIdentifier( const TString & input, TCHAR * szReturnVal
 		//	else if ( prop == TEXT("icon") )
 		//		wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), p_Item->getItemIcon( ) + 1 );
 		//}
+
 		MENUITEMINFO mii;
 		if (this->getMenuInfo(MIIM_DATA, path, mii))
 		{
@@ -866,32 +867,6 @@ LRESULT CALLBACK XPopupMenu::XPopupWinProc( HWND mHwnd, UINT uMsg, WPARAM wParam
 				return OnDrawItem( mHwnd, lpdis );
 		}
 		break;
-
-	//case WM_SETCURSOR:
-	//{
-	//	if (Dcx::SetCursorUx == nullptr)
-	//		break;
-//
-	//	const auto iType = (UINT)LOWORD(lParam);
-	//	auto hCursor = Dcx::AreaToCustomCursor(iType);
-	//	if (hCursor != nullptr)
-	//	{
-	//		Dcx::SetCursorUx(hCursor);
-	//		return TRUE;
-	//	}
-//
-	//	//ShowCursor(FALSE);
-	//	//Auto(ShowCursor(TRUE));
-//
-	//	//auto lRes = mIRCLinker::callDefaultWindowProc(mHwnd, uMsg, wParam, lParam);
-	//	//hCursor = Dcx::SystemToCustomCursor(GetCursor());
-	//	//if (hCursor != nullptr)
-	//	//{
-	//	//	Dcx::SetCursorUx(hCursor);
-	//	//	return TRUE;
-	//	//}
-	//	//return lRes;
-	//}
 	}
 
 	return DefWindowProc( mHwnd, uMsg, wParam, lParam );

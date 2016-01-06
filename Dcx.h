@@ -12,6 +12,9 @@
 #include <sys/stat.h> 
 #include <detours.h>
 
+// should DCX use the resource wrapper classes below? set to zero to disable
+#define DCX_USE_WRAPPERS 1
+
 namespace Dcx
 {
 	extern TString m_sLastError;
@@ -86,6 +89,10 @@ namespace Dcx
 		dcxResource(const dcxResource<Unique,BaseType> &) = delete;				// no copy!
 		dcxResource<Unique, BaseType> &operator =(const dcxResource<Unique, BaseType> &) = delete;	// No assignments!
 
+		using pointer = typename Unique::pointer;
+		using element_type = typename Unique::element_type;
+		using return_type = BaseType;
+
 		dcxResource(Unique u)
 			: m_uni(std::move(u))
 		{
@@ -158,9 +165,14 @@ namespace Dcx
 			: dcxResource(make_resource(CreateDC, [](HDC obj) { DeleteDC(obj); }, lpszDriver, lpszDevice, lpszOutput, lpInitData))
 		{
 		}
-		//// calls GetDC()
+		//// calls GetDC() - broken
 		//explicit dcxHDCResource(HWND hWnd)
 		//	: dcxResource(make_resource(GetDC, [](HDC obj) { ReleaseDC(nullptr, obj); }, hWnd))
+		//{
+		//}
+		//// calls GetWindowDC() - broken
+		//explicit dcxHDCResource(HWND hWnd)
+		//	: dcxResource(make_resource(GetWindowDC, [](HDC obj) { ReleaseDC(nullptr, obj); }, hWnd))
 		//{
 		//}
 	};
@@ -174,10 +186,20 @@ namespace Dcx
 		dcxHDCBitmapResource(HDC hdc, HBITMAP hBitmap)
 			: dcxHDCResource(hdc)
 			, m_hOldBitmap(nullptr)
+			//, m_hNewBitmap(nullptr)
 		{
 			if (hBitmap != nullptr)
-				m_hOldBitmap = SelectBitmap(hdc, hBitmap);
+				m_hOldBitmap = SelectBitmap(*this, hBitmap);
 		}
+		////calls CreateCompatibleDC() then CreateCompatibleBitmap() then SelectBitmap()
+		//dcxHDCBitmapResource(HDC hdc, const int w, const int h)
+		//	: dcxHDCResource(hdc)
+		//	, m_hOldBitmap(nullptr)
+		//	, m_hNewBitmap(nullptr)
+		//{
+		//	if (hBitmap != nullptr)
+		//		m_hOldBitmap = SelectBitmap(hdc, hBitmap);
+		//}
 		~dcxHDCBitmapResource()
 		{
 			if (m_hOldBitmap != nullptr)
@@ -185,6 +207,7 @@ namespace Dcx
 		}
 	private:
 		HBITMAP	m_hOldBitmap;
+		//HBITMAP	m_hNewBitmap;
 	};
 
 	struct dcxBitmapResource : dcxResource < dcxBitmap_t >

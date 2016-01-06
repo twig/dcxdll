@@ -220,6 +220,13 @@ void DcxWindow::redrawBufferedWindow( ) {
 	RECT rc;
 	if (GetWindowRect(this->m_Hwnd, &rc))
 	{
+#if DCX_USE_WRAPPERS
+		Dcx::dcxHDCBuffer hBuffer(hdc, &rc);
+
+		SendMessage(this->m_Hwnd, WM_PRINT, (WPARAM)(HDC)hBuffer, PRF_NONCLIENT | PRF_CLIENT | PRF_CHILDREN | PRF_CHECKVISIBLE | PRF_ERASEBKGND);
+
+		BitBlt(hdc, 0, 0, (rc.right - rc.left), (rc.bottom - rc.top), hBuffer, 0, 0, SRCCOPY);
+#else
 		auto hBuffer = CreateHDCBuffer(hdc, &rc);
 
 		if (hBuffer != nullptr) {
@@ -229,6 +236,7 @@ void DcxWindow::redrawBufferedWindow( ) {
 
 			BitBlt(hdc, 0, 0, (rc.right - rc.left), (rc.bottom - rc.top), *hBuffer, 0, 0, SRCCOPY);
 		}
+#endif
 	}
 	ValidateRect(this->m_Hwnd, nullptr);
 }

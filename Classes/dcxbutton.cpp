@@ -608,6 +608,7 @@ void DcxButton::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 	// Bitmapped button
 	if (isBitmap) {
 		// create a new HDC for background rendering
+#if DCX_USE_WRAPPERS
 		Dcx::dcxHDCBitmapResource hdcbmp(hdc, this->m_aBitmaps[nState]);
 
 		BITMAP bmp;
@@ -616,19 +617,23 @@ void DcxButton::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 		if (GetObject(this->m_aBitmaps[nState], sizeof(BITMAP), &bmp) != 0)
 			TransparentBlt(hdc, rcClient.left, rcClient.top, w, h, hdcbmp, 0, 0, bmp.bmWidth, bmp.bmHeight, this->m_aTransp[nState]);
 
-		//Dcx::dcxHDC hdcbmp(hdc);
+#else
+		auto hdcbmp = CreateCompatibleDC(hdc);
+		if (hdcbmp != nullptr) {
+			Auto(DeleteDC(hdcbmp));
 
-		//BITMAP bmp;
+			BITMAP bmp;
 
-		//// get bitmaps info.
-		//if (GetObject(this->m_aBitmaps[nState], sizeof(BITMAP), &bmp) != 0)
-		//{
-		//	// associate bitmap with HDC
-		//	const auto oldbm = SelectBitmap(hdcbmp, this->m_aBitmaps[nState]);
-		//	Auto(SelectBitmap(hdcbmp, oldbm)); // got to put the old bm back.
+			// get bitmaps info.
+			if (GetObject(this->m_aBitmaps[nState], sizeof(BITMAP), &bmp) != 0)
+			{
+				// associate bitmap with HDC
+				const auto oldbm = SelectBitmap(hdcbmp, this->m_aBitmaps[nState]);
+				Auto(SelectBitmap(hdcbmp, oldbm)); // got to put the old bm back.
 
-		//	TransparentBlt(hdc, rcClient.left, rcClient.top, w, h, hdcbmp, 0, 0, bmp.bmWidth, bmp.bmHeight, this->m_aTransp[nState]);
-		//}
+				TransparentBlt(hdc, rcClient.left, rcClient.top, w, h, hdcbmp, 0, 0, bmp.bmWidth, bmp.bmHeight, this->m_aTransp[nState]);
+			}
+		}
 
 		//auto hdcbmp = CreateCompatibleDC(hdc);
 		//if (hdcbmp != nullptr) {
@@ -644,6 +649,7 @@ void DcxButton::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 		//	}
 		//	DeleteDC( hdcbmp );
 		//}
+#endif
 	}
 
 	// Regular button

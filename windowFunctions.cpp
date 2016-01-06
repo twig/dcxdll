@@ -353,6 +353,7 @@ void AddStyles(gsl::not_null<HWND> hwnd,int parm,long AddStyles)
 
 HRGN BitmapRegion(HBITMAP hBitmap, COLORREF cTransparentColor, BOOL bIsTransparent)
 {
+#if DCX_USE_WRAPPERS
 	// We create an empty region
 	HRGN		hRegion = nullptr;
 
@@ -368,15 +369,73 @@ HRGN BitmapRegion(HBITMAP hBitmap, COLORREF cTransparentColor, BOOL bIsTranspare
 
 	// We create a memory context for working with the bitmap
 	// The memory context is compatible with the display context (screen)
-	//HDC hMemDC = CreateCompatibleDC(nullptr);
-	//
-	//// If no context is created, go away, too!
-	//if (hMemDC == nullptr)
-	//	throw Dcx::dcxException("BitmapRegion() - Unable to create DC");
-	//
-	//Auto(DeleteDC(hMemDC));
 
 	Dcx::dcxHDCResource hMemDC(nullptr);
+
+	// In order to make the space for the region, we
+	// create a bitmap with 32bit depth color and with the
+	// size of the loaded bitmap!
+
+	BITMAPINFO RGB32BITSBITMAPINFO = {
+		sizeof(BITMAPINFOHEADER),
+		bmBitmap.bmWidth,
+		bmBitmap.bmHeight,
+		1, 32, BI_RGB, 0, 0, 0, 0, 0, 0
+	};
+
+	// Here is the pointer to the bitmap data
+	VOID		*pBits;
+
+	// With the previous information, we create the new bitmap!
+
+	Dcx::dcxBitmapResource hNewBitmap(hMemDC, (BITMAPINFO *)&RGB32BITSBITMAPINFO, DIB_RGB_COLORS, &pBits, nullptr, 0);
+
+	GdiFlush();
+	// We select the bitmap onto the created memory context
+	// and then we store the previosly selected bitmap on this context!
+	auto hPrevBmp = SelectBitmap(hMemDC, hNewBitmap);
+
+	Auto(SelectBitmap(hMemDC, hPrevBmp));
+
+	// We compute the number of bytes per row that the bitmap contains, rounding to 32 bit-multiples
+	BITMAP		bmNewBitmap;
+
+	if (GetObject(hNewBitmap, sizeof(bmNewBitmap), &bmNewBitmap) == 0)
+		throw Dcx::dcxException("BitmapRegion() - Unable to get bitmap info");
+
+	while (bmNewBitmap.bmWidthBytes % 4)
+		bmNewBitmap.bmWidthBytes++;
+
+	// We create another device context compatible with the first!
+	// Copy of the original bitmap on the memory context!
+
+	Dcx::dcxHDCBitmapResource hDC((HDC)hMemDC, hBitmap);
+
+	BitBlt(hMemDC, 0, 0, bmBitmap.bmWidth, bmBitmap.bmHeight, hDC, 0, 0, SRCCOPY);
+#else
+	// We create an empty region
+	HRGN		hRegion = nullptr;
+
+	// If the passed bitmap is NULL, go away!
+	if (hBitmap == nullptr)
+	return nullptr;
+
+	// Computation of the bitmap size
+	BITMAP		bmBitmap;
+
+	if (GetObject(hBitmap, sizeof(bmBitmap), &bmBitmap) == 0)
+	throw Dcx::dcxException("BitmapRegion() - Unable to get bitmap info");
+
+	// We create a memory context for working with the bitmap
+	// The memory context is compatible with the display context (screen)
+
+	HDC hMemDC = CreateCompatibleDC(nullptr);
+
+	// If no context is created, go away, too!
+	if (hMemDC == nullptr)
+	throw Dcx::dcxException("BitmapRegion() - Unable to create DC");
+
+	Auto(DeleteDC(hMemDC));
 
 	// In order to make the space for the region, we
 	// create a bitmap with 32bit depth color and with the
@@ -400,15 +459,14 @@ HRGN BitmapRegion(HBITMAP hBitmap, COLORREF cTransparentColor, BOOL bIsTranspare
 	VOID		*pBits;
 
 	// With the previous information, we create the new bitmap!
-	//auto		hNewBitmap = CreateDIBSection(hMemDC, (BITMAPINFO *)&RGB32BITSBITMAPINFO, DIB_RGB_COLORS, &pBits, nullptr, 0);
-	//
-	//// If the creation process succeded...
-	//if (hNewBitmap == nullptr)
-	//	throw Dcx::dcxException("BitmapRegion() - CreateDIBSection() Failed: Invalid Parameter");
-	//
-	//Auto(DeleteBitmap(hNewBitmap));
 
-	Dcx::dcxBitmapResource hNewBitmap(hMemDC, (BITMAPINFO *)&RGB32BITSBITMAPINFO, DIB_RGB_COLORS, &pBits, nullptr, 0);
+	auto		hNewBitmap = CreateDIBSection(hMemDC, (BITMAPINFO *)&RGB32BITSBITMAPINFO, DIB_RGB_COLORS, &pBits, nullptr, 0);
+
+	// If the creation process succeded...
+	if (hNewBitmap == nullptr)
+	throw Dcx::dcxException("BitmapRegion() - CreateDIBSection() Failed: Invalid Parameter");
+
+	Auto(DeleteBitmap(hNewBitmap));
 
 	GdiFlush();
 	// We select the bitmap onto the created memory context
@@ -418,24 +476,25 @@ HRGN BitmapRegion(HBITMAP hBitmap, COLORREF cTransparentColor, BOOL bIsTranspare
 	Auto(SelectBitmap(hMemDC, hPrevBmp));
 
 	// We create another device context compatible with the first!
-	//HDC hDC = CreateCompatibleDC(hMemDC);
-	//
-	//// If success...
-	//if (hDC == nullptr)
-	//	throw Dcx::dcxException("BitmapRegion() - Unable to create DC");
-	//
-	//Auto(DeleteDC(hDC));
 
-	Dcx::dcxHDCResource hDC((HDC)hMemDC);
+	HDC hDC = CreateCompatibleDC(hMemDC);
+
+	// If success...
+	if (hDC == nullptr)
+	throw Dcx::dcxException("BitmapRegion() - Unable to create DC");
+
+	Auto(DeleteDC(hDC));
+
+	//Dcx::dcxHDCResource hDC((HDC)hMemDC);
 
 	// We compute the number of bytes per row that the bitmap contains, rounding to 32 bit-multiples
 	BITMAP		bmNewBitmap;
 
 	if (GetObject(hNewBitmap, sizeof(bmNewBitmap), &bmNewBitmap) == 0)
-		throw Dcx::dcxException("BitmapRegion() - Unable to get bitmap info");
+	throw Dcx::dcxException("BitmapRegion() - Unable to get bitmap info");
 
 	while (bmNewBitmap.bmWidthBytes % 4)
-		bmNewBitmap.bmWidthBytes++;
+	bmNewBitmap.bmWidthBytes++;
 
 	// Copy of the original bitmap on the memory context!
 	auto		hPrevBmpOrg = SelectBitmap(hDC, hBitmap);
@@ -443,7 +502,7 @@ HRGN BitmapRegion(HBITMAP hBitmap, COLORREF cTransparentColor, BOOL bIsTranspare
 	Auto(SelectBitmap(hDC, hPrevBmpOrg));
 
 	BitBlt(hMemDC, 0, 0, bmBitmap.bmWidth, bmBitmap.bmHeight, hDC, 0, 0, SRCCOPY);
-
+#endif
 	// In order to optimize the code, we don't call the GDI each time we
 	// find a transparent pixel. We use a RGN_DATA structure were we store
 	// consecutive rectangles, until we have a large amount of them and then we crete

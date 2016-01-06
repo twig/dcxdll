@@ -361,40 +361,6 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 	}
 	// xdialog -c [NAME] [SWITCH] [ID] [CONTROL] [X] [Y] [W] [H] (OPTIONS)
 	else if (flags[TEXT('c')] && numtok > 7) {
-		//const UINT ID = mIRC_ID_OFFSET + input.getnexttok( ).to_int();	// tok 3
-		//
-		//const TString tsID(input.getnexttok());
-		//UINT ID = 0;
-		//
-		//if (isalpha(tsID[0]))
-		//{
-		//	// assume a name
-		//	ID = NameToID(tsID);	// check if name alrdy has an ID
-		//	if ( ID == 0)
-		//		ID = getUniqueID();
-		//}
-		//else
-		//	ID = mIRC_ID_OFFSET + tsID.to_<UINT>();
-		//
-		//if (ID < mIRC_ID_OFFSET + 1)
-		//	throw Dcx::dcxException(TEXT("Invalid ID \"%\""), ID - mIRC_ID_OFFSET);
-		//
-		//if (!this->isIDValid(ID, true))
-		//	throw Dcx::dcxException(TEXT("Control with ID \"%\" already exists"), ID - mIRC_ID_OFFSET);
-		//
-		//try {
-		//	//throw std::exception("test");
-		//
-		//	this->addControl(DcxControl::controlFactory(this, ID, input, 4));
-		//}
-		//catch (std::exception &e)
-		//{
-		//	this->showErrorEx(nullptr, TEXT("-c"), TEXT("Unable To Create Control %d (%S)"), ID - mIRC_ID_OFFSET, e.what());
-		//	throw;
-		//}
-		//
-		//this->AddNamedId(tsID, ID);	// NB: adds numbers as names too: "200" == 200 allowing it to track all used id's
-
 		try {
 			this->addControl(input, 3, CTLF_ALLOW_ALL, nullptr);
 		}
@@ -406,20 +372,11 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 	}
 	// xdialog -d [NAME] [SWITCH] [ID]
 	else if (flags[TEXT('d')] && numtok > 2) {
-		/*
-		if ( input.gettok( 3 ) == TEXT("*") ) { 
 
-		this->deleteAllControls( );
-		}
-		else {
-		*/
+		// Ook: TODO update for named controls
+		const auto tsID(input.getnexttok());	// tok 3
 
-		const UINT ID = (mIRC_ID_OFFSET + input.getnexttok( ).to_int());	// tok 3
-
-		//if (!this->isIDValid(ID))
-		//	throw Dcx::dcxException(TEXT("Unknown control with ID \"%\" (dialog %)"), ID - mIRC_ID_OFFSET, this->m_tsName);
-		//
-		//auto p_Control = this->getControlByID(ID);
+		const UINT ID = NameToID(tsID);
 
 		auto p_Control = this->getControlByID(ID);
 		if (p_Control == nullptr)
@@ -450,16 +407,6 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 			this->deleteControl(p_Control); // remove control from internal list!
 			DestroyWindow(cHwnd);
 		}
-
-		//if ((p_Control->getType() == TEXT("dialog")) || (p_Control->getType() == TEXT("window")))
-		//	delete p_Control;
-		//else {
-		//	if (p_Control->getRefCount() != 0)
-		//		throw Dcx::dcxException(TEXT("Can't delete control with ID \"%\" when it is inside it's own event (dialog %)"), p_Control->getUserID(), this->m_tsName);
-		//		
-		//	this->deleteControl(p_Control); // remove control from internal list!
-		//	DestroyWindow(cHwnd);
-		//}
 	}
 	// xdialog -f [NAME] [SWITCH] [+FLAGS] [COUNT] [TIMEOUT]
 	else if (flags[TEXT('f')] && numtok > 4) {
@@ -556,34 +503,9 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 	}
 	// xdialog -q [NAME] [SWITCH] [+FLAGS] [CURSOR|FILENAME]
 	else if (flags[TEXT('q')] && numtok > 3) {
-		//const UINT iFlags = this->parseCursorFlags( input.getnexttok( ) );	// tok 3
-		//HCURSOR hCursor = nullptr;
-		//if ( this->m_bCursorFromFile )
-		//	hCursor = this->m_hCursor;
-		//this->m_hCursor = nullptr;
-		//this->m_bCursorFromFile = false;
-		//if (dcx_testflag(iFlags, DCCS_FROMRESSOURCE))
-		//	//this->m_hCursor = LoadCursor( nullptr, this->parseCursorType( input.getnexttok( ) ) );	// tok 4
-		//	this->m_hCursor = (HCURSOR)LoadImage(nullptr, this->parseCursorType(input.getnexttok()), IMAGE_CURSOR, 0, 0, LR_DEFAULTSIZE | LR_SHARED);
-		//else if (dcx_testflag(iFlags, DCCS_FROMFILE)) {
-		//	TString filename(input.getlasttoks());	// tok 4, -1
-		//	if (!IsFile(filename))
-		//		throw Dcx::dcxException(TEXT("Unable to Access File: %"), filename);
-		//	
-		//	this->m_hCursor = (HCURSOR)LoadImage(nullptr, filename.to_chr(), IMAGE_CURSOR, 0, 0, LR_DEFAULTSIZE | LR_LOADFROMFILE);
-		//	this->m_bCursorFromFile = true;
-		//}
-		//if (this->m_hCursor == nullptr)
-		//	throw Dcx::dcxException("Unable to Load Cursor");
-		//
-		//if (GetCursor() == hCursor)
-		//	SetCursor(this->m_hCursor);
-	//
-		//if (hCursor != nullptr)
-		//	DestroyCursor( hCursor );
-
+		// Ook: TODO allow different cursors for client areas, menus, non client areas
 		// get cursors flags (either +f or +r atm)
-		const auto iFlags = this->parseCursorFlags(input.getfirsttok(3));
+		const auto iFlags = this->parseCursorFlags(input.getnexttok());	// tok 3
 		// filename is the resource name if +r
 		// otherwise its the filename if +f
 		auto filename(input.getlasttoks());
@@ -754,6 +676,7 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 	}
 	// xdialog -z [NAME] [SWITCH] [+FLAGS] [N]
 	else if (flags[TEXT('z')] && numtok > 3) {
+		// Ook: TODO change to support named id's
 		const XSwitchFlags xflag(input.getnexttok( ));	// tok 3
 		auto n = input.getnexttok().to_int();		// tok 4
 
@@ -875,6 +798,8 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 		if (this->m_popup != nullptr) {
 			TString menuargs(TEXT("dialog "));
 			menuargs += input.getlasttoks();
+
+			//TString menuargs{ TEXT("dialog "), input.getlasttoks() };
 			Dcx::XPopups.parseCommand(menuargs, this->m_popup);
 		}
 	}
@@ -978,7 +903,7 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 		}
 		else if (xflags[TEXT('g')]) // ghost drag - <0-255>
 		{
-			this->m_bDoGhostDrag = (BYTE)(input.getnexttok().to_int() & 0xFF);	// tok 4
+			this->m_bDoGhostDrag = (BYTE)(input.getnexttok().to_<UINT>() & 0xFF);	// tok 4
 
 			noRegion = true;
 		}
@@ -986,25 +911,6 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 		{
 			// no custom shadows in V3
 			noRegion = true;
-
-			//if (numtok == 9) {
-			//	const auto s_clr = (COLORREF)input.getnexttok().to_num();	// tok 4
-			//	const auto s_sharp = input.getnexttok().to_int();	// tok 5
-			//	const auto s_dark = input.getnexttok().to_int();	// tok 6
-			//	const auto s_size = input.getnexttok().to_int();	// tok 7
-			//	const auto s_x = input.getnexttok().to_int();		// tok 8
-			//	const auto s_y = input.getnexttok().to_int();		// tok 9
-			//
-			//	this->AddShadow();
-			//	this->SetShadowColor(s_clr);
-			//	this->SetShadowSharpness(s_sharp);
-			//	this->SetShadowDarkness(s_dark);
-			//	this->SetShadowSize(s_size);
-			//	this->SetShadowPosition(s_x,s_y);
-			//}
-			//else {
-			//	this->RemoveShadow();
-			//}
 		}
 		else if (xflags[TEXT('n')]) { // none, no args
 			noRegion = true;
@@ -1142,13 +1048,18 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 
 		// Calculate the actual sizes without the window border
 		// http://windows-programming.suite101.com/article.cfm/client_area_size_with_movewindow
-		POINT ptDiff;
-		//ptDiff.x = (rcWindow.right - rcWindow.left) - (rcClient.right - rcClient.left);
-		//ptDiff.y = (rcWindow.bottom - rcWindow.top) - (rcClient.bottom - rcClient.top);
-		ptDiff.x = (rcWindow.right - rcWindow.left) - rcClient.right;
-		ptDiff.y = (rcWindow.bottom - rcWindow.top) - rcClient.bottom;
+		//POINT ptDiff;
+		////ptDiff.x = (rcWindow.right - rcWindow.left) - (rcClient.right - rcClient.left);
+		////ptDiff.y = (rcWindow.bottom - rcWindow.top) - (rcClient.bottom - rcClient.top);
+		//ptDiff.x = (rcWindow.right - rcWindow.left) - rcClient.right;
+		//ptDiff.y = (rcWindow.bottom - rcWindow.top) - rcClient.bottom;
+		//
+		//SetWindowPos( this->m_Hwnd, nullptr, x, y, w + ptDiff.x, h + ptDiff.y, iFlags );
 
-		SetWindowPos( this->m_Hwnd, nullptr, x, y, w + ptDiff.x, h + ptDiff.y, iFlags );
+		auto Diffx = (rcWindow.right - rcWindow.left) - rcClient.right;
+		auto Diffy = (rcWindow.bottom - rcWindow.top) - rcClient.bottom;
+
+		SetWindowPos(this->m_Hwnd, nullptr, x, y, w + Diffx, h + Diffy, iFlags);
 	}
 	// invalid command
 	else
@@ -1633,22 +1544,6 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 				lRes = TRUE;
 			}
 			break;
-			// no shadow in V3
-
-		//case WM_MOVE:
-		//	{
-		//		if ((p_this->m_Shadow.Status & DCX_SS_VISABLE) && p_this->isShadowed())
-		//		{
-		//			RECT WndRect;
-		//			if (dcxGetWindowRect(mHwnd, &WndRect))
-		//				SetWindowPos(p_this->m_Shadow.hWin, 0,
-		//					WndRect.left + p_this->m_Shadow.nxOffset - p_this->m_Shadow.nSize,
-		//					WndRect.top + p_this->m_Shadow.nyOffset - p_this->m_Shadow.nSize,
-		//					0, 0, SWP_NOSIZE | SWP_NOACTIVATE);
-		//		}
-		//		p_this->SetVistaStylePos();
-		//	}
-		//	break;
 
 		case WM_THEMECHANGED:
 			{
@@ -1887,11 +1782,6 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 
 		case WM_EXITSIZEMOVE:
 			{
-				// no shadow in v3
-
-				//if ((p_this->m_Shadow.Status & DCX_SS_VISABLE) && p_this->isShadowed())
-				//	p_this->UpdateShadow();
-
 				if ((p_this->m_bInSizing) && (dcx_testflag(p_this->m_dEventMask, DCX_EVENT_SIZE)))
 					p_this->execAliasEx(TEXT("%s,%d"), TEXT("endsize"), 0);
 				else if ((p_this->m_bInMoving)  && (dcx_testflag(p_this->m_dEventMask, DCX_EVENT_MOVE)))
@@ -1935,42 +1825,6 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 				//{
 				//}
 				//DeleteObject(hRGN);
-
-				// no shadow in v3
-
-				//if ((p_this->m_Shadow.Status & DCX_SS_ENABLED) && p_this->isShadowed())
-				//{
-				//	if(SIZE_MAXIMIZED == wParam || SIZE_MINIMIZED == wParam)
-				//	{
-				//		ShowWindow(p_this->m_Shadow.hWin, SW_HIDE);
-				//		p_this->m_Shadow.Status &= ~DCX_SS_VISABLE;
-				//	}
-				//	else
-				//	{
-				//		if(p_this->isStyle(WS_VISIBLE))	// Parent may be resized even if invisible
-				//		{
-				//			p_this->m_Shadow.Status |= DCX_SS_PARENTVISIBLE;
-				//			if(!(p_this->m_Shadow.Status & DCX_SS_VISABLE))
-				//			{
-				//				p_this->m_Shadow.Status |= DCX_SS_VISABLE;
-				//				// Update before show, because if not, restore from maximized will
-				//				// see a glance misplaced shadow
-				//				p_this->UpdateShadow();
-				//				ShowWindow(p_this->m_Shadow.hWin, SW_SHOWNA);
-				//				// If restore from minimized, the window region will not be updated until WM_PAINT:(
-				//				p_this->m_Shadow.bUpdate = true;
-				//			}
-				//			// Awful! It seems that if the window size was not decreased
-				//			// the window region would never be updated until WM_PAINT was sent.
-				//			// So do not Update() until next WM_PAINT is received in this case
-				//			else if(LOWORD(lParam) > LOWORD(p_this->m_Shadow.WndSize) || HIWORD(lParam) > HIWORD(p_this->m_Shadow.WndSize))
-				//				p_this->m_Shadow.bUpdate = true;
-				//			else
-				//				p_this->UpdateShadow();
-				//		}
-				//	}
-				//	p_this->m_Shadow.WndSize = lParam;
-				//}
 
 				if (dcx_testflag(p_this->m_dEventMask, DCX_EVENT_SIZE))
 					p_this->execAliasEx(TEXT("%s,%d,%d,%d"), TEXT("sizing"), 0, LOWORD(lParam), HIWORD(lParam));
@@ -2023,11 +1877,6 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 //#endif
 				break;
 			}
-
-			//case WM_NCCALCSIZE:
-			//	{
-			//	}
-			//	break;
 
 		case WM_WINDOWPOSCHANGING:
 			{
@@ -2305,7 +2154,9 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 
 		case WM_SETCURSOR:
 			{
-				if ((LOWORD(lParam) == HTCLIENT) && ((HWND) wParam == p_this->getHwnd()) && (p_this->getCursor() != nullptr))
+				//if ((LOWORD(lParam) == HTCLIENT) && ((HWND) wParam == p_this->getHwnd()) && (p_this->getCursor() != nullptr))
+				// removing the above checks allows the cursor to be customized for the whole dialog including menus...
+				if ((LOWORD(lParam) != HTERROR) && (p_this->getCursor() != nullptr))
 				{
 					if (GetCursor() != p_this->getCursor())
 						SetCursor(p_this->getCursor());
@@ -2351,30 +2202,6 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 
 		case WM_ACTIVATE:
 			{
-				//if (wParam == WA_ACTIVE && p_this->m_bVistaStyle) {
-				//	bParsed = TRUE;
-				//	lRes = CallWindowProc(p_this->m_hOldWindowProc, mHwnd, uMsg, wParam, lParam);
-				//	InvalidateRect(mHwnd, nullptr, TRUE);
-				//}
-//
-				//if (dcx_testflag(p_this->m_dEventMask, DCX_EVENT_FOCUS)) {
-				//	switch (wParam) {
-				//	case WA_ACTIVE:
-				//	case WA_CLICKACTIVE:
-				//		{
-				//			p_this->execAliasEx(TEXT("%s,%u"), TEXT("activate"), 0);
-				//			break;
-				//		}
-//
-				//	case WA_INACTIVE:
-				//		{
-				//			p_this->execAliasEx(TEXT("%s,%u"), TEXT("deactivate"), 0);
-				//			break;
-				//		}
-				//	} // switch
-				//}
-				//break;
-
 				switch (wParam) {
 				case WA_ACTIVE:
 				{
@@ -2417,14 +2244,6 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 
 		case WM_PAINT:
 			{
-				// no shadow in v3
-
-				//if (p_this->m_Shadow.bUpdate && p_this->isShadowed())
-				//{
-				//	p_this->UpdateShadow();
-				//	p_this->m_Shadow.bUpdate = false;
-				//}
-
 				if (p_this->IsVistaStyle() && !IsIconic(mHwnd)) {
 					ValidateRect(mHwnd, nullptr);
 					p_this->UpdateVistaStyle();
@@ -2433,64 +2252,6 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 				}
 			}
 			break;
-			//case WM_NCPAINT:
-			//	{
-			//		HDC hdc;
-			//		hdc = GetDCEx(hwnd, (HRGN)wParam, DCX_WINDOW|DCX_INTERSECTRGN);
-			//		// Paint into this DC
-			//		ReleaseDC(hwnd, hdc);
-			//		bParsed = TRUE;
-			//	}
-			//	break;
-
-			//case WM_NCLBUTTONDOWN:
-			//case WM_NCLBUTTONUP:
-			//case WM_NCMOUSEHOVER:
-			//case WM_NCMOUSELEAVE:
-			////case WM_NCHITTEST:
-			//case WM_NCPAINT:
-			//	{
-			//		if (p_this->IsVistaStyle()) {
-			//			lRes = CallWindowProc(p_this->m_hOldWindowProc, mHwnd, uMsg, wParam, lParam);
-			//			//InvalidateRect(mHwnd, nullptr, FALSE);
-			//			p_this->UpdateVistaStyle();
-			//			bParsed = TRUE;
-			//		}
-			//	}
-			//	break;
-
-		//case WM_SHOWWINDOW:
-		//	{
-		//		if(p_this->m_Shadow.Status & DCX_SS_ENABLED && !(p_this->m_Shadow.Status & DCX_SS_DISABLEDBYAERO))
-		//		{
-		//			lRes = CallWindowProc(p_this->m_hOldWindowProc, mHwnd, uMsg, wParam, lParam);
-		//			if(!wParam)	// the window is being hidden
-		//			{
-		//				ShowWindow(p_this->m_Shadow.hWin, SW_HIDE);
-		//				p_this->m_Shadow.Status &= ~(DCX_SS_VISABLE | DCX_SS_PARENTVISIBLE);
-		//			}
-		//			else
-		//			{
-		//				p_this->m_Shadow.bUpdate = true;
-		//				p_this->ShowShadow();
-		//			}
-		//			bParsed = TRUE;
-		//		}
-		//	}
-		//	break;
-
-		//case WM_DWMCOMPOSITIONCHANGED:
-		//	{
-		//		if (p_this->isShadowed()) {
-		//			if (Dcx::VistaModule.refreshComposite())
-		//				p_this->m_Shadow.Status |= DCX_SS_DISABLEDBYAERO;
-		//			else
-		//				p_this->m_Shadow.Status &= ~DCX_SS_DISABLEDBYAERO;
-//
-		//			p_this->ShowShadow();
-		//		}
-		//	}
-		//	break;
 
 		case WM_KEYDOWN:
 		{
@@ -2569,20 +2330,20 @@ void DcxDialog::DrawDialogBackground(HDC hdc, DcxDialog *const p_this, LPCRECT r
 	if (GetObject(p_this->m_bitmapBg, sizeof(BITMAP), &bmp) == 0)
 		return;
 
-	//auto hdcbmp = CreateCompatibleDC(hdc);
-
-	//if (hdcbmp == nullptr)
-	//	return;
-
-	//Auto(DeleteDC(hdcbmp));
-
-	////Dcx::dcxHDC hdcbmp(hdc);
-
-	//auto hOldBitmap = SelectBitmap(hdcbmp, p_this->m_bitmapBg);
-
-	//Auto(SelectBitmap(hdcbmp, hOldBitmap));
-
+#if DCX_USE_WRAPPERS
 	Dcx::dcxHDCBitmapResource hdcbmp(hdc, p_this->m_bitmapBg);
+#else
+	auto hdcbmp = CreateCompatibleDC(hdc);
+
+	if (hdcbmp == nullptr)
+		return;
+
+	Auto(DeleteDC(hdcbmp));
+
+	auto hOldBitmap = SelectBitmap(hdcbmp, p_this->m_bitmapBg);
+
+	Auto(SelectBitmap(hdcbmp, hOldBitmap));
+#endif
 
 	auto x = rwnd->left;
 	auto y = rwnd->top;
@@ -2621,400 +2382,6 @@ void DcxDialog::DrawDialogBackground(HDC hdc, DcxDialog *const p_this, LPCRECT r
 		TransparentBlt(hdc, x, y, bmp.bmWidth, bmp.bmHeight, hdcbmp, 0, 0, bmp.bmWidth, bmp.bmHeight, p_this->m_colTransparentBg);
 	}
 }
-
-//// CWndShadow ...
-////
-//// Copyright (c) 2006 Perry Zhu, All Rights Reserved.
-////
-//// mailto:perry@live.com
-////
-//// This code has been modified for use with DCX, & is used for the DcxDialog Shadows.
-//
-//const bool DcxDialog::AddShadow(void)
-//{
-//	if (!this->isShadowed()) {
-//		// Create the shadow window
-//		this->m_Shadow.hWin = CreateWindowEx(WS_EX_LAYERED | WS_EX_TRANSPARENT, DCX_SHADOWCLASS, nullptr,
-//			WS_CAPTION | WS_POPUPWINDOW, CW_USEDEFAULT, 0, 0, 0, this->m_Hwnd, nullptr, GetModuleHandle(nullptr), nullptr);
-//
-//		if (!IsWindow(this->m_Shadow.hWin))
-//			return false;
-//
-//		this->m_Shadow.Status = DCX_SS_ENABLED;
-//
-//		if (Dcx::VistaModule.isAero())
-//			this->m_Shadow.Status |= DCX_SS_DISABLEDBYAERO;
-//
-//		this->ShowShadow();
-//
-//		return true;
-//	}
-//	return false;
-//}
-//
-//void DcxDialog::ShowShadow(void)
-//{
-//	// Clear all except the enabled status
-//	this->m_Shadow.Status &= DCX_SS_ENABLED | DCX_SS_DISABLEDBYAERO;
-//
-//	if((this->m_Shadow.Status & DCX_SS_ENABLED) && !(this->m_Shadow.Status & DCX_SS_DISABLEDBYAERO))	// Enabled
-//	{
-//		// Determine the show state of shadow according to parent window's state
-//		const DWORD lParentStyle = GetWindowStyle(this->m_Hwnd);
-//
-//		if(WS_VISIBLE & lParentStyle)	// Parent visible
-//		{
-//			this->m_Shadow.Status |= DCX_SS_PARENTVISIBLE;
-//
-//			// Parent is normal, show the shadow
-//			if(!((WS_MAXIMIZE | WS_MINIMIZE) & lParentStyle))	// Parent visible but does not need shadow
-//				this->m_Shadow.Status |= DCX_SS_VISABLE;
-//		}
-//	}
-//
-//	if(this->m_Shadow.Status & DCX_SS_VISABLE)
-//	{
-//		ShowWindow(this->m_Shadow.hWin, SW_SHOWNA);
-//		this->UpdateShadow();
-//	}
-//	else
-//		ShowWindow(this->m_Shadow.hWin, SW_HIDE);
-//}
-//
-//void DcxDialog::RemoveShadow(void)
-//{
-//	if (IsWindow(this->m_Shadow.hWin))
-//		DestroyWindow(this->m_Shadow.hWin);
-//}
-//
-//void DcxDialog::UpdateShadow(void)
-//{
-//	RECT WndRect;
-//	GetWindowRect(this->m_Hwnd, &WndRect);
-//	const int nShadWndWid = WndRect.right - WndRect.left + this->m_Shadow.nSize * 2;
-//	const int nShadWndHei = WndRect.bottom - WndRect.top + this->m_Shadow.nSize * 2;
-//
-//	// Create the alpha blending bitmap
-//	BITMAPINFO bmi;        // bitmap header
-//
-//	ZeroMemory(&bmi, sizeof(BITMAPINFO));
-//	bmi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
-//	bmi.bmiHeader.biWidth = nShadWndWid;
-//	bmi.bmiHeader.biHeight = nShadWndHei;
-//	bmi.bmiHeader.biPlanes = 1;
-//	bmi.bmiHeader.biBitCount = 32;         // four 8-bit components
-//	bmi.bmiHeader.biCompression = BI_RGB;
-//	bmi.bmiHeader.biSizeImage = nShadWndWid * nShadWndHei * 4;
-//
-//	BYTE *pvBits;          // pointer to DIB section
-//	HBITMAP hbitmap = CreateDIBSection(nullptr, &bmi, DIB_RGB_COLORS, (void **)&pvBits, nullptr, 0);
-//
-//	if (hbitmap == nullptr)
-//		return;
-//
-//	ZeroMemory(pvBits, bmi.bmiHeader.biSizeImage);
-//	MakeShadow((UINT32 *)pvBits, this->m_Hwnd, &WndRect);
-//
-//	HDC hMemDC = CreateCompatibleDC(nullptr);
-//	if (hMemDC != nullptr)
-//	{
-//		HBITMAP hOriBmp = SelectBitmap(hMemDC, hbitmap);
-//
-//		POINT ptDst = {WndRect.left + this->m_Shadow.nxOffset - this->m_Shadow.nSize, WndRect.top + this->m_Shadow.nyOffset - this->m_Shadow.nSize};
-//		POINT ptSrc = {0, 0};
-//		SIZE WndSize = {nShadWndWid, nShadWndHei};
-//		BLENDFUNCTION blendPixelFunction= { AC_SRC_OVER, 0, 255, AC_SRC_ALPHA };
-//
-//		MoveWindow(this->m_Shadow.hWin, ptDst.x, ptDst.y, nShadWndWid, nShadWndHei, FALSE);
-//
-//		UpdateLayeredWindow(this->m_Shadow.hWin, nullptr, &ptDst, &WndSize, hMemDC, &ptSrc, 0, &blendPixelFunction, ULW_ALPHA);
-//
-//		// Delete used resources
-//		DeleteBitmap(SelectBitmap(hMemDC, hOriBmp));
-//		DeleteDC(hMemDC);
-//	}
-//}
-//
-//const bool DcxDialog::isShadowed(void) const
-//{
-//	return (IsWindow(this->m_Shadow.hWin) ? true : false);
-//}
-//
-//void DcxDialog::MakeShadow(UINT32 *const pShadBits, const HWND hParent, const RECT *const rcParent)
-//{
-//	// The shadow algorithm:
-//	// Get the region of parent window,
-//	// Apply morphologic erosion to shrink it into the size (ShadowWndSize - Sharpness)
-//	// Apply modified (with blur effect) morphologic dilation to make the blurred border
-//	// The algorithm is optimized by assuming parent window is just "one piece" and without "wholes" on it
-//
-//	// Get the region of parent window,
-//	// Create a full rectangle region in case of the window region is not defined
-//	HRGN hParentRgn = CreateRectRgn(0, 0, rcParent->right - rcParent->left, rcParent->bottom - rcParent->top);
-//	GetWindowRgn(hParent, hParentRgn);
-//
-//	// Determine the Start and end point of each horizontal scan line
-//	const SIZE szParent = {rcParent->right - rcParent->left, rcParent->bottom - rcParent->top};
-//	const SIZE szShadow = {szParent.cx + 2 * this->m_Shadow.nSize, szParent.cy + 2 * this->m_Shadow.nSize};
-//	// Extra 2 lines (set to be empty) in ptAnchors are used in dilation
-//	const int nAnchors = max(szParent.cy, szShadow.cy);	// # of anchor points pares
-//	int (*ptAnchors)[2] = new int[nAnchors + 2][2];
-//	int (*ptAnchorsOri)[2] = new int[szParent.cy][2];	// anchor points, will not modify during erosion
-//	ptAnchors[0][0] = szParent.cx;
-//	ptAnchors[0][1] = 0;
-//	ptAnchors[nAnchors + 1][0] = szParent.cx;
-//	ptAnchors[nAnchors + 1][1] = 0;
-//	if(this->m_Shadow.nSize > 0)
-//	{
-//		// Put the parent window anchors at the center
-//		for(int i = 0; i < this->m_Shadow.nSize; i++)
-//		{
-//			ptAnchors[i + 1][0] = szParent.cx;
-//			ptAnchors[i + 1][1] = 0;
-//			ptAnchors[szShadow.cy - i][0] = szParent.cx;
-//			ptAnchors[szShadow.cy - i][1] = 0;
-//		}
-//		ptAnchors += this->m_Shadow.nSize;
-//	}
-//	for(int i = 0; i < szParent.cy; i++)
-//	{
-//		// find start point
-//		int j;
-//		for(j = 0; j < szParent.cx; j++)
-//		{
-//			if(PtInRegion(hParentRgn, j, i))
-//			{
-//				ptAnchors[i + 1][0] = j + this->m_Shadow.nSize;
-//				ptAnchorsOri[i][0] = j;
-//				break;
-//			}
-//		}
-//
-//		if(j >= szParent.cx)	// Start point not found
-//		{
-//			ptAnchors[i + 1][0] = szParent.cx;
-//			ptAnchorsOri[i][1] = 0;
-//			ptAnchors[i + 1][0] = szParent.cx;
-//			ptAnchorsOri[i][1] = 0;
-//		}
-//		else
-//		{
-//			// find end point
-//			for(j = szParent.cx - 1; j >= ptAnchors[i + 1][0]; j--)
-//			{
-//				if(PtInRegion(hParentRgn, j, i))
-//				{
-//					ptAnchors[i + 1][1] = j + 1 + this->m_Shadow.nSize;
-//					ptAnchorsOri[i][1] = j + 1;
-//					break;
-//				}
-//			}
-//		}
-//		//if(0 != ptAnchorsOri[i][1])
-//		//	TRACE(TEXT("%d %d\n"), ptAnchorsOri[i][0], ptAnchorsOri[i][1]);
-//	}
-//
-//	if(this->m_Shadow.nSize > 0)
-//		ptAnchors -= this->m_Shadow.nSize;	// Restore pos of ptAnchors for erosion
-//	int (*ptAnchorsTmp)[2] = new int[nAnchors + 2][2];	// Store the result of erosion
-//	// First and last line should be empty
-//	ptAnchorsTmp[0][0] = szParent.cx;
-//	ptAnchorsTmp[0][1] = 0;
-//	ptAnchorsTmp[nAnchors + 1][0] = szParent.cx;
-//	ptAnchorsTmp[nAnchors + 1][1] = 0;
-//	int nEroTimes = 0;
-//	// morphologic erosion
-//	for(int i = 0; i < this->m_Shadow.nSharpness - this->m_Shadow.nSize; i++)
-//	{
-//		nEroTimes++;
-//		//ptAnchorsTmp[1][0] = szParent.cx;
-//		//ptAnchorsTmp[1][1] = 0;
-//		//ptAnchorsTmp[szParent.cy + 1][0] = szParent.cx;
-//		//ptAnchorsTmp[szParent.cy + 1][1] = 0;
-//		for(int j = 1; j < nAnchors + 1; j++)
-//		{
-//			ptAnchorsTmp[j][0] = max(ptAnchors[j - 1][0], max(ptAnchors[j][0], ptAnchors[j + 1][0])) + 1;
-//			ptAnchorsTmp[j][1] = min(ptAnchors[j - 1][1], min(ptAnchors[j][1], ptAnchors[j + 1][1])) - 1;
-//		}
-//		// Exchange ptAnchors and ptAnchorsTmp;
-//		int (*ptAnchorsXange)[2] = ptAnchorsTmp;
-//		ptAnchorsTmp = ptAnchors;
-//		ptAnchors = ptAnchorsXange;
-//		//std::swap(ptAnchors, ptAnchorsTmp);
-//	}
-//
-//	// morphologic dilation
-//	ptAnchors += (this->m_Shadow.nSize < 0 ? -this->m_Shadow.nSize : 0) + 1;	// now coordinates in ptAnchors are same as in shadow window
-//	// Generate the kernel
-//	const int nKernelSize = this->m_Shadow.nSize > this->m_Shadow.nSharpness ? this->m_Shadow.nSize : this->m_Shadow.nSharpness;
-//	const int nCenterSize = this->m_Shadow.nSize > this->m_Shadow.nSharpness ? (this->m_Shadow.nSize - this->m_Shadow.nSharpness) : 0;
-//	UINT32 *pKernel = new UINT32[(2 * nKernelSize + 1) * (2 * nKernelSize + 1)];
-//	UINT32 *pKernelIter = pKernel;
-//	const DWORD preColDark = PreMultiply(this->m_Shadow.Color, this->m_Shadow.nDarkness);
-//	for(int i = 0; i <= 2 * nKernelSize; i++)
-//	{
-//		for(int j = 0; j <= 2 * nKernelSize; j++)
-//		{
-//			const double dLength = sqrt((i - nKernelSize) * (i - nKernelSize) + (j - nKernelSize) * (double)(j - nKernelSize));
-//			if(dLength < nCenterSize)
-//				*pKernelIter = this->m_Shadow.nDarkness << 24 | preColDark;
-//			else if(dLength <= nKernelSize)
-//			{
-//				const UINT32 nFactor = ((UINT32)((1 - (dLength - nCenterSize) / (this->m_Shadow.nSharpness + 1)) * this->m_Shadow.nDarkness));
-//				*pKernelIter = nFactor << 24 | PreMultiply(this->m_Shadow.Color, (BYTE)(nFactor & 0xFF));
-//				// TODO: Examin this nFactor usage in PreMultiply() as its converting a UINT32 to an unsigned char
-//				// changed nFactor to (BYTE)(nFactor & 0xFF) to mask out > byte bits.
-//			}
-//			else
-//				*pKernelIter = 0;
-//			//TRACE(TEXT("%d "), *pKernelIter >> 24);
-//			pKernelIter ++;
-//		}
-//		//TRACE(TEXT("\n"));
-//	}
-//	// Generate blurred border
-//	for(int i = nKernelSize; i < szShadow.cy - nKernelSize; i++)
-//	{
-//		if(ptAnchors[i][0] < ptAnchors[i][1])
-//		{
-//			int j;
-//
-//			// Start of line
-//			for(j = ptAnchors[i][0];
-//				j < min(max(ptAnchors[i - 1][0], ptAnchors[i + 1][0]) + 1, ptAnchors[i][1]);
-//				j++)
-//			{
-//				for(int k = 0; k <= 2 * nKernelSize; k++)
-//				{
-//					UINT32 *pPixel = pShadBits +
-//						(szShadow.cy - i - 1 + nKernelSize - k) * szShadow.cx + j - nKernelSize;
-//					UINT32 *pKernelPixel = pKernel + k * (2 * nKernelSize + 1);
-//					for(int l = 0; l <= 2 * nKernelSize; l++)
-//					{
-//						if(*pPixel < *pKernelPixel)
-//							*pPixel = *pKernelPixel;
-//						pPixel++;
-//						pKernelPixel++;
-//					}
-//				}
-//			}	// for() start of line
-//
-//			// End of line
-//			for(j = max(j, min(ptAnchors[i - 1][1], ptAnchors[i + 1][1]) - 1);
-//				j < ptAnchors[i][1];
-//				j++)
-//			{
-//				for(int k = 0; k <= 2 * nKernelSize; k++)
-//				{
-//					UINT32 *pPixel = pShadBits +
-//						(szShadow.cy - i - 1 + nKernelSize - k) * szShadow.cx + j - nKernelSize;
-//					UINT32 *pKernelPixel = pKernel + k * (2 * nKernelSize + 1);
-//					for(int l = 0; l <= 2 * nKernelSize; l++)
-//					{
-//						if(*pPixel < *pKernelPixel)
-//							*pPixel = *pKernelPixel;
-//						pPixel++;
-//						pKernelPixel++;
-//					}
-//				}
-//			}	// for() end of line
-//
-//		}
-//	}	// for() Generate blurred border
-//
-//	// Erase unwanted parts and complement missing
-//	const UINT32 clCenter = this->m_Shadow.nDarkness << 24 | preColDark;
-//	for(int i = min(nKernelSize, max(this->m_Shadow.nSize - this->m_Shadow.nyOffset, 0));
-//		i < max(szShadow.cy - nKernelSize, min(szParent.cy + this->m_Shadow.nSize - this->m_Shadow.nyOffset, szParent.cy + 2 * this->m_Shadow.nSize));
-//		i++)
-//	{
-//		UINT32 *pLine = pShadBits + (szShadow.cy - i - 1) * szShadow.cx;
-//		if(i - this->m_Shadow.nSize + this->m_Shadow.nyOffset < 0 || i - this->m_Shadow.nSize + this->m_Shadow.nyOffset >= szParent.cy)	// Line is not covered by parent window
-//		{
-//			for(int j = ptAnchors[i][0]; j < ptAnchors[i][1]; j++)
-//			{
-//				*(pLine + j) = clCenter;
-//			}
-//		}
-//		else
-//		{
-//			for(int j = ptAnchors[i][0];
-//				j < min(ptAnchorsOri[i - this->m_Shadow.nSize + this->m_Shadow.nyOffset][0] + this->m_Shadow.nSize - this->m_Shadow.nxOffset, ptAnchors[i][1]);
-//				j++)
-//				*(pLine + j) = clCenter;
-//			for(int j = max(ptAnchorsOri[i - this->m_Shadow.nSize + this->m_Shadow.nyOffset][0] + this->m_Shadow.nSize - this->m_Shadow.nxOffset, 0);
-//				j < min(ptAnchorsOri[i - this->m_Shadow.nSize + this->m_Shadow.nyOffset][1] + this->m_Shadow.nSize - this->m_Shadow.nxOffset, szShadow.cx);
-//				j++)
-//				*(pLine + j) = 0;
-//			for(int j = max(ptAnchorsOri[i - this->m_Shadow.nSize + this->m_Shadow.nyOffset][1] + this->m_Shadow.nSize - this->m_Shadow.nxOffset, ptAnchors[i][0]);
-//				j < ptAnchors[i][1];
-//				j++)
-//				*(pLine + j) = clCenter;
-//		}
-//	}
-//
-//	// Delete used resources
-//	delete[] (ptAnchors - (this->m_Shadow.nSize < 0 ? -this->m_Shadow.nSize : 0) - 1);
-//	delete[] ptAnchorsTmp;
-//	delete[] ptAnchorsOri;
-//	delete[] pKernel;
-//	DeleteObject(hParentRgn);
-//}
-//
-//const bool DcxDialog::SetShadowSize(const int NewSize)
-//{
-//	if(NewSize > 20 || NewSize < -20)
-//		return false;
-//
-//	this->m_Shadow.nSize = (signed char)NewSize;
-//	if(DCX_SS_VISABLE & m_Shadow.Status)
-//		UpdateShadow();
-//	return true;
-//}
-//
-//const bool DcxDialog::SetShadowSharpness(const UINT NewSharpness)
-//{
-//	if(NewSharpness > 20)
-//		return false;
-//
-//	this->m_Shadow.nSharpness = (unsigned char)NewSharpness;
-//	if(DCX_SS_VISABLE & this->m_Shadow.Status)
-//		UpdateShadow();
-//	return true;
-//}
-//
-//const bool DcxDialog::SetShadowDarkness(const UINT NewDarkness)
-//{
-//	if(NewDarkness > 255)
-//		return false;
-//
-//	this->m_Shadow.nDarkness = (unsigned char)NewDarkness;
-//	if(DCX_SS_VISABLE & this->m_Shadow.Status)
-//		UpdateShadow();
-//	return true;
-//}
-//
-//const bool DcxDialog::SetShadowPosition(const int NewXOffset, const int NewYOffset)
-//{
-//	if(NewXOffset > 20 || NewXOffset < -20 ||
-//		NewYOffset > 20 || NewYOffset < -20)
-//		return false;
-//	
-//	this->m_Shadow.nxOffset = (signed char)NewXOffset;
-//	this->m_Shadow.nyOffset = (signed char)NewYOffset;
-//	if(DCX_SS_VISABLE & this->m_Shadow.Status)
-//		UpdateShadow();
-//	return true;
-//}
-//
-//const bool DcxDialog::SetShadowColor(const COLORREF NewColor)
-//{
-//	this->m_Shadow.Color = NewColor;
-//	if(DCX_SS_VISABLE & this->m_Shadow.Status)
-//		UpdateShadow();
-//	return true;
-//}
-//// .... CWndShadow
 
 /*
 **	Show error messages related to /xdialog & $xdialog() calls
@@ -3213,6 +2580,22 @@ void DcxDialog::DrawCaret(Graphics & graph)
 
 void DcxDialog::DrawDialog( Graphics & graphics, HDC hDC)
 {
+#if DCX_USE_WRAPPERS
+	RECT rc;
+	if (!GetWindowRect(this->m_Hwnd, &rc))
+		return;
+
+	auto w = (rc.right - rc.left), h = (rc.bottom - rc.top);
+
+	Dcx::dcxBitmapResource hBitmap(hDC, w, h);
+
+	Dcx::dcxHDCBitmapResource hdcMemory(hDC, hBitmap);
+
+	SendMessage(this->m_Hwnd, WM_PRINT, (WPARAM)(HDC)hdcMemory, PRF_CLIENT | PRF_NONCLIENT | PRF_ERASEBKGND);
+
+	Bitmap bitmap(hBitmap, nullptr);
+	graphics.DrawImage(&bitmap, 0, 0);
+#else
 	RECT rc;
 	if (!GetWindowRect(this->m_Hwnd, &rc))
 		return;
@@ -3236,15 +2619,17 @@ void DcxDialog::DrawDialog( Graphics & graphics, HDC hDC)
 
 	Auto(SelectBitmap(hdcMemory, hbmpOld));
 
-	SendMessage(this->m_Hwnd, WM_PRINT, (WPARAM)hdcMemory,PRF_CLIENT|PRF_NONCLIENT|PRF_ERASEBKGND);
+	SendMessage(this->m_Hwnd, WM_PRINT, (WPARAM)(HDC)hdcMemory,PRF_CLIENT|PRF_NONCLIENT|PRF_ERASEBKGND);
 
 	Bitmap bitmap( hBitmap, nullptr);
 	graphics.DrawImage( &bitmap, 0, 0);
+#endif
 }
 
 void DcxDialog::DrawCtrl( Graphics & graphics, HDC hDC, HWND hWnd)
 {
-	if( !::IsWindow(hWnd) || !::IsWindowVisible(hWnd) )
+#if DCX_USE_WRAPPERS
+	if (!::IsWindow(hWnd) || !::IsWindowVisible(hWnd))
 		return;
 
 	RECT rc;
@@ -3259,28 +2644,53 @@ void DcxDialog::DrawCtrl( Graphics & graphics, HDC hDC, HWND hWnd)
 	if (!graphics.IsVisible(rc.left, rc.top, w, h))
 		return;
 
-	auto hdcMemory = ::CreateCompatibleDC(hDC);
+	Dcx::dcxBitmapResource hBitmap(hDC, w, h);
 
+	Dcx::dcxHDCBitmapResource hdcMemory(hDC, hBitmap);
+
+	SendMessage(hWnd, WM_PRINT, (WPARAM)(HDC)hdcMemory, (LPARAM)PRF_NONCLIENT | PRF_CLIENT | PRF_CHILDREN | PRF_CHECKVISIBLE | PRF_ERASEBKGND);
+
+	Bitmap bitmap(hBitmap, nullptr);
+	graphics.DrawImage(&bitmap, rc.left, rc.top);
+#else
+	if( !::IsWindow(hWnd) || !::IsWindowVisible(hWnd) )
+		return;
+	
+	RECT rc;
+	if (!GetWindowRect(hWnd, &rc))
+		return;
+	
+	this->MapVistaRect(nullptr, &rc);
+	
+	const auto w = (rc.right - rc.left), h = (rc.bottom - rc.top);
+	
+	// Don't bother drawing if its not visible in clip rect.
+	if (!graphics.IsVisible(rc.left, rc.top, w, h))
+		return;
+	
+	auto hdcMemory = ::CreateCompatibleDC(hDC);
+	
 	if (hdcMemory == nullptr)
 		return;
-
+	
 	Auto(DeleteDC(hdcMemory));
-
+	
 	auto hBitmap = ::CreateCompatibleBitmap(hDC, w, h);
-
+	
 	if (hBitmap == nullptr)
 		return;
-
+	
 	Auto(DeleteBitmap(hBitmap));
-
+	
 	auto hbmpOld = SelectBitmap(hdcMemory, hBitmap);
-
+	
 	Auto(SelectBitmap(hdcMemory, hbmpOld));
-
+	
 	SendMessage(hWnd, WM_PRINT, (WPARAM)hdcMemory, (LPARAM)PRF_NONCLIENT | PRF_CLIENT | PRF_CHILDREN | PRF_CHECKVISIBLE | PRF_ERASEBKGND);
-
+	
 	Bitmap bitmap( hBitmap, nullptr);
 	graphics.DrawImage( &bitmap, rc.left, rc.top);
+#endif
 }
 #endif
 
@@ -3357,6 +2767,7 @@ void DcxDialog::UpdateVistaStyle(const LPRECT rcUpdate)
 	Auto(SelectBitmap(hdcMemory, hbmpOld));
 
 	this->m_hVistaHDC = hdcMemory;
+	Auto(this->m_hVistaHDC = nullptr);
 
 	Graphics graph(hdcMemory);
 	graph.SetPageScale(1.0);
@@ -3469,7 +2880,7 @@ void DcxDialog::UpdateVistaStyle(const LPRECT rcUpdate)
 	// NB: Unable to combine ULW_COLORKEY & ULW_ALPHA for some reason...
 	UpdateLayeredWindow( this->m_hFakeHwnd, hDC, &ptWinPos, &szWin, hdcMemory, &ptSrc, 0, &stBlend, ULW_ALPHA);
 
-	this->m_hVistaHDC = nullptr;
+	//this->m_hVistaHDC = nullptr;
 
 	graph.ReleaseHDC(hdcMemory);
 #endif

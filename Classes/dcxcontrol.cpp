@@ -997,145 +997,326 @@ DcxControl * DcxControl::controlFactory(DcxDialog *const p_Dialog, const UINT mI
 	rc.right = rc.left + tsInput.getnexttok().to_<LONG>();
 	rc.bottom = rc.top + tsInput.getnexttok().to_<LONG>();
 
-	//offset += 4;
-	//
-	//TString styles;
-	//const auto nToks = tsInput.numtok();
-	//
-	//if ( nToks > offset )
-	//	styles = tsInput.gettok( (int)(offset +1), -1);
-
 	const auto styles(tsInput.getlasttoks());
 
 	if (hParent == nullptr)
 		hParent = p_Dialog->getHwnd();
 
-	const auto dct = DcxControl::TSTypeToControlType(type);
-
-	if ((dct == DcxControlTypes::PROGRESSBAR) && (dcx_testflag(mask, CTLF_ALLOW_PBAR)))
-		return new DcxProgressBar(mID, p_Dialog, hParent, &rc, styles);
-	else if ((dct == DcxControlTypes::TRACKBAR) && (dcx_testflag(mask, CTLF_ALLOW_TRACKBAR)))
-		return new DcxTrackBar(mID, p_Dialog, hParent, &rc, styles);
-	else if ((dct == DcxControlTypes::COMBOEX) && (dcx_testflag(mask, CTLF_ALLOW_COMBOEX)))
-		return new DcxComboEx(mID, p_Dialog, hParent, &rc, styles);
-	else if ((dct == DcxControlTypes::COLORCOMBO) && (dcx_testflag(mask, CTLF_ALLOW_COLORCOMBO)))
-		return new DcxColorCombo(mID, p_Dialog, hParent, &rc, styles);
-	else if ((dct == DcxControlTypes::STATUSBAR) && (dcx_testflag(mask, CTLF_ALLOW_STATUSBAR)))
-		return new DcxStatusBar(mID, p_Dialog, hParent, &rc, styles);
-	else if ((dct == DcxControlTypes::TOOLBAR) && (dcx_testflag(mask, CTLF_ALLOW_TOOLBAR)))
-		return new DcxToolBar(mID, p_Dialog, hParent, &rc, styles);
-	else if ((dct == DcxControlTypes::TREEVIEW) && (dcx_testflag(mask, CTLF_ALLOW_TREEVIEW)))
-		return new DcxTreeView(mID, p_Dialog, hParent, &rc, styles);
-	else if ((dct == DcxControlTypes::LISTVIEW) && (dcx_testflag(mask, CTLF_ALLOW_LISTVIEW)))
-		return new DcxListView(mID, p_Dialog, hParent, &rc, styles);
-	else if ((dct == DcxControlTypes::REBAR) && (dcx_testflag(mask, CTLF_ALLOW_REBAR)))
-		return new DcxReBar(mID, p_Dialog, hParent, &rc, styles);
-	else if ((dct == DcxControlTypes::BUTTON) && (dcx_testflag(mask, CTLF_ALLOW_BUTTON)))
-		return new DcxButton(mID, p_Dialog, hParent, &rc, styles);
-	else if ((dct == DcxControlTypes::RICHEDIT) && (dcx_testflag(mask, CTLF_ALLOW_RICHEDIT)))
-		return new DcxRichEdit(mID, p_Dialog, hParent, &rc, styles);
-	else if ((dct == DcxControlTypes::UPDOWN) && (dcx_testflag(mask, CTLF_ALLOW_UPDOWN)))
-		return new DcxUpDown(mID, p_Dialog, hParent, &rc, styles);
-	else if ((dct == DcxControlTypes::IPADDRESS) && (dcx_testflag(mask, CTLF_ALLOW_IPADDRESS)))
-		return new DcxIpAddress(mID, p_Dialog, hParent, &rc, styles);
-	else if ((dct == DcxControlTypes::WEBCTRL) && (dcx_testflag(mask, CTLF_ALLOW_WEBCTRL)))
-		return new DcxWebControl(mID, p_Dialog, hParent, &rc, styles);
-	else if ((dct == DcxControlTypes::CALENDAR) && (dcx_testflag(mask, CTLF_ALLOW_CALANDER)))
-		return new DcxCalendar(mID, p_Dialog, hParent, &rc, styles);
-	else if ((dct == DcxControlTypes::DATETIME) && (dcx_testflag(mask, CTLF_ALLOW_CALANDER)))
-		return new DcxDateTime(mID, p_Dialog, hParent, &rc, styles);
-	else if ((dct == DcxControlTypes::DIVIDER) && (dcx_testflag(mask, CTLF_ALLOW_DIVIDER)))
-		return new DcxDivider(mID, p_Dialog, hParent, &rc, styles);
-	else if ((dct == DcxControlTypes::PANEL) && (dcx_testflag(mask, CTLF_ALLOW_PANEL)))
-		return new DcxPanel(mID, p_Dialog, hParent, &rc, styles);
-	else if ((dct == DcxControlTypes::TABB) && (dcx_testflag(mask, CTLF_ALLOW_TAB)))
-		return new DcxTab(mID, p_Dialog, hParent, &rc, styles);
-	else if ((dct == DcxControlTypes::LINE) && (dcx_testflag(mask, CTLF_ALLOW_LINE)))
-		return new DcxLine(mID, p_Dialog, hParent, &rc, styles);
-	else if ((dct == DcxControlTypes::BOX) && (dcx_testflag(mask, CTLF_ALLOW_BOX)))
-		return new DcxBox(mID, p_Dialog, hParent, &rc, styles);
-	else if ((dct == DcxControlTypes::RADIO) && (dcx_testflag(mask, CTLF_ALLOW_RADIO)))
-		return new DcxRadio(mID, p_Dialog, hParent, &rc, styles);
-	else if ((dct == DcxControlTypes::CHECK) && (dcx_testflag(mask, CTLF_ALLOW_CHECK)))
-		return new DcxCheck(mID, p_Dialog, hParent, &rc, styles);
-	else if ((dct == DcxControlTypes::TEXT) && (dcx_testflag(mask, CTLF_ALLOW_TEXT)))
-		return new DcxText(mID, p_Dialog, hParent, &rc, styles);
-	else if ((dct == DcxControlTypes::EDIT) && (dcx_testflag(mask, CTLF_ALLOW_EDIT)))
-		return new DcxEdit(mID, p_Dialog, hParent, &rc, styles);
-	else if ((dct == DcxControlTypes::SCROLL) && (dcx_testflag(mask, CTLF_ALLOW_SCROLL)))
-		return new DcxScroll(mID, p_Dialog, hParent, &rc, styles);
-	else if ((dct == DcxControlTypes::LIST) && (dcx_testflag(mask, CTLF_ALLOW_LIST)))
-		return new DcxList(mID, p_Dialog, hParent, &rc, styles);
-	else if ((dct == DcxControlTypes::LINK) && (dcx_testflag(mask, CTLF_ALLOW_LINK)))
-		return new DcxLink(mID, p_Dialog, hParent, &rc, styles);
-	else if ((dct == DcxControlTypes::IMAGE) && (dcx_testflag(mask, CTLF_ALLOW_IMAGE)))
-		return new DcxImage(mID, p_Dialog, hParent, &rc, styles);
-	else if ((dct == DcxControlTypes::PAGER) && (dcx_testflag(mask, CTLF_ALLOW_PAGER)))
-		return new DcxPager(mID, p_Dialog, hParent, &rc, styles);
-	else if ((dct == DcxControlTypes::STACKER) && (dcx_testflag(mask, CTLF_ALLOW_STACKER)))
-		return new DcxStacker(mID, p_Dialog, hParent, &rc, styles);
-	//else if (( type == TEXT("mci") ) && (dcx_testflag(mask, CTLF_ALLOW_DIRECTSHOW)))
-	//	return new DcxMci( mID, p_Dialog, hParent, &rc, styles );
-
+//	const auto dct = DcxControl::TSTypeToControlType(type);
+//
+//	if ((dct == DcxControlTypes::PROGRESSBAR) && (dcx_testflag(mask, CTLF_ALLOW_PBAR)))
+//		return new DcxProgressBar(mID, p_Dialog, hParent, &rc, styles);
+//	else if ((dct == DcxControlTypes::TRACKBAR) && (dcx_testflag(mask, CTLF_ALLOW_TRACKBAR)))
+//		return new DcxTrackBar(mID, p_Dialog, hParent, &rc, styles);
+//	else if ((dct == DcxControlTypes::COMBOEX) && (dcx_testflag(mask, CTLF_ALLOW_COMBOEX)))
+//		return new DcxComboEx(mID, p_Dialog, hParent, &rc, styles);
+//	else if ((dct == DcxControlTypes::COLORCOMBO) && (dcx_testflag(mask, CTLF_ALLOW_COLORCOMBO)))
+//		return new DcxColorCombo(mID, p_Dialog, hParent, &rc, styles);
+//	else if ((dct == DcxControlTypes::STATUSBAR) && (dcx_testflag(mask, CTLF_ALLOW_STATUSBAR)))
+//		return new DcxStatusBar(mID, p_Dialog, hParent, &rc, styles);
+//	else if ((dct == DcxControlTypes::TOOLBAR) && (dcx_testflag(mask, CTLF_ALLOW_TOOLBAR)))
+//		return new DcxToolBar(mID, p_Dialog, hParent, &rc, styles);
+//	else if ((dct == DcxControlTypes::TREEVIEW) && (dcx_testflag(mask, CTLF_ALLOW_TREEVIEW)))
+//		return new DcxTreeView(mID, p_Dialog, hParent, &rc, styles);
+//	else if ((dct == DcxControlTypes::LISTVIEW) && (dcx_testflag(mask, CTLF_ALLOW_LISTVIEW)))
+//		return new DcxListView(mID, p_Dialog, hParent, &rc, styles);
+//	else if ((dct == DcxControlTypes::REBAR) && (dcx_testflag(mask, CTLF_ALLOW_REBAR)))
+//		return new DcxReBar(mID, p_Dialog, hParent, &rc, styles);
+//	else if ((dct == DcxControlTypes::BUTTON) && (dcx_testflag(mask, CTLF_ALLOW_BUTTON)))
+//		return new DcxButton(mID, p_Dialog, hParent, &rc, styles);
+//	else if ((dct == DcxControlTypes::RICHEDIT) && (dcx_testflag(mask, CTLF_ALLOW_RICHEDIT)))
+//		return new DcxRichEdit(mID, p_Dialog, hParent, &rc, styles);
+//	else if ((dct == DcxControlTypes::UPDOWN) && (dcx_testflag(mask, CTLF_ALLOW_UPDOWN)))
+//		return new DcxUpDown(mID, p_Dialog, hParent, &rc, styles);
+//	else if ((dct == DcxControlTypes::IPADDRESS) && (dcx_testflag(mask, CTLF_ALLOW_IPADDRESS)))
+//		return new DcxIpAddress(mID, p_Dialog, hParent, &rc, styles);
+//	else if ((dct == DcxControlTypes::WEBCTRL) && (dcx_testflag(mask, CTLF_ALLOW_WEBCTRL)))
+//		return new DcxWebControl(mID, p_Dialog, hParent, &rc, styles);
+//	else if ((dct == DcxControlTypes::CALENDAR) && (dcx_testflag(mask, CTLF_ALLOW_CALANDER)))
+//		return new DcxCalendar(mID, p_Dialog, hParent, &rc, styles);
+//	else if ((dct == DcxControlTypes::DATETIME) && (dcx_testflag(mask, CTLF_ALLOW_CALANDER)))
+//		return new DcxDateTime(mID, p_Dialog, hParent, &rc, styles);
+//	else if ((dct == DcxControlTypes::DIVIDER) && (dcx_testflag(mask, CTLF_ALLOW_DIVIDER)))
+//		return new DcxDivider(mID, p_Dialog, hParent, &rc, styles);
+//	else if ((dct == DcxControlTypes::PANEL) && (dcx_testflag(mask, CTLF_ALLOW_PANEL)))
+//		return new DcxPanel(mID, p_Dialog, hParent, &rc, styles);
+//	else if ((dct == DcxControlTypes::TABB) && (dcx_testflag(mask, CTLF_ALLOW_TAB)))
+//		return new DcxTab(mID, p_Dialog, hParent, &rc, styles);
+//	else if ((dct == DcxControlTypes::LINE) && (dcx_testflag(mask, CTLF_ALLOW_LINE)))
+//		return new DcxLine(mID, p_Dialog, hParent, &rc, styles);
+//	else if ((dct == DcxControlTypes::BOX) && (dcx_testflag(mask, CTLF_ALLOW_BOX)))
+//		return new DcxBox(mID, p_Dialog, hParent, &rc, styles);
+//	else if ((dct == DcxControlTypes::RADIO) && (dcx_testflag(mask, CTLF_ALLOW_RADIO)))
+//		return new DcxRadio(mID, p_Dialog, hParent, &rc, styles);
+//	else if ((dct == DcxControlTypes::CHECK) && (dcx_testflag(mask, CTLF_ALLOW_CHECK)))
+//		return new DcxCheck(mID, p_Dialog, hParent, &rc, styles);
+//	else if ((dct == DcxControlTypes::TEXT) && (dcx_testflag(mask, CTLF_ALLOW_TEXT)))
+//		return new DcxText(mID, p_Dialog, hParent, &rc, styles);
+//	else if ((dct == DcxControlTypes::EDIT) && (dcx_testflag(mask, CTLF_ALLOW_EDIT)))
+//		return new DcxEdit(mID, p_Dialog, hParent, &rc, styles);
+//	else if ((dct == DcxControlTypes::SCROLL) && (dcx_testflag(mask, CTLF_ALLOW_SCROLL)))
+//		return new DcxScroll(mID, p_Dialog, hParent, &rc, styles);
+//	else if ((dct == DcxControlTypes::LIST) && (dcx_testflag(mask, CTLF_ALLOW_LIST)))
+//		return new DcxList(mID, p_Dialog, hParent, &rc, styles);
+//	else if ((dct == DcxControlTypes::LINK) && (dcx_testflag(mask, CTLF_ALLOW_LINK)))
+//		return new DcxLink(mID, p_Dialog, hParent, &rc, styles);
+//	else if ((dct == DcxControlTypes::IMAGE) && (dcx_testflag(mask, CTLF_ALLOW_IMAGE)))
+//		return new DcxImage(mID, p_Dialog, hParent, &rc, styles);
+//	else if ((dct == DcxControlTypes::PAGER) && (dcx_testflag(mask, CTLF_ALLOW_PAGER)))
+//		return new DcxPager(mID, p_Dialog, hParent, &rc, styles);
+//	else if ((dct == DcxControlTypes::STACKER) && (dcx_testflag(mask, CTLF_ALLOW_STACKER)))
+//		return new DcxStacker(mID, p_Dialog, hParent, &rc, styles);
+//#ifdef DCX_USE_DXSDK
+//
+//	else if ((dct == DcxControlTypes::DIRECTSHOW) && (dcx_testflag(mask, CTLF_ALLOW_DIRECTSHOW)))
+//		return new DcxDirectshow(mID, p_Dialog, hParent, &rc, styles);
+//
+//#endif // DCX_USE_DXSDK
+//
+//	else if ((dct == DcxControlTypes::WINDOW) && (dcx_testflag(mask, CTLF_ALLOW_DOCK))) {
+//		if (styles.empty())
+//			throw Dcx::dcxException("No window name");
+//
+//		const auto tsWin(styles.getfirsttok(1));
+//
+//		// this helps stop '@' being passed as $window(@).hwnd == $window(-2).hwnd & usually causes a crash.
+//		if (tsWin.len() < 2)
+//			throw Dcx::dcxException(TEXT("No such window: %s"), tsWin);
+//
+//		auto winHwnd = (HWND)tsWin.to_num();
+//		if (!IsWindow(winHwnd)) {
+//			TCHAR windowHwnd[30];
+//
+//			mIRCLinker::evalex(windowHwnd, 30, TEXT("$window(%s).hwnd"), tsWin.to_chr());
+//
+//			winHwnd = (HWND)dcx_atoi(windowHwnd);
+//		}
+//
+//		if (!IsWindow(winHwnd))
+//			throw Dcx::dcxException(TEXT("No such window: %s"), tsWin);
+//
+//		if (p_Dialog->getControlByHWND(winHwnd) != nullptr)
+//			throw Dcx::dcxException("Window already a DCX Control");
+//
+//		return new DcxMWindow(winHwnd, hParent, mID, p_Dialog, &rc, styles);
+//	}
+//	else if ((dct == DcxControlTypes::DIALOG) && (dcx_testflag(mask, CTLF_ALLOW_DOCK))) {
+//		if (styles.empty())
+//			throw Dcx::dcxException("No dialog name");
+//
+//		const auto tsDname(styles.getfirsttok(1));
+//		auto winHwnd = GetHwndFromString(tsDname);
+//
+//		if (IsWindow(winHwnd))
+//			throw Dcx::dcxException(TEXT("No such dialog: %"), tsDname);
+//
+//		if (p_Dialog->getControlByHWND(winHwnd) != nullptr)
+//			Dcx::dcxException(TEXT("Control already exists : %"), tsDname);
+//
+//		auto newDialog = new DcxMDialog(winHwnd, hParent, mID, p_Dialog, &rc, styles);
+//		auto dlg = Dcx::Dialogs.getDialogByHandle(winHwnd);
+//
+//		// if its a dcx marked dialog, mark the parent name
+//		if (dlg != nullptr)
+//			dlg->setParentName(p_Dialog->getName());
+//
+//		return newDialog;
+//	}
+	
+	switch (DcxControl::TSTypeToControlType(type))
+	{
+	case DcxControlTypes::PROGRESSBAR:
+		if (dcx_testflag(mask, CTLF_ALLOW_PBAR))
+			return new DcxProgressBar(mID, p_Dialog, hParent, &rc, styles);
+		break;
+	case DcxControlTypes::TRACKBAR:
+		if (dcx_testflag(mask, CTLF_ALLOW_TRACKBAR))
+			return new DcxTrackBar(mID, p_Dialog, hParent, &rc, styles);
+		break;
+	case DcxControlTypes::COMBOEX:
+		if (dcx_testflag(mask, CTLF_ALLOW_COMBOEX))
+			return new DcxComboEx(mID, p_Dialog, hParent, &rc, styles);
+		break;
+	case DcxControlTypes::COLORCOMBO:
+		if (dcx_testflag(mask, CTLF_ALLOW_COLORCOMBO))
+			return new DcxColorCombo(mID, p_Dialog, hParent, &rc, styles);
+		break;
+	case DcxControlTypes::STATUSBAR:
+		if (dcx_testflag(mask, CTLF_ALLOW_STATUSBAR))
+			return new DcxStatusBar(mID, p_Dialog, hParent, &rc, styles);
+		break;
+	case DcxControlTypes::TOOLBAR:
+		if (dcx_testflag(mask, CTLF_ALLOW_TOOLBAR))
+			return new DcxToolBar(mID, p_Dialog, hParent, &rc, styles);
+		break;
+	case DcxControlTypes::TREEVIEW:
+		if (dcx_testflag(mask, CTLF_ALLOW_TREEVIEW))
+			return new DcxTreeView(mID, p_Dialog, hParent, &rc, styles);
+		break;
+	case DcxControlTypes::LISTVIEW:
+		if (dcx_testflag(mask, CTLF_ALLOW_LISTVIEW))
+			return new DcxListView(mID, p_Dialog, hParent, &rc, styles);
+		break;
+	case DcxControlTypes::REBAR:
+		if (dcx_testflag(mask, CTLF_ALLOW_REBAR))
+			return new DcxReBar(mID, p_Dialog, hParent, &rc, styles);
+		break;
+	case DcxControlTypes::BUTTON:
+		if (dcx_testflag(mask, CTLF_ALLOW_BUTTON))
+			return new DcxButton(mID, p_Dialog, hParent, &rc, styles);
+		break;
+	case DcxControlTypes::RICHEDIT:
+		if (dcx_testflag(mask, CTLF_ALLOW_RICHEDIT))
+			return new DcxRichEdit(mID, p_Dialog, hParent, &rc, styles);
+		break;
+	case DcxControlTypes::UPDOWN:
+		if (dcx_testflag(mask, CTLF_ALLOW_UPDOWN))
+			return new DcxUpDown(mID, p_Dialog, hParent, &rc, styles);
+		break;
+	case DcxControlTypes::IPADDRESS:
+		if (dcx_testflag(mask, CTLF_ALLOW_IPADDRESS))
+			return new DcxIpAddress(mID, p_Dialog, hParent, &rc, styles);
+		break;
+	case DcxControlTypes::WEBCTRL:
+		if (dcx_testflag(mask, CTLF_ALLOW_WEBCTRL))
+			return new DcxWebControl(mID, p_Dialog, hParent, &rc, styles);
+		break;
+	case DcxControlTypes::CALENDAR:
+		if (dcx_testflag(mask, CTLF_ALLOW_CALANDER))
+			return new DcxCalendar(mID, p_Dialog, hParent, &rc, styles);
+		break;
+	case DcxControlTypes::DATETIME:
+		if (dcx_testflag(mask, CTLF_ALLOW_CALANDER))
+			return new DcxDateTime(mID, p_Dialog, hParent, &rc, styles);
+		break;
+	case DcxControlTypes::DIVIDER:
+		if (dcx_testflag(mask, CTLF_ALLOW_DIVIDER))
+			return new DcxDivider(mID, p_Dialog, hParent, &rc, styles);
+		break;
+	case DcxControlTypes::PANEL:
+		if (dcx_testflag(mask, CTLF_ALLOW_PANEL))
+			return new DcxPanel(mID, p_Dialog, hParent, &rc, styles);
+		break;
+	case DcxControlTypes::TABB:
+		if (dcx_testflag(mask, CTLF_ALLOW_TAB))
+			return new DcxTab(mID, p_Dialog, hParent, &rc, styles);
+		break;
+	case DcxControlTypes::LINE:
+		if (dcx_testflag(mask, CTLF_ALLOW_LINE))
+			return new DcxLine(mID, p_Dialog, hParent, &rc, styles);
+		break;
+	case DcxControlTypes::BOX:
+		if (dcx_testflag(mask, CTLF_ALLOW_BOX))
+			return new DcxBox(mID, p_Dialog, hParent, &rc, styles);
+		break;
+	case DcxControlTypes::RADIO:
+		if (dcx_testflag(mask, CTLF_ALLOW_RADIO))
+			return new DcxRadio(mID, p_Dialog, hParent, &rc, styles);
+		break;
+	case DcxControlTypes::CHECK:
+		if (dcx_testflag(mask, CTLF_ALLOW_CHECK))
+			return new DcxCheck(mID, p_Dialog, hParent, &rc, styles);
+		break;
+	case DcxControlTypes::TEXT:
+		if (dcx_testflag(mask, CTLF_ALLOW_TEXT))
+			return new DcxText(mID, p_Dialog, hParent, &rc, styles);
+		break;
+	case DcxControlTypes::EDIT:
+		if (dcx_testflag(mask, CTLF_ALLOW_EDIT))
+			return new DcxEdit(mID, p_Dialog, hParent, &rc, styles);
+		break;
+	case DcxControlTypes::SCROLL:
+		if (dcx_testflag(mask, CTLF_ALLOW_SCROLL))
+			return new DcxScroll(mID, p_Dialog, hParent, &rc, styles);
+		break;
+	case DcxControlTypes::LIST:
+		if (dcx_testflag(mask, CTLF_ALLOW_LIST))
+			return new DcxList(mID, p_Dialog, hParent, &rc, styles);
+		break;
+	case DcxControlTypes::LINK:
+		if (dcx_testflag(mask, CTLF_ALLOW_LINK))
+			return new DcxLink(mID, p_Dialog, hParent, &rc, styles);
+		break;
+	case DcxControlTypes::IMAGE:
+		if (dcx_testflag(mask, CTLF_ALLOW_IMAGE))
+			return new DcxImage(mID, p_Dialog, hParent, &rc, styles);
+		break;
+	case DcxControlTypes::PAGER:
+		if (dcx_testflag(mask, CTLF_ALLOW_PAGER))
+			return new DcxPager(mID, p_Dialog, hParent, &rc, styles);
+		break;
+	case DcxControlTypes::STACKER:
+		if (dcx_testflag(mask, CTLF_ALLOW_STACKER))
+			return new DcxStacker(mID, p_Dialog, hParent, &rc, styles);
+		break;
 #ifdef DCX_USE_DXSDK
 
-	else if ((dct == DcxControlTypes::DIRECTSHOW) && (dcx_testflag(mask, CTLF_ALLOW_DIRECTSHOW)))
-		return new DcxDirectshow(mID, p_Dialog, hParent, &rc, styles);
+	case DcxControlTypes::DIRECTSHOW:
+		if (dcx_testflag(mask, CTLF_ALLOW_DIRECTSHOW))
+			return new DcxDirectshow(mID, p_Dialog, hParent, &rc, styles);
+		break;
 
 #endif // DCX_USE_DXSDK
 
-	else if ((dct == DcxControlTypes::WINDOW) && (dcx_testflag(mask, CTLF_ALLOW_DOCK))) {
-		if (styles.empty())
-			throw Dcx::dcxException("No window name");
+	case DcxControlTypes::WINDOW:
+		if (dcx_testflag(mask, CTLF_ALLOW_DOCK)) {
+			if (styles.empty())
+				throw Dcx::dcxException("No window name");
 
-		const auto tsWin(styles.getfirsttok(1));
+			const auto tsWin(styles.getfirsttok(1));
 
-		// this helps stop '@' being passed as $window(@).hwnd == $window(-2).hwnd & usually causes a crash.
-		if (tsWin.len() < 2)
-			throw Dcx::dcxException(TEXT("No such window: %s"), tsWin);
+			// this helps stop '@' being passed as $window(@).hwnd == $window(-2).hwnd & usually causes a crash.
+			if (tsWin.len() < 2)
+				throw Dcx::dcxException(TEXT("No such window: %s"), tsWin);
 
-		auto winHwnd = (HWND)tsWin.to_num();
-		if (!IsWindow(winHwnd)) {
-			TCHAR windowHwnd[30];
+			auto winHwnd = (HWND)tsWin.to_num();
+			if (!IsWindow(winHwnd)) {
+				TCHAR windowHwnd[30];
 
-			mIRCLinker::evalex(windowHwnd, 30, TEXT("$window(%s).hwnd"), tsWin.to_chr());
+				mIRCLinker::evalex(windowHwnd, 30, TEXT("$window(%s).hwnd"), tsWin.to_chr());
 
-			winHwnd = (HWND)dcx_atoi(windowHwnd);
+				winHwnd = (HWND)dcx_atoi(windowHwnd);
+			}
+
+			if (!IsWindow(winHwnd))
+				throw Dcx::dcxException(TEXT("No such window: %s"), tsWin);
+
+			if (p_Dialog->getControlByHWND(winHwnd) != nullptr)
+				throw Dcx::dcxException("Window already a DCX Control");
+
+			return new DcxMWindow(winHwnd, hParent, mID, p_Dialog, &rc, styles);
 		}
+		break;
+	case DcxControlTypes::DIALOG:
+		if (dcx_testflag(mask, CTLF_ALLOW_DOCK)) {
+			if (styles.empty())
+				throw Dcx::dcxException("No dialog name");
 
-		if (!IsWindow(winHwnd))
-			throw Dcx::dcxException(TEXT("No such window: %s"), tsWin);
+			const auto tsDname(styles.getfirsttok(1));
+			auto winHwnd = GetHwndFromString(tsDname);
 
-		if (p_Dialog->getControlByHWND(winHwnd) != nullptr)
-			throw Dcx::dcxException("Window already a DCX Control");
+			if (IsWindow(winHwnd))
+				throw Dcx::dcxException(TEXT("No such dialog: %"), tsDname);
 
-		return new DcxMWindow(winHwnd, hParent, mID, p_Dialog, &rc, styles);
+			if (p_Dialog->getControlByHWND(winHwnd) != nullptr)
+				Dcx::dcxException(TEXT("Control already exists : %"), tsDname);
+
+			auto newDialog = new DcxMDialog(winHwnd, hParent, mID, p_Dialog, &rc, styles);
+			auto dlg = Dcx::Dialogs.getDialogByHandle(winHwnd);
+
+			// if its a dcx marked dialog, mark the parent name
+			if (dlg != nullptr)
+				dlg->setParentName(p_Dialog->getName());
+
+			return newDialog;
+		}
+		break;
+	case DcxControlTypes::UNKNOWN:
+		throw Dcx::dcxException(TEXT("Unknown Control Type: %"), type);
+		break;
 	}
-	else if ((dct == DcxControlTypes::DIALOG) && (dcx_testflag(mask, CTLF_ALLOW_DOCK))) {
-		if (styles.empty())
-			throw Dcx::dcxException("No dialog name");
-
-		const auto tsDname(styles.getfirsttok(1));
-		auto winHwnd = GetHwndFromString(tsDname);
-
-		if (IsWindow(winHwnd))
-			throw Dcx::dcxException(TEXT("No such dialog: %"), tsDname);
-
-		if (p_Dialog->getControlByHWND(winHwnd) != nullptr)
-			Dcx::dcxException(TEXT("Control already exists : %"), tsDname);
-
-		auto newDialog = new DcxMDialog(winHwnd, hParent, mID, p_Dialog, &rc, styles);
-		auto dlg = Dcx::Dialogs.getDialogByHandle(winHwnd);
-
-		// if its a dcx marked dialog, mark the parent name
-		if (dlg != nullptr)
-			dlg->setParentName(p_Dialog->getName());
-
-		return newDialog;
-	}
-	
 	throw Dcx::dcxException(TEXT("Control Type not supported: %"), type);
-	return nullptr;
+	return nullptr;	// never gets executed, but compilers complain about its absense...
 }
 
 /*!
@@ -1291,11 +1472,12 @@ void DcxControl::DrawCtrlBackground(const HDC hdc, const DcxControl *const p_thi
 
 void DcxControl::DrawControl(HDC hDC, HWND hwnd)
 {
+#if DCX_USE_WRAPPERS
 	// if window matches this one, don't draw (loop condition)
 	if (hwnd == this->m_Hwnd)
 		return;
 
-	// if window isnTEXT('t visible, don')t draw.
+	// if window isn't visible, don't draw.
 	if (!IsWindowVisible(hwnd))
 		return;
 
@@ -1310,35 +1492,73 @@ void DcxControl::DrawControl(HDC hDC, HWND hwnd)
 	if (!GetWindowRect(hwnd, &rc))
 		return;
 
-	MapWindowRect(nullptr,GetParent(hwnd),&rc);
+	MapWindowRect(nullptr, GetParent(hwnd), &rc);
 
 	// if window isn't within the client area of the control who's background we are drawing, don't draw.
 	if (!RectVisible(hDC, &rc))
 		return;
 
-	auto hdcMemory = ::CreateCompatibleDC(hDC);
+	auto w = (rc.right - rc.left), h = (rc.bottom - rc.top);
 
+	Dcx::dcxBitmapResource hBitmap(hDC, w, h);
+
+	Dcx::dcxHDCBitmapResource hdcMemory(hDC, hBitmap);
+
+	::SendMessage(hwnd, WM_ERASEBKGND, (WPARAM)(HDC)hdcMemory, 1L); // HACK: using 1L instead of NULL as a workaround for stacker.
+	::SendMessage(hwnd, WM_PRINT, (WPARAM)(HDC)hdcMemory, (LPARAM)PRF_NONCLIENT | PRF_CLIENT | PRF_CHILDREN | PRF_CHECKVISIBLE /*| PRF_ERASEBKGND*/);
+
+	BitBlt(hDC, rc.left, rc.top, w, h, hdcMemory, 0, 0, SRCCOPY);
+#else
+	// if window matches this one, don't draw (loop condition)
+	if (hwnd == this->m_Hwnd)
+		return;
+	
+	// if window isnTEXT('t visible, don')t draw.
+	if (!IsWindowVisible(hwnd))
+		return;
+	
+	// if window is within a background paint of it's own, don't draw. (loop condition)
+	{
+		auto p_ctrl = this->m_pParentDialog->getControlByHWND(hwnd);
+		if (p_ctrl != nullptr && p_ctrl->m_bInPrint)
+			return;
+	}
+	
+	RECT rc;
+	if (!GetWindowRect(hwnd, &rc))
+		return;
+	
+	MapWindowRect(nullptr,GetParent(hwnd),&rc);
+	
+	// if window isn't within the client area of the control who's background we are drawing, don't draw.
+	if (!RectVisible(hDC, &rc))
+		return;
+	
+	auto hdcMemory = ::CreateCompatibleDC(hDC);
+	
 	if (hdcMemory == nullptr)
 		return;
-
+	
 	Auto(DeleteDC(hdcMemory));
-
+	
 	auto w = (rc.right - rc.left), h = (rc.bottom - rc.top);
 	auto hBitmap = ::CreateCompatibleBitmap(hDC, w, h);
-
+	
 	if (hBitmap == nullptr)
 		return;
-
+	
 	Auto(DeleteBitmap(hBitmap));
-
+	
 	auto hbmpOld = SelectBitmap(hdcMemory, hBitmap);
-
+	
 	Auto(SelectBitmap(hdcMemory, hbmpOld));
-
+	
 	::SendMessage(hwnd, WM_ERASEBKGND, (WPARAM)hdcMemory, 1L); // HACK: using 1L instead of NULL as a workaround for stacker.
 	::SendMessage( hwnd, WM_PRINT, (WPARAM)hdcMemory, (LPARAM)PRF_NONCLIENT | PRF_CLIENT | PRF_CHILDREN | PRF_CHECKVISIBLE /*| PRF_ERASEBKGND*/);
-
+	
 	BitBlt( hDC, rc.left, rc.top, w, h, hdcMemory, 0, 0, SRCCOPY);
+#endif
+
 }
 
 void DcxControl::DrawParentsBackground(const HDC hdc, const RECT *const rcBounds, const HWND dHwnd)
@@ -1368,6 +1588,7 @@ void DcxControl::DrawParentsBackground(const HDC hdc, const RECT *const rcBounds
 //			DrawThemeParentBackgroundUx(hwnd, hdc, &rcClient); // XP+
 //		return;
 //	}
+
 	/*
 		The following code draws the parents background & client area,
 		followed by all child controls covered by this one.
@@ -1408,17 +1629,9 @@ void DcxControl::DrawParentsBackground(const HDC hdc, const RECT *const rcBounds
 			BitBlt(hdc, rcClient.left, rcClient.top, (rcClient.right - rcClient.left), (rcClient.bottom - rcClient.top),
 				hdcParent, rcWin.left, rcWin.top, SRCCOPY);
 		}
-
-		//Dcx::dcxHDCResource hdcParent(this->m_pParentHWND);
-		//
-		//auto rcWin = rcClient;
-		//MapWindowRect(hwnd, this->m_pParentHWND, &rcWin);
-		//
-		//BitBlt(hdc, rcClient.left, rcClient.top, (rcClient.right - rcClient.left), (rcClient.bottom - rcClient.top),
-		//	hdcParent, rcWin.left, rcWin.top, SRCCOPY);
-
 		return;
 	}
+
 	//// make a new HDC for background rendering
 	//HDC hdcbkg = CreateCompatibleDC( hdc );
 	//if (hdcbkg != nullptr) {
@@ -1460,15 +1673,12 @@ void DcxControl::DrawParentsBackground(const HDC hdc, const RECT *const rcBounds
 	//	DeleteDC( hdcbkg );
 	//}
 	// make a new HDC for background rendering
+
 	RECT rcParentWin, rcWin;
 	if (!GetClientRect(this->m_pParentHWND, &rcParentWin))
 		return;
 
-	//auto hdcbkg = CreateHDCBuffer(hdc, &rcParentWin);
-	//if (hdcbkg == nullptr)
-	//	return;
-	//Auto(DeleteHDCBuffer(hdcbkg));
-
+#if DCX_USE_WRAPPERS
 	Dcx::dcxHDCBuffer hdcbkg(hdc, &rcParentWin);
 
 	// get this controls x & y pos within its parent.
@@ -1479,11 +1689,41 @@ void DcxControl::DrawParentsBackground(const HDC hdc, const RECT *const rcBounds
 		SelectClipRgn(hdcbkg, clipRgn);
 		DeleteRgn(clipRgn);
 	}
+
 	// Sending WM_ERASEBKGND followed by WM_PRINTCLIENT emulates the method used by DrawThemeParentBackgroundEx() on vista.
 	this->m_bInPrint = true; // this helps prevent long drawing loops
-	// fill in the parents image
+							 // fill in the parents image
 	::SendMessage(this->m_pParentHWND, WM_ERASEBKGND, (WPARAM)(HDC)hdcbkg, 1L); // HACK: using 1L instead of NULL as a workaround for stacker.
 	::SendMessage(this->m_pParentHWND, WM_PRINTCLIENT, (WPARAM)(HDC)hdcbkg, PRF_CLIENT);
+
+	for (auto hChild = GetWindow(this->m_Hwnd, GW_HWNDPREV); hChild != nullptr; hChild = GetWindow(hChild, GW_HWNDPREV))
+		this->DrawControl(hdcbkg, hChild);
+
+	this->m_bInPrint = false;
+	// draw background to main hdc
+	BitBlt(hdc, rcClient.left, rcClient.top, (rcClient.right - rcClient.left), (rcClient.bottom - rcClient.top),
+		hdcbkg, rcWin.left, rcWin.top, SRCCOPY);
+#else
+	auto hdcbkg = CreateHDCBuffer(hdc, &rcParentWin);
+	if (hdcbkg == nullptr)
+		return;
+	Auto(DeleteHDCBuffer(hdcbkg));
+
+	// get this controls x & y pos within its parent.
+	rcWin = rcClient;
+	MapWindowRect(hwnd, this->m_pParentHWND, &rcWin);
+	auto clipRgn = CreateRectRgnIndirect(&rcWin); // clip parents drawing to this controls rect.
+	if (clipRgn != nullptr) {
+		SelectClipRgn(*hdcbkg, clipRgn);
+		DeleteRgn(clipRgn);
+	}
+
+	// Sending WM_ERASEBKGND followed by WM_PRINTCLIENT emulates the method used by DrawThemeParentBackgroundEx() on vista.
+	this->m_bInPrint = true; // this helps prevent long drawing loops
+							 // fill in the parents image
+	::SendMessage(this->m_pParentHWND, WM_ERASEBKGND, (WPARAM)*hdcbkg, 1L); // HACK: using 1L instead of NULL as a workaround for stacker.
+	::SendMessage(this->m_pParentHWND, WM_PRINTCLIENT, (WPARAM)*hdcbkg, PRF_CLIENT);
+
 	//::SendMessage(this->m_pParentHWND, WM_PRINT, (WPARAM)*hdcbkg,PRF_CLIENT|PRF_ERASEBKGND);
 	// now draw all child controls within area of this control.
 	// NB: AVOID EnumChildWindows()
@@ -1492,13 +1732,15 @@ void DcxControl::DrawParentsBackground(const HDC hdc, const RECT *const rcBounds
 	//	this->DrawControl(*hdcbkg, child);
 	//	child = GetWindow(child, GW_HWNDPREV);
 	//}
+
 	for (auto hChild = GetWindow(this->m_Hwnd, GW_HWNDPREV); hChild != nullptr; hChild = GetWindow(hChild, GW_HWNDPREV))
-		this->DrawControl(hdcbkg, hChild);
+		this->DrawControl(*hdcbkg, hChild);
 
 	this->m_bInPrint = false;
 	// draw background to main hdc
 	BitBlt(hdc, rcClient.left, rcClient.top, (rcClient.right - rcClient.left), (rcClient.bottom - rcClient.top),
-		hdcbkg, rcWin.left, rcWin.top, SRCCOPY);
+		*hdcbkg, rcWin.left, rcWin.top, SRCCOPY);
+#endif
 }
 
 LPALPHAINFO DcxControl::SetupAlphaBlend(HDC *hdc, const bool DoubleBuffer)

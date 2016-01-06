@@ -354,16 +354,18 @@ void XPopupMenuManager::parseCommand( const TString & input, XPopupMenu *const p
 		const auto index = input.getnexttok().to_int();	// tok 4
 		auto filename(input.getlasttoks());				// tok 5, -1
 
-		//const HICON icon = dcxLoadIcon(index, filename, false, tsFlags);
-		//if (icon == nullptr)
-		//	throw Dcx::dcxException(TEXT("Unable to Load Icon: % in file: %"), index, filename);
-		//
-		//ImageList_AddIcon(himl, icon);
-		//DestroyIcon(icon);
-
+#if DCX_USE_WRAPPERS
 		Dcx::dcxIconResource icon(index, filename, false, tsFlags);
 
 		ImageList_AddIcon(himl, icon);
+#else
+		const HICON icon = dcxLoadIcon(index, filename, false, tsFlags);
+		if (icon == nullptr)
+			throw Dcx::dcxException(TEXT("Unable to Load Icon: % in file: %"), index, filename);
+		
+		ImageList_AddIcon(himl, icon);
+		DestroyIcon(icon);
+#endif
 	}
 	// xpopup -j -> [MENU] [SWITCH]
 	else if (flags[TEXT('j')]) {
@@ -383,11 +385,6 @@ void XPopupMenuManager::parseCommand( const TString & input, XPopupMenu *const p
 	// xpopup -m -> mirc -m
 	else if ( flags[TEXT('m')] && numtok == 2 && tsMenuName == TEXT("mirc")) {
 		// do nothing in utf dll as this dll is mirc v7+ only.
-		//if (!this->m_bPatched && mIRCLinker::isVersion(6,20)) {
-		//	XPopupMenuManager::InterceptAPI(GetModuleHandle(nullptr), TEXT("User32.dll"), "TrackPopupMenu", (DWORD)XPopupMenuManager::XTrackPopupMenu, (DWORD)XPopupMenuManager::TrampolineTrackPopupMenu, 5);
-		//	XPopupMenuManager::InterceptAPI(GetModuleHandle(nullptr), TEXT("User32.dll"), "TrackPopupMenuEx", (DWORD)XPopupMenuManager::XTrackPopupMenuEx, (DWORD)XPopupMenuManager::TrampolineTrackPopupMenuEx, 5);
-		//	this->m_bPatched = true;
-		//}
 	}
 	// xpopup -M -> [MENU] [SWITCH] (TEXT)
 	else if (flags[TEXT('M')]) {
@@ -478,10 +475,10 @@ void XPopupMenuManager::parseCommand( const TString & input, XPopupMenu *const p
 			throw Dcx::dcxException("Missing '+' in front of flags");
 
 		if (xflags[TEXT('r')]) // Set Rounded Selector on/off
-			p_Menu->SetRounded(((input.getnexttok( ).to_int() > 0) ? true : false));	// tok 4
+			p_Menu->SetRounded((input.getnexttok( ).to_int() > 0));	// tok 4
 		else if (xflags[TEXT('a')]) // Set Alpha value of menu. 0-255
 		{
-			const auto alpha = (BYTE)(input.getnexttok().to_int() & 0xFF);	// tok 4
+			const auto alpha = (BYTE)(input.getnexttok().to_<UINT>() & 0xFF);	// tok 4
 
 			p_Menu->SetAlpha(alpha);
 		}
@@ -950,116 +947,6 @@ const UINT XPopupMenuManager::parseTrackFlags( const TString & flags ) {
 
 	return iFlags;
 }
-///*
-//	Following code taken from ODMenu class & modified for XPopup
-//	CODMenu class
-//	Code copyright: R.I.Allen for plug-in stuff
-//	Most owner drawn menu code copyright Brent Corcum - modified by RIA
-//*/
-//BOOL WINAPI XPopupMenuManager::XTrackPopupMenu(HMENU hMenu, UINT uFlags, int x, int y, int nReserved, HWND hWnd, const RECT * prcRect)
-//{
-//	// Remove the No Notify flag. This fixes the popupmenus on mIRC 6.20
-//	uFlags &= ~TPM_NONOTIFY;
-//	return XPopupMenuManager::TrampolineTrackPopupMenu(hMenu, uFlags, x, y, nReserved, hWnd, prcRect);
-//}
-//BOOL WINAPI XPopupMenuManager::XTrackPopupMenuEx(HMENU hMenu, UINT fuFlags, int x, int y, HWND hwnd, LPTPMPARAMS lptpm)
-//{
-//	// Remove the No Notify flag. This fixes the popupmenus on mIRC 6.20
-//	fuFlags &= ~TPM_NONOTIFY;
-//	return XPopupMenuManager::TrampolineTrackPopupMenuEx(hMenu, fuFlags, x, y, hwnd, lptpm);
-//}
-//BOOL XPopupMenuManager::InterceptAPI(HMODULE hLocalModule, const TCHAR* c_szDllName, const char* c_szApiName, DWORD dwReplaced, DWORD dwTrampoline, int offset)
-//{
-//	int i;
-//	DWORD dwOldProtect;
-//	DWORD dwAddressToIntercept = (DWORD)GetProcAddress(GetModuleHandle(c_szDllName), c_szApiName);
-//
-//	BYTE *pbTargetCode = (BYTE *) dwAddressToIntercept;
-//	BYTE *pbReplaced = (BYTE *) dwReplaced;
-//	BYTE *pbTrampoline = (BYTE *) dwTrampoline;
-//
-//	// Change the protection of the trampoline region
-//	// so that we can overwrite the first 5 + offset bytes.
-//	if (*pbTrampoline == 0xe9)
-//	{
-//		// target function starts with an ansolute jump
-//		// change tramoline to the target of the jump
-//		pbTrampoline++;
-//		int * pbOffset = (int*)pbTrampoline;
-//		pbTrampoline += *pbOffset + 4;
-//	}
-//	VirtualProtect((void *) pbTrampoline, 5+offset, PAGE_WRITECOPY, &dwOldProtect);
-//	for (i=0;i<offset;i++)
-//		*pbTrampoline++ = *pbTargetCode++;
-//	pbTargetCode = (BYTE *) dwAddressToIntercept;
-//
-//	// Insert unconditional jump in the trampoline.
-//	*pbTrampoline++ = 0xE9;        // jump rel32
-//	*((signed int *)(pbTrampoline)) = (pbTargetCode+offset) - (pbTrampoline + 4);
-//	VirtualProtect((void *) dwTrampoline, 5+offset, PAGE_EXECUTE, &dwOldProtect);
-//
-//	// Overwrite the first 5 bytes of the target function
-//	VirtualProtect((void *) dwAddressToIntercept, 5, PAGE_WRITECOPY, &dwOldProtect);
-//
-//	// check to see whether we need to translate the pbReplaced pointer
-//	if (*pbReplaced == 0xe9)
-//	{
-//		pbReplaced++;
-//		int * pbOffset = (int*)pbReplaced;
-//		pbReplaced += *pbOffset + 4;
-//	}
-//	*pbTargetCode++ = 0xE9;        // jump rel32
-//	*((signed int *)(pbTargetCode)) = pbReplaced - (pbTargetCode +4);
-//	VirtualProtect((void *) dwAddressToIntercept, 5, PAGE_EXECUTE, &dwOldProtect);
-//
-//	// Flush the instruction cache to make sure 
-//	// the modified code is executed.
-//	FlushInstructionCache(GetCurrentProcess(), nullptr, nullptr);
-//	return TRUE;
-//}
-//
-//BOOL WINAPI XPopupMenuManager::TrampolineTrackPopupMenu(
-//	HMENU hMenu,         // handle to shortcut menu
-//	UINT uFlags,         // options
-//	int x,               // horizontal position
-//	int y,               // vertical position
-//	int nReserved,       // reserved, must be zero
-//	HWND hWnd,           // handle to owner window
-//	CONST RECT *prcRect  // ignored
-//)
-//{
-//	// this procedure needs to be at least 10 bytes in length
-//	// it gets overwritten using self modifying code
-//	// it does not matter what the code is here
-//	double  a;
-//	double  b;
-//
-//	a = 0.0;
-//	b = 1.0;
-//	a = a / b;
-//	return (a > 0);
-//}
-//
-//BOOL WINAPI XPopupMenuManager::TrampolineTrackPopupMenuEx(
-//	HMENU hMenu,       // handle to shortcut menu
-//	UINT fuFlags,      // options
-//	int x,             // horizontal position
-//	int y,             // vertical position
-//	HWND hwnd,         // handle to window
-//	LPTPMPARAMS lptpm  // area not to overlap
-//)
-//{
-//	// this procedur eneeds to be at least 10 bytes in length
-//	// it gets overwritten using self modifying code
-//	// it does not matter what the code is here
-//	double  a;
-//	double  b;
-//
-//	a = 0.0;
-//	b = 1.0;
-//	a = a / b;
-//	return (a > 0);
-//}
 
 /*
  * Parses the menu information and returns a valid XPopupMenu.

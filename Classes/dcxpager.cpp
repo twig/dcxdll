@@ -155,39 +155,10 @@ void DcxPager::parseCommandRequest( const TString & input ) {
 
 		p_Control->addStyle(CCS_NORESIZE);
 		this->setChild(p_Control->getHwnd());
-
-		// Ook: NB doesnt use new id tracking version of addControl(), needs fixed.
-		//
-		//const auto ID = mIRC_ID_OFFSET + (UINT)input.getnexttok().to_int();	// tok 4
-		//
-		//if (!this->m_pParentDialog->isIDValid(ID, true))
-		//	throw Dcx::dcxException(TEXT("Control with ID \"%\" already exists"), ID - mIRC_ID_OFFSET);
-		//
-		//try {
-		//	auto p_Control = DcxControl::controlFactory(this->m_pParentDialog, ID, input, 5,
-		//		CTLF_ALLOW_TOOLBAR |
-		//		CTLF_ALLOW_REBAR |
-		//		CTLF_ALLOW_PANEL |
-		//		CTLF_ALLOW_TAB |
-		//		CTLF_ALLOW_BOX |
-		//		CTLF_ALLOW_IMAGE |
-		//		CTLF_ALLOW_PAGER |
-		//		CTLF_ALLOW_DOCK
-		//		, this->m_Hwnd);
-		//
-		//	this->m_pParentDialog->addControl(p_Control);
-		//	p_Control->addStyle(CCS_NORESIZE);
-		//	this->setChild(p_Control->getHwnd());
-		//}
-		//catch (std::exception &e) {
-		//	this->showErrorEx(nullptr, TEXT("-c"), TEXT("Unable To Create Control %d (%S)"), ID - mIRC_ID_OFFSET, e.what());
-		//	throw;
-		//}
-		//this->redrawWindow();
 	}
 	// xdid -d [NAME] [ID] [SWITCH] [ID]
 	else if ( flags[TEXT('d')] && numtok > 3 ) {
-
+		// Ook: delete command needs looked at to make it compatible with named id's
 		const auto ID = mIRC_ID_OFFSET + (UINT)input.getnexttok( ).to_int( );		// tok 4
 
 		if ( !this->m_pParentDialog->isIDValid(ID) )
@@ -209,16 +180,6 @@ void DcxPager::parseCommandRequest( const TString & input ) {
 			DestroyWindow(cHwnd);
 		}
 
-		//if ( p_Control->getType( ) == TEXT("dialog") || p_Control->getType( ) == TEXT("window") )
-		//	delete p_Control;
-		//else {
-		//	if (p_Control->getRefCount() != 0)
-		//		throw Dcx::dcxException(TEXT("Can't delete control with ID \"%\" when it is inside it's own event (dialog %)"), p_Control->getUserID(), this->m_pParentDialog->getName());
-		//
-		//	auto cHwnd = p_Control->getHwnd();
-		//	this->m_pParentDialog->deleteControl(p_Control); // remove from internal list!
-		//	DestroyWindow(cHwnd);
-		//}
 		this->m_ChildHWND = nullptr;
 	}
 	// xdid -s [NAME] [ID] [SWITCH] [SIZE]
