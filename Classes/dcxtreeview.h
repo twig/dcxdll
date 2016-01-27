@@ -29,10 +29,6 @@ class DcxTreeView;
 #define TVIF_EXPANDEDIMAGE 0x0200
 #endif
 
-#define TVSEARCH_W 0x01       //!< TreeView WildCard Search
-#define TVSEARCH_R 0x02       //!< TreeView Regex Search
-#define TVSEARCH_E 0x04       //!< TreeView Exact Match
-
 #define TVSS_ASC        0x01   //!< TreeView Sort Ascending Style
 #define TVSS_DESC       0x02   //!< TreeView Sort Descending Style
 #define TVSS_NUMERIC    0x04   //!< TreeView Sort Numeric Style
@@ -158,8 +154,8 @@ protected:
 	HTREEITEM parsePath(const TString *path, HTREEITEM *hParent = nullptr, HTREEITEM *hInsertAt = nullptr) const;
 	TString getPathFromItem(HTREEITEM *item) const;
 
-	bool matchItemText( HTREEITEM * hItem, const TString * search, const UINT SearchType ) const;
-	bool findItemText( HTREEITEM * hStart, HTREEITEM * hItem, const TString * search, const int N, int * NC, const UINT SearchType ) const;
+	bool matchItemText( HTREEITEM * hItem, const TString &search, const DcxSearchTypes &SearchType ) const;
+	bool findItemText( HTREEITEM * hStart, HTREEITEM * hItem, const TString &queryText, const int n, int &matchCount, const DcxSearchTypes &SearchType ) const;
 	void expandAllItems( HTREEITEM * hStart, const UINT expandOption );
 
 	HTREEITEM cloneItem( HTREEITEM * hItem, HTREEITEM * hParentTo, HTREEITEM * hAfterTo );

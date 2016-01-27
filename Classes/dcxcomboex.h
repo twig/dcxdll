@@ -20,12 +20,6 @@
 
 class DcxDialog;
 
-enum ComboEx_SearchTypes : UINT {
-	CBEXSEARCH_W = 0x01,	//!< ComboEx WildCard Search
-	CBEXSEARCH_R,			//!< ComboEx Regex Search
-	CBEXSEARCH_E			//!< ComboEx Exact Match Search
-};
-
 //#define CBEXSEARCH_W 0x01 //!< ComboEx WildCard Search
 //#define CBEXSEARCH_R 0x02 //!< ComboEx Regex Search
 
@@ -75,7 +69,7 @@ public:
 	void setImageList( HIMAGELIST himl );
 	static HIMAGELIST createImageList( );
 
-	bool matchItemText( const int nItem, const TString * search, const ComboEx_SearchTypes SearchType ) const;
+	bool matchItemText( const int nItem, const TString &search, const DcxSearchTypes &SearchType ) const;
 	static void getItemRange(const TString &tsItems, const int nItemCnt, int *iStart, int *iEnd);
 
 	LRESULT insertItem( const PCOMBOBOXEXITEM lpcCBItem );

@@ -459,12 +459,12 @@ void DcxListView::parseInfoRequest( const TString &input, PTCHAR szReturnValue) 
 
 		if ( !matchtext.empty() ) {
 
-			ListView_SearchTypes SearchType = LVSEARCH_E;
+			auto SearchType = DcxSearchTypes::SEARCH_E;
 			const auto searchMode(params++[0]);
 			if (searchMode == TEXT('R'))
-				SearchType = LVSEARCH_R;
+				SearchType = DcxSearchTypes::SEARCH_R;
 			else if (searchMode == TEXT('W'))
-				SearchType = LVSEARCH_W;
+				SearchType = DcxSearchTypes::SEARCH_W;
 
 			const auto nColumn = params++.to_int() - 1;	// tok 2
 			const auto N = params++.to_int();			// tok 3
@@ -480,7 +480,7 @@ void DcxListView::parseInfoRequest( const TString &input, PTCHAR szReturnValue) 
 					for (auto i = decltype(nItems){0}; i < nItems; i++) {
 						for (auto k = decltype(nColumns){0}; k < nColumns; k++) {
 
-							if ( this->matchItemText( i, k, &matchtext, SearchType ) )
+							if ( this->matchItemText( i, k, matchtext, SearchType ) )
 								count++;
 						}
 					}
@@ -493,7 +493,7 @@ void DcxListView::parseInfoRequest( const TString &input, PTCHAR szReturnValue) 
 
 					for (auto i = decltype(nItems){0}; i < nItems; i++) {
 
-						if ( this->matchItemText( i, nColumn, &matchtext, SearchType ) )
+						if ( this->matchItemText( i, nColumn, matchtext, SearchType ) )
 							count++;
 					}
 				}
@@ -509,7 +509,7 @@ void DcxListView::parseInfoRequest( const TString &input, PTCHAR szReturnValue) 
 
 						for (auto k = decltype(nColumns){0}; k < nColumns; k++) {
 
-							if ( this->matchItemText( i, k, &matchtext, SearchType ) )
+							if ( this->matchItemText( i, k, matchtext, SearchType ) )
 								count++;
 
 							// found Nth matching
@@ -526,7 +526,7 @@ void DcxListView::parseInfoRequest( const TString &input, PTCHAR szReturnValue) 
 
 					for (auto i = decltype(nItems){0}; i < nItems; i++) {
 
-						if ( this->matchItemText( i, nColumn, &matchtext, SearchType ) )
+						if ( this->matchItemText( i, nColumn, matchtext, SearchType ) )
 							count++;
 
 						// found Nth matching
@@ -991,17 +991,17 @@ void DcxListView::parseCommandRequest( const TString &input) {
 			// have flags, so its a match text delete
 			const auto nSubItem = input.getnexttok().to_int();
 			const auto tsMatchText(input.getnexttok());
-			auto SearchType = LVSEARCH_E;	// plain text exact match delete
+			auto SearchType = DcxSearchTypes::SEARCH_E;	// plain text exact match delete
 			const auto nItems = ListView_GetItemCount(this->m_Hwnd);
 
 			if (xFlags[TEXT('w')])
-				SearchType = LVSEARCH_W;	// wildcard delete
+				SearchType = DcxSearchTypes::SEARCH_W;	// wildcard delete
 			else if (xFlags[TEXT('r')])
-				SearchType = LVSEARCH_R;	// regex delete
+				SearchType = DcxSearchTypes::SEARCH_R;	// regex delete
 
 			for (auto nPos = Ns.to_int(); nPos < nItems; nPos++) {
 
-				if (this->matchItemText(nPos, nSubItem, &tsMatchText, SearchType))
+				if (this->matchItemText(nPos, nSubItem, tsMatchText, SearchType))
 					ListView_DeleteItem(this->m_Hwnd, nPos--);		// NB: we do nPos-- here as a lines just been removed so we have to check the same nPos again
 			}
 		}
@@ -2249,20 +2249,20 @@ bool DcxListView::isListViewStyle( const DWORD dwView ) const {
 * blah
 */
 
-bool DcxListView::matchItemText(const int nItem, const int nSubItem, const TString * search, const ListView_SearchTypes SearchType) const
+bool DcxListView::matchItemText(const int nItem, const int nSubItem, const TString &search, const DcxSearchTypes &SearchType) const
 {
-	TCHAR itemtext[MIRC_BUFFER_SIZE_CCH];
+	auto itemtext = std::make_unique<TCHAR[]>(MIRC_BUFFER_SIZE_CCH);
 	itemtext[0] = TEXT('\0');
 
-	ListView_GetItemText( this->m_Hwnd, nItem, nSubItem, itemtext, MIRC_BUFFER_SIZE_CCH );
+	ListView_GetItemText( this->m_Hwnd, nItem, nSubItem, itemtext.get(), MIRC_BUFFER_SIZE_CCH );
 
 	switch (SearchType) {
-		case LVSEARCH_R:
-			return isRegexMatch(itemtext, search->to_chr());
-		case LVSEARCH_W:
-			return TString(itemtext).iswm(search->to_chr());
-		case LVSEARCH_E:
-			return (lstrcmp(search->to_chr(), itemtext) == 0); // must be a zero check not a !
+		case DcxSearchTypes::SEARCH_R:
+			return isRegexMatch(itemtext.get(), search.to_chr());
+		case DcxSearchTypes::SEARCH_W:
+			return TString(itemtext).iswm(search);
+		case DcxSearchTypes::SEARCH_E:
+			return (lstrcmp(search.to_chr(), itemtext.get()) == 0); // must be a zero check not a !
 	}
 
 	return false;
@@ -3315,26 +3315,36 @@ DcxControl* DcxListView::CreatePbar(LPLVITEM lvi, const TString &styles) {
 	lpdcxlvi->iPbarCol = lvi->iSubItem;
 	// controls within a listview have a problem in that they cant set an item height,
 	// so they all appear very small, & dont look very good. (this can maybe be solved within NM_CUSTOMDRAW prepaint stage)
-	const auto ID = mIRC_ID_OFFSET + (UINT)styles.getfirsttok(1).to_int();
+	const auto tsID(styles.getfirsttok(1));
+	//const auto ID = mIRC_ID_OFFSET + tsID.to_<UINT>();
 
-	if (!this->m_pParentDialog->isIDValid(ID, true))
-		throw Dcx::dcxException(TEXT("Control with ID \"%\" already exists"), ID - mIRC_ID_OFFSET);
+	//if (!this->m_pParentDialog->isIDValid(ID, true))
+	//	throw Dcx::dcxException(TEXT("Control with ID \"%\" already exists"), ID - mIRC_ID_OFFSET);
 
 	try {
-		//TString ctrl_args;
-		//ctrl_args.tsprintf(TEXT("%s %d %d %d %d %s"), styles.gettok(2).to_chr(), rItem.left, rItem.top, (rItem.right - rItem.left), (rItem.bottom - rItem.top), styles.gettok(3,-1).to_chr());
-		//lpdcxlvi->pbar = DcxControl::controlFactory(this->m_pParentDialog,ID,ctrl_args,1,-1,this->m_Hwnd);
+		// this method allows named id's and the possibility of adding other control types...
+		TString ctrl_args;
+		// pbar/ipaddress/button/image/panel only version
+		//<id> <type> <x y w h> <styles>
+		const TString tsType(styles.getnexttok());	// tok 2
+		ctrl_args.tsprintf(TEXT("%s %s %d %d %d %d %s"), tsID.to_chr(), tsType.to_chr(), rItem.left, rItem.top, (rItem.right - rItem.left), (rItem.bottom - rItem.top), styles.getlasttoks().to_chr());	// tok 3-
+		lpdcxlvi->pbar = this->m_pParentDialog->addControl(ctrl_args, 1, CTLF_ALLOW_PBAR | CTLF_ALLOW_IPADDRESS | CTLF_ALLOW_BUTTON | CTLF_ALLOW_IMAGE | CTLF_ALLOW_PANEL, this->m_Hwnd);
+
+		//// pbar only version
+		////<id> pbar <x y w h> <styles>
+		//ctrl_args.tsprintf(TEXT("%s pbar %d %d %d %d %s"), tsID.to_chr(), rItem.left, rItem.top, (rItem.right - rItem.left), (rItem.bottom - rItem.top), styles.getlasttoks().to_chr());
+		//lpdcxlvi->pbar = this->m_pParentDialog->addControl(ctrl_args,1,CTLF_ALLOW_PBAR,this->m_Hwnd);
 	
-		//lpdcxlvi->pbar = new DcxProgressBar(this->getID(), this->m_pParentDialog, this->m_Hwnd, &rItem, styles);
-		lpdcxlvi->pbar = new DcxProgressBar(ID, this->m_pParentDialog, this->m_Hwnd, &rItem, styles.getlasttoks());
-		this->m_pParentDialog->addControl(lpdcxlvi->pbar);
+		////lpdcxlvi->pbar = new DcxProgressBar(this->getID(), this->m_pParentDialog, this->m_Hwnd, &rItem, styles);
+		//lpdcxlvi->pbar = new DcxProgressBar(ID, this->m_pParentDialog, this->m_Hwnd, &rItem, styles.getlasttoks());
+		//this->m_pParentDialog->addControl(lpdcxlvi->pbar);
 
 		this->m_bHasPBars = true;
 
 		return lpdcxlvi->pbar;
 	}
 	catch (std::exception &e) {
-		this->showErrorEx(nullptr, TEXT("CreatePbar()"), TEXT("Unable To Create Control %d (%S)"), ID - mIRC_ID_OFFSET, e.what());
+		this->showErrorEx(nullptr, TEXT("CreatePbar()"), TEXT("Unable To Create Control %s (%S)"), tsID.to_chr(), e.what());
 		throw;
 	}
 }
@@ -3350,7 +3360,6 @@ void DcxListView::UpdateScrollPbars(void) {
 	const auto iTop = this->getTopIndex();
 	const auto iBottom = this->getBottomIndex() + 1;
 
-	//LPLVITEM lvi = new LVITEM;
 	auto lvi = std::make_unique<LVITEM>();
 
 	ZeroMemory(lvi.get(), sizeof(LVITEM));
@@ -3358,10 +3367,6 @@ void DcxListView::UpdateScrollPbars(void) {
 	for (auto row = decltype(nCount){0}; row < nCount; row++) {
 		this->ScrollPbars(row, nCols, iTop, iBottom, lvi.get());
 	}
-	// both for loops produce the same result, its a question of style, which is best?
-	//for (auto row = decltype(nCount){0}; row < nCount; row++) {
-	//	this->ScrollPbars(row, nCols, iTop, iBottom, lvi.get());
-	//}
 }
 
 // BUG: when listview has horiz scrollbars pbar will be moved oddly when listview is scrolled horiz.

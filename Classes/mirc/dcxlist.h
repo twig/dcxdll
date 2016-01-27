@@ -50,10 +50,9 @@ public:
 	const TString getStyles(void) const override;
 
 protected:
-	enum List_SearchTypes: UINT { LBSEARCH_E = 0, LBSEARCH_W, LBSEARCH_R };
 
 	void DrawDragLine(const int location);
-	bool matchItemText(const int nItem, const TString * search, const List_SearchTypes SearchType) const;
+	bool matchItemText(const int nItem, const TString &search, const DcxSearchTypes &SearchType) const;
 	static void getItemRange(const TString &tsItems, const int nItemCnt, int *iStart, int *iEnd);
 	//void StrLenToExtent(int *nLineExtent);
 	void UpdateHorizExtent();

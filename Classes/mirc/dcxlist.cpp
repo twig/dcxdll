@@ -294,13 +294,13 @@ void DcxList::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) co
 		if (matchtext.empty())
 			throw Dcx::dcxException("No Match text supplied");
 
-		auto SearchType = LBSEARCH_E;	// default to exact match
+		auto SearchType = DcxSearchTypes::SEARCH_E;	// default to exact match
 		const auto tsSearchType(params.getfirsttok(1));
 
 		if (tsSearchType == TEXT("R"))
-			SearchType = LBSEARCH_R;
+			SearchType = DcxSearchTypes::SEARCH_R;
 		else if (tsSearchType == TEXT("W"))
-			SearchType = LBSEARCH_W;
+			SearchType = DcxSearchTypes::SEARCH_W;
 
 		const auto N = params.getnexttok().to_int();	// tok 2
 		const auto nItems = ListBox_GetCount(this->m_Hwnd);
@@ -312,7 +312,7 @@ void DcxList::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) co
 
 			for (auto i = decltype(nItems){0}; i < nItems; i++) {
 
-				if (this->matchItemText(i, &matchtext, SearchType))
+				if (this->matchItemText(i, matchtext, SearchType))
 					count++;
 			}
 
@@ -325,7 +325,7 @@ void DcxList::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) co
 
 			for (auto i = decltype(nItems){0}; i < nItems; i++) {
 
-				if (this->matchItemText(i, &matchtext, SearchType))
+				if (this->matchItemText(i, matchtext, SearchType))
 					count++;
 
 				// found Nth matching
@@ -606,16 +606,16 @@ void DcxList::parseCommandRequest( const TString & input ) {
 		{
 			// have flags, so its a match text delete
 			const auto tsMatchText(input.getnexttok());
-			auto SearchType = LBSEARCH_E;	// plain text exact match delete
+			auto SearchType = DcxSearchTypes::SEARCH_E;	// plain text exact match delete
 
 			if (xFlags[TEXT('w')])
-				SearchType = LBSEARCH_W;	// wildcard delete
+				SearchType = DcxSearchTypes::SEARCH_W;	// wildcard delete
 			else if (xFlags[TEXT('r')])
-				SearchType = LBSEARCH_R;	// regex delete
+				SearchType = DcxSearchTypes::SEARCH_R;	// regex delete
 
 			for (auto nPos = Ns.to_int(); nPos < nItems; nPos++) {
 
-				if (this->matchItemText(nPos, &tsMatchText, SearchType))
+				if (this->matchItemText(nPos, tsMatchText, SearchType))
 					ListBox_DeleteString(this->m_Hwnd, nPos--);		// NB: we do nPos-- here as a lines just been removed so we have to check the same nPos again
 			}
 		}
@@ -1044,10 +1044,8 @@ void DcxList::DrawDragLine(const int location)
 	//ReleaseDC(this->m_Hwnd, hDC);
 }
 
-bool DcxList::matchItemText(const int nItem, const TString * search, const List_SearchTypes SearchType) const
+bool DcxList::matchItemText(const int nItem, const TString &search, const DcxSearchTypes &SearchType) const
 {
-	auto bRes = false;
-
 	const auto len = ListBox_GetTextLen(this->m_Hwnd, nItem);
 
 	if (len > 0) {
@@ -1057,15 +1055,15 @@ bool DcxList::matchItemText(const int nItem, const TString * search, const List_
 
 		switch (SearchType)
 		{
-		case LBSEARCH_R:	// regex match
-			bRes = isRegexMatch(itemtext.get(), search->to_chr());
-		case LBSEARCH_W:	// wildcard match
-			bRes = TString(itemtext).iswm(*search);
-		case LBSEARCH_E:   // exact match
-			bRes = (dcx_strncmp(itemtext.get(), search->to_chr(), len) == 0);
+		case DcxSearchTypes::SEARCH_R:	// regex match
+			return isRegexMatch(itemtext.get(), search.to_chr());
+		case DcxSearchTypes::SEARCH_W:	// wildcard match
+			return TString(itemtext).iswm(search);
+		case DcxSearchTypes::SEARCH_E:   // exact match
+			return (dcx_strncmp(itemtext.get(), search.to_chr(), len) == 0);
 		}
 	}
-	return bRes;
+	return false;
 }
 
 void DcxList::getItemRange(const TString &tsItems, const int nItemCnt, int *iStart_range, int *iEnd_range)

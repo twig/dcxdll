@@ -111,6 +111,12 @@ enum class DcxControlTypes : UINT {
 	TRACKBAR, TREEVIEW, UPDOWN, WEBCTRL
 };
 
+enum class DcxSearchTypes : UINT {
+	SEARCH_W = 0x01,	//!< WildCard Search
+	SEARCH_R,			//!< Regex Search
+	SEARCH_E			//!< Exact Match
+};
+
 class DcxDialog;
 
 typedef struct {

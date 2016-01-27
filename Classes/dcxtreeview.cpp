@@ -247,17 +247,15 @@ void DcxTreeView::parseInfoRequest( const TString &input, PTCHAR szReturnValue) 
 		if (matchtext.empty())
 			throw Dcx::dcxException("No matchtext specified.");
 
-		UINT searchType;
+		auto searchType = DcxSearchTypes::SEARCH_E;
 		const auto searchMode(params.getfirsttok(1));	// tok 1
 		HTREEITEM startingPoint = TVI_ROOT;
 		HTREEITEM result;
 
 		if (searchMode == TEXT('R'))
-			searchType = TVSEARCH_R;
+			searchType = DcxSearchTypes::SEARCH_R;
 		else if (searchMode == TEXT('W'))
-			searchType = TVSEARCH_W;
-		else
-			searchType = TVSEARCH_E;
+			searchType = DcxSearchTypes::SEARCH_W;
 
 		const auto n = params.getnexttok().to_int();	// tok 2
 		auto matchCount = 0;
@@ -271,7 +269,7 @@ void DcxTreeView::parseInfoRequest( const TString &input, PTCHAR szReturnValue) 
 				throw Dcx::dcxException(TEXT("Unable to parse path: %"), path);
 		}
 
-		if (this->findItemText(&startingPoint, &result, &matchtext, n, &matchCount, searchType)) {
+		if (this->findItemText(&startingPoint, &result, matchtext, n, matchCount, searchType)) {
 			const auto path(this->getPathFromItem(&result));
 			dcx_strcpyn(szReturnValue, path.to_chr(), MIRC_BUFFER_SIZE_CCH);
 		}
@@ -1421,17 +1419,19 @@ int DcxTreeView::getChildCount(HTREEITEM *hParent) const {
  * blah
  */
 
-bool DcxTreeView::matchItemText(HTREEITEM *hItem, const TString *search, const UINT SearchType) const {
-	TCHAR itemtext[MIRC_BUFFER_SIZE_CCH];
-	this->getItemText(hItem, itemtext, MIRC_BUFFER_SIZE_CCH);
+bool DcxTreeView::matchItemText(HTREEITEM *hItem, const TString &search, const DcxSearchTypes &SearchType) const {
+	auto itemtext = std::make_unique<TCHAR[]>(MIRC_BUFFER_SIZE_CCH);
+	itemtext[0] = TEXT('\0');
+
+	this->getItemText(hItem, itemtext.get(), MIRC_BUFFER_SIZE_CCH);
 
 	switch (SearchType) {
-		case TVSEARCH_R:
-			return isRegexMatch(itemtext, search->to_chr());
-		case TVSEARCH_W:
-			return TString(itemtext).iswm(search->to_chr());
-		case TVSEARCH_E:
-			return (lstrcmp(search->to_chr(), itemtext) == 0);
+		case DcxSearchTypes::SEARCH_R:
+			return isRegexMatch(itemtext.get(), search.to_chr());
+		case DcxSearchTypes::SEARCH_W:
+			return TString(itemtext).iswm(search);
+		case DcxSearchTypes::SEARCH_E:
+			return (lstrcmp(search.to_chr(), itemtext.get()) == 0);
 	}
 
 	return false;
@@ -1442,7 +1442,7 @@ bool DcxTreeView::matchItemText(HTREEITEM *hItem, const TString *search, const U
  *
  * blah
  */
-bool DcxTreeView::findItemText(HTREEITEM *hStart, HTREEITEM *result, const TString *queryText, const int n, int *matchCount, const UINT searchType) const {
+bool DcxTreeView::findItemText(HTREEITEM *hStart, HTREEITEM *result, const TString &queryText, const int n, int &matchCount, const DcxSearchTypes &searchType) const {
 	HTREEITEM item;
 
 	// Check if it should search child nodes
@@ -1451,9 +1451,9 @@ bool DcxTreeView::findItemText(HTREEITEM *hStart, HTREEITEM *result, const TStri
 
 	do {
 		if (this->matchItemText(&item, queryText, searchType))
-			(*matchCount)++;
+			matchCount++;
 
-		if (n != 0 && *matchCount == n) {
+		if (n != 0 && matchCount == n) {
 			*result = item;
 			return true;
 		}

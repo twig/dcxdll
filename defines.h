@@ -151,7 +151,7 @@ http://symbiancorner.blogspot.com/2007/05/how-to-detect-version-of-ms-visual.htm
 // --------------------------------------------------
 #define DLL_VERSION    GIT_DESCRIBE
 #define DLL_BUILD      GIT_HASH
-#define DLL_DEV_BUILD  42
+#define DLL_DEV_BUILD  43
 
 #ifdef NDEBUG
 #ifdef DCX_DEV_BUILD
@@ -435,7 +435,7 @@ typedef std::vector<int> VectorOfInts; //<! Vector of int
 
 //#define dcx_strcpyn(x, y, z) { if (lstrcpyn((x), (y), static_cast<int>((z))) == nullptr) (x)[0] = 0; }
 
-inline void dcx_strcpyn(gsl::not_null<TCHAR *> sDest, gsl::not_null<const TCHAR *> sSrc, int iSize) { if (lstrcpyn(sDest, sSrc, iSize) == nullptr) sDest[0] = 0; }
+inline void dcx_strcpyn(gsl::not_null<TCHAR *> sDest, gsl::not_null<const TCHAR *> sSrc, const int &iSize) { if (lstrcpyn(sDest, sSrc, iSize) == nullptr) sDest[0] = 0; }
 
 constexpr const TCHAR *const dcx_truefalse(const bool &x) {	return (x) ? TEXT("$true") : TEXT("$false"); }
 

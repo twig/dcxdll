@@ -229,14 +229,14 @@ void DcxComboEx::parseInfoRequest( const TString & input, PTCHAR szReturnValue )
 
 		if ( !matchtext.empty() ) {
 
-			ComboEx_SearchTypes SearchType = CBEXSEARCH_E;
+			auto SearchType = DcxSearchTypes::SEARCH_E;
 			const auto tsSearchType((params++)[0]);
 
 			//if ( params.getfirsttok( 1 ) == TEXT("R") )
 			if (tsSearchType == TEXT('R'))
-				SearchType = CBEXSEARCH_R;
+				SearchType = DcxSearchTypes::SEARCH_R;
 			else if (tsSearchType == TEXT('W'))
-				SearchType = CBEXSEARCH_W;
+				SearchType = DcxSearchTypes::SEARCH_W;
 
 			const auto N = params++.to_<UINT>();	// tok 2
 
@@ -247,7 +247,7 @@ void DcxComboEx::parseInfoRequest( const TString & input, PTCHAR szReturnValue )
 			if ( N == 0 ) {
 				for (auto i = decltype(nItems){0}; i < nItems; i++)
 				{
-					if ( this->matchItemText( i, &matchtext, SearchType ) )
+					if ( this->matchItemText( i, matchtext, SearchType ) )
 						count++;
 				}
 
@@ -257,7 +257,7 @@ void DcxComboEx::parseInfoRequest( const TString & input, PTCHAR szReturnValue )
 			else {
 				for (auto i = decltype(nItems){0}; i < nItems; i++)
 				{
-					if ( this->matchItemText( i, &matchtext, SearchType ) )
+					if ( this->matchItemText( i, matchtext, SearchType ) )
 						count++;
 
 					if ( count == N ) {
@@ -457,16 +457,16 @@ void DcxComboEx::parseCommandRequest( const TString &input) {
 		{
 			// have flags, so its a match text delete
 			const auto tsMatchText(input.getnexttok());
-			ComboEx_SearchTypes SearchType = CBEXSEARCH_E;	// plain text exact match delete
+			auto SearchType = DcxSearchTypes::SEARCH_E;	// plain text exact match delete
 
 			if (xFlags[TEXT('w')])
-				SearchType = CBEXSEARCH_W;	// wildcard delete
+				SearchType = DcxSearchTypes::SEARCH_W;	// wildcard delete
 			else if (xFlags[TEXT('r')])
-				SearchType = CBEXSEARCH_R;	// regex delete
+				SearchType = DcxSearchTypes::SEARCH_R;	// regex delete
 
 			for (auto nPos = Ns.to_int(); nPos < nItems; nPos++) {
 
-				if (this->matchItemText(nPos, &tsMatchText, SearchType))
+				if (this->matchItemText(nPos, tsMatchText, SearchType))
 					this->deleteItem(nPos--);		// NB: we do nPos-- here as a lines just been removed so we have to check the same nPos again
 			}
 		}
@@ -572,7 +572,7 @@ HIMAGELIST DcxComboEx::createImageList( ) {
 * blah
 */
 
-bool DcxComboEx::matchItemText(const int nItem, const TString * search, const ComboEx_SearchTypes SearchType) const
+bool DcxComboEx::matchItemText(const int nItem, const TString &search, const DcxSearchTypes &SearchType) const
 {
 	auto itemtext = std::make_unique<TCHAR[]>(MIRC_BUFFER_SIZE_CCH);
 
@@ -588,12 +588,12 @@ bool DcxComboEx::matchItemText(const int nItem, const TString * search, const Co
 
 	switch (SearchType)
 	{
-	case CBEXSEARCH_R:
-		return isRegexMatch(itemtext.get(), search->to_chr());
-	case CBEXSEARCH_W:
-		return TString(itemtext).iswm(search->to_chr());
-	case CBEXSEARCH_E:
-		return (lstrcmp(search->to_chr(), itemtext.get()) == 0); // must be a zero check not a !
+	case DcxSearchTypes::SEARCH_R:
+		return isRegexMatch(itemtext.get(), search.to_chr());
+	case DcxSearchTypes::SEARCH_W:
+		return TString(itemtext).iswm(search);
+	case DcxSearchTypes::SEARCH_E:
+		return (lstrcmp(search.to_chr(), itemtext.get()) == 0); // must be a zero check not a !
 	}
 	return false;
 }

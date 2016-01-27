@@ -59,16 +59,6 @@ class DcxDialog;
 #define LVCS_BKG        0x04   //!< ListView Background Color Style
 #define LVCS_OUTLINE    0x08   //!< ListView Selection Outline Color Style
 
-enum ListView_SearchTypes : UINT {
-	LVSEARCH_W = 0x01,	//!< ListView WildCard Search
-	LVSEARCH_R,			//!< ListView Regex Search
-	LVSEARCH_E			//!< ListView Exact Match
-};
-
-//#define LVSEARCH_W 0x01 //!< ListView WildCard Search
-//#define LVSEARCH_R 0x02 //!< ListView Regex Search
-//#define LVSEARCH_E 0x04 //!< ListView Exact Match
-
 #define LVSCW_AUTOSIZE_MAX	-3	// Max of LVSCW_AUTOSIZE & LVSCW_AUTOSIZE_USEHEADER
 
 /*!
@@ -126,8 +116,8 @@ typedef std::vector<LPDCXLVCOLUMNINFO> VectorOfColumnInfo;
 typedef struct tagDCXLVITEM {
 	TString tsTipText;	//!< Tooltip text
 	TString tsMark;		// Marked text
-	//DcxControl *pbar;
-	DcxProgressBar *pbar;
+	DcxControl *pbar;
+	//DcxProgressBar *pbar;
 	int iPbarCol;
 	VectorOfRenderInfo	vInfo;	//!< Render Info for each colum
 } DCXLVITEM,*LPDCXLVITEM;
@@ -184,7 +174,7 @@ protected:
 	static UINT parseGroupFlags( const TString & flags );
 	static UINT parseGroupState( const TString & flags );
 
-	bool matchItemText(const int nItem, const int nSubItem, const TString * search, const ListView_SearchTypes SearchType) const;
+	bool matchItemText(const int nItem, const int nSubItem, const TString &search, const DcxSearchTypes &SearchType) const;
 
 	void autoSize(const int nColumn, const TString &flags);
 	void autoSize(const int nColumn, const int iFlags , const int iWidth = 0);

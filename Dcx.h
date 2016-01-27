@@ -170,6 +170,11 @@ namespace Dcx
 		//	: dcxResource(make_resource(GetDC, [](HDC obj) { ReleaseDC(nullptr, obj); }, hWnd))
 		//{
 		//}
+		//// calls GetDCEx() - broken
+		//explicit dcxHDCResource(HWND hWnd)
+		//	: dcxResource(make_resource(GetDCEx, [](HDC obj) { ReleaseDC(nullptr, obj); }, hWnd))
+		//{
+		//}
 		//// calls GetWindowDC() - broken
 		//explicit dcxHDCResource(HWND hWnd)
 		//	: dcxResource(make_resource(GetWindowDC, [](HDC obj) { ReleaseDC(nullptr, obj); }, hWnd))
@@ -203,7 +208,7 @@ namespace Dcx
 		~dcxHDCBitmapResource()
 		{
 			if (m_hOldBitmap != nullptr)
-				SelectBitmap((HDC)*this, m_hOldBitmap);
+				SelectBitmap(*this, m_hOldBitmap);
 		}
 	private:
 		HBITMAP	m_hOldBitmap;
