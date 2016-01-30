@@ -248,7 +248,8 @@ void DcxTreeView::parseInfoRequest( const TString &input, PTCHAR szReturnValue) 
 			throw Dcx::dcxException("No matchtext specified.");
 
 		auto searchType = DcxSearchTypes::SEARCH_E;
-		const auto searchMode(params.getfirsttok(1));	// tok 1
+		//const auto searchMode(params.getfirsttok(1));	// tok 1
+		const auto searchMode(params++[0]);	// tok 1
 		HTREEITEM startingPoint = TVI_ROOT;
 		HTREEITEM result;
 
@@ -257,7 +258,7 @@ void DcxTreeView::parseInfoRequest( const TString &input, PTCHAR szReturnValue) 
 		else if (searchMode == TEXT('W'))
 			searchType = DcxSearchTypes::SEARCH_W;
 
-		const auto n = params.getnexttok().to_int();	// tok 2
+		const auto n = params++.to_int();	// tok 2
 		auto matchCount = 0;
 
 		if (params.numtok() > 2) {

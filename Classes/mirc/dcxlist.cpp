@@ -295,14 +295,15 @@ void DcxList::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) co
 			throw Dcx::dcxException("No Match text supplied");
 
 		auto SearchType = DcxSearchTypes::SEARCH_E;	// default to exact match
-		const auto tsSearchType(params.getfirsttok(1));
+		//const auto tsSearchType(params.getfirsttok(1));
+		const auto tsSearchType(params++[0]);
 
-		if (tsSearchType == TEXT("R"))
+		if (tsSearchType == TEXT('R'))
 			SearchType = DcxSearchTypes::SEARCH_R;
-		else if (tsSearchType == TEXT("W"))
+		else if (tsSearchType == TEXT('W'))
 			SearchType = DcxSearchTypes::SEARCH_W;
 
-		const auto N = params.getnexttok().to_int();	// tok 2
+		const auto N = params++.to_<UINT>();	// tok 2
 		const auto nItems = ListBox_GetCount(this->m_Hwnd);
 
 		// count total
@@ -321,7 +322,7 @@ void DcxList::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) co
 		// find Nth matching
 		else {
 
-			auto count = 0;
+			auto count = decltype(N){0};
 
 			for (auto i = decltype(nItems){0}; i < nItems; i++) {
 

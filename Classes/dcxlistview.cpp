@@ -470,7 +470,7 @@ void DcxListView::parseInfoRequest( const TString &input, PTCHAR szReturnValue) 
 			const auto N = params++.to_int();			// tok 3
 			const auto nItems = ListView_GetItemCount(this->m_Hwnd);
 			const auto nColumns = this->getColumnCount();
-			auto count = 0;
+			auto count = decltype(N){0};
 
 			// count total
 			if ( N == 0 ) {
