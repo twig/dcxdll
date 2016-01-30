@@ -158,14 +158,17 @@ void DcxPager::parseCommandRequest( const TString & input ) {
 	}
 	// xdid -d [NAME] [ID] [SWITCH] [ID]
 	else if ( flags[TEXT('d')] && numtok > 3 ) {
-		// Ook: delete command needs looked at to make it compatible with named id's
-		const auto ID = mIRC_ID_OFFSET + (UINT)input.getnexttok( ).to_int( );		// tok 4
+		const auto tsID(input.getnexttok( ));		// tok 4
+		const auto ID = this->m_pParentDialog->NameToID(tsID);
 
 		if ( !this->m_pParentDialog->isIDValid(ID) )
-			throw Dcx::dcxException(TEXT("Unknown control with ID \"%\" (dialog %)"), ID - mIRC_ID_OFFSET, this->m_pParentDialog->getName());
+			throw Dcx::dcxException(TEXT("Unknown control with ID \"%\" (dialog %)"), tsID, this->m_pParentDialog->getName());
 
 		auto p_Control = this->m_pParentDialog->getControlByID(ID);
 		// Ook: no ref count check for dialog or window? needs checked
+
+		if (p_Control == nullptr)
+			throw Dcx::dcxException(TEXT("Unable to get control with ID \"%\" (dialog %)"), tsID, this->m_pParentDialog->getName());
 
 		const auto dct = p_Control->getControlType();
 

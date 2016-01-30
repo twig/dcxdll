@@ -101,7 +101,7 @@ DcxControl::DcxControl( const UINT mID, DcxDialog *const p_Dialog )
 	// inherit parent dialogs event mask
 	this->m_dEventMask = p_Dialog->getEventMask();
 	// inherit parent dialogs cursor (if any)
-	this->m_hCursor = this->m_pParentDialog->getCursor();
+	//this->m_hCursor = this->m_pParentDialog->getCursor();
 }
 
 /*!
@@ -322,33 +322,6 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, const XSwitch
 	// xdid -J [NAME] [ID] [SWITCH] [+FLAGS] [CURSOR|FILENAME]
 	// xdid -J DNAME ID [+FLAGS] [CURSOR|FILENAME]
 	else if ( flags[TEXT('J')] && numtok > 4 ) {
-		//const UINT iFlags = this->parseCursorFlags( input.getfirsttok( 4 ) );
-		//HCURSOR hCursor = nullptr;
-		//
-		//if ( this->m_bCursorFromFile )
-		//	hCursor = this->m_hCursor;
-		//this->m_hCursor = nullptr;
-		//this->m_bCursorFromFile = FALSE;
-		//if (dcx_testflag(iFlags, DCCS_FROMRESSOURCE))
-		//	//this->m_hCursor = LoadCursor(nullptr, this->parseCursorType(input.getnexttok()));	// tok 5
-		//	this->m_hCursor = (HCURSOR)LoadImage(nullptr, this->parseCursorType(input.getnexttok()), IMAGE_CURSOR, 0, 0, LR_DEFAULTSIZE | LR_SHARED);
-		//else if (dcx_testflag(iFlags, DCCS_FROMFILE)) {
-		//	TString filename(input.getlasttoks());	// tok 5, -1
-		//	if (!IsFile(filename))
-		//		throw Dcx::dcxException(TEXT("Unable to Access File: %"), filename);
-		//
-		//	this->m_hCursor = (HCURSOR)LoadImage(nullptr, filename.to_chr(), IMAGE_CURSOR, 0, 0, LR_DEFAULTSIZE | LR_LOADFROMFILE);
-		//	this->m_bCursorFromFile = TRUE;
-		//}
-		//if (this->m_hCursor == nullptr)
-		//	throw Dcx::dcxException("Unable to Load Cursor");
-		//
-		//if (GetCursor() == hCursor)
-		//	SetCursor(this->m_hCursor);
-		//
-		//if (hCursor != nullptr)
-		//	DestroyCursor( hCursor );
-		
 		const auto iFlags = this->parseCursorFlags( input.getfirsttok( 4 ) );
 		auto filename(input.getlasttoks());
 		const auto CursorType = this->parseCursorType(filename);
@@ -1983,21 +1956,6 @@ LRESULT DcxControl::CommonMessage( const UINT uMsg, WPARAM wParam, LPARAM lParam
 				}
 			}
 			break;
-
-		//case WM_SETCURSOR:
-		//	{
-		//		if ( LOWORD( lParam ) == HTCLIENT && (HWND) wParam == this->m_Hwnd ) {
-		//			if (this->m_hCursor != nullptr) {
-		//				if (GetCursor() != this->m_hCursor)
-		//					SetCursor( this->m_hCursor );
-		//			}
-		//			else
-		//				SetCursor( LoadCursor( nullptr, IDC_ARROW ) );
-		//			bParsed = TRUE;
-		//			return TRUE;
-		//		}
-		//	}
-		//	break;
 
 		case WM_MOUSEMOVE:
 			{

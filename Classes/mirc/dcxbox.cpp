@@ -293,30 +293,14 @@ void DcxBox::parseCommandRequest( const TString & input ) {
 	// xdid -c [NAME] [ID] [SWITCH] [ID] [CONTROL] [X] [Y] [W] [H] (OPTIONS)
 	if ( flags[TEXT('c')] && numtok > 8 ) {
 
-		//const auto ID = mIRC_ID_OFFSET + (UINT)input.getnexttok().to_int();	// tok 4
-		//
-		//if (!this->m_pParentDialog->isIDValid(ID, true))
-		//	throw Dcx::dcxException(TEXT("Control with ID \"%\" already exists"), ID - mIRC_ID_OFFSET);
-		//
-		//try {
-		//	//throw Dcx::dcxException("test");
-		//
-		//	this->m_pParentDialog->addControl(DcxControl::controlFactory(this->m_pParentDialog, ID, input, 5, CTLF_ALLOW_ALL, this->m_Hwnd));
-		//	this->redrawWindow( );
-		//}
-		//catch (std::exception &e)
-		//{
-		//	this->showErrorEx(nullptr, TEXT("-c"), TEXT("Unable To Create Control %d (%S)"), ID - mIRC_ID_OFFSET, e.what());
-		//	throw;
-		//}
-
 		this->m_pParentDialog->addControl(input, 4, CTLF_ALLOW_ALL, this->m_Hwnd);
 		this->redrawWindow();
 	}
 	// xdid -d [NAME] [ID] [SWITCH] [ID]
 	else if ( flags[TEXT('d')] && numtok > 3 ) {
 
-		const auto ID = mIRC_ID_OFFSET + (UINT)input.getnexttok().to_int();	// tok 4
+		const auto tsID(input.getnexttok());	// tok 4
+		const auto ID = m_pParentDialog->NameToID(tsID);
 
 		if (!this->m_pParentDialog->isIDValid(ID))
 			throw Dcx::dcxException(TEXT("Unknown control with ID \"%\" (dialog %)"), ID - mIRC_ID_OFFSET, this->m_pParentDialog->getName());
@@ -338,17 +322,6 @@ void DcxBox::parseCommandRequest( const TString & input ) {
 			this->m_pParentDialog->deleteControl(p_Control); // remove from internal list!
 			DestroyWindow(cHwnd);
 		}
-
-		//if (p_Control->getType() == TEXT("dialog") || p_Control->getType() == TEXT("window"))
-		//	delete p_Control;
-		//else {
-		//	if (p_Control->getRefCount() != 0)
-		//		throw Dcx::dcxException(TEXT("Can't delete control with ID \"%\" when it is inside it's own event (dialog %)"), p_Control->getUserID(), this->m_pParentDialog->getName());
-		//
-		//	auto cHwnd = p_Control->getHwnd();
-		//	this->m_pParentDialog->deleteControl(p_Control); // remove from internal list!
-		//	DestroyWindow(cHwnd);
-		//}
 	}
 	/*
 	//xdid -l [NAME] [ID] [SWITCH] [OPTIONS]
@@ -681,11 +654,12 @@ void DcxBox::DrawClientArea(HDC hdc)
 
 	// Setup alpha blend if any.
 	auto ai = this->SetupAlphaBlend(&hdc, true);
+	Auto(FinishAlphaBlend(ai));
 
 	// if no border, dont bother
 	if (dcx_testflag(this->m_iBoxStyles, BOXS_NONE)) {
 		DcxControl::DrawCtrlBackground(hdc, this, &rc);
-		this->FinishAlphaBlend(ai);
+		//this->FinishAlphaBlend(ai);
 		return;
 	}
 
@@ -698,6 +672,8 @@ void DcxBox::DrawClientArea(HDC hdc)
 		if (dcx_testflag(this->m_iBoxStyles, BOXS_ROUNDED)) {
 			auto m_Region = CreateRoundRectRgn(rc2.left, rc2.top, rc2.right, rc2.bottom, 10, 10);
 			if (m_Region != nullptr) {
+				Auto(DeleteRgn(m_Region));
+
 				SelectClipRgn(hdc,m_Region);
 				DcxControl::DrawCtrlBackground(hdc, this, &rc2);
 				SelectClipRgn(hdc,nullptr);
@@ -707,7 +683,6 @@ void DcxBox::DrawClientArea(HDC hdc)
 					hBorderBrush = GetStockBrush(BLACK_BRUSH);
 
 				FrameRgn(hdc,m_Region,hBorderBrush,1,1);
-				DeleteRgn(m_Region);
 			}
 		}
 		else {
@@ -794,6 +769,8 @@ void DcxBox::DrawClientArea(HDC hdc)
 		if (dcx_testflag(this->m_iBoxStyles, BOXS_ROUNDED)) {
 			auto m_Region = CreateRoundRectRgn(rc2.left, rc2.top, rc2.right, rc2.bottom, 10, 10);
 			if (m_Region != nullptr) {
+				Auto(DeleteRgn(m_Region));
+
 				SelectClipRgn(hdc,m_Region);
 				DcxControl::DrawCtrlBackground(hdc, this, &rc2);
 				SelectClipRgn(hdc,nullptr);
@@ -804,7 +781,6 @@ void DcxBox::DrawClientArea(HDC hdc)
 					hBorderBrush = GetStockBrush(BLACK_BRUSH);
 
 				FrameRgn(hdc,m_Region,hBorderBrush,1,1);
-				DeleteRgn(m_Region);
 			}
 		}
 		else {
@@ -818,5 +794,5 @@ void DcxBox::DrawClientArea(HDC hdc)
 		this->ctrlDrawText(hdc, wtext, &rcText, DT_LEFT | DT_END_ELLIPSIS |DT_SINGLELINE);
 	}
 
-	this->FinishAlphaBlend(ai);
+	//this->FinishAlphaBlend(ai);
 }
