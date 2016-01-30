@@ -717,7 +717,7 @@ public:
 	TString getfirsttok(const UINT N, const TCHAR *const sepChars = SPACE) const;			// must be called before the first getnexttok()
 	TString getnexttok(const TCHAR *const sepChars = SPACE) const;							// gets subsequent tokens after a getfirsttok() call.
 	TString getlasttoks() const;															// gets all remaining tokens after a getfirsttok()/getnexttok() call.
-	const bool moretokens() const noexcept {	return (m_savedpos != nullptr);	}
+	const bool moretokens() const noexcept { return (m_savedpos != nullptr); }
 	void resettokens() const noexcept {
 		m_savedcurrenttok = 0;
 		m_savedpos = nullptr;
@@ -725,6 +725,36 @@ public:
 	}
 	TString matchtok(const TCHAR *const mString, UINT N, const TCHAR *const sepChars = SPACE) const;
 	UINT numtok(const TCHAR *const sepChars = SPACE) const;
+
+#if TSTRING_TESTCODE
+	template <typename T>
+	T getnexttokas(const TCHAR *const sepChars = SPACE) const
+	{
+		//return getnexttok(sepChars).to_<T>();
+		if (sepChars == nullptr || this->m_pString == nullptr)
+			return T();
+
+		this->m_savedcurrenttok++;
+		const auto *const p_cStart = this->m_savedpos;
+
+		if ((this->m_savedcurrenttok > this->m_savedtotaltoks) || (p_cStart == nullptr))
+			return T();
+
+		if (this->m_savedcurrenttok == this->m_savedtotaltoks) {
+			this->m_savedpos = nullptr;
+			//return TString(p_cStart).to_<T>();
+			return Dcx::parse_string<T,TCHAR>(p_cStart);
+		}
+		else {
+			const auto *const p_cEnd = ts_strstr(p_cStart, sepChars);
+			if (p_cEnd != nullptr) {
+				this->m_savedpos = (p_cEnd + ts_strlen(sepChars));
+				return TString(p_cStart, p_cEnd).to_<T>();
+			}
+		}
+		return T();
+	}
+#endif
 
 	struct SortOptions {
 		bool bAlpha;
@@ -739,7 +769,6 @@ public:
 	void sorttok(const TCHAR *const sortOptions, const TCHAR *const sepChars = SPACE);		// The default is an alphabetic sort, however you can specify n = numeric sort, c = channel nick prefix sort, r = reverse sort, a = alphanumeric sort.
 	void sorttok(const SortOptions &sortOptions, const TCHAR *const sepChars = SPACE);		// The default is an alphabetic sort, however you can specify n = numeric sort, c = channel nick prefix sort, r = reverse sort, a = alphanumeric sort.
 
-	// added by Ook
 	TString wildtok(const TCHAR *const wildString, const UINT N, const TCHAR *const sepChars = SPACE) const;
 	UINT nwildtok(const TCHAR *const wildString, const TCHAR *const sepChars = SPACE) const;
 
