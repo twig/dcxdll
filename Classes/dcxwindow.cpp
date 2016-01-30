@@ -271,10 +271,67 @@ UINT DcxWindow::parseCursorFlags(const TString &flags) {
 	if (!xflags[TEXT('+')])
 		return iFlags;
 
-	if (xflags[TEXT('f')])
+	if (xflags[TEXT('f')])	// load file
 		iFlags |= DCCS_FROMFILE;
-	if (xflags[TEXT('r')])
+	if (xflags[TEXT('r')])	// load resource
 		iFlags |= DCCS_FROMRESSOURCE;
+
+	return iFlags;
+}
+
+UINT DcxWindow::parseCursorArea(const TString & flags)
+{
+	UINT iFlags = 0;
+	const XSwitchFlags xflags(flags);
+
+	// no +sign, missing params
+	if (!xflags[TEXT('+')])
+		return iFlags;
+
+	// can't use +f or +r
+	if (xflags[TEXT('c')])	// client area
+		iFlags = HTCLIENT;
+	if (xflags[TEXT('m')])	// menu area
+		iFlags = HTMENU;
+	if (xflags[TEXT('s')])	// sysmenu area
+		iFlags = HTSYSMENU;
+	if (xflags[TEXT('c')])	// caption area
+		iFlags = HTCAPTION;
+	if (xflags[TEXT('S')])	// size button area
+		iFlags = HTSIZE;
+	if (xflags[TEXT('h')])	// horiz scroll area
+		iFlags = HTHSCROLL;
+	if (xflags[TEXT('v')])	// vert scroll area
+		iFlags = HTVSCROLL;
+	if (xflags[TEXT('M')])	// min button area
+		iFlags = HTMINBUTTON;
+	if (xflags[TEXT('x')])	// max button area
+		iFlags = HTMAXBUTTON;
+	if (xflags[TEXT('C')])	// close button area
+		iFlags = HTCLOSE;
+	if (xflags[TEXT('n')])	// nowhere area
+		iFlags = HTNOWHERE;
+	if (xflags[TEXT('H')])	// help button area
+		iFlags = HTHELP;
+	if (xflags[TEXT('l')])	// left area
+		iFlags = HTLEFT;
+	if (xflags[TEXT('R')])	// right area
+		iFlags = HTRIGHT;
+	if (xflags[TEXT('t')])	// top area
+		iFlags = HTTOP;
+	if (xflags[TEXT('b')])	// bottom area
+		iFlags = HTBOTTOM;
+
+	if (xflags[TEXT('L')])	// topleft area
+		iFlags = HTTOPLEFT;
+	if (xflags[TEXT('Q')])	// topright area
+		iFlags = HTTOPRIGHT;
+	if (xflags[TEXT('T')])	// bottomleft area
+		iFlags = HTBOTTOMLEFT;
+	if (xflags[TEXT('B')])	// bottomright area
+		iFlags = HTBOTTOMRIGHT;
+	if (xflags[TEXT('X')])	// border area
+		iFlags = HTBORDER;
 
 	return iFlags;
 }

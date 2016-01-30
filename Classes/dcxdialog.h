@@ -46,15 +46,6 @@
 #define DCX_EVENT_EDIT				0x00000200
 #define DCX_EVENT_ALL				0xFFFFFFFF
 
-//// Shadow Status Flags
-//enum ShadowStatus: UINT
-//{
-//	DCX_SS_ENABLED = 1,	// Shadow is enabled, if not, the following one is always false
-//	DCX_SS_VISABLE = 1 << 1,	// Shadow window is visible
-//	DCX_SS_PARENTVISIBLE = 1<< 2,	// Parent window is visible, if not, the above one is always false
-//	DCX_SS_DISABLEDBYAERO = 1 << 3	// Shadow is enabled, but do not show because areo is enabled
-//};
-
 // dummy runtime classe definition
 class DcxControl;
 class DcxList;
@@ -124,6 +115,10 @@ public:
 	LayoutManager * m_pLayoutManager; //!< Layout Manager Object
 
 	inline const HCURSOR &getCursor( ) const noexcept { return this->m_hCursor; };
+	inline const HCURSOR &getCursor(const WORD wHitCode) const noexcept {
+		if (wHitCode < _countof(m_hCursorList)) return m_hCursorList[wHitCode].first;
+		return m_hCursor;
+	};
 	inline const HWND &getToolTip(void) const noexcept { return this->m_ToolTipHWND; };
 	inline void incRef( ) noexcept { ++this->m_iRefCount; };
 	inline void decRef( ) noexcept { --this->m_iRefCount; };
@@ -132,17 +127,6 @@ public:
 	inline const HBITMAP &getBgBitmap() const noexcept { return this->m_bitmapBg; };
 	inline const COLORREF &getBgTransparentCol() const noexcept { return this->m_colTransparentBg; };
 	static void DrawDialogBackground(HDC hdc, DcxDialog *const p_this, LPCRECT rwnd);
-
-	//const bool AddShadow(void);
-	//void RemoveShadow(void);
-	//void UpdateShadow(void);
-	//const bool isShadowed(void) const;
-	//const bool SetShadowSize(const int NewSize = 0);
-	//const bool SetShadowSharpness(const UINT NewSharpness = 5);
-	//const bool SetShadowDarkness(const UINT NewDarkness = 200);
-	//const bool SetShadowPosition(const int NewXOffset = 5, const int NewYOffset = 5);
-	//const bool SetShadowColor(const COLORREF NewColor = 0);
-	//void ShowShadow(void);
 
 	static const DWORD getAnimateStyles(const TString & flags);
 	void showError(const TCHAR *const prop, const TCHAR *const cmd, const TCHAR *const err) const;
@@ -169,12 +153,11 @@ public:
 	IntegerHash namedIds; //!< map of named Id's
 
 	const IntegerHash &getNamedIds(void) const noexcept { return this->namedIds; };
-	//const bool isNamedId(const TString &NamedID) const { return (namedIds.find(NamedID) != namedIds.end()); }
 	const bool isNamedId(const TString &NamedID) const {
 		const auto local_id = NamedID.to_<UINT>() + mIRC_ID_OFFSET;
 		const auto itEnd = namedIds.end();
 
-		const auto itGot = std::find_if(namedIds.begin(), itEnd, [local_id,NamedID](IntegerHash::const_reference arg) { return ((arg.second == local_id) || (arg.first == NamedID)); });
+		const auto itGot = std::find_if(namedIds.begin(), itEnd, [local_id,NamedID](const auto &arg) { return ((arg.second == local_id) || (arg.first == NamedID)); });
 
 		return (itGot != itEnd);
 	}
@@ -188,50 +171,49 @@ public:
 	}
 	const UINT NameToID(const TString &NamedID) const
 	{
-		//auto it = namedIds.find(NamedID);
-		//if (it != namedIds.end())
-		//	return it->second;
-		//return 0;
-
 		const auto local_id = NamedID.to_<UINT>() + mIRC_ID_OFFSET;
-		const auto itEnd = namedIds.end();
+		//const auto itEnd = namedIds.end();
 
-		const auto itGot = std::find_if(namedIds.begin(), itEnd, [local_id, NamedID](IntegerHash::const_reference arg) { return ((arg.second == local_id) || (arg.first == NamedID)); });
-		if (itGot != itEnd)
-			return itGot->second;
+		//const auto itGot = std::find_if(namedIds.begin(), itEnd, [local_id, NamedID](const auto &arg) { return ((arg.second == local_id) || (arg.first == NamedID)); });
+		//if (itGot != itEnd)
+		//	return itGot->second;
 
+		for (const auto &x : namedIds)
+		{
+			if ((x.first == NamedID) || (x.second == local_id))
+				return x.second;
+		}
 		return 0;
 	}
 	const UINT NameToUserID(const TString &NamedID) const
 	{
-		//auto it = namedIds.find(NamedID);
-		//if (it != namedIds.end())
-		//	return it->second - mIRC_ID_OFFSET;
-		//
-		//return 0;
-
 		const auto local_id = NamedID.to_<UINT>() + mIRC_ID_OFFSET;
-		const auto itEnd = namedIds.end();
+		//const auto itEnd = namedIds.end();
 
-		const auto itGot = std::find_if(namedIds.begin(), itEnd, [local_id, NamedID](IntegerHash::const_reference arg) { return ((arg.second == local_id) || (arg.first == NamedID)); });
-		if (itGot != itEnd)
-			return itGot->second - mIRC_ID_OFFSET;
+		//const auto itGot = std::find_if(namedIds.begin(), itEnd, [local_id, NamedID](const auto &arg) { return ((arg.second == local_id) || (arg.first == NamedID)); });
+		//if (itGot != itEnd)
+		//	return itGot->second - mIRC_ID_OFFSET;
+
+		for (const auto &x : namedIds)
+		{
+			if ((x.first == NamedID) || (x.second == local_id))
+				return x.second - mIRC_ID_OFFSET;
+		}
 
 		return 0;
 	}
 	const TString &IDToName(const UINT local_id) const
 	{
-		//for (auto it = namedIds.begin(), itEnd = namedIds.end(); it != itEnd; ++it)
-		//{
-		//	if (local_id == it->second)
-		//		return it->first;
-		//}
-		//return TEXT("");
+		//const auto itEnd = namedIds.end();
+		//const auto itGot = std::find_if(namedIds.begin(), itEnd, [local_id](const auto &arg) { return (arg.second == local_id); });
+		//if (itGot != itEnd)
+		//	return itGot->first;
 
-		const auto itEnd = namedIds.end();
-		const auto itGot = std::find_if(namedIds.begin(), itEnd, [local_id](IntegerHash::const_reference arg) { return (arg.second == local_id); });
-		if (itGot != itEnd)
-			return itGot->first;
+		for (const auto &x : namedIds)
+		{
+			if (x.second == local_id)
+				return x.first;
+		}
 
 		return TEXT("");
 	}
@@ -239,30 +221,24 @@ public:
 	{
 		for (auto iCount = 0U, i = mIRC_ID_OFFSET; iCount < mIRC_MAX_CONTROLS; iCount++) {
 			++i;
-			//UINT i = 0;
-			//if (rand_s(&i) != 0)
-			//	throw Dcx::dcxException("Unable to Generate ID");
-			//
-			//if (i <= mIRC_ID_OFFSET)
-			//	i += mIRC_ID_OFFSET + 1;
 
 			if (isIDValid(i, true))
 			{
-				//bool bIDTaken = false;
-				//for (auto it = namedIds.begin(), itEnd = namedIds.end(); it != itEnd; ++it)
-				//{
-				//	if (i == it->second)
-				//	{
-				//		bIDTaken = true;
-				//		break;
-				//	}
-				//}
-				//if (!bIDTaken)
+				//const auto itEnd = namedIds.end();
+				//const auto itGot = std::find_if(namedIds.begin(), itEnd, [i](const auto &arg) { return (arg.second == i); });
+				//if (itGot == itEnd)
 				//	return i;
 
-				const auto itEnd = namedIds.end();
-				const auto itGot = std::find_if(namedIds.begin(), itEnd, [i](IntegerHash::const_reference arg) { return (arg.second == i); });
-				if (itGot == itEnd)
+				bool bFound = false;
+				for (const auto &x : namedIds)
+				{
+					if (x.second == i)
+					{
+						bFound = true;
+						break;
+					}
+				}
+				if (!bFound)
 					return i;
 			}
 		}
@@ -270,12 +246,22 @@ public:
 	}
 	bool deleteNamedID(const UINT local_id)
 	{
-		const auto itEnd = namedIds.end();
-		const auto itGot = std::find_if(namedIds.begin(), itEnd, [local_id](IntegerHash::const_reference arg) { return (arg.second == local_id); });
-		if (itGot != itEnd)
+		//const auto itEnd = namedIds.end();
+		//const auto itGot = std::find_if(namedIds.begin(), itEnd, [local_id](const auto &arg) { return (arg.second == local_id); });
+		//if (itGot != itEnd)
+		//{
+		//	namedIds.erase(itGot);
+		//	return true;
+		//}
+		//return false;
+
+		for (auto itStart = namedIds.begin(), itEnd = namedIds.end(); itStart != itEnd; ++itStart)
 		{
-			namedIds.erase(itGot);
-			return true;
+			if (itStart->second == local_id)
+			{
+				namedIds.erase(itStart);
+				return true;
+			}
 		}
 		return false;
 	}
@@ -331,6 +317,7 @@ protected:
 	XPopupMenu * m_popup;
 
 	HCURSOR m_hCursor;  //!< Cursor Handle
+	std::pair<HCURSOR, bool> m_hCursorList[22];
 
 	HBITMAP m_bitmapBg;
 	HBITMAP m_hVistaBitmap;
@@ -362,27 +349,6 @@ protected:
 	static bool m_bIsSysMenu;
 	bool m_bReserved;				//!< Reserved for future use.
 
-	//struct {
-	//	HWND hWin; //!< The shadow window.
-	//	// Restore last parent window size, used to determine the update strategy when parent window is resized
-	//	LPARAM WndSize;
-	//	COLORREF Color;	// Color of shadow
-	//
-	//	BYTE Status; //!< The shadow windows status.
-	//	unsigned char nDarkness;	// Darkness, transparency of blurred area
-	//	unsigned char nSharpness;	// Sharpness, width of blurred border of shadow window
-	//	signed char nSize;	// Shadow window size, relative to parent window size
-	//
-	//	// The X and Y offsets of shadow window,
-	//	// relative to the parent window, at center of both windows (not top-left corner), signed
-	//	signed char nxOffset;
-	//	signed char nyOffset;
-	//
-	//	// Set this to true if the shadow should not be update until next WM_PAINT is received
-	//	bool bUpdate;
-	//} m_Shadow;
-	/* **** */
-
 	PVOID m_pVistaBits;
 
 	HDC m_hVistaHDC;
@@ -390,9 +356,6 @@ protected:
 	SIZE m_sVistaOffsets;
 
 	RECT m_GlassOffsets;
-
-	//// Fill in the shadow window alpha blend bitmap with shadow image pixels
-	//void MakeShadow(UINT32 *const pShadBits, const HWND hParent, const RECT *const rcParent);
 
 	void PreloadData(void);
 

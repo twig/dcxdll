@@ -241,7 +241,7 @@ void DcxComboEx::parseInfoRequest( const TString & input, PTCHAR szReturnValue )
 			const auto N = params++.to_<UINT>();	// tok 2
 
 			const auto nItems = this->getCount();
-			auto count = 0U;
+			auto count = decltype(N){0};
 
 			// count total
 			if ( N == 0 ) {
@@ -312,11 +312,19 @@ void DcxComboEx::parseCommandRequest( const TString &input) {
 	// xdid -a [NAME] [ID] [SWITCH] [N] [INDENT] [ICON] [STATE] [OVERLAY] Item Text
 	// [NAME] [ID] -a [N] [INDENT] [ICON] [STATE] [OVERLAY] Item Text
 	if (flags[TEXT('a')] && numtok > 8) {
-		auto nPos = input.getnexttok().to_int() - 1;	// tok 4
-		const auto indent = input.getnexttok().to_int();		// tok 5
+#if TSTRING_TESTCODE
+		auto nPos = input.getnexttokas<int>() - 1;		// tok 4
+		const auto indent = input.getnexttokas<int>();	// tok 5
+		const auto icon = input.getnexttokas<int>() - 1;	// tok 6
+		const auto state = input.getnexttokas<int>() - 1;	// tok 7
+		const auto overlay = input.getnexttokas<int>();		// tok 8		(never used, here for spacing only atm)
+#else
+		auto nPos = input.getnexttok().to_int() - 1;		// tok 4
+		const auto indent = input.getnexttok().to_int();	// tok 5
 		const auto icon = input.getnexttok().to_int() - 1;	// tok 6
 		const auto state = input.getnexttok().to_int() - 1;	// tok 7
-		const auto overlay = input.getnexttok().to_int();		// tok 8		(never used, here for spacing only atm)
+		const auto overlay = input.getnexttok().to_int();	// tok 8		(never used, here for spacing only atm)
+#endif
 		const auto itemtext(input.getlasttoks());			// tok 9, -1
 
 		if (nPos < -1) {

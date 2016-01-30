@@ -11,30 +11,6 @@
  *
  * © ScriptsDB.org - 2006
  */
-// CWndShadow ...
-// Copyright (c) 2006 Perry Zhu, All Rights Reserved.
-//
-// mailto:perry@live.com
-//
-//
-// This source file may be redistributed unmodified by any means PROVIDING 
-// it is NOT sold for profit without the authors expressed written 
-// consent, and providing that this notice and the author's name and all 
-// copyright notices remain intact. This software is by no means to be 
-// included as part of any third party components library, or as part any
-// development solution that offers MFC extensions that are sold for profit. 
-// 
-// If the source code is used in any commercial applications then a statement 
-// along the lines of:
-// 
-// "Portions Copyright (c) 2006 Perry Zhu" must be included in the "Startup 
-// Banner", "About Box" or "Printed Documentation". This software is provided 
-// "as is" without express or implied warranty. Use it at your own risk! The 
-// author accepts no liability for any damage/loss of business that this 
-// product may cause.
-//
-// This code has been modified for use with DCX.
-// ... CWndShadow
 /*
 	Vista Style Dialogs
 	Taken from http://www.codeproject.com/useritems/VisitaLookingDialog.asp
@@ -107,6 +83,7 @@ DcxDialog::DcxDialog(const HWND mHwnd, const TString &tsName, const TString &tsA
 , m_bVerboseErrors(true)
 , m_bErrorTriggered(false)
 , m_bDialogActive(true)
+, m_hCursorList( )
 {
 
 	this->addStyle(WS_CLIPCHILDREN);
@@ -116,9 +93,6 @@ DcxDialog::DcxDialog(const HWND mHwnd, const TString &tsName, const TString &tsA
 	this->m_hOldWindowProc = SubclassWindow(this->m_Hwnd, DcxDialog::WindowProc);
 
 	this->m_pLayoutManager = new LayoutManager(this->m_Hwnd);
-
-	//this->m_Shadow.hWin = nullptr;
-	//this->m_Shadow.Status = 0;
 
 	SetRectEmpty(&this->m_GlassOffsets);
 
@@ -146,6 +120,13 @@ DcxDialog::~DcxDialog() {
 	if (this->m_bCursorFromFile && this->m_hCursor != nullptr)
 		DestroyCursor(this->m_hCursor);
 
+	for (auto &x : m_hCursorList)
+	{
+		if ((x.first != nullptr) && (x.second))
+			DestroyCursor(x.first);
+		x.first = nullptr;
+		x.second = false;
+	}
 	RemoveProp(this->m_Hwnd, TEXT("dcx_this"));
 }
 
@@ -373,7 +354,6 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 	// xdialog -d [NAME] [SWITCH] [ID]
 	else if (flags[TEXT('d')] && numtok > 2) {
 
-		// Ook: TODO update for named controls
 		const auto tsID(input.getnexttok());	// tok 3
 
 		const UINT ID = NameToID(tsID);
@@ -459,12 +439,15 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 	// xdialog -j [NAME] [SWITCH] (ID)
 	else if (flags[TEXT('j')]) {
 		if (numtok > 2) {
-			const UINT id = (mIRC_ID_OFFSET + input.getnexttok( ).to_int());	// tok 3
+			const auto tsID(input.getnexttok( ));	// tok 3
+			const auto id = NameToID(tsID);
 
 			if (!this->isIDValid(id))
 				throw Dcx::dcxException(TEXT("Could not find control %"), id - mIRC_ID_OFFSET);
 			
-			this->getControlByID(id)->redrawWindow();
+			auto p_Control = this->getControlByID(id);
+			if (p_Control != nullptr)
+				p_Control->redrawWindow();
 		}
 		else
 			this->redrawWindow();
@@ -505,7 +488,8 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 	else if (flags[TEXT('q')] && numtok > 3) {
 		// Ook: TODO allow different cursors for client areas, menus, non client areas
 		// get cursors flags (either +f or +r atm)
-		const auto iFlags = this->parseCursorFlags(input.getnexttok());	// tok 3
+		const auto tsFlags(input.getnexttok());	// tok 3
+		const auto iFlags = this->parseCursorFlags(tsFlags);
 		// filename is the resource name if +r
 		// otherwise its the filename if +f
 		auto filename(input.getlasttoks());
@@ -513,7 +497,12 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 		// NB: if a filename is the same as a resource name then this will return the resource, but the file will be loaded.
 		const auto CursorType = this->parseCursorType(filename);
 
-		this->m_hCursor = Dcx::dcxLoadCursor(iFlags, CursorType, this->m_bCursorFromFile, this->m_hCursor, filename);
+		const auto CursorArea = this->parseCursorArea(tsFlags);
+
+		if (CursorArea > 0)
+			this->m_hCursorList[CursorArea].first = Dcx::dcxLoadCursor(iFlags, CursorType, this->m_hCursorList[CursorArea].second, this->m_hCursorList[CursorArea].first, filename);
+		else
+			this->m_hCursor = Dcx::dcxLoadCursor(iFlags, CursorType, this->m_bCursorFromFile, this->m_hCursor, filename);
 	}
 	// xdialog -x [NAME]
 	else if (flags[TEXT('x')]) {
@@ -2156,13 +2145,31 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 			{
 				//if ((LOWORD(lParam) == HTCLIENT) && ((HWND) wParam == p_this->getHwnd()) && (p_this->getCursor() != nullptr))
 				// removing the above checks allows the cursor to be customized for the whole dialog including menus...
-				if ((LOWORD(lParam) != HTERROR) && (p_this->getCursor() != nullptr))
-				{
-					if (GetCursor() != p_this->getCursor())
-						SetCursor(p_this->getCursor());
+				//if ((LOWORD(lParam) != HTERROR) && (p_this->getCursor() != nullptr))
+				//{
+				//	if (GetCursor() != p_this->getCursor())
+				//		SetCursor(p_this->getCursor());
+				//
+				//	bParsed = TRUE;
+				//	lRes = TRUE;
+				//}
 
-					bParsed = TRUE;
-					lRes = TRUE;
+				auto wHitCode = LOWORD(lParam);
+
+				if ((HWND)wParam == p_this->getHwnd())
+				{
+					auto hCursor = p_this->getCursor(wHitCode);
+					if (hCursor == nullptr)
+						hCursor = p_this->getCursor();
+
+					if (hCursor != nullptr)
+					{
+						if (GetCursor() != hCursor)
+							SetCursor(hCursor);
+
+						bParsed = TRUE;
+						lRes = TRUE;
+					}
 				}
 				break;
 			}
