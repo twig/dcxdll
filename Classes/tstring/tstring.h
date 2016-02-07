@@ -119,6 +119,7 @@
 #define ts_upr(x,y) _wcsupr_s((x),(y))
 #define ts_strstr(x,y) wcsstr((x),(y))
 //#define ts_strstr(x,y) _ts_strstr((x),(y))
+#define ts_strchr(x,y) wcschr((x),(y))
 #define ts_strcat_s(x,y,z) wcscat_s((x),(z),(y))
 #define ts_strcat(x,y) lstrcat((x),(y))
 #define ts_strncat(x,y,z) wcsncat((x),(y),(size_t)(z))
@@ -816,7 +817,8 @@ public:
 		m_savedtotaltoks = 0;
 	}
 	TString matchtok(const TCHAR *const mString, UINT N, const TCHAR *const sepChars = SPACE) const;
-	UINT numtok(const TCHAR *const sepChars = SPACE) const;
+	size_t numtok(const TCHAR *const sepChars) const noexcept;
+	size_t numtok(const TCHAR sepChar = L' ') const noexcept;
 
 #if TSTRING_TESTCODE
 	template <typename T>

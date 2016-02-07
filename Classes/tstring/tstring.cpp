@@ -991,7 +991,7 @@ TString TString::getlasttoks( ) const
  *
  * blah
  */
-UINT TString::numtok(const TCHAR *const sepChars) const {
+size_t TString::numtok(const TCHAR *const sepChars) const noexcept {
 
 	if (sepChars == nullptr || this->empty())
 		return 0U;
@@ -1009,6 +1009,21 @@ UINT TString::numtok(const TCHAR *const sepChars) const {
 	}
 	//this->m_savedtotaltoks = iCount + 1;
 	//return this->m_savedtotaltoks;
+	return iCount + 1;
+}
+
+size_t TString::numtok(const TCHAR sepChar) const noexcept
+{
+	if (empty())
+		return size_t();
+
+	const TCHAR * p_cStart = this->m_pString, *p_cEnd = nullptr;
+	auto iCount = 0U;
+	
+	while ((p_cEnd = ts_strchr(p_cStart, sepChar)) != nullptr) {
+		iCount++;
+		p_cStart = ++p_cEnd;
+	}
 	return iCount + 1;
 }
 
