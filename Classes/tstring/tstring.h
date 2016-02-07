@@ -125,6 +125,8 @@
 #define ts_toupper(c) ((((c) >= TEXT('a')) && ((c) <= TEXT('z'))) ? _toupper((c)) : (c) )
 #define ts_tolower(c) ((((c) >= TEXT('A')) && ((c) <= TEXT('Z'))) ? _tolower((c)) : (c) )
 #define ts_strlen(x) lstrlen((x))
+#define ts_strlenA(x) lstrlenA((x))
+#define ts_strlenW(x) lstrlenW((x))
 #define ts_strcpyn(dest,src,len) lstrcpyn((dest),(src),(int)(len))
 #define ts_strcpy(dest,src) lstrcpy((dest),(src))
 #define ts_strcmp(x,y) lstrcmp((x),(y))
@@ -139,6 +141,17 @@
 #define ts_strncat_throw(x,y,z) if (ts_strncat((x), (y), (z)) == nullptr) throw std::logic_error("strncat() failed!");
 #define ts_strcpy_throw(x,y) if (ts_strcpy((x), (y)) == nullptr) throw std::logic_error("strcpy() failed!");
 #define ts_strcpyn_throw(x,y,z) if (ts_strcpyn((x), (y), (z)) == nullptr) throw std::logic_error("strcpyn() failed!");
+
+//template <typename T>
+//std::enable_if_t<std::is_same<T,WCHAR>::value, int> ts_strlen(const T *const cString) const
+//{
+//	return ts_strlenW(cString);
+//}
+//template <typename T>
+//std::enable_if_t<std::is_same<T, char>::value, int> ts_strlen(const T *const cString) const
+//{
+//	return ts_strlenA(cString);
+//}
 
 /*!
  * \brief String and Token Management Class
@@ -251,10 +264,23 @@ public:
 	static const TCHAR *m_cTab;
 
 	TString();
-	TString(const WCHAR *const cString);		// we don't want these 3 as explicits
-	TString(const char *const cString);
-	TString(const TString & tString);
-	TString(const TCHAR *const pStart, const TCHAR *const pEnd);
+	//explicit TString(const WCHAR *const cString);		// we don't want these 3 as explicits
+	//explicit TString(const char *const cString);
+	//TString(const TString & tString);
+	//TString(const TCHAR *const pStart, const TCHAR *const pEnd);
+
+	TString(const WCHAR *const cString)
+		: TString(cString, ts_strlen(cString))
+	{
+	}
+	TString(const char *const cString)
+		: TString(cString, ts_strlenA(cString))
+	{
+	}
+	TString(const TString & tString)
+		: TString(tString.data(), tString.len())
+	{
+	}
 	TString(TString &&tString);					// move constructor C++11 only
 	TString(const std::initializer_list<TString> &lt);	// Initializer list constructor (allows TString name{ "text", "text2", othertstring } )
 
@@ -264,6 +290,52 @@ public:
 	TString(const std::unique_ptr<T> &unique)
 		: TString(unique.get())
 	{
+	}
+
+	template <typename T, size_t N>
+	TString(const T (&cString)[N])
+		: TString(cString, N)
+	{
+	}
+
+	TString(const WCHAR *const cString, const size_t iLen)
+		: TString(iLen+1)
+	{
+		if (cString != nullptr) {
+			if (cString[0] != TEXT('\0')) {
+				ts_strcpyn_throw(this->m_pString, cString, iLen + 1);
+				m_iLen = iLen;
+			}
+		}
+		m_bDirty = false;
+	}
+
+	TString(const char *const cString, const size_t iLen)
+		: m_pTempString(nullptr), m_pString(nullptr)
+		, m_savedtotaltoks(0), m_savedcurrenttok(0), m_savedpos(nullptr)
+		, m_bDirty(false), m_iLen(0)
+	{
+		if (cString != nullptr) {
+			if (cString[0] != 0) {
+				m_pString = charToWchar(cString, &m_buffersize);
+				//m_iLen = ts_strlen(m_pString);
+				m_iLen = iLen;
+			}
+		}
+		if (m_pString == nullptr) {
+			m_pString = allocstr_cch(1);
+			m_pString[0] = TEXT('\0');
+		}
+	}
+
+	template <typename T>
+	TString(const T *const pStart, const T *const pEnd)
+		: TString(pStart, static_cast<size_t>(pEnd - pStart))
+	{
+		static_assert(std::is_same<T,WCHAR>::value || std::is_same<T,char>::value, "MUST be a WCHAR or char string");
+
+		if (pEnd < pStart)
+			throw std::invalid_argument("TString(): End of string < start");
 	}
 
 	explicit TString(const WCHAR chr);
@@ -399,12 +471,27 @@ public:
 		return TString(p_cStart, p_cEnd);
 	}
 
+#ifndef NDEBUG
+	template <class T>
+	TCHAR & operator [](const T &N)
+	{
+		CheckRange(N);	// only debug code checks range here
+
+		m_bDirty = true;
+
+		return m_pString[N];
+	}
+
+	template <class T>
+	TCHAR operator [](const T &N) const
+	{
+		CheckRange(N);	// only debug code checks range here
+		return m_pString[N];
+	}
+#else
 	template <class T>
 	TCHAR & operator [](const T &N) noexcept
 	{
-#ifndef NDEBUG
-		CheckRange(N);	// only debug code checks range here
-#endif
 
 		m_bDirty = true;
 
@@ -414,11 +501,9 @@ public:
 	template <class T>
 	TCHAR operator [](const T &N) const noexcept
 	{
-#ifndef NDEBUG
-		CheckRange(N);	// only debug code checks range here
-#endif
 		return m_pString[N];
 	}
+#endif
 
 	template <class T>
 	friend TString &operator <<(TString &other, const T &N) { other += N; return other; }
@@ -693,12 +778,19 @@ public:
 		else if (nToks > N)
 		{
 			// replace middle token
-			TString tmp{ gettok(1, N - 1, sepChars), sepChars, cToken, sepChars, gettok(N + 1, -1, sepChars) };
+			//TString tmp{ gettok(1, N - 1, sepChars), sepChars, cToken, sepChars, gettok(N + 1, -1, sepChars) };
+			TString tmp(gettok(1, N - 1, sepChars));
+			tmp.addtok(cToken, sepChars);
+			tmp.addtok(gettok(N + 1, -1, sepChars), sepChars);
+
 			this->swap(tmp);
 		}
 		else {
 			// replace last token
-			TString tmp{ gettok(1, N - 1, sepChars), sepChars, cToken };
+			//TString tmp{ gettok(1, N - 1, sepChars), sepChars, cToken };
+			TString tmp(gettok(1, N - 1, sepChars));
+			tmp.addtok(cToken, sepChars);
+
 			this->swap(tmp);
 		}
 	}
@@ -875,10 +967,10 @@ public:
 			//return m_ptr->getnexttok(m_sepChars);
 
 			if (m_sepChars == nullptr || m_savedStart == nullptr)
-				return TEXT("");
+				return tsType();
 
 			if ((m_iIndex == m_toks) || (m_savedEnd == nullptr))
-				return m_savedStart;
+				return tsType( m_savedStart );
 
 			return tsType(m_savedStart, m_savedEnd);
 		}
@@ -940,7 +1032,7 @@ public:
 #endif
 
 #if TSTRING_TESTCODE
-	template <typename T> bool iswm(const T &a) { return _ts_WildcardMatch(*this, a); }
+	template <typename T> bool iswm(const T &a) const noexcept { return _ts_WildcardMatch(*this, a); }
 #else
 	bool iswm(const TCHAR *const a) const;
 #endif
@@ -956,15 +1048,15 @@ public:
 	int tvprintf(const TCHAR *const fmt, va_list args);
 
 	TCHAR * to_chr() noexcept { m_bDirty = true;  return this->m_pString; };	// returns the string in the projects current format. (string can be altered)
-	const TCHAR * to_chr() const noexcept { return this->m_pString; };	// returns the string in the projects current format. (string can't be altered)
+	const TCHAR * to_chr() const noexcept { return this->m_pString; };			// returns the string in the projects current format. (string can't be altered)
 	WCHAR *to_wchr() noexcept { m_bDirty = true;  return this->m_pString; };	// returns the string in wide format (string can be altered)
 	const WCHAR *const to_wchr() const noexcept { return this->m_pString; };	// returns the string in wide format (string can't be altered)
-	char * c_str(void)	// returns the string as a char * (string can be altered)
-	{
-		MakeTemp();
-		return m_pTempString;
-	}
-	const char *const c_str(void) const	// returns the string as a char * (string can't be altered)
+	//char * c_str(void)														// returns the string as a char * (string can be altered)
+	//{
+	//	MakeTemp();
+	//	return m_pTempString;
+	//}
+	const char *const c_str(void) const											// returns the string as a char * (string can't be altered)
 	{
 		MakeTemp();
 		return m_pTempString;
@@ -1010,7 +1102,8 @@ public:
 
 // literal operator
 // allows "sometext"_ts to be interpreted as TString("sometext")
-TString operator"" _ts(const char *p, size_t);
+TString operator"" _ts(const char *p, size_t N);
+TString operator"" _ts(const WCHAR *p, size_t N);
 
 namespace detail {
 	template <typename Result, typename Format>
@@ -1080,7 +1173,7 @@ T *_ts_strstr(T *input, const std::remove_const_t<T> *find)
 }
 
 template <typename TameString, typename WildString>
-bool _ts_WildcardMatch(const TameString &pszString, const WildString &pszMatch)
+bool _ts_WildcardMatch(const TameString &pszString, const WildString &pszMatch) noexcept
 {
 	if ((pszMatch == nullptr) || (pszString == nullptr))
 		return false;
