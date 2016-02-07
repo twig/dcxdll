@@ -709,7 +709,7 @@ LRESULT DcxComboEx::limitText( const int iLimit ) {
 void DcxComboEx::getItemRange(const TString &tsItems, const int nItemCnt, int *iStart_range, int *iEnd_range)
 {
 	int iStart, iEnd;
-	if (tsItems.numtok(TEXT("-")) == 2) {
+	if (tsItems.numtok(TEXT('-')) == 2) {
 		iStart = tsItems.getfirsttok(1, TEXT("-")).to_int() - 1;
 		iEnd = tsItems.getnexttok(TEXT("-")).to_int() - 1;
 

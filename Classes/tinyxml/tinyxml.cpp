@@ -561,7 +561,7 @@ const char* TiXmlElement::Attribute( const char* name ) const
 	const TiXmlAttribute* node = attributeSet.Find( name );
 	if ( node != nullptr )
 		return node->Value();
-	return 0;
+	return nullptr;
 }
 
 
@@ -569,9 +569,9 @@ const char* TiXmlElement::Attribute( const char* name ) const
 const std::string* TiXmlElement::Attribute( const std::string& name ) const
 {
 	const TiXmlAttribute* attrib = attributeSet.Find( name );
-	if ( attrib )
+	if ( attrib != nullptr )
 		return &attrib->ValueStr();
-	return 0;
+	return nullptr;
 }
 #endif
 
@@ -579,11 +579,11 @@ const std::string* TiXmlElement::Attribute( const std::string& name ) const
 const char* TiXmlElement::Attribute( const char* name, int* i ) const
 {
 	const TiXmlAttribute* attrib = attributeSet.Find( name );
-	const char* result = 0;
+	const char* result = nullptr;
 
 	if ( attrib != nullptr ) {
 		result = attrib->Value();
-		if ( i ) {
+		if ( i != nullptr ) {
 			attrib->QueryIntValue( i );
 		}
 	}
@@ -595,11 +595,11 @@ const char* TiXmlElement::Attribute( const char* name, int* i ) const
 const std::string* TiXmlElement::Attribute( const std::string& name, int* i ) const
 {
 	const TiXmlAttribute* attrib = attributeSet.Find( name );
-	const std::string* result = 0;
+	const std::string* result = nullptr;
 
-	if ( attrib ) {
+	if ( attrib != nullptr ) {
 		result = &attrib->ValueStr();
-		if ( i ) {
+		if ( i != nullptr ) {
 			attrib->QueryIntValue( i );
 		}
 	}
@@ -611,11 +611,11 @@ const std::string* TiXmlElement::Attribute( const std::string& name, int* i ) co
 const char* TiXmlElement::Attribute( const char* name, double* d ) const
 {
 	const TiXmlAttribute* attrib = attributeSet.Find( name );
-	const char* result = 0;
+	const char* result = nullptr;
 
 	if ( attrib != nullptr ) {
 		result = attrib->Value();
-		if ( d ) {
+		if ( d != nullptr ) {
 			attrib->QueryDoubleValue( d );
 		}
 	}
@@ -627,11 +627,11 @@ const char* TiXmlElement::Attribute( const char* name, double* d ) const
 const std::string* TiXmlElement::Attribute( const std::string& name, double* d ) const
 {
 	const TiXmlAttribute* attrib = attributeSet.Find( name );
-	const std::string* result = 0;
+	const std::string* result = nullptr;
 
-	if ( attrib ) {
+	if ( attrib != nullptr ) {
 		result = &attrib->ValueStr();
-		if ( d ) {
+		if ( d != nullptr ) {
 			attrib->QueryDoubleValue( d );
 		}
 	}
@@ -653,7 +653,7 @@ int TiXmlElement::QueryIntAttribute( const char* name, int *const ival ) const
 int TiXmlElement::QueryIntAttribute( const std::string& name, int *const ival ) const
 {
 	const TiXmlAttribute* attrib = attributeSet.Find( name );
-	if ( !attrib )
+	if ( attrib == nullptr)
 		return TIXML_NO_ATTRIBUTE;
 	return attrib->QueryIntValue( ival );
 }
@@ -673,7 +673,7 @@ int TiXmlElement::QueryDoubleAttribute( const char* name, double *const dval ) c
 int TiXmlElement::QueryDoubleAttribute( const std::string& name, double *const dval ) const
 {
 	const TiXmlAttribute* attrib = attributeSet.Find( name );
-	if ( !attrib )
+	if ( attrib == nullptr)
 		return TIXML_NO_ATTRIBUTE;
 	return attrib->QueryDoubleValue( dval );
 }
@@ -693,7 +693,7 @@ void TiXmlElement::SetAttribute( const char * name, int val )
 void TiXmlElement::SetAttribute( const std::string& name, int val )
 {	
 	TiXmlAttribute* attrib = attributeSet.FindOrCreate( name );
-	if ( attrib ) {
+	if ( attrib != nullptr) {
 		attrib->SetIntValue( val );
 	}
 }
@@ -713,7 +713,7 @@ void TiXmlElement::SetDoubleAttribute( const char * name, double val )
 void TiXmlElement::SetDoubleAttribute( const std::string& name, double val )
 {	
 	TiXmlAttribute* attrib = attributeSet.FindOrCreate( name );
-	if ( attrib ) {
+	if ( attrib != nullptr ) {
 		attrib->SetDoubleValue( val );
 	}
 }
@@ -733,7 +733,7 @@ void TiXmlElement::SetAttribute( const char * cname, const char * cvalue )
 void TiXmlElement::SetAttribute( const std::string& _name, const std::string& _value )
 {
 	TiXmlAttribute* attrib = attributeSet.FindOrCreate( _name );
-	if ( attrib ) {
+	if ( attrib != nullptr ) {
 		attrib->SetValue( _value );
 	}
 }
@@ -742,9 +742,8 @@ void TiXmlElement::SetAttribute( const std::string& _name, const std::string& _v
 
 void TiXmlElement::Print( FILE* cfile, int depth ) const
 {
-	int i;
 	assert( cfile );
-	for ( i=0; i<depth; i++ ) {
+	for ( auto i=0; i<depth; i++ ) {
 		fprintf( cfile, "    " );
 	}
 
@@ -774,7 +773,7 @@ void TiXmlElement::Print( FILE* cfile, int depth ) const
 	{
 		fprintf( cfile, ">" );
 
-		for ( const TiXmlNode* node = firstChild; node; node=node->NextSibling() )
+		for ( const TiXmlNode* node = firstChild; node != nullptr; node=node->NextSibling() )
 		{
 			if ( node->ToText() == nullptr )
 			{
@@ -783,7 +782,7 @@ void TiXmlElement::Print( FILE* cfile, int depth ) const
 			node->Print( cfile, depth+1 );
 		}
 		fprintf( cfile, "\n" );
-		for( i=0; i<depth; ++i ) {
+		for( auto i=0; i<depth; ++i ) {
 			fprintf( cfile, "    " );
 		}
 		fprintf( cfile, "</%s>", value.c_str() );

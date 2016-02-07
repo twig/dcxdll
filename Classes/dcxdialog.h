@@ -183,7 +183,7 @@ public:
 			if ((x.first == NamedID) || (x.second == local_id))
 				return x.second;
 		}
-		return 0;
+		return 0U;
 	}
 	const UINT NameToUserID(const TString &NamedID) const
 	{
@@ -200,7 +200,7 @@ public:
 				return x.second - mIRC_ID_OFFSET;
 		}
 
-		return 0;
+		return 0U;
 	}
 	const TString &IDToName(const UINT local_id) const
 	{
@@ -215,7 +215,7 @@ public:
 				return x.first;
 		}
 
-		return TEXT("");
+		return TString();
 	}
 	const UINT getUniqueID() const
 	{
@@ -242,7 +242,7 @@ public:
 					return i;
 			}
 		}
-		return 0;
+		return 0U;
 	}
 	bool deleteNamedID(const UINT local_id)
 	{

@@ -102,6 +102,9 @@ DcxControl::DcxControl( const UINT mID, DcxDialog *const p_Dialog )
 	this->m_dEventMask = p_Dialog->getEventMask();
 	// inherit parent dialogs cursor (if any)
 	//this->m_hCursor = this->m_pParentDialog->getCursor();
+
+	//auto test = TString(TEXT("test"));
+	//auto test2 = L"test"_ts;
 }
 
 /*!

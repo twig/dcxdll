@@ -1019,7 +1019,7 @@ LRESULT DcxTab::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bPa
 
 					rect.right = rcCloseButton.left - 2;
 				}
-				COLORREF crOldColor;
+				COLORREF crOldColor = CLR_INVALID;
 
 				if (dcx_testflag(tci.dwState, TCIS_HIGHLIGHTED))
 					crOldColor = SetTextColor(idata->hDC, GetSysColor(COLOR_HIGHLIGHTTEXT));

@@ -305,10 +305,10 @@ void DcxToolBar::parseCommandRequest( const TString & input ) {
 		if ( nPos == -1 )
 			nPos += this->getButtonCount( ) + 1;
 
-		const auto tsFlags(input.getnexttok());							// tok 5
-		const auto width = input.getnexttok().to_int();					// tok 6
-		const auto icon = input.getnexttok().to_int() - 1;					// tok 7
-		const auto clrText = (COLORREF)input.getnexttok().to_num();	// tok 8
+		const auto tsFlags(input.getnexttok());						// tok 5
+		const auto width = input.getnexttok().to_<WORD>();			// tok 6
+		const auto icon = input.getnexttok().to_int() - 1;			// tok 7
+		const auto clrText = input.getnexttok().to_<COLORREF>();	// tok 8
 		const auto iNumtok = input.gettok(1, TSTAB).numtok();
 
 		TBBUTTON tbb;
@@ -346,7 +346,8 @@ void DcxToolBar::parseCommandRequest( const TString & input ) {
 		}
 
 		// Tooltip Handling
-		auto lpdcxtbb = new DCXTBBUTTON;
+		//auto lpdcxtbb = new DCXTBBUTTON;
+		auto lpdcxtbb = std::make_unique<DCXTBBUTTON>();
 
 		if ( input.numtok( TSTAB ) > 1 )
 			lpdcxtbb->tsTipText = input.gettok( 2, -1, TSTAB ).trim();
@@ -373,9 +374,9 @@ void DcxToolBar::parseCommandRequest( const TString & input ) {
 		lpdcxtbb->iTextBkgMode = TRANSPARENT;
 		lpdcxtbb->iTextHighlightBkgMode = TRANSPARENT;
 
-		tbb.dwData = (LPARAM) lpdcxtbb;
 		lpdcxtbb->bText = itemtext;
-		tbb.iString = (INT_PTR)lpdcxtbb->bText.to_chr();
+		tbb.iString = reinterpret_cast<INT_PTR>(lpdcxtbb->bText.to_chr());
+		tbb.dwData = reinterpret_cast<LPARAM>(lpdcxtbb.release());
 
 		// insert button
 		this->insertButton( nPos, &tbb );
@@ -388,10 +389,9 @@ void DcxToolBar::parseCommandRequest( const TString & input ) {
 			TBBUTTONINFO tbbi;
 			ZeroMemory( &tbbi, sizeof( TBBUTTONINFO ) );
 			tbbi.cbSize = sizeof( TBBUTTONINFO );
-			tbbi.dwMask = 0 ;
 
-			tbbi.dwMask |= TBIF_SIZE;
-			tbbi.cx = (WORD)width;
+			tbbi.dwMask = TBIF_SIZE;
+			tbbi.cx = width;
 			this->setButtonInfo( tbb.idCommand, &tbbi );
 		}
 
@@ -402,9 +402,9 @@ void DcxToolBar::parseCommandRequest( const TString & input ) {
 	// xdid -c [NAME] [ID] [SWITCH] [N] [+FLAGS] [RGB] [+REMOVEFLAGS]
 	else if ( flags[TEXT('c')] && numtok > 5 ) {
 
-		const auto iButton = input.getnexttok( ).to_int( ) - 1;							// tok 4
-		const auto buttonStyles = parseButtonStyleFlags(input.getnexttok());			// tok 5
-		const auto clrColor = (COLORREF)input.getnexttok().to_num();				// tok 6
+		const auto iButton = input.getnexttok( ).to_int( ) - 1;						// tok 4
+		const auto buttonStyles = parseButtonStyleFlags(input.getnexttok());		// tok 5
+		const auto clrColor = input.getnexttok().to_<COLORREF>();					// tok 6
 		const auto removeButtonStyles = parseButtonStyleFlags(input.getnexttok());	// tok 7
 
 		if (iButton == -1 && this->m_ToolTipHWND != nullptr) {

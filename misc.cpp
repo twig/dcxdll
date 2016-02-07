@@ -134,7 +134,8 @@ TString Normalise(PBYTE pBuffer)
 			pwStr = reinterpret_cast<PWSTR>(pBuffer + 2);
 		}
 		// creation of TString object handles any conversions & memory allocations etc..
-		return pwStr;
+		//return pwStr;
+		return TString(pwStr);
 	}
 	else
 	{
@@ -149,7 +150,7 @@ TString Normalise(PBYTE pBuffer)
 
 	// return pointer to the (possibly converted) text buffer.
 	// creation of TString object handles any conversions & memory allocations etc..
-	return reinterpret_cast<PCSTR>(pBuffer);
+	return TString(reinterpret_cast<PCSTR>(pBuffer));
 }
 
 /*!
@@ -211,7 +212,7 @@ TString readTextFile(const TString &tFile)
 	auto data = readFile(tFile);
 
 	if (data == nullptr)
-		return TEXT("");
+		return TString();
 
 	return Normalise(data.get());
 }
