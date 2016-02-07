@@ -862,12 +862,11 @@ void DcxmlParser::parseDialog(const UINT depth,const char *claPath,const UINT pa
 } 
 
 // NB: never returns a ZERO, other code relies on this.
-int DcxmlParser::mIRCEvalToUnsignedInt (const char *const value)
+int DcxmlParser::mIRCEvalToUnsignedInt (const TString &value)
 {
 	//Todo: method returns -1 for failure which odd for a *ToUnsignedInt method.
-	const TString buf(value);
 	__int64 iNum;
-	mIRCLinker::iEval(&iNum, buf.to_chr());
+	mIRCLinker::iEval(&iNum, value.to_chr());
 	return (int)((iNum > 0) ? iNum : -1);
 }
 
@@ -876,7 +875,7 @@ void DcxmlParser::registerId(const TiXmlElement *const idElement,const int iNewI
 	int elementId;
 	if (idElement->QueryIntAttribute("id",&elementId) != TIXML_SUCCESS) //<! id attr. is not an int
 	{
-		const auto elementNamedId = idElement->Attribute("id");
+		const TString elementNamedId(idElement->Attribute("id"));
 		if (elementNamedId != nullptr) {
 			if (this->mIRCEvalToUnsignedInt(elementNamedId) < 0) //<! id attr. doesn't evaluate to an int
 			{
@@ -899,8 +898,26 @@ int DcxmlParser::parseId(const TiXmlElement *const idElement)
 		return max(local_id, 0);
 	}
 
-	const auto attributeIdValue = idElement->Attribute("id");
-	if (attributeIdValue != nullptr)
+	//const auto attributeIdValue = idElement->Attribute("id");
+	//if (attributeIdValue != nullptr)
+	//{
+	//	// got ID attrib, evaluate it to try & resolve to a number.
+	//	local_id = mIRCEvalToUnsignedInt(attributeIdValue);
+	//	// if ID is > zero return it.
+	//	if (local_id > 0)
+	//		return local_id;
+	//
+	//	//Otherwise if it's a namedId return it .find(attributeIdValue) never returned :(;
+	//
+	//	for (const auto &x : this->getDialog()->getNamedIds())
+	//	{
+	//		if (x.first == attributeIdValue)
+	//			return x.second;
+	//	}
+	//}
+
+	const TString attributeIdValue(idElement->Attribute("id"));
+	if (!attributeIdValue.empty())
 	{
 		// got ID attrib, evaluate it to try & resolve to a number.
 		local_id = mIRCEvalToUnsignedInt(attributeIdValue);
@@ -908,28 +925,10 @@ int DcxmlParser::parseId(const TiXmlElement *const idElement)
 		if (local_id > 0)
 			return local_id;
 
-		//Otherwise if it's a namedId return it .find(attributeIdValue) never returned :(;
-
-		for (const auto &x : this->getDialog()->getNamedIds())
-		{
-			if (x.first == attributeIdValue)
-				return x.second;
-		}
+		auto it = this->getDialog()->getNamedIds().find(attributeIdValue);
+		if (it != this->getDialog()->getNamedIds().end())
+			return it->second;
 	}
-
-	//const TString attributeIdValue(idElement->Attribute("id"));
-	//if (!attributeIdValue.empty())
-	//{
-	//	// got ID attrib, evaluate it to try & resolve to a number.
-	//	local_id = mIRCEvalToUnsignedInt(attributeIdValue.c_str());
-	//	// if ID is > zero return it.
-	//	if (local_id > 0)
-	//		return local_id;
-
-	//	auto it = this->getDialog()->getNamedIds().find(attributeIdValue);
-	//	if (it != this->getDialog()->getNamedIds().end())
-	//		return it->second;
-	//}
 	return 0;
 }
 

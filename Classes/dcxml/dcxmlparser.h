@@ -136,7 +136,7 @@ private:
 	const bool &isAutoClose() const noexcept { return this->_autoClose; }
 
 	void xdialogEX(const TCHAR *const sw,const TCHAR *const dFormat, ...);
-	int mIRCEvalToUnsignedInt (const char *const value);
+	int mIRCEvalToUnsignedInt (const TString &value);
 	void registerId(const TiXmlElement *const idElement,const int iNewID);
 	int parseId(const TiXmlElement *const idElement);
 	void xdidEX(const int cid,const TCHAR *const sw,const TCHAR *const dFormat, ...);
