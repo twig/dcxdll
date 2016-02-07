@@ -991,12 +991,11 @@ void XPopupMenuManager::LoadPopupsFromXML(const TiXmlElement *const popups, cons
 	UINT i = 1;
 	for (const auto &tmp: colors)
 	{
-		const auto attr = GetMenuAttributeFromXML(tmp.c_str(), popup, globalStyles);	// tok i
+		auto tsAttr = GetMenuAttributeFromXML(tmp.c_str(), popup, globalStyles);	// tok i
 
-		if (attr != nullptr) {
-			TString tsBuff(attr);
-			mIRCLinker::tsEval(tsBuff, tsBuff.to_chr());
-			menu->setColor(XPopupMenu::MenuColours(i), tsBuff.to_<COLORREF>());
+		if (!tsAttr.empty()) {
+			mIRCLinker::tsEval(tsAttr, tsAttr.to_chr());
+			menu->setColor(XPopupMenu::MenuColours(i), tsAttr.to_<COLORREF>());
 		}
 		++i;
 	}
@@ -1089,7 +1088,7 @@ const bool XPopupMenuManager::LoadPopupItemsFromXML(XPopupMenu *menu, HMENU hMen
 		else {
 			const auto mID = (UINT)queryIntAttribute(element, "id");
 			const auto mIcon = queryIntAttribute(element, "icon") - 1;
-			const XSwitchFlags xState(element->Attribute("state"));
+			const XSwitchFlags xState(TString(element->Attribute("state")));
 
 			mii.fMask = MIIM_DATA | MIIM_FTYPE | MIIM_STATE | MIIM_ID;
 			mii.fType = MFT_OWNERDRAW;
@@ -1128,19 +1127,19 @@ const bool XPopupMenuManager::LoadPopupItemsFromXML(XPopupMenu *menu, HMENU hMen
 	return true;
 }
 
-const char* XPopupMenuManager::GetMenuAttributeFromXML(const char *const attrib, const TiXmlElement *const popup, const TiXmlElement *const global) {
+const TString XPopupMenuManager::GetMenuAttributeFromXML(const char *const attrib, const TiXmlElement *const popup, const TiXmlElement *const global) {
 	
-	const auto tmp = popup->Attribute(attrib);
+	const TString tmp(popup->Attribute(attrib));
 
 	// Specific menu attribute set, ignore global.
-	if (tmp != nullptr)
+	if (!tmp.empty())
 		return tmp;
 
 	// Try to find global style.
 	if (global == nullptr)
-		return nullptr;
+		return tmp;
 
-	return global->Attribute(attrib);
+	return TString(global->Attribute(attrib));
 }
 
 //#ifdef DEBUG

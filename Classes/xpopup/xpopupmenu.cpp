@@ -919,42 +919,39 @@ void XPopupMenu::convertMenu( HMENU hMenu, const BOOL bForce )
 	ZeroMemory( &mii, sizeof( MENUITEMINFO ) );
 	mii.cbSize = sizeof( MENUITEMINFO );
 	mii.fMask = MIIM_SUBMENU | MIIM_DATA | MIIM_FTYPE | MIIM_STRING;
+	auto string = std::make_unique<TCHAR[]>(MIRC_BUFFER_SIZE_CCH);
 
 	auto k = 0;
 	const auto n = GetMenuItemCount( hMenu );
 
 	for (auto i = decltype(n){0}; i < n; i++)
 	{
-		TCHAR string[MIRC_BUFFER_SIZE_CCH];
-		mii.dwTypeData = string;
+		mii.dwTypeData = string.get();
 		mii.cch = MIRC_BUFFER_SIZE_CCH;
 
-		if ( GetMenuItemInfo( hMenu, (UINT)i, TRUE, &mii ) ) {
+		if ( GetMenuItemInfo( hMenu, static_cast<UINT>(i), TRUE, &mii ) ) {
 
 			if ( !dcx_testflag( mii.fType, MFT_OWNERDRAW ) || bForce )
 			{
 				mii.fType |= MFT_OWNERDRAW;
-				//XPopupMenuItem * p_Item;
 				std::unique_ptr<XPopupMenuItem> p_Item;
-				TString tsItem(string);
 
-				// fixes identifiers in the dialog menu not being resolved. 
-				// TODO Needs testing to see if it causes any other issues, like double eval's)
-				if (bForce && this->getName() == TEXT("dialog"))
-					mIRCLinker::tsEval(tsItem, tsItem.to_chr()); // we can use tsItem for both args as the second arg is copied & used before the first arg is set with the return value.
-
-				//if (dcx_testflag(mii.fType, MFT_SEPARATOR))
-				//	p_Item = new XPopupMenuItem( this, true, mii.dwItemData );
-				//else
-				//	p_Item = new XPopupMenuItem( this, tsItem, -1, (mii.hSubMenu != nullptr), mii.dwItemData );
 				if (dcx_testflag(mii.fType, MFT_SEPARATOR))
 					p_Item = std::make_unique<XPopupMenuItem>(this, true, mii.dwItemData);
-				else
-					p_Item = std::make_unique<XPopupMenuItem>(this, tsItem, -1, (mii.hSubMenu != nullptr), mii.dwItemData);
+				else {
+					TString tsItem(string);
 
-				mii.dwItemData = (ULONG_PTR)p_Item.get();
+					// fixes identifiers in the dialog menu not being resolved. 
+					// TODO Needs testing to see if it causes any other issues, like double eval's)
+					if (bForce && this->getName() == TEXT("dialog"))
+						mIRCLinker::tsEval(tsItem, tsItem.to_chr()); // we can use tsItem for both args as the second arg is copied & used before the first arg is set with the return value.
+
+					p_Item = std::make_unique<XPopupMenuItem>(this, tsItem, -1, (mii.hSubMenu != nullptr), mii.dwItemData);
+				}
+
+				mii.dwItemData = reinterpret_cast<ULONG_PTR>(p_Item.get());
 				this->m_vpMenuItem.push_back(p_Item.release());
-				SetMenuItemInfo( hMenu, (UINT)i, TRUE, &mii );
+				SetMenuItemInfo( hMenu, static_cast<UINT>(i), TRUE, &mii );
 
 				++k;
 			}
@@ -979,7 +976,7 @@ void XPopupMenu::cleanMenu( HMENU hMenu )
 
 	for (auto i = decltype(n){0}; i < n; i++)
 	{
-		if ( GetMenuItemInfo( hMenu, (UINT)i, TRUE, &mii ) ) {
+		if ( GetMenuItemInfo( hMenu, static_cast<UINT>(i), TRUE, &mii ) ) {
 
 			if ( mii.hSubMenu != nullptr )
 				XPopupMenu::cleanMenu( mii.hSubMenu );
@@ -988,7 +985,7 @@ void XPopupMenu::cleanMenu( HMENU hMenu )
 
 				mii.fType &= ~MFT_OWNERDRAW;
 				mii.dwItemData = NULL;
-				SetMenuItemInfo( hMenu, (UINT)i, TRUE, &mii );
+				SetMenuItemInfo( hMenu, static_cast<UINT>(i), TRUE, &mii );
 			}
 		}
 	}
@@ -1091,7 +1088,7 @@ BOOL XPopupMenu::getMenuInfo(const UINT iMask, const TString & path, MENUITEMINF
 	mii.cbSize = sizeof(MENUITEMINFO);
 	mii.fMask = iMask;
 
-	return GetMenuItemInfo(hMenu, (UINT)nPos, TRUE, &mii);
+	return GetMenuItemInfo(hMenu, static_cast<UINT>(nPos), TRUE, &mii);
 }
 
 /*
