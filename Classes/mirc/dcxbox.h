@@ -30,13 +30,14 @@
 #define BOXS_CHECK		0x20 //!< Box has check button in title to enable/disable contents.
 #define BOXS_RADIO		0x40 //!< Box has radio button in title to enable/disable contents.
 
-typedef struct tagDCXENUM {
+struct DCXENUM {
 
 	HWND mChildHwnd;    //!< Hwnd to child window
 	HWND mBox;					//!< The Box control itself
 	BOOL mState;				//!< Enable/Disable state
 
-} DCXENUM, * LPDCXENUM;
+};
+using LPDCXENUM = DCXENUM *;
 
 class DcxDialog;
 

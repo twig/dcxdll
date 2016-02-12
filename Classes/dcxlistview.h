@@ -67,7 +67,7 @@ class DcxDialog;
  * blah
  */
 
-typedef struct tagDCXLVSORT {
+struct DCXLVSORT {
 
 	TString tsCustomAlias;  //!< Custom Sorting Alias
 	UINT iSortFlags;        //!< Sorting Flags
@@ -75,16 +75,17 @@ typedef struct tagDCXLVSORT {
 	int nColumn;            //!< Sorting Column
 	TCHAR itemtext1[MIRC_BUFFER_SIZE_CCH];
 	TCHAR itemtext2[MIRC_BUFFER_SIZE_CCH];
+};
+using LPDCXLVSORT = DCXLVSORT *;
 
-} DCXLVSORT,*LPDCXLVSORT;
-
-typedef struct tagDCXLVRENDERINFO {
+struct DCXLVRENDERINFO {
 	DWORD		m_dFlags;	//!< Render flags (bold etc..)
 	COLORREF	m_cText;	//!< Text Colour
 	COLORREF	m_cBg;		//!< Background Colour.
-} DCXLVRENDERINFO, *LPDCXLVRENDERINFO;
+};
+using LPDCXLVRENDERINFO = DCXLVRENDERINFO *;
 
-typedef std::vector<LPDCXLVRENDERINFO> VectorOfRenderInfo;
+using VectorOfRenderInfo = std::vector<LPDCXLVRENDERINFO>;
 
 /*!
 * \brief blah
@@ -98,14 +99,15 @@ typedef std::vector<LPDCXLVRENDERINFO> VectorOfRenderInfo;
 #define DCX_LV_COLUMNF_PERCENT		8		// m_iSize is a % width between 0 & 100 (zero width columns are hidden)
 #define DCX_LV_COLUMNF_FIXED		16		// m_iSize is the fixed width of the column
 
-typedef struct tagDCXLVCOLUMNINFO {
+struct DCXLVCOLUMNINFO {
 	int			m_iColumn;	// the column affected by this info.
 	DWORD		m_dFlags;	// size flags (autosize, % width etc..)
 	int			m_iSize;	// size of column (meaning depends on flags)
-} DCXLVCOLUMNINFO, *LPDCXLVCOLUMNINFO;
+};
+using LPDCXLVCOLUMNINFO = DCXLVCOLUMNINFO *;
 
-typedef std::vector<LPDCXLVCOLUMNINFO> VectorOfColumnInfo;
-//typedef std::map<int, int> ColumnWidths;
+using VectorOfColumnInfo = std::vector<LPDCXLVCOLUMNINFO>;
+//using ColumnWidths = std::map<int, int>;
 
 /*!
  * \brief blah
@@ -113,14 +115,15 @@ typedef std::vector<LPDCXLVCOLUMNINFO> VectorOfColumnInfo;
  * blah
  */
 
-typedef struct tagDCXLVITEM {
+struct DCXLVITEM {
 	TString tsTipText;	//!< Tooltip text
 	TString tsMark;		// Marked text
 	DcxControl *pbar;
 	//DcxProgressBar *pbar;
 	int iPbarCol;
 	VectorOfRenderInfo	vInfo;	//!< Render Info for each colum
-} DCXLVITEM,*LPDCXLVITEM;
+};
+using LPDCXLVITEM = DCXLVITEM *;
 
 /*!
  * \brief blah

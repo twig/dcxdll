@@ -26,12 +26,13 @@ class DcxDialog;
  * blah
  */
 
-typedef struct tagDCXCCOMBOITEM {
+struct DCXCCOMBOITEM {
 
   COLORREF clrItem;     //!< Item Color
   TString tsItemText;   //!< Item Text
 
-} DCXCCOMBOITEM,*LPDCXCCOMBOITEM;
+};
+using LPDCXCCOMBOITEM = DCXCCOMBOITEM *;
 
 /*!
  * \brief blah

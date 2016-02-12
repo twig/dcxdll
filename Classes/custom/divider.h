@@ -47,7 +47,7 @@
  * \brief Divider Notification Structure
  */
 
-typedef struct tagNMDIVIDER {
+struct NMDIVIDER {
 
     NMHDR hdr;      //!< Notification NMHDR structure, must be first always
     UINT fMask;     //!< Valid Member Mask Flags
@@ -55,7 +55,8 @@ typedef struct tagNMDIVIDER {
     UINT fStyle;    //!< Pane Style Flags
     LPARAM lParam;  //!< Extra Storage Value
 
-} NMDIVIDER, *LPNMDIVIDER;
+};
+using LPNMDIVIDER = NMDIVIDER *;
 
 #define DVNM_LPARAM   0x01  //!< NMDIVIDER lParam Value is Valid
 #define DVNM_STYLE    0x02  //!< NMDIVIDER fStyle Value is Valid
@@ -69,7 +70,7 @@ typedef struct tagNMDIVIDER {
  * \brief Divider Pane Info Structure
  */
 
-typedef struct tagDVPANEINFO {
+struct DVPANEINFO {
 
   UINT cbSize;    //!< DVPANEINFO Structure Size
   UINT fMask;     //!< Valid Member Mask Flags
@@ -79,13 +80,14 @@ typedef struct tagDVPANEINFO {
   HWND hChild;    //!< Pane Child Window Handle
   LPARAM lParam;  //!< Extra Storage For Each Pane
 
-} DVPANEINFO, * LPDVPANEINFO;
+};
+using LPDVPANEINFO = DVPANEINFO *;
 
 /*!
  * \brief Divider Control Data Structure
  */
 
-typedef struct tagDVCONTROLDATA {
+struct DVCONTROLDATA {
 
   DVPANEINFO m_Panes[2];  //!< Divider Panes
   UINT m_iLineWidth;      //!< Divider Line Width
@@ -93,7 +95,8 @@ typedef struct tagDVCONTROLDATA {
   UINT m_iBarPos;         //!< Position of the bar
   int m_iOldPos;          //!< Moving Old Position
 
-} DVCONTROLDATA, * LPDVCONTROLDATA;
+};
+using LPDVCONTROLDATA = DVCONTROLDATA *;
 
 LRESULT CALLBACK DividerWndProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
 
