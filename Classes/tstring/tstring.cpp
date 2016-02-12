@@ -65,10 +65,10 @@ const TCHAR *TString::m_cTab = TEXT("\t");
  */
 /****************************/
 
-TString::TString()
-	: TString(0U)
-{
-}
+//TString::TString()
+//	: TString(0U)
+//{
+//}
 
 /****************************/
 /*! \fn TString::TString( const char * cString )
@@ -321,7 +321,7 @@ void TString::deleteTempString(const bool bKeepBufferSize) {
 }
 
 /****************************/
-TString& TString::operator =(TString &&tString)
+TString& TString::operator =(TString &&tString) noexcept
 {
 	if (this == &tString)	// self assignment check.
 		return *this;
@@ -500,7 +500,7 @@ const size_t TString::len( ) const noexcept {
 */
 /****************************/
 
-int TString::find(const TCHAR *const substring, const int N) const {
+int TString::find(const TCHAR *const substring, const int N) const noexcept {
 
 	if ((substring != nullptr) && (this->m_pString != nullptr)) {
 
@@ -512,7 +512,7 @@ int TString::find(const TCHAR *const substring, const int N) const {
 			i++;
 			//if ( N != 0 && i == N )
 			if (i == N) // i is never zero
-				return (int)(temp - this->m_pString);
+				return static_cast<int>(temp - this->m_pString);
 			temp2 = (temp + subl); // Ook
 		}
 		if (N == 0)
@@ -526,18 +526,39 @@ int TString::find(const TCHAR *const substring, const int N) const {
     \brief Function to find position or number of occurrences of a TCHAR in the string
 */
 /****************************/
-int TString::find(const TCHAR chr, const int N) const {
-	auto c = decltype(N){0};
-	const auto len = this->len();
+int TString::find(const TCHAR chr, const int N) const noexcept {
+	//auto c = decltype(N){0};
+	//const auto len = this->len();
+	//
+	//for (auto i = decltype(len){0}; i < len; i++) {
+	//	// found a match, increase counter
+	//	if (this->m_pString[i] == chr)
+	//		c++;
+	//
+	//	// if we've reached the Nth match we want, return the position
+	//	if ((N > 0) && (c == N))
+	//		return static_cast<int>(i);
+	//}
+	//
+	//// return number of results
+	//if (N == 0)
+	//	return c;
+	//
+	//// -1 if no matches
+	//return -1;
 
-	for (auto i = decltype(len){0}; i < len; i++) {
+	auto c = 0;
+
+	for (auto p = m_pString; p && *p; p++) {
 		// found a match, increase counter
-		if (this->m_pString[i] == chr)
+		if (*p == chr)
+		{
 			c++;
 
-		// if we've reached the Nth match we want, return the position
-		if ((N > 0) && (c == N))
-			return static_cast<int>(i);
+			// if we've reached the Nth match we want, return the position
+			if (c == N)
+				return static_cast<int>(p - m_pString);
+		}
 	}
 
 	// return number of results
@@ -1280,7 +1301,7 @@ TString &TString::trim()
 *   it'll take negative numbers as valid numbers
 *   returns FALSE in an invalid string
 */
-bool TString::isnum(const int f) const
+bool TString::isnum(const int f) const noexcept
 {
 	auto *p = this->m_pString;
 	auto c = 0;
@@ -1305,7 +1326,7 @@ bool TString::isnum(const int f) const
 *   returns TRUE if letter is in word (case sensitive)
 *   otherwise, a FALSE is returned
 */
-bool TString::isincs(const TCHAR let) const
+bool TString::isincs(const TCHAR let) const noexcept
 {
 	//auto tmp = this->m_pString;
 	//while (*tmp) {
@@ -1314,7 +1335,7 @@ bool TString::isincs(const TCHAR let) const
 	//}
 	//return false;
 
-	for (auto *tmp = this->m_pString; *tmp; ++tmp)
+	for (auto tmp = this->m_pString; tmp && *tmp; ++tmp)
 	{
 		if (*tmp == let)
 			return true;
@@ -1325,11 +1346,11 @@ bool TString::isincs(const TCHAR let) const
 /*
 * countchar(character)
 */
-UINT TString::countchar(const TCHAR chr) const
+UINT TString::countchar(const TCHAR chr) const noexcept
 {
 	UINT r = 0;
 
-	for (auto aux = this->m_pString; *aux; ++aux) {
+	for (auto aux = this->m_pString; aux && *aux; ++aux) {
 		if (*aux == chr)
 			++r;
 	}
@@ -1339,7 +1360,7 @@ UINT TString::countchar(const TCHAR chr) const
 /*
 * ishostmask(mask)
 */
-bool TString::ishostmask(void) const
+bool TString::ishostmask(void) const noexcept
 {
 	register auto /*nick = false,*/ s1 = false, /*ident = false,*/ s2 = false, host = false;
 	register auto c = this->m_pString;
@@ -1731,7 +1752,7 @@ int TString::tvprintf(const TCHAR *const fmt, va_list args)
  *    else it returns FALSE
  *    case insensitive
  */
-bool TString::iswm(const TCHAR *const a) const
+bool TString::iswm(const TCHAR *const a) const noexcept
 {
 	//return (match(a, this->m_pString,false) != NOMATCH);
 	return _ts_WildcardMatch(m_pString, a);
@@ -1744,7 +1765,7 @@ bool TString::iswm(const TCHAR *const a) const
  *    else it returns FALSE
  *    case sensitive
  */
-bool TString::iswmcs(const TCHAR *const a) const
+bool TString::iswmcs(const TCHAR *const a) const noexcept
 {
 	return (match(a, this->m_pString, true) != NOMATCH);
 	//return _ts_WildcardMatch(m_pString, a);
@@ -2079,18 +2100,18 @@ void TString::copy(TString other) // <- copy made here, so just swap them
 	this->swap(other);
 }
 
-int TString::compare(const TString &other) const
+int TString::compare(const TString &other) const noexcept
 {
 	return this->compare(other.data());
 }
 
-int TString::compare(const TCHAR &other) const
+int TString::compare(const TCHAR &other) const noexcept
 {
 	const TCHAR tmp[] = { other, TEXT('\0') };
 	return this->compare(tmp);
 }
 
-int TString::compare(const TCHAR *const other) const
+int TString::compare(const TCHAR *const other) const noexcept
 {
 	if (this->m_pString == nullptr)
 		return (other == nullptr) ? 0 : 1;
@@ -2101,7 +2122,7 @@ int TString::compare(const TCHAR *const other) const
 	return (ts_strcmp(this->m_pString, other));
 }
 
-int TString::compare(const TCHAR *const other, const size_t iLength) const
+int TString::compare(const TCHAR *const other, const size_t iLength) const noexcept
 {
 	if (this->m_pString == nullptr)
 		return (other == nullptr) ? 0 : 1;

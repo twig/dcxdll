@@ -264,12 +264,10 @@ public:
 	static const TCHAR *m_cComma;
 	static const TCHAR *m_cTab;
 
-	TString();
-	//explicit TString(const WCHAR *const cString);		// we don't want these 3 as explicits
-	//explicit TString(const char *const cString);
-	//TString(const TString & tString);
-	//TString(const TCHAR *const pStart, const TCHAR *const pEnd);
-
+	TString()
+		: TString(0U)
+	{
+	}
 	TString(const WCHAR *const cString)
 		: TString(cString, ts_strlen(cString))
 	{
@@ -347,7 +345,7 @@ public:
 	~TString( );
 
 	// Operator Overloads
-	TString & operator =(TString &&tString);		// move assignment...
+	TString & operator =(TString &&tString) noexcept;		// move assignment...
 
 	// single + operator that handles all supported types (type checking handled by += operator)
 	template <class T>
@@ -413,24 +411,24 @@ public:
 	//TString & operator +=(const __int64 &num) { return append_number(num); }
 
 	template <class T>
-	bool operator <=( const T &other ) const { return !(*this > other); }
+	bool operator <=( const T &other ) const noexcept { return !(*this > other); }
 
 	template <class T>
-	bool operator >=(const T &other) const { return !(*this < other); }
+	bool operator >=(const T &other) const noexcept { return !(*this < other); }
 
 	template <class T>
-	bool operator ==(const T &other) const { return (compare(other) == 0); }
+	bool operator ==(const T &other) const noexcept { return (compare(other) == 0); }
 	template <>
-	bool operator ==(const int &iNull) const { return (this->m_pString == nullptr && !iNull); }
+	bool operator ==(const int &iNull) const noexcept { return (this->m_pString == nullptr && !iNull); }
 
 	template <class T>
-	bool operator !=(const T &other) const { return !(*this == other); }
+	bool operator !=(const T &other) const noexcept { return !(*this == other); }
 
 	template <class T>
-	bool operator <(const T &other) const { return (compare(other) < 0); }
+	bool operator <(const T &other) const noexcept { return (compare(other) < 0); }
 
 	template <class T>
-	bool operator >(const T &other) const { return (compare(other) > 0); }
+	bool operator >(const T &other) const noexcept { return (compare(other) > 0); }
 
 	template <class T>
 	TString operator -( const T &other ) {
@@ -580,10 +578,10 @@ public:
 	// copy string...
 	void copy(TString other);
 	// compare strings...
-	int compare(const TString &other) const;
-	int compare(const TCHAR &other) const;
-	int compare(const TCHAR *const other) const;
-	int compare(const TCHAR *const other, const size_t iLength) const;
+	int compare(const TString &other) const noexcept;
+	int compare(const TCHAR &other) const noexcept;
+	int compare(const TCHAR *const other) const noexcept;
+	int compare(const TCHAR *const other, const size_t iLength) const noexcept;
 
 	// compare 'this' to an array, array type can be anything supported by the == operator.
 	// returns the index of the matching item, or zero for failure.
@@ -620,8 +618,8 @@ public:
 	}
 #endif
 
-	int find(const TCHAR *const substring, const int N) const;	// find Nth matching subString
-	int find( const TCHAR chr, const int N ) const;				// find Nth matching chr
+	int find(const TCHAR *const substring, const int N) const noexcept;	// find Nth matching subString
+	int find( const TCHAR chr, const int N ) const noexcept;				// find Nth matching chr
 
 	TString sub( int N, int M ) const;
 
@@ -992,8 +990,9 @@ public:
 		mutable TCHAR *m_savedEnd;
 		TCHAR *m_savedFinal;
 	};
-	typedef tsIterator<TString, const TCHAR> iterator;
-	typedef tsIterator<const TString, const TCHAR> const_iterator;
+
+	using iterator = tsIterator<TString, const TCHAR>;
+	using const_iterator = tsIterator<const TString, const TCHAR>;
 
 	inline iterator begin() { return iterator(this); }
 	inline iterator begin(const TCHAR *const sepChars) { return iterator(this, sepChars); }
@@ -1018,15 +1017,16 @@ public:
 		for (auto itStart = begin(sepChars), itEnd = end(); itStart != itEnd; ++itStart)
 		{
 			Cont.push_back((*itStart));
+			//Cont.emplace_back((*itStart));
 		}
 	}
 
 #if INCLUDE_MIRC_EXTRAS
 	// extras for mIRC
-	bool isnum(const int f) const;
-	bool isincs(const TCHAR let) const;
-	UINT countchar(const TCHAR chr) const;
-	bool ishostmask(void) const;
+	bool isnum(const int f) const noexcept;
+	bool isincs(const TCHAR let) const noexcept;
+	UINT countchar(const TCHAR chr) const noexcept;
+	bool ishostmask(void) const noexcept;
 
 	TString toupper(void) const;
 	TString tolower(void) const;
@@ -1036,10 +1036,10 @@ public:
 #if TSTRING_TESTCODE
 	template <typename T> bool iswm(const T &a) const noexcept { return _ts_WildcardMatch(*this, a); }
 #else
-	bool iswm(const TCHAR *const a) const;
+	bool iswm(const TCHAR *const a) const noexcept;
 #endif
 
-	bool iswmcs(const TCHAR *const a) const;
+	bool iswmcs(const TCHAR *const a) const noexcept;
 
 	// extract left/right/mid
 	TString mid(const int pos, int n) const;
@@ -1144,8 +1144,10 @@ namespace detail {
 
 	template<typename T, class TR = std::char_traits<T> >
 	struct impl_strstr{
-		typedef typename TR::char_type* ptype;
-		typedef const typename TR::char_type* cptype;
+		//typedef typename TR::char_type* ptype;
+		//typedef const typename TR::char_type* cptype;
+		using ptype = typename TR::char_type*;
+		using cptype = const ptype;
 
 		ptype operator()(ptype input, cptype find){
 			do {
