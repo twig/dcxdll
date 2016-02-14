@@ -389,7 +389,7 @@ void DcxStacker::DrawAliasedTriangle(const HDC hdc, const LPRECT rc, const COLOR
 #endif
 }
 
-void DcxStacker::DrawItemImage(const HDC hdc, Image *img, const LPRECT rc)
+void DcxStacker::DrawItemImage(const HDC hdc, Image *const img, const LPRECT rc)
 {
 #ifdef DCX_USE_GDIPLUS
 	if (!Dcx::GDIModule.isUseable() || img == nullptr || rc == nullptr || hdc == nullptr)
@@ -482,9 +482,9 @@ void DcxStacker::DrawSItem(const LPDRAWITEMSTRUCT idata)
 		SetBkColor(memDC,sitem->clrBack);
 		ExtTextOut(memDC, rcText.left, rcText.top, ETO_CLIPPED | ETO_OPAQUE, &rcText, TEXT(""), NULL, nullptr );
 	}
-
+	
 	// draw GDI+ image if any, we draw the image after the  colour fill to allow for alpha in pics.
-	if (dcx_testflag(idata->itemState, ODS_SELECTED) && sitem->iSelectedItemImg > -1 && sitem->iSelectedItemImg < (int)this->m_vImageList.size())
+	if (dcx_testflag(idata->itemState, ODS_SELECTED) && sitem->iSelectedItemImg > -1 && sitem->iSelectedItemImg < static_cast<int>(this->m_vImageList.size()))
 		this->DrawItemImage(memDC, this->m_vImageList[sitem->iSelectedItemImg], &rcText);
 	else if (sitem->iItemImg > -1 && sitem->iItemImg < (int)this->m_vImageList.size())
 		this->DrawItemImage(memDC, this->m_vImageList[sitem->iItemImg], &rcText);

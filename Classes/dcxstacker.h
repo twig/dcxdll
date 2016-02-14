@@ -30,7 +30,7 @@
 
 #define STACKERF_SELECTED	0x01
 
-typedef struct tagDCXSITEM {
+struct DCXSITEM {
 	TString			tsTipText;			//!< Tooltip text
 	TString			tsCaption;			//!< Title Buttons text
 	COLORREF		clrBack;			//!< Line Background Caption Color
@@ -41,10 +41,11 @@ typedef struct tagDCXSITEM {
 	int				iSelectedItemImg;	//!< Items Selected Image index.
 	RECT			itemrc;				//!< Items Rect.
 	DWORD			dFlags;				//!< Items flags.
-} DCXSITEM,*LPDCXSITEM;
+};
+using LPDCXSITEM = DCXSITEM *;
 
-typedef std::vector<Image *> VectorOfImages;
-typedef std::vector<LPDCXSITEM> VectorOfStackerItems;
+using VectorOfImages = std::vector<Image *>;
+using VectorOfStackerItems = std::vector<LPDCXSITEM>;
 
 /*!
  * \brief blah
@@ -95,7 +96,7 @@ protected:
 	//
 	void DrawSItem(const LPDRAWITEMSTRUCT idata);
 	static void DrawAliasedTriangle(const HDC hdc, const LPRECT rc, const COLORREF clrShape);
-	void DrawItemImage(const HDC hdc, Image *img, const LPRECT rc);
+	void DrawItemImage(const HDC hdc, Image *const img, const LPRECT rc);
 	//
 	void clearImageList(void);
 	void clearItemList(void);
