@@ -66,14 +66,14 @@ public:
 
 	void setIsMenuBar(const bool value);
 
-	XPopupMenu* getMenuByName(const TString &tsName, const bool checkSpecial) const;
+	XPopupMenu* getMenuByName(const TString &tsName, const bool bCheckSpecial) const;
 	XPopupMenu* getMenuByHandle(const HMENU hMenu) const;
-	XPopupMenu* getmIRCPopup(void) const;
-	XPopupMenu* getmIRCMenuBar(void) const;
+	XPopupMenu* getmIRCPopup(void) const noexcept;
+	XPopupMenu* getmIRCMenuBar(void) const noexcept;
 	const bool isCustomMenu(const HMENU hMenu) const;
 	static const bool isMenuBarMenu(const HMENU hMenu, const HMENU hMatch);
 
-	const bool isPatched(void) const { return false; };
+	const bool isPatched(void) const noexcept { return false; };
 
 	static void LoadPopupsFromXML(const TiXmlElement *const popups, const TiXmlElement *popup, const TString &popupName, const TString &popupDataset);
 	static const bool LoadPopupItemsFromXML(XPopupMenu *menu, HMENU hMenu, const TiXmlElement *const items);

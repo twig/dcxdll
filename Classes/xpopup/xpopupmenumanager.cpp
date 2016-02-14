@@ -120,7 +120,7 @@ void XPopupMenuManager::load(void)
 	//	i++;
 	//}
 
-	for (UINT i = 0U; GetMenuItemInfo(menu, i, TRUE, &mii); i++)
+	for (auto i = 0U; GetMenuItemInfo(menu, i, TRUE, &mii); i++)
 	{
 		// We've found the tools menu, next one is the scriptable popup.
 		if (label == TEXT("&Tools")) {
@@ -833,8 +833,8 @@ void XPopupMenuManager::setIsMenuBar(const bool value)
  * blah
  */
 
-XPopupMenu * XPopupMenuManager::getMenuByName(const TString &tsName, const bool checkSpecial) const { 
-	if (checkSpecial) {
+XPopupMenu * XPopupMenuManager::getMenuByName(const TString &tsName, const bool bCheckSpecial) const { 
+	if (bCheckSpecial) {
 		if (tsName == TEXT("mircbar"))
 			return m_mIRCMenuBar;
 		else if (tsName == TEXT("mirc"))
@@ -873,12 +873,12 @@ XPopupMenu* XPopupMenuManager::getMenuByHandle(const HMENU hMenu) const {
 	return nullptr;
 }
 
-XPopupMenu* XPopupMenuManager::getmIRCPopup(void) const
+XPopupMenu* XPopupMenuManager::getmIRCPopup(void) const noexcept
 {
 	return m_mIRCPopupMenu;
 }
 
-XPopupMenu* XPopupMenuManager::getmIRCMenuBar(void) const
+XPopupMenu* XPopupMenuManager::getmIRCMenuBar(void) const noexcept
 {
 	return m_mIRCMenuBar;
 }

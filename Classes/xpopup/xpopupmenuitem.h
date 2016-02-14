@@ -66,13 +66,13 @@ public:
 	static COLORREF LightenColor( const UINT iScale, const COLORREF clrColor );
 	static COLORREF DarkenColor( const UINT iScale, const COLORREF clrColor );
 
-	void setSubMenu( const bool bSubMenu );
+	void setSubMenu( const bool bSubMenu ) noexcept;
 	void setItemText( const TString & tsItemText );
-	void setItemIcon( const int nIcon );
-	const TString &getItemText( ) const;
-	const int &getItemIcon(  ) const;
+	void setItemIcon( const int nIcon ) noexcept;
+	const TString &getItemText( ) const noexcept;
+	const int &getItemIcon(  ) const noexcept;
 
-	const ULONG_PTR &getItemDataBackup() const;
+	const ULONG_PTR &getItemDataBackup() const noexcept;
 
 protected:
 
@@ -87,7 +87,7 @@ protected:
 	bool m_bReserved;				//!< Reserved for future use.
 };
 
-typedef std::vector<XPopupMenuItem *> VectorOfXPopupMenuItem; //!< Vector of XPopupMenuItem Objects
+using VectorOfXPopupMenuItem = std::vector<XPopupMenuItem *>; //!< Vector of XPopupMenuItem Objects
 
 #ifdef __INTEL_COMPILER // Defined when using Intel C++ Compiler.
 #pragma warning( pop )

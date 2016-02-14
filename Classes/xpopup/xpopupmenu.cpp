@@ -25,24 +25,30 @@
  */
 
 
-XPopupMenu::XPopupMenu( const TString & tsMenuName, MenuStyle mStyle )
-: m_tsMenuName( tsMenuName ), m_MenuStyle( mStyle ), m_MenuItemStyles(0), m_hImageList(nullptr),
-m_hBitmap(nullptr), m_bRoundedSel(false), m_uiAlpha(255), m_bAttachedToMenuBar(false)
+//XPopupMenu::XPopupMenu( const TString & tsMenuName, MenuStyle mStyle )
+//: m_tsMenuName( tsMenuName ), m_MenuStyle( mStyle ), m_MenuItemStyles(0), m_hImageList(nullptr),
+//m_hBitmap(nullptr), m_bRoundedSel(false), m_uiAlpha(255), m_bAttachedToMenuBar(false)
+//{
+//
+//	this->m_hMenu = CreatePopupMenu( );
+//
+//	this->m_MenuColors.m_clrBack = RGB( 255, 255, 255 );
+//	this->m_MenuColors.m_clrBox =  RGB( 184, 199, 146 );
+//	this->m_MenuColors.m_clrCheckBox = RGB( 255, 128, 0 );
+//	this->m_MenuColors.m_clrDisabledCheckBox = RGB( 200, 200, 200 );
+//	this->m_MenuColors.m_clrDisabledSelection = RGB( 255, 255, 255 );
+//	this->m_MenuColors.m_clrDisabledText = RGB( 128, 128, 128 );
+//	this->m_MenuColors.m_clrSelection = RGB( 255, 229, 179 );
+//	this->m_MenuColors.m_clrSelectionBorder = RGB( 0, 0, 0 );
+//	this->m_MenuColors.m_clrSeparatorLine = RGB( 128, 128, 128 );
+//	this->m_MenuColors.m_clrText = RGB( 0, 0, 0 );
+//	this->m_MenuColors.m_clrSelectedText = RGB( 0, 0, 0 );
+//}
+
+XPopupMenu::XPopupMenu(const TString & tsMenuName, MenuStyle mStyle)
+	: XPopupMenu(tsMenuName, CreatePopupMenu())
 {
-
-	this->m_hMenu = CreatePopupMenu( );
-
-	this->m_MenuColors.m_clrBack = RGB( 255, 255, 255 );
-	this->m_MenuColors.m_clrBox =  RGB( 184, 199, 146 );
-	this->m_MenuColors.m_clrCheckBox = RGB( 255, 128, 0 );
-	this->m_MenuColors.m_clrDisabledCheckBox = RGB( 200, 200, 200 );
-	this->m_MenuColors.m_clrDisabledSelection = RGB( 255, 255, 255 );
-	this->m_MenuColors.m_clrDisabledText = RGB( 128, 128, 128 );
-	this->m_MenuColors.m_clrSelection = RGB( 255, 229, 179 );
-	this->m_MenuColors.m_clrSelectionBorder = RGB( 0, 0, 0 );
-	this->m_MenuColors.m_clrSeparatorLine = RGB( 128, 128, 128 );
-	this->m_MenuColors.m_clrText = RGB( 0, 0, 0 );
-	this->m_MenuColors.m_clrSelectedText = RGB( 0, 0, 0 );
+	m_MenuStyle = mStyle;
 }
 
 /*!
@@ -519,7 +525,7 @@ const XPopupMenu::MenuStyle &XPopupMenu::getStyle( ) const noexcept {
  * blah
  */
 
-void XPopupMenu::setStyle( MenuStyle style ) {
+void XPopupMenu::setStyle( MenuStyle style ) noexcept {
 
   this->m_MenuStyle = style;
 }
@@ -541,7 +547,7 @@ const UINT &XPopupMenu::getItemStyle( ) const noexcept {
  * blah
  */
 
-void XPopupMenu::setItemStyle( const UINT iExStyles ) {
+void XPopupMenu::setItemStyle( const UINT iExStyles ) noexcept {
 
   this->m_MenuItemStyles = iExStyles;
 }
@@ -574,7 +580,7 @@ const LPXPMENUCOLORS XPopupMenu::getColors( ) const noexcept {
  * blah
  */
 
-void XPopupMenu::setColor( const MenuColours nColor, const COLORREF clrColor ) {
+void XPopupMenu::setColor( const MenuColours nColor, const COLORREF clrColor ) noexcept {
 
   switch ( nColor ) {
 
@@ -675,7 +681,7 @@ COLORREF XPopupMenu::getColor(const MenuColours nColor) const noexcept {
 	}
 }
 
-void XPopupMenu::setDefaultColor(const MenuColours nColor ) {
+void XPopupMenu::setDefaultColor(const MenuColours nColor ) noexcept {
 
 	switch ( nColor ) {
 
@@ -1094,7 +1100,7 @@ BOOL XPopupMenu::getMenuInfo(const UINT iMask, const TString & path, MENUITEMINF
 /*
  * Parses a string to a menu style.
  */
-XPopupMenu::MenuStyle XPopupMenu::parseStyle(const TString &tsStyle) {
+XPopupMenu::MenuStyle XPopupMenu::parseStyle(const TString &tsStyle) noexcept {
 	auto style = XPopupMenu::XPMS_OFFICE2003;
 
 	if (tsStyle == TEXT("office2003rev"))

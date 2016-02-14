@@ -44,7 +44,7 @@ typedef struct tagXPMENUCOLORS {
 
 } XPMENUCOLORS, * LPXPMENUCOLORS;
 
-typedef std::vector<XPopupMenu *> VectorOfXPopupMenu; //!< Vector of XPopupMenu Objects
+using VectorOfXPopupMenu = std::vector<XPopupMenu *>; //!< Vector of XPopupMenu Objects
 
 /*!
  * \brief blah
@@ -133,7 +133,7 @@ public:
 
 	void parseXPopCommand(const TString & input);
 	void parseXPopIdentifier( const TString & input, TCHAR * szReturnValue ) const;
-	static XPopupMenu::MenuStyle parseStyle(const TString &style);
+	static XPopupMenu::MenuStyle parseStyle(const TString &style) noexcept;
 
 	static HMENU parsePath( const TString & path, const HMENU hParent, const UINT depth = 1 );
 
@@ -141,9 +141,9 @@ public:
 	void destroyImageList( );
 
 	const MenuStyle &getStyle( ) const noexcept;
-	void setStyle( MenuStyle style );
+	void setStyle( MenuStyle style ) noexcept;
 	const UINT &getItemStyle( ) const noexcept;
-	void setItemStyle( const UINT iExStyles );
+	void setItemStyle( const UINT iExStyles ) noexcept;
 
 	void deleteMenuItemData(const XPopupMenuItem *const p_Item, LPMENUITEMINFO mii = nullptr);
 	void deleteAllItemData( HMENU hMenu );
@@ -153,9 +153,9 @@ public:
 	const inline HMENU &getMenuHandle( ) const noexcept { return this->m_hMenu; };
 
 	const LPXPMENUCOLORS getColors( ) const noexcept;
-	void setColor( const MenuColours nColor, const COLORREF clrColor );
+	void setColor( const MenuColours nColor, const COLORREF clrColor ) noexcept;
 	COLORREF getColor( const MenuColours nColor ) const noexcept;
-	void setDefaultColor(const MenuColours nColor);
+	void setDefaultColor(const MenuColours nColor) noexcept;
 
 	static LRESULT CALLBACK XPopupWinProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
 
@@ -171,8 +171,8 @@ public:
 
 	const inline bool &IsRounded(void) const noexcept { return this->m_bRoundedSel; };
 	const inline BYTE &IsAlpha(void) const noexcept { return this->m_uiAlpha; };
-	void SetRounded(const bool rounded) { this->m_bRoundedSel = rounded; };
-	void SetAlpha(const BYTE alpha) { this->m_uiAlpha = alpha; };
+	void SetRounded(const bool rounded) noexcept { this->m_bRoundedSel = rounded; };
+	void SetAlpha(const BYTE alpha) noexcept { this->m_uiAlpha = alpha; };
 
 	// Methods to attach and detach from mIRC menu.
 	bool attachToMenuBar(HMENU menubar, const TString &label);

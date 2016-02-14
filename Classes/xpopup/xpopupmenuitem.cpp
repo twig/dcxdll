@@ -55,7 +55,7 @@ XPopupMenuItem::~XPopupMenuItem( ) {
  * blah
  */
 
-void XPopupMenuItem::setSubMenu( const bool bSubMenu ) {
+void XPopupMenuItem::setSubMenu( const bool bSubMenu ) noexcept {
 
 	this->m_bSubMenu = bSubMenu;
 }
@@ -78,7 +78,7 @@ void XPopupMenuItem::setItemText( const TString & tsItemText ) {
  * blah
  */
 
-void XPopupMenuItem::setItemIcon( const int nIcon ) {
+void XPopupMenuItem::setItemIcon( const int nIcon ) noexcept {
 
 	if ( !this->m_bSep )
 		this->m_nIcon = nIcon;
@@ -90,7 +90,7 @@ void XPopupMenuItem::setItemIcon( const int nIcon ) {
  * blah
  */
 
-const TString &XPopupMenuItem::getItemText( ) const {
+const TString &XPopupMenuItem::getItemText( ) const noexcept {
 
 	return this->m_tsItemText;
 }
@@ -101,7 +101,7 @@ const TString &XPopupMenuItem::getItemText( ) const {
  * blah
  */
 
-const int &XPopupMenuItem::getItemIcon(  ) const {
+const int &XPopupMenuItem::getItemIcon(  ) const noexcept {
 
 	return this->m_nIcon;
 }
@@ -150,7 +150,7 @@ SIZE XPopupMenuItem::getItemSize( const HWND mHwnd ) {
 	return size;
 }
 	
-const ULONG_PTR &XPopupMenuItem::getItemDataBackup() const {
+const ULONG_PTR &XPopupMenuItem::getItemDataBackup() const noexcept {
 	return m_dwItemDataBackup;
 }
 
