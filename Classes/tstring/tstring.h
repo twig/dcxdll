@@ -125,9 +125,9 @@
 #define ts_strncat(x,y,z) wcsncat((x),(y),(size_t)(z))
 #define ts_toupper(c) ((((c) >= TEXT('a')) && ((c) <= TEXT('z'))) ? _toupper((c)) : (c) )
 #define ts_tolower(c) ((((c) >= TEXT('A')) && ((c) <= TEXT('Z'))) ? _tolower((c)) : (c) )
-#define ts_strlen(x) lstrlen((x))
-#define ts_strlenA(x) lstrlenA((x))
-#define ts_strlenW(x) lstrlenW((x))
+//#define ts_strlen(x) lstrlen((x))
+//#define ts_strlenA(x) lstrlenA((x))
+//#define ts_strlenW(x) lstrlenW((x))
 #define ts_strcpyn(dest,src,len) lstrcpyn((dest),(src),(int)(len))
 #define ts_strcpy(dest,src) lstrcpy((dest),(src))
 #define ts_strcmp(x,y) lstrcmp((x),(y))
@@ -142,17 +142,6 @@
 #define ts_strncat_throw(x,y,z) if (ts_strncat((x), (y), (z)) == nullptr) throw std::logic_error("strncat() failed!");
 #define ts_strcpy_throw(x,y) if (ts_strcpy((x), (y)) == nullptr) throw std::logic_error("strcpy() failed!");
 #define ts_strcpyn_throw(x,y,z) if (ts_strcpyn((x), (y), (z)) == nullptr) throw std::logic_error("strcpyn() failed!");
-
-//template <typename T>
-//std::enable_if_t<std::is_same<T,WCHAR>::value, int> ts_strlen(const T *const cString) const
-//{
-//	return ts_strlenW(cString);
-//}
-//template <typename T>
-//std::enable_if_t<std::is_same<T, char>::value, int> ts_strlen(const T *const cString) const
-//{
-//	return ts_strlenA(cString);
-//}
 
 /*!
  * \brief String and Token Management Class
@@ -268,19 +257,38 @@ public:
 		: TString(0U)
 	{
 	}
-	TString(const WCHAR *const cString)
-		: TString(cString, ts_strlen(cString))
+
+	//TString(const WCHAR *const cString)
+	//	: TString(cString, ts_strlen(cString))
+	//{
+	//}
+	//
+	//TString(const char *const cString)
+	//	: TString(cString, ts_strlenA(cString))
+	//{
+	//}
+	
+	template <typename T, size_t N>
+	TString(const T (&cString)[N])
+		: TString(cString, N)
 	{
+		static_assert(std::is_same<T, WCHAR>::value || std::is_same<T, char>::value, "MUST be a WCHAR or char string");
 	}
-	TString(const char *const cString)
-		: TString(cString, ts_strlenA(cString))
+
+	template <typename T, typename = std::enable_if_t<std::is_pointer<T>::value> >
+	TString(const T cString)
+		: TString(cString, _ts_strlen(cString))
 	{
+		//static_assert(std::is_same<T, WCHAR>::value || std::is_same<T, char>::value, "MUST be a WCHAR or char string");
 	}
+
 	TString(const TString & tString)
 		: TString(tString.data(), tString.len())
 	{
 	}
+	
 	TString(TString &&tString);					// move constructor C++11 only
+	
 	TString(const std::initializer_list<TString> &lt);	// Initializer list constructor (allows TString name{ "text", "text2", othertstring } )
 
 	// template version of the unique ptr constructor, handles WCHAR * & CHAR *
@@ -289,13 +297,15 @@ public:
 	TString(const std::unique_ptr<T> &unique)
 		: TString(unique.get())
 	{
+		//static_assert(std::is_same<T, WCHAR>::value || std::is_same<T, char>::value, "MUST be a WCHAR or char string");
 	}
 
-	template <typename T, size_t N>
-	TString(const T (&cString)[N])
-		: TString(cString, N)
-	{
-	}
+	//template <typename T, size_t N>
+	//TString(const T (&cString)[N])
+	//	: TString(cString, N)
+	//{
+	//	static_assert(std::is_same<T, WCHAR>::value || std::is_same<T, char>::value, "MUST be a WCHAR or char string");
+	//}
 
 	TString(const WCHAR *const cString, const size_t iLen)
 		: TString(iLen+1)
@@ -507,7 +517,7 @@ public:
 	template <class T>
 	friend TString &operator <<(TString &other, const T &N) { other += N; return other; }
 	template <class T>
-	friend TString &operator >>(TString &other, T &N) { N = other.to_<T>(); return other; }
+	friend TString &operator >>(const TString &other, T &N) { N = other.to_<T>(); return other; }
 	template <class T>
 	friend TString operator +(const TString & tString, const T &other)
 	{
@@ -595,28 +605,6 @@ public:
 		}
 		return 0U;
 	}
-
-#ifdef GSL_GSL_H
-	// messing about with this, dont use in normal code.
-	template <typename T>
-	UINT acompare(const gsl::span<T> &arr) const
-	{
-		//UINT i = 0;
-		//for (auto &x: arr)
-		//{
-		//	i++;
-		//	if (*this == x)
-		//		return i;
-		//}
-		//return 0U;
-
-		auto itEnd = arr.end();
-		auto itGot = std::find(arr.begin(), itEnd, *this);
-		if (itGot != arr.end())
-			return itGot;
-		return 0U;
-	}
-#endif
 
 	int find(const TCHAR *const substring, const int N) const noexcept;	// find Nth matching subString
 	int find( const TCHAR chr, const int N ) const noexcept;				// find Nth matching chr
@@ -840,7 +828,7 @@ public:
 		else {
 			const auto *const p_cEnd = ts_strstr(p_cStart, sepChars);
 			if (p_cEnd != nullptr) {
-				this->m_savedpos = (p_cEnd + ts_strlen(sepChars));
+				this->m_savedpos = (p_cEnd + _ts_strlen(sepChars));
 				return TString(p_cStart, p_cEnd).to_<T>();
 			}
 		}
@@ -881,7 +869,7 @@ public:
 				m_sepCharsLen = 1;
 			}
 			else
-				m_sepCharsLen = ts_strlen(m_sepChars);
+				m_sepCharsLen = _ts_strlen(m_sepChars);
 
 			if (m_ptr != nullptr)
 			{
@@ -1002,7 +990,7 @@ public:
 	inline const const_iterator end() const { return const_iterator(); }
 
 	// add the contents of any container class to the TString using the specified seperator (can also add other TString's like this)
-	template <class T, class TS> auto &join(T &Cont, TS &sepChars)
+	template <class T, class TS> auto &join(const T &Cont, const TS &sepChars)
 	{
 		for (const auto &x : Cont)
 		{
@@ -1012,7 +1000,7 @@ public:
 	}
 
 	// fill a container class with a split up TString
-	template <class T, class TS> void expand(T &Cont, TS &sepChars)
+	template <class T, class TS> void expand(T &Cont, const TS &sepChars)
 	{
 		for (auto itStart = begin(sepChars), itEnd = end(); itStart != itEnd; ++itStart)
 		{
@@ -1251,6 +1239,15 @@ bool _ts_WildcardMatch(const TameString &pszString, const WildString &pszMatch) 
 	return (pszMatch[iWildOffset] == TEXT('\0'));
 }
 
+template <typename T>
+auto _ts_strlen(const T *const str)
+{
+	static_assert(std::is_same<T, char>::value || std::is_same<T, wchar_t>::value, "Invalid Type used");
+	auto iLen = 0U;
+	for (auto p = str; p && *p; ++p)
+		++iLen;
+	return iLen;
+}
 //#pragma comment(lib,"tstring.lib")
 
 #ifdef __INTEL_COMPILER // Defined when using Intel C++ Compiler.
