@@ -390,11 +390,12 @@ enum class SwitchBarPos: UINT {
 };
 
 // Dialog info structure
-typedef struct tagMYDCXWINDOW {
+struct MYDCXWINDOW {
 	RECT rc;
 	DWORD old_styles;
 	DWORD old_exstyles;
-} MYDCXWINDOW,*LPMYDCXWINDOW;
+};
+using LPMYDCXWINDOW = MYDCXWINDOW *;
 
 // --------------------------------------------------
 // DLL stuff
@@ -416,13 +417,14 @@ typedef struct {
 } LOADINFO;
 
 // mIRC Signal structure
-typedef struct SIGNALSWITCH {
+struct SIGNALSWITCH {
 	bool xdock;
 	bool xstatusbar;
 	bool xtray;
-} *LPSIGNALSWITCH;
+};
+using LPSIGNALSWITCH = SIGNALSWITCH *;
 
-typedef std::vector<int> VectorOfInts; //<! Vector of int
+using VectorOfInts = std::vector<int>; //<! Vector of int
 
 // UNICODE/ANSI wrappers
 #define dcx_atoi(x) _wtoi(x)
@@ -437,7 +439,7 @@ typedef std::vector<int> VectorOfInts; //<! Vector of int
 
 inline void dcx_strcpyn(gsl::not_null<TCHAR *> sDest, gsl::not_null<const TCHAR *> sSrc, const int &iSize) { if (lstrcpyn(sDest, sSrc, iSize) == nullptr) sDest[0] = 0; }
 
-constexpr const TCHAR *const dcx_truefalse(const bool &x) {	return (x) ? TEXT("$true") : TEXT("$false"); }
+constexpr const TCHAR *const dcx_truefalse(const bool &x) noexcept { return (x) ? TEXT("$true") : TEXT("$false"); }
 
 //#define dcx_Con(x,y) dcx_strcpyn((y), (((x)) ? TEXT("$true") : TEXT("$false")), MIRC_BUFFER_SIZE_CCH);
 //#define dcx_ConRet(x,y) { \
@@ -463,7 +465,7 @@ if ((x)) (y)[0] = TEXT('1'); \
 }
 //#define dcx_testflag(x,y) (((x) & (y)) == (y))
 template <typename T, typename M>
-constexpr bool dcx_testflag(T x, M y) { return ((x & static_cast<T>(y)) == static_cast<T>(y)); }
+constexpr bool dcx_testflag(T x, M y) noexcept { return ((x & static_cast<T>(y)) == static_cast<T>(y)); }
 
 #define dcxlParam(x,y) auto y = reinterpret_cast<x>(lParam)
 #define dcxwParam(x,y) auto y = reinterpret_cast<x>(wParam)
@@ -511,7 +513,7 @@ const TCHAR *GetLastStatusStr(Status status);
 bool IsFile(TString &filename);
 //void calcStrippedRect(HDC hdc, const TString &txt, const UINT style, LPRECT rc, const bool ignoreleft);
 void mIRC_DrawText(HDC hdc, const TString &txt, LPRECT rc, const UINT style, const bool shadow);
-gsl::owner<HDC *>CreateHDCBuffer(gsl::not_null<HDC> hdc, const LPRECT rc);
+gsl::owner<HDC *> CreateHDCBuffer(gsl::not_null<HDC> hdc, const LPRECT rc);
 void DeleteHDCBuffer(gsl::owner<HDC *> hBuffer);
 int TGetWindowText(HWND hwnd, TString &txt);
 void FreeOSCompatibility(void);

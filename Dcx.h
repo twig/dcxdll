@@ -428,8 +428,8 @@ namespace Dcx
 		HFONT m_hOldFont;
 	};
 
-	typedef std::map<HCURSOR, HCURSOR> MapOfCursors;
-	typedef std::map<UINT, HCURSOR> MapOfAreas;
+	using MapOfCursors = std::map<HCURSOR, HCURSOR>;
+	using MapOfAreas = std::map<UINT, HCURSOR>;
 
 	//template< typename T >
 	//struct range_t
@@ -486,7 +486,8 @@ namespace Dcx
 	PVOID PatchAPI(const char *const c_szDllName, const char *const c_szApiName, PVOID newfPtr);
 	void RemovePatch(PVOID fPtr, PVOID newfPtr);
 
-	typedef HCURSOR(WINAPI *PFNSETCURSOR)(HCURSOR hCursor);
+	//typedef HCURSOR(WINAPI *PFNSETCURSOR)(HCURSOR hCursor);
+	using PFNSETCURSOR = HCURSOR(WINAPI *)(HCURSOR hCursor);
 
 	extern PFNSETCURSOR SetCursorUx;
 
