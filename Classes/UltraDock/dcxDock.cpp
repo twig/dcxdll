@@ -66,34 +66,58 @@ bool DcxDock::DockWindow(HWND hwnd, const TString &flag)
 	if (!IsWindow(this->m_hParent))
 		throw Dcx::dcxException("Invalid Dock Host Window");
 
-	auto ud = new DCXULTRADOCK;
+	//auto ud = new DCXULTRADOCK;
+	//
+	//ud->hwnd = hwnd;
+	//ud->old_exstyles = GetWindowExStyle(hwnd);
+	//ud->old_styles = GetWindowStyle(hwnd);
+	//ud->flags = DOCKF_LEFT;
+	//
+	//if (flag.len() > 1) {
+	//	switch (flag[1]) {
+	//	case TEXT('r'):
+	//		ud->flags = DOCKF_RIGHT;
+	//		break;
+	//
+	//	case TEXT('t'):
+	//		ud->flags = DOCKF_TOP;
+	//		break;
+	//
+	//	case TEXT('b'):
+	//		ud->flags = DOCKF_BOTTOM;
+	//		break;
+	//
+	//	default:
+	//		ud->flags = DOCKF_LEFT;
+	//		break;
+	//	}
+	//}
+	//
+	//this->m_VectorDocks.push_back(ud);
 
-	ud->hwnd = hwnd;
-	ud->old_exstyles = GetWindowExStyle(hwnd);
-	ud->old_styles = GetWindowStyle(hwnd);
-	ud->flags = DOCKF_LEFT;
+	DWORD dFlags = DOCKF_LEFT;
 
 	if (flag.len() > 1) {
 		switch(flag[1]) {
 			case TEXT('r'):
-				ud->flags = DOCKF_RIGHT;
+				dFlags = DOCKF_RIGHT;
 				break;
 
 			case TEXT('t'):
-				ud->flags = DOCKF_TOP;
+				dFlags = DOCKF_TOP;
 				break;
 
 			case TEXT('b'):
-				ud->flags = DOCKF_BOTTOM;
+				dFlags = DOCKF_BOTTOM;
 				break;
 
 			default:
-				ud->flags = DOCKF_LEFT;
+				dFlags = DOCKF_LEFT;
 				break;
 		}
 	}
+	this->m_VectorDocks.push_back(new DCXULTRADOCK{ hwnd, dFlags, GetWindowStyle(hwnd), GetWindowExStyle(hwnd),{ 0,0,0,0 } });
 
-	this->m_VectorDocks.push_back(ud);
 	RemStyles(hwnd,GWL_STYLE,WS_CAPTION | DS_FIXEDSYS | DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_OVERLAPPED);
 	RemStyles(hwnd,GWL_EXSTYLE,WS_EX_CONTROLPARENT | WS_EX_CLIENTEDGE | WS_EX_DLGMODALFRAME | WS_EX_WINDOWEDGE | WS_EX_STATICEDGE | WS_EX_NOPARENTNOTIFY);
 	//RemStyles(hwnd,GWL_EXSTYLE,WS_EX_CLIENTEDGE | WS_EX_DLGMODALFRAME | WS_EX_WINDOWEDGE | WS_EX_STATICEDGE | WS_EX_NOPARENTNOTIFY);

@@ -70,32 +70,34 @@ enum TreeBarColours : UINT {
 	TREEBAR_COLOUR_MAX = TreeBarColours::TREEBAR_COLOUR_HOT_BKG
 };
 
-typedef struct tagDCXULTRADOCK {
+struct DCXULTRADOCK {
 	HWND hwnd;
 	DWORD flags;
 	DWORD old_styles;
 	DWORD old_exstyles;
 	RECT rc;
-} DCXULTRADOCK, *LPDCXULTRADOCK;
+};
+using LPDCXULTRADOCK = DCXULTRADOCK *;
 
-typedef std::vector<LPDCXULTRADOCK> VectorOfDocks;
+using VectorOfDocks = std::vector<LPDCXULTRADOCK>;
 
-typedef struct tagSB_PARTINFOD {
+struct SB_PARTINFOD {
 	HWND		m_Child;
 	TString		m_Text;
 	int			m_iIcon;
 	COLORREF	m_TxtCol;	// colour of the text be default in this item.
 	HBRUSH		m_BkgCol;	// brush to be used when drawing the bkg in this item.
 
-	tagSB_PARTINFOD()
+	SB_PARTINFOD()
 		: m_Child(nullptr)
 		, m_iIcon(-1)
 		, m_TxtCol(CLR_INVALID)
 		, m_BkgCol(nullptr)
 	{}
-} SB_PARTINFOD, *LPSB_PARTINFOD;
+};
+using LPSB_PARTINFOD = SB_PARTINFOD *;
 
-typedef std::vector<LPSB_PARTINFOD> VectorOfDParts;
+using VectorOfDParts = std::vector<LPSB_PARTINFOD>;
 
 //typedef struct tagCursor_Data {
 //	HCURSOR	m_hCursor;
