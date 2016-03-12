@@ -73,7 +73,7 @@ public:
 	const bool isCustomMenu(const HMENU hMenu) const;
 	static const bool isMenuBarMenu(const HMENU hMenu, const HMENU hMatch);
 
-	const bool isPatched(void) const noexcept { return false; };
+	static const bool isPatched(void) noexcept { return false; };
 
 	static void LoadPopupsFromXML(const TiXmlElement *const popups, const TiXmlElement *popup, const TString &popupName, const TString &popupDataset);
 	static const bool LoadPopupItemsFromXML(XPopupMenu *menu, HMENU hMenu, const TiXmlElement *const items);

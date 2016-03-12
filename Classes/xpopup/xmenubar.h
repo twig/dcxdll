@@ -28,6 +28,8 @@ class XMenuBar {
 		//XMenuBar( );
 		//virtual ~XMenuBar( );
 
+		XMenuBar() = default;
+		XMenuBar(const XMenuBar &other) = delete;	// no copy constructor
 		XMenuBar &operator = (const XMenuBar &) = delete;
 
 		void parseXMenuBarCommand(const TString &input);
