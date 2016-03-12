@@ -881,43 +881,72 @@ public:
 	const tuple_type gettokenrange(const int nStart, const int nEnd, const_pointer sepChars) const;
 	const tuple_type gettokenrange(const int nStart, const int nEnd, const_reference sepChars = SPACECHAR) const;
 
-	inline TString gettok(const int N, const int M, const_pointer sepChars) const
+	//inline TString gettok(const int N, const int M, const_pointer sepChars) const
+	//{
+	//	return gettokenrange(N, M, sepChars);
+	//}
+	//
+	//inline TString gettok(const int N, const_pointer sepChars) const
+	//{
+	//	return gettokenrange(N, N, sepChars);
+	//}
+	//
+	//inline TString getfirsttok(const int N, const_pointer sepChars) const
+	//{
+	//	auto rng = gettokenrange(N, N, sepChars);
+	//
+	//	m_savedcurrenttok = N;
+	//	m_savedtotaltoks = std::get<2>(rng);
+	//	m_savedpos = std::get<1>(rng);
+	//
+	//	if (m_savedpos != nullptr)
+	//		m_savedpos++;
+	//
+	//	return rng;
+	//}
+	//
+	//inline TString gettok(const int N, const int M, const_reference sepChars = SPACECHAR) const
+	//{
+	//	return gettokenrange(N, M, sepChars);
+	//}
+	//
+	//inline TString gettok(const int N, const_reference sepChars = SPACECHAR) const
+	//{
+	//	return gettokenrange(N, N, sepChars);
+	//}
+	//
+	//inline TString getfirsttok(const int N, const_reference sepChars = SPACECHAR) const
+	//{
+	//	
+	//	//std::tie(std::ignore, m_savedpos, m_savedtotaltoks) = gettokenrange(N, N, sepChars);
+	//
+	//	auto rng = gettokenrange(N, N, sepChars);
+	//
+	//	m_savedcurrenttok = N;
+	//	m_savedtotaltoks = std::get<2>(rng);
+	//	m_savedpos = std::get<1>(rng);
+	//
+	//	if (m_savedpos != nullptr)
+	//		m_savedpos++;
+	//
+	//	return rng;
+	//}
+
+	template <typename T = const_reference>
+	inline TString gettok(const int N, const int M, T sepChars = SPACECHAR) const
 	{
 		return gettokenrange(N, M, sepChars);
 	}
 
-	inline TString gettok(const int N, const_pointer sepChars) const
+	template <typename T = const_reference>
+	inline TString gettok(const int N, T sepChars = SPACECHAR) const
 	{
 		return gettokenrange(N, N, sepChars);
 	}
 
-	inline TString getfirsttok(const int N, const_pointer sepChars) const
+	template <typename T = const_reference>
+	inline TString getfirsttok(const int N, T sepChars = SPACECHAR) const
 	{
-		auto rng = gettokenrange(N, N, sepChars);
-
-		m_savedcurrenttok = N;
-		m_savedtotaltoks = std::get<2>(rng);
-		m_savedpos = std::get<1>(rng);
-
-		if (m_savedpos != nullptr)
-			m_savedpos++;
-
-		return rng;
-	}
-
-	inline TString gettok(const int N, const int M, const_reference sepChars = SPACECHAR) const
-	{
-		return gettokenrange(N, M, sepChars);
-	}
-
-	inline TString gettok(const int N, const_reference sepChars = SPACECHAR) const
-	{
-		return gettokenrange(N, N, sepChars);
-	}
-
-	inline TString getfirsttok(const int N, const_reference sepChars = SPACECHAR) const
-	{
-		
 		//std::tie(std::ignore, m_savedpos, m_savedtotaltoks) = gettokenrange(N, N, sepChars);
 
 		auto rng = gettokenrange(N, N, sepChars);
@@ -1179,9 +1208,9 @@ public:
 #define TSTAB TString::m_cTab
 #define TSSPACE TString::m_cSpace
 #define TSCOMMA TString::m_cComma
-#define TSSPACECHAR TSSPACE[0]
-#define TSTABCHAR TSTAB[0]
-#define TSCOMMACHAR TSCOMMA[0]
+#define TSSPACECHAR TString::m_cSpace[0]
+#define TSTABCHAR TString::m_cTab[0]
+#define TSCOMMACHAR TString::m_cComma[0]
 
 // literal operator
 // allows "sometext"_ts to be interpreted as TString("sometext")
