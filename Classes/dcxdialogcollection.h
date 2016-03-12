@@ -17,9 +17,8 @@
 
 // dummy runtime classe definition
 class DcxDialog;
-//class Dcx;
 
-typedef std::vector<DcxDialog *> VectorOfDialogPtrs; //!< blah
+using VectorOfDialogPtrs = std::vector<DcxDialog *>; //!< blah
 
 /*!
  * \brief blah

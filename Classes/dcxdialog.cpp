@@ -876,8 +876,8 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 			UINT cnt = 0;
 			for (const auto &strPoint : strPoints)
 			{
-				pnts[cnt].x = strPoint.getfirsttok(1, TSCOMMA).to_<LONG>();
-				pnts[cnt].y = strPoint.getnexttok(TSCOMMA).to_<LONG>();	// tok 2
+				pnts[cnt].x = strPoint.getfirsttok(1, TSCOMMACHAR).to_<LONG>();
+				pnts[cnt].y = strPoint.getnexttok(TSCOMMACHAR).to_<LONG>();	// tok 2
 				++cnt;
 			}
 			m_Region = CreatePolygonRgn(pnts.get(),tPoints,WINDING);

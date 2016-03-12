@@ -20,7 +20,7 @@
 #include "layout/layoutmanager.h"
 #include <map>
 
-#define DBS_BKGCOLOR		0x00000001 //!< Control Background Color
+#define DBS_BKGCOLOR	0x00000001 //!< Control Background Color
 #define DBS_BKGBITMAP	0x00000002 //!< Control Background Bitmap
 
 #define DBS_BKGNORMAL	0x00000004 // top left, no sizing applied
@@ -30,7 +30,7 @@
 // used with DBS_BKGNORMAL
 #define DBS_BKGCENTER	0x00000020 // centered horizontally
 #define DBS_BKGVCENTER	0x00000040 // centered vertically
-#define DBS_BKGRIGHT		0x00000080 // right aligned
+#define DBS_BKGRIGHT	0x00000080 // right aligned
 #define DBS_BKGBOTTOM	0x00000100 // bottom aligned
 
 // Event mask defines.
@@ -51,9 +51,9 @@ class DcxControl;
 class DcxList;
 //class Dcx;
 
-typedef std::vector<DcxControl *> VectorOfControlPtrs; //!< blah
-typedef std::vector<DcxList *> VectorOfDragListPtrs; //!< Vector of draglists
-typedef std::map<TString, UINT> IntegerHash;
+using VectorOfControlPtrs = std::vector<DcxControl *>; //!< blah
+using VectorOfDragListPtrs = std::vector<DcxList *>; //!< Vector of draglists
+using IntegerHash = std::map<TString, UINT>;
 
 /*!
  * \brief blah
@@ -107,7 +107,7 @@ public:
 
 	void setMouseControl( const UINT mUID );
 	void setFocusControl( const UINT mUID );
-	const UINT &getFocusControl() const { return m_FocusID; };
+	const UINT &getFocusControl() const noexcept { return m_FocusID; };
 
 	void setParentName(const TString &strParent);
 	const TString &getParentName() const noexcept;
@@ -282,7 +282,7 @@ public:
 	void RegisterDragList(DcxList *const list);
 	void UnregisterDragList(const DcxList *const list);
 
-	void SetVerbose(const bool state) { this->m_bVerboseErrors = state; };
+	void SetVerbose(const bool state) noexcept { this->m_bVerboseErrors = state; };
 	const bool &IsVerbose(void) const noexcept { return this->m_bVerboseErrors; };
 
 	void toXml(TiXmlElement *const xml) const;
