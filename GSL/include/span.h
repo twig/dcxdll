@@ -37,6 +37,11 @@
 
 #ifdef _MSC_VER
 
+#ifdef _WIN32
+#pragma push_macro("max")
+#undef max
+#endif
+
 // turn off some warnings that are noisy about our Expects statements
 #pragma warning(push)
 #pragma warning(disable : 4127) // conditional expression is constant
@@ -44,12 +49,6 @@
 // No MSVC does constexpr fully yet
 #pragma push_macro("constexpr")
 #define constexpr
-
-// On Windows, if NOMINMAX is not defined, then windows.h defines the macro max
-#ifdef _WIN32
-#pragma push_macro("max")
-#undef max
-#endif
 
 // VS 2013 workarounds
 #if _MSC_VER <= 1800
@@ -1492,7 +1491,7 @@ public:
     constexpr reference operator()(FirstIndex index, OtherIndices... indices)
     {
         index_type idx = {narrow_cast<std::ptrdiff_t>(index),
-                          narrow_cast<std::ptrdiff_t>(indices)...};
+                          narrow_cast<std::ptrdiff_t>(indices...)};
         return this->operator[](idx);
     }
 
@@ -1824,7 +1823,7 @@ public:
         auto d = narrow_cast<size_type>(sizeof(OtherValueType) / sizeof(value_type));
 
         size_type size = this->bounds().total_size() / d;
-        return {(OtherValueType*) this->data(), size,
+        return {const_cast<OtherValueType*>(reinterpret_cast<const OtherValueType*>(this->data())), size,
                 bounds_type{resize_extent(this->bounds().index_bounds(), d),
                             resize_stride(this->bounds().strides(), d)}};
     }
@@ -2199,12 +2198,12 @@ general_span_iterator<Span> operator+(typename general_span_iterator<Span>::diff
 
 #ifdef _MSC_VER
 
+#undef constexpr
+#pragma pop_macro("constexpr")
+
 #ifdef _WIN32
 #pragma pop_macro("max")
 #endif
-
-#undef constexpr
-#pragma pop_macro("constexpr")
 
 #if _MSC_VER <= 1800
 #pragma warning(pop)
