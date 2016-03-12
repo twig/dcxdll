@@ -57,8 +57,8 @@ public:
 	DcxUXModule(void);
 	~DcxUXModule(void);
 
-	bool load(void);
-	bool unload(void);
+	bool load(void) final;
+	bool unload(void) final;
 
 	static BOOL dcxIsThemeActive(void);
 	static HRESULT dcxSetWindowTheme(const HWND hwnd, const LPCWSTR pszSubAppName, const LPCWSTR pszSubIdList);

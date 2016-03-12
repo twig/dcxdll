@@ -27,8 +27,8 @@ public:
 	DcxDWMModule(void);
 	~DcxDWMModule(void);
 
-	bool load(void);
-	bool unload(void);
+	bool load(void) final;
+	bool unload(void) final;
 	bool refreshComposite();
 	HRESULT dcxDwmSetWindowAttribute(HWND hwnd, DWORD dwAttribute, LPCVOID pvAttribute, DWORD cbAttribute);
 	HRESULT dcxDwmGetWindowAttribute(HWND hwnd, DWORD dwAttribute, PVOID pvAttribute, DWORD cbAttribute);

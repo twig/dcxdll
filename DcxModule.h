@@ -27,7 +27,7 @@ public:
 	virtual ~DcxModule(void);
 
 	bool isUseable() const noexcept;
-	static bool GetWindowVersion(DWORD *dMajor, DWORD *dMinor);
+	//static bool GetWindowVersion(DWORD *dMajor, DWORD *dMinor);
 
 	virtual bool load();
 	virtual bool unload() = 0;

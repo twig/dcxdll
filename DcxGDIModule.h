@@ -10,6 +10,6 @@ public:
 	DcxGDIModule(void);
 	~DcxGDIModule(void);
 
-	bool load(void);
-	bool unload(void);
+	bool load(void) final;
+	bool unload(void) final;
 };

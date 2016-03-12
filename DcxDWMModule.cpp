@@ -1,5 +1,6 @@
 #include "defines.h"
 #include "DcxDWMModule.h"
+#include <VersionHelpers.h>
 
 PFNDWMISCOMPOSITIONENABLED DcxDWMModule::DwmIsCompositionEnabledUx = nullptr;
 PFNDWMGETWINDOWATTRIBUTE DcxDWMModule::DwmGetWindowAttributeUx = nullptr;
@@ -27,14 +28,19 @@ bool DcxDWMModule::load(void)
 	if (isUseable())
 		return false;
 
-	DWORD winMajor = 0;
-	if (!GetWindowVersion(&winMajor, nullptr))
-		return false;
+	//DWORD winMajor = 0;
+	//if (!GetWindowVersion(&winMajor, nullptr))
+	//	return false;
 
-	this->m_bVista = (winMajor >= 6);	// OS is Vista+
-	this->m_bWin7 = (winMajor > 6);		// OS is Windows7+
-	this->m_bWin8 = (winMajor > 7);		// OS is Windows8+
-	this->m_bWin10 = (winMajor > 8);	// OS is Windows10+
+	//this->m_bVista = (winMajor >= 6);	// OS is Vista+
+	//this->m_bWin7 = (winMajor > 6);		// OS is Windows7+
+	//this->m_bWin8 = (winMajor > 7);		// OS is Windows8+
+	//this->m_bWin10 = (winMajor > 8);	// OS is Windows10+
+
+	this->m_bVista = IsWindowsVistaOrGreater();	// OS is Vista+
+	this->m_bWin7 = IsWindows7OrGreater();		// OS is Windows7+
+	this->m_bWin8 = IsWindows8OrGreater();		// OS is Windows8+
+	this->m_bWin10 = IsWindows10OrGreater();	// OS is Windows10+
 
 	DCX_DEBUG(mIRCLinker::debug, TEXT("LoadDLL"), TEXT("Loading DWMAPI.DLL..."));
 	m_hModule = LoadLibrary(TEXT("dwmapi.dll"));
