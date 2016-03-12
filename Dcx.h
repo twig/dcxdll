@@ -15,6 +15,35 @@
 // should DCX use the resource wrapper classes below? set to zero to disable
 #define DCX_USE_WRAPPERS 1
 
+namespace std
+{
+	inline string to_string(const wstring &wstr)
+	{
+		string str;
+		str.assign(wstr.begin(), wstr.end());
+		return str;
+	}
+
+	inline wstring to_wstring(const string &str)
+	{
+		wstring wstr;
+		wstr.assign(str.begin(), str.end());
+		return wstr;
+	}
+
+	inline string to_string(const TString &wstr)
+	{
+		string str(wstr.c_str());
+		return str;
+	}
+
+	inline wstring to_wstring(const TString &str)
+	{
+		wstring wstr(str.to_wchr());
+		return wstr;
+	}
+}
+
 namespace Dcx
 {
 	extern TString m_sLastError;
@@ -36,6 +65,15 @@ namespace Dcx
 
 	HCURSOR dcxLoadCursorFromFile(const TString &filename);
 	HCURSOR dcxLoadCursorFromResource(const PTCHAR CursorType);
+
+	template<class _Ty>
+	struct is_Numeric
+		: std::_Cat_base<std::is_arithmetic<_Ty>::value
+		&& !std::is_same<_Ty, wchar_t>::value
+		&& !std::is_same<_Ty, char>::value
+		&& !std::is_pointer<_Ty>::value>
+	{	// determine whether _Ty is a Number type (excluding char / wchar)
+	};
 
 	// make_resource() function by Eric Scott Barr (http://ericscottbarr.com/blog/2014/04/c-plus-plus-14-and-sdl2-managing-resources/)
 
@@ -60,12 +98,12 @@ namespace Dcx
 	}
 #endif
 
-	typedef std::unique_ptr<HICON__, void(*)(HICON__ *)> dcxCursor_t;
-	typedef std::unique_ptr<HICON__, void(*)(HICON__ *)> dcxIcon_t;
-	typedef std::unique_ptr<FILE, void(*)(FILE *)> dcxFile_t;
-	typedef std::unique_ptr<ULONG, void(*)(ULONG_PTR)> dcxHandle_t; // <- error
-	typedef std::unique_ptr<HDC__, void(*)(HDC)> dcxHDC_t;
-	typedef std::unique_ptr<HBITMAP__, void(*)(HBITMAP)> dcxBitmap_t;
+	using dcxCursor_t = std::unique_ptr<HICON__, void(*)(HICON__ *)>;
+	using dcxIcon_t = std::unique_ptr<HICON__, void(*)(HICON__ *)>;
+	using dcxFile_t = std::unique_ptr<FILE, void(*)(FILE *)>;
+	using dcxHandle_t = std::unique_ptr<ULONG, void(*)(ULONG_PTR)>; // <- error
+	using dcxHDC_t = std::unique_ptr<HDC__, void(*)(HDC)>;
+	using dcxBitmap_t = std::unique_ptr<HBITMAP__, void(*)(HBITMAP)>;
 
 	inline dcxCursor_t make_cursor(const TString &tsFilename) {
 		return make_resource(dcxLoadCursorFromFile, [](HCURSOR hCursor){ if (hCursor != nullptr) DestroyCursor(hCursor); }, tsFilename);
@@ -431,25 +469,28 @@ namespace Dcx
 	using MapOfCursors = std::map<HCURSOR, HCURSOR>;
 	using MapOfAreas = std::map<UINT, HCURSOR>;
 
+	// example code to get a range (purely for testing)
 	//template< typename T >
 	//struct range_t
 	//{
 	//	struct iter
 	//	{
-	//		T operator * ()const noexcept{ return n; }
-	//		iter& operator ++()noexcept{ ++n; return *this; }
-	//			friend
+	//		T operator * ()const noexcept { return n; }
+	//		iter& operator ++()noexcept { ++n; return *this; }
+	//		friend
 	//			bool operator != (iter const& lhs, iter const& rhs)noexcept
-	//		{ return lhs.n != rhs.n; }
+	//		{
+	//			return lhs.n != rhs.n;
+	//		}
 	//
 	//		T n;
 	//	};
 	//
-	//	iter begin()const noexcept{ return{ b }; }
-	//	iter end() const noexcept{ return{ e }; }
+	//	iter begin()const noexcept { return{ b }; }
+	//	iter end() const noexcept { return{ e }; }
 	//	T b, e;
 	//};
-	//template< typename T > range_t<T>  range(T b, T e){ return{ b, e }; }
+	//template< typename T > range_t<T>  range(T b, T e) { return{ b, e }; }
 
 	void setupOSCompatibility(void);
 	void freeOSCompatibility(void);
@@ -502,6 +543,61 @@ namespace Dcx
 		buf >> val;
 		return val;
 	}
+
+	namespace details {
+
+		// Casts any numeric type as another numeric type.
+		template < typename tResult, typename tInput >
+		std::enable_if_t<is_Numeric<tInput>::value, inline constexpr tResult> numeric_cast(tInput &in) noexcept
+		{
+			static_assert(is_Numeric<tResult>::value, "A Numeric return type is required");
+			return static_cast<tResult>(in);
+		}
+
+		// Casts any string as a number
+		template < typename tResult, typename tInput >
+		std::enable_if_t<!is_Numeric<tInput>::value && !std::is_convertible<tInput, tResult>::value, tResult> numeric_cast(tInput &in)
+		{
+			static_assert(is_Numeric<tResult>::value, "A Numeric return type is required");
+			std::stringstream buf;
+			buf << in;
+			tResult result;
+			buf >> result;
+			return result;
+		}
+
+		// Converts any object to a numeric using implicit-conversion.
+		template < typename tResult, typename tInput >
+		std::enable_if_t<!is_Numeric<tInput>::value && std::is_convertible<tInput, tResult>::value, inline constexpr tResult> numeric_cast(tInput &in)
+		{
+			static_assert(is_Numeric<tResult>::value, "A Numeric return type is required");
+			return in;
+		}
+	}
+
+	// Converts any object to a numeric.
+	template < typename tResult, typename tInput >
+	inline constexpr tResult numeric_cast(tInput &in)
+	{
+		static_assert(is_Numeric<tResult>::value, "A Numeric return type is required");
+		return details::numeric_cast<tResult>(in);
+	}
+
+	// Converts any pointer to a numeric.
+	template < typename tResult, typename tInput, typename = std::enable_if_t<!std::is_same<std::remove_cv_t<tInput>,char>::value && !std::is_same<std::remove_cv_t<tInput>,wchar_t>::value> >
+	inline constexpr tResult numeric_cast(tInput *in)
+	{
+		static_assert(is_Numeric<tResult>::value, "A Numeric return type is required");
+		return reinterpret_cast<tResult>(in);
+	}
+
+	//// Converts any calculation to a numeric.
+	//template < typename tResult, typename tInput, typename = std::enable_if_t<std::is_arithmetic<tInput>::value> >
+	//inline constexpr tResult numeric_cast(tInput in)
+	//{
+	//	static_assert(is_Numeric<tResult>::value, "A Numeric return type is required");
+	//	return static_cast<tResult>(in);
+	//}
 
 	// find() - takes an array object, & something to compare against. (same as std::find(begin(),end(),val) )
 	template <typename Res, typename obj, typename _Val>
