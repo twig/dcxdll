@@ -224,8 +224,8 @@ void DcxComboEx::parseInfoRequest( const TString & input, PTCHAR szReturnValue )
 	// [NAME] [ID] [PROP] {TAB}[MATCHTEXT]{TAB} [T] [N]
 	else if ( prop == TEXT("find") && numtok > 5 ) {
 
-		const auto matchtext(input.getfirsttok(2, TSTAB).trim());
-		const auto params(input.getnexttok(TSTAB).trim());	// tok 3
+		const auto matchtext(input.getfirsttok(2, TSTABCHAR).trim());
+		const auto params(input.getnexttok(TSTABCHAR).trim());	// tok 3
 
 		if ( !matchtext.empty() ) {
 
@@ -710,8 +710,8 @@ void DcxComboEx::getItemRange(const TString &tsItems, const int nItemCnt, int *i
 {
 	int iStart, iEnd;
 	if (tsItems.numtok(TEXT('-')) == 2) {
-		iStart = tsItems.getfirsttok(1, TEXT("-")).to_int() - 1;
-		iEnd = tsItems.getnexttok(TEXT("-")).to_int() - 1;
+		iStart = tsItems.getfirsttok(1, TEXT('-')).to_int() - 1;
+		iEnd = tsItems.getnexttok(TEXT('-')).to_int() - 1;
 
 		if (iEnd == -1)	// special case
 			iEnd = nItemCnt - 1;

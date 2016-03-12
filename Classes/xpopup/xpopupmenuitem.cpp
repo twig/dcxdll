@@ -125,9 +125,9 @@ SIZE XPopupMenuItem::getItemSize( const HWND mHwnd ) {
 
 		const auto &tsType(this->m_pXParentMenu->getName());
 		if ( (tsType == TEXT("mirc")) || (tsType == TEXT("mircbar")) || (tsType == TEXT("dialog")) ) {
-			if ( this->m_tsItemText.numtok( TEXT("\v") ) > 1 ) {
-				this->m_nIcon = this->m_tsItemText.getfirsttok( 1, TEXT("\v")).to_int( ) - 1;		// tok 1, TEXT("\v")
-				this->m_tsItemText = this->m_tsItemText.getnexttok(TEXT("\v")).trim();				// tok 2, TEXT("\v")
+			if ( this->m_tsItemText.numtok( TEXT('\v') ) > 1 ) {
+				this->m_nIcon = this->m_tsItemText.getfirsttok( 1, TEXT('\v')).to_int( ) - 1;		// tok 1, TEXT("\v")
+				this->m_tsItemText = this->m_tsItemText.getnexttok(TEXT('\v')).trim();				// tok 2, TEXT("\v")
 			}
 		}
 		else
@@ -196,10 +196,10 @@ void XPopupMenuItem::DrawItem( const LPDRAWITEMSTRUCT lpdis ) {
 	const auto &tsType(this->m_pXParentMenu->getName());
 	if (( tsType == TEXT("mircbar") ) || ( tsType == TEXT("dialog"))) {
 
-		if ( this->m_tsItemText.numtok( TEXT("\v") ) > 1 ) {
+		if ( this->m_tsItemText.numtok( TEXT('\v') ) > 1 ) {
 
-			this->m_nIcon = this->m_tsItemText.getfirsttok( 1, TEXT("\v")).to_int( ) - 1;
-			this->m_tsItemText = this->m_tsItemText.getnexttok( TEXT("\v") ).trim();
+			this->m_nIcon = this->m_tsItemText.getfirsttok( 1, TEXT('\v')).to_int( ) - 1;
+			this->m_tsItemText = this->m_tsItemText.getnexttok( TEXT('\v') ).trim();
 		}
 	}
 
@@ -495,10 +495,10 @@ void XPopupMenuItem::DrawItemText( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUC
 	else // not utf8 so copy
 		txt = this->m_tsItemText;
 
-	if ( txt.numtok( TSTAB ) > 1 ) {
+	if ( txt.numtok( TSTABCHAR) > 1 ) {
 
-		const auto lefttext(txt.getfirsttok(1, TSTAB).trim());
-		const auto righttext(txt.getnexttok(TSTAB).trim());
+		const auto lefttext(txt.getfirsttok(1, TSTABCHAR).trim());
+		const auto righttext(txt.getnexttok(TSTABCHAR).trim());
 
 		//DrawTextEx( lpdis->hDC, lefttext.to_chr( ), lefttext.len( ), &rc, DT_LEFT | DT_SINGLELINE | DT_VCENTER, nullptr );
 		mIRC_DrawText( lpdis->hDC, lefttext, &rc, DT_LEFT | DT_SINGLELINE | DT_VCENTER, false);

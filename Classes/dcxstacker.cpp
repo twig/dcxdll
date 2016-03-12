@@ -205,8 +205,8 @@ void DcxStacker::parseCommandRequest( const TString &input) {
 
 		auto sitem = std::make_unique<DCXSITEM>();
 
-		const auto item(input.getfirsttok(1, TSTAB).trim());		// tok 1, TSTAB
-		const auto ctrl(input.getnexttok(TSTAB).trim());			// tok 2, TSTAB
+		const auto item(input.getfirsttok(1, TSTABCHAR).trim());		// tok 1, TSTAB
+		const auto ctrl(input.getnexttok(TSTABCHAR).trim());			// tok 2, TSTAB
 
 		auto nPos = item.getfirsttok(4).to_int() - 1;				// tok 4
 		const auto flag(item.getnexttok().trim());				// tok 5	?? flag never used ??

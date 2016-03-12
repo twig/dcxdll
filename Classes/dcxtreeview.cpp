@@ -241,8 +241,8 @@ void DcxTreeView::parseInfoRequest( const TString &input, PTCHAR szReturnValue) 
 	}
 	// [NAME] [ID] [PROP] {TAB}[MATCHTEXT]{TAB} [T] [N] [SUBPATH]
 	else if (prop == TEXT("find") && numtok > 5) {
-		const auto matchtext(input.getfirsttok(2, TSTAB).trim());
-		const auto params(input.getnexttok(TSTAB).trim());		// tok 3
+		const auto matchtext(input.getfirsttok(2, TSTABCHAR).trim());
+		const auto params(input.getnexttok(TSTABCHAR).trim());		// tok 3
 
 		if (matchtext.empty())
 			throw Dcx::dcxException("No matchtext specified.");
@@ -384,11 +384,11 @@ void DcxTreeView::parseCommandRequest( const TString & input ) {
 
 	// xdid -a [NAME] [ID] [SWITCH] N N N ... N[TAB][+FLAGS] [#ICON] [#SICON] [#OVERLAY] [#STATE] [#INTEGRAL] [COLOR] [BKGCOLOR] Text[TAB]Tooltip Text
 	if (flags[TEXT('a')]) {
-		const auto n = input.numtok(TSTAB);
+		const auto n = input.numtok(TSTABCHAR);
 
 		if (n > 1) {
-			const auto path(input.getfirsttok(1, TSTAB).gettok(4, -1).trim());	// tok 1
-			const auto data(input.getnexttok(TSTAB).trim());	// tok 2
+			const auto path(input.getfirsttok(1, TSTABCHAR).gettok(4, -1).trim());	// tok 1
+			const auto data(input.getnexttok(TSTABCHAR).trim());	// tok 2
 			TString tooltip;
 
 			if (n > 2)
@@ -401,11 +401,11 @@ void DcxTreeView::parseCommandRequest( const TString & input ) {
 	// xdid -A [NAME] [ID] [SWITCH] N N N ... N[TAB][+FLAGS] [INFO]
 	else if (flags[TEXT('A')]) {
 
-		if (input.numtok(TSTAB) < 2)
+		if (input.numtok(TSTABCHAR) < 2)
 			throw Dcx::dcxException("Insufficient parameters");
 
-		auto path(input.getfirsttok(1, TSTAB).trim());		// tok 1
-		const auto data(input.getnexttok(TSTAB).trim());	// tok 2
+		auto path(input.getfirsttok(1, TSTABCHAR).trim());		// tok 1
+		const auto data(input.getnexttok(TSTABCHAR).trim());	// tok 2
 		HTREEITEM item;
 
 		if (path.numtok() < 4)
@@ -500,13 +500,13 @@ void DcxTreeView::parseCommandRequest( const TString & input ) {
 	}
 	// xdid -j [NAME] [ID] [SWITCH] [+FLAGS] [N N N] [TAB] [ICON] [SICON] (OVERLAY)
 	else if (flags[TEXT('j')] && numtok > 5) {
-		const auto path(input.getfirsttok(1, TSTAB).gettok(4, -1).trim());
+		const auto path(input.getfirsttok(1, TSTABCHAR).gettok(4, -1).trim());
 
 		// Invalid parameters, missing icons segment.
-		if (input.numtok(TSTAB) < 2)
+		if (input.numtok(TSTABCHAR) < 2)
 			throw Dcx::dcxException("Invalid parameters.");
 
-		const auto icons(input.getnexttok(TSTAB).trim());	// tok 2
+		const auto icons(input.getnexttok(TSTABCHAR).trim());	// tok 2
 
 		// Invalid parameters, missing icon args.
 		if (icons.numtok() < 2)
@@ -592,28 +592,28 @@ void DcxTreeView::parseCommandRequest( const TString & input ) {
 		this->m_iIconSize = size;
 	}
 	// xdid -m [NAME] [ID] [SWITCH] N N N{TAB}N N N
-	else if (flags[TEXT('m')] && numtok > 3 && input.numtok(TSTAB) > 1) {
-		const auto pathFrom(input.getfirsttok(1, TSTAB).gettok(4, -1).trim());
-		const auto pathTo(input.getnexttok(TSTAB).trim());	// tok 2
+	else if (flags[TEXT('m')] && numtok > 3 && input.numtok(TSTABCHAR) > 1) {
+		const auto pathFrom(input.getfirsttok(1, TSTABCHAR).gettok(4, -1).trim());
+		const auto pathTo(input.getnexttok(TSTABCHAR).trim());	// tok 2
 
 		auto item = this->copyAllItems(pathFrom, pathTo);
 
 		TreeView_DeleteItem(this->m_Hwnd, item);
 	}
 	// xdid -n [NAME] [ID] [SWITCH] N N N{TAB}N N N
-	else if (flags[TEXT('n')] && numtok > 3 && input.numtok(TSTAB) > 1) {
-		const auto pathFrom(input.getfirsttok(1, TSTAB).gettok(4, -1).trim());
-		const auto pathTo(input.getnexttok(TSTAB).trim());	// tok 2
+	else if (flags[TEXT('n')] && numtok > 3 && input.numtok(TSTABCHAR) > 1) {
+		const auto pathFrom(input.getfirsttok(1, TSTABCHAR).gettok(4, -1).trim());
+		const auto pathTo(input.getnexttok(TSTABCHAR).trim());	// tok 2
 
 		this->copyAllItems(pathFrom, pathTo);
 	}
 	// xdid -o [NAME] [ID] [SWITCH] N N N [TAB] (Tooltip Text)
 	else if (flags[TEXT('o')] && numtok > 3) {
-		const auto path(input.getfirsttok(1, TSTAB).gettok(4, -1).trim());
+		const auto path(input.getfirsttok(1, TSTABCHAR).gettok(4, -1).trim());
 		TString tiptext;
 		
-		if (input.numtok(TSTAB) > 1)
-			tiptext = input.getnexttok( TSTAB).trim();	// tok 2
+		if (input.numtok(TSTABCHAR) > 1)
+			tiptext = input.getnexttok( TSTABCHAR).trim();	// tok 2
 
 		auto item = this->parsePath(&path);
 
@@ -719,11 +719,11 @@ void DcxTreeView::parseCommandRequest( const TString & input ) {
 	}
 	// xdid -v [NAME] [ID] [SWITCH] N N N [TAB] (Item Text)
 	else if (flags[TEXT('v')] && numtok > 3) {
-		const auto path(input.getfirsttok(1, TSTAB).gettok(4, -1).trim());
+		const auto path(input.getfirsttok(1, TSTABCHAR).gettok(4, -1).trim());
 		TString itemtext;
 
-		if (input.numtok(TSTAB) > 1)
-			itemtext = input.getnexttok( TSTAB).trim();	// tok 2
+		if (input.numtok(TSTABCHAR) > 1)
+			itemtext = input.getnexttok( TSTABCHAR).trim();	// tok 2
 
 		auto item = this->parsePath(&path);
 
@@ -841,10 +841,10 @@ void DcxTreeView::parseCommandRequest( const TString & input ) {
 		dtvs->iSortFlags = this->parseSortFlags(input.getnexttok());	// tok 4
 		dtvs->pthis = this;
 
-		const auto path(input.getfirsttok(1, TSTAB).gettok(5, -1).trim());	// tok 1, TSTAB
+		const auto path(input.getfirsttok(1, TSTABCHAR).gettok(5, -1).trim());	// tok 1, TSTAB
 
-		if (input.numtok(TSTAB) > 1)
-			dtvs->tsCustomAlias = input.getnexttok(TSTAB).trim();	// tok 2, TSTAB
+		if (input.numtok(TSTABCHAR) > 1)
+			dtvs->tsCustomAlias = input.getnexttok(TSTABCHAR).trim();	// tok 2, TSTAB
 
 		ZeroMemory( &tvs, sizeof(TVSORTCB) );
 		tvs.lpfnCompare = DcxTreeView::sortItemsEx;
@@ -889,11 +889,11 @@ void DcxTreeView::parseCommandRequest( const TString & input ) {
 	}
 	// xdid -S [NAME] [ID] [SWITCH] [N (N...)][TAB][+FLAGS] [NAME] [FILENAME]
 	else if (flags[TEXT('S')] && numtok > 5) {
-		if (input.numtok(TSTAB) != 2)
+		if (input.numtok(TSTABCHAR) != 2)
 			throw Dcx::dcxException("Invalid Command Syntax.");
 
-		const auto path(input.getfirsttok(1, TSTAB).gettok(4, -1).trim());	// tok 1, TSTAB
-		const auto fileData(input.getnexttok(TSTAB));						// tok 2, TSTAB
+		const auto path(input.getfirsttok(1, TSTABCHAR).gettok(4, -1).trim());	// tok 1, TSTAB
+		const auto fileData(input.getnexttok(TSTABCHAR));						// tok 2, TSTAB
 
 		if (fileData.numtok() < 3)
 			throw Dcx::dcxException("Invalid Command Syntax.");

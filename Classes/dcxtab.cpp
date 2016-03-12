@@ -303,14 +303,14 @@ void DcxTab::parseCommandRequest( const TString & input ) {
 		ZeroMemory( &tci, sizeof( TCITEM ) );
 		tci.mask = TCIF_IMAGE | TCIF_PARAM;
 
-		const auto data(input.getfirsttok(1, TSTAB).trim());
+		const auto data(input.getfirsttok(1, TSTABCHAR).trim());
 
 		TString control_data;
 		TString tooltip;
-		const auto nToks = input.numtok(TSTAB);
+		const auto nToks = input.numtok(TSTABCHAR);
 
 		if ( nToks > 1 ) {
-			control_data = input.getnexttok( TSTAB ).trim();	// tok 2
+			control_data = input.getnexttok( TSTABCHAR).trim();	// tok 2
 
 			if ( nToks > 2 )
 				tooltip = input.getlasttoks().trim();	// tok 3, -1, TSTAB

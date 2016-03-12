@@ -454,8 +454,8 @@ void DcxListView::parseInfoRequest( const TString &input, PTCHAR szReturnValue) 
 	// [NAME] [ID] [PROP] {TAB}[MATCHTEXT]{TAB} [T] [COLUMN] [N]
 	else if ( prop == TEXT("find") && numtok > 6 ) {
 
-		const auto matchtext(input.getfirsttok(2, TSTAB).trim());
-		const auto params(input.getnexttok(TSTAB).trim());			// tok 3
+		const auto matchtext(input.getfirsttok(2, TSTABCHAR).trim());
+		const auto params(input.getnexttok(TSTABCHAR).trim());			// tok 3
 
 		if ( !matchtext.empty() ) {
 
@@ -1376,7 +1376,7 @@ void DcxListView::parseCommandRequest( const TString &input) {
 		*/
 		this->autoSize(nColumn,tsflags);
 
-		const auto tabs = input.numtok(TSTAB);
+		const auto tabs = input.numtok(TSTABCHAR);
 
 		if (tabs > 1 ) {
 			for (auto i = decltype(tabs){2}; i <= tabs; i++)
@@ -3762,8 +3762,8 @@ bool DcxListView::xLoadListview(const int nPos, const TString &tsData, const TCH
 	}
 	else if (dcx_testflag(iFlags, LVIMF_NUMERIC)) {
 		// numeric range supplied.
-		iStart = tsItem.getfirsttok( 1, TSCOMMA).to_int();	// first item in hash table to be added taken from range.
-		iEnd = tsItem.getnexttok( TSCOMMA).to_int();	// last item in hash table to be added taken from range.	tok 2
+		iStart = tsItem.getfirsttok( 1, TSCOMMACHAR).to_int();	// first item in hash table to be added taken from range.
+		iEnd = tsItem.getnexttok( TSCOMMACHAR).to_int();	// last item in hash table to be added taken from range.	tok 2
 		if (iEnd < 0)
 			iEnd = (int)(iTotal + iEnd);		// if iEnd is a negative number then make iEnd the last item in table + iEnd
 	}
@@ -3811,7 +3811,7 @@ bool DcxListView::xLoadListview(const int nPos, const TString &tsData, const TCH
 
 void DcxListView::massSetItem(const int nPos, const TString &input)
 {
-	auto data(input.gettok(1, TSTAB).gettok(4, -1).trim());
+	auto data(input.gettok(1, TSTABCHAR).gettok(4, -1).trim());
 
 	const auto indent = data.getfirsttok(2).to_int();			// tok 2
 	auto stateFlags = this->parseItemFlags(data++);				// tok 3
@@ -3865,7 +3865,8 @@ void DcxListView::massSetItem(const int nPos, const TString &input)
 	lvi.state = (stateFlags & 0xFFFF); // mask out higher number flags. These flags cause the add to fail & arnt needed here anyway.
 	lvi.stateMask = (LVIS_FOCUSED|LVIS_SELECTED|LVIS_CUT|LVIS_DROPHILITED); // only alter the controls flags, ignore our custom ones.
 	lvi.iSubItem = 0;
-	lvi.lParam = (LPARAM)lpmylvi.get();
+	//lvi.lParam = reinterpret_cast<LPARAM>(lpmylvi.get());
+	lvi.lParam = Dcx::numeric_cast<LPARAM>(lpmylvi.get());
 	lvi.mask = LVIF_PARAM | LVIF_STATE;
 
 	if (icon > -1)
@@ -3879,7 +3880,7 @@ void DcxListView::massSetItem(const int nPos, const TString &input)
 	lvi.iGroupId = I_GROUPIDNONE;	// set item as belonging to NO group by default.
 	lvi.mask |= LVIF_GROUPID;		// otherwise if group flag isnt set I_GROUPIDCALLBACK is assumed.
 	if (group > 0) {
-		if (!ListView_HasGroup(this->m_Hwnd, (WPARAM)group))
+		if (!ListView_HasGroup(this->m_Hwnd, Dcx::numeric_cast<WPARAM>(group)))
 			throw Dcx::dcxException(TEXT("Invalid Group specified: %"), group);
 		
 		lvi.iGroupId = group;
@@ -3908,20 +3909,20 @@ void DcxListView::massSetItem(const int nPos, const TString &input)
 		CreatePbar(&lvi, itemtext);	// tok 1, -1
 
 	// subitems
-	const auto tabs = input.numtok(TSTAB);
+	const auto tabs = input.numtok(TSTABCHAR);
 
 	if (tabs > 1) {
 		// ADD check for num columns
 		for (auto i = decltype(tabs){2}; i <= tabs; i++)
 		{
-			data = input.gettok((int)i, TSTAB).trim();
+			data = input.gettok(Dcx::numeric_cast<int>(i), TSTAB).trim();
 			const auto nToks = data.numtok();
 
 			if (nToks < 5)
 				throw Dcx::dcxException("Invalid subitem syntax");
 
 			stateFlags = parseItemFlags(data++);				// tok 1
-			icon = data++.to_int() - 1;							// tok 2
+			icon = data++.to_<int>() - 1;						// tok 2
 			overlay = data++.to_<int>();						// tok 3
 			clrText = data++.to_<COLORREF>();					// tok 4
 			clrBack = data++.to_<COLORREF>();					// tok 5
@@ -3944,7 +3945,7 @@ void DcxListView::massSetItem(const int nPos, const TString &input)
 
 				tmp_lpmylvi->vInfo.push_back(ri.release());
 			}
-			lvi.iSubItem = (int)(i -1);
+			lvi.iSubItem = Dcx::numeric_cast<int>(i) -1;
 			lvi.mask = LVIF_TEXT;
 
 			// icon
@@ -4015,14 +4016,14 @@ void DcxListView::parseText2Item(const TString &tsTxt, TString &tsItem, const TS
 	tsItem = TEXT("0 0 0 0 ");
 	tsItem += tsData.gettok( 2, 9); // copy flags & icon etc.. from /xdid -a line.
 	// add item text.
-	tsItem.addtok(tsTxt.getfirsttok(1, TSTAB));
+	tsItem.addtok(tsTxt.getfirsttok(1, TSTABCHAR));
 	// add all subitems
 
-	for (auto tsTok(tsTxt.getnexttok(TSTAB)); !tsTok.empty(); tsTok = tsTxt.getnexttok(TSTAB))
+	for (auto tsTok(tsTxt.getnexttok(TSTABCHAR)); !tsTok.empty(); tsTok = tsTxt.getnexttok(TSTABCHAR))
 	{
 		//[+FLAGS] [#ICON] [#OVERLAY] [COLOR] [BGCOLOR] Item Text
 		// again fill in blanks with 0's
-		tsItem.addtok(TEXT("+ 0 0 0 0 "), TSTAB); // subitems are added without flags, not going to change this.
+		tsItem.addtok(TEXT("+ 0 0 0 0 "), TSTABCHAR); // subitems are added without flags, not going to change this.
 		// add subitems text.
 		tsItem += tsTok;
 	}
@@ -4032,8 +4033,8 @@ void DcxListView::getItemRange(const TString &tsItems, const int nItemCnt, int *
 {
 	int iStart, iEnd;
 	if (tsItems.numtok(TEXT("-")) == 2) {
-		iStart = tsItems.getfirsttok(1, TEXT("-")).to_int() -1;
-		iEnd = tsItems.getnexttok(TEXT("-")).to_int() -1;
+		iStart = tsItems.getfirsttok(1, TEXT('-')).to_int() -1;
+		iEnd = tsItems.getnexttok(TEXT('-')).to_int() -1;
 
 		if (iEnd == -1)	// special case
 			iEnd = nItemCnt -1;

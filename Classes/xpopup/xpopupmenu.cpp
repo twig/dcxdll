@@ -101,21 +101,21 @@ XPopupMenu::~XPopupMenu( ) {
 
 void XPopupMenu::parseXPopCommand( const TString & input ) {
 	const XSwitchFlags flags(input.gettok( 2 ));
-	const auto path(input.getfirsttok(1, TSTAB).gettok(3, -1).trim());	// tok 1
+	const auto path(input.getfirsttok(1, TSTABCHAR).gettok(3, -1).trim());	// tok 1
 	const auto path_toks = path.numtok();
 
 	HMENU hMenu;
 	if ( path_toks == 1 )
 		hMenu = this->m_hMenu;
 	else {
-		hMenu = this->parsePath( path.gettok( 1, path_toks - 1 ), this->m_hMenu );
+		hMenu = this->parsePath( path.gettok( 1, static_cast<int>(path_toks - 1) ), this->m_hMenu );
 
 		if ( hMenu == nullptr )
 			throw Dcx::dcxException("Invalid Menu Item Path");
 	}
 
 	const auto numtok = input.numtok( );
-	const auto tabtoks = input.numtok(TSTAB);
+	const auto tabtoks = input.numtok(TSTABCHAR);
 	const auto tsTabTwo(input.getlasttoks().trim());	// tok 2, -1
 	const auto toks_in_tab_two = tsTabTwo.numtok();
 	auto nPos = path.gettok(path_toks).to_int() - 1;
@@ -124,7 +124,7 @@ void XPopupMenu::parseXPopCommand( const TString & input ) {
 	if (flags[TEXT('a')] && tabtoks > 1 && toks_in_tab_two > 3) {
 		TString itemcom;
 
-		if (tsTabTwo.numtok(TEXT(":")) > 1)
+		if (tsTabTwo.numtok(TEXT(':')) > 1)
 			itemcom = tsTabTwo.gettok(2, TEXT(":")).trim();
 
 		const XSwitchFlags xflags(tsTabTwo.getfirsttok(1));
@@ -1080,7 +1080,7 @@ BOOL XPopupMenu::getMenuInfo(const UINT iMask, const TString & path, MENUITEMINF
 	if (path_toks == 1)
 		hMenu = this->m_hMenu;
 	else
-		hMenu = this->parsePath(path.gettok(1, path_toks - 1), this->m_hMenu);
+		hMenu = this->parsePath(path.gettok(1, static_cast<int>(path_toks - 1)), this->m_hMenu);
 
 	if (hMenu == nullptr)
 		throw Dcx::dcxException("Unable to get menu");

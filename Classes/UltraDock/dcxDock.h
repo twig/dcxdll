@@ -112,6 +112,10 @@ using VectorOfDParts = std::vector<LPSB_PARTINFOD>;
 class DcxDock
 {
 public:
+	DcxDock() = delete;	// no default constructor
+	DcxDock(const DcxDock &other) = delete;	// no copy constructor
+	DcxDock &operator =(const DcxDock &) = delete;	// No assignments!
+
 	DcxDock(HWND refHwnd, HWND dockHwnd, const DockTypes dockType);
 	virtual ~DcxDock(void);
 

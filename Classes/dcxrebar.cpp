@@ -320,15 +320,15 @@ void DcxReBar::parseCommandRequest( const TString & input ) {
 
 		rbBand.fMask = RBBIM_STYLE | RBBIM_LPARAM;
 
-		const auto data(input.getfirsttok(1, TSTAB).trim());
+		const auto data(input.getfirsttok(1, TSTABCHAR).trim());
 		TString control_data, tooltip;
-		const auto nToks = input.numtok(TSTAB);
+		const auto nToks = input.numtok(TSTABCHAR);
 
 		if (nToks > 1) {
-			control_data = input.getnexttok( TSTAB).trim();		// tok 2
+			control_data = input.getnexttok( TSTABCHAR).trim();		// tok 2
 
 			if (nToks > 2)
-				tooltip = input.getnexttok( TSTAB).trim();		// tok 3
+				tooltip = input.getnexttok( TSTABCHAR).trim();		// tok 3
 		}
 		auto nIndex = data.getfirsttok(4).to_<int>() - 1;
 		rbBand.fStyle = this->parseBandStyleFlags(data.getnexttok());	// tok 5

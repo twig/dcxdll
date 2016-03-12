@@ -156,8 +156,8 @@ LayoutCell * LayoutManager::parsePath(const TString & path, const LayoutCell *co
 
 void LayoutManager::AddCell(const TString &input, const UINT iOffset)
 {
-	const auto tsInput(input.getfirsttok(1, TSTAB));
-	const auto p2(input.getnexttok(TSTAB).trim());
+	const auto tsInput(input.getfirsttok(1, TSTABCHAR));
+	const auto p2(input.getnexttok(TSTABCHAR).trim());
 
 	const auto com(tsInput.getfirsttok(iOffset).trim());		// 3
 	const auto path(tsInput.getlasttoks().trim());	// 4

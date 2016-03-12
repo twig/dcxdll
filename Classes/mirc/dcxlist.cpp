@@ -288,8 +288,8 @@ void DcxList::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) co
 	}
 	// [NAME] [ID] [PROP] {TAB}[MATCHTEXT]{TAB} [T] [N]
 	else if (prop == TEXT("find") && numtok > 5) {
-		const auto matchtext(input.getfirsttok(2, TSTAB).trim());
-		const auto params(input.getnexttok(TSTAB).trim());	// tok 3
+		const auto matchtext(input.getfirsttok(2, TSTABCHAR).trim());
+		const auto params(input.getnexttok(TSTABCHAR).trim());	// tok 3
 
 		if (matchtext.empty())
 			throw Dcx::dcxException("No Match text supplied");
@@ -656,7 +656,7 @@ void DcxList::parseCommandRequest( const TString & input ) {
 		else if (xflags[TEXT('t')]) {
 			const auto Ns(input.getnexttok());	// tok 5
 
-			const auto n = Ns.numtok(TSCOMMA);
+			const auto n = Ns.numtok(TSCOMMACHAR);
 
 			if (n == 1) {
 				const auto nTab = Ns.to_int();
@@ -1070,9 +1070,9 @@ bool DcxList::matchItemText(const int nItem, const TString &search, const DcxSea
 void DcxList::getItemRange(const TString &tsItems, const int nItemCnt, int *iStart_range, int *iEnd_range)
 {
 	int iStart, iEnd;
-	if (tsItems.numtok(TEXT("-")) == 2) {
-		iStart = tsItems.getfirsttok(1, TEXT("-")).to_int() -1;
-		iEnd = tsItems.getnexttok(TEXT("-")).to_int() -1;
+	if (tsItems.numtok(TEXT('-')) == 2) {
+		iStart = tsItems.getfirsttok(1, TEXT('-')).to_int() -1;
+		iEnd = tsItems.getnexttok(TEXT('-')).to_int() -1;
 
 		if (iEnd == -1)	// special case
 			iEnd = nItemCnt -1;

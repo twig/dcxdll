@@ -349,7 +349,7 @@ void DcxToolBar::parseCommandRequest( const TString & input ) {
 		//auto lpdcxtbb = new DCXTBBUTTON;
 		auto lpdcxtbb = std::make_unique<DCXTBBUTTON>();
 
-		if ( input.numtok( TSTAB ) > 1 )
+		if ( input.numtok( TSTABCHAR) > 1 )
 			lpdcxtbb->tsTipText = input.gettok( 2, -1, TSTAB ).trim();
 
 		if (dcx_testflag(buttonStyles, BTNS_UNDERLINE))

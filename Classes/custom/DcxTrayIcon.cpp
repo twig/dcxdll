@@ -56,7 +56,7 @@ mIRC(TrayIcon) {
 			}
 
 			// set up info
-			const auto tsTabOne(d.getfirsttok(1, TSTAB).trim());
+			const auto tsTabOne(d.getfirsttok(1, TSTABCHAR).trim());
 			const auto tooltip(d.getlasttoks().trim());
 
 			//NIF_INFO

@@ -261,7 +261,7 @@ void DcxStatusBar::parseCommandRequest( const TString & input ) {
 		const auto nPos = input.getnexttok().to_int() - 1;	// tok 4
 		const auto flag(input.getnexttok());			// tok 5
 		const auto icon = input.getnexttok().to_int() - 1;	// tok 6
-		const auto tsTabOne(input.getfirsttok(1, TSTAB).trim());
+		const auto tsTabOne(input.getfirsttok(1, TSTABCHAR).trim());
 		const auto tsTabTwo(input.getlasttoks().trim());
 
 		if ( nPos < 0 || nPos >= this->getParts(DCX_STATUSBAR_MAX_PARTS, 0 ) )

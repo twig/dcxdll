@@ -108,8 +108,8 @@ mIRC(xstatusbar) {
 			if (numtok < 6)
 				throw Dcx::dcxException("Invalid Parameters");
 
-			const auto tsTabOne(input.getfirsttok(1, TSTAB));	// tok 1, TSTAB
-			const auto tooltip(input.getnexttok(TSTAB).trim());	// tok 2, TSTAB;
+			const auto tsTabOne(input.getfirsttok(1, TSTABCHAR));	// tok 1, TSTAB
+			const auto tooltip(input.getnexttok(TSTABCHAR).trim());	// tok 2, TSTAB;
 			TString itemtext;
 
 			const auto nPos = (tsTabOne.getfirsttok(2).to_int() - 1);			// tok 2

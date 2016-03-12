@@ -119,7 +119,7 @@ enum class DcxSearchTypes : UINT {
 
 class DcxDialog;
 
-typedef struct {
+struct ALPHAINFO {
 	HDC ai_hdc;
 	HDC *ai_hdcBuffer;
 	HDC ai_Oldhdc;
@@ -130,7 +130,8 @@ typedef struct {
 	RECT ai_rcWin;
 	BLENDFUNCTION ai_bf;
 	HPAINTBUFFER ai_Buffer;
-} ALPHAINFO, *LPALPHAINFO;
+};
+using LPALPHAINFO = ALPHAINFO *;
 
 /*!
  * \brief blah

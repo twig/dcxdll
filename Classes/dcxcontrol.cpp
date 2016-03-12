@@ -102,9 +102,6 @@ DcxControl::DcxControl( const UINT mID, DcxDialog *const p_Dialog )
 	this->m_dEventMask = p_Dialog->getEventMask();
 	// inherit parent dialogs cursor (if any)
 	//this->m_hCursor = this->m_pParentDialog->getCursor();
-
-	//auto test = TString(TEXT("test"));
-	//auto test2 = L"test"_ts;
 }
 
 /*!
@@ -520,12 +517,12 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, const XSwitch
 
 			for (const auto &strPoint: strPoints)
 			{
-				pnts[cnt].x = (LONG)strPoint.getfirsttok(1, TSCOMMA).to_num();
-				pnts[cnt].y = (LONG)strPoint.getnexttok(TSCOMMA).to_num();	// tok 2
+				pnts[cnt].x = (LONG)strPoint.getfirsttok(1, TSCOMMACHAR).to_num();
+				pnts[cnt].y = (LONG)strPoint.getnexttok(TSCOMMACHAR).to_num();	// tok 2
 				++cnt;
 			}
 
-			m_Region = CreatePolygonRgn(pnts.get(), (int)tPoints, WINDING);
+			m_Region = CreatePolygonRgn(pnts.get(), static_cast<int>(tPoints), WINDING);
 		}
 		else if (xflags[TEXT('b')]) { // alpha [1|0] [level]
 			noRegion = true;

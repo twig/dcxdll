@@ -213,7 +213,7 @@ mIRC(Version) {
 
 		mIRCLinker::execex(TEXT("/echo -a gettok(2,2): %s"), tmp.gettok(2, 2).to_chr()); // "a"
 		mIRCLinker::execex(TEXT("/echo -a gettok(2,3): %s"), tmp.gettok(2, 3).to_chr()); // "a token"
-		mIRCLinker::execex(TEXT("/echo -a gettok(2,numtok()): %s"), tmp.gettok(2, tmp.numtok()).to_chr()); // "a token put string 100 putted e_put"
+		mIRCLinker::execex(TEXT("/echo -a gettok(2,numtok()): %s"), tmp.gettok(2, static_cast<int>(tmp.numtok())).to_chr()); // "a token put string 100 putted e_put"
 		mIRCLinker::execex(TEXT("/echo -a gettok(2,-1): %s"), tmp.gettok(2, -1).to_chr()); // "a token put string 100 putted e_put"
 		auto tsNum(tmp.gettok(6));	// "putter a token put string 100 putted e_put" == 100
 		auto t = 0;
@@ -260,55 +260,59 @@ mIRC(Version) {
 
 		mIRCLinker::execex(TEXT("/echo -a addtok(b,n): %s"), tok.to_chr());
 
-		TCHAR ctrlk = TEXT('\x03');
-		std::basic_string<TCHAR> str(TEXT("test "));
-		str += ctrlk;
-		str += TEXT("04red");
-		str += ctrlk;
-		str += TEXT("\x02 bold\x02 ");	// space between \x02 & bold required, as it sees \x02 as \x02b otherwise
-		str += TEXT(" \x1Funderline\x1F ");
-		str += TEXT(" \x1Ditalic\x1D ");
-		str += TEXT(" \x16reverse\x16 ");
-		str += TEXT("\xF end");
-		ColourString<TCHAR> cc(str);
-		mIRCLinker::execex(TEXT("/echo -a cc.ToString().c_str(): %s"), cc.ToString().c_str());
-		ColourString<TCHAR> cc2(str);
-		mIRCLinker::execex(TEXT("/echo -a cc2.ToString().c_str(): %s"), cc2.ToString().c_str());
-		if (cc == cc2)
-			mIRCLinker::exec(TEXT("/echo -a cc == cc2"));
-		else
-			mIRCLinker::exec(TEXT("/echo -a cc != cc2"));
+		{
+			TCHAR ctrlk = TEXT('\x03');
+			std::basic_string<TCHAR> str(TEXT("test "));
+			str += ctrlk;
+			str += TEXT("04red");
+			str += ctrlk;
+			str += TEXT("\x02 bold\x02 ");	// space between \x02 & bold required, as it sees \x02 as \x02b otherwise
+			str += TEXT(" \x1Funderline\x1F ");
+			str += TEXT(" \x1Ditalic\x1D ");
+			str += TEXT(" \x16reverse\x16 ");
+			str += TEXT("\xF end");
+			ColourString<TCHAR> cc(str);
+			mIRCLinker::execex(TEXT("/echo -a cc.ToString().c_str(): %s"), cc.ToString().c_str());
+			ColourString<TCHAR> cc2(str);
+			mIRCLinker::execex(TEXT("/echo -a cc2.ToString().c_str(): %s"), cc2.ToString().c_str());
+			if (cc == cc2)
+				mIRCLinker::exec(TEXT("/echo -a cc == cc2"));
+			else
+				mIRCLinker::exec(TEXT("/echo -a cc != cc2"));
 
-		cc2 += TEXT(" some extra text");
+			cc2 += TEXT(" some extra text");
 
-		mIRCLinker::execex(TEXT("/echo -a cc.ToString().c_str(): %s"), cc.ToString().c_str());
-		mIRCLinker::execex(TEXT("/echo -a cc2.ToString().c_str(): %s"), cc2.ToString().c_str());
+			mIRCLinker::execex(TEXT("/echo -a cc.ToString().c_str(): %s"), cc.ToString().c_str());
+			mIRCLinker::execex(TEXT("/echo -a cc2.ToString().c_str(): %s"), cc2.ToString().c_str());
 
-		if (cc == cc2)
-			mIRCLinker::exec(TEXT("/echo -a cc == cc2"));
-		else
-			mIRCLinker::exec(TEXT("/echo -a cc != cc2"));
+			if (cc == cc2)
+				mIRCLinker::exec(TEXT("/echo -a cc == cc2"));
+			else
+				mIRCLinker::exec(TEXT("/echo -a cc != cc2"));
 
-		ColourString<TCHAR> cc3{ cc, TEXT(" "), cc2 };
-		mIRCLinker::execex(TEXT("/echo -a ColourString<TCHAR> cc3{ cc, , cc2 }: %s"), cc3.ToString().c_str());
+			ColourString<TCHAR> cc3{ cc, TEXT(" "), cc2 };
+			mIRCLinker::execex(TEXT("/echo -a ColourString<TCHAR> cc3{ cc, , cc2 }: %s"), cc3.ToString().c_str());
 
-		ColourString<char> cc4("test here");
-		mIRCLinker::execex(TEXT("/echo -a ColourString<char> cc4(test here): %S"), cc4.ToString().c_str());
+			ColourString<char> cc4("test here");
+			mIRCLinker::execex(TEXT("/echo -a ColourString<char> cc4(test here): %S"), cc4.ToString().c_str());
 
-		if (cc3 != cc2)
-			mIRCLinker::exec(TEXT("/echo -a cc3 != cc2"));
-		else
-			mIRCLinker::exec(TEXT("/echo -a cc3 == cc2"));
+			if (cc3 != cc2)
+				mIRCLinker::exec(TEXT("/echo -a cc3 != cc2"));
+			else
+				mIRCLinker::exec(TEXT("/echo -a cc3 == cc2"));
 
-		//mIRCLinker::execex(TEXT("/echo -a test7: rtf -> %s"), cc2.ToRtf().c_str());
+			//mIRCLinker::execex(TEXT("/echo -a test7: rtf -> %s"), cc2.ToRtf().c_str());
 
-		//tsprintf(tok, TEXT("convert%, %, %, %, %, %"), 6, tsNum, t, tmp, str.c_str(), cc.ToString().c_str());
-		//mIRCLinker::execex(TEXT("/echo -a convert6: %s"), tok.to_chr());
-		//tsprintf(str, TEXT("convert%, %, %, %, %"), std::to_wstring(7), tsNum.to_chr(), std::to_wstring(t), tmp.to_chr(), cc.ToString().c_str());
-		//mIRCLinker::execex(TEXT("/echo -a convert7: %s"), str.c_str());
-		//tok.clear();
-		//tsprintf(tok, "convert%, %, %, %, %, %", 8, tsNum, t, tmp, str.c_str(), cc.ToString().c_str());
-		//mIRCLinker::execex(TEXT("/echo -a convert8: %s"), tok.to_chr());
+			//tsprintf(tok, TEXT("convert%, %, %, %, %, %"), 6, tsNum, t, tmp, str.c_str(), cc.ToString().c_str());
+			//mIRCLinker::execex(TEXT("/echo -a convert6: %s"), tok.to_chr());
+			//tsprintf(str, TEXT("convert%, %, %, %, %"), std::to_wstring(7), tsNum.to_chr(), std::to_wstring(t), tmp.to_chr(), cc.ToString().c_str());
+			//mIRCLinker::execex(TEXT("/echo -a convert7: %s"), str.c_str());
+			//tok.clear();
+			//tsprintf(tok, "convert%, %, %, %, %, %", 8, tsNum, t, tmp, str.c_str(), cc.ToString().c_str());
+			//mIRCLinker::execex(TEXT("/echo -a convert8: %s"), tok.to_chr());
+
+			auto str2 = std::to_string(str);
+		}
 
 		//tok = _ts_strstr("this is a sample text with some extra added", "sample");
 
@@ -366,9 +370,69 @@ mIRC(Version) {
 		else
 			mIRCLinker::exec(TEXT("/echo -a tok.iswmcs(*put*) == false"));
 
+		{
+			const TCHAR *ctmp = TEXT("test");
+			mIRCLinker::execex(TEXT("/echo -a tmp: %s"), ctmp);
+			auto test1 = TString(TEXT("test"));
+			mIRCLinker::execex(TEXT("/echo -a test1: %s"), test1.to_chr());
+			auto test2 = L"test"_ts;
+			mIRCLinker::execex(TEXT("/echo -a test2: %s"), test2.to_chr());
+			auto test3 = TString("test");
+			mIRCLinker::execex(TEXT("/echo -a test3: %s"), test3.to_chr());
+			auto test4 = TString(test1);
+			mIRCLinker::execex(TEXT("/echo -a test4: %s"), test4.to_chr());
+			auto test5 = "test"_ts;
+			mIRCLinker::execex(TEXT("/echo -a test5: %s"), test5.to_chr());
+			auto test6 = TString(ctmp);
+			mIRCLinker::execex(TEXT("/echo -a test6: %s"), test6.to_chr());
+			if (_ts_isEmpty(test6))
+				mIRCLinker::exec(TEXT("/echo -a test6: true"));
+			else
+				mIRCLinker::exec(TEXT("/echo -a test6: false"));
+			if (_ts_isEmpty(ctmp))
+				mIRCLinker::exec(TEXT("/echo -a test8: true"));
+			else
+				mIRCLinker::exec(TEXT("/echo -a test8: false"));
+			//if (_ts_isEmpty(str))
+			//	mIRCLinker::exec(TEXT("/echo -a test9: true"));
+			//else
+			//	mIRCLinker::exec(TEXT("/echo -a test9: false"));
+			//if (_ts_isEmpty(cc))
+			//	mIRCLinker::exec(TEXT("/echo -a test10: true"));
+			//else
+			//	mIRCLinker::exec(TEXT("/echo -a test10: false"));
+		}
+
+		{
+			auto toktest = tok.gettok(2,TEXT('!'));
+			mIRCLinker::execex(TEXT("/echo -a toktest1: %s"), toktest.to_chr());
+			toktest = tok.gettok(3, -1, TEXT('!'));
+			mIRCLinker::execex(TEXT("/echo -a toktest2: %s"), toktest.to_chr());
+			toktest = tok.getfirsttok(1, TEXT('!'));
+			mIRCLinker::execex(TEXT("/echo -a toktest3: %s"), toktest.to_chr());
+			toktest = tok.getnexttok(TEXT('!'));
+			mIRCLinker::execex(TEXT("/echo -a toktest4: %s"), toktest.to_chr());
+		}
+
 		// test exception code
 		tok = TEXT("123");
-		UINT iTest = tok;
+		UINT iTest = Dcx::numeric_cast<UINT>(tok);
+		//iTest = Dcx::numeric_cast<UINT>("400");
+
+		//{
+		//	auto rng = Dcx::range(10U, 20U);
+		//	for (auto rItStart = rng.begin(), rItEnd = rng.end(); rItStart != rItEnd; ++rItStart)
+		//	{
+		//		mIRCLinker::execex(TEXT("/echo -a range: %u"), *rItStart);
+		//	}
+		//}
+
+		// test expanding a TString object beyond the internal buffer
+		{
+			TString tsExp(TEXT("expanding text")); // len = 14
+			tsExp *= 20;
+			mIRCLinker::execex(TEXT("/echo -a expand: %u :: %s"), tsExp.len(), tsExp.to_chr());
+		}
 		//throw Dcx::dcxException(TEXT("No such Exception"));
 		throw Dcx::dcxException("No such Exception: % :: %", iTest, tok);
 	}
@@ -382,24 +446,24 @@ mIRC(Version) {
 	if (mIRCLinker::isUnicode())
 	{
 		wnsprintf(data, MIRC_BUFFER_SIZE_CCH,
-			TEXT("DCX (XPopup) DLL %s %s%d UTF by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2006-2015"),
+			TEXT("DCX (XPopup) DLL %s %s%d UTF by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2006-2016"),
 			DLL_VERSION, DLL_STATE, DLL_DEV_BUILD);
 	}
 	else {
 		wnsprintfA((char *)data, MIRC_BUFFER_SIZE_CCH,
-			"DCX (XPopup) DLL %S %S%d UTF by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2006-2015",
+			"DCX (XPopup) DLL %S %S%d UTF by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2006-2016",
 			DLL_VERSION, DLL_STATE, DLL_DEV_BUILD);
 	}
 #else
 	if (mIRCLinker::isUnicode())
 	{
 		wnsprintf(data, MIRC_BUFFER_SIZE_CCH,
-			TEXT("DCX (XPopup) DLL %s %s UTF by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2006-2015"),
+			TEXT("DCX (XPopup) DLL %s %s UTF by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2006-2016"),
 			DLL_VERSION, DLL_STATE);
 	}
 	else {
 		wnsprintfA((char *)data, MIRC_BUFFER_SIZE_CCH,
-			"DCX (XPopup) DLL %S %S UTF by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2006-2015",
+			"DCX (XPopup) DLL %S %S UTF by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2006-2016",
 			DLL_VERSION, DLL_STATE);
 	}
 #endif
@@ -585,7 +649,7 @@ mIRC(xdid) {
 		const auto IDs(d.getnexttok());			// tok 2
 		const auto tsArgs(d.getlasttoks());		// tok 3, -1
 		TString d2;
-		const auto n = IDs.numtok(TSCOMMA);
+		const auto n = IDs.numtok(TSCOMMACHAR);
 
 		// Multiple IDs id,id,id,id-id,id-id
 		if (n > 1) {
@@ -593,9 +657,9 @@ mIRC(xdid) {
 			{
 				UINT id_start = 0, id_end = 0;
 				const TString tsID(*itStart);
-				if (tsID.numtok(TEXT("-")) == 2) {
-					id_start = tsID.getfirsttok(1, TEXT("-")).to_<UINT>();
-					id_end = tsID.getnexttok(TEXT("-")).to_<UINT>();
+				if (tsID.numtok(TEXT('-')) == 2) {
+					id_start = tsID.getfirsttok(1, TEXT('-')).to_<UINT>();
+					id_end = tsID.getnexttok(TEXT('-')).to_<UINT>();
 				}
 				else
 					id_start = id_end = p_Dialog->NameToUserID(tsID);
@@ -624,9 +688,9 @@ mIRC(xdid) {
 		else {
 			UINT id_start = 0, id_end = 0;
 
-			if (IDs.numtok(TEXT("-")) == 2) {
-				id_start = IDs.getfirsttok(1, TEXT("-")).to_<UINT>();
-				id_end = IDs.getnexttok(TEXT("-")).to_<UINT>();
+			if (IDs.numtok(TEXT('-')) == 2) {
+				id_start = IDs.getfirsttok(1, TEXT('-')).to_<UINT>();
+				id_end = IDs.getnexttok(TEXT('-')).to_<UINT>();
 			}
 			else
 				id_start = id_end = p_Dialog->NameToUserID(IDs);
@@ -1154,7 +1218,7 @@ mIRC(WindowProps) {
 			TString txt;
 
 			if (xflags[TEXT('i')]) {
-				if (input.numtok(TSTAB) > 1)
+				if (input.numtok(TSTABCHAR) > 1)
 					txt = input.gettok(2, -1, TSTAB);
 			}
 			else if (numtok > 2)

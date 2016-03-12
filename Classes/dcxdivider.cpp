@@ -142,11 +142,11 @@ void DcxDivider::parseCommandRequest( const TString & input ) {
 		ZeroMemory( &dvpi, sizeof( DVPANEINFO ) );
 		dvpi.cbSize = sizeof( DVPANEINFO );
 
-		const auto data(input.getfirsttok(1, TSTAB).trim());
+		const auto data(input.getfirsttok(1, TSTABCHAR).trim());
 		TString control_data;
 
-		if ( input.numtok( TSTAB ) > 1 )
-			control_data = input.getnexttok( TSTAB ).trim();	// tok 2
+		if ( input.numtok( TSTABCHAR) > 1 )
+			control_data = input.getnexttok( TSTABCHAR).trim();	// tok 2
 
 		dvpi.fMask = DVPIM_CHILD | DVPIM_MIN | DVPIM_IDEAL;
 		dvpi.cxMin = data.getfirsttok( 4 ).to_int( );

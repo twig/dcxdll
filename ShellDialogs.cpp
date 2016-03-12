@@ -102,7 +102,7 @@ mIRC(OpenDialog) {
 		d.trim();
 
 		// count number of tab tokens
-		if (d.numtok(TSTAB) != 3)
+		if (d.numtok(TSTABCHAR) != 3)
 			throw Dcx::dcxException("Invalid Arguments");
 
 		ret(FileDialog(d, TEXT("OPEN"), mWnd).to_chr());
@@ -128,7 +128,7 @@ mIRC(SaveDialog) {
 		d.trim();
 
 		// count number of tab tokens
-		if (d.numtok(TSTAB) != 3)
+		if (d.numtok(TSTABCHAR) != 3)
 			throw Dcx::dcxException("Invalid Arguments");
 
 		ret(FileDialog(d, TEXT("SAVE"), mWnd).to_chr());
@@ -160,9 +160,9 @@ TString FileDialog(const TString & data, const TString &method, const HWND pWnd)
 	TCHAR szFilename[MIRC_BUFFER_SIZE_CCH];
 
 	// seperate the tokenz
-	const auto styles(data.getfirsttok(1, TSTAB).trim());
-	const auto file(data.getnexttok(TSTAB).trim());
-	auto filter(data.getnexttok(TSTAB).trim());
+	const auto styles(data.getfirsttok(1, TSTABCHAR).trim());
+	const auto file(data.getnexttok(TSTABCHAR).trim());
+	auto filter(data.getnexttok(TSTABCHAR).trim());
 
 	// Get Current dir for resetting later.
 	const UINT tsBufSize = GetCurrentDirectory(0, nullptr);
@@ -606,12 +606,12 @@ mIRC(MsgBox) {
 	try {
 		d.trim();
 
-		if (d.numtok(TSTAB) < 3)
+		if (d.numtok(TSTABCHAR) < 3)
 			throw Dcx::dcxException("invalid parameters");
 
 		DWORD			style     = MB_DEFBUTTON1;
-		const auto	strStyles(d.getfirsttok(1, TSTAB).trim());		// tok 1
-		const auto	strTitle(d.getnexttok(TSTAB).trim());			// tok 2
+		const auto	strStyles(d.getfirsttok(1, TSTABCHAR).trim());		// tok 1
+		const auto	strTitle(d.getnexttok(TSTABCHAR).trim());			// tok 2
 		const auto	strMsg(d.getlasttoks().trim());					// tok 3, -1
 		auto			owner = aWnd;
 
