@@ -27,13 +27,13 @@ class LayoutCellFill : public LayoutCell {
 
 public:
 
-	//using LayoutCell::LayoutCell;
+	using LayoutCell::LayoutCell;
 
-	LayoutCellFill( );
-	LayoutCellFill(const LayoutCellFill &) = delete;
-	explicit LayoutCellFill( const HWND mHwnd );
-	explicit LayoutCellFill( DcxControl * dcxc );
-	virtual ~LayoutCellFill( );
+	//LayoutCellFill( );
+	//LayoutCellFill(const LayoutCellFill &) = delete;
+	//explicit LayoutCellFill( const HWND mHwnd );
+	//explicit LayoutCellFill( DcxControl * dcxc );
+	//virtual ~LayoutCellFill( );
 
 	LayoutCellFill &operator =(const LayoutCellFill &) = delete;	// No assignments!
 

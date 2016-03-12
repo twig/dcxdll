@@ -60,8 +60,8 @@ protected:
 
 	PaneType m_nType; //!< Fixed Cell Type
 
-	typedef std::pair<LayoutCell *, UINT> CellNode;  //!< Child LayoutCell + Weight Pair
-	typedef std::vector<CellNode> VectorOfNodePtrs; //!< Vector of Node pointers
+	using CellNode = std::pair<LayoutCell *, UINT>;  //!< Child LayoutCell + Weight Pair
+	using VectorOfNodePtrs = std::vector<CellNode>; //!< Vector of Node pointers
 
 	VectorOfNodePtrs m_vpCells; //!< Vector Of Stacked LayoutCell
 

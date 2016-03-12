@@ -24,6 +24,7 @@
 LayoutCellPane::LayoutCellPane( const PaneType nType )
 : LayoutCell( )
 , m_nType( nType )
+, m_vpCells()
 {
 }
 
@@ -62,7 +63,8 @@ LayoutCell * LayoutCellPane::addChild( LayoutCell * p_Cell, const UINT nWeight )
 			p_Last->setSibling( p_Cell );
 	}
 
-	this->m_vpCells.push_back( CellNode( p_Cell, nWeight ) );
+	//this->m_vpCells.push_back( CellNode( p_Cell, nWeight ) );
+	m_vpCells.emplace_back(p_Cell, nWeight);
 	m_iCount++;
 
 	return p_Cell;

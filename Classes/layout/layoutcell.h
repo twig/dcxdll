@@ -60,14 +60,15 @@ public:
 		PANE
 	};
 
-	LayoutCell( );
 	LayoutCell(const LayoutCell &) = delete;
+	LayoutCell &operator =(const LayoutCell &) = delete;	// No assignments!
+
+	LayoutCell( );
 	explicit LayoutCell( const HWND mHwnd );
 	LayoutCell( const HWND mHwnd, const RECT & rc );
 	explicit LayoutCell( DcxControl * dcxc );
-	virtual ~LayoutCell( );
 
-	LayoutCell &operator =(const LayoutCell &) = delete;	// No assignments!
+	virtual ~LayoutCell( );
 
 	void setRect(RECT & rc);
 	void getRect( RECT & rc ) const;

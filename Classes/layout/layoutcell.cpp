@@ -22,16 +22,21 @@
  * blah
  */
 
+//LayoutCell::LayoutCell()
+//: m_Hwnd(nullptr)
+//, m_Parent(nullptr)
+//, m_FirstChild(nullptr)
+//, m_NextSibling(nullptr)
+//, m_BaseControl(nullptr)
+//, m_iCount(0)
+//{
+//	SetRectEmpty(&this->m_rcBorders);
+//	SetRectEmpty(&this->m_rcWindow);
+//}
+
 LayoutCell::LayoutCell()
-: m_Hwnd(nullptr)
-, m_Parent(nullptr)
-, m_FirstChild(nullptr)
-, m_NextSibling(nullptr)
-, m_BaseControl(nullptr)
-, m_iCount(0)
+	: LayoutCell(HWND())
 {
-	SetRectEmpty(&this->m_rcBorders);
-	SetRectEmpty(&this->m_rcWindow);
 }
 
 /*!

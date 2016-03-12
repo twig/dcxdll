@@ -21,42 +21,42 @@
  * blah
  */
 
-LayoutCellFill::LayoutCellFill()
-: LayoutCell()
-{
-}
-
-/*!
- * \brief Constructor
- *
- * blah
- */
-
-LayoutCellFill::LayoutCellFill(const HWND mHwnd)
-: LayoutCell(mHwnd)
-{
-}
-
-/*!
- * \brief Constructor
- *
- * blah
- */
-
-LayoutCellFill::LayoutCellFill(DcxControl * dcxc)
-: LayoutCell(dcxc)
-{
-}
-
-/*!
- * \brief Destructor
- *
- * blah
- */
-
-LayoutCellFill::~LayoutCellFill() {
-
-}
+//LayoutCellFill::LayoutCellFill()
+//: LayoutCell()
+//{
+//}
+//
+///*!
+// * \brief Constructor
+// *
+// * blah
+// */
+//
+//LayoutCellFill::LayoutCellFill(const HWND mHwnd)
+//: LayoutCell(mHwnd)
+//{
+//}
+//
+///*!
+// * \brief Constructor
+// *
+// * blah
+// */
+//
+//LayoutCellFill::LayoutCellFill(DcxControl * dcxc)
+//: LayoutCell(dcxc)
+//{
+//}
+//
+///*!
+// * \brief Destructor
+// *
+// * blah
+// */
+//
+//LayoutCellFill::~LayoutCellFill() {
+//
+//}
 
 /*!
  * \brief blah
