@@ -66,42 +66,53 @@ distribution.
 */
 class TiXmlString
 {
-  public :
+public:
 	// The size type used
-  	typedef size_t size_type;
+	using size_type = size_t;
 
 	// Error value for find primitive
 	static const size_type npos; // = -1;
 
 
 	// TiXmlString empty constructor
-	TiXmlString () : rep_(&nullrep_)
+	TiXmlString() : rep_(&nullrep_)
 	{
 	}
 
-	// TiXmlString copy constructor
-	TiXmlString ( const TiXmlString & copy) : rep_(0)
+	//// TiXmlString copy constructor
+	//TiXmlString(const TiXmlString & copy) : rep_(0)
+	//{
+	//	init(copy.length());
+	//	memcpy(start(), copy.data(), length());
+	//}
+	//
+	//// TiXmlString constructor, based on a string
+	//TIXML_EXPLICIT TiXmlString(const char * copy) : rep_(0)
+	//{
+	//	init(static_cast<size_type>(strlen(copy)));
+	//	memcpy(start(), copy, length());
+	//}
+
+	TiXmlString(const TiXmlString & copy)
+		: TiXmlString(copy.data(), copy.length())
 	{
-		init(copy.length());
-		memcpy(start(), copy.data(), length());
 	}
 
 	// TiXmlString constructor, based on a string
-	TIXML_EXPLICIT TiXmlString ( const char * copy) : rep_(0)
+	TIXML_EXPLICIT TiXmlString(const char * copy)
+		: TiXmlString(copy, static_cast<size_type>(strlen(copy)))
 	{
-		init( static_cast<size_type>( strlen(copy) ));
-		memcpy(start(), copy, length());
 	}
 
 	// TiXmlString constructor, based on a string
-	TIXML_EXPLICIT TiXmlString ( const char * str, size_type len) : rep_(0)
+	TIXML_EXPLICIT TiXmlString(const char * str, size_type len) : rep_(0)
 	{
 		init(len);
 		memcpy(start(), str, len);
 	}
 
 	// TiXmlString destructor
-	~TiXmlString ()
+	~TiXmlString()
 	{
 		quit();
 	}
@@ -109,7 +120,7 @@ class TiXmlString
 	// = operator
 	TiXmlString& operator = (const char * copy)
 	{
-		return assign( copy, static_cast<size_type>(strlen(copy)));
+		return assign(copy, static_cast<size_type>(strlen(copy)));
 	}
 
 	// = operator
@@ -122,7 +133,7 @@ class TiXmlString
 	// += operator. Maps to append
 	TiXmlString& operator += (const char * suffix)
 	{
-		return append(suffix, static_cast<size_type>( strlen(suffix) ));
+		return append(suffix, static_cast<size_type>(strlen(suffix)));
 	}
 
 	// += operator. Maps to append
@@ -139,76 +150,75 @@ class TiXmlString
 
 
 	// Convert a TiXmlString into a null-terminated char *
-	const char * c_str () const { return rep_->str; }
+	const char * c_str() const noexcept { return rep_->str; }
 
 	// Convert a TiXmlString into a char * (need not be null terminated).
-	const char * data () const { return rep_->str; }
+	const char * data() const noexcept { return rep_->str; }
 
 	// Return the length of a TiXmlString
-	size_type length () const { return rep_->size; }
+	size_type length() const noexcept { return rep_->size; }
 
 	// Alias for length()
-	size_type size () const { return rep_->size; }
+	size_type size() const noexcept { return rep_->size; }
 
 	// Checks if a TiXmlString is empty
-	bool empty () const { return rep_->size == 0; }
+	bool empty() const noexcept { return rep_->size == 0; }
 
 	// Return capacity of string
-	size_type capacity () const { return rep_->capacity; }
-
+	size_type capacity() const noexcept { return rep_->capacity; }
 
 	// single char extraction
-	const char& at (size_type index) const
+	const char& at(size_type index) const
 	{
-		assert( index < length() );
-		return rep_->str[ index ];
+		assert(index < length());
+		return rep_->str[index];
 	}
 
 	// [] operator
 	char& operator [] (size_type index) const
 	{
-		assert( index < length() );
-		return rep_->str[ index ];
+		assert(index < length());
+		return rep_->str[index];
 	}
 
 	// find a char in a string. Return TiXmlString::npos if not found
-	size_type find (char lookup) const
+	size_type find(char lookup) const
 	{
 		return find(lookup, 0);
 	}
 
 	// find a char in a string from an offset. Return TiXmlString::npos if not found
-	size_type find (char tofind, size_type offset) const
+	size_type find(char tofind, size_type offset) const
 	{
 		if (offset >= length()) return npos;
 
 		for (const char* p = c_str() + offset; *p != '\0'; ++p)
 		{
-		   if (*p == tofind) return static_cast< size_type >( p - c_str() );
+			if (*p == tofind) return static_cast<size_type>(p - c_str());
 		}
 		return npos;
 	}
 
-	void clear ()
+	void clear()
 	{
 		//Lee:
 		//The original was just too strange, though correct:
 		//	TiXmlString().swap(*this);
 		//Instead use the quit & re-init:
 		quit();
-		init(0,0);
+		init(0, 0);
 	}
 
 	/*	Function to reserve a big amount of data when we know we'll need it. Be aware that this
 		function DOES NOT clear the content of the TiXmlString if any exists.
 	*/
-	void reserve (size_type cap);
+	void reserve(size_type cap);
 
-	TiXmlString& assign (const char* str, size_type len);
+	TiXmlString& assign(const char* str, size_type len);
 
-	TiXmlString& append (const char* str, size_type len);
+	TiXmlString& append(const char* str, size_type len);
 
-	void swap (TiXmlString& other)
+	void swap(TiXmlString& other) noexcept
 	{
 		Rep* r = rep_;
 		rep_ = other.rep_;
@@ -219,12 +229,12 @@ class TiXmlString
 		//swap(rep_, other.rep_);
 	}
 
-  private:
+private:
 
 	void init(size_type sz) { init(sz, sz); }
-	void set_size(size_type sz) { rep_->str[ rep_->size = sz ] = '\0'; }
-	char* start() const { return rep_->str; }
-	char* finish() const { return rep_->str + rep_->size; }
+	void set_size(size_type sz) { rep_->str[rep_->size = sz] = '\0'; }
+	char* start() const noexcept { return rep_->str; }
+	char* finish() const noexcept { return rep_->str + rep_->size; }
 
 	struct Rep
 	{
@@ -242,10 +252,10 @@ class TiXmlString
 			// to the normal allocation, although use an 'int' for systems
 			// that are overly picky about structure alignment.
 			const size_type bytesNeeded = sizeof(Rep) + cap;
-			const size_type intsNeeded = ( bytesNeeded + sizeof(int) - 1 ) / sizeof( int ); 
-			rep_ = reinterpret_cast<Rep*>( new int[ intsNeeded ] );
+			const size_type intsNeeded = (bytesNeeded + sizeof(int) - 1) / sizeof(int);
+			rep_ = reinterpret_cast<Rep*>(new int[intsNeeded]);
 
-			rep_->str[ rep_->size = sz ] = '\0';
+			rep_->str[rep_->size = sz] = '\0';
 			rep_->capacity = cap;
 		}
 		else
@@ -260,20 +270,20 @@ class TiXmlString
 		{
 			// The rep_ is really an array of ints. (see the allocator, above).
 			// Cast it back before delete, so the compiler won't incorrectly call destructors.
-			delete [] ( reinterpret_cast<int*>( rep_ ) );
+			delete[](reinterpret_cast<int*>(rep_));
 		}
 	}
 
 	Rep * rep_;
 	static Rep nullrep_;
 
-} ;
+};
 
 
 inline bool operator == (const TiXmlString & a, const TiXmlString & b)
 {
-	return    ( a.length() == b.length() )				// optimization on some platforms
-	       && ( strcmp(a.c_str(), b.c_str()) == 0 );	// actual compare
+	return    (a.length() == b.length())				// optimization on some platforms
+		&& (strcmp(a.c_str(), b.c_str()) == 0);	// actual compare
 }
 inline bool operator < (const TiXmlString & a, const TiXmlString & b)
 {
@@ -301,7 +311,7 @@ TiXmlString operator + (const char* a, const TiXmlString & b);
 */
 class TiXmlOutStream : public TiXmlString
 {
-public :
+public:
 
 	// TiXmlOutStream << operator.
 	TiXmlOutStream & operator << (const TiXmlString & in)
@@ -317,7 +327,7 @@ public :
 		return *this;
 	}
 
-} ;
+};
 
 #endif	// TIXML_STRING_INCLUDED
 #endif	// TIXML_USE_STL

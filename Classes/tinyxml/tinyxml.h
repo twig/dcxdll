@@ -244,9 +244,9 @@ public:
 	int Row() const			{ return location.row + 1; }
 	int Column() const		{ return location.col + 1; }	///< See Row()
 
-	void  SetUserData( void* user )			{ userData = user; }	///< Set a pointer to arbitrary user data.
-	void* GetUserData()						{ return userData; }	///< Get a pointer to arbitrary user data.
-	const void* GetUserData() const 		{ return userData; }	///< Get a pointer to arbitrary user data.
+	void  SetUserData( void* user ) noexcept { userData = user; }	///< Set a pointer to arbitrary user data.
+	void* GetUserData() noexcept { return userData; }	///< Get a pointer to arbitrary user data.
+	const void* GetUserData() const noexcept { return userData; }	///< Get a pointer to arbitrary user data.
 
 	// Table that returs, for a given lead byte, the total number of bytes
 	// in the UTF-8 sequence.
@@ -484,7 +484,7 @@ public:
 
 		The subclasses will wrap this function.
 	*/
-	const char *Value() const { return value.c_str (); }
+	const char *Value() const noexcept { return value.c_str (); }
 
     #ifdef TIXML_USE_STL
 	/** Return Value() as a std::string. If you only use STL,
@@ -494,7 +494,7 @@ public:
 	const std::string& ValueStr() const { return value; }
 	#endif
 
-	const TIXML_STRING& ValueTStr() const { return value; }
+	const TIXML_STRING& ValueTStr() const noexcept { return value; }
 
 	/** Changes the value of the node. Defined as:
 		@verbatim
@@ -505,7 +505,7 @@ public:
 		Text:		the text string
 		@endverbatim
 	*/
-	void SetValue(const char * _value) { value = _value;}
+	void SetValue(const char * _value) noexcept { value = _value;}
 
     #ifdef TIXML_USE_STL
 	/// STL std::string form.
@@ -516,11 +516,11 @@ public:
 	void Clear();
 
 	/// One step up the DOM.
-	TiXmlNode* Parent()							{ return parent; }
-	const TiXmlNode* Parent() const				{ return parent; }
+	TiXmlNode* Parent() noexcept { return parent; }
+	const TiXmlNode* Parent() const noexcept { return parent; }
 
-	const TiXmlNode* FirstChild()	const		{ return firstChild; }	///< The first child of this node. Will be null if there are no children.
-	TiXmlNode* FirstChild()						{ return firstChild; }
+	const TiXmlNode* FirstChild()	const noexcept { return firstChild; }	///< The first child of this node. Will be null if there are no children.
+	TiXmlNode* FirstChild() noexcept { return firstChild; }
 	const TiXmlNode* FirstChild( const char * value ) const;			///< The first child of this node with the matching 'value'. Will be null if none found.
 	/// The first child of this node with the matching 'value'. Will be null if none found.
 	TiXmlNode* FirstChild( const char * _value ) {
@@ -528,8 +528,8 @@ public:
 		// call the method, cast the return back to non-const.
 		return const_cast< TiXmlNode* > ((const_cast< const TiXmlNode* >(this))->FirstChild( _value ));
 	}
-	const TiXmlNode* LastChild() const	{ return lastChild; }		/// The last child of this node. Will be null if there are no children.
-	TiXmlNode* LastChild()	{ return lastChild; }
+	const TiXmlNode* LastChild() const noexcept { return lastChild; }		/// The last child of this node. Will be null if there are no children.
+	TiXmlNode* LastChild() noexcept { return lastChild; }
 	
 	const TiXmlNode* LastChild( const char * value ) const;			/// The last child of this node matching 'value'. Will be null if there are no children.
 	TiXmlNode* LastChild( const char * _value ) {
@@ -611,8 +611,8 @@ public:
 	bool RemoveChild( TiXmlNode* removeThis );
 
 	/// Navigate to a sibling node.
-	const TiXmlNode* PreviousSibling() const			{ return prev; }
-	TiXmlNode* PreviousSibling()						{ return prev; }
+	const TiXmlNode* PreviousSibling() const noexcept { return prev; }
+	TiXmlNode* PreviousSibling() noexcept { return prev; }
 
 	/// Navigate to a sibling node.
 	const TiXmlNode* PreviousSibling( const char * ) const;
@@ -628,8 +628,8 @@ public:
 	#endif
 
 	/// Navigate to a sibling node.
-	const TiXmlNode* NextSibling() const				{ return next; }
-	TiXmlNode* NextSibling()							{ return next; }
+	const TiXmlNode* NextSibling() const noexcept { return next; }
+	TiXmlNode* NextSibling() noexcept { return next; }
 
 	/// Navigate to a sibling node with the given 'value'.
 	const TiXmlNode* NextSibling( const char * ) const;
@@ -681,7 +681,7 @@ public:
 		The possible types are: DOCUMENT, ELEMENT, COMMENT,
 								UNKNOWN, TEXT, and DECLARATION.
 	*/
-	const NodeType &Type() const { return type; }
+	const NodeType &Type() const noexcept { return type; }
 
 	/** Return a pointer to the Document this node lives in.
 		Returns null if not in a document.
@@ -764,8 +764,8 @@ protected:
 	TiXmlNode*		next;
 
 private:
-	TiXmlNode( const TiXmlNode& );				// not implemented.
-	void operator=( const TiXmlNode& base );	// not allowed.
+	TiXmlNode( const TiXmlNode& ) = delete;				// not implemented.
+	void operator=( const TiXmlNode& base ) = delete;	// not allowed.
 };
 
 
@@ -801,16 +801,16 @@ public:
 	{
 	}
 
-	const char*		Name()  const		{ return name.c_str(); }		///< Return the name of this attribute.
-	const char*		Value() const		{ return value.c_str(); }		///< Return the value of this attribute.
+	const char*		Name()  const noexcept { return name.c_str(); }		///< Return the name of this attribute.
+	const char*		Value() const noexcept { return value.c_str(); }		///< Return the value of this attribute.
 	#ifdef TIXML_USE_STL
-	const std::string& ValueStr() const	{ return value; }				///< Return the value of this attribute.
+	const std::string& ValueStr() const noexcept { return value; }				///< Return the value of this attribute.
 	#endif
 	int				IntValue() const;									///< Return the value of this attribute, converted to an integer.
 	double			DoubleValue() const;								///< Return the value of this attribute, converted to a double.
 
 	// Get the tinyxml string representation
-	const TIXML_STRING& NameTStr() const { return name; }
+	const TIXML_STRING& NameTStr() const noexcept { return name; }
 
 	/** QueryIntValue examines the value string. It is an alternative to the
 		IntValue() method with richer error checking.
@@ -870,8 +870,8 @@ public:
 	void SetDocument( TiXmlDocument* doc )	{ document = doc; }
 
 private:
-	TiXmlAttribute( const TiXmlAttribute& );				// not implemented.
-	void operator=( const TiXmlAttribute& base );	// not allowed.
+	TiXmlAttribute( const TiXmlAttribute& ) = delete;				// not implemented.
+	void operator=( const TiXmlAttribute& base ) = delete;	// not allowed.
 
 	TiXmlDocument*	document;	// A pointer back to a document, for error reporting.
 	TIXML_STRING name;
@@ -919,8 +919,8 @@ public:
 private:
 	//*ME:	Because of hidden/disabled copy-construktor in TiXmlAttribute (sentinel-element),
 	//*ME:	this class must be also use a hidden/disabled copy-constructor !!!
-	TiXmlAttributeSet( const TiXmlAttributeSet& );	// not allowed
-	void operator=( const TiXmlAttributeSet& );	// not allowed (as TiXmlAttribute)
+	TiXmlAttributeSet( const TiXmlAttributeSet& ) = delete;	// not allowed
+	void operator=( const TiXmlAttributeSet& ) = delete;	// not allowed (as TiXmlAttribute)
 
 	TiXmlAttribute sentinel;
 };
