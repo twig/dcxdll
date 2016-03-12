@@ -378,7 +378,6 @@ TString& TString::operator =( const char chr )
 
 	return *this;
 }
-//#endif
 
 /****************************/
 /*! \fn TString TString::operator *( const int N )
@@ -434,7 +433,7 @@ TString & TString::operator *=( const int &N ) {
 	if ((N == 1) || (sz == 0))
 		return *this;
 
-	TString tmp((UINT)((sz * N) + 1));
+	TString tmp((UINT)((sz * N) + 1U));
 
 	for (auto i = decltype(N){0}; i < N; i++)
 	{
@@ -454,19 +453,13 @@ TString & TString::operator *=( const int &N ) {
     \return String length
 */
 
-const size_t TString::len( ) const noexcept {
-	if (this->m_pString == nullptr)
-		return 0U;
-
-	if (this->m_pString[0] == TEXT('\0'))	// check for zero length string.
-		return 0U;
-
-	if (m_bDirty)
-	{
-		//m_iLen = static_cast<size_t>(ts_strlen(this->m_pString));
+const size_t &TString::len( ) const noexcept {
+	if (empty())	// check for zero length string.
+		m_iLen = 0U;
+	else if (m_bDirty)
 		m_iLen = _ts_strlen(this->m_pString);
-		m_bDirty = false;
-	}
+
+	m_bDirty = false;
 	return m_iLen;
 }
 
@@ -490,7 +483,7 @@ int TString::find(const TCHAR *const substring, const int N) const noexcept {
 		const TCHAR * temp = nullptr, *temp2 = this->m_pString;
 
 		auto i = decltype(N){0};
-		const auto subl = _ts_strlen(substring); // Ook
+		const auto subl = _ts_strlen(substring);
 		while ((temp = ts_strstr(temp2, substring)) != nullptr) {
 			i++;
 			//if ( N != 0 && i == N )
@@ -757,6 +750,7 @@ UINT TString::mreplace(const TCHAR chr, const TCHAR *const fmt)
 	return cnt;
 }
 
+#if !TSTRING_TESTCODE
 /*!
  * \brief blah
  *
@@ -780,7 +774,7 @@ TString TString::gettok(int N, const TCHAR *const sepChars) const {
 			return TString();
 	}
 
-	const TCHAR *p_cStart = this->m_pString, *p_cEnd = nullptr, *const p_fEnd = this->m_pString + this->len();
+	const TCHAR *p_cStart = this->m_pString, *p_cEnd = nullptr, *const p_fEnd = last();
 	auto iCount = decltype(N){0};
 	const auto sepl = _ts_strlen(sepChars); // Ook
 
@@ -841,7 +835,7 @@ TString TString::gettok(int N, int M, const TCHAR *const sepChars) const {
 	if ( M > static_cast<int>(nToks - 1) )
 		M = -1;
 
-	const TCHAR * p_cStart = this->m_pString, *p_cEnd = nullptr, *const p_fEnd = this->m_pString + this->len();
+	const TCHAR * p_cStart = this->m_pString, *p_cEnd = nullptr, *const p_fEnd = last();
 	const TCHAR * p_cFirst = nullptr, *p_cLast = nullptr;
 	size_t iCount = 0;
 	const auto sepl = _ts_strlen( sepChars ); // Ook
@@ -911,7 +905,7 @@ TString TString::getfirsttok(const UINT N, const TCHAR *const sepChars) const
 	if ((N > this->m_savedtotaltoks) || (N == 0))
 		return TString();
 
-	const auto * p_cStart = this->m_pString, *p_cEnd = this->m_pString, *const p_fEnd = (this->m_pString + this->len());
+	const auto * p_cStart = this->m_pString, *p_cEnd = this->m_pString, *const p_fEnd = last();
 	auto iCount = decltype(N){0};
 	const auto sepl = _ts_strlen(sepChars); // Ook
 
@@ -941,6 +935,44 @@ TString TString::getfirsttok(const UINT N, const TCHAR *const sepChars) const
 	return TString();
 }
 
+TString TString::getfirsttok(const size_type N, const value_type &sepChar) const
+{
+	this->m_savedtotaltoks = this->numtok(sepChar);
+	this->m_savedpos = this->m_pString;
+	this->m_savedcurrenttok = N;
+
+	// N == 0 is used to pre load the vars for a loop of next toks where we need to start at 1
+
+	if (sepChar == value_type())
+		return *this;
+
+	if ((N > this->m_savedtotaltoks) || (N == 0))
+		return TString();
+
+	const auto * p_cStart = this->m_pString, *p_cEnd = this->m_pString, *const p_fEnd = last();
+	auto iCount = decltype(N){0};
+
+	while ((p_cEnd = ts_strchr(p_cStart, sepChar)) != nullptr) {
+		iCount++;
+
+		if (iCount == N) {
+			this->m_savedpos = p_cEnd + 1U;
+			return TString(p_cStart, p_cEnd);
+		}
+		p_cStart = p_cEnd + 1U;
+		if (p_cStart >= p_fEnd) {
+			this->m_savedpos = nullptr;
+			break;
+		}
+	}
+
+	if (iCount == N - 1)
+		return TString(p_cStart, p_fEnd);
+
+	return TString();
+}
+#endif
+
 /*!
 * \brief Get the next token from the string (can only be used after a getfirsttok() call)
 *
@@ -967,6 +999,31 @@ TString TString::getnexttok(const TCHAR *const sepChars) const {
 		const auto *const p_cEnd = ts_strstr(p_cStart, sepChars);
 		if (p_cEnd != nullptr) {
 			this->m_savedpos = (p_cEnd + _ts_strlen(sepChars));
+			return TString(p_cStart, p_cEnd);
+		}
+	}
+	return TString();
+}
+
+TString TString::getnexttok(const_value_type & sepChars) const
+{
+	if (sepChars == value_type() || this->m_pString == nullptr)
+		return *this;
+
+	this->m_savedcurrenttok++;
+	const auto *const p_cStart = this->m_savedpos;
+
+	if ((this->m_savedcurrenttok > this->m_savedtotaltoks) || (p_cStart == nullptr))
+		return TString();
+
+	if (this->m_savedcurrenttok == this->m_savedtotaltoks) {
+		this->m_savedpos = nullptr;
+		return TString(p_cStart);
+	}
+	else {
+		const auto *const p_cEnd = ts_strchr(p_cStart, sepChars);
+		if (p_cEnd != nullptr) {
+			this->m_savedpos = (p_cEnd + 1U);
 			return TString(p_cStart, p_cEnd);
 		}
 	}
@@ -1016,10 +1073,10 @@ size_t TString::numtok(const TCHAR *const sepChars) const noexcept {
 	}
 	//this->m_savedtotaltoks = iCount + 1;
 	//return this->m_savedtotaltoks;
-	return iCount + 1;
+	return iCount + 1U;
 }
 
-size_t TString::numtok(const TCHAR sepChar) const noexcept
+size_t TString::numtok(const TCHAR &sepChar) const noexcept
 {
 	if (empty())
 		return size_t();
@@ -1031,14 +1088,133 @@ size_t TString::numtok(const TCHAR sepChar) const noexcept
 		iCount++;
 		p_cStart = ++p_cEnd;
 	}
-	return iCount + 1;
+	return iCount + 1U;
 }
 
+#if TSTRING_TESTCODE
 /*!
  * \brief blah
  *
  * blah
  */
+
+const TString::tuple_type TString::gettokenrange(const int nStart, const int nEnd, const_pointer sepChars) const
+{
+	const_pointer p_cStart = m_pString, p_cEnd = nullptr, p_fEnd = last();
+
+	if (sepChars == nullptr)
+		return std::make_tuple( p_cStart,p_fEnd, decltype(m_savedtotaltoks){1} );
+
+	const auto nToks = this->numtok(sepChars);
+	auto iStart = nStart;
+
+	if (iStart < 0)
+		iStart += (nToks + 1);
+
+	if (p_cStart == nullptr || p_fEnd == nullptr || iStart < 1 || ((nEnd < iStart) && (nEnd != -1)) || static_cast<size_t>(iStart) > nToks)
+		return std::make_tuple(nullptr, nullptr, decltype(m_savedtotaltoks){0});
+
+	const auto bFullstring = ((static_cast<size_t>(nEnd) >= nToks) || (nEnd < 0));
+
+	const_pointer p_cFirst = nullptr, p_cLast = nullptr;
+	auto iCount = 0;
+	const auto sepl = _ts_strlen(sepChars);
+
+	while ((p_cEnd = ts_strstr(p_cStart, sepChars)) != nullptr) {
+		++iCount;
+
+		if (iCount == iStart) {
+
+			p_cFirst = p_cStart;
+
+			if (bFullstring)
+				break;
+		}
+
+		if (iCount == nEnd) {
+			p_cLast = p_cEnd;
+			break;
+		}
+
+		p_cStart = p_cEnd + sepl;
+		if (p_cStart >= p_fEnd)	// look out for overrun...
+			break;
+	}
+
+	if (bFullstring) {
+
+		if (static_cast<size_t>(iCount) == (nToks - 1))
+			p_cFirst = p_cStart;
+
+		p_cLast = p_fEnd;
+	}
+	else if (static_cast<size_t>(iCount) == (nToks - 1))
+		p_cLast = p_cEnd;
+
+	return std::make_tuple( p_cFirst, p_cLast, nToks );
+}
+
+const TString::tuple_type TString::gettokenrange(const int nStart, const int nEnd, const_reference sepChars) const
+{
+	const_pointer p_cStart = m_pString, p_cEnd = nullptr, p_fEnd = last();
+
+	if (sepChars == value_type())
+		return std::make_tuple(p_cStart, p_fEnd, decltype(m_savedtotaltoks){1});
+
+	const auto nToks = this->numtok(sepChars);
+	auto iStart = nStart;
+
+	if (iStart < 0)
+		iStart += (nToks + 1);
+
+	if (p_cStart == nullptr || p_fEnd == nullptr || iStart < 1 || ((nEnd < iStart) && (nEnd != -1)) || static_cast<size_t>(iStart) > nToks)
+		return std::make_tuple(nullptr, nullptr, decltype(m_savedtotaltoks){0});
+
+	const auto bFullstring = ((static_cast<size_t>(nEnd) >= nToks) || (nEnd < 0));
+
+	const_pointer p_cFirst = nullptr, p_cLast = nullptr;
+	auto iCount = 0;
+
+	while ((p_cEnd = ts_strchr(p_cStart, sepChars)) != nullptr) {
+		++iCount;
+
+		if (iCount == iStart) {
+
+			p_cFirst = p_cStart;
+
+			if (bFullstring)
+				break;
+		}
+
+		if (iCount == nEnd) {
+			p_cLast = p_cEnd;
+			break;
+		}
+
+		p_cStart = p_cEnd + 1;
+		if (p_cStart >= p_fEnd)	// look out for overrun...
+			break;
+	}
+
+	if (bFullstring) {
+
+		if (static_cast<size_t>(iCount) == (nToks - 1))
+			p_cFirst = p_cStart;
+
+		p_cLast = p_fEnd;
+	}
+	else if (static_cast<size_t>(iCount) == (nToks - 1))
+		p_cLast = p_cEnd;
+
+	return std::make_tuple(p_cFirst, p_cLast, nToks);
+}
+#endif
+
+/*!
+* \brief blah
+*
+* blah
+*/
 
 void TString::deltok(const UINT N, const TCHAR *const sepChars) {
 
@@ -1245,21 +1421,21 @@ void TString::sorttok(const SortOptions &sortOptions, const TCHAR * const sepCha
  */
 TString &TString::trim()
 {
-	if (this->empty())
+	if (empty())
 		return *this;
 
-	const auto *start = this->m_pString;
-	auto *end = this->m_pString + this->len();
+	const auto *start = m_pString;
+	auto end = m_pString + len();
 	const auto *const oldEnd = end;
 
 	// Trim from start
-	while (start != end && *start == 32)
+	while (start != end && *start == TEXT(' '))
 		start++;
 
 	// Trim from end
-	while (end != start && *(--end) == 32);
+	while (end != start && *(--end) == TEXT(' '));
 
-	// only alloc new string is string changed.
+	// only alloc new string if string changed.
 
 	end++;	// end must be increased by one to account for the previous decrement
 
@@ -1269,7 +1445,7 @@ TString &TString::trim()
 	// only allocate new string if start of string modified.
 	if (start != this->m_pString)
 	{
-		const auto new_len = (end - start) + 1;
+		const auto new_len = (end - start) + 1U;
 
 		TString tmp((UINT)new_len);
 
@@ -2016,7 +2192,6 @@ void TString::swap(TString &second) noexcept
 	// by swapping the members of two classes,
 	// the two classes are effectively swapped
 
-#if TSTRING_INTERNALBUFFER
 	swap(this->m_pString, second.m_pString);
 	swap(this->m_savedpos, second.m_savedpos);
 	swap(this->m_pTempString, second.m_pTempString);
@@ -2025,6 +2200,8 @@ void TString::swap(TString &second) noexcept
 	swap(this->m_savedtotaltoks, second.m_savedtotaltoks);
 	swap(this->m_bDirty, second.m_bDirty);
 	swap(this->m_iLen, second.m_iLen);
+
+#if TSTRING_INTERNALBUFFER
 	swap(this->m_bUsingInternal, second.m_bUsingInternal);
 	m_InternalBuffer[0] = TEXT('\0');
 
@@ -2048,15 +2225,6 @@ void TString::swap(TString &second) noexcept
 		second.m_bDirty = false;
 		second.m_InternalBuffer[0] = TEXT('\0');
 	}
-#else
-	swap(this->m_pString, second.m_pString);
-	swap(this->m_savedpos, second.m_savedpos);
-	swap(this->m_pTempString, second.m_pTempString);
-	swap(this->m_buffersize, second.m_buffersize);
-	swap(this->m_savedcurrenttok, second.m_savedcurrenttok);
-	swap(this->m_savedtotaltoks, second.m_savedtotaltoks);
-	swap(this->m_bDirty, second.m_bDirty);
-	swap(this->m_iLen, second.m_iLen);
 #endif
 }
 
@@ -2102,10 +2270,10 @@ ULONG TString::to_addr() const
 {
 	BYTE first, second, third, forth;
 
-	first = (BYTE)(this->getfirsttok(1, TEXT(".")).to_int() & 0xFF);
-	second = (BYTE)(this->getnexttok(TEXT(".")).to_int() & 0xFF);
-	third = (BYTE)(this->getnexttok(TEXT(".")).to_int() & 0xFF);
-	forth = (BYTE)(this->getnexttok(TEXT(".")).to_int() & 0xFF);
+	first = (BYTE)(this->getfirsttok(1, TEXT('.')).to_int() & 0xFF);
+	second = (BYTE)(this->getnexttok(TEXT('.')).to_int() & 0xFF);
+	third = (BYTE)(this->getnexttok(TEXT('.')).to_int() & 0xFF);
+	forth = (BYTE)(this->getnexttok(TEXT('.')).to_int() & 0xFF);
 
 	//return (ULONG)MAKELONG(MAKEWORD(first,second),MAKEWORD(third,forth));
 	//return (ULONG)MAKELONG(MAKEWORD(forth, third), MAKEWORD(second, first));
