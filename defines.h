@@ -26,6 +26,11 @@ http://symbiancorner.blogspot.com/2007/05/how-to-detect-version-of-ms-visual.htm
 #ifndef _DEFINES_H_
 #define _DEFINES_H_
 
+// VS2015+ only
+#if _MSC_VER < 1900
+#error "This version of DCX needs Visual Studio 2015 or newer"
+#endif
+
 #ifdef __INTEL_COMPILER // Defined when using Intel C++ Compiler.
 #pragma warning( disable : 1195 )
 #pragma warning( disable : 504 )
@@ -45,11 +50,6 @@ http://symbiancorner.blogspot.com/2007/05/how-to-detect-version-of-ms-visual.htm
 #pragma warning( disable : 4530 )
 #pragma warning( disable : 4995 ) // name was marked as #pragma deprecated
 #define _INTEL_DLL_ __declspec(dllexport)
-#endif
-
-// VS2015+ only
-#if _MSC_VER < 1900
-#error "This version of DCX needs Visual Studio 2015 or newer"
 #endif
 
 // --------------------------------------------------
@@ -151,7 +151,7 @@ http://symbiancorner.blogspot.com/2007/05/how-to-detect-version-of-ms-visual.htm
 // --------------------------------------------------
 #define DLL_VERSION    GIT_DESCRIBE
 #define DLL_BUILD      GIT_HASH
-#define DLL_DEV_BUILD  44
+#define DLL_DEV_BUILD  45
 
 #ifdef NDEBUG
 #ifdef DCX_DEV_BUILD
