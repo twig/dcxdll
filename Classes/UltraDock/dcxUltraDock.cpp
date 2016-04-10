@@ -125,8 +125,8 @@ void TreebarUnDock(const HWND hwnd)
 // 0 == no swb, 1 == Left, 2 == Right, 3 == Top, 4 == Bottom
 const SwitchBarPos SwitchbarPos(const DockTypes type)
 {
-	RECT swb_rc, mdi_rc;
-	HWND hwnd;
+	RECT swb_rc = { 0 }, mdi_rc = { 0 };
+	HWND hwnd = nullptr;
 
 	switch (type)
 	{
@@ -139,6 +139,9 @@ const SwitchBarPos SwitchbarPos(const DockTypes type)
 	default:
 	case DOCK_TYPE_SWITCH: // switchbar
 		hwnd = mIRCLinker::getSwitchbar();
+		break;
+	case DOCK_TYPE_MDI:	// should never be called with this...
+		return SwitchBarPos::SWB_NONE;
 		break;
 	}
 	if (!IsWindowVisible(hwnd) || !GetWindowRect(hwnd, &swb_rc) || !GetWindowRect(mIRCLinker::getMDIClient(), &mdi_rc))

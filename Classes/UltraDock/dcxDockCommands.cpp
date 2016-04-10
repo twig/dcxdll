@@ -48,10 +48,10 @@ BOOL CALLBACK EnumDocked(HWND hwnd,LPARAM lParam)
 }
 BOOL CALLBACK SizeDocked(HWND hwnd,LPARAM lParam)
 {
-	const auto flags = (DWORD)GetProp(hwnd, TEXT("dcx_docked"));
+	const auto flags = reinterpret_cast<DWORD>(GetProp(hwnd, TEXT("dcx_docked")));
 	auto hParent = GetParent(hwnd);
 	if (flags != 0 && flags != DOCKF_NORMAL) {
-		RECT rcParent, rcThis;
+		RECT rcParent = { 0 }, rcThis = { 0 };
 		if (!GetClientRect(hParent, &rcParent) || !GetWindowRect(hwnd, &rcThis))
 			return FALSE;
 
@@ -169,8 +169,8 @@ void UnDock(const HWND hwnd)
 
 bool DockWindow(const HWND mWnd, const HWND temp, const TCHAR *find, const TString & flag)
 {
-	RECT rc;
-	HWND sWnd;
+	RECT rc = { 0 };
+	HWND sWnd = nullptr;
 	const XSwitchFlags xflags(flag);
 
 	if ((FindUltraDock(temp)) || (GetProp(temp,TEXT("dcx_docked")) != nullptr))
@@ -665,7 +665,7 @@ mIRC(_xdock)
 				if (ud == nullptr)
 					throw Dcx::dcxException(TEXT("Window not docked to main mIRC window (%).%"), reinterpret_cast<DWORD>(hwnd), d.gettok(2));
 					
-				TCHAR *p;
+				TCHAR *p = nullptr;
 				switch (ud->flags)
 				{
 				case DOCKF_LEFT:
