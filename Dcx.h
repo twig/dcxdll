@@ -180,7 +180,7 @@ namespace Dcx
 		// calls ExtractIconEx()
 		dcxIconResource(const TString &filename, const int fIndex, const bool bLarge)
 			: dcxResource(make_resource([](const TString &filename, const int fIndex, const bool bLarge) {
-			HICON m_hIcon;
+			HICON m_hIcon = nullptr;
 			if (bLarge)
 				ExtractIconEx(filename.to_chr(), fIndex, &m_hIcon, nullptr, 1);
 			else
@@ -629,5 +629,19 @@ namespace Dcx
 	std::size_t countof(C const & c)
 	{
 		return c.size();
+	}
+
+	// Erase an item from a container if its found.
+	template <typename Cont, typename Val>
+	bool eraseIfFound(Cont &con, Val &v)
+	{
+		const auto itEnd = con.end();
+		const auto itGot = std::find(con.begin(), itEnd, v);
+		if (itGot != itEnd)
+		{
+			con.erase(itGot);
+			return true;
+		}
+		return false;
 	}
 }
