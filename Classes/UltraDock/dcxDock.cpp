@@ -116,14 +116,15 @@ bool DcxDock::DockWindow(HWND hwnd, const TString &flag)
 				break;
 		}
 	}
-	this->m_VectorDocks.push_back(new DCXULTRADOCK{ hwnd, dFlags, GetWindowStyle(hwnd), GetWindowExStyle(hwnd),{ 0,0,0,0 } });
+	m_VectorDocks.push_back(new DCXULTRADOCK{ hwnd, dFlags, GetWindowStyle(hwnd), GetWindowExStyle(hwnd),{ 0,0,0,0 } });
 
 	RemStyles(hwnd,GWL_STYLE,WS_CAPTION | DS_FIXEDSYS | DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_OVERLAPPED);
 	RemStyles(hwnd,GWL_EXSTYLE,WS_EX_CONTROLPARENT | WS_EX_CLIENTEDGE | WS_EX_DLGMODALFRAME | WS_EX_WINDOWEDGE | WS_EX_STATICEDGE | WS_EX_NOPARENTNOTIFY);
 	//RemStyles(hwnd,GWL_EXSTYLE,WS_EX_CLIENTEDGE | WS_EX_DLGMODALFRAME | WS_EX_WINDOWEDGE | WS_EX_STATICEDGE | WS_EX_NOPARENTNOTIFY);
 	AddStyles(hwnd,GWL_STYLE,WS_CHILDWINDOW);
 	SetParent(hwnd, this->m_hParent);
-	this->UpdateLayout();
+	
+	UpdateLayout();
 	return true;
 }
 
@@ -150,14 +151,18 @@ void DcxDock::UnDockWindow(const HWND hwnd)
 	auto itGot = std::find_if(m_VectorDocks.begin(), itEnd, [hwnd](const LPDCXULTRADOCK ud) { if (ud != nullptr) { return (ud->hwnd == hwnd); } return false; });
 	if (itGot != itEnd) {
 		auto ud = *itGot;
-		this->m_VectorDocks.erase(itGot);
-		SetWindowLongPtr(ud->hwnd, GWL_STYLE, (LONG)ud->old_styles);
-		SetWindowLongPtr(ud->hwnd, GWL_EXSTYLE, (LONG)ud->old_exstyles);
-		RemStyles(ud->hwnd, GWL_STYLE, WS_CHILDWINDOW);
-		SetParent(ud->hwnd, nullptr);
-		SetWindowPos(ud->hwnd, HWND_TOP, ud->rc.left, ud->rc.top, ud->rc.right - ud->rc.left, ud->rc.bottom - ud->rc.top, SWP_NOZORDER | SWP_FRAMECHANGED);
-		delete ud;
-		this->UpdateLayout();
+		m_VectorDocks.erase(itGot);
+
+		//SetWindowLongPtr(ud->hwnd, GWL_STYLE, static_cast<LONG>(ud->old_styles));
+		//SetWindowLongPtr(ud->hwnd, GWL_EXSTYLE, static_cast<LONG>(ud->old_exstyles));
+		//RemStyles(ud->hwnd, GWL_STYLE, WS_CHILDWINDOW);
+		//SetParent(ud->hwnd, nullptr);
+		//SetWindowPos(ud->hwnd, HWND_TOP, ud->rc.left, ud->rc.top, ud->rc.right - ud->rc.left, ud->rc.bottom - ud->rc.top, SWP_NOZORDER | SWP_FRAMECHANGED);
+		//delete ud;
+
+		UnDockWindowPtr(ud);
+
+		UpdateLayout();
 	}
 
 	//for (auto itStart = this->m_VectorDocks.begin(), itEnd = this->m_VectorDocks.end(); itStart != itEnd; ++itStart)
@@ -200,22 +205,37 @@ void DcxDock::UnDockWindow(const HWND hwnd)
 	//}
 }
 
+void DcxDock::UnDockWindowPtr(gsl::owner<LPDCXULTRADOCK> ud)
+{
+	if (ud == nullptr)
+		return;
+
+	SetWindowLongPtr(ud->hwnd, GWL_STYLE, static_cast<LONG>(ud->old_styles));
+	SetWindowLongPtr(ud->hwnd, GWL_EXSTYLE, static_cast<LONG>(ud->old_exstyles));
+	RemStyles(ud->hwnd, GWL_STYLE, WS_CHILDWINDOW);
+	SetParent(ud->hwnd, nullptr);
+	SetWindowPos(ud->hwnd, HWND_TOP, ud->rc.left, ud->rc.top, ud->rc.right - ud->rc.left, ud->rc.bottom - ud->rc.top, SWP_NOZORDER | SWP_FRAMECHANGED | SWP_NOACTIVATE);
+	delete ud;
+}
+
 void DcxDock::UnDockAll(void)
 {
 	// UnDock all windows.
-	for (const auto &ud : this->m_VectorDocks)
+	for (const auto &ud : m_VectorDocks)
 	{
-		if (ud != nullptr)
-		{
-			SetWindowLongPtr(ud->hwnd, GWL_STYLE, (LONG)ud->old_styles);
-			SetWindowLongPtr(ud->hwnd, GWL_EXSTYLE, (LONG)ud->old_exstyles);
-			RemStyles(ud->hwnd, GWL_STYLE, WS_CHILDWINDOW);
-			SetParent(ud->hwnd, nullptr);
-			SetWindowPos(ud->hwnd, HWND_TOP, ud->rc.left, ud->rc.top, ud->rc.right - ud->rc.left, ud->rc.bottom - ud->rc.top, SWP_NOZORDER | SWP_FRAMECHANGED | SWP_NOACTIVATE);
-			delete ud;
-		}
+		//if (ud != nullptr)
+		//{
+		//	SetWindowLongPtr(ud->hwnd, GWL_STYLE, static_cast<LONG>(ud->old_styles));
+		//	SetWindowLongPtr(ud->hwnd, GWL_EXSTYLE, static_cast<LONG>(ud->old_exstyles));
+		//	RemStyles(ud->hwnd, GWL_STYLE, WS_CHILDWINDOW);
+		//	SetParent(ud->hwnd, nullptr);
+		//	SetWindowPos(ud->hwnd, HWND_TOP, ud->rc.left, ud->rc.top, ud->rc.right - ud->rc.left, ud->rc.bottom - ud->rc.top, SWP_NOZORDER | SWP_FRAMECHANGED | SWP_NOACTIVATE);
+		//	delete ud;
+		//}
+
+		UnDockWindowPtr(ud);
 	}
-	this->m_VectorDocks.clear();
+	m_VectorDocks.clear();
 }
 
 bool DcxDock::FindDock(const HWND hwnd)
@@ -251,7 +271,7 @@ LPDCXULTRADOCK DcxDock::GetDock(const HWND hwnd)
 
 bool DcxDock::isDocked(const HWND hwnd)
 {
-	return (this->FindDock(hwnd) || (GetProp(hwnd, TEXT("dcx_docked")) != nullptr));
+	return (FindDock(hwnd) || (GetProp(hwnd, TEXT("dcx_docked")) != nullptr));
 }
 
 void DcxDock::AdjustRect(WINDOWPOS *wp)
@@ -259,8 +279,8 @@ void DcxDock::AdjustRect(WINDOWPOS *wp)
 	if (dcx_testflag(wp->flags, SWP_NOSIZE) && dcx_testflag(wp->flags, SWP_NOMOVE)) // handle min/max case;
 		return;
 
-	RECT rcDocked;
-	int x,y,w,h; //nWin = this->m_VectorDocks.size();
+	RECT rcDocked = { 0 };
+	int x = 0, y = 0, w = 0, h = 0; //nWin = this->m_VectorDocks.size();
 
 	// count visible docked windows.
 
@@ -268,7 +288,8 @@ void DcxDock::AdjustRect(WINDOWPOS *wp)
 	//	if ((x != nullptr) && IsWindowVisible(x->hwnd))
 	//		nWin++;
 	//}
-	auto nWin = this->m_VectorDocks.size(); // for loop unneeded, max size will do
+
+	auto nWin = m_VectorDocks.size(); // for loop unneeded, max size will do
 	if (nWin == 0) return;
 
 	auto refh = wp->cy;
@@ -279,11 +300,11 @@ void DcxDock::AdjustRect(WINDOWPOS *wp)
 	auto xleftoffset = wp->x;
 	auto xrightoffset = wp->x + refw;
 
-	auto hdwp = BeginDeferWindowPos((int)nWin);
-	HDWP tmp;
+	auto hdwp = BeginDeferWindowPos(static_cast<int>(nWin));
+	HDWP tmp = nullptr;
 
 	// size docks
-	for (const auto &ud: this->m_VectorDocks) {
+	for (const auto &ud: m_VectorDocks) {
 		if (ud == nullptr)
 			continue;
 
@@ -997,6 +1018,9 @@ void DcxDock::status_deletePartInfo(const int iPart)
 	if (dcx_testflag(DcxDock::status_getPartFlags( iPart ),SBT_OWNERDRAW)) {
 		auto pPart = reinterpret_cast<LPSB_PARTINFOD>(DcxDock::status_getText(iPart, nullptr));
 
+		if (pPart == nullptr)
+			return;
+
 		//auto itStart = DcxDock::g_vParts.begin();
 		//auto itEnd = DcxDock::g_vParts.end();
 		//
@@ -1012,15 +1036,23 @@ void DcxDock::status_deletePartInfo(const int iPart)
 		//	++itStart;
 		//}
 
-		const auto itEnd = DcxDock::g_vParts.end();
-		const auto itGot = std::find(DcxDock::g_vParts.begin(), itEnd, pPart);
-		if (itGot != itEnd)
+		//const auto itEnd = DcxDock::g_vParts.end();
+		//const auto itGot = std::find(DcxDock::g_vParts.begin(), itEnd, pPart);
+		//if (itGot != itEnd)
+		//{
+		//	DcxDock::status_setText(iPart, SBT_OWNERDRAW, nullptr);
+		//	if (IsWindow(pPart->m_Child))
+		//		DestroyWindow(pPart->m_Child);
+		//	delete pPart;
+		//	DcxDock::g_vParts.erase(itGot);
+		//}
+
+		if (Dcx::eraseIfFound(g_vParts, pPart))
 		{
 			DcxDock::status_setText(iPart, SBT_OWNERDRAW, nullptr);
 			if (IsWindow(pPart->m_Child))
 				DestroyWindow(pPart->m_Child);
 			delete pPart;
-			DcxDock::g_vParts.erase(itGot);
 		}
 	}
 }
@@ -1089,7 +1121,7 @@ void DcxDock::status_updateParts(void) {
 	const auto w = (rcClient.right - rcClient.left) / 100; // - (2 * borders[1]);
 
 	for (auto i = decltype(nParts){0}; i < nParts; i++) {
-		int pw;
+		int pw = 0;
 		if (DcxDock::g_iDynamicParts[i] != 0)
 			pw = w * DcxDock::g_iDynamicParts[i];
 		else

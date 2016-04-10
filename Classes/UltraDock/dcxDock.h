@@ -121,6 +121,7 @@ public:
 
 	virtual bool DockWindow(HWND hwnd, const TString &flag);
 	virtual void UnDockWindow(const HWND hwnd);
+	void UnDockWindowPtr(gsl::owner<LPDCXULTRADOCK> ud);
 	void UnDockAll(void);
 	void UpdateLayout(void) const { SendMessage(this->m_hParent,WM_SIZE,NULL,NULL); };
 	bool FindDock(const HWND hwnd);
