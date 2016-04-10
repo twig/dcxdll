@@ -21,7 +21,7 @@ public:
 
 	DcxTrayIcon &operator =(const DcxTrayIcon &) = delete;	// No assignments!
 
-	HWND GetHwnd() const;
+	const HWND &GetHwnd() const noexcept;
 	const bool idExists(const int id) const;
 	const bool modifyIcon(const int id, const DWORD msg, const HICON icon = nullptr, const TString *const tooltip = nullptr);
 

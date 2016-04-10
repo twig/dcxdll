@@ -45,7 +45,7 @@ mIRC(xstatusbar) {
 		break;
 		case TEXT('f'): // -f [+FLAGS] [CHARSET] [SIZE] [FONTNAME] : set font
 		{
-			LOGFONT lf;
+			LOGFONT lf = { 0 };
 
 			// check syntax
 			if (numtok < 5)
@@ -76,7 +76,7 @@ mIRC(xstatusbar) {
 				throw Dcx::dcxException("Invalid Parameters");
 
 			const auto nParts = numtok - 1;
-			INT parts[SB_MAX_PARTSD];
+			INT parts[SB_MAX_PARTSD] = { 0 };
 
 			auto c = 0U;
 			TString p;

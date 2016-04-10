@@ -39,7 +39,6 @@ mIRC(TrayIcon) {
 		// create and edit can use the same function
 		if ((xflags[TEXT('c')] || xflags[TEXT('e')]) && numtok > 3) {
 			// find icon id in vector
-			//const bool bExists = (trayIcons->idExists(id) ? true : false);
 			const bool bExists = trayIcons->idExists(id);
 			DWORD msg = NIM_ADD;
 
@@ -133,38 +132,39 @@ DcxTrayIcon::DcxTrayIcon(void)
 	// create a "dialog" and dont bother showing it
 	this->m_hwnd = CreateWindow(TEXT("#32770"), TEXT(""), 0, 0, 0, 48, 48, nullptr, nullptr, GetModuleHandle(nullptr), nullptr);
 
-	if (!IsWindow(this->m_hwnd))
+	if (!IsWindow(m_hwnd))
 		throw Dcx::dcxException("Problem initialising trayicons");
 
-	this->m_wndProc = SubclassWindow(this->m_hwnd, DcxTrayIcon::TrayWndProc);
+	m_wndProc = SubclassWindow(m_hwnd, DcxTrayIcon::TrayWndProc);
 }
 
 DcxTrayIcon::~DcxTrayIcon(void)
 {
-	if (this->m_hwnd != nullptr)
+	if (m_hwnd != nullptr)
 	{
 		// make copy of vector
-		auto TempIDs(this->trayIconIDs);
+		auto TempIDs(trayIconIDs);
 
 		// use temp vector to delete icons (this modifies the original vector)
 		for (const auto &x : TempIDs)
-			this->modifyIcon(x, NIM_DELETE);
+			modifyIcon(x, NIM_DELETE);
 
-		SetWindowLongPtr(this->m_hwnd, GWLP_WNDPROC, (LONG_PTR) this->m_wndProc);
-		this->m_hwndTooltip = nullptr;
-		this->m_wndProc = nullptr;
-		DestroyWindow(this->m_hwnd);
+		SetWindowLongPtr(m_hwnd, GWLP_WNDPROC, (LONG_PTR) m_wndProc);
+		m_hwndTooltip = nullptr;
+		m_wndProc = nullptr;
+		DestroyWindow(m_hwnd);
 	}
 }
 
-HWND DcxTrayIcon::GetHwnd() const {
-	return this->m_hwnd;
+const HWND &DcxTrayIcon::GetHwnd() const noexcept
+{
+	return m_hwnd;
 }
 
 LRESULT CALLBACK DcxTrayIcon::TrayWndProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
 	if (uMsg == DCXM_TRAYICON) {
-		const auto uMouseMsg = (UINT) lParam;
-		const auto id = (UINT) wParam;
+		const auto uMouseMsg = static_cast<UINT>(lParam);
+		const auto id = static_cast<UINT>(wParam);
 
 		switch (uMouseMsg)
 		{
@@ -203,7 +203,8 @@ LRESULT CALLBACK DcxTrayIcon::TrayWndProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 
 
 void DcxTrayIcon::AddIconId(const int id) {
-	this->trayIconIDs.push_back(id);
+	//trayIconIDs.push_back(id);
+	trayIconIDs.emplace_back(id);
 }
 
 const bool DcxTrayIcon::DeleteIconId(const int id) {
@@ -223,13 +224,15 @@ const bool DcxTrayIcon::DeleteIconId(const int id) {
 	//
 	//return false;
 
-	const auto itEnd = trayIconIDs.end();
-	const auto itGot = std::find(trayIconIDs.begin(), itEnd, id);
-	if (itGot != itEnd) {
-		trayIconIDs.erase(itGot);
-		return true;
-	}
-	return false;
+	//const auto itEnd = trayIconIDs.end();
+	//const auto itGot = std::find(trayIconIDs.begin(), itEnd, id);
+	//if (itGot != itEnd) {
+	//	trayIconIDs.erase(itGot);
+	//	return true;
+	//}
+	//return false;
+
+	return Dcx::eraseIfFound(trayIconIDs, id);
 }
 
 const bool DcxTrayIcon::idExists(const int id) const {
@@ -257,7 +260,7 @@ const bool DcxTrayIcon::modifyIcon(const int id, const DWORD msg, const HICON ic
 	nid.uID = id;
 	nid.uFlags = NIF_MESSAGE;
 	nid.cbSize = sizeof(NOTIFYICONDATA);
-	nid.hWnd = this->GetHwnd();
+	nid.hWnd = GetHwnd();
 	nid.uCallbackMessage = DCXM_TRAYICON;
 
 	if (tooltip != nullptr && !tooltip->empty()) {
@@ -273,9 +276,9 @@ const bool DcxTrayIcon::modifyIcon(const int id, const DWORD msg, const HICON ic
    // add/edit the icon
 	if (Shell_NotifyIcon(msg, &nid)) {
 		if (msg == NIM_ADD)
-			this->AddIconId(id);
+			AddIconId(id);
 		else if (msg == NIM_DELETE)
-			this->DeleteIconId(id);
+			DeleteIconId(id);
 
 		res = true;
 	}
