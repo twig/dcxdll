@@ -240,7 +240,10 @@ bool CRichEditThemed::OnNCPaint()
 			HTHEME hTheme = pOpenThemeData(m_hRichEdit, L"edit");
 			if(hTheme)
 			{
+				Auto(pCloseThemeData(hTheme));
+
 				HDC hdc = GetWindowDC(m_hRichEdit);
+				Auto(ReleaseDC(m_hRichEdit, hdc));
 
 				//Clip the DC so that we only draw on the non-client area
 				RECT rcBorder;
@@ -260,18 +263,15 @@ bool CRichEditThemed::OnNCPaint()
 					pDrawThemeParentBackground(m_hRichEdit, hdc, &rcBorder);
 
 				//Draw the border of the edit box
-				int nState;
+				int nState = ETS_NORMAL;
+
 				if(!IsWindowEnabled(m_hRichEdit))
 					nState = ETS_DISABLED;
 				else if(SendMessage(m_hRichEdit, EM_GETOPTIONS, NULL, NULL) & ECO_READONLY)
 					nState = ETS_READONLY;
-				else
-					nState = ETS_NORMAL;
 				
 				pDrawThemeBackground(hTheme, hdc, EP_EDITTEXT, nState, &rcBorder, nullptr);
-				pCloseThemeData(hTheme);
 
-				ReleaseDC(m_hRichEdit, hdc);
 				return true;
 			}
 		}
