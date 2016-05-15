@@ -41,20 +41,41 @@
 
 #include "Classes/TString/tstring.h"
 
-class XSwitchFlags {
-	public:
-		XSwitchFlags() = delete;
-		explicit XSwitchFlags(const TString &switches);
-		~XSwitchFlags();
+//class XSwitchFlags {
+//	public:
+//		XSwitchFlags() = delete;
+//		XSwitchFlags(const XSwitchFlags &) = delete;
+//		XSwitchFlags &operator =(const XSwitchFlags &) = delete;	// No assignments!
+//
+//		explicit XSwitchFlags(const TString &switches) noexcept;
+//		~XSwitchFlags() = default;
+//
+//		// Function checks if flag is set
+//		const bool &isSet(const TCHAR c) const noexcept;
+//		const bool &operator[](const TCHAR c) const noexcept;
+//
+////	protected:
+//private:
+//		bool flags[28];     //!< Lowercase switches a-z
+//		bool flags_cap[26]; //!< Uppercase switches A-Z
+//};
 
-		// Function checks if flag is set
-		const bool &isSet(const TCHAR c) const noexcept;
-		const bool &operator[](const TCHAR c) const noexcept;
-		XSwitchFlags &operator =(const XSwitchFlags &) = delete;	// No assignments!
+struct XSwitchFlags {
+	XSwitchFlags() = delete;
+	XSwitchFlags(const XSwitchFlags &) = delete;
+	XSwitchFlags &operator =(const XSwitchFlags &) = delete;	// No assignments!
 
-	protected:
-		bool flags[28];     //!< Lowercase switches a-z
-		bool flags_cap[26]; //!< Uppercase switches A-Z
+	explicit XSwitchFlags(const TString &switches) noexcept;
+	~XSwitchFlags() = default;
+
+	// Function checks if flag is set
+	const bool &isSet(const TCHAR c) const noexcept;
+	const bool &operator[](const TCHAR c) const noexcept { return isSet(c); }
+
+private:
+	bool m_bFlags[28];     //!< Lowercase switches a-z
+	bool m_bFlags_cap[26]; //!< Uppercase switches A-Z
+	static const bool m_bFalse;
 };
 
 #ifdef DCX_SWITCH_OBJ

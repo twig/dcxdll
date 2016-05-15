@@ -1,16 +1,17 @@
 #include "defines.h"
 
-// Constructor
-XSwitchFlags::XSwitchFlags(const TString &switches)
-{
-	ZeroMemory(flags, sizeof(bool) * 28);
-	ZeroMemory(flags_cap, sizeof(bool) * 26);
+const bool XSwitchFlags::m_bFalse{ false };
 
+// Constructor
+XSwitchFlags::XSwitchFlags(const TString &switches) noexcept
+	: m_bFlags{ false }
+	, m_bFlags_cap{ false }
+{
 	// no - sign, & no + sign, invalid syntax
 	if (switches[0] == TEXT('-'))
-		flags[26] = true;
+		m_bFlags[26] = true;
 	else if (switches[0] == TEXT('+'))
-		flags[27] = true;
+		m_bFlags[27] = true;
 	else
 		return;
 
@@ -23,36 +24,25 @@ XSwitchFlags::XSwitchFlags(const TString &switches)
 
 		// Check if its in the right range
 		if (c >= TEXT('a') && c <= TEXT('z'))
-			flags[(int) (c - TEXT('a'))] = true;
+			m_bFlags[(int) (c - TEXT('a'))] = true;
 		else if (c >= TEXT('A') && (c <= TEXT('Z')))
-			flags_cap[(int) (c - TEXT('A'))] = true;
+			m_bFlags_cap[(int) (c - TEXT('A'))] = true;
 	}
-}
-
-// Destructor
-XSwitchFlags::~XSwitchFlags(void) {
 }
 
 // Checks if flags are set.
 const bool &XSwitchFlags::isSet(const TCHAR c) const noexcept
 {
-	static const bool bFalse(false);
-
 	// Lower-case
 	if ((c >= TEXT('a')) && (c <= TEXT('z')))
-		return flags[(int) (c - TEXT('a'))];
+		return m_bFlags[(int) (c - TEXT('a'))];
 	// Upper-case
 	else if ((c >= TEXT('A')) && (c <= TEXT('Z')))
-		return flags_cap[(int) (c - TEXT('A'))];
+		return m_bFlags_cap[(int) (c - TEXT('A'))];
 	else if (c == TEXT('-'))	// check if - flag identifier used.
-		return flags[26];
+		return m_bFlags[26];
 	else if (c == TEXT('+'))	// check if + flag identifier used.
-		return flags[27];
+		return m_bFlags[27];
 
-	return bFalse;
-}
-
-// Wrapper for isSet()
-const bool &XSwitchFlags::operator[](const TCHAR c) const noexcept {
-	return this->isSet(c);
+	return m_bFalse;
 }
