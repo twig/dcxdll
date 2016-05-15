@@ -13,7 +13,8 @@ DcxDock *g_dockSwitchbar = nullptr; // needed to adjust size for statusbar.
 DcxDock *g_dockToolbar = nullptr; // needed to adjust size for statusbar.
 
 // force a window update.
-void UpdatemIRC(void) {
+void UpdatemIRC(void) noexcept
+{
 	SendMessage(mIRCLinker::getHWND(), WM_SIZE, NULL, NULL);
 }
 

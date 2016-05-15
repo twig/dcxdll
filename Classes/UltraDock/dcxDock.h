@@ -121,12 +121,12 @@ public:
 
 	virtual bool DockWindow(HWND hwnd, const TString &flag);
 	virtual void UnDockWindow(const HWND hwnd);
-	void UnDockWindowPtr(gsl::owner<LPDCXULTRADOCK> ud);
-	void UnDockAll(void);
-	void UpdateLayout(void) const { SendMessage(this->m_hParent,WM_SIZE,NULL,NULL); };
-	bool FindDock(const HWND hwnd);
-	bool isDocked(const HWND hwnd);
-	LPDCXULTRADOCK GetDock(const HWND hwnd);
+	void UnDockWindowPtr(gsl::owner<LPDCXULTRADOCK> ud) noexcept;
+	void UnDockAll(void) noexcept;
+	void UpdateLayout(void) const noexcept { SendMessage(this->m_hParent,WM_SIZE,NULL,NULL); };
+	bool FindDock(const HWND hwnd) const;
+	bool isDocked(const HWND hwnd) const;
+	LPDCXULTRADOCK GetDock(const HWND hwnd) const;
 	virtual void AdjustRect(WINDOWPOS *wp);
 	//void RedrawRef(void);
 
@@ -151,7 +151,7 @@ public:
 	// Statusbar Functions.
 	static bool InitStatusbar(const TString &styles);
 	static void UnInitStatusbar(void);
-	static bool IsStatusbar(void);
+	static bool IsStatusbar(void) noexcept;
 	static void status_parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
 	static void status_getRect(LPRECT rc);
 	static void status_setBkColor(const COLORREF clr);
@@ -215,7 +215,7 @@ protected:
 void InitUltraDock(void);
 void CloseUltraDock(void);
 const SwitchBarPos SwitchbarPos(const DockTypes type);
-void UpdatemIRC(void);
+void UpdatemIRC(void) noexcept;
 
 #ifdef __INTEL_COMPILER // Defined when using Intel C++ Compiler.
 #pragma warning( pop )

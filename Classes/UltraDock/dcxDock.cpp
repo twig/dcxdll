@@ -25,15 +25,15 @@ DcxDock::DcxDock(HWND refHwnd, HWND dockHwnd, const DockTypes dockType)
 , m_RefHwnd(refHwnd)
 , m_hParent(dockHwnd)
 , m_iType(dockType)
+, m_VectorDocks()
 {
-	this->m_VectorDocks.clear();
-	if (IsWindow(this->m_RefHwnd)) {
-		SetProp(this->m_RefHwnd,TEXT("DcxDock"),this);
-		this->m_OldRefWndProc = SubclassWindow(this->m_RefHwnd, DcxDock::mIRCRefWinProc);
+	if (IsWindow(m_RefHwnd)) {
+		SetProp(m_RefHwnd,TEXT("DcxDock"),this);
+		m_OldRefWndProc = SubclassWindow(m_RefHwnd, DcxDock::mIRCRefWinProc);
 	}
-	if (IsWindow(this->m_hParent)) {
-		SetProp(this->m_hParent,TEXT("DcxDock"),this);
-		this->m_OldDockWndProc = SubclassWindow(this->m_hParent, DcxDock::mIRCDockWinProc);
+	if (IsWindow(m_hParent)) {
+		SetProp(m_hParent,TEXT("DcxDock"),this);
+		this->m_OldDockWndProc = SubclassWindow(m_hParent, DcxDock::mIRCDockWinProc);
 	}
 	//if (dockType == DOCK_TYPE_TREE)
 	//	AddStyles(this->m_RefHwnd,GWL_EXSTYLE,WS_EX_TRANSPARENT);
@@ -42,20 +42,20 @@ DcxDock::DcxDock(HWND refHwnd, HWND dockHwnd, const DockTypes dockType)
 DcxDock::~DcxDock(void)
 {
 
-	this->UnDockAll();
+	UnDockAll();
 
 	// reset to orig WndProc
-	if (IsWindow(this->m_RefHwnd)) {
-		RemoveProp(this->m_RefHwnd,TEXT("DcxDock"));
-		if ((this->m_OldRefWndProc != nullptr) && ((WNDPROC)GetWindowLongPtr(this->m_RefHwnd, GWLP_WNDPROC) == DcxDock::mIRCRefWinProc))
-			SubclassWindow(this->m_RefHwnd, this->m_OldRefWndProc);
+	if (IsWindow(m_RefHwnd)) {
+		RemoveProp(m_RefHwnd,TEXT("DcxDock"));
+		if ((m_OldRefWndProc != nullptr) && ((WNDPROC)GetWindowLongPtr(m_RefHwnd, GWLP_WNDPROC) == DcxDock::mIRCRefWinProc))
+			SubclassWindow(m_RefHwnd, m_OldRefWndProc);
 	}
-	if (IsWindow(this->m_hParent)) {
-		RemoveProp(this->m_hParent,TEXT("DcxDock"));
-		if ((this->m_OldDockWndProc != nullptr) && ((WNDPROC)GetWindowLongPtr(this->m_hParent, GWLP_WNDPROC) == DcxDock::mIRCDockWinProc))
-			SubclassWindow(this->m_hParent, this->m_OldDockWndProc);
+	if (IsWindow(m_hParent)) {
+		RemoveProp(m_hParent,TEXT("DcxDock"));
+		if ((m_OldDockWndProc != nullptr) && ((WNDPROC)GetWindowLongPtr(m_hParent, GWLP_WNDPROC) == DcxDock::mIRCDockWinProc))
+			SubclassWindow(m_hParent, m_OldDockWndProc);
 	}
-	this->UpdateLayout();
+	UpdateLayout();
 }
 
 bool DcxDock::DockWindow(HWND hwnd, const TString &flag)
@@ -63,7 +63,7 @@ bool DcxDock::DockWindow(HWND hwnd, const TString &flag)
 	if (isDocked(hwnd))
 		throw Dcx::dcxException(TEXT("Window (%) is already docked"), reinterpret_cast<DWORD>(hwnd));
 
-	if (!IsWindow(this->m_hParent))
+	if (!IsWindow(m_hParent))
 		throw Dcx::dcxException("Invalid Dock Host Window");
 
 	//auto ud = new DCXULTRADOCK;
@@ -122,7 +122,7 @@ bool DcxDock::DockWindow(HWND hwnd, const TString &flag)
 	RemStyles(hwnd,GWL_EXSTYLE,WS_EX_CONTROLPARENT | WS_EX_CLIENTEDGE | WS_EX_DLGMODALFRAME | WS_EX_WINDOWEDGE | WS_EX_STATICEDGE | WS_EX_NOPARENTNOTIFY);
 	//RemStyles(hwnd,GWL_EXSTYLE,WS_EX_CLIENTEDGE | WS_EX_DLGMODALFRAME | WS_EX_WINDOWEDGE | WS_EX_STATICEDGE | WS_EX_NOPARENTNOTIFY);
 	AddStyles(hwnd,GWL_STYLE,WS_CHILDWINDOW);
-	SetParent(hwnd, this->m_hParent);
+	SetParent(hwnd, m_hParent);
 	
 	UpdateLayout();
 	return true;
@@ -205,7 +205,7 @@ void DcxDock::UnDockWindow(const HWND hwnd)
 	//}
 }
 
-void DcxDock::UnDockWindowPtr(gsl::owner<LPDCXULTRADOCK> ud)
+void DcxDock::UnDockWindowPtr(gsl::owner<LPDCXULTRADOCK> ud) noexcept
 {
 	if (ud == nullptr)
 		return;
@@ -218,7 +218,7 @@ void DcxDock::UnDockWindowPtr(gsl::owner<LPDCXULTRADOCK> ud)
 	delete ud;
 }
 
-void DcxDock::UnDockAll(void)
+void DcxDock::UnDockAll(void) noexcept
 {
 	// UnDock all windows.
 	for (const auto &ud : m_VectorDocks)
@@ -238,7 +238,7 @@ void DcxDock::UnDockAll(void)
 	m_VectorDocks.clear();
 }
 
-bool DcxDock::FindDock(const HWND hwnd)
+bool DcxDock::FindDock(const HWND hwnd) const
 {
 	//for (const auto &x: this->m_VectorDocks) {
 	//	if (x != nullptr) {
@@ -252,7 +252,7 @@ bool DcxDock::FindDock(const HWND hwnd)
 	return (std::find_if(m_VectorDocks.begin(), itEnd, [hwnd](const LPDCXULTRADOCK ud) { if (ud != nullptr) { return (ud->hwnd == hwnd); } return false; }) != itEnd);
 }
 
-LPDCXULTRADOCK DcxDock::GetDock(const HWND hwnd)
+LPDCXULTRADOCK DcxDock::GetDock(const HWND hwnd) const
 {
 	//for (const auto &x: this->m_VectorDocks) {
 	//	if (x != nullptr) {
@@ -269,7 +269,7 @@ LPDCXULTRADOCK DcxDock::GetDock(const HWND hwnd)
 	return nullptr;
 }
 
-bool DcxDock::isDocked(const HWND hwnd)
+bool DcxDock::isDocked(const HWND hwnd) const
 {
 	return (FindDock(hwnd) || (GetProp(hwnd, TEXT("dcx_docked")) != nullptr));
 }
@@ -665,7 +665,7 @@ LRESULT CALLBACK DcxDock::mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 												mIRCLinker::tsEvalex(buf, TEXT("$window(@%d).sbcolor"), wid);
 												if (!buf.empty()) {
 													static const TString sbcolor(TEXT("s s message s event s highlight")); // 's' is used as a spacer.
-													const auto clr = sbcolor.findtok(buf, 1);
+													const auto clr = sbcolor.findtok(buf, 1U);
 													if ((clr == 0) || (clr >= Dcx::countof(DcxDock::g_clrTreebarColours))) // no match, do normal colours
 														break;
 													if (DcxDock::g_clrTreebarColours[clr-1] != CLR_INVALID) // text colour
@@ -766,6 +766,8 @@ LRESULT CALLBACK DcxDock::mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 
 						if (pPart->m_BkgCol != nullptr)
 							FillRect(lpDrawItem->hDC, &rc, pPart->m_BkgCol);
+						//else
+						//	XPopupMenuItem::DrawGradient(lpDrawItem->hDC, &rc, RGB(255, 0, 0), RGB(0, 255, 0), FALSE);
 
 						if (pPart->m_iIcon > -1) {
 							IMAGEINFO ii;
@@ -932,7 +934,7 @@ void DcxDock::UnInitStatusbar(void)
 	g_StatusFont = nullptr;
 }
 
-bool DcxDock::IsStatusbar(void)
+bool DcxDock::IsStatusbar(void) noexcept
 {
 	return (IsWindow(g_StatusBar) != FALSE);
 }
