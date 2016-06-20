@@ -55,8 +55,8 @@ public:
 	void parseCommandRequest(const TString & input) override;
 	void parseControlStyles(const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme) override;
 
-	const HIMAGELIST &getImageList( ) const;
-	void setImageList( const HIMAGELIST himl );
+	const HIMAGELIST &getImageList( ) const noexcept;
+	void setImageList( const HIMAGELIST himl ) noexcept;
 	HIMAGELIST createImageList( );
 
 	inline const TString getType() const override { return TEXT("button"); };
@@ -79,12 +79,12 @@ protected:
 	bool m_bHover;    //!< Button Hovering State
 	bool m_bTouched;  //!< Button Touched by Mouse State
 	bool m_bSelected; //!< Button Selected State
+	bool m_bBitmapText;
+	bool m_bHasIcons;
 
 	UINT m_iIconSize; //!< Button Icon Size 16,24,32
 
-	static const UINT parseColorFlags(const TString & flags );
-	bool m_bBitmapText;
-	bool m_bHasIcons;
+	static const UINT parseColorFlags(const TString & flags ) noexcept;
 	void DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam);
 };
 
