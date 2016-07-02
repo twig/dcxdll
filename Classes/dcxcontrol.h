@@ -163,7 +163,7 @@ public:
 
 	bool execAliasEx(const TCHAR *const szFormat, ... );
 
-	const UINT getUserID( ) const noexcept;
+	const UINT &getUserID( ) const noexcept;
 
 	virtual LRESULT PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) = 0;
 	virtual LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) = 0;
@@ -178,8 +178,8 @@ public:
 	const HBRUSH &getBackClrBrush( ) const noexcept;
 	const COLORREF &getBackColor( ) const noexcept;
 	const COLORREF &getTextColor( ) const noexcept;
-	const COLORREF &getStartGradientColor(void) const noexcept { return this->m_clrStartGradient; };
-	const COLORREF &getEndGradientColor(void) const noexcept { return this->m_clrEndGradient; };
+	const COLORREF &getStartGradientColor(void) const noexcept { return m_clrStartGradient; };
+	const COLORREF &getEndGradientColor(void) const noexcept { return m_clrEndGradient; };
 	const RECT getWindowPosition(void) const;
 
 	virtual const TString getType( ) const = 0;
@@ -190,9 +190,9 @@ public:
 	virtual void toXml(TiXmlElement *const xml) const;
 	virtual TiXmlElement * toXml(void) const;
 
-	inline void incRef( ) noexcept { ++this->m_iRefCount; };
-	inline void decRef( ) noexcept { --this->m_iRefCount; };
-	inline const UINT &getRefCount( ) const noexcept { return this->m_iRefCount; };
+	inline void incRef( ) noexcept { ++m_iRefCount; };
+	inline void decRef( ) noexcept { --m_iRefCount; };
+	inline const UINT &getRefCount( ) const noexcept { return m_iRefCount; };
 
 	//DcxControl *getParentCtrl() const { return this->m_pParentCtrl; };
 	void updateParentCtrl(void); //!< updates controls host control pointers, MUST be called before these pointers are used.
@@ -200,7 +200,13 @@ public:
 	LPALPHAINFO SetupAlphaBlend(HDC *hdc, const bool DoubleBuffer = false);
 	void FinishAlphaBlend(LPALPHAINFO ai);
 	void showError(const TCHAR *const prop, const TCHAR *const cmd, const TCHAR *const err) const;
-	void showErrorEx(const TCHAR *const prop, const TCHAR *const cmd, const TCHAR *const fmt, ...) const;
+	//void showErrorEx(const TCHAR *const prop, const TCHAR *const cmd, const TCHAR *const fmt, ...) const;
+	template <typename Format, typename Value, typename... Arguments>
+	void showError(const TCHAR *const prop, const TCHAR *const cmd, const Format &fmt, const Value val, Arguments&&... args) const
+	{
+		TString tsErr;
+		showError(prop, cmd, _ts_sprintf(tsErr, fmt, val, args...).to_chr());
+	}
 
 	static LRESULT CALLBACK WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 	static DcxControl * controlFactory(DcxDialog *const p_Dialog, const UINT mID, const TString & input, const UINT offset, const UINT64 mask = CTLF_ALLOW_ALL, HWND hParent = nullptr);
@@ -231,7 +237,8 @@ protected:
 
 	HBITMAP m_bitmapBg;				//!< Background bitmap
 
-	UINT m_iRefCount;
+	UINT m_iRefCount;				//!< Controls reference counter
+	UINT m_UserID;					//!< controls User ID (ID - mIRC_ID_OFFSET)
 
 	HCURSOR m_hCursor;				//!< Cursor Handle
 
@@ -255,7 +262,8 @@ protected:
 	/* ***** */
 
 	void parseGlobalCommandRequest(const TString & input, const XSwitchFlags & flags );
-	BOOL parseGlobalInfoRequest(const TString & input, TCHAR *const szReturnValue) const;
+	//bool parseGlobalInfoRequest(const TString & input, TCHAR *const szReturnValue) const;
+	bool parseGlobalInfoRequest(const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const;
 
 	void registreDefaultWindowProc( );
 	void unregistreDefaultWindowProc( );

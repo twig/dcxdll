@@ -69,14 +69,16 @@ DcxControl::DcxControl( const UINT mID, DcxDialog *const p_Dialog )
 : DcxWindow( mID )
 , m_pParentDialog( p_Dialog )
 , m_hFont(nullptr)
-//, m_tsMark("")
+//, m_tsMark()
 , m_clrText(CLR_INVALID)
 , m_clrBackText(CLR_INVALID)
 , m_hBackBrush(nullptr)
 , m_clrBackground(CLR_INVALID)
-, m_iRefCount(0)
+, m_iRefCount(0U)
+, m_UserID(mID - mIRC_ID_OFFSET)
 , m_hCursor(nullptr)
-, m_bCursorFromFile(FALSE)
+//m_hCursor(m_pParentDialog->getCursor())	// inherit the parent dialogs custom cursor...
+, m_bCursorFromFile(false)
 , m_bAlphaBlend(false)
 //, m_pParentCtrl(nullptr)
 , m_pParentHWND(nullptr)
@@ -94,14 +96,11 @@ DcxControl::DcxControl( const UINT mID, DcxDialog *const p_Dialog )
 , m_ToolTipHWND(nullptr)
 , m_colTransparentBg(CLR_INVALID)
 , m_DefaultWindowProc(nullptr)
+, m_dEventMask(p_Dialog->getEventMask())	// inherit the parent dialogs event mask
 {
-	if (p_Dialog == nullptr)
-		throw Dcx::dcxException("DcxControl()");
-
-	// inherit parent dialogs event mask
-	this->m_dEventMask = p_Dialog->getEventMask();
-	// inherit parent dialogs cursor (if any)
-	//this->m_hCursor = this->m_pParentDialog->getCursor();
+	//m_dEventMask = p_Dialog->getEventMask();
+	//if (p_Dialog == nullptr)
+	//	throw Dcx::dcxException("DcxControl()");
 }
 
 /*!
@@ -114,32 +113,32 @@ DcxControl::DcxControl( const UINT mID, DcxDialog *const p_Dialog )
 
 DcxControl::~DcxControl( ) {
 
-	RemoveProp( this->m_Hwnd, TEXT("dcx_cthis") );
+	RemoveProp( m_Hwnd, TEXT("dcx_cthis") );
 
 	// Reverse to old font
-	this->setControlFont(nullptr, FALSE);
+	setControlFont(nullptr, FALSE);
 
 	// Delete background brush
-	if (this->m_hBackBrush != nullptr) {
+	if (m_hBackBrush != nullptr) {
 
-		DeleteBrush( this->m_hBackBrush );
-		this->m_hBackBrush = nullptr;
+		DeleteBrush( m_hBackBrush );
+		m_hBackBrush = nullptr;
 	}
 	// Delete border brush
-	if (this->m_hBorderBrush != nullptr) {
+	if (m_hBorderBrush != nullptr) {
 
-		DeleteBrush( this->m_hBorderBrush );
-		this->m_hBorderBrush = nullptr;
+		DeleteBrush( m_hBorderBrush );
+		m_hBorderBrush = nullptr;
 	}
 
 	// check if we need to destroy the cursor (do not destroy if same cursor as parent dialog, parent will destroy this for us)
-	if (this->m_bCursorFromFile && this->m_hCursor != nullptr && this->m_hCursor != this->m_pParentDialog->getCursor()) {
+	if (m_bCursorFromFile && m_hCursor != nullptr && m_hCursor != m_pParentDialog->getCursor()) {
 
-		DestroyCursor( this->m_hCursor );
-		this->m_hCursor = nullptr;
+		DestroyCursor( m_hCursor );
+		m_hCursor = nullptr;
 	}
 
-	this->m_pParentDialog->deleteControl( this );
+	m_pParentDialog->deleteControl( this );
 }
 
 /*!
@@ -151,6 +150,53 @@ DcxControl::~DcxControl( ) {
 void DcxControl::parseGeneralControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme )
 {
 	*Styles |= WS_CLIPCHILDREN | WS_VISIBLE;
+
+#if DCX_USE_HASHING
+	for (const auto &tsStyle : styles)
+	{
+		switch (const_hash(tsStyle.to_chr()))
+		{
+			case L"notheme"_hash:
+				*bNoTheme = TRUE;
+				break;
+			case L"tabstop"_hash:
+				*Styles |= WS_TABSTOP;
+				break;
+			case L"group"_hash:
+				*Styles |= WS_GROUP;
+				break;
+			case L"disabled"_hash:
+				*Styles |= WS_DISABLED;
+				break;
+			case L"transparent"_hash:
+				*ExStyles |= WS_EX_TRANSPARENT;
+				break;
+			case L"hidden"_hash:
+				*Styles &= ~WS_VISIBLE;
+				break;
+			case L"alpha"_hash:
+				m_bAlphaBlend = true;
+				break;
+			case L"shadow"_hash:
+				m_bShadowText = true;
+				break;
+			case L"noformat"_hash:
+				m_bCtrlCodeText = false;
+				break;
+			case L"hgradient"_hash:
+				m_bGradientFill = true;
+				break;
+			case L"vgradient"_hash:
+				{
+					m_bGradientFill = true;
+					m_bGradientVertical = true;
+				}
+				break;
+			default:
+				break;
+		}
+	}
+#else
 	for (const auto &tsStyle: styles)
 	{
 		if ( tsStyle == TEXT("notheme") )
@@ -166,18 +212,19 @@ void DcxControl::parseGeneralControlStyles( const TString & styles, LONG * Style
 		else if ( tsStyle == TEXT("hidden") )
 			*Styles &= ~WS_VISIBLE;
 		else if ( tsStyle == TEXT("alpha") )
-			this->m_bAlphaBlend = true;
+			m_bAlphaBlend = true;
 		else if ( tsStyle == TEXT("shadow") )
-			this->m_bShadowText = true;
+			m_bShadowText = true;
 		else if ( tsStyle == TEXT("noformat") )
-			this->m_bCtrlCodeText = false;
+			m_bCtrlCodeText = false;
 		else if ( tsStyle == TEXT("hgradient") )
-			this->m_bGradientFill = true;
+			m_bGradientFill = true;
 		else if ( tsStyle == TEXT("vgradient") ) {
-			this->m_bGradientFill = true;
-			this->m_bGradientVertical = true;
+			m_bGradientFill = true;
+			m_bGradientVertical = true;
 		}
 	}
+#endif
 }
 
 /*!
@@ -186,9 +233,9 @@ void DcxControl::parseGeneralControlStyles( const TString & styles, LONG * Style
  * blah
  */
 
-const UINT DcxControl::getUserID( ) const noexcept {
+const UINT &DcxControl::getUserID( ) const noexcept {
 
-	return this->getID( ) - mIRC_ID_OFFSET;
+	return m_UserID;
 }
 
 /*!
@@ -206,7 +253,7 @@ bool DcxControl::evalAliasEx( TCHAR *const szReturn, const int maxlen, const TCH
 	parms.tvprintf(szFormat, args );
 	va_end( args );
 
-	return this->m_pParentDialog->evalAlias(szReturn, maxlen, parms.to_chr());
+	return m_pParentDialog->evalAlias(szReturn, maxlen, parms.to_chr());
 }
 
 bool DcxControl::execAliasEx( const TCHAR *const szFormat, ... ) {
@@ -218,7 +265,7 @@ bool DcxControl::execAliasEx( const TCHAR *const szFormat, ... ) {
 	parms.tvprintf(szFormat, args);
 	va_end( args );
 
-	return this->m_pParentDialog->execAlias(parms.to_chr());
+	return m_pParentDialog->execAlias(parms.to_chr());
 }
 
 /*!
@@ -236,10 +283,10 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, const XSwitch
 
 		if (ParseCommandToLogfont(input.gettok(4, -1), &lf)) {
 			auto hFont = CreateFontIndirect(&lf);
-			this->setControlFont(hFont, FALSE);
+			setControlFont(hFont, FALSE);
 		}
 
-		this->redrawWindow( );
+		redrawWindow( );
 	}
 	// xdid -p [NAME] [ID] [SWITCH] [X] [Y] [W] [H]
 	else if ( flags[TEXT('p')] && numtok > 6 ) {
@@ -249,12 +296,12 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, const XSwitch
 		const auto w = input.getnexttok().to_int();	// tok 6
 		const auto h = input.getnexttok().to_int();	// tok 7
 
-		MoveWindow( this->m_Hwnd, x, y, w, h, TRUE );
-		//this->InvalidateParentRect( this->m_Hwnd);
-		//InvalidateRect( GetParent( this->m_Hwnd ), nullptr, TRUE );
+		MoveWindow( m_Hwnd, x, y, w, h, TRUE );
+		//this->InvalidateParentRect( m_Hwnd);
+		//InvalidateRect( GetParent( m_Hwnd ), nullptr, TRUE );
 		//this->redrawWindow( );
 		//this->m_pParentDialog->redrawBufferedWindow();
-		//SendMessage( this->m_Hwnd, WM_NCPAINT, (WPARAM) 1, (LPARAM) 0 );
+		//SendMessage( m_Hwnd, WM_NCPAINT, (WPARAM) 1, (LPARAM) 0 );
 	}
 	// xdid -x [NAME] [ID] [SWITCH] [+FLAGS]
 	else if ( flags[TEXT('x')] && numtok > 3 ) {
@@ -268,9 +315,9 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, const XSwitch
 		this->addStyle( Styles );
 		this->addExStyle( ExStyles );
 
-		SetWindowPos(this->m_Hwnd, nullptr, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
-		InvalidateRect(this->m_Hwnd, nullptr, TRUE);
-		SendMessage( this->m_Hwnd, WM_NCPAINT, (WPARAM) 1, (LPARAM) 0 );
+		SetWindowPos(m_Hwnd, nullptr, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
+		InvalidateRect(m_Hwnd, nullptr, TRUE);
+		SendMessage( m_Hwnd, WM_NCPAINT, (WPARAM) 1, (LPARAM) 0 );
 	}
 	// xdid -C [NAME] [ID] [SWITCH] [+FLAGS] [COLOR]
 	else if ( flags[TEXT('C')] && numtok > 4 ) {
@@ -317,7 +364,7 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, const XSwitch
 	}
 	// xdid -F [NAME] [ID] [SWITCH]
 	else if (flags[TEXT('F')]) {
-		SetFocus(this->m_Hwnd);
+		SetFocus(m_Hwnd);
 	}
 	// xdid -J [NAME] [ID] [SWITCH] [+FLAGS] [CURSOR|FILENAME]
 	// xdid -J DNAME ID [+FLAGS] [CURSOR|FILENAME]
@@ -350,7 +397,7 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, const XSwitch
 			throw Dcx::dcxException("Invalid Percentage");
 
 		int min, max;
-		if (!GetScrollRange(this->m_Hwnd, SB_VERT, &min, &max))
+		if (!GetScrollRange(m_Hwnd, SB_VERT, &min, &max))
 			throw Dcx::dcxException("Unable to get scrollbar info");
 
 		//scrollbar is defined and has visible range
@@ -361,31 +408,31 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, const XSwitch
 			SCROLLINFO si;
 			ZeroMemory(&si, sizeof (SCROLLINFO));
 			si.cbSize = sizeof(SCROLLINFO);
-			if (!GetScrollInfo(this->m_Hwnd, SB_VERT, &si))
+			if (!GetScrollInfo(m_Hwnd, SB_VERT, &si))
 				throw Dcx::dcxException("Unable to get scroll info");
 
 			si.nPos = pos;
-			SetScrollInfo(this->m_Hwnd, SB_VERT, &si, TRUE);
-			SendMessage(this->m_Hwnd, WM_VSCROLL, MAKEWPARAM(SB_THUMBPOSITION, si.nPos), NULL);
+			SetScrollInfo(m_Hwnd, SB_VERT, &si, TRUE);
+			SendMessage(m_Hwnd, WM_VSCROLL, MAKEWPARAM(SB_THUMBPOSITION, si.nPos), NULL);
 		}
 	}
 
 	// xdid -b [NAME] [ID]
 	else if ( flags[TEXT('b')] ) {
-		EnableWindow( this->m_Hwnd, FALSE );
+		EnableWindow( m_Hwnd, FALSE );
 	}
 	// xdid -e [NAME] [ID]
 	else if ( flags[TEXT('e')] ) {
-		EnableWindow( this->m_Hwnd, TRUE );
+		EnableWindow( m_Hwnd, TRUE );
 	}
 	// xdid -h [NAME] [ID] [SWITCH] (+FLAGS) (DURATION)
 	else if (flags[TEXT('h')]) {
 		if (numtok > 4)
-			AnimateWindow(this->m_Hwnd,
+			AnimateWindow(m_Hwnd,
 				input.gettok(5).to_dword(),
 				(AW_HIDE | DcxDialog::getAnimateStyles(input.gettok(4))) & ~AW_ACTIVATE);
 		else
-			ShowWindow(this->m_Hwnd, SW_HIDE);
+			ShowWindow(m_Hwnd, SW_HIDE);
 
 		// shouldnt need to update layout on a hidden window....
 		//RECT rc;
@@ -398,12 +445,12 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, const XSwitch
 	// xdid -s [NAME] [ID] [SWITCH] (+FLAGS) (DURATION)
 	else if ( flags[TEXT('s')] ) {
 		if (numtok > 4) {
-			AnimateWindow(this->m_Hwnd,
+			AnimateWindow(m_Hwnd,
 				input.gettok(5).to_dword(),
 				(AW_ACTIVATE | DcxDialog::getAnimateStyles(input.gettok( 4 ))) & ~AW_HIDE);
 		}
 		else
-			ShowWindow(this->m_Hwnd, SW_SHOW);
+			ShowWindow(m_Hwnd, SW_SHOW);
 
 		RECT rc;
 		if (GetClientRect(this->m_pParentDialog->getHwnd(), &rc))
@@ -420,9 +467,9 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, const XSwitch
 		//	style encounters a window with the WS_EX_CONTROLPARENT style,
 		//	the system recursively searches the window's children.
 		//
-		//HWND hNextCtrl = GetNextDlgTabItem(this->m_pParentDialog->getHwnd(), this->m_Hwnd, FALSE);
+		//HWND hNextCtrl = GetNextDlgTabItem(this->m_pParentDialog->getHwnd(), m_Hwnd, FALSE);
         //
-		//if (hNextCtrl && (hNextCtrl != this->m_Hwnd))
+		//if (hNextCtrl && (hNextCtrl != m_Hwnd))
 		//	SendMessage(this->m_pParentDialog->getHwnd(), WM_NEXTDLGCTL, (WPARAM) hNextCtrl, TRUE);
 		////::PostMessage(this->m_pParentDialog->getHwnd(), WM_NEXTDLGCTL, NULL, FALSE);
 		//else
@@ -442,11 +489,11 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, const XSwitch
 		if (!xflags[TEXT('+')])
 			throw Dcx::dcxException("Invalid Flag");
 
-		RECT rc;
+		RECT rc = { 0 };
 		HRGN m_Region = nullptr;
 		auto RegionMode = 0;
 		auto noRegion = false;
-		if (!GetWindowRect(this->m_Hwnd, &rc))
+		if (!GetWindowRect(m_Hwnd, &rc))
 			throw Dcx::dcxException("Unable to get window rect!");
 
 		if (xflags[TEXT('o')])
@@ -473,17 +520,15 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, const XSwitch
 			Auto(DeleteBitmap(bitmapRgn));
 
 			if (xflags[TEXT('R')]) // now resize image to match control.
-				bitmapRgn = DcxControl::resizeBitmap(bitmapRgn, &rc);
+				bitmapRgn = resizeBitmap(bitmapRgn, &rc);
 			m_Region = BitmapRegion(bitmapRgn, tCol, ((tCol != -1) ? TRUE : FALSE));
 		}
 		else if (xflags[TEXT('r')]) // rounded rect - radius args (optional)
 		{
-			int radius;
+			int radius = 20;
 
 			if (numtok > 4)
 				radius = input.getnexttok( ).to_int();	// tok 5
-			else
-				radius = 20;
 
 			m_Region = CreateRoundRectRgn(0,0,rc.right - rc.left,rc.bottom - rc.top, radius, radius);
 		}
@@ -517,8 +562,8 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, const XSwitch
 
 			for (const auto &strPoint: strPoints)
 			{
-				pnts[cnt].x = (LONG)strPoint.getfirsttok(1, TSCOMMACHAR).to_num();
-				pnts[cnt].y = (LONG)strPoint.getnexttok(TSCOMMACHAR).to_num();	// tok 2
+				pnts[cnt].x = strPoint.getfirsttok(1, TSCOMMACHAR).to_<LONG>();
+				pnts[cnt].y = strPoint.getnexttok(TSCOMMACHAR).to_<LONG>();	// tok 2
 				++cnt;
 			}
 
@@ -529,20 +574,20 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, const XSwitch
 			if (numtok != 6)
 				throw Dcx::dcxException("Invalid Args");
 
-			this->m_bAlphaBlend = (input.getnexttok().to_int() > 0);	// tok 5
+			m_bAlphaBlend = (input.getnexttok().to_int() > 0);	// tok 5
 
 			const auto alpha = (BYTE)(input.getnexttok().to_int() & 0xFF);	// tok 6
 
 			if (alpha == 255)
-				this->m_bAlphaBlend = false;
-			this->m_iAlphaLevel = alpha;
+				m_bAlphaBlend = false;
+			m_iAlphaLevel = alpha;
 		}
 		else {
 			if (!xflags[TEXT('n')]) // none, no args
 				throw Dcx::dcxException("Invalid Flag");
 			
 			noRegion = true;
-			SetWindowRgn(this->m_Hwnd, nullptr, TRUE);
+			SetWindowRgn(m_Hwnd, nullptr, TRUE);
 		}
 
 		if (!noRegion) {
@@ -553,13 +598,13 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, const XSwitch
 				auto wrgn = CreateRectRgn(0, 0, 0, 0);
 				if (wrgn != nullptr) {
 					Auto(DeleteObject(wrgn));
-					if (GetWindowRgn(this->m_Hwnd,wrgn) != ERROR)
+					if (GetWindowRgn(m_Hwnd,wrgn) != ERROR)
 						CombineRgn(m_Region,m_Region,wrgn,RegionMode);
 				}
 			}
-			SetWindowRgn(this->m_Hwnd,m_Region,TRUE);
+			SetWindowRgn(m_Hwnd,m_Region,TRUE);
 		}
-		this->redrawWindow();
+		redrawWindow();
 	}
 	// invalid command
 	else
@@ -568,10 +613,39 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, const XSwitch
 
 HBITMAP DcxControl::resizeBitmap(HBITMAP srcBM, const RECT *const rc)
 {
+#if DCX_USE_WRAPPERS && 0
+
+	if ((srcBM == nullptr) || (rc == nullptr))
+		return nullptr;
+
 	// set result to original bitmap incase resize fails at some point.
 	auto hRes = srcBM;
 
-	if (srcBM == nullptr)
+	// get source bitmap info.
+	BITMAP bm;
+	if (GetObject(srcBM, sizeof(bm), &bm) == 0)
+		return hRes;
+
+	Dcx::dcxHDCBitmapResource srcDC(nullptr, srcBM);
+
+	auto w = (rc->right - rc->left), h = (rc->bottom - rc->top);
+
+	// create dest bitmap.
+	Dcx::dcxHDCBitmap2Resource destDC(srcDC.get(), w, h);
+
+	// resize bitmap, render into dest hdc/bitmap
+	if (StretchBlt(destDC, 0, 0, w, h, srcDC, 0, 0, bm.bmWidth, bm.bmHeight, SRCCOPY)) {
+		GdiFlush();
+		// set the return bitmap if resize worked.
+		DeleteBitmap(hRes);
+		hRes = destDC;
+	}
+	return hRes;
+#else
+	// set result to original bitmap incase resize fails at some point.
+	auto hRes = srcBM;
+
+	if ((srcBM == nullptr) || (rc == nullptr))
 		return nullptr;
 
 	// get source bitmap info.
@@ -625,11 +699,13 @@ HBITMAP DcxControl::resizeBitmap(HBITMAP srcBM, const RECT *const rc)
 		std::swap(hRes, newBM);
 	}
 	return hRes;
+#endif
 }
 
 DcxControlTypes DcxControl::TSTypeToControlType(const TString & t)
 {
 	static std::map<TString, DcxControlTypes> dcxTypesMap;
+	//static std::unordered_map<TString, DcxControlTypes> dcxTypesMap;
 	if (dcxTypesMap.empty()) {
 		dcxTypesMap[TEXT("box")] = DcxControlTypes::BOX;
 		dcxTypesMap[TEXT("check")] = DcxControlTypes::CHECK;
@@ -739,74 +815,226 @@ void DcxControl::parseBorderStyles(const TString & flags, LONG *const Styles, LO
  *
  * blah
  */
+//bool DcxControl::parseGlobalInfoRequest(const TString & input, TCHAR *const szReturnValue) const
+//{
+//	const auto prop(input.getfirsttok(3));
+//
+//	if (prop == TEXT("hwnd")) {
+//		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%lu"), (DWORD)m_Hwnd);	// can't use %p as this gives a hex result.
+//		return true;
+//	}
+//	else if (prop == TEXT("visible")) {
+//		dcx_ConRetState((IsWindowVisible(m_Hwnd) != FALSE), szReturnValue);
+//	}
+//	else if (prop == TEXT("enabled")) {
+//		dcx_ConRetState((IsWindowEnabled(m_Hwnd) != FALSE), szReturnValue);
+//	}
+//	else if (prop == TEXT("pos")) {
+//		const auto rc = getWindowPosition();
+//		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d %d %d"), rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top);
+//		return true;
+//	}
+//	else if (prop == TEXT("dpos")) {
+//		RECT rc;
+//		if (GetWindowRect(m_Hwnd, &rc))
+//		{
+//			MapWindowPoints(nullptr, m_pParentDialog->getHwnd(), (LPPOINT)&rc, 2);
+//
+//			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d %d %d"), rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top);
+//			return true;
+//		}
+//	}
+//	else if (prop == TEXT("mark")) {
+//		if (lstrcpyn(szReturnValue, m_tsMark.to_chr(), MIRC_BUFFER_SIZE_CCH) != nullptr)
+//			return true;
+//	}
+//	else if (prop == TEXT("mouse")) {
+//		POINT pt;
+//		if (GetCursorPos(&pt))
+//		{
+//			MapWindowPoints(nullptr, m_Hwnd, &pt, 1);
+//			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d"), pt.x, pt.y);
+//			return true;
+//		}
+//	}
+//	else if (prop == TEXT("pid")) {
+//		//TCHAR classname[257] = { 0 };
+//		//auto hParent = GetParent(m_Hwnd);
+//		//GetClassName( hParent, classname, Dcx::countof(classname) );
+//		//
+//		//if (lstrcmp(classname, TEXT("#32770")) == 0) {
+//		//	szReturnValue[0] = TEXT('0');
+//		//	szReturnValue[1] = TEXT('\0');
+//		//}
+//		//else
+//		//	wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"),  this->m_pParentDialog->getControlByHWND( hParent )->getUserID( ) );
+//
+//		stString<257> sClassname;
+//
+//		auto hParent = GetParent(m_Hwnd);
+//		GetClassName(hParent, sClassname, sClassname.size());
+//
+//		if (sClassname == TEXT("#32770")) {
+//			szReturnValue[0] = TEXT('0');
+//			szReturnValue[1] = TEXT('\0');
+//		}
+//		else
+//			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), m_pParentDialog->getControlByHWND(hParent)->getUserID());
+//
+//		return true;
+//	}
+//	else if (prop == TEXT("type")) {
+//
+//		if (lstrcpyn(szReturnValue, getType().to_chr(), MIRC_BUFFER_SIZE_CCH) != nullptr)
+//			return true;
+//	}
+//	else if (prop == TEXT("styles")) {
+//		if (lstrcpyn(szReturnValue, getStyles().to_chr(), MIRC_BUFFER_SIZE_CCH) != nullptr)
+//			return true;
+//	}
+//	else if (prop == TEXT("font")) {
+//		auto hFontControl = this->m_hFont;
+//
+//		//		if (!hFontControl)
+//		//			hFontControl = (HFONT) this->getFont();
+//		if (!hFontControl)
+//			hFontControl = (HFONT)GetStockObject(DEFAULT_GUI_FONT);
+//
+//		if (hFontControl) {
+//			LOGFONT lfCurrent = { 0 };
+//
+//			//ZeroMemory(&lfCurrent, sizeof(LOGFONT));
+//			if (GetObject(hFontControl, sizeof(LOGFONT), &lfCurrent) != 0)
+//			{
+//				if (lstrcpyn(szReturnValue, ParseLogfontToCommand(&lfCurrent).to_chr(), MIRC_BUFFER_SIZE_CCH) != nullptr)
+//					return true;
+//			}
+//		}
+//	}
+//	// [NAME] [ID] [PROP]
+//	else if (prop == TEXT("tooltipbgcolor")) {
+//		DWORD cref = 0;
+//
+//		if (m_ToolTipHWND != nullptr)
+//			cref = (DWORD)SendMessage(m_ToolTipHWND, TTM_GETTIPBKCOLOR, NULL, NULL);
+//
+//		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%lu"), cref);
+//		return true;
+//	}
+//	// [NAME] [ID] [PROP]
+//	else if (prop == TEXT("tooltiptextcolor")) {
+//		DWORD cref = 0;
+//
+//		if (m_ToolTipHWND != nullptr)
+//			cref = (DWORD)SendMessage(this->m_ToolTipHWND, TTM_GETTIPTEXTCOLOR, NULL, NULL);
+//
+//		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%lu"), cref);
+//		return true;
+//	}
+//	// [NAME] [ID] [PROP]
+//	else if (prop == TEXT("alpha")) {
+//		dcx_ConRetState(m_bAlphaBlend, szReturnValue);
+//	}
+//	// [NAME] [ID] [PROP]
+//	else if (prop == TEXT("textcolor")) {
+//		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), m_clrText);
+//		return true;
+//	}
+//	// [NAME] [ID] [PROP]
+//	else if (prop == TEXT("textbgcolor")) {
+//		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), m_clrBackText);
+//		return true;
+//	}
+//	// [NAME] [ID] [PROP]
+//	else if (prop == TEXT("bgcolor")) {
+//		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), m_clrBackground);
+//		return true;
+//	}
+//	else
+//		throw Dcx::dcxException("Invalid property or number of arguments");
+//
+//	return false;
+//}
 
-BOOL DcxControl::parseGlobalInfoRequest(const TString & input, TCHAR *const szReturnValue) const
+bool DcxControl::parseGlobalInfoRequest(const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const
 {
 	const auto prop(input.getfirsttok( 3 ));
 
 	if ( prop == TEXT("hwnd") ) {
-		wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%lu"), (DWORD)this->m_Hwnd );	// can't use %p as this gives a hex result.
-		return TRUE;
+		wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%lu"), (DWORD)m_Hwnd );	// can't use %p as this gives a hex result.
+		return true;
 	}
 	else if ( prop == TEXT("visible") ) {
-		dcx_ConRetState((IsWindowVisible(this->m_Hwnd) != FALSE), szReturnValue);
+		szReturnValue = dcx_truefalse((IsWindowVisible(m_Hwnd) != FALSE));
+		return true;
 	}
 	else if ( prop == TEXT("enabled") ) {
-		dcx_ConRetState((IsWindowEnabled(this->m_Hwnd) != FALSE), szReturnValue);
+		szReturnValue = dcx_truefalse((IsWindowEnabled(m_Hwnd) != FALSE));
+		return true;
 	}
 	else if ( prop == TEXT("pos") ) {
 		const auto rc = getWindowPosition();
 		wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d %d %d"), rc.left, rc.top, rc.right-rc.left, rc.bottom-rc.top );
-		return TRUE;
+		return true;
 	}
 	else if ( prop == TEXT("dpos") ) {
 		RECT rc;
-		if (GetWindowRect(this->m_Hwnd, &rc))
+		if (GetWindowRect(m_Hwnd, &rc))
 		{
-			MapWindowPoints(nullptr, this->m_pParentDialog->getHwnd(), (LPPOINT)&rc, 2);
+			MapWindowPoints(nullptr, m_pParentDialog->getHwnd(), (LPPOINT)&rc, 2);
 
 			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d %d %d"), rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top);
-			return TRUE;
+			return true;
 		}
 	}
 	else if ( prop == TEXT("mark") ) {
-		if (lstrcpyn(szReturnValue, this->m_tsMark.to_chr(), MIRC_BUFFER_SIZE_CCH) != nullptr)
-			return TRUE;
+		szReturnValue = m_tsMark.to_chr();
+		return true;
 	}
 	else if ( prop == TEXT("mouse") ) {
 		POINT pt;
 		if (GetCursorPos(&pt))
 		{
-			MapWindowPoints(nullptr, this->m_Hwnd, &pt, 1);
+			MapWindowPoints(nullptr, m_Hwnd, &pt, 1);
 			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d"), pt.x, pt.y);
-			return TRUE;
+			return true;
 		}
 	}
 	else if ( prop == TEXT("pid") ) {
-		TCHAR classname[257];
-		auto hParent = GetParent(this->m_Hwnd);
-		GetClassName( hParent, classname, 256 );
+		//TCHAR classname[257] = { 0 };
+		//auto hParent = GetParent(m_Hwnd);
+		//GetClassName( hParent, classname, Dcx::countof(classname) );
+		//
+		//if (lstrcmp(classname, TEXT("#32770")) == 0) {
+		//	szReturnValue[0] = TEXT('0');
+		//	szReturnValue[1] = TEXT('\0');
+		//}
+		//else
+		//	wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"),  this->m_pParentDialog->getControlByHWND( hParent )->getUserID( ) );
 
-		if (lstrcmp(classname, TEXT("#32770")) == 0) {
-			szReturnValue[0] = TEXT('0');
-			szReturnValue[1] = TEXT('\0');
-		}
+		stString<257> sClassname;
+
+		auto hParent = GetParent(m_Hwnd);
+		GetClassName(hParent, sClassname, sClassname.size());
+
+		if (sClassname == TEXT("#32770"))
+			szReturnValue = TEXT('0');
 		else
-			wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"),  this->m_pParentDialog->getControlByHWND( hParent )->getUserID( ) );
+			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), m_pParentDialog->getControlByHWND(hParent)->getUserID());
 
-		return TRUE;
+		return true;
 	}
 	else if ( prop == TEXT("type") ) {
 
-		if (lstrcpyn(szReturnValue, this->getType().to_chr(), MIRC_BUFFER_SIZE_CCH) != nullptr)
-			return TRUE;
+		szReturnValue = getType().to_chr();
+		return true;
 	}
 	else if ( prop == TEXT("styles") ) {
-		if (lstrcpyn(szReturnValue, this->getStyles().to_chr(), MIRC_BUFFER_SIZE_CCH) != nullptr)
-			return TRUE;
+		szReturnValue = getStyles().to_chr();
+		return true;
 	}
 	else if ( prop == TEXT("font")) {
-		auto hFontControl = this->m_hFont;
+		auto hFontControl = m_hFont;
 
 //		if (!hFontControl)
 //			hFontControl = (HFONT) this->getFont();
@@ -814,13 +1042,13 @@ BOOL DcxControl::parseGlobalInfoRequest(const TString & input, TCHAR *const szRe
 			hFontControl = (HFONT) GetStockObject(DEFAULT_GUI_FONT);
 
 		if (hFontControl) {
-			LOGFONT lfCurrent;
+			LOGFONT lfCurrent = { 0 };
 
-			ZeroMemory(&lfCurrent, sizeof(LOGFONT));
+			//ZeroMemory(&lfCurrent, sizeof(LOGFONT));
 			if (GetObject(hFontControl, sizeof(LOGFONT), &lfCurrent) != 0)
 			{
-				if (lstrcpyn(szReturnValue, ParseLogfontToCommand(&lfCurrent).to_chr(), MIRC_BUFFER_SIZE_CCH) != nullptr)
-					return TRUE;
+				szReturnValue = ParseLogfontToCommand(&lfCurrent).to_chr();
+				return true;
 			}
 		}
 	}
@@ -828,45 +1056,46 @@ BOOL DcxControl::parseGlobalInfoRequest(const TString & input, TCHAR *const szRe
 	else if ( prop == TEXT("tooltipbgcolor")) {
 		DWORD cref = 0;
 
-		if (this->m_ToolTipHWND != nullptr)
-			cref = (DWORD) SendMessage(this->m_ToolTipHWND,TTM_GETTIPBKCOLOR, NULL, NULL);
+		if (m_ToolTipHWND != nullptr)
+			cref = (DWORD) SendMessage(m_ToolTipHWND,TTM_GETTIPBKCOLOR, NULL, NULL);
 
 		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%lu"), cref);
-		return TRUE;
+		return true;
 	}
 	// [NAME] [ID] [PROP]
 	else if (prop == TEXT("tooltiptextcolor")) {
 		DWORD cref = 0;
 
-		if (this->m_ToolTipHWND != nullptr)
-			cref = (DWORD) SendMessage(this->m_ToolTipHWND, TTM_GETTIPTEXTCOLOR, NULL, NULL);
+		if (m_ToolTipHWND != nullptr)
+			cref = (DWORD) SendMessage(m_ToolTipHWND, TTM_GETTIPTEXTCOLOR, NULL, NULL);
 
 		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%lu"), cref);
-		return TRUE;
+		return true;
 	}
 	// [NAME] [ID] [PROP]
 	else if (prop == TEXT("alpha")) {
-		dcx_ConRetState(this->m_bAlphaBlend, szReturnValue);
+		szReturnValue = dcx_truefalse(m_bAlphaBlend);
+		return true;
 	}
 	// [NAME] [ID] [PROP]
 	else if (prop == TEXT("textcolor")) {
-		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), this->m_clrText);
-		return TRUE;
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), m_clrText);
+		return true;
 	}
 	// [NAME] [ID] [PROP]
 	else if (prop == TEXT("textbgcolor")) {
-		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), this->m_clrBackText);
-		return TRUE;
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), m_clrBackText);
+		return true;
 	}
 	// [NAME] [ID] [PROP]
 	else if (prop == TEXT("bgcolor")) {
-		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), this->m_clrBackground);
-		return TRUE;
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), m_clrBackground);
+		return true;
 	}
 	else
 		throw Dcx::dcxException("Invalid property or number of arguments");
 
-	return FALSE;
+	return false;
 }
 
 /*!
@@ -879,7 +1108,7 @@ void DcxControl::registreDefaultWindowProc( ) {
 	//this->removeStyle( WS_BORDER|WS_DLGFRAME );
 	//this->removeExStyle( WS_EX_CLIENTEDGE|WS_EX_DLGMODALFRAME|WS_EX_STATICEDGE|WS_EX_WINDOWEDGE );
 
-	this->m_DefaultWindowProc = SubclassWindow( this->m_Hwnd, DcxControl::WindowProc );
+	this->m_DefaultWindowProc = SubclassWindow( m_Hwnd, DcxControl::WindowProc );
 }
 
 /*!
@@ -891,8 +1120,8 @@ void DcxControl::registreDefaultWindowProc( ) {
 void DcxControl::unregistreDefaultWindowProc( ) {
 	if (this->m_DefaultWindowProc != nullptr) {
 		// implies this has alrdy been called.
-		if ((WNDPROC)GetWindowLongPtr(this->m_Hwnd, GWLP_WNDPROC) == DcxControl::WindowProc)
-			SubclassWindow(this->m_Hwnd, this->m_DefaultWindowProc);
+		if ((WNDPROC)GetWindowLongPtr(m_Hwnd, GWLP_WNDPROC) == DcxControl::WindowProc)
+			SubclassWindow(m_Hwnd, this->m_DefaultWindowProc);
 	}
 	this->m_DefaultWindowProc = nullptr;
 }
@@ -1246,7 +1475,7 @@ DcxControl * DcxControl::controlFactory(DcxDialog *const p_Dialog, const UINT mI
 			if (!IsWindow(winHwnd)) {
 				TCHAR windowHwnd[30];
 
-				mIRCLinker::evalex(windowHwnd, 30, TEXT("$window(%s).hwnd"), tsWin.to_chr());
+				mIRCLinker::evalex(windowHwnd, Dcx::countof(windowHwnd), TEXT("$window(%s).hwnd"), tsWin.to_chr());
 
 				winHwnd = (HWND)dcx_atoi(windowHwnd);
 			}
@@ -1299,7 +1528,7 @@ DcxControl * DcxControl::controlFactory(DcxDialog *const p_Dialog, const UINT mI
  */
 
 LRESULT DcxControl::setFont( const HFONT hFont, const BOOL fRedraw ) {
-  return SendMessage( this->m_Hwnd, WM_SETFONT, (WPARAM) hFont, (LPARAM) MAKELPARAM(fRedraw, 0) );
+  return SendMessage( m_Hwnd, WM_SETFONT, (WPARAM) hFont, (LPARAM) MAKELPARAM(fRedraw, 0) );
 }
 
 /*!
@@ -1309,7 +1538,7 @@ LRESULT DcxControl::setFont( const HFONT hFont, const BOOL fRedraw ) {
  */
 
 HFONT DcxControl::getFont( ) const noexcept {
-  return GetWindowFont( this->m_Hwnd );
+  return GetWindowFont( m_Hwnd );
 }
 
 /*!
@@ -1319,7 +1548,7 @@ HFONT DcxControl::getFont( ) const noexcept {
  */
 
 LRESULT DcxControl::setRedraw( const BOOL fView ) {
-  return SendMessage( this->m_Hwnd, WM_SETREDRAW, (WPARAM) fView, (LPARAM) 0 );
+  return SendMessage( m_Hwnd, WM_SETREDRAW, (WPARAM) fView, (LPARAM) 0 );
 }
 
 /*!
@@ -1382,22 +1611,25 @@ const COLORREF &DcxControl::getTextColor( ) const noexcept {
 const RECT DcxControl::getWindowPosition(void) const {
 	RECT rc;
 	SetRectEmpty(&rc);
-	if (GetWindowRect( this->m_Hwnd, &rc ))
-		MapWindowRect(nullptr, GetParent( this->m_Hwnd ), &rc);
+	if (GetWindowRect( m_Hwnd, &rc ))
+		MapWindowRect(nullptr, GetParent( m_Hwnd ), &rc);
 	return rc;
 }
 
 void DcxControl::updateParentCtrl(void)
 {
 	// find the host control, if any.
-	this->m_pParentHWND = GetParent(this->m_Hwnd);
+	this->m_pParentHWND = GetParent(m_Hwnd);
 }
 
 void DcxControl::DrawCtrlBackground(const HDC hdc, const DcxControl *const p_this, const LPRECT rwnd, HTHEME hTheme, const int iPartId, const int iStateId)
 {
+	if ((hdc == nullptr) || (p_this == nullptr))
+		return;
+
 	// fill background.
 	if (!p_this->isExStyle(WS_EX_TRANSPARENT)) {
-		RECT rc;
+		RECT rc = { 0 };
 		if (rwnd == nullptr)
 		{
 			if (!GetClientRect(p_this->getHwnd(), &rc))
@@ -1405,8 +1637,9 @@ void DcxControl::DrawCtrlBackground(const HDC hdc, const DcxControl *const p_thi
 		}
 		else
 			CopyRect(&rc, rwnd);
+
 		if (!IsWindowEnabled(p_this->m_Hwnd)) {// use disabled colouring when windows disabled.
-			if (hTheme && !p_this->m_bNoTheme && Dcx::UXModule.dcxIsThemeActive()) {
+			if (hTheme != nullptr && !p_this->m_bNoTheme && Dcx::UXModule.dcxIsThemeActive()) {
 				if (Dcx::UXModule.dcxIsThemeBackgroundPartiallyTransparent(hTheme, iPartId, iStateId))
 					Dcx::UXModule.dcxDrawThemeParentBackground(p_this->m_Hwnd, hdc, &rc);
 				Dcx::UXModule.dcxDrawThemeBackground(hTheme, hdc, iPartId, iStateId, &rc, nullptr);
@@ -1447,7 +1680,7 @@ void DcxControl::DrawControl(HDC hDC, HWND hwnd)
 {
 #if DCX_USE_WRAPPERS
 	// if window matches this one, don't draw (loop condition)
-	if (hwnd == this->m_Hwnd)
+	if (hwnd == m_Hwnd)
 		return;
 
 	// if window isn't visible, don't draw.
@@ -1483,7 +1716,7 @@ void DcxControl::DrawControl(HDC hDC, HWND hwnd)
 	BitBlt(hDC, rc.left, rc.top, w, h, hdcMemory, 0, 0, SRCCOPY);
 #else
 	// if window matches this one, don't draw (loop condition)
-	if (hwnd == this->m_Hwnd)
+	if (hwnd == m_Hwnd)
 		return;
 	
 	// if window isnTEXT('t visible, don')t draw.
@@ -1537,8 +1770,8 @@ void DcxControl::DrawControl(HDC hDC, HWND hwnd)
 void DcxControl::DrawParentsBackground(const HDC hdc, const RECT *const rcBounds, const HWND dHwnd)
 {
 	// fill in parent bg
-	RECT rcClient;
-	auto hwnd = this->m_Hwnd;
+	RECT rcClient = { 0 };
+	auto hwnd = m_Hwnd;
 
 	if (dHwnd != nullptr)
 		hwnd = dHwnd;
@@ -1566,38 +1799,39 @@ void DcxControl::DrawParentsBackground(const HDC hdc, const RECT *const rcBounds
 		The following code draws the parents background & client area,
 		followed by all child controls covered by this one.
 	*/
-	this->updateParentCtrl(); // find the host control, if any.
+	updateParentCtrl(); // find the host control, if any.
+
 	//If in Vista mode
-	if (this->m_pParentDialog->IsVistaStyle())
+	if (m_pParentDialog->IsVistaStyle())
 	{
 		// Check if the hdc to render too is the main hdc, if so bkg is already drawn so just return
-		if (hdc == this->m_pParentDialog->GetVistaHDC())
+		if (hdc == m_pParentDialog->GetVistaHDC())
 			return;
 		// Check if parent is dialog.
-		if (this->m_pParentHWND == this->m_pParentDialog->getHwnd())
+		if (m_pParentHWND == m_pParentDialog->getHwnd())
 		{
 			// When in vista mode dialog has already been drawn
 			// So just grab image from windows DC.
-			auto hdcParent = this->m_pParentDialog->GetVistaHDC();
+			auto hdcParent = m_pParentDialog->GetVistaHDC();
 			auto rcWin = rcClient;
-			this->m_pParentDialog->MapVistaRect(hwnd, &rcWin);
+			m_pParentDialog->MapVistaRect(hwnd, &rcWin);
 			BitBlt( hdc, rcClient.left, rcClient.top, (rcClient.right - rcClient.left), (rcClient.bottom - rcClient.top),
 				hdcParent, rcWin.left, rcWin.top, SRCCOPY);
 			return;
 		}
 	}
-	if (this->m_pParentDialog->isExStyle(WS_EX_COMPOSITED))
+	if (m_pParentDialog->isExStyle(WS_EX_COMPOSITED))
 	{
 		// When in composited mode underling controls have already been drawn
 		// So just grab image from windows DC.
 
-		auto hdcParent = GetDC(this->m_pParentHWND);
+		auto hdcParent = GetDC(m_pParentHWND);
 		if (hdcParent != nullptr)
 		{
-			Auto(ReleaseDC(this->m_pParentHWND, hdcParent));
+			Auto(ReleaseDC(m_pParentHWND, hdcParent));
 		
 			auto rcWin = rcClient;
-			MapWindowRect(hwnd, this->m_pParentHWND, &rcWin);
+			MapWindowRect(hwnd, m_pParentHWND, &rcWin);
 		
 			BitBlt(hdc, rcClient.left, rcClient.top, (rcClient.right - rcClient.left), (rcClient.bottom - rcClient.top),
 				hdcParent, rcWin.left, rcWin.top, SRCCOPY);
@@ -1632,7 +1866,7 @@ void DcxControl::DrawParentsBackground(const HDC hdc, const RECT *const rcBounds
 	//		::SendMessage(this->m_pParentHWND, WM_PRINTCLIENT, (WPARAM)hdcbkg,PRF_CLIENT);
 	//		// now draw all child controls within area of this control.
 	//		// NB: AVOID EnumChildWindows()
-	//		HWND child = GetWindow(this->m_Hwnd, GW_HWNDPREV);
+	//		HWND child = GetWindow(m_Hwnd, GW_HWNDPREV);
 	//		while (child != nullptr) {
 	//			this->DrawControl(hdcbkg, child);
 	//			child = GetWindow(child, GW_HWNDPREV);
@@ -1647,16 +1881,16 @@ void DcxControl::DrawParentsBackground(const HDC hdc, const RECT *const rcBounds
 	//}
 	// make a new HDC for background rendering
 
-	RECT rcParentWin, rcWin;
-	if (!GetClientRect(this->m_pParentHWND, &rcParentWin))
+	RECT rcParentWin = { 0 }, rcWin = { 0 };
+	if (!GetClientRect(m_pParentHWND, &rcParentWin))
 		return;
 
 #if DCX_USE_WRAPPERS
-	Dcx::dcxHDCBuffer hdcbkg(hdc, &rcParentWin);
+	Dcx::dcxHDCBuffer hdcbkg(hdc, rcParentWin);
 
 	// get this controls x & y pos within its parent.
 	rcWin = rcClient;
-	MapWindowRect(hwnd, this->m_pParentHWND, &rcWin);
+	MapWindowRect(hwnd, m_pParentHWND, &rcWin);
 	auto clipRgn = CreateRectRgnIndirect(&rcWin); // clip parents drawing to this controls rect.
 	if (clipRgn != nullptr) {
 		SelectClipRgn(hdcbkg, clipRgn);
@@ -1664,15 +1898,15 @@ void DcxControl::DrawParentsBackground(const HDC hdc, const RECT *const rcBounds
 	}
 
 	// Sending WM_ERASEBKGND followed by WM_PRINTCLIENT emulates the method used by DrawThemeParentBackgroundEx() on vista.
-	this->m_bInPrint = true; // this helps prevent long drawing loops
-							 // fill in the parents image
-	::SendMessage(this->m_pParentHWND, WM_ERASEBKGND, (WPARAM)(HDC)hdcbkg, 1L); // HACK: using 1L instead of NULL as a workaround for stacker.
-	::SendMessage(this->m_pParentHWND, WM_PRINTCLIENT, (WPARAM)(HDC)hdcbkg, PRF_CLIENT);
+	m_bInPrint = true; // this helps prevent long drawing loops
+	// fill in the parents image
+	::SendMessage(m_pParentHWND, WM_ERASEBKGND, (WPARAM)(HDC)hdcbkg, 1L); // HACK: using 1L instead of NULL as a workaround for stacker.
+	::SendMessage(m_pParentHWND, WM_PRINTCLIENT, (WPARAM)(HDC)hdcbkg, PRF_CLIENT);
 
-	for (auto hChild = GetWindow(this->m_Hwnd, GW_HWNDPREV); hChild != nullptr; hChild = GetWindow(hChild, GW_HWNDPREV))
-		this->DrawControl(hdcbkg, hChild);
+	for (auto hChild = GetWindow(m_Hwnd, GW_HWNDPREV); hChild != nullptr; hChild = GetWindow(hChild, GW_HWNDPREV))
+		DrawControl(hdcbkg, hChild);
 
-	this->m_bInPrint = false;
+	m_bInPrint = false;
 	// draw background to main hdc
 	BitBlt(hdc, rcClient.left, rcClient.top, (rcClient.right - rcClient.left), (rcClient.bottom - rcClient.top),
 		hdcbkg, rcWin.left, rcWin.top, SRCCOPY);
@@ -1700,13 +1934,13 @@ void DcxControl::DrawParentsBackground(const HDC hdc, const RECT *const rcBounds
 	//::SendMessage(this->m_pParentHWND, WM_PRINT, (WPARAM)*hdcbkg,PRF_CLIENT|PRF_ERASEBKGND);
 	// now draw all child controls within area of this control.
 	// NB: AVOID EnumChildWindows()
-	//HWND child = GetWindow(this->m_Hwnd, GW_HWNDPREV);
+	//HWND child = GetWindow(m_Hwnd, GW_HWNDPREV);
 	//while (child != nullptr) {
 	//	this->DrawControl(*hdcbkg, child);
 	//	child = GetWindow(child, GW_HWNDPREV);
 	//}
 
-	for (auto hChild = GetWindow(this->m_Hwnd, GW_HWNDPREV); hChild != nullptr; hChild = GetWindow(hChild, GW_HWNDPREV))
+	for (auto hChild = GetWindow(m_Hwnd, GW_HWNDPREV); hChild != nullptr; hChild = GetWindow(hChild, GW_HWNDPREV))
 		this->DrawControl(*hdcbkg, hChild);
 
 	this->m_bInPrint = false;
@@ -1732,13 +1966,13 @@ LPALPHAINFO DcxControl::SetupAlphaBlend(HDC *hdc, const bool DoubleBuffer)
 		4: alpha blend temp hdc to hdc
 	*/
 	// get windows client rect
-	if (!GetClientRect(this->m_Hwnd, &ai->ai_rcClient))
+	if (!GetClientRect(m_Hwnd, &ai->ai_rcClient))
 	{
 		//delete ai;
 		return nullptr;
 	}
 	// get window rect
-	if (!GetWindowRect(this->m_Hwnd, &ai->ai_rcWin))
+	if (!GetWindowRect(m_Hwnd, &ai->ai_rcWin))
 	{
 		//delete ai;
 		return nullptr;
@@ -1768,12 +2002,12 @@ LPALPHAINFO DcxControl::SetupAlphaBlend(HDC *hdc, const bool DoubleBuffer)
 	//	ai->ai_hdc = CreateCompatibleDC( *hdc );
 	//	ai->ai_bkg = nullptr;
 	//	if (ai->ai_hdc != nullptr) {
-	//		//GetClientRect(this->m_Hwnd,&ai->ai_rcWin);
-	//		GetWindowRect(this->m_Hwnd,&ai->ai_rcWin);
+	//		//GetClientRect(m_Hwnd,&ai->ai_rcWin);
+	//		GetWindowRect(m_Hwnd,&ai->ai_rcWin);
 	//		// create a bitmap to render to
 	//		ai->ai_bitmap = CreateCompatibleBitmap ( *hdc, ai->ai_rcWin.right - ai->ai_rcWin.left, ai->ai_rcWin.bottom - ai->ai_rcWin.top );
 	//		if (ai->ai_bitmap != nullptr) {
-	//			GetClientRect(this->m_Hwnd,&ai->ai_rcClient);
+	//			GetClientRect(m_Hwnd,&ai->ai_rcClient);
 	//			// associate bitmap with hdc
 	//			ai->ai_oldBM = (HBITMAP)SelectObject ( ai->ai_hdc, ai->ai_bitmap );
 	//			// fill in parent bg
@@ -1807,9 +2041,9 @@ LPALPHAINFO DcxControl::SetupAlphaBlend(HDC *hdc, const bool DoubleBuffer)
 		// assign hdc for easy refrence & compat with previous code.
 		ai->ai_hdc = *ai->ai_hdcBuffer;
 		// fill in parent bg
-		this->DrawParentsBackground(ai->ai_hdc, &ai->ai_rcClient);
+		DrawParentsBackground(ai->ai_hdc, &ai->ai_rcClient);
 		// If alpha blending, make a background bitmap & fill it.
-		if (this->m_bAlphaBlend) {
+		if (m_bAlphaBlend) {
 			// avoid doing the whole background rendering again by simply copying the one we just did.
 			auto hdcbkg = CreateCompatibleDC(*hdc);
 			if (hdcbkg != nullptr) {
@@ -1823,6 +2057,9 @@ LPALPHAINFO DcxControl::SetupAlphaBlend(HDC *hdc, const bool DoubleBuffer)
 					BitBlt(hdcbkg, ai->ai_rcClient.left, ai->ai_rcClient.top, ai->ai_rcClient.right - ai->ai_rcClient.left, ai->ai_rcClient.bottom - ai->ai_rcClient.top, ai->ai_hdc, ai->ai_rcClient.left, ai->ai_rcClient.top, SRCCOPY);
 				}
 			}
+
+			//Dcx::dcxHDCBitmap2Resource hdcbkg(*hdc, (ai->ai_rcWin.right - ai->ai_rcWin.left),(ai->ai_rcWin.bottom - ai->ai_rcWin.top));
+			//BitBlt(hdcbkg, ai->ai_rcClient.left, ai->ai_rcClient.top, ai->ai_rcClient.right - ai->ai_rcClient.left, ai->ai_rcClient.bottom - ai->ai_rcClient.top, ai->ai_hdc, ai->ai_rcClient.left, ai->ai_rcClient.top, SRCCOPY);
 		}
 		ai->ai_Oldhdc = *hdc;
 		*hdc = ai->ai_hdc;
@@ -1907,30 +2144,37 @@ void DcxControl::FinishAlphaBlend(LPALPHAINFO ai)
 
 void DcxControl::showError(const TCHAR *const prop, const TCHAR *const cmd, const TCHAR *const err) const
 {
-	if (this->m_pParentDialog->IsVerbose()) {
+	if (m_pParentDialog->IsVerbose()) {
+		//TString res;
+		//if (prop != nullptr)
+		//	res.tsprintf(TEXT("D_IERROR %s(%s, %u).%s: %s"), getType().to_chr(), m_pParentDialog->getName().to_chr(), getUserID(), prop, err);
+		//else
+		//	res.tsprintf(TEXT("D_CERROR (%s) xdid %s %s %u: %s"), getType().to_chr(), cmd, m_pParentDialog->getName().to_chr(), getUserID(), err);		
+		//Dcx::error(cmd, res.to_chr());
+
 		TString res;
 		if (prop != nullptr)
-			res.tsprintf(TEXT("D_IERROR %s(%s, %d).%s: %s"), this->getType().to_chr(), this->m_pParentDialog->getName().to_chr(), this->getUserID(), prop, err);
+			_ts_sprintf(res, TEXT("D_IERROR %(%, %).%: %"), getType(), m_pParentDialog->getName(), getUserID(), prop, err);
 		else
-			res.tsprintf(TEXT("D_CERROR (%s) xdid %s %s %d: %s"), this->getType().to_chr(), cmd, this->m_pParentDialog->getName().to_chr(), this->getUserID(), err);		
+			_ts_sprintf(res, TEXT("D_CERROR (%) xdid % % %: %"), getType(), cmd, m_pParentDialog->getName(), getUserID(), err);
 		Dcx::error(cmd, res.to_chr());
 	}
 
-	if (!this->m_pParentDialog->getAliasName().empty())
-		const_cast<DcxControl *>(this)->execAliasEx(TEXT("error,%d,%s,%s,%s,%s"), this->getUserID(), this->getType().to_chr(), (prop != nullptr ? prop : TEXT("none")), (cmd != nullptr ? cmd : TEXT("none")), err);
+	if (!m_pParentDialog->getAliasName().empty())
+		const_cast<DcxControl *>(this)->execAliasEx(TEXT("error,%u,%s,%s,%s,%s"), getUserID(), getType().to_chr(), (prop != nullptr ? prop : TEXT("none")), (cmd != nullptr ? cmd : TEXT("none")), err);
 }
 
-void DcxControl::showErrorEx(const TCHAR *const prop, const TCHAR *const cmd, const TCHAR *const fmt, ...) const
-{
-	va_list args;
-	TString txt;
-
-	va_start( args, fmt );
-	txt.tvprintf(fmt, args );
-	va_end( args );
-
-	this->showError(prop, cmd, txt.to_chr());
-}
+//void DcxControl::showErrorEx(const TCHAR *const prop, const TCHAR *const cmd, const TCHAR *const fmt, ...) const
+//{
+//	va_list args;
+//	TString txt;
+//
+//	va_start( args, fmt );
+//	txt.tvprintf(fmt, args );
+//	va_end( args );
+//
+//	showError(prop, cmd, txt.to_chr());
+//}
 
 LRESULT DcxControl::CommonMessage( const UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed )
 {
@@ -1939,8 +2183,8 @@ LRESULT DcxControl::CommonMessage( const UINT uMsg, WPARAM wParam, LPARAM lParam
 
 		case WM_HELP:
 			{
-				if (dcx_testflag(this->m_pParentDialog->getEventMask(), DCX_EVENT_HELP))
-					this->execAliasEx(TEXT("%s,%d"), TEXT("help"), this->getUserID( ) );
+				if (dcx_testflag(m_pParentDialog->getEventMask(), DCX_EVENT_HELP))
+					execAliasEx(TEXT("help,%u"), getUserID( ) );
 				bParsed = TRUE;
 				lRes = TRUE;
 			}
@@ -1948,9 +2192,9 @@ LRESULT DcxControl::CommonMessage( const UINT uMsg, WPARAM wParam, LPARAM lParam
 
 		case WM_SETCURSOR:
 			{
-				if ( LOWORD( lParam ) == HTCLIENT && (HWND) wParam == this->m_Hwnd && this->m_hCursor != nullptr ) {
-					if (GetCursor() != this->m_hCursor)
-						SetCursor( this->m_hCursor );
+				if ( (LOWORD( lParam ) == HTCLIENT) && ((HWND) wParam == m_Hwnd) && (m_hCursor != nullptr) ) {
+					if (GetCursor() != m_hCursor)
+						SetCursor( m_hCursor );
 					bParsed = TRUE;
 					return TRUE;
 				}
@@ -1959,20 +2203,20 @@ LRESULT DcxControl::CommonMessage( const UINT uMsg, WPARAM wParam, LPARAM lParam
 
 		case WM_MOUSEMOVE:
 			{
-				this->m_pParentDialog->setMouseControl( this->getUserID( ) );
+				m_pParentDialog->setMouseControl( getUserID( ) );
 			}
 			break;
 
 		case WM_SETFOCUS:
 			{
-				this->m_pParentDialog->setFocusControl( this->getUserID( ) );
+				m_pParentDialog->setFocusControl( getUserID( ) );
 			}
 			break;
 
 		case WM_CTLCOLORDLG:
 			{
 				bParsed = TRUE;
-				return (INT_PTR) this->getBackClrBrush( );
+				return (INT_PTR) getBackClrBrush( );
 			}
 			break;
 
@@ -1992,7 +2236,7 @@ LRESULT DcxControl::CommonMessage( const UINT uMsg, WPARAM wParam, LPARAM lParam
 					auto hBackBrush = p_Control->getBackClrBrush();
 
 					bParsed = TRUE;
-					lRes = CallWindowProc(this->m_DefaultWindowProc, this->m_Hwnd, uMsg, wParam, lParam);
+					lRes = CallWindowProc(this->m_DefaultWindowProc, m_Hwnd, uMsg, wParam, lParam);
 
 					if ( clrText != CLR_INVALID )
 						SetTextColor( (HDC) wParam, clrText );
@@ -2014,7 +2258,7 @@ LRESULT DcxControl::CommonMessage( const UINT uMsg, WPARAM wParam, LPARAM lParam
 		case WM_LBUTTONDOWN:
 			{
 				if (dcx_testflag(this->m_pParentDialog->getEventMask(), DCX_EVENT_CLICK))
-					this->execAliasEx(TEXT("%s,%d"), TEXT("lbdown"), this->getUserID( ) );
+					execAliasEx(TEXT("lbdown,%u"), getUserID( ) );
 			}
 			break;
 
@@ -2022,8 +2266,8 @@ LRESULT DcxControl::CommonMessage( const UINT uMsg, WPARAM wParam, LPARAM lParam
 			{
 				if (dcx_testflag(this->m_pParentDialog->getEventMask(), DCX_EVENT_CLICK))
 				{
-					this->execAliasEx(TEXT("%s,%d"), TEXT("lbup"), this->getUserID( ) );
-					this->execAliasEx(TEXT("%s,%d"), TEXT("sclick"), this->getUserID( ) );
+					execAliasEx(TEXT("lbup,%u"), getUserID( ) );
+					execAliasEx(TEXT("sclick,%u"), getUserID( ) );
 				}
 			}
 			break;
@@ -2031,8 +2275,8 @@ LRESULT DcxControl::CommonMessage( const UINT uMsg, WPARAM wParam, LPARAM lParam
 		case WM_LBUTTONDBLCLK:
 			{
 				if (dcx_testflag(this->m_pParentDialog->getEventMask(), DCX_EVENT_CLICK)) {
-					this->execAliasEx(TEXT("%s,%d"), TEXT("dclick"), this->getUserID( ) );
-					this->execAliasEx(TEXT("%s,%d"), TEXT("lbdblclk"), this->getUserID( ) );
+					execAliasEx(TEXT("dclick,%u"), getUserID( ) );
+					execAliasEx(TEXT("lbdblclk,%u"), getUserID( ) );
 				}
 			}
 			break;
@@ -2040,28 +2284,28 @@ LRESULT DcxControl::CommonMessage( const UINT uMsg, WPARAM wParam, LPARAM lParam
 		case WM_RBUTTONDOWN:
 			{
 				if (dcx_testflag(this->m_pParentDialog->getEventMask(), DCX_EVENT_CLICK))
-					this->execAliasEx(TEXT("%s,%d"), TEXT("rbdown"), this->getUserID( ) );
+					execAliasEx(TEXT("rbdown,%u"), getUserID( ) );
 			}
 			break;
 
 		case WM_RBUTTONUP:
 			{
 				if (dcx_testflag(this->m_pParentDialog->getEventMask(), DCX_EVENT_CLICK))
-					this->execAliasEx(TEXT("%s,%d"), TEXT("rbup"), this->getUserID( ) );
+					execAliasEx(TEXT("rbup,%u"), getUserID( ) );
 			}
 			break;
 
 		case WM_RBUTTONDBLCLK:
 			{
 				if (dcx_testflag(this->m_pParentDialog->getEventMask(), DCX_EVENT_CLICK))
-					this->execAliasEx(TEXT("%s,%d"), TEXT("rdclick"), this->getUserID( ) );
+					execAliasEx(TEXT("rdclick,%u"), getUserID( ) );
 			}
 			break;
 
 		case WM_CONTEXTMENU:
 			{
 				if (dcx_testflag(this->m_pParentDialog->getEventMask(), DCX_EVENT_CLICK))
-					this->execAliasEx(TEXT("%s,%d"), TEXT("rclick"), this->getUserID( ) );
+					execAliasEx(TEXT("rclick,%u"), getUserID( ) );
 				bParsed = TRUE; // stops event being passed down to parent controls
 			}
 			break;
@@ -2069,28 +2313,55 @@ LRESULT DcxControl::CommonMessage( const UINT uMsg, WPARAM wParam, LPARAM lParam
 		{
 			dcxwParam(HDROP, files);
 
-			TCHAR filename[500];
-			const auto count = DragQueryFile(files, 0xFFFFFFFF, filename, 500);
+			//TCHAR filename[500];
+			//const auto count = DragQueryFile(files, 0xFFFFFFFF, filename, Dcx::countof(filename));
+			//
+			//if (count > 0) {
+			//	if (dcx_testflag(m_pParentDialog->getEventMask(), DCX_EVENT_DRAG)) {
+			//		TCHAR ret[20];
+			//
+			//		evalAliasEx(ret, Dcx::countof(ret), TEXT("dragbegin,%u,%u"), getUserID(), count);
+			//
+			//		// cancel drag drop event
+			//		if (lstrcmpi(ret, TEXT("cancel")) == 0) {
+			//			DragFinish(files);
+			//			return 0L;
+			//		}
+			//
+			//		// for each file, send callback message
+			//		for (auto i = decltype(count){0}; i < count; i++) {
+			//			if (DragQueryFile(files, i, filename, Dcx::countof(filename)))
+			//				execAliasEx(TEXT("dragfile,%u,%s"), getUserID(), filename);
+			//		}
+			//
+			//		execAliasEx(TEXT("dragfinish,%u"), getUserID());
+			//	}
+			//}
+			//
+			//DragFinish(files);
+
+			stString<500> sFilename;
+			const auto count = DragQueryFile(files, 0xFFFFFFFF, sFilename, sFilename.size());
 
 			if (count > 0) {
-				if (dcx_testflag(this->m_pParentDialog->getEventMask(), DCX_EVENT_DRAG)) {
-					TCHAR ret[20];
+				if (dcx_testflag(m_pParentDialog->getEventMask(), DCX_EVENT_DRAG)) {
+					stString<20> sRet;
 
-					this->evalAliasEx(ret, 255, TEXT("%s,%d,%d"), TEXT("dragbegin"), this->getUserID(), count);
+					evalAliasEx(sRet, sRet.size(), TEXT("dragbegin,%u,%u"), getUserID(), count);
 
 					// cancel drag drop event
-					if (lstrcmpi(ret, TEXT("cancel")) == 0) {
+					if (sRet == TEXT("cancel")) {
 						DragFinish(files);
 						return 0L;
 					}
 
 					// for each file, send callback message
 					for (auto i = decltype(count){0}; i < count; i++) {
-						if (DragQueryFile(files, i, filename, 500))
-							this->execAliasEx(TEXT("%s,%d,%s"), TEXT("dragfile"), this->getUserID(), filename);
+						if (DragQueryFile(files, i, sFilename, sFilename.size()))
+							execAliasEx(TEXT("dragfile,%u,%s"), getUserID(), sFilename);
 					}
 
-					this->execAliasEx(TEXT("%s,%d"), TEXT("dragfinish"), this->getUserID());
+					execAliasEx(TEXT("dragfinish,%u"), getUserID());
 				}
 			}
 
@@ -2119,7 +2390,7 @@ LRESULT DcxControl::CommonMessage( const UINT uMsg, WPARAM wParam, LPARAM lParam
 					case TTN_LINKCLICK:
 						{
 							bParsed = TRUE;
-							this->execAliasEx(TEXT("%s,%d"), TEXT("tooltiplink"), this->getUserID( ) );
+							execAliasEx(TEXT("tooltiplink,%u"), getUserID( ) );
 						}
 						break;
 					}
@@ -2136,7 +2407,7 @@ LRESULT DcxControl::CommonMessage( const UINT uMsg, WPARAM wParam, LPARAM lParam
 				// Setup alpha blend if any.
 				auto ai = this->SetupAlphaBlend(&hdc);
 
-				lRes = CallWindowProc( this->m_DefaultWindowProc, this->m_Hwnd, uMsg, (WPARAM) hdc, lParam );
+				lRes = CallWindowProc( this->m_DefaultWindowProc, m_Hwnd, uMsg, (WPARAM) hdc, lParam );
 
 				this->FinishAlphaBlend(ai);
 			}
@@ -2161,21 +2432,21 @@ LRESULT DcxControl::CommonMessage( const UINT uMsg, WPARAM wParam, LPARAM lParam
 			break;
 		case WM_KEYDOWN:
 		{
-			if (dcx_testflag(this->m_pParentDialog->getEventMask(), DCX_EVENT_EDIT)) {
+			if (dcx_testflag(m_pParentDialog->getEventMask(), DCX_EVENT_EDIT)) {
 				if (wParam == VK_RETURN)
-					this->execAliasEx(TEXT("%s,%d"), TEXT("return"), this->getUserID());
+					execAliasEx(TEXT("return,%u"), getUserID());
 
 				//if ((this->m_bIgnoreRepeat) && (lParam & 0x40000000)) // ignore repeats
 				// break;
 
-				this->execAliasEx(TEXT("%s,%d,%d"), TEXT("keydown"), this->getUserID(), wParam);
+				execAliasEx(TEXT("keydown,%u,%d"), getUserID(), wParam);
 			}
 			break;
 		}
 		case WM_KEYUP:
 		{
-			if (dcx_testflag(this->m_pParentDialog->getEventMask(), DCX_EVENT_EDIT))
-				this->execAliasEx(TEXT("%s,%d,%d"), TEXT("keyup"), this->getUserID(), wParam);
+			if (dcx_testflag(m_pParentDialog->getEventMask(), DCX_EVENT_EDIT))
+				execAliasEx(TEXT("keyup,%u,%d"), getUserID(), wParam);
 			break;
 		}
 
@@ -2210,7 +2481,7 @@ LRESULT DcxControl::CommonMessage( const UINT uMsg, WPARAM wParam, LPARAM lParam
 // Invalidate controls area in parent.
 void DcxControl::InvalidateParentRect(HWND hwnd)
 {
-	RECT rc;
+	RECT rc = { 0 };
 	auto parent = GetParent(hwnd);
 	if (!GetWindowRect(hwnd, &rc))
 		return;
@@ -2248,10 +2519,10 @@ void DcxControl::ctrlDrawText(HDC hdc, const TString &txt, const LPRECT rc, cons
 const TString DcxControl::getStyles(void) const
 {
 	TString result;
-	const auto exStyles = GetWindowExStyle(this->m_Hwnd);
-	const auto Styles = GetWindowStyle(this->m_Hwnd);
+	const auto exStyles = GetWindowExStyle(m_Hwnd);
+	const auto Styles = GetWindowStyle(m_Hwnd);
 
-	if (Dcx::UXModule.dcxGetWindowTheme(this->m_Hwnd) == nullptr)
+	if (Dcx::UXModule.dcxGetWindowTheme(m_Hwnd) == nullptr)
 		result = TEXT("notheme");
 	if ( dcx_testflag(Styles,WS_TABSTOP ) )
 		result.addtok(TEXT("tabstop"));
@@ -2282,8 +2553,8 @@ const TString DcxControl::getStyles(void) const
 const TString DcxControl::getBorderStyles(void) const
 {
 	TString bstyles;
-	const auto exStyles = GetWindowExStyle(this->m_Hwnd);
-	const auto Styles = GetWindowStyle(this->m_Hwnd);
+	const auto exStyles = GetWindowExStyle(m_Hwnd);
+	const auto Styles = GetWindowStyle(m_Hwnd);
 
 	if (dcx_testflag(Styles,WS_BORDER))
 		bstyles += TEXT('b');
@@ -2304,7 +2575,7 @@ void DcxControl::toXml(TiXmlElement *const xml) const
 {
 	const auto styles(getStyles());
 
-	xml->SetAttribute("id", (int)getUserID());
+	xml->SetAttribute("id", static_cast<int>(getUserID()));
 	xml->SetAttribute("type", getType().c_str());
 	if (!styles.empty())
 		xml->SetAttribute("styles", styles.c_str());
@@ -2313,6 +2584,6 @@ void DcxControl::toXml(TiXmlElement *const xml) const
 TiXmlElement * DcxControl::toXml(void) const
 {
 	auto result = new TiXmlElement("control");
-	this->toXml(result);
+	toXml(result);
 	return result;
 }
