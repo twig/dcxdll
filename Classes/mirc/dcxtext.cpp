@@ -30,9 +30,10 @@ DcxText::DcxText(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwn
 {
 	LONG Styles = 0, ExStyles = 0;
 	BOOL bNoTheme = FALSE;
-	this->parseControlStyles(styles, &Styles, &ExStyles, &bNoTheme);
+	
+	parseControlStyles(styles, &Styles, &ExStyles, &bNoTheme);
 
-	this->m_Hwnd = CreateWindowEx(
+	m_Hwnd = CreateWindowEx(
 		ExStyles,
 		TEXT("STATIC"),
 		nullptr,
@@ -43,28 +44,28 @@ DcxText::DcxText(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwn
 		GetModuleHandle(nullptr),
 		nullptr);
 
-	if (!IsWindow(this->m_Hwnd))
+	if (!IsWindow(m_Hwnd))
 		throw Dcx::dcxException("Unable To Create Window");
 
 	// remove all borders
-	this->removeStyle(WS_BORDER | WS_DLGFRAME);
-	this->removeExStyle(WS_EX_CLIENTEDGE | WS_EX_DLGMODALFRAME | WS_EX_STATICEDGE | WS_EX_WINDOWEDGE);
+	removeStyle(WS_BORDER | WS_DLGFRAME);
+	removeExStyle(WS_EX_CLIENTEDGE | WS_EX_DLGMODALFRAME | WS_EX_STATICEDGE | WS_EX_WINDOWEDGE);
 
 	if (bNoTheme)
-		Dcx::UXModule.dcxSetWindowTheme(this->m_Hwnd, L" ", L" ");
+		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
 
-	this->m_clrText = GetSysColor(COLOR_WINDOWTEXT);
+	m_clrText = GetSysColor(COLOR_WINDOWTEXT);
 
-	this->setControlFont(GetStockFont(DEFAULT_GUI_FONT), FALSE);
-	this->registreDefaultWindowProc();
-	SetProp(this->m_Hwnd, TEXT("dcx_cthis"), (HANDLE) this);
+	setControlFont(GetStockFont(DEFAULT_GUI_FONT), FALSE);
+	registreDefaultWindowProc();
+	SetProp(m_Hwnd, TEXT("dcx_cthis"), (HANDLE) this);
 
 	if (styles.istok(TEXT("tooltips"))) {
 		if (!IsWindow(p_Dialog->getToolTip()))
 			throw Dcx::dcxException("Unable to Initialize Tooltips");
 
-		this->m_ToolTipHWND = p_Dialog->getToolTip();
-		AddToolTipToolInfo(this->m_ToolTipHWND, this->m_Hwnd);
+		m_ToolTipHWND = p_Dialog->getToolTip();
+		AddToolTipToolInfo(m_ToolTipHWND, m_Hwnd);
 	}
 }
 
@@ -126,7 +127,7 @@ void DcxText::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) co
 	// [NAME] [ID] [PROP]
 	if (input.gettok(3) == TEXT("text")) {
 
-		GetWindowText(this->m_Hwnd, szReturnValue, MIRC_BUFFER_SIZE_CCH);
+		GetWindowText(m_Hwnd, szReturnValue, MIRC_BUFFER_SIZE_CCH);
 	}
 	else
 		this->parseGlobalInfoRequest(input, szReturnValue);
@@ -145,20 +146,20 @@ void DcxText::parseCommandRequest(const TString &input) {
 	// xdid -r [NAME] [ID] [SWITCH]
 	if (flags[TEXT('r')]) {
 		this->m_tsText.clear();	// = TEXT("");
-		SetWindowText(this->m_Hwnd, TEXT(""));
+		SetWindowText(m_Hwnd, TEXT(""));
 	}
 
 	// xdid -a [NAME] [ID] [SPACE 0|1] [TEXT]
 	if (flags[TEXT('a')] && numtok > 2) {
 		if (input.getnexttok( ).to_int() == 1)	// tok 4
-			this->m_tsText += TEXT(" ");
+			this->m_tsText += TEXT(' ');
 
 		this->m_tsText += input.getlasttoks();	// tok 5, -1
-		SetWindowText(this->m_Hwnd, this->m_tsText.to_chr());
+		SetWindowText(m_Hwnd, this->m_tsText.to_chr());
 
 		// redraw if transparent
 		if (this->isExStyle(WS_EX_TRANSPARENT))
-			this->InvalidateParentRect(this->m_Hwnd);
+			this->InvalidateParentRect(m_Hwnd);
 		this->redrawWindow();
 	}
 	// This is to avoid invalid flag message.
@@ -168,11 +169,11 @@ void DcxText::parseCommandRequest(const TString &input) {
 	//xdid -t [NAME] [ID] [SWITCH] [TEXT]
 	else if (flags[TEXT('t')]) {
 		this->m_tsText = input.getlasttoks();	// tok 4, -1
-		SetWindowText(this->m_Hwnd, this->m_tsText.to_chr());
+		SetWindowText(m_Hwnd, this->m_tsText.to_chr());
 
 		// redraw if transparent
 		if (this->isExStyle(WS_EX_TRANSPARENT))
-			this->InvalidateParentRect(this->m_Hwnd);
+			this->InvalidateParentRect(m_Hwnd);
 		this->redrawWindow();
 	}
 	else
@@ -212,18 +213,18 @@ LRESULT DcxText::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 				bParsed = TRUE;
 				PAINTSTRUCT ps;
 
-				auto hdc = BeginPaint(this->m_Hwnd, &ps);
+				auto hdc = BeginPaint(m_Hwnd, &ps);
 
 				this->DrawClientArea(hdc);
 
-				EndPaint( this->m_Hwnd, &ps );
+				EndPaint( m_Hwnd, &ps );
 			}
 			break;
 
 		case WM_ENABLE:
 			{ // fixes bug with redraw when text control is enabled/disabled & formatted text is being used.
 				bParsed = TRUE;
-				InvalidateRect(this->m_Hwnd, nullptr, FALSE);
+				InvalidateRect(m_Hwnd, nullptr, FALSE);
 			}
 			break;
 
@@ -244,16 +245,23 @@ LRESULT DcxText::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 
 void DcxText::DrawClientArea(HDC hdc)
 {
+	if (hdc == nullptr)
+		return;
+
 	RECT r;
 
-	if (!GetClientRect(this->m_Hwnd, &r))
+	if (!GetClientRect(m_Hwnd, &r))
 		return;
 
 	// Setup alpha blend if any.
-	auto ai = this->SetupAlphaBlend(&hdc);
+	auto ai = SetupAlphaBlend(&hdc);
+	Auto(FinishAlphaBlend(ai));
+
+	if (hdc == nullptr)
+		return;
 
 	TString wtext;
-	TGetWindowText(this->m_Hwnd, wtext);
+	TGetWindowText(m_Hwnd, wtext);
 
 	DcxControl::DrawCtrlBackground(hdc,this,&r);
 
@@ -265,7 +273,7 @@ void DcxText::DrawClientArea(HDC hdc)
 	if (this->m_hFont != nullptr)
 		oldFont = SelectFont(hdc, this->m_hFont);
 	// check if control is enabled.
-	if (IsWindowEnabled(this->m_Hwnd)) {
+	if (IsWindowEnabled(m_Hwnd)) {
 		if (this->m_clrText != CLR_INVALID)
 			oldClr = SetTextColor(hdc, this->m_clrText);
 		if (this->m_clrBackText != CLR_INVALID)
@@ -324,6 +332,4 @@ void DcxText::DrawClientArea(HDC hdc)
 		SetTextColor(hdc, oldClr);
 	if (oldFont != nullptr)
 		SelectFont(hdc, oldFont);
-
-	this->FinishAlphaBlend(ai);
 }

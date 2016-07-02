@@ -47,7 +47,8 @@ public:
 	inline const TString getType() const override { return TEXT("text"); };
 	inline const DcxControlTypes getControlType() const noexcept override { return DcxControlTypes::TEXT; }
 
-protected:
+//protected:
+private:
 	TString m_tsText;	// Edit Text
 	UINT m_uiStyle;		// text style
 	void DrawClientArea(HDC hdc);
