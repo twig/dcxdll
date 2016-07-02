@@ -68,6 +68,9 @@ http://symbiancorner.blogspot.com/2007/05/how-to-detect-version-of-ms-visual.htm
 #define DCX_MAX_GDI_ERRORS 21
 // end of GDI+
 
+// use string hashes for compares etc..?
+#define DCX_USE_HASHING 1
+
 // DCX Using C++11 regex
 // NB: Can't be used with either BOOST OR PCRE enabled.
 //#define DCX_USE_CREGEX 1
@@ -196,6 +199,7 @@ http://symbiancorner.blogspot.com/2007/05/how-to-detect-version-of-ms-visual.htm
 #include <windowsx.h>
 #include <vector>
 #include <map>
+#include <unordered_map>
 #include <commctrl.h>
 #include <richedit.h>
 
@@ -225,7 +229,7 @@ http://symbiancorner.blogspot.com/2007/05/how-to-detect-version-of-ms-visual.htm
 #pragma warning(disable: 4458)
 #include <gdiplus.h>
 #pragma warning(pop)
-using namespace Gdiplus;
+//using namespace Gdiplus;
 #pragma comment(lib, "gdiplus.lib")
 #endif
 
@@ -234,17 +238,26 @@ using namespace Gdiplus;
 #ifdef DCX_DX_ERR
 #include <Dxerr.h>
 #pragma comment(lib, "DxErr.lib")
-#define DX_ERR(prop,cmd,hr) this->showErrorEx((prop), (cmd), TEXT("%s: %s"), DXGetErrorString((hr)), DXGetErrorDescription((hr)))
+//#define DX_ERR(prop,cmd,hr) showErrorEx((prop), (cmd), TEXT("%s: %s"), DXGetErrorString((hr)), DXGetErrorDescription((hr)))
+#define DX_ERR(prop,cmd,hr) showError((prop), (cmd), TEXT("%: %"), DXGetErrorString((hr)), DXGetErrorDescription((hr)))
 #else
 #define DX_ERR(prop,cmd,hr)
 #endif
 #endif
 
+// max() macro causes issues with GSL
+#pragma push_macro("max")
+#undef max
 #include "GSL\include\gsl.h"
+#pragma pop_macro("max")
 
 #include "AutoRelease.h"
 
 #include "Classes/TString/tstring.h"
+#include "simpleString.h"
+#include "refString.h"
+#include "Classes/tstring/hashString.h"
+
 #include "XSwitchFlags.h"
 
 #include "classes/dcxdialogcollection.h"
@@ -319,6 +332,7 @@ using namespace Gdiplus;
 #define mIRC_ID_OFFSET 6000U //!< mIRC Dialog ID Offset
 #define mIRC_ID_MAX (UINT_MAX -1)	//!< Highest ID allowed.
 #define mIRC_MAX_CONTROLS	10000U	//!< Max number of controls allowed per dialog.
+#define mIRC_PALETTE_SIZE	16U		// Number of colours in mIRC's palette
 
 #define DCX_LISTVIEWCLASS    TEXT("DCXListViewClass")     //!< DCX Listview Class Name
 #define DCX_PROGRESSBARCLASS TEXT("DCXProgressBarClass")  //!< DCX ProgressBar Class Name
@@ -409,12 +423,13 @@ using LPMYDCXWINDOW = MYDCXWINDOW *;
 #define PACKVERSION(major,minor) MAKELONG(minor,major)
 
 // mIRC DLL Loading Structure
-typedef struct {
+struct LOADINFO {
 	DWORD  mVersion; //!< mIRC Version
 	HWND   mHwnd;    //!< mIRC Hwnd 
 	BOOL   mKeep;    //!< mIRC variable stating to keep DLL in memory
 	BOOL   mUnicode; //!< mIRC V7+ unicode enabled dll.
-} LOADINFO;
+};
+using LPLOADINFO = LOADINFO *;
 
 // mIRC Signal structure
 struct SIGNALSWITCH {
@@ -437,7 +452,7 @@ using VectorOfInts = std::vector<int>; //<! Vector of int
 
 //#define dcx_strcpyn(x, y, z) { if (lstrcpyn((x), (y), static_cast<int>((z))) == nullptr) (x)[0] = 0; }
 
-inline void dcx_strcpyn(gsl::not_null<TCHAR *> sDest, gsl::not_null<const TCHAR *> sSrc, const int &iSize) { if (lstrcpyn(sDest, sSrc, iSize) == nullptr) sDest[0] = 0; }
+inline void dcx_strcpyn(gsl::not_null<TCHAR *> sDest, const gsl::not_null<const TCHAR *> &sSrc, const int &iSize) { if (lstrcpyn(sDest, sSrc, iSize) == nullptr) sDest[0] = 0; }
 
 constexpr const TCHAR *const dcx_truefalse(const bool &x) noexcept { return (x) ? TEXT("$true") : TEXT("$false"); }
 
@@ -455,7 +470,7 @@ constexpr const TCHAR *const dcx_truefalse(const bool &x) noexcept { return (x) 
 	if (lstrcpyn((y), dcx_truefalse((x)), MIRC_BUFFER_SIZE_CCH) != nullptr) return; \
 }
 #define dcx_ConRetState(x,y) { \
-	if (lstrcpyn((y), dcx_truefalse((x)), MIRC_BUFFER_SIZE_CCH) != nullptr) return TRUE; \
+	if (lstrcpyn((y), dcx_truefalse((x)), MIRC_BUFFER_SIZE_CCH) != nullptr) return true; \
 }
 
 #define dcx_ConChar(x,y) { \
@@ -475,7 +490,7 @@ constexpr bool dcx_testflag(T x, M y) noexcept { return ((x & static_cast<T>(y))
 // --------------------------------------------------
 
 int dcx_round(const float x);
-BOOL ParseCommandToLogfont(const TString& cmd, LPLOGFONT lf);
+bool ParseCommandToLogfont(const TString& cmd, LPLOGFONT lf);
 TString ParseLogfontToCommand(const LPLOGFONT lf);
 UINT parseFontFlags(const TString &flags);
 UINT parseFontCharSet(const TString &charset);
@@ -491,16 +506,16 @@ gsl::owner<LPITEMIDLIST> GetFolderFromCSIDL(const int nCsidl);
 
 HWND GetHwndFromString(const TString &str);
 //HWND GetHwndFromString(gsl::not_null<const TCHAR *> str);
-HWND FindOwner(const TString & data, const HWND defaultWnd);
+HWND FindOwner(const TString & data, const gsl::not_null<HWND> &defaultWnd);
 BOOL CopyToClipboard(const HWND owner, const TString & str);
 HBITMAP dcxLoadBitmap(HBITMAP dest, TString &filename);
 HICON dcxLoadIcon(const int index, TString &filename, const bool large, const TString &flags);
 HICON CreateGrayscaleIcon(HICON hIcon);
-HRGN BitmapRegion(HBITMAP hBitmap,COLORREF cTransparentColor,BOOL bIsTransparent);
+HRGN BitmapRegion(HBITMAP hBitmap, const COLORREF cTransparentColor, const BOOL bIsTransparent);
 void ChangeHwndIcon(const HWND hwnd, const TString &flags, const int index, TString &filename);
 bool AddFileIcons(HIMAGELIST himl, TString &filename, const bool bLarge, const int iIndex, const int iStart = 0, const int iEnd = -1);
-BOOL dcxGetWindowRect(gsl::not_null<HWND> hWnd, gsl::not_null<LPRECT> lpRect);
-int dcxPickIconDlg(gsl::not_null<HWND> hwnd, gsl::not_null<LPWSTR> pszIconPath, UINT cchIconPath, gsl::not_null<int *> piIconIndex);
+BOOL dcxGetWindowRect(const gsl::not_null<HWND> &hWnd, const gsl::not_null<LPRECT> &lpRect);
+int dcxPickIconDlg(const gsl::not_null<HWND> &hwnd, gsl::not_null<LPWSTR> pszIconPath, const UINT &cchIconPath, gsl::not_null<int *> piIconIndex);
 
 SYSTEMTIME MircTimeToSystemTime(const long mircTime);
 long SystemTimeToMircTime(const LPSYSTEMTIME pst);
@@ -508,7 +523,7 @@ long SystemTimeToMircTime(const LPSYSTEMTIME pst);
 void AddToolTipToolInfo(const HWND tiphwnd, const HWND ctrl);
 void dcxDrawShadowText(HDC hdc, LPCWSTR pszText, UINT cch, RECT *pRect, DWORD dwFlags, COLORREF crText, COLORREF crShadow, int ixOffset, int iyOffset);
 #ifdef DCX_USE_GDIPLUS
-const TCHAR *GetLastStatusStr(Status status);
+const TCHAR *GetLastStatusStr(Gdiplus::Status status);
 #endif
 bool IsFile(TString &filename);
 //void calcStrippedRect(HDC hdc, const TString &txt, const UINT style, LPRECT rc, const bool ignoreleft);
@@ -518,14 +533,15 @@ void DeleteHDCBuffer(gsl::owner<HDC *> hBuffer);
 int TGetWindowText(HWND hwnd, TString &txt);
 void FreeOSCompatibility(void);
 bool isRegexMatch(const TCHAR *matchtext, const TCHAR *pattern);
-void DrawRotatedText(const TString &strDraw, gsl::not_null<LPRECT> rc, gsl::not_null<HDC> hDC, const int nAngleLine = 0, const bool bEnableAngleChar = false, const int nAngleChar = 0);
-const char *queryAttribute(gsl::not_null<const TiXmlElement *> element, gsl::not_null<const char *> attribute, const char *defaultValue = "");
+void DrawRotatedText(const TString &strDraw, const gsl::not_null<LPRECT> &rc, const gsl::not_null<HDC> &hDC, const int nAngleLine = 0, const bool bEnableAngleChar = false, const int nAngleChar = 0);
+const char *queryAttribute(gsl::not_null<const TiXmlElement *> element, gsl::not_null<const char *> attribute, gsl::not_null<const char *> defaultValue = "");
 int queryIntAttribute(gsl::not_null<const TiXmlElement *> element, gsl::not_null<const char *> attribute, const int defaultValue = 0);
-void getmIRCPalette(COLORREF *const Palette, const int PaletteItems);
+void getmIRCPalette();
+void getmIRCPalette(COLORREF *const Palette, const UINT PaletteItems);
 
 // UltraDock
-void RemStyles(gsl::not_null<HWND> hwnd,int parm,long RemStyles);
-void AddStyles(gsl::not_null<HWND> hwnd,int parm,long AddStyles);
+void RemStyles(const gsl::not_null<HWND> &hwnd,int parm,long RemStyles);
+void AddStyles(const gsl::not_null<HWND> &hwnd,int parm,long AddStyles);
 //void InitUltraDock(void);
 //void CloseUltraDock(void);
 //SwitchBarPos SwitchbarPos(const DockTypes type);
@@ -539,6 +555,7 @@ bool InitCustomDock(void);
 // DirectX
 HRESULT GetDXVersion( DWORD* pdwDirectXVersion, TCHAR* strDirectXVersion, int cchDirectXVersion );
 
+TString MakeTextmIRCSafe(const TString &tsStr);
 TString MakeTextmIRCSafe(const TCHAR *const tString);
 
 extern SIGNALSWITCH dcxSignal;
