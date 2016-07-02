@@ -122,8 +122,8 @@ const TCHAR *TString::m_cTab = TEXT("\t");
 TString::TString(const WCHAR chr)
 	: TString(2U)
 {
-	this->m_pString[0] = chr;
-	this->m_pString[1] = TEXT('\0');
+	m_pString[0] = chr;
+	m_pString[1] = TEXT('\0');
 }
 
 /****************************/
@@ -134,6 +134,22 @@ TString::TString(const WCHAR chr)
 */
 /****************************/
 
+#if TSTRING_INTERNALBUFFER
+TString::TString(const char chr)
+	: TString(2U)
+{
+	if (chr != '\0') {
+		const char cString[] = { chr, '\0' };
+
+		auto sTemp = charToWchar(cString, &m_buffersize);
+		if (sTemp != nullptr)
+		{
+			m_pString = sTemp;
+			m_bUsingInternal = false;
+		}
+	}
+}
+#else
 TString::TString(const char chr)
 	: m_pTempString(nullptr), m_pString(nullptr)
 	, m_savedtotaltoks(0), m_savedcurrenttok(0), m_savedpos(nullptr)
@@ -142,22 +158,16 @@ TString::TString(const char chr)
 	if (chr != '\0') {
 		const char cString[] = { chr, '\0' };
 
-		this->m_pString = charToWchar(cString, &m_buffersize);
+		m_pString = charToWchar(cString, &m_buffersize);
 	}
 
-#if TSTRING_INTERNALBUFFER
-	if (this->m_pString == nullptr)
-		this->m_pString = m_InternalBuffer;
-	else
-		m_bUsingInternal = false;
-#else
 	if (m_pString == nullptr) {
 		m_pString = allocstr_cch(1);
 		m_pString[0] = TEXT('\0');
 		m_bDirty = false;
 	}
-#endif
 }
+#endif
 
 /****************************/
 /*! \fn TString::TString( const TString & tString )
@@ -252,11 +262,11 @@ TString::TString(const UINT tsSize)
 	: m_pTempString(nullptr), m_pString(allocstr_cch(tsSize + 1))
 	, m_savedtotaltoks(0), m_savedcurrenttok(0), m_savedpos(nullptr)
 	, m_bDirty(true), m_iLen(0)
-	, m_bUsingInternal(true)
+	//, m_bUsingInternal(true)
 {
-	m_InternalBuffer[0] = TEXT('\0');
+	//m_InternalBuffer[0] = TEXT('\0');
 
-	ts_zeromem(this->m_pString, this->m_buffersize);
+	ts_zeromem(m_pString, m_buffersize);
 }
 #else
 TString::TString(const UINT tsSize)
@@ -427,7 +437,7 @@ TString & TString::operator *=( const int &N ) {
 		return *this;
 	}
 
-	const auto sz = this->len();
+	const auto sz = len();
 
 	// if string is null just return.
 	if ((N == 1) || (sz == 0))
@@ -438,7 +448,7 @@ TString & TString::operator *=( const int &N ) {
 	for (auto i = decltype(N){0}; i < N; i++)
 	{
 		//append(*this);
-		ts_strcat_throw(tmp.m_pString, this->m_pString);
+		ts_strcat_throw(tmp.m_pString, m_pString);
 	}
 
 	this->swap(tmp);
@@ -457,12 +467,13 @@ const size_t &TString::len( ) const noexcept {
 	if (empty())	// check for zero length string.
 		m_iLen = 0U;
 	else if (m_bDirty)
-		m_iLen = _ts_strlen(this->m_pString);
+		m_iLen = _ts_strlen(m_pString);
 
 	m_bDirty = false;
 	return m_iLen;
 }
 
+#if !TSTRING_TESTCODE
 /****************************/
 /*! \fn int TString::find( const TCHAR * substring, int N )
     \brief Function to find position or number of occurences of a substring in the string
@@ -478,18 +489,36 @@ const size_t &TString::len( ) const noexcept {
 
 int TString::find(const TCHAR *const substring, const int N) const noexcept {
 
-	if ((substring != nullptr) && (this->m_pString != nullptr)) {
+	//if ((substring != nullptr) && (m_pString != nullptr)) {
+	//
+	//	const TCHAR * temp = nullptr, *temp2 = m_pString;
+	//
+	//	auto i = decltype(N){0};
+	//	const auto subl = _ts_strlen(substring);
+	//	while ((temp = ts_strstr(temp2, substring)) != nullptr) {
+	//		i++;
+	//		//if ( N != 0 && i == N )
+	//		if (i == N) // i is never zero
+	//			return static_cast<int>(temp - m_pString);
+	//		temp2 = (temp + subl); // Ook
+	//	}
+	//	if (N == 0)
+	//		return i;
+	//}
+	//return -1;
 
-		const TCHAR * temp = nullptr, *temp2 = this->m_pString;
+	if (!_ts_isEmpty(substring) && !_ts_isEmpty(m_pString)) {
+
+		const TCHAR * temp = nullptr, *temp2 = m_pString;
 
 		auto i = decltype(N){0};
 		const auto subl = _ts_strlen(substring);
-		while ((temp = ts_strstr(temp2, substring)) != nullptr) {
+		while ((temp = _ts_find(temp2, substring)) != nullptr) {
 			i++;
 			//if ( N != 0 && i == N )
 			if (i == N) // i is never zero
-				return static_cast<int>(temp - this->m_pString);
-			temp2 = (temp + subl); // Ook
+				return static_cast<int>(temp - m_pString);
+			temp2 = (temp + subl);
 		}
 		if (N == 0)
 			return i;
@@ -544,6 +573,7 @@ int TString::find(const TCHAR chr, const int N) const noexcept {
 	// -1 if no matches
 	return -1;
 }
+#endif
 
 /****************************/
 /*! \fn TString TString::sub( int N, int M )
@@ -561,7 +591,7 @@ int TString::find(const TCHAR chr, const int N) const noexcept {
 
 TString TString::sub( int N, int M ) const {
 
-	if (this->empty())
+	if (empty())
 		return TString();
 
 	const auto size = static_cast<int>(len());
@@ -575,11 +605,12 @@ TString TString::sub( int N, int M ) const {
 	if (N + M > size)
 		M = size - N;
 
-	const auto *const temp = (this->m_pString + N);
+	const auto *const temp = (m_pString + N);
 
 	return TString(temp, (temp + M));
 }
 
+#if !TSTRING_TESTCODE
 /*
 remove function, called by the other remove()/-/-= functions.
 Ook
@@ -589,10 +620,10 @@ Ook
 TString &TString::remove(const TCHAR *const subString)
 {
 	// no str to remove or no str to remove from
-	if ((subString == nullptr) || (this->empty()) || (subString[0] == TEXT('\0')))
+	if ((subString == nullptr) || (empty()) || (subString[0] == TEXT('\0')))
 		return *this;
 
-	const TCHAR *sub, *p = this->m_pString;
+	const TCHAR *sub, *p = m_pString;
 	auto cnt = 0;
 	const auto subl = _ts_strlen(subString);
 
@@ -609,7 +640,7 @@ TString &TString::remove(const TCHAR *const subString)
 	if (cnt > 0) {
 		ts_strcat_throw(tmp.m_pString, p); // append the end text, if any.
 
-		this->swap(tmp);
+		swap(tmp);
 	}
 
 	return *this;
@@ -625,7 +656,9 @@ TString &TString::remove(const TCHAR &chr)
 	const TCHAR tmp[] = { chr, TEXT('\0') };
 	return remove(tmp);
 }
+#endif
 
+#if !TSTRING_TESTCODE
 /*
 	internal replace function, called by the other replace() functions.
 	Ook
@@ -722,6 +755,7 @@ UINT TString::replace( const TCHAR chr, const TCHAR rchr ) {
 	}
 	return cnt;
 }
+#endif
 
 /****************************/
 /*! \fn int TString::mreplace( const TCHAR chr, const TCHAR *fmt )
@@ -735,7 +769,7 @@ UINT TString::mreplace(const TCHAR chr, const TCHAR *const fmt)
 	if (fmt == nullptr)
 		return cnt;
 
-	for (auto p = this->m_pString; p && *p != TEXT('\0'); p++)
+	for (auto p = m_pString; p && *p != TEXT('\0'); p++)
 	{
 		auto i = 0U;
 		for (auto rchr = fmt[0]; rchr != TEXT('\0'); rchr = fmt[i])
@@ -749,6 +783,125 @@ UINT TString::mreplace(const TCHAR chr, const TCHAR *const fmt)
 	}
 	return cnt;
 }
+
+//#if TSTRING_TESTCODE
+///*!
+// * \brief blah
+// *
+// * blah
+// */
+//
+//const TString::tuple_type TString::gettokenrange(const int nStart, const int nEnd, const_pointer sepChars) const
+//{
+//	const_pointer p_cStart = m_pString, p_cEnd = nullptr, p_fEnd = last();
+//
+//	if (sepChars == nullptr)
+//		return std::make_tuple( p_cStart,p_fEnd, decltype(m_savedtotaltoks){1} );
+//
+//	const auto nToks = this->numtok(sepChars);
+//	auto iStart = nStart;
+//
+//	if (iStart < 0)
+//		iStart += (nToks + 1);
+//
+//	if (p_cStart == nullptr || p_fEnd == nullptr || iStart < 1 || ((nEnd < iStart) && (nEnd != -1)) || static_cast<size_t>(iStart) > nToks)
+//		return std::make_tuple(nullptr, nullptr, decltype(m_savedtotaltoks){0});
+//
+//	const auto bFullstring = ((static_cast<size_t>(nEnd) >= nToks) || (nEnd < 0));
+//
+//	const_pointer p_cFirst = nullptr, p_cLast = nullptr;
+//	auto iCount = 0;
+//	const auto sepl = _ts_strlen(sepChars);
+//
+//	while ((p_cEnd = ts_strstr(p_cStart, sepChars)) != nullptr) {
+//		++iCount;
+//
+//		if (iCount == iStart) {
+//
+//			p_cFirst = p_cStart;
+//
+//			if (bFullstring)
+//				break;
+//		}
+//
+//		if (iCount == nEnd) {
+//			p_cLast = p_cEnd;
+//			break;
+//		}
+//
+//		p_cStart = p_cEnd + sepl;
+//		if (p_cStart >= p_fEnd)	// look out for overrun...
+//			break;
+//	}
+//
+//	if (bFullstring) {
+//
+//		if (static_cast<size_t>(iCount) == (nToks - 1))
+//			p_cFirst = p_cStart;
+//
+//		p_cLast = p_fEnd;
+//	}
+//	else if (static_cast<size_t>(iCount) == (nToks - 1))
+//		p_cLast = p_cEnd;
+//
+//	return std::make_tuple( p_cFirst, p_cLast, nToks );
+//}
+//
+//const TString::tuple_type TString::gettokenrange(const int nStart, const int nEnd, const_reference sepChars) const
+//{
+//	const_pointer p_cStart = m_pString, p_cEnd = nullptr, p_fEnd = last();
+//
+//	if (sepChars == value_type())
+//		return std::make_tuple(p_cStart, p_fEnd, decltype(m_savedtotaltoks){1});
+//
+//	const auto nToks = this->numtok(sepChars);
+//	auto iStart = nStart;
+//
+//	if (iStart < 0)
+//		iStart += (nToks + 1);
+//
+//	if (p_cStart == nullptr || p_fEnd == nullptr || iStart < 1 || ((nEnd < iStart) && (nEnd != -1)) || static_cast<size_t>(iStart) > nToks)
+//		return std::make_tuple(nullptr, nullptr, decltype(m_savedtotaltoks){0});
+//
+//	const auto bFullstring = ((static_cast<size_t>(nEnd) >= nToks) || (nEnd < 0));
+//
+//	const_pointer p_cFirst = nullptr, p_cLast = nullptr;
+//	auto iCount = 0;
+//
+//	while ((p_cEnd = ts_strchr(p_cStart, sepChars)) != nullptr) {
+//		++iCount;
+//
+//		if (iCount == iStart) {
+//
+//			p_cFirst = p_cStart;
+//
+//			if (bFullstring)
+//				break;
+//		}
+//
+//		if (iCount == nEnd) {
+//			p_cLast = p_cEnd;
+//			break;
+//		}
+//
+//		p_cStart = p_cEnd + 1;
+//		if (p_cStart >= p_fEnd)	// look out for overrun...
+//			break;
+//	}
+//
+//	if (bFullstring) {
+//
+//		if (static_cast<size_t>(iCount) == (nToks - 1))
+//			p_cFirst = p_cStart;
+//
+//		p_cLast = p_fEnd;
+//	}
+//	else if (static_cast<size_t>(iCount) == (nToks - 1))
+//		p_cLast = p_cEnd;
+//
+//	return std::make_tuple(p_cFirst, p_cLast, nToks);
+//}
+//#endif
 
 #if !TSTRING_TESTCODE
 /*!
@@ -971,7 +1124,6 @@ TString TString::getfirsttok(const size_type N, const value_type &sepChar) const
 
 	return TString();
 }
-#endif
 
 /*!
 * \brief Get the next token from the string (can only be used after a getfirsttok() call)
@@ -1029,6 +1181,7 @@ TString TString::getnexttok(const_value_type & sepChars) const
 	}
 	return TString();
 }
+#endif
 
 /*!
 * \brief Get the last tokens from the string (can only be called after a getfirsttok() call)
@@ -1037,23 +1190,25 @@ TString TString::getnexttok(const_value_type & sepChars) const
 */
 TString TString::getlasttoks( ) const
 {
-	if (this->empty())
+	if (empty())
 		return TString();
 
 	// set current token to the last one.
-	this->m_savedcurrenttok = this->m_savedtotaltoks;
+	m_savedcurrenttok = m_savedtotaltoks;
 	// get saved position (this can be NULL)
-	const auto *const p_cStart = this->m_savedpos;
+	const auto *const p_cStart = m_savedpos;
 	// set saved position to NULL
-	this->m_savedpos = nullptr;
+	m_savedpos = nullptr;
 	// return end of string (can be NULL as constructor handles this)
 	return TString(p_cStart);
 }
 
+#if !TSTRING_TESTCODE
 /*!
- * \brief blah
+ * \brief Returns the number of tokens in the string
  *
- * blah
+ * params
+ *	sepChars = The token seperator.
  */
 size_t TString::numtok(const TCHAR *const sepChars) const noexcept {
 
@@ -1076,6 +1231,12 @@ size_t TString::numtok(const TCHAR *const sepChars) const noexcept {
 	return iCount + 1U;
 }
 
+/*!
+* \brief Returns the number of tokens in the string
+*
+* params
+*	sepChars = The token seperator.
+*/
 size_t TString::numtok(const TCHAR &sepChar) const noexcept
 {
 	if (empty())
@@ -1090,125 +1251,6 @@ size_t TString::numtok(const TCHAR &sepChar) const noexcept
 	}
 	return iCount + 1U;
 }
-
-#if TSTRING_TESTCODE
-/*!
- * \brief blah
- *
- * blah
- */
-
-const TString::tuple_type TString::gettokenrange(const int nStart, const int nEnd, const_pointer sepChars) const
-{
-	const_pointer p_cStart = m_pString, p_cEnd = nullptr, p_fEnd = last();
-
-	if (sepChars == nullptr)
-		return std::make_tuple( p_cStart,p_fEnd, decltype(m_savedtotaltoks){1} );
-
-	const auto nToks = this->numtok(sepChars);
-	auto iStart = nStart;
-
-	if (iStart < 0)
-		iStart += (nToks + 1);
-
-	if (p_cStart == nullptr || p_fEnd == nullptr || iStart < 1 || ((nEnd < iStart) && (nEnd != -1)) || static_cast<size_t>(iStart) > nToks)
-		return std::make_tuple(nullptr, nullptr, decltype(m_savedtotaltoks){0});
-
-	const auto bFullstring = ((static_cast<size_t>(nEnd) >= nToks) || (nEnd < 0));
-
-	const_pointer p_cFirst = nullptr, p_cLast = nullptr;
-	auto iCount = 0;
-	const auto sepl = _ts_strlen(sepChars);
-
-	while ((p_cEnd = ts_strstr(p_cStart, sepChars)) != nullptr) {
-		++iCount;
-
-		if (iCount == iStart) {
-
-			p_cFirst = p_cStart;
-
-			if (bFullstring)
-				break;
-		}
-
-		if (iCount == nEnd) {
-			p_cLast = p_cEnd;
-			break;
-		}
-
-		p_cStart = p_cEnd + sepl;
-		if (p_cStart >= p_fEnd)	// look out for overrun...
-			break;
-	}
-
-	if (bFullstring) {
-
-		if (static_cast<size_t>(iCount) == (nToks - 1))
-			p_cFirst = p_cStart;
-
-		p_cLast = p_fEnd;
-	}
-	else if (static_cast<size_t>(iCount) == (nToks - 1))
-		p_cLast = p_cEnd;
-
-	return std::make_tuple( p_cFirst, p_cLast, nToks );
-}
-
-const TString::tuple_type TString::gettokenrange(const int nStart, const int nEnd, const_reference sepChars) const
-{
-	const_pointer p_cStart = m_pString, p_cEnd = nullptr, p_fEnd = last();
-
-	if (sepChars == value_type())
-		return std::make_tuple(p_cStart, p_fEnd, decltype(m_savedtotaltoks){1});
-
-	const auto nToks = this->numtok(sepChars);
-	auto iStart = nStart;
-
-	if (iStart < 0)
-		iStart += (nToks + 1);
-
-	if (p_cStart == nullptr || p_fEnd == nullptr || iStart < 1 || ((nEnd < iStart) && (nEnd != -1)) || static_cast<size_t>(iStart) > nToks)
-		return std::make_tuple(nullptr, nullptr, decltype(m_savedtotaltoks){0});
-
-	const auto bFullstring = ((static_cast<size_t>(nEnd) >= nToks) || (nEnd < 0));
-
-	const_pointer p_cFirst = nullptr, p_cLast = nullptr;
-	auto iCount = 0;
-
-	while ((p_cEnd = ts_strchr(p_cStart, sepChars)) != nullptr) {
-		++iCount;
-
-		if (iCount == iStart) {
-
-			p_cFirst = p_cStart;
-
-			if (bFullstring)
-				break;
-		}
-
-		if (iCount == nEnd) {
-			p_cLast = p_cEnd;
-			break;
-		}
-
-		p_cStart = p_cEnd + 1;
-		if (p_cStart >= p_fEnd)	// look out for overrun...
-			break;
-	}
-
-	if (bFullstring) {
-
-		if (static_cast<size_t>(iCount) == (nToks - 1))
-			p_cFirst = p_cStart;
-
-		p_cLast = p_fEnd;
-	}
-	else if (static_cast<size_t>(iCount) == (nToks - 1))
-		p_cLast = p_cEnd;
-
-	return std::make_tuple(p_cFirst, p_cLast, nToks);
-}
-#endif
 
 /*!
 * \brief blah
@@ -1305,6 +1347,7 @@ TString TString::matchtok(const TCHAR * const mString, UINT N, const TCHAR * con
 		return *itGot;
 	return TString();
 }
+#endif
 
 /*!
 * \brief blah
@@ -1898,7 +1941,6 @@ bool TString::iswm(const TCHAR *const a) const noexcept
 	return (match(a, this->m_pString,false) != NOMATCH);
 	//return _ts_WildcardMatch(m_pString, a);
 }
-#endif
 
 /*
  * iswmcs(*mask*)
@@ -1911,6 +1953,7 @@ bool TString::iswmcs(const TCHAR *const a) const noexcept
 	return (match(a, this->m_pString, true) != NOMATCH);
 	//return _ts_WildcardMatch(m_pString, a);
 }
+#endif
 
 //int wildcmp(const TCHAR *wild, const TCHAR *string) {
 //	// Written by Jack Handy - jakkhandy@hotmail.com
@@ -2268,12 +2311,10 @@ int TString::compare(const TCHAR *const other, const size_t iLength) const noexc
 
 ULONG TString::to_addr() const
 {
-	BYTE first, second, third, forth;
-
-	first = (BYTE)(this->getfirsttok(1, TEXT('.')).to_int() & 0xFF);
-	second = (BYTE)(this->getnexttok(TEXT('.')).to_int() & 0xFF);
-	third = (BYTE)(this->getnexttok(TEXT('.')).to_int() & 0xFF);
-	forth = (BYTE)(this->getnexttok(TEXT('.')).to_int() & 0xFF);
+	BYTE first = (BYTE)(getfirsttok(1, TEXT('.')).to_int() & 0xFF);
+	BYTE second = (BYTE)(getnexttok(TEXT('.')).to_int() & 0xFF);
+	BYTE third = (BYTE)(getnexttok(TEXT('.')).to_int() & 0xFF);
+	BYTE forth = (BYTE)(getnexttok(TEXT('.')).to_int() & 0xFF);
 
 	//return (ULONG)MAKELONG(MAKEWORD(first,second),MAKEWORD(third,forth));
 	//return (ULONG)MAKELONG(MAKEWORD(forth, third), MAKEWORD(second, first));
