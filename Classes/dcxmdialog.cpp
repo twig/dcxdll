@@ -28,14 +28,14 @@
 
 DcxMDialog::DcxMDialog(const HWND cHwnd, const HWND pHwnd, const UINT ID, DcxDialog *const p_Dialog, const RECT *const rc, const TString & styles)
 	: DcxControl(ID, p_Dialog)
+	, m_DeleteByDestroy(false)
 {
 	LONG Styles = 0, ExStyles = 0;
 	BOOL bNoTheme = FALSE;
-	this->m_DeleteByDestroy = FALSE;
 	this->parseControlStyles(styles, &Styles, &ExStyles, &bNoTheme);
 
-	this->m_Hwnd = cHwnd;
-	this->m_OrigParentHwnd = GetParent(this->m_Hwnd);
+	m_Hwnd = cHwnd;
+	this->m_OrigParentHwnd = GetParent(m_Hwnd);
 
 	this->m_OrigStyles = this->removeStyle(WS_CAPTION | DS_FIXEDSYS | DS_SETFONT | DS_3DLOOK | DS_MODALFRAME |
 		WS_POPUP | WS_SYSMENU | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_THICKFRAME);
@@ -44,15 +44,15 @@ DcxMDialog::DcxMDialog(const HWND cHwnd, const HWND pHwnd, const UINT ID, DcxDia
 
 	this->addStyle(WS_CHILD);
 
-	SetParent(this->m_Hwnd, pHwnd);
-	SetWindowPos(this->m_Hwnd, nullptr, rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top, 0);
-	ShowWindow(this->m_Hwnd, SW_SHOWNOACTIVATE);
-	UpdateWindow(this->m_Hwnd);
+	SetParent(m_Hwnd, pHwnd);
+	SetWindowPos(m_Hwnd, nullptr, rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top, 0);
+	ShowWindow(m_Hwnd, SW_SHOWNOACTIVATE);
+	UpdateWindow(m_Hwnd);
 
-	this->m_OrigID = SetWindowLong(this->m_Hwnd, GWL_ID, ID);
+	this->m_OrigID = SetWindowLong(m_Hwnd, GWL_ID, ID);
 
 	this->registreDefaultWindowProc();
-	SetProp(this->m_Hwnd, TEXT("dcx_cthis"), (HANDLE) this);
+	SetProp(m_Hwnd, TEXT("dcx_cthis"), (HANDLE) this);
 }
 
 /*!
@@ -62,36 +62,36 @@ DcxMDialog::DcxMDialog(const HWND cHwnd, const HWND pHwnd, const UINT ID, DcxDia
  */
 
 DcxMDialog::~DcxMDialog( ) {
-	auto parent = GetParent(this->m_Hwnd);
+	auto parent = GetParent(m_Hwnd);
 	if ( parent == this->m_OrigParentHwnd && this->m_OrigParentHwnd != this->m_pParentDialog->getHwnd())
 		return;
 
 	this->unregistreDefaultWindowProc( );
-	if (!this->m_DeleteByDestroy) { // all this isn't needed if control is deleted because of closing the dialog
+	if (!m_DeleteByDestroy) { // all this isn't needed if control is deleted because of closing the dialog
 
-		auto bHide = (IsWindowVisible(this->m_Hwnd) != FALSE);
+		auto bHide = (IsWindowVisible(m_Hwnd) != FALSE);
 		if ( !bHide )
-			ShowWindow( this->m_Hwnd, SW_HIDE );
+			ShowWindow( m_Hwnd, SW_HIDE );
 
-		SetWindowLong( this->m_Hwnd, GWL_ID, this->m_OrigID );
+		SetWindowLong( m_Hwnd, GWL_ID, this->m_OrigID );
 		//this->removeStyle(WS_CHILD);
 		//this->addStyle(WS_POPUP);
-		//SetParent( this->m_Hwnd, nullptr );
+		//SetParent( m_Hwnd, nullptr );
 		if (parent == this->m_OrigParentHwnd) // handles oddness where orig parent == current when it shouldnt, maybe due to init event docking.
 			parent = GetParent(parent);
 		else
 			parent = this->m_OrigParentHwnd;
 
-		SetParent( this->m_Hwnd, parent );
-		//SetParent( this->m_Hwnd, this->m_OrigParentHwnd);
+		SetParent( m_Hwnd, parent );
+		//SetParent( m_Hwnd, this->m_OrigParentHwnd);
 		this->setStyle( this->m_OrigStyles);
 		this->setExStyle( this->m_OrigExStyles );
 
-		SetWindowPos( this->m_Hwnd, nullptr, 30, 30, 0, 0, SWP_NOSIZE | SWP_FRAMECHANGED);
+		SetWindowPos( m_Hwnd, nullptr, 30, 30, 0, 0, SWP_NOSIZE | SWP_FRAMECHANGED);
 		this->redrawWindow( );
 
 		if ( !bHide )
-			ShowWindow( this->m_Hwnd, SW_SHOW );
+			ShowWindow( m_Hwnd, SW_SHOW );
 	}
 }
 
@@ -156,8 +156,8 @@ LRESULT DcxMDialog::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 	case WM_DESTROY:
 		{
 			auto wnd = this->m_DefaultWindowProc;
-			auto mHwnd = this->m_Hwnd;
-			this->m_DeleteByDestroy = TRUE;
+			auto mHwnd = m_Hwnd;
+			m_DeleteByDestroy = true;
 			delete this;
 			ShowWindow(mHwnd, SW_HIDE);
 			CallWindowProc(wnd, mHwnd, uMsg, wParam, lParam);

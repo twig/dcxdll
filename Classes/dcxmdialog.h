@@ -54,8 +54,7 @@ protected:
 	HWND m_OrigParentHwnd;  //!< Dialog Original Parent Handle
 	UINT m_OrigID;          //!< Dialog Original Control ID
 	TString m_OrigName;     //!< Dialog Original Name
-	BOOL m_DeleteByDestroy; //!< is true if control is deleted because docked dialog is destroyed (won't repaint dialog on delete)
-
+	bool m_DeleteByDestroy; //!< is true if control is deleted because docked dialog is destroyed (won't repaint dialog on delete)
 };
 
 #endif // _DCXMDIALOG_H_
