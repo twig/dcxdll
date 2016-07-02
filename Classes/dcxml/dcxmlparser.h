@@ -7,14 +7,13 @@ class DcxmlParser {
 
 public:
 	//constructor
-	DcxmlParser();
-	~DcxmlParser();
+	DcxmlParser() = default;
+	~DcxmlParser() = default;
 
 	DcxmlParser(const DcxmlParser &) = delete;
 	DcxmlParser &operator =(const DcxmlParser &) = delete;	// No assignments!
 
 	bool ParseXML(const TString &tsFilePath, const TString &tsDialogMark,const TString &DialogName,const bool verbose, const bool autoClose);
-	//virtual ~DCXML( );
 	void parseAttributes();
 	void parseAttributes(const TiXmlElement *const tElement);
 	void parseControl();
@@ -27,139 +26,133 @@ public:
 	void parseTemplate(const UINT dialogDepth=0, const char *const claPath = "root", const UINT passedid = 2000);
 	void parseDialog(const UINT depth=0,const char *claPath = "root",const UINT passedid = 2000,const bool ignoreParent = false);
 
-	//static const char *queryAttribute(const TiXmlElement *element,const char *attribute,const char *defaultValue = "");
-	//static int queryIntAttribute(const TiXmlElement *element,const char *attribute,const int defaultValue = 0);
+	void setDialog(const TString &tsDialogMark);
+	void setDialogMark (const TString &v) { m_tsDialogMark = v; }
+	void setDialogName (const TString &v) { m_tsDialogName = v; }
 
-	void setDialog(const TString &dialogMark);
-	void setDialogMark (const TString &v) { this->_dialogMark = v; }
-	void setDialogName (const TString &v) { this->_dialogName = v; }
-	void setRootElement (const TiXmlElement *const ti) noexcept { this->_rootElement = ti; }
-	void setDialogsElement (const TiXmlElement *const ti) noexcept { this->_dialogsElement = ti; }
-	void setDialogElement (const TiXmlElement *const ti) noexcept { this->_dialogElement = ti; }
+	void setRootElement (const TiXmlElement *const ti) noexcept { m_pRootElement = ti; }
+	void setDialogsElement (const TiXmlElement *const ti) noexcept { m_pDialogsElement = ti; }
+	void setDialogElement (const TiXmlElement *const ti) noexcept { m_pDialogElement = ti; }
 
 	void loadDocument();
 	void loadDialog();
 	void loadDialogElement();
 
-	void setZlayered (const bool b) noexcept { this->_zlayered = b; }
+	void setZlayered (const bool b) noexcept { m_bZlayered = b; }
 
-	DcxDialog *getDialog () const noexcept { return this->_dcxDialog; }
-	const bool &getZlayered() const noexcept { return this->_zlayered; }
-	const TString &getDialogMark () const noexcept { return this->_dialogMark; }
-	const TString &getDialogName () const noexcept { return this->_dialogName; }
-	const TString &getFilePath () const noexcept { return this->_filePath; }
+	DcxDialog *getDialog () const noexcept { return m_pDcxDialog; }
 
-	const TiXmlElement* getRootElement () const noexcept { return this->_rootElement; }
-	const TiXmlElement* getDialogsElement () const noexcept { return this->_dialogsElement; }
-	const TiXmlElement* getDialogElement () const noexcept { return this->_dialogElement; }
+	const TString &getDialogMark () const noexcept { return m_tsDialogMark; }
+	const TString &getDialogName () const noexcept { return m_tsDialogName; }
+	const TString &getFilePath () const noexcept { return m_tsFilePath; }
 
-	const TiXmlDocument * getDocument () const noexcept { return &this->_document; }
+	const TiXmlElement* getRootElement () const noexcept { return m_pRootElement; }
+	const TiXmlElement* getDialogsElement () const noexcept { return m_pDialogsElement; }
+	const TiXmlElement* getDialogElement () const noexcept { return m_pDialogElement; }
 
-	const bool &getLoaded() const noexcept { return loadSuccess; }
+	const TiXmlDocument * getDocument () const noexcept { return &m_xmlDocument; }
 
-	DcxDialog *d_Host;
-	const TiXmlElement *root; //!< dcxml root element
-	const TiXmlElement *dialogs; //!< dcxml dialogs collection element
-	const TiXmlElement *dialog; //!< dialog element
-	const TiXmlElement *element; //!< current Element
-	const TiXmlElement *parent; //!< current Element's parent
-	TString dname;
-	int controls; //!< Simple counter for controls
-	int zlayered; //!< Simple check if dialog has zlayers
+	const bool &getLoaded() const noexcept { return m_bLoadSuccess; }
+	const bool &getZlayered() const noexcept { return m_bZlayered; }
+
+private:
+
+	void isVerbose(const bool b) noexcept { m_bVerbose = b; }
+	void isAutoClose(const bool b) noexcept { m_bAutoClose = b; }
+	void setFilePath(const TString &tsFile) { m_tsFilePath = tsFile; }
+
+	const bool &isVerbose() const noexcept { return m_bVerbose; }
+	const bool &isAutoClose() const noexcept { return m_bAutoClose; }
+
+	int mIRCEvalToUnsignedInt(const TString &value);
+	int parseId(const TiXmlElement *const idElement);
+
+	void registerId(const TiXmlElement *const idElement, const int iNewID);
+
+	void xml_xdialog(const TCHAR *const sSwitch, const TCHAR *const sArgs);
+	void xml_xdid(const int cid, const TCHAR *const sSwitch, const TCHAR *const sArgs);
+
+	void xdialogEX(const TCHAR *const sw, const TCHAR *const dFormat, ...);
+	void xdidEX(const int cid, const TCHAR *const sw, const TCHAR *const dFormat, ...);
+
+	const TiXmlElement *m_pElement; //!< current Element
+	const TiXmlElement *m_pParent; //!< current Element's m_pParent
+	int m_iControls; //!< Simple counter for controls
+
 	//Attribute vars
-	int id;
-	int parentid;
-	const char *elem;
-	const char *parentelem;
-	const char *parenttype;
-	const char *type;
-	const char *STclass;
-	const char *weight;
-	const char *height;
-	const char *dropdown;
-	const char *width;
-	const char *margin;
-	const char *styles;
-	const char *caption;
-	const char *tooltip;
-	const char *cascade;
-	const char *icon;
-	const char *tFlags;
-	const char *integral;
-	const char *state;
-	const char *indent;
-	const char *src;
-	const char *cells;
-	const char *rebarMinHeight;
-	const char *rebarMinWidth;
-	const char *iconsize;
-	const char *fontstyle;
-	const char *charset;
-	const char *fontsize;
-	const char *fontname;
-	const char *border;
-	const char *cursor;
-	const char *bgcolour;
-	const char *textbgcolour;
-	const char *textcolour;
-	const char *gradientstart;
-	const char *gradientend;
-	const char *disabledsrc;
-	const char *hoversrc;
-	const char *selectedsrc;
+	int m_iID;
+	int m_iParentID;
+	const char *m_sElem;
+	const char *m_sParentelem;
+	const char *m_sParenttype;
+	const char *m_sType;
+	const char *m_sSTclass;
+	const char *m_sWeight;
+	const char *m_sHeight;
+	const char *m_sDropdown;
+	const char *m_sWidth;
+	const char *m_sMargin;
+	const char *m_sStyles;
+	const char *m_sCaption;
+	const char *m_sTooltip;
+	const char *m_sCascade;
+	const char *m_sIcon;
+	const char *m_sTFlags;
+	const char *m_sIntegral;
+	const char *m_sState;
+	const char *m_sIndent;
+	const char *m_sSrc;
+	const char *m_sCells;
+	const char *m_sRebarMinHeight;
+	const char *m_sRebarMinWidth;
+	const char *m_sIconsize;
+	const char *m_sFontstyle;
+	const char *m_sCharset;
+	const char *m_sFontsize;
+	const char *m_sFontname;
+	const char *m_sBorder;
+	const char *m_sCursor;
+	const char *m_sBgcolour;
+	const char *m_sTextbgcolour;
+	const char *m_sTextcolour;
+	const char *m_sGradientstart;
+	const char *m_sGradientend;
+	const char *m_sDisabledsrc;
+	const char *m_sHoversrc;
+	const char *m_sSelectedsrc;
 	/*
 	const char *elementProperties [] = "type","STclass","weigth","height","width","margin","styles","caption","tooltip",
 	"cascade","icon","tFlags""integral","state","indent","src",	"cells","rebarMinHeight",
 	"rebarMinWidth","iconsize","fontstyle","charset","fontsize","fontname","border","cursor","bgcolour",
 	"textbgcolour","textcolour","gradientstart","gradientend","disabledsrc","hoversrc","selectedsrc"
 	];*/
-	const TiXmlElement* templateRef;
-	int templateRefcCla;
-	const char *templateRefclaPath;
-	std::map<const char*, const char*> template_vars;
+	const TiXmlElement* m_pTemplateRef;
+	int m_iTemplateRefcCla;
+	const char *m_sTemplateRefclaPath;
+	std::map<const char*, const char*> m_mTemplate_vars;
 
-	int eval;
+	int m_iEval;
 
 	//tempvar to dump attribute values in;
-	const char *temp;
-	TString cmd;
+	//const char *m_sTemp;
 
 	//CLA variables
 	const char *g_claPath;
 	const char *g_claPathx;
 	int g_resetcla;
-private:
 
-	void isVerbose(const bool b) noexcept { this->_verbose = b; }
-	const bool &isVerbose() const noexcept { return this->_verbose; }
-	void isAutoClose(const bool b) noexcept { this->_autoClose = b; }
-	const bool &isAutoClose() const noexcept { return this->_autoClose; }
+	bool m_bLoadSuccess;
+	bool m_bVerbose;
+	bool m_bAutoClose;
+	bool m_bZlayered;
 
-	void xdialogEX(const TCHAR *const sw,const TCHAR *const dFormat, ...);
-	int mIRCEvalToUnsignedInt (const TString &value);
-	void registerId(const TiXmlElement *const idElement,const int iNewID);
-	int parseId(const TiXmlElement *const idElement);
-	void xdidEX(const int cid,const TCHAR *const sw,const TCHAR *const dFormat, ...);
-
-	//TiXmlElement *getDialogElement () { return this->_dialogElement; }
-	typedef std::map<const char, const char> AttributesMap;
-
-	AttributesMap _attributesMap;
-
-	void setFilePath (const TString &tsFile) { this->_filePath = tsFile; }
-
-	bool loadSuccess;
-	bool _verbose;
-	bool _autoClose;
-	bool _zlayered;
-
-	TString _filePath;
-	TString _dialogMark;
-	TString _dialogName;
-	DcxDialog* _dcxDialog;
-	const TiXmlElement *_rootElement;
-	const TiXmlElement *_dialogsElement;
-	const TiXmlElement *_dialogElement;
-	TiXmlDocument _document;
+	TString m_tsFilePath;
+	TString m_tsDialogMark;
+	TString m_tsDialogName;
+	DcxDialog* m_pDcxDialog;
+	const TiXmlElement *m_pRootElement;
+	const TiXmlElement *m_pDialogsElement;
+	const TiXmlElement *m_pDialogElement;
+	TiXmlDocument m_xmlDocument;
 };
 #endif
