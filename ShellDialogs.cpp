@@ -6,10 +6,11 @@
 /*
  * Structure to store settings for use in BrowseFolderCallback.
  */
-typedef struct {
+struct XBROWSEDIALOGSETTINGS {
 	PTCHAR initialFolder;
 	UINT flags;
-} XBROWSEDIALOGSETTINGS, *LPXBROWSEDIALOGSETTINGS;
+};
+using LPXBROWSEDIALOGSETTINGS = XBROWSEDIALOGSETTINGS *;
 
 
 /*!
@@ -27,12 +28,12 @@ mIRC(ColorDialog) {
 		d.trim();
 
 		BOOL			retDefault = FALSE;
-		CHOOSECOLOR		cc;
+		CHOOSECOLOR		cc = { 0 };
 		static COLORREF clr[16];
 		const auto		sel = d.getfirsttok(1).to_<COLORREF>();
 		DWORD			styles = CC_RGBINIT;
 
-		ZeroMemory(&cc, sizeof(CHOOSECOLOR));
+		//ZeroMemory(&cc, sizeof(CHOOSECOLOR));
 
 		// initial settings
 		cc.lStructSize = sizeof(CHOOSECOLOR);
@@ -144,8 +145,6 @@ mIRC(SaveDialog) {
 	return 0;
 }
 
-
-
 /*!
 * \brief Shows CommonDialog for Open/Save
 *
@@ -155,9 +154,15 @@ mIRC(SaveDialog) {
 *         > TString Path+Filename
 */
 TString FileDialog(const TString & data, const TString &method, const HWND pWnd) {
-	DWORD style = OFN_EXPLORER;
-	OPENFILENAME ofn;
-	TCHAR szFilename[MIRC_BUFFER_SIZE_CCH];
+	//TCHAR szFilename[MIRC_BUFFER_SIZE_CCH];
+
+	//stString<MIRC_BUFFER_SIZE_CCH> szFilename;
+
+	//gsl::wzstring<MIRC_BUFFER_SIZE_CCH> szFilename(L"");
+
+	//Dcx::dcxStringResource szFilename(MIRC_BUFFER_SIZE_CCH);
+
+	auto szFilename = std::make_unique<TCHAR[]>(MIRC_BUFFER_SIZE_CCH);
 
 	// seperate the tokenz
 	const auto styles(data.getfirsttok(1, TSTABCHAR).trim());
@@ -174,19 +179,79 @@ TString FileDialog(const TString & data, const TString &method, const HWND pWnd)
 		filter = TEXT("All Files (*.*)|*.*");
 
 	filter += TEXT('|'); // <-- changed to a zero below for double null ending.
-	filter.replace(TEXT('|'), TEXT('\0'));
+	//filter.replace(TEXT('|'), TEXT('\0'));	// Ook: issue with new replace function not handling zero chars
+	filter.mreplace(TEXT('\0'), TEXT("|"));
 
 	// set up the OFN struct
-	ZeroMemory(&ofn, sizeof(ofn));
-	dcx_strcpyn(szFilename, file.to_chr(), MIRC_BUFFER_SIZE_CCH);
+	OPENFILENAME ofn = { 0 };
+	//ZeroMemory(&ofn, sizeof(ofn));
+	//dcx_strcpyn(szFilename, file.to_chr(), MIRC_BUFFER_SIZE_CCH);
+	dcx_strcpyn(szFilename.get(), file.to_chr(), MIRC_BUFFER_SIZE_CCH);
+	//szFilename = file.to_chr();
 
 	ofn.lStructSize = sizeof(ofn); // SEE NOTE BELOW
 	ofn.hwndOwner = pWnd;
 	ofn.lpstrFilter = filter.to_chr();
-	ofn.lpstrFile = szFilename;
+	//ofn.lpstrFile = szFilename;
+	ofn.lpstrFile = szFilename.get();
 	ofn.nMaxFile = MIRC_BUFFER_SIZE_CCH;
 	ofn.lpstrDefExt = TEXT("");
 
+	DWORD style = OFN_EXPLORER;
+
+#if DCX_USE_HASHING
+	for (const auto &tsStyle : styles) {
+
+		switch (const_hash(tsStyle.to_chr()))
+		{
+		case L"multisel"_hash:
+			style |= OFN_ALLOWMULTISELECT;
+			break;
+		case L"createprompt"_hash:
+			style |= OFN_CREATEPROMPT;
+			break;
+		case L"enablesizing"_hash:
+			// FIXME: explorer style resizable on default, cant get rid of that shit
+			style |= OFN_ENABLESIZING;
+			break;
+		case L"filemustexist"_hash:
+			style |= OFN_FILEMUSTEXIST; // (open)
+			break;
+		case L"showhidden"_hash:
+			style |= OFN_FORCESHOWHIDDEN; // 2k/xp
+			break;
+		case L"noreadonly"_hash:
+			style |= OFN_HIDEREADONLY;
+			break;
+		case L"nochangedir"_hash:
+			style |= OFN_NOCHANGEDIR; // (save)
+			break;
+		case L"getshortcuts"_hash:
+			style |= OFN_NODEREFERENCELINKS;
+			break;
+		case L"nonetwork"_hash:
+			style |= OFN_NONETWORKBUTTON;
+			break;
+		case L"novalidate"_hash:
+			style |= OFN_NOVALIDATE;
+			break;
+		case L"norecent"_hash:
+			style |= OFN_DONTADDTORECENT; // 2k/xp
+			break;
+		case L"overwriteprompt"_hash:
+			style |= OFN_OVERWRITEPROMPT; // save
+			break;
+		case L"pathmustexist"_hash:
+			style |= OFN_PATHMUSTEXIST;
+			break;
+		case L"owner"_hash:
+			ofn.hwndOwner = FindOwner(styles, pWnd);
+			break;
+		default:
+			break;
+		}
+	}
+#else
 	for (const auto &tsStyle: styles) {
 		if (tsStyle == TEXT("multisel"))
 			style |= OFN_ALLOWMULTISELECT;
@@ -218,6 +283,7 @@ TString FileDialog(const TString & data, const TString &method, const HWND pWnd)
 		else if (tsStyle == TEXT("owner"))
 			ofn.hwndOwner = FindOwner(styles, pWnd);
 	}
+#endif
 
 	ofn.Flags = style;
 
@@ -226,12 +292,13 @@ TString FileDialog(const TString & data, const TString &method, const HWND pWnd)
 	if (method == TEXT("OPEN") && GetOpenFileName(&ofn)) {
 		// if there are multiple files selected
 		if (dcx_testflag(style, OFN_ALLOWMULTISELECT)) {
-			const auto *p = szFilename;
+			//const TCHAR *p = szFilename;
+			const TCHAR *p = szFilename.get();
 
 			// process the file name at p since its null terminated
 			while (*p != TEXT('\0')) {
 				tsResult.addtok(p, TEXT('|'));
-				p += lstrlen(p) + 1;
+				p += _ts_strlen(p) + 1;
 			} 
 		}
 		// copy the string directly
@@ -266,8 +333,6 @@ mIRC(BrowseDialog) {
 	try {
 		input.trim();
 
-		BROWSEINFO bi;
-
 		// seperate the tokens (by tabs)
 		int currentParam = 1;
 		bool bInitialFolder = false;
@@ -276,12 +341,12 @@ mIRC(BrowseDialog) {
 		TString initPath((UINT)MAX_PATH);
 		TString displayPath((UINT)MAX_PATH);
 		LPITEMIDLIST pidlRoot = nullptr;
-		LPITEMIDLIST pidl;
-		XBROWSEDIALOGSETTINGS extra;
 
 		// set up the BI structure
-		ZeroMemory(&bi, sizeof(BROWSEINFO));
-		ZeroMemory(&extra, sizeof(XBROWSEDIALOGSETTINGS));
+		XBROWSEDIALOGSETTINGS extra = { 0 };
+		BROWSEINFO bi = { 0 };
+		//ZeroMemory(&bi, sizeof(BROWSEINFO));
+		//ZeroMemory(&extra, sizeof(XBROWSEDIALOGSETTINGS));
 		bi.hwndOwner = mWnd;                                             // Default owner: mIRC main window
 		bi.lpfn = BrowseFolderCallback;
 		bi.pszDisplayName = displayPath.to_chr();
@@ -289,7 +354,7 @@ mIRC(BrowseDialog) {
 		bi.lParam = (LPARAM)&extra;
 
 		// Parse styles
-		auto param(input.gettok(currentParam, TSTAB));
+		auto param(input.gettok(currentParam, TSTABCHAR));
 
 		for (const auto &flag : param) {
 			/*
@@ -317,7 +382,7 @@ mIRC(BrowseDialog) {
 				bInitialFolder = true;
 
 			else if (flag == TEXT("computers")) {
-				// NOTE: do not use with TEXT("advanced")
+				// NOTE: do not use with "advanced"
 				bi.ulFlags |= BIF_BROWSEFORCOMPUTER;
 				pidlRoot = GetFolderFromCSIDL(CSIDL_NETWORK);
 			}
@@ -341,7 +406,7 @@ mIRC(BrowseDialog) {
 		// Set initial folder
 		if (bInitialFolder && (pidlRoot == nullptr)) {
 			currentParam++;
-			initPath = input.gettok(currentParam, TSTAB).trim();
+			initPath = input.gettok(currentParam, TSTABCHAR).trim();
 
 			extra.initialFolder = initPath.to_chr();
 		}
@@ -349,7 +414,7 @@ mIRC(BrowseDialog) {
 		// Set title text.
 		if (bDialogText) {
 			currentParam++;
-			param = input.gettok(currentParam, TSTAB).trim();
+			param = input.gettok(currentParam, TSTABCHAR).trim();
 
 			bi.lpszTitle = param.to_chr();
 		}
@@ -359,11 +424,12 @@ mIRC(BrowseDialog) {
 			bi.pidlRoot = pidlRoot;
 
 		extra.flags = bi.ulFlags;
-		pidl = SHBrowseForFolder(&bi);
+
+		LPITEMIDLIST pidl = SHBrowseForFolder(&bi);
 
 		// User cancelled
 		if (pidl == nullptr)
-			ret(TEXT(""));
+			return 3;
 
 		Auto(CoTaskMemFree(pidl));
 
@@ -433,18 +499,29 @@ int CALLBACK BrowseFolderCallback(HWND hwnd, UINT uMsg, LPARAM lParam, LPARAM lp
 			if (dcx_testflag(extra->flags, BIF_BROWSEFORCOMPUTER) || dcx_testflag(extra->flags, BIF_BROWSEFORPRINTER))
 				break;
 
-			TString path((UINT) MAX_PATH);
+			//TString path((UINT) MAX_PATH);
+			//
+			//if (SHGetPathFromIDList(reinterpret_cast<LPITEMIDLIST>(lParam), path.to_chr()))
+			//{
+			//	SendMessage(hwnd, BFFM_ENABLEOK, TRUE, TRUE);
+			//	SendMessage(hwnd, BFFM_SETSTATUSTEXT, 0, (LPARAM) path.to_chr());
+			//}
+			//else {
+			//	SendMessage(hwnd, BFFM_ENABLEOK, TRUE, FALSE);
+			//	SendMessage(hwnd, BFFM_SETSTATUSTEXT, 0, NULL);
+			//}
 
-			if (SHGetPathFromIDList(reinterpret_cast<LPITEMIDLIST>(lParam), path.to_chr()))
+			stString<MAX_PATH> sPath;
+
+			if (SHGetPathFromIDList(reinterpret_cast<LPITEMIDLIST>(lParam), sPath))
 			{
 				SendMessage(hwnd, BFFM_ENABLEOK, TRUE, TRUE);
-				SendMessage(hwnd, BFFM_SETSTATUSTEXT, 0, (LPARAM) path.to_chr());
+				SendMessage(hwnd, BFFM_SETSTATUSTEXT, 0, (LPARAM)sPath.data());
 			}
 			else {
 				SendMessage(hwnd, BFFM_ENABLEOK, TRUE, FALSE);
 				SendMessage(hwnd, BFFM_SETSTATUSTEXT, 0, NULL);
 			}
-
 			break;
 		}
 
@@ -468,8 +545,8 @@ int CALLBACK BrowseFolderCallback(HWND hwnd, UINT uMsg, LPARAM lParam, LPARAM lp
 */
 mIRC(FontDialog) {
 	DWORD style = CF_INITTOLOGFONTSTRUCT | CF_FORCEFONTEXIST | CF_LIMITSIZE;
-	CHOOSEFONT cf;
-	LOGFONT lf;
+	CHOOSEFONT cf = { 0 };
+	LOGFONT lf = { 0 };
 
 	// seperate the tokens (by tabs)
 	TString input(data);
@@ -491,7 +568,7 @@ mIRC(FontDialog) {
 		cf.nSizeMin = 8;
 		cf.nSizeMax = 72;
 
-		for (auto itStart = input.begin(TSTAB), itEnd = input.end(); itStart != itEnd; ++itStart)
+		for (auto itStart = input.begin(TSTABCHAR), itEnd = input.end(); itStart != itEnd; ++itStart)
 		{
 			const auto option(*itStart);
 			const auto numtok = option.numtok();
@@ -556,7 +633,7 @@ mIRC(FontDialog) {
 				ParseCommandToLogfont(option.getlasttoks(), &lf);	// tok 2, -1
 			// color rgb
 			else if (tsType == TEXT("color") && numtok > 1)
-				cf.rgbColors = (COLORREF)option.getnexttok().to_num();	// tok 2
+				cf.rgbColors = option.getnexttok().to_<COLORREF>();	// tok 2
 			// minmaxsize min max
 			else if (tsType == TEXT("minmaxsize") && numtok > 2) {
 				cf.nSizeMin = option.getnexttok().to_int();	// tok 2
@@ -735,20 +812,31 @@ mIRC(PickIcon) {
 			throw Dcx::dcxException("Invalid parameters");
 
 		auto index = d.getfirsttok(1).to_int();	// tok 1
-		auto filename(d.getlasttoks());			// tok 2, -1
+		auto tsFilename(d.getlasttoks());			// tok 2, -1
 
-		if (!IsFile(filename))
+		if (!IsFile(tsFilename))
 			throw Dcx::dcxException("Invalid filename");
 
-		//TCHAR iconPath[MAX_PATH + 1];
-		auto iconPath = std::make_unique<TCHAR[]>(MAX_PATH + 1);
+		////TCHAR iconPath[MAX_PATH + 1];
+		//
+		//auto iconPath = std::make_unique<TCHAR[]>(MAX_PATH + 1U);
+		//
+		//GetFullPathName(filename.to_chr(), MAX_PATH, iconPath, nullptr);
+		//
+		//if (dcxPickIconDlg(aWnd, iconPath.get(), MAX_PATH, &index))
+		//	wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("D_OK %d %s"), index, iconPath.get());
+		//else
+		//	wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("D_ERROR %d %s"), index, iconPath.get());
+		//return 3;
 
-		GetFullPathName(filename.to_chr(), MAX_PATH, iconPath.get(), nullptr);
+		stString<MAX_PATH + 1U> sIconPath;
 
-		if (dcxPickIconDlg(aWnd, iconPath.get(), MAX_PATH, &index))
-			wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("D_OK %d %s"), index, iconPath.get());
+		GetFullPathName(tsFilename.to_chr(), sIconPath.size(), sIconPath, nullptr);
+
+		if (dcxPickIconDlg(aWnd, sIconPath.data(), sIconPath.size(), &index))
+			wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("D_OK %d %s"), index, sIconPath.data());
 		else
-			wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("D_ERROR %d %s"), index, iconPath.get());
+			wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("D_ERROR %d %s"), index, sIconPath.data());
 		return 3;
 	}
 	catch (std::exception &e)
@@ -765,7 +853,7 @@ mIRC(PickIcon) {
 /*
 * Icon Picker for WinXP SP2 & Win 2k3 (Others may or may not support it)
 */
-int dcxPickIconDlg(gsl::not_null<HWND> hwnd, gsl::not_null<LPWSTR> pszIconPath, UINT cchIconPath, gsl::not_null<int *> piIconIndex)
+int dcxPickIconDlg(const gsl::not_null<HWND> &hwnd, gsl::not_null<LPWSTR> pszIconPath, const UINT &cchIconPath, gsl::not_null<int *> piIconIndex)
 {
 	return PickIconDlg(hwnd, pszIconPath, cchIconPath, piIconIndex);
 }
