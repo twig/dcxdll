@@ -19,6 +19,7 @@
 #include "Classes/dcxcontrol.h"
 #include "Classes/dcxprogressbar.h"
 #include "Classes/tinyxml/tinyxml.h"
+#include "Classes\custom\ListHelper.h"
 
 class DcxDialog;
 
@@ -131,8 +132,10 @@ using LPDCXLVITEM = DCXLVITEM *;
  * blah
  */
 
-class DcxListView : public DcxControl {
-
+class DcxListView
+	: public DcxControl
+	, public DcxListHelper
+{
 public:
 	DcxListView() = delete;
 	DcxListView(const DcxListView &) = delete;
@@ -155,7 +158,7 @@ public:
 
 	const int &getColumnCount( ) const;
 
-	inline const TString getType() const override { return TEXT("listview"); };
+	inline const TString getType() const override { return{ TEXT("listview") }; };
 	inline const DcxControlTypes getControlType() const noexcept override { return DcxControlTypes::LISTVIEW; }
 
 	int getTopIndex( ) const;
@@ -200,13 +203,15 @@ private:
 	bool xSaveListview(const int nStartPos, const int nEndPos, const TString & tsData, const TCHAR * sTestCommand, const TCHAR * sStoreCommand);
 
 	// static functions.
-	static void getItemRange(const TString &tsItems, const int nItemCnt, int *iStart_range, int *iEnd_range);
+	//static void getItemRange(const TString &tsItems, const int nItemCnt, int *iStart_range, int *iEnd_range);
+	//static std::pair<int, int> getItemRange(const TString &tsItems, const int nItemCnt);
+
 	static UINT parseMassItemFlags( const TString & flags );
 	static void parseText2Item(const TString & tsTxt, TString & tsItem, const TString &tsData);
 	static int CALLBACK sortItemsEx(LPARAM lParam1, LPARAM lParam2, LPARAM lParamSort);
 	static LRESULT CALLBACK EditLabelProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-	static HIMAGELIST createImageList(const BOOL bIcons);
-	static void parseListviewExStyles(const TString & styles, LONG * ExStyles);
+	//static HIMAGELIST createImageList(const bool bIcons);
+	static void parseListviewExStyles(const TString & styles, LONG * ExStyles) noexcept;
 
 	//
 	HFONT m_hItemFont;					// Font used for specific item changes.
