@@ -2,10 +2,17 @@
 
 #include "Classes\tstring\tstring.h"
 
+// refString<type, size>
+//  type = char or wchar_t
+//  size = the size of the buffer already allocated.
+//
+// NB: NO buffer is allocated, all data MUST be preallocated.
 template <typename T, size_t N>
 struct refString
 {
-public:
+	static_assert(N > 1, "N Must be > 1");
+	static_assert(std::is_same<char, T>::value || std::is_same<wchar_t, T>::value, "Type must be char or wchar_t");
+
 	using value_type = T;
 	using const_value_type = std::add_const_t<value_type>;
 	using size_type = std::size_t;

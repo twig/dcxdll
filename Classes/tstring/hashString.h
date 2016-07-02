@@ -15,6 +15,7 @@
 //}
 //
 
+// create a compile time hash of a const string.
 template <typename T>
 constexpr size_t const_hash(const T *const input) {
 	return *input ?
@@ -88,6 +89,7 @@ namespace detail {
 
 } //namespace detail
 
+// create a compile time crc32 of a string literal.
 template <size_t len>
 constexpr uint32_t ctcrc32(const char(&str)[len]) {
 	return detail::crc32<len - 2>(str) ^ 0xFFFFFFFF;
@@ -98,6 +100,7 @@ constexpr uint32_t ctcrc32(const T *const str, const size_t len) {
 	return detail::crc32<len - 2>(reinterpret_cast<const char *>(str)) ^ 0xFFFFFFFF;
 }
 
+// create a crc8 of a const string.
 uint32_t tcrc8(const char * str);
 
 // turns a literal string into a hash number at compile time.

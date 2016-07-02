@@ -2,6 +2,10 @@
 
 #include "Classes\tstring\tstring.h"
 
+// simpleString<type, size>
+//  type = char or wchar_t
+//  size = the size of the buffer to allocate.
+//
 template <typename T, size_t N>
 struct simpleString {
 	static_assert(N > 1, "N Must be > 1");
