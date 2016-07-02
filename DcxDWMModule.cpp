@@ -20,7 +20,7 @@ m_bWin10(false)
 
 DcxDWMModule::~DcxDWMModule(void)
 {
-	if (isUseable()) unload();
+	unload();
 }
 
 bool DcxDWMModule::load(void)
@@ -28,19 +28,10 @@ bool DcxDWMModule::load(void)
 	if (isUseable())
 		return false;
 
-	//DWORD winMajor = 0;
-	//if (!GetWindowVersion(&winMajor, nullptr))
-	//	return false;
-
-	//this->m_bVista = (winMajor >= 6);	// OS is Vista+
-	//this->m_bWin7 = (winMajor > 6);		// OS is Windows7+
-	//this->m_bWin8 = (winMajor > 7);		// OS is Windows8+
-	//this->m_bWin10 = (winMajor > 8);	// OS is Windows10+
-
-	this->m_bVista = IsWindowsVistaOrGreater();	// OS is Vista+
-	this->m_bWin7 = IsWindows7OrGreater();		// OS is Windows7+
-	this->m_bWin8 = IsWindows8OrGreater();		// OS is Windows8+
-	this->m_bWin10 = IsWindows10OrGreater();	// OS is Windows10+
+	m_bVista = IsWindowsVistaOrGreater();	// OS is Vista+
+	m_bWin7 = IsWindows7OrGreater();		// OS is Windows7+
+	m_bWin8 = IsWindows8OrGreater();		// OS is Windows8+
+	m_bWin10 = IsWindows10OrGreater();	// OS is Windows10+
 
 	DCX_DEBUG(mIRCLinker::debug, TEXT("LoadDLL"), TEXT("Loading DWMAPI.DLL..."));
 	m_hModule = LoadLibrary(TEXT("dwmapi.dll"));
@@ -66,7 +57,7 @@ bool DcxDWMModule::load(void)
 
 bool DcxDWMModule::unload(void) 
 {
-	if (m_hModule != nullptr) {
+	if (isUseable()) {
 		FreeLibrary(m_hModule);
 		m_hModule = nullptr;
 		DwmIsCompositionEnabledUx = nullptr;
@@ -79,7 +70,7 @@ bool DcxDWMModule::unload(void)
 	return isUseable();
 }
 
-bool DcxDWMModule::refreshComposite() {
+const bool &DcxDWMModule::refreshComposite() {
 	BOOL bAero;
 	if (FAILED(dcxDwmIsCompositionEnabled(&bAero)))
 		bAero = FALSE;

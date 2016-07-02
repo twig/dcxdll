@@ -1,6 +1,4 @@
-#if _MSC_VER > 1000
 #pragma once
-#endif
 #ifndef _DCXUXMODULES_H_
 #define _DCXUXMODULES_H_
 
@@ -54,7 +52,7 @@ class DcxUXModule :
 	static bool m_bBufferedPaintEnabled;
 
 public:
-	DcxUXModule(void);
+	DcxUXModule(void) = default;
 	~DcxUXModule(void);
 
 	bool load(void) final;
@@ -74,7 +72,7 @@ public:
 	static HRESULT dcxDrawThemeEdge(HTHEME hTheme, HDC hdc, int iPartId, int iStateId, LPCRECT pDestRect, UINT uEdge, UINT uFlags, LPRECT pContentRect);
 	static HRESULT dcxGetThemeColor(HTHEME hTheme, int iPartId, int iStateId, int iPropId, COLORREF *pColor);
 	static HRESULT dcxDrawThemeParentBackgroundEx(HWND hwnd, HDC hdc, DWORD dwFlags, const RECT *prc);
-	static bool IsBufferedPaintSupported(void) noexcept;
+	static inline const bool &IsBufferedPaintSupported(void) noexcept { return m_bBufferedPaintEnabled; }
 	static HRESULT dcxBufferedPaintInit(void);
 	static HRESULT dcxBufferedPaintUnInit(void);
 	static HPAINTBUFFER dcxBeginBufferedPaint(HDC hdcTarget, const RECT *prcTarget, BP_BUFFERFORMAT dwFormat, BP_PAINTPARAMS *pPaintParams, HDC *phdc);

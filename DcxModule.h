@@ -1,6 +1,4 @@
-#if _MSC_VER > 1000
 #pragma once
-#endif
 #ifndef _DCXMODULES_H_
 #define _DCXMODULES_H_
 
@@ -17,19 +15,16 @@
 
 class DcxModule
 {
-	//mIRCLinker * m_mIRCLink;
-	
 protected:
 	HMODULE m_hModule;
 
 public:
-	DcxModule(void);
-	virtual ~DcxModule(void);
+	DcxModule(void) = default;
+	virtual ~DcxModule(void) = default;
 
-	bool isUseable() const noexcept;
-	//static bool GetWindowVersion(DWORD *dMajor, DWORD *dMinor);
+	bool isUseable() const noexcept	{ return !(m_hModule == nullptr); }
 
-	virtual bool load();
+	virtual bool load() = 0;
 	virtual bool unload() = 0;
 };
 

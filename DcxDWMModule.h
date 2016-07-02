@@ -29,7 +29,7 @@ public:
 
 	bool load(void) final;
 	bool unload(void) final;
-	bool refreshComposite();
+	const bool &refreshComposite();
 	HRESULT dcxDwmSetWindowAttribute(HWND hwnd, DWORD dwAttribute, LPCVOID pvAttribute, DWORD cbAttribute);
 	HRESULT dcxDwmGetWindowAttribute(HWND hwnd, DWORD dwAttribute, PVOID pvAttribute, DWORD cbAttribute);
 	HRESULT dcxDwmIsCompositionEnabled(BOOL *pfEnabled);
@@ -37,9 +37,9 @@ public:
 	HRESULT dcxDwmEnableBlurBehindWindow(HWND hwnd, __in const DWM_BLURBEHIND *pBlurBehind);
 	HRESULT dcxDwmGetColorizationColor( __out  DWORD *pcrColorization, __out  BOOL *pfOpaqueBlend);
 
-	const bool &isAero(void) const noexcept { return this->m_bAero; };
-	const bool &isVista(void) const noexcept { return this->m_bVista; };
-	const bool &isWin7(void) const noexcept { return this->m_bWin7; };
-	const bool &isWin8(void) const noexcept { return this->m_bWin8; };
-	const bool &isWin10(void) const noexcept { return this->m_bWin10; };
+	const bool &isAero(void) const noexcept { return m_bAero; };
+	const bool &isVista(void) const noexcept { return m_bVista; };
+	const bool &isWin7(void) const noexcept { return m_bWin7; };
+	const bool &isWin8(void) const noexcept { return m_bWin8; };
+	const bool &isWin10(void) const noexcept { return m_bWin10; };
 };

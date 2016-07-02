@@ -25,21 +25,15 @@ PFNBEGINBUFFEREDPAINT DcxUXModule::BeginBufferedPaintUx = nullptr;
 PFNENDBUFFEREDPAINT DcxUXModule::EndBufferedPaintUx = nullptr;
 bool DcxUXModule::m_bBufferedPaintEnabled = false;
 
-DcxUXModule::DcxUXModule(void)
-{
-}
-
 DcxUXModule::~DcxUXModule(void)
 {
-	if (isUseable()) unload();
+	unload();
 }
 
 bool DcxUXModule::load(void)
 {
 	if (isUseable())
 		return false;
-
-	m_bBufferedPaintEnabled = false;
 
 	// UXModule Loading
 	DCX_DEBUG(mIRCLinker::debug,TEXT("LoadDLL"), TEXT("Loading UXTHEME.DLL..."));
@@ -78,7 +72,8 @@ bool DcxUXModule::load(void)
 			if (DrawThemeParentBackgroundExUx && BufferedPaintInitUx && BufferedPaintUnInitUx && BeginBufferedPaintUx && EndBufferedPaintUx)
 			{
 				DCX_DEBUG(mIRCLinker::debug, TEXT("LoadDLL"), TEXT("Found Vista Theme Functions"));
-				m_bBufferedPaintEnabled = SUCCEEDED(dcxBufferedPaintInit());
+				if (!m_bBufferedPaintEnabled)
+					m_bBufferedPaintEnabled = SUCCEEDED(dcxBufferedPaintInit());
 			}
 		}
 		else {
@@ -109,10 +104,13 @@ bool DcxUXModule::load(void)
 	}
 	return isUseable();
 }
+
 bool DcxUXModule::unload(void)
 {
 	if (isUseable()) {
-		dcxBufferedPaintUnInit();
+		if (m_bBufferedPaintEnabled)
+			dcxBufferedPaintUnInit();
+		m_bBufferedPaintEnabled = false;
 
 		FreeLibrary(m_hModule);
 		m_hModule = nullptr;
@@ -278,9 +276,4 @@ HRESULT DcxUXModule::dcxBufferedPaintUnInit(void)
 	if (BufferedPaintUnInitUx != nullptr)
 		return BufferedPaintUnInitUx();
 	return NULL;
-}
-
-bool DcxUXModule::IsBufferedPaintSupported(void) noexcept
-{
-	return ((BufferedPaintInitUx != nullptr) && (BufferedPaintUnInitUx != nullptr) && (BeginBufferedPaintUx != nullptr) && (EndBufferedPaintUx != nullptr) && m_bBufferedPaintEnabled);
 }

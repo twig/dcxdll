@@ -7,8 +7,8 @@ class DcxGDIModule :
 	ULONG_PTR m_GDIToken;
 
 public:
-	DcxGDIModule(void);
-	~DcxGDIModule(void);
+	DcxGDIModule() = default;
+	~DcxGDIModule();
 
 	bool load(void) final;
 	bool unload(void) final;
