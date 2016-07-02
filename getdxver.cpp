@@ -181,10 +181,11 @@ HRESULT GetDirectXVersionViaDxDiag(DWORD* pdwDirectXVersionMajor, DWORD* pdwDire
 				if (SUCCEEDED(hr))
 				{
 					VARIANT var;
+					VariantInit(&var);
+
 					bool bSuccessGettingMajor = false;
 					bool bSuccessGettingMinor = false;
 					bool bSuccessGettingLetter = false;
-					VariantInit(&var);
 
 					// Get the "dwDirectXVersionMajor" property
 					hr = pDxDiagSystemInfo->GetProp(L"dwDirectXVersionMajor", &var);
@@ -247,18 +248,18 @@ HRESULT GetDirectXVersionViaDxDiag(DWORD* pdwDirectXVersionMajor, DWORD* pdwDire
 //-----------------------------------------------------------------------------
 HRESULT GetDirectXVersionViaFileVersions(DWORD* pdwDirectXVersionMajor, DWORD* pdwDirectXVersionMinor, TCHAR* pcDirectXVersionLetter)
 {
-	ULARGE_INTEGER llFileVersion;
-	TCHAR szPath[512];
+	ULARGE_INTEGER llFileVersion = { 0 };
+	TCHAR szPath[512] = { 0 };
 	BOOL bFound = false;
 
 	if (GetSystemDirectory(szPath, MAX_PATH) != 0)
 	{
-		TCHAR szFile[512];
+		TCHAR szFile[512] = { 0 };
 		szPath[MAX_PATH - 1] = 0;
 
 		// Switch off the ddraw version
-		StringCchCopy(szFile, 512, szPath);
-		StringCchCat(szFile, 512, TEXT("\\ddraw.dll"));
+		StringCchCopy(szFile, Dcx::countof(szFile), szPath);
+		StringCchCat(szFile, Dcx::countof(szFile), TEXT("\\ddraw.dll"));
 		if (SUCCEEDED(GetFileVersion(szFile, &llFileVersion)))
 		{
 			if (CompareLargeInts(llFileVersion, MakeInt64(4, 2, 0, 95)) >= 0) // Win9x version
@@ -290,8 +291,8 @@ HRESULT GetDirectXVersionViaFileVersions(DWORD* pdwDirectXVersionMajor, DWORD* p
 		}
 
 		// Switch off the d3drg8x.dll version
-		StringCchCopy(szFile, 512, szPath);
-		StringCchCat(szFile, 512, TEXT("\\d3drg8x.dll"));
+		StringCchCopy(szFile, Dcx::countof(szFile), szPath);
+		StringCchCat(szFile, Dcx::countof(szFile), TEXT("\\d3drg8x.dll"));
 		if (SUCCEEDED(GetFileVersion(szFile, &llFileVersion)))
 		{
 			if (CompareLargeInts(llFileVersion, MakeInt64(4, 4, 0, 70)) >= 0) // Win9x version
@@ -305,8 +306,8 @@ HRESULT GetDirectXVersionViaFileVersions(DWORD* pdwDirectXVersionMajor, DWORD* p
 		}
 
 		// Switch off the ddraw version
-		StringCchCopy(szFile, 512, szPath);
-		StringCchCat(szFile, 512, TEXT("\\ddraw.dll"));
+		StringCchCopy(szFile, Dcx::countof(szFile), szPath);
+		StringCchCat(szFile, Dcx::countof(szFile), TEXT("\\ddraw.dll"));
 		if (SUCCEEDED(GetFileVersion(szFile, &llFileVersion)))
 		{
 			if (CompareLargeInts(llFileVersion, MakeInt64(4, 5, 0, 155)) >= 0) // Win9x version
@@ -338,8 +339,8 @@ HRESULT GetDirectXVersionViaFileVersions(DWORD* pdwDirectXVersionMajor, DWORD* p
 		}
 
 		// Switch off the dplayx.dll version
-		StringCchCopy(szFile, 512, szPath);
-		StringCchCat(szFile, 512, TEXT("\\dplayx.dll"));
+		StringCchCopy(szFile, Dcx::countof(szFile), szPath);
+		StringCchCat(szFile, Dcx::countof(szFile), TEXT("\\dplayx.dll"));
 		if (SUCCEEDED(GetFileVersion(szFile, &llFileVersion)))
 		{
 			if (CompareLargeInts(llFileVersion, MakeInt64(4, 6, 3, 518)) >= 0) // Win9x version
@@ -353,8 +354,8 @@ HRESULT GetDirectXVersionViaFileVersions(DWORD* pdwDirectXVersionMajor, DWORD* p
 		}
 
 		// Switch off the ddraw version
-		StringCchCopy(szFile, 512, szPath);
-		StringCchCat(szFile, 512, TEXT("\\ddraw.dll"));
+		StringCchCopy(szFile, Dcx::countof(szFile), szPath);
+		StringCchCat(szFile, Dcx::countof(szFile), TEXT("\\ddraw.dll"));
 		if (SUCCEEDED(GetFileVersion(szFile, &llFileVersion)))
 		{
 			if (CompareLargeInts(llFileVersion, MakeInt64(4, 7, 0, 700)) >= 0) // Win9x version
@@ -370,8 +371,8 @@ HRESULT GetDirectXVersionViaFileVersions(DWORD* pdwDirectXVersionMajor, DWORD* p
 		}
 
 		// Switch off the dinput version
-		StringCchCopy(szFile, 512, szPath);
-		StringCchCat(szFile, 512, TEXT("\\dinput.dll"));
+		StringCchCopy(szFile, Dcx::countof(szFile), szPath);
+		StringCchCat(szFile, Dcx::countof(szFile), TEXT("\\dinput.dll"));
 		if (SUCCEEDED(GetFileVersion(szFile, &llFileVersion)))
 		{
 			if (CompareLargeInts(llFileVersion, MakeInt64(4, 7, 0, 716)) >= 0) // Win9x version
@@ -385,8 +386,8 @@ HRESULT GetDirectXVersionViaFileVersions(DWORD* pdwDirectXVersionMajor, DWORD* p
 		}
 
 		// Switch off the ddraw version
-		StringCchCopy(szFile, 512, szPath);
-		StringCchCat(szFile, 512, TEXT("\\ddraw.dll"));
+		StringCchCopy(szFile, Dcx::countof(szFile), szPath);
+		StringCchCat(szFile, Dcx::countof(szFile), TEXT("\\ddraw.dll"));
 		if (SUCCEEDED(GetFileVersion(szFile, &llFileVersion)))
 		{
 			if ((HIWORD(llFileVersion.HighPart) == 4 && CompareLargeInts(llFileVersion, MakeInt64(4, 8, 0, 400)) >= 0) || // Win9x version
@@ -400,8 +401,8 @@ HRESULT GetDirectXVersionViaFileVersions(DWORD* pdwDirectXVersionMajor, DWORD* p
 			}
 		}
 
-		StringCchCopy(szFile, 512, szPath);
-		StringCchCat(szFile, 512, TEXT("\\d3d8.dll"));
+		StringCchCopy(szFile, Dcx::countof(szFile), szPath);
+		StringCchCat(szFile, Dcx::countof(szFile), TEXT("\\d3d8.dll"));
 		if (SUCCEEDED(GetFileVersion(szFile, &llFileVersion)))
 		{
 			if ((HIWORD(llFileVersion.HighPart) == 4 && CompareLargeInts(llFileVersion, MakeInt64(4, 8, 1, 881)) >= 0) || // Win9x version
@@ -425,8 +426,8 @@ HRESULT GetDirectXVersionViaFileVersions(DWORD* pdwDirectXVersionMajor, DWORD* p
 			}
 		}
 
-		StringCchCopy(szFile, 512, szPath);
-		StringCchCat(szFile, 512, TEXT("\\mpg2splt.ax"));
+		StringCchCopy(szFile, Dcx::countof(szFile), szPath);
+		StringCchCat(szFile, Dcx::countof(szFile), TEXT("\\mpg2splt.ax"));
 		if (SUCCEEDED(GetFileVersion(szFile, &llFileVersion)))
 		{
 			if (CompareLargeInts(llFileVersion, MakeInt64(6, 3, 1, 885)) >= 0) // Win9x/Win2k/WinXP version
@@ -439,8 +440,8 @@ HRESULT GetDirectXVersionViaFileVersions(DWORD* pdwDirectXVersionMajor, DWORD* p
 			}
 		}
 
-		StringCchCopy(szFile, 512, szPath);
-		StringCchCat(szFile, 512, TEXT("\\dpnet.dll"));
+		StringCchCopy(szFile, Dcx::countof(szFile), szPath);
+		StringCchCat(szFile, Dcx::countof(szFile), TEXT("\\dpnet.dll"));
 		if (SUCCEEDED(GetFileVersion(szFile, &llFileVersion)))
 		{
 			if ((HIWORD(llFileVersion.HighPart) == 4 && CompareLargeInts(llFileVersion, MakeInt64(4, 9, 0, 134)) >= 0) || // Win9x version
@@ -454,8 +455,8 @@ HRESULT GetDirectXVersionViaFileVersions(DWORD* pdwDirectXVersionMajor, DWORD* p
 			}
 		}
 
-		StringCchCopy(szFile, 512, szPath);
-		StringCchCat(szFile, 512, TEXT("\\d3d9.dll"));
+		StringCchCopy(szFile, Dcx::countof(szFile), szPath);
+		StringCchCat(szFile, Dcx::countof(szFile), TEXT("\\d3d9.dll"));
 		if (SUCCEEDED(GetFileVersion(szFile, &llFileVersion)))
 		{
 			// File exists, but be at least DirectX9
