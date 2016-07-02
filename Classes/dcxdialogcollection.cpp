@@ -21,11 +21,11 @@
  * Dialog Collection Constructor.
  */
 
-DcxDialogCollection::DcxDialogCollection( )
-: m_closeall(false)
-{
-	this->m_vpDialog.clear( );
-}
+//DcxDialogCollection::DcxDialogCollection( )
+//: m_closeall(false)
+//, m_vpDialog()
+//{
+//}
 
 /*!
  * \brief Destructor
@@ -33,10 +33,9 @@ DcxDialogCollection::DcxDialogCollection( )
  * Dialog Collection Destructor.
  */
 
-DcxDialogCollection::~DcxDialogCollection( ) {
-
-	this->m_vpDialog.clear( );
-}
+//DcxDialogCollection::~DcxDialogCollection( )
+//{
+//}
 
 /*!
  * \brief blah
@@ -44,9 +43,9 @@ DcxDialogCollection::~DcxDialogCollection( ) {
  * blah
  */
 
-void DcxDialogCollection::markDialog( const HWND mHwnd, const TString & tsName, const TString & tsAliasName ) {
-
-	this->m_vpDialog.push_back( new DcxDialog( mHwnd, tsName, tsAliasName ) );
+void DcxDialogCollection::markDialog( const HWND mHwnd, const TString & tsName, const TString & tsAliasName )
+{
+	m_vpDialog.push_back( new DcxDialog( mHwnd, tsName, tsAliasName ) );
 }
 
 /*!
@@ -60,17 +59,17 @@ DcxDialog * DcxDialogCollection::getDialogByHandle(const HWND mHwnd) const
 	if (mHwnd == nullptr)
 		return nullptr;
 
-	if (this->m_vpDialog.empty())
+	if (m_vpDialog.empty())
 		return nullptr;
 
-	for (const auto &x: this->m_vpDialog) {
+	for (const auto &x: m_vpDialog) {
 		if (x->getHwnd() == mHwnd)
 			return x;
 	}
 	return nullptr;
 
-	//auto itEnd = this->m_vpDialog.end();
-	//auto got = std::find_if(this->m_vpDialog.begin(), itEnd, [mHwnd](const auto &x) { return (x->getHwnd() == mHwnd); });
+	//auto itEnd = m_vpDialog.end();
+	//auto got = std::find_if(m_vpDialog.begin(), itEnd, [mHwnd](const auto &x) { return (x->getHwnd() == mHwnd); });
 	//if (got != itEnd)
 	//	return *got;
 	//return nullptr;
@@ -87,17 +86,17 @@ DcxDialog * DcxDialogCollection::getDialogByChildHandle(const HWND mHwnd) const
 	if (mHwnd == nullptr)
 		return nullptr;
 
-	if (this->m_vpDialog.empty())
+	if (m_vpDialog.empty())
 		return nullptr;
 
-	for (const auto &x: this->m_vpDialog) {
+	for (const auto &x: m_vpDialog) {
 		if (x->getControlByHWND(mHwnd) != nullptr)
 			return x;
 	}
 	return nullptr;
 
-	//auto itEnd = this->m_vpDialog.end();
-	//auto got = std::find_if(this->m_vpDialog.begin(), itEnd, [mHwnd](const auto &x) { return (x->getControlByHWND(mHwnd) != nullptr); });
+	//auto itEnd = m_vpDialog.end();
+	//auto got = std::find_if(m_vpDialog.begin(), itEnd, [mHwnd](const auto &x) { return (x->getControlByHWND(mHwnd) != nullptr); });
 	//if (got != itEnd)
 	//	return *got;
 	//return nullptr;
@@ -114,10 +113,10 @@ DcxDialog * DcxDialogCollection::getDialogByName(const TString & tsName) const
 	if (tsName.empty())
 		return nullptr;
 
-	if (this->m_vpDialog.empty())
+	if (m_vpDialog.empty())
 		return nullptr;
 
-	for (const auto &x: this->m_vpDialog) {
+	for (const auto &x: m_vpDialog) {
 		if (x->getName() == tsName)
 			return x;
 	}
@@ -132,20 +131,17 @@ DcxDialog * DcxDialogCollection::getDialogByName(const TString & tsName) const
 
 void DcxDialogCollection::deleteDialog( const DcxDialog *const p_Dialog ) {
 
-	if (( p_Dialog == nullptr ) || (this->m_closeall))
+	if (( p_Dialog == nullptr ) || (m_closeall) || (m_vpDialog.empty()))
 		return;
 
-	if (this->m_vpDialog.empty())
-		return;
-
-	//auto itStart = this->m_vpDialog.begin();
-	//auto itEnd = this->m_vpDialog.end();
+	//auto itStart = m_vpDialog.begin();
+	//auto itEnd = m_vpDialog.end();
 	//
 	//while ( itStart != itEnd ) {
 	//
 	//	if ( *itStart == p_Dialog ) {
 	//
-	//		this->m_vpDialog.erase( itStart );
+	//		m_vpDialog.erase( itStart );
 	//		return;
 	//	} 
 	//
@@ -155,15 +151,17 @@ void DcxDialogCollection::deleteDialog( const DcxDialog *const p_Dialog ) {
 	//for (auto itStart = m_vpDialog.begin(), itEnd = m_vpDialog.end(); itStart != itEnd; ++itStart)
 	//{
 	//	if (*itStart == p_Dialog) {
-	//		this->m_vpDialog.erase(itStart);
+	//		m_vpDialog.erase(itStart);
 	//		return;
 	//	}
 	//}
 
-	const auto itEnd = m_vpDialog.end();
-	const auto itGot = std::find(m_vpDialog.begin(), itEnd, p_Dialog);
-	if (itGot != itEnd)
-		m_vpDialog.erase(itGot);
+	//const auto itEnd = m_vpDialog.end();
+	//const auto itGot = std::find(m_vpDialog.begin(), itEnd, p_Dialog);
+	//if (itGot != itEnd)
+	//	m_vpDialog.erase(itGot);
+
+	Dcx::eraseIfFound(m_vpDialog, p_Dialog);
 }
 
 /*!
@@ -173,10 +171,10 @@ void DcxDialogCollection::deleteDialog( const DcxDialog *const p_Dialog ) {
  */
 
 const bool DcxDialogCollection::safeToCloseAll(void) const {
-	if (this->m_vpDialog.empty())
+	if (m_vpDialog.empty())
 		return true;
 
-	for (const auto &x: this->m_vpDialog) {
+	for (const auto &x: m_vpDialog) {
 		if (x->getRefCount() != 0)
 			return false;
 	}
@@ -191,15 +189,16 @@ const bool DcxDialogCollection::safeToCloseAll(void) const {
 
 const bool DcxDialogCollection::closeDialogs() {
 
-	if (!this->safeToCloseAll())
+	if (!safeToCloseAll())
 		return true;
 
-	this->m_closeall = true;
+	m_closeall = true;
 
-	for (const auto &x: this->m_vpDialog)
+	for (const auto &x: m_vpDialog)
 		DestroyWindow(x->getHwnd());
 
-	this->m_vpDialog.clear(); // clear list.
-	this->m_closeall = false;
+	m_vpDialog.clear(); // clear list.
+	m_closeall = false;
+	
 	return false;
 }

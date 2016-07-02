@@ -33,8 +33,8 @@ public:
 	DcxDialogCollection(const DcxDialogCollection &) = delete;
 	DcxDialogCollection &operator =(const DcxDialogCollection &) = delete;	// No assignments!
 
-	DcxDialogCollection( );
-	virtual ~DcxDialogCollection( );
+	DcxDialogCollection( ) = default;
+	~DcxDialogCollection( ) = default;
 
 	void markDialog(const HWND mHwnd, const TString & tsName, const TString & tsAliasName);
 	void deleteDialog( const DcxDialog *const p_Dialog );
@@ -44,8 +44,6 @@ public:
 
 	const bool closeDialogs();
 	const bool safeToCloseAll(void) const;
-
-protected:
 
 private:
 	VectorOfDialogPtrs m_vpDialog;
