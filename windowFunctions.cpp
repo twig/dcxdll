@@ -21,7 +21,7 @@
 *
 * Returns the owner HWND
 */
-HWND FindOwner(const TString & data, const HWND defaultWnd) {
+HWND FindOwner(const TString & data, const gsl::not_null<HWND> &defaultWnd) {
 
 	if (data.empty())
 		return defaultWnd;
@@ -34,9 +34,9 @@ HWND FindOwner(const TString & data, const HWND defaultWnd) {
 
 	// if there is a token after 'owner'
 	if (i < data.numtok( )) {
-		const auto tsHwnd(data.gettok((int)(i + 1)));
+		const auto tsHwnd(data.gettok(static_cast<int>(i) + 1));
 		// if it is a number (HWND) passed
-		auto wnd = (HWND)tsHwnd.to_dword();
+		auto wnd = reinterpret_cast<HWND>(tsHwnd.to_<DWORD>());
 
 		if (wnd != nullptr)
 			return wnd;
@@ -89,7 +89,7 @@ HWND GetHwndFromString(const TString &str) {
 //}
 
 // Removes window style to a window
-void RemStyles(gsl::not_null<HWND> hwnd,int parm,long RemStyles)
+void RemStyles(const gsl::not_null<HWND> &hwnd,int parm,long RemStyles)
 {
 	auto Styles = (DWORD)GetWindowLong(hwnd, parm);
 	Styles &= ~RemStyles;
@@ -97,7 +97,7 @@ void RemStyles(gsl::not_null<HWND> hwnd,int parm,long RemStyles)
 }
 
 //	Adds window styles to a window
-void AddStyles(gsl::not_null<HWND> hwnd,int parm,long AddStyles)
+void AddStyles(const gsl::not_null<HWND> &hwnd,int parm,long AddStyles)
 {
 	auto Styles = (DWORD)GetWindowLong(hwnd, parm);
 	Styles |= AddStyles;
@@ -351,7 +351,7 @@ void AddStyles(gsl::not_null<HWND> hwnd,int parm,long AddStyles)
 //	return hRegion;
 //}
 
-HRGN BitmapRegion(HBITMAP hBitmap, COLORREF cTransparentColor, BOOL bIsTransparent)
+HRGN BitmapRegion(HBITMAP hBitmap, const COLORREF cTransparentColor, const BOOL bIsTransparent)
 {
 #if DCX_USE_WRAPPERS
 	// We create an empty region
@@ -370,7 +370,7 @@ HRGN BitmapRegion(HBITMAP hBitmap, COLORREF cTransparentColor, BOOL bIsTranspare
 	// We create a memory context for working with the bitmap
 	// The memory context is compatible with the display context (screen)
 
-	Dcx::dcxHDCResource hMemDC(nullptr);
+	Dcx::dcxHDCResource hMemDC((HDC)nullptr);
 
 	// In order to make the space for the region, we
 	// create a bitmap with 32bit depth color and with the

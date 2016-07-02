@@ -37,14 +37,15 @@
 
 #ifdef _MSC_VER
 
-#ifdef _WIN32
-#pragma push_macro("max")
-#undef max
-#endif
+#pragma warning(push)
 
 // turn off some warnings that are noisy about our Expects statements
-#pragma warning(push)
 #pragma warning(disable : 4127) // conditional expression is constant
+
+// blanket turn off warnings from CppCoreCheck for now
+// so people aren't annoyed by them when running the tool.
+// more targeted suppressions will be added in a future update to the GSL
+#pragma warning(disable: 26481 26482 26483 26485 26490 26491 26492 26493 26495)
 
 // No MSVC does constexpr fully yet
 #pragma push_macro("constexpr")
@@ -2200,10 +2201,6 @@ general_span_iterator<Span> operator+(typename general_span_iterator<Span>::diff
 
 #undef constexpr
 #pragma pop_macro("constexpr")
-
-#ifdef _WIN32
-#pragma pop_macro("max")
-#endif
 
 #if _MSC_VER <= 1800
 #pragma warning(pop)
