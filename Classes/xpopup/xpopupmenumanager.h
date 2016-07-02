@@ -49,15 +49,19 @@ public:
 	XPopupMenuManager(const XPopupMenuManager &) = delete;
 	XPopupMenuManager &operator = (const XPopupMenuManager &) = delete;
 
-	XPopupMenuManager( );
-	virtual ~XPopupMenuManager( );
+	//XPopupMenuManager( );
+	//virtual ~XPopupMenuManager( );
+
+	XPopupMenuManager() = default;
+	~XPopupMenuManager() = default;
 
 	void load(void);
 	void unload(void);
 
 	void parseCommand( const TString & input );
 	void parseCommand( const TString & input, XPopupMenu *const p_Menu );
-	void parseIdentifier( const TString & input, TCHAR *const szReturnValue ) const;
+	//void parseIdentifier( const TString & input, TCHAR *const szReturnValue ) const;
+	void parseIdentifier(const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const;
 	const int parseMPopup(const TString & input);
 
 	void addMenu( XPopupMenu *const p_Menu );
@@ -73,7 +77,7 @@ public:
 	const bool isCustomMenu(const HMENU hMenu) const;
 	static const bool isMenuBarMenu(const HMENU hMenu, const HMENU hMatch);
 
-	static const bool isPatched(void) noexcept { return false; };
+	static constexpr bool isPatched(void) noexcept { return false; };
 
 	static void LoadPopupsFromXML(const TiXmlElement *const popups, const TiXmlElement *popup, const TString &popupName, const TString &popupDataset);
 	static const bool LoadPopupItemsFromXML(XPopupMenu *menu, HMENU hMenu, const TiXmlElement *const items);
@@ -88,7 +92,7 @@ public:
 protected:
 
 	static const TString GetMenuAttributeFromXML(const char *const attrib, const TiXmlElement *const popup, const TiXmlElement *const global);
-	static const UINT parseTrackFlags( const TString & flags );
+	static const UINT parseTrackFlags( const TString & flags ) noexcept;
 
 	VectorOfXPopupMenu m_vpXPMenu; //!< Vector of XPopupMenu Objects
 

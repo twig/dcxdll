@@ -33,7 +33,8 @@ class XMenuBar {
 		XMenuBar &operator = (const XMenuBar &) = delete;
 
 		void parseXMenuBarCommand(const TString &input);
-		void parseXMenuBarInfo(const TString &input, TCHAR *const szReturnValue) const;
+		//void parseXMenuBarInfo(const TString &input, TCHAR *const szReturnValue) const;
+		void parseXMenuBarInfo(const TString &input, const refString<TCHAR,MIRC_BUFFER_SIZE_CCH> &szReturnValue) const;
 
 		const bool addToMenuBar(HMENU menubar, XPopupMenu *const p_Menu, const TString &label);
 		void removeFromMenuBar(HMENU menubar, const XPopupMenu *const p_Menu);

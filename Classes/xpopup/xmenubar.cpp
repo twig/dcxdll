@@ -134,7 +134,30 @@ void XMenuBar::parseXMenuBarCommand(const TString &input) {
 /*
  *
  */
-void XMenuBar::parseXMenuBarInfo(const TString &input, TCHAR *const szReturnValue) const
+//void XMenuBar::parseXMenuBarInfo(const TString &input, TCHAR *const szReturnValue) const
+//{
+//	const auto prop(input.getfirsttok(1));
+//
+//	// Iterate through the names of menus added to XMenuBar.
+//	// N = 0 returns total number of menus
+//	// $xmenubar() [menu] [N]
+//	if (prop == TEXT("menu")) {
+//		const auto iSize = m_vpXMenuBar.size();
+//		const auto i = input.getnexttok().to_<VectorOfXPopupMenu::size_type>();	// tok 2
+//
+//		if (i > iSize)
+//			throw Dcx::dcxException(TEXT("Invalid index: %"), i);
+//
+//		// Return number of menus in menubar.
+//		if (i == 0)
+//			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), iSize);
+//		// Return name of specified menu.
+//		else
+//			dcx_strcpyn(szReturnValue, m_vpXMenuBar[i -1]->getName().to_chr(), MIRC_BUFFER_SIZE_CCH);
+//	}
+//}
+
+void XMenuBar::parseXMenuBarInfo(const TString &input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const
 {
 	const auto prop(input.getfirsttok(1));
 
@@ -153,8 +176,10 @@ void XMenuBar::parseXMenuBarInfo(const TString &input, TCHAR *const szReturnValu
 			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), iSize);
 		// Return name of specified menu.
 		else
-			dcx_strcpyn(szReturnValue, this->m_vpXMenuBar[i -1]->getName().to_chr(), MIRC_BUFFER_SIZE_CCH);
+			szReturnValue = m_vpXMenuBar[i - 1]->getName().to_chr();
 	}
+	else
+		throw Dcx::dcxException(TEXT("Unknown prop \"%\""), prop);
 }
 
 /*
@@ -194,10 +219,12 @@ void XMenuBar::removeFromMenuBar(HMENU menubar, const XPopupMenu *const p_Menu) 
 		//	++itStart;
 		//}
 
-		const auto itEnd = m_vpXMenuBar.end();
-		const auto itGot = std::find(m_vpXMenuBar.begin(), itEnd, p_Menu);
-		if (itGot != itEnd)
-			m_vpXMenuBar.erase(itGot);
+		//const auto itEnd = m_vpXMenuBar.end();
+		//const auto itGot = std::find(m_vpXMenuBar.begin(), itEnd, p_Menu);
+		//if (itGot != itEnd)
+		//	m_vpXMenuBar.erase(itGot);
+
+		Dcx::eraseIfFound(m_vpXMenuBar, p_Menu);
 	}
 
 	const auto offset = findMenuOffset(menubar, p_Menu);
@@ -212,10 +239,9 @@ void XMenuBar::removeFromMenuBar(HMENU menubar, const XPopupMenu *const p_Menu) 
  * Searches for the given menu in the menubar, and returns the zero-based index position.
  */
 const int XMenuBar::findMenuOffset(HMENU menubar, const XPopupMenu *const p_Menu) const {
-	MENUITEMINFO mii;
+	MENUITEMINFO mii = { 0 };
 	int offset = 0;					// Use 1 because 0 = the menubar itself when using GetMenuBarInfo()
 									// Changed to 0 to allow pre-increment within while()
-	ZeroMemory(&mii, sizeof(MENUITEMINFO));
 	mii.cbSize = sizeof(MENUITEMINFO);
 	mii.fMask = MIIM_SUBMENU;
 

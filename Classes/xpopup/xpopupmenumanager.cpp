@@ -25,26 +25,26 @@
  * blah
  */
 
-XPopupMenuManager::XPopupMenuManager()
-: m_mIRCPopupMenu(nullptr)
-, m_mIRCMenuBar(nullptr)
-, m_bIsActiveMircMenubarPopup(false)
-, m_bIsActiveMircPopup(false)
-, m_bIsMenuBar(false)
-, m_bIsSysMenu(false)
-, m_hMenuCustom(nullptr)
-, m_hMenuOwner(nullptr)
-{
-}
-
-/*!
- * \brief Destructor
- *
- * blah
- */
-
-XPopupMenuManager::~XPopupMenuManager() {
-}
+//XPopupMenuManager::XPopupMenuManager()
+//: m_mIRCPopupMenu(nullptr)
+//, m_mIRCMenuBar(nullptr)
+//, m_bIsActiveMircMenubarPopup(false)
+//, m_bIsActiveMircPopup(false)
+//, m_bIsMenuBar(false)
+//, m_bIsSysMenu(false)
+//, m_hMenuCustom(nullptr)
+//, m_hMenuOwner(nullptr)
+//{
+//}
+//
+///*!
+// * \brief Destructor
+// *
+// * blah
+// */
+//
+//XPopupMenuManager::~XPopupMenuManager() {
+//}
 
 /*!
  * \brief blah
@@ -294,7 +294,7 @@ LRESULT XPopupMenuManager::OnCommand(HWND mHwnd, WPARAM wParam, LPARAM lParam)
  */
 
 void XPopupMenuManager::parseCommand(const TString & input) {
-	auto p_Menu = this->getMenuByName(input.getfirsttok(1), true);	// tok 1
+	auto p_Menu = getMenuByName(input.getfirsttok(1), true);	// tok 1
 	const XSwitchFlags flags(input.getnexttok());	// tok 2
 
 	// Special mIRC Menu
@@ -428,7 +428,7 @@ void XPopupMenuManager::parseCommand( const TString & input, XPopupMenu *const p
 		}
 		else {
 			// Adjust relative location to take multi-monitor into account
-			MONITORINFO mi;
+			MONITORINFO mi = { 0 };
 			auto hMon = MonitorFromWindow(mIRCLinker::getHWND(), MONITOR_DEFAULTTONEAREST);
 
 			mi.cbSize = sizeof(mi);
@@ -491,13 +491,13 @@ void XPopupMenuManager::parseCommand( const TString & input, XPopupMenu *const p
  * blah [MENU] [PROP]
  */
 
-void XPopupMenuManager::parseIdentifier( const TString & input, TCHAR *const szReturnValue ) const
+void XPopupMenuManager::parseIdentifier(const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const
 {
 	const auto numtok = input.numtok();
 	const auto tsMenuName(input.getfirsttok(1));
 	const auto prop(input.getnexttok());	// tok 2
 
-	const auto p_Menu = this->getMenuByName(tsMenuName, true);
+	const auto p_Menu = getMenuByName(tsMenuName, true);
 
 	static const TString propList(TEXT("ismenu menuname menubar style exstyle colors color isrounded alpha marked"));
 	const auto nType = propList.findtok(prop, 1);
@@ -507,238 +507,378 @@ void XPopupMenuManager::parseIdentifier( const TString & input, TCHAR *const szR
 
 	switch (nType) {
 	case 1: // ismenu
-		{
-			dcx_Con(p_Menu != nullptr, szReturnValue);
-		}
-		break;
+	{
+		szReturnValue = dcx_truefalse(p_Menu != nullptr);
+	}
+	break;
 	case 2: // menuname
-		{
-			const auto i = tsMenuName.to_dword();
+	{
+		const auto i = tsMenuName.to_dword();
 
-			if (i > this->m_vpXPMenu.size())
-				throw Dcx::dcxException(TEXT("Invalid index: %"), i);
+		if (i > m_vpXPMenu.size())
+			throw Dcx::dcxException(TEXT("Invalid index: %"), i);
 
-			// Return number of menus.
-			if (i == 0)
-				wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), this->m_vpXPMenu.size());
-			// Return name of specified menu.
-			else
-				dcx_strcpyn(szReturnValue, this->m_vpXPMenu[i -1]->getName().to_chr(),MIRC_BUFFER_SIZE_CCH);
-		}
-		break;
+		// Return number of menus.
+		if (i == 0)
+			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), m_vpXPMenu.size());
+		// Return name of specified menu.
+		else
+			szReturnValue = m_vpXPMenu[i - 1]->getName().to_chr();
+	}
+	break;
 	case 3: // menubar
 		break;
 	case 4: // style
-		{
-			switch (p_Menu->getStyle( )) {
-				case XPopupMenu::XPMS_OFFICE2003:
-					dcx_strcpyn( szReturnValue, TEXT("office2003"), MIRC_BUFFER_SIZE_CCH );
-					break;
-				case XPopupMenu::XPMS_OFFICE2003_REV:
-					dcx_strcpyn(szReturnValue, TEXT("office2003rev"), MIRC_BUFFER_SIZE_CCH);
-					break;
-				case XPopupMenu::XPMS_OFFICEXP:
-					dcx_strcpyn(szReturnValue, TEXT("officeXP"), MIRC_BUFFER_SIZE_CCH);
-					break;
-				case XPopupMenu::XPMS_ICY:
-					dcx_strcpyn(szReturnValue, TEXT("icy"), MIRC_BUFFER_SIZE_CCH);
-					break;
-				case XPopupMenu::XPMS_ICY_REV:
-					dcx_strcpyn(szReturnValue, TEXT("icyrev"), MIRC_BUFFER_SIZE_CCH);
-					break;
-				case XPopupMenu::XPMS_GRADE:
-					dcx_strcpyn(szReturnValue, TEXT("grade"), MIRC_BUFFER_SIZE_CCH);
-					break;
-				case XPopupMenu::XPMS_GRADE_REV:
-					dcx_strcpyn(szReturnValue, TEXT("graderev"), MIRC_BUFFER_SIZE_CCH);
-					break;
-				case XPopupMenu::XPMS_VERTICAL:
-					dcx_strcpyn(szReturnValue, TEXT("vertical"), MIRC_BUFFER_SIZE_CCH);
-					break;
-				case XPopupMenu::XPMS_VERTICAL_REV:
-					dcx_strcpyn(szReturnValue, TEXT("verticalrev"), MIRC_BUFFER_SIZE_CCH);
-					break;
-				case XPopupMenu::XPMS_NORMAL:
-					dcx_strcpyn(szReturnValue, TEXT("normal"), MIRC_BUFFER_SIZE_CCH);
-					break;
-				case XPopupMenu::XPMS_CUSTOM:
-					dcx_strcpyn(szReturnValue, TEXT("custom"), MIRC_BUFFER_SIZE_CCH);
-					break;
-				default:
-					dcx_strcpyn(szReturnValue, TEXT("unknown"), MIRC_BUFFER_SIZE_CCH);
-					break;
-			}
+	{
+		switch (p_Menu->getStyle()) {
+		case XPopupMenu::XPMS_OFFICE2003:
+			szReturnValue = TEXT("office2003");
+			break;
+		case XPopupMenu::XPMS_OFFICE2003_REV:
+			szReturnValue = TEXT("office2003rev");
+			break;
+		case XPopupMenu::XPMS_OFFICEXP:
+			szReturnValue = TEXT("officeXP");
+			break;
+		case XPopupMenu::XPMS_ICY:
+			szReturnValue = TEXT("icy");
+			break;
+		case XPopupMenu::XPMS_ICY_REV:
+			szReturnValue = TEXT("icyrev");
+			break;
+		case XPopupMenu::XPMS_GRADE:
+			szReturnValue = TEXT("grade");
+			break;
+		case XPopupMenu::XPMS_GRADE_REV:
+			szReturnValue = TEXT("graderev");
+			break;
+		case XPopupMenu::XPMS_VERTICAL:
+			szReturnValue = TEXT("vertical");
+			break;
+		case XPopupMenu::XPMS_VERTICAL_REV:
+			szReturnValue = TEXT("verticalrev");
+			break;
+		case XPopupMenu::XPMS_NORMAL:
+			szReturnValue = TEXT("normal");
+			break;
+		case XPopupMenu::XPMS_CUSTOM:
+			szReturnValue = TEXT("custom");
+			break;
+		default:
+			szReturnValue = TEXT("unknown");
+			break;
 		}
-		break;
+	}
+	break;
 	case 5: // exstyle
-		{
-			TString styles(TEXT('+'));
-			const auto iExStyles = p_Menu->getItemStyle();
+	{
+		stString<MIRC_BUFFER_SIZE_CCH> szStyles(TEXT('+'));
+		const auto iExStyles = p_Menu->getItemStyle();
 
-			if (dcx_testflag(iExStyles, XPS_ICON3D))
-				styles += TEXT('i');
-			if (dcx_testflag(iExStyles, XPS_DISABLEDSEL))
-				styles += TEXT('d');
-			if (dcx_testflag(iExStyles, XPS_ICON3DSHADOW))
-				styles += TEXT('p');
+		if (dcx_testflag(iExStyles, XPS_ICON3D))
+			szStyles += TEXT('i');
+		if (dcx_testflag(iExStyles, XPS_DISABLEDSEL))
+			szStyles += TEXT('d');
+		if (dcx_testflag(iExStyles, XPS_ICON3DSHADOW))
+			szStyles += TEXT('p');
 
-			dcx_strcpyn( szReturnValue, styles.to_chr( ), MIRC_BUFFER_SIZE_CCH );
-		}
-		break;
+		szReturnValue = szStyles;
+	}
+	break;
 	case 6: // colors
-		{
-			wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%lu %lu %lu %lu %lu %lu %lu %lu %lu %lu %lu"), p_Menu->getColor( XPopupMenu::MenuColours::XPMC_BACKGROUND ), p_Menu->getColor(XPopupMenu::MenuColours::XPMC_ICONBOX),
-				p_Menu->getColor(XPopupMenu::MenuColours::XPMC_CHECKBOX), p_Menu->getColor(XPopupMenu::MenuColours::XPMC_CHECKBOX_DISABLED), p_Menu->getColor(XPopupMenu::MenuColours::XPMC_SELECTIONBOX_DISABLED), p_Menu->getColor(XPopupMenu::MenuColours::XPMC_TEXT_DISABLED),
-				p_Menu->getColor(XPopupMenu::MenuColours::XPMC_SELECTIONBOX), p_Menu->getColor(XPopupMenu::MenuColours::XPMC_SELECTIONBOX_BORDER), p_Menu->getColor(XPopupMenu::MenuColours::XPMC_SEPARATOR), p_Menu->getColor(XPopupMenu::MenuColours::XPMC_TEXT), p_Menu->getColor(XPopupMenu::MenuColours::XPMC_SELECTEDTEXT) );
-		}
-		break;
+	{
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%lu %lu %lu %lu %lu %lu %lu %lu %lu %lu %lu"), p_Menu->getColor(XPopupMenu::MenuColours::XPMC_BACKGROUND), p_Menu->getColor(XPopupMenu::MenuColours::XPMC_ICONBOX),
+			p_Menu->getColor(XPopupMenu::MenuColours::XPMC_CHECKBOX), p_Menu->getColor(XPopupMenu::MenuColours::XPMC_CHECKBOX_DISABLED), p_Menu->getColor(XPopupMenu::MenuColours::XPMC_SELECTIONBOX_DISABLED), p_Menu->getColor(XPopupMenu::MenuColours::XPMC_TEXT_DISABLED),
+			p_Menu->getColor(XPopupMenu::MenuColours::XPMC_SELECTIONBOX), p_Menu->getColor(XPopupMenu::MenuColours::XPMC_SELECTIONBOX_BORDER), p_Menu->getColor(XPopupMenu::MenuColours::XPMC_SEPARATOR), p_Menu->getColor(XPopupMenu::MenuColours::XPMC_TEXT), p_Menu->getColor(XPopupMenu::MenuColours::XPMC_SELECTEDTEXT));
+	}
+	break;
 	case 7: // color
-		{
-			if (numtok > 2) {
-				const auto nColor = XPopupMenu::MenuColours(input.getnexttok().to_<UINT>());	// tok 3
-				if ( nColor > 0 && nColor < XPopupMenu::MenuColours::XPMC_MAX )
-					wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%lu"), p_Menu->getColor( nColor ) );
-			}
-			else
-				szReturnValue[0] = 0;
-
+	{
+		if (numtok > 2) {
+			const auto nColor = XPopupMenu::MenuColours(input.getnexttok().to_<UINT>());	// tok 3
+			if (nColor > 0 && nColor < XPopupMenu::MenuColours::XPMC_MAX)
+				wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%lu"), p_Menu->getColor(nColor));
 		}
-		break;
+	}
+	break;
 	case 8: // isrounded
-		{
-			dcx_Con(p_Menu->IsRounded(), szReturnValue);
-		}
-		break;
+	{
+		szReturnValue = dcx_truefalse(p_Menu->IsRounded());
+	}
+	break;
 	case 9: // alpha
-		{
-			wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%ld"), p_Menu->IsAlpha());
-		}
-		break;
+	{
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%ld"), p_Menu->IsAlpha());
+	}
+	break;
 	case 10: // marked
-		{
-			dcx_strcpyn(szReturnValue, p_Menu->getMarkedText().to_chr(), MIRC_BUFFER_SIZE_CCH);
-		}
-		break;
+	{
+		szReturnValue = p_Menu->getMarkedText().to_chr();
+	}
+	break;
 	case 0:
 	default:
 		throw Dcx::dcxException(TEXT("Unknown prop \"%\""), prop);
 	}
-
-	//if ((p_Menu == nullptr) && ((prop != TEXT("ismenu") && (prop != TEXT("menuname")) && (prop != TEXT("menubar")))) {
-	//	Dcx::errorex(TEXT("$!xpopup()"), TEXT("\"%s\" doesn't exist, see /xpopup -c"), tsMenuName.to_chr());
-	//	return;
-	//}
-	//
-	//if (prop == TEXT("ismenu")) {
-	//	lstrcpyn( szReturnValue, ((p_Menu != nullptr)?TEXT("$true"):TEXT("$false")), MIRC_BUFFER_SIZE_CCH );
-	//	return;
-	//}
-	//else if (prop == TEXT("menuname")) {
-	//	const int i = tsMenuName.to_int();
-	//
-	//	if ((i < 0) || (i > (int) this->m_vpXPMenu.size()))
-	//	{
-	//		Dcx::errorex(TEXT("$!xpopup().menuname"), TEXT("Invalid index: %d"), i);
-	//		return;
-	//	}
-	//
-	//	// Return number of menus.
-	//	if (i == 0)
-	//		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), (int) this->m_vpXPMenu.size());
-	//	// Return name of specified menu.
-	//	else
-	//		lstrcpyn(szReturnValue, this->m_vpXPMenu[i -1]->getName().to_chr(),MIRC_BUFFER_SIZE_CCH);
-	//
-	//	return;
-	//}
-	//else if ( prop == TEXT("style") ) {
-	//
-	//	switch (p_Menu->getStyle( )) {
-	//		case XPopupMenu::XPMS_OFFICE2003:
-	//			lstrcpyn( szReturnValue, TEXT("office2003"), MIRC_BUFFER_SIZE_CCH );
-	//			break;
-	//		case XPopupMenu::XPMS_OFFICE2003_REV:
-	//			lstrcpyn( szReturnValue, TEXT("office2003rev"), MIRC_BUFFER_SIZE_CCH );
-	//			break;
-	//		case XPopupMenu::XPMS_OFFICEXP:
-	//			lstrcpyn( szReturnValue, TEXT("officeXP"), MIRC_BUFFER_SIZE_CCH );
-	//			break;
-	//		case XPopupMenu::XPMS_ICY:
-	//			lstrcpyn( szReturnValue, TEXT("icy"), MIRC_BUFFER_SIZE_CCH );
-	//			break;
-	//		case XPopupMenu::XPMS_ICY_REV:
-	//			lstrcpyn( szReturnValue, TEXT("icyrev"), MIRC_BUFFER_SIZE_CCH );
-	//			break;
-	//		case XPopupMenu::XPMS_GRADE:
-	//			lstrcpyn( szReturnValue, TEXT("grade"), MIRC_BUFFER_SIZE_CCH );
-	//			break;
-	//		case XPopupMenu::XPMS_GRADE_REV:
-	//			lstrcpyn( szReturnValue, TEXT("graderev"), MIRC_BUFFER_SIZE_CCH );
-	//			break;
-	//		case XPopupMenu::XPMS_VERTICAL:
-	//			lstrcpyn( szReturnValue, TEXT("vertical"), MIRC_BUFFER_SIZE_CCH );
-	//			break;
-	//		case XPopupMenu::XPMS_VERTICAL_REV:
-	//			lstrcpyn( szReturnValue, TEXT("verticalrev"), MIRC_BUFFER_SIZE_CCH );
-	//			break;
-	//		case XPopupMenu::XPMS_NORMAL:
-	//			lstrcpyn( szReturnValue, TEXT("normal"), MIRC_BUFFER_SIZE_CCH );
-	//			break;
-	//		case XPopupMenu::XPMS_CUSTOM:
-	//			lstrcpyn( szReturnValue, TEXT("custom"), MIRC_BUFFER_SIZE_CCH );
-	//			break;
-	//		default:
-	//			lstrcpyn( szReturnValue, TEXT("unknown"), MIRC_BUFFER_SIZE_CCH );
-	//			break;
-	//	}
-	//	return;
-	//}
-	//else if ( prop == TEXT("exstyle") ) {
-	//
-	//	TString styles(TEXT('+'));
-	//	const UINT iExStyles = p_Menu->getItemStyle( );
-	//
-	//	if (dcx_testflag(iExStyles, XPS_ICON3D))
-	//		styles += TEXT('i');
-	//	if (dcx_testflag(iExStyles, XPS_DISABLEDSEL))
-	//		styles += TEXT('d');
-	//	if (dcx_testflag(iExStyles, XPS_ICON3DSHADOW))
-	//		styles += TEXT('p');
-	//
-	//	lstrcpyn( szReturnValue, styles.to_chr( ), MIRC_BUFFER_SIZE_CCH );
-	//	return;
-	//}
-	//else if ( prop == TEXT("colors") ) {
-	//
-	//	wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%ld %ld %ld %ld %ld %ld %ld %ld %ld %ld %ld"), p_Menu->getColor( 1 ), p_Menu->getColor( 2 ),
-	//		p_Menu->getColor( 3 ), p_Menu->getColor( 3 ), p_Menu->getColor( 5 ), p_Menu->getColor( 6 ),
-	//		p_Menu->getColor( 7 ), p_Menu->getColor( 8 ), p_Menu->getColor( 9 ), p_Menu->getColor( 10 ), p_Menu->getColor( 11 ) );
-	//	return;
-	//
-	//}
-	//else if ( prop == TEXT("color") && numtok > 2 ) {
-	//
-	//	const int nColor = input.getnexttok( ).to_int( );	// tok 3
-	//	if ( nColor > 0 && nColor < 11 ) {
-	//
-	//		wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%ld"), p_Menu->getColor( nColor ) );
-	//		return;
-	//	}
-	//}
-	//else if ( prop == TEXT("isrounded")) {
-	//	lstrcpyn( szReturnValue, ((p_Menu->IsRounded() ? TEXT("$true") : TEXT("$false"))), MIRC_BUFFER_SIZE_CCH);
-	//	return;
-	//}
-	//else if ( prop == TEXT("alpha")) {
-	//	wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%ld"), p_Menu->IsAlpha());
-	//	return;
-	//}
-	//else if (prop == TEXT("marked")) {
-	//	lstrcpyn(szReturnValue, p_Menu->getMarkedText().to_chr(), MIRC_BUFFER_SIZE_CCH);
-	//	return;
-	//}
-	//szReturnValue[0] = 0;
 }
+
+//void XPopupMenuManager::parseIdentifier( const TString & input, TCHAR *const szReturnValue ) const
+//{
+//	const auto numtok = input.numtok();
+//	const auto tsMenuName(input.getfirsttok(1));
+//	const auto prop(input.getnexttok());	// tok 2
+//
+//	const auto p_Menu = getMenuByName(tsMenuName, true);
+//
+//	static const TString propList(TEXT("ismenu menuname menubar style exstyle colors color isrounded alpha marked"));
+//	const auto nType = propList.findtok(prop, 1);
+//
+//	if ((p_Menu == nullptr) && (nType > 3))
+//		throw Dcx::dcxException(TEXT("\"%\" doesn't exist, see /xpopup -c"), tsMenuName);
+//
+//	switch (nType) {
+//	case 1: // ismenu
+//		{
+//			dcx_Con(p_Menu != nullptr, szReturnValue);
+//		}
+//		break;
+//	case 2: // menuname
+//		{
+//			const auto i = tsMenuName.to_dword();
+//
+//			if (i > m_vpXPMenu.size())
+//				throw Dcx::dcxException(TEXT("Invalid index: %"), i);
+//
+//			// Return number of menus.
+//			if (i == 0)
+//				wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), m_vpXPMenu.size());
+//			// Return name of specified menu.
+//			else
+//				dcx_strcpyn(szReturnValue, m_vpXPMenu[i -1]->getName().to_chr(),MIRC_BUFFER_SIZE_CCH);
+//		}
+//		break;
+//	case 3: // menubar
+//		break;
+//	case 4: // style
+//		{
+//			switch (p_Menu->getStyle( )) {
+//				case XPopupMenu::XPMS_OFFICE2003:
+//					dcx_strcpyn( szReturnValue, TEXT("office2003"), MIRC_BUFFER_SIZE_CCH );
+//					break;
+//				case XPopupMenu::XPMS_OFFICE2003_REV:
+//					dcx_strcpyn(szReturnValue, TEXT("office2003rev"), MIRC_BUFFER_SIZE_CCH);
+//					break;
+//				case XPopupMenu::XPMS_OFFICEXP:
+//					dcx_strcpyn(szReturnValue, TEXT("officeXP"), MIRC_BUFFER_SIZE_CCH);
+//					break;
+//				case XPopupMenu::XPMS_ICY:
+//					dcx_strcpyn(szReturnValue, TEXT("icy"), MIRC_BUFFER_SIZE_CCH);
+//					break;
+//				case XPopupMenu::XPMS_ICY_REV:
+//					dcx_strcpyn(szReturnValue, TEXT("icyrev"), MIRC_BUFFER_SIZE_CCH);
+//					break;
+//				case XPopupMenu::XPMS_GRADE:
+//					dcx_strcpyn(szReturnValue, TEXT("grade"), MIRC_BUFFER_SIZE_CCH);
+//					break;
+//				case XPopupMenu::XPMS_GRADE_REV:
+//					dcx_strcpyn(szReturnValue, TEXT("graderev"), MIRC_BUFFER_SIZE_CCH);
+//					break;
+//				case XPopupMenu::XPMS_VERTICAL:
+//					dcx_strcpyn(szReturnValue, TEXT("vertical"), MIRC_BUFFER_SIZE_CCH);
+//					break;
+//				case XPopupMenu::XPMS_VERTICAL_REV:
+//					dcx_strcpyn(szReturnValue, TEXT("verticalrev"), MIRC_BUFFER_SIZE_CCH);
+//					break;
+//				case XPopupMenu::XPMS_NORMAL:
+//					dcx_strcpyn(szReturnValue, TEXT("normal"), MIRC_BUFFER_SIZE_CCH);
+//					break;
+//				case XPopupMenu::XPMS_CUSTOM:
+//					dcx_strcpyn(szReturnValue, TEXT("custom"), MIRC_BUFFER_SIZE_CCH);
+//					break;
+//				default:
+//					dcx_strcpyn(szReturnValue, TEXT("unknown"), MIRC_BUFFER_SIZE_CCH);
+//					break;
+//			}
+//		}
+//		break;
+//	case 5: // exstyle
+//		{
+//			//TString styles(TEXT('+'));
+//			//const auto iExStyles = p_Menu->getItemStyle();
+//			//
+//			//if (dcx_testflag(iExStyles, XPS_ICON3D))
+//			//	styles += TEXT('i');
+//			//if (dcx_testflag(iExStyles, XPS_DISABLEDSEL))
+//			//	styles += TEXT('d');
+//			//if (dcx_testflag(iExStyles, XPS_ICON3DSHADOW))
+//			//	styles += TEXT('p');
+//			//
+//			//dcx_strcpyn( szReturnValue, styles.to_chr( ), MIRC_BUFFER_SIZE_CCH );
+//
+//			stString<MIRC_BUFFER_SIZE_CCH> szStyles(TEXT('+'));
+//			const auto iExStyles = p_Menu->getItemStyle();
+//
+//			if (dcx_testflag(iExStyles, XPS_ICON3D))
+//				szStyles += TEXT('i');
+//			if (dcx_testflag(iExStyles, XPS_DISABLEDSEL))
+//				szStyles += TEXT('d');
+//			if (dcx_testflag(iExStyles, XPS_ICON3DSHADOW))
+//				szStyles += TEXT('p');
+//
+//			dcx_strcpyn(szReturnValue, szStyles.data(), MIRC_BUFFER_SIZE_CCH);
+//		}
+//		break;
+//	case 6: // colors
+//		{
+//			wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%lu %lu %lu %lu %lu %lu %lu %lu %lu %lu %lu"), p_Menu->getColor( XPopupMenu::MenuColours::XPMC_BACKGROUND ), p_Menu->getColor(XPopupMenu::MenuColours::XPMC_ICONBOX),
+//				p_Menu->getColor(XPopupMenu::MenuColours::XPMC_CHECKBOX), p_Menu->getColor(XPopupMenu::MenuColours::XPMC_CHECKBOX_DISABLED), p_Menu->getColor(XPopupMenu::MenuColours::XPMC_SELECTIONBOX_DISABLED), p_Menu->getColor(XPopupMenu::MenuColours::XPMC_TEXT_DISABLED),
+//				p_Menu->getColor(XPopupMenu::MenuColours::XPMC_SELECTIONBOX), p_Menu->getColor(XPopupMenu::MenuColours::XPMC_SELECTIONBOX_BORDER), p_Menu->getColor(XPopupMenu::MenuColours::XPMC_SEPARATOR), p_Menu->getColor(XPopupMenu::MenuColours::XPMC_TEXT), p_Menu->getColor(XPopupMenu::MenuColours::XPMC_SELECTEDTEXT) );
+//		}
+//		break;
+//	case 7: // color
+//		{
+//			if (numtok > 2) {
+//				const auto nColor = XPopupMenu::MenuColours(input.getnexttok().to_<UINT>());	// tok 3
+//				if ( nColor > 0 && nColor < XPopupMenu::MenuColours::XPMC_MAX )
+//					wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%lu"), p_Menu->getColor( nColor ) );
+//			}
+//		}
+//		break;
+//	case 8: // isrounded
+//		{
+//			dcx_Con(p_Menu->IsRounded(), szReturnValue);
+//		}
+//		break;
+//	case 9: // alpha
+//		{
+//			wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%ld"), p_Menu->IsAlpha());
+//		}
+//		break;
+//	case 10: // marked
+//		{
+//			dcx_strcpyn(szReturnValue, p_Menu->getMarkedText().to_chr(), MIRC_BUFFER_SIZE_CCH);
+//		}
+//		break;
+//	case 0:
+//	default:
+//		throw Dcx::dcxException(TEXT("Unknown prop \"%\""), prop);
+//	}
+//
+//	//if ((p_Menu == nullptr) && ((prop != TEXT("ismenu") && (prop != TEXT("menuname")) && (prop != TEXT("menubar")))) {
+//	//	Dcx::errorex(TEXT("$!xpopup()"), TEXT("\"%s\" doesn't exist, see /xpopup -c"), tsMenuName.to_chr());
+//	//	return;
+//	//}
+//	//
+//	//if (prop == TEXT("ismenu")) {
+//	//	lstrcpyn( szReturnValue, ((p_Menu != nullptr)?TEXT("$true"):TEXT("$false")), MIRC_BUFFER_SIZE_CCH );
+//	//	return;
+//	//}
+//	//else if (prop == TEXT("menuname")) {
+//	//	const int i = tsMenuName.to_int();
+//	//
+//	//	if ((i < 0) || (i > (int) this->m_vpXPMenu.size()))
+//	//	{
+//	//		Dcx::errorex(TEXT("$!xpopup().menuname"), TEXT("Invalid index: %d"), i);
+//	//		return;
+//	//	}
+//	//
+//	//	// Return number of menus.
+//	//	if (i == 0)
+//	//		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), (int) this->m_vpXPMenu.size());
+//	//	// Return name of specified menu.
+//	//	else
+//	//		lstrcpyn(szReturnValue, this->m_vpXPMenu[i -1]->getName().to_chr(),MIRC_BUFFER_SIZE_CCH);
+//	//
+//	//	return;
+//	//}
+//	//else if ( prop == TEXT("style") ) {
+//	//
+//	//	switch (p_Menu->getStyle( )) {
+//	//		case XPopupMenu::XPMS_OFFICE2003:
+//	//			lstrcpyn( szReturnValue, TEXT("office2003"), MIRC_BUFFER_SIZE_CCH );
+//	//			break;
+//	//		case XPopupMenu::XPMS_OFFICE2003_REV:
+//	//			lstrcpyn( szReturnValue, TEXT("office2003rev"), MIRC_BUFFER_SIZE_CCH );
+//	//			break;
+//	//		case XPopupMenu::XPMS_OFFICEXP:
+//	//			lstrcpyn( szReturnValue, TEXT("officeXP"), MIRC_BUFFER_SIZE_CCH );
+//	//			break;
+//	//		case XPopupMenu::XPMS_ICY:
+//	//			lstrcpyn( szReturnValue, TEXT("icy"), MIRC_BUFFER_SIZE_CCH );
+//	//			break;
+//	//		case XPopupMenu::XPMS_ICY_REV:
+//	//			lstrcpyn( szReturnValue, TEXT("icyrev"), MIRC_BUFFER_SIZE_CCH );
+//	//			break;
+//	//		case XPopupMenu::XPMS_GRADE:
+//	//			lstrcpyn( szReturnValue, TEXT("grade"), MIRC_BUFFER_SIZE_CCH );
+//	//			break;
+//	//		case XPopupMenu::XPMS_GRADE_REV:
+//	//			lstrcpyn( szReturnValue, TEXT("graderev"), MIRC_BUFFER_SIZE_CCH );
+//	//			break;
+//	//		case XPopupMenu::XPMS_VERTICAL:
+//	//			lstrcpyn( szReturnValue, TEXT("vertical"), MIRC_BUFFER_SIZE_CCH );
+//	//			break;
+//	//		case XPopupMenu::XPMS_VERTICAL_REV:
+//	//			lstrcpyn( szReturnValue, TEXT("verticalrev"), MIRC_BUFFER_SIZE_CCH );
+//	//			break;
+//	//		case XPopupMenu::XPMS_NORMAL:
+//	//			lstrcpyn( szReturnValue, TEXT("normal"), MIRC_BUFFER_SIZE_CCH );
+//	//			break;
+//	//		case XPopupMenu::XPMS_CUSTOM:
+//	//			lstrcpyn( szReturnValue, TEXT("custom"), MIRC_BUFFER_SIZE_CCH );
+//	//			break;
+//	//		default:
+//	//			lstrcpyn( szReturnValue, TEXT("unknown"), MIRC_BUFFER_SIZE_CCH );
+//	//			break;
+//	//	}
+//	//	return;
+//	//}
+//	//else if ( prop == TEXT("exstyle") ) {
+//	//
+//	//	TString styles(TEXT('+'));
+//	//	const UINT iExStyles = p_Menu->getItemStyle( );
+//	//
+//	//	if (dcx_testflag(iExStyles, XPS_ICON3D))
+//	//		styles += TEXT('i');
+//	//	if (dcx_testflag(iExStyles, XPS_DISABLEDSEL))
+//	//		styles += TEXT('d');
+//	//	if (dcx_testflag(iExStyles, XPS_ICON3DSHADOW))
+//	//		styles += TEXT('p');
+//	//
+//	//	lstrcpyn( szReturnValue, styles.to_chr( ), MIRC_BUFFER_SIZE_CCH );
+//	//	return;
+//	//}
+//	//else if ( prop == TEXT("colors") ) {
+//	//
+//	//	wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%ld %ld %ld %ld %ld %ld %ld %ld %ld %ld %ld"), p_Menu->getColor( 1 ), p_Menu->getColor( 2 ),
+//	//		p_Menu->getColor( 3 ), p_Menu->getColor( 3 ), p_Menu->getColor( 5 ), p_Menu->getColor( 6 ),
+//	//		p_Menu->getColor( 7 ), p_Menu->getColor( 8 ), p_Menu->getColor( 9 ), p_Menu->getColor( 10 ), p_Menu->getColor( 11 ) );
+//	//	return;
+//	//
+//	//}
+//	//else if ( prop == TEXT("color") && numtok > 2 ) {
+//	//
+//	//	const int nColor = input.getnexttok( ).to_int( );	// tok 3
+//	//	if ( nColor > 0 && nColor < 11 ) {
+//	//
+//	//		wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%ld"), p_Menu->getColor( nColor ) );
+//	//		return;
+//	//	}
+//	//}
+//	//else if ( prop == TEXT("isrounded")) {
+//	//	lstrcpyn( szReturnValue, ((p_Menu->IsRounded() ? TEXT("$true") : TEXT("$false"))), MIRC_BUFFER_SIZE_CCH);
+//	//	return;
+//	//}
+//	//else if ( prop == TEXT("alpha")) {
+//	//	wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%ld"), p_Menu->IsAlpha());
+//	//	return;
+//	//}
+//	//else if (prop == TEXT("marked")) {
+//	//	lstrcpyn(szReturnValue, p_Menu->getMarkedText().to_chr(), MIRC_BUFFER_SIZE_CCH);
+//	//	return;
+//	//}
+//	//szReturnValue[0] = 0;
+//}
 
 const int XPopupMenuManager::parseMPopup(const TString & input)
 {
@@ -799,13 +939,16 @@ void XPopupMenuManager::deleteMenu( const XPopupMenu *const p_Menu ) {
 	//	++itStart;
 	//}
 
-	const auto itEnd = this->m_vpXPMenu.end();
-	const auto itGot = std::find(this->m_vpXPMenu.begin(), itEnd, p_Menu);
-	if (itGot != itEnd)
-	{
-		delete *itGot;
-		this->m_vpXPMenu.erase(itGot);
-	}
+	//const auto itEnd = this->m_vpXPMenu.end();
+	//const auto itGot = std::find(this->m_vpXPMenu.begin(), itEnd, p_Menu);
+	//if (itGot != itEnd)
+	//{
+	//	delete *itGot;
+	//	this->m_vpXPMenu.erase(itGot);
+	//}
+
+	if (Dcx::eraseIfFound(m_vpXPMenu, p_Menu))
+		delete p_Menu;
 }
 
 /*!
@@ -843,7 +986,7 @@ XPopupMenu * XPopupMenuManager::getMenuByName(const TString &tsName, const bool 
 			return g_mIRCScriptMenu;
 	}
 
-	for (const auto &x: this->m_vpXPMenu) {
+	for (const auto &x: m_vpXPMenu) {
 		if (x != nullptr) {
 			if (x->getName() == tsName)
 				return x;
@@ -920,8 +1063,8 @@ const bool XPopupMenuManager::isMenuBarMenu(const HMENU hMenu, const HMENU hMatc
  * blah
  */
 
-const UINT XPopupMenuManager::parseTrackFlags( const TString & flags ) {
-
+const UINT XPopupMenuManager::parseTrackFlags( const TString & flags ) noexcept
+{
 	UINT iFlags = 0;
 	const XSwitchFlags xflags(flags);
 
@@ -1066,10 +1209,10 @@ const bool XPopupMenuManager::LoadPopupItemsFromXML(XPopupMenu *menu, HMENU hMen
 	if ((menu == nullptr) || (hMenu == nullptr) || (items == nullptr))
 		return false;
 
-	// Iterate through each child element.
+	// Iterate through each child m_pElement.
 	for (const auto *element = items->FirstChildElement("item"); element != nullptr; element = element->NextSiblingElement("item")) {
-		MENUITEMINFO mii;
-		const auto nPos = (UINT)GetMenuItemCount(hMenu) +1;
+		MENUITEMINFO mii = { 0 };
+		const auto nPos = static_cast<UINT>(GetMenuItemCount(hMenu)) +1U;
 
 		ZeroMemory(&mii, sizeof(MENUITEMINFO));
 		mii.cbSize = sizeof(MENUITEMINFO);

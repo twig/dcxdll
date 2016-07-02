@@ -22,28 +22,6 @@
 #define XPS_DISABLEDSEL   0x02 //!< Disabled Items have a selectionbox
 #define XPS_ICON3DSHADOW  0x04 //!< Icons have a 3D effect with undershadow
 
-/*!
- * \brief XPopup Menu Item Colors
- *
- * Structure containing the menu item colors
- */
-
-typedef struct tagXPMENUCOLORS {
-
-	COLORREF m_clrBack;					//!< Menu Item BackGround Color
-	COLORREF m_clrBox;					//!< Menu Item Box Color
-	COLORREF m_clrSelection;			//!< Menu Item Selection Box Color
-	COLORREF m_clrDisabledSelection;	//!< Menu Item Disabled Selection Box Color
-	COLORREF m_clrText;					//!< Menu Item Text Color
-	COLORREF m_clrDisabledText;			//!< Menu Item Disabled Text Color
-	COLORREF m_clrCheckBox;				//!< Menu Item CheckBox Color
-	COLORREF m_clrDisabledCheckBox;		//!< Menu Item Disabled CheckBox Color
-	COLORREF m_clrSeparatorLine;		//!< Menu Item Separator Line Color
-	COLORREF m_clrSelectionBorder;		//!< Menu Item Selection Box Border Color
-	COLORREF m_clrSelectedText;			//!< Menu Item Selected Text Colour
-
-} XPMENUCOLORS, * LPXPMENUCOLORS;
-
 using VectorOfXPopupMenu = std::vector<XPopupMenu *>; //!< Vector of XPopupMenu Objects
 
 /*!
@@ -132,7 +110,8 @@ public:
 	virtual ~XPopupMenu( );
 
 	void parseXPopCommand(const TString & input);
-	void parseXPopIdentifier( const TString & input, TCHAR * szReturnValue ) const;
+	//void parseXPopIdentifier( const TString & input, TCHAR * szReturnValue ) const;
+	void parseXPopIdentifier(const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const;
 	static XPopupMenu::MenuStyle parseStyle(const TString &style) noexcept;
 
 	static HMENU parsePath( const TString & path, const HMENU hParent, const UINT depth = 1 );

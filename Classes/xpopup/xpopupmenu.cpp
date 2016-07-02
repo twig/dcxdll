@@ -104,11 +104,11 @@ void XPopupMenu::parseXPopCommand( const TString & input ) {
 	const auto path(input.getfirsttok(1, TSTABCHAR).gettok(3, -1).trim());	// tok 1
 	const auto path_toks = path.numtok();
 
-	HMENU hMenu;
+	HMENU hMenu = nullptr;
 	if ( path_toks == 1 )
-		hMenu = this->m_hMenu;
+		hMenu = m_hMenu;
 	else {
-		hMenu = this->parsePath( path.gettok( 1, static_cast<int>(path_toks - 1) ), this->m_hMenu );
+		hMenu = parsePath( path.gettok( 1, static_cast<int>(path_toks - 1) ), m_hMenu );
 
 		if ( hMenu == nullptr )
 			throw Dcx::dcxException("Invalid Menu Item Path");
@@ -125,7 +125,7 @@ void XPopupMenu::parseXPopCommand( const TString & input ) {
 		TString itemcom;
 
 		if (tsTabTwo.numtok(TEXT(':')) > 1)
-			itemcom = tsTabTwo.gettok(2, TEXT(":")).trim();
+			itemcom = tsTabTwo.gettok(2, TEXT(':')).trim();
 
 		const XSwitchFlags xflags(tsTabTwo.getfirsttok(1));
 		const auto mID = tsTabTwo.getnexttok().to_<UINT>();			// tok 2
@@ -142,7 +142,7 @@ void XPopupMenu::parseXPopCommand( const TString & input ) {
 		//XPopupMenuItem * p_Item = nullptr;
 		std::unique_ptr<XPopupMenuItem> p_Item;
 
-		if ( itemtext == TEXT("-") ) {
+		if ( itemtext == TEXT('-') ) {
 			mii.fMask = MIIM_DATA | MIIM_FTYPE | MIIM_STATE;
 			mii.fType = MFT_OWNERDRAW | MFT_SEPARATOR;
 
@@ -334,148 +334,207 @@ void XPopupMenu::parseXPopCommand( const TString & input ) {
  * blah
  */
 
-void XPopupMenu::parseXPopIdentifier( const TString & input, TCHAR * szReturnValue ) const
+//void XPopupMenu::parseXPopIdentifier( const TString & input, TCHAR * szReturnValue ) const
+//{
+//	const auto numtok = input.numtok( );
+//	const auto prop(input.getfirsttok(2));		// tok 2
+//	const auto path(input.getlasttoks());		// tok 3, -1
+//
+//	// [NAME] [ID] [PROP] [PATH]
+//	if ( prop == TEXT("num") && numtok > 2 ) {
+//
+//		HMENU hMenu = nullptr;
+//		if ( path == TEXT("root") )
+//			hMenu = m_hMenu;
+//		else
+//			hMenu = parsePath( path, m_hMenu );
+//
+//		if (hMenu == nullptr)
+//			throw Dcx::dcxException("Unable to get menu");
+//
+//		wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), GetMenuItemCount( hMenu ) );
+//	}
+//	else if ((prop == TEXT("text") || prop == TEXT("icon")) && numtok > 2) {
+//
+//		//HMENU hMenu;
+//		//
+//		//if ( path.numtok( ) == 1 )
+//		//	hMenu = this->m_hMenu;
+//		//else
+//		//	hMenu = this->parsePath( path.gettok( 1, path.numtok( ) - 1 ), this->m_hMenu );
+//		//
+//		//if (hMenu == nullptr)
+//		//	throw Dcx::dcxException("Unable to get menu");
+//		//
+//		//const auto nPos = path.gettok( path.numtok( ) ).to_int( ) - 1;
+//		//
+//		//if (nPos < 0)
+//		//	throw Dcx::dcxException("Invalid Path");
+//		//
+//		//MENUITEMINFO mii;
+//		//ZeroMemory( &mii, sizeof( MENUITEMINFO ) );
+//		//mii.cbSize = sizeof( MENUITEMINFO );
+//		//mii.fMask = MIIM_DATA;
+//		//
+//		//if ( GetMenuItemInfo( hMenu, (UINT)nPos, TRUE, &mii ) ) {
+//		//
+//		//	const auto p_Item = reinterpret_cast<XPopupMenuItem *>(mii.dwItemData);
+//		//	if (p_Item == nullptr)
+//		//		throw Dcx::dcxException("Unable to get menu data");
+//		//
+//		//	if ( prop == TEXT("text") )
+//		//		dcx_strcpyn( szReturnValue, p_Item->getItemText( ).to_chr( ), MIRC_BUFFER_SIZE_CCH )
+//		//	else if ( prop == TEXT("icon") )
+//		//		wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), p_Item->getItemIcon( ) + 1 );
+//		//}
+//
+//		MENUITEMINFO mii;
+//		if (getMenuInfo(MIIM_DATA, path, mii))
+//		{
+//			const auto p_Item = reinterpret_cast<XPopupMenuItem *>(mii.dwItemData);
+//			if (p_Item == nullptr)
+//				throw Dcx::dcxException("Unable to get menu data");
+//
+//			if (prop == TEXT("text"))
+//				dcx_strcpyn(szReturnValue, p_Item->getItemText().to_chr(), MIRC_BUFFER_SIZE_CCH);
+//			else if ( prop == TEXT("icon") )
+//				wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), p_Item->getItemIcon( ) + 1 );
+//		}
+//	}
+//	else if ( ( prop == TEXT("checked") || prop == TEXT("enabled") ) && numtok > 2 ) {
+//
+//		//HMENU hMenu;
+//		//
+//		//if ( path.numtok( ) == 1 )
+//		//	hMenu = this->m_hMenu;
+//		//else
+//		//	hMenu = this->parsePath( path.gettok( 1, path.numtok( ) - 1 ), this->m_hMenu );
+//		//
+//		//if (hMenu == nullptr)
+//		//	throw Dcx::dcxException("Unable to get menu");
+//		//
+//		//const auto nPos = path.gettok(path.numtok()).to_int() - 1;
+//		//
+//		//if (nPos < 0)
+//		//	throw Dcx::dcxException("Invalid Path");
+//		//
+//		//MENUITEMINFO mii;
+//		//ZeroMemory( &mii, sizeof( MENUITEMINFO ) );
+//		//mii.cbSize = sizeof( MENUITEMINFO );
+//		//mii.fMask = MIIM_STATE;
+//		//
+//		//if ( GetMenuItemInfo( hMenu, (UINT)nPos, TRUE, &mii ) ) {
+//		//
+//		//	if (prop == TEXT("checked")) {
+//		//		dcx_Con(dcx_testflag(mii.fState, MFS_CHECKED), szReturnValue);
+//		//	}
+//		//	else if (prop == TEXT("enabled")) {
+//		//		dcx_Con(!dcx_testflag(mii.fState, MFS_GRAYED), szReturnValue);
+//		//	}
+//		//}
+//
+//		MENUITEMINFO mii;
+//		if (getMenuInfo(MIIM_STATE, path, mii))
+//		{
+//			if (prop == TEXT("checked")) {
+//				dcx_Con(dcx_testflag(mii.fState, MFS_CHECKED), szReturnValue);
+//			}
+//			else if (prop == TEXT("enabled")) {
+//				dcx_Con(!dcx_testflag(mii.fState, MFS_GRAYED), szReturnValue);
+//			}
+//
+//		}
+//	}
+//	else if ( prop == TEXT("submenu") && numtok > 2 ) {
+//
+//		//HMENU hMenu;
+//		//
+//		//if ( path.numtok( ) == 1 )
+//		//	hMenu = this->m_hMenu;
+//		//else
+//		//	hMenu = this->parsePath( path.gettok( 1, path.numtok( ) - 1 ), this->m_hMenu );
+//		//
+//		//if (hMenu == nullptr)
+//		//	throw Dcx::dcxException("Unable to get menu");
+//		//
+//		//const auto nPos = path.gettok(path.numtok()).to_int() - 1;
+//		//
+//		//if (nPos < 0)
+//		//	throw Dcx::dcxException("Invalid Path");
+//		//
+//		//MENUITEMINFO mii;
+//		//ZeroMemory( &mii, sizeof( MENUITEMINFO ) );
+//		//mii.cbSize = sizeof( MENUITEMINFO );
+//		//mii.fMask = MIIM_SUBMENU;
+//		//
+//		//if ( GetMenuItemInfo( hMenu, (UINT)nPos, TRUE, &mii ) ) {
+//		//
+//		//	dcx_ConChar(mii.hSubMenu != nullptr, szReturnValue);
+//		//}
+//
+//		MENUITEMINFO mii;
+//		if (getMenuInfo(MIIM_SUBMENU, path, mii))
+//		{
+//			dcx_ConChar(mii.hSubMenu != nullptr, szReturnValue);
+//		}
+//	}
+//}
+
+void XPopupMenu::parseXPopIdentifier(const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const
 {
-	const auto numtok = input.numtok( );
+	const auto numtok = input.numtok();
 	const auto prop(input.getfirsttok(2));		// tok 2
 	const auto path(input.getlasttoks());		// tok 3, -1
 
 	// [NAME] [ID] [PROP] [PATH]
-	if ( prop == TEXT("num") && numtok > 2 ) {
+	if (prop == TEXT("num") && numtok > 2) {
 
-		HMENU hMenu;
-		if ( path == TEXT("root") )
-			hMenu = this->m_hMenu;
+		HMENU hMenu = nullptr;
+		if (path == TEXT("root"))
+			hMenu = m_hMenu;
 		else
-			hMenu = this->parsePath( path, this->m_hMenu );
+			hMenu = parsePath(path, m_hMenu);
 
 		if (hMenu == nullptr)
 			throw Dcx::dcxException("Unable to get menu");
 
-		wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), GetMenuItemCount( hMenu ) );
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), GetMenuItemCount(hMenu));
 	}
 	else if ((prop == TEXT("text") || prop == TEXT("icon")) && numtok > 2) {
 
-		//HMENU hMenu;
-		//
-		//if ( path.numtok( ) == 1 )
-		//	hMenu = this->m_hMenu;
-		//else
-		//	hMenu = this->parsePath( path.gettok( 1, path.numtok( ) - 1 ), this->m_hMenu );
-		//
-		//if (hMenu == nullptr)
-		//	throw Dcx::dcxException("Unable to get menu");
-		//
-		//const auto nPos = path.gettok( path.numtok( ) ).to_int( ) - 1;
-		//
-		//if (nPos < 0)
-		//	throw Dcx::dcxException("Invalid Path");
-		//
-		//MENUITEMINFO mii;
-		//ZeroMemory( &mii, sizeof( MENUITEMINFO ) );
-		//mii.cbSize = sizeof( MENUITEMINFO );
-		//mii.fMask = MIIM_DATA;
-		//
-		//if ( GetMenuItemInfo( hMenu, (UINT)nPos, TRUE, &mii ) ) {
-		//
-		//	const auto p_Item = reinterpret_cast<XPopupMenuItem *>(mii.dwItemData);
-		//	if (p_Item == nullptr)
-		//		throw Dcx::dcxException("Unable to get menu data");
-		//
-		//	if ( prop == TEXT("text") )
-		//		dcx_strcpyn( szReturnValue, p_Item->getItemText( ).to_chr( ), MIRC_BUFFER_SIZE_CCH )
-		//	else if ( prop == TEXT("icon") )
-		//		wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), p_Item->getItemIcon( ) + 1 );
-		//}
-
 		MENUITEMINFO mii;
-		if (this->getMenuInfo(MIIM_DATA, path, mii))
+		if (getMenuInfo(MIIM_DATA, path, mii))
 		{
 			const auto p_Item = reinterpret_cast<XPopupMenuItem *>(mii.dwItemData);
 			if (p_Item == nullptr)
 				throw Dcx::dcxException("Unable to get menu data");
 
 			if (prop == TEXT("text"))
-				dcx_strcpyn(szReturnValue, p_Item->getItemText().to_chr(), MIRC_BUFFER_SIZE_CCH);
-			else if ( prop == TEXT("icon") )
-				wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), p_Item->getItemIcon( ) + 1 );
+				szReturnValue = p_Item->getItemText().to_chr();
+			else if (prop == TEXT("icon"))
+				wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), p_Item->getItemIcon() + 1);
 		}
 	}
-	else if ( ( prop == TEXT("checked") || prop == TEXT("enabled") ) && numtok > 2 ) {
-
-		//HMENU hMenu;
-		//
-		//if ( path.numtok( ) == 1 )
-		//	hMenu = this->m_hMenu;
-		//else
-		//	hMenu = this->parsePath( path.gettok( 1, path.numtok( ) - 1 ), this->m_hMenu );
-		//
-		//if (hMenu == nullptr)
-		//	throw Dcx::dcxException("Unable to get menu");
-		//
-		//const auto nPos = path.gettok(path.numtok()).to_int() - 1;
-		//
-		//if (nPos < 0)
-		//	throw Dcx::dcxException("Invalid Path");
-		//
-		//MENUITEMINFO mii;
-		//ZeroMemory( &mii, sizeof( MENUITEMINFO ) );
-		//mii.cbSize = sizeof( MENUITEMINFO );
-		//mii.fMask = MIIM_STATE;
-		//
-		//if ( GetMenuItemInfo( hMenu, (UINT)nPos, TRUE, &mii ) ) {
-		//
-		//	if (prop == TEXT("checked")) {
-		//		dcx_Con(dcx_testflag(mii.fState, MFS_CHECKED), szReturnValue);
-		//	}
-		//	else if (prop == TEXT("enabled")) {
-		//		dcx_Con(!dcx_testflag(mii.fState, MFS_GRAYED), szReturnValue);
-		//	}
-		//}
+	else if ((prop == TEXT("checked") || prop == TEXT("enabled")) && numtok > 2) {
 
 		MENUITEMINFO mii;
-		if (this->getMenuInfo(MIIM_STATE, path, mii))
+		if (getMenuInfo(MIIM_STATE, path, mii))
 		{
-			if (prop == TEXT("checked")) {
-				dcx_Con(dcx_testflag(mii.fState, MFS_CHECKED), szReturnValue);
-			}
-			else if (prop == TEXT("enabled")) {
-				dcx_Con(!dcx_testflag(mii.fState, MFS_GRAYED), szReturnValue);
-			}
-
+			if (prop == TEXT("checked"))
+				szReturnValue = dcx_truefalse(dcx_testflag(mii.fState, MFS_CHECKED));
+			else if (prop == TEXT("enabled"))
+				szReturnValue = dcx_truefalse(!dcx_testflag(mii.fState, MFS_GRAYED));
 		}
 	}
-	else if ( prop == TEXT("submenu") && numtok > 2 ) {
-
-		//HMENU hMenu;
-		//
-		//if ( path.numtok( ) == 1 )
-		//	hMenu = this->m_hMenu;
-		//else
-		//	hMenu = this->parsePath( path.gettok( 1, path.numtok( ) - 1 ), this->m_hMenu );
-		//
-		//if (hMenu == nullptr)
-		//	throw Dcx::dcxException("Unable to get menu");
-		//
-		//const auto nPos = path.gettok(path.numtok()).to_int() - 1;
-		//
-		//if (nPos < 0)
-		//	throw Dcx::dcxException("Invalid Path");
-		//
-		//MENUITEMINFO mii;
-		//ZeroMemory( &mii, sizeof( MENUITEMINFO ) );
-		//mii.cbSize = sizeof( MENUITEMINFO );
-		//mii.fMask = MIIM_SUBMENU;
-		//
-		//if ( GetMenuItemInfo( hMenu, (UINT)nPos, TRUE, &mii ) ) {
-		//
-		//	dcx_ConChar(mii.hSubMenu != nullptr, szReturnValue);
-		//}
+	else if (prop == TEXT("submenu") && numtok > 2) {
 
 		MENUITEMINFO mii;
-		if (this->getMenuInfo(MIIM_SUBMENU, path, mii))
+		if (getMenuInfo(MIIM_SUBMENU, path, mii))
 		{
-			dcx_ConChar(mii.hSubMenu != nullptr, szReturnValue);
+			if (mii.hSubMenu != nullptr)
+				szReturnValue = TEXT('1');
+			else
+				szReturnValue = TEXT('0');
 		}
 	}
 }
@@ -488,10 +547,10 @@ void XPopupMenu::parseXPopIdentifier( const TString & input, TCHAR * szReturnVal
 
 HIMAGELIST &XPopupMenu::getImageList( ) {
 
-  if ( this->m_hImageList == nullptr )
-    this->m_hImageList = ImageList_Create( 16, 16, ILC_COLOR32|ILC_MASK, 1, 0 );
+  if ( m_hImageList == nullptr )
+    m_hImageList = ImageList_Create( 16, 16, ILC_COLOR32|ILC_MASK, 1, 0 );
 
-  return this->m_hImageList;
+  return m_hImageList;
 }
 
 /*!
@@ -776,14 +835,21 @@ void XPopupMenu::deleteMenuItemData(const XPopupMenuItem *const p_Item, LPMENUIT
 	//	++itStart;
 	//}
 
-	const auto itEnd = m_vpMenuItem.end();
-	const auto itGot = std::find(m_vpMenuItem.begin(), itEnd, p_Item);
-	if (itGot != itEnd)
+	//const auto itEnd = m_vpMenuItem.end();
+	//const auto itGot = std::find(m_vpMenuItem.begin(), itEnd, p_Item);
+	//if (itGot != itEnd)
+	//{
+	//	if (mii != nullptr)
+	//		mii->dwItemData = (*itGot)->getItemDataBackup();
+	//	delete *itGot;
+	//	m_vpMenuItem.erase(itGot);
+	//}
+
+	if (Dcx::eraseIfFound(m_vpMenuItem, p_Item))
 	{
 		if (mii != nullptr)
-			mii->dwItemData = (*itGot)->getItemDataBackup();
-		delete *itGot;
-		m_vpMenuItem.erase(itGot);
+			mii->dwItemData = p_Item->getItemDataBackup();
+		delete p_Item;
 	}
 }
 
@@ -1074,7 +1140,7 @@ const TString &XPopupMenu::getMarkedText() const noexcept {
 
 BOOL XPopupMenu::getMenuInfo(const UINT iMask, const TString & path, MENUITEMINFO & mii) const
 {
-	HMENU hMenu;
+	HMENU hMenu = nullptr;
 	const auto path_toks = path.numtok();
 
 	if (path_toks == 1)

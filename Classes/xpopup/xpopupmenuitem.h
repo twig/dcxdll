@@ -25,7 +25,28 @@
 
 // dummy class, resolved at runtime
 class XPopupMenu;
-typedef struct tagXPMENUCOLORS XPMENUCOLORS, * LPXPMENUCOLORS;
+
+/*!
+* \brief XPopup Menu Item Colors
+*
+* Structure containing the menu item colors
+*/
+
+struct XPMENUCOLORS {
+	COLORREF m_clrBack;					//!< Menu Item BackGround Color
+	COLORREF m_clrBox;					//!< Menu Item Box Color
+	COLORREF m_clrSelection;			//!< Menu Item Selection Box Color
+	COLORREF m_clrDisabledSelection;	//!< Menu Item Disabled Selection Box Color
+	COLORREF m_clrText;					//!< Menu Item Text Color
+	COLORREF m_clrDisabledText;			//!< Menu Item Disabled Text Color
+	COLORREF m_clrCheckBox;				//!< Menu Item CheckBox Color
+	COLORREF m_clrDisabledCheckBox;		//!< Menu Item Disabled CheckBox Color
+	COLORREF m_clrSeparatorLine;		//!< Menu Item Separator Line Color
+	COLORREF m_clrSelectionBorder;		//!< Menu Item Selection Box Border Color
+	COLORREF m_clrSelectedText;			//!< Menu Item Selected Text Colour
+
+};
+using LPXPMENUCOLORS = XPMENUCOLORS *;
 
 /*!
  * \brief blah
@@ -63,8 +84,8 @@ public:
 	static bool DrawMenuBitmap(const LPDRAWITEMSTRUCT lpdis, const bool bBigImage, const HBITMAP bmImage);
 	static void DrawGradient(const HDC hdc, const LPRECT lprc, const COLORREF clrStart, const COLORREF clrEnd, const BOOL bHorz = FALSE);
 	static void DrawVerticalBar( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol, const BOOLEAN bReversed);
-	static COLORREF LightenColor( const UINT iScale, const COLORREF clrColor );
-	static COLORREF DarkenColor( const UINT iScale, const COLORREF clrColor );
+	static COLORREF LightenColor( const UINT iScale, const COLORREF clrColor ) noexcept;
+	static COLORREF DarkenColor( const UINT iScale, const COLORREF clrColor ) noexcept;
 
 	void setSubMenu( const bool bSubMenu ) noexcept;
 	void setItemText( const TString & tsItemText );

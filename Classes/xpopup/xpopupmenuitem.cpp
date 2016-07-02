@@ -23,7 +23,7 @@
  */
 
 XPopupMenuItem::XPopupMenuItem( XPopupMenu * Parent, const bool bSep, ULONG_PTR dwDataBackup )
-: m_pXParentMenu( Parent ), m_bSep( bSep ), m_nIcon(-1), m_bSubMenu(false), m_dwItemDataBackup(dwDataBackup), m_bBigBitmap(false)
+: m_pXParentMenu( Parent ), m_bSep( bSep ), m_nIcon(-1), m_bSubMenu(false), m_dwItemDataBackup(dwDataBackup), m_bBigBitmap(false), m_bReserved(false)
 {
 }
 
@@ -34,9 +34,9 @@ XPopupMenuItem::XPopupMenuItem( XPopupMenu * Parent, const bool bSep, ULONG_PTR 
  */
 
 XPopupMenuItem::XPopupMenuItem( XPopupMenu * Parent, const TString &tsItemText, const int nIcon, const bool bSubMenu, ULONG_PTR dwDataBackup ) 
-: m_pXParentMenu( Parent ), m_tsItemText( tsItemText ), m_nIcon( nIcon ), m_bSubMenu( bSubMenu ), m_bSep( false ), m_dwItemDataBackup(dwDataBackup), m_bBigBitmap(false)
+: m_pXParentMenu( Parent ), m_tsItemText( tsItemText ), m_nIcon( nIcon ), m_bSubMenu( bSubMenu ), m_bSep( false ), m_dwItemDataBackup(dwDataBackup), m_bBigBitmap(false), m_bReserved(false)
 {
-	this->m_tsItemText.trim();
+	m_tsItemText.trim();
 }
 
 /*!
@@ -737,8 +737,8 @@ void XPopupMenuItem::DrawGradient( const HDC hdc, const LPRECT lprc, const COLOR
 	const auto EndGreen = GetGValue((clrEnd & 0xFFFF));
 	const auto EndBlue = GetBValue(clrEnd);
 
-	TRIVERTEX        vert[2];
-	GRADIENT_RECT    gRect;
+	TRIVERTEX        vert[2] = { 0 };
+	GRADIENT_RECT    gRect = { 0 };
 	ULONG gMode = GRADIENT_FILL_RECT_H;
 
 	vert [0] .x      = lprc->left;
@@ -764,7 +764,7 @@ void XPopupMenuItem::DrawGradient( const HDC hdc, const LPRECT lprc, const COLOR
 
 	if (!GradientFill(hdc,vert,2,&gRect,1,gMode)) {
 		// if GradientFill fails do our own method.
-		int n;
+		int n = 0;
 		const auto dy = 2;
 
 		if ( bHorz )
@@ -772,7 +772,7 @@ void XPopupMenuItem::DrawGradient( const HDC hdc, const LPRECT lprc, const COLOR
 		else
 			n = lprc->right - lprc->left - dy;
 
-		RECT rc;
+		RECT rc = { 0 };
 
 		for (auto dn = decltype(n){0}; dn <= n; dn += dy) {
 
@@ -828,7 +828,7 @@ void XPopupMenuItem::DrawVerticalBar(const LPDRAWITEMSTRUCT lpdis, const LPXPMEN
 
 #if DCX_USE_WRAPPERS
 	// set up a buffer to draw the whole gradient bar
-	Dcx::dcxHDCBuffer hdcBuffer(lpdis->hDC, &rcBar);
+	Dcx::dcxHDCBuffer hdcBuffer(lpdis->hDC, rcBar);
 
 	// draw the gradient into the buffer
 	if (bReversed)
@@ -870,7 +870,7 @@ void XPopupMenuItem::DrawVerticalBar(const LPDRAWITEMSTRUCT lpdis, const LPXPMEN
  * blah
  */
 
-COLORREF XPopupMenuItem::LightenColor( const UINT iScale, const COLORREF clrColor )
+COLORREF XPopupMenuItem::LightenColor( const UINT iScale, const COLORREF clrColor ) noexcept
 {
 	const auto R = MulDiv(255 - GetRValue(clrColor), iScale, 255) + GetRValue(clrColor);
 	const auto G = MulDiv(255 - GetGValue((clrColor & 0xFFFF)), iScale, 255) + GetGValue((clrColor & 0xFFFF));
@@ -885,7 +885,7 @@ COLORREF XPopupMenuItem::LightenColor( const UINT iScale, const COLORREF clrColo
 * blah
 */
 
-COLORREF XPopupMenuItem::DarkenColor( const UINT iScale, const COLORREF clrColor )
+COLORREF XPopupMenuItem::DarkenColor( const UINT iScale, const COLORREF clrColor ) noexcept
 {
 	const auto R = MulDiv(GetRValue(clrColor), (255 - iScale), 255);
 	const auto G = MulDiv(GetGValue((clrColor & 0xFFFF)), (255 - iScale), 255);
@@ -924,7 +924,7 @@ bool XPopupMenuItem::DrawMenuBitmap(const LPDRAWITEMSTRUCT lpdis, const bool bBi
 		SetRect(&rcIntersect, rcBar.left, lpdis->rcItem.top, rcBar.right, lpdis->rcItem.bottom);
 
 		// set up a buffer to draw the whole whole menus background.
-		Dcx::dcxHDCBuffer hdcBuffer(lpdis->hDC, &rcBar);
+		Dcx::dcxHDCBuffer hdcBuffer(lpdis->hDC, rcBar);
 
 		// draw into the buffer
 		Dcx::dcxHDCBitmapResource hdcbmp(lpdis->hDC, bmImage);

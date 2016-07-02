@@ -20,16 +20,16 @@
  * blah
  */
 
-XPopupMenuWindow::XPopupMenuWindow( ) {
-
-}
-
-/*!
- * \brief Destructor
- *
- * blah
- */
-
-XPopupMenuWindow::~XPopupMenuWindow( ) {
-
-}
+//XPopupMenuWindow::XPopupMenuWindow( ) {
+//
+//}
+//
+///*!
+// * \brief Destructor
+// *
+// * blah
+// */
+//
+//XPopupMenuWindow::~XPopupMenuWindow( ) {
+//
+//}
