@@ -439,7 +439,7 @@ const char* TiXmlBase::GetEntity( const char* p, char* value, int* length, TiXml
 {
 	// Presume an entity, and pull it out.
     //TIXML_STRING ent;
-	int i;
+
 	*length = 0;
 
 	if ( *(p+1) && *(p+1) == '#' && *(p+2) )
@@ -512,7 +512,7 @@ const char* TiXmlBase::GetEntity( const char* p, char* value, int* length, TiXml
 	}
 
 	// Now try to match it.
-	for( i=0; i<NUM_ENTITY; ++i )
+	for( auto i=0; i<NUM_ENTITY; ++i )
 	{
 		if ( strncmp( entity[i].str, p, entity[i].strLength ) == 0 )
 		{
@@ -587,7 +587,7 @@ const char* TiXmlBase::ReadText(	const char* p,
 				&& !StringEqual( p, endTag, caseInsensitive, encoding )
 			  )
 		{
-			int len;
+			int len = 0;
 			char cArr[4] = { 0, 0, 0, 0 };
 			p = GetChar( p, cArr, &len, encoding );
 			text->append( cArr, (size_t)len );
@@ -621,7 +621,7 @@ const char* TiXmlBase::ReadText(	const char* p,
 					(*text) += ' ';
 					whitespace = false;
 				}
-				int len;
+				int len = 0;
 				char cArr[4] = { 0, 0, 0, 0 };
 				p = GetChar( p, cArr, &len, encoding );
 				if ( len == 1 )
@@ -681,7 +681,7 @@ void TiXmlDocument::StreamIn( std::istream * in, TIXML_STRING * tag )
 				delete node;
 				node = 0;
 
-				// If this is the root element, we're done. Parsing will be
+				// If this is the root m_pElement, we're done. Parsing will be
 				// done by the >> operator.
 				if ( isElement )
 				{
@@ -892,7 +892,7 @@ TiXmlNode* TiXmlNode::Identify( const char* p, TiXmlEncoding encoding )
 
 	//if ( returnNode ) // null check unneeded at its allocated with new which throws an exception...
 	//{
-		// Set the parent, so it can report errors
+		// Set the m_pParent, so it can report errors
 		returnNode->parent = this;
 	//}
 	return returnNode;
@@ -903,7 +903,7 @@ TiXmlNode* TiXmlNode::Identify( const char* p, TiXmlEncoding encoding )
 void TiXmlElement::StreamIn (std::istream * in, TIXML_STRING * tag)
 {
 	// We're called with some amount of pre-parsing. That is, some of "this"
-	// element is in "tag". Go ahead and stream to the closing ">"
+	// m_pElement is in "tag". Go ahead and stream to the closing ">"
 	while( in->good() )
 	{
 		int c = in->get();
@@ -1190,7 +1190,7 @@ const char* TiXmlElement::ReadValue( const char* p, TiXmlParsingData* data, TiXm
 	{
 		if ( *p != '<' )
 		{
-			// Take what we have, make a text element.
+			// Take what we have, make a text m_pElement.
 			try {
 				TiXmlText* textNode = new TiXmlText("");
 
@@ -1218,7 +1218,7 @@ const char* TiXmlElement::ReadValue( const char* p, TiXmlParsingData* data, TiXm
 		else 
 		{
 			// We hit a '<'
-			// Have we hit a new element or an end tag? This could also be
+			// Have we hit a new m_pElement or an end tag? This could also be
 			// a TiXmlText in the "CDATA" style.
 			if ( StringEqual( p, "</", false, encoding ) )
 			{
@@ -1425,20 +1425,19 @@ const char* TiXmlAttribute::Parse( const char* p, TiXmlParsingData* data, TiXmlE
 		return 0;
 	}
 	
-	const char* end;
 	const char SINGLE_QUOTE = '\'';
 	const char DOUBLE_QUOTE = '\"';
 
 	if ( *p == SINGLE_QUOTE )
 	{
 		++p;
-		end = "\'";		// single quote in string
+		auto end = "\'";		// single quote in string
 		p = ReadText( p, &value, false, end, false, encoding );
 	}
 	else if ( *p == DOUBLE_QUOTE )
 	{
 		++p;
-		end = "\"";		// double quote in string
+		auto end = "\"";		// double quote in string
 		p = ReadText( p, &value, false, end, false, encoding );
 	}
 	else

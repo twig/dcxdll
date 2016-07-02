@@ -756,9 +756,9 @@ void TiXmlElement::Print( FILE* cfile, int depth ) const
 	}
 
 	// There are 3 different formatting approaches:
-	// 1) An element without children is printed as a <foo /> node
-	// 2) An element with only a text child is printed as <foo> text </foo>
-	// 3) An element with children is printed on multiple lines.
+	// 1) An m_pElement without children is printed as a <foo /> node
+	// 2) An m_pElement with only a text child is printed as <foo> text </foo>
+	// 3) An m_pElement with children is printed on multiple lines.
 	if ( firstChild == nullptr )
 	{
 		fprintf( cfile, " />" );
@@ -846,7 +846,7 @@ const char* TiXmlElement::GetText() const
 			return childText->Value();
 		}
 	}
-	return 0;
+	return nullptr;
 }
 
 
