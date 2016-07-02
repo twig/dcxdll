@@ -79,7 +79,7 @@ BOOL WINAPI DllMain(
 			DisableThreadLibraryCalls(hinstDLL);
 			// add pid of mIRC.exe to name so mutex is specific to this instance of mIRC.
 			// GetModuleHandle(nullptr) was returning a consistant result.
-			wnsprintf(mutex, 128, TEXT("DCX_LOADED%lx"), GetCurrentProcessId()); // NB: calls user32.dll, is this ok? See warnings in DllMain() docs.
+			wnsprintf(mutex, Dcx::countof(mutex), TEXT("DCX_LOADED%lx"), GetCurrentProcessId()); // NB: calls user32.dll, is this ok? See warnings in DllMain() docs.
 
 			// Enforce only one instance of dcx.dll loaded at a time.
 			hDcxMutex = CreateMutex(nullptr, TRUE, mutex); // Windows 2000:  Do not create a named synchronization object in DllMain because the system will then load an additional DLL. This restriction does not apply to subsequent versions of Windows.
@@ -250,7 +250,7 @@ mIRC(Version) {
 			mIRCLinker::execex(TEXT("/echo -a iterate tmp: %u :: %s"), (size_t)itStart, tsTmp.to_chr());
 			++itStart;
 		}
-		tok.join(tmp, TEXT("!"));
+		tok.join(tmp, TEXT('!'));
 		mIRCLinker::execex(TEXT("/echo -a tok.join(tmp,!): %s"), tok.to_chr());
 
 		t = Dcx::parse_string<int>("200");
@@ -312,27 +312,30 @@ mIRC(Version) {
 			//mIRCLinker::execex(TEXT("/echo -a convert8: %s"), tok.to_chr());
 
 			auto str2 = std::to_string(str);
+			mIRCLinker::execex(TEXT("/echo -a before test_replace(bob,freddy): %s"), tok.to_chr());
+			tok.replace(TEXT("token"), TEXT("freddy"));
+			mIRCLinker::execex(TEXT("/echo -a after test_replace(bob,freddy): %s"), tok.to_chr());
 		}
 
 		//tok = _ts_strstr("this is a sample text with some extra added", "sample");
 
 		//mIRCLinker::execex(TEXT("/echo -a my_strstr: %s"), tok.to_chr());
 
-		if (tok.istok(TEXT("m_inserted"),TEXT("!")))
+		if (tok.istok(TEXT("m_inserted"),TEXT('!')))
 			mIRCLinker::execex(TEXT("/echo -a istok(m_inserted,!): yes - %s"), tok.to_chr());
 		else
 			mIRCLinker::execex(TEXT("/echo -a istok(m_inserted,!): no - %s"), tok.to_chr());
 
-		if (tok.istok(TEXT("string"), TEXT("!")))
+		if (tok.istok(TEXT("string"), TEXT('!')))
 			mIRCLinker::execex(TEXT("/echo -a istok(string,!): yes - %s"), tok.to_chr());
 		else
 			mIRCLinker::execex(TEXT("/echo -a istok(string,!): no - %s"), tok.to_chr());
 
-		tok.reptok(TEXT("string"), TEXT("blobby"), 1, TEXT("!"));
+		tok.reptok(TEXT("string"), TEXT("blobby"), 1, TEXT('!'));
 		mIRCLinker::execex(TEXT("/echo -a reptok(string,blobby,1,!): %s"), tok.to_chr());
-		tok.reptok(TEXT("e_putnb"), TEXT("blobby"), 1, TEXT("!"));
+		tok.reptok(TEXT("e_putnb"), TEXT("blobby"), 1, TEXT('!'));
 		mIRCLinker::execex(TEXT("/echo -a reptok(e_putnb,blobby,1,!): %s"), tok.to_chr());
-		tok.reptok(TEXT("blobby"), TEXT("mister"), 2, TEXT("!"));
+		tok.reptok(TEXT("blobby"), TEXT("mister"), 2, TEXT('!'));
 		mIRCLinker::execex(TEXT("/echo -a reptok(blobby,mister,2,!): %s"), tok.to_chr());
 
 		tok += TEXT("!101!102!200!4!5");
@@ -365,10 +368,10 @@ mIRC(Version) {
 		else
 			mIRCLinker::exec(TEXT("/echo -a tok.iswm(*put*) == false"));
 
-		if (tok.iswmcs(TEXT("*put*")))
-			mIRCLinker::exec(TEXT("/echo -a tok.iswmcs(*put*) == true"));
-		else
-			mIRCLinker::exec(TEXT("/echo -a tok.iswmcs(*put*) == false"));
+		//if (tok.iswmcs(TEXT("*put*")))
+		//	mIRCLinker::exec(TEXT("/echo -a tok.iswmcs(*put*) == true"));
+		//else
+		//	mIRCLinker::exec(TEXT("/echo -a tok.iswmcs(*put*) == false"));
 
 		{
 			const TCHAR *ctmp = TEXT("test");
@@ -412,12 +415,11 @@ mIRC(Version) {
 			mIRCLinker::execex(TEXT("/echo -a toktest3: %s"), toktest.to_chr());
 			toktest = tok.getnexttok(TEXT('!'));
 			mIRCLinker::execex(TEXT("/echo -a toktest4: %s"), toktest.to_chr());
+
+			auto itest = _ts_strlen(TEXT("12"));
+			mIRCLinker::execex(TEXT("/echo -a itest1: %u"), itest);
 		}
 
-		// test exception code
-		tok = TEXT("123");
-		UINT iTest = Dcx::numeric_cast<UINT>(tok);
-		//iTest = Dcx::numeric_cast<UINT>("400");
 
 		//{
 		//	auto rng = Dcx::range(10U, 20U);
@@ -429,10 +431,34 @@ mIRC(Version) {
 
 		// test expanding a TString object beyond the internal buffer
 		{
-			TString tsExp(TEXT("expanding text")); // len = 14
-			tsExp *= 20;
+			TString tsExp(TEXT("expanding text"));	// len = 14
+			tsExp *= 20;							// len = 14*20 = 280
 			mIRCLinker::execex(TEXT("/echo -a expand: %u :: %s"), tsExp.len(), tsExp.to_chr());
 		}
+		tok.remove(TEXT('!'));
+		mIRCLinker::execex(TEXT("/echo -a tok.remove(!): %s"), tok.to_chr());
+
+		{
+			char chr_test[128] = { 0 };
+			char chr_buf[128] = { 0 };
+			//char *chr_ptr = nullptr;
+
+			//try {
+				_ts_strcpyn(chr_buf, chr_test, 128U);
+
+				//_ts_strcpyn(chr_ptr, chr_test, 128U);
+			//}
+			//catch (std::exception &e)
+			//{
+			//	mIRCLinker::execex(TEXT("/echo -a exception: %S"), e.what());
+			//}
+		}
+
+		// test exception code
+		tok = TEXT("123");
+		UINT iTest = Dcx::numeric_cast<UINT>(tok);
+		//iTest = Dcx::numeric_cast<UINT>("400");
+
 		//throw Dcx::dcxException(TEXT("No such Exception"));
 		throw Dcx::dcxException("No such Exception: % :: %", iTest, tok);
 	}
@@ -489,21 +515,24 @@ mIRC(IsUsingDirectX) {
 * \brief DCX DLL is GDI+ supported?
 */
 mIRC(IsUsingGDI) {
-	ret((Dcx::GDIModule.isUseable() ? TEXT("$true") : TEXT("$false")));
+	//ret((Dcx::GDIModule.isUseable() ? TEXT("$true") : TEXT("$false")));
+	ret(dcx_truefalse(Dcx::GDIModule.isUseable()));
 }
 
 /*!
 * \brief Check if it's safe to unload DLL
 */
 mIRC(IsUnloadSafe) {
-	ret((Dcx::isUnloadSafe() ? TEXT("$true") : TEXT("$false")));
+	//ret((Dcx::isUnloadSafe() ? TEXT("$true") : TEXT("$false")));
+	ret(dcx_truefalse(Dcx::isUnloadSafe()));
 }
 
 /*!
 * \brief Check if windows is themed
 */
 mIRC(IsThemedXP) {
-	ret((Dcx::UXModule.dcxIsThemeActive() ? TEXT("$true") : TEXT("$false")));
+	//ret((Dcx::UXModule.dcxIsThemeActive() ? TEXT("$true") : TEXT("$false")));
+	ret(dcx_truefalse(Dcx::UXModule.dcxIsThemeActive() != FALSE));
 }
 
 /*!
@@ -554,7 +583,7 @@ mIRC(GetSystemColor) {
 		if (d.numtok() < 1)
 			throw Dcx::dcxException("Invalid Arguments");
 
-		int col;
+		int col = 0;
 		const auto coltype(d.gettok(1));
 
 		if (coltype == TEXT("COLOR_3DDKSHADOW")) { col = COLOR_3DDKSHADOW; }
@@ -653,7 +682,7 @@ mIRC(xdid) {
 
 		// Multiple IDs id,id,id,id-id,id-id
 		if (n > 1) {
-			for (auto itStart = IDs.begin(TSCOMMA), itEnd = IDs.end(); itStart != itEnd; ++itStart)
+			for (auto itStart = IDs.begin(TSCOMMACHAR), itEnd = IDs.end(); itStart != itEnd; ++itStart)
 			{
 				UINT id_start = 0, id_end = 0;
 				const TString tsID(*itStart);
@@ -711,7 +740,7 @@ mIRC(xdid) {
 				p_Control->parseCommandRequest(d);
 			}
 		}
-		return 3;
+		return 1;
 	}
 	catch (std::exception &e)
 	{
@@ -721,6 +750,11 @@ mIRC(xdid) {
 		// stop any left over exceptions...
 		Dcx::errorex(TEXT("/xdid"), TEXT("\"%s\" error: Unknown Exception"), d.to_chr());
 	}
+	mIRCLinker::echo(TEXT("/xdid -[switch] [dialog] [ID] [options]"));
+	mIRCLinker::echo(TEXT("[switch] = depends on control type"));
+	mIRCLinker::echo(TEXT("[dialog] = the dialog containing the control"));
+	mIRCLinker::echo(TEXT("[ID] = the ID of the control"));
+	mIRCLinker::echo(TEXT("[options] = depends on the control type & switch used"));
 	return 0;
 }
 
@@ -769,6 +803,11 @@ mIRC(_xdid) {
 		// stop any left over exceptions...
 		Dcx::errorex(TEXT("$!xdid"), TEXT("\"%s\" error: Unknown Exception"), d.to_chr());
 	}
+	mIRCLinker::echo(TEXT("$!xdid([dialog],[ID](,options)).prop"));
+	mIRCLinker::echo(TEXT("[dialog] = the dialog containing the control"));
+	mIRCLinker::echo(TEXT("[ID] = the ID of the control to affect"));
+	mIRCLinker::echo(TEXT("(options) = depends on the prop used"));
+	mIRCLinker::echo(TEXT("[prop] = depends on the control type"));
 	return 0;
 }
 
@@ -779,11 +818,14 @@ mIRC(_xdid) {
 *
 */
 mIRC(GetTaskbarPos) {
+
+	data[0] = 0;
+
 	try {
 		auto hTaskbar = FindWindow(TEXT("Shell_TrayWnd"), nullptr);
 
 		if (!IsWindow(hTaskbar))
-			throw Dcx::dcxException("could not find taskbar");
+			throw Dcx::dcxException("Could not find taskbar");
 		
 		RECT rc;
 
@@ -801,6 +843,8 @@ mIRC(GetTaskbarPos) {
 		// stop any left over exceptions...
 		Dcx::error(TEXT("$!dcx(GetTaskbarPos)"), TEXT("error: Unknown Exception"));
 	}
+	mIRCLinker::echo(TEXT("$!dcx(GetTaskBarPos)"));
+	mIRCLinker::echo(TEXT("no args - returns the x y w h of the TaskBar"));
 	return 0;
 }
 
@@ -840,6 +884,10 @@ mIRC(xdialog) {
 		// stop any left over exceptions...
 		Dcx::errorex(TEXT("/xdialog"), TEXT("\"%s\" error: Unknown Exception"), d.to_chr());
 	}
+	mIRCLinker::echo(TEXT("/xdialog -[switch] [dialog] [options]"));
+	mIRCLinker::echo(TEXT("[switch] = a,b,c,d,E,f,g,h,j,l,m,n,P,q,r,R,s,S,t,T,U,V,w,x,z"));
+	mIRCLinker::echo(TEXT("[dialog] = the dialog to affect"));
+	mIRCLinker::echo(TEXT("[options] = depends on the switch used"));
 	return 0;
 }
 
@@ -884,6 +932,10 @@ mIRC(_xdialog) {
 		// stop any left over exceptions...
 		Dcx::errorex(TEXT("$!xdialog"), TEXT("\"%s\" error: Unknown Exception"), d.to_chr());
 	}
+	mIRCLinker::echo(TEXT("$!xdialog([dialog],[options]).prop"));
+	mIRCLinker::echo(TEXT("[dialog] = the dialog to affect"));
+	mIRCLinker::echo(TEXT("[options] = depends on the prop used"));
+	mIRCLinker::echo(TEXT("[prop] = isid,nextid,id,ismenu,ismarked,parent,mouseid,focusid,mouse,key,alias,zlayer,zlayercurrent,visible,glasscolor"));
 	return 0;
 }
 
@@ -928,6 +980,11 @@ mIRC(xpop) {
 		// stop any left over exceptions...
 		Dcx::errorex(TEXT("/xpop"), TEXT("\"%s\" error: Unknown Exception"), d.to_chr());
 	}
+	mIRCLinker::echo(TEXT("/xpop -[switch] [menu] [path] [tab] [option]"));
+	mIRCLinker::echo(TEXT("[switch] = a,c,d,f,i,s,t"));
+	mIRCLinker::echo(TEXT("[menu] = name of the menu to affect"));
+	mIRCLinker::echo(TEXT("[path] = path to item"));
+	mIRCLinker::echo(TEXT("[option] = depends on switch used"));
 	return 0;
 }
 
@@ -970,6 +1027,11 @@ mIRC(_xpop) {
 		// stop any left over exceptions...
 		Dcx::errorex(TEXT("$!xpop"), TEXT("\"%s\" error: Unknown Exception"), d.to_chr());
 	}
+	mIRCLinker::echo(TEXT("$!xpop([menu],[path],[options]).prop"));
+	mIRCLinker::echo(TEXT("[menu] = name of the menu to get information on"));
+	mIRCLinker::echo(TEXT("[path] = path to menu item"));
+	mIRCLinker::echo(TEXT("[options] = depends on prop used"));
+	mIRCLinker::echo(TEXT("[prop] = num,text,icon,checked,enabled,submenu"));
 	return 0;
 }
 
@@ -1002,6 +1064,10 @@ mIRC(xpopup) {
 		// stop any left over exceptions...
 		Dcx::errorex(TEXT("/xpopup"), TEXT("\"%s\" error: Unknown Exception"), d.to_chr());
 	}
+	mIRCLinker::echo(TEXT("/xpopup -[switch] [menu] (options)"));
+	mIRCLinker::echo(TEXT("[switch] = b,c,d,i,j,l,m,M,p,s,t,x, or R"));
+	mIRCLinker::echo(TEXT("[menu] = name of the menu to affect"));
+	mIRCLinker::echo(TEXT("(options) = depends on switch used"));
 	return 0;
 }
 
@@ -1034,6 +1100,10 @@ mIRC(_xpopup) {
 		// stop any left over exceptions...
 		Dcx::errorex(TEXT("$!xpopup"), TEXT("\"%s\" error: Unknown Exception"), d.to_chr());
 	}
+	mIRCLinker::echo(TEXT("$!xpopup([menu],[options]).prop"));
+	mIRCLinker::echo(TEXT("[menu] = name of the menu to get information on"));
+	mIRCLinker::echo(TEXT("[options] = depends on prop used"));
+	mIRCLinker::echo(TEXT("[prop] = ismenu,menuname,menubar,style,exstyle,colors,color,isrounded,alpha,marked"));
 	return 0;
 }
 
@@ -1088,6 +1158,8 @@ mIRC(_xmenubar) {
 		Dcx::errorex(TEXT("$!xmenubar"), TEXT("\"%s\" error: Unknown Exception"), d.to_chr());
 	}
 	mIRCLinker::echo(TEXT("$!xmenubar([options]).prop"));
+	mIRCLinker::echo(TEXT("[prop] == menu"));
+	mIRCLinker::echo(TEXT("[options] == 0 or a number to get the Nth menu name"));
 	return 0;
 }
 
@@ -1219,7 +1291,7 @@ mIRC(WindowProps) {
 
 			if (xflags[TEXT('i')]) {
 				if (input.numtok(TSTABCHAR) > 1)
-					txt = input.gettok(2, -1, TSTAB);
+					txt = input.gettok(2, -1, TSTABCHAR);
 			}
 			else if (numtok > 2)
 				txt = input.getlasttoks();	// tok 3, -1
@@ -1239,10 +1311,10 @@ mIRC(WindowProps) {
 		// +v [top] [left] [bottom] [right]
 		else if (xflags[TEXT('v')]) {
 			MARGINS margin;
-			margin.cyTopHeight = (INT)input.getnexttok().to_num();		// tok 3
-			margin.cxLeftWidth = (INT)input.getnexttok().to_num();		// tok 4
-			margin.cyBottomHeight = (INT)input.getnexttok().to_num();	// tok 5
-			margin.cxRightWidth = (INT)input.getnexttok().to_num();	// tok 6
+			margin.cyTopHeight = input.getnexttok().to_<int>();		// tok 3
+			margin.cxLeftWidth = input.getnexttok().to_<int>();		// tok 4
+			margin.cyBottomHeight = input.getnexttok().to_<int>();	// tok 5
+			margin.cxRightWidth = input.getnexttok().to_<int>();	// tok 6
 			AddStyles(hwnd, GWL_EXSTYLE, WS_EX_LAYERED);
 			//RGBQUAD clr = {0};
 			//BOOL bOpaque = FALSE;
@@ -1373,7 +1445,7 @@ mIRC(GhostDrag) {
 }
 
 /*!
-* \brief XPopup DLL /dcx SetSystemCursors Function
+* \brief DCX DLL /dcx SetSystemCursors Function
 *
 * mIRC /dcx SetSystemCursors [cursor id] (filename)
 *
@@ -1422,7 +1494,7 @@ mIRC(SetSystemCursors) {
 }
 
 /*!
-* \brief XPopup DLL /dcx SetmIRCCursors Function
+* \brief DCX DLL /dcx SetmIRCCursors Function
 *
 * mIRC /dcx SetmIRCCursors [area id] (filename)
 *
@@ -1443,7 +1515,7 @@ mIRC(SetmIRCCursors)
 
 		const auto tsCursor(d.getfirsttok(1));
 		auto tsFilename(d.getlasttoks());
-		for (auto itStart = tsCursor.begin(TSCOMMA), itEnd = tsCursor.end(); itStart != itEnd; ++itStart)
+		for (auto itStart = tsCursor.begin(TSCOMMACHAR), itEnd = tsCursor.end(); itStart != itEnd; ++itStart)
 		{
 			const TString tsArea(*itStart);
 			const auto AreaId = Dcx::parseAreaType(tsArea);
@@ -1512,16 +1584,100 @@ mIRC(SetmIRCCursors)
 		// stop any left over exceptions...
 		Dcx::errorex(TEXT("/dcx SetmIRCCursors"), TEXT("\"%s\" error: Unknown Exception"), d.to_chr());
 	}
-	//mIRCLinker::echo(TEXT("/dcx SetmIRCCursors [area(,area2,...)] (filename)"));
-	//mIRCLinker::echo(TEXT("[area] = client,nowhere,caption,sysmenu,size,menu,vscroll,help,hscroll,min,max,left,right,top,topleft,topright,bottom,bottomleft,bottomright,border,close"));
-	//mIRCLinker::echo(TEXT("(filename) = optional, if empty custom cursor is removed, otherwise the path to a .cur or .ani file."));
-
-	//mIRCLinker::echo(TEXT("/dcx SetmIRCCursors [type(,type2,...)] (filename)"));
-	//mIRCLinker::echo(TEXT("[type] = appstarting,arrow,cross,hand,help,ibeam,no,sizeall,sizenesw,sizens,sizenwse,sizewe,uparrow,wait"));
-	//mIRCLinker::echo(TEXT("(filename) = optional, if empty custom cursor is removed, otherwise the path to a .cur or .ani file."));
 
 	mIRCLinker::echo(TEXT("/dcx SetmIRCCursors [type(,type2,...)] (filename)"));
 	mIRCLinker::echo(TEXT("[type] = appstarting,arrow,cross,hand,help,ibeam,no,sizeall,sizenesw,sizens,sizenwse,sizewe,uparrow,wait,client,caption,sysmenu,size,menu,vscroll,help,hscroll,min,max,left,right,top,topleft,topright,bottom,bottomleft,bottomright,border,close"));
 	mIRCLinker::echo(TEXT("(filename) = optional, if empty custom cursor is removed, otherwise the path to a .cur or .ani file."));
+	return 0;
+}
+
+/*!
+* \brief DCX DLL /dcx SetDCXSettings Function
+*
+* mIRC /dcx SetDCXSettings [option] [option args]
+*
+* Argument \b data contains -> ...
+*/
+
+mIRC(SetDCXSettings)
+{
+	TString d(data);
+
+	data[0] = 0;
+
+	try {
+		d.trim();
+
+		if (d.empty())
+			throw Dcx::dcxException("Invalid Arguments");
+
+		const auto tsOpt(d.getfirsttok(1));
+
+#if DCX_SWITCH_OBJ
+#if DCX_USE_HASHING
+		//auto tsTemp = ctcrc32(tsOpt.to_chr(), tsOpt.len());
+
+		switch (const_hash(tsOpt.to_chr()))
+		{
+		case "StaticColours"_hash:
+		{
+			Dcx::setting_bStaticColours = (d.getnexttok().to_int() > 0);
+			break;
+		}
+		case "UpdateColours"_hash:
+		{
+			auto btmp = Dcx::setting_bStaticColours;
+		
+			Dcx::setting_bStaticColours = false;
+			getmIRCPalette();
+		
+			Dcx::setting_bStaticColours = btmp;
+			break;
+		}
+		default:
+			throw Dcx::dcxException("Invalid Option");
+		}
+#else
+		Switch(tsOpt)
+			.Case(TEXT("StaticColours"), [d] { Dcx::setting_bStaticColours = (d.getnexttok().to_int() > 0); }).Break()
+			.Case(TEXT("UpdateColours"), [] {
+				auto btmp = Dcx::setting_bStaticColours;
+	
+				Dcx::setting_bStaticColours = false;
+				getmIRCPalette();
+				
+				Dcx::setting_bStaticColours = btmp;
+			}).Break()
+			.Default([] { throw Dcx::dcxException("Invalid Option"); });
+#endif
+#else
+		if (tsOpt == TEXT("StaticColours"))
+			Dcx::setting_bStaticColours = (d.getnexttok().to_int() > 0);
+		else if (tsOpt == TEXT("UpdateColours"))
+		{
+			auto btmp = Dcx::setting_bStaticColours;
+
+			Dcx::setting_bStaticColours = false;
+			getmIRCPalette();
+
+			Dcx::setting_bStaticColours = btmp;
+		}
+		else
+			throw Dcx::dcxException("Invalid Option");
+#endif
+		return 1;
+	}
+	catch (std::exception &e)
+	{
+		Dcx::errorex(TEXT("/dcx SetDCXSettings"), TEXT("\"%s\" error: %S"), d.to_chr(), e.what());
+	}
+	catch (...) {
+		// stop any left over exceptions...
+		Dcx::errorex(TEXT("/dcx SetDCXSettings"), TEXT("\"%s\" error: Unknown Exception"), d.to_chr());
+	}
+
+	mIRCLinker::echo(TEXT("/dcx SetDCXSettings [type(,type2,...)] (filename)"));
+	mIRCLinker::echo(TEXT("[option] = StaticColours,UpdateColours"));
+	mIRCLinker::echo(TEXT("(option args) = optional, args contents depends on the option used."));
 	return 0;
 }
