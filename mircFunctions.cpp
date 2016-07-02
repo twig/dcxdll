@@ -55,7 +55,7 @@ long SystemTimeToMircTime(const LPSYSTEMTIME pst) {
 		return 0;
 	}
 
-	TCHAR ret[100];
+	TCHAR sRet[100];
 
 	static const TCHAR *months[12] = {
 		TEXT("January"),
@@ -72,7 +72,7 @@ long SystemTimeToMircTime(const LPSYSTEMTIME pst) {
 		TEXT("December")
 	};
 
-	mIRCLinker::evalex(ret, 100, TEXT("$ctime(%d:%d:%d %d %s %d)"),
+	mIRCLinker::evalex(sRet, Dcx::countof(sRet), TEXT("$ctime(%d:%d:%d %d %s %d)"),
 		pst->wHour,
 		pst->wMinute,
 		pst->wSecond,
@@ -80,5 +80,5 @@ long SystemTimeToMircTime(const LPSYSTEMTIME pst) {
 		months[pst->wMonth -1],
 		pst->wYear);
 
-	return dcx_atoi(ret);
+	return dcx_atoi(sRet);
 }
