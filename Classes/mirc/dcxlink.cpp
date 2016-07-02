@@ -27,12 +27,17 @@
 
 DcxLink::DcxLink(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles)
 	: DcxControl(ID, p_Dialog)
+	, m_hIcon(nullptr)
+	, m_bHover(false)
+	, m_bTracking(FALSE)
+	, m_bVisited(false)
+	, m_aColors{ RGB(0, 0, 255),RGB(255, 0, 0),RGB(0, 0, 255),RGB(128, 128, 128) }
 {
 	LONG Styles = 0, ExStyles = 0;
 	BOOL bNoTheme = FALSE;
 	this->parseControlStyles(styles, &Styles, &ExStyles, &bNoTheme);
 
-	this->m_Hwnd = CreateWindowEx(
+	m_Hwnd = CreateWindowEx(
 		ExStyles,
 		TEXT("STATIC"),
 		nullptr,
@@ -43,20 +48,16 @@ DcxLink::DcxLink(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwn
 		GetModuleHandle(nullptr),
 		nullptr);
 
-	if (!IsWindow(this->m_Hwnd))
+	if (!IsWindow(m_Hwnd))
 		throw Dcx::dcxException("Unable To Create Window");
 
 	if (bNoTheme)
-		Dcx::UXModule.dcxSetWindowTheme(this->m_Hwnd, L" ", L" ");
+		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
 
-	this->m_hIcon = nullptr;
-	this->m_aColors[0] = RGB(0, 0, 255);
-	this->m_aColors[1] = RGB(255, 0, 0);
-	this->m_aColors[2] = RGB(0, 0, 255);
-	this->m_aColors[3] = RGB(128, 128, 128);
-	this->m_bHover = FALSE;
-	this->m_bTracking = FALSE;
-	this->m_bVisited = FALSE;
+	//this->m_aColors[0] = RGB(0, 0, 255);
+	//this->m_aColors[1] = RGB(255, 0, 0);
+	//this->m_aColors[2] = RGB(0, 0, 255);
+	//this->m_aColors[3] = RGB(128, 128, 128);
 
 	if (p_Dialog->getToolTip() != nullptr) {
 		if (styles.istok(TEXT("tooltips"))) {
@@ -64,13 +65,13 @@ DcxLink::DcxLink(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwn
 			if (!IsWindow(this->m_ToolTipHWND))
 				throw Dcx::dcxException("Unable to get ToolTips window");
 
-			AddToolTipToolInfo(this->m_ToolTipHWND, this->m_Hwnd);
+			AddToolTipToolInfo(this->m_ToolTipHWND, m_Hwnd);
 		}
 	}
 
 	this->setControlFont(GetStockFont(DEFAULT_GUI_FONT), FALSE);
 	this->registreDefaultWindowProc();
-	SetProp(this->m_Hwnd, TEXT("dcx_cthis"), (HANDLE) this);
+	SetProp(m_Hwnd, TEXT("dcx_cthis"), (HANDLE) this);
 }
 
 /*!
@@ -92,7 +93,7 @@ void DcxLink::toXml(TiXmlElement *const xml) const
 {
 	__super::toXml(xml);
 	TString buf;
-	TGetWindowText( this->m_Hwnd, buf );
+	TGetWindowText( m_Hwnd, buf );
 	xml->SetAttribute("caption", buf.c_str());
 }
 
@@ -123,7 +124,7 @@ void DcxLink::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) co
 	// [NAME] [ID] [PROP]
 	if (input.gettok(3) == TEXT("text")) {
 
-		GetWindowText(this->m_Hwnd, szReturnValue, MIRC_BUFFER_SIZE_CCH);
+		GetWindowText(m_Hwnd, szReturnValue, MIRC_BUFFER_SIZE_CCH);
 	}
 	else
 		this->parseGlobalInfoRequest(input, szReturnValue);
@@ -143,21 +144,21 @@ void DcxLink::parseCommandRequest( const TString & input ) {
 	// xdid -l [NAME] [ID] [SWITCH] [N] [COLOR]
 	if ( flags[TEXT('l')] && numtok > 4 ) {
 
-		const auto nColor = (input.getnexttok().to_int() - 1);	// tok 4
+		const auto nColor = (input.getnexttok().to_<size_t>() - 1);	// tok 4
 
-		if (nColor < 0 || nColor > 3)
+		if (nColor >= Dcx::countof(m_aColors))
 			throw Dcx::dcxException("Invalid Colour Index");
 
-		this->m_aColors[nColor] = input.getnexttok( ).to_int( );	// tok 5
+		m_aColors[nColor] = input.getnexttok( ).to_<COLORREF>( );	// tok 5
 	}
 	// xdid -q [NAME] [ID] [SWITCH] [COLOR1] ... [COLOR4]
 	else if ( flags[TEXT('q')] && numtok > 3 ) {
 		const auto tsArgs(input.getlasttoks());			// tok 4, -1
 
-		UINT i = 0;
+		UINT i = 0U;
 		for (const auto &arg: tsArgs)
 		{
-			this->m_aColors[i] = arg.to_<COLORREF>();	// tok i+1
+			m_aColors[i] = arg.to_<COLORREF>();	// tok i+1
 			++i;
 		}
 	}
@@ -165,7 +166,7 @@ void DcxLink::parseCommandRequest( const TString & input ) {
 	else if ( flags[TEXT('t')] ) {
 
 		const auto text(input.getlasttoks());	// tok 4, -1
-		SetWindowText( this->m_Hwnd, text.to_chr( ) );
+		SetWindowText( m_Hwnd, text.to_chr( ) );
 		this->redrawWindow( );
 	}
 	// xdid -w [NAME] [ID] [SWITCH] [+FLAGS] [INDEX] [FILENAME]
@@ -206,7 +207,7 @@ LRESULT DcxLink::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 
 				TRACKMOUSEEVENT tme;
 				tme.cbSize = sizeof(TRACKMOUSEEVENT);
-				tme.hwndTrack = this->m_Hwnd;
+				tme.hwndTrack = m_Hwnd;
 				tme.dwFlags = TME_LEAVE | TME_HOVER;
 				tme.dwHoverTime = HOVER_DEFAULT; //1;
 				this->m_bTracking = _TrackMouseEvent( &tme );		
@@ -218,7 +219,7 @@ LRESULT DcxLink::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 		{
 			if ( !this->m_bHover && this->m_bTracking ) {
 				this->m_bHover = true;
-				InvalidateRect( this->m_Hwnd, nullptr, FALSE );
+				InvalidateRect( m_Hwnd, nullptr, FALSE );
 			}
 		}
 		break;
@@ -228,7 +229,7 @@ LRESULT DcxLink::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 			if ( this->m_bTracking ) {
 				this->m_bHover = false;
 				this->m_bTracking = FALSE;
-				InvalidateRect( this->m_Hwnd, nullptr, FALSE );
+				InvalidateRect( m_Hwnd, nullptr, FALSE );
 			}
 		}
 		break;
@@ -237,7 +238,7 @@ LRESULT DcxLink::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 		{
 			if ( !this->m_bVisited ) {
 				this->m_bVisited = true;
-				InvalidateRect( this->m_Hwnd, nullptr, FALSE );
+				InvalidateRect( m_Hwnd, nullptr, FALSE );
 			}
 			if (dcx_testflag(this->m_pParentDialog->getEventMask(), DCX_EVENT_CLICK))
 				this->execAliasEx(TEXT("%s,%d"), TEXT("lbdown"), this->getUserID( ) );
@@ -246,7 +247,7 @@ LRESULT DcxLink::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 
 	case WM_ENABLE:
 		{
-			InvalidateRect( this->m_Hwnd, nullptr, FALSE );
+			InvalidateRect( m_Hwnd, nullptr, FALSE );
 		}
 		break;
 
@@ -258,7 +259,7 @@ LRESULT DcxLink::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 				bParsed = TRUE;
 				return TRUE;
 			}
-			else if ( LOWORD( lParam ) == HTCLIENT && (HWND) wParam == this->m_Hwnd ) {
+			else if ( LOWORD( lParam ) == HTCLIENT && (HWND) wParam == m_Hwnd ) {
 				auto hCursor = LoadCursor(nullptr, IDC_HAND);
 				if (GetCursor() != hCursor)
 					SetCursor( hCursor );
@@ -288,11 +289,11 @@ LRESULT DcxLink::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 			bParsed = TRUE;
 			PAINTSTRUCT ps;
 
-			auto hdc = BeginPaint( this->m_Hwnd, &ps );
+			auto hdc = BeginPaint( m_Hwnd, &ps );
 
 			this->DrawClientArea(hdc);
 
-			EndPaint( this->m_Hwnd, &ps );
+			EndPaint( m_Hwnd, &ps );
 		}
 		break;
 
@@ -429,12 +430,12 @@ LRESULT DcxLink::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 void DcxLink::DrawClientArea(HDC hdc)
 {
 	RECT rect;
-	if (!GetClientRect(this->m_Hwnd, &rect))
+	if (!GetClientRect(m_Hwnd, &rect))
 		return;
 
 	// Setup alpha blend if any.
-	auto ai = this->SetupAlphaBlend(&hdc, true);
-	Auto(this->FinishAlphaBlend(ai));
+	auto ai = SetupAlphaBlend(&hdc, true);
+	Auto(FinishAlphaBlend(ai));
 
 	// fill background.
 	DcxControl::DrawCtrlBackground(hdc, this, &rect);
@@ -469,7 +470,7 @@ void DcxLink::DrawClientArea(HDC hdc)
 				OffsetRect(&rect, 20, 0);
 			}
 
-			if (IsWindowEnabled(this->m_Hwnd) == FALSE)
+			if (IsWindowEnabled(m_Hwnd) == FALSE)
 				this->m_clrText = this->m_aColors[3];
 			else if (this->m_bHover)
 				this->m_clrText = this->m_aColors[1];
@@ -480,13 +481,13 @@ void DcxLink::DrawClientArea(HDC hdc)
 
 			TString wtext;
 
-			TGetWindowText(this->m_Hwnd, wtext);
+			TGetWindowText(m_Hwnd, wtext);
 			this->ctrlDrawText(hdc, wtext, &rect, DT_LEFT | DT_NOPREFIX | DT_SINGLELINE | DT_VCENTER);
 		}
 	}
 
 	//RECT rect;
-	//if (!GetClientRect(this->m_Hwnd, &rect))
+	//if (!GetClientRect(m_Hwnd, &rect))
 	//	return;
 	//
 	//// Setup alpha blend if any.
@@ -521,7 +522,7 @@ void DcxLink::DrawClientArea(HDC hdc)
 	//			OffsetRect(&rect, 20, 0);
 	//		}
 	//
-	//		if (IsWindowEnabled(this->m_Hwnd) == FALSE)
+	//		if (IsWindowEnabled(m_Hwnd) == FALSE)
 	//			this->m_clrText = this->m_aColors[3];
 	//		else if (this->m_bHover)
 	//			this->m_clrText = this->m_aColors[1];
@@ -532,7 +533,7 @@ void DcxLink::DrawClientArea(HDC hdc)
 	//
 	//		TString wtext;
 	//
-	//		TGetWindowText(this->m_Hwnd, wtext);
+	//		TGetWindowText(m_Hwnd, wtext);
 	//		this->ctrlDrawText(hdc, wtext, &rect, DT_LEFT | DT_NOPREFIX | DT_SINGLELINE | DT_VCENTER);
 	//
 	//		SetBkMode(hdc, oldMode);

@@ -34,7 +34,7 @@ DcxEdit::DcxEdit(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwn
 	BOOL bNoTheme = FALSE;
 	this->parseControlStyles(styles, &Styles, &ExStyles, &bNoTheme);
 
-	this->m_Hwnd = CreateWindowExW(
+	m_Hwnd = CreateWindowExW(
 		ExStyles | WS_EX_CLIENTEDGE,
 		L"EDIT",
 		nullptr,
@@ -45,28 +45,28 @@ DcxEdit::DcxEdit(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwn
 		GetModuleHandle(nullptr),
 		nullptr);
 
-	if (!IsWindow(this->m_Hwnd))
+	if (!IsWindow(m_Hwnd))
 		throw Dcx::dcxException("Unable To Create Window");
 
 	if (bNoTheme)
-		Dcx::UXModule.dcxSetWindowTheme(this->m_Hwnd, L" ", L" ");
+		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
 
-	Edit_LimitText(this->m_Hwnd, 0);
+	Edit_LimitText(m_Hwnd, 0);
 
-	//SendMessage(this->m_Hwnd, CCM_SETUNICODEFORMAT, TRUE, NULL);
+	//SendMessage(m_Hwnd, CCM_SETUNICODEFORMAT, TRUE, NULL);
 
 	if (p_Dialog->getToolTip() != nullptr) {
 		if (styles.istok(TEXT("tooltips"))) {
 			this->m_ToolTipHWND = p_Dialog->getToolTip();
-			AddToolTipToolInfo(this->m_ToolTipHWND, this->m_Hwnd);
+			AddToolTipToolInfo(this->m_ToolTipHWND, m_Hwnd);
 		}
 	}
 
 	this->m_bIgnoreRepeat = true;
 	this->setControlFont(GetStockFont(DEFAULT_GUI_FONT), FALSE);
 	this->registreDefaultWindowProc();
-	SetProp(this->m_Hwnd, TEXT("dcx_cthis"), reinterpret_cast<HANDLE>(this));
-	DragAcceptFiles(this->m_Hwnd, TRUE);
+	SetProp(m_Hwnd, TEXT("dcx_cthis"), reinterpret_cast<HANDLE>(this));
+	DragAcceptFiles(m_Hwnd, TRUE);
 }
 
 /*!
@@ -81,7 +81,7 @@ DcxEdit::~DcxEdit() {
 
 const TString DcxEdit::getStyles(void) const {
 	auto styles(__super::getStyles());
-	const auto Styles = GetWindowStyle(this->m_Hwnd);
+	const auto Styles = GetWindowStyle(m_Hwnd);
 
 	if (dcx_testflag(Styles, ES_MULTILINE))
 		styles.addtok(TEXT("multi"));
@@ -212,13 +212,13 @@ void DcxEdit::parseInfoRequest( const TString &input, PTCHAR szReturnValue) cons
 		DWORD dwAbsoluteStartSelPos = 0;
 
 		// caret startsel position
-		SendMessage(this->m_Hwnd, EM_GETSEL, (WPARAM) &dwAbsoluteStartSelPos, NULL);
+		SendMessage(m_Hwnd, EM_GETSEL, (WPARAM) &dwAbsoluteStartSelPos, NULL);
 
 		if (this->isStyle(ES_MULTILINE)) {
 			// current line
-			const auto iLinePos = SendMessage(this->m_Hwnd, EM_LINEFROMCHAR, (WPARAM)-1, NULL);
+			const auto iLinePos = SendMessage(m_Hwnd, EM_LINEFROMCHAR, (WPARAM)-1, NULL);
 			// line offset
-			const auto iAbsoluteCharPos = (int)SendMessage(this->m_Hwnd, EM_LINEINDEX, (WPARAM)-1, NULL);
+			const auto iAbsoluteCharPos = (int)SendMessage(m_Hwnd, EM_LINEINDEX, (WPARAM)-1, NULL);
 
 			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d %u"), iLinePos +1, dwAbsoluteStartSelPos - iAbsoluteCharPos);
 		}
@@ -230,27 +230,27 @@ void DcxEdit::parseInfoRequest( const TString &input, PTCHAR szReturnValue) cons
 	else if (prop == TEXT("selstart")) {
 		DWORD dwSelStart = 0; // selection range starting position
 
-		SendMessage(this->m_Hwnd, EM_GETSEL, (WPARAM) &dwSelStart, NULL);
+		SendMessage(m_Hwnd, EM_GETSEL, (WPARAM) &dwSelStart, NULL);
 		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), dwSelStart);
 	}
 	else if (prop == TEXT("selend")) {
 		DWORD dwSelEnd = 0;   // selection range ending position
 
-		SendMessage(this->m_Hwnd, EM_GETSEL, NULL, (LPARAM) &dwSelEnd);
+		SendMessage(m_Hwnd, EM_GETSEL, NULL, (LPARAM) &dwSelEnd);
 		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), dwSelEnd);
 	}
 	else if (prop == TEXT("sel")) {
 		DWORD dwSelStart = 0; // selection range starting position
 		DWORD dwSelEnd = 0;   // selection range ending position
 
-		SendMessage(this->m_Hwnd, EM_GETSEL, (WPARAM) &dwSelStart, (LPARAM) &dwSelEnd);
+		SendMessage(m_Hwnd, EM_GETSEL, (WPARAM) &dwSelStart, (LPARAM) &dwSelEnd);
 		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u %u"), dwSelStart, dwSelEnd);
 	}
 	else if (prop == TEXT("seltext")) {
 		DWORD dwSelStart = 0; // selection range starting position
 		DWORD dwSelEnd = 0;   // selection range ending position
 
-		SendMessage(this->m_Hwnd, EM_GETSEL, (WPARAM) &dwSelStart, (LPARAM) &dwSelEnd);
+		SendMessage(m_Hwnd, EM_GETSEL, (WPARAM) &dwSelStart, (LPARAM) &dwSelEnd);
 		dcx_strcpyn(szReturnValue, this->m_tsText.mid(dwSelStart, dwSelEnd - dwSelStart).to_chr(), MIRC_BUFFER_SIZE_CCH);
 	}
 	else if (prop == TEXT("cue")) {
@@ -273,24 +273,24 @@ void DcxEdit::parseCommandRequest( const TString &input) {
 	// xdid -r [NAME] [ID] [SWITCH]
 	if (flags[TEXT('r')]) {
 		this->m_tsText.clear();	// = TEXT("");
-		SetWindowTextW(this->m_Hwnd, L"");
+		SetWindowTextW(m_Hwnd, L"");
 	}
 
 	// xdid -a [NAME] [ID] [SWITCH] [TEXT]
 	if (flags[TEXT('a')] && numtok > 3) {
 		this->m_tsText += input.getlasttoks();	// tok 4, -1
-		SetWindowTextW(this->m_Hwnd, this->m_tsText.to_wchr());
+		SetWindowTextW(m_Hwnd, this->m_tsText.to_wchr());
 	}
 	// xdid -c [NAME] [ID] [SWITCH]
 	else if (flags[TEXT('c')] && numtok > 2) {
-		CopyToClipboard(this->m_Hwnd, this->m_tsText);
+		CopyToClipboard(m_Hwnd, this->m_tsText);
 	}
 	// xdid -d [NAME] [ID] [SWITCH] [N]
 	else if (flags[TEXT('d')] && numtok > 3) {
 		if (this->isStyle(ES_MULTILINE)) {
 			const auto nLine = input.getnexttok().to_<UINT>();	// tok 4
 			this->m_tsText.deltok(nLine, TEXT("\r\n"));
-			SetWindowTextW(this->m_Hwnd, this->m_tsText.to_wchr());
+			SetWindowTextW(m_Hwnd, this->m_tsText.to_wchr());
 		}
 	}
 	// xdid -i [NAME] [ID] [SWITCH] [N] [TEXT]
@@ -301,13 +301,13 @@ void DcxEdit::parseCommandRequest( const TString &input) {
 		}
 		else
 			this->m_tsText = input.getlasttoks();	// tok 5, -1
-		SetWindowTextW(this->m_Hwnd, this->m_tsText.to_wchr());
+		SetWindowTextW(m_Hwnd, this->m_tsText.to_wchr());
 	}
 	// xdid -j [NAME] [ID] [SWITCH] [0|1]
 	else if (flags[TEXT('j')] && numtok > 3) {
 		const auto i = input.getnexttok().to_<UINT>();	// tok 4
 
-		auto c = Edit_GetPasswordChar(this->m_Hwnd);
+		auto c = Edit_GetPasswordChar(m_Hwnd);
 		if (c == 0)
 			c = this->m_PassChar;
 		// XP actually uses the unicode `Black Circle` char U+25CF (9679)
@@ -329,11 +329,11 @@ void DcxEdit::parseCommandRequest( const TString &input) {
 		if (i) {
 			this->addStyle(ES_PASSWORD);
 
-			Edit_SetPasswordChar(this->m_Hwnd, c);
+			Edit_SetPasswordChar(m_Hwnd, c);
 		}
 		else {
 			this->removeStyle(ES_PASSWORD);
-			Edit_SetPasswordChar(this->m_Hwnd, 0);
+			Edit_SetPasswordChar(m_Hwnd, 0);
 			this->m_PassChar = c;	// save pass char used for later
 		}
 
@@ -343,7 +343,7 @@ void DcxEdit::parseCommandRequest( const TString &input) {
 	else if (flags[TEXT('l')] && numtok > 3) {
 		const BOOL enabled = (input.getnexttok().to_int() > 0);	// tok 4
 
-		SendMessage(this->m_Hwnd, EM_SETREADONLY, enabled, NULL);
+		SendMessage(m_Hwnd, EM_SETREADONLY, enabled, NULL);
 	}
 	// xdid -o [NAME] [ID] [SWITCH] [N] [TEXT]
 	else if (flags[TEXT('o')] && numtok > 3) {
@@ -353,7 +353,7 @@ void DcxEdit::parseCommandRequest( const TString &input) {
 		}
 		else
 			this->m_tsText = input.getlasttoks();	// tok 4, -1
-		SetWindowTextW(this->m_Hwnd, this->m_tsText.to_wchr());
+		SetWindowTextW(m_Hwnd, this->m_tsText.to_wchr());
 	}
 	// xdid -P [NAME] [ID]
 	else if (flags[TEXT('P')] && numtok > 1) {
@@ -364,7 +364,7 @@ void DcxEdit::parseCommandRequest( const TString &input) {
 		const auto N = input.getnexttok().to_int();	// tok 4
 
 		if (N > -1)
-			Edit_LimitText(this->m_Hwnd, N);
+			Edit_LimitText(m_Hwnd, N);
 	}
 	// Used to prevent invalid flag message.
 	// xdid -r [NAME] [ID] [SWITCH]
@@ -377,8 +377,8 @@ void DcxEdit::parseCommandRequest( const TString &input) {
 		if (!IsFile(tsFile))
 			throw Dcx::dcxException(TEXT("Unable to open: %"), tsFile);
 		
-		this->m_tsText = readTextFile(tsFile);
-		SetWindowTextW(this->m_Hwnd, this->m_tsText.to_wchr());
+		m_tsText = readTextFile(tsFile);
+		SetWindowTextW(m_Hwnd, m_tsText.to_wchr());
 	}
 	// xdid -u [NAME] [ID] [SWITCH] [FILENAME]
 	else if (flags[TEXT('u')] && numtok > 3) {
@@ -389,25 +389,23 @@ void DcxEdit::parseCommandRequest( const TString &input) {
 	}
 	// xdid -V [NAME] [ID]
 	else if (flags[TEXT('V')]) {
-		SendMessage(this->m_Hwnd, EM_SCROLLCARET, NULL, NULL);
+		SendMessage(m_Hwnd, EM_SCROLLCARET, NULL, NULL);
 	}
 	// xdid -S [NAME] [ID] [SWITCH] [START] [END]
 	else if (flags[TEXT('S')] && numtok > 3) {
 		const auto istart = input.getnexttok().to_int();	// tok 4
-		int iend;
+		int iend = istart;
 		
 		if (numtok > 4)
 			iend = input.getnexttok( ).to_int();	// tok 5
-		else
-			iend = istart;
 
-		SendMessage(this->m_Hwnd, EM_SETSEL, istart, iend);
-		SendMessage(this->m_Hwnd, EM_SCROLLCARET, NULL, NULL);
+		SendMessage(m_Hwnd, EM_SETSEL, istart, iend);
+		SendMessage(m_Hwnd, EM_SCROLLCARET, NULL, NULL);
 	}
 	// xdid -E [NAME] [ID] [SWITCH] [CUE TEXT]
 	else if (flags[TEXT('E')] && numtok > 3) {
 		this->m_tsCue = input.getlasttoks();	// tok 4, -1
-		Edit_SetCueBannerText(this->m_Hwnd,this->m_tsCue.to_wchr());
+		Edit_SetCueBannerText(m_Hwnd,this->m_tsCue.to_wchr());
 	}
 	// xdid -y [NAME] [ID] [SWITCH] [0|1]
 	else if (flags[TEXT('y')] && numtok > 3) {
@@ -431,7 +429,7 @@ LRESULT DcxEdit::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bP
 			switch ( HIWORD( wParam ) ) {
 				case EN_CHANGE:
 				{
-					TGetWindowText(this->m_Hwnd, this->m_tsText);
+					TGetWindowText(m_Hwnd, this->m_tsText);
 					if (dcx_testflag(this->m_pParentDialog->getEventMask(), DCX_EVENT_EDIT))
 						this->execAliasEx(TEXT("%s,%u"), TEXT("edit"), this->getUserID());
 				}
@@ -462,7 +460,7 @@ LRESULT DcxEdit::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bPar
 		case WM_KEYDOWN:
 			{
 				//if (wParam == VK_ESCAPE)
-				//	bParsed = TRUE; // prevents parent window closing.
+				//	bParsed = TRUE; // prevents m_pParent window closing.
 				if (dcx_testflag(this->m_pParentDialog->getEventMask(), DCX_EVENT_EDIT)) {
 					if (wParam == VK_RETURN)
 						this->execAliasEx(TEXT("%s,%u"), TEXT("return"), this->getUserID());
@@ -488,11 +486,20 @@ LRESULT DcxEdit::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bPar
 		case WM_COPY:
 			{
 				if (dcx_testflag(this->m_pParentDialog->getEventMask(), DCX_EVENT_EDIT)) {
-					TCHAR ret[256];
+					//TCHAR szRet[256];
+					//
+					//evalAliasEx(szRet, Dcx::countof(szRet), TEXT("copy,%u"), getUserID());
+					//
+					//if (lstrcmp(TEXT("nocopy"), szRet) == 0) {
+					//	bParsed = TRUE;
+					//	return 0L;
+					//}
 
-					this->evalAliasEx(ret, 255, TEXT("%s,%u"), TEXT("copy"), this->getUserID());
+					stString<256> szRet;
 
-					if (lstrcmp(TEXT("nocopy"), ret) == 0) {
+					evalAliasEx(szRet, Dcx::countof(szRet), TEXT("copy,%u"), getUserID());
+
+					if (szRet == TEXT("nocopy")) {
 						bParsed = TRUE;
 						return 0L;
 					}
@@ -502,11 +509,20 @@ LRESULT DcxEdit::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bPar
 		case WM_CUT:
 			{
 				if (dcx_testflag(this->m_pParentDialog->getEventMask(), DCX_EVENT_EDIT)) {
-					TCHAR ret[256];
+					//TCHAR szRet[256];
+					//
+					//evalAliasEx(szRet, Dcx::countof(szRet), TEXT("cut,%u"), getUserID());
+					//
+					//if (lstrcmp(TEXT("nocut"), szRet) == 0) {
+					//	bParsed = TRUE;
+					//	return 0L;
+					//}
 
-					this->evalAliasEx(ret, 255, TEXT("%s,%u"), TEXT("cut"), this->getUserID());
+					stString<256> szRet;
 
-					if (lstrcmp(TEXT("nocut"), ret) == 0) {
+					evalAliasEx(szRet, Dcx::countof(szRet), TEXT("cut,%u"), getUserID());
+
+					if (szRet == TEXT("nocut")) {
 						bParsed = TRUE;
 						return 0L;
 					}
@@ -516,11 +532,20 @@ LRESULT DcxEdit::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bPar
 		case WM_PASTE:
 			{
 				if (dcx_testflag(this->m_pParentDialog->getEventMask(), DCX_EVENT_EDIT)) {
-					TCHAR ret[256];
+					//TCHAR szRet[256];
+					//
+					//evalAliasEx(szRet, Dcx::countof(szRet), TEXT("paste,%u"), getUserID());
+					//
+					//if (lstrcmp(TEXT("nopaste"), szRet) == 0) {
+					//	bParsed = TRUE;
+					//	return 0L;
+					//}
 
-					this->evalAliasEx(ret, 255, TEXT("%s,%u"), TEXT("paste"), this->getUserID());
+					stString<256> szRet;
 
-					if (lstrcmp(TEXT("nopaste"), ret) == 0) {
+					evalAliasEx(szRet, Dcx::countof(szRet), TEXT("paste,%u"), getUserID());
+
+					if (szRet == TEXT("nopaste")) {
 						bParsed = TRUE;
 						return 0L;
 					}
@@ -530,7 +555,7 @@ LRESULT DcxEdit::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bPar
 		case WM_KEYUP:
 			{
 				if (dcx_testflag(this->m_pParentDialog->getEventMask(), DCX_EVENT_EDIT))
-					this->execAliasEx(TEXT("%s,%u,%u"), TEXT("keyup"), this->getUserID(), wParam);
+					execAliasEx(TEXT("keyup,%u,%u"), getUserID(), wParam);
 				break;
 			}
 		case WM_PAINT:
@@ -539,7 +564,7 @@ LRESULT DcxEdit::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bPar
 					break;
 				PAINTSTRUCT ps;
 
-				auto hdc = BeginPaint(this->m_Hwnd, &ps);
+				auto hdc = BeginPaint(m_Hwnd, &ps);
 
 				//LRESULT res = 0L;
 				bParsed = TRUE;
@@ -548,7 +573,7 @@ LRESULT DcxEdit::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bPar
 				auto ai = this->SetupAlphaBlend(&hdc);
 
 				//RECT rcTxt;
-				//GetClientRect(this->m_Hwnd, &rcTxt);
+				//GetClientRect(m_Hwnd, &rcTxt);
 				//
 				//// fill background.
 				//if (this->isExStyle(WS_EX_TRANSPARENT))
@@ -567,7 +592,7 @@ LRESULT DcxEdit::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bPar
 				//if (this->m_hFont != nullptr)
 				//	oldFont = SelectFont(hdc, this->m_hFont);
 				//// check if control is enabled.
-				//if (IsWindowEnabled(this->m_Hwnd)) {
+				//if (IsWindowEnabled(m_Hwnd)) {
 				//	if (this->m_clrText != CLR_INVALID)
 				//		oldClr = SetTextColor(hdc, this->m_clrText);
 				//	if (this->m_clrBackText != CLR_INVALID)
@@ -604,11 +629,11 @@ LRESULT DcxEdit::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bPar
 				//if (oldFont != nullptr)
 				//	SelectFont( hdc, oldFont );
 
-				auto res = CallWindowProc(this->m_DefaultWindowProc, this->m_Hwnd, uMsg, (WPARAM)hdc, lParam);
+				auto res = CallWindowProc(this->m_DefaultWindowProc, m_Hwnd, uMsg, (WPARAM)hdc, lParam);
 
 				this->FinishAlphaBlend(ai);
 
-				EndPaint( this->m_Hwnd, &ps );
+				EndPaint( m_Hwnd, &ps );
 				return res;
 			}
 			break;

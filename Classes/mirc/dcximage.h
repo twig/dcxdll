@@ -52,11 +52,11 @@ public:
 protected:
 
 #ifdef DCX_USE_GDIPLUS
-	Image * m_pImage; //!< GDI+ Image Object
-	CompositingMode m_CMode; // Compositing Mode
-	CompositingQuality m_CQuality; // Compositing Quality
-	InterpolationMode m_IMode; // Interpolation Mode
-	SmoothingMode m_SMode; // Smoothing Mode
+	Gdiplus::Image * m_pImage; //!< GDI+ Image Object
+	Gdiplus::CompositingMode m_CMode; // Compositing Mode
+	Gdiplus::CompositingQuality m_CQuality; // Compositing Quality
+	Gdiplus::InterpolationMode m_IMode; // Interpolation Mode
+	Gdiplus::SmoothingMode m_SMode; // Smoothing Mode
 
 	bool LoadGDIPlusImage(const TString &flags, TString &filename);
 	void DrawGDIImage(HDC hdc, int x, int y, int w, int h);
