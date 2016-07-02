@@ -17,6 +17,7 @@
 
 #include "defines.h"
 #include "Classes/dcxcontrol.h"
+#include "Classes\custom\ListHelper.h"
 
 class DcxDialog;
 
@@ -26,7 +27,10 @@ class DcxDialog;
  * blah
  */
 
-class DcxList : public DcxControl {
+class DcxList
+	: public DcxControl
+	, public DcxListHelper
+{
 
 public:
 	DcxList() = delete;
@@ -53,8 +57,12 @@ protected:
 
 	void DrawDragLine(const int location);
 	bool matchItemText(const int nItem, const TString &search, const DcxSearchTypes &SearchType) const;
-	static void getItemRange(const TString &tsItems, const int nItemCnt, int *iStart, int *iEnd);
+
+	//static void getItemRange(const TString &tsItems, const int nItemCnt, int *iStart, int *iEnd);
+	//static std::pair<int, int> getItemRange(const TString &tsItems, const int nItemCnt);
+
 	//void StrLenToExtent(int *nLineExtent);
+
 	void UpdateHorizExtent();
 	void UpdateHorizExtent(const int nPos);
 

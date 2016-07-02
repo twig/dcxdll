@@ -32,7 +32,7 @@ DcxRadio::DcxRadio(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentH
 	BOOL bNoTheme = FALSE;
 	this->parseControlStyles(styles, &Styles, &ExStyles, &bNoTheme);
 
-	this->m_Hwnd = CreateWindowEx(
+	m_Hwnd = CreateWindowEx(
 		ExStyles,
 		TEXT("BUTTON"),
 		nullptr,
@@ -43,13 +43,13 @@ DcxRadio::DcxRadio(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentH
 		GetModuleHandle(nullptr),
 		nullptr);
 
-	if (!IsWindow(this->m_Hwnd))
+	if (!IsWindow(m_Hwnd))
 		throw Dcx::dcxException("Unable To Create Window");
 
 	if (bNoTheme)
-		Dcx::UXModule.dcxSetWindowTheme(this->m_Hwnd, L" ", L" ");
+		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
 
-	this->m_bNoTheme = (bNoTheme ? true : false);
+	this->m_bNoTheme = (bNoTheme != FALSE);
 
 	if (p_Dialog->getToolTip() != nullptr) {
 		if (styles.istok(TEXT("tooltips"))) {
@@ -57,12 +57,12 @@ DcxRadio::DcxRadio(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentH
 			if (!IsWindow(this->m_ToolTipHWND))
 				throw Dcx::dcxException("Unable to get ToolTips window");
 
-			AddToolTipToolInfo(this->m_ToolTipHWND, this->m_Hwnd);
+			AddToolTipToolInfo(this->m_ToolTipHWND, m_Hwnd);
 		}
 	}
 	this->setControlFont(GetStockFont(DEFAULT_GUI_FONT), FALSE);
 	this->registreDefaultWindowProc();
-	SetProp(this->m_Hwnd, TEXT("dcx_cthis"), (HANDLE) this);
+	SetProp(m_Hwnd, TEXT("dcx_cthis"), (HANDLE) this);
 }
 
 /*!
@@ -79,7 +79,7 @@ DcxRadio::~DcxRadio( ) {
 const TString DcxRadio::getStyles(void) const
 {
 	auto styles(__super::getStyles());
-	const auto Styles = GetWindowStyle(this->m_Hwnd);
+	const auto Styles = GetWindowStyle(m_Hwnd);
 
 	if (dcx_testflag(Styles, BS_RIGHT))
 		styles.addtok(TEXT("rjustify"));
@@ -139,12 +139,12 @@ void DcxRadio::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) c
 	// [NAME] [ID] [PROP]
 	if ( prop == TEXT("text") ) {
 
-		GetWindowText( this->m_Hwnd, szReturnValue, MIRC_BUFFER_SIZE_CCH );
+		GetWindowText( m_Hwnd, szReturnValue, MIRC_BUFFER_SIZE_CCH );
 	}
 	// [NAME] [ID] [PROP]
 	else if (prop == TEXT("state")) {
 
-		dcx_ConChar(dcx_testflag(Button_GetCheck(this->m_Hwnd), BST_CHECKED), szReturnValue);
+		dcx_ConChar(dcx_testflag(Button_GetCheck(m_Hwnd), BST_CHECKED), szReturnValue);
 	}
 	else
 		this->parseGlobalInfoRequest(input, szReturnValue);
@@ -162,15 +162,15 @@ void DcxRadio::parseCommandRequest( const TString & input ) {
 
 	//xdid -c [NAME] [ID] [SWITCH]
 	if ( flags[TEXT('c')] ) {
-		Button_SetCheck( this->m_Hwnd, BST_CHECKED );
+		Button_SetCheck( m_Hwnd, BST_CHECKED );
 	}
 	//xdid -t [NAME] [ID] [SWITCH] [TEXT]
 	else if ( flags[TEXT('t')] && numtok > 3 ) {
-		SetWindowText(this->m_Hwnd, input.getlasttoks().trim().to_chr());	// tok 4, -1
+		SetWindowText(m_Hwnd, input.getlasttoks().trim().to_chr());	// tok 4, -1
 	}
 	//xdid -u [NAME] [ID] [SWITCH]
 	else if ( flags[TEXT('u')] ) {
-		Button_SetCheck( this->m_Hwnd, BST_UNCHECKED );
+		Button_SetCheck( m_Hwnd, BST_UNCHECKED );
 	}
 	else
 		this->parseGlobalCommandRequest( input, flags );
@@ -206,11 +206,11 @@ LRESULT DcxRadio::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 				bParsed = TRUE;
 				PAINTSTRUCT ps;
 
-				auto hdc = BeginPaint(this->m_Hwnd, &ps);
+				auto hdc = BeginPaint(m_Hwnd, &ps);
 
 				this->DrawClientArea( hdc, uMsg, lParam);
 
-				EndPaint( this->m_Hwnd, &ps );
+				EndPaint( m_Hwnd, &ps );
 			}
 			break;
 
@@ -232,13 +232,14 @@ LRESULT DcxRadio::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 void DcxRadio::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 {
 	// Setup alpha blend if any.
-	auto ai = this->SetupAlphaBlend(&hdc);
+	auto ai = SetupAlphaBlend(&hdc);
+	Auto(FinishAlphaBlend(ai));
 
 	if (this->m_bNoTheme || !Dcx::UXModule.dcxIsThemeActive()) {
 		RECT rcClient;
 
 		// get controls client area
-		if (GetClientRect(this->m_Hwnd, &rcClient))
+		if (GetClientRect(m_Hwnd, &rcClient))
 		{
 			if (this->m_clrBackText != CLR_INVALID)
 				SetBkColor(hdc, this->m_clrBackText);
@@ -260,16 +261,14 @@ void DcxRadio::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 				DcxControl::DrawCtrlBackground(hdc, this, &rcClient);
 
 			if (!bWasTransp)
-				AddStyles(this->m_Hwnd, GWL_EXSTYLE, WS_EX_TRANSPARENT);
+				AddStyles(m_Hwnd, GWL_EXSTYLE, WS_EX_TRANSPARENT);
 
-			CallWindowProc(this->m_DefaultWindowProc, this->m_Hwnd, uMsg, (WPARAM)hdc, lParam);
+			CallWindowProc(this->m_DefaultWindowProc, m_Hwnd, uMsg, (WPARAM)hdc, lParam);
 
 			if (!bWasTransp)
-				RemStyles(this->m_Hwnd, GWL_EXSTYLE, WS_EX_TRANSPARENT);
+				RemStyles(m_Hwnd, GWL_EXSTYLE, WS_EX_TRANSPARENT);
 		}
 	}
 	else
-		CallWindowProc( this->m_DefaultWindowProc, this->m_Hwnd, uMsg, (WPARAM) hdc, lParam );
-
-	this->FinishAlphaBlend(ai);
+		CallWindowProc( this->m_DefaultWindowProc, m_Hwnd, uMsg, (WPARAM) hdc, lParam );
 }
