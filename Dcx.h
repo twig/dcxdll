@@ -9,7 +9,7 @@
 #include "Classes/DcxDialog.h"
 #include "Classes\UltraDock\dcxDock.h"
 
-#include <sys/stat.h> 
+//#include <sys/stat.h> 
 #include <detours.h>
 
 // should DCX use the resource wrapper classes below? set to zero to disable
@@ -63,6 +63,8 @@ namespace Dcx
 	
 	extern bool m_bErrorTriggered;
 
+	extern bool setting_bStaticColours;
+
 	HCURSOR dcxLoadCursorFromFile(const TString &filename);
 	HCURSOR dcxLoadCursorFromResource(const PTCHAR CursorType);
 
@@ -101,9 +103,10 @@ namespace Dcx
 	using dcxCursor_t = std::unique_ptr<HICON__, void(*)(HICON__ *)>;
 	using dcxIcon_t = std::unique_ptr<HICON__, void(*)(HICON__ *)>;
 	using dcxFile_t = std::unique_ptr<FILE, void(*)(FILE *)>;
-	using dcxHandle_t = std::unique_ptr<ULONG, void(*)(ULONG_PTR)>; // <- error
+	using dcxHandle_t = std::unique_ptr<ULONG_PTR, void(*)(ULONG_PTR *)>;
 	using dcxHDC_t = std::unique_ptr<HDC__, void(*)(HDC)>;
 	using dcxBitmap_t = std::unique_ptr<HBITMAP__, void(*)(HBITMAP)>;
+	using dcxBSTR_t = std::unique_ptr<OLECHAR, void(*)(BSTR)>;
 
 	inline dcxCursor_t make_cursor(const TString &tsFilename) {
 		return make_resource(dcxLoadCursorFromFile, [](HCURSOR hCursor){ if (hCursor != nullptr) DestroyCursor(hCursor); }, tsFilename);
@@ -115,9 +118,16 @@ namespace Dcx
 	inline dcxHDC_t make_hdc(HDC hdc) { return make_resource(CreateCompatibleDC, [](HDC obj){ DeleteDC(obj); }, hdc); }
 	inline dcxBitmap_t make_bitmap(HDC hdc, int x, int y) { return make_resource(CreateCompatibleBitmap, [](HBITMAP obj){ DeleteBitmap(obj); }, hdc, x, y); }
 
-	//inline dcxHandle_t make_filehandle(const TCHAR *file, DWORD dAccess, DWORD dShareMode, LPSECURITY_ATTRIBUTES lpSecurity, DWORD dCreation, DWORD dflags, HANDLE templateFile) {
-	//	return make_resource(CreateFile, [](HANDLE file){ CloseHandle(file); }, file, dAccess, dShareMode, lpSecurity, dCreation, dflags, templateFile);
+	//inline ULONG_PTR *dcxCreateFile(const TCHAR *file, DWORD dAccess, DWORD dShareMode, LPSECURITY_ATTRIBUTES lpSecurity, DWORD dCreation, DWORD dflags, HANDLE templateFile) {
+	//	return (ULONG_PTR *)CreateFile(file, dAccess, dShareMode, lpSecurity, dCreation, dflags, templateFile);
 	//}
+	inline dcxHandle_t make_filehandle(const TCHAR *file, DWORD dAccess, DWORD dShareMode, LPSECURITY_ATTRIBUTES lpSecurity, DWORD dCreation, DWORD dflags, HANDLE templateFile) {
+		//return make_resource(dcxCreateFile, [](ULONG_PTR *file){ CloseHandle((HANDLE)file); }, file, dAccess, dShareMode, lpSecurity, dCreation, dflags, templateFile);
+		return make_resource(
+			[](const TCHAR *file, DWORD dAccess, DWORD dShareMode, LPSECURITY_ATTRIBUTES lpSecurity, DWORD dCreation, DWORD dflags, HANDLE templateFile) { return (ULONG_PTR *)CreateFile(file, dAccess, dShareMode, lpSecurity, dCreation, dflags, templateFile); },
+			[](ULONG_PTR *file) { CloseHandle((HANDLE)file); }, file, dAccess, dShareMode, lpSecurity, dCreation, dflags, templateFile);
+	}
+	inline dcxBSTR_t make_bstr(const WCHAR *const wstr) { return make_resource(SysAllocString, [](BSTR obj) { if (obj != nullptr) SysFreeString(obj); }, wstr); }
 
 	// NB: BaseType can be defined as some other pointer type
 	// so we static_cast it later on
@@ -131,28 +141,61 @@ namespace Dcx
 		using element_type = typename Unique::element_type;
 		using return_type = BaseType;
 
-		dcxResource(Unique u)
+		constexpr dcxResource(Unique u)
 			: m_uni(std::move(u))
 		{
 		}
-		operator BaseType() const noexcept { return static_cast<BaseType>(m_uni.get()); }
-		explicit operator bool() const noexcept { return (m_uni != nullptr); }
-		BaseType release() noexcept { return static_cast<BaseType>(m_uni.release()); }
+		constexpr operator BaseType() const noexcept { return get(); }
+		constexpr explicit operator bool() const noexcept { return (m_uni != nullptr); }
+		constexpr BaseType release() const noexcept { return static_cast<BaseType>(m_uni.release()); }
+		constexpr BaseType get() const noexcept { return static_cast<BaseType>(m_uni.get()); }
 	private:
 		Unique		m_uni;
 	};
 
 	struct dcxFileResource : dcxResource < dcxFile_t >
 	{
-		//dcxFileResource() = delete;									// no default!
-		//dcxFileResource(const dcxFileResource &) = delete;				// no copy!
-		//dcxFileResource &operator =(const dcxFileResource &) = delete;	// No assignments!
+		dcxFileResource() = delete;									// no default!
+		dcxFileResource(const dcxFileResource &) = delete;				// no copy!
+		dcxFileResource &operator =(const dcxFileResource &) = delete;	// No assignments!
 
 		// calls _wfopen()
 		dcxFileResource(const WCHAR *tsFilename, const WCHAR *tsMode)
 			: dcxResource(make_file(tsFilename, tsMode))
 		{
 		}
+	};
+
+	struct dcxFileHandleResource : dcxResource < dcxHandle_t >
+	{
+		dcxFileHandleResource() = delete;									// no default!
+		dcxFileHandleResource(const dcxFileHandleResource &) = delete;				// no copy!
+		dcxFileHandleResource &operator =(const dcxFileHandleResource &) = delete;	// No assignments!
+
+		// calls CreateFile()
+		dcxFileHandleResource(const TCHAR *file, DWORD dAccess, DWORD dShareMode, LPSECURITY_ATTRIBUTES lpSecurity, DWORD dCreation, DWORD dflags, HANDLE templateFile)
+			: dcxResource(make_filehandle(file, dAccess, dShareMode, lpSecurity, dCreation, dflags, templateFile))
+		{
+		}
+	};
+
+	struct dcxStringResource : dcxResource < std::unique_ptr<TCHAR[]> >
+	{
+		dcxStringResource() = delete;									// no default!
+		dcxStringResource(const dcxStringResource &) = delete;				// no copy!
+		dcxStringResource &operator =(const dcxStringResource &) = delete;	// No assignments!
+
+		// calls std::make_unique<TCHAR[]>(uSize)
+		dcxStringResource(const size_t &uSize)
+			: dcxResource(std::make_unique<TCHAR[]>(uSize))
+		{}
+	};
+
+	struct dcxBSTRResource : dcxResource < dcxBSTR_t >
+	{
+		dcxBSTRResource(const WCHAR *const wstr)
+			: dcxResource(make_bstr(wstr))
+		{}
 	};
 
 	struct dcxCursorResource : dcxResource < dcxCursor_t >
@@ -209,7 +252,7 @@ namespace Dcx
 		//{
 		//}
 		//// calls GetDCEx() - broken
-		//explicit dcxHDCResource(HWND hWnd)
+		//dcxHDCResource(HWND hWnd, HRGN hrgnClip, DWORD flags)
 		//	: dcxResource(make_resource(GetDCEx, [](HDC obj) { ReleaseDC(nullptr, obj); }, hWnd))
 		//{
 		//}
@@ -229,20 +272,10 @@ namespace Dcx
 		dcxHDCBitmapResource(HDC hdc, HBITMAP hBitmap)
 			: dcxHDCResource(hdc)
 			, m_hOldBitmap(nullptr)
-			//, m_hNewBitmap(nullptr)
 		{
 			if (hBitmap != nullptr)
 				m_hOldBitmap = SelectBitmap(*this, hBitmap);
 		}
-		////calls CreateCompatibleDC() then CreateCompatibleBitmap() then SelectBitmap()
-		//dcxHDCBitmapResource(HDC hdc, const int w, const int h)
-		//	: dcxHDCResource(hdc)
-		//	, m_hOldBitmap(nullptr)
-		//	, m_hNewBitmap(nullptr)
-		//{
-		//	if (hBitmap != nullptr)
-		//		m_hOldBitmap = SelectBitmap(hdc, hBitmap);
-		//}
 		~dcxHDCBitmapResource()
 		{
 			if (m_hOldBitmap != nullptr)
@@ -250,14 +283,13 @@ namespace Dcx
 		}
 	private:
 		HBITMAP	m_hOldBitmap;
-		//HBITMAP	m_hNewBitmap;
 	};
 
 	struct dcxBitmapResource : dcxResource < dcxBitmap_t >
 	{
 		// calls CreateCompatibleBitmap()
-		dcxBitmapResource(HDC hdc, int x, int y)
-			: dcxResource(make_bitmap(hdc, x, y))
+		dcxBitmapResource(HDC hdc, int w, int h)
+			: dcxResource(make_bitmap(hdc, w, h))
 		{
 		}
 		
@@ -272,6 +304,32 @@ namespace Dcx
 			: dcxResource(make_resource(CreateDIBSection, [](HBITMAP obj) { DeleteBitmap(obj); }, hdc, pbmi, usage, ppvBits, hSection, offset))
 		{
 		}
+	};
+
+	struct dcxHDCBitmap2Resource
+		: dcxHDCResource
+	{
+		//calls CreateCompatibleDC() then CreateCompatibleBitmap(), then SelectBitmap()
+		dcxHDCBitmap2Resource(HDC hdc, const int &w, const int &h)
+			: dcxHDCResource(hdc)
+			, m_hBitmap(hdc, w, h)
+			, m_Width(w)
+			, m_Height(h)
+		{
+			m_hOldBitmap = SelectBitmap(*this, m_hBitmap);
+		}
+		~dcxHDCBitmap2Resource()
+		{
+			if (m_hOldBitmap != nullptr)
+				SelectBitmap(*this, m_hOldBitmap);
+		}
+		const int &getWidth() const noexcept { return m_Width; }
+		const int &getHeight() const noexcept { return m_Height; }
+		const HBITMAP &getBitMap() const noexcept { return m_hBitmap.get(); }
+	private:
+		HBITMAP	m_hOldBitmap;
+		dcxBitmapResource m_hBitmap;
+		int m_Width, m_Height;
 	};
 
 	//struct dcxCursor
@@ -389,45 +447,92 @@ namespace Dcx
 	//	HICON m_hIcon;
 	//};
 
-	struct dcxHDCBuffer : dcxHDCResource {
+	//struct dcxHDCBuffer : dcxHDCResource {
+	//	dcxHDCBuffer() = delete;
+	//	dcxHDCBuffer(const dcxHDCBuffer &) = delete;
+	//	dcxHDCBuffer &operator = (const dcxHDCBuffer &) = delete;
+//
+	//	dcxHDCBuffer(const HDC hdc, RECT *rc)
+	//		: dcxHDCResource(hdc)
+	//		, m_hBitmap(nullptr)
+	//		, m_hOldBitmap(nullptr)
+	//		, m_hOldFont(nullptr)
+	//	{
+	//		// get size of bitmap to alloc.
+	//		int x = 0, y = 0, w = 0, h = 0;
+//
+	//		if (rc == nullptr) {
+	//			// no size specified, use hdc's bitmap size.
+	//			BITMAP bm = { 0 };
+	//			if (GetObject((HBITMAP)GetCurrentObject(hdc, OBJ_BITMAP), sizeof(BITMAP), &bm) == 0)
+	//				throw Dcx::dcxException("dcxHDCBuffer - Unable to get hdc's bitmap");
+	//			w = bm.bmWidth;
+	//			h = bm.bmHeight;
+	//		}
+	//		else {
+	//			// use size specified.
+	//			w = (rc->right - rc->left);
+	//			h = (rc->bottom - rc->top);
+	//			x = rc->left;
+	//			y = rc->top;
+	//		}
+//
+	//		// alloc bitmap for buffer.
+	//		m_hBitmap = CreateCompatibleBitmap(hdc, w, h);
+//
+	//		if (m_hBitmap == nullptr)
+	//			throw Dcx::dcxException("dcxHDCBuffer - Unable to create bitmap");
+	//		
+	//			// select bitmap into hdc
+	//		m_hOldBitmap = SelectBitmap(*this, m_hBitmap);
+//
+	//		// copy settings from hdc to buffer's hdc.
+	//		SetDCBrushColor(*this, GetDCBrushColor(hdc));
+	//		SetDCPenColor(*this, GetDCPenColor(hdc));
+	//		SetLayout(*this, GetLayout(hdc));
+	//		m_hOldFont = SelectFont(*this, GetCurrentObject(hdc, OBJ_FONT));
+	//		SetTextColor(*this, GetTextColor(hdc));
+	//		SetBkColor(*this, GetBkColor(hdc));
+	//		SetBkMode(*this, GetBkMode(hdc));
+	//		SetROP2(*this, GetROP2(hdc));
+	//		SetMapMode(*this, GetMapMode(hdc));
+	//		SetPolyFillMode(*this, GetPolyFillMode(hdc));
+	//		SetStretchBltMode(*this, GetStretchBltMode(hdc));
+	//		SetGraphicsMode(*this, GetGraphicsMode(hdc));
+//
+	//		// copy contents of hdc within area to buffer.
+	//		BitBlt(*this, 0, 0, w, h, hdc, x, y, SRCCOPY);
+//
+	//		// buffer is an exact duplicate of the hdc within the area specified.
+	//	}
+	//	~dcxHDCBuffer()
+	//	{
+	//		GdiFlush();
+	//		if (*this != nullptr)
+	//		{
+	//			if (m_hOldFont != nullptr)
+	//				SelectFont(*this, m_hOldFont);
+	//			if (m_hOldBitmap != nullptr)
+	//				SelectBitmap(*this, m_hOldBitmap);
+	//		}
+	//		if (m_hBitmap != nullptr)
+	//			DeleteBitmap(m_hBitmap);
+	//	}
+	//private:
+	//	HBITMAP m_hOldBitmap;
+	//	HBITMAP m_hBitmap;
+	//	HFONT m_hOldFont;
+	//};
+
+	struct dcxHDCBuffer : dcxHDCBitmap2Resource {
 		dcxHDCBuffer() = delete;
 		dcxHDCBuffer(const dcxHDCBuffer &) = delete;
 		dcxHDCBuffer &operator = (const dcxHDCBuffer &) = delete;
 
-		dcxHDCBuffer(const HDC hdc, RECT *rc)
-			: dcxHDCResource(hdc)
-			, m_hBitmap(nullptr)
-			, m_hOldBitmap(nullptr)
+		dcxHDCBuffer(const HDC hdc, const RECT &rc)
+			: dcxHDCBitmap2Resource(hdc, (rc.right - rc.left), (rc.bottom - rc.top))
 			, m_hOldFont(nullptr)
 		{
-			// get size of bitmap to alloc.
-			BITMAP bm = { 0 };
-			int x, y;
-
-			if (rc == nullptr) {
-				// no size specified, use hdc's bitmap size.
-				if (GetObject((HBITMAP)GetCurrentObject(hdc, OBJ_BITMAP), sizeof(BITMAP), &bm) == 0)
-					throw Dcx::dcxException("dcxHDCBuffer - Unable to get hdc's bitmap");
-				x = 0;
-				y = 0;
-			}
-			else {
-				// use size specified.
-				bm.bmWidth = (rc->right - rc->left);
-				bm.bmHeight = (rc->bottom - rc->top);
-				x = rc->left;
-				y = rc->top;
-			}
-
-			// alloc bitmap for buffer.
-			m_hBitmap = CreateCompatibleBitmap(hdc, bm.bmWidth, bm.bmHeight);
-
-			if (m_hBitmap == nullptr)
-				throw Dcx::dcxException("dcxHDCBuffer - Unable to create bitmap");
-			
-				// select bitmap into hdc
-			m_hOldBitmap = SelectBitmap(*this, m_hBitmap);
-
 			// copy settings from hdc to buffer's hdc.
 			SetDCBrushColor(*this, GetDCBrushColor(hdc));
 			SetDCPenColor(*this, GetDCPenColor(hdc));
@@ -443,26 +548,17 @@ namespace Dcx
 			SetGraphicsMode(*this, GetGraphicsMode(hdc));
 
 			// copy contents of hdc within area to buffer.
-			BitBlt(*this, 0, 0, bm.bmWidth, bm.bmHeight, hdc, x, y, SRCCOPY);
+			BitBlt(*this, 0, 0, getWidth(), getHeight(), hdc, rc.left, rc.top, SRCCOPY);
 
 			// buffer is an exact duplicate of the hdc within the area specified.
 		}
 		~dcxHDCBuffer()
 		{
 			GdiFlush();
-			if (*this != nullptr)
-			{
-				if (m_hOldFont != nullptr)
-					SelectFont(*this, m_hOldFont);
-				if (m_hOldBitmap != nullptr)
-					SelectBitmap(*this, m_hOldBitmap);
-				if (m_hBitmap != nullptr)
-					DeleteBitmap(m_hBitmap);
-			}
+			if (m_hOldFont != nullptr)
+				SelectFont(*this, m_hOldFont);
 		}
 	private:
-		HBITMAP m_hOldBitmap;
-		HBITMAP m_hBitmap;
 		HFONT m_hOldFont;
 	};
 
@@ -501,8 +597,8 @@ namespace Dcx
 	bool setGhostDrag(const BYTE newAlpha);
 	const bool &isDX9Installed() noexcept;
 	bool isUnloadSafe();
-	bool isFile(const WCHAR *const file);
-	bool isFile(LPCSTR const file);
+	//bool isFile(const WCHAR *const file);
+	//bool isFile(LPCSTR const file);
 
 	void load(LOADINFO *const lInfo);
 	void unload(void);
@@ -510,7 +606,8 @@ namespace Dcx
 	const bool &initDirectX(TCHAR *dxResult, int dxSize);
 	void error(const TCHAR *const cmd, const TCHAR *const msg);
 	void errorex(const TCHAR *const cmd, const TCHAR *const szFormat, ...);
-	int mark(TCHAR *const data, const TString & tsDName, const TString & tsCallbackName);
+	//int mark(TCHAR *const data, const TString & tsDName, const TString & tsCallbackName);
+	int mark(const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &data, const TString & tsDName, const TString & tsCallbackName);
 	LRESULT CALLBACK mIRCSubClassWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 	const char *const dcxGetFormattedString(const TCHAR *const fmt, ...);
 	const PTCHAR parseCursorType(const TString & cursor);

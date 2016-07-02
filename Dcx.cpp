@@ -17,6 +17,7 @@ namespace Dcx {
 	bool m_bDX9Installed;
 	HMODULE m_hRichEditLib;
 	bool m_bErrorTriggered;
+	bool setting_bStaticColours;
 	MapOfCursors	m_vMapOfCursors;
 	MapOfAreas		m_vMapOfAreas;
 	PFNSETCURSOR SetCursorUx = nullptr;
@@ -32,6 +33,7 @@ namespace Dcx {
 		m_pClassFactory = nullptr;
 		m_hRichEditLib = nullptr;
 		m_bErrorTriggered = false;
+		setting_bStaticColours = true;
 
 		// Initialize mIRCLinker
 		mIRCLinker::load(lInfo);
@@ -437,12 +439,12 @@ namespace Dcx {
 	 */
 	void error(const TCHAR *const cmd, const TCHAR *const msg)
 	{
-		m_sLastError.tsprintf(TEXT("D_ERROR %s (%s)"), cmd, msg);
-
-		//_ts_sprintf(m_sLastError, TEXT("D_ERROR % (%)"), cmd, msg);
-
 		if (m_bErrorTriggered)
 			return;
+
+		//m_sLastError.tsprintf(TEXT("D_ERROR %s (%s)"), cmd, msg);
+
+		_ts_sprintf(m_sLastError, TEXT("D_ERROR % (%)"), cmd, msg);
 
 		m_bErrorTriggered = true;
 
@@ -472,7 +474,42 @@ namespace Dcx {
 		error(cmd, temp.to_chr());
 	}
 
-	int mark(TCHAR *const data, const TString & tsDName, const TString & tsCallbackName)
+	//int mark(TCHAR *const data, const TString & tsDName, const TString & tsCallbackName)
+	//{
+	//	// check if the alias exists
+	//	if (!mIRCLinker::isAlias(tsCallbackName.to_chr()))
+	//		throw Dcx::dcxException(TEXT("No such alias : %"), tsCallbackName);
+	//
+	//	// check if valid dialog
+	//	auto mHwnd = GetHwndFromString(tsDName);
+	//
+	//	if (!IsWindow(mHwnd))
+	//		throw Dcx::dcxException(TEXT("Invalid Dialog Window : %"), tsDName);
+	//
+	//	if (Dialogs.getDialogByHandle(mHwnd) != nullptr)
+	//		throw Dcx::dcxException(TEXT("Window Already Marked : %"), tsDName);
+	//
+	//	Dialogs.markDialog(mHwnd, tsDName, tsCallbackName);
+	//	{
+	//		auto pTmp = Dialogs.getDialogByHandle(mHwnd);
+	//		if (pTmp != nullptr) {
+	//			//TCHAR res[40];
+	//			//pTmp->evalAliasEx(res, countof(res), TEXT("isverbose,0"));
+	//			//
+	//			//if (lstrcmp(res, TEXT("$false")) == 0)
+	//			//	pTmp->SetVerbose(false);
+	//
+	//			//if (pTmp->evalAliasEx(nullptr, 0, TEXT("isverbose,0")))
+	//			//	pTmp->SetVerbose(false);
+	//
+	//			
+	//			pTmp->SetVerbose(pTmp->evalAliasEx(nullptr, 0, TEXT("isverbose,0")));
+	//		}
+	//	}
+	//	ret(TEXT("D_OK Mark: Dialog Marked"));
+	//}
+
+	int mark(const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &data, const TString & tsDName, const TString & tsCallbackName)
 	{
 		// check if the alias exists
 		if (!mIRCLinker::isAlias(tsCallbackName.to_chr()))
@@ -491,14 +528,12 @@ namespace Dcx {
 		{
 			auto pTmp = Dialogs.getDialogByHandle(mHwnd);
 			if (pTmp != nullptr) {
-				TCHAR res[40];
-				pTmp->evalAliasEx(res, countof(res), TEXT("isverbose,0"));
-
-				if (lstrcmp(res, TEXT("$false")) == 0)
-					pTmp->SetVerbose(false);
+				pTmp->SetVerbose(pTmp->evalAliasEx(nullptr, 0, TEXT("isverbose,0")));
 			}
 		}
-		ret(TEXT("D_OK Mark: Dialog Marked"));
+		//ret(TEXT("D_OK Mark: Dialog Marked"));
+		data = TEXT("D_OK Mark: Dialog Marked");
+		return 3;
 	}
 
 	/*!
@@ -717,21 +752,21 @@ namespace Dcx {
 		return mIRCLinker::callDefaultWindowProc(mHwnd, uMsg, wParam, lParam);
 	}
 
-	// test if a file exists
-	bool isFile(const WCHAR *const file) {
-		struct _stat64i32 stFileInfo;
-		return (_wstat(file, &stFileInfo) == 0);
-			// We were able to get the file attributes
-			// so the file obviously exists.
-	}
+	//// test if a file exists
+	//bool isFile(const WCHAR *const file) {
+	//	struct _stat64i32 stFileInfo;
+	//	return (_wstat(file, &stFileInfo) == 0);
+	//		// We were able to get the file attributes
+	//		// so the file obviously exists.
+	//}
 
-	// test if a file exists
-	bool isFile(LPCSTR const file) {
-		struct stat stFileInfo;
-		return (stat(file, &stFileInfo) == 0);
-			// We were able to get the file attributes
-			// so the file obviously exists.
-	}
+	//// test if a file exists
+	//bool isFile(LPCSTR const file) {
+	//	struct stat stFileInfo;
+	//	return (stat(file, &stFileInfo) == 0);
+	//		// We were able to get the file attributes
+	//		// so the file obviously exists.
+	//}
 
 	// Generate a formatted error string for an exception
 	const char *const dcxGetFormattedString(const TCHAR *const fmt, ...)
