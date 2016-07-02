@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Classes\tstring\tstring.h"
+#include "simpleString.h"
 
 class DcxListHelper
 {
@@ -10,6 +10,6 @@ public:
 
 	static void getItemRange(const TString &tsItems, const int nItemCnt, int *iStart, int *iEnd);
 	static std::pair<int, int> getItemRange(const TString &tsItems, const int nItemCnt);
-	static bool matchItemText(const TCHAR *const sItemText, const TString &search, const DcxSearchTypes &SearchType);
+	static bool matchItemText(const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &sItemText, const TString &search, const DcxSearchTypes &SearchType);
 };
 

@@ -1195,7 +1195,7 @@ bool DcxList::matchItemText(const int nItem, const TString &search, const DcxSea
 	const auto len = ListBox_GetTextLen(m_Hwnd, nItem);
 
 	if (len > 0) {
-		auto itemtext = std::make_unique<TCHAR[]>(len + 1);
+		auto itemtext = std::make_unique<TCHAR[]>(max(len + 1, MIRC_BUFFER_SIZE_CCH));
 
 		ListBox_GetText(m_Hwnd, nItem, itemtext.get());
 
