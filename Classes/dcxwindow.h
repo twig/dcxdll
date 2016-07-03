@@ -67,6 +67,7 @@ protected:
 	static PTCHAR parseCursorType( const TString & cursor );
 	static UINT parseCursorFlags( const TString & flags );
 	static UINT parseCursorArea(const TString &flags);
+	static HIMAGELIST createImageList(bool bBigIcons = false);
 };
 #ifdef __INTEL_COMPILER // Defined when using Intel C++ Compiler.
 #pragma warning( pop )
