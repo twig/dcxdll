@@ -32,7 +32,7 @@ DcxDivider::DcxDivider(const UINT ID, DcxDialog *const p_Dialog, const HWND mPar
 	BOOL bNoTheme = FALSE;
 	this->parseControlStyles(styles, &Styles, &ExStyles, &bNoTheme);
 
-	this->m_Hwnd = CreateWindowEx(
+	m_Hwnd = CreateWindowEx(
 		ExStyles | WS_EX_CONTROLPARENT,
 		DCX_DIVIDERCLASS,
 		nullptr,
@@ -43,14 +43,14 @@ DcxDivider::DcxDivider(const UINT ID, DcxDialog *const p_Dialog, const HWND mPar
 		GetModuleHandle(nullptr),
 		nullptr);
 
-	if (!IsWindow(this->m_Hwnd))
+	if (!IsWindow(m_Hwnd))
 		throw Dcx::dcxException("Unable To Create Window");
 
 	if (bNoTheme)
-		Dcx::UXModule.dcxSetWindowTheme(this->m_Hwnd, L" ", L" ");
+		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
 
 	this->registreDefaultWindowProc();
-	SetProp(this->m_Hwnd, TEXT("dcx_cthis"), (HANDLE) this);
+	SetProp(m_Hwnd, TEXT("dcx_cthis"), (HANDLE) this);
 }
 
 /*!
@@ -73,7 +73,7 @@ DcxDivider::~DcxDivider() {
 const TString DcxDivider::getStyles(void) const
 {
 	auto styles(__super::getStyles());
-	const auto Styles = GetWindowStyle(this->m_Hwnd);
+	const auto Styles = GetWindowStyle(m_Hwnd);
 
 	if (dcx_testflag(Styles, DVS_VERT))
 		styles.addtok(TEXT("vertical"));
@@ -115,11 +115,11 @@ void DcxDivider::parseInfoRequest( const TString & input, PTCHAR szReturnValue )
 	if (prop == TEXT("position")) {
 		auto iDivPos = 0;
 
-		SendMessage(this->m_Hwnd, DV_GETDIVPOS, (WPARAM) NULL, (LPARAM) &iDivPos);
+		SendMessage(m_Hwnd, DV_GETDIVPOS, (WPARAM) NULL, (LPARAM) &iDivPos);
 		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), iDivPos);
 	}
 	else if (prop == TEXT("isvertical"))
-		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), (GetWindowStyle(this->m_Hwnd) & DVS_VERT));
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), (GetWindowStyle(m_Hwnd) & DVS_VERT));
 	else
 		this->parseGlobalInfoRequest(input, szReturnValue);
 }
@@ -157,35 +157,36 @@ void DcxDivider::parseCommandRequest( const TString & input ) {
 
 		const auto ID = mIRC_ID_OFFSET + control_data.gettok(1).to_<UINT>();
 
-		if (!this->m_pParentDialog->isIDValid(ID, true))
-			throw Dcx::dcxException(TEXT("Control with ID \"%\" already exists"), this->getUserID());
+		if (!m_pParentDialog->isIDValid(ID, true))
+			throw Dcx::dcxException(TEXT("Control with ID \"%\" already exists"), getUserID());
 
 		try {
-			auto p_Control = DcxControl::controlFactory(this->m_pParentDialog, ID, control_data, 2, CTLF_ALLOW_ALLBUTDOCK, this->m_Hwnd); // <- never NULL
+			auto p_Control = DcxControl::controlFactory(m_pParentDialog, ID, control_data, 2, CTLF_ALLOW_ALLBUTDOCK, m_Hwnd); // <- never NULL
 
-			this->m_pParentDialog->addControl( p_Control );
+			m_pParentDialog->addControl( p_Control );
 
 			dvpi.hChild = p_Control->getHwnd( );
 
 			if ( flags[TEXT('l')] )
-				this->setPane( DVF_PANELEFT, &dvpi );
+				setPane( DVF_PANELEFT, &dvpi );
 			else if ( flags[TEXT('r')] )
-				this->setPane( DVF_PANERIGHT, &dvpi );
+				setPane( DVF_PANERIGHT, &dvpi );
 
-			this->redrawWindow( );
+			redrawWindow( );
 		}
 		catch (std::exception &e) {
-			this->showErrorEx(nullptr, TEXT("-c"), TEXT("Unable To Create Control %d (%S)"), ID - mIRC_ID_OFFSET, e.what());
+			//showErrorEx(nullptr, TEXT("-c"), TEXT("Unable To Create Control %d (%S)"), ID - mIRC_ID_OFFSET, e.what());
+			showError(nullptr, TEXT("-c"), TEXT("Unable To Create Control % (%)"), ID - mIRC_ID_OFFSET, e.what());
 			throw;
 		}
 	}
 	// xdid -v [NAME] [ID] [SWITCH] [POS]
 	else if (flags[TEXT('v')] && numtok > 3) {
-		if (!this->setDivPos(input.getnexttok( ).to_int()))	// tok 4
+		if (!setDivPos(input.getnexttok( ).to_int()))	// tok 4
 			throw Dcx::dcxException("Divider position must be between bounds.");
 	}
 	else
-		this->parseGlobalCommandRequest( input, flags );
+		parseGlobalCommandRequest( input, flags );
 }
 
 /*!
@@ -195,7 +196,7 @@ void DcxDivider::parseCommandRequest( const TString & input ) {
  */
 
 LRESULT DcxDivider::setPane( const UINT iPaneId, LPDVPANEINFO lpdvpi ) {
-  return SendMessage( this->m_Hwnd, DV_SETPANE, (WPARAM) iPaneId, (LPARAM) lpdvpi );
+  return SendMessage( m_Hwnd, DV_SETPANE, (WPARAM) iPaneId, (LPARAM) lpdvpi );
 }
 
 /*!
@@ -205,7 +206,7 @@ LRESULT DcxDivider::setPane( const UINT iPaneId, LPDVPANEINFO lpdvpi ) {
  */
 
 LRESULT DcxDivider::setDivPos( const UINT iDivPos ) {
-  return SendMessage( this->m_Hwnd, DV_SETDIVPOS, (WPARAM) 0U, (LPARAM) iDivPos );
+  return SendMessage( m_Hwnd, DV_SETDIVPOS, (WPARAM) 0U, (LPARAM) iDivPos );
 }
 
 void DcxDivider::toXml(TiXmlElement *const xml) const
@@ -213,8 +214,8 @@ void DcxDivider::toXml(TiXmlElement *const xml) const
 	__super::toXml(xml);
 	DVPANEINFO left;
 	DVPANEINFO right;
-	Divider_GetChildControl(this->m_Hwnd, DVF_PANELEFT, &left);
-	Divider_GetChildControl(this->m_Hwnd, DVF_PANELEFT, &right);
+	Divider_GetChildControl(m_Hwnd, DVF_PANELEFT, &left);
+	Divider_GetChildControl(m_Hwnd, DVF_PANELEFT, &right);
 	if (left.hChild != nullptr) {
 		auto dcxcleft = this->m_pParentDialog->getControlByHWND(left.hChild);
 		if (dcxcleft != nullptr)
@@ -301,7 +302,7 @@ LRESULT DcxDivider::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 
 	case WM_MEASUREITEM:
 		{
-			auto cHwnd = GetDlgItem(this->m_Hwnd, wParam);
+			auto cHwnd = GetDlgItem(m_Hwnd, wParam);
 			if (IsWindow(cHwnd)) {
 				auto c_this = static_cast<DcxControl *>(GetProp(cHwnd, TEXT("dcx_cthis")));
 				if (c_this != nullptr)

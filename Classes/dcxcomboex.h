@@ -17,6 +17,7 @@
 
 #include "defines.h"
 #include "Classes/dcxcontrol.h"
+#include "Classes\custom\ListHelper.h"
 
 class DcxDialog;
 
@@ -48,8 +49,10 @@ typedef struct tagDCXCBITEM {
  * blah
  */
 
-class DcxComboEx : public DcxControl {
-
+class DcxComboEx
+	: public DcxControl
+	, public DcxListHelper
+{
 public:
 	DcxComboEx() = delete;
 	DcxComboEx(const DcxComboEx &) = delete;
@@ -67,10 +70,9 @@ public:
 
 	HIMAGELIST getImageList( ) const;
 	void setImageList( HIMAGELIST himl );
-	static HIMAGELIST createImageList( );
+	//static HIMAGELIST createImageList( );
 
 	bool matchItemText( const int nItem, const TString &search, const DcxSearchTypes &SearchType ) const;
-	static void getItemRange(const TString &tsItems, const int nItemCnt, int *iStart, int *iEnd);
 
 	LRESULT insertItem( const PCOMBOBOXEXITEM lpcCBItem );
 	LRESULT getItem( PCOMBOBOXEXITEM lpcCBItem ) const;
@@ -83,6 +85,8 @@ public:
 	LRESULT getCount( ) const;
 	LRESULT limitText( const int iLimit );
 
+	//static void getItemRange(const TString &tsItems, const int nItemCnt, int *iStart, int *iEnd);
+	//static std::pair<int, int> getItemRange(const TString &tsItems, const int nItemCnt);
 	static LRESULT CALLBACK ComboExEditProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
 
 	inline const TString getType() const override { return TEXT("comboex"); };

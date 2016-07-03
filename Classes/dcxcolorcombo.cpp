@@ -36,7 +36,7 @@ DcxColorCombo::DcxColorCombo(const UINT ID, DcxDialog *const p_Dialog, const HWN
 	BOOL bNoTheme = FALSE;
 	this->parseControlStyles(styles, &Styles, &ExStyles, &bNoTheme);
 
-	this->m_Hwnd = CreateWindowEx(
+	m_Hwnd = CreateWindowEx(
 		(DWORD)ExStyles,
 		DCX_COLORCOMBOCLASS,
 		nullptr,
@@ -47,14 +47,14 @@ DcxColorCombo::DcxColorCombo(const UINT ID, DcxDialog *const p_Dialog, const HWN
 		GetModuleHandle(nullptr),
 		nullptr);
 
-	if (!IsWindow(this->m_Hwnd))
+	if (!IsWindow(m_Hwnd))
 		throw Dcx::dcxException("Unable To Create Window");
 
 	if (bNoTheme)
-		Dcx::UXModule.dcxSetWindowTheme(this->m_Hwnd, L" ", L" ");
+		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
 
 	this->registreDefaultWindowProc();
-	SetProp(this->m_Hwnd, TEXT("dcx_cthis"), (HANDLE) this);
+	SetProp(m_Hwnd, TEXT("dcx_cthis"), (HANDLE) this);
 }
 
 /*!
@@ -233,7 +233,7 @@ void DcxColorCombo::setmIRCPalette( ) {
  */
 
 LRESULT DcxColorCombo::insertItem(  const int nPos, const LPARAM lParam ) {
-  return SendMessage( this->m_Hwnd, CB_INSERTSTRING, static_cast<WPARAM>(nPos), lParam );
+  return SendMessage( m_Hwnd, CB_INSERTSTRING, static_cast<WPARAM>(nPos), lParam );
 }
 
 /*!
@@ -243,7 +243,7 @@ LRESULT DcxColorCombo::insertItem(  const int nPos, const LPARAM lParam ) {
  */
 
 LRESULT DcxColorCombo::getCount( ) const {
-  return SendMessage( this->m_Hwnd, CB_GETCOUNT, (WPARAM) 0U, (LPARAM) 0U );
+  return SendMessage( m_Hwnd, CB_GETCOUNT, (WPARAM) 0U, (LPARAM) 0U );
 }
 
 /*!
@@ -253,7 +253,7 @@ LRESULT DcxColorCombo::getCount( ) const {
  */
 
 LRESULT DcxColorCombo::setCurSel( const int nPos ) {
-  return SendMessage( this->m_Hwnd, CB_SETCURSEL, static_cast<WPARAM>(nPos), (LPARAM) 0U );
+  return SendMessage( m_Hwnd, CB_SETCURSEL, static_cast<WPARAM>(nPos), (LPARAM) 0U );
 }
 
 /*!
@@ -263,7 +263,7 @@ LRESULT DcxColorCombo::setCurSel( const int nPos ) {
  */
 
 LRESULT DcxColorCombo::getItemData( const int nItem ) const {
-  return SendMessage( this->m_Hwnd, CB_GETITEMDATA, static_cast<WPARAM>(nItem), (LPARAM) 0U );
+  return SendMessage( m_Hwnd, CB_GETITEMDATA, static_cast<WPARAM>(nItem), (LPARAM) 0U );
 }
 
 /*!
@@ -273,7 +273,7 @@ LRESULT DcxColorCombo::getItemData( const int nItem ) const {
  */
 
 LRESULT DcxColorCombo::getCurSel( ) const {
-  return SendMessage( this->m_Hwnd, CB_GETCURSEL, (WPARAM) 0U, (LPARAM) 0U );
+  return SendMessage( m_Hwnd, CB_GETCURSEL, (WPARAM) 0U, (LPARAM) 0U );
 }
 
 /*!
@@ -283,7 +283,7 @@ LRESULT DcxColorCombo::getCurSel( ) const {
  */
 
 LRESULT DcxColorCombo::deleteItem( const int nItem ) {
-  return SendMessage( this->m_Hwnd, CB_DELETESTRING, static_cast<WPARAM>(nItem), (LPARAM) 0U );
+  return SendMessage( m_Hwnd, CB_DELETESTRING, static_cast<WPARAM>(nItem), (LPARAM) 0U );
 }
 
 /*!
@@ -293,7 +293,7 @@ LRESULT DcxColorCombo::deleteItem( const int nItem ) {
  */
 
 LRESULT DcxColorCombo::resetContent( ) {
-  return SendMessage( this->m_Hwnd, CB_RESETCONTENT, (WPARAM) 0U, (LPARAM) 0U );
+  return SendMessage( m_Hwnd, CB_RESETCONTENT, (WPARAM) 0U, (LPARAM) 0U );
 }
 
 
@@ -308,7 +308,7 @@ LRESULT DcxColorCombo::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, B
 		{
 			if ( HIWORD( wParam ) == CBN_SELENDOK ) {
 				if (dcx_testflag(this->m_pParentDialog->getEventMask(), DCX_EVENT_CLICK))
-					this->execAliasEx(TEXT("%s,%d,%d"), TEXT("sclick"), this->getUserID( ), this->getCurSel( ) + 1 );
+					execAliasEx(TEXT("sclick,%u,%d"), getUserID( ), getCurSel( ) + 1 );
 				bParsed = TRUE;
 				return 0L;
 			}
@@ -342,13 +342,6 @@ LRESULT DcxColorCombo::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, B
 			if (lpdcxcci == nullptr)
 				break;
 
-			/*
-			if (dcx_testflag(lpdis->itemState, ODS_SELECTED)) {
-			hPen = CreatePen( PS_SOLID, 2, RGB(0,0,0) );
-			mIRCError( TEXT("ODS_SELECTED") );
-			}
-			else
-			*/
 			auto hPen = CreatePen(PS_SOLID, 1, RGB(0, 0, 0));
 			Auto(DeletePen(hPen));
 
@@ -412,7 +405,7 @@ LRESULT DcxColorCombo::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 	case WM_LBUTTONUP:
 		{
 			if (dcx_testflag(this->m_pParentDialog->getEventMask(), DCX_EVENT_CLICK))
-				this->execAliasEx(TEXT("%s,%d"), TEXT("lbup"), this->getUserID( ) );
+				execAliasEx(TEXT("lbup,%u"), getUserID( ) );
 		}
 		break;
 	case WM_DESTROY:

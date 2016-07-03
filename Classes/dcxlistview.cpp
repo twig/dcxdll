@@ -287,6 +287,71 @@ void DcxListView::parseListviewExStyles( const TString & styles, LONG * ExStyles
 
 	for (const auto &tsStyle : styles)
 	{
+#if DCX_USE_HASHING
+		switch (const_hash(tsStyle.to_chr()))
+		{
+		case L"grid"_hash:
+			*ExStyles |= LVS_EX_GRIDLINES;
+			break;
+		case L"borderselect"_hash:
+			*ExStyles |= LVS_EX_BORDERSELECT;
+			break;
+		case L"flatsb"_hash:
+			*ExStyles |= LVS_EX_FLATSB;
+			break;
+		case L"fullrow"_hash:
+			*ExStyles |= LVS_EX_FULLROWSELECT;
+			break;
+		case L"checkbox"_hash:
+			*ExStyles |= LVS_EX_CHECKBOXES;
+			break;
+		case L"headerdrag"_hash:
+			*ExStyles |= LVS_EX_HEADERDRAGDROP;
+			break;
+		case L"hottrack"_hash:
+			*ExStyles |= LVS_EX_TRACKSELECT;
+			break;
+		case L"oneclick"_hash:
+			*ExStyles |= LVS_EX_ONECLICKACTIVATE;
+			break;
+		case L"twoclick"_hash:
+			*ExStyles |= LVS_EX_TWOCLICKACTIVATE;
+			break;
+		case L"underlinehot"_hash:
+			*ExStyles |= LVS_EX_UNDERLINEHOT;
+			break;
+		case L"underlinecold"_hash:
+			*ExStyles |= LVS_EX_UNDERLINECOLD;
+			break;
+		case L"subitemimage"_hash:
+			*ExStyles |= LVS_EX_SUBITEMIMAGES;
+			break;
+		case L"tooltip"_hash:
+			*ExStyles |= LVS_EX_LABELTIP | LVS_EX_INFOTIP;
+			break;
+		case L"transparentbkg"_hash:
+			*ExStyles |= LVS_EX_TRANSPARENTBKGND;
+			break;
+		case L"shadowtext"_hash:
+			*ExStyles |= LVS_EX_TRANSPARENTSHADOWTEXT;
+			break;
+		case L"autosize"_hash:
+			*ExStyles |= LVS_EX_AUTOSIZECOLUMNS;
+			break;
+		case L"headeralways"_hash:
+			*ExStyles |= LVS_EX_HEADERINALLVIEWS;
+			break;
+		case L"hidelabels"_hash:
+			*ExStyles |= LVS_EX_HIDELABELS;
+			break;
+		case L"autocheck"_hash:
+			*ExStyles |= LVS_EX_AUTOCHECKSELECT;
+			break;
+		default:
+			break;
+		}
+		// LVS_EX_COLUMNSNAPPOINTS LVS_EX_JUSTIFYCOLUMNS LVS_EX_SNAPTOGRID LVS_EX_AUTOAUTOARRANGE
+#else
 		if (tsStyle == TEXT("grid"))
 			*ExStyles |= LVS_EX_GRIDLINES;
 		else if ( tsStyle == TEXT("borderselect") ) 
@@ -326,6 +391,7 @@ void DcxListView::parseListviewExStyles( const TString & styles, LONG * ExStyles
 		else if (tsStyle == TEXT("autocheck"))
 			*ExStyles |= LVS_EX_AUTOCHECKSELECT;
 		// LVS_EX_COLUMNSNAPPOINTS LVS_EX_JUSTIFYCOLUMNS LVS_EX_SNAPTOGRID LVS_EX_AUTOAUTOARRANGE
+#endif
 	}
 }
 

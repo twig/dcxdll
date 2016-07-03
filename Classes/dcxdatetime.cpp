@@ -35,7 +35,7 @@ DcxDateTime::DcxDateTime(const UINT ID, DcxDialog *const p_Dialog, const HWND mP
 	BOOL bNoTheme = FALSE;
 	this->parseControlStyles(styles, &Styles, &ExStyles, &bNoTheme);
 
-	this->m_Hwnd = CreateWindowEx(
+	m_Hwnd = CreateWindowEx(
 		ExStyles | WS_EX_CLIENTEDGE,
 		DCX_DATETIMECLASS,
 		nullptr,
@@ -46,15 +46,15 @@ DcxDateTime::DcxDateTime(const UINT ID, DcxDialog *const p_Dialog, const HWND mP
 		GetModuleHandle(nullptr),
 		nullptr);
 
-	if (!IsWindow(this->m_Hwnd))
+	if (!IsWindow(m_Hwnd))
 		throw Dcx::dcxException("Unable To Create Window");
 
 	if (bNoTheme)
-		Dcx::UXModule.dcxSetWindowTheme(this->m_Hwnd, L" ", L" ");
+		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
 
 	this->setControlFont((HFONT)GetStockObject(DEFAULT_GUI_FONT), FALSE);
 	this->registreDefaultWindowProc();
-	SetProp(this->m_Hwnd, TEXT("dcx_cthis"), (HANDLE) this);
+	SetProp(m_Hwnd, TEXT("dcx_cthis"), (HANDLE) this);
 }
 
 /*!
@@ -73,8 +73,8 @@ void DcxDateTime::toXml(TiXmlElement *const xml) const
 
 	ZeroMemory(&st, sizeof(SYSTEMTIME));
 
-	DateTime_GetSystemtime(this->m_Hwnd, &st);
-	wnsprintfA(buf, 64, "%ld", SystemTimeToMircTime(&st));
+	DateTime_GetSystemtime(m_Hwnd, &st);
+	wnsprintfA(buf, Dcx::countof(buf), "%ld", SystemTimeToMircTime(&st));
 	__super::toXml(xml);
 	xml->SetAttribute("caption", buf);
 	return;
@@ -83,7 +83,7 @@ void DcxDateTime::toXml(TiXmlElement *const xml) const
 const TString DcxDateTime::getStyles(void) const
 {
 	auto styles(__super::getStyles());
-	const auto Styles = GetWindowStyle(this->m_Hwnd);
+	const auto Styles = GetWindowStyle(m_Hwnd);
 
 	if (dcx_testflag(Styles, DTS_LONGDATEFORMAT))
 		styles.addtok(TEXT("longdateformat"));
@@ -112,6 +112,33 @@ void DcxDateTime::parseControlStyles( const TString &styles, LONG *Styles, LONG 
 {
 	for (const auto &tsStyle: styles)
 	{
+#if DCX_USE_HASHING
+		switch (const_hash(tsStyle.to_chr()))
+		{
+			case L"longdateformat"_hash:
+				*Styles |= DTS_LONGDATEFORMAT;
+				break;
+			case L"shortdateformat"_hash:
+				*Styles |= DTS_SHORTDATEFORMAT;
+				break;
+			case L"shortdatecenturyformat"_hash:
+				*Styles |= DTS_SHORTDATECENTURYFORMAT;
+				break;
+			case L"timeformat"_hash:
+				*Styles |= DTS_TIMEFORMAT;
+				break;
+			case L"right"_hash:
+				*Styles |= DTS_RIGHTALIGN;
+				break;
+			case L"shownone"_hash:
+				*Styles |= DTS_SHOWNONE;
+				break;
+			case L"updown"_hash:
+				*Styles |= DTS_UPDOWN;
+			default:
+				break;
+		}
+#else
 		if (tsStyle == TEXT("longdateformat"))
 			*Styles |= DTS_LONGDATEFORMAT;
 		else if (tsStyle == TEXT("shortdateformat"))
@@ -126,6 +153,7 @@ void DcxDateTime::parseControlStyles( const TString &styles, LONG *Styles, LONG 
 			*Styles |= DTS_SHOWNONE;
 		else if (tsStyle == TEXT("updown"))
 			*Styles |= DTS_UPDOWN;
+#endif
 	}
 
 	this->parseGeneralControlStyles(styles, Styles, ExStyles, bNoTheme);
@@ -151,7 +179,7 @@ void DcxDateTime::parseInfoRequest( const TString &input, PTCHAR szReturnValue) 
 
 		ZeroMemory(st, sizeof(SYSTEMTIME) *2);
 
-		const auto val = DateTime_GetRange(this->m_Hwnd, st);
+		const auto val = DateTime_GetRange(m_Hwnd, st);
 
 		if (dcx_testflag(val, GDTR_MIN))
 			dmin.tsprintf(TEXT("%ld"), SystemTimeToMircTime(&(st[0])));
@@ -166,7 +194,7 @@ void DcxDateTime::parseInfoRequest( const TString &input, PTCHAR szReturnValue) 
 
 		ZeroMemory(&st, sizeof(SYSTEMTIME));
 
-		DateTime_GetSystemtime(this->m_Hwnd, &st);
+		DateTime_GetSystemtime(m_Hwnd, &st);
 		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%ld"), SystemTimeToMircTime(&st));
 	}
 	else
@@ -188,10 +216,10 @@ void DcxDateTime::parseCommandRequest( const TString &input) {
 	if (flags[TEXT('f')]) {
 		if (numtok > 3) {
 			const auto format(input.getlasttoks());	// tok 4, -1
-			DateTime_SetFormat(this->m_Hwnd, format.to_chr());
+			DateTime_SetFormat(m_Hwnd, format.to_chr());
 		}
 		else
-			DateTime_SetFormat(this->m_Hwnd, nullptr);
+			DateTime_SetFormat(m_Hwnd, nullptr);
 	}
 	//xdid -r [NAME] [ID] [SWITCH] [MIN] [MAX]
 	else if (flags[TEXT('r')] && numtok > 4) {
@@ -215,7 +243,7 @@ void DcxDateTime::parseCommandRequest( const TString &input) {
 			dflags |= GDTR_MAX;
 		}
 
-		DateTime_SetRange(this->m_Hwnd, dflags, range);
+		DateTime_SetRange(m_Hwnd, dflags, range);
 	}
 	//xdid -t [NAME] [ID] [SWITCH] [TIMESTAMP]
 	else if (flags[TEXT('t')] && numtok > 3) {
@@ -223,13 +251,13 @@ void DcxDateTime::parseCommandRequest( const TString &input) {
 
 		if (ts == TEXT("reset")) {
 			if (isStyle(DTS_SHOWNONE))
-				DateTime_SetSystemtime(this->m_Hwnd, GDT_NONE, nullptr);
+				DateTime_SetSystemtime(m_Hwnd, GDT_NONE, nullptr);
 		}
 		else {
 			const auto mircTime = ts.to_<long>();
 			const auto sysTime = MircTimeToSystemTime(mircTime);
 
-			DateTime_SetSystemtime(this->m_Hwnd, GDT_VALID, &sysTime);
+			DateTime_SetSystemtime(m_Hwnd, GDT_VALID, &sysTime);
 		}
 	}
 	else
@@ -251,7 +279,7 @@ LRESULT DcxDateTime::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 
 			switch(hdr->code) {
 				case DTN_CLOSEUP: {
-					this->execAliasEx(TEXT("%s,%d"), TEXT("closed"), this->getUserID());
+					this->execAliasEx(TEXT("closed,%d"), getUserID());
 					break;
 				}
 
@@ -298,7 +326,7 @@ LRESULT DcxDateTime::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 						}
 
 						if (foundValid) {
-							HWND cal = DateTime_GetMonthCal(this->m_Hwnd);
+							HWND cal = DateTime_GetMonthCal(m_Hwnd);
 							SetWindowLong(cal, GWL_STYLE, styles);
 						}
 					}
@@ -307,7 +335,7 @@ LRESULT DcxDateTime::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 					*/
 
 					// TODO: allow for calendar customisation. see DTN_DROPDOWN http://msdn2.microsoft.com/en-us/library/bb761739.aspx
-					this->execAliasEx(TEXT("%s,%d"), TEXT("open"), this->getUserID());
+					execAliasEx(TEXT("open,%d"), getUserID());
 					break;
 				}
 
@@ -315,9 +343,9 @@ LRESULT DcxDateTime::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 					dcxlParam(LPNMDATETIMECHANGE, dtc);
 
 					if (dtc->dwFlags == GDT_NONE)
-						this->execAliasEx(TEXT("%s,%d,%s"), TEXT("change"), this->getUserID(), TEXT("none"));
+						execAliasEx(TEXT("change,%d,none"), getUserID());
 					else
-						this->execAliasEx(TEXT("%s,%d,%d"), TEXT("change"), this->getUserID(), SystemTimeToMircTime(&(dtc->st)));
+						execAliasEx(TEXT("change,%d,%d"), getUserID(), SystemTimeToMircTime(&(dtc->st)));
 
 					return 0L;
 				}

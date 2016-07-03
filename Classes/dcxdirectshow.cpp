@@ -48,7 +48,7 @@ DcxDirectshow::DcxDirectshow(const UINT ID, DcxDialog *const p_Dialog, const HWN
 	BOOL bNoTheme = FALSE;
 	this->parseControlStyles(styles, &Styles, &ExStyles, &bNoTheme);
 
-	this->m_Hwnd = CreateWindowEx(
+	m_Hwnd = CreateWindowEx(
 		(DWORD)(ExStyles | WS_EX_CLIENTEDGE),
 		TEXT("STATIC"),
 		nullptr,
@@ -59,15 +59,15 @@ DcxDirectshow::DcxDirectshow(const UINT ID, DcxDialog *const p_Dialog, const HWN
 		GetModuleHandle(nullptr),
 		nullptr);
 
-	if (!IsWindow(this->m_Hwnd))
+	if (!IsWindow(m_Hwnd))
 		throw Dcx::dcxException("Unable To Create Window");
 
 	if (bNoTheme)
-		Dcx::UXModule.dcxSetWindowTheme(this->m_Hwnd, L" ", L" ");
+		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
 
 	this->setControlFont(GetStockFont(DEFAULT_GUI_FONT), FALSE);
 	this->registreDefaultWindowProc();
-	SetProp(this->m_Hwnd, TEXT("dcx_cthis"), (HANDLE) this);
+	SetProp(m_Hwnd, TEXT("dcx_cthis"), (HANDLE) this);
 }
 
 /*!
@@ -103,9 +103,9 @@ void DcxDirectshow::parseControlStyles( const TString & styles, LONG * Styles, L
 	//}
 
 	if (styles.istok(TEXT("fixratio")))
-		this->m_bKeepRatio = true;
+		m_bKeepRatio = true;
 
-	this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
+	parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
 }
 
 /*!
@@ -130,7 +130,7 @@ void DcxDirectshow::parseInfoRequest( const TString & input, PTCHAR szReturnValu
 		else if (prop == TEXT("state")) {
 			dcx_strcpyn(szReturnValue, TEXT("D_OK nofile"), MIRC_BUFFER_SIZE_CCH);
 		}
-		else if (!this->parseGlobalInfoRequest(input, szReturnValue))
+		else if (!parseGlobalInfoRequest(input, szReturnValue))
 			throw Dcx::dcxException("No File Loaded");
 	}
 	// [NAME] [ID] [PROP]
@@ -144,7 +144,7 @@ void DcxDirectshow::parseInfoRequest( const TString & input, PTCHAR szReturnValu
 	// [NAME] [ID] [PROP]
 	else if ( prop == TEXT("size")) {
 		long lWidth, lHeight, lARWidth, lARHeight;
-		auto hr = this->m_pWc->GetNativeVideoSize(&lWidth, &lHeight, &lARWidth, &lARHeight);
+		auto hr = m_pWc->GetNativeVideoSize(&lWidth, &lHeight, &lARWidth, &lARHeight);
 		if (FAILED(hr)) {
 			DX_ERR(prop.to_chr(), nullptr, hr);
 			throw Dcx::dcxException("Unable to get Native Video Size");
@@ -155,11 +155,11 @@ void DcxDirectshow::parseInfoRequest( const TString & input, PTCHAR szReturnValu
 	}
 	// [NAME] [ID] [PROP]
 	else if ( prop == TEXT("author")) {
-		this->getProperty(szReturnValue, PROP_AUTHOR);
+		getProperty(szReturnValue, PROP_AUTHOR);
 	}
 	// [NAME] [ID] [PROP]
 	else if ( prop == TEXT("title")) {
-		this->getProperty(szReturnValue, PROP_TITLE);
+		getProperty(szReturnValue, PROP_TITLE);
 	}
 	// [NAME] [ID] [PROP]
 	else if ( prop == TEXT("video")) {
@@ -338,12 +338,12 @@ void DcxDirectshow::parseCommandRequest( const TString &input) {
 			if (FAILED(hr))
 				throw Dcx::dcxException("Unable to Get IMediaSeeking");
 			
-			hr = this->m_pEvent->SetNotifyWindow((OAHWND)this->m_Hwnd, WM_GRAPHNOTIFY, 0);
+			hr = this->m_pEvent->SetNotifyWindow((OAHWND)m_Hwnd, WM_GRAPHNOTIFY, 0);
 			if (FAILED(hr))
 				throw Dcx::dcxException("Unable to Set Window Notify");
 			
 			if (!xflags[TEXT('a')])
-				hr = DcxDirectshow::InitWindowlessVMR(this->m_Hwnd, this->m_pGraph, &this->m_pWc);
+				hr = DcxDirectshow::InitWindowlessVMR(m_Hwnd, this->m_pGraph, &this->m_pWc);
 
 			if (FAILED(hr))
 				throw Dcx::dcxException("Unable to Create VMR9");
@@ -380,8 +380,8 @@ void DcxDirectshow::parseCommandRequest( const TString &input) {
 
 				p_Video->put_Visible(OAFALSE);
 				p_Video->put_AutoShow(OAFALSE);
-				p_Video->put_Owner((OAHWND)this->m_Hwnd);
-				p_Video->put_MessageDrain((OAHWND)this->m_Hwnd);
+				p_Video->put_Owner((OAHWND)m_Hwnd);
+				p_Video->put_MessageDrain((OAHWND)m_Hwnd);
 				DWORD styles = 0;
 
 				hr = p_Video->get_WindowStyle((long *)&styles);
@@ -395,17 +395,19 @@ void DcxDirectshow::parseCommandRequest( const TString &input) {
 				p_Video->put_Top(0);
 			}
 
-			if (xflags[TEXT('l')])
-				this->m_bLoop = true;
-			else
-				this->m_bLoop = false;
+			//if (xflags[TEXT('l')])
+			//	this->m_bLoop = true;
+			//else
+			//	this->m_bLoop = false;
+
+			m_bLoop = xflags[TEXT('l')];
 
 			if (xflags[TEXT('p')])
-				this->m_pControl->Run();
+				m_pControl->Run();
 
-			this->m_tsFilename = filename;
+			m_tsFilename = filename;
 
-			InvalidateRect(this->m_Hwnd, nullptr, TRUE);
+			InvalidateRect(m_Hwnd, nullptr, TRUE);
 		}
 		catch (std::exception)
 		{
@@ -456,10 +458,16 @@ void DcxDirectshow::parseCommandRequest( const TString &input) {
 	}
 	// xdid -v [NAME] [ID] [SWITCH] [+FLAGS] [BRIGHTNESS] [CONTRAST] [HUE] [SATURATION]
 	else if ( flags[TEXT('v')] && numtok > 7 ) {
-		if (this->m_pControl == nullptr)
+		if (m_pControl == nullptr)
 			throw Dcx::dcxException("No File Loaded");
 
-		auto hr = this->setVideo(input.gettok(4), input.gettok(5).to_float(), input.gettok(6).to_float(), input.gettok(7).to_float(), input.gettok(8).to_float());
+		auto tsFlags(input.getnexttok());
+		auto fBrightness(input.getnexttok().to_<float>());
+		auto fContrast(input.getnexttok().to_<float>());
+		auto fHue(input.getnexttok().to_<float>());
+		auto fSaturation(input.getnexttok().to_<float>());
+
+		auto hr = setVideo(tsFlags, fBrightness, fContrast, fHue, fSaturation);
 		if (FAILED(hr)) {
 			DX_ERR(nullptr,TEXT("-v"), hr);
 			throw Dcx::dcxException("Unable to set video");
@@ -512,7 +520,7 @@ LRESULT DcxDirectshow::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 	case WM_ERASEBKGND: 
 		{
 			RECT rect;
-			if (GetClientRect( this->m_Hwnd, &rect ))
+			if (GetClientRect( m_Hwnd, &rect ))
 				DcxControl::DrawCtrlBackground((HDC) wParam,this,&rect);
 			bParsed = TRUE;
 			return TRUE;
@@ -527,11 +535,11 @@ LRESULT DcxDirectshow::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 			if (this->m_pWc != nullptr)
 			{
 				// Request the VMR to paint the video.
-				this->m_pWc->RepaintVideo(this->m_Hwnd, hdc);
+				this->m_pWc->RepaintVideo(m_Hwnd, hdc);
 			}
 			else { // There is no video, so paint the whole client area.
 				RECT rcClient;
-				if (GetClientRect(this->m_Hwnd, &rcClient))
+				if (GetClientRect(m_Hwnd, &rcClient))
 					DcxControl::DrawCtrlBackground((HDC) wParam,this,&rcClient);
 			}
 		}
@@ -541,18 +549,18 @@ LRESULT DcxDirectshow::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 			bParsed = TRUE;
 			PAINTSTRUCT ps;
 
-			auto hdc = BeginPaint(this->m_Hwnd, &ps);
+			auto hdc = BeginPaint(m_Hwnd, &ps);
 			if (hdc != nullptr)
 			{
 				if (this->m_pWc != nullptr)
 				{
 					// Request the VMR to paint the video.
-					this->m_pWc->RepaintVideo(this->m_Hwnd, hdc);
+					this->m_pWc->RepaintVideo(m_Hwnd, hdc);
 				}
 				else // There is no video, so paint the whole client area.
 					DcxControl::DrawCtrlBackground(hdc, this, &ps.rcPaint);
 			}
-			EndPaint(this->m_Hwnd, &ps); 
+			EndPaint(m_Hwnd, &ps); 
 		}
 		break;
 
@@ -710,7 +718,7 @@ HRESULT DcxDirectshow::SetVideoPos(void)
 		SetRect(&rcSrc, 0, 0, lWidth, lHeight);
 
 		// Get the window client area.
-		if (!GetClientRect(this->m_Hwnd, &rcDest))
+		if (!GetClientRect(m_Hwnd, &rcDest))
 			return E_FAIL;
 
 		// Set the destination rectangle.
@@ -768,7 +776,8 @@ HRESULT DcxDirectshow::getProperty(TCHAR *prop, const int type) const
 			break;
 		}
 		if (SUCCEEDED(hr)) {
-			_snwprintf(prop, MIRC_BUFFER_SIZE_CCH, TEXT("%lS"), com_prop);
+			//_snwprintf(prop, MIRC_BUFFER_SIZE_CCH, TEXT("%lS"), com_prop);
+			_snwprintf(prop, MIRC_BUFFER_SIZE_CCH, TEXT("%ws"), com_prop);
 			SysFreeString(com_prop);
 		}
 		else
@@ -785,9 +794,9 @@ HRESULT DcxDirectshow::setAlpha(float alpha)
 	if ((alpha < 0) || (alpha > 1.0))
 		alpha = 1.0;
 
-	RECT rcClient, rcWin;
+	RECT rcClient = { 0 }, rcWin = { 0 };
 
-	if ((!GetClientRect(this->m_Hwnd, &rcClient)) || (!GetWindowRect(this->m_Hwnd, &rcWin)))
+	if ((!GetClientRect(m_Hwnd, &rcClient)) || (!GetWindowRect(m_Hwnd, &rcWin)))
 		return E_FAIL;
 
 	IBaseFilter* pVmr = nullptr;
@@ -824,9 +833,9 @@ HRESULT DcxDirectshow::setAlpha(float alpha)
 	if (SUCCEEDED(hr)) {
 		Auto(pBm->Release());
 
-		auto hdc = GetDC(this->m_Hwnd);
+		auto hdc = GetDC(m_Hwnd);
 		if (hdc != nullptr) { // make duplicate hdc;
-			Auto(ReleaseDC(this->m_Hwnd, hdc));
+			Auto(ReleaseDC(m_Hwnd, hdc));
 
 			auto hdcBuf = CreateHDCBuffer(hdc, &rcWin);
 
@@ -865,7 +874,7 @@ HRESULT DcxDirectshow::setAlpha(float alpha)
 						//POINT pt;
 						//pt.x = rcWin.left;
 						//pt.y = rcWin.top;
-						//ScreenToClient(GetParent(this->m_Hwnd),&pt);
+						//ScreenToClient(GetParent(m_Hwnd),&pt);
 						//CopyRect(&bmpInfo.rSrc, &rcWin);
 						//SetRect(&bmpInfo.rSrc, pt.x, pt.y, pt.x + w, pt.y + h);
 						CopyRect(&bmpInfo.rSrc, &rcClient);
@@ -881,8 +890,8 @@ HRESULT DcxDirectshow::setAlpha(float alpha)
 						HDC hdcbkg = CreateCompatibleDC( hdc );
 						if (hdcbkg != nullptr) {
 						RECT rcClient, rcWin;
-						GetClientRect(this->m_Hwnd, &rcClient);
-						GetWindowRect(this->m_Hwnd, &rcWin);
+						GetClientRect(m_Hwnd, &rcClient);
+						GetWindowRect(m_Hwnd, &rcWin);
 						const int w = (rcWin.right - rcWin.left), h = (rcWin.bottom - rcWin.top);
 						HBITMAP memBM = CreateCompatibleBitmap ( hdc, w, h );
 						if (memBM != nullptr) {
@@ -917,7 +926,7 @@ HRESULT DcxDirectshow::setAlpha(float alpha)
 						//POINT pt;
 						//pt.x = rcWin.left;
 						//pt.y = rcWin.top;
-						//ScreenToClient(GetParent(this->m_Hwnd),&pt);
+						//ScreenToClient(GetParent(m_Hwnd),&pt);
 						//CopyRect(&bmpInfo.rSrc, &rcWin);
 						//SetRect(&bmpInfo.rSrc, pt.x, pt.y, pt.x + w, pt.y + h);
 						CopyRect(&bmpInfo.rSrc, &rcClient);
@@ -935,7 +944,7 @@ HRESULT DcxDirectshow::setAlpha(float alpha)
 						}
 						else
 						hr = E_FAIL;
-						ReleaseDC(this->m_Hwnd, hdc);
+						ReleaseDC(m_Hwnd, hdc);
 						*/
 		}
 		else
@@ -1067,10 +1076,10 @@ UINT64 DcxDirectshow::getDuration() const
 	if (this->m_pSeek == nullptr)
 		return 0;
 
-	UINT64 pos;
 	DWORD dwCaps = AM_SEEKING_CanGetDuration;
 	if (dcx_testflag(this->CheckSeekCapabilities(dwCaps), AM_SEEKING_CanGetDuration))
 	{ // can get current pos
+		UINT64 pos = 0ULL;
 		if (SUCCEEDED(this->m_pSeek->GetDuration((INT64 *)&pos)))
 			// Format result into milliseconds
 			return pos / 10000;

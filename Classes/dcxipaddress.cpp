@@ -32,7 +32,7 @@ DcxIpAddress::DcxIpAddress(const UINT ID, DcxDialog *const p_Dialog, const HWND 
 	BOOL bNoTheme = FALSE;
 	this->parseControlStyles(styles, &Styles, &ExStyles, &bNoTheme);
 
-	this->m_Hwnd = CreateWindowEx(
+	m_Hwnd = CreateWindowEx(
 		ExStyles,
 		DCX_IPADDRESSCLASS,
 		nullptr,
@@ -43,29 +43,29 @@ DcxIpAddress::DcxIpAddress(const UINT ID, DcxDialog *const p_Dialog, const HWND 
 		GetModuleHandle(nullptr),
 		nullptr);
 
-	if (!IsWindow(this->m_Hwnd))
+	if (!IsWindow(m_Hwnd))
 		throw Dcx::dcxException("Unable To Create Window");
 
 	if (bNoTheme)
-		Dcx::UXModule.dcxSetWindowTheme(this->m_Hwnd, L" ", L" ");
+		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
 
 	this->setControlFont(GetStockFont(DEFAULT_GUI_FONT), FALSE);
 	this->registreDefaultWindowProc();
-	SetProp(this->m_Hwnd, TEXT("dcx_cthis"), (HANDLE) this);
+	SetProp(m_Hwnd, TEXT("dcx_cthis"), (HANDLE) this);
 
 	if (styles.istok(TEXT("tooltips"))) {
 		if (!IsWindow(p_Dialog->getToolTip()))
 			throw Dcx::dcxException("Unable to Initialize Tooltips");
 
 		this->m_ToolTipHWND = p_Dialog->getToolTip();
-		AddToolTipToolInfo(this->m_ToolTipHWND, this->m_Hwnd);
+		AddToolTipToolInfo(this->m_ToolTipHWND, m_Hwnd);
 	}
 
 	// fix bug with disabled creation
 	// todo: fix this properly
 	if (dcx_testflag(Styles, WS_DISABLED)) {
-		EnableWindow(this->m_Hwnd, TRUE);
-		EnableWindow(this->m_Hwnd, FALSE);
+		EnableWindow(m_Hwnd, TRUE);
+		EnableWindow(m_Hwnd, FALSE);
 	}
 }
 
@@ -85,7 +85,7 @@ void DcxIpAddress::toXml(TiXmlElement *const xml) const
 	DWORD ip;
 	char buf[128];
 	this->getAddress( &ip );
-	wnsprintfA( buf, 128, "%d.%d.%d.%d",
+	wnsprintfA( buf, Dcx::countof(buf), "%d.%d.%d.%d",
 		FIRST_IPADDRESS( ip ),
 		SECOND_IPADDRESS( ip ),
 		THIRD_IPADDRESS( ip ),
@@ -151,7 +151,7 @@ void DcxIpAddress::parseCommandRequest( const TString &input) {
 	if (flags[TEXT('a')] && numtok > 3) {
 		const auto IP(input.getnexttok().strip());	// tok 4
 
-		if (IP.numtok(TEXT(".")) != 4)
+		if (IP.numtok(TEXT('.')) != 4)
 			throw Dcx::dcxException(TEXT("Invalid Address: %"), IP);
 
 		this->setAddress(IP.to_addr());
@@ -192,7 +192,7 @@ void DcxIpAddress::parseCommandRequest( const TString &input) {
  */
 
 LRESULT DcxIpAddress::setRange( const int nField, const BYTE iMin, const BYTE iMax ) {
-	return SendMessage( this->m_Hwnd, IPM_SETRANGE, (WPARAM) nField, (LPARAM) MAKEIPRANGE( iMin, iMax ) );
+	return SendMessage( m_Hwnd, IPM_SETRANGE, (WPARAM) nField, (LPARAM) MAKEIPRANGE( iMin, iMax ) );
 }
 
 /*!
@@ -202,7 +202,7 @@ LRESULT DcxIpAddress::setRange( const int nField, const BYTE iMin, const BYTE iM
  */
 
 LRESULT DcxIpAddress::setFocus( const int nField ) {
-	return SendMessage( this->m_Hwnd, IPM_SETFOCUS, (WPARAM) nField, (LPARAM) 0 );
+	return SendMessage( m_Hwnd, IPM_SETFOCUS, (WPARAM) nField, (LPARAM) 0 );
 }
 
 /*!
@@ -212,7 +212,7 @@ LRESULT DcxIpAddress::setFocus( const int nField ) {
  */
 
 LRESULT DcxIpAddress::setAddress( const DWORD dwIpAddress ) {
-	return SendMessage( this->m_Hwnd, IPM_SETADDRESS, (WPARAM) 0, (LPARAM) dwIpAddress );
+	return SendMessage( m_Hwnd, IPM_SETADDRESS, (WPARAM) 0, (LPARAM) dwIpAddress );
 }
 
 /*!
@@ -222,7 +222,7 @@ LRESULT DcxIpAddress::setAddress( const DWORD dwIpAddress ) {
  */
 
 LRESULT DcxIpAddress::getAddress( LPDWORD lpdwIpAddress ) const {
-	return SendMessage( this->m_Hwnd, IPM_GETADDRESS, (WPARAM) 0, (LPARAM) lpdwIpAddress );
+	return SendMessage( m_Hwnd, IPM_GETADDRESS, (WPARAM) 0, (LPARAM) lpdwIpAddress );
 }
 
 /*!
@@ -232,7 +232,7 @@ LRESULT DcxIpAddress::getAddress( LPDWORD lpdwIpAddress ) const {
  */
 
 LRESULT DcxIpAddress::clearAddress( ) {
-	return SendMessage( this->m_Hwnd, IPM_CLEARADDRESS, (WPARAM) 0, (LPARAM) 0 );
+	return SendMessage( m_Hwnd, IPM_CLEARADDRESS, (WPARAM) 0, (LPARAM) 0 );
 }
 
 /*!
@@ -252,7 +252,7 @@ LRESULT DcxIpAddress::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 			if ( hdr->code == IPN_FIELDCHANGED )
 			{
 				if (dcx_testflag(this->m_pParentDialog->getEventMask(), DCX_EVENT_EDIT))
-					this->execAliasEx(TEXT("%s,%d"), TEXT("edit"), this->getUserID( ) );
+					this->execAliasEx(TEXT("edit,%d"), getUserID( ) );
 				bParsed = TRUE;
 			}
 		}
@@ -278,12 +278,12 @@ LRESULT DcxIpAddress::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 					{
 					case WM_LBUTTONUP:
 						{
-							this->execAliasEx(TEXT("%s,%d"), TEXT("sclick"), this->getUserID( ) );
+							execAliasEx(TEXT("sclick,%d"), getUserID( ) );
 						}
 						break;
 					case WM_RBUTTONUP:
 						{
-							this->execAliasEx(TEXT("%s,%d"), TEXT("rclick"), this->getUserID( ) );
+							execAliasEx(TEXT("rclick,%d"), getUserID( ) );
 						}
 						break;
 					}

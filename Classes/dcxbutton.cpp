@@ -113,10 +113,23 @@ void DcxButton::parseControlStyles( const TString & styles, LONG * Styles, LONG 
 
 	for (const auto &tsStyle: styles)
 	{
+#if DCX_USE_HASHING
+		switch (const_hash(tsStyle.to_chr()))
+		{
+			case L"bitmap"_hash:
+				*Styles |= BS_BITMAP;
+				break;
+			case L"default"_hash:
+				*Styles |= BS_DEFPUSHBUTTON;
+			default:
+				break;
+		}
+#else
 		if ( tsStyle == TEXT("bitmap") )
 			*Styles |= BS_BITMAP;
 		else if ( tsStyle == TEXT("default") )
 			*Styles |= BS_DEFPUSHBUTTON;
+#endif
 	}
 
 	parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
