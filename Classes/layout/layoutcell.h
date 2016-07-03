@@ -72,10 +72,10 @@ public:
 
 	void setRect(RECT & rc);
 	void getRect( RECT & rc ) const;
-	void getClientRect( RECT & rc ) const;
+	void getClientRect( RECT & rc ) const noexcept;
 	void setBorder( const RECT & rc );
 	void setBorder( const UINT nBorder );
-	void getBorder( RECT & rc ) const;
+	void getBorder( RECT & rc ) const noexcept;
 
 	virtual void LayoutChild( ) = 0;
 	virtual HDWP ExecuteLayout( const HDWP hdwp ) = 0;
@@ -86,16 +86,16 @@ public:
 	void setSibling( LayoutCell * p_Cell );
 	void setParent( LayoutCell * p_Cell );
 
-	virtual const CellType getType( ) const = 0;
+	virtual const CellType getType( ) const noexcept = 0;
 
-	LayoutCell * getFirstChild( ) const;
-	LayoutCell * getParent( ) const;
-	LayoutCell * getNextSibling( ) const;
+	LayoutCell * getFirstChild( ) const noexcept;
+	LayoutCell * getParent( ) const noexcept;
+	LayoutCell * getNextSibling( ) const noexcept;
 
 	const bool isVisible( ) const;
 
-	const size_t	&size(void) const noexcept { return this->m_iCount; }
-	const bool		empty(void) const noexcept { return (this->m_iCount == 0); }
+	const size_t	&size(void) const noexcept { return m_iCount; }
+	const bool		empty(void) const noexcept { return (m_iCount == 0); }
 
 protected:
 

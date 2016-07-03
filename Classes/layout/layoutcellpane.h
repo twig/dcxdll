@@ -52,9 +52,9 @@ public:
 	void toXml(TiXmlElement *xml) final;
 	TiXmlElement * toXml(void) final;
 
-	const CellType getType( ) const final;
+	const CellType getType( ) const noexcept final;
 
-	LayoutCell * addChild(LayoutCell * p_Cell, const UINT nWeight);
+	LayoutCell * addChild(gsl::owner<gsl::not_null<LayoutCell *>> p_Cell, const UINT nWeight);
 
 protected:
 

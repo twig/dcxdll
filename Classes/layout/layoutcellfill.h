@@ -43,7 +43,7 @@ public:
 	virtual void toXml(TiXmlElement * xml) final;
 	virtual TiXmlElement * toXml(void) final;
 
-	const CellType getType() const final;
+	const CellType getType() const noexcept final;
 
 protected:
 

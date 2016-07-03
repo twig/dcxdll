@@ -64,7 +64,7 @@
  * blah
  */
 
-const LayoutCell::CellType LayoutCellFill::getType() const {
+const LayoutCell::CellType LayoutCellFill::getType() const noexcept {
 
 	return FILL;
 }
@@ -89,14 +89,14 @@ HDWP LayoutCellFill::ExecuteLayout(const HDWP hdwp) {
 
 	auto hdwpdef = hdwp;
 
-	if (this->m_Hwnd != nullptr && IsWindow(this->m_Hwnd)) {
+	if (m_Hwnd != nullptr && IsWindow(m_Hwnd)) {
 
 		RECT rc;
 		this->getClientRect(rc);
 
-		hdwpdef = DeferWindowPos(hdwpdef, this->m_Hwnd, nullptr, rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top, SWP_NOZORDER);
-		//hdwpdef = DeferWindowPos( hdwpdef, this->m_Hwnd, nullptr, rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top, SWP_NOZORDER | SWP_NOREDRAW | SWP_NOACTIVATE | SWP_NOOWNERZORDER );
-		//hdwpdef = DeferWindowPos( hdwpdef, this->m_Hwnd, nullptr, rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top, SWP_NOZORDER | SWP_NOREDRAW | SWP_NOACTIVATE | SWP_NOOWNERZORDER | SWP_FRAMECHANGED);
+		hdwpdef = DeferWindowPos(hdwpdef, m_Hwnd, nullptr, rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top, SWP_NOZORDER);
+		//hdwpdef = DeferWindowPos( hdwpdef, m_Hwnd, nullptr, rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top, SWP_NOZORDER | SWP_NOREDRAW | SWP_NOACTIVATE | SWP_NOOWNERZORDER );
+		//hdwpdef = DeferWindowPos( hdwpdef, m_Hwnd, nullptr, rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top, SWP_NOZORDER | SWP_NOREDRAW | SWP_NOACTIVATE | SWP_NOOWNERZORDER | SWP_FRAMECHANGED);
 	}
 	return hdwpdef;
 }

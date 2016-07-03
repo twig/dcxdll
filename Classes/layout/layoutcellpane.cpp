@@ -35,7 +35,7 @@ LayoutCellPane::LayoutCellPane( const PaneType nType )
  */
 
 LayoutCellPane::~LayoutCellPane( ) {
-	for (const auto &x: this->m_vpCells)
+	for (const auto &x: m_vpCells)
 		delete x.first;
 }
 
@@ -45,25 +45,25 @@ LayoutCellPane::~LayoutCellPane( ) {
  * blah
  */
 
-LayoutCell * LayoutCellPane::addChild( LayoutCell * p_Cell, const UINT nWeight ) {
+LayoutCell * LayoutCellPane::addChild(gsl::owner<gsl::not_null<LayoutCell *>> p_Cell, const UINT nWeight ) {
 
-	if (p_Cell == nullptr) // this should never happen :)
-		throw Dcx::dcxException("addChild() - NULL Cell supplied");
+	//if (p_Cell == nullptr) // this should never happen :)
+	//	throw Dcx::dcxException("addChild() - NULL Cell supplied");
 
-	if (this->m_vpCells.empty())
-		this->m_FirstChild = p_Cell;
+	if (m_vpCells.empty())
+		m_FirstChild = p_Cell;
 
 
 	p_Cell->setParent( this );
 
-	if ( !this->m_vpCells.empty() ) {
+	if ( !m_vpCells.empty() ) {
 
-		auto p_Last = this->m_vpCells.back( ).first;
+		auto p_Last = m_vpCells.back( ).first;
 		if ( p_Last != nullptr )
 			p_Last->setSibling( p_Cell );
 	}
 
-	//this->m_vpCells.push_back( CellNode( p_Cell, nWeight ) );
+	//m_vpCells.push_back( CellNode( p_Cell, nWeight ) );
 	m_vpCells.emplace_back(p_Cell, nWeight);
 	m_iCount++;
 
@@ -76,7 +76,7 @@ LayoutCell * LayoutCellPane::addChild( LayoutCell * p_Cell, const UINT nWeight )
  * blah
  */
 
-const LayoutCell::CellType LayoutCellPane::getType( ) const {
+const LayoutCell::CellType LayoutCellPane::getType( ) const noexcept {
 
 	return PANE;
 }
@@ -201,10 +201,10 @@ TiXmlElement * LayoutCellPane::toXml(void) {
  * blah
  */
 
-void LayoutCellPane::AdjustMinSize( UINT & nSizeLeft, UINT & nTotalWeight ) {
-
-	RECT rc, rect;
-	this->getClientRect( rc );
+void LayoutCellPane::AdjustMinSize( UINT & nSizeLeft, UINT & nTotalWeight )
+{
+	RECT rc = { 0 }, rect = { 0 };
+	getClientRect( rc );
 	int nSize = 0;
 
 	if ( m_nType == HORZ) {
@@ -217,13 +217,13 @@ void LayoutCellPane::AdjustMinSize( UINT & nSizeLeft, UINT & nTotalWeight ) {
 		nSize = rc.right - rc.left;
 		nSizeLeft = rc.bottom - rc.top;
 	}
-	for (const auto &x: this->m_vpCells) {
+	for (const auto &x: m_vpCells) {
 		auto pChild = x.first;
 		const auto nWeight = x.second;
 
 		if (pChild == nullptr)
 			continue;
-		if (pChild->isVisible() == FALSE)
+		if (!pChild->isVisible())
 			continue;
 
 		CellMinMaxInfo cmmiChild;
@@ -236,7 +236,7 @@ void LayoutCellPane::AdjustMinSize( UINT & nSizeLeft, UINT & nTotalWeight ) {
 		pChild->getMinMaxInfo( &cmmiChild );
 		pChild->getRect( rect );
 
-		if ( this->m_nType == HORZ ) {
+		if ( m_nType == HORZ ) {
 
 			rect.right = rect.left + cmmiChild.m_MinSize.x;
 			rect.bottom = rect.top + nSize;

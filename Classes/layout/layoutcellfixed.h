@@ -41,13 +41,13 @@ public:
 
 	LayoutCellFixed() = delete;
 	LayoutCellFixed(const LayoutCellFixed &) = delete;
+	LayoutCellFixed &operator =(const LayoutCellFixed &) = delete;	// No assignments!
+
 	explicit LayoutCellFixed(DcxControl * dcxc, const FixedType nType = BOTH);
 	explicit LayoutCellFixed( const HWND mHwnd, const FixedType nType = BOTH );
 	explicit LayoutCellFixed(const RECT & rc, const FixedType nType = BOTH);
 	LayoutCellFixed(const HWND mHwnd, const RECT & rc, const FixedType nType = BOTH);
 	virtual ~LayoutCellFixed( );
-
-	LayoutCellFixed &operator =(const LayoutCellFixed &) = delete;	// No assignments!
 
 	virtual void LayoutChild() final;
 	virtual HDWP ExecuteLayout( const HDWP hdwp ) final;
@@ -55,7 +55,7 @@ public:
 	virtual void toXml(TiXmlElement * xml) final;
 	virtual TiXmlElement * toXml(void) final;
 
-	const CellType getType( ) const final;
+	const CellType getType( ) const noexcept final;
 
 protected:
 

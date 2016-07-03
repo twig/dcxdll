@@ -34,28 +34,30 @@ class LayoutManager {
 
 public:
 
-	LayoutManager( );
-	explicit LayoutManager( HWND mHwnd );
-	virtual ~LayoutManager( );
+	LayoutManager() = default;
+	~LayoutManager() = default;
 
+	explicit LayoutManager( HWND mHwnd );
+
+	LayoutManager(const LayoutManager &) = delete;
 	LayoutManager &operator =(const LayoutManager &) = delete;	// No assignments!
 
 	const bool updateLayout(RECT & rc);
 
-	void setRoot( LayoutCell * p_Root );
-	LayoutCell * getRoot( ) const;
+	void setRoot( gsl::owner<LayoutCell *> p_Root );
+	constexpr LayoutCell * getRoot() const noexcept { return m_pRoot; }
 
 	LayoutCell * getCell( const TString & path ) const;
 
 	void AddCell(const TString &input, const UINT iOffset = 3);
 
-	const size_t &size(void) const noexcept { return this->m_iCount; }
-	const bool empty(void) const noexcept { return (this->m_pRoot == nullptr); }
+	inline constexpr const size_t &size(void) const noexcept { return m_iCount; }
+	inline constexpr bool empty(void) const noexcept { return (m_pRoot == nullptr); }
 
 	static LayoutCell * parsePath(const TString & path, const LayoutCell *const hParent, const UINT depth);
 	static const UINT parseLayoutFlags(const TString & flags);
 
-	// this is here for refrence only
+	// this is here for reference only
 	//typedef class std::vector<LayoutCell *>::iterator iterator;
 	//typedef class std::vector<LayoutCell *>::const_iterator const_iterator;
 	//

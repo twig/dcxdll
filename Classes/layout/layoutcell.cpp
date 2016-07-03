@@ -49,7 +49,7 @@ LayoutCell::LayoutCell(const HWND mHwnd)
 : LayoutCell(mHwnd, RECT())
 {
 	if (m_Hwnd != nullptr)
-		GetWindowRect(m_Hwnd, &this->m_rcWindow);
+		GetWindowRect(m_Hwnd, &m_rcWindow);
 }
 
 /*!
@@ -67,14 +67,14 @@ LayoutCell::LayoutCell(const HWND mHwnd, const RECT & rc)
 , m_BaseControl(nullptr)
 , m_iCount(0)
 {
-	SetRectEmpty(&this->m_rcBorders);
+	SetRectEmpty(&m_rcBorders);
 
 	if (mHwnd != nullptr) {
 		auto d = Dcx::Dialogs.getDialogByHandle(mHwnd);
 		if (d == nullptr) {
 			d = Dcx::Dialogs.getDialogByChildHandle(mHwnd);
 			if (d != nullptr)
-				this->m_BaseControl = d->getControlByHWND(mHwnd);
+				m_BaseControl = d->getControlByHWND(mHwnd);
 		}
 	}
 }
@@ -88,7 +88,7 @@ LayoutCell::LayoutCell(DcxControl * dcxc)
 		m_Hwnd = dcxc->getHwnd();
 
 	if (m_Hwnd != nullptr)
-		GetWindowRect(m_Hwnd, &this->m_rcWindow);
+		GetWindowRect(m_Hwnd, &m_rcWindow);
 }
 /*!
  * \brief Destructor
@@ -109,7 +109,7 @@ LayoutCell::~LayoutCell() {
 
 void LayoutCell::setParent(LayoutCell * p_Cell) {
 
-	this->m_Parent = p_Cell;
+	m_Parent = p_Cell;
 }
 
 /*!
@@ -120,7 +120,7 @@ void LayoutCell::setParent(LayoutCell * p_Cell) {
 
 void LayoutCell::setSibling(LayoutCell * p_Cell) {
 
-	this->m_NextSibling = p_Cell;
+	m_NextSibling = p_Cell;
 }
 
 /*!
@@ -129,9 +129,9 @@ void LayoutCell::setSibling(LayoutCell * p_Cell) {
  * blah
  */
 
-LayoutCell * LayoutCell::getFirstChild() const {
+LayoutCell * LayoutCell::getFirstChild() const noexcept {
 
-	return this->m_FirstChild;
+	return m_FirstChild;
 }
 
 /*!
@@ -140,9 +140,9 @@ LayoutCell * LayoutCell::getFirstChild() const {
  * blah
  */
 
-LayoutCell * LayoutCell::getParent() const {
+LayoutCell * LayoutCell::getParent() const noexcept {
 
-	return this->m_Parent;
+	return m_Parent;
 }
 
 /*!
@@ -151,9 +151,9 @@ LayoutCell * LayoutCell::getParent() const {
  * blah
  */
 
-LayoutCell * LayoutCell::getNextSibling() const {
+LayoutCell * LayoutCell::getNextSibling() const noexcept {
 
-	return this->m_NextSibling;
+	return m_NextSibling;
 }
 
 /*!
@@ -175,7 +175,7 @@ void LayoutCell::setRect(RECT & rc) {
 	cmmi.m_MaxSize.x = rc.right - rc.left;
 	cmmi.m_MaxSize.y = rc.bottom - rc.top;
 
-	this->getMinMaxInfo(&cmmi);
+	getMinMaxInfo(&cmmi);
 
 	if (rc.right - rc.left < cmmi.m_MinSize.x)
 		rc.right = rc.left + cmmi.m_MinSize.x;
@@ -186,10 +186,10 @@ void LayoutCell::setRect(RECT & rc) {
 	if (rc.bottom - rc.top > cmmi.m_MaxSize.y)
 		rc.bottom = rc.top + cmmi.m_MaxSize.y;
 
-	if (EqualRect(&rc, &this->m_rcWindow))
+	if (EqualRect(&rc, &m_rcWindow))
 		return;
 
-	this->m_rcWindow = rc;
+	m_rcWindow = rc;
 }
 
 /*!
@@ -209,7 +209,7 @@ void LayoutCell::getRect(RECT & rc) const {
  * blah
  */
 
-void LayoutCell::getClientRect(RECT & rc) const {
+void LayoutCell::getClientRect(RECT & rc) const noexcept {
 
 	CopyRect(&rc, &this->m_rcWindow);
 
@@ -248,15 +248,15 @@ void LayoutCell::setBorder(const RECT & rc) {
 void LayoutCell::setBorder(const UINT nBorder) {
 
 	// remove old borders
-	this->m_rcWindow.right -= this->m_rcBorders.left + this->m_rcBorders.right;
-	this->m_rcWindow.bottom -= this->m_rcBorders.top + this->m_rcBorders.bottom;
+	m_rcWindow.right -= m_rcBorders.left + m_rcBorders.right;
+	m_rcWindow.bottom -= m_rcBorders.top + m_rcBorders.bottom;
 
 	// new borders
-	SetRect(&this->m_rcBorders, nBorder, nBorder, nBorder, nBorder);
+	SetRect(&m_rcBorders, nBorder, nBorder, nBorder, nBorder);
 
 	// re-add new border settings
-	this->m_rcWindow.right += this->m_rcBorders.left + this->m_rcBorders.right;
-	this->m_rcWindow.bottom += this->m_rcBorders.top + this->m_rcBorders.bottom;
+	m_rcWindow.right += m_rcBorders.left + m_rcBorders.right;
+	m_rcWindow.bottom += m_rcBorders.top + m_rcBorders.bottom;
 }
 
 /*!
@@ -265,9 +265,9 @@ void LayoutCell::setBorder(const UINT nBorder) {
  * blah
  */
 
-void LayoutCell::getBorder(RECT & rc) const {
+void LayoutCell::getBorder(RECT & rc) const noexcept {
 
-	rc = this->m_rcBorders;
+	rc = m_rcBorders;
 }
 
 /*!
@@ -278,5 +278,5 @@ void LayoutCell::getBorder(RECT & rc) const {
 
 const bool LayoutCell::isVisible() const {
 
-	return (this->m_Hwnd == nullptr || (IsWindow(this->m_Hwnd) && IsWindowVisible(this->m_Hwnd)));
+	return (m_Hwnd == nullptr || (IsWindow(m_Hwnd) && IsWindowVisible(m_Hwnd)));
 }
