@@ -40,6 +40,30 @@ mIRC(ColorDialog) {
 		cc.hwndOwner = mWnd;
 
 		for (const auto &tsStyle : d) {
+#if DCX_USE_HASHING
+			switch (const_hash(tsStyle.to_chr()))
+			{
+			case L"anycolor"_hash:
+				styles |= CC_ANYCOLOR;
+				break;
+			case L"fullopen"_hash:
+				styles |= CC_FULLOPEN;
+				break;
+			case L"nofullopen"_hash:
+				styles |= CC_PREVENTFULLOPEN;
+				break;
+			case L"solidonly"_hash:
+				styles |= CC_SOLIDCOLOR;
+				break;
+			case L"owner"_hash:
+				cc.hwndOwner = FindOwner(d, mWnd);
+				break;
+			case L"returndefault"_hash:
+				retDefault = TRUE;
+			default:
+				break;
+			}
+#else
 			if (tsStyle == TEXT("anycolor"))
 				styles |= CC_ANYCOLOR;
 			else if (tsStyle == TEXT("fullopen"))
@@ -52,6 +76,7 @@ mIRC(ColorDialog) {
 				cc.hwndOwner = FindOwner(d, mWnd);
 			else if (tsStyle == TEXT("returndefault"))
 				retDefault = TRUE;
+#endif
 		}
 
 		cc.rgbResult = sel;
@@ -693,6 +718,90 @@ mIRC(MsgBox) {
 		auto			owner = aWnd;
 
 		for (const auto &tsStyle: strStyles) {
+#if DCX_USE_HASHING
+			//		MB_ABORTRETRYIGNORE
+			//		MB_CANCELTRYCONTINUE && Dcx::XPPlusModule.isUseable()
+			switch (const_hash(tsStyle.to_chr()))
+			{
+			case L"ok"_hash:
+				style |= MB_OK;
+				break;
+			case L"okcancel"_hash:
+				style |= MB_OKCANCEL;
+				break;
+			case L"retrycancel"_hash:
+				style |= MB_RETRYCANCEL;
+				break;
+			case L"yesno"_hash:
+				style |= MB_YESNO;
+				break;
+			case L"yesnocancel"_hash:
+				style |= MB_YESNOCANCEL;
+				break;
+			case L"exclamation"_hash:
+				style |= MB_ICONEXCLAMATION;
+				break;
+			case L"warning"_hash:
+				style |= MB_ICONWARNING;
+				break;
+			case L"information"_hash:
+				style |= MB_ICONINFORMATION;
+				break;
+			case L"asterisk"_hash:
+				style |= MB_ICONASTERISK;
+				break;
+			case L"question"_hash:
+				style |= MB_ICONQUESTION;
+				break;
+			case L"stop"_hash:
+				style |= MB_ICONSTOP;
+				break;
+			case L"error"_hash:
+				style |= MB_ICONERROR;
+				break;
+			case L"hand"_hash:
+				style |= MB_ICONHAND;
+				break;
+			//case L"help"_hash:
+			//	style |= MB_HELP;
+			//	break;
+			case L"defbutton2"_hash:
+				style |= MB_DEFBUTTON2;
+				break;
+			case L"defbutton3"_hash:
+				style |= MB_DEFBUTTON3;
+				break;
+			case L"defbutton4"_hash:
+				style |= MB_DEFBUTTON4;
+				break;
+			case L"modal"_hash:
+				style |= MB_APPLMODAL;
+				break;
+			case L"sysmodal"_hash:
+				style |= MB_SYSTEMMODAL;
+				break;
+			case L"taskmodal"_hash:
+				style |= MB_TASKMODAL;
+				break;
+			case L"right"_hash:
+				style |= MB_RIGHT;
+				break;
+			case L"rtl"_hash:
+				style |= MB_RTLREADING;
+				break;
+			case L"foreground"_hash:
+				style |= MB_SETFOREGROUND;
+				break;
+			case L"topmost"_hash:
+				style |= MB_TOPMOST;
+				break;
+			case L"owner"_hash:
+				owner = FindOwner(strStyles, mWnd);
+				break;
+			default:
+				break;
+			}
+#else
 			//		MB_ABORTRETRYIGNORE
 			//		MB_CANCELTRYCONTINUE && Dcx::XPPlusModule.isUseable()
 			if (tsStyle == TEXT("ok"))
@@ -745,6 +854,7 @@ mIRC(MsgBox) {
 				style |= MB_TOPMOST;
 			else if (tsStyle == TEXT("owner"))
 				owner = FindOwner(strStyles, mWnd);
+#endif
 		}
 
 		// if task modal, send in null to block app

@@ -118,6 +118,32 @@ void DcxCheck::parseControlStyles( const TString & styles, LONG * Styles, LONG *
 
 	for (const auto &tsStyle: styles)
 	{
+#if DCX_USE_HASHING
+		switch (const_hash(tsStyle.to_chr()))
+		{
+			case L"rjustify"_hash:
+				*Styles |= BS_RIGHT;
+				break;
+			case L"center"_hash:
+				*Styles |= BS_CENTER;
+				break;
+			case L"ljustify"_hash:
+				*Styles |= BS_LEFT;
+				break;
+			case L"right"_hash:
+				*Styles |= BS_RIGHTBUTTON;
+				break;
+			case L"pushlike"_hash:
+				*Styles |= BS_PUSHLIKE;
+				break;
+			case L"3state"_hash: {
+				*Styles &= ~BS_AUTOCHECKBOX;
+				*Styles |= BS_AUTO3STATE;
+			default:
+				break;
+			}
+		}
+#else
 		if ( tsStyle == TEXT("rjustify") )
 			*Styles |= BS_RIGHT;
 		else if ( tsStyle == TEXT("center") )
@@ -132,6 +158,7 @@ void DcxCheck::parseControlStyles( const TString & styles, LONG * Styles, LONG *
 			*Styles &= ~BS_AUTOCHECKBOX;
 			*Styles |= BS_AUTO3STATE;
 		}
+#endif
 	}
 
 	parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );

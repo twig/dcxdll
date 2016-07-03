@@ -132,6 +132,51 @@ void DcxList::parseControlStyles( const TString &styles, LONG *Styles, LONG *ExS
 
 	for (const auto &tsStyle: styles)
 	{
+#if DCX_USE_HASHING
+		switch (const_hash(tsStyle.to_chr()))
+		{
+			case L"noscroll"_hash:
+				*Styles |= LBS_DISABLENOSCROLL;
+				break;
+			case L"multi"_hash:
+				*Styles |= LBS_MULTIPLESEL;
+				break;
+			case L"extsel"_hash:
+				*Styles |= LBS_EXTENDEDSEL;
+				break;
+			case L"nointegral"_hash:
+				*Styles |= LBS_NOINTEGRALHEIGHT;
+				break;
+			case L"nosel"_hash:
+				*Styles |= LBS_NOSEL;
+				break;
+			case L"sort"_hash:
+				*Styles |= LBS_SORT;
+				break;
+			case L"tabs"_hash:
+				*Styles |= LBS_USETABSTOPS;
+				break;
+			case L"multicol"_hash:
+				*Styles |= LBS_MULTICOLUMN;
+				break;
+			case L"vsbar"_hash:
+				*Styles |= WS_VSCROLL;
+				break;
+			case L"hsbar"_hash:
+				*Styles |= WS_HSCROLL;
+				break;
+			case L"dragline"_hash:
+				this->m_bUseDrawInsert = false;
+				break;
+			case L"noformat"_hash: // dont remove from here
+				*Styles &= ~LBS_OWNERDRAWFIXED;
+				break;
+			//case L"shadow"_hash: // looks crap
+			//	this->m_bShadowText = true;
+			default:
+				break;
+		}
+#else
 		if (tsStyle == TEXT("noscroll"))
 			*Styles |= LBS_DISABLENOSCROLL;
 		else if (tsStyle == TEXT("multi"))
@@ -158,6 +203,7 @@ void DcxList::parseControlStyles( const TString &styles, LONG *Styles, LONG *ExS
 			*Styles &= ~LBS_OWNERDRAWFIXED;
 		//else if (tsStyle == TEXT("shadow")) // looks crap
 		//	this->m_bShadowText = true;
+#endif
 	}
 
 	this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );

@@ -128,10 +128,44 @@ void DcxBox::parseControlStyles( const TString & styles, LONG * Styles, LONG * E
 {
 	m_iBoxStyles = 0;
 
-	for (const auto &a : styles)
+	for (const auto &tsStyle : styles)
 	{
+#if DCX_USE_HASHING
+		switch (const_hash(tsStyle.to_chr()))
+		{
+			case L"right"_hash:
+				m_iBoxStyles |= BOXS_RIGHT;
+				break;
+			case L"center"_hash:
+				m_iBoxStyles |= BOXS_CENTER;
+				break;
+			case L"bottom"_hash:
+				m_iBoxStyles |= BOXS_BOTTOM;
+				break;
+			case L"none"_hash:
+				m_iBoxStyles |= BOXS_NONE;
+				break;
+			case L"rounded"_hash:
+				m_iBoxStyles |= BOXS_ROUNDED;
+				break;
+			case L"check"_hash: {
+					m_iBoxStyles &= ~BOXS_RADIO;
+					m_iBoxStyles |= BOXS_CHECK;
+				}
+				break;
+			case L"radio"_hash: {
+					m_iBoxStyles &= ~BOXS_CHECK;
+					m_iBoxStyles |= BOXS_RADIO;
+				}
+				break;
+			case L"transparent"_hash:
+				*ExStyles |= WS_EX_TRANSPARENT;
+			default:
+				break;
+		}
+#else
 #if DCX_SWITCH_OBJ
-		Switch(a)
+		Switch(tsStyle)
 			.Case(TEXT("right"), [this] { m_iBoxStyles |= BOXS_RIGHT; }).Break()
 			.Case(TEXT("center"), [this] { m_iBoxStyles |= BOXS_CENTER; }).Break()
 			.Case(TEXT("bottom"), [this] { m_iBoxStyles |= BOXS_BOTTOM; }).Break()
@@ -141,26 +175,27 @@ void DcxBox::parseControlStyles( const TString & styles, LONG * Styles, LONG * E
 			.Case(TEXT("radio"), [this] { m_iBoxStyles &= ~BOXS_CHECK; m_iBoxStyles |= BOXS_RADIO; }).Break()
 			.Case(TEXT("transparent"), [ExStyles] { *ExStyles |= WS_EX_TRANSPARENT; }).Break();
 #else
-		if (a == TEXT("right"))
+		if (tsStyle == TEXT("right"))
 			m_iBoxStyles |= BOXS_RIGHT;
-		else if (a == TEXT("center"))
+		else if (tsStyle == TEXT("center"))
 			m_iBoxStyles |= BOXS_CENTER;
-		else if (a == TEXT("bottom"))
+		else if (tsStyle == TEXT("bottom"))
 			m_iBoxStyles |= BOXS_BOTTOM;
-		else if (a == TEXT("none"))
+		else if (tsStyle == TEXT("none"))
 			m_iBoxStyles |= BOXS_NONE;
-		else if (a == TEXT("rounded"))
+		else if (tsStyle == TEXT("rounded"))
 			m_iBoxStyles |= BOXS_ROUNDED;
-		else if (a == TEXT("check")) {
+		else if (tsStyle == TEXT("check")) {
 			m_iBoxStyles &= ~BOXS_RADIO;
 			m_iBoxStyles |= BOXS_CHECK;
 		}
-		else if (a == TEXT("radio")) {
+		else if (tsStyle == TEXT("radio")) {
 			m_iBoxStyles &= ~BOXS_CHECK;
 			m_iBoxStyles |= BOXS_RADIO;
 		}
-		else if (a == TEXT("transparent"))
+		else if (tsStyle == TEXT("transparent"))
 			*ExStyles |= WS_EX_TRANSPARENT;
+#endif
 #endif
 	}
 

@@ -111,6 +111,33 @@ void DcxLine::parseControlStyles( const TString & styles, LONG * Styles, LONG * 
 {
 	for (const auto &tsStyle: styles)
 	{
+#if DCX_USE_HASHING
+		switch (const_hash(tsStyle.to_chr()))
+		{
+			case L"vertical"_hash:
+				m_bVertical = true;
+				break;
+			case L"nowrap"_hash:
+				*Styles |= SS_LEFTNOWORDWRAP;
+				break;
+			case L"center"_hash:
+				*Styles |= SS_CENTER;
+				break;
+			case L"right"_hash:
+				*Styles |= SS_RIGHT;
+				break;
+			case L"noprefix"_hash:
+				*Styles |= SS_NOPREFIX;
+				break;
+			case L"endellipsis"_hash:
+				*Styles |= SS_ENDELLIPSIS;
+				break;
+			case L"pathellipsis"_hash:
+				*Styles |= SS_PATHELLIPSIS;
+			default:
+				break;
+		}
+#else
 		if ( tsStyle == TEXT("vertical") )
 			this->m_bVertical = true;
 		else if (tsStyle == TEXT("nowrap"))
@@ -125,6 +152,7 @@ void DcxLine::parseControlStyles( const TString & styles, LONG * Styles, LONG * 
 			*Styles |= SS_ENDELLIPSIS;
 		else if (tsStyle == TEXT("pathellipsis"))
 			*Styles |= SS_PATHELLIPSIS;
+#endif
 	}
 
 	this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );

@@ -129,6 +129,54 @@ void DcxEdit::parseControlStyles( const TString &styles, LONG *Styles, LONG *ExS
 {
 	for (const auto &tsStyle : styles)
 	{
+#if DCX_USE_HASHING
+		switch (const_hash(tsStyle.to_chr()))
+		{
+			case L"multi"_hash:
+				*Styles |= ES_MULTILINE;
+				break;
+			case L"center"_hash:
+				*Styles |= ES_CENTER;
+				break;
+			case L"right"_hash:
+				*Styles |= ES_RIGHT;
+				break;
+			case L"autohs"_hash:
+				*Styles |= ES_AUTOHSCROLL;
+				break;
+			case L"autovs"_hash:
+				*Styles |= ES_AUTOVSCROLL;
+				break;
+			case L"vsbar"_hash:
+				*Styles |= WS_VSCROLL;
+				break;
+			case L"hsbar"_hash:
+				*Styles |= WS_HSCROLL;
+				break;
+			case L"lowercase"_hash:
+				*Styles |= ES_LOWERCASE;
+				break;
+			case L"number"_hash:
+				*Styles |= ES_NUMBER;
+				break;
+			case L"password"_hash:
+				*Styles |= ES_PASSWORD;
+				break;
+			case L"uppercase"_hash:
+				*Styles |= ES_UPPERCASE;
+				break;
+			case L"return"_hash:
+				*Styles |= ES_WANTRETURN;
+				break;
+			case L"readonly"_hash:
+				*Styles |= ES_READONLY;
+				break;
+			case L"showsel"_hash:
+				*Styles |= ES_NOHIDESEL;
+			default:
+				break;
+		}
+#else
 		if (tsStyle == TEXT("multi")) 
 			*Styles |= ES_MULTILINE;
 		else if (tsStyle == TEXT("center"))
@@ -157,6 +205,7 @@ void DcxEdit::parseControlStyles( const TString &styles, LONG *Styles, LONG *ExS
 			*Styles |= ES_READONLY;
 		else if (tsStyle == TEXT("showsel"))
 			*Styles |= ES_NOHIDESEL;
+#endif
 	}
 
 	this->parseGeneralControlStyles(styles, Styles, ExStyles, bNoTheme);

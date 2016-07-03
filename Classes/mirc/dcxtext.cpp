@@ -93,6 +93,30 @@ void DcxText::parseControlStyles( const TString & styles, LONG * Styles, LONG * 
 
 	for (const auto &tsStyle: styles)
 	{
+#if DCX_USE_HASHING
+		switch (const_hash(tsStyle.to_chr()))
+		{
+			case L"nowrap"_hash:
+				m_uiStyle |= DT_SINGLELINE;
+				break;
+			case L"center"_hash:
+				m_uiStyle |= DT_CENTER;
+				break;
+			case L"right"_hash:
+				m_uiStyle |= DT_RIGHT;
+				break;
+			case L"noprefix"_hash:
+				m_uiStyle |= DT_NOPREFIX;
+				break;
+			case L"endellipsis"_hash:
+				m_uiStyle |= DT_END_ELLIPSIS;
+				break;
+			case L"pathellipsis"_hash:
+				m_uiStyle |= DT_PATH_ELLIPSIS;
+			default:
+				break;
+		}
+#else
 		if (tsStyle == TEXT("nowrap"))
 			this->m_uiStyle |= DT_SINGLELINE;
 		else if (tsStyle == TEXT("center"))
@@ -105,6 +129,7 @@ void DcxText::parseControlStyles( const TString & styles, LONG * Styles, LONG * 
 			this->m_uiStyle |= DT_END_ELLIPSIS;
 		else if (tsStyle == TEXT("pathellipsis"))
 			this->m_uiStyle |= DT_PATH_ELLIPSIS;
+#endif
 	}
 
 	if (!dcx_testflag(this->m_uiStyle, DT_SINGLELINE))

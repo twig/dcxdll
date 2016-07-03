@@ -19,7 +19,10 @@ struct simpleString {
 	using const_reference = std::add_const_t<reference>;
 	using size_type = std::size_t;
 
-	constexpr simpleString() = default;
+	constexpr simpleString()
+		: m_data{ 0 }
+	{
+	}
 	constexpr simpleString(const simpleString &other) = default;
 	constexpr simpleString(simpleString &&other) = default;
 	constexpr simpleString(const_pointer other)
@@ -30,8 +33,6 @@ struct simpleString {
 	constexpr simpleString(const value_type &other)
 		: m_data{ other, value_type{} }
 	{
-		//m_data[0] = other;
-		//m_data[1] = value_type();
 	}
 	simpleString &operator =(const simpleString &other) = default;
 	simpleString &operator =(simpleString &&other) = default;

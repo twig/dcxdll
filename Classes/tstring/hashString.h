@@ -15,14 +15,7 @@
 //}
 //
 
-// create a compile time hash of a const string.
-template <typename T>
-constexpr size_t const_hash(const T *const input) {
-	return *input ?
-		static_cast<size_t>(*input) + 33 * const_hash(input + 1) :
-		5381;
-}
-
+// mostly taken from https://stackoverflow.com/questions/2111667/compile-time-string-hashing or based on this.
 namespace detail {
 	// CRC32 Table (zlib polynomial)
 	static constexpr unsigned int crc_table[256] = {
@@ -71,38 +64,105 @@ namespace detail {
 		0xb40bbe37, 0xc30c8ea1, 0x5a05df1b, 0x2d02ef8d
 	};
 
-	template<size_t idx>
-	constexpr uint32_t combine_crc32(const char *const str, const uint32_t part) {
-		return (part >> 8) ^ crc_table[(part ^ str[idx]) & 0x000000FF];
-	}
+	//template<size_t idx>
+	//constexpr uint32_t combine_crc32(const char *const str, const uint32_t part) {
+	//	return (part >> 8) ^ crc_table[(part ^ str[idx]) & 0x000000FF];
+	//}
 
-	template<size_t idx>
-	constexpr uint32_t crc32(const char *const str) {
-		return combine_crc32<idx>(str, crc32<idx - 1>(str));
-	}
+	//template<size_t idx>
+	//constexpr uint32_t crc32(const char *const str) {
+	//	return combine_crc32<idx>(str, crc32<idx - 1>(str));
+	//}
 
-	// This is the stop-recursion function
-	template<>
-	constexpr uint32_t crc32<size_t(-1)>(const char *const str) {
-		return 0xFFFFFFFF;
-	}
+	//// This is the stop-recursion function
+	//template<>
+	//constexpr uint32_t crc32<size_t(-1)>(const char *const str) {
+	//	return 0xFFFFFFFF;
+	//}
 
 } //namespace detail
 
 // create a compile time crc32 of a string literal.
-template <size_t len>
-constexpr uint32_t ctcrc32(const char(&str)[len]) {
-	return detail::crc32<len - 2>(str) ^ 0xFFFFFFFF;
+//template <size_t len>
+//constexpr uint32_t ctcrc32(const char(&str)[len]) {
+//	return detail::crc32<len - 2>(str) ^ 0xFFFFFFFF;
+//}
+
+//template <typename T>
+//constexpr uint32_t ctcrc32(const T *const str, size_t len) {
+//	return detail::crc32<len - 2>(reinterpret_cast<const char *const>(str)) ^ 0xFFFFFFFF;
+//}
+
+//constexpr uint32_t ctcrc32(const char *const str, const size_t len) {
+//	return detail::crc32<len - 2>(str) ^ 0xFFFFFFFF;
+//}
+
+//constexpr uint32_t ctcrc32(const wchar_t *const str, size_t len) {
+//	return detail::crc32<len - 2>(reinterpret_cast<const char *const>(str)) ^ 0xFFFFFFFF;
+//}
+
+template<size_t idx>
+constexpr uint32_t crc32(const char * str)
+{
+	return (crc32<idx - 1>(str) >> 8) ^ detail::crc_table[(crc32<idx - 1>(str) ^ str[idx]) & 0x000000FF];
 }
 
-template <typename T>
-constexpr uint32_t ctcrc32(const T *const str, const size_t len) {
-	return detail::crc32<len - 2>(reinterpret_cast<const char *>(str)) ^ 0xFFFFFFFF;
+// This is the stop-recursion function
+template<>
+constexpr uint32_t crc32<size_t(-1)>(const char * str)
+{
+	return 0xFFFFFFFF;
 }
+
+#pragma warning( push )
+#pragma warning( disable : 4307 )
+// create a compile time hash of a const string. (has overflow bug)
+template <typename T>
+constexpr size_t const_hash(const T *const input) {
+	return *input ?
+		static_cast<size_t>(*input) + 33U * const_hash(input + 1) :
+		5381U;
+}
+
+//template <typename T>
+//constexpr uint64_t const_hash(const T *const input) {
+//	return *input ?
+//		static_cast<uint64_t>(*input) + 33ULL * const_hash(input + 1) :
+//		5381ULL;
+//}
+
+// create a compile time hash of a const string. (no overflow bug, but causes dll size increase)
+//template <typename T>
+//constexpr size_t const_hash(const T *const input) {
+//	return *input ?
+//		(static_cast<size_t>(*input) + 33U) + detail::crc_table[((const_hash(input + 1) ^ static_cast<size_t>(*input)) & 0xFF)] :
+//		5381U;
+//}
+
+// "owner"
+// o 111
+// w 119
+// n 110
+// e 101
+// r 114
+// 111 + 33 * (119 + 33 * (110 + 33 * (101 + 33 * (114 + 33 * 5381))))
+// =				 2182647763296	or			 2,182,647,763,296
+// 32bit max-		   42949667296	or				42,949,667,296
+// 64bit max- 18446744073709551616	or	18,446,744,073,709,551,616
+// overflows 32bit, but 64bit should be fine.
+//template <typename T>
+//constexpr uint64_t const_hash(const T *const input) {
+//	return *input ?
+//		static_cast<uint64_t>(*input) + 33ULL * const_hash(input + 1) :
+//		5381ULL;
+//}
+#pragma warning( pop )
 
 // create a crc8 of a const string.
 uint32_t tcrc8(const char * str);
 
+#pragma warning( push )
+#pragma warning( disable : 4307 )
 // turns a literal string into a hash number at compile time.
 constexpr size_t operator""_hash(const char * p, size_t N)
 {
@@ -114,5 +174,17 @@ constexpr size_t operator""_hash(const wchar_t * p, size_t N)
 {
 	return const_hash(p);
 }
+//// turns a literal string into a hash number at compile time.
+//constexpr uint64_t operator""_hash(const char * p, size_t N)
+//{
+//	return const_hash(p);
+//}
+//
+//// turns a literal string into a hash number at compile time.
+//constexpr uint64_t operator""_hash(const wchar_t * p, size_t N)
+//{
+//	return const_hash(p);
+//}
+#pragma warning( pop )
 
 //

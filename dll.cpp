@@ -1615,8 +1615,6 @@ mIRC(SetDCXSettings)
 
 #if DCX_SWITCH_OBJ
 #if DCX_USE_HASHING
-		//auto tsTemp = ctcrc32(tsOpt.to_chr(), tsOpt.len());
-
 		switch (const_hash(tsOpt.to_chr()))
 		{
 		case "StaticColours"_hash:
