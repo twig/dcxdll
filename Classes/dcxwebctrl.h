@@ -75,7 +75,7 @@ public:
 	HRESULT STDMETHODCALLTYPE GetWindowContext( IOleInPlaceFrame __RPC_FAR *__RPC_FAR*, IOleInPlaceUIWindow __RPC_FAR *__RPC_FAR*, LPRECT, LPRECT, LPOLEINPLACEFRAMEINFO );
 
 	// IOleWindow Interface
-	HRESULT STDMETHODCALLTYPE GetWindow( HWND __RPC_FAR * phwnd ) { *phwnd = this->m_Hwnd; return S_OK; }
+	HRESULT STDMETHODCALLTYPE GetWindow( HWND __RPC_FAR * phwnd ) { *phwnd = m_Hwnd; return S_OK; }
 	HRESULT STDMETHODCALLTYPE ContextSensitiveHelp( BOOL ) { return E_NOTIMPL; }
 
 	// IUnknown Interface
@@ -87,14 +87,12 @@ public:
 	inline const DcxControlTypes getControlType() const noexcept override { return DcxControlTypes::WEBCTRL; }
 
 private:
-	void SafeRelease();
+	void SafeRelease() noexcept;
 
-protected:
+//protected:
 
 	IOleInPlaceObject	* m_pOleInPlaceObject;
 	IWebBrowser2 * m_pWebBrowser2;
-	IHTMLWindow2 * m_pIHTMLWindow2;
-	IHTMLDocument2 * m_pIHTMLDocument2;
 	IOleObject * m_pOleObject;
 	IConnectionPointContainer	* m_pCPC;
 	IConnectionPoint * m_pCP;

@@ -69,14 +69,14 @@ class DcxTreeView;
  * blah
  */
 
-typedef struct tagDCXTVSORT {
-
+struct DCXTVSORT {
 	TString		tsCustomAlias;						//!< Custom Sorting Alias
 	UINT		iSortFlags;							//!< Sorting Flags
 	DcxTreeView *pthis;								//!< TreeView control object pointer
 	TCHAR		itemtext1[MIRC_BUFFER_SIZE_CCH];	// Item text buffer One
 	TCHAR		itemtext2[MIRC_BUFFER_SIZE_CCH];	// Item Text Buffer Two
-} DCXTVSORT,*LPDCXTVSORT;
+};
+using LPDCXTVSORT = DCXTVSORT *;
 
 /*!
  * \brief blah
@@ -84,16 +84,17 @@ typedef struct tagDCXTVSORT {
  * blah
  */
 
-typedef struct tagDCXTVITEM {
+struct DCXTVITEM {
 	TString		tsTipText;	//!< Tooltip text
+	TString		tsMark;		// Marked item text.
 	COLORREF	clrText;	//!< Item Caption Color
 	COLORREF	clrBkg;		//!< Item background colour.
-	BOOL		bBold;		//!< Is Item Caption Bold ?
-	BOOL		bUline;		//!< Is Item Caption Underlined
-	BOOL		bItalic;	//!< Is Item Caption Italicised
 	HTREEITEM	hHandle;	//!< TreeView Item Handle (used for sorting)
-	TString		tsMark;		// Marked item text.
-} DCXTVITEM,*LPDCXTVITEM;
+	bool		bBold;		//!< Is Item Caption Bold ?
+	bool		bUline;		//!< Is Item Caption Underlined
+	bool		bItalic;	//!< Is Item Caption Italicised
+};
+using LPDCXTVITEM = DCXTVITEM *;
 
 /*!
  * \brief blah
@@ -101,8 +102,9 @@ typedef struct tagDCXTVITEM {
  * blah
  */
 
-class DcxTreeView : public DcxControl {
-
+class DcxTreeView
+	: public DcxControl
+{
 public:
 	DcxTreeView() = delete;
 	DcxTreeView(const DcxTreeView &) = delete;
@@ -118,8 +120,6 @@ public:
 	void parseCommandRequest( const TString & input ) override;
 	void parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ) override;
 
-	static void parseTreeViewExStyles( const TString & styles, LONG * ExStyles );
-
 	HIMAGELIST getImageList( const int type ) const;
 	void setImageList( HIMAGELIST himl, const int type );
 	HIMAGELIST createImageList( );
@@ -129,10 +129,6 @@ public:
 
 	void getItemText( HTREEITEM * hItem, TCHAR * szBuffer, const int cchTextMax ) const;
 	int getChildCount( HTREEITEM * hParent ) const;
-
-	static LRESULT CALLBACK EditLabelProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
-
-	static int CALLBACK sortItemsEx( LPARAM lParam1, LPARAM lParam2, LPARAM lParamSort );
 
 	inline const TString getType() const override { return TEXT("treeview"); };
 	inline const DcxControlTypes getControlType() const noexcept override { return DcxControlTypes::TREEVIEW; }
@@ -167,6 +163,9 @@ protected:
 	static UINT parseSortFlags( const TString & flags );
 	static UINT parseColorFlags( const TString & flags );
 	static UINT parseToggleFlags( const TString & flags );
+	static int CALLBACK sortItemsEx(LPARAM lParam1, LPARAM lParam2, LPARAM lParamSort);
+	static void parseTreeViewExStyles(const TString & styles, LONG * ExStyles);
+	static LRESULT CALLBACK EditLabelProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 	HFONT m_hItemFont; // Font used for specific item changes.
 	HFONT m_hOldItemFont; // Font used for specific item changes.
@@ -178,11 +177,11 @@ protected:
 	bool LoadGDIPlusImage(const TString &flags, TString &filename);
 	void DrawGDIPlusImage(HDC hdc);
 
-	Image *m_pImage;							// Background Image
-	CompositingQuality m_CQuality;// Image Rendering Quality
-	CompositingMode m_CMode;			// Image Rendering Mode
-	InterpolationMode m_IMode;		//
-	SmoothingMode m_SMode;				// Image Smoothing Mode
+	Gdiplus::Image *m_pImage;							// Background Image
+	Gdiplus::CompositingQuality m_CQuality;// Image Rendering Quality
+	Gdiplus::CompositingMode m_CMode;			// Image Rendering Mode
+	Gdiplus::InterpolationMode m_IMode;		//
+	Gdiplus::SmoothingMode m_SMode;				// Image Smoothing Mode
 	bool m_bTileImage;						// Tile Image?
 	bool m_bResizeImage;					// Resize Image?
 	bool m_bTransparent;					// Is Control Transparent?

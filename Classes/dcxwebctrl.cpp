@@ -28,14 +28,21 @@
  */
 
 DcxWebControl::DcxWebControl(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles )
-: DcxControl( ID, p_Dialog )
-, m_bHideEvents(true)
+	: DcxControl(ID, p_Dialog)
+	, m_bHideEvents(true)
+	, m_dwCookie(0)
+	, m_pCP(nullptr)
+	, m_pCPC(nullptr)
+	, m_pOleInPlaceObject(nullptr)
+	, m_pOleObject(nullptr)
+	, m_pWebBrowser2(nullptr)
 {
 	LONG Styles = 0, ExStyles = 0;
 	BOOL bNoTheme = FALSE;
-	this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
 
-	this->m_Hwnd = CreateWindowEx(	
+	parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
+
+	m_Hwnd = CreateWindowEx(	
 		ExStyles,
 		TEXT("STATIC"),
 		nullptr,
@@ -46,44 +53,55 @@ DcxWebControl::DcxWebControl(const UINT ID, DcxDialog *const p_Dialog, const HWN
 		GetModuleHandle(nullptr),
 		nullptr);
 
-	if (!IsWindow(this->m_Hwnd))
+	if (!IsWindow(m_Hwnd))
 		throw Dcx::dcxException("Unable To Create Window");
 
 	if ( bNoTheme )
-		Dcx::UXModule.dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
+		Dcx::UXModule.dcxSetWindowTheme( m_Hwnd , L" ", L" " );
 
 	/* Web Control Stuff */
 
 	if( Dcx::getClassFactory() != nullptr &&
-		SUCCEEDED( Dcx::getClassFactory()->CreateInstance( 0, IID_IWebBrowser2, (void**) &this->m_pWebBrowser2 ) ) && 
-		SUCCEEDED( this->m_pWebBrowser2->QueryInterface( IID_IOleObject, (LPVOID*) &this->m_pOleObject ) ) && 
-		SUCCEEDED( this->m_pWebBrowser2->QueryInterface( IID_IOleInPlaceObject, (LPVOID*) &this->m_pOleInPlaceObject ) ) && 
-		SUCCEEDED( this->m_pWebBrowser2->QueryInterface( IID_IConnectionPointContainer, (LPVOID*) &this->m_pCPC ) ) && 
-		SUCCEEDED( this->m_pOleObject->SetClientSite( (IOleClientSite*) this ) ) && 
-		SUCCEEDED( this->m_pCPC->FindConnectionPoint( DIID_DWebBrowserEvents2, &this->m_pCP ) ) &&
-		SUCCEEDED( this->m_pCP->Advise( (IUnknown*)(IOleClientSite*) this, &this->m_dwCookie ) ) && 
-		//SUCCEEDED( this->m_pOleObject->DoVerb( OLEIVERB_UIACTIVATE, 0, (IOleClientSite*) this, 0, this->m_Hwnd, rc ) )
-		SUCCEEDED( this->m_pOleObject->DoVerb( OLEIVERB_INPLACEACTIVATE, 0, (IOleClientSite*) this, 0, this->m_Hwnd, rc ) )
+		SUCCEEDED( Dcx::getClassFactory()->CreateInstance( 0, IID_IWebBrowser2, (void**) &m_pWebBrowser2 ) ) && 
+		SUCCEEDED( m_pWebBrowser2->QueryInterface( IID_IOleObject, (LPVOID*) &m_pOleObject ) ) && 
+		SUCCEEDED( m_pWebBrowser2->QueryInterface( IID_IOleInPlaceObject, (LPVOID*) &m_pOleInPlaceObject ) ) && 
+		SUCCEEDED( m_pWebBrowser2->QueryInterface( IID_IConnectionPointContainer, (LPVOID*) &m_pCPC ) ) && 
+		SUCCEEDED( m_pOleObject->SetClientSite( (IOleClientSite*) this ) ) && 
+		SUCCEEDED( m_pCPC->FindConnectionPoint( DIID_DWebBrowserEvents2, &m_pCP ) ) &&
+		SUCCEEDED( m_pCP->Advise( (IUnknown*)(IOleClientSite*) this, &m_dwCookie ) ) && 
+		//SUCCEEDED( m_pOleObject->DoVerb( OLEIVERB_UIACTIVATE, 0, (IOleClientSite*) this, 0, m_Hwnd, rc ) )
+		SUCCEEDED( m_pOleObject->DoVerb( OLEIVERB_INPLACEACTIVATE, 0, (IOleClientSite*) this, 0, m_Hwnd, rc ) )
 		)
 	{
-		this->registreDefaultWindowProc( );
-		SetProp( this->m_Hwnd, TEXT("dcx_cthis"), (HANDLE) this );
+		registreDefaultWindowProc( );
+		SetProp( m_Hwnd, TEXT("dcx_cthis"), (HANDLE) this );
 
+#if DCX_USE_WRAPPERS
+		Dcx::dcxBSTRResource url(TEXT("about:blank"));
+
+		VARIANT v;
+		VariantInit(&v);
+		Auto(VariantClear(&v));
+
+		m_pWebBrowser2->Navigate(url, &v, &v, &v, &v);  // dont use L""
+#else
 		auto url = SysAllocString(TEXT("about:blank"));
 		if (url != nullptr) {
+			Auto(SysFreeString(url));
+
 			VARIANT v;
 			VariantInit( &v );
-			this->m_pWebBrowser2->Navigate( url, &v, &v, &v, &v );  // dont use L""
+			Auto(VariantClear(&v));
 
-			VariantClear( &v );
-			SysFreeString(url);
+			m_pWebBrowser2->Navigate( url, &v, &v, &v, &v );  // dont use L""
 		}
+#endif
 	}
 	else {
 		//Release all Web Control pointers
 		SafeRelease();
 
-		DestroyWindow(this->m_Hwnd);
+		DestroyWindow(m_Hwnd);
 		throw Dcx::dcxException("Unable To Create Browser Window");
 	}
 }
@@ -97,33 +115,45 @@ DcxWebControl::DcxWebControl(const UINT ID, DcxDialog *const p_Dialog, const HWN
 DcxWebControl::~DcxWebControl( ) {
 
 	//Release all Web Control pointers
-	SafeRelease();
+	//SafeRelease();	// causes an odd crash when IE11 is used...
 
-	this->unregistreDefaultWindowProc( );
+	unregistreDefaultWindowProc( );
 }
 
-void DcxWebControl::SafeRelease()
+void DcxWebControl::SafeRelease() noexcept
 {
 	//Release all Web Control pointers
-	if (this->m_pCP != nullptr)
+	if (m_pCP != nullptr)
 	{
-		if (this->m_dwCookie)
-			this->m_pCP->Unadvise(this->m_dwCookie);
+		if (m_dwCookie != 0UL)
+		{
+			m_pCP->Unadvise(m_dwCookie);
 
-		this->m_pCP->Release();
-	}
-	if (this->m_pCPC != nullptr)
-		this->m_pCPC->Release();
-	if (this->m_pOleInPlaceObject != nullptr)
-		this->m_pOleInPlaceObject->Release();
-	if (this->m_pOleObject != nullptr) {
+			m_dwCookie = 0UL;
+		}
 
-		this->m_pOleObject->Close(OLECLOSE_NOSAVE);
-		this->m_pOleObject->Release();
+		m_pCP->Release();
+		m_pCP = nullptr;
 	}
-	if (this->m_pWebBrowser2 != nullptr) {
-		this->m_pWebBrowser2->Quit();
-		this->m_pWebBrowser2->Release();
+	if (m_pCPC != nullptr)
+	{
+		m_pCPC->Release();
+		m_pCPC = nullptr;
+	}
+	if (m_pOleInPlaceObject != nullptr)
+	{
+		m_pOleInPlaceObject->Release();
+		m_pOleInPlaceObject = nullptr;
+	}
+	if (m_pOleObject != nullptr) {
+		m_pOleObject->Close(OLECLOSE_NOSAVE);
+		m_pOleObject->Release();
+		m_pOleObject = nullptr;
+	}
+	if (m_pWebBrowser2 != nullptr) {
+		m_pWebBrowser2->Quit();
+		m_pWebBrowser2->Release();
+		m_pWebBrowser2 = nullptr;
 	}
 }
 
@@ -133,9 +163,9 @@ void DcxWebControl::SafeRelease()
  * blah
  */
 
-void DcxWebControl::parseControlStyles( const TString &styles, LONG *Styles, LONG *ExStyles, BOOL *bNoTheme) {
-
-	this->parseGeneralControlStyles(styles, Styles, ExStyles, bNoTheme);
+void DcxWebControl::parseControlStyles( const TString &styles, LONG *Styles, LONG *ExStyles, BOOL *bNoTheme)
+{
+	parseGeneralControlStyles(styles, Styles, ExStyles, bNoTheme);
 }
 
 /*!
@@ -216,22 +246,22 @@ void DcxWebControl::parseCommandRequest( const TString & input) {
 
 	// xdid -g [NAME] [ID] [SWITCH]
 	if ( flags[TEXT('g')] )
-		this->m_pWebBrowser2->GoHome( );
+		m_pWebBrowser2->GoHome( );
 	// xdid -i [NAME] [ID] [SWITCH]
 	else if ( flags[TEXT('i')] ) {
-		this->m_pWebBrowser2->GoForward( );
+		m_pWebBrowser2->GoForward( );
 	}
 	// xdid -j [NAME] [ID] [SWITCH] [JAVASCRIPT]
 	else if ( flags[TEXT('j')] && numtok > 3 ) {
 
 		READYSTATE ready_state;
 
-		if ( FAILED( this->m_pWebBrowser2->get_ReadyState( &ready_state ) ) || ready_state != READYSTATE_COMPLETE )
+		if ( FAILED( m_pWebBrowser2->get_ReadyState( &ready_state ) ) || ready_state != READYSTATE_COMPLETE )
 			throw Dcx::dcxException("Browser NOT in Ready State");
 
 		IDispatch  * htmlDisp = nullptr;
 
-		if ( SUCCEEDED(this->m_pWebBrowser2->get_Document( &htmlDisp )))
+		if ( SUCCEEDED(m_pWebBrowser2->get_Document( &htmlDisp )))
 		{
 			Auto(htmlDisp->Release());
 
@@ -242,23 +272,29 @@ void DcxWebControl::parseCommandRequest( const TString & input) {
 
 				IHTMLWindow2 * window;
 
-				if ( SUCCEEDED( doc->get_parentWindow( &window ) ) )
+				if (SUCCEEDED(doc->get_parentWindow(&window)))
 				{
 					Auto(window->Release());
 
 					const auto CMD(input.getlasttoks().trim());		// tok 4, -1
 
 					VARIANT v;
-					VariantInit( &v );
+					VariantInit(&v);
 					Auto(VariantClear(&v));
 
+#if DCX_USE_WRAPPERS
+					Dcx::dcxBSTRResource strCMD(CMD.to_chr());
+
+					window->execScript(strCMD, nullptr, &v);
+#else
 					auto strCMD = SysAllocString(CMD.to_chr());
 					if (strCMD != nullptr)
 					{
 						Auto(SysFreeString(strCMD));
 
-						window->execScript( strCMD, nullptr, &v );
+						window->execScript(strCMD, nullptr, &v);
 					}
+#endif
 				}
 			}
 		}
@@ -266,7 +302,7 @@ void DcxWebControl::parseCommandRequest( const TString & input) {
 	// xdid -k [NAME] [ID] [SWITCH]
 	else if ( flags[TEXT('k')] ) {
 
-		this->m_pWebBrowser2->GoBack( );
+		m_pWebBrowser2->GoBack( );
 	}
 	// xdid -m [NAME] [ID] [SWITCH] [+FLAGS] [+MASK] (URL)
 	// [NAME] [ID] -m [+FLAGS] [+MASK] (URL)
@@ -278,7 +314,7 @@ void DcxWebControl::parseCommandRequest( const TString & input) {
 
 		VARIANT vEmpty;
 		VARIANT vFlags;
-		VARIANT_BOOL bEnabled;
+		VARIANT_BOOL bEnabled = VARIANT_FALSE;
 		VariantInit( &vEmpty );
 		Auto(VariantClear(&vEmpty));
 
@@ -306,30 +342,37 @@ void DcxWebControl::parseCommandRequest( const TString & input) {
 				bEnabled = VARIANT_TRUE;
 			else
 				bEnabled = VARIANT_FALSE;
-			this->m_pWebBrowser2->put_AddressBar(bEnabled);
+			m_pWebBrowser2->put_AddressBar(bEnabled);
 		}
 		if (xflags['f']) { // fullscreen on/off
 			if (xmask['f'])
 				bEnabled = VARIANT_TRUE;
 			else
 				bEnabled = VARIANT_FALSE;
-			this->m_pWebBrowser2->put_FullScreen(bEnabled);
+			m_pWebBrowser2->put_FullScreen(bEnabled);
 		}
 		if (xflags['s']) { // statusbar on/off
 			if (xmask['s'])
 				bEnabled = VARIANT_TRUE;
 			else
 				bEnabled = VARIANT_FALSE;
-			this->m_pWebBrowser2->put_StatusBar(bEnabled);
+
+			m_pWebBrowser2->put_StatusBar(bEnabled);
 		}
 		// only open url if one supplied.
 		if (!URL.empty()) {
+#if DCX_USE_WRAPPERS
+			Dcx::dcxBSTRResource bstrUrl(URL.to_chr());
+
+			m_pWebBrowser2->Navigate(bstrUrl, &vFlags, &vEmpty, &vEmpty, &vEmpty);
+#else
 			auto bstrUrl = SysAllocString(URL.to_chr());
 			if (bstrUrl == nullptr)
 				throw Dcx::dcxException("Unable to Allocate Memory");
 			Auto(SysFreeString(bstrUrl));
 
-			this->m_pWebBrowser2->Navigate(bstrUrl, &vFlags, &vEmpty, &vEmpty, &vEmpty);
+			m_pWebBrowser2->Navigate(bstrUrl, &vFlags, &vEmpty, &vEmpty, &vEmpty);
+#endif
 		}
 	}
 	// xdid -n [NAME] [ID] [SWITCH] [URL]
@@ -342,25 +385,31 @@ void DcxWebControl::parseCommandRequest( const TString & input) {
 		VariantInit( &v );
 		Auto(VariantClear(&v));
 
+#if DCX_USE_WRAPPERS
+		Dcx::dcxBSTRResource bstrUrl(URL.to_chr());
+
+		m_pWebBrowser2->Navigate(bstrUrl, &v, &v, &v, &v);
+#else
 		auto bstrUrl = SysAllocString(URL.to_chr());
 		if (bstrUrl == nullptr)
 			throw Dcx::dcxException("Unable to Allocate Memory");
 		Auto(SysFreeString(bstrUrl));
 
-		this->m_pWebBrowser2->Navigate(bstrUrl, &v, &v, &v, &v);
+		m_pWebBrowser2->Navigate(bstrUrl, &v, &v, &v, &v);
+#endif
 	}
 	// xdid -r [NAME] [ID] [SWITCH]
 	else if ( flags[TEXT('r')] ) {
 
-		this->m_pWebBrowser2->Refresh( );
+		m_pWebBrowser2->Refresh( );
 	}
 	// xdid -t [NAME] [ID] [SWITCH]
 	else if ( flags[TEXT('t')] ) {
 
-		this->m_pWebBrowser2->Stop( );
+		m_pWebBrowser2->Stop( );
 	}
 	else
-		this->parseGlobalCommandRequest( input, flags );
+		parseGlobalCommandRequest( input, flags );
 }
 
 /*!
@@ -383,7 +432,10 @@ HRESULT DcxWebControl::Invoke( DISPID dispIdMember,
 	UINT err = 0;
 	VARIANT arg1, arg2;
 	VariantInit( &arg1 );
+	Auto(VariantClear(&arg1));
+
 	VariantInit( &arg2 );
+	Auto(VariantClear(&arg2));
 
 	//if (SUCCEEDED(DispGetParam(pDispParams, 0, VT_BSTR, &arg1, &err)) && SUCCEEDED(DispGetParam(pDispParams, 1, VT_BSTR, &arg2, &err)))
 	//{
@@ -492,14 +544,14 @@ HRESULT DcxWebControl::Invoke( DISPID dispIdMember,
 	//	VariantClear(&arg2);
 	//}
 	//else
-	//	this->showErrorEx(nullptr, TEXT("DcxWebControl::Invoke()"), TEXT("Unable to get object state: %ld"), err);
+	//	showErrorEx(nullptr, TEXT("DcxWebControl::Invoke()"), TEXT("Unable to get object state: %ld"), err);
 //
 	//return S_OK;
 
 	HRESULT hRes = S_OK;
 
 	try {
-		if (!this->m_bHideEvents)
+		if (!m_bHideEvents)
 		{
 			switch (dispIdMember) {
 			case DISPID_NAVIGATECOMPLETE2:
@@ -508,7 +560,7 @@ HRESULT DcxWebControl::Invoke( DISPID dispIdMember,
 				if (FAILED(hRes))
 					throw Dcx::dcxException(TEXT("DcxWebControl::Invoke(DISPID_NAVIGATECOMPLETE2) -> Unable to get Params: %"), err);
 
-				this->execAliasEx(TEXT("%s,%d,%ws"), TEXT("nav_complete"), this->getUserID(), arg2.bstrVal);
+				execAliasEx(TEXT("nav_complete,%u,%ws"), getUserID(), arg2.bstrVal);
 			}
 			break;
 
@@ -518,10 +570,18 @@ HRESULT DcxWebControl::Invoke( DISPID dispIdMember,
 				if (FAILED(hRes))
 					throw Dcx::dcxException(TEXT("DcxWebControl::Invoke(DISPID_BEFORENAVIGATE2) -> Unable to get Params: %"), err);
 
-				TCHAR ret[256];
-				this->evalAliasEx(ret, 255, TEXT("%s,%d,%ws"), TEXT("nav_begin"), this->getUserID(), arg2.bstrVal);
+				//TCHAR ret[256];
+				//evalAliasEx(ret, Dcx::countof(ret), TEXT("nav_begin,%u,%ws"), getUserID(), arg2.bstrVal);
+				//
+				//if (lstrcmpi(ret, TEXT("cancel")) == 0)
+				//	*pDispParams->rgvarg->pboolVal = VARIANT_TRUE;
+				//else
+				//	*pDispParams->rgvarg->pboolVal = VARIANT_FALSE;
 
-				if (lstrcmpi(ret, TEXT("cancel")) == 0)
+				stString<256> sRet;
+				evalAliasEx(sRet, sRet.size(), TEXT("nav_begin,%u,%ws"), getUserID(), arg2.bstrVal);
+
+				if (sRet == TEXT("cancel"))
 					*pDispParams->rgvarg->pboolVal = VARIANT_TRUE;
 				else
 					*pDispParams->rgvarg->pboolVal = VARIANT_FALSE;
@@ -534,24 +594,32 @@ HRESULT DcxWebControl::Invoke( DISPID dispIdMember,
 				if (FAILED(hRes))
 					throw Dcx::dcxException(TEXT("DcxWebControl::Invoke(DISPID_DOCUMENTCOMPLETE) -> Unable to get Params: %"), err);
 
-				this->execAliasEx(TEXT("%s,%d,%ws"), TEXT("doc_complete"), this->getUserID(), arg2.bstrVal);
+				execAliasEx(TEXT("doc_complete,%u,%ws"), getUserID(), arg2.bstrVal);
 			}
 			break;
 
 			case DISPID_DOWNLOADBEGIN:
-				this->execAliasEx(TEXT("%s,%d"), TEXT("dl_begin"), this->getUserID());
+				execAliasEx(TEXT("dl_begin,%u"), getUserID());
 				break;
 
 			case DISPID_DOWNLOADCOMPLETE:
-				this->execAliasEx(TEXT("%s,%d"), TEXT("dl_complete"), this->getUserID());
+				execAliasEx(TEXT("dl_complete,%u"), getUserID());
 				break;
 
 			case DISPID_NEWWINDOW2:
 			{
-				TCHAR ret[256];
-				this->evalAliasEx(ret, 255, TEXT("%s,%d"), TEXT("win_open"), this->getUserID());
+				//TCHAR ret[256];
+				//evalAliasEx(ret, Dcx::countof(ret), TEXT("win_open,%u"), getUserID());
+				//
+				//if (lstrcmpi(ret, TEXT("cancel")) == 0)
+				//	*pDispParams->rgvarg->pboolVal = VARIANT_TRUE;
+				//else
+				//	*pDispParams->rgvarg->pboolVal = VARIANT_FALSE;
 
-				if (lstrcmpi(ret, TEXT("cancel")) == 0)
+				stString<256> sRet;
+				evalAliasEx(sRet, sRet.size(), TEXT("win_open,%u"), getUserID());
+
+				if (sRet == TEXT("cancel"))
 					*pDispParams->rgvarg->pboolVal = VARIANT_TRUE;
 				else
 					*pDispParams->rgvarg->pboolVal = VARIANT_FALSE;
@@ -564,7 +632,7 @@ HRESULT DcxWebControl::Invoke( DISPID dispIdMember,
 				if (FAILED(hRes))
 					throw Dcx::dcxException(TEXT("DcxWebControl::Invoke(DISPID_STATUSTEXTCHANGE) -> Unable to get Params: %"), err);
 
-				this->execAliasEx(TEXT("%s,%d,%ws"), TEXT("status"), this->getUserID(), arg1.bstrVal);
+				execAliasEx(TEXT("status,%u,%ws"), getUserID(), arg1.bstrVal);
 			}
 			break;
 
@@ -574,7 +642,7 @@ HRESULT DcxWebControl::Invoke( DISPID dispIdMember,
 				if (FAILED(hRes))
 					throw Dcx::dcxException(TEXT("DcxWebControl::Invoke(DISPID_TITLECHANGE) -> Unable to get Params: %"), err);
 
-				this->execAliasEx(TEXT("%s,%d,%ws"), TEXT("title"), this->getUserID(), arg1.bstrVal);
+				execAliasEx(TEXT("title,%u,%ws"), getUserID(), arg1.bstrVal);
 			}
 			break;
 
@@ -582,13 +650,13 @@ HRESULT DcxWebControl::Invoke( DISPID dispIdMember,
 			{
 				hRes = DispGetParam(pDispParams, 0, VT_BSTR, &arg1, &err);
 				if (FAILED(hRes))
-					this->showErrorEx(nullptr, TEXT("DcxWebControl::Invoke(DISPID_PROGRESSCHANGE)"), TEXT("Unable to get Params: %ld"), err);
+					throw Dcx::dcxException(TEXT("DcxWebControl::Invoke(DISPID_PROGRESSCHANGE) -> Unable to get arg1: %"), err);
 
 				hRes = DispGetParam(pDispParams, 1, VT_BSTR, &arg2, &err);
 				if (FAILED(hRes))
-					throw Dcx::dcxException(TEXT("DcxWebControl::Invoke(DISPID_PROGRESSCHANGE) -> Unable to get Params: %"), err);
+					throw Dcx::dcxException(TEXT("DcxWebControl::Invoke(DISPID_PROGRESSCHANGE) -> Unable to get arg2: %"), err);
 
-				this->execAliasEx(TEXT("%s,%d,%ws,%ws"), TEXT("dl_progress"), this->getUserID(), arg1.bstrVal, arg2.bstrVal);
+				execAliasEx(TEXT("dl_progress,%u,%ws,%ws"), getUserID(), arg1.bstrVal, arg2.bstrVal);
 			}
 			break;
 
@@ -604,11 +672,11 @@ HRESULT DcxWebControl::Invoke( DISPID dispIdMember,
 
 				switch (arg1.bstrVal[0]) {
 				case L'1':
-					this->execAliasEx(TEXT("%s,%d,%s"), TEXT("forward"), this->getUserID(), arg2.boolVal ? TEXT("$true") : TEXT("$false"));
+					execAliasEx(TEXT("forward,%u,%s"), getUserID(), arg2.boolVal ? TEXT("$true") : TEXT("$false"));
 					break;
 
 				case L'2':
-					this->execAliasEx(TEXT("%s,%d,%s"), TEXT("back"), this->getUserID(), arg2.boolVal ? TEXT("$true") : TEXT("$false"));
+					execAliasEx(TEXT("back,%u,%s"), getUserID(), arg2.boolVal ? TEXT("$true") : TEXT("$false"));
 					break;
 				}
 			}
@@ -620,14 +688,13 @@ HRESULT DcxWebControl::Invoke( DISPID dispIdMember,
 	}
 	catch (std::exception &e)
 	{
-		this->showErrorEx(nullptr, TEXT("webctrl"), TEXT("error: %S"), e.what());
+		//showErrorEx(nullptr, TEXT("webctrl"), TEXT("error: %S"), e.what());
+		showError(nullptr, TEXT("webctrl"), TEXT("error: %"), e.what());
 	}
 	catch (...) {
 		// stop any left over exceptions...
-		this->showError(nullptr, TEXT("webctrl"), TEXT("error: Unknown Exception"));
+		showError(nullptr, TEXT("webctrl"), TEXT("error: Unknown Exception"));
 	}
-	VariantClear(&arg1);
-	VariantClear(&arg2);
 	return hRes;
 }
 
@@ -669,7 +736,7 @@ HRESULT STDMETHODCALLTYPE DcxWebControl::GetWindowContext( IOleInPlaceFrame __RP
 	*ppFrame = nullptr;
 	*ppDoc = nullptr;
 
-	GetClientRect( this->m_Hwnd, pPR );
+	GetClientRect( m_Hwnd, pPR );
 	CopyRect( pCR, pPR ); 
 	/*
 	//set client area (updated in subclass_wnd_proc)
@@ -701,10 +768,12 @@ LRESULT DcxWebControl::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 	case WM_CHILDACTIVATE:
 	case WM_SIZE:
 		{
+			if (m_pOleInPlaceObject == nullptr)
+				break;
+
 			RECT rc; 
-			if (GetClientRect( this->m_Hwnd, &rc ))
-				this->m_pOleInPlaceObject->SetObjectRects( &rc, &rc );
-			//return 0L;
+			if (GetClientRect( m_Hwnd, &rc ))
+				m_pOleInPlaceObject->SetObjectRects( &rc, &rc );
 		}
 		break;
 
@@ -724,6 +793,7 @@ LRESULT DcxWebControl::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 			return MA_NOACTIVATE;
 		}
 		break;
+
 		//case WM_GETDLGCODE:
 		//		{
 		//			bParsed = TRUE;
@@ -741,24 +811,45 @@ LRESULT DcxWebControl::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 		//		mIRCDebug(TEXT("wheel"));
 		//	}
 		//	break;
-
+		//
 		//case WM_NCHITTEST:
 		//	{
 		//		bParsed = TRUE;
 		//		return HTCLIENT;
-		//		//return DefWindowProc( this->m_Hwnd, uMsg, wParam, lParam);
+		//		//return DefWindowProc( m_Hwnd, uMsg, wParam, lParam);
 		//	}
 		//	break;
 
-	case WM_DESTROY:
-		{
-			delete this;
-			bParsed = TRUE;
-		}
-		break;
+		// original version
+	//case WM_DESTROY:
+	//{
+	//	delete this;
+	//	bParsed = TRUE;
+	//}
+	//break;
 
+	//case WM_DESTROY:
+	//	{
+	//		SafeRelease();
+	//		//delete this;
+	//		//bParsed = TRUE;
+	//	}
+	//	break;
+
+	case WM_NCDESTROY:
+	{
+		LRESULT lRes = 0L;
+		if (m_DefaultWindowProc != nullptr)
+			lRes = CallWindowProc(m_DefaultWindowProc, m_Hwnd, uMsg, wParam, lParam);
+		else
+			lRes = DefWindowProc(m_Hwnd, uMsg, wParam, lParam);
+		delete this;
+		bParsed = TRUE;
+		return lRes;
+	}
+	break;
 	default:
-		return this->CommonMessage( uMsg, wParam, lParam, bParsed);
+		return CommonMessage( uMsg, wParam, lParam, bParsed);
 		break;
 	}
 
