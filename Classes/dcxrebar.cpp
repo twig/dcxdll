@@ -37,7 +37,7 @@ DcxReBar::DcxReBar( const UINT ID, DcxDialog *const p_Dialog, const HWND mParent
 	BOOL bNoTheme = FALSE;
 	this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
 
-	this->m_Hwnd = CreateWindowEx(
+	m_Hwnd = CreateWindowEx(
 		ExStyles | WS_EX_CONTROLPARENT,
 		DCX_REBARCTRLCLASS,
 		nullptr,
@@ -48,12 +48,12 @@ DcxReBar::DcxReBar( const UINT ID, DcxDialog *const p_Dialog, const HWND mParent
 		GetModuleHandle(nullptr),
 		nullptr);
 
-	if (!IsWindow(this->m_Hwnd))
+	if (!IsWindow(m_Hwnd))
 		throw Dcx::dcxException("Unable To Create Window");
 
 	if ( bNoTheme ) {
-		//SendMessage( this->m_Hwnd, RB_SETWINDOWTHEME, NULL, L" ");
-		Dcx::UXModule.dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
+		//SendMessage( m_Hwnd, RB_SETWINDOWTHEME, NULL, L" ");
+		Dcx::UXModule.dcxSetWindowTheme( m_Hwnd , L" ", L" " );
 	}
 	{
 		this->setImageList( this->createImageList() );
@@ -65,7 +65,7 @@ DcxReBar::DcxReBar( const UINT ID, DcxDialog *const p_Dialog, const HWND mParent
 	}
 	this->setControlFont( GetStockFont( DEFAULT_GUI_FONT ), FALSE );
 	this->registreDefaultWindowProc( );
-	SetProp( this->m_Hwnd, TEXT("dcx_cthis"), (HANDLE) this );
+	SetProp( m_Hwnd, TEXT("dcx_cthis"), (HANDLE) this );
 }
 
 /*!
@@ -86,7 +86,7 @@ DcxReBar::~DcxReBar( ) {
 const TString DcxReBar::getStyles(void) const
 {
 	auto styles(__super::getStyles());
-	const auto Styles = GetWindowStyle(this->m_Hwnd);
+	const auto Styles = GetWindowStyle(m_Hwnd);
 
 	if (dcx_testflag(Styles, RBS_BANDBORDERS))
 		styles.addtok(TEXT("borders"));
@@ -203,7 +203,9 @@ HIMAGELIST DcxReBar::getImageList() const {
 	ZeroMemory(&ri, sizeof(REBARINFO));
 	ri.cbSize = sizeof(REBARINFO);
 	ri.fMask = RBIM_IMAGELIST;
-	this->getBarInfo(&ri);
+	
+	getBarInfo(&ri);
+	
 	return ri.himl;
 }
 
@@ -220,7 +222,8 @@ void DcxReBar::setImageList(HIMAGELIST himl) {
 	ri.cbSize = sizeof(REBARINFO);
 	ri.himl = himl;
 	ri.fMask = RBIM_IMAGELIST;
-	this->setBarInfo(&ri);
+	
+	setBarInfo(&ri);
 }
 
 /*!
@@ -229,9 +232,9 @@ void DcxReBar::setImageList(HIMAGELIST himl) {
  * blah
  */
 
-HIMAGELIST DcxReBar::createImageList() {
-	return ImageList_Create(16, 16, ILC_COLOR32 | ILC_MASK, 1, 0);
-}
+//HIMAGELIST DcxReBar::createImageList() {
+//	return ImageList_Create(16, 16, ILC_COLOR32 | ILC_MASK, 1, 0);
+//}
 
 /*!
  * \brief $xdid Parsing Function
@@ -266,7 +269,8 @@ void DcxReBar::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) c
 		rbBand.fMask = RBBIM_TEXT;
 		rbBand.cch = MIRC_BUFFER_SIZE_CCH;
 		rbBand.lpText = szReturnValue;
-		this->getBandInfo(nIndex, &rbBand);
+
+		getBandInfo(nIndex, &rbBand);
 	}
 	else if ( prop == TEXT("childid") && numtok > 3 ) {
 
@@ -281,16 +285,18 @@ void DcxReBar::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) c
 	}
 	// $xdid([NAME], [ID], [N]).[PROP]
 	else if (prop == TEXT("markeditem")) {
-		REBARBANDINFO rbi;
 		const auto n = input.getnexttok().to_int() - 1;	// tok 4
 
 		if (n < 0 || n >= this->getBandCount())
 			throw Dcx::dcxException("Invalid Index");
 
+		REBARBANDINFO rbi;
 		ZeroMemory(&rbi, sizeof(REBARBANDINFO));
 		rbi.cbSize = sizeof(REBARBANDINFO);
 		rbi.fMask = RBBIM_LPARAM;
-		this->getBandInfo(n, &rbi);
+
+		getBandInfo(n, &rbi);
+		
 		auto pdcxrbb = reinterpret_cast<LPDCXRBBAND>(rbi.lParam);
 
 		dcx_strcpyn(szReturnValue, pdcxrbb->tsMarkText.to_chr(), MIRC_BUFFER_SIZE_CCH);
@@ -331,7 +337,7 @@ void DcxReBar::parseCommandRequest( const TString & input ) {
 				tooltip = input.getnexttok( TSTABCHAR).trim();		// tok 3
 		}
 		auto nIndex = data.getfirsttok(4).to_<int>() - 1;
-		rbBand.fStyle = this->parseBandStyleFlags(data.getnexttok());	// tok 5
+		rbBand.fStyle = parseBandStyleFlags(data.getnexttok());	// tok 5
 		const auto cx = data.getnexttok().to_<UINT>();					// tok 6
 		const auto cy = data.getnexttok().to_<UINT>();					// tok 7
 		const auto width = data.getnexttok().to_<UINT>();				// tok 8
@@ -358,15 +364,9 @@ void DcxReBar::parseCommandRequest( const TString & input ) {
 		// Tooltip Handling
 		auto lpdcxrbb = std::make_unique<DCXRBBAND>();
 
-		if (dcx_testflag(rbBand.fStyle, RBBS_UNDERLINE))
-			lpdcxrbb->bUline = TRUE;
-		else
-			lpdcxrbb->bUline = FALSE;
+		lpdcxrbb->bUline = dcx_testflag(rbBand.fStyle, RBBS_UNDERLINE);
 
-		if (dcx_testflag(rbBand.fStyle, RBBS_BOLD))
-			lpdcxrbb->bBold = TRUE;
-		else
-			lpdcxrbb->bBold = FALSE;
+		lpdcxrbb->bBold = dcx_testflag(rbBand.fStyle, RBBS_BOLD);
 
 		if (dcx_testflag(rbBand.fStyle, RBBS_COLOR))
 			lpdcxrbb->clrText = clrText;
@@ -397,7 +397,7 @@ void DcxReBar::parseCommandRequest( const TString & input ) {
 				CTLF_ALLOW_DIVIDER |
 				CTLF_ALLOW_PANEL |
 				CTLF_ALLOW_TAB
-				, this->m_Hwnd);
+				, m_Hwnd);
 
 			auto dct = p_Control->getControlType();
 			
@@ -428,7 +428,7 @@ void DcxReBar::parseCommandRequest( const TString & input ) {
 			//		CTLF_ALLOW_DIVIDER |
 			//		CTLF_ALLOW_PANEL |
 			//		CTLF_ALLOW_TAB
-			//		,this->m_Hwnd);
+			//		,m_Hwnd);
 			//
 			//	//if ((p_Control->getType() == TEXT("statusbar")) || (p_Control->getType() == TEXT("toolbar")))
 			//	//	p_Control->addStyle( CCS_NOPARENTALIGN | CCS_NORESIZE );
@@ -450,7 +450,7 @@ void DcxReBar::parseCommandRequest( const TString & input ) {
 			//	rbBand.wID = ID;
 			//}
 			//catch ( std::exception &e ) {
-			//	this->showErrorEx(nullptr, TEXT("-a"), TEXT("Unable To Create Control: %d (%S)"), ID - mIRC_ID_OFFSET, e.what() );
+			//	showErrorEx(nullptr, TEXT("-a"), TEXT("Unable To Create Control: %d (%S)"), ID - mIRC_ID_OFFSET, e.what() );
 			//	throw;
 			//}
 		}
@@ -466,12 +466,12 @@ void DcxReBar::parseCommandRequest( const TString & input ) {
 	}
 	// xdid -A [NAME] [ID] [SWITCH] [N] (TEXT)
 	else if (flags[TEXT('A')] && numtok > 3) {
-		REBARBANDINFO rbi;
 		const auto n = input.getnexttok( ).to_int() - 1;	// tok 4
 
-		if (n < 0 || n >= this->getBandCount())
+		if (n < 0 || n >= getBandCount())
 			throw Dcx::dcxException("Invalid Index");
 
+		REBARBANDINFO rbi;
 		ZeroMemory(&rbi, sizeof(REBARBANDINFO));
 		rbi.cbSize = sizeof(REBARBANDINFO);
 		rbi.fMask = RBBIM_LPARAM;
@@ -752,7 +752,7 @@ UINT DcxReBar::parseBandStyleFlags( const TString & flags ) {
  */
 
 LRESULT DcxReBar::insertBand(const int uIndex, LPREBARBANDINFO lprbbi ) {
-  return SendMessage(this->m_Hwnd, RB_INSERTBAND, (WPARAM) uIndex, (LPARAM) lprbbi ); 
+  return SendMessage(m_Hwnd, RB_INSERTBAND, (WPARAM) uIndex, (LPARAM) lprbbi ); 
 }
 
 /*!
@@ -762,7 +762,7 @@ LRESULT DcxReBar::insertBand(const int uIndex, LPREBARBANDINFO lprbbi ) {
  */
 
 LRESULT DcxReBar::deleteBand( const UINT uIndex ) {
-  return SendMessage( this->m_Hwnd, RB_DELETEBAND, (WPARAM) uIndex, (LPARAM) 0 ); 
+  return SendMessage( m_Hwnd, RB_DELETEBAND, (WPARAM) uIndex, (LPARAM) 0 ); 
 }
 
 /*!
@@ -772,7 +772,7 @@ LRESULT DcxReBar::deleteBand( const UINT uIndex ) {
  */
 
 LRESULT DcxReBar::getBandInfo( const UINT uBand, LPREBARBANDINFO lprbbi ) const {
-  return SendMessage( this->m_Hwnd, RB_GETBANDINFO, (WPARAM) uBand, (LPARAM) lprbbi ); 
+  return SendMessage( m_Hwnd, RB_GETBANDINFO, (WPARAM) uBand, (LPARAM) lprbbi ); 
 }
 
 /*!
@@ -782,7 +782,7 @@ LRESULT DcxReBar::getBandInfo( const UINT uBand, LPREBARBANDINFO lprbbi ) const 
  */
 
 LRESULT DcxReBar::setBandInfo( const UINT uBand, LPREBARBANDINFO lprbbi ) {
-  return SendMessage( this->m_Hwnd, RB_SETBANDINFO, (WPARAM) uBand, (LPARAM) lprbbi ); 
+  return SendMessage( m_Hwnd, RB_SETBANDINFO, (WPARAM) uBand, (LPARAM) lprbbi ); 
 }
 
 /*!
@@ -792,7 +792,7 @@ LRESULT DcxReBar::setBandInfo( const UINT uBand, LPREBARBANDINFO lprbbi ) {
  */
 
 LRESULT DcxReBar::setBarInfo( LPREBARINFO lprbi ) {
-  return SendMessage( this->m_Hwnd, RB_SETBARINFO, (WPARAM) 0, (LPARAM) lprbi ); 
+  return SendMessage( m_Hwnd, RB_SETBARINFO, (WPARAM) 0, (LPARAM) lprbi ); 
 }
 
 /*!
@@ -802,7 +802,7 @@ LRESULT DcxReBar::setBarInfo( LPREBARINFO lprbi ) {
  */
 
 LRESULT DcxReBar::getBarInfo( LPREBARINFO lprbi ) const {
-  return SendMessage( this->m_Hwnd, RB_GETBARINFO, (WPARAM) 0, (LPARAM) lprbi ); 
+  return SendMessage( m_Hwnd, RB_GETBARINFO, (WPARAM) 0, (LPARAM) lprbi ); 
 }
 
 /*!
@@ -812,7 +812,7 @@ LRESULT DcxReBar::getBarInfo( LPREBARINFO lprbi ) const {
  */
 
 LRESULT DcxReBar::getRowCount( ) const {
-  return SendMessage( this->m_Hwnd, RB_GETROWCOUNT, (WPARAM) 0, (LPARAM) 0 ); 
+  return SendMessage( m_Hwnd, RB_GETROWCOUNT, (WPARAM) 0, (LPARAM) 0 ); 
 }
 
 /*!
@@ -822,7 +822,7 @@ LRESULT DcxReBar::getRowCount( ) const {
  */
 
 LRESULT DcxReBar::hitTest( LPRBHITTESTINFO lprbht ) {
-  return SendMessage( this->m_Hwnd, RB_HITTEST, (WPARAM) 0, (LPARAM) lprbht ); 
+  return SendMessage( m_Hwnd, RB_HITTEST, (WPARAM) 0, (LPARAM) lprbht ); 
 }
 
 /*!
@@ -832,7 +832,7 @@ LRESULT DcxReBar::hitTest( LPRBHITTESTINFO lprbht ) {
  */
 
 LRESULT DcxReBar::getToolTips( ) const {
-  return SendMessage( this->m_Hwnd, RB_GETTOOLTIPS, (WPARAM) 0, (LPARAM) 0 ); 
+  return SendMessage( m_Hwnd, RB_GETTOOLTIPS, (WPARAM) 0, (LPARAM) 0 ); 
 }
 
 /*!
@@ -842,7 +842,7 @@ LRESULT DcxReBar::getToolTips( ) const {
  */
 
 LRESULT DcxReBar::setToolTips( const HWND hwndToolTip ) {
-  return SendMessage( this->m_Hwnd, RB_SETTOOLTIPS, (WPARAM) hwndToolTip, (LPARAM) 0 ); 
+  return SendMessage( m_Hwnd, RB_SETTOOLTIPS, (WPARAM) hwndToolTip, (LPARAM) 0 ); 
 }
 
 /*!
@@ -852,7 +852,7 @@ LRESULT DcxReBar::setToolTips( const HWND hwndToolTip ) {
  */
 
 LRESULT DcxReBar::getIDToIndex( const UINT uBandID ) const {
-  return SendMessage( this->m_Hwnd, RB_IDTOINDEX, (WPARAM) uBandID, (LPARAM) 0 );
+  return SendMessage( m_Hwnd, RB_IDTOINDEX, (WPARAM) uBandID, (LPARAM) 0 );
 }
 
 /*!
@@ -862,7 +862,7 @@ LRESULT DcxReBar::getIDToIndex( const UINT uBandID ) const {
  */
 
 LRESULT DcxReBar::getBandCount( ) const {
-  return SendMessage( this->m_Hwnd, RB_GETBANDCOUNT, (WPARAM) 0, (LPARAM) 0 );
+  return SendMessage( m_Hwnd, RB_GETBANDCOUNT, (WPARAM) 0, (LPARAM) 0 );
 }
 
 /*!
@@ -872,7 +872,7 @@ LRESULT DcxReBar::getBandCount( ) const {
  */
 
 LRESULT DcxReBar::setReDraw( const BOOL uState ) {
-  return SendMessage( this->m_Hwnd, WM_SETREDRAW, (WPARAM) uState, (LPARAM) uState );
+  return SendMessage( m_Hwnd, WM_SETREDRAW, (WPARAM) uState, (LPARAM) uState );
 }
 
 /*!
@@ -882,7 +882,7 @@ LRESULT DcxReBar::setReDraw( const BOOL uState ) {
  */
 
 LRESULT DcxReBar::showBand( const UINT uBand, const BOOL fShow ) {
-  return SendMessage( this->m_Hwnd, RB_SHOWBAND, (WPARAM) uBand, (LPARAM) fShow );
+  return SendMessage( m_Hwnd, RB_SHOWBAND, (WPARAM) uBand, (LPARAM) fShow );
 }
 
 /*!
@@ -892,7 +892,7 @@ LRESULT DcxReBar::showBand( const UINT uBand, const BOOL fShow ) {
  */
 
 LRESULT DcxReBar::moveBand( const UINT iFrom, const UINT iTo ) {
-  return SendMessage( this->m_Hwnd, RB_MOVEBAND, (WPARAM) iFrom, (LPARAM) iTo );
+  return SendMessage( m_Hwnd, RB_MOVEBAND, (WPARAM) iFrom, (LPARAM) iTo );
 }
 
 /*!
@@ -902,7 +902,7 @@ LRESULT DcxReBar::moveBand( const UINT iFrom, const UINT iTo ) {
  */
 
 LRESULT DcxReBar::maxBand( const UINT uBand, const BOOL fIdeal ) {
-  return SendMessage( this->m_Hwnd, RB_MAXIMIZEBAND, (WPARAM) uBand, (LPARAM) fIdeal );
+  return SendMessage( m_Hwnd, RB_MAXIMIZEBAND, (WPARAM) uBand, (LPARAM) fIdeal );
 }
 
 /*!
@@ -912,7 +912,7 @@ LRESULT DcxReBar::maxBand( const UINT uBand, const BOOL fIdeal ) {
  */
 
 LRESULT DcxReBar::minBand( const UINT uBand, const BOOL fIdeal ) {
-  return SendMessage( this->m_Hwnd, RB_MINIMIZEBAND, (WPARAM) uBand, (LPARAM) fIdeal );
+  return SendMessage( m_Hwnd, RB_MINIMIZEBAND, (WPARAM) uBand, (LPARAM) fIdeal );
 }
 
 /*!
@@ -947,7 +947,7 @@ LRESULT DcxReBar::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 							if ( lpdcxrbb == nullptr )
 								return CDRF_DODEFAULT;
 
-							if ( lpdcxrbb->clrText != -1 )
+							if ( lpdcxrbb->clrText != CLR_INVALID )
 								SetTextColor( lpncd->hdc, lpdcxrbb->clrText );
 						}
 						return (CDRF_NOTIFYPOSTPAINT | CDRF_NEWFONT);
@@ -963,18 +963,17 @@ LRESULT DcxReBar::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 				{
 					bParsed = TRUE;
 					RECT rc;
-					if (GetWindowRect(this->m_Hwnd, &rc))
+					if (GetWindowRect(m_Hwnd, &rc))
 					{
 						const UINT width = rc.right - rc.left;
 						const UINT height = rc.bottom - rc.top;
 
-						if (this->m_iWidth != width || this->m_iHeight != height) {
+						if (m_iWidth != width || m_iHeight != height) {
 
-							this->execAliasEx(TEXT("%s,%d,%d,%d"), TEXT("change"), this->getUserID(),
-								width, height);
+							execAliasEx(TEXT("change,%d,%d,%d"), getUserID(), width, height);
 
-							this->m_iWidth = width;
-							this->m_iHeight = height;
+							m_iWidth = width;
+							m_iHeight = height;
 						}
 					}
 				}
@@ -983,7 +982,7 @@ LRESULT DcxReBar::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 			case RBN_ENDDRAG:
 				{
 					bParsed = TRUE;
-					this->redrawWindow( );
+					redrawWindow( );
 				}
 				break;
 
@@ -1001,13 +1000,10 @@ LRESULT DcxReBar::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 					rbBand.cbSize = sizeof( REBARBANDINFO );
 					rbBand.fMask = RBBIM_CHILD;
 
-					if ( this->getBandInfo( lpnmrb->uBand, &rbBand ) != 0 ) {
+					if ( getBandInfo( lpnmrb->uBand, &rbBand ) != 0 ) {
 
-						if ( IsWindow( rbBand.hwndChild ) ) {
-
-							auto p_delControl = this->m_pParentDialog->getControlByHWND(rbBand.hwndChild);
-							this->m_pParentDialog->deleteControl( p_delControl );
-						}
+						if ( IsWindow( rbBand.hwndChild ) )
+							m_pParentDialog->deleteControl(m_pParentDialog->getControlByHWND(rbBand.hwndChild));
 
 						auto lpdcxrbb = reinterpret_cast<LPDCXRBBAND>(lpnmrb->lParam);
 						delete lpdcxrbb;
@@ -1068,7 +1064,7 @@ LRESULT DcxReBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 
 	case WM_MEASUREITEM:
 		{
-			auto cHwnd = GetDlgItem(this->m_Hwnd, wParam);
+			auto cHwnd = GetDlgItem(m_Hwnd, wParam);
 			if (IsWindow(cHwnd)) {
 				auto c_this = reinterpret_cast<DcxControl *>(GetProp(cHwnd, TEXT("dcx_cthis")));
 				if (c_this != nullptr)
@@ -1094,15 +1090,15 @@ LRESULT DcxReBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 			RBHITTESTINFO rbhi;
 			if (GetCursorPos(&rbhi.pt))
 			{
-				MapWindowPoints(nullptr, this->m_Hwnd, &rbhi.pt, 1);
-				const auto band = this->hitTest(&rbhi);
+				MapWindowPoints(nullptr, m_Hwnd, &rbhi.pt, 1);
+				const auto band = hitTest(&rbhi);
 
 				if ((dcx_testflag(rbhi.flags, RBHT_GRABBER) || dcx_testflag(rbhi.flags, RBHT_CAPTION)) && band != -1) {
 
-					this->m_iClickedBand = band;
+					m_iClickedBand = band;
 
 					if (dcx_testflag(this->m_pParentDialog->getEventMask(), DCX_EVENT_CLICK))
-						this->execAliasEx(TEXT("%s,%d,%d"), TEXT("sclick"), this->getUserID(), band + 1);
+						this->execAliasEx(TEXT("sclick,%d,%d"), getUserID(), band + 1);
 				}
 			}
 		}
@@ -1115,7 +1111,7 @@ LRESULT DcxReBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 				RBHITTESTINFO rbhi;
 				if (GetCursorPos(&rbhi.pt))
 				{
-					MapWindowPoints(nullptr, this->m_Hwnd, &rbhi.pt, 1);
+					MapWindowPoints(nullptr, m_Hwnd, &rbhi.pt, 1);
 					const auto band = this->hitTest(&rbhi);
 
 					if (band != -1)
@@ -1127,7 +1123,7 @@ LRESULT DcxReBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 
 	case WM_SIZE:
 		{
-			InvalidateRect( this->m_Hwnd, nullptr, TRUE );
+			InvalidateRect( m_Hwnd, nullptr, TRUE );
 		}
 		break;
 

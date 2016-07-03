@@ -35,7 +35,7 @@ DcxPanel::DcxPanel(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentH
 	BOOL bNoTheme = FALSE;
 	this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
 
-	this->m_Hwnd = CreateWindowEx(	
+	m_Hwnd = CreateWindowEx(	
 		ExStyles | WS_EX_CONTROLPARENT, 
 		DCX_PANELCLASS, 
 		nullptr,
@@ -46,16 +46,16 @@ DcxPanel::DcxPanel(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentH
 		GetModuleHandle(nullptr), 
 		nullptr);
 
-	if (!IsWindow(this->m_Hwnd))
+	if (!IsWindow(m_Hwnd))
 		throw Dcx::dcxException("Unable To Create Window");
 
 	if ( bNoTheme )
-		Dcx::UXModule.dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
+		Dcx::UXModule.dcxSetWindowTheme( m_Hwnd , L" ", L" " );
 
-	this->m_pLayoutManager = new LayoutManager( this->m_Hwnd );
+	this->m_pLayoutManager = new LayoutManager( m_Hwnd );
 
 	this->registreDefaultWindowProc( );
-	SetProp( this->m_Hwnd, TEXT("dcx_cthis"), (HANDLE) this );
+	SetProp( m_Hwnd, TEXT("dcx_cthis"), (HANDLE) this );
 }
 
 /*!
@@ -74,7 +74,7 @@ DcxPanel::~DcxPanel( ) {
 void DcxPanel::toXml(TiXmlElement *const xml) const
 {
 	__super::toXml(xml);
-	this->m_pLayoutManager->getRoot()->toXml(xml);
+	m_pLayoutManager->getRoot()->toXml(xml);
 }
 
 /*!
@@ -85,7 +85,7 @@ void DcxPanel::toXml(TiXmlElement *const xml) const
 
 void DcxPanel::parseControlStyles( const TString &styles, LONG *Styles, LONG *ExStyles, BOOL *bNoTheme)
 {
-	this->parseGeneralControlStyles(styles, Styles, ExStyles, bNoTheme);
+	parseGeneralControlStyles(styles, Styles, ExStyles, bNoTheme);
 }
 
 /*!
@@ -99,7 +99,7 @@ void DcxPanel::parseControlStyles( const TString &styles, LONG *Styles, LONG *Ex
 
 void DcxPanel::parseInfoRequest(const TString & input, PTCHAR szReturnValue) const
 {
-	this->parseGlobalInfoRequest(input, szReturnValue);
+	parseGlobalInfoRequest(input, szReturnValue);
 }
 
 /*!
@@ -121,21 +121,21 @@ void DcxPanel::parseCommandRequest( const TString & input ) {
 		//	throw Dcx::dcxException(TEXT("Control with ID \"%\" already exists"), ID - mIRC_ID_OFFSET);
 	//
 		//try {
-		//	this->m_pParentDialog->addControl(DcxControl::controlFactory(this->m_pParentDialog, ID, input, 5, CTLF_ALLOW_ALL, this->m_Hwnd));
+		//	m_pParentDialog->addControl(DcxControl::controlFactory(m_pParentDialog, ID, input, 5, CTLF_ALLOW_ALL, m_Hwnd));
 		//}
 		//catch ( std::exception &e ) {
-		//	this->showErrorEx(nullptr, TEXT("-c"), TEXT("Unable To Create Control %d (%S)"), ID - mIRC_ID_OFFSET, e.what());
+		//	showErrorEx(nullptr, TEXT("-c"), TEXT("Unable To Create Control %d (%S)"), ID - mIRC_ID_OFFSET, e.what());
 		//	throw;
 		//}
 		//this->redrawWindow();
 
-		this->m_pParentDialog->addControl(input, 4, CTLF_ALLOW_ALL, this->m_Hwnd);
-		this->redrawWindow();
+		m_pParentDialog->addControl(input, 4, CTLF_ALLOW_ALL, m_Hwnd);
+		redrawWindow();
 	}
 	// xdid -d [NAME] [ID] [SWITCH] [ID]
 	else if ( flags[TEXT('d')] && numtok > 3 ) {
 
-		const auto ID = mIRC_ID_OFFSET + (UINT)input.getnexttok().to_int();	// tok 4
+		const auto ID = mIRC_ID_OFFSET + input.getnexttok().to_<UINT>();	// tok 4
 
 		if (!this->m_pParentDialog->isIDValid(ID))
 			throw Dcx::dcxException(TEXT("Unknown control with ID \"%\" (dialog %)"), ID - mIRC_ID_OFFSET, this->m_pParentDialog->getName());
@@ -187,7 +187,7 @@ void DcxPanel::parseCommandRequest( const TString & input ) {
 		if (tsCmd == TEXT("update"))
 		{
 			RECT rc;
-			if (!GetClientRect(this->m_Hwnd, &rc))
+			if (!GetClientRect(m_Hwnd, &rc))
 				throw Dcx::dcxException("Unable to get window rect");
 
 			this->m_pLayoutManager->updateLayout( rc );
@@ -195,7 +195,7 @@ void DcxPanel::parseCommandRequest( const TString & input ) {
 		}
 		else if (tsCmd == TEXT("clear")) {
 			delete this->m_pLayoutManager;
-			this->m_pLayoutManager = new LayoutManager(this->m_Hwnd);
+			this->m_pLayoutManager = new LayoutManager(m_Hwnd);
 			//this->redrawWindow(); // dont redraw here, leave that for an `update` cmd
 		}
 		else if ( numtok > 8 ) {
@@ -204,7 +204,7 @@ void DcxPanel::parseCommandRequest( const TString & input ) {
 	}
 	// xdid -t [NAME] [ID] [SWITCH] [TEXT]
 	else if (flags[TEXT('t')] && numtok > 3) {
-		SetWindowText(this->m_Hwnd, input.getlasttoks().to_chr());	// tok 4, -1
+		SetWindowText(m_Hwnd, input.getlasttoks().to_chr());	// tok 4, -1
 	}
 	else
 		this->parseGlobalCommandRequest( input, flags );
@@ -277,7 +277,7 @@ LRESULT DcxPanel::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 
 		case WM_MEASUREITEM:
 			{
-				auto cHwnd = GetDlgItem(this->m_Hwnd, wParam);
+				auto cHwnd = GetDlgItem(m_Hwnd, wParam);
 				if (IsWindow(cHwnd)) {
 					auto c_this = static_cast<DcxControl *>(GetProp(cHwnd, TEXT("dcx_cthis")));
 					if (c_this != nullptr)
@@ -301,23 +301,23 @@ LRESULT DcxPanel::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 		case WM_SIZE:
 			{
 					//bParsed = TRUE;
-					//lRes = CallWindowProc(this->m_DefaultWindowProc, this->m_Hwnd, uMsg, wParam, lParam);
+					//lRes = CallWindowProc(this->m_DefaultWindowProc, m_Hwnd, uMsg, wParam, lParam);
 
 				HWND bars = nullptr;
 
-				while ( ( bars = FindWindowEx( this->m_Hwnd, bars, DCX_REBARCTRLCLASS, nullptr ) ) != nullptr ) {
+				while ( ( bars = FindWindowEx( m_Hwnd, bars, DCX_REBARCTRLCLASS, nullptr ) ) != nullptr ) {
 					SendMessage( bars, WM_SIZE, (WPARAM) 0, (LPARAM) 0 );
 				}
 
-				while ( ( bars = FindWindowEx( this->m_Hwnd, bars, DCX_STATUSBARCLASS, nullptr ) ) != nullptr ) {
+				while ( ( bars = FindWindowEx( m_Hwnd, bars, DCX_STATUSBARCLASS, nullptr ) ) != nullptr ) {
 					SendMessage( bars, WM_SIZE, (WPARAM) 0, (LPARAM) 0 );
 				}
 
-				//while ((bars = FindWindowEx(this->m_Hwnd, bars, DCX_PANELCLASS, nullptr)) != nullptr) {
+				//while ((bars = FindWindowEx(m_Hwnd, bars, DCX_PANELCLASS, nullptr)) != nullptr) {
 				//	SendMessage(bars, WM_SIZE, (WPARAM) 0, (LPARAM) 0);
 				//}
 
-				while ( ( bars = FindWindowEx( this->m_Hwnd, bars, DCX_TOOLBARCLASS, nullptr ) ) != nullptr ) {
+				while ( ( bars = FindWindowEx( m_Hwnd, bars, DCX_TOOLBARCLASS, nullptr ) ) != nullptr ) {
 					SendMessage( bars, WM_SIZE, (WPARAM) 0, (LPARAM) 0 );
 				}
 
@@ -392,7 +392,7 @@ LRESULT DcxPanel::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 			{
 				PAINTSTRUCT ps;
 
-				auto hdc = BeginPaint(this->m_Hwnd, &ps);
+				auto hdc = BeginPaint(m_Hwnd, &ps);
 
 				bParsed = TRUE;
 
@@ -410,7 +410,7 @@ LRESULT DcxPanel::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 
 				this->FinishAlphaBlend(ai);
 
-				EndPaint( this->m_Hwnd, &ps );
+				EndPaint( m_Hwnd, &ps );
 			}
 			break;
 

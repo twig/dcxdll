@@ -44,7 +44,7 @@ struct DCXSITEM {
 };
 using LPDCXSITEM = DCXSITEM *;
 
-using VectorOfImages = std::vector<Image *>;
+using VectorOfImages = std::vector<Gdiplus::Image *>;
 using VectorOfStackerItems = std::vector<LPDCXSITEM>;
 
 /*!
@@ -96,7 +96,7 @@ protected:
 	//
 	void DrawSItem(const LPDRAWITEMSTRUCT idata);
 	static void DrawAliasedTriangle(const HDC hdc, const LPRECT rc, const COLORREF clrShape);
-	void DrawItemImage(const HDC hdc, Image *const img, const LPRECT rc);
+	void DrawItemImage(const HDC hdc, Gdiplus::Image *const img, const LPRECT rc);
 	//
 	void clearImageList(void);
 	void clearItemList(void);

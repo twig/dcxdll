@@ -23,7 +23,7 @@ DcxPager::DcxPager(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentH
 	BOOL bNoTheme = FALSE;
 	this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
 
-	this->m_Hwnd = CreateWindowEx(
+	m_Hwnd = CreateWindowEx(
 		ExStyles | WS_EX_CONTROLPARENT,
 		DCX_PAGERCLASS,
 		nullptr,
@@ -34,17 +34,17 @@ DcxPager::DcxPager(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentH
 		GetModuleHandle(nullptr),
 		nullptr);
 
-	if (!IsWindow(this->m_Hwnd))
+	if (!IsWindow(m_Hwnd))
 		throw Dcx::dcxException("Unable To Create Window");
 
 	if ( bNoTheme )
-		Dcx::UXModule.dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
+		Dcx::UXModule.dcxSetWindowTheme( m_Hwnd , L" ", L" " );
 
-	//Pager_SetButtonSize(this->m_Hwnd,15);
-	//Pager_SetBkColor(this->m_Hwnd,0);
+	//Pager_SetButtonSize(m_Hwnd,15);
+	//Pager_SetBkColor(m_Hwnd,0);
 
 	this->registreDefaultWindowProc( );
-	SetProp( this->m_Hwnd, TEXT("dcx_cthis"), (HANDLE) this );
+	SetProp( m_Hwnd, TEXT("dcx_cthis"), (HANDLE) this );
 }
 
 /*!
@@ -61,7 +61,7 @@ DcxPager::~DcxPager( ) {
 const TString DcxPager::getStyles(void) const
 {
 	auto styles(__super::getStyles());
-	const auto Styles = GetWindowStyle(this->m_Hwnd);
+	const auto Styles = GetWindowStyle(m_Hwnd);
 
 	if (dcx_testflag(Styles, PGS_HORZ))
 		styles.addtok(TEXT("horizontal"));
@@ -113,11 +113,11 @@ void DcxPager::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) c
 	const auto prop(input.gettok( 3 ));
 
 	if (prop == TEXT("color"))
-		wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), Pager_GetBkColor(this->m_Hwnd) );
+		wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), Pager_GetBkColor(m_Hwnd) );
 	else if ( prop == TEXT("bsize"))
-		wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), Pager_GetButtonSize(this->m_Hwnd) );
+		wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), Pager_GetButtonSize(m_Hwnd) );
 	else if ( prop == TEXT("border"))
-		wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), Pager_GetBorder(this->m_Hwnd) );
+		wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), Pager_GetBorder(m_Hwnd) );
 	else
 		this->parseGlobalInfoRequest(input, szReturnValue);
 }
@@ -151,7 +151,7 @@ void DcxPager::parseCommandRequest( const TString & input ) {
 			CTLF_ALLOW_IMAGE |
 			CTLF_ALLOW_PAGER |
 			CTLF_ALLOW_DOCK
-			, this->m_Hwnd);
+			, m_Hwnd);
 
 		p_Control->addStyle(CCS_NORESIZE);
 		this->setChild(p_Control->getHwnd());
@@ -203,23 +203,23 @@ void DcxPager::parseCommandRequest( const TString & input ) {
 void DcxPager::setChild(const HWND child)
 {
 	this->m_ChildHWND = child;
-	Pager_SetChild(this->m_Hwnd,child);
+	Pager_SetChild(m_Hwnd,child);
 }
 void DcxPager::setBkColor(const COLORREF c)
 {
-	Pager_SetBkColor(this->m_Hwnd,c);
+	Pager_SetBkColor(m_Hwnd,c);
 }
 void DcxPager::setBorderSize(const int bSize)
 {
-	Pager_SetBorder(this->m_Hwnd,bSize);
+	Pager_SetBorder(m_Hwnd,bSize);
 }
 void DcxPager::setButtonSize(const int bSize)
 {
-	Pager_SetButtonSize(this->m_Hwnd,bSize);
+	Pager_SetButtonSize(m_Hwnd,bSize);
 }
 void DcxPager::reCalcSize(void) const
 {
-	Pager_RecalcSize(this->m_Hwnd);
+	Pager_RecalcSize(m_Hwnd);
 }
 /*!
  * \brief blah
@@ -242,9 +242,6 @@ LRESULT DcxPager::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
 			bParsed = TRUE;
 			dcxlParam(LPNMPGCALCSIZE, lpnmcs);
 
-			RECT rc;
-			ZeroMemory(&rc, sizeof(RECT));
-
 			//GetWindowRect(this->m_ChildHWND,&rc);
 			//if (lpnmcs->dwFlag == PGF_CALCHEIGHT)
 			//	lpnmcs->iHeight = (rc.bottom - rc.top);
@@ -255,18 +252,19 @@ LRESULT DcxPager::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
 			if (cthis == nullptr)
 				break;
 
-			const auto bSize = Pager_GetButtonSize(this->m_Hwnd);
+			const auto bSize = Pager_GetButtonSize(m_Hwnd);
 			//if (cthis->getType() == TEXT("toolbar")) {
 			if (cthis->getControlType() == DcxControlTypes::TOOLBAR) {
-				SIZE sz;
-				SendMessage(this->m_ChildHWND, TB_GETMAXSIZE, 0, (LPARAM)&sz);
+				SIZE sz = { 0 };
+				SendMessage(m_ChildHWND, TB_GETMAXSIZE, 0, (LPARAM)&sz);
 				if (lpnmcs->dwFlag == PGF_CALCHEIGHT)
 					lpnmcs->iHeight = sz.cy + bSize;
 				else
 					lpnmcs->iWidth = sz.cx + bSize;
 			}
 			else {
-				if (!GetWindowRect(this->m_ChildHWND, &rc))
+				RECT rc = { 0 };
+				if (!GetWindowRect(m_ChildHWND, &rc))
 					break;
 
 				if (lpnmcs->dwFlag == PGF_CALCHEIGHT)
@@ -336,7 +334,7 @@ LRESULT DcxPager::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 
 	case WM_MEASUREITEM:
 		{
-			auto cHwnd = GetDlgItem(this->m_Hwnd, wParam);
+			auto cHwnd = GetDlgItem(m_Hwnd, wParam);
 			if (IsWindow(cHwnd)) {
 				auto c_this = static_cast<DcxControl *>(GetProp(cHwnd, TEXT("dcx_cthis")));
 				if (c_this != nullptr)
@@ -361,17 +359,17 @@ LRESULT DcxPager::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 		{
 			HWND bars = nullptr;
 
-			while ( ( bars = FindWindowEx( this->m_Hwnd, bars, DCX_REBARCTRLCLASS, nullptr ) ) != nullptr ) {
+			while ( ( bars = FindWindowEx( m_Hwnd, bars, DCX_REBARCTRLCLASS, nullptr ) ) != nullptr ) {
 
 				SendMessage( bars, WM_SIZE, (WPARAM) 0, (LPARAM) 0 );
 			}
 
-			while ( ( bars = FindWindowEx( this->m_Hwnd, bars, DCX_STATUSBARCLASS, nullptr ) ) != nullptr ) {
+			while ( ( bars = FindWindowEx( m_Hwnd, bars, DCX_STATUSBARCLASS, nullptr ) ) != nullptr ) {
 
 				SendMessage( bars, WM_SIZE, (WPARAM) 0, (LPARAM) 0 );
 			}
 
-			while ( ( bars = FindWindowEx( this->m_Hwnd, bars, DCX_TOOLBARCLASS, nullptr ) ) != nullptr ) {
+			while ( ( bars = FindWindowEx( m_Hwnd, bars, DCX_TOOLBARCLASS, nullptr ) ) != nullptr ) {
 
 				SendMessage( bars, WM_SIZE, (WPARAM) 0, (LPARAM) 0 );
 			}

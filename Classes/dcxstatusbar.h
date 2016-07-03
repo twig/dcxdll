@@ -60,7 +60,7 @@ public:
 
 	HIMAGELIST getImageList( ) const noexcept;
 	void setImageList( HIMAGELIST himl );
-	static HIMAGELIST createImageList( );
+	//static HIMAGELIST createImageList( );
 
 	static UINT parseItemFlags( const TString & flags );
 	void cleanPartIcons( );
@@ -71,14 +71,14 @@ public:
 	LRESULT getBorders( LPINT aWidths ) const;
 	LRESULT setBkColor( const COLORREF clrBk );
 	LRESULT setText( const int iPart, const int Style, const PTCHAR lpstr );
-	LRESULT setPartInfo( const int iPart, const int Style, const LPSB_PARTINFOX pPart );
+	LRESULT setPartInfo( const int iPart, const int Style, gsl::owner<const LPSB_PARTINFOX> pPart );
 	LRESULT getText( const int iPart, PTCHAR lpstr ) const;
 	LRESULT getTextLength( const int iPart ) const;
 	LRESULT setTipText( const int iPart, const PTCHAR lpstr );
 	LRESULT getTipText( const int iPart, const int nSize, PTCHAR lpstr ) const;
-	LRESULT getRect( const int iPart, LPRECT lprc ) const;
+	LRESULT getRect( const int iPart, gsl::not_null<LPRECT> lprc ) const;
 	LRESULT setIcon( const int iPart, const HICON hIcon );
-	LRESULT getIcon( const int iPart ) const;
+	HICON getIcon( const int iPart ) const;
 	UINT getPartFlags(const int iPart) const;
 	void updateParts(void);
 

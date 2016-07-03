@@ -58,7 +58,7 @@ public:
 
 	HIMAGELIST getImageList( ) const;
 	void setImageList( HIMAGELIST himl );
-	static HIMAGELIST createImageList( );
+	//static HIMAGELIST createImageList( );
 
 	void deleteLParamInfo( const int nItem );
 	void activateSelectedTab( );

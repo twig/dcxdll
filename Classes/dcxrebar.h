@@ -29,13 +29,14 @@ class DcxDialog;
  *
  * blah
  */
-typedef struct tagDCXRBBAND {
+struct DCXRBBAND {
 	TString tsTipText;  //!< Tooltip text
-	COLORREF clrText;   //!< Line Caption Color
-	BOOL bBold;         //!< Is Line Caption Bold ?
-	BOOL bUline;        //!< Is Line Caption Underlined
 	TString tsMarkText; //!< Marked text, per ReBar item.
-} DCXRBBAND,*LPDCXRBBAND;
+	COLORREF clrText;   //!< Line Caption Color
+	bool bBold;         //!< Is Line Caption Bold ?
+	bool bUline;        //!< Is Line Caption Underlined
+};
+using LPDCXRBBAND = DCXRBBAND *;
 
 /*!
  * \brief blah
@@ -62,7 +63,7 @@ public:
 
 	HIMAGELIST getImageList( ) const;
 	void setImageList( HIMAGELIST himl );
-	static HIMAGELIST createImageList( );
+	//static HIMAGELIST createImageList( );
 
 	void resetContents( );
 

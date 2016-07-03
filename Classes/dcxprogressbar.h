@@ -64,7 +64,7 @@ public:
 		auto nPos = 0;
 
 		RECT rc;
-		if (GetClientRect(this->m_Hwnd, &rc))
+		if (GetClientRect(m_Hwnd, &rc))
 		{
 			if (this->isStyle(PBS_VERTICAL))
 				nPos = iHigher - dcx_round((float)(nYPos * iHigher) / (rc.bottom - rc.top - 1));

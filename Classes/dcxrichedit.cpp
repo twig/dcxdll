@@ -27,21 +27,23 @@
 * \param styles Window Style Tokenized List
 */
 DcxRichEdit::DcxRichEdit(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString &styles)
-: DcxControl(ID, p_Dialog)
-, m_iFontSize(10 * 20)
-, m_bFontBold(FALSE)
-, m_bFontItalic(FALSE)
-, m_bFontUnderline(FALSE)
-, m_bFontStrikeout(FALSE)
-, m_byteCharset(DEFAULT_CHARSET)
-//, m_tsFontFaceName("")
-//, m_tsText("")
+	: DcxControl(ID, p_Dialog)
+	, m_iFontSize(10 * 20)
+	, m_bFontBold(FALSE)
+	, m_bFontItalic(FALSE)
+	, m_bFontUnderline(FALSE)
+	, m_bFontStrikeout(FALSE)
+	, m_byteCharset(DEFAULT_CHARSET)
+	, m_bIgnoreRepeat(true)
+	, m_bIgnoreInput(false)
+//	, m_tsFontFaceName("")
+//	, m_tsText("")
 {
 	LONG Styles = 0, ExStyles = 0;
 	BOOL bNoTheme = FALSE;
 	this->parseControlStyles(styles, &Styles, &ExStyles, &bNoTheme);
 
-	this->m_Hwnd = CreateWindowEx(
+	m_Hwnd = CreateWindowEx(
 		ExStyles | WS_EX_CLIENTEDGE,
 		DCX_RICHEDITCLASS,
 		nullptr,
@@ -52,13 +54,13 @@ DcxRichEdit::DcxRichEdit(const UINT ID, DcxDialog *const p_Dialog, const HWND mP
 		GetModuleHandle(nullptr),
 		nullptr);
 
-	if (!IsWindow(this->m_Hwnd))
+	if (!IsWindow(m_Hwnd))
 		throw Dcx::dcxException("Unable To Create Window");
 
 	if (bNoTheme)
-		Dcx::UXModule.dcxSetWindowTheme(this->m_Hwnd , L" ", L" ");
+		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd , L" ", L" ");
 	else
-		CRichEditThemed::Attach(this->m_Hwnd);
+		CRichEditThemed::Attach(m_Hwnd);
 
 	this->m_clrBackText = GetSysColor(COLOR_WINDOW);
 	this->m_clrText = GetSysColor(COLOR_WINDOWTEXT);
@@ -66,20 +68,18 @@ DcxRichEdit::DcxRichEdit(const UINT ID, DcxDialog *const p_Dialog, const HWND mP
 	this->loadmIRCPalette();
 	this->setContentsFont();
 
-	SendMessage(this->m_Hwnd, EM_SETEVENTMASK, NULL, (LPARAM) (ENM_SELCHANGE | ENM_CHANGE | ENM_LINK));
-	//SendMessage(this->m_Hwnd, CCM_SETUNICODEFORMAT, TRUE, NULL);
+	SendMessage(m_Hwnd, EM_SETEVENTMASK, NULL, (LPARAM) (ENM_SELCHANGE | ENM_CHANGE | ENM_LINK));
+	//SendMessage(m_Hwnd, CCM_SETUNICODEFORMAT, TRUE, NULL);
 
 	if (p_Dialog->getToolTip() != nullptr) {
 		if (styles.istok(TEXT("tooltips"))) {
 			this->m_ToolTipHWND = p_Dialog->getToolTip();
-			AddToolTipToolInfo(this->m_ToolTipHWND, this->m_Hwnd);
+			AddToolTipToolInfo(this->m_ToolTipHWND, m_Hwnd);
 		}
 	}
 
-	this->m_bIgnoreRepeat = true;
-
 	this->registreDefaultWindowProc();
-	SetProp(this->m_Hwnd, TEXT("dcx_cthis"), (HANDLE) this);
+	SetProp(m_Hwnd, TEXT("dcx_cthis"), (HANDLE) this);
 }
 
 /*!
@@ -146,17 +146,17 @@ void DcxRichEdit::parseInfoRequest( const TString &input, PTCHAR szReturnValue) 
 		if (numtok > 3)
 			line = input.getnexttok( ).to_int() -1;		// tok 4
 
-		if ((line < 0) || (line >= Edit_GetLineCount(this->m_Hwnd)))
+		if ((line < 0) || (line >= Edit_GetLineCount(m_Hwnd)))
 			throw Dcx::dcxException("Invalid line number.");
 
 		// get index of first character in line
-		const auto offset = SendMessage(this->m_Hwnd, EM_LINEINDEX, (WPARAM)line, NULL);
+		const auto offset = SendMessage(m_Hwnd, EM_LINEINDEX, (WPARAM)line, NULL);
 		// get length of the line we want to copy
-		const auto len = SendMessage(this->m_Hwnd, EM_LINELENGTH, (WPARAM)offset, NULL) + 1;
+		const auto len = SendMessage(m_Hwnd, EM_LINELENGTH, (WPARAM)offset, NULL) + 1;
 		// create and fill the buffer
 		auto p = std::make_unique<TCHAR[]>(len);
 		*((LPWORD) p.get()) = (WORD)len;
-		SendMessage(this->m_Hwnd, EM_GETLINE, (WPARAM) line, (LPARAM) p.get());
+		SendMessage(m_Hwnd, EM_GETLINE, (WPARAM) line, (LPARAM) p.get());
 
 		// terminate the string at the right position
 		p[len -1] = TEXT('\0');
@@ -167,7 +167,7 @@ void DcxRichEdit::parseInfoRequest( const TString &input, PTCHAR szReturnValue) 
 	// [NAME] [ID] [PROP]
 	else if (prop == TEXT("num")) {
 		if (this->isStyle(ES_MULTILINE))
-			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), (int)SendMessage(this->m_Hwnd, EM_GETLINECOUNT, 0, 0L));
+			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), (int)SendMessage(m_Hwnd, EM_GETLINECOUNT, 0, 0L));
 		else {
 			// single line control so always 1 line.
 			szReturnValue[0] = TEXT('1');
@@ -179,13 +179,13 @@ void DcxRichEdit::parseInfoRequest( const TString &input, PTCHAR szReturnValue) 
 		DWORD dwAbsoluteStartSelPos = 0;
 
 		// caret startsel position
-		SendMessage(this->m_Hwnd, EM_GETSEL, (WPARAM) &dwAbsoluteStartSelPos, NULL);
+		SendMessage(m_Hwnd, EM_GETSEL, (WPARAM) &dwAbsoluteStartSelPos, NULL);
 
 		if (this->isStyle(ES_MULTILINE)) {
 			// current line
-			const auto iLinePos = SendMessage(this->m_Hwnd, EM_LINEFROMCHAR, (WPARAM)-1, NULL);
+			const auto iLinePos = SendMessage(m_Hwnd, EM_LINEFROMCHAR, (WPARAM)-1, NULL);
 			// line offset
-			const auto iAbsoluteCharPos = (int)SendMessage(this->m_Hwnd, EM_LINEINDEX, (WPARAM)-1, NULL);
+			const auto iAbsoluteCharPos = (int)SendMessage(m_Hwnd, EM_LINEINDEX, (WPARAM)-1, NULL);
 
 			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d %u"), iLinePos +1, dwAbsoluteStartSelPos - iAbsoluteCharPos);
 		}
@@ -196,33 +196,33 @@ void DcxRichEdit::parseInfoRequest( const TString &input, PTCHAR szReturnValue) 
 	}
 	// [NAME] [ID] [PROP]
 	else if (prop == TEXT("selstart")) {
-		CHARRANGE c;
+		CHARRANGE c = { 0 };
 
-		SendMessage(this->m_Hwnd, EM_EXGETSEL, NULL, (LPARAM) &c);
+		SendMessage(m_Hwnd, EM_EXGETSEL, NULL, (LPARAM) &c);
 		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), c.cpMin);
 	}
 	// [NAME] [ID] [PROP]
 	else if (prop == TEXT("selend")) {
-		CHARRANGE c;
+		CHARRANGE c = { 0 };
 
-		SendMessage(this->m_Hwnd, EM_EXGETSEL, NULL, (LPARAM) &c);
+		SendMessage(m_Hwnd, EM_EXGETSEL, NULL, (LPARAM) &c);
 		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), c.cpMax);
 	}
 	// [NAME] [ID] [PROP]
 	else if (prop == TEXT("sel")) {
-		CHARRANGE c;
+		CHARRANGE c = { 0 };
 
-		SendMessage(this->m_Hwnd, EM_EXGETSEL, NULL, (LPARAM) &c);
+		SendMessage(m_Hwnd, EM_EXGETSEL, NULL, (LPARAM) &c);
 		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d"), c.cpMin, c.cpMax);
 	}
 	// [NAME] [ID] [PROP]
 	else if (prop == TEXT("seltext")) {
-		CHARRANGE c;
+		CHARRANGE c = { 0 };
 
-		SendMessage(this->m_Hwnd, EM_EXGETSEL, NULL, (LPARAM) &c);
+		SendMessage(m_Hwnd, EM_EXGETSEL, NULL, (LPARAM) &c);
 		auto buffer = std::make_unique<TCHAR[]>(c.cpMax - c.cpMin);
 
-		SendMessage(this->m_Hwnd, EM_GETSELTEXT, NULL, (LPARAM) buffer.get());
+		SendMessage(m_Hwnd, EM_GETSELTEXT, NULL, (LPARAM) buffer.get());
 		dcx_strcpyn(szReturnValue, buffer.get(), MIRC_BUFFER_SIZE_CCH);
 	}
 	// [NAME] [ID] [PROP] [utf8|...]
@@ -240,7 +240,7 @@ void DcxRichEdit::parseInfoRequest( const TString &input, PTCHAR szReturnValue) 
 		if (tsFlags == TEXT("utf8"))
 			iFlags = (UINT)((CP_UTF8 << 16) | SF_USECODEPAGE | SF_RTF);
 
-		SendMessage(this->m_Hwnd, EM_STREAMOUT, (WPARAM)iFlags, (LPARAM)&es);
+		SendMessage(m_Hwnd, EM_STREAMOUT, (WPARAM)iFlags, (LPARAM)&es);
 
 		const TString tsOut(rtf.str().c_str());	// handles any char convertions needed.
 		dcx_strcpyn(szReturnValue, tsOut.to_chr(), MIRC_BUFFER_SIZE_CCH);
@@ -254,7 +254,7 @@ void DcxRichEdit::parseInfoRequest( const TString &input, PTCHAR szReturnValue) 
 		//if (tsFlags == TEXT("utf8"))
 		//	iFlags = (UINT)((CP_UTF8 << 16) | SF_USECODEPAGE | SF_RTF);
 		//
-		//SendMessage(this->m_Hwnd, EM_STREAMOUT, (WPARAM)iFlags, (LPARAM)&es);
+		//SendMessage(m_Hwnd, EM_STREAMOUT, (WPARAM)iFlags, (LPARAM)&es);
 		//
 		//dcx_strcpyn(szReturnValue, rtf.to_chr(), MIRC_BUFFER_SIZE_CCH);
 	}
@@ -364,7 +364,7 @@ void DcxRichEdit::parseCommandRequest(const TString &input) {
 	}
 	// xdid -c [NAME] [ID] [SWITCH]
 	else if (flags[TEXT('c')] && numtok > 2) {
-		CopyToClipboard(this->m_Hwnd, this->m_tsText);
+		CopyToClipboard(m_Hwnd, this->m_tsText);
 	}
 	// xdid -d [NAME] [ID] [SWITCH] [N]
 	else if (flags[TEXT('d')] && numtok > 3) {
@@ -437,9 +437,9 @@ void DcxRichEdit::parseCommandRequest(const TString &input) {
 		const auto clrColor = input.getnexttok().to_<COLORREF>();	// tok 4
 
 		if (clrColor == CLR_INVALID)
-			SendMessage(this->m_Hwnd, EM_SETBKGNDCOLOR, (WPARAM) 1, (LPARAM) GetSysColor(COLOR_WINDOWTEXT));
+			SendMessage(m_Hwnd, EM_SETBKGNDCOLOR, (WPARAM) 1, (LPARAM) GetSysColor(COLOR_WINDOWTEXT));
 		else
-			SendMessage(this->m_Hwnd, EM_SETBKGNDCOLOR, (WPARAM) 0, (LPARAM) clrColor);
+			SendMessage(m_Hwnd, EM_SETBKGNDCOLOR, (WPARAM) 0, (LPARAM) clrColor);
 
 		this->m_clrBackText = clrColor;
 		this->redrawWindow();
@@ -487,8 +487,8 @@ void DcxRichEdit::parseCommandRequest(const TString &input) {
 		if (nColor > 15)
 			throw Dcx::dcxException("Invalid Colour");
 
-		for (auto i = decltype(nColor){0}; (i < nColor && i < Dcx::countof(this->m_aColorPalette)); i++)
-			this->m_aColorPalette[i] = input.getnexttok().to_<COLORREF>();	// tok 4 + i
+		for (auto i = decltype(nColor){0}; (i < nColor && i < Dcx::countof(m_aColorPalette)); i++)
+			m_aColorPalette[i] = input.getnexttok().to_<COLORREF>();	// tok 4 + i
 
 		this->parseContents(TRUE);
 	}
@@ -528,7 +528,7 @@ void DcxRichEdit::parseCommandRequest(const TString &input) {
 		}
 		else {
 			// new methods... load rtf...
-			if (!LoadRichTextFromFile(this->m_Hwnd, tsFile.to_chr()))
+			if (!LoadRichTextFromFile(m_Hwnd, tsFile.to_chr()))
 				throw Dcx::dcxException(TEXT("Unable to open: %"), tsFile);
 		}
 	}
@@ -557,7 +557,7 @@ void DcxRichEdit::parseCommandRequest(const TString &input) {
 		}
 		else {
 			// new method's...
-			bRes = SaveRichTextToFile(this->m_Hwnd, tsFile.to_chr());
+			bRes = SaveRichTextToFile(m_Hwnd, tsFile.to_chr());
 		}
 		if (!bRes)
 			throw Dcx::dcxException(TEXT("Unable to save: %"), tsFile);
@@ -573,39 +573,39 @@ void DcxRichEdit::parseCommandRequest(const TString &input) {
 		else
 			c.cpMax = c.cpMin;
 
-		SendMessage(this->m_Hwnd, EM_EXSETSEL, NULL, (LPARAM) &c);
-		SendMessage(this->m_Hwnd, EM_SCROLLCARET, NULL, NULL);
+		SendMessage(m_Hwnd, EM_EXSETSEL, NULL, (LPARAM) &c);
+		SendMessage(m_Hwnd, EM_SCROLLCARET, NULL, NULL);
 
 		//DWORD dwAbsoluteStartSelPos = 0;
 		//// caret startsel position
-		//SendMessage(this->m_Hwnd, EM_GETSEL, (WPARAM) &dwAbsoluteStartSelPos, NULL);
+		//SendMessage(m_Hwnd, EM_GETSEL, (WPARAM) &dwAbsoluteStartSelPos, NULL);
 		//
 		//if (this->isStyle(ES_MULTILINE)) {
 		//	int iLinePos = 0;
 		//
 		//	// current line
-		//	iLinePos = SendMessage(this->m_Hwnd, EM_LINEFROMCHAR, -1, NULL);
+		//	iLinePos = SendMessage(m_Hwnd, EM_LINEFROMCHAR, -1, NULL);
 		//	POINT pt = {0};
 		//	pt.y = this->m_iFontSize * iLinePos;
-		//	SendMessage(this->m_Hwnd, EM_SETSCROLLPOS,NULL,(LPARAM)&pt);
+		//	SendMessage(m_Hwnd, EM_SETSCROLLPOS,NULL,(LPARAM)&pt);
 		//}
 	}
 	// xdid -V [NAME] [ID]
 	else if (flags[TEXT('V')]) {
-		SendMessage(this->m_Hwnd, EM_SCROLLCARET, NULL, NULL);
+		SendMessage(m_Hwnd, EM_SCROLLCARET, NULL, NULL);
 	}
 	// xdid -y [NAME] [ID] [SWITCH] [0|1]
 	else if (flags[TEXT('y')] && numtok > 3) {
 		const auto state = input.getnexttok().to_int();	// tok 4
 
-		this->m_bIgnoreRepeat = (state > 0);
+		m_bIgnoreRepeat = (state > 0);
 	}
 	// xdid -z [NAME] [ID] [SWITCH] [NUMERATOR] [DENOMINATOR]
 	else if (flags[TEXT('z')] && numtok > 4) {
 		const auto num = input.getnexttok().to_int();	// tok 4
 		const auto den = input.getnexttok().to_int();	// tok 5
 
-		if (!SendMessage(this->m_Hwnd, EM_SETZOOM, (WPARAM) num, (LPARAM) den))
+		if (!SendMessage(m_Hwnd, EM_SETZOOM, (WPARAM) num, (LPARAM) den))
 			throw Dcx::dcxException("Richedit zooming error");
 	}
 	else
@@ -623,12 +623,12 @@ void DcxRichEdit::loadmIRCPalette() {
 	mIRCLinker::tsEval(colors, com);
 
 	const auto len = colors.numtok();
-	if (len > Dcx::countof(this->m_aColorPalette))
+	if (len > Dcx::countof(m_aColorPalette))
 		return;	// something went very wrong...
 
 	UINT i = 0;
 	for (const auto &tmp: colors)
-		this->m_aColorPalette[i++] = tmp.to_<COLORREF>();	// tok i + 1
+		m_aColorPalette[i++] = tmp.to_<COLORREF>();	// tok i + 1
 }
 
 /*!
@@ -691,7 +691,7 @@ void DcxRichEdit::clearContents() {
 * blah
 */
 void DcxRichEdit::parseContents(const BOOL fNewLine) { // old function
-	this->m_bIgnoreInput = TRUE;
+	this->m_bIgnoreInput = false;
 	this->setRedraw(FALSE);
 	this->clearContents();
 
@@ -885,14 +885,14 @@ void DcxRichEdit::parseContents(const BOOL fNewLine) { // old function
 	//this->setRedraw(TRUE);
 	//this->redrawWindow();
 //
-	//this->m_bIgnoreInput = FALSE;
+	//this->m_bIgnoreInput = false;
 
 	this->parseStringContents(this->m_tsText, fNewLine);
 }
 
 void DcxRichEdit::parseStringContents(const TString &tsStr, const BOOL fNewLine)
 {
-	this->m_bIgnoreInput = TRUE;
+	this->m_bIgnoreInput = true;
 	this->setRedraw(FALSE);
 
 	const auto text = tsStr.to_chr();
@@ -906,10 +906,8 @@ void DcxRichEdit::parseStringContents(const TString &tsStr, const BOOL fNewLine)
 	bool bmcolor = true;
 	bool bbkgcolor = false;
 
-	TCHAR cbuf[2];
-	TCHAR colbuf[3];
-	cbuf[1] = TEXT('\0');
-	colbuf[2] = TEXT('\0');
+	TCHAR cbuf[2] = { 0 };
+	TCHAR colbuf[3] = { 0 };
 
 	for (auto i = 0U; text[i] != TEXT('\0'); i++)
 	{
@@ -1012,7 +1010,7 @@ void DcxRichEdit::parseStringContents(const TString &tsStr, const BOOL fNewLine)
 	this->setRedraw(TRUE);
 	this->redrawWindow();
 
-	this->m_bIgnoreInput = FALSE;
+	this->m_bIgnoreInput = false;
 }
 
 /*!
@@ -1037,11 +1035,11 @@ int DcxRichEdit::unfoldColor(const TCHAR *color) {
 */
 void DcxRichEdit::insertText(const TCHAR *const text, bool bline, bool uline, bool iline, bool bcolor, COLORREF color, bool bbkgcolor, COLORREF bkgcolor, int reverse) {
 	// get total length
-	auto len = GetWindowTextLength(this->m_Hwnd);
+	auto len = GetWindowTextLength(m_Hwnd);
 	// get line TCHAR number from end TCHAR pos
-	const auto line = Edit_LineIndex(this->m_Hwnd, Edit_LineFromChar(this->m_Hwnd, len - 1));
+	const auto line = Edit_LineIndex(m_Hwnd, Edit_LineFromChar(m_Hwnd, len - 1));
 	// get line length
-	const auto linelen = Edit_LineLength(this->m_Hwnd, line);
+	const auto linelen = Edit_LineLength(m_Hwnd, line);
 	// total length of insert point
 	len = line + linelen;
 	this->hideSelection(TRUE);
@@ -1097,7 +1095,7 @@ void DcxRichEdit::insertText(const TCHAR *const text, bool bline, bool uline, bo
 * blah
 */
 LRESULT DcxRichEdit::setAutoUrlDetect(const BOOL iEnable) {
-	return SendMessage(this->m_Hwnd, EM_AUTOURLDETECT, (WPARAM) iEnable, (LPARAM) 0);
+	return SendMessage(m_Hwnd, EM_AUTOURLDETECT, (WPARAM) iEnable, (LPARAM) 0);
 }
 
 /*!
@@ -1106,7 +1104,7 @@ LRESULT DcxRichEdit::setAutoUrlDetect(const BOOL iEnable) {
 * blah
 */
 LRESULT DcxRichEdit::hideSelection(const BOOL iHide) {
-	return SendMessage(this->m_Hwnd, EM_HIDESELECTION, (WPARAM) iHide, (LPARAM) 0);
+	return SendMessage(m_Hwnd, EM_HIDESELECTION, (WPARAM) iHide, (LPARAM) 0);
 }
 
 /*!
@@ -1115,7 +1113,7 @@ LRESULT DcxRichEdit::hideSelection(const BOOL iHide) {
 * blah
 */
 LRESULT DcxRichEdit::setSel(const int iStart, const int iEnd) {
-	return SendMessage(this->m_Hwnd, EM_SETSEL, (WPARAM) iStart, (LPARAM) iEnd);
+	return SendMessage(m_Hwnd, EM_SETSEL, (WPARAM) iStart, (LPARAM) iEnd);
 }
 
 /*!
@@ -1124,7 +1122,7 @@ LRESULT DcxRichEdit::setSel(const int iStart, const int iEnd) {
 * blah
 */
 LRESULT DcxRichEdit::replaceSel(const BOOL bUndo, LPCTSTR lpstr) {
-	return SendMessage(this->m_Hwnd, EM_REPLACESEL, (WPARAM) bUndo, (LPARAM) lpstr);
+	return SendMessage(m_Hwnd, EM_REPLACESEL, (WPARAM) bUndo, (LPARAM) lpstr);
 }
 
 /*!
@@ -1133,7 +1131,7 @@ LRESULT DcxRichEdit::replaceSel(const BOOL bUndo, LPCTSTR lpstr) {
 * blah
 */
 LRESULT DcxRichEdit::getCharFormat(const UINT iType, CHARFORMAT2 *cfm) const {
-	return SendMessage(this->m_Hwnd, EM_GETCHARFORMAT, (WPARAM) iType, (LPARAM) cfm);
+	return SendMessage(m_Hwnd, EM_GETCHARFORMAT, (WPARAM) iType, (LPARAM) cfm);
 }
 
 /*!
@@ -1143,7 +1141,7 @@ LRESULT DcxRichEdit::getCharFormat(const UINT iType, CHARFORMAT2 *cfm) const {
 */
 
 LRESULT DcxRichEdit::setCharFormat(const UINT iType, CHARFORMAT2 *cfm) {
-	return SendMessage(this->m_Hwnd, EM_SETCHARFORMAT, (WPARAM) iType, (LPARAM) cfm);
+	return SendMessage(m_Hwnd, EM_SETCHARFORMAT, (WPARAM) iType, (LPARAM) cfm);
 }
 
 void DcxRichEdit::toXml(TiXmlElement *const xml) const {
@@ -1154,7 +1152,7 @@ void DcxRichEdit::toXml(TiXmlElement *const xml) const {
 
 const TString DcxRichEdit::getStyles(void) const {
 	auto styles(__super::getStyles());
-	const auto Styles = GetWindowStyle(this->m_Hwnd);
+	const auto Styles = GetWindowStyle(m_Hwnd);
 
 	if (dcx_testflag(Styles, ES_MULTILINE) && dcx_testflag(Styles, ES_WANTRETURN))
 		styles.addtok(TEXT("multi"));
@@ -1211,7 +1209,7 @@ LRESULT DcxRichEdit::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 							auto str = std::make_unique<TCHAR[]>(strlen);
 
 							tr.lpstrText = str.get();
-							SendMessage(this->m_Hwnd, EM_GETTEXTRANGE, NULL, (LPARAM) &tr);
+							SendMessage(m_Hwnd, EM_GETTEXTRANGE, NULL, (LPARAM) &tr);
 
 							if (enl->msg == WM_LBUTTONDOWN)
 								tsEvent = TEXT("sclick");
@@ -1243,7 +1241,7 @@ LRESULT DcxRichEdit::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 							tr.chrg = sel->chrg;
 							auto str = std::make_unique<TCHAR[]>((sel->chrg.cpMax - sel->chrg.cpMin) +1);
 							tr.lpstrText = str.get();
-							SendMessage(this->m_Hwnd, EM_GETTEXTRANGE, NULL, (LPARAM) &tr);
+							SendMessage(m_Hwnd, EM_GETTEXTRANGE, NULL, (LPARAM) &tr);
 
 							this->execAliasEx(TEXT("%s,%d,%d,%d,%s"), TEXT("selchange"), this->getUserID(), sel->chrg.cpMin, sel->chrg.cpMax, tr.lpstrText);
 						}
@@ -1289,7 +1287,7 @@ LRESULT DcxRichEdit::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 		//		PAINTSTRUCT ps;
 		//		HDC hdc;
 		//
-		//		hdc = BeginPaint( this->m_Hwnd, &ps );
+		//		hdc = BeginPaint( m_Hwnd, &ps );
 		//
 		//		LRESULT res = 0L;
 		//		bParsed = TRUE;
@@ -1300,12 +1298,12 @@ LRESULT DcxRichEdit::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 		//		// fill background.
 		//		//DcxControl::DrawCtrlBackground(hdc,this,&ps.rcPaint);
 		//
-		//		res = CallWindowProc( this->m_DefaultWindowProc, this->m_Hwnd, uMsg, (WPARAM) hdc, lParam );
-		//		//res = CallWindowProc( this->m_DefaultWindowProc, this->m_Hwnd, WM_PRINT, (WPARAM) hdc, (LPARAM) (PRF_CLIENT|PRF_NONCLIENT|PRF_CHILDREN|PRF_OWNED) );
+		//		res = CallWindowProc( this->m_DefaultWindowProc, m_Hwnd, uMsg, (WPARAM) hdc, lParam );
+		//		//res = CallWindowProc( this->m_DefaultWindowProc, m_Hwnd, WM_PRINT, (WPARAM) hdc, (LPARAM) (PRF_CLIENT|PRF_NONCLIENT|PRF_CHILDREN|PRF_OWNED) );
 		//
 		//		this->FinishAlphaBlend(ai);
 		//
-		//		EndPaint( this->m_Hwnd, &ps );
+		//		EndPaint( m_Hwnd, &ps );
 		//		return res;
 		//	}
 		//	break;
@@ -1315,10 +1313,10 @@ LRESULT DcxRichEdit::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 		//		bParsed = TRUE;
 		//
 		//		if (lParam & PRF_ERASEBKGND)
-		//			SendMessage(this->m_Hwnd, WM_ERASEBKGND, wParam, 0L);
+		//			SendMessage(m_Hwnd, WM_ERASEBKGND, wParam, 0L);
 		//
 		//		if (lParam & PRF_CLIENT)
-		//			SendMessage(this->m_Hwnd, WM_PRINTCLIENT, wParam, 0L);
+		//			SendMessage(m_Hwnd, WM_PRINTCLIENT, wParam, 0L);
 		//
 		//	}
 		//	break;
@@ -1328,7 +1326,7 @@ LRESULT DcxRichEdit::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 		//		HDC hdc = (HDC)wParam;
 		//		bParsed = TRUE;
 		//
-		//		HDC tHDC = GetDC(this->m_Hwnd);
+		//		HDC tHDC = GetDC(m_Hwnd);
 		//		BITMAP bm;
 		//		HBITMAP cBmp = (HBITMAP)GetCurrentObject(hdc, OBJ_BITMAP);
 		//
@@ -1336,7 +1334,7 @@ LRESULT DcxRichEdit::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 		//
 		//		BitBlt(hdc,0,0,bm.bmWidth, bm.bmHeight, tHDC,0,0, SRCCOPY);
 		//
-		//		ReleaseDC(this->m_Hwnd, tHDC);
+		//		ReleaseDC(m_Hwnd, tHDC);
 		//	}
 		//	break;
 

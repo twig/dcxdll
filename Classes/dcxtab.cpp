@@ -34,7 +34,7 @@ DcxTab::DcxTab(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd,
 	BOOL bNoTheme = FALSE;
 	this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
 
-	this->m_Hwnd = CreateWindowEx(	
+	m_Hwnd = CreateWindowEx(	
 		ExStyles | WS_EX_CONTROLPARENT, 
 		DCX_TABCTRLCLASS, 
 		nullptr,
@@ -45,14 +45,14 @@ DcxTab::DcxTab(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd,
 		GetModuleHandle(nullptr), 
 		nullptr);
 
-	if (!IsWindow(this->m_Hwnd))
+	if (!IsWindow(m_Hwnd))
 		throw Dcx::dcxException("Unable To Create Window");
 
 	if ( bNoTheme )
-		Dcx::UXModule.dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
+		Dcx::UXModule.dcxSetWindowTheme( m_Hwnd , L" ", L" " );
 
 	/*
-	HWND hHwndTip = TabCtrl_GetToolTips( this->m_Hwnd );
+	HWND hHwndTip = TabCtrl_GetToolTips( m_Hwnd );
 	if ( IsWindow( hHwndTip ) ) {
 
 	TOOLINFO ti;
@@ -60,7 +60,7 @@ DcxTab::DcxTab(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd,
 	ti.cbSize = sizeof( TOOLINFO );
 	ti.uFlags = TTF_SUBCLASS | TTF_IDISHWND;
 	ti.hwnd = mParentHwnd;
-	ti.uId = (UINT) this->m_Hwnd;
+	ti.uId = (UINT) m_Hwnd;
 	ti.lpszText = LPSTR_TEXTCALLBACK;
 	SendMessage( hHwndTip, TTM_ADDTOOL, (WPARAM) 0, (LPARAM) &ti );
 	}
@@ -68,8 +68,8 @@ DcxTab::DcxTab(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd,
 	//if (p_Dialog->getToolTip() != nullptr) {
 	//	if (styles.istok(TEXT("tooltips"))) {
 	//		this->m_ToolTipHWND = p_Dialog->getToolTip();
-	//		TabCtrl_SetToolTips(this->m_Hwnd,this->m_ToolTipHWND);
-	//		//AddToolTipToolInfo(this->m_ToolTipHWND, this->m_Hwnd);
+	//		TabCtrl_SetToolTips(m_Hwnd,this->m_ToolTipHWND);
+	//		//AddToolTipToolInfo(this->m_ToolTipHWND, m_Hwnd);
 	//	}
 	//}
 
@@ -77,12 +77,12 @@ DcxTab::DcxTab(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd,
 	{
 		//RECT rcClose;
 		//GetCloseButtonRect(*rc, rcClose);
-		//TabCtrl_SetPadding(this->m_Hwnd, (rcClose.right - rcClose.left), GetSystemMetrics(SM_CXFIXEDFRAME));
-		TabCtrl_SetPadding(this->m_Hwnd, GetSystemMetrics(SM_CXSMICON), GetSystemMetrics(SM_CYFIXEDFRAME));
+		//TabCtrl_SetPadding(m_Hwnd, (rcClose.right - rcClose.left), GetSystemMetrics(SM_CXFIXEDFRAME));
+		TabCtrl_SetPadding(m_Hwnd, GetSystemMetrics(SM_CXSMICON), GetSystemMetrics(SM_CYFIXEDFRAME));
 	}
 	this->setControlFont(GetStockFont(DEFAULT_GUI_FONT), FALSE);
 	this->registreDefaultWindowProc( );
-	SetProp( this->m_Hwnd, TEXT("dcx_cthis"), (HANDLE) this );
+	SetProp( m_Hwnd, TEXT("dcx_cthis"), (HANDLE) this );
 }
 
 /*!
@@ -95,7 +95,7 @@ DcxTab::~DcxTab( ) {
 
 	ImageList_Destroy( this->getImageList( ) );
 
-	const auto nItems = TabCtrl_GetItemCount( this->m_Hwnd );
+	const auto nItems = TabCtrl_GetItemCount( m_Hwnd );
 	for (auto n = decltype(nItems){0}; n < nItems; n++)
 		this->deleteLParamInfo( n );
 
@@ -168,7 +168,7 @@ void DcxTab::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) con
 
 		const auto nItem = input.getnexttok().to_int() - 1;	// tok 4
 
-		if (nItem < 0 && nItem >= TabCtrl_GetItemCount(this->m_Hwnd))
+		if (nItem < 0 && nItem >= TabCtrl_GetItemCount(m_Hwnd))
 			throw Dcx::dcxException("Invalid Item");
 
 		TCITEM tci;
@@ -178,18 +178,18 @@ void DcxTab::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) con
 		tci.pszText = szReturnValue;
 		tci.cchTextMax = MIRC_BUFFER_SIZE_CCH;
 
-		TabCtrl_GetItem( this->m_Hwnd, nItem, &tci );
+		TabCtrl_GetItem( m_Hwnd, nItem, &tci );
 	}
 	else if ( prop == TEXT("num") ) {
 
-		wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), TabCtrl_GetItemCount( this->m_Hwnd ) );
+		wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), TabCtrl_GetItemCount( m_Hwnd ) );
 	}
 	// [NAME] [ID] [PROP] [N]
 	else if ( prop == TEXT("icon") && numtok > 3 ) {
 
 		const auto iTab = input.getnexttok().to_int() - 1;		// tok 4
 
-		if (iTab < 0 && iTab >= TabCtrl_GetItemCount(this->m_Hwnd))
+		if (iTab < 0 && iTab >= TabCtrl_GetItemCount(m_Hwnd))
 			throw Dcx::dcxException("Invalid Item");
 
 		TCITEM tci;
@@ -197,24 +197,24 @@ void DcxTab::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) con
 
 		tci.mask = TCIF_IMAGE;
 
-		TabCtrl_GetItem( this->m_Hwnd, iTab, &tci );
+		TabCtrl_GetItem( m_Hwnd, iTab, &tci );
 
 		wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), tci.iImage + 1 );
 	}
 	else if ( prop == TEXT("sel") ) {
 
-		const auto nItem = TabCtrl_GetCurSel(this->m_Hwnd);
+		const auto nItem = TabCtrl_GetCurSel(m_Hwnd);
 
-		if (nItem < 0 && nItem >= TabCtrl_GetItemCount(this->m_Hwnd))
+		if (nItem < 0 && nItem >= TabCtrl_GetItemCount(m_Hwnd))
 			throw Dcx::dcxException("Invalid Item");
 
 		wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), nItem + 1 );
 	}
 	else if ( prop == TEXT("seltext") ) {
 
-		const auto nItem = TabCtrl_GetCurSel(this->m_Hwnd);
+		const auto nItem = TabCtrl_GetCurSel(m_Hwnd);
 
-		if (nItem < 0 && nItem >= TabCtrl_GetItemCount(this->m_Hwnd))
+		if (nItem < 0 && nItem >= TabCtrl_GetItemCount(m_Hwnd))
 			throw Dcx::dcxException("Invalid Item");
 
 		TCITEM tci;
@@ -224,20 +224,20 @@ void DcxTab::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) con
 		tci.pszText = szReturnValue;
 		tci.cchTextMax = MIRC_BUFFER_SIZE_CCH;
 
-		TabCtrl_GetItem( this->m_Hwnd, nItem, &tci );
+		TabCtrl_GetItem( m_Hwnd, nItem, &tci );
 	}
 	else if ( prop == TEXT("childid") && numtok > 3 ) {
 
 		const auto nItem = input.getnexttok().to_int() - 1;	// tok 4
 
-		if (nItem < 0 && nItem >= TabCtrl_GetItemCount(this->m_Hwnd))
+		if (nItem < 0 && nItem >= TabCtrl_GetItemCount(m_Hwnd))
 			throw Dcx::dcxException("Invalid Item");
 
 		TCITEM tci;
 		ZeroMemory( &tci, sizeof( TCITEM ) );
 
 		tci.mask = TCIF_PARAM;
-		TabCtrl_GetItem( this->m_Hwnd, nItem, &tci );
+		TabCtrl_GetItem( m_Hwnd, nItem, &tci );
 
 		auto lpdtci = reinterpret_cast<LPDCXTCITEM>(tci.lParam);
 
@@ -253,9 +253,9 @@ void DcxTab::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) con
 		if (!GetCursorPos(&tchi.pt))
 			throw Dcx::dcxException("Unable to get cursor position");
 
-		MapWindowPoints(nullptr, this->m_Hwnd, &tchi.pt, 1);
+		MapWindowPoints(nullptr, m_Hwnd, &tchi.pt, 1);
 
-		const auto tab = TabCtrl_HitTest(this->m_Hwnd, &tchi);
+		const auto tab = TabCtrl_HitTest(m_Hwnd, &tchi);
 
 		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), tab + 1);
 	}
@@ -275,8 +275,8 @@ void DcxTab::parseCommandRequest( const TString & input ) {
 
 	// xdid -r [NAME] [ID] [SWITCH]
 	if (flags[TEXT('r')]) {
-		TCITEM tci;
-		const auto nItems = TabCtrl_GetItemCount(this->m_Hwnd);
+		TCITEM tci = { 0 };
+		const auto nItems = TabCtrl_GetItemCount(m_Hwnd);
 
 		for (auto n = decltype(nItems){0}; n < nItems; n++)
 		{
@@ -284,7 +284,7 @@ void DcxTab::parseCommandRequest( const TString & input ) {
 
 			tci.mask = TCIF_PARAM;
 
-			if (TabCtrl_GetItem(this->m_Hwnd, n, &tci)) {
+			if (TabCtrl_GetItem(m_Hwnd, n, &tci)) {
 				auto lpdtci = reinterpret_cast<LPDCXTCITEM>(tci.lParam);
 
 				if (lpdtci != nullptr && lpdtci->mChildHwnd != nullptr && IsWindow(lpdtci->mChildHwnd)) {
@@ -294,7 +294,7 @@ void DcxTab::parseCommandRequest( const TString & input ) {
 			}
 		}
 
-		TabCtrl_DeleteAllItems(this->m_Hwnd);
+		TabCtrl_DeleteAllItems(m_Hwnd);
 	}
 
 	// xdid -a [NAME] [ID] [SWITCH] [N] [ICON] [TEXT][TAB][ID] [CONTROL] [X] [Y] [W] [H] (OPTIONS)[TAB](TOOLTIP)
@@ -319,7 +319,7 @@ void DcxTab::parseCommandRequest( const TString & input ) {
 		auto nIndex = data.getfirsttok(4).to_int() - 1;
 
 		if ( nIndex == -1 )
-			nIndex += TabCtrl_GetItemCount( this->m_Hwnd ) + 1;
+			nIndex += TabCtrl_GetItemCount( m_Hwnd ) + 1;
 
 		tci.iImage = data.getnexttok( ).to_int( ) - 1;	// tok 5
 
@@ -339,7 +339,7 @@ void DcxTab::parseCommandRequest( const TString & input ) {
 			//	//itemtext += TEXT("***");	// TEXT("   ");
 			//	RECT rc;
 			//	GetCloseButtonRect(this->m_rc, rc);
-			//	TabCtrl_SetPadding(this->m_Hwnd, 0, 0);
+			//	TabCtrl_SetPadding(m_Hwnd, 0, 0);
 			//}
 
 			tci.pszText = itemtext.to_chr( );
@@ -358,7 +358,7 @@ void DcxTab::parseCommandRequest( const TString & input ) {
 				CTLF_ALLOW_EDIT |
 				CTLF_ALLOW_IMAGE |
 				CTLF_ALLOW_LIST
-				, this->m_Hwnd);
+				, m_Hwnd);
 
 			lpdtci->mChildHwnd = p_Control->getHwnd( );
 
@@ -380,7 +380,7 @@ void DcxTab::parseCommandRequest( const TString & input ) {
 			//		CTLF_ALLOW_EDIT |
 			//		CTLF_ALLOW_IMAGE |
 			//		CTLF_ALLOW_LIST
-			//		,this->m_Hwnd);
+			//		,m_Hwnd);
 			//
 			//	lpdtci->mChildHwnd = p_Control->getHwnd( );
 			//	this->m_pParentDialog->addControl( p_Control );
@@ -392,17 +392,17 @@ void DcxTab::parseCommandRequest( const TString & input ) {
 		}
 		tci.lParam = (LPARAM)lpdtci.release();
 
-		TabCtrl_InsertItem( this->m_Hwnd, nIndex, &tci );
+		TabCtrl_InsertItem( m_Hwnd, nIndex, &tci );
 		this->activateSelectedTab( );
 	}
 	// xdid -c [NAME] [ID] [SWITCH] [N]
 	else if ( flags[TEXT('c')] && numtok > 3 ) {
 		const auto nItem = input.getnexttok().to_int() - 1;	// tok 4
 
-		if ( nItem < 0 && nItem >= TabCtrl_GetItemCount( this->m_Hwnd ) )
+		if ( nItem < 0 && nItem >= TabCtrl_GetItemCount( m_Hwnd ) )
 			throw Dcx::dcxException("Invalid Item");
 		
-		TabCtrl_SetCurSel(this->m_Hwnd, nItem);
+		TabCtrl_SetCurSel(m_Hwnd, nItem);
 		this->activateSelectedTab( );
 	}
 	// xdid -d [NAME] [ID] [SWITCH] [N]
@@ -410,16 +410,16 @@ void DcxTab::parseCommandRequest( const TString & input ) {
 		const auto nItem = input.getnexttok().to_int() - 1;	// tok 4
 
 		// if a valid item to delete
-		if (nItem < 0 && nItem >= TabCtrl_GetItemCount(this->m_Hwnd))
+		if (nItem < 0 && nItem >= TabCtrl_GetItemCount(m_Hwnd))
 			throw Dcx::dcxException("Invalid Item");
 		
-		const auto curSel = TabCtrl_GetCurSel(this->m_Hwnd);
+		const auto curSel = TabCtrl_GetCurSel(m_Hwnd);
 		TCITEM tci;
 		ZeroMemory( &tci, sizeof( TCITEM ) );
 
 		tci.mask = TCIF_PARAM;
 
-		if (TabCtrl_GetItem(this->m_Hwnd, nItem, &tci)) {
+		if (TabCtrl_GetItem(m_Hwnd, nItem, &tci)) {
 			auto lpdtci = reinterpret_cast<LPDCXTCITEM>(tci.lParam);
 
 			if ( lpdtci != nullptr && lpdtci->mChildHwnd != nullptr && IsWindow( lpdtci->mChildHwnd ) ) {
@@ -428,15 +428,15 @@ void DcxTab::parseCommandRequest( const TString & input ) {
 			}
 		}
 
-		TabCtrl_DeleteItem( this->m_Hwnd, nItem );
+		TabCtrl_DeleteItem( m_Hwnd, nItem );
 
 		// select the next tab item if its the current one
-		const auto iTotal = TabCtrl_GetItemCount(this->m_Hwnd);
+		const auto iTotal = TabCtrl_GetItemCount(m_Hwnd);
 		if ((curSel == nItem) && (iTotal > 0)) {
 			if (nItem < iTotal)
-				TabCtrl_SetCurSel(this->m_Hwnd, nItem);
+				TabCtrl_SetCurSel(m_Hwnd, nItem);
 			else
-				TabCtrl_SetCurSel(this->m_Hwnd, iTotal -1);	// nItem -1
+				TabCtrl_SetCurSel(m_Hwnd, iTotal -1);	// nItem -1
 
 			this->activateSelectedTab( );
 		}
@@ -446,7 +446,7 @@ void DcxTab::parseCommandRequest( const TString & input ) {
 		const auto nItem = input.getnexttok().to_int() - 1;	// tok 4
 		const auto nIcon = input.getnexttok().to_int() - 1;	// tok 5
 
-		if (nItem < 0 && nItem >= TabCtrl_GetItemCount(this->m_Hwnd))
+		if (nItem < 0 && nItem >= TabCtrl_GetItemCount(m_Hwnd))
 			throw Dcx::dcxException("Invalid Item");
 		
 		TCITEM tci;
@@ -454,7 +454,7 @@ void DcxTab::parseCommandRequest( const TString & input ) {
 		tci.mask = TCIF_IMAGE;
 		tci.iImage = nIcon;
 
-		TabCtrl_SetItem( this->m_Hwnd, nItem, &tci );
+		TabCtrl_SetItem( m_Hwnd, nItem, &tci );
 	}
 	// xdid -m [NAME] [ID] [SWITCH] [X] [Y]
 	else if ( flags[TEXT('m')] && numtok > 4 ) {
@@ -462,7 +462,7 @@ void DcxTab::parseCommandRequest( const TString & input ) {
 		const auto X = input.getnexttok( ).to_int( );	// tok 4
 		const auto Y = input.getnexttok().to_int();	// tok 5
 
-		TabCtrl_SetItemSize( this->m_Hwnd, X, Y );
+		TabCtrl_SetItemSize( m_Hwnd, X, Y );
 	}
 	// This it to avoid an invalid flag message.
 	// xdid -r [NAME] [ID] [SWITCH]
@@ -473,7 +473,7 @@ void DcxTab::parseCommandRequest( const TString & input ) {
 
 		const auto nItem = input.getnexttok().to_int() - 1;	// tok 4
 
-		if (nItem < 0 && nItem >= TabCtrl_GetItemCount(this->m_Hwnd))
+		if (nItem < 0 && nItem >= TabCtrl_GetItemCount(m_Hwnd))
 			throw Dcx::dcxException("Invalid Item");
 
 		TString itemtext;
@@ -487,7 +487,7 @@ void DcxTab::parseCommandRequest( const TString & input ) {
 
 		tci.pszText = itemtext.to_chr( );
 
-		TabCtrl_SetItem( this->m_Hwnd, nItem, &tci );
+		TabCtrl_SetItem( m_Hwnd, nItem, &tci );
 	}
 
 	// xdid -v [DNAME] [ID] [SWITCH] [N] [POS]
@@ -496,10 +496,10 @@ void DcxTab::parseCommandRequest( const TString & input ) {
 		const auto pos = input.getnexttok().to_int() - 1;	// tok 5
 		BOOL adjustDelete = FALSE;
 
-		if (nItem < 0 && nItem >= TabCtrl_GetItemCount(this->m_Hwnd))
+		if (nItem < 0 && nItem >= TabCtrl_GetItemCount(m_Hwnd))
 			throw Dcx::dcxException("Invalid Item");
 
-		if (pos < 0 && pos >= TabCtrl_GetItemCount(this->m_Hwnd))
+		if (pos < 0 && pos >= TabCtrl_GetItemCount(m_Hwnd))
 			throw Dcx::dcxException("Invalid Item");
 
 		if (nItem == pos)
@@ -509,7 +509,7 @@ void DcxTab::parseCommandRequest( const TString & input ) {
 		if (nItem > pos)
 			adjustDelete = TRUE;
 
-		auto curSel = TabCtrl_GetCurSel(this->m_Hwnd);
+		auto curSel = TabCtrl_GetCurSel(m_Hwnd);
 		if (curSel == nItem)
 			curSel = pos;
 		else if (curSel > nItem)
@@ -526,17 +526,17 @@ void DcxTab::parseCommandRequest( const TString & input ) {
 		tci.cchTextMax = MIRC_BUFFER_SIZE_CCH;
 		tci.mask = TCIF_IMAGE | TCIF_PARAM | TCIF_TEXT | TCIF_STATE;
 
-		TabCtrl_GetItem(this->m_Hwnd, nItem, &tci);
+		TabCtrl_GetItem(m_Hwnd, nItem, &tci);
 
 		// insert it into the new position
-		TabCtrl_InsertItem(this->m_Hwnd, pos, &tci);
+		TabCtrl_InsertItem(m_Hwnd, pos, &tci);
 
 		// remove the old tab item
-		TabCtrl_DeleteItem(this->m_Hwnd, (adjustDelete ? nItem + 1 : nItem));
+		TabCtrl_DeleteItem(m_Hwnd, (adjustDelete ? nItem + 1 : nItem));
 
 		// select the next tab item if its the current one
 		if (curSel >= 0) {
-			TabCtrl_SetCurSel(this->m_Hwnd, curSel);
+			TabCtrl_SetCurSel(m_Hwnd, curSel);
 
 			this->activateSelectedTab();
 		}
@@ -584,7 +584,7 @@ void DcxTab::parseCommandRequest( const TString & input ) {
 		if (iWidth < -1)
 			iWidth = -1;
 
-		TabCtrl_SetMinTabWidth(this->m_Hwnd, iWidth);
+		TabCtrl_SetMinTabWidth(m_Hwnd, iWidth);
 
 		this->activateSelectedTab();
 	}
@@ -600,7 +600,7 @@ void DcxTab::parseCommandRequest( const TString & input ) {
 
 HIMAGELIST DcxTab::getImageList(  ) const {
 
-  return TabCtrl_GetImageList( this->m_Hwnd );
+  return TabCtrl_GetImageList( m_Hwnd );
 }
 
 /*!
@@ -611,7 +611,7 @@ HIMAGELIST DcxTab::getImageList(  ) const {
 
 void DcxTab::setImageList( HIMAGELIST himl ) {
 
-  TabCtrl_SetImageList( this->m_Hwnd, himl );
+  TabCtrl_SetImageList( m_Hwnd, himl );
 }
 
 /*!
@@ -620,10 +620,10 @@ void DcxTab::setImageList( HIMAGELIST himl ) {
  * blah
  */
 
-HIMAGELIST DcxTab::createImageList( ) {
-
-  return ImageList_Create( 16, 16, ILC_COLOR32|ILC_MASK, 1, 0 );
-}
+//HIMAGELIST DcxTab::createImageList( ) {
+//
+//  return ImageList_Create( 16, 16, ILC_COLOR32|ILC_MASK, 1, 0 );
+//}
 
 /*!
  * \brief blah
@@ -638,7 +638,7 @@ void DcxTab::deleteLParamInfo(const int nItem)
 
 	tci.mask = TCIF_PARAM;
 
-	if (TabCtrl_GetItem(this->m_Hwnd, nItem, &tci)) {
+	if (TabCtrl_GetItem(m_Hwnd, nItem, &tci)) {
 
 		auto lpdtci = reinterpret_cast<LPDCXTCITEM>(tci.lParam);
 
@@ -654,19 +654,20 @@ void DcxTab::deleteLParamInfo(const int nItem)
 
 void DcxTab::activateSelectedTab( ) {
 
-	auto nTab = TabCtrl_GetItemCount(this->m_Hwnd);
-	const auto nSel = TabCtrl_GetCurSel(this->m_Hwnd);
+	auto nTab = TabCtrl_GetItemCount(m_Hwnd);
+	const auto nSel = TabCtrl_GetCurSel(m_Hwnd);
 
 	if (nTab <= 0)
 		return;
 
-	RECT tabrect, rc;
-	if (!GetWindowRect(this->m_Hwnd, &tabrect))
+	RECT tabrect;
+	if (!GetWindowRect(m_Hwnd, &tabrect))
 		return;
 
-	TabCtrl_AdjustRect(this->m_Hwnd, FALSE, &tabrect);
+	TabCtrl_AdjustRect(m_Hwnd, FALSE, &tabrect);
 
-	if (!GetWindowRect(this->m_Hwnd, &rc))
+	RECT rc;
+	if (!GetWindowRect(m_Hwnd, &rc))
 		return;
 
 	OffsetRect(&tabrect, -rc.left, -rc.top);
@@ -684,7 +685,7 @@ void DcxTab::activateSelectedTab( ) {
 	//
 	//while (nTab-- > 0) {
 	//
-	//	TabCtrl_GetItem(this->m_Hwnd, nTab, &tci);
+	//	TabCtrl_GetItem(m_Hwnd, nTab, &tci);
 	//	LPDCXTCITEM lpdtci = (LPDCXTCITEM)tci.lParam;
 	//
 	//	if (lpdtci->mChildHwnd != nullptr && IsWindow(lpdtci->mChildHwnd)) {
@@ -725,7 +726,7 @@ void DcxTab::activateSelectedTab( ) {
 
 	while (nTab-- > 0) {
 
-		if (!TabCtrl_GetItem(this->m_Hwnd, nTab, &tci))
+		if (!TabCtrl_GetItem(m_Hwnd, nTab, &tci))
 			continue;
 
 		auto lpdtci = reinterpret_cast<LPDCXTCITEM>(tci.lParam);
@@ -765,11 +766,11 @@ void DcxTab::activateSelectedTab( ) {
 }
 
 void DcxTab::getTab(const int index, LPTCITEM tcItem) const {
-	TabCtrl_GetItem(this->m_Hwnd, index, tcItem);
+	TabCtrl_GetItem(m_Hwnd, index, tcItem);
 }
 
 int DcxTab::getTabCount() const {
-	return TabCtrl_GetItemCount(this->m_Hwnd);
+	return TabCtrl_GetItemCount(m_Hwnd);
 }
 
 void DcxTab::GetCloseButtonRect(const RECT& rcItem, RECT& rcCloseButton)
@@ -794,8 +795,8 @@ void DcxTab::GetCloseButtonRect(const RECT& rcItem, RECT& rcCloseButton)
 
 const TString DcxTab::getStyles(void) const {
 	auto styles(__super::getStyles());
-	const auto Styles = GetWindowStyle(this->m_Hwnd);
-	const auto ExStyles = GetWindowExStyle(this->m_Hwnd);
+	const auto Styles = GetWindowStyle(m_Hwnd);
+	const auto ExStyles = GetWindowExStyle(m_Hwnd);
 
 	if (dcx_testflag(Styles, TCS_VERTICAL))
 	{
@@ -832,13 +833,13 @@ void DcxTab::toXml(TiXmlElement *const xml) const {
 	__super::toXml(xml);
 	const auto count = this->getTabCount();
 	auto buf = std::make_unique<TCHAR[]>(MIRC_BUFFER_SIZE_CCH);
-	TCITEM tci;
+	TCITEM tci = { 0 };
 
 	for (auto i = decltype(count){0}; i < count; i++) {
 		tci.cchTextMax = MIRC_BUFFER_SIZE_CCH -1;
 		tci.pszText = buf.get();
 		tci.mask |= TCIF_TEXT;
-		if(TabCtrl_GetItem(this->m_Hwnd, i, &tci)) {
+		if(TabCtrl_GetItem(m_Hwnd, i, &tci)) {
 			auto lpdtci = reinterpret_cast<LPDCXTCITEM>(tci.lParam);
 			auto ctrl = this->m_pParentDialog->getControlByHWND(lpdtci->mChildHwnd);
 			if (ctrl != nullptr) {
@@ -885,10 +886,10 @@ LRESULT DcxTab::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bPa
 							tchi.flags = TCHT_ONITEM;
 							if (GetCursorPos(&tchi.pt))
 							{
-								MapWindowPoints(nullptr, this->m_Hwnd, &tchi.pt, 1);
+								MapWindowPoints(nullptr, m_Hwnd, &tchi.pt, 1);
 
-								const auto tab = TabCtrl_HitTest(this->m_Hwnd, &tchi);
-								//TabCtrl_GetCurSel(this->m_Hwnd);
+								const auto tab = TabCtrl_HitTest(m_Hwnd, &tchi);
+								//TabCtrl_GetCurSel(m_Hwnd);
 
 								if (tab != -1)
 									this->execAliasEx(TEXT("%s,%d,%d"), TEXT("rclick"), this->getUserID(), tab + 1);
@@ -903,18 +904,20 @@ LRESULT DcxTab::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bPa
 						{
 							if (dcx_testflag(this->m_pParentDialog->getEventMask(), DCX_EVENT_CLICK))
 							{
-								const auto tab = TabCtrl_GetCurFocus(this->m_Hwnd);
-								//int tab = TabCtrl_GetCurSel(this->m_Hwnd);
+								const auto tab = TabCtrl_GetCurFocus(m_Hwnd);
+								//int tab = TabCtrl_GetCurSel(m_Hwnd);
 
 								if (tab != -1) {
 									if (this->m_bClosable) {
-										RECT rcCloseButton, rc;
 										POINT pt;
 										if (GetCursorPos(&pt))
 										{
-											MapWindowPoints(nullptr, this->m_Hwnd, &pt, 1);
-											if (TabCtrl_GetItemRect(this->m_Hwnd, tab, &rc))
+											RECT rc = { 0 };
+
+											MapWindowPoints(nullptr, m_Hwnd, &pt, 1);
+											if (TabCtrl_GetItemRect(m_Hwnd, tab, &rc))
 											{
+												RECT rcCloseButton = { 0 };
 												GetCloseButtonRect(rc, rcCloseButton);
 
 												if (PtInRect(&rcCloseButton, pt)) {
@@ -950,7 +953,7 @@ LRESULT DcxTab::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bPa
 				if ((idata == nullptr) || (!IsWindow(idata->hwndItem)))
 					break;
 
-				RECT rect;
+				RECT rect = { 0 };
 				const auto nTabIndex = idata->itemID;
 
 				CopyRect(&rect, &idata->rcItem);
@@ -958,7 +961,7 @@ LRESULT DcxTab::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bPa
 				// if themes are active use them.
 				// call default WndProc(), DrawThemeParentBackgroundUx() is only temporary
 				DcxControl::DrawCtrlBackground(idata->hDC, this, &rect);
-				//DrawThemeParentBackgroundUx(this->m_Hwnd, idata->hDC, &rect);
+				//DrawThemeParentBackgroundUx(m_Hwnd, idata->hDC, &rect);
 				//CopyRect(&rect, &idata->rcItem);
 				if (this->m_bGradient) {
 					if (this->m_clrBackText == CLR_INVALID)
@@ -972,15 +975,19 @@ LRESULT DcxTab::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bPa
 
 				// TODO: (twig) Ook can u take a look at this plz? string stuff isnt my forte
 				TCHAR szLabel[MIRC_BUFFER_SIZE_CCH];
-				TCITEM tci;
+				szLabel[0] = TEXT('\0');
 
-				tci.mask = TCIF_TEXT | TCIF_IMAGE | TCIF_STATE;
-				tci.pszText = szLabel;
-				tci.cchTextMax = MIRC_BUFFER_SIZE_CCH;
-				tci.dwStateMask = TCIS_HIGHLIGHTED;
+				//TCITEM tci;
 
-				if (!TabCtrl_GetItem(this->getHwnd(), nTabIndex, &tci)) {
-					this->showError(nullptr, TEXT("DcxTab Fatal Error"), TEXT("Invalid item"));
+				//tci.mask = TCIF_TEXT | TCIF_IMAGE | TCIF_STATE;
+				//tci.pszText = szLabel;
+				//tci.cchTextMax = MIRC_BUFFER_SIZE_CCH;
+				//tci.dwStateMask = TCIS_HIGHLIGHTED;
+
+				TCITEM tci{ TCIF_TEXT | TCIF_IMAGE | TCIF_STATE, 0, TCIS_HIGHLIGHTED, szLabel, MIRC_BUFFER_SIZE_CCH, 0, NULL };
+
+				if (!TabCtrl_GetItem(getHwnd(), nTabIndex, &tci)) {
+					showError(nullptr, TEXT("DcxTab Fatal Error"), TEXT("Invalid item"));
 					break;
 				}
 
@@ -996,19 +1003,19 @@ LRESULT DcxTab::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bPa
 
 				// Draw icon on left side if the item has an icon
 				if (tci.iImage != -1) {
-					if (ImageList_DrawEx(this->getImageList(), tci.iImage, idata->hDC, rect.left, rect.top, 0, 0, CLR_NONE, CLR_NONE, ILD_TRANSPARENT))
+					if (ImageList_DrawEx(getImageList(), tci.iImage, idata->hDC, rect.left, rect.top, 0, 0, CLR_NONE, CLR_NONE, ILD_TRANSPARENT))
 					{
 						//IMAGEINFO ii;
 						//if (ImageList_GetImageInfo(this->getImageList(), tci.iImage, &ii))
 						//	rect.left += (ii.rcImage.right - ii.rcImage.left);
-						int iSizeX, iSizeY;
-						if (ImageList_GetIconSize(this->getImageList(), &iSizeX, &iSizeY))
+						int iSizeX = 0, iSizeY = 0;
+						if (ImageList_GetIconSize(getImageList(), &iSizeX, &iSizeY))
 							rect.left += iSizeX;
 					}
 				}
 				// Draw 'Close button' at right side
 				if (m_bClosable) {
-					RECT rcCloseButton;
+					RECT rcCloseButton = { 0 };
 					GetCloseButtonRect(rect, rcCloseButton);
 					// Draw systems close button ? or do you want a custom close button?
 					DrawFrameControl(idata->hDC, &rcCloseButton, DFC_CAPTION, DFCS_CAPTIONCLOSE | DFCS_FLAT | DFCS_TRANSPARENT);
@@ -1129,7 +1136,7 @@ LRESULT DcxTab::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 
 		case WM_MEASUREITEM:
 			{
-				auto cHwnd = GetDlgItem(this->m_Hwnd, wParam);
+				auto cHwnd = GetDlgItem(m_Hwnd, wParam);
 				if (IsWindow(cHwnd)) {
 					auto c_this = reinterpret_cast<DcxControl *>(GetProp(cHwnd, TEXT("dcx_cthis")));
 					if (c_this != nullptr)
@@ -1163,18 +1170,18 @@ LRESULT DcxTab::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 					break;
 
 				PAINTSTRUCT ps;
-				auto hdc = BeginPaint(this->m_Hwnd, &ps);
+				auto hdc = BeginPaint(m_Hwnd, &ps);
 
 				bParsed = TRUE;
 
 				// Setup alpha blend if any.
 				auto ai = this->SetupAlphaBlend(&hdc);
 
-				lRes = CallWindowProc( this->m_DefaultWindowProc, this->m_Hwnd, uMsg, (WPARAM) hdc, lParam );
+				lRes = CallWindowProc( this->m_DefaultWindowProc, m_Hwnd, uMsg, (WPARAM) hdc, lParam );
 
 				this->FinishAlphaBlend(ai);
 
-				EndPaint( this->m_Hwnd, &ps );
+				EndPaint( m_Hwnd, &ps );
 			}
 			break;
 

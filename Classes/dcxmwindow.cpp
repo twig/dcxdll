@@ -33,8 +33,8 @@ DcxMWindow::DcxMWindow(const HWND cHwnd, const HWND pHwnd, const UINT ID, DcxDia
 	BOOL bNoTheme = FALSE;
 	this->parseControlStyles(styles, &Styles, &ExStyles, &bNoTheme);
 
-	this->m_Hwnd = cHwnd;
-	this->m_OrigParentHwnd = GetParent(this->m_Hwnd);
+	m_Hwnd = cHwnd;
+	this->m_OrigParentHwnd = GetParent(m_Hwnd);
 
 	this->m_OrigStyles = this->removeStyle(WS_CAPTION | DS_FIXEDSYS | DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_SYSMENU | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_THICKFRAME);
 
@@ -42,15 +42,15 @@ DcxMWindow::DcxMWindow(const HWND cHwnd, const HWND pHwnd, const UINT ID, DcxDia
 
 	this->addStyle(WS_CHILD);
 
-	SetParent(this->m_Hwnd, pHwnd);
-	SetWindowPos(this->m_Hwnd, nullptr, rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top, NULL);
-	ShowWindow(this->m_Hwnd, SW_SHOWNOACTIVATE);
-	UpdateWindow(this->m_Hwnd);
+	SetParent(m_Hwnd, pHwnd);
+	SetWindowPos(m_Hwnd, nullptr, rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top, NULL);
+	ShowWindow(m_Hwnd, SW_SHOWNOACTIVATE);
+	UpdateWindow(m_Hwnd);
 
-	this->m_OrigID = SetWindowLong(this->m_Hwnd, GWL_ID, ID);
+	this->m_OrigID = SetWindowLong(m_Hwnd, GWL_ID, ID);
 
 	this->registreDefaultWindowProc();
-	SetProp(this->m_Hwnd, TEXT("dcx_cthis"), (HANDLE) this);
+	SetProp(m_Hwnd, TEXT("dcx_cthis"), (HANDLE) this);
 }
 
 /*!
@@ -61,34 +61,34 @@ DcxMWindow::DcxMWindow(const HWND cHwnd, const HWND pHwnd, const UINT ID, DcxDia
 
 DcxMWindow::~DcxMWindow( ) {
 
-	auto parent = GetParent(this->m_Hwnd);
+	auto parent = GetParent(m_Hwnd);
 	if ( parent == this->m_OrigParentHwnd && this->m_OrigParentHwnd != this->m_pParentDialog->getHwnd())
 		return;
 
 	this->unregistreDefaultWindowProc( );
 
-	auto bHide = (IsWindowVisible(this->m_Hwnd) != FALSE);
+	auto bHide = (IsWindowVisible(m_Hwnd) != FALSE);
 	if ( !bHide )
-		ShowWindow( this->m_Hwnd, SW_HIDE );
+		ShowWindow( m_Hwnd, SW_HIDE );
 
-	SetWindowLong( this->m_Hwnd, GWL_ID, this->m_OrigID );
-	//SetParent( this->m_Hwnd, this->m_OrigParentHwnd );
+	SetWindowLong( m_Hwnd, GWL_ID, this->m_OrigID );
+	//SetParent( m_Hwnd, this->m_OrigParentHwnd );
 	//this->removeStyle(WS_CHILDWINDOW);
-	//SetParent( this->m_Hwnd, nullptr );
+	//SetParent( m_Hwnd, nullptr );
 	if (parent == this->m_OrigParentHwnd) // handles oddness where orig parent == current when it shouldnt, maybe due to init event docking.
 		parent = GetParent(parent);
 	else
 		parent = this->m_OrigParentHwnd;
 
-	SetParent( this->m_Hwnd, parent );
+	SetParent( m_Hwnd, parent );
 	this->setStyle( this->m_OrigStyles );
 	this->setExStyle( this->m_OrigExStyles );
 
-	SetWindowPos( this->m_Hwnd, nullptr, 30, 30, 0, 0, SWP_NOSIZE|SWP_FRAMECHANGED );
-	UpdateWindow( this->m_Hwnd );
+	SetWindowPos( m_Hwnd, nullptr, 30, 30, 0, 0, SWP_NOSIZE|SWP_FRAMECHANGED );
+	UpdateWindow( m_Hwnd );
 
 	if ( !bHide )
-		ShowWindow( this->m_Hwnd, SW_SHOW );
+		ShowWindow( m_Hwnd, SW_SHOW );
 }
 
 /*!

@@ -64,22 +64,22 @@ enum dcxToolBar_Styles : DWORD {
  * blah
  */
 
-typedef struct tagDCXTBBUTTON {
-
+struct DCXTBBUTTON {
 	TString tsTipText;				//!< Tooltip text
+	TString bText;					//!< Buttons text, MUST be persistant.
 	COLORREF clrText;				//!< Button Caption Color
 	COLORREF clrMark;				//!< background color that the button will use when marked.
 	COLORREF clrTextHighlight;		//!< Button Caption Color when highlighted. (An item is highlighted if it has the TBSTATE_MARKED style and is contained in a toolbar that has the TBSTYLE_FLAT style.)
 	COLORREF clrBtnFace;			//!< The Buttons normal colour.
 	COLORREF clrBtnHighlight;		//!< The Buttons highlight colour. (An item is highlighted if it has the TBSTATE_MARKED style and is contained in a toolbar that has the TBSTYLE_FLAT style.)
 	COLORREF clrHighlightHotTrack;	//!< The Buttons hottrack colour (TBSTYLE_FLAT)
-	BOOL bBold;						//!< Is Button Caption Bold ?
-	BOOL bUline;					//!< Is Button Caption Underlined
-	TString bText;					//!< Buttons text, MUST be persistant.
+	bool bBold;						//!< Is Button Caption Bold ?
+	bool bUline;					//!< Is Button Caption Underlined
 	int iTextBkgMode;				//!< Drawing mode for text on a normal button. (XP+)
 	int iTextHighlightBkgMode;		//!< Drawing mode for text on a highlighted button. (XP+) (An item is highlighted if it has the TBSTATE_MARKED style and is contained in a toolbar that has the TBSTYLE_FLAT style.)
 
-} DCXTBBUTTON,*LPDCXTBBUTTON;
+};
+using LPDCXTBBUTTON = DCXTBBUTTON *;
 
 /*!
  * \brief blah
@@ -140,14 +140,14 @@ public:
 	inline const TString getType() const override { return TEXT("toolbar"); };
 	inline const DcxControlTypes getControlType() const noexcept override { return DcxControlTypes::TOOLBAR; }
 
-protected:
-
-	BOOL m_bAutoStretch; //!< Auto Stretch Variable
-
+private:
 	HFONT m_hOldItemFont; //!< Item fonts (only used during custom draw)
 	HFONT m_hItemFont;
 
+	bool m_bAutoStretch; //!< Auto Stretch Variable
 	bool m_bOverrideTheme; //!< Allow drawing of custom colours when control is themed.
+
+protected:
 
 	static UINT parseImageListFlags( const TString & flags );
 

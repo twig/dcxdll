@@ -90,7 +90,7 @@ protected:
 	BOOL m_bFontStrikeout;    //!< Is Font StrikedOut ?
 	TString m_tsFontFaceName; //!< Font Face Name
 
-	BOOL m_bIgnoreInput;
+	bool m_bIgnoreInput;
 	bool m_bIgnoreRepeat;
 
 	static int unfoldColor(const TCHAR *color);
