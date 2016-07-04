@@ -162,7 +162,49 @@ void DcxReBar::parseControlStyles( const TString & styles, LONG * Styles, LONG *
 
 	for (const auto &tsStyle: styles)
 	{
-		if ( tsStyle == TEXT("borders") ) 
+#if DCX_USE_HASHING
+		switch (const_hash(tsStyle.to_chr()))
+		{
+			case L"borders"_hash:
+				*Styles |= RBS_BANDBORDERS;
+				break;
+			case L"dblclktoggle"_hash:
+				*Styles |= RBS_DBLCLKTOGGLE;
+				break;
+			case L"fixedorder"_hash:
+				*Styles |= RBS_FIXEDORDER;
+				break;
+			case L"varheight"_hash:
+				*Styles |= RBS_VARHEIGHT;
+				break;
+			case L"tooltips"_hash:
+				*Styles |= RBS_TOOLTIPS;
+				break;
+			case L"verticalgrip"_hash:
+				*Styles |= RBS_VERTICALGRIPPER;
+				break;
+			case L"vertical"_hash:
+				*Styles |= CCS_VERT;
+				break;
+			case L"right"_hash:
+				*Styles |= CCS_RIGHT;
+				break;
+			case L"bottom"_hash:
+				*Styles |= CCS_BOTTOM;
+				break;
+			case L"noresize"_hash:
+				*Styles |= CCS_NORESIZE;
+				break;
+			case L"noparentalign"_hash:
+				*Styles |= CCS_NOPARENTALIGN;
+				break;
+			case L"noauto"_hash:
+				*Styles |= CCS_NOPARENTALIGN | CCS_NORESIZE;
+			default:
+				break;
+		}
+#else
+		if ( tsStyle == TEXT("borders") )
 			*Styles |= RBS_BANDBORDERS;
 		else if ( tsStyle == TEXT("dblclktoggle") ) 
 			*Styles |= RBS_DBLCLKTOGGLE;
@@ -186,6 +228,7 @@ void DcxReBar::parseControlStyles( const TString & styles, LONG * Styles, LONG *
 			*Styles |= CCS_NOPARENTALIGN ;
 		else if ( tsStyle == TEXT("noauto") )
 			*Styles |= CCS_NOPARENTALIGN | CCS_NORESIZE;
+#endif
 	}
 
 	this->parseGeneralControlStyles(styles, Styles, ExStyles, bNoTheme);

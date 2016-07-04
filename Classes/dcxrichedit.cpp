@@ -102,6 +102,39 @@ void DcxRichEdit::parseControlStyles( const TString &styles, LONG *Styles, LONG 
 	//ES_NOHIDESEL
 	for (const auto &tsStyle: styles)
 	{
+#if DCX_USE_HASHING
+		switch (const_hash(tsStyle.to_chr()))
+		{
+			case L"multi"_hash:
+				*Styles |= ES_MULTILINE | ES_WANTRETURN;
+				break;
+			case L"readonly"_hash:
+				*Styles |= ES_READONLY;
+				break;
+			case L"center"_hash:
+				*Styles |= ES_CENTER;
+				break;
+			case L"right"_hash:
+				*Styles |= ES_RIGHT;
+				break;
+			case L"autohs"_hash:
+				*Styles |= ES_AUTOHSCROLL;
+				break;
+			case L"autovs"_hash:
+				*Styles |= ES_AUTOVSCROLL;
+				break;
+			case L"vsbar"_hash:
+				*Styles |= WS_VSCROLL;
+				break;
+			case L"hsbar"_hash:
+				*Styles |= WS_HSCROLL;
+				break;
+			case L"disablescroll"_hash:
+				*Styles |= ES_DISABLENOSCROLL;
+			default:
+				break;
+		}
+#else
 		if (tsStyle == TEXT("multi"))
 			*Styles |= ES_MULTILINE | ES_WANTRETURN;
 		else if (tsStyle == TEXT("readonly"))
@@ -120,6 +153,7 @@ void DcxRichEdit::parseControlStyles( const TString &styles, LONG *Styles, LONG 
 			*Styles |= WS_HSCROLL;
 		else if (tsStyle == TEXT("disablescroll"))
 			*Styles |= ES_DISABLENOSCROLL;
+#endif
 	}
 
 	this->parseGeneralControlStyles(styles, Styles, ExStyles, bNoTheme);

@@ -89,10 +89,23 @@ void DcxPager::parseControlStyles( const TString &styles, LONG *Styles, LONG *Ex
 {
 	for (const auto &tsStyle: styles)
 	{
+#if DCX_USE_HASHING
+		switch (const_hash(tsStyle.to_chr()))
+		{
+			case L"horizontal"_hash:
+				*Styles |= PGS_HORZ;
+				break;
+			case L"autoscroll"_hash:
+				*Styles |= PGS_AUTOSCROLL;
+			default:
+				break;
+		}
+#else
 		if (tsStyle == TEXT("horizontal"))
 			*Styles |= PGS_HORZ;
 		else if (tsStyle == TEXT("autoscroll"))
 			*Styles |= PGS_AUTOSCROLL;
+#endif
 	}
 
 	this->parseGeneralControlStyles(styles, Styles, ExStyles, bNoTheme);

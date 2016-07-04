@@ -104,6 +104,27 @@ void DcxProgressBar::parseControlStyles( const TString & styles, LONG * Styles, 
 
 	for (const auto &tsStyle: styles)
 	{
+#if DCX_USE_HASHING
+		switch (const_hash(tsStyle.to_chr()))
+		{
+			case L"smooth"_hash:
+				*Styles |= PBS_SMOOTH;
+				break;
+			case L"vertical"_hash:
+				*Styles |= PBS_VERTICAL;
+				break;
+			case L"marquee"_hash:
+				*Styles |= PBS_MARQUEE;
+				break;
+			case L"gradient"_hash:
+				{
+					*Styles |= PBS_SMOOTH;
+					this->m_bIsGrad = true;
+				}
+			default:
+				break;
+		}
+#else
 		if (tsStyle == TEXT("smooth"))
 			*Styles |= PBS_SMOOTH;
 		else if (tsStyle == TEXT("vertical"))
@@ -114,6 +135,7 @@ void DcxProgressBar::parseControlStyles( const TString & styles, LONG * Styles, 
 			*Styles |= PBS_SMOOTH;
 			this->m_bIsGrad = true;
 		}
+#endif
 	}
 
 	this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
