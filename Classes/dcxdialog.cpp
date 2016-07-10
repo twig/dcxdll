@@ -3103,8 +3103,8 @@ void DcxDialog::UpdateVistaStyle(const LPRECT rcUpdate)
 	//	make this behaviour optional?
 	//if (!this->m_bGhosted && alpha == 255) {
 		GdiFlush(); // sync drawing
-		const auto Yend = min(rcClip.bottom, szWin.cy), Ybase = max(rcClip.top, 0);
-		const auto Xend = min(rcClip.right, szWin.cx), Xbase = max(rcClip.left, 0);
+		const auto Yend = std::min(rcClip.bottom, szWin.cy), Ybase = std::max(rcClip.top, 0L);
+		const auto Xend = std::min(rcClip.right, szWin.cx), Xbase = std::max(rcClip.left, 0L);
 		POINT pt = { 0 };
 
 		for( auto y = Ybase; y < Yend; y++)

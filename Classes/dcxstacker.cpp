@@ -475,7 +475,7 @@ void DcxStacker::DrawSItem(const LPDRAWITEMSTRUCT idata)
 	auto h = MIN_STACK_HEIGHT, button_base = 0;
 	auto Redraw = false;
 
-	h = max(h,lf.lfHeight * 20);
+	h = std::max(static_cast<LONG>(h),lf.lfHeight * 20);
 	rcText.bottom = rcText.top + h;
 	//rcText.right -= 1;
 	if (rcText.bottom > idata->rcItem.bottom)
@@ -733,7 +733,7 @@ LRESULT DcxStacker::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 			if (GetObject(hFont, sizeof(LOGFONT), &lf) == 0)
 				break;
 
-			h = max(h,lf.lfHeight * 20);
+			h = std::max(static_cast<LONG>(h),lf.lfHeight * 20);
 
 			if (sitem->pChild != nullptr) {
 				auto win = sitem->pChild->getHwnd();

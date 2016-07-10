@@ -84,8 +84,8 @@ struct refString
 	constexpr size_type length() const { return _ts_strnlen(m_data, N); }
 	constexpr const size_type size() const noexcept { return N; }
 	constexpr pointer data() const noexcept { return const_cast<pointer>(m_data); }
-	constexpr bool empty() const noexcept { return (m_data[0] == value_type()); }
-	constexpr void clear() const noexcept { m_data[0] = value_type(); }
+	constexpr bool empty() const noexcept { return (m_data == nullptr || m_data[0] == value_type()); }
+	constexpr void clear() const noexcept { if (!empty()) m_data[0] = value_type(); }
 
 private:
 	const_pointer m_data;

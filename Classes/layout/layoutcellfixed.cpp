@@ -171,10 +171,10 @@ void LayoutCellFixed::getMinMaxInfo(CellMinMaxInfo * pCMMI) const
 			pCMMI->m_MaxSize.y = pCMMI->m_MinSize.y;
 		}
 
-		pCMMI->m_MinSize.x = max(pCMMI->m_MinSize.x, 0);
-		pCMMI->m_MinSize.y = max(pCMMI->m_MinSize.y, 0);
-		pCMMI->m_MaxSize.x = min(pCMMI->m_MaxSize.x, GetSystemMetrics(SM_CXMAXTRACK));
-		pCMMI->m_MaxSize.y = min(pCMMI->m_MaxSize.y, GetSystemMetrics(SM_CYMAXTRACK));
+		pCMMI->m_MinSize.x = std::max(pCMMI->m_MinSize.x, 0L);
+		pCMMI->m_MinSize.y = std::max(pCMMI->m_MinSize.y, 0L);
+		pCMMI->m_MaxSize.x = std::min(pCMMI->m_MaxSize.x, static_cast<LONG>(GetSystemMetrics(SM_CXMAXTRACK)));
+		pCMMI->m_MaxSize.y = std::min(pCMMI->m_MaxSize.y, static_cast<LONG>(GetSystemMetrics(SM_CYMAXTRACK)));
 	}
 	else
 		ZeroMemory(pCMMI, sizeof(CellMinMaxInfo));

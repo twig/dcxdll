@@ -246,10 +246,11 @@ http://symbiancorner.blogspot.com/2007/05/how-to-detect-version-of-ms-visual.htm
 #endif
 
 // max() macro causes issues with GSL
-#pragma push_macro("max")
+//#pragma push_macro("max")
 #undef max
+#undef min
 #include "GSL\include\gsl.h"
-#pragma pop_macro("max")
+//#pragma pop_macro("max")
 
 #include "AutoRelease.h"
 

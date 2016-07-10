@@ -196,17 +196,12 @@ void DcxmlParser::parseAttributes(const TiXmlElement *const tElement) {
 	m_sHeight = queryAttribute(tElement, "height", "0");
 	m_sDropdown = nullptr;
 
-	if (0 == lstrcmpA(m_sElem, "comboex") || 0 == lstrcmpA(m_sElem, "colorcombo"))
+	if ((0 == _ts_strncmp(m_sElem, "comboex", 16)) || (0 == _ts_strncmp(m_sElem, "colorcombo", 16)))
 		m_sDropdown = queryAttribute(tElement, "dropdown", "100");
 
 	m_sWidth = queryAttribute(tElement, "width", "0");
 	m_sMargin = queryAttribute(tElement, "margin", "0 0 0 0");
 	m_sStyles = queryAttribute(tElement, "styles", "");
-
-	//m_sTemp = tElement->Attribute("caption");
-	//if (m_sTemp == nullptr)
-	//	m_sTemp = tElement->GetText();
-	//m_sCaption = (m_sTemp != nullptr) ? m_sTemp : "";
 
 	m_sCaption = tElement->Attribute("caption");
 	if (m_sCaption == nullptr)
@@ -329,7 +324,7 @@ void DcxmlParser::parseControl() {
 			UINT line = 0U;
 			for (auto itStart = mystring.begin(TEXT("\r\n")), itEnd = mystring.end(); itStart != itEnd; ++itStart)
 			{
-				line++;
+				++line;
 				xdidEX(m_iID, TEXT("-i"), TEXT("%u %s"), line, (*itStart).to_chr());
 			}
 		}
@@ -1191,10 +1186,10 @@ int DcxmlParser::mIRCEvalToUnsignedInt (const TString &value)
 	return (int)((iNum > 0) ? iNum : -1);
 }
 
-void DcxmlParser::registerId(const TiXmlElement *const idElement,const int iNewID)
+void DcxmlParser::registerId(const TiXmlElement *const idElement, const int iNewID)
 {
-	int elementId;
-	if (idElement->QueryIntAttribute("id",&elementId) != TIXML_SUCCESS) //<! id attr. is not an int
+	auto elementId = 0;
+	if (idElement->QueryIntAttribute("id", &elementId) != TIXML_SUCCESS) //<! id attr. is not an int
 	{
 		const TString elementNamedId(idElement->Attribute("id"));
 		if (!elementNamedId.empty()) {
@@ -1216,7 +1211,7 @@ int DcxmlParser::parseId(const TiXmlElement *const idElement)
 	if (idElement->QueryIntAttribute("id", &local_id) == TIXML_SUCCESS)
 	{
 		// found ID as a number,  if its not a negative, return it.
-		return max(local_id, 0);
+		return std::max(local_id, 0);
 	}
 
 	const TString attributeIdValue(idElement->Attribute("id"));

@@ -932,7 +932,7 @@ void DcxListView::autoSize(const int nColumn, const int iFlags, const int iWidth
 		ListView_SetColumnWidth(m_Hwnd, nColumn, LVSCW_AUTOSIZE);
 		n = ListView_GetColumnWidth(m_Hwnd, nColumn);
 		ListView_SetColumnWidth(m_Hwnd, nColumn, LVSCW_AUTOSIZE_USEHEADER);
-		n = max(ListView_GetColumnWidth(m_Hwnd, nColumn),n);
+		n = std::max(ListView_GetColumnWidth(m_Hwnd, nColumn),n);
 		ListView_SetColumnWidth(m_Hwnd, nColumn, n);
 	}
 	else if (dcx_testflag(iFlags, DCX_LV_COLUMNF_AUTO))

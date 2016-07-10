@@ -752,8 +752,8 @@ void DcxBox::DrawClientArea(HDC hdc)
 
 		calcTextRect(hdc, wtext, &rcText, DT_LEFT | DT_END_ELLIPSIS |DT_SINGLELINE);
 		if (m_bShadowText) {
-			rcText.bottom = min((rcText.bottom +6), rc.bottom);
-			rcText.right = min((rcText.right +6), rc.right);
+			rcText.bottom = std::min((rcText.bottom +6), rc.bottom);
+			rcText.right = std::min((rcText.right +6), rc.right);
 		}
 
 		const auto w = rcText.right - rcText.left;
