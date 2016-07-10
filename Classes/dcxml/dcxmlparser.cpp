@@ -508,9 +508,76 @@ void DcxmlParser::xdidEX(const int cid, const TCHAR *const sw, const TCHAR *cons
 }
 
 /* parseCLA(int numberOfClaControlsInCurrentBranch) : parses control and pane elements and applies the right CLA commands */
-TString DcxmlParser::parseCLA(const int cCla) { 
-	if (0==lstrcmpA(m_sElem, "control")) {
-		if ((0==lstrcmpA(m_sType, "panel")) || (0==lstrcmpA(m_sType, "box"))) {
+TString DcxmlParser::parseCLA(const int cCla)
+{
+#if DCX_USE_HASHING
+	const auto sParentelemHash = const_hash(m_sParentelem);
+	const auto sElemHash = const_hash(m_sElem);
+
+	if (sElemHash == "control"_hash) {
+		const auto sTypeHash = const_hash(m_sType);
+		if ((sTypeHash == "panel"_hash) || (sTypeHash == "box"_hash)) {
+			xdidEX(m_iID, TEXT("-l"), TEXT("root \t +p%S 0 0 0 0"), m_sCascade);
+			xdidEX(m_iID, TEXT("-l"), TEXT("space root \t + %S"), m_sMargin);
+			g_bResetCLA = true;
+		}
+		const char * fHeigth = "";
+		const char * fWidth = "";
+		const char * fixed = "l";
+		if (m_pElement->Attribute("height") != nullptr) { fHeigth = "v"; fixed = "f"; m_sWeight = "0"; }
+		if (m_pElement->Attribute("width") != nullptr) { fWidth = "h"; fixed = "f"; m_sWeight = "0"; }
+
+		if (sParentelemHash == "dialog"_hash)
+			xdialogEX(TEXT("-l"), TEXT("cell %S \t +%S%S%Si %i %S %S %S"), g_claPath, fixed, fHeigth, fWidth, m_iID, m_sWeight, m_sWidth, m_sHeight);
+		else if (sParentelemHash == "control"_hash) {
+			const char *const t_type = m_pParent->Attribute("type");
+			if ((t_type != nullptr) && (m_iParentID > 0)) {
+				const auto t_typeHash = const_hash(t_type);
+				if (t_typeHash == "panel"_hash)
+					xdidEX(m_iParentID, TEXT("-l"), TEXT("cell %S \t +%S%S%Si %i %S %S %S"), g_claPath, fixed, fHeigth, fWidth, m_iID, m_sWeight, m_sWidth, m_sHeight);
+				else if (t_typeHash == "box"_hash)
+					xdidEX(m_iParentID, TEXT("-l"), TEXT("cell %S \t +%S%S%Si %i %S %S %S"), g_claPath, fixed, fHeigth, fWidth, m_iID, m_sWeight, m_sWidth, m_sHeight);
+			}
+		}
+	}
+	else if (sElemHash == "pane"_hash) {
+		if (sParentelemHash == "dialog"_hash)
+			xdialogEX(TEXT("-l"), TEXT("cell %S \t +p%S 0 %S 0 0"), g_claPath, m_sCascade, m_sWeight);
+		else if (sParentelemHash == "control"_hash) {
+			if ((m_sParenttype != nullptr) && (m_iParentID > 0)) {
+
+				const auto sParenttypeHash = const_hash(m_sParenttype);
+
+				if (sParenttypeHash == "panel"_hash)
+					xdidEX(m_iParentID, TEXT("-l"), TEXT("cell %S \t +p%S 0 %S 0 0"), g_claPath, m_sCascade, m_sWeight);
+				else if (sParenttypeHash == "box"_hash)
+					xdidEX(m_iParentID, TEXT("-l"), TEXT("cell %S \t +p%S 0 %S 0 0"), g_claPath, m_sCascade, m_sWeight);
+			}
+		}
+	}
+	TString claPathx;
+
+	if (g_bResetCLA)
+		claPathx = TEXT("root");
+	else
+	{
+		if (0 != _ts_strncmp(g_claPath, "root", 16))
+			claPathx = g_claPath;
+
+		claPathx.addtok(cCla);
+	}
+
+	if (m_pElement->Attribute("margin") != nullptr) {
+		if (sParentelemHash == "dialog"_hash)
+			xdialogEX(TEXT("-l"), TEXT("space %s \t + %S"), claPathx.to_chr(), m_sMargin);
+		else
+			xdidEX(m_iParentID, TEXT("-l"), TEXT("space %S \t + %S"), g_claPath, m_sMargin);
+	}
+	g_bResetCLA = false;
+	return claPathx;
+#else
+	if (0 == _ts_strncmp(m_sElem, "control", 16)) {
+		if ((0 == _ts_strncmp(m_sType, "panel", 16)) || (0 == _ts_strncmp(m_sType, "box", 16))) {
 			xdidEX(m_iID,TEXT("-l"),TEXT("root \t +p%S 0 0 0 0"),m_sCascade);
 			xdidEX(m_iID,TEXT("-l"),TEXT("space root \t + %S"),m_sMargin);
 			g_bResetCLA = true;
@@ -520,26 +587,26 @@ TString DcxmlParser::parseCLA(const int cCla) {
 		const char * fixed = "l";
 		if (m_pElement->Attribute("height") != nullptr) { fHeigth = "v"; fixed = "f"; m_sWeight = "0"; }
 		if (m_pElement->Attribute("width") != nullptr) { fWidth = "h"; fixed = "f"; m_sWeight = "0"; }
-		if (0==lstrcmpA(m_sParentelem, "dialog"))
+		if (0 == _ts_strncmp(m_sParentelem, "dialog", 16))
 			xdialogEX(TEXT("-l"),TEXT("cell %S \t +%S%S%Si %i %S %S %S"),	g_claPath,fixed,fHeigth,fWidth,m_iID,m_sWeight,m_sWidth,m_sHeight);
-		else if (0==lstrcmpA(m_sParentelem, "control")) {
+		else if (0 == _ts_strncmp(m_sParentelem, "control", 16)) {
 			const auto t_type = m_pParent->Attribute("type");
 			if ((t_type != nullptr) && (m_iParentID > 0)) {
-				if (0==lstrcmpA(t_type, "panel"))
+				if (0 == _ts_strncmp(t_type, "panel", 16))
 					xdidEX(m_iParentID,TEXT("-l"),TEXT("cell %S \t +%S%S%Si %i %S %S %S"), g_claPath,fixed,fHeigth,fWidth,m_iID,m_sWeight,m_sWidth,m_sHeight); 
-				else if (0==lstrcmpA(t_type, "box"))
+				else if (0 == _ts_strncmp(t_type, "box", 16))
 					xdidEX(m_iParentID,TEXT("-l"),TEXT("cell %S \t +%S%S%Si %i %S %S %S"), g_claPath,fixed,fHeigth,fWidth,m_iID,m_sWeight,m_sWidth,m_sHeight); 
 			}
 		}
 	}
-	else if (0==lstrcmpA(m_sElem, "pane")) {
-		if (0==lstrcmpA(m_sParentelem, "dialog"))
+	else if (0 == _ts_strncmp(m_sElem, "pane", 16)) {
+		if (0 == _ts_strncmp(m_sParentelem, "dialog", 16))
 			xdialogEX(TEXT("-l"),TEXT("cell %S \t +p%S 0 %S 0 0"),g_claPath,m_sCascade,m_sWeight);
-		else if (0==lstrcmpA(m_sParentelem, "control")) {
+		else if (0 == _ts_strncmp(m_sParentelem, "control", 16)) {
 			if ((m_sParenttype != nullptr) && (m_iParentID > 0)) {
-				if (0==lstrcmpA(m_sParenttype, "panel"))
+				if (0 == _ts_strncmp(m_sParenttype, "panel", 16))
 					xdidEX(m_iParentID,TEXT("-l"),TEXT("cell %S \t +p%S 0 %S 0 0"),g_claPath,m_sCascade,m_sWeight);
-				else if (0==lstrcmpA(m_sParenttype, "box"))
+				else if (0 == _ts_strncmp(m_sParenttype, "box", 16))
 					xdidEX(m_iParentID,TEXT("-l"),TEXT("cell %S \t +p%S 0 %S 0 0"),g_claPath,m_sCascade,m_sWeight);
 			}
 		}
@@ -556,20 +623,21 @@ TString DcxmlParser::parseCLA(const int cCla) {
 		claPathx = TEXT("root");
 	else
 	{
-		if (0 != lstrcmpA(g_claPath, "root"))
+		if (0 != _ts_strncmp(g_claPath, "root", 16))
 			claPathx = g_claPath;
 
-		claPathx += cCla;
+		claPathx.addtok(cCla);
 	}
 
 	if (m_pElement->Attribute("margin") != nullptr) {
-		if (0==lstrcmpA(m_sParentelem, "dialog"))
+		if (0 == _ts_strncmp(m_sParentelem, "dialog", 16))
 			xdialogEX(TEXT("-l"),TEXT("space %s \t + %S"),claPathx.to_chr(),m_sMargin);
 		else
 			xdidEX(m_iParentID,TEXT("-l"),TEXT("space %S \t + %S"),g_claPath,m_sMargin);
 	}
 	g_bResetCLA = false;
 	return claPathx;
+#endif
 }
 
 /* setStyle(TiXmlElement*) : Applies the styles described on the m_pElement found by parseStyle() */
