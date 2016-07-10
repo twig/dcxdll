@@ -65,27 +65,16 @@ mIRC(dcxml) {
 				throw Dcx::dcxException("Unable to load XML file");
 
 			const auto popups = doc.FirstChildElement("dcxml")->FirstChildElement("popups");
-			//std::array<TCHAR *, 3U> test = {
-			//	TEXT("mircbar"),
-			//	TEXT("mirc"),
-			//	TEXT("scriptpopup")
-			//};
 
-			//static const TCHAR *menuNames[] = {
-			//	TEXT("mircbar"),
-			//	TEXT("mirc"),
-			//	TEXT("scriptpopup")
-			//};
-			//if (popupName.acompare(menuNames) != 0)
-			//	throw Dcx::dcxException(TEXT("Menu name '%' is reserved."), popupName);
-
+#if DCX_USE_HASHING
+			const auto popupNameHash = const_hash(popupName.to_chr());
+			if ((popupNameHash == L"mircbar"_hash) || (popupNameHash == L"mirc"_hash) || (popupNameHash == L"scriptpopup"_hash))
+				throw Dcx::dcxException(TEXT("Menu name '%' is reserved."), popupName);
+#else
 			static const TString menuNames(TEXT("mircbar mirc scriptpopup"));
 			if (menuNames.istok(popupName))
 				throw Dcx::dcxException(TEXT("Menu name '%' is reserved."), popupName);
-
-			//if ((popupName == TEXT("mircbar")) || (popupName == TEXT("mirc")) || (popupName == TEXT("scriptpopup")))
-			//	throw Dcx::dcxException(TEXT("Menu name '%s' is reserved."), popupName);
-
+#endif
 			// Couldnt find popups group.
 			if (popups == nullptr)
 				throw Dcx::dcxException("No 'popups' Group");

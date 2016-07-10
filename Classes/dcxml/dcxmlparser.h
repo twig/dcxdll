@@ -139,7 +139,7 @@ private:
 	//CLA variables
 	const char *g_claPath;
 	const char *g_claPathx;
-	int g_resetcla;
+	bool g_bResetCLA;
 
 	bool m_bLoadSuccess;
 	bool m_bVerbose;

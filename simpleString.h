@@ -9,7 +9,7 @@
 template <typename T, size_t N>
 struct simpleString {
 	static_assert(N > 1, "N Must be > 1");
-	static_assert(std::is_same<char, T>::value || std::is_same<wchar_t, T>::value, "Type must be char or wchar_t");
+	static_assert(std::is_same<char, std::remove_cv_t<T>>::value || std::is_same<wchar_t, std::remove_cv_t<T>>::value, "Type must be char or wchar_t");
 
 	using value_type = T;
 	using pointer = std::add_pointer_t<value_type>;
