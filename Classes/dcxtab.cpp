@@ -113,38 +113,90 @@ void DcxTab::parseControlStyles( const TString & styles, LONG * Styles, LONG * E
 	//*ExStyles = WS_EX_CONTROLPARENT;
 	*Styles |= TCS_OWNERDRAWFIXED;
 
-	for (const auto &tsStyle: styles)
+	for (const auto &tsStyle : styles)
 	{
-		if ( tsStyle == TEXT("vertical") )
+#if DCX_USE_HASHING
+		switch (const_hash(tsStyle.to_chr()))
+		{
+			case L"vertical"_hash:
+				*Styles |= TCS_VERTICAL;
+				break;
+			case L"bottom"_hash:
+				*Styles |= TCS_BOTTOM;
+				break;
+			case L"right"_hash:
+				*Styles |= TCS_RIGHT;
+				break;
+			case L"fixedwidth"_hash:
+				*Styles |= TCS_FIXEDWIDTH;
+				break;
+			case L"buttons"_hash:
+				*Styles |= TCS_BUTTONS;
+				break;
+			case L"flat"_hash:
+				*Styles |= TCS_FLATBUTTONS;
+				break;
+			case L"hot"_hash:
+				*Styles |= TCS_HOTTRACK;
+				break;
+			case L"multiline"_hash:
+				*Styles |= TCS_MULTILINE;
+				break;
+			case L"rightjustify"_hash:
+				*Styles |= TCS_RIGHTJUSTIFY;
+				break;
+			case L"scrollopposite"_hash:
+				*Styles |= TCS_SCROLLOPPOSITE;
+				break;
+			//case L"tooltips"_hash:
+			//  *Styles |= TCS_TOOLTIPS;
+			//	break;
+			case L"flatseps"_hash:
+				*ExStyles |= TCS_EX_FLATSEPARATORS;
+				break;
+			case L"closable"_hash:
+				{
+					m_bClosable = true;
+					//*Styles |= TCS_OWNERDRAWFIXED;
+				}
+				break;
+			case L"gradient"_hash:
+				m_bGradient = true;
+			default:
+				break;
+		}
+#else
+		if (tsStyle == TEXT("vertical"))
 			*Styles |= TCS_VERTICAL;
-		else if ( tsStyle == TEXT("bottom") )
+		else if (tsStyle == TEXT("bottom"))
 			*Styles |= TCS_BOTTOM;
-		else if ( tsStyle == TEXT("right") )
+		else if (tsStyle == TEXT("right"))
 			*Styles |= TCS_RIGHT;
-		else if ( tsStyle == TEXT("fixedwidth") )
+		else if (tsStyle == TEXT("fixedwidth"))
 			*Styles |= TCS_FIXEDWIDTH;
-		else if ( tsStyle == TEXT("buttons") )
+		else if (tsStyle == TEXT("buttons"))
 			*Styles |= TCS_BUTTONS;
-		else if ( tsStyle == TEXT("flat") )
+		else if (tsStyle == TEXT("flat"))
 			*Styles |= TCS_FLATBUTTONS;
-		else if ( tsStyle == TEXT("hot") )
+		else if (tsStyle == TEXT("hot"))
 			*Styles |= TCS_HOTTRACK;
-		else if ( tsStyle == TEXT("multiline") )
+		else if (tsStyle == TEXT("multiline"))
 			*Styles |= TCS_MULTILINE;
-		else if ( tsStyle == TEXT("rightjustify") )
+		else if (tsStyle == TEXT("rightjustify"))
 			*Styles |= TCS_RIGHTJUSTIFY;
-		else if ( tsStyle == TEXT("scrollopposite") )
+		else if (tsStyle == TEXT("scrollopposite"))
 			*Styles |= TCS_SCROLLOPPOSITE;
 		//else if ( tsStyle == TEXT("tooltips") )
 		//  *Styles |= TCS_TOOLTIPS;
-		else if ( tsStyle == TEXT("flatseps") )
+		else if (tsStyle == TEXT("flatseps"))
 			*ExStyles |= TCS_EX_FLATSEPARATORS;
-		else if ( tsStyle == TEXT("closable")) {
+		else if (tsStyle == TEXT("closable")) {
 			this->m_bClosable = true;
 			//*Styles |= TCS_OWNERDRAWFIXED;
 		}
-		else if ( tsStyle == TEXT("gradient") )
+		else if (tsStyle == TEXT("gradient"))
 			this->m_bGradient = true;
+#endif
 	}
 
 	this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );

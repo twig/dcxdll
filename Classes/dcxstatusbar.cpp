@@ -90,6 +90,46 @@ void DcxStatusBar::parseControlStyles( const TString & styles, LONG * Styles, LO
 {
 	for (const auto &tsStyle: styles)
 	{
+#if DCX_USE_HASHING
+		switch (const_hash(tsStyle.to_chr()))
+		{
+			case L"grip"_hash:
+				*Styles |= SBARS_SIZEGRIP;
+				break;
+			case L"tooltips"_hash:
+				*Styles |= SBARS_TOOLTIPS;
+				break;
+			case L"nodivider"_hash:
+				*Styles |= CCS_NODIVIDER;
+				break;
+			case L"top"_hash:
+				{
+					*Styles |= CCS_TOP;
+					*Styles &= ~SBARS_SIZEGRIP; // size grip doesn't work for left or top styles.
+				}
+				break;
+			case L"noresize"_hash:
+				*Styles |= CCS_NORESIZE;
+				break;
+			case L"noparentalign"_hash:
+				*Styles |= CCS_NOPARENTALIGN;
+				break;
+			case L"noauto"_hash:
+				*Styles |= CCS_NOPARENTALIGN | CCS_NORESIZE;
+				break;
+			//case L"left"_hash:
+			//{ // NB: left & right styles don't render the parts vertically.
+			//	*Styles |= CCS_LEFT;
+			//	*Styles &= ~SBARS_SIZEGRIP;
+			//}
+			//break;
+			//case L"right"_hash:
+			//	*Styles |= CCS_RIGHT;
+			//	break;
+			default:
+				break;
+		}
+#else
 		if (tsStyle == TEXT("grip"))
 			*Styles |= SBARS_SIZEGRIP;
 		else if (tsStyle == TEXT("tooltips"))
@@ -113,6 +153,7 @@ void DcxStatusBar::parseControlStyles( const TString & styles, LONG * Styles, LO
 		//}
 		//else if ( tsStyle == TEXT("right") )
 		//	*Styles |= CCS_RIGHT;
+#endif
 	}
 
 	parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );

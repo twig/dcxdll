@@ -121,7 +121,46 @@ void DcxTreeView::parseControlStyles( const TString & styles, LONG * Styles, LON
 
 	for (const auto &tsStyle: styles)
 	{
-		if ( tsStyle == TEXT("haslines") ) 
+#if DCX_USE_HASHING
+		switch (const_hash(tsStyle.to_chr()))
+		{
+			case L"haslines"_hash:
+				*Styles |= TVS_HASLINES;
+				break;
+			case L"hasbuttons"_hash:
+				*Styles |= TVS_HASBUTTONS;
+				break;
+			case L"linesatroot"_hash:
+				*Styles |= TVS_LINESATROOT;
+				break;
+			case L"showsel"_hash:
+				*Styles |= TVS_SHOWSELALWAYS;
+				break;
+			case L"editlabel"_hash:
+				*Styles |= TVS_EDITLABELS;
+				break;
+			case L"nohscroll"_hash:
+				*Styles |= TVS_NOHSCROLL;
+				break;
+			case L"notooltips"_hash:
+				*Styles |= TVS_NOTOOLTIPS;
+				break;
+			case L"noscroll"_hash:
+				*Styles |= TVS_NOSCROLL;
+				break;
+			case L"fullrow"_hash:
+				*Styles |= TVS_FULLROWSELECT;
+				break;
+			case L"singleexpand"_hash:
+				*Styles |= TVS_SINGLEEXPAND;
+				break;
+			case L"checkbox"_hash:
+				*ExStyles |= TVS_CHECKBOXES;
+			default:
+				break;
+		}
+#else
+		if (tsStyle == TEXT("haslines"))
 			*Styles |= TVS_HASLINES;
 		else if ( tsStyle == TEXT("hasbuttons") ) 
 			*Styles |= TVS_HASBUTTONS;
@@ -143,6 +182,7 @@ void DcxTreeView::parseControlStyles( const TString & styles, LONG * Styles, LON
 			*Styles |= TVS_SINGLEEXPAND;
 		else if ( tsStyle == TEXT("checkbox") ) 
 			*ExStyles |= TVS_CHECKBOXES;
+#endif
 	}
 
 	this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );

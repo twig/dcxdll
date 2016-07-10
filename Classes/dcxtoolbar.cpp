@@ -98,7 +98,7 @@ DcxToolBar::~DcxToolBar( ) {
  * blah
  */
 void DcxToolBar::parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ) {
-	LONG ExStylesTb;
+	LONG ExStylesTb = 0;
 	parseControlStyles(styles, Styles, ExStyles, &ExStylesTb, bNoTheme);
 }
 
@@ -112,7 +112,61 @@ void DcxToolBar::parseControlStyles( const TString & styles, LONG * Styles, LONG
 	//*Styles |= CCS_ADJUSTABLE;
 	for (const auto &tsStyle: styles)
 	{
-		if ( tsStyle == TEXT("flat") )
+#if DCX_USE_HASHING
+		switch (const_hash(tsStyle.to_chr()))
+		{
+			case L"flat"_hash:
+				*Styles |= TBSTYLE_FLAT;
+				break;
+			case L"tooltips"_hash:
+				*Styles |= TBSTYLE_TOOLTIPS;
+				break;
+			case L"transparent"_hash:
+				*Styles |= TBSTYLE_TRANSPARENT;
+				break;
+			case L"nodivider"_hash:
+				*Styles |= CCS_NODIVIDER;
+				break;
+			case L"top"_hash:
+				*Styles |= CCS_TOP;
+				break;
+			case L"bottom"_hash:
+				*Styles |= CCS_BOTTOM;
+				break;
+			case L"left"_hash:
+				*Styles |= CCS_LEFT;
+				break;
+			case L"right"_hash:
+				*Styles |= CCS_RIGHT;
+				break;
+			//case L"noresize"_hash: 
+			//  *Styles |= CCS_NORESIZE;
+			//	break;
+			//case L"noparentalign"_hash: 
+			//  *Styles |= CCS_NOPARENTALIGN ;
+			//	break;
+			case L"noauto"_hash:
+				*Styles |= CCS_NOPARENTALIGN | CCS_NORESIZE;
+				break;
+			case L"adjustable"_hash:
+				*Styles |= CCS_ADJUSTABLE;
+				break;
+			case L"list"_hash:
+				*Styles |= TBSTYLE_LIST;
+				break;
+			case L"wrap"_hash:
+				*Styles |= TBSTYLE_WRAPABLE;
+				break;
+			case L"arrows"_hash:
+				*ExStylesTb |= TBSTYLE_EX_DRAWDDARROWS;
+				break;
+			case L"override"_hash:
+				m_bOverrideTheme = true;
+			default:
+				break;
+		}
+#else
+		if (tsStyle == TEXT("flat"))
 			*Styles |= TBSTYLE_FLAT;
 		else if ( tsStyle == TEXT("tooltips") )
 			*Styles |= TBSTYLE_TOOLTIPS;
@@ -144,6 +198,7 @@ void DcxToolBar::parseControlStyles( const TString & styles, LONG * Styles, LONG
 			*ExStylesTb |= TBSTYLE_EX_DRAWDDARROWS;
 		else if ( tsStyle == TEXT("override") )
 			this->m_bOverrideTheme = true;
+#endif
 	}
 
 	this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );

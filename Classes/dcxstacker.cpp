@@ -102,7 +102,25 @@ void DcxStacker::parseControlStyles( const TString & styles, LONG * Styles, LONG
 
 	for (const auto &tsStyle: styles)
 	{
-		if ( tsStyle == TEXT("vscroll") )
+#if DCX_USE_HASHING
+		switch (const_hash(tsStyle.to_chr()))
+		{
+			case L"vscroll"_hash:
+				*Styles |= WS_VSCROLL;
+				break;
+			case L"gradient"_hash:
+				m_dStyles |= STACKERS_GRAD;
+				break;
+			case L"arrows"_hash:
+				m_dStyles |= STACKERS_ARROW;
+				break;
+			case L"nocollapse"_hash:
+				m_dStyles &= ~STACKERS_COLLAPSE;
+			default:
+				break;
+		}
+#else
+		if (tsStyle == TEXT("vscroll"))
 			*Styles |= WS_VSCROLL;
 		else if ( tsStyle == TEXT("gradient") )
 			this->m_dStyles |= STACKERS_GRAD;
@@ -110,6 +128,7 @@ void DcxStacker::parseControlStyles( const TString & styles, LONG * Styles, LONG
 			this->m_dStyles |= STACKERS_ARROW;
 		else if ( tsStyle == TEXT("nocollapse") )
 			this->m_dStyles &= ~STACKERS_COLLAPSE;
+#endif
 	}
 
 	this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );

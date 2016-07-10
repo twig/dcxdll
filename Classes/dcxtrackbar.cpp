@@ -101,7 +101,55 @@ void DcxTrackBar::parseControlStyles( const TString & styles, LONG * Styles, LON
 
 	for (const auto &tsStyle: styles)
 	{
-		if ( tsStyle == TEXT("autoticks") ) 
+#if DCX_USE_HASHING
+		switch (const_hash(tsStyle.to_chr()))
+		{
+			case L"autoticks"_hash:
+				*Styles |= TBS_AUTOTICKS;
+				break;
+			case L"both"_hash:
+				*Styles |= TBS_BOTH;
+				break;
+			case L"top"_hash:
+				*Styles |= TBS_TOP;		// == TBS_LEFT == 4
+				break;
+			case L"bottom"_hash:
+				*Styles |= TBS_BOTTOM;	// == TBS_RIGHT == 0, so never set.... should just remove TBS_RIGHT/TOP ?
+				break;
+			case L"left"_hash:
+				*Styles |= TBS_LEFT;	// == TBS_TOP == 4
+				break;
+			case L"right"_hash:
+				*Styles |= TBS_RIGHT;	// == TBS_BOTTOM == 0
+				break;
+			case L"select"_hash:
+				*Styles |= TBS_ENABLESELRANGE;
+				break;
+			case L"vertical"_hash:
+				*Styles |= TBS_VERT;
+				break;
+			case L"nothumb"_hash:
+				*Styles |= TBS_NOTHUMB;
+				break;
+			case L"noticks"_hash:
+				*Styles |= TBS_NOTICKS;
+				break;
+			case L"reversed"_hash:
+				*Styles |= TBS_REVERSED;
+				break;
+			case L"downisleft"_hash:
+				*Styles |= TBS_DOWNISLEFT;
+				break;
+			case L"tooltips"_hash:
+				*Styles |= TBS_TOOLTIPS;
+				break;
+			case L"transparentbkg"_hash:
+				*Styles |= TBS_TRANSPARENTBKGND;
+			default:
+				break;
+		}
+#else
+		if (tsStyle == TEXT("autoticks"))
 			*Styles |= TBS_AUTOTICKS;
 		else if ( tsStyle == TEXT("both") ) 
 			*Styles |= TBS_BOTH;
@@ -129,6 +177,7 @@ void DcxTrackBar::parseControlStyles( const TString & styles, LONG * Styles, LON
 			*Styles |= TBS_TOOLTIPS;
 		else if ( tsStyle == TEXT("transparentbkg") )
 			*Styles |= TBS_TRANSPARENTBKGND;
+#endif
 	}
 
 	this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );

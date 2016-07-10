@@ -84,7 +84,37 @@ void DcxUpDown::parseControlStyles( const TString & styles, LONG * Styles, LONG 
 
 	for (const auto tsStyle: styles)
 	{
-		if ( tsStyle == TEXT("left") ) {
+#if DCX_USE_HASHING
+		switch (const_hash(tsStyle.to_chr()))
+		{
+			case L"left"_hash:
+				{
+					*Styles &= ~UDS_ALIGNRIGHT;
+					*Styles |= UDS_ALIGNLEFT;
+				}
+				break;
+			case L"arrowkeys"_hash:
+				*Styles |= UDS_ARROWKEYS;
+				break;
+			case L"horz"_hash:
+				*Styles |= UDS_HORZ;
+				break;
+			case L"hottrack"_hash:
+				*Styles |= UDS_HOTTRACK;
+				break;
+			case L"nothousands"_hash:
+				*Styles |= UDS_NOTHOUSANDS;
+				break;
+			case L"buddyint"_hash:
+				*Styles |= UDS_SETBUDDYINT;
+				break;
+			case L"wrap"_hash:
+				*Styles |= UDS_WRAP;
+			default:
+				break;
+		}
+#else
+		if (tsStyle == TEXT("left")) {
 			*Styles &= ~UDS_ALIGNRIGHT;
 			*Styles |= UDS_ALIGNLEFT;
 		}
@@ -100,6 +130,7 @@ void DcxUpDown::parseControlStyles( const TString & styles, LONG * Styles, LONG 
 			*Styles |= UDS_SETBUDDYINT;
 		else if ( tsStyle == TEXT("wrap") )
 			*Styles |= UDS_WRAP;
+#endif
 	}
 
 	this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
