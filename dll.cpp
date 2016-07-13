@@ -459,6 +459,21 @@ mIRC(Version) {
 		UINT iTest = Dcx::numeric_cast<UINT>(tok);
 		//iTest = Dcx::numeric_cast<UINT>("400");
 
+		// hashes should be the same...
+		{
+			constexpr auto hash1 = const_hash("123");
+			auto hash2 = dcx_hash("123");
+			constexpr auto hash3 = "123"_crc32;
+			constexpr auto hash4 = "123"_hash;
+			constexpr auto hash5 = L"123"_hash;
+			auto hash6 = dcx_hash(L"123");
+			static_assert(hash3 == hash4, "hash 3, & 4 failed");
+			//static_assert(hash6 == hash5, "hash 6 & 5 failed");
+			mIRCLinker::execex(TEXT("/echo -a (char's) const_hash(123) == %u"), hash1);	// uses a unique hash....
+			mIRCLinker::execex(TEXT("/echo -a (char's) dcx_hash(123) == %u :: 123_crc32 == %u :: 123_hash == %u"), hash2, hash3, hash4, hash5, hash6);	// uses crc32, & should all be the same
+			mIRCLinker::execex(TEXT("/echo -a (wchar_t's) dcx_hash(123) == %u :: 123_hash == %u"), hash6, hash5);	// uses crc32, & should all be the same (but NOT the same as the previous line)
+		}
+
 		//throw Dcx::dcxException(TEXT("No such Exception"));
 		throw Dcx::dcxException("No such Exception: % :: %", iTest, tok);
 	}
@@ -1615,14 +1630,14 @@ mIRC(SetDCXSettings)
 
 #if DCX_SWITCH_OBJ
 #if DCX_USE_HASHING
-		switch (const_hash(tsOpt.to_chr()))
+		switch (dcx_hash(tsOpt.to_chr()))
 		{
-		case "StaticColours"_hash:
+		case L"StaticColours"_hash:
 		{
 			Dcx::setting_bStaticColours = (d.getnexttok().to_int() > 0);
 			break;
 		}
-		case "UpdateColours"_hash:
+		case L"UpdateColours"_hash:
 		{
 			auto btmp = Dcx::setting_bStaticColours;
 		

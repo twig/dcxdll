@@ -105,7 +105,7 @@ void DcxProgressBar::parseControlStyles( const TString & styles, LONG * Styles, 
 	for (const auto &tsStyle: styles)
 	{
 #if DCX_USE_HASHING
-		switch (const_hash(tsStyle.to_chr()))
+		switch (dcx_hash(tsStyle.to_chr()))
 		{
 			case L"smooth"_hash:
 				*Styles |= PBS_SMOOTH;

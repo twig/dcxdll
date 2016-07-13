@@ -85,7 +85,7 @@ void DcxUpDown::parseControlStyles( const TString & styles, LONG * Styles, LONG 
 	for (const auto tsStyle: styles)
 	{
 #if DCX_USE_HASHING
-		switch (const_hash(tsStyle.to_chr()))
+		switch (dcx_hash(tsStyle.to_chr()))
 		{
 			case L"left"_hash:
 				{

@@ -67,7 +67,7 @@ mIRC(dcxml) {
 			const auto popups = doc.FirstChildElement("dcxml")->FirstChildElement("popups");
 
 #if DCX_USE_HASHING
-			const auto popupNameHash = const_hash(popupName.to_chr());
+			const auto popupNameHash = dcx_hash(popupName.to_chr());
 			if ((popupNameHash == L"mircbar"_hash) || (popupNameHash == L"mirc"_hash) || (popupNameHash == L"scriptpopup"_hash))
 				throw Dcx::dcxException(TEXT("Menu name '%' is reserved."), popupName);
 #else

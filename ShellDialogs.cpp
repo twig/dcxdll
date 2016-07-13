@@ -41,7 +41,7 @@ mIRC(ColorDialog) {
 
 		for (const auto &tsStyle : d) {
 #if DCX_USE_HASHING
-			switch (const_hash(tsStyle.to_chr()))
+			switch (dcx_hash(tsStyle.to_chr()))
 			{
 			case L"anycolor"_hash:
 				styles |= CC_ANYCOLOR;
@@ -227,7 +227,7 @@ TString FileDialog(const TString & data, const TString &method, const HWND pWnd)
 #if DCX_USE_HASHING
 	for (const auto &tsStyle : styles) {
 
-		switch (const_hash(tsStyle.to_chr()))
+		switch (dcx_hash(tsStyle.to_chr()))
 		{
 		case L"multisel"_hash:
 			style |= OFN_ALLOWMULTISELECT;
@@ -721,7 +721,7 @@ mIRC(MsgBox) {
 #if DCX_USE_HASHING
 			//		MB_ABORTRETRYIGNORE
 			//		MB_CANCELTRYCONTINUE && Dcx::XPPlusModule.isUseable()
-			switch (const_hash(tsStyle.to_chr()))
+			switch (dcx_hash(tsStyle.to_chr()))
 			{
 			case L"ok"_hash:
 				style |= MB_OK;

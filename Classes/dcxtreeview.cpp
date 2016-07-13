@@ -122,7 +122,7 @@ void DcxTreeView::parseControlStyles( const TString & styles, LONG * Styles, LON
 	for (const auto &tsStyle: styles)
 	{
 #if DCX_USE_HASHING
-		switch (const_hash(tsStyle.to_chr()))
+		switch (dcx_hash(tsStyle.to_chr()))
 		{
 			case L"haslines"_hash:
 				*Styles |= TVS_HASLINES;

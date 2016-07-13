@@ -248,7 +248,7 @@ void DcxmlParser::parseControl() {
 		setZlayered(true);
 	}
 
-	const auto nType = const_hash(m_sParenttype);
+	const auto nType = dcx_hash(m_sParenttype);
 	switch (nType)
 	{
 	case "divider"_hash:		//	divider
@@ -511,11 +511,11 @@ void DcxmlParser::xdidEX(const int cid, const TCHAR *const sw, const TCHAR *cons
 TString DcxmlParser::parseCLA(const int cCla)
 {
 #if DCX_USE_HASHING
-	const auto sParentelemHash = const_hash(m_sParentelem);
-	const auto sElemHash = const_hash(m_sElem);
+	const auto sParentelemHash = dcx_hash(m_sParentelem);
+	const auto sElemHash = dcx_hash(m_sElem);
 
 	if (sElemHash == "control"_hash) {
-		const auto sTypeHash = const_hash(m_sType);
+		const auto sTypeHash = dcx_hash(m_sType);
 		if ((sTypeHash == "panel"_hash) || (sTypeHash == "box"_hash)) {
 			xdidEX(m_iID, TEXT("-l"), TEXT("root \t +p%S 0 0 0 0"), m_sCascade);
 			xdidEX(m_iID, TEXT("-l"), TEXT("space root \t + %S"), m_sMargin);
@@ -532,10 +532,8 @@ TString DcxmlParser::parseCLA(const int cCla)
 		else if (sParentelemHash == "control"_hash) {
 			const char *const t_type = m_pParent->Attribute("type");
 			if ((t_type != nullptr) && (m_iParentID > 0)) {
-				const auto t_typeHash = const_hash(t_type);
-				if (t_typeHash == "panel"_hash)
-					xdidEX(m_iParentID, TEXT("-l"), TEXT("cell %S \t +%S%S%Si %i %S %S %S"), g_claPath, fixed, fHeigth, fWidth, m_iID, m_sWeight, m_sWidth, m_sHeight);
-				else if (t_typeHash == "box"_hash)
+				const auto t_typeHash = dcx_hash(t_type);
+				if ((t_typeHash == "panel"_hash) || (t_typeHash == "box"_hash))
 					xdidEX(m_iParentID, TEXT("-l"), TEXT("cell %S \t +%S%S%Si %i %S %S %S"), g_claPath, fixed, fHeigth, fWidth, m_iID, m_sWeight, m_sWidth, m_sHeight);
 			}
 		}
@@ -546,11 +544,9 @@ TString DcxmlParser::parseCLA(const int cCla)
 		else if (sParentelemHash == "control"_hash) {
 			if ((m_sParenttype != nullptr) && (m_iParentID > 0)) {
 
-				const auto sParenttypeHash = const_hash(m_sParenttype);
+				const auto sParenttypeHash = dcx_hash(m_sParenttype);
 
-				if (sParenttypeHash == "panel"_hash)
-					xdidEX(m_iParentID, TEXT("-l"), TEXT("cell %S \t +p%S 0 %S 0 0"), g_claPath, m_sCascade, m_sWeight);
-				else if (sParenttypeHash == "box"_hash)
+				if ((sParenttypeHash == "panel"_hash) || (sParenttypeHash == "box"_hash))
 					xdidEX(m_iParentID, TEXT("-l"), TEXT("cell %S \t +p%S 0 %S 0 0"), g_claPath, m_sCascade, m_sWeight);
 			}
 		}
@@ -642,6 +638,88 @@ TString DcxmlParser::parseCLA(const int cCla)
 
 /* setStyle(TiXmlElement*) : Applies the styles described on the m_pElement found by parseStyle() */
 void DcxmlParser::setStyle(const TiXmlElement *const style) {
+#if DCX_USE_HASHING
+	//style attributes evaluate by default unless eval="0" is set on the m_pElement explicitly
+
+	m_iEval = queryIntAttribute(style, "eval", 1);
+
+	//font
+	m_sFontstyle = queryAttribute(style, "fontstyle", "d");
+	m_sCharset = queryAttribute(style, "charset", "ansi");
+	m_sFontsize = queryAttribute(style, "fontsize", "");
+	m_sFontname = queryAttribute(style, "fontname", "");
+	if ((style->Attribute("fontsize") != nullptr) || (style->Attribute("fontname") != nullptr))
+		xdidEX(m_iID, TEXT("-f"), TEXT("+%S %S %S %S"), m_sFontstyle, m_sCharset, m_sFontsize, m_sFontname);
+	//border
+	m_sBorder = queryAttribute(style, "border", "");
+	if (!_ts_isEmpty(m_sBorder))
+		xdidEX(m_iID, TEXT("-x"), TEXT("+%S"), m_sBorder);
+	//colours
+	m_sCursor = queryAttribute(style, "cursor", "arrow");
+	m_sBgcolour = queryAttribute(style, "bgcolour", "");
+	m_sTextbgcolour = queryAttribute(style, "textbgcolour", "");
+	m_sTextcolour = queryAttribute(style, "textcolour", "");
+
+	const auto sTypeHash = std::hash<const char *>{}(m_sType);
+
+	if (style->Attribute("bgcolour") != nullptr) {
+		xdidEX(m_iID, TEXT("-C"), TEXT("+b %S"), m_sBgcolour);
+		if (sTypeHash == "pbar"_hash)
+		{
+			xdidEX(m_iID, TEXT("-k"), TEXT("%S"), m_sBgcolour);
+			xml_xdid(m_iID, TEXT("-U"), TEXT(""));
+		}
+	}
+	if (style->Attribute("textbgcolour") != nullptr)
+	{
+		xdidEX(m_iID, TEXT("-C"), TEXT("+k %S"), m_sTextbgcolour);
+		if (sTypeHash == "pbar"_hash)
+		{
+			xdidEX(m_iID, TEXT("-c"), TEXT("%S"), m_sTextbgcolour);
+			xml_xdid(m_iID, TEXT("-U"), TEXT(""));
+		}
+	}
+	else if (style->Attribute("bgcolour") != nullptr)
+		xdidEX(m_iID, TEXT("-C"), TEXT("+k %S"), m_sBgcolour);
+	if (style->Attribute("textcolour") != nullptr)
+	{
+		xdidEX(m_iID, TEXT("-C"), TEXT("+t %S"), m_sTextcolour);
+		if (sTypeHash == "pbar"_hash)
+		{
+			xdidEX(m_iID, TEXT("-q"), TEXT("%S"), m_sTextcolour);
+			xml_xdid(m_iID, TEXT("-U"), TEXT(""));
+		}
+	}
+
+	if (style->Attribute("gradientstart") != nullptr)
+		xdidEX(m_iID, TEXT("-C"), TEXT("+g %S"), m_sGradientstart);
+	if (style->Attribute("gradientend") != nullptr)
+		xdidEX(m_iID, TEXT("-C"), TEXT("+G %S"), m_sGradientend);
+
+	//cursor
+	if (style->Attribute("cursor") != nullptr)
+		xdidEX(m_iID, TEXT("-J"), TEXT("+r %S"), m_sCursor);
+
+	//iconsize
+	if (style->Attribute("iconsize") != nullptr)
+	{
+		if (((sTypeHash == "toolbar"_hash) || (sTypeHash == "button"_hash)) || (sTypeHash == "treeview"_hash))
+			xdidEX(m_iID, TEXT("-l"), TEXT("%S"), m_sIconsize);
+	}
+	if (sTypeHash == "button"_hash)
+	{
+		if (m_pElement->Attribute("bgcolour") == nullptr)
+			m_sBgcolour = "65280";
+		if (m_pElement->Attribute("src") != nullptr)
+			xdidEX(m_iID, TEXT("-k"), TEXT("+n %S %S"), m_sBgcolour, m_sSrc);
+		if (m_pElement->Attribute("disabledsrc") != nullptr)
+			xdidEX(m_iID, TEXT("-k"), TEXT("+d %S %S"), m_sBgcolour, m_sDisabledsrc);
+		if (m_pElement->Attribute("hoversrc") != nullptr)
+			xdidEX(m_iID, TEXT("-k"), TEXT("+h %S %S"), m_sBgcolour, m_sHoversrc);
+		if (m_pElement->Attribute("selectedsrc") != nullptr)
+			xdidEX(m_iID, TEXT("-k"), TEXT("+s %S %S"), m_sBgcolour, m_sSelectedsrc);
+	}
+#else
 	//style attributes evaluate by default unless eval="0" is set on the m_pElement explicitly
 
 	m_iEval = queryIntAttribute(style,"eval",1);
@@ -655,16 +733,19 @@ void DcxmlParser::setStyle(const TiXmlElement *const style) {
 		xdidEX(m_iID,TEXT("-f"),TEXT("+%S %S %S %S"), m_sFontstyle, m_sCharset, m_sFontsize, m_sFontname);
 	//border
 	m_sBorder = queryAttribute(style,"border","");
-	if (lstrlenA(m_sBorder))
+	if (!_ts_isEmpty(m_sBorder))
 		xdidEX(m_iID,TEXT("-x"),TEXT("+%S"),m_sBorder);
 	//colours
 	m_sCursor = queryAttribute(style,"cursor","arrow");
 	m_sBgcolour = queryAttribute(style,"bgcolour","");
 	m_sTextbgcolour = queryAttribute(style,"textbgcolour","");
 	m_sTextcolour = queryAttribute(style,"textcolour","");
+
+	const refString<const char, -1> refsType(m_sType);
+
 	if (style->Attribute("bgcolour") != nullptr) {
 		xdidEX(m_iID,TEXT("-C"),TEXT("+b %S"),m_sBgcolour);
-		if (0==lstrcmpA(m_sType, "pbar"))
+		if (refsType == "pbar")
 		{
 			xdidEX(m_iID,TEXT("-k"),TEXT("%S"),m_sBgcolour);
 			xml_xdid(m_iID,TEXT("-U"),TEXT(""));
@@ -673,7 +754,7 @@ void DcxmlParser::setStyle(const TiXmlElement *const style) {
 	if (style->Attribute("textbgcolour") != nullptr)
 	{
 		xdidEX(m_iID,TEXT("-C"),TEXT("+k %S"),m_sTextbgcolour);
-		if (0==lstrcmpA(m_sType, "pbar"))
+		if (refsType == "pbar")
 		{
 			xdidEX(m_iID,TEXT("-c"),TEXT("%S"),m_sTextbgcolour);
 			xml_xdid(m_iID,TEXT("-U"),TEXT(""));
@@ -684,7 +765,7 @@ void DcxmlParser::setStyle(const TiXmlElement *const style) {
 	if (style->Attribute("textcolour") != nullptr)
 	{
 		xdidEX(m_iID,TEXT("-C"),TEXT("+t %S"),m_sTextcolour);
-		if (0==lstrcmpA(m_sType, "pbar"))
+		if (refsType == "pbar")
 		{
 			xdidEX(m_iID,TEXT("-q"),TEXT("%S"),m_sTextcolour);
 			xml_xdid(m_iID,TEXT("-U"),TEXT(""));
@@ -703,10 +784,10 @@ void DcxmlParser::setStyle(const TiXmlElement *const style) {
 	//iconsize
 	if (style->Attribute("iconsize") != nullptr)
 	{
-		if (((0==lstrcmpA(m_sType, "toolbar")) || (0==lstrcmpA(m_sType, "button"))) || (0==lstrcmpA(m_sType, "treeview")))
+		if (((refsType == "toolbar") || (refsType == "button")) || (refsType == "treeview"))
 			xdidEX(m_iID,TEXT("-l"),TEXT("%S"),m_sIconsize);
 	}
-	if (0==lstrcmpA(m_sType, "button"))
+	if (refsType == "button")
 	{
 		if (m_pElement->Attribute("bgcolour") == nullptr)
 			m_sBgcolour = "65280";
@@ -719,6 +800,7 @@ void DcxmlParser::setStyle(const TiXmlElement *const style) {
 		if (m_pElement->Attribute("selectedsrc") != nullptr)
 			xdidEX(m_iID,TEXT("-k"),TEXT("+s %S %S"),m_sBgcolour,m_sSelectedsrc);
 	}
+#endif
 }
 
 /* parseStyle(recursionDepth) : Simple recursive method to cascade find the right style to apply to an m_pElement */
@@ -942,7 +1024,7 @@ void DcxmlParser::parseDialog(const UINT depth,const char *claPath,const UINT pa
 		//STEP 2: PARSE ATTRIBUTES OF ELEMENTS
 		parseAttributes();
 
-		const auto sElemHash = const_hash(m_sElem);
+		const auto sElemHash = dcx_hash(m_sElem);
 
 		//dont itterate over unneccessary items
 		if (sElemHash == "calltemplate"_hash)
@@ -1036,7 +1118,7 @@ void DcxmlParser::parseDialog(const UINT depth,const char *claPath,const UINT pa
 			if (0 == lstrcmpA(m_sParentelem, "dialog"))
 				xdialogEX(TEXT("-c"), TEXT("%i %S 0 0 %S %S %S"), m_iID, m_sType, m_sWidth, (m_sDropdown != nullptr ? m_sDropdown : m_sHeight), m_sStyles);
 			else if (0 == lstrcmpA(m_sParentelem, "control")) {
-				switch (const_hash(m_sParenttype))
+				switch (dcx_hash(m_sParenttype))
 				{
 				case "panel"_hash:
 					xdidEX(m_iParentID, TEXT("-c"), TEXT("%i %S 0 0 %S %S %S"), m_iID, m_sType, m_sWidth, (m_sDropdown != nullptr ? m_sDropdown : m_sHeight), m_sStyles);

@@ -154,7 +154,7 @@ void DcxControl::parseGeneralControlStyles( const TString & styles, LONG * Style
 #if DCX_USE_HASHING
 	for (const auto &tsStyle : styles)
 	{
-		switch (const_hash(tsStyle.to_chr()))
+		switch (dcx_hash(tsStyle.to_chr()))
 		{
 			case L"notheme"_hash:
 				*bNoTheme = TRUE;
