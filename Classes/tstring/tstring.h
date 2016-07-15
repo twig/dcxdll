@@ -1838,6 +1838,24 @@ namespace details {
 	};
 
 	template <typename T>
+	struct _impl_strcmp {
+	};
+	template <>
+	struct _impl_strcmp<char> {
+		int operator()(const char *const pDest, const char *const pSrc) noexcept
+		{
+			return strcmp(pDest, pSrc);
+		}
+	};
+	template <>
+	struct _impl_strcmp<wchar_t> {
+		int operator()(const wchar_t *const pDest, const wchar_t *const pSrc) noexcept
+		{
+			return wcscmp(pDest, pSrc);
+		}
+	};
+
+	template <typename T>
 	inline const TCHAR *_ts_find(const TCHAR *const str, T srch)
 	{
 		return _ts_find(str, srch.c_str());
@@ -2009,6 +2027,14 @@ int _ts_strncmp(const T *const sDest, const T *const sSrc, const size_t iChars) 
 	static_assert(std::is_same<T, char>::value || std::is_same<T, wchar_t>::value, "Only char & wchar_t supported...");
 
 	return details::_impl_strncmp<T>()(sDest, sSrc, iChars);
+}
+
+template <typename T>
+int _ts_strcmp(const T *const sDest, const T *const sSrc) noexcept
+{
+	static_assert(std::is_same<T, char>::value || std::is_same<T, wchar_t>::value, "Only char & wchar_t supported...");
+
+	return details::_impl_strcmp<T>()(sDest, sSrc);
 }
 
 //#pragma comment(lib,"tstring.lib")
