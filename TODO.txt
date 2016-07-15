@@ -1,0 +1,9 @@
+
+DCX V3.1 TODO List
+
+1: Find better way of updating progressbar's positions upon scroll etc...
+	1b: Possibly do away with child controls for listview & instead simply custom draw the item/subitem
+2: Add support for more control types in listview items
+3: Change How we subclass the controls so we instead handle it all when the class is registered & no subclassing is then needed.
+4: WebCtrl has an odd crash, when the object is destroyed & the browser is set as IE11, but not when its set as IE7 (the default). Doesnt crash every time tho, sometimes only on the third try.
+5: add settings command to allow turning on/off various parts of dcx, like static colours...

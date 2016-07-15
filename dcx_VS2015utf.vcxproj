@@ -1,0 +1,689 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="packages\VisualCppTools.14.0.24224-Pre\build\native\VisualCppTools.props" Condition="Exists('packages\VisualCppTools.14.0.24224-Pre\build\native\VisualCppTools.props')" />
+  <Import Project="packages\Microsoft.CppCoreCheck.14.0.23917.2\build\native\Microsoft.CppCoreCheck.props" Condition="Exists('packages\Microsoft.CppCoreCheck.14.0.23917.2\build\native\Microsoft.CppCoreCheck.props')" />
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Development|Win32">
+      <Configuration>Development</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Development|x64">
+      <Configuration>Development</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release Dll|Win32">
+      <Configuration>Release Dll</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release Dll|x64">
+      <Configuration>Release Dll</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release Optimal|Win32">
+      <Configuration>Release Optimal</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release Optimal|x64">
+      <Configuration>Release Optimal</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release SSE42 AVX2|Win32">
+      <Configuration>Release SSE42 AVX2</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release SSE42 AVX2|x64">
+      <Configuration>Release SSE42 AVX2</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectName>dcx</ProjectName>
+    <ProjectGuid>{6A3D5662-4DA4-47EB-9DDF-98584E702805}</ProjectGuid>
+    <RootNamespace>dcx</RootNamespace>
+    <Keyword>Win32Proj</Keyword>
+    <WindowsTargetPlatformVersion>10.0.10586.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Development|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release Optimal|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release SSE42 AVX2|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release Dll|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Development|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v140</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release Optimal|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v140</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release SSE42 AVX2|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v140</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release Dll|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v140</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v140</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v140</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Development|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="dcx.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release Optimal|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="dcx.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release SSE42 AVX2|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="dcx.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release Dll|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="dcx.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="dcx.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="dcx.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Development|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release Optimal|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release SSE42 AVX2|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release Dll|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>11.0.50727.1</_ProjectFileVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+    <IncludePath>C:\Program Files %28x86%29\Microsoft Research\Detours Express 3.0\include;$(IncludePath);$(DXSDK_DIR)Include</IncludePath>
+    <LibraryPath>C:\Program Files %28x86%29\Microsoft Research\Detours Express 3.0\lib.X86;$(LibraryPath);$(DXSDK_DIR)Lib\x86</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(Platform)\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+    <IncludePath>C:\Program Files %28x86%29\Microsoft Research\Detours Express 3.0\include;$(IncludePath);$(DXSDK_DIR)Include</IncludePath>
+    <LibraryPath>C:\Program Files %28x86%29\Microsoft Research\Detours Express 3.0\lib.X86;$(LibraryPath);$(DXSDK_DIR)Lib\x86</LibraryPath>
+    <PostBuildEventUseInBuild>false</PostBuildEventUseInBuild>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release Dll|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+    <IncludePath>C:\Program Files %28x86%29\Microsoft Research\Detours Express 3.0\include;$(IncludePath);$(DXSDK_DIR)Include</IncludePath>
+    <LibraryPath>C:\Program Files %28x86%29\Microsoft Research\Detours Express 3.0\lib.X86;$(LibraryPath);$(DXSDK_DIR)Lib\x86</LibraryPath>
+    <PostBuildEventUseInBuild>false</PostBuildEventUseInBuild>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release Optimal|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+    <IncludePath>C:\Program Files %28x86%29\Microsoft Research\Detours Express 3.0\include;$(IncludePath);$(DXSDK_DIR)Include</IncludePath>
+    <LibraryPath>C:\Program Files %28x86%29\Microsoft Research\Detours Express 3.0\lib.X86;$(LibraryPath);$(DXSDK_DIR)Lib\x86</LibraryPath>
+    <PostBuildEventUseInBuild>false</PostBuildEventUseInBuild>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release SSE42 AVX2|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+    <IncludePath>C:\Program Files %28x86%29\Microsoft Research\Detours Express 3.0\include;$(IncludePath);$(DXSDK_DIR)Include</IncludePath>
+    <LibraryPath>C:\Program Files %28x86%29\Microsoft Research\Detours Express 3.0\lib.X86;$(LibraryPath);$(DXSDK_DIR)Lib\x86</LibraryPath>
+    <PostBuildEventUseInBuild>false</PostBuildEventUseInBuild>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Development|Win32'">
+    <IncludePath>C:\Program Files %28x86%29\Microsoft Research\Detours Express 3.0\include;$(IncludePath);$(DXSDK_DIR)Include</IncludePath>
+    <LibraryPath>C:\Program Files %28x86%29\Microsoft Research\Detours Express 3.0\lib.X86;$(LibraryPath);$(DXSDK_DIR)Lib\x86</LibraryPath>
+    <PostBuildEventUseInBuild>false</PostBuildEventUseInBuild>
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <PreBuildEvent>
+      <Command>del /F $(mIRCDir)\dcx\dcx.dll
+
+</Command>
+    </PreBuildEvent>
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;DCX_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>true</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>defines.h</PrecompiledHeaderFile>
+      <ProgramDataBaseFileName>$(IntDir)pdb\vc$(PlatformToolsetVersion).pdb</ProgramDataBaseFileName>
+      <WarningLevel>Level4</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <CompileAsManaged>false</CompileAsManaged>
+      <SDLCheck>true</SDLCheck>
+      <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <DisableSpecificWarnings>4710;4571</DisableSpecificWarnings>
+      <ControlFlowGuard>Guard</ControlFlowGuard>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <AdditionalOptions>/constexpr:steps400000 /constexpr:backtrace400000 %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>comctl32.lib;Msimg32.lib;Version.lib;shlwapi.lib;detours.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>
+      </AdditionalLibraryDirectories>
+      <DelayLoadDLLs>gdiplus.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
+      <GenerateDebugInformation>Debug</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <TargetMachine>MachineX86</TargetMachine>
+      <Version>3.1</Version>
+      <ModuleDefinitionFile>dll.def</ModuleDefinitionFile>
+      <AdditionalOptions>/ignore:4254 %(AdditionalOptions)</AdditionalOptions>
+    </Link>
+    <Xdcmake>
+      <DocumentLibraryDependencies>false</DocumentLibraryDependencies>
+    </Xdcmake>
+    <PostBuildEvent>
+      <Message>Copy compiled dcx.dll to mIRC dir</Message>
+      <Command>copy /B /-Y "$(TargetPath)" $(mIRCDir)\dcx\</Command>
+    </PostBuildEvent>
+    <ProjectReference />
+    <PreLinkEvent>
+      <Message>
+      </Message>
+    </PreLinkEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <PreBuildEvent>
+      <Command>
+      </Command>
+    </PreBuildEvent>
+    <ClCompile>
+      <Optimization>Full</Optimization>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <FavorSizeOrSpeed>Size</FavorSizeOrSpeed>
+      <OmitFramePointers>true</OmitFramePointers>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;DCX_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>defines.h</PrecompiledHeaderFile>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat />
+      <MultiProcessorCompilation>false</MultiProcessorCompilation>
+      <SDLCheck>true</SDLCheck>
+      <CompileAsManaged>false</CompileAsManaged>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
+    </ClCompile>
+    <Link>
+      <AdditionalOptions>/LTCG:NOSTATUS /ignore:4254 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalDependencies>comctl32.lib;Msimg32.lib;Version.lib;shlwapi.lib;detours.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>
+      </AdditionalLibraryDirectories>
+      <ModuleDefinitionFile>dll.def</ModuleDefinitionFile>
+      <DelayLoadDLLs>gdiplus.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <SetChecksum>true</SetChecksum>
+      <TargetMachine>MachineX86</TargetMachine>
+      <Version>3.1</Version>
+    </Link>
+    <PostBuildEvent>
+      <Message>UPX Compress Dll...</Message>
+      <Command>"$(ProjectDir)..\upx" --ultra-brute "$(TargetPath)"</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release Dll|Win32'">
+    <PreBuildEvent>
+      <Command>
+      </Command>
+    </PreBuildEvent>
+    <ClCompile>
+      <Optimization>Full</Optimization>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <FavorSizeOrSpeed>Size</FavorSizeOrSpeed>
+      <OmitFramePointers>true</OmitFramePointers>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;DCX_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>defines.h</PrecompiledHeaderFile>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat />
+      <MultiProcessorCompilation>false</MultiProcessorCompilation>
+      <SDLCheck>true</SDLCheck>
+      <CompileAsManaged>false</CompileAsManaged>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
+    </ClCompile>
+    <Link>
+      <AdditionalOptions>/LTCG:NOSTATUS /ignore:4254 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalDependencies>comctl32.lib;Msimg32.lib;Version.lib;shlwapi.lib;detours.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>
+      </AdditionalLibraryDirectories>
+      <ModuleDefinitionFile>dll.def</ModuleDefinitionFile>
+      <DelayLoadDLLs>gdiplus.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <SetChecksum>true</SetChecksum>
+      <TargetMachine>MachineX86</TargetMachine>
+      <Version>3.1</Version>
+    </Link>
+    <PostBuildEvent>
+      <Message>UPX Compress Dll...</Message>
+      <Command>"$(ProjectDir)..\upx" --ultra-brute "$(TargetPath)"</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release Optimal|Win32'">
+    <PreBuildEvent>
+      <Command>
+      </Command>
+    </PreBuildEvent>
+    <ClCompile>
+      <Optimization>Full</Optimization>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <FavorSizeOrSpeed>Size</FavorSizeOrSpeed>
+      <OmitFramePointers>true</OmitFramePointers>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;DCX_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>defines.h</PrecompiledHeaderFile>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat />
+      <CallingConvention>FastCall</CallingConvention>
+      <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
+      <AdditionalOptions>/Qpar-report:1 %(AdditionalOptions)</AdditionalOptions>
+      <SDLCheck>true</SDLCheck>
+      <CompileAsManaged>false</CompileAsManaged>
+      <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
+    </ClCompile>
+    <Link>
+      <AdditionalOptions>/LTCG:NOSTATUS /ignore:4254 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalDependencies>comctl32.lib;Msimg32.lib;Version.lib;shlwapi.lib;detours.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>
+      </AdditionalLibraryDirectories>
+      <ModuleDefinitionFile>dll.def</ModuleDefinitionFile>
+      <DelayLoadDLLs>gdiplus.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
+      <GenerateDebugInformation>No</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <SetChecksum>true</SetChecksum>
+      <TargetMachine>MachineX86</TargetMachine>
+      <Version>3.1</Version>
+    </Link>
+    <PostBuildEvent>
+      <Message>UPX Compress Dll...</Message>
+      <Command>"$(ProjectDir)..\upx" --ultra-brute "$(TargetPath)"</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release SSE42 AVX2|Win32'">
+    <PreBuildEvent>
+      <Command>
+      </Command>
+    </PreBuildEvent>
+    <ClCompile>
+      <Optimization>Full</Optimization>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <FavorSizeOrSpeed>Size</FavorSizeOrSpeed>
+      <OmitFramePointers>true</OmitFramePointers>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;DCX_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <EnableEnhancedInstructionSet>AdvancedVectorExtensions2</EnableEnhancedInstructionSet>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>defines.h</PrecompiledHeaderFile>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
+      <CallingConvention>FastCall</CallingConvention>
+      <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
+      <AdditionalOptions>/Qpar-report:1 %(AdditionalOptions)</AdditionalOptions>
+      <SDLCheck>true</SDLCheck>
+      <CompileAsManaged>false</CompileAsManaged>
+      <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
+    </ClCompile>
+    <Link>
+      <AdditionalOptions>/LTCG:NOSTATUS /ignore:4254 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalDependencies>comctl32.lib;Msimg32.lib;Version.lib;shlwapi.lib;detours.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>
+      </AdditionalLibraryDirectories>
+      <ModuleDefinitionFile>dll.def</ModuleDefinitionFile>
+      <DelayLoadDLLs>gdiplus.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
+      <GenerateDebugInformation>No</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <SetChecksum>true</SetChecksum>
+      <TargetMachine>MachineX86</TargetMachine>
+      <Version>3.1</Version>
+    </Link>
+    <PostBuildEvent>
+      <Message>UPX Compress Dll...</Message>
+      <Command>"$(ProjectDir)..\upx" --ultra-brute "$(TargetPath)"</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Development|Win32'">
+    <PreBuildEvent>
+      <Command>
+      </Command>
+    </PreBuildEvent>
+    <ClCompile>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;DCX_EXPORTS;DCX_DEV_BUILD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>defines.h</PrecompiledHeaderFile>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <SDLCheck>true</SDLCheck>
+      <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
+      <CompileAsManaged>false</CompileAsManaged>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <MinimalRebuild>true</MinimalRebuild>
+      <ProgramDataBaseFileName>$(IntDir)pdb\vc$(PlatformToolsetVersion).pdb</ProgramDataBaseFileName>
+      <StringPooling>true</StringPooling>
+      <Optimization>Full</Optimization>
+      <ControlFlowGuard>Guard</ControlFlowGuard>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <FavorSizeOrSpeed>Size</FavorSizeOrSpeed>
+    </ClCompile>
+    <Link>
+      <AdditionalOptions>/LTCG:NOSTATUS /ignore:4254 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalDependencies>comctl32.lib;Msimg32.lib;Version.lib;shlwapi.lib;detours.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>
+      </AdditionalLibraryDirectories>
+      <ModuleDefinitionFile>dll.def</ModuleDefinitionFile>
+      <DelayLoadDLLs>gdiplus.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
+      <GenerateDebugInformation>Debug</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <TargetMachine>MachineX86</TargetMachine>
+      <Version>3.1</Version>
+    </Link>
+    <PostBuildEvent>
+      <Message>UPX Compress Dll...</Message>
+      <Command>"$(ProjectDir)..\upx" --ultra-brute "$(TargetPath)"</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="Classes\custom\ListHelper.cpp" />
+    <ClCompile Include="Classes\tstring\hashString.cpp" />
+    <ClCompile Include="Dcx.cpp" />
+    <ClCompile Include="Defines.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Development|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release Dll|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release Optimal|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release SSE42 AVX2|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="dll.cpp" />
+    <ClCompile Include="getdxver.cpp" />
+    <ClCompile Include="mircFunctions.cpp" />
+    <ClCompile Include="mIRCLinker.cpp" />
+    <ClCompile Include="misc.cpp" />
+    <ClCompile Include="ShellDialogs.cpp" />
+    <ClCompile Include="windowFunctions.cpp" />
+    <ClCompile Include="XSwitchFlags.cpp" />
+    <ClCompile Include="Classes\dcxbutton.cpp" />
+    <ClCompile Include="Classes\dcxcalendar.cpp" />
+    <ClCompile Include="Classes\dcxcolorcombo.cpp" />
+    <ClCompile Include="Classes\dcxcomboex.cpp" />
+    <ClCompile Include="Classes\dcxdatetime.cpp" />
+    <ClCompile Include="Classes\dcxdirectshow.cpp" />
+    <ClCompile Include="Classes\dcxdivider.cpp" />
+    <ClCompile Include="Classes\dcxipaddress.cpp" />
+    <ClCompile Include="Classes\dcxlistview.cpp" />
+    <ClCompile Include="Classes\dcxmdialog.cpp" />
+    <ClCompile Include="Classes\dcxmwindow.cpp" />
+    <ClCompile Include="Classes\dcxpager.cpp" />
+    <ClCompile Include="Classes\dcxpanel.cpp" />
+    <ClCompile Include="Classes\dcxprogressbar.cpp" />
+    <ClCompile Include="Classes\dcxrebar.cpp" />
+    <ClCompile Include="Classes\dcxrichedit.cpp" />
+    <ClCompile Include="Classes\dcxstacker.cpp" />
+    <ClCompile Include="Classes\dcxstatusbar.cpp" />
+    <ClCompile Include="Classes\dcxtab.cpp" />
+    <ClCompile Include="Classes\dcxtoolbar.cpp" />
+    <ClCompile Include="Classes\dcxtrackbar.cpp" />
+    <ClCompile Include="Classes\dcxtreeview.cpp" />
+    <ClCompile Include="Classes\dcxupdown.cpp" />
+    <ClCompile Include="Classes\dcxwebctrl.cpp" />
+    <ClCompile Include="Classes\custom\DcxTrayIcon.cpp" />
+    <ClCompile Include="Classes\custom\divider.cpp" />
+    <ClCompile Include="Classes\custom\RichEditThemed.cpp" />
+    <ClCompile Include="Classes\mirc\dcxbox.cpp" />
+    <ClCompile Include="Classes\mirc\dcxcheck.cpp" />
+    <ClCompile Include="Classes\mirc\dcxedit.cpp" />
+    <ClCompile Include="Classes\mirc\dcximage.cpp" />
+    <ClCompile Include="Classes\mirc\dcxline.cpp" />
+    <ClCompile Include="Classes\mirc\dcxlink.cpp" />
+    <ClCompile Include="Classes\mirc\dcxlist.cpp" />
+    <ClCompile Include="Classes\mirc\dcxradio.cpp" />
+    <ClCompile Include="Classes\mirc\dcxscroll.cpp" />
+    <ClCompile Include="Classes\mirc\dcxtext.cpp" />
+    <ClCompile Include="Classes\tstring\tstring.cpp" />
+    <ClCompile Include="Classes\layout\layoutcell.cpp" />
+    <ClCompile Include="Classes\layout\layoutcellfill.cpp" />
+    <ClCompile Include="Classes\layout\layoutcellfixed.cpp" />
+    <ClCompile Include="Classes\layout\layoutcellpane.cpp" />
+    <ClCompile Include="Classes\layout\layoutmanager.cpp" />
+    <ClCompile Include="Classes\dcxcontrol.cpp" />
+    <ClCompile Include="Classes\dcxdialog.cpp" />
+    <ClCompile Include="Classes\dcxdialogcollection.cpp" />
+    <ClCompile Include="Classes\dcxwindow.cpp" />
+    <ClCompile Include="Classes\xpopup\xmenubar.cpp" />
+    <ClCompile Include="Classes\xpopup\xpopupmenu.cpp" />
+    <ClCompile Include="Classes\xpopup\xpopupmenuitem.cpp" />
+    <ClCompile Include="Classes\xpopup\xpopupmenumanager.cpp" />
+    <ClCompile Include="Classes\UltraDock\dcxDock.cpp" />
+    <ClCompile Include="Classes\UltraDock\dcxDockCommands.cpp" />
+    <ClCompile Include="Classes\UltraDock\dcxUltraDock.cpp" />
+    <ClCompile Include="Classes\UltraDock\xStatusbar.cpp" />
+    <ClCompile Include="Classes\UltraDock\xTreebar.cpp" />
+    <ClCompile Include="Classes\tinyxml\tinystr.cpp" />
+    <ClCompile Include="Classes\tinyxml\tinyxml.cpp" />
+    <ClCompile Include="Classes\tinyxml\tinyxmlerror.cpp" />
+    <ClCompile Include="Classes\tinyxml\tinyxmlparser.cpp" />
+    <ClCompile Include="Classes\dcxml\dcxml.cpp" />
+    <ClCompile Include="Classes\dcxml\dcxmlparser.cpp" />
+    <ClCompile Include="DcxDWMModule.cpp" />
+    <ClCompile Include="DcxGDIModule.cpp" />
+    <ClCompile Include="DcxUXModule.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="AutoRelease.h" />
+    <ClInclude Include="Classes\custom\ListHelper.h" />
+    <ClInclude Include="Classes\tstring\hashString.h" />
+    <ClInclude Include="ColourString.h" />
+    <ClInclude Include="Dcx.h" />
+    <ClInclude Include="dcxExceptions.h" />
+    <ClInclude Include="defines.h" />
+    <ClInclude Include="GSL\include\gsl.h" />
+    <ClInclude Include="GSL\include\gsl_assert.h" />
+    <ClInclude Include="GSL\include\gsl_util.h" />
+    <ClInclude Include="GSL\include\span.h" />
+    <ClInclude Include="GSL\include\string_span.h" />
+    <ClInclude Include="mIRCLinker.h" />
+    <ClInclude Include="refString.h" />
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="simpleString.h" />
+    <ClInclude Include="SwitchObjects.h" />
+    <ClInclude Include="XSwitchFlags.h" />
+    <ClInclude Include="Classes\dcxbutton.h" />
+    <ClInclude Include="Classes\dcxcalendar.h" />
+    <ClInclude Include="Classes\dcxcolorcombo.h" />
+    <ClInclude Include="Classes\dcxcomboex.h" />
+    <ClInclude Include="Classes\dcxdatetime.h" />
+    <ClInclude Include="Classes\dcxdirectshow.h" />
+    <ClInclude Include="Classes\dcxdivider.h" />
+    <ClInclude Include="Classes\dcxipaddress.h" />
+    <ClInclude Include="Classes\dcxlistview.h" />
+    <ClInclude Include="Classes\dcxmdialog.h" />
+    <ClInclude Include="Classes\dcxmwindow.h" />
+    <ClInclude Include="Classes\dcxpager.h" />
+    <ClInclude Include="Classes\dcxpanel.h" />
+    <ClInclude Include="Classes\dcxprogressbar.h" />
+    <ClInclude Include="Classes\dcxrebar.h" />
+    <ClInclude Include="Classes\dcxrichedit.h" />
+    <ClInclude Include="Classes\dcxstacker.h" />
+    <ClInclude Include="Classes\dcxstatusbar.h" />
+    <ClInclude Include="Classes\dcxtab.h" />
+    <ClInclude Include="Classes\dcxtoolbar.h" />
+    <ClInclude Include="Classes\dcxtrackbar.h" />
+    <ClInclude Include="Classes\dcxtreeview.h" />
+    <ClInclude Include="Classes\dcxupdown.h" />
+    <ClInclude Include="Classes\dcxwebctrl.h" />
+    <ClInclude Include="Classes\custom\DcxTrayIcon.h" />
+    <ClInclude Include="Classes\custom\divider.h" />
+    <ClInclude Include="Classes\custom\RichEditThemed.h" />
+    <ClInclude Include="Classes\mirc\dcxbox.h" />
+    <ClInclude Include="Classes\mirc\dcxcheck.h" />
+    <ClInclude Include="Classes\mirc\dcxedit.h" />
+    <ClInclude Include="Classes\mirc\dcximage.h" />
+    <ClInclude Include="Classes\mirc\dcxline.h" />
+    <ClInclude Include="Classes\mirc\dcxlink.h" />
+    <ClInclude Include="Classes\mirc\dcxlist.h" />
+    <ClInclude Include="Classes\mirc\dcxradio.h" />
+    <ClInclude Include="Classes\mirc\dcxscroll.h" />
+    <ClInclude Include="Classes\mirc\dcxtext.h" />
+    <ClInclude Include="Classes\tstring\tstring.h" />
+    <ClInclude Include="Classes\layout\layoutcell.h" />
+    <ClInclude Include="Classes\layout\layoutcellfill.h" />
+    <ClInclude Include="Classes\layout\layoutcellfixed.h" />
+    <ClInclude Include="Classes\layout\layoutcellpane.h" />
+    <ClInclude Include="Classes\layout\layoutmanager.h" />
+    <ClInclude Include="Classes\dcxcontrol.h" />
+    <ClInclude Include="Classes\dcxdialog.h" />
+    <ClInclude Include="Classes\dcxdialogcollection.h" />
+    <ClInclude Include="Classes\dcxwindow.h" />
+    <ClInclude Include="Classes\xpopup\xmenubar.h" />
+    <ClInclude Include="Classes\xpopup\xpopupmenu.h" />
+    <ClInclude Include="Classes\xpopup\xpopupmenuitem.h" />
+    <ClInclude Include="Classes\xpopup\xpopupmenumanager.h" />
+    <ClInclude Include="Classes\tinyxml\tinystr.h" />
+    <ClInclude Include="Classes\tinyxml\tinyxml.h" />
+    <ClInclude Include="Classes\UltraDock\dcxDock.h" />
+    <ClInclude Include="Classes\dcxml\dcxmlincludes.h" />
+    <ClInclude Include="Classes\dcxml\dcxmlparser.h" />
+    <ClInclude Include="DcxDWMModule.h" />
+    <ClInclude Include="DcxGDIModule.h" />
+    <ClInclude Include="DcxModule.h" />
+    <ClInclude Include="DcxUXModule.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="dcx_zip\dcx.mrc" />
+    <None Include="dcx_zip\dcx_demo.mrc" />
+    <None Include="dcx_zip\dcx_tools.mrc" />
+    <None Include="dll.def" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Xml Include="dcx_zip\dc.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="dcx.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="TODO.txt" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+    <Import Project="packages\Microsoft.Gsl.0.1.2.1\build\native\Microsoft.Gsl.targets" Condition="Exists('packages\Microsoft.Gsl.0.1.2.1\build\native\Microsoft.Gsl.targets')" />
+    <Import Project="packages\Microsoft.CppCoreCheck.14.0.23917.2\build\native\Microsoft.CppCoreCheck.targets" Condition="Exists('packages\Microsoft.CppCoreCheck.14.0.23917.2\build\native\Microsoft.CppCoreCheck.targets')" />
+  </ImportGroup>
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('packages\Microsoft.Gsl.0.1.2.1\build\native\Microsoft.Gsl.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\Microsoft.Gsl.0.1.2.1\build\native\Microsoft.Gsl.targets'))" />
+    <Error Condition="!Exists('packages\Microsoft.CppCoreCheck.14.0.23917.2\build\native\Microsoft.CppCoreCheck.props')" Text="$([System.String]::Format('$(ErrorText)', 'packages\Microsoft.CppCoreCheck.14.0.23917.2\build\native\Microsoft.CppCoreCheck.props'))" />
+    <Error Condition="!Exists('packages\Microsoft.CppCoreCheck.14.0.23917.2\build\native\Microsoft.CppCoreCheck.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\Microsoft.CppCoreCheck.14.0.23917.2\build\native\Microsoft.CppCoreCheck.targets'))" />
+    <Error Condition="!Exists('packages\VisualCppTools.14.0.24224-Pre\build\native\VisualCppTools.props')" Text="$([System.String]::Format('$(ErrorText)', 'packages\VisualCppTools.14.0.24224-Pre\build\native\VisualCppTools.props'))" />
+  </Target>
+</Project>
