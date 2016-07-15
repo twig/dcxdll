@@ -36,7 +36,7 @@ void XMenuBar::parseXMenuBarCommand(const TString &input) {
 			// menuName == alias
 
 			// Check if alias is valid.
-			if (!mIRCLinker::isAlias(menuName.to_chr()))
+			if (!mIRCLinker::isAlias(menuName))
 				throw Dcx::dcxException("Invalid callback alias specified");
 
 			this->m_callback = menuName;

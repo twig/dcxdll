@@ -33,10 +33,10 @@ namespace mIRCLinker {
 		return getMainVersion() > main || (getMainVersion() == main && getSubVersion() >= sub);
 	}
 
-	bool isAlias(const TCHAR * aliasName)
+	bool isAlias(const TString &aliasName)
 	{
 		// check if the alias exists
-		return evalex(nullptr, 0, TEXT("$isalias(%s)"), aliasName);
+		return evalex(nullptr, 0, TEXT("$isalias(%s)"), aliasName.to_chr());
 	}
 
 	void load(LOADINFO * lInfo) {

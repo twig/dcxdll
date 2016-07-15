@@ -366,16 +366,18 @@ mIRC(xtreebar) {
 						throw Dcx::dcxException(TEXT("Unable to Add %'s Icons"), filename);
 				}
 				else {
-					//HICON hIcon = dcxLoadIcon(fIndex, filename, false, cflag);
-					//if (hIcon == nullptr)
-					//	throw Dcx::dcxException("Unable to load icon");
-					//
-					//ImageList_ReplaceIcon(himl, iIndex, hIcon);
-					//DestroyIcon(hIcon);
-
+#if DCX_USE_WRAPPERS
 					Dcx::dcxIconResource icon(fIndex, filename, false, cflag);
 
 					ImageList_ReplaceIcon(himl, iIndex, icon);
+#else
+					HICON hIcon = dcxLoadIcon(fIndex, filename, false, cflag);
+					if (hIcon == nullptr)
+						throw Dcx::dcxException("Unable to load icon");
+					
+					ImageList_ReplaceIcon(himl, iIndex, hIcon);
+					DestroyIcon(hIcon);
+#endif
 				}
 			}
 		}
@@ -384,7 +386,7 @@ mIRC(xtreebar) {
 		{ // Take over Treebar drawing
 			DcxDock::g_bTakeOverTreebar = (input.getnexttok().to_int() > 0);	// tok 2
 			if (DcxDock::g_bTakeOverTreebar) {
-				if (mIRCLinker::isAlias(TEXT("xtreebar_callback")))
+				if (mIRCLinker::isAlias(L"xtreebar_callback"_ts))
 					TraverseTreebarItems();
 				else {
 					DcxDock::g_bTakeOverTreebar = false;
@@ -441,8 +443,7 @@ mIRC(_xtreebar)
 			if (index < 1) // if index < 1 return total items.
 				wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), cnt);
 			else {
-				TCHAR szbuf[MIRC_BUFFER_SIZE_CCH];
-				szbuf[0] = TEXT('\0');
+				stString<MIRC_BUFFER_SIZE_CCH> szbuf;
 				item.hItem = TreeView_MapAccIDToHTREEITEM(mIRCLinker::getTreeview(), index);
 				item.mask = TVIF_TEXT;
 				item.pszText = szbuf;	// PVS-Studio reports `V507 pointer stored outside of scope` this is fine.

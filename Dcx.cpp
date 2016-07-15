@@ -477,7 +477,7 @@ namespace Dcx {
 	//int mark(TCHAR *const data, const TString & tsDName, const TString & tsCallbackName)
 	//{
 	//	// check if the alias exists
-	//	if (!mIRCLinker::isAlias(tsCallbackName.to_chr()))
+	//	if (!mIRCLinker::isAlias(tsCallbackName))
 	//		throw Dcx::dcxException(TEXT("No such alias : %"), tsCallbackName);
 	//
 	//	// check if valid dialog
@@ -512,7 +512,7 @@ namespace Dcx {
 	int mark(const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &data, const TString & tsDName, const TString & tsCallbackName)
 	{
 		// check if the alias exists
-		if (!mIRCLinker::isAlias(tsCallbackName.to_chr()))
+		if (!mIRCLinker::isAlias(tsCallbackName))
 			throw Dcx::dcxException(TEXT("No such alias : %"), tsCallbackName);
 
 		// check if valid dialog
@@ -531,7 +531,6 @@ namespace Dcx {
 				pTmp->SetVerbose(pTmp->evalAliasEx(nullptr, 0, TEXT("isverbose,0")));
 			}
 		}
-		//ret(TEXT("D_OK Mark: Dialog Marked"));
 		data = TEXT("D_OK Mark: Dialog Marked");
 		return 3;
 	}

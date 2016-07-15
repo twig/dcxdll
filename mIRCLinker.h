@@ -44,7 +44,7 @@ namespace mIRCLinker
 	__inline bool &isUnicode() noexcept { return m_bUnicodemIRC; };
 
 	//bool isDXInstalled9();
-	bool isAlias(const TCHAR * aliasName);
+	bool isAlias(const TString &aliasName);
 
 	void load(LOADINFO * lInfo);
 	void unload(void);
