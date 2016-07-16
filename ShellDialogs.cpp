@@ -27,7 +27,7 @@ mIRC(ColorDialog) {
 	try {
 		d.trim();
 
-		BOOL			retDefault = FALSE;
+		bool			retDefault(false);
 		CHOOSECOLOR		cc = { 0 };
 		static COLORREF clr[16];
 		const auto		sel = d.getfirsttok(1).to_<COLORREF>();
@@ -41,7 +41,7 @@ mIRC(ColorDialog) {
 
 		for (const auto &tsStyle : d) {
 #if DCX_USE_HASHING
-			switch (dcx_hash(tsStyle.to_chr()))
+			switch (std::hash<TString>{}(tsStyle))
 			{
 			case L"anycolor"_hash:
 				styles |= CC_ANYCOLOR;
@@ -59,7 +59,7 @@ mIRC(ColorDialog) {
 				cc.hwndOwner = FindOwner(d, mWnd);
 				break;
 			case L"returndefault"_hash:
-				retDefault = TRUE;
+				retDefault = true;
 			default:
 				break;
 			}

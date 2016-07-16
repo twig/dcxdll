@@ -1630,7 +1630,8 @@ mIRC(SetDCXSettings)
 
 #if DCX_SWITCH_OBJ
 #if DCX_USE_HASHING
-		switch (dcx_hash(tsOpt.to_chr()))
+		//switch (dcx_hash(tsOpt.to_chr()))
+		switch (std::hash<TString>{}(tsOpt))
 		{
 		case L"StaticColours"_hash:
 		{
