@@ -562,13 +562,15 @@ mIRC(Mark) {
 
 	data[0] = 0;
 
+	refString<TCHAR, MIRC_BUFFER_SIZE_CCH> szReturnValue(data);
+
 	try {
 		d.trim();
 
 		if (d.numtok() < 2)
 			throw Dcx::dcxException("[NAME] [ALIAS]");
 
-		return Dcx::mark(data, d.gettok(1), d.gettok(2));
+		return Dcx::mark(szReturnValue, d.gettok(1), d.gettok(2));
 	}
 	catch (std::exception &e)
 	{
@@ -578,7 +580,8 @@ mIRC(Mark) {
 		// stop any left over exceptions...
 		Dcx::errorex(TEXT("/dcx Mark"), TEXT("\"%s\" error: Unknown Exception"), d.to_chr());
 	}
-	ret(Dcx::getLastError());
+	szReturnValue = Dcx::getLastError();
+	return 3;
 }
 
 /*!
@@ -1628,9 +1631,7 @@ mIRC(SetDCXSettings)
 
 		const auto tsOpt(d.getfirsttok(1));
 
-#if DCX_SWITCH_OBJ
 #if DCX_USE_HASHING
-		//switch (dcx_hash(tsOpt.to_chr()))
 		switch (std::hash<TString>{}(tsOpt))
 		{
 		case L"StaticColours"_hash:
@@ -1652,6 +1653,7 @@ mIRC(SetDCXSettings)
 			throw Dcx::dcxException("Invalid Option");
 		}
 #else
+#if DCX_SWITCH_OBJ
 		Switch(tsOpt)
 			.Case(TEXT("StaticColours"), [d] { Dcx::setting_bStaticColours = (d.getnexttok().to_int() > 0); }).Break()
 			.Case(TEXT("UpdateColours"), [] {
@@ -1663,7 +1665,6 @@ mIRC(SetDCXSettings)
 				Dcx::setting_bStaticColours = btmp;
 			}).Break()
 			.Default([] { throw Dcx::dcxException("Invalid Option"); });
-#endif
 #else
 		if (tsOpt == TEXT("StaticColours"))
 			Dcx::setting_bStaticColours = (d.getnexttok().to_int() > 0);
@@ -1678,6 +1679,7 @@ mIRC(SetDCXSettings)
 		}
 		else
 			throw Dcx::dcxException("Invalid Option");
+#endif
 #endif
 		return 1;
 	}

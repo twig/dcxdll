@@ -170,8 +170,156 @@ void DcxComboEx::parseControlStyles( const TString & styles, LONG * Styles, LONG
 * \return > void
 */
 
-void DcxComboEx::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) const
+void DcxComboEx::parseInfoRequest( const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const
 {
+#if DCX_USE_HASHING
+	const auto numtok = input.numtok();
+
+	switch (std::hash<TString>{}(input.getfirsttok(3)))
+	{
+		// [NAME] [ID] [PROP] [N]
+	case L"text"_hash:
+	{
+		if (numtok < 4)
+			throw Dcx::dcxException("Invalid number of argumnets");
+
+		const auto nItem = input.getnexttok().to_int() - 1;	// tok 4
+
+		if (nItem > -1) {
+
+			COMBOBOXEXITEM cbi;
+			ZeroMemory(&cbi, sizeof(COMBOBOXEXITEM));
+
+			cbi.mask = CBEIF_TEXT;
+			cbi.iItem = nItem;
+			cbi.pszText = szReturnValue;
+			cbi.cchTextMax = MIRC_BUFFER_SIZE_CCH;
+
+			getItem(&cbi);
+		}
+		else {
+			if (nItem != -1 || (!this->isStyle(CBS_DROPDOWN) && !this->isStyle(CBS_SIMPLE)))
+				throw Dcx::dcxException("Invalid Item");
+
+			szReturnValue = m_tsSelected.to_chr();
+		}
+	}
+	break;
+	// [NAME] [ID] [PROP]
+	case L"seltext"_hash:
+	{
+		const auto nItem = getCurSel();
+
+		if (nItem > -1)
+			throw Dcx::dcxException("Invalid Item");
+
+		COMBOBOXEXITEM cbi;
+		ZeroMemory(&cbi, sizeof(COMBOBOXEXITEM));
+
+		cbi.mask = CBEIF_TEXT;
+		cbi.iItem = nItem;
+		cbi.pszText = szReturnValue;
+		cbi.cchTextMax = MIRC_BUFFER_SIZE_CCH;
+
+		getItem(&cbi);
+	}
+	break;
+	// [NAME] [ID] [PROP]
+	case L"sel"_hash:
+	{
+		const auto nItem = getCurSel();
+
+		if (nItem < 0)
+			throw Dcx::dcxException("Invalid Item");
+
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), nItem + 1);
+	}
+	break;
+	// [NAME] [ID] [PROP]
+	case L"num"_hash:
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), getCount());
+		break;
+		// [NAME] [ID] [PROP] {TAB}[MATCHTEXT]{TAB} [T] [N]
+	case L"find"_hash:
+	{
+		if (numtok < 6)
+			throw Dcx::dcxException("Invalid number of argumnets");
+
+		const auto matchtext(input.getfirsttok(2, TSTABCHAR).trim());
+		const auto params(input.getnexttok(TSTABCHAR).trim());	// tok 3
+
+		if (!matchtext.empty()) {
+
+			auto SearchType = DcxSearchTypes::SEARCH_E;
+			const auto tsSearchType((params++)[0]);
+
+			//if ( params.getfirsttok( 1 ) == TEXT("R") )
+			if (tsSearchType == TEXT('R'))
+				SearchType = DcxSearchTypes::SEARCH_R;
+			else if (tsSearchType == TEXT('W'))
+				SearchType = DcxSearchTypes::SEARCH_W;
+
+			const auto N = params++.to_<UINT>();	// tok 2
+
+			const auto nItems = this->getCount();
+			auto count = decltype(N){0};
+
+			// count total
+			if (N == 0) {
+				for (auto i = decltype(nItems){0}; i < nItems; i++)
+				{
+					if (this->matchItemText(i, matchtext, SearchType))
+						count++;
+				}
+
+				wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), count);
+			}
+			// find Nth matching
+			else {
+				for (auto i = decltype(nItems){0}; i < nItems; i++)
+				{
+					if (this->matchItemText(i, matchtext, SearchType))
+						count++;
+
+					if (count == N) {
+
+						wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), i + 1);
+						return;
+					}
+				}
+			} // else
+		}
+	}
+	break;
+	// [NAME] [ID] [PROP] [ROW]
+	case L"markeditem"_hash:
+	{
+		if (numtok != 4)
+			throw Dcx::dcxException("Invalid number of argumnets");
+
+		const auto nItem = input.getnexttok().to_int() - 1;	// tok 4
+
+		COMBOBOXEXITEM cbi;
+		ZeroMemory(&cbi, sizeof(COMBOBOXEXITEM));
+
+		cbi.mask = CBEIF_LPARAM;
+		cbi.iItem = nItem;
+
+		getItem(&cbi);
+
+		auto mycbi = reinterpret_cast<LPDCXCBITEM>(cbi.lParam);
+
+		if (mycbi == nullptr)
+			throw Dcx::dcxException("Unable to get DCX Item");
+
+		szReturnValue = mycbi->tsMark.to_chr();
+	}
+	break;
+	default:
+		parseGlobalInfoRequest(input, szReturnValue);
+		break;
+	}
+#else
 	const auto numtok = input.numtok();
 
 	const auto prop(input.getfirsttok(3));
@@ -308,6 +456,7 @@ void DcxComboEx::parseInfoRequest( const TString & input, PTCHAR szReturnValue )
 	}
 	else
 		this->parseGlobalInfoRequest(input, szReturnValue);
+#endif
 }
 
 /*!

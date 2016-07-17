@@ -193,8 +193,52 @@ void DcxCalendar::parseControlStyles( const TString & styles, LONG * Styles, LON
  * \return > void
  */
 
-void DcxCalendar::parseInfoRequest(const TString &input, PTCHAR szReturnValue) const
+void DcxCalendar::parseInfoRequest(const TString &input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const
 {
+#if DCX_USE_HASHING
+	switch (std::hash<TString>{}(input.getfirsttok(3)))
+	{
+		// [NAME] [ID] [PROP]
+	case L"value"_hash:
+		szReturnValue = getValue().to_chr();
+		break;
+	case L"range"_hash:
+	{
+		SYSTEMTIME st[2];
+		TString dmin(TEXT("nolimit"));
+		TString dmax(TEXT("nolimit"));
+
+		ZeroMemory(st, sizeof(SYSTEMTIME) * 2);
+
+		const auto val = MonthCal_GetRange(m_Hwnd, st);
+
+		if (dcx_testflag(val, GDTR_MIN))
+			dmin.tsprintf(TEXT("%ld"), SystemTimeToMircTime(&(st[0])));
+
+		if (dcx_testflag(val, GDTR_MAX))
+			dmax.tsprintf(TEXT("%ld"), SystemTimeToMircTime(&(st[1])));
+
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%s %s"), dmin.to_chr(), dmax.to_chr()); // going to be within 900 limit anyway.
+	}
+	break;
+	case L"today"_hash:
+	{
+		SYSTEMTIME st;
+
+		ZeroMemory(&st, sizeof(SYSTEMTIME));
+
+		MonthCal_GetToday(m_Hwnd, &st);
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%ld"), SystemTimeToMircTime(&st));
+	}
+	break;
+	case L"selcount"_hash:
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), MonthCal_GetMaxSelCount(m_Hwnd));
+		break;
+	default:
+		parseGlobalInfoRequest(input, szReturnValue);
+		break;
+	}
+#else
 	const auto prop(input.getfirsttok(3));
 
 	// [NAME] [ID] [PROP]
@@ -216,6 +260,12 @@ void DcxCalendar::parseInfoRequest(const TString &input, PTCHAR szReturnValue) c
 		if (dcx_testflag(val, GDTR_MAX))
 			dmax.tsprintf(TEXT("%ld"), SystemTimeToMircTime(&(st[1])));
 
+		//if (dcx_testflag(val, GDTR_MIN))
+		//	dmin = SystemTimeToMircTime(&(st[0]));
+
+		//if (dcx_testflag(val, GDTR_MAX))
+		//	dmax = SystemTimeToMircTime(&(st[1]));
+
 		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%s %s"), dmin.to_chr(), dmax.to_chr()); // going to be within 900 limit anyway.
 	}
 	else if (prop == TEXT("today")) {
@@ -231,6 +281,7 @@ void DcxCalendar::parseInfoRequest(const TString &input, PTCHAR szReturnValue) c
 	}
 	else
 		this->parseGlobalInfoRequest(input, szReturnValue);
+#endif
 }
 
 /*!

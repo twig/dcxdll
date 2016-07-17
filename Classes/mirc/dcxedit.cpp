@@ -219,8 +219,113 @@ void DcxEdit::parseControlStyles( const TString &styles, LONG *Styles, LONG *ExS
 *
 * \return > void
 */
-void DcxEdit::parseInfoRequest( const TString &input, PTCHAR szReturnValue) const
+void DcxEdit::parseInfoRequest( const TString &input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const
 {
+#if DCX_USE_HASHING
+	switch (std::hash<TString>{}(input.getfirsttok(3)))
+	{
+		// [NAME] [ID] [PROP] [N]
+	case L"text"_hash:
+	{
+		if (this->isStyle(ES_MULTILINE)) {
+			if (input.numtok() > 3) {
+				const auto nLine = input.getnexttok().to_int();	// tok 4
+
+				if (nLine > 0 && nLine <= static_cast<int>(this->m_tsText.numtok(TEXT("\r\n"))))
+					szReturnValue = m_tsText.gettok(nLine, TEXT("\r\n")).to_chr();
+			}
+		}
+		else
+			szReturnValue = m_tsText.to_chr();
+	}
+	break;
+	// [NAME] [ID] [PROP]
+	case L"num"_hash:
+	{
+		if (this->isStyle(ES_MULTILINE))
+			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), this->m_tsText.numtok(TEXT("\r\n")));
+		else {
+			// single line control so always 1 line.
+			szReturnValue[0] = TEXT('1');
+			szReturnValue[1] = 0;
+		}
+	}
+	break;
+	// [NAME] [ID] [PROP]
+	case L"ispass"_hash:
+		szReturnValue = dcx_truefalse(isStyle(ES_PASSWORD));
+		break;
+		// [NAME] [ID] [PROP]
+	case L"isreadonly"_hash:
+		szReturnValue = dcx_truefalse(isStyle(ES_READONLY));
+		break;
+		// [NAME] [ID] [PROP]
+	case L"caretpos"_hash:
+	{
+		DWORD dwAbsoluteStartSelPos = 0;
+
+		// caret startsel position
+		SendMessage(m_Hwnd, EM_GETSEL, (WPARAM)&dwAbsoluteStartSelPos, NULL);
+
+		if (this->isStyle(ES_MULTILINE)) {
+			// current line
+			const auto iLinePos = SendMessage(m_Hwnd, EM_LINEFROMCHAR, (WPARAM)-1, NULL);
+			// line offset
+			const auto iAbsoluteCharPos = (int)SendMessage(m_Hwnd, EM_LINEINDEX, (WPARAM)-1, NULL);
+
+			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d %u"), iLinePos + 1, dwAbsoluteStartSelPos - iAbsoluteCharPos);
+		}
+		else {
+			// return selstart
+			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("1 %u"), dwAbsoluteStartSelPos);
+		}
+	}
+	break;
+	case L"selstart"_hash:
+	{
+		DWORD dwSelStart = 0; // selection range starting position
+
+		SendMessage(m_Hwnd, EM_GETSEL, (WPARAM)&dwSelStart, NULL);
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), dwSelStart);
+	}
+	break;
+	case L"selend"_hash:
+	{
+		DWORD dwSelEnd = 0;   // selection range ending position
+
+		SendMessage(m_Hwnd, EM_GETSEL, NULL, (LPARAM)&dwSelEnd);
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), dwSelEnd);
+	}
+	break;
+	case L"sel"_hash:
+	{
+		DWORD dwSelStart = 0; // selection range starting position
+		DWORD dwSelEnd = 0;   // selection range ending position
+
+		SendMessage(m_Hwnd, EM_GETSEL, (WPARAM)&dwSelStart, (LPARAM)&dwSelEnd);
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u %u"), dwSelStart, dwSelEnd);
+	}
+	break;
+	case L"seltext"_hash:
+	{
+		DWORD dwSelStart = 0; // selection range starting position
+		DWORD dwSelEnd = 0;   // selection range ending position
+
+		SendMessage(m_Hwnd, EM_GETSEL, (WPARAM)&dwSelStart, (LPARAM)&dwSelEnd);
+		szReturnValue = m_tsText.mid(dwSelStart, dwSelEnd - dwSelStart).to_chr();
+	}
+	break;
+	case L"cue"_hash:
+	{
+		if (!this->m_tsCue.empty())
+			szReturnValue = m_tsCue.to_chr();
+	}
+	break;
+	default:
+		parseGlobalInfoRequest(input, szReturnValue);
+		break;
+	}
+#else
 	const auto numtok = input.numtok();
 
 	const auto prop(input.getfirsttok(3));
@@ -308,6 +413,7 @@ void DcxEdit::parseInfoRequest( const TString &input, PTCHAR szReturnValue) cons
 	}
 	else
 		this->parseGlobalInfoRequest(input, szReturnValue);
+#endif
 }
 
 /*!

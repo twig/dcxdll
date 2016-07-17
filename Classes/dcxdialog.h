@@ -80,8 +80,8 @@ public:
 	void parseCommandRequestEX(const TCHAR *const szFormat, ...);
 	void parseComControlRequestEX(const UINT id, const TCHAR *const szFormat, ...);
 	//void parseInfoRequest( const TString & input, TCHAR * szReturnValue ) const;
-	void parseInfoRequest(const TString & input, TCHAR * szReturnValue) const { parseInfoRequest2(input, szReturnValue); }
-	void parseInfoRequest2(const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const;
+	//void parseInfoRequest(const TString & input, TCHAR * szReturnValue) const { parseInfoRequest2(input, szReturnValue); }
+	void parseInfoRequest(const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const;
 
 	bool evalAliasEx( TCHAR *const szReturn, const int maxlen, const TCHAR *const szFormat, ... );
 	bool evalAlias( TCHAR *const szReturn, const int maxlen, const TCHAR *const szArgs);

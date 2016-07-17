@@ -177,8 +177,68 @@ void DcxWebControl::parseControlStyles( const TString &styles, LONG *Styles, LON
  * \return > void
  */
 
-void DcxWebControl::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) const
+void DcxWebControl::parseInfoRequest( const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const
 {
+#if DCX_USE_HASHING
+	switch (std::hash<TString>{}(input.getfirsttok(3)))
+	{
+		// [NAME] [ID] [PROP]
+	case L"url"_hash:
+	{
+		BSTR str;
+
+		if (SUCCEEDED(this->m_pWebBrowser2->get_LocationURL(&str))) {
+
+			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%ws"), str); // possible overflow, needs fixing at some point.
+			SysFreeString(str);
+		}
+	}
+	break;
+	// [NAME] [ID] [PROP]
+	case L"ready"_hash:
+	{
+		READYSTATE ready_state;
+		if (SUCCEEDED(this->m_pWebBrowser2->get_ReadyState(&ready_state))) {
+
+			if (ready_state == READYSTATE_COMPLETE) {
+
+				szReturnValue = TEXT("$true");
+				return;
+			}
+		}
+		szReturnValue = TEXT("$false");
+	}
+	break;
+	// [NAME] [ID] [PROP]
+	case L"statusbar"_hash:
+	{
+		VARIANT_BOOL bState;
+		if (SUCCEEDED(this->m_pWebBrowser2->get_StatusBar(&bState))) {
+
+			if (bState == VARIANT_TRUE) {
+
+				szReturnValue = TEXT("$true");
+				return;
+			}
+		}
+		szReturnValue = TEXT("$false");
+	}
+	break;
+	case L"statustext"_hash:
+	{
+		BSTR str;
+
+		if (SUCCEEDED(this->m_pWebBrowser2->get_StatusText(&str))) {
+
+			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%ws"), str); // possible overflow, needs fixing at some point.
+			SysFreeString(str);
+		}
+	}
+	break;
+	default:
+		parseGlobalInfoRequest(input, szReturnValue);
+	}
+#else
 	const auto prop(input.getfirsttok( 3 ));
 
 	// [NAME] [ID] [PROP]
@@ -200,11 +260,11 @@ void DcxWebControl::parseInfoRequest( const TString & input, PTCHAR szReturnValu
 
 			if ( ready_state == READYSTATE_COMPLETE ) {
 
-				dcx_strcpyn( szReturnValue, TEXT("$true"), MIRC_BUFFER_SIZE_CCH );
+				szReturnValue = TEXT("$true");
 				return;
 			}
 		}
-		dcx_strcpyn( szReturnValue, TEXT("$false"), MIRC_BUFFER_SIZE_CCH );
+		szReturnValue = TEXT("$false");
 	}
 	// [NAME] [ID] [PROP]
 	else if ( prop == TEXT("statusbar") ) {
@@ -214,11 +274,11 @@ void DcxWebControl::parseInfoRequest( const TString & input, PTCHAR szReturnValu
 
 			if ( bState == VARIANT_TRUE ) {
 
-				dcx_strcpyn( szReturnValue, TEXT("$true"), MIRC_BUFFER_SIZE_CCH );
+				szReturnValue = TEXT("$true");
 				return;
 			}
 		}
-		dcx_strcpyn( szReturnValue, TEXT("$false"), MIRC_BUFFER_SIZE_CCH );
+		szReturnValue = TEXT("$false");
 	}
 	else if ( prop == TEXT("statustext") ) {
 
@@ -232,6 +292,7 @@ void DcxWebControl::parseInfoRequest( const TString & input, PTCHAR szReturnValu
 	}
 	else
 		this->parseGlobalInfoRequest(input, szReturnValue);
+#endif
 }
 
 /*!

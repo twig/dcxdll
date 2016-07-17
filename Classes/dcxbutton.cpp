@@ -144,12 +144,12 @@ void DcxButton::parseControlStyles( const TString & styles, LONG * Styles, LONG 
  * \return > void
  */
 
-void DcxButton::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) const
+void DcxButton::parseInfoRequest( const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const
 {
 	// [NAME] [ID] [PROP]
 	if (input.gettok(3) == TEXT("text")) {
 		// if copy fails drop through
-		dcx_strcpyn(szReturnValue, m_tsCaption.to_chr(), MIRC_BUFFER_SIZE_CCH);
+		szReturnValue = m_tsCaption.to_chr();
 	}
 	else
 		parseGlobalInfoRequest(input, szReturnValue);

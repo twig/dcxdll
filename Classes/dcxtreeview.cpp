@@ -122,7 +122,7 @@ void DcxTreeView::parseControlStyles( const TString & styles, LONG * Styles, LON
 	for (const auto &tsStyle: styles)
 	{
 #if DCX_USE_HASHING
-		switch (dcx_hash(tsStyle.to_chr()))
+		switch (std::hash<TString>{}(tsStyle))
 		{
 			case L"haslines"_hash:
 				*Styles |= TVS_HASLINES;
@@ -191,8 +191,33 @@ void DcxTreeView::parseControlStyles( const TString & styles, LONG * Styles, LON
 void DcxTreeView::parseTreeViewExStyles( const TString &styles, LONG * ExStyles )
 {
 	// Vista+ ONLY!
-	for (const auto &tsStyle: styles)
+	for (const auto &tsStyle : styles)
 	{
+#if DCX_USE_HASHING
+		switch (std::hash<TString>{}(tsStyle))
+		{
+		case L"fadebuttons"_hash:
+			*ExStyles |= TVS_EX_FADEINOUTEXPANDOS;
+			break;
+		case L"doublebuffer"_hash:
+			*ExStyles |= TVS_EX_DOUBLEBUFFER;
+			break;
+			//case L"multi"_hash:
+			//  *ExStyles |= TVS_EX_MULTISELECT; // Style NOT to be used (unsupported by commctrl)
+			//	break;
+		case L"noident"_hash:
+			*ExStyles |= TVS_EX_NOINDENTSTATE;
+			break;
+		case L"richtooltip"_hash:
+			*ExStyles |= TVS_EX_RICHTOOLTIP;
+			break;
+		case L"autohscroll"_hash:
+			*ExStyles |= TVS_EX_AUTOHSCROLL;
+			break;
+		default:
+			break;
+		}
+#else
 		if ( tsStyle == TEXT("fadebuttons") )
 			*ExStyles |= TVS_EX_FADEINOUTEXPANDOS;
 		else if ( tsStyle == TEXT("doublebuffer") )
@@ -205,6 +230,7 @@ void DcxTreeView::parseTreeViewExStyles( const TString &styles, LONG * ExStyles 
 			*ExStyles |= TVS_EX_RICHTOOLTIP;
 		else if ( tsStyle == TEXT("autohscroll") )
 			*ExStyles |= TVS_EX_AUTOHSCROLL;
+#endif
 	}
 }
 
@@ -217,8 +243,240 @@ void DcxTreeView::parseTreeViewExStyles( const TString &styles, LONG * ExStyles 
  * \return > void
  */
 
-void DcxTreeView::parseInfoRequest( const TString &input, PTCHAR szReturnValue) const
+void DcxTreeView::parseInfoRequest( const TString &input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const
 {
+#if DCX_USE_HASHING
+	const auto numtok = input.numtok();
+	switch (std::hash<TString>{}(input.getfirsttok(3)))
+	{
+		// [NAME] [ID] [PROP] [PATH]
+	case L"text"_hash:
+	{
+		if (numtok < 4)
+			throw Dcx::dcxException("Invalid number of arguments");
+
+		const auto path(input.getlasttoks());	// tok 4, -1
+		auto item = this->parsePath(&path);
+
+		if (item == nullptr)
+			throw Dcx::dcxException(TEXT("Unable to parse path: %"), path);
+
+		this->getItemText(&item, szReturnValue, MIRC_BUFFER_SIZE_CCH);
+	}
+	break;
+	// [NAME] [ID] [PROP] [PATH]
+	case L"icon"_hash:
+	{
+		if (numtok < 4)
+			throw Dcx::dcxException("Invalid number of arguments");
+
+		const auto path(input.getlasttoks());	// tok 4, -1
+		auto item = this->parsePath(&path);
+
+		if (item == nullptr)
+			throw Dcx::dcxException(TEXT("Unable to parse path: %"), path);
+
+		TVITEMEX tvi;
+		tvi.hItem = item;
+		tvi.mask = TVIF_IMAGE | TVIF_HANDLE;
+
+		TreeView_GetItem(m_Hwnd, &tvi);
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), (tvi.iImage > 10000 ? -2 : tvi.iImage) + 1);
+	}
+	break;
+	// [NAME] [ID] [PROP] [PATH]
+	case L"tooltip"_hash:
+	{
+		if (numtok < 4)
+			throw Dcx::dcxException("Invalid number of arguments");
+
+		const auto path(input.getlasttoks());	// tok 4, -1
+		auto item = this->parsePath(&path);
+
+		if (item == nullptr)
+			throw Dcx::dcxException(TEXT("Unable to parse path: %"), path);
+
+		TVITEMEX tvi;
+		tvi.hItem = item;
+		tvi.mask = TVIF_HANDLE | TVIF_PARAM;
+
+		TreeView_GetItem(m_Hwnd, &tvi);
+		auto lpdcxtvi = reinterpret_cast<LPDCXTVITEM>(tvi.lParam);
+
+		if (lpdcxtvi != nullptr)
+			szReturnValue = lpdcxtvi->tsTipText.to_chr();
+	}
+	break;
+	// [NAME] [ID] [PROP]
+	case L"seltext"_hash:
+	{
+		auto hItem = TreeView_GetSelection(m_Hwnd);
+
+		this->getItemText(&hItem, szReturnValue, MIRC_BUFFER_SIZE_CCH);
+	}
+	break;
+	// [NAME] [ID] [PROP]
+	case L"selpath"_hash:
+	{
+		auto hItem = TreeView_GetSelection(m_Hwnd);
+		const auto path(this->getPathFromItem(&hItem));
+
+		szReturnValue = path.to_chr();
+	}
+	break;
+	// [NAME] [ID] [PROP] {TAB}[MATCHTEXT]{TAB} [T] [N] [SUBPATH]
+	case L"find"_hash:
+	{
+		if (numtok < 6)
+			throw Dcx::dcxException("Invalid number of arguments");
+
+		const auto matchtext(input.getfirsttok(2, TSTABCHAR).trim());
+		const auto params(input.getnexttok(TSTABCHAR).trim());		// tok 3
+
+		if (matchtext.empty())
+			throw Dcx::dcxException("No matchtext specified.");
+
+		auto searchType = DcxSearchTypes::SEARCH_E;
+		//const auto searchMode(params.getfirsttok(1));	// tok 1
+		const auto searchMode(params++[0]);	// tok 1
+		HTREEITEM startingPoint = TVI_ROOT;
+
+		if (searchMode == TEXT('R'))
+			searchType = DcxSearchTypes::SEARCH_R;
+		else if (searchMode == TEXT('W'))
+			searchType = DcxSearchTypes::SEARCH_W;
+
+		const auto n = params++.to_int();	// tok 2
+		auto matchCount = 0;
+
+		if (params.numtok() > 2) {
+			const auto path(params.getlasttoks());	// tok 3, -1
+
+			startingPoint = this->parsePath(&path);
+
+			if (startingPoint == nullptr)
+				throw Dcx::dcxException(TEXT("Unable to parse path: %"), path);
+		}
+
+		HTREEITEM result = nullptr;
+		if (findItemText(&startingPoint, &result, matchtext, n, matchCount, searchType))
+			szReturnValue = getPathFromItem(&result).to_chr();
+		else if (n == 0)
+			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), matchCount);
+	}
+	break;
+	// [NAME] [ID] [PROP] [PATH]
+	case L"state"_hash:
+	{
+		if (numtok < 4)
+			throw Dcx::dcxException("Invalid number of arguments");
+
+		const auto path(input.getlasttoks());	// tok 4, -1
+		auto item = this->parsePath(&path);
+
+		if (item == nullptr)
+			throw Dcx::dcxException(TEXT("Unable to parse path: %"), path);
+
+		if (this->isStyle(TVS_CHECKBOXES)) {
+			switch (TreeView_GetCheckState(m_Hwnd, item))
+			{
+			case 1:
+				szReturnValue = TEXT('2');
+				break;
+			case 0:
+				szReturnValue = TEXT('1');
+				break;
+			default:
+				szReturnValue = TEXT('0');
+				break;
+			}
+		}
+		else
+			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), TreeView_GetItemState(m_Hwnd, item, TVIS_STATEIMAGEMASK));
+	}
+	break;
+	// [NAME] [ID] [PROP] [PATH]
+	case L"num"_hash:
+	{
+		if (numtok < 4)
+			throw Dcx::dcxException("Invalid number of arguments");
+
+		const auto path(input.getlasttoks().trim());	// tok 4, -1
+		HTREEITEM item = TVI_ROOT;
+
+		if (path == TEXT("root")) {
+			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), getChildCount(&item));
+			return;
+		}
+
+		item = parsePath(&path);
+
+		if (item == nullptr)
+			throw Dcx::dcxException(TEXT("Unable to parse path: %"), path);
+
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), this->getChildCount(&item));
+	}
+	break;
+	// [NAME] [ID] [PROP] [PATH]
+	case L"expand"_hash:
+	{
+		if (numtok < 4)
+			throw Dcx::dcxException("Invalid number of arguments");
+
+		const auto path(input.getlasttoks());	// tok 4, -1
+		auto item = this->parsePath(&path);
+
+		if (item == nullptr)
+			throw Dcx::dcxException(TEXT("Unable to parse path: %"), path);
+
+		dcx_ConChar(TreeView_GetItemState(m_Hwnd, item, TVIS_EXPANDED) & TVIS_EXPANDED, szReturnValue);
+	}
+	break;
+	// [NAME] [ID] [PROP]
+	case L"mouseitem"_hash:
+	{
+		TVHITTESTINFO tvh = { 0 };
+
+		if (!GetCursorPos(&tvh.pt))
+			throw Dcx::dcxException("Unable to get cursor position");
+
+		MapWindowPoints(nullptr, m_Hwnd, &tvh.pt, 1);
+		TreeView_HitTest(m_Hwnd, &tvh);
+
+		if (dcx_testflag(tvh.flags, TVHT_ONITEM))
+			szReturnValue = getPathFromItem(&tvh.hItem).to_chr();
+		else
+			szReturnValue = TEXT('0');
+	}
+	break;
+	// [NAME] [ID] [PROP] [PATH]
+	case L"markeditem"_hash:
+	{
+		if (numtok < 4)
+			throw Dcx::dcxException("Invalid number of arguments");
+
+		const auto path(input.getlasttoks().trim());	// tok 4, -1
+		auto item = this->parsePath(&path);
+
+		if (item == nullptr)
+			throw Dcx::dcxException(TEXT("Unable to parse path: %"), path);
+
+		TVITEMEX tvi = { 0 };
+
+		tvi.hItem = item;
+		tvi.mask = TVIF_HANDLE | TVIF_PARAM;
+
+		if (!TreeView_GetItem(m_Hwnd, &tvi))
+			throw Dcx::dcxException(TEXT("Unable to retrieve item: %"), path);
+
+		auto lpdcxtvitem = reinterpret_cast<LPDCXTVITEM>(tvi.lParam);
+		szReturnValue = lpdcxtvitem->tsMark.to_chr();
+	}
+	break;
+	default:
+		parseGlobalInfoRequest(input, szReturnValue);
+	}
+#else
 	const auto numtok = input.numtok();
 	const auto prop(input.getfirsttok(3));
 
@@ -263,7 +521,7 @@ void DcxTreeView::parseInfoRequest( const TString &input, PTCHAR szReturnValue) 
 		auto lpdcxtvi = reinterpret_cast<LPDCXTVITEM>(tvi.lParam);
 
 		if (lpdcxtvi != nullptr)
-			dcx_strcpyn(szReturnValue, lpdcxtvi->tsTipText.to_chr(), MIRC_BUFFER_SIZE_CCH);
+			szReturnValue = lpdcxtvi->tsTipText.to_chr();
 	}
 	// [NAME] [ID] [PROP]
 	else if (prop == TEXT("seltext")) {
@@ -276,7 +534,7 @@ void DcxTreeView::parseInfoRequest( const TString &input, PTCHAR szReturnValue) 
 		auto hItem = TreeView_GetSelection(m_Hwnd);
 		const auto path(this->getPathFromItem(&hItem));
 
-		dcx_strcpyn(szReturnValue, path.to_chr(), MIRC_BUFFER_SIZE_CCH);
+		szReturnValue = path.to_chr();
 	}
 	// [NAME] [ID] [PROP] {TAB}[MATCHTEXT]{TAB} [T] [N] [SUBPATH]
 	else if (prop == TEXT("find") && numtok > 5) {
@@ -309,10 +567,8 @@ void DcxTreeView::parseInfoRequest( const TString &input, PTCHAR szReturnValue) 
 		}
 
 		HTREEITEM result = nullptr;
-		if (findItemText(&startingPoint, &result, matchtext, n, matchCount, searchType)) {
-			const auto path(getPathFromItem(&result));
-			dcx_strcpyn(szReturnValue, path.to_chr(), MIRC_BUFFER_SIZE_CCH);
-		}
+		if (findItemText(&startingPoint, &result, matchtext, n, matchCount, searchType))
+			szReturnValue = getPathFromItem(&result).to_chr();
 		else if (n == 0)
 			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), matchCount);
 	}
@@ -327,9 +583,8 @@ void DcxTreeView::parseInfoRequest( const TString &input, PTCHAR szReturnValue) 
 		if (this->isStyle(TVS_CHECKBOXES)) {
 			const auto state = TreeView_GetCheckState(m_Hwnd, item);
 
-			if (state == 1) {
-				dcx_strcpyn(szReturnValue, TEXT("2"), MIRC_BUFFER_SIZE_CCH);
-			}
+			if (state == 1)
+				szReturnValue = TEXT('2');
 			else
 				dcx_ConChar(state == 0, szReturnValue);
 		}
@@ -374,9 +629,9 @@ void DcxTreeView::parseInfoRequest( const TString &input, PTCHAR szReturnValue) 
 		TreeView_HitTest( m_Hwnd, &tvh );
 
 		if (dcx_testflag(tvh.flags, TVHT_ONITEM))
-			dcx_strcpyn(szReturnValue, this->getPathFromItem(&tvh.hItem).to_chr(), MIRC_BUFFER_SIZE_CCH);
+			szReturnValue = getPathFromItem(&tvh.hItem).to_chr();
 		else
-			dcx_strcpyn(szReturnValue, TEXT("0"), MIRC_BUFFER_SIZE_CCH);
+			szReturnValue = TEXT('0');
 	}
 	// [NAME] [ID] [PROP] [PATH]
 	else if (prop == TEXT("markeditem") && numtok > 3) {
@@ -395,10 +650,11 @@ void DcxTreeView::parseInfoRequest( const TString &input, PTCHAR szReturnValue) 
 			throw Dcx::dcxException(TEXT("Unable to retrieve item: %"), path);
 
 		auto lpdcxtvitem = reinterpret_cast<LPDCXTVITEM>(tvi.lParam);
-		dcx_strcpyn(szReturnValue, lpdcxtvitem->tsMark.to_chr(), MIRC_BUFFER_SIZE_CCH);
+		szReturnValue = lpdcxtvitem->tsMark.to_chr();
 	}
 	else
-		this->parseGlobalInfoRequest(input, szReturnValue);
+		parseGlobalInfoRequest(input, szReturnValue);
+#endif
 }
 
 /*!

@@ -115,7 +115,7 @@ void DcxIpAddress::parseControlStyles( const TString &styles, LONG *Styles, LONG
  * \return > void
  */
 
-void DcxIpAddress::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) const
+void DcxIpAddress::parseInfoRequest( const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const
 {
 	// [NAME] [ID] [PROP]
 	if (input.gettok(3) == TEXT("ip")) {

@@ -91,8 +91,43 @@ void DcxColorCombo::parseControlStyles( const TString &styles, LONG *Styles, LON
  * \return > void
  */
 
-void DcxColorCombo::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) const
+void DcxColorCombo::parseInfoRequest( const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const
 {
+#if DCX_USE_HASHING
+	switch (std::hash<TString>{}(input.getfirsttok(3)))
+	{
+		// [NAME] [ID] [PROP]
+	case L"num"_hash:
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), getCount());
+		break;
+		// [NAME] [ID] [PROP] [N]
+	case L"color"_hash:
+	{
+		if (input.numtok() < 4)
+			throw Dcx::dcxException("Invalid number of argumnets");
+
+		const auto nItem = input.getnexttok().to_int() - 1;	// tok 4
+
+		if (nItem < 0 || nItem >= getCount())
+			throw Dcx::dcxException("Invalid Item");
+
+		auto lpdcxcci = reinterpret_cast<LPDCXCCOMBOITEM>(getItemData(nItem));
+
+		if (lpdcxcci == nullptr)
+			throw Dcx::dcxException("Unable to get item data");
+
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), lpdcxcci->clrItem);
+	}
+	break;
+	// [NAME] [ID] [PROP]
+	case L"sel"_hash:
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), static_cast<int>(getCurSel()) + 1);
+		break;
+	default:
+		parseGlobalInfoRequest(input, szReturnValue);
+		break;
+	}
+#else
 	const auto numtok = input.numtok();
 
 	const auto prop(input.getfirsttok(3));
@@ -107,7 +142,7 @@ void DcxColorCombo::parseInfoRequest( const TString & input, PTCHAR szReturnValu
 
 		const auto nItem = input.getnexttok().to_int() - 1;	// tok 4
 
-		if (nItem < 0 && nItem >= this->getCount())
+		if (nItem < 0 || nItem >= this->getCount())
 			throw Dcx::dcxException("Invalid Item");
 
 		auto lpdcxcci = reinterpret_cast<LPDCXCCOMBOITEM>(this->getItemData( nItem ));
@@ -129,6 +164,7 @@ void DcxColorCombo::parseInfoRequest( const TString & input, PTCHAR szReturnValu
 	}
 	else
 		this->parseGlobalInfoRequest(input, szReturnValue);
+#endif
 }
 
 /*!

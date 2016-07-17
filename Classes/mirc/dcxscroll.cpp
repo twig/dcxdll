@@ -103,8 +103,48 @@ void DcxScroll::parseControlStyles( const TString & styles, LONG * Styles, LONG 
  * \return > void
  */
 
-void DcxScroll::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) const
+void DcxScroll::parseInfoRequest( const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const
 {
+#if DCX_USE_HASHING
+	switch (std::hash<TString>{}(input.getfirsttok(3)))
+	{
+		// [NAME] [ID] [PROP]
+	case L"value"_hash:
+	{
+		SCROLLINFO si;
+		si.cbSize = sizeof(SCROLLINFO);
+		si.fMask = SIF_POS;
+		if (!GetScrollInfo(m_Hwnd, SB_CTL, &si))
+			throw Dcx::dcxException("Unable to get scroll info");
+
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), si.nPos);
+	}
+	break;
+	// [NAME] [ID] [PROP]
+	case L"range"_hash:
+	{
+		SCROLLINFO si;
+		si.cbSize = sizeof(SCROLLINFO);
+		si.fMask = SIF_RANGE;
+		if (!GetScrollInfo(m_Hwnd, SB_CTL, &si))
+			throw Dcx::dcxException("Unable to get scroll info");
+
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d"), si.nMin, si.nMax);
+	}
+	break;
+	// [NAME] [ID] [PROP]
+	case L"line"_hash:
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), this->m_nLine);
+		break;
+		// [NAME] [ID] [PROP]
+	case L"page"_hash:
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), this->m_nPage);
+		break;
+	default:
+		this->parseGlobalInfoRequest(input, szReturnValue);
+		break;
+	}
+#else
 	const auto prop(input.getfirsttok(3));
 
 	// [NAME] [ID] [PROP]
@@ -141,6 +181,7 @@ void DcxScroll::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) 
 	}
 	else
 		this->parseGlobalInfoRequest(input, szReturnValue);
+#endif
 }
 
 /*!

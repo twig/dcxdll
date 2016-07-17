@@ -55,19 +55,20 @@ public:
 	void redrawBufferedWindow( );
 	virtual void toXml(TiXmlElement *const xml) const = 0;
 
-protected:
+	virtual void parseCommandRequest(const TString & input) = 0;
+	//virtual void parseInfoRequest( const TString & input, TCHAR * szReturnValue ) const = 0;
+	virtual void parseInfoRequest(const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const = 0;
+	static PTCHAR parseCursorType(const TString & cursor);
+	static UINT parseCursorFlags(const TString & flags);
+	static UINT parseCursorArea(const TString &flags);
+	static HIMAGELIST createImageList(bool bBigIcons = false);
 
+protected:
 	HWND m_Hwnd;
 	UINT m_ID;
 
 	static std::map<TString, PTCHAR> IDC_map;
 
-	virtual void parseCommandRequest( const TString & input ) = 0;
-	virtual void parseInfoRequest( const TString & input, TCHAR * szReturnValue ) const = 0;
-	static PTCHAR parseCursorType( const TString & cursor );
-	static UINT parseCursorFlags( const TString & flags );
-	static UINT parseCursorArea(const TString &flags);
-	static HIMAGELIST createImageList(bool bBigIcons = false);
 };
 #ifdef __INTEL_COMPILER // Defined when using Intel C++ Compiler.
 #pragma warning( pop )

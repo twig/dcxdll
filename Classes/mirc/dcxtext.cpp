@@ -147,7 +147,7 @@ void DcxText::parseControlStyles( const TString & styles, LONG * Styles, LONG * 
  * \return > void
  */
 
-void DcxText::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) const
+void DcxText::parseInfoRequest( const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const
 {
 	// [NAME] [ID] [PROP]
 	if (input.gettok(3) == TEXT("text")) {

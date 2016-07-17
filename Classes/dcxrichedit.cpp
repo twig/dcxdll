@@ -103,7 +103,7 @@ void DcxRichEdit::parseControlStyles( const TString &styles, LONG *Styles, LONG 
 	for (const auto &tsStyle: styles)
 	{
 #if DCX_USE_HASHING
-		switch (dcx_hash(tsStyle.to_chr()))
+		switch (std::hash<TString>{}(tsStyle))
 		{
 			case L"multi"_hash:
 				*Styles |= ES_MULTILINE | ES_WANTRETURN;
@@ -167,8 +167,150 @@ void DcxRichEdit::parseControlStyles( const TString &styles, LONG *Styles, LONG 
 *
 * \return > void
 */
-void DcxRichEdit::parseInfoRequest( const TString &input, PTCHAR szReturnValue) const
+void DcxRichEdit::parseInfoRequest( const TString &input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const
 {
+#if DCX_USE_HASHING
+	const auto numtok = input.numtok();
+
+	switch (std::hash<TString>{}(input.getfirsttok(3)))
+	{
+		// [NAME] [ID] [PROP] [N]
+	case L"text"_hash:
+	{
+		// determine the line number
+		int line = 0;
+
+		if (numtok > 3)
+			line = input.getnexttok().to_int() - 1;		// tok 4
+
+		if ((line < 0) || (line >= Edit_GetLineCount(m_Hwnd)))
+			throw Dcx::dcxException("Invalid line number.");
+
+		// get index of first character in line
+		const auto offset = SendMessage(m_Hwnd, EM_LINEINDEX, static_cast<WPARAM>(line), NULL);
+		// get length of the line we want to copy
+		const auto len = SendMessage(m_Hwnd, EM_LINELENGTH, static_cast<WPARAM>(offset), NULL) + 1;
+		// create and fill the buffer
+		auto p = std::make_unique<TCHAR[]>(len);
+		*((LPWORD)p.get()) = (WORD)len;
+		SendMessage(m_Hwnd, EM_GETLINE, static_cast<WPARAM>(line), reinterpret_cast<LPARAM>(p.get()));
+
+		// terminate the string at the right position
+		p[len - 1] = TEXT('\0');
+
+		// copy to result
+		szReturnValue = p.get();
+	}
+	break;
+	// [NAME] [ID] [PROP]
+	case L"num"_hash:
+	{
+		if (this->isStyle(ES_MULTILINE))
+			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), static_cast<int>(SendMessage(m_Hwnd, EM_GETLINECOUNT, 0, 0L)));
+		else {
+			// single line control so always 1 line.
+			szReturnValue = TEXT('1');
+		}
+	}
+	break;
+	// [NAME] [ID] [PROP]
+	case L"caretpos"_hash:
+	{
+		DWORD dwAbsoluteStartSelPos = 0;
+
+		// caret startsel position
+		SendMessage(m_Hwnd, EM_GETSEL, (WPARAM)&dwAbsoluteStartSelPos, NULL);
+
+		if (this->isStyle(ES_MULTILINE)) {
+			// current line
+			const auto iLinePos = SendMessage(m_Hwnd, EM_LINEFROMCHAR, (WPARAM)-1, NULL);
+			// line offset
+			const auto iAbsoluteCharPos = (int)SendMessage(m_Hwnd, EM_LINEINDEX, (WPARAM)-1, NULL);
+
+			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d %u"), iLinePos + 1, dwAbsoluteStartSelPos - iAbsoluteCharPos);
+		}
+		else {
+			// return selstart
+			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("1 %u"), dwAbsoluteStartSelPos);
+		}
+	}
+	// [NAME] [ID] [PROP]
+	case L"selstart"_hash:
+	{
+		CHARRANGE c = { 0 };
+
+		SendMessage(m_Hwnd, EM_EXGETSEL, NULL, (LPARAM)&c);
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), c.cpMin);
+	}
+	break;
+	// [NAME] [ID] [PROP]
+	case L"selend"_hash:
+	{
+		CHARRANGE c = { 0 };
+
+		SendMessage(m_Hwnd, EM_EXGETSEL, NULL, (LPARAM)&c);
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), c.cpMax);
+	}
+	break;
+	// [NAME] [ID] [PROP]
+	case L"sel"_hash:
+	{
+		CHARRANGE c = { 0 };
+
+		SendMessage(m_Hwnd, EM_EXGETSEL, NULL, (LPARAM)&c);
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d"), c.cpMin, c.cpMax);
+	}
+	break;
+	// [NAME] [ID] [PROP]
+	case L"seltext"_hash:
+	{
+		CHARRANGE c = { 0 };
+
+		SendMessage(m_Hwnd, EM_EXGETSEL, NULL, (LPARAM)&c);
+		auto buffer = std::make_unique<TCHAR[]>(c.cpMax - c.cpMin);
+
+		SendMessage(m_Hwnd, EM_GETSELTEXT, NULL, (LPARAM)buffer.get());
+		szReturnValue = buffer.get();
+	}
+	break;
+	// [NAME] [ID] [PROP] [utf8|...]
+	case L"rtftext"_hash:
+	{
+		UINT iFlags = SF_RTF;
+		const auto tsFlags(input.getnexttok());
+
+		std::stringstream rtf;
+
+		EDITSTREAM es = { 0 };
+		es.dwCookie = (DWORD_PTR)&rtf;
+		es.pfnCallback = &StreamOutToVarCallback;
+
+		if (tsFlags == TEXT("utf8"))
+			iFlags = (UINT)((CP_UTF8 << 16) | SF_USECODEPAGE | SF_RTF);
+
+		SendMessage(m_Hwnd, EM_STREAMOUT, (WPARAM)iFlags, (LPARAM)&es);
+
+		const TString tsOut(rtf.str().c_str());	// handles any char convertions needed.
+		szReturnValue = tsOut.to_chr();
+
+		//TString rtf;
+		//
+		//EDITSTREAM es = { 0 };
+		//es.dwCookie = (DWORD_PTR)&rtf;
+		//es.pfnCallback = &EditStreamOutCallback;
+		//
+		//if (tsFlags == TEXT("utf8"))
+		//	iFlags = (UINT)((CP_UTF8 << 16) | SF_USECODEPAGE | SF_RTF);
+		//
+		//SendMessage(m_Hwnd, EM_STREAMOUT, (WPARAM)iFlags, (LPARAM)&es);
+		//
+		//dcx_strcpyn(szReturnValue, rtf.to_chr(), MIRC_BUFFER_SIZE_CCH);
+	}
+	break;
+	default:
+		parseGlobalInfoRequest(input, szReturnValue);
+	}
+#else
 	const auto numtok = input.numtok();
 	const auto prop(input.getfirsttok(3));
 
@@ -196,7 +338,7 @@ void DcxRichEdit::parseInfoRequest( const TString &input, PTCHAR szReturnValue) 
 		p[len -1] = TEXT('\0');
 
 		// copy to result
-		dcx_strcpyn(szReturnValue, p.get(), MIRC_BUFFER_SIZE_CCH);
+		szReturnValue = p.get();
 	}
 	// [NAME] [ID] [PROP]
 	else if (prop == TEXT("num")) {
@@ -257,7 +399,7 @@ void DcxRichEdit::parseInfoRequest( const TString &input, PTCHAR szReturnValue) 
 		auto buffer = std::make_unique<TCHAR[]>(c.cpMax - c.cpMin);
 
 		SendMessage(m_Hwnd, EM_GETSELTEXT, NULL, (LPARAM) buffer.get());
-		dcx_strcpyn(szReturnValue, buffer.get(), MIRC_BUFFER_SIZE_CCH);
+		szReturnValue = buffer.get();
 	}
 	// [NAME] [ID] [PROP] [utf8|...]
 	else if (prop == TEXT("rtftext")) {
@@ -277,7 +419,7 @@ void DcxRichEdit::parseInfoRequest( const TString &input, PTCHAR szReturnValue) 
 		SendMessage(m_Hwnd, EM_STREAMOUT, (WPARAM)iFlags, (LPARAM)&es);
 
 		const TString tsOut(rtf.str().c_str());	// handles any char convertions needed.
-		dcx_strcpyn(szReturnValue, tsOut.to_chr(), MIRC_BUFFER_SIZE_CCH);
+		szReturnValue = tsOut.to_chr();
 
 		//TString rtf;
 		//
@@ -294,6 +436,7 @@ void DcxRichEdit::parseInfoRequest( const TString &input, PTCHAR szReturnValue) 
 	}
 	else
 		this->parseGlobalInfoRequest(input, szReturnValue);
+#endif
 }
 
 bool DcxRichEdit::SaveRichTextToFile(HWND hWnd, const TCHAR *const filename)

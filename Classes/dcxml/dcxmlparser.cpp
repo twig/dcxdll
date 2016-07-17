@@ -196,8 +196,14 @@ void DcxmlParser::parseAttributes(const TiXmlElement *const tElement) {
 	m_sHeight = queryAttribute(tElement, "height", "0");
 	m_sDropdown = nullptr;
 
-	if ((0 == _ts_strncmp(m_sElem, "comboex", 16)) || (0 == _ts_strncmp(m_sElem, "colorcombo", 16)))
+#if DCX_USE_HASHING
+	const auto sElemHash = dcx_hash(m_sElem);
+	if ((sElemHash == "comboex"_hash) || (sElemHash == "colorcombo"_hash))
 		m_sDropdown = queryAttribute(tElement, "dropdown", "100");
+#else
+	if ((0 == _ts_strcmp(m_sElem, "comboex")) || (0 == _ts_strcmp(m_sElem, "colorcombo")))
+		m_sDropdown = queryAttribute(tElement, "dropdown", "100");
+#endif
 
 	m_sWidth = queryAttribute(tElement, "width", "0");
 	m_sMargin = queryAttribute(tElement, "margin", "0 0 0 0");
@@ -557,7 +563,7 @@ TString DcxmlParser::parseCLA(const int cCla)
 		claPathx = TEXT("root");
 	else
 	{
-		if (0 != _ts_strncmp(g_claPath, "root", 16))
+		if (0 != _ts_strcmp(g_claPath, "root"))
 			claPathx = g_claPath;
 
 		claPathx.addtok(cCla);
@@ -572,8 +578,8 @@ TString DcxmlParser::parseCLA(const int cCla)
 	g_bResetCLA = false;
 	return claPathx;
 #else
-	if (0 == _ts_strncmp(m_sElem, "control", 16)) {
-		if ((0 == _ts_strncmp(m_sType, "panel", 16)) || (0 == _ts_strncmp(m_sType, "box", 16))) {
+	if (0 == _ts_strcmp(m_sElem, "control")) {
+		if ((0 == _ts_strcmp(m_sType, "panel")) || (0 == _ts_strcmp(m_sType, "box"))) {
 			xdidEX(m_iID,TEXT("-l"),TEXT("root \t +p%S 0 0 0 0"),m_sCascade);
 			xdidEX(m_iID,TEXT("-l"),TEXT("space root \t + %S"),m_sMargin);
 			g_bResetCLA = true;
@@ -583,26 +589,26 @@ TString DcxmlParser::parseCLA(const int cCla)
 		const char * fixed = "l";
 		if (m_pElement->Attribute("height") != nullptr) { fHeigth = "v"; fixed = "f"; m_sWeight = "0"; }
 		if (m_pElement->Attribute("width") != nullptr) { fWidth = "h"; fixed = "f"; m_sWeight = "0"; }
-		if (0 == _ts_strncmp(m_sParentelem, "dialog", 16))
+		if (0 == _ts_strcmp(m_sParentelem, "dialog"))
 			xdialogEX(TEXT("-l"),TEXT("cell %S \t +%S%S%Si %i %S %S %S"),	g_claPath,fixed,fHeigth,fWidth,m_iID,m_sWeight,m_sWidth,m_sHeight);
-		else if (0 == _ts_strncmp(m_sParentelem, "control", 16)) {
+		else if (0 == _ts_strcmp(m_sParentelem, "control")) {
 			const auto t_type = m_pParent->Attribute("type");
 			if ((t_type != nullptr) && (m_iParentID > 0)) {
-				if (0 == _ts_strncmp(t_type, "panel", 16))
+				if (0 == _ts_strcmp(t_type, "panel"))
 					xdidEX(m_iParentID,TEXT("-l"),TEXT("cell %S \t +%S%S%Si %i %S %S %S"), g_claPath,fixed,fHeigth,fWidth,m_iID,m_sWeight,m_sWidth,m_sHeight); 
-				else if (0 == _ts_strncmp(t_type, "box", 16))
+				else if (0 == _ts_strcmp(t_type, "box"))
 					xdidEX(m_iParentID,TEXT("-l"),TEXT("cell %S \t +%S%S%Si %i %S %S %S"), g_claPath,fixed,fHeigth,fWidth,m_iID,m_sWeight,m_sWidth,m_sHeight); 
 			}
 		}
 	}
-	else if (0 == _ts_strncmp(m_sElem, "pane", 16)) {
-		if (0 == _ts_strncmp(m_sParentelem, "dialog", 16))
+	else if (0 == _ts_strcmp(m_sElem, "pane")) {
+		if (0 == _ts_strcmp(m_sParentelem, "dialog"))
 			xdialogEX(TEXT("-l"),TEXT("cell %S \t +p%S 0 %S 0 0"),g_claPath,m_sCascade,m_sWeight);
-		else if (0 == _ts_strncmp(m_sParentelem, "control", 16)) {
+		else if (0 == _ts_strcmp(m_sParentelem, "control")) {
 			if ((m_sParenttype != nullptr) && (m_iParentID > 0)) {
-				if (0 == _ts_strncmp(m_sParenttype, "panel", 16))
+				if (0 == _ts_strcmp(m_sParenttype, "panel"))
 					xdidEX(m_iParentID,TEXT("-l"),TEXT("cell %S \t +p%S 0 %S 0 0"),g_claPath,m_sCascade,m_sWeight);
-				else if (0 == _ts_strncmp(m_sParenttype, "box", 16))
+				else if (0 == _ts_strcmp(m_sParenttype, "box"))
 					xdidEX(m_iParentID,TEXT("-l"),TEXT("cell %S \t +p%S 0 %S 0 0"),g_claPath,m_sCascade,m_sWeight);
 			}
 		}
@@ -619,14 +625,14 @@ TString DcxmlParser::parseCLA(const int cCla)
 		claPathx = TEXT("root");
 	else
 	{
-		if (0 != _ts_strncmp(g_claPath, "root", 16))
+		if (0 != _ts_strcmp(g_claPath, "root"))
 			claPathx = g_claPath;
 
 		claPathx.addtok(cCla);
 	}
 
 	if (m_pElement->Attribute("margin") != nullptr) {
-		if (0 == _ts_strncmp(m_sParentelem, "dialog", 16))
+		if (0 == _ts_strcmp(m_sParentelem, "dialog"))
 			xdialogEX(TEXT("-l"),TEXT("space %s \t + %S"),claPathx.to_chr(),m_sMargin);
 		else
 			xdidEX(m_iParentID,TEXT("-l"),TEXT("space %S \t + %S"),g_claPath,m_sMargin);
@@ -807,7 +813,9 @@ void DcxmlParser::setStyle(const TiXmlElement *const style) {
 void DcxmlParser::parseStyle(int depth) { 
 	if (depth > 2)
 		return;
-	depth++;
+
+	++depth;
+
 	const TiXmlElement* tiStyles = nullptr;
 	const TiXmlElement* style = nullptr;
 	const TiXmlElement* ClassElement = nullptr;
@@ -825,9 +833,13 @@ void DcxmlParser::parseStyle(int depth) {
 		if (style != nullptr)
 			setStyle(style);
 		for( style = tiStyles->FirstChildElement("style"); style != nullptr; style = style->NextSiblingElement()) {
-			if (0==lstrcmpA(style->Attribute("class"), m_sSTclass))
+			//if (0 == lstrcmpA(style->Attribute("class"), m_sSTclass))
+			//	ClassElement = style;
+			//if (0 == lstrcmpA(style->Attribute("type"), m_sType))
+			//	TypeElement = style;
+			if (0 == _ts_strcmp(style->Attribute("class"), m_sSTclass))
 				ClassElement = style;
-			if (0==lstrcmpA(style->Attribute("type"), m_sType))
+			if (0 == _ts_strcmp(style->Attribute("type"), m_sType))
 				TypeElement = style;
 			if (parseId(style) == m_iID)
 				IdElement = style;
@@ -862,9 +874,13 @@ void DcxmlParser::parseIcons(int depth) {
 		const TiXmlElement* tiIcon;
 
 		for( tiIcon = icons->FirstChildElement("icon"); m_sIcon != nullptr; tiIcon = tiIcon->NextSiblingElement()) {
-			if (0==lstrcmpA(tiIcon->Attribute("class"), m_sSTclass))
+			//if (0 == lstrcmpA(tiIcon->Attribute("class"), m_sSTclass))
+			//	ClassElement = tiIcon;
+			//if (0 == lstrcmpA(tiIcon->Attribute("type"), m_sType))
+			//	TypeElement = tiIcon;
+			if (0 == _ts_strcmp(tiIcon->Attribute("class"), m_sSTclass))
 				ClassElement = tiIcon;
-			if (0==lstrcmpA(tiIcon->Attribute("type"), m_sType))
+			if (0 == _ts_strcmp(tiIcon->Attribute("type"), m_sType))
 				TypeElement = tiIcon;
 			const auto t_id = parseId(tiIcon);
 			if (t_id == m_iID)
@@ -914,16 +930,93 @@ void DcxmlParser::parseIcons(int depth) {
 }
 
 /* parseItems(XmlElement,recursionDepth,itemPath) : recursively applies items for a control */
-void DcxmlParser::parseItems(const TiXmlElement *const tiElement,const UINT depth, const char *itemPath) { 
+void DcxmlParser::parseItems(const TiXmlElement *const tiElement,const UINT depth, const char *itemPath) {
+#if DCX_USE_HASHING
+	auto item = 0, cell = 0;
+	const auto sTypeHash = dcx_hash(m_sType);
+
+	for (auto child = tiElement->FirstChildElement(); child != nullptr; child = child->NextSiblingElement())
+	{
+		const auto childelem = child->Value();
+		const auto childelemHash = dcx_hash(childelem);
+
+		if (childelemHash == "columns"_hash)
+		{
+			if (sTypeHash == "listview"_hash)
+			{
+				TString tsArguments;
+				TString tsBuffer;
+				for (auto column = child->FirstChildElement("column"); column != nullptr; column = column->NextSiblingElement("column"))
+				{
+					tsBuffer.tsprintf(TEXT("+%S %S %S %S "),
+						queryAttribute(column, "flags", "l"),
+						queryAttribute(column, "icon", "0"),
+						queryAttribute(column, "width", "0"),
+						queryAttribute(column, "caption"));
+
+					tsArguments.addtok(tsBuffer, TEXT('\t'));
+
+					//_ts_sprintf(tsBuffer, TEXT("+% % % % "),
+					//	queryAttribute(column, "flags", "l"),
+					//	queryAttribute(column, "icon", "0"),
+					//	queryAttribute(column, "width", "0"),
+					//	queryAttribute(column, "caption"));
+
+					//tsArguments.addtok(tsBuffer,TEXT('\t'));
+				}
+				if (!tsArguments.empty())
+					xdidEX(m_iID, TEXT("-t"), TEXT("%s"), tsArguments.to_chr());
+			}
+			//if (childelemHash == "dataset"_hash)
+			//{
+			//	//auto listView = this->d_Host->getControlByID(m_iID);
+			//}
+		}
+
+
+		if ((childelemHash == "item"_hash) || (childelemHash == "control"_hash))
+			++cell;
+		//fill all required parameters with attributes or default values
+		parseAttributes(child);
+		if (childelemHash == "item"_hash) {
+			++item;
+			if (sTypeHash == "toolbar"_hash)
+				xdidEX(m_iID, TEXT("-a"), TEXT("0 +%S %S %S %S %S \t %S"), ((m_sTFlags != nullptr) ? m_sTFlags : "a"), m_sWidth, m_sIcon, m_sTextcolour, m_sCaption, m_sTooltip);
+			else if (sTypeHash == "comboex"_hash)
+				xdidEX(m_iID, TEXT("-a"), TEXT("0 %S %S %S 0 %S"), m_sIndent, m_sIcon, m_sIcon, m_sCaption);
+			else if (sTypeHash == "list"_hash)
+			{
+				if (m_sCaption != nullptr)
+					xdidEX(m_iID, TEXT("-a"), TEXT("0 %S"), m_sCaption);
+			}
+			else if (sTypeHash == "statusbar"_hash)
+			{
+				if (m_sCaption != nullptr)
+					xdidEX(m_iID, TEXT("-t"), TEXT("%i +%S %S %S \t %S"), cell, ((m_sTFlags != nullptr) ? m_sTFlags : "f"), m_sIcon, m_sCaption, m_sTooltip);
+			}
+			else if (sTypeHash == "treeview"_hash) {
+					// Ook: recursive loop needs looked at, use a TString reference object instead of multiple char[]'s for itemPath
+					//itemPath += item;
+					//xdidEX(m_iID, TEXT("-a"), TEXT("%s \t +%S %S %S 0 %S %S %S %S %S \t %S"), itemPath.to_chr(), ((m_sTFlags) ? m_sTFlags : "a"), m_sIcon, m_sIcon, m_sState, m_sIntegral, m_sTextcolour, m_sBgcolour, m_sCaption, m_sTooltip);
+					//parseItems(child, depth, itemPath);
+					char pathx[100];
+					wnsprintfA(pathx, Dcx::countof(pathx), "%s %i", itemPath, item);
+					if (m_sCaption != nullptr)
+						xdidEX(m_iID, TEXT("-a"), TEXT("%S \t +%S %S %S 0 %S %S %S %S %S \t %S"), pathx, ((m_sTFlags != nullptr) ? m_sTFlags : "a"), m_sIcon, m_sIcon, m_sState, m_sIntegral, m_sTextcolour, m_sBgcolour, m_sCaption, m_sTooltip);
+					parseItems(child, depth, pathx);
+				}
+		}
+	}
+#else
 	auto item = 0;
 	auto cell = 0;
 
 	for (auto child = tiElement->FirstChildElement(); child != nullptr; child = child->NextSiblingElement())
 	{
 		const auto childelem = child->Value();
-		if (0==lstrcmpA(childelem, "columns"))
+		if (0 == _ts_strcmp(childelem, "columns"))
 		{
-			if (0==lstrcmpA(m_sType, "listview"))
+			if (0 == _ts_strcmp(m_sType, "listview"))
 			{
 				TString tsArguments;
 				TString tsBuffer;
@@ -948,42 +1041,47 @@ void DcxmlParser::parseItems(const TiXmlElement *const tiElement,const UINT dept
 				if (!tsArguments.empty())
 					xdidEX(m_iID,TEXT("-t"),TEXT("%s"),tsArguments.to_chr());
 			}
-			//if (0==lstrcmpA(childelem, "dataset"))
+			//if (0 == _ts_strcmp(childelem, "dataset"))
 			//{
 			//	//auto listView = this->d_Host->getControlByID(m_iID);
 			//}
 		}
 
 
-		if ((0==lstrcmpA(childelem, "item")) || (0==lstrcmpA(childelem, "control")))
-			cell++;
+		if ((0 == _ts_strcmp(childelem, "item")) || (0 == _ts_strcmp(childelem, "control")))
+			++cell;
 		//fill all required parameters with attributes or default values
 		parseAttributes(child);
-		if (0==lstrcmpA(childelem, "item")) {
-			item++;
-			if (0==lstrcmpA(m_sType, "toolbar"))
+		if (0 == _ts_strcmp(childelem, "item")) {
+			++item;
+			if (0 == _ts_strcmp(m_sType, "toolbar"))
 				xdidEX(m_iID,TEXT("-a"),TEXT("0 +%S %S %S %S %S \t %S"), ((m_sTFlags != nullptr) ? m_sTFlags : "a"),m_sWidth,m_sIcon,m_sTextcolour,m_sCaption,m_sTooltip);
-			else if (0==lstrcmpA(m_sType, "comboex"))
+			else if (0 == _ts_strcmp(m_sType, "comboex"))
 				xdidEX(m_iID,TEXT("-a"),TEXT("0 %S %S %S 0 %S"), m_sIndent,m_sIcon,m_sIcon,m_sCaption);
-			else if (0==lstrcmpA(m_sType, "list"))
+			else if (0 == _ts_strcmp(m_sType, "list"))
+			{
 				if (m_sCaption != nullptr)
-					xdidEX(m_iID,TEXT("-a"),TEXT("0 %S"), m_sCaption);
-			else if (0==lstrcmpA(m_sType, "statusbar"))
+					xdidEX(m_iID, TEXT("-a"), TEXT("0 %S"), m_sCaption);
+			}
+			else if (0 == _ts_strcmp(m_sType, "statusbar"))
+			{
 				if (m_sCaption != nullptr)
-					xdidEX(m_iID,TEXT("-t"),TEXT("%i +%S %S %S \t %S"), cell,((m_sTFlags != nullptr) ? m_sTFlags : "f"),m_sIcon,m_sCaption,m_sTooltip);
-			else if (0==lstrcmpA(m_sType, "treeview")) { 
+					xdidEX(m_iID, TEXT("-t"), TEXT("%i +%S %S %S \t %S"), cell, ((m_sTFlags != nullptr) ? m_sTFlags : "f"), m_sIcon, m_sCaption, m_sTooltip);
+			}
+			else if (0 == _ts_strcmp(m_sType, "treeview")) {
 				// Ook: recursive loop needs looked at, use a TString reference object instead of multiple char[]'s for itemPath
 				//itemPath += item;
 				//xdidEX(m_iID, TEXT("-a"), TEXT("%s \t +%S %S %S 0 %S %S %S %S %S \t %S"), itemPath.to_chr(), ((m_sTFlags) ? m_sTFlags : "a"), m_sIcon, m_sIcon, m_sState, m_sIntegral, m_sTextcolour, m_sBgcolour, m_sCaption, m_sTooltip);
 				//parseItems(child, depth, itemPath);
 				char pathx[100];
-				wnsprintfA(pathx, 100, "%s %i",itemPath,item);
+				wnsprintfA(pathx, Dcx::countof(pathx), "%s %i",itemPath,item);
 				if (m_sCaption != nullptr)
 					xdidEX(m_iID,TEXT("-a"),TEXT("%S \t +%S %S %S 0 %S %S %S %S %S \t %S"), pathx,((m_sTFlags != nullptr) ? m_sTFlags : "a"),m_sIcon,m_sIcon,m_sState,m_sIntegral,m_sTextcolour,m_sBgcolour,m_sCaption,m_sTooltip);
 				parseItems(child,depth,pathx);
 			}
 		}
 	}
+#endif
 }
 
 /* parseTemplate(recursionDepth,claPath,firstFreeControlId) : finds a template and parses it into the current dialog */
@@ -996,10 +1094,22 @@ void DcxmlParser::parseTemplate(const UINT dialogDepth,const char *const claPath
 		return;	// no templates found, exit
 
 	// iterate through all templates
+	//for (auto Template = lookIn->FirstChildElement("template"); Template != nullptr; Template = Template->NextSiblingElement())
+	//{
+	//	if (0 == _ts_strcmp(Template->Attribute("name"), m_pElement->Attribute("name")))
+	//	{ 
+	//		m_pElement = Template;
+	//		parseDialog(dialogDepth, claPath, passedid, 1);
+	//		break;
+	//	}
+	//}
+
+	const refString<const char, -1> sTmp(m_pElement->Attribute("name"));
+
 	for (auto Template = lookIn->FirstChildElement("template"); Template != nullptr; Template = Template->NextSiblingElement())
 	{
-		if (0==lstrcmpA(Template->Attribute("name"), m_pElement->Attribute("name")))
-		{ 
+		if (sTmp == Template->Attribute("name"))
+		{
 			m_pElement = Template;
 			parseDialog(dialogDepth, claPath, passedid, 1);
 			break;
@@ -1080,14 +1190,14 @@ void DcxmlParser::parseDialog(const UINT depth,const char *claPath,const UINT pa
 
 		//assign m_pParent CONTROL of m_pElement
 		while (m_pParent != nullptr) {
-			if (0 == lstrcmpA(m_sParentelem, "template"))
+			if (0 == _ts_strcmp(m_sParentelem, "template"))
 			{
 				m_pParent = m_pTemplateRef->Parent()->ToElement();
 				m_sParentelem = m_pTemplateRef->Parent()->Value();
 				cCla = m_iTemplateRefcCla;
 				claPath = m_sTemplateRefclaPath;
 			}
-			else if (0 == lstrcmpA(m_sParentelem, "pane"))
+			else if (0 == _ts_strcmp(m_sParentelem, "pane"))
 			{
 				m_pParent = m_pParent->Parent()->ToElement();
 				m_sParentelem = m_pParent->Value();
@@ -1112,31 +1222,33 @@ void DcxmlParser::parseDialog(const UINT depth,const char *claPath,const UINT pa
 		if (sElemHash == "control"_hash) {
 
 			++control;
+			// control now always > 0
 
 			//check how to insert the control in the m_pParent Control/Dialog
 			//If parentNode is pane loop untill parentNode is not a pane
-			if (0 == lstrcmpA(m_sParentelem, "dialog"))
+			const auto sParentelemHash = dcx_hash(m_sParentelem);
+
+			if (sParentelemHash == "dialog"_hash)
 				xdialogEX(TEXT("-c"), TEXT("%i %S 0 0 %S %S %S"), m_iID, m_sType, m_sWidth, (m_sDropdown != nullptr ? m_sDropdown : m_sHeight), m_sStyles);
-			else if (0 == lstrcmpA(m_sParentelem, "control")) {
+			else if (sParentelemHash == "control"_hash) {
 				switch (dcx_hash(m_sParenttype))
 				{
+				case "pager"_hash:
+					if (control != 1)
+						break;
 				case "panel"_hash:
-					xdidEX(m_iParentID, TEXT("-c"), TEXT("%i %S 0 0 %S %S %S"), m_iID, m_sType, m_sWidth, (m_sDropdown != nullptr ? m_sDropdown : m_sHeight), m_sStyles);
-					break;
 				case "box"_hash:
 					xdidEX(m_iParentID, TEXT("-c"), TEXT("%i %S 0 0 %S %S %S"), m_iID, m_sType, m_sWidth, (m_sDropdown != nullptr ? m_sDropdown : m_sHeight), m_sStyles);
 					break;
 				case "tab"_hash:
 					xdidEX(m_iParentID, TEXT("-a"), TEXT("0 %S %S \t %i %S 0 0 %S %S %S \t %S"), m_sIcon, m_sCaption, m_iID, m_sType, m_sWidth, (m_sDropdown != nullptr ? m_sDropdown : m_sHeight), m_sStyles, m_sTooltip);
 					break;
-				case "pager"_hash:
-					if (control == 1) xdidEX(m_iParentID, TEXT("-c"), TEXT("%i %S 0 0 %S %S %S"), m_iID, m_sType, m_sWidth, (m_sDropdown != nullptr ? m_sDropdown : m_sHeight), m_sStyles);
-					break;
 				case "divider"_hash:
 					if (control <= 2) {
+						// <= 2 so MUST be either 1 or 2, can't be zero
 						if (control == 1)
 							xdidEX(m_iParentID, TEXT("-l"), TEXT("%S 0 \t %i %S 0 0 %S %S %S"), m_sWidth, m_iID, m_sType, m_sWidth, (m_sDropdown != nullptr ? m_sDropdown : m_sHeight), m_sStyles);
-						else if (control == 2)
+						else
 							xdidEX(m_iParentID, TEXT("-r"), TEXT("%S 0 \t %i %S 0 0 %S %S %S"), m_sWidth, m_iID, m_sType, m_sWidth, (m_sDropdown != nullptr ? m_sDropdown : m_sHeight), m_sStyles);
 					}
 					break;

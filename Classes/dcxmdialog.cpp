@@ -104,14 +104,13 @@ DcxMDialog::~DcxMDialog( ) {
  * \return > void
  */
 
-void DcxMDialog::parseInfoRequest( const TString &input, PTCHAR szReturnValue) const
+void DcxMDialog::parseInfoRequest( const TString &input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const
 {
 	// [NAME] [ID] [PROP]
-	if (input.gettok(3) == TEXT("dname")) {
-		dcx_strcpyn(szReturnValue, this->m_OrigName.to_chr(), MIRC_BUFFER_SIZE_CCH);
-	}
+	if (input.gettok(3) == TEXT("dname"))
+		szReturnValue = m_OrigName.to_chr();
 	else
-		this->parseGlobalInfoRequest(input, szReturnValue);
+		parseGlobalInfoRequest(input, szReturnValue);
 }
 
 /*!

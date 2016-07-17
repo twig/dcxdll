@@ -119,7 +119,7 @@ void DcxLink::parseControlStyles( const TString &styles, LONG *Styles, LONG *ExS
  * \return > void
  */
 
-void DcxLink::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) const
+void DcxLink::parseInfoRequest( const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const
 {
 	// [NAME] [ID] [PROP]
 	if (input.gettok(3) == TEXT("text")) {
@@ -127,7 +127,7 @@ void DcxLink::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) co
 		GetWindowText(m_Hwnd, szReturnValue, MIRC_BUFFER_SIZE_CCH);
 	}
 	else
-		this->parseGlobalInfoRequest(input, szReturnValue);
+		parseGlobalInfoRequest(input, szReturnValue);
 }
 
 /*!

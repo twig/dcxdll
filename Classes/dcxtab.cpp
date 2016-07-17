@@ -211,8 +211,117 @@ void DcxTab::parseControlStyles( const TString & styles, LONG * Styles, LONG * E
  * \return > void
  */
 
-void DcxTab::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) const {
+void DcxTab::parseInfoRequest( const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const
+{
+#if DCX_USE_HASHING
+	const auto numtok = input.numtok();
 
+	switch (std::hash<TString>{}(input.getfirsttok(3)))
+	{
+	case L"text"_hash:
+	{
+		if (numtok < 4)
+			throw Dcx::dcxException("Invalid number of arguments");
+
+		const auto nItem = input.getnexttok().to_int() - 1;	// tok 4
+
+		if (nItem < 0 && nItem >= TabCtrl_GetItemCount(m_Hwnd))
+			throw Dcx::dcxException("Invalid Item");
+
+		TCITEM tci;
+		ZeroMemory(&tci, sizeof(TCITEM));
+
+		tci.mask = TCIF_TEXT;
+		tci.pszText = szReturnValue;
+		tci.cchTextMax = MIRC_BUFFER_SIZE_CCH;
+
+		TabCtrl_GetItem(m_Hwnd, nItem, &tci);
+	}
+	break;
+	case L"num"_hash:
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), TabCtrl_GetItemCount(m_Hwnd));
+		break;
+		// [NAME] [ID] [PROP] [N]
+	case L"icon"_hash:
+	{
+		if (numtok < 4)
+			throw Dcx::dcxException("Invalid number of arguments");
+
+		const auto iTab = input.getnexttok().to_int() - 1;		// tok 4
+
+		if (iTab < 0 && iTab >= TabCtrl_GetItemCount(m_Hwnd))
+			throw Dcx::dcxException("Invalid Item");
+
+		TCITEM tci{ TCIF_IMAGE,0U,0U, nullptr, 0, 0, 0 };
+
+		TabCtrl_GetItem(m_Hwnd, iTab, &tci);
+
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), tci.iImage + 1);
+	}
+	break;
+	case L"sel"_hash:
+	{
+		const auto nItem = TabCtrl_GetCurSel(m_Hwnd);
+
+		if (nItem < 0 && nItem >= TabCtrl_GetItemCount(m_Hwnd))
+			throw Dcx::dcxException("Invalid Item");
+
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), nItem + 1);
+	}
+	break;
+	case L"seltext"_hash:
+	{
+		const auto nItem = TabCtrl_GetCurSel(m_Hwnd);
+
+		if (nItem < 0 && nItem >= TabCtrl_GetItemCount(m_Hwnd))
+			throw Dcx::dcxException("Invalid Item");
+
+		TCITEM tci{ TCIF_TEXT,0U,0U, szReturnValue, MIRC_BUFFER_SIZE_CCH, 0, 0 };
+
+		TabCtrl_GetItem(m_Hwnd, nItem, &tci);
+	}
+	break;
+	case L"childid"_hash:
+	{
+		if (numtok < 4)
+			throw Dcx::dcxException("Invalid number of arguments");
+
+		const auto nItem = input.getnexttok().to_int() - 1;	// tok 4
+
+		if (nItem < 0 && nItem >= TabCtrl_GetItemCount(m_Hwnd))
+			throw Dcx::dcxException("Invalid Item");
+
+		TCITEM tci{ TCIF_PARAM,0U,0U, nullptr, 0, 0, 0 };
+
+		TabCtrl_GetItem(m_Hwnd, nItem, &tci);
+
+		auto lpdtci = reinterpret_cast<LPDCXTCITEM>(tci.lParam);
+
+		auto c = this->m_pParentDialog->getControlByHWND(lpdtci->mChildHwnd);
+		if (c != nullptr)
+			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), c->getUserID());
+	}
+	break;
+	// [NAME] [ID] [PROP]
+	case L"mouseitem"_hash:
+	{
+		TCHITTESTINFO tchi{};
+
+		tchi.flags = TCHT_ONITEM;
+		if (!GetCursorPos(&tchi.pt))
+			throw Dcx::dcxException("Unable to get cursor position");
+
+		MapWindowPoints(nullptr, m_Hwnd, &tchi.pt, 1);
+
+		const auto tab = TabCtrl_HitTest(m_Hwnd, &tchi);
+
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), tab + 1);
+	}
+	break;
+	default:
+		parseGlobalInfoRequest(input, szReturnValue);
+	}
+#else
 	const auto numtok = input.numtok();
 	const auto prop(input.getfirsttok(3));
 
@@ -313,6 +422,7 @@ void DcxTab::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) con
 	}
 	else
 		this->parseGlobalInfoRequest(input, szReturnValue);
+#endif
 }
 
 /*!

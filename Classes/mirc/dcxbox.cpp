@@ -211,8 +211,65 @@ void DcxBox::parseControlStyles( const TString & styles, LONG * Styles, LONG * E
  * \return > void
  */
 
+#if DCX_USE_HASHING
+void DcxBox::parseInfoRequest(const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const
+{
+	//  auto numtok = input.numtok( );
+
+	switch (std::hash<TString>{}(input.getfirsttok(3)))
+	{
+		// [NAME] [ID] [PROP]
+	case L"text"_hash:
+		GetWindowText(m_Hwnd, szReturnValue, MIRC_BUFFER_SIZE_CCH);
+		break;
+	case L"inbox"_hash:
+	{
+		RECT rc;
+		if (!GetClientRect(m_Hwnd, &rc))
+			throw Dcx::dcxException("Unable to get client rect!");
+
+		InflateRect(&rc, -2, -2);
+		if (GetWindowTextLength(m_Hwnd) > 0)
+		{
+			auto hdc = GetDC(m_Hwnd);
+			if (hdc == nullptr)
+				throw Dcx::dcxException("Unable to get windows DC");
+
+			Auto(ReleaseDC(m_Hwnd, hdc));
+
+			HFONT oldFont = nullptr;
+			RECT rcText = rc;
+
+			if (m_hFont != nullptr)
+				oldFont = SelectFont(hdc, m_hFont);
+
+			TString text;
+			TGetWindowText(m_Hwnd, text);
+			DrawText(hdc, text.to_chr(), static_cast<int>(text.len()), &rcText, DT_CALCRECT);
+
+			if (oldFont != nullptr)
+				SelectFont(hdc, oldFont);
+
+			//const auto w = rcText.right - rcText.left;
+			const auto h = rcText.bottom - rcText.top;
+
+			if (dcx_testflag(m_iBoxStyles, BOXS_BOTTOM))
+				rc.bottom -= (h + 2);
+			else
+				rc.top += (h - 2);
+		}
+
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d %d %d"), rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top);
+	}
+	break;
+	default:
+		parseGlobalInfoRequest(input, szReturnValue);
+		break;
+	}
+}
+#else
 #ifndef DCX_SWITCH_OBJ
-void DcxBox::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) const
+void DcxBox::parseInfoRequest( const TString & input, refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const
 {
 	//  auto numtok = input.numtok( );
 
@@ -266,7 +323,7 @@ void DcxBox::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) con
 		parseGlobalInfoRequest( input, szReturnValue );
 }
 #else
-void DcxBox::parseInfoRequest(const TString & input, PTCHAR szReturnValue) const
+void DcxBox::parseInfoRequest(const TString & input, refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const
 {
 	szReturnValue[0] = 0;
 
@@ -312,6 +369,7 @@ void DcxBox::parseInfoRequest(const TString & input, PTCHAR szReturnValue) const
 	}).Break()
 		.Default([this, &input, szReturnValue] { parseGlobalInfoRequest(input, szReturnValue); });
 }
+#endif
 #endif
 
 /*!

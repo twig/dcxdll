@@ -120,9 +120,24 @@ void DcxPager::parseControlStyles( const TString &styles, LONG *Styles, LONG *Ex
  * \return > void
  */
 
-void DcxPager::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) const
+void DcxPager::parseInfoRequest( const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const
 {
-	//  auto numtok = input.numtok( );
+#if DCX_USE_HASHING
+	switch (std::hash<TString>{}(input.getfirsttok(3)))
+	{
+	case L"color"_hash:
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), Pager_GetBkColor(m_Hwnd));
+		break;
+	case L"bsize"_hash:
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), Pager_GetButtonSize(m_Hwnd));
+		break;
+	case L"border"_hash:
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), Pager_GetBorder(m_Hwnd));
+		break;
+	default:
+		parseGlobalInfoRequest(input, szReturnValue);
+	}
+#else
 	const auto prop(input.gettok( 3 ));
 
 	if (prop == TEXT("color"))
@@ -133,6 +148,7 @@ void DcxPager::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) c
 		wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), Pager_GetBorder(m_Hwnd) );
 	else
 		this->parseGlobalInfoRequest(input, szReturnValue);
+#endif
 }
 
 /*!

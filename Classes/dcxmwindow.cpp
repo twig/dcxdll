@@ -100,16 +100,15 @@ DcxMWindow::~DcxMWindow( ) {
  * \return > void
  */
 
-void DcxMWindow::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) const
+void DcxMWindow::parseInfoRequest( const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const
 {
 	//  auto numtok = input.numtok( );
 
 	// [NAME] [ID] [PROP]
-	if (input.gettok(3) == TEXT("wname")) {
-		dcx_strcpyn(szReturnValue, this->m_OrigName.to_chr(), MIRC_BUFFER_SIZE_CCH);
-	}
+	if (input.gettok(3) == TEXT("wname"))
+		szReturnValue = m_OrigName.to_chr();
 	else
-		this->parseGlobalInfoRequest(input, szReturnValue);
+		parseGlobalInfoRequest(input, szReturnValue);
 }
 
 /*!

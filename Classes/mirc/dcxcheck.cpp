@@ -173,8 +173,34 @@ void DcxCheck::parseControlStyles( const TString & styles, LONG * Styles, LONG *
  * \return > void
  */
 
-void DcxCheck::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) const
+void DcxCheck::parseInfoRequest( const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const
 {
+#if DCX_USE_HASHING
+	switch (std::hash<TString>{}(input.getfirsttok(3)))
+	{
+		// [NAME] [ID] [PROP]
+	case L"text"_hash:
+		GetWindowText(m_Hwnd, szReturnValue, MIRC_BUFFER_SIZE_CCH);
+		break;
+		// [NAME] [ID] [PROP]
+	case L"state"_hash:
+	{
+		TCHAR p = TEXT('0');
+
+		if (dcx_testflag(Button_GetCheck(m_Hwnd), BST_INDETERMINATE))
+			p = TEXT('2');
+		else if (dcx_testflag(Button_GetCheck(m_Hwnd), BST_CHECKED))
+			p = TEXT('1');
+
+		szReturnValue[0] = p;
+		szReturnValue[1] = 0;
+	}
+	break;
+	default:
+		parseGlobalInfoRequest(input, szReturnValue);
+		break;
+	}
+#else
 	const auto prop(input.getfirsttok(3));
 
 	// [NAME] [ID] [PROP]
@@ -197,6 +223,7 @@ void DcxCheck::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) c
 	}
 	else
 		this->parseGlobalInfoRequest(input, szReturnValue);
+#endif
 }
 
 /*!

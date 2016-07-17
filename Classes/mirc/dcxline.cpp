@@ -167,13 +167,12 @@ void DcxLine::parseControlStyles( const TString & styles, LONG * Styles, LONG * 
  * \return > void
  */
 
-void DcxLine::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) const
+void DcxLine::parseInfoRequest( const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const
 {
-	if (input.gettok(3) == TEXT("text")) {
-		dcx_strcpyn(szReturnValue, this->m_sText.to_chr(), MIRC_BUFFER_SIZE_CCH);
-	}
+	if (input.gettok(3) == TEXT("text"))
+		szReturnValue = m_sText.to_chr();
 	else
-		this->parseGlobalInfoRequest(input, szReturnValue);
+		parseGlobalInfoRequest(input, szReturnValue);
 }
 
 /*!

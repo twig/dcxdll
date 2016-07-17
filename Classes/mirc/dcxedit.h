@@ -39,7 +39,8 @@ public:
 	LRESULT PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bParsed) override;
 	LRESULT ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bParsed) override;
 
-	void parseInfoRequest(const TString & input, PTCHAR szReturnValue) const override;
+	//void parseInfoRequest(const TString & input, PTCHAR szReturnValue) const override;
+	void parseInfoRequest(const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const override;
 	void parseCommandRequest(const TString & input) override;
 	void parseControlStyles(const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme) override;
 

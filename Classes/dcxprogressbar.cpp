@@ -150,8 +150,28 @@ void DcxProgressBar::parseControlStyles( const TString & styles, LONG * Styles, 
  * \return > void
  */
 
-void DcxProgressBar::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) const
+void DcxProgressBar::parseInfoRequest( const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const
 {
+#if DCX_USE_HASHING
+	switch (std::hash<TString>{}(input.getfirsttok(3)))
+	{
+	case L"value"_hash:
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), this->getPosition());
+		break;
+	case L"range"_hash:
+	{
+		PBRANGE pbr;
+		this->getRange(FALSE, &pbr);
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d"), pbr.iLow, pbr.iHigh);
+	}
+	break;
+	case L"text"_hash:
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, this->m_tsText.to_chr(), this->CalculatePosition());
+		break;
+	default:
+		parseGlobalInfoRequest(input, szReturnValue);
+	}
+#else
 	const auto prop(input.getfirsttok(3));
 
 	if ( prop == TEXT("value") ) {
@@ -167,6 +187,7 @@ void DcxProgressBar::parseInfoRequest( const TString & input, PTCHAR szReturnVal
 	}
 	else
 		this->parseGlobalInfoRequest(input, szReturnValue);
+#endif
 }
 /*!
  * \brief blah

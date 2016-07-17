@@ -117,8 +117,204 @@ void DcxDirectshow::parseControlStyles( const TString & styles, LONG * Styles, L
  * \return > void
  */
 
-void DcxDirectshow::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) const
+void DcxDirectshow::parseInfoRequest( const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const
 {
+#if DCX_USE_HASHING
+	const auto prop(input.getfirsttok(3));
+	const auto propHash = std::hash<TString>{}(prop);
+
+	if (this->m_pGraph == nullptr) {
+		switch (propHash)
+		{
+			// [NAME] [ID] [PROP]
+		case L"isloaded"_hash:
+			szReturnValue = TEXT("$false");
+			break;
+			// [NAME] [ID] [PROP]
+		case L"state"_hash:
+			szReturnValue = TEXT("D_OK nofile");
+			break;
+		default:
+			if (!parseGlobalInfoRequest(input, szReturnValue))
+				throw Dcx::dcxException("No File Loaded");
+			break;
+		}
+	}
+	else {
+		// [NAME] [ID] [PROP]
+		switch (propHash)
+		{
+		case L"isloaded"_hash:
+			szReturnValue = TEXT("$true");
+			break;
+			// [NAME] [ID] [PROP]
+		case L"fname"_hash:
+			szReturnValue = m_tsFilename.to_chr();
+			break;
+			// [NAME] [ID] [PROP]
+		case L"size"_hash:
+		{
+			long lWidth, lHeight, lARWidth, lARHeight;
+			auto hr = m_pWc->GetNativeVideoSize(&lWidth, &lHeight, &lARWidth, &lARHeight);
+			if (FAILED(hr)) {
+				DX_ERR(prop.to_chr(), nullptr, hr);
+				throw Dcx::dcxException("Unable to get Native Video Size");
+			}
+
+			// width height arwidth arheight
+			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d %d %d"), lWidth, lHeight, lARWidth, lARHeight);
+		}
+		break;
+		// [NAME] [ID] [PROP]
+		case L"author"_hash:
+			getProperty(szReturnValue, PROP_AUTHOR);
+			break;
+			// [NAME] [ID] [PROP]
+		case L"title"_hash:
+			getProperty(szReturnValue, PROP_TITLE);
+			break;
+			// [NAME] [ID] [PROP]
+		case L"video"_hash:
+		{
+			VMR9ProcAmpControl amc;
+			auto hr = this->getVideo(&amc);
+			if (FAILED(hr)) {
+				DX_ERR(prop.to_chr(), nullptr, hr);
+				throw Dcx::dcxException("Unable to get Video Information");
+			}
+
+			TString vflags(TEXT('+'));
+			if (amc.dwFlags & ProcAmpControl9_Brightness)
+				vflags += TEXT('b');
+			if (amc.dwFlags & ProcAmpControl9_Contrast)
+				vflags += TEXT('c');
+			if (amc.dwFlags & ProcAmpControl9_Hue)
+				vflags += TEXT('h');
+			if (amc.dwFlags & ProcAmpControl9_Saturation)
+				vflags += TEXT('s');
+
+			// NB: wnsprintf() doesn't support %f
+			swprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%s %f %f %f %f"), vflags.to_chr(), amc.Brightness, amc.Contrast, amc.Hue, amc.Saturation);
+		}
+		break;
+		// [NAME] [ID] [PROP]
+		case L"brange"_hash:
+		{
+			VMR9ProcAmpControlRange acr;
+			auto hr = this->getVideoRange(ProcAmpControl9_Brightness, &acr);
+			if (FAILED(hr)) {
+				DX_ERR(prop.to_chr(), nullptr, hr);
+				throw Dcx::dcxException("Unable to get Video Information");
+			}
+
+			swprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%f %f %f %f"), acr.DefaultValue, acr.MinValue, acr.MaxValue, acr.StepSize);
+			// NB: wnsprintf() doesn't support %f
+		}
+		break;
+		// [NAME] [ID] [PROP]
+		case L"crange"_hash:
+		{
+			VMR9ProcAmpControlRange acr;
+			auto hr = this->getVideoRange(ProcAmpControl9_Contrast, &acr);
+			if (FAILED(hr)) {
+				DX_ERR(prop.to_chr(), nullptr, hr);
+				throw Dcx::dcxException("Unable to get Video Information");
+			}
+
+			swprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%f %f %f %f"), acr.DefaultValue, acr.MinValue, acr.MaxValue, acr.StepSize);
+			// NB: wnsprintf() doesn't support %f
+		}
+		break;
+		// [NAME] [ID] [PROP]
+		case L"hrange"_hash:
+		{
+			VMR9ProcAmpControlRange acr;
+			auto hr = this->getVideoRange(ProcAmpControl9_Hue, &acr);
+			if (FAILED(hr)) {
+				DX_ERR(prop.to_chr(), nullptr, hr);
+				throw Dcx::dcxException("Unable to get Video Information");
+			}
+
+			swprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%f %f %f %f"), acr.DefaultValue, acr.MinValue, acr.MaxValue, acr.StepSize);
+			// NB: wnsprintf() doesn't support %f
+		}
+		break;
+		// [NAME] [ID] [PROP]
+		case L"srange"_hash:
+		{
+			VMR9ProcAmpControlRange acr;
+			auto hr = getVideoRange(ProcAmpControl9_Saturation, &acr);
+			if (FAILED(hr)) {
+				DX_ERR(prop.to_chr(), nullptr, hr);
+				throw Dcx::dcxException("Unable to get Video Information");
+			}
+
+			swprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%f %f %f %f"), acr.DefaultValue, acr.MinValue, acr.MaxValue, acr.StepSize);
+			// NB: wnsprintf() doesn't support %f
+		}
+		break;
+		// [NAME] [ID] [PROP]
+		case L"currentpos"_hash:
+			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("D_OK %I64u"), getPosition());
+			break;
+			// [NAME] [ID] [PROP]
+		case L"duration"_hash:
+		{
+			if (this->CheckSeekCapabilities(AM_SEEKING_CanGetDuration) & AM_SEEKING_CanGetDuration)
+				wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("D_OK %I64u"), this->getDuration());
+			else
+				szReturnValue = TEXT("D_ERROR Method Not Supported");
+		}
+		break;
+		// [NAME] [ID] [PROP]
+		case L"volume"_hash:
+			swprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("D_OK %ld"), getVolume());
+			break;
+			// [NAME] [ID] [PROP]
+		case L"state"_hash:
+		{
+			/*
+			sprintf(szReturnValue, TEXT("D_OK %s"), TEXT("nofile"));  // done
+			sprintf(szReturnValue, TEXT("D_OK %s"), TEXT("stopped")); // done
+			sprintf(szReturnValue, TEXT("D_OK %s"), TEXT("paused"));  // done
+			sprintf(szReturnValue, TEXT("D_OK %s"), TEXT("playing")); // done
+			sprintf(szReturnValue, TEXT("D_OK %s"), TEXT("rewind"));
+			sprintf(szReturnValue, TEXT("D_OK %s"), TEXT("fastforward"));
+			and anything else you can think of i guess
+			*/
+
+			OAFilterState pfs = 0;
+			PTCHAR szState = nullptr;
+			auto hr = this->m_pControl->GetState(1000, &pfs);
+
+			if (SUCCEEDED(hr)) {
+				switch (pfs) {
+				case State_Stopped:
+					szState = TEXT("stopped");
+					break;
+				case State_Paused:
+					szState = TEXT("paused");
+					break;
+				case State_Running:
+					szState = TEXT("playing");
+					break;
+				default:
+					szState = TEXT("unknown");
+					break;
+				}
+				wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("D_OK %s"), szState);
+			}
+			else {
+				DX_ERR(prop.to_chr(), nullptr, hr);
+				throw Dcx::dcxException("Unable to get State Information");
+			}
+		}
+		break;
+		default:
+			parseGlobalInfoRequest(input, szReturnValue);
+		}
+	}
+#else
 	const auto prop(input.getfirsttok(3));
 
 	if (this->m_pGraph == nullptr) {
@@ -286,6 +482,7 @@ void DcxDirectshow::parseInfoRequest( const TString & input, PTCHAR szReturnValu
 	}
 	else
 		this->parseGlobalInfoRequest(input, szReturnValue);
+#endif
 }
 
 /*!

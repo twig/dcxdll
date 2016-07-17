@@ -97,7 +97,7 @@ void DcxPanel::parseControlStyles( const TString &styles, LONG *Styles, LONG *Ex
  * \return > void
  */
 
-void DcxPanel::parseInfoRequest(const TString & input, PTCHAR szReturnValue) const
+void DcxPanel::parseInfoRequest(const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const
 {
 	parseGlobalInfoRequest(input, szReturnValue);
 }

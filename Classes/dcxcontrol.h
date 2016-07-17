@@ -153,8 +153,9 @@ public:
 	DcxControl( const UINT mID, DcxDialog *const p_Dialog );
 	virtual ~DcxControl( );
 
-	virtual void parseInfoRequest( const TString & input, PTCHAR szReturnValue ) const = 0;
-	virtual void parseCommandRequest( const TString & input ) = 0;
+	//virtual void parseInfoRequest( const TString & input, PTCHAR szReturnValue ) const = 0;
+	//virtual void parseInfoRequest(const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const = 0;
+	//virtual void parseCommandRequest( const TString & input ) = 0;
 	virtual void parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ) = 0;
 
 	void parseGeneralControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );

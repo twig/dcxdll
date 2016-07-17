@@ -1411,6 +1411,160 @@ const UINT DcxDialog::parseFlashFlags(const TString &flags) noexcept
 //		throw Dcx::dcxException("Invalid property or parameters");
 //}
 
+#if DCX_USE_HASHING
+void DcxDialog::parseInfoRequest(const TString &input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const
+{
+	const auto numtok = input.numtok();
+	switch (std::hash<TString>{}(input.getfirsttok(2)))
+	{
+		// [NAME] [PROP] [ID]
+	case L"isid"_hash:
+		if (numtok > 2) {
+			const auto nID = input.getnexttok().to_<UINT>() + mIRC_ID_OFFSET;	// tok 3
+			szReturnValue = dcx_truefalse(IsWindow(GetDlgItem(m_Hwnd, nID)) || (getControlByID(nID) != nullptr));
+		}
+		break;
+		// [NAME] [PROP]
+	case L"nextid"_hash:
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), getUniqueID() - mIRC_ID_OFFSET);
+		break;
+		// [NAME] [PROP] [N|NAMEDID]
+	case L"id"_hash:
+		if (numtok > 2) {
+			const auto tsID(input.getnexttok());	// tok 3
+			const auto N = tsID.to_int() - 1;
+
+			if (N == -1)
+			{
+				if (tsID == TEXT('0'))	// check its an actual zero, not some text name (which also gives a zero result)
+					wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), this->m_vpControls.size());
+				else
+				{
+					const auto it = m_NamedIds.find(tsID);
+					if (it != m_NamedIds.end())
+						wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), it->second - mIRC_ID_OFFSET);
+				}
+			}
+			else if ((N > -1) && (N < static_cast<int>(m_vpControls.size())))
+				wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), m_vpControls[N]->getUserID());
+		}
+		break;
+		// [NAME] [PROP]
+	case L"ismenu"_hash:
+		szReturnValue = dcx_truefalse(GetMenu(m_Hwnd) != nullptr);
+		break;
+		// [NAME] [PROP]
+	case L"ismarked"_hash:
+		// no need to test anything, if it got here we already know its marked.
+		szReturnValue = TEXT("$true");
+		break;
+		// [NAME] [PROP]
+	case L"parent"_hash:
+		szReturnValue = getParentName().to_chr();
+		break;
+		// [NAME] [PROP]
+	case L"mouseid"_hash:
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), m_MouseID);
+		break;
+		// [NAME] [PROP]
+	case L"focusid"_hash:
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), m_FocusID);
+		break;
+		// [NAME] [PROP]
+	case L"mouse"_hash:
+	{
+		POINT pt = { 0 };
+
+		if (GetCursorPos(&pt))
+			MapWindowPoints(nullptr, m_Hwnd, &pt, 1);
+
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d"), pt.x, pt.y);
+	}
+	break;
+	// [NAME] [PROP]
+	case L"key"_hash:
+	{
+		UINT iKeyState = 0;
+
+		if (GetAsyncKeyState(VK_LBUTTON) < 0)
+			iKeyState |= 1;
+		if (GetAsyncKeyState(VK_RBUTTON) < 0)
+			iKeyState |= 2;
+		if (GetAsyncKeyState(VK_MBUTTON) < 0)
+			iKeyState |= 4;
+		if (GetAsyncKeyState(VK_LSHIFT) < 0)
+			iKeyState |= 8;
+		if (GetAsyncKeyState(VK_LCONTROL) < 0)
+			iKeyState |= 16;
+		if (GetAsyncKeyState(VK_LMENU) < 0)
+			iKeyState |= 32;
+		if (GetAsyncKeyState(VK_RSHIFT) < 0)
+			iKeyState |= 64;
+		if (GetAsyncKeyState(VK_RCONTROL) < 0)
+			iKeyState |= 128;
+		if (GetAsyncKeyState(VK_RMENU) < 0)
+			iKeyState |= 256;
+		if (GetAsyncKeyState(VK_LEFT) < 0)
+			iKeyState |= 512;
+		if (GetAsyncKeyState(VK_UP) < 0)
+			iKeyState |= 1024;
+		if (GetAsyncKeyState(VK_RIGHT) < 0)
+			iKeyState |= 2048;
+		if (GetAsyncKeyState(VK_DOWN) < 0)
+			iKeyState |= 4096;
+		if (GetAsyncKeyState(VK_CAPITAL) < 0)
+			iKeyState |= 8192;
+
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), iKeyState);
+	}
+	break;
+	// [NAME] [PROP]
+	case L"alias"_hash:
+		szReturnValue = getAliasName().to_chr();
+		break;
+		// [NAME] [PROP] [N]
+	case L"zlayer"_hash:
+		if (numtok > 2) {
+			const auto n = input.getnexttok().to_<VectorOfInts::size_type>();	// tok 3
+			const auto size = m_vZLayers.size();
+
+			if (n > size)
+				throw Dcx::dcxException("Out Of Range");
+
+			// return total number of id's
+			if (n == 0)
+				wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), size);
+			// return the Nth id
+			else
+				wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), m_vZLayers[n - 1] - mIRC_ID_OFFSET);
+		}
+		break;
+		// [NAME] [PROP]
+	case L"zlayercurrent"_hash:
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), m_zLayerCurrent + 1);
+		break;
+		// [NAME] [PROP]
+	case L"visible"_hash:
+		szReturnValue = dcx_truefalse((IsWindowVisible(m_Hwnd) != FALSE));
+		break;
+		// [NAME] [PROP]
+	case L"glasscolor"_hash:
+	{
+		RGBQUAD clr = { 0 };
+		auto bOpaque = FALSE;
+		if (SUCCEEDED(Dcx::VistaModule.dcxDwmGetColorizationColor((DWORD *)&clr, &bOpaque)))
+			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), RGB(clr.rgbRed, clr.rgbGreen, clr.rgbBlue));
+		else
+			szReturnValue = TEXT("-FAIL Unable to get Glass colour.");
+	}
+	break;
+	// invalid info request
+	default:
+		throw Dcx::dcxException("Invalid property or parameters");
+		break;
+	}
+}
+#else
 void DcxDialog::parseInfoRequest2(const TString &input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const
 {
 	const auto numtok = input.numtok();
@@ -1549,6 +1703,7 @@ void DcxDialog::parseInfoRequest2(const TString &input, const refString<TCHAR, M
 	else
 		throw Dcx::dcxException("Invalid property or parameters");
 }
+#endif
 
 /*!
  * \brief blah
@@ -1911,7 +2066,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 
 							//stString<256> sRet;
 							//
-							//p_this->evalAlias(sRet, Dcx::countof(sRet), TEXT("max,0"));
+							//p_this->evalAlias(sRet, sRet.size(), TEXT("max,0"));
 							//
 							//if (sRet != TEXT("stop")) {
 							//	bParsed = TRUE;
@@ -1967,7 +2122,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 						stString<256> sRet;
 
 						if (dcx_testflag(p_this->m_dEventMask, DCX_EVENT_SIZE)) // mask only controls sending of event, if event isnt sent then DefWindowProc should still be called.
-							p_this->evalAlias(sRet, Dcx::countof(sRet), TEXT("beginsize,0"));
+							p_this->evalAlias(sRet, sRet.size(), TEXT("beginsize,0"));
 
 						if (sRet != TEXT("nosize")) {
 							bParsed = TRUE;
@@ -2482,7 +2637,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 						}
 						// for each file, send callback message
 						for (auto i = decltype(count){0}; i < count; i++) {
-							if (DragQueryFile(files, i, stFilename, Dcx::countof(stFilename)))
+							if (DragQueryFile(files, i, stFilename, stFilename.size()))
 								p_this->execAliasEx(TEXT("dragfile,0,%s"), stFilename.data());
 						}
 

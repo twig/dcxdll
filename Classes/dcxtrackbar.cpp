@@ -192,8 +192,30 @@ void DcxTrackBar::parseControlStyles( const TString & styles, LONG * Styles, LON
  * \return > void
  */
 
-void DcxTrackBar::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) const
+void DcxTrackBar::parseInfoRequest( const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const
 {
+#if DCX_USE_HASHING
+	switch (std::hash<TString>{}(input.getfirsttok(3)))
+	{
+	case L"value"_hash:
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), this->getPos());
+		break;
+	case L"range"_hash:
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d"), this->getRangeMin(), this->getRangeMax());
+		break;
+	case L"line"_hash:
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), this->getLineSize());
+		break;
+	case L"page"_hash:
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), this->getPageSize());
+		break;
+	case L"selrange"_hash:
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d"), this->getSelStart(), this->getSelEnd());
+		break;
+	default:
+		parseGlobalInfoRequest(input, szReturnValue);
+	}
+#else
 	const auto prop(input.getfirsttok(3));
 
 	if ( prop == TEXT("value") )
@@ -208,6 +230,7 @@ void DcxTrackBar::parseInfoRequest( const TString & input, PTCHAR szReturnValue 
 		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d"), this->getSelStart(), this->getSelEnd());
 	else
 		this->parseGlobalInfoRequest(input, szReturnValue);
+#endif
 }
 /*!
 * \brief blah

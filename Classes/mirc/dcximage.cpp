@@ -121,16 +121,15 @@ void DcxImage::parseControlStyles(const TString &styles, LONG *Styles, LONG *ExS
  * \return > void
  */
 
-void DcxImage::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) const
+void DcxImage::parseInfoRequest( const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const
 {
 	const auto prop(input.getfirsttok(3));
 
 	// [NAME] [ID] [PROP]
-	if (prop == TEXT("fname")) {
-		dcx_strcpyn(szReturnValue, this->m_tsFilename.to_chr(), MIRC_BUFFER_SIZE_CCH);
-	}
+	if (prop == TEXT("fname"))
+		szReturnValue = m_tsFilename.to_chr();
 	else
-		this->parseGlobalInfoRequest(input, szReturnValue);
+		parseGlobalInfoRequest(input, szReturnValue);
 }
 
 // clears existing image and icon data and sets pointers to null

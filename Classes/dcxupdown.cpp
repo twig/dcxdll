@@ -145,7 +145,7 @@ void DcxUpDown::parseControlStyles( const TString & styles, LONG * Styles, LONG 
  * \return > void
  */
 
-void DcxUpDown::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) const
+void DcxUpDown::parseInfoRequest( const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const
 {
 	const auto prop(input.getfirsttok(3));
 

@@ -404,8 +404,590 @@ void DcxListView::parseListviewExStyles( const TString & styles, LONG * ExStyles
 * \return > void
 */
 
-void DcxListView::parseInfoRequest( const TString &input, PTCHAR szReturnValue) const
+void DcxListView::parseInfoRequest( const TString &input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const
 {
+#if DCX_USE_HASHING
+	const auto numtok = input.numtok();
+
+	switch (std::hash<TString>{}(input.getfirsttok(3)))
+	{
+		// [NAME] [ID] [PROP] [N] [NSUB]
+	case L"columns"_hash:
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), this->getColumnCount());
+		break;
+		// [NAME] [ID] [PROP] (N)
+	case L"columnorder"_hash:
+	{
+		// if its a report listview and it has headers
+		const auto count = this->getColumnCount();
+		const auto col = (numtok > 3 ? input++.to_int() - 1 : -1);	// tok 4
+
+																	// invalid column
+		if ((col < -1) || (col >= count) || (count <= 0))
+			throw Dcx::dcxException("Out of Range");
+
+		auto val = std::make_unique<int[]>((UINT)count);
+
+		ListView_GetColumnOrderArray(m_Hwnd, count, val.get());
+
+		// increase each value by 1 for easy user indexing
+		for (auto i = decltype(count){0}; i < count; i++)
+			val[i]++;
+
+		// get specific column
+		if (col > -1) {
+			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), val[col]);
+			return;
+		}
+
+		// collect all values
+		TString buff((UINT)(count * 32));
+
+		for (auto i = decltype(count){0}; i < count; i++)
+			buff.addtok(val[i]);
+
+		szReturnValue = buff.trim().to_chr();
+	}
+	break;
+	// [NAME] [ID] [PROP] [N] (NSUB)
+	case L"text"_hash:
+	{
+		if (numtok < 4)
+			throw Dcx::dcxException("Invalid number of arguments");
+
+		const auto nItem = input++.to_int() - 1;		// tok 4
+		auto nSubItem = 0;
+
+		if (numtok > 4)
+			nSubItem = input++.to_int() - 1;			// tok 5
+		if ((nItem < 0) || (nSubItem < 0) || (nItem >= ListView_GetItemCount(m_Hwnd)))
+			throw Dcx::dcxException("Out of Range");
+
+		ListView_GetItemText(m_Hwnd, nItem, nSubItem, szReturnValue, MIRC_BUFFER_SIZE_CCH);
+	}
+	break;
+	// [NAME] [ID] [PROP] [N] [NSUB]
+	case L"icon"_hash:
+	{
+		if (numtok < 5)
+			throw Dcx::dcxException("Invalid number of arguments");
+
+		const auto nItem = input++.to_int() - 1;	// tok 4
+		const auto nSubItem = input++.to_int() - 1;	// tok 5
+
+		if ((nItem < 0) || (nSubItem < 0) || (nItem >= ListView_GetItemCount(m_Hwnd)) || (nSubItem >= this->getColumnCount()))
+			throw Dcx::dcxException("Out of Range");
+
+		LVITEM lvi;
+		lvi.mask = LVIF_IMAGE;
+		lvi.iItem = nItem;
+		lvi.iSubItem = nSubItem;
+
+		ListView_GetItem(m_Hwnd, &lvi);
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), lvi.iImage + 1);
+	}
+	break;
+	// [NAME] [ID] [PROP] [N]
+	case L"selected"_hash:
+	{
+		if (numtok < 4)
+			throw Dcx::dcxException("Invalid number of arguments");
+
+		const auto nItem = input++.to_int() - 1;	// tok 4
+													// In range
+		if ((nItem < 0) || (nItem >= ListView_GetItemCount(m_Hwnd)))
+			throw Dcx::dcxException("Out of Range");
+
+		szReturnValue = dcx_truefalse(dcx_testflag(ListView_GetItemState(m_Hwnd, nItem, LVIS_SELECTED), LVIS_SELECTED));
+	}
+	break;
+	// [NAME] [ID] [PROP] (NSUB)
+	case L"seltext"_hash:
+	{
+		const auto nItem = ListView_GetNextItem(m_Hwnd, -1, LVIS_SELECTED);
+		auto nSubItem = 0;
+
+		if (numtok > 3)
+			nSubItem = input++.to_int() - 1;	// tok 4
+
+		if ((nItem > -1) && (nSubItem > -1))
+			ListView_GetItemText(m_Hwnd, nItem, nSubItem, szReturnValue, MIRC_BUFFER_SIZE_CCH);
+	}
+	break;
+	// [NAME] [ID] [PROP] (N)
+	case L"sel"_hash:
+	{
+		if (this->isStyle(LVS_SINGLESEL)) {
+			const auto nItem = ListView_GetNextItem(m_Hwnd, -1, LVIS_SELECTED);
+
+			if (nItem > -1)
+				wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), nItem + 1);
+		}
+		// multi select
+		else {
+			const auto nSelItems = ListView_GetSelectedCount(m_Hwnd);
+			auto nItem = -1;
+
+			// if we want a specific index
+			if (numtok > 3) {
+				const auto n = input++.to_<UINT>();	// tok 4
+													// sel index out of bounds
+				if (n > nSelItems)
+					return;
+
+				// return total count of selected files
+				if (n == 0) {
+					wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), nSelItems);
+					return;
+				}
+
+				for (auto i = decltype(n){1}; i <= n; i++)	// find the Nth selected item.
+					nItem = ListView_GetNextItem(m_Hwnd, nItem, LVIS_SELECTED);
+
+				if (nItem != -1)
+					wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), nItem + 1);
+			}
+
+			// otherwise we want a list of indexes (comma seperated)
+			else if (nSelItems > 0) {
+				TString list;
+
+				while ((nItem = ListView_GetNextItem(m_Hwnd, nItem, LVIS_SELECTED)) != -1)
+					list.addtok((nItem + 1), TSCOMMACHAR);
+
+				szReturnValue = list.to_chr();
+			}
+		}
+	}
+	break;
+	// [NAME] [ID] [PROP]
+	case L"selnum"_hash:
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), ListView_GetSelectedCount(m_Hwnd));
+		break;
+		// [NAME] [ID] [PROP] [N]
+	case L"state"_hash:
+	{
+		if (numtok < 4)
+			throw Dcx::dcxException("Invalid number of arguments");
+
+		const auto nItem = input++.to_int() - 1;	// tok 4
+		if ((nItem < 0) || (nItem >= ListView_GetItemCount(m_Hwnd)))
+			throw Dcx::dcxException("Out of Range");
+
+		if (this->isListViewStyle(LVS_REPORT)) {
+
+			const auto state = ListView_GetItemState(m_Hwnd, nItem, LVIS_STATEIMAGEMASK);
+
+			if (state == 8192)
+				szReturnValue = TEXT('2');
+			else
+			{
+				if (state == 4096)
+					szReturnValue = TEXT('1');
+				else
+					szReturnValue = TEXT('0');
+			}
+		}
+		else
+			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), ListView_GetItemState(m_Hwnd, nItem, LVIS_STATEIMAGEMASK));
+	}
+	break;
+	// [NAME] [ID] [PROP]
+	case L"num"_hash:
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), ListView_GetItemCount(m_Hwnd));
+		break;
+		// [NAME] [ID] [PROP] {TAB}[MATCHTEXT]{TAB} [T] [COLUMN] [N]
+	case L"find"_hash:
+	{
+		if (numtok < 7)
+			throw Dcx::dcxException("Invalid number of arguments");
+
+		const auto matchtext(input.getfirsttok(2, TSTABCHAR).trim());
+		const auto params(input.getnexttok(TSTABCHAR).trim());			// tok 3
+
+		if (!matchtext.empty()) {
+
+			auto SearchType = DcxSearchTypes::SEARCH_E;
+			const auto searchMode(params++[0]);
+			if (searchMode == TEXT('R'))
+				SearchType = DcxSearchTypes::SEARCH_R;
+			else if (searchMode == TEXT('W'))
+				SearchType = DcxSearchTypes::SEARCH_W;
+
+			const auto nColumn = params++.to_int() - 1;	// tok 2
+			const auto N = params++.to_int();			// tok 3
+			const auto nItems = ListView_GetItemCount(m_Hwnd);
+			const auto nColumns = this->getColumnCount();
+			auto count = decltype(N){0};
+
+			// count total
+			if (N == 0) {
+				// Search all columns
+				if (nColumn == -1) {
+
+					for (auto i = decltype(nItems){0}; i < nItems; i++) {
+						for (auto k = decltype(nColumns){0}; k < nColumns; k++) {
+
+							if (this->matchItemText(i, k, matchtext, SearchType))
+								count++;
+						}
+					}
+				}
+				// Particular Column
+				else {
+
+					if (nColumn < -1 || nColumn >= nColumns)
+						throw Dcx::dcxException("Out of Range");
+
+					for (auto i = decltype(nItems){0}; i < nItems; i++) {
+
+						if (this->matchItemText(i, nColumn, matchtext, SearchType))
+							count++;
+					}
+				}
+
+				wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), count);
+			} // if ( N == 0 )
+			  // find Nth matching
+			else {
+				// Search all columns
+				if (nColumn == -1) {
+
+					for (auto i = decltype(nItems){0}; i < nItems; i++) {
+
+						for (auto k = decltype(nColumns){0}; k < nColumns; k++) {
+
+							if (this->matchItemText(i, k, matchtext, SearchType))
+								count++;
+
+							// found Nth matching
+							if (count == N)
+								wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d"), i + 1, k + 1);
+						}
+					}
+				}
+				// Particular Column
+				else {
+
+					if (nColumn < -1 || nColumn >= nColumns)
+						throw Dcx::dcxException("Out of Range");
+
+					for (auto i = decltype(nItems){0}; i < nItems; i++) {
+
+						if (this->matchItemText(i, nColumn, matchtext, SearchType))
+							count++;
+
+						// found Nth matching
+						if (count == N)
+							wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d"), i + 1, nColumn + 1);
+					}
+				} //else
+			} // else
+		} // if ( !matchtext.empty() )
+	}
+	break;
+	// [NAME] [ID] [PROP]
+	case L"tbitem"_hash:
+	{
+		if (this->isStyle(LVS_REPORT) || this->isStyle(LVS_LIST))
+			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d"), this->getTopIndex() + 1, this->getBottomIndex() + 1);
+	}
+	break;
+	case L"mouseitem"_hash:
+	{
+		LVHITTESTINFO lvh;
+		if (GetCursorPos(&lvh.pt))
+		{
+			MapWindowPoints(nullptr, m_Hwnd, &lvh.pt, 1);
+			ListView_SubItemHitTest(m_Hwnd, &lvh);
+
+			if ((lvh.flags & LVHT_ONITEM) != 0)
+				wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d"), lvh.iItem + 1, lvh.iSubItem + 1);
+			else
+				szReturnValue = TEXT("-1 -1");
+		}
+	}
+	break;
+	// [NAME] [ID] [PROP] (N)
+	case L"hwidth"_hash:
+	{
+		auto nColumn = -1;
+
+		if (numtok > 3)
+			nColumn = input.getnexttok().to_int() - 1;	// tok 4
+
+		const auto count = this->getColumnCount();
+
+		// return all columns
+		if (nColumn == -1) {
+			TString buff((UINT)(count * 32));
+
+			for (auto i = decltype(count){0}; i < count; i++)
+				buff.addtok(ListView_GetColumnWidth(m_Hwnd, i));
+
+			szReturnValue = buff.trim().to_chr();
+		}
+		else {
+			if (nColumn < 0 || nColumn >= count)
+				throw Dcx::dcxException("Column Out Of Range");
+
+			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), ListView_GetColumnWidth(m_Hwnd, nColumn));
+		}
+	}
+	break;
+	// [NAME] [ID] [PROP] [N]
+	case L"htext"_hash:
+	{
+		if (numtok < 4)
+			throw Dcx::dcxException("Invalid number of arguments");
+
+		const auto nColumn = input.getnexttok().to_int() - 1;	// tok 4
+
+		if (nColumn < 0 || nColumn >= this->getColumnCount())
+			throw Dcx::dcxException("Column Out Of Range");
+
+		LVCOLUMN lvc;
+		ZeroMemory(&lvc, sizeof(LVCOLUMN));
+		lvc.mask = LVCF_TEXT;
+		lvc.cchTextMax = MIRC_BUFFER_SIZE_CCH;
+		lvc.pszText = szReturnValue;
+
+		ListView_GetColumn(m_Hwnd, nColumn, &lvc);
+	}
+	break;
+	// [NAME] [ID] [PROP] [N]
+	case L"hicon"_hash:
+	{
+		if (numtok < 4)
+			throw Dcx::dcxException("Invalid number of arguments");
+
+		const auto nColumn = input.getnexttok().to_int() - 1;	// tok 4
+
+		if (nColumn < 0 || nColumn >= this->getColumnCount())
+			throw Dcx::dcxException("Column Out Of Range");
+
+		LVCOLUMN lvc;
+		ZeroMemory(&lvc, sizeof(LVCOLUMN));
+		lvc.mask = LVCF_IMAGE;
+
+		if (ListView_GetColumn(m_Hwnd, nColumn, &lvc))
+			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), lvc.iImage + 1);
+	}
+	break;
+	// [NAME] [ID] [PROP] [N]
+	case L"hstate"_hash:
+	{
+		if (numtok != 4)
+			throw Dcx::dcxException("Invalid number of arguments");
+
+		auto h = ListView_GetHeader(m_Hwnd);
+		if (!IsWindow(h))
+			throw Dcx::dcxException("Unable to get Header Window");
+
+		const auto nCol = (input.getnexttok().to_int() - 1);	// tok 4
+
+		if (nCol < 0 || nCol >= this->getColumnCount())
+			throw Dcx::dcxException("Column Out Of Range");
+
+		TString tsRes;
+		HDITEM hdr = { 0 };
+		hdr.mask = HDI_FORMAT;
+
+		if (!Header_GetItem(h, nCol, &hdr))
+			throw Dcx::dcxException("Unable to get Header Info");
+
+		if (dcx_testflag(hdr.fmt, HDF_SORTDOWN))
+			tsRes.addtok(TEXT("sortdown"));
+		if (dcx_testflag(hdr.fmt, HDF_SORTUP))
+			tsRes.addtok(TEXT("sortup"));
+		if (dcx_testflag(hdr.fmt, HDF_CHECKBOX))
+			tsRes.addtok(TEXT("checkbox"));
+		if (dcx_testflag(hdr.fmt, HDF_CHECKED))
+			tsRes.addtok(TEXT("checked"));
+		if (dcx_testflag(hdr.fmt, HDF_SPLITBUTTON))
+			tsRes.addtok(TEXT("dropdown"));
+
+		szReturnValue = tsRes.to_chr();
+	}
+	break;
+	// [NAME] [ID] [PROP] [GID]
+	case L"gtext"_hash:
+	{
+		if (numtok < 4)
+			throw Dcx::dcxException("Invalid number of arguments");
+
+		const auto GID = input.getnexttok().to_int();	// tok 4
+
+		auto wstr = std::make_unique<WCHAR[]>(MIRC_BUFFER_SIZE_CCH + 1);
+		wstr[0] = TEXT('\0');
+
+		LVGROUP lvg;
+		ZeroMemory(&lvg, sizeof(LVGROUP));
+		lvg.cbSize = sizeof(LVGROUP);
+		lvg.mask = LVGF_HEADER;
+		lvg.cchHeader = MIRC_BUFFER_SIZE_CCH;
+		lvg.pszHeader = wstr.get();
+
+		if (ListView_GetGroupInfo(m_Hwnd, GID, &lvg) != -1)
+			szReturnValue = lvg.pszHeader;
+	}
+	break;
+	// [NAME] [ID] [PROP] [N]
+	case L"genabled"_hash:
+		szReturnValue = dcx_truefalse(ListView_IsGroupViewEnabled(m_Hwnd) != FALSE);
+		break;
+		// [NAME] [ID] [PROP] [N] [NSUB] [PBARPROP] [PARAM]
+	case L"pbar"_hash:
+	{
+		if (numtok < 6)
+			throw Dcx::dcxException("Invalid number of arguments");
+
+		const auto nItem = input.getnexttok().to_int() - 1;	// tok 4
+		const auto nSubItem = input.getnexttok().to_int() - 1;	// tok 5
+
+		if (nItem < 0 || nSubItem < 0 || nItem >= ListView_GetItemCount(m_Hwnd))
+			throw Dcx::dcxException("Out of Range");
+
+		LVITEM lvi;
+
+		ZeroMemory(&lvi, sizeof(LVITEM));
+		lvi.mask = LVIF_PARAM;
+		lvi.iItem = nItem;
+
+		if (!ListView_GetItem(m_Hwnd, &lvi))
+			throw Dcx::dcxException("Unable to get Item");
+
+		auto lvdcx = reinterpret_cast<LPDCXLVITEM>(lvi.lParam);
+
+		if (lvdcx == nullptr || lvdcx->pbar == nullptr || lvdcx->iPbarCol != nSubItem)
+			throw Dcx::dcxException("No Progessbar Here");
+
+		//const TString cmd(input.gettok( 1 ) + TEXT(" ") + input.gettok( 2 ) + TEXT(" ") + input.getlasttoks());	// tok 6, -1
+		//const TString cmd(this->m_pParentDialog->getName() + TEXT(" ") + input.gettok(2) + TEXT(" ") + input.getlasttoks());	// tok 6, -1
+		const TString cmd{ this->m_pParentDialog->getName(), TEXT(" "), input.gettok(2), TEXT(" "), input.getlasttoks() };	// tok 6, -1
+		lvdcx->pbar->parseInfoRequest(cmd, szReturnValue);
+	}
+	break;
+	// [NAME] [ID] [PROP] [N]
+	case L"gnum"_hash:
+	{
+		if (Dcx::VistaModule.isVista())
+			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), ListView_GetGroupCount(m_Hwnd));
+		else {
+			auto gcount = 0U;
+			for (auto g = 0U; g < 256U; g++) { if (ListView_HasGroup(m_Hwnd, static_cast<WPARAM>(g))) gcount++; }
+			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), gcount);
+		}
+	}
+	break;
+	// [NAME] [ID] [PROP] [N]
+	case L"gid"_hash:
+	{
+		const auto iIndex = input.getnexttok().to_int() - 1;	// tok 4
+
+		if (iIndex < 0 || iIndex >= ListView_GetItemCount(m_Hwnd))
+			throw Dcx::dcxException(TEXT("Invalid Item: %"), iIndex);
+
+		LVITEM lvi;
+		ZeroMemory(&lvi, sizeof(LVITEM));
+		lvi.iItem = iIndex;
+		lvi.mask = LVIF_GROUPID;
+
+		if (!ListView_GetItem(m_Hwnd, &lvi))
+			throw Dcx::dcxException("Unable to get Group ID");
+
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), lvi.iGroupId); // group id can be -2 (Not In group), -1 (groupcallback, should never be), 0+ groupid
+	}
+	break;
+	// [NAME] [ID] [PROP] [ROW] [COL]
+	case L"markeditem"_hash:
+	{
+		auto nRow = input.getnexttok().to_int();	// tok 4
+		auto nCol = input.getnexttok().to_int();	// tok 5
+
+													// 1-based indexes.
+		if ((nRow < 1) || (nRow > ListView_GetItemCount(m_Hwnd)))
+			throw Dcx::dcxException(TEXT("Invalid item index %"), nRow);
+
+		if ((nCol < 1) || (nCol > this->getColumnCount()))
+			throw Dcx::dcxException(TEXT("Invalid column index %"), nCol);
+
+		// Convert to 0-index
+		nRow--;
+		nCol--;
+
+		LVITEM lvi;
+		lvi.mask = LVIF_PARAM;
+		lvi.iItem = nRow;
+		lvi.iSubItem = nCol;
+
+		if (!ListView_GetItem(m_Hwnd, &lvi))
+			throw Dcx::dcxException(TEXT("Unable to get item: % %"), nRow, nCol);
+
+		szReturnValue = ((LPDCXLVITEM)lvi.lParam)->tsMark.to_chr();
+	}
+	break;
+	// [NAME] [ID] [PROP]
+	case L"emptytext"_hash:
+	{
+		if (Dcx::VistaModule.isUseable())
+			ListView_GetEmptyText(m_Hwnd, (TCHAR *)szReturnValue, MIRC_BUFFER_SIZE_CCH);
+	}
+	break;
+	// [NAME] [ID] [PROP] [GID]
+	case L"gstate"_hash:
+	{
+		if (numtok != 4)
+			throw Dcx::dcxException("Invalid number of arguments");
+
+		TString tsFlags('+');
+
+		if (Dcx::VistaModule.isVista()) {
+			const auto gid = input.getnexttok().to_int();	// tok 4
+			const UINT iMask = LVGS_COLLAPSIBLE | LVGS_HIDDEN | LVGS_NOHEADER | LVGS_COLLAPSED | LVGS_SELECTED;
+
+			const auto iState = ListView_GetGroupState(m_Hwnd, gid, iMask);
+
+			if (dcx_testflag(iState, LVGS_COLLAPSIBLE))
+				tsFlags += TEXT('C');
+			if (dcx_testflag(iState, LVGS_HIDDEN))
+				tsFlags += TEXT('H');
+			if (dcx_testflag(iState, LVGS_NOHEADER))
+				tsFlags += TEXT('N');
+			if (dcx_testflag(iState, LVGS_COLLAPSED))
+				tsFlags += TEXT('O');
+			if (dcx_testflag(iState, LVGS_SELECTED))
+				tsFlags += TEXT('S');
+		}
+		szReturnValue = tsFlags.to_chr();
+	}
+	break;
+	// [NAME] [ID] [PROP] [flags]
+	case L"icons"_hash:
+	{
+		if (numtok != 4)
+			throw Dcx::dcxException("Invalid number of arguments");
+
+		const auto iFlags = parseIconFlagOptions(input.getnexttok());	// tok 4
+
+		UINT iCount = 0;
+		if (dcx_testflag(iFlags, LVSIL_SMALL)) {
+			auto himl = getImageList(LVSIL_NORMAL);
+			if (himl != nullptr)
+				iCount += ImageList_GetImageCount(himl);
+		}
+		if (dcx_testflag(iFlags, LVSIL_STATE)) {
+			auto himl = getImageList(LVSIL_STATE);
+			if (himl != nullptr)
+				iCount += ImageList_GetImageCount(himl);
+		}
+		wsprintf(szReturnValue, TEXT("%u"), iCount);
+	}
+	break;
+	default:
+		parseGlobalInfoRequest(input, szReturnValue);
+	}
+#else
 	const auto numtok = input.numtok();
 
 	const auto prop(input.getfirsttok(3));
@@ -444,7 +1026,7 @@ void DcxListView::parseInfoRequest( const TString &input, PTCHAR szReturnValue) 
 		for (auto i = decltype(count){0}; i < count; i++)
 			buff.addtok(val[i]);
 
-		dcx_strcpyn(szReturnValue, buff.trim().to_chr(), MIRC_BUFFER_SIZE_CCH);
+		szReturnValue = buff.trim().to_chr();
 	}
 	// [NAME] [ID] [PROP] [N] (NSUB)
 	else if (prop == TEXT("text") && numtok > 3) {
@@ -482,8 +1064,7 @@ void DcxListView::parseInfoRequest( const TString &input, PTCHAR szReturnValue) 
 		if ((nItem < 0) || (nItem >= ListView_GetItemCount(m_Hwnd)))
 			throw Dcx::dcxException("Out of Range");
 
-		const auto selected = dcx_testflag(ListView_GetItemState(m_Hwnd, nItem, LVIS_SELECTED), LVIS_SELECTED);
-		dcx_Con(selected, szReturnValue);
+		szReturnValue = dcx_truefalse(dcx_testflag(ListView_GetItemState(m_Hwnd, nItem, LVIS_SELECTED), LVIS_SELECTED));
 	}
 	// [NAME] [ID] [PROP] (NSUB)
 	else if ( prop == TEXT("seltext")) {
@@ -536,7 +1117,7 @@ void DcxListView::parseInfoRequest( const TString &input, PTCHAR szReturnValue) 
 				while ((nItem = ListView_GetNextItem(m_Hwnd, nItem, LVIS_SELECTED)) != -1)
 					list.addtok((nItem + 1), TSCOMMACHAR);
 
-				dcx_strcpyn(szReturnValue, list.to_chr(), MIRC_BUFFER_SIZE_CCH);
+				szReturnValue = list.to_chr();
 			}
 		}
 	}
@@ -557,11 +1138,18 @@ void DcxListView::parseInfoRequest( const TString &input, PTCHAR szReturnValue) 
 			const auto state = ListView_GetItemState(m_Hwnd, nItem, LVIS_STATEIMAGEMASK);
 
 			if (state == 8192) {
-				szReturnValue[0] = TEXT('2');
-				szReturnValue[1] = TEXT('\0');
+				szReturnValue[0U] = TEXT('2');
+				szReturnValue[1U] = TEXT('\0');
 			}
 			else
-				dcx_ConChar(state == 4096, szReturnValue);
+			{
+				if (state == 4096)
+					szReturnValue[0U] = TEXT('1');
+				else
+					szReturnValue[0U] = TEXT('0');
+
+				szReturnValue[1U] = 0;
+			}
 		}
 		else
 			wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), ListView_GetItemState( m_Hwnd, nItem, LVIS_STATEIMAGEMASK ) );
@@ -674,7 +1262,7 @@ void DcxListView::parseInfoRequest( const TString &input, PTCHAR szReturnValue) 
 			if ((lvh.flags & LVHT_ONITEM) != 0)
 				wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d"), lvh.iItem + 1, lvh.iSubItem + 1);
 			else
-				dcx_strcpyn(szReturnValue, TEXT("-1 -1"), MIRC_BUFFER_SIZE_CCH);
+				szReturnValue = TEXT("-1 -1");
 		}
 	}
 	// [NAME] [ID] [PROP] (N)
@@ -693,7 +1281,7 @@ void DcxListView::parseInfoRequest( const TString &input, PTCHAR szReturnValue) 
 			for (auto i = decltype(count){0}; i < count; i++)
 				buff.addtok( ListView_GetColumnWidth(m_Hwnd, i) );
 
-			dcx_strcpyn(szReturnValue, buff.trim().to_chr(), MIRC_BUFFER_SIZE_CCH);
+			szReturnValue = buff.trim().to_chr();
 		}
 		else {
 			if (nColumn < 0 || nColumn >= count)
@@ -763,7 +1351,7 @@ void DcxListView::parseInfoRequest( const TString &input, PTCHAR szReturnValue) 
 		if (dcx_testflag(hdr.fmt, HDF_SPLITBUTTON))
 			tsRes.addtok(TEXT("dropdown"));
 
-		dcx_strcpyn(szReturnValue, tsRes.to_chr(), MIRC_BUFFER_SIZE_CCH);
+		szReturnValue = tsRes.to_chr();
 	}
 	// [NAME] [ID] [PROP] [GID]
 	else if ( prop == TEXT("gtext") && numtok > 3 ) {
@@ -781,12 +1369,11 @@ void DcxListView::parseInfoRequest( const TString &input, PTCHAR szReturnValue) 
 		lvg.pszHeader = wstr.get();
 
 		if ( ListView_GetGroupInfo( m_Hwnd, GID, &lvg ) != -1 )
-			dcx_strcpyn(szReturnValue, lvg.pszHeader, MIRC_BUFFER_SIZE_CCH);
+			szReturnValue = lvg.pszHeader;
 	}
 	// [NAME] [ID] [PROP] [N]
 	else if ( prop == TEXT("genabled") ) {
-
-		dcx_Con((ListView_IsGroupViewEnabled(m_Hwnd) != FALSE), szReturnValue);
+		szReturnValue = dcx_truefalse(ListView_IsGroupViewEnabled(m_Hwnd) != FALSE);
 	}
 	// [NAME] [ID] [PROP] [N] [NSUB] [PBARPROP] [PARAM]
 	else if ((prop == TEXT("pbar")) && (numtok > 5)) {
@@ -866,12 +1453,12 @@ void DcxListView::parseInfoRequest( const TString &input, PTCHAR szReturnValue) 
 		if (!ListView_GetItem(m_Hwnd, &lvi))
 			throw Dcx::dcxException(TEXT("Unable to get item: % %"), nRow, nCol);
 		
-		dcx_strcpyn(szReturnValue, ((LPDCXLVITEM)lvi.lParam)->tsMark.to_chr(), MIRC_BUFFER_SIZE_CCH);
+		szReturnValue = ((LPDCXLVITEM)lvi.lParam)->tsMark.to_chr();
 	}
 	// [NAME] [ID] [PROP]
 	else if (prop == TEXT("emptytext")) {
 		if (Dcx::VistaModule.isUseable())
-			ListView_GetEmptyText(m_Hwnd, szReturnValue, MIRC_BUFFER_SIZE_CCH);
+			ListView_GetEmptyText(m_Hwnd, (TCHAR *)szReturnValue, MIRC_BUFFER_SIZE_CCH);
 	}
 	// [NAME] [ID] [PROP] [GID]
 	else if ( prop == TEXT("gstate") && numtok == 4 ) {
@@ -895,7 +1482,7 @@ void DcxListView::parseInfoRequest( const TString &input, PTCHAR szReturnValue) 
 			if (dcx_testflag(iState, LVGS_SELECTED))
 				tsFlags += TEXT('S');
 		}
-		dcx_strcpyn(szReturnValue, tsFlags.to_chr(), MIRC_BUFFER_SIZE_CCH);
+		szReturnValue = tsFlags.to_chr();
 	}
 	// [NAME] [ID] [PROP] [flags]
 	else if (prop == TEXT("icons") && numtok == 4) {
@@ -916,6 +1503,7 @@ void DcxListView::parseInfoRequest( const TString &input, PTCHAR szReturnValue) 
 	}
 	else
 		this->parseGlobalInfoRequest(input, szReturnValue);
+#endif
 }
 
 void DcxListView::autoSize(const int nColumn, const TString &flags)

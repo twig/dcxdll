@@ -163,7 +163,7 @@ void DcxReBar::parseControlStyles( const TString & styles, LONG * Styles, LONG *
 	for (const auto &tsStyle: styles)
 	{
 #if DCX_USE_HASHING
-		switch (dcx_hash(tsStyle.to_chr()))
+		switch (std::hash<TString>{}(tsStyle))
 		{
 			case L"borders"_hash:
 				*Styles |= RBS_BANDBORDERS;
@@ -288,8 +288,76 @@ void DcxReBar::setImageList(HIMAGELIST himl) {
  * \return > void
  */
 
-void DcxReBar::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) const
+void DcxReBar::parseInfoRequest( const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const
 {
+#if DCX_USE_HASHING
+	const auto numtok = input.numtok();
+
+	switch (std::hash<TString>{}(input.getfirsttok(3)))
+	{
+	case L"num"_hash:
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), this->getBandCount());
+		break;
+		// [NAME] [ID] [PROP] [N]
+	case L"text"_hash:
+	{
+		if (numtok < 4)
+			throw Dcx::dcxException("Invalid number of arguments");
+
+		const auto nIndex = input.getnexttok().to_int() - 1;	// tok 4
+
+		if (nIndex < 0 || nIndex >= this->getBandCount())
+			throw Dcx::dcxException("Invalid Index");
+
+		REBARBANDINFO rbBand;
+		ZeroMemory(&rbBand, sizeof(REBARBANDINFO));
+		rbBand.cbSize = sizeof(REBARBANDINFO);
+		rbBand.fMask = RBBIM_TEXT;
+		rbBand.cch = MIRC_BUFFER_SIZE_CCH;
+		rbBand.lpText = szReturnValue;
+
+		getBandInfo(nIndex, &rbBand);
+	}
+	break;
+	case L"childid"_hash:
+	{
+		if (numtok < 4)
+			throw Dcx::dcxException("Invalid number of arguments");
+
+		const auto n = input.getnexttok().to_int() - 1; // tok 4
+
+		if (n < 0 || n >= this->getBandCount())
+			throw Dcx::dcxException("Invalid Index");
+
+		const auto c = this->getControl(n);
+		if (c != nullptr)
+			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), c->getUserID());
+	}
+	break;
+	// $xdid([NAME], [ID], [N]).[PROP]
+	case L"markeditem"_hash:
+	{
+		const auto n = input.getnexttok().to_int() - 1;	// tok 4
+
+		if (n < 0 || n >= this->getBandCount())
+			throw Dcx::dcxException("Invalid Index");
+
+		REBARBANDINFO rbi;
+		ZeroMemory(&rbi, sizeof(REBARBANDINFO));
+		rbi.cbSize = sizeof(REBARBANDINFO);
+		rbi.fMask = RBBIM_LPARAM;
+
+		getBandInfo(n, &rbi);
+
+		auto pdcxrbb = reinterpret_cast<LPDCXRBBAND>(rbi.lParam);
+
+		szReturnValue = pdcxrbb->tsMarkText.to_chr();
+	}
+	break;
+	default:
+		parseGlobalInfoRequest(input, szReturnValue);
+	}
+#else
 	const auto numtok = input.numtok();
 
 	const auto prop(input.getfirsttok(3));
@@ -342,10 +410,11 @@ void DcxReBar::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) c
 		
 		auto pdcxrbb = reinterpret_cast<LPDCXRBBAND>(rbi.lParam);
 
-		dcx_strcpyn(szReturnValue, pdcxrbb->tsMarkText.to_chr(), MIRC_BUFFER_SIZE_CCH);
+		szReturnValue = pdcxrbb->tsMarkText.to_chr();
 	}
 	else
 		this->parseGlobalInfoRequest(input, szReturnValue);
+#endif
 }
 /*!
  * \brief blah

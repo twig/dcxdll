@@ -154,7 +154,7 @@ void DcxControl::parseGeneralControlStyles( const TString & styles, LONG * Style
 #if DCX_USE_HASHING
 	for (const auto &tsStyle : styles)
 	{
-		switch (dcx_hash(tsStyle.to_chr()))
+		switch (std::hash<TString>{}(tsStyle))
 		{
 			case L"notheme"_hash:
 				*bNoTheme = TRUE;
@@ -958,6 +958,167 @@ void DcxControl::parseBorderStyles(const TString & flags, LONG *const Styles, LO
 
 bool DcxControl::parseGlobalInfoRequest(const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const
 {
+#if DCX_USE_HASHING
+	switch (std::hash<TString>{}(input.getfirsttok(3)))
+	{
+	case L"hwnd"_hash:
+	{
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%lu"), (DWORD)m_Hwnd);	// can't use %p as this gives a hex result.
+		return true;
+	}
+	break;
+	case L"visible"_hash:
+	{
+		szReturnValue = dcx_truefalse((IsWindowVisible(m_Hwnd) != FALSE));
+		return true;
+	}
+	break;
+	case L"enabled"_hash:
+	{
+		szReturnValue = dcx_truefalse((IsWindowEnabled(m_Hwnd) != FALSE));
+		return true;
+	}
+	break;
+	case L"pos"_hash:
+	{
+		const auto rc = getWindowPosition();
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d %d %d"), rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top);
+		return true;
+	}
+	break;
+	case L"dpos"_hash:
+	{
+		RECT rc;
+		if (GetWindowRect(m_Hwnd, &rc))
+		{
+			MapWindowPoints(nullptr, m_pParentDialog->getHwnd(), (LPPOINT)&rc, 2);
+
+			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d %d %d"), rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top);
+			return true;
+		}
+	}
+	break;
+	case L"mark"_hash:
+	{
+		szReturnValue = m_tsMark.to_chr();
+		return true;
+	}
+	break;
+	case L"mouse"_hash:
+	{
+		POINT pt;
+		if (GetCursorPos(&pt))
+		{
+			MapWindowPoints(nullptr, m_Hwnd, &pt, 1);
+			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d"), pt.x, pt.y);
+			return true;
+		}
+	}
+	break;
+	case L"pid"_hash:
+	{
+		stString<257> sClassname;
+
+		auto hParent = GetParent(m_Hwnd);
+		GetClassName(hParent, sClassname, sClassname.size());
+
+		if (sClassname == TEXT("#32770"))
+			szReturnValue = TEXT('0');
+		else
+			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), m_pParentDialog->getControlByHWND(hParent)->getUserID());
+
+		return true;
+	}
+	break;
+	case L"type"_hash:
+	{
+		szReturnValue = getType().to_chr();
+		return true;
+	}
+	break;
+	case L"styles"_hash:
+	{
+		szReturnValue = getStyles().to_chr();
+		return true;
+	}
+	break;
+	case L"font"_hash:
+	{
+		auto hFontControl = m_hFont;
+
+		//		if (!hFontControl)
+		//			hFontControl = (HFONT) this->getFont();
+		if (!hFontControl)
+			hFontControl = (HFONT)GetStockObject(DEFAULT_GUI_FONT);
+
+		if (hFontControl) {
+			LOGFONT lfCurrent = { 0 };
+
+			//ZeroMemory(&lfCurrent, sizeof(LOGFONT));
+			if (GetObject(hFontControl, sizeof(LOGFONT), &lfCurrent) != 0)
+			{
+				szReturnValue = ParseLogfontToCommand(&lfCurrent).to_chr();
+				return true;
+			}
+		}
+	}
+	break;
+	// [NAME] [ID] [PROP]
+	case L"tooltipbgcolor"_hash:
+	{
+		DWORD cref = 0;
+
+		if (m_ToolTipHWND != nullptr)
+			cref = (DWORD)SendMessage(m_ToolTipHWND, TTM_GETTIPBKCOLOR, NULL, NULL);
+
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%lu"), cref);
+		return true;
+	}
+	break;
+	// [NAME] [ID] [PROP]
+	case L"tooltiptextcolor"_hash:
+	{
+		DWORD cref = 0;
+
+		if (m_ToolTipHWND != nullptr)
+			cref = (DWORD)SendMessage(m_ToolTipHWND, TTM_GETTIPTEXTCOLOR, NULL, NULL);
+
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%lu"), cref);
+		return true;
+	}
+	// [NAME] [ID] [PROP]
+	case L"alpha"_hash:
+	{
+		szReturnValue = dcx_truefalse(m_bAlphaBlend);
+		return true;
+	}
+	break;
+	// [NAME] [ID] [PROP]
+	case L"textcolor"_hash:
+	{
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), m_clrText);
+		return true;
+	}
+	break;
+	// [NAME] [ID] [PROP]
+	case L"textbgcolor"_hash:
+	{
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), m_clrBackText);
+		return true;
+	}
+	break;
+	// [NAME] [ID] [PROP]
+	case L"bgcolor"_hash:
+	{
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), m_clrBackground);
+		return true;
+	}
+	default:
+		throw Dcx::dcxException("Invalid property or number of arguments");
+		break;
+	}
+	return false;
+#else
 	const auto prop(input.getfirsttok( 3 ));
 
 	if ( prop == TEXT("hwnd") ) {
@@ -1096,6 +1257,7 @@ bool DcxControl::parseGlobalInfoRequest(const TString & input, const refString<T
 		throw Dcx::dcxException("Invalid property or number of arguments");
 
 	return false;
+#endif
 }
 
 /*!

@@ -218,8 +218,193 @@ void DcxList::parseControlStyles( const TString &styles, LONG *Styles, LONG *ExS
  * \return > void
  */
 
-void DcxList::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) const
+void DcxList::parseInfoRequest( const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const
 {
+#if DCX_USE_HASHING
+	const auto numtok = input.numtok();
+
+	switch (std::hash<TString>{}(input.getfirsttok(3)))
+	{
+		// [NAME] [ID] [PROP] [N]
+	case L"text"_hash:
+	{
+		if (numtok < 4)
+			throw Dcx::dcxException("Invalid number of arguments");
+
+		const auto nSel = input.getnexttok().to_int() - 1;	// tok 4
+
+		if (nSel < 0 || nSel >= ListBox_GetCount(m_Hwnd))
+			throw Dcx::dcxException("Item out of range");
+
+		const auto l = ListBox_GetTextLen(m_Hwnd, nSel);
+		if (l == LB_ERR || l >= MIRC_BUFFER_SIZE_CCH)
+			throw Dcx::dcxException("String Too Long (Greater than Max chars)");
+
+		ListBox_GetText(m_Hwnd, nSel, szReturnValue);
+	}
+	break;
+		// [NAME] [ID] [PROP] (N)
+	case L"seltext"_hash:
+	{
+		auto nSel = -1;
+		if (this->isStyle(LBS_MULTIPLESEL) || this->isStyle(LBS_EXTENDEDSEL)) {
+			const auto n = ListBox_GetSelCount(m_Hwnd);
+
+			if (n > 0) {
+				auto p = std::make_unique<int[]>(n);
+				ListBox_GetSelItems(m_Hwnd, n, p.get());
+
+				// get a unique value
+				if (numtok > 3) {
+					const auto i = (input.getnexttok().to_int() - 1);	// tok 4
+
+					if ((i < 0) || (i >= n))
+						throw Dcx::dcxException("Requested Item Out Of Selection Range");
+
+					nSel = p[i];
+				}
+				else
+					nSel = p[0];	// no item requested, so return the first selected item.
+			}
+		}
+		// single select
+		else
+			nSel = ListBox_GetCurSel(m_Hwnd);
+
+		if (nSel > -1) {
+			const auto l = ListBox_GetTextLen(m_Hwnd, nSel);
+			if (l == LB_ERR && l >= MIRC_BUFFER_SIZE_CCH)
+				throw Dcx::dcxException("String Too Long (Greater than Max chars)");
+
+			ListBox_GetText(m_Hwnd, nSel, szReturnValue);
+		}
+	}
+	break;
+	// [NAME] [ID] [PROP]
+	case L"num"_hash:
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), ListBox_GetCount(m_Hwnd));
+		break;
+		// [NAME] [ID] [PROP] (N)
+	case L"sel"_hash:
+	{
+		if (this->isStyle(LBS_MULTIPLESEL) || this->isStyle(LBS_EXTENDEDSEL)) {
+			const auto n = ListBox_GetSelCount(m_Hwnd);
+
+			if (n > 0) {
+				auto p = std::make_unique<int[]>(n);
+				ListBox_GetSelItems(m_Hwnd, n, p.get());
+
+				TString path;
+
+				// get a unique value
+				if (numtok > 3) {
+					const auto i = input.getnexttok().to_int();	// tok 4
+
+					if (i == 0)
+						path += n;	// get total number of selected items
+					else if ((i > 0) && (i <= n))
+						path += (p[i - 1] + 1);
+				}
+				else {
+					// get all items in a long comma seperated string
+
+					for (auto i = decltype(n){0}; i < n; i++)
+						path.addtok((p[i] + 1), TSCOMMACHAR);
+
+				}
+				if (path.len() > MIRC_BUFFER_SIZE_CCH)
+					throw Dcx::dcxException("String too long");
+
+				szReturnValue = path.to_chr();
+			}
+		}
+		// single select
+		else
+			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), ListBox_GetCurSel(m_Hwnd) + 1);
+	}
+	break;
+	// [NAME] [ID] [PROP] [N]
+	case L"tbitem"_hash:
+	{
+		const auto count = ListBox_GetCount(m_Hwnd);
+		RECT rc;
+
+		if (!GetClientRect(m_Hwnd, &rc))
+			throw Dcx::dcxException("Unable to get client rect!");
+
+		const auto top = SendMessage(m_Hwnd, LB_GETTOPINDEX, NULL, NULL);
+		const auto height = SendMessage(m_Hwnd, LB_GETITEMHEIGHT, NULL, NULL);
+
+		auto bottom = top + ((rc.bottom - rc.top) / height);
+
+		if (bottom > count)
+			bottom = count;
+
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d"), top, bottom);
+	}
+	break;
+	// [NAME] [ID] [PROP] {TAB}[MATCHTEXT]{TAB} [T] [N]
+	case L"find"_hash:
+	{
+		if (numtok < 6)
+			throw Dcx::dcxException("Invalid number of arguments");
+
+		const auto matchtext(input.getfirsttok(2, TSTABCHAR).trim());
+		const auto params(input.getnexttok(TSTABCHAR).trim());	// tok 3
+
+		if (matchtext.empty())
+			throw Dcx::dcxException("No Match text supplied");
+
+		auto SearchType = DcxSearchTypes::SEARCH_E;	// default to exact match
+
+		const auto tsSearchType(params++[0]);
+
+		if (tsSearchType == TEXT('R'))
+			SearchType = DcxSearchTypes::SEARCH_R;
+		else if (tsSearchType == TEXT('W'))
+			SearchType = DcxSearchTypes::SEARCH_W;
+
+		const auto N = params++.to_<UINT>();	// tok 2
+		const auto nItems = ListBox_GetCount(m_Hwnd);
+
+		// count total
+		if (N == 0) {
+
+			auto count = 0;
+
+			for (auto i = decltype(nItems){0}; i < nItems; i++) {
+
+				if (matchItemText(i, matchtext, SearchType))
+					count++;
+			}
+
+			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), count);
+		}
+		// find Nth matching
+		else {
+
+			auto count = decltype(N){0};
+
+			for (auto i = decltype(nItems){0}; i < nItems; i++) {
+
+				if (matchItemText(i, matchtext, SearchType))
+					count++;
+
+				// found Nth matching
+				if (count == N) {
+
+					wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), i + 1);
+					return;
+				}
+			}
+		} // else
+	}
+	break;
+	default:
+		parseGlobalInfoRequest(input, szReturnValue);
+		break;
+	}
+#else
 	const auto numtok = input.numtok();
 
 	const auto prop(input.getfirsttok(3));
@@ -386,6 +571,7 @@ void DcxList::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) co
 	}
 	else
 		parseGlobalInfoRequest(input, szReturnValue);
+#endif
 }
 
 /*!

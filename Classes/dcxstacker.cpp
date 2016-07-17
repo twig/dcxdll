@@ -143,8 +143,81 @@ void DcxStacker::parseControlStyles( const TString & styles, LONG * Styles, LONG
  * \return > void
  */
 
-void DcxStacker::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) const {
+void DcxStacker::parseInfoRequest( const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const {
 
+#if DCX_USE_HASHING
+	const auto numtok = input.numtok();
+	switch (std::hash<TString>{}(input.getfirsttok(3)))
+	{
+		// [NAME] [ID] [PROP] [N]
+	case L"text"_hash:
+	{
+		if (numtok < 4)
+			throw Dcx::dcxException("Invalid number of arguments");
+
+		const auto nSel = input.getnexttok().to_int() - 1;	// tok 4
+
+		if (nSel < 0 && nSel >= ListBox_GetCount(m_Hwnd))
+			throw Dcx::dcxException("Invalid Item");
+
+		auto sitem = this->getItem(nSel);
+		if (sitem == nullptr || sitem == (LPDCXSITEM)LB_ERR)
+			throw Dcx::dcxException("Unable to get Item");
+
+		szReturnValue = sitem->tsCaption.to_chr();
+	}
+	break;
+	// [NAME] [ID] [PROP]
+	case L"num"_hash:
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), ListBox_GetCount(m_Hwnd));
+		break;
+		// [NAME] [ID] [PROP]
+	case L"sel"_hash:
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), ListBox_GetCurSel(m_Hwnd) + 1);
+		break;
+		// [NAME] [ID] [PROP] [N]
+	case L"haschild"_hash:
+	{
+		if (numtok < 4)
+			throw Dcx::dcxException("Invalid number of arguments");
+
+		const auto nSel = input.getnexttok().to_int() - 1;	// tok 4
+
+		if (nSel < 0 && nSel >= ListBox_GetCount(m_Hwnd))
+			throw Dcx::dcxException("Invalid Item");
+
+		auto sitem = this->getItem(nSel);
+		if (sitem == nullptr || sitem == (LPDCXSITEM)LB_ERR)
+			throw Dcx::dcxException("Unable to get Item");
+
+		szReturnValue = dcx_truefalse(sitem->pChild != nullptr);
+	}
+	break;
+	// [NAME] [ID] [PROP] [N]
+	case L"childid"_hash:
+	{
+		if (numtok < 4)
+			throw Dcx::dcxException("Invalid number of arguments");
+
+		const auto nSel = input.getnexttok().to_int() - 1;	// tok 4
+
+		if (nSel < 0 && nSel >= ListBox_GetCount(m_Hwnd))
+			throw Dcx::dcxException("Invalid Item");
+
+		auto sitem = this->getItem(nSel);
+		if (sitem == nullptr || sitem == (LPDCXSITEM)LB_ERR)
+			throw Dcx::dcxException("Unable to get Item");
+
+		if (sitem->pChild != nullptr)
+			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), sitem->pChild->getUserID());
+		else
+			szReturnValue = TEXT('0');
+	}
+	break;
+	default:
+		parseGlobalInfoRequest(input, szReturnValue);
+	}
+#else
 	const auto numtok = input.numtok();
 	const auto prop(input.getfirsttok(3));
 
@@ -159,7 +232,7 @@ void DcxStacker::parseInfoRequest( const TString & input, PTCHAR szReturnValue )
 		if (sitem == nullptr || sitem == (LPDCXSITEM)LB_ERR)
 			throw Dcx::dcxException("Unable to get Item");
 
-		dcx_strcpyn(szReturnValue,sitem->tsCaption.to_chr(), MIRC_BUFFER_SIZE_CCH);
+		szReturnValue = sitem->tsCaption.to_chr();
 	}
 	// [NAME] [ID] [PROP]
 	else if ( prop == TEXT("num") ) {
@@ -171,20 +244,6 @@ void DcxStacker::parseInfoRequest( const TString & input, PTCHAR szReturnValue )
 	}
 	// [NAME] [ID] [PROP] [N]
 	else if ( prop == TEXT("haschild") && numtok > 3 ) {
-		//const auto nSel = input.getnexttok().to_int() - 1;	// tok 4
-
-		//dcx_strcpyn(szReturnValue,TEXT("$false"), MIRC_BUFFER_SIZE_CCH);
-
-		//if (nSel < 0 && nSel >= ListBox_GetCount(m_Hwnd))
-		//	throw Dcx::dcxException("Invalid Item");
-
-		//auto sitem = this->getItem(nSel);
-		//if (sitem == nullptr || sitem == (LPDCXSITEM)LB_ERR)
-		//	throw Dcx::dcxException("Unable to get Item");
-		//
-		//if (sitem->pChild != nullptr)
-		//	dcx_strcpyn(szReturnValue,TEXT("$true"), MIRC_BUFFER_SIZE_CCH);
-
 		const auto nSel = input.getnexttok().to_int() - 1;	// tok 4
 
 		if (nSel < 0 && nSel >= ListBox_GetCount(m_Hwnd))
@@ -194,7 +253,7 @@ void DcxStacker::parseInfoRequest( const TString & input, PTCHAR szReturnValue )
 		if (sitem == nullptr || sitem == (LPDCXSITEM)LB_ERR)
 			throw Dcx::dcxException("Unable to get Item");
 
-		dcx_strcpyn(szReturnValue, dcx_truefalse(sitem->pChild != nullptr), MIRC_BUFFER_SIZE_CCH);
+		szReturnValue = dcx_truefalse(sitem->pChild != nullptr);
 	}
 	// [NAME] [ID] [PROP] [N]
 	else if (prop == TEXT("childid") && numtok > 3) {
@@ -210,10 +269,11 @@ void DcxStacker::parseInfoRequest( const TString & input, PTCHAR szReturnValue )
 		if (sitem->pChild != nullptr)
 			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), sitem->pChild->getUserID());
 		else
-			dcx_strcpyn(szReturnValue, TEXT("0"), MIRC_BUFFER_SIZE_CCH);
+			szReturnValue = TEXT('0');
 	}
 	else
 		parseGlobalInfoRequest(input, szReturnValue);
+#endif
 }
 
 /*!

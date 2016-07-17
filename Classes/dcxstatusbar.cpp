@@ -168,8 +168,74 @@ void DcxStatusBar::parseControlStyles( const TString & styles, LONG * Styles, LO
  * \return > void
  */
 
-void DcxStatusBar::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) const
+void DcxStatusBar::parseInfoRequest( const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const
 {
+#if DCX_USE_HASHING
+	const auto numtok = input.numtok();
+
+	switch (std::hash<TString>{}(input.getfirsttok(3)))
+	{
+		// [NAME] [ID] [PROP] [N]
+	case L"text"_hash:
+	{
+		if (numtok < 4)
+			throw Dcx::dcxException("Invalid number of arguments");
+
+		const int iPart = input.getnexttok().to_int() - 1, nParts = getParts(DCX_STATUSBAR_MAX_PARTS, 0);	// tok 4
+
+		if (iPart < 0 && iPart >= nParts)
+			throw Dcx::dcxException("Invalid Part");
+
+		const auto iFlags = getPartFlags(iPart);
+
+		if (dcx_testflag(iFlags, SBT_OWNERDRAW)) {
+			auto pPart = reinterpret_cast<LPSB_PARTINFOX>(getText(iPart, nullptr));
+			if (pPart != nullptr)
+				szReturnValue = pPart->m_xText.to_chr();
+		}
+		else {
+			const auto len = this->getTextLength(iPart);
+			auto text = std::make_unique<WCHAR[]>(len + 1);
+			getText(iPart, text.get());
+			szReturnValue = text.get();
+		}
+	}
+	break;
+	// [NAME] [ID] [PROP]
+	case L"parts"_hash:
+	{
+		auto parts = std::make_unique<INT[]>(DCX_STATUSBAR_MAX_PARTS);
+
+		const auto nParts = this->getParts(DCX_STATUSBAR_MAX_PARTS, 0);
+
+		getParts(DCX_STATUSBAR_MAX_PARTS, parts.get());
+
+		TString tmp((UINT)(32 * nParts));
+
+		for (auto i = decltype(nParts){0}; i < nParts; i++)
+			tmp.addtok(parts[i]);
+
+		szReturnValue = tmp.to_chr();
+	}
+	break;
+	// [NAME] [ID] [PROP] [N]
+	case L"tooltip"_hash:
+	{
+		if (numtok < 4)
+			throw Dcx::dcxException("Invalid number of arguments");
+
+		const int iPart = input.getnexttok().to_int(), nParts = getParts(DCX_STATUSBAR_MAX_PARTS, 0);	// tok 4
+
+		if (iPart < 0 && iPart >= nParts)
+			throw Dcx::dcxException("Invalid Part");
+
+		getTipText(iPart, MIRC_BUFFER_SIZE_CCH, szReturnValue);
+	}
+	break;
+	default:
+		parseGlobalInfoRequest(input, szReturnValue);
+	}
+#else
 	const auto numtok = input.numtok();
 	const auto prop(input.getfirsttok(3));
 
@@ -185,15 +251,14 @@ void DcxStatusBar::parseInfoRequest( const TString & input, PTCHAR szReturnValue
 
 		if (dcx_testflag(iFlags, SBT_OWNERDRAW)) {
 			auto pPart = reinterpret_cast<LPSB_PARTINFOX>(getText(iPart, nullptr));
-			if (pPart != nullptr) {
-				dcx_strcpyn(szReturnValue, pPart->m_xText.to_chr(), MIRC_BUFFER_SIZE_CCH);
-			}
+			if (pPart != nullptr)
+				szReturnValue = pPart->m_xText.to_chr();
 		}
 		else {
 			const auto len = this->getTextLength(iPart);
 			auto text = std::make_unique<WCHAR[]>(len + 1);
 			getText(iPart, text.get());
-			dcx_strcpyn(szReturnValue, text.get(), MIRC_BUFFER_SIZE_CCH);
+			szReturnValue = text.get();
 		}
 	}
 	// [NAME] [ID] [PROP]
@@ -210,7 +275,7 @@ void DcxStatusBar::parseInfoRequest( const TString & input, PTCHAR szReturnValue
 		for (auto i = decltype(nParts){0}; i < nParts; i++)
 			tmp.addtok(parts[i]);
 
-		dcx_strcpyn(szReturnValue, tmp.to_chr(), MIRC_BUFFER_SIZE_CCH);
+		szReturnValue = tmp.to_chr();
 	}
 	// [NAME] [ID] [PROP] [N]
 	else if (prop == TEXT("tooltip") && numtok > 3) {
@@ -224,6 +289,7 @@ void DcxStatusBar::parseInfoRequest( const TString & input, PTCHAR szReturnValue
 	}
 	else
 		parseGlobalInfoRequest(input, szReturnValue);
+#endif
 }
 
 void DcxStatusBar::deletePartInfo(const int iPart)

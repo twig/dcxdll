@@ -213,8 +213,151 @@ void DcxToolBar::parseControlStyles( const TString & styles, LONG * Styles, LONG
  * \return > void
  */
 
-void DcxToolBar::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) const {
+void DcxToolBar::parseInfoRequest( const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const
+{
+#if DCX_USE_HASHING
+	const auto numtok = input.numtok();
+	switch (std::hash<TString>{}(input.getfirsttok(3)))
+	{
+		// [NAME] [ID] [PROP]
+	case L"num"_hash:
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), this->getButtonCount());
+		break;
+		// [NAME] [ID] [PROP]
+	case L"mouseitem"_hash:
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), SendMessage(m_Hwnd, TB_GETHOTITEM, NULL, NULL));
+		break;
+		// [NAME] [ID] [PROP]
+	case L"text"_hash:
+	{
+		if (numtok < 4)
+			throw Dcx::dcxException("Invalid number of arguments");
 
+		const auto iButton = input.getnexttok().to_int() - 1;	// tok 4
+
+		if (iButton < 0 && iButton >= this->getButtonCount())
+			throw Dcx::dcxException("Out of Range");
+
+		// This way fails to give the correct result after buttons have been removed.
+		//this->getButtonText( this->getIndexToCommand( nButton ), szReturnValue ); // possible overflow, needs fixing at some point.
+		TBBUTTONINFO tbbi;
+		ZeroMemory(&tbbi, sizeof(TBBUTTONINFO));
+		tbbi.cbSize = sizeof(TBBUTTONINFO);
+		tbbi.dwMask = TBIF_LPARAM | TBIF_BYINDEX;
+		this->getButtonInfo(iButton, &tbbi);
+
+		auto lpdcxtbb = reinterpret_cast<LPDCXTBBUTTON>(tbbi.lParam);
+
+		if (lpdcxtbb != nullptr)
+			szReturnValue = lpdcxtbb->bText.to_chr();
+	}
+	break;
+	// [NAME] [ID] [PROP] [N]
+	case L"icon"_hash:
+	{
+		if (numtok < 4)
+			throw Dcx::dcxException("Invalid number of arguments");
+
+		const auto iButton = input.getnexttok().to_int() - 1;	// tok 4
+
+		if (iButton < 0 && iButton >= this->getButtonCount())
+			throw Dcx::dcxException("Out of Range");
+
+		TBBUTTONINFO tbbi;
+		ZeroMemory(&tbbi, sizeof(TBBUTTONINFO));
+		tbbi.cbSize = sizeof(TBBUTTONINFO);
+		tbbi.dwMask = TBIF_IMAGE | TBIF_BYINDEX;
+		this->getButtonInfo(iButton, &tbbi);
+
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), tbbi.iImage + 1);
+	}
+	break;
+	// [NAME] [ID] [PROP] [N]
+	case L"state"_hash:
+	{
+		if (numtok < 4)
+			throw Dcx::dcxException("Invalid number of arguments");
+
+		const auto iButton = input.getnexttok().to_int() - 1;	// tok 4
+
+		if (iButton < 0 && iButton >= this->getButtonCount())
+			throw Dcx::dcxException("Out of Range");
+
+		TBBUTTONINFO tbbi;
+		ZeroMemory(&tbbi, sizeof(TBBUTTONINFO));
+		tbbi.cbSize = sizeof(TBBUTTONINFO);
+		tbbi.dwMask = TBIF_STATE | TBIF_BYINDEX;
+		this->getButtonInfo(iButton, &tbbi);
+
+		if (lstrcpyn(szReturnValue, TEXT("+"), MIRC_BUFFER_SIZE_CCH) != nullptr)
+		{
+			if (!dcx_testflag(tbbi.fsState, TBSTATE_ENABLED))
+				lstrcat(szReturnValue, TEXT("d"));
+
+			if (dcx_testflag(tbbi.fsState, TBSTATE_INDETERMINATE))
+				lstrcat(szReturnValue, TEXT("i"));
+
+			if (dcx_testflag(tbbi.fsState, TBSTATE_HIDDEN))
+				lstrcat(szReturnValue, TEXT("h"));
+
+			if (dcx_testflag(tbbi.fsState, TBSTATE_PRESSED))
+				lstrcat(szReturnValue, TEXT("p"));
+
+			if (dcx_testflag(tbbi.fsState, TBSTATE_CHECKED))
+				lstrcat(szReturnValue, TEXT("x"));
+
+			if (dcx_testflag(tbbi.fsState, TBSTATE_WRAP))
+				lstrcat(szReturnValue, TEXT("w"));
+		}
+	}
+	break;
+	// [NAME] [ID] [PROP] [N]
+	case L"tooltip"_hash:
+	{
+		if (numtok < 4)
+			throw Dcx::dcxException("Invalid number of arguments");
+
+		const auto iButton = input.getnexttok().to_int() - 1;	// tok 4
+
+		if (iButton < 0 && iButton >= this->getButtonCount())
+			throw Dcx::dcxException("Out of Range");
+
+		TBBUTTONINFO tbbi;
+		ZeroMemory(&tbbi, sizeof(TBBUTTONINFO));
+		tbbi.cbSize = sizeof(TBBUTTONINFO);
+		tbbi.dwMask = TBIF_LPARAM | TBIF_BYINDEX;
+		this->getButtonInfo(iButton, &tbbi);
+
+		auto lpdcxtbb = reinterpret_cast<LPDCXTBBUTTON>(tbbi.lParam);
+
+		if (lpdcxtbb != nullptr)
+			szReturnValue = lpdcxtbb->tsTipText.to_chr();
+	}
+	break;
+	// [NAME] [ID] [PROP] [N]
+	case L"dropdownpoint"_hash:
+	{
+		if (numtok < 4)
+			throw Dcx::dcxException("Invalid number of arguments");
+
+		RECT rc;
+
+		ZeroMemory(&rc, sizeof(RECT));
+		const auto iButton = input.getnexttok().to_int() - 1;	// tok 4
+
+																// out of range;
+		if (iButton < 0 && iButton >= this->getButtonCount())
+			throw Dcx::dcxException("Out of Range");
+
+		this->getItemRect(iButton, &rc);
+		MapWindowPoints(m_Hwnd, nullptr, (LPPOINT)&rc, 2);
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d %d %d"), rc.left, rc.bottom, rc.right, rc.top);
+	}
+	break;
+	default:
+		parseGlobalInfoRequest(input, szReturnValue);
+	}
+#else
 	const auto numtok = input.numtok();
 	const auto prop(input.getfirsttok(3));
 
@@ -247,7 +390,7 @@ void DcxToolBar::parseInfoRequest( const TString & input, PTCHAR szReturnValue )
 		auto lpdcxtbb = reinterpret_cast<LPDCXTBBUTTON>(tbbi.lParam);
 
 		if ( lpdcxtbb != nullptr )
-			dcx_strcpyn( szReturnValue, lpdcxtbb->bText.to_chr( ), MIRC_BUFFER_SIZE_CCH );
+			szReturnValue = lpdcxtbb->bText.to_chr( );
 	}
 	// [NAME] [ID] [PROP] [N]
 	else if ( prop == TEXT("icon") && numtok > 3 ) {
@@ -317,7 +460,7 @@ void DcxToolBar::parseInfoRequest( const TString & input, PTCHAR szReturnValue )
 		auto lpdcxtbb = reinterpret_cast<LPDCXTBBUTTON>(tbbi.lParam);
 
 		if ( lpdcxtbb != nullptr )
-			dcx_strcpyn( szReturnValue, lpdcxtbb->tsTipText.to_chr( ), MIRC_BUFFER_SIZE_CCH );
+			szReturnValue = lpdcxtbb->tsTipText.to_chr( );
 	}
 	// [NAME] [ID] [PROP] [N]
 	else if (prop == TEXT("dropdownpoint") && numtok > 3) {
@@ -336,6 +479,7 @@ void DcxToolBar::parseInfoRequest( const TString & input, PTCHAR szReturnValue )
 	}
 	else
 		this->parseGlobalInfoRequest(input, szReturnValue);
+#endif
 }
 
 /*!
