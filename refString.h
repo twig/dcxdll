@@ -16,6 +16,7 @@ struct refString
 	using value_type = T;
 	using const_value_type = std::add_const_t<value_type>;
 	using size_type = std::size_t;
+	using ptrdiff_type = std::ptrdiff_t;
 	using pointer = std::add_pointer_t<value_type>;
 	using const_pointer = std::add_const_t<pointer>;
 	using reference = std::add_lvalue_reference_t<value_type>;
@@ -28,12 +29,14 @@ struct refString
 	constexpr refString(const_pointer other) noexcept
 		: m_data(other)
 	{
-
 	}
+	//explicit constexpr refString(pointer other) noexcept
+	//	: m_data(other)
+	//{
+	//}
 	//constexpr refString(const_reference (other)[N]) noexcept
 	//	: m_data(other)
 	//{
-
 	//}
 
 	~refString() = default;
@@ -42,6 +45,10 @@ struct refString
 		_ts_strcpyn(m_data, other, N);
 		return *this;
 	}
+	//const refString &operator =(value_type * other) const noexcept {
+	//	_ts_strcpyn(m_data, other, N);
+	//	return *this;
+	//}
 
 	const refString &operator =(const value_type &other) const noexcept {
 		m_data[0] = other;
@@ -80,7 +87,7 @@ struct refString
 
 	constexpr explicit operator bool() const noexcept { return !empty(); }
 	constexpr operator pointer() const noexcept { return const_cast<pointer>(m_data); }
-	constexpr reference operator [](const size_type &iOffSet) const noexcept { return m_data[iOffSet]; }
+	constexpr reference operator [](const ptrdiff_type &iOffSet) const noexcept { return m_data[iOffSet]; }
 	constexpr size_type length() const { return _ts_strnlen(m_data, N); }
 	constexpr const size_type size() const noexcept { return N; }
 	constexpr pointer data() const noexcept { return const_cast<pointer>(m_data); }

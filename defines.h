@@ -179,7 +179,7 @@ http://symbiancorner.blogspot.com/2007/05/how-to-detect-version-of-ms-visual.htm
 // Link with DirectX error lib, enables extra error reporting.
 #define DCX_DX_ERR	1
 // Use Object switch code (testing only)
-#define DCX_SWITCH_OBJ 1
+#define DCX_SWITCH_OBJ 0
 #endif
 
 // --------------------------------------------------
