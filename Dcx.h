@@ -562,6 +562,31 @@ namespace Dcx
 		HFONT m_hOldFont;
 	};
 
+	struct dcxVariant
+		: VARIANT
+	{
+		dcxVariant()
+		{
+			VariantInit(this);
+		}
+		dcxVariant(const BSTR bStr)
+			: dcxVariant()
+		{
+			vt = VT_BSTR;
+			bstrVal = bStr;
+		}
+		dcxVariant(const WCHAR *cStr)
+			: dcxVariant()
+		{
+			vt = VT_BSTR;
+			bstrVal = SysAllocString(cStr);
+		}
+		~dcxVariant()
+		{
+			VariantClear(this);
+		}
+	};
+
 	using MapOfCursors = std::map<HCURSOR, HCURSOR>;
 	using MapOfAreas = std::map<UINT, HCURSOR>;
 
