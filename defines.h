@@ -202,6 +202,7 @@ http://symbiancorner.blogspot.com/2007/05/how-to-detect-version-of-ms-visual.htm
 #include <unordered_map>
 #include <commctrl.h>
 #include <richedit.h>
+#include <cguid.h>
 
 #if defined(DCX_USE_CREGEX)
 #include <regex>

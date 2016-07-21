@@ -89,6 +89,7 @@ public:
 
 private:
 	void SafeRelease() noexcept;
+	TString CallScript(const TString &tsCmd) const;
 
 //protected:
 

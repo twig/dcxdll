@@ -235,6 +235,13 @@ void DcxWebControl::parseInfoRequest( const TString & input, const refString<TCH
 		}
 	}
 	break;
+	case L"script"_hash:
+	{
+		const auto tsRes(CallScript(input.getlasttoks()));
+		if (!tsRes.empty())
+			szReturnValue = tsRes.to_chr();
+	}
+	break;
 	default:
 		parseGlobalInfoRequest(input, szReturnValue);
 	}
@@ -313,52 +320,160 @@ void DcxWebControl::parseCommandRequest( const TString & input) {
 		m_pWebBrowser2->GoForward( );
 	}
 	// xdid -j [NAME] [ID] [SWITCH] [JAVASCRIPT]
-	else if ( flags[TEXT('j')] && numtok > 3 ) {
+	else if ( flags[TEXT('j')] && numtok > 3 )
+	{
+		const auto CMD(input.getlasttoks().trim());		// tok 4, -1
 
-		READYSTATE ready_state;
+		CallScript(CMD);
 
-		if ( FAILED( m_pWebBrowser2->get_ReadyState( &ready_state ) ) || ready_state != READYSTATE_COMPLETE )
-			throw Dcx::dcxException("Browser NOT in Ready State");
-
-		IDispatch  * htmlDisp = nullptr;
-
-		if ( SUCCEEDED(m_pWebBrowser2->get_Document( &htmlDisp )))
-		{
-			Auto(htmlDisp->Release());
-
-			IHTMLDocument2 * doc = nullptr;
-			if ( SUCCEEDED(htmlDisp->QueryInterface( IID_IHTMLDocument2, (void**) &doc )))
-			{
-				Auto(doc->Release());
-
-				IHTMLWindow2 * window;
-
-				if (SUCCEEDED(doc->get_parentWindow(&window)))
-				{
-					Auto(window->Release());
-
-					const auto CMD(input.getlasttoks().trim());		// tok 4, -1
-
-					VARIANT v;
-					VariantInit(&v);
-					Auto(VariantClear(&v));
-
-#if DCX_USE_WRAPPERS
-					Dcx::dcxBSTRResource strCMD(CMD.to_chr());
-
-					window->execScript(strCMD, nullptr, &v);
-#else
-					auto strCMD = SysAllocString(CMD.to_chr());
-					if (strCMD != nullptr)
-					{
-						Auto(SysFreeString(strCMD));
-
-						window->execScript(strCMD, nullptr, &v);
-					}
-#endif
-				}
-			}
-		}
+//		READYSTATE ready_state;
+//
+//		if ( FAILED( m_pWebBrowser2->get_ReadyState( &ready_state ) ) || ready_state != READYSTATE_COMPLETE )
+//			throw Dcx::dcxException("Browser NOT in Ready State");
+//
+//		IDispatch  * htmlDisp = nullptr;
+//
+//		if ( SUCCEEDED(m_pWebBrowser2->get_Document( &htmlDisp )))
+//		{
+//			Auto(htmlDisp->Release());
+//
+//			IHTMLDocument2 * doc = nullptr;
+//			if ( SUCCEEDED(htmlDisp->QueryInterface( IID_IHTMLDocument2, (void**) &doc )))
+//			{
+//				Auto(doc->Release());
+//
+//				IHTMLWindow2 * window = nullptr;
+//
+//				if (SUCCEEDED(doc->get_parentWindow(&window)))
+//				{
+//					Auto(window->Release());
+//
+//					const auto CMD(input.getlasttoks().trim());		// tok 4, -1
+//
+//					//VARIANT v;
+//					//VariantInit(&v);
+//					//Auto(VariantClear(&v));
+//
+//					Dcx::dcxVariant v;
+//
+//#if DCX_USE_WRAPPERS
+//					const Dcx::dcxBSTRResource strCMD(CMD.to_wchr());
+//
+//					//window->execScript(strCMD, nullptr, &v);	// this works well, but is deprecated in latest IE's?
+//
+//					IDispatch * idisp = nullptr;
+//
+//					if (SUCCEEDED(doc->get_Script(&idisp)))
+//					{
+//						Auto(idisp->Release());
+//
+//						DISPID dispid = -1;
+//						DISPPARAMS params{};
+//
+//						VARIANT vArg;
+//						VariantInit(&vArg);
+//						Auto(VariantClear(&vArg));
+//
+//						//Dcx::dcxVariant vArg;
+//
+//						vArg.vt = VT_BSTR;
+//						vArg.bstrVal = strCMD;
+//						params.cArgs = 1;
+//						params.rgvarg = &vArg;
+//
+//						const Dcx::dcxBSTRResource strEval(L"eval");
+//						//LPOLESTR blah;
+//						BSTR hm = strEval.get();
+//						if (FAILED(idisp->GetIDsOfNames(IID_NULL, &hm, 1, LOCALE_SYSTEM_DEFAULT, &dispid)))
+//							throw Dcx::dcxException("GetIDsOfNames: failed.");
+//
+//						if (dispid == DISPID_UNKNOWN)
+//							throw Dcx::dcxException("GetIDsOfNames: Unable to find eval()");
+//
+//						if (FAILED(idisp->Invoke(dispid, IID_NULL, 0, DISPATCH_METHOD, &params, &v, NULL, NULL)))
+//							throw Dcx::dcxException("Invoke: failed.");
+//
+//						//switch (v.vt)
+//						//{
+//						//case VT_BSTR:
+//						//	wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%ws"), v.bstrVal); // possible overflow, needs fixing at some point.
+//						//	break;
+//						//default:
+//						//	break;
+//						//}
+//					}
+//
+//					// this version doesnt throw an error, but fails to work either....
+//					//IDispatchEx * idisp = nullptr;
+//					//
+//					//if (SUCCEEDED(window->QueryInterface(IID_IDispatchEx, (void **)&idisp)))
+//					//{
+//					//	Auto(idisp->Release());
+//					//
+//					//	DISPID dispid = -1;
+//					//	DISPPARAMS params{};
+//					//
+//					//	VARIANT vArg;
+//					//	VariantInit(&vArg);
+//					//	Auto(VariantClear(&vArg));
+//					//
+//					//	//Dcx::dcxVariant vArg;
+//					//
+//					//	vArg.vt = VT_BSTR;
+//					//	vArg.bstrVal = strCMD;
+//					//	params.cArgs = 1;
+//					//	params.rgvarg = &vArg;
+//					//
+//					//	const Dcx::dcxBSTRResource strEval(L"alert");
+//					//	LPOLESTR blah;
+//					//	BSTR hm = strEval.get();
+//					//	if (FAILED(idisp->GetIDsOfNames(IID_NULL, &hm, 1, LOCALE_SYSTEM_DEFAULT, &dispid)))
+//					//		throw Dcx::dcxException("GetIDsOfNames: failed.");
+//					//
+//					//	if (dispid == DISPID_UNKNOWN)
+//					//		throw Dcx::dcxException("GetIDsOfNames: Unable to find eval()");
+//					//
+//					//	if (FAILED(window->Invoke(dispid, IID_NULL, 0, DISPATCH_METHOD, &params, &v, NULL, NULL)))
+//					//		throw Dcx::dcxException("Invoke: failed.");
+//					//}
+//
+//					//DISPID dispid = -1;
+//					//DISPPARAMS params{};
+//					//
+//					//VARIANT vArg;
+//					//VariantInit(&vArg);
+//					////Auto(VariantClear(&vArg));
+//					//
+//					////Dcx::dcxVariant vArg;
+//					//
+//					//vArg.vt = VT_BSTR;
+//					//vArg.bstrVal = strCMD;
+//					//params.cArgs = 1;
+//					//params.rgvarg = &vArg;
+//					//
+//					//const Dcx::dcxBSTRResource strEval(L"eval");
+//					////LPOLESTR blah;
+//					//BSTR hm = strEval.get();
+//					//if (FAILED(window->GetIDsOfNames(IID_NULL, &hm, 1, LOCALE_SYSTEM_DEFAULT, &dispid)))
+//					//	throw Dcx::dcxException("GetIDsOfNames: failed.");
+//					//
+//					//if (dispid == DISPID_UNKNOWN)
+//					//	throw Dcx::dcxException("GetIDsOfNames: Unable to find eval()");
+//					//
+//					//if (FAILED(window->Invoke(dispid, IID_NULL, 0, DISPATCH_METHOD, &params, &v, NULL, NULL)))
+//					//	throw Dcx::dcxException("Invoke: failed.");
+//#else
+//					auto strCMD = SysAllocString(CMD.to_chr());
+//					if (strCMD != nullptr)
+//					{
+//						Auto(SysFreeString(strCMD));
+//
+//						window->execScript(strCMD, nullptr, &v);
+//					}
+//#endif
+//				}
+//			}
+//		}
 	}
 	// xdid -k [NAME] [ID] [SWITCH]
 	else if ( flags[TEXT('k')] ) {
@@ -442,15 +557,16 @@ void DcxWebControl::parseCommandRequest( const TString & input) {
 
 		const auto URL(input.getlasttoks().trim());	// tok 4, -1
 
-		VARIANT v;
-		VariantInit( &v );
-		Auto(VariantClear(&v));
-
 #if DCX_USE_WRAPPERS
+		Dcx::dcxVariant v;
 		Dcx::dcxBSTRResource bstrUrl(URL.to_chr());
 
 		m_pWebBrowser2->Navigate(bstrUrl, &v, &v, &v, &v);
 #else
+		VARIANT v;
+		VariantInit(&v);
+		Auto(VariantClear(&v));
+
 		auto bstrUrl = SysAllocString(URL.to_chr());
 		if (bstrUrl == nullptr)
 			throw Dcx::dcxException("Unable to Allocate Memory");
@@ -491,12 +607,16 @@ HRESULT DcxWebControl::Invoke( DISPID dispIdMember,
 	//if (this->m_bHideEvents) return S_OK; // cant do this here :/
 
 	UINT err = 0;
+#if DCX_USE_WRAPPERS
+	Dcx::dcxVariant arg1, arg2;
+#else
 	VARIANT arg1, arg2;
 	VariantInit( &arg1 );
 	Auto(VariantClear(&arg1));
 
 	VariantInit( &arg2 );
 	Auto(VariantClear(&arg2));
+#endif
 
 	//if (SUCCEEDED(DispGetParam(pDispParams, 0, VT_BSTR, &arg1, &err)) && SUCCEEDED(DispGetParam(pDispParams, 1, VT_BSTR, &arg2, &err)))
 	//{
@@ -915,4 +1035,147 @@ LRESULT DcxWebControl::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 	}
 
 	return 0L;
+}
+
+TString DcxWebControl::CallScript(const TString & tsCmd) const
+{
+	TString tsRes;
+	READYSTATE ready_state;
+
+	if (FAILED(m_pWebBrowser2->get_ReadyState(&ready_state)) || ready_state != READYSTATE_COMPLETE)
+		throw Dcx::dcxException("Browser NOT in Ready State");
+
+	IDispatch  * htmlDisp = nullptr;
+
+	if (SUCCEEDED(m_pWebBrowser2->get_Document(&htmlDisp)))
+	{
+		Auto(htmlDisp->Release());
+
+		IHTMLDocument2 * doc = nullptr;
+		if (SUCCEEDED(htmlDisp->QueryInterface(IID_IHTMLDocument2, (void**)&doc)))
+		{
+			Auto(doc->Release());
+
+//			IHTMLWindow2 * window = nullptr;
+//
+//			if (SUCCEEDED(doc->get_parentWindow(&window)))
+//			{
+//				Auto(window->Release());
+//
+//				//VARIANT v;
+//				//VariantInit(&v);
+//				//Auto(VariantClear(&v));
+//
+//				Dcx::dcxVariant v;
+//
+//#if DCX_USE_WRAPPERS
+//				const Dcx::dcxBSTRResource strCMD(tsCmd.to_wchr());
+//
+//				window->execScript(strCMD, nullptr, &v);	// this works well, but is deprecated in latest IE's?
+//#else
+//				auto strCMD = SysAllocString(CMD.to_chr());
+//				if (strCMD != nullptr)
+//				{
+//					Auto(SysFreeString(strCMD));
+//
+//					window->execScript(strCMD, nullptr, &v);
+//				}
+//#endif
+//			}
+
+
+#if DCX_USE_WRAPPERS
+			IDispatch * idisp = nullptr;
+
+			if (SUCCEEDED(doc->get_Script(&idisp)))
+			{
+				Auto(idisp->Release());
+
+				DISPID dispid = -1;
+				DISPPARAMS params{};
+
+				Dcx::dcxVariant vArg(tsCmd.to_wchr());
+
+				params.cArgs = 1;
+				params.rgvarg = &vArg;
+
+				const Dcx::dcxBSTRResource strEval(L"eval");
+
+				BSTR hm = strEval.get();
+				if (FAILED(idisp->GetIDsOfNames(IID_NULL, &hm, 1, LOCALE_SYSTEM_DEFAULT, &dispid)))
+					throw Dcx::dcxException("GetIDsOfNames: failed.");
+
+				if (dispid == DISPID_UNKNOWN)
+					throw Dcx::dcxException("GetIDsOfNames: Unable to find eval()");
+
+				Dcx::dcxVariant v;
+
+				if (FAILED(idisp->Invoke(dispid, IID_NULL, 0, DISPATCH_METHOD, &params, &v, NULL, NULL)))
+					throw Dcx::dcxException("Invoke: failed.");
+
+				switch (v.vt)
+				{
+				case VT_BSTR:
+					tsRes.tsprintf(TEXT("%ws"), v.bstrVal);
+					break;
+					// TODO: handle other return types...
+				default:
+					break;
+				}
+			}
+#else
+			IDispatch * idisp = nullptr;
+
+			if (SUCCEEDED(doc->get_Script(&idisp)))
+			{
+				Auto(idisp->Release());
+
+				DISPID dispid = -1;
+				DISPPARAMS params{};
+
+				VARIANT vArg;
+				VariantInit(&vArg);
+				Auto(VariantClear(&vArg));
+
+				vArg.vt = VT_BSTR;
+				vArg.bstrVal = SysAllocString(tsCmd.to_wchr());
+
+				if (vArg.bstrVal == nullptr)
+					throw Dcx::dcxException("Unable to allocate BSTR");
+
+				params.cArgs = 1;
+				params.rgvarg = &vArg;
+
+	
+				BSTR hm = SysAllocString(L"eval");
+				if (hm == nullptr)
+					throw Dcx::dcxException("Unable to allocate BSTR");
+				Auto(SysFreeString(hm));
+
+				if (FAILED(idisp->GetIDsOfNames(IID_NULL, &hm, 1, LOCALE_SYSTEM_DEFAULT, &dispid)))
+					throw Dcx::dcxException("GetIDsOfNames: failed.");
+
+				if (dispid == DISPID_UNKNOWN)
+					throw Dcx::dcxException("GetIDsOfNames: Unable to find eval()");
+
+				VARIANT v;
+				VariantInit(&v);
+				Auto(VariantClear(&v));
+
+				if (FAILED(idisp->Invoke(dispid, IID_NULL, 0, DISPATCH_METHOD, &params, &v, NULL, NULL)))
+					throw Dcx::dcxException("Invoke: failed.");
+
+				switch (v.vt)
+				{
+				case VT_BSTR:
+					tsRes.tsprintf(TEXT("%ws"), v.bstrVal);
+					break;
+				default:
+					break;
+				}
+			}
+#endif
+		}
+	}
+	return tsRes;
 }
