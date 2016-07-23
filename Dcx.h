@@ -325,7 +325,7 @@ namespace Dcx
 		}
 		const int &getWidth() const noexcept { return m_Width; }
 		const int &getHeight() const noexcept { return m_Height; }
-		const HBITMAP &getBitMap() const noexcept { return m_hBitmap.get(); }
+		const HBITMAP getBitMap() const noexcept { return m_hBitmap.get(); }
 	private:
 		HBITMAP	m_hOldBitmap;
 		dcxBitmapResource m_hBitmap;

@@ -55,7 +55,8 @@ long SystemTimeToMircTime(const LPSYSTEMTIME pst) {
 		return 0;
 	}
 
-	TCHAR sRet[100];
+	//TCHAR sRet[100];
+	stString<100U> sRet;
 
 	static const TCHAR *months[12] = {
 		TEXT("January"),

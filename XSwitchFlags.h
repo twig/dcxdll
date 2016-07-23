@@ -69,12 +69,18 @@ struct XSwitchFlags {
 	~XSwitchFlags() = default;
 
 	// Function checks if flag is set
-	const bool &isSet(const TCHAR c) const noexcept;
-	const bool &operator[](const TCHAR c) const noexcept { return isSet(c); }
+	//const bool isSet(const TCHAR c) const noexcept;
+	//const bool &operator[](const TCHAR c) const noexcept { return isSet(c); }
+
+	const bool isSet(const TCHAR c) const noexcept;
+	const bool operator[](const TCHAR c) const noexcept { return isSet(c); }
+	explicit operator ULONGLONG() const noexcept { return m_dFlagMask; }
 
 private:
-	bool m_bFlags[28];     //!< Lowercase switches a-z
-	bool m_bFlags_cap[26]; //!< Uppercase switches A-Z
+	//bool	m_bFlags[28];		//!< Lowercase switches a-z
+	//bool	m_bFlags_cap[26];	//!< Uppercase switches A-Z
+	ULONGLONG	m_dFlagMask;		//!< a bitmask of all selected letters...
+
 	static const bool m_bFalse;
 };
 

@@ -79,9 +79,7 @@ DcxWebControl::DcxWebControl(const UINT ID, DcxDialog *const p_Dialog, const HWN
 #if DCX_USE_WRAPPERS
 		Dcx::dcxBSTRResource url(TEXT("about:blank"));
 
-		VARIANT v;
-		VariantInit(&v);
-		Auto(VariantClear(&v));
+		Dcx::dcxVariant v;
 
 		m_pWebBrowser2->Navigate(url, &v, &v, &v, &v);  // dont use L""
 #else
@@ -488,13 +486,19 @@ void DcxWebControl::parseCommandRequest( const TString & input) {
 		const XSwitchFlags xmask(input.getnexttok());		// tok 5 state mask, flags here are enabled, otherwise they are disabled.
 		const auto URL(input.getlasttoks().trim());		// tok 6, -1 optional
 
+#if DCX_USE_WRAPPERS
+		Dcx::dcxVariant vEmpty;
+		Dcx::dcxVariant vFlags;
+		VARIANT_BOOL bEnabled = VARIANT_FALSE;
+#else
 		VARIANT vEmpty;
 		VARIANT vFlags;
 		VARIANT_BOOL bEnabled = VARIANT_FALSE;
 		VariantInit( &vEmpty );
 		Auto(VariantClear(&vEmpty));
+#endif
 
-		V_VT(&vFlags);
+		V_VT(&vFlags) = VT_I4;
 		V_I4(&vFlags) = 0;
 
 		if (xflags['h'] && xmask['h']) // no history
@@ -538,7 +542,7 @@ void DcxWebControl::parseCommandRequest( const TString & input) {
 		// only open url if one supplied.
 		if (!URL.empty()) {
 #if DCX_USE_WRAPPERS
-			Dcx::dcxBSTRResource bstrUrl(URL.to_chr());
+			Dcx::dcxBSTRResource bstrUrl(URL.to_wchr());
 
 			m_pWebBrowser2->Navigate(bstrUrl, &vFlags, &vEmpty, &vEmpty, &vEmpty);
 #else
@@ -559,7 +563,7 @@ void DcxWebControl::parseCommandRequest( const TString & input) {
 
 #if DCX_USE_WRAPPERS
 		Dcx::dcxVariant v;
-		Dcx::dcxBSTRResource bstrUrl(URL.to_chr());
+		Dcx::dcxBSTRResource bstrUrl(URL.to_wchr());
 
 		m_pWebBrowser2->Navigate(bstrUrl, &v, &v, &v, &v);
 #else
