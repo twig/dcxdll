@@ -69,7 +69,7 @@ XSwitchFlags::XSwitchFlags(const TString &switches) noexcept
 		// Check if its in the right range
 		if ((c >= TEXT('a') && c <= TEXT('z')) || (c >= TEXT('A') && (c <= TEXT('Z'))))
 		{
-			const auto bitn = c - TEXT('A') + 1;
+			const auto bitn = c - TEXT('A');
 			m_dFlagMask |= (1ULL << bitn);
 		}
 	}
@@ -81,7 +81,7 @@ const bool XSwitchFlags::isSet(const TCHAR c) const noexcept
 	// Lower-case & Upper-case
 	if ((c >= TEXT('a') && c <= TEXT('z')) || (c >= TEXT('A') && (c <= TEXT('Z'))))
 	{
-		const auto bitn = c - TEXT('A') + 1;
+		const auto bitn = c - TEXT('A');
 		return (m_dFlagMask & (1ULL << bitn)) != 0;
 	}
 	else if (c == TEXT('-'))	// check if - flag identifier used.

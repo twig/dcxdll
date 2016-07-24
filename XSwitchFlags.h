@@ -69,7 +69,7 @@ struct XSwitchFlags {
 	~XSwitchFlags() = default;
 
 	// Function checks if flag is set
-	//const bool isSet(const TCHAR c) const noexcept;
+	//const bool &isSet(const TCHAR c) const noexcept;
 	//const bool &operator[](const TCHAR c) const noexcept { return isSet(c); }
 
 	const bool isSet(const TCHAR c) const noexcept;
