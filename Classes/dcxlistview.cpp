@@ -191,7 +191,7 @@ void DcxListView::parseControlStyles( const TString & styles, LONG * Styles, LON
 	for (const auto &tsStyle : styles)
 	{
 #if DCX_USE_HASHING
-		switch (dcx_hash(tsStyle.to_chr()))
+		switch (std::hash<TString>{}(tsStyle))
 		{
 		case L"report"_hash:
 			*Styles |= LVS_REPORT;
@@ -288,7 +288,7 @@ void DcxListView::parseListviewExStyles( const TString & styles, LONG * ExStyles
 	for (const auto &tsStyle : styles)
 	{
 #if DCX_USE_HASHING
-		switch (dcx_hash(tsStyle.to_chr()))
+		switch (std::hash<TString>{}(tsStyle))
 		{
 		case L"grid"_hash:
 			*ExStyles |= LVS_EX_GRIDLINES;

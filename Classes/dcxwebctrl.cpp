@@ -571,7 +571,7 @@ void DcxWebControl::parseCommandRequest( const TString & input) {
 		VariantInit(&v);
 		Auto(VariantClear(&v));
 
-		auto bstrUrl = SysAllocString(URL.to_chr());
+		auto bstrUrl = SysAllocString(URL.to_wchr());
 		if (bstrUrl == nullptr)
 			throw Dcx::dcxException("Unable to Allocate Memory");
 		Auto(SysFreeString(bstrUrl));

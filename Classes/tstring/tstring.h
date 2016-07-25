@@ -151,6 +151,17 @@
 #define ts_strcpy_throw(x,y) if (ts_strcpy((x), (y)) == nullptr) throw std::logic_error("strcpy() failed!");
 #define ts_strcpyn_throw(x,y,z) if (ts_strcpyn((x), (y), (z)) == nullptr) throw std::logic_error("strcpyn() failed!");
 
+template<class _Ty>
+struct is_Numeric
+	: std::_Cat_base<std::is_arithmetic<_Ty>::value
+	&& !std::is_same<_Ty, wchar_t>::value
+	&& !std::is_same<_Ty, char>::value
+	&& !std::is_pointer<_Ty>::value>
+{	// determine whether _Ty is a Number type (excluding char / wchar)
+};
+template <typename T>
+constexpr bool is_Numeric_v = is_Numeric<T>::value;
+
 /*!
  * \brief String and Token Management Class
  */
@@ -164,15 +175,6 @@ public:
 	using const_pointer = std::add_pointer_t<const_value_type>;
 	using reference = std::add_lvalue_reference_t<value_type>;
 	using const_reference = std::add_lvalue_reference_t<const_value_type>;
-
-	template<class _Ty>
-	struct is_Numeric
-		: std::_Cat_base<std::is_arithmetic<_Ty>::value
-		&& !std::is_same<_Ty, wchar_t>::value
-		&& !std::is_same<_Ty, char>::value
-		&& !std::is_pointer<_Ty>::value>
-	{	// determine whether _Ty is a Number type (excluding char / wchar)
-	};
 
 private:
 
@@ -229,7 +231,7 @@ private:
 	template <class T>
 	std::enable_if_t<std::is_signed<T>::value> CheckRange(const T &N) const
 	{
-		static_assert(is_Numeric<T>::value, "Only Numeric Types accepted.");
+		static_assert(is_Numeric_v<T>, "Only Numeric Types accepted.");
 
 		if ((m_pString == nullptr) || (N < 0) || (static_cast<size_t>(N) >= (m_buffersize / sizeof(TCHAR))))
 			throw std::out_of_range("TString::at()");
@@ -237,7 +239,7 @@ private:
 	template <class T>
 	std::enable_if_t<std::is_unsigned<T>::value> CheckRange(const T &N) const
 	{
-		static_assert(is_Numeric<T>::value, "Only Numeric Types accepted.");
+		static_assert(is_Numeric_v<T>, "Only Numeric Types accepted.");
 
 		if ((m_pString == nullptr) || (N >= (m_buffersize / sizeof(TCHAR))))
 			throw std::out_of_range("TString::at()");
@@ -408,7 +410,7 @@ public:
 	// code below is broken & causes crashes, reason unknown at this time
 	//template <typename T>
 	//TString &operator =(const T &other) {
-	//	static_assert(!is_Numeric<T>::value, "Must be a TString, WCHAR, CHAR, WCHAR * or CHAR *");
+	//	static_assert(!is_Numeric_v<T>, "Must be a TString, WCHAR, CHAR, WCHAR * or CHAR *");
 	//	TString tmp(other);
 	//	this->swap(tmp);
 	//	return *this;
@@ -430,9 +432,9 @@ public:
 
 	// final version of the += operator, properly handles numeric types (char, wchar classified as non-numeric here)
 	template <class T>
-	std::enable_if_t<!is_Numeric<T>::value, TString> & operator +=(const T &other) { return append(other); }
+	std::enable_if_t<!is_Numeric_v<T>, TString> & operator +=(const T &other) { return append(other); }
 	template <class T>
-	std::enable_if_t<is_Numeric<T>::value, TString> & operator +=(const T &num) { return append_number(num); }
+	std::enable_if_t<is_Numeric_v<T>, TString> & operator +=(const T &num) { return append_number(num); }
 
 	// code below is the same as above but without the is_Numeric() macro (kept as reference only)
 	//template <class T>

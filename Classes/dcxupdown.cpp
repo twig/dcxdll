@@ -85,7 +85,7 @@ void DcxUpDown::parseControlStyles( const TString & styles, LONG * Styles, LONG 
 	for (const auto tsStyle: styles)
 	{
 #if DCX_USE_HASHING
-		switch (dcx_hash(tsStyle.to_chr()))
+		switch (std::hash<TString>{}(tsStyle))
 		{
 			case L"left"_hash:
 				{
@@ -147,6 +147,28 @@ void DcxUpDown::parseControlStyles( const TString & styles, LONG * Styles, LONG 
 
 void DcxUpDown::parseInfoRequest( const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const
 {
+#if DCX_USE_HASHING
+	switch (std::hash<TString>{}(input.getfirsttok(3)))
+	{
+	// [NAME] [ID] [PROP]
+	case L"value"_hash:
+	{
+		BOOL bError = FALSE;
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), getPos32(&bError));
+	}
+	break;
+	// [NAME] [ID] [PROP]
+	case L"range"_hash:
+	{
+		int iMin = 0, iMax  = 0;
+		getRange32(&iMin, &iMax);
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d"), iMin, iMax);
+	}
+	break;
+	default:
+		parseGlobalInfoRequest(input, szReturnValue);
+	}
+#else
 	const auto prop(input.getfirsttok(3));
 
 	// [NAME] [ID] [PROP]
@@ -164,6 +186,7 @@ void DcxUpDown::parseInfoRequest( const TString & input, const refString<TCHAR, 
 	}
 	else
 		this->parseGlobalInfoRequest(input, szReturnValue);
+#endif
 }
 
 /*!

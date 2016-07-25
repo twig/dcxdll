@@ -91,7 +91,7 @@ void DcxStatusBar::parseControlStyles( const TString & styles, LONG * Styles, LO
 	for (const auto &tsStyle: styles)
 	{
 #if DCX_USE_HASHING
-		switch (dcx_hash(tsStyle.to_chr()))
+		switch (std::hash<TString>{}(tsStyle))
 		{
 			case L"grip"_hash:
 				*Styles |= SBARS_SIZEGRIP;

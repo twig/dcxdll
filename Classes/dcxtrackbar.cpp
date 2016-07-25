@@ -102,7 +102,7 @@ void DcxTrackBar::parseControlStyles( const TString & styles, LONG * Styles, LON
 	for (const auto &tsStyle: styles)
 	{
 #if DCX_USE_HASHING
-		switch (dcx_hash(tsStyle.to_chr()))
+		switch (std::hash<TString>{}(tsStyle))
 		{
 			case L"autoticks"_hash:
 				*Styles |= TBS_AUTOTICKS;

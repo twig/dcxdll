@@ -114,7 +114,7 @@ void DcxButton::parseControlStyles( const TString & styles, LONG * Styles, LONG 
 	for (const auto &tsStyle: styles)
 	{
 #if DCX_USE_HASHING
-		switch (dcx_hash(tsStyle.to_chr()))
+		switch (std::hash<TString>{}(tsStyle))
 		{
 			case L"bitmap"_hash:
 				*Styles |= BS_BITMAP;
