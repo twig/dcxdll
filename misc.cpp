@@ -721,6 +721,10 @@ HICON dcxLoadIcon(const int index, TString &filename, const bool large, const TS
 
 		GdiFlush();
 	}
+#else
+	else if (xflags[TEXT('P')]) {
+		throw Dcx::dcxException("dcxLoadIcon: Invalid +P without GDI+.");
+	}
 #endif
 	else {
 		if (large)
@@ -1225,12 +1229,13 @@ bool IsFile(TString &filename)
 	auto res = SearchPath(nullptr, filename.to_chr(), nullptr, 0, nullptr, nullptr);
 	if (res > 0) {
 		// found file, alloc buffer & fill with path/file.
+#if DCX_USE_WRAPPERS
+		Dcx::dcxStringResource buf(res + 1U);
+#else
 		//auto buf = std::make_unique<TCHAR[]>(res + 1U);
 		
-		//stString<res + 1U> buf;
-		
-		Dcx::dcxStringResource buf(res +1U);
-
+		stString<res + 1U> buf;
+#endif
 		res = SearchPath(nullptr, filename.to_chr(), nullptr, res, buf.get(), nullptr);
 
 		if (res == 0) // if find failed, exit
