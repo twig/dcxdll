@@ -123,6 +123,17 @@ SIZE XPopupMenuItem::getItemSize( const HWND mHwnd ) {
 		auto hdc = GetDC( mHwnd );
 		Auto(ReleaseDC(mHwnd, hdc));
 
+#if DCX_USE_HASHING
+		const auto typeHash = std::hash<TString>{}(this->m_pXParentMenu->getName());
+		if ((typeHash == TEXT("mirc"_hash)) || (typeHash == TEXT("mircbar"_hash)) || (typeHash == TEXT("dialog"_hash))) {
+			if (m_tsItemText.numtok(TEXT('\v')) > 1) {
+				m_nIcon = m_tsItemText.getfirsttok(1, TEXT('\v')).to_int() - 1;		// tok 1, TEXT("\v")
+				m_tsItemText = m_tsItemText.getnexttok(TEXT('\v')).trim();				// tok 2, TEXT("\v")
+			}
+		}
+		else
+			mIRCLinker::tsEval(m_tsItemText, m_tsItemText.to_chr());
+#else
 		const auto &tsType(this->m_pXParentMenu->getName());
 		if ( (tsType == TEXT("mirc")) || (tsType == TEXT("mircbar")) || (tsType == TEXT("dialog")) ) {
 			if ( this->m_tsItemText.numtok( TEXT('\v') ) > 1 ) {
@@ -132,6 +143,7 @@ SIZE XPopupMenuItem::getItemSize( const HWND mHwnd ) {
 		}
 		else
 			mIRCLinker::tsEval( this->m_tsItemText, this->m_tsItemText.to_chr( ) );
+#endif
 
 		// Odd error in size returned by GetTextExtentPoint32() when dealing with utf text, length is cut short for some reason...
 		// text needs normalized?
@@ -193,6 +205,17 @@ void XPopupMenuItem::DrawItem( const LPDRAWITEMSTRUCT lpdis ) {
 	this->DrawItemBackground( lpdis, lpcol );
 	this->DrawItemBox( lpdis, lpcol );
 
+#if DCX_USE_HASHING
+	const auto &typeHash(m_pXParentMenu->getNameHash());
+	if ((typeHash == TEXT("mircbar"_hash)) || (typeHash == TEXT("dialog"_hash)))
+	{
+		if (m_tsItemText.numtok(TEXT('\v')) > 1) {
+
+			m_nIcon = m_tsItemText.getfirsttok(1, TEXT('\v')).to_int() - 1;
+			m_tsItemText = m_tsItemText.getnexttok(TEXT('\v')).trim();
+		}
+	}
+#else
 	const auto &tsType(this->m_pXParentMenu->getName());
 	if (( tsType == TEXT("mircbar") ) || ( tsType == TEXT("dialog"))) {
 
@@ -202,7 +225,7 @@ void XPopupMenuItem::DrawItem( const LPDRAWITEMSTRUCT lpdis ) {
 			this->m_tsItemText = this->m_tsItemText.getnexttok( TEXT('\v') ).trim();
 		}
 	}
-
+#endif
 	// Item is selected
 	if (this->m_pXParentMenu->getStyle() != XPopupMenu::XPMS_BUTTON) {
 		if (bSelected) {

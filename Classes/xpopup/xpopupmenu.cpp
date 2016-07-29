@@ -58,8 +58,11 @@ XPopupMenu::XPopupMenu(const TString & tsMenuName, MenuStyle mStyle)
  */
 
 XPopupMenu::XPopupMenu(const TString &tsName, HMENU hMenu )
-: m_hMenu(hMenu), m_MenuItemStyles(0), m_MenuStyle(XPMS_OFFICE2003), m_hImageList(nullptr), m_hBitmap(nullptr)
-, m_tsMenuName(tsName), m_bRoundedSel(false), m_uiAlpha(255), m_bAttachedToMenuBar(false)
+	: m_hMenu(hMenu), m_MenuItemStyles(0), m_MenuStyle(XPMS_OFFICE2003), m_hImageList(nullptr), m_hBitmap(nullptr)
+	, m_tsMenuName(tsName), m_bRoundedSel(false), m_uiAlpha(255), m_bAttachedToMenuBar(false)
+#if DCX_USE_HASHING
+	, m_menuNameHash(std::hash<TString>{}(tsName))
+#endif
 {
 	this->m_MenuColors.m_clrBack = RGB( 255, 255, 255 );
 	this->m_MenuColors.m_clrBox =  RGB( 184, 199, 146 );
@@ -89,8 +92,13 @@ XPopupMenu::~XPopupMenu( ) {
 	if ( this->m_hBitmap != nullptr )
 		DeleteBitmap( this->m_hBitmap );
 
+#if DCX_USE_HASHING
+	if (m_hMenu != nullptr && m_menuNameHash != TEXT("mircbar"_hash) && m_menuNameHash != TEXT("dialog"_hash))
+		DestroyMenu(this->m_hMenu);
+#else
 	if ( this->m_hMenu != nullptr && this->m_tsMenuName != TEXT("mircbar") && this->m_tsMenuName != TEXT("dialog"))
 		DestroyMenu( this->m_hMenu );
+#endif
 }
 
 /*!
@@ -482,6 +490,77 @@ void XPopupMenu::parseXPopCommand( const TString & input ) {
 
 void XPopupMenu::parseXPopIdentifier(const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const
 {
+#if DCX_USE_HASHING
+	const auto numtok = input.numtok();
+	const auto propHash = std::hash<TString>{}(input.getfirsttok(2));		// tok 2
+	const auto path(input.getlasttoks());		// tok 3, -1
+
+	if (numtok < 3)
+		throw Dcx::dcxException("Invalid Number of Arguments");
+	
+	// [NAME] [ID] [PROP] [PATH]
+	switch (propHash)
+	{
+	case TEXT("num"_hash):
+	{
+		HMENU hMenu = nullptr;
+		if (path == TEXT("root"))
+			hMenu = m_hMenu;
+		else
+			hMenu = parsePath(path, m_hMenu);
+
+		if (hMenu == nullptr)
+			throw Dcx::dcxException("Unable to get menu");
+
+		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), GetMenuItemCount(hMenu));
+	}
+	break;
+	case TEXT("text"_hash):
+	case TEXT("icon"_hash):
+	{
+		MENUITEMINFO mii;
+		if (getMenuInfo(MIIM_DATA, path, mii))
+		{
+			const auto p_Item = reinterpret_cast<XPopupMenuItem *>(mii.dwItemData);
+			if (p_Item == nullptr)
+				throw Dcx::dcxException("Unable to get menu data");
+
+			if (propHash == TEXT("text"_hash))
+				szReturnValue = p_Item->getItemText().to_chr();
+			else if (propHash == TEXT("icon"_hash))
+				wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), p_Item->getItemIcon() + 1);
+		}
+	}
+	break;
+	case TEXT("checked"_hash):
+	case TEXT("enabled"_hash):
+	{
+		MENUITEMINFO mii;
+		if (getMenuInfo(MIIM_STATE, path, mii))
+		{
+			if (propHash == TEXT("checked"_hash))
+				szReturnValue = dcx_truefalse(dcx_testflag(mii.fState, MFS_CHECKED));
+			else if (propHash == TEXT("enabled"_hash))
+				szReturnValue = dcx_truefalse(!dcx_testflag(mii.fState, MFS_GRAYED));
+		}
+	}
+	break;
+	case TEXT("submenu"_hash):
+	{
+		MENUITEMINFO mii;
+		if (getMenuInfo(MIIM_SUBMENU, path, mii))
+		{
+			if (mii.hSubMenu != nullptr)
+				szReturnValue = TEXT('1');
+			else
+				szReturnValue = TEXT('0');
+		}
+	}
+	break;
+	default:
+		throw Dcx::dcxException("Unknown Property");
+	}
+#else
 	const auto numtok = input.numtok();
 	const auto prop(input.getfirsttok(2));		// tok 2
 	const auto path(input.getlasttoks());		// tok 3, -1
@@ -537,6 +616,7 @@ void XPopupMenu::parseXPopIdentifier(const TString & input, const refString<TCHA
 				szReturnValue = TEXT('0');
 		}
 	}
+#endif
 }
 
 /*!
@@ -1015,9 +1095,13 @@ void XPopupMenu::convertMenu( HMENU hMenu, const BOOL bForce )
 
 					// fixes identifiers in the dialog menu not being resolved. 
 					// TODO Needs testing to see if it causes any other issues, like double eval's)
+#if DCX_USE_HASHING
+					if (bForce && this->getNameHash() == TEXT("dialog"_hash))
+						mIRCLinker::tsEval(tsItem, tsItem.to_chr()); // we can use tsItem for both args as the second arg is copied & used before the first arg is set with the return value.
+#else
 					if (bForce && this->getName() == TEXT("dialog"))
 						mIRCLinker::tsEval(tsItem, tsItem.to_chr()); // we can use tsItem for both args as the second arg is copied & used before the first arg is set with the return value.
-
+#endif
 					p_Item = std::make_unique<XPopupMenuItem>(this, tsItem, -1, (mii.hSubMenu != nullptr), mii.dwItemData);
 				}
 
@@ -1166,7 +1250,53 @@ BOOL XPopupMenu::getMenuInfo(const UINT iMask, const TString & path, MENUITEMINF
 /*
  * Parses a string to a menu style.
  */
-XPopupMenu::MenuStyle XPopupMenu::parseStyle(const TString &tsStyle) noexcept {
+XPopupMenu::MenuStyle XPopupMenu::parseStyle(const TString &tsStyle) noexcept
+{
+#if DCX_USE_HASHING
+	auto style = XPopupMenu::XPMS_OFFICE2003;
+
+	switch (std::hash<TString>{}(tsStyle))
+	{
+	case TEXT("office2003rev"_hash):
+		style = XPopupMenu::XPMS_OFFICE2003_REV;
+		break;
+	case TEXT("officexp"_hash):
+		style = XPopupMenu::XPMS_OFFICEXP;
+		break;
+	case TEXT("icy"_hash):
+		style = XPopupMenu::XPMS_ICY;
+		break;
+	case TEXT("icyrev"_hash):
+		style = XPopupMenu::XPMS_ICY_REV;
+		break;
+	case TEXT("grade"_hash):
+		style = XPopupMenu::XPMS_GRADE;
+		break;
+	case TEXT("graderev"_hash):
+		style = XPopupMenu::XPMS_GRADE_REV;
+		break;
+	case TEXT("vertical"_hash):
+		style = XPopupMenu::XPMS_VERTICAL;
+		break;
+	case TEXT("verticalrev"_hash):
+		style = XPopupMenu::XPMS_VERTICAL_REV;
+		break;
+	case TEXT("normal"_hash):
+		style = XPopupMenu::XPMS_NORMAL;
+		break;
+	case TEXT("custom"_hash):
+		style = XPopupMenu::XPMS_CUSTOM;
+		break;
+	case TEXT("button"_hash):
+		style = XPopupMenu::XPMS_BUTTON;
+		break;
+	case TEXT("custombig"_hash):
+		style = XPopupMenu::XPMS_CUSTOMBIG;
+	default:
+		break;
+	}
+	return style;
+#else
 	auto style = XPopupMenu::XPMS_OFFICE2003;
 
 	if (tsStyle == TEXT("office2003rev"))
@@ -1195,4 +1325,5 @@ XPopupMenu::MenuStyle XPopupMenu::parseStyle(const TString &tsStyle) noexcept {
 		style = XPopupMenu::XPMS_CUSTOMBIG;
 
 	return style;
+#endif
 }

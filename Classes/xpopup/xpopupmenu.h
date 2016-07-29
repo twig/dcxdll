@@ -128,6 +128,11 @@ public:
 	void deleteAllItemData( HMENU hMenu );
 
 	const TString &getName( ) const noexcept;
+#if DCX_USE_HASHING
+	const size_t &getNameHash() const noexcept {
+		return m_menuNameHash;
+	}
+#endif
 
 	const inline HMENU &getMenuHandle( ) const noexcept { return this->m_hMenu; };
 
@@ -173,6 +178,9 @@ protected:
 	TString m_tsMenuName; //!< Menu Name
 	TString m_tsMarkedText; //!< Extra field to store custom information
 	UINT m_MenuItemStyles; //!< Menu Item Styles
+#if DCX_USE_HASHING
+	size_t m_menuNameHash;	//!< Hash of tsMenuName
+#endif
 
 	HBITMAP m_hBitmap; //!< Menu Item Background Image in Custom Style
 

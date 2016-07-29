@@ -976,7 +976,27 @@ void XPopupMenuManager::setIsMenuBar(const bool value)
  * blah
  */
 
-XPopupMenu * XPopupMenuManager::getMenuByName(const TString &tsName, const bool bCheckSpecial) const { 
+XPopupMenu * XPopupMenuManager::getMenuByName(const TString &tsName, const bool bCheckSpecial) const {
+#if DCX_USE_HASHING
+	const auto nameHash = std::hash<TString>{}(tsName);
+
+	if (bCheckSpecial) {
+		if (nameHash == TEXT("mircbar"_hash))
+			return m_mIRCMenuBar;
+		else if (nameHash == TEXT("mirc"_hash))
+			return Dcx::XPopups.getmIRCPopup();
+		else if (nameHash == TEXT("scriptpopup"_hash))
+			return g_mIRCScriptMenu;
+	}
+
+	for (const auto &x : m_vpXPMenu) {
+		if (x != nullptr) {
+			if (x->getNameHash() == nameHash)
+				return x;
+		}
+	}
+	return nullptr;
+#else
 	if (bCheckSpecial) {
 		if (tsName == TEXT("mircbar"))
 			return m_mIRCMenuBar;
@@ -993,6 +1013,7 @@ XPopupMenu * XPopupMenuManager::getMenuByName(const TString &tsName, const bool 
 		}
 	}
 	return nullptr;
+#endif
 }
 
 /*
@@ -1183,7 +1204,7 @@ void XPopupMenuManager::LoadPopupsFromXML(const TiXmlElement *const popups, cons
 
 				if (!tsFilename.empty())
 				{
-					for (auto itStart = indexes.begin(TSCOMMA), itEnd = indexes.end(); itStart != itEnd; ++itStart)
+					for (auto itStart = indexes.begin(TSCOMMACHAR), itEnd = indexes.end(); itStart != itEnd; ++itStart)
 					{
 						// does (*itStart) NEED to be converted to an int?
 						//command.tsprintf(TEXT("%s -i %s %d %s"), popupName.to_chr(), flags.to_chr(), (*itStart).to_int(), tsFilename.to_chr());
