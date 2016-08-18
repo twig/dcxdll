@@ -68,14 +68,19 @@ namespace Dcx
 	HCURSOR dcxLoadCursorFromFile(const TString &filename);
 	HCURSOR dcxLoadCursorFromResource(const PTCHAR CursorType);
 
+	// determine whether _Ty is a Number type (excluding char / wchar)
 	template<class _Ty>
 	struct is_Numeric
-		: std::_Cat_base<std::is_arithmetic<_Ty>::value
-		&& !std::is_same<_Ty, wchar_t>::value
-		&& !std::is_same<_Ty, char>::value
-		&& !std::is_pointer<_Ty>::value>
+		: std::integral_constant<bool,
+			std::is_arithmetic_v<_Ty>
+			&& !std::is_same_v<_Ty, wchar_t>
+			&& !std::is_same_v<_Ty, char>
+			&& !std::is_pointer_v<_Ty>
+		>
 	{	// determine whether _Ty is a Number type (excluding char / wchar)
 	};
+	template <typename T>
+	constexpr bool is_Numeric_v = is_Numeric<T>::value;
 
 	// make_resource() function by Eric Scott Barr (http://ericscottbarr.com/blog/2014/04/c-plus-plus-14-and-sdl2-managing-resources/)
 
@@ -248,12 +253,12 @@ namespace Dcx
 		}
 		//// calls GetDC() - broken
 		//explicit dcxHDCResource(HWND hWnd)
-		//	: dcxResource(make_resource(GetDC, [](HDC obj) { ReleaseDC(nullptr, obj); }, hWnd))
+		//	: dcxResource(make_resource(GetDC, [hWnd](HDC obj) { ReleaseDC(hWnd, obj); }, hWnd))
 		//{
 		//}
 		//// calls GetDCEx() - broken
 		//dcxHDCResource(HWND hWnd, HRGN hrgnClip, DWORD flags)
-		//	: dcxResource(make_resource(GetDCEx, [](HDC obj) { ReleaseDC(nullptr, obj); }, hWnd))
+		//	: dcxResource(make_resource(GetDCEx, [hWnd](HDC obj) { ReleaseDC(hWnd, obj); }, hWnd, hrgnClip, flags))
 		//{
 		//}
 		//// calls GetWindowDC() - broken
@@ -576,14 +581,12 @@ namespace Dcx
 			bstrVal = bStr;
 		}
 		dcxVariant(const WCHAR *cStr)
-			: dcxVariant()
+			: dcxVariant(SysAllocString(cStr))
 		{
-			vt = VT_BSTR;
-			bstrVal = SysAllocString(cStr);
 		}
 		~dcxVariant()
 		{
-			VariantClear(this);
+			VariantClear(this);	// this does SysFreeString() for us.
 		}
 	};
 
@@ -672,7 +675,7 @@ namespace Dcx
 		template < typename tResult, typename tInput >
 		std::enable_if_t<is_Numeric<tInput>::value, inline constexpr tResult> numeric_cast(tInput &in) noexcept
 		{
-			static_assert(is_Numeric<tResult>::value, "A Numeric return type is required");
+			static_assert(is_Numeric_v<tResult>, "A Numeric return type is required");
 			return static_cast<tResult>(in);
 		}
 
@@ -680,7 +683,7 @@ namespace Dcx
 		template < typename tResult, typename tInput >
 		std::enable_if_t<!is_Numeric<tInput>::value && !std::is_convertible<tInput, tResult>::value, tResult> numeric_cast(tInput &in)
 		{
-			static_assert(is_Numeric<tResult>::value, "A Numeric return type is required");
+			static_assert(is_Numeric_v<tResult>, "A Numeric return type is required");
 			std::stringstream buf;
 			buf << in;
 			tResult result;
@@ -692,7 +695,7 @@ namespace Dcx
 		template < typename tResult, typename tInput >
 		std::enable_if_t<!is_Numeric<tInput>::value && std::is_convertible<tInput, tResult>::value, inline constexpr tResult> numeric_cast(tInput &in)
 		{
-			static_assert(is_Numeric<tResult>::value, "A Numeric return type is required");
+			static_assert(is_Numeric_v<tResult>, "A Numeric return type is required");
 			return in;
 		}
 	}
@@ -701,23 +704,23 @@ namespace Dcx
 	template < typename tResult, typename tInput >
 	inline constexpr tResult numeric_cast(tInput &in)
 	{
-		static_assert(is_Numeric<tResult>::value, "A Numeric return type is required");
+		static_assert(is_Numeric_v<tResult>, "A Numeric return type is required");
 		return details::numeric_cast<tResult>(in);
 	}
 
 	// Converts any pointer to a numeric.
-	template < typename tResult, typename tInput, typename = std::enable_if_t<!std::is_same<std::remove_cv_t<tInput>,char>::value && !std::is_same<std::remove_cv_t<tInput>,wchar_t>::value> >
+	template < typename tResult, typename tInput, typename = std::enable_if_t<!std::is_same_v<std::remove_cv_t<tInput>,char> && !std::is_same_v<std::remove_cv_t<tInput>,wchar_t> > >
 	inline constexpr tResult numeric_cast(tInput *in)
 	{
-		static_assert(is_Numeric<tResult>::value, "A Numeric return type is required");
+		static_assert(is_Numeric_v<tResult>, "A Numeric return type is required");
 		return reinterpret_cast<tResult>(in);
 	}
 
 	//// Converts any calculation to a numeric.
-	//template < typename tResult, typename tInput, typename = std::enable_if_t<std::is_arithmetic<tInput>::value> >
+	//template < typename tResult, typename tInput, typename = std::enable_if_t<std::is_arithmetic_v<tInput> > >
 	//inline constexpr tResult numeric_cast(tInput in)
 	//{
-	//	static_assert(is_Numeric<tResult>::value, "A Numeric return type is required");
+	//	static_assert(is_Numeric_v<tResult>, "A Numeric return type is required");
 	//	return static_cast<tResult>(in);
 	//}
 
