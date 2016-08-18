@@ -167,16 +167,17 @@ auto readFile(const TString &filename)
 	if (filename == nullptr)
 		return nullptr;
 
-	//auto file = dcx_fopen(filename, TEXT("rb"));
-	//
-	//// Open file in binary mode and read
-	//if (file == nullptr)
-	//	return nullptr;
-	//
-	//Auto(fclose(file));
-
-	//Dcx::dcxFile file(filename.to_chr(), TEXT("rb"));
+#if DCX_USE_WRAPPERS
 	Dcx::dcxFileResource file(filename.to_chr(), TEXT("rb"));
+#else
+	auto file = dcx_fopen(filename, TEXT("rb"));
+	
+	// Open file in binary mode and read
+	if (file == nullptr)
+		return nullptr;
+	
+	Auto(fclose(file));
+#endif
 
 	// Seek End of file
 	if (fseek(file, 0, SEEK_END))
@@ -225,14 +226,16 @@ TString readTextFile(const TString &tFile)
 */
 bool SaveDataToFile(const TString &tsFile, const TString &tsData)
 {
-	//auto file = dcx_fopen(tsFile.to_chr(), TEXT("wb"));
-	//
-	//if (file == nullptr)
-	//	return false;
-	//
-	//Auto(fclose(file));
-
+#if DCX_USE_WRAPPERS
 	Dcx::dcxFileResource file(tsFile.to_chr(), TEXT("wb"));
+#else
+	auto file = dcx_fopen(tsFile.to_chr(), TEXT("wb"));
+	
+	if (file == nullptr)
+		return false;
+	
+	Auto(fclose(file));
+#endif
 
 	const static WCHAR tBOM = 0xFEFF;	// unicode BOM
 
@@ -295,7 +298,7 @@ bool ParseCommandToLogfont(const TString& cmd, LPLOGFONT lf) {
 	if (dcx_testflag(flags, dcxFontFlags::DCF_DEFAULT))
 		return (GetObject((HFONT)GetStockObject(DEFAULT_GUI_FONT), sizeof(LOGFONT), lf) != 0);
 
-	lf->lfCharSet = (BYTE)parseFontCharSet(cmd.getnexttok( ));	// tok 2
+	lf->lfCharSet = (BYTE)(parseFontCharSet(cmd.getnexttok( )) & 0xFF);	// tok 2
 	const auto fSize = cmd.getnexttok( ).to_int();				// tok 3
 	const auto fName(cmd.getlasttoks( ).trim());				// tok 4, -1
 
