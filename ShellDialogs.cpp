@@ -390,6 +390,58 @@ mIRC(BrowseDialog) {
 			http://msdn2.microsoft.com/en-us/library/bb773205.aspx
 			*/
 
+#if DCX_USE_HASHING
+			switch (std::hash<TString>{}(flag))
+			{
+			case TEXT("advanced"_hash):
+				bi.ulFlags |= BIF_USENEWUI;
+				break;
+			case TEXT("edit"_hash):
+				bi.ulFlags |= BIF_EDITBOX;
+				break;
+			case TEXT("newstyle"_hash):
+				bi.ulFlags |= BIF_NEWDIALOGSTYLE;
+				break;
+			case TEXT("nonew"_hash):
+				bi.ulFlags |= BIF_NONEWFOLDERBUTTON;
+				break;
+			case TEXT("files"_hash):
+				bi.ulFlags |= BIF_BROWSEINCLUDEFILES;
+				break;
+			case TEXT("title"_hash):
+				bDialogText = true;
+				break;
+			case TEXT("initfolder"_hash):
+				bInitialFolder = true;
+				break;
+			case TEXT("computers"_hash):
+			{
+				// NOTE: do not use with "advanced"
+				//bi.ulFlags &= ~BIF_USENEWUI;
+				bi.ulFlags |= BIF_BROWSEFORCOMPUTER;
+				pidlRoot = GetFolderFromCSIDL(CSIDL_NETWORK);
+			}
+			break;
+			case TEXT("printers"_hash):
+			{
+				// NOTE: do not use with "advanced"
+				//bi.ulFlags &= ~BIF_USENEWUI;
+				bi.ulFlags |= BIF_BROWSEFORPRINTER;
+				pidlRoot = GetFolderFromCSIDL(CSIDL_PRINTERS);
+			}
+			break;
+			case TEXT("nonetwork"_hash):
+				bi.ulFlags |= BIF_DONTGOBELOWDOMAIN;
+				break;
+			case TEXT("shortcut"_hash):
+				bi.ulFlags |= BIF_NOTRANSLATETARGETS;
+				break;
+				// owner
+			case TEXT("owner"_hash):
+				bi.hwndOwner = FindOwner(param, mWnd);
+				break;
+			}
+#else
 			if (flag == TEXT("advanced"))
 				bi.ulFlags |= BIF_USENEWUI;
 			else if (flag == TEXT("edit"))
@@ -424,13 +476,14 @@ mIRC(BrowseDialog) {
 			// owner
 			else if (flag == TEXT("owner"))
 				bi.hwndOwner = FindOwner(param, mWnd);
+#endif // DCX_USE_HASHING
 		}
 
 		Auto(CoTaskMemFree(pidlRoot));
 
 		// Set initial folder
 		if (bInitialFolder && (pidlRoot == nullptr)) {
-			currentParam++;
+			++currentParam;
 			initPath = input.gettok(currentParam, TSTABCHAR).trim();
 
 			extra.initialFolder = initPath.to_chr();
@@ -438,7 +491,7 @@ mIRC(BrowseDialog) {
 
 		// Set title text.
 		if (bDialogText) {
-			currentParam++;
+			++currentParam;
 			param = input.gettok(currentParam, TSTABCHAR).trim();
 
 			bi.lpszTitle = param.to_chr();
@@ -583,7 +636,8 @@ mIRC(FontDialog) {
 
 		// set up the LF structure
 		ZeroMemory(&lf, sizeof(LOGFONT));
-		GetObject(GetStockObject(DEFAULT_GUI_FONT), sizeof(LOGFONT), &lf);
+		if (GetObject(GetStockObject(DEFAULT_GUI_FONT), sizeof(LOGFONT), &lf) == 0)
+			throw Dcx::dcxException("Unable to get LOGFONT");
 
 		// set up the CF struct
 		ZeroMemory(&cf, sizeof(CHOOSEFONT));

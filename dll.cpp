@@ -163,11 +163,12 @@ _INTEL_DLL_ int WINAPI UnloadDll(int timeout) {
 /*!
 * \brief DCX DLL Version Function
 */
-#include <ColourString.h>
-mIRC(Version) {
 #if DCX_DEBUG_OUTPUT
+#include <ColourString.h>
+mIRC(Version)
+{
 	try {
-		TString tmp(TEXT("This is a token string    "));
+		TString tmp(TEXT("This is a token string"));
 
 		tmp.trim();
 
@@ -232,9 +233,9 @@ mIRC(Version) {
 		tok = tsNum++;
 		mIRCLinker::execex(TEXT("/echo -a tsNum++: %s"), tok.to_chr()); // ""
 
-		tsNum = TEXT("blah1 blah2 blah3");
+		tsNum = TEXT("blah1 blah2 blah3");	// "blah1 blah2 blah3"
 		tsNum++;
-		tok = *tsNum;
+		tok = *tsNum;	// "blah2"
 		mIRCLinker::execex(TEXT("/echo -a tsNum: %s"), tsNum.to_chr()); // ""
 		mIRCLinker::execex(TEXT("/echo -a *tsNum: %s"), tok.to_chr()); // ""
 
@@ -481,7 +482,6 @@ mIRC(Version) {
 	{
 		Dcx::errorex(TEXT("Version"), TEXT("error: %S"), e.what());
 	}
-#endif
 
 #ifdef DCX_DEV_BUILD
 	if (mIRCLinker::isUnicode())
@@ -510,6 +510,37 @@ mIRC(Version) {
 #endif
 	return 3;
 }
+#else
+mIRC(Version)
+{
+#ifdef DCX_DEV_BUILD
+	if (mIRCLinker::isUnicode())
+	{
+		wnsprintf(data, MIRC_BUFFER_SIZE_CCH,
+			TEXT("DCX (XPopup) DLL %s %s%d UTF by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2006-2016"),
+			DLL_VERSION, DLL_STATE, DLL_DEV_BUILD);
+	}
+	else {
+		wnsprintfA((char *)data, MIRC_BUFFER_SIZE_CCH,
+			"DCX (XPopup) DLL %S %S%d UTF by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2006-2016",
+			DLL_VERSION, DLL_STATE, DLL_DEV_BUILD);
+	}
+#else
+	if (mIRCLinker::isUnicode())
+	{
+		wnsprintf(data, MIRC_BUFFER_SIZE_CCH,
+			TEXT("DCX (XPopup) DLL %s %s UTF by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2006-2016"),
+			DLL_VERSION, DLL_STATE);
+	}
+	else {
+		wnsprintfA((char *)data, MIRC_BUFFER_SIZE_CCH,
+			"DCX (XPopup) DLL %S %S UTF by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2006-2016",
+			DLL_VERSION, DLL_STATE);
+	}
+#endif
+	return 3;
+}
+#endif
 
 /*!
 * \brief DCX DLL is DcxDirectShow supported?
