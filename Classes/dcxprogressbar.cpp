@@ -544,7 +544,8 @@ void DcxProgressBar::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 		}
 	}
 	else
-		CallWindowProc(m_DefaultWindowProc, m_Hwnd, uMsg, (WPARAM) hdc, lParam);
+		CallDefaultProc(m_Hwnd, uMsg, (WPARAM)hdc, lParam);
+		//CallWindowProc(m_DefaultWindowProc, m_Hwnd, uMsg, (WPARAM) hdc, lParam);
 
 	if (!m_tsText.empty()) {
 		const auto oldMode = SetBkMode(hdc, TRANSPARENT);

@@ -75,7 +75,9 @@ DcxListView::DcxListView(const UINT ID, DcxDialog *const p_Dialog, const HWND mP
 
 	if (this->m_ToolTipHWND != nullptr) {
 		if (styles.istok(TEXT("balloon")))
-			SetWindowLong(this->m_ToolTipHWND, GWL_STYLE, (LONG)(GetWindowStyle(this->m_ToolTipHWND) | TTS_BALLOON));
+			AddStyles(this->m_ToolTipHWND, GWL_STYLE, TTS_BALLOON);
+		//SetWindowLong(this->m_ToolTipHWND, GWL_STYLE, (LONG)(GetWindowStyle(this->m_ToolTipHWND) | TTS_BALLOON));
+
 		//if (styles.istok(TEXT("tooltips"))) {
 		//	this->m_ToolTipHWND = p_Dialog->getToolTip();
 		//	AddToolTipToolInfo(this->m_ToolTipHWND,m_Hwnd);
@@ -2283,6 +2285,32 @@ void DcxListView::parseCommandRequest( const TString &input) {
 	}
 	// xdid -W [NAME] [ID] [SWITCH] [STYLE]
 	else if (flags[TEXT('W')] && numtok > 3) {
+#if DCX_USE_HASHING
+		const auto tsStyle(input.getnexttok());	// tok 4
+		auto mode = 0U;
+
+		switch (std::hash<TString>{}(tsStyle))
+		{
+		case TEXT("report"_hash):
+			mode = LV_VIEW_DETAILS;
+			break;
+		case TEXT("icon"_hash):
+			mode = LV_VIEW_ICON;
+			break;
+		case TEXT("smallicon"_hash):
+			mode = LV_VIEW_SMALLICON;
+			break;
+		case TEXT("list"_hash):
+			mode = LV_VIEW_LIST;
+			break;
+		case TEXT("tile"_hash):
+			mode = LV_VIEW_TILE;
+			break;
+		}
+
+		if (mode != 0)
+			ListView_SetView(m_Hwnd, mode);
+#else
 		static const TString poslist(TEXT("report icon smallicon list tile"));
 		static const UINT lv_styles[5] = { LV_VIEW_DETAILS, LV_VIEW_ICON, LV_VIEW_SMALLICON, LV_VIEW_LIST, LV_VIEW_TILE };
 		const auto style(input.getnexttok());	// tok 4
@@ -2294,6 +2322,7 @@ void DcxListView::parseCommandRequest( const TString &input) {
 
 			ListView_SetView(m_Hwnd, mode);
 		}
+#endif // DCX_USE_HASHING
 	}
 	// xdid -y [NAME] [ID] [SWITCH] [+FLAGS]
 	else if (flags[TEXT('y')] && numtok > 3) {
@@ -2530,9 +2559,57 @@ void DcxListView::setHeaderStyle(HWND h, const int nCol, const TString &info)
 	if (!Header_GetItem(h, nCol, &hdr))
 		throw Dcx::dcxException(TEXT("Unable to get item: %"), nCol + 1);
 	
+#if DCX_USE_HASHING
+	for (const auto &tmp : info)
+	{
+		switch (std::hash<TString>{}(tmp))
+		{
+		case TEXT("sortdown"_hash):	// sortdown
+		{
+			hdr.fmt &= ~HDF_SORTUP;
+			hdr.fmt |= HDF_SORTDOWN;
+		}
+		break;
+		case TEXT("sortup"_hash):	// sortup
+		{
+			hdr.fmt &= ~HDF_SORTDOWN;
+			hdr.fmt |= HDF_SORTUP;
+		}
+		break;
+		case TEXT("checkbox"_hash):	// checkbox
+		{
+			hdr.fmt |= HDF_CHECKBOX;
+		}
+		break;
+		case TEXT("checked"_hash):	// checked
+		{
+			hdr.fmt |= HDF_CHECKED;
+		}
+		break;
+		case TEXT("nocheckbox"_hash):	// nocheckbox
+		{
+			hdr.fmt &= ~(HDF_CHECKBOX | HDF_CHECKED);
+		}
+		break;
+		case TEXT("unchecked"_hash):	// unchecked
+		{
+			hdr.fmt &= ~HDF_CHECKED;
+		}
+		break;
+		case TEXT("nosort"_hash):	// nosort
+		{
+			hdr.fmt &= ~(HDF_SORTUP | HDF_SORTDOWN);
+		}
+		break;
+		default:	//error
+			// silently fail on invalid styles
+			break;
+		}
+	}
+#else
 	static const TString header_styles(TEXT("sortdown sortup checkbox checked nocheckbox unchecked nosort"));
 
-	for (const auto &tmp: info)
+	for (const auto &tmp : info)
 	{
 		switch (header_styles.findtok(tmp, 1))
 		{
@@ -2575,10 +2652,11 @@ void DcxListView::setHeaderStyle(HWND h, const int nCol, const TString &info)
 		break;
 		case 0:		//error
 		default:	//error
-			// silently fail on invalid styles
+					// silently fail on invalid styles
 			break;
 		}
 	}
+#endif // DCX_USE_HASHING
 	Header_SetItem(h, nCol, &hdr);
 }
 
@@ -2957,8 +3035,8 @@ UINT DcxListView::parseImageFlags( const TString & flags ) {
 * blah
 */
 
-bool DcxListView::isListViewStyle( const DWORD dwView ) const {
-
+bool DcxListView::isListViewStyle( const DWORD dwView ) const noexcept
+{
 	return ((GetWindowStyle(m_Hwnd) & LVS_TYPEMASK) == dwView);
 }
 
@@ -3080,7 +3158,7 @@ int CALLBACK DcxListView::sortItemsEx( LPARAM lParam1, LPARAM lParam2, LPARAM lP
 		// Should solve some item name issues.
 		mIRCLinker::execex(TEXT("/!set -nu1 %%dcx_1sort%d %s"), plvsort->itemtext1, plvsort->itemtext1 );
 		mIRCLinker::execex(TEXT("/!set -nu1 %%dcx_2sort%d %s"), plvsort->itemtext2, plvsort->itemtext2 );
-		mIRCLinker::evalex( sRes, Dcx::countof(sRes), TEXT("$%s(%%dcx_1sort%d,%%dcx_2sort%d)"), plvsort->tsCustomAlias.to_chr( ), plvsort->itemtext1, plvsort->itemtext2 );
+		mIRCLinker::evalex( sRes, sRes.size(), TEXT("$%s(%%dcx_1sort%d,%%dcx_2sort%d)"), plvsort->tsCustomAlias.to_chr( ), plvsort->itemtext1, plvsort->itemtext2 );
 		//
 		//mIRCLinker::evalex( sRes, Dcx::countof(sRes), TEXT("$%s(%s,%s)"), plvsort->tsCustomAlias.to_chr( ), itemtext1, itemtext2 );
 
@@ -3126,15 +3204,15 @@ int CALLBACK DcxListView::sortItemsEx( LPARAM lParam1, LPARAM lParam2, LPARAM lP
 
 		if (dcx_testflag(plvsort->iSortFlags, LVSS_DESC)) {
 			if (dcx_testflag(plvsort->iSortFlags, LVSS_CASE))
-				return -lstrcmp( plvsort->itemtext1, plvsort->itemtext2 );
+				return -ts_strcmp( plvsort->itemtext1, plvsort->itemtext2 );
 			else
-				return -lstrcmpi( plvsort->itemtext1, plvsort->itemtext2 );
+				return -ts_stricmp( plvsort->itemtext1, plvsort->itemtext2 );
 		}
 		else {
 			if (dcx_testflag(plvsort->iSortFlags, LVSS_CASE))
-				return lstrcmp( plvsort->itemtext1, plvsort->itemtext2 );
+				return ts_strcmp( plvsort->itemtext1, plvsort->itemtext2 );
 			else
-				return lstrcmpi( plvsort->itemtext1, plvsort->itemtext2 );
+				return ts_stricmp( plvsort->itemtext1, plvsort->itemtext2 );
 		}
 	}
 
@@ -3188,13 +3266,6 @@ LRESULT DcxListView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 //#if !defined(NDEBUG) || defined(DCX_DEV_BUILD)
 							if (!dcx_testflag(lvexstyles, LVS_EX_FULLROWSELECT))
 							{ // make subitem show as selected. TEST CODE!!!!
-								//LVITEM lvi = { 0 };
-								//// deselect previous
-								//lvi.iItem = m_iSelectedItem;
-								//lvi.iSubItem = m_iSelectedSubItem;
-								//lvi.mask = LVIF_STATE;
-								//lvi.state = 0;
-								//lvi.stateMask = LVIS_SELECTED;
 
 								LVITEM lvi{ LVIF_STATE, m_iSelectedItem, m_iSelectedSubItem, 0, LVIS_SELECTED, nullptr, 0, 0, 0, 0, 0, 0, nullptr, nullptr, 0 };
 
@@ -3221,11 +3292,6 @@ LRESULT DcxListView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 							bParsed = TRUE;
 
 							if (dcx_testflag(this->m_pParentDialog->getEventMask(), DCX_EVENT_CLICK)) {
-								//LVHITTESTINFO lvh = { 0 };
-								//
-								//dcxlParam(LPNMITEMACTIVATE, nmia);
-								//lvh.pt = nmia->ptAction;
-
 								//dcxlParam(LPNMITEMACTIVATE, nmia);
 								//LVHITTESTINFO lvh{ nmia->ptAction, 0U,0,0,0 };
 								//
@@ -3250,12 +3316,6 @@ LRESULT DcxListView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 					case NM_RCLICK:
 						{
 							if (dcx_testflag(this->m_pParentDialog->getEventMask(), DCX_EVENT_CLICK)) {
-								//LVHITTESTINFO lvh = { 0 };
-								//
-								//dcxlParam(LPNMITEMACTIVATE, nmia);
-								//lvh.pt = nmia->ptAction;
-
-
 								//dcxlParam(LPNMITEMACTIVATE, nmia);
 								//LVHITTESTINFO lvh{ nmia->ptAction, 0U,0,0,0 };
 								//
@@ -3282,11 +3342,6 @@ LRESULT DcxListView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 					case NM_RDBLCLK:
 						{
 							if (dcx_testflag(this->m_pParentDialog->getEventMask(), DCX_EVENT_CLICK)) {
-								//LVHITTESTINFO lvh = { 0 };
-								//
-								//dcxlParam(LPNMITEMACTIVATE, nmia);
-								//lvh.pt = nmia->ptAction;
-
 								//dcxlParam(LPNMITEMACTIVATE, nmia);
 								//LVHITTESTINFO lvh{ nmia->ptAction, 0U,0,0,0 };
 								//
@@ -3424,13 +3479,6 @@ LRESULT DcxListView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 										if (ri->m_cBg != CLR_INVALID)
 											lplvcd->clrTextBk = ri->m_cBg;
 
-										//if (lplvcd->nmcd.uItemState & CDIS_SELECTED)
-										//if (lplvcd->nmcd.uItemState & CDIS_FOCUS)
-										//	lplvcd->clrTextBk = RGB(255,0,0);
-										//else if ( ri->m_cBg != -1 )
-										//	lplvcd->clrTextBk = ri->m_cBg;
-										//lplvcd->clrFace = RGB(0,255,0);
-
 										if (dcx_testflag(ri->m_dFlags, LVIS_UNDERLINE) || dcx_testflag(ri->m_dFlags, LVIS_BOLD) || dcx_testflag(ri->m_dFlags,LVIS_ITALIC))
 										{
 											const auto hFont = GetWindowFont(m_Hwnd);
@@ -3450,7 +3498,6 @@ LRESULT DcxListView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 													this->m_hOldItemFont = SelectFont(lplvcd->nmcd.hdc, this->m_hItemFont);
 											}
 										}
-//#if DCX_DEBUG_OUTPUT
 										if (dcx_testflag(ri->m_dFlags,LVIS_CENTERICON))
 										{
 											// test code for centering an image in an item when it has no text
@@ -3459,7 +3506,6 @@ LRESULT DcxListView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 											LVITEM lvi{ LVIF_IMAGE | LVIF_TEXT | LVIF_STATE, static_cast<int>(lplvcd->nmcd.dwItemSpec), lplvcd->iSubItem, 0U, LVIS_SELECTED | LVIS_FOCUSED, sBuf, static_cast<int>(sBuf.size()), 0,0,0,0,0U, nullptr, nullptr, 0 };
 
 											if (ListView_GetItem(m_Hwnd, &lvi)) {
-												//if ((lvi.iImage > I_IMAGECALLBACK) && (lstrlen(buf) <= 0))
 												if ((lvi.iImage > I_IMAGECALLBACK) && sBuf.empty())
 												{
 													// no text, but has image, so center image in item
@@ -3472,8 +3518,6 @@ LRESULT DcxListView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 															UINT iDrawFlags = ILD_NORMAL | ILD_TRANSPARENT;
 
 															if (dcx_testflag(lvi.state, LVIS_SELECTED))
-															//if (ListView_GetItemState(m_Hwnd, lplvcd->nmcd.dwItemSpec, LVIS_SELECTED) == LVIS_SELECTED)
-																//if (dcx_testflag(lplvcd->nmcd.uItemState, CDIS_SELECTED))
 															{
 																const auto exStyles = ListView_GetExtendedListViewStyle(m_Hwnd);
 
@@ -3509,7 +3553,7 @@ LRESULT DcxListView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 																	}
 																}
 															}
-															int iSizeX, iSizeY;
+															int iSizeX = 0, iSizeY = 0;
 															if (ImageList_GetIconSize(himl, &iSizeX, &iSizeY))
 															{
 																if (ImageList_Draw(himl, lvi.iImage, lplvcd->nmcd.hdc, rcBounds.left + ((rcBounds.right - rcBounds.left) / 2) - (iSizeX / 2), rcBounds.top, iDrawFlags))
@@ -3520,66 +3564,8 @@ LRESULT DcxListView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 												}
 											}
 										}
-//#endif
-
 										// NB: CDRF_NOTIFYPOSTPAINT required to get the post paint message.
 										return ( CDRF_NEWFONT|CDRF_NOTIFYPOSTPAINT );
-
-										//RECT rcText, rcIcon, rcBounds;
-										//TString tsText((UINT)1024);
-										//UINT style = DT_LEFT|DT_SINGLELINE|DT_VCENTER|DT_END_ELLIPSIS;
-										//COLORREF clrText = CLR_INVALID;
-										//LVITEM lvi;
-										//ZeroMemory(&lvi, sizeof(LVITEM));
-										//HIMAGELIST himl = this->getImageList(LVSIL_SMALL);
-										//
-										//lvi.mask = LVIF_IMAGE|LVIF_STATE|LVIF_TEXT;
-										//lvi.pszText = tsText.to_chr();
-										//lvi.cchTextMax = 1023;
-										//lvi.iItem = lplvcd->nmcd.dwItemSpec;
-										//lvi.iSubItem = lplvcd->iSubItem;
-										//
-										//ListView_GetItem(m_Hwnd, &lvi);
-										//
-										//ListView_GetSubItemRect(m_Hwnd, lplvcd->nmcd.dwItemSpec, lplvcd->iSubItem, LVIR_BOUNDS, &rcBounds);
-										//ListView_GetSubItemRect(m_Hwnd, lplvcd->nmcd.dwItemSpec, lplvcd->iSubItem, LVIR_ICON, &rcIcon);
-										//
-										//rcText = rcBounds;
-										//rcText.left = rcIcon.right + 1;
-										//
-										//DrawTextW(lplvcd->nmcd.hdc, tsText.to_wchr(), tsText.len(), &rcText, style | DT_CALCRECT);
-										//
-										//if (lplvcd->nmcd.uItemState & CDIS_SELECTED) {
-										//	// fill background with selected colour.
-										//	FillRect(lplvcd->nmcd.hdc, &rcBounds, GetSysColorBrush(COLOR_HIGHLIGHT));
-										//	// draw focus rect around selected item.
-										//	DrawFocusRect(lplvcd->nmcd.hdc, &rcBounds);
-										//	// set selected text colour.
-										//	clrText = SetTextColor(lplvcd->nmcd.hdc, GetSysColor(COLOR_HIGHLIGHTTEXT));
-										//}
-										//else {
-										//	// set text colour.
-										//	clrText = SetTextColor(lplvcd->nmcd.hdc, lplvcd->clrText);
-										//}
-										//
-										//if ((himl != nullptr) && (lvi.iImage > -1)) {
-										//	ImageList_Draw(himl, lvi.iImage, lplvcd->nmcd.hdc, rcIcon.left, rcIcon.top, ILD_TRANSPARENT);
-										//}
-										//
-										//if (!this->m_bCtrlCodeText) {
-										//	if (this->m_bShadowText)
-										//		dcxDrawShadowText(lplvcd->nmcd.hdc, tsText.to_wchr(), tsText.len(), &rcText, style, lplvcd->clrText, 0, 5, 5);
-										//	else
-										//		DrawTextW(lplvcd->nmcd.hdc, tsText.to_wchr(), tsText.len(), &rcText, style);
-										//}
-										//else
-										//	mIRC_DrawText(lplvcd->nmcd.hdc, tsText, &rcText, style, this->m_bShadowText);
-										//
-										//if (clrText != CLR_INVALID)
-										//	SetTextColor(lplvcd->nmcd.hdc, clrText);
-										//
-										//// NB: CDRF_NOTIFYPOSTPAINT required to get the post paint message.
-										//return ( CDRF_NEWFONT|CDRF_NOTIFYPOSTPAINT|CDRF_SKIPDEFAULT );
 									}
 									break;
 
@@ -3886,38 +3872,6 @@ LRESULT DcxListView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
 				case NM_RCLICK:
 					{
 						if (dcx_testflag(this->m_pParentDialog->getEventMask(), DCX_EVENT_CLICK)) {
-							//TCHAR ClassName[257];
-							//
-							//if (GetClassName(hdr->hwndFrom, ClassName, Dcx::countof(ClassName)) != 0)
-							//{
-							//	if (lstrcmpi(ClassName, TEXT("SysHeader32")) == 0) {
-							//
-							//		HDHITTESTINFO hdti;
-							//		if (GetCursorPos(&hdti.pt))
-							//		{
-							//			MapWindowPoints(nullptr, hdr->hwndFrom, &hdti.pt, 1);
-							//			if (SendMessage(hdr->hwndFrom, HDM_HITTEST, (WPARAM)0, (LPARAM)&hdti) != -1)
-							//				execAliasEx(TEXT("%s,%d,%d"), TEXT("hrclick"), getUserID(), hdti.iItem + 1);
-							//		}
-							//	}
-							//}
-
-							//stString<257> ClassName;
-							//
-							//if (GetClassName(hdr->hwndFrom, ClassName, ClassName.size()) != 0)
-							//{
-							//	if (ClassName == TEXT("SysHeader32")) {
-							//
-							//		HDHITTESTINFO hdti;
-							//		if (GetCursorPos(&hdti.pt))
-							//		{
-							//			MapWindowPoints(nullptr, hdr->hwndFrom, &hdti.pt, 1);
-							//			if (SendMessage(hdr->hwndFrom, HDM_HITTEST, (WPARAM)0, (LPARAM)&hdti) != -1)
-							//				execAliasEx(TEXT("%s,%d,%d"), TEXT("hrclick"), getUserID(), hdti.iItem + 1);
-							//		}
-							//	}
-							//}
-
 							if (ListView_GetHeader(m_Hwnd) == hdr->hwndFrom)
 							{
 								HDHITTESTINFO hdti;
@@ -3965,7 +3919,7 @@ LRESULT DcxListView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
 							case 0: // left click
 								{
 									// commented code allows changing the sort up/down display by clicking on a header
-#ifndef NDEBUG
+#if DCX_DEBUG_OUTPUT
 									HDITEM tmphdr = {};
 									tmphdr.mask = HDI_FORMAT;
 									if (Header_GetItem(lphdr->hdr.hwndFrom,lphdr->iItem, &tmphdr)) {
@@ -4114,7 +4068,8 @@ LRESULT DcxListView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
 				// Setup alpha blend if any.
 				auto ai = SetupAlphaBlend(&hdc);
 
-				lRes = CallWindowProc( m_DefaultWindowProc, m_Hwnd, uMsg, (WPARAM) hdc, lParam );
+				//lRes = CallWindowProc( m_DefaultWindowProc, m_Hwnd, uMsg, (WPARAM) hdc, lParam );
+				lRes = CallDefaultProc(m_Hwnd, uMsg, (WPARAM)hdc, lParam);
 
 				FinishAlphaBlend(ai);
 
@@ -4174,7 +4129,8 @@ DcxControl* DcxListView::CreatePbar(LPLVITEM lvi, const TString &styles) {
 
 	auto lpdcxlvi = reinterpret_cast<LPDCXLVITEM>(lvi->lParam);
 
-	if (lpdcxlvi->pbar)
+	// check if control already exists.
+	if (lpdcxlvi->pbar != nullptr)
 		return nullptr;
 
 	RECT rItem = { 0 };
@@ -4219,7 +4175,7 @@ DcxControl* DcxListView::CreatePbar(LPLVITEM lvi, const TString &styles) {
 	}
 	catch (std::exception &e) {
 		//showErrorEx(nullptr, TEXT("CreatePbar()"), TEXT("Unable To Create Control %s (%S)"), tsID.to_chr(), e.what());
-		showError(nullptr, TEXT("CreatePbar()"), TEXT("Unable To Create Control % (%)"), tsID.to_chr(), e.what());
+		showError(nullptr, TEXT("CreatePbar()"), TEXT("Unable To Create Control % (%)"), tsID, e.what());
 		throw;
 	}
 }
@@ -4248,7 +4204,7 @@ void DcxListView::UpdateScrollPbars(void) {
 //			pbars are positioned relative to visible area of control & as such arn't scrolled.
 void DcxListView::ScrollPbars(const int row, const int nCols, const int iTop, const int iBottom, LPLVITEM lvi) {
 
-	for (auto col = decltype(nCols){0}; col < nCols; col++) {
+	for (auto col = decltype(nCols){0}; col < nCols; ++col) {
 		lvi->iItem = row;
 		lvi->iSubItem = col;
 		lvi->mask = LVIF_PARAM;
@@ -4287,8 +4243,8 @@ void DcxListView::ScrollPbars(const int row, const int nCols, const int iTop, co
 
 		// show borders correctly
 		rItem.bottom--;
-		rItem.top++;
-		rItem.left++;
+		++rItem.top;
+		++rItem.left;
 		rItem.right--;
 
 		RECT rcWin;
@@ -4418,9 +4374,12 @@ bool DcxListView::xmlLoadListview(const int nPos, const TString &name, TString &
 			//this->parseCommandRequest(cmd);
 
 			// this version works fine, but uses formatted printing
+			//TString cmd;
+			//cmd.tsprintf(TEXT("0 0 -T %d 0 %S"), lvi.iItem +1, attr);
+			//this->parseCommandRequest(cmd);
+
 			TString cmd;
-			cmd.tsprintf(TEXT("0 0 -T %d 0 %S"), lvi.iItem +1, attr);
-			this->parseCommandRequest(cmd);
+			parseCommandRequest(_ts_sprintf(cmd, TEXT("0 0 -T % 0 %"), (lvi.iItem + 1), attr));
 		}
 		// add subitems
 		auto nSubItem = 1;
@@ -4451,9 +4410,9 @@ bool DcxListView::xmlLoadListview(const int nPos, const TString &name, TString &
 					}
 				}
 			}
-			nSubItem++;
+			++nSubItem;
 		}
-		nItem++;
+		++nItem;
 	}
 
 	return true;

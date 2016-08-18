@@ -743,7 +743,8 @@ LRESULT DcxTrackBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
 				//else
 				//	DcxControl::DrawCtrlBackground(hdc,this,&ps.rcPaint);
 
-				return CallWindowProc(this->m_DefaultWindowProc, m_Hwnd, uMsg, (WPARAM)hdc, lParam);
+				//return CallWindowProc(this->m_DefaultWindowProc, m_Hwnd, uMsg, (WPARAM)hdc, lParam);
+				return CallDefaultProc(m_Hwnd, uMsg, (WPARAM)hdc, lParam);
 
 				//if (!this->m_bAlphaBlend)
 				//	break;

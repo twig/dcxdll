@@ -1017,7 +1017,8 @@ LRESULT DcxStacker::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 			// Setup alpha blend if any.
 			auto ai = SetupAlphaBlend(&hdc);
 
-			lRes = CallWindowProc( m_DefaultWindowProc, m_Hwnd, uMsg, (WPARAM) hdc, lParam );
+			//lRes = CallWindowProc( m_DefaultWindowProc, m_Hwnd, uMsg, (WPARAM) hdc, lParam );
+			lRes = CallDefaultProc(m_Hwnd, uMsg, (WPARAM)hdc, lParam);
 
 			FinishAlphaBlend(ai);
 

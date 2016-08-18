@@ -155,7 +155,7 @@ public:
 	HIMAGELIST getImageList(const int iImageList) const;
 	void setImageList( const HIMAGELIST himl, const int iImageList );
 
-	bool isListViewStyle( const DWORD dwView ) const;
+	bool isListViewStyle( const DWORD dwView ) const noexcept;
 
 	const int &getColumnCount( ) const;
 

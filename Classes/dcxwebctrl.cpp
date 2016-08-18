@@ -120,6 +120,41 @@ DcxWebControl::~DcxWebControl( ) {
 
 void DcxWebControl::SafeRelease() noexcept
 {
+	////Release all Web Control pointers
+	//if (m_pCP != nullptr)
+	//{
+	//	if (m_dwCookie != 0UL)
+	//	{
+	//		m_pCP->Unadvise(m_dwCookie);
+	//
+	//		m_dwCookie = 0UL;
+	//	}
+	//
+	//	m_pCP->Release();
+	//	m_pCP = nullptr;
+	//}
+	//if (m_pCPC != nullptr)
+	//{
+	//	m_pCPC->Release();
+	//	m_pCPC = nullptr;
+	//}
+	//if (m_pOleInPlaceObject != nullptr)
+	//{
+	//	m_pOleInPlaceObject->Release();
+	//	m_pOleInPlaceObject = nullptr;
+	//}
+	//if (m_pOleObject != nullptr) {
+	//	m_pOleObject->Close(OLECLOSE_NOSAVE);
+	//	m_pOleObject->Release();
+	//	m_pOleObject = nullptr;
+	//}
+	//
+	//if (m_pWebBrowser2 != nullptr) {
+	//	m_pWebBrowser2->Quit();
+	//	m_pWebBrowser2->Release();
+	//	m_pWebBrowser2 = nullptr;
+	//}
+
 	//Release all Web Control pointers
 	if (m_pCP != nullptr)
 	{
@@ -130,28 +165,24 @@ void DcxWebControl::SafeRelease() noexcept
 			m_dwCookie = 0UL;
 		}
 
-		m_pCP->Release();
-		m_pCP = nullptr;
+		SafeReleaseCom(&m_pCP);
 	}
 	if (m_pCPC != nullptr)
 	{
-		m_pCPC->Release();
-		m_pCPC = nullptr;
+		SafeReleaseCom(&m_pCPC);
 	}
 	if (m_pOleInPlaceObject != nullptr)
 	{
-		m_pOleInPlaceObject->Release();
-		m_pOleInPlaceObject = nullptr;
+		SafeReleaseCom(&m_pOleInPlaceObject);
 	}
 	if (m_pOleObject != nullptr) {
 		m_pOleObject->Close(OLECLOSE_NOSAVE);
-		m_pOleObject->Release();
-		m_pOleObject = nullptr;
+		SafeReleaseCom(&m_pOleObject);
 	}
+
 	if (m_pWebBrowser2 != nullptr) {
 		m_pWebBrowser2->Quit();
-		m_pWebBrowser2->Release();
-		m_pWebBrowser2 = nullptr;
+		SafeReleaseCom(&m_pWebBrowser2);
 	}
 }
 
@@ -1023,11 +1054,14 @@ LRESULT DcxWebControl::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 
 	case WM_NCDESTROY:
 	{
-		LRESULT lRes = 0L;
-		if (m_DefaultWindowProc != nullptr)
-			lRes = CallWindowProc(m_DefaultWindowProc, m_Hwnd, uMsg, wParam, lParam);
-		else
-			lRes = DefWindowProc(m_Hwnd, uMsg, wParam, lParam);
+		//LRESULT lRes = 0L;
+		//if (m_DefaultWindowProc != nullptr)
+		//	lRes = CallWindowProc(m_DefaultWindowProc, m_Hwnd, uMsg, wParam, lParam);
+		//else
+		//	lRes = DefWindowProc(m_Hwnd, uMsg, wParam, lParam);
+
+		LRESULT lRes = CallDefaultProc(m_Hwnd, uMsg, wParam, lParam);
+
 		delete this;
 		bParsed = TRUE;
 		return lRes;

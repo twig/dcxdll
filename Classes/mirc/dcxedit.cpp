@@ -784,7 +784,8 @@ LRESULT DcxEdit::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bPar
 				//if (oldFont != nullptr)
 				//	SelectFont( hdc, oldFont );
 
-				auto res = CallWindowProc(this->m_DefaultWindowProc, m_Hwnd, uMsg, (WPARAM)hdc, lParam);
+				//auto res = CallWindowProc(this->m_DefaultWindowProc, m_Hwnd, uMsg, (WPARAM)hdc, lParam);
+				auto res = CallDefaultProc(m_Hwnd, uMsg, (WPARAM)hdc, lParam);
 
 				this->FinishAlphaBlend(ai);
 

@@ -71,7 +71,7 @@ DcxDialog::DcxDialog(const HWND mHwnd, const TString &tsName, const TString &tsA
 , m_bGhosted(false)
 , m_zLayerCurrent(0)
 , m_popup(nullptr)
-, m_hOldWindowProc(nullptr)
+//, m_hOldWindowProc(nullptr)
 , m_hFakeHwnd(nullptr)
 , m_iAlphaLevel(255)
 , m_bHaveKeyColour(false)
@@ -91,7 +91,8 @@ DcxDialog::DcxDialog(const HWND mHwnd, const TString &tsName, const TString &tsA
 
 	//addExStyle(WS_EX_TRANSPARENT); // WS_EX_TRANSPARENT|WS_EX_LAYERED gives a window u can click through to the win behind.
 
-	m_hOldWindowProc = SubclassWindow(m_Hwnd, DcxDialog::WindowProc);
+	//m_hOldWindowProc = SubclassWindow(m_Hwnd, DcxDialog::WindowProc);
+	m_hDefaultWindowProc = SubclassWindow(m_Hwnd, DcxDialog::WindowProc);
 
 	SetProp(m_Hwnd, TEXT("dcx_this"), (HANDLE) this);
 
@@ -452,6 +453,39 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 	space PATH[TAB]+ [L] [T] [R] [B]
 	*/
 	else if (flags[TEXT('l')] && numtok > 2) {
+#if DCX_USE_HASHING
+		if (m_pLayoutManager == nullptr)
+			throw Dcx::dcxException("No LayoutManager available");
+
+		switch (std::hash<TString>{}(input.getnexttok())) // tok 3
+		{
+		case TEXT("update"_hash):
+		{
+			RECT rc;
+
+			if (!GetClientRect(m_Hwnd, &rc))
+				throw Dcx::dcxException("Unable to get client rect!");
+
+			if (updateLayout(rc))
+				redrawWindow();
+		}
+		break;
+		case TEXT("clear"_hash):
+		{
+			delete m_pLayoutManager;
+			m_pLayoutManager = new LayoutManager(m_Hwnd);
+			//this->redrawWindow(); // dont redraw here, leave that for an `update` cmd
+		}
+		break;
+		default:
+		{
+			if (numtok > 7)
+				m_pLayoutManager->AddCell(input);
+			else
+				throw Dcx::dcxException("Invalid Arguments");
+		}
+		}
+#else
 		const auto tsCmd(input.getnexttok());	// tok 3
 		if (tsCmd == TEXT("update")) {
 			if (m_pLayoutManager != nullptr) {
@@ -473,6 +507,7 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 			m_pLayoutManager->AddCell(input);
 		else
 			throw Dcx::dcxException("Invalid Arguments");
+#endif
 	}
 	// xdialog -q [NAME] [SWITCH] [+FLAGS] [CURSOR|FILENAME]
 	else if (flags[TEXT('q')] && numtok > 3) {
@@ -544,6 +579,104 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 	}
 	// xdialog -t [NAME] [SWITCH] [TYPE] [TYPE ARGS]
 	else if (flags[TEXT('t')] && numtok > 2) {
+#if DCX_USE_HASHING
+		const auto tsCmd(input.getnexttok());	// tok 3
+		const auto tsArgs(input.getnexttok());	// tok 4
+
+		// Alpha transparency
+		switch (std::hash<TString>{}(tsCmd))
+		{
+		case TEXT("alpha"_hash):
+		{
+			if (tsArgs == TEXT("none")) {
+				this->m_iAlphaLevel = 255;
+				if (!this->m_bVistaStyle) {
+					if (this->isExStyle(WS_EX_LAYERED)) {
+						this->removeExStyle(WS_EX_LAYERED);
+						this->addExStyle(WS_EX_LAYERED);
+						if (this->m_bHaveKeyColour) // reapply keycolour if any.
+							SetLayeredWindowAttributes(m_Hwnd, this->m_cKeyColour, 0, LWA_COLORKEY);
+					}
+				}
+			}
+			else {
+				this->m_iAlphaLevel = (BYTE)(tsArgs.to_int() & 0xFF);
+
+				if (!this->m_bVistaStyle) {
+					// Set WS_EX_LAYERED on this window
+					this->addExStyle(WS_EX_LAYERED);
+
+					// Make this window x% alpha
+					SetLayeredWindowAttributes(m_Hwnd, 0, this->m_iAlphaLevel, LWA_ALPHA);
+				}
+			}
+		}
+		break;
+		// Transparent color
+		case TEXT("transparentcolor"_hash):
+		{
+			if (tsArgs == TEXT("none")) {
+				this->m_cKeyColour = CLR_NONE;
+				this->m_bHaveKeyColour = false;
+				if (!this->m_bVistaStyle) {
+					if (this->isExStyle(WS_EX_LAYERED)) {
+						this->removeExStyle(WS_EX_LAYERED);
+						this->addExStyle(WS_EX_LAYERED);
+						if (this->m_iAlphaLevel != 255) // reapply alpha if any.
+							SetLayeredWindowAttributes(m_Hwnd, 0, this->m_iAlphaLevel, LWA_ALPHA);
+					}
+				}
+			}
+			else {
+				this->m_cKeyColour = tsArgs.to_<COLORREF>();
+				this->m_bHaveKeyColour = true;
+				if (!this->m_bVistaStyle) {
+					// Set WS_EX_LAYERED on this window
+					this->addExStyle(WS_EX_LAYERED);
+
+					// Make colour transparent
+					SetLayeredWindowAttributes(m_Hwnd, this->m_cKeyColour, 0, LWA_COLORKEY);
+				}
+			}
+		}
+		break;
+		// Background color
+		case TEXT("bgcolor"_hash):
+		{
+			this->m_colTransparentBg = tsArgs.to_<COLORREF>();
+		}
+		break;
+		// TODO: not going to document this, have no way to redrawing the window.
+		// http://www.codeproject.com/KB/vb/ClickThroughWindows.aspx
+		// NB: may not be compatible with vista style.
+		// Click-through
+		case TEXT("clickthrough"_hash):
+		{
+			if (tsArgs == TEXT("none")) {
+				if (this->isExStyle(WS_EX_LAYERED | WS_EX_TRANSPARENT))
+					//RemStyles(m_Hwnd, GWL_EXSTYLE, WS_EX_LAYERED | WS_EX_TRANSPARENT);
+					this->removeExStyle(WS_EX_LAYERED | WS_EX_TRANSPARENT);
+				// re-apply any alpha or keycolour.
+				if (((this->m_iAlphaLevel != 255) || (this->m_bHaveKeyColour)) && (!this->m_bVistaStyle)) {
+					//AddStyles(m_Hwnd, GWL_EXSTYLE, WS_EX_LAYERED);
+					this->addExStyle(WS_EX_LAYERED);
+					if (this->m_iAlphaLevel != 255) // reapply alpha if any.
+						SetLayeredWindowAttributes(m_Hwnd, 0, this->m_iAlphaLevel, LWA_ALPHA);
+					if (this->m_bHaveKeyColour) // reapply keycolour if any.
+						SetLayeredWindowAttributes(m_Hwnd, this->m_cKeyColour, 0, LWA_COLORKEY);
+				}
+			}
+			else
+				//AddStyles(m_Hwnd, GWL_EXSTYLE, WS_EX_LAYERED | WS_EX_TRANSPARENT);
+				this->addExStyle(WS_EX_LAYERED | WS_EX_TRANSPARENT);
+		}
+		break;
+		default:
+			throw Dcx::dcxException("Unknown Switch");
+		}
+
+		redrawWindow();
+#else
 		// Alpha transparency
 		const auto tsCmd(input.getnexttok());	// tok 3
 		if (tsCmd == TEXT("alpha")) {
@@ -635,6 +768,7 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 			throw Dcx::dcxException("Unknown Switch");
 
 		this->redrawWindow();
+#endif
 	}
 	// xdialog -T [NAME] [SWITCH] [FLAGS] [STYLES]
 	else if (flags[TEXT('T')] && numtok > 2) {
@@ -788,13 +922,16 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 			if (menu == nullptr)
 				throw Dcx::dcxException("Menu Does Not Exist");
 			
-			m_popup = new XPopupMenu(TEXT("dialog"), menu);
+			m_popup = new XPopupMenu(TEXT("dialog"_ts), menu);
 		}
 		if (m_popup != nullptr) {
-			TString menuargs(TEXT("dialog "));
+			//TString menuargs(TEXT("dialog "));
+			//menuargs += input.getlasttoks();
+
+			auto menuargs(TEXT("dialog "_ts));
 			menuargs += input.getlasttoks();
 
-			//TString menuargs{ TEXT("dialog "), input.getlasttoks() };
+			//TString menuargs{ TEXT("dialog "_ts), input.getlasttoks() };
 			Dcx::XPopups.parseCommand(menuargs, m_popup);
 		}
 	}
@@ -1807,13 +1944,21 @@ void DcxDialog::setFocusControl(const UINT mUID) {
 LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
 	auto p_this = static_cast<DcxDialog *>(GetProp(mHwnd, TEXT("dcx_this")));
 
+	//// sanity check for prop existing.
+	//if ((p_this == nullptr) || (p_this->m_hOldWindowProc == nullptr))
+	//	return DefWindowProc(mHwnd, uMsg, wParam, lParam);
+	//
+	//// If Message is blocking just call old win proc
+	//if ((InSendMessageEx(nullptr) & (ISMEX_REPLIED|ISMEX_SEND)) == ISMEX_SEND)
+	//	return CallWindowProc(p_this->m_hOldWindowProc, mHwnd, uMsg, wParam, lParam);
+
 	// sanity check for prop existing.
-	if ((p_this == nullptr) || (p_this->m_hOldWindowProc == nullptr))
+	if ((p_this == nullptr) || (p_this->m_hDefaultWindowProc == nullptr))
 		return DefWindowProc(mHwnd, uMsg, wParam, lParam);
-	
+
 	// If Message is blocking just call old win proc
-	if ((InSendMessageEx(nullptr) & (ISMEX_REPLIED|ISMEX_SEND)) == ISMEX_SEND)
-		return CallWindowProc(p_this->m_hOldWindowProc, mHwnd, uMsg, wParam, lParam);
+	if ((InSendMessageEx(nullptr) & (ISMEX_REPLIED | ISMEX_SEND)) == ISMEX_SEND)
+		return p_this->CallDefaultProc(mHwnd, uMsg, wParam, lParam);
 
 	BOOL bParsed = FALSE;
 	LRESULT lRes = 0L;
@@ -2369,7 +2514,8 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 					//http://www.ddj.com/dept/windows/184416395
 					//http://www.codeguru.com/Cpp/misc/samples/article.php/c1469#download
 					bParsed = TRUE;
-					lRes = CallWindowProc(p_this->m_hOldWindowProc, mHwnd, uMsg, wParam, lParam);
+					//lRes = CallWindowProc(p_this->m_hOldWindowProc, mHwnd, uMsg, wParam, lParam);
+					lRes = p_this->CallDefaultProc(mHwnd, uMsg, wParam, lParam);
 
 					if (clrText != CLR_INVALID)
 						SetTextColor((HDC) wParam, clrText);
@@ -2530,7 +2676,8 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 			{
 				if (HIWORD(lParam) == FALSE && p_this->m_popup != nullptr) {
 					// let mIRC populate the menus dynamically
-					lRes = CallWindowProc(p_this->m_hOldWindowProc, mHwnd, uMsg, wParam, lParam);
+					//lRes = CallWindowProc(p_this->m_hOldWindowProc, mHwnd, uMsg, wParam, lParam);
+					lRes = p_this->CallDefaultProc(mHwnd, uMsg, wParam, lParam);
 					bParsed = TRUE;
 
 					auto hMenu = reinterpret_cast<HMENU>(wParam);
@@ -2656,7 +2803,8 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 				{
 					if (p_this->m_bVistaStyle) {
 						bParsed = TRUE;
-						lRes = CallWindowProc(p_this->m_hOldWindowProc, mHwnd, uMsg, wParam, lParam);
+						//lRes = CallWindowProc(p_this->m_hOldWindowProc, mHwnd, uMsg, wParam, lParam);
+						lRes = p_this->CallDefaultProc(mHwnd, uMsg, wParam, lParam);
 						InvalidateRect(mHwnd, nullptr, TRUE);
 					}
 				}
@@ -2725,14 +2873,22 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 
 		case WM_NCDESTROY:
 			{
+				//if (IsWindow(mHwnd))
+				//{
+				//	if ((WNDPROC)GetWindowLongPtr(mHwnd, GWLP_WNDPROC) == DcxDialog::WindowProc)
+				//		SubclassWindow(mHwnd, p_this->m_hOldWindowProc);
+				//}
+			//
+				//lRes = CallWindowProc(p_this->m_hOldWindowProc, mHwnd, uMsg, wParam, lParam);
+
 				if (IsWindow(mHwnd))
 				{
 					if ((WNDPROC)GetWindowLongPtr(mHwnd, GWLP_WNDPROC) == DcxDialog::WindowProc)
-						SubclassWindow(mHwnd, p_this->m_hOldWindowProc);
+						SubclassWindow(mHwnd, p_this->m_hDefaultWindowProc);
 				}
 
-				lRes = CallWindowProc(p_this->m_hOldWindowProc, mHwnd, uMsg, wParam, lParam);
-
+				lRes = p_this->CallDefaultProc(mHwnd, uMsg, wParam, lParam);
+			
 				Dcx::Dialogs.deleteDialog(p_this);
 				delete p_this;
 				return lRes;
@@ -2752,7 +2908,8 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 	if (bParsed)
 		return lRes;
 
-	return CallWindowProc(p_this->m_hOldWindowProc, mHwnd, uMsg, wParam, lParam);
+	//return CallWindowProc(p_this->m_hOldWindowProc, mHwnd, uMsg, wParam, lParam);
+	return p_this->CallDefaultProc(mHwnd, uMsg, wParam, lParam);
 }
 
 void DcxDialog::DrawDialogBackground(HDC hdc, DcxDialog *const p_this, LPCRECT rwnd)
@@ -2794,6 +2951,10 @@ void DcxDialog::DrawDialogBackground(HDC hdc, DcxDialog *const p_this, LPCRECT r
 	// stretch
 	if (dcx_testflag(p_this->m_uStyleBg, DBS_BKGSTRETCH)) {
 		//BitBlt(hdc, 0, 0, bmp.bmWidth, bmp.bmHeight, hdcbmp, 0, 0, SRCCOPY);
+		//TransparentBlt(hdc, x, y, w, h, hdcbmp, 0, 0, bmp.bmWidth, bmp.bmHeight, p_this->m_colTransparentBg);
+		
+		SetStretchBltMode(hdc, STRETCH_HALFTONE);
+		SetBrushOrgEx(hdc, 0, 0, nullptr);
 		TransparentBlt(hdc, x, y, w, h, hdcbmp, 0, 0, bmp.bmWidth, bmp.bmHeight, p_this->m_colTransparentBg);
 	}
 	// tile

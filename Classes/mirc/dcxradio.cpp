@@ -285,12 +285,14 @@ void DcxRadio::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 			if (!bWasTransp)
 				AddStyles(m_Hwnd, GWL_EXSTYLE, WS_EX_TRANSPARENT);
 
-			CallWindowProc(this->m_DefaultWindowProc, m_Hwnd, uMsg, (WPARAM)hdc, lParam);
+			//CallWindowProc(this->m_DefaultWindowProc, m_Hwnd, uMsg, (WPARAM)hdc, lParam);
+			CallDefaultProc(m_Hwnd, uMsg, (WPARAM)hdc, lParam);
 
 			if (!bWasTransp)
 				RemStyles(m_Hwnd, GWL_EXSTYLE, WS_EX_TRANSPARENT);
 		}
 	}
 	else
-		CallWindowProc( this->m_DefaultWindowProc, m_Hwnd, uMsg, (WPARAM) hdc, lParam );
+		CallDefaultProc(m_Hwnd, uMsg, (WPARAM)hdc, lParam);
+	//CallWindowProc( this->m_DefaultWindowProc, m_Hwnd, uMsg, (WPARAM) hdc, lParam );
 }

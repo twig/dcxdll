@@ -66,8 +66,8 @@ public:
 	void toXml(TiXmlElement *const xml) const override;
 	const TString getStyles(void) const override;
 
-protected:
-
+//protected:
+private:
 	HIMAGELIST m_ImageList; //!< Button Image List (normal, hover, pushed, disabled)
 	COLORREF m_aColors[4];  //!< Button Colors (normal, hover, pushed, disabled)
 	COLORREF m_aTransp[4];  //!< Transparent Colors (normal, hover, pushed, disabled)

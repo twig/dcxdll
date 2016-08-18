@@ -664,7 +664,8 @@ void DcxButton::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 						DeleteRgn(hRgn);
 					}
 				}
-				CallWindowProc(m_DefaultWindowProc, m_Hwnd, uMsg, (WPARAM)hdc, lParam);
+				//CallWindowProc(m_DefaultWindowProc, m_Hwnd, uMsg, (WPARAM)hdc, lParam);
+				CallDefaultProc(m_Hwnd, uMsg, (WPARAM)hdc, lParam);
 
 				// This method causes the button to vanish when the dialog is resized using the redrawBuffered() function.
 				//HDC *buf = CreateHDCBuffer(hdc, &rcClient);

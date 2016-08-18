@@ -462,7 +462,8 @@ LRESULT DcxScroll::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
 				// Setup alpha blend if any.
 				auto ai = this->SetupAlphaBlend(&hdc);
 
-				auto res = CallWindowProc(this->m_DefaultWindowProc, m_Hwnd, uMsg, (WPARAM)hdc, lParam);
+				//auto res = CallWindowProc(this->m_DefaultWindowProc, m_Hwnd, uMsg, (WPARAM)hdc, lParam);
+				auto res = CallDefaultProc(m_Hwnd, uMsg, (WPARAM)hdc, lParam);
 
 				this->FinishAlphaBlend(ai);
 

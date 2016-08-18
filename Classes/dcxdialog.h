@@ -80,7 +80,6 @@ public:
 	void parseCommandRequestEX(const TCHAR *const szFormat, ...);
 	void parseComControlRequestEX(const UINT id, const TCHAR *const szFormat, ...);
 	//void parseInfoRequest( const TString & input, TCHAR * szReturnValue ) const;
-	//void parseInfoRequest(const TString & input, TCHAR * szReturnValue) const { parseInfoRequest2(input, szReturnValue); }
 	void parseInfoRequest(const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const;
 
 	bool evalAliasEx( TCHAR *const szReturn, const int maxlen, const TCHAR *const szFormat, ... );
@@ -312,7 +311,7 @@ private:
 	TString m_tsAliasName;  //!< Callback Alias Name
 	TString m_tsParentName; //!< Parent name (only if docked)
 
-	WNDPROC m_hOldWindowProc; //!< Dialog Old Window Procedure
+	//WNDPROC m_hOldWindowProc; //!< Dialog Old Window Procedure
 
 	VectorOfControlPtrs m_vpControls; //!< Vector of DCX Controls
 	VectorOfInts m_vZLayers;

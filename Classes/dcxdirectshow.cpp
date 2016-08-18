@@ -618,6 +618,40 @@ void DcxDirectshow::parseCommandRequest( const TString &input) {
 		if (this->m_pControl == nullptr)
 			throw Dcx::dcxException("No File Loaded");
 
+#if DCX_USE_HASHING
+		switch (std::hash<TString>{}(input.getnexttok()))
+		{
+		case TEXT("play"_hash): // play
+			m_pControl->Run();
+			break;
+		case TEXT("pause"_hash): // pause
+			m_pControl->Pause();
+			break;
+		case TEXT("stop"_hash): // stop
+		{
+			m_pControl->Stop(); // stop play
+			setPosition(0);
+			m_pControl->StopWhenReady(); // causes new image to be rendered.
+		}
+		break;
+		case TEXT("close"_hash): //close
+		{
+			m_pControl->Stop();
+			ReleaseAll();
+		}
+		break;
+		case TEXT("seek"_hash): // seek
+		{
+			m_pControl->Pause(); // pause play
+			setPosition(input.getnexttok().to_<UINT64>());	// tok 5
+			m_pControl->StopWhenReady(); // causes new image to be rendered.
+		}
+		break;
+		// error
+		default:
+			throw Dcx::dcxException("Invalid Command");
+		}
+#else
 		static const TString cmdlist(TEXT("play pause stop close seek"));
 		const auto nType = cmdlist.findtok(input.getnexttok(), 1);	// tok 4
 		switch (nType)
@@ -629,29 +663,30 @@ void DcxDirectshow::parseCommandRequest( const TString &input) {
 			this->m_pControl->Pause();
 			break;
 		case 3: // stop
-			{
-				this->m_pControl->Stop(); // stop play
-				this->setPosition(0);
-				this->m_pControl->StopWhenReady(); // causes new image to be rendered.
-			}
-			break;
+		{
+			this->m_pControl->Stop(); // stop play
+			this->setPosition(0);
+			this->m_pControl->StopWhenReady(); // causes new image to be rendered.
+		}
+		break;
 		case 4: //close
-			{
-				this->m_pControl->Stop();
-				this->ReleaseAll();
-			}
-			break;
+		{
+			this->m_pControl->Stop();
+			this->ReleaseAll();
+		}
+		break;
 		case 5: // seek
-			{
-				this->m_pControl->Pause(); // pause play
-				this->setPosition(input.getnexttok().to_<UINT64>());	// tok 5
-				this->m_pControl->StopWhenReady(); // causes new image to be rendered.
-			}
-			break;
+		{
+			this->m_pControl->Pause(); // pause play
+			this->setPosition(input.getnexttok().to_<UINT64>());	// tok 5
+			this->m_pControl->StopWhenReady(); // causes new image to be rendered.
+		}
+		break;
 		case 0: // error
 		default:
 			throw Dcx::dcxException("Invalid Command");
 		}
+#endif // DCX_USE_HASHING
 	}
 	// xdid -v [NAME] [ID] [SWITCH] [+FLAGS] [BRIGHTNESS] [CONTRAST] [HUE] [SATURATION]
 	else if ( flags[TEXT('v')] && numtok > 7 ) {
@@ -794,7 +829,7 @@ LRESULT DcxDirectshow::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 						this->m_pSeek->SetPositions(&rtNow, AM_SEEKING_AbsolutePositioning, nullptr, AM_SEEKING_NoPositioning);
 						if (!this->m_bLoop) {
 							this->m_pControl->StopWhenReady();
-							this->execAliasEx(TEXT("%s,%d,%s"),TEXT("dshow"),this->getUserID(),TEXT("completed"));
+							this->execAliasEx(TEXT("dshow,%u,completed"), getUserID());
 						}
 					}
 					break;
@@ -875,6 +910,7 @@ HRESULT DcxDirectshow::InitWindowlessVMR(
 				throw Dcx::dcxException("InitWindowlessVMR() - Unable to Get Windowless Control9");
 
 			hr = pWc->SetVideoClippingWindow(hwndApp);
+
 			//if (SUCCEEDED(hr)) {
 			//	IVMRMixerControl9 *pMixer;
 			//	hr = pVmr->QueryInterface(IID_IVMRMixerControl9, (void**)&pMixer);
@@ -883,6 +919,7 @@ HRESULT DcxDirectshow::InitWindowlessVMR(
 			//		pMixer->Release();
 			//	}
 			//}
+
 			if (FAILED(hr))
 			{
 				// An error occurred, so release the interface.
@@ -1030,16 +1067,65 @@ HRESULT DcxDirectshow::setAlpha(float alpha)
 	if (SUCCEEDED(hr)) {
 		Auto(pBm->Release());
 
+#if DCX_USE_WRAPPERS && 0
+		Dcx::dcxHDCResource hdc(m_Hwnd); // make duplicate hdc;
+		Dcx::dcxHDCBuffer hdcBuf(hdc.get(), &rcWin);
+
+		long cx = 0, cy = 0;
+
+		DrawParentsBackground(hdcBuf, &rcClient);
+
+		hr = this->m_pWc->GetNativeVideoSize(&cx, &cy, nullptr, nullptr);
+		if (SUCCEEDED(hr)) {
+			VMR9AlphaBitmap bmpInfo;
+			ZeroMemory(&bmpInfo, sizeof(bmpInfo));
+			const auto w = (rcWin.right - rcWin.left), h = (rcWin.bottom - rcWin.top);
+
+			bmpInfo.dwFlags = VMR9AlphaBitmap_hDC;
+			//bmpInfo.dwFilterMode = MixerPref9_AnisotropicFiltering;
+			bmpInfo.hdc = *hdcBuf;
+			// Set the transparency value (1.0 is opaque, 0.0 is transparent).
+			bmpInfo.fAlpha = 1.0;
+			// Show the entire bitmap in the top-left corner of the video image.
+			SetRect(&bmpInfo.rSrc, 0, 0, w, h);
+			//CopyRect(&bmpInfo.rSrc, &rcClient);
+			bmpInfo.rDest.left = 0.f;
+			bmpInfo.rDest.top = 0.f;
+			bmpInfo.rDest.right = 1.0; //(float)w / cx;
+			bmpInfo.rDest.bottom = 1.0; //(float)h / cy;
+			hr = pBm->SetAlphaBitmap(&bmpInfo);
+			if (SUCCEEDED(hr)) {
+				ZeroMemory(&bmpInfo, sizeof(bmpInfo));
+				bmpInfo.dwFlags = VMR9AlphaBitmap_SrcRect;
+				bmpInfo.hdc = nullptr;
+				// Set the transparency value (1.0 is opaque, 0.0 is transparent).
+				bmpInfo.fAlpha = alpha;
+				//POINT pt;
+				//pt.x = rcWin.left;
+				//pt.y = rcWin.top;
+				//ScreenToClient(GetParent(m_Hwnd),&pt);
+				//CopyRect(&bmpInfo.rSrc, &rcWin);
+				//SetRect(&bmpInfo.rSrc, pt.x, pt.y, pt.x + w, pt.y + h);
+				CopyRect(&bmpInfo.rSrc, &rcClient);
+				bmpInfo.rDest.left = 0.f;
+				bmpInfo.rDest.top = 0.f;
+				bmpInfo.rDest.right = 1.0; //(float)(rcClient.right - rcClient.left) / cx;
+				bmpInfo.rDest.bottom = 1.0; //(float)(rcClient.bottom - rcClient.top) / cy;
+				hr = pBm->UpdateAlphaBitmapParameters(&bmpInfo);
+			}
+		}
+#else
 		auto hdc = GetDC(m_Hwnd);
 		if (hdc != nullptr) { // make duplicate hdc;
 			Auto(ReleaseDC(m_Hwnd, hdc));
 
 			auto hdcBuf = CreateHDCBuffer(hdc, &rcWin);
 
-			if (hdcBuf != nullptr) {
+			if (hdcBuf != nullptr)
+			{
 				Auto(DeleteHDCBuffer(hdcBuf));
 
-				long cx, cy;
+				long cx = 0, cy = 0;
 
 				this->DrawParentsBackground(*hdcBuf, &rcClient);
 
@@ -1083,69 +1169,10 @@ HRESULT DcxDirectshow::setAlpha(float alpha)
 					}
 				}
 			}
-			/*
-						HDC hdcbkg = CreateCompatibleDC( hdc );
-						if (hdcbkg != nullptr) {
-						RECT rcClient, rcWin;
-						GetClientRect(m_Hwnd, &rcClient);
-						GetWindowRect(m_Hwnd, &rcWin);
-						const int w = (rcWin.right - rcWin.left), h = (rcWin.bottom - rcWin.top);
-						HBITMAP memBM = CreateCompatibleBitmap ( hdc, w, h );
-						if (memBM != nullptr) {
-						// associate bitmap with HDC
-						const HBITMAP oldBM = SelectBitmap ( hdcbkg, memBM );
-
-						this->DrawParentsBackground(hdcbkg, &rcClient);
-
-						long cx, cy;
-						hr = this->m_pWc->GetNativeVideoSize(&cx, &cy, nullptr, nullptr);
-						if (SUCCEEDED(hr)) {
-						VMR9AlphaBitmap bmpInfo;
-						ZeroMemory(&bmpInfo, sizeof(bmpInfo) );
-						bmpInfo.dwFlags = VMR9AlphaBitmap_hDC;
-						//bmpInfo.dwFilterMode = MixerPref9_AnisotropicFiltering;
-						bmpInfo.hdc = hdcbkg;
-						// Set the transparency value (1.0 is opaque, 0.0 is transparent).
-						bmpInfo.fAlpha = 1.0;
-						// Show the entire bitmap in the top-left corner of the video image.
-						SetRect(&bmpInfo.rSrc, 0, 0, w, h);
-						//CopyRect(&bmpInfo.rSrc, &rcClient);
-						bmpInfo.rDest.left = 0.f;
-						bmpInfo.rDest.top = 0.f;
-						bmpInfo.rDest.right = 1.0; //(float)w / cx;
-						bmpInfo.rDest.bottom = 1.0; //(float)h / cy;
-						hr = pBm->SetAlphaBitmap(&bmpInfo);
-						ZeroMemory(&bmpInfo, sizeof(bmpInfo) );
-						bmpInfo.dwFlags = VMR9AlphaBitmap_SrcRect;
-						bmpInfo.hdc = nullptr;
-						// Set the transparency value (1.0 is opaque, 0.0 is transparent).
-						bmpInfo.fAlpha = alpha;
-						//POINT pt;
-						//pt.x = rcWin.left;
-						//pt.y = rcWin.top;
-						//ScreenToClient(GetParent(m_Hwnd),&pt);
-						//CopyRect(&bmpInfo.rSrc, &rcWin);
-						//SetRect(&bmpInfo.rSrc, pt.x, pt.y, pt.x + w, pt.y + h);
-						CopyRect(&bmpInfo.rSrc, &rcClient);
-						bmpInfo.rDest.left = 0.f;
-						bmpInfo.rDest.top = 0.f;
-						bmpInfo.rDest.right = 1.0; //(float)(rcClient.right - rcClient.left) / cx;
-						bmpInfo.rDest.bottom = 1.0; //(float)(rcClient.bottom - rcClient.top) / cy;
-						hr = pBm->UpdateAlphaBitmapParameters(&bmpInfo);
-						}
-						DeleteBitmap(SelectBitmap(hdcbkg,oldBM));
-						}
-						else
-						hr = E_FAIL;
-						DeleteDC( hdcbkg );
-						}
-						else
-						hr = E_FAIL;
-						ReleaseDC(m_Hwnd, hdc);
-						*/
 		}
 		else
 			hr = E_FAIL;
+#endif // DCX_USE_WRAPPERS
 	}
 	return hr;
 }

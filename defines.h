@@ -13,7 +13,9 @@
 Some useful values for _MSC_VER if you need to target to a specific compiler.
 http://symbiancorner.blogspot.com/2007/05/how-to-detect-version-of-ms-visual.html
 
-#if _MSC_VER >= 1700 // Visual C++ 2012
+#if _MSC_VER >= 1900 // Visual C++ 2015
+#elif _MSC_VER >= 1800 // Visual C++ 2013
+#elif _MSC_VER >= 1700 // Visual C++ 2012
 #elif _MSC_VER >= 1600 // Visual C++ 2010 ?
 #elif _MSC_VER >= 1500 // Visual C++ 2008
 #elif _MSC_VER >= 1400 // Visual C++ 2005
@@ -246,11 +248,11 @@ http://symbiancorner.blogspot.com/2007/05/how-to-detect-version-of-ms-visual.htm
 #endif
 #endif
 
-// max() macro causes issues with GSL
+// max() macro causes issues with GSL, just use std::max/min instead
 //#pragma push_macro("max")
 #undef max
 #undef min
-#include "GSL\include\gsl.h"
+#include "GSL\gsl\gsl"
 //#pragma pop_macro("max")
 
 #include "AutoRelease.h"
@@ -448,13 +450,13 @@ using VectorOfInts = std::vector<int>; //<! Vector of int
 #define dcx_atoi64(x) _wtoi64(x)
 #define dcx_atof(x) _wtof(x)
 #define dcx_fopen(x,y) _wfopen(x,y)
-#define dcx_strstr(x,y) wcsstr((x),(y))
-#define dcx_strncmp(x,y,z) wcsncmp((x),(y),static_cast<size_t>((z)))
+#define dcx_strstr(x,y) ts_strstr((x),(y))
+#define dcx_strncmp(x,y,z) ts_strncmp((x),(y),(z))
 #define dcx_itoa(x,y,z) _itow((x), (y), (z))
 
 //#define dcx_strcpyn(x, y, z) { if (lstrcpyn((x), (y), static_cast<int>((z))) == nullptr) (x)[0] = 0; }
 
-inline void dcx_strcpyn(gsl::not_null<TCHAR *> sDest, const gsl::not_null<const TCHAR *> &sSrc, const int &iSize) { if (lstrcpyn(sDest, sSrc, iSize) == nullptr) sDest[0] = 0; }
+inline void dcx_strcpyn(TCHAR *const sDest, const TCHAR *sSrc, const int &iSize) { if (ts_strcpyn(sDest, sSrc, iSize) == nullptr) sDest[0] = 0; }
 
 constexpr const TCHAR *const dcx_truefalse(const bool &x) noexcept { return (x) ? TEXT("$true") : TEXT("$false"); }
 
@@ -469,10 +471,10 @@ constexpr const TCHAR *const dcx_truefalse(const bool &x) noexcept { return (x) 
 #define dcx_Con(x,y) dcx_strcpyn((y), dcx_truefalse((x)), MIRC_BUFFER_SIZE_CCH);
 
 #define dcx_ConRet(x,y) { \
-	if (lstrcpyn((y), dcx_truefalse((x)), MIRC_BUFFER_SIZE_CCH) != nullptr) return; \
+	if (ts_strcpyn((y), dcx_truefalse((x)), MIRC_BUFFER_SIZE_CCH) != nullptr) return; \
 }
 #define dcx_ConRetState(x,y) { \
-	if (lstrcpyn((y), dcx_truefalse((x)), MIRC_BUFFER_SIZE_CCH) != nullptr) return true; \
+	if (ts_strcpyn((y), dcx_truefalse((x)), MIRC_BUFFER_SIZE_CCH) != nullptr) return true; \
 }
 
 #define dcx_ConChar(x,y) { \
@@ -550,9 +552,9 @@ void AddStyles(const gsl::not_null<HWND> &hwnd,int parm,long AddStyles);
 //void UpdatemIRC(void);
 
 // CustomDock
-#ifndef NDEBUG
-bool InitCustomDock(void);
-#endif
+//#ifndef NDEBUG
+//bool InitCustomDock(void);
+//#endif
 
 // DirectX
 HRESULT GetDXVersion( DWORD* pdwDirectXVersion, TCHAR* strDirectXVersion, int cchDirectXVersion );

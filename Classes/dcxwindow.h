@@ -63,7 +63,10 @@ public:
 	static UINT parseCursorArea(const TString &flags);
 	static HIMAGELIST createImageList(bool bBigIcons = false);
 
+	LRESULT CallDefaultProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+
 protected:
+	WNDPROC m_hDefaultWindowProc; //!< Old Window Procedure
 	HWND m_Hwnd;
 	UINT m_ID;
 

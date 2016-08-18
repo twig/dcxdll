@@ -179,28 +179,57 @@ void DcxPanel::parseCommandRequest( const TString & input ) {
 	*/
 	else if ( flags[TEXT('l')] && numtok > 3 ) {
 
-		const auto tsCmd(input.getnexttok());	// tok 4
-
-		if (this->m_pLayoutManager == nullptr)
+#if DCX_USE_HASHING
+		if (m_pLayoutManager == nullptr)
 			throw Dcx::dcxException("No LayoutManager available");
 
-		if (tsCmd == TEXT("update"))
+		switch (std::hash<TString>{}(input.getnexttok()))	// tok 4
+		{
+		case L"update"_hash:
 		{
 			RECT rc;
 			if (!GetClientRect(m_Hwnd, &rc))
-				throw Dcx::dcxException("Unable to get window rect");
+				throw Dcx::dcxException("Unable to get client rect!");
 
-			this->m_pLayoutManager->updateLayout( rc );
-			this->redrawWindow();
+			m_pLayoutManager->updateLayout(rc);
+
+			redrawWindow();
+		}
+		break;
+		case L"clear"_hash:
+		{
+			delete m_pLayoutManager;
+			m_pLayoutManager = new LayoutManager(m_Hwnd);
+			//redrawWindow(); // dont redraw here, leave that for an `update` cmd
+		}
+		break;
+		default:
+			if (numtok > 8)
+				m_pLayoutManager->AddCell(input, 4);
+		}
+#else
+		if (m_pLayoutManager == nullptr)
+			throw Dcx::dcxException("No LayoutManager available");
+
+		const auto tsCmd(input.getnexttok());	// tok 4
+
+		if (tsCmd == TEXT("update")) {
+			RECT rc;
+			if (!GetClientRect(m_Hwnd, &rc))
+				throw Dcx::dcxException("Unable to get client rect!");
+
+			m_pLayoutManager->updateLayout(rc);
+
+			redrawWindow();
 		}
 		else if (tsCmd == TEXT("clear")) {
-			delete this->m_pLayoutManager;
-			this->m_pLayoutManager = new LayoutManager(m_Hwnd);
-			//this->redrawWindow(); // dont redraw here, leave that for an `update` cmd
+			delete m_pLayoutManager;
+			m_pLayoutManager = new LayoutManager(m_Hwnd);
+			//redrawWindow(); // dont redraw here, leave that for an `update` cmd
 		}
-		else if ( numtok > 8 ) {
-			this->m_pLayoutManager->AddCell(input, 4);
-		} // if ( numtok > 7 )
+		else if (numtok > 8)
+			m_pLayoutManager->AddCell(input, 4);
+#endif
 	}
 	// xdid -t [NAME] [ID] [SWITCH] [TEXT]
 	else if (flags[TEXT('t')] && numtok > 3) {

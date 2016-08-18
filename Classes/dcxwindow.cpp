@@ -23,7 +23,7 @@
  */
 
 DcxWindow::DcxWindow( const HWND mHwnd, const UINT mID )
-	: m_Hwnd( mHwnd ), m_ID( mID )
+	: m_Hwnd( mHwnd ), m_ID( mID ), m_hDefaultWindowProc(nullptr)
 {
 	if (IDC_map.empty()) {
 		IDC_map[TEXT("appstarting")] = IDC_APPSTARTING;
@@ -347,4 +347,12 @@ HIMAGELIST DcxWindow::createImageList(const bool bBigIcons)
 		ImageList_SetBkColor(himl, RGB(255, 255, 255));
 
 	return himl;
+}
+
+LRESULT DcxWindow::CallDefaultProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+	if (m_hDefaultWindowProc == nullptr)
+		return DefWindowProc(mHwnd, uMsg, wParam, lParam);
+
+	return CallWindowProc(m_hDefaultWindowProc, mHwnd, uMsg, wParam, lParam);
 }

@@ -219,7 +219,7 @@ protected:
 
 	DcxDialog * m_pParentDialog;	//!< Parent DcxDialog object
 
-	WNDPROC m_DefaultWindowProc;	//!< Default window procedure
+	//WNDPROC m_DefaultWindowProc;	//!< Default window procedure
 
 	HFONT m_hFont;					//!< Control Font
 

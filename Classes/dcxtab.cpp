@@ -432,11 +432,11 @@ void DcxTab::parseInfoRequest( const TString & input, const refString<TCHAR, MIR
  */
 
 void DcxTab::parseCommandRequest( const TString & input ) {
-	const XSwitchFlags flags(input.getfirsttok( 3 ));
+	const XSwitchFlags xflags(input.getfirsttok( 3 ));
 	const auto numtok = input.numtok();
 
 	// xdid -r [NAME] [ID] [SWITCH]
-	if (flags[TEXT('r')]) {
+	if (xflags[TEXT('r')]) {
 		TCITEM tci = { 0 };
 		const auto nItems = TabCtrl_GetItemCount(m_Hwnd);
 
@@ -460,7 +460,7 @@ void DcxTab::parseCommandRequest( const TString & input ) {
 	}
 
 	// xdid -a [NAME] [ID] [SWITCH] [N] [ICON] [TEXT][TAB][ID] [CONTROL] [X] [Y] [W] [H] (OPTIONS)[TAB](TOOLTIP)
-	if ( flags[TEXT('a')] && numtok > 4 ) {
+	if ( xflags[TEXT('a')] && numtok > 4 ) {
 		TCITEM tci;
 		ZeroMemory( &tci, sizeof( TCITEM ) );
 		tci.mask = TCIF_IMAGE | TCIF_PARAM;
@@ -558,7 +558,7 @@ void DcxTab::parseCommandRequest( const TString & input ) {
 		this->activateSelectedTab( );
 	}
 	// xdid -c [NAME] [ID] [SWITCH] [N]
-	else if ( flags[TEXT('c')] && numtok > 3 ) {
+	else if ( xflags[TEXT('c')] && numtok > 3 ) {
 		const auto nItem = input.getnexttok().to_int() - 1;	// tok 4
 
 		if ( nItem < 0 && nItem >= TabCtrl_GetItemCount( m_Hwnd ) )
@@ -568,7 +568,7 @@ void DcxTab::parseCommandRequest( const TString & input ) {
 		this->activateSelectedTab( );
 	}
 	// xdid -d [NAME] [ID] [SWITCH] [N]
-	else if ( flags[TEXT('d')] && numtok > 3 ) {
+	else if ( xflags[TEXT('d')] && numtok > 3 ) {
 		const auto nItem = input.getnexttok().to_int() - 1;	// tok 4
 
 		// if a valid item to delete
@@ -604,7 +604,7 @@ void DcxTab::parseCommandRequest( const TString & input ) {
 		}
 	}
 	// xdid -l [NAME] [ID] [SWITCH] [N] [ICON]
-	else if ( flags[TEXT('l')] && numtok > 4 ) {
+	else if ( xflags[TEXT('l')] && numtok > 4 ) {
 		const auto nItem = input.getnexttok().to_int() - 1;	// tok 4
 		const auto nIcon = input.getnexttok().to_int() - 1;	// tok 5
 
@@ -619,7 +619,7 @@ void DcxTab::parseCommandRequest( const TString & input ) {
 		TabCtrl_SetItem( m_Hwnd, nItem, &tci );
 	}
 	// xdid -m [NAME] [ID] [SWITCH] [X] [Y]
-	else if ( flags[TEXT('m')] && numtok > 4 ) {
+	else if ( xflags[TEXT('m')] && numtok > 4 ) {
 
 		const auto X = input.getnexttok( ).to_int( );	// tok 4
 		const auto Y = input.getnexttok().to_int();	// tok 5
@@ -628,10 +628,10 @@ void DcxTab::parseCommandRequest( const TString & input ) {
 	}
 	// This it to avoid an invalid flag message.
 	// xdid -r [NAME] [ID] [SWITCH]
-	else if ( flags[TEXT('r')] ) {
+	else if ( xflags[TEXT('r')] ) {
 	}
 	// xdid -t [NAME] [ID] [SWITCH] [N] (text)
-	else if ( flags[TEXT('t')] && numtok > 3 ) {
+	else if ( xflags[TEXT('t')] && numtok > 3 ) {
 
 		const auto nItem = input.getnexttok().to_int() - 1;	// tok 4
 
@@ -653,7 +653,7 @@ void DcxTab::parseCommandRequest( const TString & input ) {
 	}
 
 	// xdid -v [DNAME] [ID] [SWITCH] [N] [POS]
-	else if (flags[TEXT('v')] && numtok > 4) {
+	else if (xflags[TEXT('v')] && numtok > 4) {
 		const auto nItem = input.getnexttok().to_int() - 1;		// tok 4
 		const auto pos = input.getnexttok().to_int() - 1;	// tok 5
 		BOOL adjustDelete = FALSE;
@@ -681,12 +681,14 @@ void DcxTab::parseCommandRequest( const TString & input ) {
 		//TCHAR* text = new TCHAR[MIRC_BUFFER_SIZE_CCH];
 		auto text = std::make_unique<TCHAR[]>(MIRC_BUFFER_SIZE_CCH);
 
-		TCITEM tci;
-		ZeroMemory(&tci, sizeof(TCITEM));
+		//TCITEM tci;
+		//ZeroMemory(&tci, sizeof(TCITEM));
+		//
+		//tci.pszText = text.get();
+		//tci.cchTextMax = MIRC_BUFFER_SIZE_CCH;
+		//tci.mask = TCIF_IMAGE | TCIF_PARAM | TCIF_TEXT | TCIF_STATE;
 
-		tci.pszText = text.get();
-		tci.cchTextMax = MIRC_BUFFER_SIZE_CCH;
-		tci.mask = TCIF_IMAGE | TCIF_PARAM | TCIF_TEXT | TCIF_STATE;
+		TCITEM tci{ (TCIF_IMAGE | TCIF_PARAM | TCIF_TEXT | TCIF_STATE), 0,0,text.get(), MIRC_BUFFER_SIZE_CCH, 0, 0 };
 
 		TabCtrl_GetItem(m_Hwnd, nItem, &tci);
 
@@ -705,7 +707,7 @@ void DcxTab::parseCommandRequest( const TString & input ) {
 	}
 
 	// xdid -w [NAME] [ID] [SWITCH] [FLAGS] [INDEX] [FILENAME]
-	else if (flags[TEXT('w')] && numtok > 5) {
+	else if (xflags[TEXT('w')] && numtok > 5) {
 		const auto flag(input.getnexttok());		// tok 4
 		const auto index = input.getnexttok().to_int();	// tok 5
 		auto filename(input.getlasttoks());			// tok 6, -1
@@ -721,25 +723,27 @@ void DcxTab::parseCommandRequest( const TString & input ) {
 		if (himl == nullptr)
 			throw Dcx::dcxException("Unable to get Image List");
 
-		//HICON icon = dcxLoadIcon(index, filename, false, flag);
-		//
-		//if (icon != nullptr) {
-		//	ImageList_AddIcon(himl, icon);
-		//	DestroyIcon(icon);
-		//}
-
+#if DCX_USE_WRAPPERS
 		Dcx::dcxIconResource icon(index, filename, false, flag);
 
 		ImageList_AddIcon(himl, icon);
+#else
+		HICON icon = dcxLoadIcon(index, filename, false, flag);
+		
+		if (icon != nullptr) {
+			ImageList_AddIcon(himl, icon);
+			DestroyIcon(icon);
+		}
+#endif
 	}
 	// xdid -y [NAME] [ID] [SWITCH] [+FLAGS]
-	else if ( flags[TEXT('y')] ) {
+	else if ( xflags[TEXT('y')] ) {
 
 		ImageList_Destroy( this->getImageList( ) );
 	}
 	// xdid -m [NAME] [ID] [SWITCH] [+FLAGS] [WIDTH]
 	// xdid -m -> [NAME] [ID] -m [+FLAGS] [WIDTH]
-	else if (flags[TEXT('m')]) {
+	else if (xflags[TEXT('m')]) {
 		const XSwitchFlags xFlags(input.getnexttok());	// tok 4
 		auto iWidth = input.getnexttok().to_int();		// tok 5
 
@@ -751,7 +755,7 @@ void DcxTab::parseCommandRequest( const TString & input ) {
 		this->activateSelectedTab();
 	}
 	else
-		this->parseGlobalCommandRequest( input, flags );
+		this->parseGlobalCommandRequest( input, xflags );
 }
 
 /*!
@@ -795,10 +799,12 @@ void DcxTab::setImageList( HIMAGELIST himl ) {
 
 void DcxTab::deleteLParamInfo(const int nItem)
 {
-	TCITEM tci;
-	ZeroMemory(&tci, sizeof(TCITEM));
+	//TCITEM tci;
+	//ZeroMemory(&tci, sizeof(TCITEM));
+	//
+	//tci.mask = TCIF_PARAM;
 
-	tci.mask = TCIF_PARAM;
+	TCITEM tci{ TCIF_PARAM, 0,0,nullptr, 0, 0, 0 };
 
 	if (TabCtrl_GetItem(m_Hwnd, nItem, &tci)) {
 
@@ -834,9 +840,11 @@ void DcxTab::activateSelectedTab( ) {
 
 	OffsetRect(&tabrect, -rc.left, -rc.top);
 
-	TCITEM tci;
-	ZeroMemory(&tci, sizeof(TCITEM));
-	tci.mask = TCIF_PARAM;
+	//TCITEM tci;
+	//ZeroMemory(&tci, sizeof(TCITEM));
+	//tci.mask = TCIF_PARAM;
+
+	TCITEM tci{ TCIF_PARAM, 0,0,nullptr, 0, 0, 0 };
 
 	auto hdwp = BeginDeferWindowPos(nTab + 1);
 
@@ -1339,7 +1347,8 @@ LRESULT DcxTab::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 				// Setup alpha blend if any.
 				auto ai = this->SetupAlphaBlend(&hdc);
 
-				lRes = CallWindowProc( this->m_DefaultWindowProc, m_Hwnd, uMsg, (WPARAM) hdc, lParam );
+				//lRes = CallWindowProc( this->m_DefaultWindowProc, m_Hwnd, uMsg, (WPARAM) hdc, lParam );
+				lRes = CallDefaultProc(m_Hwnd, uMsg, (WPARAM)hdc, lParam);
 
 				this->FinishAlphaBlend(ai);
 

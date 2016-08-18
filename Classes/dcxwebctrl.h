@@ -91,6 +91,15 @@ private:
 	void SafeRelease() noexcept;
 	TString CallScript(const TString &tsCmd) const;
 
+	template <typename T>
+	void SafeReleaseCom(T *face) noexcept
+	{
+		T tmp = *face;
+		*face = nullptr;
+		if (tmp != nullptr)
+			tmp->Release();
+	}
+
 //protected:
 
 	IOleInPlaceObject	* m_pOleInPlaceObject;

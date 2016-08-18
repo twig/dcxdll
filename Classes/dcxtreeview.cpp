@@ -2288,7 +2288,8 @@ void DcxTreeView::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 		DrawGDIPlusImage(hdc);
 #endif
 
-	CallWindowProc( m_DefaultWindowProc, m_Hwnd, uMsg, (WPARAM) hdc, lParam );
+	//CallWindowProc( m_DefaultWindowProc, m_Hwnd, uMsg, (WPARAM) hdc, lParam );
+	CallDefaultProc(m_Hwnd, uMsg, (WPARAM)hdc, lParam);
 }
 
 // clears existing image and icon data and sets pointers to null

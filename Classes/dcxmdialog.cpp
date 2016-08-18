@@ -154,7 +154,8 @@ LRESULT DcxMDialog::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 
 	case WM_DESTROY:
 		{
-			auto wnd = this->m_DefaultWindowProc;
+			//auto wnd = this->m_DefaultWindowProc;
+			auto wnd = this->m_hDefaultWindowProc;
 			auto mHwnd = m_Hwnd;
 			m_DeleteByDestroy = true;
 			delete this;

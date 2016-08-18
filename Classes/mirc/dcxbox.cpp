@@ -113,7 +113,7 @@ DcxBox::~DcxBox() {
 
 	delete m_pLayoutManager;
 
-	if (_hTheme)
+	if (_hTheme != nullptr)
 		Dcx::UXModule.dcxCloseThemeData(_hTheme);
 	unregistreDefaultWindowProc();
 }
@@ -214,8 +214,6 @@ void DcxBox::parseControlStyles( const TString & styles, LONG * Styles, LONG * E
 #if DCX_USE_HASHING
 void DcxBox::parseInfoRequest(const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const
 {
-	//  auto numtok = input.numtok( );
-
 	switch (std::hash<TString>{}(input.getfirsttok(3)))
 	{
 		// [NAME] [ID] [PROP]
@@ -271,8 +269,6 @@ void DcxBox::parseInfoRequest(const TString & input, const refString<TCHAR, MIRC
 #ifndef DCX_SWITCH_OBJ
 void DcxBox::parseInfoRequest( const TString & input, refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const
 {
-	//  auto numtok = input.numtok( );
-
 	const auto prop(input.getfirsttok( 3 ));
 
 	// [NAME] [ID] [PROP]
@@ -325,11 +321,9 @@ void DcxBox::parseInfoRequest( const TString & input, refString<TCHAR, MIRC_BUFF
 #else
 void DcxBox::parseInfoRequest(const TString & input, refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const
 {
-	szReturnValue[0] = 0;
-
 	Switch(input.getfirsttok(3))
-		.Case(TEXT("text"), [this, szReturnValue] { GetWindowText(m_Hwnd, szReturnValue, MIRC_BUFFER_SIZE_CCH); }).Break()
-		.Case(TEXT("inbox"), [this, szReturnValue] {
+		.Case(L"text"_ts), [this, szReturnValue] { GetWindowText(m_Hwnd, szReturnValue, MIRC_BUFFER_SIZE_CCH); }).Break()
+		.Case(L"inbox"_ts), [this, szReturnValue] {
 			RECT rc;
 			if (!GetClientRect(m_Hwnd, &rc))
 				throw Dcx::dcxException("Unable to get client rect!");
@@ -427,18 +421,48 @@ void DcxBox::parseCommandRequest( const TString & input ) {
 	*/
 	else if ( flags[TEXT('l')] && numtok > 3 ) {
 
+#if DCX_USE_HASHING
+		if (m_pLayoutManager == nullptr)
+			throw Dcx::dcxException("No LayoutManager available");
+
+		switch (std::hash<TString>{}(input.getnexttok()))	// tok 4
+		{
+		case L"update"_hash:
+		{
+			RECT rc;
+			if (!GetClientRect(m_Hwnd, &rc))
+				throw Dcx::dcxException("Unable to get client rect!");
+
+			m_pLayoutManager->updateLayout(rc);
+
+			redrawWindow();
+		}
+		break;
+		case L"clear"_hash:
+		{
+			delete m_pLayoutManager;
+			m_pLayoutManager = new LayoutManager(m_Hwnd);
+			//redrawWindow(); // dont redraw here, leave that for an `update` cmd
+		}
+		break;
+		default:
+			if (numtok > 8)
+				m_pLayoutManager->AddCell(input, 4);
+		}
+#else
+		if (m_pLayoutManager == nullptr)
+			throw Dcx::dcxException("No LayoutManager available");
+
 		const auto tsCmd(input.getnexttok());	// tok 4
 
 		if ( tsCmd == TEXT("update") ) {
-			if ( m_pLayoutManager != nullptr ) {
-				RECT rc;
-				if (!GetClientRect( m_Hwnd, &rc ))
-					throw Dcx::dcxException("Unable to get client rect!");
+			RECT rc;
+			if (!GetClientRect( m_Hwnd, &rc ))
+				throw Dcx::dcxException("Unable to get client rect!");
 				
-				m_pLayoutManager->updateLayout(rc);
+			m_pLayoutManager->updateLayout(rc);
 
-				redrawWindow();
-			}
+			redrawWindow();
 		}
 		else if (tsCmd == TEXT("clear")) {
 			delete m_pLayoutManager;
@@ -447,6 +471,7 @@ void DcxBox::parseCommandRequest( const TString & input ) {
 		}
 		else if ( numtok > 8 )
 			m_pLayoutManager->AddCell(input, 4);
+#endif
 	}
 	//xdid -t [NAME] [ID] [SWITCH]
 	else if ( flags[TEXT('t')] ) {
@@ -556,10 +581,7 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 									return 0L;
 							}
 
-							DCXENUM de;
-							de.mChildHwnd = m_TitleButton;
-							de.mBox = m_Hwnd;
-							de.mState = state;
+							DCXENUM de{ m_TitleButton,m_Hwnd,state };
 
 							EnumChildWindows(m_Hwnd,(WNDENUMPROC)DcxBox::EnumBoxChildren,(LPARAM)&de);
 							break;

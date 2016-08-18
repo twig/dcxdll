@@ -95,7 +95,7 @@ DcxControl::DcxControl( const UINT mID, DcxDialog *const p_Dialog )
 , m_bGradientVertical(false)
 , m_ToolTipHWND(nullptr)
 , m_colTransparentBg(CLR_INVALID)
-, m_DefaultWindowProc(nullptr)
+//, m_DefaultWindowProc(nullptr)
 , m_dEventMask(p_Dialog->getEventMask())	// inherit the parent dialogs event mask
 {
 	//m_dEventMask = p_Dialog->getEventMask();
@@ -1267,10 +1267,8 @@ bool DcxControl::parseGlobalInfoRequest(const TString & input, const refString<T
  */
 
 void DcxControl::registreDefaultWindowProc( ) {
-	//this->removeStyle( WS_BORDER|WS_DLGFRAME );
-	//this->removeExStyle( WS_EX_CLIENTEDGE|WS_EX_DLGMODALFRAME|WS_EX_STATICEDGE|WS_EX_WINDOWEDGE );
-
-	this->m_DefaultWindowProc = SubclassWindow( m_Hwnd, DcxControl::WindowProc );
+	//m_DefaultWindowProc = SubclassWindow( m_Hwnd, DcxControl::WindowProc );
+	m_hDefaultWindowProc = SubclassWindow(m_Hwnd, DcxControl::WindowProc);
 }
 
 /*!
@@ -1280,12 +1278,18 @@ void DcxControl::registreDefaultWindowProc( ) {
  */
 
 void DcxControl::unregistreDefaultWindowProc( ) {
-	if (this->m_DefaultWindowProc != nullptr) {
+	//if (this->m_DefaultWindowProc != nullptr) {
+	//	// implies this has alrdy been called.
+	//	if ((WNDPROC)GetWindowLongPtr(m_Hwnd, GWLP_WNDPROC) == DcxControl::WindowProc)
+	//		SubclassWindow(m_Hwnd, this->m_DefaultWindowProc);
+	//}
+	//this->m_DefaultWindowProc = nullptr;
+	if (m_hDefaultWindowProc != nullptr) {
 		// implies this has alrdy been called.
 		if ((WNDPROC)GetWindowLongPtr(m_Hwnd, GWLP_WNDPROC) == DcxControl::WindowProc)
-			SubclassWindow(m_Hwnd, this->m_DefaultWindowProc);
+			SubclassWindow(m_Hwnd, m_hDefaultWindowProc);
 	}
-	this->m_DefaultWindowProc = nullptr;
+	m_hDefaultWindowProc = nullptr;
 }
 
 /*!
@@ -1336,10 +1340,12 @@ LRESULT CALLBACK DcxControl::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LP
 			return lrRes;
 	}
 
-	if (pthis->m_DefaultWindowProc != nullptr)
-		return CallWindowProc(pthis->m_DefaultWindowProc, mHwnd, uMsg, wParam, lParam);
+	//if (pthis->m_DefaultWindowProc != nullptr)
+	//	return CallWindowProc(pthis->m_DefaultWindowProc, mHwnd, uMsg, wParam, lParam);
+	//
+	//return DefWindowProc(mHwnd, uMsg, wParam, lParam);
 
-	return DefWindowProc(mHwnd, uMsg, wParam, lParam);
+	return pthis->CallDefaultProc(mHwnd, uMsg, wParam, lParam);
 }
 
 /*!
@@ -2398,7 +2404,8 @@ LRESULT DcxControl::CommonMessage( const UINT uMsg, WPARAM wParam, LPARAM lParam
 					auto hBackBrush = p_Control->getBackClrBrush();
 
 					bParsed = TRUE;
-					lRes = CallWindowProc(this->m_DefaultWindowProc, m_Hwnd, uMsg, wParam, lParam);
+					//lRes = CallWindowProc(this->m_DefaultWindowProc, m_Hwnd, uMsg, wParam, lParam);
+					lRes = CallDefaultProc(m_Hwnd, uMsg, wParam, lParam);
 
 					if ( clrText != CLR_INVALID )
 						SetTextColor( (HDC) wParam, clrText );
@@ -2569,7 +2576,8 @@ LRESULT DcxControl::CommonMessage( const UINT uMsg, WPARAM wParam, LPARAM lParam
 				// Setup alpha blend if any.
 				auto ai = this->SetupAlphaBlend(&hdc);
 
-				lRes = CallWindowProc( this->m_DefaultWindowProc, m_Hwnd, uMsg, (WPARAM) hdc, lParam );
+				//lRes = CallWindowProc( this->m_DefaultWindowProc, m_Hwnd, uMsg, (WPARAM) hdc, lParam );
+				lRes = CallDefaultProc(m_Hwnd, uMsg, (WPARAM)hdc, lParam);
 
 				this->FinishAlphaBlend(ai);
 			}
