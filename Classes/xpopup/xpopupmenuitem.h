@@ -35,6 +35,7 @@ class XPopupMenu;
 struct XPMENUCOLORS {
 	COLORREF m_clrBack;					//!< Menu Item BackGround Color
 	COLORREF m_clrBox;					//!< Menu Item Box Color
+	COLORREF m_clrLightBox;				//!< Menu Item Box Color (lighter by 200)
 	COLORREF m_clrSelection;			//!< Menu Item Selection Box Color
 	COLORREF m_clrDisabledSelection;	//!< Menu Item Disabled Selection Box Color
 	COLORREF m_clrText;					//!< Menu Item Text Color

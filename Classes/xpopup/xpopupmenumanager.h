@@ -96,10 +96,10 @@ protected:
 
 	VectorOfXPopupMenu m_vpXPMenu; //!< Vector of XPopupMenu Objects
 
-//#ifdef DEBUG
-//	static WNDPROC g_OldmIRCMenusWindowProc;
-//	static LRESULT CALLBACK mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-//#endif
+#if DCX_DEBUG_OUTPUT && 0
+	static WNDPROC g_OldmIRCMenusWindowProc;
+	static LRESULT CALLBACK mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+#endif
 };
 
 extern HMENU g_OriginalMenuBar;

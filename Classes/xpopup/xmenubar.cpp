@@ -262,11 +262,11 @@ const int XMenuBar::findMenuOffset(HMENU menubar, const XPopupMenu *const p_Menu
  */
 void XMenuBar::setMenuBar(HMENU oldMenuBar, HMENU newMenuBar) {
 	if (newMenuBar != g_OriginalMenuBar) {
-		MENUINFO mi;
+		MENUINFO mi{ sizeof(MENUINFO),(MIM_BACKGROUND | MIM_HELPID | MIM_MAXHEIGHT | MIM_MENUDATA | MIM_STYLE),0,0,nullptr,0,0 };
 
-		ZeroMemory(&mi, sizeof(MENUINFO));
-		mi.cbSize = sizeof(MENUINFO);
-		mi.fMask = MIM_BACKGROUND | MIM_HELPID | MIM_MAXHEIGHT | MIM_MENUDATA | MIM_STYLE;
+		//ZeroMemory(&mi, sizeof(MENUINFO));
+		//mi.cbSize = sizeof(MENUINFO);
+		//mi.fMask = MIM_BACKGROUND | MIM_HELPID | MIM_MAXHEIGHT | MIM_MENUDATA | MIM_STYLE;
 
 		GetMenuInfo(oldMenuBar, &mi);
 		SetMenuInfo(newMenuBar, &mi);
@@ -334,8 +334,10 @@ const bool XMenuBar::hasCallback() const noexcept {
  */
 const bool XMenuBar::parseCallback(const UINT menuID) {
 	TString result;
-
+	
 	mIRCLinker::tsEvalex(result, TEXT("$%s(%d)"), this->m_callback.to_chr(), menuID);
-
+	
 	return (result == TEXT("$true"));
+
+	//return mIRCLinker::evalex(nullptr, 0, TEXT("$%s(%d)"), m_callback.to_chr(), menuID);
 }
