@@ -168,98 +168,216 @@ _INTEL_DLL_ int WINAPI UnloadDll(int timeout) {
 mIRC(Version)
 {
 	try {
-		TString tmp(TEXT("This is a token string"));
+		TString tmp(TEXT(" This is a token string "));
 
-		tmp.trim();
+		mIRCLinker::execex(TEXT("/echo -a \" This is a token string \" :: \"%s\""), tmp.to_chr());
 
-		tmp.addtok(100);	// "This is a token string 100"
-		mIRCLinker::execex(TEXT("/echo -a addtok(100): %s"), tmp.to_chr());
+		{	// test trim() function
+			tmp.trim();
+			Ensures(tmp == TEXT("This is a token string"_ts));
 
-		tmp.addtok(TEXT("chars"));	// "This is a token string 100 chars"
-		mIRCLinker::execex(TEXT("/echo -a addtok(chars): %s"), tmp.to_chr());
-
-		tmp.instok(TEXT("m_inserted"), 5); // "This is a token m_inserted string 100 chars"
-		mIRCLinker::execex(TEXT("/echo -a instok(m_inserted,5): %s"), tmp.to_chr());
-
-		tmp.instok(TEXT("s_inserted"), 1); // "s_inserted This is a token m_inserted string 100 chars"
-		mIRCLinker::execex(TEXT("/echo -a instok(s_inserted,1): %s"), tmp.to_chr());
-
-		tmp.instok(TEXT("e_inserted"), 10);	// "s_inserted This is a token m_inserted string 100 chars e_inserted"
-		mIRCLinker::execex(TEXT("/echo -a instok(e_inserted,10): %s"), tmp.to_chr());
-
-		tmp.deltok(2);	// "s_inserted is a token m_inserted string 100 chars e_inserted"
-		mIRCLinker::execex(TEXT("/echo -a deltok(2): %s"), tmp.to_chr());
-
-		tmp.deltok(1);	// "is a token m_inserted string 100 chars e_inserted"
-		mIRCLinker::execex(TEXT("/echo -a deltok(1): %s"), tmp.to_chr());
-
-		tmp.deltok(8);	// "is a token m_inserted string 100 chars"
-		mIRCLinker::execex(TEXT("/echo -a deltok(8): %s"), tmp.to_chr());
-
-		tmp.puttok(TEXT("put"), 4);	// "is a token put string 100 chars"
-		mIRCLinker::execex(TEXT("/echo -a puttok(put,4): %s"), tmp.to_chr());
-
-		tmp.puttok(TEXT("putter"), 1);	// "putter a token put string 100 chars"
-		mIRCLinker::execex(TEXT("/echo -a puttok(putter,1): %s"), tmp.to_chr());
-
-		tmp.puttok(TEXT("putted"), 7);	// "putter a token put string 100 putted"
-		mIRCLinker::execex(TEXT("/echo -a puttok(putted,7): %s"), tmp.to_chr());
-
-		tmp.puttok(TEXT("e_put"), 8);	// "putter a token put string 100 putted e_put"
-		mIRCLinker::execex(TEXT("/echo -a puttok(e_putt,8): %s"), tmp.to_chr());
-
-		TString tsTestCrash;
-		tsTestCrash = tmp.gettok(2);
-		tsTestCrash = tmp.gettok(2, -1);
-
-		mIRCLinker::execex(TEXT("/echo -a gettok(2,2): %s"), tmp.gettok(2, 2).to_chr()); // "a"
-		mIRCLinker::execex(TEXT("/echo -a gettok(2,3): %s"), tmp.gettok(2, 3).to_chr()); // "a token"
-		mIRCLinker::execex(TEXT("/echo -a gettok(2,numtok()): %s"), tmp.gettok(2, static_cast<int>(tmp.numtok())).to_chr()); // "a token put string 100 putted e_put"
-		mIRCLinker::execex(TEXT("/echo -a gettok(2,-1): %s"), tmp.gettok(2, -1).to_chr()); // "a token put string 100 putted e_put"
-		auto tsNum(tmp.gettok(6));	// "putter a token put string 100 putted e_put" == 100
-		auto t = 0;
-		//tsNum >> t;
-		//tsNum << " text " << t << TEXT(" some morer ");
-
-		tsNum += 3.14;
-		tsNum += t;
-		t = tsNum.to_<int>();
-
-		mIRCLinker::execex(TEXT("/echo -a tsNum: %s :tsNum.to_<int>(): %d"), tsNum.to_chr(), t); // "1003.140000"
-
-		auto tok = tsNum++;
-		mIRCLinker::execex(TEXT("/echo -a tsNum++: %s"), tok.to_chr()); // "1003.140000"
-
-		tok = tsNum++;
-		mIRCLinker::execex(TEXT("/echo -a tsNum++: %s"), tok.to_chr()); // ""
-
-		tsNum = TEXT("blah1 blah2 blah3");	// "blah1 blah2 blah3"
-		tsNum++;
-		tok = *tsNum;	// "blah2"
-		mIRCLinker::execex(TEXT("/echo -a tsNum: %s"), tsNum.to_chr()); // ""
-		mIRCLinker::execex(TEXT("/echo -a *tsNum: %s"), tok.to_chr()); // ""
-
-		//for (auto itStart = tmp.begin(), itEnd = tmp.end(); itStart != itEnd; ++itStart)
-		//{
-		//	mIRCLinker::execex(TEXT("/echo -a test for: %s"), (*itStart).to_chr());
-		//}
-
-		auto itStart = tmp.begin(), itEnd = tmp.end(); 
-		while (itStart != itEnd)
-		{
-			const TString tsTmp(*itStart);
-			mIRCLinker::execex(TEXT("/echo -a iterate tmp: %u :: %s"), (size_t)itStart, tsTmp.to_chr());
-			++itStart;
+			mIRCLinker::exec(TEXT("/echo -a Success: trim() - all tests passed"));
 		}
-		tok.join(tmp, TEXT('!'));
-		mIRCLinker::execex(TEXT("/echo -a tok.join(tmp,!): %s"), tok.to_chr());
 
-		t = Dcx::parse_string<int>("200");
-		mIRCLinker::execex(TEXT("/echo -a parse_string<int>(200): %d"), t); // 100
+		{	// test numtok() function
+			// numtok()
+			Ensures(tmp.numtok() == 5);
+			// numtok(" ")
+			Ensures(tmp.numtok(TEXT(" ")) == 5);
+			// numtok(string)
+			Ensures(tmp.numtok(TEXT("is")) == 3);
+			// numtok(string)
+			Ensures(tmp.numtok(TEXT("token")) == 2);
 
-		tok.addtok(TEXT('b'), TEXT('n'));
+			mIRCLinker::exec(TEXT("/echo -a Success: numtok() - all tests passed"));
+		}
 
-		mIRCLinker::execex(TEXT("/echo -a addtok(b,n): %s"), tok.to_chr());
+		{	// test addtok() function
+			// addtok(number)
+			tmp.addtok(100);	// "This is a token string 100"
+			Ensures(tmp == TEXT("This is a token string 100"_ts));
+
+			// addtok(string)
+			tmp.addtok(TEXT("chars"));	// "This is a token string 100 chars"
+			Ensures(tmp == TEXT("This is a token string 100 chars"_ts));
+
+			// addtok(character)
+			tmp.addtok(TEXT('q'));	// "This is a token string 100 chars q"
+			Ensures(tmp == TEXT("This is a token string 100 chars q"_ts));
+
+			// addtok(character,character)
+			tmp.addtok(TEXT('b'), TEXT('n'));
+			Ensures(tmp == TEXT("This is a token string 100 chars qnb"_ts));
+
+			mIRCLinker::exec(TEXT("/echo -a Success: addtok() - all tests passed"));
+		}
+
+		{	// test instok()
+			// instok(string,middle of token string)
+			tmp.instok(TEXT("m_inserted"), 5); // "This is a token m_inserted string 100 chars qnb"
+			Ensures(tmp == TEXT("This is a token m_inserted string 100 chars qnb"_ts));
+
+			// instok(string,start of token string)
+			tmp.instok(TEXT("s_inserted"), 1); // "s_inserted This is a token m_inserted string 100 chars qnb"
+			Ensures(tmp == TEXT("s_inserted This is a token m_inserted string 100 chars qnb"_ts));
+
+			// instok(string,end of token string)
+			tmp.instok(TEXT("e_inserted"), tmp.numtok() + 1);	// "s_inserted This is a token m_inserted string 100 chars qnb e_inserted"
+			Ensures(tmp == TEXT("s_inserted This is a token m_inserted string 100 chars qnb e_inserted"_ts));
+
+			mIRCLinker::exec(TEXT("/echo -a Success: instok() - all tests passed"));
+		}
+
+		{	// test deltok()
+			// deltok(middle of token string)
+			tmp.deltok(2);	// "s_inserted is a token m_inserted string 100 chars qnb e_inserted"
+			Ensures(tmp == TEXT("s_inserted is a token m_inserted string 100 chars qnb e_inserted"_ts));
+
+			// deltok(start of string)
+			tmp.deltok(1);	// "is a token m_inserted string 100 chars qnb e_inserted"
+			Ensures(tmp == TEXT("is a token m_inserted string 100 chars qnb e_inserted"_ts));
+
+			// deltok(end of string)
+			tmp.deltok(tmp.numtok());	// "is a token m_inserted string 100 chars qnb"
+			Ensures(tmp == TEXT("is a token m_inserted string 100 chars qnb"_ts));
+
+			mIRCLinker::exec(TEXT("/echo -a Success: deltok() - all tests passed"));
+		}
+
+		{	// test puttok()
+			// puttok(string,middle of token string)
+			tmp.puttok(TEXT("put"), 4);	// "is a token put string 100 chars qnb"
+			Ensures(tmp == TEXT("is a token put string 100 chars qnb"_ts));
+
+			// puttok(string,start of token string)
+			tmp.puttok(TEXT("putter"), 1);	// "putter a token put string 100 chars qnb"
+			Ensures(tmp == TEXT("putter a token put string 100 chars qnb"_ts));
+
+			// puttok(string,last token in string)
+			tmp.puttok(TEXT("putted"), tmp.numtok());	// "putter a token put string 100 chars putted"
+			Ensures(tmp == TEXT("putter a token put string 100 chars putted"_ts));
+
+			// puttok(string,end of token string)
+			tmp.puttok(TEXT("e_put"), tmp.numtok() +1);	// "putter a token put string 100 chars putted e_put"
+			Ensures(tmp == TEXT("putter a token put string 100 chars putted e_put"_ts));
+
+			mIRCLinker::exec(TEXT("/echo -a Success: puttok() - all tests passed"));
+		}
+
+		{	// test gettok()
+			TString tsTestCrash;
+
+			// crash condition....
+			tsTestCrash = tmp.gettok(2);
+			tsTestCrash = tmp.gettok(2, -1);
+			Ensures(tsTestCrash == TEXT("a token put string 100 chars putted e_put"_ts));
+
+			// gettok(num,same num) get single token from middle of string
+			tsTestCrash = tmp.gettok(2, 2);
+			Ensures(tsTestCrash == TEXT("a"_ts));
+
+			// gettok(N, N+1) get 2 tokens from middle of string
+			tsTestCrash = tmp.gettok(2, 3);
+			Ensures(tsTestCrash == TEXT("a token"_ts));
+
+			// gettok(N,numtok()) get all tokens from N onwards, untill very last token
+			tsTestCrash = tmp.gettok(2, static_cast<int>(tmp.numtok()));
+			Ensures(tsTestCrash == TEXT("a token put string 100 chars putted e_put"_ts));
+
+			// gettok(N,-1) get whole string starting at the Nth token
+			tsTestCrash = tmp.gettok(2, -1);
+			Ensures(tsTestCrash == TEXT("a token put string 100 chars putted e_put"_ts));
+
+			mIRCLinker::exec(TEXT("/echo -a Success: gettok() - all tests passed"));
+		}
+
+		TString tok;
+
+		{	// test number handling
+			auto tsNum(tmp.gettok(6));	// "putter a token put string 100 chars putted e_put" == 100
+			auto t = 0;
+			Ensures(tsNum == TEXT("100"_ts));
+
+			// append "3.14" to string, floats are always zero padded so becomes 3.140000
+			tsNum += 3.14;
+			Ensures(tsNum == TEXT("1003.140000"_ts));
+
+			// append a zero from a var
+			tsNum += t;
+			Ensures(tsNum == TEXT("1003.1400000"_ts));
+
+			// convert string to an integer, causes 1003.1400000 to become 1003
+			t = tsNum.to_<int>();
+			Ensures(t == 1003);
+
+			// post increment token count, tok is set to first token
+			tok = tsNum++;
+			Ensures(tok == TEXT("1003.1400000"_ts));
+
+			// post increment token count, tok is set to second (non-existant) token, so returns blank
+			tok = tsNum++;
+			Ensures(tok == TEXT(""_ts));
+
+			// reset tsNum to new contents
+			tsNum = TEXT("blah1 blah2 blah3");	// "blah1 blah2 blah3"
+			Ensures(tsNum == TEXT("blah1 blah2 blah3"_ts));
+
+			// set tsNum to second token & get it
+			tsNum++;
+			tok = *tsNum;	// "blah2"
+			Ensures(tsNum == TEXT("blah1 blah2 blah3"_ts));
+			Ensures(tok == TEXT("blah2"_ts));
+
+			mIRCLinker::exec(TEXT("/echo -a Success: number handling - all tests passed"));
+		}
+
+		{	// test iterator's
+			//for (auto itStart = tmp.begin(), itEnd = tmp.end(); itStart != itEnd; ++itStart)
+			//{
+			//	mIRCLinker::execex(TEXT("/echo -a test for: %s"), (*itStart).to_chr());
+			//}
+
+			auto nToks = tmp.numtok();
+			auto nIter = decltype(nToks){0};
+
+			// begin()/end() based loop
+			auto itStart = tmp.begin(), itEnd = tmp.end();
+			while (itStart != itEnd)
+			{
+				const TString tsTmp(*itStart);
+				++nIter;
+				Ensures(nIter == (size_t)itStart);
+				++itStart;
+			}
+			Ensures((nToks == nIter));
+			Ensures((nToks == tmp.numtok()));
+
+			nIter = 0U;
+
+			// ranged for loop
+			for (auto x : tmp)
+			{
+				++nIter;
+			}
+			Ensures((nToks == nIter));
+			Ensures((nToks == tmp.numtok()));
+
+			mIRCLinker::exec(TEXT("/echo -a Success: iterator - all tests passed"));
+		}
+
+		{	// test join()
+			tok.join(tmp, TEXT('!'));
+			Ensures(tok == TEXT("blah2!putter!a!token!put!string!100!chars!putted!e_put"_ts));
+
+			mIRCLinker::exec(TEXT("/echo -a Success: join() - all tests passed"));
+		}
+
+		{	// test parse_string()
+			auto t = Dcx::parse_string<int>("200");
+			Ensures(t == 200);
+
+			mIRCLinker::exec(TEXT("/echo -a Success: parse_string() - all tests passed"));
+		}
 
 		{
 			TCHAR ctrlk = TEXT('\x03');
@@ -311,68 +429,113 @@ mIRC(Version)
 			//tok.clear();
 			//tsprintf(tok, "convert%, %, %, %, %, %", 8, tsNum, t, tmp, str.c_str(), cc.ToString().c_str());
 			//mIRCLinker::execex(TEXT("/echo -a convert8: %s"), tok.to_chr());
-
-			auto str2 = std::to_string(str);
-			mIRCLinker::execex(TEXT("/echo -a before test_replace(bob,freddy): %s"), tok.to_chr());
-			tok.replace(TEXT("token"), TEXT("freddy"));
-			mIRCLinker::execex(TEXT("/echo -a after test_replace(bob,freddy): %s"), tok.to_chr());
 		}
 
-		//tok = _ts_strstr("this is a sample text with some extra added", "sample");
+		{	// test std::to_string() overload for std::wstring -> std::string
+			std::wstring str(TEXT("test"));
+			auto str2 = std::to_string(str);
+			Ensures(str2 == "test");
 
-		//mIRCLinker::execex(TEXT("/echo -a my_strstr: %s"), tok.to_chr());
+			mIRCLinker::execex(TEXT("/echo -a Success: std::to_string(wstring): %s : %S"), str.c_str(), str2.c_str());
+		}
 
-		if (tok.istok(TEXT("m_inserted"),TEXT('!')))
-			mIRCLinker::execex(TEXT("/echo -a istok(m_inserted,!): yes - %s"), tok.to_chr());
-		else
-			mIRCLinker::execex(TEXT("/echo -a istok(m_inserted,!): no - %s"), tok.to_chr());
+		{	// test replace()
+			tok.replace(TEXT("token"), TEXT("freddy"));
+			Ensures(tok == TEXT("blah2!putter!a!freddy!put!string!100!chars!putted!e_put"_ts));
 
-		if (tok.istok(TEXT("string"), TEXT('!')))
-			mIRCLinker::execex(TEXT("/echo -a istok(string,!): yes - %s"), tok.to_chr());
-		else
-			mIRCLinker::execex(TEXT("/echo -a istok(string,!): no - %s"), tok.to_chr());
+			mIRCLinker::exec(TEXT("/echo -a Success: replace() - all tests passed"));
+		}
 
-		tok.reptok(TEXT("string"), TEXT("blobby"), 1, TEXT('!'));
-		mIRCLinker::execex(TEXT("/echo -a reptok(string,blobby,1,!): %s"), tok.to_chr());
-		tok.reptok(TEXT("e_putnb"), TEXT("blobby"), 1, TEXT('!'));
-		mIRCLinker::execex(TEXT("/echo -a reptok(e_putnb,blobby,1,!): %s"), tok.to_chr());
-		tok.reptok(TEXT("blobby"), TEXT("mister"), 2, TEXT('!'));
-		mIRCLinker::execex(TEXT("/echo -a reptok(blobby,mister,2,!): %s"), tok.to_chr());
+		//{
+		//	tok = _ts_strstr("this is a sample text with some extra added", "sample");
+		//	mIRCLinker::execex(TEXT("/echo -a _ts_strstr: %s"), tok.to_chr());
+		//}
 
-		tok += TEXT("!101!102!200!4!5");
+		{	// test istok() - "blah2!putter!a!freddy!put!string!100!chars!putted!e_put"
+			// istok(string,character) - string NOT present
+			bool bRes(tok.istok(TEXT("m_inserted"), TEXT('!')));
+			Ensures(bRes == false);
 
-		tok.sorttok(TEXT(""), TEXT("!"));	// alpha sort
-		mIRCLinker::execex(TEXT("/echo -a sorttok(): %s"), tok.to_chr());
-		tok.sorttok(TEXT("r"), TEXT("!"));	// reverse alpha sort
-		mIRCLinker::execex(TEXT("/echo -a sorttok(r): %s"), tok.to_chr());
-		tok.sorttok(TEXT("a"), TEXT("!"));	// alphanumeric sort
-		mIRCLinker::execex(TEXT("/echo -a sorttok(a): %s"), tok.to_chr());
-		tok.sorttok(TEXT("ar"), TEXT("!"));	// reverse alphanumeric
-		mIRCLinker::execex(TEXT("/echo -a sorttok(ar): %s"), tok.to_chr());
-		tok.sorttok(TEXT("n"), TEXT("!"));	// numeric sort
-		mIRCLinker::execex(TEXT("/echo -a sorttok(n): %s"), tok.to_chr());
-		tok.sorttok(TEXT("nr"), TEXT("!"));	// reverse numeric sort
-		mIRCLinker::execex(TEXT("/echo -a sorttok(nr): %s"), tok.to_chr());
-		tok.sorttok(TEXT("c"), TEXT("!"));	// channel prefix sort
-		mIRCLinker::execex(TEXT("/echo -a sorttok(c): %s"), tok.to_chr());
-		tok.sorttok(TEXT("cr"), TEXT("!"));	// reverse channel prefix sort
-		mIRCLinker::execex(TEXT("/echo -a sorttok(cr): %s"), tok.to_chr());
+			// istok(string,character) - string present
+			bRes = tok.istok(TEXT("string"), TEXT('!'));
+			Ensures(bRes == true);
 
-		mIRCLinker::execex(TEXT("/echo -a wildtok(put*,2,!): %s"), tok.wildtok(TEXT("put*"), 2, TEXT("!")).to_chr());
-		mIRCLinker::execex(TEXT("/echo -a nwildtok(put*,!): %u"), tok.nwildtok(TEXT("put*"), TEXT("!")));
+			// istok(string,string) - string present
+			bRes = tok.istok(TEXT("ter!a!freddy!"), TEXT("put"));
+			Ensures(bRes == true);
 
-		mIRCLinker::execex(TEXT("/echo -a matchtok(put,1,!): %s"), tok.matchtok(TEXT("put"), 1, TEXT("!")).to_chr());
-		mIRCLinker::execex(TEXT("/echo -a matchtok(put,3,!): %s"), tok.matchtok(TEXT("put"), 3, TEXT("!")).to_chr());
+			// istok(string,string) - string NOT present
+			bRes = tok.istok(TEXT("ter!a!token!"), TEXT("put"));
+			Ensures(bRes == false);
 
-		if (tok.iswm(TEXT("*put*")))
-			mIRCLinker::exec(TEXT("/echo -a tok.iswm(*put*) == true"));
-		else
-			mIRCLinker::exec(TEXT("/echo -a tok.iswm(*put*) == false"));
+			mIRCLinker::exec(TEXT("/echo -a Success: istok() - all tests passed"));
+		}
 
-		//if (tok.iswmcs(TEXT("*put*")))
-		//	mIRCLinker::exec(TEXT("/echo -a tok.iswmcs(*put*) == true"));
-		//else
-		//	mIRCLinker::exec(TEXT("/echo -a tok.iswmcs(*put*) == false"));
+		{	// test reptok() - "blah2!putter!a!freddy!put!string!100!chars!putted!e_put"
+			tok.reptok(TEXT("string"), TEXT("blobby"), 1, TEXT('!'));
+			Ensures(tok == TEXT("blah2!putter!a!freddy!put!blobby!100!chars!putted!e_put"_ts));
+
+			tok.reptok(TEXT("e_put"), TEXT("blobby"), 1, TEXT('!'));
+			Ensures(tok == TEXT("blah2!putter!a!freddy!put!blobby!100!chars!putted!blobby"_ts));
+
+			tok.reptok(TEXT("blobby"), TEXT("mister"), 2, TEXT('!'));
+			Ensures(tok == TEXT("blah2!putter!a!freddy!put!blobby!100!chars!putted!mister"_ts));
+
+			mIRCLinker::exec(TEXT("/echo -a Success: reptok() - all tests passed"));
+		}
+
+		{	// test sorttok() - "blah2!putter!a!freddy!put!blobby!100!chars!putted!mister"
+			tok += TEXT("!101!102!200!4!5");
+			Ensures(tok == TEXT("blah2!putter!a!freddy!put!blobby!100!chars!putted!mister!101!102!200!4!5"_ts));
+
+			tok.sorttok(TEXT(""), TEXT("!"));	// alpha sort
+			Ensures(tok == TEXT("100!101!102!200!4!5!a!blah2!blobby!chars!freddy!mister!put!putted!putter"_ts));
+
+			tok.sorttok(TEXT("r"), TEXT("!"));	// reverse alpha sort
+			Ensures(tok == TEXT("putter!putted!put!mister!freddy!chars!blobby!blah2!a!5!4!200!102!101!100"_ts));
+
+			tok.sorttok(TEXT("a"), TEXT("!"));	// alphanumeric sort
+			Ensures(tok == TEXT("4!5!100!101!102!200!a!blah2!blobby!chars!freddy!mister!put!putted!putter"_ts));
+
+			tok.sorttok(TEXT("ar"), TEXT("!"));	// reverse alphanumeric
+			Ensures(tok == TEXT("putter!putted!put!mister!freddy!chars!blobby!blah2!a!200!102!101!100!5!4"_ts));
+
+			tok.sorttok(TEXT("n"), TEXT("!"));	// numeric sort
+			Ensures(tok == TEXT("putter!putted!put!mister!freddy!chars!blobby!blah2!a!4!5!100!101!102!200"_ts));
+
+			tok.sorttok(TEXT("nr"), TEXT("!"));	// reverse numeric sort
+			Ensures(tok == TEXT("200!102!101!100!5!4!putter!putted!put!mister!freddy!chars!blobby!blah2!a"_ts));
+
+			tok.sorttok(TEXT("c"), TEXT("!"));	// channel prefix sort
+			Ensures(tok == TEXT("102!101!100!200!4!5!a!blobby!blah2!chars!freddy!mister!putter!putted!put"_ts));
+
+			tok.sorttok(TEXT("cr"), TEXT("!"));	// reverse channel prefix sort
+			Ensures(tok == TEXT("putter!putted!put!mister!freddy!chars!blobby!blah2!a!5!4!200!102!101!100"_ts));
+
+			mIRCLinker::exec(TEXT("/echo -a Success: sorttok() - all tests passed"));
+		}
+
+		{	// test wildtok()/nwildtok() - "putter!putted!put!mister!freddy!chars!blobby!blah2!a!5!4!200!102!101!100"
+			Ensures(tok.wildtok(TEXT("put*"), 2, TEXT("!")) == TEXT("putted"_ts));
+			Ensures(tok.nwildtok(TEXT("put*"), TEXT("!")) == 3);
+
+			mIRCLinker::exec(TEXT("/echo -a Success: wildtok() - all tests passed"));
+		}
+
+		{	// test matchtok() - "putter!putted!put!mister!freddy!chars!blobby!blah2!a!5!4!200!102!101!100"
+			Ensures(tok.matchtok(TEXT("put"), 1, TEXT("!")) == TEXT("putter"_ts));
+			Ensures(tok.matchtok(TEXT("put"), 3, TEXT("!")) == TEXT("put"_ts));
+
+			mIRCLinker::exec(TEXT("/echo -a Success: matchtok() - all tests passed"));
+		}
+
+		{	// test iswm()/iswmcs()
+			Ensures(tok.iswm(TEXT("*put*")));
+#if !TSTRING_TESTCODE
+			Ensures(tok.iswmcs(TEXT("*put*")));
+#endif
+			mIRCLinker::exec(TEXT("/echo -a Success: iswm(cs)() - all tests passed"));
+		}
 
 		{
 			const TCHAR *ctmp = TEXT("test");
@@ -430,53 +593,74 @@ mIRC(Version)
 		//	}
 		//}
 
-		// test expanding a TString object beyond the internal buffer
-		{
+		{	// test expanding a TString object beyond the internal buffer
 			TString tsExp(TEXT("expanding text"));	// len = 14
-			tsExp *= 20;							// len = 14*20 = 280
-			mIRCLinker::execex(TEXT("/echo -a expand: %u :: %s"), tsExp.len(), tsExp.to_chr());
-		}
-		tok.remove(TEXT('!'));
-		mIRCLinker::execex(TEXT("/echo -a tok.remove(!): %s"), tok.to_chr());
+			Ensures(tsExp.len() == 14);
 
-		{
+			tsExp *= 20;							// len = 14*20 = 280
+			Ensures(tsExp.len() == 280);
+
+			mIRCLinker::exec(TEXT("/echo -a Success: internal buffer overflow - all tests passed"));
+		}
+
+		{	// test remove()
+			tok.remove(TEXT('!'));
+			Ensures(tok == TEXT("putterputtedputmisterfreddycharsblobbyblah2a54200102101100"_ts));
+
+			mIRCLinker::exec(TEXT("/echo -a Success: remove() - all tests passed"));
+		}
+
+		{	// test _ts_strcpyn()
 			char chr_test[128] = { 0 };
 			char chr_buf[128] = { 0 };
-			//char *chr_ptr = nullptr;
 
-			//try {
-				_ts_strcpyn(chr_buf, chr_test, 128U);
+			_ts_strcpyn(chr_buf, chr_test, 128U);
 
-				//_ts_strcpyn(chr_ptr, chr_test, 128U);
-			//}
-			//catch (std::exception &e)
-			//{
-			//	mIRCLinker::execex(TEXT("/echo -a exception: %S"), e.what());
-			//}
+			Ensures(strcmp(&chr_test[0], &chr_buf[0]) == 0);
+
+			mIRCLinker::exec(TEXT("/echo -a Success: _ts_strcpyn() - all tests passed"));
 		}
 
-		// test exception code
-		tok = TEXT("123");
-		UINT iTest = Dcx::numeric_cast<UINT>(tok);
-		//iTest = Dcx::numeric_cast<UINT>("400");
+		{	// test numeric_cast()
+			tok = TEXT("123");
+			UINT iTest = Dcx::numeric_cast<UINT>(tok);
+			Ensures(iTest == 123);
+			
+			iTest = Dcx::numeric_cast<UINT>("400");
+			Ensures(iTest == 400);
+
+			auto fTest = Dcx::numeric_cast<float>("3.14");
+			Ensures(fTest == float(3.14));
+
+			auto dTest = Dcx::numeric_cast<double>("3.14");
+			Ensures(dTest == double(3.14));
+
+			mIRCLinker::exec(TEXT("/echo -a Success: numeric_cast() - all tests passed"));
+		}
 
 		// hashes should be the same...
-		{
+		{	// test string hashes
 			constexpr auto hash1 = const_hash("123");
 			auto hash2 = dcx_hash("123");
 			constexpr auto hash3 = "123"_crc32;
 			constexpr auto hash4 = "123"_hash;
 			constexpr auto hash5 = L"123"_hash;
 			auto hash6 = dcx_hash(L"123");
+
 			static_assert(hash3 == hash4, "hash 3, & 4 failed");
-			//static_assert(hash6 == hash5, "hash 6 & 5 failed");
-			mIRCLinker::execex(TEXT("/echo -a (char's) const_hash(123) == %u"), hash1);	// uses a unique hash....
-			mIRCLinker::execex(TEXT("/echo -a (char's) dcx_hash(123) == %u :: 123_crc32 == %u :: 123_hash == %u"), hash2, hash3, hash4, hash5, hash6);	// uses crc32, & should all be the same
-			mIRCLinker::execex(TEXT("/echo -a (wchar_t's) dcx_hash(123) == %u :: 123_hash == %u"), hash6, hash5);	// uses crc32, & should all be the same (but NOT the same as the previous line)
+			Ensures(hash2 == hash3);
+			Ensures(hash2 == 0x884863D2);
+
+			Ensures(hash6 == hash5);
+			Ensures(hash6 == 0xD0AD20B1);
+
+			static_assert(hash1 == 0xAF0A1B9E, "hash 1 failed");
+
+			mIRCLinker::exec(TEXT("/echo -a Success: string hashing - all tests passed"));
 		}
 
-		//throw Dcx::dcxException(TEXT("No such Exception"));
-		throw Dcx::dcxException("No such Exception: % :: %", iTest, tok);
+		throw Dcx::dcxException(TEXT("No such Exception"));
+		//throw Dcx::dcxException("No such Exception: % :: %", iTest, tok);
 	}
 	catch (std::exception &e)
 	{

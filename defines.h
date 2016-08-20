@@ -252,6 +252,7 @@ http://symbiancorner.blogspot.com/2007/05/how-to-detect-version-of-ms-visual.htm
 //#pragma push_macro("max")
 #undef max
 #undef min
+#define GSL_THROW_ON_CONTRACT_VIOLATION 1
 #include "GSL\gsl\gsl"
 //#pragma pop_macro("max")
 
