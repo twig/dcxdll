@@ -4425,50 +4425,57 @@ void DcxListView::xmlSetItem(const int nItem, const int nSubItem, const TiXmlEle
 	ZeroMemory(lvi, sizeof(LVITEM));
 
 	auto i = 0;
-	auto ri = new DCXLVRENDERINFO;
 
-	ZeroMemory(ri, sizeof(DCXLVRENDERINFO));
+	{
+		//auto ri = new DCXLVRENDERINFO;
+		//ZeroMemory(ri, sizeof(DCXLVRENDERINFO));
 
-	lvi->iItem = nItem;
-	lvi->iSubItem = nSubItem;
-	if (nSubItem == 0) {
-		lvi->mask = LVIF_PARAM | LVIF_STATE;
-		lvi->lParam = (LPARAM)lpmylvi;
+		auto ri = std::make_unique<DCXLVRENDERINFO>();
+
+		lvi->iItem = nItem;
+		lvi->iSubItem = nSubItem;
+		if (nSubItem == 0) {
+			lvi->mask = LVIF_PARAM | LVIF_STATE;
+			lvi->lParam = (LPARAM)lpmylvi;
+		}
+
+		// Is Item text in Bold?
+		auto attr = xNode->Attribute("textbold", &i);
+		if (i > 0)
+			ri->m_dFlags |= LVIS_BOLD;
+
+		// Is Item text Underlined?
+		attr = xNode->Attribute("textunderline", &i);
+		if (i > 0)
+			ri->m_dFlags |= LVIS_UNDERLINE;
+
+		// Items text colour.
+		attr = xNode->Attribute("textcolor", &i);
+		if (attr != nullptr && i > -1) {
+			ri->m_cText = (COLORREF)i;
+			ri->m_dFlags |= LVIS_COLOR;
+		}
+		else
+			ri->m_cText = CLR_INVALID;
+
+		// Items background colour.
+		attr = xNode->Attribute("backgroundcolor", &i);
+		if (attr != nullptr && i > -1) {
+			ri->m_cBg = (COLORREF)i;
+			ri->m_dFlags |= LVIS_BGCOLOR;
+		}
+		else
+			ri->m_cBg = CLR_INVALID;
+
+		lvi->state = ri->m_dFlags;
+		lvi->stateMask = (LVIS_FOCUSED | LVIS_SELECTED | LVIS_CUT | LVIS_DROPHILITED); // only alter the controls flags, ignore our custom ones.
+
+		lpmylvi->vInfo.push_back(ri.release());
 	}
-
-	// Is Item text in Bold?
-	auto attr = xNode->Attribute("textbold", &i);
-	if (i > 0)
-		ri->m_dFlags |= LVIS_BOLD;
-
-	// Is Item text Underlined?
-	attr = xNode->Attribute("textunderline", &i);
-	if (i > 0)
-		ri->m_dFlags |= LVIS_UNDERLINE;
-
-	// Items text colour.
-	attr = xNode->Attribute("textcolor", &i);
-	if (attr != nullptr && i > -1) {
-		ri->m_cText = (COLORREF)i;
-		ri->m_dFlags |= LVIS_COLOR;
-	}
-	else
-		ri->m_cText = CLR_INVALID;
-
-	// Items background colour.
-	attr = xNode->Attribute("backgroundcolor", &i);
-	if (attr != nullptr && i > -1) {
-		ri->m_cBg = (COLORREF)i;
-		ri->m_dFlags |= LVIS_BGCOLOR;
-	}
-	else
-		ri->m_cBg = CLR_INVALID;
-
-	lpmylvi->vInfo.push_back(ri);
 
 	// Items icon.
 	lvi->mask |= LVIF_IMAGE; // moved here to turn off icon when none is wanted.
-	attr = xNode->Attribute("icon",&i);
+	auto attr = xNode->Attribute("icon",&i);
 	if (attr != nullptr && i > 0)
 		lvi->iImage = i -1;
 	else
@@ -4498,9 +4505,6 @@ void DcxListView::xmlSetItem(const int nItem, const int nSubItem, const TiXmlEle
 		tsBuf = attr;
 		lvi->pszText = tsBuf.to_chr();
 	}
-
-	lvi->state = ri->m_dFlags;
-	lvi->stateMask = (LVIS_FOCUSED|LVIS_SELECTED|LVIS_CUT|LVIS_DROPHILITED); // only alter the controls flags, ignore our custom ones.
 }
 
 //[N] [INDENT] [+FLAGS] [#ICON] [#STATE] [#OVERLAY] [#GROUPID] [COLOR] [BGCOLOR] +flags dialog id (N|N1,N2)
@@ -4533,20 +4537,20 @@ bool DcxListView::ctrlLoadListview(const int nPos, const TString &tsData)
 //tsData = [N] [INDENT] [+FLAGS] [#ICON] [#STATE] [#OVERLAY] [#GROUPID] [COLOR] [BGCOLOR] [+flags] [window/table] [item]
 bool DcxListView::xLoadListview(const int nPos, const TString &tsData, const TCHAR *sTest, const TCHAR *sCount, const TCHAR *sGet, const TCHAR *sGetNamed)
 {
-	TString res;	// used to store the data returned by mIRC.
-	const auto tsflags(tsData.getfirsttok(10));
+	TString tsRes;	// used to store the data returned by mIRC.
+	const auto tsflags(tsData.getfirsttok(10));		// tok 10
 	const auto tsName(tsData.getnexttok());			// tok 11
-	const auto tsItem(tsData.getlasttoks());			// tok 12, -1
+	const auto tsItem(tsData.getlasttoks());		// tok 12, -1
 
 	// check table/window exists
-	mIRCLinker::tsEvalex(res, sTest, tsName.to_chr());
+	mIRCLinker::tsEvalex(tsRes, sTest, tsName.to_chr());
 	// if not exit
-	if (tsName != res)
+	if (tsName != tsRes)
 		throw Dcx::dcxException(TEXT("Invalid hashtable/window: %"), tsName);
 
 	// get the total number of items in the table.
-	mIRCLinker::tsEvalex(res, sCount, tsName.to_chr());
-	const auto iTotal = res.to_<UINT>();
+	mIRCLinker::tsEvalex(tsRes, sCount, tsName.to_chr());
+	const auto iTotal = tsRes.to_<UINT>();
 	// if no items then exit.
 	if (iTotal == 0)
 		return false;
@@ -4562,23 +4566,23 @@ bool DcxListView::xLoadListview(const int nPos, const TString &tsData, const TCH
 			throw Dcx::dcxException("Invalid flag used, +i is for hashtable items only");
 
 		// add a single named item
-		mIRCLinker::tsEvalex(res, sGetNamed, tsName.to_chr(), tsItem.to_chr());
+		mIRCLinker::tsEvalex(tsRes, sGetNamed, tsName.to_chr(), tsItem.to_chr());
 		if (dcx_testflag(iFlags, LVIMF_ALLINFO))
 			// add items data from [INDENT] onwards is taken from hashtable, including subitems.
 			//[NAME] [ID] [SWITCH] [N] [INDENT] [+FLAGS] [#ICON] [#STATE] [#OVERLAY] [#GROUPID] [COLOR] [BGCOLOR] Item Text {TAB}[+FLAGS] [#ICON] [#OVERLAY] [COLOR] [BGCOLOR] Item Text ...
 			//   0     0     0      0   read from hashtable->
-			//input.sprintf(TEXT("0 0 0 0 %s"),res);
+			//input.sprintf(TEXT("0 0 0 0 %s"),tsRes);
 		{
 			input = TEXT("0 0 0 0 ");
-			input += res;
+			input += tsRes;
 		}
 		else
 			// only the item text is taken from the hashtable.
 			//[NAME] [ID] [SWITCH] [N] [INDENT] [+FLAGS] [#ICON] [#STATE] [#OVERLAY] [#GROUPID] [COLOR] [BGCOLOR] Item Text {TAB}[+FLAGS] [#ICON] [#OVERLAY] [COLOR] [BGCOLOR] Item Text ...
 			//   0     0     0      0      0       +       0        0         0           0        0        0		read from hashtable->
-			//input.sprintf(TEXT("0 0 0 0 0 + 0 0 0 0 0 0 %s"), res);
+			//input.sprintf(TEXT("0 0 0 0 0 + 0 0 0 0 0 0 %s"), tsRes);
 		{
-			parseText2Item(res, input, tsData);
+			parseText2Item(tsRes, input, tsData);
 		}
 		// add this item
 		massSetItem(nPos, input);
@@ -4614,23 +4618,23 @@ bool DcxListView::xLoadListview(const int nPos, const TString &tsData, const TCH
 	for (auto nItem = nPos; iStart <= iEnd; iStart++)
 	{
 		// get items data
-		mIRCLinker::tsEvalex(res, sGet, tsName.to_chr(), iStart);
+		mIRCLinker::tsEvalex(tsRes, sGet, tsName.to_chr(), iStart);
 		if (dcx_testflag(iFlags, LVIMF_ALLINFO))
 			// add items data from [INDENT] onwards is taken from hashtable, including subitems.
 			//[NAME] [ID] [SWITCH] [N] [INDENT] [+FLAGS] [#ICON] [#STATE] [#OVERLAY] [#GROUPID] [COLOR] [BGCOLOR] Item Text {TAB}[+FLAGS] [#ICON] [#OVERLAY] [COLOR] [BGCOLOR] Item Text ...
 			//   0     0     0      0   read from hashtable->
-			//input.sprintf(TEXT("0 0 0 0 %s"),res);
+			//input.sprintf(TEXT("0 0 0 0 %s"),tsRes);
 		{
 			input = TEXT("0 0 0 0 ");
-			input += res;
+			input += tsRes;
 		}
 		else
 			// only the item text is taken from the hashtable.
 			//[NAME] [ID] [SWITCH] [N] [INDENT] [+FLAGS] [#ICON] [#STATE] [#OVERLAY] [#GROUPID] [COLOR] [BGCOLOR] Item Text {TAB}[+FLAGS] [#ICON] [#OVERLAY] [COLOR] [BGCOLOR] Item Text ...
 			//   0     0     0      0      0       +       0        0         0           0        0        0		read from hashtable->
-			//input.sprintf(TEXT("0 0 0 0 0 + 0 0 0 0 0 0 %s"), res);
+			//input.sprintf(TEXT("0 0 0 0 0 + 0 0 0 0 0 0 %s"), tsRes);
 		{
-			parseText2Item(res, input, tsData);
+			parseText2Item(tsRes, input, tsData);
 		}
 		massSetItem(nItem++, input);
 	}
@@ -4647,17 +4651,19 @@ void DcxListView::massSetItem(const int nPos, const TString &input)
 {
 	auto data(input.gettok(1, TSTABCHAR).gettok(4, -1).trim());
 
-	const auto indent = data.getfirsttok(2).to_int();			// tok 2
+	const auto indent = data.getfirsttok(2).to_<int>();			// tok 2
 	auto stateFlags = this->parseItemFlags(data++);				// tok 3
 	auto icon = data++.to_<int>() - 1;							// tok 4
 	const auto state = data++.to_<int>();						// tok 5
 	auto overlay = data++.to_<int>();							// tok 6
 	const auto group = data++.to_<int>();						// tok 7
-	auto clrText = data.getnexttok().to_<COLORREF>();			// tok 8
-	auto clrBack = data.getnexttok().to_<COLORREF>();			// tok 9
+	//auto clrText = data.getnexttok().to_<COLORREF>();			// tok 8
+	//auto clrBack = data.getnexttok().to_<COLORREF>();			// tok 9
+	auto clrText = data++.to_<COLORREF>();						// tok 8
+	auto clrBack = data++.to_<COLORREF>();						// tok 9
 
-	LVITEM lvi;
-	ZeroMemory(&lvi, sizeof(LVITEM));
+	LVITEM lvi{};
+	//ZeroMemory(&lvi, sizeof(LVITEM));
 
 	//LPDCXLVITEM lpmylvi = new DCXLVITEM;
 	//LPDCXLVRENDERINFO ri = new DCXLVRENDERINFO;
@@ -4685,7 +4691,7 @@ void DcxListView::massSetItem(const int nPos, const TString &input)
 		lpmylvi->vInfo.push_back(ri.release());
 	}
 	TString itemtext;
-	if (data.numtok( ) > 9) {
+	if (data.numtok( ) > 9U) {
 		itemtext = data.getlasttoks();		// tok 10, -1
 
 		if (dcx_testflag(stateFlags, LVIS_HASHITEM))

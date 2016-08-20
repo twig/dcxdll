@@ -260,6 +260,63 @@ mIRC(_xstatusbar)
 	try {
 		d.trim();
 
+#if DCX_USE_HASHING
+		switch (std::hash<TString>{}(d.getfirsttok(2)))
+		{
+		case TEXT("visible"_hash):
+		{
+			dcx_Con(DcxDock::IsStatusbar(), data);
+		}
+		break;
+		case TEXT("text"_hash):
+		{
+			const auto iPart = (d.getnexttok().to_int() - 1), nParts = (int)DcxDock::status_getParts(SB_MAX_PARTSD, 0);
+
+			if (iPart > -1 && iPart < nParts) {
+				const auto iFlags = DcxDock::status_getPartFlags(iPart);
+
+				if (dcx_testflag(iFlags, SBT_OWNERDRAW)) {
+					auto pPart = reinterpret_cast<LPSB_PARTINFOD>(DcxDock::status_getText(iPart, nullptr));
+					if (pPart != nullptr)
+						dcx_strcpyn(data, pPart->m_Text.to_chr(), MIRC_BUFFER_SIZE_CCH);
+				}
+				else {
+					const auto len = DcxDock::status_getTextLength(iPart);
+					auto text = std::make_unique<WCHAR[]>(len + 1);
+
+					DcxDock::status_getText(iPart, text.get());
+					dcx_strcpyn(data, text.get(), MIRC_BUFFER_SIZE_CCH);
+				}
+			}
+		}
+		break;
+		case TEXT("parts"_hash):
+		{
+			INT parts[SB_MAX_PARTSD] = { 0 };
+			const auto nParts = DcxDock::status_getParts(SB_MAX_PARTSD, 0);
+
+			DcxDock::status_getParts(SB_MAX_PARTSD, &parts[0]);
+
+			TString tsOut((UINT)MIRC_BUFFER_SIZE_CCH);
+
+			for (auto i = decltype(nParts){0}; i < nParts; i++)
+				tsOut.addtok(parts[i]);
+
+			dcx_strcpyn(data, tsOut.to_chr(), MIRC_BUFFER_SIZE_CCH);
+		}
+		break;
+		case TEXT("tooltip"_hash):
+		{
+			const auto iPart = d.getnexttok().to_int(), nParts = (int)DcxDock::status_getParts(SB_MAX_PARTSD, 0);
+
+			if (iPart > -1 && iPart < nParts)
+				DcxDock::status_getTipText(iPart, MIRC_BUFFER_SIZE_CCH, data);
+		}
+		break;
+		default:	// error
+			throw Dcx::dcxException(TEXT("Invalid prop ().%"), d.gettok(2));
+		}
+#else
 		static const TString poslist(TEXT("visible text parts tooltip"));
 		const auto nType = poslist.findtok(d.getfirsttok(2), 1);
 		switch (nType)
@@ -296,7 +353,7 @@ mIRC(_xstatusbar)
 			INT parts[SB_MAX_PARTSD] = { 0 };
 			const auto nParts = DcxDock::status_getParts(SB_MAX_PARTSD, 0);
 
-			DcxDock::status_getParts(SB_MAX_PARTSD, parts);
+			DcxDock::status_getParts(SB_MAX_PARTSD, &parts[0]);
 
 			TString tsOut((UINT)MIRC_BUFFER_SIZE_CCH);
 
@@ -318,6 +375,7 @@ mIRC(_xstatusbar)
 		default:
 			throw Dcx::dcxException(TEXT("Invalid prop ().%"), d.gettok(2));
 		}
+#endif
 		return 3;
 	}
 	catch (std::exception &e)

@@ -121,7 +121,7 @@ void TiXmlBase::EncodeString( const TIXML_STRING& str, TIXML_STRING* outString )
 
 			//*ME:	warning C4267: convert 'size_t' to 'int'
 			//*ME:	Int-Cast to make compiler happy ...
-			outString->append( buf, strlen( buf ) );
+			outString->append( &buf[0], strlen( &buf[0] ) );
 			++i;
 		}
 		else
@@ -850,34 +850,35 @@ const char* TiXmlElement::GetText() const
 }
 
 
-TiXmlDocument::TiXmlDocument() : TiXmlNode( TiXmlNode::TINYXML_DOCUMENT )
+TiXmlDocument::TiXmlDocument()
+	: TiXmlNode( TiXmlNode::TINYXML_DOCUMENT )
+	, error(0)
+	, errorId(0)
+	, errorDesc("")
+	, errorLocation{}
+	, tabsize(4)
+	, useMicrosoftBOM(false)
 {
-	tabsize = 4;
-	useMicrosoftBOM = false;
-	ClearError();
 }
 
-TiXmlDocument::TiXmlDocument( const char * documentName ) : TiXmlNode( TiXmlNode::TINYXML_DOCUMENT )
+TiXmlDocument::TiXmlDocument( const char * documentName )
+	: TiXmlDocument() 
 {
-	tabsize = 4;
-	useMicrosoftBOM = false;
 	value = documentName;
-	ClearError();
 }
 
 
 #ifdef TIXML_USE_STL
-TiXmlDocument::TiXmlDocument( const std::string& documentName ) : TiXmlNode( TiXmlNode::TINYXML_DOCUMENT )
+TiXmlDocument::TiXmlDocument( const std::string& documentName )
+	: TiXmlDocument()
 {
-	tabsize = 4;
-	useMicrosoftBOM = false;
     value = documentName;
-	ClearError();
 }
 #endif
 
 
-TiXmlDocument::TiXmlDocument( const TiXmlDocument& copy ) : TiXmlNode( TiXmlNode::TINYXML_DOCUMENT )
+TiXmlDocument::TiXmlDocument( const TiXmlDocument& copy )
+	: TiXmlDocument()
 {
 	copy.CopyTo( this );
 }
@@ -1198,18 +1199,18 @@ void TiXmlAttribute::SetIntValue( const int _value )
 	#else
 		sprintf (buf, "%d", _value);
 	#endif
-	SetValue (buf);
+	SetValue(&buf[0]);
 }
 
 void TiXmlAttribute::SetDoubleValue( const double _value )
 {
 	char buf [256];
-	#if defined(TIXML_SNPRINTF)		
-		TIXML_SNPRINTF( buf, sizeof(buf), "%g", _value);
+	#if defined(TIXML_SNPRINTF)
+		TIXML_SNPRINTF(buf, sizeof(buf), "%g", _value);
 	#else
 		sprintf (buf, "%g", _value);
 	#endif
-	SetValue (buf);
+	SetValue(&buf[0]);
 }
 
 int TiXmlAttribute::IntValue() const

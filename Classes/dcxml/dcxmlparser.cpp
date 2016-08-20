@@ -1000,10 +1000,10 @@ void DcxmlParser::parseItems(const TiXmlElement *const tiElement,const UINT dept
 					//xdidEX(m_iID, TEXT("-a"), TEXT("%s \t +%S %S %S 0 %S %S %S %S %S \t %S"), itemPath.to_chr(), ((m_sTFlags) ? m_sTFlags : "a"), m_sIcon, m_sIcon, m_sState, m_sIntegral, m_sTextcolour, m_sBgcolour, m_sCaption, m_sTooltip);
 					//parseItems(child, depth, itemPath);
 					char pathx[100];
-					wnsprintfA(pathx, Dcx::countof(pathx), "%s %i", itemPath, item);
+					wnsprintfA(&pathx[0], Dcx::countof(pathx), "%s %i", itemPath, item);
 					if (m_sCaption != nullptr)
-						xdidEX(m_iID, TEXT("-a"), TEXT("%S \t +%S %S %S 0 %S %S %S %S %S \t %S"), pathx, ((m_sTFlags != nullptr) ? m_sTFlags : "a"), m_sIcon, m_sIcon, m_sState, m_sIntegral, m_sTextcolour, m_sBgcolour, m_sCaption, m_sTooltip);
-					parseItems(child, depth, pathx);
+						xdidEX(m_iID, TEXT("-a"), TEXT("%S \t +%S %S %S 0 %S %S %S %S %S \t %S"), &pathx[0], ((m_sTFlags != nullptr) ? m_sTFlags : "a"), m_sIcon, m_sIcon, m_sState, m_sIntegral, m_sTextcolour, m_sBgcolour, m_sCaption, m_sTooltip);
+					parseItems(child, depth, &pathx[0]);
 				}
 		}
 	}

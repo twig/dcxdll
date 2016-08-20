@@ -119,8 +119,8 @@ void TiXmlBase::ConvertUTF32ToUTF8( unsigned long input, char* output, int* leng
 			--output; 
 			*output = (char)((input | BYTE_MARK) & BYTE_MASK); 
 			input >>= 6;
-		case 1:
-			--output; 
+		case 1:	// *length is between 1 & 4 inclusive
+			--output;
 			*output = (char)(input | FIRST_BYTE_MARK[*length]);
 	}
 }
@@ -589,8 +589,8 @@ const char* TiXmlBase::ReadText(	const char* p,
 		{
 			int len = 0;
 			char cArr[4] = { 0, 0, 0, 0 };
-			p = GetChar( p, cArr, &len, encoding );
-			text->append( cArr, (size_t)len );
+			p = GetChar( p, &cArr[0], &len, encoding );
+			text->append( &cArr[0], (size_t)len );
 		}
 	}
 	else
@@ -623,11 +623,11 @@ const char* TiXmlBase::ReadText(	const char* p,
 				}
 				int len = 0;
 				char cArr[4] = { 0, 0, 0, 0 };
-				p = GetChar( p, cArr, &len, encoding );
+				p = GetChar( p, &cArr[0], &len, encoding );
 				if ( len == 1 )
 					(*text) += cArr[0];	// more efficient
 				else
-					text->append( cArr, (size_t)len );
+					text->append( &cArr[0], (size_t)len );
 			}
 		}
 	}
@@ -795,7 +795,7 @@ const char* TiXmlDocument::Parse( const char* p, TiXmlParsingData* prevData, TiX
 	return p;
 }
 
-void TiXmlDocument::SetError( int err, const char* pError, TiXmlParsingData* data, TiXmlEncoding encoding )
+void TiXmlDocument::SetError(tixmlErrors err, const char* pError, TiXmlParsingData* data, TiXmlEncoding encoding )
 {	
 	// The first error in a chain is more accurate - don't set again!
 	if ( error )

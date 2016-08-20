@@ -261,7 +261,7 @@ public:
 	*/
 	static void EncodeString( const TIXML_STRING& str, TIXML_STRING* out );
 
-	enum
+	enum tixmlErrors
 	{
 		TIXML_NO_ERROR = 0,
 		TIXML_ERROR,
@@ -1513,7 +1513,7 @@ public:
 	/// Print this Document to a FILE stream.
 	virtual void Print( FILE* cfile, int depth = 0 ) const;
 	// [internal use]
-	void SetError( int err, const char* errorLocation, TiXmlParsingData* prevData, TiXmlEncoding encoding );
+	void SetError(tixmlErrors err, const char* errorLocation, TiXmlParsingData* prevData, TiXmlEncoding encoding );
 
 	virtual const TiXmlDocument*    ToDocument()    const { return this; } ///< Cast to a more defined type. Will return null not of the requested type.
 	virtual TiXmlDocument*          ToDocument()          { return this; } ///< Cast to a more defined type. Will return null not of the requested type.

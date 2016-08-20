@@ -425,6 +425,52 @@ mIRC(_xtreebar)
 		if (d.numtok() != 3)
 			throw Dcx::dcxException("Invalid Args: An Index & a Prop are required.");
 
+#if DCX_USE_HASHING
+		const auto cnt = TreeView_GetCount(mIRCLinker::getTreeview());
+		auto nHash = std::hash<TString>{}(d.getfirsttok(2));
+		auto index = d.getnexttok().to_<UINT>();
+
+		if (index > cnt)
+			throw Dcx::dcxException("Invalid Item Index");
+
+		TVITEMEX item{};
+
+		switch (nHash)
+		{
+		case TEXT("item"_hash):
+		{
+			if (index < 1) // if index < 1 return total items.
+				wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), cnt);
+			else {
+				stString<MIRC_BUFFER_SIZE_CCH> szbuf;
+				item.hItem = TreeView_MapAccIDToHTREEITEM(mIRCLinker::getTreeview(), index);
+				item.mask = TVIF_TEXT;
+				item.pszText = szbuf;	// PVS-Studio reports `V507 pointer stored outside of scope` this is fine.
+				item.cchTextMax = MIRC_BUFFER_SIZE_CCH;
+				if (!TreeView_GetItem(mIRCLinker::getTreeview(), &item))
+					throw Dcx::dcxException("Unable To Get Item");
+
+				dcx_strcpyn(data, item.pszText, MIRC_BUFFER_SIZE_CCH);
+			}
+		}
+		break;
+		case TEXT("icons"_hash):
+		{
+			if (index < 1) // if index < 1 make it the last item.
+				index = cnt;
+
+			item.hItem = TreeView_MapAccIDToHTREEITEM(mIRCLinker::getTreeview(), index);
+			item.mask = TVIF_IMAGE | TVIF_SELECTEDIMAGE;
+			if (!TreeView_GetItem(mIRCLinker::getTreeview(), &item))
+				throw Dcx::dcxException("Unable To Get Item");
+
+			wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d"), item.iImage, item.iSelectedImage);
+		}
+		break;
+		default:	// error
+			throw Dcx::dcxException(TEXT("Invalid prop ().%"), d.gettok(2));
+		}
+#else
 		static const TString poslist(TEXT("item icons"));
 		const auto nType = poslist.findtok(d.getfirsttok(2), 1);
 		const auto cnt = TreeView_GetCount(mIRCLinker::getTreeview());
@@ -433,8 +479,8 @@ mIRC(_xtreebar)
 		if (index > cnt)
 			throw Dcx::dcxException("Invalid Item Index");
 
-		TVITEMEX item;
-		ZeroMemory(&item, sizeof(item));
+		TVITEMEX item{};
+		//ZeroMemory(&item, sizeof(item));
 
 		switch (nType)
 		{
@@ -472,6 +518,7 @@ mIRC(_xtreebar)
 		default:
 			throw Dcx::dcxException(TEXT("Invalid prop ().%"), d.gettok(2));
 		}
+#endif
 		return 3;
 	}
 	catch (std::exception &e)
