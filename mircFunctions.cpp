@@ -73,7 +73,7 @@ long SystemTimeToMircTime(const LPSYSTEMTIME pst) {
 		TEXT("December")
 	};
 
-	mIRCLinker::evalex(sRet, Dcx::countof(sRet), TEXT("$ctime(%d:%d:%d %d %s %d)"),
+	mIRCLinker::evalex(sRet, static_cast<int>(Dcx::countof(sRet)), TEXT("$ctime(%u:%u:%u %u %s %u)"),
 		pst->wHour,
 		pst->wMinute,
 		pst->wSecond,
@@ -81,5 +81,5 @@ long SystemTimeToMircTime(const LPSYSTEMTIME pst) {
 		months[pst->wMonth -1],
 		pst->wYear);
 
-	return dcx_atoi(sRet);
+	return dcx_atoi(sRet.data());
 }

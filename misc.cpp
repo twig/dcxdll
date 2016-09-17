@@ -333,7 +333,7 @@ bool ParseCommandToLogfont(const TString& cmd, LPLOGFONT lf) {
 	if (dcx_testflag(flags, dcxFontFlags::DCF_UNDERLINE))
 		lf->lfUnderline = TRUE;
 
-	dcx_strcpyn(lf->lfFaceName, fName.to_chr(), 31);
+	dcx_strcpyn(lf->lfFaceName, fName.to_chr(), Dcx::countof(lf->lfFaceName));
 	lf->lfFaceName[31] = 0;
 
 	return true;
@@ -1899,7 +1899,7 @@ bool isRegexMatch(const TCHAR *matchtext, const TCHAR *pattern)
 	TCHAR res[10];
 	mIRCLinker::execex(TEXT("/set -nu1 %%dcx_text %s"), matchtext);
 	mIRCLinker::execex(TEXT("/set -nu1 %%dcx_regex %s"), pattern);
-	mIRCLinker::eval(res, Dcx::countof(res), TEXT("$regex(%dcx_text,%dcx_regex)"));
+	mIRCLinker::eval(res, static_cast<int>(Dcx::countof(res)), TEXT("$regex(%dcx_text,%dcx_regex)"));
 
 	return (dcx_atoi(res) > 0);
 #endif // DCX_USE_CREGEX
