@@ -23,34 +23,34 @@ struct simpleString {
 		: m_data{ 0 }
 	{
 	}
-	constexpr simpleString(const simpleString &other) = default;
-	constexpr simpleString(simpleString &&other) = default;
+	constexpr simpleString(const simpleString<T,N> &other) = default;
+	constexpr simpleString(simpleString<T,N> &&other) = default;
 	constexpr simpleString(const_pointer other)
 		: m_data{ 0 }
 	{
-		_ts_strcpyn(m_data, other, N);
+		_ts_strcpyn(&m_data[0], other, N);
 	}
 	constexpr simpleString(const value_type &other)
 		: m_data{ other, value_type{} }
 	{
 	}
-	simpleString &operator =(const simpleString &other) = default;
-	simpleString &operator =(simpleString &&other) = default;
-	simpleString &operator =(const_pointer other) noexcept {
-		_ts_strcpyn(m_data, other, N);
+	simpleString<T, N> &operator =(const simpleString<T, N> &other) = default;
+	simpleString<T, N> &operator =(simpleString<T, N> &&other) = default;
+	simpleString<T, N> &operator =(const_pointer other) noexcept {
+		_ts_strcpyn(&m_data[0], other, N);
 		return *this;
 	}
-	simpleString &operator +=(const_pointer other) noexcept {
+	simpleString<T, N> &operator +=(const_pointer other) noexcept {
 		size_type nLen = length();
 		size_type nOtherLen = _ts_strlen(other);
 		size_type nDiff = N - (nLen + nOtherLen);
 
 		if (nDiff > 1U)	// > 1 to account for zero char
-			_ts_strncat(m_data, other, nDiff);
+			_ts_strncat(&m_data[0], other, nDiff);
 
 		return *this;
 	}
-	simpleString &operator +=(const value_type &other) noexcept {
+	simpleString<T, N> &operator +=(const value_type &other) noexcept {
 		size_type nLen = length();
 		size_type nDiff = N - (nLen + 1);
 
@@ -61,18 +61,18 @@ struct simpleString {
 		}
 		return *this;
 	}
-	constexpr bool operator ==(const simpleString &other) const noexcept { return (*this == other.data()); }
-	constexpr bool operator !=(const simpleString &other) const noexcept { return !(*this == other); }
+	constexpr bool operator ==(const simpleString<T, N> &other) const noexcept { return (*this == other.data()); }
+	constexpr bool operator !=(const simpleString<T, N> &other) const noexcept { return !(*this == other); }
 
-	constexpr bool operator ==(const_pointer other) const noexcept { return (_ts_strncmp(m_data, other, N) == 0); }
+	constexpr bool operator ==(const_pointer other) const noexcept { return (_ts_strncmp(&m_data[0], other, N) == 0); }
 	constexpr bool operator !=(const_pointer other) const noexcept { return !(*this == other); }
 
 	constexpr explicit operator bool() const noexcept { return !empty(); }
-	constexpr operator pointer() const noexcept { return const_cast<pointer>(m_data); }
+	constexpr operator pointer() const noexcept { return const_cast<pointer>(&m_data[0]); }
 	constexpr reference operator [](const size_type &iOffSet) const noexcept { return m_data[iOffSet]; }
-	constexpr size_type length() const { return _ts_strnlen((const_pointer)m_data, N); }
+	constexpr size_type length() const { return _ts_strnlen((const_pointer)&m_data[0], N); }
 	constexpr const size_type size() const noexcept { return N; }
-	constexpr pointer data() const noexcept { return const_cast<pointer>(m_data); }
+	constexpr pointer data() const noexcept { return const_cast<pointer>(&m_data[0]); }
 	constexpr bool empty() const noexcept { return (m_data[0] == value_type()); }
 	void clear() noexcept { m_data[0] = value_type(); }
 

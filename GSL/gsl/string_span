@@ -56,10 +56,6 @@
 #endif // _MSC_VER <= 1800
 #endif // _MSC_VER
 
-#ifndef __CYGWIN__
-#define GSL_PLATFORM_HAS_STRNLEN
-#endif
-
 // In order to test the library, we need it to throw exceptions that we can catch
 #ifdef GSL_THROW_ON_CONTRACT_VIOLATION
 
@@ -101,22 +97,32 @@ using wzstring = basic_zstring<wchar_t, Extent>;
 
 namespace details
 {
-    inline std::size_t string_length(const char *str, std::size_t n)
+    inline std::ptrdiff_t string_length(const char *str, std::ptrdiff_t n)
     {
-#ifdef GSL_PLATFORM_HAS_STRNLEN
-        return strnlen(str, n);
-#else
-        if (str == nullptr || n == 0)
+        if (str == nullptr || n <= 0)
             return 0;
 
-        std::size_t len = 0;
         span<const char> str_span{str, n};
 
+        std::ptrdiff_t len = 0;
         while (len < n && str_span[len])
             len++;
 
         return len;
-#endif
+    }
+
+    inline std::ptrdiff_t wstring_length(const wchar_t *str, std::ptrdiff_t n)
+    {
+        if (str == nullptr || n <= 0)
+            return 0;
+
+        span<const wchar_t> str_span{str, n};
+
+        std::ptrdiff_t len = 0;
+        while (len < n && str_span[len])
+            len++;
+
+        return len;
     }
 }
 
@@ -152,30 +158,30 @@ inline span<T, dynamic_extent> ensure_z(T* const& sz, std::ptrdiff_t max = PTRDI
 // overloads to share an implementation
 inline span<char, dynamic_extent> ensure_z(char* const& sz, std::ptrdiff_t max)
 {
-    auto len = details::string_length(sz, narrow_cast<size_t>(max));
+    auto len = details::string_length(sz, max);
     Ensures(sz[len] == 0);
-    return {sz, static_cast<std::ptrdiff_t>(len)};
+    return {sz, len};
 }
 
 inline span<const char, dynamic_extent> ensure_z(const char* const& sz, std::ptrdiff_t max)
 {
-    auto len = details::string_length(sz, narrow_cast<size_t>(max));
+    auto len = details::string_length(sz, max);
     Ensures(sz[len] == 0);
-    return {sz, static_cast<std::ptrdiff_t>(len)};
+    return {sz, len};
 }
 
 inline span<wchar_t, dynamic_extent> ensure_z(wchar_t* const& sz, std::ptrdiff_t max)
 {
-    auto len = wcsnlen(sz, narrow_cast<size_t>(max));
+    auto len = details::wstring_length(sz, max);
     Ensures(sz[len] == 0);
-    return {sz, static_cast<std::ptrdiff_t>(len)};
+    return {sz, len};
 }
 
 inline span<const wchar_t, dynamic_extent> ensure_z(const wchar_t* const& sz, std::ptrdiff_t max)
 {
-    auto len = wcsnlen(sz, narrow_cast<size_t>(max));
+    auto len = details::wstring_length(sz, max);
     Ensures(sz[len] == 0);
-    return {sz, static_cast<std::ptrdiff_t>(len)};
+    return {sz, len};
 }
 
 template <typename T, size_t N>
@@ -221,7 +227,7 @@ namespace details
     {
         std::ptrdiff_t operator()(char* const ptr, std::ptrdiff_t length) noexcept
         {
-            return narrow_cast<std::ptrdiff_t>(details::string_length(ptr, narrow_cast<size_t>(length)));
+            return details::string_length(ptr, length);
         }
     };
 
@@ -230,7 +236,7 @@ namespace details
     {
         std::ptrdiff_t operator()(wchar_t* const ptr, std::ptrdiff_t length) noexcept
         {
-            return narrow_cast<std::ptrdiff_t>(wcsnlen(ptr, narrow_cast<size_t>(length)));
+            return details::wstring_length(ptr, length);
         }
     };
 
@@ -239,7 +245,7 @@ namespace details
     {
         std::ptrdiff_t operator()(const char* const ptr, std::ptrdiff_t length) noexcept
         {
-            return narrow_cast<std::ptrdiff_t>(details::string_length(ptr, narrow_cast<size_t>(length)));
+            return details::string_length(ptr, length);
         }
     };
 
@@ -248,7 +254,7 @@ namespace details
     {
         std::ptrdiff_t operator()(const wchar_t* const ptr, std::ptrdiff_t length) noexcept
         {
-            return narrow_cast<std::ptrdiff_t>(wcsnlen(ptr, narrow_cast<size_t>(length)));
+            return details::wstring_length(ptr, length);
         }
     };
 }
@@ -325,7 +331,7 @@ public:
     // Container signature should work for basic_string after C++17 version exists
     template <class Traits, class Allocator>
     constexpr basic_string_span(std::basic_string<element_type, Traits, Allocator>& str)
-        : span_(&str[0], str.length())
+        : span_(&str[0], narrow_cast<std::ptrdiff_t>(str.length()))
     {
     }
 
@@ -548,7 +554,8 @@ public:
 
     constexpr string_span_type as_string_span() const noexcept
     {
-        return span_.first(span_.size() - 1);
+        auto sz = span_.size();
+        return span_.first(sz <= 0 ? 0 : sz - 1);
     }
 
     constexpr string_span_type ensure_z() const noexcept { return gsl::ensure_z(span_); }
