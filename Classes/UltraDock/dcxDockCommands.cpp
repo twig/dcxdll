@@ -665,27 +665,47 @@ mIRC(_xdock)
 				if (ud == nullptr)
 					throw Dcx::dcxException(TEXT("Window not docked to main mIRC window (%).%"), reinterpret_cast<DWORD>(hwnd), d.gettok(2));
 					
-				TCHAR *p = nullptr;
+				//TCHAR *p = nullptr;
+				//switch (ud->flags)
+				//{
+				//case DOCKF_LEFT:
+				//	p = ts_strcpyn(data, TEXT("left"), MIRC_BUFFER_SIZE_CCH);
+				//	break;
+				//case DOCKF_RIGHT:
+				//	p = ts_strcpyn(data, TEXT("right"), MIRC_BUFFER_SIZE_CCH);
+				//	break;
+				//case DOCKF_TOP:
+				//	p = ts_strcpyn(data, TEXT("top"), MIRC_BUFFER_SIZE_CCH);
+				//	break;
+				//case DOCKF_BOTTOM:
+				//	p = ts_strcpyn(data, TEXT("bottom"), MIRC_BUFFER_SIZE_CCH);
+				//	break;
+				//default:
+				//	p = ts_strcpyn(data, TEXT("unknown"), MIRC_BUFFER_SIZE_CCH);
+				//	break;
+				//}
+				//if (p == nullptr)
+				//	data[0] = 0;
+
+				TCHAR *p = TEXT("unknown");
 				switch (ud->flags)
 				{
 				case DOCKF_LEFT:
-					p = lstrcpyn(data, TEXT("left"), MIRC_BUFFER_SIZE_CCH);
+					p = TEXT("left");
 					break;
 				case DOCKF_RIGHT:
-					p = lstrcpyn(data, TEXT("right"), MIRC_BUFFER_SIZE_CCH);
+					p = TEXT("right");
 					break;
 				case DOCKF_TOP:
-					p = lstrcpyn(data, TEXT("top"), MIRC_BUFFER_SIZE_CCH);
+					p = TEXT("top");
 					break;
 				case DOCKF_BOTTOM:
-					p = lstrcpyn(data, TEXT("bottom"), MIRC_BUFFER_SIZE_CCH);
-					break;
-				default:
-					p = lstrcpyn(data, TEXT("unknown"), MIRC_BUFFER_SIZE_CCH);
+					p = TEXT("bottom");
 					break;
 				}
-				if (p == nullptr)
-					data[0] = 0;
+				dcx_strcpyn(data, p, MIRC_BUFFER_SIZE_CCH);
+				//if (ts_strcpyn(data, p, MIRC_BUFFER_SIZE_CCH) == nullptr)
+				//	data[0] = 0;
 			}
 			break;
 			case 7: // text
