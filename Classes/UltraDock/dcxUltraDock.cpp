@@ -24,8 +24,11 @@ void UpdatemIRC(void) noexcept
 void InitUltraDock(void)
 {
 	// set all colours as invalid
-	for (auto i = 0U; i < Dcx::countof(DcxDock::g_clrTreebarColours); i++)
-		DcxDock::g_clrTreebarColours[i] = CLR_INVALID;
+	//for (auto i = 0U; i < Dcx::countof(DcxDock::g_clrTreebarColours); i++)
+	//	DcxDock::g_clrTreebarColours[i] = CLR_INVALID;
+
+	for (auto &x : DcxDock::g_clrTreebarColours)
+		x = CLR_INVALID;
 
 	g_dockMDI = new DcxDock(mIRCLinker::getMDIClient(), mIRCLinker::getHWND(), DOCK_TYPE_MDI);
 	g_dockTreebar = new DcxDock(mIRCLinker::getTreeview(), mIRCLinker::getTreebar(), DOCK_TYPE_TREE);
