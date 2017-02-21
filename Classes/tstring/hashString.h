@@ -3,18 +3,31 @@
 #include "refString.h"
 #include "simpleString.h"
 
-// Change string into a hash/number as compile time to allow easy switch()/case usage.
+// Change string into a hash/number at compile time to allow easy switch()/case usage.
 //
 // for string literals this is all done at compile time...
-//	switch(hashString(TEXT("text"))) {
-//		case hashString(TEXT("text")): do stuff
+//	switch(TEXT("text"_hash)) {
+//		case TEXT("text"_hash): do stuff
 //}
 //
 // for objects or other strings this is done at runtime...
 //	TString tsObj(TEXT("text"));
-//	switch(hashString(tsObj)) {
-//		case hashString(TEXT("text")): do stuff
+//	switch(std::hash<TString>{}(tsObj)) {
+//		case TEXT("text"_hash): do stuff
 //}
+//	const char *str = "text";
+//	switch(std::hash<const char *>{}(str)) {
+//		case "text"_hash: do stuff
+//}
+//	const wchar_t *str = L"text";
+//	switch(std::hash<const wchar_t *>{}(str)) {
+//		case L"text"_hash: do stuff
+//}
+//	const TCHAR *str = TEXT("text");
+//	switch(std::hash<const TCHAR *>{}(str)) {
+//		case TEXT("text"_hash): do stuff
+//}
+// NB: you cannot mix char & wchar_t hashes, they WILL be different.
 //
 
 // mostly taken from https://stackoverflow.com/questions/2111667/compile-time-string-hashing or based on this.

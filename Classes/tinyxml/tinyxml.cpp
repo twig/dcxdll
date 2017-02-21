@@ -832,7 +832,7 @@ TiXmlNode* TiXmlElement::Clone() const
 	}
 	catch (std::bad_alloc)
 	{
-		return 0;
+		return nullptr;
 	}
 }
 
@@ -937,9 +937,8 @@ bool TiXmlDocument::LoadFile( FILE* file, TiXmlEncoding encoding )
 	location.Clear();
 
 	// Get the file size, so we can pre-allocate the string. HUGE speed impact.
-	long length = 0;
 	fseek( file, 0, SEEK_END );
-	length = ftell( file );
+	auto length = ftell( file );
 	fseek( file, 0, SEEK_SET );
 
 	// Strange case, but good to handle up front.
@@ -970,11 +969,12 @@ bool TiXmlDocument::LoadFile( FILE* file, TiXmlEncoding encoding )
 	}
 	*/
 
-	char* buf = new char[ length+1 ];
+	//char* buf = new char[ length+1 ];
+	auto buf = std::make_unique<char[]>(static_cast<size_t>(length) + 1U);
 	buf[0] = 0;
 
-	if ( fread( buf, length, 1, file ) != 1 ) {
-		delete [] buf;
+	if ( fread( buf.get(), static_cast<size_t>(length), 1U, file ) != 1 ) {
+		//delete [] buf;
 		SetError( TIXML_ERROR_OPENING_FILE, 0, 0, TIXML_ENCODING_UNKNOWN );
 		return false;
 	}
@@ -990,15 +990,15 @@ bool TiXmlDocument::LoadFile( FILE* file, TiXmlEncoding encoding )
     //		* CR+LF: DEC RT-11 and most other early non-Unix, non-IBM OSes, CP/M, MP/M, DOS, OS/2, Microsoft Windows, Symbian OS
     //		* CR:    Commodore 8-bit machines, Apple II family, Mac OS up to version 9 and OS-9
 
-	const char* p = buf;	// the read head
-	char* q = buf;			// the write head
+	const char* p = buf.get();	// the read head
+	char* q = buf.get();			// the write head
 	const char CR = 0x0d;
 	const char LF = 0x0a;
 
-	buf[length] = 0;
+	buf[static_cast<size_t>(length)] = 0;
 	while( *p ) {
-		assert( p < (buf+length) );
-		assert( q <= (buf+length) );
+		assert( p < (buf.get() +length) );
+		assert( q <= (buf.get() +length) );
 		assert( q <= p );
 
 		if ( *p == CR ) {
@@ -1012,12 +1012,12 @@ bool TiXmlDocument::LoadFile( FILE* file, TiXmlEncoding encoding )
 			*q++ = *p++;
 		}
 	}
-	assert( q <= (buf+length) );
+	assert( q <= (buf.get() +length) );
 	*q = 0;
 
-	Parse( buf, 0, encoding );
+	Parse( buf.get(), 0, encoding );
 
-	delete [] buf;
+	//delete [] buf;
 	return !Error();
 }
 
