@@ -48,7 +48,11 @@
  *  1.14
  *		loads of changes again :)
  *
- * © ScriptsDB.org - 2005-2015
+ *	1.15
+ *		Added iterator
+ *		Added template versions of most functions
+ *
+ * © ScriptsDB.org - 2005-2016
  */
 #include "defines.h"
 
@@ -1775,13 +1779,13 @@ UINT TString::match(register const TCHAR *m, register const TCHAR *n, const bool
 		if (*m == WILDT) {			/* Match >=1 space */
 			space = 0;				/* Don't need any spaces */
 			do {
-				m++;
-				space++;
+				++m;
+				++space;
 			}							/* Tally 1 more space ... */
 			while ((*m == WILDT) || (*m == TEXT(' ')));	/*  for each space or ~ */
 			sofar += space;				/* Each counts as exact */
 			while (*n == TEXT(' ')) {
-				n++;
+				++n;
 				space--;
 			}							/* Do we have enough? */
 			if (space <= 0)
@@ -1812,7 +1816,7 @@ UINT TString::match(register const TCHAR *m, register const TCHAR *n, const bool
 				/* FALL THROUGH */
 			case WILDS:
 				do
-					m++;			/* Zap redundant wilds */
+					++m;			/* Zap redundant wilds */
 				while ((*m == WILDS) || (*m == WILDP));
 				lsm = m;
 				lsn = n;
@@ -1821,24 +1825,24 @@ UINT TString::match(register const TCHAR *m, register const TCHAR *n, const bool
 				saved = sofar = 0;
 				continue;		/* Done with '*' */
 			case WILDQ:
-				m++;
-				n++;
+				++m;
+				++n;
 				continue;		/* Match one TCHAR */
 			case QUOTE:
-				m++;			/* Handle quoting */
+				++m;			/* Handle quoting */
 			}
 			if (cs) { /* case sensitive */
 				if (*m == *n) {		/* If matching */
-					m++;
-					n++;
-					sofar++;
+					++m;
+					++n;
+					++sofar;
 					continue;		/* Tally the match */
 				}
 			}
 			else if (rfc_toupper(*m) == rfc_toupper(*n)) {		/* If matching */
-				m++;
-				n++;
-				sofar++;
+				++m;
+				++n;
+				++sofar;
 				continue;		/* Tally the match */
 			}
 #ifdef WILDT
@@ -1862,7 +1866,7 @@ UINT TString::match(register const TCHAR *m, register const TCHAR *n, const bool
 		return NOMATCH;		/* No fallbacks=No match */
 	}
 	while ((*m == WILDS) || (*m == WILDP))
-		m++;			/* Zap leftover %s & *s */
+		++m;			/* Zap leftover %s & *s */
 	return (*m) ? NOMATCH : MATCH;	/* End of both = match */
 }
 
@@ -1880,7 +1884,7 @@ TString TString::wildtok(const TCHAR *const wildString, const UINT N, const TCHA
 	auto itEnd = end();
 	auto itGot = std::find_if(begin(sepChars), itEnd, [&wildString, &m, &N](const TString &x) {
 		if (match(wildString, x.to_chr(), false) != NOMATCH) {
-			m++;
+			++m;
 			if (m == N)
 				return true;
 		}
@@ -1900,7 +1904,7 @@ UINT TString::nwildtok(const TCHAR *const wildString, const TCHAR *const sepChar
 	auto m = 0U;
 	std::for_each(begin(sepChars), end(), [&wildString, &m](const TString &x) {
 		if (match(wildString, x.to_chr(), false) != NOMATCH)
-			m++;
+			++m;
 	});
 	return m;
 }
@@ -1922,7 +1926,7 @@ int TString::tvprintf(const TCHAR *const fmt, va_list args)
 
 		// warning C4996: 'vsprintf' was declared deprecated
 		// http://forums.microsoft.com/MSDN/ShowPost.aspx?PostID=10254&SiteID=1
-		ts_vsprintf(tmp.m_pString, cnt + 1, fmt, args);
+		ts_vsprintf(tmp.m_pString, static_cast<size_t>(cnt) + 1U, fmt, args);
 
 		this->swap(tmp);
 	}
@@ -2101,9 +2105,9 @@ WCHAR *TString::charToWchar(const char *const cString, size_t *const buffer_size
 			// NB: NormalizeString() is Vista+ ONLY
 			auto normLen = NormalizeString(NormalizationC, res.get(), -1, nullptr, 0);
 			if (normLen > 0) {
-				normLen = TS_wgetmemsize(normLen + 1);
-				auto normRes = std::make_unique<WCHAR[]>(normLen);
-				if (NormalizeString(NormalizationC, res.get(), -1, normRes.get(), normLen) > 0)
+				auto uNewNormLen = TS_wgetmemsize(normLen + 1);
+				auto normRes = std::make_unique<WCHAR[]>(uNewNormLen);
+				if (NormalizeString(NormalizationC, res.get(), -1, normRes.get(), static_cast<int>(uNewNormLen)) > 0)
 				{
 					res = std::move(normRes);
 				}

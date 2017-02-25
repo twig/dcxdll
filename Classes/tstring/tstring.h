@@ -6,7 +6,7 @@
  * comparisons and token manipulations as done in the mIRC scripting language.
  *
  * \author David Legault ( clickhere at scriptsdb dot org )
- * \version 1.12
+ * \version 1.15
  *
  * \b Revisions
  *	1.1
@@ -48,7 +48,11 @@
  *  1.14
  *		loads of changes again :)
  *
- * © ScriptsDB.org - 2005-2015
+ *	1.15
+ *		Added iterator
+ *		Added template versions of most functions
+ *
+ * © ScriptsDB.org - 2005-2017
  */
 
 #pragma once
@@ -58,7 +62,7 @@
 
  // VS2015+ only
 #if _MSC_VER < 1900
-#error "This version of DCX needs Visual Studio 2015 or newer"
+#error "This version of TString needs Visual Studio 2015 or newer"
 #endif
  
 // Required for VS 2005
@@ -77,6 +81,10 @@
 #include <algorithm>
 #include <numeric>
 #include <functional>
+#include <iterator>
+#include <sstream>
+
+#include "string_support.h"
 
 #define TS_getmemsize(x) (size_t)(((x) - 1U) + (16U - (((x) - 1U) % 16U) ))
 //#define TS_wgetmemsize(x) (unsigned long)(((((x) - 1)*sizeof(WCHAR)) + (16 - ((((x) - 1)*sizeof(WCHAR)) % 16)))/sizeof(WCHAR))
@@ -90,14 +98,10 @@
 //#define TSTRING_ITERATOR 1
 
 // enable this define to enable using templates to convert TString to numbers. (TString->to_<int>() etc..)
-#define TSTRING_TEMPLATES 1
+//#define TSTRING_TEMPLATES 1
 
 // Enable/Disable test code...
 #define TSTRING_TESTCODE 1
-
-#include <iterator>
-
-#include <sstream>
 
 // enable this to include a small internal buffer that avoids an allocation for small strings.
 #define TSTRING_INTERNALBUFFER 1
@@ -113,35 +117,31 @@
 #define TAB m_cTab
 #define TABCHAR m_cTab[0]
 
-#ifdef __INTEL_COMPILER // Defined when using Intel C++ Compiler.
-#pragma warning( push )
-#pragma warning( disable : 2304 )
-#pragma warning( disable : 2287 )
-#endif
-
-#define ts_atoi(x) _wtoi((x))
-#define ts_atoi64(x) _wtoi64((x));
-#define ts_atof(x) _wtof((x));
+#define ts_atoi(x) _ts_atoi((x))
+#define ts_atoi64(x) _ts_atoi64((x));
+#define ts_atof(x) _ts_atof((x));
 #define ts_strtoul(x) wcstoul((x), nullptr, 10)
 #define ts_itoa(x,y,z) _itow((x),(y),(z))
 #define ts_upr(x,y) _wcsupr_s((x),(y))
-#define ts_strstr(x,y) wcsstr((x),(y))
-//#define ts_strstr(x,y) _ts_strstr((x),(y))
-#define ts_strchr(x,y) wcschr((x),(y))
+//#define ts_strstr(x,y) wcsstr((x),(y))
+//#define ts_strchr(x,y) wcschr((x),(y))
+#define ts_strstr(x,y) _ts_find((x),(y))
+#define ts_strchr(x,y) _ts_find((x),(y))
 #define ts_strcat_s(x,y,z) wcscat_s((x),(z),(y))
-#define ts_strcat(x,y) lstrcat((x),(y))
-#define ts_strncat(x,y,z) wcsncat((x),(y),(size_t)(z))
+#define ts_strcat(x,y) _ts_strcat((x),(y))
+#define ts_strncat(x,y,z) _ts_strncat((x),(y),static_cast<size_t>(z))
 #define ts_toupper(c) ((((c) >= TEXT('a')) && ((c) <= TEXT('z'))) ? _toupper((c)) : (c) )
 #define ts_tolower(c) ((((c) >= TEXT('A')) && ((c) <= TEXT('Z'))) ? _tolower((c)) : (c) )
-//#define ts_strlen(x) lstrlen((x))
-//#define ts_strlenA(x) lstrlenA((x))
-//#define ts_strlenW(x) lstrlenW((x))
-#define ts_strcpyn(dest,src,len) lstrcpyn((dest),(src),(int)(len))
-#define ts_strcpy(dest,src) lstrcpy((dest),(src))
-#define ts_strcmp(x,y) lstrcmp((x),(y))
-#define ts_strncmp(x,y,z) wcsncmp((x),(y),(size_t)(z))
-#define ts_vscprintf(fmt, args) _vscwprintf((fmt), (args))
-#define ts_vsprintf(txt, cnt, fmt, args ) vswprintf((txt), (cnt), (fmt), (args))
+#define ts_strcpyn(dest,src,len) _ts_strcpyn((dest),(src),static_cast<size_t>(len))
+#define ts_strcpy(dest,src) _ts_strcpy((dest),(src))
+//#define ts_strcpyn(dest,src,len) lstrcpyn((dest),(src),static_cast<size_t>(len))
+//#define ts_strcpy(dest,src) lstrcpy((dest),(src))
+#define ts_strcmp(x,y) _ts_strcmp((x),(y))
+#define ts_strncmp(x,y,z) _ts_strncmp((x),(y),static_cast<size_t>(z))
+#define ts_stricmp(x,y) _ts_stricmp((x),(y))
+#define ts_strnicmp(x,y,z) _ts_strnicmp((x),(y),static_cast<size_t>(z))
+#define ts_vscprintf(fmt, args) _ts_vscprintf((fmt), (args))
+#define ts_vsprintf(txt, cnt, fmt, args ) _ts_vsprintf((txt), (cnt), (fmt), (args))
 
 #define ts_copymem(dest,src,sz) CopyMemory((dest),(src),(sz))
 #define ts_zeromem(dest, sz) ZeroMemory((dest),(sz))
@@ -151,16 +151,11 @@
 #define ts_strcpy_throw(x,y) if (ts_strcpy((x), (y)) == nullptr) throw std::logic_error("strcpy() failed!");
 #define ts_strcpyn_throw(x,y,z) if (ts_strcpyn((x), (y), (z)) == nullptr) throw std::logic_error("strcpyn() failed!");
 
-template<class _Ty>
-struct is_Numeric
-	: std::_Cat_base<std::is_arithmetic<_Ty>::value
-	&& !std::is_same<_Ty, wchar_t>::value
-	&& !std::is_same<_Ty, char>::value
-	&& !std::is_pointer<_Ty>::value>
-{	// determine whether _Ty is a Number type (excluding char / wchar)
-};
-template <typename T>
-constexpr bool is_Numeric_v = is_Numeric<T>::value;
+#ifdef __INTEL_COMPILER // Defined when using Intel C++ Compiler.
+#pragma warning( push )
+#pragma warning( disable : 2304 )
+#pragma warning( disable : 2287 )
+#endif
 
 /*!
  * \brief String and Token Management Class
@@ -229,7 +224,7 @@ private:
 
 	// check if requested character is within buffer (not within string)
 	template <class T>
-	std::enable_if_t<std::is_signed<T>::value> CheckRange(const T &N) const
+	std::enable_if_t<std::is_signed_v<T> > CheckRange(const T &N) const
 	{
 		static_assert(is_Numeric_v<T>, "Only Numeric Types accepted.");
 
@@ -237,7 +232,7 @@ private:
 			throw std::out_of_range("TString::at()");
 	}
 	template <class T>
-	std::enable_if_t<std::is_unsigned<T>::value> CheckRange(const T &N) const
+	std::enable_if_t<std::is_unsigned_v<T> > CheckRange(const T &N) const
 	{
 		static_assert(is_Numeric_v<T>, "Only Numeric Types accepted.");
 
@@ -259,8 +254,8 @@ private:
 	mutable bool	m_bDirty;		// is buffer `dirty` (string length is unknown)?
 
 #if TSTRING_INTERNALBUFFER
-	mutable TCHAR	m_InternalBuffer[TSTRING_INTERNALBUFFERSIZE_CCH];
 	mutable bool	m_bUsingInternal;
+	mutable TCHAR	m_InternalBuffer[TSTRING_INTERNALBUFFERSIZE_CCH];
 #endif
 
 public:
@@ -282,14 +277,14 @@ public:
 	TString(const T (&cString)[N])
 		: TString(cString, N-1)		// NB: N here also counts the zero char at the end
 	{
-		static_assert(std::is_same<T, WCHAR>::value || std::is_same<T, char>::value, "MUST be a WCHAR or char string");
+		static_assert(std::is_same_v<T, WCHAR> || std::is_same_v<T, char>, "MUST be a WCHAR or char string");
 	}
 
-	template <typename T, typename = std::enable_if_t<std::is_pointer<T>::value> >
+	template <typename T, typename = std::enable_if_t<std::is_pointer_v<T>> >
 	TString(const T cString)
 		: TString(cString, _ts_strlen(cString))
 	{
-		static_assert(std::is_same<std::remove_cv_t<std::remove_pointer_t<T>>, WCHAR>::value || std::is_same<std::remove_cv_t<std::remove_pointer_t<T>>, char>::value, "MUST be a WCHAR or char string");
+		static_assert(std::is_same_v<std::remove_cv_t<std::remove_pointer_t<T>>, WCHAR> || std::is_same_v<std::remove_cv_t<std::remove_pointer_t<T>>, char>, "MUST be a WCHAR or char string");
 	}
 
 	TString(const TString & tString)
@@ -320,14 +315,14 @@ public:
 	TString(const std::unique_ptr<T> &unique)
 		: TString(unique.get())
 	{
-		//static_assert(std::is_same<T, WCHAR>::value || std::is_same<T, char>::value, "MUST be a WCHAR or char string");
+		//static_assert(std::is_same_v<std::remove_cv_t<T>, WCHAR> || std::is_same_v<std::remove_cv_t<T>, char>, "MUST be a WCHAR or char string");
 	}
 
 	//	Constructor
 	//		cString	== string to add (wchar_t *)
 	//		iLen	== Length of string in characters.
 	TString(const WCHAR *const cString, const size_t iLen)
-		: TString(iLen+1)
+		: TString(iLen+1U)
 	{
 		if (cString != nullptr) {
 			if (cString[0] != TEXT('\0')) {
@@ -369,7 +364,7 @@ public:
 	TString(const T *const pStart, const T *const pEnd)
 		: TString(pStart, static_cast<size_t>(pEnd - pStart))
 	{
-		static_assert(std::is_same<T,WCHAR>::value || std::is_same<T,char>::value, "MUST be a WCHAR or char string");
+		static_assert(std::is_same_v<T,WCHAR> || std::is_same_v<T,char>, "MUST be a WCHAR or char string");
 
 		if (pEnd < pStart)
 			throw std::invalid_argument("TString(): End of string < start");
@@ -591,9 +586,9 @@ public:
 	}
 
 	//conversion operators.
-	template <class T, typename = std::enable_if_t<is_Numeric<T>::value> >
+	template <class T, typename = std::enable_if_t<is_Numeric_v<T>> >
 	operator T() const {
-		static_assert(is_Numeric<T>::value, "Type T must be (int, long, float, double, ....)");
+		static_assert(is_Numeric_v<T>, "Type T must be (int, long, float, double, ....)");
 		return to_<T>();
 	}
 	explicit operator bool() const noexcept { return !empty(); }
@@ -687,7 +682,7 @@ public:
 			auto i = decltype(N){0};
 			const auto subl = _ts_strlen(substring);
 			while ((temp = _ts_find(temp2, substring)) != nullptr) {
-				i++;
+				++i;
 				//if ( N != 0 && i == N )
 				if (i == N) // i is never zero
 					return static_cast<int>(temp - m_pString);
@@ -736,7 +731,7 @@ public:
 		{
 			if (pStart != pEnd)
 				//tmp += TString(pStart, pEnd);
-				tmp.append(pStart, (pEnd - pStart));
+				tmp.append(pStart, static_cast<size_t>(pEnd - pStart));
 
 			if (repl > 0)
 				tmp += rString;
@@ -759,7 +754,8 @@ public:
 	template <typename T>
 	TString &remove(const T &str)
 	{
-		replace(str, TEXT(""));
+		const TCHAR sTmp[2] = { 0 };
+		replace(str, &sTmp[0]);
 		return *this;
 	}
 
@@ -1017,14 +1013,14 @@ public:
 		else {
 			// N >= 2
 			// so add preceding tokens
-			tsTmp = gettok(1, N - 1, sepChars);
+			tsTmp = gettok(1, static_cast<int>(N) - 1, sepChars);
 			// then new token
 			tsTmp += sepChars;
 			tsTmp += cToken;
 			// and any tokens after the inserted one.
 			if (N < nToks) {
 				tsTmp += sepChars;
-				tsTmp += gettok(N, -1, sepChars);
+				tsTmp += gettok(static_cast<int>(N), -1, sepChars);
 			}
 		}
 		swap(tsTmp);
@@ -1041,22 +1037,26 @@ public:
 			if (nToks > N)
 			{
 				tmp += sepChars;
-				tmp += gettok(N + 1, -1, sepChars);
+				tmp += gettok(static_cast<int>(N) + 1, -1, sepChars);
 			}
 			swap(tmp);
 		}
 		else if (nToks > N)
 		{
 			// replace middle token
-			TString tmp(gettok(1, N - 1, sepChars));
+			TString tmp(gettok(1, static_cast<int>(N) - 1, sepChars));
 			tmp.addtok(cToken, sepChars);
-			tmp.addtok(gettok(N + 1, -1, sepChars), sepChars);
+			tmp.addtok(gettok(static_cast<int>(N) + 1, -1, sepChars), sepChars);
 
 			swap(tmp);
 		}
+		else if (nToks < N) {
+			// add token to end (nothing to replace)
+			addtok(cToken, sepChars);
+		}
 		else {
 			// replace last token
-			TString tmp(gettok(1, N - 1, sepChars));
+			TString tmp(gettok(1, static_cast<int>(N) - 1, sepChars));
 			tmp.addtok(cToken, sepChars);
 
 			swap(tmp);
@@ -1099,7 +1099,7 @@ public:
 		const auto sepl = _ts_strlen(sepChars);
 
 		while ((p_cEnd = _ts_find(p_cStart, sepChars)) != nullptr) {
-			i++;
+			++i;
 
 			if (i == N)
 				break;
@@ -1113,17 +1113,17 @@ public:
 
 		// last token
 		if (p_cEnd == nullptr) {
-			p_cStart--;
+			--p_cStart;
 			*p_cStart = 0;
 			p_cEnd = m_pString;
 		}
 		// delete the first token
 		else if (p_cStart == m_pString)
-			p_cEnd++;
+			++p_cEnd;
 		// inbound token
 		else {
 			*p_cStart = 0;
-			p_cEnd++;
+			++p_cEnd;
 
 			ts_strncat_throw(tmp.m_pString, m_pString, l);
 		}
@@ -1139,6 +1139,7 @@ public:
 		m_savedpos = nullptr;
 		m_savedtotaltoks = 0;
 	}
+
 	/*!
 	* \brief blah
 	*
@@ -1147,10 +1148,10 @@ public:
 	template <typename TSepChars = const_reference>
 	TString matchtok(const TCHAR * const mString, UINT N, TSepChars sepChars = SPACECHAR) const
 	{
-		size_t count = 0U;
+		auto count = decltype(N){0};
 		auto itEnd = end();
 		auto itGot = std::find_if(begin(sepChars), itEnd, [&count, &N, &mString](const auto &x) {
-			if (ts_strstr(x.to_chr(), mString) != nullptr) {
+			if (_ts_find(x.to_chr(), mString) != nullptr) {
 				++count;
 				if (count >= N)
 					return true;
@@ -1171,7 +1172,7 @@ public:
 	template <typename T = const_reference>
 	size_t numtok(T sepChars = SPACECHAR) const noexcept
 	{
-		if (!sepChars || empty())
+		if (_ts_isEmpty(sepChars) || empty())
 			return 0U;
 
 		const TCHAR * p_cStart = m_pString, *p_cEnd = nullptr;
@@ -1179,7 +1180,7 @@ public:
 		const auto sepl = _ts_strlen(sepChars);
 
 		while ((p_cEnd = _ts_find(p_cStart, sepChars)) != nullptr) {
-			iCount++;
+			++iCount;
 			p_cStart = p_cEnd + sepl;
 		}
 		return iCount + 1U;
@@ -1264,12 +1265,12 @@ public:
 
 		auto rng = gettokenrange(N, N, sepChars);
 
-		m_savedcurrenttok = N;
+		m_savedcurrenttok = static_cast<UINT>(N);
 		m_savedtotaltoks = std::get<2>(rng);
 		m_savedpos = std::get<1>(rng);
 
 		if (m_savedpos != nullptr)
-			m_savedpos++;
+			++m_savedpos;
 
 		return rng;
 	}
@@ -1286,7 +1287,7 @@ public:
 	{
 		//return getnexttok(sepChars).to_<T>();
 
-		m_savedcurrenttok++;
+		++m_savedcurrenttok;
 
 		if (!sepChars || m_pString == nullptr || m_savedpos == nullptr || m_savedcurrenttok > m_savedtotaltoks)
 			return T();
@@ -1318,7 +1319,7 @@ public:
 	template <typename TSepChar = const_reference>
 	TString getnexttok(TSepChar sepChars = SPACECHAR) const
 	{
-		m_savedcurrenttok++;
+		++m_savedcurrenttok;
 
 		if (!sepChars || m_pString == nullptr)
 			return *this;
@@ -1366,7 +1367,7 @@ public:
 	{
 	public:
 		tsIterator(const tsIterator<tsType, T> &other) = default;
-		tsIterator(tsType *ptr = nullptr) : tsIterator(ptr, SPACE) { if (m_ptr == nullptr) m_iIndex = 0; }
+		tsIterator(tsType *ptr = nullptr) : tsIterator(ptr, nullptr) { if (m_ptr == nullptr) m_iIndex = 0; }
 		tsIterator(tsType *ptr, T *const sepChars)
 			: m_ptr(ptr), m_iIndex(1), m_sepChars(sepChars), m_sepChar(), m_toks(0)/*, m_iPrevIndex(1)*/
 			, m_savedStart(nullptr), m_savedEnd(nullptr), m_savedFinal(nullptr)
@@ -1386,12 +1387,13 @@ public:
 
 			if (m_ptr != nullptr)
 			{
-				m_toks = m_ptr->numtok(sepChars);
+				m_toks = m_ptr->numtok(m_sepChars);
 				m_savedStart = m_ptr->m_pString;
 				if (m_savedStart != nullptr)
 				{
 					m_savedEnd = ts_strstr(m_savedStart, m_sepChars);
-					m_savedFinal = (TCHAR *)(m_savedStart + m_ptr->len());
+					//m_savedFinal = (TCHAR *)(m_savedStart + m_ptr->len());
+					m_savedFinal = m_ptr->last();
 				}
 			}
 		}
@@ -1409,12 +1411,13 @@ public:
 
 			if (m_ptr != nullptr)
 			{
-				m_toks = m_ptr->numtok(sepChar);
+				m_toks = m_ptr->numtok(m_sepChars);
 				m_savedStart = m_ptr->m_pString;
 				if (m_savedStart != nullptr)
 				{
 					m_savedEnd = ts_strstr(m_savedStart, m_sepChars);
-					m_savedFinal = (TCHAR *)(m_savedStart + m_ptr->len());
+					//m_savedFinal = (TCHAR *)(m_savedStart + m_ptr->len());
+					m_savedFinal = m_ptr->last();
 				}
 			}
 		}
@@ -1439,7 +1442,8 @@ public:
 				if (m_savedStart != nullptr)
 				{
 					m_savedEnd = ts_strstr(m_savedStart, m_sepChars);
-					m_savedFinal = (TCHAR *)(m_savedStart + m_ptr->len());
+					//m_savedFinal = (TCHAR *)(m_savedStart + m_ptr->len());
+					m_savedFinal = m_ptr->last();
 				}
 			}
 			return *this;
@@ -1512,7 +1516,7 @@ public:
 		T		*m_sepChars;
 		mutable TCHAR *m_savedStart;
 		mutable TCHAR *m_savedEnd;
-		TCHAR *m_savedFinal;
+		const TCHAR *m_savedFinal;
 		std::remove_cv_t<T>		m_sepChar[2];
 	};
 
@@ -1562,6 +1566,7 @@ public:
 
 #if TSTRING_TESTCODE
 	template <typename T> bool iswm(const T &a) const noexcept { return _ts_WildcardMatch(*this, a); }
+	template <typename T> bool iswmcs(const T &a) const noexcept { return _ts_WildcardMatch(*this, a); }
 #else
 	bool iswm(const TCHAR *const a) const noexcept;
 	bool iswmcs(const TCHAR *const a) const noexcept;
@@ -1597,7 +1602,7 @@ public:
 
 		std::basic_istringstream<TCHAR> ss(m_pString);	// makes copy of string :(
 		T result;
-		return ss >> result ? result : 0;
+		return ss >> result ? result : T();
 	}
 	auto to_int() const { return to_<int>(); };
 	auto to_num() const { return to_<__int64>(); };
@@ -1627,417 +1632,7 @@ public:
 // allows "sometext"_ts to be interpreted as TString("sometext")
 TString operator"" _ts(const char *p, size_t N);
 TString operator"" _ts(const WCHAR *p, size_t N);
-//template <typename T, std::size_t iArraySize>
-//T &operator =(const T(&arrayObj)[iArraySize], const TString &tsStr)
-//{
-//	dcx_strcpyn(arrayObj, tsStr.to_chr(), iArraySize);
-//	return arrayObj;
-//}
 
-namespace details {
-	template <typename Result, typename Format>
-	Result &_ts_printf_do(Result &res, const Format &fmt)
-	{
-		res += fmt;
-		return res;
-	}
-
-	template <typename Result, typename Format, typename Value, typename... Arguments>
-	Result &_ts_printf_do(Result &res, const Format &fmt, const Value val, Arguments&&... args)
-	{
-		auto i = 0U;
-		auto bSkip = false;
-		for (auto c = fmt[0]; c != decltype(c){'\0'}; c = fmt[++i])
-		{
-			if (!bSkip)
-			{
-				if (c == decltype(c){'\\'})
-				{
-					bSkip = true;
-					continue;
-				}
-				if (c == decltype(c){'%'})
-				{
-					res += val;
-					return _ts_printf_do(res, fmt + i + 1, args...);
-				}
-			}
-			else
-				bSkip = false;
-			res += c;
-		}
-		return res;
-	}
-
-	template<typename T, class TR = std::char_traits<T> >
-	struct impl_strstr{
-		//typedef typename TR::char_type* ptype;
-		//typedef const typename TR::char_type* cptype;
-		using ptype = typename TR::char_type*;
-		using cptype = const ptype;
-
-		ptype operator()(ptype input, cptype find){
-			do {
-				cptype p, q;
-				for (p = input, q = find; !TR::eq(*q, 0) && TR::eq(*p, *q); p++, q++) {	}
-
-				if (TR::eq(*q, 0))
-					return input;
-
-			} while (!TR::eq(*(input++), 0));
-			return nullptr;
-		}
-	};
-
-	// Test if a string is empty, works for std::basic_string & TString objects
-	template <typename T>
-	std::enable_if_t<!std::is_pointer<T>::value && !std::is_pod<T>::value && std::is_member_function_pointer<decltype(&T::empty)>::value, bool> _ts_isEmpty(const T &str) noexcept
-	{
- 		return str.empty();
-	}
-
-	// Test if a string is empty, works for C String char * or wchar_t *
-	template <typename T>
-	std::enable_if_t<std::is_pointer<T>::value, bool> _ts_isEmpty(const T &str) noexcept
-	{
-		using value_type = std::remove_cv_t<std::remove_pointer_t<T> >;
-
-		static_assert(std::is_same<value_type, char>::value || std::is_same<value_type, wchar_t>::value, "Invalid Type used");
-		return ((str == nullptr) || (str[0] == value_type()));
-	}
-
-	// Test if a string is empty, works for C char or wchar_t
-	template <typename T>
-	std::enable_if_t<!std::is_pointer<T>::value && std::is_pod<T>::value, bool> _ts_isEmpty(const T &str) noexcept
-	{
-		using value_type = std::remove_cv_t<T>;
-
-		static_assert(std::is_same<value_type, char>::value || std::is_same<value_type, wchar_t>::value, "Invalid Type used");
-		return (str == value_type());
-	}
-
-	// Get String length
-	template <typename T, typename size_type = std::size_t>
-	std::enable_if_t<std::is_pointer<T>::value, size_type> _ts_strlen(const T &str) noexcept
-	{
-		using value_type = std::remove_cv_t<std::remove_pointer_t<T> >;
-
-		static_assert(std::is_same<value_type, char>::value || std::is_same<value_type, wchar_t>::value, "Invalid Type used");
-		auto iLen = size_type();
-		for (auto p = str; p && *p; ++p)
-			++iLen;
-		return iLen;
-	}
-
-	template <typename T, typename size_type = std::size_t>
-	constexpr inline std::enable_if_t<!std::is_pointer<T>::value && std::is_same<std::remove_cv_t<T>,wchar_t>::value, size_type> _ts_strlen(const T &str) noexcept
-	{
-		return (str == T() ? 0U : 1U);
-	}
-
-	template <typename T, typename size_type = std::size_t>
-	constexpr inline std::enable_if_t<!std::is_pointer<T>::value && std::is_same<std::remove_cv_t<T>, char>::value, size_type> _ts_strlen(const T &str) noexcept
-	{
-		return (str == T() ? 0U : 1U);
-	}
-
-	template <typename T, typename size_type = std::size_t, std::size_t N>
-	constexpr inline size_type _ts_strlen(T const (&)[N]) noexcept
-	{
-		return (N == 0U ? 0U : N - 1);
-	}
-
-	template <typename T, typename size_type = T::size_type>
-	inline std::enable_if_t<!std::is_pointer<T>::value, size_type> _ts_strlen(const T &str)
-	{
-		return str.length();
-	}
-
-	template <typename T>
-	struct _impl_strnlen {
-	};
-	template <>
-	struct _impl_strnlen<char *> {
-		size_t operator()(char *const ptr, size_t length) noexcept
-		{
-			return strnlen(ptr, length);
-		}
-	};
-	template <>
-	struct _impl_strnlen<wchar_t *> {
-		size_t operator()(wchar_t *const ptr, size_t length) noexcept
-		{
-			return wcsnlen(ptr, length);
-		}
-	};
-	template <>
-	struct _impl_strnlen<char> {
-		size_t operator()(char &ptr, size_t length) noexcept
-		{
-			return (ptr == 0 || length == 0 ? 0U : 1U);
-		}
-	};
-	template <>
-	struct _impl_strnlen<wchar_t> {
-		size_t operator()(wchar_t &ptr, size_t length) noexcept
-		{
-			return (ptr == 0 || length == 0 ? 0U : 1U);
-		}
-	};
-
-	template <typename T>
-	struct _impl_strcpyn {
-	};
-	template <>
-	struct _impl_strcpyn<char> {
-		char *operator()(char *const pDest, const char *const pSrc, const size_t length) noexcept
-		{
-			return strncpy(pDest, pSrc, length);
-		}
-	};
-	template <>
-	struct _impl_strcpyn<wchar_t> {
-		wchar_t *operator()(wchar_t *const pDest, const wchar_t *const pSrc, const size_t length) noexcept
-		{
-			return wcsncpy(pDest, pSrc, length);
-		}
-	};
-
-	template <typename T>
-	struct _impl_strncat {
-	};
-	template <>
-	struct _impl_strncat<char> {
-		char *operator()(char *const pDest, const char *const pSrc, const size_t length) noexcept
-		{
-			return strncat(pDest, pSrc, length);
-		}
-	};
-	template <>
-	struct _impl_strncat<wchar_t> {
-		wchar_t *operator()(wchar_t *const pDest, const wchar_t *const pSrc, const size_t length) noexcept
-		{
-			return wcsncat(pDest, pSrc, length);
-		}
-	};
-
-	template <typename T>
-	struct _impl_strncmp {
-	};
-	template <>
-	struct _impl_strncmp<char> {
-		int operator()(const char *const pDest, const char *const pSrc, const size_t length) noexcept
-		{
-			return strncmp(pDest, pSrc, length);
-		}
-	};
-	template <>
-	struct _impl_strncmp<wchar_t> {
-		int operator()(const wchar_t *const pDest, const wchar_t *const pSrc, const size_t length) noexcept
-		{
-			return wcsncmp(pDest, pSrc, length);
-		}
-	};
-
-	template <typename T>
-	struct _impl_strcmp {
-	};
-	template <>
-	struct _impl_strcmp<char> {
-		int operator()(const char *const pDest, const char *const pSrc) noexcept
-		{
-			return strcmp(pDest, pSrc);
-		}
-	};
-	template <>
-	struct _impl_strcmp<wchar_t> {
-		int operator()(const wchar_t *const pDest, const wchar_t *const pSrc) noexcept
-		{
-			return wcscmp(pDest, pSrc);
-		}
-	};
-
-	template <typename T>
-	inline const TCHAR *_ts_find(const TCHAR *const str, T srch)
-	{
-		return _ts_find(str, srch.c_str());
-	}
-
-	template <>
-	inline const TCHAR *_ts_find(const TCHAR *const str, const TCHAR srch)
-	{
-		return ts_strchr(str, srch);
-	}
-
-	template <>
-	inline const TCHAR *_ts_find(const TCHAR *const str, const TCHAR *const srch)
-	{
-		return ts_strstr(str, srch);
-	}
-
-}
-
-template <typename Result, typename Format, typename Value, typename... Arguments>
-Result &_ts_sprintf(Result &res, const Format &fmt, const Value val, Arguments&&... args)
-{
-	res.clear();
-	return details::_ts_printf_do(res, fmt, val, args...);
-}
-
-template <class T>
-T *_ts_strstr(T *input, const std::remove_const_t<T> *find)
-{
-	return details::impl_strstr<T>()(input, find);
-}
-
-#define TSTRING_WILDT 0
-#define TSTRING_WILDA 0
-#define TSTRING_WILDE 0
-#define TSTRING_WILDW 0
-
-template <typename TameString, typename WildString>
-bool _ts_WildcardMatch(const TameString &pszString, const WildString &pszMatch) noexcept
-{
-	if ((pszMatch == nullptr) || (pszString == nullptr))
-		return false;
-
-	ptrdiff_t MatchPlaceholder = 0;
-	ptrdiff_t StringPlaceholder = 0;
-	ptrdiff_t iWildOffset = 0;
-	ptrdiff_t iTameOffset = 0;
-
-	while (pszString[iTameOffset])
-	{
-		if (pszMatch[iWildOffset] == TEXT('*'))
-		{
-			if (pszMatch[++iWildOffset] == TEXT('\0'))
-				return true;
-			MatchPlaceholder = iWildOffset;
-			StringPlaceholder = iTameOffset + 1;
-		}
-#if TSTRING_WILDT
-		else if (pszMatch[iWildOffset] == TEXT('~') && pszString[iTameOffset] == TEXT(' '))
-		{
-			iWildOffset++;
-			while (pszString[iTameOffset] == TEXT(' '))
-				iTameOffset++;
-		}
-#endif
-#if TSTRING_WILDA
-		else if (pszMatch[iWildOffset] == TEXT('^'))
-		{
-			iWildOffset++;
-			if (_toupper(pszMatch[iWildOffset]) == _toupper(pszString[iTameOffset]))
-				iTameOffset++;
-			iWildOffset++;
-		}
-#endif
-#if TSTRING_WILDE
-		else if (pszMatch[iWildOffset] == TEXT('\\'))
-		{
-			// any character following a '\' is taken as a literal character.
-			iWildOffset++;
-			if (_toupper(pszMatch[iWildOffset]) != _toupper(pszString[iTameOffset]))
-				return false;
-			iTameOffset++;
-		}
-#endif
-#if TSTRING_WILDW
-		else if (pszMatch[iWildOffset] == TEXT('#'))
-		{
-			iWildOffset++;
-			while (pszString[iTameOffset] && (pszString[iTameOffset] != TEXT(' ') || pszString[iTameOffset] != TEXT('\t') || pszString[iTameOffset] != TEXT('\n') || pszString[iTameOffset] != TEXT('\r')))
-				iTameOffset++;
-		}
-#endif
-		else if (pszMatch[iWildOffset] == TEXT('?')|| _toupper(pszMatch[iWildOffset]) == _toupper(pszString[iTameOffset]))
-		{
-			iWildOffset++;
-			iTameOffset++;
-		}
-		else if (StringPlaceholder == 0)
-			return false;
-		else
-		{
-			iWildOffset = MatchPlaceholder;
-			iTameOffset = StringPlaceholder++;
-		}
-	}
-
-	while (pszMatch[iWildOffset] == TEXT('*'))
-		iWildOffset++;
-
-	return (pszMatch[iWildOffset] == TEXT('\0'));
-}
-
-// Get String length
-template <typename T>
-inline auto _ts_strlen(const T &str)
-{
-	return details::_ts_strlen(str);
-}
-
-// Get String length
-template <typename T>
-inline size_t _ts_strnlen(const T &str, const size_t &nBufSize)
-{
-	return details::_impl_strnlen<T>()(str, nBufSize);
-}
-
-// Test if a string is empty, works for any object that has an empty() member function as well as C strings.
-template <typename T>
-inline bool _ts_isEmpty(const T &str) noexcept
-{
-	return details::_ts_isEmpty(str);
-}
-
-// Finds a string or character within a string & returns a pointer to it.
-template <typename T>
-inline const TCHAR *_ts_find(const TCHAR *const str, T srch)
-{
-	return details::_ts_find(str, srch);
-}
-
-template <typename T>
-inline TCHAR *_ts_find(TCHAR *const str, T srch)
-{
-	return const_cast<TCHAR *>(details::_ts_find(str, srch));
-}
-
-template <typename T>
-T *_ts_strcpyn(T *const sDest, const T *const sSrc, const size_t iChars) noexcept
-{
-	static_assert(std::is_same<T, char>::value || std::is_same<T, wchar_t>::value, "Only char & wchar_t supported...");
-
-	if ((sDest == nullptr) || (sSrc == nullptr))
-		return nullptr;
-
-	return details::_impl_strcpyn<T>()(sDest, sSrc, iChars);
-}
-
-template <typename T>
-T *_ts_strncat(T *const sDest, const T *const sSrc, const size_t iChars) noexcept
-{
-	static_assert(std::is_same<T, char>::value || std::is_same<T, wchar_t>::value, "Only char & wchar_t supported...");
-
-	return details::_impl_strncat<T>()(sDest, sSrc, iChars);
-}
-
-template <typename T>
-int _ts_strncmp(const T *const sDest, const T *const sSrc, const size_t iChars) noexcept
-{
-	static_assert(std::is_same<T, char>::value || std::is_same<T, wchar_t>::value, "Only char & wchar_t supported...");
-
-	return details::_impl_strncmp<T>()(sDest, sSrc, iChars);
-}
-
-template <typename T>
-int _ts_strcmp(const T *const sDest, const T *const sSrc) noexcept
-{
-	static_assert(std::is_same<T, char>::value || std::is_same<T, wchar_t>::value, "Only char & wchar_t supported...");
-
-	return details::_impl_strcmp<T>()(sDest, sSrc);
-}
 
 //#pragma comment(lib,"tstring.lib")
 

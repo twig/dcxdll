@@ -29,7 +29,7 @@ http://symbiancorner.blogspot.com/2007/05/how-to-detect-version-of-ms-visual.htm
 #define _DEFINES_H_
 
 // VS2015+ only
-#if _MSC_VER < 1900
+#if !defined(_MSC_VER) || _MSC_VER < 1900
 #error "This version of DCX needs Visual Studio 2015 or newer"
 #endif
 
@@ -51,6 +51,7 @@ http://symbiancorner.blogspot.com/2007/05/how-to-detect-version-of-ms-visual.htm
 #pragma warning( disable : 4100 ) // unreferenced formal parameter
 #pragma warning( disable : 4530 )
 #pragma warning( disable : 4995 ) // name was marked as #pragma deprecated
+#pragma warning( disable : 4820 ) // 'x' bytes padding added after data member '....'
 #define _INTEL_DLL_ __declspec(dllexport)
 #endif
 
@@ -148,7 +149,7 @@ http://symbiancorner.blogspot.com/2007/05/how-to-detect-version-of-ms-visual.htm
 
 #define _CRT_RAND_S 1
 
-// Includes created svn build info header...
+// Includes created git build info header...
 #include "gitBuild.h"
 
 // --------------------------------------------------
@@ -196,9 +197,11 @@ http://symbiancorner.blogspot.com/2007/05/how-to-detect-version-of-ms-visual.htm
 #define OEMRESOURCE
 //#define NOMINMAX
 
-//#include <vld.h>
+#pragma warning(push)
+#pragma warning(disable: 4668)	//is not defined as a preprocessor macro, replacing with '0' for '#if/#elif'
 #include <windows.h>
 #include <windowsx.h>
+#pragma warning(pop)
 #include <vector>
 #include <map>
 #include <unordered_map>
@@ -228,8 +231,12 @@ http://symbiancorner.blogspot.com/2007/05/how-to-detect-version-of-ms-visual.htm
 #ifdef DCX_USE_GDIPLUS
 // VS 2015 generates C4458 errors in GDI+ includes
 //c:\program files\windows kits\10\include\10.0.10240.0\um\GdiplusHeaders.h(701): warning C4458: declaration of 'nativeCap' hides class member
+// VS 2015 generates C4365 errors in GDI+ includes
+//c:\program files(x86)\windows kits\10\include\10.0.14393.0\um\GdiplusBitmap.h(1008) : warning C4365 : 'initializing' : conversion from 'INT' to 'unsigned int', signed / unsigned mismatch
+
 #pragma warning(push)
 #pragma warning(disable: 4458)
+#pragma warning(disable: 4365)
 #include <gdiplus.h>
 #pragma warning(pop)
 //using namespace Gdiplus;
@@ -253,7 +260,7 @@ http://symbiancorner.blogspot.com/2007/05/how-to-detect-version-of-ms-visual.htm
 #undef max
 #undef min
 #define GSL_THROW_ON_CONTRACT_VIOLATION 1
-#include "GSL\gsl\gsl"
+#include "GSL\gsl"
 //#pragma pop_macro("max")
 
 #include "AutoRelease.h"
@@ -374,7 +381,7 @@ enum CLATypes: UINT {
 	LAYOUTFILL	= 0x02,  //!< Layout Cell Fill Type
 	LAYOUTPANE	= 0x04,  //!< Layout Cell Pane Type
 	LAYOUTID	= 0x08,  //!< Layout Control ID is Valid
-	LAYOUTDIM	= 0x10,  //!< Layout Control Dimensions are Valid (Only works with LayoutCallFixed)
+	LAYOUTDIM	= 0x10,  //!< Layout Control Dimensions are Valid (Only works with LayoutCellFixed)
 	LAYOUTVERT	= 0x20,  //!< Layout Cell Vertical Style (LayoutCellPane and LayoutCellFixed)
 	LAYOUTHORZ	= 0x40  //!< Layout Cell Horizontal Style (LayoutCellPane and LayoutCellFixed)
 };
@@ -423,7 +430,7 @@ using LPMYDCXWINDOW = MYDCXWINDOW *;
 #define mIRC(x) _INTEL_DLL_ int WINAPI x(HWND mWnd, HWND aWnd, TCHAR * data, TCHAR * parms, BOOL, BOOL)
 
 // Return String DLL Alias (data is limited to MIRC_BUFFER_SIZE_CCH)
-#define ret(x) { if (lstrcpyn(data, (x), MIRC_BUFFER_SIZE_CCH) == nullptr) data[0] = 0; return 3; }
+#define ret(x) { if (ts_strcpyn(data, (x), MIRC_BUFFER_SIZE_CCH) == nullptr) data[0] = 0; return 3; }
 
 #define PACKVERSION(major,minor) MAKELONG(minor,major)
 
@@ -447,9 +454,9 @@ using LPSIGNALSWITCH = SIGNALSWITCH *;
 using VectorOfInts = std::vector<int>; //<! Vector of int
 
 // UNICODE/ANSI wrappers
-#define dcx_atoi(x) _wtoi(x)
-#define dcx_atoi64(x) _wtoi64(x)
-#define dcx_atof(x) _wtof(x)
+#define dcx_atoi(x) ts_atoi(x)
+#define dcx_atoi64(x) ts_atoi64(x)
+#define dcx_atof(x) ts_atof(x)
 #define dcx_fopen(x,y) _wfopen(x,y)
 #define dcx_strstr(x,y) ts_strstr((x),(y))
 #define dcx_strncmp(x,y,z) ts_strncmp((x),(y),(z))
@@ -457,7 +464,8 @@ using VectorOfInts = std::vector<int>; //<! Vector of int
 
 //#define dcx_strcpyn(x, y, z) { if (lstrcpyn((x), (y), static_cast<int>((z))) == nullptr) (x)[0] = 0; }
 
-inline void dcx_strcpyn(TCHAR *const sDest, const TCHAR *sSrc, const int &iSize) { if (ts_strcpyn(sDest, sSrc, iSize) == nullptr) sDest[0] = 0; }
+template <typename T>
+inline void dcx_strcpyn(TCHAR *const sDest, const TCHAR *sSrc, const T &iSize) { if (ts_strcpyn(sDest, sSrc, iSize) == nullptr) sDest[0] = 0; }
 
 constexpr const TCHAR *const dcx_truefalse(const bool &x) noexcept { return (x) ? TEXT("$true") : TEXT("$false"); }
 
@@ -512,7 +520,7 @@ gsl::owner<LPITEMIDLIST> GetFolderFromCSIDL(const int nCsidl);
 HWND GetHwndFromString(const TString &str);
 //HWND GetHwndFromString(gsl::not_null<const TCHAR *> str);
 HWND FindOwner(const TString & data, const gsl::not_null<HWND> &defaultWnd);
-BOOL CopyToClipboard(const HWND owner, const TString & str);
+bool CopyToClipboard(const HWND owner, const TString & str);
 HBITMAP dcxLoadBitmap(HBITMAP dest, TString &filename);
 HICON dcxLoadIcon(const int index, TString &filename, const bool large, const TString &flags);
 HICON CreateGrayscaleIcon(HICON hIcon);
@@ -543,6 +551,7 @@ const char *queryAttribute(gsl::not_null<const TiXmlElement *> element, gsl::not
 int queryIntAttribute(gsl::not_null<const TiXmlElement *> element, gsl::not_null<const char *> attribute, const int defaultValue = 0);
 void getmIRCPalette();
 void getmIRCPalette(COLORREF *const Palette, const UINT PaletteItems);
+int unfoldColor(const WCHAR *color);
 
 // UltraDock
 void RemStyles(const gsl::not_null<HWND> &hwnd,int parm,long RemStyles);
