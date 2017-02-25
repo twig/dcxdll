@@ -496,7 +496,7 @@ namespace Dcx {
 	//			//TCHAR res[40];
 	//			//pTmp->evalAliasEx(res, countof(res), TEXT("isverbose,0"));
 	//			//
-	//			//if (lstrcmp(res, TEXT("$false")) == 0)
+	//			//if (ts_strcmp(res, TEXT("$false")) == 0)
 	//			//	pTmp->SetVerbose(false);
 	//
 	//			//if (pTmp->evalAliasEx(nullptr, 0, TEXT("isverbose,0")))

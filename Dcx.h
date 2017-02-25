@@ -68,19 +68,21 @@ namespace Dcx
 	HCURSOR dcxLoadCursorFromFile(const TString &filename);
 	HCURSOR dcxLoadCursorFromResource(const PTCHAR CursorType);
 
-	// determine whether _Ty is a Number type (excluding char / wchar)
-	template<class _Ty>
-	struct is_Numeric
-		: std::integral_constant<bool,
-			std::is_arithmetic_v<_Ty>
-			&& !std::is_same_v<_Ty, wchar_t>
-			&& !std::is_same_v<_Ty, char>
-			&& !std::is_pointer_v<_Ty>
-		>
-	{	// determine whether _Ty is a Number type (excluding char / wchar)
-	};
-	template <typename T>
-	constexpr bool is_Numeric_v = is_Numeric<T>::value;
+	//// determine whether _Ty is a Number type (excluding char / wchar)
+	//template<class _Ty>
+	//struct is_Numeric
+	//	: std::integral_constant<bool,
+	//		std::is_arithmetic_v<_Ty>
+	//		&& !std::is_same_v<_Ty, wchar_t>
+	//		&& !std::is_same_v<_Ty, char>
+	//		&& !std::is_pointer_v<_Ty>
+	//	>
+	//{	// determine whether _Ty is a Number type (excluding char / wchar)
+	//};
+
+	//// determine whether T is a Number type (excluding char / wchar) & get the value
+	//template <typename T>
+	//constexpr bool is_Numeric_v = is_Numeric<T>::value;
 
 	// make_resource() function by Eric Scott Barr (http://ericscottbarr.com/blog/2014/04/c-plus-plus-14-and-sdl2-managing-resources/)
 
@@ -138,8 +140,8 @@ namespace Dcx
 	// so we static_cast it later on
 	template <typename Unique, typename BaseType = Unique::pointer>
 	struct dcxResource {
-		dcxResource() = delete;									// no default!
-		dcxResource(const dcxResource<Unique,BaseType> &) = delete;				// no copy!
+		dcxResource() = delete;																		// no default!
+		dcxResource(const dcxResource<Unique,BaseType> &) = delete;									// no copy!
 		dcxResource<Unique, BaseType> &operator =(const dcxResource<Unique, BaseType> &) = delete;	// No assignments!
 
 		using pointer = typename Unique::pointer;
@@ -160,7 +162,7 @@ namespace Dcx
 
 	struct dcxFileResource : dcxResource < dcxFile_t >
 	{
-		dcxFileResource() = delete;									// no default!
+		dcxFileResource() = delete;										// no default!
 		dcxFileResource(const dcxFileResource &) = delete;				// no copy!
 		dcxFileResource &operator =(const dcxFileResource &) = delete;	// No assignments!
 
@@ -169,11 +171,17 @@ namespace Dcx
 			: dcxResource(make_file(tsFilename, tsMode))
 		{
 		}
+
+		// calls _wfopen()
+		dcxFileResource(const TString &tsFilename, const WCHAR *tsMode)
+			: dcxResource(make_file(tsFilename.to_wchr(), tsMode))
+		{
+		}
 	};
 
 	struct dcxFileHandleResource : dcxResource < dcxHandle_t >
 	{
-		dcxFileHandleResource() = delete;									// no default!
+		dcxFileHandleResource() = delete;											// no default!
 		dcxFileHandleResource(const dcxFileHandleResource &) = delete;				// no copy!
 		dcxFileHandleResource &operator =(const dcxFileHandleResource &) = delete;	// No assignments!
 
@@ -186,7 +194,7 @@ namespace Dcx
 
 	struct dcxStringResource : dcxResource < std::unique_ptr<TCHAR[]> >
 	{
-		dcxStringResource() = delete;									// no default!
+		dcxStringResource() = delete;										// no default!
 		dcxStringResource(const dcxStringResource &) = delete;				// no copy!
 		dcxStringResource &operator =(const dcxStringResource &) = delete;	// No assignments!
 
@@ -198,6 +206,10 @@ namespace Dcx
 
 	struct dcxBSTRResource : dcxResource < dcxBSTR_t >
 	{
+		dcxBSTRResource() = delete;										// no default!
+		dcxBSTRResource(const dcxBSTRResource &) = delete;				// no copy!
+		dcxBSTRResource &operator =(const dcxBSTRResource &) = delete;	// No assignments!
+
 		dcxBSTRResource(const WCHAR *const wstr)
 			: dcxResource(make_bstr(wstr))
 		{}
@@ -205,6 +217,10 @@ namespace Dcx
 
 	struct dcxCursorResource : dcxResource < dcxCursor_t >
 	{
+		dcxCursorResource() = delete;										// no default!
+		dcxCursorResource(const dcxCursorResource &) = delete;				// no copy!
+		dcxCursorResource &operator =(const dcxCursorResource &) = delete;	// No assignments!
+
 		// calls dcxLoadCursorFromFile()
 		explicit dcxCursorResource(const TString &tsFilename)
 			: dcxResource(make_cursor(tsFilename))
@@ -219,6 +235,10 @@ namespace Dcx
 
 	struct dcxIconResource : dcxResource < dcxIcon_t >
 	{
+		dcxIconResource() = delete;										// no default!
+		dcxIconResource(const dcxIconResource &) = delete;				// no copy!
+		dcxIconResource &operator =(const dcxIconResource &) = delete;	// No assignments!
+
 		// calls dcxLoadIcon()
 		dcxIconResource(const int index, TString &filename, const bool large, const TString &flags)
 			: dcxResource(make_icon(index, filename, large, flags))
@@ -241,6 +261,10 @@ namespace Dcx
 
 	struct dcxHDCResource : dcxResource < dcxHDC_t >
 	{
+		dcxHDCResource() = delete;										// no default!
+		dcxHDCResource(const dcxHDCResource &) = delete;				// no copy!
+		dcxHDCResource &operator =(const dcxHDCResource &) = delete;	// No assignments!
+
 		// calls CreateCompatibleDC()
 		explicit dcxHDCResource(HDC hdc)
 			: dcxResource(make_hdc(hdc))
@@ -273,6 +297,10 @@ namespace Dcx
 	// oldbitmap is saved & selected back into the hdc on destruction.
 	struct dcxHDCBitmapResource : dcxHDCResource
 	{
+		dcxHDCBitmapResource() = delete;											// no default!
+		dcxHDCBitmapResource(const dcxHDCBitmapResource &) = delete;				// no copy!
+		dcxHDCBitmapResource &operator =(const dcxHDCBitmapResource &) = delete;	// No assignments!
+
 		//calls CreateCompatibleDC() then SelectBitmap()
 		dcxHDCBitmapResource(HDC hdc, HBITMAP hBitmap)
 			: dcxHDCResource(hdc)
@@ -292,6 +320,10 @@ namespace Dcx
 
 	struct dcxBitmapResource : dcxResource < dcxBitmap_t >
 	{
+		dcxBitmapResource() = delete;										// no default!
+		dcxBitmapResource(const dcxBitmapResource &) = delete;				// no copy!
+		dcxBitmapResource &operator =(const dcxBitmapResource &) = delete;	// No assignments!
+
 		// calls CreateCompatibleBitmap()
 		dcxBitmapResource(HDC hdc, int w, int h)
 			: dcxResource(make_bitmap(hdc, w, h))
@@ -314,6 +346,10 @@ namespace Dcx
 	struct dcxHDCBitmap2Resource
 		: dcxHDCResource
 	{
+		dcxHDCBitmap2Resource() = delete;											// no default!
+		dcxHDCBitmap2Resource(const dcxHDCBitmap2Resource &) = delete;				// no copy!
+		dcxHDCBitmap2Resource &operator =(const dcxHDCBitmap2Resource &) = delete;	// No assignments!
+
 		//calls CreateCompatibleDC() then CreateCompatibleBitmap(), then SelectBitmap()
 		dcxHDCBitmap2Resource(HDC hdc, const int &w, const int &h)
 			: dcxHDCResource(hdc)
@@ -599,10 +635,10 @@ namespace Dcx
 	//{
 	//	struct iter
 	//	{
-	//		T operator * ()const noexcept { return n; }
-	//		iter& operator ++()noexcept { ++n; return *this; }
+	//		T operator * () const noexcept { return n; }
+	//		iter& operator ++() noexcept { ++n; return *this; }
 	//		friend
-	//			bool operator != (iter const& lhs, iter const& rhs)noexcept
+	//			bool operator != (iter const& lhs, iter const& rhs) noexcept
 	//		{
 	//			return lhs.n != rhs.n;
 	//		}
@@ -610,11 +646,33 @@ namespace Dcx
 	//		T n;
 	//	};
 	//
-	//	iter begin()const noexcept { return{ b }; }
+	//	iter begin() const noexcept { return{ b }; }
 	//	iter end() const noexcept { return{ e }; }
 	//	T b, e;
 	//};
 	//template< typename T > range_t<T>  range(T b, T e) { return{ b, e }; }
+
+	template <typename T>
+	struct dcxNumber {
+
+		constexpr operator std::make_unsigned_t<T>() const noexcept { return static_cast<std::make_unsigned_t<T>>(m_nValue); }
+		constexpr operator std::make_signed_t<T>() const noexcept { return static_cast<std::make_signed_t<T>>(m_nValue); }
+		constexpr explicit operator bool() const noexcept { return (m_nValue != T()); }
+		T &operator =(const std::make_unsigned_t<T> &other)
+		{
+			m_nValue = T(other);
+			return m_nValue;
+		}
+		T &operator =(const std::make_signed_t<T> &other)
+		{
+			m_nValue = T(other);
+			return m_nValue;
+		}
+		bool operator ==(const std::make_unsigned_t<T> &other) { return m_nValue == T(other); }
+		bool operator ==(const std::make_signed_t<T> &other) { return m_nValue == T(other); }
+
+		T m_nValue;
+	};
 
 	void setupOSCompatibility(void);
 	void freeOSCompatibility(void);
