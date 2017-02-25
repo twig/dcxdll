@@ -257,7 +257,7 @@ const bool DcxTrayIcon::modifyIcon(const int id, const DWORD msg, const HICON ic
 	NOTIFYICONDATA nid;
 	ZeroMemory(&nid, sizeof(NOTIFYICONDATA));
 
-	nid.uID = id;
+	nid.uID = static_cast<UINT>(id);
 	nid.uFlags = NIF_MESSAGE;
 	nid.cbSize = sizeof(NOTIFYICONDATA);
 	nid.hWnd = GetHwnd();
@@ -265,7 +265,7 @@ const bool DcxTrayIcon::modifyIcon(const int id, const DWORD msg, const HICON ic
 
 	if (tooltip != nullptr && !tooltip->empty()) {
 		nid.uFlags |= NIF_TIP;
-		dcx_strcpyn(nid.szTip, tooltip->to_chr(), 128); // 128 max
+		dcx_strcpyn(nid.szTip, tooltip->to_chr(), Dcx::countof(nid.szTip)); // 128 max
 	}
 
 	if (icon != nullptr) {

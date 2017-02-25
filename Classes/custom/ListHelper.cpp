@@ -30,24 +30,12 @@ std::pair<int, int> DcxListHelper::getItemRange(const TString &tsItems, const in
 
 bool DcxListHelper::matchItemText(const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &sItemText, const TString &search, const DcxSearchTypes &SearchType)
 {
-	//switch (SearchType)
-	//{
-	//case DcxSearchTypes::SEARCH_R:	// regex match
-	//	return isRegexMatch(sItemText, search.to_chr());
-	//case DcxSearchTypes::SEARCH_W:	// wildcard match
-	//	return TString(sItemText).iswm(search);
-	//case DcxSearchTypes::SEARCH_E:   // exact match
-	//	return (lstrcmp(sItemText, search.to_chr()) == 0);
-	//default:
-	//	return false;
-	//}
-
 	switch (SearchType)
 	{
 	case DcxSearchTypes::SEARCH_R:	// regex match
 		return isRegexMatch(sItemText, search.to_chr());
 	case DcxSearchTypes::SEARCH_W:	// wildcard match
-		return TString(static_cast<TCHAR *>(sItemText)).iswm(search);
+		return TString(sItemText.data()).iswm(search);
 	case DcxSearchTypes::SEARCH_E:   // exact match
 		return sItemText == search.to_chr();
 	default:

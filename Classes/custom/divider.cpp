@@ -205,9 +205,9 @@ LRESULT CALLBACK DividerWndProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 
 		const UINT iPos = static_cast<UINT>(lParam);
 
-		UINT width = rc.bottom - rc.top;
+		UINT width = static_cast<UINT>(rc.bottom - rc.top);
 		if (dcx_testflag(GetWindowStyle(mHwnd), DVS_VERT))
-			width = rc.right - rc.left;
+			width = static_cast<UINT>(rc.right - rc.left);
 
 		if ((iPos >= lpdvdata->m_Panes[0].cxMin) && (iPos <= (width - lpdvdata->m_Panes[1].cxMin))) {
 			lpdvdata->m_iBarPos = iPos;
@@ -223,7 +223,7 @@ LRESULT CALLBACK DividerWndProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 	{
 		LPDVCONTROLDATA lpdvdata = (LPDVCONTROLDATA)GetProp(mHwnd, TEXT("dvc_data"));
 
-		*((LPINT)lParam) = (lpdvdata->m_bDragging ? lpdvdata->m_iOldPos : lpdvdata->m_iBarPos);
+		*((LPINT)lParam) = (lpdvdata->m_bDragging ? lpdvdata->m_iOldPos : static_cast<int>(lpdvdata->m_iBarPos));
 		return 0L;
 		//break;
 	}
@@ -240,7 +240,7 @@ LRESULT CALLBACK DividerWndProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 			NMDIVIDER nmdv;
 			ZeroMemory(&nmdv, sizeof(NMDIVIDER));
 			nmdv.hdr.hwndFrom = mHwnd;
-			nmdv.hdr.idFrom = GetWindowLong(mHwnd, GWL_ID);
+			nmdv.hdr.idFrom = static_cast<UINT>(GetWindowLong(mHwnd, GWL_ID)); //GetWindowID()
 			nmdv.hdr.code = DVN_DELETEDPANE;
 			nmdv.fMask = DVNM_LPARAM | DVNM_PANEID;
 
@@ -281,14 +281,14 @@ void Divider_SizeWindowContents( HWND mHwnd, int nWidth, int nHeight ) {
 	LPDVCONTROLDATA lpdvdata = (LPDVCONTROLDATA) GetProp( mHwnd, TEXT("dvc_data") );
 
 	if ( dcx_testflag(GetWindowStyle( mHwnd ), DVS_VERT) ) {
-		MoveWindow( lpdvdata->m_Panes[0].hChild, 0, 0, lpdvdata->m_iBarPos, nHeight, TRUE );
-		MoveWindow( lpdvdata->m_Panes[1].hChild, lpdvdata->m_iBarPos + lpdvdata->m_iLineWidth, 0, 
-		  nWidth - lpdvdata->m_iBarPos - lpdvdata->m_iLineWidth, nHeight, TRUE );
+		MoveWindow( lpdvdata->m_Panes[0].hChild, 0, 0, static_cast<int>(lpdvdata->m_iBarPos), nHeight, TRUE );
+		MoveWindow( lpdvdata->m_Panes[1].hChild, static_cast<int>(lpdvdata->m_iBarPos + lpdvdata->m_iLineWidth), 0,
+			static_cast<int>(nWidth - lpdvdata->m_iBarPos - lpdvdata->m_iLineWidth), nHeight, TRUE );
 	}
 	else {
-		MoveWindow( lpdvdata->m_Panes[0].hChild, 0, 0, nWidth, lpdvdata->m_iBarPos, TRUE );
-		MoveWindow( lpdvdata->m_Panes[1].hChild, 0, lpdvdata->m_iBarPos + lpdvdata->m_iLineWidth, 
-		  nWidth, nHeight - lpdvdata->m_iBarPos - lpdvdata->m_iLineWidth, TRUE );
+		MoveWindow( lpdvdata->m_Panes[0].hChild, 0, 0, nWidth, static_cast<int>(lpdvdata->m_iBarPos), TRUE );
+		MoveWindow( lpdvdata->m_Panes[1].hChild, 0, static_cast<int>(lpdvdata->m_iBarPos + lpdvdata->m_iLineWidth),
+		  nWidth, static_cast<int>(nHeight - lpdvdata->m_iBarPos - lpdvdata->m_iLineWidth), TRUE );
 	}
 }
 
@@ -477,9 +477,9 @@ LRESULT Divider_OnLButtonUp(HWND mHwnd, const UINT iMsg, WPARAM wParam, LPARAM l
 		if (GetClientRect(mHwnd, &rect))
 		{
 			if (dcx_testflag(GetWindowStyle(mHwnd), DVS_VERT))
-				lpdvdata->m_iBarPos = pt.x;
+				lpdvdata->m_iBarPos = static_cast<UINT>(pt.x);
 			else
-				lpdvdata->m_iBarPos = pt.y;
+				lpdvdata->m_iBarPos = static_cast<UINT>(pt.y);
 
 			//position the child controls
 			Divider_SizeWindowContents(mHwnd, rect.right, rect.bottom);

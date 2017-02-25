@@ -33,7 +33,7 @@ public:
 	DcxDialogCollection(const DcxDialogCollection &) = delete;
 	DcxDialogCollection &operator =(const DcxDialogCollection &) = delete;	// No assignments!
 
-	DcxDialogCollection( ) = default;
+	DcxDialogCollection() : m_closeall(false), m_vpDialog() {}
 	~DcxDialogCollection( ) = default;
 
 	void markDialog(const HWND mHwnd, const TString & tsName, const TString & tsAliasName);

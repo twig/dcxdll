@@ -118,6 +118,9 @@ bool CRichEditThemed::InitLibrary()
 			return false;
 	}
 
+#pragma warning(push)
+#pragma warning(disable: 4191)
+
 	pOpenThemeData = (HTHEME (WINAPI *)(HWND, LPCWSTR))GetProcAddress(m_hUxTheme, "OpenThemeData");
 	pCloseThemeData = (HRESULT (WINAPI *)(HTHEME))GetProcAddress(m_hUxTheme, "CloseThemeData");
 	pDrawThemeBackground = (HRESULT (WINAPI *)(HTHEME, HDC, int, int, const RECT*, const RECT *))GetProcAddress(m_hUxTheme, "DrawThemeBackground");
@@ -125,6 +128,8 @@ bool CRichEditThemed::InitLibrary()
 	pIsThemeActive = (BOOL (WINAPI *)())GetProcAddress(m_hUxTheme, "IsThemeActive");
 	pDrawThemeParentBackground = (HRESULT (WINAPI *)(HWND, HDC, RECT*))GetProcAddress(m_hUxTheme, "DrawThemeParentBackground");
 	pIsThemeBackgroundPartiallyTransparent = (BOOL (WINAPI *)(HTHEME, int, int))GetProcAddress(m_hUxTheme, "IsThemeBackgroundPartiallyTransparent");
+
+#pragma warning(pop)
 
 	return (pOpenThemeData && pCloseThemeData && pDrawThemeBackground && pGetThemeBackgroundContentRect && pIsThemeActive && pDrawThemeParentBackground && pIsThemeBackgroundPartiallyTransparent);
 }
@@ -209,18 +214,21 @@ void CRichEditThemed::VerifyThemedBorderState()
 	bool bCurrentThemedBorder = m_bThemedBorder;
 	m_bThemedBorder = false;
 
+	auto dStyle = GetWindowStyle(m_hRichEdit);
+	auto dExStyle = GetWindowExStyle(m_hRichEdit);
+
 	//First, check if the control is supposed to have a border
-	if(bCurrentThemedBorder || (GetWindowStyle(m_hRichEdit) & WS_BORDER || GetWindowExStyle(m_hRichEdit) & WS_EX_CLIENTEDGE))
+	if(bCurrentThemedBorder || (dStyle & WS_BORDER || dExStyle & WS_EX_CLIENTEDGE))
 	{
 		//Check if a theme is presently active
 		if(pIsThemeActive())
 		{
 			//Remove the border style, we don't want the control to draw its own border
 			m_bThemedBorder = true;
-			if(GetWindowStyle(m_hRichEdit) & WS_BORDER)
-				SetWindowLong(m_hRichEdit, GWL_STYLE, GetWindowStyle(m_hRichEdit)^WS_BORDER);
-			if(GetWindowExStyle(m_hRichEdit) & WS_EX_CLIENTEDGE)
-				SetWindowLong(m_hRichEdit, GWL_EXSTYLE, GetWindowExStyle(m_hRichEdit)^WS_EX_CLIENTEDGE);
+			if(dStyle & WS_BORDER)
+				SetWindowLong(m_hRichEdit, GWL_STYLE, static_cast<long>(dStyle ^WS_BORDER));
+			if(dExStyle & WS_EX_CLIENTEDGE)
+				SetWindowLong(m_hRichEdit, GWL_EXSTYLE, static_cast<long>(dExStyle ^WS_EX_CLIENTEDGE));
 		}
 	}
 
