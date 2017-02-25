@@ -244,14 +244,14 @@ mIRC(xtreebar) {
 				}
 				break;
 				default: // unknown style ignore.
-					throw Dcx::dcxException(TEXT("Unknown Style: %"), input.gettok(i));
+					throw Dcx::dcxException(TEXT("Unknown Style: %"), input.gettok(static_cast<int>(i)));
 				}
 			}
-			SetWindowLongPtr(mIRCLinker::getTreeview(), GWL_STYLE, stylef);
-			SetWindowLongPtr(mIRCLinker::getTreeview(), GWL_EXSTYLE, exstylef);
+			SetWindowLongPtr(mIRCLinker::getTreeview(), GWL_STYLE, static_cast<LONG>(stylef));
+			SetWindowLongPtr(mIRCLinker::getTreeview(), GWL_EXSTYLE, static_cast<LONG>(exstylef));
 
 			if (Dcx::VistaModule.isUseable())
-				TreeView_SetExtendedStyle(mIRCLinker::getTreeview(), tvexstylef, tvexstylemask);
+				TreeView_SetExtendedStyle(mIRCLinker::getTreeview(), static_cast<LPARAM>(tvexstylef), static_cast<WPARAM>(tvexstylemask));
 
 			SetWindowPos(mIRCLinker::getTreeview(), nullptr, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
 		}

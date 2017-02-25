@@ -563,7 +563,7 @@ LRESULT CALLBACK DcxDock::mIRCRefWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, L
 //	TCHAR *buf = (TCHAR *)lParam;
 //	title[0] = 0;
 //	GetWindowText(hwnd, title, 255);
-//	if (lstrcmp(buf, title) == 0) {
+//	if (ts_strcmp(buf, title) == 0) {
 //		mIRCDebug(TEXT("match: %ld : %s"), hwnd, title);
 //		return FALSE;
 //	}
