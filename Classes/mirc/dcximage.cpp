@@ -30,7 +30,6 @@
 
 DcxImage::DcxImage(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles)
 	: DcxControl(ID, p_Dialog)
-	, m_bIsIcon(false)
 #ifdef DCX_USE_GDIPLUS
 	, m_pImage(nullptr)
 	, m_CMode(Gdiplus::CompositingModeSourceCopy)
@@ -38,24 +37,26 @@ DcxImage::DcxImage(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentH
 	, m_IMode(Gdiplus::InterpolationModeDefault)
 	, m_SMode(Gdiplus::SmoothingModeDefault)
 #endif
-	, m_bResizeImage(true)
-	, m_bTileImage(false)
 	, m_hBitmap(nullptr)
 	, m_clrTransColor(CLR_INVALID)
 	, m_hIcon(nullptr)
+	, m_bIsIcon(false)
+	, m_bResizeImage(true)
+	, m_bTileImage(false)
 	, m_bBuffer(false)
 	, m_iXOffset(0)
 	, m_iYOffset(0)
+	, m_iIconSize(DcxIconSizes::SmallIcon)
 {
 	LONG Styles = 0, ExStyles = 0;
 	BOOL bNoTheme = FALSE;
 	this->parseControlStyles(styles, &Styles, &ExStyles, &bNoTheme);
 
 	m_Hwnd = CreateWindowEx(
-		(DWORD)ExStyles,
+		static_cast<DWORD>(ExStyles),
 		TEXT("STATIC"),
 		nullptr,
-		(DWORD)(WS_CHILD | Styles),
+		WS_CHILD | static_cast<DWORD>(Styles),
 		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
 		mParentHwnd,
 		(HMENU)ID,
@@ -218,11 +219,12 @@ void DcxImage::parseCommandRequest( const TString & input) {
 
 		PreloadData();
 
-		this->m_hIcon = dcxLoadIcon(index, filename, (size > 16), flag);
+		this->m_iIconSize = NumToIconSize(size);
+
+		this->m_hIcon = dcxLoadIcon(index, filename, (m_iIconSize != DcxIconSizes::SmallIcon), flag);
 
 		this->m_tsFilename = filename;
 
-		this->m_iIconSize = size;
 		this->m_bIsIcon = true;
 
 		// resize window to size of icon
@@ -369,15 +371,21 @@ void DcxImage::DrawBMPImage(HDC hdc, const int x, const int y, const int w, cons
 void DcxImage::toXml(TiXmlElement *const xml) const
 {
 	__super::toXml(xml);
+
 	if (!this->m_tsFilename.empty())
 		xml->SetAttribute("src", m_tsFilename.c_str());
+	//xml->SetAttribute("styles", getStyles().c_str());
 }
 
 TiXmlElement * DcxImage::toXml() const
 {
-	auto ti = __super::toXml();
-	//toXml(ti);
-	return ti;
+	auto xml = __super::toXml();
+
+	if (!this->m_tsFilename.empty())
+		xml->SetAttribute("src", m_tsFilename.c_str());
+	//xml->SetAttribute("styles", getStyles().c_str());
+
+	return xml;
 }
 
 /*!
@@ -474,7 +482,7 @@ void DcxImage::DrawClientArea(HDC hdc)
 	}
 	// draw icon
 	else if ((m_hIcon != nullptr) && (m_bIsIcon))
-		DrawIconEx(hdc, 0, 0, m_hIcon, m_iIconSize, m_iIconSize, 0, m_hBackBrush, DI_NORMAL | DI_COMPAT);
+		DrawIconEx(hdc, 0, 0, m_hIcon, static_cast<int>(m_iIconSize), static_cast<int>(m_iIconSize), 0, m_hBackBrush, DI_NORMAL | DI_COMPAT);
 #ifdef DCX_USE_GDIPLUS
 	else if ((m_pImage != nullptr) && (Dcx::GDIModule.isUseable()))
 		DrawGDIImage(hdc, x, y, w, h);

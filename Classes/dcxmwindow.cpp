@@ -47,7 +47,7 @@ DcxMWindow::DcxMWindow(const HWND cHwnd, const HWND pHwnd, const UINT ID, DcxDia
 	ShowWindow(m_Hwnd, SW_SHOWNOACTIVATE);
 	UpdateWindow(m_Hwnd);
 
-	this->m_OrigID = SetWindowLong(m_Hwnd, GWL_ID, ID);
+	this->m_OrigID = static_cast<UINT>(SetWindowLong(m_Hwnd, GWL_ID, static_cast<LONG>(ID)));
 
 	this->registreDefaultWindowProc();
 	SetProp(m_Hwnd, TEXT("dcx_cthis"), (HANDLE) this);
@@ -71,7 +71,7 @@ DcxMWindow::~DcxMWindow( ) {
 	if ( !bHide )
 		ShowWindow( m_Hwnd, SW_HIDE );
 
-	SetWindowLong( m_Hwnd, GWL_ID, this->m_OrigID );
+	SetWindowLong( m_Hwnd, GWL_ID, static_cast<LONG>(this->m_OrigID ));
 	//SetParent( m_Hwnd, this->m_OrigParentHwnd );
 	//this->removeStyle(WS_CHILDWINDOW);
 	//SetParent( m_Hwnd, nullptr );

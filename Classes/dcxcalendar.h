@@ -50,6 +50,7 @@ public:
 	inline const DcxControlTypes getControlType() const noexcept override { return DcxControlTypes::CALENDAR; }
 
 	void toXml(TiXmlElement *const xml) const override;
+	TiXmlElement * toXml(void) const override;
 	const TString getStyles(void) const override;
 	const TString getValue(void) const;
 

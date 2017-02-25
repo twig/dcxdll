@@ -36,10 +36,10 @@ DcxStatusBar::DcxStatusBar(const UINT ID, DcxDialog *const p_Dialog, const HWND 
 	parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
 
 	m_Hwnd = CreateWindowEx(
-		ExStyles | WS_EX_CONTROLPARENT,
+		static_cast<DWORD>(ExStyles) | WS_EX_CONTROLPARENT,
 		DCX_STATUSBARCLASS,
 		nullptr,
-		WS_CHILD | Styles,
+		WS_CHILD | static_cast<DWORD>(Styles),
 		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
 		mParentHwnd,
 		(HMENU) ID,
@@ -55,8 +55,9 @@ DcxStatusBar::DcxStatusBar(const UINT ID, DcxDialog *const p_Dialog, const HWND 
 	ZeroMemory(m_iDynamicParts, sizeof(m_iDynamicParts));
 	ZeroMemory(m_iFixedParts, sizeof(m_iFixedParts));
 
-	if ((rc->bottom - rc->top) > 0)
-		SendMessage(m_Hwnd,SB_SETMINHEIGHT,rc->bottom - rc->top,0);
+	const auto h = rc->bottom - rc->top;
+	if (h > 0)
+		SendMessage(m_Hwnd,SB_SETMINHEIGHT, static_cast<WPARAM>(h), 0);
 
 	setControlFont( GetStockFont( DEFAULT_GUI_FONT ), FALSE );
 	registreDefaultWindowProc( );
@@ -195,7 +196,7 @@ void DcxStatusBar::parseInfoRequest( const TString & input, const refString<TCHA
 		}
 		else {
 			const auto len = this->getTextLength(iPart);
-			auto text = std::make_unique<WCHAR[]>(len + 1);
+			auto text = std::make_unique<WCHAR[]>(len + 1U);
 			getText(iPart, text.get());
 			szReturnValue = text.get();
 		}
@@ -210,7 +211,7 @@ void DcxStatusBar::parseInfoRequest( const TString & input, const refString<TCHA
 
 		getParts(DCX_STATUSBAR_MAX_PARTS, parts.get());
 
-		TString tmp((UINT)(32 * nParts));
+		TString tmp((UINT)(32U * nParts));
 
 		for (auto i = decltype(nParts){0}; i < nParts; i++)
 			tmp.addtok(parts[i]);
@@ -604,6 +605,22 @@ void DcxStatusBar::cleanPartIcons( ) {
 
 	for (auto n = 0; n < DCX_STATUSBAR_MAX_PARTS; n++)
 		DestroyIcon( getIcon( n ) );
+}
+
+void DcxStatusBar::toXml(TiXmlElement *const xml) const
+{
+	__super::toXml(xml);
+
+	xml->SetAttribute("styles", getStyles().c_str());
+}
+
+TiXmlElement * DcxStatusBar::toXml(void) const
+{
+	auto xml = __super::toXml();
+
+	xml->SetAttribute("styles", getStyles().c_str());
+
+	return xml;
 }
 
 const TString DcxStatusBar::getStyles(void) const {

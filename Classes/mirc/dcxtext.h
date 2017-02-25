@@ -48,6 +48,10 @@ public:
 	inline const TString getType() const override { return TEXT("text"); };
 	inline const DcxControlTypes getControlType() const noexcept override { return DcxControlTypes::TEXT; }
 
+	void toXml(TiXmlElement *const xml) const override;
+	TiXmlElement * toXml(void) const override;
+	const TString getStyles(void) const override;
+
 //protected:
 private:
 	TString m_tsText;	// Edit Text

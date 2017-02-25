@@ -48,6 +48,7 @@ public:
 	inline const DcxControlTypes getControlType() const noexcept override { return DcxControlTypes::CHECK; }
 
 	void toXml(TiXmlElement *const xml) const override;
+	TiXmlElement * toXml(void) const override;
 	const TString getStyles(void) const override;
 
 protected:

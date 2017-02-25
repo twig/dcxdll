@@ -38,10 +38,10 @@ DcxLink::DcxLink(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwn
 	this->parseControlStyles(styles, &Styles, &ExStyles, &bNoTheme);
 
 	m_Hwnd = CreateWindowEx(
-		ExStyles,
+		static_cast<DWORD>(ExStyles),
 		TEXT("STATIC"),
 		nullptr,
-		WS_CHILD | Styles,
+		WS_CHILD | static_cast<DWORD>(Styles),
 		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
 		mParentHwnd,
 		(HMENU)ID,
@@ -92,9 +92,21 @@ DcxLink::~DcxLink( ) {
 void DcxLink::toXml(TiXmlElement *const xml) const
 {
 	__super::toXml(xml);
+
 	TString buf;
 	TGetWindowText( m_Hwnd, buf );
 	xml->SetAttribute("caption", buf.c_str());
+}
+
+TiXmlElement * DcxLink::toXml(void) const
+{
+	auto xml = __super::toXml();
+
+	TString buf;
+	TGetWindowText(m_Hwnd, buf);
+	xml->SetAttribute("caption", buf.c_str());
+
+	return xml;
 }
 
 /*!

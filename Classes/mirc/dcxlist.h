@@ -52,6 +52,9 @@ public:
 	inline const DcxControlTypes getControlType() const noexcept override { return DcxControlTypes::LIST; }
 
 	inline const UINT &getDragListId() const noexcept { return m_iDragList; };
+
+	void toXml(TiXmlElement *const xml) const override;
+	TiXmlElement * toXml(void) const override;
 	const TString getStyles(void) const override;
 
 protected:

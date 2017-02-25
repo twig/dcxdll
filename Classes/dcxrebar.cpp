@@ -38,10 +38,10 @@ DcxReBar::DcxReBar( const UINT ID, DcxDialog *const p_Dialog, const HWND mParent
 	this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
 
 	m_Hwnd = CreateWindowEx(
-		ExStyles | WS_EX_CONTROLPARENT,
+		static_cast<DWORD>(ExStyles) | WS_EX_CONTROLPARENT,
 		DCX_REBARCTRLCLASS,
 		nullptr,
-		WS_CHILD | Styles,
+		WS_CHILD | static_cast<DWORD>(Styles),
 		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
 		mParentHwnd,
 		(HMENU) ID,
@@ -119,6 +119,9 @@ const TString DcxReBar::getStyles(void) const
 
 void DcxReBar::toXml(TiXmlElement *const xml) const {
 	__super::toXml(xml);
+
+	xml->SetAttribute("styles", getStyles().c_str());
+
 	const auto count = this->getBandCount();
 	if (count > 0) {
 		for (auto i = decltype(count){0}; i < count; i++) {
@@ -132,6 +135,27 @@ void DcxReBar::toXml(TiXmlElement *const xml) const {
 	}
 }
 
+TiXmlElement * DcxReBar::toXml(void) const
+{
+	auto xml = __super::toXml();
+
+	xml->SetAttribute("styles", getStyles().c_str());
+
+	const auto count = this->getBandCount();
+	if (count > 0) {
+		for (auto i = decltype(count){0}; i < count; i++) {
+			const auto c = this->getControl(i);
+			if (c != nullptr) {
+				auto subs = new TiXmlElement("control");
+				c->toXml(subs);
+				xml->LinkEndChild(subs);
+			}
+		}
+	}
+
+	return xml;
+}
+
 DcxControl * DcxReBar::getControl(const int index) const {
 
     if ( index > -1 && index < this->getBandCount( ) ) {
@@ -141,7 +165,7 @@ DcxControl * DcxReBar::getControl(const int index) const {
       rbBand.cbSize = sizeof( REBARBANDINFO );
       rbBand.fMask = RBBIM_CHILD;
 
-      if ( this->getBandInfo( index, &rbBand ) != 0 )
+      if ( this->getBandInfo( static_cast<UINT>(index), &rbBand ) != 0 )
         return this->m_pParentDialog->getControlByHWND( rbBand.hwndChild );
 
     }
@@ -316,7 +340,7 @@ void DcxReBar::parseInfoRequest( const TString & input, const refString<TCHAR, M
 		rbBand.cch = MIRC_BUFFER_SIZE_CCH;
 		rbBand.lpText = szReturnValue;
 
-		getBandInfo(nIndex, &rbBand);
+		getBandInfo(static_cast<UINT>(nIndex), &rbBand);
 	}
 	break;
 	case L"childid"_hash:
@@ -347,7 +371,7 @@ void DcxReBar::parseInfoRequest( const TString & input, const refString<TCHAR, M
 		rbi.cbSize = sizeof(REBARBANDINFO);
 		rbi.fMask = RBBIM_LPARAM;
 
-		getBandInfo(n, &rbi);
+		getBandInfo(static_cast<UINT>(n), &rbi);
 
 		auto pdcxrbb = reinterpret_cast<LPDCXRBBAND>(rbi.lParam);
 
@@ -587,7 +611,7 @@ void DcxReBar::parseCommandRequest( const TString & input ) {
 		ZeroMemory(&rbi, sizeof(REBARBANDINFO));
 		rbi.cbSize = sizeof(REBARBANDINFO);
 		rbi.fMask = RBBIM_LPARAM;
-		this->getBandInfo(n, &rbi);
+		this->getBandInfo(static_cast<UINT>(n), &rbi);
 		auto pdcxrbb = reinterpret_cast<LPDCXRBBAND>(rbi.lParam);
 		pdcxrbb->tsMarkText = (numtok > 4 ? input.getlasttoks() : TEXT(""));	// tok 5, -1
 	}
@@ -599,7 +623,7 @@ void DcxReBar::parseCommandRequest( const TString & input ) {
 		if (nIndex < 0 || nIndex >= this->getBandCount())
 			throw Dcx::dcxException("Invalid Index");
 
-		this->deleteBand( nIndex );
+		this->deleteBand(static_cast<UINT>(nIndex) );
 	}
 	// xdid -i [NAME] [ID] [SWITCH] [N]
 	else if ( flags[TEXT('i')] && numtok > 3 ) {
@@ -609,7 +633,7 @@ void DcxReBar::parseCommandRequest( const TString & input ) {
 		if (nIndex < 0 || nIndex >= this->getBandCount())
 			throw Dcx::dcxException("Invalid Index");
 
-		this->showBand( nIndex, FALSE );
+		this->showBand(static_cast<UINT>(nIndex), FALSE );
 	}
 	// xdid -j [NAME] [ID] [SWITCH] [N]
 	else if ( flags[TEXT('j')] && numtok > 3 ) {
@@ -619,7 +643,7 @@ void DcxReBar::parseCommandRequest( const TString & input ) {
 		if (nIndex < 0 || nIndex >= this->getBandCount())
 			throw Dcx::dcxException("Invalid Index");
 
-		this->showBand( nIndex, TRUE );
+		this->showBand(static_cast<UINT>(nIndex), TRUE );
 	}
 	// xdid -k [NAME] [ID] [SWITCH] [N] [ICON]
 	else if ( flags[TEXT('k')] && numtok > 4 ) {
@@ -734,10 +758,10 @@ void DcxReBar::parseCommandRequest( const TString & input ) {
 
 			for (auto i = decltype(nItems){0}; i < nItems; i++)
 			{
-				if ( this->getBandInfo( i, &rbBand ) != 0 ) {
+				if ( this->getBandInfo(static_cast<UINT>(i), &rbBand ) != 0 ) {
 
 					rbBand.fStyle &= ~RBBS_NOGRIPPER;
-					this->setBandInfo( i, &rbBand );
+					this->setBandInfo(static_cast<UINT>(i), &rbBand );
 				}
 			}
 		}
@@ -745,11 +769,11 @@ void DcxReBar::parseCommandRequest( const TString & input ) {
 
 			const auto nIndex = tsItem.to_int() - 1;
 
-			if ( nIndex < 0 || nIndex >= nItems || this->getBandInfo( nIndex, &rbBand ) == 0 )
+			if ( nIndex < 0 || nIndex >= nItems || this->getBandInfo(static_cast<UINT>(nIndex), &rbBand ) == 0 )
 				throw Dcx::dcxException("Invalid Index");
 
 			rbBand.fStyle &= ~RBBS_NOGRIPPER;
-			this->setBandInfo( nIndex, &rbBand );
+			this->setBandInfo( static_cast<UINT>(nIndex), &rbBand );
 		}
 	}
 	// xdid -v [NAME] [ID] [SWITCH] [NFrom] [NTo]
@@ -762,7 +786,7 @@ void DcxReBar::parseCommandRequest( const TString & input ) {
 		if ( nIndexFrom < 0 || nIndexFrom >= nItems || nIndexTo < 0 || nIndexTo >= nItems )
 			throw Dcx::dcxException("Invalid Index");
 
-		this->moveBand( nIndexFrom, nIndexTo );
+		this->moveBand( static_cast<UINT>(nIndexFrom), static_cast<UINT>(nIndexTo) );
 	}
 	// xdid -w [NAME] [ID] [SWITCH] [+FLAGS] [INDEX] [FILENAME]
 	else if (flags[TEXT('w')] && numtok > 5) {
@@ -781,15 +805,16 @@ void DcxReBar::parseCommandRequest( const TString & input ) {
 
 		if (himl == nullptr)
 			throw Dcx::dcxException("Unable to get imagelist");
-
-		//HICON icon = dcxLoadIcon(index, filename, false, flag);
-		//
-		//if (icon != nullptr) {
-		//	ImageList_AddIcon(himl, icon);
-		//	DestroyIcon(icon);
-		//}
-
+#if DCX_USE_WRAPPERS
 		Dcx::dcxIconResource icon(index, filename, false, flag);
+#else
+		HICON icon = dcxLoadIcon(index, filename, false, flag);
+		
+		if (icon != nullptr) {
+			ImageList_AddIcon(himl, icon);
+			DestroyIcon(icon);
+		}
+#endif
 
 		ImageList_AddIcon(himl, icon);
 	}
@@ -810,7 +835,7 @@ void DcxReBar::parseCommandRequest( const TString & input ) {
 
 void DcxReBar::resetContents( ) {
 
-	auto nItems = this->getBandCount();
+	auto nItems = static_cast<UINT>(this->getBandCount());
 
 	while ( nItems-- )
 		this->deleteBand( nItems );
@@ -1077,8 +1102,8 @@ LRESULT DcxReBar::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 					RECT rc;
 					if (GetWindowRect(m_Hwnd, &rc))
 					{
-						const UINT width = rc.right - rc.left;
-						const UINT height = rc.bottom - rc.top;
+						const UINT width = static_cast<UINT>(rc.right - rc.left);
+						const UINT height = static_cast<UINT>(rc.bottom - rc.top);
 
 						if (m_iWidth != width || m_iHeight != height) {
 
@@ -1176,7 +1201,7 @@ LRESULT DcxReBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 
 	case WM_MEASUREITEM:
 		{
-			auto cHwnd = GetDlgItem(m_Hwnd, wParam);
+			auto cHwnd = GetDlgItem(m_Hwnd, static_cast<int>(wParam));
 			if (IsWindow(cHwnd)) {
 				auto c_this = reinterpret_cast<DcxControl *>(GetProp(cHwnd, TEXT("dcx_cthis")));
 				if (c_this != nullptr)

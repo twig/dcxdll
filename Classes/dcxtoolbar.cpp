@@ -33,6 +33,7 @@ DcxToolBar::DcxToolBar(const UINT ID, DcxDialog *const p_Dialog, const HWND mPar
 	, m_hItemFont(nullptr)
 	, m_hOldItemFont(nullptr)
 	, m_bOverrideTheme(false)
+	, m_bAutoStretch(false)
 {
 	//We need to divide ExStyles and tbExStyles here because the first is used for
 	//global transparent style and the second for arrows style
@@ -41,10 +42,10 @@ DcxToolBar::DcxToolBar(const UINT ID, DcxDialog *const p_Dialog, const HWND mPar
 	this->parseControlStyles(styles, &Styles, &ExStyles, &ExStylesTb, &bNoTheme);
 
 	m_Hwnd = CreateWindowEx(
-		ExStyles,
+		static_cast<DWORD>(ExStyles),
 		DCX_TOOLBARCLASS,
 		nullptr,
-		WS_CHILD | Styles,
+		WS_CHILD | static_cast<DWORD>(Styles),
 		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
 		mParentHwnd,
 		(HMENU)ID,
@@ -58,17 +59,16 @@ DcxToolBar::DcxToolBar(const UINT ID, DcxDialog *const p_Dialog, const HWND mPar
 		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
 
 	if (ExStylesTb != 0)
-		SendMessage(m_Hwnd, TB_SETEXTENDEDSTYLE, (WPARAM)0, (LPARAM)ExStylesTb);
+		SendMessage(m_Hwnd, TB_SETEXTENDEDSTYLE, 0U, static_cast<LPARAM>(ExStylesTb));
 
-	SendMessage(m_Hwnd, TB_BUTTONSTRUCTSIZE, (WPARAM) sizeof(TBBUTTON), (LPARAM)0);
+	SendMessage(m_Hwnd, TB_BUTTONSTRUCTSIZE, sizeof(TBBUTTON), 0L);
 	this->m_ToolTipHWND = (HWND)SendMessage(m_Hwnd, TB_GETTOOLTIPS, NULL, NULL);
 	if (styles.istok(TEXT("balloon")) && this->m_ToolTipHWND != nullptr) {
-		SetWindowLong(this->m_ToolTipHWND, GWL_STYLE, GetWindowStyle(this->m_ToolTipHWND) | TTS_BALLOON);
+		SetWindowLong(this->m_ToolTipHWND, GWL_STYLE, static_cast<LONG>(GetWindowStyle(this->m_ToolTipHWND) | TTS_BALLOON));
 	}
 	//SendMessage( m_Hwnd, TB_SETPARENT, (WPARAM)mParentHwnd, NULL);
 
 	this->autoSize();
-	this->m_bAutoStretch = FALSE;
 
 	this->setControlFont(GetStockFont(DEFAULT_GUI_FONT), FALSE);
 	this->registreDefaultWindowProc();
@@ -289,26 +289,25 @@ void DcxToolBar::parseInfoRequest( const TString & input, const refString<TCHAR,
 		tbbi.dwMask = TBIF_STATE | TBIF_BYINDEX;
 		this->getButtonInfo(iButton, &tbbi);
 
-		if (lstrcpyn(szReturnValue, TEXT("+"), MIRC_BUFFER_SIZE_CCH) != nullptr)
-		{
-			if (!dcx_testflag(tbbi.fsState, TBSTATE_ENABLED))
-				lstrcat(szReturnValue, TEXT("d"));
+		szReturnValue = TEXT('+');
 
-			if (dcx_testflag(tbbi.fsState, TBSTATE_INDETERMINATE))
-				lstrcat(szReturnValue, TEXT("i"));
+		if (!dcx_testflag(tbbi.fsState, TBSTATE_ENABLED))
+			szReturnValue += TEXT('d');
 
-			if (dcx_testflag(tbbi.fsState, TBSTATE_HIDDEN))
-				lstrcat(szReturnValue, TEXT("h"));
+		if (dcx_testflag(tbbi.fsState, TBSTATE_INDETERMINATE))
+			szReturnValue += TEXT('i');
 
-			if (dcx_testflag(tbbi.fsState, TBSTATE_PRESSED))
-				lstrcat(szReturnValue, TEXT("p"));
+		if (dcx_testflag(tbbi.fsState, TBSTATE_HIDDEN))
+			szReturnValue += TEXT('h');
 
-			if (dcx_testflag(tbbi.fsState, TBSTATE_CHECKED))
-				lstrcat(szReturnValue, TEXT("x"));
+		if (dcx_testflag(tbbi.fsState, TBSTATE_PRESSED))
+			szReturnValue += TEXT('p');
 
-			if (dcx_testflag(tbbi.fsState, TBSTATE_WRAP))
-				lstrcat(szReturnValue, TEXT("w"));
-		}
+		if (dcx_testflag(tbbi.fsState, TBSTATE_CHECKED))
+			szReturnValue += TEXT('x');
+
+		if (dcx_testflag(tbbi.fsState, TBSTATE_WRAP))
+			szReturnValue += TEXT('w');
 	}
 	break;
 	// [NAME] [ID] [PROP] [N]
@@ -559,6 +558,7 @@ void DcxToolBar::parseCommandRequest( const TString & input ) {
 			lpdcxtbb->clrText = clrText;
 		else
 			lpdcxtbb->clrText = CLR_INVALID;
+
 		lpdcxtbb->clrBtnFace = CLR_INVALID;
 		lpdcxtbb->clrBtnHighlight = CLR_INVALID;
 		lpdcxtbb->clrHighlightHotTrack = CLR_INVALID;
@@ -569,7 +569,7 @@ void DcxToolBar::parseCommandRequest( const TString & input ) {
 
 		lpdcxtbb->bText = itemtext;
 		tbb.iString = reinterpret_cast<INT_PTR>(lpdcxtbb->bText.to_chr());
-		tbb.dwData = reinterpret_cast<LPARAM>(lpdcxtbb.release());
+		tbb.dwData = reinterpret_cast<DWORD_PTR>(lpdcxtbb.release());
 
 		// insert button
 		this->insertButton( nPos, &tbb );
@@ -1048,7 +1048,7 @@ void DcxToolBar::setImageList(HIMAGELIST himl, const dcxToolBar_ImageLists iImag
 
 HIMAGELIST DcxToolBar::createImageList( const UINT iSize ) {
 
-	return ImageList_Create(iSize, iSize, ILC_COLOR32 | ILC_MASK, 1, 0);
+	return ImageList_Create(static_cast<int>(iSize), static_cast<int>(iSize), ILC_COLOR32 | ILC_MASK, 1, 0);
 }
 
 /*!
@@ -1461,7 +1461,7 @@ LRESULT DcxToolBar::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 								if (this->m_bOverrideTheme)
 									dFlags |= TBCDRF_USECDCOLORS;
 
-								return dFlags;
+								return static_cast<LRESULT>(dFlags);
 							}
 
 						case CDDS_ITEMPOSTPAINT:
@@ -1594,4 +1594,60 @@ LRESULT DcxToolBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 	}
 
 	return 0L;
+}
+
+const TString DcxToolBar::getStyles(void) const
+{
+	auto tsStyles(__super::getStyles());
+	const auto Styles = GetWindowStyle(m_Hwnd);
+	const auto ExStylesTb = SendMessage(m_Hwnd, TB_GETEXTENDEDSTYLE, 0U, 0L);
+
+	if (dcx_testflag(Styles, TBSTYLE_FLAT))
+		tsStyles.addtok(TEXT("flat"));
+	if (dcx_testflag(Styles, TBSTYLE_TOOLTIPS))
+		tsStyles.addtok(TEXT("tooltips"));
+	if (dcx_testflag(Styles, TBSTYLE_TRANSPARENT))
+		tsStyles.addtok(TEXT("transparent"));
+	if (dcx_testflag(Styles, CCS_NODIVIDER))
+		tsStyles.addtok(TEXT("nodivider"));
+	if (dcx_testflag(Styles, CCS_TOP))
+		tsStyles.addtok(TEXT("top"));
+	if (dcx_testflag(Styles, CCS_BOTTOM))
+		tsStyles.addtok(TEXT("bottom"));
+	if (dcx_testflag(Styles, CCS_LEFT))
+		tsStyles.addtok(TEXT("left"));
+	if (dcx_testflag(Styles, CCS_RIGHT))
+		tsStyles.addtok(TEXT("right"));
+	if (dcx_testflag(Styles, CCS_NOPARENTALIGN | CCS_NORESIZE))
+		tsStyles.addtok(TEXT("noauto"));
+	if (dcx_testflag(Styles, CCS_ADJUSTABLE))
+		tsStyles.addtok(TEXT("adjustable"));
+	if (dcx_testflag(Styles, TBSTYLE_LIST))
+		tsStyles.addtok(TEXT("list"));
+	if (dcx_testflag(Styles, TBSTYLE_WRAPABLE))
+		tsStyles.addtok(TEXT("wrap"));
+
+	if (m_bOverrideTheme)
+		tsStyles.addtok(TEXT("override"));
+
+	if (dcx_testflag(ExStylesTb, TBSTYLE_EX_DRAWDDARROWS))
+		tsStyles.addtok(TEXT("arrows"));
+
+	return tsStyles;
+}
+
+void DcxToolBar::toXml(TiXmlElement *const xml) const
+{
+	__super::toXml(xml);
+
+	xml->SetAttribute("styles", getStyles().c_str());
+}
+
+TiXmlElement * DcxToolBar::toXml(void) const
+{
+	auto xml = __super::toXml();
+
+	xml->SetAttribute("styles", getStyles().c_str());
+
+	return xml;
 }

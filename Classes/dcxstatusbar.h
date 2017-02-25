@@ -22,18 +22,19 @@ class DcxDialog;
 
 #define DCX_STATUSBAR_MAX_PARTS 256
 
-typedef struct tagSB_PARTINFOX {
+struct SB_PARTINFOX {
 	DcxControl	*m_xChild;
 	TString		m_xText;
 	int			m_xiIcon;
 
-	tagSB_PARTINFOX()
+	SB_PARTINFOX()
 		: m_xChild(nullptr)
 		, m_xiIcon(-1)
 	{}
-} SB_PARTINFOX, *LPSB_PARTINFOX;
+};
+using LPSB_PARTINFOX = SB_PARTINFOX *;
 
-typedef std::vector<LPSB_PARTINFOX> VectorOfXParts;
+using VectorOfXParts = std::vector<LPSB_PARTINFOX>;
 
 /*!
  * \brief blah
@@ -65,6 +66,9 @@ public:
 
 	static UINT parseItemFlags( const TString & flags );
 	void cleanPartIcons( );
+
+	void toXml(TiXmlElement *const xml) const override;
+	TiXmlElement * toXml(void) const override;
 	const TString getStyles(void) const override;
 
 	LRESULT setParts( const int nParts, const LPINT aWidths );

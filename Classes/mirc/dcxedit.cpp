@@ -35,10 +35,10 @@ DcxEdit::DcxEdit(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwn
 	this->parseControlStyles(styles, &Styles, &ExStyles, &bNoTheme);
 
 	m_Hwnd = CreateWindowExW(
-		ExStyles | WS_EX_CLIENTEDGE,
+		static_cast<DWORD>(ExStyles) | WS_EX_CLIENTEDGE,
 		L"EDIT",
 		nullptr,
-		WS_CHILD | Styles,
+		WS_CHILD | static_cast<DWORD>(Styles),
 		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
 		mParentHwnd,
 		reinterpret_cast<HMENU>(ID),
@@ -117,7 +117,19 @@ const TString DcxEdit::getStyles(void) const {
 void DcxEdit::toXml(TiXmlElement *const xml) const
 {
 	__super::toXml(xml);
-	xml->SetAttribute("caption", this->m_tsText.c_str());
+
+	xml->SetAttribute("caption", m_tsText.c_str());
+	xml->SetAttribute("styles", getStyles().c_str());
+}
+
+TiXmlElement * DcxEdit::toXml(void) const
+{
+	auto xml = __super::toXml();
+
+	xml->SetAttribute("caption", m_tsText.c_str());
+	xml->SetAttribute("styles", getStyles().c_str());
+
+	return xml;
 }
 
 /*!
@@ -312,7 +324,7 @@ void DcxEdit::parseInfoRequest( const TString &input, const refString<TCHAR, MIR
 		DWORD dwSelEnd = 0;   // selection range ending position
 
 		SendMessage(m_Hwnd, EM_GETSEL, (WPARAM)&dwSelStart, (LPARAM)&dwSelEnd);
-		szReturnValue = m_tsText.mid(dwSelStart, dwSelEnd - dwSelStart).to_chr();
+		szReturnValue = m_tsText.mid(static_cast<int>(dwSelStart), static_cast<int>(dwSelEnd - dwSelStart)).to_chr();
 	}
 	break;
 	case L"cue"_hash:
@@ -498,7 +510,7 @@ void DcxEdit::parseCommandRequest( const TString &input) {
 	else if (flags[TEXT('l')] && numtok > 3) {
 		const BOOL enabled = (input.getnexttok().to_int() > 0);	// tok 4
 
-		SendMessage(m_Hwnd, EM_SETREADONLY, enabled, NULL);
+		SendMessage(m_Hwnd, EM_SETREADONLY, static_cast<WPARAM>(enabled), NULL);
 	}
 	// xdid -o [NAME] [ID] [SWITCH] [N] [TEXT]
 	else if (flags[TEXT('o')] && numtok > 3) {
@@ -554,7 +566,7 @@ void DcxEdit::parseCommandRequest( const TString &input) {
 		if (numtok > 4)
 			iend = input.getnexttok( ).to_int();	// tok 5
 
-		SendMessage(m_Hwnd, EM_SETSEL, istart, iend);
+		SendMessage(m_Hwnd, EM_SETSEL, static_cast<WPARAM>(istart), static_cast<LPARAM>(iend));
 		SendMessage(m_Hwnd, EM_SCROLLCARET, NULL, NULL);
 	}
 	// xdid -E [NAME] [ID] [SWITCH] [CUE TEXT]
@@ -645,14 +657,14 @@ LRESULT DcxEdit::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bPar
 					//
 					//evalAliasEx(szRet, Dcx::countof(szRet), TEXT("copy,%u"), getUserID());
 					//
-					//if (lstrcmp(TEXT("nocopy"), szRet) == 0) {
+					//if (ts_strcmp(TEXT("nocopy"), szRet) == 0) {
 					//	bParsed = TRUE;
 					//	return 0L;
 					//}
 
 					stString<256> szRet;
 
-					evalAliasEx(szRet, Dcx::countof(szRet), TEXT("copy,%u"), getUserID());
+					evalAliasEx(szRet, static_cast<int>(szRet.size()), TEXT("copy,%u"), getUserID());
 
 					if (szRet == TEXT("nocopy")) {
 						bParsed = TRUE;
@@ -668,14 +680,14 @@ LRESULT DcxEdit::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bPar
 					//
 					//evalAliasEx(szRet, Dcx::countof(szRet), TEXT("cut,%u"), getUserID());
 					//
-					//if (lstrcmp(TEXT("nocut"), szRet) == 0) {
+					//if (ts_strcmp(TEXT("nocut"), szRet) == 0) {
 					//	bParsed = TRUE;
 					//	return 0L;
 					//}
 
 					stString<256> szRet;
 
-					evalAliasEx(szRet, Dcx::countof(szRet), TEXT("cut,%u"), getUserID());
+					evalAliasEx(szRet, static_cast<int>(szRet.size()), TEXT("cut,%u"), getUserID());
 
 					if (szRet == TEXT("nocut")) {
 						bParsed = TRUE;
@@ -691,14 +703,14 @@ LRESULT DcxEdit::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bPar
 					//
 					//evalAliasEx(szRet, Dcx::countof(szRet), TEXT("paste,%u"), getUserID());
 					//
-					//if (lstrcmp(TEXT("nopaste"), szRet) == 0) {
+					//if (ts_strcmp(TEXT("nopaste"), szRet) == 0) {
 					//	bParsed = TRUE;
 					//	return 0L;
 					//}
 
 					stString<256> szRet;
 
-					evalAliasEx(szRet, Dcx::countof(szRet), TEXT("paste,%u"), getUserID());
+					evalAliasEx(szRet, static_cast<int>(szRet.size()), TEXT("paste,%u"), getUserID());
 
 					if (szRet == TEXT("nopaste")) {
 						bParsed = TRUE;

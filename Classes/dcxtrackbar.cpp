@@ -28,17 +28,18 @@ http://www.codeproject.com/miscctrl/transparentslider.asp
 
 DcxTrackBar::DcxTrackBar(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles)
 	: DcxControl(ID, p_Dialog),
-	m_bUpdatingTooltip(false)
+	m_bUpdatingTooltip(false),
+	m_colTransparent(CLR_INVALID)
 {
 	LONG Styles = 0, ExStyles = 0;
 	BOOL bNoTheme = FALSE;
 	this->parseControlStyles(styles, &Styles, &ExStyles, &bNoTheme);
 
 	m_Hwnd = CreateWindowEx(
-		ExStyles,
+		static_cast<DWORD>(ExStyles),
 		DCX_TRACKBARCLASS,
 		nullptr,
-		WS_CHILD | Styles,
+		WS_CHILD | static_cast<DWORD>(Styles),
 		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
 		mParentHwnd,
 		(HMENU)ID,
@@ -55,7 +56,6 @@ DcxTrackBar::DcxTrackBar(const UINT ID, DcxDialog *const p_Dialog, const HWND mP
 	this->m_hbmp[TBBMP_THUMB] = nullptr;
 	this->m_hbmp[TBBMP_THUMBDRAG] = nullptr;
 	this->m_hbmp[TBBMP_CHANNEL] = nullptr;
-	this->m_colTransparent = CLR_INVALID;
 
 	// Keep track of the tooltip
 	if (dcx_testflag(Styles, TBS_TOOLTIPS))
@@ -330,7 +330,7 @@ void DcxTrackBar::parseCommandRequest( const TString & input ) {
 	// xdid -u [NAME] [ID] [SWITCH] [VALUE]
 	else if ( flags[TEXT('u')] && numtok > 3 ) {
 
-		const auto lLength = input.getnexttok().to_<long>();	// tok 4
+		const auto lLength = input.getnexttok().to_<UINT>();	// tok 4
 
 		this->setThumbLength( lLength );
 	}
@@ -699,9 +699,9 @@ LRESULT DcxTrackBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
 						if (this->m_bUpdatingTooltip)
 							break;
 
-						TString buff((UINT) 80);
+						TString buff(80U);
 
-						evalAliasEx(buff.to_chr(), buff.capacity(), TEXT("showtip,%u,%d"), getUserID(), getPos());
+						evalAliasEx(buff.to_chr(), static_cast<int>(buff.capacity()), TEXT("showtip,%u,%d"), getUserID(), getPos());
 
 						if (!buff.empty()) {
 							TOOLINFO ti;
@@ -846,4 +846,62 @@ bool DcxTrackBar::DrawTrackBarPart(HDC hdc, const TrackBarParts iPartId, const R
 		0, 0, bmp.bmWidth, bmp.bmHeight, m_colTransparent);
 
 	return true;
+}
+
+const TString DcxTrackBar::getStyles(void) const
+{
+	auto tsStyles(__super::getStyles());
+	const auto Styles = GetWindowStyle(m_Hwnd);
+
+	if (dcx_testflag(Styles, TBS_AUTOTICKS))
+		tsStyles.addtok(TEXT("autoticks"));
+	if (dcx_testflag(Styles, TBS_VERT))
+	{
+		tsStyles.addtok(TEXT("vertical"));
+		if (dcx_testflag(Styles, TBS_TOP))	// 0x04
+			tsStyles.addtok(TEXT("top"));
+		if (dcx_testflag(Styles, TBS_BOTTOM))	// 0x00
+			tsStyles.addtok(TEXT("bottom"));
+	}
+	else {
+		if (dcx_testflag(Styles, TBS_LEFT))		// 0x04
+			tsStyles.addtok(TEXT("left"));
+		if (dcx_testflag(Styles, TBS_RIGHT))	// 0x00
+			tsStyles.addtok(TEXT("right"));
+	}
+	if (dcx_testflag(Styles, TBS_BOTH))
+		tsStyles.addtok(TEXT("both"));
+
+	if (dcx_testflag(Styles, TBS_ENABLESELRANGE))
+		tsStyles.addtok(TEXT("select"));
+	if (dcx_testflag(Styles, TBS_NOTHUMB))
+		tsStyles.addtok(TEXT("nothumb"));
+	if (dcx_testflag(Styles, TBS_REVERSED))
+		tsStyles.addtok(TEXT("reversed"));
+	if (dcx_testflag(Styles, TBS_DOWNISLEFT))
+		tsStyles.addtok(TEXT("downisleft"));
+	if (dcx_testflag(Styles, TBS_TOOLTIPS))
+		tsStyles.addtok(TEXT("tooltips"));
+	if (dcx_testflag(Styles, TBS_TRANSPARENTBKGND))
+		tsStyles.addtok(TEXT("transparentbkg"));
+	if (dcx_testflag(Styles, TBS_NOTICKS))
+		tsStyles.addtok(TEXT("noticks"));
+
+	return tsStyles;
+}
+
+void DcxTrackBar::toXml(TiXmlElement *const xml) const
+{
+	__super::toXml(xml);
+
+	xml->SetAttribute("styles", getStyles().c_str());
+}
+
+TiXmlElement * DcxTrackBar::toXml(void) const
+{
+	auto xml = __super::toXml();
+
+	xml->SetAttribute("styles", getStyles().c_str());
+
+	return xml;
 }

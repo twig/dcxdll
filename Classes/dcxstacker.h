@@ -75,6 +75,8 @@ public:
 	inline const DcxControlTypes getControlType() const noexcept override { return DcxControlTypes::STACKER; }
 
 	const TString getStyles(void) const override;
+	void toXml(TiXmlElement *const xml) const override;
+	TiXmlElement * toXml(void) const override;
 
 protected:
 	HWND m_hActive;
@@ -89,12 +91,14 @@ protected:
 	LPDCXSITEM getItem(const int nPos) const;
 	LPDCXSITEM getHotItem(void) const;
 	void getItemRect(const int nPos, LPRECT rc) const;
+
 	//
 	//int setItem(int nPos, LPDCXSITEM item);
 	//int setSelectedItem(int nPos);
 	//
 	//void deleteItem(int nPos);
 	//
+
 	void DrawSItem(const LPDRAWITEMSTRUCT idata);
 	static void DrawAliasedTriangle(const HDC hdc, const LPRECT rc, const COLORREF clrShape);
 	void DrawItemImage(const HDC hdc, Gdiplus::Image *const img, const LPRECT rc);

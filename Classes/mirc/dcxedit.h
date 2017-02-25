@@ -49,8 +49,9 @@ public:
 
 	const TString getStyles(void) const override;
 	void toXml(TiXmlElement *const xml) const override;
+	TiXmlElement * toXml(void) const override;
 
-protected:
+private:
 	TString m_tsText; // Edit Text
 	TString m_tsCue; // Cue Text
 	TCHAR	m_PassChar;	// Password char

@@ -39,6 +39,7 @@ public:
 	inline const DcxControlTypes getControlType() const noexcept override { return DcxControlTypes::PAGER; }
 
 	const TString getStyles(void) const override;
+	TiXmlElement * toXml(void) const override;
 	void toXml(TiXmlElement *const xml) const override;
 
 	void setChild(const HWND child);

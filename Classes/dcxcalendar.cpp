@@ -42,10 +42,10 @@ DcxCalendar::DcxCalendar(const UINT ID, DcxDialog *const p_Dialog, const HWND mP
 	this->parseControlStyles(styles, &Styles, &ExStyles, &bNoTheme);
 
 	m_Hwnd = CreateWindowEx(
-		ExStyles | WS_EX_CLIENTEDGE,
+		static_cast<DWORD>(ExStyles) | WS_EX_CLIENTEDGE,
 		DCX_CALENDARCLASS,
 		nullptr,
-		WS_CHILD | Styles,
+		WS_CHILD | static_cast<DWORD>(Styles),
 		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
 		mParentHwnd,
 		(HMENU)ID,
@@ -77,7 +77,19 @@ DcxCalendar::~DcxCalendar() {
 void DcxCalendar::toXml(TiXmlElement *const xml) const
 {
 	__super::toXml(xml);
+
 	xml->SetAttribute("caption", getValue().c_str());
+	xml->SetAttribute("styles", getStyles().c_str());
+}
+
+TiXmlElement * DcxCalendar::toXml(void) const
+{
+	auto xml = __super::toXml();
+
+	xml->SetAttribute("caption", getValue().c_str());
+	xml->SetAttribute("styles", getStyles().c_str());
+
+	return xml;
 }
 
 const TString DcxCalendar::getStyles(void) const
@@ -133,8 +145,10 @@ const TString DcxCalendar::getValue(void) const
 
 	stString<128> buf;
 
-	wnsprintf(buf, buf.size(), TEXT("%ld %ld"), start, end);
+	wnsprintf(buf, static_cast<int>(buf.size()), TEXT("%ld %ld"), start, end);
 	return buf.data();
+
+	//return _ts_sprintf(buf, TEXT("% %"), start, end).data();
 }
 
 /*!
@@ -303,27 +317,27 @@ void DcxCalendar::parseCommandRequest( const TString &input) {
 
 		// Set the background color displayed between months.
 		if (xflags[TEXT('b')])
-			MonthCal_SetColor(m_Hwnd, MCSC_BACKGROUND, col);
+			MonthCal_SetColor(m_Hwnd, MCSC_BACKGROUND, static_cast<LPARAM>(col));
 
 		// Set the background color displayed within the month.
 		if (xflags[TEXT('g')])
-			MonthCal_SetColor(m_Hwnd, MCSC_MONTHBK, col);
+			MonthCal_SetColor(m_Hwnd, MCSC_MONTHBK, static_cast<LPARAM>(col));
 
 		// Set the color used to display text within a month.
 		if (xflags[TEXT('t')])
-			MonthCal_SetColor(m_Hwnd, MCSC_TEXT, col);
+			MonthCal_SetColor(m_Hwnd, MCSC_TEXT, static_cast<LPARAM>(col));
 
 		// Set the background color displayed in the calendar's title and selection color.
 		if (xflags[TEXT('i')])
-			MonthCal_SetColor(m_Hwnd, MCSC_TITLEBK, col);
+			MonthCal_SetColor(m_Hwnd, MCSC_TITLEBK, static_cast<LPARAM>(col));
 
 		// Set the color used to display text within the calendar's title.
 		if (xflags[TEXT('a')])
-			MonthCal_SetColor(m_Hwnd, MCSC_TITLETEXT, col);
+			MonthCal_SetColor(m_Hwnd, MCSC_TITLETEXT, static_cast<LPARAM>(col));
 
 		// Set the color used to display header day and trailing day text. Header and trailing days are the days from the previous and following months that appear on the current month calendar.
 		if (xflags[TEXT('r')])
-			MonthCal_SetColor(m_Hwnd, MCSC_TRAILINGTEXT, col);
+			MonthCal_SetColor(m_Hwnd, MCSC_TRAILINGTEXT, static_cast<LPARAM>(col));
 	}
 	//xdid -m [NAME] [ID] [SWITCH] [MAX]
 	else if (flags[TEXT('m')] && numtok > 3) {

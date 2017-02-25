@@ -91,6 +91,8 @@ public:
 
 	const TString getStyles(void) const override;
 	void toXml(TiXmlElement *const xml) const override;
+	TiXmlElement * toXml(void) const override;
+
 	DcxControl * getControl(const int index) const;
 
 protected:

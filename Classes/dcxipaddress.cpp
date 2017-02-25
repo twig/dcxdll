@@ -33,10 +33,10 @@ DcxIpAddress::DcxIpAddress(const UINT ID, DcxDialog *const p_Dialog, const HWND 
 	this->parseControlStyles(styles, &Styles, &ExStyles, &bNoTheme);
 
 	m_Hwnd = CreateWindowEx(
-		ExStyles,
+		static_cast<DWORD>(ExStyles),
 		DCX_IPADDRESSCLASS,
 		nullptr,
-		WS_CHILD | Styles,
+		WS_CHILD | static_cast<DWORD>(Styles),
 		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
 		mParentHwnd,
 		(HMENU)ID,
@@ -85,14 +85,33 @@ void DcxIpAddress::toXml(TiXmlElement *const xml) const
 	DWORD ip;
 	char buf[128];
 	this->getAddress( &ip );
-	wnsprintfA( buf, Dcx::countof(buf), "%d.%d.%d.%d",
+	wnsprintfA( buf, static_cast<int>(Dcx::countof(buf)), "%u.%u.%u.%u",
 		FIRST_IPADDRESS( ip ),
 		SECOND_IPADDRESS( ip ),
 		THIRD_IPADDRESS( ip ),
 		FOURTH_IPADDRESS( ip ) );
+
 	__super::toXml(xml);
+
+	xml->SetAttribute("caption", buf);
+}
+
+TiXmlElement * DcxIpAddress::toXml(void) const
+{
+	auto xml = __super::toXml();
+
+	DWORD ip;
+	char buf[128];
+	this->getAddress(&ip);
+	wnsprintfA(buf, static_cast<int>(Dcx::countof(buf)), "%u.%u.%u.%u",
+		FIRST_IPADDRESS(ip),
+		SECOND_IPADDRESS(ip),
+		THIRD_IPADDRESS(ip),
+		FOURTH_IPADDRESS(ip));
+
 	xml->SetAttribute("caption", buf);
 
+	return xml;
 }
 
 /*!

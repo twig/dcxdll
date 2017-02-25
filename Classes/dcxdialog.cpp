@@ -144,7 +144,7 @@ void DcxDialog::addControl(DcxControl *p_Control)
 
 DcxControl *DcxDialog::addControl(const TString &input, const UINT offset, const UINT64 mask, HWND hParent)
 {
-	const auto tsID(input.getfirsttok(offset));
+	const auto tsID(input.getfirsttok(static_cast<int>(offset)));
 	auto ID = 0U;
 
 	if (isalpha(tsID[0]))
@@ -299,7 +299,7 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 	// xdialog -a [NAME] [SWITCH] [+FLAGS] [DURATION]
 	if (flags[TEXT('a')] && numtok > 3) {
 		AnimateWindow(m_Hwnd,
-			input.gettok( 4 ).to_int(),
+			input.gettok( 4 ).to_<DWORD>(),
 			getAnimateStyles(input.getnexttok( )));	// tok 3
 
 		if (IsWindowVisible(m_Hwnd))
@@ -382,16 +382,17 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 	// xdialog -f [NAME] [SWITCH] [+FLAGS] [COUNT] [TIMEOUT]
 	else if (flags[TEXT('f')] && numtok > 4) {
 		const auto iFlags = parseFlashFlags(input.getnexttok());	// tok 3
-		const auto iCount = input.getnexttok().to_int();				// tok 4
+		const auto iCount = input.getnexttok().to_<UINT>();				// tok 4
 		const auto dwTimeout = input.getnexttok().to_<DWORD>();	// tok 5
-		FLASHWINFO fli;
+		FLASHWINFO fli{ sizeof(FLASHWINFO), m_Hwnd, iFlags, iCount, dwTimeout };
 
-		ZeroMemory(&fli, sizeof(FLASHWINFO));
-		fli.cbSize = sizeof(FLASHWINFO);
-		fli.dwFlags = iFlags;
-		fli.hwnd = m_Hwnd;
-		fli.uCount = iCount;
-		fli.dwTimeout = dwTimeout;
+		//FLASHWINFO fli;
+		//ZeroMemory(&fli, sizeof(FLASHWINFO));
+		//fli.cbSize = sizeof(FLASHWINFO);
+		//fli.dwFlags = iFlags;
+		//fli.hwnd = m_Hwnd;
+		//fli.uCount = iCount;
+		//fli.dwTimeout = dwTimeout;
 
 		FlashWindowEx(& fli);
 	}
@@ -537,7 +538,7 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 
 			//TCHAR sRet[32];
 			//mIRCLinker::evalex(sRet, Dcx::countof(sRet), TEXT("$dialog(%s).modal"), this->m_tsName.to_chr());
-			//if (lstrcmp(sRet, TEXT("$true")) == 0) // Modal Dialog
+			//if (ts_strcmp(sRet, TEXT("$true")) == 0) // Modal Dialog
 			//	SendMessage(m_Hwnd,WM_CLOSE,NULL,NULL); // this allows the dialogs WndProc to EndDialog() if needed.
 			//else // Modeless Dialog
 			//	DestroyWindow(m_Hwnd);
@@ -826,7 +827,7 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 				throw Dcx::dcxException(TEXT("control % already in list"), n);
 
 			// if the specified control exists on the dialog, hide it
-			auto ctrl = getControlByID(n);
+			auto ctrl = getControlByID(static_cast<UINT>(n));
 
 			if (ctrl != nullptr) {
 				ShowWindow(ctrl->getHwnd(), SW_HIDE);
@@ -848,7 +849,7 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 			n += mIRC_ID_OFFSET;
 
 			// get the control which will be used to retrieve the target position
-			auto ctrl = getControlByID(n);
+			auto ctrl = getControlByID(static_cast<UINT>(n));
 
 			// target control not found
 			if (ctrl == nullptr)
@@ -868,7 +869,7 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 				// ignore target control
 				if (x != n) {
 					// get control to be moved
-					ctrl = getControlByID(x);
+					ctrl = getControlByID(static_cast<UINT>(x));
 
 					// if it exists, move it
 					if (ctrl != nullptr)
@@ -885,17 +886,17 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 			if (n >= static_cast<int>(m_vZLayers.size()))
 				throw Dcx::dcxException("Index array out of bounds");
 
-			execAliasEx(TEXT("zlayershow,%d,%d"), n +1, m_vZLayers[n] - mIRC_ID_OFFSET);
+			execAliasEx(TEXT("zlayershow,%d,%d"), n +1, m_vZLayers[static_cast<UINT>(n)] - mIRC_ID_OFFSET);
 
 			// hide the previous control
-			auto ctrl = getControlByID(m_vZLayers[m_zLayerCurrent]);
+			auto ctrl = getControlByID(static_cast<UINT>(m_vZLayers[m_zLayerCurrent]));
 
 			if (ctrl != nullptr)
 				ShowWindow(ctrl->getHwnd(), SW_HIDE);
 
 			// set the new index to the currently selected index
-			m_zLayerCurrent = n;
-			ctrl = getControlByID(m_vZLayers[n]);
+			m_zLayerCurrent = static_cast<UINT>(n);
+			ctrl = getControlByID(static_cast<UINT>(m_vZLayers[static_cast<UINT>(n)]));
 
 			// if the selected control exists, show control
 			if (ctrl == nullptr)
@@ -1023,7 +1024,7 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 				pnts[cnt].y = strPoint.getnexttok(TSCOMMACHAR).to_<LONG>();	// tok 2
 				++cnt;
 			}
-			m_Region = CreatePolygonRgn(pnts.get(),tPoints,WINDING);
+			m_Region = CreatePolygonRgn(pnts.get(), static_cast<int>(tPoints),WINDING);
 		}
 		else if (xflags[TEXT('d')]) // drag - <1|0>
 		{
@@ -1558,7 +1559,7 @@ void DcxDialog::parseInfoRequest(const TString &input, const refString<TCHAR, MI
 	case L"isid"_hash:
 		if (numtok > 2) {
 			const auto nID = input.getnexttok().to_<UINT>() + mIRC_ID_OFFSET;	// tok 3
-			szReturnValue = dcx_truefalse(IsWindow(GetDlgItem(m_Hwnd, nID)) || (getControlByID(nID) != nullptr));
+			szReturnValue = dcx_truefalse(IsWindow(GetDlgItem(m_Hwnd, static_cast<int>(nID))) || (getControlByID(nID) != nullptr));
 		}
 		break;
 		// [NAME] [PROP]
@@ -1583,7 +1584,7 @@ void DcxDialog::parseInfoRequest(const TString &input, const refString<TCHAR, MI
 				}
 			}
 			else if ((N > -1) && (N < static_cast<int>(m_vpControls.size())))
-				wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), m_vpControls[N]->getUserID());
+				wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), m_vpControls[static_cast<UINT>(N)]->getUserID());
 		}
 		break;
 		// [NAME] [PROP]
@@ -2010,7 +2011,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 						//
 						//p_this->evalAlias(ret, Dcx::countof(ret), TEXT("close,0"));
 						//
-						//if (lstrcmp(TEXT("noclose"), ret) == 0)
+						//if (ts_strcmp(TEXT("noclose"), ret) == 0)
 						//	bParsed = TRUE;
 
 						//stString<256> sRet;
@@ -2063,7 +2064,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 
 		case WM_MEASUREITEM:
 			{
-				auto cHwnd = GetDlgItem(mHwnd, wParam);
+				auto cHwnd = GetDlgItem(mHwnd, static_cast<int>(wParam));
 				if (IsWindow(cHwnd)) {
 					auto c_this = static_cast<DcxControl *>(GetProp(cHwnd, TEXT("dcx_cthis")));
 					if (c_this != nullptr)
@@ -2078,8 +2079,8 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 					if (p_Item != nullptr) {
 						const auto size = p_Item->getItemSize(mHwnd);
 
-						lpmis->itemWidth = size.cx;
-						lpmis->itemHeight = size.cy;
+						lpmis->itemWidth = static_cast<UINT>(size.cx);
+						lpmis->itemHeight = static_cast<UINT>(size.cy);
 						lRes = TRUE; 
 						bParsed = TRUE;
 					}
@@ -2119,7 +2120,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 							//TCHAR ret[256];
 							//p_this->evalAlias(ret, Dcx::countof(ret), TEXT("beginmove,0"));
 							//
-							//if (lstrcmp(TEXT("nomove"), ret) != 0) {
+							//if (ts_strcmp(TEXT("nomove"), ret) != 0) {
 							//	bParsed = TRUE;	// Ook: needs looked at as do the other switches here...
 							//	p_this->m_bInMoving = true;
 							//	lRes = DefWindowProc(mHwnd, uMsg, wParam, lParam);
@@ -2151,7 +2152,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 							//
 							//p_this->evalAlias(ret, Dcx::countof(ret), TEXT("scclose,0"));
 							//
-							//if (lstrcmp(TEXT("noclose"), ret) == 0)
+							//if (ts_strcmp(TEXT("noclose"), ret) == 0)
 							//	bParsed = TRUE;
 
 							//stString<256> sRet;
@@ -2174,7 +2175,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 							//
 							//p_this->evalAlias(ret, Dcx::countof(ret), TEXT("min,0"));
 							//
-							//if (lstrcmp(TEXT("stop"), ret) != 0) {
+							//if (ts_strcmp(TEXT("stop"), ret) != 0) {
 							//	bParsed = TRUE;
 							//	lRes = DefWindowProc(mHwnd, uMsg, wParam, lParam);
 							//}
@@ -2204,7 +2205,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 							//
 							//p_this->evalAlias(ret, Dcx::countof(ret), TEXT("max,0"));
 							//
-							//if (lstrcmp(TEXT("stop"), ret) != 0) {
+							//if (ts_strcmp(TEXT("stop"), ret) != 0) {
 							//	bParsed = TRUE;
 							//	lRes = DefWindowProc(mHwnd, uMsg, wParam, lParam);
 							//}
@@ -2247,7 +2248,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 						//if (dcx_testflag(p_this->m_dEventMask, DCX_EVENT_SIZE)) // mask only controls sending of event, if event isnt sent then DefWindowProc should still be called.
 						//	p_this->evalAlias(ret, Dcx::countof(ret), TEXT("beginsize,0"));
 						//
-						//if (lstrcmp(TEXT("nosize"), ret) != 0) {
+						//if (ts_strcmp(TEXT("nosize"), ret) != 0) {
 						//	bParsed = TRUE;
 						//	p_this->m_bInSizing = true;
 						//	lRes = DefWindowProc(mHwnd, uMsg, wParam, lParam);
@@ -2267,7 +2268,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 						stString<256> sRet;
 
 						if (dcx_testflag(p_this->m_dEventMask, DCX_EVENT_SIZE)) // mask only controls sending of event, if event isnt sent then DefWindowProc should still be called.
-							p_this->evalAlias(sRet, sRet.size(), TEXT("beginsize,0"));
+							p_this->evalAlias(sRet, static_cast<int>(sRet.size()), TEXT("beginsize,0"));
 
 						if (sRet != TEXT("nosize")) {
 							bParsed = TRUE;
@@ -2289,7 +2290,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 						const auto style = GetWindowExStyle(mHwnd);
 						// Set WS_EX_LAYERED on this window
 						if (!dcx_testflag(style,WS_EX_LAYERED))
-							SetWindowLong(mHwnd, GWL_EXSTYLE, style | WS_EX_LAYERED);
+							SetWindowLong(mHwnd, GWL_EXSTYLE, static_cast<LONG>(style) | WS_EX_LAYERED);
 						// Make this window alpha
 						SetLayeredWindowAttributes(mHwnd, 0, p_this->m_uGhostDragAlpha, LWA_ALPHA);
 					}
@@ -2426,11 +2427,11 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 					//
 					//p_this->evalAliasEx(ret, Dcx::countof(ret), TEXT("changing,0,%s,%d,%d,%d,%d"), p, wp->x, wp->y, wp->cx, wp->cy);
 					//
-					//if (lstrcmp(TEXT("nosize"), ret) == 0)
+					//if (ts_strcmp(TEXT("nosize"), ret) == 0)
 					//	wp->flags |= SWP_NOSIZE;
-					//else if (lstrcmp(TEXT("nomove"), ret) == 0)
+					//else if (ts_strcmp(TEXT("nomove"), ret) == 0)
 					//	wp->flags |= SWP_NOMOVE;
-					//else if (lstrcmp(TEXT("nochange"), ret) == 0)
+					//else if (ts_strcmp(TEXT("nochange"), ret) == 0)
 					//	wp->flags |= SWP_NOSIZE | SWP_NOMOVE;
 
 					TCHAR *p = nullptr;
@@ -2452,7 +2453,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 
 					stString<256> sRet;
 
-					p_this->evalAliasEx(sRet, sRet.size(), TEXT("changing,0,%s,%d,%d,%d,%d"), p, wp->x, wp->y, wp->cx, wp->cy);
+					p_this->evalAliasEx(sRet, static_cast<int>(sRet.size()), TEXT("changing,0,%s,%d,%d,%d,%d"), p, wp->x, wp->y, wp->cx, wp->cy);
 
 					if (sRet == TEXT("nosize"))
 						wp->flags |= SWP_NOSIZE;
@@ -2774,7 +2775,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 					if (dcx_testflag(p_this->m_dEventMask, DCX_EVENT_DRAG)) {
 						stString<20> sRet;
 
-						p_this->evalAliasEx(sRet, Dcx::countof(sRet), TEXT("dragbegin,0,%u"), count);
+						p_this->evalAliasEx(sRet, static_cast<int>(sRet.size()), TEXT("dragbegin,0,%u"), count);
 
 						// cancel drag drop event
 						if (sRet == TEXT("cancel")) {
@@ -3131,11 +3132,11 @@ const bool DcxDialog::CreateVistaStyleBitmap(const SIZE &szWin)
 	bmih.biBitCount=32;
 	bmih.biCompression=BI_RGB;
 	bmih.biClrUsed=0;
-	bmih.biSizeImage=nBytesPerLine*szWin.cy;
+	bmih.biSizeImage = static_cast<DWORD>(nBytesPerLine*szWin.cy);
 
 	this->m_hVistaBitmap = ::CreateDIBSection(nullptr, (PBITMAPINFO)&bmih, DIB_RGB_COLORS, &this->m_pVistaBits, nullptr, 0);
 	if (this->m_hVistaBitmap != nullptr) {
-		memset( this->m_pVistaBits, 0, szWin.cx * 4 * szWin.cy);
+		memset( this->m_pVistaBits, 0, static_cast<size_t>(szWin.cx * 4 * szWin.cy));
 		return true;
 	}
 #endif
@@ -3164,7 +3165,7 @@ void DcxDialog::DrawCaret(Gdiplus::Graphics & graph)
 		return;
 
 	stString<MAX_PATH> strClassName;
-	::GetClassName( pWnd, strClassName, strClassName.size());
+	::GetClassName( pWnd, strClassName, static_cast<int>(strClassName.size()));
 
 	if( strClassName != TEXT("EDIT"))
 		return;
@@ -3636,7 +3637,7 @@ TiXmlElement * DcxDialog::toXml(const TString & name) const
 const bool DcxDialog::isIDValid(_In_ const UINT ID, _In_ const bool bUnused) const
 {
 	if (bUnused)	// a valid ID thats NOT in use
-		return ((ID > (mIRC_ID_OFFSET - 1)) && !IsWindow(GetDlgItem(m_Hwnd, ID)) && (getControlByID(ID) == nullptr));
+		return ((ID > (mIRC_ID_OFFSET - 1)) && !IsWindow(GetDlgItem(m_Hwnd, static_cast<int>(ID))) && (getControlByID(ID) == nullptr));
 	//a control that already exists.
-	return ((ID > (mIRC_ID_OFFSET - 1)) && IsWindow(GetDlgItem(m_Hwnd, ID)) && (getControlByID(ID) != nullptr));
+	return ((ID > (mIRC_ID_OFFSET - 1)) && IsWindow(GetDlgItem(m_Hwnd, static_cast<int>(ID))) && (getControlByID(ID) != nullptr));
 }

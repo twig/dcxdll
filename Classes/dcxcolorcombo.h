@@ -71,7 +71,8 @@ public:
 	inline const TString getType() const override { return TEXT("colorcombo"); };
 	inline const DcxControlTypes getControlType() const noexcept override { return DcxControlTypes::COLORCOMBO; }
 
-	//using DcxControl::toXml;
+	using DcxControl::toXml;
+	using DcxControl::getStyles;
 };
 
 #endif // _DCXCOLORCOMBO_H_

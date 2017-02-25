@@ -48,8 +48,9 @@ public:
 	inline const DcxControlTypes getControlType() const noexcept override { return DcxControlTypes::LINK; }
 
 	void toXml(TiXmlElement *const xml) const override;
+	TiXmlElement * toXml(void) const override;
 
-protected:
+private:
 
 	HICON m_hIcon; //!< Link Icon
 

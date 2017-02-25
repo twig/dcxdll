@@ -141,6 +141,10 @@ public:
 	inline const TString getType() const override { return TEXT("toolbar"); };
 	inline const DcxControlTypes getControlType() const noexcept override { return DcxControlTypes::TOOLBAR; }
 
+	void toXml(TiXmlElement *const xml) const override;
+	TiXmlElement * toXml(void) const override;
+	const TString getStyles(void) const override;
+
 private:
 	HFONT m_hOldItemFont; //!< Item fonts (only used during custom draw)
 	HFONT m_hItemFont;

@@ -29,25 +29,23 @@
 DcxRichEdit::DcxRichEdit(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString &styles)
 	: DcxControl(ID, p_Dialog)
 	, m_iFontSize(10 * 20)
-	, m_bFontBold(FALSE)
-	, m_bFontItalic(FALSE)
-	, m_bFontUnderline(FALSE)
-	, m_bFontStrikeout(FALSE)
 	, m_byteCharset(DEFAULT_CHARSET)
+	, m_bFontBold(false)
+	, m_bFontItalic(false)
+	, m_bFontUnderline(false)
+	, m_bFontStrikeout(false)
 	, m_bIgnoreRepeat(true)
 	, m_bIgnoreInput(false)
-//	, m_tsFontFaceName("")
-//	, m_tsText("")
 {
 	LONG Styles = 0, ExStyles = 0;
 	BOOL bNoTheme = FALSE;
 	this->parseControlStyles(styles, &Styles, &ExStyles, &bNoTheme);
 
 	m_Hwnd = CreateWindowEx(
-		ExStyles | WS_EX_CLIENTEDGE,
+		static_cast<DWORD>(ExStyles) | WS_EX_CLIENTEDGE,
 		DCX_RICHEDITCLASS,
 		nullptr,
-		WS_CHILD | Styles,
+		WS_CHILD | static_cast<DWORD>(Styles),
 		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
 		mParentHwnd,
 		(HMENU) ID,
@@ -65,7 +63,7 @@ DcxRichEdit::DcxRichEdit(const UINT ID, DcxDialog *const p_Dialog, const HWND mP
 	this->m_clrBackText = GetSysColor(COLOR_WINDOW);
 	this->m_clrText = GetSysColor(COLOR_WINDOWTEXT);
 
-	this->loadmIRCPalette();
+	getmIRCPalette(m_aColorPalette, Dcx::countof(m_aColorPalette));
 	this->setContentsFont();
 
 	SendMessage(m_Hwnd, EM_SETEVENTMASK, NULL, (LPARAM) (ENM_SELCHANGE | ENM_CHANGE | ENM_LINK));
@@ -561,39 +559,27 @@ void DcxRichEdit::parseCommandRequest(const TString &input) {
 			this->m_clrBackText = GetSysColor(COLOR_WINDOW);
 			this->m_clrText = GetSysColor(COLOR_WINDOWTEXT);
 			this->m_iFontSize = 10 * 20;
-			this->m_bFontBold = FALSE;
-			this->m_bFontItalic = FALSE;
-			this->m_bFontUnderline = FALSE;
-			this->m_bFontStrikeout = FALSE;
+			this->m_bFontBold = false;
+			this->m_bFontItalic = false;
+			this->m_bFontUnderline = false;
+			this->m_bFontStrikeout = false;
 			this->m_byteCharset = DEFAULT_CHARSET;
 			this->setContentsFont();
 		}
 		else if (numtok > 5) {
 			this->setRedraw(FALSE);
 
-			this->m_byteCharset = (BYTE)parseFontCharSet(input.getnexttok( ));	// tok 5
-			this->m_iFontSize = 20 * input.getnexttok( ).to_int();				// tok 6
+			this->m_byteCharset = static_cast<BYTE>(parseFontCharSet(input.getnexttok( )));	// tok 5
+			this->m_iFontSize = 20U * input.getnexttok( ).to_<UINT>();			// tok 6
 			this->m_tsFontFaceName = input.getlasttoks().trim();				// tok 7, -1
 
-			if (dcx_testflag(iFontFlags, dcxFontFlags::DCF_BOLD))
-				this->m_bFontBold = TRUE;
-			else
-				this->m_bFontBold = FALSE;
+			m_bFontBold = dcx_testflag(iFontFlags, dcxFontFlags::DCF_BOLD);
 
-			if (dcx_testflag(iFontFlags, dcxFontFlags::DCF_ITALIC))
-				this->m_bFontItalic = TRUE;
-			else
-				this->m_bFontItalic = FALSE;
+			m_bFontItalic = dcx_testflag(iFontFlags, dcxFontFlags::DCF_ITALIC);
 
-			if (dcx_testflag(iFontFlags, dcxFontFlags::DCF_STRIKEOUT))
-				this->m_bFontStrikeout = TRUE;
-			else
-				this->m_bFontStrikeout = FALSE;
+			m_bFontStrikeout = dcx_testflag(iFontFlags, dcxFontFlags::DCF_STRIKEOUT);
 
-			if (dcx_testflag(iFontFlags, dcxFontFlags::DCF_UNDERLINE))
-				this->m_bFontUnderline = TRUE;
-			else
-				this->m_bFontUnderline = FALSE;
+			m_bFontUnderline = dcx_testflag(iFontFlags, dcxFontFlags::DCF_UNDERLINE);
 
 			this->parseContents(TRUE);
 		}
@@ -633,7 +619,7 @@ void DcxRichEdit::parseCommandRequest(const TString &input) {
 	}
 	// xdid -m [NAME] [ID] [SWITCH]
 	else if (flags[TEXT('m')]) {
-		this->loadmIRCPalette();
+		getmIRCPalette(m_aColorPalette, Dcx::countof(m_aColorPalette));
 		this->parseContents(TRUE);
 	}
 	// xdid -n [NAME] [ID] [SWITCH] [BOOL]
@@ -794,19 +780,19 @@ void DcxRichEdit::parseCommandRequest(const TString &input) {
 *
 * blah
 */
-void DcxRichEdit::loadmIRCPalette() {
-	TString colors;
-	static const TCHAR com[] = TEXT("$color(0) $color(1) $color(2) $color(3) $color(4) $color(5) $color(6) $color(7) $color(8) $color(9) $color(10) $color(11) $color(12) $color(13) $color(14) $color(15)");
-	mIRCLinker::tsEval(colors, com);
-
-	const auto len = colors.numtok();
-	if (len > Dcx::countof(m_aColorPalette))
-		return;	// something went very wrong...
-
-	UINT i = 0;
-	for (const auto &tmp: colors)
-		m_aColorPalette[i++] = tmp.to_<COLORREF>();	// tok i + 1
-}
+//void DcxRichEdit::loadmIRCPalette() {
+//	TString colors;
+//	static const TCHAR com[] = TEXT("$color(0) $color(1) $color(2) $color(3) $color(4) $color(5) $color(6) $color(7) $color(8) $color(9) $color(10) $color(11) $color(12) $color(13) $color(14) $color(15)");
+//	mIRCLinker::tsEval(colors, com);
+//
+//	const auto len = colors.numtok();
+//	if (len > Dcx::countof(m_aColorPalette))
+//		return;	// something went very wrong...
+//
+//	UINT i = 0;
+//	for (const auto &tmp: colors)
+//		m_aColorPalette[i++] = tmp.to_<COLORREF>();	// tok i + 1
+//}
 
 /*!
 * \brief blah
@@ -819,7 +805,7 @@ void DcxRichEdit::setContentsFont() {
 
 	chrf.cbSize = sizeof(CHARFORMAT2);
 	chrf.dwMask = CFM_BACKCOLOR | CFM_BOLD | CFM_COLOR | CFM_FACE | CFM_SIZE | CFM_ITALIC | CFM_UNDERLINE | CFM_STRIKEOUT | CFM_CHARSET;
-	chrf.yHeight = this->m_iFontSize;
+	chrf.yHeight = static_cast<LONG>(this->m_iFontSize);
 	chrf.crTextColor = this->m_clrText;
 	chrf.crBackColor = this->m_clrBackText;
 	chrf.bCharSet = this->m_byteCharset;
@@ -837,8 +823,8 @@ void DcxRichEdit::setContentsFont() {
 		chrf.dwEffects |= CFE_UNDERLINE;
 
 	if (!this->m_tsFontFaceName.empty()) {
-		dcx_strcpyn(chrf.szFaceName, this->m_tsFontFaceName.to_chr(), 31);
-		chrf.szFaceName[31] = 0;
+		dcx_strcpyn(chrf.szFaceName, this->m_tsFontFaceName.to_chr(), Dcx::countof(chrf.szFaceName));
+		chrf.szFaceName[Dcx::countof(chrf.szFaceName) - 1] = 0;
 	}
 
 	this->hideSelection(TRUE);
@@ -1104,12 +1090,12 @@ void DcxRichEdit::parseStringContents(const TString &tsStr, const BOOL fNewLine)
 
 					  if (text[i + 1] >= TEXT('0') && text[i + 1] <= TEXT('9')) {
 						  colbuf[1] = text[i + 1];
-						  i++;
+						  ++i;
 					  }
 
 					  // color code number
 					  bmcolor = true;
-					  mcolor = this->m_aColorPalette[this->unfoldColor(colbuf)];
+					  mcolor = this->m_aColorPalette[unfoldColor(colbuf)];
 
 					  // maybe a background color
 					  if (text[i + 1] == TEXT(',')) {
@@ -1118,7 +1104,7 @@ void DcxRichEdit::parseStringContents(const TString &tsStr, const BOOL fNewLine)
 						  if (text[i + 1] >= TEXT('0') && text[i + 1] <= TEXT('9')) {
 							  colbuf[0] = text[i + 1];
 							  colbuf[1] = TEXT('\0');
-							  i++;
+							  ++i;
 
 							  if (text[i + 1] >= TEXT('0') && text[i + 1] <= TEXT('9')) {
 								  colbuf[1] = text[i + 1];
@@ -1127,7 +1113,7 @@ void DcxRichEdit::parseStringContents(const TString &tsStr, const BOOL fNewLine)
 
 							  // color code number
 							  bbkgcolor = true;
-							  bkgcolor = this->m_aColorPalette[this->unfoldColor(colbuf)];
+							  bkgcolor = this->m_aColorPalette[unfoldColor(colbuf)];
 						  }
 					  }
 				  }
@@ -1195,15 +1181,15 @@ void DcxRichEdit::parseStringContents(const TString &tsStr, const BOOL fNewLine)
 *
 * blah
 */
-int DcxRichEdit::unfoldColor(const TCHAR *color) {
-	auto nColor = dcx_atoi(color);
-
-	while (nColor > 15) {
-		nColor -=16;
-	}
-
-	return nColor;
-}
+//int DcxRichEdit::unfoldColor(const TCHAR *color) {
+//	auto nColor = dcx_atoi(color);
+//
+//	while (nColor > 15) {
+//		nColor -=16;
+//	}
+//
+//	return nColor;
+//}
 
 /*!
 * \brief blah
@@ -1228,7 +1214,7 @@ void DcxRichEdit::insertText(const TCHAR *const text, bool bline, bool uline, bo
 	ZeroMemory(&chrf, sizeof(CHARFORMAT2));
 	chrf.cbSize = sizeof(CHARFORMAT2);
 	chrf.dwMask = CFM_BACKCOLOR | CFM_BOLD | CFM_COLOR | CFM_FACE | CFM_SIZE | CFM_ITALIC | CFM_UNDERLINE | CFM_STRIKEOUT | CFM_CHARSET;
-	chrf.yHeight = this->m_iFontSize;
+	chrf.yHeight = static_cast<LONG>(this->m_iFontSize);
 	chrf.crTextColor = this->m_clrText;
 	chrf.crBackColor = this->m_clrBackText;
 	chrf.bCharSet = this->m_byteCharset;
@@ -1246,7 +1232,7 @@ void DcxRichEdit::insertText(const TCHAR *const text, bool bline, bool uline, bo
 		chrf.dwEffects |= CFE_UNDERLINE;
 
 	if (!this->m_tsFontFaceName.empty())
-		dcx_strcpyn(chrf.szFaceName, this->m_tsFontFaceName.to_chr(), 32);
+		dcx_strcpyn(chrf.szFaceName, this->m_tsFontFaceName.to_chr(), Dcx::countof(chrf.szFaceName));
 
 	if (bcolor)
 		chrf.crTextColor = color;
@@ -1323,8 +1309,24 @@ LRESULT DcxRichEdit::setCharFormat(const UINT iType, CHARFORMAT2 *cfm) {
 
 void DcxRichEdit::toXml(TiXmlElement *const xml) const {
 	__super::toXml(xml);
+
+	xml->SetAttribute("styles", getStyles().c_str());
+
 	auto text = new TiXmlText(this->m_tsText.c_str());
 	xml->LinkEndChild(text);
+}
+
+TiXmlElement * DcxRichEdit::toXml(void) const
+{
+	auto xml = __super::toXml();
+
+	//xml->SetAttribute("caption", m_tsText.c_str());
+	xml->SetAttribute("styles", getStyles().c_str());
+
+	auto text = new TiXmlText(m_tsText.c_str());
+	xml->LinkEndChild(text);
+
+	return xml;
 }
 
 const TString DcxRichEdit::getStyles(void) const {
@@ -1381,7 +1383,7 @@ LRESULT DcxRichEdit::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 							// get information about link text
 							ZeroMemory(&tr, sizeof(TEXTRANGE));
 							tr.chrg = enl->chrg;
-							const auto strlen = (enl->chrg.cpMax - enl->chrg.cpMin) + 1;
+							const auto strlen = (enl->chrg.cpMax - enl->chrg.cpMin) + 1U;
 
 							auto str = std::make_unique<TCHAR[]>(strlen);
 
@@ -1416,7 +1418,7 @@ LRESULT DcxRichEdit::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 							// get information about selected text
 							ZeroMemory(&tr, sizeof(TEXTRANGE));
 							tr.chrg = sel->chrg;
-							auto str = std::make_unique<TCHAR[]>((sel->chrg.cpMax - sel->chrg.cpMin) +1);
+							auto str = std::make_unique<TCHAR[]>((sel->chrg.cpMax - sel->chrg.cpMin) +1U);
 							tr.lpstrText = str.get();
 							SendMessage(m_Hwnd, EM_GETTEXTRANGE, NULL, (LPARAM) &tr);
 

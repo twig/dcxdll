@@ -56,7 +56,11 @@ public:
 
 	LRESULT getPosition( ) const;
 	LRESULT getRange( const BOOL fWhichLimit, PPBRANGE ppBRange ) const;
+
+	const TString getStyles(void) const override;
+
 	void toXml(TiXmlElement *const xml) const override;
+	TiXmlElement * toXml(void) const override;
 
 	auto getPredictedPos(LPARAM lParam, const int iLower, const int iHigher) const
 	{
@@ -76,8 +80,6 @@ public:
 	}
 	inline const TString getType() const override { return TEXT("pbar"); };
 	inline const DcxControlTypes getControlType() const noexcept override { return DcxControlTypes::PROGRESSBAR; }
-
-	const TString getStyles(void) const override;
 
 protected:
 

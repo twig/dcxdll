@@ -54,6 +54,7 @@ public:
 	inline const DcxControlTypes getControlType() const noexcept override { return DcxControlTypes::IPADDRESS; }
 
 	void toXml(TiXmlElement *const xml) const override;
+	TiXmlElement * toXml(void) const override;
 
 protected:
 

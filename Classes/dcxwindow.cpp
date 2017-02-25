@@ -88,7 +88,7 @@ bool DcxWindow::isStyle( const LONG Styles ) const noexcept {
 
 LONG DcxWindow::removeStyle( const LONG Styles ) {
 
-	auto winStyles = GetWindowStyle(m_Hwnd);
+	auto winStyles = static_cast<LONG>(GetWindowStyle(m_Hwnd));
 	return SetWindowLongPtr( m_Hwnd, GWL_STYLE, winStyles &= ~Styles );
 }
 
@@ -100,7 +100,7 @@ LONG DcxWindow::removeStyle( const LONG Styles ) {
 
 LONG DcxWindow::addStyle( const LONG Styles ) {
 
-	auto winStyles = GetWindowStyle(m_Hwnd);
+	auto winStyles = static_cast<LONG>(GetWindowStyle(m_Hwnd));
 	return SetWindowLongPtr( m_Hwnd, GWL_STYLE, winStyles |= Styles );
 }
 
@@ -138,7 +138,7 @@ bool DcxWindow::isExStyle( const LONG Styles ) const noexcept {
 
 LONG DcxWindow::removeExStyle( const LONG Styles ) {
 
-	auto winStyles = GetWindowExStyle(m_Hwnd);
+	auto winStyles = static_cast<LONG>(GetWindowExStyle(m_Hwnd));
 	return SetWindowLongPtr( m_Hwnd, GWL_EXSTYLE, winStyles &= ~Styles );
 }
 
@@ -150,7 +150,7 @@ LONG DcxWindow::removeExStyle( const LONG Styles ) {
 
 LONG DcxWindow::addExStyle( const LONG Styles ) {
 
-	auto winStyles = GetWindowExStyle(m_Hwnd);
+	auto winStyles = static_cast<LONG>(GetWindowExStyle(m_Hwnd));
 	return SetWindowLongPtr( m_Hwnd, GWL_EXSTYLE, winStyles |= Styles );
 }
 

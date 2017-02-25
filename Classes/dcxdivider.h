@@ -51,8 +51,9 @@ public:
 	inline const TString getType() const override { return TEXT("divider"); };
 	inline const DcxControlTypes getControlType() const noexcept override { return DcxControlTypes::DIVIDER; }
 
-	virtual const TString getStyles(void) const override;
+	const TString getStyles(void) const override;
 	void toXml(TiXmlElement *const xml) const override;
+	TiXmlElement * toXml(void) const override;
 
 protected:
 	HWND m_leftPane;

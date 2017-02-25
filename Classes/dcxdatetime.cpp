@@ -36,10 +36,10 @@ DcxDateTime::DcxDateTime(const UINT ID, DcxDialog *const p_Dialog, const HWND mP
 	this->parseControlStyles(styles, &Styles, &ExStyles, &bNoTheme);
 
 	m_Hwnd = CreateWindowEx(
-		ExStyles | WS_EX_CLIENTEDGE,
+		static_cast<DWORD>(ExStyles) | WS_EX_CLIENTEDGE,
 		DCX_DATETIMECLASS,
 		nullptr,
-		WS_CHILD | Styles,
+		WS_CHILD | static_cast<DWORD>(Styles),
 		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
 		mParentHwnd,
 		(HMENU)ID,
@@ -69,15 +69,33 @@ DcxDateTime::~DcxDateTime() {
 void DcxDateTime::toXml(TiXmlElement *const xml) const
 {
 	char buf[64];
-	SYSTEMTIME st;
+	SYSTEMTIME st{};
 
-	ZeroMemory(&st, sizeof(SYSTEMTIME));
+	//ZeroMemory(&st, sizeof(SYSTEMTIME));
 
 	DateTime_GetSystemtime(m_Hwnd, &st);
-	wnsprintfA(buf, Dcx::countof(buf), "%ld", SystemTimeToMircTime(&st));
+	wnsprintfA(buf, static_cast<int>(Dcx::countof(buf)), "%ld", SystemTimeToMircTime(&st));
 	__super::toXml(xml);
 	xml->SetAttribute("caption", buf);
+	xml->SetAttribute("styles", getStyles().c_str());
+
 	return;
+}
+
+TiXmlElement * DcxDateTime::toXml(void) const
+{
+	auto xml = __super::toXml();
+
+	char buf[64];
+	SYSTEMTIME st{};
+
+	DateTime_GetSystemtime(m_Hwnd, &st);
+	wnsprintfA(buf, static_cast<int>(Dcx::countof(buf)), "%ld", SystemTimeToMircTime(&st));
+
+	xml->SetAttribute("caption", buf);
+	xml->SetAttribute("styles", getStyles().c_str());
+
+	return xml;
 }
 
 const TString DcxDateTime::getStyles(void) const

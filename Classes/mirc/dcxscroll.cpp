@@ -35,10 +35,10 @@ DcxScroll::DcxScroll(const UINT ID, DcxDialog *const p_Dialog, const HWND mParen
 	this->parseControlStyles(styles, &Styles, &ExStyles, &bNoTheme);
 
 	m_Hwnd = CreateWindowEx(
-		(DWORD)ExStyles,
+		static_cast<DWORD>(ExStyles),
 		TEXT("SCROLLBAR"),
 		nullptr,
-		(DWORD)(WS_CHILD | Styles),
+		WS_CHILD | static_cast<DWORD>(Styles),
 		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
 		mParentHwnd,
 		(HMENU)ID,
@@ -51,12 +51,15 @@ DcxScroll::DcxScroll(const UINT ID, DcxDialog *const p_Dialog, const HWND mParen
 	if (bNoTheme)
 		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
 
-	SCROLLINFO si;
-	si.cbSize = sizeof(SCROLLINFO);
-	si.fMask = SIF_POS | SIF_RANGE;
-	si.nPos = 0;
-	si.nMin = 0;
-	si.nMax = 100;
+	//SCROLLINFO si;
+	//si.cbSize = sizeof(SCROLLINFO);
+	//si.fMask = SIF_POS | SIF_RANGE;
+	//si.nPos = 0;
+	//si.nMin = 0;
+	//si.nMax = 100;
+
+	SCROLLINFO si{ sizeof(SCROLLINFO), SIF_POS | SIF_RANGE, 0, 100, 0U, 0, 0 };
+
 	SetScrollInfo(m_Hwnd, SB_CTL, &si, TRUE);
 
 	this->registreDefaultWindowProc();
@@ -216,11 +219,8 @@ void DcxScroll::parseCommandRequest( const TString & input ) {
 		const auto L = input.getnexttok().to_int();	// tok 4
 		const auto R = input.getnexttok().to_int();	// tok 5
 
-		SCROLLINFO si;
-		si.cbSize = sizeof( SCROLLINFO );
-		si.fMask = SIF_RANGE;
-		si.nMin = L;
-		si.nMax = R;
+		SCROLLINFO si{ sizeof(SCROLLINFO),SIF_RANGE,L,R,0U,0,0 };
+
 		SetScrollInfo( m_Hwnd, SB_CTL, &si, TRUE );
 	}
 	//xdid -v [NAME] [ID] [SWITCH] [VALUE]
@@ -228,10 +228,8 @@ void DcxScroll::parseCommandRequest( const TString & input ) {
 
 		const auto pos = input.getnexttok().to_int();	// tok 4
 
-		SCROLLINFO si;
-		si.cbSize = sizeof( SCROLLINFO );
-		si.fMask = SIF_POS;
-		si.nPos = pos;
+		SCROLLINFO si{ sizeof(SCROLLINFO),SIF_POS,0,0,0U,pos,0 };
+
 		SetScrollInfo( m_Hwnd, SB_CTL, &si, TRUE );
 	}
 	else
@@ -258,7 +256,7 @@ LRESULT DcxScroll::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 	switch (uMsg) {
 		case WM_HSCROLL: 
 		{
-			SCROLLINFO si;
+			SCROLLINFO si{};
 			si.cbSize = sizeof(SCROLLINFO);
 			si.fMask = SIF_PAGE | SIF_POS | SIF_RANGE | SIF_TRACKPOS;
 			if (!GetScrollInfo(m_Hwnd, SB_CTL, &si))
@@ -485,4 +483,26 @@ LRESULT DcxScroll::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
 	}
 
 	return 0L;
+}
+
+void DcxScroll::toXml(TiXmlElement *const xml) const
+{
+	__super::toXml(xml);
+
+	TString wtext;
+	TGetWindowText(m_Hwnd, wtext);
+	xml->SetAttribute("caption", wtext.c_str());
+	xml->SetAttribute("styles", getStyles().c_str());
+}
+
+TiXmlElement * DcxScroll::toXml(void) const
+{
+	auto xml = __super::toXml();
+
+	TString wtext;
+	TGetWindowText(m_Hwnd, wtext);
+	xml->SetAttribute("caption", wtext.c_str());
+	xml->SetAttribute("styles", getStyles().c_str());
+
+	return xml;
 }

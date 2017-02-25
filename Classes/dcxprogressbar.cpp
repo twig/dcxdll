@@ -37,10 +37,10 @@ DcxProgressBar::DcxProgressBar( _In_ const UINT ID, _In_ DcxDialog *const p_Dial
 	this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
 
 	m_Hwnd = CreateWindowEx(
-		ExStyles | WS_EX_CLIENTEDGE,
+		static_cast<DWORD>(ExStyles) | WS_EX_CLIENTEDGE,
 		DCX_PROGRESSBARCLASS,
 		nullptr,
-		WS_CHILD | Styles,
+		WS_CHILD | static_cast<DWORD>(Styles),
 		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
 		mParentHwnd,
 		(HMENU) ID,
@@ -390,8 +390,18 @@ LRESULT DcxProgressBar::setBKColor( const COLORREF clrBk ) {
 }
 
 void DcxProgressBar::toXml(TiXmlElement *const xml) const {
-	xml->SetAttribute("type", "pbar");
 	__super::toXml(xml);
+
+	xml->SetAttribute("styles", getStyles().c_str());
+}
+
+TiXmlElement * DcxProgressBar::toXml(void) const
+{
+	auto xml = __super::toXml();
+
+	xml->SetAttribute("styles", getStyles().c_str());
+
+	return xml;
 }
 
 /*!

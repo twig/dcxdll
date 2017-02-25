@@ -64,6 +64,7 @@ public:
 	inline const DcxControlTypes getControlType() const noexcept override { return DcxControlTypes::BUTTON; }
 
 	void toXml(TiXmlElement *const xml) const override;
+	TiXmlElement * toXml(void) const override;
 	const TString getStyles(void) const override;
 
 //protected:
@@ -83,7 +84,7 @@ private:
 	bool m_bBitmapText;
 	bool m_bHasIcons;
 
-	UINT m_iIconSize; //!< Button Icon Size 16,24,32
+	DcxIconSizes m_iIconSize; //!< Button Icon Size 16,24,32
 
 	static const UINT parseColorFlags(const TString & flags ) noexcept;
 	void DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam);

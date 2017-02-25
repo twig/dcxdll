@@ -24,10 +24,10 @@ DcxPager::DcxPager(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentH
 	this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
 
 	m_Hwnd = CreateWindowEx(
-		ExStyles | WS_EX_CONTROLPARENT,
+		static_cast<DWORD>(ExStyles) | WS_EX_CONTROLPARENT,
 		DCX_PAGERCLASS,
 		nullptr,
-		WS_CHILD | Styles,
+		WS_CHILD | static_cast<DWORD>(Styles),
 		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
 		mParentHwnd,
 		(HMENU) ID,
@@ -74,9 +74,25 @@ const TString DcxPager::getStyles(void) const
 void DcxPager::toXml(TiXmlElement *const xml) const
 {
 	__super::toXml(xml);
+
+	xml->SetAttribute("styles", getStyles().c_str());
+
 	const auto child = this->m_pParentDialog->getControlByHWND(this->m_ChildHWND);
 	if (child != nullptr)
 		xml->LinkEndChild(child->toXml());
+}
+
+TiXmlElement * DcxPager::toXml(void) const
+{
+	auto xml = __super::toXml();
+
+	xml->SetAttribute("styles", getStyles().c_str());
+
+	const auto child = this->m_pParentDialog->getControlByHWND(this->m_ChildHWND);
+	if (child != nullptr)
+		xml->LinkEndChild(child->toXml());
+
+	return xml;
 }
 
 /*!
@@ -363,7 +379,7 @@ LRESULT DcxPager::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 
 	case WM_MEASUREITEM:
 		{
-			auto cHwnd = GetDlgItem(m_Hwnd, wParam);
+			auto cHwnd = GetDlgItem(m_Hwnd, static_cast<int>(wParam));
 			if (IsWindow(cHwnd)) {
 				auto c_this = static_cast<DcxControl *>(GetProp(cHwnd, TEXT("dcx_cthis")));
 				if (c_this != nullptr)

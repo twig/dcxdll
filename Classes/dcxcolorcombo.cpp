@@ -37,10 +37,10 @@ DcxColorCombo::DcxColorCombo(const UINT ID, DcxDialog *const p_Dialog, const HWN
 	this->parseControlStyles(styles, &Styles, &ExStyles, &bNoTheme);
 
 	m_Hwnd = CreateWindowEx(
-		(DWORD)ExStyles,
+		static_cast<DWORD>(ExStyles),
 		DCX_COLORCOMBOCLASS,
 		nullptr,
-		(DWORD)(WS_CHILD | Styles),
+		WS_CHILD | static_cast<DWORD>(Styles),
 		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
 		mParentHwnd,
 		(HMENU)ID,

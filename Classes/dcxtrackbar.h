@@ -86,10 +86,13 @@ public:
 	inline const TString getType() const override { return TEXT("trackbar"); };
 	inline const DcxControlTypes getControlType() const noexcept override { return DcxControlTypes::TRACKBAR; }
 
+	void toXml(TiXmlElement *const xml) const override;
+	TiXmlElement * toXml(void) const override;
+	const TString getStyles(void) const override;
+
 private:
 	bool DrawTrackBarPart(HDC hdc, const TrackBarParts iPartId, const RECT *const rc = nullptr);
 
-protected:
 	HBITMAP m_hbmp[sizeof(TrackBarParts)]; // refer to TBBMP_*
 	COLORREF m_colTransparent;
 	bool m_bUpdatingTooltip;

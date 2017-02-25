@@ -34,10 +34,10 @@ DcxLine::DcxLine(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwn
 	this->parseControlStyles(styles, &Styles, &ExStyles, &bNoTheme);
 
 	m_Hwnd = CreateWindowEx(
-		ExStyles | WS_EX_TRANSPARENT,
+		static_cast<DWORD>(ExStyles) | WS_EX_TRANSPARENT,
 		TEXT("STATIC"),
 		nullptr,
-		WS_CHILD | Styles,
+		WS_CHILD | static_cast<DWORD>(Styles),
 		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
 		mParentHwnd,
 		(HMENU)ID,
@@ -91,7 +91,8 @@ const TString DcxLine::getStyles(void) const
 void DcxLine::toXml(TiXmlElement *const xml) const
 {
 	__super::toXml(xml);
-	TString styles(xml->Attribute("styles"));
+
+	TString styles(getStyles());
 	styles.remtok(TEXT("transparent"), 1); // line always has transparent style (why?)
 	if (!styles.empty())
 		xml->SetAttribute("styles", styles.c_str());
@@ -99,6 +100,22 @@ void DcxLine::toXml(TiXmlElement *const xml) const
 		xml->RemoveAttribute("styles");
 	if (!this->m_sText.empty())
 		xml->SetAttribute("caption", this->m_sText.c_str());
+}
+
+TiXmlElement * DcxLine::toXml(void) const
+{
+	auto xml = __super::toXml();
+
+	TString styles(getStyles());
+	styles.remtok(TEXT("transparent"), 1); // line always has transparent style (why?)
+	if (!styles.empty())
+		xml->SetAttribute("styles", styles.c_str());
+	else
+		xml->RemoveAttribute("styles");
+	if (!this->m_sText.empty())
+		xml->SetAttribute("caption", this->m_sText.c_str());
+
+	return xml;
 }
 
 /*!
@@ -312,7 +329,7 @@ void DcxLine::DrawClientArea(HDC hdc)
 			const auto oMode = SetBkMode(hdc, TRANSPARENT);
 			Auto(SetBkMode(hdc, oMode));
 
-			GetTextExtentPoint32(hdc,this->m_sText.to_chr(),this->m_sText.len(), &sz);
+			GetTextExtentPoint32(hdc,this->m_sText.to_chr(), static_cast<int>(this->m_sText.len()), &sz);
 
 			rcText.bottom = rcText.top + sz.cx;
 			rcText.right = rcText.left + sz.cy;

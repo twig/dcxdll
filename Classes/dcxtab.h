@@ -26,12 +26,13 @@ class DcxDialog;
  * blah
  */
 
-typedef struct tagDCXTCITEM {
+struct DCXTCITEM {
 
 	TString		tsTipText;	//!< Tooltip Text
 	HWND		mChildHwnd;	//!< Hwnd to child window
 
-} DCXTCITEM, * LPDCXTCITEM;
+};
+using LPDCXTCITEM = DCXTCITEM *;
 
 /*!
  * \brief blah
@@ -71,6 +72,7 @@ public:
 
 	const TString getStyles(void) const override;
 	void toXml(TiXmlElement *const xml) const override;
+	TiXmlElement * toXml(void) const override;
 
 protected:
 	static void GetCloseButtonRect(const RECT& rcItem, RECT& rcCloseButton);

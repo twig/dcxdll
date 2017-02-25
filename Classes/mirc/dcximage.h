@@ -65,13 +65,15 @@ protected:
 	void DrawBMPImage(HDC hdc, const int x, const int y, const int w, const int h);
 	void DrawClientArea(HDC hdc);
 
+	// clears existing image and icon data and sets pointers to null
+	void PreloadData(void);
+
 	HBITMAP m_hBitmap; //!< Bitmap
 	HICON m_hIcon; // !< icon
 
 	COLORREF m_clrTransColor; //!< Transparent color
-	// clears existing image and icon data and sets pointers to null
-	void PreloadData(void);
-	int m_iIconSize;
+
+	DcxIconSizes m_iIconSize;
 	bool m_bResizeImage; //!< Resize Image
 	bool m_bTileImage; //!< Tile Image
 	bool m_bBuffer; //!< Double Buffer Rendering, needed for GDI+ when WS_EX_COMPOSITED

@@ -40,10 +40,10 @@ DcxStacker::DcxStacker( const UINT ID, DcxDialog *const p_Dialog, const HWND mPa
 	this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
 
 	m_Hwnd = CreateWindowEx(
-		ExStyles | WS_EX_CONTROLPARENT,
+		static_cast<DWORD>(ExStyles) | WS_EX_CONTROLPARENT,
 		TEXT("ListBox"),
 		nullptr,
-		WS_CHILD | Styles, 
+		WS_CHILD | static_cast<DWORD>(Styles),
 		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
 		mParentHwnd,
 		(HMENU) ID,
@@ -340,8 +340,10 @@ void DcxStacker::parseCommandRequest( const TString &input) {
 			//	throw;
 			//}
 		}
-		//ListBox_InsertString(m_Hwnd, nPos, (LPARAM)sitem);
-		if (SendMessage(m_Hwnd,LB_INSERTSTRING,nPos,(LPARAM)sitem.get()) < 0)
+		//if (SendMessage(m_Hwnd,LB_INSERTSTRING, static_cast<WPARAM>(nPos), reinterpret_cast<LPARAM>(sitem.get())) < 0)
+		//	throw Dcx::dcxException("Error adding item to control");
+
+		if (ListBox_InsertString(m_Hwnd, nPos, sitem.get()) < 0)
 			throw Dcx::dcxException("Error adding item to control");
 
 		sitem.release();
@@ -353,7 +355,8 @@ void DcxStacker::parseCommandRequest( const TString &input) {
 		if (nPos < 0 && nPos >= ListBox_GetCount(m_Hwnd))
 			throw Dcx::dcxException("Invalid Item");
 		
-		SendMessage(m_Hwnd, LB_SETCURSEL, nPos, NULL);
+		//SendMessage(m_Hwnd, LB_SETCURSEL, static_cast<WPARAM>(nPos), NULL);
+		ListBox_SetCurSel(m_Hwnd, nPos);
 	}
 	// xdid -d [NAME] [ID] [SWITCH] [N]
 	else if (flags[TEXT('d')] && (numtok > 3)) {
@@ -425,15 +428,15 @@ DWORD DcxStacker::getItemCount(void) const {
 }
 
 LPDCXSITEM DcxStacker::getItem(const int nPos) const {
-	return (LPDCXSITEM)SendMessage(m_Hwnd,LB_GETITEMDATA,nPos,NULL);
+	return reinterpret_cast<LPDCXSITEM>(SendMessage(m_Hwnd,LB_GETITEMDATA, static_cast<WPARAM>(nPos), NULL));
 }
 
 LPDCXSITEM DcxStacker::getHotItem(void) const {
-	return (LPDCXSITEM)SendMessage(m_Hwnd,LB_GETITEMDATA,this->getItemID()-1,NULL);
+	return reinterpret_cast<LPDCXSITEM>(SendMessage(m_Hwnd,LB_GETITEMDATA, static_cast<WPARAM>(this->getItemID() - 1),NULL));
 }
 
 void DcxStacker::getItemRect(const int nPos, LPRECT rc) const {
-	SendMessage(m_Hwnd,LB_GETITEMRECT,(WPARAM)nPos,(LPARAM)rc);
+	ListBox_GetItemRect(m_Hwnd, nPos, rc);
 }
 
 const TString DcxStacker::getStyles(void) const {
@@ -449,6 +452,22 @@ const TString DcxStacker::getStyles(void) const {
 	if (!dcx_testflag(this->m_dStyles, STACKERS_COLLAPSE))
 		styles.addtok(TEXT("nocollapse"));
 	return styles;
+}
+
+void DcxStacker::toXml(TiXmlElement *const xml) const
+{
+	__super::toXml(xml);
+
+	xml->SetAttribute("styles", getStyles().c_str());
+}
+
+TiXmlElement * DcxStacker::toXml(void) const
+{
+	auto xml = __super::toXml();
+
+	xml->SetAttribute("styles", getStyles().c_str());
+
+	return xml;
 }
 
 void DcxStacker::DrawAliasedTriangle(const HDC hdc, const LPRECT rc, const COLORREF clrShape)
@@ -806,8 +825,8 @@ LRESULT DcxStacker::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 					}
 				}
 			}
-			idata->itemHeight = h;
-			idata->itemWidth = w;
+			idata->itemHeight = static_cast<UINT>(h);
+			idata->itemWidth = static_cast<UINT>(w);
 		}
 		break;
 

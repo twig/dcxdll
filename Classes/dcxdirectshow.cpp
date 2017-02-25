@@ -49,10 +49,10 @@ DcxDirectshow::DcxDirectshow(const UINT ID, DcxDialog *const p_Dialog, const HWN
 	this->parseControlStyles(styles, &Styles, &ExStyles, &bNoTheme);
 
 	m_Hwnd = CreateWindowEx(
-		(DWORD)(ExStyles | WS_EX_CLIENTEDGE),
+		static_cast<DWORD>(ExStyles | WS_EX_CLIENTEDGE),
 		TEXT("STATIC"),
 		nullptr,
-		(DWORD)(WS_CHILD | WS_CLIPSIBLINGS | Styles),
+		static_cast<DWORD>(WS_CHILD | WS_CLIPSIBLINGS | Styles),
 		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
 		mParentHwnd,
 		(HMENU)ID,
@@ -985,6 +985,7 @@ void DcxDirectshow::ReleaseAll(void)
 	this->m_pSeek = nullptr;
 	this->m_tsFilename.clear();	// = TEXT("");
 }
+
 // getProperty() is non-functional atm. Where do i get this interface from? or a similar one.
 HRESULT DcxDirectshow::getProperty(TCHAR *prop, const int type) const
 {
@@ -1176,6 +1177,7 @@ HRESULT DcxDirectshow::setAlpha(float alpha)
 	}
 	return hr;
 }
+
 HRESULT DcxDirectshow::setVideo(const TString &flags, const float brightness, const float contrast, const float hue, const float saturation)
 {
 	IBaseFilter* pVmr = nullptr; 
@@ -1280,6 +1282,7 @@ UINT64 DcxDirectshow::getPosition() const
 
 	return 0;
 }
+
 HRESULT DcxDirectshow::setPosition(const UINT64 pos)
 {
 	if (this->m_pSeek == nullptr)
@@ -1311,6 +1314,7 @@ UINT64 DcxDirectshow::getDuration() const
 
 	return 0;
 }
+
 DWORD DcxDirectshow::CheckSeekCapabilities(DWORD dwCaps) const
 {
 	if (this->m_pSeek == nullptr)
@@ -1360,6 +1364,22 @@ long DcxDirectshow::getVolume() const
 #pragma warning(pop)
 	}
 	return vol;
+}
+
+void DcxDirectshow::toXml(TiXmlElement *const xml) const
+{
+	__super::toXml(xml);
+
+	xml->SetAttribute("styles", getStyles().c_str());
+}
+
+TiXmlElement * DcxDirectshow::toXml(void) const
+{
+	auto xml = __super::toXml();
+
+	xml->SetAttribute("styles", getStyles().c_str());
+
+	return xml;
 }
 
 #endif // DCX_USE_DXSDK

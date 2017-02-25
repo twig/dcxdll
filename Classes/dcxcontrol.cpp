@@ -845,7 +845,7 @@ void DcxControl::parseBorderStyles(const TString & flags, LONG *const Styles, LO
 //		}
 //	}
 //	else if (prop == TEXT("mark")) {
-//		if (lstrcpyn(szReturnValue, m_tsMark.to_chr(), MIRC_BUFFER_SIZE_CCH) != nullptr)
+//		if (ts_strcpyn(szReturnValue, m_tsMark.to_chr(), MIRC_BUFFER_SIZE_CCH) != nullptr)
 //			return true;
 //	}
 //	else if (prop == TEXT("mouse")) {
@@ -862,7 +862,7 @@ void DcxControl::parseBorderStyles(const TString & flags, LONG *const Styles, LO
 //		//auto hParent = GetParent(m_Hwnd);
 //		//GetClassName( hParent, classname, Dcx::countof(classname) );
 //		//
-//		//if (lstrcmp(classname, TEXT("#32770")) == 0) {
+//		//if (ts_strcmp(classname, TEXT("#32770")) == 0) {
 //		//	szReturnValue[0] = TEXT('0');
 //		//	szReturnValue[1] = TEXT('\0');
 //		//}
@@ -885,11 +885,11 @@ void DcxControl::parseBorderStyles(const TString & flags, LONG *const Styles, LO
 //	}
 //	else if (prop == TEXT("type")) {
 //
-//		if (lstrcpyn(szReturnValue, getType().to_chr(), MIRC_BUFFER_SIZE_CCH) != nullptr)
+//		if (ts_strcpyn(szReturnValue, getType().to_chr(), MIRC_BUFFER_SIZE_CCH) != nullptr)
 //			return true;
 //	}
 //	else if (prop == TEXT("styles")) {
-//		if (lstrcpyn(szReturnValue, getStyles().to_chr(), MIRC_BUFFER_SIZE_CCH) != nullptr)
+//		if (ts_strcpyn(szReturnValue, getStyles().to_chr(), MIRC_BUFFER_SIZE_CCH) != nullptr)
 //			return true;
 //	}
 //	else if (prop == TEXT("font")) {
@@ -906,7 +906,7 @@ void DcxControl::parseBorderStyles(const TString & flags, LONG *const Styles, LO
 //			//ZeroMemory(&lfCurrent, sizeof(LOGFONT));
 //			if (GetObject(hFontControl, sizeof(LOGFONT), &lfCurrent) != 0)
 //			{
-//				if (lstrcpyn(szReturnValue, ParseLogfontToCommand(&lfCurrent).to_chr(), MIRC_BUFFER_SIZE_CCH) != nullptr)
+//				if (ts_strcpyn(szReturnValue, ParseLogfontToCommand(&lfCurrent).to_chr(), MIRC_BUFFER_SIZE_CCH) != nullptr)
 //					return true;
 //			}
 //		}
@@ -1020,7 +1020,7 @@ bool DcxControl::parseGlobalInfoRequest(const TString & input, const refString<T
 		stString<257> sClassname;
 
 		auto hParent = GetParent(m_Hwnd);
-		GetClassName(hParent, sClassname, sClassname.size());
+		GetClassName(hParent, sClassname, static_cast<int>(sClassname.size()));
 
 		if (sClassname == TEXT("#32770"))
 			szReturnValue = TEXT('0');
@@ -1166,7 +1166,7 @@ bool DcxControl::parseGlobalInfoRequest(const TString & input, const refString<T
 		//auto hParent = GetParent(m_Hwnd);
 		//GetClassName( hParent, classname, Dcx::countof(classname) );
 		//
-		//if (lstrcmp(classname, TEXT("#32770")) == 0) {
+		//if (ts_strcmp(classname, TEXT("#32770")) == 0) {
 		//	szReturnValue[0] = TEXT('0');
 		//	szReturnValue[1] = TEXT('\0');
 		//}
@@ -1358,7 +1358,7 @@ LRESULT CALLBACK DcxControl::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LP
 
 DcxControl * DcxControl::controlFactory(DcxDialog *const p_Dialog, const UINT mID, const TString & tsInput, const UINT offset, const UINT64 mask, HWND hParent) {
 
-	const auto type(tsInput.getfirsttok(offset));
+	const auto type(tsInput.getfirsttok(static_cast<int>(offset)));
 
 	RECT rc;
 
@@ -1643,7 +1643,7 @@ DcxControl * DcxControl::controlFactory(DcxDialog *const p_Dialog, const UINT mI
 			if (!IsWindow(winHwnd)) {
 				TCHAR windowHwnd[30];
 
-				mIRCLinker::evalex(windowHwnd, Dcx::countof(windowHwnd), TEXT("$window(%s).hwnd"), tsWin.to_chr());
+				mIRCLinker::evalex(windowHwnd, static_cast<const int>(Dcx::countof(windowHwnd)), TEXT("$window(%s).hwnd"), tsWin.to_chr());
 
 				winHwnd = (HWND)dcx_atoi(windowHwnd);
 			}
@@ -2516,7 +2516,7 @@ LRESULT DcxControl::CommonMessage( const UINT uMsg, WPARAM wParam, LPARAM lParam
 				if (dcx_testflag(m_pParentDialog->getEventMask(), DCX_EVENT_DRAG)) {
 					stString<20> sRet;
 
-					evalAliasEx(sRet, sRet.size(), TEXT("dragbegin,%u,%u"), getUserID(), count);
+					evalAliasEx(sRet, static_cast<int>(sRet.size()), TEXT("dragbegin,%u,%u"), getUserID(), count);
 
 					// cancel drag drop event
 					if (sRet == TEXT("cancel")) {
@@ -2634,11 +2634,11 @@ LRESULT DcxControl::CommonMessage( const UINT uMsg, WPARAM wParam, LPARAM lParam
 		//		this->callAliasEx(ret, "changing,%d,%d,%d,%d,%d,%d", this->getUserID(), (dcx_testflag(wp->flags, 3)),wp->x, wp->y, wp->cx, wp->cy);
 //
 		//		if (wp != nullptr) {
-		//			if (lstrcmp(TEXT("nosize"), ret) == 0)
+		//			if (ts_strcmp(TEXT("nosize"), ret) == 0)
 		//				wp->flags |= SWP_NOSIZE;
-		//			else if (lstrcmp(TEXT("nomove"), ret) == 0)
+		//			else if (ts_strcmp(TEXT("nomove"), ret) == 0)
 		//				wp->flags |= SWP_NOMOVE;
-		//			else if (lstrcmp(TEXT("nochange"), ret) == 0)
+		//			else if (ts_strcmp(TEXT("nochange"), ret) == 0)
 		//				wp->flags |= SWP_NOSIZE | SWP_NOMOVE;
 		//		}
 		//	}
@@ -2756,4 +2756,17 @@ TiXmlElement * DcxControl::toXml(void) const
 	auto result = new TiXmlElement("control");
 	toXml(result);
 	return result;
+}
+
+// Convert a number into the closest icon size
+DcxIconSizes DcxControl::NumToIconSize(const int &num) noexcept
+{
+	// if size is > max allowed, return max
+	if (num >= static_cast<int>(DcxIconSizes::MaxSize))
+		return DcxIconSizes::MaxSize;
+	// we now know that size is < max allowed, so if its > smallest size, return medium
+	if (num > static_cast<int>(DcxIconSizes::SmallIcon))
+		return DcxIconSizes::MediumIcon;
+	// otherwise return small
+	return DcxIconSizes::SmallIcon;
 }

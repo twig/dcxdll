@@ -33,7 +33,7 @@ DcxButton::DcxButton(const UINT ID, DcxDialog *const p_Dialog, const HWND mParen
 	, m_bTouched(false)
 	, m_bSelected(false)
 	, m_bTracking(FALSE)
-	, m_iIconSize(16)
+	, m_iIconSize(DcxIconSizes::SmallIcon)
 	, m_ImageList(nullptr)
 	, m_aBitmaps{ nullptr,nullptr,nullptr,nullptr }
 	, m_aTransp{ CLR_INVALID,CLR_INVALID,CLR_INVALID,CLR_INVALID }
@@ -43,10 +43,10 @@ DcxButton::DcxButton(const UINT ID, DcxDialog *const p_Dialog, const HWND mParen
 	parseControlStyles(styles, &Styles, &ExStyles, &bNoTheme);
 
 	m_Hwnd = CreateWindowEx(
-		ExStyles,
+		static_cast<DWORD>(ExStyles),
 		DCX_BUTTONCLASS,
 		nullptr,
-		WS_CHILD | BS_PUSHBUTTON | Styles,
+		WS_CHILD | BS_PUSHBUTTON | static_cast<DWORD>(Styles),
 		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
 		mParentHwnd,
 		(HMENU)ID,
@@ -209,12 +209,14 @@ void DcxButton::parseCommandRequest( const TString & input ) {
 	}
 	// xdid -l [NAME] [ID] [SWITCH] [SIZE]
 	else if (flags[TEXT('l')] && numtok > 3) {
-		const auto size = input.getnexttok().to_<UINT>();	// tok 4
+		//const auto size = input.getnexttok().to_<UINT>();	// tok 4
+		//
+		//if (size == 32U || size == 24U)
+		//	m_iIconSize = size;
+		//else
+		//	m_iIconSize = 16U;
 
-		if (size == 32 || size == 24)
-			m_iIconSize = size;
-		else
-			m_iIconSize = 16;
+		m_iIconSize = NumToIconSize(input.getnexttok().to_<int>());	// tok 4
 
 		if (getImageList() != nullptr) {
 			ImageList_Destroy(getImageList());
@@ -237,9 +239,9 @@ void DcxButton::parseCommandRequest( const TString & input ) {
 		// load the icon
 
 #if DCX_USE_WRAPPERS
-		Dcx::dcxIconResource icon(index, filename, (m_iIconSize > 16), tflags);
+		Dcx::dcxIconResource icon(index, filename, (m_iIconSize != DcxIconSizes::SmallIcon), tflags);
 #else
-		auto icon = dcxLoadIcon(index, filename, (m_iIconSize > 16), tflags);
+		auto icon = dcxLoadIcon(index, filename, (m_iIconSize != DcxIconSizes::SmallIcon), tflags);
 		
 		if (icon == nullptr)
 			throw Dcx::dcxException("Unable to load icon");
@@ -348,7 +350,7 @@ void DcxButton::setImageList( const HIMAGELIST himl ) noexcept
 
 HIMAGELIST DcxButton::createImageList() {
 	// set initial size of image list to countof(m_aBitmaps) = normal/hover/push/disabled
-	return ImageList_Create(m_iIconSize, m_iIconSize, ILC_COLOR32 | ILC_MASK, Dcx::countof(m_aBitmaps), 0);
+	return ImageList_Create(static_cast<int>(m_iIconSize), static_cast<int>(m_iIconSize), ILC_COLOR32 | ILC_MASK, static_cast<int>(Dcx::countof(m_aBitmaps)), 0);
 }
 
 const TString DcxButton::getStyles(void) const
@@ -363,11 +365,23 @@ const TString DcxButton::getStyles(void) const
 
 	return tsStyles;
 }
-	
+
 void DcxButton::toXml(TiXmlElement *const xml) const
 {
 	__super::toXml(xml);
+
 	xml->SetAttribute("caption", m_tsCaption.c_str());
+	xml->SetAttribute("styles", getStyles().c_str());
+}
+
+TiXmlElement * DcxButton::toXml(void) const
+{
+	auto xml = __super::toXml();
+
+	xml->SetAttribute("caption", m_tsCaption.c_str());
+	xml->SetAttribute("styles", getStyles().c_str());
+
+	return xml;
 }
 
 /*!
@@ -735,7 +749,7 @@ void DcxButton::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 			if (!m_bSelected && m_bShadowText)
 				dcxDrawShadowText(hdc, t.to_wchr(), t.len(), &rcTxt, DT_WORD_ELLIPSIS | DT_SINGLELINE | DT_CALCRECT, m_aColors[nState], 0,5,5);
 			else
-				DrawText(hdc, t.to_chr(), t.len(), &rcTxt, DT_WORD_ELLIPSIS | DT_SINGLELINE | DT_CALCRECT);
+				DrawText(hdc, t.to_chr(), static_cast<int>(t.len()), &rcTxt, DT_WORD_ELLIPSIS | DT_SINGLELINE | DT_CALCRECT);
 		}
 
 		const auto iCenter = w / 2;
@@ -745,8 +759,8 @@ void DcxButton::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 
 		// If there is an icon
 		if (himl != nullptr && m_bHasIcons) {
-			auto iIconLeft = (iCenter - ((m_iIconSize + ICON_XPAD + iTextW) / 2));
-			auto iIconTop = (iVCenter - (m_iIconSize / 2));
+			auto iIconLeft = (iCenter - ((static_cast<int>(m_iIconSize) + ICON_XPAD + iTextW) / 2));
+			auto iIconTop = (iVCenter - (static_cast<int>(m_iIconSize) / 2));
 
 			if (iIconLeft < BUTTON_XPAD)
 				iIconLeft = BUTTON_XPAD;
@@ -754,7 +768,7 @@ void DcxButton::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 			if (iIconTop < BUTTON_YPAD)
 				iIconTop = BUTTON_YPAD;
 
-			rcTxt.left = iIconLeft + m_iIconSize + ICON_XPAD;
+			rcTxt.left = iIconLeft + static_cast<int>(m_iIconSize) + ICON_XPAD;
 
 			if (nState == 3) // disabled
 				ImageList_Draw(himl, nState, hdc, iIconLeft, iIconTop, ILD_TRANSPARENT | ILD_BLEND50);
@@ -784,7 +798,7 @@ void DcxButton::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 				if (!m_bSelected && m_bShadowText)
 					dcxDrawShadowText(hdc,m_tsCaption.to_wchr(), m_tsCaption.len(),&rcTxt, DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP | DT_SINGLELINE, m_aColors[nState], 0, 5, 5);
 				else
-					DrawText( hdc, m_tsCaption.to_chr(), m_tsCaption.len( ), &rcTxt, DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP | DT_SINGLELINE );
+					DrawText( hdc, m_tsCaption.to_chr(), static_cast<int>(m_tsCaption.len( )), &rcTxt, DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP | DT_SINGLELINE );
 			}
 			else
 				mIRC_DrawText(hdc, m_tsCaption, &rcTxt, DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP | DT_SINGLELINE, (!m_bSelected && m_bShadowText));

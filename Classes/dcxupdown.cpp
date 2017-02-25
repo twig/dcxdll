@@ -33,10 +33,10 @@ DcxUpDown::DcxUpDown(const UINT ID, DcxDialog *const p_Dialog, const HWND mParen
 	this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
 
 	m_Hwnd = CreateWindowEx(	
-		ExStyles, 
+		static_cast<DWORD>(ExStyles),
 		DCX_UPDOWNCLASS, 
 		nullptr,
-		WS_CHILD | Styles, 
+		WS_CHILD | static_cast<DWORD>(Styles),
 		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
 		mParentHwnd,
 		(HMENU) ID,

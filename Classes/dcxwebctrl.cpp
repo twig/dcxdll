@@ -43,10 +43,10 @@ DcxWebControl::DcxWebControl(const UINT ID, DcxDialog *const p_Dialog, const HWN
 	parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
 
 	m_Hwnd = CreateWindowEx(	
-		ExStyles,
+		static_cast<DWORD>(ExStyles),
 		TEXT("STATIC"),
 		nullptr,
-		WS_CHILD | WS_CLIPSIBLINGS | Styles,
+		WS_CHILD | WS_CLIPSIBLINGS | static_cast<DWORD>(Styles),
 		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
 		mParentHwnd,
 		(HMENU) ID,
@@ -795,7 +795,7 @@ HRESULT DcxWebControl::Invoke( DISPID dispIdMember,
 				//	*pDispParams->rgvarg->pboolVal = VARIANT_FALSE;
 
 				stString<256> sRet;
-				evalAliasEx(sRet, sRet.size(), TEXT("nav_begin,%u,%ws"), getUserID(), arg2.bstrVal);
+				evalAliasEx(sRet, static_cast<int>(sRet.size()), TEXT("nav_begin,%u,%ws"), getUserID(), arg2.bstrVal);
 
 				if (sRet == TEXT("cancel"))
 					*pDispParams->rgvarg->pboolVal = VARIANT_TRUE;
@@ -833,7 +833,7 @@ HRESULT DcxWebControl::Invoke( DISPID dispIdMember,
 				//	*pDispParams->rgvarg->pboolVal = VARIANT_FALSE;
 
 				stString<256> sRet;
-				evalAliasEx(sRet, sRet.size(), TEXT("win_open,%u"), getUserID());
+				evalAliasEx(sRet, static_cast<int>(sRet.size()), TEXT("win_open,%u"), getUserID());
 
 				if (sRet == TEXT("cancel"))
 					*pDispParams->rgvarg->pboolVal = VARIANT_TRUE;

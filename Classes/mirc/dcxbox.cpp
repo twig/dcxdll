@@ -43,10 +43,10 @@ DcxBox::DcxBox(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd,
 	parseControlStyles(styles, &Styles, &ExStyles, &bNoTheme);
 
 	m_Hwnd = CreateWindowEx(
-		ExStyles | WS_EX_CONTROLPARENT,
+		static_cast<DWORD>(ExStyles) | WS_EX_CONTROLPARENT,
 		DCX_BOXCLASS,
 		nullptr,
-		Styles | WS_CHILD,
+		static_cast<DWORD>(Styles) | WS_CHILD,
 		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
 		mParentHwnd,
 		(HMENU)ID,
@@ -69,35 +69,32 @@ DcxBox::DcxBox(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd,
 	registreDefaultWindowProc();
 	SetProp(m_Hwnd, TEXT("dcx_cthis"), (HANDLE) this);
 
-	if (dcx_testflag(m_iBoxStyles, BOXS_CHECK)) {
+	if (dcx_testflag(m_iBoxStyles, BOXS_CHECK) || dcx_testflag(m_iBoxStyles, BOXS_RADIO))
+	{
+		Styles = WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS;
+
+		if (dcx_testflag(m_iBoxStyles, BOXS_CHECK))
+			Styles |= BS_AUTOCHECKBOX;
+		else if (dcx_testflag(m_iBoxStyles, BOXS_RADIO))
+			Styles |= BS_AUTORADIOBUTTON;
+
 		m_TitleButton = CreateWindowEx(
-			ExStyles,
+			static_cast<DWORD>(ExStyles),
 			TEXT("BUTTON"),
 			nullptr,
-			WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | BS_AUTOCHECKBOX,
+			static_cast<DWORD>(Styles),
 			CW_USEDEFAULT, CW_USEDEFAULT, 11, 10,
 			m_Hwnd,
 			(HMENU)ID,
 			GetModuleHandle(nullptr),
 			nullptr);
-	}
-	else if (dcx_testflag(m_iBoxStyles, BOXS_RADIO)) {
-		this->m_TitleButton = CreateWindowEx(
-			ExStyles,
-			TEXT("BUTTON"),
-			nullptr,
-			WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | BS_AUTORADIOBUTTON,
-			CW_USEDEFAULT, CW_USEDEFAULT, 11, 10,
-			m_Hwnd,
-			(HMENU)ID,
-			GetModuleHandle(nullptr),
-			nullptr);
-	}
-	if (IsWindow(m_TitleButton)) {
-		if (bNoTheme)
-			Dcx::UXModule.dcxSetWindowTheme(m_TitleButton, L" ", L" ");
-		if (!dcx_testflag(Styles, WS_DISABLED))
-			SendMessage(m_TitleButton, BM_SETCHECK, BST_CHECKED, 0L);
+
+		if (IsWindow(m_TitleButton)) {
+			if (bNoTheme)
+				Dcx::UXModule.dcxSetWindowTheme(m_TitleButton, L" ", L" ");
+			if (!dcx_testflag(Styles, WS_DISABLED))
+				SendMessage(m_TitleButton, BM_SETCHECK, BST_CHECKED, 0L);
+		}
 	}
 	if (Dcx::UXModule.isUseable())
 		_hTheme = Dcx::UXModule.dcxOpenThemeData(m_Hwnd, L"BUTTON");
@@ -502,9 +499,25 @@ void DcxBox::toXml(TiXmlElement *const xml) const
 	TGetWindowText(m_Hwnd, wtext);
 	__super::toXml(xml);
 	xml->SetAttribute("caption", wtext.c_str());
+	xml->SetAttribute("styles", getStyles().c_str());
 
 	if (m_pLayoutManager != nullptr)
 		m_pLayoutManager->getRoot()->toXml(xml);
+}
+
+TiXmlElement * DcxBox::toXml(void) const
+{
+	auto xml = __super::toXml();
+
+	TString wtext;
+	TGetWindowText(m_Hwnd, wtext);
+	xml->SetAttribute("caption", wtext.c_str());
+	xml->SetAttribute("styles", getStyles().c_str());
+
+	if (m_pLayoutManager != nullptr)
+		m_pLayoutManager->getRoot()->toXml(xml);
+
+	return xml;
 }
 
 const TString DcxBox::getStyles(void) const {
@@ -570,12 +583,12 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 								//
 								//evalAliasEx(ret, Dcx::countof(ret), TEXT("checkchange,%u,%d"), getUserID(), state);
 								//
-								//if (lstrcmp(TEXT("nochange"), ret) == 0)
+								//if (ts_strcmp(TEXT("nochange"), ret) == 0)
 								//	return 0L;
 
 								stString<10> sRet;
 
-								evalAliasEx(sRet, Dcx::countof(sRet), TEXT("checkchange,%u,%d"), getUserID(), state);
+								evalAliasEx(sRet, static_cast<int>(sRet.size()), TEXT("checkchange,%u,%d"), getUserID(), state);
 
 								if (sRet == TEXT("nochange"))
 									return 0L;
@@ -583,7 +596,12 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 
 							DCXENUM de{ m_TitleButton,m_Hwnd,state };
 
+#pragma warning(push)
+#pragma warning(disable: 4191)
+
 							EnumChildWindows(m_Hwnd,(WNDENUMPROC)DcxBox::EnumBoxChildren,(LPARAM)&de);
+
+#pragma warning(pop)
 							break;
 						}
 					} // end switch
@@ -629,7 +647,7 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 
 		case WM_MEASUREITEM:
 			{
-				auto cHwnd = GetDlgItem(m_Hwnd, wParam);
+				auto cHwnd = GetDlgItem(m_Hwnd, static_cast<int>(wParam));
 				if (IsWindow(cHwnd)) {
 					auto c_this = reinterpret_cast<DcxControl *>(GetProp(cHwnd, TEXT("dcx_cthis")));
 					if (c_this != nullptr)

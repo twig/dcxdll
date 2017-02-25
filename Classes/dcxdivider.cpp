@@ -33,10 +33,10 @@ DcxDivider::DcxDivider(const UINT ID, DcxDialog *const p_Dialog, const HWND mPar
 	this->parseControlStyles(styles, &Styles, &ExStyles, &bNoTheme);
 
 	m_Hwnd = CreateWindowEx(
-		ExStyles | WS_EX_CONTROLPARENT,
+		static_cast<DWORD>(ExStyles) | WS_EX_CONTROLPARENT,
 		DCX_DIVIDERCLASS,
 		nullptr,
-		WS_CHILD | Styles,
+		WS_CHILD | static_cast<DWORD>(Styles),
 		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
 		mParentHwnd,
 		(HMENU)ID,
@@ -80,7 +80,6 @@ const TString DcxDivider::getStyles(void) const
 
 	return styles;
 }
-
 
 void DcxDivider::parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme )
 {
@@ -149,8 +148,8 @@ void DcxDivider::parseCommandRequest( const TString & input ) {
 			control_data = input.getnexttok( TSTABCHAR).trim();	// tok 2
 
 		dvpi.fMask = DVPIM_CHILD | DVPIM_MIN | DVPIM_IDEAL;
-		dvpi.cxMin = data.getfirsttok( 4 ).to_int( );
-		dvpi.cxIdeal = data.getnexttok( ).to_int( );	// tok 5
+		dvpi.cxMin = data.getfirsttok( 4 ).to_<UINT>( );
+		dvpi.cxIdeal = data.getnexttok( ).to_<UINT>( );	// tok 5
 
 		if (control_data.numtok() < 6)
 			throw Dcx::dcxException("Insufficient Parameters");
@@ -182,7 +181,7 @@ void DcxDivider::parseCommandRequest( const TString & input ) {
 	}
 	// xdid -v [NAME] [ID] [SWITCH] [POS]
 	else if (flags[TEXT('v')] && numtok > 3) {
-		if (!setDivPos(input.getnexttok( ).to_int()))	// tok 4
+		if (!setDivPos(input.getnexttok( ).to_<UINT>()))	// tok 4
 			throw Dcx::dcxException("Divider position must be between bounds.");
 	}
 	else
@@ -212,6 +211,9 @@ LRESULT DcxDivider::setDivPos( const UINT iDivPos ) {
 void DcxDivider::toXml(TiXmlElement *const xml) const
 {
 	__super::toXml(xml);
+
+	xml->SetAttribute("styles", getStyles().c_str());
+
 	DVPANEINFO left;
 	DVPANEINFO right;
 	Divider_GetChildControl(m_Hwnd, DVF_PANELEFT, &left);
@@ -234,6 +236,38 @@ void DcxDivider::toXml(TiXmlElement *const xml) const
 	}
 	else
 		xml->LinkEndChild(new TiXmlElement("control"));
+}
+
+TiXmlElement * DcxDivider::toXml(void) const
+{
+	auto xml = __super::toXml();
+
+	xml->SetAttribute("styles", getStyles().c_str());
+
+	DVPANEINFO left;
+	DVPANEINFO right;
+	Divider_GetChildControl(m_Hwnd, DVF_PANELEFT, &left);
+	Divider_GetChildControl(m_Hwnd, DVF_PANELEFT, &right);
+	if (left.hChild != nullptr) {
+		auto dcxcleft = this->m_pParentDialog->getControlByHWND(left.hChild);
+		if (dcxcleft != nullptr)
+			xml->LinkEndChild(dcxcleft->toXml());
+		else
+			xml->LinkEndChild(new TiXmlElement("control"));
+	}
+	else
+		xml->LinkEndChild(new TiXmlElement("control"));
+	if (right.hChild != nullptr) {
+		auto dcxcright = this->m_pParentDialog->getControlByHWND(right.hChild);
+		if (dcxcright != nullptr)
+			xml->LinkEndChild(dcxcright->toXml());
+		else
+			xml->LinkEndChild(new TiXmlElement("control"));
+	}
+	else
+		xml->LinkEndChild(new TiXmlElement("control"));
+
+	return xml;
 }
 
 /*!
@@ -302,7 +336,7 @@ LRESULT DcxDivider::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 
 	case WM_MEASUREITEM:
 		{
-			auto cHwnd = GetDlgItem(m_Hwnd, wParam);
+			auto cHwnd = GetDlgItem(m_Hwnd, static_cast<int>(wParam));
 			if (IsWindow(cHwnd)) {
 				auto c_this = static_cast<DcxControl *>(GetProp(cHwnd, TEXT("dcx_cthis")));
 				if (c_this != nullptr)

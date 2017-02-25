@@ -65,23 +65,23 @@ private:
 	const bool &isAutoClose() const noexcept { return m_bAutoClose; }
 
 	int mIRCEvalToUnsignedInt(const TString &value);
-	int parseId(const TiXmlElement *const idElement);
+	UINT parseId(const TiXmlElement *const idElement);
 
-	void registerId(const TiXmlElement *const idElement, const int iNewID);
+	void registerId(const TiXmlElement *const idElement, const UINT iNewID);
 
 	void xml_xdialog(const TCHAR *const sSwitch, const TCHAR *const sArgs);
-	void xml_xdid(const int cid, const TCHAR *const sSwitch, const TCHAR *const sArgs);
+	void xml_xdid(const UINT cid, const TCHAR *const sSwitch, const TCHAR *const sArgs);
 
 	void xdialogEX(const TCHAR *const sw, const TCHAR *const dFormat, ...);
-	void xdidEX(const int cid, const TCHAR *const sw, const TCHAR *const dFormat, ...);
+	void xdidEX(const UINT cid, const TCHAR *const sw, const TCHAR *const dFormat, ...);
 
 	const TiXmlElement *m_pElement; //!< current Element
 	const TiXmlElement *m_pParent; //!< current Element's m_pParent
-	int m_iControls; //!< Simple counter for controls
+	UINT m_iControls; //!< Simple counter for controls
 
 	//Attribute vars
-	int m_iID;
-	int m_iParentID;
+	UINT m_iID;
+	UINT m_iParentID;
 	const char *m_sElem;
 	const char *m_sParentelem;
 	const char *m_sParenttype;

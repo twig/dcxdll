@@ -34,10 +34,10 @@ DcxText::DcxText(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwn
 	parseControlStyles(styles, &Styles, &ExStyles, &bNoTheme);
 
 	m_Hwnd = CreateWindowEx(
-		ExStyles,
+		static_cast<DWORD>(ExStyles),
 		TEXT("STATIC"),
 		nullptr,
-		WS_CHILD | Styles,
+		WS_CHILD | static_cast<DWORD>(Styles),
 		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
 		mParentHwnd,
 		(HMENU)ID,
@@ -357,4 +357,47 @@ void DcxText::DrawClientArea(HDC hdc)
 		SetTextColor(hdc, oldClr);
 	if (oldFont != nullptr)
 		SelectFont(hdc, oldFont);
+}
+
+const TString DcxText::getStyles(void) const
+{
+	auto tsStyles(__super::getStyles());
+	const auto Styles = GetWindowStyle(m_Hwnd);
+
+	if (dcx_testflag(Styles, DT_SINGLELINE))
+		tsStyles.addtok(TEXT("nowrap"));
+	if (dcx_testflag(Styles, DT_CENTER))
+		tsStyles.addtok(TEXT("center"));
+	if (dcx_testflag(Styles, DT_RIGHT))
+		tsStyles.addtok(TEXT("right"));
+	if (dcx_testflag(Styles, DT_NOPREFIX))
+		tsStyles.addtok(TEXT("noprefix"));
+	if (dcx_testflag(Styles, DT_END_ELLIPSIS))
+		tsStyles.addtok(TEXT("endellipsis"));
+	if (dcx_testflag(Styles, DT_PATH_ELLIPSIS))
+		tsStyles.addtok(TEXT("pathellipsis"));
+
+	return tsStyles;
+}
+
+void DcxText::toXml(TiXmlElement *const xml) const
+{
+	__super::toXml(xml);
+
+	TString wtext;
+	TGetWindowText(m_Hwnd, wtext);
+	xml->SetAttribute("caption", wtext.c_str());
+	xml->SetAttribute("styles", getStyles().c_str());
+}
+
+TiXmlElement * DcxText::toXml(void) const
+{
+	auto xml = __super::toXml();
+
+	TString wtext;
+	TGetWindowText(m_Hwnd, wtext);
+	xml->SetAttribute("caption", wtext.c_str());
+	xml->SetAttribute("styles", getStyles().c_str());
+
+	return xml;
 }

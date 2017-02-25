@@ -34,10 +34,10 @@ DcxComboEx::DcxComboEx(const UINT ID, DcxDialog *const  p_Dialog, const HWND mPa
 	this->parseControlStyles(styles, &Styles, &ExStyles, &bNoTheme);
 
 	m_Hwnd = CreateWindowEx(
-		ExStyles,
+		static_cast<DWORD>(ExStyles),
 		DCX_COMBOEXCLASS,
 		nullptr,
-		WS_CHILD | CBS_AUTOHSCROLL | Styles,
+		WS_CHILD | CBS_AUTOHSCROLL | static_cast<DWORD>(Styles),
 		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
 		mParentHwnd,
 		(HMENU)ID,
@@ -52,7 +52,7 @@ DcxComboEx::DcxComboEx(const UINT ID, DcxDialog *const  p_Dialog, const HWND mPa
 		//SendMessage( m_Hwnd, CBEM_SETWINDOWTHEME, NULL, (LPARAM)(LPCWSTR)L" "); // do this instead?
 	}
 
-	this->m_EditHwnd = (HWND) this->getEditControl();
+	this->m_EditHwnd = getEditControl();
 
 	if (IsWindow(this->m_EditHwnd)) {
 		if (bNoTheme)
@@ -478,8 +478,8 @@ void DcxComboEx::parseCommandRequest( const TString &input) {
 	// [NAME] [ID] -a [N] [INDENT] [ICON] [STATE] [OVERLAY] Item Text
 	if (flags[TEXT('a')] && numtok > 8) {
 #if TSTRING_TESTCODE
-		auto nPos = input.getnexttokas<int>() - 1;		// tok 4
-		const auto indent = input.getnexttokas<int>();	// tok 5
+		auto nPos = input.getnexttokas<int>() - 1;			// tok 4
+		const auto indent = input.getnexttokas<int>();		// tok 5
 		const auto icon = input.getnexttokas<int>() - 1;	// tok 6
 		const auto state = input.getnexttokas<int>() - 1;	// tok 7
 		const auto overlay = input.getnexttokas<int>();		// tok 8		(never used, here for spacing only atm)
@@ -547,7 +547,7 @@ void DcxComboEx::parseCommandRequest( const TString &input) {
 				//if (nMaxStrlen > nHorizExtent)
 				//	SendMessage(combo, CB_SETHORIZONTALEXTENT, nMaxStrlen, NULL);
 
-				const auto nHorizExtent = (int)SendMessage(combo, CB_GETHORIZONTALEXTENT, NULL, NULL);
+				const auto nHorizExtent = static_cast<int>(SendMessage(combo, CB_GETHORIZONTALEXTENT, NULL, NULL));
 
 				auto hdc = GetDC(m_Hwnd);
 
@@ -561,10 +561,10 @@ void DcxComboEx::parseCommandRequest( const TString &input) {
 					if (hFont != nullptr)
 						hOldFont = SelectFont(hdc, hFont);
 
-					if (GetTextExtentPoint32(hdc, itemtext.to_chr(), itemtext.len(), &sz))
+					if (GetTextExtentPoint32(hdc, itemtext.to_chr(), static_cast<int>(itemtext.len()), &sz))
 					{
 						if (sz.cx > nHorizExtent)
-							SendMessage(combo, CB_SETHORIZONTALEXTENT, sz.cx, NULL);
+							SendMessage(combo, CB_SETHORIZONTALEXTENT, static_cast<WPARAM>(sz.cx), NULL);
 					}
 
 					if (hFont != nullptr)
@@ -816,8 +816,9 @@ LRESULT DcxComboEx::getItem( PCOMBOBOXEXITEM lpcCBItem ) const {
 * blah
 */
 
-LRESULT DcxComboEx::getEditControl( ) const {
-	return SendMessage( m_Hwnd, CBEM_GETEDITCONTROL, (WPARAM) 0U, (LPARAM) 0U );
+HWND DcxComboEx::getEditControl( ) const noexcept
+{
+	return reinterpret_cast<HWND>(SendMessage( m_Hwnd, CBEM_GETEDITCONTROL, (WPARAM) 0U, (LPARAM) 0U ));
 }
 
 /*!
@@ -1164,4 +1165,26 @@ LRESULT CALLBACK DcxComboEx::ComboExEditProc( HWND mHwnd, UINT uMsg, WPARAM wPar
 		break;
 	}
 	return CallWindowProc( lpce->OldProc, mHwnd, uMsg, wParam, lParam );
+}
+
+void DcxComboEx::toXml(TiXmlElement * const xml) const
+{
+	__super::toXml(xml);
+
+	//TString wtext;
+	//TGetWindowText(m_Hwnd, wtext);
+	//xml->SetAttribute("caption", wtext.c_str());
+	xml->SetAttribute("styles", getStyles().c_str());
+}
+
+TiXmlElement * DcxComboEx::toXml(void) const
+{
+	auto xml = __super::toXml();
+
+	//TString wtext;
+	//TGetWindowText(m_Hwnd, wtext);
+	//xml->SetAttribute("caption", wtext.c_str());
+	xml->SetAttribute("styles", getStyles().c_str());
+
+	return xml;
 }

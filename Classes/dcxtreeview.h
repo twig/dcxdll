@@ -17,6 +17,7 @@
 
 #include "defines.h"
 #include "Classes/dcxcontrol.h"
+#include "Classes\custom\ListHelper.h"
 
 #include <string>
 
@@ -104,6 +105,7 @@ using LPDCXTVITEM = DCXTVITEM *;
 
 class DcxTreeView
 	: public DcxControl
+	, public DcxListHelper
 {
 public:
 	DcxTreeView() = delete;
@@ -125,8 +127,7 @@ public:
 	void setImageList( HIMAGELIST himl, const int type );
 	HIMAGELIST createImageList( );
 
-	//HTREEITEM insertItem( );
-	void insertItem( const TString * path, const TString * data, const TString * Tooltip );
+	void insertItem( const TString &tsPath, const TString &tsData, const TString &tsTooltip );
 
 	void getItemText( HTREEITEM * hItem, TCHAR * szBuffer, const int cchTextMax ) const;
 	int getChildCount( HTREEITEM * hParent ) const;
@@ -135,12 +136,14 @@ public:
 	inline const DcxControlTypes getControlType() const noexcept override { return DcxControlTypes::TREEVIEW; }
 
 	const TString getStyles(void) const override;
+	void toXml(TiXmlElement *const xml) const override;
+	TiXmlElement * toXml(void) const override;
 
 protected:
 
 	WNDPROC m_OrigEditProc; //!< Label Edit Control Orignal Procedure
 
-	UINT m_iIconSize; //!< Icon size
+	DcxIconSizes m_iIconSize; //!< Icon size
 
 	bool m_bDestroying; //!< this flag is set when the listview is about to get destroyed to avoid senseless events
 
@@ -148,7 +151,7 @@ protected:
 
 	/* *** */
 
-	HTREEITEM parsePath(const TString *path, HTREEITEM *hParent = nullptr, HTREEITEM *hInsertAt = nullptr) const;
+	HTREEITEM parsePath(const TString &path, HTREEITEM *hParent = nullptr, HTREEITEM *hInsertAt = nullptr) const;
 	TString getPathFromItem(HTREEITEM *item) const;
 
 	bool matchItemText( HTREEITEM * hItem, const TString &search, const DcxSearchTypes &SearchType ) const;

@@ -39,10 +39,10 @@ DcxList::DcxList(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwn
 	this->parseControlStyles(styles, &Styles, &ExStyles, &bNoTheme);
 
 	m_Hwnd = CreateWindowEx(
-		ExStyles | WS_EX_CLIENTEDGE,
+		static_cast<DWORD>(ExStyles) | WS_EX_CLIENTEDGE,
 		TEXT("LISTBOX"),
 		nullptr,
-		WS_CHILD | Styles,
+		WS_CHILD | static_cast<DWORD>(Styles),
 		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
 		mParentHwnd,
 		(HMENU)ID,
@@ -251,7 +251,7 @@ void DcxList::parseInfoRequest( const TString & input, const refString<TCHAR, MI
 			const auto n = ListBox_GetSelCount(m_Hwnd);
 
 			if (n > 0) {
-				auto p = std::make_unique<int[]>(n);
+				auto p = std::make_unique<int[]>(static_cast<size_t>(n));
 				ListBox_GetSelItems(m_Hwnd, n, p.get());
 
 				// get a unique value
@@ -261,10 +261,10 @@ void DcxList::parseInfoRequest( const TString & input, const refString<TCHAR, MI
 					if ((i < 0) || (i >= n))
 						throw Dcx::dcxException("Requested Item Out Of Selection Range");
 
-					nSel = p[i];
+					nSel = p[static_cast<size_t>(i)];
 				}
 				else
-					nSel = p[0];	// no item requested, so return the first selected item.
+					nSel = p[0U];	// no item requested, so return the first selected item.
 			}
 		}
 		// single select
@@ -291,7 +291,7 @@ void DcxList::parseInfoRequest( const TString & input, const refString<TCHAR, MI
 			const auto n = ListBox_GetSelCount(m_Hwnd);
 
 			if (n > 0) {
-				auto p = std::make_unique<int[]>(n);
+				auto p = std::make_unique<int[]>(static_cast<size_t>(n));
 				ListBox_GetSelItems(m_Hwnd, n, p.get());
 
 				TString path;
@@ -303,13 +303,13 @@ void DcxList::parseInfoRequest( const TString & input, const refString<TCHAR, MI
 					if (i == 0)
 						path += n;	// get total number of selected items
 					else if ((i > 0) && (i <= n))
-						path += (p[i - 1] + 1);
+						path += (p[static_cast<size_t>(i) - 1U] + 1);
 				}
 				else {
 					// get all items in a long comma seperated string
 
 					for (auto i = decltype(n){0}; i < n; i++)
-						path.addtok((p[i] + 1), TSCOMMACHAR);
+						path.addtok((p[static_cast<size_t>(i)] + 1), TSCOMMACHAR);
 
 				}
 				if (path.len() > MIRC_BUFFER_SIZE_CCH)
@@ -719,18 +719,18 @@ void DcxList::parseCommandRequest( const TString & input ) {
 			auto tok = TEXT("\r\n");
 
 			auto max_lines = contents.numtok(tok);
-			if (max_lines == 1) {
+			if (max_lines == 1U) {
 				tok = TEXT("\n");
 				max_lines = contents.numtok(tok);
 			}
 
 			// no data in file.
-			if (max_lines == 0)
+			if (max_lines == 0U)
 				return;
 
 			// If neg number is given start from (last line) - startN
 			if (startN < 0)
-				startN = (max_lines + startN);
+				startN = (static_cast<int>(max_lines) + startN);
 
 			// if start N < 1, make it 1. Allows 0 item. Or case where higher neg number was supplied than lines avail.
 			if (startN < 1)
@@ -738,10 +738,10 @@ void DcxList::parseCommandRequest( const TString & input ) {
 
 			// If neg number is given set end to (last line) - endN
 			if (endN < 0)
-				endN = (max_lines + endN);
+				endN = (static_cast<int>(max_lines) + endN);
 			// if endN > max or == 0, set to max, allows 0 for end meaning all
-			else if ((endN > (int)max_lines) || (endN == 0))
-				endN = max_lines;
+			else if ((endN > static_cast<int>(max_lines)) || (endN == 0))
+				endN = static_cast<int>(max_lines);
 
 			// if endN < 1 set it to 1
 			if (endN < 1)
@@ -1034,7 +1034,7 @@ LRESULT DcxList::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 		case DL_BEGINDRAG:
 		{
 			// callback DIALOG itemdragbegin THIS_ID DRAGGEDITEM
-			evalAliasEx(szRet, Dcx::countof(szRet), TEXT("itemdragbegin,%u,%d"), getUserID(), sel);
+			evalAliasEx(szRet, static_cast<int>(szRet.size()), TEXT("itemdragbegin,%u,%d"), getUserID(), sel);
 
 			// cancel drag event
 			return (szRet != TEXT("nodrag"));
@@ -1043,7 +1043,7 @@ LRESULT DcxList::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 		case DL_CANCELDRAG:
 		{
 			// callback DIALOG itemdragcancel THIS_ID DRAGGEDITEM
-			evalAliasEx(szRet, Dcx::countof(szRet), TEXT("itemdragcancel,%u,%d"), getUserID(), sel);
+			evalAliasEx(szRet, static_cast<int>(szRet.size()), TEXT("itemdragcancel,%u,%d"), getUserID(), sel);
 
 			if (m_bUseDrawInsert)
 				m_pParentDialog->redrawWindow();
@@ -1063,7 +1063,7 @@ LRESULT DcxList::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 				DrawDragLine(item);
 
 			// callback DIALOG itemdrag THIS_ID SEL_ITEM MOUSE_OVER_ITEM
-			evalAliasEx(szRet, Dcx::countof(szRet), TEXT("itemdrag,%u,%d,%d"), getUserID(), sel, item + 1);
+			evalAliasEx(szRet, static_cast<int>(szRet.size()), TEXT("itemdrag,%u,%d,%d"), getUserID(), sel, item + 1);
 
 			if (!szRet.empty()) // check for empty string first
 			{
@@ -1428,7 +1428,7 @@ bool DcxList::matchItemText(const int nItem, const TString &search, const DcxSea
 	const auto len = ListBox_GetTextLen(m_Hwnd, nItem);
 
 	if (len > 0) {
-		auto itemtext = std::make_unique<TCHAR[]>(std::max(len + 1, MIRC_BUFFER_SIZE_CCH));
+		auto itemtext = std::make_unique<TCHAR[]>(static_cast<size_t>(std::max(len + 1, MIRC_BUFFER_SIZE_CCH)));
 
 		ListBox_GetText(m_Hwnd, nItem, itemtext.get());
 
@@ -1491,7 +1491,7 @@ void DcxList::UpdateHorizExtent(const int nPos)
 
 		if (ListBox_GetText(m_Hwnd, nPos, itemtext.to_chr()) != LB_ERR)
 		{
-			if (GetTextExtentPoint32(hdc, itemtext.to_chr(), itemtext.len(), &sz))
+			if (GetTextExtentPoint32(hdc, itemtext.to_chr(), static_cast<int>(itemtext.len()), &sz))
 			{
 				if (sz.cx > nHorizExtent)
 					ListBox_SetHorizontalExtent(m_Hwnd, sz.cx);
@@ -1519,4 +1519,20 @@ void DcxList::UpdateHorizExtent(void)
 
 	if (iLongestItem >= 0)
 		UpdateHorizExtent(iLongestItem);
+}
+
+void DcxList::toXml(TiXmlElement *const xml) const
+{
+	__super::toXml(xml);
+
+	xml->SetAttribute("styles", getStyles().c_str());
+}
+
+TiXmlElement * DcxList::toXml(void) const
+{
+	auto xml = __super::toXml();
+
+	xml->SetAttribute("styles", getStyles().c_str());
+
+	return xml;
 }

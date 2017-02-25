@@ -35,10 +35,10 @@ DcxTab::DcxTab(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd,
 	this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
 
 	m_Hwnd = CreateWindowEx(	
-		ExStyles | WS_EX_CONTROLPARENT, 
+		static_cast<DWORD>(ExStyles) | WS_EX_CONTROLPARENT,
 		DCX_TABCTRLCLASS, 
 		nullptr,
-		WS_CHILD | Styles, 
+		WS_CHILD | static_cast<DWORD>(Styles),
 		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
 		mParentHwnd,
 		(HMENU) ID,
@@ -1001,6 +1001,9 @@ const TString DcxTab::getStyles(void) const {
 
 void DcxTab::toXml(TiXmlElement *const xml) const {
 	__super::toXml(xml);
+
+	xml->SetAttribute("styles", getStyles().c_str());
+
 	const auto count = this->getTabCount();
 	auto buf = std::make_unique<TCHAR[]>(MIRC_BUFFER_SIZE_CCH);
 	TCITEM tci = { 0 };
@@ -1029,6 +1032,44 @@ void DcxTab::toXml(TiXmlElement *const xml) const {
 			}
 		}
 	}
+}
+
+TiXmlElement * DcxTab::toXml(void) const
+{
+	auto xml = __super::toXml();
+
+	xml->SetAttribute("styles", getStyles().c_str());
+
+	const auto count = this->getTabCount();
+	auto buf = std::make_unique<TCHAR[]>(MIRC_BUFFER_SIZE_CCH);
+	TCITEM tci = { 0 };
+
+	for (auto i = decltype(count){0}; i < count; i++) {
+		tci.cchTextMax = MIRC_BUFFER_SIZE_CCH - 1;
+		tci.pszText = buf.get();
+		tci.mask |= TCIF_TEXT;
+		if (TabCtrl_GetItem(m_Hwnd, i, &tci)) {
+			auto lpdtci = reinterpret_cast<LPDCXTCITEM>(tci.lParam);
+			auto ctrl = this->m_pParentDialog->getControlByHWND(lpdtci->mChildHwnd);
+			if (ctrl != nullptr) {
+				auto ctrlxml = ctrl->toXml();
+				// we need to remove hidden style here
+				TString styles(ctrlxml->Attribute("styles"));
+				if (!styles.empty()) {
+					styles.remtok(TEXT("hidden"), 1);
+					if (!styles.empty())
+						ctrlxml->SetAttribute("styles", styles.c_str());
+					else
+						ctrlxml->RemoveAttribute("styles");
+				}
+				if (dcx_testflag(tci.mask, TCIF_TEXT))
+					ctrlxml->SetAttribute("caption", TString(tci.pszText).c_str());
+				xml->LinkEndChild(ctrlxml);
+			}
+		}
+	}
+
+	return xml;
 }
 
 /*!
@@ -1306,7 +1347,7 @@ LRESULT DcxTab::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 
 		case WM_MEASUREITEM:
 			{
-				auto cHwnd = GetDlgItem(m_Hwnd, wParam);
+				auto cHwnd = GetDlgItem(m_Hwnd, static_cast<int>(wParam));
 				if (IsWindow(cHwnd)) {
 					auto c_this = reinterpret_cast<DcxControl *>(GetProp(cHwnd, TEXT("dcx_cthis")));
 					if (c_this != nullptr)

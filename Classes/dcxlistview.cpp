@@ -428,17 +428,17 @@ void DcxListView::parseInfoRequest( const TString &input, const refString<TCHAR,
 		if ((col < -1) || (col >= count) || (count <= 0))
 			throw Dcx::dcxException("Out of Range");
 
-		auto val = std::make_unique<int[]>((UINT)count);
+		auto val = std::make_unique<int[]>(static_cast<UINT>(count));
 
 		ListView_GetColumnOrderArray(m_Hwnd, count, val.get());
 
 		// increase each value by 1 for easy user indexing
 		for (auto i = decltype(count){0}; i < count; i++)
-			val[i]++;
+			val[static_cast<size_t>(i)]++;
 
 		// get specific column
 		if (col > -1) {
-			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), val[col]);
+			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), val[static_cast<size_t>(col)]);
 			return;
 		}
 
@@ -446,7 +446,7 @@ void DcxListView::parseInfoRequest( const TString &input, const refString<TCHAR,
 		TString buff((UINT)(count * 32));
 
 		for (auto i = decltype(count){0}; i < count; i++)
-			buff.addtok(val[i]);
+			buff.addtok(val[static_cast<size_t>(i)]);
 
 		szReturnValue = buff.trim().to_chr();
 	}
@@ -3142,8 +3142,8 @@ int CALLBACK DcxListView::sortItemsEx( LPARAM lParam1, LPARAM lParam2, LPARAM lP
 	plvsort->itemtext1[0] = TEXT('\0');
 	plvsort->itemtext2[0] = TEXT('\0');
 
-	ListView_GetItemText( plvsort->m_Hwnd, lParam1, plvsort->nColumn, plvsort->itemtext1, Dcx::countof(plvsort->itemtext1));
-	ListView_GetItemText( plvsort->m_Hwnd, lParam2, plvsort->nColumn, plvsort->itemtext2, Dcx::countof(plvsort->itemtext2));
+	ListView_GetItemText( plvsort->m_Hwnd, lParam1, plvsort->nColumn, plvsort->itemtext1, static_cast<int>(Dcx::countof(plvsort->itemtext1)));
+	ListView_GetItemText( plvsort->m_Hwnd, lParam2, plvsort->nColumn, plvsort->itemtext2, static_cast<int>(Dcx::countof(plvsort->itemtext2)));
 
 	// CUSTOM Sort
 	if (dcx_testflag(plvsort->iSortFlags, LVSS_CUSTOM ))
@@ -3158,11 +3158,11 @@ int CALLBACK DcxListView::sortItemsEx( LPARAM lParam1, LPARAM lParam2, LPARAM lP
 		// Should solve some item name issues.
 		mIRCLinker::execex(TEXT("/!set -nu1 %%dcx_1sort%d %s"), plvsort->itemtext1, plvsort->itemtext1 );
 		mIRCLinker::execex(TEXT("/!set -nu1 %%dcx_2sort%d %s"), plvsort->itemtext2, plvsort->itemtext2 );
-		mIRCLinker::evalex( sRes, sRes.size(), TEXT("$%s(%%dcx_1sort%d,%%dcx_2sort%d)"), plvsort->tsCustomAlias.to_chr( ), plvsort->itemtext1, plvsort->itemtext2 );
+		mIRCLinker::evalex( sRes, static_cast<int>(sRes.size()), TEXT("$%s(%%dcx_1sort%d,%%dcx_2sort%d)"), plvsort->tsCustomAlias.to_chr( ), plvsort->itemtext1, plvsort->itemtext2 );
 		//
 		//mIRCLinker::evalex( sRes, Dcx::countof(sRes), TEXT("$%s(%s,%s)"), plvsort->tsCustomAlias.to_chr( ), itemtext1, itemtext2 );
 
-		auto ires = dcx_atoi(sRes);
+		auto ires = dcx_atoi(sRes.data());
 
 		if (ires < -1)
 			ires = -1;
@@ -3404,11 +3404,11 @@ LRESULT DcxListView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 							//TCHAR ret[256];
 							//evalAliasEx(ret, Dcx::countof(ret), TEXT("labelbegin,%u,%d,%d"), getUserID(), lplvdi->item.iItem +1, lplvdi->item.iSubItem +1);
 							//
-							//if ( lstrcmp( TEXT("noedit"), ret ) == 0)
+							//if ( ts_strcmp( TEXT("noedit"), ret ) == 0)
 							//	return TRUE;
 
 							stString<256> sRet;
-							evalAliasEx(sRet, Dcx::countof(sRet), TEXT("labelbegin,%u,%d,%d"), getUserID(), lplvdi->item.iItem + 1, lplvdi->item.iSubItem + 1);
+							evalAliasEx(sRet, static_cast<int>(sRet.size()), TEXT("labelbegin,%u,%d,%d"), getUserID(), lplvdi->item.iItem + 1, lplvdi->item.iSubItem + 1);
 
 							if (sRet == TEXT("noedit"))
 								return TRUE;
@@ -3428,11 +3428,11 @@ LRESULT DcxListView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 								//TCHAR ret[256];
 								//evalAliasEx( ret, Dcx::countof(ret), TEXT("labelend,%u,%s"), getUserID( ), lplvdi->item.pszText );
 								//
-								//if ( lstrcmp( TEXT("noedit"), ret ) == 0)
+								//if ( ts_strcmp( TEXT("noedit"), ret ) == 0)
 								//	return FALSE;
 
 								stString<256> sRet;
-								evalAliasEx(sRet, Dcx::countof(sRet), TEXT("labelend,%u,%s"), getUserID(), lplvdi->item.pszText);
+								evalAliasEx(sRet, static_cast<int>(sRet.size()), TEXT("labelend,%u,%s"), getUserID(), lplvdi->item.pszText);
 
 								if (sRet == TEXT("noedit"))
 									return FALSE;
@@ -3685,7 +3685,7 @@ LRESULT DcxListView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 							//if ((wVKey == 32) && dcx_testflag(ListView_GetExtendedListViewStyle(m_Hwnd), LVS_EX_CHECKBOXES)) {
 							//
 							//	// stop it from allowing user to change checkstate by pressing spacebar
-							//	if (lstrcmp(TEXT("nospace"), cb) == 0) {
+							//	if (ts_strcmp(TEXT("nospace"), cb) == 0) {
 							//		bParsed = TRUE;
 							//		return TRUE;
 							//	}
@@ -3698,7 +3698,7 @@ LRESULT DcxListView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 
 							stString<15> cb;
 
-							evalAliasEx(cb, Dcx::countof(cb), TEXT("keydown,%u,%d"), getUserID(), wVKey);
+							evalAliasEx(cb, static_cast<int>(cb.size()), TEXT("keydown,%u,%d"), getUserID(), wVKey);
 
 							// space to change checkbox state
 							if ((wVKey == 32) && dcx_testflag(ListView_GetExtendedListViewStyle(m_Hwnd), LVS_EX_CHECKBOXES)) {
@@ -3712,7 +3712,7 @@ LRESULT DcxListView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 								const auto index = ListView_GetNextItem(m_Hwnd, -1, LVNI_FOCUSED);
 
 								// TODO: twig: change this if we get multiple checkbox columns working
-								evalAliasEx(cb, Dcx::countof(cb), TEXT("stateclick,%u,%d,1"), getUserID(), index + 1);
+								evalAliasEx(cb, static_cast<int>(cb.size()), TEXT("stateclick,%u,%d,1"), getUserID(), index + 1);
 							}
 					}
 						break;
@@ -3896,11 +3896,11 @@ LRESULT DcxListView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
 						//TCHAR ret[256];
 						//evalAliasEx( ret, Dcx::countof(ret), TEXT("trackbegin,%u,%d"), getUserID(), pHeader->iItem +1);
 						//
-						//if (lstrcmp(TEXT("notrack"), ret) == 0)
+						//if (ts_strcmp(TEXT("notrack"), ret) == 0)
 						//	return TRUE;
 
 						stString<256> sRet;
-						evalAliasEx(sRet, sRet.size(), TEXT("trackbegin,%u,%d"), getUserID(), pHeader->iItem + 1);
+						evalAliasEx(sRet, static_cast<int>(sRet.size()), TEXT("trackbegin,%u,%d"), getUserID(), pHeader->iItem + 1);
 
 						if (sRet == TEXT("notrack"))
 							return TRUE;
@@ -5023,7 +5023,7 @@ TString DcxListView::ItemToString(int nItem, int iColumns)
 				{
 					if (nSubItem < static_cast<int>(Dcx::countof(lpmylvi->vInfo)))
 					{
-						auto ri = lpmylvi->vInfo[nSubItem];
+						auto ri = lpmylvi->vInfo[static_cast<size_t>(nSubItem)];
 						if (ri != nullptr)
 						{
 							bgclr = ri->m_cBg;
@@ -5076,4 +5076,20 @@ bool DcxListView::xSaveListview(const int nStartPos, const int nEndPos, const TS
 			mIRCLinker::execex(sStoreCommand, tsData.to_chr(), res.to_chr());
 	}
 	return true;
+}
+
+void DcxListView::toXml(TiXmlElement * const xml) const
+{
+	__super::toXml(xml);
+
+	xml->SetAttribute("styles", getStyles().c_str());
+}
+
+TiXmlElement * DcxListView::toXml(void) const
+{
+	auto xml = __super::toXml();
+
+	xml->SetAttribute("styles", getStyles().c_str());
+
+	return xml;
 }

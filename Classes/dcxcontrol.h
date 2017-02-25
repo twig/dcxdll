@@ -25,7 +25,7 @@
 #define DCCS_FROMRESSOURCE	0x01	//!< Cursor from ressource
 #define DCCS_FROMFILE		0x02	//!< Cursor from File
 
-#include "../defines.h"
+#include "defines.h"
 #include "dcxwindow.h"
 
 #define CTLF_ALLOW_PBAR				(UINT64)0x000000001
@@ -111,10 +111,17 @@ enum class DcxControlTypes : UINT {
 	TRACKBAR, TREEVIEW, UPDOWN, WEBCTRL
 };
 
+// Search types...
 enum class DcxSearchTypes : UINT {
 	SEARCH_W = 0x01,	//!< WildCard Search
 	SEARCH_R,			//!< Regex Search
 	SEARCH_E			//!< Exact Match
+};
+
+// icon sizes...
+enum class DcxIconSizes : int {
+	SmallIcon = 16, MediumIcon = 24, LargeIcon = 32,
+	MaxSize = LargeIcon
 };
 
 class DcxDialog;
@@ -214,6 +221,8 @@ public:
 	static void DrawCtrlBackground(const HDC hdc, const DcxControl *const p_this, const LPRECT rwnd = nullptr, HTHEME hTheme = nullptr, const int iPartId = 0, const int iStateId = 0);
 	static HBITMAP resizeBitmap(HBITMAP srcBM, const RECT *const rc);
 	static DcxControlTypes TSTypeToControlType(const TString &t);
+	// Convert a number into the closest icon size
+	static DcxIconSizes NumToIconSize(const int &num) noexcept;
 
 protected:
 

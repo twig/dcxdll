@@ -77,7 +77,7 @@ public:
 
 	LRESULT insertItem( const PCOMBOBOXEXITEM lpcCBItem );
 	LRESULT getItem( PCOMBOBOXEXITEM lpcCBItem ) const;
-	LRESULT getEditControl( ) const;
+	HWND getEditControl( ) const noexcept;
 	LRESULT deleteItem( const int iIndex );
 	LRESULT setCurSel( const int iIndex );
 	LRESULT getCurSel( ) const;
@@ -93,6 +93,8 @@ public:
 	inline const TString getType() const override { return TEXT("comboex"); };
 	inline const DcxControlTypes getControlType() const noexcept override { return DcxControlTypes::COMBOEX; }
 
+	void toXml(TiXmlElement *const xml) const override;
+	TiXmlElement * toXml(void) const override;
 	const TString getStyles(void) const override;
 
 protected:

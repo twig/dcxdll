@@ -30,7 +30,7 @@
 
 DcxTreeView::DcxTreeView( const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles )
 : DcxControl( ID, p_Dialog )
-, m_iIconSize(16)
+, m_iIconSize(DcxIconSizes::SmallIcon)
 , m_colSelection(CLR_INVALID)
 , m_hOldItemFont(nullptr)
 , m_hItemFont(nullptr)
@@ -48,15 +48,15 @@ DcxTreeView::DcxTreeView( const UINT ID, DcxDialog *const p_Dialog, const HWND m
 	BOOL bNoTheme = FALSE;
 	this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
 
-	m_Hwnd = CreateWindowEx(	
-		ExStyles | WS_EX_CLIENTEDGE,
+	m_Hwnd = CreateWindowEx(
+		static_cast<DWORD>(ExStyles) | WS_EX_CLIENTEDGE,
 		DCX_TREEVIEWCLASS,
 		nullptr,
-		WS_CHILD | Styles, 
+		WS_CHILD | static_cast<DWORD>(Styles),
 		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
 		mParentHwnd,
 		(HMENU) ID,
-		GetModuleHandle(nullptr), 
+		GetModuleHandle(nullptr),
 		nullptr);
 
 	if (!IsWindow(m_Hwnd))
@@ -72,13 +72,13 @@ DcxTreeView::DcxTreeView( const UINT ID, DcxDialog *const p_Dialog, const HWND m
 
 	this->m_ToolTipHWND = (HWND)TreeView_GetToolTips(m_Hwnd);
 	if (styles.istok(TEXT("balloon")) && this->m_ToolTipHWND != nullptr) {
-		SetWindowLong(this->m_ToolTipHWND,GWL_STYLE,GetWindowStyle(this->m_ToolTipHWND) | TTS_BALLOON);
+		SetWindowLong(this->m_ToolTipHWND,GWL_STYLE,static_cast<long>(GetWindowStyle(this->m_ToolTipHWND)) | TTS_BALLOON);
 	}
 
 	if (Dcx::VistaModule.isUseable()) {
-		ExStyles = TreeView_GetExtendedStyle(m_Hwnd);
+		ExStyles = static_cast<long>(TreeView_GetExtendedStyle(m_Hwnd));
 		parseTreeViewExStyles( styles, &ExStyles);
-		TreeView_SetExtendedStyle(m_Hwnd, ExStyles, ExStyles);
+		TreeView_SetExtendedStyle(m_Hwnd, static_cast<LPARAM>(ExStyles), static_cast<WPARAM>(ExStyles));
 	}
 
 	this->setControlFont( GetStockFont( DEFAULT_GUI_FONT ), FALSE );
@@ -256,7 +256,7 @@ void DcxTreeView::parseInfoRequest( const TString &input, const refString<TCHAR,
 			throw Dcx::dcxException("Invalid number of arguments");
 
 		const auto path(input.getlasttoks());	// tok 4, -1
-		auto item = this->parsePath(&path);
+		auto item = this->parsePath(path);
 
 		if (item == nullptr)
 			throw Dcx::dcxException(TEXT("Unable to parse path: %"), path);
@@ -271,7 +271,7 @@ void DcxTreeView::parseInfoRequest( const TString &input, const refString<TCHAR,
 			throw Dcx::dcxException("Invalid number of arguments");
 
 		const auto path(input.getlasttoks());	// tok 4, -1
-		auto item = this->parsePath(&path);
+		auto item = this->parsePath(path);
 
 		if (item == nullptr)
 			throw Dcx::dcxException(TEXT("Unable to parse path: %"), path);
@@ -291,7 +291,7 @@ void DcxTreeView::parseInfoRequest( const TString &input, const refString<TCHAR,
 			throw Dcx::dcxException("Invalid number of arguments");
 
 		const auto path(input.getlasttoks());	// tok 4, -1
-		auto item = this->parsePath(&path);
+		auto item = this->parsePath(path);
 
 		if (item == nullptr)
 			throw Dcx::dcxException(TEXT("Unable to parse path: %"), path);
@@ -352,7 +352,7 @@ void DcxTreeView::parseInfoRequest( const TString &input, const refString<TCHAR,
 		if (params.numtok() > 2) {
 			const auto path(params.getlasttoks());	// tok 3, -1
 
-			startingPoint = this->parsePath(&path);
+			startingPoint = this->parsePath(path);
 
 			if (startingPoint == nullptr)
 				throw Dcx::dcxException(TEXT("Unable to parse path: %"), path);
@@ -372,7 +372,7 @@ void DcxTreeView::parseInfoRequest( const TString &input, const refString<TCHAR,
 			throw Dcx::dcxException("Invalid number of arguments");
 
 		const auto path(input.getlasttoks());	// tok 4, -1
-		auto item = this->parsePath(&path);
+		auto item = this->parsePath(path);
 
 		if (item == nullptr)
 			throw Dcx::dcxException(TEXT("Unable to parse path: %"), path);
@@ -409,7 +409,7 @@ void DcxTreeView::parseInfoRequest( const TString &input, const refString<TCHAR,
 			return;
 		}
 
-		item = parsePath(&path);
+		item = parsePath(path);
 
 		if (item == nullptr)
 			throw Dcx::dcxException(TEXT("Unable to parse path: %"), path);
@@ -424,7 +424,7 @@ void DcxTreeView::parseInfoRequest( const TString &input, const refString<TCHAR,
 			throw Dcx::dcxException("Invalid number of arguments");
 
 		const auto path(input.getlasttoks());	// tok 4, -1
-		auto item = this->parsePath(&path);
+		auto item = this->parsePath(path);
 
 		if (item == nullptr)
 			throw Dcx::dcxException(TEXT("Unable to parse path: %"), path);
@@ -456,7 +456,7 @@ void DcxTreeView::parseInfoRequest( const TString &input, const refString<TCHAR,
 			throw Dcx::dcxException("Invalid number of arguments");
 
 		const auto path(input.getlasttoks().trim());	// tok 4, -1
-		auto item = this->parsePath(&path);
+		auto item = this->parsePath(path);
 
 		if (item == nullptr)
 			throw Dcx::dcxException(TEXT("Unable to parse path: %"), path);
@@ -483,7 +483,7 @@ void DcxTreeView::parseInfoRequest( const TString &input, const refString<TCHAR,
 	// [NAME] [ID] [PROP] [PATH]
 	if (prop == TEXT("text") && numtok > 3) {
 		const auto path(input.getlasttoks());	// tok 4, -1
-		auto item = this->parsePath(&path);
+		auto item = this->parsePath(path);
 
 		if (item == nullptr)
 			throw Dcx::dcxException(TEXT("Unable to parse path: %"), path);
@@ -493,7 +493,7 @@ void DcxTreeView::parseInfoRequest( const TString &input, const refString<TCHAR,
 	// [NAME] [ID] [PROP] [PATH]
 	else if (prop == TEXT("icon") && numtok > 3) {
 		const auto path(input.getlasttoks());	// tok 4, -1
-		auto item = this->parsePath(&path);
+		auto item = this->parsePath(path);
 
 		if (item == nullptr)
 			throw Dcx::dcxException(TEXT("Unable to parse path: %"), path);
@@ -508,7 +508,7 @@ void DcxTreeView::parseInfoRequest( const TString &input, const refString<TCHAR,
 	// [NAME] [ID] [PROP] [PATH]
 	else if (prop == TEXT("tooltip") && numtok > 3) {
 		const auto path(input.getlasttoks());	// tok 4, -1
-		auto item = this->parsePath(&path);
+		auto item = this->parsePath(path);
 
 		if (item == nullptr)
 			throw Dcx::dcxException(TEXT("Unable to parse path: %"), path);
@@ -560,7 +560,7 @@ void DcxTreeView::parseInfoRequest( const TString &input, const refString<TCHAR,
 		if (params.numtok() > 2) {
 			const auto path(params.getlasttoks());	// tok 3, -1
 
-			startingPoint = this->parsePath(&path);
+			startingPoint = this->parsePath(path);
 
 			if (startingPoint == nullptr)
 				throw Dcx::dcxException(TEXT("Unable to parse path: %"), path);
@@ -575,7 +575,7 @@ void DcxTreeView::parseInfoRequest( const TString &input, const refString<TCHAR,
 	// [NAME] [ID] [PROP] [PATH]
 	else if (prop == TEXT("state") && numtok > 3) {
 		const auto path(input.getlasttoks());	// tok 4, -1
-		auto item = this->parsePath(&path);
+		auto item = this->parsePath(path);
 
 		if (item == nullptr)
 			throw Dcx::dcxException(TEXT("Unable to parse path: %"), path);
@@ -601,7 +601,7 @@ void DcxTreeView::parseInfoRequest( const TString &input, const refString<TCHAR,
 			return;
 		}
 
-		item = parsePath(&path);
+		item = parsePath(path);
 
 		if (item == nullptr)
 			throw Dcx::dcxException(TEXT("Unable to parse path: %"), path);
@@ -611,7 +611,7 @@ void DcxTreeView::parseInfoRequest( const TString &input, const refString<TCHAR,
 	// [NAME] [ID] [PROP] [PATH]
 	else if (prop == TEXT("expand") && numtok > 3) {
 		const auto path(input.getlasttoks());	// tok 4, -1
-		auto item = this->parsePath(&path);
+		auto item = this->parsePath(path);
 
 		if (item == nullptr)
 			throw Dcx::dcxException(TEXT("Unable to parse path: %"), path);
@@ -636,7 +636,7 @@ void DcxTreeView::parseInfoRequest( const TString &input, const refString<TCHAR,
 	// [NAME] [ID] [PROP] [PATH]
 	else if (prop == TEXT("markeditem") && numtok > 3) {
 		const auto path(input.getlasttoks().trim());	// tok 4, -1
-		auto item = this->parsePath(&path);
+		auto item = this->parsePath(path);
 
 		if (item == nullptr)
 			throw Dcx::dcxException(TEXT("Unable to parse path: %"), path);
@@ -674,7 +674,7 @@ void DcxTreeView::parseCommandRequest( const TString & input ) {
 		// The following code shows one way to ensure that items are always displayed.
 		const auto styles = GetWindowStyle(m_Hwnd);
 		TreeView_DeleteAllItems(m_Hwnd);
-		SetWindowLong(m_Hwnd, GWL_STYLE, styles);
+		SetWindowLong(m_Hwnd, GWL_STYLE, static_cast<long>(styles));
 	}
 
 	// xdid -a [NAME] [ID] [SWITCH] N N N ... N[TAB][+FLAGS] [#ICON] [#SICON] [#OVERLAY] [#STATE] [#INTEGRAL] [COLOR] [BKGCOLOR] Text[TAB]Tooltip Text
@@ -690,7 +690,7 @@ void DcxTreeView::parseCommandRequest( const TString & input ) {
 				tooltip = input.getlasttoks().trim();	// tok 3, -1, TSTAB
 
 			if (data.numtok( ) > 8)
-				this->insertItem(&path, &data, &tooltip);
+				this->insertItem(path, data, tooltip);
 		}
 	}
 	// xdid -A [NAME] [ID] [SWITCH] N N N ... N[TAB][+FLAGS] [INFO]
@@ -710,7 +710,7 @@ void DcxTreeView::parseCommandRequest( const TString & input ) {
 
 		path = path.gettok(4, -1);
 
-		HTREEITEM item = parsePath(&path);
+		HTREEITEM item = parsePath(path);
 
 		if (item == nullptr)
 			throw Dcx::dcxException(TEXT("Invalid Path: %"), path);
@@ -737,7 +737,7 @@ void DcxTreeView::parseCommandRequest( const TString & input ) {
 	// xdid -B [NAME] [ID] [SWITCH] N N N
 	else if (flags[TEXT('B')] && numtok > 3) {
 		const auto path(input.getlasttoks());	// tok 4, -1
-		auto item = this->parsePath(&path);
+		auto item = this->parsePath(path);
 		
 		if (item == nullptr)
 			throw Dcx::dcxException(TEXT("Invalid Path: %"), path);
@@ -748,7 +748,7 @@ void DcxTreeView::parseCommandRequest( const TString & input ) {
 	// xdid -c [NAME] [ID] [SWITCH] N N N
 	else if (flags[TEXT('c')] && numtok > 3) {
 		const auto path(input.getlasttoks());	// tok 4, -1
-		auto item = this->parsePath(&path);
+		auto item = this->parsePath(path);
 
 		if (item == nullptr)
 			throw Dcx::dcxException(TEXT("Invalid Path: %"), path);
@@ -759,7 +759,7 @@ void DcxTreeView::parseCommandRequest( const TString & input ) {
 	// xdid -d [NAME] [ID] [SWITCH] N N N
 	else if (flags[TEXT('d')] && numtok > 3) {
 		const auto path(input.getlasttoks());	// tok 4, -1
-		auto item = this->parsePath(&path);
+		auto item = this->parsePath(path);
 
 		if (item == nullptr)
 			throw Dcx::dcxException(TEXT("Invalid Path: %"), path);
@@ -806,7 +806,7 @@ void DcxTreeView::parseCommandRequest( const TString & input ) {
 		if (icons.numtok() < 2)
 			throw Dcx::dcxException("Invalid parameters.");
 
-		auto item = this->parsePath(&path);
+		auto item = this->parsePath(path);
 
 		if (item == nullptr)
 			throw Dcx::dcxException(TEXT("Invalid Path: %"), path);
@@ -831,7 +831,7 @@ void DcxTreeView::parseCommandRequest( const TString & input ) {
 
 			// overlay is 1-based index
 			if (oIcon > -1)
-				TreeView_SetItemState(m_Hwnd, tvi.hItem, INDEXTOOVERLAYMASK(oIcon), TVIS_OVERLAYMASK);
+				TreeView_SetItemState(m_Hwnd, tvi.hItem, INDEXTOOVERLAYMASK(static_cast<UINT>(oIcon)), TVIS_OVERLAYMASK);
 
 		}
 
@@ -867,9 +867,9 @@ void DcxTreeView::parseCommandRequest( const TString & input ) {
 	}
 	// xdid -k [NAME] [ID] [SWITCH] [STATE] N N N
 	else if (flags[TEXT('k')] && numtok > 4) {
-		const auto state = input.getnexttok().to_int();	// tok 4
+		const auto state = input.getnexttok().to_<UINT>();	// tok 4
 		const auto path(input.getlasttoks());		// tok 5, -1
-		auto item = this->parsePath(&path);
+		auto item = this->parsePath(path);
 
 		if (item == nullptr)
 			throw Dcx::dcxException(TEXT("Invalid Path: %"), path);
@@ -878,12 +878,14 @@ void DcxTreeView::parseCommandRequest( const TString & input ) {
 	}
 	// xdid -l [NAME] [ID] [SWITCH] [SIZE]
 	else if ( flags[TEXT('l')] && numtok > 3 ) {
-		auto size = input.getnexttok().to_int();	// tok 4
+		//auto size = input.getnexttok().to_<UINT>();	// tok 4
+		//
+		//if ( size != 32U && size != 24U )
+		//	size = 16U;
+		//
+		//this->m_iIconSize = size;
 
-		if ( size != 32 && size != 24 )
-			size = 16;
-
-		this->m_iIconSize = size;
+		m_iIconSize = NumToIconSize(input.getnexttok().to_<int>());	// tok 4
 	}
 	// xdid -m [NAME] [ID] [SWITCH] N N N{TAB}N N N
 	else if (flags[TEXT('m')] && numtok > 3 && input.numtok(TSTABCHAR) > 1) {
@@ -909,7 +911,7 @@ void DcxTreeView::parseCommandRequest( const TString & input ) {
 		if (input.numtok(TSTABCHAR) > 1)
 			tiptext = input.getnexttok( TSTABCHAR).trim();	// tok 2
 
-		auto item = this->parsePath(&path);
+		auto item = this->parsePath(path);
 
 		if (item == nullptr)
 			throw Dcx::dcxException(TEXT("Unable to parse path: %"), path);
@@ -931,7 +933,7 @@ void DcxTreeView::parseCommandRequest( const TString & input ) {
 		const auto iFlags = this->parseItemFlags(input.getnexttok());		// tok 4
 		const auto clrText = input.getnexttok().to_<COLORREF>();	// tok 5
 		const auto path(input.getlasttoks());							// tok 6, -1
-		auto item = this->parsePath(&path);
+		auto item = this->parsePath(path);
 
 		if (item == nullptr)
 			throw Dcx::dcxException(TEXT("Invalid Path: %"), path);
@@ -982,7 +984,7 @@ void DcxTreeView::parseCommandRequest( const TString & input ) {
 			return;
 		}
 
-		auto item = this->parsePath(&path);
+		auto item = this->parsePath(path);
 
 		if (item == nullptr)
 			throw Dcx::dcxException(TEXT("Invalid Path: %"), path);
@@ -1010,7 +1012,7 @@ void DcxTreeView::parseCommandRequest( const TString & input ) {
 		if (input.numtok(TSTABCHAR) > 1)
 			itemtext = input.getnexttok( TSTABCHAR).trim();	// tok 2
 
-		auto item = this->parsePath(&path);
+		auto item = this->parsePath(path);
 
 		if (item == nullptr)
 			throw Dcx::dcxException(TEXT("Invalid Path: %"), path);
@@ -1031,7 +1033,7 @@ void DcxTreeView::parseCommandRequest( const TString & input ) {
 
 		const auto index = input.getnexttok().to_int();	// tok 5
 		auto filename(input.getlasttoks());			// tok 6, -1
-		const auto bLarge = (this->m_iIconSize > 16);
+		const auto bLarge = (m_iIconSize != DcxIconSizes::SmallIcon);
 
 		if (index >= 0)
 			icon = dcxLoadIcon(index, filename, bLarge, tsFlags);
@@ -1057,7 +1059,7 @@ void DcxTreeView::parseCommandRequest( const TString & input ) {
 					if (tsFlags.find(TEXT('o'),0)) {
 						// overlay image
 						const auto io = tsFlags.find(TEXT('o'), 1) + 1;
-						auto o = tsFlags.mid(io, (tsFlags.len() - io)).to_int();
+						auto o = tsFlags.mid(io, (static_cast<int>(tsFlags.len()) - io)).to_int();
 
 						if (o < 1 || o > 15)
 							throw Dcx::dcxException("Overlay index out of range (1 -> 15)");
@@ -1137,7 +1139,7 @@ void DcxTreeView::parseCommandRequest( const TString & input ) {
 			tvs.hParent = TVI_ROOT;
 		else {
 
-			auto item = this->parsePath(&path);
+			auto item = this->parsePath(path);
 
 			if (item == nullptr)
 				throw Dcx::dcxException(TEXT("Unable to parse path: %"), path);
@@ -1190,7 +1192,7 @@ void DcxTreeView::parseCommandRequest( const TString & input ) {
 		if (path.empty())
 			throw Dcx::dcxException("Invalid path");
 
-		auto item = this->parsePath(&path);
+		auto item = this->parsePath(path);
 
 		if (item == nullptr)
 			throw Dcx::dcxException(TEXT("Unable to parse path: %"), path);
@@ -1210,7 +1212,7 @@ void DcxTreeView::parseCommandRequest( const TString & input ) {
 
 HIMAGELIST DcxTreeView::getImageList( const int type ) const {
 
-  return TreeView_GetImageList( m_Hwnd, type );
+  return TreeView_GetImageList( m_Hwnd, static_cast<WPARAM>(type));
 }
 
 /*!
@@ -1220,7 +1222,7 @@ HIMAGELIST DcxTreeView::getImageList( const int type ) const {
  */
 
 void DcxTreeView::setImageList( HIMAGELIST himl, const int type ) {
-	auto o = TreeView_SetImageList(m_Hwnd, himl, type);
+	auto o = TreeView_SetImageList(m_Hwnd, himl, static_cast<WPARAM>(type));
 	if (o != nullptr && o != himl) // don't destroy if nullptr or the same list as just added.
 		ImageList_Destroy(o);
 }
@@ -1233,7 +1235,7 @@ void DcxTreeView::setImageList( HIMAGELIST himl, const int type ) {
 
 HIMAGELIST DcxTreeView::createImageList( ) {
 
-  return ImageList_Create( m_iIconSize, m_iIconSize, ILC_COLOR32|ILC_MASK, 1, 0 );
+  return ImageList_Create( static_cast<int>(m_iIconSize), static_cast<int>(m_iIconSize), ILC_COLOR32|ILC_MASK, 1, 0 );
 }
 
 /*!
@@ -1242,9 +1244,8 @@ HIMAGELIST DcxTreeView::createImageList( ) {
  * blah
  */
 
-//HTREEITEM DcxTreeView::insertItem( ) {
-void DcxTreeView::insertItem(const TString * path, const TString * data, const TString * Tooltip) {
-
+void DcxTreeView::insertItem(const TString &tsPath, const TString &tsData, const TString &tsTooltip)
+{
 	HTREEITEM hParent = TVI_ROOT;
 	HTREEITEM hAfter = TVI_ROOT;
 	HTREEITEM hItem = nullptr;
@@ -1258,20 +1259,20 @@ void DcxTreeView::insertItem(const TString * path, const TString * data, const T
 	//tvi.mask = TVIF_TEXT | TVIF_STATE | TVIF_INTEGRAL | TVIF_PARAM | TVIF_IMAGE | TVIF_SELECTEDIMAGE;
 	tvi.mask = TVIF_STATE | TVIF_PARAM;
 
-	auto iFlags = this->parseItemFlags(data->getfirsttok(1));	// tok 1
-	const auto icon = data->getnexttok().to_int() - 1;			// tok 2
-	const auto sicon = data->getnexttok().to_int() - 1;			// tok 3
-	const auto overlay = data->getnexttok().to_int();				// tok 4
-	const auto state = data->getnexttok().to_int();				// tok 5
-	const auto integral = data->getnexttok().to_int() + 1;			// tok 6
-	const auto clrText = data->getnexttok().to_<COLORREF>();	// tok 7
-	const auto clrBkg = data->getnexttok().to_<COLORREF>();	// tok 8
+	auto iFlags = this->parseItemFlags(tsData.getfirsttok(1));	// tok 1
+	const auto icon = tsData.getnexttok().to_int() - 1;			// tok 2
+	const auto sicon = tsData.getnexttok().to_int() - 1;			// tok 3
+	const auto overlay = tsData.getnexttok().to_int();				// tok 4
+	const auto state = tsData.getnexttok().to_int();				// tok 5
+	const auto integral = tsData.getnexttok().to_int() + 1;			// tok 6
+	const auto clrText = tsData.getnexttok().to_<COLORREF>();	// tok 7
+	const auto clrBkg = tsData.getnexttok().to_<COLORREF>();	// tok 8
 
 	// text
-	auto itemtext(data->getlasttoks());							// tok 9, -1
+	auto itemtext(tsData.getlasttoks());							// tok 9, -1
 
 	// path
-	if (this->parsePath(path, &hParent, &hAfter) == nullptr)
+	if (this->parsePath(tsPath, &hParent, &hAfter) == nullptr)
 		return;
 
 	if (dcx_testflag(iFlags,TVIS_XML)) {
@@ -1285,7 +1286,7 @@ void DcxTreeView::insertItem(const TString * path, const TString * data, const T
 	//LPDCXTVITEM lpmytvi = new DCXTVITEM;
 	auto lpmytvi = std::make_unique<DCXTVITEM>();
 
-	lpmytvi->tsTipText = *Tooltip;
+	lpmytvi->tsTipText = tsTooltip;
 
 	lpmytvi->bUline = dcx_testflag(iFlags, TVIS_UNDERLINE);
 
@@ -1312,7 +1313,7 @@ void DcxTreeView::insertItem(const TString * path, const TString * data, const T
 
 	if (!itemtext.empty()) {
 		tvi.pszText = itemtext.to_chr();
-		tvi.cchTextMax = itemtext.len();
+		tvi.cchTextMax = static_cast<int>(itemtext.len());
 		tvi.mask |= TVIF_TEXT;
 	}
 	// icons
@@ -1352,11 +1353,11 @@ void DcxTreeView::insertItem(const TString * path, const TString * data, const T
 	lpmytvi.release();
 
 	if (state > -1 && state < 5) // zero is no state image.
-		TreeView_SetItemState(m_Hwnd, hItem, INDEXTOSTATEIMAGEMASK(state), TVIS_STATEIMAGEMASK);
+		TreeView_SetItemState(m_Hwnd, hItem, INDEXTOSTATEIMAGEMASK(static_cast<UINT>(state)), TVIS_STATEIMAGEMASK);
 
 	// overlay is 1-based index
 	if (overlay > 0 && overlay < 16)
-		TreeView_SetItemState(m_Hwnd, hItem, INDEXTOOVERLAYMASK(overlay), TVIS_OVERLAYMASK);
+		TreeView_SetItemState(m_Hwnd, hItem, INDEXTOOVERLAYMASK(static_cast<UINT>(overlay)), TVIS_OVERLAYMASK);
 
 	return;
 }
@@ -1541,9 +1542,9 @@ int CALLBACK DcxTreeView::sortItemsEx( LPARAM lParam1, LPARAM lParam2, LPARAM lP
 
 		//TCHAR sRes[20];
 		stString<20> sRes;
-		mIRCLinker::evalex( sRes, Dcx::countof(sRes), TEXT("$%s(%s,%s)"), ptvsort->tsCustomAlias.to_chr( ), ptvsort->itemtext1, ptvsort->itemtext2 );
+		mIRCLinker::evalex( sRes, static_cast<int>(sRes.size()), TEXT("$%s(%s,%s)"), ptvsort->tsCustomAlias.to_chr( ), ptvsort->itemtext1, ptvsort->itemtext2 );
 
-		auto ires = dcx_atoi(sRes);
+		auto ires = dcx_atoi(sRes.data());
 
 		if (ires < -1)
 			ires = -1;
@@ -1586,15 +1587,15 @@ int CALLBACK DcxTreeView::sortItemsEx( LPARAM lParam1, LPARAM lParam2, LPARAM lP
 
 		if (dcx_testflag(ptvsort->iSortFlags, TVSS_DESC)) {
 			if (dcx_testflag(ptvsort->iSortFlags, TVSS_CASE))
-				return -lstrcmp( ptvsort->itemtext1, ptvsort->itemtext2 );
+				return -ts_strcmp( ptvsort->itemtext1, ptvsort->itemtext2 );
 
-			return -lstrcmpi( ptvsort->itemtext1, ptvsort->itemtext2 );
+			return -ts_stricmp( ptvsort->itemtext1, ptvsort->itemtext2 );
 		}
 		else {
 			if (dcx_testflag(ptvsort->iSortFlags, TVSS_CASE))
-				return lstrcmp( ptvsort->itemtext1, ptvsort->itemtext2 );
+				return ts_strcmp( ptvsort->itemtext1, ptvsort->itemtext2 );
 
-			return lstrcmpi( ptvsort->itemtext1, ptvsort->itemtext2 );
+			return ts_stricmp( ptvsort->itemtext1, ptvsort->itemtext2 );
 		}
 	}
 
@@ -1619,7 +1620,7 @@ TString DcxTreeView::getPathFromItem(HTREEITEM *item) const {
 
 		// Count each previous node before the node containing our item.
 		while ((current = TreeView_GetPrevSibling(m_Hwnd, current)) != nullptr) {
-			i++;
+			++i;
 		}
 
 		vec.push_back(i);
@@ -1627,21 +1628,7 @@ TString DcxTreeView::getPathFromItem(HTREEITEM *item) const {
 
 	// Construct the string containing the path backwards, as we traced it backwards.
 
-//	// NB: error path reversed... when addtok used, must use instok() which doesnt support adding numerics (template version of instok() now does support numerics)
-//	for (const auto &x: vec) {
-//		result.instok(*itStart, 1);
-//	}
-//	return result.trim();
-
 	// reverse iterator allows us to use addtok()
-	//auto itStart = vec.rbegin();
-	//auto itEnd = vec.rend();
-	//
-	//while (itStart != itEnd) {
-	//	result.addtok(*itStart);
-	//	++itStart;
-	//}
-
 	for (auto itStart = vec.rbegin(), itEnd = vec.rend(); itStart != itEnd; ++itStart)
 		result.addtok(*itStart);
 
@@ -1655,9 +1642,9 @@ TString DcxTreeView::getPathFromItem(HTREEITEM *item) const {
  * blah
  */
 
-void DcxTreeView::getItemText( HTREEITEM * hItem, TCHAR * szBuffer, const int cchTextMax ) const {
-
-	TVITEMEX tvi;
+void DcxTreeView::getItemText( HTREEITEM * hItem, TCHAR * szBuffer, const int cchTextMax ) const
+{
+	TVITEMEX tvi{};
 
 	tvi.hItem = *hItem;
 	tvi.mask = TVIF_TEXT | TVIF_HANDLE;
@@ -1701,16 +1688,18 @@ bool DcxTreeView::matchItemText(HTREEITEM *hItem, const TString &search, const D
 
 	getItemText(hItem, itemtext.get(), MIRC_BUFFER_SIZE_CCH);
 
-	switch (SearchType) {
-		case DcxSearchTypes::SEARCH_R:
-			return isRegexMatch(itemtext.get(), search.to_chr());
-		case DcxSearchTypes::SEARCH_W:
-			return TString(itemtext).iswm(search);
-		case DcxSearchTypes::SEARCH_E:
-			return (lstrcmp(search.to_chr(), itemtext.get()) == 0);
-	}
+	//switch (SearchType) {
+	//	case DcxSearchTypes::SEARCH_R:
+	//		return isRegexMatch(itemtext.get(), search.to_chr());
+	//	case DcxSearchTypes::SEARCH_W:
+	//		return TString(itemtext).iswm(search);
+	//	case DcxSearchTypes::SEARCH_E:
+	//		return (ts_strcmp(search.to_chr(), itemtext.get()) == 0);
+	//}
+	//
+	//return false;
 
-	return false;
+	return DcxListHelper::matchItemText(itemtext.get(), search, SearchType);
 }
 
 /*!
@@ -1727,7 +1716,7 @@ bool DcxTreeView::findItemText(HTREEITEM *hStart, HTREEITEM *result, const TStri
 
 	do {
 		if (this->matchItemText(&item, queryText, searchType))
-			matchCount++;
+			++matchCount;
 
 		if (n != 0 && matchCount == n) {
 			*result = item;
@@ -1791,7 +1780,7 @@ HTREEITEM DcxTreeView::cloneItem( HTREEITEM * hItem, HTREEITEM * hParentTo, HTRE
 
 	*lpdcxtvitem2 = *lpdcxtvitem;
 
-	tvi.hItem = 0;
+	tvi.hItem = nullptr;
 	tvi.mask = TVIF_TEXT | TVIF_IMAGE | TVIF_SELECTEDIMAGE | TVIF_STATE | TVIF_INTEGRAL | TVIF_PARAM;
 	tvi.lParam = (LPARAM)lpdcxtvitem2;
 
@@ -1831,14 +1820,14 @@ void DcxTreeView::copyAllItems( HTREEITEM *hItem, HTREEITEM * hParentTo ) {
 
 HTREEITEM DcxTreeView::copyAllItems(const TString &pathFrom, const TString &pathTo)
 {
-	auto item = this->parsePath(&pathFrom);
+	auto item = this->parsePath(pathFrom);
 	HTREEITEM hParentTo = TVI_ROOT;
 	HTREEITEM hAfterTo = TVI_ROOT;
 
 	if (item == nullptr)
 		throw Dcx::dcxException(TEXT("Invalid FROM Path: %"), pathFrom);
 
-	if (this->parsePath(&pathTo, &hParentTo, &hAfterTo) == nullptr)
+	if (this->parsePath(pathTo, &hParentTo, &hAfterTo) == nullptr)
 		throw Dcx::dcxException(TEXT("Invalid TO Path: %"), pathTo);
 
 	// Check if we're moving parent into a child branch
@@ -1987,7 +1976,7 @@ LRESULT DcxTreeView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 						auto lpdcxtvi = reinterpret_cast<LPDCXTVITEM>(tcgit->lParam);
 						if (lpdcxtvi != nullptr) {
 							tcgit->pszText = lpdcxtvi->tsTipText.to_chr( );
-							tcgit->cchTextMax = lpdcxtvi->tsTipText.len( );
+							tcgit->cchTextMax = static_cast<int>(lpdcxtvi->tsTipText.len( ));
 						}
 					}
 					bParsed = TRUE;
@@ -2041,7 +2030,7 @@ LRESULT DcxTreeView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 					//TCHAR ret[256];
 					//evalAliasEx( ret, Dcx::countof(ret), TEXT("labelbegin,%u"), getUserID( ) );
 					//
-					//return (lstrcmp(TEXT("noedit"), ret) == 0);
+					//return (ts_strcmp(TEXT("noedit"), ret) == 0);
 
 					//stString<256> sRet;
 					//evalAliasEx( sRet, Dcx::countof(sRet), TEXT("labelbegin,%u"), getUserID( ) );
@@ -2063,7 +2052,7 @@ LRESULT DcxTreeView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 						//TCHAR ret[256];
 						//evalAliasEx( ret, Dcx::countof(ret), TEXT("labelend,%u,%s"), getUserID( ), lptvdi->item.pszText );
 						//
-						//return (lstrcmp(TEXT("noedit"), ret) == 0);
+						//return (ts_strcmp(TEXT("noedit"), ret) == 0);
 
 						//stString<256> sRet;
 						//evalAliasEx( sRet, Dcx::countof(sRet), TEXT("labelend,%u,%s"), getUserID( ), lptvdi->item.pszText );
@@ -2458,7 +2447,7 @@ bool DcxTreeView::xmlSaveTree(HTREEITEM hFromItem, const TString &name, TString 
 	}
 	auto xRoot = doc.FirstChildElement("dcxml");
 	if (xRoot == nullptr) {
-		xRoot = reinterpret_cast<TiXmlElement *>(doc.InsertEndChild(TiXmlElement("dcxml")));
+		xRoot = dynamic_cast<TiXmlElement *>(doc.InsertEndChild(TiXmlElement("dcxml")));
 
 		if (xRoot == nullptr)
 			throw Dcx::dcxException("xmlSaveTree() - Unable To Add Root <dcxml>");
@@ -2466,14 +2455,14 @@ bool DcxTreeView::xmlSaveTree(HTREEITEM hFromItem, const TString &name, TString 
 
 	auto xData = xRoot->FirstChildElement("treeview_data");
 	if (xData == nullptr) {
-		xData = reinterpret_cast<TiXmlElement *>(xRoot->InsertEndChild(TiXmlElement("treeview_data")));
+		xData = dynamic_cast<TiXmlElement *>(xRoot->InsertEndChild(TiXmlElement("treeview_data")));
 		if (xData == nullptr)
 			throw Dcx::dcxException("xmlSaveTree() - Unable to add <treeview_data> item");
 	}
 
 	auto xElm = xData->FirstChildElement(name.c_str());
 	if (xElm == nullptr) {
-		xElm = reinterpret_cast<TiXmlElement *>(xData->InsertEndChild(TiXmlElement(name.c_str())));
+		xElm = dynamic_cast<TiXmlElement *>(xData->InsertEndChild(TiXmlElement(name.c_str())));
 		if (xElm == nullptr)
 			throw Dcx::dcxException("xmlSaveTree() - Unable to add named item");
 	}
@@ -2542,15 +2531,15 @@ bool DcxTreeView::xmlGetItems(const HTREEITEM hFirstSibling, TiXmlElement *xElm,
 			if (lpmytvi->bUline)
 				xChild.SetAttribute("textunderline", 1);
 			if (lpmytvi->clrBkg != CLR_INVALID)
-				xChild.SetAttribute("backgroundcolor", lpmytvi->clrBkg);
+				xChild.SetAttribute("backgroundcolor", static_cast<int>(lpmytvi->clrBkg));
 			if (lpmytvi->clrText != CLR_INVALID)
-				xChild.SetAttribute("textcolor", lpmytvi->clrText);
+				xChild.SetAttribute("textcolor", static_cast<int>(lpmytvi->clrText));
 			auto i = (((tvi.state & TVIS_OVERLAYMASK) >> 8) & 0xFF);
 			if (i > 0 && i < 16) // zero means no overlay, so don't save
-				xChild.SetAttribute("overlay", i);
+				xChild.SetAttribute("overlay", static_cast<int>(i));
 			i = (((tvi.state & TVIS_STATEIMAGEMASK) >> 12) & 0xFF);
 			if (i > 0 && i < 5)
-				xChild.SetAttribute("state", i); // zero means no state image so don't save
+				xChild.SetAttribute("state", static_cast<int>(i)); // zero means no state image so don't save
 			xTmp = xElm->InsertEndChild(xChild)->ToElement();
 			if (xTmp == nullptr) {
 				bRes = false;
@@ -2635,7 +2624,7 @@ const TiXmlElement *DcxTreeView::xmlInsertItems(HTREEITEM hParent, HTREEITEM &hI
 			// Items Text.
 			TString tsAttr(xNode->Attribute("text")); // MUST be before/outside if()
 			if (!tsAttr.empty()) {
-				tvins.itemex.cchTextMax = tsAttr.len();
+				tvins.itemex.cchTextMax = static_cast<int>(tsAttr.len());
 				tvins.itemex.pszText = tsAttr.to_chr();
 				tvins.itemex.mask |= TVIF_TEXT;
 			}
@@ -2649,13 +2638,13 @@ const TiXmlElement *DcxTreeView::xmlInsertItems(HTREEITEM hParent, HTREEITEM &hI
 		// Items state icon.
 		auto i = queryIntAttribute(xNode, "state");
 		if (i < 5) // zero means no state icon anyway.
-			TreeView_SetItemState(m_Hwnd, hInsertAfter, INDEXTOSTATEIMAGEMASK(i), TVIS_STATEIMAGEMASK);
+			TreeView_SetItemState(m_Hwnd, hInsertAfter, INDEXTOSTATEIMAGEMASK(static_cast<UINT>(i)), TVIS_STATEIMAGEMASK);
 
 		// Items overlay icon.
 		// overlay is 1-based index
 		i = queryIntAttribute(xNode, "overlay");
 		if (i > 0 && i < 16)
-			TreeView_SetItemState(m_Hwnd, hInsertAfter, INDEXTOOVERLAYMASK(i), TVIS_OVERLAYMASK);
+			TreeView_SetItemState(m_Hwnd, hInsertAfter, INDEXTOOVERLAYMASK(static_cast<UINT>(i)), TVIS_OVERLAYMASK);
 
 		if (xNode->FirstChild("tvitem") != nullptr) {
 			// item has children. NB: DON'T update xNode to the result of this call as this stops subsequent items being added.
@@ -2689,6 +2678,7 @@ const TString DcxTreeView::getStyles(void) const {
 		styles.addtok(TEXT("singleexpand"));
 	if (dcx_testflag(ExStyles, TVS_CHECKBOXES))
 		styles.addtok(TEXT("checkbox"));
+
 	return styles;
 }
 
@@ -2698,22 +2688,23 @@ const TString DcxTreeView::getStyles(void) const {
  * If the path is invalid, it will return nullptr.
  * If hParent and hInsertAt parameters are filled, it is assumed we are searching for a place to insert the item
  */
-HTREEITEM DcxTreeView::parsePath(const TString *path, HTREEITEM *hParent, HTREEITEM *hInsertAt) const {
+HTREEITEM DcxTreeView::parsePath(const TString &path, HTREEITEM *hParent, HTREEITEM *hInsertAt) const
+{
+	// Invalid path - no directives.
+	if (path.empty())
+		return nullptr;
+
 	HTREEITEM current = TVI_ROOT;
 	auto foundSoFar = current;
-	const auto count = path->numtok();
+	const auto count = path.numtok();
 	//int k = 1;                         // iterator for path directories
 	const auto bFillLocation = ((hParent != nullptr) && (hInsertAt != nullptr));
-
-	// Invalid path - no directives.
-	if (count == 0)
-		return nullptr;
 
 	// Iterate through each directive in the path string
 	for (auto k = decltype(count){1}; k <= count; k++)
 	{
 		// Convert the path directory.
-		const auto dir = path->gettok(k).to_int();
+		const auto dir = path.gettok(static_cast<int>(k)).to_int();
 
 		// Keep track of the current parent.
 		if (bFillLocation)
@@ -2729,7 +2720,7 @@ HTREEITEM DcxTreeView::parsePath(const TString *path, HTREEITEM *hParent, HTREEI
 		}
 
 		// Return first child
-		if ((dir == 1)) {
+		if (dir == 1) {
 			if (bFillLocation) {
 				*hInsertAt = current;
 			}
@@ -2746,10 +2737,13 @@ HTREEITEM DcxTreeView::parsePath(const TString *path, HTREEITEM *hParent, HTREEI
 		// else if (dir == -1)
 		else if (dir < 0) {
 			HTREEITEM tmp;
-
+			
 			while ((tmp = TreeView_GetNextSibling(m_Hwnd, current)) != nullptr) {
 				current = tmp;
 			}
+
+			// broken....
+			//for (HTREEITEM tmp = TreeView_GetNextSibling(m_Hwnd, current); tmp != nullptr; current = tmp);
 
 			if (bFillLocation)
 				*hInsertAt = TVI_LAST;
@@ -2772,7 +2766,7 @@ HTREEITEM DcxTreeView::parsePath(const TString *path, HTREEITEM *hParent, HTREEI
 
 			auto i = 1;                             // iterator for counting the Nth directory
 			HTREEITEM tmp;
-
+			
 			while ((tmp = TreeView_GetNextSibling(m_Hwnd, current)) != nullptr) {
 				current = tmp;
 				if (bFillLocation)
@@ -2780,7 +2774,16 @@ HTREEITEM DcxTreeView::parsePath(const TString *path, HTREEITEM *hParent, HTREEI
 				if (++i == dir)
 					break;
 			}
-			
+
+			// broken...
+			//for (HTREEITEM tmp = TreeView_GetNextSibling(m_Hwnd, current); tmp != nullptr; current = tmp)
+			//{
+			//	if (bFillLocation)
+			//		*hInsertAt = current;
+			//	if (++i == dir)
+			//		break;
+			//}
+
 			// using last item + 1 in a path only works wenn fill location is true, and we are at the last level
 			//if ((bFillLocation) && (++i == dir) && (k == count))
 			//	*hInsertAt = current;
@@ -2798,4 +2801,20 @@ HTREEITEM DcxTreeView::parsePath(const TString *path, HTREEITEM *hParent, HTREEI
 	}
 
 	return foundSoFar;
+}
+
+void DcxTreeView::toXml(TiXmlElement *const xml) const
+{
+	__super::toXml(xml);
+
+	xml->SetAttribute("styles", getStyles().c_str());
+}
+
+TiXmlElement * DcxTreeView::toXml(void) const
+{
+	auto xml = __super::toXml();
+
+	xml->SetAttribute("styles", getStyles().c_str());
+
+	return xml;
 }

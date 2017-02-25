@@ -57,7 +57,7 @@ public:
 	void parseCommandRequest( const TString & input ) override;
 	void parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ) override;
 
-	void loadmIRCPalette();
+	//void loadmIRCPalette();
 
 	void setContentsFont();
 	void clearContents();
@@ -69,7 +69,9 @@ public:
 	LRESULT replaceSel(const BOOL bUndo, LPCTSTR lpstr);
 	LRESULT getCharFormat(const UINT iType, CHARFORMAT2 *cfm) const;
 	LRESULT setCharFormat(const UINT iType, CHARFORMAT2 *cfm);
+
 	void toXml(TiXmlElement *const xml) const override;
+	TiXmlElement * toXml(void) const override;
 	const TString getStyles(void) const override;
 
 	//LRESULT getLineLength();
@@ -79,22 +81,22 @@ public:
 	inline const DcxControlTypes getControlType() const noexcept override { return DcxControlTypes::RICHEDIT; }
 
 protected:
-	TString m_tsText; //!< RichEdit Text contents
+	TString m_tsText;			//!< RichEdit Text contents
+	TString m_tsFontFaceName;	//!< Font Face Name
 
-	COLORREF m_aColorPalette[16]; //!< Richedit color palette to parse control codes
+	COLORREF m_aColorPalette[mIRC_PALETTE_SIZE]; //!< Richedit color palette to parse control codes
 
-	UINT m_iFontSize;         //!< Control Font Size
-	BYTE m_byteCharset;        //!< Font CharSet
-	BOOL m_bFontBold;         //!< Is Font Bolded ?
-	BOOL m_bFontItalic;       //!< Is Font Italicized ?
-	BOOL m_bFontUnderline;    //!< Is Font Underlined ?
-	BOOL m_bFontStrikeout;    //!< Is Font StrikedOut ?
-	TString m_tsFontFaceName; //!< Font Face Name
+	UINT m_iFontSize;			//!< Control Font Size
+	BYTE m_byteCharset;			//!< Font CharSet
 
-	bool m_bIgnoreInput;
-	bool m_bIgnoreRepeat;
+	bool m_bFontBold;			//!< Is Font Bolded ?
+	bool m_bFontItalic;			//!< Is Font Italicized ?
+	bool m_bFontUnderline;		//!< Is Font Underlined ?
+	bool m_bFontStrikeout;		//!< Is Font StrikedOut ?
+	bool m_bIgnoreInput;		//!< Ignore keyboard input?
+	bool m_bIgnoreRepeat;		//!< Ignore repeat keys?
 
-	static int unfoldColor(const TCHAR *color);
+	//static int unfoldColor(const TCHAR *color);
 	static DWORD CALLBACK StreamOutToVarCallback(DWORD_PTR dwCookie, const LPBYTE pbBuff, const LONG cb, LONG *pcb);
 	static DWORD CALLBACK StreamOutToFileCallback(DWORD_PTR dwCookie, const LPBYTE pbBuff, const LONG cb, LONG *pcb);
 	static DWORD CALLBACK StreamInFromFileCallback(DWORD_PTR dwCookie, LPBYTE pbBuff, const LONG cb, LONG *pcb);

@@ -36,10 +36,10 @@ DcxCheck::DcxCheck(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentH
 	this->parseControlStyles(styles, &Styles, &ExStyles, &bNoTheme);
 
 	m_Hwnd = CreateWindowEx(
-		ExStyles,
+		static_cast<DWORD>(ExStyles),
 		TEXT("BUTTON"),
 		nullptr,
-		WS_CHILD | Styles,
+		WS_CHILD | static_cast<DWORD>(Styles),
 		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
 		mParentHwnd,
 		(HMENU)ID,
@@ -80,11 +80,25 @@ DcxCheck::~DcxCheck( ) {
 }
 
 
-void DcxCheck::toXml(TiXmlElement *const xml) const {
+void DcxCheck::toXml(TiXmlElement *const xml) const
+{
 	TString wtext;
 	__super::toXml(xml);
 	TGetWindowText(m_Hwnd, wtext);
 	xml->SetAttribute("caption", wtext.c_str());
+	xml->SetAttribute("styles", getStyles().c_str());
+}
+
+TiXmlElement * DcxCheck::toXml(void) const
+{
+	auto xml = __super::toXml();
+
+	TString wtext;
+	TGetWindowText(m_Hwnd, wtext);
+	xml->SetAttribute("caption", wtext.c_str());
+	xml->SetAttribute("styles", getStyles().c_str());
+
+	return xml;
 }
 
 const TString DcxCheck::getStyles(void) const {
