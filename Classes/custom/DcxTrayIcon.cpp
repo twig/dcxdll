@@ -92,7 +92,7 @@ mIRC(TrayIcon) {
 			// load the icon
 			auto icon = dcxLoadIcon(index, filename, false, iconFlags);
 
-			if (!trayIcons->modifyIcon(id, NIM_MODIFY, icon, nullptr))
+			if (!trayIcons->modifyIcon(id, NIM_MODIFY, icon))
 				throw Dcx::dcxException("Error changing trayicon icon");
 		}
 		// change tooltip
@@ -169,28 +169,28 @@ LRESULT CALLBACK DcxTrayIcon::TrayWndProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 		switch (uMouseMsg)
 		{
 			case WM_LBUTTONDBLCLK:
-				mIRCLinker::signalex(dcxSignal.xtray, TEXT("trayicon %s %d"), TEXT("dclick"), id);
+				mIRCLinker::signalex(dcxSignal.xtray, TEXT("trayicon %s %u"), TEXT("dclick"), id);
 				break;
 
 			case WM_LBUTTONUP:
-				mIRCLinker::signalex(dcxSignal.xtray, TEXT("trayicon %s %d"), TEXT("sclick"), id);
+				mIRCLinker::signalex(dcxSignal.xtray, TEXT("trayicon %s %u"), TEXT("sclick"), id);
 				break;
 
 			case WM_RBUTTONUP:
 			case WM_CONTEXTMENU:
-				mIRCLinker::signalex(dcxSignal.xtray, TEXT("trayicon %s %d"), TEXT("rclick"), id);
+				mIRCLinker::signalex(dcxSignal.xtray, TEXT("trayicon %s %u"), TEXT("rclick"), id);
 				break;
 
 			case WM_RBUTTONDBLCLK:
-				mIRCLinker::signalex(dcxSignal.xtray, TEXT("trayicon %s %d"), TEXT("rdclick"), id);
+				mIRCLinker::signalex(dcxSignal.xtray, TEXT("trayicon %s %u"), TEXT("rdclick"), id);
 				break;
 
 			case WM_MBUTTONUP:
-				mIRCLinker::signalex(dcxSignal.xtray, TEXT("trayicon %s %d"), TEXT("mclick"), id);
+				mIRCLinker::signalex(dcxSignal.xtray, TEXT("trayicon %s %u"), TEXT("mclick"), id);
 				break;
 
 			case WM_MBUTTONDBLCLK:
-				mIRCLinker::signalex(dcxSignal.xtray, TEXT("trayicon %s %d"), TEXT("mdclick"), id);
+				mIRCLinker::signalex(dcxSignal.xtray, TEXT("trayicon %s %u"), TEXT("mdclick"), id);
 				break;
 
 			default:
