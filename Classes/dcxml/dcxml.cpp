@@ -32,11 +32,12 @@ mIRC(dcxml) {
 	data[0] = 0;
 
 	try {
-		const XSwitchFlags flags(input.getfirsttok(1));
 		const auto numtok = input.numtok();
 
 		if (numtok < 3)
 			throw Dcx::dcxException("Insuffient parameters");
+
+		const XSwitchFlags flags(input.getfirsttok(1));
 
 		// Parse XDialog XML.
 		if (flags[TEXT('d')]) {
@@ -57,6 +58,18 @@ mIRC(dcxml) {
 			const auto popupDataset(input.getnexttok());		// tok 3
 			auto tsFilename(input.getlasttoks().trim());		// tok 4, -1
 
+			{
+#if DCX_USE_HASHING
+				const auto popupNameHash = std::hash<TString>{}(popupName);
+				if ((popupNameHash == L"mircbar"_hash) || (popupNameHash == L"mirc"_hash) || (popupNameHash == L"scriptpopup"_hash))
+					throw Dcx::dcxException(TEXT("Menu name '%' is reserved."), popupName);
+#else
+				static const TString menuNames(TEXT("mircbar mirc scriptpopup"));
+				if (menuNames.istok(popupName))
+					throw Dcx::dcxException(TEXT("Menu name '%' is reserved."), popupName);
+#endif
+			}
+
 			if (!IsFile(tsFilename))
 				throw Dcx::dcxException(TEXT("Unable To Access File: %"), tsFilename);
 
@@ -64,20 +77,13 @@ mIRC(dcxml) {
 			if (!doc.LoadFile())
 				throw Dcx::dcxException("Unable to load XML file");
 
-			const auto popups = doc.FirstChildElement("dcxml")->FirstChildElement("popups");
+			const auto dcxmlElem = doc.FirstChildElement("dcxml");
+			if (dcxmlElem == nullptr)
+				throw Dcx::dcxException("Unable to find <dcxml> group");
 
-#if DCX_USE_HASHING
-			const auto popupNameHash = dcx_hash(popupName.to_chr());
-			if ((popupNameHash == L"mircbar"_hash) || (popupNameHash == L"mirc"_hash) || (popupNameHash == L"scriptpopup"_hash))
-				throw Dcx::dcxException(TEXT("Menu name '%' is reserved."), popupName);
-#else
-			static const TString menuNames(TEXT("mircbar mirc scriptpopup"));
-			if (menuNames.istok(popupName))
-				throw Dcx::dcxException(TEXT("Menu name '%' is reserved."), popupName);
-#endif
-			// Couldnt find popups group.
+			const auto popups = dcxmlElem->FirstChildElement("popups");
 			if (popups == nullptr)
-				throw Dcx::dcxException("No 'popups' Group");
+				throw Dcx::dcxException("Unable to find <popups> group");
 
 			XPopupMenuManager::LoadPopupsFromXML(popups, nullptr, popupName, popupDataset);
 			return 1;
