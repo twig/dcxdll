@@ -98,7 +98,7 @@ LRESULT CALLBACK mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lP
 {
 	auto dd = static_cast<LPDCXDOCK>(GetProp(mHwnd, TEXT("dcx_dock")));
 #ifdef DCX_DEBUG_OUTPUT
-	mIRCLinker::signalex(dcxSignal.xdock, TEXT("debug %d"), uMsg);
+	mIRCLinker::signalex(dcxSignal.xdock, TEXT("debug %u"), uMsg);
 #endif
 	if (dd == nullptr)
 		return DefWindowProc(mHwnd,uMsg, wParam, lParam);
@@ -107,9 +107,9 @@ LRESULT CALLBACK mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lP
 	case WM_SIZE:
 		{
 			if (!dd->type.empty())
-				mIRCLinker::signalex(dcxSignal.xdock, TEXT("size %s %d %d %d"), dd->type.to_chr(), dd->win, LOWORD(lParam), HIWORD(lParam));
+				mIRCLinker::signalex(dcxSignal.xdock, TEXT("size %s %u %u %u"), dd->type.to_chr(), dd->win, LOWORD(lParam), HIWORD(lParam));
 			else
-				mIRCLinker::signalex(dcxSignal.xdock, TEXT("size Custom %d %d %d"), dd->win, LOWORD(lParam), HIWORD(lParam));
+				mIRCLinker::signalex(dcxSignal.xdock, TEXT("size Custom %u %u %u"), dd->win, LOWORD(lParam), HIWORD(lParam));
 
 			EnumChildWindows(mHwnd,SizeDocked,NULL);
 		}
@@ -124,9 +124,9 @@ LRESULT CALLBACK mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lP
 	case WM_CLOSE:
 		{
 			if (!dd->type.empty())
-				mIRCLinker::signalex(dcxSignal.xdock, TEXT("close %s %d"), dd->type.to_chr(), dd->win);
+				mIRCLinker::signalex(dcxSignal.xdock, TEXT("close %s %u"), dd->type.to_chr(), dd->win);
 			else
-				mIRCLinker::signalex(dcxSignal.xdock, TEXT("close Custom %d"), dd->win);
+				mIRCLinker::signalex(dcxSignal.xdock, TEXT("close Custom %u"), dd->win);
 		}
 		break;
 #endif

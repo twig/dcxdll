@@ -726,25 +726,25 @@ LRESULT CALLBACK DcxDock::mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 					switch( hdr->code ) {
 						case NM_CLICK:
 							{
-								mIRCLinker::signalex(dcxSignal.xstatusbar, TEXT("DCXStatusbar sclick %d %d"), hdr->hwndFrom, idPart);
+								mIRCLinker::signalex(dcxSignal.xstatusbar, TEXT("DCXStatusbar sclick %u %u"), hdr->hwndFrom, idPart);
 								return TRUE;
 							}
 							break;
 						case NM_DBLCLK:
 							{
-								mIRCLinker::signalex(dcxSignal.xstatusbar, TEXT("DCXStatusbar dclick %d %d"), hdr->hwndFrom, idPart);
+								mIRCLinker::signalex(dcxSignal.xstatusbar, TEXT("DCXStatusbar dclick %u %u"), hdr->hwndFrom, idPart);
 								return TRUE;
 							}
 							break;
 						case NM_RCLICK:
 							{
-								mIRCLinker::signalex(dcxSignal.xstatusbar, TEXT("DCXStatusbar rclick %d %d"), hdr->hwndFrom, idPart);
+								mIRCLinker::signalex(dcxSignal.xstatusbar, TEXT("DCXStatusbar rclick %u %u"), hdr->hwndFrom, idPart);
 								return TRUE;
 							}
 							break;
 						case NM_RDBLCLK:
 							{
-								mIRCLinker::signalex(dcxSignal.xstatusbar, TEXT("DCXStatusbar rdclick %d %d"), hdr->hwndFrom, idPart);
+								mIRCLinker::signalex(dcxSignal.xstatusbar, TEXT("DCXStatusbar rdclick %u %u"), hdr->hwndFrom, idPart);
 								return TRUE;
 							}
 							break;
@@ -778,20 +778,47 @@ LRESULT CALLBACK DcxDock::mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 							}
 						}
 
-						COLORREF oldTxtClr = CLR_INVALID;
-						if (pPart->m_TxtCol != CLR_INVALID)
-							oldTxtClr = SetTextColor(lpDrawItem->hDC, pPart->m_TxtCol);
-
-						const auto oldbkg = SetBkMode(lpDrawItem->hDC, TRANSPARENT);
 
 						if (!pPart->m_Text.empty())
-							mIRC_DrawText(lpDrawItem->hDC, pPart->m_Text, &rc, DT_LEFT | DT_VCENTER | DT_SINGLELINE, false);
+						{
+							//COLORREF oldTxtClr = CLR_INVALID;
+							//if (pPart->m_TxtCol != CLR_INVALID)
+							//	oldTxtClr = SetTextColor(lpDrawItem->hDC, pPart->m_TxtCol);
+							//
+							//const auto oldbkg = SetBkMode(lpDrawItem->hDC, TRANSPARENT);
+							//
+							//mIRC_DrawText(lpDrawItem->hDC, pPart->m_Text, &rc, DT_LEFT | DT_VCENTER | DT_SINGLELINE, false);
+							//
+							//SetBkMode(lpDrawItem->hDC, oldbkg);
+							//if (oldTxtClr != CLR_INVALID)
+							//	SetTextColor(lpDrawItem->hDC, oldTxtClr);
+
+							//const auto oldTxtClr = GetTextColor(lpDrawItem->hDC);
+							//if (pPart->m_TxtCol != CLR_INVALID)
+							//	SetTextColor(lpDrawItem->hDC, pPart->m_TxtCol);
+							//Auto(SetTextColor(lpDrawItem->hDC, oldTxtClr));
+							//
+							//const auto oldbkg = SetBkMode(lpDrawItem->hDC, TRANSPARENT);
+							//Auto(SetBkMode(lpDrawItem->hDC, oldbkg));
+							//
+							//mIRC_DrawText(lpDrawItem->hDC, pPart->m_Text, &rc, DT_LEFT | DT_VCENTER | DT_SINGLELINE, false);
+
+							const auto oldbkg = SetBkMode(lpDrawItem->hDC, TRANSPARENT);
+							Auto(SetBkMode(lpDrawItem->hDC, oldbkg));
+
+							if (pPart->m_TxtCol != CLR_INVALID)
+							{
+								const auto oldTxtClr = SetTextColor(lpDrawItem->hDC, pPart->m_TxtCol);
+								Auto(SetTextColor(lpDrawItem->hDC, oldTxtClr));
+
+								mIRC_DrawText(lpDrawItem->hDC, pPart->m_Text, &rc, DT_LEFT | DT_VCENTER | DT_SINGLELINE, false);
+							}
+							else
+								mIRC_DrawText(lpDrawItem->hDC, pPart->m_Text, &rc, DT_LEFT | DT_VCENTER | DT_SINGLELINE, false);
+						}
 						else if (IsWindow(pPart->m_Child))
 							SetWindowPos(pPart->m_Child, nullptr, rc.left, rc.top, (rc.right - rc.left), (rc.bottom - rc.top), SWP_NOZORDER|SWP_NOOWNERZORDER|SWP_SHOWWINDOW|SWP_NOACTIVATE);
 
-						SetBkMode( lpDrawItem->hDC, oldbkg );
-						if (oldTxtClr != CLR_INVALID)
-							SetTextColor(lpDrawItem->hDC, oldTxtClr);
 						return TRUE;
 					}
 				}
@@ -880,9 +907,9 @@ bool DcxDock::InitStatusbar(const TString &styles)
 	DcxDock::status_parseControlStyles(styles, &Styles, &ExStyles, &bNoTheme);
 
 	g_StatusBar = CreateWindowExW(
-		(DWORD)ExStyles,
+		static_cast<DWORD>(ExStyles),
 		STATUSCLASSNAMEW,nullptr,
-		(DWORD)Styles,
+		static_cast<DWORD>(Styles),
 		0, 0, 0, 0, mIRCLinker::getHWND(), (HMENU)(mIRC_ID_OFFSET - 1), nullptr, nullptr);
 
 	if (IsWindow(g_StatusBar)) {
