@@ -184,7 +184,7 @@ void LayoutCellPane::toXml(TiXmlElement *xml) {
 		const auto weight = x.second;
 		auto inner = lc->toXml();
 		if (weight != 0)
-			inner->SetAttribute("weight", weight);
+			inner->SetAttribute("weight", static_cast<int>(weight));
 		xml->LinkEndChild(inner);
 	}
 }
@@ -210,12 +210,12 @@ void LayoutCellPane::AdjustMinSize( UINT & nSizeLeft, UINT & nTotalWeight )
 	if ( m_nType == HORZ) {
 
 		nSize = rc.bottom - rc.top;
-		nSizeLeft = rc.right - rc.left;
+		nSizeLeft = static_cast<UINT>(rc.right - rc.left);
 	}
 	else {
 
 		nSize = rc.right - rc.left;
-		nSizeLeft = rc.bottom - rc.top;
+		nSizeLeft = static_cast<UINT>(rc.bottom - rc.top);
 	}
 	for (const auto &x: m_vpCells) {
 		auto pChild = x.first;

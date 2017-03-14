@@ -45,8 +45,6 @@ public:
 
 	const CellType getType() const noexcept final;
 
-protected:
-
 };
 
 #endif // _LAYOUTCELLFILL_H_

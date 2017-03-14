@@ -74,7 +74,7 @@ public:
 	void getRect( RECT & rc ) const;
 	void getClientRect( RECT & rc ) const noexcept;
 	void setBorder( const RECT & rc );
-	void setBorder( const UINT nBorder );
+	void setBorder( const int &nBorder );
 	void getBorder( RECT & rc ) const noexcept;
 
 	virtual void LayoutChild( ) = 0;

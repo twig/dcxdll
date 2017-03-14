@@ -245,18 +245,21 @@ void LayoutCell::setBorder(const RECT & rc) {
  * blah
  */
 
-void LayoutCell::setBorder(const UINT nBorder) {
+void LayoutCell::setBorder(const int &nBorder)
+{
+	//// remove old borders
+	//m_rcWindow.right -= m_rcBorders.left + m_rcBorders.right;
+	//m_rcWindow.bottom -= m_rcBorders.top + m_rcBorders.bottom;
+	//
+	//// new borders
+	//SetRect(&m_rcBorders, nBorder, nBorder, nBorder, nBorder);
+	//
+	//// re-add new border settings
+	//m_rcWindow.right += m_rcBorders.left + m_rcBorders.right;
+	//m_rcWindow.bottom += m_rcBorders.top + m_rcBorders.bottom;
 
-	// remove old borders
-	m_rcWindow.right -= m_rcBorders.left + m_rcBorders.right;
-	m_rcWindow.bottom -= m_rcBorders.top + m_rcBorders.bottom;
-
-	// new borders
-	SetRect(&m_rcBorders, nBorder, nBorder, nBorder, nBorder);
-
-	// re-add new border settings
-	m_rcWindow.right += m_rcBorders.left + m_rcBorders.right;
-	m_rcWindow.bottom += m_rcBorders.top + m_rcBorders.bottom;
+	const RECT rc{ nBorder, nBorder, nBorder, nBorder };
+	setBorder(rc);
 }
 
 /*!

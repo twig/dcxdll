@@ -59,7 +59,7 @@ const bool LayoutManager::updateLayout(RECT & rc) {
 	if (empty())
 		return false;
 
-	auto hdwp = BeginDeferWindowPos(m_iCount);
+	auto hdwp = BeginDeferWindowPos(static_cast<int>(m_iCount));
 
 	if (hdwp == nullptr) {
 		DCX_DEBUG(mIRCLinker::debug, TEXT("updateLayout()"), TEXT("BeginDeferWindowPos() failed"));
@@ -126,7 +126,7 @@ LayoutCell * LayoutManager::parsePath(const TString & path, const LayoutCell *co
 
 	UINT i = 1;
 	const auto n = path.numtok();
-	const auto k = path.gettok(depth).to_<UINT>();
+	const auto k = path.gettok(static_cast<int>(depth)).to_<UINT>();
 
 	if (k < 1)
 		return nullptr;
@@ -290,19 +290,19 @@ void LayoutManager::AddCell(const TString &input, const UINT iOffset)
 	const auto tsInput(input.getfirsttok(1, TSTABCHAR));
 	const auto p2(input.getnexttok(TSTABCHAR).trim());
 
-	const auto com = std::hash<TString>{}(tsInput.getfirsttok(iOffset).trim());		// 3
+	const auto com = std::hash<TString>{}(tsInput.getfirsttok(static_cast<int>(iOffset)).trim());		// 3
 	const auto path(tsInput.getlasttoks().trim());	// 4
 
 	const auto iflags = parseLayoutFlags(p2.getfirsttok(1));
 	const auto ID = p2.getnexttok().to_<UINT>();	// tok 2
 	const auto WGT = p2.getnexttok().to_<UINT>();	// tok 3
-	const auto W = p2.getnexttok().to_<UINT>();	// tok 4
-	const auto H = p2.getnexttok().to_<UINT>();	// tok 5
+	const auto W = p2.getnexttok().to_<INT>();	// tok 4
+	const auto H = p2.getnexttok().to_<INT>();	// tok 5
 
 	const auto bPathRoot = (path == TEXT("root"));
 
 	if ((com == TEXT("root"_hash)) || com == TEXT("cell"_hash)) {
-		auto cHwnd = GetDlgItem(m_Hwnd, mIRC_ID_OFFSET + ID);
+		auto cHwnd = GetDlgItem(m_Hwnd, static_cast<int>(mIRC_ID_OFFSET + ID));
 
 		std::unique_ptr<LayoutCell> p_Cell = nullptr;
 
@@ -328,7 +328,7 @@ void LayoutManager::AddCell(const TString &input, const UINT iOffset)
 		  // LayoutCellFixed
 		else if (dcx_testflag(iflags, LAYOUTFIXED)) {
 
-			LayoutCellFixed::FixedType type = LayoutCellFixed::WIDTH;
+			auto type = LayoutCellFixed::WIDTH;
 
 			if (dcx_testflag(iflags, LAYOUTVERT))
 			{
@@ -380,7 +380,7 @@ void LayoutManager::AddCell(const TString &input, const UINT iOffset)
 		// if ( com == TEXT("root") )
 		else if (com == TEXT("cell"_hash)) {
 
-			LayoutCell * p_GetCell = getRoot();
+			auto p_GetCell = getRoot();
 
 			if (!bPathRoot)
 				p_GetCell = getCell(path);
@@ -391,7 +391,7 @@ void LayoutManager::AddCell(const TString &input, const UINT iOffset)
 			if (p_GetCell->getType() != LayoutCell::PANE)
 				throw Dcx::dcxException("Invalid parent Cell");
 
-			auto p_PaneCell = reinterpret_cast<LayoutCellPane *>(p_GetCell);
+			auto p_PaneCell = (LayoutCellPane *)p_GetCell;
 			p_PaneCell->addChild(p_Cell.release(), WGT);
 		} // else if ( com == TEXT("cell") )
 
@@ -400,7 +400,7 @@ void LayoutManager::AddCell(const TString &input, const UINT iOffset)
 	} // if ( com ==  TEXT("root") || com == TEXT("cell") )
 	else if (com == TEXT("space"_hash)) {
 
-		LayoutCell * p_GetCell = getRoot();
+		auto p_GetCell = getRoot();
 
 		if (!bPathRoot)
 			p_GetCell = getCell(path);
@@ -409,7 +409,7 @@ void LayoutManager::AddCell(const TString &input, const UINT iOffset)
 			throw Dcx::dcxException("Invalid item path");
 
 		RECT rc;
-		SetRect(&rc, ID, WGT, W, H);
+		SetRect(&rc, static_cast<int>(ID), static_cast<int>(WGT), W, H);
 		p_GetCell->setBorder(rc);
 	} // else if ( com == TEXT("space") )
 	else
@@ -454,7 +454,7 @@ void LayoutManager::AddCell(const TString &input, const UINT iOffset)
 		  // LayoutCellFixed
 		else if (dcx_testflag(iflags, LAYOUTFIXED)) {
 
-			LayoutCellFixed::FixedType type = LayoutCellFixed::WIDTH;
+			auto type = LayoutCellFixed::WIDTH;
 
 			if (dcx_testflag(iflags, LAYOUTVERT))
 			{
@@ -506,7 +506,7 @@ void LayoutManager::AddCell(const TString &input, const UINT iOffset)
 		// if ( com == TEXT("root") )
 		else if (com == TEXT("cell")) {
 
-			LayoutCell * p_GetCell = getRoot();
+			auto p_GetCell = getRoot();
 
 			if (path != TEXT("root"))
 				p_GetCell = getCell(path);
@@ -526,7 +526,7 @@ void LayoutManager::AddCell(const TString &input, const UINT iOffset)
 	} // if ( com ==  TEXT("root") || com == TEXT("cell") )
 	else if (com == TEXT("space")) {
 
-		LayoutCell * p_GetCell = getRoot();
+		auto p_GetCell = getRoot();
 
 		if (path != TEXT("root"))
 			p_GetCell = getCell(path);
@@ -535,7 +535,7 @@ void LayoutManager::AddCell(const TString &input, const UINT iOffset)
 			throw Dcx::dcxException("Invalid item path");
 
 		RECT rc;
-		SetRect(&rc, ID, WGT, W, H);
+		SetRect(&rc, static_cast<int>(ID), static_cast<int>(WGT), W, H);
 		p_GetCell->setBorder(rc);
 	} // else if ( com == TEXT("space") )
 	else
