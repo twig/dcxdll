@@ -758,12 +758,12 @@ mIRC(Version)
 	if (mIRCLinker::isUnicode())
 	{
 		wnsprintf(data, MIRC_BUFFER_SIZE_CCH,
-			TEXT("DCX (XPopup) DLL %s %s%d UTF by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2005"),
+			TEXT("DCX (XPopup) DLL %s %s%d UTF by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2005 Compiled on " __DATE__ " " __TIME__),
 			DLL_VERSION, DLL_STATE, DLL_DEV_BUILD);
 	}
 	else {
 		wnsprintfA((char *)data, MIRC_BUFFER_SIZE_CCH,
-			"DCX (XPopup) DLL %S %S%d UTF by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2005",
+			"DCX (XPopup) DLL %S %S%d UTF by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2005 Compiled on " __DATE__ " " __TIME__,
 			DLL_VERSION, DLL_STATE, DLL_DEV_BUILD);
 	}
 #else
@@ -788,24 +788,24 @@ mIRC(Version)
 	if (mIRCLinker::isUnicode())
 	{
 		wnsprintf(data, MIRC_BUFFER_SIZE_CCH,
-			TEXT("DCX (XPopup) DLL %s %s%d UTF by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2005"),
+			TEXT("DCX (XPopup) DLL %s %s%d UTF by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2005 Compiled on " __DATE__ " " __TIME__),
 			DLL_VERSION, DLL_STATE, DLL_DEV_BUILD);
 	}
 	else {
 		wnsprintfA((char *)data, MIRC_BUFFER_SIZE_CCH,
-			"DCX (XPopup) DLL %S %S%d UTF by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2005",
+			"DCX (XPopup) DLL %S %S%d UTF by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2005 Compiled on " __DATE__ " " __TIME__,
 			DLL_VERSION, DLL_STATE, DLL_DEV_BUILD);
 	}
 #else
 	if (mIRCLinker::isUnicode())
 	{
 		wnsprintf(data, MIRC_BUFFER_SIZE_CCH,
-			TEXT("DCX (XPopup) DLL %s %s UTF by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2005"),
+			TEXT("DCX (XPopup) DLL %s %s UTF by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2005 Compiled on " __DATE__ " " __TIME__),
 			DLL_VERSION, DLL_STATE);
 	}
 	else {
 		wnsprintfA((char *)data, MIRC_BUFFER_SIZE_CCH,
-			"DCX (XPopup) DLL %S %S UTF by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2005",
+			"DCX (XPopup) DLL %S %S UTF by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2005 Compiled on " __DATE__ " " __TIME__,
 			DLL_VERSION, DLL_STATE);
 	}
 #endif

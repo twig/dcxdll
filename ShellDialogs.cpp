@@ -43,22 +43,22 @@ mIRC(ColorDialog) {
 #if DCX_USE_HASHING
 			switch (std::hash<TString>{}(tsStyle))
 			{
-			case L"anycolor"_hash:
+			case TEXT("anycolor"_hash):
 				styles |= CC_ANYCOLOR;
 				break;
-			case L"fullopen"_hash:
+			case TEXT("fullopen"_hash):
 				styles |= CC_FULLOPEN;
 				break;
-			case L"nofullopen"_hash:
+			case TEXT("nofullopen"_hash):
 				styles |= CC_PREVENTFULLOPEN;
 				break;
-			case L"solidonly"_hash:
+			case TEXT("solidonly"_hash):
 				styles |= CC_SOLIDCOLOR;
 				break;
-			case L"owner"_hash:
+			case TEXT("owner"_hash):
 				cc.hwndOwner = FindOwner(d, mWnd);
 				break;
-			case L"returndefault"_hash:
+			case TEXT("returndefault"_hash):
 				retDefault = true;
 			default:
 				break;
@@ -229,47 +229,47 @@ TString FileDialog(const TString & data, const TString &method, const HWND pWnd)
 
 		switch (std::hash<TString>{}(tsStyle))
 		{
-		case L"multisel"_hash:
+		case TEXT("multisel"_hash):
 			style |= OFN_ALLOWMULTISELECT;
 			break;
-		case L"createprompt"_hash:
+		case TEXT("createprompt"_hash):
 			style |= OFN_CREATEPROMPT;
 			break;
-		case L"enablesizing"_hash:
+		case TEXT("enablesizing"_hash):
 			// FIXME: explorer style resizable on default, cant get rid of that shit
 			style |= OFN_ENABLESIZING;
 			break;
-		case L"filemustexist"_hash:
+		case TEXT("filemustexist"_hash):
 			style |= OFN_FILEMUSTEXIST; // (open)
 			break;
-		case L"showhidden"_hash:
+		case TEXT("showhidden"_hash):
 			style |= OFN_FORCESHOWHIDDEN; // 2k/xp
 			break;
-		case L"noreadonly"_hash:
+		case TEXT("noreadonly"_hash):
 			style |= OFN_HIDEREADONLY;
 			break;
-		case L"nochangedir"_hash:
+		case TEXT("nochangedir"_hash):
 			style |= OFN_NOCHANGEDIR; // (save)
 			break;
-		case L"getshortcuts"_hash:
+		case TEXT("getshortcuts"_hash):
 			style |= OFN_NODEREFERENCELINKS;
 			break;
-		case L"nonetwork"_hash:
+		case TEXT("nonetwork"_hash):
 			style |= OFN_NONETWORKBUTTON;
 			break;
-		case L"novalidate"_hash:
+		case TEXT("novalidate"_hash):
 			style |= OFN_NOVALIDATE;
 			break;
-		case L"norecent"_hash:
+		case TEXT("norecent"_hash):
 			style |= OFN_DONTADDTORECENT; // 2k/xp
 			break;
-		case L"overwriteprompt"_hash:
+		case TEXT("overwriteprompt"_hash):
 			style |= OFN_OVERWRITEPROMPT; // save
 			break;
-		case L"pathmustexist"_hash:
+		case TEXT("pathmustexist"_hash):
 			style |= OFN_PATHMUSTEXIST;
 			break;
-		case L"owner"_hash:
+		case TEXT("owner"_hash):
 			ofn.hwndOwner = FindOwner(styles, pWnd);
 			break;
 		default:
@@ -777,79 +777,79 @@ mIRC(MsgBox) {
 			//		MB_CANCELTRYCONTINUE && Dcx::XPPlusModule.isUseable()
 			switch (std::hash<TString>{}(tsStyle))
 			{
-			case L"ok"_hash:
+			case TEXT("ok"_hash):
 				style |= MB_OK;
 				break;
-			case L"okcancel"_hash:
+			case TEXT("okcancel"_hash):
 				style |= MB_OKCANCEL;
 				break;
-			case L"retrycancel"_hash:
+			case TEXT("retrycancel"_hash):
 				style |= MB_RETRYCANCEL;
 				break;
-			case L"yesno"_hash:
+			case TEXT("yesno"_hash):
 				style |= MB_YESNO;
 				break;
-			case L"yesnocancel"_hash:
+			case TEXT("yesnocancel"_hash):
 				style |= MB_YESNOCANCEL;
 				break;
-			case L"exclamation"_hash:
+			case TEXT("exclamation"_hash):
 				style |= MB_ICONEXCLAMATION;
 				break;
-			case L"warning"_hash:
+			case TEXT("warning"_hash):
 				style |= MB_ICONWARNING;
 				break;
-			case L"information"_hash:
+			case TEXT("information"_hash):
 				style |= MB_ICONINFORMATION;
 				break;
-			case L"asterisk"_hash:
+			case TEXT("asterisk"_hash):
 				style |= MB_ICONASTERISK;
 				break;
-			case L"question"_hash:
+			case TEXT("question"_hash):
 				style |= MB_ICONQUESTION;
 				break;
-			case L"stop"_hash:
+			case TEXT("stop"_hash):
 				style |= MB_ICONSTOP;
 				break;
-			case L"error"_hash:
+			case TEXT("error"_hash):
 				style |= MB_ICONERROR;
 				break;
-			case L"hand"_hash:
+			case TEXT("hand"_hash):
 				style |= MB_ICONHAND;
 				break;
-			//case L"help"_hash:
+			//case TEXT("help"_hash):
 			//	style |= MB_HELP;
 			//	break;
-			case L"defbutton2"_hash:
+			case TEXT("defbutton2"_hash):
 				style |= MB_DEFBUTTON2;
 				break;
-			case L"defbutton3"_hash:
+			case TEXT("defbutton3"_hash):
 				style |= MB_DEFBUTTON3;
 				break;
-			case L"defbutton4"_hash:
+			case TEXT("defbutton4"_hash):
 				style |= MB_DEFBUTTON4;
 				break;
-			case L"modal"_hash:
+			case TEXT("modal"_hash):
 				style |= MB_APPLMODAL;
 				break;
-			case L"sysmodal"_hash:
+			case TEXT("sysmodal"_hash):
 				style |= MB_SYSTEMMODAL;
 				break;
-			case L"taskmodal"_hash:
+			case TEXT("taskmodal"_hash):
 				style |= MB_TASKMODAL;
 				break;
-			case L"right"_hash:
+			case TEXT("right"_hash):
 				style |= MB_RIGHT;
 				break;
-			case L"rtl"_hash:
+			case TEXT("rtl"_hash):
 				style |= MB_RTLREADING;
 				break;
-			case L"foreground"_hash:
+			case TEXT("foreground"_hash):
 				style |= MB_SETFOREGROUND;
 				break;
-			case L"topmost"_hash:
+			case TEXT("topmost"_hash):
 				style |= MB_TOPMOST;
 				break;
-			case L"owner"_hash:
+			case TEXT("owner"_hash):
 				owner = FindOwner(strStyles, mWnd);
 				break;
 			default:

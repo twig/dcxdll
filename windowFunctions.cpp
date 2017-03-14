@@ -56,7 +56,7 @@ HWND FindOwner(const TString & data, const gsl::not_null<HWND> &defaultWnd) {
 */
 HWND GetHwndFromString(const TString &str) {
 	if (str.empty())
-		return 0;
+		return nullptr;
 
 	//return GetHwndFromString(str.to_chr());
 
@@ -505,7 +505,7 @@ HRGN BitmapRegion(HBITMAP hBitmap, const COLORREF cTransparentColor, const BOOL 
 #endif
 	// In order to optimize the code, we don't call the GDI each time we
 	// find a transparent pixel. We use a RGN_DATA structure were we store
-	// consecutive rectangles, until we have a large amount of them and then we crete
+	// consecutive rectangles, until we have a large amount of them and then we create
 	// the composed region with ExtCreateRgn(), combining it with the main region.
 	// Then we begin again initializing the RGN_DATA structure and doing another
 	// iteration, until the entire bitmap is analyzed.
@@ -548,13 +548,13 @@ HRGN BitmapRegion(HBITMAP hBitmap, const COLORREF cTransparentColor, const BOOL 
 
 			while (Column < bmBitmap.bmWidth)
 			{
-				BOOL bInRange = FALSE;
+				bool bInRange = false;
 
 				// If the color is that indicated as transparent...
 				if (Pixel->rgbRed == GetRValue(cTransparentColor) &&
 					Pixel->rgbGreen == GetGValue((cTransparentColor & 0xFFFF)) &&
 					Pixel->rgbBlue == GetBValue(cTransparentColor))
-					bInRange = TRUE;
+					bInRange = true;
 
 				if ((bIsTransparent) && (bInRange))
 					break;
@@ -658,7 +658,7 @@ HRGN BitmapRegion(HBITMAP hBitmap, const COLORREF cTransparentColor, const BOOL 
 /*!
 * \brief Changes the icon for a window.
 *
-* Returns true if successful.
+* throws dcxException on error.
 */
 void ChangeHwndIcon(const HWND hwnd, const TString &flags, const int index, TString &filename)
 {

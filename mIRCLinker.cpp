@@ -42,7 +42,7 @@ namespace mIRCLinker {
 	void load(LOADINFO * lInfo) {
 		m_mIRCHWND = lInfo->mHwnd;
 		m_dwVersion = lInfo->mVersion;
-		// v2 dll for mirc V7+ anyway.
+
 		lInfo->mKeep = TRUE;
 		lInfo->mUnicode = TRUE;
 		m_bUnicodemIRC = true;
@@ -107,13 +107,13 @@ namespace mIRCLinker {
 
 	void initMapFile() {
 		int cnt = 1;
-		// v2 dll for mirc V7+ anyway.
 		TString map_name;
 		m_hFileMap = nullptr;
 
 		while ((m_hFileMap == nullptr) && (cnt < 256)) {
 			// create mapfile name.
-			map_name.tsprintf(TEXT("mIRC%d"), cnt);
+			//map_name.tsprintf(TEXT("mIRC%d"), cnt);
+			_ts_sprintf(map_name, TEXT("mIRC%"), cnt);
 			// create mapfile.
 			m_hFileMap = CreateFileMapping(INVALID_HANDLE_VALUE, 0, PAGE_READWRITE, 0, MIRC_MAP_SIZE, map_name.to_chr());
 
@@ -131,7 +131,7 @@ namespace mIRCLinker {
 			else
 				break;
 
-			cnt++;
+			++cnt;
 		}
 
 		if (cnt == 256)
@@ -286,13 +286,13 @@ namespace mIRCLinker {
 	 * Allow sufficient characters to be returned.
 	 */
 	bool eval(TCHAR *const res, const int maxlen, const TCHAR *const data) {
-		if (lstrcpyn(m_pData, data, MIRC_BUFFER_SIZE_CCH) != nullptr)
+		if (ts_strcpyn(m_pData, data, MIRC_BUFFER_SIZE_CCH) != nullptr)
 		{
 			if (mIRC_SndMsg(WM_MEVALUATE)) {
 				if (res != nullptr)
 					dcx_strcpyn(res, m_pData, maxlen);
 
-				return (lstrcmp(m_pData, TEXT("$false")) != 0);
+				return (ts_strcmp(m_pData, TEXT("$false")) != 0);
 			}
 		}
 		m_pData[0] = 0;
@@ -300,7 +300,7 @@ namespace mIRCLinker {
 	}
 
 	bool tsEval(TString &res, const TCHAR *const data) {
-		if (lstrcpyn(m_pData, data, MIRC_BUFFER_SIZE_CCH) != nullptr)
+		if (ts_strcpyn(m_pData, data, MIRC_BUFFER_SIZE_CCH) != nullptr)
 		{
 			if (mIRC_SndMsg(WM_MEVALUATE)) {
 				res = m_pData;
@@ -312,7 +312,7 @@ namespace mIRCLinker {
 	}
 
 	bool iEval(__int64  *const res, const TCHAR *const data) {
-		if (lstrcpyn(m_pData, data, MIRC_BUFFER_SIZE_CCH) != nullptr)
+		if (ts_strcpyn(m_pData, data, MIRC_BUFFER_SIZE_CCH) != nullptr)
 		{
 			if (mIRC_SndMsg(WM_MEVALUATE)) {
 				*res = dcx_atoi64(m_pData);
@@ -355,7 +355,7 @@ namespace mIRCLinker {
 
 	bool exec(const TCHAR *const data)
 	{
-		if (lstrcpyn(m_pData, data, MIRC_BUFFER_SIZE_CCH) != nullptr)
+		if (ts_strcpyn(m_pData, data, MIRC_BUFFER_SIZE_CCH) != nullptr)
 		{
 			// SendMessage(mHwnd, WM_MCOMMAND, MAKEWPARAM(cMethod, cEventId), cIndex)
 			if (mIRC_SndMsg(WM_MCOMMAND))
@@ -380,6 +380,12 @@ namespace mIRCLinker {
 		wnsprintf(m_pData, MIRC_BUFFER_SIZE_CCH, TEXT("//.signal -n DCX %s"), msg);
 		mIRC_SndMsg(WM_MCOMMAND);
 	}
+
+	//template <typename T>
+	//void signal(const refString<TCHAR,T> &msg)
+	//{
+
+	//}
 
 	/*!
 	* \brief Sends a signal to mIRC.

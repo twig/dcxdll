@@ -168,7 +168,8 @@ auto readFile(const TString &filename)
 		return nullptr;
 
 #if DCX_USE_WRAPPERS
-	Dcx::dcxFileResource file(filename.to_chr(), TEXT("rb"));
+	//Dcx::dcxFileResource file(filename.to_wchr(), TEXT("rb"));
+	Dcx::dcxFileResource file(filename, TEXT("rb"));
 #else
 	auto file = dcx_fopen(filename, TEXT("rb"));
 	
@@ -195,10 +196,10 @@ auto readFile(const TString &filename)
 
 	// Null terminate the string (use double zero)
 	fileContents[size] = 0;
-	fileContents[size + 1] = 0;
+	fileContents[size + 1U] = 0;
 
 	// read the file
-	fread(fileContents.get(), 1, size, file);
+	fread(fileContents.get(), 1U, size, file);
 
 	// return memory block containing file data
 	return fileContents;
@@ -227,7 +228,8 @@ TString readTextFile(const TString &tFile)
 bool SaveDataToFile(const TString &tsFile, const TString &tsData)
 {
 #if DCX_USE_WRAPPERS
-	Dcx::dcxFileResource file(tsFile.to_chr(), TEXT("wb"));
+	//Dcx::dcxFileResource file(tsFile.to_wchr(), TEXT("wb"));
+	Dcx::dcxFileResource file(tsFile, TEXT("wb"));
 #else
 	auto file = dcx_fopen(tsFile.to_chr(), TEXT("wb"));
 	
@@ -254,10 +256,10 @@ bool SaveDataToFile(const TString &tsFile, const TString &tsData)
 *
 * http://msdn.microsoft.com/library/default.asp?url=/library/en-us/winui/winui/windowsuserinterface/dataexchange/clipboard/usingtheclipboard.asp
 */
-BOOL CopyToClipboard(const HWND owner, const TString & str) {
+bool CopyToClipboard(const HWND owner, const TString & str) {
 	if (!OpenClipboard(owner)) {
 		Dcx::error(TEXT("CopyToClipboard"),TEXT("Couldn't open clipboard"));
-		return FALSE;
+		return false;
 	}
 
 	Auto(CloseClipboard());
@@ -268,22 +270,25 @@ BOOL CopyToClipboard(const HWND owner, const TString & str) {
 
 	if (hglbCopy == nullptr) {
 		Dcx::error(TEXT("CopyToClipboard"),TEXT("Couldn't open global memory"));
-		return FALSE;
+		return false;
 	}
 
-	auto strCopy = (TCHAR *) GlobalLock(hglbCopy);
+	{	// simply sets scope for vars
+		auto strCopy = (TCHAR *)GlobalLock(hglbCopy);
 
-	if (strCopy == nullptr) {
-		GlobalFree(hglbCopy);
-		Dcx::error(TEXT("CopyToClipboard"),TEXT("Couldn't lock global memory"));
-		return FALSE;
+		if (strCopy == nullptr) {
+			GlobalFree(hglbCopy);
+			Dcx::error(TEXT("CopyToClipboard"), TEXT("Couldn't lock global memory"));
+			return false;
+		}
+
+		dcx_strcpyn(strCopy, str.to_chr(), cbsize);
+
+		GlobalUnlock(hglbCopy);
 	}
 
-	dcx_strcpyn(strCopy, str.to_chr(), cbsize);
-
-	GlobalUnlock(hglbCopy);
 	SetClipboardData(CF_UNICODETEXT, hglbCopy);
-	return TRUE;
+	return true;
 }
 
 
@@ -548,8 +553,8 @@ TString ParseLogfontToCommand(const LPLOGFONT lf) {
 		//auto ptSize = (int) (-1 * (lfCurrent.lfHeight * 72 / GetDeviceCaps(hdc, LOGPIXELSY)));
 		const auto ptSize = MulDiv(tm.tmHeight - tm.tmInternalLeading, 72, GetDeviceCaps(hdc, LOGPIXELSY));
 		// [+FLAGS] [CHARSET] [SIZE] [FONTNAME]
-		tmp.tsprintf(TEXT("%s %s %d %s"), flags.to_chr(), charset.to_chr(), ptSize, lf->lfFaceName);
-		//tsprintf(tmp, TEXT("% % % %"), flags, charset, ptSize, lf->lfFaceName);
+		//tmp.tsprintf(TEXT("%s %s %d %s"), flags.to_chr(), charset.to_chr(), ptSize, lf->lfFaceName);
+		_ts_sprintf(tmp, TEXT("% % % %"), flags, charset, ptSize, lf->lfFaceName);
 	}
 	return tmp;
 }
@@ -678,10 +683,10 @@ HICON dcxLoadIcon(const int index, TString &filename, const bool large, const TS
 
 		ZeroMemory(&shfi, sizeof(SHFILEINFO));
 
-		if (SHGetFileInfo(filetype.to_chr(), FILE_ATTRIBUTE_NORMAL, &shfi, sizeof(SHFILEINFO), (UINT)(SHGFI_ICON | SHGFI_USEFILEATTRIBUTES | (large ? SHGFI_LARGEICON : SHGFI_SMALLICON))) != 0)
-			return shfi.hIcon;
+		if (SHGetFileInfo(filetype.to_chr(), FILE_ATTRIBUTE_NORMAL, &shfi, sizeof(SHFILEINFO), (UINT)(SHGFI_ICON | SHGFI_USEFILEATTRIBUTES | (large ? SHGFI_LARGEICON : SHGFI_SMALLICON))) == 0)
+			throw Dcx::dcxException("dcxLoadIcon: Unable to get filetype icon");
 
-		throw Dcx::dcxException("dcxLoadIcon: Unable to get filetype icon");
+		return shfi.hIcon;
 	}
 
 	// Check for valid filename
@@ -1063,7 +1068,7 @@ HICON CreateGrayscaleIcon( HICON hIcon )
 	if (!bGrayPaletteSet)
 	{
 		//#pragma loop(hint_parallel(2))
-		for(auto i = 0U; i < 256U; i++)
+		for(auto i = 0U; i < Dcx::countof(defaultGrayPalette); i++)
 		{
 			defaultGrayPalette[i] = RGB(255-i, 255-i, 255-i);
 		}
@@ -1331,8 +1336,9 @@ void getmIRCPalette(COLORREF *const Palette, const UINT PaletteItems)
 	CopyMemory(Palette, staticPalette, sizeof(COLORREF) * PaletteItems);
 }
 
-int unfoldColor(const WCHAR *color) {
-	auto nColor = _wtoi(color);
+int unfoldColor(const WCHAR *color)
+{
+	auto nColor = _ts_atoi(color);
 
 	while (nColor > 15) {
 		nColor -= 16;
@@ -1727,7 +1733,7 @@ struct HDCBuffer {
 };
 using LPHDCBuffer = HDCBuffer *;
 
-gsl::owner<HDC *>CreateHDCBuffer(gsl::not_null<HDC> hdc, const LPRECT rc)
+gsl::owner<HDC *> CreateHDCBuffer(gsl::not_null<HDC> hdc, const LPRECT rc)
 {
 	//if ((hdc == nullptr) /*|| (rc == NULL)*/)
 	//	return nullptr;
@@ -1913,37 +1919,7 @@ bool AddFileIcons(HIMAGELIST himl, TString &filename, const bool bLarge, const i
 	if (!IsFile(filename))
 		return false;
 
-	//int fIndex = iStart, i = iIndex;
-	//HICON hIcon = nullptr;
-	//auto bAdded = false;
-	//
-	//if (fIndex < 0 || (iEnd != -1 && fIndex > iEnd))
-	//	return bAdded;
-	//
-	//do {
-	//	if (bLarge)
-	//		ExtractIconEx(filename.to_chr(), fIndex, &hIcon, nullptr, 1);
-	//	else
-	//		ExtractIconEx(filename.to_chr(), fIndex, nullptr, &hIcon, 1);
-	//
-	//	if (hIcon != nullptr) {
-	//		// auto free handle hIcon when going out of scope or throwing an exception
-	//		//Auto(DestroyIcon(hIcon));
-	//
-	//		// auto free handle hIcon when going out of scope or throwing an exception
-	//		auto IconGuard = gsl::finally([hIcon]() { DestroyIcon(hIcon); });
-	//
-	//		if (i == -1)
-	//			ImageList_ReplaceIcon(himl, -1, hIcon);
-	//		else
-	//			ImageList_ReplaceIcon(himl, i++, hIcon);
-	//		bAdded = true;
-	//	}
-	//	fIndex++;
-	//	if (fIndex > iEnd)
-	//		break;
-	//} while (hIcon != nullptr);
-
+#if DCX_USE_WRAPPERS
 	int fIndex = iStart, i = iIndex;
 	auto bAdded = false, bGotIcon = false;
 
@@ -1965,6 +1941,38 @@ bool AddFileIcons(HIMAGELIST himl, TString &filename, const bool bLarge, const i
 				break;
 		}
 	} while (bGotIcon);
+#else
+	int fIndex = iStart, i = iIndex;
+	HICON hIcon = nullptr;
+	auto bAdded = false;
+	
+	if (fIndex < 0 || (iEnd != -1 && fIndex > iEnd))
+		return bAdded;
+	
+	do {
+		if (bLarge)
+			ExtractIconEx(filename.to_chr(), fIndex, &hIcon, nullptr, 1);
+		else
+			ExtractIconEx(filename.to_chr(), fIndex, nullptr, &hIcon, 1);
+	
+		if (hIcon != nullptr) {
+			// auto free handle hIcon when going out of scope or throwing an exception
+			//Auto(DestroyIcon(hIcon));
+	
+			// auto free handle hIcon when going out of scope or throwing an exception (testing)
+			auto IconGuard = gsl::finally([hIcon]() { DestroyIcon(hIcon); });
+	
+			if (i == -1)
+				ImageList_ReplaceIcon(himl, -1, hIcon);
+			else
+				ImageList_ReplaceIcon(himl, i++, hIcon);
+			bAdded = true;
+		}
+		fIndex++;
+		if (fIndex > iEnd)
+			break;
+	} while (hIcon != nullptr);
+#endif
 
 	return bAdded;
 }
