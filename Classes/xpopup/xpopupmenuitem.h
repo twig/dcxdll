@@ -73,18 +73,18 @@ public:
 	void DrawItem(const LPDRAWITEMSTRUCT lpdis);
 	void DrawItemBackground( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol );
 	void DrawItemBox( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol );
-	void DrawItemText( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol, const BOOL bDis = FALSE );
-	void DrawItemIcon( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol, const UINT iExStyles, const BOOL bSel = FALSE, const BOOL bDis = FALSE );
+	void DrawItemText( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol, const bool bDis = false );
+	void DrawItemIcon( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol, const UINT iExStyles, const bool bSel = false, const bool bDis = false );
 	void DrawItemSeparator( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol );
 
 	SIZE getItemSize( const HWND mHwnd );
 
-	static void DrawItemSelection(const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol, const BOOL bDis = FALSE, const BOOL bRounded = FALSE);
-	static void DrawItemCheckBox(const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol, const BOOL bDis = FALSE);
-	static void DrawItemSubArrow(const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol, const BOOL bDis = FALSE);
+	static void DrawItemSelection(const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol, const bool bDis = false, const bool bRounded = false);
+	static void DrawItemCheckBox(const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol, const bool bDis = false);
+	static void DrawItemSubArrow(const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol, const bool bDis = false);
 	static bool DrawMenuBitmap(const LPDRAWITEMSTRUCT lpdis, const bool bBigImage, const HBITMAP bmImage);
-	static void DrawGradient(const HDC hdc, const LPRECT lprc, const COLORREF clrStart, const COLORREF clrEnd, const BOOL bHorz = FALSE);
-	static void DrawVerticalBar( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol, const BOOLEAN bReversed);
+	static void DrawGradient(const HDC hdc, const LPRECT lprc, const COLORREF clrStart, const COLORREF clrEnd, const bool bHorz = false);
+	static void DrawVerticalBar( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol, const bool bReversed);
 	static COLORREF LightenColor( const UINT iScale, const COLORREF clrColor ) noexcept;
 	static COLORREF DarkenColor( const UINT iScale, const COLORREF clrColor ) noexcept;
 

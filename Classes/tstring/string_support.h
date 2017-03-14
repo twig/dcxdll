@@ -468,7 +468,7 @@ namespace details {
 template <typename T>
 constexpr bool isInBounds(const T *const sDest, const T *const sSrc, std::size_t iLen)
 {
-	return (sSrc > sDest && sSrc <= (sDest + iLen)) || (sDest > sSrc && sDest <= (sSrc + iLen));
+	return (sSrc >= sDest && sSrc <= (sDest + iLen)) || (sDest >= sSrc && sDest <= (sSrc + iLen));
 }
 
 template <typename Result, typename Format, typename Value, typename... Arguments>

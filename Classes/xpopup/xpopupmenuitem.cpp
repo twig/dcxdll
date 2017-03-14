@@ -149,7 +149,7 @@ SIZE XPopupMenuItem::getItemSize( const HWND mHwnd ) {
 		// text needs normalized?
 		//GetTextExtentPoint32( hdc, this->m_tsItemText.to_chr( ), this->m_tsItemText.len( ), &size );
 		RECT rc = {0};
-		DrawText(hdc, this->m_tsItemText.to_chr(), this->m_tsItemText.len(), &rc, DT_CALCRECT | DT_LEFT | DT_SINGLELINE | DT_VCENTER);
+		DrawText(hdc, this->m_tsItemText.to_chr(), static_cast<int>(this->m_tsItemText.len()), &rc, DT_CALCRECT | DT_LEFT | DT_SINGLELINE | DT_VCENTER);
 		size.cx = (rc.right - rc.left);
 	}
 
@@ -307,6 +307,8 @@ void XPopupMenuItem::DrawItemBackground(const LPDRAWITEMSTRUCT lpdis, const LPXP
 		case XPopupMenu::XPMS_OFFICE2003_REV:
 		case XPopupMenu::XPMS_OFFICE2003:
 		case XPopupMenu::XPMS_BUTTON:
+		case XPopupMenu::XPMS_VERTICAL:
+		case XPopupMenu::XPMS_VERTICAL_REV:
 		default:
 			{
 				auto hBrush = CreateSolidBrush(lpcol->m_clrBack);
@@ -407,7 +409,8 @@ void XPopupMenuItem::DrawItemBox(const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOL
  * blah
  */
 
-void XPopupMenuItem::DrawItemSelection( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol, const BOOL bDis, const BOOL bRounded ) {
+void XPopupMenuItem::DrawItemSelection( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol, const bool bDis, const bool bRounded )
+{
 
 	//if (dcx_testflag(lpdis->itemState, ODS_HOTLIGHT))
 	//{
@@ -447,8 +450,8 @@ void XPopupMenuItem::DrawItemSelection( const LPDRAWITEMSTRUCT lpdis, const LPXP
  * blah
  */
 
-void XPopupMenuItem::DrawItemCheckBox( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol, const BOOL bDis ) {
-
+void XPopupMenuItem::DrawItemCheckBox( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol, const bool bDis )
+{
 	auto hBrush = CreateSolidBrush(bDis ? lpcol->m_clrDisabledCheckBox : lpcol->m_clrCheckBox);
 	Auto(DeleteBrush(hBrush));
 
@@ -503,8 +506,8 @@ void XPopupMenuItem::DrawItemCheckBox( const LPDRAWITEMSTRUCT lpdis, const LPXPM
  *
  * blah
  */
-void XPopupMenuItem::DrawItemText( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol, const BOOL bDis ) {
-
+void XPopupMenuItem::DrawItemText( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol, const bool bDis )
+{
 	const auto oldClr = SetTextColor(lpdis->hDC, (bDis ? lpcol->m_clrDisabledText : ((dcx_testflag(lpdis->itemState, ODS_SELECTED)) ? lpcol->m_clrSelectedText : lpcol->m_clrText)));
 	Auto(SetTextColor(lpdis->hDC, oldClr));
 
@@ -550,8 +553,8 @@ void XPopupMenuItem::DrawItemText( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUC
  * blah
  */
 
-void XPopupMenuItem::DrawItemIcon( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol, const UINT iExStyles, const BOOL bSel, const BOOL bDis ) {
-
+void XPopupMenuItem::DrawItemIcon( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol, const UINT iExStyles, const bool bSel, const bool bDis )
+{
 	auto himl = this->m_pXParentMenu->getImageList();
 
 	const auto x = (XPMI_BOXLPAD + XPMI_BOXLPAD + XPMI_BOXWIDTH - XPMI_ICONSIZE) / 2;
@@ -596,7 +599,9 @@ void XPopupMenuItem::DrawItemIcon( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUC
  * blah
  */
 
-void XPopupMenuItem::DrawItemSubArrow( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol, const BOOL bDis ) {
+void XPopupMenuItem::DrawItemSubArrow( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol, const bool bDis )
+{
+
 //#ifdef DCX_USE_GDIPLUS
 //	const int x = lpdis->rcItem.right - 9;
 //	const int y = ( lpdis->rcItem.bottom + lpdis->rcItem.top ) / 2 - 5;
@@ -728,6 +733,12 @@ void XPopupMenuItem::DrawItemSeparator( const LPDRAWITEMSTRUCT lpdis, const LPXP
 	case XPopupMenu::XPMS_OFFICEXP:
 	case XPopupMenu::XPMS_OFFICE2003_REV:
 	case XPopupMenu::XPMS_OFFICE2003:
+	case XPopupMenu::XPMS_GRADE:
+	case XPopupMenu::XPMS_GRADE_REV:
+	case XPopupMenu::XPMS_CUSTOM:
+	case XPopupMenu::XPMS_CUSTOMBIG:
+	case XPopupMenu::XPMS_VERTICAL:
+	case XPopupMenu::XPMS_VERTICAL_REV:
 	default:
 		{
 
@@ -756,7 +767,7 @@ void XPopupMenuItem::DrawItemSeparator( const LPDRAWITEMSTRUCT lpdis, const LPXP
  * blah
  */
 
-void XPopupMenuItem::DrawGradient( const HDC hdc, const LPRECT lprc, const COLORREF clrStart, const COLORREF clrEnd, const BOOL bHorz ) {
+void XPopupMenuItem::DrawGradient( const HDC hdc, const LPRECT lprc, const COLORREF clrStart, const COLORREF clrEnd, const bool bHorz ) {
 
 	const auto StartRed = GetRValue(clrStart);
 	const auto StartGreen = GetGValue((clrStart & 0xFFFF));
@@ -823,7 +834,7 @@ void XPopupMenuItem::DrawGradient( const HDC hdc, const LPRECT lprc, const COLOR
 	}
 }
 
-void XPopupMenuItem::DrawVerticalBar(const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol, const BOOLEAN bReversed) {
+void XPopupMenuItem::DrawVerticalBar(const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol, const bool bReversed) {
 	// Working code: Calculates height of complete menu, and draws gradient to fill. Samples taken off complete gradient when needed.
 	///*
 	// Get height of all menu items
@@ -907,9 +918,10 @@ void XPopupMenuItem::DrawVerticalBar(const LPDRAWITEMSTRUCT lpdis, const LPXPMEN
 
 COLORREF XPopupMenuItem::LightenColor( const UINT iScale, const COLORREF clrColor ) noexcept
 {
-	const auto R = MulDiv(255 - GetRValue(clrColor), iScale, 255) + GetRValue(clrColor);
-	const auto G = MulDiv(255 - GetGValue((clrColor & 0xFFFF)), iScale, 255) + GetGValue((clrColor & 0xFFFF));
-	const auto B = MulDiv(255 - GetBValue(clrColor), iScale, 255) + GetBValue(clrColor);
+	const auto nScale = static_cast<int>(iScale);
+	const auto R = MulDiv(255 - GetRValue(clrColor), nScale, 255) + GetRValue(clrColor);
+	const auto G = MulDiv(255 - GetGValue((clrColor & 0xFFFF)), nScale, 255) + GetGValue((clrColor & 0xFFFF));
+	const auto B = MulDiv(255 - GetBValue(clrColor), nScale, 255) + GetBValue(clrColor);
 
 	return RGB( R, G, B ); 
 }
@@ -922,9 +934,10 @@ COLORREF XPopupMenuItem::LightenColor( const UINT iScale, const COLORREF clrColo
 
 COLORREF XPopupMenuItem::DarkenColor( const UINT iScale, const COLORREF clrColor ) noexcept
 {
-	const auto R = MulDiv(GetRValue(clrColor), (255 - iScale), 255);
-	const auto G = MulDiv(GetGValue((clrColor & 0xFFFF)), (255 - iScale), 255);
-	const auto B = MulDiv(GetBValue(clrColor), (255 - iScale), 255);
+	const auto nScale = static_cast<int>(iScale);
+	const auto R = MulDiv(GetRValue(clrColor), (255 - nScale), 255);
+	const auto G = MulDiv(GetGValue((clrColor & 0xFFFF)), (255 - nScale), 255);
+	const auto B = MulDiv(GetBValue(clrColor), (255 - nScale), 255);
 
 	return RGB( R, G, B ); 
 }

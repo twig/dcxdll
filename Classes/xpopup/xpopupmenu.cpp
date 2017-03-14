@@ -128,7 +128,7 @@ void XPopupMenu::parseXPopCommand( const TString & input ) {
 	const auto tabtoks = input.numtok(TSTABCHAR);
 	const auto tsTabTwo(input.getlasttoks().trim());	// tok 2, -1
 	const auto toks_in_tab_two = tsTabTwo.numtok();
-	auto nPos = path.gettok(path_toks).to_int() - 1;
+	auto nPos = path.gettok(static_cast<int>(path_toks)).to_int() - 1;
 
 	// xpop -a - [MENU] [SWITCH] [PATH] [TAB] [+FLAGS] [ID] [ICON] ItemText (: Command)
 	if (flags[TEXT('a')] && tabtoks > 1 && toks_in_tab_two > 3) {
@@ -770,6 +770,7 @@ void XPopupMenu::setColor( const MenuColours nColor, const COLORREF clrColor ) n
       this->m_MenuColors.m_clrSelectedText = clrColor;
       break;
 
+	case XPMC_MAX:
     default:
       break;
   }
@@ -818,6 +819,7 @@ COLORREF XPopupMenu::getColor(const MenuColours nColor) const noexcept {
 	case XPMC_SELECTEDTEXT:
 		return this->m_MenuColors.m_clrSelectedText;
 
+	case XPMC_MAX:
 	default:
 		return 0;
 	}
@@ -872,6 +874,7 @@ void XPopupMenu::setDefaultColor(const MenuColours nColor ) noexcept {
 			this->m_MenuColors.m_clrSelectedText = RGB( 0, 0, 0 );
 			break;
 
+		case XPMC_MAX:
 		default:
 			break;
 	}
@@ -885,12 +888,12 @@ void XPopupMenu::setDefaultColor(const MenuColours nColor ) noexcept {
 
 HMENU XPopupMenu::parsePath( const TString & path, const HMENU hParent, const UINT depth ) {
 
-	const auto iItem = path.gettok(depth).to_int() - 1;
+	const auto iItem = path.gettok(static_cast<int>(depth)).to_int() - 1;
 
 	if (depth == path.numtok())
 		return GetSubMenu(hParent, iItem);
 	else if (GetSubMenu(hParent, iItem) != nullptr)
-		return parsePath(path, GetSubMenu(hParent, iItem), depth + 1);
+		return parsePath(path, GetSubMenu(hParent, iItem), depth + 1U);
 
 	return nullptr;
 }
@@ -1268,7 +1271,7 @@ BOOL XPopupMenu::getMenuInfo(const UINT iMask, const TString & path, MENUITEMINF
 	if (hMenu == nullptr)
 		throw Dcx::dcxException("Unable to get menu");
 
-	const auto nPos = path.gettok(path_toks).to_int() - 1;
+	const auto nPos = path.gettok(static_cast<int>(path_toks)).to_int() - 1;
 
 	if (nPos < 0)
 		throw Dcx::dcxException("Invalid Path");

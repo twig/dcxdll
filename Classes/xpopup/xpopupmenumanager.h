@@ -52,7 +52,7 @@ public:
 	//XPopupMenuManager( );
 	//virtual ~XPopupMenuManager( );
 
-	XPopupMenuManager() = default;
+	XPopupMenuManager() : m_mIRCPopupMenu(nullptr), m_mIRCMenuBar(nullptr), m_bIsActiveMircMenubarPopup(false), m_bIsActiveMircPopup(false), m_hMenuCustom(nullptr), m_hMenuOwner(nullptr), m_vpXPMenu() {}
 	~XPopupMenuManager() = default;
 
 	void load(void);
@@ -70,6 +70,9 @@ public:
 
 	void setIsMenuBar(const bool value);
 
+#if DCX_USE_HASHING
+	XPopupMenu* getMenuByHash(const std::size_t uHash, const bool bCheckSpecial) const;
+#endif
 	XPopupMenu* getMenuByName(const TString &tsName, const bool bCheckSpecial) const;
 	XPopupMenu* getMenuByHandle(const HMENU hMenu) const;
 	XPopupMenu* getmIRCPopup(void) const noexcept;

@@ -87,6 +87,7 @@ public:
 	//static const int XPMC_SELECTEDTEXT = 11;
 
 	enum MenuColours : UINT {
+		XPMC_MIN = 1,
 		XPMC_BACKGROUND = 1,
 		XPMC_ICONBOX,
 		XPMC_CHECKBOX,
