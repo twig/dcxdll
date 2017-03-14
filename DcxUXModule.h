@@ -53,7 +53,7 @@ class DcxUXModule :
 
 public:
 	DcxUXModule(void) = default;
-	~DcxUXModule(void);
+	virtual ~DcxUXModule(void);
 
 	bool load(void) final;
 	bool unload(void) final;

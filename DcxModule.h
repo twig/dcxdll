@@ -15,17 +15,18 @@
 
 class DcxModule
 {
-protected:
-	HMODULE m_hModule;
-
 public:
-	DcxModule(void) = default;
+	DcxModule(void) : m_hModule(nullptr) {}
 	virtual ~DcxModule(void) = default;
 
 	bool isUseable() const noexcept	{ return !(m_hModule == nullptr); }
 
 	virtual bool load() = 0;
 	virtual bool unload() = 0;
+
+protected:
+	HMODULE m_hModule;
+
 };
 
 #ifdef __INTEL_COMPILER // Defined when using Intel C++ Compiler.

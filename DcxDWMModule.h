@@ -25,7 +25,7 @@ class DcxDWMModule :
 
 public:
 	DcxDWMModule(void);
-	~DcxDWMModule(void);
+	virtual ~DcxDWMModule(void);
 
 	bool load(void) final;
 	bool unload(void) final;

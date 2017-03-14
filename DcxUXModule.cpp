@@ -41,6 +41,9 @@ bool DcxUXModule::load(void)
 
 	if (m_hModule != nullptr) {
 		// Get XP+ function pointers.
+#pragma warning(push)
+#pragma warning(disable: 4191)
+
 		SetWindowThemeUx = (PFNSETTHEME) GetProcAddress(m_hModule, "SetWindowTheme");
 		IsThemeActiveUx = (PFNISTHEMEACTIVE) GetProcAddress(m_hModule, "IsThemeActive");
 		OpenThemeDataUx = (PFNOPENTHEMEDATA) GetProcAddress(m_hModule, "OpenThemeData");
@@ -62,6 +65,8 @@ bool DcxUXModule::load(void)
 		BufferedPaintUnInitUx = (PFNBUFFEREDPAINTUNINIT) GetProcAddress(m_hModule, "BufferedPaintUnInit");
 		BeginBufferedPaintUx = (PFNBEGINBUFFEREDPAINT) GetProcAddress(m_hModule, "BeginBufferedPaint");
 		EndBufferedPaintUx = (PFNENDBUFFEREDPAINT) GetProcAddress(m_hModule, "EndBufferedPaint");
+
+#pragma warning(pop)
 
 		// NB: DONT count vista functions in XP+ check.
 		if (SetWindowThemeUx && IsThemeActiveUx && OpenThemeDataUx && CloseThemeDataUx &&

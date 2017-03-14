@@ -4,12 +4,13 @@
 class DcxGDIModule :
 	public DcxModule
 {
-	ULONG_PTR m_GDIToken;
-
 public:
-	DcxGDIModule() = default;
-	~DcxGDIModule();
+	DcxGDIModule() : m_GDIToken(0UL) {}
+	virtual ~DcxGDIModule();
 
 	bool load(void) final;
 	bool unload(void) final;
+
+private:
+	ULONG_PTR m_GDIToken;
 };
