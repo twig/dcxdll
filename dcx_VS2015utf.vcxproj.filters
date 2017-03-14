@@ -527,21 +527,6 @@
     <ClInclude Include="dcxExceptions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="GSL\include\gsl.h">
-      <Filter>Header Files\GSL</Filter>
-    </ClInclude>
-    <ClInclude Include="GSL\include\gsl_assert.h">
-      <Filter>Header Files\GSL</Filter>
-    </ClInclude>
-    <ClInclude Include="GSL\include\gsl_util.h">
-      <Filter>Header Files\GSL</Filter>
-    </ClInclude>
-    <ClInclude Include="GSL\include\span.h">
-      <Filter>Header Files\GSL</Filter>
-    </ClInclude>
-    <ClInclude Include="GSL\include\string_span.h">
-      <Filter>Header Files\GSL</Filter>
-    </ClInclude>
     <ClInclude Include="Classes\custom\ListHelper.h">
       <Filter>Header Files\Controls\Custom</Filter>
     </ClInclude>
@@ -553,6 +538,30 @@
     </ClInclude>
     <ClInclude Include="Classes\tstring\hashString.h">
       <Filter>Header Files\TString</Filter>
+    </ClInclude>
+    <ClInclude Include="Classes\tstring\string_support.h">
+      <Filter>Header Files\TString</Filter>
+    </ClInclude>
+    <ClInclude Include="GSL\gsl\gsl">
+      <Filter>Header Files\GSL</Filter>
+    </ClInclude>
+    <ClInclude Include="GSL\gsl\gsl_assert">
+      <Filter>Header Files\GSL</Filter>
+    </ClInclude>
+    <ClInclude Include="GSL\gsl\gsl_byte">
+      <Filter>Header Files\GSL</Filter>
+    </ClInclude>
+    <ClInclude Include="GSL\gsl\gsl_util">
+      <Filter>Header Files\GSL</Filter>
+    </ClInclude>
+    <ClInclude Include="GSL\gsl\multi_span">
+      <Filter>Header Files\GSL</Filter>
+    </ClInclude>
+    <ClInclude Include="GSL\gsl\span">
+      <Filter>Header Files\GSL</Filter>
+    </ClInclude>
+    <ClInclude Include="GSL\gsl\string_span">
+      <Filter>Header Files\GSL</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

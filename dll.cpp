@@ -79,7 +79,7 @@ BOOL WINAPI DllMain(
 			DisableThreadLibraryCalls(hinstDLL);
 			// add pid of mIRC.exe to name so mutex is specific to this instance of mIRC.
 			// GetModuleHandle(nullptr) was returning a consistant result.
-			wnsprintf(mutex, Dcx::countof(mutex), TEXT("DCX_LOADED%lx"), GetCurrentProcessId()); // NB: calls user32.dll, is this ok? See warnings in DllMain() docs.
+			wnsprintf(mutex, static_cast<int>(Dcx::countof(mutex)), TEXT("DCX_LOADED%lx"), GetCurrentProcessId()); // NB: calls user32.dll, is this ok? See warnings in DllMain() docs.
 
 			// Enforce only one instance of dcx.dll loaded at a time.
 			hDcxMutex = CreateMutex(nullptr, TRUE, mutex); // Windows 2000:  Do not create a named synchronization object in DllMain because the system will then load an additional DLL. This restriction does not apply to subsequent versions of Windows.
@@ -177,6 +177,89 @@ mIRC(Version)
 			Ensures(tmp == TEXT("This is a token string"_ts));
 
 			mIRCLinker::exec(TEXT("/echo -a Success: trim() - all tests passed"));
+		}
+		
+		{
+			Dcx::dcxNumber<int> iNum{ -10 };
+
+			int signednum(iNum);
+			UINT unsignednum(iNum);
+
+			Ensures(signednum == -10);
+			Ensures(unsignednum == (UINT)-10);
+			
+			signednum = 0;
+			unsignednum = 0;
+
+			iNum = -5;
+
+			signednum = iNum;
+			unsignednum = iNum;
+
+			Ensures(signednum == -5);
+			Ensures(unsignednum == (UINT)-5);
+
+			iNum = 14U;
+
+			signednum = iNum;
+			unsignednum = iNum;
+
+			Ensures(signednum == 14);
+			Ensures(unsignednum == 14U);
+			Ensures(signednum == (int)iNum);
+			Ensures(unsignednum == (UINT)iNum);
+
+			iNum = -1;
+			signednum = iNum;
+			unsignednum = iNum;
+
+			mIRCLinker::execex(TEXT("/echo -a Success: %u :: %d"), unsignednum, signednum);
+		}
+
+		{	// test refString
+			refString<TCHAR, MIRC_BUFFER_SIZE_CCH> rData(data);
+			Ensures(rData.data() != nullptr);
+			Ensures(rData.size() == MIRC_BUFFER_SIZE_CCH);
+
+			rData.clear();
+			Ensures(rData.empty());
+
+			rData = tmp.to_chr();
+			Ensures(!rData.empty());
+			Ensures(rData == tmp.to_chr());
+			Ensures(rData.length() == tmp.length());
+
+			rData += TEXT("other");
+			Ensures(rData != tmp.to_chr());
+			Ensures(rData.length() == tmp.length() + 5U);
+
+			rData += TEXT('a');
+			Ensures(rData.length() == tmp.length() + 6U);
+
+			mIRCLinker::exec(TEXT("/echo -a Success: refString - all tests passed"));
+		}
+
+		{	// test simpleString
+			stString<MIRC_BUFFER_SIZE_CCH> rData(data);
+			Ensures(rData.data() != nullptr);
+			Ensures(rData.size() == MIRC_BUFFER_SIZE_CCH);
+
+			rData.clear();
+			Ensures(rData.empty());
+
+			rData = tmp.to_chr();
+			Ensures(!rData.empty());
+			Ensures(rData == tmp.to_chr());
+			Ensures(rData.length() == tmp.length());
+
+			rData += TEXT("other");
+			Ensures(rData != tmp.to_chr());
+			Ensures(rData.length() == tmp.length() + 5U);
+
+			rData += TEXT('a');
+			Ensures(rData.length() == tmp.length() + 6U);
+
+			mIRCLinker::exec(TEXT("/echo -a Success: simpleString - all tests passed"));
 		}
 
 		{	// test numtok() function
@@ -431,7 +514,7 @@ mIRC(Version)
 			auto str2 = std::to_string(str);
 			Ensures(str2 == "test");
 
-			mIRCLinker::execex(TEXT("/echo -a Success: std::to_string(wstring): %s : %S"), str.c_str(), str2.c_str());
+			mIRCLinker::exec(TEXT("/echo -a Success: to_string() - all tests passed"));
 		}
 
 		{	// test replace()
@@ -618,9 +701,9 @@ mIRC(Version)
 			char chr_test[128] = { 0 };
 			char chr_buf[128] = { 0 };
 
-			_ts_strcpyn(chr_buf, chr_test, 128U);
+			ts_strcpyn(chr_buf, chr_test, 128U);
 
-			Ensures(strcmp(&chr_test[0], &chr_buf[0]) == 0);
+			Ensures(ts_strcmp(&chr_test[0], &chr_buf[0]) == 0);
 
 			mIRCLinker::exec(TEXT("/echo -a Success: _ts_strcpyn() - all tests passed"));
 		}
@@ -675,24 +758,24 @@ mIRC(Version)
 	if (mIRCLinker::isUnicode())
 	{
 		wnsprintf(data, MIRC_BUFFER_SIZE_CCH,
-			TEXT("DCX (XPopup) DLL %s %s%d UTF by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2006-2016"),
+			TEXT("DCX (XPopup) DLL %s %s%d UTF by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2005"),
 			DLL_VERSION, DLL_STATE, DLL_DEV_BUILD);
 	}
 	else {
 		wnsprintfA((char *)data, MIRC_BUFFER_SIZE_CCH,
-			"DCX (XPopup) DLL %S %S%d UTF by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2006-2016",
+			"DCX (XPopup) DLL %S %S%d UTF by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2005",
 			DLL_VERSION, DLL_STATE, DLL_DEV_BUILD);
 	}
 #else
 	if (mIRCLinker::isUnicode())
 	{
 		wnsprintf(data, MIRC_BUFFER_SIZE_CCH,
-			TEXT("DCX (XPopup) DLL %s %s UTF by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2006-2016"),
+			TEXT("DCX (XPopup) DLL %s %s UTF by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2005 Compiled on " __DATE__ " " __TIME__),
 			DLL_VERSION, DLL_STATE);
 	}
 	else {
 		wnsprintfA((char *)data, MIRC_BUFFER_SIZE_CCH,
-			"DCX (XPopup) DLL %S %S UTF by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2006-2016",
+			"DCX (XPopup) DLL %S %S UTF by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2005 Compiled on " __DATE__ " " __TIME__,
 			DLL_VERSION, DLL_STATE);
 	}
 #endif
@@ -705,24 +788,24 @@ mIRC(Version)
 	if (mIRCLinker::isUnicode())
 	{
 		wnsprintf(data, MIRC_BUFFER_SIZE_CCH,
-			TEXT("DCX (XPopup) DLL %s %s%d UTF by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2006-2016"),
+			TEXT("DCX (XPopup) DLL %s %s%d UTF by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2005"),
 			DLL_VERSION, DLL_STATE, DLL_DEV_BUILD);
 	}
 	else {
 		wnsprintfA((char *)data, MIRC_BUFFER_SIZE_CCH,
-			"DCX (XPopup) DLL %S %S%d UTF by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2006-2016",
+			"DCX (XPopup) DLL %S %S%d UTF by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2005",
 			DLL_VERSION, DLL_STATE, DLL_DEV_BUILD);
 	}
 #else
 	if (mIRCLinker::isUnicode())
 	{
 		wnsprintf(data, MIRC_BUFFER_SIZE_CCH,
-			TEXT("DCX (XPopup) DLL %s %s UTF by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2006-2016"),
+			TEXT("DCX (XPopup) DLL %s %s UTF by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2005"),
 			DLL_VERSION, DLL_STATE);
 	}
 	else {
 		wnsprintfA((char *)data, MIRC_BUFFER_SIZE_CCH,
-			"DCX (XPopup) DLL %S %S UTF by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2006-2016",
+			"DCX (XPopup) DLL %S %S UTF by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2005",
 			DLL_VERSION, DLL_STATE);
 	}
 #endif
@@ -777,6 +860,8 @@ mIRC(IsThemedXP) {
 
 // Mark [NAME] [ALIAS]
 mIRC(Mark) {
+	__assume(data != nullptr);
+
 	TString d(data);
 
 	data[0] = 0;
@@ -821,6 +906,121 @@ mIRC(GetSystemColor) {
 			throw Dcx::dcxException("Invalid Arguments");
 
 		int col = 0;
+#if DCX_USE_HASHING
+		switch (std::hash<TString>{}(d.gettok(1)))
+		{
+		case TEXT("COLOR_3DDKSHADOW"_hash):
+			col = COLOR_3DDKSHADOW;
+			break;
+		case TEXT("COLOR_3DFACE"_hash):
+			col = COLOR_3DFACE;
+			break;
+		case TEXT("COLOR_3DHIGHLIGHT"_hash):
+			col = COLOR_3DHIGHLIGHT;
+			break;
+		case TEXT("COLOR_3DHILIGHT"_hash):
+			col = COLOR_3DHILIGHT;
+			break;
+		case TEXT("COLOR_3DLIGHT"_hash):
+			col = COLOR_3DLIGHT;
+			break;
+		case TEXT("COLOR_3DSHADOW"_hash):
+			col = COLOR_3DSHADOW;
+			break;
+		case TEXT("COLOR_ACTIVEBORDER"_hash):
+			col = COLOR_ACTIVEBORDER;
+			break;
+		case TEXT("COLOR_ACTIVECAPTION"_hash):
+			col = COLOR_ACTIVECAPTION;
+			break;
+		case TEXT("COLOR_APPWORKSPACE"_hash):
+			col = COLOR_APPWORKSPACE;
+			break;
+		case TEXT("COLOR_BACKGROUND"_hash):
+			col = COLOR_BACKGROUND;
+			break;
+		case TEXT("COLOR_BTNFACE"_hash):
+			col = COLOR_BTNFACE;
+			break;
+		case TEXT("COLOR_BTNHIGHLIGHT"_hash):
+			col = COLOR_BTNHIGHLIGHT;
+			break;
+		case TEXT("COLOR_BTNSHADOW"_hash):
+			col = COLOR_BTNSHADOW;
+			break;
+		case TEXT("COLOR_BTNTEXT"_hash):
+			col = COLOR_BTNTEXT;
+			break;
+		case TEXT("COLOR_CAPTIONTEXT"_hash):
+			col = COLOR_CAPTIONTEXT;
+			break;
+		case TEXT("COLOR_DESKTOP"_hash):
+			col = COLOR_DESKTOP;
+			break;
+		case TEXT("COLOR_GRADIENTACTIVECAPTION"_hash):
+			col = COLOR_GRADIENTACTIVECAPTION;
+			break;
+		case TEXT("COLOR_GRADIENTINACTIVECAPTION"_hash):
+			col = COLOR_GRADIENTINACTIVECAPTION;
+			break;
+		case TEXT("COLOR_GRAYTEXT"_hash):
+			col = COLOR_GRAYTEXT;
+			break;
+		case TEXT("COLOR_HIGHLIGHT"_hash):
+			col = COLOR_HIGHLIGHT;
+			break;
+		case TEXT("COLOR_HIGHLIGHTTEXT"_hash):
+			col = COLOR_HIGHLIGHTTEXT;
+			break;
+		case TEXT("COLOR_HOTLIGHT"_hash):
+			col = COLOR_HOTLIGHT;
+			break;
+		case TEXT("COLOR_INACTIVEBORDER"_hash):
+			col = COLOR_INACTIVEBORDER;
+			break;
+		case TEXT("COLOR_INACTIVECAPTION"_hash):
+			col = COLOR_INACTIVECAPTION;
+			break;
+		case TEXT("COLOR_INACTIVECAPTIONTEXT"_hash):
+			col = COLOR_INACTIVECAPTIONTEXT;
+			break;
+		case TEXT("COLOR_INFOBK"_hash):
+			col = COLOR_INFOBK;
+			break;
+		case TEXT("COLOR_INFOTEXT"_hash):
+			col = COLOR_INFOTEXT;
+			break;
+		case TEXT("COLOR_MENU"_hash):
+			col = COLOR_MENU;
+			break;
+		case TEXT("COLOR_MENUHILIGHT"_hash):
+			col = COLOR_MENUHILIGHT;
+			break;
+		case TEXT("COLOR_MENUBAR"_hash):
+			col = COLOR_MENUBAR;
+			break;
+		case TEXT("COLOR_MENUTEXT"_hash):
+			col = COLOR_MENUTEXT;
+			break;
+		case TEXT("COLOR_SCROLLBAR"_hash):
+			col = COLOR_SCROLLBAR;
+			break;
+		case TEXT("COLOR_WINDOW"_hash):
+			col = COLOR_WINDOW;
+			break;
+		case TEXT("COLOR_WINDOWFRAME"_hash):
+			col = COLOR_WINDOWFRAME;
+			break;
+		case TEXT("COLOR_WINDOWTEXT"_hash):
+			col = COLOR_WINDOWTEXT;
+			break;
+		case TEXT("COLOR_GLASS"_hash):
+			col = -1;
+			break;
+		default:
+			throw Dcx::dcxException("Invalid parameter specified");
+		}
+#else
 		const auto coltype(d.gettok(1));
 
 		if (coltype == TEXT("COLOR_3DDKSHADOW")) { col = COLOR_3DDKSHADOW; }
@@ -861,6 +1061,7 @@ mIRC(GetSystemColor) {
 		else if (coltype == TEXT("COLOR_GLASS")) { col = -1; }
 		else
 			throw Dcx::dcxException("Invalid parameter specified");
+#endif
 
 		if (col == -1) {
 			RGBQUAD clr = { 0 };
@@ -914,7 +1115,6 @@ mIRC(xdid) {
 
 		const auto IDs(d.getnexttok());			// tok 2
 		const auto tsArgs(d.getlasttoks());		// tok 3, -1
-		TString d2;
 		const auto n = IDs.numtok(TSCOMMACHAR);
 
 		// Multiple IDs id,id,id,id-id,id-id
@@ -942,7 +1142,8 @@ mIRC(xdid) {
 
 					if (p_Control == nullptr)
 						throw Dcx::dcxException(TEXT("Unable to find control: % (dialog : %)"), id, tsDname);
-					d2 = tsDname;
+
+					TString d2(tsDname);
 					d2.addtok(id);
 					d2.addtok(tsArgs);
 
@@ -1195,7 +1396,21 @@ mIRC(xpop) {
 
 		if (d.numtok() < 3)
 			throw Dcx::dcxException("Invalid Arguments");
+#if DCX_USE_HASHING
+		const auto tsMenu(d.gettok(1));
+		const auto uHash = std::hash<TString>{}(tsMenu);
 
+		if ((uHash == TEXT("mirc"_hash)) || (uHash == TEXT("mircbar"_hash)))
+			throw Dcx::dcxException("Invalid menu name : mirc or mircbar menus don't have access to this feature.");
+
+		auto p_Menu = Dcx::XPopups.getMenuByHash(uHash, false);
+
+		if (p_Menu == nullptr)
+			throw Dcx::dcxException(TEXT("Unknown menu \"%\": see /xpopup -c command"), tsMenu);
+
+		p_Menu->parseXPopCommand(d);
+		return 1;
+#else
 		const auto tsMenu(d.gettok(1));
 
 		if ((tsMenu == TEXT("mirc")) || (tsMenu == TEXT("mircbar")))
@@ -1208,6 +1423,7 @@ mIRC(xpop) {
 
 		p_Menu->parseXPopCommand(d);
 		return 1;
+#endif
 	}
 	catch (std::exception &e)
 	{
@@ -1243,6 +1459,21 @@ mIRC(_xpop) {
 		if (d.numtok() < 3)
 			throw Dcx::dcxException("Invalid Arguments");
 
+#if DCX_USE_HASHING
+		const auto tsMenu(d.gettok(1));
+		const auto uHash = std::hash<TString>{}(tsMenu);
+
+		if ((uHash == TEXT("mirc"_hash)) || (uHash == TEXT("mircbar"_hash)))
+			throw Dcx::dcxException("Invalid menu name : mirc or mircbar menus don't have access to this feature.");
+
+		const auto p_Menu = Dcx::XPopups.getMenuByHash(uHash, false);
+
+		if (p_Menu == nullptr)
+			throw Dcx::dcxException(TEXT("Unknown menu \"%\": see /xpopup -c command"), tsMenu);
+
+		p_Menu->parseXPopIdentifier(d, data);
+		return 3;
+#else
 		const auto tsMenu(d.gettok(1));
 
 		if ((tsMenu == TEXT("mirc")) || (tsMenu == TEXT("mircbar")))
@@ -1255,6 +1486,7 @@ mIRC(_xpop) {
 
 		p_Menu->parseXPopIdentifier(d, data);
 		return 3;
+#endif
 	}
 	catch (std::exception &e)
 	{
@@ -1437,8 +1669,8 @@ mIRC(xSignal) {
 
 	try {
 		// determine state
-		const auto bState = (d.getfirsttok(1).to_int() > 0);
-		auto flags(d.trim().getnexttok());
+		const auto bState = (d.trim().getfirsttok(1).to_int() > 0);
+		auto flags(d.getnexttok());
 
 		// if no flags specified, set all states
 		if (flags.empty())
@@ -1486,7 +1718,7 @@ mIRC(WindowProps) {
 		if (numtok < 2)
 			throw Dcx::dcxException("Insuffient parameters");
 
-		auto hwnd = (HWND)input.getfirsttok(1).to_int();	// tok 1
+		auto hwnd = (HWND)input.getfirsttok(1).to_<DWORD>();	// tok 1
 
 		if (!IsWindow(hwnd))
 			throw Dcx::dcxException("Invalid window");
@@ -1609,15 +1841,48 @@ mIRC(ActiveWindow) {
 		if (!IsWindow(hwnd))
 			throw Dcx::dcxException("Unable to determine active window");
 
+#if DCX_USE_HASHING
+		WINDOWINFO wi = { 0 };
+		wi.cbSize = sizeof(WINDOWINFO);
+
+		if (!GetWindowInfo(hwnd, &wi))
+			throw Dcx::dcxException("Unable to get window information");
+
+		switch (std::hash<TString>{}(input.gettok(1)))
+		{
+		case TEXT("hwnd"_hash):		// handle
+			wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%lu"), (DWORD)hwnd);	// don't use %p as this gives a hex result.
+			break;
+		case TEXT("x"_hash):		// left
+			wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), wi.rcWindow.left);
+			break;
+		case TEXT("y"_hash):		// top
+			wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), wi.rcWindow.top);
+			break;
+		case TEXT("w"_hash):		// width
+			wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), wi.rcWindow.right - wi.rcWindow.left);
+			break;
+		case TEXT("h"_hash):		// height
+			wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), wi.rcWindow.bottom - wi.rcWindow.top);
+			break;
+		case TEXT("caption"_hash):	// title text
+			GetWindowText(hwnd, data, MIRC_BUFFER_SIZE_CCH);
+			break;
+		default:					// otherwise
+			throw Dcx::dcxException("Invalid parameters");
+		}
+#else
 		const auto prop(input.gettok(1));
 		WINDOWINFO wi;
 
 		ZeroMemory(&wi, sizeof(WINDOWINFO));
+		wi.cbSize = sizeof(WINDOWINFO);
+
 		if (!GetWindowInfo(hwnd, &wi))
 			throw Dcx::dcxException("Unable to get window information");
 
 		if (prop == TEXT("hwnd"))         // handle
-			wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%lu"), (DWORD)hwnd);	// don't use %p is this gives a hex result.
+			wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%lu"), (DWORD)hwnd);	// don't use %p as this gives a hex result.
 		else if (prop == TEXT("x"))       // left
 			wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), wi.rcWindow.left);
 		else if (prop == TEXT("y"))       // top
@@ -1630,6 +1895,7 @@ mIRC(ActiveWindow) {
 			GetWindowText(hwnd, data, MIRC_BUFFER_SIZE_CCH);
 		else                      // otherwise
 			throw Dcx::dcxException("Invalid parameters");
+#endif
 
 		return 3;
 	}

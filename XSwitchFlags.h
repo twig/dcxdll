@@ -84,7 +84,7 @@ private:
 	static const bool m_bFalse;
 };
 
-#ifdef DCX_SWITCH_OBJ
+#if DCX_SWITCH_OBJ
 #include "SwitchObjects.h"
 #endif
 

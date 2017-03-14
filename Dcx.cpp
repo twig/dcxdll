@@ -543,7 +543,7 @@ namespace Dcx {
 	LRESULT CALLBACK mIRCSubClassWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
 		switch (uMsg) {
 		case WM_SIZE:
-			mIRCLinker::signalex(dcxSignal.xdock, TEXT("size mIRC %d %d %d"), mHwnd, LOWORD(lParam), HIWORD(lParam));
+			mIRCLinker::signalex(dcxSignal.xdock, TEXT("size mIRC %u %u %u"), mHwnd, LOWORD(lParam), HIWORD(lParam));
 			break;
 
 			//		case WM_SYSCOMMAND:
