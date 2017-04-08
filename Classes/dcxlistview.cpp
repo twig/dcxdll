@@ -751,7 +751,7 @@ void DcxListView::parseInfoRequest( const TString &input, const refString<TCHAR,
 		LVCOLUMN lvc;
 		ZeroMemory(&lvc, sizeof(LVCOLUMN));
 		lvc.mask = LVCF_TEXT;
-		lvc.cchTextMax = MIRC_BUFFER_SIZE_CCH;
+		lvc.cchTextMax = szReturnValue.size();
 		lvc.pszText = szReturnValue;
 
 		ListView_GetColumn(m_Hwnd, nColumn, &lvc);
@@ -818,7 +818,7 @@ void DcxListView::parseInfoRequest( const TString &input, const refString<TCHAR,
 		if (numtok < 4)
 			throw Dcx::dcxException("Invalid number of arguments");
 
-		const auto GID = input.getnexttok().to_int();	// tok 4
+		const auto GID = input.getnexttok().to_<UINT>();	// tok 4
 
 		auto wstr = std::make_unique<WCHAR[]>(MIRC_BUFFER_SIZE_CCH + 1);
 		wstr[0] = TEXT('\0');
@@ -866,7 +866,11 @@ void DcxListView::parseInfoRequest( const TString &input, const refString<TCHAR,
 
 		//const TString cmd(input.gettok( 1 ) + TEXT(" ") + input.gettok( 2 ) + TEXT(" ") + input.getlasttoks());	// tok 6, -1
 		//const TString cmd(this->m_pParentDialog->getName() + TEXT(" ") + input.gettok(2) + TEXT(" ") + input.getlasttoks());	// tok 6, -1
-		const TString cmd{ this->m_pParentDialog->getName(), TEXT(" "), input.gettok(2), TEXT(" "), input.getlasttoks() };	// tok 6, -1
+		//const TString cmd{ this->m_pParentDialog->getName(), TEXT(" "_ts), input.gettok(2), TEXT(" "_ts), input.getlasttoks() };	// tok 6, -1
+		TString cmd(this->m_pParentDialog->getName());
+		cmd.addtok(input.gettok(2));		// tok 2
+		cmd.addtok(input.getlasttoks());	// tok 6, -1
+
 		lvdcx->pbar->parseInfoRequest(cmd, szReturnValue);
 	}
 	break;
@@ -1551,8 +1555,8 @@ void DcxListView::parseCommandRequest( const TString &input) {
 	//xdid -a [NAME] [ID] [SWITCH] [N] [INDENT] [+FLAGS] [#ICON] [#STATE] [#OVERLAY] [#GROUPID] [COLOR] [BGCOLOR] Item Text {TAB}[+FLAGS] [#ICON] [#OVERLAY] [COLOR] [BGCOLOR] Item Text ...
 	//xdid -a -> [NAME] [ID] -a [N] [INDENT] [+FLAGS] [#ICON] [#STATE] [#OVERLAY] [#GROUPID] [COLOR] [BGCOLOR] Item Text {TAB}[+FLAGS] [#ICON] [#OVERLAY] [COLOR] [BGCOLOR] Item Text ...
 	if (flags[TEXT('a')] && numtok > 12) {
-		LVITEM lvi;
-		ZeroMemory(&lvi, sizeof(LVITEM));
+		LVITEM lvi = { 0 };
+		//ZeroMemory(&lvi, sizeof(LVITEM));
 
 		const auto data(input.gettok(1, TSTABCHAR).gettok(4, -1).trim());
 		auto nPos = data.gettok(1).to_int() - 1;
@@ -1612,12 +1616,15 @@ void DcxListView::parseCommandRequest( const TString &input) {
 		nRow--;
 		nCol--;
 
-		LVITEM lvi;
-		ZeroMemory(&lvi, sizeof(LVITEM));
+		//LVITEM lvi = { 0 };
+		////ZeroMemory(&lvi, sizeof(LVITEM));
 
-		lvi.mask = LVIF_PARAM;
-		lvi.iItem = nRow;
-		lvi.iSubItem = nCol;
+		//lvi.mask = LVIF_PARAM;
+		//lvi.iItem = nRow;
+		//lvi.iSubItem = nCol;
+
+		//LVITEM lvi = { LVIF_PARAM, nRow, nCol, 0U, 0U, nullptr, 0, 0, 0U, 0, 0, 0U, nullptr, nullptr, 0 };
+		LVITEM lvi = { LVIF_PARAM, nRow, nCol };
 
 		// Couldnt retrieve info
 		if (!ListView_GetItem(m_Hwnd, &lvi))

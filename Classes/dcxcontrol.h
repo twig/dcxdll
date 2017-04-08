@@ -65,41 +65,41 @@
 #define CTLF_ALLOW_ALLBUTDOCK		(UINT64)(CTLF_ALLOW_ALL & ~CTLF_ALLOW_DOCK)
 
 enum class DcxAllowControls : UINT64 {
-	ALLOW_PBAR = (UINT64)0x000000001,
-	ALLOW_TRACKBAR = (UINT64)0x000000002,
-	ALLOW_COMBOEX = (UINT64)0x000000004,
-	ALLOW_COLORCOMBO = (UINT64)0x000000008,
-	ALLOW_STATUSBAR = (UINT64)0x000000010,
-	ALLOW_TOOLBAR = (UINT64)0x000000020,
-	ALLOW_TREEVIEW = (UINT64)0x000000040,
-	ALLOW_LISTVIEW = (UINT64)0x000000080,
-	ALLOW_REBAR = (UINT64)0x000000100,
-	ALLOW_BUTTON = (UINT64)0x000000200,
-	ALLOW_RICHEDIT = (UINT64)0x000000400,
-	ALLOW_EDIT = (UINT64)0x000000800,
-	ALLOW_UPDOWN = (UINT64)0x000001000,
-	ALLOW_IPADDRESS = (UINT64)0x000002000,
-	ALLOW_WEBCTRL = (UINT64)0x000004000,
-	ALLOW_CALANDER = (UINT64)0x000008000,
-	ALLOW_DIVIDER = (UINT64)0x000010000,
-	ALLOW_PANEL = (UINT64)0x000020000,
-	ALLOW_TAB = (UINT64)0x000040000,
-	ALLOW_LINE = (UINT64)0x000080000,
-	ALLOW_BOX = (UINT64)0x000100000,
-	ALLOW_RADIO = (UINT64)0x000200000,
-	ALLOW_CHECK = (UINT64)0x000400000,
-	ALLOW_TEXT = (UINT64)0x000800000,
-	ALLOW_SCROLL = (UINT64)0x001000000,
-	ALLOW_LIST = (UINT64)0x002000000,
-	ALLOW_LINK = (UINT64)0x004000000,
-	ALLOW_IMAGE = (UINT64)0x008000000,
-	ALLOW_PAGER = (UINT64)0x010000000,
-	ALLOW_DOCK = (UINT64)0x020000000, // allows @Window and Dialog docking
-	ALLOW_DATETIME = (UINT64)0x040000000,
-	ALLOW_STACKER = (UINT64)0x080000000,
-	ALLOW_DIRECTSHOW = (UINT64)0x100000000,
-	ALLOW_ALL = (UINT64)0xFFFFFFFFFFFFFFFF,
-	ALLOW_ALLBUTDOCK = (UINT64)(ALLOW_ALL & ~ALLOW_DOCK)
+	ALLOW_PBAR			= (UINT64)0x000000001,
+	ALLOW_TRACKBAR		= (UINT64)0x000000002,
+	ALLOW_COMBOEX		= (UINT64)0x000000004,
+	ALLOW_COLORCOMBO	= (UINT64)0x000000008,
+	ALLOW_STATUSBAR		= (UINT64)0x000000010,
+	ALLOW_TOOLBAR		= (UINT64)0x000000020,
+	ALLOW_TREEVIEW		= (UINT64)0x000000040,
+	ALLOW_LISTVIEW		= (UINT64)0x000000080,
+	ALLOW_REBAR			= (UINT64)0x000000100,
+	ALLOW_BUTTON		= (UINT64)0x000000200,
+	ALLOW_RICHEDIT		= (UINT64)0x000000400,
+	ALLOW_EDIT			= (UINT64)0x000000800,
+	ALLOW_UPDOWN		= (UINT64)0x000001000,
+	ALLOW_IPADDRESS		= (UINT64)0x000002000,
+	ALLOW_WEBCTRL		= (UINT64)0x000004000,
+	ALLOW_CALANDER		= (UINT64)0x000008000,
+	ALLOW_DIVIDER		= (UINT64)0x000010000,
+	ALLOW_PANEL			= (UINT64)0x000020000,
+	ALLOW_TAB			= (UINT64)0x000040000,
+	ALLOW_LINE			= (UINT64)0x000080000,
+	ALLOW_BOX			= (UINT64)0x000100000,
+	ALLOW_RADIO			= (UINT64)0x000200000,
+	ALLOW_CHECK			= (UINT64)0x000400000,
+	ALLOW_TEXT			= (UINT64)0x000800000,
+	ALLOW_SCROLL		= (UINT64)0x001000000,
+	ALLOW_LIST			= (UINT64)0x002000000,
+	ALLOW_LINK			= (UINT64)0x004000000,
+	ALLOW_IMAGE			= (UINT64)0x008000000,
+	ALLOW_PAGER			= (UINT64)0x010000000,
+	ALLOW_DOCK			= (UINT64)0x020000000, // allows @Window and Dialog docking
+	ALLOW_DATETIME		= (UINT64)0x040000000,
+	ALLOW_STACKER		= (UINT64)0x080000000,
+	ALLOW_DIRECTSHOW	= (UINT64)0x100000000,
+	ALLOW_ALL			= (UINT64)0xFFFFFFFFFFFFFFFF,
+	ALLOW_ALLBUTDOCK	= (UINT64)(ALLOW_ALL & ~ALLOW_DOCK)
 };
 
 // Control types...
@@ -169,7 +169,21 @@ public:
 
 	bool evalAliasEx(TCHAR *const szReturn, const int maxlen, const TCHAR *const szFormat, ... );
 
+	//template <typename Format, typename Value, typename... Arguments>
+	//bool evalAliasEx(TCHAR *const szReturn, const int maxlen, const Format &fmt, const Value val, Arguments&&... args) const
+	//{
+	//	TString tsBuf;
+	//	m_pParentDialog->evalAlias(szReturn, maxlen, _ts_sprintf(tsBuf, fmt, val, args...).to_chr());
+	//}
+
 	bool execAliasEx(const TCHAR *const szFormat, ... );
+
+	//template <typename Format, typename Value, typename... Arguments>
+	//bool execAliasEx(const Format &fmt, const Value val, Arguments&&... args) const
+	//{
+	//	TString tsBuf;
+	//	m_pParentDialog->execAlias(_ts_sprintf(tsBuf, fmt, val, args...).to_chr());
+	//}
 
 	const UINT &getUserID( ) const noexcept;
 
@@ -188,7 +202,7 @@ public:
 	const COLORREF &getTextColor( ) const noexcept;
 	const COLORREF &getStartGradientColor(void) const noexcept { return m_clrStartGradient; };
 	const COLORREF &getEndGradientColor(void) const noexcept { return m_clrEndGradient; };
-	const RECT getWindowPosition(void) const;
+	const RECT getWindowPosition(void) const noexcept;
 
 	virtual const TString getType( ) const = 0;
 	virtual const DcxControlTypes getControlType() const noexcept = 0;
@@ -202,8 +216,8 @@ public:
 	inline void decRef( ) noexcept { --m_iRefCount; };
 	inline const UINT &getRefCount( ) const noexcept { return m_iRefCount; };
 
-	//DcxControl *getParentCtrl() const { return this->m_pParentCtrl; };
-	void updateParentCtrl(void); //!< updates controls host control pointers, MUST be called before these pointers are used.
+	//DcxControl *getParentCtrl() const noexcept { return this->m_pParentCtrl; };
+	void updateParentCtrl(void) noexcept; //!< updates controls host control pointers, MUST be called before these pointers are used.
 	void DrawParentsBackground(const HDC hdc, const RECT *const rcBounds = nullptr, const HWND dHwnd = nullptr);
 	LPALPHAINFO SetupAlphaBlend(HDC *hdc, const bool DoubleBuffer = false);
 	void FinishAlphaBlend(LPALPHAINFO ai);
@@ -227,8 +241,6 @@ public:
 protected:
 
 	DcxDialog * m_pParentDialog;	//!< Parent DcxDialog object
-
-	//WNDPROC m_DefaultWindowProc;	//!< Default window procedure
 
 	HFONT m_hFont;					//!< Control Font
 
@@ -265,7 +277,7 @@ protected:
 	bool m_bGradientVertical;
 	bool m_bInPrint;
 	bool m_bShadowText;				//!< Text is drawn with a shadow.
-	bool m_bCtrlCodeText;			//!< mIRCTEXT('s ctrl codes are used to change the text')s appearance.
+	bool m_bCtrlCodeText;			//!< mIRC's ctrl codes are used to change the text's appearance.
 	bool m_bNoTheme;				//!< Control isn't themed.
 	//int m_iThemePartId;
 

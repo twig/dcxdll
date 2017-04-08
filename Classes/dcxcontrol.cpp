@@ -578,7 +578,7 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, const XSwitch
 
 			const auto alpha = (BYTE)(input.getnexttok().to_int() & 0xFF);	// tok 6
 
-			if (alpha == 255)
+			if (alpha == 255U)
 				m_bAlphaBlend = false;
 			m_iAlphaLevel = alpha;
 		}
@@ -1267,7 +1267,6 @@ bool DcxControl::parseGlobalInfoRequest(const TString & input, const refString<T
  */
 
 void DcxControl::registreDefaultWindowProc( ) {
-	//m_DefaultWindowProc = SubclassWindow( m_Hwnd, DcxControl::WindowProc );
 	m_hDefaultWindowProc = SubclassWindow(m_Hwnd, DcxControl::WindowProc);
 }
 
@@ -1278,12 +1277,6 @@ void DcxControl::registreDefaultWindowProc( ) {
  */
 
 void DcxControl::unregistreDefaultWindowProc( ) {
-	//if (this->m_DefaultWindowProc != nullptr) {
-	//	// implies this has alrdy been called.
-	//	if ((WNDPROC)GetWindowLongPtr(m_Hwnd, GWLP_WNDPROC) == DcxControl::WindowProc)
-	//		SubclassWindow(m_Hwnd, this->m_DefaultWindowProc);
-	//}
-	//this->m_DefaultWindowProc = nullptr;
 	if (m_hDefaultWindowProc != nullptr) {
 		// implies this has alrdy been called.
 		if ((WNDPROC)GetWindowLongPtr(m_Hwnd, GWLP_WNDPROC) == DcxControl::WindowProc)
@@ -1339,11 +1332,6 @@ LRESULT CALLBACK DcxControl::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LP
 		if (bParsed)
 			return lrRes;
 	}
-
-	//if (pthis->m_DefaultWindowProc != nullptr)
-	//	return CallWindowProc(pthis->m_DefaultWindowProc, mHwnd, uMsg, wParam, lParam);
-	//
-	//return DefWindowProc(mHwnd, uMsg, wParam, lParam);
 
 	return pthis->CallDefaultProc(mHwnd, uMsg, wParam, lParam);
 }
@@ -1637,19 +1625,19 @@ DcxControl * DcxControl::controlFactory(DcxDialog *const p_Dialog, const UINT mI
 
 			// this helps stop '@' being passed as $window(@).hwnd == $window(-2).hwnd & usually causes a crash.
 			if (tsWin.len() < 2)
-				throw Dcx::dcxException(TEXT("No such window: %s"), tsWin);
+				throw Dcx::dcxException(TEXT("No such window: %"), tsWin);
 
 			auto winHwnd = (HWND)tsWin.to_num();
 			if (!IsWindow(winHwnd)) {
 				TCHAR windowHwnd[30];
 
-				mIRCLinker::evalex(windowHwnd, static_cast<const int>(Dcx::countof(windowHwnd)), TEXT("$window(%s).hwnd"), tsWin.to_chr());
+				mIRCLinker::evalex(&windowHwnd[0], static_cast<const int>(Dcx::countof(windowHwnd)), TEXT("$window(%s).hwnd"), tsWin.to_chr());
 
-				winHwnd = (HWND)dcx_atoi(windowHwnd);
+				winHwnd = (HWND)dcx_atoi(&windowHwnd[0]);
 			}
 
 			if (!IsWindow(winHwnd))
-				throw Dcx::dcxException(TEXT("No such window: %s"), tsWin);
+				throw Dcx::dcxException(TEXT("No such window: %"), tsWin);
 
 			if (p_Dialog->getControlByHWND(winHwnd) != nullptr)
 				throw Dcx::dcxException("Window already a DCX Control");
@@ -1776,7 +1764,7 @@ const COLORREF &DcxControl::getTextColor( ) const noexcept {
 	return this->m_clrText;
 }
 
-const RECT DcxControl::getWindowPosition(void) const {
+const RECT DcxControl::getWindowPosition(void) const noexcept {
 	RECT rc;
 	SetRectEmpty(&rc);
 	if (GetWindowRect( m_Hwnd, &rc ))
@@ -1784,7 +1772,7 @@ const RECT DcxControl::getWindowPosition(void) const {
 	return rc;
 }
 
-void DcxControl::updateParentCtrl(void)
+void DcxControl::updateParentCtrl(void) noexcept
 {
 	// find the host control, if any.
 	this->m_pParentHWND = GetParent(m_Hwnd);
@@ -2576,7 +2564,6 @@ LRESULT DcxControl::CommonMessage( const UINT uMsg, WPARAM wParam, LPARAM lParam
 				// Setup alpha blend if any.
 				auto ai = this->SetupAlphaBlend(&hdc);
 
-				//lRes = CallWindowProc( this->m_DefaultWindowProc, m_Hwnd, uMsg, (WPARAM) hdc, lParam );
 				lRes = CallDefaultProc(m_Hwnd, uMsg, (WPARAM)hdc, lParam);
 
 				this->FinishAlphaBlend(ai);

@@ -1078,7 +1078,7 @@ LRESULT DcxWebControl::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 TString DcxWebControl::CallScript(const TString & tsCmd) const
 {
 	TString tsRes;
-	READYSTATE ready_state;
+	READYSTATE ready_state = READYSTATE_UNINITIALIZED;
 
 	if (FAILED(m_pWebBrowser2->get_ReadyState(&ready_state)) || ready_state != READYSTATE_COMPLETE)
 		throw Dcx::dcxException("Browser NOT in Ready State");
@@ -1129,7 +1129,7 @@ TString DcxWebControl::CallScript(const TString & tsCmd) const
 			{
 				Auto(idisp->Release());
 
-				DISPID dispid = -1;
+				DISPID dispid = DISPID_UNKNOWN;
 				DISPPARAMS params{};
 
 				Dcx::dcxVariant vArg(tsCmd.to_wchr());
@@ -1137,11 +1137,13 @@ TString DcxWebControl::CallScript(const TString & tsCmd) const
 				params.cArgs = 1;
 				params.rgvarg = &vArg;
 
-				const Dcx::dcxBSTRResource strEval(L"eval");
+				{
+					const Dcx::dcxBSTRResource strEval(L"eval");
 
-				BSTR hm = strEval.get();
-				if (FAILED(idisp->GetIDsOfNames(IID_NULL, &hm, 1, LOCALE_SYSTEM_DEFAULT, &dispid)))
-					throw Dcx::dcxException("GetIDsOfNames: failed.");
+					BSTR hm = strEval.get();
+					if (FAILED(idisp->GetIDsOfNames(IID_NULL, &hm, 1, LOCALE_SYSTEM_DEFAULT, &dispid)))
+						throw Dcx::dcxException("GetIDsOfNames: failed.");
+				}
 
 				if (dispid == DISPID_UNKNOWN)
 					throw Dcx::dcxException("GetIDsOfNames: Unable to find eval()");

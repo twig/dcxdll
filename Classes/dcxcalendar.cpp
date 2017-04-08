@@ -422,7 +422,7 @@ LRESULT DcxCalendar::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 					//
 					//for (auto i = decltype(iMax){0}; i < iMax; i++) {
 					//	// daystate ctrlid startdate
-					//	evalAliasEx(eval, Dcx::countof(eval), TEXT("daystate,%u,%d"), getUserID(), SystemTimeToMircTime(&(lpNMDayState->stStart)));
+					//	evalAliasEx(&eval[0], Dcx::countof(eval), TEXT("daystate,%u,%d"), getUserID(), SystemTimeToMircTime(&(lpNMDayState->stStart)));
 					//	m_MonthDayStates[i] = (MONTHDAYSTATE) 0;
 					//	// Ook: this needs looked at, see if we can remove eval or strDays, cant need both...
 					//	TString strDays(eval);
@@ -443,10 +443,8 @@ LRESULT DcxCalendar::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 
 					for (auto i = decltype(iMax){0}; i < iMax; i++) {
 						// daystate ctrlid startdate
-						TString strDays(m_pParentDialog->evalAliasT(TEXT("daystate,%,%"), getUserID(), SystemTimeToMircTime(&(lpNMDayState->stStart))).second);
+						const TString strDays(m_pParentDialog->evalAliasT(TEXT("daystate,%,%"), getUserID(), SystemTimeToMircTime(&(lpNMDayState->stStart))).second.trim());
 						m_MonthDayStates[i] = static_cast<MONTHDAYSTATE>(0);
-
-						strDays.trim();
 
 						for (auto itStart = strDays.begin(TSCOMMACHAR), itEnd = strDays.end(); itStart != itEnd; ++itStart)
 							BOLDDAY(m_MonthDayStates[i], (*itStart).to_int());

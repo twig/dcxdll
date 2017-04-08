@@ -187,6 +187,8 @@ void DcxmlParser::parseAttributes() {
 }
 
 void DcxmlParser::parseAttributes(const TiXmlElement *const tElement) {
+	__assume(tElement != nullptr);
+
 	m_sElem = tElement->Value();
 	m_sParentelem = m_pParent->Value();
 	m_sParenttype = queryAttribute(m_pParent, "type", "panel");
@@ -818,9 +820,6 @@ void DcxmlParser::parseStyle(int depth) {
 
 	const TiXmlElement* tiStyles = nullptr;
 	const TiXmlElement* style = nullptr;
-	const TiXmlElement* ClassElement = nullptr;
-	const TiXmlElement* TypeElement = nullptr;
-	const TiXmlElement* IdElement = nullptr;
 	if (depth == 3)
 		style = m_pElement;
 	else if (depth == 1)
@@ -832,6 +831,11 @@ void DcxmlParser::parseStyle(int depth) {
 		style = tiStyles->FirstChildElement("all");
 		if (style != nullptr)
 			setStyle(style);
+
+		const TiXmlElement* ClassElement = nullptr;
+		const TiXmlElement* TypeElement = nullptr;
+		const TiXmlElement* IdElement = nullptr;
+
 		for( style = tiStyles->FirstChildElement("style"); style != nullptr; style = style->NextSiblingElement()) {
 			//if (0 == lstrcmpA(style->Attribute("class"), m_sSTclass))
 			//	ClassElement = style;
@@ -860,24 +864,22 @@ void DcxmlParser::parseStyle(int depth) {
 void DcxmlParser::parseIcons(int depth) { 
 	if (depth > 1)
 		return;
-	depth++;
+
+	++depth;
+
 	const TiXmlElement* icons = nullptr;
-	const TiXmlElement* ClassElement = nullptr;
-	const TiXmlElement* TypeElement = nullptr;
-	const TiXmlElement* IdElement = nullptr;
 	if (depth == 1)
 		icons = getDialogElement()->FirstChildElement("icons");
 	else if (depth == 2)
 		icons = getDialogsElement()->FirstChildElement("icons");
 
 	if (icons != nullptr) {
-		const TiXmlElement* tiIcon;
+		const TiXmlElement* tiIcon = nullptr;
+		const TiXmlElement* IdElement = nullptr;
+		const TiXmlElement* TypeElement = nullptr;
+		const TiXmlElement* ClassElement = nullptr;
 
 		for( tiIcon = icons->FirstChildElement("icon"); m_sIcon != nullptr; tiIcon = tiIcon->NextSiblingElement()) {
-			//if (0 == lstrcmpA(tiIcon->Attribute("class"), m_sSTclass))
-			//	ClassElement = tiIcon;
-			//if (0 == lstrcmpA(tiIcon->Attribute("type"), m_sType))
-			//	TypeElement = tiIcon;
 			if (0 == ts_strcmp(tiIcon->Attribute("class"), m_sSTclass))
 				ClassElement = tiIcon;
 			if (0 == ts_strcmp(tiIcon->Attribute("type"), m_sType))
@@ -930,7 +932,7 @@ void DcxmlParser::parseIcons(int depth) {
 }
 
 /* parseItems(XmlElement,recursionDepth,itemPath) : recursively applies items for a control */
-void DcxmlParser::parseItems(const TiXmlElement *const tiElement,const UINT depth, const char *itemPath) {
+void DcxmlParser::parseItems(const TiXmlElement *const tiElement,const UINT depth, const char *const itemPath) {
 #if DCX_USE_HASHING
 	auto item = 0, cell = 0;
 	const auto sTypeHash = dcx_hash(m_sType);
@@ -1074,10 +1076,10 @@ void DcxmlParser::parseItems(const TiXmlElement *const tiElement,const UINT dept
 				//xdidEX(m_iID, TEXT("-a"), TEXT("%s \t +%S %S %S 0 %S %S %S %S %S \t %S"), itemPath.to_chr(), ((m_sTFlags) ? m_sTFlags : "a"), m_sIcon, m_sIcon, m_sState, m_sIntegral, m_sTextcolour, m_sBgcolour, m_sCaption, m_sTooltip);
 				//parseItems(child, depth, itemPath);
 				char pathx[100];
-				wnsprintfA(pathx, Dcx::countof(pathx), "%s %i",itemPath,item);
+				wnsprintfA(&pathx[0], Dcx::countof(pathx), "%s %i",itemPath,item);
 				if (m_sCaption != nullptr)
 					xdidEX(m_iID,TEXT("-a"),TEXT("%S \t +%S %S %S 0 %S %S %S %S %S \t %S"), pathx,((m_sTFlags != nullptr) ? m_sTFlags : "a"),m_sIcon,m_sIcon,m_sState,m_sIntegral,m_sTextcolour,m_sBgcolour,m_sCaption,m_sTooltip);
-				parseItems(child,depth,pathx);
+				parseItems(child,depth,&pathx[0]);
 			}
 		}
 	}

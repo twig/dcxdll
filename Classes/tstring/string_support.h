@@ -15,6 +15,7 @@ struct is_Numeric
 	>
 {
 };
+// determine whether T is a Number type (excluding char / wchar), same as is_Numeric<T>::value
 template <typename T>
 constexpr bool is_Numeric_v = is_Numeric<T>::value;
 
