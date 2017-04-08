@@ -292,33 +292,47 @@ mIRC(Version)
 			tmp.addtok(TEXT('b'), TEXT('n'));
 			Ensures(tmp == TEXT("This is a token string 100 chars qnb"_ts));
 
+			tmp.addtok(0);	// "This is a token string 100 chars qnb 0"
+			Ensures(tmp == TEXT("This is a token string 100 chars qnb 0"_ts));
+
+			tmp.addtok(L"");	// "This is a token string 100 chars qnb 0 "
+			Ensures(tmp == TEXT("This is a token string 100 chars qnb 0 "_ts));
+
+			// deltok(end of string)
+			tmp.deltok(tmp.numtok());	// "This is a token string 100 chars qnb 0"
+			Ensures(tmp == TEXT("This is a token string 100 chars qnb 0"_ts));
+
 			mIRCLinker::exec(TEXT("/echo -a Success: addtok() - all tests passed"));
 		}
 
 		{	// test instok()
 			// instok(string,middle of token string)
-			tmp.instok(TEXT("m_inserted"), 5); // "This is a token m_inserted string 100 chars qnb"
-			Ensures(tmp == TEXT("This is a token m_inserted string 100 chars qnb"_ts));
+			tmp.instok(TEXT("m_inserted"), 5); // "This is a token m_inserted string 100 chars qnb 0"
+			Ensures(tmp == TEXT("This is a token m_inserted string 100 chars qnb 0"_ts));
 
 			// instok(string,start of token string)
-			tmp.instok(TEXT("s_inserted"), 1); // "s_inserted This is a token m_inserted string 100 chars qnb"
-			Ensures(tmp == TEXT("s_inserted This is a token m_inserted string 100 chars qnb"_ts));
+			tmp.instok(TEXT("s_inserted"), 1); // "s_inserted This is a token m_inserted string 100 chars qnb 0"
+			Ensures(tmp == TEXT("s_inserted This is a token m_inserted string 100 chars qnb 0"_ts));
 
 			// instok(string,end of token string)
-			tmp.instok(TEXT("e_inserted"), tmp.numtok() + 1);	// "s_inserted This is a token m_inserted string 100 chars qnb e_inserted"
-			Ensures(tmp == TEXT("s_inserted This is a token m_inserted string 100 chars qnb e_inserted"_ts));
+			tmp.instok(TEXT("e_inserted"), tmp.numtok() + 1);	// "s_inserted This is a token m_inserted string 100 chars qnb 0 e_inserted"
+			Ensures(tmp == TEXT("s_inserted This is a token m_inserted string 100 chars qnb 0 e_inserted"_ts));
 
 			mIRCLinker::exec(TEXT("/echo -a Success: instok() - all tests passed"));
 		}
 
 		{	// test deltok()
 			// deltok(middle of token string)
-			tmp.deltok(2);	// "s_inserted is a token m_inserted string 100 chars qnb e_inserted"
-			Ensures(tmp == TEXT("s_inserted is a token m_inserted string 100 chars qnb e_inserted"_ts));
+			tmp.deltok(2);	// "s_inserted is a token m_inserted string 100 chars qnb 0 e_inserted"
+			Ensures(tmp == TEXT("s_inserted is a token m_inserted string 100 chars qnb 0 e_inserted"_ts));
 
 			// deltok(start of string)
-			tmp.deltok(1);	// "is a token m_inserted string 100 chars qnb e_inserted"
-			Ensures(tmp == TEXT("is a token m_inserted string 100 chars qnb e_inserted"_ts));
+			tmp.deltok(1);	// "is a token m_inserted string 100 chars qnb 0 e_inserted"
+			Ensures(tmp == TEXT("is a token m_inserted string 100 chars qnb 0 e_inserted"_ts));
+
+			// deltok(end of string)
+			tmp.deltok(tmp.numtok());	// "is a token m_inserted string 100 chars qnb 0"
+			Ensures(tmp == TEXT("is a token m_inserted string 100 chars qnb 0"_ts));
 
 			// deltok(end of string)
 			tmp.deltok(tmp.numtok());	// "is a token m_inserted string 100 chars qnb"
@@ -616,6 +630,7 @@ mIRC(Version)
 		}
 
 		{
+			// test constructors
 			const TCHAR *ctmp = TEXT("test");
 			auto test1 = TString(TEXT("test"));
 			Ensures(test1 == TEXT("test"_ts));
