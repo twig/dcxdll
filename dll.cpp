@@ -2192,7 +2192,7 @@ mIRC(SetDCXSettings)
 		Dcx::errorex(TEXT("/dcx SetDCXSettings"), TEXT("\"%s\" error: Unknown Exception"), d.to_chr());
 	}
 
-	mIRCLinker::echo(TEXT("/dcx SetDCXSettings [type(,type2,...)] (filename)"));
+	mIRCLinker::echo(TEXT("/dcx SetDCXSettings [option] (option args)"));
 	mIRCLinker::echo(TEXT("[option] = StaticColours,UpdateColours"));
 	mIRCLinker::echo(TEXT("(option args) = optional, args contents depends on the option used."));
 	return 0;

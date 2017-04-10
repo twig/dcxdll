@@ -343,7 +343,7 @@ void XPopupMenuManager::parseCommand( const TString & input, XPopupMenu *const p
 		if (numtok < 3)
 			throw Dcx::dcxException(TEXT("Invalid Arguments"));
 
-		if (tsMenuName != TEXT("mirc") || tsMenuName != TEXT("mircbar"))
+		if (tsMenuName == TEXT("mirc") || tsMenuName == TEXT("mircbar"))
 			throw Dcx::dcxException(TEXT("Command not supported with mirc or mircbar menus"));
 
 		if (p_Menu != nullptr)
@@ -355,7 +355,7 @@ void XPopupMenuManager::parseCommand( const TString & input, XPopupMenu *const p
 	// xpopup -d -> [MENU] [SWITCH]
 	else if ( flags[TEXT('d')]) {
 
-		if (tsMenuName != TEXT("mirc") || tsMenuName != TEXT("mircbar"))
+		if (tsMenuName == TEXT("mirc") || tsMenuName == TEXT("mircbar"))
 			throw Dcx::dcxException(TEXT("Command not supported with mirc or mircbar menus"));
 
 		this->deleteMenu( p_Menu );
