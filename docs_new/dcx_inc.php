@@ -23,7 +23,7 @@ define('SECTION_XMENUBAR'     , 'xmenubar');
 define('SECTION_XMENUBARPROPS', 'xmenubarprop');
 
 // global variables
-$VERSION = '1.4.1';
+$VERSION = '3.1';
 
 $DOCPATH = "./doc/";
 $INCPATH = "./inc/";
