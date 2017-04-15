@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="iso-8859-1"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
 
-<title>DCX Treeview - Dialog Control Xtension DLL v1.4.1 by ClickHeRe, twig* &amp; Ook</title>
+<title>DCX Treeview - Dialog Control Xtension DLL v3.1 by ClickHeRe, twig* &amp; Ook</title>
 
 <link href="dcx.css" rel="stylesheet" type="text/css" />
 </head>
@@ -14,10 +15,10 @@
 		<td width="1%"><a href="index.htm"><img src="images/dcx.jpg" alt="DCX - Dialog Control Xtension" /></a></td>
 		<td width="99%" class="sitenav" style="vertical-align: middle; text-align: right; font-size:10pt;background:url(images/top_bg.jpg) left no-repeat;">
 			<a style="color:#000000;" href='index.htm'>Home</a> |
-			<a style="color:#000000;" href="archive.htm">Download</a> |
+			<a style="color:#000000;" href="https://github.com/twig/dcxdll/releases">Download</a> |
 			<a style="color:#000000;" href="http://dcx.scriptsdb.org/forum/">Forum</a> |
-			<a style="color:#000000;" href="http://dcx.scriptsdb.org/bug/">Bug Tracker</a><br />
-                        <div class="version">v1.4.1</div>
+			<a style="color:#000000;" href="https://github.com/twig/dcxdll/issues">Bug Tracker</a><br />
+                        <div class="version">v3.1</div>
 		</td>
 	</tr>
 </table>
@@ -619,7 +620,7 @@ This would add the item at the end of the last branch in the first column of bra
 		<td class="param">FILENAME</td>
 		<td>Icon archive filename</td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>Use <a class="value">0</a> for <a class="param">INDEX</a> if the file is a single icon file.</li><li>For readability and ease of indexing, it is suggested you declare your overlay icons AFTER the normal icons. Overlay icons are also added to the normal icon list, so it will mess up your existing icon indexes.</li><li>There is a limit of 15 overlay icons you may use, indexes from <a class="value">1</a> to <a class="value">15</a>.</li></ul></td></tr></table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>Use <a class="value">0</a> for <a class="param">INDEX</a> if the file is a single icon file.</li><li>Use <a class="value">-1</a> for <a class="param">INDEX</a> to load all icons in file.</li><li>For readability and ease of indexing, it is suggested you declare your overlay icons AFTER the normal icons. Overlay icons are also added to the normal icon list, so it will mess up your existing icon indexes.</li><li>There is a limit of 15 overlay icons you may use, indexes from <a class="value">1</a> to <a class="value">15</a>.</li></ul></td></tr></table>
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
@@ -915,7 +916,7 @@ This would add the item at the end of the last branch in the first column of bra
 		<td class="param">SUBPATH</td>
 		<td>Optional parameter to start the search at a specific branch.</td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>If <a class="param">N</a> is <a class="value">0</a>, returns the total number of matching items.</li><li>The [TAB] characters surrounding the matchtext are mandatory or else it wont work.</li><li>If <a class="param">SUBPATH</a> is blank, searches at root of treeview.</li></ul></td></tr></table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>If <a class="param">N</a> is <a class="value">0</a>, returns the total number of matching items.</li><li>The [TAB] characters surrounding the matchtext are mandatory or else it wont work.</li><li>If <a class="param">SUBPATH</a> is blank, searches at root of treeview.</li><li>If <a class="param">T</a> is <a class="value">W</a> or <a class="value">R</a>, you need to escape special characters with a \ (use \ to match a single \).</li></ul></td></tr></table>
 <br />
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
@@ -1348,8 +1349,8 @@ This would add the item at the end of the last branch in the first column of bra
 <table class="bar">
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
-		<td style="text-align: center;">© 2005-2009</td>
-		<td style="text-align: right;">Last Updated: 12th July, 09</td>
+		<td style="text-align: center;">© 2005-2017</td>
+		<td style="text-align: right;">Last Updated: 15th April, 17</td>
 	</tr>
 </table>
 <div style="text-align: center;">

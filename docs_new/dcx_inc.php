@@ -296,6 +296,7 @@ function dcxdoc_header($page, $pagelabel) {
 ?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
 
 <title><?php
 // Prevent DCX DCX vs MDX
@@ -319,9 +320,9 @@ else
 		<td width="1%"><a href="index.htm"><img src="images/dcx.jpg" alt="DCX - Dialog Control Xtension" /></a></td>
 		<td width="99%" class="sitenav" style="vertical-align: middle; text-align: right; font-size:10pt;background:url(images/top_bg.jpg) left no-repeat;">
 			<a style="color:#000000;" href='index.htm'>Home</a> |
-			<a style="color:#000000;" href="archive.htm">Download</a> |
+			<a style="color:#000000;" href="https://github.com/twig/dcxdll/releases">Download</a> |
 			<a style="color:#000000;" href="http://dcx.scriptsdb.org/forum/">Forum</a> |
-			<a style="color:#000000;" href="http://dcx.scriptsdb.org/bug/">Bug Tracker</a><br />
+			<a style="color:#000000;" href="https://github.com/twig/dcxdll/issues">Bug Tracker</a><br />
                         <div class="version">v<?php echo $VERSION; ?></div>
 		</td>
 	</tr>

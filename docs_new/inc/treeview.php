@@ -376,6 +376,7 @@ tooltip="some text"
 			),
 			'__notes' => array(
 			    'Use [v]0[/v] for [p]INDEX[/p] if the file is a single icon file.',
+			    'Use [v]-1[/v] for [p]INDEX[/p] to load all icons in file.',
 			    'For readability and ease of indexing, it is suggested you declare your overlay icons AFTER the normal icons. Overlay icons are also added to the normal icon list, so it will mess up your existing icon indexes.',
 			    'There is a limit of 15 overlay icons you may use, indexes from [v]1[/v] to [v]15[/v].',
 			),
