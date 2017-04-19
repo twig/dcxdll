@@ -71,10 +71,10 @@ public:
 	void setIsMenuBar(const bool value);
 
 #if DCX_USE_HASHING
-	XPopupMenu* getMenuByHash(const std::size_t uHash, const bool bCheckSpecial) const;
+	XPopupMenu* getMenuByHash(const std::size_t uHash, const bool bCheckSpecial) const noexcept;
 #endif
-	XPopupMenu* getMenuByName(const TString &tsName, const bool bCheckSpecial) const;
-	XPopupMenu* getMenuByHandle(const HMENU hMenu) const;
+	XPopupMenu* getMenuByName(const TString &tsName, const bool bCheckSpecial) const noexcept;
+	XPopupMenu* getMenuByHandle(const HMENU hMenu) const noexcept;
 	XPopupMenu* getmIRCPopup(void) const noexcept;
 	XPopupMenu* getmIRCMenuBar(void) const noexcept;
 	const bool isCustomMenu(const HMENU hMenu) const;

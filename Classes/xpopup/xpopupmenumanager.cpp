@@ -1077,6 +1077,21 @@ const int XPopupMenuManager::parseMPopup(const TString & input)
 	if (input.numtok( ) < 2)
 		throw Dcx::dcxException("Invalid Arguments");
 
+#if DCX_USE_HASHING
+	const auto uMenuHash = std::hash<TString>{}(input.getfirsttok(1));
+	const auto iEnable = input.getnexttok().to_int();	// tok 2
+
+	if (uMenuHash == TEXT("mirc"_hash))
+		m_bIsActiveMircPopup = (iEnable == 1);
+	else if (uMenuHash == TEXT("mircbar"_hash)) {
+		if (iEnable == 1)
+			m_bIsActiveMircMenubarPopup = true;
+		else {
+			m_bIsActiveMircMenubarPopup = false;
+			m_mIRCMenuBar->cleanMenu(GetMenu(mIRCLinker::getHWND()));
+		}
+	}
+#else
 	const auto tsMenuName(input.getfirsttok(1));
 	const auto iEnable = input.getnexttok().to_int();	// tok 2
 
@@ -1090,6 +1105,7 @@ const int XPopupMenuManager::parseMPopup(const TString & input)
 			m_mIRCMenuBar->cleanMenu(GetMenu(mIRCLinker::getHWND()));
 		}
 	}
+#endif
 	return 3;
 }
 
@@ -1169,7 +1185,7 @@ void XPopupMenuManager::setIsMenuBar(const bool value)
  */
 
 #if DCX_USE_HASHING
-XPopupMenu * XPopupMenuManager::getMenuByHash(const std::size_t uHash, const bool bCheckSpecial) const
+XPopupMenu * XPopupMenuManager::getMenuByHash(const std::size_t uHash, const bool bCheckSpecial) const noexcept
 {
 	if (bCheckSpecial) {
 		if (uHash == TEXT("mircbar"_hash))
@@ -1189,12 +1205,13 @@ XPopupMenu * XPopupMenuManager::getMenuByHash(const std::size_t uHash, const boo
 	return nullptr;
 }
 
-XPopupMenu * XPopupMenuManager::getMenuByName(const TString &tsName, const bool bCheckSpecial) const
+XPopupMenu * XPopupMenuManager::getMenuByName(const TString &tsName, const bool bCheckSpecial) const noexcept
 {
 	return getMenuByHash(std::hash<TString>{}(tsName), bCheckSpecial);
 }
 #else
-XPopupMenu * XPopupMenuManager::getMenuByName(const TString &tsName, const bool bCheckSpecial) const {
+XPopupMenu * XPopupMenuManager::getMenuByName(const TString &tsName, const bool bCheckSpecial) const noexcept
+{
 	if (bCheckSpecial) {
 		if (tsName == TEXT("mircbar"))
 			return m_mIRCMenuBar;
@@ -1217,7 +1234,8 @@ XPopupMenu * XPopupMenuManager::getMenuByName(const TString &tsName, const bool 
 /*
  * Retrieves a menu by the handle.
  */
-XPopupMenu* XPopupMenuManager::getMenuByHandle(const HMENU hMenu) const {
+XPopupMenu* XPopupMenuManager::getMenuByHandle(const HMENU hMenu) const noexcept
+{
 	// Special cases
 	if (hMenu == m_mIRCMenuBar->getMenuHandle())
 		return m_mIRCMenuBar;

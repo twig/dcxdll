@@ -283,7 +283,7 @@ void DcxDirectshow::parseInfoRequest( const TString & input, const refString<TCH
 			and anything else you can think of i guess
 			*/
 
-			OAFilterState pfs = 0;
+			OAFilterState pfs = State_Stopped;
 			PTCHAR szState = nullptr;
 			auto hr = this->m_pControl->GetState(1000, &pfs);
 
@@ -539,11 +539,12 @@ void DcxDirectshow::parseCommandRequest( const TString &input) {
 			if (FAILED(hr))
 				throw Dcx::dcxException("Unable to Set Window Notify");
 			
-			if (!xflags[TEXT('a')])
+			if (!xflags[TEXT('a')]) {
 				hr = DcxDirectshow::InitWindowlessVMR(m_Hwnd, this->m_pGraph, &this->m_pWc);
 
-			if (FAILED(hr))
-				throw Dcx::dcxException("Unable to Create VMR9");
+				if (FAILED(hr))
+					throw Dcx::dcxException("Unable to Create VMR9");
+			}
 
 			if (this->m_pWc != nullptr) {
 				if (this->m_bKeepRatio)
@@ -693,11 +694,11 @@ void DcxDirectshow::parseCommandRequest( const TString &input) {
 		if (m_pControl == nullptr)
 			throw Dcx::dcxException("No File Loaded");
 
-		auto tsFlags(input.getnexttok());
-		auto fBrightness(input.getnexttok().to_<float>());
-		auto fContrast(input.getnexttok().to_<float>());
-		auto fHue(input.getnexttok().to_<float>());
-		auto fSaturation(input.getnexttok().to_<float>());
+		const auto tsFlags(input.getnexttok());
+		const auto fBrightness(input.getnexttok().to_<float>());
+		const auto fContrast(input.getnexttok().to_<float>());
+		const auto fHue(input.getnexttok().to_<float>());
+		const auto fSaturation(input.getnexttok().to_<float>());
 
 		auto hr = setVideo(tsFlags, fBrightness, fContrast, fHue, fSaturation);
 		if (FAILED(hr)) {
@@ -987,7 +988,7 @@ void DcxDirectshow::ReleaseAll(void)
 }
 
 // getProperty() is non-functional atm. Where do i get this interface from? or a similar one.
-HRESULT DcxDirectshow::getProperty(TCHAR *prop, const int type) const
+HRESULT DcxDirectshow::getProperty(const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &prop, const int type) const
 {
 	IAMMediaContent *iam;
 	auto hr = this->m_pGraph->QueryInterface(IID_IAMMediaContent, (void **)&iam);

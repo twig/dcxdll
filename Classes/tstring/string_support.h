@@ -636,9 +636,14 @@ T *_ts_strcpyn(T *const sDest, const T *const sSrc, const size_t iChars) noexcep
 {
 	static_assert(std::is_same_v<T, char> || std::is_same_v<T, wchar_t>, "Only char & wchar_t supported...");
 
+#if DCX_DEBUG_OUTPUT
 	if ((sDest == nullptr) || (sSrc == nullptr) || isInBounds<std::remove_cv_t<T> >(sDest, sSrc, iChars))
 		return nullptr;
-	
+#else
+	if ((sDest == nullptr) || (sSrc == nullptr))
+		return nullptr;
+#endif
+
 	return details::_impl_strcpyn<T>()(sDest, sSrc, iChars);
 }
 
