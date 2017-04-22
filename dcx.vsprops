@@ -28,4 +28,8 @@
 		Name="mIRCDir"
 		Value="C:\mIRC_Basic"
 	/>
+	<UserMacro
+		Name="PHPDir"
+		Value="C:\php"
+	/>
 </VisualStudioPropertySheet>

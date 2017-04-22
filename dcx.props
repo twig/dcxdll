@@ -4,6 +4,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros">
     <mIRCDir>C:\mIRC_Basic</mIRCDir>
+    <PHPDir>C:\php</PHPDir>
   </PropertyGroup>
   <PropertyGroup>
     <_ProjectFileVersion>11.0.50727.1</_ProjectFileVersion>
@@ -29,6 +30,9 @@
   <ItemGroup>
     <BuildMacro Include="mIRCDir">
       <Value>$(mIRCDir)</Value>
+    </BuildMacro>
+    <BuildMacro Include="PHPDir">
+      <Value>$(PHPDir)</Value>
     </BuildMacro>
   </ItemGroup>
 </Project>
