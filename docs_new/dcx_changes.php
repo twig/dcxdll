@@ -16,7 +16,6 @@ $CHANGES = array(
 			'updown - changed /xdid -c to handle named id\'s',
 			'webctrl - added $xdid().script to allow calling a script that returns a result.',
 			'- var %result = $xdid(dname,id,scriptcommand).script'
-
 		),
 		'Syntax changes' => array(
 		),

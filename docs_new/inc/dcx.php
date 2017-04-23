@@ -408,9 +408,9 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 			'__desc' => 'This command enables or disables signals from DCX whenever docked windows/dialogs/mIRC windows are resized, or when [link page="xstatusbar"]XStatusBar[/link]/[link page="xtray"]XTray[/link] icons are clicked.',
 			'__cmd' => '[BOOL] (+FLAGS)',
 			'__eg' => array(
-                                '1',
-                                '0 +st',
-                        ),
+				'1',
+				'0 +st',
+			),
 			'__params' => array(
 				'BOOL' => 'Either [v]0[/v] or [v]1[/v], stating on or off respectively.',
 				'+FLAGS' => array(
@@ -471,6 +471,28 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 				),
 			),
 			'__notes' => "Use [v]0[/v] for [p]INDEX[/p] if the file is a single icon file.",
+		),
+		"SetDCXSettings" => array(
+			'__desc' => 'This command enables or disables various DCX settings.',
+			'__cmd' => '[OPTION] (ARGS)',
+			'__eg' => array(
+				'UpdateColours',
+				'StaticColours 1',
+			),
+			'__params' => array(
+				'OPTION' => array(
+					'__values' => array(
+						'StaticColours' => 'Enable or disable static colours.',
+						'UpdateColours' => 'Force colours to update to match current mIRC theme.',
+					),
+				),
+				'ARGS' => 'Either [v]0[/v] or [v]1[/v], stating on or off respectively.',
+                                
+			),
+			'__notes' => array(
+				'When StaticColours is enabled dcx will no longer update the colours used to match mIRC on each draw, this leads to much faster drawing.',
+				'If mIRC changes it\'s theme/colours dcx will not auto update & you will need to either disable StaticColours or call UpdateColours.'
+			),
 		),
 	);
 }

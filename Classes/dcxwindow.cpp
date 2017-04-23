@@ -295,7 +295,7 @@ UINT DcxWindow::parseCursorArea(const TString & flags)
 		iFlags = HTMENU;
 	if (xflags[TEXT('s')])	// sysmenu area
 		iFlags = HTSYSMENU;
-	if (xflags[TEXT('c')])	// caption area
+	if (xflags[TEXT('a')])	// caption area
 		iFlags = HTCAPTION;
 	if (xflags[TEXT('S')])	// size button area
 		iFlags = HTSIZE;

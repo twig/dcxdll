@@ -890,6 +890,37 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 <br />
 <table class="general">
 	<tr><td colspan="2" class="flag" style="color: #979AB3; border-color: #979AB3;">
+			<a name="general.SetDCXSettings"></a>/dcx SetDCXSettings	</td></tr>
+	<tr><td colspan="2">This command enables or disables various DCX settings.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/dcx SetDCXSettings [OPTION] (ARGS)</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/dcx SetDCXSettings UpdateColours<br />/dcx SetDCXSettings StaticColours 1<br /></div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">OPTION</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td class="value">StaticColours</td>
+		<td>Enable or disable static colours.</td>
+	</tr>
+	<tr>
+		<td class="value">UpdateColours</td>
+		<td>Force colours to update to match current mIRC theme.</td>
+	</tr>
+	<tr>
+		<td class="param">ARGS</td>
+		<td>Either <a class="value">0</a> or <a class="value">1</a>, stating on or off respectively.</td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>When StaticColours is enabled dcx will no longer update the colours used to match mIRC on each draw, this leads to much faster drawing.</li><li>If mIRC changes it's theme/colours dcx will not auto update & you will need to either disable StaticColours or call UpdateColours.</li></ul></td></tr></table>
+<br />
+<table class="general">
+	<tr><td colspan="2" class="flag" style="color: #979AB3; border-color: #979AB3;">
 			<a name="general.Version"></a>$dcx(Version)	</td></tr>
 	<tr><td colspan="2">Returns information on the DLL Version.</td></tr>
 	<tr>
@@ -1023,6 +1054,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 		<a class='flag' href="#general.MsgBox"><div>MsgBox</div></a>
 		<a class='flag' href="#general.OpenDialog/SaveDialog"><div>OpenDialog/SaveDialog</div></a>
 		<a class='flag' href="#general.PickIcon"><div>PickIcon</div></a>
+		<a class='flag' href="#general.SetDCXSettings"><div>SetDCXSettings</div></a>
 		<a class='flag' href="#general.Version"><div>Version</div></a>
 		<a class='flag' href="#general.WindowProps"><div>WindowProps</div></a>
 		<a class='flag' href="#general.xSignal"><div>xSignal</div></a>
