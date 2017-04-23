@@ -256,11 +256,13 @@ void DcxmlParser::parseControl() {
 		setZlayered(true);
 	}
 
-	const auto nType = dcx_hash(m_sParenttype);
+	//const auto nType = dcx_hash(m_sParenttype);
+	const auto nType = dcx_hash(m_sType);
 	switch (nType)
 	{
 	case "divider"_hash:		//	divider
-		xdidEX(m_iParentID, TEXT("-v"), TEXT("%d"), queryIntAttribute(m_pElement, "width", 0));
+		//xdidEX(m_iParentID, TEXT("-v"), TEXT("%d"), queryIntAttribute(m_pElement, "width", 0));
+		xdidEX(m_iID, TEXT("-v"), TEXT("%d"), queryIntAttribute(m_pElement, "width", 0));
 		break;
 	case "button"_hash:		//	button
 		xdidEX(m_iID, TEXT("-l"), TEXT("%S"), m_sIconsize);
@@ -284,7 +286,8 @@ void DcxmlParser::parseControl() {
 			xdidEX(m_iID, TEXT("-a"), TEXT("%S"), m_sCaption);
 		break;
 	case "webctrl"_hash:	//	webctrl
-		xdidEX(m_iID, TEXT("-n"), TEXT("%S"), m_sSrc);
+		if (m_sSrc != nullptr)
+			xdidEX(m_iID, TEXT("-n"), TEXT("%S"), m_sSrc);
 		break;
 	case "text"_hash:	//	text
 		if (m_sCaption != nullptr) {
@@ -346,7 +349,8 @@ void DcxmlParser::parseControl() {
 		parseItems(m_pElement);
 		break;
 	case "image"_hash:	//	image
-		xdidEX(m_iID, TEXT("-i"), TEXT("+%S %S"), ((m_sTFlags != nullptr) ? m_sTFlags : ""), m_sSrc);
+		if (m_sSrc != nullptr)
+			xdidEX(m_iID, TEXT("-i"), TEXT("+%S %S"), ((m_sTFlags != nullptr) ? m_sTFlags : ""), m_sSrc);
 	default:	//	unknown?!?!?!
 		break;
 	}
@@ -359,14 +363,15 @@ void DcxmlParser::parseControl() {
 		setZlayered(true);
 	}
 	//        padding = (m_sTemp = m_pElement->Attribute("padding")) ? m_sTemp : "0 0 0 0";
-	const TString tsParent(m_sParenttype);
+	//const TString tsParent(m_sParenttype);
+	const TString tsParent(m_sType);
 	static const TString poslist(TEXT("divider toolbar button treeview comboex list listview radio link check box ipaddress webctrl text edit richedit pbar statusbar image"));
 	const auto nType = poslist.findtok(tsParent, 1);
 
 	switch (nType)
 	{
 	case 1:		//	divider
-		xdidEX(m_iParentID, TEXT("-v"), TEXT("%d"), queryIntAttribute(m_pElement, "width", 0));
+		xdidEX(m_iID, TEXT("-v"), TEXT("%d"), queryIntAttribute(m_pElement, "width", 0));
 		break;
 	case 3:		//	button
 		xdidEX(m_iID, TEXT("-l"), TEXT("%S"), m_sIconsize);
@@ -452,7 +457,8 @@ void DcxmlParser::parseControl() {
 		parseItems(m_pElement);
 		break;
 	case 19:	//	image
-		xdidEX(m_iID, TEXT("-i"), TEXT("+%S %S"), ((m_sTFlags != nullptr) ? m_sTFlags : ""), m_sSrc);
+		if (m_sSrc != nullptr)
+			xdidEX(m_iID, TEXT("-i"), TEXT("+%S %S"), ((m_sTFlags != nullptr) ? m_sTFlags : ""), m_sSrc);
 	default:	//	unknown?!?!?!
 		break;
 	}
@@ -837,14 +843,18 @@ void DcxmlParser::parseStyle(int depth) {
 		const TiXmlElement* IdElement = nullptr;
 
 		for( style = tiStyles->FirstChildElement("style"); style != nullptr; style = style->NextSiblingElement()) {
-			//if (0 == lstrcmpA(style->Attribute("class"), m_sSTclass))
-			//	ClassElement = style;
-			//if (0 == lstrcmpA(style->Attribute("type"), m_sType))
-			//	TypeElement = style;
-			if (0 == ts_strcmp(style->Attribute("class"), m_sSTclass))
-				ClassElement = style;
-			if (0 == ts_strcmp(style->Attribute("type"), m_sType))
-				TypeElement = style;
+			auto ctmp = style->Attribute("class");
+			if (ctmp != nullptr)
+			{
+				if (0 == ts_strcmp(ctmp, m_sSTclass))
+					ClassElement = style;
+			}
+			ctmp = style->Attribute("type");
+			if (ctmp != nullptr)
+			{
+				if (0 == ts_strcmp(ctmp, m_sType))
+					TypeElement = style;
+			}
 			if (parseId(style) == m_iID)
 				IdElement = style;
 		}
@@ -879,11 +889,19 @@ void DcxmlParser::parseIcons(int depth) {
 		const TiXmlElement* TypeElement = nullptr;
 		const TiXmlElement* ClassElement = nullptr;
 
-		for( tiIcon = icons->FirstChildElement("icon"); m_sIcon != nullptr; tiIcon = tiIcon->NextSiblingElement()) {
-			if (0 == ts_strcmp(tiIcon->Attribute("class"), m_sSTclass))
-				ClassElement = tiIcon;
-			if (0 == ts_strcmp(tiIcon->Attribute("type"), m_sType))
-				TypeElement = tiIcon;
+		for( tiIcon = icons->FirstChildElement("icon"); tiIcon != nullptr; tiIcon = tiIcon->NextSiblingElement()) {
+			auto ctmp = tiIcon->Attribute("class");
+			if (ctmp != nullptr)
+			{
+				if (0 == ts_strcmp(ctmp, m_sSTclass))
+					ClassElement = tiIcon;
+			}
+			ctmp = tiIcon->Attribute("type");
+			if (ctmp != nullptr)
+			{
+				if (0 == ts_strcmp(ctmp, m_sType))
+					TypeElement = tiIcon;
+			}
 			const auto t_id = parseId(tiIcon);
 			if (t_id == m_iID)
 				IdElement = tiIcon;

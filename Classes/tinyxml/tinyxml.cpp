@@ -1443,6 +1443,7 @@ TiXmlNode* TiXmlUnknown::Clone() const
 
 
 TiXmlAttributeSet::TiXmlAttributeSet()
+	: sentinel()
 {
 	sentinel.next = &sentinel;
 	sentinel.prev = &sentinel;

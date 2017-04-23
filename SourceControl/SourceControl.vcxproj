@@ -55,8 +55,7 @@
     <NMakeBuildCommandLine>CALL "$(ProjectDir)GIT-VS-VERSION-GEN.bat" "$(IntDir)" "$(SolutionDir)gitBuild.h"</NMakeBuildCommandLine>
     <NMakeOutput>$(SolutionDir)gitBuild.h</NMakeOutput>
     <NMakeCleanCommandLine>del /F "$(SolutionDir)gitBuild.h"</NMakeCleanCommandLine>
-    <NMakeReBuildCommandLine>
-    </NMakeReBuildCommandLine>
+    <NMakeReBuildCommandLine>CALL "$(ProjectDir)GIT-VS-VERSION-GEN.bat" "$(IntDir)" "$(SolutionDir)gitBuild.h"</NMakeReBuildCommandLine>
     <NMakePreprocessorDefinitions>WIN32;_DEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
     <ExecutablePath>C:\Program Files %28x86%29\Git\bin;$(ExecutablePath)</ExecutablePath>
   </PropertyGroup>
@@ -64,8 +63,7 @@
     <NMakeBuildCommandLine>CALL "$(ProjectDir)GIT-VS-VERSION-GEN.bat" "$(IntDir)" "$(SolutionDir)gitBuild.h"</NMakeBuildCommandLine>
     <NMakeOutput>$(SolutionDir)gitBuild.h</NMakeOutput>
     <NMakeCleanCommandLine>del /F "$(SolutionDir)gitBuild.h"</NMakeCleanCommandLine>
-    <NMakeReBuildCommandLine>
-    </NMakeReBuildCommandLine>
+    <NMakeReBuildCommandLine>CALL "$(ProjectDir)GIT-VS-VERSION-GEN.bat" "$(IntDir)" "$(SolutionDir)gitBuild.h"</NMakeReBuildCommandLine>
     <NMakePreprocessorDefinitions>WIN32;NDEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
     <ExecutablePath>C:\Program Files %28x86%29\Git\bin;$(ExecutablePath)</ExecutablePath>
   </PropertyGroup>
@@ -73,7 +71,7 @@
     <NMakeBuildCommandLine>CALL "$(ProjectDir)GIT-VS-VERSION-GEN.bat" "$(IntDir)" "$(SolutionDir)gitBuild.h"</NMakeBuildCommandLine>
     <NMakeOutput>$(SolutionDir)gitBuild.h</NMakeOutput>
     <NMakeCleanCommandLine>del /F "$(SolutionDir)gitBuild.h"</NMakeCleanCommandLine>
-    <NMakeReBuildCommandLine />
+    <NMakeReBuildCommandLine>CALL "$(ProjectDir)GIT-VS-VERSION-GEN.bat" "$(IntDir)" "$(SolutionDir)gitBuild.h"</NMakeReBuildCommandLine>
     <NMakePreprocessorDefinitions>WIN32;NDEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
     <ExecutablePath>C:\Program Files %28x86%29\Git\bin;$(ExecutablePath)</ExecutablePath>
   </PropertyGroup>
