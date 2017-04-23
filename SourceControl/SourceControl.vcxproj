@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="..\packages\VisualCppTools.14.0.24315-Pre\build\native\VisualCppTools.props" Condition="Exists('..\packages\VisualCppTools.14.0.24315-Pre\build\native\VisualCppTools.props')" />
+  <Import Project="..\packages\VisualCppTools.14.0.24730-Pre\build\native\VisualCppTools.props" Condition="Exists('..\packages\VisualCppTools.14.0.24730-Pre\build\native\VisualCppTools.props')" />
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -17,7 +17,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="GIT-VS-VERSION-GEN.bat" />
-    <None Include="packages.config" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{D0171F09-A706-4D92-BEDB-4723FEFA60BC}</ProjectGuid>
@@ -53,7 +52,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <NMakeBuildCommandLine>CALL $(ProjectDir)GIT-VS-VERSION-GEN.bat "$(IntDir)" "$(SolutionDir)gitBuild.h"</NMakeBuildCommandLine>
+    <NMakeBuildCommandLine>CALL "$(ProjectDir)GIT-VS-VERSION-GEN.bat" "$(IntDir)" "$(SolutionDir)gitBuild.h"</NMakeBuildCommandLine>
     <NMakeOutput>$(SolutionDir)gitBuild.h</NMakeOutput>
     <NMakeCleanCommandLine>del /F "$(SolutionDir)gitBuild.h"</NMakeCleanCommandLine>
     <NMakeReBuildCommandLine>
@@ -62,7 +61,7 @@
     <ExecutablePath>C:\Program Files %28x86%29\Git\bin;$(ExecutablePath)</ExecutablePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <NMakeBuildCommandLine>CALL $(ProjectDir)GIT-VS-VERSION-GEN.bat "$(IntDir)" "$(SolutionDir)gitBuild.h"</NMakeBuildCommandLine>
+    <NMakeBuildCommandLine>CALL "$(ProjectDir)GIT-VS-VERSION-GEN.bat" "$(IntDir)" "$(SolutionDir)gitBuild.h"</NMakeBuildCommandLine>
     <NMakeOutput>$(SolutionDir)gitBuild.h</NMakeOutput>
     <NMakeCleanCommandLine>del /F "$(SolutionDir)gitBuild.h"</NMakeCleanCommandLine>
     <NMakeReBuildCommandLine>
@@ -71,7 +70,7 @@
     <ExecutablePath>C:\Program Files %28x86%29\Git\bin;$(ExecutablePath)</ExecutablePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release SSE42 AVX2|Win32'">
-    <NMakeBuildCommandLine>CALL $(ProjectDir)GIT-VS-VERSION-GEN.bat "$(IntDir)" "$(SolutionDir)gitBuild.h"</NMakeBuildCommandLine>
+    <NMakeBuildCommandLine>CALL "$(ProjectDir)GIT-VS-VERSION-GEN.bat" "$(IntDir)" "$(SolutionDir)gitBuild.h"</NMakeBuildCommandLine>
     <NMakeOutput>$(SolutionDir)gitBuild.h</NMakeOutput>
     <NMakeCleanCommandLine>del /F "$(SolutionDir)gitBuild.h"</NMakeCleanCommandLine>
     <NMakeReBuildCommandLine />
@@ -86,6 +85,6 @@
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('..\packages\VisualCppTools.14.0.24315-Pre\build\native\VisualCppTools.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\VisualCppTools.14.0.24315-Pre\build\native\VisualCppTools.props'))" />
+    <Error Condition="!Exists('..\packages\VisualCppTools.14.0.24730-Pre\build\native\VisualCppTools.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\VisualCppTools.14.0.24730-Pre\build\native\VisualCppTools.props'))" />
   </Target>
 </Project>

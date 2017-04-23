@@ -18,6 +18,5 @@
     <None Include="GIT-VS-VERSION-GEN.bat">
       <Filter>Source Files</Filter>
     </None>
-    <None Include="packages.config" />
   </ItemGroup>
 </Project>
