@@ -181,7 +181,7 @@ private:
 	//const size_t set_buffersize(const size_t size) { m_buffersize = TS_getmemsize(size); return m_buffersize; };	// make buffersize a multiple of 16
 	//allocate a buffer thats sized to multiples of 16 bytes, (%byte + (16 - (%byte % 16)))
 	//TCHAR *allocstr_bytes(const size_t size) { return (TCHAR *)(new BYTE[set_buffersize(size)]); };
-	auto allocstr_bytes(const size_t size) {
+	auto allocstr_bytes(const size_type size) {
 #if TSTRING_INTERNALBUFFER
 		m_InternalBuffer[0] = TEXT('\0');
 		if (size <= TSTRING_INTERNALBUFFERSIZE_BYTES)
@@ -198,16 +198,16 @@ private:
 		return allocstr_bytes(size, m_buffersize);
 	};
 	//allocate a buffer thats sized to multiples of 16 bytes, (%byte + (16 - (%byte % 16))), iActual contains the buffer size allocated
-	static TCHAR *allocstr_bytes(const size_t size, size_t &iActual)
+	static pointer allocstr_bytes(const size_type size, size_type &iActual)
 	{
 		iActual = TS_getmemsize(size);
-		return reinterpret_cast<TCHAR *>(new BYTE[iActual]);
+		return reinterpret_cast<pointer>(new BYTE[iActual]);
 	};
 	// allocate a buffer thats size characters long & its a multiple of 16bytes.
-	auto allocstr_cch(const size_t size) { return allocstr_bytes(size*sizeof(TCHAR)); };
+	auto allocstr_cch(const size_type size) { return allocstr_bytes(size*sizeof(value_type)); };
 	//TCHAR *allocstr_cch(const size_t size) { return allocstr_bytes(size*sizeof(TCHAR), m_buffersize); };
 	// allocate a buffer thats size characters long & its a multiple of 16bytes. NB: iActual contains the buffer size in BYTES
-	static auto allocstr_cch(const size_t size, size_t &iActual) { return allocstr_bytes(size*sizeof(TCHAR), iActual); };
+	static auto allocstr_cch(const size_type size, size_type &iActual) { return allocstr_bytes(size*sizeof(value_type), iActual); };
 
 	// swap contents of second with this
 	void swap(TString &second) noexcept;
@@ -228,7 +228,7 @@ private:
 	{
 		static_assert(is_Numeric_v<T>, "Only Numeric Types accepted.");
 
-		if ((m_pString == nullptr) || (N < 0) || (static_cast<size_t>(N) >= (m_buffersize / sizeof(TCHAR))))
+		if ((m_pString == nullptr) || (N < 0) || (static_cast<size_type>(N) >= (m_buffersize / sizeof(value_type))))
 			throw std::out_of_range("TString::at()");
 	}
 	template <class T>
@@ -236,37 +236,37 @@ private:
 	{
 		static_assert(is_Numeric_v<T>, "Only Numeric Types accepted.");
 
-		if ((m_pString == nullptr) || (N >= (m_buffersize / sizeof(TCHAR))))
+		if ((m_pString == nullptr) || (N >= (m_buffersize / sizeof(value_type))))
 			throw std::out_of_range("TString::at()");
 	}
 
 	static WCHAR *charToWchar(const char *const cString, size_t *const buffer_size = nullptr);
 	static char *WcharTochar(const WCHAR *const wString, size_t *const buffer_size = nullptr);
 
-	mutable const TCHAR	*m_savedpos;
+	mutable const_pointer m_savedpos;
 	mutable UINT	m_savedtotaltoks;
 	mutable UINT	m_savedcurrenttok;
 	//mutable std::unique_ptr<TCHAR[]> m_tSavedSepChars;
 	//mutable size_t	m_savedSepCharsLength;
 
-	size_t			m_buffersize;	// size of string buffer in use. (size in bytes)
-	mutable size_t	m_iLen;			// the string length of m_pString
-	mutable bool	m_bDirty;		// is buffer `dirty` (string length is unknown)?
+	size_type			m_buffersize;	// size of string buffer in use. (size in bytes)
+	mutable size_type	m_iLen;			// the string length of m_pString
+	mutable bool		m_bDirty;		// is buffer `dirty` (string length is unknown)?
 
 #if TSTRING_INTERNALBUFFER
 	mutable bool	m_bUsingInternal;
-	mutable TCHAR	m_InternalBuffer[TSTRING_INTERNALBUFFERSIZE_CCH];
+	mutable value_type	m_InternalBuffer[TSTRING_INTERNALBUFFERSIZE_CCH];
 #endif
 
 public:
 
-	TCHAR * m_pString; //!< String buffer
+	pointer m_pString; //!< String buffer
 	// Temp string buffer used for string conversion to/from wchar/char or vice versa depending on what TCHAR is.
 	// changes made to m_pTempString are NOT reflected in m_pString!
 	mutable char * m_pTempString;
-	static const TCHAR *m_cSpace;
-	static const TCHAR *m_cComma;
-	static const TCHAR *m_cTab;
+	static const_pointer m_cSpace;
+	static const_pointer m_cComma;
+	static const_pointer m_cTab;
 
 	TString()
 		: TString(0U)
@@ -321,7 +321,7 @@ public:
 	//	Constructor
 	//		cString	== string to add (wchar_t *)
 	//		iLen	== Length of string in characters.
-	TString(const WCHAR *const cString, const size_t iLen)
+	TString(const WCHAR *const cString, const size_type iLen)
 		: TString(iLen+1U)
 	{
 		if (cString != nullptr) {
@@ -336,7 +336,7 @@ public:
 	//	Constructor
 	//		cString	== string to add (char *)
 	//		iLen	== Length of string in characters.
-	TString(const char *const cString, const size_t iLen)
+	TString(const char *const cString, const size_type iLen)
 		: m_pTempString(nullptr), m_pString(nullptr)
 		, m_savedtotaltoks(0), m_savedcurrenttok(0), m_savedpos(nullptr)
 		, m_bDirty(false), m_iLen(0)
@@ -362,7 +362,7 @@ public:
 	//		pEnd	== end of string to add.
 	template <typename T>
 	TString(const T *const pStart, const T *const pEnd)
-		: TString(pStart, static_cast<size_t>(pEnd - pStart))
+		: TString(pStart, static_cast<size_type>(pEnd - pStart))
 	{
 		static_assert(std::is_same_v<T,WCHAR> || std::is_same_v<T,char>, "MUST be a WCHAR or char string");
 
@@ -474,7 +474,7 @@ public:
 	template <class T>
 	TString operator -( const T &other ) {
 
-		if ( !other )
+		if ( _ts_isEmpty(other) )
 			return *this;
 
 		auto newTString(*this);
@@ -501,7 +501,7 @@ public:
 	
 	// returns the current token as set by ++ operator above (or getfirsttok()/getnexttok() with a space sepchar)
 	const TString operator* () const {
-		const TCHAR * p_cStart = m_pString;
+		const_pointer p_cStart = m_pString;
 		if (m_savedpos != nullptr)
 			p_cStart = m_savedpos;
 		auto p_cEnd = ts_strchr(p_cStart, SPACECHAR);
@@ -541,7 +541,7 @@ public:
 
 #ifndef NDEBUG
 	template <class T>
-	TCHAR & operator [](const T &N)
+	reference operator [](const T &N)
 	{
 		CheckRange(N);	// only debug code checks range here
 
@@ -551,7 +551,7 @@ public:
 	}
 
 	template <class T>
-	TCHAR operator [](const T &N) const
+	value_type operator [](const T &N) const
 	{
 		CheckRange(N);	// only debug code checks range here
 		return m_pString[N];
@@ -627,13 +627,13 @@ public:
 	// is string empty?
 	const bool empty() const noexcept { return (m_pString == nullptr || m_pString[0] == TEXT('\0')); };
 	// refrence to char at N
-	TCHAR &at(const size_t N)
+	reference at(const size_type N)
 	{
 		CheckRange(N);
 		return m_pString[N];
 	}
 	// copy of char at N
-	TCHAR at(const size_t N) const
+	value_type at(const size_type N) const
 	{
 		CheckRange(N);
 		return m_pString[N];
@@ -677,7 +677,7 @@ public:
 	{
 		if (!_ts_isEmpty(substring) && !_ts_isEmpty(m_pString)) {
 
-			const TCHAR * temp = nullptr, *temp2 = m_pString;
+			const_pointer temp = nullptr, temp2 = m_pString;
 
 			auto i = decltype(N){0};
 			const auto subl = _ts_strlen(substring);
@@ -754,7 +754,7 @@ public:
 	template <typename T>
 	TString &remove(const T &str)
 	{
-		const TCHAR sTmp[2] = { 0 };
+		const_value_type sTmp[2] = { 0 };
 		replace(str, &sTmp[0]);
 		return *this;
 	}
@@ -953,8 +953,17 @@ public:
 	template <typename T, typename TSepChars = const_reference>
 	void addtok(const T &tToken, TSepChars sepChars = SPACECHAR)
 	{
-		if (!tToken || !sepChars)
+		// allows adding zero number & empty tokens.
+		if (_ts_isEmpty(sepChars))
 			return;
+
+		// cant add a zero number or an empty token with this
+		//if (!tToken || _ts_isEmpty(sepChars))
+		//	return;
+
+		// Ook: this code has an issue when a number is being added
+		//if (_ts_isEmpty(tToken) || _ts_isEmpty(sepChars))
+		//	return;
 
 		if (!empty())
 			*this += sepChars;
@@ -967,7 +976,7 @@ public:
 	{
 		auto itEnd = end();
 
-		if (!sepChars || empty() || !cToken)
+		if (_ts_isEmpty(sepChars) || empty() || !cToken)
 			return itEnd;
 
 		//code below has issues due to way iterator works & gets converted to numbers on return (fixed)
@@ -992,7 +1001,7 @@ public:
 	template <typename T, typename TSepChars = const_reference>
 	void instok(const T &cToken, const UINT N, TSepChars sepChars = SPACECHAR)
 	{
-		if (!sepChars)
+		if (_ts_isEmpty(sepChars))
 			return;
 
 		if (N < 1)
@@ -1080,7 +1089,7 @@ public:
 	template <typename TSepChars = const_reference>
 	void deltok(const UINT N, TSepChars sepChars = SPACECHAR)
 	{
-		if (!sepChars || N < 1 || empty())
+		if (_ts_isEmpty(sepChars) || N < 1 || empty())
 			return;
 
 		const auto nToks = numtok(sepChars);
@@ -1094,7 +1103,7 @@ public:
 			return;
 		}
 
-		TCHAR * p_cStart = m_pString, *p_cEnd = nullptr;
+		pointer p_cStart = m_pString, p_cEnd = nullptr;
 		auto i = decltype(N){0};
 		const auto sepl = _ts_strlen(sepChars);
 
@@ -1175,7 +1184,7 @@ public:
 		if (_ts_isEmpty(sepChars) || empty())
 			return 0U;
 
-		const TCHAR * p_cStart = m_pString, *p_cEnd = nullptr;
+		const_pointer p_cStart = m_pString, p_cEnd = nullptr;
 		auto iCount = 0U;
 		const auto sepl = _ts_strlen(sepChars);
 
@@ -1194,7 +1203,7 @@ public:
 	{
 		const_pointer p_cStart = m_pString, p_cEnd = nullptr, p_fEnd = last();
 
-		if (!sepChars)
+		if (_ts_isEmpty(sepChars))
 			return std::make_tuple(p_cStart, p_fEnd, decltype(m_savedtotaltoks){1});
 
 		const auto nToks = numtok(sepChars);
@@ -1289,7 +1298,7 @@ public:
 
 		++m_savedcurrenttok;
 
-		if (!sepChars || m_pString == nullptr || m_savedpos == nullptr || m_savedcurrenttok > m_savedtotaltoks)
+		if (_ts_isEmpty(sepChars) || m_pString == nullptr || m_savedpos == nullptr || m_savedcurrenttok > m_savedtotaltoks)
 			return T();
 
 		const auto *const p_cStart = m_savedpos;
@@ -1321,7 +1330,7 @@ public:
 	{
 		++m_savedcurrenttok;
 
-		if (!sepChars || m_pString == nullptr)
+		if (_ts_isEmpty(sepChars) || m_pString == nullptr)
 			return *this;
 
 		if (m_savedpos == nullptr || m_savedcurrenttok > m_savedtotaltoks)
@@ -1520,16 +1529,16 @@ public:
 		std::remove_cv_t<T>		m_sepChar[2];
 	};
 
-	using iterator = tsIterator<TString, const TCHAR>;
-	using const_iterator = tsIterator<const TString, const TCHAR>;
+	using iterator = tsIterator<TString, const_value_type>;
+	using const_iterator = tsIterator<const TString, const_value_type>;
 
 	inline iterator begin() { return iterator(this); }
 	inline iterator begin(const TCHAR *const sepChars) { return iterator(this, sepChars); }
-	inline iterator begin(const TCHAR &sepChar) { return iterator(this, sepChar); }
+	inline iterator begin(const_reference sepChar) { return iterator(this, sepChar); }
 	inline iterator end() { return iterator(); }
 	inline const const_iterator begin() const { return const_iterator(this); };
 	inline const const_iterator begin(const TCHAR *const sepChars) const { return const_iterator(this, sepChars); }
-	inline const const_iterator begin(const TCHAR &sepChar) const { return const_iterator(this, sepChar); }
+	inline const const_iterator begin(const_reference sepChar) const { return const_iterator(this, sepChar); }
 	inline const const_iterator end() const { return const_iterator(); }
 
 	// add the contents of any container class to the TString using the specified seperator (can also add other TString's like this)
@@ -1580,8 +1589,8 @@ public:
 	int tsprintf(const TCHAR *const fmt, ...);
 	int tvprintf(const TCHAR *const fmt, va_list args);
 
-	TCHAR * to_chr() noexcept { m_bDirty = true;  return m_pString; };	// returns the string in the projects current format. (string can be altered)
-	const TCHAR * to_chr() const noexcept { return m_pString; };		// returns the string in the projects current format. (string can't be altered)
+	pointer to_chr() noexcept { m_bDirty = true;  return m_pString; };	// returns the string in the projects current format. (string can be altered)
+	const_pointer to_chr() const noexcept { return m_pString; };		// returns the string in the projects current format. (string can't be altered)
 	WCHAR *to_wchr() noexcept { m_bDirty = true;  return m_pString; };	// returns the string in wide format (string can be altered)
 	const WCHAR *const to_wchr() const noexcept { return m_pString; };	// returns the string in wide format (string can't be altered)
 	//char * c_str(void)														// returns the string as a char * (string can be altered)
@@ -1598,7 +1607,7 @@ public:
 
 	template <typename T>
 	T to_() const {
-		static_assert(is_Numeric<T>::value, "Type T must be (int, long, float, double, ....)");
+		static_assert(is_Numeric_v<T>, "Type T must be (int, long, float, double, ....)");
 
 		std::basic_istringstream<TCHAR> ss(m_pString);	// makes copy of string :(
 		T result;
@@ -1612,7 +1621,7 @@ public:
 	template <typename T>
 	auto &append_number(T Number)
 	{
-		static_assert(is_Numeric<T>::value, "Type T must be (int, long, float, double, ....)");
+		static_assert(is_Numeric_v<T>, "Type T must be (int, long, float, double, ....)");
 
 		return append(std::to_wstring(Number).data());
 	}

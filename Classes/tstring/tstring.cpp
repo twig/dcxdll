@@ -263,9 +263,9 @@ TString::TString(const std::initializer_list<TString> &lt)
  */
 #if TSTRING_INTERNALBUFFER
 TString::TString(const UINT tsSize)
-	: m_pTempString(nullptr), m_pString(allocstr_cch(tsSize + 1))
-	, m_savedtotaltoks(0), m_savedcurrenttok(0), m_savedpos(nullptr)
-	, m_bDirty(true), m_iLen(0)
+	: m_pTempString(nullptr), m_pString(allocstr_cch(tsSize + 1U))
+	, m_savedtotaltoks(0U), m_savedcurrenttok(0U), m_savedpos(nullptr)
+	, m_bDirty(true), m_iLen(0U)
 	//, m_bUsingInternal(true)
 {
 	//m_InternalBuffer[0] = TEXT('\0');
@@ -275,8 +275,8 @@ TString::TString(const UINT tsSize)
 #else
 TString::TString(const UINT tsSize)
 	: m_pTempString(nullptr), m_pString(allocstr_cch(tsSize + 1))
-	, m_savedtotaltoks(0), m_savedcurrenttok(0), m_savedpos(nullptr)
-	, m_bDirty(true), m_iLen(0)
+	, m_savedtotaltoks(0U), m_savedcurrenttok(0U), m_savedpos(nullptr)
+	, m_bDirty(true), m_iLen(0U)
 {
 	ts_zeromem(m_pString, m_buffersize);
 }
@@ -309,11 +309,11 @@ void TString::deleteTempString(const bool bKeepBufferSize) {
 	delete [] this->m_pTempString; 
 
 	this->m_pTempString = nullptr;
-	this->m_savedtotaltoks = 0;
-	this->m_savedcurrenttok = 0;
-	this->m_savedpos = 0;
+	this->m_savedtotaltoks = 0U;
+	this->m_savedcurrenttok = 0U;
+	this->m_savedpos = 0U;
 	if (!bKeepBufferSize)
-		this->m_buffersize = 0;
+		this->m_buffersize = 0U;
 }
 
 /****************************/
@@ -1490,7 +1490,7 @@ TString &TString::trim()
 		*end = TEXT('\0');	// place zero at new ending
 
 	// only allocate new string if start of string modified.
-	if (start != this->m_pString)
+	if (start != m_pString)
 	{
 		const auto new_len = (end - start) + 1U;
 
@@ -1648,7 +1648,7 @@ TString TString::tolower(void) const
 // pos must be within length of string, n can be < 0
 TString TString::mid(const int pos, int n) const
 {
-	const auto l = (int)this->len();
+	const auto l = static_cast<int>(this->len());
 	if ((n == 0) || (l == 0) || (pos > l) || (pos < 0))
 		return TString();
 	if (n < 0)
@@ -1657,7 +1657,7 @@ TString TString::mid(const int pos, int n) const
 		n = l - pos;
 	if (n < 1)
 		return TString();
-	n++;
+	++n;
 
 	//TString tmp((UINT)n);
 	//
@@ -1686,12 +1686,12 @@ TString TString::left(int n) const
 // if n > string length its truncated, n can be < 0
 TString TString::right(int n) const
 {
-	const int l = (int)this->len();
+	const auto l = static_cast<int>(this->len());
 	if ((n == 0) || (l == 0))
 		return TString();
 	if (n > l)
 		n = l;
-	int start = l - n, len = n + 1;
+	auto start = l - n, len = n + 1;
 	if (n < 0) {
 		start = abs(n);
 		if (start > l)
@@ -2367,7 +2367,7 @@ void TString::shrink_to_fit(void)
 void TString::reserve(const size_t tsSize)
 {
 	// check if buffer is already big enough
-	if (tsSize <= (m_buffersize / sizeof(TCHAR)))
+	if (tsSize <= (m_buffersize / sizeof(value_type)))
 		return;
 
 	TString tmp(tsSize);
@@ -2415,7 +2415,7 @@ TString &TString::append(const TCHAR *const cString, const size_t iChars)
 		const auto sz = this->len();
 		decltype(sz) l = (sz + iChars + 1);	// plus 1 for zero byte.
 
-		if ((l * sizeof(TCHAR)) <= m_buffersize) {
+		if ((l * sizeof(value_type)) <= m_buffersize) {
 			// new text fits within existing buffer, so append.
 			ts_strncat_throw(this->m_pString, cString, iChars);
 
