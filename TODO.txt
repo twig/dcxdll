@@ -7,4 +7,4 @@ DCX V3.1 TODO List
 3: Change How we subclass the controls so we instead handle it all when the class is registered & no subclassing is then needed.
 4: WebCtrl has an odd crash, when the object is destroyed & the browser is set as IE11, but not when its set as IE7 (the default). Doesnt crash every time tho, sometimes only on the third try.
 5: add more options to settings command...
-6: update the docs!!! @svn960 so far, becomes 2.0 at 1020 when changed to utf, becomes 3.0 at ???, becomes 3.1 at ???
+6: update the docs!!! @svn991 so far, becomes 2.0 at 1020 when changed to utf, becomes 3.0 at ???, 3.1 changes added.
