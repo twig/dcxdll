@@ -39,10 +39,21 @@ function get_xdid_webctrl(&$XDID) {
 function get_xdidprops_webctrl(&$XDIDPROPS) {
 	$XDIDPROPS = array(
 		"url" => array(
-		    '__desc' => "This property lets you retreive the current loaded url.",
+		    '__desc' => "This property lets you retrieve the current loaded url.",
 		),
 		"ready" => array(
-		    '__desc' => 'This property lets you retreive the ready state. If it is [v]$true[/v] the control is ready for another command, else you should wait.',
+		    '__desc' => 'This property lets you retrieve the ready state. If it is [v]$true[/v] the control is ready for another command, else you should wait.',
+		),
+		"statusbar" => array(
+		    '__desc' => 'This property lets you retrieve the enabled state of the statusbar. If it is [v]$true[/v] the statusbar is displayed, otherwise it\'s hidden.',
+		),
+		"statustext" => array(
+		    '__desc' => 'This property lets you retrieve the text displayed in the statusbar.',
+		),
+		"script" => array(
+		    '__desc' => 'This property lets you call a script that returns a result.',
+			'__cmd' => 'scriptcommand',
+			'__eg' => 'document.title',
 		),
 	);
 }

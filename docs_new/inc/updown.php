@@ -25,7 +25,8 @@ function get_xdid_updown(&$XDID) {
 	        '__cmd' => '[BUDDY ID]',
 	        '__eg' => '7',
 	        '__notes' => array(
-	            "Setting a buddy control is optional, and limited to <a>edit</a> and <a>text</a> type controls only."
+	            "Setting a buddy control is optional, and limited to <a>edit</a> and <a>text</a> type controls only.",
+				"ID can be a named ID eg: buddyone"
 			),
 		),
 		'r' => array(

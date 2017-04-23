@@ -179,7 +179,7 @@
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
 			<a name="xdidprop.ready"></a>$xdid().ready	</td></tr>
-	<tr><td colspan="2">This property lets you retreive the ready state. If it is <a class="value">$true</a> the control is ready for another command, else you should wait.</td></tr>
+	<tr><td colspan="2">This property lets you retrieve the ready state. If it is <a class="value">$true</a> the control is ready for another command, else you should wait.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
 		<td><div class="syntax">$xdid(dialog, ID).ready</div></td>
@@ -192,8 +192,50 @@
 <br />
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
+			<a name="xdidprop.script"></a>$xdid().script	</td></tr>
+	<tr><td colspan="2">This property lets you call a script that returns a result.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID, scriptcommand).script</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4, document.title).script</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
+			<a name="xdidprop.statusbar"></a>$xdid().statusbar	</td></tr>
+	<tr><td colspan="2">This property lets you retrieve the enabled state of the statusbar. If it is <a class="value">$true</a> the statusbar is displayed, otherwise it's hidden.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID).statusbar</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4).statusbar</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
+			<a name="xdidprop.statustext"></a>$xdid().statustext	</td></tr>
+	<tr><td colspan="2">This property lets you retrieve the text displayed in the statusbar.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID).statustext</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4).statustext</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
 			<a name="xdidprop.url"></a>$xdid().url	</td></tr>
-	<tr><td colspan="2">This property lets you retreive the current loaded url.</td></tr>
+	<tr><td colspan="2">This property lets you retrieve the current loaded url.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
 		<td><div class="syntax">$xdid(dialog, ID).url</div></td>
@@ -399,6 +441,9 @@
 <div class='rightmenu' style='border:1px solid #A8B2D1'>
 	<a class='header' href="#xdidprop"><div style='background:#A8B2D1;'>$xdid() Properties</div></a>
 		<a class='flag' href="#xdidprop.ready"><div>ready</div></a>
+		<a class='flag' href="#xdidprop.script"><div>script</div></a>
+		<a class='flag' href="#xdidprop.statusbar"><div>statusbar</div></a>
+		<a class='flag' href="#xdidprop.statustext"><div>statustext</div></a>
 		<a class='flag' href="#xdidprop.url"><div>url</div></a>
 	</div>
 <div class='rightmenu' style='border:1px solid #74C043'>
@@ -424,7 +469,7 @@
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2017</td>
-		<td style="text-align: right;">Last Updated: 15th April, 17</td>
+		<td style="text-align: right;">Last Updated: 23rd April, 17</td>
 	</tr>
 </table>
 <div style="text-align: center;">
