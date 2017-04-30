@@ -396,9 +396,9 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, const XSwitch
 		if (perc > 100)
 			throw Dcx::dcxException("Invalid Percentage");
 
-		int min, max;
+		int min = 0, max = 0;
 		if (!GetScrollRange(m_Hwnd, SB_VERT, &min, &max))
-			throw Dcx::dcxException("Unable to get scrollbar info");
+			throw Dcx::dcxException("Unable to get scrollbar min/max");
 
 		//scrollbar is defined and has visible range
 		if (min != 0 || max != 0) {
@@ -408,6 +408,7 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, const XSwitch
 			SCROLLINFO si;
 			ZeroMemory(&si, sizeof (SCROLLINFO));
 			si.cbSize = sizeof(SCROLLINFO);
+			si.fMask = SIF_POS;
 			if (!GetScrollInfo(m_Hwnd, SB_VERT, &si))
 				throw Dcx::dcxException("Unable to get scroll info");
 

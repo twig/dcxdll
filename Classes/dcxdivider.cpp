@@ -135,7 +135,7 @@ void DcxDivider::parseCommandRequest( const TString & input ) {
 	const auto numtok = input.numtok();
 
 	// xdid -l|r [NAME] [ID] [SWITCH] [MIN] [IDEAL][TAB][ID] [CONTROL] [X] [Y] [W] [H] (OPTIONS)
-	if ( ( flags[TEXT('l')] || flags[TEXT('r')] )&& numtok > 9 ) {
+	if ( ( flags[TEXT('l')] || flags[TEXT('r')] ) && numtok > 9 ) {
 
 		DVPANEINFO dvpi;
 		ZeroMemory( &dvpi, sizeof( DVPANEINFO ) );
@@ -157,12 +157,14 @@ void DcxDivider::parseCommandRequest( const TString & input ) {
 		const auto ID = mIRC_ID_OFFSET + control_data.gettok(1).to_<UINT>();
 
 		if (!m_pParentDialog->isIDValid(ID, true))
-			throw Dcx::dcxException(TEXT("Control with ID \"%\" already exists"), getUserID());
+			throw Dcx::dcxException(TEXT("Control with ID \"%\" already exists"), ID - mIRC_ID_OFFSET);
 
 		try {
-			auto p_Control = DcxControl::controlFactory(m_pParentDialog, ID, control_data, 2, CTLF_ALLOW_ALLBUTDOCK, m_Hwnd); // <- never NULL
+			//auto p_Control = DcxControl::controlFactory(m_pParentDialog, ID, control_data, 2, CTLF_ALLOW_ALLBUTDOCK, m_Hwnd); // <- never NULL
 
-			m_pParentDialog->addControl( p_Control );
+			//m_pParentDialog->addControl( p_Control );
+
+			auto p_Control = m_pParentDialog->addControl(control_data, 1, CTLF_ALLOW_ALLBUTDOCK, m_Hwnd);
 
 			dvpi.hChild = p_Control->getHwnd( );
 

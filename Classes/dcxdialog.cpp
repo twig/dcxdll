@@ -280,7 +280,7 @@ void DcxDialog::parseCommandRequestEX(const TCHAR *const szFormat, ...) {
 void DcxDialog::parseComControlRequestEX(const UINT id, const TCHAR *const szFormat, ...) {
 	auto p_Control = getControlByID(id + mIRC_ID_OFFSET);
 	if (p_Control == nullptr)
-		throw Dcx::dcxException("parseComControlRequestEX() - Unable to find control");
+		throw Dcx::dcxException("parseComControlRequestEX() - Unable to find control %", id);
 
 	TString msg;
 
