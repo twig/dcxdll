@@ -86,8 +86,28 @@
 <li><strong>Fixes and changes</strong><ol>
 <li>general - added help text to /xdid/$xdid/$dcx(GetTaskbarPos)/xdialog/$xdialog/xpop/$xpop/xpopup/$xpopup/$xmenubar</li>
 <li>- changed $dcx(Version) to show the compiled date/time too</li>
+<li>general - fixed bug in /xdid -Z where the SCROLLINFO mask wasn't set, causing GetScrollInfo() to always fail.</li>
+<li>divider - fixed bug in /xdid -l where controls were not being added correctly.</li>
+<li>dcxml - fixed bugs, should all work again</li>
+<li>dcxml - changed code to add richedit controls contents, so it now changes \c into ctrl-c &amp; \b into ctrl-b &amp; \r into ctrl-r, \u to ctrl-u, \i to ctrl-i, &amp; \o to ctrl-o, this should really be replaced with better utf loading.</li>
 </ol></li>
 <li><strong>DCX Project</strong><ol>
+<li>dcxml - changed richedit code to convert \c to ctrl-k, \b to ctrl-b, \r to ctrl-r, \u to ctrl-u, \i to ctrl-i, &amp; \o to ctrl-o</li>
+<li>general - changed some XXX::value's to be XXX_v instead.</li>
+<li>scripts - updated dc.xml, changed url's etc...</li>
+<li>- updated dcx_demo.mrc &amp; fixed some issues i had with it.</li>
+<li>panel - added check to /xdid -l to not enough args.</li>
+<li>dcxml - added DCXML_ID_OFFSET to use instead of just using 2000U</li>
+<li>- changed code to add richedit controls contents, so it now changes \c into ctrl-c &amp; \b into ctrl-b &amp; \r into ctrl-r, this should really be replaced with better utf loading.</li>
+<li>- fixed bug in registerId() where mIRC_ID_OFFSET wasn't being added.</li>
+<li>- fixed bug in parseId() where wrong id value was returned.</li>
+<li>general - fixed bug in /xdid -Z where the SCROLLINFO mask wasn't set, causing GetScrollInfo() to always fail.</li>
+<li>dialog - changed parseComControlRequestEX() to return the control id in the error message when a control can't be found.</li>
+<li>divider - fixed bug in /xdid -l where controls were not being added correctly.</li>
+<li>project - added build all command to source control.</li>
+<li>dcxml - fixed bug in parseControl() where m_sParenttype was used instead of m_sType.</li>
+<li>- fixed bug in parseControl() where m_iParentID was used when it should have been m_iID.</li>
+<li>- fixed bug in parseStyle()/parseIcons() where the results of Attribute() calls were not checked for nullptr.</li>
 <li>project - added $(PHPDir) macro, defaults to c:\php</li>
 <li>gsl - updated to latest version on git</li>
 <li>dcxdocs - added more details to change list.</li>
@@ -2631,7 +2651,7 @@ They will be reimplemented in the near future.</li>
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2017</td>
-		<td style="text-align: right;">Last Updated: 23rd April, 17</td>
+		<td style="text-align: right;">Last Updated: 1st May, 17</td>
 	</tr>
 </table>
 <div style="text-align: center;">
