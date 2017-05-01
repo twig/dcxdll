@@ -328,10 +328,13 @@ void DcxmlParser::parseControl() {
 			//	mystring -= TEXT("\\b");
 			//	mystring -= TEXT("\\r");
 			//}
-			if (nType == "richedit"_hash) {	// richedit, converts \c -> ctrl-k, \b -> ctrl-b, \r -> ctrl-r
-				mystring.replace(TEXT("\\c"), TEXT('\3'));
-				mystring.replace(TEXT("\\b"), TEXT('\2'));
-				mystring.replace(TEXT("\\r"), TEXT('\r'));
+			if (nType == "richedit"_hash) {	// richedit, converts \c -> ctrl-k, \b -> ctrl-b, \r -> ctrl-r, \u -> ctrl-u, \i -> ctrl-i, \o -> ctrl-o
+				mystring.replace(TEXT("\\c"), TEXT('\x03'));	// mirc colours
+				mystring.replace(TEXT("\\b"), TEXT('\x02'));	// bold
+				mystring.replace(TEXT("\\r"), TEXT('\x16'));	// reverse
+				mystring.replace(TEXT("\\u"), TEXT('\x1F'));	// underline
+				mystring.replace(TEXT("\\i"), TEXT('\x1D'));	// italics
+				mystring.replace(TEXT("\\o"), TEXT('\x0F'));	// ctrl-o
 			}
 			UINT line = 0U;
 			for (auto itStart = mystring.begin(TEXT("\r\n")), itEnd = mystring.end(); itStart != itEnd; ++itStart)

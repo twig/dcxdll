@@ -74,14 +74,14 @@ namespace details {
 
 	// Test if a string is empty, works for std::basic_string & TString objects
 	template <typename T>
-	std::enable_if_t<!std::is_pointer<T>::value && !std::is_pod<T>::value && std::is_member_function_pointer<decltype(&T::empty)>::value, bool> _ts_isEmpty(const T &str) noexcept
+	std::enable_if_t<!std::is_pointer_v<T> && !std::is_pod_v<T> && std::is_member_function_pointer_v<decltype(&T::empty)>, bool> _ts_isEmpty(const T &str) noexcept
 	{
 		return str.empty();
 	}
 
 	// Test if a string is empty, works for C String char * or wchar_t *
 	template <typename T>
-	std::enable_if_t<std::is_pointer<T>::value, bool> _ts_isEmpty(const T &str) noexcept
+	std::enable_if_t<std::is_pointer_v<T>, bool> _ts_isEmpty(const T &str) noexcept
 	{
 		using value_type = std::remove_cv_t<std::remove_pointer_t<T> >;
 
@@ -636,13 +636,13 @@ T *_ts_strcpyn(T *const sDest, const T *const sSrc, const size_t iChars) noexcep
 {
 	static_assert(std::is_same_v<T, char> || std::is_same_v<T, wchar_t>, "Only char & wchar_t supported...");
 
-#if DCX_DEBUG_OUTPUT
-	if ((sDest == nullptr) || (sSrc == nullptr) || isInBounds<std::remove_cv_t<T> >(sDest, sSrc, iChars))
-		return nullptr;
-#else
+//#if DCX_DEBUG_OUTPUT
+//	if ((sDest == nullptr) || (sSrc == nullptr) || isInBounds<std::remove_cv_t<T> >(sDest, sSrc, iChars))
+//		return nullptr;
+//#else
 	if ((sDest == nullptr) || (sSrc == nullptr))
 		return nullptr;
-#endif
+//#endif
 
 	return details::_impl_strcpyn<T>()(sDest, sSrc, iChars);
 }
