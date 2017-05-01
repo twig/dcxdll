@@ -124,7 +124,9 @@ bool DcxmlParser::ParseXML(const TString &tsFilePath,const TString &tsDialogMark
 	}
 }
 
-void DcxmlParser::setDialog(const TString &tsDialogMark) { m_pDcxDialog = Dcx::Dialogs.getDialogByName(tsDialogMark);	}
+void DcxmlParser::setDialog(const TString &tsDialogMark) {
+	m_pDcxDialog = Dcx::Dialogs.getDialogByName(tsDialogMark);
+}
 
 void DcxmlParser::loadDocument()
 {
@@ -167,12 +169,6 @@ void DcxmlParser::loadDialogElement()
 	*/
 	for(m_pElement = getDialogsElement()->FirstChildElement("dialog"); m_pElement != nullptr; m_pElement = m_pElement->NextSiblingElement("dialog"))
 	{
-		//if (0==lstrcmpA(m_pElement->Attribute("name"), getDialogName().c_str()))
-		//{
-		//	setDialogElement(m_pElement);
-		//	return;
-		//}
-
 		if (getDialogName() == m_pElement->Attribute("name"))
 		{
 			setDialogElement(m_pElement);
@@ -298,7 +294,7 @@ void DcxmlParser::parseControl() {
 			else if (mystring[0] == TEXT('\n'))
 				mystring = mystring.right(-1);
 
-			mystring -= TEXT("\t"); // remove all '\t' from text.
+			mystring -= TEXT('\t'); // remove all '\t' from text.
 
 			int textspace = 0;
 
@@ -326,11 +322,16 @@ void DcxmlParser::parseControl() {
 			else if (mystring[0] == TEXT('\n'))
 				mystring = mystring.right(-1);
 
-			mystring -= TEXT("\t"); // remove all tabs from text.
-			if (nType == "richedit"_hash) {	// richedit
-				mystring -= TEXT("\\c");
-				mystring -= TEXT("\\b");
-				mystring -= TEXT("\\r");
+			mystring -= TEXT('\t'); // remove all tabs from text.  Ook: can crash here for some reason, needs looked at
+			//if (nType == "richedit"_hash) {	// richedit
+			//	mystring -= TEXT("\\c");
+			//	mystring -= TEXT("\\b");
+			//	mystring -= TEXT("\\r");
+			//}
+			if (nType == "richedit"_hash) {	// richedit, converts \c -> ctrl-k, \b -> ctrl-b, \r -> ctrl-r
+				mystring.replace(TEXT("\\c"), TEXT('\3'));
+				mystring.replace(TEXT("\\b"), TEXT('\2'));
+				mystring.replace(TEXT("\\r"), TEXT('\r'));
 			}
 			UINT line = 0U;
 			for (auto itStart = mystring.begin(TEXT("\r\n")), itEnd = mystring.end(); itStart != itEnd; ++itStart)
@@ -499,11 +500,11 @@ void DcxmlParser::xml_xdid(const UINT cid, const TCHAR *const sSwitch, const TCH
 {
 #if DCX_DEBUG_OUTPUT
 	if (isVerbose())
-		mIRCLinker::execex(TEXT("/echo -a dcxml debug: /xdid %s %s %i %s"), sSwitch, getDialogMark().to_chr(), cid, sArgs);
+		mIRCLinker::execex(TEXT("/echo -a dcxml debug: /xdid %s %s %u %s"), sSwitch, getDialogMark().to_chr(), cid, sArgs);
 #endif
 
-	if (m_iEval > 0) mIRCLinker::execex(TEXT("//xdid %s %s %i %s"), sSwitch, getDialogMark().to_chr(), cid, sArgs);
-	else getDialog()->parseComControlRequestEX(cid, TEXT("%s %i %s %s"), getDialogMark().to_chr(), cid, sSwitch, sArgs);
+	if (m_iEval > 0) mIRCLinker::execex(TEXT("//xdid %s %s %u %s"), sSwitch, getDialogMark().to_chr(), cid, sArgs);
+	else getDialog()->parseComControlRequestEX(cid, TEXT("%s %u %s %s"), getDialogMark().to_chr(), cid, sSwitch, sArgs);
 }
 
 /* xdidEX(controlId,switch,format[,args[]]) : performs an xdid command internally or through mIRC on the specified ID */
@@ -669,14 +670,15 @@ void DcxmlParser::setStyle(const TiXmlElement *const style) {
 	if (!_ts_isEmpty(m_sBorder))
 		xdidEX(m_iID, TEXT("-x"), TEXT("+%S"), m_sBorder);
 	//colours
-	m_sCursor = queryAttribute(style, "cursor", "arrow");
+	//m_sCursor = queryAttribute(style, "cursor", "arrow");
+	m_sCursor = style->Attribute("cursor");	// can be null
 	m_sBgcolour = queryAttribute(style, "bgcolour", "");
 	m_sTextbgcolour = queryAttribute(style, "textbgcolour", "");
 	m_sTextcolour = queryAttribute(style, "textcolour", "");
 
 	const auto sTypeHash = std::hash<const char *>{}(m_sType);
 
-	if (style->Attribute("bgcolour") != nullptr) {
+	if (!_ts_isEmpty(m_sBgcolour)) {
 		xdidEX(m_iID, TEXT("-C"), TEXT("+b %S"), m_sBgcolour);
 		if (sTypeHash == "pbar"_hash)
 		{
@@ -684,7 +686,8 @@ void DcxmlParser::setStyle(const TiXmlElement *const style) {
 			xml_xdid(m_iID, TEXT("-U"), TEXT(""));
 		}
 	}
-	if (style->Attribute("textbgcolour") != nullptr)
+
+	if (!_ts_isEmpty(m_sTextbgcolour))
 	{
 		xdidEX(m_iID, TEXT("-C"), TEXT("+k %S"), m_sTextbgcolour);
 		if (sTypeHash == "pbar"_hash)
@@ -693,9 +696,10 @@ void DcxmlParser::setStyle(const TiXmlElement *const style) {
 			xml_xdid(m_iID, TEXT("-U"), TEXT(""));
 		}
 	}
-	else if (style->Attribute("bgcolour") != nullptr)
+	else if (!_ts_isEmpty(m_sBgcolour))
 		xdidEX(m_iID, TEXT("-C"), TEXT("+k %S"), m_sBgcolour);
-	if (style->Attribute("textcolour") != nullptr)
+
+	if (!_ts_isEmpty(m_sTextcolour))
 	{
 		xdidEX(m_iID, TEXT("-C"), TEXT("+t %S"), m_sTextcolour);
 		if (sTypeHash == "pbar"_hash)
@@ -705,14 +709,14 @@ void DcxmlParser::setStyle(const TiXmlElement *const style) {
 		}
 	}
 
-	if (style->Attribute("gradientstart") != nullptr)
+	if (!_ts_isEmpty(m_sGradientstart))
 		xdidEX(m_iID, TEXT("-C"), TEXT("+g %S"), m_sGradientstart);
-	if (style->Attribute("gradientend") != nullptr)
+	if (!_ts_isEmpty(m_sGradientstart))
 		xdidEX(m_iID, TEXT("-C"), TEXT("+G %S"), m_sGradientend);
 
 	//cursor
-	if (style->Attribute("cursor") != nullptr)
-		xdidEX(m_iID, TEXT("-J"), TEXT("+r %S"), m_sCursor);
+	if (!_ts_isEmpty(m_sCursor))
+		xdidEX(m_iID, TEXT("-J"), TEXT("+r %S"), m_sCursor);	// Ook: assumes cursor is a resource, needs changed.
 
 	//iconsize
 	if (style->Attribute("iconsize") != nullptr)
@@ -829,12 +833,12 @@ void DcxmlParser::parseStyle(int depth) {
 	if (depth == 3)
 		style = m_pElement;
 	else if (depth == 1)
-		tiStyles = getDialogsElement()->FirstChildElement("styles");
+		tiStyles = getDialogsElement()->FirstChildElement("styles");	// find styles for ALL dialogs
 	else if (depth == 2)
-		tiStyles = getDialogElement()->FirstChildElement("styles");
+		tiStyles = getDialogElement()->FirstChildElement("styles");		// find styles for THIS dialog
 
 	if (tiStyles != nullptr) {
-		style = tiStyles->FirstChildElement("all");
+		style = tiStyles->FirstChildElement("all");		// find styles for ALL controls
 		if (style != nullptr)
 			setStyle(style);
 
@@ -1200,8 +1204,10 @@ void DcxmlParser::parseDialog(const UINT depth,const char *claPath,const UINT pa
 		{
 			++m_iControls;
 			m_iID = parseId(m_pElement);
+			
 			if (m_iID == 0)
-				m_iID = 2000U + m_iControls;	// Ook: 2000+ ? not mIRC_ID_OFFSET + ?
+				m_iID = DCXML_ID_OFFSET + m_iControls;	// this is user id, so will later have mIRC_ID_OFFSET added to it.
+
 			registerId(m_pElement, m_iID); // Ook: does this twice??
 										   //registerId(m_pElement,m_iID);
 		}
@@ -1225,12 +1231,17 @@ void DcxmlParser::parseDialog(const UINT depth,const char *claPath,const UINT pa
 			else break;
 		}
 		if (m_pParent != nullptr)
-			m_sParenttype = m_pParent->Attribute("type");
+			m_sParenttype = queryAttribute(m_pParent, "type", "panel");
 		else
-			m_sParenttype = nullptr;
-
-		if (m_sParenttype == nullptr)
 			m_sParenttype = "panel";
+
+		//if (m_pParent != nullptr)
+		//	m_sParenttype = m_pParent->Attribute("type");
+		//else
+		//	m_sParenttype = nullptr;
+		//
+		//if (m_sParenttype == nullptr)
+		//	m_sParenttype = "panel";
 
 		m_iParentID = parseId(m_pParent);
 		if (m_iParentID <= 0)
@@ -1249,7 +1260,7 @@ void DcxmlParser::parseDialog(const UINT depth,const char *claPath,const UINT pa
 			const auto sParentelemHash = dcx_hash(m_sParentelem);
 
 			if (sParentelemHash == "dialog"_hash)
-				xdialogEX(TEXT("-c"), TEXT("%i %S 0 0 %S %S %S"), m_iID, m_sType, m_sWidth, (m_sDropdown != nullptr ? m_sDropdown : m_sHeight), m_sStyles);
+				xdialogEX(TEXT("-c"), TEXT("%u %S 0 0 %S %S %S"), m_iID, m_sType, m_sWidth, (m_sDropdown != nullptr ? m_sDropdown : m_sHeight), m_sStyles);
 			else if (sParentelemHash == "control"_hash) {
 				switch (dcx_hash(m_sParenttype))
 				{
@@ -1258,31 +1269,31 @@ void DcxmlParser::parseDialog(const UINT depth,const char *claPath,const UINT pa
 						break;
 				case "panel"_hash:
 				case "box"_hash:
-					xdidEX(m_iParentID, TEXT("-c"), TEXT("%i %S 0 0 %S %S %S"), m_iID, m_sType, m_sWidth, (m_sDropdown != nullptr ? m_sDropdown : m_sHeight), m_sStyles);
+					xdidEX(m_iParentID, TEXT("-c"), TEXT("%u %S 0 0 %S %S %S"), m_iID, m_sType, m_sWidth, (m_sDropdown != nullptr ? m_sDropdown : m_sHeight), m_sStyles);
 					break;
 				case "tab"_hash:
-					xdidEX(m_iParentID, TEXT("-a"), TEXT("0 %S %S \t %i %S 0 0 %S %S %S \t %S"), m_sIcon, m_sCaption, m_iID, m_sType, m_sWidth, (m_sDropdown != nullptr ? m_sDropdown : m_sHeight), m_sStyles, m_sTooltip);
+					xdidEX(m_iParentID, TEXT("-a"), TEXT("0 %S %S \t %u %S 0 0 %S %S %S \t %S"), m_sIcon, m_sCaption, m_iID, m_sType, m_sWidth, (m_sDropdown != nullptr ? m_sDropdown : m_sHeight), m_sStyles, m_sTooltip);
 					break;
 				case "divider"_hash:
 					if (control <= 2) {
 						// <= 2 so MUST be either 1 or 2, can't be zero
 						if (control == 1)
-							xdidEX(m_iParentID, TEXT("-l"), TEXT("%S 0 \t %i %S 0 0 %S %S %S"), m_sWidth, m_iID, m_sType, m_sWidth, (m_sDropdown != nullptr ? m_sDropdown : m_sHeight), m_sStyles);
+							xdidEX(m_iParentID, TEXT("-l"), TEXT("%S 0 \t %u %S 0 0 %S %S %S"), m_sWidth, m_iID, m_sType, m_sWidth, (m_sDropdown != nullptr ? m_sDropdown : m_sHeight), m_sStyles);
 						else
-							xdidEX(m_iParentID, TEXT("-r"), TEXT("%S 0 \t %i %S 0 0 %S %S %S"), m_sWidth, m_iID, m_sType, m_sWidth, (m_sDropdown != nullptr ? m_sDropdown : m_sHeight), m_sStyles);
+							xdidEX(m_iParentID, TEXT("-r"), TEXT("%S 0 \t %u %S 0 0 %S %S %S"), m_sWidth, m_iID, m_sType, m_sWidth, (m_sDropdown != nullptr ? m_sDropdown : m_sHeight), m_sStyles);
 					}
 					break;
 				case "rebar"_hash:
 				{
 					const char *flags = (m_sTFlags) ? m_sTFlags : "ceg";
-					xdidEX(m_iParentID, TEXT("-a"), TEXT("0 +%S %S %S %S %S %S %S \t %i %S 0 0 %S %S %S \t %S"), flags, m_sRebarMinWidth, m_sRebarMinHeight, m_sWidth, m_sIcon, m_sTextcolour, m_sCaption, m_iID, m_sType, m_sWidth, (m_sDropdown != nullptr ? m_sDropdown : m_sHeight), m_sStyles, m_sTooltip);
+					xdidEX(m_iParentID, TEXT("-a"), TEXT("0 +%S %S %S %S %S %S %S \t %u %S 0 0 %S %S %S \t %S"), flags, m_sRebarMinWidth, m_sRebarMinHeight, m_sWidth, m_sIcon, m_sTextcolour, m_sCaption, m_iID, m_sType, m_sWidth, (m_sDropdown != nullptr ? m_sDropdown : m_sHeight), m_sStyles, m_sTooltip);
 				}
 				break;
 				case "stacker"_hash:
-					xdidEX(m_iParentID, TEXT("-a"), TEXT("0 + %S %S %S \t %i %S 0 0 %S %S %S"), m_sTextcolour, m_sBgcolour, m_sCaption, m_iID, m_sType, m_sWidth, (m_sDropdown != nullptr ? m_sDropdown : m_sHeight), m_sStyles);
+					xdidEX(m_iParentID, TEXT("-a"), TEXT("0 + %S %S %S \t %u %S 0 0 %S %S %S"), m_sTextcolour, m_sBgcolour, m_sCaption, m_iID, m_sType, m_sWidth, (m_sDropdown != nullptr ? m_sDropdown : m_sHeight), m_sStyles);
 					break;
 				case "statusbar"_hash:
-					xdidEX(m_iParentID, TEXT("-t"), TEXT("%i +c %S %i %S 0 0 0 0 %S"), cell, m_sIcon, m_iID, m_sType, m_sStyles);
+					xdidEX(m_iParentID, TEXT("-t"), TEXT("%i +c %S %u %S 0 0 0 0 %S"), cell, m_sIcon, m_iID, m_sType, m_sStyles);
 				default:
 					break;
 				}
@@ -1477,7 +1488,7 @@ void DcxmlParser::registerId(const TiXmlElement *const idElement, const UINT iNe
 		if (!elementNamedId.empty()) {
 			if (mIRCEvalToUnsignedInt(elementNamedId) < 0) //<! id attr. doesn't evaluate to an int
 			{
-				getDialog()->AddNamedId(elementNamedId, iNewID);
+				getDialog()->AddNamedId(elementNamedId, iNewID + mIRC_ID_OFFSET);
 			}
 		}
 	}
@@ -1505,9 +1516,12 @@ UINT DcxmlParser::parseId(const TiXmlElement *const idElement)
 		if (local_id > 0)
 			return static_cast<UINT>(local_id);
 
-		auto it = getDialog()->getNamedIds().find(attributeIdValue);
-		if (it != getDialog()->getNamedIds().end())
-			return it->second;
+		// didn't evaluate to a number, so must be a name...
+		//auto it = getDialog()->getNamedIds().find(attributeIdValue);
+		//if (it != getDialog()->getNamedIds().end())
+		//	return it->second;
+
+		return getDialog()->NameToUserID(attributeIdValue);
 	}
 	return 0U;
 }

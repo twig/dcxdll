@@ -1240,7 +1240,9 @@ mIRC(_xdid) {
 		if (!p_Dialog->isNamedId(tsID))
 			throw Dcx::dcxException(TEXT("Invalid ID : % (dialog %)"), tsID, tsDname);
 
-		const auto p_Control = p_Dialog->getControlByID(p_Dialog->NameToID(tsID));
+		const auto local_id = p_Dialog->NameToID(tsID);
+
+		const auto p_Control = p_Dialog->getControlByID(local_id);
 
 		if (p_Control == nullptr)
 			throw Dcx::dcxException(TEXT("Unable to find control: % (dialog %)"), tsID, tsDname);

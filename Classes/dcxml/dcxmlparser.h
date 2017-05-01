@@ -3,6 +3,8 @@
 
 #include "dcxmlincludes.h"
 
+#define DCXML_ID_OFFSET 2000U
+
 class DcxmlParser {
 
 public:

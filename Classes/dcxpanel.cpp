@@ -214,8 +214,13 @@ void DcxPanel::parseCommandRequest( const TString & input ) {
 		}
 		break;
 		default:
-			if (numtok > 8)
-				m_pLayoutManager->AddCell(input, 4);
+		{
+			if (numtok <= 8)
+				throw Dcx::dcxException("Invalid Args: Not enough arguments");
+			
+			m_pLayoutManager->AddCell(input, 4);
+		}
+
 		}
 #else
 		if (m_pLayoutManager == nullptr)
@@ -237,8 +242,13 @@ void DcxPanel::parseCommandRequest( const TString & input ) {
 			m_pLayoutManager = new LayoutManager(m_Hwnd);
 			//redrawWindow(); // dont redraw here, leave that for an `update` cmd
 		}
-		else if (numtok > 8)
+		else
+		{
+			if (numtok <= 8)
+				throw Dcx::dcxException("Invalid Args: Not enough arguments");
+
 			m_pLayoutManager->AddCell(input, 4);
+		}
 #endif
 	}
 	// xdid -t [NAME] [ID] [SWITCH] [TEXT]
