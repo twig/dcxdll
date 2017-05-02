@@ -226,6 +226,25 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 <br />
 <table class="general">
 	<tr><td colspan="2" class="flag" style="color: #979AB3; border-color: #979AB3;">
+			<a name="general.CountIcons"></a>$dcx(CountIcons)	</td></tr>
+	<tr><td colspan="2">Counts the icons within a file.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$dcx(CountIcons, [FILENAME])</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$dcx(CountIcons, $mircdir $+ mirc.exe)</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">FILENAME</td>
+		<td>File to count icons in.</td>
+	</tr>
+<tr><td class="syntax">Return</td><td><a class="value">D_OK COUNT FILENAME</a>.</td></tr></table>
+<br />
+<table class="general">
+	<tr><td colspan="2" class="flag" style="color: #979AB3; border-color: #979AB3;">
 			<a name="general.FontDialog"></a>$dcx(FontDialog)	</td></tr>
 	<tr><td colspan="2">Opens up the Font dialog and returns the selected font options.</td></tr>
 	<tr>
@@ -861,8 +880,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 		<td class="param">FILTER</td>
 		<td>The FILTER parameter is the type of files the user can select, it should be formatted like "Description|Type|Description|Type"</td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>Returns <a class="value">$null</a> when cancelled.</li><li><a class="value">filemustexist</a> automatically applies <a class="value">pathmustexist</a> when style used.</li><li><a class="value">multisel</a> returns files in this format [PATH]|[FILE1]|[FILE2]|..., where the first token will be the path, and the files are seperated by the | (pipe) character.</li><li>By default, the main mIRC window is the parent. Dialog name OR a hWnd MUST follow after the <a class="style">owner</a> style.<br />
-To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hwnd, $get().hwnd, $query().hwnd, $send().hwnd, and $timer().hwnd</li></ul></td></tr></table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>Returns <a class="value">$null</a> when cancelled.</li><li><a class="value">filemustexist</a> automatically applies <a class="value">pathmustexist</a> when style used.</li><li><a class="value">multisel</a> returns files in this format [PATH]|[FILE1]|[FILE2]|..., where the first token will be the path, and the files are seperated by the | (pipe) character.</li><li>By default, the main mIRC window is the parent. Dialog name OR a hWnd MUST follow after the <a class="style">owner</a> style.<br />To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hwnd, $get().hwnd, $query().hwnd, $send().hwnd, and $timer().hwnd</li></ul></td></tr></table>
 <br />
 <table class="general">
 	<tr><td colspan="2" class="flag" style="color: #979AB3; border-color: #979AB3;">
@@ -1042,6 +1060,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 		<a class='flag' href="#general.ActiveWindow"><div>ActiveWindow</div></a>
 		<a class='flag' href="#general.BrowseDialog"><div>BrowseDialog</div></a>
 		<a class='flag' href="#general.ColorDialog"><div>ColorDialog</div></a>
+		<a class='flag' href="#general.CountIcons"><div>CountIcons</div></a>
 		<a class='flag' href="#general.FontDialog"><div>FontDialog</div></a>
 		<a class='flag' href="#general.GetSystemColor"><div>GetSystemColor</div></a>
 		<a class='flag' href="#general.GetTaskbarPos"><div>GetTaskbarPos</div></a>
@@ -1067,7 +1086,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2017</td>
-		<td style="text-align: right;">Last Updated: 1st May, 17</td>
+		<td style="text-align: right;">Last Updated: 2nd May, 17</td>
 	</tr>
 </table>
 <div style="text-align: center;">

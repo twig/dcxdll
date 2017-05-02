@@ -952,6 +952,132 @@
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xdid.big.G"></a>/xdid -G	</td></tr>
+	<tr><td colspan="2">This command lets you change a groups state.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -G [DNAME] [ID] [GID] [+MASK] [+STATES]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -G dcx 4 1 +O +O</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">GID</td>
+		<td>ID of the group to change</td>
+	</tr>
+	<tr>
+		<td class="param">+MASK</td>
+		<td>The mask of group states to affect</td>
+	</tr>
+	<tr>
+		<td class="value">C</td>
+		<td>Collapsible</td>
+	</tr>
+	<tr>
+		<td class="value">H</td>
+		<td>Hidden</td>
+	</tr>
+	<tr>
+		<td class="value">N</td>
+		<td>No header</td>
+	</tr>
+	<tr>
+		<td class="value">O</td>
+		<td>Collapsed</td>
+	</tr>
+	<tr>
+		<td class="value">S</td>
+		<td>Selected</td>
+	</tr>
+	<tr>
+		<td class="param">+STATES</td>
+		<td>The group states to enable</td>
+	</tr>
+	<tr>
+		<td class="value">C</td>
+		<td>Collapsible</td>
+	</tr>
+	<tr>
+		<td class="value">H</td>
+		<td>Hidden</td>
+	</tr>
+	<tr>
+		<td class="value">N</td>
+		<td>No header</td>
+	</tr>
+	<tr>
+		<td class="value">O</td>
+		<td>Collapsed</td>
+	</tr>
+	<tr>
+		<td class="value">S</td>
+		<td>Selected</td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> Only states included in +MASK will be changed. If a state is included in +MASK but not in +STATES then it will be removed.</td></tr></table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xdid.big.H"></a>/xdid -H	</td></tr>
+	<tr><td colspan="2">This command lets you set the header settings.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -H [DNAME] [ID] [COL|COL1-COL2|COL1,COL2|COL1,COL2-COL3 etc..] [+FLAGS] [ARGS]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -H dcx 4 1 +s sortdown unchecked</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">COL|COL1-COL2|COL1,COL2|COL1,COL2-COL3</td>
+		<td>The column number(s) to change the header for.</td>
+	</tr>
+	<tr>
+		<td class="param">+FLAGS</td>
+		<td>The action to take.</td>
+	</tr>
+	<tr>
+		<td class="value">s</td>
+		<td>Change header style</td>
+	</tr>
+	<tr>
+		<td class="param">ARGS</td>
+		<td>The arguments for the given +FLAGS</td>
+	</tr>
+	<tr>
+		<td class="value">sortdown</td>
+		<td>Change the header to show a sort down arrow. (can't be used with sortup or nosort)</td>
+	</tr>
+	<tr>
+		<td class="value">sortup</td>
+		<td>Change the header to show a sort up arrow. (can't be used with sortdown or nosort)</td>
+	</tr>
+	<tr>
+		<td class="value">nosort</td>
+		<td>Change the header to not show any sort arrow. (can't be used with sortup or sortdown)</td>
+	</tr>
+	<tr>
+		<td class="value">checkbox</td>
+		<td>Change the header to show a checkbox. (can't be used with nocheckbox)</td>
+	</tr>
+	<tr>
+		<td class="value">nocheckbox</td>
+		<td>Change the header to not show a checkbox. (can't be used with checkbox)</td>
+	</tr>
+	<tr>
+		<td class="value">checked</td>
+		<td>Change the header to show a selected checkbox. (can't be used with nocheckbox or unchecked)</td>
+	</tr>
+	<tr>
+		<td class="value">unchecked</td>
+		<td>Change the header to show a unselected checkbox. (can't be used with nocheckbox or checked)</td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> Only +s flag is supported atm, so only styles can be changed.</td></tr></table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
 			<a name="xdid.big.T"></a>/xdid -T	</td></tr>
 	<tr><td colspan="2">This command lets you set a tooltip for a specific item.</td></tr>
 	<tr>
@@ -1706,6 +1832,8 @@
 		<a class='flag' href="#xdid.z"><div>-z</div></a>
 		<a class='flag' href="#xdid.big.A"><div>-A</div></a>
 		<a class='flag' href="#xdid.big.B"><div>-B</div></a>
+		<a class='flag' href="#xdid.big.G"><div>-G</div></a>
+		<a class='flag' href="#xdid.big.H"><div>-H</div></a>
 		<a class='flag' href="#xdid.big.T"><div>-T</div></a>
 		<a class='flag' href="#xdid.big.V"><div>-V</div></a>
 		<a class='flag' href="#xdid.big.W"><div>-W</div></a>
@@ -1760,7 +1888,7 @@
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2017</td>
-		<td style="text-align: right;">Last Updated: 1st May, 17</td>
+		<td style="text-align: right;">Last Updated: 2nd May, 17</td>
 	</tr>
 </table>
 <div style="text-align: center;">

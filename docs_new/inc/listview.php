@@ -160,6 +160,62 @@ function get_xdid_listview(&$XDID) {
 			),
 	        '__notes' => 'For [p]X[/p] and [p]Y[/p], 0 = left aligned, 50 = centred, 100 = right aligned.'
 		),
+		'G' => array(
+	        '__desc' => 'This command lets you change a groups state.',
+	        '__cmd' => '[GID] [+MASK] [+STATES]',
+	        '__eg' => '1 +O +O',
+            '__params' => array(
+                'GID' => 'ID of the group to change',
+                '+MASK' => array(
+                    '__desc' => "The mask of group states to affect",
+                    '__values' => array(
+						'C' => 'Collapsible',
+						'H' => 'Hidden',
+						'N' => 'No header',
+						'O' => 'Collapsed',
+						'S' => 'Selected',
+					),
+				),
+                '+STATES' => array(
+                    '__desc' => "The group states to enable",
+                    '__values' => array(
+						'C' => 'Collapsible',
+						'H' => 'Hidden',
+						'N' => 'No header',
+						'O' => 'Collapsed',
+						'S' => 'Selected',
+					),
+				),
+			),
+	        '__notes' => 'Only states included in +MASK will be changed. If a state is included in +MASK but not in +STATES then it will be removed.'
+		),
+		'H' => array(
+	        '__desc' => 'This command lets you set the header settings.',
+	        '__cmd' => '[COL|COL1-COL2|COL1,COL2|COL1,COL2-COL3 etc..] [+FLAGS] [ARGS]',
+	        '__eg' => '1 +s sortdown unchecked',
+            '__params' => array(
+                'COL|COL1-COL2|COL1,COL2|COL1,COL2-COL3' => 'The column number(s) to change the header for.',
+                '+FLAGS' => array(
+                    '__desc' => "The action to take.",
+                    '__values' => array(
+						's' => 'Change header style',
+					),
+				),
+                'ARGS' => array(
+                    '__desc' => "The arguments for the given +FLAGS",
+                    '__values' => array(
+						'sortdown' => 'Change the header to show a sort down arrow. (can\'t be used with sortup or nosort)',
+						'sortup' => 'Change the header to show a sort up arrow. (can\'t be used with sortdown or nosort)',
+						'nosort' => 'Change the header to not show any sort arrow. (can\'t be used with sortup or sortdown)',
+						'checkbox' => 'Change the header to show a checkbox. (can\'t be used with nocheckbox)',
+						'nocheckbox' => 'Change the header to not show a checkbox. (can\'t be used with checkbox)',
+						'checked' => 'Change the header to show a selected checkbox. (can\'t be used with nocheckbox or unchecked)',
+						'unchecked' => 'Change the header to show a unselected checkbox. (can\'t be used with nocheckbox or checked)',
+					),
+				),
+			),
+	        '__notes' => 'Only +s flag is supported atm, so only styles can be changed.'
+		),
 		'i' => array(
 	        '__desc' => 'This command lets you change the listview control colors.',
 	        '__cmd' => '[+FLAGS] [COLOR]',

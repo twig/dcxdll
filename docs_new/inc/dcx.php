@@ -213,8 +213,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 				'Returns [v]$null[/v] when cancelled.',
 				"[v]filemustexist[/v] automatically applies [v]pathmustexist[/v] when style used.",
 				"[v]multisel[/v] returns files in this format [PATH]|[FILE1]|[FILE2]|..., where the first token will be the path, and the files are seperated by the | (pipe) character.",
-                                'By default, the main mIRC window is the parent. Dialog name OR a hWnd MUST follow after the [s]owner[/s] style.<br />
-To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hwnd, $get().hwnd, $query().hwnd, $send().hwnd, and $timer().hwnd',
+                'By default, the main mIRC window is the parent. Dialog name OR a hWnd MUST follow after the [s]owner[/s] style.<br />To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hwnd, $get().hwnd, $query().hwnd, $send().hwnd, and $timer().hwnd',
 			),
 		),
 		'GetTaskbarPos' => array(
@@ -226,14 +225,14 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 			),
 		),
                 
-                'GhostDrag' => array(
-                        '__desc' => 'This command allows for ghosted dragging for the main mIRC window.',
-                        '__cmd' => '[VALUE]',
-                        '__eg' => '150',
-                        '__params' => array(
-                            'VALUE' => 'The opacity of the main mIRC window when dragged. [p]VALUE[/p] has a range of [v]0[/v]-[v]255[/v].',
-                        ),
+        'GhostDrag' => array(
+                '__desc' => 'This command allows for ghosted dragging for the main mIRC window.',
+                '__cmd' => '[VALUE]',
+                '__eg' => '150',
+                '__params' => array(
+                    'VALUE' => 'The opacity of the main mIRC window when dragged. [p]VALUE[/p] has a range of [v]0[/v]-[v]255[/v].',
                 ),
+        ),
         'IsUnloadSafe' => array(
             '__desc' => 'This is used by /udcx to determine if /dll -u can be used or not.',
             '__isid' => true,
@@ -493,6 +492,16 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 				'When StaticColours is enabled dcx will no longer update the colours used to match mIRC on each draw, this leads to much faster drawing.',
 				'If mIRC changes it\'s theme/colours dcx will not auto update & you will need to either disable StaticColours or call UpdateColours.'
 			),
+		),
+		'CountIcons' => array(
+			'__desc' => "Counts the icons within a file.",
+			'__cmd' => '[FILENAME]',
+			'__eg' => '$mircdir $+ mirc.exe',
+			'__isid' => true,
+			'__params' => array(
+					'FILENAME' => 'File to count icons in.',
+				),
+			'__return' => "[v]D_OK COUNT FILENAME[/v].",
 		),
 	);
 }
