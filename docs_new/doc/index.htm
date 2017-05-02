@@ -66,9 +66,9 @@
 	<tr><td class="heading" style="border-color: #000000; color: #000000;"><a name="intro"></a>DCX</td></tr>
 	<tr><td>This DLL lets you add new controls to mIRC dialogs as well as change other features like the visual style, position etc...<br />
 
-<div class="divpink">DCX does not support mIRC controls (NOT EVEN mIRC TABS), nor anything related to mIRC normal dialogs except it's menus. DCX does not work like MDX so please read the manual and see dcx.mrc and dcx_tools.mrc for examples.</div>
+<div class="divpink">DCX does not support mIRC controls (NOT EVEN mIRC TABS), nor anything related to mIRC normal dialogs except it's menus. DCX does not work like MDX so please read the manual and see dcx_demo.mrc and dcx_tools.mrc for examples.</div>
 
-<div class="divpink" style="color: #0000ff; padding-top: 0px;">XPopup (special mIRC menus) need to be patched to work on mIRC v6.2! Custom menus still work normally.</div>
+<div class="divpink" style="color: #0000ff; padding-top: 0px;">DCX v3.1+ only works on mIRC v7+, Try & use the latest mIRC if possible (v7.48 at the time of writing)</div>
 
 The DLL creates the controls directly on the mIRC dialog and you use clone functions defined by /xdid and $xdid which behave like the regular /did
 and $did to interact with the controls.<br />
@@ -721,6 +721,14 @@ Well for one thing, mIRC events are linear and static in the way that you cannot
 </ol></li>
 <li><strong>Documentation</strong><ol>
 <li>added /xdid -a +wyz info to listview.</li>
+<li>added /dcx SetDCXSettings docs.</li>
+<li>updated /xdialog -q docs to show all new flags for cursors.</li>
+<li>updated support links</li>
+<li>added $dcx(CountIcons,[filename])</li>
+<li>added listview /xdid -G</li>
+<li>added listview /xdid -H</li>
+<li>added webctrl $xdid().statusbar/statustext/script</li>
+<li>added note to updown /xdid -c to the effect that named id's can be used.</li>
 </ol></li>
 </ul>
 </td></tr>

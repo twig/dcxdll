@@ -602,6 +602,14 @@ $CHANGES = array(
 		),
 		'Documentation' => array(
 			'added /xdid -a +wyz info to listview.',
+			'added /dcx SetDCXSettings docs.',
+			'updated /xdialog -q docs to show all new flags for cursors.',
+			'updated support links',
+			'added $dcx(CountIcons,[filename])',
+			'added listview /xdid -G',
+			'added listview /xdid -H',
+			'added webctrl $xdid().statusbar/statustext/script',
+			'added note to updown /xdid -c to the effect that named id\'s can be used.',
 		),
 	),
 	'v3.0' => array(
