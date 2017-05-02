@@ -245,8 +245,7 @@ function credits() {
 	<tr>
 		<td><a>Support</a></td>
 		<td>
-			<a href="irc://irc.Undernet.org/scriptsdb.org">#scriptsdb.org @ Undernet</a><br />
-			<a href="irc://irc.Undernet.org/genscripts">#genscripts @ AmeriChat</a>
+			<a href="irc://irc.genscripts.net/genscripts">#genscripts @ Genscripts</a>
 		</td>
 	</tr>
 
