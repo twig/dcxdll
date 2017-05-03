@@ -86,8 +86,7 @@ function get_general_dcx(&$GENERAL) {
 			'__notes' => array(
 				'Returns [v]$null[/v] when cancelled.',
 				'When using [s]computers[/s], this will return a computer name. (eg. [v]//localhost[/v])',
-                                'By default, the main mIRC window is the parent. Dialog name OR a hWnd MUST follow after the [s]owner[/s] style.<br />
-To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hwnd, $get().hwnd, $query().hwnd, $send().hwnd, and $timer().hwnd',
+                'By default, the main mIRC window is the parent. Dialog name OR a hWnd MUST follow after the [s]owner[/s] style.<br />To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hwnd, $get().hwnd, $query().hwnd, $send().hwnd, and $timer().hwnd',
 			),
 		),
 		"Mark" => array(
@@ -150,6 +149,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 						'COLOR_WINDOW' => "Window background.",
 						'COLOR_WINDOWFRAME' => "Window frame.",
 						'COLOR_WINDOWTEXT' => "Text in windows.",
+						'COLOR_GLASS' => "Color used for glass effect.",
 					),
 				),
 			),
@@ -451,7 +451,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 					),
 				),
 				'__args' => array(
-                                        'r' => array(
+                    'r' => array(
 						'__cmd' => '[X] [Y]',
 					),
 					't' => array(
@@ -465,6 +465,15 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 						'__params' => array(
 				            'INDEX' => 'Icon index in icon archive',
 							'FILENAME' => 'Icon archive filename',
+						),
+					),
+					'v' => array(
+						'__cmd' => '[TOP] [LEFT] [BOTTOM] [RIGHT]',
+						'__params' => array(
+				            'TOP' => 'Glass offset from top of dialog',
+							'LEFT' => 'Glass offset from left of dialog',
+							'BOTTOM' => 'Glass offset from bottom of dialog',
+							'RIGHT' => 'Glass offset from right of dialog',
 						),
 					),
 				),

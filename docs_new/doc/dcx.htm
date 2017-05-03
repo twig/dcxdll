@@ -174,8 +174,7 @@
 		<td class="param">TITLE_TEXT</td>
 		<td>If you specify this parameter and <a class="style">title</a>, this will set the title text for the dialog.</td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>Returns <a class="value">$null</a> when cancelled.</li><li>When using <a class="style">computers</a>, this will return a computer name. (eg. <a class="value">//localhost</a>)</li><li>By default, the main mIRC window is the parent. Dialog name OR a hWnd MUST follow after the <a class="style">owner</a> style.<br />
-To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hwnd, $get().hwnd, $query().hwnd, $send().hwnd, and $timer().hwnd</li></ul></td></tr></table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>Returns <a class="value">$null</a> when cancelled.</li><li>When using <a class="style">computers</a>, this will return a computer name. (eg. <a class="value">//localhost</a>)</li><li>By default, the main mIRC window is the parent. Dialog name OR a hWnd MUST follow after the <a class="style">owner</a> style.<br />To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hwnd, $get().hwnd, $query().hwnd, $send().hwnd, and $timer().hwnd</li></ul></td></tr></table>
 <br />
 <table class="general">
 	<tr><td colspan="2" class="flag" style="color: #979AB3; border-color: #979AB3;">
@@ -560,6 +559,10 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 	<tr>
 		<td class="value">COLOR_WINDOWTEXT</td>
 		<td>Text in windows.</td>
+	</tr>
+	<tr>
+		<td class="value">COLOR_GLASS</td>
+		<td>Color used for glass effect.</td>
 	</tr>
 </table>
 <br />
@@ -1017,6 +1020,26 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 		<td class="value">FILENAME</td>
 		<td>Icon archive filename</td>
 	</tr>
+	<tr>
+		<td class="param">v</td>
+		<td><div class="syntax">[TOP] [LEFT] [BOTTOM] [RIGHT]</div></td>
+	</tr>
+	<tr>
+		<td class="value">TOP</td>
+		<td>Glass offset from top of dialog</td>
+	</tr>
+	<tr>
+		<td class="value">LEFT</td>
+		<td>Glass offset from left of dialog</td>
+	</tr>
+	<tr>
+		<td class="value">BOTTOM</td>
+		<td>Glass offset from bottom of dialog</td>
+	</tr>
+	<tr>
+		<td class="value">RIGHT</td>
+		<td>Glass offset from right of dialog</td>
+	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> Use <a class="value">0</a> for <a class="param">INDEX</a> if the file is a single icon file.</td></tr></table>
 <br />
 <table class="general">
@@ -1086,7 +1109,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2017</td>
-		<td style="text-align: right;">Last Updated: 2nd May, 17</td>
+		<td style="text-align: right;">Last Updated: 3rd May, 17</td>
 	</tr>
 </table>
 <div style="text-align: center;">

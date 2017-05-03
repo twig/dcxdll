@@ -22,6 +22,31 @@ function get_xdid_webctrl(&$XDID) {
 		'k' => array(
 	        '__desc' => 'This command is like hitting the Back button in IE.',
 		),
+		'm' => array(
+	        '__desc' => 'This does the same as /xdid -n but allows setting some flags too.',
+	        '__cmd' => '[+FLAGS] [+MASK] (URL)',
+	        '__eg' => "+bf +b http://dcx.scriptsdb.org",
+			'__params' => array(
+				'+FLAGS' => array(
+					'__desc' => 'Can be any combination of',
+					'__values' => array(
+						'h' => 'Disable adding url to history',
+						'r' => 'Disables reading url from cache.',
+						'w' => 'Disables adding this url to cache.',
+						'a' => 'Enabled Auto Search when url fails.',
+						'e' => 'Forces url to be opened in the Restricted Zone.',
+						'm' => 'Enabled Popup Manager.',
+						'u' => 'Disabled downloads.',
+						'x' => 'Enable ActiveX Installing (You will still be prompted for allow/disallow)',
+						'b' => 'toggle address bar on/off',
+						'f' => 'toggle fullscreen on/off',
+						's' => 'toggle statusbar on/off',
+					),
+				),
+				'+MASK' => 'is used to set the flags on or off /xdid -m dialog +bf +b will turn the address bar on, & disable fullscreen.',
+				'URL' => 'is optional, if not supplied then you can use the command to just set flags.',
+			),
+		),
 		'n' => array(
 	        '__desc' => 'This command lets you navigate to an url.',
 	        '__cmd' => '[URL]',

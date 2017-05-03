@@ -132,6 +132,77 @@
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xdid.m"></a>/xdid -m	</td></tr>
+	<tr><td colspan="2">This does the same as /xdid -n but allows setting some flags too.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -m [DNAME] [ID] [+FLAGS] [+MASK] (URL)</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -m dcx 4 +bf +b http://dcx.scriptsdb.org</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">+FLAGS</td>
+		<td>Can be any combination of</td>
+	</tr>
+	<tr>
+		<td class="value">h</td>
+		<td>Disable adding url to history</td>
+	</tr>
+	<tr>
+		<td class="value">r</td>
+		<td>Disables reading url from cache.</td>
+	</tr>
+	<tr>
+		<td class="value">w</td>
+		<td>Disables adding this url to cache.</td>
+	</tr>
+	<tr>
+		<td class="value">a</td>
+		<td>Enabled Auto Search when url fails.</td>
+	</tr>
+	<tr>
+		<td class="value">e</td>
+		<td>Forces url to be opened in the Restricted Zone.</td>
+	</tr>
+	<tr>
+		<td class="value">m</td>
+		<td>Enabled Popup Manager.</td>
+	</tr>
+	<tr>
+		<td class="value">u</td>
+		<td>Disabled downloads.</td>
+	</tr>
+	<tr>
+		<td class="value">x</td>
+		<td>Enable ActiveX Installing (You will still be prompted for allow/disallow)</td>
+	</tr>
+	<tr>
+		<td class="value">b</td>
+		<td>toggle address bar on/off</td>
+	</tr>
+	<tr>
+		<td class="value">f</td>
+		<td>toggle fullscreen on/off</td>
+	</tr>
+	<tr>
+		<td class="value">s</td>
+		<td>toggle statusbar on/off</td>
+	</tr>
+	<tr>
+		<td class="param">+MASK</td>
+		<td>is used to set the flags on or off /xdid -m dialog +bf +b will turn the address bar on, & disable fullscreen.</td>
+	</tr>
+	<tr>
+		<td class="param">URL</td>
+		<td>is optional, if not supplied then you can use the command to just set flags.</td>
+	</tr>
+</table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
 			<a name="xdid.n"></a>/xdid -n	</td></tr>
 	<tr><td colspan="2">This command lets you navigate to an url.</td></tr>
 	<tr>
@@ -434,6 +505,7 @@
 		<a class='flag' href="#xdid.i"><div>-i</div></a>
 		<a class='flag' href="#xdid.j"><div>-j</div></a>
 		<a class='flag' href="#xdid.k"><div>-k</div></a>
+		<a class='flag' href="#xdid.m"><div>-m</div></a>
 		<a class='flag' href="#xdid.n"><div>-n</div></a>
 		<a class='flag' href="#xdid.r"><div>-r</div></a>
 		<a class='flag' href="#xdid.t"><div>-t</div></a>
@@ -469,7 +541,7 @@
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2017</td>
-		<td style="text-align: right;">Last Updated: 2nd May, 17</td>
+		<td style="text-align: right;">Last Updated: 3rd May, 17</td>
 	</tr>
 </table>
 <div style="text-align: center;">

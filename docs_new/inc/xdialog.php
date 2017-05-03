@@ -592,6 +592,7 @@ function get_xdialogprops_xdialog(&$XDIALOGPROPS) {
             '__notes' => 'When [p]N[/p] is [v]0[/v], this will return the number of controls found in the internal list.',
         ),
         'zlayercurrent' => 'This property retrieves the currently selected internal list index.',
+		'glasscolor' => 'Returns the colour used by the system for glass effect.',
 	);
 }
 
