@@ -210,7 +210,7 @@ void DcxComboEx::parseInfoRequest( const TString & input, const refString<TCHAR,
 	{
 		const auto nItem = getCurSel();
 
-		if (nItem > -1)
+		if (nItem < 0)
 			throw Dcx::dcxException("Invalid Item");
 
 		COMBOBOXEXITEM cbi;
@@ -357,7 +357,7 @@ void DcxComboEx::parseInfoRequest( const TString & input, const refString<TCHAR,
 
 		const auto nItem = this->getCurSel();
 
-		if ( nItem > -1 )
+		if ( nItem < 0 )
 			throw Dcx::dcxException("Invalid Item");
 
 		COMBOBOXEXITEM cbi;
