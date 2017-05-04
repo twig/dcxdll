@@ -340,11 +340,11 @@
 	<tr><td colspan="2">This command lets you select listview items.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xdid -c [DNAME] [ID] [N(,N,...)]</div></td>
+		<td><div class="syntax">/xdid -c [DNAME] [ID] [N(,N,N-N,...)]</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -c dcx 4 1,3,5</div></td>
+		<td><div class="example">/xdid -c dcx 4 1,3,5,10-30</div></td>
 	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> In a <a class="style">singlesel</a> listview, there is only one value for <a class="param">N</a>.</td></tr></table>
 <br />
@@ -354,11 +354,40 @@
 	<tr><td colspan="2">This command lets you delete the Nth listview item.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xdid -d [DNAME] [ID] [N]</div></td>
+		<td><div class="syntax">/xdid -d [DNAME] [ID] [N(,N,N-N,...)] ([+FLAGS] [SUBITEM] [MATCH])</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -d dcx 4 6</div></td>
+		<td><div class="example">/xdid -d dcx 4 1,3,5,10-30</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">N(,N,N-N,...)</td>
+		<td>If <a class="value">+FLAGS</a> is not specified, this is the item(s) to delete. If <a class="value">+FLAGS</a> is specified this is the item to start searching from.</td>
+	</tr>
+	<tr>
+		<td class="param">+FLAGS</td>
+		<td>Search flags.</td>
+	</tr>
+	<tr>
+		<td class="value">w</td>
+		<td>Wildcard search.</td>
+	</tr>
+	<tr>
+		<td class="value">r</td>
+		<td>Regex search.</td>
+	</tr>
+	<tr>
+		<td class="value">t</td>
+		<td>Exact match plain text search. (default if no flag specified)</td>
+	</tr>
+	<tr>
+		<td class="param">SUBITEM</td>
+		<td>The subitem to search.</td>
+	</tr>
+	<tr>
+		<td class="param">MATCH</td>
+		<td>The search pattern.</td>
 	</tr>
 </table>
 <br />

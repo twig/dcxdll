@@ -133,14 +133,27 @@ function get_xdid_listview(&$XDID) {
 		),
 		'c' => array(
 	        '__desc' => 'This command lets you select listview items.',
-	        '__cmd' => '[N(,N,...)]',
-	        '__eg' => '1,3,5',
+	        '__cmd' => '[N(,N,N-N,...)]',
+	        '__eg' => '1,3,5,10-30',
 	        '__notes' => 'In a [s]singlesel[/s] listview, there is only one value for [p]N[/p].'
 		),
 		'd' => array(
 	        '__desc' => "This command lets you delete the Nth listview item.",
-	        '__cmd' => '[N]',
-	        '__eg' => '6',
+	        '__cmd' => '[N(,N,N-N,...)] ([+FLAGS] [SUBITEM] [MATCH])',
+	        '__eg' => '1,3,5,10-30',
+            '__params' => array(
+				'N(,N,N-N,...)' => 'If [v]+FLAGS[/v] is not specified, this is the item(s) to delete. If [v]+FLAGS[/v] is specified this is the item to start searching from.',
+                '+FLAGS' => array(
+                    '__desc' => "Search flags.",
+                    '__values' => array(
+						'w' => 'Wildcard search.',
+						'r' => 'Regex search.',
+						't' => 'Exact match plain text search. (default if no flag specified)',
+					),
+				),
+                'SUBITEM' => 'The subitem to search.',
+                'MATCH' => 'The search pattern.',
+			),
 		),
 		'g' => array(
 	        '__desc' => 'This command lets you set a background image to the listview control.',
