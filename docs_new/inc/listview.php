@@ -364,6 +364,11 @@ function get_xdid_listview(&$XDID) {
 						'c' => 'Header text is centered.',
 						'l' => 'Header text is left justified.',
 						'r' => 'Header text is right justified.',
+						'f' => 'Header is a fixed width. (Column can\'t be resized)',
+						'q' => 'Header is a fixed ratio.',
+						'd' => 'Header is a split button.',
+						'e' => 'Header has a sort down arrow.',
+						'g' => 'Header has a sort up arrow.',
 					),
 				),
 				'ICON' => 'Icon index number from the icon list ([v]0[/v] for no icon).',
@@ -565,6 +570,12 @@ function get_xdidprops_listview(&$XDIDPROPS) {
 			'__cmd' => 'N',
 	        '__eg' => '2',
 	        '__notes' => 'If you are not using the [s]checkbox[/s] style, the value returned is the state icon value. Otherwise, returns [v]2[/v] (checked), [v]1[/v] (unchecked), or [v]0[/v] (no check).'
+		),
+		"hstate" => array(
+		    '__desc' => "This property lets you retreive the state of the Nth listview header.",
+			'__cmd' => 'N',
+	        '__eg' => '2',
+	        '__notes' => 'If you are not using headers an error \'Unable to get Header Window\' is returned. Otherwise, returns a combination of [v]sortdown[/v] (sortdown arrow shown), [v]sortup[/v] (sort up arrow shown), or [v]dropdown[/v] (split button shown) or [v]checkbox[/v] (checkbox shown) or [v]checked[/v] (checkbox shown & checked).'
 		),
 		'icon' => array(
 			'__desc' => 'This property lets you retreive a Nth listview item icon number.',

@@ -723,6 +723,26 @@
 		<td>Header text is right justified.</td>
 	</tr>
 	<tr>
+		<td class="value">f</td>
+		<td>Header is a fixed width. (Column can't be resized)</td>
+	</tr>
+	<tr>
+		<td class="value">q</td>
+		<td>Header is a fixed ratio.</td>
+	</tr>
+	<tr>
+		<td class="value">d</td>
+		<td>Header is a split button.</td>
+	</tr>
+	<tr>
+		<td class="value">e</td>
+		<td>Header has a sort down arrow.</td>
+	</tr>
+	<tr>
+		<td class="value">g</td>
+		<td>Header has a sort up arrow.</td>
+	</tr>
+	<tr>
 		<td class="param">ICON</td>
 		<td>Icon index number from the icon list (<a class="value">0</a> for no icon).</td>
 	</tr>
@@ -1246,6 +1266,20 @@
 		<td><div class="example">$xdid(dcx, 4, 2).hicon</div></td>
 	</tr>
 </table>
+<br />
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
+			<a name="xdidprop.hstate"></a>$xdid().hstate	</td></tr>
+	<tr><td colspan="2">This property lets you retreive the state of the Nth listview header.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID, N).hstate</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4, 2).hstate</div></td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> If you are not using headers an error 'Unable to get Header Window' is returned. Otherwise, returns a combination of <a class="value">sortdown</a> (sortdown arrow shown), <a class="value">sortup</a> (sort up arrow shown), or <a class="value">dropdown</a> (split button shown) or <a class="value">checkbox</a> (checkbox shown) or <a class="value">checked</a> (checkbox shown & checked).</td></tr></table>
 <br />
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
@@ -1845,6 +1879,7 @@
 		<a class='flag' href="#xdidprop.find"><div>find</div></a>
 		<a class='flag' href="#xdidprop.genabled"><div>genabled</div></a>
 		<a class='flag' href="#xdidprop.hicon"><div>hicon</div></a>
+		<a class='flag' href="#xdidprop.hstate"><div>hstate</div></a>
 		<a class='flag' href="#xdidprop.htext"><div>htext</div></a>
 		<a class='flag' href="#xdidprop.hwidth"><div>hwidth</div></a>
 		<a class='flag' href="#xdidprop.icon"><div>icon</div></a>
@@ -1888,7 +1923,7 @@
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2017</td>
-		<td style="text-align: right;">Last Updated: 3rd May, 17</td>
+		<td style="text-align: right;">Last Updated: 4th May, 17</td>
 	</tr>
 </table>
 <div style="text-align: center;">
