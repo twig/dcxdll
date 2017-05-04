@@ -61,6 +61,7 @@ function get_xdid_listview(&$XDID) {
 						'a' => 'Autosize.',
 						'b' => 'The item is bold.',
 						'c' => 'The item has a text color defined by the [p]COLOR[/p] parameter (use [v]-1[/v] for no color).',
+						'C' => 'The item has no text so the icon should be centered',
 						'd' => 'The item appears selected like a drop target.',
 						'f' => 'The item has focus thus having a dotted box around it.',
 						'h' => 'Autosize according to header text width.',
@@ -70,7 +71,7 @@ function get_xdid_listview(&$XDID) {
 						'm' => 'Autosize the column to fit header or content.',
 						'n' => 'Allows you to load an item from a hash table by index. Cannot be used with [v]+H[/v]',
 						's' => 'The item is selected.',
-						'p' => 'The item is a DCX ProgressBar control.',
+						'p' => 'The item is a DCX ProgressBar control. (This flag is changing its args etc... expect errors)',
 						't' => 'The item icon appears as 50% opaque, looks like it has a "ghost" effect.',
 						'u' => 'The item is underlined.',
 						'w' => '(TEXT) is [+IFLAGS] [TABLE NAME] [N|N1-N2|name]',
@@ -353,7 +354,7 @@ function get_xdid_listview(&$XDID) {
 		),
 		'r' => 'This command lets you clear all the listview items.',
 		't' => array(
-			'__desc' => 'This command lets you set the different column header text, width and alignment. ([s]report[/s] style only)',
+			'__desc' => 'This command lets you set the different column header text, width and alignment.',
 			'__cmd' => '[+FLAGS] [#ICON] [WIDTH] (TEXT) [TAB] [+FLAGS] [#ICON] [WIDTH] (TEXT) [TAB] ...',
 			'__eg' => '+l 2 130 column 1 $chr(9) +c 1 130 column 2 $chr(9) +rb 2 130 column 3',
 			'__params' => array(
@@ -445,6 +446,36 @@ function get_xdid_listview(&$XDID) {
 						'smallicon' => 'Changes the listview to smallicon view.',
 					),
 				),
+			),
+		),
+		'S' => array(
+			'__desc' => 'This command lets you save the items in a listview to file/@window/hashtable/xml',
+			'__cmd' => '[+FLAGS] [N1] [N2] [ARGS]',
+			'__eg' => '+f 1 20 listview.txt',
+			'__params' => array(
+				'+FLAGS' => array(
+					'__desc' => "Type of save to do...",
+					'__values' => array(
+						'c' => 'Save to a custom window.',
+						'f' => 'Save to a file. (Data is appended to an existing file or a new file is created)',
+						'h' => 'Save to a hashtable. (Table must exist)',
+						'x' => 'Save to an xml file. (Data is appended to the bottom of the window, window must exist)',
+					),
+				),
+				'N1' => 'Start of the item range to save.',
+				'N2' => 'End of the item range to save.',
+				'ARGS' => array(
+					'__desc' => 'Arguments dependant on +FLAGS',
+					'__values' => array(
+						'c' => '@window',
+						'f' => 'filename',
+						'h' => 'hashtable',
+						'x' => 'dataset_name filename',
+					),
+				),
+			),
+			'__notes' => array(
+				'This command is incomplete. Only +c & +h work at this time.',
 			),
 		),
 		'y' => array(

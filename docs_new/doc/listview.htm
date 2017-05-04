@@ -227,6 +227,10 @@
 		<td>The item has a text color defined by the <a class="param">COLOR</a> parameter (use <a class="value">-1</a> for no color).</td>
 	</tr>
 	<tr>
+		<td class="value">C</td>
+		<td>The item has no text so the icon should be centered</td>
+	</tr>
+	<tr>
 		<td class="value">d</td>
 		<td>The item appears selected like a drop target.</td>
 	</tr>
@@ -264,7 +268,7 @@
 	</tr>
 	<tr>
 		<td class="value">p</td>
-		<td>The item is a DCX ProgressBar control.</td>
+		<td>The item is a DCX ProgressBar control. (This flag is changing its args etc... expect errors)</td>
 	</tr>
 	<tr>
 		<td class="value">t</td>
@@ -692,7 +696,7 @@
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
 			<a name="xdid.t"></a>/xdid -t	</td></tr>
-	<tr><td colspan="2">This command lets you set the different column header text, width and alignment. (<a class="style">report</a> style only)</td></tr>
+	<tr><td colspan="2">This command lets you set the different column header text, width and alignment.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
 		<td><div class="syntax">/xdid -t [DNAME] [ID] [+FLAGS] [#ICON] [WIDTH] (TEXT) [TAB] [+FLAGS] [#ICON] [WIDTH] (TEXT) [TAB] ...</div></td>
@@ -1095,6 +1099,69 @@
 		<td>Change the header to show a unselected checkbox. (can't be used with nocheckbox or checked)</td>
 	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> Only +s flag is supported atm, so only styles can be changed.</td></tr></table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xdid.big.S"></a>/xdid -S	</td></tr>
+	<tr><td colspan="2">This command lets you save the items in a listview to file/@window/hashtable/xml</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -S [DNAME] [ID] [+FLAGS] [N1] [N2] [ARGS]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -S dcx 4 +f 1 20 listview.txt</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">+FLAGS</td>
+		<td>Type of save to do...</td>
+	</tr>
+	<tr>
+		<td class="value">c</td>
+		<td>Save to a custom window.</td>
+	</tr>
+	<tr>
+		<td class="value">f</td>
+		<td>Save to a file. (Data is appended to an existing file or a new file is created)</td>
+	</tr>
+	<tr>
+		<td class="value">h</td>
+		<td>Save to a hashtable. (Table must exist)</td>
+	</tr>
+	<tr>
+		<td class="value">x</td>
+		<td>Save to an xml file. (Data is appended to the bottom of the window, window must exist)</td>
+	</tr>
+	<tr>
+		<td class="param">N1</td>
+		<td>Start of the item range to save.</td>
+	</tr>
+	<tr>
+		<td class="param">N2</td>
+		<td>End of the item range to save.</td>
+	</tr>
+	<tr>
+		<td class="param">ARGS</td>
+		<td>Arguments dependant on +FLAGS</td>
+	</tr>
+	<tr>
+		<td class="value">c</td>
+		<td>@window</td>
+	</tr>
+	<tr>
+		<td class="value">f</td>
+		<td>filename</td>
+	</tr>
+	<tr>
+		<td class="value">h</td>
+		<td>hashtable</td>
+	</tr>
+	<tr>
+		<td class="value">x</td>
+		<td>dataset_name filename</td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> This command is incomplete. Only +c & +h work at this time.</td></tr></table>
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
@@ -1868,6 +1935,7 @@
 		<a class='flag' href="#xdid.big.B"><div>-B</div></a>
 		<a class='flag' href="#xdid.big.G"><div>-G</div></a>
 		<a class='flag' href="#xdid.big.H"><div>-H</div></a>
+		<a class='flag' href="#xdid.big.S"><div>-S</div></a>
 		<a class='flag' href="#xdid.big.T"><div>-T</div></a>
 		<a class='flag' href="#xdid.big.V"><div>-V</div></a>
 		<a class='flag' href="#xdid.big.W"><div>-W</div></a>
