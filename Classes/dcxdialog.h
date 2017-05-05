@@ -46,6 +46,8 @@
 #define DCX_EVENT_EDIT				0x00000200
 #define DCX_EVENT_ALL				0xFFFFFFFF
 
+#define DCX_NAMED_ID_OFFSET 3000U
+
 // dummy runtime classe definition
 class DcxControl;
 class DcxList;
@@ -230,7 +232,7 @@ public:
 	}
 	const UINT getUniqueID() const
 	{
-		for (auto iCount = 0U, i = mIRC_ID_OFFSET; iCount < mIRC_MAX_CONTROLS; iCount++) {
+		for (auto iCount = 0U, i = mIRC_ID_OFFSET + DCX_NAMED_ID_OFFSET; iCount < mIRC_MAX_CONTROLS; iCount++) {
 			++i;
 
 			if (isIDValid(i, true))

@@ -1666,8 +1666,8 @@ void DcxListView::parseCommandRequest( const TString &input) {
 
 		ListView_EditLabel(m_Hwnd, nItem);
 	}
-	// xdid -c [NAME] [ID] [N]
-	// xdid -c -> [NAME] [ID] -c [N]
+	// xdid -c [NAME] [ID] [N,N2,N3-N4...]
+	// xdid -c -> [NAME] [ID] -c [N,N2,N3-N4...]
 	else if (flags[TEXT('c')] && numtok > 3) {
 		auto nItemCnt = ListView_GetItemCount(m_Hwnd);
 		if (nItemCnt < 1)
@@ -1691,6 +1691,7 @@ void DcxListView::parseCommandRequest( const TString &input) {
 
 				//getItemRange(tsLine, nItemCnt, &iStart, &iEnd);
 				std::tie(iStart, iEnd) = getItemRange(tsLine, nItemCnt);
+				//auto [iStart, iEnd] = getItemRange(tsLine, nItemCnt);	// no structured bindings in VS 15 ?
 
 				if ( (iStart < 0) || (iEnd < 0) || (iStart >= nItemCnt) || (iEnd >= nItemCnt) )
 					throw Dcx::dcxException(TEXT("Invalid index %."), tsLine);
@@ -1712,14 +1713,14 @@ void DcxListView::parseCommandRequest( const TString &input) {
 			const auto nSubItem = input.getnexttok().to_int();
 			const auto tsMatchText(input.getnexttok());
 			auto SearchType = DcxSearchTypes::SEARCH_E;	// plain text exact match delete
-			const auto nItems = ListView_GetItemCount(m_Hwnd);
 
 			if (xFlags[TEXT('w')])
 				SearchType = DcxSearchTypes::SEARCH_W;	// wildcard delete
 			else if (xFlags[TEXT('r')])
 				SearchType = DcxSearchTypes::SEARCH_R;	// regex delete
 
-			for (auto nPos = Ns.to_int(); nPos < nItems; nPos++) {
+			// NB: item count changes on every delete.
+			for (auto nPos = Ns.to_int(); nPos < ListView_GetItemCount(m_Hwnd); nPos++) {
 
 				if (this->matchItemText(nPos, nSubItem, tsMatchText, SearchType))
 					ListView_DeleteItem(m_Hwnd, nPos--);		// NB: we do nPos-- here as a lines just been removed so we have to check the same nPos again
@@ -1734,6 +1735,7 @@ void DcxListView::parseCommandRequest( const TString &input) {
 
 				//getItemRange(tsLine, nItemCnt, &iStart, &iEnd);
 				std::tie(iStart, iEnd) = getItemRange(tsLine, nItemCnt);
+				//auto [iStart, iEnd] = getItemRange(tsLine, nItemCnt);	// no structured bindings in VS 15 ?
 
 				if ((iStart < 0) || (iEnd < iStart) || (iStart >= nItemCnt) || (iEnd >= nItemCnt))
 					throw Dcx::dcxException(TEXT("Invalid index %."), tsLine);
@@ -2078,7 +2080,7 @@ void DcxListView::parseCommandRequest( const TString &input) {
 		lvc.iImage = I_IMAGENONE;
 		lvc.mask = LVCF_FMT | LVCF_TEXT | LVCF_WIDTH;
 		lvc.cx = width;
-		lvc.fmt = (int)this->parseHeaderFlags(tsflags);
+		lvc.fmt = static_cast<int>(this->parseHeaderFlags(tsflags));
 		lvc.iSubItem = 0;
 		lvc.pszText = itemtext.to_chr();
 
@@ -2294,7 +2296,7 @@ void DcxListView::parseCommandRequest( const TString &input) {
 	else if (flags[TEXT('W')] && numtok > 3) {
 #if DCX_USE_HASHING
 		const auto tsStyle(input.getnexttok());	// tok 4
-		auto mode = 0U;
+		auto mode = LV_VIEW_DETAILS;
 
 		switch (std::hash<TString>{}(tsStyle))
 		{
@@ -2315,8 +2317,7 @@ void DcxListView::parseCommandRequest( const TString &input) {
 			break;
 		}
 
-		if (mode != 0)
-			ListView_SetView(m_Hwnd, mode);
+		ListView_SetView(m_Hwnd, mode);
 #else
 		static const TString poslist(TEXT("report icon smallicon list tile"));
 		static const UINT lv_styles[5] = { LV_VIEW_DETAILS, LV_VIEW_ICON, LV_VIEW_SMALLICON, LV_VIEW_LIST, LV_VIEW_TILE };
@@ -4254,6 +4255,21 @@ void DcxListView::ScrollPbars(const int row, const int nCols, const int iTop, co
 		++rItem.left;
 		rItem.right--;
 
+		// Ook: testing a workaround for controls being drawn over headers
+		auto hHeader = ListView_GetHeader(m_Hwnd);
+		if (IsWindowVisible(hHeader)) {
+			RECT rcClient, rcHeader;
+			GetClientRect(m_Hwnd, &rcClient);
+			GetWindowRect(hHeader, &rcHeader);
+			MapWindowRect(nullptr, m_Hwnd, &rcHeader);
+			rcClient.top += (rcHeader.bottom - rcHeader.top);
+			if (rItem.top < rcClient.top)
+			{
+				ShowWindow(lpdcxlvi->pbar->getHwnd(), SW_HIDE);
+				break;
+			}
+		}
+
 		RECT rcWin;
 		if (GetWindowRect(lpdcxlvi->pbar->getHwnd(), &rcWin))
 		{
@@ -4762,7 +4778,7 @@ void DcxListView::massSetItem(const int nPos, const TString &input)
 		// ADD check for num columns
 		for (auto i = decltype(tabs){2}; i <= tabs; i++)
 		{
-			data = input.gettok(Dcx::numeric_cast<int>(i), TSTAB).trim();
+			data = input.gettok(Dcx::numeric_cast<int>(i), TSTABCHAR).trim();
 			const auto nToks = data.numtok();
 
 			if (nToks < 5)

@@ -25,7 +25,8 @@ std::pair<int, int> DcxListHelper::getItemRange(const TString &tsItems, const in
 		else
 			iStart = iEnd;
 	}
-	return std::make_pair(iStart, iEnd);
+	//return std::make_pair(iStart, iEnd);
+	return { iStart, iEnd };
 }
 
 bool DcxListHelper::matchItemText(const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &sItemText, const TString &search, const DcxSearchTypes &SearchType)

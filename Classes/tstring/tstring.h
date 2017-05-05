@@ -1252,7 +1252,7 @@ public:
 		else if (static_cast<size_t>(iCount) == (nToks - 1))
 			p_cLast = p_cEnd;
 
-		return std::make_tuple(p_cFirst, p_cLast, nToks);
+		return { p_cFirst, p_cLast, nToks };
 	}
 
 	template <typename T = const_reference>
