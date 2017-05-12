@@ -1,0 +1,163 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>15.0</VCProjectVersion>
+    <ProjectGuid>{61DD9BB0-6E2C-41B4-A3FD-D0FF49FD17CA}</ProjectGuid>
+    <Keyword>MakeFileProj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Makefile</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Makefile</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Makefile</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Makefile</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(SolutionDir)dcx.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(SolutionDir)dcx.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(SolutionDir)dcx.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(SolutionDir)dcx.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <NMakePreprocessorDefinitions>WIN32;_DEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
+    <NMakeBuildCommandLine>cd $(SolutionDir)docs_new
+mkdir doc
+$(PHPDir)\php -q dcx_gen.php</NMakeBuildCommandLine>
+    <NMakeOutput>$(SolutionDir)docs_new\doc\index.htm</NMakeOutput>
+    <NMakeCleanCommandLine>del /F /Q $(SolutionDir)docs_new\doc\*.htm</NMakeCleanCommandLine>
+    <NMakeReBuildCommandLine>cd $(SolutionDir)docs_new
+mkdir doc
+$(PHPDir)\php -q dcx_gen.php
+</NMakeReBuildCommandLine>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <NMakePreprocessorDefinitions>_DEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <NMakePreprocessorDefinitions>WIN32;NDEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
+    <NMakeOutput>$(SolutionDir)docs_new\doc\index.htm</NMakeOutput>
+    <NMakeBuildCommandLine>cd $(SolutionDir)docs_new
+mkdir doc
+$(PHPDir)\php -q dcx_gen.php</NMakeBuildCommandLine>
+    <NMakeCleanCommandLine>del /F /Q $(SolutionDir)docs_new\doc\*.htm</NMakeCleanCommandLine>
+    <NMakeReBuildCommandLine>cd $(SolutionDir)docs_new
+mkdir doc
+$(PHPDir)\php -q dcx_gen.php
+</NMakeReBuildCommandLine>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <NMakePreprocessorDefinitions>NDEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <Text Include="readme.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\docs_new\dcx_changes.php" />
+    <None Include="..\docs_new\dcx_gen.php" />
+    <None Include="..\docs_new\dcx_inc.php" />
+    <None Include="..\docs_new\dcx_wiki.php" />
+    <None Include="..\docs_new\download.php" />
+    <None Include="..\docs_new\inc\archive.php" />
+    <None Include="..\docs_new\inc\box.php" />
+    <None Include="..\docs_new\inc\button.php" />
+    <None Include="..\docs_new\inc\calendar.php" />
+    <None Include="..\docs_new\inc\check.php" />
+    <None Include="..\docs_new\inc\cla.php" />
+    <None Include="..\docs_new\inc\colorcombo.php" />
+    <None Include="..\docs_new\inc\comboex.php" />
+    <None Include="..\docs_new\inc\datetime.php" />
+    <None Include="..\docs_new\inc\dcx.php" />
+    <None Include="..\docs_new\inc\dcxml.php" />
+    <None Include="..\docs_new\inc\dcxvsmdx.php" />
+    <None Include="..\docs_new\inc\dialog.php" />
+    <None Include="..\docs_new\inc\directshow.php" />
+    <None Include="..\docs_new\inc\divider.php" />
+    <None Include="..\docs_new\inc\edit.php" />
+    <None Include="..\docs_new\inc\image.php" />
+    <None Include="..\docs_new\inc\index.php" />
+    <None Include="..\docs_new\inc\ipaddress.php" />
+    <None Include="..\docs_new\inc\line.php" />
+    <None Include="..\docs_new\inc\link.php" />
+    <None Include="..\docs_new\inc\list.php" />
+    <None Include="..\docs_new\inc\listview.php" />
+    <None Include="..\docs_new\inc\pager.php" />
+    <None Include="..\docs_new\inc\panel.php" />
+    <None Include="..\docs_new\inc\pbar.php" />
+    <None Include="..\docs_new\inc\radio.php" />
+    <None Include="..\docs_new\inc\rebar.php" />
+    <None Include="..\docs_new\inc\richedit.php" />
+    <None Include="..\docs_new\inc\scroll.php" />
+    <None Include="..\docs_new\inc\stacker.php" />
+    <None Include="..\docs_new\inc\statusbar.php" />
+    <None Include="..\docs_new\inc\tab.php" />
+    <None Include="..\docs_new\inc\text.php" />
+    <None Include="..\docs_new\inc\toolbar.php" />
+    <None Include="..\docs_new\inc\trackbar.php" />
+    <None Include="..\docs_new\inc\treeview.php" />
+    <None Include="..\docs_new\inc\tutorials.php" />
+    <None Include="..\docs_new\inc\updown.php" />
+    <None Include="..\docs_new\inc\webctrl.php" />
+    <None Include="..\docs_new\inc\window.php" />
+    <None Include="..\docs_new\inc\xdialog.php" />
+    <None Include="..\docs_new\inc\xdid.php" />
+    <None Include="..\docs_new\inc\xdock.php" />
+    <None Include="..\docs_new\inc\xmenubar.php" />
+    <None Include="..\docs_new\inc\xpopup.php" />
+    <None Include="..\docs_new\inc\xstatusbar.php" />
+    <None Include="..\docs_new\inc\xtray.php" />
+    <None Include="..\docs_new\inc\xtreebar.php" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
