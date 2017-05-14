@@ -92,9 +92,7 @@ function get_xdid_listview(&$XDID) {
 				'GROUPID' => 'Group ID. (Use [v]0[/v] for no value) [o]XP+[/o]',
 				'COLOR' => 'Item text color.',
 				'BGCOLOR' => 'Item background color.',
-				'TEXT' => 'The text to display in the cell.<br />
-				        If used with [v]+p[/v] [p]+FLAGS[/p], then this is the DCX ProgressBar [s]style[/s].<br />
-					If used with [v]+H[/v] or [v]+n[/v] [p]+FLAGS[/p], then this is either [v]HASHTABLE[/v] [v]ITEM[/v] or [v]HASHTABLE[/v] [v]INDEX[/v] respectively.',
+				'TEXT' => 'The text to display in the cell.<br />If used with [v]+p[/v] [p]+FLAGS[/p], then this is the DCX ProgressBar [s]style[/s].<br />If used with [v]+H[/v] or [v]+n[/v] [p]+FLAGS[/p], then this is either [v]HASHTABLE[/v] [v]ITEM[/v] or [v]HASHTABLE[/v] [v]INDEX[/v] respectively.',
 			),
 			'__notes' => array(
 				'Icons must be added prior to be used in the listview using [f]/xdid -w[/f]',
@@ -274,7 +272,7 @@ function get_xdid_listview(&$XDID) {
 					),
 				),
 			),
-			'__notes' => 'Changing the color of column [p]NSUB[/p] with subsequently change the color of following columns.',
+			'__notes' => 'Changing the color of column [p]NSUB[/p] will subsequently change the color of following columns.',
 		),
 		'k' => array(
 	        '__desc' => 'This command lets you change the check state on the Nth listview item.',
