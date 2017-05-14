@@ -49,7 +49,7 @@ const static unsigned int static_crc_table[256] = {
 
 uint32_t tcrc8(const char * str)
 {
-	auto sepl = _ts_strlen(str);
+	const auto sepl = _ts_strlen(str);
 	uint8_t crc = 0;
 	for (auto i = decltype(sepl){0}; i < sepl; i++)
 	{

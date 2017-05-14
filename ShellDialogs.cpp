@@ -81,7 +81,7 @@ mIRC(ColorDialog) {
 
 		cc.rgbResult = sel;
 		cc.Flags = styles;
-		cc.lpCustColors = clr;
+		cc.lpCustColors = &clr[0];
 
 		// User clicked OK
 		if (ChooseColor(&cc)) {

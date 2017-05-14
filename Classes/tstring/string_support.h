@@ -141,28 +141,28 @@ namespace details {
 	};
 	template <>
 	struct _impl_strnlen<char *> {
-		size_t operator()(char *const ptr, size_t length) noexcept
+		size_t operator()(const char *const ptr, size_t length) noexcept
 		{
 			return strnlen(ptr, length);
 		}
 	};
 	template <>
 	struct _impl_strnlen<wchar_t *> {
-		size_t operator()(wchar_t *const ptr, size_t length) noexcept
+		size_t operator()(const wchar_t *const ptr, size_t length) noexcept
 		{
 			return wcsnlen(ptr, length);
 		}
 	};
 	template <>
 	struct _impl_strnlen<char> {
-		size_t operator()(char &ptr, size_t length) noexcept
+		size_t operator()(const char &ptr, size_t length) noexcept
 		{
 			return (ptr == 0 || length == 0 ? 0U : 1U);
 		}
 	};
 	template <>
 	struct _impl_strnlen<wchar_t> {
-		size_t operator()(wchar_t &ptr, size_t length) noexcept
+		size_t operator()(const wchar_t &ptr, size_t length) noexcept
 		{
 			return (ptr == 0 || length == 0 ? 0U : 1U);
 		}

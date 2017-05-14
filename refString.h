@@ -66,9 +66,9 @@ struct refString
 
 	const refString<T, N> &operator +=(const value_type *const other) const noexcept {
 		__assume(m_data != nullptr);
-		size_type nLen = length();
-		size_type nOtherLen = _ts_strlen(other);
-		size_type nDiff = N - (nLen + nOtherLen);
+		const size_type nLen = length();
+		const size_type nOtherLen = _ts_strlen(other);
+		const size_type nDiff = N - (nLen + nOtherLen);
 
 		if (nDiff > 1U)	// > 1 to account for zero char
 			_ts_strncat(m_data, other, nDiff);
@@ -78,8 +78,8 @@ struct refString
 
 	const refString<T, N> &operator +=(const value_type &other) const noexcept {
 		__assume(m_data != nullptr);
-		size_type nLen = length();
-		size_type nDiff = N - (nLen + 1);
+		const size_type nLen = length();
+		const size_type nDiff = N - (nLen + 1);
 
 		if (nDiff > 1U) {
 			// > 1 to account for zero char

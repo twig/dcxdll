@@ -190,7 +190,7 @@ private:
 			//m_iLen = 0;
 			//m_bDirty = true;
 			m_buffersize = TSTRING_INTERNALBUFFERSIZE_BYTES;
-			return m_InternalBuffer;
+			return &m_InternalBuffer[0];
 		}
 		else
 			m_bUsingInternal = false;
@@ -275,7 +275,7 @@ public:
 	
 	template <typename T, size_t N>
 	TString(const T (&cString)[N])
-		: TString(cString, N-1)		// NB: N here also counts the zero char at the end
+		: TString(&cString[0], N-1)		// NB: N here also counts the zero char at the end
 	{
 		static_assert(std::is_same_v<T, WCHAR> || std::is_same_v<T, char>, "MUST be a WCHAR or char string");
 	}
@@ -341,7 +341,7 @@ public:
 		, m_savedtotaltoks(0), m_savedcurrenttok(0), m_savedpos(nullptr)
 		, m_bDirty(false), m_iLen(0)
 #if TSTRING_INTERNALBUFFER
-		, m_bUsingInternal(false)
+		, m_bUsingInternal(false), m_InternalBuffer{ 0 }
 #endif
 	{
 		if (cString != nullptr) {

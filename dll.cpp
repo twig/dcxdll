@@ -79,10 +79,10 @@ BOOL WINAPI DllMain(
 			DisableThreadLibraryCalls(hinstDLL);
 			// add pid of mIRC.exe to name so mutex is specific to this instance of mIRC.
 			// GetModuleHandle(nullptr) was returning a consistant result.
-			wnsprintf(mutex, static_cast<int>(Dcx::countof(mutex)), TEXT("DCX_LOADED%lx"), GetCurrentProcessId()); // NB: calls user32.dll, is this ok? See warnings in DllMain() docs.
+			wnsprintf(&mutex[0], static_cast<int>(Dcx::countof(mutex)), TEXT("DCX_LOADED%lx"), GetCurrentProcessId()); // NB: calls user32.dll, is this ok? See warnings in DllMain() docs.
 
 			// Enforce only one instance of dcx.dll loaded at a time.
-			hDcxMutex = CreateMutex(nullptr, TRUE, mutex); // Windows 2000:  Do not create a named synchronization object in DllMain because the system will then load an additional DLL. This restriction does not apply to subsequent versions of Windows.
+			hDcxMutex = CreateMutex(nullptr, TRUE, &mutex[0]); // Windows 2000:  Do not create a named synchronization object in DllMain because the system will then load an additional DLL. This restriction does not apply to subsequent versions of Windows.
 			if (hDcxMutex == nullptr) return FALSE;		// TODO: solve this issue or are we going to make the dll XP+ only now?
 			else if (GetLastError() == ERROR_ALREADY_EXISTS) {
 				//ReleaseMutex(hDcxMutex);
@@ -434,7 +434,7 @@ mIRC(Version)
 			//	mIRCLinker::execex(TEXT("/echo -a test for: %s"), (*itStart).to_chr());
 			//}
 
-			auto nToks = tmp.numtok();
+			const auto nToks = tmp.numtok();
 			auto nIter = decltype(nToks){0};
 
 			// begin()/end() based loop
@@ -470,7 +470,7 @@ mIRC(Version)
 		}
 
 		{	// test parse_string()
-			auto t = Dcx::parse_string<int>("200");
+			const auto t = Dcx::parse_string<int>("200");
 			Ensures(t == 200);
 
 			mIRCLinker::exec(TEXT("/echo -a Success: parse_string() - all tests passed"));
@@ -716,7 +716,7 @@ mIRC(Version)
 			char chr_test[128] = { 0 };
 			char chr_buf[128] = { 0 };
 
-			ts_strcpyn(chr_buf, chr_test, 128U);
+			ts_strcpyn(&chr_buf[0], &chr_test[0], 128U);
 
 			Ensures(ts_strcmp(&chr_test[0], &chr_buf[0]) == 0);
 
@@ -731,10 +731,10 @@ mIRC(Version)
 			iTest = Dcx::numeric_cast<UINT>("400");
 			Ensures(iTest == 400);
 
-			auto fTest = Dcx::numeric_cast<float>("3.14");
+			const auto fTest = Dcx::numeric_cast<float>("3.14");
 			Ensures(fTest == float(3.14));
 
-			auto dTest = Dcx::numeric_cast<double>("3.14");
+			const auto dTest = Dcx::numeric_cast<double>("3.14");
 			Ensures(dTest == double(3.14));
 
 			mIRCLinker::exec(TEXT("/echo -a Success: numeric_cast() - all tests passed"));
@@ -742,12 +742,12 @@ mIRC(Version)
 
 		// hashes should be the same...
 		{	// test string hashes
-			constexpr auto hash1 = const_hash("123");
-			auto hash2 = dcx_hash("123");
-			constexpr auto hash3 = "123"_crc32;
-			constexpr auto hash4 = "123"_hash;
-			constexpr auto hash5 = L"123"_hash;
-			auto hash6 = dcx_hash(L"123");
+			constexpr const auto hash1 = const_hash("123");
+			const auto hash2 = dcx_hash("123");
+			constexpr const auto hash3 = "123"_crc32;
+			constexpr const auto hash4 = "123"_hash;
+			constexpr const auto hash5 = L"123"_hash;
+			const auto hash6 = dcx_hash(L"123");
 
 			static_assert(hash3 == hash4, "hash 3, & 4 failed");
 			Ensures(hash2 == hash3);
@@ -1123,7 +1123,7 @@ mIRC(xdid) {
 			throw Dcx::dcxException("Invalid Arguments");
 
 		const auto tsDname(d.getfirsttok(1));
-		auto p_Dialog = Dcx::Dialogs.getDialogByName(tsDname);
+		const auto *const p_Dialog = Dcx::Dialogs.getDialogByName(tsDname);
 
 		if (p_Dialog == nullptr)
 			throw Dcx::dcxException(TEXT("Unknown dialog \"%\": see Mark command"), tsDname);
@@ -1153,7 +1153,7 @@ mIRC(xdid) {
 					throw Dcx::dcxException(TEXT("Invalid ID : % (dialog : %)"), id_end, tsDname);
 
 				for (auto id = id_start; id <= id_end; id++) {
-					auto p_Control = p_Dialog->getControlByID(id + mIRC_ID_OFFSET);
+					const auto p_Control = p_Dialog->getControlByID(id + mIRC_ID_OFFSET);
 
 					if (p_Control == nullptr)
 						throw Dcx::dcxException(TEXT("Unable to find control: % (dialog : %)"), id, tsDname);
@@ -1185,7 +1185,7 @@ mIRC(xdid) {
 				throw Dcx::dcxException(TEXT("Invalid ID : % (dialog : %)"), id_end, tsDname);
 
 			for (auto id = id_start; id <= id_end; id++) {
-				auto p_Control = p_Dialog->getControlByID(id + mIRC_ID_OFFSET);
+				const auto p_Control = p_Dialog->getControlByID(id + mIRC_ID_OFFSET);
 
 				if (p_Control == nullptr)
 					throw Dcx::dcxException(TEXT("Unable to find control: % (dialog : %)"), id, tsDname);
@@ -1232,7 +1232,7 @@ mIRC(_xdid) {
 		const auto tsDname(d.getfirsttok(1));
 		const auto tsID(d.getnexttok());
 
-		auto p_Dialog = Dcx::Dialogs.getDialogByName(tsDname);
+		const auto *const p_Dialog = Dcx::Dialogs.getDialogByName(tsDname);
 
 		if (p_Dialog == nullptr)
 			throw Dcx::dcxException(TEXT("Unknown dialog \"%\": see Mark command"), tsDname);
@@ -1242,7 +1242,7 @@ mIRC(_xdid) {
 
 		const auto local_id = p_Dialog->NameToID(tsID);
 
-		const auto p_Control = p_Dialog->getControlByID(local_id);
+		const auto *const p_Control = p_Dialog->getControlByID(local_id);
 
 		if (p_Control == nullptr)
 			throw Dcx::dcxException(TEXT("Unable to find control: % (dialog %)"), tsID, tsDname);
@@ -1367,7 +1367,7 @@ mIRC(_xdialog) {
 		if (d.numtok() < 2)
 			throw Dcx::dcxException(TEXT("Invalid arguments ( dialog %)"), tsDname);
 
-		const auto p_Dialog = Dcx::Dialogs.getDialogByName(tsDname);
+		const auto *const p_Dialog = Dcx::Dialogs.getDialogByName(tsDname);
 
 		if (p_Dialog == nullptr) {
 			if (d.getnexttok() != TEXT("ismarked"))
@@ -1483,7 +1483,7 @@ mIRC(_xpop) {
 		if ((uHash == TEXT("mirc"_hash)) || (uHash == TEXT("mircbar"_hash)))
 			throw Dcx::dcxException("Invalid menu name : mirc or mircbar menus don't have access to this feature.");
 
-		const auto p_Menu = Dcx::XPopups.getMenuByHash(uHash, false);
+		const auto *const p_Menu = Dcx::XPopups.getMenuByHash(uHash, false);
 
 		if (p_Menu == nullptr)
 			throw Dcx::dcxException(TEXT("Unknown menu \"%\": see /xpopup -c command"), tsMenu);
@@ -1853,7 +1853,7 @@ mIRC(ActiveWindow) {
 		if (numtok < 1)
 			throw Dcx::dcxException("Insufficient parameters");
 
-		auto hwnd = GetForegroundWindow();
+		const auto hwnd = GetForegroundWindow();
 
 		if (!IsWindow(hwnd))
 			throw Dcx::dcxException("Unable to determine active window");
@@ -2143,7 +2143,7 @@ mIRC(SetDCXSettings)
 		}
 		case L"UpdateColours"_hash:
 		{
-			auto btmp = Dcx::setting_bStaticColours;
+			const auto btmp = Dcx::setting_bStaticColours;
 		
 			Dcx::setting_bStaticColours = false;
 			getmIRCPalette();

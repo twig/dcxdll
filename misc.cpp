@@ -338,7 +338,7 @@ bool ParseCommandToLogfont(const TString& cmd, LPLOGFONT lf) {
 	if (dcx_testflag(flags, dcxFontFlags::DCF_UNDERLINE))
 		lf->lfUnderline = TRUE;
 
-	dcx_strcpyn(lf->lfFaceName, fName.to_chr(), Dcx::countof(lf->lfFaceName));
+	dcx_strcpyn(&lf->lfFaceName[0], fName.to_chr(), Dcx::countof(lf->lfFaceName));
 	lf->lfFaceName[31] = 0;
 
 	return true;
@@ -1076,7 +1076,7 @@ HICON CreateGrayscaleIcon( HICON hIcon )
 		bGrayPaletteSet = true;
 	}
 
-	return CreateGrayscaleIcon(hIcon, defaultGrayPalette);
+	return CreateGrayscaleIcon(hIcon, &defaultGrayPalette[0]);
 }
 
 void AddToolTipToolInfo(const HWND tiphwnd, const HWND ctrl)
@@ -1315,7 +1315,7 @@ void getmIRCPalette()
 	{
 		TString colors;
 		static const TCHAR com[] = TEXT("$color(0) $color(1) $color(2) $color(3) $color(4) $color(5) $color(6) $color(7) $color(8) $color(9) $color(10) $color(11) $color(12) $color(13) $color(14) $color(15)");
-		mIRCLinker::tsEval(colors, com);
+		mIRCLinker::tsEval(colors, &com[0]);
 
 		size_t i = 0;
 		for (const auto &a : colors)
@@ -1333,7 +1333,7 @@ void getmIRCPalette(COLORREF *const Palette, const UINT PaletteItems)
 
 	getmIRCPalette();
 
-	CopyMemory(Palette, staticPalette, sizeof(COLORREF) * PaletteItems);
+	CopyMemory(Palette, &staticPalette[0], sizeof(COLORREF) * PaletteItems);
 }
 
 int unfoldColor(const WCHAR *color)
@@ -1456,7 +1456,7 @@ void mIRC_DrawText(HDC hdc, const TString &txt, LPRECT rc, const UINT style, con
 	COLORREF clrFG = origFG, clrBG = origBG;
 	COLORREF cPalette[mIRC_PALETTE_SIZE] = {CLR_INVALID}; // mIRC palette
 
-	getmIRCPalette(cPalette, Dcx::countof(cPalette)); // get mIRC palette
+	getmIRCPalette(&cPalette[0], Dcx::countof(cPalette)); // get mIRC palette
 
 	auto hFont = (HFONT)GetCurrentObject(hdc, OBJ_FONT);
 
@@ -1546,7 +1546,7 @@ void mIRC_DrawText(HDC hdc, const TString &txt, LPRECT rc, const UINT style, con
 					}
 
 					// color code number
-					clrFG = cPalette[unfoldColor(colbuf)];
+					clrFG = cPalette[unfoldColor(&colbuf[0])];
 					//clrFG = cPalette[unfoldColor<WCHAR>(colbuf)];
 
 					// maybe a background color
@@ -1566,7 +1566,7 @@ void mIRC_DrawText(HDC hdc, const TString &txt, LPRECT rc, const UINT style, con
 
 
 							// color code number
-							clrBG = cPalette[unfoldColor(colbuf)];
+							clrBG = cPalette[unfoldColor(&colbuf[0])];
 							//clrBG = cPalette[unfoldColor<WCHAR>(colbuf)];
 							SetBkMode(hdc, OPAQUE);
 							//usingBGclr = true;
@@ -1809,7 +1809,7 @@ void DeleteHDCBuffer(gsl::owner<HDC *> hBuffer)
 	if (hBuffer == nullptr)
 		return;
 
-	auto buf = reinterpret_cast<LPHDCBuffer>(hBuffer);
+	auto buf = gsl::owner<LPHDCBuffer>(reinterpret_cast<LPHDCBuffer>(hBuffer));
 
 	GdiFlush();
 	SelectFont(buf->m_hHDC, buf->m_hOldFont);
@@ -1905,9 +1905,9 @@ bool isRegexMatch(const TCHAR *matchtext, const TCHAR *pattern)
 	TCHAR res[10];
 	mIRCLinker::execex(TEXT("/set -nu1 %%dcx_text %s"), matchtext);
 	mIRCLinker::execex(TEXT("/set -nu1 %%dcx_regex %s"), pattern);
-	mIRCLinker::eval(res, static_cast<int>(Dcx::countof(res)), TEXT("$regex(%dcx_text,%dcx_regex)"));
+	mIRCLinker::eval(&res[0], static_cast<int>(Dcx::countof(res)), TEXT("$regex(%dcx_text,%dcx_regex)"));
 
-	return (dcx_atoi(res) > 0);
+	return (dcx_atoi(&res[0]) > 0);
 #endif // DCX_USE_CREGEX
 }
 

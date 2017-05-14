@@ -40,12 +40,16 @@ namespace Dcx {
 
 		// Initializing OLE Support
 		DCX_DEBUG(mIRCLinker::debug, TEXT("LoadDLL"), TEXT("Initializing OLE Support..."));
-		auto hr = OleInitialize(nullptr);
-		if ((hr == OLE_E_WRONGCOMPOBJ) || (hr == RPC_E_CHANGED_MODE))
+
 		{
-			// init failed...
-			DCX_DEBUG(mIRCLinker::debug, TEXT("LoadDLL"), TEXT("OLE Failed to init"));
+			const auto hr = OleInitialize(nullptr);
+			if ((hr == OLE_E_WRONGCOMPOBJ) || (hr == RPC_E_CHANGED_MODE))
+			{
+				// init failed...
+				DCX_DEBUG(mIRCLinker::debug, TEXT("LoadDLL"), TEXT("OLE Failed to init"));
+			}
 		}
+
 		setupOSCompatibility();
 
 		mIRCLinker::hookWindowProc(Dcx::mIRCSubClassWinProc);
@@ -136,7 +140,7 @@ namespace Dcx {
 
 		// reset the treebars font if it's been changed.
 		if (mIRCLinker::getTreeFont() != nullptr) {
-			auto hfont = GetWindowFont(mIRCLinker::getTreeview());
+			const auto hfont = GetWindowFont(mIRCLinker::getTreeview());
 			if (hfont != mIRCLinker::getTreeFont()) {
 				SetWindowFont(mIRCLinker::getTreeview(), mIRCLinker::getTreeFont(), TRUE);
 				DeleteFont(hfont);
@@ -465,7 +469,7 @@ namespace Dcx {
 	void errorex(const TCHAR *const cmd, const TCHAR *const szFormat, ...)
 	{
 		TString temp;
-		va_list args;
+		va_list args(nullptr);
 
 		va_start(args, szFormat);
 		temp.tvprintf(szFormat, args);
@@ -516,7 +520,7 @@ namespace Dcx {
 			throw Dcx::dcxException(TEXT("No such alias : %"), tsCallbackName);
 
 		// check if valid dialog
-		auto mHwnd = GetHwndFromString(tsDName);
+		const auto mHwnd = GetHwndFromString(tsDName);
 
 		if (!IsWindow(mHwnd))
 			throw Dcx::dcxException(TEXT("Invalid Dialog Window : %"), tsDName);
@@ -526,7 +530,7 @@ namespace Dcx {
 
 		Dialogs.markDialog(mHwnd, tsDName, tsCallbackName);
 		{
-			auto pTmp = Dialogs.getDialogByHandle(mHwnd);
+			const auto pTmp = Dialogs.getDialogByHandle(mHwnd);
 			if (pTmp != nullptr) {
 				pTmp->SetVerbose(pTmp->evalAliasEx(nullptr, 0, TEXT("isverbose,0")));
 			}
@@ -772,7 +776,7 @@ namespace Dcx {
 	{
 		static TString tsErr;
 
-		va_list args;
+		va_list args = nullptr;
 		va_start(args, fmt);
 		tsErr.tvprintf(fmt, args);
 		va_end(args);
@@ -802,7 +806,7 @@ namespace Dcx {
 			IDC_map[TEXT("wait")] = IDC_WAIT;
 		}
 
-		auto got = IDC_map.find(cursor);
+		const auto got = IDC_map.find(cursor);
 
 		if (got != IDC_map.end())
 			return got->second;
@@ -831,7 +835,7 @@ namespace Dcx {
 			IDC_SystemMap[TEXT("wait")] = OCR_WAIT;
 		}
 
-		auto got = IDC_SystemMap.find(cursor);
+		const auto got = IDC_SystemMap.find(cursor);
 
 		if (got != IDC_SystemMap.end())
 			return got->second;
@@ -866,7 +870,7 @@ namespace Dcx {
 			mIRC_AreaMap[TEXT("close")] = HTCLOSE;
 		}
 
-		auto got = mIRC_AreaMap.find(tsArea);
+		const auto got = mIRC_AreaMap.find(tsArea);
 
 		if (got != mIRC_AreaMap.end())
 			return got->second;
@@ -878,7 +882,7 @@ namespace Dcx {
 	// throws a runtime_error on fail.
 	HCURSOR dcxLoadCursorFromFile(const TString &filename)
 	{
-		auto hCursor = (HCURSOR)LoadImage(nullptr, filename.to_chr(), IMAGE_CURSOR, 0, 0, LR_DEFAULTSIZE | LR_LOADFROMFILE);
+		const auto hCursor = (HCURSOR)LoadImage(nullptr, filename.to_chr(), IMAGE_CURSOR, 0, 0, LR_DEFAULTSIZE | LR_LOADFROMFILE);
 		if (hCursor == nullptr)
 			throw Dcx::dcxException("Unable to load cursor file");
 		return hCursor;
@@ -939,7 +943,7 @@ namespace Dcx {
 	// delete custom cursor for specific area.
 	void deleteAreaCursor(const UINT iType)
 	{
-		auto it = m_vMapOfAreas.find(iType);
+		const auto it = m_vMapOfAreas.find(iType);
 		if (it != m_vMapOfAreas.end())
 		{
 			DestroyCursor(it->second);
@@ -950,7 +954,7 @@ namespace Dcx {
 	// get custom cursor to use in place of specific system cursor.
 	HCURSOR SystemToCustomCursor(const HCURSOR hCursor)
 	{
-		auto it = m_vMapOfCursors.find(hCursor);
+		const auto it = m_vMapOfCursors.find(hCursor);
 		if (it != m_vMapOfCursors.end())
 			return it->second;
 
@@ -960,7 +964,7 @@ namespace Dcx {
 	// get the custom cursor to use with a specific area
 	HCURSOR AreaToCustomCursor(const UINT iType)
 	{
-		auto it = m_vMapOfAreas.find(iType);
+		const auto it = m_vMapOfAreas.find(iType);
 		if (it != m_vMapOfAreas.end())
 			return it->second;
 
@@ -977,7 +981,7 @@ namespace Dcx {
 	// delete a custom cursor.
 	void deleteCursor(const HCURSOR hCursor)
 	{
-		auto it = m_vMapOfCursors.find(hCursor);
+		const auto it = m_vMapOfCursors.find(hCursor);
 		if (it != m_vMapOfCursors.end())
 		{
 			DestroyCursor(it->second);

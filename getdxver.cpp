@@ -140,12 +140,10 @@ HRESULT GetDXVersion(DWORD* pdwDirectXVersion, TCHAR* strDirectXVersion, int cch
 //-----------------------------------------------------------------------------
 HRESULT GetDirectXVersionViaDxDiag(DWORD* pdwDirectXVersionMajor, DWORD* pdwDirectXVersionMinor, TCHAR* pcDirectXVersionLetter)
 {
-	HRESULT hr;
-
 	// Init COM.  COM may fail if its already been inited with a different
 	// concurrency model.  And if it fails you shouldn't release it.
-	hr = CoInitialize(NULL);
-	bool bCleanupCOM = SUCCEEDED(hr);
+	HRESULT hr = CoInitialize(NULL);
+	const bool bCleanupCOM = SUCCEEDED(hr);
 
 	// Get an IDxDiagProvider
 	bool bGotDirectXVersion = false;
@@ -252,15 +250,15 @@ HRESULT GetDirectXVersionViaFileVersions(DWORD* pdwDirectXVersionMajor, DWORD* p
 	TCHAR szPath[512] = { 0 };
 	BOOL bFound = false;
 
-	if (GetSystemDirectory(szPath, MAX_PATH) != 0)
+	if (GetSystemDirectory(&szPath[0], MAX_PATH) != 0)
 	{
 		TCHAR szFile[512] = { 0 };
 		szPath[MAX_PATH - 1] = 0;
 
 		// Switch off the ddraw version
-		StringCchCopy(szFile, Dcx::countof(szFile), szPath);
-		StringCchCat(szFile, Dcx::countof(szFile), TEXT("\\ddraw.dll"));
-		if (SUCCEEDED(GetFileVersion(szFile, &llFileVersion)))
+		StringCchCopy(&szFile[0], Dcx::countof(szFile), szPath);
+		StringCchCat(&szFile[0], Dcx::countof(szFile), TEXT("\\ddraw.dll"));
+		if (SUCCEEDED(GetFileVersion(&szFile[0], &llFileVersion)))
 		{
 			if (CompareLargeInts(llFileVersion, MakeInt64(4, 2, 0, 95)) >= 0) // Win9x version
 			{
@@ -291,9 +289,9 @@ HRESULT GetDirectXVersionViaFileVersions(DWORD* pdwDirectXVersionMajor, DWORD* p
 		}
 
 		// Switch off the d3drg8x.dll version
-		StringCchCopy(szFile, Dcx::countof(szFile), szPath);
-		StringCchCat(szFile, Dcx::countof(szFile), TEXT("\\d3drg8x.dll"));
-		if (SUCCEEDED(GetFileVersion(szFile, &llFileVersion)))
+		StringCchCopy(&szFile[0], Dcx::countof(szFile), szPath);
+		StringCchCat(&szFile[0], Dcx::countof(szFile), TEXT("\\d3drg8x.dll"));
+		if (SUCCEEDED(GetFileVersion(&szFile[0], &llFileVersion)))
 		{
 			if (CompareLargeInts(llFileVersion, MakeInt64(4, 4, 0, 70)) >= 0) // Win9x version
 			{
@@ -306,9 +304,9 @@ HRESULT GetDirectXVersionViaFileVersions(DWORD* pdwDirectXVersionMajor, DWORD* p
 		}
 
 		// Switch off the ddraw version
-		StringCchCopy(szFile, Dcx::countof(szFile), szPath);
-		StringCchCat(szFile, Dcx::countof(szFile), TEXT("\\ddraw.dll"));
-		if (SUCCEEDED(GetFileVersion(szFile, &llFileVersion)))
+		StringCchCopy(&szFile[0], Dcx::countof(szFile), szPath);
+		StringCchCat(&szFile[0], Dcx::countof(szFile), TEXT("\\ddraw.dll"));
+		if (SUCCEEDED(GetFileVersion(&szFile[0], &llFileVersion)))
 		{
 			if (CompareLargeInts(llFileVersion, MakeInt64(4, 5, 0, 155)) >= 0) // Win9x version
 			{
@@ -339,9 +337,9 @@ HRESULT GetDirectXVersionViaFileVersions(DWORD* pdwDirectXVersionMajor, DWORD* p
 		}
 
 		// Switch off the dplayx.dll version
-		StringCchCopy(szFile, Dcx::countof(szFile), szPath);
-		StringCchCat(szFile, Dcx::countof(szFile), TEXT("\\dplayx.dll"));
-		if (SUCCEEDED(GetFileVersion(szFile, &llFileVersion)))
+		StringCchCopy(&szFile[0], Dcx::countof(szFile), szPath);
+		StringCchCat(&szFile[0], Dcx::countof(szFile), TEXT("\\dplayx.dll"));
+		if (SUCCEEDED(GetFileVersion(&szFile[0], &llFileVersion)))
 		{
 			if (CompareLargeInts(llFileVersion, MakeInt64(4, 6, 3, 518)) >= 0) // Win9x version
 			{
@@ -354,9 +352,9 @@ HRESULT GetDirectXVersionViaFileVersions(DWORD* pdwDirectXVersionMajor, DWORD* p
 		}
 
 		// Switch off the ddraw version
-		StringCchCopy(szFile, Dcx::countof(szFile), szPath);
-		StringCchCat(szFile, Dcx::countof(szFile), TEXT("\\ddraw.dll"));
-		if (SUCCEEDED(GetFileVersion(szFile, &llFileVersion)))
+		StringCchCopy(&szFile[0], Dcx::countof(szFile), szPath);
+		StringCchCat(&szFile[0], Dcx::countof(szFile), TEXT("\\ddraw.dll"));
+		if (SUCCEEDED(GetFileVersion(&szFile[0], &llFileVersion)))
 		{
 			if (CompareLargeInts(llFileVersion, MakeInt64(4, 7, 0, 700)) >= 0) // Win9x version
 			{
@@ -371,9 +369,9 @@ HRESULT GetDirectXVersionViaFileVersions(DWORD* pdwDirectXVersionMajor, DWORD* p
 		}
 
 		// Switch off the dinput version
-		StringCchCopy(szFile, Dcx::countof(szFile), szPath);
-		StringCchCat(szFile, Dcx::countof(szFile), TEXT("\\dinput.dll"));
-		if (SUCCEEDED(GetFileVersion(szFile, &llFileVersion)))
+		StringCchCopy(&szFile[0], Dcx::countof(szFile), szPath);
+		StringCchCat(&szFile[0], Dcx::countof(szFile), TEXT("\\dinput.dll"));
+		if (SUCCEEDED(GetFileVersion(&szFile[0], &llFileVersion)))
 		{
 			if (CompareLargeInts(llFileVersion, MakeInt64(4, 7, 0, 716)) >= 0) // Win9x version
 			{
@@ -386,9 +384,9 @@ HRESULT GetDirectXVersionViaFileVersions(DWORD* pdwDirectXVersionMajor, DWORD* p
 		}
 
 		// Switch off the ddraw version
-		StringCchCopy(szFile, Dcx::countof(szFile), szPath);
-		StringCchCat(szFile, Dcx::countof(szFile), TEXT("\\ddraw.dll"));
-		if (SUCCEEDED(GetFileVersion(szFile, &llFileVersion)))
+		StringCchCopy(&szFile[0], Dcx::countof(szFile), szPath);
+		StringCchCat(&szFile[0], Dcx::countof(szFile), TEXT("\\ddraw.dll"));
+		if (SUCCEEDED(GetFileVersion(&szFile[0], &llFileVersion)))
 		{
 			if ((HIWORD(llFileVersion.HighPart) == 4 && CompareLargeInts(llFileVersion, MakeInt64(4, 8, 0, 400)) >= 0) || // Win9x version
 				(HIWORD(llFileVersion.HighPart) == 5 && CompareLargeInts(llFileVersion, MakeInt64(5, 1, 2258, 400)) >= 0)) // Win2k/WinXP version
@@ -401,9 +399,9 @@ HRESULT GetDirectXVersionViaFileVersions(DWORD* pdwDirectXVersionMajor, DWORD* p
 			}
 		}
 
-		StringCchCopy(szFile, Dcx::countof(szFile), szPath);
-		StringCchCat(szFile, Dcx::countof(szFile), TEXT("\\d3d8.dll"));
-		if (SUCCEEDED(GetFileVersion(szFile, &llFileVersion)))
+		StringCchCopy(&szFile[0], Dcx::countof(szFile), szPath);
+		StringCchCat(&szFile[0], Dcx::countof(szFile), TEXT("\\d3d8.dll"));
+		if (SUCCEEDED(GetFileVersion(&szFile[0], &llFileVersion)))
 		{
 			if ((HIWORD(llFileVersion.HighPart) == 4 && CompareLargeInts(llFileVersion, MakeInt64(4, 8, 1, 881)) >= 0) || // Win9x version
 				(HIWORD(llFileVersion.HighPart) == 5 && CompareLargeInts(llFileVersion, MakeInt64(5, 1, 2600, 881)) >= 0)) // Win2k/WinXP version
@@ -426,9 +424,9 @@ HRESULT GetDirectXVersionViaFileVersions(DWORD* pdwDirectXVersionMajor, DWORD* p
 			}
 		}
 
-		StringCchCopy(szFile, Dcx::countof(szFile), szPath);
-		StringCchCat(szFile, Dcx::countof(szFile), TEXT("\\mpg2splt.ax"));
-		if (SUCCEEDED(GetFileVersion(szFile, &llFileVersion)))
+		StringCchCopy(&szFile[0], Dcx::countof(szFile), szPath);
+		StringCchCat(&szFile[0], Dcx::countof(szFile), TEXT("\\mpg2splt.ax"));
+		if (SUCCEEDED(GetFileVersion(&szFile[0], &llFileVersion)))
 		{
 			if (CompareLargeInts(llFileVersion, MakeInt64(6, 3, 1, 885)) >= 0) // Win9x/Win2k/WinXP version
 			{
@@ -440,9 +438,9 @@ HRESULT GetDirectXVersionViaFileVersions(DWORD* pdwDirectXVersionMajor, DWORD* p
 			}
 		}
 
-		StringCchCopy(szFile, Dcx::countof(szFile), szPath);
-		StringCchCat(szFile, Dcx::countof(szFile), TEXT("\\dpnet.dll"));
-		if (SUCCEEDED(GetFileVersion(szFile, &llFileVersion)))
+		StringCchCopy(&szFile[0], Dcx::countof(szFile), szPath);
+		StringCchCat(&szFile[0], Dcx::countof(szFile), TEXT("\\dpnet.dll"));
+		if (SUCCEEDED(GetFileVersion(&szFile[0], &llFileVersion)))
 		{
 			if ((HIWORD(llFileVersion.HighPart) == 4 && CompareLargeInts(llFileVersion, MakeInt64(4, 9, 0, 134)) >= 0) || // Win9x version
 				(HIWORD(llFileVersion.HighPart) == 5 && CompareLargeInts(llFileVersion, MakeInt64(5, 2, 3677, 134)) >= 0)) // Win2k/WinXP version
@@ -455,9 +453,9 @@ HRESULT GetDirectXVersionViaFileVersions(DWORD* pdwDirectXVersionMajor, DWORD* p
 			}
 		}
 
-		StringCchCopy(szFile, Dcx::countof(szFile), szPath);
-		StringCchCat(szFile, Dcx::countof(szFile), TEXT("\\d3d9.dll"));
-		if (SUCCEEDED(GetFileVersion(szFile, &llFileVersion)))
+		StringCchCopy(&szFile[0], Dcx::countof(szFile), szPath);
+		StringCchCat(&szFile[0], Dcx::countof(szFile), TEXT("\\d3d9.dll"));
+		if (SUCCEEDED(GetFileVersion(&szFile[0], &llFileVersion)))
 		{
 			// File exists, but be at least DirectX9
 			if (pdwDirectXVersionMajor) *pdwDirectXVersionMajor = 9;
@@ -487,40 +485,72 @@ HRESULT GetDirectXVersionViaFileVersions(DWORD* pdwDirectXVersionMajor, DWORD* p
 //-----------------------------------------------------------------------------
 HRESULT GetFileVersion(TCHAR* szPath, ULARGE_INTEGER* pllFileVersion)
 {
-	if (szPath == NULL || pllFileVersion == NULL)
+	//if (szPath == NULL || pllFileVersion == NULL)
+	//	return E_INVALIDARG;
+	//
+	//DWORD dwHandle;
+	//UINT  cb;
+	//cb = GetFileVersionInfoSize(szPath, &dwHandle);
+	//if (cb > 0)
+	//{
+	//	BYTE* pFileVersionBuffer;
+	//
+	//	try {
+	//		pFileVersionBuffer = new BYTE[cb];
+	//	}
+	//	catch (std::bad_alloc)
+	//	{
+	//		return E_OUTOFMEMORY;
+	//	}
+	//
+	//	if (GetFileVersionInfo(szPath, 0, cb, pFileVersionBuffer))
+	//	{
+	//		VS_FIXEDFILEINFO* pVersion = NULL;
+	//		if (VerQueryValue(pFileVersionBuffer, TEXT("\\"), (VOID**)&pVersion, &cb) &&
+	//			pVersion != NULL)
+	//		{
+	//			pllFileVersion->HighPart = pVersion->dwFileVersionMS;
+	//			pllFileVersion->LowPart = pVersion->dwFileVersionLS;
+	//			delete[] pFileVersionBuffer;
+	//			return S_OK;
+	//		}
+	//	}
+	//
+	//	delete[] pFileVersionBuffer;
+	//}
+	//
+	//return E_FAIL;
+
+	try {
+		if (szPath == NULL || pllFileVersion == NULL)
 		return E_INVALIDARG;
 
-	DWORD dwHandle;
-	UINT  cb;
-	cb = GetFileVersionInfoSize(szPath, &dwHandle);
-	if (cb > 0)
-	{
-		BYTE* pFileVersionBuffer;
-
-		try {
-			pFileVersionBuffer = new BYTE[cb];
-		}
-		catch (std::bad_alloc)
+		DWORD dwHandle;
+		UINT  cb;
+		cb = GetFileVersionInfoSize(szPath, &dwHandle);
+		if (cb > 0)
 		{
-			return E_OUTOFMEMORY;
-		}
+			//BYTE* pFileVersionBuffer = new BYTE[cb];
+			auto pFileVersionBuffer = std::make_unique<BYTE[]>(cb);
 
-		if (GetFileVersionInfo(szPath, 0, cb, pFileVersionBuffer))
-		{
-			VS_FIXEDFILEINFO* pVersion = NULL;
-			if (VerQueryValue(pFileVersionBuffer, TEXT("\\"), (VOID**)&pVersion, &cb) &&
-				pVersion != NULL)
+			if (GetFileVersionInfo(szPath, 0, cb, pFileVersionBuffer.get()))
 			{
-				pllFileVersion->HighPart = pVersion->dwFileVersionMS;
-				pllFileVersion->LowPart = pVersion->dwFileVersionLS;
-				delete[] pFileVersionBuffer;
-				return S_OK;
+				VS_FIXEDFILEINFO* pVersion = nullptr;
+				if (VerQueryValue(pFileVersionBuffer.get(), TEXT("\\"), (VOID**)&pVersion, &cb) &&
+					pVersion != nullptr)
+				{
+					pllFileVersion->HighPart = pVersion->dwFileVersionMS;
+					pllFileVersion->LowPart = pVersion->dwFileVersionLS;
+					return S_OK;
+				}
 			}
 		}
 
-		delete[] pFileVersionBuffer;
 	}
-
+	catch (std::bad_alloc)
+	{
+		return E_OUTOFMEMORY;
+	}
 	return E_FAIL;
 }
 

@@ -41,9 +41,9 @@ struct simpleString {
 		return *this;
 	}
 	simpleString<T, N> &operator +=(const_pointer other) noexcept {
-		size_type nLen = length();
-		size_type nOtherLen = _ts_strlen(other);
-		size_type nDiff = N - (nLen + nOtherLen);
+		const size_type nLen = length();
+		const size_type nOtherLen = _ts_strlen(other);
+		const size_type nDiff = N - (nLen + nOtherLen);
 
 		if (nDiff > 1U)	// > 1 to account for zero char
 			_ts_strncat(&m_data[0], other, nDiff);
@@ -51,8 +51,8 @@ struct simpleString {
 		return *this;
 	}
 	simpleString<T, N> &operator +=(const value_type &other) noexcept {
-		size_type nLen = length();
-		size_type nDiff = N - (nLen + 1);
+		const size_type nLen = length();
+		const size_type nDiff = N - (nLen + 1);
 
 		if (nDiff > 1U) {
 			// > 1 to account for zero char
