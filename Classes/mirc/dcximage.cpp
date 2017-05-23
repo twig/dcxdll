@@ -230,10 +230,14 @@ void DcxImage::parseCommandRequest( const TString & input) {
 		// resize window to size of icon
 		RECT wnd;
 
-		if (!GetWindowRect(m_Hwnd, &wnd))
+		//if (!GetWindowRect(m_Hwnd, &wnd))
+		//	throw Dcx::dcxException("Unable to get windows rect");
+		//
+		//MapWindowRect(nullptr, GetParent(m_Hwnd), &wnd);
+
+		if (!GetWindowRectParent(m_Hwnd, &wnd))
 			throw Dcx::dcxException("Unable to get windows rect");
 
-		MapWindowRect(nullptr, GetParent(m_Hwnd), &wnd);
 		MoveWindow(m_Hwnd, wnd.left, wnd.top, size, size, TRUE);
 		this->redrawWindow();
 	}

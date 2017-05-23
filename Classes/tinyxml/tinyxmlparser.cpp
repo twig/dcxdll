@@ -817,7 +817,7 @@ void TiXmlDocument::SetError(tixmlErrors err, const char* pError, TiXmlParsingDa
 
 TiXmlNode* TiXmlNode::Identify( const char* p, TiXmlEncoding encoding )
 {
-	TiXmlNode* returnNode = 0;
+	TiXmlNode* returnNode = nullptr;
 
 	p = SkipWhiteSpace( p, encoding );
 	if( !p || !*p || *p != '<' )
@@ -1043,7 +1043,7 @@ void TiXmlElement::StreamIn (std::istream * in, TIXML_STRING * tag)
 const char* TiXmlElement::Parse( const char* p, TiXmlParsingData* data, TiXmlEncoding encoding )
 {
 	p = SkipWhiteSpace( p, encoding );
-	TiXmlDocument* document = GetDocument();
+	const auto document = GetDocument();
 
 	if ( !p || !*p )
 	{
@@ -1140,7 +1140,7 @@ const char* TiXmlElement::Parse( const char* p, TiXmlParsingData* data, TiXmlEnc
 		{
 			// Try to read an attribute:
 			try {
-				TiXmlAttribute* attrib = new TiXmlAttribute();
+				const auto attrib = new TiXmlAttribute();
 
 				attrib->SetDocument(document);
 				pErr = p;
@@ -1155,9 +1155,9 @@ const char* TiXmlElement::Parse( const char* p, TiXmlParsingData* data, TiXmlEnc
 
 				// Handle the strange case of double attributes:
 #ifdef TIXML_USE_STL
-				TiXmlAttribute* node = attributeSet.Find( attrib->NameTStr() );
+				const auto *const node = attributeSet.Find( attrib->NameTStr() );
 #else
-				TiXmlAttribute* node = attributeSet.Find(attrib->Name());
+				const auto *const node = attributeSet.Find(attrib->Name());
 #endif
 				if (node)
 				{
@@ -1168,9 +1168,9 @@ const char* TiXmlElement::Parse( const char* p, TiXmlParsingData* data, TiXmlEnc
 
 				attributeSet.Add(attrib);
 			}
-			catch (std::bad_alloc)
+			catch (const std::bad_alloc)
 			{
-				return NULL;
+				return nullptr;
 			}
 		}
 	}
@@ -1180,7 +1180,7 @@ const char* TiXmlElement::Parse( const char* p, TiXmlParsingData* data, TiXmlEnc
 
 const char* TiXmlElement::ReadValue( const char* p, TiXmlParsingData* data, TiXmlEncoding encoding )
 {
-	TiXmlDocument* document = GetDocument();
+	const auto document = GetDocument();
 
 	// Read in text and elements in any order.
 	const char* pWithWhiteSpace = p;
@@ -1192,7 +1192,7 @@ const char* TiXmlElement::ReadValue( const char* p, TiXmlParsingData* data, TiXm
 		{
 			// Take what we have, make a text m_pElement.
 			try {
-				TiXmlText* textNode = new TiXmlText("");
+				const auto textNode = new TiXmlText("");
 
 				if (TiXmlBase::IsWhiteSpaceCondensed())
 				{
@@ -1210,9 +1210,9 @@ const char* TiXmlElement::ReadValue( const char* p, TiXmlParsingData* data, TiXm
 				else
 					delete textNode;
 			}
-			catch (std::bad_alloc)
+			catch (const std::bad_alloc)
 			{
-				return NULL;
+				return nullptr;
 			}
 		}
 		else 
@@ -1226,8 +1226,8 @@ const char* TiXmlElement::ReadValue( const char* p, TiXmlParsingData* data, TiXm
 			}
 			else
 			{
-				TiXmlNode* node = Identify( p, encoding );
-				if ( node )
+				const auto node = Identify( p, encoding );
+				if ( node != nullptr)
 				{
 					p = node->Parse( p, data, encoding );
 					LinkEndChild( node );
@@ -1242,9 +1242,9 @@ const char* TiXmlElement::ReadValue( const char* p, TiXmlParsingData* data, TiXm
 		p = SkipWhiteSpace( p, encoding );
 	}
 
-	if ( !p )
+	if ( p == nullptr )
 	{
-		if ( document ) document->SetError( TIXML_ERROR_READING_ELEMENT_VALUE, 0, 0, encoding );
+		if ( document != nullptr) document->SetError( TIXML_ERROR_READING_ELEMENT_VALUE, 0, 0, encoding );
 	}	
 	return p;
 }
@@ -1277,10 +1277,10 @@ void TiXmlUnknown::StreamIn( std::istream * in, TIXML_STRING * tag )
 
 const char* TiXmlUnknown::Parse( const char* p, TiXmlParsingData* data, TiXmlEncoding encoding )
 {
-	TiXmlDocument* document = GetDocument();
+	const auto document = GetDocument();
 	p = SkipWhiteSpace( p, encoding );
 
-	if ( data )
+	if ( data != nullptr)
 	{
 		data->Stamp( p, encoding );
 		location = data->Cursor();
@@ -1340,25 +1340,75 @@ void TiXmlComment::StreamIn( std::istream * in, TIXML_STRING * tag )
 
 const char* TiXmlComment::Parse( const char* p, TiXmlParsingData* data, TiXmlEncoding encoding )
 {
-	TiXmlDocument* document = GetDocument();
+	//const auto document = GetDocument();
+	//value = "";
+	//
+	//p = SkipWhiteSpace( p, encoding );
+	//
+	//if ( data )
+	//{
+	//	data->Stamp( p, encoding );
+	//	location = data->Cursor();
+	//}
+	//const char* const startTag = "<!--";
+	//const char* const endTag   = "-->";
+	//
+	//if ( !StringEqual( p, startTag, false, encoding ) )
+	//{
+	//	document->SetError( TIXML_ERROR_PARSING_COMMENT, p, data, encoding );
+	//	return 0;
+	//}
+	//p += strlen( startTag );
+	//
+	//// [ 1475201 ] TinyXML parses entities in comments
+	//// Oops - ReadText doesn't work, because we don't want to parse the entities.
+	//// p = ReadText( p, &value, false, endTag, false, encoding );
+	////
+	//// from the XML spec:
+	///*
+	// [Definition: Comments may appear anywhere in a document outside other markup; in addition, 
+	//              they may appear within the document type declaration at places allowed by the grammar. 
+	//			  They are not part of the document's character data; an XML processor MAY, but need not, 
+	//			  make it possible for an application to retrieve the text of comments. For compatibility, 
+	//			  the string "--" (double-hyphen) MUST NOT occur within comments.] Parameter entity 
+	//			  references MUST NOT be recognized within comments.
+	//
+	//			  An example of a comment:
+	//
+	//			  <!-- declarations for <head> & <body> -->
+	//*/
+	//
+ //   value = "";
+	//// Keep all the white space.
+	//while (	p && *p && !StringEqual( p, endTag, false, encoding ) )
+	//{
+	//	value.append( p, 1 );
+	//	++p;
+	//}
+	//if ( p && *p ) 
+	//	p += strlen( endTag );
+	//
+	//return p;
+
+	const auto document = GetDocument();
 	value = "";
 
-	p = SkipWhiteSpace( p, encoding );
+	p = SkipWhiteSpace(p, encoding);
 
-	if ( data )
+	if (data)
 	{
-		data->Stamp( p, encoding );
+		data->Stamp(p, encoding);
 		location = data->Cursor();
 	}
-	const char* startTag = "<!--";
-	const char* endTag   = "-->";
+	const char startTag[] = "<!--";
+	const char endTag[] = "-->";
 
-	if ( !StringEqual( p, startTag, false, encoding ) )
+	if (!StringEqual(p, &startTag[0], false, encoding))
 	{
-		document->SetError( TIXML_ERROR_PARSING_COMMENT, p, data, encoding );
+		document->SetError(TIXML_ERROR_PARSING_COMMENT, p, data, encoding);
 		return 0;
 	}
-	p += strlen( startTag );
+	p += _ts_strlen(startTag);
 
 	// [ 1475201 ] TinyXML parses entities in comments
 	// Oops - ReadText doesn't work, because we don't want to parse the entities.
@@ -1366,27 +1416,27 @@ const char* TiXmlComment::Parse( const char* p, TiXmlParsingData* data, TiXmlEnc
 	//
 	// from the XML spec:
 	/*
-	 [Definition: Comments may appear anywhere in a document outside other markup; in addition, 
-	              they may appear within the document type declaration at places allowed by the grammar. 
-				  They are not part of the document's character data; an XML processor MAY, but need not, 
-				  make it possible for an application to retrieve the text of comments. For compatibility, 
-				  the string "--" (double-hyphen) MUST NOT occur within comments.] Parameter entity 
-				  references MUST NOT be recognized within comments.
+	[Definition: Comments may appear anywhere in a document outside other markup; in addition,
+	they may appear within the document type declaration at places allowed by the grammar.
+	They are not part of the document's character data; an XML processor MAY, but need not,
+	make it possible for an application to retrieve the text of comments. For compatibility,
+	the string "--" (double-hyphen) MUST NOT occur within comments.] Parameter entity
+	references MUST NOT be recognized within comments.
 
-				  An example of a comment:
+	An example of a comment:
 
-				  <!-- declarations for <head> & <body> -->
+	<!-- declarations for <head> & <body> -->
 	*/
 
-    value = "";
+	value = "";
 	// Keep all the white space.
-	while (	p && *p && !StringEqual( p, endTag, false, encoding ) )
+	while (p && *p && !StringEqual(p, &endTag[0], false, encoding))
 	{
-		value.append( p, 1 );
+		value.append(p, 1);
 		++p;
 	}
-	if ( p && *p ) 
-		p += strlen( endTag );
+	if (p && *p)
+		p += _ts_strlen(endTag);
 
 	return p;
 }
@@ -1431,13 +1481,13 @@ const char* TiXmlAttribute::Parse( const char* p, TiXmlParsingData* data, TiXmlE
 	if ( *p == SINGLE_QUOTE )
 	{
 		++p;
-		auto end = "\'";		// single quote in string
+		const auto end = "\'";		// single quote in string
 		p = ReadText( p, &value, false, end, false, encoding );
 	}
 	else if ( *p == DOUBLE_QUOTE )
 	{
 		++p;
-		auto end = "\"";		// double quote in string
+		const auto end = "\"";		// double quote in string
 		p = ReadText( p, &value, false, end, false, encoding );
 	}
 	else
@@ -1536,7 +1586,7 @@ const char* TiXmlText::Parse( const char* p, TiXmlParsingData* data, TiXmlEncodi
 	}
 	else
 	{
-		bool ignoreWhite = true;
+		constexpr const bool ignoreWhite = true;
 
 		const char* end = "<";
 		p = ReadText( p, &value, ignoreWhite, end, false, encoding );

@@ -498,7 +498,7 @@ HRESULT GetFileVersion(TCHAR* szPath, ULARGE_INTEGER* pllFileVersion)
 	//	try {
 	//		pFileVersionBuffer = new BYTE[cb];
 	//	}
-	//	catch (std::bad_alloc)
+	//	catch (const std::bad_alloc)
 	//	{
 	//		return E_OUTOFMEMORY;
 	//	}
@@ -547,7 +547,7 @@ HRESULT GetFileVersion(TCHAR* szPath, ULARGE_INTEGER* pllFileVersion)
 		}
 
 	}
-	catch (std::bad_alloc)
+	catch (const std::bad_alloc)
 	{
 		return E_OUTOFMEMORY;
 	}

@@ -110,7 +110,7 @@ mIRC(TrayIcon) {
 
 		return 1;
 	}
-	catch (std::exception &e)
+	catch (const std::exception &e)
 	{
 		Dcx::errorex(TEXT("/xtray"), TEXT("\"%s\" error: %S"), d.to_chr(), e.what());
 	}

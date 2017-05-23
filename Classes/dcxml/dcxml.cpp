@@ -81,7 +81,7 @@ mIRC(dcxml) {
 			if (dcxmlElem == nullptr)
 				throw Dcx::dcxException("Unable to find <dcxml> group");
 
-			const auto popups = dcxmlElem->FirstChildElement("popups");
+			const auto *const popups = dcxmlElem->FirstChildElement("popups");
 			if (popups == nullptr)
 				throw Dcx::dcxException("Unable to find <popups> group");
 
@@ -93,7 +93,7 @@ mIRC(dcxml) {
 		else
 			throw Dcx::dcxException(TEXT("Unknown flag %"), input.gettok(1));
 	}
-	catch (std::exception &e)
+	catch (const std::exception &e)
 	{
 		Dcx::errorex(TEXT("/dcxml"), TEXT("\"%s\" error: %S"), input.to_chr(), e.what());
 	}
@@ -123,7 +123,7 @@ mIRC(_dcxml)
 
 		return 3;
 	}
-	catch (std::exception &e)
+	catch (const std::exception &e)
 	{
 		Dcx::errorex(TEXT("$!dcxml"), TEXT("\"%s\" error: %S"), d.to_chr(), e.what());
 	}

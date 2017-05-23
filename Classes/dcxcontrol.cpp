@@ -1768,8 +1768,10 @@ const COLORREF &DcxControl::getTextColor( ) const noexcept {
 const RECT DcxControl::getWindowPosition(void) const noexcept {
 	RECT rc;
 	SetRectEmpty(&rc);
-	if (GetWindowRect( m_Hwnd, &rc ))
-		MapWindowRect(nullptr, GetParent( m_Hwnd ), &rc);
+	//if (GetWindowRect( m_Hwnd, &rc ))
+	//	MapWindowRect(nullptr, GetParent( m_Hwnd ), &rc);
+
+	GetWindowRectParent(m_Hwnd, &rc);
 	return rc;
 }
 
@@ -1851,11 +1853,15 @@ void DcxControl::DrawControl(HDC hDC, HWND hwnd)
 			return;
 	}
 
-	RECT rc;
-	if (!GetWindowRect(hwnd, &rc))
-		return;
+	//RECT rc;
+	//if (!GetWindowRect(hwnd, &rc))
+	//	return;
+	//
+	//MapWindowRect(nullptr, GetParent(hwnd), &rc);
 
-	MapWindowRect(nullptr, GetParent(hwnd), &rc);
+	RECT rc;
+	if (!GetWindowRectParent(hwnd, &rc))
+		return;
 
 	// if window isn't within the client area of the control who's background we are drawing, don't draw.
 	if (!RectVisible(hDC, &rc))
@@ -1887,12 +1893,16 @@ void DcxControl::DrawControl(HDC hDC, HWND hwnd)
 			return;
 	}
 	
+	//RECT rc;
+	//if (!GetWindowRect(hwnd, &rc))
+	//	return;
+	//
+	//MapWindowRect(nullptr, GetParent(hwnd), &rc);
+
 	RECT rc;
-	if (!GetWindowRect(hwnd, &rc))
+	if (!GetWindowRectParent(hwnd, &rc))
 		return;
-	
-	MapWindowRect(nullptr,GetParent(hwnd),&rc);
-	
+
 	// if window isn't within the client area of the control who's background we are drawing, don't draw.
 	if (!RectVisible(hDC, &rc))
 		return;
@@ -2641,10 +2651,15 @@ void DcxControl::InvalidateParentRect(HWND hwnd)
 {
 	RECT rc = { 0 };
 	auto parent = GetParent(hwnd);
-	if (!GetWindowRect(hwnd, &rc))
+
+	//if (!GetWindowRect(hwnd, &rc))
+	//	return;
+	//
+	//MapWindowRect(nullptr, parent, &rc);
+
+	if (!GetWindowRectParent(hwnd, &rc))
 		return;
 
-	MapWindowRect(nullptr, parent, &rc);
 	InvalidateRect(parent, &rc, TRUE);
 }
 

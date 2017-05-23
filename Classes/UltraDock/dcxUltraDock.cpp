@@ -7,10 +7,10 @@
 
 BOOL CALLBACK EnumDocked(HWND hwnd,LPARAM lParam);
 
-DcxDock *g_dockMDI = nullptr;
-DcxDock *g_dockTreebar = nullptr;
-DcxDock *g_dockSwitchbar = nullptr; // needed to adjust size for statusbar.
-DcxDock *g_dockToolbar = nullptr; // needed to adjust size for statusbar.
+gsl::owner<DcxDock *> g_dockMDI = nullptr;
+gsl::owner<DcxDock *> g_dockTreebar = nullptr;
+gsl::owner<DcxDock *> g_dockSwitchbar = nullptr; // needed to adjust size for statusbar.
+gsl::owner<DcxDock *> g_dockToolbar = nullptr; // needed to adjust size for statusbar.
 
 // force a window update.
 void UpdatemIRC(void) noexcept
@@ -49,6 +49,11 @@ void CloseUltraDock(void)
 	delete g_dockSwitchbar;
 	delete g_dockTreebar;
 	delete g_dockMDI;
+
+	g_dockMDI = nullptr;
+	g_dockSwitchbar = nullptr;
+	g_dockToolbar = nullptr;
+	g_dockTreebar = nullptr;
 
 	if (IsWindow(mIRCLinker::getTreeview()) && mIRCLinker::getTreeImages() != nullptr) {
 		auto o = TreeView_SetImageList(mIRCLinker::getTreeview(), mIRCLinker::getTreeImages(), TVSIL_NORMAL);

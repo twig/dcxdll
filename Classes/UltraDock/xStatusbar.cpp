@@ -98,7 +98,7 @@ mIRC(xstatusbar) {
 
 				parts[i] = t;
 			}
-			DcxDock::status_setParts(nParts, parts);
+			DcxDock::status_setParts(nParts, &parts[0]);
 			DcxDock::status_updateParts();
 		}
 		break;
@@ -238,7 +238,7 @@ mIRC(xstatusbar) {
 		}
 		return 1;
 	}
-	catch (std::exception &e)
+	catch (const std::exception &e)
 	{
 		Dcx::errorex(TEXT("/xstatusbar"), TEXT("\"%s\" error: %S"), input.to_chr(), e.what());
 		return 0;
@@ -378,7 +378,7 @@ mIRC(_xstatusbar)
 #endif
 		return 3;
 	}
-	catch (std::exception &e)
+	catch (const std::exception &e)
 	{
 		Dcx::errorex(TEXT("$!xstatusbar"), TEXT("\"%s\" error: %S"), d.to_chr(), e.what());
 	}

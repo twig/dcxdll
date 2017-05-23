@@ -585,7 +585,7 @@ void DcxReBar::parseCommandRequest( const TString & input ) {
 			//	//rbBand.cyChild = cy;
 			//	rbBand.wID = ID;
 			//}
-			//catch ( std::exception &e ) {
+			//catch (const std::exception &e ) {
 			//	showErrorEx(nullptr, TEXT("-a"), TEXT("Unable To Create Control: %d (%S)"), ID - mIRC_ID_OFFSET, e.what() );
 			//	throw;
 			//}

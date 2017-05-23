@@ -39,6 +39,7 @@ DcxDirectshow::DcxDirectshow(const UINT ID, DcxDialog *const p_Dialog, const HWN
 	, m_pSeek(nullptr)
 	, m_bKeepRatio(false)
 	, m_bLoop(false)
+	, m_bReserved{ false, false }
 {
 	//assert(_DXSDK_BUILD_MAJOR == 1962);  //this checks that the DirectX SDK (June 2010) build is installed. (directx sdk is now included in windows sdk 8.0+)
 	//assert(DIRECT3D_VERSION >= 9);	// make sure directx version 9+ is available.
@@ -607,7 +608,7 @@ void DcxDirectshow::parseCommandRequest( const TString &input) {
 
 			InvalidateRect(m_Hwnd, nullptr, TRUE);
 		}
-		catch (std::exception)
+		catch (const std::exception)
 		{
 			DX_ERR(nullptr, TEXT("-a"), hr);
 			this->ReleaseAll();
@@ -932,7 +933,7 @@ HRESULT DcxDirectshow::InitWindowlessVMR(
 		}
 		return hr;
 	}
-	catch (std::exception)
+	catch (const std::exception)
 	{
 		DX_ERR(nullptr, TEXT("InitWindowlessVMR"), hr);
 		throw;
@@ -990,7 +991,7 @@ void DcxDirectshow::ReleaseAll(void)
 // getProperty() is non-functional atm. Where do i get this interface from? or a similar one.
 HRESULT DcxDirectshow::getProperty(const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &prop, const int type) const
 {
-	IAMMediaContent *iam;
+	IAMMediaContent *iam = nullptr;
 	auto hr = this->m_pGraph->QueryInterface(IID_IAMMediaContent, (void **)&iam);
 	if (SUCCEEDED(hr)) {
 		Auto(iam->Release());
@@ -1011,7 +1012,7 @@ HRESULT DcxDirectshow::getProperty(const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> 
 			hr = iam->get_Description(&com_prop);
 			break;
 		}
-		if (SUCCEEDED(hr)) {
+		if (SUCCEEDED(hr) && (com_prop != nullptr)) {
 			//_snwprintf(prop, MIRC_BUFFER_SIZE_CCH, TEXT("%lS"), com_prop);
 			_snwprintf(prop, MIRC_BUFFER_SIZE_CCH, TEXT("%ws"), com_prop);
 			SysFreeString(com_prop);
@@ -1121,7 +1122,7 @@ HRESULT DcxDirectshow::setAlpha(float alpha)
 		if (hdc != nullptr) { // make duplicate hdc;
 			Auto(ReleaseDC(m_Hwnd, hdc));
 
-			auto hdcBuf = CreateHDCBuffer(hdc, &rcWin);
+			const auto hdcBuf = CreateHDCBuffer(hdc, &rcWin);
 
 			if (hdcBuf != nullptr)
 			{

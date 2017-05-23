@@ -335,7 +335,7 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 		try {
 			addControl(input, 3, CTLF_ALLOW_ALL, nullptr);
 		}
-		catch (std::exception &e)
+		catch (const std::exception &e)
 		{
 			showErrorEx(nullptr, TEXT("-c"), TEXT("Unable To Create Control (%S)"), e.what());
 			//showError(nullptr, TEXT("-c"), TEXT("Unable To Create Control (%)"), e.what());
@@ -859,10 +859,14 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 			RECT r;
 
 			// figure out coordinates of control
-			if (!GetWindowRect(ctrl->getHwnd(), &r))
-				throw Dcx::dcxException("Unable to get window rect!");
 
-			MapWindowRect(nullptr, GetParent(ctrl->getHwnd()), &r);
+			//if (!GetWindowRect(ctrl->getHwnd(), &r))
+			//	throw Dcx::dcxException("Unable to get window rect!");
+			//
+			//MapWindowRect(nullptr, GetParent(ctrl->getHwnd()), &r);
+
+			if (!GetWindowRectParent(ctrl->getHwnd(), &r))
+				throw Dcx::dcxException("Unable to get window rect!");
 
 			// for each control in the internal list
 			for (const auto &x : m_vZLayers) {

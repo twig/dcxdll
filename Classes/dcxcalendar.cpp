@@ -117,7 +117,7 @@ const TString DcxCalendar::getValue(void) const
 
 	if (isStyle(MCS_MULTISELECT)) {
 		SYSTEMTIME st[2];
-		ZeroMemory(st, sizeof(SYSTEMTIME) *2);
+		ZeroMemory(&st[0], sizeof(SYSTEMTIME) *2);
 		MonthCal_GetSelRange(m_Hwnd, st);
 
 		start = SystemTimeToMircTime(&(st[0]));
@@ -222,7 +222,7 @@ void DcxCalendar::parseInfoRequest(const TString &input, const refString<TCHAR, 
 		TString dmin(TEXT("nolimit"));
 		TString dmax(TEXT("nolimit"));
 
-		ZeroMemory(st, sizeof(SYSTEMTIME) * 2);
+		ZeroMemory(&st[0], sizeof(SYSTEMTIME) * 2);
 
 		const auto val = MonthCal_GetRange(m_Hwnd, st);
 
@@ -237,9 +237,7 @@ void DcxCalendar::parseInfoRequest(const TString &input, const refString<TCHAR, 
 	break;
 	case L"today"_hash:
 	{
-		SYSTEMTIME st;
-
-		ZeroMemory(&st, sizeof(SYSTEMTIME));
+		SYSTEMTIME st = { 0 };
 
 		MonthCal_GetToday(m_Hwnd, &st);
 		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%ld"), SystemTimeToMircTime(&st));
@@ -350,7 +348,7 @@ void DcxCalendar::parseCommandRequest( const TString &input) {
 		DWORD dflags = 0;
 		SYSTEMTIME range[2];
 
-		ZeroMemory(range, sizeof(SYSTEMTIME) *2);
+		ZeroMemory(&range[0], sizeof(SYSTEMTIME) *2);
 
 		const auto tsMin(input.getnexttok());	// tok 4
 		const auto tsMax(input.getnexttok());	// tok 5
@@ -372,7 +370,7 @@ void DcxCalendar::parseCommandRequest( const TString &input) {
 		const auto min = input.getnexttok().to_<long>();	// tok 4
 		SYSTEMTIME range[2];
 
-		ZeroMemory(range, sizeof(SYSTEMTIME) *2);
+		ZeroMemory(&range[0], sizeof(SYSTEMTIME) *2);
 		range[0] = MircTimeToSystemTime(min);
 
 		if (isStyle(MCS_MULTISELECT)) {
@@ -458,7 +456,7 @@ LRESULT DcxCalendar::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 						}
 					}
 
-					lpNMDayState->prgDayState = m_MonthDayStates;
+					lpNMDayState->prgDayState = &m_MonthDayStates[0];
 					bParsed = TRUE;
 					return FALSE;
 				}

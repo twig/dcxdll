@@ -31,6 +31,7 @@ struct DCXCCOMBOITEM {
   COLORREF clrItem;     //!< Item Color
   TString tsItemText;   //!< Item Text
 
+  DCXCCOMBOITEM() : clrItem(CLR_INVALID), tsItemText() {}
 };
 using LPDCXCCOMBOITEM = DCXCCOMBOITEM *;
 

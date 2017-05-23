@@ -22,12 +22,21 @@ void UnDock(const HWND hwnd);
  * Added as "dcx_dock" to docked windows via AddProp()
  */
 
-typedef struct tagDCXDOCK {
+struct DCXDOCK {
 	WNDPROC oldProc;
 	HWND win;
-	TString type;
 	DWORD flags;
-} DCXDOCK, *LPDCXDOCK;
+	TString type;
+
+	DCXDOCK()
+		: oldProc(nullptr)
+		, win(nullptr)
+		, flags(0U)
+		, type()
+	{}
+	~DCXDOCK() = default;
+};
+using LPDCXDOCK = DCXDOCK *;
 
 //typedef struct tagDCXDOCSIZE {
 //	DWORD	width;
@@ -74,10 +83,15 @@ BOOL CALLBACK SizeDocked(HWND hwnd,LPARAM lParam)
 			auto hScroll = FindWindowEx(hParent, nullptr, TEXT("ScrollBar"), nullptr);
 			if (IsWindow(hScroll) /*&& IsWindowVisible(hScroll)*/) {
 				RECT rcScroll;
-				if (!GetWindowRect(hScroll, &rcScroll))
+
+				//if (!GetWindowRect(hScroll, &rcScroll))
+				//	return FALSE;
+				//
+				//MapWindowRect(nullptr,hParent, &rcScroll);
+
+				if (!GetWindowRectParent(hScroll, &rcScroll))
 					return FALSE;
 
-				MapWindowRect(nullptr,hParent, &rcScroll);
 				rcParent.right -= (rcScroll.right - rcScroll.left);
 			}
 		}
@@ -201,16 +215,18 @@ bool DockWindow(const HWND mWnd, const HWND temp, const TCHAR *find, const TStri
 	if (GetProp(sWnd,TEXT("dcx_dock")) == nullptr)
 	{
 		// subclass window.
-		auto dd = new DCXDOCK;
+		{
+			gsl::owner<LPDCXDOCK> dd = new DCXDOCK;
 
-		if (SetProp(sWnd, TEXT("dcx_dock"), dd)) {
-			dd->win = mWnd;
-			dd->type = find;
-			dd->oldProc = SubclassWindow(sWnd, mIRCDockWinProc);
-		}
-		else {
-			delete dd;
-			throw Dcx::dcxException("Unable to SetProp");
+			if (SetProp(sWnd, TEXT("dcx_dock"), dd)) {
+				dd->win = mWnd;
+				dd->type = find;
+				dd->oldProc = SubclassWindow(sWnd, mIRCDockWinProc);
+			}
+			else {
+				delete dd;
+				throw Dcx::dcxException("Unable to SetProp");
+			}
 		}
 	}
 	DWORD flags = DOCKF_NORMAL;
@@ -464,7 +480,7 @@ mIRC(xdock) {
 
 		return 1;
 	}
-	catch (std::exception &e)
+	catch (const std::exception &e)
 	{
 		Dcx::errorex(TEXT("/xdock"), TEXT("\"%s\" error: %S"), input.to_chr(), e.what());
 	}
@@ -664,7 +680,7 @@ mIRC(_xdock)
 			break;
 			case TEXT("dockSide"_hash):
 			{
-				auto ud = GetUltraDock(hwnd);
+				const auto ud = GetUltraDock(hwnd);
 
 				if (ud == nullptr)
 					throw Dcx::dcxException(TEXT("Window not docked to main mIRC window (%).%"), reinterpret_cast<DWORD>(hwnd), d.gettok(2));
@@ -909,7 +925,7 @@ mIRC(_xdock)
 #endif
 		return 3;
 	}
-	catch (std::exception &e)
+	catch (const std::exception &e)
 	{
 		Dcx::errorex(TEXT("$!xdock"), TEXT("\"%s\" error: %S"), d.to_chr(), e.what());
 	}

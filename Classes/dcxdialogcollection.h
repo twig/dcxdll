@@ -15,7 +15,7 @@
 #ifndef _DCXDIALOGCOLLECTION_H_
 #define _DCXDIALOGCOLLECTION_H_
 
-// dummy runtime classe definition
+// dummy runtime class definition
 class DcxDialog;
 
 using VectorOfDialogPtrs = std::vector<DcxDialog *>; //!< blah

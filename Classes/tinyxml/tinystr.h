@@ -150,10 +150,10 @@ public:
 
 
 	// Convert a TiXmlString into a null-terminated char *
-	const char * c_str() const noexcept { return rep_->str; }
+	const char * c_str() const noexcept { return &rep_->str[0]; }
 
 	// Convert a TiXmlString into a char * (need not be null terminated).
-	const char * data() const noexcept { return rep_->str; }
+	const char * data() const noexcept { return &rep_->str[0]; }
 
 	// Return the length of a TiXmlString
 	size_type length() const noexcept { return rep_->size; }
@@ -233,8 +233,8 @@ private:
 
 	void init(size_type sz) { init(sz, sz); }
 	void set_size(size_type sz) { rep_->str[rep_->size = sz] = '\0'; }
-	char* start() const noexcept { return rep_->str; }
-	char* finish() const noexcept { return rep_->str + rep_->size; }
+	char* start() const noexcept { return &rep_->str[0]; }
+	char* finish() const noexcept { return &rep_->str[0] + rep_->size; }
 
 	struct Rep
 	{
@@ -255,6 +255,7 @@ private:
 			const size_type intsNeeded = (bytesNeeded + sizeof(int) - 1) / sizeof(int);
 			rep_ = reinterpret_cast<Rep*>(new int[intsNeeded]);
 
+			// Ook: possible buffer overrun issue here...
 			rep_->str[rep_->size = sz] = '\0';
 			rep_->capacity = cap;
 		}

@@ -830,7 +830,7 @@ TiXmlNode* TiXmlElement::Clone() const
 		CopyTo(clone);
 		return clone;
 	}
-	catch (std::bad_alloc)
+	catch (const std::bad_alloc)
 	{
 		return nullptr;
 	}
@@ -1079,7 +1079,7 @@ TiXmlNode* TiXmlDocument::Clone() const
 		CopyTo(clone);
 		return clone;
 	}
-	catch (std::bad_alloc)
+	catch (const std::bad_alloc)
 	{
 		return nullptr;
 	}
@@ -1269,7 +1269,7 @@ TiXmlNode* TiXmlComment::Clone() const
 		CopyTo(clone);
 		return clone;
 	}
-	catch (std::bad_alloc)
+	catch (const std::bad_alloc)
 	{
 		return nullptr;
 	}
@@ -1318,7 +1318,7 @@ TiXmlNode* TiXmlText::Clone() const
 		CopyTo(clone);
 		return clone;
 	}
-	catch (std::bad_alloc)
+	catch (const std::bad_alloc)
 	{
 		return nullptr;
 	}
@@ -1400,7 +1400,7 @@ TiXmlNode* TiXmlDeclaration::Clone() const
 		CopyTo(clone);
 		return clone;
 	}
-	catch (std::bad_alloc)
+	catch (const std::bad_alloc)
 	{
 		return nullptr;
 	}
@@ -1435,7 +1435,7 @@ TiXmlNode* TiXmlUnknown::Clone() const
 		CopyTo(clone);
 		return clone;
 	}
-	catch (std::bad_alloc)
+	catch (const std::bad_alloc)
 	{
 		return nullptr;
 	}

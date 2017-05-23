@@ -68,15 +68,15 @@ DcxDateTime::~DcxDateTime() {
 
 void DcxDateTime::toXml(TiXmlElement *const xml) const
 {
-	char buf[64];
-	SYSTEMTIME st{};
+	char buf[64] = { 0 };
+	SYSTEMTIME st = { 0 };
 
 	//ZeroMemory(&st, sizeof(SYSTEMTIME));
 
 	DateTime_GetSystemtime(m_Hwnd, &st);
-	wnsprintfA(buf, static_cast<int>(Dcx::countof(buf)), "%ld", SystemTimeToMircTime(&st));
+	wnsprintfA(&buf[0], static_cast<int>(Dcx::countof(buf)), "%ld", SystemTimeToMircTime(&st));
 	__super::toXml(xml);
-	xml->SetAttribute("caption", buf);
+	xml->SetAttribute("caption", &buf[0]);
 	xml->SetAttribute("styles", getStyles().c_str());
 
 	return;
@@ -86,13 +86,13 @@ TiXmlElement * DcxDateTime::toXml(void) const
 {
 	auto xml = __super::toXml();
 
-	char buf[64];
-	SYSTEMTIME st{};
+	char buf[64] = { 0 };
+	SYSTEMTIME st = { 0 };
 
 	DateTime_GetSystemtime(m_Hwnd, &st);
-	wnsprintfA(buf, static_cast<int>(Dcx::countof(buf)), "%ld", SystemTimeToMircTime(&st));
+	wnsprintfA(&buf[0], static_cast<int>(Dcx::countof(buf)), "%ld", SystemTimeToMircTime(&st));
 
-	xml->SetAttribute("caption", buf);
+	xml->SetAttribute("caption", &buf[0]);
 	xml->SetAttribute("styles", getStyles().c_str());
 
 	return xml;
@@ -195,7 +195,7 @@ void DcxDateTime::parseInfoRequest( const TString &input, const refString<TCHAR,
 		TString dmin(TEXT("nolimit"));
 		TString dmax(TEXT("nolimit"));
 
-		ZeroMemory(st, sizeof(SYSTEMTIME) *2);
+		ZeroMemory(&st[0], sizeof(SYSTEMTIME) *2);
 
 		const auto val = DateTime_GetRange(m_Hwnd, st);
 
@@ -208,9 +208,7 @@ void DcxDateTime::parseInfoRequest( const TString &input, const refString<TCHAR,
 		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%s %s"), dmin.to_chr(), dmax.to_chr()); // going to be within 900 limit anyway.
 	}
 	else if (prop == TEXT("value")) {
-		SYSTEMTIME st;
-
-		ZeroMemory(&st, sizeof(SYSTEMTIME));
+		SYSTEMTIME st = { 0 };
 
 		DateTime_GetSystemtime(m_Hwnd, &st);
 		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%ld"), SystemTimeToMircTime(&st));
@@ -244,7 +242,7 @@ void DcxDateTime::parseCommandRequest( const TString &input) {
 		DWORD dflags = 0;
 		SYSTEMTIME range[2];
 
-		ZeroMemory(range, sizeof(SYSTEMTIME) *2);
+		ZeroMemory(&range[0], sizeof(SYSTEMTIME) *2);
 
 		const auto tsMin(input++);	// tok 4
 		const auto tsMax(input++);	// tok 5
@@ -261,7 +259,7 @@ void DcxDateTime::parseCommandRequest( const TString &input) {
 			dflags |= GDTR_MAX;
 		}
 
-		DateTime_SetRange(m_Hwnd, dflags, range);
+		DateTime_SetRange(m_Hwnd, dflags, &range[0]);
 	}
 	//xdid -t [NAME] [ID] [SWITCH] [TIMESTAMP]
 	else if (flags[TEXT('t')] && numtok > 3) {

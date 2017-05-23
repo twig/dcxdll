@@ -401,7 +401,7 @@ mIRC(xtreebar) {
 		RedrawWindow(mIRCLinker::getTreeview(), nullptr, nullptr, RDW_INTERNALPAINT | RDW_ALLCHILDREN | RDW_INVALIDATE | RDW_ERASE);
 		return 1;
 	}
-	catch (std::exception &e)
+	catch (const std::exception &e)
 	{
 		Dcx::errorex(TEXT("/xtreebar"), TEXT("\"%s\" error: %S"), input.to_chr(), e.what());
 	}
@@ -521,7 +521,7 @@ mIRC(_xtreebar)
 #endif
 		return 3;
 	}
-	catch (std::exception &e)
+	catch (const std::exception &e)
 	{
 		Dcx::errorex(TEXT("/xtreebar"), TEXT("\"%s\" error: %S"), d.to_chr(), e.what());
 	}

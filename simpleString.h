@@ -72,6 +72,7 @@ struct simpleString {
 	constexpr reference operator [](const size_type &iOffSet) const noexcept { return m_data[iOffSet]; }
 	constexpr size_type length() const { return _ts_strnlen((const_pointer)&m_data[0], N); }
 	constexpr const size_type size() const noexcept { return N; }
+	constexpr const size_type bytes() const noexcept { return N * sizeof(value_type); }
 	constexpr pointer data() const noexcept { return const_cast<pointer>(&m_data[0]); }
 	constexpr bool empty() const noexcept { return (m_data[0] == value_type()); }
 	void clear() noexcept { m_data[0] = value_type(); }

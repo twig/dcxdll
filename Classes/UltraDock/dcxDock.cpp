@@ -901,8 +901,8 @@ bool DcxDock::InitStatusbar(const TString &styles)
 	LONG Styles = 0, ExStyles = 0;
 	BOOL bNoTheme = FALSE;
 
-	ZeroMemory(DcxDock::g_iDynamicParts, sizeof(DcxDock::g_iDynamicParts));
-	ZeroMemory(DcxDock::g_iFixedParts, sizeof(DcxDock::g_iFixedParts));
+	ZeroMemory(&DcxDock::g_iDynamicParts[0], sizeof(DcxDock::g_iDynamicParts));
+	ZeroMemory(&DcxDock::g_iFixedParts[0], sizeof(DcxDock::g_iFixedParts));
 
 	DcxDock::status_parseControlStyles(styles, &Styles, &ExStyles, &bNoTheme);
 
@@ -1079,7 +1079,7 @@ void DcxDock::status_deletePartInfo(const int iPart)
 		if (Dcx::eraseIfFound(g_vParts, pPart))
 		{
 			DcxDock::status_setText(iPart, SBT_OWNERDRAW, nullptr);
-			if (IsWindow(pPart->m_Child))
+			if ((pPart != nullptr) && IsWindow(pPart->m_Child))
 				DestroyWindow(pPart->m_Child);
 			delete pPart;
 		}

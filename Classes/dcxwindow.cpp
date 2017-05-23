@@ -247,6 +247,7 @@ void DcxWindow::redrawBufferedWindow( ) {
  * blah
  */
 std::map<TString, PTCHAR> DcxWindow::IDC_map;
+//std::map<stString<12U>, PTCHAR> DcxWindow::IDC_map;
 
 PTCHAR DcxWindow::parseCursorType( const TString & cursor )
 {

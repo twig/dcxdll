@@ -98,7 +98,7 @@ mIRC(ColorDialog) {
 		else
 			ret(TEXT("-1"));
 	}
-	catch (std::exception &e)
+	catch (const std::exception &e)
 	{
 		Dcx::errorex(TEXT("$!dcx(ColorDialog)"), TEXT("\"%s\" error: %S"), d.to_chr(), e.what());
 	}
@@ -133,7 +133,7 @@ mIRC(OpenDialog) {
 
 		ret(FileDialog(d, TEXT("OPEN"), mWnd).to_chr());
 	}
-	catch (std::exception &e)
+	catch (const std::exception &e)
 	{
 		Dcx::errorex(TEXT("$!dcx(OpenDialog)"), TEXT("\"%s\" error: %S"), d.to_chr(), e.what());
 	}
@@ -159,7 +159,7 @@ mIRC(SaveDialog) {
 
 		ret(FileDialog(d, TEXT("SAVE"), mWnd).to_chr());
 	}
-	catch (std::exception &e)
+	catch (const std::exception &e)
 	{
 		Dcx::errorex(TEXT("$!dcx(SaveDialog)"), TEXT("\"%s\" error: %S"), d.to_chr(), e.what());
 	}
@@ -522,7 +522,7 @@ mIRC(BrowseDialog) {
 
 		return 3;
 	}
-	catch (std::exception &e)
+	catch (const std::exception &e)
 	{
 		Dcx::errorex(TEXT("$!dcx(BrowseDialog)"), TEXT("\"%s\" error: %S"), input.to_chr(), e.what());
 	}
@@ -739,7 +739,7 @@ mIRC(FontDialog) {
 		}
 		return 3;
 	}
-	catch (std::exception &e)
+	catch (const std::exception &e)
 	{
 		Dcx::errorex(TEXT("$!dcx(FontDialog)"), TEXT("\"%s\" error: %S"), input.to_chr(), e.what());
 	}
@@ -948,7 +948,7 @@ mIRC(MsgBox) {
 				break;
 		}
 	}
-	catch (std::exception &e)
+	catch (const std::exception &e)
 	{
 		Dcx::errorex(TEXT("$!dcx(MsgBox)"), TEXT("\"%s\" error: %S"), d.to_chr(), e.what());
 	}
@@ -1003,7 +1003,7 @@ mIRC(PickIcon) {
 			wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("D_ERROR %d %s"), index, sIconPath.data());
 		return 3;
 	}
-	catch (std::exception &e)
+	catch (const std::exception &e)
 	{
 		Dcx::errorex(TEXT("$!dcx(PickIcon)"), TEXT("\"%s\" error: %S"), d.to_chr(), e.what());
 	}
@@ -1043,7 +1043,7 @@ mIRC(CountIcons) {
 
 		return 3;
 	}
-	catch (std::exception &e)
+	catch (const std::exception &e)
 	{
 		Dcx::errorex(TEXT("$!dcx(CountIcons)"), TEXT("\"%s\" error: %S"), filename.to_chr(), e.what());
 	}

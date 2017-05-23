@@ -175,7 +175,7 @@ void DcxDivider::parseCommandRequest( const TString & input ) {
 
 			redrawWindow( );
 		}
-		catch (std::exception &e) {
+		catch (const std::exception &e) {
 			//showErrorEx(nullptr, TEXT("-c"), TEXT("Unable To Create Control %d (%S)"), ID - mIRC_ID_OFFSET, e.what());
 			showError(nullptr, TEXT("-c"), TEXT("Unable To Create Control % (%)"), ID - mIRC_ID_OFFSET, e.what());
 			throw;

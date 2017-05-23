@@ -207,7 +207,7 @@ namespace mIRCLinker {
 
 	bool setTreeFont(const HFONT newFont)
 	{
-		auto f = GetWindowFont(m_hTreeview);
+		const auto f = GetWindowFont(m_hTreeview);
 		if (m_hTreeFont == nullptr)
 			m_hTreeFont = f;
 		SetWindowFont(m_hTreeview, newFont, TRUE);
@@ -332,7 +332,7 @@ namespace mIRCLinker {
 	bool evalex(TCHAR *const res, const int maxlen, const TCHAR *const szFormat, ...)
 	{
 		TString line;
-		va_list args;
+		va_list args = nullptr;
 
 		va_start(args, szFormat);
 		line.tvprintf(szFormat, args);
@@ -344,7 +344,7 @@ namespace mIRCLinker {
 	bool tsEvalex(TString &res, const TCHAR *const szFormat, ...)
 	{
 		TString line;
-		va_list args;
+		va_list args = nullptr;
 
 		va_start(args, szFormat);
 		line.tvprintf(szFormat, args);
@@ -367,7 +367,7 @@ namespace mIRCLinker {
 	bool execex(const TCHAR *const szFormat, ...)
 	{
 		TString line;
-		va_list args;
+		va_list args = nullptr;
 
 		va_start(args, szFormat);
 		line.tvprintf(szFormat, args);
@@ -397,7 +397,7 @@ namespace mIRCLinker {
 			return;
 
 		TString msg;
-		va_list args;
+		va_list args = nullptr;
 
 		va_start(args, szFormat);
 		msg.tvprintf(szFormat, args);

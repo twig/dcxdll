@@ -35,11 +35,6 @@ http://msdn.microsoft.com/library/default.asp?url=/library/en-us/shellcc/platfor
 #include <mshtml.h>
 #include <exdispid.h>
 
-//FILE * logFile;
-
-//IClassFactory * g_pClassFactory = nullptr; //!< Web Control Factory
-
-
 // Tray Icon stuff
 DcxTrayIcon *trayIcons = nullptr; // tray icon manager
 
@@ -58,7 +53,6 @@ SIGNALSWITCH dcxSignal;
 */
 
 HANDLE hDcxMutex = nullptr;
-//extern BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved );
 
 /*! \brief DllMain function is used to ensure that only one copy of DCX is loaded at a time.
  *
@@ -129,7 +123,7 @@ _INTEL_DLL_ void WINAPI LoadDll(LOADINFO * load) {
 		DCX_DEBUG(mIRCLinker::debug, TEXT("LoadDLL"), TEXT("Initialising UltraDock..."));
 		InitUltraDock();
 	}
-	catch (std::exception &e)
+	catch (const std::exception &e)
 	{
 		Dcx::errorex(TEXT("LoadDLL"), TEXT("error: %S"), e.what());
 	}
@@ -764,7 +758,7 @@ mIRC(Version)
 		throw Dcx::dcxException(TEXT("No such Exception"));
 		//throw Dcx::dcxException("No such Exception: % :: %", iTest, tok);
 	}
-	catch (std::exception &e)
+	catch (const std::exception &e)
 	{
 		Dcx::errorex(TEXT("Version"), TEXT("error: %S"), e.what());
 	}
@@ -891,7 +885,7 @@ mIRC(Mark) {
 
 		return Dcx::mark(szReturnValue, d.gettok(1), d.gettok(2));
 	}
-	catch (std::exception &e)
+	catch (const std::exception &e)
 	{
 		Dcx::errorex(TEXT("/dcx Mark"), TEXT("\"%s\" error: %S"), d.to_chr(), e.what());
 	}
@@ -1092,7 +1086,7 @@ mIRC(GetSystemColor) {
 		}
 		return 3;
 	}
-	catch (std::exception &e)
+	catch (const std::exception &e)
 	{
 		Dcx::errorex(TEXT("$!dcx(GetSystemColor)"), TEXT("\"%s\" error: %S"), d.to_chr(), e.what());
 	}
@@ -1195,7 +1189,7 @@ mIRC(xdid) {
 		}
 		return 1;
 	}
-	catch (std::exception &e)
+	catch (const std::exception &e)
 	{
 		Dcx::errorex(TEXT("/xdid"), TEXT("\"%s\" error: %S"), d.to_chr(), e.what());
 	}
@@ -1250,7 +1244,7 @@ mIRC(_xdid) {
 		p_Control->parseInfoRequest(d, data);
 		return 3;
 	}
-	catch (std::exception &e)
+	catch (const std::exception &e)
 	{
 		Dcx::errorex(TEXT("$!xdid"), TEXT("\"%s\" error: %S"), d.to_chr(), e.what());
 	}
@@ -1290,7 +1284,7 @@ mIRC(GetTaskbarPos) {
 		wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d %d %d"), rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top);
 		return 3;
 	}
-	catch (std::exception &e)
+	catch (const std::exception &e)
 	{
 		Dcx::errorex(TEXT("$!dcx(GetTaskbarPos)"), TEXT("error: %S"), e.what());
 	}
@@ -1331,7 +1325,7 @@ mIRC(xdialog) {
 		p_Dialog->parseCommandRequest(d);
 		return 1;
 	}
-	catch (std::exception &e)
+	catch (const std::exception &e)
 	{
 		Dcx::errorex(TEXT("/xdialog"), TEXT("\"%s\" error: %S"), d.to_chr(), e.what());
 	}
@@ -1379,7 +1373,7 @@ mIRC(_xdialog) {
 		p_Dialog->parseInfoRequest(d, data);
 		return 3;
 	}
-	catch (std::exception &e)
+	catch (const std::exception &e)
 	{
 		Dcx::errorex(TEXT("$!xdialog"), TEXT("\"%s\" error: %S"), d.to_chr(), e.what());
 	}
@@ -1442,7 +1436,7 @@ mIRC(xpop) {
 		return 1;
 #endif
 	}
-	catch (std::exception &e)
+	catch (const std::exception &e)
 	{
 		Dcx::errorex(TEXT("/xpop"), TEXT("\"%s\" error: %S"), d.to_chr(), e.what());
 	}
@@ -1505,7 +1499,7 @@ mIRC(_xpop) {
 		return 3;
 #endif
 	}
-	catch (std::exception &e)
+	catch (const std::exception &e)
 	{
 		Dcx::errorex(TEXT("$!xpop"), TEXT("\"%s\" error: %S"), d.to_chr(), e.what());
 	}
@@ -1542,7 +1536,7 @@ mIRC(xpopup) {
 		Dcx::XPopups.parseCommand(d);
 		return 1;
 	}
-	catch (std::exception &e)
+	catch (const std::exception &e)
 	{
 		Dcx::errorex(TEXT("/xpopup"), TEXT("\"%s\" error: %S"), d.to_chr(), e.what());
 	}
@@ -1578,7 +1572,7 @@ mIRC(_xpopup) {
 		Dcx::XPopups.parseIdentifier(d, data);
 		return 3;
 	}
-	catch (std::exception &e)
+	catch (const std::exception &e)
 	{
 		Dcx::errorex(TEXT("$!xpopup"), TEXT("\"%s\" error: %S"), d.to_chr(), e.what());
 	}
@@ -1607,7 +1601,7 @@ mIRC(xmenubar) {
 		Dcx::XMenubar.parseXMenuBarCommand(d.trim());
 		return 1;
 	}
-	catch (std::exception &e)
+	catch (const std::exception &e)
 	{
 		Dcx::errorex(TEXT("/xmenubar"), TEXT("\"%s\" error: %S"), d.to_chr(), e.what());
 	}
@@ -1635,7 +1629,7 @@ mIRC(_xmenubar) {
 		Dcx::XMenubar.parseXMenuBarInfo(d.trim(), data);
 		return 3;
 	}
-	catch (std::exception &e)
+	catch (const std::exception &e)
 	{
 		Dcx::errorex(TEXT("$!xmenubar"), TEXT("\"%s\" error: %S"), d.to_chr(), e.what());
 	}
@@ -1664,7 +1658,7 @@ mIRC(mpopup) {
 	try {
 		return Dcx::XPopups.parseMPopup(d.trim());
 	}
-	catch (std::exception &e)
+	catch (const std::exception &e)
 	{
 		Dcx::errorex(TEXT("/mpopup"), TEXT("\"%s\" error: %S"), d.to_chr(), e.what());
 	}
@@ -1709,7 +1703,7 @@ mIRC(xSignal) {
 
 		return 1;
 	}
-	catch (std::exception &e)
+	catch (const std::exception &e)
 	{
 		Dcx::errorex(TEXT("/dcx xSignal"), TEXT("\"%s\" error: %S"), d.to_chr(), e.what());
 	}
@@ -1816,7 +1810,7 @@ mIRC(WindowProps) {
 		}
 		return 1;
 	}
-	catch (std::exception &e)
+	catch (const std::exception &e)
 	{
 		Dcx::errorex(TEXT("/dcx WindowProps"), TEXT("\"%s\" error: %S"), input.to_chr(), e.what());
 	}
@@ -1916,7 +1910,7 @@ mIRC(ActiveWindow) {
 
 		return 3;
 	}
-	catch (std::exception &e)
+	catch (const std::exception &e)
 	{
 		Dcx::errorex(TEXT("$!dcx(ActiveWindow)"), TEXT("\"%s\" error: %S"), input.to_chr(), e.what());
 	}
@@ -1951,7 +1945,7 @@ mIRC(GhostDrag) {
 
 		return 1;
 	}
-	catch (std::exception &e)
+	catch (const std::exception &e)
 	{
 		Dcx::errorex(TEXT("/dcx GhostDrag"), TEXT("\"%s\" error: %S"), input.to_chr(), e.what());
 	}
@@ -1999,7 +1993,7 @@ mIRC(SetSystemCursors) {
 
 		return 1;
 	}
-	catch (std::exception &e)
+	catch (const std::exception &e)
 	{
 		Dcx::errorex(TEXT("/dcx SetSystemCursors"), TEXT("\"%s\" error: %S"), d.to_chr(), e.what());
 	}
@@ -2096,7 +2090,7 @@ mIRC(SetmIRCCursors)
 		//}
 		//return 1;
 	}
-	catch (std::exception &e)
+	catch (const std::exception &e)
 	{
 		Dcx::errorex(TEXT("/dcx SetmIRCCursors"), TEXT("\"%s\" error: %S"), d.to_chr(), e.what());
 	}
@@ -2185,7 +2179,7 @@ mIRC(SetDCXSettings)
 #endif
 		return 1;
 	}
-	catch (std::exception &e)
+	catch (const std::exception &e)
 	{
 		Dcx::errorex(TEXT("/dcx SetDCXSettings"), TEXT("\"%s\" error: %S"), d.to_chr(), e.what());
 	}

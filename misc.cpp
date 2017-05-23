@@ -639,7 +639,7 @@ TString ParseLogfontToCommand(const LPLOGFONT lf) {
 //			}
 //			delete p_Img;
 //		}
-//		catch (std::bad_alloc)
+//		catch (const std::bad_alloc)
 //		{
 //			return NULL;
 //		}
@@ -820,7 +820,7 @@ HICON dcxLoadIcon(const int index, TString &filename, const bool large, const TS
 //			}
 //			delete p_Img;
 //		}
-//		catch (std::bad_alloc)
+//		catch (const std::bad_alloc)
 //		{
 //			Dcx::error(TEXT("dcxLoadBitmap"), TEXT("Unable to Allocate Image Object"));
 //		}
@@ -1898,7 +1898,7 @@ bool isRegexMatch(const TCHAR *matchtext, const TCHAR *pattern)
 		if (std::regex_match(matchtext, r, std::regex_constants::match_default))
 			return true;
 	}
-	catch (std::regex_error) {
+	catch (const std::regex_error) {
 	}
 	return false;
 #else

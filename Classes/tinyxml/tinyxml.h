@@ -89,16 +89,16 @@ class TiXmlText;
 class TiXmlDeclaration;
 class TiXmlParsingData;
 
-const int TIXML_MAJOR_VERSION = 2;
-const int TIXML_MINOR_VERSION = 6;
-const int TIXML_PATCH_VERSION = 1;
+constexpr const int TIXML_MAJOR_VERSION = 2;
+constexpr const int TIXML_MINOR_VERSION = 6;
+constexpr const int TIXML_PATCH_VERSION = 1;
 
 /*	Internal structure for tracking location of items 
 	in the XML file.
 */
 struct TiXmlCursor
 {
-	TiXmlCursor()		{ Clear(); }
+	TiXmlCursor() : row(-1), col(-1) {}
 	void Clear()		{ row = col = -1; }
 
 	int row;	// 0 based.
@@ -167,7 +167,7 @@ enum TiXmlEncoding
 	TIXML_ENCODING_LEGACY
 };
 
-const TiXmlEncoding TIXML_DEFAULT_ENCODING = TIXML_ENCODING_UNKNOWN;
+constexpr const TiXmlEncoding TIXML_DEFAULT_ENCODING = TIXML_ENCODING_UNKNOWN;
 
 /** TiXmlBase is a base class for every class in TinyXml.
 	It does little except to establish that TinyXml classes
@@ -218,10 +218,10 @@ public:
 		into a single space or not. The default is to condense. Note changing this
 		value is not thread safe.
 	*/
-	static void SetCondenseWhiteSpace( bool condense )		{ condenseWhiteSpace = condense; }
+	static void SetCondenseWhiteSpace( bool condense ) noexcept { condenseWhiteSpace = condense; }
 
 	/// Return the current white space setting.
-	static bool IsWhiteSpaceCondensed()						{ return condenseWhiteSpace; }
+	static bool IsWhiteSpaceCondensed() noexcept { return condenseWhiteSpace; }
 
 	/** Return the position, in the original source file, of this node or attribute.
 		The row and column are 1-based. (That is the first row and first column is
@@ -241,8 +241,8 @@ public:
 
 		@sa TiXmlDocument::SetTabSize()
 	*/
-	int Row() const			{ return location.row + 1; }
-	int Column() const		{ return location.col + 1; }	///< See Row()
+	int Row() const noexcept	{ return location.row + 1; }
+	int Column() const noexcept	{ return location.col + 1; }	///< See Row()
 
 	void  SetUserData( void* user ) noexcept { userData = user; }	///< Set a pointer to arbitrary user data.
 	void* GetUserData() noexcept { return userData; }	///< Get a pointer to arbitrary user data.
@@ -287,11 +287,11 @@ protected:
 
 	static const char* SkipWhiteSpace( const char*, TiXmlEncoding encoding );
 
-	inline static bool IsWhiteSpace(char c)
+	inline static bool IsWhiteSpace(char c) noexcept
 	{
 		return (isspace(static_cast<unsigned char>(c)) || c == '\n' || c == '\r');
 	}
-	inline static bool IsWhiteSpace( int c )
+	inline static bool IsWhiteSpace( int c ) noexcept
 	{
 		if ( c < 256 )
 			return IsWhiteSpace( static_cast<char>(c) );
@@ -379,7 +379,7 @@ protected:
 	// Good for approximation, not great for accuracy.
 	static int IsAlpha( unsigned char anyByte, TiXmlEncoding encoding );
 	static int IsAlphaNum( unsigned char anyByte, TiXmlEncoding encoding );
-	inline static int ToLower( int v, TiXmlEncoding encoding )
+	inline static int ToLower( int v, TiXmlEncoding encoding ) noexcept
 	{
 		if ( encoding == TIXML_ENCODING_UTF8 )
 		{
@@ -395,7 +395,7 @@ protected:
 
 private:
 	TiXmlBase( const TiXmlBase& ) = delete;				// not implemented.
-	void operator=( const TiXmlBase& base ) = delete;	// not allowed.
+	TiXmlBase& operator=( const TiXmlBase& base ) = delete;	// not allowed.
 
 	struct Entity
 	{
@@ -765,7 +765,7 @@ protected:
 
 private:
 	TiXmlNode( const TiXmlNode& ) = delete;				// not implemented.
-	void operator=( const TiXmlNode& base ) = delete;	// not allowed.
+	TiXmlNode& operator=( const TiXmlNode& base ) = delete;	// not allowed.
 };
 
 
@@ -783,7 +783,7 @@ class TiXmlAttribute : public TiXmlBase
 public:
 	/// Construct an empty attribute.
 	TiXmlAttribute()
-		: TiXmlBase(), document(0), prev(nullptr), next(nullptr)
+		: TiXmlBase(), document(nullptr), prev(nullptr), next(nullptr)
 	{
 	}
 
@@ -797,7 +797,7 @@ public:
 
 	/// Construct an attribute with a name and value.
 	TiXmlAttribute( const char * _name, const char * _value )
-		: name(_name), value(_value), document(0), prev(nullptr), next(nullptr)
+		: name(_name), value(_value), document(nullptr), prev(nullptr), next(nullptr)
 	{
 	}
 
@@ -867,11 +867,11 @@ public:
 
 	// [internal use]
 	// Set the document pointer so the attribute can report errors.
-	void SetDocument( TiXmlDocument* doc )	{ document = doc; }
+	void SetDocument( TiXmlDocument* doc ) noexcept { document = doc; }
 
 private:
 	TiXmlAttribute( const TiXmlAttribute& ) = delete;				// not implemented.
-	void operator=( const TiXmlAttribute& base ) = delete;	// not allowed.
+	TiXmlAttribute& operator=( const TiXmlAttribute& base ) = delete;	// not allowed.
 
 	TiXmlDocument*	document;	// A pointer back to a document, for error reporting.
 	TIXML_STRING name;
@@ -902,10 +902,10 @@ public:
 	void Add( TiXmlAttribute* attribute );
 	void Remove( const TiXmlAttribute *const attribute );
 
-	const TiXmlAttribute* First()	const	{ return ( sentinel.next == &sentinel ) ? 0 : sentinel.next; }
-	TiXmlAttribute* First()					{ return ( sentinel.next == &sentinel ) ? 0 : sentinel.next; }
-	const TiXmlAttribute* Last() const		{ return ( sentinel.prev == &sentinel ) ? 0 : sentinel.prev; }
-	TiXmlAttribute* Last()					{ return ( sentinel.prev == &sentinel ) ? 0 : sentinel.prev; }
+	const TiXmlAttribute* First() const noexcept	{ return ( sentinel.next == &sentinel ) ? 0 : sentinel.next; }
+	TiXmlAttribute* First() noexcept				{ return ( sentinel.next == &sentinel ) ? 0 : sentinel.next; }
+	const TiXmlAttribute* Last() const noexcept		{ return ( sentinel.prev == &sentinel ) ? 0 : sentinel.prev; }
+	TiXmlAttribute* Last() noexcept					{ return ( sentinel.prev == &sentinel ) ? 0 : sentinel.prev; }
 
 	TiXmlAttribute*	Find( const char* _name ) const;
 	TiXmlAttribute* FindOrCreate( const char* _name );
@@ -920,7 +920,7 @@ private:
 	//*ME:	Because of hidden/disabled copy-construktor in TiXmlAttribute (sentinel-m_pElement),
 	//*ME:	this class must be also use a hidden/disabled copy-constructor !!!
 	TiXmlAttributeSet( const TiXmlAttributeSet& ) = delete;	// not allowed
-	void operator=( const TiXmlAttributeSet& ) = delete;	// not allowed (as TiXmlAttribute)
+	TiXmlAttributeSet& operator=( const TiXmlAttributeSet& ) = delete;	// not allowed (as TiXmlAttribute)
 
 	TiXmlAttribute sentinel;
 };
@@ -1067,10 +1067,10 @@ public:
 	void RemoveAttribute( const std::string& name )	{	RemoveAttribute (name.c_str ());	}	///< STL std::string form.
 	#endif
 
-	const TiXmlAttribute* FirstAttribute() const	{ return attributeSet.First(); }		///< Access the first attribute in this m_pElement.
-	TiXmlAttribute* FirstAttribute() 				{ return attributeSet.First(); }
-	const TiXmlAttribute* LastAttribute()	const 	{ return attributeSet.Last(); }		///< Access the last attribute in this m_pElement.
-	TiXmlAttribute* LastAttribute()					{ return attributeSet.Last(); }
+	const TiXmlAttribute* FirstAttribute() const noexcept	{ return attributeSet.First(); }		///< Access the first attribute in this m_pElement.
+	TiXmlAttribute* FirstAttribute() noexcept 				{ return attributeSet.First(); }
+	const TiXmlAttribute* LastAttribute() const noexcept 	{ return attributeSet.Last(); }		///< Access the last attribute in this m_pElement.
+	TiXmlAttribute* LastAttribute() noexcept				{ return attributeSet.Last(); }
 
 	/** Convenience function for easy access to the text inside an m_pElement. Although easy
 		and concise, GetText() is limited compared to getting the TiXmlText child
@@ -1203,19 +1203,21 @@ public:
 		normal, encoded text. If you want it be output as a CDATA text
 		m_pElement, set the parameter _cdata to 'true'
 	*/
-	TiXmlText (const char * initValue ) : TiXmlNode (TiXmlNode::TINYXML_TEXT)
+	TiXmlText (const char * initValue )
+		: TiXmlNode (TiXmlNode::TINYXML_TEXT)
+		, cdata(false)
 	{
 		SetValue( initValue );
-		cdata = false;
 	}
 	virtual ~TiXmlText() {}
 
 	#ifdef TIXML_USE_STL
 	/// Constructor.
-	TiXmlText( const std::string& initValue ) : TiXmlNode (TiXmlNode::TINYXML_TEXT)
+	TiXmlText( const std::string& initValue )
+		: TiXmlNode (TiXmlNode::TINYXML_TEXT)
+		, cdata(false)
 	{
 		SetValue( initValue );
-		cdata = false;
 	}
 	#endif
 
@@ -1292,11 +1294,11 @@ public:
 	virtual ~TiXmlDeclaration()	{}
 
 	/// Version. Will return an empty string if none was found.
-	const char *Version() const			{ return version.c_str (); }
+	const char *Version() const noexcept		{ return version.c_str (); }
 	/// Encoding. Will return an empty string if none was found.
-	const char *Encoding() const		{ return encoding.c_str (); }
+	const char *Encoding() const noexcept		{ return encoding.c_str (); }
 	/// Is this a standalone document?
-	const char *Standalone() const		{ return standalone.c_str (); }
+	const char *Standalone() const noexcept		{ return standalone.c_str (); }
 
 	/// Creates a copy of this Declaration and returns it.
 	virtual TiXmlNode* Clone() const;
@@ -1443,15 +1445,15 @@ public:
 		- The ErrorDesc() method will return the name of the error. (very useful)
 		- The ErrorRow() and ErrorCol() will return the location of the error (if known)
 	*/	
-	bool Error() const						{ return error; }
+	const bool &Error() const noexcept					{ return error; }
 
 	/// Contains a textual (english) description of the error if one occurs.
-	const char * ErrorDesc() const	{ return errorDesc.c_str (); }
+	const char * ErrorDesc() const noexcept	{ return errorDesc.c_str (); }
 
 	/** Generally, you probably want the error string ( ErrorDesc() ). But if you
 		prefer the ErrorId, this function will fetch it.
 	*/
-	int ErrorId()	const				{ return errorId; }
+	const int &ErrorId()	const noexcept				{ return errorId; }
 
 	/** Returns the location (if known) of the error. The first column is column 1, 
 		and the first row is row 1. A value of 0 means the row and column wasn't applicable
@@ -1460,8 +1462,8 @@ public:
 
 		@sa SetTabSize, Row, Column
 	*/
-	int ErrorRow() const	{ return errorLocation.row+1; }
-	int ErrorCol() const	{ return errorLocation.col+1; }	///< The column where the error occured. See ErrorRow()
+	const int ErrorRow() const noexcept	{ return errorLocation.row+1; }
+	const int ErrorCol() const noexcept	{ return errorLocation.col+1; }	///< The column where the error occured. See ErrorRow()
 
 	/** SetTabSize() allows the error reporting functions (ErrorRow() and ErrorCol())
 		to report the correct values for row and column. It does not change the output
@@ -1487,14 +1489,14 @@ public:
 
 		@sa Row, Column
 	*/
-	void SetTabSize( int _tabsize )		{ tabsize = _tabsize; }
+	void SetTabSize( int _tabsize ) noexcept		{ tabsize = _tabsize; }
 
-	int TabSize() const	{ return tabsize; }
+	const int &TabSize() const noexcept	{ return tabsize; }
 
 	/** If you have handled the error, it can be reset with this call. The error
 		state is automatically cleared if you Parse a new XML block.
 	*/
-	void ClearError()						{	error = false; 
+	void ClearError() noexcept				{	error = false; 
 												errorId = 0; 
 												errorDesc = ""; 
 												errorLocation.row = errorLocation.col = 0; 
@@ -1625,10 +1627,10 @@ class TiXmlHandle
 {
 public:
 	/// Create a handle from any node (at any depth of the tree.) This can be a null pointer.
-	TiXmlHandle( TiXmlNode* _node )					{ this->node = _node; }
+	TiXmlHandle(TiXmlNode* _node) noexcept : node(_node) {}
 	/// Copy constructor
-	TiXmlHandle( const TiXmlHandle& ref )			{ this->node = ref.node; }
-	TiXmlHandle &operator=( const TiXmlHandle& ref ) { this->node = ref.node; return *this; }
+	TiXmlHandle(const TiXmlHandle& ref) noexcept : node(ref.node) {}
+	TiXmlHandle &operator=( const TiXmlHandle& ref ) noexcept { this->node = ref.node; return *this; }
 
 	/// Return a handle to the first child node.
 	TiXmlHandle FirstChild() const;
@@ -1668,33 +1670,33 @@ public:
 
 	/** Return the handle as a TiXmlNode. This may return null.
 	*/
-	TiXmlNode* ToNode() const			{ return node; } 
+	TiXmlNode* ToNode() const noexcept			{ return node; } 
 	/** Return the handle as a TiXmlElement. This may return null.
 	*/
-	TiXmlElement* ToElement() const		{ return ( ( node && node->ToElement() ) ? node->ToElement() : 0 ); }
+	TiXmlElement* ToElement() const noexcept	{ return ( ( node && node->ToElement() ) ? node->ToElement() : nullptr ); }
 	/**	Return the handle as a TiXmlText. This may return null.
 	*/
-	TiXmlText* ToText() const			{ return ( ( node && node->ToText() ) ? node->ToText() : 0 ); }
+	TiXmlText* ToText() const noexcept			{ return ( ( node && node->ToText() ) ? node->ToText() : nullptr ); }
 	/** Return the handle as a TiXmlUnknown. This may return null.
 	*/
-	TiXmlUnknown* ToUnknown() const		{ return ( ( node && node->ToUnknown() ) ? node->ToUnknown() : 0 ); }
+	TiXmlUnknown* ToUnknown() const noexcept	{ return ( ( node && node->ToUnknown() ) ? node->ToUnknown() : nullptr ); }
 
 	/** @deprecated use ToNode. 
 		Return the handle as a TiXmlNode. This may return null.
 	*/
-	TiXmlNode* Node() const			{ return ToNode(); } 
+	TiXmlNode* Node() const noexcept		{ return ToNode(); } 
 	/** @deprecated use ToElement. 
 		Return the handle as a TiXmlElement. This may return null.
 	*/
-	TiXmlElement* Element() const	{ return ToElement(); }
+	TiXmlElement* Element() const noexcept	{ return ToElement(); }
 	/**	@deprecated use ToText()
 		Return the handle as a TiXmlText. This may return null.
 	*/
-	TiXmlText* Text() const			{ return ToText(); }
+	TiXmlText* Text() const noexcept		{ return ToText(); }
 	/** @deprecated use ToUnknown()
 		Return the handle as a TiXmlUnknown. This may return null.
 	*/
-	TiXmlUnknown* Unknown() const	{ return ToUnknown(); }
+	TiXmlUnknown* Unknown() const noexcept	{ return ToUnknown(); }
 
 private:
 	TiXmlNode* node;
@@ -1740,31 +1742,31 @@ public:
 	/** Set the indent characters for printing. By default 4 spaces
 		but tab (\t) is also useful, or null/empty string for no indentation.
 	*/
-	void SetIndent( const char* _indent )			{ indent = _indent ? _indent : "" ; }
+	void SetIndent( const char* _indent ) noexcept		{ indent = _indent ? _indent : "" ; }
 	/// Query the indention string.
-	const char* Indent()							{ return indent.c_str(); }
+	const char* Indent() noexcept						{ return indent.c_str(); }
 	/** Set the line breaking string. By default set to newline (\n). 
 		Some operating systems prefer other characters, or can be
 		set to the null/empty string for no indenation.
 	*/
-	void SetLineBreak( const char* _lineBreak )		{ lineBreak = _lineBreak ? _lineBreak : ""; }
+	void SetLineBreak( const char* _lineBreak ) noexcept	{ lineBreak = _lineBreak ? _lineBreak : ""; }
 	/// Query the current line breaking string.
-	const char* LineBreak()							{ return lineBreak.c_str(); }
+	const char* LineBreak() noexcept						{ return lineBreak.c_str(); }
 
 	/** Switch over to "stream printing" which is the most dense formatting without 
 		linebreaks. Common when the XML is needed for network transmission.
 	*/
-	void SetStreamPrinting()						{ indent = "";
+	void SetStreamPrinting() noexcept				{ indent = "";
 													  lineBreak = "";
 													}	
 	/// Return the result.
-	const char* CStr()								{ return buffer.c_str(); }
+	const char* CStr() noexcept						{ return buffer.c_str(); }
 	/// Return the length of the result string.
-	size_t Size()									{ return buffer.size(); }
+	const size_t Size() noexcept					{ return buffer.size(); }
 
 	#ifdef TIXML_USE_STL
 	/// Return the result.
-	const std::string& Str()						{ return buffer; }
+	const std::string& Str() noexcept				{ return buffer; }
 	#endif
 
 private:

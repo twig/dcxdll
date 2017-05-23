@@ -54,6 +54,8 @@ http://symbiancorner.blogspot.com/2007/05/how-to-detect-version-of-ms-visual.htm
 #pragma warning( disable : 4820 ) // 'x' bytes padding added after data member '....'
 #define _INTEL_DLL_ __declspec(dllexport)
 #endif
+#pragma warning( disable : 26499 ) //  warning C26499 : Could not find any lifetime tracking information for '........'
+#pragma warning( disable : 26482 ) //  warning C26482 : Only index into arrays using constant expressions. (bounds.2: http://go.microsoft.com/fwlink/p/?LinkID=620414)
 
 // --------------------------------------------------
 // Optional build libraries for DCX
@@ -495,7 +497,7 @@ if ((x)) (y)[0] = TEXT('1'); \
 template <typename T, typename M>
 constexpr bool dcx_testflag(T x, M y) noexcept { return ((x & static_cast<T>(y)) == static_cast<T>(y)); }
 
-#define dcxlParam(x,y) auto y = reinterpret_cast<x>(lParam)
+#define dcxlParam(x,y) const auto y = reinterpret_cast<x>(lParam)
 #define dcxwParam(x,y) auto y = reinterpret_cast<x>(wParam)
 
 // --------------------------------------------------
@@ -529,6 +531,7 @@ void ChangeHwndIcon(const HWND hwnd, const TString &flags, const int index, TStr
 bool AddFileIcons(HIMAGELIST himl, TString &filename, const bool bLarge, const int iIndex, const int iStart = 0, const int iEnd = -1);
 BOOL dcxGetWindowRect(const gsl::not_null<HWND> &hWnd, const gsl::not_null<LPRECT> &lpRect);
 int dcxPickIconDlg(const gsl::not_null<HWND> &hwnd, gsl::not_null<LPWSTR> pszIconPath, const UINT &cchIconPath, gsl::not_null<int *> piIconIndex);
+bool GetWindowRectParent(const gsl::not_null<HWND> &hwnd, gsl::not_null<RECT *> rcWin);
 
 SYSTEMTIME MircTimeToSystemTime(const long mircTime);
 long SystemTimeToMircTime(const LPSYSTEMTIME pst);

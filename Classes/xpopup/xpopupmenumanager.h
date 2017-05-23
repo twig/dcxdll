@@ -52,7 +52,7 @@ public:
 	//XPopupMenuManager( );
 	//virtual ~XPopupMenuManager( );
 
-	XPopupMenuManager() : m_mIRCPopupMenu(nullptr), m_mIRCMenuBar(nullptr), m_bIsActiveMircMenubarPopup(false), m_bIsActiveMircPopup(false), m_hMenuCustom(nullptr), m_hMenuOwner(nullptr), m_vpXPMenu() {}
+	XPopupMenuManager() : m_mIRCPopupMenu(nullptr), m_mIRCMenuBar(nullptr), m_bIsActiveMircMenubarPopup(false), m_bIsActiveMircPopup(false), m_hMenuCustom(nullptr), m_hMenuOwner(nullptr), m_vpXPMenu(), m_bIsSysMenu(false), m_bIsMenuBar(false) {}
 	~XPopupMenuManager() = default;
 
 	void load(void);

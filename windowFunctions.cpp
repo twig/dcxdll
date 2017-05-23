@@ -384,7 +384,7 @@ HRGN BitmapRegion(HBITMAP hBitmap, const COLORREF cTransparentColor, const BOOL 
 	};
 
 	// Here is the pointer to the bitmap data
-	VOID		*pBits;
+	VOID		*pBits = nullptr;
 
 	// With the previous information, we create the new bitmap!
 
@@ -513,7 +513,7 @@ HRGN BitmapRegion(HBITMAP hBitmap, const COLORREF cTransparentColor, const BOOL 
 	// Also, in order to not saturate the Windows API with calls for reserving
 	// memory, we wait until NUMRECT rectangles are stores in order to claim
 	// for another NUMRECT memory space!
-#define NUMRECT	100			
+#define NUMRECT	100U			
 	DWORD maxRect = NUMRECT;
 
 	// We create the memory data
@@ -580,7 +580,7 @@ HRGN BitmapRegion(HBITMAP hBitmap, const COLORREF cTransparentColor, const BOOL 
 					pData = (RGNDATA *)GlobalLock(hData);
 				}	// if (pData->rdh.nCount>=maxRect)
 
-				auto pRect = (RECT*)&pData->Buffer;
+				auto pRect = (RECT*)&pData->Buffer[0];
 				SetRect(&pRect[pData->rdh.nCount], Xo, Row, Column, Row + 1);
 
 				if (Xo<pData->rdh.rcBound.left)
@@ -698,4 +698,15 @@ void ChangeHwndIcon(const HWND hwnd, const TString &flags, const int index, TStr
 		DestroyIcon(iconSmall);
 	if ((iconLarge != nullptr) && (iconSmall != iconLarge)) // dont delete twice
 		DestroyIcon(iconLarge);
+}
+
+bool GetWindowRectParent(const gsl::not_null<HWND> &hwnd, gsl::not_null<RECT *> rcWin)
+{
+	if (GetWindowRect(hwnd, rcWin))
+	{
+		SetLastError(0U);
+		MapWindowRect(nullptr, GetParent(hwnd), rcWin.get());
+		return (GetLastError() == 0U);
+	}
+	return false;
 }

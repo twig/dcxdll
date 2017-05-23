@@ -3375,7 +3375,7 @@ LRESULT DcxListView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 					case NM_HOVER:
 						{
 							if (dcx_testflag(this->m_pParentDialog->getEventMask(), DCX_EVENT_CLICK)) {
-								LVHITTESTINFO lvh;
+								LVHITTESTINFO lvh = { 0 };
 								if (GetCursorPos(&lvh.pt))
 								{
 									MapWindowPoints(nullptr, m_Hwnd, &lvh.pt, 1);
@@ -3899,7 +3899,7 @@ LRESULT DcxListView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
 					{
 						bParsed = TRUE;
 
-						const dcxlParam(LPNMHEADER, pHeader);
+						dcxlParam(LPNMHEADER, pHeader);
 
 						//TCHAR ret[256];
 						//evalAliasEx( ret, Dcx::countof(ret), TEXT("trackbegin,%u,%d"), getUserID(), pHeader->iItem +1);
@@ -3920,7 +3920,7 @@ LRESULT DcxListView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
 						bParsed = TRUE;
 
 						if (dcx_testflag(m_pParentDialog->getEventMask(), DCX_EVENT_CLICK)) {
-							const dcxlParam(LPNMHEADER, lphdr);
+							dcxlParam(LPNMHEADER, lphdr);
 
 							switch (lphdr->iButton)
 							{
@@ -3964,7 +3964,7 @@ LRESULT DcxListView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
 						bParsed = TRUE;
 
 						if (dcx_testflag(m_pParentDialog->getEventMask(), DCX_EVENT_CLICK)) {
-							const dcxlParam(LPNMHEADER, lphdr);
+							dcxlParam(LPNMHEADER, lphdr);
 
 							execAliasEx(TEXT("hdclick,%u,%d"), getUserID( ), lphdr->iItem + 1 );
 						}
@@ -3975,7 +3975,7 @@ LRESULT DcxListView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
 						bParsed = TRUE;
 
 						if (dcx_testflag(this->m_pParentDialog->getEventMask(), DCX_EVENT_CLICK)) {
-							const dcxlParam(LPNMHEADER, lphdr);
+							dcxlParam(LPNMHEADER, lphdr);
 
 							execAliasEx(TEXT("hdropdown,%u,%d,%d"), getUserID( ), lphdr->iItem + 1, lphdr->iButton );
 						}
@@ -4181,7 +4181,7 @@ DcxControl* DcxListView::CreatePbar(LPLVITEM lvi, const TString &styles) {
 
 		return lpdcxlvi->pbar;
 	}
-	catch (std::exception &e) {
+	catch (const std::exception &e) {
 		//showErrorEx(nullptr, TEXT("CreatePbar()"), TEXT("Unable To Create Control %s (%S)"), tsID.to_chr(), e.what());
 		showError(nullptr, TEXT("CreatePbar()"), TEXT("Unable To Create Control % (%)"), tsID, e.what());
 		throw;
@@ -4232,8 +4232,6 @@ void DcxListView::ScrollPbars(const int row, const int nCols, const int iTop, co
 		if (lpdcxlvi->iPbarCol != col)
 			continue;
 
-		RECT rItem = { 0 };
-
 		// hide it if its scrolled off visible range
 		//if (!ListView_IsItemVisible(m_Hwnd, lvi->iItem)) {
 		if ((lvi->iItem < iTop) || (lvi->iItem > iBottom)) {
@@ -4242,6 +4240,8 @@ void DcxListView::ScrollPbars(const int row, const int nCols, const int iTop, co
 		}
 		else
 			ShowWindow(lpdcxlvi->pbar->getHwnd(), SW_SHOW);
+
+		RECT rItem = { 0 };
 
 		// get coordinates to move to
 		if (col == 0)
@@ -4258,22 +4258,33 @@ void DcxListView::ScrollPbars(const int row, const int nCols, const int iTop, co
 		// Ook: testing a workaround for controls being drawn over headers
 		auto hHeader = ListView_GetHeader(m_Hwnd);
 		if (IsWindowVisible(hHeader)) {
-			RECT rcClient, rcHeader;
-			GetClientRect(m_Hwnd, &rcClient);
-			GetWindowRect(hHeader, &rcHeader);
-			MapWindowRect(nullptr, m_Hwnd, &rcHeader);
-			rcClient.top += (rcHeader.bottom - rcHeader.top);
-			if (rItem.top < rcClient.top)
+			RECT rcClient = { 0 }, rcHeader = { 0 };
+			if (GetClientRect(m_Hwnd, &rcClient) && GetWindowRectParent(hHeader, &rcHeader))
 			{
-				ShowWindow(lpdcxlvi->pbar->getHwnd(), SW_HIDE);
-				break;
+				rcClient.top += (rcHeader.bottom - rcHeader.top);
+				if (rItem.top <= rcClient.top)
+				{
+					ShowWindow(lpdcxlvi->pbar->getHwnd(), SW_HIDE);
+					break;
+				}
 			}
 		}
 
-		RECT rcWin;
-		if (GetWindowRect(lpdcxlvi->pbar->getHwnd(), &rcWin))
+		//RECT rcWin;
+		//if (GetWindowRect(lpdcxlvi->pbar->getHwnd(), &rcWin))
+		//{
+		//	MapWindowRect(nullptr, m_Hwnd, &rcWin);
+		//	if (!EqualRect(&rcWin, &rItem)) {
+		//		MoveWindow(lpdcxlvi->pbar->getHwnd(),
+		//			rItem.left, rItem.top, (rItem.right - rItem.left), (rItem.bottom - rItem.top),
+		//			FALSE);
+		//		InvalidateRect(lpdcxlvi->pbar->getHwnd(), nullptr, TRUE);
+		//	}
+		//}
+
+		RECT rcWin = { 0 };
+		if (GetWindowRectParent(lpdcxlvi->pbar->getHwnd(), &rcWin))
 		{
-			MapWindowRect(nullptr, m_Hwnd, &rcWin);
 			if (!EqualRect(&rcWin, &rItem)) {
 				MoveWindow(lpdcxlvi->pbar->getHwnd(),
 					rItem.left, rItem.top, (rItem.right - rItem.left), (rItem.bottom - rItem.top),

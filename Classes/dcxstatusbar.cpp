@@ -450,7 +450,7 @@ void DcxStatusBar::parseCommandRequest( const TString & input ) {
 				//	ShowWindow(p_Control->getHwnd(),SW_HIDE); // hide control untill a WM_DRAWITEM is recieved.
 				//	SendMessage(m_Hwnd,WM_SIZE,0,0);
 				//}
-				//catch ( std::exception &e ) {
+				//catch (const std::exception &e ) {
 				//	this->showErrorEx(nullptr, TEXT("-t"), TEXT("Unable To Create Control %d (%S)"), ID - mIRC_ID_OFFSET, e.what());
 				//	throw;
 				//}

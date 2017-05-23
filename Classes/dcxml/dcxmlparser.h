@@ -9,7 +9,7 @@ class DcxmlParser {
 
 public:
 	//constructor
-	DcxmlParser() = default;
+	DcxmlParser();
 	~DcxmlParser() = default;
 
 	DcxmlParser(const DcxmlParser &) = delete;

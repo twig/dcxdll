@@ -133,7 +133,7 @@ void DcxPanel::parseCommandRequest( const TString & input ) {
 		//try {
 		//	m_pParentDialog->addControl(DcxControl::controlFactory(m_pParentDialog, ID, input, 5, CTLF_ALLOW_ALL, m_Hwnd));
 		//}
-		//catch ( std::exception &e ) {
+		//catch (const std::exception &e ) {
 		//	showErrorEx(nullptr, TEXT("-c"), TEXT("Unable To Create Control %d (%S)"), ID - mIRC_ID_OFFSET, e.what());
 		//	throw;
 		//}
@@ -422,7 +422,7 @@ LRESULT DcxPanel::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 				bParsed = TRUE;
 
 				// Setup alpha blend if any.
-				auto ai = this->SetupAlphaBlend(&hdc);
+				const auto ai = this->SetupAlphaBlend(&hdc);
 
 				{ // simply fill with bkg
 					if (this->isExStyle(WS_EX_TRANSPARENT)) {

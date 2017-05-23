@@ -228,7 +228,8 @@ public:
 				return x.first;
 		}
 
-		return TString();
+		//return TString();
+		return {};
 	}
 	const UINT getUniqueID() const
 	{
@@ -382,7 +383,7 @@ private:
 	static const UINT parseTooltipFlags(const TString &flags) noexcept;
 
 	// Helper to calculate the alpha-premultiled value for a pixel
-	static inline const DWORD PreMultiply(const COLORREF cl, const unsigned char nAlpha) noexcept
+	constexpr static inline const DWORD PreMultiply(const COLORREF cl, const unsigned char nAlpha) noexcept
 	{
 		// It's strange that the byte order of RGB in 32b BMP is reverse to in COLORREF
 		const DWORD dAlpha = static_cast<const DWORD>(nAlpha);

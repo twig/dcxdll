@@ -28,6 +28,9 @@
 DcxComboEx::DcxComboEx(const UINT ID, DcxDialog *const  p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles)
 	: DcxControl(ID, p_Dialog)
 	, m_tsSelected()
+	, m_exEdit()
+	, m_hComboHwnd(nullptr)
+	, m_EditHwnd(nullptr)
 {
 	LONG Styles = 0, ExStyles = 0;
 	BOOL bNoTheme = FALSE;
@@ -555,7 +558,8 @@ void DcxComboEx::parseCommandRequest( const TString &input) {
 				{
 					Auto(ReleaseDC(m_Hwnd, hdc));
 
-					HFONT hFont = this->getFont(), hOldFont = nullptr;
+					const HFONT hFont = this->getFont();
+					HFONT hOldFont = nullptr;
 					SIZE sz = { 0 };
 
 					if (hFont != nullptr)

@@ -71,7 +71,7 @@ protected:
 	UINT m_ID;
 
 	static std::map<TString, PTCHAR> IDC_map;
-
+	//static std::map<stString<12U>, PTCHAR> IDC_map;
 };
 #ifdef __INTEL_COMPILER // Defined when using Intel C++ Compiler.
 #pragma warning( pop )

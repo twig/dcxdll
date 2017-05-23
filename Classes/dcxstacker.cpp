@@ -335,7 +335,7 @@ void DcxStacker::parseCommandRequest( const TString &input) {
 			//	ShowWindow(p_Control->getHwnd(),SW_HIDE);
 			//	this->redrawWindow( );
 			//}
-			//catch (std::exception &e) {
+			//catch (const std::exception &e) {
 			//	this->showErrorEx(nullptr, TEXT("-a"), TEXT("Unable To Create Control %d (%S)"), ID - mIRC_ID_OFFSET, e.what());
 			//	throw;
 			//}

@@ -20,42 +20,39 @@
 /*
 dcxml [-FLAGS] [DNAME] [DATASET] "[PATH]"
 */
-//DcxmlParser::DcxmlParser() :
-//	loadSuccess(false),
-//	d_Host(nullptr),
-//	root(nullptr),
-//	m_pDialogs(nullptr), m_pDialog(nullptr),
-//	m_pElement(nullptr), m_pParent(nullptr),
-//	controls(0),
-//	zlayered(0),
-//	m_iID(0), m_iParentID(0),
-//	m_sElem(nullptr),	m_sParentelem(nullptr), m_sParenttype(nullptr),	m_sType(nullptr),
-//	m_sSTclass(nullptr),
-//	m_sWeight(nullptr), m_sHeight(nullptr), m_sDropdown(nullptr), m_sWidth(nullptr), m_sMargin(nullptr),
-//	m_sStyles(nullptr),
-//	m_sCaption(nullptr),
-//	m_sTooltip(nullptr),
-//	m_sCascade(nullptr),
-//	m_sIcon(nullptr),
-//	m_sTFlags(nullptr),
-//	m_sIntegral(nullptr), m_sState(nullptr), m_sIndent(nullptr),
-//	m_sSrc(nullptr),
-//	m_sCells(nullptr),
-//	m_sRebarMinHeight(nullptr), m_sRebarMinWidth(nullptr),
-//	m_sIconsize(nullptr),
-//	m_sFontstyle(nullptr), m_sCharset(nullptr), m_sFontsize(nullptr), m_sFontname(nullptr),
-//	m_sBorder(nullptr),
-//	m_sCursor(nullptr),
-//	m_sBgcolour(nullptr), m_sTextbgcolour(nullptr), m_sTextcolour(nullptr),
-//	m_sGradientend(nullptr), m_sGradientstart(nullptr),
-//	m_sDisabledsrc(nullptr), m_sHoversrc(nullptr), m_sSelectedsrc(nullptr),
-//	m_pTemplateRef(nullptr), m_iTemplateRefcCla(0), m_sTemplateRefclaPath(nullptr),
-//	m_iEval(0),
-//	m_sTemp(nullptr),
-//	g_claPath(nullptr), g_claPathx(nullptr), g_bResetCLA(false),
-//	m_bVerbose(false), m_bAutoClose(false), m_bZlayered(false), m_pDcxDialog(nullptr), m_pRootElement(nullptr), m_pDialogElement(nullptr), m_pDialogsElement(nullptr)
-//{
-//}
+DcxmlParser::DcxmlParser() :
+	m_bLoadSuccess(false),
+	m_pElement(nullptr), m_pParent(nullptr),
+	m_iControls(0U),
+	m_iID(0U), m_iParentID(0U),
+	m_sElem(nullptr),	m_sParentelem(nullptr), m_sParenttype(nullptr),	m_sType(nullptr),
+	m_sSTclass(nullptr),
+	m_sWeight(nullptr), m_sHeight(nullptr), m_sDropdown(nullptr), m_sWidth(nullptr), m_sMargin(nullptr),
+	m_sStyles(nullptr),
+	m_sCaption(nullptr),
+	m_sTooltip(nullptr),
+	m_sCascade(nullptr),
+	m_sIcon(nullptr),
+	m_sTFlags(nullptr),
+	m_sIntegral(nullptr), m_sState(nullptr), m_sIndent(nullptr),
+	m_sSrc(nullptr),
+	m_sCells(nullptr),
+	m_sRebarMinHeight(nullptr), m_sRebarMinWidth(nullptr),
+	m_sIconsize(nullptr),
+	m_sFontstyle(nullptr), m_sCharset(nullptr), m_sFontsize(nullptr), m_sFontname(nullptr),
+	m_sBorder(nullptr),
+	m_sCursor(nullptr),
+	m_sBgcolour(nullptr), m_sTextbgcolour(nullptr), m_sTextcolour(nullptr),
+	m_sGradientend(nullptr), m_sGradientstart(nullptr),
+	m_sDisabledsrc(nullptr), m_sHoversrc(nullptr), m_sSelectedsrc(nullptr),
+	m_mTemplate_vars(),	m_pTemplateRef(nullptr), m_iTemplateRefcCla(0), m_sTemplateRefclaPath(nullptr),
+	m_iEval(0),
+	g_claPath(nullptr), g_claPathx(nullptr), g_bResetCLA(false),
+	m_bVerbose(false), m_bAutoClose(false), m_bZlayered(false), m_pDcxDialog(nullptr), m_pRootElement(nullptr), m_pDialogElement(nullptr), m_pDialogsElement(nullptr),
+	m_xmlDocument(), m_tsDialogMark(), m_tsDialogName(), m_tsFilePath()
+{
+}
+
 //DcxmlParser::~DcxmlParser() {
 //}
 
@@ -115,7 +112,7 @@ bool DcxmlParser::ParseXML(const TString &tsFilePath,const TString &tsDialogMark
 		mIRCLinker::execex(TEXT("/.timer 1 0 %s %s ready"), getDialog()->getAliasName().to_chr(), tsDialogMark.to_chr()); //!< Tell user that dcxml is finished, & they can do a cla update or whatever.
 		return m_bLoadSuccess;
 	}
-	catch (std::exception)
+	catch (const std::exception)
 	{
 		m_bLoadSuccess = false;
 		if ((getDialog() != nullptr) && isAutoClose())
@@ -477,7 +474,7 @@ void DcxmlParser::xdialogEX(const TCHAR *const sw,const TCHAR *const dFormat, ..
 	TString txt;
 
 	{
-		va_list args;
+		va_list args = nullptr;
 
 		va_start(args, dFormat);
 		txt.tvprintf(dFormat, args);
@@ -515,7 +512,7 @@ void DcxmlParser::xdidEX(const UINT cid, const TCHAR *const sw, const TCHAR *con
 	TString txt;
 
 	{
-		va_list args;
+		va_list args = nullptr;
 
 		va_start(args, dFormat);
 		txt.tvprintf(dFormat, args);

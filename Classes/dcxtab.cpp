@@ -547,7 +547,7 @@ void DcxTab::parseCommandRequest( const TString & input ) {
 			//	lpdtci->mChildHwnd = p_Control->getHwnd( );
 			//	this->m_pParentDialog->addControl( p_Control );
 			//}
-			//catch (std::exception &e) {
+			//catch (const std::exception &e) {
 			//	this->showErrorEx(nullptr, TEXT("-a"), TEXT("Unable To Create Control %d (%S)"), ID - mIRC_ID_OFFSET, e.what());
 			//	throw;
 			//}

@@ -30,18 +30,20 @@ class DcxDialog;
  * blah
  */
 
-typedef struct tagDCXCOMBOEXEDIT {
+struct DCXCOMBOEXEDIT {
 
   WNDPROC OldProc; //!< Subclassed Window Procedure of Combo
   HWND cHwnd;      //!< Parent ComboEx Handle
   HWND pHwnd;      //!< Dialog Handle
 
-} DCXCOMBOEXEDIT, *LPDCXCOMBOEXEDIT;
+  DCXCOMBOEXEDIT() : OldProc(nullptr), cHwnd(nullptr), pHwnd(nullptr) {}
+};
+using LPDCXCOMBOEXEDIT = DCXCOMBOEXEDIT *;
 
-
-typedef struct tagDCXCBITEM {
+struct DCXCBITEM {
 	TString tsMark;		// Marked text
-} DCXCBITEM,*LPDCXCBITEM;
+};
+using LPDCXCBITEM = DCXCBITEM *;
 
 /*!
  * \brief blah

@@ -902,7 +902,7 @@ HRESULT DcxWebControl::Invoke( DISPID dispIdMember,
 		else if (dispIdMember == DISPID_DOCUMENTCOMPLETE)
 			this->m_bHideEvents = false; // allow events to be seen after first doc loads `about:blank`
 	}
-	catch (std::exception &e)
+	catch (const std::exception &e)
 	{
 		//showErrorEx(nullptr, TEXT("webctrl"), TEXT("error: %S"), e.what());
 		showError(nullptr, TEXT("webctrl"), TEXT("error: %"), e.what());
