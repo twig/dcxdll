@@ -437,9 +437,9 @@ void DcxRichEdit::parseInfoRequest( const TString &input, const refString<TCHAR,
 #endif
 }
 
-bool DcxRichEdit::SaveRichTextToFile(HWND hWnd, const TCHAR *const filename)
+bool DcxRichEdit::SaveRichTextToFile(HWND hWnd, const TString &tsFilename)
 {
-	auto hFile = CreateFile(filename, GENERIC_WRITE, 0, nullptr,	CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
+	auto hFile = CreateFile(tsFilename.to_chr(), GENERIC_WRITE, 0, nullptr,	CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
 	Auto(CloseHandle(hFile));
 
 	if (hFile == INVALID_HANDLE_VALUE)
@@ -452,9 +452,9 @@ bool DcxRichEdit::SaveRichTextToFile(HWND hWnd, const TCHAR *const filename)
 	return (es.dwError == 0);
 }
 
-bool DcxRichEdit::LoadRichTextFromFile(HWND hWnd, const TCHAR *const filename)
+bool DcxRichEdit::LoadRichTextFromFile(HWND hWnd, const TString &tsFilename)
 {
-	auto hFile = CreateFile(filename, GENERIC_READ, 0, nullptr, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
+	auto hFile = CreateFile(tsFilename.to_chr(), GENERIC_READ, 0, nullptr, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
 	Auto(CloseHandle(hFile));
 
 	if (hFile == INVALID_HANDLE_VALUE)
@@ -664,25 +664,28 @@ void DcxRichEdit::parseCommandRequest(const TString &input) {
 	else if (flags[TEXT('t')] && numtok > 3) {
 		const XSwitchFlags xflags(input.getnexttok().trim());	// tok 4
 		bool bOldMethod = false;
-		TString tsFile;
+		TString tsArgs;
 
 		if (!xflags[TEXT('+')])
 		{
 			bOldMethod = true;
-			tsFile = input.gettok(4, -1 ).trim();	// 4, -1
+			tsArgs = input.gettok(4, -1 ).trim();	// 4, -1
 		}
 		else
-			tsFile = input.getlasttoks( ).trim();	// 5, -1
-
-		if (!IsFile(tsFile))
-			throw Dcx::dcxException(TEXT("Unable to open: %"), tsFile);
+			tsArgs = input.getlasttoks( ).trim();	// 5, -1
 
 		if (xflags[TEXT('o')])
 			bOldMethod = true;
 
 		if (bOldMethod)
 		{
-			this->m_tsText = readTextFile(tsFile);
+			// xdid -t [NAME] [ID] [FILENAME]
+			// xdid -t [NAME] [ID] +o [FILENAME]
+
+			if (!IsFile(tsArgs))
+				throw Dcx::dcxException(TEXT("Unable to open: %"), tsArgs);
+
+			this->m_tsText = readTextFile(tsArgs);
 
 			const auto mask = this->m_dEventMask;
 			this->m_dEventMask = 0;
@@ -691,8 +694,25 @@ void DcxRichEdit::parseCommandRequest(const TString &input) {
 		}
 		else {
 			// new methods... load rtf...
-			if (!LoadRichTextFromFile(m_Hwnd, tsFile.to_chr()))
-				throw Dcx::dcxException(TEXT("Unable to open: %"), tsFile);
+			if (xflags[TEXT('x')]) {
+				// load from xml
+				// xdid -t [NAME] [ID] +x [FILENAME] [data_set]
+				if (tsArgs.numtok() < 2)
+					throw Dcx::dcxException(TEXT("No dataset specified"));
+
+				TString tsFile(tsArgs.gettok(1, static_cast<int>(tsArgs.numtok()) -1));
+				const TString tsDataSet(tsArgs.gettok(tsArgs.numtok()));
+
+				if (!LoadRichTextFromXml(m_Hwnd, tsFile, tsDataSet))	// default load rtf text
+					throw Dcx::dcxException(TEXT("Unable to load: % Dataset: %"), tsFile,  tsDataSet);
+			}
+			else {
+				if (!IsFile(tsArgs))
+					throw Dcx::dcxException(TEXT("Unable to open: %"), tsArgs);
+
+				if (!LoadRichTextFromFile(m_Hwnd, tsArgs))	// default load rtf text
+					throw Dcx::dcxException(TEXT("Unable to load: %"), tsArgs);
+			}
 		}
 	}
 	// xdid -u [NAME] [ID] [SWITCH] [FILENAME]
@@ -715,12 +735,23 @@ void DcxRichEdit::parseCommandRequest(const TString &input) {
 
 		if (bOldMethod)
 		{
+			// xdid -u [NAME] [ID] [FILENAME]
+			// xdid -u [NAME] [ID] +o [FILENAME]
 			// old way if no flags provided or old method selected.
 			bRes = SaveDataToFile(tsFile, this->m_tsText);
 		}
 		else {
 			// new method's...
-			bRes = SaveRichTextToFile(m_Hwnd, tsFile.to_chr());
+			if (xflags[TEXT('x')]) {
+				// save to xml
+				// xdid -u [NAME] [ID] +x [FILENAME] [data_set]
+			}
+			else
+			{
+				//	default, save as rtf text
+				// xdid -u [NAME] [ID] + [FILENAME]
+				bRes = SaveRichTextToFile(m_Hwnd, tsFile);
+			}
 		}
 		if (!bRes)
 			throw Dcx::dcxException(TEXT("Unable to save: %"), tsFile);
@@ -1529,4 +1560,34 @@ LRESULT DcxRichEdit::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 	}
 
 	return 0L;
+}
+
+bool DcxRichEdit::LoadRichTextFromXml(HWND hWnd, TString & tsFilename, const TString & tsDataSet)
+{
+	if (!IsFile(tsFilename))
+		throw Dcx::dcxException(TEXT("Unable To Access File: %"), tsFilename);
+
+	TiXmlDocument doc(tsFilename.c_str());
+	doc.SetCondenseWhiteSpace(false);
+	TString tsBuf;
+
+	const auto xmlFile = doc.LoadFile();
+	if (!xmlFile)
+		throw Dcx::dcxException(TEXT("Not an XML File: %"), tsFilename);
+
+	const auto *const xRoot = doc.FirstChildElement("dcxml");
+	if (xRoot == nullptr)
+		throw Dcx::dcxException("Unable Find 'dcxml' root");
+
+	const auto *xElm = xRoot->FirstChildElement("richedit_data");
+	if (xElm == nullptr)
+		throw Dcx::dcxException("Unable To Find 'richedit_data' element");
+
+	xElm = xElm->FirstChildElement(tsDataSet.c_str());
+	if (xElm == nullptr)
+		throw Dcx::dcxException(TEXT("Unable To Find Dataset: %"), tsDataSet);
+
+	//xElm->Value();
+
+	return false;
 }

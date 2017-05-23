@@ -100,8 +100,9 @@ protected:
 	static DWORD CALLBACK StreamOutToVarCallback(DWORD_PTR dwCookie, const LPBYTE pbBuff, const LONG cb, LONG *pcb);
 	static DWORD CALLBACK StreamOutToFileCallback(DWORD_PTR dwCookie, const LPBYTE pbBuff, const LONG cb, LONG *pcb);
 	static DWORD CALLBACK StreamInFromFileCallback(DWORD_PTR dwCookie, LPBYTE pbBuff, const LONG cb, LONG *pcb);
-	static bool SaveRichTextToFile(HWND hWnd, const TCHAR *const filename);
-	static bool LoadRichTextFromFile(HWND hWnd, const TCHAR *const filename);
+	static bool SaveRichTextToFile(HWND hWnd, const TString &tsFilename);
+	static bool LoadRichTextFromFile(HWND hWnd, const TString &tsFilename);
+	static bool LoadRichTextFromXml(HWND hWnd, TString &tsFilename, const TString &tsDataSet);
 
 	void insertText(const TCHAR *const text, bool bline, bool uline, bool iline, bool bcolor, COLORREF color, bool bbkgcolor, COLORREF bkgcolor, int reverse);
 	void parseStringContents(const TString &tsStr, const BOOL fNewLine);
