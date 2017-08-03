@@ -50,7 +50,7 @@ DcxUpDown::DcxUpDown(const UINT ID, DcxDialog *const p_Dialog, const HWND mParen
 		Dcx::UXModule.dcxSetWindowTheme( m_Hwnd , L" ", L" " );
 
 	if (styles.istok(TEXT("tooltips"))) {
-		if (IsWindow(p_Dialog->getToolTip()))
+		if (!IsWindow(p_Dialog->getToolTip()))
 			throw Dcx::dcxException("Unable to Initialize Tooltips");
 		
 		this->m_ToolTipHWND = p_Dialog->getToolTip();
