@@ -13,7 +13,8 @@
 Some useful values for _MSC_VER if you need to target to a specific compiler.
 http://symbiancorner.blogspot.com/2007/05/how-to-detect-version-of-ms-visual.html
 
-#if _MSC_VER >= 1900 // Visual C++ 2015
+#if _MSC_VER >= 1910 // Visual C++ 2017
+#elif _MSC_VER >= 1900 // Visual C++ 2015
 #elif _MSC_VER >= 1800 // Visual C++ 2013
 #elif _MSC_VER >= 1700 // Visual C++ 2012
 #elif _MSC_VER >= 1600 // Visual C++ 2010 ?
@@ -28,9 +29,9 @@ http://symbiancorner.blogspot.com/2007/05/how-to-detect-version-of-ms-visual.htm
 #ifndef _DEFINES_H_
 #define _DEFINES_H_
 
-// VS2015+ only
-#if !defined(_MSC_VER) || _MSC_VER < 1900
-#error "This version of DCX needs Visual Studio 2015 or newer"
+// VS2017+ only
+#if !defined(_MSC_VER) || _MSC_VER < 1910
+#error "This version of DCX needs Visual Studio 2017 or newer"
 #endif
 
 #ifdef __INTEL_COMPILER // Defined when using Intel C++ Compiler.
@@ -159,7 +160,7 @@ http://symbiancorner.blogspot.com/2007/05/how-to-detect-version-of-ms-visual.htm
 // --------------------------------------------------
 #define DLL_VERSION    GIT_DESCRIBE
 #define DLL_BUILD      GIT_HASH
-#define DLL_DEV_BUILD  49
+#define DLL_DEV_BUILD  51
 
 #ifdef NDEBUG
 #ifdef DCX_DEV_BUILD
@@ -264,6 +265,8 @@ http://symbiancorner.blogspot.com/2007/05/how-to-detect-version-of-ms-visual.htm
 #define GSL_THROW_ON_CONTRACT_VIOLATION 1
 #include "GSL\gsl"
 //#pragma pop_macro("max")
+using gsl::byte;
+//using gsl::to_integer;
 
 #include "AutoRelease.h"
 
