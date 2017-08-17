@@ -696,7 +696,7 @@ HICON dcxLoadIcon(const int index, TString &filename, const bool large, const TS
 	HICON icon = nullptr;
 
 	if (xflags[TEXT('a')]) {
-		auto wIndex = (WORD)index;
+		auto wIndex = gsl::narrow_cast<WORD>(index);
 		icon = ExtractAssociatedIcon(nullptr, filename.to_chr(), &wIndex);
 	}
 #ifdef DCX_USE_GDIPLUS
@@ -1315,7 +1315,8 @@ void getmIRCPalette()
 	{
 		TString colors;
 		static const TCHAR com[] = TEXT("$color(0) $color(1) $color(2) $color(3) $color(4) $color(5) $color(6) $color(7) $color(8) $color(9) $color(10) $color(11) $color(12) $color(13) $color(14) $color(15)");
-		mIRCLinker::tsEval(colors, &com[0]);
+		//mIRCLinker::tsEval(colors, &com[0]);
+		mIRCLinker::eval(colors, &com[0]);
 
 		size_t i = 0;
 		for (const auto &a : colors)
@@ -1902,12 +1903,18 @@ bool isRegexMatch(const TCHAR *matchtext, const TCHAR *pattern)
 	}
 	return false;
 #else
-	TCHAR res[10];
-	mIRCLinker::execex(TEXT("/set -nu1 %%dcx_text %s"), matchtext);
-	mIRCLinker::execex(TEXT("/set -nu1 %%dcx_regex %s"), pattern);
-	mIRCLinker::eval(&res[0], static_cast<int>(Dcx::countof(res)), TEXT("$regex(%dcx_text,%dcx_regex)"));
+	//stString<10> res;
+	//mIRCLinker::execex(TEXT("/set -nu1 %%dcx_text %s"), matchtext);
+	//mIRCLinker::execex(TEXT("/set -nu1 %%dcx_regex %s"), pattern);
+	//mIRCLinker::eval(res, static_cast<int>(res.size()), TEXT("$regex(%dcx_text,%dcx_regex)"));
+	//return (dcx_atoi(res.data()) > 0);
 
-	return (dcx_atoi(&res[0]) > 0);
+	stString<10> res;
+	mIRCLinker::exec(TEXT("/set -nu1 \\%dcx_text %"), matchtext);
+	mIRCLinker::exec(TEXT("/set -nu1 \\%dcx_regex %"), pattern);
+	mIRCLinker::eval(res, TEXT("$regex(%dcx_text,%dcx_regex)"));
+
+	return (dcx_atoi(res.data()) > 0);
 #endif // DCX_USE_CREGEX
 }
 

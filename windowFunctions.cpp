@@ -66,7 +66,8 @@ HWND GetHwndFromString(const TString &str) {
 		return hwnd;
 
 	TString tsRes;
-	mIRCLinker::tsEvalex(tsRes, TEXT("$dialog(%s).hwnd"), str.to_chr());
+	//mIRCLinker::tsEvalex(tsRes, TEXT("$dialog(%s).hwnd"), str.to_chr());
+	mIRCLinker::eval(tsRes, TEXT("$dialog(%).hwnd"), str);
 
 	return reinterpret_cast<HWND>(tsRes.to_<DWORD>());
 }
@@ -376,7 +377,7 @@ HRGN BitmapRegion(HBITMAP hBitmap, const COLORREF cTransparentColor, const BOOL 
 	// create a bitmap with 32bit depth color and with the
 	// size of the loaded bitmap!
 
-	BITMAPINFO RGB32BITSBITMAPINFO = {
+	BITMAPINFO RGB32BITSBITMAPINFO{
 		sizeof(BITMAPINFOHEADER),
 		bmBitmap.bmWidth,
 		bmBitmap.bmHeight,
@@ -702,6 +703,10 @@ void ChangeHwndIcon(const HWND hwnd, const TString &flags, const int index, TStr
 
 bool GetWindowRectParent(const gsl::not_null<HWND> &hwnd, gsl::not_null<RECT *> rcWin)
 {
+#if DCX_USE_WRAPPERS
+	Dcx::dcxWindowRect rc(hwnd, GetParent(hwnd));
+	return (CopyRect(rcWin, &rc) != FALSE);
+#else
 	if (GetWindowRect(hwnd, rcWin))
 	{
 		SetLastError(0U);
@@ -709,4 +714,5 @@ bool GetWindowRectParent(const gsl::not_null<HWND> &hwnd, gsl::not_null<RECT *> 
 		return (GetLastError() == 0U);
 	}
 	return false;
+#endif
 }

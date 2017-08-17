@@ -33,18 +33,17 @@
 */
 SYSTEMTIME MircTimeToSystemTime(const long mircTime) {
 	TString str;
-	SYSTEMTIME st;
+	SYSTEMTIME st = { 0 };
 
-	ZeroMemory(&st, sizeof(SYSTEMTIME));
+	//mIRCLinker::tsEvalex(str, TEXT("$asctime(%ld, d m yyyy hh nn ss)"), mircTime);
+	mIRCLinker::eval(str, TEXT("$asctime(%, d m yyyy hh nn ss)"), mircTime);
 
-	mIRCLinker::tsEvalex(str, TEXT("$asctime(%ld, d m yyyy hh nn ss)"), mircTime);
-
-	st.wDay = (WORD)str.getfirsttok(1).to_int();
-	st.wMonth = (WORD)str.getnexttok().to_int();
-	st.wYear = (WORD)str.getnexttok().to_int();
-	st.wHour = (WORD)str.getnexttok().to_int();
-	st.wMinute = (WORD)str.getnexttok().to_int();
-	st.wSecond = (WORD)str.getnexttok().to_int();
+	st.wDay = str.getfirsttok(1).to_<WORD>();
+	st.wMonth = str.getnexttok().to_<WORD>();
+	st.wYear = str.getnexttok().to_<WORD>();
+	st.wHour = str.getnexttok().to_<WORD>();
+	st.wMinute = str.getnexttok().to_<WORD>();
+	st.wSecond = str.getnexttok().to_<WORD>();
 
 	return st;
 }
@@ -73,12 +72,19 @@ long SystemTimeToMircTime(const LPSYSTEMTIME pst) {
 		TEXT("December")
 	};
 
-	mIRCLinker::evalex(sRet, static_cast<int>(Dcx::countof(sRet)), TEXT("$ctime(%u:%u:%u %u %s %u)"),
+	//mIRCLinker::evalex(sRet, static_cast<int>(Dcx::countof(sRet)), TEXT("$ctime(%u:%u:%u %u %s %u)"),
+	//	pst->wHour,
+	//	pst->wMinute,
+	//	pst->wSecond,
+	//	pst->wDay,
+	//	months[pst->wMonth -1],
+	//	pst->wYear);
+	mIRCLinker::eval(sRet, TEXT("$ctime(%:%:% % % %)"),
 		pst->wHour,
 		pst->wMinute,
 		pst->wSecond,
 		pst->wDay,
-		months[pst->wMonth -1],
+		months[pst->wMonth - 1],
 		pst->wYear);
 
 	return dcx_atoi(sRet.data());
