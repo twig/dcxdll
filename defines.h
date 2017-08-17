@@ -161,7 +161,7 @@ http://symbiancorner.blogspot.com/2007/05/how-to-detect-version-of-ms-visual.htm
 // --------------------------------------------------
 #define DLL_VERSION    GIT_DESCRIBE
 #define DLL_BUILD      GIT_HASH
-#define DLL_DEV_BUILD  51
+#define DLL_DEV_BUILD  52
 
 #ifdef NDEBUG
 #ifdef DCX_DEV_BUILD
