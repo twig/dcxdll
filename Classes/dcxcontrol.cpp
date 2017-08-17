@@ -247,19 +247,20 @@ const UINT &DcxControl::getUserID( ) const noexcept {
 bool DcxControl::evalAliasEx( TCHAR *const szReturn, const int maxlen, const TCHAR *const szFormat, ... ) {
 
 	TString parms;
-	va_list args;
+	va_list args = nullptr;
 
 	va_start( args, szFormat );
 	parms.tvprintf(szFormat, args );
 	va_end( args );
 
-	return m_pParentDialog->evalAlias(szReturn, maxlen, parms.to_chr());
+	return m_pParentDialog->evalAlias(refString<TCHAR, MIRC_BUFFER_SIZE_CCH>(szReturn), maxlen, parms.to_chr());
+	//return m_pParentDialog->evalAlias(szReturn, maxlen, parms.to_chr());
 }
 
 bool DcxControl::execAliasEx( const TCHAR *const szFormat, ... ) {
 
 	TString parms;
-	va_list args;
+	va_list args = nullptr;
 
 	va_start( args, szFormat );
 	parms.tvprintf(szFormat, args);
@@ -279,7 +280,7 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, const XSwitch
 
 	// xdid -f [NAME] [ID] [SWITCH] [+FLAGS] [CHARSET] [SIZE] [FONTNAME]
 	if ( flags[TEXT('f')] && numtok > 3 ) {
-		LOGFONT lf;
+		LOGFONT lf = { 0 };
 
 		if (ParseCommandToLogfont(input.gettok(4, -1), &lf)) {
 			auto hFont = CreateFontIndirect(&lf);
@@ -405,10 +406,13 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, const XSwitch
 
 			const auto pos = dcx_round((float)(max - min) * (float)perc / (float) 100.0);
 
-			SCROLLINFO si;
-			ZeroMemory(&si, sizeof (SCROLLINFO));
-			si.cbSize = sizeof(SCROLLINFO);
-			si.fMask = SIF_POS;
+			//SCROLLINFO si;
+			//ZeroMemory(&si, sizeof (SCROLLINFO));
+			//si.cbSize = sizeof(SCROLLINFO);
+			//si.fMask = SIF_POS;
+
+			SCROLLINFO si{ sizeof(SCROLLINFO), SIF_POS,0,0,0,0,0 };
+
 			if (!GetScrollInfo(m_Hwnd, SB_VERT, &si))
 				throw Dcx::dcxException("Unable to get scroll info");
 
@@ -453,8 +457,7 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, const XSwitch
 		else
 			ShowWindow(m_Hwnd, SW_SHOW);
 
-		RECT rc;
-		if (GetClientRect(this->m_pParentDialog->getHwnd(), &rc))
+		if (RECT rc{}; GetClientRect(this->m_pParentDialog->getHwnd(), &rc))
 		{
 			if (this->m_pParentDialog->updateLayout(rc))
 				this->m_pParentDialog->redrawWindow(); // why do we need the redraw?
@@ -490,12 +493,17 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, const XSwitch
 		if (!xflags[TEXT('+')])
 			throw Dcx::dcxException("Invalid Flag");
 
-		RECT rc = { 0 };
 		HRGN m_Region = nullptr;
 		auto RegionMode = 0;
 		auto noRegion = false;
+
+#if DCX_USE_WRAPPERS
+		Dcx::dcxWindowRect rc(m_Hwnd);
+#else
+		RECT rc = { 0 };
 		if (!GetWindowRect(m_Hwnd, &rc))
 			throw Dcx::dcxException("Unable to get window rect!");
+#endif
 
 		if (xflags[TEXT('o')])
 			RegionMode = RGN_OR;
@@ -596,8 +604,7 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, const XSwitch
 				throw Dcx::dcxException("Unable to create region.");
 
 			if (RegionMode != 0) {
-				auto wrgn = CreateRectRgn(0, 0, 0, 0);
-				if (wrgn != nullptr) {
+				if (auto wrgn = CreateRectRgn(0, 0, 0, 0); wrgn != nullptr) {
 					Auto(DeleteObject(wrgn));
 					if (GetWindowRgn(m_Hwnd,wrgn) != ERROR)
 						CombineRgn(m_Region,m_Region,wrgn,RegionMode);
@@ -677,7 +684,7 @@ HBITMAP DcxControl::resizeBitmap(HBITMAP srcBM, const RECT *const rc)
 	// delete dest hdc
 	Auto(DeleteDC(destDC));
 
-	auto w = (rc->right - rc->left), h = (rc->bottom - rc->top);
+	const auto w = (rc->right - rc->left), h = (rc->bottom - rc->top);
 
 	// create dest bitmap.
 	auto newBM = CreateCompatibleBitmap(srcDC, w, h);
@@ -964,7 +971,8 @@ bool DcxControl::parseGlobalInfoRequest(const TString & input, const refString<T
 	{
 	case L"hwnd"_hash:
 	{
-		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%lu"), (DWORD)m_Hwnd);	// can't use %p as this gives a hex result.
+		//wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%lu"), (DWORD)m_Hwnd);	// can't use %p as this gives a hex result.
+		_ts_snprintf(szReturnValue, TEXT("%lu"), (DWORD)m_Hwnd);	// can't use %p as this gives a hex result.
 		return true;
 	}
 	break;
@@ -983,20 +991,28 @@ bool DcxControl::parseGlobalInfoRequest(const TString & input, const refString<T
 	case L"pos"_hash:
 	{
 		const auto rc = getWindowPosition();
-		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d %d %d"), rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top);
+		//wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d %d %d"), rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top);
+		_ts_snprintf(szReturnValue, TEXT("%d %d %d %d"), rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top);
 		return true;
 	}
 	break;
 	case L"dpos"_hash:
 	{
-		RECT rc;
-		if (GetWindowRect(m_Hwnd, &rc))
-		{
-			MapWindowPoints(nullptr, m_pParentDialog->getHwnd(), (LPPOINT)&rc, 2);
+#if DCX_USE_WRAPPERS
+		Dcx::dcxWindowRect rc(m_Hwnd, m_pParentDialog->getHwnd());
 
-			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d %d %d"), rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top);
+		_ts_snprintf(szReturnValue, TEXT("%d %d %d %d"), rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top);
+#else
+		if (RECT rc{}; GetWindowRect(m_Hwnd, &rc))
+		{
+			MapWindowRect(nullptr, m_pParentDialog->getHwnd(), &rc);
+		
+			//wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d %d %d"), rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top);
+			_ts_snprintf(szReturnValue, TEXT("%d %d %d %d"), rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top);
 			return true;
 		}
+#endif
+		return true;
 	}
 	break;
 	case L"mark"_hash:
@@ -1007,28 +1023,48 @@ bool DcxControl::parseGlobalInfoRequest(const TString & input, const refString<T
 	break;
 	case L"mouse"_hash:
 	{
-		POINT pt;
-		if (GetCursorPos(&pt))
+#if DCX_USE_WRAPPERS
+		Dcx::dcxCursorPos pt(m_Hwnd);
+
+		_ts_snprintf(szReturnValue, TEXT("%d %d"), pt.x, pt.y);
+
+		return true;
+#else
+		if (POINT pt{}; GetCursorPos(&pt))
 		{
 			MapWindowPoints(nullptr, m_Hwnd, &pt, 1);
-			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d"), pt.x, pt.y);
+			//wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d"), pt.x, pt.y);
+			_ts_snprintf(szReturnValue, TEXT("%d %d"), pt.x, pt.y);
 			return true;
 		}
+#endif
 	}
 	break;
 	case L"pid"_hash:
 	{
-		stString<257> sClassname;
-
+#if DCX_USE_WRAPPERS
 		auto hParent = GetParent(m_Hwnd);
-		GetClassName(hParent, sClassname, static_cast<int>(sClassname.size()));
 
+		if (Dcx::dcxClassName sClassname(hParent); sClassname == TEXT("#32770"))
+			szReturnValue = TEXT('0');
+		else
+			_ts_snprintf(szReturnValue, TEXT("%u"), m_pParentDialog->getControlByHWND(hParent)->getUserID());
+
+		return true;
+#else
+		stString<257> sClassname;
+		
+		auto hParent = GetParent(m_Hwnd);
+		GetClassName(hParent, sClassname, gsl::narrow_cast<int>(sClassname.size()));
+		
 		if (sClassname == TEXT("#32770"))
 			szReturnValue = TEXT('0');
 		else
-			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), m_pParentDialog->getControlByHWND(hParent)->getUserID());
-
+			//wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), m_pParentDialog->getControlByHWND(hParent)->getUserID());
+			_ts_snprintf(szReturnValue, TEXT("%u"), m_pParentDialog->getControlByHWND(hParent)->getUserID());
+		
 		return true;
+#endif
 	}
 	break;
 	case L"type"_hash:
@@ -1047,16 +1083,11 @@ bool DcxControl::parseGlobalInfoRequest(const TString & input, const refString<T
 	{
 		auto hFontControl = m_hFont;
 
-		//		if (!hFontControl)
-		//			hFontControl = (HFONT) this->getFont();
-		if (!hFontControl)
+		if (hFontControl == nullptr)
 			hFontControl = (HFONT)GetStockObject(DEFAULT_GUI_FONT);
 
-		if (hFontControl) {
-			LOGFONT lfCurrent = { 0 };
-
-			//ZeroMemory(&lfCurrent, sizeof(LOGFONT));
-			if (GetObject(hFontControl, sizeof(LOGFONT), &lfCurrent) != 0)
+		if (hFontControl != nullptr) {
+			if (LOGFONT lfCurrent = { 0 }; GetObject(hFontControl, sizeof(LOGFONT), &lfCurrent) != 0)
 			{
 				szReturnValue = ParseLogfontToCommand(&lfCurrent).to_chr();
 				return true;
@@ -1067,24 +1098,26 @@ bool DcxControl::parseGlobalInfoRequest(const TString & input, const refString<T
 	// [NAME] [ID] [PROP]
 	case L"tooltipbgcolor"_hash:
 	{
-		DWORD cref = 0;
+		COLORREF cref = CLR_INVALID;
 
 		if (m_ToolTipHWND != nullptr)
-			cref = (DWORD)SendMessage(m_ToolTipHWND, TTM_GETTIPBKCOLOR, NULL, NULL);
+			cref = gsl::narrow_cast<COLORREF>(SendMessage(m_ToolTipHWND, TTM_GETTIPBKCOLOR, NULL, NULL));
 
-		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%lu"), cref);
+		//wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%lu"), cref);
+		_ts_snprintf(szReturnValue, TEXT("%lu"), cref);
 		return true;
 	}
 	break;
 	// [NAME] [ID] [PROP]
 	case L"tooltiptextcolor"_hash:
 	{
-		DWORD cref = 0;
+		COLORREF cref = CLR_INVALID;
 
 		if (m_ToolTipHWND != nullptr)
-			cref = (DWORD)SendMessage(m_ToolTipHWND, TTM_GETTIPTEXTCOLOR, NULL, NULL);
+			cref = gsl::narrow_cast<COLORREF>(SendMessage(m_ToolTipHWND, TTM_GETTIPTEXTCOLOR, NULL, NULL));
 
-		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%lu"), cref);
+		//wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%lu"), cref);
+		_ts_snprintf(szReturnValue, TEXT("%lu"), cref);
 		return true;
 	}
 	// [NAME] [ID] [PROP]
@@ -1097,21 +1130,24 @@ bool DcxControl::parseGlobalInfoRequest(const TString & input, const refString<T
 	// [NAME] [ID] [PROP]
 	case L"textcolor"_hash:
 	{
-		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), m_clrText);
+		//wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), m_clrText);
+		_ts_snprintf(szReturnValue, TEXT("%u"), m_clrText);
 		return true;
 	}
 	break;
 	// [NAME] [ID] [PROP]
 	case L"textbgcolor"_hash:
 	{
-		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), m_clrBackText);
+		//wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), m_clrBackText);
+		_ts_snprintf(szReturnValue, TEXT("%u"), m_clrBackText);
 		return true;
 	}
 	break;
 	// [NAME] [ID] [PROP]
 	case L"bgcolor"_hash:
 	{
-		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), m_clrBackground);
+		//wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), m_clrBackground);
+		_ts_snprintf(szReturnValue, TEXT("%u"), m_clrBackground);
 		return true;
 	}
 	default:
@@ -1120,9 +1156,7 @@ bool DcxControl::parseGlobalInfoRequest(const TString & input, const refString<T
 	}
 	return false;
 #else
-	const auto prop(input.getfirsttok( 3 ));
-
-	if ( prop == TEXT("hwnd") ) {
+	if (const auto prop(input.getfirsttok(3)); prop == TEXT("hwnd") ) {
 		wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%lu"), (DWORD)m_Hwnd );	// can't use %p as this gives a hex result.
 		return true;
 	}
@@ -1140,8 +1174,7 @@ bool DcxControl::parseGlobalInfoRequest(const TString & input, const refString<T
 		return true;
 	}
 	else if ( prop == TEXT("dpos") ) {
-		RECT rc;
-		if (GetWindowRect(m_Hwnd, &rc))
+		if (RECT rc{}; GetWindowRect(m_Hwnd, &rc))
 		{
 			MapWindowPoints(nullptr, m_pParentDialog->getHwnd(), (LPPOINT)&rc, 2);
 
@@ -1154,8 +1187,7 @@ bool DcxControl::parseGlobalInfoRequest(const TString & input, const refString<T
 		return true;
 	}
 	else if ( prop == TEXT("mouse") ) {
-		POINT pt;
-		if (GetCursorPos(&pt))
+		if (POINT pt{}; GetCursorPos(&pt))
 		{
 			MapWindowPoints(nullptr, m_Hwnd, &pt, 1);
 			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d"), pt.x, pt.y);
@@ -1163,17 +1195,6 @@ bool DcxControl::parseGlobalInfoRequest(const TString & input, const refString<T
 		}
 	}
 	else if ( prop == TEXT("pid") ) {
-		//TCHAR classname[257] = { 0 };
-		//auto hParent = GetParent(m_Hwnd);
-		//GetClassName( hParent, classname, Dcx::countof(classname) );
-		//
-		//if (ts_strcmp(classname, TEXT("#32770")) == 0) {
-		//	szReturnValue[0] = TEXT('0');
-		//	szReturnValue[1] = TEXT('\0');
-		//}
-		//else
-		//	wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"),  this->m_pParentDialog->getControlByHWND( hParent )->getUserID( ) );
-
 		stString<257> sClassname;
 
 		auto hParent = GetParent(m_Hwnd);
@@ -1198,16 +1219,11 @@ bool DcxControl::parseGlobalInfoRequest(const TString & input, const refString<T
 	else if ( prop == TEXT("font")) {
 		auto hFontControl = m_hFont;
 
-//		if (!hFontControl)
-//			hFontControl = (HFONT) this->getFont();
-		if (!hFontControl)
+		if (hFontControl == nullptr)
 			hFontControl = (HFONT) GetStockObject(DEFAULT_GUI_FONT);
 
-		if (hFontControl) {
-			LOGFONT lfCurrent = { 0 };
-
-			//ZeroMemory(&lfCurrent, sizeof(LOGFONT));
-			if (GetObject(hFontControl, sizeof(LOGFONT), &lfCurrent) != 0)
+		if (hFontControl != nullptr) {
+			if (LOGFONT lfCurrent = { 0 }; GetObject(hFontControl, sizeof(LOGFONT), &lfCurrent) != 0)
 			{
 				szReturnValue = ParseLogfontToCommand(&lfCurrent).to_chr();
 				return true;
@@ -1216,20 +1232,20 @@ bool DcxControl::parseGlobalInfoRequest(const TString & input, const refString<T
 	}
 	// [NAME] [ID] [PROP]
 	else if ( prop == TEXT("tooltipbgcolor")) {
-		DWORD cref = 0;
+		COLORREF cref = CLR_INVALID;
 
 		if (m_ToolTipHWND != nullptr)
-			cref = (DWORD) SendMessage(m_ToolTipHWND,TTM_GETTIPBKCOLOR, NULL, NULL);
+			cref = gsl::narrow_cast<COLORREF>(SendMessage(m_ToolTipHWND,TTM_GETTIPBKCOLOR, NULL, NULL));
 
 		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%lu"), cref);
 		return true;
 	}
 	// [NAME] [ID] [PROP]
 	else if (prop == TEXT("tooltiptextcolor")) {
-		DWORD cref = 0;
+		COLORREF cref = CLR_INVALID;
 
 		if (m_ToolTipHWND != nullptr)
-			cref = (DWORD) SendMessage(m_ToolTipHWND, TTM_GETTIPTEXTCOLOR, NULL, NULL);
+			cref = gsl::narrow_cast<COLORREF>(SendMessage(m_ToolTipHWND, TTM_GETTIPTEXTCOLOR, NULL, NULL));
 
 		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%lu"), cref);
 		return true;
@@ -1301,8 +1317,8 @@ LRESULT CALLBACK DcxControl::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LP
 
 	if (uMsg == WM_PAINT && pthis->m_pParentDialog->IsVistaStyle()) {
 		ValidateRect(mHwnd, nullptr);
-		RECT rcUpdate;
-		if (GetWindowRect(mHwnd, &rcUpdate))
+
+		if (RECT rcUpdate{}; GetWindowRect(mHwnd, &rcUpdate))
 		{
 			//RECT rcParent;
 			//GetClientRect(GetParent(mHwnd), &rcParent);
@@ -1316,9 +1332,7 @@ LRESULT CALLBACK DcxControl::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LP
 		return 0L;
 	}
 
-	const auto fBlocked = (InSendMessageEx(nullptr) & (ISMEX_REPLIED | ISMEX_SEND)) == ISMEX_SEND;
-
-	if (!fBlocked) {
+	if (const auto fBlocked = (InSendMessageEx(nullptr) & (ISMEX_REPLIED | ISMEX_SEND)) == ISMEX_SEND; !fBlocked) {
 		// If Message is blocking just call old win proc
 		BOOL bParsed = FALSE;
 
@@ -1347,7 +1361,7 @@ LRESULT CALLBACK DcxControl::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LP
 
 DcxControl * DcxControl::controlFactory(DcxDialog *const p_Dialog, const UINT mID, const TString & tsInput, const UINT offset, const UINT64 mask, HWND hParent) {
 
-	const auto type(tsInput.getfirsttok(static_cast<int>(offset)));
+	const auto type(tsInput.getfirsttok(gsl::narrow_cast<int>(offset)));
 
 	RECT rc;
 
@@ -1630,11 +1644,17 @@ DcxControl * DcxControl::controlFactory(DcxDialog *const p_Dialog, const UINT mI
 
 			auto winHwnd = (HWND)tsWin.to_num();
 			if (!IsWindow(winHwnd)) {
-				TCHAR windowHwnd[30];
+				//stString<30> windowHwnd;
+				//
+				//mIRCLinker::evalex(windowHwnd, static_cast<const int>(windowHwnd.size()), TEXT("$window(%s).hwnd"), tsWin.to_chr());
+				//
+				//winHwnd = (HWND)dcx_atoi(windowHwnd.data());
 
-				mIRCLinker::evalex(&windowHwnd[0], static_cast<const int>(Dcx::countof(windowHwnd)), TEXT("$window(%s).hwnd"), tsWin.to_chr());
+				stString<30> windowHwnd;
 
-				winHwnd = (HWND)dcx_atoi(&windowHwnd[0]);
+				mIRCLinker::eval(windowHwnd, TEXT("$window(%).hwnd"), tsWin);
+
+				winHwnd = (HWND)dcx_atoi(windowHwnd.data());
 			}
 
 			if (!IsWindow(winHwnd))
@@ -1654,17 +1674,16 @@ DcxControl * DcxControl::controlFactory(DcxDialog *const p_Dialog, const UINT mI
 			const auto tsDname(styles.getfirsttok(1));
 			auto winHwnd = GetHwndFromString(tsDname);
 
-			if (IsWindow(winHwnd))
+			if (!IsWindow(winHwnd))
 				throw Dcx::dcxException(TEXT("No such dialog: %"), tsDname);
 
 			if (p_Dialog->getControlByHWND(winHwnd) != nullptr)
 				Dcx::dcxException(TEXT("Control already exists : %"), tsDname);
 
 			auto newDialog = new DcxMDialog(winHwnd, hParent, mID, p_Dialog, &rc, styles);
-			auto dlg = Dcx::Dialogs.getDialogByHandle(winHwnd);
 
 			// if its a dcx marked dialog, mark the parent name
-			if (dlg != nullptr)
+			if (auto dlg = Dcx::Dialogs.getDialogByHandle(winHwnd); dlg != nullptr)
 				dlg->setParentName(p_Dialog->getName());
 
 			return newDialog;
@@ -1714,11 +1733,9 @@ LRESULT DcxControl::setRedraw( const BOOL fView ) {
  * blah
  */
 
-void DcxControl::setControlFont( const HFONT hFont, const BOOL fRedraw ) {
-
-	auto hControlFont = this->getFont();
-
-	if (hControlFont != GetStockObject(DEFAULT_GUI_FONT)) {
+void DcxControl::setControlFont( const HFONT hFont, const BOOL fRedraw )
+{
+	if (auto hControlFont = this->getFont(); hControlFont != GetStockObject(DEFAULT_GUI_FONT)) {
 
 		if (hControlFont != nullptr) {
 			DeleteFont(hControlFont);
@@ -1766,13 +1783,16 @@ const COLORREF &DcxControl::getTextColor( ) const noexcept {
 }
 
 const RECT DcxControl::getWindowPosition(void) const noexcept {
+#if DCX_USE_WRAPPERS
+	Dcx::dcxWindowRect rc(m_Hwnd, GetParent(m_Hwnd));
+	return rc;
+#else
 	RECT rc;
 	SetRectEmpty(&rc);
-	//if (GetWindowRect( m_Hwnd, &rc ))
-	//	MapWindowRect(nullptr, GetParent( m_Hwnd ), &rc);
 
 	GetWindowRectParent(m_Hwnd, &rc);
 	return rc;
+#endif
 }
 
 void DcxControl::updateParentCtrl(void) noexcept
@@ -1820,7 +1840,7 @@ void DcxControl::DrawCtrlBackground(const HDC hdc, const DcxControl *const p_thi
 		else {
 			auto hBrush = p_this->getBackClrBrush();
 			if (hBrush == nullptr) {
-				if (hTheme && !p_this->m_bNoTheme && Dcx::UXModule.dcxIsThemeActive()) {
+				if (hTheme != nullptr && !p_this->m_bNoTheme && Dcx::UXModule.dcxIsThemeActive()) {
 					if (Dcx::UXModule.dcxIsThemeBackgroundPartiallyTransparent(hTheme, iPartId, iStateId))
 						Dcx::UXModule.dcxDrawThemeParentBackground(p_this->m_Hwnd, hdc, &rc);
 					Dcx::UXModule.dcxDrawThemeBackground(hTheme, hdc, iPartId, iStateId, &rc, nullptr);
@@ -1848,8 +1868,7 @@ void DcxControl::DrawControl(HDC hDC, HWND hwnd)
 
 	// if window is within a background paint of it's own, don't draw. (loop condition)
 	{
-		auto p_ctrl = this->m_pParentDialog->getControlByHWND(hwnd);
-		if (p_ctrl != nullptr && p_ctrl->m_bInPrint)
+		if (const auto p_ctrl = this->m_pParentDialog->getControlByHWND(hwnd); (p_ctrl != nullptr && p_ctrl->m_bInPrint))
 			return;
 	}
 
@@ -1888,8 +1907,7 @@ void DcxControl::DrawControl(HDC hDC, HWND hwnd)
 	
 	// if window is within a background paint of it's own, don't draw. (loop condition)
 	{
-		auto p_ctrl = this->m_pParentDialog->getControlByHWND(hwnd);
-		if (p_ctrl != nullptr && p_ctrl->m_bInPrint)
+		if (auto p_ctrl = this->m_pParentDialog->getControlByHWND(hwnd); (p_ctrl != nullptr && p_ctrl->m_bInPrint))
 			return;
 	}
 	
@@ -1992,8 +2010,7 @@ void DcxControl::DrawParentsBackground(const HDC hdc, const RECT *const rcBounds
 		// When in composited mode underling controls have already been drawn
 		// So just grab image from windows DC.
 
-		auto hdcParent = GetDC(m_pParentHWND);
-		if (hdcParent != nullptr)
+		if (auto hdcParent = GetDC(m_pParentHWND); hdcParent != nullptr)
 		{
 			Auto(ReleaseDC(m_pParentHWND, hdcParent));
 		
@@ -2058,8 +2075,8 @@ void DcxControl::DrawParentsBackground(const HDC hdc, const RECT *const rcBounds
 	// get this controls x & y pos within its parent.
 	rcWin = rcClient;
 	MapWindowRect(hwnd, m_pParentHWND, &rcWin);
-	auto clipRgn = CreateRectRgnIndirect(&rcWin); // clip parents drawing to this controls rect.
-	if (clipRgn != nullptr) {
+	
+	if (auto clipRgn = CreateRectRgnIndirect(&rcWin); /* clip parents drawing to this controls rect. */ clipRgn != nullptr) {
 		SelectClipRgn(hdcbkg, clipRgn);
 		DeleteRgn(clipRgn);
 	}
@@ -2086,8 +2103,8 @@ void DcxControl::DrawParentsBackground(const HDC hdc, const RECT *const rcBounds
 	// get this controls x & y pos within its parent.
 	rcWin = rcClient;
 	MapWindowRect(hwnd, this->m_pParentHWND, &rcWin);
-	auto clipRgn = CreateRectRgnIndirect(&rcWin); // clip parents drawing to this controls rect.
-	if (clipRgn != nullptr) {
+
+	if (auto clipRgn = CreateRectRgnIndirect(&rcWin); /* clip parents drawing to this controls rect. */ clipRgn != nullptr) {
 		SelectClipRgn(*hdcbkg, clipRgn);
 		DeleteRgn(clipRgn);
 	}
@@ -2122,28 +2139,29 @@ LPALPHAINFO DcxControl::SetupAlphaBlend(HDC *hdc, const bool DoubleBuffer)
 	if ((hdc == nullptr) || (*hdc == nullptr) || (!this->m_bAlphaBlend && !DoubleBuffer))
 		return nullptr;
 
-	//auto ai = new ALPHAINFO;
-	auto ai = std::make_unique<ALPHAINFO>();
+	//auto ai = new ALPHAINFO(m_Hwnd);
+	auto ai = std::make_unique<ALPHAINFO>(m_Hwnd);
 
-	ZeroMemory(ai.get(),sizeof(ALPHAINFO));
+	//ZeroMemory(ai.get(),sizeof(ALPHAINFO));
 	/*
 		1: draw parents bg to temp hdc
 		2: copy bg to temp hdcbkg for later alpha
 		3: draw button to temp hdc, over parents bg
 		4: alpha blend temp hdc to hdc
 	*/
-	// get windows client rect
-	if (!GetClientRect(m_Hwnd, &ai->ai_rcClient))
-	{
-		//delete ai;
-		return nullptr;
-	}
-	// get window rect
-	if (!GetWindowRect(m_Hwnd, &ai->ai_rcWin))
-	{
-		//delete ai;
-		return nullptr;
-	}
+	//// get windows client rect
+	//if (!GetClientRect(m_Hwnd, &ai->ai_rcClient))
+	//{
+	//	//delete ai;
+	//	return nullptr;
+	//}
+	//// get window rect
+	//if (!GetWindowRect(m_Hwnd, &ai->ai_rcWin))
+	//{
+	//	//delete ai;
+	//	return nullptr;
+	//}
+
 	if (Dcx::UXModule.IsBufferedPaintSupported()) {
 		BP_PAINTPARAMS paintParams = { 0 };
 		paintParams.cbSize = sizeof(paintParams);
@@ -2212,8 +2230,7 @@ LPALPHAINFO DcxControl::SetupAlphaBlend(HDC *hdc, const bool DoubleBuffer)
 		// If alpha blending, make a background bitmap & fill it.
 		if (m_bAlphaBlend) {
 			// avoid doing the whole background rendering again by simply copying the one we just did.
-			auto hdcbkg = CreateCompatibleDC(*hdc);
-			if (hdcbkg != nullptr) {
+			if (auto hdcbkg = CreateCompatibleDC(*hdc); hdcbkg != nullptr) {
 				Auto(DeleteDC(hdcbkg));
 
 				ai->ai_bkg = CreateCompatibleBitmap(*hdc, ai->ai_rcWin.right - ai->ai_rcWin.left, ai->ai_rcWin.bottom - ai->ai_rcWin.top);
@@ -2281,14 +2298,12 @@ void DcxControl::FinishAlphaBlend(LPALPHAINFO ai)
 	if (ai->ai_hdcBuffer != nullptr) {
 		Auto(DeleteHDCBuffer(ai->ai_hdcBuffer));
 
-		auto w = (ai->ai_rcClient.right - ai->ai_rcClient.left), h = (ai->ai_rcClient.bottom - ai->ai_rcClient.top);
-		if (this->m_bAlphaBlend) {
+		if (auto w = (ai->ai_rcClient.right - ai->ai_rcClient.left), h = (ai->ai_rcClient.bottom - ai->ai_rcClient.top); this->m_bAlphaBlend) {
 			if (ai->ai_bkg != nullptr) {
 				Auto(DeleteBitmap(ai->ai_bkg));
 
 				// create a new HDC for alpha blending. (doing things this way avoids any flicker)
-				auto hdcbkg = CreateCompatibleDC(ai->ai_Oldhdc);
-				if (hdcbkg != nullptr) {
+				if (auto hdcbkg = CreateCompatibleDC(ai->ai_Oldhdc); hdcbkg != nullptr) {
 					Auto(DeleteDC(hdcbkg));
 
 					// associate bitmap with hdc
@@ -2393,10 +2408,7 @@ LRESULT DcxControl::CommonMessage( const UINT uMsg, WPARAM wParam, LPARAM lParam
 		case WM_CTLCOLORSTATIC:
 		case WM_CTLCOLOREDIT:
 			{
-
-				auto p_Control = this->m_pParentDialog->getControlByHWND((HWND)lParam);
-
-				if ( p_Control != nullptr ) {
+				if (auto p_Control = this->m_pParentDialog->getControlByHWND((HWND)lParam); p_Control != nullptr ) {
 
 					const auto clrText = p_Control->getTextColor();
 					const auto clrBackText = p_Control->getBackColor();
@@ -2509,13 +2521,12 @@ LRESULT DcxControl::CommonMessage( const UINT uMsg, WPARAM wParam, LPARAM lParam
 			//DragFinish(files);
 
 			stString<500> sFilename;
-			const auto count = DragQueryFile(files, 0xFFFFFFFF, sFilename, sFilename.size());
 
-			if (count > 0) {
+			if (const auto count = DragQueryFile(files, 0xFFFFFFFF, sFilename, sFilename.size()); count > 0) {
 				if (dcx_testflag(m_pParentDialog->getEventMask(), DCX_EVENT_DRAG)) {
 					stString<20> sRet;
 
-					evalAliasEx(sRet, static_cast<int>(sRet.size()), TEXT("dragbegin,%u,%u"), getUserID(), count);
+					evalAliasEx(sRet, gsl::narrow_cast<int>(sRet.size()), TEXT("dragbegin,%u,%u"), getUserID(), count);
 
 					// cancel drag drop event
 					if (sRet == TEXT("cancel")) {
@@ -2543,25 +2554,25 @@ LRESULT DcxControl::CommonMessage( const UINT uMsg, WPARAM wParam, LPARAM lParam
 				if (hdr == nullptr)
 					break;
 
-				switch( hdr->code ) {
-					case TTN_GETDISPINFO:
-						{
-							if (!this->m_tsToolTip.empty()) {
-								dcxlParam(LPNMTTDISPINFO, di);
+				switch (hdr->code) {
+				case TTN_GETDISPINFO:
+				{
+					if (!this->m_tsToolTip.empty()) {
+						dcxlParam(LPNMTTDISPINFO, di);
 
-								di->lpszText = this->m_tsToolTip.to_chr();
-								di->hinst = nullptr;
-								bParsed = TRUE;
-							}
-						}
-						break;
-					case TTN_LINKCLICK:
-						{
-							bParsed = TRUE;
-							execAliasEx(TEXT("tooltiplink,%u"), getUserID( ) );
-						}
-						break;
+						di->lpszText = this->m_tsToolTip.to_chr();
+						di->hinst = nullptr;
+						bParsed = TRUE;
 					}
+				}
+				break;
+				case TTN_LINKCLICK:
+				{
+					bParsed = TRUE;
+					execAliasEx(TEXT("tooltiplink,%u"), getUserID());
+				}
+				break;
+				}
 			}
 			break;
 			// Default WM_PRINTCLIENT method that handles alpha for us.
@@ -2671,7 +2682,7 @@ void DcxControl::calcTextRect(HDC hdc, const TString &txt, LPRECT rc, const UINT
 	if (this->m_bShadowText)
 		dcxDrawShadowText(hdc, t.to_chr(), t.len(), rc, style | DT_CALCRECT, this->m_clrText, 0,5,5);
 	else
-		DrawText(hdc, t.to_chr(), (int)t.len(), rc, style | DT_CALCRECT);
+		DrawText(hdc, t.to_chr(), gsl::narrow_cast<int>(t.len()), rc, style | DT_CALCRECT);
 }
 
 void DcxControl::ctrlDrawText(HDC hdc, const TString &txt, const LPRECT rc, const UINT style)
@@ -2683,7 +2694,7 @@ void DcxControl::ctrlDrawText(HDC hdc, const TString &txt, const LPRECT rc, cons
 		if (this->m_bShadowText)
 			dcxDrawShadowText(hdc, txt.to_chr(), txt.len(), rc, style, this->m_clrText, 0, 5, 5);
 		else
-			DrawText(hdc, txt.to_chr(), (int)txt.len(), rc, style);
+			DrawText(hdc, txt.to_chr(), gsl::narrow_cast<int>(txt.len()), rc, style);
 	}
 	else
 		mIRC_DrawText(hdc, txt, rc, style, this->m_bShadowText);
@@ -2748,7 +2759,7 @@ void DcxControl::toXml(TiXmlElement *const xml) const
 {
 	const auto styles(getStyles());
 
-	xml->SetAttribute("id", static_cast<int>(getUserID()));
+	xml->SetAttribute("id", gsl::narrow_cast<int>(getUserID()));
 	xml->SetAttribute("type", getType().c_str());
 	if (!styles.empty())
 		xml->SetAttribute("styles", styles.c_str());
@@ -2765,10 +2776,10 @@ TiXmlElement * DcxControl::toXml(void) const
 DcxIconSizes DcxControl::NumToIconSize(const int &num) noexcept
 {
 	// if size is > max allowed, return max
-	if (num >= static_cast<int>(DcxIconSizes::MaxSize))
+	if (num >= gsl::narrow_cast<int>(DcxIconSizes::MaxSize))
 		return DcxIconSizes::MaxSize;
 	// we now know that size is < max allowed, so if its > smallest size, return medium
-	if (num > static_cast<int>(DcxIconSizes::SmallIcon))
+	if (num > gsl::narrow_cast<int>(DcxIconSizes::SmallIcon))
 		return DcxIconSizes::MediumIcon;
 	// otherwise return small
 	return DcxIconSizes::SmallIcon;

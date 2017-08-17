@@ -574,7 +574,7 @@ void DcxButton::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 	HTHEME hTheme = nullptr;
 	int iStateId = 0;
 	if (!m_bNoTheme && Dcx::UXModule.dcxIsThemeActive()) {
-		hTheme = Dcx::UXModule.dcxOpenThemeData(m_Hwnd, L"BUTTON");
+		hTheme = Dcx::UXModule.dcxOpenThemeData(m_Hwnd, VSCLASS_BUTTON);
 
 		// this allows the theme buttons to have a transparent background like the normal ones
 		switch (nState)

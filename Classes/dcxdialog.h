@@ -84,25 +84,27 @@ public:
 	//void parseInfoRequest( const TString & input, TCHAR * szReturnValue ) const;
 	void parseInfoRequest(const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const;
 
-	bool evalAliasEx( TCHAR *const szReturn, const int maxlen, const TCHAR *const szFormat, ... );
-	bool evalAlias( TCHAR *const szReturn, const int maxlen, const TCHAR *const szArgs);
+	//bool evalAliasEx( TCHAR *const szReturn, const int maxlen, const TCHAR *const szFormat, ... );
+	//bool evalAlias( TCHAR *const szReturn, const int maxlen, const TCHAR *const szArgs);
+	bool evalAliasEx(const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturn, const int maxlen, const TCHAR *const szFormat, ...);
+	bool evalAlias(const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturn, const int maxlen, const TCHAR *const szArgs);
 	bool execAliasEx( const TCHAR *const szFormat, ... );
 	bool execAlias( const TCHAR *const szArgs);
 
 	template <typename Format, typename Value, typename... Arguments>
-	std::pair<bool,TString> evalAliasT(const Format &fmt, const Value val, Arguments&&... args)
+	std::pair<bool,TString> evalAliasT(const Format &fmt, const Value &val, Arguments&&... args)
 	{
 		TString tsArgs;
 		return evalAliasT(_ts_sprintf(tsArgs, fmt, val, args...));
 	}
 	template <typename Format, typename Value>
-	std::pair<bool, TString> evalAliasT(const Format &fmt, const Value val)
+	std::pair<bool, TString> evalAliasT(const Format &fmt, const Value &val)
 	{
 		TString tsArgs;
 		return evalAliasT(_ts_sprintf(tsArgs, fmt, val));
 	}
 	template <typename Value>
-	std::pair<bool, TString> evalAliasT(const Value val)
+	std::pair<bool, TString> evalAliasT(const Value &val)
 	{
 		TString tsArgs, tsRes;
 		_ts_sprintf(tsArgs, TEXT("$%(%,%)"), getAliasName(), getName(), MakeTextmIRCSafe(val));
@@ -110,7 +112,8 @@ public:
 		incRef();
 		Auto(decRef());
 
-		const auto bRes = mIRCLinker::tsEval(tsRes, tsArgs.to_chr());
+		//const auto bRes = mIRCLinker::tsEval(tsRes, tsArgs.to_chr());
+		const auto bRes = mIRCLinker::eval(tsRes, tsArgs);
 
 		return{ bRes, tsRes };
 	}
@@ -191,28 +194,43 @@ public:
 	{
 		const auto local_id = NamedID.to_<UINT>() + mIRC_ID_OFFSET;
 
+#if _MSC_VER < 1911
 		for (const auto &x : m_NamedIds)
 		{
 			if ((x.first == NamedID) || (x.second == local_id))
 				return x.second;
 		}
+#else
+		for (const auto &[tsStoredName, uStoredID] : m_NamedIds)
+		{
+			if ((tsStoredName == NamedID) || (uStoredID == local_id))
+				return uStoredID;
+		}
+#endif
 		return 0U;
 	}
 	const UINT NameToUserID(const TString &NamedID) const
 	{
 		const auto local_id = NamedID.to_<UINT>() + mIRC_ID_OFFSET;
 		//const auto itEnd = namedIds.end();
-
+		//
 		//const auto itGot = std::find_if(namedIds.begin(), itEnd, [local_id, NamedID](const auto &arg) { return ((arg.second == local_id) || (arg.first == NamedID)); });
 		//if (itGot != itEnd)
 		//	return itGot->second - mIRC_ID_OFFSET;
 
+#if _MSC_VER < 1911
 		for (const auto &x : m_NamedIds)
 		{
 			if ((x.first == NamedID) || (x.second == local_id))
 				return x.second - mIRC_ID_OFFSET;
 		}
-
+#else
+		for (const auto &[tsStoredName, uStoredID] : m_NamedIds)
+		{
+			if ((tsStoredName == NamedID) || (uStoredID == local_id))
+				return uStoredID - mIRC_ID_OFFSET;
+		}
+#endif
 		return 0U;
 	}
 	const TString &IDToName(const UINT local_id) const
@@ -222,13 +240,19 @@ public:
 		//if (itGot != itEnd)
 		//	return itGot->first;
 
+#if _MSC_VER < 1911
 		for (const auto &x : m_NamedIds)
 		{
 			if (x.second == local_id)
 				return x.first;
 		}
-
-		//return TString();
+#else
+		for (const auto &[tsStoredName, uStoredID] : m_NamedIds)
+		{
+			if (uStoredID == local_id)
+				return tsStoredName;
+		}
+#endif
 		return {};
 	}
 	const UINT getUniqueID() const

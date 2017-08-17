@@ -163,7 +163,8 @@ void DcxDirectshow::parseInfoRequest( const TString & input, const refString<TCH
 			}
 
 			// width height arwidth arheight
-			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d %d %d"), lWidth, lHeight, lARWidth, lARHeight);
+			//wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d %d %d"), lWidth, lHeight, lARWidth, lARHeight);
+			_ts_snprintf(szReturnValue, TEXT("%d %d %d %d"), lWidth, lHeight, lARWidth, lARHeight);
 		}
 		break;
 		// [NAME] [ID] [PROP]
@@ -195,7 +196,8 @@ void DcxDirectshow::parseInfoRequest( const TString & input, const refString<TCH
 				vflags += TEXT('s');
 
 			// NB: wnsprintf() doesn't support %f
-			swprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%s %f %f %f %f"), vflags.to_chr(), amc.Brightness, amc.Contrast, amc.Hue, amc.Saturation);
+			//swprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%s %f %f %f %f"), vflags.to_chr(), amc.Brightness, amc.Contrast, amc.Hue, amc.Saturation);
+			_ts_snprintf(szReturnValue, TEXT("%s %f %f %f %f"), vflags.to_chr(), amc.Brightness, amc.Contrast, amc.Hue, amc.Saturation);
 		}
 		break;
 		// [NAME] [ID] [PROP]
@@ -208,7 +210,8 @@ void DcxDirectshow::parseInfoRequest( const TString & input, const refString<TCH
 				throw Dcx::dcxException("Unable to get Video Information");
 			}
 
-			swprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%f %f %f %f"), acr.DefaultValue, acr.MinValue, acr.MaxValue, acr.StepSize);
+			_ts_snprintf(szReturnValue, TEXT("%f %f %f %f"), acr.DefaultValue, acr.MinValue, acr.MaxValue, acr.StepSize);
+			//swprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%f %f %f %f"), acr.DefaultValue, acr.MinValue, acr.MaxValue, acr.StepSize);
 			// NB: wnsprintf() doesn't support %f
 		}
 		break;
@@ -222,7 +225,8 @@ void DcxDirectshow::parseInfoRequest( const TString & input, const refString<TCH
 				throw Dcx::dcxException("Unable to get Video Information");
 			}
 
-			swprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%f %f %f %f"), acr.DefaultValue, acr.MinValue, acr.MaxValue, acr.StepSize);
+			_ts_snprintf(szReturnValue, TEXT("%f %f %f %f"), acr.DefaultValue, acr.MinValue, acr.MaxValue, acr.StepSize);
+			//swprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%f %f %f %f"), acr.DefaultValue, acr.MinValue, acr.MaxValue, acr.StepSize);
 			// NB: wnsprintf() doesn't support %f
 		}
 		break;
@@ -236,7 +240,8 @@ void DcxDirectshow::parseInfoRequest( const TString & input, const refString<TCH
 				throw Dcx::dcxException("Unable to get Video Information");
 			}
 
-			swprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%f %f %f %f"), acr.DefaultValue, acr.MinValue, acr.MaxValue, acr.StepSize);
+			_ts_snprintf(szReturnValue, TEXT("%f %f %f %f"), acr.DefaultValue, acr.MinValue, acr.MaxValue, acr.StepSize);
+			//swprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%f %f %f %f"), acr.DefaultValue, acr.MinValue, acr.MaxValue, acr.StepSize);
 			// NB: wnsprintf() doesn't support %f
 		}
 		break;
@@ -250,26 +255,30 @@ void DcxDirectshow::parseInfoRequest( const TString & input, const refString<TCH
 				throw Dcx::dcxException("Unable to get Video Information");
 			}
 
-			swprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%f %f %f %f"), acr.DefaultValue, acr.MinValue, acr.MaxValue, acr.StepSize);
+			_ts_snprintf(szReturnValue, TEXT("%f %f %f %f"), acr.DefaultValue, acr.MinValue, acr.MaxValue, acr.StepSize);
+			//swprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%f %f %f %f"), acr.DefaultValue, acr.MinValue, acr.MaxValue, acr.StepSize);
 			// NB: wnsprintf() doesn't support %f
 		}
 		break;
 		// [NAME] [ID] [PROP]
 		case L"currentpos"_hash:
-			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("D_OK %I64u"), getPosition());
+			_ts_snprintf(szReturnValue, TEXT("D_OK %I64u"), getPosition());
+			//wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("D_OK %I64u"), getPosition());
 			break;
 			// [NAME] [ID] [PROP]
 		case L"duration"_hash:
 		{
 			if (this->CheckSeekCapabilities(AM_SEEKING_CanGetDuration) & AM_SEEKING_CanGetDuration)
-				wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("D_OK %I64u"), this->getDuration());
+				_ts_snprintf(szReturnValue, TEXT("D_OK %I64u"), getDuration());
+			//wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("D_OK %I64u"), this->getDuration());
 			else
 				szReturnValue = TEXT("D_ERROR Method Not Supported");
 		}
 		break;
 		// [NAME] [ID] [PROP]
 		case L"volume"_hash:
-			swprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("D_OK %ld"), getVolume());
+			_ts_snprintf(szReturnValue, TEXT("D_OK %ld"), getVolume());
+			//swprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("D_OK %ld"), getVolume());
 			break;
 			// [NAME] [ID] [PROP]
 		case L"state"_hash:
@@ -303,7 +312,8 @@ void DcxDirectshow::parseInfoRequest( const TString & input, const refString<TCH
 					szState = TEXT("unknown");
 					break;
 				}
-				wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("D_OK %s"), szState);
+				//wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("D_OK %s"), szState);
+				_ts_snprintf(szReturnValue, TEXT("D_OK %s"), szState);
 			}
 			else {
 				DX_ERR(prop.to_chr(), nullptr, hr);
@@ -1014,14 +1024,15 @@ HRESULT DcxDirectshow::getProperty(const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> 
 		}
 		if (SUCCEEDED(hr) && (com_prop != nullptr)) {
 			//_snwprintf(prop, MIRC_BUFFER_SIZE_CCH, TEXT("%lS"), com_prop);
-			_snwprintf(prop, MIRC_BUFFER_SIZE_CCH, TEXT("%ws"), com_prop);
+			//_snwprintf(prop, MIRC_BUFFER_SIZE_CCH, TEXT("%ws"), com_prop);
+			_ts_snprintf(prop, TEXT("%ws"), com_prop);
 			SysFreeString(com_prop);
 		}
 		else
-			dcx_strcpyn(prop, TEXT("Not Supported"), MIRC_BUFFER_SIZE_CCH);
+			prop = TEXT("Not Supported");
 	}
 	else
-		dcx_strcpyn(prop, TEXT("failed"), MIRC_BUFFER_SIZE_CCH);
+		prop = TEXT("failed");
 
 	return hr;
 }

@@ -137,6 +137,28 @@ struct ALPHAINFO {
 	RECT ai_rcWin;
 	BLENDFUNCTION ai_bf;
 	HPAINTBUFFER ai_Buffer;
+
+	ALPHAINFO()
+		: ai_hdc(nullptr)
+		, ai_hdcBuffer(nullptr)
+		, ai_Oldhdc(nullptr)
+		, ai_bitmap(nullptr)
+		, ai_bkg(nullptr)
+		, ai_oldBM(nullptr)
+		, ai_rcClient{ 0,0,0,0 }
+		, ai_rcWin{ 0,0,0,0 }
+		, ai_bf{ AC_SRC_OVER, 255 }
+		, ai_Buffer(nullptr)
+	{}
+	ALPHAINFO(HWND hwnd)
+		: ALPHAINFO()
+	{
+		if (!GetClientRect(hwnd, &ai_rcClient))
+			throw Dcx::dcxException("Unable to get Client Rect");
+		if (!GetWindowRect(hwnd, &ai_rcWin))
+			throw Dcx::dcxException("Unable to get Window Rect");
+	}
+	~ALPHAINFO() = default;
 };
 using LPALPHAINFO = ALPHAINFO *;
 

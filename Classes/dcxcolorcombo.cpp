@@ -250,7 +250,8 @@ void DcxColorCombo::setmIRCPalette( ) {
 
 	static const TCHAR com[] = TEXT("$color(0) $color(1) $color(2) $color(3) $color(4) $color(5) $color(6) $color(7) $color(8) $color(9) $color(10) $color(11) $color(12) $color(13) $color(14) $color(15)");
 	TString cols;
-	mIRCLinker::tsEval( cols, &com[0] );
+	//mIRCLinker::tsEval( cols, &com[0] );
+	mIRCLinker::eval(cols, &com[0]);
 
 	for (const auto &col: cols)
 	{

@@ -117,6 +117,7 @@ DcxDialog::~DcxDialog() {
 	if (m_bCursorFromFile && m_hCursor != nullptr)
 		DestroyCursor(m_hCursor);
 
+#if _MSC_VER < 1911
 	for (auto &x : m_hCursorList)
 	{
 		if ((x.first != nullptr) && (x.second))
@@ -124,6 +125,16 @@ DcxDialog::~DcxDialog() {
 		x.first = nullptr;
 		x.second = false;
 	}
+#else
+	for (auto &[hCursor, bLoaded] : m_hCursorList)
+	{
+		//auto[hCursor, bLoaded] = x;
+		if ((hCursor != nullptr) && (bLoaded))
+			DestroyCursor(hCursor);
+		hCursor = nullptr;
+		bLoaded = false;
+	}
+#endif
 	RemoveProp(m_Hwnd, TEXT("dcx_this"));
 }
 
@@ -144,7 +155,7 @@ void DcxDialog::addControl(DcxControl *p_Control)
 
 DcxControl *DcxDialog::addControl(const TString &input, const UINT offset, const UINT64 mask, HWND hParent)
 {
-	const auto tsID(input.getfirsttok(static_cast<int>(offset)));
+	const auto tsID(input.getfirsttok(gsl::narrow_cast<int>(offset)));
 	auto ID = 0U;
 
 	if (isalpha(tsID[0]))
@@ -354,22 +365,17 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 			throw Dcx::dcxException(TEXT("Unknown control with ID \"%\" (dialog %)"), ID - mIRC_ID_OFFSET, this->m_tsName);
 
 		auto cHwnd = p_Control->getHwnd();
-		const auto cid = p_Control->getUserID();
 
 		// fix up focus id
-		if (cid == m_FocusID) {
-			auto h = GetNextDlgTabItem(m_Hwnd, cHwnd, FALSE);
-
+		if (const auto cid = p_Control->getUserID(); cid == m_FocusID) {
 			// control exists and is not the last one
-			if (h && (h != cHwnd))
+			if (auto h = GetNextDlgTabItem(m_Hwnd, cHwnd, FALSE); (h && (h != cHwnd)))
 				setFocusControl(GetDlgCtrlID(h) - mIRC_ID_OFFSET);
 			else
 				setFocusControl(0);
 		}
 
-		const auto dct = p_Control->getControlType();
-
-		if (dct == DcxControlTypes::DIALOG || dct == DcxControlTypes::WINDOW)
+		if (const auto dct = p_Control->getControlType(); (dct == DcxControlTypes::DIALOG || dct == DcxControlTypes::WINDOW))
 			delete p_Control;
 		else {
 			if (p_Control->getRefCount() != 0)
@@ -414,15 +420,8 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 		else if (dcx_testflag(m_uStyleBg, DBS_BKGBITMAP)) {
 			PreloadData();
 
-			auto filename(input.getlasttoks().trim());	// tok 4, -1
-
-			if (filename != TEXT("none")) {
+			if (auto filename(input.getlasttoks().trim());	/* tok 4, -1 */ filename != TEXT("none"))
 				m_bitmapBg = dcxLoadBitmap(m_bitmapBg, filename);
-//#ifdef DCX_USE_GDIPLUS
-//				if (mIRCLink.m_bUseGDIPlus)
-//					this->LoadGDIPlusImage(filename);
-//#endif
-			}
 		}
 
 		//InvalidateRect(m_Hwnd, nullptr, TRUE);
@@ -436,9 +435,8 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 
 			if (!isIDValid(id))
 				throw Dcx::dcxException(TEXT("Could not find control %"), id - mIRC_ID_OFFSET);
-			
-			auto p_Control = getControlByID(id);
-			if (p_Control != nullptr)
+
+			if (auto p_Control = getControlByID(id); p_Control != nullptr)
 				p_Control->redrawWindow();
 		}
 		else
@@ -523,9 +521,7 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 		// NB: if a filename is the same as a resource name then this will return the resource, but the file will be loaded.
 		const auto CursorType = parseCursorType(filename);
 
-		const auto CursorArea = parseCursorArea(tsFlags);
-
-		if (CursorArea > 0)
+		if (const auto CursorArea = parseCursorArea(tsFlags); CursorArea > 0)
 			m_hCursorList[CursorArea].first = Dcx::dcxLoadCursor(iFlags, CursorType, m_hCursorList[CursorArea].second, m_hCursorList[CursorArea].first, filename);
 		else
 			m_hCursor = Dcx::dcxLoadCursor(iFlags, CursorType, m_bCursorFromFile, m_hCursor, filename);
@@ -550,13 +546,18 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 			//else // Modeless Dialog
 			//	DestroyWindow(m_Hwnd);
 
-			if (mIRCLinker::evalex(nullptr, 0, TEXT("$dialog(%s).modal"), m_tsName.to_chr())) // Modal Dialog
+			//if (mIRCLinker::evalex(nullptr, 0, TEXT("$dialog(%s).modal"), m_tsName.to_chr())) // Modal Dialog
+			//	SendMessage(m_Hwnd, WM_CLOSE, NULL, NULL); // this allows the dialogs WndProc to EndDialog() if needed.
+			//else // Modeless Dialog
+			//	DestroyWindow(m_Hwnd);
+			if (mIRCLinker::eval(nullptr, TEXT("$dialog(%).modal"), m_tsName)) // Modal Dialog
 				SendMessage(m_Hwnd, WM_CLOSE, NULL, NULL); // this allows the dialogs WndProc to EndDialog() if needed.
 			else // Modeless Dialog
 				DestroyWindow(m_Hwnd);
 		}
 		else
-			mIRCLinker::execex(TEXT("/.timer -m 1 0 xdialog -x %s"), this->getName().to_chr());
+			//mIRCLinker::execex(TEXT("/.timer -m 1 0 xdialog -x %s"), this->getName().to_chr());
+			mIRCLinker::exec(TEXT("/.timer -m 1 0 xdialog -x %"), this->getName());
 	}
 	// xdialog -h [NAME]
 	else if (flags[TEXT('h')]) {
@@ -1568,7 +1569,8 @@ void DcxDialog::parseInfoRequest(const TString &input, const refString<TCHAR, MI
 		break;
 		// [NAME] [PROP]
 	case L"nextid"_hash:
-		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), getUniqueID() - mIRC_ID_OFFSET);
+		//wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), getUniqueID() - mIRC_ID_OFFSET);
+		_ts_snprintf(szReturnValue, TEXT("%u"), getUniqueID() - mIRC_ID_OFFSET);
 		break;
 		// [NAME] [PROP] [N|NAMEDID]
 	case L"id"_hash:
@@ -1576,19 +1578,33 @@ void DcxDialog::parseInfoRequest(const TString &input, const refString<TCHAR, MI
 			const auto tsID(input.getnexttok());	// tok 3
 			const auto N = tsID.to_int() - 1;
 
+			//if (N == -1)
+			//{
+			//	if (tsID == TEXT('0'))	// check its an actual zero, not some text name (which also gives a zero result)
+			//		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), this->m_vpControls.size());
+			//	else
+			//	{
+			//		const auto it = m_NamedIds.find(tsID);
+			//		if (it != m_NamedIds.end())
+			//			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), it->second - mIRC_ID_OFFSET);
+			//	}
+			//}
+			//else if ((N > -1) && (N < static_cast<int>(m_vpControls.size())))
+			//	wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), m_vpControls[static_cast<UINT>(N)]->getUserID());
+
 			if (N == -1)
 			{
 				if (tsID == TEXT('0'))	// check its an actual zero, not some text name (which also gives a zero result)
-					wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), this->m_vpControls.size());
+					_ts_snprintf(szReturnValue, TEXT("%u"), m_vpControls.size());
 				else
 				{
 					const auto it = m_NamedIds.find(tsID);
 					if (it != m_NamedIds.end())
-						wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), it->second - mIRC_ID_OFFSET);
+						_ts_snprintf(szReturnValue, TEXT("%u"), it->second - mIRC_ID_OFFSET);
 				}
 			}
-			else if ((N > -1) && (N < static_cast<int>(m_vpControls.size())))
-				wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), m_vpControls[static_cast<UINT>(N)]->getUserID());
+			else if ((N > -1) && (N < gsl::narrow_cast<int>(m_vpControls.size())))
+				_ts_snprintf(szReturnValue, TEXT("%u"), m_vpControls[gsl::narrow_cast<UINT>(N)]->getUserID());
 		}
 		break;
 		// [NAME] [PROP]
@@ -1606,21 +1622,30 @@ void DcxDialog::parseInfoRequest(const TString &input, const refString<TCHAR, MI
 		break;
 		// [NAME] [PROP]
 	case L"mouseid"_hash:
-		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), m_MouseID);
+		//wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), m_MouseID);
+		_ts_snprintf(szReturnValue, TEXT("%u"), m_MouseID);
 		break;
 		// [NAME] [PROP]
 	case L"focusid"_hash:
-		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), m_FocusID);
+		//wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), m_FocusID);
+		_ts_snprintf(szReturnValue, TEXT("%u"), m_FocusID);
 		break;
 		// [NAME] [PROP]
 	case L"mouse"_hash:
 	{
-		POINT pt = { 0 };
+#if DCX_USE_WRAPPERS
+		Dcx::dcxCursorPos pt(m_Hwnd);
 
+		_ts_snprintf(szReturnValue, TEXT("%d %d"), pt.x, pt.y);
+#else
+		POINT pt = { 0 };
+		
 		if (GetCursorPos(&pt))
 			MapWindowPoints(nullptr, m_Hwnd, &pt, 1);
-
-		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d"), pt.x, pt.y);
+		
+		//wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d"), pt.x, pt.y);
+		_ts_snprintf(szReturnValue, TEXT("%d %d"), pt.x, pt.y);
+#endif
 	}
 	break;
 	// [NAME] [PROP]
@@ -1657,7 +1682,8 @@ void DcxDialog::parseInfoRequest(const TString &input, const refString<TCHAR, MI
 		if (GetAsyncKeyState(VK_CAPITAL) < 0)
 			iKeyState |= 8192;
 
-		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), iKeyState);
+		//wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), iKeyState);
+		_ts_snprintf(szReturnValue, TEXT("%u"), iKeyState);
 	}
 	break;
 	// [NAME] [PROP]
@@ -1673,17 +1699,25 @@ void DcxDialog::parseInfoRequest(const TString &input, const refString<TCHAR, MI
 			if (n > size)
 				throw Dcx::dcxException("Out Of Range");
 
+			//// return total number of id's
+			//if (n == 0)
+			//	wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), size);
+			//// return the Nth id
+			//else
+			//	wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), m_vZLayers[n - 1] - mIRC_ID_OFFSET);
+
 			// return total number of id's
 			if (n == 0)
-				wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), size);
+				_ts_snprintf(szReturnValue, TEXT("%u"), size);
 			// return the Nth id
 			else
-				wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), m_vZLayers[n - 1] - mIRC_ID_OFFSET);
+				_ts_snprintf(szReturnValue, TEXT("%u"), m_vZLayers[n - 1] - mIRC_ID_OFFSET);
 		}
 		break;
 		// [NAME] [PROP]
 	case L"zlayercurrent"_hash:
-		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), m_zLayerCurrent + 1);
+		//wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), m_zLayerCurrent + 1);
+		_ts_snprintf(szReturnValue, TEXT("%u"), m_zLayerCurrent + 1);
 		break;
 		// [NAME] [PROP]
 	case L"visible"_hash:
@@ -1695,7 +1729,8 @@ void DcxDialog::parseInfoRequest(const TString &input, const refString<TCHAR, MI
 		RGBQUAD clr = { 0 };
 		auto bOpaque = FALSE;
 		if (SUCCEEDED(Dcx::VistaModule.dcxDwmGetColorizationColor((DWORD *)&clr, &bOpaque)))
-			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), RGB(clr.rgbRed, clr.rgbGreen, clr.rgbBlue));
+			//wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), RGB(clr.rgbRed, clr.rgbGreen, clr.rgbBlue));
+			_ts_snprintf(szReturnValue, TEXT("%u"), RGB(clr.rgbRed, clr.rgbGreen, clr.rgbBlue));
 		else
 			szReturnValue = TEXT("-FAIL Unable to get Glass colour.");
 	}
@@ -1853,9 +1888,32 @@ void DcxDialog::parseInfoRequest2(const TString &input, const refString<TCHAR, M
  * blah
  */
 
-bool DcxDialog::evalAliasEx(TCHAR *const szReturn, const int maxlen, const TCHAR *const szFormat, ...) {
+//bool DcxDialog::evalAliasEx(TCHAR *const szReturn, const int maxlen, const TCHAR *const szFormat, ...) {
+//	TString line;
+//	va_list args = nullptr;
+//
+//	va_start(args, szFormat);
+//	line.tvprintf(szFormat, args);
+//	va_end(args);
+//
+//	return evalAlias(szReturn, maxlen, line.to_chr());
+//}
+//
+//bool DcxDialog::evalAlias(TCHAR *const szReturn, const int maxlen, const TCHAR *const szArgs)
+//{
+//	incRef();
+//	
+//	//const auto res = mIRCLinker::evalex(szReturn, maxlen, TEXT("$%s(%s,%s)"), getAliasName().to_chr(), getName().to_chr(), MakeTextmIRCSafe(szArgs).to_chr());
+//	const auto res = mIRCLinker::eval(szReturn, TEXT("$%(%,%)"), getAliasName(), getName(), MakeTextmIRCSafe(szArgs));
+//
+//	decRef();
+//
+//	return res;
+//}
+
+bool DcxDialog::evalAliasEx(const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturn, const int maxlen, const TCHAR *const szFormat, ...) {
 	TString line;
-	va_list args;
+	va_list args = nullptr;
 
 	va_start(args, szFormat);
 	line.tvprintf(szFormat, args);
@@ -1864,20 +1922,18 @@ bool DcxDialog::evalAliasEx(TCHAR *const szReturn, const int maxlen, const TCHAR
 	return evalAlias(szReturn, maxlen, line.to_chr());
 }
 
-bool DcxDialog::evalAlias(TCHAR *const szReturn, const int maxlen, const TCHAR *const szArgs)
+bool DcxDialog::evalAlias(const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturn, const int maxlen, const TCHAR *const szArgs)
 {
 	incRef();
-	
-	const auto res = mIRCLinker::evalex(szReturn, maxlen, TEXT("$%s(%s,%s)"), getAliasName().to_chr(), getName().to_chr(), MakeTextmIRCSafe(szArgs).to_chr());
-	
-	decRef();
+	Auto(decRef());
 
-	return res;
+	//return mIRCLinker::evalex(szReturn, maxlen, TEXT("$%s(%s,%s)"), getAliasName().to_chr(), getName().to_chr(), MakeTextmIRCSafe(szArgs).to_chr());
+	return mIRCLinker::eval(szReturn, TEXT("$%(%,%)"), getAliasName(), getName(), MakeTextmIRCSafe(szArgs));
 }
 
 bool DcxDialog::execAliasEx(const TCHAR *const szFormat, ...) {
 	TString line;
-	va_list args;
+	va_list args = nullptr;
 
 	va_start(args, szFormat);
 	line.tvprintf(szFormat, args);
@@ -2008,23 +2064,10 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 						// This stops a crash when someone uses /dialog -x within the callback alias without a /timer
 						// NB: After this is done you must use /xdialog -x to close the dialog, /dialog -x will no longer work.
 						bParsed = TRUE;
-						mIRCLinker::execex(TEXT("/.timer -m 1 0 xdialog -x %s"), p_this->getName().to_chr());
+						//mIRCLinker::execex(TEXT("/.timer -m 1 0 xdialog -x %s"), p_this->getName().to_chr());
+						mIRCLinker::exec(TEXT("/.timer -m 1 0 xdialog -x %"), p_this->getName());
 					}
 					else if (dcx_testflag(p_this->m_dEventMask, DCX_EVENT_CLOSE)) {
-						//TCHAR ret[256];
-						//
-						//p_this->evalAlias(ret, Dcx::countof(ret), TEXT("close,0"));
-						//
-						//if (ts_strcmp(TEXT("noclose"), ret) == 0)
-						//	bParsed = TRUE;
-
-						//stString<256> sRet;
-						//
-						//p_this->evalAlias(sRet, Dcx::countof(sRet), TEXT("close,0"));
-						//
-						//if (sRet == TEXT("noclose"))
-						//	bParsed = TRUE;
-
 						if (p_this->evalAliasT(TEXT("close,0")).second == TEXT("noclose"))
 							bParsed = TRUE;
 					}
@@ -2269,12 +2312,23 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 						//	lRes = DefWindowProc(mHwnd, uMsg, wParam, lParam);
 						//}
 
-						stString<256> sRet;
+						//stString<256> sRet;
+						//
+						//if (dcx_testflag(p_this->m_dEventMask, DCX_EVENT_SIZE)) // mask only controls sending of event, if event isnt sent then DefWindowProc should still be called.
+						//	p_this->evalAlias(sRet, static_cast<int>(sRet.size()), TEXT("beginsize,0"));
+						//
+						//if (sRet != TEXT("nosize")) {
+						//	bParsed = TRUE;
+						//	p_this->m_bInSizing = true;
+						//	lRes = DefWindowProc(mHwnd, uMsg, wParam, lParam);
+						//}
 
+						bool bDoSize = false;
 						if (dcx_testflag(p_this->m_dEventMask, DCX_EVENT_SIZE)) // mask only controls sending of event, if event isnt sent then DefWindowProc should still be called.
-							p_this->evalAlias(sRet, static_cast<int>(sRet.size()), TEXT("beginsize,0"));
+							bDoSize = (p_this->evalAliasT(TEXT("beginsize,0")).second != TEXT("nosize"));
 
-						if (sRet != TEXT("nosize")) {
+						if (bDoSize)
+						{
 							bParsed = TRUE;
 							p_this->m_bInSizing = true;
 							lRes = DefWindowProc(mHwnd, uMsg, wParam, lParam);
@@ -2455,9 +2509,32 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 						break;
 					}
 
-					stString<256> sRet;
+					//stString<256> sRet;
+					//
+					//p_this->evalAliasEx(sRet, static_cast<int>(sRet.size()), TEXT("changing,0,%s,%d,%d,%d,%d"), p, wp->x, wp->y, wp->cx, wp->cy);
+					//
+					//if (sRet == TEXT("nosize"))
+					//	wp->flags |= SWP_NOSIZE;
+					//else if (sRet == TEXT("nomove"))
+					//	wp->flags |= SWP_NOMOVE;
+					//else if (sRet == TEXT("nochange"))
+					//	wp->flags |= SWP_NOSIZE | SWP_NOMOVE;
 
-					p_this->evalAliasEx(sRet, static_cast<int>(sRet.size()), TEXT("changing,0,%s,%d,%d,%d,%d"), p, wp->x, wp->y, wp->cx, wp->cy);
+#if DCX_USE_HASHING
+					switch (std::hash<TString>()(p_this->evalAliasT(TEXT("changing,0,%,%,%,%,%"), p, wp->x, wp->y, wp->cx, wp->cy).second))
+					{
+					case TEXT("nosize"_hash):
+						wp->flags |= SWP_NOSIZE;
+						break;
+					case TEXT("nomove"_hash):
+						wp->flags |= SWP_NOMOVE;
+						break;
+					case TEXT("nochange"_hash):
+						wp->flags |= SWP_NOSIZE | SWP_NOMOVE;
+						break;
+					}
+#else
+					auto sRet = p_this->evalAliasT(TEXT("changing,0,%,%,%,%,%"), p, wp->x, wp->y, wp->cx, wp->cy).second;
 
 					if (sRet == TEXT("nosize"))
 						wp->flags |= SWP_NOSIZE;
@@ -2465,6 +2542,8 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 						wp->flags |= SWP_NOMOVE;
 					else if (sRet == TEXT("nochange"))
 						wp->flags |= SWP_NOSIZE | SWP_NOMOVE;
+#endif
+
 				}
 
 				//RECT rc;
@@ -2777,9 +2856,18 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 
 				if (count > 0) {
 					if (dcx_testflag(p_this->m_dEventMask, DCX_EVENT_DRAG)) {
-						stString<20> sRet;
+						//stString<20> sRet;
+						//
+						//p_this->evalAliasEx(sRet, static_cast<int>(sRet.size()), TEXT("dragbegin,0,%u"), count);
+						//
+						//// cancel drag drop event
+						//if (sRet == TEXT("cancel")) {
+						//	DragFinish(files);
+						//	bParsed = TRUE;
+						//	break;
+						//}
 
-						p_this->evalAliasEx(sRet, static_cast<int>(sRet.size()), TEXT("dragbegin,0,%u"), count);
+						auto sRet = p_this->evalAliasT(TEXT("dragbegin,0,%"), count).second;
 
 						// cancel drag drop event
 						if (sRet == TEXT("cancel")) {
@@ -2787,6 +2875,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 							bParsed = TRUE;
 							break;
 						}
+
 						// for each file, send callback message
 						for (auto i = decltype(count){0}; i < count; i++) {
 							if (DragQueryFile(files, i, stFilename, stFilename.size()))

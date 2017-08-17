@@ -779,19 +779,35 @@ void DcxComboEx::setImageList( HIMAGELIST himl ) {
 
 bool DcxComboEx::matchItemText(const int nItem, const TString &search, const DcxSearchTypes &SearchType) const
 {
+	//auto itemtext = std::make_unique<TCHAR[]>(MIRC_BUFFER_SIZE_CCH);
+	//
+	//COMBOBOXEXITEM cbi;
+	//ZeroMemory(&cbi, sizeof(COMBOBOXEXITEM));
+	//
+	//cbi.mask = CBEIF_TEXT;
+	//cbi.iItem = nItem;
+	//cbi.pszText = itemtext.get();
+	//cbi.cchTextMax = MIRC_BUFFER_SIZE_CCH;
+	//
+	//getItem(&cbi);
+	//
+	//return DcxListHelper::matchItemText(cbi.pszText, search, SearchType);
+
 	auto itemtext = std::make_unique<TCHAR[]>(MIRC_BUFFER_SIZE_CCH);
+	auto refText = refString<TCHAR, MIRC_BUFFER_SIZE_CCH>(itemtext.get());
 
 	COMBOBOXEXITEM cbi;
 	ZeroMemory(&cbi, sizeof(COMBOBOXEXITEM));
 
 	cbi.mask = CBEIF_TEXT;
 	cbi.iItem = nItem;
-	cbi.pszText = itemtext.get();
+	cbi.pszText = refText;
 	cbi.cchTextMax = MIRC_BUFFER_SIZE_CCH;
 
 	getItem(&cbi);
 
-	return DcxListHelper::matchItemText(cbi.pszText, search, SearchType);
+	refText = cbi.pszText;
+	return DcxListHelper::matchItemText(refText, search, SearchType);
 }
 
 /*!
