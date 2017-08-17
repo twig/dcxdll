@@ -53,7 +53,7 @@ uint32_t tcrc8(const char * str)
 	uint8_t crc = 0;
 	for (auto i = decltype(sepl){0}; i < sepl; i++)
 	{
-		crc = (uint8_t)(crc ^ *str++);
+		crc = gsl::narrow_cast<uint8_t>((crc ^ *str++));
 
 		for (auto j = 0U; j < 8U; j++)
 		{

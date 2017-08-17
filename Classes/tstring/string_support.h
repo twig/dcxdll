@@ -28,7 +28,7 @@ namespace details {
 	}
 
 	template <typename Result, typename Format, typename Value, typename... Arguments>
-	Result &_ts_printf_do(Result &res, const Format &fmt, const Value val, Arguments&&... args)
+	Result &_ts_printf_do(Result &res, const Format &fmt, const Value &val, Arguments&&... args)
 	{
 		auto i = 0U;
 		auto bSkip = false;
@@ -41,7 +41,7 @@ namespace details {
 					bSkip = true;
 					continue;
 				}
-				if (c == decltype(c){'%'})
+				else if (c == decltype(c){'%'})
 				{
 					res += val;
 					return _ts_printf_do(res, fmt + i + 1, args...);
@@ -72,68 +72,121 @@ namespace details {
 		}
 	};
 
-	// Test if a string is empty, works for std::basic_string & TString objects
+	//// Test if a string is empty, works for std::basic_string & TString objects
+	//template <typename T>
+	//std::enable_if_t<!std::is_pointer_v<T> && !std::is_pod_v<T> && std::is_member_function_pointer_v<decltype(&T::empty)>, bool> _ts_isEmpty(const T &str) noexcept
+	//{
+	//	return str.empty();
+	//}
+	//
+	//// Test if a string is empty, works for C String char * or wchar_t *
+	//template <typename T>
+	//std::enable_if_t<std::is_pointer_v<T>, bool> _ts_isEmpty(const T &str) noexcept
+	//{
+	//	using value_type = std::remove_cv_t<std::remove_pointer_t<T> >;
+	//
+	//	static_assert(std::is_same_v<value_type, char> || std::is_same_v<value_type, wchar_t>, "Invalid Type used");
+	//	return ((str == nullptr) || (str[0] == value_type()));
+	//}
+	//
+	//// Test if a string is empty, works for C char or wchar_t
+	//template <typename T>
+	//std::enable_if_t<!std::is_pointer_v<T> && std::is_pod_v<T>, bool> _ts_isEmpty(const T &str) noexcept
+	//{
+	//	using value_type = std::remove_cv_t<T>;
+	//
+	//	static_assert(std::is_same_v<value_type, char> || std::is_same_v<value_type, wchar_t>, "Invalid Type used");
+	//	return (str == value_type());
+	//}
+
 	template <typename T>
-	std::enable_if_t<!std::is_pointer_v<T> && !std::is_pod_v<T> && std::is_member_function_pointer_v<decltype(&T::empty)>, bool> _ts_isEmpty(const T &str) noexcept
+	bool _ts_isEmpty(const T &str) noexcept
 	{
-		return str.empty();
+		if constexpr(std::is_pointer_v<T>) {
+			// T is a pointer
+			// Test if a string is empty, works for C String char * or wchar_t *
+			using value_type = std::remove_cv_t<std::remove_pointer_t<T> >;
+
+			static_assert(std::is_same_v<value_type, char> || std::is_same_v<value_type, wchar_t>, "Invalid Type used");
+			return ((str == nullptr) || (str[0] == value_type()));
+		}
+		else if constexpr(std::is_pod_v<T>) {
+			// T is NOT a pointer but IS POD
+			// Test if a string is empty, works for C char or wchar_t
+			using value_type = std::remove_cv_t<T>;
+
+			static_assert(std::is_same_v<value_type, char> || std::is_same_v<value_type, wchar_t>, "Invalid Type used");
+			return (str == value_type());
+		}
+		else if constexpr(std::is_member_function_pointer_v<decltype(&T::empty)>) {
+			// T is NOT a pointer and is NOT POD
+			// Test if a string is empty, works for std::basic_string & TString objects
+			return str.empty();
+		}
 	}
 
-	// Test if a string is empty, works for C String char * or wchar_t *
-	template <typename T>
-	std::enable_if_t<std::is_pointer_v<T>, bool> _ts_isEmpty(const T &str) noexcept
-	{
-		using value_type = std::remove_cv_t<std::remove_pointer_t<T> >;
-
-		static_assert(std::is_same_v<value_type, char> || std::is_same_v<value_type, wchar_t>, "Invalid Type used");
-		return ((str == nullptr) || (str[0] == value_type()));
-	}
-
-	// Test if a string is empty, works for C char or wchar_t
-	template <typename T>
-	std::enable_if_t<!std::is_pointer_v<T> && std::is_pod_v<T>, bool> _ts_isEmpty(const T &str) noexcept
-	{
-		using value_type = std::remove_cv_t<T>;
-
-		static_assert(std::is_same_v<value_type, char> || std::is_same_v<value_type, wchar_t>, "Invalid Type used");
-		return (str == value_type());
-	}
+	//// Get String length
+	//template <typename T, typename size_type = std::size_t>
+	//std::enable_if_t<std::is_pointer_v<T>, size_type> _ts_strlen(const T &str) noexcept
+	//{
+	//	using value_type = std::remove_cv_t<std::remove_pointer_t<T> >;
+	//
+	//	static_assert(std::is_same_v<value_type, char> || std::is_same_v<value_type, wchar_t>, "Invalid Type used");
+	//	auto iLen = size_type();
+	//	for (auto p = str; p && *p; ++p)
+	//		++iLen;
+	//	return iLen;
+	//}
+	//
+	//template <typename T, typename size_type = std::size_t>
+	//constexpr inline std::enable_if_t<!std::is_pointer_v<T> && std::is_same_v<std::remove_cv_t<T>, wchar_t>, size_type> _ts_strlen(const T &str) noexcept
+	//{
+	//	return (str == T() ? 0U : 1U);
+	//}
+	//
+	//template <typename T, typename size_type = std::size_t>
+	//constexpr inline std::enable_if_t<!std::is_pointer_v<T> && std::is_same_v<std::remove_cv_t<T>, char>, size_type> _ts_strlen(const T &str) noexcept
+	//{
+	//	return (str == T() ? 0U : 1U);
+	//}
+	//
+	//template <typename T, typename size_type = std::size_t, std::size_t N>
+	//constexpr inline size_type _ts_strlen(T const (&)[N]) noexcept
+	//{
+	//	return (N == 0U ? 0U : N - 1);
+	//}
+	//
+	//template <typename T, typename size_type = T::size_type>
+	//inline std::enable_if_t<!std::is_pointer_v<T> && std::is_member_function_pointer_v<decltype(&T::length)>, size_type> _ts_strlen(const T &str)
+	//{
+	//	return str.length();
+	//}
 
 	// Get String length
 	template <typename T, typename size_type = std::size_t>
-	std::enable_if_t<std::is_pointer_v<T>, size_type> _ts_strlen(const T &str) noexcept
+	constexpr size_type _ts_strlen(const T &str) noexcept
 	{
-		using value_type = std::remove_cv_t<std::remove_pointer_t<T> >;
+		if constexpr(std::is_pointer_v<T>) {
+			using value_type = std::remove_cv_t<std::remove_pointer_t<T> >;
 
-		static_assert(std::is_same_v<value_type, char> || std::is_same_v<value_type, wchar_t>, "Invalid Type used");
-		auto iLen = size_type();
-		for (auto p = str; p && *p; ++p)
-			++iLen;
-		return iLen;
-	}
-
-	template <typename T, typename size_type = std::size_t>
-	constexpr inline std::enable_if_t<!std::is_pointer_v<T> && std::is_same_v<std::remove_cv_t<T>, wchar_t>, size_type> _ts_strlen(const T &str) noexcept
-	{
-		return (str == T() ? 0U : 1U);
-	}
-
-	template <typename T, typename size_type = std::size_t>
-	constexpr inline std::enable_if_t<!std::is_pointer_v<T> && std::is_same_v<std::remove_cv_t<T>, char>, size_type> _ts_strlen(const T &str) noexcept
-	{
-		return (str == T() ? 0U : 1U);
+			static_assert(std::is_same_v<value_type, char> || std::is_same_v<value_type, wchar_t>, "Invalid Type used");
+			auto iLen = size_type();
+			for (auto p = str; p && *p; ++p)
+				++iLen;
+			return iLen;
+		}
+		else if constexpr(std::is_same_v<std::remove_cv_t<T>, wchar_t> || std::is_same_v<std::remove_cv_t<T>, char>) {
+			return (str == T() ? 0U : 1U);
+		}
+		else if constexpr(std::is_member_function_pointer_v<decltype(&T::length)>) {
+			return gsl::narrow_cast<size_type>(str.length());
+		}
 	}
 
 	template <typename T, typename size_type = std::size_t, std::size_t N>
 	constexpr inline size_type _ts_strlen(T const (&)[N]) noexcept
 	{
 		return (N == 0U ? 0U : N - 1);
-	}
-
-	template <typename T, typename size_type = T::size_type>
-	inline std::enable_if_t<!std::is_pointer_v<T> && std::is_member_function_pointer<decltype(&T::length)>::value, size_type> _ts_strlen(const T &str)
-	{
-		return str.length();
 	}
 
 	template <typename T>
@@ -176,7 +229,7 @@ namespace details {
 		char *operator()(char *const pDest, const char *const pSrc, const size_t length) noexcept
 		{
 			//return strncpy(pDest, pSrc, length);	// doesn't guarantee NULL termination!
-			return lstrcpynA(pDest, pSrc, static_cast<int>(length));
+			return lstrcpynA(pDest, pSrc, gsl::narrow_cast<int>(length));
 		}
 	};
 	template <>
@@ -184,7 +237,7 @@ namespace details {
 		wchar_t *operator()(wchar_t *const pDest, const wchar_t *const pSrc, const size_t length) noexcept
 		{
 			//return wcsncpy(pDest, pSrc, length); // doesn't guarantee NULL termination!
-			return lstrcpynW(pDest, pSrc, static_cast<int>(length));
+			return lstrcpynW(pDest, pSrc, gsl::narrow_cast<int>(length));
 		}
 	};
 
@@ -410,6 +463,31 @@ namespace details {
 		}
 	};
 
+	template <typename T, typename Format, typename... Arguments>
+	struct _impl_snprintf {
+	};
+	template <typename... Arguments>
+	struct _impl_snprintf<char, char, Arguments...> {
+		const int operator()(char *const buf, const size_t nCount, const char *const fmt, const Arguments&&... args)
+		{
+			return snprintf(buf, nCount, fmt, args...);
+		}
+	};
+	template <typename... Arguments>
+	struct _impl_snprintf<wchar_t, wchar_t, Arguments...> {
+		const int operator()(wchar_t *const buf, const size_t nCount, const wchar_t *const fmt, const Arguments&&... args)
+		{
+			return _snwprintf(buf, nCount, fmt, args...);
+		}
+	};
+	template <typename T, typename... Arguments>
+	struct _impl_snprintf<T, typename T::value_type, Arguments...> {
+		const std::enable_if_t<std::is_member_function_pointer_v<decltype(&T::data)> && std::is_member_function_pointer_v<decltype(&T::size)>, int> operator()(T &buf, const typename T::value_type *const fmt, const Arguments&&... args)
+		{
+			return _ts_snprintf(buf.data(), buf.size(), fmt, args...);
+		}
+	};
+
 	template <typename T>
 	struct _impl_atoi {
 	};
@@ -467,14 +545,15 @@ namespace details {
 
 // Check string bounds, make sure dest is not within the source string & vice versa (this could be a possible reason for some strcpyn() fails we see)
 template <typename T>
-constexpr bool isInBounds(const T *const sDest, const T *const sSrc, std::size_t iLen)
+constexpr bool isInBounds(const T *const sDest, const T *const sSrc, const std::size_t iLen)
 {
 	return (sSrc >= sDest && sSrc <= (sDest + iLen)) || (sDest >= sSrc && sDest <= (sSrc + iLen));
 }
 
 template <typename Result, typename Format, typename Value, typename... Arguments>
-Result &_ts_sprintf(Result &res, const Format &fmt, const Value val, Arguments&&... args)
+Result &_ts_sprintf(Result &res, const Format &fmt, const Value &val, Arguments&&... args)
 {
+	static_assert(std::is_same_v<std::remove_cv_t<std::remove_pointer_t<std::remove_extent_t<Format>>>, char> || std::is_same_v<std::remove_cv_t<std::remove_pointer_t<std::remove_extent_t<Format>>>, wchar_t>, "Format string must be char or wchar_t");
 	res.clear();
 	return details::_ts_printf_do(res, fmt, val, args...);
 }
@@ -720,6 +799,22 @@ int _ts_vsprintf(T *const buf, size_t nCount, const T *const fmt, const va_list 
 	static_assert(std::is_same_v<T, char> || std::is_same_v<T, wchar_t>, "Only char & wchar_t supported...");
 
 	return details::_impl_vsprintf<T>()(buf, nCount, fmt, args);
+}
+
+template <typename T, typename Format, typename... Arguments>
+int _ts_snprintf(T *const buf, const size_t nCount, const Format *const fmt, Arguments&&... args)
+{
+	static_assert(std::is_same_v<std::remove_cv_t<T>, char> || std::is_same_v<std::remove_cv_t<T>, wchar_t>, "Only char & wchar_t supported...");
+	static_assert(std::is_same_v<std::remove_cv_t<T>, std::remove_cv_t<Format>>, "Buffer & format must have same type.");
+
+	return details::_impl_snprintf<T, Format, Arguments...>()(buf, nCount, fmt, std::forward<Arguments>(args)...);
+}
+template <typename T, typename Format, typename... Arguments>
+int _ts_snprintf(T &buf, const Format *const fmt, Arguments&&... args)
+{
+	static_assert(std::is_same_v<std::remove_cv_t<Format>, char> || std::is_same_v<std::remove_cv_t<Format>, wchar_t>, "Only char & wchar_t supported...");
+
+	return details::_impl_snprintf<T, Format, Arguments...>()(buf, fmt, std::forward<Arguments>(args)...);
 }
 
 template <typename T>
