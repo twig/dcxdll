@@ -1695,11 +1695,8 @@ void DcxListView::parseCommandRequest( const TString &input) {
 			for (auto itStart = Ns.begin(TSCOMMACHAR), itEnd = Ns.end(); itStart != itEnd; ++itStart)
 			{
 				const auto tsLine(*itStart);
-				auto iStart = 0, iEnd = 0;
 
-				//getItemRange(tsLine, nItemCnt, &iStart, &iEnd);
-				std::tie(iStart, iEnd) = getItemRange(tsLine, nItemCnt);
-				//auto [iStart, iEnd] = getItemRange(tsLine, nItemCnt);	// no structured bindings in VS 15 ?
+				const auto [iStart, iEnd] = getItemRange(tsLine, nItemCnt);	// uses structured binding...
 
 				if ( (iStart < 0) || (iEnd < 0) || (iStart >= nItemCnt) || (iEnd >= nItemCnt) )
 					throw Dcx::dcxException(TEXT("Invalid index %."), tsLine);
@@ -1737,13 +1734,10 @@ void DcxListView::parseCommandRequest( const TString &input) {
 		else {
 			for (auto itStart = Ns.begin(TSCOMMACHAR), itEnd = Ns.end(); itStart != itEnd; ++itStart)
 			{
-				auto iStart = 0, iEnd = 0;
 				const auto tsLine(*itStart);
 				const auto nItemCnt = ListView_GetItemCount(m_Hwnd);
 
-				//getItemRange(tsLine, nItemCnt, &iStart, &iEnd);
-				std::tie(iStart, iEnd) = getItemRange(tsLine, nItemCnt);
-				//auto [iStart, iEnd] = getItemRange(tsLine, nItemCnt);	// no structured bindings in VS 15 ?
+				const auto [iStart, iEnd] = getItemRange(tsLine, nItemCnt);	// uses structured binding...
 
 				if ((iStart < 0) || (iEnd < iStart) || (iStart >= nItemCnt) || (iEnd >= nItemCnt))
 					throw Dcx::dcxException(TEXT("Invalid index %."), tsLine);
@@ -1854,7 +1848,7 @@ void DcxListView::parseCommandRequest( const TString &input) {
 		if ((UINT)nCol >= lviDcx->vInfo.size())
 			throw Dcx::dcxException("No Render Information for SubItem, More subitems than columns?");
 
-		auto ri = lviDcx->vInfo[(UINT)nCol];
+		auto ri = lviDcx->vInfo[gsl::narrow_cast<UINT>(nCol)];
 
 		ri->m_dFlags = lviflags;
 		if (dcx_testflag(lviflags, LVIS_COLOR))
@@ -1878,11 +1872,9 @@ void DcxListView::parseCommandRequest( const TString &input) {
 
 		for (auto itStart = Ns.begin(TSCOMMACHAR), itEnd = Ns.end(); itStart != itEnd; ++itStart)
 		{
-			auto iStart = 0, iEnd = 0;
 			const auto tsLine(*itStart);
 
-			//getItemRange(tsLine, nItemCnt, &iStart, &iEnd);
-			std::tie(iStart, iEnd) = getItemRange(tsLine, nItemCnt);
+			const auto [iStart, iEnd] = getItemRange(tsLine, nItemCnt);
 
 			if ( (iStart < 0) || (iEnd < 0) || (iStart >= nItemCnt) || (iEnd >= nItemCnt) )
 				throw Dcx::dcxException(TEXT("Invalid index %."), tsLine);
@@ -2088,7 +2080,7 @@ void DcxListView::parseCommandRequest( const TString &input) {
 		lvc.iImage = I_IMAGENONE;
 		lvc.mask = LVCF_FMT | LVCF_TEXT | LVCF_WIDTH;
 		lvc.cx = width;
-		lvc.fmt = static_cast<int>(this->parseHeaderFlags(tsflags));
+		lvc.fmt = gsl::narrow_cast<int>(this->parseHeaderFlags(tsflags));
 		lvc.iSubItem = 0;
 		lvc.pszText = itemtext.to_chr();
 
@@ -2116,7 +2108,7 @@ void DcxListView::parseCommandRequest( const TString &input) {
 			{
 				nColumn++;
 
-				data = input.gettok((int)i, TSTABCHAR).trim();
+				data = input.gettok(gsl::narrow_cast<int>(i), TSTABCHAR).trim();
 
 				tsflags = data++;
 				icon = data++.to_int() - 1;	// tok 2
@@ -2128,7 +2120,7 @@ void DcxListView::parseCommandRequest( const TString &input) {
 
 				lvc.mask = LVCF_FMT | LVCF_TEXT | LVCF_WIDTH;
 				lvc.cx = width;
-				lvc.fmt = (int)this->parseHeaderFlags(tsflags);
+				lvc.fmt = gsl::narrow_cast<int>(this->parseHeaderFlags(tsflags));
 				lvc.iImage = I_IMAGENONE;
 				lvc.iSubItem = 0;
 				lvc.pszText = itemtext.to_chr();
@@ -2228,22 +2220,24 @@ void DcxListView::parseCommandRequest( const TString &input) {
 					throw Dcx::dcxException(TEXT("Unable to Add %'s Icons"), filename);
 			}
 			else {
-				//HICON icon = dcxLoadIcon(index, filename, true, tflags);
-				//
-				//if (icon == nullptr)
-				//	throw Dcx::dcxException("Unable to load normal icon");
-				//
-				//const int i = ImageList_AddIcon(himl, icon);
-				//if (overlayindex > 0)
-				//	ImageList_SetOverlayImage(himl, i, overlayindex);
-				//
-				//DestroyIcon(icon);
-
+#if DCX_USE_WRAPPERS
 				Dcx::dcxIconResource icon(index, filename, true, tflags);
 
 				const auto i = ImageList_AddIcon(himl, icon);
 				if (overlayindex > 0)
 					ImageList_SetOverlayImage(himl, i, overlayindex);
+#else
+				HICON icon = dcxLoadIcon(index, filename, true, tflags);
+				
+				if (icon == nullptr)
+					throw Dcx::dcxException("Unable to load normal icon");
+				
+				const int i = ImageList_AddIcon(himl, icon);
+				if (overlayindex > 0)
+					ImageList_SetOverlayImage(himl, i, overlayindex);
+				
+				DestroyIcon(icon);
+#endif
 			}
 
 			// load small icon
@@ -2256,24 +2250,26 @@ void DcxListView::parseCommandRequest( const TString &input) {
 					throw Dcx::dcxException(TEXT("Unable to Add %'s Icons"), filename);
 			}
 			else {
-				//HICON icon = dcxLoadIcon(index, filename, false, tflags);
-				//
-				//if (icon == nullptr)
-				//	throw Dcx::dcxException("Unable to load small icon");
-				//
-				//const int i = ImageList_AddIcon(himl, icon);
-				//
-				//if (overlayindex > 0)
-				//	ImageList_SetOverlayImage(himl, i, overlayindex);
-				//
-				//DestroyIcon(icon);
-
+#if DCX_USE_WRAPPERS
 				Dcx::dcxIconResource icon(index, filename, false, tflags);
 
 				const auto i = ImageList_AddIcon(himl, icon);
 
 				if (overlayindex > 0)
 					ImageList_SetOverlayImage(himl, i, overlayindex);
+#else
+				HICON icon = dcxLoadIcon(index, filename, false, tflags);
+				
+				if (icon == nullptr)
+					throw Dcx::dcxException("Unable to load small icon");
+				
+				const int i = ImageList_AddIcon(himl, icon);
+				
+				if (overlayindex > 0)
+					ImageList_SetOverlayImage(himl, i, overlayindex);
+				
+				DestroyIcon(icon);
+#endif
 			}
 		}
 
@@ -2288,18 +2284,20 @@ void DcxListView::parseCommandRequest( const TString &input) {
 					throw Dcx::dcxException(TEXT("Unable to Add %'s Icons"), filename);
 			}
 			else {
-				//HICON icon = dcxLoadIcon(index, filename, false, tflags);
-				//
-				//if (icon == nullptr)
-				//	throw Dcx::dcxException("Unable to load state icon");
-				//
-				//ImageList_AddIcon(himl, icon);
-				//
-				//DestroyIcon(icon);
-
+#if DCX_USE_WRAPPERS
 				Dcx::dcxIconResource icon(index, filename, false, tflags);
 
 				ImageList_AddIcon(himl, icon);
+#else
+				HICON icon = dcxLoadIcon(index, filename, false, tflags);
+				
+				if (icon == nullptr)
+					throw Dcx::dcxException("Unable to load state icon");
+				
+				ImageList_AddIcon(himl, icon);
+				
+				DestroyIcon(icon);
+#endif
 			}
 		}
 	}
@@ -2551,10 +2549,9 @@ void DcxListView::parseCommandRequest( const TString &input) {
 
 		for (auto itStart = tsCols.begin(TSCOMMACHAR), itEnd = tsCols.end(); itStart != itEnd; ++itStart)
 		{
-			auto col_start = 0, col_end = 0;
 			const auto col(*itStart);
-			//getItemRange(col, col_count, &col_start, &col_end);
-			std::tie(col_start, col_end) = getItemRange(col, col_count);
+
+			const auto[col_start, col_end] = getItemRange(col, col_count);
 
 			if ( (col_start < 0) || (col_end < 0) || (col_start >= col_count) || (col_end >= col_count) )
 				throw Dcx::dcxException(TEXT("Invalid column index %."), col);
@@ -2572,7 +2569,7 @@ void DcxListView::parseCommandRequest( const TString &input) {
 	else if (flags[TEXT('G')] && numtok == 6) {
 		const auto gid = input.getnexttok().to_int();
 
-		if (!ListView_HasGroup(m_Hwnd, (WPARAM)gid))
+		if (!ListView_HasGroup(m_Hwnd, gsl::narrow_cast<WPARAM>(gid)))
 			throw Dcx::dcxException(TEXT("Group doesn't exist: %"), gid);
 
 		if (!Dcx::VistaModule.isVista())

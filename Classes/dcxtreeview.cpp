@@ -1305,10 +1305,14 @@ void DcxTreeView::insertItem(const TString &tsPath, const TString &tsData, const
 		lpmytvi->clrBkg = CLR_INVALID;
 
 	{
+		//if ((dcx_testflag(iFlags, TVIS_HASHITEM)) && (itemtext.numtok() == 2))
+		//	mIRCLinker::tsEvalex(itemtext, TEXT("$hget(%s,%s)"), itemtext.gettok( 1 ).to_chr(), itemtext.gettok( 2 ).to_chr());
+		//else if ((dcx_testflag(iFlags, TVIS_HASHNUMBER)) && (itemtext.numtok() == 2))
+		//	mIRCLinker::tsEvalex(itemtext,  TEXT("$hget(%s,%s).data"), itemtext.gettok( 1 ).to_chr(), itemtext.gettok( 2 ).to_chr());
 		if ((dcx_testflag(iFlags, TVIS_HASHITEM)) && (itemtext.numtok() == 2))
-			mIRCLinker::tsEvalex(itemtext, TEXT("$hget(%s,%s)"), itemtext.gettok( 1 ).to_chr(), itemtext.gettok( 2 ).to_chr());
+			mIRCLinker::eval(itemtext, TEXT("$hget(%,%)"), itemtext.getfirsttok(1), itemtext.getnexttok());
 		else if ((dcx_testflag(iFlags, TVIS_HASHNUMBER)) && (itemtext.numtok() == 2))
-			mIRCLinker::tsEvalex(itemtext,  TEXT("$hget(%s,%s).data"), itemtext.gettok( 1 ).to_chr(), itemtext.gettok( 2 ).to_chr());
+			mIRCLinker::eval(itemtext, TEXT("$hget(%,%).data"), itemtext.getfirsttok(1), itemtext.getnexttok());
 	}
 
 	if (!itemtext.empty()) {
@@ -1542,7 +1546,8 @@ int CALLBACK DcxTreeView::sortItemsEx( LPARAM lParam1, LPARAM lParam2, LPARAM lP
 
 		//TCHAR sRes[20];
 		stString<20> sRes;
-		mIRCLinker::evalex( sRes, static_cast<int>(sRes.size()), TEXT("$%s(%s,%s)"), ptvsort->tsCustomAlias.to_chr( ), ptvsort->itemtext1, ptvsort->itemtext2 );
+		//mIRCLinker::evalex( sRes, static_cast<int>(sRes.size()), TEXT("$%s(%s,%s)"), ptvsort->tsCustomAlias.to_chr( ), &ptvsort->itemtext1[0], &ptvsort->itemtext2[0] );
+		mIRCLinker::eval(sRes, TEXT("$%(%,%)"), ptvsort->tsCustomAlias, &ptvsort->itemtext1[0], &ptvsort->itemtext2[0]);
 
 		auto ires = dcx_atoi(sRes.data());
 
@@ -1683,23 +1688,21 @@ int DcxTreeView::getChildCount(HTREEITEM *hParent) const {
  */
 
 bool DcxTreeView::matchItemText(HTREEITEM *hItem, const TString &search, const DcxSearchTypes &SearchType) const {
+	//auto itemtext = std::make_unique<TCHAR[]>(MIRC_BUFFER_SIZE_CCH);
+	//itemtext[0] = TEXT('\0');
+	//
+	//getItemText(hItem, itemtext.get(), MIRC_BUFFER_SIZE_CCH);
+	//
+	//return DcxListHelper::matchItemText(itemtext.get(), search, SearchType);
+
 	auto itemtext = std::make_unique<TCHAR[]>(MIRC_BUFFER_SIZE_CCH);
 	itemtext[0] = TEXT('\0');
 
-	getItemText(hItem, itemtext.get(), MIRC_BUFFER_SIZE_CCH);
+	auto refText = refString<TCHAR, MIRC_BUFFER_SIZE_CCH>(itemtext.get());
 
-	//switch (SearchType) {
-	//	case DcxSearchTypes::SEARCH_R:
-	//		return isRegexMatch(itemtext.get(), search.to_chr());
-	//	case DcxSearchTypes::SEARCH_W:
-	//		return TString(itemtext).iswm(search);
-	//	case DcxSearchTypes::SEARCH_E:
-	//		return (ts_strcmp(search.to_chr(), itemtext.get()) == 0);
-	//}
-	//
-	//return false;
+	getItemText(hItem, refText, MIRC_BUFFER_SIZE_CCH);
 
-	return DcxListHelper::matchItemText(itemtext.get(), search, SearchType);
+	return DcxListHelper::matchItemText(refText, search, SearchType);
 }
 
 /*!

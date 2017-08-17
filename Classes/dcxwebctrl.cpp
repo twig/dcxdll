@@ -977,7 +977,8 @@ LRESULT DcxWebControl::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, B
 LRESULT DcxWebControl::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed )
 {
 #if DCX_DEBUG_OUTPUT
-	mIRCLinker::signalex(true,TEXT("debug %lu"), uMsg);
+	//mIRCLinker::signalex(true,TEXT("webctrl debug %lu"), uMsg);
+	mIRCLinker::signal(TEXT("webctrl debug %"), uMsg);
 #endif
 	switch( uMsg ) {
 

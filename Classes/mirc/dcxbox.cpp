@@ -43,10 +43,10 @@ DcxBox::DcxBox(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd,
 	parseControlStyles(styles, &Styles, &ExStyles, &bNoTheme);
 
 	m_Hwnd = CreateWindowEx(
-		static_cast<DWORD>(ExStyles) | WS_EX_CONTROLPARENT,
+		gsl::narrow_cast<DWORD>(ExStyles) | WS_EX_CONTROLPARENT,
 		DCX_BOXCLASS,
 		nullptr,
-		static_cast<DWORD>(Styles) | WS_CHILD,
+		gsl::narrow_cast<DWORD>(Styles) | WS_CHILD,
 		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
 		mParentHwnd,
 		(HMENU)ID,
@@ -79,10 +79,10 @@ DcxBox::DcxBox(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd,
 			Styles |= BS_AUTORADIOBUTTON;
 
 		m_TitleButton = CreateWindowEx(
-			static_cast<DWORD>(ExStyles),
+			gsl::narrow_cast<DWORD>(ExStyles),
 			TEXT("BUTTON"),
 			nullptr,
-			static_cast<DWORD>(Styles),
+			gsl::narrow_cast<DWORD>(Styles),
 			CW_USEDEFAULT, CW_USEDEFAULT, 11, 10,
 			m_Hwnd,
 			(HMENU)ID,
@@ -240,15 +240,12 @@ void DcxBox::parseInfoRequest(const TString & input, const refString<TCHAR, MIRC
 
 			TString text;
 			TGetWindowText(m_Hwnd, text);
-			DrawText(hdc, text.to_chr(), static_cast<int>(text.len()), &rcText, DT_CALCRECT);
+			DrawText(hdc, text.to_chr(), gsl::narrow_cast<int>(text.len()), &rcText, DT_CALCRECT);
 
 			if (oldFont != nullptr)
 				SelectFont(hdc, oldFont);
 
-			//const auto w = rcText.right - rcText.left;
-			const auto h = rcText.bottom - rcText.top;
-
-			if (dcx_testflag(m_iBoxStyles, BOXS_BOTTOM))
+			if (const auto h = rcText.bottom - rcText.top; dcx_testflag(m_iBoxStyles, BOXS_BOTTOM))
 				rc.bottom -= (h + 2);
 			else
 				rc.top += (h - 2);
@@ -266,10 +263,8 @@ void DcxBox::parseInfoRequest(const TString & input, const refString<TCHAR, MIRC
 #ifndef DCX_SWITCH_OBJ
 void DcxBox::parseInfoRequest( const TString & input, refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const
 {
-	const auto prop(input.getfirsttok( 3 ));
-
 	// [NAME] [ID] [PROP]
-	if ( prop == TEXT("text") ) {
+	if (const auto prop(input.getfirsttok(3)); prop == TEXT("text") ) {
 
 		GetWindowText( m_Hwnd, szReturnValue, MIRC_BUFFER_SIZE_CCH );
 	}
@@ -301,10 +296,7 @@ void DcxBox::parseInfoRequest( const TString & input, refString<TCHAR, MIRC_BUFF
 			if (oldFont != nullptr)
 				SelectFont(hdc, oldFont);
 
-			//const auto w = rcText.right - rcText.left;
-			const auto h = rcText.bottom - rcText.top;
-
-			if (dcx_testflag(m_iBoxStyles, BOXS_BOTTOM))
+			if (const auto h = rcText.bottom - rcText.top; dcx_testflag(m_iBoxStyles, BOXS_BOTTOM))
 				rc.bottom -= (h + 2);
 			else
 				rc.top += (h - 2);
@@ -347,10 +339,7 @@ void DcxBox::parseInfoRequest(const TString & input, refString<TCHAR, MIRC_BUFFE
 				if (oldFont != nullptr)
 					SelectFont(hdc, oldFont);
 
-				//const auto w = rcText.right - rcText.left;
-				const auto h = rcText.bottom - rcText.top;
-
-				if (dcx_testflag(m_iBoxStyles, BOXS_BOTTOM))
+				if (const auto h = rcText.bottom - rcText.top; dcx_testflag(m_iBoxStyles, BOXS_BOTTOM))
 					rc.bottom -= (h + 2);
 				else
 					rc.top += (h - 2);
@@ -394,9 +383,7 @@ void DcxBox::parseCommandRequest( const TString & input ) {
 		if (p_Control == nullptr)
 			throw Dcx::dcxException("Unable to get control");
 
-		const auto dct = p_Control->getControlType();
-
-		if (dct == DcxControlTypes::DIALOG || dct == DcxControlTypes::WINDOW)
+		if (const auto dct = p_Control->getControlType(); (dct == DcxControlTypes::DIALOG || dct == DcxControlTypes::WINDOW))
 			delete p_Control;
 		else {
 			if (p_Control->getRefCount() != 0)
@@ -450,9 +437,7 @@ void DcxBox::parseCommandRequest( const TString & input ) {
 		if (m_pLayoutManager == nullptr)
 			throw Dcx::dcxException("No LayoutManager available");
 
-		const auto tsCmd(input.getnexttok());	// tok 4
-
-		if ( tsCmd == TEXT("update") ) {
+		if (const auto tsCmd(input.getnexttok()); tsCmd == TEXT("update") ) {
 			RECT rc;
 			if (!GetClientRect( m_Hwnd, &rc ))
 				throw Dcx::dcxException("Unable to get client rect!");
@@ -563,8 +548,7 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 				break;
 
 			if (IsWindow(hdr->hwndFrom)) {
-				auto c_this = reinterpret_cast<DcxControl *>(GetProp(hdr->hwndFrom, TEXT("dcx_cthis")));
-				if (c_this != nullptr)
+				if (auto c_this = reinterpret_cast<DcxControl *>(GetProp(hdr->hwndFrom, TEXT("dcx_cthis"))); c_this != nullptr)
 					lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 			}
 		}
@@ -615,8 +599,7 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 					break;
 
 				if (IsWindow((HWND) lParam)) {
-					auto c_this = reinterpret_cast<DcxControl *>(GetProp((HWND)lParam, TEXT("dcx_cthis")));
-					if (c_this != nullptr)
+					if (auto c_this = reinterpret_cast<DcxControl *>(GetProp((HWND)lParam, TEXT("dcx_cthis"))); c_this != nullptr)
 						lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 				}
 			}
@@ -624,11 +607,8 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 
 		case WM_COMPAREITEM:
 			{
-				dcxlParam(LPCOMPAREITEMSTRUCT, idata);
-
-				if ((idata != nullptr) && (IsWindow(idata->hwndItem))) {
-					auto c_this = reinterpret_cast<DcxControl *>(GetProp(idata->hwndItem, TEXT("dcx_cthis")));
-					if (c_this != nullptr)
+				if (dcxlParam(LPCOMPAREITEMSTRUCT, idata); ((idata != nullptr) && (IsWindow(idata->hwndItem)))) {
+					if (auto c_this = reinterpret_cast<DcxControl *>(GetProp((HWND)lParam, TEXT("dcx_cthis"))); c_this != nullptr)
 						lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 				}
 			}
@@ -636,10 +616,8 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 
 		case WM_DELETEITEM:
 			{
-				dcxlParam(LPDELETEITEMSTRUCT, idata);
-				if ((idata != nullptr) && (IsWindow(idata->hwndItem))) {
-					auto c_this = reinterpret_cast<DcxControl *>(GetProp(idata->hwndItem, TEXT("dcx_cthis")));
-					if (c_this != nullptr)
+				if (dcxlParam(LPDELETEITEMSTRUCT, idata); ((idata != nullptr) && (IsWindow(idata->hwndItem)))) {
+					if (auto c_this = reinterpret_cast<DcxControl *>(GetProp((HWND)lParam, TEXT("dcx_cthis"))); c_this != nullptr)
 						lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 				}
 			}
@@ -647,10 +625,8 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 
 		case WM_MEASUREITEM:
 			{
-				auto cHwnd = GetDlgItem(m_Hwnd, static_cast<int>(wParam));
-				if (IsWindow(cHwnd)) {
-					auto c_this = reinterpret_cast<DcxControl *>(GetProp(cHwnd, TEXT("dcx_cthis")));
-					if (c_this != nullptr)
+				if (auto cHwnd = GetDlgItem(m_Hwnd, static_cast<int>(wParam)); IsWindow(cHwnd)) {
+					if (auto c_this = reinterpret_cast<DcxControl *>(GetProp(cHwnd, TEXT("dcx_cthis"))); c_this != nullptr)
 						lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 				}
 			}
@@ -658,11 +634,8 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 
 		case WM_DRAWITEM:
 			{
-				dcxlParam(LPDRAWITEMSTRUCT, idata);
-
-				if ((idata != nullptr) && (IsWindow(idata->hwndItem))) {
-					auto c_this = reinterpret_cast<DcxControl *>(GetProp(idata->hwndItem, TEXT("dcx_cthis")));
-					if (c_this != nullptr)
+				if (dcxlParam(LPDRAWITEMSTRUCT, idata); ((idata != nullptr) && (IsWindow(idata->hwndItem)))) {
+					if (auto c_this = reinterpret_cast<DcxControl *>(GetProp(idata->hwndItem, TEXT("dcx_cthis"))); c_this != nullptr)
 						lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 				}
 			}
@@ -670,7 +643,6 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 
 		case WM_SIZE:
 			{
-
 				HWND bars = nullptr;
 
 				while ( ( bars = FindWindowEx( m_Hwnd, bars, DCX_REBARCTRLCLASS, nullptr ) ) != nullptr ) {
@@ -772,8 +744,7 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 }
 void DcxBox::EraseBackground(HDC hdc)
 {
-	RECT rc;
-	if (GetClientRect(m_Hwnd, &rc))
+	if (RECT rc{}; GetClientRect(m_Hwnd, &rc))
 	{
 		// fill background.
 		if (isExStyle(WS_EX_TRANSPARENT) || m_pParentDialog->isExStyle(WS_EX_COMPOSITED))
@@ -789,8 +760,6 @@ void DcxBox::EraseBackground(HDC hdc)
 void DcxBox::DrawClientArea(HDC hdc)
 {
 	RECT rc = { 0 }, rc2 = { 0 }, rcText = { 0 }, rcText2 = { 0 };
-	TString wtext;
-	const auto n = TGetWindowText(m_Hwnd, wtext);
 
 	if (!GetClientRect(m_Hwnd, &rc))
 		return;
@@ -802,7 +771,6 @@ void DcxBox::DrawClientArea(HDC hdc)
 	// if no border, dont bother
 	if (dcx_testflag(m_iBoxStyles, BOXS_NONE)) {
 		DcxControl::DrawCtrlBackground(hdc, this, &rc);
-		//this->FinishAlphaBlend(ai);
 		return;
 	}
 
@@ -811,10 +779,10 @@ void DcxBox::DrawClientArea(HDC hdc)
 	SetBkMode(hdc, TRANSPARENT);
 
 	// no text, no box!
-	if (n == 0) {
+	TString wtext;
+	if (const auto n = TGetWindowText(m_Hwnd, wtext); n == 0) {
 		if (dcx_testflag(m_iBoxStyles, BOXS_ROUNDED)) {
-			auto m_Region = CreateRoundRectRgn(rc2.left, rc2.top, rc2.right, rc2.bottom, 10, 10);
-			if (m_Region != nullptr) {
+			if (auto m_Region = CreateRoundRectRgn(rc2.left, rc2.top, rc2.right, rc2.bottom, 10, 10); m_Region != nullptr) {
 				Auto(DeleteRgn(m_Region));
 
 				SelectClipRgn(hdc,m_Region);
@@ -873,9 +841,7 @@ void DcxBox::DrawClientArea(HDC hdc)
 		rcText.bottom = rcText.top + h;
 
 		// align text horizontally
-		const auto bw = rc.right - rc.left - (2 * DCX_BOXTEXTSPACING);
-
-		if (w > bw) {
+		if (const auto bw = (rc.right - rc.left - (2 * DCX_BOXTEXTSPACING)); w > bw) {
 			rcText.left = rc.left + DCX_BOXTEXTSPACING;
 			rcText.right = rc.right - DCX_BOXTEXTSPACING;
 		}
@@ -896,8 +862,7 @@ void DcxBox::DrawClientArea(HDC hdc)
 
 		if (IsWindow(this->m_TitleButton))
 		{
-			RECT bSZ;
-			if (GetWindowRect(this->m_TitleButton, &bSZ))
+			if (RECT bSZ{}; GetWindowRect(this->m_TitleButton, &bSZ))
 			{
 				bSZ.bottom = (bSZ.right - bSZ.left);
 				SetWindowPos(this->m_TitleButton, nullptr, rcText2.left, rcText2.top, bSZ.bottom, (rcText2.bottom - rcText2.top), SWP_NOZORDER | SWP_NOACTIVATE);
@@ -910,8 +875,7 @@ void DcxBox::DrawClientArea(HDC hdc)
 
 		// draw the border
 		if (dcx_testflag(this->m_iBoxStyles, BOXS_ROUNDED)) {
-			auto m_Region = CreateRoundRectRgn(rc2.left, rc2.top, rc2.right, rc2.bottom, 10, 10);
-			if (m_Region != nullptr) {
+			if (auto m_Region = CreateRoundRectRgn(rc2.left, rc2.top, rc2.right, rc2.bottom, 10, 10); m_Region != nullptr) {
 				Auto(DeleteRgn(m_Region));
 
 				SelectClipRgn(hdc,m_Region);
@@ -936,6 +900,4 @@ void DcxBox::DrawClientArea(HDC hdc)
 		// draw the text
 		this->ctrlDrawText(hdc, wtext, &rcText, DT_LEFT | DT_END_ELLIPSIS |DT_SINGLELINE);
 	}
-
-	//this->FinishAlphaBlend(ai);
 }

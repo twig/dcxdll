@@ -1458,11 +1458,11 @@ LRESULT DcxRichEdit::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 					}
 					break;
 				} // EN_SELCHANGE
-			} // SWITCH 
+			} // switch(hdr->code)
 
 			break;
 		} // WM_NOTIFY
-	}
+	}	// switch (uMsg)
 
 	return 0L;
 }

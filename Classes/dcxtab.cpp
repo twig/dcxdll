@@ -35,10 +35,10 @@ DcxTab::DcxTab(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd,
 	this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
 
 	m_Hwnd = CreateWindowEx(	
-		static_cast<DWORD>(ExStyles) | WS_EX_CONTROLPARENT,
+		gsl::narrow_cast<DWORD>(ExStyles) | WS_EX_CONTROLPARENT,
 		DCX_TABCTRLCLASS, 
 		nullptr,
-		WS_CHILD | static_cast<DWORD>(Styles),
+		WS_CHILD | gsl::narrow_cast<DWORD>(Styles),
 		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
 		mParentHwnd,
 		(HMENU) ID,
@@ -136,7 +136,7 @@ void DcxTab::parseControlStyles( const TString & styles, LONG * Styles, LONG * E
 			case L"flat"_hash:
 				*Styles |= TCS_FLATBUTTONS;
 				break;
-			case L"hot"_hash:
+			case L"hottrack"_hash:
 				*Styles |= TCS_HOTTRACK;
 				break;
 			case L"multiline"_hash:
@@ -153,6 +153,9 @@ void DcxTab::parseControlStyles( const TString & styles, LONG * Styles, LONG * E
 			//	break;
 			case L"flatseps"_hash:
 				*ExStyles |= TCS_EX_FLATSEPARATORS;
+				break;
+			case L"forcelabelleft"_hash:
+				*Styles |= TCS_FORCELABELLEFT;
 				break;
 			case L"closable"_hash:
 				{
@@ -1237,6 +1240,9 @@ LRESULT DcxTab::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bPa
 
 					rect.right = rcCloseButton.left - 2;
 				}
+
+				//DrawGlow(nTabIndex, idata->hDC, rect);
+
 				COLORREF crOldColor = CLR_INVALID;
 
 				if (dcx_testflag(tci.dwState, TCIS_HIGHLIGHTED))
@@ -1256,7 +1262,18 @@ LRESULT DcxTab::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bPa
 				//else
 				//	mIRC_DrawText( idata->hDC, label, &rect, DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP | DT_SINGLELINE, this->m_bShadowText, this->m_bUseUTF8);
 
-				this->ctrlDrawText(idata->hDC, label, &rect, DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP | DT_SINGLELINE);
+				uint32_t uDrawFlags = DT_WORD_ELLIPSIS | DT_SINGLELINE;
+
+				if (isStyle(TCS_FORCELABELLEFT))
+				{
+					// force text to be left aligned
+					rect.left += GetSystemMetrics(SM_CXEDGE);	//5 add padding for left of text, make this a settable option for text alignment.
+				}
+				else {
+					// center text on control (default)
+					uDrawFlags |= DT_CENTER;
+				}
+				this->ctrlDrawText(idata->hDC, label, &rect, uDrawFlags);
 
 				if (dcx_testflag(tci.dwState, TCIS_HIGHLIGHTED))
 					SetTextColor(idata->hDC, crOldColor);
@@ -1347,7 +1364,7 @@ LRESULT DcxTab::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 
 		case WM_MEASUREITEM:
 			{
-				auto cHwnd = GetDlgItem(m_Hwnd, static_cast<int>(wParam));
+				auto cHwnd = GetDlgItem(m_Hwnd, gsl::narrow_cast<int>(wParam));
 				if (IsWindow(cHwnd)) {
 					auto c_this = reinterpret_cast<DcxControl *>(GetProp(cHwnd, TEXT("dcx_cthis")));
 					if (c_this != nullptr)
@@ -1416,4 +1433,48 @@ LRESULT DcxTab::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 	}
 
 	return lRes;
+}
+
+void DcxTab::DrawGlow(const int32_t nTabIndex, HDC hDC, const RECT &rect) const
+{
+	Dcx::dcxCursorPos cPos(m_Hwnd);
+	TCHITTESTINFO hInfo{};
+
+	hInfo.pt.x = cPos.x;
+	hInfo.pt.y = cPos.y;
+	hInfo.flags = TCHT_ONITEM;
+
+	if ((TabCtrl_HitTest(m_Hwnd, &hInfo) == gsl::narrow_cast<int>(nTabIndex)) /*&& isStyle(TCS_HOTTRACK) &&*/ && (TabCtrl_GetCurSel(m_Hwnd) != gsl::narrow_cast<int>(nTabIndex)))
+	{
+		Gdiplus::Graphics graphics(hDC);
+		Gdiplus::GraphicsPath graphicsPath;
+		Gdiplus::Rect gRect(rect.left, rect.top, (rect.right - rect.left), (rect.bottom - rect.top));
+		int radius = 5;
+
+		//rect - for a bounding rect
+		//radius - for how 'rounded' the glow will look
+		int diameter = radius * 2;
+
+		graphicsPath.AddArc(Gdiplus::Rect(gRect.X, gRect.Y, diameter, diameter), 180.0f, 90.0f);
+		graphicsPath.AddArc(Gdiplus::Rect(gRect.X + gRect.Width - diameter, gRect.Y, diameter, diameter), 270.0f, 90.0f);
+		graphicsPath.AddArc(Gdiplus::Rect(gRect.X + gRect.Width - diameter, gRect.Y + gRect.Height - diameter, diameter, diameter), 0.0f, 90.0f);
+		graphicsPath.AddArc(Gdiplus::Rect(gRect.X, gRect.Y + gRect.Height - diameter, diameter, diameter), 90.0f, 90.0f);
+		graphicsPath.CloseFigure();
+
+		Gdiplus::PathGradientBrush brush(&graphicsPath);
+		brush.SetCenterColor(Gdiplus::Color(255, 20, 20, 234)); //would be some shade of blue, following your example
+		int colCount = 1;
+		Gdiplus::Color clrGlow(0, 20, 20, 234);
+		brush.SetSurroundColors(&clrGlow, &colCount); //same as your center color, but with the alpha channel set to 0
+
+													  //play with these numbers to get the glow effect you want
+		Gdiplus::REAL blendFactors[] = { 0.0f, 0.1f, 0.3f, 1.0f };
+		Gdiplus::REAL blendPos[] = { 0.0f, 0.4f, 0.6f, 1.0f };
+		//sets how transition toward the center is shaped
+		brush.SetBlend(blendFactors, blendPos, 4);
+		//sets the scaling on the center. you may want to have it elongated in the x-direction
+		brush.SetFocusScales(0.2f, 0.2f);
+
+		graphics.FillPath(&brush, &graphicsPath);
+	}
 }

@@ -75,13 +75,20 @@ bool DcxmlParser::ParseXML(const TString &tsFilePath,const TString &tsDialogMark
 
 		const auto tx = getDialogElement();
 
-		mIRCLinker::execex(TEXT("/dialog -s %s %i %i %i %i"), //!< Sets the dialog size.
-			tsDialogMark.to_chr(),
+		//mIRCLinker::execex(TEXT("/dialog -s %s %i %i %i %i"), //!< Sets the dialog size.
+		//	tsDialogMark.to_chr(),
+		//	queryIntAttribute(tx, "x", -1),
+		//	queryIntAttribute(tx, "y", -1),
+		//	queryIntAttribute(tx, "w", -1),
+		//	queryIntAttribute(tx, "h", -1)
+		//	);
+		mIRCLinker::exec(TEXT("/dialog -s % % % % %"), //!< Sets the dialog size.
+			tsDialogMark,
 			queryIntAttribute(tx, "x", -1),
 			queryIntAttribute(tx, "y", -1),
 			queryIntAttribute(tx, "w", -1),
 			queryIntAttribute(tx, "h", -1)
-			);
+		);
 
 		setZlayered(false);
 
@@ -96,27 +103,33 @@ bool DcxmlParser::ParseXML(const TString &tsFilePath,const TString &tsDialogMark
 		if (tBorder != nullptr) //!< set border ONLY if defined on <dialog>
 			xdialogEX(TEXT("-b"), TEXT("+%S"), tBorder);
 
-		mIRCLinker::execex(TEXT("//dialog -t %s %S"), tsDialogMark.to_chr(), tCaption);
+		//mIRCLinker::execex(TEXT("//dialog -t %s %S"), tsDialogMark.to_chr(), tCaption);
+		mIRCLinker::exec(TEXT("//dialog -t % %"), tsDialogMark, tCaption);
 		xdialogEX(TEXT("-l"), TEXT("root \t +p%S 0 0 0 0"), tCascade);
 		xdialogEX(TEXT("-l"), TEXT("space root \t + %S"), tMargin);
 
 		parseDialog(); //!< Parse <dialog> children onto the dialog
 
+		//if (tx->Attribute("center") != nullptr) //!< Centers the dialog
+		//	mIRCLinker::execex(TEXT("/dialog -r %s"), tsDialogMark.to_chr());
 		if (tx->Attribute("center") != nullptr) //!< Centers the dialog
-			mIRCLinker::execex(TEXT("/dialog -r %s"), tsDialogMark.to_chr());
+			mIRCLinker::exec(TEXT("/dialog -r %"), tsDialogMark);
 
 		//This "Shite" is to activate the first zlayer, added a check if this command starts returning an error
 		if (getZlayered())
 			xdialogEX(TEXT("-z"), TEXT("+s 1"));
 
-		mIRCLinker::execex(TEXT("/.timer 1 0 %s %s ready"), getDialog()->getAliasName().to_chr(), tsDialogMark.to_chr()); //!< Tell user that dcxml is finished, & they can do a cla update or whatever.
+		//mIRCLinker::execex(TEXT("/.timer 1 0 %s %s ready"), getDialog()->getAliasName().to_chr(), tsDialogMark.to_chr()); //!< Tell user that dcxml is finished, & they can do a cla update or whatever.
+		mIRCLinker::exec(TEXT("/.timer 1 0 % % ready"), getDialog()->getAliasName(), tsDialogMark); //!< Tell user that dcxml is finished, & they can do a cla update or whatever.
 		return m_bLoadSuccess;
 	}
 	catch (const std::exception)
 	{
 		m_bLoadSuccess = false;
+		//if ((getDialog() != nullptr) && isAutoClose())
+		//	mIRCLinker::execex(TEXT("/xdialog -x %s"), tsDialogName.to_chr());
 		if ((getDialog() != nullptr) && isAutoClose())
-			mIRCLinker::execex(TEXT("/xdialog -x %s"), tsDialogName.to_chr());
+			mIRCLinker::exec(TEXT("/xdialog -x %"), tsDialogName);
 		throw;
 	}
 }
@@ -486,24 +499,40 @@ void DcxmlParser::xdialogEX(const TCHAR *const sw,const TCHAR *const dFormat, ..
 
 void DcxmlParser::xml_xdialog(const TCHAR * const sSwitch, const TCHAR * const sArgs)
 {
+//#if DCX_DEBUG_OUTPUT
+//	if (isVerbose())
+//		mIRCLinker::execex(TEXT("/echo -a dcxml debug: /xdialog %s %s %s"), sSwitch, getDialogMark().to_chr(), sArgs);
+//#endif
+//
+//	if (m_iEval > 0) mIRCLinker::execex(TEXT("//xdialog %s %s %s"), sSwitch, getDialogMark().to_chr(), sArgs);
+//	else getDialog()->parseCommandRequestEX(TEXT("%s %s %s"), getDialogMark().to_chr(), sSwitch, sArgs);
+
 #if DCX_DEBUG_OUTPUT
 	if (isVerbose())
-		mIRCLinker::execex(TEXT("/echo -a dcxml debug: /xdialog %s %s %s"), sSwitch, getDialogMark().to_chr(), sArgs);
+		mIRCLinker::echo(TEXT("dcxml debug: /xdialog % % %"), sSwitch, getDialogMark(), sArgs);
 #endif
 
-	if (m_iEval > 0) mIRCLinker::execex(TEXT("//xdialog %s %s %s"), sSwitch, getDialogMark().to_chr(), sArgs);
+	if (m_iEval > 0) mIRCLinker::exec(TEXT("//xdialog % % %"), sSwitch, getDialogMark(), sArgs);
 	else getDialog()->parseCommandRequestEX(TEXT("%s %s %s"), getDialogMark().to_chr(), sSwitch, sArgs);
 }
 
 /* xdidEX(controlId,switch,args) : performs an xdid command internally or through mIRC on the specified ID */
 void DcxmlParser::xml_xdid(const UINT cid, const TCHAR *const sSwitch, const TCHAR *const sArgs)
 {
+//#if DCX_DEBUG_OUTPUT
+//	if (isVerbose())
+//		mIRCLinker::execex(TEXT("/echo -a dcxml debug: /xdid %s %s %u %s"), sSwitch, getDialogMark().to_chr(), cid, sArgs);
+//#endif
+//
+//	if (m_iEval > 0) mIRCLinker::execex(TEXT("//xdid %s %s %u %s"), sSwitch, getDialogMark().to_chr(), cid, sArgs);
+//	else getDialog()->parseComControlRequestEX(cid, TEXT("%s %u %s %s"), getDialogMark().to_chr(), cid, sSwitch, sArgs);
+
 #if DCX_DEBUG_OUTPUT
 	if (isVerbose())
-		mIRCLinker::execex(TEXT("/echo -a dcxml debug: /xdid %s %s %u %s"), sSwitch, getDialogMark().to_chr(), cid, sArgs);
+		mIRCLinker::exec(TEXT("/echo -a dcxml debug: /xdid % % % %"), sSwitch, getDialogMark(), cid, sArgs);
 #endif
 
-	if (m_iEval > 0) mIRCLinker::execex(TEXT("//xdid %s %s %u %s"), sSwitch, getDialogMark().to_chr(), cid, sArgs);
+	if (m_iEval > 0) mIRCLinker::exec(TEXT("//xdid % % % %"), sSwitch, getDialogMark(), cid, sArgs);
 	else getDialog()->parseComControlRequestEX(cid, TEXT("%s %u %s %s"), getDialogMark().to_chr(), cid, sSwitch, sArgs);
 }
 
@@ -931,11 +960,16 @@ void DcxmlParser::parseIcons(int depth) {
 				if (indexmin <= indexmax) 
 					//method sucks but looping in C++ is WAYYY too fast for mIRC
 				{
-					mIRCLinker::execex(TEXT("//var %%x = %i | while (%%x <= %i ) { xdid -w %s %u +%S %%x %S | inc %%x }"), indexmin,indexmax,getDialogMark().to_chr(),m_iID,flags,tIconSrc);
-					//mIRCLinker::execex(TEXT("//xdid -w %s %u +%S %i-%i %S"), getDialogMark().to_chr(), m_iID, flags, indexmin, indexmax, tIconSrc);
+					//mIRCLinker::execex(TEXT("//var %%x = %i | while (%%x <= %i ) { xdid -w %s %u +%S %%x %S | inc %%x }"), indexmin,indexmax,getDialogMark().to_chr(),m_iID,flags,tIconSrc);
+					////mIRCLinker::execex(TEXT("//xdid -w %s %u +%S %i-%i %S"), getDialogMark().to_chr(), m_iID, flags, indexmin, indexmax, tIconSrc);
+
+					// NB: last %x does NOT have the % escaped, this is due to how _ts_sprintf() works when u have more % than args.
+					mIRCLinker::exec(TEXT("//var \\%x = % | while (\\%x <= % ) { xdid -w % % +% \\%x % | inc %x }"), indexmin, indexmax, getDialogMark(), m_iID, flags, tIconSrc);
+					//mIRCLinker::exec(TEXT("//xdid -w % % +% %-% %"), getDialogMark(), m_iID, flags, indexmin, indexmax, tIconSrc);
 				}
 				else 
-					mIRCLinker::execex(TEXT("//xdid -w %s %u +%S %S %S"),getDialogMark().to_chr(),m_iID,flags,index,tIconSrc);
+					//mIRCLinker::execex(TEXT("//xdid -w %s %u +%S %S %S"),getDialogMark().to_chr(),m_iID,flags,index,tIconSrc);
+					mIRCLinker::exec(TEXT("//xdid -w % % +% % %"), getDialogMark(), m_iID, flags, index, tIconSrc);
 			}
 			else
 			{
@@ -943,8 +977,10 @@ void DcxmlParser::parseIcons(int depth) {
 					const auto tflags = queryAttribute(iconchild, "flags", "n");
 					const auto tindex = queryAttribute(iconchild, "index", "0");
 					const auto tsrc = iconchild->Attribute("src");
+					//if (tsrc != nullptr)
+					//	mIRCLinker::execex(TEXT("//xdid -w %s %u +%S %S %S"),getDialogMark().to_chr(),m_iID,tflags,tindex,tsrc);
 					if (tsrc != nullptr)
-						mIRCLinker::execex(TEXT("//xdid -w %s %u +%S %S %S"),getDialogMark().to_chr(),m_iID,tflags,tindex,tsrc);
+						mIRCLinker::exec(TEXT("//xdid -w % % +% % %"), getDialogMark(), m_iID, tflags, tindex, tsrc);
 				}
 			}
 		}
@@ -972,12 +1008,20 @@ void DcxmlParser::parseItems(const TiXmlElement *const tiElement,const UINT dept
 				TString tsBuffer;
 				for (auto column = child->FirstChildElement("column"); column != nullptr; column = column->NextSiblingElement("column"))
 				{
+					//_ts_snprintf(tsBuffer, TEXT("+%S %S %S %S "),
+					//	queryAttribute(column, "flags", "l"),
+					//	queryAttribute(column, "icon", "0"),
+					//	queryAttribute(column, "width", "0"),
+					//	queryAttribute(column, "caption"));
+					//
+					//tsArguments.addtok(tsBuffer, TEXT('\t'));
+
 					tsBuffer.tsprintf(TEXT("+%S %S %S %S "),
 						queryAttribute(column, "flags", "l"),
 						queryAttribute(column, "icon", "0"),
 						queryAttribute(column, "width", "0"),
 						queryAttribute(column, "caption"));
-
+					
 					tsArguments.addtok(tsBuffer, TEXT('\t'));
 
 					//_ts_sprintf(tsBuffer, TEXT("+% % % % "),
@@ -985,7 +1029,7 @@ void DcxmlParser::parseItems(const TiXmlElement *const tiElement,const UINT dept
 					//	queryAttribute(column, "icon", "0"),
 					//	queryAttribute(column, "width", "0"),
 					//	queryAttribute(column, "caption"));
-
+					//
 					//tsArguments.addtok(tsBuffer,TEXT('\t'));
 				}
 				if (!tsArguments.empty())
@@ -1170,9 +1214,10 @@ void DcxmlParser::parseDialog(const UINT depth,const char *claPath,const UINT pa
 				m_pTemplateRef = m_pElement;
 				m_iTemplateRefcCla = cCla;
 
-				sString <100> t_buffer;
+				sString<100> t_buffer;
 				const char * t_claPathx = t_buffer;
-				wnsprintfA(t_buffer, static_cast<int>(t_buffer.size()), "%i", cCla);
+				//wnsprintfA(t_buffer, static_cast<int>(t_buffer.size()), "%i", cCla);
+				_ts_snprintf(t_buffer, "%i", cCla);
 
 				for (auto attribute = m_pElement->FirstAttribute(); attribute != nullptr; attribute = attribute->Next())
 				{
@@ -1182,13 +1227,15 @@ void DcxmlParser::parseDialog(const UINT depth,const char *claPath,const UINT pa
 					m_mTemplate_vars[refName] = attribute->Value();
 				}
 				for (auto iter = m_mTemplate_vars.begin(); iter != m_mTemplate_vars.end(); ++iter) {
-					mIRCLinker::execex(TEXT("//set %%%S %S"), iter->first, iter->second);
+					//mIRCLinker::execex(TEXT("//set %%%S %S"), iter->first, iter->second);
+					mIRCLinker::exec(TEXT("//set \\%% %"), iter->first, iter->second);
 				}
 				m_sTemplateRefclaPath = t_claPathx;
 				parseTemplate(depth, claPath, passedid);
 				m_pTemplateRef = nullptr;
 				for (auto iter = m_mTemplate_vars.begin(); iter != m_mTemplate_vars.end(); ++iter) {
-					mIRCLinker::execex(TEXT("//unset %%%S"), iter->first);
+					//mIRCLinker::execex(TEXT("//unset %%%S"), iter->first);
+					mIRCLinker::exec(TEXT("//unset \\%%"), iter->first);
 				}
 				m_mTemplate_vars.clear();
 			}
@@ -1218,8 +1265,9 @@ void DcxmlParser::parseDialog(const UINT depth,const char *claPath,const UINT pa
 		while (m_pParent != nullptr) {
 			if (0 == ts_strcmp(m_sParentelem, "template"))
 			{
-				m_pParent = m_pTemplateRef->Parent()->ToElement();
-				m_sParentelem = m_pTemplateRef->Parent()->Value();
+				const auto xNodeTmp = m_pTemplateRef->Parent();
+				m_pParent = xNodeTmp->ToElement();
+				m_sParentelem = xNodeTmp->Value();
 				cCla = m_iTemplateRefcCla;
 				claPath = m_sTemplateRefclaPath;
 			}
@@ -1476,7 +1524,7 @@ int DcxmlParser::mIRCEvalToUnsignedInt (const TString &value)
 	//Todo: method returns -1 for failure which odd for a *ToUnsignedInt method.
 	__int64 iNum;
 	mIRCLinker::iEval(&iNum, value.to_chr());
-	return (int)((iNum > 0) ? iNum : -1);
+	return gsl::narrow_cast<int>(((iNum > 0) ? iNum : -1LL));
 }
 
 void DcxmlParser::registerId(const TiXmlElement *const idElement, const UINT iNewID)
@@ -1504,7 +1552,7 @@ UINT DcxmlParser::parseId(const TiXmlElement *const idElement)
 	if (idElement->QueryIntAttribute("id", &local_id) == TIXML_SUCCESS)
 	{
 		// found ID as a number,  if its not a negative, return it.
-		return static_cast<UINT>(std::max(local_id, 0));
+		return gsl::narrow_cast<UINT>(std::max(local_id, 0));
 	}
 
 	const TString attributeIdValue(idElement->Attribute("id"));
@@ -1514,7 +1562,7 @@ UINT DcxmlParser::parseId(const TiXmlElement *const idElement)
 		local_id = mIRCEvalToUnsignedInt(attributeIdValue);
 		// if ID is > zero return it.
 		if (local_id > 0)
-			return static_cast<UINT>(local_id);
+			return gsl::narrow_cast<UINT>(local_id);
 
 		// didn't evaluate to a number, so must be a name...
 		//auto it = getDialog()->getNamedIds().find(attributeIdValue);

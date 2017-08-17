@@ -54,7 +54,7 @@ public:
 
 	const CellType getType( ) const noexcept final;
 
-	LayoutCell * addChild(gsl::owner<gsl::not_null<LayoutCell *>> p_Cell, const UINT nWeight);
+	LayoutCell * addChild(gsl::owner<LayoutCell *> p_Cell, const UINT nWeight);
 
 protected:
 

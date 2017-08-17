@@ -31,6 +31,11 @@ struct DCXTCITEM {
 	TString		tsTipText;	//!< Tooltip Text
 	HWND		mChildHwnd;	//!< Hwnd to child window
 
+	DCXTCITEM()
+		: mChildHwnd(nullptr)
+	{}
+	~DCXTCITEM() = default;
+
 };
 using LPDCXTCITEM = DCXTCITEM *;
 
@@ -58,6 +63,13 @@ public:
 	void parseCommandRequest( const TString & input ) override;
 	void parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ) override;
 
+	inline const TString getType() const override { return TEXT("tab"); };
+	inline const DcxControlTypes getControlType() const noexcept override { return DcxControlTypes::TABB; };
+
+	const TString getStyles(void) const override;
+	void toXml(TiXmlElement *const xml) const override;
+	TiXmlElement * toXml(void) const override;
+
 	HIMAGELIST getImageList( ) const;
 	void setImageList( HIMAGELIST himl );
 	//static HIMAGELIST createImageList( );
@@ -67,12 +79,7 @@ public:
 	void getTab(const int index, LPTCITEM tcItem) const;
 	int getTabCount() const;
 
-	inline const TString getType() const override { return TEXT("tab"); };
-	inline const DcxControlTypes getControlType() const noexcept override { return DcxControlTypes::TABB; }
-
-	const TString getStyles(void) const override;
-	void toXml(TiXmlElement *const xml) const override;
-	TiXmlElement * toXml(void) const override;
+	void DrawGlow(const int32_t nTabIndex, HDC hDC, const RECT &rect) const;
 
 protected:
 	static void GetCloseButtonRect(const RECT& rcItem, RECT& rcCloseButton);
