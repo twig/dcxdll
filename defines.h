@@ -30,8 +30,8 @@ http://symbiancorner.blogspot.com/2007/05/how-to-detect-version-of-ms-visual.htm
 #define _DEFINES_H_
 
 // VS2017+ only
-#if !defined(_MSC_VER) || _MSC_VER < 1910
-#error "This version of DCX needs Visual Studio 2017 or newer"
+#if !defined(_MSC_VER) || _MSC_VER < 1911
+#error "This version of DCX needs Visual Studio 2017.3 or newer"
 #endif
 
 #ifdef __INTEL_COMPILER // Defined when using Intel C++ Compiler.
@@ -56,6 +56,7 @@ http://symbiancorner.blogspot.com/2007/05/how-to-detect-version-of-ms-visual.htm
 #define _INTEL_DLL_ __declspec(dllexport)
 #endif
 #pragma warning( disable : 26499 ) //  warning C26499 : Could not find any lifetime tracking information for '........'
+#pragma warning( disable : 26481 ) //  warning C26481 : Don't use pointer arithmetic. Use span instead. (bounds.1: http://go.microsoft.com/fwlink/p/?LinkID=620413)
 #pragma warning( disable : 26482 ) //  warning C26482 : Only index into arrays using constant expressions. (bounds.2: http://go.microsoft.com/fwlink/p/?LinkID=620414)
 
 // --------------------------------------------------
@@ -247,6 +248,9 @@ http://symbiancorner.blogspot.com/2007/05/how-to-detect-version-of-ms-visual.htm
 #endif
 
 #ifdef DCX_USE_DXSDK
+//#ifndef DXSDK_DIR
+//#error "DirectX SDK Required!"
+//#endif
 #include <Dxsdkver.h>
 #ifdef DCX_DX_ERR
 #include <Dxerr.h>
@@ -498,7 +502,7 @@ if ((x)) (y)[0] = TEXT('1'); \
 }
 //#define dcx_testflag(x,y) (((x) & (y)) == (y))
 template <typename T, typename M>
-constexpr bool dcx_testflag(T x, M y) noexcept { return ((x & static_cast<T>(y)) == static_cast<T>(y)); }
+constexpr bool dcx_testflag(T x, M y) noexcept { return ((x & gsl::narrow_cast<T>(y)) == gsl::narrow_cast<T>(y)); }
 
 #define dcxlParam(x,y) const auto y = reinterpret_cast<x>(lParam)
 #define dcxwParam(x,y) auto y = reinterpret_cast<x>(wParam)

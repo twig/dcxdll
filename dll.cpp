@@ -164,13 +164,15 @@ mIRC(Version)
 	try {
 		TString tmp(TEXT(" This is a token string "));
 
-		mIRCLinker::execex(TEXT("/echo -a \" This is a token string \" :: \"%s\""), tmp.to_chr());
+		//mIRCLinker::execex(TEXT("/echo -a \" This is a token string \" :: \"%s\""), tmp.to_chr());
+		mIRCLinker::echo(TEXT("\" This is a token string \" :: \"%\""), tmp);
+
 
 		{	// test trim() function
 			tmp.trim();
 			Ensures(tmp == TEXT("This is a token string"_ts));
 
-			mIRCLinker::exec(TEXT("/echo -a Success: trim() - all tests passed"));
+			mIRCLinker::echo(TEXT("Success: trim() - all tests passed"));
 		}
 		
 		{
@@ -207,7 +209,8 @@ mIRC(Version)
 			signednum = iNum;
 			unsignednum = iNum;
 
-			mIRCLinker::execex(TEXT("/echo -a Success: %u :: %d"), unsignednum, signednum);
+			//mIRCLinker::execex(TEXT("/echo -s Success: %u :: %d"), unsignednum, signednum);
+			mIRCLinker::echo(TEXT("Success: % :: %"), unsignednum, signednum);
 		}
 
 		{	// test refString
@@ -230,7 +233,7 @@ mIRC(Version)
 			rData += TEXT('a');
 			Ensures(rData.length() == tmp.length() + 6U);
 
-			mIRCLinker::exec(TEXT("/echo -a Success: refString - all tests passed"));
+			mIRCLinker::echo(TEXT("Success: refString - all tests passed"));
 		}
 
 		{	// test simpleString
@@ -253,7 +256,7 @@ mIRC(Version)
 			rData += TEXT('a');
 			Ensures(rData.length() == tmp.length() + 6U);
 
-			mIRCLinker::exec(TEXT("/echo -a Success: simpleString - all tests passed"));
+			mIRCLinker::echo(TEXT("Success: simpleString - all tests passed"));
 		}
 
 		{	// test numtok() function
@@ -266,7 +269,7 @@ mIRC(Version)
 			// numtok(string)
 			Ensures(tmp.numtok(TEXT("token")) == 2);
 
-			mIRCLinker::exec(TEXT("/echo -a Success: numtok() - all tests passed"));
+			mIRCLinker::echo(TEXT("Success: numtok() - all tests passed"));
 		}
 
 		{	// test addtok() function
@@ -296,7 +299,7 @@ mIRC(Version)
 			tmp.deltok(tmp.numtok());	// "This is a token string 100 chars qnb 0"
 			Ensures(tmp == TEXT("This is a token string 100 chars qnb 0"_ts));
 
-			mIRCLinker::exec(TEXT("/echo -a Success: addtok() - all tests passed"));
+			mIRCLinker::echo(TEXT("Success: addtok() - all tests passed"));
 		}
 
 		{	// test instok()
@@ -312,7 +315,7 @@ mIRC(Version)
 			tmp.instok(TEXT("e_inserted"), tmp.numtok() + 1);	// "s_inserted This is a token m_inserted string 100 chars qnb 0 e_inserted"
 			Ensures(tmp == TEXT("s_inserted This is a token m_inserted string 100 chars qnb 0 e_inserted"_ts));
 
-			mIRCLinker::exec(TEXT("/echo -a Success: instok() - all tests passed"));
+			mIRCLinker::echo(TEXT("Success: instok() - all tests passed"));
 		}
 
 		{	// test deltok()
@@ -332,7 +335,7 @@ mIRC(Version)
 			tmp.deltok(tmp.numtok());	// "is a token m_inserted string 100 chars qnb"
 			Ensures(tmp == TEXT("is a token m_inserted string 100 chars qnb"_ts));
 
-			mIRCLinker::exec(TEXT("/echo -a Success: deltok() - all tests passed"));
+			mIRCLinker::echo(TEXT("Success: deltok() - all tests passed"));
 		}
 
 		{	// test puttok()
@@ -352,7 +355,7 @@ mIRC(Version)
 			tmp.puttok(TEXT("e_put"), tmp.numtok() +1);	// "putter a token put string 100 chars putted e_put"
 			Ensures(tmp == TEXT("putter a token put string 100 chars putted e_put"_ts));
 
-			mIRCLinker::exec(TEXT("/echo -a Success: puttok() - all tests passed"));
+			mIRCLinker::echo(TEXT("Success: puttok() - all tests passed"));
 		}
 
 		{	// test gettok()
@@ -379,7 +382,7 @@ mIRC(Version)
 			tsTestCrash = tmp.gettok(2, -1);
 			Ensures(tsTestCrash == TEXT("a token put string 100 chars putted e_put"_ts));
 
-			mIRCLinker::exec(TEXT("/echo -a Success: gettok() - all tests passed"));
+			mIRCLinker::echo(TEXT("Success: gettok() - all tests passed"));
 		}
 
 		TString tok;
@@ -419,7 +422,7 @@ mIRC(Version)
 			Ensures(tsNum == TEXT("blah1 blah2 blah3"_ts));
 			Ensures(tok == TEXT("blah2"_ts));
 
-			mIRCLinker::exec(TEXT("/echo -a Success: number handling - all tests passed"));
+			mIRCLinker::echo(TEXT("Success: number handling - all tests passed"));
 		}
 
 		{	// test iterator's
@@ -453,21 +456,21 @@ mIRC(Version)
 			Ensures((nToks == nIter));
 			Ensures((nToks == tmp.numtok()));
 
-			mIRCLinker::exec(TEXT("/echo -a Success: iterator - all tests passed"));
+			mIRCLinker::echo(TEXT("Success: iterator - all tests passed"));
 		}
 
 		{	// test join()
 			tok.join(tmp, TEXT('!'));
 			Ensures(tok == TEXT("blah2!putter!a!token!put!string!100!chars!putted!e_put"_ts));
 
-			mIRCLinker::exec(TEXT("/echo -a Success: join() - all tests passed"));
+			mIRCLinker::echo(TEXT("Success: join() - all tests passed"));
 		}
 
 		{	// test parse_string()
 			const auto t = Dcx::parse_string<int>("200");
 			Ensures(t == 200);
 
-			mIRCLinker::exec(TEXT("/echo -a Success: parse_string() - all tests passed"));
+			mIRCLinker::echo(TEXT("Success: parse_string() - all tests passed"));
 		}
 
 		{
@@ -514,7 +517,7 @@ mIRC(Version)
 			//tsprintf(tok, "convert%, %, %, %, %, %", 8, tsNum, t, tmp, str.c_str(), cc.ToString().c_str());
 			//mIRCLinker::execex(TEXT("/echo -a convert8: %s"), tok.to_chr());
 
-			mIRCLinker::exec(TEXT("/echo -a Success: ColourString - all tests passed"));
+			mIRCLinker::echo(TEXT("Success: ColourString - all tests passed"));
 		}
 
 		{	// test std::to_string() overload for std::wstring -> std::string
@@ -522,14 +525,14 @@ mIRC(Version)
 			auto str2 = std::to_string(str);
 			Ensures(str2 == "test");
 
-			mIRCLinker::exec(TEXT("/echo -a Success: to_string() - all tests passed"));
+			mIRCLinker::echo(TEXT("Success: to_string() - all tests passed"));
 		}
 
 		{	// test replace()
 			tok.replace(TEXT("token"), TEXT("freddy"));
 			Ensures(tok == TEXT("blah2!putter!a!freddy!put!string!100!chars!putted!e_put"_ts));
 
-			mIRCLinker::exec(TEXT("/echo -a Success: replace() - all tests passed"));
+			mIRCLinker::echo(TEXT("Success: replace() - all tests passed"));
 		}
 
 		//{
@@ -554,7 +557,7 @@ mIRC(Version)
 			bRes = tok.istok(TEXT("ter!a!token!"), TEXT("put"));
 			Ensures(bRes == false);
 
-			mIRCLinker::exec(TEXT("/echo -a Success: istok() - all tests passed"));
+			mIRCLinker::echo(TEXT("Success: istok() - all tests passed"));
 		}
 
 		{	// test reptok() - "blah2!putter!a!freddy!put!string!100!chars!putted!e_put"
@@ -567,7 +570,7 @@ mIRC(Version)
 			tok.reptok(TEXT("blobby"), TEXT("mister"), 2, TEXT('!'));
 			Ensures(tok == TEXT("blah2!putter!a!freddy!put!blobby!100!chars!putted!mister"_ts));
 
-			mIRCLinker::exec(TEXT("/echo -a Success: reptok() - all tests passed"));
+			mIRCLinker::echo(TEXT("Success: reptok() - all tests passed"));
 		}
 
 		{	// test sorttok() - "blah2!putter!a!freddy!put!blobby!100!chars!putted!mister"
@@ -598,21 +601,21 @@ mIRC(Version)
 			tok.sorttok(TEXT("cr"), TEXT("!"));	// reverse channel prefix sort
 			Ensures(tok == TEXT("putter!putted!put!mister!freddy!chars!blobby!blah2!a!5!4!200!102!101!100"_ts));
 
-			mIRCLinker::exec(TEXT("/echo -a Success: sorttok() - all tests passed"));
+			mIRCLinker::echo(TEXT("Success: sorttok() - all tests passed"));
 		}
 
 		{	// test wildtok()/nwildtok() - "putter!putted!put!mister!freddy!chars!blobby!blah2!a!5!4!200!102!101!100"
 			Ensures(tok.wildtok(TEXT("put*"), 2, TEXT("!")) == TEXT("putted"_ts));
 			Ensures(tok.nwildtok(TEXT("put*"), TEXT("!")) == 3);
 
-			mIRCLinker::exec(TEXT("/echo -a Success: wildtok() - all tests passed"));
+			mIRCLinker::echo(TEXT("Success: wildtok() - all tests passed"));
 		}
 
 		{	// test matchtok() - "putter!putted!put!mister!freddy!chars!blobby!blah2!a!5!4!200!102!101!100"
 			Ensures(tok.matchtok(TEXT("put"), 1, TEXT("!")) == TEXT("putter"_ts));
 			Ensures(tok.matchtok(TEXT("put"), 3, TEXT("!")) == TEXT("put"_ts));
 
-			mIRCLinker::exec(TEXT("/echo -a Success: matchtok() - all tests passed"));
+			mIRCLinker::echo(TEXT("Success: matchtok() - all tests passed"));
 		}
 
 		{	// test iswm()/iswmcs() - "putter!putted!put!mister!freddy!chars!blobby!blah2!a!5!4!200!102!101!100"
@@ -620,7 +623,7 @@ mIRC(Version)
 #if !TSTRING_TESTCODE
 			Ensures(tok.iswmcs(TEXT("*put*")));
 #endif
-			mIRCLinker::exec(TEXT("/echo -a Success: iswm(cs)() - all tests passed"));
+			mIRCLinker::echo(TEXT("Success: iswm(cs)() - all tests passed"));
 		}
 
 		{
@@ -648,7 +651,7 @@ mIRC(Version)
 
 			Ensures(_ts_isEmpty(ctmp) == false);
 
-			mIRCLinker::exec(TEXT("/echo -a Success: Constructors - all tests passed"));
+			mIRCLinker::echo(TEXT("Success: Constructors - all tests passed"));
 		}
 
 		{	// test getfirsttok()/getnexttok() - "putter!putted!put!mister!freddy!chars!blobby!blah2!a!5!4!200!102!101!100"
@@ -664,7 +667,7 @@ mIRC(Version)
 			toktest = tok.getnexttok(TEXT('!'));
 			Ensures(toktest == TEXT("putted"_ts));
 
-			mIRCLinker::exec(TEXT("/echo -a Success: getfirsttok()/getnexttok() - all tests passed"));
+			mIRCLinker::echo(TEXT("Success: getfirsttok()/getnexttok() - all tests passed"));
 		}
 
 		{	// test _ts_strlen()
@@ -677,7 +680,7 @@ mIRC(Version)
 			itest = _ts_strlen(tok);
 			Ensures(itest == 72);
 
-			mIRCLinker::exec(TEXT("/echo -a Success: _ts_strlen() - all tests passed"));
+			mIRCLinker::echo(TEXT("Success: _ts_strlen() - all tests passed"));
 		}
 
 
@@ -696,14 +699,14 @@ mIRC(Version)
 			tsExp *= 20;							// len = 14*20 = 280
 			Ensures(tsExp.len() == 280);
 
-			mIRCLinker::exec(TEXT("/echo -a Success: internal buffer overflow - all tests passed"));
+			mIRCLinker::echo(TEXT("Success: internal buffer overflow - all tests passed"));
 		}
 
 		{	// test remove()
 			tok.remove(TEXT('!'));
 			Ensures(tok == TEXT("putterputtedputmisterfreddycharsblobbyblah2a54200102101100"_ts));
 
-			mIRCLinker::exec(TEXT("/echo -a Success: remove() - all tests passed"));
+			mIRCLinker::echo(TEXT("Success: remove() - all tests passed"));
 		}
 
 		{	// test _ts_strcpyn()
@@ -714,7 +717,7 @@ mIRC(Version)
 
 			Ensures(ts_strcmp(&chr_test[0], &chr_buf[0]) == 0);
 
-			mIRCLinker::exec(TEXT("/echo -a Success: _ts_strcpyn() - all tests passed"));
+			mIRCLinker::echo(TEXT("Success: _ts_strcpyn() - all tests passed"));
 		}
 
 		{	// test numeric_cast()
@@ -731,7 +734,7 @@ mIRC(Version)
 			const auto dTest = Dcx::numeric_cast<double>("3.14");
 			Ensures(dTest == double(3.14));
 
-			mIRCLinker::exec(TEXT("/echo -a Success: numeric_cast() - all tests passed"));
+			mIRCLinker::echo(TEXT("Success: numeric_cast() - all tests passed"));
 		}
 
 		// hashes should be the same...
@@ -752,7 +755,7 @@ mIRC(Version)
 
 			static_assert(hash1 == 0xAF0A1B9E, "hash 1 failed");
 
-			mIRCLinker::exec(TEXT("/echo -a Success: string hashing - all tests passed"));
+			mIRCLinker::echo(TEXT("Success: string hashing - all tests passed"));
 		}
 
 		throw Dcx::dcxException(TEXT("No such Exception"));
@@ -1241,7 +1244,7 @@ mIRC(_xdid) {
 		if (p_Control == nullptr)
 			throw Dcx::dcxException(TEXT("Unable to find control: % (dialog %)"), tsID, tsDname);
 
-		p_Control->parseInfoRequest(d, data);
+		p_Control->parseInfoRequest(d, refString<TCHAR, MIRC_BUFFER_SIZE_CCH>(data));
 		return 3;
 	}
 	catch (const std::exception &e)
@@ -1370,7 +1373,7 @@ mIRC(_xdialog) {
 			ret(TEXT("$false"));
 		}
 
-		p_Dialog->parseInfoRequest(d, data);
+		p_Dialog->parseInfoRequest(d, refString<TCHAR, MIRC_BUFFER_SIZE_CCH>(data));
 		return 3;
 	}
 	catch (const std::exception &e)
@@ -1482,7 +1485,7 @@ mIRC(_xpop) {
 		if (p_Menu == nullptr)
 			throw Dcx::dcxException(TEXT("Unknown menu \"%\": see /xpopup -c command"), tsMenu);
 
-		p_Menu->parseXPopIdentifier(d, data);
+		p_Menu->parseXPopIdentifier(d, refString<TCHAR, MIRC_BUFFER_SIZE_CCH>(data));
 		return 3;
 #else
 		const auto tsMenu(d.gettok(1));
@@ -1569,7 +1572,7 @@ mIRC(_xpopup) {
 		if (d.numtok() < 2)
 			throw Dcx::dcxException("Invalid Arguments");
 
-		Dcx::XPopups.parseIdentifier(d, data);
+		Dcx::XPopups.parseIdentifier(d, refString<TCHAR, MIRC_BUFFER_SIZE_CCH>(data));
 		return 3;
 	}
 	catch (const std::exception &e)
@@ -1626,7 +1629,7 @@ mIRC(_xmenubar) {
 	data[0] = 0;
 
 	try {
-		Dcx::XMenubar.parseXMenuBarInfo(d.trim(), data);
+		Dcx::XMenubar.parseXMenuBarInfo(d.trim(), refString<TCHAR, MIRC_BUFFER_SIZE_CCH>(data));
 		return 3;
 	}
 	catch (const std::exception &e)
@@ -1938,7 +1941,7 @@ mIRC(GhostDrag) {
 			throw Dcx::dcxException("Invalid parameters");
 
 		// [0-255] enable or (255 == disable) ghost drag for main mIRC window.
-		const auto alpha = (BYTE)(input.gettok(1).to_int() & 0xFF);
+		const auto alpha = (byte)(input.gettok(1).to_int() & 0xFF);
 
 		if (!Dcx::setGhostDrag(alpha))
 			throw Dcx::dcxException("Invalid alpha value");
@@ -1976,9 +1979,12 @@ mIRC(SetSystemCursors) {
 		if (d.empty())
 			throw Dcx::dcxException("Invalid Arguments");
 
-		const auto tsCursor(d.getfirsttok(1));
+		//const auto tsCursor(d.getfirsttok(1));
+		//auto tsFilename(d.getlasttoks());
+		//const auto systemCursorId = Dcx::parseSystemCursorType(tsCursor);
+
+		const auto systemCursorId = Dcx::parseSystemCursorType(std::hash<TString>()(d.getfirsttok(1)));
 		auto tsFilename(d.getlasttoks());
-		const auto systemCursorId = Dcx::parseSystemCursorType(tsCursor);
 
 		if (!IsFile(tsFilename))
 			throw Dcx::dcxException("Unable to open file");
@@ -2031,8 +2037,8 @@ mIRC(SetmIRCCursors)
 		auto tsFilename(d.getlasttoks());
 		for (auto itStart = tsCursor.begin(TSCOMMACHAR), itEnd = tsCursor.end(); itStart != itEnd; ++itStart)
 		{
-			const TString tsArea(*itStart);
-			const auto AreaId = Dcx::parseAreaType(tsArea);
+			const auto uAreaHash(std::hash<TString>()(*itStart));
+			const auto AreaId = Dcx::parseAreaType(uAreaHash);
 			if (AreaId > 0)
 			{
 				if (tsFilename.empty())
@@ -2048,7 +2054,7 @@ mIRC(SetmIRCCursors)
 				}
 			}
 			else {
-				const auto CursorId = Dcx::parseCursorType(tsArea);
+				const auto CursorId = Dcx::parseCursorType(uAreaHash);
 				if (CursorId == nullptr)
 					throw Dcx::dcxException("Unknown cursor type");
 
