@@ -171,14 +171,14 @@ HTHEME DcxUXModule::dcxGetWindowTheme(HWND hWnd)
 	return nullptr;
 }
 
-HTHEME DcxUXModule::dcxOpenThemeData(HWND hwnd, LPCWSTR pszClassList)
+gsl::owner<HTHEME> DcxUXModule::dcxOpenThemeData(HWND hwnd, LPCWSTR pszClassList)
 {
 	if (OpenThemeDataUx != nullptr)
 		return OpenThemeDataUx(hwnd, pszClassList);
 	return nullptr;
 }
 
-HRESULT DcxUXModule::dcxCloseThemeData(HTHEME hTheme)
+HRESULT DcxUXModule::dcxCloseThemeData(gsl::owner<HTHEME> hTheme)
 {
 	if (CloseThemeDataUx != nullptr)
 		return CloseThemeDataUx(hTheme);
@@ -255,14 +255,14 @@ HRESULT DcxUXModule::dcxDrawThemeParentBackgroundEx(HWND hwnd, HDC hdc, DWORD dw
 	return NULL;
 }
 
-HPAINTBUFFER DcxUXModule::dcxBeginBufferedPaint(HDC hdcTarget, const RECT *prcTarget, BP_BUFFERFORMAT dwFormat, BP_PAINTPARAMS *pPaintParams, HDC *phdc)
+gsl::owner<HPAINTBUFFER> DcxUXModule::dcxBeginBufferedPaint(HDC hdcTarget, const RECT *prcTarget, BP_BUFFERFORMAT dwFormat, BP_PAINTPARAMS *pPaintParams, HDC *phdc)
 {
 	if (BeginBufferedPaintUx != nullptr)
 		return BeginBufferedPaintUx(hdcTarget, prcTarget, dwFormat, pPaintParams, phdc);
 	return nullptr;
 }
 
-HRESULT DcxUXModule::dcxEndBufferedPaint(HPAINTBUFFER hBufferedPaint, BOOL fUpdateTarget)
+HRESULT DcxUXModule::dcxEndBufferedPaint(gsl::owner<HPAINTBUFFER> hBufferedPaint, BOOL fUpdateTarget)
 {
 	if (EndBufferedPaintUx != nullptr)
 		return EndBufferedPaintUx(hBufferedPaint, fUpdateTarget);

@@ -61,8 +61,8 @@ public:
 	static BOOL dcxIsThemeActive(void);
 	static HRESULT dcxSetWindowTheme(const HWND hwnd, const LPCWSTR pszSubAppName, const LPCWSTR pszSubIdList);
 	static HTHEME dcxGetWindowTheme(HWND hWnd);
-	static HTHEME dcxOpenThemeData(HWND hwnd, LPCWSTR pszClassList);
-	static HRESULT dcxCloseThemeData(HTHEME hTheme);
+	static gsl::owner<HTHEME> dcxOpenThemeData(HWND hwnd, LPCWSTR pszClassList);
+	static HRESULT dcxCloseThemeData(gsl::owner<HTHEME> hTheme);
 	static BOOL dcxIsThemeBackgroundPartiallyTransparent(HTHEME hTheme, int iPartId, int iStateId);
 	static HRESULT dcxDrawThemeBackground(HTHEME hTheme, HDC hdc, int iPartId, int iStateId, LPCRECT pRect, LPCRECT pClipRect);
 	static HRESULT dcxGetThemeBackgroundContentRect(HTHEME hTheme, HDC hdc, int iPartId, int iStateId, LPCRECT pBoundingRect, LPRECT pContentRect);
@@ -75,7 +75,7 @@ public:
 	static inline const bool &IsBufferedPaintSupported(void) noexcept { return m_bBufferedPaintEnabled; }
 	static HRESULT dcxBufferedPaintInit(void);
 	static HRESULT dcxBufferedPaintUnInit(void);
-	static HPAINTBUFFER dcxBeginBufferedPaint(HDC hdcTarget, const RECT *prcTarget, BP_BUFFERFORMAT dwFormat, BP_PAINTPARAMS *pPaintParams, HDC *phdc);
-	static HRESULT dcxEndBufferedPaint(HPAINTBUFFER hBufferedPaint, BOOL fUpdateTarget);
+	static gsl::owner<HPAINTBUFFER> dcxBeginBufferedPaint(HDC hdcTarget, const RECT *prcTarget, BP_BUFFERFORMAT dwFormat, BP_PAINTPARAMS *pPaintParams, HDC *phdc);
+	static HRESULT dcxEndBufferedPaint(gsl::owner<HPAINTBUFFER> hBufferedPaint, BOOL fUpdateTarget);
 };
 #endif // _DCXUXMODULES_H_
