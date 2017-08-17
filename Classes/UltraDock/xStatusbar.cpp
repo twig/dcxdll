@@ -215,14 +215,16 @@ mIRC(xstatusbar) {
 			if (himl == nullptr)
 				throw Dcx::dcxException("Unable To Create ImageList");
 
-			//auto icon = dcxLoadIcon(index, filename, false, flags);
-			//Auto(DestroyIcon(icon));
-
+#if DCX_USE_WRAPPERS
 			Dcx::dcxIconResource icon(index, filename, false, flags);
+#else
+			auto icon = dcxLoadIcon(index, filename, false, flags);
+			Auto(DestroyIcon(icon));
 
 			if (icon == nullptr)
 				throw Dcx::dcxException("Unable To Load Icon");
-				
+#endif
+
 			if (ImageList_AddIcon(himl, icon) == -1)
 				throw Dcx::dcxException("Unable To Add Image to ImageList");
 		}
@@ -257,6 +259,8 @@ mIRC(_xstatusbar)
 
 	data[0] = 0;
 
+	const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> refData(data);
+
 	try {
 		d.trim();
 
@@ -278,14 +282,14 @@ mIRC(_xstatusbar)
 				if (dcx_testflag(iFlags, SBT_OWNERDRAW)) {
 					auto pPart = reinterpret_cast<LPSB_PARTINFOD>(DcxDock::status_getText(iPart, nullptr));
 					if (pPart != nullptr)
-						dcx_strcpyn(data, pPart->m_Text.to_chr(), MIRC_BUFFER_SIZE_CCH);
+						refData = pPart->m_Text;
 				}
 				else {
 					const auto len = DcxDock::status_getTextLength(iPart);
 					auto text = std::make_unique<WCHAR[]>(len + 1);
 
 					DcxDock::status_getText(iPart, text.get());
-					dcx_strcpyn(data, text.get(), MIRC_BUFFER_SIZE_CCH);
+					refData = text.get();
 				}
 			}
 		}
@@ -302,7 +306,7 @@ mIRC(_xstatusbar)
 			for (auto i = decltype(nParts){0}; i < nParts; i++)
 				tsOut.addtok(parts[i]);
 
-			dcx_strcpyn(data, tsOut.to_chr(), MIRC_BUFFER_SIZE_CCH);
+			refData = tsOut;
 		}
 		break;
 		case TEXT("tooltip"_hash):
@@ -336,14 +340,14 @@ mIRC(_xstatusbar)
 				if (dcx_testflag(iFlags, SBT_OWNERDRAW)) {
 					auto pPart = reinterpret_cast<LPSB_PARTINFOD>(DcxDock::status_getText(iPart, nullptr));
 					if (pPart != nullptr)
-						dcx_strcpyn(data, pPart->m_Text.to_chr(), MIRC_BUFFER_SIZE_CCH);
+						refData = pPart->m_Text;
 				}
 				else {
 					const auto len = DcxDock::status_getTextLength(iPart);
 					auto text = std::make_unique<WCHAR[]>(len + 1);
 
 					DcxDock::status_getText(iPart, text.get());
-					dcx_strcpyn(data, text.get(), MIRC_BUFFER_SIZE_CCH);
+					refData = text.get();
 				}
 			}
 		}
@@ -360,7 +364,7 @@ mIRC(_xstatusbar)
 			for (auto i = decltype(nParts){0}; i < nParts; i++)
 				tsOut.addtok(parts[i]);
 
-			dcx_strcpyn(data, tsOut.to_chr(), MIRC_BUFFER_SIZE_CCH);
+			refData = tsOut;
 		}
 		break;
 		case 4: // tooltip

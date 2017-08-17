@@ -140,8 +140,8 @@ LRESULT CALLBACK CRichEditThemed::RichEditStyledProc(HWND hwnd, UINT uMsg, WPARA
 {
 	//This function is the subclassed winproc of the richedit control
 	//It is used to monitor the actions of the control, in a nice and transparent manner
-	auto itCurInstance = m_aInstances.find(hwnd);
-	if(itCurInstance != m_aInstances.end())
+	
+	if(auto itCurInstance = m_aInstances.find(hwnd); itCurInstance != m_aInstances.end())
 	{
 		//A winproc is always static, this one is common to all the richedit controls managed by this class
 		//We need to get a pointer to the object controlling the richedit which is receiving this message
@@ -179,8 +179,7 @@ LRESULT CALLBACK CRichEditThemed::RichEditStyledProc(HWND hwnd, UINT uMsg, WPARA
 				LRESULT nOriginalReturn = CallWindowProc(pObj->m_pOriginalWndProc, hwnd, uMsg, wParam, lParam);
 
 				//Alter the size for our own border, if necessary
-				NCCALCSIZE_PARAMS *csparam = (NCCALCSIZE_PARAMS*)lParam;
-				if(pObj->OnNCCalcSize(csparam))
+				if(NCCALCSIZE_PARAMS *csparam = (NCCALCSIZE_PARAMS*)lParam; pObj->OnNCCalcSize(csparam))
 					return WVR_REDRAW;
 
 				return nOriginalReturn;
@@ -188,18 +187,29 @@ LRESULT CALLBACK CRichEditThemed::RichEditStyledProc(HWND hwnd, UINT uMsg, WPARA
 		}
 		else if(uMsg == WM_DESTROY)
 		{
+			////Fail-safe: don't restore the original wndproc pointer if it has been modified since the creation of this object
+			//if(IsWindow(hwnd))
+			//{
+			//	if((WNDPROC)GetWindowLongPtr(hwnd, GWLP_WNDPROC) == &RichEditStyledProc)
+			//		SubclassWindow(hwnd, pObj->m_pOriginalWndProc);
+			//}
+			//
+			////Send the message now so that we can safely delete the object afterward
+			//LRESULT nToReturn = CallWindowProc(pObj->m_pOriginalWndProc, hwnd, uMsg, wParam, lParam);
+			//
+			//delete pObj;
+			//return nToReturn;
+
+			Auto(delete pObj);
 			//Fail-safe: don't restore the original wndproc pointer if it has been modified since the creation of this object
-			if(IsWindow(hwnd))
+			if (IsWindow(hwnd))
 			{
-				if((WNDPROC)GetWindowLongPtr(hwnd, GWLP_WNDPROC) == &RichEditStyledProc)
+				if ((WNDPROC)GetWindowLongPtr(hwnd, GWLP_WNDPROC) == &RichEditStyledProc)
 					SubclassWindow(hwnd, pObj->m_pOriginalWndProc);
 			}
 
-			//Send the message now so that we can safely delete the object afterward
-			LRESULT nToReturn = CallWindowProc(pObj->m_pOriginalWndProc, hwnd, uMsg, wParam, lParam);
-
-			delete pObj;
-			return nToReturn;
+			//Send the message now so that we can safely delete the object afterward (needed here for scoped delete above)
+			return CallWindowProc(pObj->m_pOriginalWndProc, hwnd, uMsg, wParam, lParam);
 		}
 		return CallWindowProc(pObj->m_pOriginalWndProc, hwnd, uMsg, wParam, lParam);
 	}
@@ -245,42 +255,43 @@ bool CRichEditThemed::OnNCPaint()
 	{
 		if(m_bThemedBorder)
 		{
-			HTHEME hTheme = pOpenThemeData(m_hRichEdit, L"edit");
-			if(hTheme)
+			if(HTHEME hTheme = pOpenThemeData(m_hRichEdit, L"edit"); hTheme != nullptr)
 			{
 				Auto(pCloseThemeData(hTheme));
 
-				HDC hdc = GetWindowDC(m_hRichEdit);
-				Auto(ReleaseDC(m_hRichEdit, hdc));
+				if (HDC hdc = GetWindowDC(m_hRichEdit); hdc != nullptr)
+				{
+					Auto(ReleaseDC(m_hRichEdit, hdc));
 
-				//Clip the DC so that we only draw on the non-client area
-				RECT rcBorder;
-				GetWindowRect(m_hRichEdit, &rcBorder);
-				rcBorder.right -= rcBorder.left; rcBorder.bottom -= rcBorder.top;
-				rcBorder.left = rcBorder.top = 0;
+					//Clip the DC so that we only draw on the non-client area
+					RECT rcBorder;
+					GetWindowRect(m_hRichEdit, &rcBorder);
+					rcBorder.right -= rcBorder.left; rcBorder.bottom -= rcBorder.top;
+					rcBorder.left = rcBorder.top = 0;
 
-				RECT rcClient; memcpy(&rcClient, &rcBorder, sizeof(RECT));
-				rcClient.left += m_rcClientPos.left;
-				rcClient.top += m_rcClientPos.top;
-				rcClient.right -= m_rcClientPos.right;
-				rcClient.bottom -= m_rcClientPos.bottom;
-				ExcludeClipRect(hdc, rcClient.left, rcClient.top, rcClient.right, rcClient.bottom);
+					RECT rcClient; memcpy(&rcClient, &rcBorder, sizeof(RECT));
+					rcClient.left += m_rcClientPos.left;
+					rcClient.top += m_rcClientPos.top;
+					rcClient.right -= m_rcClientPos.right;
+					rcClient.bottom -= m_rcClientPos.bottom;
+					ExcludeClipRect(hdc, rcClient.left, rcClient.top, rcClient.right, rcClient.bottom);
 
-				//Make sure the background is in a proper state
-				if(pIsThemeBackgroundPartiallyTransparent(hTheme, EP_EDITTEXT, ETS_NORMAL))
-					pDrawThemeParentBackground(m_hRichEdit, hdc, &rcBorder);
+					//Make sure the background is in a proper state
+					if (pIsThemeBackgroundPartiallyTransparent(hTheme, EP_EDITTEXT, ETS_NORMAL))
+						pDrawThemeParentBackground(m_hRichEdit, hdc, &rcBorder);
 
-				//Draw the border of the edit box
-				int nState = ETS_NORMAL;
+					//Draw the border of the edit box
+					int nState = ETS_NORMAL;
 
-				if(!IsWindowEnabled(m_hRichEdit))
-					nState = ETS_DISABLED;
-				else if(SendMessage(m_hRichEdit, EM_GETOPTIONS, NULL, NULL) & ECO_READONLY)
-					nState = ETS_READONLY;
-				
-				pDrawThemeBackground(hTheme, hdc, EP_EDITTEXT, nState, &rcBorder, nullptr);
+					if (!IsWindowEnabled(m_hRichEdit))
+						nState = ETS_DISABLED;
+					else if (SendMessage(m_hRichEdit, EM_GETOPTIONS, NULL, NULL) & ECO_READONLY)
+						nState = ETS_READONLY;
 
-				return true;
+					pDrawThemeBackground(hTheme, hdc, EP_EDITTEXT, nState, &rcBorder, nullptr);
+
+					return true;
+				}
 			}
 		}
 	}
@@ -303,31 +314,35 @@ bool CRichEditThemed::OnNCCalcSize(NCCALCSIZE_PARAMS *csparam)
 		if(m_bThemedBorder)
 		{
 			//Load the theme associated with edit boxes
-			HTHEME hTheme = pOpenThemeData(m_hRichEdit, L"edit");
-			if(hTheme)
+			if(HTHEME hTheme = pOpenThemeData(m_hRichEdit, L"edit"); hTheme != nullptr)
 			{
+				Auto(pCloseThemeData(hTheme));
+
 				bool bToReturn = false;
 
 				//Get the size required by the current theme to be displayed properly
-				RECT rcClient;
-				ZeroMemory(&rcClient, sizeof(RECT));
-				HDC hdc = GetDC(GetParent(m_hRichEdit));
-				if(pGetThemeBackgroundContentRect(hTheme, hdc, EP_EDITTEXT, ETS_NORMAL, &csparam->rgrc[0], &rcClient) == S_OK)
+				if (HDC hdc = GetDC(GetParent(m_hRichEdit)); hdc != nullptr)
 				{
-					//Add a pixel to every edge so that the client area is not too close to the border drawn by the theme (thus simulating a native edit box)
-					InflateRect(&rcClient, -1, -1);
 
-					m_rcClientPos.left = rcClient.left-csparam->rgrc[0].left;
-					m_rcClientPos.top = rcClient.top-csparam->rgrc[0].top;
-					m_rcClientPos.right = csparam->rgrc[0].right-rcClient.right;
-					m_rcClientPos.bottom = csparam->rgrc[0].bottom-rcClient.bottom;
+					Auto(ReleaseDC(GetParent(m_hRichEdit), hdc));
 
-					memcpy(&csparam->rgrc[0], &rcClient, sizeof(RECT));
-					bToReturn = true;
+					RECT rcClient;
+					ZeroMemory(&rcClient, sizeof(RECT));
+
+					if (pGetThemeBackgroundContentRect(hTheme, hdc, EP_EDITTEXT, ETS_NORMAL, &csparam->rgrc[0], &rcClient) == S_OK)
+					{
+						//Add a pixel to every edge so that the client area is not too close to the border drawn by the theme (thus simulating a native edit box)
+						InflateRect(&rcClient, -1, -1);
+
+						m_rcClientPos.left = rcClient.left - csparam->rgrc[0].left;
+						m_rcClientPos.top = rcClient.top - csparam->rgrc[0].top;
+						m_rcClientPos.right = csparam->rgrc[0].right - rcClient.right;
+						m_rcClientPos.bottom = csparam->rgrc[0].bottom - rcClient.bottom;
+
+						memcpy(&csparam->rgrc[0], &rcClient, sizeof(RECT));
+						bToReturn = true;
+					}
 				}
-				ReleaseDC(GetParent(m_hRichEdit), hdc);
-				pCloseThemeData(hTheme);
-
 				return bToReturn;
 			}
 		}

@@ -65,7 +65,7 @@ BOOL CALLBACK SizeDocked(HWND hwnd,LPARAM lParam)
 			return FALSE;
 
 		if (dcx_testflag(flags, DOCKF_SHOWSCROLLBARS)) {
-			// mIRCTEXT('s channel/query/status window')s scrollbar isnt a system scrollbar so these functions fail.
+			// mIRC's channel/query/status window's scrollbar isnt a system scrollbar so these functions fail.
 			//SCROLLBARINFO sbi;
 			//// vertical scroller
 			//ZeroMemory(&sbi,sizeof(SCROLLBARINFO));
@@ -112,7 +112,9 @@ LRESULT CALLBACK mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lP
 {
 	auto dd = static_cast<LPDCXDOCK>(GetProp(mHwnd, TEXT("dcx_dock")));
 #ifdef DCX_DEBUG_OUTPUT
-	mIRCLinker::signalex(dcxSignal.xdock, TEXT("debug %u"), uMsg);
+	//mIRCLinker::signalex(dcxSignal.xdock, TEXT("debug %u"), uMsg);
+	if (dcxSignal.xdock)
+		mIRCLinker::signal(TEXT("dock debug %"), uMsg);
 #endif
 	if (dd == nullptr)
 		return DefWindowProc(mHwnd,uMsg, wParam, lParam);
@@ -120,11 +122,17 @@ LRESULT CALLBACK mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lP
 	switch (uMsg) {
 	case WM_SIZE:
 		{
-			if (!dd->type.empty())
-				mIRCLinker::signalex(dcxSignal.xdock, TEXT("size %s %u %u %u"), dd->type.to_chr(), dd->win, LOWORD(lParam), HIWORD(lParam));
-			else
-				mIRCLinker::signalex(dcxSignal.xdock, TEXT("size Custom %u %u %u"), dd->win, LOWORD(lParam), HIWORD(lParam));
-
+			//if (!dd->type.empty())
+			//	mIRCLinker::signalex(dcxSignal.xdock, TEXT("size %s %u %u %u"), dd->type.to_chr(), dd->win, LOWORD(lParam), HIWORD(lParam));
+			//else
+			//	mIRCLinker::signalex(dcxSignal.xdock, TEXT("size Custom %u %u %u"), dd->win, LOWORD(lParam), HIWORD(lParam));
+			if (dcxSignal.xdock)
+			{
+				if (!dd->type.empty())
+					mIRCLinker::signal(TEXT("size % % % %"), dd->type, reinterpret_cast<DWORD>(dd->win), LOWORD(lParam), HIWORD(lParam));
+				else
+					mIRCLinker::signal(TEXT("size Custom % % %"), reinterpret_cast<DWORD>(dd->win), LOWORD(lParam), HIWORD(lParam));
+			}
 			EnumChildWindows(mHwnd,SizeDocked,NULL);
 		}
 		break;
@@ -137,10 +145,20 @@ LRESULT CALLBACK mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lP
 #ifdef DCX_DEBUG_OUTPUT
 	case WM_CLOSE:
 		{
-			if (!dd->type.empty())
-				mIRCLinker::signalex(dcxSignal.xdock, TEXT("close %s %u"), dd->type.to_chr(), dd->win);
-			else
-				mIRCLinker::signalex(dcxSignal.xdock, TEXT("close Custom %u"), dd->win);
+			//if (dcxSignal.xdock)
+			//{
+			//	if (!dd->type.empty())
+			//		mIRCLinker::signalex(dcxSignal.xdock, TEXT("close %s %u"), dd->type.to_chr(), dd->win);
+			//	else
+			//		mIRCLinker::signalex(dcxSignal.xdock, TEXT("close Custom %u"), dd->win);
+			//}
+			if (dcxSignal.xdock)
+			{
+				if (!dd->type.empty())
+					mIRCLinker::signal(TEXT("close % %"), dd->type, reinterpret_cast<DWORD>(dd->win));
+				else
+					mIRCLinker::signal(TEXT("close Custom %"), reinterpret_cast<DWORD>(dd->win));
+			}
 		}
 		break;
 #endif
@@ -183,7 +201,6 @@ void UnDock(const HWND hwnd)
 
 bool DockWindow(const HWND mWnd, const HWND temp, const TCHAR *find, const TString & flag)
 {
-	RECT rc = { 0 };
 	HWND sWnd = nullptr;
 	const XSwitchFlags xflags(flag);
 
@@ -208,8 +225,13 @@ bool DockWindow(const HWND mWnd, const HWND temp, const TCHAR *find, const TStri
 	AddStyles(temp,GWL_STYLE,WS_CHILDWINDOW);
 
 	// get window pos
+#if DCX_USE_WRAPPERS
+	Dcx::dcxWindowRect rc(temp);
+#else
+	RECT rc = { 0 };
 	if (!GetWindowRect(temp, &rc))
 		throw Dcx::dcxException("Unable to get window rect");
+#endif
 
 	// if prop not alrdy set then set it & subclass.
 	if (GetProp(sWnd,TEXT("dcx_dock")) == nullptr)
@@ -304,7 +326,7 @@ mIRC(xdock) {
 		if (numtok < 2)
 			throw Dcx::dcxException("Invalid Flag");
 
-		auto dockHwnd = (HWND)input.getnexttok().to_num(); // tok 2
+		auto dockHwnd = (HWND)input.getnexttok().to_<DWORD>(); // tok 2
 
 		// show/hide switchbar
 		// [-S] [1|0]
@@ -436,10 +458,13 @@ mIRC(xdock) {
 
 			if (dflags == NULL) // not any dock.
 				throw Dcx::dcxException("Unable to find flags information.");
-
+#if DCX_USE_WRAPPERS
+			Dcx::dcxWindowRect rc(dockHwnd);
+#else
 			RECT rc;
 			if (!GetWindowRect(dockHwnd, &rc))
 				throw Dcx::dcxException("Unable to get window rect");
+#endif
 
 			OffsetRect(&rc, -rc.left, -rc.top); // right & bottom now == width & height
 			dflags &= ~(DOCKF_NOSCROLLBARS | DOCKF_SHOWSCROLLBARS);	// ignore scrollbar flags
@@ -523,6 +548,8 @@ mIRC(_xdock)
 
 	data[0] = 0;
 
+	const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> refData(data);
+
 	try {
 		d.trim();
 
@@ -532,28 +559,28 @@ mIRC(_xdock)
 #if DCX_USE_HASHING
 		if (d.getfirsttok(1) == TEXT("mIRC")) {
 
-			auto DockTypeToSwitchbarPos = [data](const DockTypes dType) {
+			auto DockTypeToSwitchbarPos = [refData](const DockTypes dType) {
 				switch (SwitchbarPos(dType))
 				{
 				case SwitchBarPos::SWB_RIGHT:
-					dcx_strcpyn(data, TEXT("right"), MIRC_BUFFER_SIZE_CCH);
+					refData = TEXT("right");
 					break;
 
 				case SwitchBarPos::SWB_BOTTOM:
-					dcx_strcpyn(data, TEXT("bottom"), MIRC_BUFFER_SIZE_CCH);
+					refData = TEXT("bottom");
 					break;
 
 				case SwitchBarPos::SWB_TOP:
-					dcx_strcpyn(data, TEXT("top"), MIRC_BUFFER_SIZE_CCH);
+					refData = TEXT("top");
 					break;
 
 				case SwitchBarPos::SWB_LEFT:
-					dcx_strcpyn(data, TEXT("left"), MIRC_BUFFER_SIZE_CCH);
+					refData = TEXT("left");
 					break;
 
 				case SwitchBarPos::SWB_NONE:
 				default:
-					dcx_strcpyn(data, TEXT("none"), MIRC_BUFFER_SIZE_CCH);
+					refData = TEXT("none");
 					break;
 				}
 			};
@@ -571,29 +598,41 @@ mIRC(_xdock)
 				break;
 			case TEXT("switchBarSize"_hash):
 			{
+#if DCX_USE_WRAPPERS
+				Dcx::dcxWindowRect rc(mIRCLinker::getSwitchbar());
+#else
 				RECT rc;
 				if (!GetWindowRect(mIRCLinker::getSwitchbar(), &rc))
 					throw Dcx::dcxException("Unable to get window rect");
-
-				wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d %d %d"), rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top);
+#endif
+				//wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d %d %d"), rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top);
+				_ts_snprintf(refData, TEXT("%d %d %d %d"), rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top);
 			}
 			break;
 			case TEXT("toolBarSize"_hash):
 			{
+#if DCX_USE_WRAPPERS
+				Dcx::dcxWindowRect rc(mIRCLinker::getToolbar());
+#else
 				RECT rc;
 				if (!GetWindowRect(mIRCLinker::getToolbar(), &rc))
 					throw Dcx::dcxException("Unable to get window rect");
-
-				wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d %d %d"), rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top);
+#endif
+				//wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d %d %d"), rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top);
+				_ts_snprintf(refData, TEXT("%d %d %d %d"), rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top);
 			}
 			break;
 			case TEXT("treeBarSize"_hash):
 			{
+#if DCX_USE_WRAPPERS
+				Dcx::dcxWindowRect rc(mIRCLinker::getTreebar());
+#else
 				RECT rc;
 				if (!GetWindowRect(mIRCLinker::getTreebar(), &rc))
 					throw Dcx::dcxException("Unable to get window rect");
-
-				wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d %d %d"), rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top);
+#endif
+				//wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d %d %d"), rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top);
+				_ts_snprintf(refData, TEXT("%d %d %d %d"), rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top);
 			}
 			break;
 			case TEXT("isSwitchBar"_hash):
@@ -624,17 +663,20 @@ mIRC(_xdock)
 			break;
 			case TEXT("switchBarHwnd"_hash):
 			{
-				wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%lu"), (DWORD)mIRCLinker::getSwitchbar()); // don't use %p as this gives a hex result.
+				//wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%lu"), (DWORD)mIRCLinker::getSwitchbar()); // don't use %p as this gives a hex result.
+				_ts_snprintf(refData, TEXT("%lu"), (DWORD)mIRCLinker::getSwitchbar()); // don't use %p as this gives a hex result.
 			}
 			break;
 			case TEXT("toolBarHwnd"_hash):
 			{
-				wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%lu"), (DWORD)mIRCLinker::getToolbar());
+				//wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%lu"), (DWORD)mIRCLinker::getToolbar());
+				_ts_snprintf(refData, TEXT("%lu"), (DWORD)mIRCLinker::getToolbar());
 			}
 			break;
 			case TEXT("treeBarHwnd"_hash):
 			{
-				wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%lu"), (DWORD)mIRCLinker::getTreebar());
+				//wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%lu"), (DWORD)mIRCLinker::getTreebar());
+				_ts_snprintf(refData, TEXT("%lu"), (DWORD)mIRCLinker::getTreebar());
 			}
 			break;
 			case 0: // error
@@ -683,7 +725,7 @@ mIRC(_xdock)
 				const auto ud = GetUltraDock(hwnd);
 
 				if (ud == nullptr)
-					throw Dcx::dcxException(TEXT("Window not docked to main mIRC window (%).%"), reinterpret_cast<DWORD>(hwnd), d.gettok(2));
+					throw Dcx::dcxException(TEXT("Window not docked to main mIRC window (%).%"), Dcx::numeric_cast<DWORD>(hwnd), d.gettok(2));
 
 				const TCHAR *p = TEXT("unknown");
 				switch (ud->flags)
@@ -701,7 +743,7 @@ mIRC(_xdock)
 					p = TEXT("bottom");
 					break;
 				}
-				dcx_strcpyn(data, p, MIRC_BUFFER_SIZE_CCH);
+				refData = p;
 			}
 			break;
 			case TEXT("text"_hash):
@@ -712,7 +754,7 @@ mIRC(_xdock)
 			break;
 			case 0: // error
 			default:
-				throw Dcx::dcxException(TEXT("Invalid prop (%).%"), reinterpret_cast<DWORD>(hwnd), d.gettok(2));
+				throw Dcx::dcxException(TEXT("Invalid prop (%).%"), Dcx::numeric_cast<DWORD>(hwnd), d.gettok(2));
 			}
 		}
 #else

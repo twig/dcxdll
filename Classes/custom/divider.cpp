@@ -28,15 +28,15 @@ LRESULT CALLBACK DividerWndProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 	{
 
 		LPDVCONTROLDATA lpdvdata = new DVCONTROLDATA;
-		ZeroMemory(lpdvdata, sizeof(DVCONTROLDATA));
-
-		lpdvdata->m_bDragging = FALSE;
-		lpdvdata->m_iLineWidth = 2;
-		lpdvdata->m_iBarPos = 100;
-		lpdvdata->m_iOldPos = 0;
-
-		lpdvdata->m_Panes[0].cbSize = sizeof(DVPANEINFO);
-		lpdvdata->m_Panes[1].cbSize = sizeof(DVPANEINFO);
+		//ZeroMemory(lpdvdata, sizeof(DVCONTROLDATA));
+		//
+		//lpdvdata->m_bDragging = FALSE;
+		//lpdvdata->m_iLineWidth = 2;
+		//lpdvdata->m_iBarPos = 100;
+		//lpdvdata->m_iOldPos = 0;
+		//
+		//lpdvdata->m_Panes[0].cbSize = sizeof(DVPANEINFO);
+		//lpdvdata->m_Panes[1].cbSize = sizeof(DVPANEINFO);
 
 		SetProp(mHwnd, TEXT("dvc_data"), (HANDLE)lpdvdata);
 
@@ -171,8 +171,7 @@ LRESULT CALLBACK DividerWndProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 		if (dcx_testflag(lpdvpi->fMask, DVPIM_STYLE))
 			lpdvinfo->fStyle = lpdvpi->fStyle;
 
-		RECT rc;
-		if (GetClientRect(mHwnd, &rc))
+		if (RECT rc{}; GetClientRect(mHwnd, &rc))
 			Divider_SizeWindowContents(mHwnd, rc.right - rc.left, rc.bottom - rc.top);
 
 		return TRUE;
@@ -181,8 +180,7 @@ LRESULT CALLBACK DividerWndProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 
 	case DV_GETPANE:
 	{
-		LPDVCONTROLDATA lpdvdata = (LPDVCONTROLDATA)GetProp(mHwnd, TEXT("dvc_data"));
-		switch (wParam) {
+		switch (LPDVCONTROLDATA lpdvdata = (LPDVCONTROLDATA)GetProp(mHwnd, TEXT("dvc_data")); wParam) {
 		case DVF_PANELEFT:
 			*((LPDVPANEINFO)lParam) = lpdvdata->m_Panes[0];
 			break;
@@ -230,10 +228,7 @@ LRESULT CALLBACK DividerWndProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 
 	case WM_DESTROY:
 	{
-
-		LPDVCONTROLDATA lpdvdata = (LPDVCONTROLDATA)GetProp(mHwnd, TEXT("dvc_data"));
-
-		if (lpdvdata != nullptr) {
+		if (LPDVCONTROLDATA lpdvdata = (LPDVCONTROLDATA)GetProp(mHwnd, TEXT("dvc_data")); lpdvdata != nullptr) {
 			// Clear Panes and delete child windows
 			// Send Notifications to Parent Window About deletion of child windows
 
@@ -276,11 +271,9 @@ LRESULT CALLBACK DividerWndProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
  * blah
  */
 
-void Divider_SizeWindowContents( HWND mHwnd, int nWidth, int nHeight ) {
-
-	LPDVCONTROLDATA lpdvdata = (LPDVCONTROLDATA) GetProp( mHwnd, TEXT("dvc_data") );
-
-	if ( dcx_testflag(GetWindowStyle( mHwnd ), DVS_VERT) ) {
+void Divider_SizeWindowContents( HWND mHwnd, const int nWidth, const int nHeight )
+{
+	if (LPDVCONTROLDATA lpdvdata = (LPDVCONTROLDATA)GetProp(mHwnd, TEXT("dvc_data")); dcx_testflag(GetWindowStyle( mHwnd ), DVS_VERT) ) {
 		MoveWindow( lpdvdata->m_Panes[0].hChild, 0, 0, static_cast<int>(lpdvdata->m_iBarPos), nHeight, TRUE );
 		MoveWindow( lpdvdata->m_Panes[1].hChild, static_cast<int>(lpdvdata->m_iBarPos + lpdvdata->m_iLineWidth), 0,
 			static_cast<int>(nWidth - lpdvdata->m_iBarPos - lpdvdata->m_iLineWidth), nHeight, TRUE );
@@ -301,19 +294,17 @@ void Divider_SizeWindowContents( HWND mHwnd, int nWidth, int nHeight ) {
 
 void DrawXorBar(HDC hdc, const int x1, const int y1, const int width, const int height)
 {
-	static WORD _dotPatternBmp[8] = 
-	{ 
-		0x00aa, 0x0055, 0x00aa, 0x0055, 
+	constexpr static const WORD _dotPatternBmp[8] =
+	{
+		0x00aa, 0x0055, 0x00aa, 0x0055,
 		0x00aa, 0x0055, 0x00aa, 0x0055
 	};
 
-	HBITMAP hbm = CreateBitmap( 8, 8, 1, 1, _dotPatternBmp );
-	if (hbm != nullptr)
+	if (HBITMAP hbm = CreateBitmap(8, 8, 1, 1, _dotPatternBmp); hbm != nullptr)
 	{
 		Auto(DeleteBitmap(hbm));
 
-		HBRUSH hbr = CreatePatternBrush(hbm);
-		if (hbr != nullptr)
+		if (HBRUSH hbr = CreatePatternBrush(hbm); hbr != nullptr)
 		{
 			Auto(DeleteBrush(hbr));
 
@@ -338,44 +329,43 @@ void Divider_GetChildControl(HWND mHwnd, const UINT pane, LPDVPANEINFO result) {
 
 void Divider_CalcBarPos( HWND mHwnd, POINT * pt, RECT * rect ) {
 
-  LPDVCONTROLDATA lpdvdata = (LPDVCONTROLDATA) GetProp( mHwnd, TEXT("dvc_data") );
+	LPDVCONTROLDATA lpdvdata = (LPDVCONTROLDATA)GetProp(mHwnd, TEXT("dvc_data"));
 
-  if (!GetWindowRect(mHwnd, rect))
-	  return;
+	if (!GetWindowRect(mHwnd, rect))
+		return;
 
-  //ClientToScreen( mHwnd, pt );
-  MapWindowPoints(mHwnd, nullptr, pt, 1);
+	MapWindowPoints(mHwnd, nullptr, pt, 1);
 
-  pt->x -= rect->left;
-  pt->y -= rect->top;
+	pt->x -= rect->left;
+	pt->y -= rect->top;
 
-  OffsetRect( rect, -rect->left, -rect->top );
+	OffsetRect(rect, -rect->left, -rect->top);
 
-  if ( dcx_testflag(GetWindowStyle( mHwnd ), DVS_VERT) ) {
+	if (dcx_testflag(GetWindowStyle(mHwnd), DVS_VERT)) {
 
-    if ( pt->x < (int) lpdvdata->m_Panes[0].cxMin )
-      pt->x = (int) lpdvdata->m_Panes[0].cxMin;
-    else if ( pt->x > rect->right - (int) lpdvdata->m_Panes[1].cxMin )
-      pt->x = rect->right - (int) lpdvdata->m_Panes[1].cxMin;
+		if (pt->x < static_cast<int>(lpdvdata->m_Panes[0].cxMin))
+			pt->x = static_cast<int>(lpdvdata->m_Panes[0].cxMin);
+		else if (pt->x > rect->right - static_cast<int>(lpdvdata->m_Panes[1].cxMin))
+			pt->x = rect->right - static_cast<int>(lpdvdata->m_Panes[1].cxMin);
 
-    if ( pt->x < 3 ) 
-      pt->x = 2;
-    else if ( pt->x > rect->right - 4 )
-      pt->x = rect->right - 4;
+		if (pt->x < 3)
+			pt->x = 2;
+		else if (pt->x > rect->right - 4)
+			pt->x = rect->right - 4;
 
-  }
-  else {
+	}
+	else {
 
-    if ( pt->y < (int) lpdvdata->m_Panes[0].cxMin )
-      pt->y = (int) lpdvdata->m_Panes[0].cxMin;
-    else if ( pt->y > rect->bottom - (int) lpdvdata->m_Panes[1].cxMin )
-      pt->y = rect->bottom - (int) lpdvdata->m_Panes[1].cxMin;
+		if (pt->y < static_cast<int>(lpdvdata->m_Panes[0].cxMin))
+			pt->y = static_cast<int>(lpdvdata->m_Panes[0].cxMin);
+		else if (pt->y > rect->bottom - static_cast<int>(lpdvdata->m_Panes[1].cxMin))
+			pt->y = rect->bottom - static_cast<int>(lpdvdata->m_Panes[1].cxMin);
 
-    if ( pt->y < 3 ) 
-      pt->y = 2;
-    else if ( pt->y > rect->bottom - 4 )
-      pt->y = rect->bottom - 4;
-  }
+		if (pt->y < 3)
+			pt->y = 2;
+		else if (pt->y > rect->bottom - 4)
+			pt->y = rect->bottom - 4;
+	}
 }
 
 /*!
@@ -386,7 +376,7 @@ void Divider_CalcBarPos( HWND mHwnd, POINT * pt, RECT * rect ) {
 
 LRESULT Divider_OnLButtonDown(HWND mHwnd, const UINT iMsg, WPARAM wParam, LPARAM lParam)
 {
-	LPDVCONTROLDATA lpdvdata = (LPDVCONTROLDATA) GetProp( mHwnd, TEXT("dvc_data") );
+	LPDVCONTROLDATA lpdvdata = (LPDVCONTROLDATA)GetProp(mHwnd, TEXT("dvc_data"));
 
 	//POINT pt;
 	//pt.x = (short) LOWORD( lParam );  // horizontal position of cursor 
@@ -396,14 +386,13 @@ LRESULT Divider_OnLButtonDown(HWND mHwnd, const UINT iMsg, WPARAM wParam, LPARAM
 
 	RECT rect = { 0 };
 
-	Divider_CalcBarPos( mHwnd, &pt, &rect );
+	Divider_CalcBarPos(mHwnd, &pt, &rect);
 
-	lpdvdata->m_bDragging = TRUE;
+	lpdvdata->m_bDragging = true;
 
-	SetCapture( mHwnd );
+	SetCapture(mHwnd);
 
-	HDC hdc = GetWindowDC( mHwnd );
-	if (hdc != nullptr)
+	if (HDC hdc = GetWindowDC(mHwnd); hdc != nullptr)
 	{
 		Auto(ReleaseDC(mHwnd, hdc));
 
@@ -418,7 +407,7 @@ LRESULT Divider_OnLButtonDown(HWND mHwnd, const UINT iMsg, WPARAM wParam, LPARAM
 			lpdvdata->m_iOldPos = pt.y;
 		}
 	}
-	SendMessage(mHwnd, DV_CHANGEPOS, (WPARAM) DVNM_DRAG_START, (LPARAM) &pt);
+	SendMessage(mHwnd, DV_CHANGEPOS, (WPARAM)DVNM_DRAG_START, (LPARAM)&pt);
 
 	return 0L;
 }
@@ -431,7 +420,7 @@ LRESULT Divider_OnLButtonDown(HWND mHwnd, const UINT iMsg, WPARAM wParam, LPARAM
 
 LRESULT Divider_OnLButtonUp(HWND mHwnd, const UINT iMsg, WPARAM wParam, LPARAM lParam)
 {
-	LPDVCONTROLDATA lpdvdata = (LPDVCONTROLDATA) GetProp( mHwnd, TEXT("dvc_data") );
+	LPDVCONTROLDATA lpdvdata = (LPDVCONTROLDATA)GetProp(mHwnd, TEXT("dvc_data"));
 
 	//POINT pt;
 	//pt.x = (short) LOWORD( lParam );  // horizontal position of cursor 
@@ -439,16 +428,14 @@ LRESULT Divider_OnLButtonUp(HWND mHwnd, const UINT iMsg, WPARAM wParam, LPARAM l
 
 	POINT pt{ LOWORD(lParam), HIWORD(lParam) };
 
-	if ( lpdvdata->m_bDragging == FALSE )
+	if (!lpdvdata->m_bDragging)
 		return 0L;
 
 	RECT rect = { 0 };
 
-	Divider_CalcBarPos( mHwnd, &pt, &rect );
+	Divider_CalcBarPos(mHwnd, &pt, &rect);
 
-	HDC hdc = GetWindowDC( mHwnd );
-
-	if (hdc != nullptr)
+	if (HDC hdc = GetWindowDC(mHwnd); hdc != nullptr)
 	{
 		Auto(ReleaseDC(mHwnd, hdc));
 
@@ -464,7 +451,7 @@ LRESULT Divider_OnLButtonUp(HWND mHwnd, const UINT iMsg, WPARAM wParam, LPARAM l
 		}
 
 	}
-	lpdvdata->m_bDragging = FALSE;
+	lpdvdata->m_bDragging = false;
 
 	//convert the divider position back to screen coords.
 	if (GetWindowRect(mHwnd, &rect))
@@ -501,7 +488,7 @@ LRESULT Divider_OnMouseMove(HWND mHwnd, const UINT iMsg, WPARAM wParam, LPARAM l
 
 	LPDVCONTROLDATA lpdvdata = (LPDVCONTROLDATA)GetProp(mHwnd, TEXT("dvc_data"));
 
-	if (lpdvdata->m_bDragging == FALSE)
+	if (!lpdvdata->m_bDragging)
 		return 0L;
 
 	RECT rect = { 0 };
@@ -522,32 +509,32 @@ LRESULT Divider_OnMouseMove(HWND mHwnd, const UINT iMsg, WPARAM wParam, LPARAM l
 
 	//if (dcx_testflag(GetWindowStyle(mHwnd), DVS_VERT))
 	//{
-
+	//
 	//	if (pt.x != lpdvdata->m_iOldPos && dcx_testflag(wParam, MK_LBUTTON))
 	//	{
 	//		HDC hdc = GetWindowDC(mHwnd);
-
+	//
 	//		if (hdc != nullptr)
 	//		{
 	//			Auto(ReleaseDC(mHwnd, hdc));
-
+	//
 	//			DrawXorBar(hdc, lpdvdata->m_iOldPos - 2, 1, 4, rect.bottom - 2);
 	//			DrawXorBar(hdc, pt.x - 2, 1, 4, rect.bottom - 2);
 	//			lpdvdata->m_iOldPos = pt.x;
-
+	//
 	//		}
 	//	}
 	//}
 	//else {
-
+	//
 	//	if (pt.y != lpdvdata->m_iOldPos && dcx_testflag(wParam, MK_LBUTTON)) {
-
+	//
 	//		HDC hdc = GetWindowDC(mHwnd);
-
+	//
 	//		if (hdc != nullptr)
 	//		{
 	//			Auto(ReleaseDC(mHwnd, hdc));
-
+	//
 	//			DrawXorBar(hdc, 1, lpdvdata->m_iOldPos - 2, rect.right - 2, 4);
 	//			DrawXorBar(hdc, 1, pt.y - 2, rect.right - 2, 4);
 	//			lpdvdata->m_iOldPos = pt.y;
@@ -559,12 +546,9 @@ LRESULT Divider_OnMouseMove(HWND mHwnd, const UINT iMsg, WPARAM wParam, LPARAM l
 	{
 		if (dcx_testflag(GetWindowStyle(mHwnd), DVS_VERT))
 		{
-
 			if (pt.x != lpdvdata->m_iOldPos)
 			{
-				HDC hdc = GetWindowDC(mHwnd);
-
-				if (hdc != nullptr)
+				if (HDC hdc = GetWindowDC(mHwnd); hdc != nullptr)
 				{
 					Auto(ReleaseDC(mHwnd, hdc));
 
@@ -577,11 +561,9 @@ LRESULT Divider_OnMouseMove(HWND mHwnd, const UINT iMsg, WPARAM wParam, LPARAM l
 		}
 		else {
 
-			if (pt.y != lpdvdata->m_iOldPos) {
-
-				HDC hdc = GetWindowDC(mHwnd);
-
-				if (hdc != nullptr)
+			if (pt.y != lpdvdata->m_iOldPos)
+			{
+				if (HDC hdc = GetWindowDC(mHwnd); hdc != nullptr)
 				{
 					Auto(ReleaseDC(mHwnd, hdc));
 

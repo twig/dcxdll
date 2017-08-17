@@ -55,6 +55,13 @@ struct NMDIVIDER {
     UINT fStyle;    //!< Pane Style Flags
     LPARAM lParam;  //!< Extra Storage Value
 
+	NMDIVIDER()
+		: hdr{}
+		, fMask(0)
+		, iPaneId(0)
+		, fStyle(0)
+		, lParam(0)
+	{}
 };
 using LPNMDIVIDER = NMDIVIDER *;
 
@@ -80,6 +87,15 @@ struct DVPANEINFO {
   HWND hChild;    //!< Pane Child Window Handle
   LPARAM lParam;  //!< Extra Storage For Each Pane
 
+  DVPANEINFO()
+	  : cbSize(sizeof(DVPANEINFO))
+	  , fMask(0)
+	  , fStyle(0)
+	  , cxMin(0)
+	  , cxIdeal(0)
+	  , hChild(nullptr)
+	  , lParam(0)
+  {}
 };
 using LPDVPANEINFO = DVPANEINFO *;
 
@@ -91,10 +107,17 @@ struct DVCONTROLDATA {
 
   DVPANEINFO m_Panes[2];  //!< Divider Panes
   UINT m_iLineWidth;      //!< Divider Line Width
-  BOOL m_bDragging;       //!< Are We Dragging The Bar?
   UINT m_iBarPos;         //!< Position of the bar
   int m_iOldPos;          //!< Moving Old Position
+  bool m_bDragging;       //!< Are We Dragging The Bar?
 
+  DVCONTROLDATA()
+	  : m_Panes()
+	  , m_iLineWidth(2)
+	  , m_iBarPos(100)
+	  , m_iOldPos(0)
+	  , m_bDragging(false)
+  {}
 };
 using LPDVCONTROLDATA = DVCONTROLDATA *;
 

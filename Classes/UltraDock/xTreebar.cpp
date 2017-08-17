@@ -18,8 +18,11 @@ void TraverseChildren(const HTREEITEM hParent, TString &buf, TString &res, LPTVI
 			{
 				TString tsType;
 				DcxDock::getTreebarItemType(tsType, pitem->lParam);
-				mIRCLinker::execex(TEXT("/!set -nu1 %%dcx_%d %s"), pitem->lParam, pitem->pszText );
-				mIRCLinker::tsEvalex(res, TEXT("$xtreebar_callback(geticons,%s,%%dcx_%d)"), tsType.to_chr(), pitem->lParam);
+
+				//mIRCLinker::execex(TEXT("/!set -nu1 %%dcx_%d %s"), pitem->lParam, pitem->pszText );
+				//mIRCLinker::tsEvalex(res, TEXT("$xtreebar_callback(geticons,%s,%%dcx_%d)"), tsType.to_chr(), pitem->lParam);
+				mIRCLinker::exec(TEXT("/!set -nu1 \\%dcx_% %"), pitem->lParam, pitem->pszText);
+				mIRCLinker::eval(res, TEXT("$xtreebar_callback(geticons,%,\\%dcx_%)"), tsType, pitem->lParam);
 			}
 			pitem->mask = TVIF_IMAGE|TVIF_SELECTEDIMAGE;
 			auto i = res.getfirsttok(1).to_int() - 1;
@@ -53,8 +56,11 @@ void TraverseTreebarItems(void)
 			{
 				TString tsType;
 				DcxDock::getTreebarItemType(tsType, item.lParam);
-				mIRCLinker::execex(TEXT("/!set -nu1 %%dcx_%d %s"), item.lParam, item.pszText );
-				mIRCLinker::tsEvalex(res, TEXT("$xtreebar_callback(geticons,%s,%%dcx_%d)"), tsType.to_chr(), item.lParam);
+
+				//mIRCLinker::execex(TEXT("/!set -nu1 %%dcx_%d %s"), item.lParam, item.pszText );
+				//mIRCLinker::tsEvalex(res, TEXT("$xtreebar_callback(geticons,%s,%%dcx_%d)"), tsType.to_chr(), item.lParam);
+				mIRCLinker::exec(TEXT("/!set -nu1 \\%dcx_% %"), item.lParam, item.pszText);
+				mIRCLinker::eval(res, TEXT("$xtreebar_callback(geticons,%,\\%dcx_%)"), tsType, item.lParam);
 			}
 			item.mask = TVIF_IMAGE|TVIF_SELECTEDIMAGE;
 			auto i = res.getfirsttok(1).to_int() - 1;

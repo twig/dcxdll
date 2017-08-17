@@ -66,10 +66,8 @@ mIRC(TrayIcon) {
 			const auto index = tsTabOne.getnexttok().to_int();	// tok 4
 			auto filename(tsTabOne.getlasttoks());			// tok 5, -1
 
-			auto icon = dcxLoadIcon(index, filename, false, iconFlags);
-
 			// add/edit the icon
-			if (!trayIcons->modifyIcon(id, msg, icon, &tooltip))
+			if (auto icon = dcxLoadIcon(index, filename, false, iconFlags); !trayIcons->modifyIcon(id, msg, icon, &tooltip))
 				throw Dcx::dcxException("Modify trayicon failed");
 		}
 		// delete trayicon
@@ -90,9 +88,7 @@ mIRC(TrayIcon) {
 			//Use a balloon ToolTip instead of a standard ToolTip. The szInfo, uTimeout, szInfoTitle, and dwInfoFlags members are valid.
 
 			// load the icon
-			auto icon = dcxLoadIcon(index, filename, false, iconFlags);
-
-			if (!trayIcons->modifyIcon(id, NIM_MODIFY, icon))
+			if (auto icon = dcxLoadIcon(index, filename, false, iconFlags); !trayIcons->modifyIcon(id, NIM_MODIFY, icon))
 				throw Dcx::dcxException("Error changing trayicon icon");
 		}
 		// change tooltip
@@ -162,39 +158,75 @@ const HWND &DcxTrayIcon::GetHwnd() const noexcept
 }
 
 LRESULT CALLBACK DcxTrayIcon::TrayWndProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
-	if (uMsg == DCXM_TRAYICON) {
-		const auto uMouseMsg = static_cast<UINT>(lParam);
-		const auto id = static_cast<UINT>(wParam);
+	//if (uMsg == DCXM_TRAYICON) {
+	//	const auto uMouseMsg = static_cast<UINT>(lParam);
+	//	const auto id = static_cast<UINT>(wParam);
+	//
+	//	switch (uMouseMsg)
+	//	{
+	//		case WM_LBUTTONDBLCLK:
+	//			mIRCLinker::signalex(dcxSignal.xtray, TEXT("trayicon %s %u"), TEXT("dclick"), id);
+	//			break;
+	//
+	//		case WM_LBUTTONUP:
+	//			mIRCLinker::signalex(dcxSignal.xtray, TEXT("trayicon %s %u"), TEXT("sclick"), id);
+	//			break;
+	//
+	//		case WM_RBUTTONUP:
+	//		case WM_CONTEXTMENU:
+	//			mIRCLinker::signalex(dcxSignal.xtray, TEXT("trayicon %s %u"), TEXT("rclick"), id);
+	//			break;
+	//
+	//		case WM_RBUTTONDBLCLK:
+	//			mIRCLinker::signalex(dcxSignal.xtray, TEXT("trayicon %s %u"), TEXT("rdclick"), id);
+	//			break;
+	//
+	//		case WM_MBUTTONUP:
+	//			mIRCLinker::signalex(dcxSignal.xtray, TEXT("trayicon %s %u"), TEXT("mclick"), id);
+	//			break;
+	//
+	//		case WM_MBUTTONDBLCLK:
+	//			mIRCLinker::signalex(dcxSignal.xtray, TEXT("trayicon %s %u"), TEXT("mdclick"), id);
+	//			break;
+	//
+	//		default:
+	//			break;
+	//	}
+	//}
+
+	if ((uMsg == DCXM_TRAYICON) && (dcxSignal.xtray)) {
+		const auto uMouseMsg = gsl::narrow_cast<UINT>(lParam);
+		const auto id = gsl::narrow_cast<UINT>(wParam);
 
 		switch (uMouseMsg)
 		{
-			case WM_LBUTTONDBLCLK:
-				mIRCLinker::signalex(dcxSignal.xtray, TEXT("trayicon %s %u"), TEXT("dclick"), id);
-				break;
+		case WM_LBUTTONDBLCLK:
+			mIRCLinker::signal(TEXT("trayicon dclick %"), id);
+			break;
 
-			case WM_LBUTTONUP:
-				mIRCLinker::signalex(dcxSignal.xtray, TEXT("trayicon %s %u"), TEXT("sclick"), id);
-				break;
+		case WM_LBUTTONUP:
+			mIRCLinker::signal(TEXT("trayicon sclick %"), id);
+			break;
 
-			case WM_RBUTTONUP:
-			case WM_CONTEXTMENU:
-				mIRCLinker::signalex(dcxSignal.xtray, TEXT("trayicon %s %u"), TEXT("rclick"), id);
-				break;
+		case WM_RBUTTONUP:
+		case WM_CONTEXTMENU:
+			mIRCLinker::signal(TEXT("trayicon rclick %"), id);
+			break;
 
-			case WM_RBUTTONDBLCLK:
-				mIRCLinker::signalex(dcxSignal.xtray, TEXT("trayicon %s %u"), TEXT("rdclick"), id);
-				break;
+		case WM_RBUTTONDBLCLK:
+			mIRCLinker::signal(TEXT("trayicon rdclick %"), id);
+			break;
 
-			case WM_MBUTTONUP:
-				mIRCLinker::signalex(dcxSignal.xtray, TEXT("trayicon %s %u"), TEXT("mclick"), id);
-				break;
+		case WM_MBUTTONUP:
+			mIRCLinker::signal(TEXT("trayicon mclick %"), id);
+			break;
 
-			case WM_MBUTTONDBLCLK:
-				mIRCLinker::signalex(dcxSignal.xtray, TEXT("trayicon %s %u"), TEXT("mdclick"), id);
-				break;
+		case WM_MBUTTONDBLCLK:
+			mIRCLinker::signal(TEXT("trayicon mdclick %"), id);
+			break;
 
-			default:
-				break;
+		default:
+			break;
 		}
 	}
 
@@ -257,7 +289,7 @@ const bool DcxTrayIcon::modifyIcon(const int id, const DWORD msg, const HICON ic
 	NOTIFYICONDATA nid;
 	ZeroMemory(&nid, sizeof(NOTIFYICONDATA));
 
-	nid.uID = static_cast<UINT>(id);
+	nid.uID = gsl::narrow_cast<UINT>(id);
 	nid.uFlags = NIF_MESSAGE;
 	nid.cbSize = sizeof(NOTIFYICONDATA);
 	nid.hWnd = GetHwnd();
