@@ -41,7 +41,7 @@ FILE* TiXmlFOpen( const char* filename, const char* mode )
 {
 	#if defined(_MSC_VER) && (_MSC_VER >= 1400 )
 		FILE* fp = 0;
-		errno_t err = fopen_s( &fp, filename, mode );
+		const errno_t err = fopen_s( &fp, filename, mode );
 		if ( !err && fp )
 			return fp;
 		return 0;
@@ -913,7 +913,7 @@ bool TiXmlDocument::LoadFile( const char* _filename, TiXmlEncoding encoding )
 
 	if ( file != nullptr )
 	{
-		bool result = LoadFile( file, encoding );
+		const bool result = LoadFile( file, encoding );
 		fclose( file );
 		return result;
 	}
@@ -1028,7 +1028,7 @@ bool TiXmlDocument::SaveFile( const char * filename ) const
 	FILE* fp = TiXmlFOpen( filename, "w" );
 	if ( fp )
 	{
-		bool result = SaveFile( fp );
+		const bool result = SaveFile( fp );
 		fclose( fp );
 		return result;
 	}
@@ -1522,7 +1522,7 @@ TiXmlAttribute* TiXmlAttributeSet::Find( const char* name ) const
 
 	for( auto node = sentinel.next; node != &sentinel; node = node->next )
 	{
-		if ( strcmp( node->name.c_str(), name ) == 0 )
+		if ( _ts_strcmp( node->name.c_str(), name ) == 0 )
 			return node;
 	}
 	return 0;

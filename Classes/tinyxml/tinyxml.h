@@ -98,7 +98,8 @@ constexpr const int TIXML_PATCH_VERSION = 1;
 */
 struct TiXmlCursor
 {
-	TiXmlCursor() : row(-1), col(-1) {}
+	TiXmlCursor() : TiXmlCursor(-1,-1) {}
+	TiXmlCursor(const int &_row, const int &_col) : row(_row), col(_col) {}
 	void Clear()		{ row = col = -1; }
 
 	int row;	// 0 based.
@@ -981,7 +982,7 @@ public:
 	/// QueryFloatAttribute examines the attribute - see QueryIntAttribute().
 	int QueryFloatAttribute( const char* name, float *const _value ) const {
 		double d;
-		int result = QueryDoubleAttribute( name, &d );
+		const int result = QueryDoubleAttribute( name, &d );
 		if ( result == TIXML_SUCCESS ) {
 			*_value = static_cast<float>(d);
 		}
@@ -1203,9 +1204,13 @@ public:
 		normal, encoded text. If you want it be output as a CDATA text
 		m_pElement, set the parameter _cdata to 'true'
 	*/
-	TiXmlText (const char * initValue )
-		: TiXmlNode (TiXmlNode::TINYXML_TEXT)
+	TiXmlText()
+		: TiXmlNode(TiXmlNode::TINYXML_TEXT)
 		, cdata(false)
+	{}
+
+	TiXmlText (const char * initValue )
+		: TiXmlText()
 	{
 		SetValue( initValue );
 	}
@@ -1214,14 +1219,16 @@ public:
 	#ifdef TIXML_USE_STL
 	/// Constructor.
 	TiXmlText( const std::string& initValue )
-		: TiXmlNode (TiXmlNode::TINYXML_TEXT)
-		, cdata(false)
+		: TiXmlText()
 	{
 		SetValue( initValue );
 	}
 	#endif
 
-	TiXmlText( const TiXmlText& copy ) : TiXmlNode( TiXmlNode::TINYXML_TEXT )	{ copy.CopyTo( this ); }
+	TiXmlText( const TiXmlText& copy )
+		: TiXmlText()
+	{ copy.CopyTo( this ); }
+
 	TiXmlText &operator=(const TiXmlText& base)									{ base.CopyTo(this); return *this; }
 
 	// Write this text object to a FILE stream.
