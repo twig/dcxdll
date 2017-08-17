@@ -13,7 +13,7 @@ namespace Dcx {
 	DcxDialogCollection Dialogs;
 	XPopupMenuManager XPopups;
 	XMenuBar XMenubar;
-	BYTE m_iGhostDrag;
+	byte m_iGhostDrag;
 	bool m_bDX9Installed;
 	HMODULE m_hRichEditLib;
 	bool m_bErrorTriggered;
@@ -28,7 +28,7 @@ namespace Dcx {
 	{
 		//Expects(lInfo != nullptr);
 
-		m_iGhostDrag = 255;
+		m_iGhostDrag = gsl::to_byte<255>();
 		m_bDX9Installed = false;
 		m_pClassFactory = nullptr;
 		m_hRichEditLib = nullptr;
@@ -379,22 +379,22 @@ namespace Dcx {
 		GDIModule.unload();
 	}
 
-	const TCHAR *getLastError() noexcept
+	const TCHAR *const getLastError() noexcept
 	{
 		return m_sLastError.to_chr();
 	}
 
-	IClassFactory *getClassFactory() noexcept
+	IClassFactory *const getClassFactory() noexcept
 	{
 		return m_pClassFactory;
 	}
 
-	const BYTE &getGhostDrag() noexcept
+	const byte &getGhostDrag() noexcept
 	{
 		return m_iGhostDrag;
 	}
 
-	bool setGhostDrag(const BYTE newAlpha)
+	bool setGhostDrag(const byte newAlpha) noexcept
 	{
 		m_iGhostDrag = newAlpha;
 		return true;
@@ -458,7 +458,8 @@ namespace Dcx {
 			MessageBox(mIRCLinker::m_mIRCHWND, m_sLastError.to_chr(), nullptr, MB_OK);
 		}
 		else
-			mIRCLinker::echo(m_sLastError.to_chr());
+			//mIRCLinker::echo(m_sLastError.to_chr());
+			mIRCLinker::echo(m_sLastError);
 
 		m_bErrorTriggered = false;
 	}
@@ -547,7 +548,9 @@ namespace Dcx {
 	LRESULT CALLBACK mIRCSubClassWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
 		switch (uMsg) {
 		case WM_SIZE:
-			mIRCLinker::signalex(dcxSignal.xdock, TEXT("size mIRC %u %u %u"), mHwnd, LOWORD(lParam), HIWORD(lParam));
+			//mIRCLinker::signalex(dcxSignal.xdock, TEXT("size mIRC %u %u %u"), mHwnd, LOWORD(lParam), HIWORD(lParam));
+			if (dcxSignal.xdock)
+				mIRCLinker::signal(TEXT("size mIRC % % %"), reinterpret_cast<DWORD>(mHwnd), LOWORD(lParam), HIWORD(lParam));
 			break;
 
 			//		case WM_SYSCOMMAND:
@@ -583,8 +586,8 @@ namespace Dcx {
 				if (p_Item != nullptr) {
 					const auto size = p_Item->getItemSize(mHwnd);
 
-					lpmis->itemWidth = (UINT)size.cx;
-					lpmis->itemHeight = (UINT)size.cy;
+					lpmis->itemWidth = gsl::narrow_cast<UINT>(size.cx);
+					lpmis->itemHeight = gsl::narrow_cast<UINT>(size.cy);
 					return TRUE;
 				}
 			}
@@ -619,13 +622,13 @@ namespace Dcx {
 			// ghost drag stuff
 		case WM_ENTERSIZEMOVE:
 		{
-			if (getGhostDrag() < 255) {
+			if (getGhostDrag() < gsl::to_byte<255>()) {
 				const auto style = GetWindowExStyle(mIRCLinker::getHWND());
 				// Set WS_EX_LAYERED on this window
 				if (!dcx_testflag(style, WS_EX_LAYERED))
-					SetWindowLongPtr(mIRCLinker::getHWND(), GWL_EXSTYLE, (LONG)(style | WS_EX_LAYERED));
+					SetWindowLongPtr(mIRCLinker::getHWND(), GWL_EXSTYLE, gsl::narrow_cast<LONG>((style | WS_EX_LAYERED)));
 				// Make this window 75 alpha
-				SetLayeredWindowAttributes(mIRCLinker::getHWND(), 0, getGhostDrag(), LWA_ALPHA);
+				SetLayeredWindowAttributes(mIRCLinker::getHWND(), 0, gsl::to_integer<BYTE>(getGhostDrag()), LWA_ALPHA);
 				SetProp(mIRCLinker::getHWND(), TEXT("dcx_ghosted"), (HANDLE)1);
 			}
 		}
@@ -675,7 +678,7 @@ namespace Dcx {
 			if (SetCursorUx == nullptr)
 				break;
 
-			const auto iType = (UINT)LOWORD(lParam);
+			const auto iType = gsl::narrow_cast<UINT>(LOWORD(lParam));
 			auto hCursor = AreaToCustomCursor(iType);
 			if (hCursor != nullptr)
 			{
@@ -772,38 +775,138 @@ namespace Dcx {
 	//}
 
 	// Generate a formatted error string for an exception
-	const char *const dcxGetFormattedString(const TCHAR *const fmt, ...)
-	{
-		static TString tsErr;
-
-		va_list args = nullptr;
-		va_start(args, fmt);
-		tsErr.tvprintf(fmt, args);
-		va_end(args);
-
-		return tsErr.c_str();
-	}
+	//const char *const dcxGetFormattedString(const TCHAR *const fmt, ...)
+	//{
+	//	static TString tsErr;
+	//
+	//	va_list args = nullptr;
+	//	va_start(args, fmt);
+	//	tsErr.tvprintf(fmt, args);
+	//	va_end(args);
+	//
+	//	return tsErr.c_str();
+	//}
 
 	// convert a cursor name into a resource number.
-	const PTCHAR parseCursorType(const TString & cursor)
+	//const PTCHAR parseCursorType(const TString & cursor)
+	//{
+	//	static std::map<TString, PTCHAR> IDC_map;
+	//
+	//	if (IDC_map.empty()) {
+	//		IDC_map[TEXT("appstarting")] = IDC_APPSTARTING;
+	//		IDC_map[TEXT("arrow")] = IDC_ARROW;
+	//		IDC_map[TEXT("cross")] = IDC_CROSS;
+	//		IDC_map[TEXT("hand")] = IDC_HAND;
+	//		IDC_map[TEXT("help")] = IDC_HELP;
+	//		IDC_map[TEXT("ibeam")] = IDC_IBEAM;
+	//		IDC_map[TEXT("no")] = IDC_NO;
+	//		IDC_map[TEXT("sizeall")] = IDC_SIZEALL;
+	//		IDC_map[TEXT("sizenesw")] = IDC_SIZENESW;
+	//		IDC_map[TEXT("sizens")] = IDC_SIZENS;
+	//		IDC_map[TEXT("sizenwse")] = IDC_SIZENWSE;
+	//		IDC_map[TEXT("sizewe")] = IDC_SIZEWE;
+	//		IDC_map[TEXT("uparrow")] = IDC_UPARROW;
+	//		IDC_map[TEXT("wait")] = IDC_WAIT;
+	//	}
+	//
+	//	const auto got = IDC_map.find(cursor);
+	//
+	//	if (got != IDC_map.end())
+	//		return got->second;
+	//
+	//	return nullptr;
+	//}
+	//
+	//// convert a cursor name into a system resource number.
+	//const DWORD parseSystemCursorType(const TString & cursor)
+	//{
+	//	static std::map<TString, DWORD> IDC_SystemMap;
+	//	if (IDC_SystemMap.empty()) {
+	//		IDC_SystemMap[TEXT("appstarting")] = OCR_APPSTARTING;
+	//		IDC_SystemMap[TEXT("normal")] = OCR_NORMAL;
+	//		IDC_SystemMap[TEXT("cross")] = OCR_CROSS;
+	//		IDC_SystemMap[TEXT("hand")] = OCR_HAND;
+	//		//IDC_SystemMap[TEXT("help")] = OCR_HELP;
+	//		IDC_SystemMap[TEXT("ibeam")] = OCR_IBEAM;
+	//		IDC_SystemMap[TEXT("no")] = OCR_NO;
+	//		IDC_SystemMap[TEXT("sizeall")] = OCR_SIZEALL;
+	//		IDC_SystemMap[TEXT("sizenesw")] = OCR_SIZENESW;
+	//		IDC_SystemMap[TEXT("sizens")] = OCR_SIZENS;
+	//		IDC_SystemMap[TEXT("sizenwse")] = OCR_SIZENWSE;
+	//		IDC_SystemMap[TEXT("sizewe")] = OCR_SIZEWE;
+	//		//IDC_SystemMap[TEXT("uparrow")] = OCR_UPARROW;
+	//		IDC_SystemMap[TEXT("wait")] = OCR_WAIT;
+	//	}
+	//
+	//	const auto got = IDC_SystemMap.find(cursor);
+	//
+	//	if (got != IDC_SystemMap.end())
+	//		return got->second;
+	//	return 0;
+	//}
+	//
+	//// convert an area name into a hit zone
+	//const DWORD parseAreaType(const TString &tsArea)
+	//{
+	//	static std::map<TString, DWORD> mIRC_AreaMap;
+	//	if (mIRC_AreaMap.empty()) {
+	//		mIRC_AreaMap[TEXT("client")] = HTCLIENT;
+	//		//mIRC_AreaMap[TEXT("nowhere")] = HTNOWHERE;
+	//		mIRC_AreaMap[TEXT("caption")] = HTCAPTION;
+	//		mIRC_AreaMap[TEXT("sysmenu")] = HTSYSMENU;
+	//		mIRC_AreaMap[TEXT("size")] = HTGROWBOX;
+	//		mIRC_AreaMap[TEXT("menu")] = HTMENU;
+	//		mIRC_AreaMap[TEXT("vscroll")] = HTVSCROLL;
+	//		mIRC_AreaMap[TEXT("help")] = HTHELP;
+	//		mIRC_AreaMap[TEXT("hscroll")] = HTHSCROLL;
+	//		mIRC_AreaMap[TEXT("min")] = HTMINBUTTON;
+	//		mIRC_AreaMap[TEXT("max")] = HTMAXBUTTON;
+	//		mIRC_AreaMap[TEXT("left")] = HTLEFT;
+	//		mIRC_AreaMap[TEXT("right")] = HTRIGHT;
+	//		mIRC_AreaMap[TEXT("top")] = HTTOP;
+	//		mIRC_AreaMap[TEXT("topleft")] = HTTOPLEFT;
+	//		mIRC_AreaMap[TEXT("topright")] = HTTOPRIGHT;
+	//		mIRC_AreaMap[TEXT("bottom")] = HTBOTTOM;
+	//		mIRC_AreaMap[TEXT("bottomleft")] = HTBOTTOMLEFT;
+	//		mIRC_AreaMap[TEXT("bottomright")] = HTBOTTOMRIGHT;
+	//		mIRC_AreaMap[TEXT("border")] = HTBORDER;
+	//		mIRC_AreaMap[TEXT("close")] = HTCLOSE;
+	//	}
+	//
+	//	const auto got = mIRC_AreaMap.find(tsArea);
+	//
+	//	if (got != mIRC_AreaMap.end())
+	//		return got->second;
+	//
+	//	return 0;
+	//}
+
+	// convert a cursor name into a resource number.
+	const TCHAR *const parseCursorType(const TString & cursor)
 	{
-		static std::map<TString, PTCHAR> IDC_map;
+		return parseCursorType(std::hash<TString>()(cursor));
+	}
+
+	// convert a cursor name (hashed) into a resource number.
+	const TCHAR *const parseCursorType(const std::hash<TString>::result_type & cursor)
+	{
+		static std::map<std::hash<TString>::result_type, const TCHAR *> IDC_map;
 
 		if (IDC_map.empty()) {
-			IDC_map[TEXT("appstarting")] = IDC_APPSTARTING;
-			IDC_map[TEXT("arrow")] = IDC_ARROW;
-			IDC_map[TEXT("cross")] = IDC_CROSS;
-			IDC_map[TEXT("hand")] = IDC_HAND;
-			IDC_map[TEXT("help")] = IDC_HELP;
-			IDC_map[TEXT("ibeam")] = IDC_IBEAM;
-			IDC_map[TEXT("no")] = IDC_NO;
-			IDC_map[TEXT("sizeall")] = IDC_SIZEALL;
-			IDC_map[TEXT("sizenesw")] = IDC_SIZENESW;
-			IDC_map[TEXT("sizens")] = IDC_SIZENS;
-			IDC_map[TEXT("sizenwse")] = IDC_SIZENWSE;
-			IDC_map[TEXT("sizewe")] = IDC_SIZEWE;
-			IDC_map[TEXT("uparrow")] = IDC_UPARROW;
-			IDC_map[TEXT("wait")] = IDC_WAIT;
+			IDC_map[TEXT("appstarting"_hash)] = IDC_APPSTARTING;
+			IDC_map[TEXT("arrow"_hash)] = IDC_ARROW;
+			IDC_map[TEXT("cross"_hash)] = IDC_CROSS;
+			IDC_map[TEXT("hand"_hash)] = IDC_HAND;
+			IDC_map[TEXT("help"_hash)] = IDC_HELP;
+			IDC_map[TEXT("ibeam"_hash)] = IDC_IBEAM;
+			IDC_map[TEXT("no"_hash)] = IDC_NO;
+			IDC_map[TEXT("sizeall"_hash)] = IDC_SIZEALL;
+			IDC_map[TEXT("sizenesw"_hash)] = IDC_SIZENESW;
+			IDC_map[TEXT("sizens"_hash)] = IDC_SIZENS;
+			IDC_map[TEXT("sizenwse"_hash)] = IDC_SIZENWSE;
+			IDC_map[TEXT("sizewe"_hash)] = IDC_SIZEWE;
+			IDC_map[TEXT("uparrow"_hash)] = IDC_UPARROW;
+			IDC_map[TEXT("wait"_hash)] = IDC_WAIT;
 		}
 
 		const auto got = IDC_map.find(cursor);
@@ -817,22 +920,29 @@ namespace Dcx {
 	// convert a cursor name into a system resource number.
 	const DWORD parseSystemCursorType(const TString & cursor)
 	{
-		static std::map<TString, DWORD> IDC_SystemMap;
+		return parseSystemCursorType(std::hash<TString>()(cursor));
+	}
+
+	// convert a cursor name (hashed) into a system resource number.
+	const DWORD parseSystemCursorType(const std::hash<TString>::result_type & cursor)
+	{
+		static std::map<const std::hash<TString>::result_type, DWORD> IDC_SystemMap;
+
 		if (IDC_SystemMap.empty()) {
-			IDC_SystemMap[TEXT("appstarting")] = OCR_APPSTARTING;
-			IDC_SystemMap[TEXT("normal")] = OCR_NORMAL;
-			IDC_SystemMap[TEXT("cross")] = OCR_CROSS;
-			IDC_SystemMap[TEXT("hand")] = OCR_HAND;
+			IDC_SystemMap[TEXT("appstarting"_hash)] = OCR_APPSTARTING;
+			IDC_SystemMap[TEXT("normal"_hash)] = OCR_NORMAL;
+			IDC_SystemMap[TEXT("cross"_hash)] = OCR_CROSS;
+			IDC_SystemMap[TEXT("hand"_hash)] = OCR_HAND;
 			//IDC_SystemMap[TEXT("help")] = OCR_HELP;
-			IDC_SystemMap[TEXT("ibeam")] = OCR_IBEAM;
-			IDC_SystemMap[TEXT("no")] = OCR_NO;
-			IDC_SystemMap[TEXT("sizeall")] = OCR_SIZEALL;
-			IDC_SystemMap[TEXT("sizenesw")] = OCR_SIZENESW;
-			IDC_SystemMap[TEXT("sizens")] = OCR_SIZENS;
-			IDC_SystemMap[TEXT("sizenwse")] = OCR_SIZENWSE;
-			IDC_SystemMap[TEXT("sizewe")] = OCR_SIZEWE;
-			//IDC_SystemMap[TEXT("uparrow")] = OCR_UPARROW;
-			IDC_SystemMap[TEXT("wait")] = OCR_WAIT;
+			IDC_SystemMap[TEXT("ibeam"_hash)] = OCR_IBEAM;
+			IDC_SystemMap[TEXT("no"_hash)] = OCR_NO;
+			IDC_SystemMap[TEXT("sizeall"_hash)] = OCR_SIZEALL;
+			IDC_SystemMap[TEXT("sizenesw"_hash)] = OCR_SIZENESW;
+			IDC_SystemMap[TEXT("sizens"_hash)] = OCR_SIZENS;
+			IDC_SystemMap[TEXT("sizenwse"_hash)] = OCR_SIZENWSE;
+			IDC_SystemMap[TEXT("sizewe"_hash)] = OCR_SIZEWE;
+			//IDC_SystemMap[TEXT("uparrow"_hash)] = OCR_UPARROW;
+			IDC_SystemMap[TEXT("wait"_hash)] = OCR_WAIT;
 		}
 
 		const auto got = IDC_SystemMap.find(cursor);
@@ -845,29 +955,36 @@ namespace Dcx {
 	// convert an area name into a hit zone
 	const DWORD parseAreaType(const TString &tsArea)
 	{
-		static std::map<TString, DWORD> mIRC_AreaMap;
+		return parseAreaType(std::hash<TString>()(tsArea));
+	}
+
+	// convert an area name (hashed) into a hit zone
+	const DWORD parseAreaType(const std::hash<TString>::result_type &tsArea)
+	{
+		static std::map<const std::hash<TString>::result_type, DWORD> mIRC_AreaMap;
+
 		if (mIRC_AreaMap.empty()) {
-			mIRC_AreaMap[TEXT("client")] = HTCLIENT;
-			//mIRC_AreaMap[TEXT("nowhere")] = HTNOWHERE;
-			mIRC_AreaMap[TEXT("caption")] = HTCAPTION;
-			mIRC_AreaMap[TEXT("sysmenu")] = HTSYSMENU;
-			mIRC_AreaMap[TEXT("size")] = HTGROWBOX;
-			mIRC_AreaMap[TEXT("menu")] = HTMENU;
-			mIRC_AreaMap[TEXT("vscroll")] = HTVSCROLL;
-			mIRC_AreaMap[TEXT("help")] = HTHELP;
-			mIRC_AreaMap[TEXT("hscroll")] = HTHSCROLL;
-			mIRC_AreaMap[TEXT("min")] = HTMINBUTTON;
-			mIRC_AreaMap[TEXT("max")] = HTMAXBUTTON;
-			mIRC_AreaMap[TEXT("left")] = HTLEFT;
-			mIRC_AreaMap[TEXT("right")] = HTRIGHT;
-			mIRC_AreaMap[TEXT("top")] = HTTOP;
-			mIRC_AreaMap[TEXT("topleft")] = HTTOPLEFT;
-			mIRC_AreaMap[TEXT("topright")] = HTTOPRIGHT;
-			mIRC_AreaMap[TEXT("bottom")] = HTBOTTOM;
-			mIRC_AreaMap[TEXT("bottomleft")] = HTBOTTOMLEFT;
-			mIRC_AreaMap[TEXT("bottomright")] = HTBOTTOMRIGHT;
-			mIRC_AreaMap[TEXT("border")] = HTBORDER;
-			mIRC_AreaMap[TEXT("close")] = HTCLOSE;
+			mIRC_AreaMap[TEXT("client"_hash)] = HTCLIENT;
+			//mIRC_AreaMap[TEXT("nowhere"_hash)] = HTNOWHERE;
+			mIRC_AreaMap[TEXT("caption"_hash)] = HTCAPTION;
+			mIRC_AreaMap[TEXT("sysmenu"_hash)] = HTSYSMENU;
+			mIRC_AreaMap[TEXT("size"_hash)] = HTGROWBOX;
+			mIRC_AreaMap[TEXT("menu"_hash)] = HTMENU;
+			mIRC_AreaMap[TEXT("vscroll"_hash)] = HTVSCROLL;
+			mIRC_AreaMap[TEXT("help"_hash)] = HTHELP;
+			mIRC_AreaMap[TEXT("hscroll"_hash)] = HTHSCROLL;
+			mIRC_AreaMap[TEXT("min"_hash)] = HTMINBUTTON;
+			mIRC_AreaMap[TEXT("max"_hash)] = HTMAXBUTTON;
+			mIRC_AreaMap[TEXT("left"_hash)] = HTLEFT;
+			mIRC_AreaMap[TEXT("right"_hash)] = HTRIGHT;
+			mIRC_AreaMap[TEXT("top"_hash)] = HTTOP;
+			mIRC_AreaMap[TEXT("topleft"_hash)] = HTTOPLEFT;
+			mIRC_AreaMap[TEXT("topright"_hash)] = HTTOPRIGHT;
+			mIRC_AreaMap[TEXT("bottom"_hash)] = HTBOTTOM;
+			mIRC_AreaMap[TEXT("bottomleft"_hash)] = HTBOTTOMLEFT;
+			mIRC_AreaMap[TEXT("bottomright"_hash)] = HTBOTTOMRIGHT;
+			mIRC_AreaMap[TEXT("border"_hash)] = HTBORDER;
+			mIRC_AreaMap[TEXT("close"_hash)] = HTCLOSE;
 		}
 
 		const auto got = mIRC_AreaMap.find(tsArea);
@@ -879,20 +996,20 @@ namespace Dcx {
 	}
 
 	// load a cursor from a file
-	// throws a runtime_error on fail.
+	// throws a dcxException on fail.
 	HCURSOR dcxLoadCursorFromFile(const TString &filename)
 	{
-		const auto hCursor = (HCURSOR)LoadImage(nullptr, filename.to_chr(), IMAGE_CURSOR, 0, 0, LR_DEFAULTSIZE | LR_LOADFROMFILE);
+		const auto hCursor = static_cast<HCURSOR>(LoadImage(nullptr, filename.to_chr(), IMAGE_CURSOR, 0, 0, LR_DEFAULTSIZE | LR_LOADFROMFILE));
 		if (hCursor == nullptr)
 			throw Dcx::dcxException("Unable to load cursor file");
 		return hCursor;
 	}
 
 	// load a cursor from a resource
-	// throws a runtime_error on fail.
-	HCURSOR dcxLoadCursorFromResource(const PTCHAR CursorType)
+	// throws a dcxException on fail.
+	HCURSOR dcxLoadCursorFromResource(const TCHAR *CursorType)
 	{
-		auto hCursor = (HCURSOR)LoadImage(nullptr, CursorType, IMAGE_CURSOR, 0, 0, LR_DEFAULTSIZE | LR_SHARED);
+		auto hCursor = static_cast<HCURSOR>(LoadImage(nullptr, CursorType, IMAGE_CURSOR, 0, 0, LR_DEFAULTSIZE | LR_SHARED));
 		if (hCursor == nullptr)
 			throw Dcx::dcxException("Unable to load cursor resource");
 		return hCursor;
@@ -901,7 +1018,7 @@ namespace Dcx {
 	// load a cursor from a file or resource, depending on flags
 	// throws a runtime_error on fail.
 	// throws an invalid_argument on failure to access file.
-	HCURSOR dcxLoadCursor(const UINT iFlags, const PTCHAR CursorType, bool &bCursorFromFile, const HCURSOR oldCursor, TString &filename)
+	HCURSOR dcxLoadCursor(const UINT iFlags, const TCHAR *CursorType, bool &bCursorFromFile, const HCURSOR oldCursor, TString &filename)
 	{
 		HCURSOR hCursor = nullptr;
 		HCURSOR newCursor = nullptr;
@@ -943,31 +1060,47 @@ namespace Dcx {
 	// delete custom cursor for specific area.
 	void deleteAreaCursor(const UINT iType)
 	{
+#if _MSC_VER < 1911
 		const auto it = m_vMapOfAreas.find(iType);
 		if (it != m_vMapOfAreas.end())
 		{
 			DestroyCursor(it->second);
 			m_vMapOfAreas.erase(it);
 		}
+#else
+		if (const auto it = m_vMapOfAreas.find(iType); it != m_vMapOfAreas.end())
+		{
+			DestroyCursor(it->second);
+			m_vMapOfAreas.erase(it);
+		}
+#endif
 	}
 
 	// get custom cursor to use in place of specific system cursor.
 	HCURSOR SystemToCustomCursor(const HCURSOR hCursor)
 	{
+#if _MSC_VER < 1911
 		const auto it = m_vMapOfCursors.find(hCursor);
 		if (it != m_vMapOfCursors.end())
 			return it->second;
-
+#else
+		if (const auto it = m_vMapOfCursors.find(hCursor); it != m_vMapOfCursors.end())
+			return it->second;
+#endif
 		return nullptr;
 	}
 
 	// get the custom cursor to use with a specific area
 	HCURSOR AreaToCustomCursor(const UINT iType)
 	{
+#if _MSC_VER < 1911
 		const auto it = m_vMapOfAreas.find(iType);
 		if (it != m_vMapOfAreas.end())
 			return it->second;
-
+#else		
+		if (const auto it = m_vMapOfAreas.find(iType); it != m_vMapOfAreas.end())
+			return it->second;
+#endif
 		return nullptr;
 	}
 
@@ -981,12 +1114,20 @@ namespace Dcx {
 	// delete a custom cursor.
 	void deleteCursor(const HCURSOR hCursor)
 	{
+#if _MSC_VER < 1911
 		const auto it = m_vMapOfCursors.find(hCursor);
 		if (it != m_vMapOfCursors.end())
 		{
 			DestroyCursor(it->second);
 			m_vMapOfCursors.erase(it);
 		}
+#else
+		if (const auto it = m_vMapOfCursors.find(hCursor); it != m_vMapOfCursors.end())
+		{
+			DestroyCursor(it->second);
+			m_vMapOfCursors.erase(it);
+		}
+#endif
 	}
 
 	// patch a dll function using detours

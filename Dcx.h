@@ -47,7 +47,7 @@ namespace std
 namespace Dcx
 {
 	extern TString m_sLastError;
-	extern BYTE m_iGhostDrag;
+	extern byte m_iGhostDrag;
 	extern IClassFactory *m_pClassFactory;
 	extern bool m_bDX9Installed;
 	extern HMODULE m_hRichEditLib;
@@ -66,7 +66,7 @@ namespace Dcx
 	extern bool setting_bStaticColours;
 
 	HCURSOR dcxLoadCursorFromFile(const TString &filename);
-	HCURSOR dcxLoadCursorFromResource(const PTCHAR CursorType);
+	HCURSOR dcxLoadCursorFromResource(const TCHAR *CursorType);
 
 	//// determine whether _Ty is a Number type (excluding char / wchar)
 	//template<class _Ty>
@@ -626,6 +626,57 @@ namespace Dcx
 		}
 	};
 
+	struct dcxCursorPos
+		: POINT
+	{
+		dcxCursorPos()
+		{
+			if (GetCursorPos(this) == FALSE)
+				throw Dcx::dcxException(TEXT("Unable to get Cursor Position"));
+		}
+		dcxCursorPos(HWND hwnd)
+			: dcxCursorPos()
+		{
+			MapWindowPoints(nullptr, hwnd, this, 1);
+		}
+		~dcxCursorPos() = default;
+	};
+
+	struct dcxWindowRect
+		: RECT
+	{
+		dcxWindowRect() = delete;
+		// Gets the window rect for hwnd
+		dcxWindowRect(HWND hwnd)
+		{
+			if (GetWindowRect(hwnd, this) == FALSE)
+				throw Dcx::dcxException(TEXT("Unable to get Window Rect"));
+		}
+
+		// Gets the window rect for hwnd & maps it to hMap
+		dcxWindowRect(HWND hwnd, HWND hMap)
+			: dcxWindowRect(hwnd)
+		{
+			SetLastError(0U);
+			MapWindowRect(nullptr, hMap, this);
+			if (GetLastError() != 0U)
+				throw Dcx::dcxException(TEXT("Unable to Map Window Rect"));
+		}
+		~dcxWindowRect() = default;
+	};
+
+	struct dcxClassName
+		: stString<257>
+	{
+		dcxClassName() = delete;
+		// Gets the class name for hwnd
+		dcxClassName(HWND hwnd)
+		{
+			GetClassName(hwnd, this->data(), gsl::narrow_cast<int32_t>(this->size()));
+		}
+		~dcxClassName() = default;
+	};
+
 	using MapOfCursors = std::map<HCURSOR, HCURSOR>;
 	using MapOfAreas = std::map<UINT, HCURSOR>;
 
@@ -677,10 +728,10 @@ namespace Dcx
 	void setupOSCompatibility(void);
 	void freeOSCompatibility(void);
 
-	IClassFactory* getClassFactory() noexcept;
-	const TCHAR * getLastError() noexcept;
-	const BYTE &getGhostDrag() noexcept;
-	bool setGhostDrag(const BYTE newAlpha);
+	IClassFactory *const getClassFactory() noexcept;
+	const TCHAR *const getLastError() noexcept;
+	const byte &getGhostDrag() noexcept;
+	bool setGhostDrag(const byte newAlpha) noexcept;
 	const bool &isDX9Installed() noexcept;
 	bool isUnloadSafe();
 	//bool isFile(const WCHAR *const file);
@@ -695,11 +746,14 @@ namespace Dcx
 	//int mark(TCHAR *const data, const TString & tsDName, const TString & tsCallbackName);
 	int mark(const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &data, const TString & tsDName, const TString & tsCallbackName);
 	LRESULT CALLBACK mIRCSubClassWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-	const char *const dcxGetFormattedString(const TCHAR *const fmt, ...);
-	const PTCHAR parseCursorType(const TString & cursor);
+	//const char *const dcxGetFormattedString(const TCHAR *const fmt, ...);
+	const TCHAR *const parseCursorType(const TString & cursor);
+	const TCHAR *const parseCursorType(const std::hash<TString>::result_type & cursor);
 	const DWORD parseSystemCursorType(const TString & cursor);
+	const DWORD parseSystemCursorType(const std::hash<TString>::result_type & cursor);
 	const DWORD parseAreaType(const TString &tsArea);
-	HCURSOR dcxLoadCursor(const UINT iFlags, const PTCHAR CursorType, bool &bCursorFromFile, const HCURSOR oldCursor, TString &filename);
+	const DWORD parseAreaType(const std::hash<TString>::result_type &tsArea);
+	HCURSOR dcxLoadCursor(const UINT iFlags, const TCHAR *CursorType, bool &bCursorFromFile, const HCURSOR oldCursor, TString &filename);
 	void setAreaCursor(const HCURSOR hCursor, const UINT iType);
 	void deleteAreaCursor(const UINT iType);
 	HCURSOR SystemToCustomCursor(const HCURSOR hCursor);
@@ -718,7 +772,7 @@ namespace Dcx
 	// parse_string, taken from somewhere on stackoverflow (sorry can't remember where) & modified for our use.
 	template <typename RETURN_TYPE, typename STRING_TYPE>
 	RETURN_TYPE parse_string(const STRING_TYPE *str) {
-		static_assert(std::is_same<WCHAR, STRING_TYPE>::value || std::is_same<CHAR, STRING_TYPE>::value, "Only WCHAR, CHAR, or TCHAR type supported!");
+		static_assert(std::is_same_v<WCHAR, STRING_TYPE> || std::is_same_v<CHAR, STRING_TYPE>, "Only WCHAR, CHAR, or TCHAR type supported!");
 
 		std::basic_stringstream<STRING_TYPE> buf;
 		buf << str;
@@ -729,58 +783,113 @@ namespace Dcx
 
 	namespace details {
 
-		// Casts any numeric type as another numeric type.
-		template < typename tResult, typename tInput >
-		std::enable_if_t<is_Numeric<tInput>::value, inline constexpr tResult> numeric_cast(tInput &in) noexcept
-		{
-			static_assert(is_Numeric_v<tResult>, "A Numeric return type is required");
-			return static_cast<tResult>(in);
-		}
+	//	// Casts any numeric type as another numeric type.
+	//	template < typename tResult, typename tInput >
+	//	std::enable_if_t<is_Numeric_v<tInput>, inline constexpr tResult> numeric_cast(tInput &in) noexcept
+	//	{
+	//		static_assert(is_Numeric_v<tResult>, "A Numeric return type is required");
+	//		return gsl::narrow_cast<tResult>(in);
+	//	}
+//
+	//	// Casts any string as a number
+	//	template < typename tResult, typename tInput >
+	//	std::enable_if_t<!is_Numeric_v<tInput> && !std::is_convertible_v<tInput, tResult>, tResult> numeric_cast(tInput &in)
+	//	{
+	//		static_assert(is_Numeric_v<tResult>, "A Numeric return type is required");
+	//		std::stringstream buf;
+	//		buf << in;
+	//		tResult result;
+	//		buf >> result;
+	//		return result;
+	//	}
+//
+	//	// Converts any object to a numeric using implicit-conversion.
+	//	template < typename tResult, typename tInput >
+	//	std::enable_if_t<!is_Numeric_v<tInput> && std::is_convertible_v<tInput, tResult>, inline constexpr tResult> numeric_cast(tInput &in)
+	//	{
+	//		static_assert(is_Numeric_v<tResult>, "A Numeric return type is required");
+	//		return in;
+	//	}
+	//}
+//
+	//// Converts any object to a numeric.
+	////template < typename tResult, typename tInput >
+	////inline constexpr tResult numeric_cast(tInput &in)
+	////{
+	////	static_assert(is_Numeric_v<tResult>, "A Numeric return type is required");
+	////	return details::numeric_cast<tResult>(in);
+	////}
+//
+	//template < typename tResult, typename tInput >
+	//inline constexpr tResult numeric_cast(tInput &&in)
+	//{
+	//	static_assert(is_Numeric_v<tResult>, "A Numeric return type is required");
+	//	return details::numeric_cast<tResult>(std::forward<tInput>(in));
+	//}
+//
+	//// Converts any pointer to a numeric.
+	//template < typename tResult, typename tInput, typename = std::enable_if_t<!std::is_same_v<std::remove_cv_t<tInput>,char> && !std::is_same_v<std::remove_cv_t<tInput>,wchar_t> > >
+	//inline constexpr tResult numeric_cast(tInput *in)
+	//{
+	//	static_assert(is_Numeric_v<tResult>, "A Numeric return type is required");
+	//	return reinterpret_cast<tResult>(in);
+	//}
+//
+	////// Converts any calculation to a numeric.
+	////template < typename tResult, typename tInput, typename = std::enable_if_t<std::is_arithmetic_v<tInput> > >
+	////inline constexpr tResult numeric_cast(tInput in)
+	////{
+	////	static_assert(is_Numeric_v<tResult>, "A Numeric return type is required");
+	////	return static_cast<tResult>(in);
+	////}
 
-		// Casts any string as a number
 		template < typename tResult, typename tInput >
-		std::enable_if_t<!is_Numeric<tInput>::value && !std::is_convertible<tInput, tResult>::value, tResult> numeric_cast(tInput &in)
+		inline constexpr tResult numeric_cast(tInput &in) noexcept
 		{
 			static_assert(is_Numeric_v<tResult>, "A Numeric return type is required");
-			std::stringstream buf;
-			buf << in;
-			tResult result;
-			buf >> result;
-			return result;
-		}
-
-		// Converts any object to a numeric using implicit-conversion.
-		template < typename tResult, typename tInput >
-		std::enable_if_t<!is_Numeric<tInput>::value && std::is_convertible<tInput, tResult>::value, inline constexpr tResult> numeric_cast(tInput &in)
-		{
-			static_assert(is_Numeric_v<tResult>, "A Numeric return type is required");
-			return in;
+			if constexpr(is_Numeric_v<tInput>)
+			{
+				// Casts any numeric type as another numeric type.
+				return gsl::narrow_cast<tResult>(in);
+			}
+			else if constexpr(!std::is_convertible_v<tInput, tResult>)
+			{
+				// Casts any string as a number
+				std::stringstream buf;
+				buf << in;
+				tResult result;
+				buf >> result;
+				return result;
+			}
+			else {
+				// Converts any object to a numeric using implicit-conversion.
+				return in;
+			}
 		}
 	}
 
 	// Converts any object to a numeric.
+	//template < typename tResult, typename tInput >
+	//inline constexpr tResult numeric_cast(tInput &in)
+	//{
+	//	static_assert(is_Numeric_v<tResult>, "A Numeric return type is required");
+	//	return details::numeric_cast<tResult>(in);
+	//}
+
 	template < typename tResult, typename tInput >
-	inline constexpr tResult numeric_cast(tInput &in)
+	inline constexpr tResult numeric_cast(tInput &&in)
 	{
 		static_assert(is_Numeric_v<tResult>, "A Numeric return type is required");
-		return details::numeric_cast<tResult>(in);
+		return details::numeric_cast<tResult>(std::forward<tInput>(in));
 	}
 
 	// Converts any pointer to a numeric.
-	template < typename tResult, typename tInput, typename = std::enable_if_t<!std::is_same_v<std::remove_cv_t<tInput>,char> && !std::is_same_v<std::remove_cv_t<tInput>,wchar_t> > >
+	template < typename tResult, typename tInput, typename = std::enable_if_t<!std::is_same_v<std::remove_cv_t<tInput>, char> && !std::is_same_v<std::remove_cv_t<tInput>, wchar_t> > >
 	inline constexpr tResult numeric_cast(tInput *in)
 	{
 		static_assert(is_Numeric_v<tResult>, "A Numeric return type is required");
 		return reinterpret_cast<tResult>(in);
 	}
-
-	//// Converts any calculation to a numeric.
-	//template < typename tResult, typename tInput, typename = std::enable_if_t<std::is_arithmetic_v<tInput> > >
-	//inline constexpr tResult numeric_cast(tInput in)
-	//{
-	//	static_assert(is_Numeric_v<tResult>, "A Numeric return type is required");
-	//	return static_cast<tResult>(in);
-	//}
 
 	// find() - takes an array object, & something to compare against. (same as std::find(begin(),end(),val) )
 	template <typename Res, typename obj, typename _Val>
@@ -818,6 +927,7 @@ namespace Dcx
 	template <typename Cont, typename Val>
 	bool eraseIfFound(Cont &con, Val &v)
 	{
+#if _MSC_VER < 1911
 		const auto itEnd = con.end();
 		const auto itGot = std::find(con.begin(), itEnd, v);
 		if (itGot != itEnd)
@@ -826,5 +936,15 @@ namespace Dcx
 			return true;
 		}
 		return false;
+#else
+		const auto itEnd = con.end();
+		
+		if (const auto itGot = std::find(con.begin(), itEnd, v); itGot != itEnd)
+		{
+			con.erase(itGot);
+			return true;
+		}
+		return false;
+#endif
 	}
 }
