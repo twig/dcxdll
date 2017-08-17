@@ -335,8 +335,9 @@ const bool XMenuBar::hasCallback() const noexcept {
 const bool XMenuBar::parseCallback(const UINT menuID) {
 	TString result;
 	
-	mIRCLinker::tsEvalex(result, TEXT("$%s(%d)"), this->m_callback.to_chr(), menuID);
-	
+	//mIRCLinker::tsEvalex(result, TEXT("$%s(%d)"), this->m_callback.to_chr(), menuID);
+	mIRCLinker::eval(result, TEXT("$%(%)"), m_callback, menuID);
+
 	return (result == TEXT("$true"));
 
 	//return mIRCLinker::evalex(nullptr, 0, TEXT("$%s(%d)"), m_callback.to_chr(), menuID);

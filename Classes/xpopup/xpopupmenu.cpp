@@ -1132,8 +1132,10 @@ void XPopupMenu::convertMenu( HMENU hMenu, const BOOL bForce )
 					// fixes identifiers in the dialog menu not being resolved. 
 					// TODO Needs testing to see if it causes any other issues, like double eval's)
 #if DCX_USE_HASHING
+					//if (bForce && this->getNameHash() == TEXT("dialog"_hash))
+					//	mIRCLinker::tsEval(tsItem, tsItem.to_chr()); // we can use tsItem for both args as the second arg is copied & used before the first arg is set with the return value.
 					if (bForce && this->getNameHash() == TEXT("dialog"_hash))
-						mIRCLinker::tsEval(tsItem, tsItem.to_chr()); // we can use tsItem for both args as the second arg is copied & used before the first arg is set with the return value.
+						mIRCLinker::eval(tsItem, tsItem); // we can use tsItem for both args as the second arg is copied & used before the first arg is set with the return value.
 #else
 					if (bForce && this->getName() == TEXT("dialog"))
 						mIRCLinker::tsEval(tsItem, tsItem.to_chr()); // we can use tsItem for both args as the second arg is copied & used before the first arg is set with the return value.

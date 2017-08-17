@@ -34,10 +34,10 @@ DcxLine::DcxLine(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwn
 	this->parseControlStyles(styles, &Styles, &ExStyles, &bNoTheme);
 
 	m_Hwnd = CreateWindowEx(
-		static_cast<DWORD>(ExStyles) | WS_EX_TRANSPARENT,
+		gsl::narrow_cast<DWORD>(ExStyles) | WS_EX_TRANSPARENT,
 		TEXT("STATIC"),
 		nullptr,
-		WS_CHILD | static_cast<DWORD>(Styles),
+		WS_CHILD | gsl::narrow_cast<DWORD>(Styles),
 		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
 		mParentHwnd,
 		(HMENU)ID,
@@ -198,11 +198,10 @@ void DcxLine::parseInfoRequest( const TString & input, const refString<TCHAR, MI
  * blah
  */
 
-void DcxLine::parseCommandRequest( const TString & input ) {
-	const XSwitchFlags flags(input.gettok(3));
-
+void DcxLine::parseCommandRequest( const TString & input )
+{
 	//xdid -t [NAME] [ID] [SWITCH] [TEXT]
-	if (flags[TEXT('t')]) {
+	if (const XSwitchFlags flags(input.gettok(3)); flags[TEXT('t')]) {
 		this->m_sText = input.getlasttoks().trim();	// tok 4, -1
 
 		// redraw if transparent
@@ -249,10 +248,9 @@ LRESULT DcxLine::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 				PAINTSTRUCT ps;
 
 				auto hdc = BeginPaint(m_Hwnd, &ps);
+				Auto(EndPaint(m_Hwnd, &ps));
 
 				this->DrawClientArea(hdc);
-
-				EndPaint( m_Hwnd, &ps );
 			}
 			break;
 

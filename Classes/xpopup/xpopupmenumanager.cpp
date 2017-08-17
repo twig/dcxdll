@@ -251,42 +251,57 @@ LRESULT XPopupMenuManager::OnCommand(HWND mHwnd, WPARAM wParam, LPARAM lParam)
 				return 0L;
 			}
 		}
-		switch (LOWORD(wParam))
+		if (dcxSignal.xdock)
 		{
-		//case 110: // menubar, can't be re-enabled from menu obviously
-		//	{
-		//		if (IsWindowVisible(menubar))
-		//			mIRCSignalDCX(dcxSignal.xdock, TEXT("menubar disabled"));
-		//		else
-		//			mIRCSignalDCX(dcxSignal.xdock, TEXT("menubar enabled"));
-		//	}
-		//	break;
-		case 111: // toolbar
+			switch (LOWORD(wParam))
 			{
+				//case 110: // menubar, can't be re-enabled from menu obviously
+				//	{
+				//		if (IsWindowVisible(menubar))
+				//			mIRCSignalDCX(dcxSignal.xdock, TEXT("menubar disabled"));
+				//		else
+				//			mIRCSignalDCX(dcxSignal.xdock, TEXT("menubar enabled"));
+				//	}
+				//	break;
+			case 111: // toolbar
+			{
+				//if (IsWindowVisible(mIRCLinker::getToolbar()))
+				//	mIRCLinker::signalex(dcxSignal.xdock, TEXT("toolbar disabled"));
+				//else
+				//	mIRCLinker::signalex(dcxSignal.xdock, TEXT("toolbar enabled"));
 				if (IsWindowVisible(mIRCLinker::getToolbar()))
-					mIRCLinker::signalex(dcxSignal.xdock, TEXT("toolbar disabled"));
+					mIRCLinker::signal(TEXT("toolbar disabled"));
 				else
-					mIRCLinker::signalex(dcxSignal.xdock, TEXT("toolbar enabled"));
+					mIRCLinker::signal(TEXT("toolbar enabled"));
 			}
 			break;
-		case 112: // switchbar
+			case 112: // switchbar
 			{
+				//if (IsWindowVisible(mIRCLinker::getSwitchbar()))
+				//	mIRCLinker::signalex(dcxSignal.xdock, TEXT("switchbar disabled"));
+				//else
+				//	mIRCLinker::signalex(dcxSignal.xdock, TEXT("switchbar enabled"));
 				if (IsWindowVisible(mIRCLinker::getSwitchbar()))
-					mIRCLinker::signalex(dcxSignal.xdock, TEXT("switchbar disabled"));
+					mIRCLinker::signal(TEXT("switchbar disabled"));
 				else
-					mIRCLinker::signalex(dcxSignal.xdock, TEXT("switchbar enabled"));
+					mIRCLinker::signal(TEXT("switchbar enabled"));
 			}
 			break;
-		case 210: // treebar
+			case 210: // treebar
 			{
+				//if (IsWindowVisible(mIRCLinker::getTreebar()))
+				//	mIRCLinker::signalex(dcxSignal.xdock, TEXT("treebar disabled"));
+				//else
+				//	mIRCLinker::signalex(dcxSignal.xdock, TEXT("treebar enabled"));
 				if (IsWindowVisible(mIRCLinker::getTreebar()))
-					mIRCLinker::signalex(dcxSignal.xdock, TEXT("treebar disabled"));
+					mIRCLinker::signal(TEXT("treebar disabled"));
 				else
-					mIRCLinker::signalex(dcxSignal.xdock, TEXT("treebar enabled"));
+					mIRCLinker::signal(TEXT("treebar enabled"));
 			}
 			break;
-		default:
-			break;
+			default:
+				break;
+			}
 		}
 	}
 	return mIRCLinker::callDefaultWindowProc(mHwnd, WM_COMMAND, wParam, lParam);
@@ -463,7 +478,8 @@ void XPopupMenuManager::parseCommand( const TString & input, XPopupMenu *const p
 
 		const auto ID = TrackPopupMenuEx(p_Menu->getMenuHandle(), TPM_RETURNCMD | mflags, x, y, m_hMenuOwner, nullptr);
 
-		mIRCLinker::execex(TEXT("//.signal -n XPopup-%s %d"), p_Menu->getName( ).to_chr( ), ID );
+		//mIRCLinker::execex(TEXT("//.signal -n XPopup-%s %d"), p_Menu->getName( ).to_chr( ), ID );
+		mIRCLinker::exec(TEXT("//.signal -n XPopup-% %"), p_Menu->getName(), ID);
 	}
 	// xpopup -t -> [MENU] [SWITCH] [STYLE]
 	else if (flags[TEXT('t')] ) {
@@ -1374,7 +1390,8 @@ void XPopupMenuManager::LoadPopupsFromXML(const TiXmlElement *const popups, cons
 		auto tsAttr = GetMenuAttributeFromXML(tmp.c_str(), popup, globalStyles);	// tok i
 
 		if (!tsAttr.empty()) {
-			mIRCLinker::tsEval(tsAttr, tsAttr.to_chr());
+			//mIRCLinker::tsEval(tsAttr, tsAttr.to_chr());
+			mIRCLinker::eval(tsAttr, tsAttr);
 			menu->setColor(XPopupMenu::MenuColours(i), tsAttr.to_<COLORREF>());
 		}
 		++i;
@@ -1388,7 +1405,8 @@ void XPopupMenuManager::LoadPopupsFromXML(const TiXmlElement *const popups, cons
 		{
 			TString filename;
 
-			mIRCLinker::tsEval(filename, tsBkg.to_chr());
+			//mIRCLinker::tsEval(filename, tsBkg.to_chr());
+			mIRCLinker::eval(filename, tsBkg);
 
 			auto hBitmap = dcxLoadBitmap(nullptr, filename);
 
@@ -1415,7 +1433,8 @@ void XPopupMenuManager::LoadPopupsFromXML(const TiXmlElement *const popups, cons
 			if (!tsSrc.empty())
 			{
 				TString tsFilename;
-				mIRCLinker::tsEval(tsFilename, tsSrc.to_chr());
+				//mIRCLinker::tsEval(tsFilename, tsSrc.to_chr());
+				mIRCLinker::eval(tsFilename, tsSrc);
 
 				if (!tsFilename.empty())
 				{

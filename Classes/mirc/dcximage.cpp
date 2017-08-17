@@ -53,10 +53,10 @@ DcxImage::DcxImage(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentH
 	this->parseControlStyles(styles, &Styles, &ExStyles, &bNoTheme);
 
 	m_Hwnd = CreateWindowEx(
-		static_cast<DWORD>(ExStyles),
+		gsl::narrow_cast<DWORD>(ExStyles),
 		TEXT("STATIC"),
 		nullptr,
-		WS_CHILD | static_cast<DWORD>(Styles),
+		WS_CHILD | gsl::narrow_cast<DWORD>(Styles),
 		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
 		mParentHwnd,
 		(HMENU)ID,
@@ -124,10 +124,8 @@ void DcxImage::parseControlStyles(const TString &styles, LONG *Styles, LONG *ExS
 
 void DcxImage::parseInfoRequest( const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const
 {
-	const auto prop(input.getfirsttok(3));
-
 	// [NAME] [ID] [PROP]
-	if (prop == TEXT("fname"))
+	if (const auto prop(input.getfirsttok(3)); prop == TEXT("fname"))
 		szReturnValue = m_tsFilename.to_chr();
 	else
 		parseGlobalInfoRequest(input, szReturnValue);
@@ -159,13 +157,8 @@ bool DcxImage::LoadGDIPlusImage(const TString &flags, TString &filename) {
 
 	this->m_pImage = new Gdiplus::Image(filename.to_chr(),TRUE);
 
-	// couldnt allocate image object.
-	//if (this->m_pImage == nullptr)
-	//	throw Dcx::dcxException("Couldn't allocate image object.");
-
 	// for some reason this returns `OutOfMemory` when the file doesnt exist instead of `FileNotFound`
-	const auto status = this->m_pImage->GetLastStatus();
-	if (status != Gdiplus::Status::Ok) {
+	if (const auto status = this->m_pImage->GetLastStatus(); status != Gdiplus::Status::Ok) {
 		PreloadData();
 		throw Dcx::dcxException(TEXT("Failed to load image: %"),GetLastStatusStr(status));
 	}
@@ -300,7 +293,7 @@ void DcxImage::parseCommandRequest( const TString & input) {
 }
 
 #ifdef DCX_USE_GDIPLUS
-void DcxImage::DrawGDIImage(HDC hdc, int x, int y, int w, int h)
+void DcxImage::DrawGDIImage(HDC hdc, const int x, const int y, const int w, const int h)
 {
 	Gdiplus::Graphics grphx( hdc );
 
@@ -339,9 +332,7 @@ void DcxImage::DrawBMPImage(HDC hdc, const int x, const int y, const int w, cons
 #if DCX_USE_WRAPPERS
 	Dcx::dcxHDCBitmapResource hdcbmp(hdc, m_hBitmap);
 
-	BITMAP bmp;
-
-	if (GetObject(m_hBitmap, sizeof(BITMAP), &bmp) != 0)
+	if (BITMAP bmp{}; GetObject(m_hBitmap, sizeof(BITMAP), &bmp) != 0)
 	{
 		if (m_clrTransColor != CLR_INVALID)
 			TransparentBlt(hdc, x, y, w, h, hdcbmp, 0, 0, bmp.bmWidth, bmp.bmHeight, m_clrTransColor);
@@ -356,9 +347,7 @@ void DcxImage::DrawBMPImage(HDC hdc, const int x, const int y, const int w, cons
 
 	Auto(DeleteDC(hdcbmp));
 
-	BITMAP bmp;
-
-	if (GetObject(m_hBitmap, sizeof(BITMAP), &bmp) != 0)
+	if (BITMAP bmp{}; GetObject(m_hBitmap, sizeof(BITMAP), &bmp) != 0)
 	{
 		auto oldBitmap = SelectBitmap(hdcbmp, m_hBitmap);
 
@@ -432,10 +421,9 @@ LRESULT DcxImage::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 			bParsed = TRUE;
 			PAINTSTRUCT ps; 
 			auto hdc = BeginPaint(m_Hwnd, &ps);
+			Auto(EndPaint(m_Hwnd, &ps));
 
 			this->DrawClientArea(hdc);
-
-			EndPaint(m_Hwnd, &ps);
 		}
 		break;
 

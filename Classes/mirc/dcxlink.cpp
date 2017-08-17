@@ -38,10 +38,10 @@ DcxLink::DcxLink(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwn
 	this->parseControlStyles(styles, &Styles, &ExStyles, &bNoTheme);
 
 	m_Hwnd = CreateWindowEx(
-		static_cast<DWORD>(ExStyles),
+		gsl::narrow_cast<DWORD>(ExStyles),
 		TEXT("STATIC"),
 		nullptr,
-		WS_CHILD | static_cast<DWORD>(Styles),
+		WS_CHILD | gsl::narrow_cast<DWORD>(Styles),
 		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
 		mParentHwnd,
 		(HMENU)ID,
@@ -272,8 +272,7 @@ LRESULT DcxLink::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 				return TRUE;
 			}
 			else if ( LOWORD( lParam ) == HTCLIENT && (HWND) wParam == m_Hwnd ) {
-				auto hCursor = LoadCursor(nullptr, IDC_HAND);
-				if (GetCursor() != hCursor)
+				if (auto hCursor = LoadCursor(nullptr, IDC_HAND); GetCursor() != hCursor)
 					SetCursor( hCursor );
 				bParsed = TRUE;
 				return TRUE;
@@ -302,10 +301,9 @@ LRESULT DcxLink::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 			PAINTSTRUCT ps;
 
 			auto hdc = BeginPaint( m_Hwnd, &ps );
+			Auto(EndPaint(m_Hwnd, &ps));
 
 			this->DrawClientArea(hdc);
-
-			EndPaint( m_Hwnd, &ps );
 		}
 		break;
 
@@ -457,14 +455,12 @@ void DcxLink::DrawClientArea(HDC hdc)
 	if (hFont == nullptr)
 		hFont = GetStockFont(DEFAULT_GUI_FONT /*SYSTEM_FONT*/);
 
-	LOGFONT lf;
-	if (GetObject(hFont, sizeof(LOGFONT), &lf) != 0)
+	if (LOGFONT lf{}; GetObject(hFont, sizeof(LOGFONT), &lf) != 0)
 	{
 
 		lf.lfUnderline = TRUE;
 
-		auto hNewFont = CreateFontIndirect(&lf);
-		if (hNewFont != nullptr)
+		if (auto hNewFont = CreateFontIndirect(&lf); hNewFont != nullptr)
 		{
 			Auto(DeleteFont(hNewFont));
 

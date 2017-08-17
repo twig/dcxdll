@@ -132,7 +132,8 @@ SIZE XPopupMenuItem::getItemSize( const HWND mHwnd ) {
 			}
 		}
 		else
-			mIRCLinker::tsEval(m_tsItemText, m_tsItemText.to_chr());
+			//mIRCLinker::tsEval(m_tsItemText, m_tsItemText.to_chr());
+			mIRCLinker::eval(m_tsItemText, m_tsItemText);
 #else
 		const auto &tsType(this->m_pXParentMenu->getName());
 		if ( (tsType == TEXT("mirc")) || (tsType == TEXT("mircbar")) || (tsType == TEXT("dialog")) ) {

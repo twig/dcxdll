@@ -35,10 +35,10 @@ DcxEdit::DcxEdit(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwn
 	this->parseControlStyles(styles, &Styles, &ExStyles, &bNoTheme);
 
 	m_Hwnd = CreateWindowExW(
-		static_cast<DWORD>(ExStyles) | WS_EX_CLIENTEDGE,
+		gsl::narrow_cast<DWORD>(ExStyles) | WS_EX_CLIENTEDGE,
 		L"EDIT",
 		nullptr,
-		WS_CHILD | static_cast<DWORD>(Styles),
+		WS_CHILD | gsl::narrow_cast<DWORD>(Styles),
 		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
 		mParentHwnd,
 		reinterpret_cast<HMENU>(ID),
@@ -241,9 +241,7 @@ void DcxEdit::parseInfoRequest( const TString &input, const refString<TCHAR, MIR
 	{
 		if (this->isStyle(ES_MULTILINE)) {
 			if (input.numtok() > 3) {
-				const auto nLine = input.getnexttok().to_int();	// tok 4
-
-				if (nLine > 0 && nLine <= static_cast<int>(this->m_tsText.numtok(TEXT("\r\n"))))
+				if (const auto nLine = input.getnexttok().to_int(); (nLine > 0 && nLine <= gsl::narrow_cast<int>(m_tsText.numtok(TEXT("\r\n")))))
 					szReturnValue = m_tsText.gettok(nLine, TEXT("\r\n")).to_chr();
 			}
 		}
@@ -283,7 +281,7 @@ void DcxEdit::parseInfoRequest( const TString &input, const refString<TCHAR, MIR
 			// current line
 			const auto iLinePos = SendMessage(m_Hwnd, EM_LINEFROMCHAR, (WPARAM)-1, NULL);
 			// line offset
-			const auto iAbsoluteCharPos = (int)SendMessage(m_Hwnd, EM_LINEINDEX, (WPARAM)-1, NULL);
+			const auto iAbsoluteCharPos = gsl::narrow_cast<int>(SendMessage(m_Hwnd, EM_LINEINDEX, (WPARAM)-1, NULL));
 
 			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d %u"), iLinePos + 1, dwAbsoluteStartSelPos - iAbsoluteCharPos);
 		}
@@ -324,7 +322,7 @@ void DcxEdit::parseInfoRequest( const TString &input, const refString<TCHAR, MIR
 		DWORD dwSelEnd = 0;   // selection range ending position
 
 		SendMessage(m_Hwnd, EM_GETSEL, (WPARAM)&dwSelStart, (LPARAM)&dwSelEnd);
-		szReturnValue = m_tsText.mid(static_cast<int>(dwSelStart), static_cast<int>(dwSelEnd - dwSelStart)).to_chr();
+		szReturnValue = m_tsText.mid(gsl::narrow_cast<int>(dwSelStart), gsl::narrow_cast<int>(dwSelEnd - dwSelStart)).to_chr();
 	}
 	break;
 	case L"cue"_hash:
@@ -340,20 +338,16 @@ void DcxEdit::parseInfoRequest( const TString &input, const refString<TCHAR, MIR
 #else
 	const auto numtok = input.numtok();
 
-	const auto prop(input.getfirsttok(3));
-
 	// [NAME] [ID] [PROP] [N]
-	if (prop == TEXT("text")) {
+	if (const auto prop(input.getfirsttok(3)); prop == TEXT("text")) {
 		if (this->isStyle(ES_MULTILINE)) {
 			if (numtok > 3) {
-				const auto nLine = input.getnexttok().to_int();	// tok 4
-
-				if (nLine > 0 && nLine <= (int)this->m_tsText.numtok(TEXT("\r\n")))
-					dcx_strcpyn(szReturnValue, this->m_tsText.gettok(nLine, TEXT("\r\n")).to_chr(), MIRC_BUFFER_SIZE_CCH);
+				if (const auto nLine = input.getnexttok().to_int(); (nLine > 0 && nLine <= gsl::narrow_cast<int>(m_tsText.numtok(TEXT("\r\n")))))
+					szReturnValue = m_tsText.gettok(nLine, TEXT("\r\n")).to_chr();
 			}
 		}
 		else
-			dcx_strcpyn(szReturnValue, this->m_tsText.to_chr(), MIRC_BUFFER_SIZE_CCH);
+			szReturnValue = m_tsText.to_chr();
 	}
 	// [NAME] [ID] [PROP]
 	else if (prop == TEXT("num")) {
@@ -384,7 +378,7 @@ void DcxEdit::parseInfoRequest( const TString &input, const refString<TCHAR, MIR
 			// current line
 			const auto iLinePos = SendMessage(m_Hwnd, EM_LINEFROMCHAR, (WPARAM)-1, NULL);
 			// line offset
-			const auto iAbsoluteCharPos = (int)SendMessage(m_Hwnd, EM_LINEINDEX, (WPARAM)-1, NULL);
+			const auto iAbsoluteCharPos = gsl::narrow_cast<int>(SendMessage(m_Hwnd, EM_LINEINDEX, (WPARAM)-1, NULL));
 
 			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d %u"), iLinePos +1, dwAbsoluteStartSelPos - iAbsoluteCharPos);
 		}
@@ -417,11 +411,11 @@ void DcxEdit::parseInfoRequest( const TString &input, const refString<TCHAR, MIR
 		DWORD dwSelEnd = 0;   // selection range ending position
 
 		SendMessage(m_Hwnd, EM_GETSEL, (WPARAM) &dwSelStart, (LPARAM) &dwSelEnd);
-		dcx_strcpyn(szReturnValue, this->m_tsText.mid(dwSelStart, dwSelEnd - dwSelStart).to_chr(), MIRC_BUFFER_SIZE_CCH);
+		szReturnValue = m_tsText.mid(dwSelStart, dwSelEnd - dwSelStart).to_chr();
 	}
 	else if (prop == TEXT("cue")) {
 		if (!this->m_tsCue.empty())
-			dcx_strcpyn(szReturnValue, this->m_tsCue.to_chr(), MIRC_BUFFER_SIZE_CCH);
+			szReturnValue = m_tsCue.to_chr();
 	}
 	else
 		this->parseGlobalInfoRequest(input, szReturnValue);
@@ -510,7 +504,7 @@ void DcxEdit::parseCommandRequest( const TString &input) {
 	else if (flags[TEXT('l')] && numtok > 3) {
 		const BOOL enabled = (input.getnexttok().to_int() > 0);	// tok 4
 
-		SendMessage(m_Hwnd, EM_SETREADONLY, static_cast<WPARAM>(enabled), NULL);
+		SendMessage(m_Hwnd, EM_SETREADONLY, gsl::narrow_cast<WPARAM>(enabled), NULL);
 	}
 	// xdid -o [NAME] [ID] [SWITCH] [N] [TEXT]
 	else if (flags[TEXT('o')] && numtok > 3) {
@@ -528,9 +522,7 @@ void DcxEdit::parseCommandRequest( const TString &input) {
 	}
 	// xdid -q [NAME] [ID] [SWITCH] [SIZE]
 	else if (flags[TEXT('q')] && numtok > 3) {
-		const auto N = input.getnexttok().to_int();	// tok 4
-
-		if (N > -1)
+		if (const auto N = input.getnexttok().to_int(); N > -1)
 			Edit_LimitText(m_Hwnd, N);
 	}
 	// Used to prevent invalid flag message.
@@ -549,9 +541,7 @@ void DcxEdit::parseCommandRequest( const TString &input) {
 	}
 	// xdid -u [NAME] [ID] [SWITCH] [FILENAME]
 	else if (flags[TEXT('u')] && numtok > 3) {
-		const auto tsFile(input.getlasttoks().trim());	// tok 4, -1
-
-		if (!SaveDataToFile(tsFile, this->m_tsText))
+		if (const auto tsFile(input.getlasttoks().trim()); !SaveDataToFile(tsFile, this->m_tsText))
 			throw Dcx::dcxException(TEXT("Unable to save: %"), tsFile);
 	}
 	// xdid -V [NAME] [ID]
@@ -664,7 +654,7 @@ LRESULT DcxEdit::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bPar
 
 					stString<256> szRet;
 
-					evalAliasEx(szRet, static_cast<int>(szRet.size()), TEXT("copy,%u"), getUserID());
+					evalAliasEx(szRet, gsl::narrow_cast<int>(szRet.size()), TEXT("copy,%u"), getUserID());
 
 					if (szRet == TEXT("nocopy")) {
 						bParsed = TRUE;
@@ -687,7 +677,7 @@ LRESULT DcxEdit::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bPar
 
 					stString<256> szRet;
 
-					evalAliasEx(szRet, static_cast<int>(szRet.size()), TEXT("cut,%u"), getUserID());
+					evalAliasEx(szRet, gsl::narrow_cast<int>(szRet.size()), TEXT("cut,%u"), getUserID());
 
 					if (szRet == TEXT("nocut")) {
 						bParsed = TRUE;
@@ -710,7 +700,7 @@ LRESULT DcxEdit::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bPar
 
 					stString<256> szRet;
 
-					evalAliasEx(szRet, static_cast<int>(szRet.size()), TEXT("paste,%u"), getUserID());
+					evalAliasEx(szRet, gsl::narrow_cast<int>(szRet.size()), TEXT("paste,%u"), getUserID());
 
 					if (szRet == TEXT("nopaste")) {
 						bParsed = TRUE;
@@ -732,77 +722,15 @@ LRESULT DcxEdit::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bPar
 				PAINTSTRUCT ps;
 
 				auto hdc = BeginPaint(m_Hwnd, &ps);
+				Auto(EndPaint(m_Hwnd, &ps));
 
-				//LRESULT res = 0L;
 				bParsed = TRUE;
 
 				// Setup alpha blend if any.
 				auto ai = this->SetupAlphaBlend(&hdc);
+				Auto(this->FinishAlphaBlend(ai));
 
-				//RECT rcTxt;
-				//GetClientRect(m_Hwnd, &rcTxt);
-				//
-				//// fill background.
-				//if (this->isExStyle(WS_EX_TRANSPARENT))
-				//{
-				//	if (!this->m_bAlphaBlend)
-				//		this->DrawParentsBackground(hdc,&rcTxt);
-				//}
-				//else
-				//	DcxControl::DrawCtrlBackground(hdc,this,&rcTxt);
-				//
-				//HFONT oldFont = nullptr;
-				//COLORREF oldClr = CLR_INVALID;
-				//COLORREF oldBkgClr = CLR_INVALID;
-				//
-				//// check if font is valid & set it.
-				//if (this->m_hFont != nullptr)
-				//	oldFont = SelectFont(hdc, this->m_hFont);
-				//// check if control is enabled.
-				//if (IsWindowEnabled(m_Hwnd)) {
-				//	if (this->m_clrText != CLR_INVALID)
-				//		oldClr = SetTextColor(hdc, this->m_clrText);
-				//	if (this->m_clrBackText != CLR_INVALID)
-				//		oldBkgClr = SetBkColor(hdc, this->m_clrBackText);
-				//}
-				//else { // disabled controls colouring
-				//	oldClr = SetTextColor(hdc, GetSysColor(COLOR_GRAYTEXT));
-				//	oldBkgClr = SetBkColor(hdc, GetSysColor(COLOR_3DFACE));
-				//}
-				//
-				//UINT style = DT_LEFT|DT_NOPREFIX|DT_VCENTER;
-				//if (this->isStyle(ES_CENTER))
-				//	style = DT_CENTER|DT_NOPREFIX|DT_VCENTER;
-				//else if (this->isStyle(ES_RIGHT))
-				//	style = DT_RIGHT|DT_NOPREFIX|DT_VCENTER;
-				//if (!this->isStyle(ES_MULTILINE))
-				//	style |= DT_SINGLELINE;
-				//
-				//if (!this->m_bCtrlCodeText) {
-				//	int oldBkgMode = SetBkMode(hdc, TRANSPARENT);
-				//	if (this->m_bShadowText)
-				//		dcxDrawShadowText(hdc, this->m_tsText.to_wchr(this->m_bUseUTF8), this->m_tsText.wlen(), &rcTxt, style, this->m_clrText, 0, 5, 5);
-				//	else
-				//		DrawTextW(hdc, this->m_tsText.to_wchr(this->m_bUseUTF8), this->m_tsText.wlen(), &rcTxt, style);
-				//	SetBkMode(hdc, oldBkgMode);
-				//}
-				//else
-				//	mIRC_DrawText(hdc, this->m_tsText, &rcTxt, style, this->m_bShadowText);
-				//
-				//if (oldBkgClr != CLR_INVALID)
-				//	SetBkColor(hdc, oldBkgClr);
-				//if (oldClr != CLR_INVALID)
-				//	SetTextColor(hdc, oldClr);
-				//if (oldFont != nullptr)
-				//	SelectFont( hdc, oldFont );
-
-				//auto res = CallWindowProc(this->m_DefaultWindowProc, m_Hwnd, uMsg, (WPARAM)hdc, lParam);
-				auto res = CallDefaultProc(m_Hwnd, uMsg, (WPARAM)hdc, lParam);
-
-				this->FinishAlphaBlend(ai);
-
-				EndPaint( m_Hwnd, &ps );
-				return res;
+				return CallDefaultProc(m_Hwnd, uMsg, (WPARAM)hdc, lParam);
 			}
 			break;
 

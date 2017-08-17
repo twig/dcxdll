@@ -36,10 +36,10 @@ DcxCheck::DcxCheck(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentH
 	this->parseControlStyles(styles, &Styles, &ExStyles, &bNoTheme);
 
 	m_Hwnd = CreateWindowEx(
-		static_cast<DWORD>(ExStyles),
+		gsl::narrow_cast<DWORD>(ExStyles),
 		TEXT("BUTTON"),
 		nullptr,
-		WS_CHILD | static_cast<DWORD>(Styles),
+		WS_CHILD | gsl::narrow_cast<DWORD>(Styles),
 		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
 		mParentHwnd,
 		(HMENU)ID,
@@ -215,10 +215,8 @@ void DcxCheck::parseInfoRequest( const TString & input, const refString<TCHAR, M
 		break;
 	}
 #else
-	const auto prop(input.getfirsttok(3));
-
 	// [NAME] [ID] [PROP]
-	if ( prop == TEXT("text") ) {
+	if (const auto prop(input.getfirsttok(3)); prop == TEXT("text") ) {
 
 		GetWindowText( m_Hwnd, szReturnValue, MIRC_BUFFER_SIZE_CCH );
 	}
@@ -246,11 +244,10 @@ void DcxCheck::parseInfoRequest( const TString & input, const refString<TCHAR, M
  * blah
  */
 
-void DcxCheck::parseCommandRequest(const TString & input) {
-	const XSwitchFlags flags(input.getfirsttok(3));
-
+void DcxCheck::parseCommandRequest(const TString & input)
+{
 	//xdid -c [NAME] [ID] [SWITCH]
-	if (flags[TEXT('c')]) {
+	if (const XSwitchFlags flags(input.getfirsttok(3)); flags[TEXT('c')]) {
 		// xdid -cu
 		if (flags[TEXT('u')])
 			Button_SetCheck(m_Hwnd, BST_INDETERMINATE);
@@ -290,9 +287,13 @@ LRESULT DcxCheck::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
 						//execAliasEx(TEXT("sclick,%u"), getUserID());
 
 						// /.timer repetitions delay alias dialog event id
-						mIRCLinker::execex(TEXT("/.timer 1 0 %s %s sclick %u"),
-							this->m_pParentDialog->getAliasName().to_chr(),
-							this->m_pParentDialog->getName().to_chr(),
+						//mIRCLinker::execex(TEXT("/.timer 1 0 %s %s sclick %u"),
+						//	this->m_pParentDialog->getAliasName().to_chr(),
+						//	this->m_pParentDialog->getName().to_chr(),
+						//	getUserID());
+						mIRCLinker::exec(TEXT("/.timer 1 0 % % sclick %"),
+							this->m_pParentDialog->getAliasName(),
+							this->m_pParentDialog->getName(),
 							getUserID());
 					}
 
@@ -373,11 +374,10 @@ void DcxCheck::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 	auto ai = SetupAlphaBlend(&hdc);
 	Auto(FinishAlphaBlend(ai));
 
-	if (this->m_bNoTheme || !Dcx::UXModule.dcxIsThemeActive()) {
-		RECT rcClient;
-
+	if (this->m_bNoTheme || !Dcx::UXModule.dcxIsThemeActive())
+	{
 		// get controls client area
-		if (GetClientRect(m_Hwnd, &rcClient))
+		if (RECT rcClient{}; GetClientRect(m_Hwnd, &rcClient))
 		{
 			if (this->m_clrBackText != CLR_INVALID)
 				SetBkColor(hdc, this->m_clrBackText);
