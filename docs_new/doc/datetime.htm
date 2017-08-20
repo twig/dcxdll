@@ -111,15 +111,15 @@
 </table>
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
-			<a name="xdid.f"></a>/xdid -f	</td></tr>
+			<a name="xdid.o"></a>/xdid -o	</td></tr>
 	<tr><td colspan="2">This command lets you set format of the DateTime Picker text.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xdid -f [DNAME] [ID] [FORMAT]</div></td>
+		<td><div class="syntax">/xdid -o [DNAME] [ID] [FORMAT]</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -f dcx 4 'Right now it is: 'hh':'m':'s ddddMMMdd', 'yyy</div></td>
+		<td><div class="example">/xdid -o dcx 4 'Right now it is: 'hh':'m':'s ddddMMMdd', 'yyy</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -228,6 +228,61 @@
 	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> You can use <a class="value">reset</a> for <a class="param">TIMESTEMP</a> to set it back to the current date/time, but this only applies to the <a class="style">shownone</a> style.</td></tr></table>
 <br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xdid.big.D"></a>/xdid -D	</td></tr>
+	<tr><td colspan="2">This command lets you change controls dropdown font.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -D [DNAME] [ID] [+FLAGS] [CHARSET] [SIZE] [FONTNAME]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -D dcx 4 +abs ansi 10 Tahoma</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">+FLAGS</td>
+		<td>Font style flags.</td>
+	</tr>
+	<tr>
+		<td class="value">a</td>
+		<td>Font is anti-aliased.</td>
+	</tr>
+	<tr>
+		<td class="value">b</td>
+		<td>Font is bold.</td>
+	</tr>
+	<tr>
+		<td class="value">d</td>
+		<td>Default font.</td>
+	</tr>
+	<tr>
+		<td class="value">i</td>
+		<td>Font is italic.</td>
+	</tr>
+	<tr>
+		<td class="value">s</td>
+		<td>Font is strikedout.</td>
+	</tr>
+	<tr>
+		<td class="value">u</td>
+		<td>Font is underlined.</td>
+	</tr>
+	<tr>
+		<td class="param">CHARSET</td>
+		<td>Can be any of the following: <a class="value">ansi</a>, <a class="value">baltic</a>, <a class="value">chinesebig</a>, <a class="value">default</a>, <a class="value">easteurope</a>, <a class="value">gb2312</a>, <a class="value">greek</a>, <a class="value">hangul</a>, <a class="value">mac</a>, <a class="value">oem</a>, <a class="value">russian</a>, <a class="value">shiftjis</a>, <a class="value">symbol</a>, <a class="value">turkish</a>, or <a class="value">vietnamese</a>.</td>
+	</tr>
+	<tr>
+		<td class="param">SIZE</td>
+		<td>Font size in points.</td>
+	</tr>
+	<tr>
+		<td class="param">FONTNAME</td>
+		<td>Font name. Ex: Tahoma, Courier New, Arial, ...</td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>Font names are limited to 31 chars (system definition).</li><li>When using <a class="value">+d</a>, <a class="param">CHARSET</a> <a class="param">SIZE</a> and <a class="param">FONTNAME</a> can be omitted.</li></ul></td></tr></table>
+<br />
 <table class="description">
 	<tr><td class="heading" style="border-color: #A8B2D1; color: #A8B2D1;"><a name="xdidprop"></a>$xdid() Properties</td></tr>
 	<tr><td>The $xdid identifier is a given mIRC alias that communicates with the DCX DLL to extract information in DCX controls.</td></tr>
@@ -324,9 +379,10 @@
 	</div>
 <div class='rightmenu' style='border:1px solid #6A7CB0'>
 	<a class='header' href="#xdid"><div style='background:#6A7CB0;'>/xdid Flags</div></a>
-		<a class='flag' href="#xdid.f"><div>-f</div></a>
+		<a class='flag' href="#xdid.o"><div>-o</div></a>
 		<a class='flag' href="#xdid.r"><div>-r</div></a>
 		<a class='flag' href="#xdid.t"><div>-t</div></a>
+		<a class='flag' href="#xdid.big.D"><div>-D</div></a>
 	</div>
 <div class='rightmenu' style='border:1px solid #A8B2D1'>
 	<a class='header' href="#xdidprop"><div style='background:#A8B2D1;'>$xdid() Properties</div></a>
@@ -347,7 +403,7 @@
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2017</td>
-		<td style="text-align: right;">Last Updated: 14th May, 17</td>
+		<td style="text-align: right;">Last Updated: 20th August, 17</td>
 	</tr>
 </table>
 <div style="text-align: center;">

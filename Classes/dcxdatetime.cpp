@@ -36,10 +36,10 @@ DcxDateTime::DcxDateTime(const UINT ID, DcxDialog *const p_Dialog, const HWND mP
 	this->parseControlStyles(styles, &Styles, &ExStyles, &bNoTheme);
 
 	m_Hwnd = CreateWindowEx(
-		static_cast<DWORD>(ExStyles) | WS_EX_CLIENTEDGE,
+		gsl::narrow_cast<DWORD>(ExStyles) | WS_EX_CLIENTEDGE,
 		DCX_DATETIMECLASS,
 		nullptr,
-		WS_CHILD | static_cast<DWORD>(Styles),
+		WS_CHILD | gsl::narrow_cast<DWORD>(Styles),
 		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
 		mParentHwnd,
 		(HMENU)ID,
@@ -74,7 +74,10 @@ void DcxDateTime::toXml(TiXmlElement *const xml) const
 	//ZeroMemory(&st, sizeof(SYSTEMTIME));
 
 	DateTime_GetSystemtime(m_Hwnd, &st);
-	wnsprintfA(&buf[0], static_cast<int>(Dcx::countof(buf)), "%ld", SystemTimeToMircTime(&st));
+
+	//wnsprintfA(&buf[0], gsl::narrow_cast<int>(Dcx::countof(buf)), "%ld", SystemTimeToMircTime(&st));
+	_ts_snprintf(&buf[0], Dcx::countof(buf), "%ld", SystemTimeToMircTime(&st));
+
 	__super::toXml(xml);
 	xml->SetAttribute("caption", &buf[0]);
 	xml->SetAttribute("styles", getStyles().c_str());
@@ -84,18 +87,9 @@ void DcxDateTime::toXml(TiXmlElement *const xml) const
 
 TiXmlElement * DcxDateTime::toXml(void) const
 {
-	auto xml = __super::toXml();
-
-	char buf[64] = { 0 };
-	SYSTEMTIME st = { 0 };
-
-	DateTime_GetSystemtime(m_Hwnd, &st);
-	wnsprintfA(&buf[0], static_cast<int>(Dcx::countof(buf)), "%ld", SystemTimeToMircTime(&st));
-
-	xml->SetAttribute("caption", &buf[0]);
-	xml->SetAttribute("styles", getStyles().c_str());
-
-	return xml;
+	auto xml = std::make_unique<TiXmlElement>("control");
+	toXml(xml.get());
+	return xml.release();
 }
 
 const TString DcxDateTime::getStyles(void) const
@@ -205,13 +199,16 @@ void DcxDateTime::parseInfoRequest( const TString &input, const refString<TCHAR,
 		if (dcx_testflag(val, GDTR_MAX))
 			dmax.tsprintf(TEXT("%ld"), SystemTimeToMircTime(&(st[1])));
 
-		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%s %s"), dmin.to_chr(), dmax.to_chr()); // going to be within 900 limit anyway.
+		//wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%s %s"), dmin.to_chr(), dmax.to_chr()); // going to be within 900 limit anyway.
+		_ts_snprintf(szReturnValue, TEXT("%s %s"), dmin.to_chr(), dmax.to_chr()); // going to be within 900 limit anyway.
 	}
 	else if (prop == TEXT("value")) {
 		SYSTEMTIME st = { 0 };
 
 		DateTime_GetSystemtime(m_Hwnd, &st);
-		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%ld"), SystemTimeToMircTime(&st));
+
+		//wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%ld"), SystemTimeToMircTime(&st));
+		_ts_snprintf(szReturnValue, TEXT("%ld"), SystemTimeToMircTime(&st));
 	}
 	else
 		this->parseGlobalInfoRequest(input, szReturnValue);
@@ -228,14 +225,25 @@ void DcxDateTime::parseCommandRequest( const TString &input) {
 
 	const auto numtok = input.numtok();
 
-	// xdid -f [NAME] [ID] [SWITCH] (FORMAT)
-	if (flags[TEXT('f')]) {
+	// xdid -o [NAME] [ID] [SWITCH] (FORMAT)
+	if (flags[TEXT('o')]) {
 		if (numtok > 3) {
 			const auto format(input.getlasttoks());	// tok 4, -1
 			DateTime_SetFormat(m_Hwnd, format.to_chr());
 		}
 		else
 			DateTime_SetFormat(m_Hwnd, nullptr);
+	}
+	// xdid -D [NAME] [ID] [SWITCH] [+FLAGS] [CHARSET] [SIZE] [FONTNAME]
+	else if (flags[TEXT('D')] && numtok > 3) {
+		LOGFONT lf = { 0 };
+
+		if (ParseCommandToLogfont(input.gettok(4, -1), &lf)) {
+			auto hFont = CreateFontIndirect(&lf);
+			DateTime_SetMonthCalFont(m_Hwnd, hFont, FALSE);	// NB: doesnt seem to sctually change the font....
+		}
+
+		redrawWindow();
 	}
 	//xdid -r [NAME] [ID] [SWITCH] [MIN] [MAX]
 	else if (flags[TEXT('r')] && numtok > 4) {
@@ -244,16 +252,13 @@ void DcxDateTime::parseCommandRequest( const TString &input) {
 
 		ZeroMemory(&range[0], sizeof(SYSTEMTIME) *2);
 
-		const auto tsMin(input++);	// tok 4
-		const auto tsMax(input++);	// tok 5
-
-		if (tsMin != TEXT("nolimit")) {
+		if (const auto tsMin(input++); tsMin != TEXT("nolimit")) {
 			const auto min = tsMin.to_<long>();
 			range[0] = MircTimeToSystemTime(min);
 			dflags |= GDTR_MIN;
 		}
 
-		if (tsMax != TEXT("nolimit")) {
+		if (const auto tsMax(input++); tsMax != TEXT("nolimit")) {
 			const auto max = tsMax.to_<long>();
 			range[1] = MircTimeToSystemTime(max);
 			dflags |= GDTR_MAX;
