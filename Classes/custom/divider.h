@@ -112,7 +112,7 @@ struct DVCONTROLDATA {
   bool m_bDragging;       //!< Are We Dragging The Bar?
 
   DVCONTROLDATA()
-	  : m_Panes()
+	  : m_Panes{}
 	  , m_iLineWidth(2)
 	  , m_iBarPos(100)
 	  , m_iOldPos(0)
