@@ -43,3 +43,34 @@ bool DcxListHelper::matchItemText(const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &
 		return false;
 	}
 }
+
+const DcxSearchTypes DcxListHelper::StringToSearchType(const TString & tsType) noexcept
+{
+	const XSwitchFlags xFlags(tsType);
+
+	return FlagsToSearchType(xFlags);
+}
+
+const DcxSearchTypes DcxListHelper::CharToSearchType(const TCHAR & cType) noexcept
+{
+	auto SearchType = DcxSearchTypes::SEARCH_E;
+
+	if ((cType == TEXT('R')) || (cType == TEXT('r')))
+		SearchType = DcxSearchTypes::SEARCH_R;
+	else if ((cType == TEXT('W')) || (cType == TEXT('w')))
+		SearchType = DcxSearchTypes::SEARCH_W;
+
+	return SearchType;
+}
+
+const DcxSearchTypes DcxListHelper::FlagsToSearchType(const XSwitchFlags & xFlags) noexcept
+{
+	auto SearchType = DcxSearchTypes::SEARCH_E;	// plain text exact match delete
+
+	if (xFlags[TEXT('w')] || xFlags[TEXT('W')])
+		SearchType = DcxSearchTypes::SEARCH_W;	// wildcard delete
+	else if (xFlags[TEXT('r')] || xFlags[TEXT('R')])
+		SearchType = DcxSearchTypes::SEARCH_R;	// regex delete
+
+	return SearchType;
+}

@@ -336,18 +336,10 @@ void DcxTreeView::parseInfoRequest( const TString &input, const refString<TCHAR,
 		if (matchtext.empty())
 			throw Dcx::dcxException("No matchtext specified.");
 
-		auto searchType = DcxSearchTypes::SEARCH_E;
-		//const auto searchMode(params.getfirsttok(1));	// tok 1
-		const auto searchMode(params++[0]);	// tok 1
+		auto SearchType = CharToSearchType(params++[0]);
 		HTREEITEM startingPoint = TVI_ROOT;
 
-		if (searchMode == TEXT('R'))
-			searchType = DcxSearchTypes::SEARCH_R;
-		else if (searchMode == TEXT('W'))
-			searchType = DcxSearchTypes::SEARCH_W;
-
 		const auto n = params++.to_int();	// tok 2
-		auto matchCount = 0;
 
 		if (params.numtok() > 2) {
 			const auto path(params.getlasttoks());	// tok 3, -1
@@ -358,8 +350,9 @@ void DcxTreeView::parseInfoRequest( const TString &input, const refString<TCHAR,
 				throw Dcx::dcxException(TEXT("Unable to parse path: %"), path);
 		}
 
-		HTREEITEM result = nullptr;
-		if (findItemText(&startingPoint, &result, matchtext, n, matchCount, searchType))
+		auto matchCount = 0;
+
+		if (HTREEITEM result = nullptr; findItemText(&startingPoint, &result, matchtext, n, matchCount, SearchType))
 			szReturnValue = getPathFromItem(&result).to_chr();
 		else if (n == 0)
 			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), matchCount);
@@ -544,15 +537,8 @@ void DcxTreeView::parseInfoRequest( const TString &input, const refString<TCHAR,
 		if (matchtext.empty())
 			throw Dcx::dcxException("No matchtext specified.");
 
-		auto searchType = DcxSearchTypes::SEARCH_E;
-		//const auto searchMode(params.getfirsttok(1));	// tok 1
-		const auto searchMode(params++[0]);	// tok 1
+		auto SearchType = CharToSearchType(params++[0]);
 		HTREEITEM startingPoint = TVI_ROOT;
-
-		if (searchMode == TEXT('R'))
-			searchType = DcxSearchTypes::SEARCH_R;
-		else if (searchMode == TEXT('W'))
-			searchType = DcxSearchTypes::SEARCH_W;
 
 		const auto n = params++.to_int();	// tok 2
 		auto matchCount = 0;
@@ -567,7 +553,7 @@ void DcxTreeView::parseInfoRequest( const TString &input, const refString<TCHAR,
 		}
 
 		HTREEITEM result = nullptr;
-		if (findItemText(&startingPoint, &result, matchtext, n, matchCount, searchType))
+		if (findItemText(&startingPoint, &result, matchtext, n, matchCount, SearchType))
 			szReturnValue = getPathFromItem(&result).to_chr();
 		else if (n == 0)
 			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), matchCount);
@@ -1099,8 +1085,7 @@ void DcxTreeView::parseCommandRequest( const TString & input ) {
 
 		if (dcx_testflag(iFlags, TVIT_NORMAL))
 		{
-			auto himl = this->getImageList( TVSIL_NORMAL );
-			if ( himl != nullptr ) {
+			if (auto himl = this->getImageList(TVSIL_NORMAL); himl != nullptr ) {
 				ImageList_Destroy( himl );
 				this->setImageList( nullptr, TVSIL_NORMAL );
 			}
@@ -1108,8 +1093,7 @@ void DcxTreeView::parseCommandRequest( const TString & input ) {
 
 		if (dcx_testflag(iFlags, TVIT_STATE))
 		{
-			auto himl = this->getImageList( TVSIL_STATE );
-			if ( himl != nullptr ) {
+			if (auto himl = this->getImageList(TVSIL_STATE); himl != nullptr ) {
 
 				ImageList_Destroy( himl );
 				this->setImageList( nullptr, TVSIL_STATE );
@@ -1212,7 +1196,7 @@ void DcxTreeView::parseCommandRequest( const TString & input ) {
 
 HIMAGELIST DcxTreeView::getImageList( const int type ) const {
 
-  return TreeView_GetImageList( m_Hwnd, static_cast<WPARAM>(type));
+  return TreeView_GetImageList( m_Hwnd, gsl::narrow_cast<WPARAM>(type));
 }
 
 /*!
@@ -1221,9 +1205,9 @@ HIMAGELIST DcxTreeView::getImageList( const int type ) const {
  * blah
  */
 
-void DcxTreeView::setImageList( HIMAGELIST himl, const int type ) {
-	auto o = TreeView_SetImageList(m_Hwnd, himl, static_cast<WPARAM>(type));
-	if (o != nullptr && o != himl) // don't destroy if nullptr or the same list as just added.
+void DcxTreeView::setImageList( HIMAGELIST himl, const int type )
+{
+	if (auto o = TreeView_SetImageList(m_Hwnd, himl, gsl::narrow_cast<WPARAM>(type)); (o != nullptr && o != himl)) // don't destroy if nullptr or the same list as just added.
 		ImageList_Destroy(o);
 }
 
@@ -1235,7 +1219,7 @@ void DcxTreeView::setImageList( HIMAGELIST himl, const int type ) {
 
 HIMAGELIST DcxTreeView::createImageList( ) {
 
-  return ImageList_Create( static_cast<int>(m_iIconSize), static_cast<int>(m_iIconSize), ILC_COLOR32|ILC_MASK, 1, 0 );
+  return ImageList_Create(gsl::narrow_cast<int>(m_iIconSize), gsl::narrow_cast<int>(m_iIconSize), ILC_COLOR32|ILC_MASK, 1, 0 );
 }
 
 /*!
@@ -1860,343 +1844,406 @@ HTREEITEM DcxTreeView::copyAllItems(const TString &pathFrom, const TString &path
  *
  * blah
  */
-LRESULT DcxTreeView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
-	switch(uMsg) {
-		case WM_NOTIFY : 
-		{
-			dcxlParam(LPNMHDR, hdr);
+LRESULT DcxTreeView::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed )
+{
+	switch (uMsg) {
+	case WM_NOTIFY:
+	{
+		dcxlParam(LPNMHDR, hdr);
 
-			if (hdr == nullptr)
-				break;
-
-			switch (hdr->code) {
-			case NM_CLICK:
-				{
-				//http://msdn.microsoft.com/library/default.asp?url=/library/en-us/shellcc/platform/commctls/treeview/reflist.asp
-					TVHITTESTINFO tvh;
-					if (!GetCursorPos(&tvh.pt))
-						break;
-
-					MapWindowPoints(nullptr, m_Hwnd, &tvh.pt, 1);
-					TreeView_HitTest(m_Hwnd, &tvh);
-
-					if (dcx_testflag(tvh.flags,TVHT_ONITEMBUTTON))
-					{
-						if (dcx_testflag(m_pParentDialog->getEventMask(), DCX_EVENT_CLICK))
-							execAliasEx(TEXT("buttonclick,%u,%s"), getUserID(), getPathFromItem(&tvh.hItem).to_chr());
-					}
-					else if (dcx_testflag(tvh.flags, TVHT_ONITEMSTATEICON)) {
-						if (dcx_testflag(m_pParentDialog->getEventMask(), DCX_EVENT_CLICK))
-						{
-							const auto path(getPathFromItem(&tvh.hItem));
-							if (isStyle(TVS_CHECKBOXES))
-								execAliasEx(TEXT("stateclick,%u,%u,%s"), getUserID(), (TreeView_GetCheckState(m_Hwnd, tvh.hItem) == 0 ? 2U : 1U) , path.to_chr());
-							else
-								execAliasEx(TEXT("stateclick,%u,%u,%s"), getUserID(), TreeView_GetItemState(m_Hwnd, tvh.hItem, TVIS_STATEIMAGEMASK), path.to_chr());
-						}
-					}
-					else if (tvh.flags & TVHT_ONITEM) // dont use dcx_testflag() here as TVHT_ONITEM is a combination of several hit types.
-					{
-						//TreeView_SelectItem(m_Hwnd, tvh.hItem);	// why is this here? selections shows up fine without it
-
-						if (dcx_testflag(m_pParentDialog->getEventMask(), DCX_EVENT_CLICK))
-							execAliasEx(TEXT("sclick,%u,%s"), getUserID(), getPathFromItem(&tvh.hItem).to_chr());
-					}
-					// single click not on item
-					else if (dcx_testflag(tvh.flags, TVHT_NOWHERE) || dcx_testflag(tvh.flags, TVHT_ONITEMRIGHT)) {
-						if (dcx_testflag(m_pParentDialog->getEventMask(),DCX_EVENT_CLICK))
-							execAliasEx(TEXT("sclick,%u"), getUserID());
-					}
-
-					bParsed = TRUE;
-					break;
-				}
-
-			case NM_DBLCLK:
-				{
-					TVHITTESTINFO tvh;
-
-					if (!GetCursorPos(&tvh.pt))
-						break;
-
-					MapWindowPoints(nullptr, m_Hwnd, &tvh.pt, 1);
-					TreeView_HitTest(m_Hwnd, &tvh);
-
-					//|| ( (dcx_testflag(tvh.flags, TVHT_ONITEMRIGHT)) && this->isStyle( TVS_FULLROWSELECT ) ) )
-					if (dcx_testflag(tvh.flags, TVHT_ONITEM)) {
-						TreeView_SelectItem(m_Hwnd, tvh.hItem);
-
-						if (dcx_testflag(m_pParentDialog->getEventMask(), DCX_EVENT_CLICK))
-							execAliasEx(TEXT("dclick,%u,%s"), getUserID(), getPathFromItem(&tvh.hItem).to_chr());
-					}
-
-					bParsed = TRUE;
-					break;
-				}
-
-			case NM_RCLICK:
-				{
-					TVHITTESTINFO tvh;
-
-					if (!GetCursorPos(&tvh.pt))
-						break;
-
-					MapWindowPoints(nullptr, m_Hwnd, &tvh.pt, 1);
-					TreeView_HitTest(m_Hwnd, &tvh);
-
-					//|| ( (dcx_testflag(tvh.flags, TVHT_ONITEMRIGHT)) && this->isStyle( TVS_FULLROWSELECT ) ) )
-					if (dcx_testflag(tvh.flags,TVHT_ONITEM))
-					{
-						TreeView_SelectItem(m_Hwnd, tvh.hItem);
-
-						if (dcx_testflag(m_pParentDialog->getEventMask(), DCX_EVENT_CLICK))
-							execAliasEx(TEXT("rclick,%u,%s"), getUserID(), getPathFromItem(&tvh.hItem).to_chr());
-					}
-					else if (dcx_testflag(m_pParentDialog->getEventMask(), DCX_EVENT_CLICK))
-						execAliasEx(TEXT("rclick,%u"), getUserID());
-
-					bParsed = TRUE;
-					return TRUE; // stop rclick being passed down to parent controls.
-				}
-				break;
-
-			case TVN_SELCHANGED:
-			{
-				dcxlParam(LPNMTREEVIEW, lpnmtv);
-
-				if (lpnmtv != nullptr && !m_bDestroying)
-					execAliasEx(TEXT("selchange,%u,%s"), getUserID(), getPathFromItem(&lpnmtv->itemNew.hItem).to_chr());
-
-				bParsed = TRUE;
-			}
+		if (hdr == nullptr)
 			break;
 
-			case TVN_GETINFOTIP:
-				{
-					dcxlParam(LPNMTVGETINFOTIP, tcgit);
-
-					if (tcgit != nullptr) {
-						auto lpdcxtvi = reinterpret_cast<LPDCXTVITEM>(tcgit->lParam);
-						if (lpdcxtvi != nullptr) {
-							tcgit->pszText = lpdcxtvi->tsTipText.to_chr( );
-							tcgit->cchTextMax = static_cast<int>(lpdcxtvi->tsTipText.len( ));
-						}
-					}
-					bParsed = TRUE;
-				}
-				break;
-
-			case TVN_ITEMEXPANDING:
-				{
-					// disables redraw to stop flicker with bkg image.
-					if (isExStyle(WS_EX_TRANSPARENT))
-						setRedraw(FALSE);
-				}
-				break;
-
-			case TVN_ITEMEXPANDED:
-				{
-					dcxlParam(LPNMTREEVIEW, lpnmtv);
-
-					if (dcx_testflag(lpnmtv->action,TVE_COLLAPSE))
-						execAliasEx(TEXT("collapse,%u,%s"), getUserID(), getPathFromItem(&lpnmtv->itemNew.hItem).to_chr());
-					else if (dcx_testflag(lpnmtv->action,TVE_EXPAND))
-						execAliasEx(TEXT("expand,%u,%s"), getUserID(), getPathFromItem(&lpnmtv->itemNew.hItem).to_chr());
-
-					// re-enables redraw & updates.
-					if (isExStyle(WS_EX_TRANSPARENT)) {
-						setRedraw(TRUE);
-						//InvalidateRect(m_Hwnd, nullptr, FALSE);
-						//UpdateWindow(m_Hwnd);
-						//if (m_pParentDialog->IsVistaStyle())
-						redrawWindow();
-						//else
-						//	redrawBufferedWindow();
-					}
-
-					bParsed = TRUE;
-				}
-				break;
-
-			case TVN_BEGINLABELEDIT:
-				{
-					bParsed = TRUE;
-					dcxlParam(LPNMTVDISPINFO, lptvdi);
-
-					TreeView_SelectItem( m_Hwnd,lptvdi->item.hItem );
-
-					auto edit_hwnd = TreeView_GetEditControl(m_Hwnd);
-
-					m_OrigEditProc = SubclassWindow( edit_hwnd, DcxTreeView::EditLabelProc );
-					SetProp( edit_hwnd, TEXT("dcx_pthis"), (HANDLE) this );
-
-					//TCHAR ret[256];
-					//evalAliasEx( ret, Dcx::countof(ret), TEXT("labelbegin,%u"), getUserID( ) );
-					//
-					//return (ts_strcmp(TEXT("noedit"), ret) == 0);
-
-					//stString<256> sRet;
-					//evalAliasEx( sRet, Dcx::countof(sRet), TEXT("labelbegin,%u"), getUserID( ) );
-					//
-					//return (sRet == TEXT("noedit"));
-
-					return (m_pParentDialog->evalAliasT(TEXT("labelbegin,%"), getUserID()).second == TEXT("noedit"));
-				}
-				break;
-			case TVN_ENDLABELEDIT:
-				{
-					bParsed = TRUE;
-
-					dcxlParam(LPNMTVDISPINFO, lptvdi);
-
-					if ( lptvdi->item.pszText == nullptr )
-						execAliasEx(TEXT("labelcancel,%u"), getUserID( ) );
-					else {
-						//TCHAR ret[256];
-						//evalAliasEx( ret, Dcx::countof(ret), TEXT("labelend,%u,%s"), getUserID( ), lptvdi->item.pszText );
-						//
-						//return (ts_strcmp(TEXT("noedit"), ret) == 0);
-
-						//stString<256> sRet;
-						//evalAliasEx( sRet, Dcx::countof(sRet), TEXT("labelend,%u,%s"), getUserID( ), lptvdi->item.pszText );
-						//
-						//return (sRet == TEXT("noedit"));
-
-						return (m_pParentDialog->evalAliasT(TEXT("labelend,%,%"), getUserID(), lptvdi->item.pszText).second == TEXT("noedit"));
-					}
-					return TRUE;
-				}
-				break;
-
-			case NM_CUSTOMDRAW:
-				{
-					dcxlParam(LPNMTVCUSTOMDRAW, lpntvcd);
-
-					bParsed = TRUE;
-
-					switch( lpntvcd->nmcd.dwDrawStage ) {
-
-					case CDDS_PREPAINT:
-						return ( CDRF_NOTIFYPOSTPAINT | CDRF_NOTIFYITEMDRAW );
-
-					case CDDS_ITEMPREPAINT:
-						{
-							auto lpdcxtvi = reinterpret_cast<LPDCXTVITEM>(lpntvcd->nmcd.lItemlParam);
-
-							if ( lpdcxtvi == nullptr )
-								return CDRF_DODEFAULT;
-
-							if ( lpdcxtvi->clrText != CLR_INVALID )
-								lpntvcd->clrText = lpdcxtvi->clrText;
-
-							const auto bSelected = (dcx_testflag(lpntvcd->nmcd.uItemState, CDIS_SELECTED));
-
-							// draw unselected background color
-							//if (this->isExStyle(WS_EX_TRANSPARENT) && !bSelected){
-							//	lpntvcd->clrTextBk = CLR_NONE;
-							//	SetBkMode(lpntvcd->nmcd.hdc, TRANSPARENT);
-							//}
-							//else if ((lpdcxtvi->clrBkg != -1) && !bSelected)
-							if ((lpdcxtvi->clrBkg != CLR_INVALID) && !bSelected)
-								lpntvcd->clrTextBk = lpdcxtvi->clrBkg;
-							else if ((m_colSelection != CLR_INVALID) && bSelected)
-								lpntvcd->clrTextBk = m_colSelection;
-
-							if ( lpdcxtvi->bUline || lpdcxtvi->bBold || lpdcxtvi->bItalic) {
-								auto hFont = GetWindowFont(m_Hwnd);
-
-								LOGFONT lf;
-								if (GetObject(hFont, sizeof(LOGFONT), &lf) != 0)
-								{
-									if (lpdcxtvi->bBold)
-										lf.lfWeight |= FW_BOLD;
-									if (lpdcxtvi->bUline)
-										lf.lfUnderline = TRUE;
-									if (lpdcxtvi->bItalic)
-										lf.lfItalic = TRUE;
-
-									m_hItemFont = CreateFontIndirect(&lf);
-									if (m_hItemFont != nullptr)
-										m_hOldItemFont = SelectFont(lpntvcd->nmcd.hdc, m_hItemFont);
-								}
-							}
-
-							//TVITEMEX tvitem;
-							//TCHAR buf[MIRC_BUFFER_SIZE_CCH];
-							//ZeroMemory(&tvitem,sizeof(tvitem));
-							//tvitem.hItem = (HTREEITEM)lpntvcd->nmcd.dwItemSpec;
-							//tvitem.mask = TVIF_TEXT;
-							//tvitem.pszText = buf;
-							//tvitem.cchTextMax = MIRC_BUFFER_SIZE_CCH;
-							//TreeView_GetItem(m_Hwnd, &tvitem);
-							//TString tsItem(buf);
-							//RECT rcTxt = lpntvcd->nmcd.rc;
-							//if (!this->m_bCtrlCodeText) {
-							//	if (bSelected && this->m_bShadowText) // could cause problems with pre-XP as this is commctrl v6+
-							//		dcxDrawShadowText(lpntvcd->nmcd.hdc,tsItem.to_wchr(this->m_bUseUTF8), tsItem.wlen(),&rcTxt, DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP | DT_SINGLELINE, lpntvcd->clrText, 0, 5, 5);
-							//	else
-							//		DrawTextW( lpntvcd->nmcd.hdc, tsItem.to_wchr( ), tsItem.wlen( ), &rcTxt, DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP | DT_SINGLELINE );
-							//}
-							//else
-							//	mIRC_DrawText(lpntvcd->nmcd.hdc, tsItem, &rcTxt, DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP | DT_SINGLELINE, ((bSelected && this->m_bShadowText) ? true : false));
-						}
-						//return ( CDRF_NOTIFYPOSTPAINT | CDRF_SKIPDEFAULT );
-						return ( CDRF_NOTIFYPOSTPAINT | CDRF_NEWFONT );
-
-					case CDDS_ITEMPOSTPAINT:
-						{
-							if (m_hOldItemFont != nullptr) {
-								SelectFont( lpntvcd->nmcd.hdc, m_hOldItemFont);
-								m_hOldItemFont = nullptr;
-							}
-							if (m_hItemFont != nullptr) {
-								DeleteFont(m_hItemFont);
-								m_hItemFont = nullptr;
-							}
-							return CDRF_DODEFAULT;
-						}
-
-					default:
-						return CDRF_DODEFAULT;
-					}
-				}
-				break;
-
-			case TVN_DELETEITEM:
-				{
-					dcxlParam(LPNMTREEVIEW, lpnmtv);
-					if (lpnmtv == nullptr)
-						break;
-
-					auto lpdcxtvi = reinterpret_cast<LPDCXTVITEM>(lpnmtv->itemOld.lParam);
-
-					delete lpdcxtvi;
-				}
-				break;
-			case TVN_KEYDOWN:
-				{
-					dcxlParam(LPNMTVKEYDOWN, ptvkd);
-
-					if (ptvkd->wVKey == VK_SPACE)
-					{
-						auto htvi = TreeView_GetSelection(m_Hwnd);
-						if (htvi != nullptr) {
-							const auto state = TreeView_GetCheckState(m_Hwnd, htvi);
-							//this->execAliasEx(TEXT("%s,%d,%d,%d"), TEXT("stateclick"), this->getUserID( ), (state ? 0 : 1), TreeView_MapHTREEITEMToAccID(m_Hwnd, htvi) );
-							this->execAliasEx(TEXT("stateclick,%u,%d,%s"), getUserID( ), (state ? 0 : 1), getPathFromItem(&htvi).to_chr() );
-						}
-					}
-				}
-				break;
-			//case TVN_ITEMCHANGED: // vista only :/
+		switch (hdr->code) {
+		case NM_CLICK:
+		{
+			////http://msdn.microsoft.com/library/default.asp?url=/library/en-us/shellcc/platform/commctls/treeview/reflist.asp
+			//	TVHITTESTINFO tvh;
+			//	if (!GetCursorPos(&tvh.pt))
+			//		break;
+			//
+			//	MapWindowPoints(nullptr, m_Hwnd, &tvh.pt, 1);
+			//	TreeView_HitTest(m_Hwnd, &tvh);
+			//
+			//	if (dcx_testflag(tvh.flags,TVHT_ONITEMBUTTON))
 			//	{
-			//		NMTVITEMCHANGE  *pnm = (NMTVITEMCHANGE *)lParam;
+			//		if (dcx_testflag(m_pParentDialog->getEventMask(), DCX_EVENT_CLICK))
+			//			execAliasEx(TEXT("buttonclick,%u,%s"), getUserID(), getPathFromItem(&tvh.hItem).to_chr());
 			//	}
+			//	else if (dcx_testflag(tvh.flags, TVHT_ONITEMSTATEICON)) {
+			//		if (dcx_testflag(m_pParentDialog->getEventMask(), DCX_EVENT_CLICK))
+			//		{
+			//			const auto path(getPathFromItem(&tvh.hItem));
+			//			if (isStyle(TVS_CHECKBOXES))
+			//				execAliasEx(TEXT("stateclick,%u,%u,%s"), getUserID(), (TreeView_GetCheckState(m_Hwnd, tvh.hItem) == 0 ? 2U : 1U) , path.to_chr());
+			//			else
+			//				execAliasEx(TEXT("stateclick,%u,%u,%s"), getUserID(), TreeView_GetItemState(m_Hwnd, tvh.hItem, TVIS_STATEIMAGEMASK), path.to_chr());
+			//		}
+			//	}
+			//	else if ((tvh.flags & TVHT_ONITEM) != 0) // dont use dcx_testflag() here as TVHT_ONITEM is a combination of several hit types.
+			//	{
+			//		//TreeView_SelectItem(m_Hwnd, tvh.hItem);	// why is this here? selections shows up fine without it
+			//
+			//		if (dcx_testflag(m_pParentDialog->getEventMask(), DCX_EVENT_CLICK))
+			//			execAliasEx(TEXT("sclick,%u,%s"), getUserID(), getPathFromItem(&tvh.hItem).to_chr());
+			//	}
+			//	// single click not on item
+			//	else if (dcx_testflag(tvh.flags, TVHT_NOWHERE) || dcx_testflag(tvh.flags, TVHT_ONITEMRIGHT)) {
+			//		if (dcx_testflag(m_pParentDialog->getEventMask(),DCX_EVENT_CLICK))
+			//			execAliasEx(TEXT("sclick,%u"), getUserID());
+			//	}
+			//
+			//	bParsed = TRUE;
 			//	break;
 
-			} // switch
+			//http://msdn.microsoft.com/library/default.asp?url=/library/en-us/shellcc/platform/commctls/treeview/reflist.asp
+
+			if (!dcx_testflag(m_pParentDialog->getEventMask(), DCX_EVENT_CLICK))
+				break;
+
+			TVHITTESTINFO tvh{};
+			if (!GetCursorPos(&tvh.pt))
+				break;
+
+			MapWindowPoints(nullptr, m_Hwnd, &tvh.pt, 1);
+			TreeView_HitTest(m_Hwnd, &tvh);
+
+			if (dcx_testflag(tvh.flags, TVHT_ONITEMBUTTON))
+				execAliasEx(TEXT("buttonclick,%u,%s"), getUserID(), getPathFromItem(&tvh.hItem).to_chr());
+			else if (dcx_testflag(tvh.flags, TVHT_ONITEMSTATEICON)) {
+				const auto path(getPathFromItem(&tvh.hItem));
+				if (isStyle(TVS_CHECKBOXES))
+					execAliasEx(TEXT("stateclick,%u,%u,%s"), getUserID(), (TreeView_GetCheckState(m_Hwnd, tvh.hItem) == 0 ? 2U : 1U), path.to_chr());
+				else
+					execAliasEx(TEXT("stateclick,%u,%u,%s"), getUserID(), TreeView_GetItemState(m_Hwnd, tvh.hItem, TVIS_STATEIMAGEMASK), path.to_chr());
+			}
+			else if ((tvh.flags & TVHT_ONITEM) != 0) // dont use dcx_testflag() here as TVHT_ONITEM is a combination of several hit types.
+				execAliasEx(TEXT("sclick,%u,%s"), getUserID(), getPathFromItem(&tvh.hItem).to_chr());
+			// single click not on item
+			else if (dcx_testflag(tvh.flags, TVHT_NOWHERE) || dcx_testflag(tvh.flags, TVHT_ONITEMRIGHT))
+				execAliasEx(TEXT("sclick,%u"), getUserID());
+
+			bParsed = TRUE;
+			break;
+		}
+
+		case NM_DBLCLK:
+		{
+			//TVHITTESTINFO tvh;
+			//
+			//if (!GetCursorPos(&tvh.pt))
+			//	break;
+			//
+			//MapWindowPoints(nullptr, m_Hwnd, &tvh.pt, 1);
+			//TreeView_HitTest(m_Hwnd, &tvh);
+			//
+			////|| ( (dcx_testflag(tvh.flags, TVHT_ONITEMRIGHT)) && this->isStyle( TVS_FULLROWSELECT ) ) )
+			//if ((tvh.flags & TVHT_ONITEM) != 0) // dont use dcx_testflag() here as TVHT_ONITEM is a combination of several hit types.
+			//{
+			//	//TreeView_SelectItem(m_Hwnd, tvh.hItem);
+			//
+			//	if (dcx_testflag(m_pParentDialog->getEventMask(), DCX_EVENT_CLICK))
+			//		execAliasEx(TEXT("dclick,%u,%s"), getUserID(), getPathFromItem(&tvh.hItem).to_chr());
+			//}
+
+			if (!dcx_testflag(m_pParentDialog->getEventMask(), DCX_EVENT_CLICK))
+				break;
+			
+			TVHITTESTINFO tvh;
+
+			if (!GetCursorPos(&tvh.pt))
+				break;
+
+			MapWindowPoints(nullptr, m_Hwnd, &tvh.pt, 1);
+			TreeView_HitTest(m_Hwnd, &tvh);
+
+			//|| ( (dcx_testflag(tvh.flags, TVHT_ONITEMRIGHT)) && this->isStyle( TVS_FULLROWSELECT ) ) )
+			if ((tvh.flags & TVHT_ONITEM) != 0) // dont use dcx_testflag() here as TVHT_ONITEM is a combination of several hit types.
+				execAliasEx(TEXT("dclick,%u,%s"), getUserID(), getPathFromItem(&tvh.hItem).to_chr());
+
+			bParsed = TRUE;
+			break;
+		}
+
+		case NM_RCLICK:
+		{
+			//TVHITTESTINFO tvh;
+			//
+			//if (!GetCursorPos(&tvh.pt))
+			//	break;
+			//
+			//MapWindowPoints(nullptr, m_Hwnd, &tvh.pt, 1);
+			//TreeView_HitTest(m_Hwnd, &tvh);
+			//
+			////|| ( (dcx_testflag(tvh.flags, TVHT_ONITEMRIGHT)) && this->isStyle( TVS_FULLROWSELECT ) ) )
+			//if ((tvh.flags & TVHT_ONITEM) != 0) // dont use dcx_testflag() here as TVHT_ONITEM is a combination of several hit types.
+			//{
+			//	//TreeView_SelectItem(m_Hwnd, tvh.hItem);
+			//
+			//	if (dcx_testflag(m_pParentDialog->getEventMask(), DCX_EVENT_CLICK))
+			//		execAliasEx(TEXT("rclick,%u,%s"), getUserID(), getPathFromItem(&tvh.hItem).to_chr());
+			//}
+			//else if (dcx_testflag(m_pParentDialog->getEventMask(), DCX_EVENT_CLICK))
+			//	execAliasEx(TEXT("rclick,%u"), getUserID());
+
+			if (!dcx_testflag(m_pParentDialog->getEventMask(), DCX_EVENT_CLICK))
+				break;
+
+			TVHITTESTINFO tvh;
+
+			if (!GetCursorPos(&tvh.pt))
+				break;
+
+			MapWindowPoints(nullptr, m_Hwnd, &tvh.pt, 1);
+			TreeView_HitTest(m_Hwnd, &tvh);
+
+			//|| ( (dcx_testflag(tvh.flags, TVHT_ONITEMRIGHT)) && this->isStyle( TVS_FULLROWSELECT ) ) )
+			if ((tvh.flags & TVHT_ONITEM) != 0) // dont use dcx_testflag() here as TVHT_ONITEM is a combination of several hit types.
+				execAliasEx(TEXT("rclick,%u,%s"), getUserID(), getPathFromItem(&tvh.hItem).to_chr());
+			else
+				execAliasEx(TEXT("rclick,%u"), getUserID());
+
+			bParsed = TRUE;
+			return TRUE; // stop rclick being passed down to parent controls.
 		}
 		break;
+
+		case TVN_SELCHANGED:
+		{
+			dcxlParam(LPNMTREEVIEW, lpnmtv);
+
+			if (lpnmtv != nullptr && !m_bDestroying)
+				execAliasEx(TEXT("selchange,%u,%s"), getUserID(), getPathFromItem(&lpnmtv->itemNew.hItem).to_chr());
+
+			bParsed = TRUE;
+		}
+		break;
+
+		case TVN_GETINFOTIP:
+		{
+			dcxlParam(LPNMTVGETINFOTIP, tcgit);
+
+			if (tcgit != nullptr) {
+				auto lpdcxtvi = reinterpret_cast<LPDCXTVITEM>(tcgit->lParam);
+				if (lpdcxtvi != nullptr) {
+					tcgit->pszText = lpdcxtvi->tsTipText.to_chr();
+					tcgit->cchTextMax = static_cast<int>(lpdcxtvi->tsTipText.len());
+				}
+			}
+			bParsed = TRUE;
+		}
+		break;
+
+		case TVN_ITEMEXPANDING:
+		{
+			// disables redraw to stop flicker with bkg image.
+			if (isExStyle(WS_EX_TRANSPARENT))
+				setRedraw(FALSE);
+		}
+		break;
+
+		case TVN_ITEMEXPANDED:
+		{
+			dcxlParam(LPNMTREEVIEW, lpnmtv);
+
+			if (dcx_testflag(lpnmtv->action, TVE_COLLAPSE))
+				execAliasEx(TEXT("collapse,%u,%s"), getUserID(), getPathFromItem(&lpnmtv->itemNew.hItem).to_chr());
+			else if (dcx_testflag(lpnmtv->action, TVE_EXPAND))
+				execAliasEx(TEXT("expand,%u,%s"), getUserID(), getPathFromItem(&lpnmtv->itemNew.hItem).to_chr());
+
+			// re-enables redraw & updates.
+			if (isExStyle(WS_EX_TRANSPARENT)) {
+				setRedraw(TRUE);
+				//InvalidateRect(m_Hwnd, nullptr, FALSE);
+				//UpdateWindow(m_Hwnd);
+				//if (m_pParentDialog->IsVistaStyle())
+				redrawWindow();
+				//else
+				//	redrawBufferedWindow();
+			}
+
+			bParsed = TRUE;
+		}
+		break;
+
+		case TVN_BEGINLABELEDIT:
+		{
+			bParsed = TRUE;
+			dcxlParam(LPNMTVDISPINFO, lptvdi);
+
+			TreeView_SelectItem(m_Hwnd, lptvdi->item.hItem);
+
+			auto edit_hwnd = TreeView_GetEditControl(m_Hwnd);
+
+			m_OrigEditProc = SubclassWindow(edit_hwnd, DcxTreeView::EditLabelProc);
+			SetProp(edit_hwnd, TEXT("dcx_pthis"), (HANDLE)this);
+
+			//TCHAR ret[256];
+			//evalAliasEx( ret, Dcx::countof(ret), TEXT("labelbegin,%u"), getUserID( ) );
+			//
+			//return (ts_strcmp(TEXT("noedit"), ret) == 0);
+
+			//stString<256> sRet;
+			//evalAliasEx( sRet, Dcx::countof(sRet), TEXT("labelbegin,%u"), getUserID( ) );
+			//
+			//return (sRet == TEXT("noedit"));
+
+			return (m_pParentDialog->evalAliasT(TEXT("labelbegin,%"), getUserID()).second == TEXT("noedit"));
+		}
+		break;
+		case TVN_ENDLABELEDIT:
+		{
+			bParsed = TRUE;
+
+			dcxlParam(LPNMTVDISPINFO, lptvdi);
+
+			if (lptvdi->item.pszText == nullptr)
+				execAliasEx(TEXT("labelcancel,%u"), getUserID());
+			else {
+				//TCHAR ret[256];
+				//evalAliasEx( ret, Dcx::countof(ret), TEXT("labelend,%u,%s"), getUserID( ), lptvdi->item.pszText );
+				//
+				//return (ts_strcmp(TEXT("noedit"), ret) == 0);
+
+				//stString<256> sRet;
+				//evalAliasEx( sRet, Dcx::countof(sRet), TEXT("labelend,%u,%s"), getUserID( ), lptvdi->item.pszText );
+				//
+				//return (sRet == TEXT("noedit"));
+
+				return (m_pParentDialog->evalAliasT(TEXT("labelend,%,%"), getUserID(), lptvdi->item.pszText).second == TEXT("noedit"));
+			}
+			return TRUE;
+		}
+		break;
+
+		case NM_CUSTOMDRAW:
+		{
+			dcxlParam(LPNMTVCUSTOMDRAW, lpntvcd);
+
+			bParsed = TRUE;
+
+			switch (lpntvcd->nmcd.dwDrawStage) {
+
+			case CDDS_PREPAINT:
+				return (CDRF_NOTIFYPOSTPAINT | CDRF_NOTIFYITEMDRAW);
+
+			case CDDS_ITEMPREPAINT:
+			{
+				auto lpdcxtvi = reinterpret_cast<LPDCXTVITEM>(lpntvcd->nmcd.lItemlParam);
+
+				if (lpdcxtvi == nullptr)
+					return CDRF_DODEFAULT;
+
+				if (lpdcxtvi->clrText != CLR_INVALID)
+					lpntvcd->clrText = lpdcxtvi->clrText;
+
+				const auto bSelected = (dcx_testflag(lpntvcd->nmcd.uItemState, CDIS_SELECTED));
+
+				// draw unselected background color
+				//if (this->isExStyle(WS_EX_TRANSPARENT) && !bSelected){
+				//	lpntvcd->clrTextBk = CLR_NONE;
+				//	SetBkMode(lpntvcd->nmcd.hdc, TRANSPARENT);
+				//}
+				//else if ((lpdcxtvi->clrBkg != -1) && !bSelected)
+				if ((lpdcxtvi->clrBkg != CLR_INVALID) && !bSelected)
+					lpntvcd->clrTextBk = lpdcxtvi->clrBkg;
+				else if ((m_colSelection != CLR_INVALID) && bSelected)
+					lpntvcd->clrTextBk = m_colSelection;
+
+				if (lpdcxtvi->bUline || lpdcxtvi->bBold || lpdcxtvi->bItalic) {
+					auto hFont = GetWindowFont(m_Hwnd);
+
+					LOGFONT lf;
+					if (GetObject(hFont, sizeof(LOGFONT), &lf) != 0)
+					{
+						if (lpdcxtvi->bBold)
+							lf.lfWeight |= FW_BOLD;
+						if (lpdcxtvi->bUline)
+							lf.lfUnderline = TRUE;
+						if (lpdcxtvi->bItalic)
+							lf.lfItalic = TRUE;
+
+						m_hItemFont = CreateFontIndirect(&lf);
+						if (m_hItemFont != nullptr)
+							m_hOldItemFont = SelectFont(lpntvcd->nmcd.hdc, m_hItemFont);
+					}
+				}
+
+				//TVITEMEX tvitem;
+				//TCHAR buf[MIRC_BUFFER_SIZE_CCH];
+				//ZeroMemory(&tvitem,sizeof(tvitem));
+				//tvitem.hItem = (HTREEITEM)lpntvcd->nmcd.dwItemSpec;
+				//tvitem.mask = TVIF_TEXT;
+				//tvitem.pszText = buf;
+				//tvitem.cchTextMax = MIRC_BUFFER_SIZE_CCH;
+				//TreeView_GetItem(m_Hwnd, &tvitem);
+				//TString tsItem(buf);
+				//RECT rcTxt = lpntvcd->nmcd.rc;
+				//if (!this->m_bCtrlCodeText) {
+				//	if (bSelected && this->m_bShadowText) // could cause problems with pre-XP as this is commctrl v6+
+				//		dcxDrawShadowText(lpntvcd->nmcd.hdc,tsItem.to_wchr(this->m_bUseUTF8), tsItem.wlen(),&rcTxt, DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP | DT_SINGLELINE, lpntvcd->clrText, 0, 5, 5);
+				//	else
+				//		DrawTextW( lpntvcd->nmcd.hdc, tsItem.to_wchr( ), tsItem.wlen( ), &rcTxt, DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP | DT_SINGLELINE );
+				//}
+				//else
+				//	mIRC_DrawText(lpntvcd->nmcd.hdc, tsItem, &rcTxt, DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP | DT_SINGLELINE, ((bSelected && this->m_bShadowText) ? true : false));
+			}
+			//return ( CDRF_NOTIFYPOSTPAINT | CDRF_SKIPDEFAULT );
+			return (CDRF_NOTIFYPOSTPAINT | CDRF_NEWFONT);
+
+			case CDDS_ITEMPOSTPAINT:
+			{
+				if (m_hOldItemFont != nullptr) {
+					SelectFont(lpntvcd->nmcd.hdc, m_hOldItemFont);
+					m_hOldItemFont = nullptr;
+				}
+				if (m_hItemFont != nullptr) {
+					DeleteFont(m_hItemFont);
+					m_hItemFont = nullptr;
+				}
+				return CDRF_DODEFAULT;
+			}
+
+			default:
+				return CDRF_DODEFAULT;
+			}
+		}
+		break;
+
+		case TVN_DELETEITEM:
+		{
+			dcxlParam(LPNMTREEVIEW, lpnmtv);
+			if (lpnmtv == nullptr)
+				break;
+
+			auto lpdcxtvi = reinterpret_cast<LPDCXTVITEM>(lpnmtv->itemOld.lParam);
+
+			delete lpdcxtvi;
+		}
+		break;
+		case TVN_KEYDOWN:
+		{
+			dcxlParam(LPNMTVKEYDOWN, ptvkd);
+
+			if (ptvkd->wVKey == VK_SPACE)
+			{
+				if (auto htvi = TreeView_GetSelection(m_Hwnd); htvi != nullptr) {
+					const auto state = TreeView_GetCheckState(m_Hwnd, htvi);
+					//this->execAliasEx(TEXT("%s,%d,%d,%d"), TEXT("stateclick"), this->getUserID( ), (state ? 0 : 1), TreeView_MapHTREEITEMToAccID(m_Hwnd, htvi) );
+					this->execAliasEx(TEXT("stateclick,%u,%d,%s"), getUserID(), (state ? 0 : 1), getPathFromItem(&htvi).to_chr());
+				}
+			}
+		}
+		break;
+		//case TVN_ITEMCHANGED: // vista only :/
+		//	{
+		//		NMTVITEMCHANGE  *pnm = (NMTVITEMCHANGE *)lParam;
+		//	}
+		//	break;
+
+		} // switch
+	}
+	break;
 	}
 	return 0L;
 }
@@ -2222,10 +2269,9 @@ LRESULT DcxTreeView::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
 				PAINTSTRUCT ps;
 
 				auto hdc = BeginPaint(m_Hwnd, &ps);
+				Auto(EndPaint(m_Hwnd, &ps));
 
 				DrawClientArea(hdc, uMsg, lParam);
-
-				EndPaint( m_Hwnd, &ps );
 			}
 			break;
 		case WM_DESTROY:

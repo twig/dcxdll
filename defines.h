@@ -248,9 +248,9 @@ http://symbiancorner.blogspot.com/2007/05/how-to-detect-version-of-ms-visual.htm
 #endif
 
 #ifdef DCX_USE_DXSDK
-//#ifndef DXSDK_DIR
-//#error "DirectX SDK Required!"
-//#endif
+#if !__has_include(<Dxsdkver.h>)
+#error "DirectX SDK Required!"
+#endif
 #include <Dxsdkver.h>
 #ifdef DCX_DX_ERR
 #include <Dxerr.h>
@@ -269,7 +269,8 @@ http://symbiancorner.blogspot.com/2007/05/how-to-detect-version-of-ms-visual.htm
 #define GSL_THROW_ON_CONTRACT_VIOLATION 1
 #include "GSL\gsl"
 //#pragma pop_macro("max")
-using gsl::byte;
+//using gsl::byte;
+//using std::byte;
 //using gsl::to_integer;
 
 #include "AutoRelease.h"
