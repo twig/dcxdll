@@ -841,7 +841,8 @@ HBITMAP dcxLoadBitmap(HBITMAP dest, TString &filename) {
 		dest = nullptr;
 	}
 	if (!IsFile(filename)) {
-		Dcx::errorex(TEXT("dcxLoadBitmap"), TEXT("Could Not Access File: %s"), filename.to_chr());
+		//Dcx::errorex(TEXT("dcxLoadBitmap"), TEXT("Could Not Access File: %s"), filename.to_chr());
+		Dcx::error(TEXT("dcxLoadBitmap"), TEXT("Could Not Access File: %"), filename);
 		return nullptr;
 	}
 

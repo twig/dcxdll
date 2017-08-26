@@ -108,11 +108,13 @@ mIRC(TrayIcon) {
 	}
 	catch (const std::exception &e)
 	{
-		Dcx::errorex(TEXT("/xtray"), TEXT("\"%s\" error: %S"), d.to_chr(), e.what());
+		//Dcx::errorex(TEXT("/xtray"), TEXT("\"%s\" error: %S"), d.to_chr(), e.what());
+		Dcx::error(TEXT("/xtray"), TEXT("\"%\" error: %"), d, e.what());
 	}
 	catch (...) {
 		// stop any left over exceptions...
-		Dcx::errorex(TEXT("/xtray"), TEXT("\"%s\" error: Unknown Exception"), d.to_chr());
+		//Dcx::errorex(TEXT("/xtray"), TEXT("\"%s\" error: Unknown Exception"), d.to_chr());
+		Dcx::error(TEXT("/xtray"), TEXT("\"%\" error: Unknown Exception"), d);
 	}
 	return 0;
 }
@@ -159,8 +161,8 @@ const HWND &DcxTrayIcon::GetHwnd() const noexcept
 
 LRESULT CALLBACK DcxTrayIcon::TrayWndProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
 	//if (uMsg == DCXM_TRAYICON) {
-	//	const auto uMouseMsg = static_cast<UINT>(lParam);
-	//	const auto id = static_cast<UINT>(wParam);
+	//	const auto uMouseMsg = gsl::narrow_cast<UINT>(lParam);
+	//	const auto id = gsl::narrow_cast<UINT>(wParam);
 	//
 	//	switch (uMouseMsg)
 	//	{

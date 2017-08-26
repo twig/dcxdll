@@ -104,18 +104,9 @@ void DcxLine::toXml(TiXmlElement *const xml) const
 
 TiXmlElement * DcxLine::toXml(void) const
 {
-	auto xml = __super::toXml();
-
-	TString styles(getStyles());
-	styles.remtok(TEXT("transparent"), 1); // line always has transparent style (why?)
-	if (!styles.empty())
-		xml->SetAttribute("styles", styles.c_str());
-	else
-		xml->RemoveAttribute("styles");
-	if (!this->m_sText.empty())
-		xml->SetAttribute("caption", this->m_sText.c_str());
-
-	return xml;
+	auto xml = std::make_unique<TiXmlElement>("control");
+	toXml(xml.get());
+	return xml.release();
 }
 
 /*!

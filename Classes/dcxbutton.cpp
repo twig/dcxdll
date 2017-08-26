@@ -43,10 +43,10 @@ DcxButton::DcxButton(const UINT ID, DcxDialog *const p_Dialog, const HWND mParen
 	parseControlStyles(styles, &Styles, &ExStyles, &bNoTheme);
 
 	m_Hwnd = CreateWindowEx(
-		static_cast<DWORD>(ExStyles),
+		gsl::narrow_cast<DWORD>(ExStyles),
 		DCX_BUTTONCLASS,
 		nullptr,
-		WS_CHILD | BS_PUSHBUTTON | static_cast<DWORD>(Styles),
+		WS_CHILD | BS_PUSHBUTTON | gsl::narrow_cast<DWORD>(Styles),
 		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
 		mParentHwnd,
 		(HMENU)ID,
@@ -250,8 +250,7 @@ void DcxButton::parseCommandRequest( const TString & input ) {
 #endif
 
 		// prepare the image list
-		auto himl = getImageList();
-		if (himl == nullptr) {
+		if (auto himl = getImageList(); himl == nullptr) {
 			himl = createImageList();
 
 			if (himl != nullptr) {
@@ -350,7 +349,7 @@ void DcxButton::setImageList( const HIMAGELIST himl ) noexcept
 
 HIMAGELIST DcxButton::createImageList() {
 	// set initial size of image list to countof(m_aBitmaps) = normal/hover/push/disabled
-	return ImageList_Create(static_cast<int>(m_iIconSize), static_cast<int>(m_iIconSize), ILC_COLOR32 | ILC_MASK, static_cast<int>(Dcx::countof(m_aBitmaps)), 0);
+	return ImageList_Create(gsl::narrow_cast<int>(m_iIconSize), gsl::narrow_cast<int>(m_iIconSize), ILC_COLOR32 | ILC_MASK, gsl::narrow_cast<int>(Dcx::countof(m_aBitmaps)), 0);
 }
 
 const TString DcxButton::getStyles(void) const
@@ -376,12 +375,9 @@ void DcxButton::toXml(TiXmlElement *const xml) const
 
 TiXmlElement * DcxButton::toXml(void) const
 {
-	auto xml = __super::toXml();
-
-	xml->SetAttribute("caption", m_tsCaption.c_str());
-	xml->SetAttribute("styles", getStyles().c_str());
-
-	return xml;
+	auto xml = std::make_unique<TiXmlElement>("control");
+	toXml(xml.get());
+	return xml.release();
 }
 
 /*!
@@ -442,12 +438,15 @@ LRESULT DcxButton::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
 			m_pParentDialog->setMouseControl( getUserID( ) );
 
 			if ( m_bTracking == FALSE ) {
-				TRACKMOUSEEVENT tme;
-				tme.cbSize = sizeof(TRACKMOUSEEVENT);
-				tme.hwndTrack = m_Hwnd;
-				tme.dwFlags = TME_LEAVE | TME_HOVER;
-				tme.dwHoverTime = HOVER_DEFAULT; //1;
-				m_bTracking = _TrackMouseEvent( &tme );		
+				//TRACKMOUSEEVENT tme;
+				//tme.cbSize = sizeof(TRACKMOUSEEVENT);
+				//tme.dwFlags = TME_LEAVE | TME_HOVER;
+				//tme.hwndTrack = m_Hwnd;
+				//tme.dwHoverTime = HOVER_DEFAULT;
+
+				TRACKMOUSEEVENT tme{ sizeof(TRACKMOUSEEVENT),(TME_LEAVE | TME_HOVER),m_Hwnd,HOVER_DEFAULT };
+
+				m_bTracking = _TrackMouseEvent( &tme );
 			}
 
 			if (!m_bTouched) {
@@ -525,10 +524,9 @@ LRESULT DcxButton::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
 			PAINTSTRUCT ps;
 
 			auto hdc = BeginPaint(m_Hwnd, &ps);
+			Auto(EndPaint(m_Hwnd, &ps));
 
 			DrawClientArea(hdc, uMsg, lParam);
-
-			EndPaint( m_Hwnd, &ps );
 		}
 		break;
 
@@ -611,21 +609,16 @@ void DcxButton::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 #if DCX_USE_WRAPPERS
 		Dcx::dcxHDCBitmapResource hdcbmp(hdc, m_aBitmaps[nState]);
 
-		BITMAP bmp;
-
 		// get bitmaps info.
-		if (GetObject(m_aBitmaps[nState], sizeof(BITMAP), &bmp) != 0)
+		if (BITMAP bmp{}; GetObject(m_aBitmaps[nState], sizeof(BITMAP), &bmp) != 0)
 			TransparentBlt(hdc, rcClient.left, rcClient.top, w, h, hdcbmp, 0, 0, bmp.bmWidth, bmp.bmHeight, m_aTransp[nState]);
 
 #else
-		auto hdcbmp = CreateCompatibleDC(hdc);
-		if (hdcbmp != nullptr) {
+		if (auto hdcbmp = CreateCompatibleDC(hdc); hdcbmp != nullptr) {
 			Auto(DeleteDC(hdcbmp));
 
-			BITMAP bmp;
-
 			// get bitmaps info.
-			if (GetObject(m_aBitmaps[nState], sizeof(BITMAP), &bmp) != 0)
+			if (BITMAP bmp{}; GetObject(m_aBitmaps[nState], sizeof(BITMAP), &bmp) != 0)
 			{
 				// associate bitmap with HDC
 				const auto oldbm = SelectBitmap(hdcbmp, m_aBitmaps[nState]);
@@ -668,17 +661,19 @@ void DcxButton::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 
 				// This method causes the theme bkg to re-appear during resize, but button is otherwise drawn correctly.
 				if (uMsg != WM_PRINTCLIENT) {
-					HRGN hRgn = nullptr;
-					if (Dcx::UXModule.dcxGetThemeBackgroundRegion(hTheme, hdc, BP_PUSHBUTTON, iStateId, &rcClient, &hRgn) == S_OK)
+					if (HRGN hRgn = nullptr; Dcx::UXModule.dcxGetThemeBackgroundRegion(hTheme, hdc, BP_PUSHBUTTON, iStateId, &rcClient, &hRgn) == S_OK)
 					{
-						auto hZeroRgn = CreateRectRgn(0, 0, 0, 0);
-						if ((hRgn != nullptr) && (!EqualRgn(hRgn, hZeroRgn)))
+						//auto hZeroRgn = CreateRectRgn(0, 0, 0, 0);
+						//if ((hRgn != nullptr) && (!EqualRgn(hRgn, hZeroRgn)))
+						//	SelectClipRgn(hdc, hRgn);
+						//DeleteRgn(hZeroRgn);
+						//DeleteRgn(hRgn);
+
+						if ((hRgn != nullptr) && (!EqualRgn(hRgn, m_hZeroRgn)))
 							SelectClipRgn(hdc, hRgn);
-						DeleteRgn(hZeroRgn);
 						DeleteRgn(hRgn);
 					}
 				}
-				//CallWindowProc(m_DefaultWindowProc, m_Hwnd, uMsg, (WPARAM)hdc, lParam);
 				CallDefaultProc(m_Hwnd, uMsg, (WPARAM)hdc, lParam);
 
 				// This method causes the button to vanish when the dialog is resized using the redrawBuffered() function.
@@ -732,14 +727,15 @@ void DcxButton::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 		const auto oldbkg = SetBkMode(hdc, TRANSPARENT);
 		Auto(SetBkMode(hdc, oldbkg));
 
-		auto himl = getImageList();
 
-		RECT rcTxt;
+		//RECT rcTxt;
+		//
+		//rcTxt.left = BUTTON_XPAD;
+		//rcTxt.top = BUTTON_YPAD;
+		//rcTxt.right = (rcClient.right - BUTTON_XPAD);
+		//rcTxt.bottom = (rcClient.bottom - BUTTON_YPAD);
 
-		rcTxt.top = BUTTON_YPAD;
-		rcTxt.right = (rcClient.right - BUTTON_XPAD);
-		rcTxt.bottom = (rcClient.bottom - BUTTON_YPAD);
-		rcTxt.left = BUTTON_XPAD;
+		RECT rcTxt{ BUTTON_XPAD,BUTTON_YPAD,(rcClient.right - BUTTON_XPAD),(rcClient.bottom - BUTTON_YPAD) };
 
 		if ( !m_tsCaption.empty() ) {
 			//calcTextRect(hdc, this->m_tsCaption, &rcTxt, DT_WORD_ELLIPSIS | DT_SINGLELINE);
@@ -749,7 +745,7 @@ void DcxButton::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 			if (!m_bSelected && m_bShadowText)
 				dcxDrawShadowText(hdc, t.to_wchr(), t.len(), &rcTxt, DT_WORD_ELLIPSIS | DT_SINGLELINE | DT_CALCRECT, m_aColors[nState], 0,5,5);
 			else
-				DrawText(hdc, t.to_chr(), static_cast<int>(t.len()), &rcTxt, DT_WORD_ELLIPSIS | DT_SINGLELINE | DT_CALCRECT);
+				DrawText(hdc, t.to_chr(), gsl::narrow_cast<int>(t.len()), &rcTxt, DT_WORD_ELLIPSIS | DT_SINGLELINE | DT_CALCRECT);
 		}
 
 		const auto iCenter = w / 2;
@@ -758,9 +754,9 @@ void DcxButton::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 		const auto iTextH = (rcTxt.bottom - rcTxt.top);
 
 		// If there is an icon
-		if (himl != nullptr && m_bHasIcons) {
-			auto iIconLeft = (iCenter - ((static_cast<int>(m_iIconSize) + ICON_XPAD + iTextW) / 2));
-			auto iIconTop = (iVCenter - (static_cast<int>(m_iIconSize) / 2));
+		if (auto himl = getImageList(); himl != nullptr && m_bHasIcons) {
+			auto iIconLeft = (iCenter - ((gsl::narrow_cast<int>(m_iIconSize) + ICON_XPAD + iTextW) / 2));
+			auto iIconTop = (iVCenter - (gsl::narrow_cast<int>(m_iIconSize) / 2));
 
 			if (iIconLeft < BUTTON_XPAD)
 				iIconLeft = BUTTON_XPAD;
@@ -768,7 +764,7 @@ void DcxButton::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 			if (iIconTop < BUTTON_YPAD)
 				iIconTop = BUTTON_YPAD;
 
-			rcTxt.left = iIconLeft + static_cast<int>(m_iIconSize) + ICON_XPAD;
+			rcTxt.left = iIconLeft + gsl::narrow_cast<int>(m_iIconSize) + ICON_XPAD;
 
 			if (nState == 3) // disabled
 				ImageList_Draw(himl, nState, hdc, iIconLeft, iIconTop, ILD_TRANSPARENT | ILD_BLEND50);
@@ -798,7 +794,7 @@ void DcxButton::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 				if (!m_bSelected && m_bShadowText)
 					dcxDrawShadowText(hdc,m_tsCaption.to_wchr(), m_tsCaption.len(),&rcTxt, DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP | DT_SINGLELINE, m_aColors[nState], 0, 5, 5);
 				else
-					DrawText( hdc, m_tsCaption.to_chr(), static_cast<int>(m_tsCaption.len( )), &rcTxt, DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP | DT_SINGLELINE );
+					DrawText( hdc, m_tsCaption.to_chr(), gsl::narrow_cast<int>(m_tsCaption.len( )), &rcTxt, DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP | DT_SINGLELINE );
 			}
 			else
 				mIRC_DrawText(hdc, m_tsCaption, &rcTxt, DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP | DT_SINGLELINE, (!m_bSelected && m_bShadowText));

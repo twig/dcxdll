@@ -33,10 +33,10 @@ DcxRadio::DcxRadio(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentH
 	this->parseControlStyles(styles, &Styles, &ExStyles, &bNoTheme);
 
 	m_Hwnd = CreateWindowEx(
-		static_cast<DWORD>(ExStyles),
+		gsl::narrow_cast<DWORD>(ExStyles),
 		TEXT("BUTTON"),
 		nullptr,
-		WS_CHILD | static_cast<DWORD>(Styles),
+		WS_CHILD | gsl::narrow_cast<DWORD>(Styles),
 		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
 		mParentHwnd,
 		(HMENU)ID,
@@ -229,10 +229,9 @@ LRESULT DcxRadio::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 				PAINTSTRUCT ps;
 
 				auto hdc = BeginPaint(m_Hwnd, &ps);
+				Auto(EndPaint(m_Hwnd, &ps));
 
 				this->DrawClientArea( hdc, uMsg, lParam);
-
-				EndPaint( m_Hwnd, &ps );
 			}
 			break;
 
@@ -258,10 +257,8 @@ void DcxRadio::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 	Auto(FinishAlphaBlend(ai));
 
 	if (this->m_bNoTheme || !Dcx::UXModule.dcxIsThemeActive()) {
-		RECT rcClient;
-
 		// get controls client area
-		if (GetClientRect(m_Hwnd, &rcClient))
+		if (RECT rcClient{}; GetClientRect(m_Hwnd, &rcClient))
 		{
 			if (this->m_clrBackText != CLR_INVALID)
 				SetBkColor(hdc, this->m_clrBackText);
@@ -285,7 +282,6 @@ void DcxRadio::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 			if (!bWasTransp)
 				AddStyles(m_Hwnd, GWL_EXSTYLE, WS_EX_TRANSPARENT);
 
-			//CallWindowProc(this->m_DefaultWindowProc, m_Hwnd, uMsg, (WPARAM)hdc, lParam);
 			CallDefaultProc(m_Hwnd, uMsg, (WPARAM)hdc, lParam);
 
 			if (!bWasTransp)
@@ -294,7 +290,6 @@ void DcxRadio::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 	}
 	else
 		CallDefaultProc(m_Hwnd, uMsg, (WPARAM)hdc, lParam);
-	//CallWindowProc( this->m_DefaultWindowProc, m_Hwnd, uMsg, (WPARAM) hdc, lParam );
 }
 
 void DcxRadio::toXml(TiXmlElement *const xml) const
@@ -309,12 +304,7 @@ void DcxRadio::toXml(TiXmlElement *const xml) const
 
 TiXmlElement * DcxRadio::toXml(void) const
 {
-	auto xml = __super::toXml();
-
-	TString wtext;
-	TGetWindowText(m_Hwnd, wtext);
-	xml->SetAttribute("caption", wtext.c_str());
-	xml->SetAttribute("styles", getStyles().c_str());
-
-	return xml;
+	auto xml = std::make_unique<TiXmlElement>("control");
+	toXml(xml.get());
+	return xml.release();
 }

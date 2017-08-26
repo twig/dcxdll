@@ -23,24 +23,26 @@
  */
 
 DcxWindow::DcxWindow( const HWND mHwnd, const UINT mID )
-	: m_Hwnd( mHwnd ), m_ID( mID ), m_hDefaultWindowProc(nullptr)
+	: m_Hwnd( mHwnd ), m_ID( mID ), m_hDefaultWindowProc(nullptr), m_hZeroRgn(CreateRectRgn(0, 0, 0, 0))
 {
-	if (IDC_map.empty()) {
-		IDC_map[TEXT("appstarting")] = IDC_APPSTARTING;
-		IDC_map[TEXT("arrow")] = IDC_ARROW;
-		IDC_map[TEXT("cross")] = IDC_CROSS;
-		IDC_map[TEXT("hand")] = IDC_HAND;
-		IDC_map[TEXT("help")] = IDC_HELP;
-		IDC_map[TEXT("ibeam")] = IDC_IBEAM;
-		IDC_map[TEXT("no")] = IDC_NO;
-		IDC_map[TEXT("sizeall")] = IDC_SIZEALL;
-		IDC_map[TEXT("sizenesw")] = IDC_SIZENESW;
-		IDC_map[TEXT("sizens")] = IDC_SIZENS;
-		IDC_map[TEXT("sizenwse")] = IDC_SIZENWSE;
-		IDC_map[TEXT("sizewe")] = IDC_SIZEWE;
-		IDC_map[TEXT("uparrow")] = IDC_UPARROW;
-		IDC_map[TEXT("wait")] = IDC_WAIT;
-	}
+//#if _MSC_VER < 1912
+//	if (IDC_map.empty()) {
+//		IDC_map[TEXT("appstarting")] = IDC_APPSTARTING;
+//		IDC_map[TEXT("arrow")] = IDC_ARROW;
+//		IDC_map[TEXT("cross")] = IDC_CROSS;
+//		IDC_map[TEXT("hand")] = IDC_HAND;
+//		IDC_map[TEXT("help")] = IDC_HELP;
+//		IDC_map[TEXT("ibeam")] = IDC_IBEAM;
+//		IDC_map[TEXT("no")] = IDC_NO;
+//		IDC_map[TEXT("sizeall")] = IDC_SIZEALL;
+//		IDC_map[TEXT("sizenesw")] = IDC_SIZENESW;
+//		IDC_map[TEXT("sizens")] = IDC_SIZENS;
+//		IDC_map[TEXT("sizenwse")] = IDC_SIZENWSE;
+//		IDC_map[TEXT("sizewe")] = IDC_SIZEWE;
+//		IDC_map[TEXT("uparrow")] = IDC_UPARROW;
+//		IDC_map[TEXT("wait")] = IDC_WAIT;
+//	}
+//#endif
 }
 
 /*!
@@ -60,9 +62,10 @@ DcxWindow::DcxWindow( const UINT mID )
  * Destructor
  */
 
-DcxWindow::~DcxWindow( ) {
-
-
+DcxWindow::~DcxWindow( )
+{
+	if (m_hZeroRgn != nullptr)
+		DeleteRgn(m_hZeroRgn);
 }
 
 /*!
@@ -88,7 +91,7 @@ bool DcxWindow::isStyle( const LONG Styles ) const noexcept {
 
 LONG DcxWindow::removeStyle( const LONG Styles ) {
 
-	auto winStyles = static_cast<LONG>(GetWindowStyle(m_Hwnd));
+	auto winStyles = gsl::narrow_cast<LONG>(GetWindowStyle(m_Hwnd));
 	return SetWindowLongPtr( m_Hwnd, GWL_STYLE, winStyles &= ~Styles );
 }
 
@@ -100,7 +103,7 @@ LONG DcxWindow::removeStyle( const LONG Styles ) {
 
 LONG DcxWindow::addStyle( const LONG Styles ) {
 
-	auto winStyles = static_cast<LONG>(GetWindowStyle(m_Hwnd));
+	auto winStyles = gsl::narrow_cast<LONG>(GetWindowStyle(m_Hwnd));
 	return SetWindowLongPtr( m_Hwnd, GWL_STYLE, winStyles |= Styles );
 }
 
@@ -246,8 +249,27 @@ void DcxWindow::redrawBufferedWindow( ) {
  *
  * blah
  */
-std::map<TString, PTCHAR> DcxWindow::IDC_map;
+#if _MSC_VER < 1912
+//std::map<TString, PTCHAR> DcxWindow::IDC_map;
 //std::map<stString<12U>, PTCHAR> DcxWindow::IDC_map;
+
+const std::map<TString, PTCHAR> DcxWindow::IDC_map{
+	{ TEXT("appstarting"), IDC_APPSTARTING },
+	{ TEXT("arrow"), IDC_ARROW },
+	{ TEXT("cross"), IDC_CROSS },
+	{ TEXT("hand"), IDC_HAND },
+	{ TEXT("help"), IDC_HELP },
+	{ TEXT("ibeam"), IDC_IBEAM },
+	{ TEXT("no"), IDC_NO },
+	{ TEXT("sizeall"), IDC_SIZEALL },
+	{ TEXT("sizenesw"), IDC_SIZENESW },
+	{ TEXT("sizens"), IDC_SIZENS },
+	{ TEXT("sizenwse"), IDC_SIZENWSE },
+	{ TEXT("sizewe"), IDC_SIZEWE },
+	{ TEXT("uparrow"), IDC_UPARROW },
+	{ TEXT("wait"), IDC_WAIT }
+};
+#endif
 
 PTCHAR DcxWindow::parseCursorType( const TString & cursor )
 {

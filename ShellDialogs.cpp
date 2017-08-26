@@ -100,11 +100,14 @@ mIRC(ColorDialog) {
 	}
 	catch (const std::exception &e)
 	{
-		Dcx::errorex(TEXT("$!dcx(ColorDialog)"), TEXT("\"%s\" error: %S"), d.to_chr(), e.what());
+		//Dcx::errorex(TEXT("$!dcx(ColorDialog)"), TEXT("\"%s\" error: %S"), d.to_chr(), e.what());
+		Dcx::error(TEXT("$!dcx(ColorDialog)"), TEXT("\"%\" error: %"), d, e.what());
+		//Dcx::error(__FUNCTIONW__, TEXT("\"%\" error: %"), d, e.what());
 	}
 	catch (...) {
 		// stop any left over exceptions...
-		Dcx::errorex(TEXT("$!dcx(ColorDialog)"), TEXT("\"%s\" error: Unknown Exception"), d.to_chr());
+		//Dcx::errorex(TEXT("$!dcx(ColorDialog)"), TEXT("\"%s\" error: Unknown Exception"), d.to_chr());
+		Dcx::error(TEXT("$!dcx(ColorDialog)"), TEXT("\"%\" error: Unknown Exception"), d);
 	}
 	return 0;
 }
@@ -135,11 +138,13 @@ mIRC(OpenDialog) {
 	}
 	catch (const std::exception &e)
 	{
-		Dcx::errorex(TEXT("$!dcx(OpenDialog)"), TEXT("\"%s\" error: %S"), d.to_chr(), e.what());
+		//Dcx::errorex(TEXT("$!dcx(OpenDialog)"), TEXT("\"%s\" error: %S"), d.to_chr(), e.what());
+		Dcx::error(TEXT("$!dcx(OpenDialog)"), TEXT("\"%\" error: %"), d, e.what());
 	}
 	catch (...) {
 		// stop any left over exceptions...
-		Dcx::errorex(TEXT("$!dcx(OpenDialog)"), TEXT("\"%s\" error: Unknown Exception"), d.to_chr());
+		//Dcx::errorex(TEXT("$!dcx(OpenDialog)"), TEXT("\"%s\" error: Unknown Exception"), d.to_chr());
+		Dcx::error(TEXT("$!dcx(OpenDialog)"), TEXT("\"%\" error: Unknown Exception"), d);
 	}
 	return 0;
 }
@@ -161,11 +166,13 @@ mIRC(SaveDialog) {
 	}
 	catch (const std::exception &e)
 	{
-		Dcx::errorex(TEXT("$!dcx(SaveDialog)"), TEXT("\"%s\" error: %S"), d.to_chr(), e.what());
+		//Dcx::errorex(TEXT("$!dcx(SaveDialog)"), TEXT("\"%s\" error: %S"), d.to_chr(), e.what());
+		Dcx::error(TEXT("$!dcx(SaveDialog)"), TEXT("\"%\" error: %"), d, e.what());
 	}
 	catch (...) {
 		// stop any left over exceptions...
-		Dcx::errorex(TEXT("$!dcx(SaveDialog)"), TEXT("\"%s\" error: Unknown Exception"), d.to_chr());
+		//Dcx::errorex(TEXT("$!dcx(SaveDialog)"), TEXT("\"%s\" error: Unknown Exception"), d.to_chr());
+		Dcx::error(TEXT("$!dcx(SaveDialog)"), TEXT("\"%\" error: Unknown Exception"), d);
 	}
 	return 0;
 }
@@ -524,11 +531,13 @@ mIRC(BrowseDialog) {
 	}
 	catch (const std::exception &e)
 	{
-		Dcx::errorex(TEXT("$!dcx(BrowseDialog)"), TEXT("\"%s\" error: %S"), input.to_chr(), e.what());
+		//Dcx::errorex(TEXT("$!dcx(BrowseDialog)"), TEXT("\"%s\" error: %S"), input.to_chr(), e.what());
+		Dcx::error(TEXT("$!dcx(BrowseDialog)"), TEXT("\"%\" error: %"), input, e.what());
 	}
 	catch (...) {
 		// stop any left over exceptions...
-		Dcx::errorex(TEXT("$!dcx(BrowseDialog)"), TEXT("\"%s\" error: Unknown Exception"), input.to_chr());
+		//Dcx::errorex(TEXT("$!dcx(BrowseDialog)"), TEXT("\"%s\" error: Unknown Exception"), input.to_chr());
+		Dcx::error(TEXT("$!dcx(BrowseDialog)"), TEXT("\"%\" error: Unknown Exception"), input);
 	}
 	return 0;
 }
@@ -741,11 +750,13 @@ mIRC(FontDialog) {
 	}
 	catch (const std::exception &e)
 	{
-		Dcx::errorex(TEXT("$!dcx(FontDialog)"), TEXT("\"%s\" error: %S"), input.to_chr(), e.what());
+		//Dcx::errorex(TEXT("$!dcx(FontDialog)"), TEXT("\"%s\" error: %S"), input.to_chr(), e.what());
+		Dcx::error(TEXT("$!dcx(FontDialog)"), TEXT("\"%\" error: %"), input, e.what());
 	}
 	catch (...) {
 		// stop any left over exceptions...
-		Dcx::errorex(TEXT("$!dcx(FontDialog)"), TEXT("\"%s\" error: Unknown Exception"), input.to_chr());
+		//Dcx::errorex(TEXT("$!dcx(FontDialog)"), TEXT("\"%s\" error: Unknown Exception"), input.to_chr());
+		Dcx::error(TEXT("$!dcx(FontDialog)"), TEXT("\"%\" error: Unknown Exception"), input);
 	}
 	return 0;
 }
@@ -950,11 +961,13 @@ mIRC(MsgBox) {
 	}
 	catch (const std::exception &e)
 	{
-		Dcx::errorex(TEXT("$!dcx(MsgBox)"), TEXT("\"%s\" error: %S"), d.to_chr(), e.what());
+		//Dcx::errorex(TEXT("$!dcx(MsgBox)"), TEXT("\"%s\" error: %S"), d.to_chr(), e.what());
+		Dcx::error(TEXT("$!dcx(MsgBox)"), TEXT("\"%\" error: %"), d, e.what());
 	}
 	catch (...) {
 		// stop any left over exceptions...
-		Dcx::errorex(TEXT("$!dcx(MsgBox)"), TEXT("\"%s\" error: Unknown Exception"), d.to_chr());
+		//Dcx::errorex(TEXT("$!dcx(MsgBox)"), TEXT("\"%s\" error: Unknown Exception"), d.to_chr());
+		Dcx::error(TEXT("$!dcx(MsgBox)"), TEXT("\"%\" error: Unknown Exception"), d);
 	}
 	return 0;
 }
@@ -1005,11 +1018,13 @@ mIRC(PickIcon) {
 	}
 	catch (const std::exception &e)
 	{
-		Dcx::errorex(TEXT("$!dcx(PickIcon)"), TEXT("\"%s\" error: %S"), d.to_chr(), e.what());
+		//Dcx::errorex(TEXT("$!dcx(PickIcon)"), TEXT("\"%s\" error: %S"), d.to_chr(), e.what());
+		Dcx::error(TEXT("$!dcx(PickIcon)"), TEXT("\"%\" error: %"), d, e.what());
 	}
 	catch (...) {
 		// stop any left over exceptions...
-		Dcx::errorex(TEXT("$!dcx(PickIcon)"), TEXT("\"%s\" error: Unknown Exception"), d.to_chr());
+		//Dcx::errorex(TEXT("$!dcx(PickIcon)"), TEXT("\"%s\" error: Unknown Exception"), d.to_chr());
+		Dcx::error(TEXT("$!dcx(PickIcon)"), TEXT("\"%\" error: Unknown Exception"), d);
 	}
 	return 0;
 }
@@ -1039,17 +1054,20 @@ mIRC(CountIcons) {
 		if (!IsFile(filename))
 			throw Dcx::dcxException("Invalid filename");
 
-		wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("D_OK %u %s"), ExtractIconEx(filename.to_chr(), -1, nullptr, nullptr, 0), filename.to_chr());
+		//wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("D_OK %u %s"), ExtractIconEx(filename.to_chr(), -1, nullptr, nullptr, 0), filename.to_chr());
+		_ts_snprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("D_OK %u %s"), ExtractIconEx(filename.to_chr(), -1, nullptr, nullptr, 0), filename.to_chr());
 
 		return 3;
 	}
 	catch (const std::exception &e)
 	{
-		Dcx::errorex(TEXT("$!dcx(CountIcons)"), TEXT("\"%s\" error: %S"), filename.to_chr(), e.what());
+		//Dcx::errorex(TEXT("$!dcx(CountIcons)"), TEXT("\"%s\" error: %S"), filename.to_chr(), e.what());
+		Dcx::error(TEXT("$!dcx(CountIcons)"), TEXT("\"%\" error: %"), filename, e.what());
 	}
 	catch (...) {
 		// stop any left over exceptions...
-		Dcx::errorex(TEXT("$!dcx(CountIcons)"), TEXT("\"%s\" error: Unknown Exception"), filename.to_chr());
+		//Dcx::errorex(TEXT("$!dcx(CountIcons)"), TEXT("\"%s\" error: Unknown Exception"), filename.to_chr());
+		Dcx::error(TEXT("$!dcx(CountIcons)"), TEXT("\"%\" error: Unknown Exception"), filename);
 	}
 	return 0;
 }

@@ -36,10 +36,10 @@ DcxPanel::DcxPanel(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentH
 	this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
 
 	m_Hwnd = CreateWindowEx(	
-		static_cast<DWORD>(ExStyles) | WS_EX_CONTROLPARENT, 
+		gsl::narrow_cast<DWORD>(ExStyles) | WS_EX_CONTROLPARENT, 
 		DCX_PANELCLASS, 
 		nullptr,
-		WS_CHILD | static_cast<DWORD>(Styles),
+		WS_CHILD | gsl::narrow_cast<DWORD>(Styles),
 		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
 		mParentHwnd,
 		(HMENU) ID,
@@ -80,11 +80,9 @@ void DcxPanel::toXml(TiXmlElement *const xml) const
 
 TiXmlElement * DcxPanel::toXml(void) const
 {
-	auto xml = __super::toXml();
-
-	m_pLayoutManager->getRoot()->toXml(xml);
-
-	return xml;
+	auto xml = std::make_unique<TiXmlElement>("control");
+	toXml(xml.get());
+	return xml.release();
 }
 
 /*!
@@ -154,9 +152,7 @@ void DcxPanel::parseCommandRequest( const TString & input ) {
 		if (p_Control == nullptr)
 			throw Dcx::dcxException(TEXT("Unable to get control with ID \"%\" (dialog %)"), ID - mIRC_ID_OFFSET, this->m_pParentDialog->getName());
 
-		const auto dct = p_Control->getControlType();
-
-		if (dct == DcxControlTypes::DIALOG || dct == DcxControlTypes::WINDOW)
+		if (const auto dct = p_Control->getControlType(); (dct == DcxControlTypes::DIALOG || dct == DcxControlTypes::WINDOW))
 			delete p_Control;
 		else {
 			if (p_Control->getRefCount() != 0)
@@ -281,8 +277,7 @@ LRESULT DcxPanel::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 					break;
 
 				if (IsWindow(hdr->hwndFrom)) {
-					auto c_this = static_cast<DcxControl *>(GetProp(hdr->hwndFrom, TEXT("dcx_cthis")));
-					if (c_this != nullptr)
+					if (auto c_this = static_cast<DcxControl *>(GetProp(hdr->hwndFrom, TEXT("dcx_cthis"))); c_this != nullptr)
 						lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 				}
 			}
@@ -293,8 +288,7 @@ LRESULT DcxPanel::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 		case WM_COMMAND:
 			{
 				if (IsWindow((HWND) lParam)) {
-					auto c_this = static_cast<DcxControl *>(GetProp((HWND)lParam, TEXT("dcx_cthis")));
-					if (c_this != nullptr)
+					if (auto c_this = static_cast<DcxControl *>(GetProp((HWND)lParam, TEXT("dcx_cthis"))); c_this != nullptr)
 						lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 				}
 			}
@@ -305,8 +299,7 @@ LRESULT DcxPanel::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 				dcxlParam(LPCOMPAREITEMSTRUCT, idata);
 
 				if ((idata != nullptr) && (IsWindow(idata->hwndItem))) {
-					auto c_this = static_cast<DcxControl *>(GetProp(idata->hwndItem, TEXT("dcx_cthis")));
-					if (c_this != nullptr)
+					if (auto c_this = static_cast<DcxControl *>(GetProp(idata->hwndItem, TEXT("dcx_cthis"))); c_this != nullptr)
 						lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 				}
 			}
@@ -317,8 +310,7 @@ LRESULT DcxPanel::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 				dcxlParam(LPDELETEITEMSTRUCT, idata);
 
 				if ((idata != nullptr) && (IsWindow(idata->hwndItem))) {
-					auto c_this = static_cast<DcxControl *>(GetProp(idata->hwndItem, TEXT("dcx_cthis")));
-					if (c_this != nullptr)
+					if (auto c_this = static_cast<DcxControl *>(GetProp(idata->hwndItem, TEXT("dcx_cthis"))); c_this != nullptr)
 						lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 				}
 			}
@@ -326,10 +318,8 @@ LRESULT DcxPanel::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 
 		case WM_MEASUREITEM:
 			{
-				auto cHwnd = GetDlgItem(m_Hwnd, static_cast<int>(wParam));
-				if (IsWindow(cHwnd)) {
-					auto c_this = static_cast<DcxControl *>(GetProp(cHwnd, TEXT("dcx_cthis")));
-					if (c_this != nullptr)
+				if (auto cHwnd = GetDlgItem(m_Hwnd, static_cast<int>(wParam)); IsWindow(cHwnd)) {
+					if (auto c_this = static_cast<DcxControl *>(GetProp(cHwnd, TEXT("dcx_cthis"))); c_this != nullptr)
 						lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 				}
 			}
@@ -340,8 +330,7 @@ LRESULT DcxPanel::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 				dcxlParam(LPDRAWITEMSTRUCT, idata);
 
 				if ((idata != nullptr) && (IsWindow(idata->hwndItem))) {
-					auto c_this = static_cast<DcxControl *>(GetProp(idata->hwndItem, TEXT("dcx_cthis")));
-					if (c_this != nullptr)
+					if (auto c_this = static_cast<DcxControl *>(GetProp(idata->hwndItem, TEXT("dcx_cthis"))); c_this != nullptr)
 						lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 				}
 			}
@@ -423,6 +412,7 @@ LRESULT DcxPanel::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 
 				// Setup alpha blend if any.
 				const auto ai = this->SetupAlphaBlend(&hdc);
+				Auto(this->FinishAlphaBlend(ai));
 
 				{ // simply fill with bkg
 					if (this->isExStyle(WS_EX_TRANSPARENT)) {
@@ -432,8 +422,6 @@ LRESULT DcxPanel::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 					else
 						DcxControl::DrawCtrlBackground(hdc,this);
 				}
-
-				this->FinishAlphaBlend(ai);
 			}
 			break;
 
@@ -442,11 +430,13 @@ LRESULT DcxPanel::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 				PAINTSTRUCT ps;
 
 				auto hdc = BeginPaint(m_Hwnd, &ps);
+				Auto(EndPaint(m_Hwnd, &ps));
 
 				bParsed = TRUE;
 
 				// Setup alpha blend if any.
 				auto ai = this->SetupAlphaBlend(&hdc);
+				Auto(this->FinishAlphaBlend(ai));
 
 				{ // simply fill with bkg
 					if (this->isExStyle(WS_EX_TRANSPARENT)) {
@@ -456,10 +446,6 @@ LRESULT DcxPanel::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 					else
 						DcxControl::DrawCtrlBackground(hdc,this);
 				}
-
-				this->FinishAlphaBlend(ai);
-
-				EndPaint( m_Hwnd, &ps );
 			}
 			break;
 

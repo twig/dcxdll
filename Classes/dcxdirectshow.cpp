@@ -50,10 +50,10 @@ DcxDirectshow::DcxDirectshow(const UINT ID, DcxDialog *const p_Dialog, const HWN
 	this->parseControlStyles(styles, &Styles, &ExStyles, &bNoTheme);
 
 	m_Hwnd = CreateWindowEx(
-		static_cast<DWORD>(ExStyles | WS_EX_CLIENTEDGE),
+		gsl::narrow_cast<DWORD>(ExStyles | WS_EX_CLIENTEDGE),
 		TEXT("STATIC"),
 		nullptr,
-		static_cast<DWORD>(WS_CHILD | WS_CLIPSIBLINGS | Styles),
+		gsl::narrow_cast<DWORD>(WS_CHILD | WS_CLIPSIBLINGS | Styles),
 		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
 		mParentHwnd,
 		(HMENU)ID,
@@ -122,9 +122,8 @@ void DcxDirectshow::parseInfoRequest( const TString & input, const refString<TCH
 {
 #if DCX_USE_HASHING
 	const auto prop(input.getfirsttok(3));
-	const auto propHash = std::hash<TString>{}(prop);
 
-	if (this->m_pGraph == nullptr) {
+	if (const auto propHash = std::hash<TString>{}(prop); this->m_pGraph == nullptr) {
 		switch (propHash)
 		{
 			// [NAME] [ID] [PROP]
@@ -155,9 +154,9 @@ void DcxDirectshow::parseInfoRequest( const TString & input, const refString<TCH
 			// [NAME] [ID] [PROP]
 		case L"size"_hash:
 		{
-			long lWidth, lHeight, lARWidth, lARHeight;
-			auto hr = m_pWc->GetNativeVideoSize(&lWidth, &lHeight, &lARWidth, &lARHeight);
-			if (FAILED(hr)) {
+			long lWidth = 0, lHeight = 0, lARWidth = 0, lARHeight = 0;
+			
+			if (auto hr = m_pWc->GetNativeVideoSize(&lWidth, &lHeight, &lARWidth, &lARHeight); FAILED(hr)) {
 				DX_ERR(prop.to_chr(), nullptr, hr);
 				throw Dcx::dcxException("Unable to get Native Video Size");
 			}
@@ -179,8 +178,8 @@ void DcxDirectshow::parseInfoRequest( const TString & input, const refString<TCH
 		case L"video"_hash:
 		{
 			VMR9ProcAmpControl amc;
-			auto hr = this->getVideo(&amc);
-			if (FAILED(hr)) {
+			
+			if (auto hr = this->getVideo(&amc); FAILED(hr)) {
 				DX_ERR(prop.to_chr(), nullptr, hr);
 				throw Dcx::dcxException("Unable to get Video Information");
 			}
@@ -204,8 +203,8 @@ void DcxDirectshow::parseInfoRequest( const TString & input, const refString<TCH
 		case L"brange"_hash:
 		{
 			VMR9ProcAmpControlRange acr;
-			auto hr = this->getVideoRange(ProcAmpControl9_Brightness, &acr);
-			if (FAILED(hr)) {
+
+			if (auto hr = this->getVideoRange(ProcAmpControl9_Brightness, &acr); FAILED(hr)) {
 				DX_ERR(prop.to_chr(), nullptr, hr);
 				throw Dcx::dcxException("Unable to get Video Information");
 			}
@@ -219,8 +218,8 @@ void DcxDirectshow::parseInfoRequest( const TString & input, const refString<TCH
 		case L"crange"_hash:
 		{
 			VMR9ProcAmpControlRange acr;
-			auto hr = this->getVideoRange(ProcAmpControl9_Contrast, &acr);
-			if (FAILED(hr)) {
+
+			if (auto hr = this->getVideoRange(ProcAmpControl9_Contrast, &acr); FAILED(hr)) {
 				DX_ERR(prop.to_chr(), nullptr, hr);
 				throw Dcx::dcxException("Unable to get Video Information");
 			}
@@ -234,8 +233,8 @@ void DcxDirectshow::parseInfoRequest( const TString & input, const refString<TCH
 		case L"hrange"_hash:
 		{
 			VMR9ProcAmpControlRange acr;
-			auto hr = this->getVideoRange(ProcAmpControl9_Hue, &acr);
-			if (FAILED(hr)) {
+
+			if (auto hr = this->getVideoRange(ProcAmpControl9_Hue, &acr); FAILED(hr)) {
 				DX_ERR(prop.to_chr(), nullptr, hr);
 				throw Dcx::dcxException("Unable to get Video Information");
 			}
@@ -249,8 +248,8 @@ void DcxDirectshow::parseInfoRequest( const TString & input, const refString<TCH
 		case L"srange"_hash:
 		{
 			VMR9ProcAmpControlRange acr;
-			auto hr = getVideoRange(ProcAmpControl9_Saturation, &acr);
-			if (FAILED(hr)) {
+
+			if (auto hr = getVideoRange(ProcAmpControl9_Saturation, &acr); FAILED(hr)) {
 				DX_ERR(prop.to_chr(), nullptr, hr);
 				throw Dcx::dcxException("Unable to get Video Information");
 			}
@@ -294,10 +293,11 @@ void DcxDirectshow::parseInfoRequest( const TString & input, const refString<TCH
 			*/
 
 			OAFilterState pfs = State_Stopped;
-			PTCHAR szState = nullptr;
-			auto hr = this->m_pControl->GetState(1000, &pfs);
 
-			if (SUCCEEDED(hr)) {
+			if (auto hr = this->m_pControl->GetState(1000, &pfs); SUCCEEDED(hr))
+			{
+				PTCHAR szState = nullptr;
+
 				switch (pfs) {
 				case State_Stopped:
 					szState = TEXT("stopped");
@@ -711,8 +711,7 @@ void DcxDirectshow::parseCommandRequest( const TString &input) {
 		const auto fHue(input.getnexttok().to_<float>());
 		const auto fSaturation(input.getnexttok().to_<float>());
 
-		auto hr = setVideo(tsFlags, fBrightness, fContrast, fHue, fSaturation);
-		if (FAILED(hr)) {
+		if (auto hr = setVideo(tsFlags, fBrightness, fContrast, fHue, fSaturation); FAILED(hr)) {
 			DX_ERR(nullptr,TEXT("-v"), hr);
 			throw Dcx::dcxException("Unable to set video");
 		}
@@ -728,19 +727,18 @@ void DcxDirectshow::parseCommandRequest( const TString &input) {
 			throw Dcx::dcxException("No File Loaded");
 
 		switch (flag[1]) {
-			case TEXT('v'): // Volume
-				{
-					auto hr = this->setVolume(input.getnexttok().to_<long>());	// tok 5
-					if (FAILED(hr)) {
-						DX_ERR(nullptr, TEXT("-V +v"), hr);
-						throw Dcx::dcxException("Unable to Set Volume");
-					}
-				}
-				break;
-			case TEXT('b'): // Balance
-				break;
-			default:
-				throw Dcx::dcxException("Unknown Flag");
+		case TEXT('v'): // Volume
+		{
+			if (auto hr = this->setVolume(input.getnexttok().to_<long>()); FAILED(hr)) {
+				DX_ERR(nullptr, TEXT("-V +v"), hr);
+				throw Dcx::dcxException("Unable to Set Volume");
+			}
+		}
+		break;
+		case TEXT('b'): // Balance
+			break;
+		default:
+			throw Dcx::dcxException("Unknown Flag");
 		}
 	}
 	else
@@ -759,113 +757,111 @@ LRESULT DcxDirectshow::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, B
 LRESULT DcxDirectshow::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
 
 	LRESULT lRes = 0L;
-	switch( uMsg ) {
-
-	case WM_ERASEBKGND: 
-		{
-			RECT rect;
-			if (GetClientRect( m_Hwnd, &rect ))
-				DcxControl::DrawCtrlBackground((HDC) wParam,this,&rect);
-			bParsed = TRUE;
-			return TRUE;
-		}
-		break;
+	switch (uMsg)
+	{
+	case WM_ERASEBKGND:
+	{
+		if (RECT rect{}; GetClientRect(m_Hwnd, &rect))
+			DcxControl::DrawCtrlBackground((HDC)wParam, this, &rect);
+		bParsed = TRUE;
+		return TRUE;
+	}
+	break;
 
 	case WM_PRINTCLIENT:
-		{
-			bParsed = TRUE;
-			dcxwParam(HDC, hdc);
+	{
+		bParsed = TRUE;
+		dcxwParam(HDC, hdc);
 
+		if (this->m_pWc != nullptr)
+		{
+			// Request the VMR to paint the video.
+			this->m_pWc->RepaintVideo(m_Hwnd, hdc);
+		}
+		else { // There is no video, so paint the whole client area.
+			if (RECT rcClient{}; GetClientRect(m_Hwnd, &rcClient))
+				DcxControl::DrawCtrlBackground((HDC)wParam, this, &rcClient);
+		}
+	}
+	break;
+	case WM_PAINT:
+	{
+		bParsed = TRUE;
+		PAINTSTRUCT ps;
+
+		auto hdc = BeginPaint(m_Hwnd, &ps);
+		Auto(EndPaint(m_Hwnd, &ps));
+		if (hdc != nullptr)
+		{
 			if (this->m_pWc != nullptr)
 			{
 				// Request the VMR to paint the video.
 				this->m_pWc->RepaintVideo(m_Hwnd, hdc);
 			}
-			else { // There is no video, so paint the whole client area.
-				RECT rcClient;
-				if (GetClientRect(m_Hwnd, &rcClient))
-					DcxControl::DrawCtrlBackground((HDC) wParam,this,&rcClient);
-			}
+			else // There is no video, so paint the whole client area.
+				DcxControl::DrawCtrlBackground(hdc, this, &ps.rcPaint);
 		}
-		break;
-	case WM_PAINT:
-		{
-			bParsed = TRUE;
-			PAINTSTRUCT ps;
-
-			auto hdc = BeginPaint(m_Hwnd, &ps);
-			if (hdc != nullptr)
-			{
-				if (this->m_pWc != nullptr)
-				{
-					// Request the VMR to paint the video.
-					this->m_pWc->RepaintVideo(m_Hwnd, hdc);
-				}
-				else // There is no video, so paint the whole client area.
-					DcxControl::DrawCtrlBackground(hdc, this, &ps.rcPaint);
-			}
-			EndPaint(m_Hwnd, &ps); 
-		}
-		break;
+	}
+	break;
 
 	case WM_SIZE:
-		{
-			if (this->m_pWc != nullptr)
-				this->SetVideoPos();
-		}
-		break;
+	{
+		if (this->m_pWc != nullptr)
+			this->SetVideoPos();
+	}
+	break;
 
 	case WM_DISPLAYCHANGE:
-		{
-			if (this->m_pWc != nullptr)
-				this->m_pWc->DisplayModeChanged();
-		}
-		break;
+	{
+		if (this->m_pWc != nullptr)
+			this->m_pWc->DisplayModeChanged();
+	}
+	break;
 
 	case WM_GRAPHNOTIFY:
+	{
+		bParsed = TRUE;
+		if (this->m_pEvent == nullptr)
+			break;
+		// Get all the events
+		long evCode;
+		LONG_PTR param1, param2;
+		while (SUCCEEDED(this->m_pEvent->GetEvent(&evCode, &param1, &param2, 0)))
 		{
-			bParsed = TRUE;
-			if (this->m_pEvent == nullptr)
-				break;
-			// Get all the events
-			long evCode;
-			LONG_PTR param1, param2;
-			while (SUCCEEDED(this->m_pEvent->GetEvent(&evCode, &param1, &param2, 0)))
+			this->m_pEvent->FreeEventParams(evCode, param1, param2);
+			switch (evCode)
 			{
-				this->m_pEvent->FreeEventParams(evCode, param1, param2);
-				switch (evCode)
-				{
-				case EC_COMPLETE:
-					{
-						LONGLONG rtNow = 0; // seek to start.
-						this->m_pSeek->SetPositions(&rtNow, AM_SEEKING_AbsolutePositioning, nullptr, AM_SEEKING_NoPositioning);
-						if (!this->m_bLoop) {
-							this->m_pControl->StopWhenReady();
-							this->execAliasEx(TEXT("dshow,%u,completed"), getUserID());
-						}
-					}
-					break;
-					//case EC_PAUSED: // oddly this is sent when we play the file too.
-					//	this->execAliasEx(TEXT("%s,%d,%s"),TEXT("dshow"),this->getUserID(),TEXT("paused"));
-					//	break;
-					//case EC_USERABORT:
-					//case EC_ERRORABORT:
-					//	this->execAliasEx(TEXT("%s,%d,%s"),TEXT("dshow"),this->getUserID(),TEXT("aborted"));
-					//	break;
+			case EC_COMPLETE:
+			{
+				LONGLONG rtNow = 0; // seek to start.
+				this->m_pSeek->SetPositions(&rtNow, AM_SEEKING_AbsolutePositioning, nullptr, AM_SEEKING_NoPositioning);
+				if (!this->m_bLoop) {
+					this->m_pControl->StopWhenReady();
+					this->execAliasEx(TEXT("dshow,%u,completed"), getUserID());
 				}
-			} 
+			}
+			break;
+			//case EC_PAUSED: // oddly this is sent when we play the file too.
+			//	this->execAliasEx(TEXT("%s,%d,%s"),TEXT("dshow"),this->getUserID(),TEXT("paused"));
+			//	break;
+			//case EC_USERABORT:
+			//case EC_ERRORABORT:
+			//	this->execAliasEx(TEXT("%s,%d,%s"),TEXT("dshow"),this->getUserID(),TEXT("aborted"));
+			//	break;
+			}
 		}
-		break;
+	}
+	break;
 
 	case WM_DESTROY:
-		{
-			delete this;
-			bParsed = TRUE;
-		}
-		break;
+	{
+		delete this;
+		bParsed = TRUE;
+	}
+	break;
 
 	default:
-		lRes = this->CommonMessage( uMsg, wParam, lParam, bParsed);
+		lRes = this->CommonMessage(uMsg, wParam, lParam, bParsed);
 		break;
 	}
 
@@ -955,7 +951,7 @@ HRESULT DcxDirectshow::SetVideoPos(void)
 	if (this->m_pWc == nullptr)
 		return E_POINTER;
 
-	long lWidth, lHeight;
+	long lWidth = 0, lHeight = 0;
 	auto hr = this->m_pWc->GetNativeVideoSize(&lWidth, &lHeight, nullptr, nullptr);
 	if (SUCCEEDED(hr))
 	{
@@ -1129,13 +1125,10 @@ HRESULT DcxDirectshow::setAlpha(float alpha)
 			}
 		}
 #else
-		auto hdc = GetDC(m_Hwnd);
-		if (hdc != nullptr) { // make duplicate hdc;
+		if (auto hdc = GetDC(m_Hwnd); hdc != nullptr) { // make duplicate hdc;
 			Auto(ReleaseDC(m_Hwnd, hdc));
 
-			const auto hdcBuf = CreateHDCBuffer(hdc, &rcWin);
-
-			if (hdcBuf != nullptr)
+			if (const auto hdcBuf = CreateHDCBuffer(hdc, &rcWin); hdcBuf != nullptr)
 			{
 				Auto(DeleteHDCBuffer(hdcBuf));
 
@@ -1362,8 +1355,7 @@ long DcxDirectshow::getVolume() const
 	IBasicAudio *pAudio = nullptr;
 	long vol = 0;
 
-	auto hr = this->m_pGraph->QueryInterface(IID_IBasicAudio, (void**)&pAudio);
-	if (SUCCEEDED(hr)) {
+	if (auto hr = this->m_pGraph->QueryInterface(IID_IBasicAudio, (void**)&pAudio); SUCCEEDED(hr)) {
 		Auto(pAudio->Release());
 
 		long t = 0;
@@ -1388,11 +1380,9 @@ void DcxDirectshow::toXml(TiXmlElement *const xml) const
 
 TiXmlElement * DcxDirectshow::toXml(void) const
 {
-	auto xml = __super::toXml();
-
-	xml->SetAttribute("styles", getStyles().c_str());
-
-	return xml;
+	auto xml = std::make_unique<TiXmlElement>("control");
+	toXml(xml.get());
+	return xml.release();
 }
 
 #endif // DCX_USE_DXSDK

@@ -33,9 +33,6 @@
 
 #include "Classes/xpopup\xpopupmenumanager.h"
 
-
-
-//extern mIRCDLL mIRCLink;
 bool DcxDialog::m_bIsMenuBar = false;
 bool DcxDialog::m_bIsSysMenu = false;
 
@@ -1059,8 +1056,7 @@ void DcxDialog::parseCommandRequest( const TString &input) {
 				throw Dcx::dcxException("Unable to create region.");
 
 			if (RegionMode != 0) {
-				auto wrgn = CreateRectRgn(0, 0, 0, 0);
-				if (wrgn != nullptr) {
+				if (auto wrgn = CreateRectRgn(0, 0, 0, 0); wrgn != nullptr) {
 					if (GetWindowRgn(m_Hwnd,wrgn) != ERROR)
 						CombineRgn(m_Region,m_Region,wrgn,RegionMode);
 					DeleteRgn(wrgn);
@@ -3187,19 +3183,20 @@ void DcxDialog::CreateVistaStyle(void)
 
 		const DWORD ExStyles = WS_EX_LAYERED | WS_EX_TRANSPARENT | WS_EX_NOACTIVATE | WS_EX_LEFT;
 		const DWORD Styles = WS_VISIBLE/*|WS_OVERLAPPED*/|WS_CLIPCHILDREN;
-		SIZE szWin;
-		szWin.cx = (rc.right - rc.left);
-		szWin.cy = (rc.bottom - rc.top);
+
+		SIZE szWin{ (rc.right - rc.left),(rc.bottom - rc.top) };
+
 		this->m_hFakeHwnd = CreateWindowEx(ExStyles,DCX_VISTACLASS,nullptr,Styles,rc.left,rc.top,szWin.cx,szWin.cy,m_Hwnd,nullptr,GetModuleHandle(nullptr), nullptr);
 		if (IsWindow(this->m_hFakeHwnd)) {
 			if (this->CreateVistaStyleBitmap(szWin))
 			{
 				SetLayeredWindowAttributes(m_Hwnd,0,5,LWA_ALPHA);
-				auto hRgn = CreateRectRgn(0,0,0,0);
-				if (GetWindowRgn(m_Hwnd, hRgn))
+
+				if (auto hRgn = CreateRectRgn(0, 0, 0, 0); GetWindowRgn(m_Hwnd, hRgn))
 					SetWindowRgn(this->m_hFakeHwnd, hRgn, TRUE);
 				else
 					DeleteRgn(hRgn);
+
 				this->m_bVistaStyle = true;
 			}
 			else
@@ -3410,10 +3407,11 @@ void DcxDialog::UpdateVistaStyle(const LPRECT rcUpdate)
 		return;
 
 	{ // maintain a matching region.
-		auto hRgn = CreateRectRgn(0, 0, 0, 0);
-		if (GetWindowRgn(m_Hwnd, hRgn))
+		if (auto hRgn = CreateRectRgn(0, 0, 0, 0); GetWindowRgn(m_Hwnd, hRgn))
 		{
 			auto hFakeRgn = CreateRectRgn(0, 0, 0, 0);
+			Auto(DeleteRgn(hFakeRgn));
+
 			if (GetWindowRgn(m_hFakeHwnd, hFakeRgn))
 			{
 				if (!EqualRgn(hRgn, hFakeRgn))
@@ -3423,7 +3421,6 @@ void DcxDialog::UpdateVistaStyle(const LPRECT rcUpdate)
 			}
 			else
 				SetWindowRgn(m_hFakeHwnd, hRgn, FALSE);
-			DeleteRgn(hFakeRgn);
 		}
 		else
 			DeleteRgn(hRgn);

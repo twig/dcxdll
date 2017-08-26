@@ -194,19 +194,11 @@ public:
 	{
 		const auto local_id = NamedID.to_<UINT>() + mIRC_ID_OFFSET;
 
-#if _MSC_VER < 1911
-		for (const auto &x : m_NamedIds)
-		{
-			if ((x.first == NamedID) || (x.second == local_id))
-				return x.second;
-		}
-#else
 		for (const auto &[tsStoredName, uStoredID] : m_NamedIds)
 		{
 			if ((tsStoredName == NamedID) || (uStoredID == local_id))
 				return uStoredID;
 		}
-#endif
 		return 0U;
 	}
 	const UINT NameToUserID(const TString &NamedID) const
@@ -218,19 +210,11 @@ public:
 		//if (itGot != itEnd)
 		//	return itGot->second - mIRC_ID_OFFSET;
 
-#if _MSC_VER < 1911
-		for (const auto &x : m_NamedIds)
-		{
-			if ((x.first == NamedID) || (x.second == local_id))
-				return x.second - mIRC_ID_OFFSET;
-		}
-#else
 		for (const auto &[tsStoredName, uStoredID] : m_NamedIds)
 		{
 			if ((tsStoredName == NamedID) || (uStoredID == local_id))
 				return uStoredID - mIRC_ID_OFFSET;
 		}
-#endif
 		return 0U;
 	}
 	const TString &IDToName(const UINT local_id) const
@@ -240,19 +224,11 @@ public:
 		//if (itGot != itEnd)
 		//	return itGot->first;
 
-#if _MSC_VER < 1911
-		for (const auto &x : m_NamedIds)
-		{
-			if (x.second == local_id)
-				return x.first;
-		}
-#else
 		for (const auto &[tsStoredName, uStoredID] : m_NamedIds)
 		{
 			if (uStoredID == local_id)
 				return tsStoredName;
 		}
-#endif
 		return {};
 	}
 	const UINT getUniqueID() const
@@ -306,8 +282,8 @@ public:
 	bool deleteNamedID(const TString &tsName)
 	{
 		const auto itEnd = m_NamedIds.end();
-		const auto itGot = m_NamedIds.find(tsName);
-		if (itGot != itEnd)
+		
+		if (const auto itGot = m_NamedIds.find(tsName); itGot != itEnd)
 		{
 			m_NamedIds.erase(itGot);
 			return true;
@@ -337,8 +313,6 @@ private:
 	TString m_tsName;       //!< Dialog Name
 	TString m_tsAliasName;  //!< Callback Alias Name
 	TString m_tsParentName; //!< Parent name (only if docked)
-
-	//WNDPROC m_hOldWindowProc; //!< Dialog Old Window Procedure
 
 	VectorOfControlPtrs m_vpControls; //!< Vector of DCX Controls
 	VectorOfInts m_vZLayers;
@@ -406,15 +380,15 @@ private:
 	static const UINT parseFlashFlags(const TString & flags) noexcept;
 	static const UINT parseTooltipFlags(const TString &flags) noexcept;
 
-	// Helper to calculate the alpha-premultiled value for a pixel
-	constexpr static inline const DWORD PreMultiply(const COLORREF cl, const unsigned char nAlpha) noexcept
-	{
-		// It's strange that the byte order of RGB in 32b BMP is reverse to in COLORREF
-		const DWORD dAlpha = static_cast<const DWORD>(nAlpha);
-		return (GetRValue(cl) * dAlpha / 255) << 16 |
-			(GetGValue((cl & 0xFFFF)) * dAlpha / 255) << 8 |
-			(GetBValue(cl) * dAlpha / 255);
-	}
+	//// Helper to calculate the alpha-premultiled value for a pixel
+	//constexpr static inline const DWORD PreMultiply(const COLORREF cl, const unsigned char nAlpha) noexcept
+	//{
+	//	// It's strange that the byte order of RGB in 32b BMP is reverse to in COLORREF
+	//	const DWORD dAlpha = gsl::narrow_cast<const DWORD>(nAlpha);
+	//	return (GetRValue(cl) * dAlpha / 255) << 16 |
+	//		(GetGValue((cl & 0xFFFF)) * dAlpha / 255) << 8 |
+	//		(GetBValue(cl) * dAlpha / 255);
+	//}
 	static LRESULT ProcessDragListMessage(DcxDialog *const p_this, UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bParsed);
 };
 #ifdef __INTEL_COMPILER // Defined when using Intel C++ Compiler.

@@ -463,11 +463,9 @@ void DcxStacker::toXml(TiXmlElement *const xml) const
 
 TiXmlElement * DcxStacker::toXml(void) const
 {
-	auto xml = __super::toXml();
-
-	xml->SetAttribute("styles", getStyles().c_str());
-
-	return xml;
+	auto xml = std::make_unique<TiXmlElement>("control");
+	toXml(xml.get());
+	return xml.release();
 }
 
 void DcxStacker::DrawAliasedTriangle(const HDC hdc, const LPRECT rc, const COLORREF clrShape)

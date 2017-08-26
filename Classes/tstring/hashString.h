@@ -85,8 +85,8 @@ namespace detail {
 		0xb40bbe37, 0xc30c8ea1, 0x5a05df1b, 0x2d02ef8d
 	};
 
-	// CRC32 Table (zlib polynomial)
-	const static unsigned int static_crc_table[256];
+	//// CRC32 Table (zlib polynomial)
+	//const static unsigned int static_crc_table[256];
 
 } //namespace detail
 
@@ -150,6 +150,7 @@ size_t dcx_hash(const T *const input, const size_t &N) {
 //			detail::crc_table[((crc) ^ (v[0])) & 0xff] ^ ((crc) >> 8));
 //}
 
+// This gives us compile time hashing...
 constexpr unsigned int crc32_char(const char v, const unsigned int crc) {
 	return detail::crc_table[(crc ^ v) & 0xff] ^ (crc >> 8);
 }
@@ -179,6 +180,7 @@ constexpr size_t operator""_hash(const wchar_t * p, size_t N)
 	return crc32_helper(p, N, 0xFFFFFFFF);
 }
 
+// This gives us runtime hashing...
 namespace std {
 	template<> struct hash<TString>
 	{

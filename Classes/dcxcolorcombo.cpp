@@ -37,10 +37,10 @@ DcxColorCombo::DcxColorCombo(const UINT ID, DcxDialog *const p_Dialog, const HWN
 	this->parseControlStyles(styles, &Styles, &ExStyles, &bNoTheme);
 
 	m_Hwnd = CreateWindowEx(
-		static_cast<DWORD>(ExStyles),
+		gsl::narrow_cast<DWORD>(ExStyles),
 		DCX_COLORCOMBOCLASS,
 		nullptr,
-		WS_CHILD | static_cast<DWORD>(Styles),
+		WS_CHILD | gsl::narrow_cast<DWORD>(Styles),
 		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
 		mParentHwnd,
 		(HMENU)ID,
@@ -98,7 +98,8 @@ void DcxColorCombo::parseInfoRequest( const TString & input, const refString<TCH
 	{
 		// [NAME] [ID] [PROP]
 	case L"num"_hash:
-		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), getCount());
+		//wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), getCount());
+		_ts_snprintf(szReturnValue, TEXT("%d"), getCount());
 		break;
 		// [NAME] [ID] [PROP] [N]
 	case L"color"_hash:
@@ -111,17 +112,19 @@ void DcxColorCombo::parseInfoRequest( const TString & input, const refString<TCH
 		if (nItem < 0 || nItem >= getCount())
 			throw Dcx::dcxException("Invalid Item");
 
-		auto lpdcxcci = reinterpret_cast<LPDCXCCOMBOITEM>(getItemData(nItem));
+		auto lpdcxcci = getItemData(nItem);
 
 		if (lpdcxcci == nullptr)
 			throw Dcx::dcxException("Unable to get item data");
 
-		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), lpdcxcci->clrItem);
+		//wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), lpdcxcci->clrItem);
+		_ts_snprintf(szReturnValue, TEXT("%u"), lpdcxcci->clrItem);
 	}
 	break;
 	// [NAME] [ID] [PROP]
 	case L"sel"_hash:
-		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), static_cast<int>(getCurSel()) + 1);
+		//wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), gsl::narrow_cast<int>(getCurSel()) + 1);
+		_ts_snprintf(szReturnValue, TEXT("%d"), gsl::narrow_cast<int>(getCurSel()) + 1);
 		break;
 	default:
 		parseGlobalInfoRequest(input, szReturnValue);
@@ -130,10 +133,8 @@ void DcxColorCombo::parseInfoRequest( const TString & input, const refString<TCH
 #else
 	const auto numtok = input.numtok();
 
-	const auto prop(input.getfirsttok(3));
-
 	// [NAME] [ID] [PROP]
-	if ( prop == TEXT("num") ) {
+	if (const auto prop(input.getfirsttok(3)); prop == TEXT("num") ) {
 
 		wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), this->getCount( ) );
 	}
@@ -145,7 +146,7 @@ void DcxColorCombo::parseInfoRequest( const TString & input, const refString<TCH
 		if (nItem < 0 || nItem >= this->getCount())
 			throw Dcx::dcxException("Invalid Item");
 
-		auto lpdcxcci = reinterpret_cast<LPDCXCCOMBOITEM>(this->getItemData( nItem ));
+		auto lpdcxcci = this->getItemData( nItem );
 
 		if (lpdcxcci == nullptr)
 			throw Dcx::dcxException("Unable to get item data");
@@ -183,17 +184,12 @@ void DcxColorCombo::parseCommandRequest( const TString &input) {
 	// xdid -a [NAME] [ID] [SWITCH] [N] [RGB]
 	if (flags[TEXT('a')] && numtok > 4) {
 		auto nItem = input.getnexttok().to_int() - 1;	// tok 4
-		const auto clrItem = input.getnexttok().to_<COLORREF>();	// tok 5
 
 		if (nItem >= this->getCount())
 			nItem = -1;
 
-		if (nItem > -2) {
-			auto lpdcxcci = new DCXCCOMBOITEM;
-
-			lpdcxcci->clrItem = clrItem;
-			//lpmycci->itemtext = "";
-			this->insertItem(nItem, (LPARAM)lpdcxcci);
+		if (const auto clrItem = input.getnexttok().to_<COLORREF>(); nItem > -2) {
+			this->insertItem(nItem, (LPARAM)new DCXCCOMBOITEM(clrItem));
 		}
 	}
 	// xdid -c [NAME] [ID] [SWITCH] [N]
@@ -221,15 +217,13 @@ void DcxColorCombo::parseCommandRequest( const TString &input) {
 	// xdid -o [NAME] [ID] [SWITCH] [N] [RGB]
 	else if (flags[TEXT('o')] && numtok > 4) {
 		const auto nItem = input.getnexttok().to_int() - 1;	// tok 4
-		const auto clrItem = input.getnexttok().to_<COLORREF>();	// tok 5
+		
 
 		if ((nItem < -1) || (nItem >= this->getCount()))
 			throw Dcx::dcxException("Item out of range");
 
-		auto lpdcxcci = reinterpret_cast<LPDCXCCOMBOITEM>(this->getItemData(nItem));
-
-		if (lpdcxcci != nullptr)
-			lpdcxcci->clrItem = clrItem;
+		if (auto lpdcxcci = this->getItemData(nItem); lpdcxcci != nullptr)
+			lpdcxcci->clrItem = input.getnexttok().to_<COLORREF>();	// tok 5
 	}
 	// This is to avoid invalid flag message.
 	// xdid -r [NAME] [ID] [SWITCH]
@@ -248,19 +242,41 @@ void DcxColorCombo::parseCommandRequest( const TString &input) {
 
 void DcxColorCombo::setmIRCPalette( ) {
 
-	static const TCHAR com[] = TEXT("$color(0) $color(1) $color(2) $color(3) $color(4) $color(5) $color(6) $color(7) $color(8) $color(9) $color(10) $color(11) $color(12) $color(13) $color(14) $color(15)");
-	TString cols;
-	//mIRCLinker::tsEval( cols, &com[0] );
-	mIRCLinker::eval(cols, &com[0]);
+	//static const TCHAR com[] = TEXT("$color(0) $color(1) $color(2) $color(3) $color(4) $color(5) $color(6) $color(7) $color(8) $color(9) $color(10) $color(11) $color(12) $color(13) $color(14) $color(15)");
+	//TString cols;
+	////mIRCLinker::tsEval( cols, &com[0] );
+	//mIRCLinker::eval(cols, &com[0]);
+	//
+	//for (const auto &col: cols)
+	//{
+	//	this->insertItem(-1, (LPARAM) new DCXCCOMBOITEM(col.to_<COLORREF>()));
+	//}
 
-	for (const auto &col: cols)
+#if DCX_USE_WRAPPERS
+	COLORREF cPalette[mIRC_PALETTE_SIZE] = { CLR_INVALID }; // mIRC palette
+
+	getmIRCPalette(&cPalette[0], Dcx::countof(cPalette)); // get mIRC palette
+
+	for (const auto &col : cPalette)
 	{
-		auto lpdcxcci = std::make_unique<DCXCCOMBOITEM>();
-
-		lpdcxcci->clrItem = col.to_<COLORREF>();
-		//lpmycci->itemtext = "";
-		this->insertItem( -1, (LPARAM) lpdcxcci.release() );
+		this->insertItem(-1, (LPARAM) new DCXCCOMBOITEM(col));
 	}
+	//Dcx::dcxPalette cPalette(); // mIRC palette
+	//
+	//for (const auto &col : cPalette)
+	//{
+	//	this->insertItem(-1, (LPARAM) new DCXCCOMBOITEM(col));
+	//}
+#else
+	COLORREF cPalette[mIRC_PALETTE_SIZE] = { CLR_INVALID }; // mIRC palette
+
+	getmIRCPalette(&cPalette[0], Dcx::countof(cPalette)); // get mIRC palette
+
+	for (const auto &col: cPalette)
+	{
+		this->insertItem( -1, (LPARAM) new DCXCCOMBOITEM(col));
+	}
+#endif
 }
 
 /*!
@@ -270,7 +286,7 @@ void DcxColorCombo::setmIRCPalette( ) {
  */
 
 LRESULT DcxColorCombo::insertItem(  const int nPos, const LPARAM lParam ) {
-  return SendMessage( m_Hwnd, CB_INSERTSTRING, static_cast<WPARAM>(nPos), lParam );
+  return SendMessage( m_Hwnd, CB_INSERTSTRING, gsl::narrow_cast<WPARAM>(nPos), lParam );
 }
 
 /*!
@@ -290,7 +306,7 @@ LRESULT DcxColorCombo::getCount( ) const {
  */
 
 LRESULT DcxColorCombo::setCurSel( const int nPos ) {
-  return SendMessage( m_Hwnd, CB_SETCURSEL, static_cast<WPARAM>(nPos), (LPARAM) 0U );
+  return SendMessage( m_Hwnd, CB_SETCURSEL, gsl::narrow_cast<WPARAM>(nPos), (LPARAM) 0U );
 }
 
 /*!
@@ -299,8 +315,8 @@ LRESULT DcxColorCombo::setCurSel( const int nPos ) {
  * blah
  */
 
-LRESULT DcxColorCombo::getItemData( const int nItem ) const {
-  return SendMessage( m_Hwnd, CB_GETITEMDATA, static_cast<WPARAM>(nItem), (LPARAM) 0U );
+LPDCXCCOMBOITEM DcxColorCombo::getItemData( const int nItem ) const {
+  return reinterpret_cast<LPDCXCCOMBOITEM>(SendMessage( m_Hwnd, CB_GETITEMDATA, gsl::narrow_cast<WPARAM>(nItem), (LPARAM) 0U ));
 }
 
 /*!
@@ -320,7 +336,7 @@ LRESULT DcxColorCombo::getCurSel( ) const {
  */
 
 LRESULT DcxColorCombo::deleteItem( const int nItem ) {
-  return SendMessage( m_Hwnd, CB_DELETESTRING, static_cast<WPARAM>(nItem), (LPARAM) 0U );
+  return SendMessage( m_Hwnd, CB_DELETESTRING, gsl::narrow_cast<WPARAM>(nItem), (LPARAM) 0U );
 }
 
 /*!
@@ -374,12 +390,12 @@ LRESULT DcxColorCombo::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, B
 			if (lpdis == nullptr || lpdis->itemID == -1)
 				break;
 
-			auto lpdcxcci = reinterpret_cast<LPDCXCCOMBOITEM>(lpdis->itemData);
+			const auto lpdcxcci = reinterpret_cast<LPDCXCCOMBOITEM>(lpdis->itemData);
 
 			if (lpdcxcci == nullptr)
 				break;
 
-			auto hPen = CreatePen(PS_SOLID, 1, RGB(0, 0, 0));
+			const auto hPen = CreatePen(PS_SOLID, 1, RGB(0, 0, 0));
 			Auto(DeletePen(hPen));
 
 			const auto oldPen = SelectPen(lpdis->hDC, hPen);

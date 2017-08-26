@@ -31,7 +31,8 @@ struct DCXCCOMBOITEM {
   COLORREF clrItem;     //!< Item Color
   TString tsItemText;   //!< Item Text
 
-  DCXCCOMBOITEM() : clrItem(CLR_INVALID), tsItemText() {}
+  DCXCCOMBOITEM() : DCXCCOMBOITEM(CLR_INVALID) {}
+  explicit DCXCCOMBOITEM(const COLORREF &clr) : clrItem(clr), tsItemText() {}
 };
 using LPDCXCCOMBOITEM = DCXCCOMBOITEM *;
 
@@ -64,7 +65,7 @@ public:
 	LRESULT insertItem( const int nPos, const LPARAM lParam );
 	LRESULT getCount( ) const;
 	LRESULT setCurSel( const int nPos );
-	LRESULT getItemData( const int nItem ) const;
+	LPDCXCCOMBOITEM getItemData( const int nItem ) const;
 	LRESULT getCurSel( ) const;
 	LRESULT deleteItem( const int nItem );
 	LRESULT resetContent( );

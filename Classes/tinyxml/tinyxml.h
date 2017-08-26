@@ -290,12 +290,12 @@ protected:
 
 	inline static bool IsWhiteSpace(char c) noexcept
 	{
-		return (isspace(static_cast<unsigned char>(c)) || c == '\n' || c == '\r');
+		return (isspace(gsl::narrow_cast<unsigned char>(c)) || c == '\n' || c == '\r');
 	}
 	inline static bool IsWhiteSpace( int c ) noexcept
 	{
 		if ( c < 256 )
-			return IsWhiteSpace( static_cast<char>(c) );
+			return IsWhiteSpace( gsl::narrow_cast<char>(c) );
 		return false;	// Again, only truly correct for English/Latin...but usually works.
 	}
 
@@ -984,7 +984,7 @@ public:
 		double d;
 		const int result = QueryDoubleAttribute( name, &d );
 		if ( result == TIXML_SUCCESS ) {
-			*_value = static_cast<float>(d);
+			*_value = gsl::narrow_cast<float>(d);
 		}
 		return result;
 	}

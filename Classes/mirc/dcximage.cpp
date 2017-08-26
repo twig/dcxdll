@@ -372,13 +372,9 @@ void DcxImage::toXml(TiXmlElement *const xml) const
 
 TiXmlElement * DcxImage::toXml() const
 {
-	auto xml = __super::toXml();
-
-	if (!this->m_tsFilename.empty())
-		xml->SetAttribute("src", m_tsFilename.c_str());
-	//xml->SetAttribute("styles", getStyles().c_str());
-
-	return xml;
+	auto xml = std::make_unique<TiXmlElement>("control");
+	toXml(xml.get());
+	return xml.release();
 }
 
 /*!

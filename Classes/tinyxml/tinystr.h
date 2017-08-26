@@ -89,7 +89,7 @@ public:
 	//// TiXmlString constructor, based on a string
 	//TIXML_EXPLICIT TiXmlString(const char * copy) : rep_(0)
 	//{
-	//	init(static_cast<size_type>(strlen(copy)));
+	//	init(gsl::narrow_cast<size_type>(strlen(copy)));
 	//	memcpy(start(), copy, length());
 	//}
 
@@ -100,7 +100,7 @@ public:
 
 	// TiXmlString constructor, based on a string
 	TIXML_EXPLICIT TiXmlString(const char * copy)
-		: TiXmlString(copy, static_cast<size_type>(strlen(copy)))
+		: TiXmlString(copy, gsl::narrow_cast<size_type>(_ts_strlen(copy)))
 	{
 	}
 
@@ -120,7 +120,7 @@ public:
 	// = operator
 	TiXmlString& operator = (const char * copy)
 	{
-		return assign(copy, static_cast<size_type>(strlen(copy)));
+		return assign(copy, gsl::narrow_cast<size_type>(_ts_strlen(copy)));
 	}
 
 	// = operator
@@ -133,7 +133,7 @@ public:
 	// += operator. Maps to append
 	TiXmlString& operator += (const char * suffix)
 	{
-		return append(suffix, static_cast<size_type>(strlen(suffix)));
+		return append(suffix, gsl::narrow_cast<size_type>(_ts_strlen(suffix)));
 	}
 
 	// += operator. Maps to append
@@ -194,7 +194,7 @@ public:
 
 		for (const char* p = c_str() + offset; *p != '\0'; ++p)
 		{
-			if (*p == tofind) return static_cast<size_type>(p - c_str());
+			if (*p == tofind) return gsl::narrow_cast<size_type>(p - c_str());
 		}
 		return npos;
 	}

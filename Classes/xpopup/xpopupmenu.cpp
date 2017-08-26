@@ -186,7 +186,7 @@ void XPopupMenu::parseXPopCommand( const TString & input ) {
 
 		mii.dwItemData = (ULONG_PTR)p_Item.get();
 		this->m_vpMenuItem.push_back(p_Item.release());
-		InsertMenuItem( hMenu, (UINT)nPos, TRUE, &mii );
+		InsertMenuItem( hMenu, gsl::narrow_cast<UINT>(nPos), TRUE, &mii );
 	}
 	// xpop -c - [MENU] [SWITCH] [PATH]
 	else if ( flags[TEXT('c')] && numtok > 2 ) {
@@ -209,8 +209,7 @@ void XPopupMenu::parseXPopCommand( const TString & input ) {
 
 		mii.hSubMenu = CreatePopupMenu();
 
-		auto p_Item = reinterpret_cast<XPopupMenuItem *>(mii.dwItemData);
-		if (p_Item != nullptr)
+		if (auto p_Item = reinterpret_cast<XPopupMenuItem *>(mii.dwItemData); p_Item != nullptr)
 			p_Item->setSubMenu(TRUE);
 
 		mii.fMask = MIIM_SUBMENU;

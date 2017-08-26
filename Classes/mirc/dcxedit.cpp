@@ -124,12 +124,9 @@ void DcxEdit::toXml(TiXmlElement *const xml) const
 
 TiXmlElement * DcxEdit::toXml(void) const
 {
-	auto xml = __super::toXml();
-
-	xml->SetAttribute("caption", m_tsText.c_str());
-	xml->SetAttribute("styles", getStyles().c_str());
-
-	return xml;
+	auto xml = std::make_unique<TiXmlElement>("control");
+	toXml(xml.get());
+	return xml.release();
 }
 
 /*!

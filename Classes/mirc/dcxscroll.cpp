@@ -35,10 +35,10 @@ DcxScroll::DcxScroll(const UINT ID, DcxDialog *const p_Dialog, const HWND mParen
 	this->parseControlStyles(styles, &Styles, &ExStyles, &bNoTheme);
 
 	m_Hwnd = CreateWindowEx(
-		static_cast<DWORD>(ExStyles),
+		gsl::narrow_cast<DWORD>(ExStyles),
 		TEXT("SCROLLBAR"),
 		nullptr,
-		WS_CHILD | static_cast<DWORD>(Styles),
+		WS_CHILD | gsl::narrow_cast<DWORD>(Styles),
 		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
 		mParentHwnd,
 		(HMENU)ID,
@@ -114,34 +114,40 @@ void DcxScroll::parseInfoRequest( const TString & input, const refString<TCHAR, 
 		// [NAME] [ID] [PROP]
 	case L"value"_hash:
 	{
-		SCROLLINFO si;
-		si.cbSize = sizeof(SCROLLINFO);
-		si.fMask = SIF_POS;
+		SCROLLINFO si{ sizeof(SCROLLINFO), SIF_POS, 0, 0, 0U, 0, 0 };
+		//SCROLLINFO si;
+		//si.cbSize = sizeof(SCROLLINFO);
+		//si.fMask = SIF_POS;
 		if (!GetScrollInfo(m_Hwnd, SB_CTL, &si))
 			throw Dcx::dcxException("Unable to get scroll info");
 
-		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), si.nPos);
+		//wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), si.nPos);
+		_ts_snprintf(szReturnValue, TEXT("%d"), si.nPos);
 	}
 	break;
 	// [NAME] [ID] [PROP]
 	case L"range"_hash:
 	{
-		SCROLLINFO si;
-		si.cbSize = sizeof(SCROLLINFO);
-		si.fMask = SIF_RANGE;
+		SCROLLINFO si{ sizeof(SCROLLINFO), SIF_RANGE, 0, 0, 0U, 0, 0 };
+		//SCROLLINFO si;
+		//si.cbSize = sizeof(SCROLLINFO);
+		//si.fMask = SIF_RANGE;
 		if (!GetScrollInfo(m_Hwnd, SB_CTL, &si))
 			throw Dcx::dcxException("Unable to get scroll info");
 
-		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d"), si.nMin, si.nMax);
+		//wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d"), si.nMin, si.nMax);
+		_ts_snprintf(szReturnValue, TEXT("%d %d"), si.nMin, si.nMax);
 	}
 	break;
 	// [NAME] [ID] [PROP]
 	case L"line"_hash:
-		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), this->m_nLine);
+		//wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), this->m_nLine);
+		_ts_snprintf(szReturnValue, TEXT("%d"), this->m_nLine);
 		break;
 		// [NAME] [ID] [PROP]
 	case L"page"_hash:
-		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), this->m_nPage);
+		//wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), this->m_nPage);
+		_ts_snprintf(szReturnValue, TEXT("%d"), this->m_nPage);
 		break;
 	default:
 		this->parseGlobalInfoRequest(input, szReturnValue);
@@ -239,9 +245,8 @@ void DcxScroll::parseCommandRequest( const TString & input ) {
 const TString DcxScroll::getStyles(void) const
 {
 	auto tsStyles(__super::getStyles());
-	const auto Styles = GetWindowStyle(m_Hwnd);
 
-	if (dcx_testflag(Styles, SBS_VERT))
+	if (const auto Styles = GetWindowStyle(m_Hwnd); dcx_testflag(Styles, SBS_VERT))
 		tsStyles.addtok(TEXT("vertical"));
 
 	return tsStyles;
@@ -454,19 +459,15 @@ LRESULT DcxScroll::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
 				PAINTSTRUCT ps;
 
 				auto hdc = BeginPaint(m_Hwnd, &ps);
+				Auto(EndPaint(m_Hwnd, &ps));
 
 				bParsed = TRUE;
 
 				// Setup alpha blend if any.
 				auto ai = this->SetupAlphaBlend(&hdc);
+				Auto(this->FinishAlphaBlend(ai));
 
-				//auto res = CallWindowProc(this->m_DefaultWindowProc, m_Hwnd, uMsg, (WPARAM)hdc, lParam);
-				auto res = CallDefaultProc(m_Hwnd, uMsg, (WPARAM)hdc, lParam);
-
-				this->FinishAlphaBlend(ai);
-
-				EndPaint( m_Hwnd, &ps );
-				return res;
+				return CallDefaultProc(m_Hwnd, uMsg, (WPARAM)hdc, lParam);
 			}
 			break;
 
@@ -497,12 +498,7 @@ void DcxScroll::toXml(TiXmlElement *const xml) const
 
 TiXmlElement * DcxScroll::toXml(void) const
 {
-	auto xml = __super::toXml();
-
-	TString wtext;
-	TGetWindowText(m_Hwnd, wtext);
-	xml->SetAttribute("caption", wtext.c_str());
-	xml->SetAttribute("styles", getStyles().c_str());
-
-	return xml;
+	auto xml = std::make_unique<TiXmlElement>("control");
+	toXml(xml.get());
+	return xml.release();
 }

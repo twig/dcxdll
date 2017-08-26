@@ -492,17 +492,9 @@ void DcxBox::toXml(TiXmlElement *const xml) const
 
 TiXmlElement * DcxBox::toXml(void) const
 {
-	auto xml = __super::toXml();
-
-	TString wtext;
-	TGetWindowText(m_Hwnd, wtext);
-	xml->SetAttribute("caption", wtext.c_str());
-	xml->SetAttribute("styles", getStyles().c_str());
-
-	if (m_pLayoutManager != nullptr)
-		m_pLayoutManager->getRoot()->toXml(xml);
-
-	return xml;
+	auto xml = std::make_unique<TiXmlElement>("control");
+	toXml(xml.get());
+	return xml.release();
 }
 
 const TString DcxBox::getStyles(void) const {
@@ -710,10 +702,9 @@ LRESULT DcxBox::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 				PAINTSTRUCT ps;
 
 				auto hdc = BeginPaint(m_Hwnd, &ps);
+				Auto(EndPaint(m_Hwnd, &ps));
 
 				DrawClientArea(hdc);
-
-				EndPaint(m_Hwnd, &ps);
 
 				bParsed = TRUE;
 				return 0L;

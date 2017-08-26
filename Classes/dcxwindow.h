@@ -70,8 +70,28 @@ protected:
 	HWND m_Hwnd;
 	UINT m_ID;
 
-	static std::map<TString, PTCHAR> IDC_map;
-	//static std::map<stString<12U>, PTCHAR> IDC_map;
+	HRGN	m_hZeroRgn;
+
+#if _MSC_VER < 1912
+	static const std::map<TString, PTCHAR> IDC_map;
+#else
+	inline const static std::map<TString, PTCHAR> IDC_map{
+		{TEXT("appstarting"), IDC_APPSTARTING},
+		{TEXT("arrow"), IDC_ARROW},
+		{TEXT("cross"), IDC_CROSS},
+		{TEXT("hand"), IDC_HAND},
+		{TEXT("help"), IDC_HELP},
+		{TEXT("ibeam"), IDC_IBEAM},
+		{TEXT("no"), IDC_NO},
+		{TEXT("sizeall"), IDC_SIZEALL},
+		{TEXT("sizenesw"), IDC_SIZENESW},
+		{TEXT("sizens"), IDC_SIZENS},
+		{TEXT("sizenwse"), IDC_SIZENWSE},
+		{TEXT("sizewe"), IDC_SIZEWE},
+		{TEXT("uparrow"), IDC_UPARROW},
+		{TEXT("wait"), IDC_WAIT}
+	};
+#endif
 };
 #ifdef __INTEL_COMPILER // Defined when using Intel C++ Compiler.
 #pragma warning( pop )

@@ -345,14 +345,7 @@ void DcxList::parseInfoRequest( const TString & input, const refString<TCHAR, MI
 		if (matchtext.empty())
 			throw Dcx::dcxException("No Match text supplied");
 
-		auto SearchType = DcxSearchTypes::SEARCH_E;	// default to exact match
-
-		const auto tsSearchType(params++[0]);
-
-		if (tsSearchType == TEXT('R'))
-			SearchType = DcxSearchTypes::SEARCH_R;
-		else if (tsSearchType == TEXT('W'))
-			SearchType = DcxSearchTypes::SEARCH_W;
+		auto SearchType = CharToSearchType(params++[0]);
 
 		const auto N = params++.to_<UINT>();	// tok 2
 		const auto nItems = ListBox_GetCount(m_Hwnd);
@@ -515,14 +508,7 @@ void DcxList::parseInfoRequest( const TString & input, const refString<TCHAR, MI
 		if (matchtext.empty())
 			throw Dcx::dcxException("No Match text supplied");
 
-		auto SearchType = DcxSearchTypes::SEARCH_E;	// default to exact match
-		//const auto tsSearchType(params.getfirsttok(1));
-		const auto tsSearchType(params++[0]);
-
-		if (tsSearchType == TEXT('R'))
-			SearchType = DcxSearchTypes::SEARCH_R;
-		else if (tsSearchType == TEXT('W'))
-			SearchType = DcxSearchTypes::SEARCH_W;
+		auto SearchType = CharToSearchType(params++[0]);
 
 		const auto N = params++.to_<UINT>();	// tok 2
 		const auto nItems = ListBox_GetCount(m_Hwnd);
@@ -759,7 +745,7 @@ void DcxList::parseCommandRequest( const TString & input ) {
 				throw Dcx::dcxException("Invalid Syntax");
 
 			TCHAR tok[2];
-			tok[0] = static_cast<TCHAR>(itemtext.getfirsttok(1).to_int());
+			tok[0] = gsl::narrow_cast<TCHAR>(itemtext.getfirsttok(1).to_int());
 			tok[1] = 0;
 			const auto contents(itemtext.getlasttoks());	// tok 2, -1
 
@@ -823,19 +809,15 @@ void DcxList::parseCommandRequest( const TString & input ) {
 	else if ( flags[TEXT('d')] && numtok > 3 ) {
 
 		const auto Ns(input.getnexttok());			// tok 4
-		const XSwitchFlags xFlags(input.getnexttok());	// tok 5
+		
 		const auto nItems = ListBox_GetCount(m_Hwnd);
 
-		if (xFlags[TEXT('+')])
+		if (const XSwitchFlags xFlags(input.getnexttok()); xFlags[TEXT('+')])
 		{
 			// have flags, so its a match text delete
 			const auto tsMatchText(input.getnexttok());
-			auto SearchType = DcxSearchTypes::SEARCH_E;	// plain text exact match delete
 
-			if (xFlags[TEXT('w')])
-				SearchType = DcxSearchTypes::SEARCH_W;	// wildcard delete
-			else if (xFlags[TEXT('r')])
-				SearchType = DcxSearchTypes::SEARCH_R;	// regex delete
+			auto SearchType = FlagsToSearchType(xFlags);
 
 			for (auto nPos = Ns.to_int(); nPos < nItems; nPos++) {
 
@@ -1511,9 +1493,7 @@ void DcxList::toXml(TiXmlElement *const xml) const
 
 TiXmlElement * DcxList::toXml(void) const
 {
-	auto xml = __super::toXml();
-
-	xml->SetAttribute("styles", getStyles().c_str());
-
-	return xml;
+	auto xml = std::make_unique<TiXmlElement>("control");
+	toXml(xml.get());
+	return xml.release();
 }

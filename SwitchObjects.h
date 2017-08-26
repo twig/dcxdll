@@ -69,7 +69,7 @@ public:
 	}
 
 private:
-	void operator =(const CaseBreakDefault &);
+	CaseBreakDefault & operator =(const CaseBreakDefault &) = delete;
 };
 
 template <class T>

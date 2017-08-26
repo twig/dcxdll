@@ -242,12 +242,14 @@ mIRC(xstatusbar) {
 	}
 	catch (const std::exception &e)
 	{
-		Dcx::errorex(TEXT("/xstatusbar"), TEXT("\"%s\" error: %S"), input.to_chr(), e.what());
+		//Dcx::errorex(TEXT("/xstatusbar"), TEXT("\"%s\" error: %S"), input.to_chr(), e.what());
+		Dcx::error(TEXT("/xstatusbar"), TEXT("\"%\" error: %"), input, e.what());
 		return 0;
 	}
 	catch (...) {
 		// stop any left over exceptions...
-		Dcx::errorex(TEXT("/xstatusbar"), TEXT("\"%s\" error: Unknown Exception"), input.to_chr());
+		//Dcx::errorex(TEXT("/xstatusbar"), TEXT("\"%s\" error: Unknown Exception"), input.to_chr());
+		Dcx::error(TEXT("/xstatusbar"), TEXT("\"%\" error: Unknown Exception"), input);
 		return 0;
 	}
 }
@@ -384,11 +386,13 @@ mIRC(_xstatusbar)
 	}
 	catch (const std::exception &e)
 	{
-		Dcx::errorex(TEXT("$!xstatusbar"), TEXT("\"%s\" error: %S"), d.to_chr(), e.what());
+		//Dcx::errorex(TEXT("$!xstatusbar"), TEXT("\"%s\" error: %S"), d.to_chr(), e.what());
+		Dcx::error(TEXT("$!xstatusbar"), TEXT("\"%\" error: %"), d, e.what());
 	}
 	catch (...) {
 		// stop any left over exceptions...
-		Dcx::errorex(TEXT("$!xstatusbar"), TEXT("\"%s\" error: Unknown Exception"), d.to_chr());
+		//Dcx::errorex(TEXT("$!xstatusbar"), TEXT("\"%s\" error: Unknown Exception"), d.to_chr());
+		Dcx::error(TEXT("$!xstatusbar"), TEXT("\"%\" error: Unknown Exception"), d);
 	}
 	return 0;
 }

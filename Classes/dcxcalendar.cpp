@@ -42,10 +42,10 @@ DcxCalendar::DcxCalendar(const UINT ID, DcxDialog *const p_Dialog, const HWND mP
 	this->parseControlStyles(styles, &Styles, &ExStyles, &bNoTheme);
 
 	m_Hwnd = CreateWindowEx(
-		static_cast<DWORD>(ExStyles) | WS_EX_CLIENTEDGE,
+		gsl::narrow_cast<DWORD>(ExStyles) | WS_EX_CLIENTEDGE,
 		DCX_CALENDARCLASS,
 		nullptr,
-		WS_CHILD | static_cast<DWORD>(Styles),
+		WS_CHILD | gsl::narrow_cast<DWORD>(Styles),
 		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
 		mParentHwnd,
 		(HMENU)ID,
@@ -84,12 +84,9 @@ void DcxCalendar::toXml(TiXmlElement *const xml) const
 
 TiXmlElement * DcxCalendar::toXml(void) const
 {
-	auto xml = __super::toXml();
-
-	xml->SetAttribute("caption", getValue().c_str());
-	xml->SetAttribute("styles", getStyles().c_str());
-
-	return xml;
+	auto xml = std::make_unique<TiXmlElement>("control");
+	toXml(xml.get());
+	return xml.release();
 }
 
 const TString DcxCalendar::getStyles(void) const
@@ -145,10 +142,9 @@ const TString DcxCalendar::getValue(void) const
 
 	stString<128> buf;
 
-	wnsprintf(buf, static_cast<int>(buf.size()), TEXT("%ld %ld"), start, end);
+	//wnsprintf(buf, gsl::narrow_cast<int>(buf.size()), TEXT("%ld %ld"), start, end);
+	_ts_snprintf(buf, TEXT("%ld %ld"), start, end);
 	return buf.data();
-
-	//return _ts_sprintf(buf, TEXT("% %"), start, end).data();
 }
 
 /*!
@@ -232,7 +228,8 @@ void DcxCalendar::parseInfoRequest(const TString &input, const refString<TCHAR, 
 		if (dcx_testflag(val, GDTR_MAX))
 			dmax.tsprintf(TEXT("%ld"), SystemTimeToMircTime(&(st[1])));
 
-		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%s %s"), dmin.to_chr(), dmax.to_chr()); // going to be within 900 limit anyway.
+		//wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%s %s"), dmin.to_chr(), dmax.to_chr()); // going to be within 900 limit anyway.
+		_ts_snprintf(szReturnValue, TEXT("%s %s"), dmin.to_chr(), dmax.to_chr()); // going to be within 900 limit anyway.
 	}
 	break;
 	case L"today"_hash:
@@ -240,22 +237,22 @@ void DcxCalendar::parseInfoRequest(const TString &input, const refString<TCHAR, 
 		SYSTEMTIME st = { 0 };
 
 		MonthCal_GetToday(m_Hwnd, &st);
-		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%ld"), SystemTimeToMircTime(&st));
+		//wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%ld"), SystemTimeToMircTime(&st));
+		_ts_snprintf(szReturnValue, TEXT("%ld"), SystemTimeToMircTime(&st));
 	}
 	break;
 	case L"selcount"_hash:
-		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), MonthCal_GetMaxSelCount(m_Hwnd));
+		//wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), MonthCal_GetMaxSelCount(m_Hwnd));
+		_ts_snprintf(szReturnValue, TEXT("%u"), MonthCal_GetMaxSelCount(m_Hwnd));
 		break;
 	default:
 		parseGlobalInfoRequest(input, szReturnValue);
 		break;
 	}
 #else
-	const auto prop(input.getfirsttok(3));
-
 	// [NAME] [ID] [PROP]
-	if (prop == TEXT("value")) {
-		dcx_strcpyn(szReturnValue, this->getValue().to_chr(), MIRC_BUFFER_SIZE_CCH);
+	if (const auto prop(input.getfirsttok(3)); prop == TEXT("value")) {
+		szReturnValue = getValue().to_chr();
 	}
 	else if (prop == TEXT("range")) {
 		SYSTEMTIME st[2];
@@ -271,12 +268,6 @@ void DcxCalendar::parseInfoRequest(const TString &input, const refString<TCHAR, 
 
 		if (dcx_testflag(val, GDTR_MAX))
 			dmax.tsprintf(TEXT("%ld"), SystemTimeToMircTime(&(st[1])));
-
-		//if (dcx_testflag(val, GDTR_MIN))
-		//	dmin = SystemTimeToMircTime(&(st[0]));
-
-		//if (dcx_testflag(val, GDTR_MAX))
-		//	dmax = SystemTimeToMircTime(&(st[1]));
 
 		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%s %s"), dmin.to_chr(), dmax.to_chr()); // going to be within 900 limit anyway.
 	}
@@ -350,15 +341,12 @@ void DcxCalendar::parseCommandRequest( const TString &input) {
 
 		ZeroMemory(&range[0], sizeof(SYSTEMTIME) *2);
 
-		const auto tsMin(input.getnexttok());	// tok 4
-		const auto tsMax(input.getnexttok());	// tok 5
-
-		if (tsMin != TEXT("nolimit")) {
+		if (const auto tsMin(input.getnexttok()); tsMin != TEXT("nolimit")) {
 			range[0] = MircTimeToSystemTime(tsMin.to_<long>());
 			dflags |= GDTR_MIN;
 		}
 
-		if (tsMax != TEXT("nolimit")) {
+		if (const auto tsMax(input.getnexttok()); tsMax != TEXT("nolimit")) {
 			range[1] = MircTimeToSystemTime(tsMax.to_<long>());
 			dflags |= GDTR_MAX;
 		}

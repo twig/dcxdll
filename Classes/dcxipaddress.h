@@ -50,6 +50,29 @@ public:
 	LRESULT getAddress( LPDWORD lpdwIpAddress ) const;
 	LRESULT clearAddress( );
 
+	template <typename T>
+	void AddressToString(T *strBuffer, size_t iSize) const noexcept
+	{
+		DWORD ip;
+		this->getAddress(&ip);
+
+		if constexpr(std::is_same_v<char, T>)
+		{
+			_ts_snprintf(strBuffer, iSize, "%u.%u.%u.%u",
+				FIRST_IPADDRESS(ip),
+				SECOND_IPADDRESS(ip),
+				THIRD_IPADDRESS(ip),
+				FOURTH_IPADDRESS(ip));
+		}
+		else {
+			_ts_snprintf(strBuffer, iSize, L"%u.%u.%u.%u",
+				FIRST_IPADDRESS(ip),
+				SECOND_IPADDRESS(ip),
+				THIRD_IPADDRESS(ip),
+				FOURTH_IPADDRESS(ip));
+		}
+	}
+
 	inline const TString getType() const override { return TEXT("ipaddress"); };
 	inline const DcxControlTypes getControlType() const noexcept override { return DcxControlTypes::IPADDRESS; }
 

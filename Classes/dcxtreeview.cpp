@@ -2861,9 +2861,7 @@ void DcxTreeView::toXml(TiXmlElement *const xml) const
 
 TiXmlElement * DcxTreeView::toXml(void) const
 {
-	auto xml = __super::toXml();
-
-	xml->SetAttribute("styles", getStyles().c_str());
-
-	return xml;
+	auto xml = std::make_unique<TiXmlElement>("control");
+	toXml(xml.get());
+	return xml.release();
 }

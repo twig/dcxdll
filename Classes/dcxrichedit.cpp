@@ -42,10 +42,10 @@ DcxRichEdit::DcxRichEdit(const UINT ID, DcxDialog *const p_Dialog, const HWND mP
 	this->parseControlStyles(styles, &Styles, &ExStyles, &bNoTheme);
 
 	m_Hwnd = CreateWindowEx(
-		static_cast<DWORD>(ExStyles) | WS_EX_CLIENTEDGE,
+		gsl::narrow_cast<DWORD>(ExStyles) | WS_EX_CLIENTEDGE,
 		DCX_RICHEDITCLASS,
 		nullptr,
-		WS_CHILD | static_cast<DWORD>(Styles),
+		WS_CHILD | gsl::narrow_cast<DWORD>(Styles),
 		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
 		mParentHwnd,
 		(HMENU) ID,
@@ -185,13 +185,13 @@ void DcxRichEdit::parseInfoRequest( const TString &input, const refString<TCHAR,
 			throw Dcx::dcxException("Invalid line number.");
 
 		// get index of first character in line
-		const auto offset = SendMessage(m_Hwnd, EM_LINEINDEX, static_cast<WPARAM>(line), NULL);
+		const auto offset = SendMessage(m_Hwnd, EM_LINEINDEX, gsl::narrow_cast<WPARAM>(line), NULL);
 		// get length of the line we want to copy
-		const auto len = SendMessage(m_Hwnd, EM_LINELENGTH, static_cast<WPARAM>(offset), NULL) + 1;
+		const auto len = SendMessage(m_Hwnd, EM_LINELENGTH, gsl::narrow_cast<WPARAM>(offset), NULL) + 1;
 		// create and fill the buffer
 		auto p = std::make_unique<TCHAR[]>(len);
-		*((LPWORD)p.get()) = (WORD)len;
-		SendMessage(m_Hwnd, EM_GETLINE, static_cast<WPARAM>(line), reinterpret_cast<LPARAM>(p.get()));
+		*((LPWORD)p.get()) = gsl::narrow_cast<WORD>(len);
+		SendMessage(m_Hwnd, EM_GETLINE, gsl::narrow_cast<WPARAM>(line), reinterpret_cast<LPARAM>(p.get()));
 
 		// terminate the string at the right position
 		p[len - 1] = TEXT('\0');
@@ -204,7 +204,8 @@ void DcxRichEdit::parseInfoRequest( const TString &input, const refString<TCHAR,
 	case L"num"_hash:
 	{
 		if (this->isStyle(ES_MULTILINE))
-			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), static_cast<int>(SendMessage(m_Hwnd, EM_GETLINECOUNT, 0, 0L)));
+			//wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), gsl::narrow_cast<int>(SendMessage(m_Hwnd, EM_GETLINECOUNT, 0, 0L)));
+			_ts_snprintf(szReturnValue, TEXT("%d"), gsl::narrow_cast<int>(SendMessage(m_Hwnd, EM_GETLINECOUNT, 0, 0L)));
 		else {
 			// single line control so always 1 line.
 			szReturnValue = TEXT('1');
@@ -223,13 +224,15 @@ void DcxRichEdit::parseInfoRequest( const TString &input, const refString<TCHAR,
 			// current line
 			const auto iLinePos = SendMessage(m_Hwnd, EM_LINEFROMCHAR, (WPARAM)-1, NULL);
 			// line offset
-			const auto iAbsoluteCharPos = (int)SendMessage(m_Hwnd, EM_LINEINDEX, (WPARAM)-1, NULL);
+			const auto iAbsoluteCharPos = gsl::narrow_cast<int>(SendMessage(m_Hwnd, EM_LINEINDEX, (WPARAM)-1, NULL));
 
-			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d %u"), iLinePos + 1, dwAbsoluteStartSelPos - iAbsoluteCharPos);
+			//wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d %u"), iLinePos + 1, dwAbsoluteStartSelPos - iAbsoluteCharPos);
+			_ts_snprintf(szReturnValue, TEXT("%d %u"), iLinePos + 1, dwAbsoluteStartSelPos - iAbsoluteCharPos);
 		}
 		else {
 			// return selstart
-			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("1 %u"), dwAbsoluteStartSelPos);
+			//wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("1 %u"), dwAbsoluteStartSelPos);
+			_ts_snprintf(szReturnValue, TEXT("1 %u"), dwAbsoluteStartSelPos);
 		}
 	}
 	// [NAME] [ID] [PROP]
@@ -238,7 +241,8 @@ void DcxRichEdit::parseInfoRequest( const TString &input, const refString<TCHAR,
 		CHARRANGE c = { 0 };
 
 		SendMessage(m_Hwnd, EM_EXGETSEL, NULL, (LPARAM)&c);
-		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), c.cpMin);
+		//wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), c.cpMin);
+		_ts_snprintf(szReturnValue, TEXT("%d"), c.cpMin);
 	}
 	break;
 	// [NAME] [ID] [PROP]
@@ -247,7 +251,8 @@ void DcxRichEdit::parseInfoRequest( const TString &input, const refString<TCHAR,
 		CHARRANGE c = { 0 };
 
 		SendMessage(m_Hwnd, EM_EXGETSEL, NULL, (LPARAM)&c);
-		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), c.cpMax);
+		//wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), c.cpMax);
+		_ts_snprintf(szReturnValue, TEXT("%d"), c.cpMax);
 	}
 	break;
 	// [NAME] [ID] [PROP]
@@ -256,7 +261,8 @@ void DcxRichEdit::parseInfoRequest( const TString &input, const refString<TCHAR,
 		CHARRANGE c = { 0 };
 
 		SendMessage(m_Hwnd, EM_EXGETSEL, NULL, (LPARAM)&c);
-		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d"), c.cpMin, c.cpMax);
+		//wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d"), c.cpMin, c.cpMax);
+		_ts_snprintf(szReturnValue, TEXT("%d %d"), c.cpMin, c.cpMax);
 	}
 	break;
 	// [NAME] [ID] [PROP]
@@ -284,9 +290,9 @@ void DcxRichEdit::parseInfoRequest( const TString &input, const refString<TCHAR,
 		es.pfnCallback = &StreamOutToVarCallback;
 
 		if (tsFlags == TEXT("utf8"))
-			iFlags = (UINT)((CP_UTF8 << 16) | SF_USECODEPAGE | SF_RTF);
+			iFlags = gsl::narrow_cast<UINT>((CP_UTF8 << 16) | SF_USECODEPAGE | SF_RTF);
 
-		SendMessage(m_Hwnd, EM_STREAMOUT, (WPARAM)iFlags, (LPARAM)&es);
+		SendMessage(m_Hwnd, EM_STREAMOUT, gsl::narrow_cast<UINT>(iFlags), reinterpret_cast<LPARAM>(&es));
 
 		const TString tsOut(rtf.str().c_str());	// handles any char convertions needed.
 		szReturnValue = tsOut.to_chr();
@@ -486,8 +492,9 @@ DWORD CALLBACK DcxRichEdit::StreamOutToVarCallback(DWORD_PTR dwCookie, const LPB
 
 DWORD CALLBACK DcxRichEdit::StreamOutToFileCallback(DWORD_PTR dwCookie, const LPBYTE pbBuff, const LONG cb, LONG *pcb)
 {
-	auto hFile = (HANDLE)dwCookie;
-	DWORD NumberOfBytesWritten;
+	auto hFile = reinterpret_cast<HANDLE>(dwCookie);
+	DWORD NumberOfBytesWritten = 0;
+
 	if (!WriteFile(hFile, pbBuff, cb, &NumberOfBytesWritten, nullptr))
 	{
 		//handle errors
@@ -500,8 +507,9 @@ DWORD CALLBACK DcxRichEdit::StreamOutToFileCallback(DWORD_PTR dwCookie, const LP
 
 DWORD CALLBACK DcxRichEdit::StreamInFromFileCallback(DWORD_PTR dwCookie, LPBYTE pbBuff, const LONG cb, LONG *pcb)
 {
-	auto hFile = (HANDLE)dwCookie;
-	DWORD NumberOfBytesRead;
+	auto hFile = reinterpret_cast<HANDLE>(dwCookie);
+	DWORD NumberOfBytesRead = 0;
+
 	if (!ReadFile(hFile, pbBuff, cb, &NumberOfBytesRead, nullptr))
 	{
 		//handle errors
@@ -544,7 +552,7 @@ void DcxRichEdit::parseCommandRequest(const TString &input) {
 	// xdid -d [NAME] [ID] [SWITCH] [N]
 	else if (flags[TEXT('d')] && numtok > 3) {
 		if (this->isStyle(ES_MULTILINE)) {
-			const auto nLine = input.getnexttok().to_int();	// tok 4
+			const auto nLine = input.getnexttok().to_<UINT>();	// tok 4
 			this->m_tsText.deltok(nLine, TEXT("\r\n"));
 		}
 
@@ -569,7 +577,7 @@ void DcxRichEdit::parseCommandRequest(const TString &input) {
 		else if (numtok > 5) {
 			this->setRedraw(FALSE);
 
-			this->m_byteCharset = static_cast<BYTE>(parseFontCharSet(input.getnexttok( )));	// tok 5
+			this->m_byteCharset = gsl::narrow_cast<BYTE>(parseFontCharSet(input.getnexttok( )));	// tok 5
 			this->m_iFontSize = 20U * input.getnexttok( ).to_<UINT>();			// tok 6
 			this->m_tsFontFaceName = input.getlasttoks().trim();				// tok 7, -1
 
@@ -600,7 +608,7 @@ void DcxRichEdit::parseCommandRequest(const TString &input) {
 		const auto clrColor = input.getnexttok().to_<COLORREF>();	// tok 4
 
 		if (clrColor == CLR_INVALID)
-			SendMessage(m_Hwnd, EM_SETBKGNDCOLOR, (WPARAM) 1, (LPARAM) GetSysColor(COLOR_WINDOWTEXT));
+			SendMessage(m_Hwnd, EM_SETBKGNDCOLOR, (WPARAM) 1, gsl::narrow_cast<LPARAM>(GetSysColor(COLOR_WINDOWTEXT)));
 		else
 			SendMessage(m_Hwnd, EM_SETBKGNDCOLOR, (WPARAM) 0, (LPARAM) clrColor);
 
@@ -611,7 +619,7 @@ void DcxRichEdit::parseCommandRequest(const TString &input) {
 	else if (flags[TEXT('l')] && numtok > 4) {
 		const auto nColor = input.getnexttok( ).to_int() -1;	// tok 4
 
-		if (nColor < 0 && nColor > 15)
+		if (nColor < 0 && nColor > gsl::narrow_cast<int>(Dcx::countof(m_aColorPalette) - 1))
 			throw Dcx::dcxException("Invalid Colour");
 
 		this->m_aColorPalette[nColor] = input.getnexttok().to_<COLORREF>();	// tok 5
@@ -647,8 +655,8 @@ void DcxRichEdit::parseCommandRequest(const TString &input) {
 	else if (flags[TEXT('q')] && numtok > 3) {
 		const auto nColor = numtok - 3;
 
-		if (nColor > 15)
-			throw Dcx::dcxException("Invalid Colour");
+		if (nColor >= Dcx::countof(m_aColorPalette))
+			throw Dcx::dcxException("Invalid Colour Count");
 
 		for (auto i = decltype(nColor){0}; (i < nColor && i < Dcx::countof(m_aColorPalette)); i++)
 			m_aColorPalette[i] = input.getnexttok().to_<COLORREF>();	// tok 4 + i
@@ -700,7 +708,7 @@ void DcxRichEdit::parseCommandRequest(const TString &input) {
 				if (tsArgs.numtok() < 2)
 					throw Dcx::dcxException(TEXT("No dataset specified"));
 
-				TString tsFile(tsArgs.gettok(1, static_cast<int>(tsArgs.numtok()) -1));
+				TString tsFile(tsArgs.gettok(1, gsl::narrow_cast<int>(tsArgs.numtok()) -1));
 				const TString tsDataSet(tsArgs.gettok(tsArgs.numtok()));
 
 				if (!LoadRichTextFromXml(m_Hwnd, tsFile, tsDataSet))	// default load rtf text
@@ -799,7 +807,7 @@ void DcxRichEdit::parseCommandRequest(const TString &input) {
 		const auto num = input.getnexttok().to_int();	// tok 4
 		const auto den = input.getnexttok().to_int();	// tok 5
 
-		if (!SendMessage(m_Hwnd, EM_SETZOOM, (WPARAM) num, (LPARAM) den))
+		if (!SendMessage(m_Hwnd, EM_SETZOOM, gsl::narrow_cast<WPARAM>(num), gsl::narrow_cast<LPARAM>(den)))
 			throw Dcx::dcxException("Richedit zooming error");
 	}
 	else
@@ -836,7 +844,7 @@ void DcxRichEdit::setContentsFont() {
 
 	chrf.cbSize = sizeof(CHARFORMAT2);
 	chrf.dwMask = CFM_BACKCOLOR | CFM_BOLD | CFM_COLOR | CFM_FACE | CFM_SIZE | CFM_ITALIC | CFM_UNDERLINE | CFM_STRIKEOUT | CFM_CHARSET;
-	chrf.yHeight = static_cast<LONG>(this->m_iFontSize);
+	chrf.yHeight = gsl::narrow_cast<LONG>(this->m_iFontSize);
 	chrf.crTextColor = this->m_clrText;
 	chrf.crBackColor = this->m_clrBackText;
 	chrf.bCharSet = this->m_byteCharset;
@@ -1245,7 +1253,7 @@ void DcxRichEdit::insertText(const TCHAR *const text, bool bline, bool uline, bo
 	ZeroMemory(&chrf, sizeof(CHARFORMAT2));
 	chrf.cbSize = sizeof(CHARFORMAT2);
 	chrf.dwMask = CFM_BACKCOLOR | CFM_BOLD | CFM_COLOR | CFM_FACE | CFM_SIZE | CFM_ITALIC | CFM_UNDERLINE | CFM_STRIKEOUT | CFM_CHARSET;
-	chrf.yHeight = static_cast<LONG>(this->m_iFontSize);
+	chrf.yHeight = gsl::narrow_cast<LONG>(this->m_iFontSize);
 	chrf.crTextColor = this->m_clrText;
 	chrf.crBackColor = this->m_clrBackText;
 	chrf.bCharSet = this->m_byteCharset;
@@ -1343,21 +1351,14 @@ void DcxRichEdit::toXml(TiXmlElement *const xml) const {
 
 	xml->SetAttribute("styles", getStyles().c_str());
 
-	auto text = new TiXmlText(this->m_tsText.c_str());
-	xml->LinkEndChild(text);
+	xml->LinkEndChild(new TiXmlText(this->m_tsText.c_str()));
 }
 
 TiXmlElement * DcxRichEdit::toXml(void) const
 {
-	auto xml = __super::toXml();
-
-	//xml->SetAttribute("caption", m_tsText.c_str());
-	xml->SetAttribute("styles", getStyles().c_str());
-
-	auto text = new TiXmlText(m_tsText.c_str());
-	xml->LinkEndChild(text);
-
-	return xml;
+	auto xml = std::make_unique<TiXmlElement>("control");
+	toXml(xml.get());
+	return xml.release();
 }
 
 const TString DcxRichEdit::getStyles(void) const {

@@ -409,11 +409,13 @@ mIRC(xtreebar) {
 	}
 	catch (const std::exception &e)
 	{
-		Dcx::errorex(TEXT("/xtreebar"), TEXT("\"%s\" error: %S"), input.to_chr(), e.what());
+		//Dcx::errorex(TEXT("/xtreebar"), TEXT("\"%s\" error: %S"), input.to_chr(), e.what());
+		Dcx::error(TEXT("/xtreebar"), TEXT("\"%\" error: %"), input, e.what());
 	}
 	catch (...) {
 		// stop any left over exceptions...
-		Dcx::errorex(TEXT("/xtreebar"), TEXT("\"%s\" error: Unknown Exception"), input.to_chr());
+		//Dcx::errorex(TEXT("/xtreebar"), TEXT("\"%s\" error: Unknown Exception"), input.to_chr());
+		Dcx::error(TEXT("/xtreebar"), TEXT("\"%\" error: Unknown Exception"), input);
 	}
 	return 0;
 }
@@ -529,11 +531,13 @@ mIRC(_xtreebar)
 	}
 	catch (const std::exception &e)
 	{
-		Dcx::errorex(TEXT("/xtreebar"), TEXT("\"%s\" error: %S"), d.to_chr(), e.what());
+		//Dcx::errorex(TEXT("/xtreebar"), TEXT("\"%s\" error: %S"), d.to_chr(), e.what());
+		Dcx::error(TEXT("/xtreebar"), TEXT("\"%\" error: %"), d, e.what());
 	}
 	catch (...) {
 		// stop any left over exceptions...
-		Dcx::errorex(TEXT("/xtreebar"), TEXT("\"%s\" error: Unknown Exception"), d.to_chr());
+		//Dcx::errorex(TEXT("/xtreebar"), TEXT("\"%s\" error: Unknown Exception"), d.to_chr());
+		Dcx::error(TEXT("/xtreebar"), TEXT("\"%\" error: Unknown Exception"), d);
 	}
 	return 0;
 }

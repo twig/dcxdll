@@ -616,11 +616,9 @@ void DcxStatusBar::toXml(TiXmlElement *const xml) const
 
 TiXmlElement * DcxStatusBar::toXml(void) const
 {
-	auto xml = __super::toXml();
-
-	xml->SetAttribute("styles", getStyles().c_str());
-
-	return xml;
+	auto xml = std::make_unique<TiXmlElement>("control");
+	toXml(xml.get());
+	return xml.release();
 }
 
 const TString DcxStatusBar::getStyles(void) const {

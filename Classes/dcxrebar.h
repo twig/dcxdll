@@ -75,7 +75,7 @@ public:
 	LRESULT setBarInfo( LPREBARINFO lprbi );
 	LRESULT getBarInfo( LPREBARINFO lprbi ) const;
 	LRESULT getRowCount( ) const;
-	LRESULT hitTest( LPRBHITTESTINFO lprbht );
+	LRESULT hitTest( LPRBHITTESTINFO lprbht ) const;
 	LRESULT getToolTips( ) const;
 	LRESULT setToolTips( const HWND hwndToolTip );
 	LRESULT getIDToIndex( const UINT uBandID ) const;

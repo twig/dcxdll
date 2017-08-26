@@ -238,35 +238,6 @@ void DcxDivider::toXml(TiXmlElement *const xml) const
 
 TiXmlElement * DcxDivider::toXml(void) const
 {
-	//auto xml = __super::toXml();
-	//
-	//xml->SetAttribute("styles", getStyles().c_str());
-	//
-	//DVPANEINFO left;
-	//DVPANEINFO right;
-	//Divider_GetChildControl(m_Hwnd, DVF_PANELEFT, &left);
-	//Divider_GetChildControl(m_Hwnd, DVF_PANERIGHT, &right);
-	//if (left.hChild != nullptr)
-	//{
-	//	if (auto dcxcleft = this->m_pParentDialog->getControlByHWND(left.hChild); dcxcleft != nullptr)
-	//		xml->LinkEndChild(dcxcleft->toXml());
-	//	else
-	//		xml->LinkEndChild(new TiXmlElement("control"));
-	//}
-	//else
-	//	xml->LinkEndChild(new TiXmlElement("control"));
-	//if (right.hChild != nullptr)
-	//{
-	//	if (auto dcxcright = this->m_pParentDialog->getControlByHWND(right.hChild); dcxcright != nullptr)
-	//		xml->LinkEndChild(dcxcright->toXml());
-	//	else
-	//		xml->LinkEndChild(new TiXmlElement("control"));
-	//}
-	//else
-	//	xml->LinkEndChild(new TiXmlElement("control"));
-	//
-	//return xml;
-
 	auto xml = std::make_unique<TiXmlElement>("control");
 	toXml(xml.get());
 	return xml.release();
@@ -335,7 +306,7 @@ LRESULT DcxDivider::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 
 	case WM_MEASUREITEM:
 		{
-			if (auto cHwnd = GetDlgItem(m_Hwnd, static_cast<int>(wParam)); IsWindow(cHwnd)) {
+			if (auto cHwnd = GetDlgItem(m_Hwnd, gsl::narrow_cast<int>(wParam)); IsWindow(cHwnd)) {
 				if (auto c_this = static_cast<DcxControl *>(GetProp(cHwnd, TEXT("dcx_cthis"))); c_this != nullptr)
 					lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 			}

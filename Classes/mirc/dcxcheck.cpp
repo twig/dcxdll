@@ -82,8 +82,9 @@ DcxCheck::~DcxCheck( ) {
 
 void DcxCheck::toXml(TiXmlElement *const xml) const
 {
-	TString wtext;
 	__super::toXml(xml);
+
+	TString wtext;
 	TGetWindowText(m_Hwnd, wtext);
 	xml->SetAttribute("caption", wtext.c_str());
 	xml->SetAttribute("styles", getStyles().c_str());
@@ -91,14 +92,9 @@ void DcxCheck::toXml(TiXmlElement *const xml) const
 
 TiXmlElement * DcxCheck::toXml(void) const
 {
-	auto xml = __super::toXml();
-
-	TString wtext;
-	TGetWindowText(m_Hwnd, wtext);
-	xml->SetAttribute("caption", wtext.c_str());
-	xml->SetAttribute("styles", getStyles().c_str());
-
-	return xml;
+	auto xml = std::make_unique<TiXmlElement>("control");
+	toXml(xml.get());
+	return xml.release();
 }
 
 const TString DcxCheck::getStyles(void) const {

@@ -24,10 +24,10 @@ DcxPager::DcxPager(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentH
 	this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
 
 	m_Hwnd = CreateWindowEx(
-		static_cast<DWORD>(ExStyles) | WS_EX_CONTROLPARENT,
+		gsl::narrow_cast<DWORD>(ExStyles) | WS_EX_CONTROLPARENT,
 		DCX_PAGERCLASS,
 		nullptr,
-		WS_CHILD | static_cast<DWORD>(Styles),
+		WS_CHILD | gsl::narrow_cast<DWORD>(Styles),
 		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
 		mParentHwnd,
 		(HMENU) ID,
@@ -84,15 +84,9 @@ void DcxPager::toXml(TiXmlElement *const xml) const
 
 TiXmlElement * DcxPager::toXml(void) const
 {
-	auto xml = __super::toXml();
-
-	xml->SetAttribute("styles", getStyles().c_str());
-
-	const auto child = this->m_pParentDialog->getControlByHWND(this->m_ChildHWND);
-	if (child != nullptr)
-		xml->LinkEndChild(child->toXml());
-
-	return xml;
+	auto xml = std::make_unique<TiXmlElement>("control");
+	toXml(xml.get());
+	return xml.release();
 }
 
 /*!
@@ -142,13 +136,16 @@ void DcxPager::parseInfoRequest( const TString & input, const refString<TCHAR, M
 	switch (std::hash<TString>{}(input.getfirsttok(3)))
 	{
 	case L"color"_hash:
-		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), Pager_GetBkColor(m_Hwnd));
+		//wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), Pager_GetBkColor(m_Hwnd));
+		_ts_snprintf(szReturnValue, TEXT("%u"), Pager_GetBkColor(m_Hwnd));
 		break;
 	case L"bsize"_hash:
-		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), Pager_GetButtonSize(m_Hwnd));
+		//wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), Pager_GetButtonSize(m_Hwnd));
+		_ts_snprintf(szReturnValue, TEXT("%d"), Pager_GetButtonSize(m_Hwnd));
 		break;
 	case L"border"_hash:
-		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), Pager_GetBorder(m_Hwnd));
+		//wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), Pager_GetBorder(m_Hwnd));
+		_ts_snprintf(szReturnValue, TEXT("%d"), Pager_GetBorder(m_Hwnd));
 		break;
 	default:
 		parseGlobalInfoRequest(input, szReturnValue);
@@ -215,9 +212,7 @@ void DcxPager::parseCommandRequest( const TString & input ) {
 		if (p_Control == nullptr)
 			throw Dcx::dcxException(TEXT("Unable to get control with ID \"%\" (dialog %)"), tsID, this->m_pParentDialog->getName());
 
-		const auto dct = p_Control->getControlType();
-
-		if (dct == DcxControlTypes::DIALOG || dct == DcxControlTypes::WINDOW)
+		if (const auto dct = p_Control->getControlType(); (dct == DcxControlTypes::DIALOG || dct == DcxControlTypes::WINDOW))
 			delete p_Control;
 		else {
 			if (p_Control->getRefCount() != 0)
@@ -297,9 +292,8 @@ LRESULT DcxPager::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
 			if (cthis == nullptr)
 				break;
 
-			const auto bSize = Pager_GetButtonSize(m_Hwnd);
-			//if (cthis->getType() == TEXT("toolbar")) {
-			if (cthis->getControlType() == DcxControlTypes::TOOLBAR) {
+			if (const auto bSize = Pager_GetButtonSize(m_Hwnd); (cthis->getControlType() == DcxControlTypes::TOOLBAR))
+			{
 				SIZE sz = { 0 };
 				SendMessage(m_ChildHWND, TB_GETMAXSIZE, 0, (LPARAM)&sz);
 				if (lpnmcs->dwFlag == PGF_CALCHEIGHT)
@@ -307,11 +301,8 @@ LRESULT DcxPager::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
 				else
 					lpnmcs->iWidth = sz.cx + bSize;
 			}
-			else {
-				RECT rc = { 0 };
-				if (!GetWindowRect(m_ChildHWND, &rc))
-					break;
-
+			else if (RECT rc = { 0 }; GetWindowRect(m_ChildHWND, &rc))
+			{
 				if (lpnmcs->dwFlag == PGF_CALCHEIGHT)
 					lpnmcs->iHeight = (rc.bottom - rc.top) + bSize;
 				else
@@ -339,9 +330,9 @@ LRESULT DcxPager::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 			if (hdr == nullptr)
 				break;
 
-			if (IsWindow(hdr->hwndFrom)) {
-				auto c_this = static_cast<DcxControl *>(GetProp(hdr->hwndFrom, TEXT("dcx_cthis")));
-				if (c_this != nullptr)
+			if (IsWindow(hdr->hwndFrom))
+			{
+				if (auto c_this = static_cast<DcxControl *>(GetProp(hdr->hwndFrom, TEXT("dcx_cthis"))); c_this != nullptr)
 					lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 			}
 			switch( hdr->code ) {
@@ -358,9 +349,9 @@ LRESULT DcxPager::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 	case WM_VSCROLL:
 	case WM_COMMAND:
 		{
-			if (IsWindow((HWND) lParam)) {
-				auto c_this = static_cast<DcxControl *>(GetProp((HWND)lParam, TEXT("dcx_cthis")));
-				if (c_this != nullptr)
+			if (IsWindow((HWND) lParam))
+			{
+				if (auto c_this = static_cast<DcxControl *>(GetProp((HWND)lParam, TEXT("dcx_cthis"))); c_this != nullptr)
 					lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 			}
 		}
@@ -370,8 +361,7 @@ LRESULT DcxPager::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 		{
 			dcxlParam(LPDELETEITEMSTRUCT, idata);
 			if ((idata != nullptr) && (IsWindow(idata->hwndItem))) {
-				auto c_this = static_cast<DcxControl *>(GetProp(idata->hwndItem, TEXT("dcx_cthis")));
-				if (c_this != nullptr)
+				if (auto c_this = static_cast<DcxControl *>(GetProp(idata->hwndItem, TEXT("dcx_cthis"))); c_this != nullptr)
 					lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 			}
 		}
@@ -379,10 +369,8 @@ LRESULT DcxPager::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 
 	case WM_MEASUREITEM:
 		{
-			auto cHwnd = GetDlgItem(m_Hwnd, static_cast<int>(wParam));
-			if (IsWindow(cHwnd)) {
-				auto c_this = static_cast<DcxControl *>(GetProp(cHwnd, TEXT("dcx_cthis")));
-				if (c_this != nullptr)
+			if (auto cHwnd = GetDlgItem(m_Hwnd, static_cast<int>(wParam)); IsWindow(cHwnd)) {
+				if (auto c_this = static_cast<DcxControl *>(GetProp(cHwnd, TEXT("dcx_cthis"))); c_this != nullptr)
 					lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 			}
 		}
@@ -393,8 +381,7 @@ LRESULT DcxPager::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 			dcxlParam(LPDRAWITEMSTRUCT, idata);
 
 			if ((idata != nullptr) && (IsWindow(idata->hwndItem))) {
-				auto c_this = static_cast<DcxControl *>(GetProp(idata->hwndItem, TEXT("dcx_cthis")));
-				if (c_this != nullptr)
+				if (auto c_this = static_cast<DcxControl *>(GetProp(idata->hwndItem, TEXT("dcx_cthis"))); c_this != nullptr)
 					lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 			}
 		}

@@ -37,10 +37,10 @@ DcxProgressBar::DcxProgressBar( _In_ const UINT ID, _In_ DcxDialog *const p_Dial
 	this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
 
 	m_Hwnd = CreateWindowEx(
-		static_cast<DWORD>(ExStyles) | WS_EX_CLIENTEDGE,
+		gsl::narrow_cast<DWORD>(ExStyles) | WS_EX_CLIENTEDGE,
 		DCX_PROGRESSBARCLASS,
 		nullptr,
-		WS_CHILD | static_cast<DWORD>(Styles),
+		WS_CHILD | gsl::narrow_cast<DWORD>(Styles),
 		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
 		mParentHwnd,
 		(HMENU) ID,
@@ -156,17 +156,20 @@ void DcxProgressBar::parseInfoRequest( const TString & input, const refString<TC
 	switch (std::hash<TString>{}(input.getfirsttok(3)))
 	{
 	case L"value"_hash:
-		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), this->getPosition());
+		//wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), this->getPosition());
+		_ts_snprintf(szReturnValue, TEXT("%d"), this->getPosition());
 		break;
 	case L"range"_hash:
 	{
 		PBRANGE pbr;
 		this->getRange(FALSE, &pbr);
-		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d"), pbr.iLow, pbr.iHigh);
+		//wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d"), pbr.iLow, pbr.iHigh);
+		_ts_snprintf(szReturnValue, TEXT("%d %d"), pbr.iLow, pbr.iHigh);
 	}
 	break;
 	case L"text"_hash:
-		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, this->m_tsText.to_chr(), this->CalculatePosition());
+		//wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, this->m_tsText.to_chr(), this->CalculatePosition());
+		_ts_snprintf(szReturnValue, this->m_tsText.to_chr(), this->CalculatePosition());
 		break;
 	default:
 		parseGlobalInfoRequest(input, szReturnValue);
@@ -243,7 +246,7 @@ void DcxProgressBar::parseCommandRequest( const TString &input) {
 	// xdid -r name ID RLow RHigh
 	else if (flags[TEXT('r')]) {
 		if (numtok > 4)
-			setRange(input.gettok( 4 ).to_int(), input.gettok( 5 ).to_int());
+			setRange(input.getnexttok( ).to_int(), input.gettok( 5 ).to_int());
 	}
 	// xdid -t name ID
 	else if (flags[TEXT('t')]) {
@@ -264,8 +267,7 @@ void DcxProgressBar::parseCommandRequest( const TString &input) {
 		if (numtok < 4)
 			return;
 
-		LOGFONT lfCurrent;
-		ZeroMemory(&lfCurrent, sizeof(LOGFONT));
+		LOGFONT lfCurrent{};
 
 		if (GetObject(m_hFont, sizeof(LOGFONT), &lfCurrent) == 0)
 			throw Dcx::dcxException("Unable to get LOGFONT");
@@ -273,25 +275,23 @@ void DcxProgressBar::parseCommandRequest( const TString &input) {
 		const auto angle = input.getnexttok().to_int();	// tok 4
 
 		//TODO: let user specify angle of text?
-		if (angle) {
+		if (angle > 0) {
 			// input is angle based, expected angle = *10
 			//lfCurrent.lfEscapement = angle * 10;
 			//lfCurrent.lfOrientation = angle * 10;
 			lfCurrent.lfEscapement = 900;
 			lfCurrent.lfOrientation = 900;
+
+			if (m_hfontVertical != nullptr)
+				DeleteFont(m_hfontVertical);
+
+			m_hfontVertical = CreateFontIndirect(&lfCurrent);
 		}
 		else {
 			DeleteFont(m_hfontVertical);
 			m_hfontVertical = nullptr;
-			redrawWindow();
-			return;
 		}
 
-		if (m_hfontVertical)
-			DeleteFont(m_hfontVertical);
-
-		m_hfontVertical = CreateFontIndirect(&lfCurrent);
-		//setControlFont(hfNew, FALSE);
 		redrawWindow();
 	}
 	else
@@ -305,7 +305,7 @@ void DcxProgressBar::parseCommandRequest( const TString &input) {
  */
 
 LRESULT DcxProgressBar::setPosition( const int nNewPos ) {
-  return SendMessage( m_Hwnd, PBM_SETPOS, (WPARAM) nNewPos, (LPARAM) 0 );
+  return SendMessage( m_Hwnd, PBM_SETPOS, gsl::narrow_cast<WPARAM>(nNewPos), (LPARAM) 0 );
 }
 
 /*!
@@ -315,7 +315,7 @@ LRESULT DcxProgressBar::setPosition( const int nNewPos ) {
  */
 
 LRESULT DcxProgressBar::setRange( const int iLowLim, const int iHighLim ) {
-  return SendMessage(m_Hwnd, PBM_SETRANGE32, (WPARAM) iLowLim, (LPARAM) iHighLim );
+  return SendMessage(m_Hwnd, PBM_SETRANGE32, gsl::narrow_cast<WPARAM>(iLowLim), gsl::narrow_cast<LPARAM>(iHighLim) );
 }
 
 /*!
@@ -335,7 +335,7 @@ LRESULT DcxProgressBar::getPosition( ) const {
  */
 
 LRESULT DcxProgressBar::getRange( const BOOL fWhichLimit, PPBRANGE ppBRange ) const {
-  return SendMessage( m_Hwnd, PBM_GETRANGE, (WPARAM) fWhichLimit, (LPARAM) ppBRange );
+  return SendMessage( m_Hwnd, PBM_GETRANGE, gsl::narrow_cast<WPARAM>(fWhichLimit), reinterpret_cast<LPARAM>(ppBRange) );
 }
 
 /*!
@@ -345,7 +345,7 @@ LRESULT DcxProgressBar::getRange( const BOOL fWhichLimit, PPBRANGE ppBRange ) co
  */
 
 LRESULT DcxProgressBar::setMarquee( const BOOL fStart, const int fTime ) {
-  return SendMessage( m_Hwnd, PBM_SETMARQUEE, (WPARAM) fStart, (LPARAM) fTime );
+  return SendMessage( m_Hwnd, PBM_SETMARQUEE, gsl::narrow_cast<WPARAM>(fStart), gsl::narrow_cast<LPARAM>(fTime) );
 }
 
 /*!
@@ -365,7 +365,7 @@ LRESULT DcxProgressBar::stepIt( ) {
  */
 
 LRESULT DcxProgressBar::setStep( const int nStepInc ) {
-  return SendMessage( m_Hwnd, PBM_SETSTEP, (WPARAM) nStepInc, (LPARAM) 0 );
+  return SendMessage( m_Hwnd, PBM_SETSTEP, gsl::narrow_cast<WPARAM>(nStepInc), (LPARAM) 0 );
 }
 
 /*!
@@ -376,7 +376,7 @@ LRESULT DcxProgressBar::setStep( const int nStepInc ) {
 
 LRESULT DcxProgressBar::setBarColor( const COLORREF clrBar ) {
   m_clrStartGradient = clrBar;
-  return SendMessage( m_Hwnd, PBM_SETBARCOLOR, (WPARAM) 0, (LPARAM) clrBar );
+  return SendMessage( m_Hwnd, PBM_SETBARCOLOR, (WPARAM) 0, gsl::narrow_cast<LPARAM>(clrBar) );
 }
 /*!
  * \brief blah
@@ -386,7 +386,7 @@ LRESULT DcxProgressBar::setBarColor( const COLORREF clrBar ) {
 
 LRESULT DcxProgressBar::setBKColor( const COLORREF clrBk ) {
 	m_clrEndGradient = clrBk;
-	return SendMessage( m_Hwnd, PBM_SETBKCOLOR, (WPARAM) 0, (LPARAM) clrBk ); 
+	return SendMessage( m_Hwnd, PBM_SETBKCOLOR, (WPARAM) 0, gsl::narrow_cast<LPARAM>(clrBk) );
 }
 
 void DcxProgressBar::toXml(TiXmlElement *const xml) const {
@@ -397,11 +397,9 @@ void DcxProgressBar::toXml(TiXmlElement *const xml) const {
 
 TiXmlElement * DcxProgressBar::toXml(void) const
 {
-	auto xml = __super::toXml();
-
-	xml->SetAttribute("styles", getStyles().c_str());
-
-	return xml;
+	auto xml = std::make_unique<TiXmlElement>("control");
+	toXml(xml.get());
+	return xml.release();
 }
 
 /*!
@@ -439,10 +437,9 @@ LRESULT DcxProgressBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 				PAINTSTRUCT ps;
 
 				auto hdc = BeginPaint(m_Hwnd, &ps);
+				Auto(EndPaint(m_Hwnd, &ps));
 
 				DrawClientArea(hdc, uMsg, lParam);
-
-				EndPaint( m_Hwnd, &ps );
 			}
 			break;
 
@@ -511,7 +508,7 @@ int DcxProgressBar::CalculatePosition() const {
 	const auto iLower = getRange(TRUE, nullptr);
 	const auto iHigher = getRange(FALSE, nullptr);
 
-	return dcx_round((float) (iPos - iLower) * 100 / (iHigher - iLower ));
+	return dcx_round(gsl::narrow_cast<float>( (iPos - iLower) * 100) / (iHigher - iLower ));
 }
 
 void DcxProgressBar::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
@@ -555,7 +552,6 @@ void DcxProgressBar::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 	}
 	else
 		CallDefaultProc(m_Hwnd, uMsg, (WPARAM)hdc, lParam);
-		//CallWindowProc(m_DefaultWindowProc, m_Hwnd, uMsg, (WPARAM) hdc, lParam);
 
 	if (!m_tsText.empty()) {
 		const auto oldMode = SetBkMode(hdc, TRANSPARENT);

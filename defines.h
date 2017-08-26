@@ -472,7 +472,7 @@ using VectorOfInts = std::vector<int>; //<! Vector of int
 #define dcx_strncmp(x,y,z) ts_strncmp((x),(y),(z))
 #define dcx_itoa(x,y,z) _itow((x), (y), (z))
 
-//#define dcx_strcpyn(x, y, z) { if (lstrcpyn((x), (y), static_cast<int>((z))) == nullptr) (x)[0] = 0; }
+//#define dcx_strcpyn(x, y, z) { if (lstrcpyn((x), (y), gsl::narrow_cast<int>((z))) == nullptr) (x)[0] = 0; }
 
 template <typename T>
 inline void dcx_strcpyn(TCHAR *const sDest, const TCHAR *sSrc, const T &iSize) { if (ts_strcpyn(sDest, sSrc, iSize) == nullptr) sDest[0] = 0; }

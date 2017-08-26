@@ -37,10 +37,10 @@ DcxComboEx::DcxComboEx(const UINT ID, DcxDialog *const  p_Dialog, const HWND mPa
 	this->parseControlStyles(styles, &Styles, &ExStyles, &bNoTheme);
 
 	m_Hwnd = CreateWindowEx(
-		static_cast<DWORD>(ExStyles),
+		gsl::narrow_cast<DWORD>(ExStyles),
 		DCX_COMBOEXCLASS,
 		nullptr,
-		WS_CHILD | CBS_AUTOHSCROLL | static_cast<DWORD>(Styles),
+		WS_CHILD | CBS_AUTOHSCROLL | gsl::narrow_cast<DWORD>(Styles),
 		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
 		mParentHwnd,
 		(HMENU)ID,
@@ -186,9 +186,7 @@ void DcxComboEx::parseInfoRequest( const TString & input, const refString<TCHAR,
 		if (numtok < 4)
 			throw Dcx::dcxException("Invalid number of argumnets");
 
-		const auto nItem = input.getnexttok().to_int() - 1;	// tok 4
-
-		if (nItem > -1) {
+		if (const auto nItem = input.getnexttok().to_int() - 1; nItem > -1) {
 
 			COMBOBOXEXITEM cbi;
 			ZeroMemory(&cbi, sizeof(COMBOBOXEXITEM));
@@ -216,13 +214,15 @@ void DcxComboEx::parseInfoRequest( const TString & input, const refString<TCHAR,
 		if (nItem < 0)
 			throw Dcx::dcxException("Invalid Item");
 
-		COMBOBOXEXITEM cbi;
-		ZeroMemory(&cbi, sizeof(COMBOBOXEXITEM));
+		//COMBOBOXEXITEM cbi;
+		//ZeroMemory(&cbi, sizeof(COMBOBOXEXITEM));
+		//
+		//cbi.mask = CBEIF_TEXT;
+		//cbi.iItem = nItem;
+		//cbi.pszText = szReturnValue;
+		//cbi.cchTextMax = MIRC_BUFFER_SIZE_CCH;
 
-		cbi.mask = CBEIF_TEXT;
-		cbi.iItem = nItem;
-		cbi.pszText = szReturnValue;
-		cbi.cchTextMax = MIRC_BUFFER_SIZE_CCH;
+		COMBOBOXEXITEM cbi{ CBEIF_TEXT,nItem,szReturnValue,MIRC_BUFFER_SIZE_CCH,0,0,0,0,0 };
 
 		getItem(&cbi);
 	}
@@ -235,12 +235,14 @@ void DcxComboEx::parseInfoRequest( const TString & input, const refString<TCHAR,
 		if (nItem < 0)
 			throw Dcx::dcxException("Invalid Item");
 
-		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), nItem + 1);
+		//wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), nItem + 1);
+		_ts_snprintf(szReturnValue, TEXT("%d"), nItem + 1);
 	}
 	break;
 	// [NAME] [ID] [PROP]
 	case L"num"_hash:
-		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), getCount());
+		//wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), getCount());
+		_ts_snprintf(szReturnValue, TEXT("%d"), getCount());
 		break;
 		// [NAME] [ID] [PROP] {TAB}[MATCHTEXT]{TAB} [T] [N]
 	case L"find"_hash:
@@ -248,34 +250,25 @@ void DcxComboEx::parseInfoRequest( const TString & input, const refString<TCHAR,
 		if (numtok < 6)
 			throw Dcx::dcxException("Invalid number of argumnets");
 
-		const auto matchtext(input.getfirsttok(2, TSTABCHAR).trim());
-		const auto params(input.getnexttok(TSTABCHAR).trim());	// tok 3
-
-		if (!matchtext.empty()) {
-
-			auto SearchType = DcxSearchTypes::SEARCH_E;
-			const auto tsSearchType((params++)[0]);
-
-			//if ( params.getfirsttok( 1 ) == TEXT("R") )
-			if (tsSearchType == TEXT('R'))
-				SearchType = DcxSearchTypes::SEARCH_R;
-			else if (tsSearchType == TEXT('W'))
-				SearchType = DcxSearchTypes::SEARCH_W;
+		if (const auto matchtext(input.getfirsttok(2, TSTABCHAR).trim()); !matchtext.empty())
+		{
+			const auto params(input.getnexttok(TSTABCHAR).trim());	// tok 3
+			auto SearchType = CharToSearchType(params++[0]);
 
 			const auto N = params++.to_<UINT>();	// tok 2
 
 			const auto nItems = this->getCount();
-			auto count = decltype(N){0};
 
 			// count total
-			if (N == 0) {
+			if (auto count = decltype(N){0}; N == 0) {
 				for (auto i = decltype(nItems){0}; i < nItems; i++)
 				{
 					if (this->matchItemText(i, matchtext, SearchType))
 						count++;
 				}
 
-				wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), count);
+				//wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), count);
+				_ts_snprintf(szReturnValue, TEXT("%u"), count);
 			}
 			// find Nth matching
 			else {
@@ -285,8 +278,8 @@ void DcxComboEx::parseInfoRequest( const TString & input, const refString<TCHAR,
 						count++;
 
 					if (count == N) {
-
-						wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), i + 1);
+						//wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), i + 1);
+						_ts_snprintf(szReturnValue, TEXT("%d"), i + 1);
 						return;
 					}
 				}
@@ -396,14 +389,7 @@ void DcxComboEx::parseInfoRequest( const TString & input, const refString<TCHAR,
 
 		if ( !matchtext.empty() ) {
 
-			auto SearchType = DcxSearchTypes::SEARCH_E;
-			const auto tsSearchType((params++)[0]);
-
-			//if ( params.getfirsttok( 1 ) == TEXT("R") )
-			if (tsSearchType == TEXT('R'))
-				SearchType = DcxSearchTypes::SEARCH_R;
-			else if (tsSearchType == TEXT('W'))
-				SearchType = DcxSearchTypes::SEARCH_W;
+			auto SearchType = CharToSearchType(params++[0]);
 
 			const auto N = params++.to_<UINT>();	// tok 2
 
@@ -502,29 +488,27 @@ void DcxComboEx::parseCommandRequest( const TString &input) {
 			//SendMessage(this->m_EditHwnd, WM_SETTEXT,0, (LPARAM)itemtext.to_chr());
 		}
 		else {
-			COMBOBOXEXITEM cbi;
+			//COMBOBOXEXITEM cbi;
+			//
+			//cbi.mask = CBEIF_TEXT | CBEIF_INDENT | CBEIF_IMAGE | CBEIF_SELECTEDIMAGE | CBEIF_LPARAM;
+			//cbi.iItem = nPos;
+			//cbi.pszText = const_cast<TCHAR *>(itemtext.to_chr());
+			//cbi.cchTextMax = 0;
+			//cbi.iImage = icon;
+			//cbi.iSelectedImage = state;
+			//cbi.iOverlay = overlay;
+			//cbi.iIndent = indent;
+			//cbi.lParam = (LPARAM)new DCXCBITEM;
 
-			ZeroMemory(&cbi, sizeof(COMBOBOXEXITEM));
+			COMBOBOXEXITEM cbi{ (CBEIF_TEXT | CBEIF_INDENT | CBEIF_IMAGE | CBEIF_SELECTEDIMAGE | CBEIF_LPARAM),nPos,const_cast<TCHAR *>(itemtext.to_chr()),0,icon,state,overlay,indent,(LPARAM)new DCXCBITEM };
 
-			cbi.mask = CBEIF_TEXT | CBEIF_INDENT | CBEIF_IMAGE | CBEIF_SELECTEDIMAGE | CBEIF_LPARAM;
-			cbi.iIndent = indent;
-			cbi.iImage = icon;
-			cbi.iSelectedImage = state;
-			cbi.iOverlay = overlay;
-			cbi.pszText = const_cast<TCHAR *>(itemtext.to_chr());
-			cbi.iItem = nPos;
-			cbi.lParam = (LPARAM)new DCXCBITEM;
-
-			//nPos = this->insertItem(&cbi);
 			if (this->insertItem(&cbi) == -1)
 			{
 				delete reinterpret_cast<DCXCBITEM *>(cbi.lParam);
 				throw Dcx::dcxException("Unable to add item.");
 			}
 			// Now update the horizontal scroller
-			auto combo = (HWND)SendMessage(m_Hwnd, CBEM_GETCOMBOCONTROL, NULL, NULL);
-
-			if (IsWindow(combo)) {
+			if (auto combo = (HWND)SendMessage(m_Hwnd, CBEM_GETCOMBOCONTROL, NULL, NULL); IsWindow(combo)) {
 				// Get Font sizes (best way i can find atm, if you know something better then please let me know)
 
 				//int nMaxStrlen = itemtext.len();
@@ -550,25 +534,21 @@ void DcxComboEx::parseCommandRequest( const TString &input) {
 				//if (nMaxStrlen > nHorizExtent)
 				//	SendMessage(combo, CB_SETHORIZONTALEXTENT, nMaxStrlen, NULL);
 
-				const auto nHorizExtent = static_cast<int>(SendMessage(combo, CB_GETHORIZONTALEXTENT, NULL, NULL));
 
-				auto hdc = GetDC(m_Hwnd);
-
-				if (hdc != nullptr)
+				if (auto hdc = GetDC(m_Hwnd); hdc != nullptr)
 				{
 					Auto(ReleaseDC(m_Hwnd, hdc));
 
 					const HFONT hFont = this->getFont();
 					HFONT hOldFont = nullptr;
-					SIZE sz = { 0 };
 
 					if (hFont != nullptr)
 						hOldFont = SelectFont(hdc, hFont);
 
-					if (GetTextExtentPoint32(hdc, itemtext.to_chr(), static_cast<int>(itemtext.len()), &sz))
+					if (SIZE sz = { 0 }; GetTextExtentPoint32(hdc, itemtext.to_chr(), gsl::narrow_cast<int>(itemtext.len()), &sz))
 					{
-						if (sz.cx > nHorizExtent)
-							SendMessage(combo, CB_SETHORIZONTALEXTENT, static_cast<WPARAM>(sz.cx), NULL);
+						if (sz.cx > gsl::narrow_cast<long>(SendMessage(combo, CB_GETHORIZONTALEXTENT, NULL, NULL)))
+							SendMessage(combo, CB_SETHORIZONTALEXTENT, gsl::narrow_cast<WPARAM>(sz.cx), NULL);
 					}
 
 					if (hFont != nullptr)
@@ -634,12 +614,7 @@ void DcxComboEx::parseCommandRequest( const TString &input) {
 		{
 			// have flags, so its a match text delete
 			const auto tsMatchText(input.getnexttok());
-			auto SearchType = DcxSearchTypes::SEARCH_E;	// plain text exact match delete
-
-			if (xFlags[TEXT('w')])
-				SearchType = DcxSearchTypes::SEARCH_W;	// wildcard delete
-			else if (xFlags[TEXT('r')])
-				SearchType = DcxSearchTypes::SEARCH_R;	// regex delete
+			auto SearchType = FlagsToSearchType(xFlags);
 
 			for (auto nPos = Ns.to_int(); nPos < nItems; nPos++) {
 
@@ -650,10 +625,9 @@ void DcxComboEx::parseCommandRequest( const TString &input) {
 		else {
 			for (auto itStart = Ns.begin(TSCOMMACHAR), itEnd = Ns.end(); itStart != itEnd; ++itStart)
 			{
-				auto iStart = 0, iEnd = 0;
 				const TString tsLine(*itStart);
-				//getItemRange(tsLine, nItems, &iStart, &iEnd);
-				std::tie(iStart, iEnd) = getItemRange(tsLine, nItems);
+
+				const auto[iStart, iEnd] = getItemRange(tsLine, nItems);
 
 				if ((iStart < 0) || (iEnd < 0) || (iStart >= nItems) || (iEnd >= nItems))
 					throw Dcx::dcxException(TEXT("Invalid index %."), tsLine);
@@ -677,9 +651,6 @@ void DcxComboEx::parseCommandRequest( const TString &input) {
 	}
 	// xdid -w [NAME] [ID] [SWITCH] [+FLAGS] [INDEX] [FILENAME]
 	else if (flags[TEXT('w')] && numtok > 5) {
-		const auto flag(input++);			// tok 4
-		const auto index = input++.to_<int>();		// tok 5
-		auto filename(input++);				// tok 6, -1
 
 		auto himl = this->getImageList();
 
@@ -691,16 +662,19 @@ void DcxComboEx::parseCommandRequest( const TString &input) {
 		}
 
 		if (himl != nullptr) {
-			//auto icon = dcxLoadIcon(index, filename, false, flag);
-			//
-			//if (icon != nullptr) {
-			//	ImageList_AddIcon(himl, icon);
-			//	DestroyIcon(icon);
-			//}
-
+			const auto flag(input++);				// tok 4
+			const auto index = input++.to_<int>();	// tok 5
+			auto filename(input++);					// tok 6, -1
+#if DCX_USE_WRAPPERS
 			Dcx::dcxIconResource icon(index, filename, false, flag);
 
 			ImageList_AddIcon(himl, icon);
+#else
+			if (auto icon = dcxLoadIcon(index, filename, false, flag); icon != nullptr) {
+				ImageList_AddIcon(himl, icon);
+				DestroyIcon(icon);
+			}
+#endif
 		}
 	}
 	// xdid -y [NAME] [ID] [SWITCH] [+FLAGS]
@@ -1028,9 +1002,7 @@ LRESULT DcxComboEx::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 		bParsed = TRUE;
 		break;
 	case WM_NOTIFY:
-		dcxlParam(LPNMHDR,nhmdr);
-
-		switch (nhmdr->code) 
+		switch (dcxlParam(LPNMHDR, nhmdr); nhmdr->code)
 		{
 		case CBEN_ENDEDIT:
 			{
@@ -1199,12 +1171,7 @@ void DcxComboEx::toXml(TiXmlElement * const xml) const
 
 TiXmlElement * DcxComboEx::toXml(void) const
 {
-	auto xml = __super::toXml();
-
-	//TString wtext;
-	//TGetWindowText(m_Hwnd, wtext);
-	//xml->SetAttribute("caption", wtext.c_str());
-	xml->SetAttribute("styles", getStyles().c_str());
-
-	return xml;
+	auto xml = std::make_unique<TiXmlElement>("control");
+	toXml(xml.get());
+	return xml.release();
 }

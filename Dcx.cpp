@@ -13,7 +13,7 @@ namespace Dcx {
 	DcxDialogCollection Dialogs;
 	XPopupMenuManager XPopups;
 	XMenuBar XMenubar;
-	byte m_iGhostDrag;
+	std::byte m_iGhostDrag;
 	bool m_bDX9Installed;
 	HMODULE m_hRichEditLib;
 	bool m_bErrorTriggered;
@@ -89,7 +89,7 @@ namespace Dcx {
 		//ReportLiveObjects();
 		
 		// Patch SetCursor() function for custom cursors
-		SetCursorUx = (PFNSETCURSOR)PatchAPI("User32.dll", "SetCursor", Dcx::XSetCursor);
+		SetCursorUx = static_cast<PFNSETCURSOR>(PatchAPI("User32.dll", "SetCursor", Dcx::XSetCursor));
 	}
 
 	void unload(void)
@@ -389,12 +389,12 @@ namespace Dcx {
 		return m_pClassFactory;
 	}
 
-	const byte &getGhostDrag() noexcept
+	const std::byte &getGhostDrag() noexcept
 	{
 		return m_iGhostDrag;
 	}
 
-	bool setGhostDrag(const byte newAlpha) noexcept
+	bool setGhostDrag(const std::byte newAlpha) noexcept
 	{
 		m_iGhostDrag = newAlpha;
 		return true;
@@ -419,8 +419,7 @@ namespace Dcx {
 	{
 #ifdef DCX_USE_DXSDK
 		DCX_DEBUG(mIRCLinker::debug, TEXT("DXSetup"), TEXT("Checking DirectX Version..."));
-		DWORD dx_ver = 0;
-		if (GetDXVersion(&dx_ver, dxResult, dxSize) == S_OK) {
+		if (DWORD dx_ver = 0; GetDXVersion(&dx_ver, dxResult, dxSize) == S_OK) {
 			if (dx_ver < 0x00090000) {
 				DCX_DEBUG(mIRCLinker::debug, TEXT("DXSetup"), TEXT("Got DirectX Version: Need V9+"));
 				m_bDX9Installed = false;
@@ -467,17 +466,17 @@ namespace Dcx {
 	/*
 	 * Variable argument error message.
 	 */
-	void errorex(const TCHAR *const cmd, const TCHAR *const szFormat, ...)
-	{
-		TString temp;
-		va_list args(nullptr);
-
-		va_start(args, szFormat);
-		temp.tvprintf(szFormat, args);
-		va_end(args);
-
-		error(cmd, temp.to_chr());
-	}
+	//void errorex(const TCHAR *const cmd, const TCHAR *const szFormat, ...)
+	//{
+	//	TString temp;
+	//	va_list args(nullptr);
+	//
+	//	va_start(args, szFormat);
+	//	temp.tvprintf(szFormat, args);
+	//	va_end(args);
+	//
+	//	error(cmd, temp.to_chr());
+	//}
 
 	//int mark(TCHAR *const data, const TString & tsDName, const TString & tsCallbackName)
 	//{
@@ -581,9 +580,7 @@ namespace Dcx {
 			dcxlParam(LPMEASUREITEMSTRUCT, lpmis);
 
 			if (lpmis->CtlType == ODT_MENU) {
-				auto p_Item = reinterpret_cast<XPopupMenuItem *>(lpmis->itemData);
-
-				if (p_Item != nullptr) {
+				if (auto p_Item = reinterpret_cast<XPopupMenuItem *>(lpmis->itemData); p_Item != nullptr) {
 					const auto size = p_Item->getItemSize(mHwnd);
 
 					lpmis->itemWidth = gsl::narrow_cast<UINT>(size.cx);
@@ -600,9 +597,7 @@ namespace Dcx {
 			dcxlParam(LPDRAWITEMSTRUCT, lpdis);
 
 			if (lpdis->CtlType == ODT_MENU) {
-				auto p_Item = reinterpret_cast<XPopupMenuItem *>(lpdis->itemData);
-
-				if (p_Item != nullptr) {
+				if (auto p_Item = reinterpret_cast<XPopupMenuItem *>(lpdis->itemData); p_Item != nullptr) {
 					p_Item->DrawItem(lpdis);
 					return TRUE;
 				}
@@ -622,11 +617,11 @@ namespace Dcx {
 			// ghost drag stuff
 		case WM_ENTERSIZEMOVE:
 		{
-			if (getGhostDrag() < gsl::to_byte<255>()) {
-				const auto style = GetWindowExStyle(mIRCLinker::getHWND());
+			if (getGhostDrag() < std::byte{ 255 }) {
 				// Set WS_EX_LAYERED on this window
-				if (!dcx_testflag(style, WS_EX_LAYERED))
+				if (const auto style = GetWindowExStyle(mIRCLinker::getHWND()); !dcx_testflag(style, WS_EX_LAYERED))
 					SetWindowLongPtr(mIRCLinker::getHWND(), GWL_EXSTYLE, gsl::narrow_cast<LONG>((style | WS_EX_LAYERED)));
+
 				// Make this window 75 alpha
 				SetLayeredWindowAttributes(mIRCLinker::getHWND(), 0, gsl::to_integer<BYTE>(getGhostDrag()), LWA_ALPHA);
 				SetProp(mIRCLinker::getHWND(), TEXT("dcx_ghosted"), (HANDLE)1);

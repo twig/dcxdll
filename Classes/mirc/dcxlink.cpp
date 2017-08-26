@@ -100,13 +100,9 @@ void DcxLink::toXml(TiXmlElement *const xml) const
 
 TiXmlElement * DcxLink::toXml(void) const
 {
-	auto xml = __super::toXml();
-
-	TString buf;
-	TGetWindowText(m_Hwnd, buf);
-	xml->SetAttribute("caption", buf.c_str());
-
-	return xml;
+	auto xml = std::make_unique<TiXmlElement>("control");
+	toXml(xml.get());
+	return xml.release();
 }
 
 /*!

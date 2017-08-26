@@ -33,10 +33,10 @@ DcxIpAddress::DcxIpAddress(const UINT ID, DcxDialog *const p_Dialog, const HWND 
 	this->parseControlStyles(styles, &Styles, &ExStyles, &bNoTheme);
 
 	m_Hwnd = CreateWindowEx(
-		static_cast<DWORD>(ExStyles),
+		gsl::narrow_cast<DWORD>(ExStyles),
 		DCX_IPADDRESSCLASS,
 		nullptr,
-		WS_CHILD | static_cast<DWORD>(Styles),
+		WS_CHILD | gsl::narrow_cast<DWORD>(Styles),
 		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
 		mParentHwnd,
 		(HMENU)ID,
@@ -82,36 +82,19 @@ DcxIpAddress::~DcxIpAddress( ) {
 
 void DcxIpAddress::toXml(TiXmlElement *const xml) const
 {
-	DWORD ip;
 	char buf[128];
-	this->getAddress( &ip );
-	wnsprintfA( buf, static_cast<int>(Dcx::countof(buf)), "%u.%u.%u.%u",
-		FIRST_IPADDRESS( ip ),
-		SECOND_IPADDRESS( ip ),
-		THIRD_IPADDRESS( ip ),
-		FOURTH_IPADDRESS( ip ) );
+	this->AddressToString(&buf[0], Dcx::countof(buf));
 
 	__super::toXml(xml);
 
-	xml->SetAttribute("caption", buf);
+	xml->SetAttribute("caption", &buf[0]);
 }
 
 TiXmlElement * DcxIpAddress::toXml(void) const
 {
-	auto xml = __super::toXml();
-
-	DWORD ip;
-	char buf[128];
-	this->getAddress(&ip);
-	wnsprintfA(buf, static_cast<int>(Dcx::countof(buf)), "%u.%u.%u.%u",
-		FIRST_IPADDRESS(ip),
-		SECOND_IPADDRESS(ip),
-		THIRD_IPADDRESS(ip),
-		FOURTH_IPADDRESS(ip));
-
-	xml->SetAttribute("caption", buf);
-
-	return xml;
+	auto xml = std::make_unique<TiXmlElement>("control");
+	toXml(xml.get());
+	return xml.release();
 }
 
 /*!
@@ -139,13 +122,15 @@ void DcxIpAddress::parseInfoRequest( const TString & input, const refString<TCHA
 	// [NAME] [ID] [PROP]
 	if (input.gettok(3) == TEXT("ip")) {
 
-		DWORD ip;
-		this->getAddress(&ip);
+		//DWORD ip;
+		//this->getAddress(&ip);
+		//
+		//wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d.%d.%d.%d"), FIRST_IPADDRESS(ip),
+		//	SECOND_IPADDRESS(ip),
+		//	THIRD_IPADDRESS(ip),
+		//	FOURTH_IPADDRESS(ip));
 
-		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d.%d.%d.%d"), FIRST_IPADDRESS(ip),
-			SECOND_IPADDRESS(ip),
-			THIRD_IPADDRESS(ip),
-			FOURTH_IPADDRESS(ip));
+		this->AddressToString(szReturnValue.data(), szReturnValue.size());
 	}
 	else
 		this->parseGlobalInfoRequest(input, szReturnValue);
@@ -282,50 +267,50 @@ LRESULT DcxIpAddress::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 
 LRESULT DcxIpAddress::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
 
-	switch( uMsg ) {
+	switch (uMsg) {
 
-		case WM_LBUTTONUP:
-		case WM_RBUTTONUP:
-		case WM_CONTEXTMENU:
-		case WM_SETCURSOR:
-			break;
+	case WM_LBUTTONUP:
+	case WM_RBUTTONUP:
+	case WM_CONTEXTMENU:
+	case WM_SETCURSOR:
+		break;
 
-		case WM_MOUSEACTIVATE:
+	case WM_MOUSEACTIVATE:
+	{
+		if (dcx_testflag(this->m_pParentDialog->getEventMask(), DCX_EVENT_CLICK)) {
+			switch (HIWORD(lParam))
 			{
-				if (dcx_testflag(this->m_pParentDialog->getEventMask(), DCX_EVENT_CLICK)) {
-					switch (HIWORD(lParam))
-					{
-					case WM_LBUTTONUP:
-						{
-							execAliasEx(TEXT("sclick,%d"), getUserID( ) );
-						}
-						break;
-					case WM_RBUTTONUP:
-						{
-							execAliasEx(TEXT("rclick,%d"), getUserID( ) );
-						}
-						break;
-					}
-				}
-				bParsed = TRUE;
-				return MA_NOACTIVATE;
+			case WM_LBUTTONUP:
+			{
+				execAliasEx(TEXT("sclick,%d"), getUserID());
 			}
 			break;
-			//case WM_SIZE:
-			//	{
-			//		this->redrawWindow();
-			//	}
-			//	break;
-		case WM_DESTROY:
+			case WM_RBUTTONUP:
 			{
-				delete this;
-				bParsed = TRUE;
+				execAliasEx(TEXT("rclick,%d"), getUserID());
 			}
 			break;
+			}
+		}
+		bParsed = TRUE;
+		return MA_NOACTIVATE;
+	}
+	break;
+	//case WM_SIZE:
+	//	{
+	//		this->redrawWindow();
+	//	}
+	//	break;
+	case WM_DESTROY:
+	{
+		delete this;
+		bParsed = TRUE;
+	}
+	break;
 
-		default:
-			return this->CommonMessage( uMsg, wParam, lParam, bParsed);
-			break;
+	default:
+		return this->CommonMessage(uMsg, wParam, lParam, bParsed);
+		break;
 	}
 
 	return 0L;

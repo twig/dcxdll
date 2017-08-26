@@ -50,11 +50,9 @@ void XMenuBar::parseXMenuBarCommand(const TString &input) {
 		return;
 	}
 
-	auto menuBar = GetMenu(mIRCLinker::getHWND());
-
 	// Add menu
 	// xmenubar [-a] [MENU] [LABEL]
-	if (flags[TEXT('a')]) {
+	if (auto menuBar = GetMenu(mIRCLinker::getHWND()); flags[TEXT('a')]) {
 		if (numtok < 3)
 			throw Dcx::dcxException("Insufficient parameters");
 
@@ -107,7 +105,7 @@ void XMenuBar::parseXMenuBarCommand(const TString &input) {
 		if (offset < 0)
 			throw Dcx::dcxException(TEXT("\"%\" menu not found in XMenuBar."), p_Menu->getName());
 
-		ModifyMenu(menuBar, static_cast<UINT>(offset), MF_BYPOSITION, MF_STRING, input.getlasttoks().to_chr());	// tok 3, -1
+		ModifyMenu(menuBar, gsl::narrow_cast<UINT>(offset), MF_BYPOSITION, MF_STRING, input.getlasttoks().to_chr());	// tok 3, -1
 	}
 	// Resets to original mIRC menubar
 	// xmenubar [-r]
@@ -227,10 +225,8 @@ void XMenuBar::removeFromMenuBar(HMENU menubar, const XPopupMenu *const p_Menu) 
 		Dcx::eraseIfFound(m_vpXMenuBar, p_Menu);
 	}
 
-	const auto offset = findMenuOffset(menubar, p_Menu);
-
-	if (offset > 0)
-		RemoveMenu(menubar, static_cast<UINT>(offset), MF_BYPOSITION);
+	if (const auto offset = findMenuOffset(menubar, p_Menu); offset > 0)
+		RemoveMenu(menubar, gsl::narrow_cast<UINT>(offset), MF_BYPOSITION);
 
 	DrawMenuBar(mIRCLinker::getHWND());
 }
@@ -246,7 +242,7 @@ const int XMenuBar::findMenuOffset(HMENU menubar, const XPopupMenu *const p_Menu
 	mii.fMask = MIIM_SUBMENU;
 
 	// Whilst we can retrieve more menu items ...
-	while (GetMenuItemInfo(menubar, static_cast<UINT>(++offset), TRUE, &mii)) {
+	while (GetMenuItemInfo(menubar, gsl::narrow_cast<UINT>(++offset), TRUE, &mii)) {
 		// Continue if this isnt the menu we're after
 		if (p_Menu->getMenuHandle() == mii.hSubMenu)
 			return offset;

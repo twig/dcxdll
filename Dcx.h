@@ -47,7 +47,7 @@ namespace std
 namespace Dcx
 {
 	extern TString m_sLastError;
-	extern byte m_iGhostDrag;
+	extern std::byte m_iGhostDrag;
 	extern IClassFactory *m_pClassFactory;
 	extern bool m_bDX9Installed;
 	extern HMODULE m_hRichEditLib;
@@ -79,7 +79,7 @@ namespace Dcx
 	//	>
 	//{	// determine whether _Ty is a Number type (excluding char / wchar)
 	//};
-
+	//
 	//// determine whether T is a Number type (excluding char / wchar) & get the value
 	//template <typename T>
 	//constexpr bool is_Numeric_v = is_Numeric<T>::value;
@@ -677,6 +677,39 @@ namespace Dcx
 		~dcxClassName() = default;
 	};
 
+	struct dcxPalette
+	{
+		dcxPalette()
+			: m_Palette{ CLR_INVALID }
+		{
+			getmIRCPalette(&m_Palette[0], m_size); // get mIRC palette
+		}
+		explicit operator COLORREF *() noexcept
+		{
+			return &m_Palette[0];
+		}
+		constexpr size_t size() const noexcept { return m_size; }
+
+		struct iter
+		{
+			COLORREF operator * () const noexcept { return itr_Palette[n]; }
+			iter& operator ++() noexcept { ++n; return *this; }
+			friend
+				bool operator != (iter const& lhs, iter const& rhs) noexcept
+			{
+				return lhs.n != rhs.n;
+			}
+		
+			size_t	n;
+			const COLORREF	*const itr_Palette;
+		};
+		
+		iter begin() const noexcept { return{ 0, &m_Palette[0] }; }
+		iter end() const noexcept { return{ size(), nullptr }; }
+
+		constexpr static const ptrdiff_t m_size = mIRC_PALETTE_SIZE;
+		COLORREF m_Palette[m_size];
+	};
 	using MapOfCursors = std::map<HCURSOR, HCURSOR>;
 	using MapOfAreas = std::map<UINT, HCURSOR>;
 
@@ -706,8 +739,8 @@ namespace Dcx
 	template <typename T>
 	struct dcxNumber {
 
-		constexpr operator std::make_unsigned_t<T>() const noexcept { return static_cast<std::make_unsigned_t<T>>(m_nValue); }
-		constexpr operator std::make_signed_t<T>() const noexcept { return static_cast<std::make_signed_t<T>>(m_nValue); }
+		constexpr operator std::make_unsigned_t<T>() const noexcept { return gsl::narrow_cast<std::make_unsigned_t<T>>(m_nValue); }
+		constexpr operator std::make_signed_t<T>() const noexcept { return gsl::narrow_cast<std::make_signed_t<T>>(m_nValue); }
 		constexpr explicit operator bool() const noexcept { return (m_nValue != T()); }
 		T &operator =(const std::make_unsigned_t<T> &other)
 		{
@@ -730,8 +763,8 @@ namespace Dcx
 
 	IClassFactory *const getClassFactory() noexcept;
 	const TCHAR *const getLastError() noexcept;
-	const byte &getGhostDrag() noexcept;
-	bool setGhostDrag(const byte newAlpha) noexcept;
+	const std::byte &getGhostDrag() noexcept;
+	bool setGhostDrag(const std::byte newAlpha) noexcept;
 	const bool &isDX9Installed() noexcept;
 	bool isUnloadSafe();
 	//bool isFile(const WCHAR *const file);
@@ -742,7 +775,14 @@ namespace Dcx
 	const bool &initDirectX();
 	const bool &initDirectX(TCHAR *dxResult, int dxSize);
 	void error(const TCHAR *const cmd, const TCHAR *const msg);
-	void errorex(const TCHAR *const cmd, const TCHAR *const szFormat, ...);
+	//void errorex(const TCHAR *const cmd, const TCHAR *const szFormat, ...);
+	template <typename Format, typename Value, typename... Arguments>
+	void error(const TCHAR *const cmd, const Format &fmt, const Value &val, Arguments&&... args)
+	{
+		TString tsErr;
+		error(cmd, _ts_sprintf(tsErr, fmt, val, args...).to_chr());
+	}
+
 	//int mark(TCHAR *const data, const TString & tsDName, const TString & tsCallbackName);
 	int mark(const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &data, const TString & tsDName, const TString & tsCallbackName);
 	LRESULT CALLBACK mIRCSubClassWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
@@ -840,7 +880,7 @@ namespace Dcx
 	////inline constexpr tResult numeric_cast(tInput in)
 	////{
 	////	static_assert(is_Numeric_v<tResult>, "A Numeric return type is required");
-	////	return static_cast<tResult>(in);
+	////	return gsl::narrow_cast<tResult>(in);
 	////}
 
 		template < typename tResult, typename tInput >
@@ -927,16 +967,6 @@ namespace Dcx
 	template <typename Cont, typename Val>
 	bool eraseIfFound(Cont &con, Val &v)
 	{
-#if _MSC_VER < 1911
-		const auto itEnd = con.end();
-		const auto itGot = std::find(con.begin(), itEnd, v);
-		if (itGot != itEnd)
-		{
-			con.erase(itGot);
-			return true;
-		}
-		return false;
-#else
 		const auto itEnd = con.end();
 		
 		if (const auto itGot = std::find(con.begin(), itEnd, v); itGot != itEnd)
@@ -945,6 +975,5 @@ namespace Dcx
 			return true;
 		}
 		return false;
-#endif
 	}
 }
