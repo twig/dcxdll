@@ -310,8 +310,7 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, const XSwitch
 		this->removeStyle( WS_BORDER|WS_DLGFRAME );
 		this->removeExStyle( WS_EX_CLIENTEDGE|WS_EX_DLGMODALFRAME|WS_EX_STATICEDGE|WS_EX_WINDOWEDGE );
 
-		LONG Styles = 0, ExStyles = 0;
-		this->parseBorderStyles( input.gettok( 4 ), &Styles, &ExStyles );
+		auto[Styles, ExStyles] = parseBorderStyles( input.gettok( 4 ) );
 
 		this->addStyle( Styles );
 		this->addExStyle( ExStyles );
@@ -576,7 +575,7 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, const XSwitch
 				++cnt;
 			}
 
-			m_Region = CreatePolygonRgn(pnts.get(), static_cast<int>(tPoints), WINDING);
+			m_Region = CreatePolygonRgn(pnts.get(), gsl::narrow_cast<int>(tPoints), WINDING);
 		}
 		else if (xflags[TEXT('b')]) { // alpha [1|0] [level]
 			noRegion = true;
@@ -585,7 +584,7 @@ void DcxControl::parseGlobalCommandRequest( const TString & input, const XSwitch
 
 			m_bAlphaBlend = (input.getnexttok().to_int() > 0);	// tok 5
 
-			const auto alpha = (BYTE)(input.getnexttok().to_int() & 0xFF);	// tok 6
+			const auto alpha = gsl::narrow_cast<BYTE>(input.getnexttok().to_int() & 0xFF);	// tok 6
 
 			if (alpha == 255U)
 				m_bAlphaBlend = false;
@@ -795,27 +794,29 @@ const UINT DcxControl::parseColorFlags( const TString & flags ) {
  * blah
  */
 
-void DcxControl::parseBorderStyles(const TString & flags, LONG *const Styles, LONG *const ExStyles) {
+std::pair<DWORD,DWORD> DcxControl::parseBorderStyles(const TString & flags) {
 
 	const XSwitchFlags xflags(flags);
+	DWORD Styles = 0, ExStyles = 0;
 
 	// no +sign, missing params
 	if ( !xflags[TEXT('+')] ) 
-		return;
+		return { Styles, ExStyles };
 
 	if ( xflags[TEXT('b')] )
-		*Styles |= WS_BORDER;
+		Styles |= WS_BORDER;
 	if ( xflags[TEXT('c')] )
-		*ExStyles |= WS_EX_CLIENTEDGE;
+		ExStyles |= WS_EX_CLIENTEDGE;
 	if ( xflags[TEXT('d')] )
-		*Styles |= WS_DLGFRAME ;
+		Styles |= WS_DLGFRAME ;
 	if ( xflags[TEXT('f')] )
-		*ExStyles |= WS_EX_DLGMODALFRAME;
+		ExStyles |= WS_EX_DLGMODALFRAME;
 	if ( xflags[TEXT('s')] )
-		*ExStyles |= WS_EX_STATICEDGE;
+		ExStyles |= WS_EX_STATICEDGE;
 	if ( xflags[TEXT('w')] )
-		*ExStyles |= WS_EX_WINDOWEDGE;
+		ExStyles |= WS_EX_WINDOWEDGE;
 
+	return { Styles, ExStyles };
 }
 
 /*!
@@ -2767,9 +2768,9 @@ void DcxControl::toXml(TiXmlElement *const xml) const
 
 TiXmlElement * DcxControl::toXml(void) const
 {
-	auto result = new TiXmlElement("control");
-	toXml(result);
-	return result;
+	auto xml = std::make_unique<TiXmlElement>("control");
+	toXml(xml.get());
+	return xml.release();
 }
 
 // Convert a number into the closest icon size

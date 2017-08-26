@@ -246,7 +246,7 @@ public:
 	void showError(const TCHAR *const prop, const TCHAR *const cmd, const TCHAR *const err) const;
 	//void showErrorEx(const TCHAR *const prop, const TCHAR *const cmd, const TCHAR *const fmt, ...) const;
 	template <typename Format, typename Value, typename... Arguments>
-	void showError(const TCHAR *const prop, const TCHAR *const cmd, const Format &fmt, const Value val, Arguments&&... args) const
+	void showError(const TCHAR *const prop, const TCHAR *const cmd, const Format &fmt, const Value &val, Arguments&&... args) const
 	{
 		TString tsErr;
 		showError(prop, cmd, _ts_sprintf(tsErr, fmt, val, args...).to_chr());
@@ -317,7 +317,7 @@ protected:
 	void ctrlDrawText(HDC hdc, const TString &txt, const LPRECT rc, const UINT style);
 	void calcTextRect(HDC hdc, const TString &txt, LPRECT rc, const UINT style);
 
-	static void parseBorderStyles(const TString & flags, LONG *const Styles, LONG *const ExStyles);
+	static std::pair<DWORD, DWORD> parseBorderStyles(const TString & flags);
 	static void InvalidateParentRect(HWND hwnd);
 	static const UINT parseColorFlags(const TString & flags);
 };
