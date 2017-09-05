@@ -28,6 +28,7 @@ LRESULT CALLBACK DividerWndProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 	{
 
 		LPDVCONTROLDATA lpdvdata = new DVCONTROLDATA;
+
 		//ZeroMemory(lpdvdata, sizeof(DVCONTROLDATA));
 		//
 		//lpdvdata->m_bDragging = FALSE;
@@ -38,7 +39,7 @@ LRESULT CALLBACK DividerWndProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 		//lpdvdata->m_Panes[0].cbSize = sizeof(DVPANEINFO);
 		//lpdvdata->m_Panes[1].cbSize = sizeof(DVPANEINFO);
 
-		SetProp(mHwnd, TEXT("dvc_data"), (HANDLE)lpdvdata);
+		SetProp(mHwnd, TEXT("dvc_data"), static_cast<HANDLE>(lpdvdata));
 
 		return 0L;
 	}
@@ -150,10 +151,10 @@ LRESULT CALLBACK DividerWndProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 		//}
 
 		// Left/Top Pane by default.
-		DVPANEINFO *lpdvinfo = &lpdvdata->m_Panes[0];
+		DVPANEINFO *lpdvinfo = &lpdvdata->m_LeftTopPane;
 		// Right/Bottom Pane
 		if (wParam == DVF_PANERIGHT)
-			lpdvinfo = &lpdvdata->m_Panes[1];
+			lpdvinfo = &lpdvdata->m_RightBottomPane;
 
 		// Invalid structure size
 		if (lpdvpi->cbSize != lpdvinfo->cbSize)
@@ -182,10 +183,10 @@ LRESULT CALLBACK DividerWndProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 	{
 		switch (LPDVCONTROLDATA lpdvdata = (LPDVCONTROLDATA)GetProp(mHwnd, TEXT("dvc_data")); wParam) {
 		case DVF_PANELEFT:
-			*((LPDVPANEINFO)lParam) = lpdvdata->m_Panes[0];
+			*((LPDVPANEINFO)lParam) = lpdvdata->m_LeftTopPane;
 			break;
 		case DVF_PANERIGHT:
-			*((LPDVPANEINFO)lParam) = lpdvdata->m_Panes[1];
+			*((LPDVPANEINFO)lParam) = lpdvdata->m_RightBottomPane;
 			break;
 		}
 
@@ -207,7 +208,8 @@ LRESULT CALLBACK DividerWndProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 		if (dcx_testflag(GetWindowStyle(mHwnd), DVS_VERT))
 			width = static_cast<UINT>(rc.right - rc.left);
 
-		if ((iPos >= lpdvdata->m_Panes[0].cxMin) && (iPos <= (width - lpdvdata->m_Panes[1].cxMin))) {
+		if ((iPos >= lpdvdata->m_LeftTopPane.cxMin) && (iPos <= (width - lpdvdata->m_RightBottomPane.cxMin))) 
+		{
 			lpdvdata->m_iBarPos = iPos;
 			Divider_SizeWindowContents(mHwnd, rc.right - rc.left, rc.bottom - rc.top);
 			return TRUE;
@@ -240,18 +242,18 @@ LRESULT CALLBACK DividerWndProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 			nmdv.fMask = DVNM_LPARAM | DVNM_PANEID;
 
 			nmdv.iPaneId = DVF_PANELEFT;
-			nmdv.lParam = lpdvdata->m_Panes[0].lParam;
+			nmdv.lParam = lpdvdata->m_LeftTopPane.lParam;
 			SendMessage(GetParent(mHwnd), WM_NOTIFY, (WPARAM)nmdv.hdr.idFrom, (LPARAM)&nmdv);
 
 			nmdv.iPaneId = DVF_PANERIGHT;
-			nmdv.lParam = lpdvdata->m_Panes[1].lParam;
+			nmdv.lParam = lpdvdata->m_RightBottomPane.lParam;
 			SendMessage(GetParent(mHwnd), WM_NOTIFY, (WPARAM)nmdv.hdr.idFrom, (LPARAM)&nmdv);
 
-			if (IsWindow(lpdvdata->m_Panes[0].hChild))
-				DestroyWindow(lpdvdata->m_Panes[0].hChild);
+			if (IsWindow(lpdvdata->m_LeftTopPane.hChild))
+				DestroyWindow(lpdvdata->m_LeftTopPane.hChild);
 
-			if (IsWindow(lpdvdata->m_Panes[1].hChild))
-				DestroyWindow(lpdvdata->m_Panes[1].hChild);
+			if (IsWindow(lpdvdata->m_RightBottomPane.hChild))
+				DestroyWindow(lpdvdata->m_RightBottomPane.hChild);
 
 			delete lpdvdata;
 		}
@@ -274,13 +276,13 @@ LRESULT CALLBACK DividerWndProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 void Divider_SizeWindowContents( HWND mHwnd, const int nWidth, const int nHeight )
 {
 	if (LPDVCONTROLDATA lpdvdata = (LPDVCONTROLDATA)GetProp(mHwnd, TEXT("dvc_data")); dcx_testflag(GetWindowStyle( mHwnd ), DVS_VERT) ) {
-		MoveWindow( lpdvdata->m_Panes[0].hChild, 0, 0, static_cast<int>(lpdvdata->m_iBarPos), nHeight, TRUE );
-		MoveWindow( lpdvdata->m_Panes[1].hChild, static_cast<int>(lpdvdata->m_iBarPos + lpdvdata->m_iLineWidth), 0,
+		MoveWindow( lpdvdata->m_LeftTopPane.hChild, 0, 0, static_cast<int>(lpdvdata->m_iBarPos), nHeight, TRUE );
+		MoveWindow( lpdvdata->m_RightBottomPane.hChild, static_cast<int>(lpdvdata->m_iBarPos + lpdvdata->m_iLineWidth), 0,
 			static_cast<int>(nWidth - lpdvdata->m_iBarPos - lpdvdata->m_iLineWidth), nHeight, TRUE );
 	}
 	else {
-		MoveWindow( lpdvdata->m_Panes[0].hChild, 0, 0, nWidth, static_cast<int>(lpdvdata->m_iBarPos), TRUE );
-		MoveWindow( lpdvdata->m_Panes[1].hChild, 0, static_cast<int>(lpdvdata->m_iBarPos + lpdvdata->m_iLineWidth),
+		MoveWindow( lpdvdata->m_LeftTopPane.hChild, 0, 0, nWidth, static_cast<int>(lpdvdata->m_iBarPos), TRUE );
+		MoveWindow( lpdvdata->m_RightBottomPane.hChild, 0, static_cast<int>(lpdvdata->m_iBarPos + lpdvdata->m_iLineWidth),
 		  nWidth, static_cast<int>(nHeight - lpdvdata->m_iBarPos - lpdvdata->m_iLineWidth), TRUE );
 	}
 }
@@ -343,10 +345,10 @@ void Divider_CalcBarPos( HWND mHwnd, POINT * pt, RECT * rect ) {
 
 	if (dcx_testflag(GetWindowStyle(mHwnd), DVS_VERT)) {
 
-		if (pt->x < static_cast<int>(lpdvdata->m_Panes[0].cxMin))
-			pt->x = static_cast<int>(lpdvdata->m_Panes[0].cxMin);
-		else if (pt->x > rect->right - static_cast<int>(lpdvdata->m_Panes[1].cxMin))
-			pt->x = rect->right - static_cast<int>(lpdvdata->m_Panes[1].cxMin);
+		if (pt->x < static_cast<int>(lpdvdata->m_LeftTopPane.cxMin))
+			pt->x = static_cast<int>(lpdvdata->m_LeftTopPane.cxMin);
+		else if (pt->x > rect->right - static_cast<int>(lpdvdata->m_RightBottomPane.cxMin))
+			pt->x = rect->right - static_cast<int>(lpdvdata->m_RightBottomPane.cxMin);
 
 		if (pt->x < 3)
 			pt->x = 2;
@@ -356,10 +358,10 @@ void Divider_CalcBarPos( HWND mHwnd, POINT * pt, RECT * rect ) {
 	}
 	else {
 
-		if (pt->y < static_cast<int>(lpdvdata->m_Panes[0].cxMin))
-			pt->y = static_cast<int>(lpdvdata->m_Panes[0].cxMin);
-		else if (pt->y > rect->bottom - static_cast<int>(lpdvdata->m_Panes[1].cxMin))
-			pt->y = rect->bottom - static_cast<int>(lpdvdata->m_Panes[1].cxMin);
+		if (pt->y < static_cast<int>(lpdvdata->m_LeftTopPane.cxMin))
+			pt->y = static_cast<int>(lpdvdata->m_LeftTopPane.cxMin);
+		else if (pt->y > rect->bottom - static_cast<int>(lpdvdata->m_RightBottomPane.cxMin))
+			pt->y = rect->bottom - static_cast<int>(lpdvdata->m_RightBottomPane.cxMin);
 
 		if (pt->y < 3)
 			pt->y = 2;

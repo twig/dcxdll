@@ -79,23 +79,23 @@ using LPNMDIVIDER = NMDIVIDER *;
 
 struct DVPANEINFO {
 
-  UINT cbSize;    //!< DVPANEINFO Structure Size
-  UINT fMask;     //!< Valid Member Mask Flags
-  UINT fStyle;    //!< Divider Pane Style Flags
-  UINT cxMin;     //!< Divider Pane Minimum Width/Height
-  UINT cxIdeal;   //!< Divider Pane Ideal Width/Height
-  HWND hChild;    //!< Pane Child Window Handle
-  LPARAM lParam;  //!< Extra Storage For Each Pane
+	UINT cbSize;    //!< DVPANEINFO Structure Size
+	UINT fMask;     //!< Valid Member Mask Flags
+	UINT fStyle;    //!< Divider Pane Style Flags
+	UINT cxMin;     //!< Divider Pane Minimum Width/Height
+	UINT cxIdeal;   //!< Divider Pane Ideal Width/Height
+	HWND hChild;    //!< Pane Child Window Handle
+	LPARAM lParam;  //!< Extra Storage For Each Pane
 
-  DVPANEINFO()
-	  : cbSize(sizeof(DVPANEINFO))
-	  , fMask(0)
-	  , fStyle(0)
-	  , cxMin(0)
-	  , cxIdeal(0)
-	  , hChild(nullptr)
-	  , lParam(0)
-  {}
+	DVPANEINFO()
+		: cbSize(sizeof(DVPANEINFO))
+		, fMask(0)
+		, fStyle(0)
+		, cxMin(0)
+		, cxIdeal(0)
+		, hChild(nullptr)
+		, lParam(0)
+	{}
 };
 using LPDVPANEINFO = DVPANEINFO *;
 
@@ -105,19 +105,21 @@ using LPDVPANEINFO = DVPANEINFO *;
 
 struct DVCONTROLDATA {
 
-  DVPANEINFO m_Panes[2];  //!< Divider Panes
-  UINT m_iLineWidth;      //!< Divider Line Width
-  UINT m_iBarPos;         //!< Position of the bar
-  int m_iOldPos;          //!< Moving Old Position
-  bool m_bDragging;       //!< Are We Dragging The Bar?
+	DVPANEINFO m_LeftTopPane;		//!< Divider Panes
+	DVPANEINFO m_RightBottomPane;	//!< Divider Panes
+	UINT m_iLineWidth;      //!< Divider Line Width
+	UINT m_iBarPos;         //!< Position of the bar
+	int m_iOldPos;          //!< Moving Old Position
+	bool m_bDragging;       //!< Are We Dragging The Bar?
 
-  DVCONTROLDATA()
-	  : m_Panes{}
-	  , m_iLineWidth(2)
-	  , m_iBarPos(100)
-	  , m_iOldPos(0)
-	  , m_bDragging(false)
-  {}
+	DVCONTROLDATA()
+		: m_LeftTopPane()
+		, m_RightBottomPane()
+		, m_iLineWidth(2)
+		, m_iBarPos(100)
+		, m_iOldPos(0)
+		, m_bDragging(false)
+	{}
 };
 using LPDVCONTROLDATA = DVCONTROLDATA *;
 
