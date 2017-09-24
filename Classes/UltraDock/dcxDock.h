@@ -73,8 +73,8 @@ enum TreeBarColours : UINT {
 struct DCXULTRADOCK {
 	HWND hwnd;
 	DWORD flags;
-	DWORD old_styles;
-	DWORD old_exstyles;
+	WindowStyle old_styles;
+	WindowExStyle old_exstyles;
 	RECT rc;
 };
 using LPDCXULTRADOCK = DCXULTRADOCK *;
@@ -152,7 +152,7 @@ public:
 	static bool InitStatusbar(const TString &styles);
 	static void UnInitStatusbar(void);
 	static bool IsStatusbar(void) noexcept;
-	static void status_parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
+	static std::tuple<NoTheme,WindowStyle,WindowExStyle> status_parseControlStyles( const TString & styles );
 	static void status_getRect(LPRECT rc);
 	static void status_setBkColor(const COLORREF clr);
 	static void status_setParts( const UINT nParts, const LPINT aWidths );
@@ -179,7 +179,7 @@ public:
 	//
 	static const SwitchBarPos getPos(const int x, const int y, const int w, const int h);
 	//
-	static void getTreebarItemType(TString &tsType, const LPARAM lParam);
+	static TString getTreebarItemType(const LPARAM lParam);
 	//static UINT getTreebarChildState(const HTREEITEM hParent, LPTVITEMEX pitem);
 
 	// statusbar stuff
