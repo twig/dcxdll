@@ -117,7 +117,8 @@ mIRC(_dcxml)
 		if (d.numtok() != 1)
 			throw Dcx::dcxException("Invalid Args: A prop is required.");
 
-		if (d.gettok(1) == TEXT("Loaded")) {
+		if (d.gettok(1) == TEXT("Loaded"))
+		{
 			dcx_Con(Parser.getLoaded(), data);
 		}
 		else

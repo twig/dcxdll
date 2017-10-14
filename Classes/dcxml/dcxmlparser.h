@@ -66,13 +66,14 @@ private:
 	const bool &isVerbose() const noexcept { return m_bVerbose; }
 	const bool &isAutoClose() const noexcept { return m_bAutoClose; }
 
-	int mIRCEvalToUnsignedInt(const TString &value);
+	//int mIRCEvalToUnsignedInt(const TString &value);
+	std::pair<bool, UINT> mIRCEvalToUnsignedInt2(const TString &value);
 	UINT parseId(const TiXmlElement *const idElement);
 
 	void registerId(const TiXmlElement *const idElement, const UINT iNewID);
 
-	void xml_xdialog(const TCHAR *const sSwitch, const TCHAR *const sArgs);
-	void xml_xdid(const UINT cid, const TCHAR *const sSwitch, const TCHAR *const sArgs);
+	void xml_xdialog(const TCHAR *const sSwitch, const TString & sArgs);
+	void xml_xdid(const UINT cid, const TCHAR *const sSwitch, const TString & sArgs);
 
 	void xdialogEX(const TCHAR *const sw, const TCHAR *const dFormat, ...);
 	void xdidEX(const UINT cid, const TCHAR *const sw, const TCHAR *const dFormat, ...);
