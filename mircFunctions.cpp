@@ -16,22 +16,11 @@
 #include "Dcx.h"
 #include "mIRCLinker.h"
 
-
-
-/*!
-* \brief Displays an error message for the control when using $xdid().prop
-*/
-//void dcxInfoError(const TCHAR *ctrl, const TCHAR *functn, const TCHAR* dlg, const int ctrlid, const TCHAR *msg) {
-//	TString err;
-//
-//	err.sprintf(TEXT("D_ERROR %s(%s, %d).%s: %s"), ctrl, dlg, ctrlid, functn, msg);
-//	mIRCError(err.to_chr());
-//}
-
 /*!
 * \brief Converts mIRC long time to C++ SYSTEMTIME object.
 */
-SYSTEMTIME MircTimeToSystemTime(const long mircTime) {
+SYSTEMTIME MircTimeToSystemTime(const long mircTime)
+{
 	TString str;
 	SYSTEMTIME st = { 0 };
 
@@ -48,8 +37,10 @@ SYSTEMTIME MircTimeToSystemTime(const long mircTime) {
 	return st;
 }
 
-long SystemTimeToMircTime(const LPSYSTEMTIME pst) {
-	if (pst->wMonth == 0) {
+long SystemTimeToMircTime(const LPSYSTEMTIME pst)
+{
+	if (pst->wMonth == 0)
+	{
 		Dcx::error(TEXT("SystemTimeToMircTime"), TEXT("invalid SYSTEMTIME parameter."));
 		return 0;
 	}
@@ -79,6 +70,7 @@ long SystemTimeToMircTime(const LPSYSTEMTIME pst) {
 	//	pst->wDay,
 	//	months[pst->wMonth -1],
 	//	pst->wYear);
+
 	mIRCLinker::eval(sRet, TEXT("$ctime(%:%:% % % %)"),
 		pst->wHour,
 		pst->wMinute,

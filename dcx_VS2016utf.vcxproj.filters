@@ -566,6 +566,9 @@
     <ClInclude Include="GSL\string_span">
       <Filter>Header Files\GSL</Filter>
     </ClInclude>
+    <ClInclude Include="Classes\WindowStyles.h">
+      <Filter>Header Files\General</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="dcx_zip\dcx.mrc">

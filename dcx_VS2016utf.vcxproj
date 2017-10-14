@@ -594,6 +594,7 @@
     <ClInclude Include="Classes\custom\ListHelper.h" />
     <ClInclude Include="Classes\tstring\hashString.h" />
     <ClInclude Include="Classes\tstring\string_support.h" />
+    <ClInclude Include="Classes\WindowStyles.h" />
     <ClInclude Include="ColourString.h" />
     <ClInclude Include="Dcx.h" />
     <ClInclude Include="dcxExceptions.h" />
