@@ -8,7 +8,8 @@
 
 
 // [SWITCH] [OPTIONS]
-mIRC(xstatusbar) {
+mIRC(xstatusbar)
+{
 	TString input(data);
 
 	data[0] = 0;
@@ -21,9 +22,8 @@ mIRC(xstatusbar) {
 		if (numtok < 1)
 			throw Dcx::dcxException("Invalid Parameters");
 
-		const auto switches(input.getfirsttok(1));	// tok 1
-
-		switch (switches[1]) {
+		switch (const auto switches(input.getfirsttok(1)); switches[1])
+		{
 		case TEXT('A'): // -A [0|1] (options)=notheme grip tooltips nodivider utf8
 		{
 			// check syntax
@@ -45,13 +45,11 @@ mIRC(xstatusbar) {
 		break;
 		case TEXT('f'): // -f [+FLAGS] [CHARSET] [SIZE] [FONTNAME] : set font
 		{
-			LOGFONT lf = { 0 };
-
 			// check syntax
 			if (numtok < 5)
 				throw Dcx::dcxException("Invalid Parameters");
 
-			if (ParseCommandToLogfont(input.getlasttoks(), &lf))	// tok 2, -1
+			if (LOGFONT lf{}; ParseCommandToLogfont(input.getlasttoks(), &lf))	// tok 2, -1
 				DcxDock::status_setFont(CreateFontIndirect(&lf));
 		}
 		break;
@@ -61,9 +59,7 @@ mIRC(xstatusbar) {
 			if (numtok != 2)
 				throw Dcx::dcxException("Invalid Parameters");
 
-			const auto col = input.getnexttok().to_<COLORREF>();	// tok 2
-
-			if (col == CLR_INVALID)
+			if (const auto col = input.getnexttok().to_<COLORREF>(); col == CLR_INVALID)
 				DcxDock::status_setBkColor(CLR_DEFAULT);
 			else
 				DcxDock::status_setBkColor(col);
@@ -89,7 +85,8 @@ mIRC(xstatusbar) {
 
 				const auto t = p.to_int();
 
-				if (p.right(1) == TEXT('%')) {
+				if (p.right(1) == TEXT('%'))
+				{
 					DcxDock::g_iDynamicParts[i] = t;
 					c += t;
 				}
@@ -142,12 +139,12 @@ mIRC(xstatusbar) {
 					pPart->m_TxtCol = txtClr;
 
 				DcxDock::status_setTipText(nPos, tooltip.to_chr());
-				DcxDock::status_setPartInfo(nPos, (int)iFlags, pPart.release());
+				DcxDock::status_setPartInfo(nPos, gsl::narrow_cast<int>(iFlags), pPart.release());
 			}
 			else {
 				if (icon > -1)
 					DcxDock::status_setIcon(nPos, ImageList_GetIcon(DcxDock::status_getImageList(), icon, ILD_TRANSPARENT));
-				DcxDock::status_setText(nPos, (int)iFlags, itemtext.to_chr());
+				DcxDock::status_setText(nPos, gsl::narrow_cast<int>(iFlags), itemtext.to_chr());
 				DcxDock::status_setTipText(nPos, tooltip.to_chr());
 			}
 		}
@@ -158,10 +155,8 @@ mIRC(xstatusbar) {
 			if (numtok < 4)
 				throw Dcx::dcxException("Invalid Parameters");
 
-			const auto nPos = (input.getnexttok().to_int() - 1);	// tok 2
-
-			if (nPos > -1 && (UINT)nPos < DcxDock::status_getParts(SB_MAX_PARTSD, 0)) {
-
+			if (const auto nPos = (input.getnexttok().to_int() - 1); (nPos > -1 && gsl::narrow_cast<UINT>(nPos) < DcxDock::status_getParts(SB_MAX_PARTSD, 0)))
+			{
 				TString itemtext;
 				const auto bkgClr = input.getnexttok().to_<COLORREF>();	// tok 3
 				const auto txtClr = input.getnexttok().to_<COLORREF>();	// tok 4
@@ -169,11 +164,10 @@ mIRC(xstatusbar) {
 				if (numtok > 4)
 					itemtext = input.getlasttoks();	// tok 5, -1
 
-				const auto iFlags = DcxDock::status_getPartFlags(nPos);
-
-				if (dcx_testflag(iFlags, SBT_OWNERDRAW)) {
-					auto pPart = reinterpret_cast<LPSB_PARTINFOD>(DcxDock::status_getText(nPos, nullptr));
-					if (pPart != NULL) {
+				if (const auto iFlags = DcxDock::status_getPartFlags(nPos); dcx_testflag(iFlags, SBT_OWNERDRAW))
+				{
+					if (auto pPart = reinterpret_cast<LPSB_PARTINFOD>(DcxDock::status_getText(nPos, nullptr)); pPart != nullptr)
+					{
 						if (pPart->m_BkgCol != nullptr)
 							DeleteBrush(pPart->m_BkgCol);
 
@@ -182,7 +176,7 @@ mIRC(xstatusbar) {
 							pPart->m_BkgCol = CreateSolidBrush(bkgClr);
 						pPart->m_TxtCol = txtClr;
 
-						DcxDock::status_setPartInfo(nPos, (int)iFlags, pPart);
+						DcxDock::status_setPartInfo(nPos, gsl::narrow_cast<int>(iFlags), pPart);
 					}
 					else
 						throw Dcx::dcxException("Unable to set item text");
@@ -205,7 +199,8 @@ mIRC(xstatusbar) {
 			const auto index = input.getnexttok().to_int();		// tok 3
 			auto filename(input.getlasttoks());					// tok 4, -1
 
-			if (himl == nullptr) {
+			if (himl == nullptr)
+			{
 				himl = DcxDock::status_createImageList();
 
 				if (himl != nullptr)
@@ -266,7 +261,6 @@ mIRC(_xstatusbar)
 	try {
 		d.trim();
 
-#if DCX_USE_HASHING
 		switch (std::hash<TString>{}(d.getfirsttok(2)))
 		{
 		case TEXT("visible"_hash):
@@ -276,14 +270,11 @@ mIRC(_xstatusbar)
 		break;
 		case TEXT("text"_hash):
 		{
-			const auto iPart = (d.getnexttok().to_int() - 1), nParts = (int)DcxDock::status_getParts(SB_MAX_PARTSD, 0);
-
-			if (iPart > -1 && iPart < nParts) {
-				const auto iFlags = DcxDock::status_getPartFlags(iPart);
-
-				if (dcx_testflag(iFlags, SBT_OWNERDRAW)) {
-					auto pPart = reinterpret_cast<LPSB_PARTINFOD>(DcxDock::status_getText(iPart, nullptr));
-					if (pPart != nullptr)
+			if (const auto iPart = (d.getnexttok().to_int() - 1), nParts = gsl::narrow_cast<int>(DcxDock::status_getParts(SB_MAX_PARTSD, 0)); (iPart > -1 && iPart < nParts))
+			{
+				if (const auto iFlags = DcxDock::status_getPartFlags(iPart); dcx_testflag(iFlags, SBT_OWNERDRAW))
+				{
+					if (const auto *const pPart = reinterpret_cast<LPSB_PARTINFOD>(DcxDock::status_getText(iPart, nullptr)); pPart != nullptr)
 						refData = pPart->m_Text;
 				}
 				else {
@@ -303,7 +294,7 @@ mIRC(_xstatusbar)
 
 			DcxDock::status_getParts(SB_MAX_PARTSD, &parts[0]);
 
-			TString tsOut((UINT)MIRC_BUFFER_SIZE_CCH);
+			TString tsOut(gsl::narrow_cast<UINT>(mIRCLinker::m_mIRC_Buffer_Size_cch));
 
 			for (auto i = decltype(nParts){0}; i < nParts; i++)
 				tsOut.addtok(parts[i]);
@@ -313,75 +304,13 @@ mIRC(_xstatusbar)
 		break;
 		case TEXT("tooltip"_hash):
 		{
-			const auto iPart = d.getnexttok().to_int(), nParts = (int)DcxDock::status_getParts(SB_MAX_PARTSD, 0);
-
-			if (iPart > -1 && iPart < nParts)
-				DcxDock::status_getTipText(iPart, MIRC_BUFFER_SIZE_CCH, data);
+			if (const auto iPart = d.getnexttok().to_int(), nParts = gsl::narrow_cast<int>(DcxDock::status_getParts(SB_MAX_PARTSD, 0)); (iPart > -1 && iPart < nParts))
+				DcxDock::status_getTipText(iPart, mIRCLinker::m_mIRC_Buffer_Size_cch, data);
 		}
 		break;
 		default:	// error
 			throw Dcx::dcxException(TEXT("Invalid prop ().%"), d.gettok(2));
 		}
-#else
-		static const TString poslist(TEXT("visible text parts tooltip"));
-		const auto nType = poslist.findtok(d.getfirsttok(2), 1);
-		switch (nType)
-		{
-		case 1: // visible
-		{
-			dcx_Con(DcxDock::IsStatusbar(), data);
-		}
-		break;
-		case 2: // text
-		{
-			const auto iPart = (d.getnexttok().to_int() - 1), nParts = (int)DcxDock::status_getParts(SB_MAX_PARTSD, 0);
-
-			if (iPart > -1 && iPart < nParts) {
-				const auto iFlags = DcxDock::status_getPartFlags(iPart);
-
-				if (dcx_testflag(iFlags, SBT_OWNERDRAW)) {
-					auto pPart = reinterpret_cast<LPSB_PARTINFOD>(DcxDock::status_getText(iPart, nullptr));
-					if (pPart != nullptr)
-						refData = pPart->m_Text;
-				}
-				else {
-					const auto len = DcxDock::status_getTextLength(iPart);
-					auto text = std::make_unique<WCHAR[]>(len + 1);
-
-					DcxDock::status_getText(iPart, text.get());
-					refData = text.get();
-				}
-			}
-		}
-		break;
-		case 3: // parts
-		{
-			INT parts[SB_MAX_PARTSD] = { 0 };
-			const auto nParts = DcxDock::status_getParts(SB_MAX_PARTSD, 0);
-
-			DcxDock::status_getParts(SB_MAX_PARTSD, &parts[0]);
-
-			TString tsOut((UINT)MIRC_BUFFER_SIZE_CCH);
-
-			for (auto i = decltype(nParts){0}; i < nParts; i++)
-				tsOut.addtok(parts[i]);
-
-			refData = tsOut;
-		}
-		break;
-		case 4: // tooltip
-		{
-			const auto iPart = d.getnexttok().to_int(), nParts = (int)DcxDock::status_getParts(SB_MAX_PARTSD, 0);
-
-			if (iPart > -1 && iPart < nParts)
-				DcxDock::status_getTipText(iPart, MIRC_BUFFER_SIZE_CCH, data);
-		}
-		break;
-		case 0: // error
-		default:
-			throw Dcx::dcxException(TEXT("Invalid prop ().%"), d.gettok(2));
-		}
-#endif
 		return 3;
 	}
 	catch (const std::exception &e)

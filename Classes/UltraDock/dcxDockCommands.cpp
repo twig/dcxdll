@@ -34,19 +34,20 @@ struct DCXDOCK {
 		, flags(0U)
 		, type()
 	{}
+	DCXDOCK(const WNDPROC &proc, const HWND &hwnd, const DWORD &f, const TString &t)
+		: oldProc(proc)
+		, win(hwnd)
+		, flags(f)
+		, type(t)
+	{}
 	~DCXDOCK() = default;
 };
 using LPDCXDOCK = DCXDOCK *;
 
-//typedef struct tagDCXDOCSIZE {
-//	DWORD	width;
-//	DWORD	height;
-//} DCXDOCKSIZE, *LPDCXDOCKSIZE;
-
 BOOL CALLBACK EnumDocked(HWND hwnd,LPARAM lParam)
 {
-	auto dd = static_cast<LPDCXDOCK>(GetProp(hwnd, TEXT("dcx_dock")));
-	if (dd != nullptr) {
+	if (auto dd = static_cast<LPDCXDOCK>(GetProp(hwnd, TEXT("dcx_dock"))); dd != nullptr)
+	{
 		RemoveProp(hwnd,TEXT("dcx_dock"));
 		SubclassWindow(hwnd, dd->oldProc);
 		delete dd;
@@ -59,12 +60,14 @@ BOOL CALLBACK SizeDocked(HWND hwnd,LPARAM lParam)
 {
 	const auto flags = reinterpret_cast<DWORD>(GetProp(hwnd, TEXT("dcx_docked")));
 	auto hParent = GetParent(hwnd);
-	if (flags != 0 && flags != DOCKF_NORMAL) {
-		RECT rcParent = { 0 }, rcThis = { 0 };
+	if (flags != 0 && flags != DOCKF_NORMAL)
+	{
+		RECT rcParent{}, rcThis{};
 		if (!GetClientRect(hParent, &rcParent) || !GetWindowRect(hwnd, &rcThis))
 			return FALSE;
 
-		if (dcx_testflag(flags, DOCKF_SHOWSCROLLBARS)) {
+		if (dcx_testflag(flags, DOCKF_SHOWSCROLLBARS))
+		{
 			// mIRC's channel/query/status window's scrollbar isnt a system scrollbar so these functions fail.
 			//SCROLLBARINFO sbi;
 			//// vertical scroller
@@ -80,9 +83,10 @@ BOOL CALLBACK SizeDocked(HWND hwnd,LPARAM lParam)
 			//GetScrollBarInfo(hParent, OBJID_HSCROLL, &sbi);
 			//if (!(sbi.rgstate[0] & (STATE_SYSTEM_INVISIBLE|STATE_SYSTEM_OFFSCREEN|STATE_SYSTEM_UNAVAILABLE)))
 			//	rcParent.bottom -= (sbi.rcScrollBar.bottom - sbi.rcScrollBar.top);
-			auto hScroll = FindWindowEx(hParent, nullptr, TEXT("ScrollBar"), nullptr);
-			if (IsWindow(hScroll) /*&& IsWindowVisible(hScroll)*/) {
-				RECT rcScroll;
+
+			if (auto hScroll = FindWindowEx(hParent, nullptr, TEXT("ScrollBar"), nullptr); IsWindow(hScroll) /*&& IsWindowVisible(hScroll)*/)
+			{
+				RECT rcScroll{};
 
 				//if (!GetWindowRect(hScroll, &rcScroll))
 				//	return FALSE;
@@ -119,7 +123,8 @@ LRESULT CALLBACK mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lP
 	if (dd == nullptr)
 		return DefWindowProc(mHwnd,uMsg, wParam, lParam);
 
-	switch (uMsg) {
+	switch (uMsg)
+	{
 	case WM_SIZE:
 		{
 			//if (!dd->type.empty())
@@ -139,7 +144,7 @@ LRESULT CALLBACK mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lP
 	case WM_PARENTNOTIFY:
 		{
 			if (LOWORD(wParam) == WM_DESTROY)
-				RemoveProp((HWND)lParam,TEXT("dcx_docked"));
+				RemoveProp(reinterpret_cast<HWND>(lParam),TEXT("dcx_docked"));
 		}
 		break;
 #ifdef DCX_DEBUG_OUTPUT
@@ -201,12 +206,11 @@ void UnDock(const HWND hwnd)
 
 bool DockWindow(const HWND mWnd, const HWND temp, const TCHAR *find, const TString & flag)
 {
-	HWND sWnd = nullptr;
-	const XSwitchFlags xflags(flag);
 
 	if ((FindUltraDock(temp)) || (GetProp(temp,TEXT("dcx_docked")) != nullptr))
 		throw Dcx::dcxException("Window is Already docked.");
 
+	HWND sWnd = nullptr;
 	// get window HWND
 	if (find == nullptr)
 		sWnd = GetDlgItem(mWnd,32918);
@@ -215,6 +219,8 @@ bool DockWindow(const HWND mWnd, const HWND temp, const TCHAR *find, const TStri
 
 	if (!IsWindow(sWnd))
 		throw Dcx::dcxException("Unable to Find Host Window.");
+
+	const XSwitchFlags xflags(flag);
 
 	if (!xflags['+'])
 		throw Dcx::dcxException("Invalid Flags: Flags must start with a '+'");
@@ -228,7 +234,7 @@ bool DockWindow(const HWND mWnd, const HWND temp, const TCHAR *find, const TStri
 #if DCX_USE_WRAPPERS
 	Dcx::dcxWindowRect rc(temp);
 #else
-	RECT rc = { 0 };
+	RECT rc{};
 	if (!GetWindowRect(temp, &rc))
 		throw Dcx::dcxException("Unable to get window rect");
 #endif
@@ -238,17 +244,24 @@ bool DockWindow(const HWND mWnd, const HWND temp, const TCHAR *find, const TStri
 	{
 		// subclass window.
 		{
-			gsl::owner<LPDCXDOCK> dd = new DCXDOCK;
+			//gsl::owner<LPDCXDOCK> dd = new DCXDOCK;
+			//
+			//if (SetProp(sWnd, TEXT("dcx_dock"), dd))
+			//{
+			//	dd->win = mWnd;
+			//	dd->type = find;
+			//	dd->oldProc = SubclassWindow(sWnd, mIRCDockWinProc);
+			//}
+			//else {
+			//	delete dd;
+			//	throw Dcx::dcxException("Unable to SetProp");
+			//}
 
-			if (SetProp(sWnd, TEXT("dcx_dock"), dd)) {
-				dd->win = mWnd;
-				dd->type = find;
-				dd->oldProc = SubclassWindow(sWnd, mIRCDockWinProc);
-			}
-			else {
-				delete dd;
+			auto dd = std::make_unique<DCXDOCK>( SubclassWindow(sWnd, mIRCDockWinProc), mWnd, 0U, find );
+
+			if (!SetProp(sWnd, TEXT("dcx_dock"), dd.release()))
 				throw Dcx::dcxException("Unable to SetProp");
-			}
+
 		}
 	}
 	DWORD flags = DOCKF_NORMAL;
@@ -266,7 +279,7 @@ bool DockWindow(const HWND mWnd, const HWND temp, const TCHAR *find, const TStri
 	if (xflags[TEXT('B')])
 		flags |= DOCKF_SHOWSCROLLBARS;	// make scrollbars visible & don't overlap them.
 
-	SetProp(temp,TEXT("dcx_docked"),(HANDLE) flags);
+	SetProp(temp,TEXT("dcx_docked"),reinterpret_cast<HANDLE>(flags));
 	//ShowScrollBar(sWnd,SB_BOTH,FALSE);
 	AddStyles(sWnd,GWL_STYLE,WS_CLIPSIBLINGS|WS_CLIPCHILDREN); // this helps with rendering glitches.
 	// set parent and move it to top-left corner
@@ -292,7 +305,8 @@ bool DockWindow(const HWND mWnd, const HWND temp, const TCHAR *find, const TStri
  * xdock -m [hwnd to dock] [+options]
  * xdock -r [hwnd to dock] [+options] [W] [H]
  */
-mIRC(xdock) {
+mIRC(xdock)
+{
 	TString input(data);
 
 	data[0] = 0;
@@ -303,7 +317,8 @@ mIRC(xdock) {
 		auto mIRCWnd = mIRCLinker::getHWND();
 
 #ifdef DCX_DEBUG_OUTPUT
-		if (mIRCLinker::getMainVersion() >= 7) {
+		if (mIRCLinker::getMainVersion() >= 7)
+		{
 			DCX_DEBUG(mIRCLinker::debug, TEXT("xdock"), TEXT("mIRC V7+ detected..."));
 		}
 #endif
@@ -317,7 +332,8 @@ mIRC(xdock) {
 
 		// update mirc
 		// /xdock -p
-		if (switches[1] == TEXT('p')) {
+		if (switches[1] == TEXT('p'))
+		{
 			UpdatemIRC();
 			return 1;
 		}
@@ -326,11 +342,12 @@ mIRC(xdock) {
 		if (numtok < 2)
 			throw Dcx::dcxException("Invalid Flag");
 
-		auto dockHwnd = (HWND)input.getnexttok().to_<DWORD>(); // tok 2
+		auto dockHwnd = reinterpret_cast<HWND>(input.getnexttok().to_<DWORD>()); // tok 2
 
 		// show/hide switchbar
 		// [-S] [1|0]
-		if ((switches[1] == TEXT('S')) && (numtok == 2)) {
+		if ((switches[1] == TEXT('S')) && (numtok == 2))
+		{
 			if ((dockHwnd > 0) && !IsWindowVisible(mIRCLinker::getSwitchbar()))
 				SendMessage(mIRCWnd, WM_COMMAND, (WPARAM)MAKEWPARAM(112, 0), 0);
 			else if ((dockHwnd == 0) && IsWindowVisible(mIRCLinker::getSwitchbar()))
@@ -340,7 +357,8 @@ mIRC(xdock) {
 		}
 		// show/hide toolbar
 		// [-T] [1|0]
-		else if ((switches[1] == TEXT('T')) && (numtok == 2)) {
+		else if ((switches[1] == TEXT('T')) && (numtok == 2))
+		{
 			if ((dockHwnd > 0) && (!IsWindowVisible(mIRCLinker::getToolbar())))
 				SendMessage(mIRCWnd, WM_COMMAND, (WPARAM)MAKEWPARAM(111, 0), 0);
 			else if ((dockHwnd == 0) && (IsWindowVisible(mIRCLinker::getToolbar())))
@@ -350,7 +368,8 @@ mIRC(xdock) {
 		}
 		// show/hide treebar
 		// [-R] [1|0]
-		else if ((switches[1] == TEXT('R')) && (numtok == 2)) {
+		else if ((switches[1] == TEXT('R')) && (numtok == 2))
+		{
 			if ((dockHwnd > 0) && (!IsWindowVisible(mIRCLinker::getTreebar())))
 				SendMessage(mIRCWnd, WM_COMMAND, (WPARAM)MAKEWPARAM(210, 0), 0);
 			else if ((dockHwnd == 0) && (IsWindowVisible(mIRCLinker::getTreebar())))
@@ -360,7 +379,8 @@ mIRC(xdock) {
 		}
 		// show/hide menubar
 		// [-M] [1|0]
-		else if ((switches[1] == TEXT('M')) && (numtok == 2)) {
+		else if ((switches[1] == TEXT('M')) && (numtok == 2))
+		{
 			if ((dockHwnd > 0) && (!GetMenu(mIRCWnd)))
 				SendMessage(mIRCWnd, WM_COMMAND, (WPARAM)MAKEWPARAM(110, 0), 0);
 			else if ((dockHwnd == 0) && (GetMenu(mIRCWnd)))
@@ -388,18 +408,21 @@ mIRC(xdock) {
 
 		// dock to toolbar
 		// [-t] [hwnd to dock] [+options]
-		if ((switches[1] == TEXT('t')) && (numtok > 2)) {
+		if ((switches[1] == TEXT('t')) && (numtok > 2))
+		{
 			DockWindow(mWnd, dockHwnd, TEXT("mIRC_Toolbar"), flags);
 		}
 		// dock to switchbar
 		// [-s] [hwnd to dock] [+options]
-		else if ((switches[1] == TEXT('s')) && (numtok > 2)) {
+		else if ((switches[1] == TEXT('s')) && (numtok > 2))
+		{
 			DockWindow(mWnd, dockHwnd, TEXT("mIRC_Switchbar"), flags);
 		}
 		// dock to nicklist/sidelistbox
 		// [-n] [hwnd to dock] [+options] [hwnd to dock with]
-		else if ((switches[1] == TEXT('n')) && (numtok > 3)) {
-			mWnd = (HWND)input.getnexttok().to_num(); // tok 4
+		else if ((switches[1] == TEXT('n')) && (numtok > 3))
+		{
+			mWnd = (HWND)input.getnexttok().to_<DWORD>(); // tok 4
 
 			if (!IsWindow(mWnd))
 				throw Dcx::dcxException("Invalid window");
@@ -408,8 +431,9 @@ mIRC(xdock) {
 		}
 		//dock to custom/channel/query/status
 		// [-c] [hwnd to dock] [+options] [hwnd to dock with]
-		else if ((switches[1] == TEXT('c')) && (numtok > 3)) {
-			mWnd = (HWND)input.getnexttok().to_num(); // tok 4
+		else if ((switches[1] == TEXT('c')) && (numtok > 3))
+		{
+			mWnd = (HWND)input.getnexttok().to_<DWORD>(); // tok 4
 
 			if (!IsWindow(mWnd))
 				throw Dcx::dcxException("Invalid window");
@@ -418,7 +442,8 @@ mIRC(xdock) {
 		}
 		// dock to treelist
 		// [-b] [hwnd to dock] [+options]
-		else if ((switches[1] == TEXT('b')) && (numtok > 2)) {
+		else if ((switches[1] == TEXT('b')) && (numtok > 2))
+		{
 			if (flags.find(TEXT('o'), 0)) // o for Overlay, old style docking with no layout adjustment
 				DockWindow(mWnd, dockHwnd, TEXT("mIRC_TreeBar"), flags);	// v2 dll is mirc v7+
 			else
@@ -426,12 +451,14 @@ mIRC(xdock) {
 		}
 		// dock to mIRC (UltraDock)
 		// [-m] [hwnd to dock] [+options]
-		else if ((switches[1] == TEXT('m')) && (numtok > 2)) {
+		else if ((switches[1] == TEXT('m')) && (numtok > 2))
+		{
 			UltraDock(mWnd, dockHwnd, flags);
 		}
 		// undock
 		// [-u] [hwnd to undock]
-		else if (switches[1] == TEXT('u')) {
+		else if (switches[1] == TEXT('u'))
+		{
 			if (FindUltraDock(dockHwnd))
 				UltraUnDock(dockHwnd);
 			else if (FindTreebarDock(dockHwnd))
@@ -441,7 +468,8 @@ mIRC(xdock) {
 		}
 		// resize docked window
 		// [-r] [hwnd to dock] [+options] [W] [H]
-		else if ((switches[1] == TEXT('r')) && (numtok > 4)) {
+		else if ((switches[1] == TEXT('r')) && (numtok > 4))
+		{
 			const auto w = input.getnexttok().to_int(); // tok 4
 			const auto h = input.getnexttok().to_int(); // tok 5
 
@@ -558,9 +586,8 @@ mIRC(_xdock)
 		if (d.numtok() < 2)
 			throw Dcx::dcxException(TEXT("Invalid arguments (%)"), d.gettok(1));
 
-#if DCX_USE_HASHING
-		if (d.getfirsttok(1) == TEXT("mIRC")) {
-
+		if (d.getfirsttok(1) == TEXT("mIRC"))
+		{
 			auto DockTypeToSwitchbarPos = [refData](const DockTypes dType) {
 				switch (SwitchbarPos(dType))
 				{
@@ -620,7 +647,6 @@ mIRC(_xdock)
 				if (!GetWindowRect(mIRCLinker::getToolbar(), &rc))
 					throw Dcx::dcxException("Unable to get window rect");
 #endif
-				//wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d %d %d"), rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top);
 				_ts_snprintf(refData, TEXT("%d %d %d %d"), rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top);
 			}
 			break;
@@ -633,7 +659,6 @@ mIRC(_xdock)
 				if (!GetWindowRect(mIRCLinker::getTreebar(), &rc))
 					throw Dcx::dcxException("Unable to get window rect");
 #endif
-				//wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d %d %d"), rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top);
 				_ts_snprintf(refData, TEXT("%d %d %d %d"), rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top);
 			}
 			break;
@@ -665,20 +690,17 @@ mIRC(_xdock)
 			break;
 			case TEXT("switchBarHwnd"_hash):
 			{
-				//wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%lu"), (DWORD)mIRCLinker::getSwitchbar()); // don't use %p as this gives a hex result.
-				_ts_snprintf(refData, TEXT("%lu"), (DWORD)mIRCLinker::getSwitchbar()); // don't use %p as this gives a hex result.
+				_ts_snprintf(refData, TEXT("%lu"), Dcx::numeric_cast<DWORD>(mIRCLinker::getSwitchbar())); // don't use %p as this gives a hex result.
 			}
 			break;
 			case TEXT("toolBarHwnd"_hash):
 			{
-				//wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%lu"), (DWORD)mIRCLinker::getToolbar());
-				_ts_snprintf(refData, TEXT("%lu"), (DWORD)mIRCLinker::getToolbar());
+				_ts_snprintf(refData, TEXT("%lu"), Dcx::numeric_cast<DWORD>(mIRCLinker::getToolbar()));
 			}
 			break;
 			case TEXT("treeBarHwnd"_hash):
 			{
-				//wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%lu"), (DWORD)mIRCLinker::getTreebar());
-				_ts_snprintf(refData, TEXT("%lu"), (DWORD)mIRCLinker::getTreebar());
+				_ts_snprintf(refData, TEXT("%lu"), Dcx::numeric_cast<DWORD>(mIRCLinker::getTreebar()));
 			}
 			break;
 			case 0: // error
@@ -687,7 +709,7 @@ mIRC(_xdock)
 			}
 		}
 		else {
-			auto hwnd = (HWND)d.getfirsttok(1).to_num();
+			auto hwnd = (HWND)d.getfirsttok(1).to_<DWORD>();
 
 			if (!IsWindow(hwnd))
 				throw Dcx::dcxException(TEXT("Invalid window (%)"), d.gettok(1));
@@ -701,30 +723,30 @@ mIRC(_xdock)
 			break;
 			case TEXT("hasDocked"_hash):
 			{
-				dcx_Con((GetProp(hwnd, TEXT("dcx_dock")) != NULL), data);
+				dcx_Con((GetProp(hwnd, TEXT("dcx_dock")) != nullptr), data);
 			}
 			break;
 			case TEXT("isAutoV"_hash):
 			{
-				const auto flags = (DWORD)GetProp(hwnd, TEXT("dcx_docked"));
+				const auto flags = Dcx::numeric_cast<DWORD>(GetProp(hwnd, TEXT("dcx_docked")));
 				dcx_Con(flags == DOCKF_AUTOV, data);
 			}
 			break;
 			case TEXT("isAutoH"_hash):
 			{
-				const auto flags = (DWORD)GetProp(hwnd, TEXT("dcx_docked"));
+				const auto flags = Dcx::numeric_cast<DWORD>(GetProp(hwnd, TEXT("dcx_docked")));
 				dcx_Con(flags == DOCKF_AUTOH, data);
 			}
 			break;
 			case TEXT("isAutoS"_hash):
 			{
-				const auto flags = (DWORD)GetProp(hwnd, TEXT("dcx_docked"));
+				const auto flags = Dcx::numeric_cast<DWORD>(GetProp(hwnd, TEXT("dcx_docked")));
 				dcx_Con(flags == DOCKF_SIZE, data);
 			}
 			break;
 			case TEXT("dockSide"_hash):
 			{
-				const auto ud = GetUltraDock(hwnd);
+				const auto *const ud = GetUltraDock(hwnd);
 
 				if (ud == nullptr)
 					throw Dcx::dcxException(TEXT("Window not docked to main mIRC window (%).%"), Dcx::numeric_cast<DWORD>(hwnd), d.gettok(2));
@@ -751,7 +773,7 @@ mIRC(_xdock)
 			case TEXT("text"_hash):
 			{
 				if (GetWindowTextLength(hwnd) > 0)
-					GetWindowText(hwnd, data, MIRC_BUFFER_SIZE_CCH);
+					GetWindowText(hwnd, data, mIRCLinker::m_mIRC_Buffer_Size_cch);
 			}
 			break;
 			case 0: // error
@@ -759,214 +781,6 @@ mIRC(_xdock)
 				throw Dcx::dcxException(TEXT("Invalid prop (%).%"), Dcx::numeric_cast<DWORD>(hwnd), d.gettok(2));
 			}
 		}
-#else
-		if (d.getfirsttok(1) == TEXT("mIRC")) {
-			static const TString poslist(TEXT("switchBarPos toolBarPos treeBarPos switchBarSize toolBarSize treeBarSize isSwitchBar isToolBar isTreeBar isMenuBar text switchBarHwnd toolBarHwnd treeBarHwnd"));
-			const auto nType = poslist.findtok(d.getnexttok(), 1);
-			switch (nType)
-			{
-			case 1: // switchBarPos
-			case 2: // toolBarPos
-			case 3: // treeBarPos
-			{
-				switch (SwitchbarPos(DockTypes(nType - 1)))
-				{
-				case SwitchBarPos::SWB_RIGHT:
-					dcx_strcpyn(data, TEXT("right"), MIRC_BUFFER_SIZE_CCH);
-					break;
-
-				case SwitchBarPos::SWB_BOTTOM:
-					dcx_strcpyn(data, TEXT("bottom"), MIRC_BUFFER_SIZE_CCH);
-					break;
-
-				case SwitchBarPos::SWB_TOP:
-					dcx_strcpyn(data, TEXT("top"), MIRC_BUFFER_SIZE_CCH);
-					break;
-
-				case SwitchBarPos::SWB_LEFT:
-					dcx_strcpyn(data, TEXT("left"), MIRC_BUFFER_SIZE_CCH);
-					break;
-
-				case SwitchBarPos::SWB_NONE:
-				default:
-					dcx_strcpyn(data, TEXT("none"), MIRC_BUFFER_SIZE_CCH);
-					break;
-				}
-			}
-			break;
-			case 4: // switchBarSize
-			{
-				RECT rc;
-				if (!GetWindowRect(mIRCLinker::getSwitchbar(), &rc))
-					throw Dcx::dcxException("Unable to get window rect");
-
-				wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d %d %d"), rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top);
-			}
-			break;
-			case 5: // toolBarSize
-			{
-				RECT rc;
-				if (!GetWindowRect(mIRCLinker::getToolbar(), &rc))
-					throw Dcx::dcxException("Unable to get window rect");
-
-				wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d %d %d"), rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top);
-			}
-			break;
-			case 6: // treeBarSize
-			{
-				RECT rc;
-				if (!GetWindowRect(mIRCLinker::getTreebar(), &rc))
-					throw Dcx::dcxException("Unable to get window rect");
-
-				wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d %d %d"), rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top);
-			}
-			break;
-			case 7: // isSwitchBar
-			{
-				dcx_Con((IsWindowVisible(mIRCLinker::getSwitchbar()) != FALSE), data);
-			}
-			break;
-			case 8: // isToolBar
-			{
-				dcx_Con((IsWindowVisible(mIRCLinker::getToolbar()) != FALSE), data);
-			}
-			break;
-			case 9: // isTreeBar
-			{
-				dcx_Con((IsWindowVisible(mIRCLinker::getTreebar()) != FALSE), data);
-			}
-			break;
-			case 10: // isMenuBar
-			{
-				dcx_Con((GetMenu(mIRCLinker::getHWND()) != NULL), data);
-			}
-			break;
-			case 11: // text
-			{
-				if (GetWindowTextLength(mIRCLinker::getHWND()) > 0)
-					GetWindowText(mIRCLinker::getHWND(), data, MIRC_BUFFER_SIZE_CCH);
-			}
-			break;
-			case 12: // switchBarHwnd
-			{
-				wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%lu"), (DWORD)mIRCLinker::getSwitchbar()); // don't use %p as this gives a hex result.
-			}
-			break;
-			case 13: // toolBarHwnd
-			{
-				wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%lu"), (DWORD)mIRCLinker::getToolbar());
-			}
-			break;
-			case 14: // treeBarHwnd
-			{
-				wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%lu"), (DWORD)mIRCLinker::getTreebar());
-			}
-			break;
-			case 0: // error
-			default:
-				throw Dcx::dcxException(TEXT("Invalid prop (mIRC).%"), d.gettok(2));
-			}
-				}
-		else {
-			auto hwnd = (HWND)d.getfirsttok(1).to_num();
-
-			if (!IsWindow(hwnd))
-				throw Dcx::dcxException(TEXT("Invalid window (%)"), d.gettok(1));
-
-			static const TString poslist(TEXT("isDocked hasDocked isAutoV isAutoH isAutoS dockSide text"));
-			const auto nType = poslist.findtok(d.getnexttok(), 1);
-			switch (nType)
-			{
-			case 1: // isDocked
-			{
-				dcx_Con(GetProp(hwnd, TEXT("dcx_docked")) || FindUltraDock(hwnd) || FindTreebarDock(hwnd), data);
-			}
-			break;
-			case 2: // hasDocked
-			{
-				dcx_Con((GetProp(hwnd, TEXT("dcx_dock")) != NULL), data);
-			}
-			break;
-			case 3: // isAutoV
-			{
-				const auto flags = (DWORD)GetProp(hwnd, TEXT("dcx_docked"));
-				dcx_Con(flags == DOCKF_AUTOV, data);
-			}
-			break;
-			case 4: // isAutoH
-			{
-				const auto flags = (DWORD)GetProp(hwnd, TEXT("dcx_docked"));
-				dcx_Con(flags == DOCKF_AUTOH, data);
-			}
-			break;
-			case 5: // isAutoS
-			{
-				const auto flags = (DWORD)GetProp(hwnd, TEXT("dcx_docked"));
-				dcx_Con(flags == DOCKF_SIZE, data);
-			}
-			break;
-			case 6: // dockSide
-			{
-				auto ud = GetUltraDock(hwnd);
-
-				if (ud == nullptr)
-					throw Dcx::dcxException(TEXT("Window not docked to main mIRC window (%).%"), reinterpret_cast<DWORD>(hwnd), d.gettok(2));
-
-				//TCHAR *p = nullptr;
-				//switch (ud->flags)
-				//{
-				//case DOCKF_LEFT:
-				//	p = ts_strcpyn(data, TEXT("left"), MIRC_BUFFER_SIZE_CCH);
-				//	break;
-				//case DOCKF_RIGHT:
-				//	p = ts_strcpyn(data, TEXT("right"), MIRC_BUFFER_SIZE_CCH);
-				//	break;
-				//case DOCKF_TOP:
-				//	p = ts_strcpyn(data, TEXT("top"), MIRC_BUFFER_SIZE_CCH);
-				//	break;
-				//case DOCKF_BOTTOM:
-				//	p = ts_strcpyn(data, TEXT("bottom"), MIRC_BUFFER_SIZE_CCH);
-				//	break;
-				//default:
-				//	p = ts_strcpyn(data, TEXT("unknown"), MIRC_BUFFER_SIZE_CCH);
-				//	break;
-				//}
-				//if (p == nullptr)
-				//	data[0] = 0;
-
-				TCHAR *p = TEXT("unknown");
-				switch (ud->flags)
-				{
-				case DOCKF_LEFT:
-					p = TEXT("left");
-					break;
-				case DOCKF_RIGHT:
-					p = TEXT("right");
-					break;
-				case DOCKF_TOP:
-					p = TEXT("top");
-					break;
-				case DOCKF_BOTTOM:
-					p = TEXT("bottom");
-					break;
-				}
-				dcx_strcpyn(data, p, MIRC_BUFFER_SIZE_CCH);
-				//if (ts_strcpyn(data, p, MIRC_BUFFER_SIZE_CCH) == nullptr)
-				//	data[0] = 0;
-			}
-			break;
-			case 7: // text
-			{
-				if (GetWindowTextLength(hwnd) > 0)
-					GetWindowText(hwnd, data, MIRC_BUFFER_SIZE_CCH);
-			}
-			break;
-			case 0: // error
-			default:
-				throw Dcx::dcxException(TEXT("Invalid prop (%).%"), reinterpret_cast<DWORD>(hwnd), d.gettok(2));
-			}
-		}
-#endif
 		return 3;
 	}
 	catch (const std::exception &e)

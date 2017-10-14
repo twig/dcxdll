@@ -153,7 +153,7 @@ void DcxDock::UnDockWindow(const HWND hwnd)
 	//	}
 	//}
 
-	if (auto itEnd = m_VectorDocks.end(), itGot = std::find_if(m_VectorDocks.begin(), itEnd, [hwnd](const LPDCXULTRADOCK ud) { if (ud != nullptr) { return (ud->hwnd == hwnd); } return false; }); itGot != itEnd)
+	if (auto itEnd = m_VectorDocks.end(), itGot = std::find_if(m_VectorDocks.begin(), itEnd, [hwnd](const DCXULTRADOCK *const ud) { if (ud != nullptr) { return (ud->hwnd == hwnd); } return false; }); itGot != itEnd)
 	{
 		auto ud = *itGot;
 		m_VectorDocks.erase(itGot);
@@ -258,7 +258,7 @@ bool DcxDock::FindDock(const HWND hwnd) const
 	//return false;
 
 	auto itEnd = m_VectorDocks.end();
-	return (std::find_if(m_VectorDocks.begin(), itEnd, [hwnd](const LPDCXULTRADOCK ud) { if (ud != nullptr) { return (ud->hwnd == hwnd); } return false; }) != itEnd);
+	return (std::find_if(m_VectorDocks.begin(), itEnd, [hwnd](const DCXULTRADOCK *const ud) { if (ud != nullptr) { return (ud->hwnd == hwnd); } return false; }) != itEnd);
 }
 
 LPDCXULTRADOCK DcxDock::GetDock(const HWND hwnd) const
@@ -271,7 +271,7 @@ LPDCXULTRADOCK DcxDock::GetDock(const HWND hwnd) const
 	//}
 	//return nullptr;
 
-	if (auto itEnd = m_VectorDocks.end(), itGot = std::find_if(m_VectorDocks.begin(), itEnd, [hwnd](const LPDCXULTRADOCK ud) { if (ud != nullptr) { return (ud->hwnd == hwnd); } return false; }); itGot != itEnd)
+	if (auto itEnd = m_VectorDocks.end(), itGot = std::find_if(m_VectorDocks.begin(), itEnd, [hwnd](const DCXULTRADOCK *const ud) { if (ud != nullptr) { return (ud->hwnd == hwnd); } return false; }); itGot != itEnd)
 		return *itGot;
 	return nullptr;
 }
@@ -296,8 +296,9 @@ void DcxDock::AdjustRect(WINDOWPOS *wp)
 	//		nWin++;
 	//}
 
-	auto nWin = m_VectorDocks.size(); // for loop unneeded, max size will do
-	if (nWin == 0) return;
+	const auto nWin = m_VectorDocks.size(); // for loop unneeded, max size will do
+	if (nWin == 0)
+		return;
 
 	auto refh = wp->cy;
 	auto refw = wp->cx;
@@ -308,6 +309,8 @@ void DcxDock::AdjustRect(WINDOWPOS *wp)
 	auto xrightoffset = wp->x + refw;
 
 	auto hdwp = BeginDeferWindowPos(gsl::narrow_cast<int>(nWin));
+	if (hdwp == nullptr)
+		return;
 
 	// size docks
 	for (const auto &ud : m_VectorDocks)
@@ -962,10 +965,6 @@ bool DcxDock::InitStatusbar(const TString &styles)
 	ZeroMemory(&DcxDock::g_iDynamicParts[0], sizeof(DcxDock::g_iDynamicParts));
 	ZeroMemory(&DcxDock::g_iFixedParts[0], sizeof(DcxDock::g_iFixedParts));
 
-	//LONG Styles = 0, ExStyles = 0;
-	//BOOL bNoTheme = FALSE;
-	//DcxDock::status_parseControlStyles(styles, &Styles, &ExStyles, &bNoTheme);
-
 	const auto[bNoTheme, Styles, ExStyles] = DcxDock::status_parseControlStyles(styles);
 
 	g_StatusBar = CreateWindowExW(
@@ -1128,7 +1127,7 @@ void DcxDock::status_setIcon( const int iPart, const HICON hIcon )
 
 HICON DcxDock::status_getIcon( const int iPart )
 {
-	return (HICON)SendMessage( g_StatusBar, SB_GETICON, gsl::narrow_cast<WPARAM>(iPart), (LPARAM) 0 );
+	return (HICON)SendMessage( g_StatusBar, SB_GETICON, gsl::narrow_cast<WPARAM>(iPart), gsl::narrow_cast<LPARAM>(0) );
 }
 
 LRESULT DcxDock::status_setPartInfo( const int iPart, const int Style, const LPSB_PARTINFOD pPart)
@@ -1222,7 +1221,7 @@ void DcxDock::status_cleanPartIcons( )
 
 LRESULT DcxDock::status_getBorders( LPINT aWidths )
 {
-  return SendMessage( g_StatusBar, SB_GETBORDERS, (WPARAM) 0, (LPARAM) aWidths );
+  return SendMessage( g_StatusBar, SB_GETBORDERS, gsl::narrow_cast<WPARAM>(0), (LPARAM) aWidths );
 }
 
 void DcxDock::status_updateParts(void)
