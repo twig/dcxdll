@@ -6,6 +6,7 @@ namespace mIRCLinker {
 	const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> m_pData;	//!< Pointer to a character buffer of size MIRC_BUFFER_SIZE_CCH to send mIRC custom commands
 	HWND		m_mIRCHWND				= nullptr;	//!< mIRC Window Handle
 	DWORD		m_dwVersion				= 0;		//!< mIRC Version info.
+	DWORD		m_dwBeta				= 0;		//!< mIRC Beta Version info.
 	int			m_iMapCnt				= 0;		//!< MapFile counter.
 	bool		m_bDebug				= false;	//!< is mIRC is using /debug upon DCX LoadDLL().
 	HWND		m_hSwitchbar			= nullptr;	//!< The Switchbars HWND
@@ -39,9 +40,12 @@ namespace mIRCLinker {
 		return eval(nullptr, TEXT("$isalias(%)"), aliasName);
 	}
 
-	void load(LOADINFO * lInfo) {
+	void load(LOADINFO *const lInfo)
+	{
 		m_mIRCHWND = lInfo->mHwnd;
 		m_dwVersion = lInfo->mVersion;
+		if (m_dwVersion >= 3211271)	//3211271 = 7.49.363 Beta
+			m_dwBeta = lInfo->mBeta;
 
 		lInfo->mKeep = TRUE;
 		lInfo->mUnicode = TRUE;
@@ -56,10 +60,12 @@ namespace mIRCLinker {
 
 		m_bDebug = (!isDebug.trim().empty());
 #ifdef DCX_DEBUG_OUTPUT
-		if (m_bDebug) {
+		if (m_bDebug)
+		{
 			DCX_DEBUG(debug, TEXT("LoadmIRCLink"), TEXT("Debug mode detected..."));
 		}
-		if (getMainVersion() >= 7) {
+		if (getMainVersion() >= 7)
+		{
 			DCX_DEBUG(debug, TEXT("LoadmIRCLink"), TEXT("mIRC V7+ detected..."));
 		}
 #endif
@@ -81,7 +87,8 @@ namespace mIRCLinker {
 		DCX_DEBUG(debug, TEXT("LoadmIRCLink"), TEXT("Finding mIRC_TreeBar..."));
 		m_hTreebar = FindWindowEx(m_mIRCHWND, nullptr, TEXT("mIRC_TreeBar"), nullptr);
 
-		if (IsWindow(m_hTreebar)) {
+		if (IsWindow(m_hTreebar))
+		{
 			//m_hTreeview = GetWindow(mIRCLink.m_hTreebar,GW_CHILD);
 			m_hTreeview = FindWindowEx(m_hTreebar, nullptr, WC_TREEVIEW, nullptr);
 			if (IsWindow(m_hTreeview))
@@ -89,7 +96,8 @@ namespace mIRCLinker {
 		}
 	}
 
-	void unload() {
+	void unload()
+	{
 		// Reset mIRC's WndProc if changed
 		resetWindowProc();
 
@@ -97,21 +105,24 @@ namespace mIRCLinker {
 		CloseHandle(m_hFileMap);
 
 		// reset the treebars font if it's been changed.
-		if (mIRCLinker::getTreeFont() != nullptr) {
-			auto hfont = GetWindowFont(m_hTreeview);
-			if (hfont != m_hTreeFont) {
+		if (mIRCLinker::getTreeFont() != nullptr)
+		{
+			if (auto hfont = GetWindowFont(m_hTreeview); hfont != m_hTreeFont)
+			{
 				SetWindowFont(m_hTreeview, m_hTreeFont, TRUE);
 				DeleteFont(hfont);
 			}
 		}
 	}
 
-	void initMapFile() {
+	void initMapFile()
+	{
 		int cnt = 1;
 		TString map_name;
 		m_hFileMap = nullptr;
 
-		while ((m_hFileMap == nullptr) && (cnt < 256)) {
+		while ((m_hFileMap == nullptr) && (cnt < 256))
+		{
 			// create mapfile name.
 			//map_name.tsprintf(TEXT("mIRC%d"), cnt);
 			_ts_sprintf(map_name, TEXT("mIRC%"), cnt);
@@ -253,31 +264,6 @@ namespace mIRCLinker {
 		if (isOrNewerVersion(7,34))
 		{
 			m_bSendMessageDisabled = false;
-#if _MSC_VER < 1911
-			const auto err = SendMessage(m_mIRCHWND, uMsg, MAKEWPARAM(MIRCF_UNICODE | MIRCF_ENHANCEDERRORS, 0), m_iMapCnt);
-			if (dcx_testflag(err, MIRCF_ERR_FAILED))
-			{
-				// failed
-				if (dcx_testflag(err, MIRCF_ERR_DISABLED))
-				{
-					m_bSendMessageDisabled = true;
-					Dcx::error(TEXT("mIRCLinker::eval()"), TEXT("SendMessage() - failed: Disabled"));
-				}
-				if (dcx_testflag(err, MIRCF_ERR_MAP_NAME))
-					Dcx::error(TEXT("mIRCLinker::eval()"), TEXT("SendMessage() - failed: Invalid mapfile name"));
-				else if (dcx_testflag(err, MIRCF_ERR_MAP_SIZE))
-					Dcx::error(TEXT("mIRCLinker::eval()"), TEXT("SendMessage() - failed: Invalid mapfile size"));
-				else if (dcx_testflag(err, MIRCF_ERR_EVENTID))
-					Dcx::error(TEXT("mIRCLinker::eval()"), TEXT("SendMessage() - failed: Invalid eventid"));
-				else if (dcx_testflag(err, MIRCF_ERR_SERVER))
-					Dcx::error(TEXT("mIRCLinker::eval()"), TEXT("SendMessage() - failed: Bad Server"));
-				else if (dcx_testflag(err, MIRCF_ERR_SCRIPT))
-					Dcx::error(TEXT("mIRCLinker::eval()"), TEXT("SendMessage() - failed: Bad Script"));
-				else
-					Dcx::error(TEXT("mIRCLinker::eval()"), TEXT("SendMessage() - failed"));
-				return false;
-			}
-#else
 			if (const auto err = SendMessage(m_mIRCHWND, uMsg, MAKEWPARAM(MIRCF_UNICODE | MIRCF_ENHANCEDERRORS, 0), m_iMapCnt); dcx_testflag(err, MIRCF_ERR_FAILED))
 			{
 				// failed
@@ -300,7 +286,6 @@ namespace mIRCLinker {
 					Dcx::error(TEXT("mIRCLinker::eval()"), TEXT("SendMessage() - failed"));
 				return false;
 			}
-#endif
 		}
 		else {
 			if (SendMessage(m_mIRCHWND, uMsg, MIRCF_UNICODE, m_iMapCnt) == 0)
@@ -362,7 +347,8 @@ namespace mIRCLinker {
 	//	return false;
 	//}
 
-	bool iEval(__int64  *const res, const TCHAR *const data) {
+	bool iEval(__int64  *const res, const TCHAR *const data)
+	{
 		//if (ts_strcpyn(m_pData, data, MIRC_BUFFER_SIZE_CCH) != nullptr)
 		//{
 		//	if (mIRC_SndMsg(WM_MEVALUATE)) {

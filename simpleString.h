@@ -36,11 +36,13 @@ struct simpleString {
 	}
 	simpleString<T, N> &operator =(const simpleString<T, N> &other) = default;
 	simpleString<T, N> &operator =(simpleString<T, N> &&other) = default;
-	simpleString<T, N> &operator =(const_pointer other) noexcept {
+	simpleString<T, N> &operator =(const_pointer other) noexcept
+	{
 		_ts_strcpyn(&m_data[0], other, N);
 		return *this;
 	}
-	simpleString<T, N> &operator +=(const_pointer other) noexcept {
+	simpleString<T, N> &operator +=(const_pointer other) noexcept
+	{
 		const size_type nLen = length();
 		const size_type nOtherLen = _ts_strlen(other);
 		const size_type nDiff = N - (nLen + nOtherLen);
@@ -50,7 +52,8 @@ struct simpleString {
 
 		return *this;
 	}
-	simpleString<T, N> &operator +=(const value_type &other) noexcept {
+	simpleString<T, N> &operator +=(const value_type &other) noexcept
+	{
 		const size_type nLen = length();
 		const size_type nDiff = N - (nLen + 1);
 

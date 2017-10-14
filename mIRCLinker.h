@@ -6,10 +6,13 @@
 
 namespace mIRCLinker
 {
+	constexpr auto		m_mIRC_Buffer_Size_cch = MIRC_BUFFER_SIZE_CCH;
+
 	extern HANDLE		m_hFileMap;		//!< Handle to the mIRC DLL File Map
-	extern const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> m_pData;		//!< Pointer to a character buffer of size MIRC_BUFFER_SIZE_CCH to send mIRC custom commands
+	extern const refString<TCHAR, m_mIRC_Buffer_Size_cch> m_pData;		//!< Pointer to a character buffer of size MIRC_BUFFER_SIZE_CCH to send mIRC custom commands
 	extern HWND			m_mIRCHWND;		//!< mIRC Window Handle
 	extern DWORD		m_dwVersion;
+	extern DWORD		m_dwBeta;
 	extern int			m_iMapCnt;		//!< MapFile counter.
 	extern bool			m_bDebug;		//!< is mIRC is using /debug upon DCX LoadDLL().
 	extern HWND			m_hSwitchbar;	//!< The Switchbars HWND
@@ -23,6 +26,16 @@ namespace mIRCLinker
 	extern WNDPROC		m_wpmIRCDefaultWndProc;
 	extern bool			m_bUnicodemIRC;
 	extern bool			m_bSendMessageDisabled;
+
+	// mIRC DLL Loading Structure
+	struct LOADINFO {
+		DWORD  mVersion; //!< mIRC Version
+		HWND   mHwnd;    //!< mIRC Hwnd 
+		BOOL   mKeep;    //!< mIRC variable stating to keep DLL in memory
+		BOOL   mUnicode; //!< mIRC V7+ unicode enabled dll.
+		DWORD  mBeta;    //!< mIRC V7.49.363+ Beta version
+	};
+	using LPLOADINFO = LOADINFO *;
 
 	void initMapFile();
 
@@ -46,7 +59,7 @@ namespace mIRCLinker
 	//bool isDXInstalled9();
 	bool isAlias(const TString &aliasName);
 
-	void load(LOADINFO * lInfo);
+	void load(LOADINFO *const lInfo);
 	void unload(void);
 
 	void hookWindowProc(WNDPROC newProc);
@@ -151,7 +164,11 @@ namespace mIRCLinker
 	template <typename Input>
 	bool exec(const Input &data)
 	{
-		m_pData = data;
+		if constexpr(std::is_array_v<Input> && std::is_pod_v<Input>)
+			m_pData = &data[0];
+		else
+			m_pData = data;
+
 		{
 			// SendMessage(mHwnd, WM_MCOMMAND, MAKEWPARAM(cMethod, cEventId), cIndex)
 			if (mIRC_SndMsg(WM_MCOMMAND))
@@ -171,7 +188,10 @@ namespace mIRCLinker
 	void signal(const Input &msg)
 	{
 		m_pData = TEXT("//.signal -n DCX ");
-		m_pData += msg;
+		if constexpr(std::is_array_v<Input> && std::is_pod_v<Input>)
+			m_pData += &msg[0];
+		else
+			m_pData += msg;
 		mIRC_SndMsg(WM_MCOMMAND);
 	}
 
@@ -186,7 +206,10 @@ namespace mIRCLinker
 	void echo(const Input &data)
 	{
 		m_pData = TEXT("//echo -s ");
-		m_pData += data;
+		if constexpr(std::is_array_v<Input> && std::is_pod_v<Input>)
+			m_pData += &data[0];
+		else
+			m_pData += data;
 		mIRC_SndMsg(WM_MCOMMAND);
 	}
 

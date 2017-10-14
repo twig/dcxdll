@@ -57,7 +57,8 @@ struct refString
 
 	~refString() = default;
 
-	const refString<T,N> &operator =(const value_type *const other) const noexcept {
+	const refString<T,N> &operator =(const value_type *const other) const noexcept
+	{
 		__assume(m_data != nullptr);
 		_ts_strcpyn(m_data, other, N);
 		return *this;
@@ -69,7 +70,8 @@ struct refString
 	//	return *this;
 	//}
 
-	const refString<T, N> &operator =(const value_type &other) const noexcept {
+	const refString<T, N> &operator =(const value_type &other) const noexcept
+	{
 		__assume(m_data != nullptr);
 		m_data[0] = other;
 		m_data[1] = value_type();
@@ -85,13 +87,15 @@ struct refString
 	//}
 
 	template <typename otherT, typename = std::enable_if_t<std::is_same_v<otherT::value_type, value_type> && std::is_member_function_pointer_v<decltype(&otherT::data)>> >
-	const refString<T, N> &operator =(const otherT &other) const noexcept {
+	const refString<T, N> &operator =(const otherT &other) const noexcept
+	{
 		__assume(m_data != nullptr);
 		_ts_strcpyn(m_data, other.data(), N);
 		return *this;
 	}
 
-	const refString<T, N> &operator +=(const value_type *const other) const noexcept {
+	const refString<T, N> &operator +=(const value_type *const other) const noexcept
+	{
 		__assume(m_data != nullptr);
 		const size_type nLen = length();
 		const size_type nOtherLen = _ts_strlen(other);
@@ -103,12 +107,14 @@ struct refString
 		return *this;
 	}
 
-	const refString<T, N> &operator +=(const value_type &other) const noexcept {
+	const refString<T, N> &operator +=(const value_type &other) const noexcept
+	{
 		__assume(m_data != nullptr);
 		const size_type nLen = length();
 		const size_type nDiff = N - (nLen + 1);
 
-		if (nDiff > 1U) {
+		if (nDiff > 1U)
+		{
 			// > 1 to account for zero char
 			m_data[nLen] = other;
 			m_data[nLen + 1] = value_type();
@@ -117,7 +123,8 @@ struct refString
 	}
 
 	template <typename otherT, typename = std::enable_if_t<std::is_same_v<otherT::value_type, value_type> && std::is_member_function_pointer_v<decltype(&otherT::data)>> >
-	const refString<T, N> &operator +=(const otherT &other) const noexcept {
+	const refString<T, N> &operator +=(const otherT &other) const noexcept
+	{
 		__assume(m_data != nullptr);
 		const size_type nLen = length();
 		const size_type nOtherLen = _ts_strlen(other);
@@ -132,24 +139,28 @@ struct refString
 	constexpr bool operator ==(const refString<T, N> &other) const noexcept { return (*this == other.data()); }
 	constexpr bool operator !=(const refString<T, N> &other) const noexcept { return !(*this == other); }
 
-	constexpr bool operator ==(const_pointer other) const noexcept {
+	constexpr bool operator ==(const_pointer other) const noexcept
+	{
 		__assume(m_data != nullptr);
 		return (_ts_strncmp(m_data, other, N) == 0);
 	}
 	constexpr bool operator !=(const_pointer other) const noexcept { return !(*this == other); }
 
 	constexpr explicit operator bool() const noexcept { return !empty(); }
-	constexpr operator pointer() const noexcept {
+	constexpr operator pointer() const noexcept
+	{
 		__assume(m_data != nullptr);
 		return const_cast<pointer>(m_data);
 	}
 	constexpr reference operator [](const ptrdiff_type &iOffSet) const noexcept { return m_data[iOffSet]; }
-	constexpr size_type length() const {
+	constexpr size_type length() const
+	{
 		__assume(m_data != nullptr);
 		return _ts_strnlen(m_data, N);
 	}
 	constexpr const size_type size() const noexcept { return N; }
-	constexpr pointer data() const noexcept {
+	constexpr pointer data() const noexcept
+	{
 		__assume(m_data != nullptr);
 		return const_cast<pointer>(m_data);
 	}
