@@ -24,6 +24,7 @@ typedef HRESULT (WINAPI *PFNBUFFEREDPAINTINIT)(VOID);
 typedef HRESULT (WINAPI *PFNBUFFEREDPAINTUNINIT)(VOID);
 typedef HPAINTBUFFER (WINAPI *PFNBEGINBUFFEREDPAINT)(HDC hdcTarget, const RECT *prcTarget, BP_BUFFERFORMAT dwFormat, BP_PAINTPARAMS *pPaintParams, HDC *phdc);
 typedef HRESULT (WINAPI *PFNENDBUFFEREDPAINT)(HPAINTBUFFER hBufferedPaint, BOOL fUpdateTarget);
+typedef HRESULT (WINAPI *PFBUFFEREDPAINTSETALPHA)(HPAINTBUFFER hBufferedPaint, _In_ const RECT *prc, BYTE alpha);
 
 class DcxUXModule :
 	public DcxModule
@@ -48,6 +49,7 @@ class DcxUXModule :
 	static PFNBUFFEREDPAINTUNINIT BufferedPaintUnInitUx;
 	static PFNBEGINBUFFEREDPAINT BeginBufferedPaintUx;
 	static PFNENDBUFFEREDPAINT EndBufferedPaintUx;
+	static PFBUFFEREDPAINTSETALPHA BufferedPaintSetAlphaUx;
 
 	static bool m_bBufferedPaintEnabled;
 
@@ -60,8 +62,8 @@ public:
 
 	static BOOL dcxIsThemeActive(void);
 	static HRESULT dcxSetWindowTheme(const HWND hwnd, const LPCWSTR pszSubAppName, const LPCWSTR pszSubIdList);
-	static HTHEME dcxGetWindowTheme(HWND hWnd);
-	static gsl::owner<HTHEME> dcxOpenThemeData(HWND hwnd, LPCWSTR pszClassList);
+	[[gsl::suppress(lifetimes)]] static HTHEME dcxGetWindowTheme(HWND hWnd);
+	[[gsl::suppress(lifetimes)]] static gsl::owner<HTHEME> dcxOpenThemeData(HWND hwnd, LPCWSTR pszClassList);
 	static HRESULT dcxCloseThemeData(gsl::owner<HTHEME> hTheme);
 	static BOOL dcxIsThemeBackgroundPartiallyTransparent(HTHEME hTheme, int iPartId, int iStateId);
 	static HRESULT dcxDrawThemeBackground(HTHEME hTheme, HDC hdc, int iPartId, int iStateId, LPCRECT pRect, LPCRECT pClipRect);
@@ -75,7 +77,8 @@ public:
 	static inline const bool &IsBufferedPaintSupported(void) noexcept { return m_bBufferedPaintEnabled; }
 	static HRESULT dcxBufferedPaintInit(void);
 	static HRESULT dcxBufferedPaintUnInit(void);
-	static gsl::owner<HPAINTBUFFER> dcxBeginBufferedPaint(HDC hdcTarget, const RECT *prcTarget, BP_BUFFERFORMAT dwFormat, BP_PAINTPARAMS *pPaintParams, HDC *phdc);
+	[[gsl::suppress(lifetimes)]] static gsl::owner<HPAINTBUFFER> dcxBeginBufferedPaint(HDC hdcTarget, const RECT *prcTarget, BP_BUFFERFORMAT dwFormat, BP_PAINTPARAMS *pPaintParams, HDC *phdc);
 	static HRESULT dcxEndBufferedPaint(gsl::owner<HPAINTBUFFER> hBufferedPaint, BOOL fUpdateTarget);
+	static HRESULT dcxBufferedPaintSetAlpha(HPAINTBUFFER hBufferedPaint, _In_ const RECT *prc, BYTE alpha);
 };
 #endif // _DCXUXMODULES_H_

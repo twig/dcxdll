@@ -2,6 +2,9 @@
 #include "DcxDWMModule.h"
 #include <VersionHelpers.h>
 
+#pragma warning(push)
+#pragma warning(disable: 26425)	//warning C26425 : Assigning 'nullptr' to a static variable.
+
 PFNDWMISCOMPOSITIONENABLED DcxDWMModule::DwmIsCompositionEnabledUx = nullptr;
 PFNDWMGETWINDOWATTRIBUTE DcxDWMModule::DwmGetWindowAttributeUx = nullptr;
 PFNDWMSETWINDOWATTRIBUTE DcxDWMModule::DwmSetWindowAttributeUx = nullptr;
@@ -35,11 +38,13 @@ bool DcxDWMModule::load(void)
 
 	DCX_DEBUG(mIRCLinker::debug, TEXT("LoadDLL"), TEXT("Loading DWMAPI.DLL..."));
 	m_hModule = LoadLibrary(TEXT("dwmapi.dll"));
-	if (m_hModule != nullptr) {
+	if (m_hModule != nullptr)
+	{
 		DCX_DEBUG(mIRCLinker::debug, TEXT("LoadDLL"), TEXT("DWMAPI.DLL Loaded, Vista+ OS Assumed"));
 
 #pragma warning(push)
 #pragma warning(disable: 4191)
+#pragma warning(disable: 26493)	//warning C26493 : Don't use C-style casts that would perform a static_cast downcast, const_cast, or reinterpret_cast. (type.4: http://go.microsoft.com/fwlink/p/?LinkID=620420)
 
 		DwmIsCompositionEnabledUx = (PFNDWMISCOMPOSITIONENABLED) GetProcAddress(m_hModule, "DwmIsCompositionEnabled"); // Vista ONLY!
 		DwmGetWindowAttributeUx = (PFNDWMGETWINDOWATTRIBUTE) GetProcAddress(m_hModule, "DwmGetWindowAttribute"); // Vista ONLY!
@@ -62,7 +67,8 @@ bool DcxDWMModule::load(void)
 
 bool DcxDWMModule::unload(void) 
 {
-	if (isUseable()) {
+	if (isUseable())
+	{
 		FreeLibrary(m_hModule);
 		m_hModule = nullptr;
 		DwmIsCompositionEnabledUx = nullptr;
@@ -74,8 +80,10 @@ bool DcxDWMModule::unload(void)
 	}
 	return isUseable();
 }
+#pragma warning(pop)
 
-const bool &DcxDWMModule::refreshComposite() {
+const bool &DcxDWMModule::refreshComposite()
+{
 	BOOL bAero;
 	if (FAILED(dcxDwmIsCompositionEnabled(&bAero)))
 		bAero = FALSE;
