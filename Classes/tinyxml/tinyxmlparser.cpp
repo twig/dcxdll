@@ -202,9 +202,7 @@ void TiXmlParsingData::Stamp( const char* now, TiXmlEncoding encoding )
 
 	// Do nothing if the tabsize is 0.
 	if ( tabsize < 1 )
-	{
 		return;
-	}
 
 	// Get the current row, column.
 	int row = cursor.row;
@@ -218,91 +216,92 @@ void TiXmlParsingData::Stamp( const char* now, TiXmlEncoding encoding )
 		const unsigned char* pU = (const unsigned char*)p;
 
 		// Code contributed by Fletcher Dunn: (modified by lee)
-		switch (*pU) {
-			case 0:
-				// We *should* never get here, but in case we do, don't
-				// advance past the terminating null character, ever
-				return;
+		switch (*pU)
+		{
+		case 0:
+			// We *should* never get here, but in case we do, don't
+			// advance past the terminating null character, ever
+			return;
 
-			case '\r':
-				// bump down to the next line
-				++row;
-				col = 0;				
-				// Eat the character
+		case '\r':
+			// bump down to the next line
+			++row;
+			col = 0;
+			// Eat the character
+			++p;
+
+			// Check for \r\n sequence, and treat this as a single character
+			if (*p == '\n')
 				++p;
+			break;
 
-				// Check for \r\n sequence, and treat this as a single character
-				if (*p == '\n') {
-					++p;
-				}
-				break;
+		case '\n':
+			// bump down to the next line
+			++row;
+			col = 0;
 
-			case '\n':
-				// bump down to the next line
-				++row;
-				col = 0;
+			// Eat the character
+			++p;
 
-				// Eat the character
+			// Check for \n\r sequence, and treat this as a single
+			// character.  (Yes, this bizarre thing does occur still
+			// on some arcane platforms...)
+			if (*p == '\r')
 				++p;
+			break;
 
-				// Check for \n\r sequence, and treat this as a single
-				// character.  (Yes, this bizarre thing does occur still
-				// on some arcane platforms...)
-				if (*p == '\r') {
-					++p;
-				}
-				break;
+		case '\t':
+			// Eat the character
+			++p;
 
-			case '\t':
-				// Eat the character
-				++p;
+			// Skip to next tab stop
+			col = (col / tabsize + 1) * tabsize;
+			break;
 
-				// Skip to next tab stop
-				col = (col / tabsize + 1) * tabsize;
-				break;
-
-			case TIXML_UTF_LEAD_0:
-				if ( encoding == TIXML_ENCODING_UTF8 )
+		case TIXML_UTF_LEAD_0:
+			if (encoding == TIXML_ENCODING_UTF8)
+			{
+				if (*(p + 1) && *(p + 2))
 				{
-					if ( *(p+1) && *(p+2) )
+					// In these cases, don't advance the column. These are
+					// 0-width spaces.
+					if (*(pU + 1) == TIXML_UTF_LEAD_1 && *(pU + 2) == TIXML_UTF_LEAD_2)
+						p += 3;
+					else if (*(pU + 1) == 0xbfU && *(pU + 2) == 0xbeU)
+						p += 3;
+					else if (*(pU + 1) == 0xbfU && *(pU + 2) == 0xbfU)
+						p += 3;
+					else
 					{
-						// In these cases, don't advance the column. These are
-						// 0-width spaces.
-						if ( *(pU+1)==TIXML_UTF_LEAD_1 && *(pU+2)==TIXML_UTF_LEAD_2 )
-							p += 3;	
-						else if ( *(pU+1)==0xbfU && *(pU+2)==0xbeU )
-							p += 3;	
-						else if ( *(pU+1)==0xbfU && *(pU+2)==0xbfU )
-							p += 3;	
-						else
-							{ p +=3; ++col; }	// A normal character.
-					}
+						p += 3; ++col;
+					}	// A normal character.
 				}
-				else
-				{
-					++p;
-					++col;
-				}
-				break;
+			}
+			else
+			{
+				++p;
+				++col;
+			}
+			break;
 
-			default:
-				if ( encoding == TIXML_ENCODING_UTF8 )
-				{
-					// Eat the 1 to 4 byte utf8 character.
-					int step = TiXmlBase::utf8ByteTable[*((const unsigned char*)p)];
-					if ( step == 0 )
-						step = 1;		// Error case from bad encoding, but handle gracefully.
-					p += step;
+		default:
+			if (encoding == TIXML_ENCODING_UTF8)
+			{
+				// Eat the 1 to 4 byte utf8 character.
+				auto step = TiXmlBase::utf8ByteTable[*((const unsigned char*)p)];
+				if (step == 0)
+					step = 1;		// Error case from bad encoding, but handle gracefully.
+				p += step;
 
-					// Just advance one column, of course.
-					++col;
-				}
-				else
-				{
-					++p;
-					++col;
-				}
-				break;
+				// Just advance one column, of course.
+				++col;
+			}
+			else
+			{
+				++p;
+				++col;
+			}
+			break;
 		}
 	}
 	cursor.row = row;
@@ -317,9 +316,8 @@ void TiXmlParsingData::Stamp( const char* now, TiXmlEncoding encoding )
 const char* TiXmlBase::SkipWhiteSpace( const char* p, TiXmlEncoding encoding )
 {
 	if ( !p || !*p )
-	{
 		return 0;
-	}
+
 	if ( encoding == TIXML_ENCODING_UTF8 )
 	{
 		while ( *p )
@@ -430,9 +428,9 @@ const char* TiXmlBase::ReadName( const char* p, TIXML_STRING * name, TiXmlEncodi
 			//(*name) += *p; // expensive
 			++p;
 		}
-		if ( p-start > 0 ) {
-			name->assign( start, (size_t)(p-start) );
-		}
+		if ( p-start > 0 )
+			name->assign( start, static_cast<size_t>(p-start) );
+
 		return p;
 	}
 	return 0;
@@ -449,7 +447,7 @@ const char* TiXmlBase::GetEntity( const char* p, char* value, int* length, TiXml
 	{
 		unsigned long ucs = 0;
 		ptrdiff_t delta = 0;
-		unsigned mult = 1;
+		unsigned int mult = 1;
 
 		if ( *(p+2) == 'x' )
 		{
@@ -889,9 +887,9 @@ TiXmlNode* TiXmlNode::Identify( const char* p, TiXmlEncoding encoding )
 		returnNode = new TiXmlUnknown();
 	}
 
-	//if ( returnNode ) // null check unneeded at its allocated with new which throws an exception...
+	//if ( returnNode ) // null check unneeded as its allocated with new which throws an exception...
 	//{
-		// Set the m_pParent, so it can report errors
+		// Set the Parent, so it can report errors
 		returnNode->parent = this;
 	//}
 	return returnNode;

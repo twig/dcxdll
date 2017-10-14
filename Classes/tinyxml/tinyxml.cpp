@@ -199,8 +199,9 @@ TiXmlNode* TiXmlNode::LinkEndChild( TiXmlNode* node )
 	if ( node->Type() == TiXmlNode::TINYXML_DOCUMENT )
 	{
 		delete node;
-		if ( GetDocument() ) GetDocument()->SetError( TIXML_ERROR_DOCUMENT_TOP_ONLY, 0, 0, TIXML_ENCODING_UNKNOWN );
-		return 0;
+		if ( GetDocument() )
+			GetDocument()->SetError( TIXML_ERROR_DOCUMENT_TOP_ONLY, 0, 0, TIXML_ENCODING_UNKNOWN );
+		return nullptr;
 	}
 
 	node->parent = this;
@@ -646,6 +647,13 @@ int TiXmlElement::QueryIntAttribute( const char* name, int *const ival ) const
 	if ( attrib == nullptr )
 		return TIXML_NO_ATTRIBUTE;
 	return attrib->QueryIntValue( ival );
+}
+
+std::pair<int, int> TiXmlElement::QueryIntAttribute(const char * name) const
+{
+	int iVal;
+	const auto status = QueryIntAttribute(name, &iVal);
+	return{ status,iVal };
 }
 
 

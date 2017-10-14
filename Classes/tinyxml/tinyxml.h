@@ -798,7 +798,7 @@ public:
 
 	/// Construct an attribute with a name and value.
 	TiXmlAttribute( const char * _name, const char * _value )
-		: name(_name), value(_value), document(nullptr), prev(nullptr), next(nullptr)
+		: document(nullptr), name(_name), value(_value), prev(nullptr), next(nullptr)
 	{
 	}
 
@@ -977,6 +977,7 @@ public:
 		does not exist, then TIXML_NO_ATTRIBUTE is returned.
 	*/	
 	int QueryIntAttribute( const char* name, int *const _value ) const;
+	std::pair<int,int> QueryIntAttribute(const char* name) const;
 	/// QueryDoubleAttribute examines the attribute - see QueryIntAttribute().
 	int QueryDoubleAttribute( const char* name, double *const _value ) const;
 	/// QueryFloatAttribute examines the attribute - see QueryIntAttribute().
