@@ -34,7 +34,8 @@ LayoutCellPane::LayoutCellPane( const PaneType nType )
  * blah
  */
 
-LayoutCellPane::~LayoutCellPane( ) {
+LayoutCellPane::~LayoutCellPane( )
+{
 	for (const auto &x: m_vpCells)
 		delete x.first;
 }
@@ -45,27 +46,25 @@ LayoutCellPane::~LayoutCellPane( ) {
  * blah
  */
 
-LayoutCell * LayoutCellPane::addChild(gsl::owner<LayoutCell *> p_Cell, const UINT nWeight ) {
-
+LayoutCell * LayoutCellPane::addChild(gsl::owner<LayoutCell *> p_Cell, const UINT nWeight )
+{
 	//if (p_Cell == nullptr) // this should never happen :)
 	//	throw Dcx::dcxException("addChild() - NULL Cell supplied");
 
 	if (m_vpCells.empty())
 		m_FirstChild = p_Cell;
 
-
 	p_Cell->setParent( this );
 
-	if ( !m_vpCells.empty() ) {
-
-		auto p_Last = m_vpCells.back( ).first;
-		if ( p_Last != nullptr )
+	if ( !m_vpCells.empty() )
+	{
+		if (auto p_Last = m_vpCells.back().first; p_Last != nullptr )
 			p_Last->setSibling( p_Cell );
 	}
 
 	//m_vpCells.push_back( CellNode( p_Cell, nWeight ) );
 	m_vpCells.emplace_back(p_Cell, nWeight);
-	m_iCount++;
+	++m_iCount;
 
 	return p_Cell;
 }
@@ -76,8 +75,8 @@ LayoutCell * LayoutCellPane::addChild(gsl::owner<LayoutCell *> p_Cell, const UIN
  * blah
  */
 
-const LayoutCell::CellType LayoutCellPane::getType( ) const noexcept {
-
+const LayoutCell::CellType LayoutCellPane::getType( ) const noexcept
+{
 	return PANE;
 }
 
@@ -87,8 +86,8 @@ const LayoutCell::CellType LayoutCellPane::getType( ) const noexcept {
  * blah
  */
 
-void LayoutCellPane::LayoutChild( ) {
-
+void LayoutCellPane::LayoutChild( )
+{
 	UINT nSizeLeft=0;
 	UINT nTotalWeight=0;
 
@@ -104,7 +103,8 @@ void LayoutCellPane::LayoutChild( ) {
 	this->AdjustPos( );
 
 	// Send Layout Command one layer lower
-	for (const auto &x: this->m_vpCells) {
+	for (const auto &x: this->m_vpCells)
+	{
 		if (x.first != nullptr)
 			x.first->LayoutChild();
 	}
@@ -116,11 +116,12 @@ void LayoutCellPane::LayoutChild( ) {
  * blah
  */
 
-HDWP LayoutCellPane::ExecuteLayout( const HDWP hdwp ) {
-
+HDWP LayoutCellPane::ExecuteLayout( const HDWP hdwp )
+{
 	HDWP hdwpdef = hdwp;
 	// Send Layout Command one layer lower
-	for (const auto &x: this->m_vpCells) {
+	for (const auto &x: this->m_vpCells)
+	{
 		if (x.first != nullptr)
 			hdwpdef = x.first->ExecuteLayout( hdwpdef );
 	}
@@ -138,28 +139,24 @@ void LayoutCellPane::getMinMaxInfo( CellMinMaxInfo * pCMMI ) const
 	const auto nMaxWidthX = pCMMI->m_MaxSize.x;
 	const auto nMaxWidthY = pCMMI->m_MaxSize.y;
 
-	for (const auto &x: this->m_vpCells) {
-		const auto pChild = x.first;
-		if (pChild != nullptr) {
-			if (pChild->isVisible()) {
-				//CellMinMaxInfo cmmiChild;
-				//ZeroMemory( &cmmiChild, sizeof( CellMinMaxInfo ) );
-				//cmmiChild.m_MaxSize.x = nMaxWidthX;
-				//cmmiChild.m_MaxSize.y = nMaxWidthY;
-
+	for (const auto &[pChild, nWeight]: this->m_vpCells)
+	{
+		if (pChild != nullptr)
+		{
+			if (pChild->isVisible())
+			{
 				CellMinMaxInfo cmmiChild{ 0,0,nMaxWidthX,nMaxWidthY };
 
 				pChild->getMinMaxInfo( &cmmiChild );
 
-				if ( this->m_nType == HORZ ) {
-
+				if ( this->m_nType == HORZ )
+				{
 					pCMMI->m_MinSize.x += cmmiChild.m_MinSize.x;
 					pCMMI->m_MaxSize.x += cmmiChild.m_MaxSize.x;
 					pCMMI->m_MinSize.y = std::max( pCMMI->m_MinSize.y, cmmiChild.m_MinSize.y );
 					pCMMI->m_MaxSize.y = std::max( pCMMI->m_MaxSize.y, cmmiChild.m_MaxSize.y );
 				}
 				else {
-
 					pCMMI->m_MinSize.y += cmmiChild.m_MinSize.y;
 					pCMMI->m_MaxSize.y += cmmiChild.m_MaxSize.y;
 					pCMMI->m_MinSize.x = std::max( pCMMI->m_MinSize.x, cmmiChild.m_MinSize.x );
@@ -175,36 +172,30 @@ void LayoutCellPane::getMinMaxInfo( CellMinMaxInfo * pCMMI ) const
 	pCMMI->m_MaxSize.y = std::min( pCMMI->m_MaxSize.y, gsl::narrow_cast<LONG>(GetSystemMetrics( SM_CYMAXTRACK )) );
 }
 
-void LayoutCellPane::toXml(TiXmlElement *xml) {
+void LayoutCellPane::toXml(TiXmlElement *xml)
+{
 	if (this->m_nType == LayoutCellPane::HORZ)
 		xml->SetAttribute("cascade", "h");
 	else if (this->m_nType == LayoutCellPane::VERT)
 		xml->SetAttribute("cascade", "v");
 
-#if _MSC_VER < 1911
-	for (const auto &x: this->m_vpCells) {
-		auto lc = x.first;
-		const auto weight = x.second;
-		auto inner = lc->toXml();
-		if (weight != 0)
-			inner->SetAttribute("weight", gsl::narrow_cast<int>(weight));
-		xml->LinkEndChild(inner);
+	for (const auto &[lc, weight] : this->m_vpCells)
+	{
+		if (lc != nullptr)
+		{
+			auto inner = lc->toXml();
+			if (weight != 0)
+				inner->SetAttribute("weight", gsl::narrow_cast<int>(weight));
+			xml->LinkEndChild(inner);
+		}
 	}
-#else
-	for (const auto &x : this->m_vpCells) {
-		const auto[lc, weight] = x;
-		auto inner = lc->toXml();
-		if (weight != 0)
-			inner->SetAttribute("weight", gsl::narrow_cast<int>(weight));
-		xml->LinkEndChild(inner);
-	}
-#endif
 }
 
-TiXmlElement * LayoutCellPane::toXml(void) {
-	auto xml = new TiXmlElement("pane");
-	this->toXml(xml);
-	return xml;
+TiXmlElement * LayoutCellPane::toXml(void)
+{
+	auto xml = std::make_unique<TiXmlElement>("pane");
+	this->toXml(xml.get());
+	return xml.release();
 }
 
 /*!
@@ -215,52 +206,40 @@ TiXmlElement * LayoutCellPane::toXml(void) {
 
 void LayoutCellPane::AdjustMinSize( UINT & nSizeLeft, UINT & nTotalWeight )
 {
-	RECT rc = { 0 }, rect = { 0 };
+	RECT rc{}, rect{};
 	getClientRect( rc );
+
 	int nSize = 0;
 
-	if ( m_nType == HORZ) {
-
+	if ( m_nType == HORZ)
+	{
 		nSize = rc.bottom - rc.top;
 		nSizeLeft = gsl::narrow_cast<UINT>(rc.right - rc.left);
 	}
 	else {
-
 		nSize = rc.right - rc.left;
 		nSizeLeft = gsl::narrow_cast<UINT>(rc.bottom - rc.top);
 	}
-	for (const auto &x: m_vpCells) {
-#if _MSC_VER < 1911
-		auto pChild = x.first;
-		const auto nWeight = x.second;
-#else
-		auto[pChild, nWeight] = x;
-#endif
+
+	for (const auto &[pChild, nWeight]: m_vpCells)
+	{
 		if (pChild == nullptr)
 			continue;
 		if (!pChild->isVisible())
 			continue;
-
-		//CellMinMaxInfo cmmiChild;
-		//
-		//cmmiChild.m_MinSize.x = 0;
-		//cmmiChild.m_MinSize.y = 0;
-		//cmmiChild.m_MaxSize.x = rc.right - rc.left;
-		//cmmiChild.m_MaxSize.y = rc.bottom - rc.top;
 
 		CellMinMaxInfo cmmiChild{ 0,0,rc.right - rc.left,rc.bottom - rc.top };
 
 		pChild->getMinMaxInfo( &cmmiChild );
 		pChild->getRect( rect );
 
-		if ( m_nType == HORZ ) {
-
+		if ( m_nType == HORZ )
+		{
 			rect.right = rect.left + cmmiChild.m_MinSize.x;
 			rect.bottom = rect.top + nSize;
 			nSizeLeft -= cmmiChild.m_MinSize.x;
 		}
 		else {
-
 			rect.bottom = rect.top + cmmiChild.m_MinSize.y;
 			rect.right = rect.left + nSize;
 			nSizeLeft -= cmmiChild.m_MinSize.y;
@@ -277,24 +256,19 @@ void LayoutCellPane::AdjustMinSize( UINT & nSizeLeft, UINT & nTotalWeight )
  * blah
  */
 
-void LayoutCellPane::AdjustSize( UINT & nSizeLeft, UINT & nTotalWeight ) {
-
-	RECT rc;
+void LayoutCellPane::AdjustSize( UINT & nSizeLeft, UINT & nTotalWeight )
+{
+	RECT rc{};
 	this->getClientRect( rc );
 
 	UINT nNewTotalWeight = 0U;
 	auto nNewSizeLeft = nSizeLeft;
 
-	for (const auto &x: this->m_vpCells) {
-#if _MSC_VER < 1911
-		auto pChild = x.first;
-		const auto nWeight = x.second;
-#else
-		auto[pChild, nWeight] = x;
-#endif
-
+	for (const auto &[pChild, nWeight]: this->m_vpCells)
+	{
 		if (pChild == nullptr)
 			continue;
+
 		// don't put extra width/height on items of zero weight
 		if ( nWeight == 0 || pChild->isVisible( ) == FALSE )
 			continue;
@@ -306,22 +280,15 @@ void LayoutCellPane::AdjustSize( UINT & nSizeLeft, UINT & nTotalWeight ) {
 		pChild->getRect( rectOld );
 		auto rectNew = rectOld;
 
-		if ( m_nType == HORZ ) {
-
+		if ( m_nType == HORZ )
+		{
 			rectNew.right += nAddSize;
 			pChild->setRect( rectNew );
 			pChild->getRect( rectNew );
 
-			if ( rectOld.right != rectNew.right ) {
-
+			if ( rectOld.right != rectNew.right )
+			{
 				nNewSizeLeft -= rectNew.right - rectOld.right;
-
-				//CellMinMaxInfo cmmiChild;
-				//
-				//cmmiChild.m_MinSize.x = 0;
-				//cmmiChild.m_MinSize.y = 0;
-				//cmmiChild.m_MaxSize.x = rc.right - rc.left;
-				//cmmiChild.m_MaxSize.y = rc.bottom - rc.top;
 
 				CellMinMaxInfo cmmiChild{ 0,0,rc.right - rc.left,rc.bottom - rc.top };
 
@@ -332,21 +299,13 @@ void LayoutCellPane::AdjustSize( UINT & nSizeLeft, UINT & nTotalWeight ) {
 			}
 		}
 		else {
-
 			rectNew.bottom += nAddSize;
 			pChild->setRect( rectNew );
 			pChild->getRect( rectNew );
 
-			if ( rectOld.bottom != rectNew.bottom ) {
-
+			if ( rectOld.bottom != rectNew.bottom )
+			{
 				nNewSizeLeft -= rectNew.bottom - rectOld.bottom;
-
-				//CellMinMaxInfo cmmiChild;
-				//
-				//cmmiChild.m_MinSize.x = 0;
-				//cmmiChild.m_MinSize.y = 0;
-				//cmmiChild.m_MaxSize.x = rc.right - rc.left;
-				//cmmiChild.m_MaxSize.y = rc.bottom - rc.top;
 
 				CellMinMaxInfo cmmiChild{ 0,0,rc.right - rc.left,rc.bottom - rc.top };
 
@@ -357,6 +316,7 @@ void LayoutCellPane::AdjustSize( UINT & nSizeLeft, UINT & nTotalWeight ) {
 			}
 		}
 	}
+
 	nTotalWeight = nNewTotalWeight;
 	nSizeLeft = nNewSizeLeft;
 }
@@ -367,10 +327,10 @@ void LayoutCellPane::AdjustSize( UINT & nSizeLeft, UINT & nTotalWeight ) {
  * blah
  */
 
-void LayoutCellPane::AdjustPos( ) {
-
+void LayoutCellPane::AdjustPos( )
+{
 	int nPos = 0;
-	RECT rect;
+	RECT rect{};
 	this->getClientRect( rect );
 
 	if ( m_nType == HORZ )
@@ -378,7 +338,8 @@ void LayoutCellPane::AdjustPos( ) {
 	else
 		nPos = rect.top;
 
-	for (const auto &x: this->m_vpCells) {
+	for (const auto &x: this->m_vpCells)
+	{
 		auto pChild = x.first;
 
 		if (pChild == nullptr)
@@ -387,16 +348,15 @@ void LayoutCellPane::AdjustPos( ) {
 		if (!pChild->isVisible( ))
 			continue;
 
-		RECT rectChild;
+		RECT rectChild{};
 		pChild->getRect( rectChild );
 
-		if ( m_nType == HORZ ) {
-
+		if ( m_nType == HORZ )
+		{
 			OffsetRect( &rectChild, nPos - rectChild.left, rect.top - rectChild.top );
 			nPos = rectChild.right;
 		}
 		else {
-
 			OffsetRect( &rectChild, rect.left - rectChild.left, nPos - rectChild.top );
 			nPos = rectChild.bottom;
 		}

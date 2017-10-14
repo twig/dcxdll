@@ -68,8 +68,8 @@ LayoutCellFixed::LayoutCellFixed(const HWND mHwnd, const RECT & rc, const FixedT
  * blah
  */
 
-LayoutCellFixed::~LayoutCellFixed() {
-
+LayoutCellFixed::~LayoutCellFixed()
+{
 }
 
 /*!
@@ -78,8 +78,8 @@ LayoutCellFixed::~LayoutCellFixed() {
  * blah
  */
 
-const LayoutCell::CellType LayoutCellFixed::getType() const noexcept {
-
+const LayoutCell::CellType LayoutCellFixed::getType() const noexcept
+{
 	return FIXED;
 }
 
@@ -89,26 +89,33 @@ const LayoutCell::CellType LayoutCellFixed::getType() const noexcept {
  * blah
  */
 
-void LayoutCellFixed::LayoutChild() {
-
+void LayoutCellFixed::LayoutChild()
+{
 }
 
 
-TiXmlElement * LayoutCellFixed::toXml(void) {
+TiXmlElement * LayoutCellFixed::toXml(void)
+{
 	if (this->m_BaseControl == nullptr)
 		return nullptr;
 
 	auto base = this->m_BaseControl->toXml();
-	if (dcx_testflag(this->m_nType,HEIGHT))
-		base->SetAttribute("height", this->m_rcWindow.bottom - this->m_rcWindow.top);
-	if (dcx_testflag(this->m_nType,WIDTH))
-		base->SetAttribute("width", this->m_rcWindow.right - this->m_rcWindow.left);
+
+	if (base != nullptr)
+	{
+		if (dcx_testflag(this->m_nType, HEIGHT))
+			base->SetAttribute("height", this->m_rcWindow.bottom - this->m_rcWindow.top);
+		if (dcx_testflag(this->m_nType, WIDTH))
+			base->SetAttribute("width", this->m_rcWindow.right - this->m_rcWindow.left);
+	}
 	return base;
 }
 
-void LayoutCellFixed::toXml(TiXmlElement * xml) {
+void LayoutCellFixed::toXml(TiXmlElement * xml)
+{
 	if (this->m_BaseControl != nullptr)
 		this->m_BaseControl->toXml(xml);
+
 	if (dcx_testflag(this->m_nType, HEIGHT))
 		xml->SetAttribute("height", this->m_rcWindow.bottom - this->m_rcWindow.top);
 	if (dcx_testflag(this->m_nType, WIDTH))
@@ -121,13 +128,13 @@ void LayoutCellFixed::toXml(TiXmlElement * xml) {
  * blah
  */
 
-HDWP LayoutCellFixed::ExecuteLayout(const HDWP hdwp) {
-
+HDWP LayoutCellFixed::ExecuteLayout(const HDWP hdwp)
+{
 	auto hdwpdef = hdwp;
 
-	if (m_Hwnd != nullptr && IsWindow(m_Hwnd)) {
-
-		RECT rc;
+	if (m_Hwnd != nullptr && IsWindow(m_Hwnd))
+	{
+		RECT rc{};
 		this->getClientRect(rc);
 
 		hdwpdef = DeferWindowPos(hdwpdef, m_Hwnd, nullptr, rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top, SWP_NOZORDER);
@@ -144,10 +151,10 @@ HDWP LayoutCellFixed::ExecuteLayout(const HDWP hdwp) {
 
 void LayoutCellFixed::getMinMaxInfo(CellMinMaxInfo * pCMMI) const
 {
-
-	if (this->isVisible()) {
-		RECT rc;
-		CopyRect(&rc, &this->m_rcWindow);
+	if (this->isVisible())
+	{
+		RECT rc{};
+		getRect(rc);
 
 		//pCMMI->m_MinSize.x = this->m_rcBorders.left + this->m_rcBorders.right;
 		//pCMMI->m_MinSize.y = this->m_rcBorders.top + this->m_rcBorders.bottom;

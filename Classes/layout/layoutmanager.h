@@ -44,15 +44,19 @@ public:
 
 	const bool updateLayout(RECT & rc);
 
-	void setRoot( gsl::owner<LayoutCell *> p_Root );
-	constexpr LayoutCell * getRoot() const noexcept { return m_pRoot; }
+	//void setRoot( gsl::owner<LayoutCell *> p_Root );
+	//constexpr LayoutCell * getRoot() const noexcept { return m_pRoot.get(); }
+
+	void setRoot(std::unique_ptr<LayoutCell> p_Root);
+	LayoutCell * getRoot() const noexcept { return m_pRoot.get(); }
 
 	LayoutCell * getCell( const TString & path ) const;
 
 	void AddCell(const TString &input, const UINT iOffset = 3);
 
 	inline constexpr const size_t &size(void) const noexcept { return m_iCount; }
-	inline constexpr bool empty(void) const noexcept { return (m_pRoot == nullptr); }
+	//inline constexpr bool empty(void) const noexcept { return (m_pRoot == nullptr); }
+	inline bool empty(void) const noexcept { return (m_pRoot == nullptr); }
 
 	static LayoutCell * parsePath(const TString & path, const LayoutCell *const hParent, const UINT depth);
 	static const UINT parseLayoutFlags(const TString & flags);
@@ -72,7 +76,8 @@ protected:
 
 	HWND m_Hwnd; //!< Dialog Window Handle
 
-	LayoutCell * m_pRoot; //!< Root LayoutCell Element
+	//LayoutCell * m_pRoot; //!< Root LayoutCell Element
+	std::unique_ptr<LayoutCell> m_pRoot; //!< Root LayoutCell Element
 	size_t		m_iCount;
 };
 #ifdef __INTEL_COMPILER // Defined when using Intel C++ Compiler.

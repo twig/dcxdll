@@ -71,7 +71,7 @@ public:
 	virtual ~LayoutCell( );
 
 	void setRect(RECT & rc);
-	void getRect( RECT & rc ) const;
+	void getRect( RECT & rc ) const noexcept;
 	void getClientRect( RECT & rc ) const noexcept;
 	void setBorder( const RECT & rc );
 	void setBorder( const int &nBorder );
@@ -83,8 +83,8 @@ public:
 	virtual void toXml(TiXmlElement * xml) = 0;
 	virtual TiXmlElement * toXml(void) = 0;
 
-	void setSibling( LayoutCell * p_Cell );
-	void setParent( LayoutCell * p_Cell );
+	void setSibling( LayoutCell * p_Cell ) noexcept;
+	void setParent( LayoutCell * p_Cell ) noexcept;
 
 	virtual const CellType getType( ) const noexcept = 0;
 

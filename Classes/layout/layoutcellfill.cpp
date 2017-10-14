@@ -64,8 +64,8 @@
  * blah
  */
 
-const LayoutCell::CellType LayoutCellFill::getType() const noexcept {
-
+const LayoutCell::CellType LayoutCellFill::getType() const noexcept
+{
 	return FILL;
 }
 
@@ -75,8 +75,8 @@ const LayoutCell::CellType LayoutCellFill::getType() const noexcept {
  * blah
  */
 
-void LayoutCellFill::LayoutChild() {
-
+void LayoutCellFill::LayoutChild()
+{
 }
 
 /*!
@@ -85,13 +85,13 @@ void LayoutCellFill::LayoutChild() {
  * blah
  */
 
-HDWP LayoutCellFill::ExecuteLayout(const HDWP hdwp) {
-
+HDWP LayoutCellFill::ExecuteLayout(const HDWP hdwp)
+{
 	auto hdwpdef = hdwp;
 
-	if (m_Hwnd != nullptr && IsWindow(m_Hwnd)) {
-
-		RECT rc;
+	if (m_Hwnd != nullptr && IsWindow(m_Hwnd))
+	{
+		RECT rc{};
 		this->getClientRect(rc);
 
 		hdwpdef = DeferWindowPos(hdwpdef, m_Hwnd, nullptr, rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top, SWP_NOZORDER);
@@ -109,8 +109,8 @@ HDWP LayoutCellFill::ExecuteLayout(const HDWP hdwp) {
 
 void LayoutCellFill::getMinMaxInfo(CellMinMaxInfo * pCMMI) const
 {
-	if (this->isVisible()) {
-
+	if (this->isVisible())
+	{
 		pCMMI->m_MinSize.x = this->m_rcBorders.left + this->m_rcBorders.right;
 		pCMMI->m_MinSize.y = this->m_rcBorders.top + this->m_rcBorders.bottom;
 
@@ -123,10 +123,13 @@ void LayoutCellFill::getMinMaxInfo(CellMinMaxInfo * pCMMI) const
 		ZeroMemory(pCMMI, sizeof(CellMinMaxInfo));
 }
 
-void LayoutCellFill::toXml(TiXmlElement * xml) {
+void LayoutCellFill::toXml(TiXmlElement * xml)
+{
 	if (this->m_BaseControl != nullptr)
 		this->m_BaseControl->toXml(xml);
-	if (m_rcBorders.top != 0 || m_rcBorders.bottom != 0 || m_rcBorders.left != 0 || m_rcBorders.right != 0) {
+
+	if (m_rcBorders.top != 0 || m_rcBorders.bottom != 0 || m_rcBorders.left != 0 || m_rcBorders.right != 0)
+	{
 		TString margin;
 		margin.tsprintf(TEXT("%d %d %d %d"), m_rcBorders.left, m_rcBorders.top, m_rcBorders.right, m_rcBorders.bottom);
 		xml->SetAttribute("margin", margin.c_str());
@@ -134,10 +137,19 @@ void LayoutCellFill::toXml(TiXmlElement * xml) {
 }
 
 
-TiXmlElement * LayoutCellFill::toXml(void) {
-	// Ook: should margin be added here too?
+TiXmlElement * LayoutCellFill::toXml(void)
+{
 	if (this->m_BaseControl != nullptr)
-		return this->m_BaseControl->toXml();
+	{
+		auto xml = this->m_BaseControl->toXml();
+
+		if (xml != nullptr && (m_rcBorders.top != 0 || m_rcBorders.bottom != 0 || m_rcBorders.left != 0 || m_rcBorders.right != 0))
+		{
+			TString margin;
+			margin.tsprintf(TEXT("%d %d %d %d"), m_rcBorders.left, m_rcBorders.top, m_rcBorders.right, m_rcBorders.bottom);
+			xml->SetAttribute("margin", margin.c_str());
+		}
+		return xml;
+	}
 	return nullptr;
-	//return this->m_BaseControl->toXml();
 }
