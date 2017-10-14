@@ -41,7 +41,7 @@ DcxTrayIcon *trayIcons = nullptr; // tray icon manager
 
 // XMenuBar stuff
 HMENU g_OriginalMenuBar = nullptr;
-XPopupMenu *g_mIRCScriptMenu = nullptr; // Wrapper for the mIRC scriptable menu.
+//XPopupMenu *g_mIRCScriptMenu = nullptr; // Wrapper for the mIRC scriptable menu.
 
 
 // XPopup Stuff
@@ -63,28 +63,29 @@ BOOL WINAPI DllMain(
 					LPVOID lpReserved )  // reserved
 {
 	// Perform actions based on the reason for calling.
-	switch( fdwReason ) 
+	switch (fdwReason)
 	{
 	case DLL_PROCESS_ATTACH:
-		{
-			TCHAR mutex[128];
-			// Initialize once for each new process.
-			// Return FALSE to fail DLL load.
-			DisableThreadLibraryCalls(hinstDLL);
-			// add pid of mIRC.exe to name so mutex is specific to this instance of mIRC.
-			// GetModuleHandle(nullptr) was returning a consistant result.
-			wnsprintf(&mutex[0], static_cast<int>(Dcx::countof(mutex)), TEXT("DCX_LOADED%lx"), GetCurrentProcessId()); // NB: calls user32.dll, is this ok? See warnings in DllMain() docs.
+	{
+		TCHAR mutex[128];
+		// Initialize once for each new process.
+		// Return FALSE to fail DLL load.
+		DisableThreadLibraryCalls(hinstDLL);
+		// add pid of mIRC.exe to name so mutex is specific to this instance of mIRC.
+		// GetModuleHandle(nullptr) was returning a consistant result.
+		_ts_snprintf(&mutex[0], gsl::narrow_cast<int>(Dcx::countof(mutex)), TEXT("DCX_LOADED%lx"), GetCurrentProcessId()); // NB: calls user32.dll, is this ok? See warnings in DllMain() docs.
 
-			// Enforce only one instance of dcx.dll loaded at a time.
-			hDcxMutex = CreateMutex(nullptr, TRUE, &mutex[0]); // Windows 2000:  Do not create a named synchronization object in DllMain because the system will then load an additional DLL. This restriction does not apply to subsequent versions of Windows.
-			if (hDcxMutex == nullptr) return FALSE;		// TODO: solve this issue or are we going to make the dll XP+ only now?
-			else if (GetLastError() == ERROR_ALREADY_EXISTS) {
-				//ReleaseMutex(hDcxMutex);
-				//CloseHandle(hDcxMutex);
-				return FALSE;
-			}
+		// Enforce only one instance of dcx.dll loaded at a time.
+		hDcxMutex = CreateMutex(nullptr, TRUE, &mutex[0]); // Windows 2000:  Do not create a named synchronization object in DllMain because the system will then load an additional DLL. This restriction does not apply to subsequent versions of Windows.
+		if (hDcxMutex == nullptr) return FALSE;		// TODO: solve this issue or are we going to make the dll XP+ only now?
+		else if (GetLastError() == ERROR_ALREADY_EXISTS)
+		{
+			//ReleaseMutex(hDcxMutex);
+			//CloseHandle(hDcxMutex);
+			return FALSE;
 		}
-		break;
+	}
+	break;
 
 	case DLL_THREAD_ATTACH:
 	case DLL_THREAD_DETACH:
@@ -93,7 +94,8 @@ BOOL WINAPI DllMain(
 
 	case DLL_PROCESS_DETACH:
 		// Perform any necessary cleanup.
-		if (hDcxMutex != nullptr) {
+		if (hDcxMutex != nullptr)
+		{
 			ReleaseMutex(hDcxMutex);
 			CloseHandle(hDcxMutex);
 			hDcxMutex = nullptr;
@@ -116,7 +118,8 @@ BOOL WINAPI DllMain(
 *
 * \param load mIRC Load Structure Pointer
 */
-_INTEL_DLL_ void WINAPI LoadDll(LOADINFO * load) {
+_INTEL_DLL_ void WINAPI LoadDll(mIRCLinker::LOADINFO * load)
+{
 	try {
 		Dcx::load(load);
 
@@ -143,9 +146,11 @@ _INTEL_DLL_ void WINAPI LoadDll(LOADINFO * load) {
 *
 * \param timeout Unload trigger indicator (0 = /dll -u (or on pre mIRC 6.30, exit) - 1 = timeout unload after 10 min - 2 = exit on mIRC 6.30+)
 */
-_INTEL_DLL_ int WINAPI UnloadDll(int timeout) {
+_INTEL_DLL_ int WINAPI UnloadDll(int timeout)
+{
 	// DLL unloaded because mIRC exits or /dll -u used
-	if (timeout != 1) {
+	if (timeout != 1)
+	{
 		Dcx::unload();
 
 		return 1;
@@ -159,7 +164,9 @@ _INTEL_DLL_ int WINAPI UnloadDll(int timeout) {
 * \brief DCX DLL Version Function
 */
 #if DCX_DEBUG_OUTPUT
+#if __has_include(<ColourString.h>)
 #include <ColourString.h>
+#endif
 mIRC(Version)
 {
 	try {
@@ -474,6 +481,7 @@ mIRC(Version)
 			mIRCLinker::echo(TEXT("Success: parse_string() - all tests passed"));
 		}
 
+#if __has_include(<ColourString.h>)
 		{
 			TCHAR ctrlk = TEXT('\u0003');
 			std::basic_string<TCHAR> str(TEXT("test "));
@@ -520,6 +528,7 @@ mIRC(Version)
 
 			mIRCLinker::echo(TEXT("Success: ColourString - all tests passed"));
 		}
+#endif
 
 		{	// test std::to_string() overload for std::wstring -> std::string
 			std::wstring str(TEXT("test"));
@@ -621,9 +630,8 @@ mIRC(Version)
 
 		{	// test iswm()/iswmcs() - "putter!putted!put!mister!freddy!chars!blobby!blah2!a!5!4!200!102!101!100"
 			Ensures(tok.iswm(TEXT("*put*")));
-#if !TSTRING_TESTCODE
 			Ensures(tok.iswmcs(TEXT("*put*")));
-#endif
+			Ensures(!tok.iswmcs(TEXT("*PUT*")));
 			mIRCLinker::echo(TEXT("Success: iswm(cs)() - all tests passed"));
 		}
 
@@ -714,7 +722,7 @@ mIRC(Version)
 			char chr_test[128] = { 0 };
 			char chr_buf[128] = { 0 };
 
-			ts_strcpyn(&chr_buf[0], &chr_test[0], 128U);
+			ts_strcpyn(&chr_buf[0], &chr_test[0], std::extent_v<decltype(chr_buf)>);
 
 			Ensures(ts_strcmp(&chr_test[0], &chr_buf[0]) == 0);
 
@@ -758,6 +766,7 @@ mIRC(Version)
 
 			mIRCLinker::echo(TEXT("Success: string hashing - all tests passed"));
 		}
+		mIRCLinker::echo(TEXT("Success: RGB % lightens to %"), RGB(184, 199, 146), XPopupMenuItem::LightenColor(200, RGB(184, 199, 146)));
 
 		throw Dcx::dcxException(TEXT("No such Exception"));
 		//throw Dcx::dcxException("No such Exception: % :: %", iTest, tok);
@@ -771,24 +780,24 @@ mIRC(Version)
 #ifdef DCX_DEV_BUILD
 	if (mIRCLinker::isUnicode())
 	{
-		wnsprintf(data, MIRC_BUFFER_SIZE_CCH,
+		_ts_snprintf(data, MIRC_BUFFER_SIZE_CCH,
 			TEXT("DCX (XPopup) DLL %s %s%d UTF by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2005 Compiled on " __DATE__ " " __TIME__),
 			DLL_VERSION, DLL_STATE, DLL_DEV_BUILD);
 	}
 	else {
-		wnsprintfA((char *)data, MIRC_BUFFER_SIZE_CCH,
+		_ts_snprintf((char *)data, MIRC_BUFFER_SIZE_CCH,
 			"DCX (XPopup) DLL %S %S%d UTF by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2005 Compiled on " __DATE__ " " __TIME__,
 			DLL_VERSION, DLL_STATE, DLL_DEV_BUILD);
 	}
 #else
 	if (mIRCLinker::isUnicode())
 	{
-		wnsprintf(data, MIRC_BUFFER_SIZE_CCH,
+		_ts_snprintf(data, MIRC_BUFFER_SIZE_CCH,
 			TEXT("DCX (XPopup) DLL %s %s UTF by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2005 Compiled on " __DATE__ " " __TIME__),
 			DLL_VERSION, DLL_STATE);
 	}
 	else {
-		wnsprintfA((char *)data, MIRC_BUFFER_SIZE_CCH,
+		_ts_snprintf((char *)data, MIRC_BUFFER_SIZE_CCH,
 			"DCX (XPopup) DLL %S %S UTF by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2005 Compiled on " __DATE__ " " __TIME__,
 			DLL_VERSION, DLL_STATE);
 	}
@@ -801,24 +810,24 @@ mIRC(Version)
 #ifdef DCX_DEV_BUILD
 	if (mIRCLinker::isUnicode())
 	{
-		wnsprintf(data, MIRC_BUFFER_SIZE_CCH,
+		_ts_snprintf(data, MIRC_BUFFER_SIZE_CCH,
 			TEXT("DCX (XPopup) DLL %s %s%d UTF by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2005 Compiled on " __DATE__ " " __TIME__),
 			DLL_VERSION, DLL_STATE, DLL_DEV_BUILD);
 	}
 	else {
-		wnsprintfA((char *)data, MIRC_BUFFER_SIZE_CCH,
+		_ts_snprintf((char *)data, MIRC_BUFFER_SIZE_CCH,
 			"DCX (XPopup) DLL %S %S%d UTF by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2005 Compiled on " __DATE__ " " __TIME__,
 			DLL_VERSION, DLL_STATE, DLL_DEV_BUILD);
 	}
 #else
 	if (mIRCLinker::isUnicode())
 	{
-		wnsprintf(data, MIRC_BUFFER_SIZE_CCH,
+		_ts_snprintf(data, MIRC_BUFFER_SIZE_CCH,
 			TEXT("DCX (XPopup) DLL %s %s UTF by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2005 Compiled on " __DATE__ " " __TIME__),
 			DLL_VERSION, DLL_STATE);
 	}
 	else {
-		wnsprintfA((char *)data, MIRC_BUFFER_SIZE_CCH,
+		_ts_snprintf((char *)data, MIRC_BUFFER_SIZE_CCH,
 			"DCX (XPopup) DLL %S %S UTF by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2005 Compiled on " __DATE__ " " __TIME__,
 			DLL_VERSION, DLL_STATE);
 	}
@@ -831,11 +840,14 @@ mIRC(Version)
 * \brief DCX DLL is DcxDirectShow supported?
 */
 static TString dxData;
-mIRC(IsUsingDirectX) {
-	if (Dcx::isDX9Installed()) {
+mIRC(IsUsingDirectX)
+{
+	if (Dcx::isDX9Installed())
+	{
 		ret(dxData.to_chr());
 	}
-	else if (Dcx::initDirectX(data, MIRC_BUFFER_SIZE_CCH)) {
+	else if (Dcx::initDirectX(data, MIRC_BUFFER_SIZE_CCH))
+	{
 		dxData = data;
 		return 3;
 	}
@@ -845,7 +857,8 @@ mIRC(IsUsingDirectX) {
 /*!
 * \brief DCX DLL is GDI+ supported?
 */
-mIRC(IsUsingGDI) {
+mIRC(IsUsingGDI)
+{
 	//ret((Dcx::GDIModule.isUseable() ? TEXT("$true") : TEXT("$false")));
 	ret(dcx_truefalse(Dcx::GDIModule.isUseable()));
 }
@@ -853,7 +866,8 @@ mIRC(IsUsingGDI) {
 /*!
 * \brief Check if it's safe to unload DLL
 */
-mIRC(IsUnloadSafe) {
+mIRC(IsUnloadSafe)
+{
 	//ret((Dcx::isUnloadSafe() ? TEXT("$true") : TEXT("$false")));
 	ret(dcx_truefalse(Dcx::isUnloadSafe()));
 }
@@ -861,7 +875,8 @@ mIRC(IsUnloadSafe) {
 /*!
 * \brief Check if windows is themed
 */
-mIRC(IsThemedXP) {
+mIRC(IsThemedXP)
+{
 	//ret((Dcx::UXModule.dcxIsThemeActive() ? TEXT("$true") : TEXT("$false")));
 	ret(dcx_truefalse(Dcx::UXModule.dcxIsThemeActive() != FALSE));
 }
@@ -873,7 +888,8 @@ mIRC(IsThemedXP) {
 */
 
 // Mark [NAME] [ALIAS]
-mIRC(Mark) {
+mIRC(Mark)
+{
 	__assume(data != nullptr);
 
 	TString d(data);
@@ -910,7 +926,8 @@ mIRC(Mark) {
 * Argument \b data contains -> [ATTRIB] (not implemented yet, [DEFAULT])
 */
 // GetSystemColor [ATTRIBUTE]
-mIRC(GetSystemColor) {
+mIRC(GetSystemColor)
+{
 	TString d(data);
 
 	data[0] = 0;
@@ -922,7 +939,6 @@ mIRC(GetSystemColor) {
 			throw Dcx::dcxException("Invalid Arguments");
 
 		int col = 0;
-#if DCX_USE_HASHING
 		switch (std::hash<TString>{}(d.gettok(1)))
 		{
 		case TEXT("COLOR_3DDKSHADOW"_hash):
@@ -1036,51 +1052,10 @@ mIRC(GetSystemColor) {
 		default:
 			throw Dcx::dcxException("Invalid parameter specified");
 		}
-#else
-		const auto coltype(d.gettok(1));
 
-		if (coltype == TEXT("COLOR_3DDKSHADOW")) { col = COLOR_3DDKSHADOW; }
-		else if (coltype == TEXT("COLOR_3DFACE")) { col = COLOR_3DFACE; }
-		else if (coltype == TEXT("COLOR_3DHIGHLIGHT")) { col = COLOR_3DHIGHLIGHT; }
-		else if (coltype == TEXT("COLOR_3DHILIGHT")) { col = COLOR_3DHILIGHT; }
-		else if (coltype == TEXT("COLOR_3DLIGHT")) { col = COLOR_3DLIGHT; }
-		else if (coltype == TEXT("COLOR_3DSHADOW")) { col = COLOR_3DSHADOW; }
-		else if (coltype == TEXT("COLOR_ACTIVEBORDER")) { col = COLOR_ACTIVEBORDER; }
-		else if (coltype == TEXT("COLOR_ACTIVECAPTION")) { col = COLOR_ACTIVECAPTION; }
-		else if (coltype == TEXT("COLOR_APPWORKSPACE")) { col = COLOR_APPWORKSPACE; }
-		else if (coltype == TEXT("COLOR_BACKGROUND")) { col = COLOR_BACKGROUND; }
-		else if (coltype == TEXT("COLOR_BTNFACE")) { col = COLOR_BTNFACE; }
-		else if (coltype == TEXT("COLOR_BTNHIGHLIGHT")) { col = COLOR_BTNHIGHLIGHT; }
-		else if (coltype == TEXT("COLOR_BTNSHADOW")) { col = COLOR_BTNSHADOW; }
-		else if (coltype == TEXT("COLOR_BTNTEXT")) { col = COLOR_BTNTEXT; }
-		else if (coltype == TEXT("COLOR_CAPTIONTEXT")) { col = COLOR_CAPTIONTEXT; }
-		else if (coltype == TEXT("COLOR_DESKTOP")) { col = COLOR_DESKTOP; }
-		else if (coltype == TEXT("COLOR_GRADIENTACTIVECAPTION")) { col = COLOR_GRADIENTACTIVECAPTION; }
-		else if (coltype == TEXT("COLOR_GRADIENTINACTIVECAPTION")) { col = COLOR_GRADIENTINACTIVECAPTION; }
-		else if (coltype == TEXT("COLOR_GRAYTEXT")) { col = COLOR_GRAYTEXT; }
-		else if (coltype == TEXT("COLOR_HIGHLIGHT")) { col = COLOR_HIGHLIGHT; }
-		else if (coltype == TEXT("COLOR_HIGHLIGHTTEXT")) { col = COLOR_HIGHLIGHTTEXT; }
-		else if (coltype == TEXT("COLOR_HOTLIGHT")) { col = COLOR_HOTLIGHT; }
-		else if (coltype == TEXT("COLOR_INACTIVEBORDER")) { col = COLOR_INACTIVEBORDER; }
-		else if (coltype == TEXT("COLOR_INACTIVECAPTION")) { col = COLOR_INACTIVECAPTION; }
-		else if (coltype == TEXT("COLOR_INACTIVECAPTIONTEXT")) { col = COLOR_INACTIVECAPTIONTEXT; }
-		else if (coltype == TEXT("COLOR_INFOBK")) { col = COLOR_INFOBK; }
-		else if (coltype == TEXT("COLOR_INFOTEXT")) { col = COLOR_INFOTEXT; }
-		else if (coltype == TEXT("COLOR_MENU")) { col = COLOR_MENU; }
-		else if (coltype == TEXT("COLOR_MENUHILIGHT")) { col = COLOR_MENUHILIGHT; }
-		else if (coltype == TEXT("COLOR_MENUBAR")) { col = COLOR_MENUBAR; }
-		else if (coltype == TEXT("COLOR_MENUTEXT")) { col = COLOR_MENUTEXT; }
-		else if (coltype == TEXT("COLOR_SCROLLBAR")) { col = COLOR_SCROLLBAR; }
-		else if (coltype == TEXT("COLOR_WINDOW")) { col = COLOR_WINDOW; }
-		else if (coltype == TEXT("COLOR_WINDOWFRAME")) { col = COLOR_WINDOWFRAME; }
-		else if (coltype == TEXT("COLOR_WINDOWTEXT")) { col = COLOR_WINDOWTEXT; }
-		else if (coltype == TEXT("COLOR_GLASS")) { col = -1; }
-		else
-			throw Dcx::dcxException("Invalid parameter specified");
-#endif
-
-		if (col == -1) {
-			RGBQUAD clr = { 0 };
+		if (col == -1)
+		{
+			RGBQUAD clr{};
 			BOOL bOpaque = FALSE;
 			if (FAILED(Dcx::VistaModule.dcxDwmGetColorizationColor((DWORD *)&clr, &bOpaque)))
 				throw Dcx::dcxException("Unable to get glass colour.");
@@ -1116,7 +1091,8 @@ mIRC(GetSystemColor) {
 *
 * Argument \b data contains -> [NAME] [ID] [SWITCH] (OPTIONS)
 */
-mIRC(xdid) {
+mIRC(xdid)
+{
 	TString d(data);
 
 	data[0] = 0;
@@ -1138,12 +1114,14 @@ mIRC(xdid) {
 		const auto n = IDs.numtok(TSCOMMACHAR);
 
 		// Multiple IDs id,id,id,id-id,id-id
-		if (n > 1) {
+		if (n > 1)
+		{
 			for (auto itStart = IDs.begin(TSCOMMACHAR), itEnd = IDs.end(); itStart != itEnd; ++itStart)
 			{
 				UINT id_start = 0, id_end = 0;
 				const TString tsID(*itStart);
-				if (tsID.numtok(TEXT('-')) == 2) {
+				if (tsID.numtok(TEXT('-')) == 2)
+				{
 					id_start = tsID.getfirsttok(1, TEXT('-')).to_<UINT>();
 					id_end = tsID.getnexttok(TEXT('-')).to_<UINT>();
 				}
@@ -1157,7 +1135,8 @@ mIRC(xdid) {
 				if (id_end == 0)
 					throw Dcx::dcxException(TEXT("Invalid ID : % (dialog : %)"), id_end, tsDname);
 
-				for (auto id = id_start; id <= id_end; id++) {
+				for (auto id = id_start; id <= id_end; ++id)
+				{
 					const auto p_Control = p_Dialog->getControlByID(id + mIRC_ID_OFFSET);
 
 					if (p_Control == nullptr)
@@ -1175,7 +1154,8 @@ mIRC(xdid) {
 		else {
 			UINT id_start = 0, id_end = 0;
 
-			if (IDs.numtok(TEXT('-')) == 2) {
+			if (IDs.numtok(TEXT('-')) == 2)
+			{
 				id_start = IDs.getfirsttok(1, TEXT('-')).to_<UINT>();
 				id_end = IDs.getnexttok(TEXT('-')).to_<UINT>();
 			}
@@ -1189,7 +1169,8 @@ mIRC(xdid) {
 			if (id_end == 0)
 				throw Dcx::dcxException(TEXT("Invalid ID : % (dialog : %)"), id_end, tsDname);
 
-			for (auto id = id_start; id <= id_end; id++) {
+			for (auto id = id_start; id <= id_end; ++id)
+			{
 				const auto p_Control = p_Dialog->getControlByID(id + mIRC_ID_OFFSET);
 
 				if (p_Control == nullptr)
@@ -1225,7 +1206,8 @@ mIRC(xdid) {
 *
 * Argument \b data contains -> [NAME] [ID] [PROP] (OPTIONS)
 */
-mIRC(_xdid) {
+mIRC(_xdid)
+{
 	TString d(data);
 
 	data[0] = 0;
@@ -1281,8 +1263,8 @@ mIRC(_xdid) {
 * $dcx(GetTaskbarPos) interface
 *
 */
-mIRC(GetTaskbarPos) {
-
+mIRC(GetTaskbarPos)
+{
 	data[0] = 0;
 
 	try {
@@ -1290,13 +1272,19 @@ mIRC(GetTaskbarPos) {
 
 		if (!IsWindow(hTaskbar))
 			throw Dcx::dcxException("Could not find taskbar");
-		
-		RECT rc;
+
+#if DCX_USE_WRAPPERS
+		Dcx::dcxWindowRect rc(hTaskbar);
+
+		_ts_snprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d %d %d"), rc.left, rc.top, rc.Width(), rc.Height());
+#else
+		RECT rc{};
 
 		if (!GetWindowRect(hTaskbar, &rc))
 			throw Dcx::dcxException("Unable to get window rect");
 
-		wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d %d %d"), rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top);
+		_ts_snprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d %d %d"), rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top);
+#endif
 		return 3;
 	}
 	catch (const std::exception &e)
@@ -1320,7 +1308,8 @@ mIRC(GetTaskbarPos) {
 *
 * Argument \b data contains -> [NAME] [SWITCH] (OPTIONS)
 */
-mIRC(xdialog) {
+mIRC(xdialog)
+{
 	TString d(data);
 
 	data[0] = 0;
@@ -1365,7 +1354,8 @@ mIRC(xdialog) {
 *
 * Argument \b data contains -> [NAME] [SWITCH] (OPTIONS)
 */
-mIRC(_xdialog) {
+mIRC(_xdialog)
+{
 	TString d(data);
 
 	// reset mIRC data
@@ -1381,7 +1371,8 @@ mIRC(_xdialog) {
 
 		const auto *const p_Dialog = Dcx::Dialogs.getDialogByName(tsDname);
 
-		if (p_Dialog == nullptr) {
+		if (p_Dialog == nullptr)
+		{
 			if (d.getnexttok() != TEXT("ismarked"))
 				throw Dcx::dcxException(TEXT("Unknown dialog \"%\": see Mark command"), tsDname);
 
@@ -1417,7 +1408,8 @@ mIRC(_xdialog) {
 *
 * Argument \b data contains -> [MENU] [SWITCH] [PATH] [TAB] [OPTION]
 */
-mIRC(xpop) {
+mIRC(xpop)
+{
 	TString d(data);
 
 	data[0] = 0;
@@ -1427,7 +1419,7 @@ mIRC(xpop) {
 
 		if (d.numtok() < 3)
 			throw Dcx::dcxException("Invalid Arguments");
-#if DCX_USE_HASHING
+
 		const auto tsMenu(d.gettok(1));
 		const auto uHash = std::hash<TString>{}(tsMenu);
 
@@ -1441,20 +1433,6 @@ mIRC(xpop) {
 
 		p_Menu->parseXPopCommand(d);
 		return 1;
-#else
-		const auto tsMenu(d.gettok(1));
-
-		if ((tsMenu == TEXT("mirc")) || (tsMenu == TEXT("mircbar")))
-			throw Dcx::dcxException("Invalid menu name : mirc or mircbar menus don't have access to this feature.");
-
-		auto p_Menu = Dcx::XPopups.getMenuByName(tsMenu, false);
-
-		if (p_Menu == nullptr)
-			throw Dcx::dcxException(TEXT("Unknown menu \"%\": see /xpopup -c command"), tsMenu);
-
-		p_Menu->parseXPopCommand(d);
-		return 1;
-#endif
 	}
 	catch (const std::exception &e)
 	{
@@ -1481,7 +1459,8 @@ mIRC(xpop) {
 *
 * Argument \b data contains -> [MENU] [PROP] [PATH] [TAB] [OPTION]
 */
-mIRC(_xpop) {
+mIRC(_xpop)
+{
 	TString d(data);
 
 	data[0] = 0;
@@ -1492,7 +1471,6 @@ mIRC(_xpop) {
 		if (d.numtok() < 3)
 			throw Dcx::dcxException("Invalid Arguments");
 
-#if DCX_USE_HASHING
 		const auto tsMenu(d.gettok(1));
 		const auto uHash = std::hash<TString>{}(tsMenu);
 
@@ -1506,20 +1484,6 @@ mIRC(_xpop) {
 
 		p_Menu->parseXPopIdentifier(d, refString<TCHAR, MIRC_BUFFER_SIZE_CCH>(data));
 		return 3;
-#else
-		const auto tsMenu(d.gettok(1));
-
-		if ((tsMenu == TEXT("mirc")) || (tsMenu == TEXT("mircbar")))
-			throw Dcx::dcxException("Invalid menu name : mirc or mircbar menus don't have access to this feature.");
-
-		const auto p_Menu = Dcx::XPopups.getMenuByName(tsMenu, false);
-
-		if (p_Menu == nullptr)
-			throw Dcx::dcxException(TEXT("Unknown menu \"%\": see /xpopup -c command"), tsMenu);
-
-		p_Menu->parseXPopIdentifier(d, data);
-		return 3;
-#endif
 	}
 	catch (const std::exception &e)
 	{
@@ -1546,7 +1510,8 @@ mIRC(_xpop) {
 *
 * Argument \b data contains -> [MENU] [SWITCH] (OPTIONS)
 */
-mIRC(xpopup) {
+mIRC(xpopup)
+{
 	TString d(data);
 
 	data[0] = 0;
@@ -1585,7 +1550,8 @@ mIRC(xpopup) {
 *
 * Argument \b data contains -> [MENU] [PROP] (OPTIONS)
 */
-mIRC(_xpopup) {
+mIRC(_xpopup)
+{
 	TString d(data);
 
 	data[0] = 0;
@@ -1621,7 +1587,8 @@ mIRC(_xpopup) {
 *
 * mIRC /xmenubar -switch (options)
 */
-mIRC(xmenubar) {
+mIRC(xmenubar)
+{
 	TString d(data);
 
 	data[0] = 0;
@@ -1651,7 +1618,8 @@ mIRC(xmenubar) {
 *
 * mIRC $xmenubar(options).prop interface
 */
-mIRC(_xmenubar) {
+mIRC(_xmenubar)
+{
 	TString d(data);
 
 	data[0] = 0;
@@ -1683,7 +1651,8 @@ mIRC(_xmenubar) {
 *
 * Argument \b data contains -> [MENU] [0|1]
 */
-mIRC(mpopup) {
+mIRC(mpopup)
+{
 	TString d(data);
 
 	data[0] = 0;
@@ -1708,7 +1677,8 @@ mIRC(mpopup) {
 }
 
 // /dcx xSignal [1|0] (+FLAGS)
-mIRC(xSignal) {
+mIRC(xSignal)
+{
 	TString d(data);
 
 	data[0] = 0;
@@ -1755,7 +1725,8 @@ mIRC(xSignal) {
 }
 
 // /dcx WindowProps [HWND] [+FLAGS] (ARGS)
-mIRC(WindowProps) {
+mIRC(WindowProps)
+{
 	const TString input(data);
 
 	data[0] = TEXT('\0');
@@ -1782,15 +1753,18 @@ mIRC(WindowProps) {
 
 		// set hwnd NoTheme
 		// +T
-		if (xflags[TEXT('T')]) {
-			if (Dcx::UXModule.isUseable()) {
+		if (xflags[TEXT('T')])
+		{
+			if (Dcx::UXModule.isUseable())
+			{
 				if (Dcx::UXModule.dcxSetWindowTheme(hwnd, TEXT(" "), TEXT(" ")) != S_OK)
 					throw Dcx::dcxException("Unable to set theme");
 			}
 		}
 		// set hwnd's title icon
 		// +i [INDEX] [FILENAME]
-		if (xflags[TEXT('i')]) {
+		if (xflags[TEXT('i')])
+		{
 			// invalid args
 			if (numtok < 3)
 				throw Dcx::dcxException("Invalid Args");
@@ -1803,10 +1777,12 @@ mIRC(WindowProps) {
 		}
 		// set hwnd title text
 		// +t [TEXT]
-		else if (xflags[TEXT('t')]) {
+		else if (xflags[TEXT('t')])
+		{
 			TString txt;
 
-			if (xflags[TEXT('i')]) {
+			if (xflags[TEXT('i')])
+			{
 				if (input.numtok(TSTABCHAR) > 1)
 					txt = input.gettok(2, -1, TSTABCHAR);
 			}
@@ -1817,7 +1793,8 @@ mIRC(WindowProps) {
 		}
 		// RMB click hwnd at pos.
 		// +r [X] [Y]
-		else if (xflags[TEXT('r')]) {
+		else if (xflags[TEXT('r')])
+		{
 			const auto x = input.getnexttok().to_<UINT>();	// tok 3
 			const auto y = input.getnexttok().to_<UINT>();	// tok 4
 			const LPARAM parm = MAKELONG(x, y);
@@ -1826,13 +1803,15 @@ mIRC(WindowProps) {
 		}
 		// Add Vista+ glass effect to window.
 		// +v [top] [left] [bottom] [right]
-		else if (xflags[TEXT('v')]) {
+		else if (xflags[TEXT('v')])
+		{
 			MARGINS margin;
 			margin.cyTopHeight = input.getnexttok().to_<int>();		// tok 3
 			margin.cxLeftWidth = input.getnexttok().to_<int>();		// tok 4
 			margin.cyBottomHeight = input.getnexttok().to_<int>();	// tok 5
 			margin.cxRightWidth = input.getnexttok().to_<int>();	// tok 6
 			AddStyles(hwnd, GWL_EXSTYLE, WS_EX_LAYERED);
+
 			//RGBQUAD clr = {0};
 			//BOOL bOpaque = FALSE;
 			//Dcx::VistaModule.dcxDwmGetColorizationColor((DWORD *)&clr, &bOpaque);
@@ -1842,6 +1821,7 @@ mIRC(WindowProps) {
 			//	ReleaseDC(hwnd,vhdc);
 			//}
 			//SetLayeredWindowAttributes(hwnd, RGB(clr.rgbRed,clr.rgbGreen,clr.rgbBlue), 0, LWA_COLORKEY);
+
 			Dcx::VistaModule.dcxDwmExtendFrameIntoClientArea(hwnd, &margin);
 			RedrawWindow(hwnd, nullptr, nullptr, RDW_INTERNALPAINT | RDW_ALLCHILDREN | RDW_INVALIDATE | RDW_ERASE | RDW_FRAME | RDW_UPDATENOW);
 		}
@@ -1873,7 +1853,8 @@ mIRC(WindowProps) {
  * $dcx(ActiveWindow, caption)
  * $dcx(ActiveWindow, hwnd)
  */
-mIRC(ActiveWindow) {
+mIRC(ActiveWindow)
+{
 	TString input(data);
 
 	data[0] = 0;
@@ -1891,8 +1872,7 @@ mIRC(ActiveWindow) {
 		if (!IsWindow(hwnd))
 			throw Dcx::dcxException("Unable to determine active window");
 
-#if DCX_USE_HASHING
-		WINDOWINFO wi = { 0 };
+		WINDOWINFO wi{};
 		wi.cbSize = sizeof(WINDOWINFO);
 
 		if (!GetWindowInfo(hwnd, &wi))
@@ -1901,19 +1881,19 @@ mIRC(ActiveWindow) {
 		switch (std::hash<TString>{}(input.gettok(1)))
 		{
 		case TEXT("hwnd"_hash):		// handle
-			wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%lu"), (DWORD)hwnd);	// don't use %p as this gives a hex result.
+			_ts_snprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%lu"), (DWORD)hwnd);	// don't use %p as this gives a hex result.
 			break;
 		case TEXT("x"_hash):		// left
-			wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), wi.rcWindow.left);
+			_ts_snprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), wi.rcWindow.left);
 			break;
 		case TEXT("y"_hash):		// top
-			wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), wi.rcWindow.top);
+			_ts_snprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), wi.rcWindow.top);
 			break;
 		case TEXT("w"_hash):		// width
-			wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), wi.rcWindow.right - wi.rcWindow.left);
+			_ts_snprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), wi.rcWindow.right - wi.rcWindow.left);
 			break;
 		case TEXT("h"_hash):		// height
-			wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), wi.rcWindow.bottom - wi.rcWindow.top);
+			_ts_snprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), wi.rcWindow.bottom - wi.rcWindow.top);
 			break;
 		case TEXT("caption"_hash):	// title text
 			GetWindowText(hwnd, data, MIRC_BUFFER_SIZE_CCH);
@@ -1921,32 +1901,6 @@ mIRC(ActiveWindow) {
 		default:					// otherwise
 			throw Dcx::dcxException("Invalid parameters");
 		}
-#else
-		const auto prop(input.gettok(1));
-		WINDOWINFO wi;
-
-		ZeroMemory(&wi, sizeof(WINDOWINFO));
-		wi.cbSize = sizeof(WINDOWINFO);
-
-		if (!GetWindowInfo(hwnd, &wi))
-			throw Dcx::dcxException("Unable to get window information");
-
-		if (prop == TEXT("hwnd"))         // handle
-			wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%lu"), (DWORD)hwnd);	// don't use %p as this gives a hex result.
-		else if (prop == TEXT("x"))       // left
-			wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), wi.rcWindow.left);
-		else if (prop == TEXT("y"))       // top
-			wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), wi.rcWindow.top);
-		else if (prop == TEXT("w"))       // width
-			wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), wi.rcWindow.right - wi.rcWindow.left);
-		else if (prop == TEXT("h"))       // height
-			wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), wi.rcWindow.bottom - wi.rcWindow.top);
-		else if (prop == TEXT("caption")) // title text
-			GetWindowText(hwnd, data, MIRC_BUFFER_SIZE_CCH);
-		else                      // otherwise
-			throw Dcx::dcxException("Invalid parameters");
-#endif
-
 		return 3;
 	}
 	catch (const std::exception &e)
@@ -1967,7 +1921,8 @@ mIRC(ActiveWindow) {
 /*! \brief /dcx GhostDrag 0-255
  *
  */
-mIRC(GhostDrag) {
+mIRC(GhostDrag)
+{
 	TString input(data);
 
 	data[0] = 0;
@@ -2008,7 +1963,8 @@ mIRC(GhostDrag) {
 *
 * Argument \b data contains -> [CURSOR ID] (filename)
 */
-mIRC(SetSystemCursors) {
+mIRC(SetSystemCursors)
+{
 	TString d(data);
 
 	data[0] = 0;
@@ -2174,7 +2130,6 @@ mIRC(SetDCXSettings)
 
 		const auto tsOpt(d.getfirsttok(1));
 
-#if DCX_USE_HASHING
 		switch (std::hash<TString>{}(tsOpt))
 		{
 		case L"StaticColours"_hash:
@@ -2195,35 +2150,6 @@ mIRC(SetDCXSettings)
 		default:
 			throw Dcx::dcxException("Invalid Option");
 		}
-#else
-#if DCX_SWITCH_OBJ
-		Switch(tsOpt)
-			.Case(TEXT("StaticColours"), [d] { Dcx::setting_bStaticColours = (d.getnexttok().to_int() > 0); }).Break()
-			.Case(TEXT("UpdateColours"), [] {
-				auto btmp = Dcx::setting_bStaticColours;
-	
-				Dcx::setting_bStaticColours = false;
-				getmIRCPalette();
-				
-				Dcx::setting_bStaticColours = btmp;
-			}).Break()
-			.Default([] { throw Dcx::dcxException("Invalid Option"); });
-#else
-		if (tsOpt == TEXT("StaticColours"))
-			Dcx::setting_bStaticColours = (d.getnexttok().to_int() > 0);
-		else if (tsOpt == TEXT("UpdateColours"))
-		{
-			auto btmp = Dcx::setting_bStaticColours;
-
-			Dcx::setting_bStaticColours = false;
-			getmIRCPalette();
-
-			Dcx::setting_bStaticColours = btmp;
-		}
-		else
-			throw Dcx::dcxException("Invalid Option");
-#endif
-#endif
 		return 1;
 	}
 	catch (const std::exception &e)

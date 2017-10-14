@@ -26,7 +26,7 @@ namespace Dcx {
 			tsErr = msg;
 		}
 		template <typename Format, typename Value, typename... Arguments>
-		dcxException(const Format &fmt, const Value val, Arguments&&... args)
+		dcxException(const Format &fmt, const Value &val, Arguments&&... args)
 			: exception(_ts_sprintf(tsErr, fmt, val, args...).c_str())
 		{
 			

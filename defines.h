@@ -13,7 +13,8 @@
 Some useful values for _MSC_VER if you need to target to a specific compiler.
 http://symbiancorner.blogspot.com/2007/05/how-to-detect-version-of-ms-visual.html
 
-#if _MSC_VER >= 1910 // Visual C++ 2017
+#if _MSC_VER >= 1911 // Visual C++ 2017.3
+#elif _MSC_VER >= 1910 // Visual C++ 2017
 #elif _MSC_VER >= 1900 // Visual C++ 2015
 #elif _MSC_VER >= 1800 // Visual C++ 2013
 #elif _MSC_VER >= 1700 // Visual C++ 2012
@@ -30,8 +31,8 @@ http://symbiancorner.blogspot.com/2007/05/how-to-detect-version-of-ms-visual.htm
 #define _DEFINES_H_
 
 // VS2017+ only
-#if !defined(_MSC_VER) || _MSC_VER < 1911
-#error "This version of DCX needs Visual Studio 2017.3 or newer"
+#if !defined(_MSC_FULL_VER) || _MSC_FULL_VER < 191125542
+#error "This version of DCX needs Visual Studio 2017.4.0 or newer"
 #endif
 
 #ifdef __INTEL_COMPILER // Defined when using Intel C++ Compiler.
@@ -218,6 +219,7 @@ http://symbiancorner.blogspot.com/2007/05/how-to-detect-version-of-ms-visual.htm
 #endif
 
 #include <memory>
+#include <experimental\filesystem>
 
 // BrowseFolder
 #include <shlobj.h>
@@ -288,6 +290,7 @@ http://symbiancorner.blogspot.com/2007/05/how-to-detect-version-of-ms-visual.htm
 //#include "AggressiveOptimize.h"
 
 #include "dcxExceptions.h"
+#include "Classes\WindowStyles.h"
 
 // Win2000+ stuff for Win98+ compat (only used during testing)
 //#ifndef ICC_STANDARD_CLASSES
@@ -344,6 +347,25 @@ http://symbiancorner.blogspot.com/2007/05/how-to-detect-version-of-ms-visual.htm
 #define MIRCF_ERR_SERVER		16
 #define MIRCF_ERR_SCRIPT		32
 #define MIRCF_ERR_DISABLED		64
+
+enum class mIRC_SendMessage_Flags : UINT {
+	EDITBOX = 1,
+	CMD = 2,
+	FLOOD = 4,
+	UNI_CODE = 8,
+	ENHANCEDERRORS = 16 // causes mIRC 7.33Beta+ to return more detailed error information
+};
+
+enum class mIRC_SendMessage_ErrorCodes : UINT {
+	OK,
+	ERR_FAILED = 1,
+	ERR_MAP_NAME = 2,
+	ERR_MAP_SIZE = 4,
+	ERR_EVENTID = 8,
+	ERR_SERVER = 16,
+	ERR_SCRIPT = 32,
+	ERR_DISABLED = 64
+};
 
 // size of data buffer for mirc in characters!
 #define MIRC_BUFFER_SIZE_CCH	4100
@@ -426,12 +448,14 @@ enum class SwitchBarPos: UINT {
 };
 
 // Dialog info structure
-struct MYDCXWINDOW {
-	RECT rc;
-	DWORD old_styles;
-	DWORD old_exstyles;
-};
-using LPMYDCXWINDOW = MYDCXWINDOW *;
+//struct MYDCXWINDOW {
+//	RECT rc;
+//	DWORD old_styles;
+//	DWORD old_exstyles;
+//
+//	MYDCXWINDOW() : rc{}, old_styles(0), old_exstyles(0) {}
+//};
+//using LPMYDCXWINDOW = MYDCXWINDOW *;
 
 // --------------------------------------------------
 // DLL stuff
@@ -444,20 +468,18 @@ using LPMYDCXWINDOW = MYDCXWINDOW *;
 
 #define PACKVERSION(major,minor) MAKELONG(minor,major)
 
-// mIRC DLL Loading Structure
-struct LOADINFO {
-	DWORD  mVersion; //!< mIRC Version
-	HWND   mHwnd;    //!< mIRC Hwnd 
-	BOOL   mKeep;    //!< mIRC variable stating to keep DLL in memory
-	BOOL   mUnicode; //!< mIRC V7+ unicode enabled dll.
-};
-using LPLOADINFO = LOADINFO *;
-
 // mIRC Signal structure
-struct SIGNALSWITCH {
+struct SIGNALSWITCH
+{
 	bool xdock;
 	bool xstatusbar;
 	bool xtray;
+
+	SIGNALSWITCH()
+		: xdock(false)
+		, xstatusbar(false)
+		, xtray(false)
+	{}
 };
 using LPSIGNALSWITCH = SIGNALSWITCH *;
 
@@ -477,7 +499,7 @@ using VectorOfInts = std::vector<int>; //<! Vector of int
 template <typename T>
 inline void dcx_strcpyn(TCHAR *const sDest, const TCHAR *sSrc, const T &iSize) { if (ts_strcpyn(sDest, sSrc, iSize) == nullptr) sDest[0] = 0; }
 
-constexpr const TCHAR *const dcx_truefalse(const bool &x) noexcept { return (x) ? TEXT("$true") : TEXT("$false"); }
+constexpr const TCHAR *const dcx_truefalse(const bool &x) noexcept { return (x) ? &(TEXT("$true"))[0] : &(TEXT("$false")[0]); }
 
 //#define dcx_Con(x,y) dcx_strcpyn((y), (((x)) ? TEXT("$true") : TEXT("$false")), MIRC_BUFFER_SIZE_CCH);
 //#define dcx_ConRet(x,y) { \
@@ -489,13 +511,13 @@ constexpr const TCHAR *const dcx_truefalse(const bool &x) noexcept { return (x) 
 
 #define dcx_Con(x,y) dcx_strcpyn((y), dcx_truefalse((x)), MIRC_BUFFER_SIZE_CCH);
 
-#define dcx_ConRet(x,y) { \
-	if (ts_strcpyn((y), dcx_truefalse((x)), MIRC_BUFFER_SIZE_CCH) != nullptr) return; \
-}
-#define dcx_ConRetState(x,y) { \
-	if (ts_strcpyn((y), dcx_truefalse((x)), MIRC_BUFFER_SIZE_CCH) != nullptr) return true; \
-}
-
+//#define dcx_ConRet(x,y) { \
+//	if (ts_strcpyn((y), dcx_truefalse((x)), MIRC_BUFFER_SIZE_CCH) != nullptr) return; \
+//}
+//#define dcx_ConRetState(x,y) { \
+//	if (ts_strcpyn((y), dcx_truefalse((x)), MIRC_BUFFER_SIZE_CCH) != nullptr) return true; \
+//}
+//
 #define dcx_ConChar(x,y) { \
 if ((x)) (y)[0] = TEXT('1'); \
 	else (y)[0] = TEXT('0'); \
@@ -513,6 +535,7 @@ constexpr bool dcx_testflag(T x, M y) noexcept { return ((x & gsl::narrow_cast<T
 // --------------------------------------------------
 
 int dcx_round(const float x);
+
 bool ParseCommandToLogfont(const TString& cmd, LPLOGFONT lf);
 TString ParseLogfontToCommand(const LPLOGFONT lf);
 UINT parseFontFlags(const TString &flags);
@@ -531,51 +554,53 @@ HWND GetHwndFromString(const TString &str);
 //HWND GetHwndFromString(gsl::not_null<const TCHAR *> str);
 HWND FindOwner(const TString & data, const gsl::not_null<HWND> &defaultWnd);
 bool CopyToClipboard(const HWND owner, const TString & str);
+
 HBITMAP dcxLoadBitmap(HBITMAP dest, TString &filename);
 HICON dcxLoadIcon(const int index, TString &filename, const bool large, const TString &flags);
 HICON CreateGrayscaleIcon(HICON hIcon);
-HRGN BitmapRegion(HBITMAP hBitmap, const COLORREF cTransparentColor, const BOOL bIsTransparent);
+
+HRGN BitmapRegion(HBITMAP hBitmap, const COLORREF cTransparentColor, const bool bIsTransparent);
+
 void ChangeHwndIcon(const HWND hwnd, const TString &flags, const int index, TString &filename);
 bool AddFileIcons(HIMAGELIST himl, TString &filename, const bool bLarge, const int iIndex, const int iStart = 0, const int iEnd = -1);
-BOOL dcxGetWindowRect(const gsl::not_null<HWND> &hWnd, const gsl::not_null<LPRECT> &lpRect);
 int dcxPickIconDlg(const gsl::not_null<HWND> &hwnd, gsl::not_null<LPWSTR> pszIconPath, const UINT &cchIconPath, gsl::not_null<int *> piIconIndex);
+
+BOOL dcxGetWindowRect(const gsl::not_null<HWND> &hWnd, const gsl::not_null<LPRECT> &lpRect);
 bool GetWindowRectParent(const gsl::not_null<HWND> &hwnd, gsl::not_null<RECT *> rcWin);
 
 SYSTEMTIME MircTimeToSystemTime(const long mircTime);
 long SystemTimeToMircTime(const LPSYSTEMTIME pst);
 
 void AddToolTipToolInfo(const HWND tiphwnd, const HWND ctrl);
-void dcxDrawShadowText(HDC hdc, LPCWSTR pszText, UINT cch, RECT *pRect, DWORD dwFlags, COLORREF crText, COLORREF crShadow, int ixOffset, int iyOffset);
 #ifdef DCX_USE_GDIPLUS
 const TCHAR *GetLastStatusStr(Gdiplus::Status status);
 #endif
+
 bool IsFile(TString &filename);
+
+void dcxDrawShadowText(HDC hdc, LPCWSTR pszText, UINT cch, RECT *pRect, DWORD dwFlags, COLORREF crText, COLORREF crShadow, int ixOffset, int iyOffset);
 //void calcStrippedRect(HDC hdc, const TString &txt, const UINT style, LPRECT rc, const bool ignoreleft);
 void mIRC_DrawText(HDC hdc, const TString &txt, LPRECT rc, const UINT style, const bool shadow);
+void DrawRotatedText(const TString &strDraw, const gsl::not_null<LPRECT> &rc, const gsl::not_null<HDC> &hDC, const int nAngleLine = 0, const bool bEnableAngleChar = false, const int nAngleChar = 0);
+
 gsl::owner<HDC *> CreateHDCBuffer(gsl::not_null<HDC> hdc, const LPRECT rc);
 void DeleteHDCBuffer(gsl::owner<HDC *> hBuffer);
+
 int TGetWindowText(HWND hwnd, TString &txt);
 void FreeOSCompatibility(void);
 bool isRegexMatch(const TCHAR *matchtext, const TCHAR *pattern);
-void DrawRotatedText(const TString &strDraw, const gsl::not_null<LPRECT> &rc, const gsl::not_null<HDC> &hDC, const int nAngleLine = 0, const bool bEnableAngleChar = false, const int nAngleChar = 0);
+
 const char *queryAttribute(gsl::not_null<const TiXmlElement *> element, gsl::not_null<const char *> attribute, gsl::not_null<const char *> defaultValue = "");
 int queryIntAttribute(gsl::not_null<const TiXmlElement *> element, gsl::not_null<const char *> attribute, const int defaultValue = 0);
+
 void getmIRCPalette();
 void getmIRCPalette(COLORREF *const Palette, const UINT PaletteItems);
+void getmIRCPaletteMask(COLORREF *const Palette, const UINT PaletteItems, uint16_t uMask);
 int unfoldColor(const WCHAR *color);
 
 // UltraDock
 void RemStyles(const gsl::not_null<HWND> &hwnd,int parm,long RemStyles);
 void AddStyles(const gsl::not_null<HWND> &hwnd,int parm,long AddStyles);
-//void InitUltraDock(void);
-//void CloseUltraDock(void);
-//SwitchBarPos SwitchbarPos(const DockTypes type);
-//void UpdatemIRC(void);
-
-// CustomDock
-//#ifndef NDEBUG
-//bool InitCustomDock(void);
-//#endif
 
 // DirectX
 HRESULT GetDXVersion( DWORD* pdwDirectXVersion, TCHAR* strDirectXVersion, int cchDirectXVersion );
@@ -584,6 +609,7 @@ TString MakeTextmIRCSafe(const TString &tsStr);
 TString MakeTextmIRCSafe(const TCHAR *const tString);
 
 extern SIGNALSWITCH dcxSignal;
+extern COLORREF staticPalette[mIRC_PALETTE_SIZE];
 
 #include "Dcx.h"
 
