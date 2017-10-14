@@ -21,8 +21,8 @@
 *
 * Returns the owner HWND
 */
-HWND FindOwner(const TString & data, const gsl::not_null<HWND> &defaultWnd) {
-
+HWND FindOwner(const TString & data, const gsl::not_null<HWND> &defaultWnd)
+{
 	if (data.empty())
 		return defaultWnd;
 
@@ -33,8 +33,9 @@ HWND FindOwner(const TString & data, const gsl::not_null<HWND> &defaultWnd) {
 		return defaultWnd;
 
 	// if there is a token after 'owner'
-	if (i < data.numtok( )) {
-		const auto tsHwnd(data.gettok(static_cast<int>(i) + 1));
+	if (i < data.numtok( ))
+	{
+		const auto tsHwnd(data.gettok(gsl::narrow_cast<int>(i) + 1));
 		// if it is a number (HWND) passed
 		auto wnd = reinterpret_cast<HWND>(tsHwnd.to_<DWORD>());
 
@@ -54,15 +55,15 @@ HWND FindOwner(const TString & data, const gsl::not_null<HWND> &defaultWnd) {
 /*!
 * \brief Retrieves a HWND from the string.
 */
-HWND GetHwndFromString(const TString &str) {
+HWND GetHwndFromString(const TString &str)
+{
 	if (str.empty())
 		return nullptr;
 
 	//return GetHwndFromString(str.to_chr());
 
 	// test code to allow docking by hwnd (wtf its only 3 lines)
-	auto hwnd = reinterpret_cast<HWND>(str.to_<DWORD>());
-	if (IsWindow(hwnd))
+	if (auto hwnd = reinterpret_cast<HWND>(str.to_<DWORD>()); IsWindow(hwnd))
 		return hwnd;
 
 	TString tsRes;
@@ -92,17 +93,17 @@ HWND GetHwndFromString(const TString &str) {
 // Removes window style to a window
 void RemStyles(const gsl::not_null<HWND> &hwnd,int parm,long RemStyles)
 {
-	auto Styles = (DWORD)GetWindowLong(hwnd, parm);
+	auto Styles = gsl::narrow_cast<DWORD>(GetWindowLong(hwnd, parm));
 	Styles &= ~RemStyles;
-	SetWindowLong(hwnd, parm, (LONG)Styles);
+	SetWindowLong(hwnd, parm, gsl::narrow_cast<LONG>(Styles));
 }
 
 //	Adds window styles to a window
 void AddStyles(const gsl::not_null<HWND> &hwnd,int parm,long AddStyles)
 {
-	auto Styles = (DWORD)GetWindowLong(hwnd, parm);
+	auto Styles = gsl::narrow_cast<DWORD>(GetWindowLong(hwnd, parm));
 	Styles |= AddStyles;
-	SetWindowLong(hwnd, parm, (LONG)Styles);
+	SetWindowLong(hwnd, parm, gsl::narrow_cast<LONG>(Styles));
 }
 
 /***************************************************/
@@ -352,7 +353,7 @@ void AddStyles(const gsl::not_null<HWND> &hwnd,int parm,long AddStyles)
 //	return hRegion;
 //}
 
-HRGN BitmapRegion(HBITMAP hBitmap, const COLORREF cTransparentColor, const BOOL bIsTransparent)
+HRGN BitmapRegion(HBITMAP hBitmap, const COLORREF cTransparentColor, const bool bIsTransparent)
 {
 #if DCX_USE_WRAPPERS
 	// We create an empty region
@@ -606,12 +607,13 @@ HRGN BitmapRegion(HBITMAP hBitmap, const COLORREF cTransparentColor, const BOOL 
 				// rectangle found, we call them every 2000 rectangles!!!
 				if (pData->rdh.nCount == 2000)
 				{
-					auto hNewRegion = ExtCreateRegion(nullptr, sizeof(RGNDATAHEADER) + (sizeof(RECT) * maxRect), pData);
-					if (hNewRegion != nullptr) {
+					if (auto hNewRegion = ExtCreateRegion(nullptr, sizeof(RGNDATAHEADER) + (sizeof(RECT) * maxRect), pData); hNewRegion != nullptr)
+					{
 						// Si ya existe la región principal,sumamos la nueva,
 						// si no,entonces de momento la principal coincide con
 						// la nueva región.
-						if (hRegion) {
+						if (hRegion != nullptr)
+						{
 							CombineRgn(hRegion, hRegion, hNewRegion, RGN_OR);
 							DeleteObject(hNewRegion);
 						}
@@ -634,15 +636,14 @@ HRGN BitmapRegion(HBITMAP hBitmap, const COLORREF cTransparentColor, const BOOL 
 
 	} // for (int Row...)			
 
-	if (pData->rdh.nCount > 0) {
+	if (pData->rdh.nCount > 0)
+	{
 		// Una vez finalizado el proceso,procedemos a la fusión de la
 		// región remanente desde la última fusión hasta el final			
-		auto hNewRegion = ExtCreateRegion(nullptr, sizeof(RGNDATAHEADER) + (sizeof(RECT)*maxRect), pData);
-
-		if (hNewRegion != nullptr)
+		if (auto hNewRegion = ExtCreateRegion(nullptr, sizeof(RGNDATAHEADER) + (sizeof(RECT)*maxRect), pData); hNewRegion != nullptr)
 		{
 			// If the main region does already exist, we add the new one,
-			if (hRegion)
+			if (hRegion != nullptr)
 			{
 				CombineRgn(hRegion, hRegion, hNewRegion, RGN_OR);
 				DeleteObject(hNewRegion);

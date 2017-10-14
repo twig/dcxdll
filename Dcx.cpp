@@ -24,7 +24,7 @@ namespace Dcx {
 	TString dcxException::tsErr;
 
 
-	void load(LOADINFO *const lInfo)
+	void load(mIRCLinker::LOADINFO *const lInfo)
 	{
 		//Expects(lInfo != nullptr);
 
@@ -185,8 +185,8 @@ namespace Dcx {
 		wc.cbSize = sizeof(WNDCLASSEX);
 
 #define dcxRegisterClass(szClass, szDcxClass) { \
-	GetClassInfoEx(nullptr, (TCHAR *)(szClass), &wc); \
-	wc.lpszClassName = (TCHAR *)(szDcxClass); \
+	GetClassInfoEx(nullptr, &(szClass)[0], &wc); \
+	wc.lpszClassName = &(szDcxClass)[0]; \
 	RegisterClassEx(&wc); \
 		};
 
@@ -228,7 +228,7 @@ namespace Dcx {
 
 		// Custom Color Combo
 		DCX_DEBUG(mIRCLinker::debug, TEXT("LoadDLL"), TEXT("Registering ComboBox..."));
-		dcxRegisterClass(TEXT("COMBOBOX"), DCX_COLORCOMBOCLASS);
+		dcxRegisterClass(WC_COMBOBOX, DCX_COLORCOMBOCLASS);
 
 		// Custom TabCtrl
 		DCX_DEBUG(mIRCLinker::debug, TEXT("LoadDLL"), TEXT("Registering Tab..."));
@@ -255,7 +255,7 @@ namespace Dcx {
 		wc.hInstance = GetModuleHandle(nullptr);
 		wc.hIcon = nullptr;
 		wc.hCursor = nullptr;
-		wc.hbrBackground = (HBRUSH)(COLOR_3DFACE + 1);
+		wc.hbrBackground = reinterpret_cast<HBRUSH>(COLOR_3DFACE + 1);
 		wc.lpszMenuName = 0;
 		wc.lpszClassName = DCX_DIVIDERCLASS;
 		wc.hIconSm = nullptr;
@@ -325,7 +325,7 @@ namespace Dcx {
 
 		// Custom Button
 		DCX_DEBUG(mIRCLinker::debug, TEXT("LoadDLL"), TEXT("Registering Button..."));
-		dcxRegisterClass(TEXT("BUTTON"), DCX_BUTTONCLASS);
+		dcxRegisterClass(WC_BUTTON, DCX_BUTTONCLASS);
 
 		// Custom Calendar
 		DCX_DEBUG(mIRCLinker::debug, TEXT("LoadDLL"), TEXT("Registering Calendar..."));
@@ -365,7 +365,7 @@ namespace Dcx {
 		wc.hInstance = GetModuleHandle(nullptr);
 		wc.hIcon = nullptr;
 		wc.hCursor = LoadCursor(nullptr, IDC_ARROW);
-		wc.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
+		wc.hbrBackground = reinterpret_cast<HBRUSH>(COLOR_WINDOW + 1);
 		wc.lpszMenuName = nullptr;
 		wc.lpszClassName = DCX_VISTACLASS;
 		wc.hIconSm = nullptr;
@@ -379,9 +379,9 @@ namespace Dcx {
 		GDIModule.unload();
 	}
 
-	const TCHAR *const getLastError() noexcept
+	const TString &getLastError() noexcept
 	{
-		return m_sLastError.to_chr();
+		return m_sLastError;
 	}
 
 	IClassFactory *const getClassFactory() noexcept
@@ -579,8 +579,10 @@ namespace Dcx {
 		{
 			dcxlParam(LPMEASUREITEMSTRUCT, lpmis);
 
-			if (lpmis->CtlType == ODT_MENU) {
-				if (auto p_Item = reinterpret_cast<XPopupMenuItem *>(lpmis->itemData); p_Item != nullptr) {
+			if (lpmis->CtlType == ODT_MENU)
+			{
+				if (auto p_Item = reinterpret_cast<XPopupMenuItem *>(lpmis->itemData); p_Item != nullptr)
+				{
 					const auto size = p_Item->getItemSize(mHwnd);
 
 					lpmis->itemWidth = gsl::narrow_cast<UINT>(size.cx);
@@ -596,8 +598,10 @@ namespace Dcx {
 		{
 			dcxlParam(LPDRAWITEMSTRUCT, lpdis);
 
-			if (lpdis->CtlType == ODT_MENU) {
-				if (auto p_Item = reinterpret_cast<XPopupMenuItem *>(lpdis->itemData); p_Item != nullptr) {
+			if (lpdis->CtlType == ODT_MENU)
+			{
+				if (auto p_Item = reinterpret_cast<XPopupMenuItem *>(lpdis->itemData); p_Item != nullptr)
+				{
 					p_Item->DrawItem(lpdis);
 					return TRUE;
 				}
@@ -617,14 +621,15 @@ namespace Dcx {
 			// ghost drag stuff
 		case WM_ENTERSIZEMOVE:
 		{
-			if (getGhostDrag() < std::byte{ 255 }) {
+			if (getGhostDrag() < std::byte{ 255 })
+			{
 				// Set WS_EX_LAYERED on this window
 				if (const auto style = GetWindowExStyle(mIRCLinker::getHWND()); !dcx_testflag(style, WS_EX_LAYERED))
 					SetWindowLongPtr(mIRCLinker::getHWND(), GWL_EXSTYLE, gsl::narrow_cast<LONG>((style | WS_EX_LAYERED)));
 
 				// Make this window 75 alpha
-				SetLayeredWindowAttributes(mIRCLinker::getHWND(), 0, gsl::to_integer<BYTE>(getGhostDrag()), LWA_ALPHA);
-				SetProp(mIRCLinker::getHWND(), TEXT("dcx_ghosted"), (HANDLE)1);
+				SetLayeredWindowAttributes(mIRCLinker::getHWND(), 0, std::to_integer<BYTE>(getGhostDrag()), LWA_ALPHA);
+				SetProp(mIRCLinker::getHWND(), TEXT("dcx_ghosted"), reinterpret_cast<HANDLE>(1U));
 			}
 		}
 			break;
@@ -632,7 +637,8 @@ namespace Dcx {
 		case WM_EXITSIZEMOVE:
 		{
 			// turn off ghosting.
-			if (GetProp(mIRCLinker::getHWND(), TEXT("dcx_ghosted")) != nullptr) {
+			if (GetProp(mIRCLinker::getHWND(), TEXT("dcx_ghosted")) != nullptr)
+			{
 				// Make this window solid
 				SetLayeredWindowAttributes(mIRCLinker::getHWND(), 0, 255, LWA_ALPHA);
 				RemoveProp(mIRCLinker::getHWND(), TEXT("dcx_ghosted"));
@@ -674,8 +680,8 @@ namespace Dcx {
 				break;
 
 			const auto iType = gsl::narrow_cast<UINT>(LOWORD(lParam));
-			auto hCursor = AreaToCustomCursor(iType);
-			if (hCursor != nullptr)
+			
+			if (auto hCursor = AreaToCustomCursor(iType); hCursor != nullptr)
 			{
 				SetCursorUx(hCursor);
 				return TRUE;
@@ -685,8 +691,8 @@ namespace Dcx {
 			Auto(ShowCursor(TRUE));
 
 			auto lRes = mIRCLinker::callDefaultWindowProc(mHwnd, uMsg, wParam, lParam);
-			hCursor = SystemToCustomCursor(GetCursor());
-			if (hCursor != nullptr)
+			
+			if (auto hCursor = SystemToCustomCursor(GetCursor()); hCursor != nullptr)
 			{
 				SetCursorUx(hCursor);
 				return TRUE;
@@ -876,33 +882,50 @@ namespace Dcx {
 	//	return 0;
 	//}
 
+	const static std::map<std::hash<TString>::result_type, const TCHAR *> IDC_map{
+		{TEXT("appstarting"_hash), IDC_APPSTARTING},
+		{TEXT("arrow"_hash), IDC_ARROW},
+		{TEXT("cross"_hash), IDC_CROSS},
+		{TEXT("hand"_hash), IDC_HAND},
+		{TEXT("help"_hash), IDC_HELP},
+		{TEXT("ibeam"_hash), IDC_IBEAM},
+		{TEXT("no"_hash), IDC_NO},
+		{TEXT("sizeall"_hash), IDC_SIZEALL},
+		{TEXT("sizenesw"_hash), IDC_SIZENESW},
+		{TEXT("sizens"_hash), IDC_SIZENS},
+		{TEXT("sizenwse"_hash), IDC_SIZENWSE},
+		{TEXT("sizewe"_hash), IDC_SIZEWE},
+		{TEXT("uparrow"_hash), IDC_UPARROW},
+		{TEXT("wait"_hash), IDC_WAIT}
+	};
+
 	// convert a cursor name into a resource number.
-	const TCHAR *const parseCursorType(const TString & cursor)
+	[[gsl::suppress(lifetimes)]] const TCHAR *const parseCursorType(const TString & cursor)
 	{
 		return parseCursorType(std::hash<TString>()(cursor));
 	}
 
 	// convert a cursor name (hashed) into a resource number.
-	const TCHAR *const parseCursorType(const std::hash<TString>::result_type & cursor)
+	[[gsl::suppress(lifetimes)]] const TCHAR *const parseCursorType(const std::hash<TString>::result_type & cursor)
 	{
-		static std::map<std::hash<TString>::result_type, const TCHAR *> IDC_map;
-
-		if (IDC_map.empty()) {
-			IDC_map[TEXT("appstarting"_hash)] = IDC_APPSTARTING;
-			IDC_map[TEXT("arrow"_hash)] = IDC_ARROW;
-			IDC_map[TEXT("cross"_hash)] = IDC_CROSS;
-			IDC_map[TEXT("hand"_hash)] = IDC_HAND;
-			IDC_map[TEXT("help"_hash)] = IDC_HELP;
-			IDC_map[TEXT("ibeam"_hash)] = IDC_IBEAM;
-			IDC_map[TEXT("no"_hash)] = IDC_NO;
-			IDC_map[TEXT("sizeall"_hash)] = IDC_SIZEALL;
-			IDC_map[TEXT("sizenesw"_hash)] = IDC_SIZENESW;
-			IDC_map[TEXT("sizens"_hash)] = IDC_SIZENS;
-			IDC_map[TEXT("sizenwse"_hash)] = IDC_SIZENWSE;
-			IDC_map[TEXT("sizewe"_hash)] = IDC_SIZEWE;
-			IDC_map[TEXT("uparrow"_hash)] = IDC_UPARROW;
-			IDC_map[TEXT("wait"_hash)] = IDC_WAIT;
-		}
+		//static std::map<std::hash<TString>::result_type, const TCHAR *> IDC_map;
+		//
+		//if (IDC_map.empty()) {
+		//	IDC_map[TEXT("appstarting"_hash)] = IDC_APPSTARTING;
+		//	IDC_map[TEXT("arrow"_hash)] = IDC_ARROW;
+		//	IDC_map[TEXT("cross"_hash)] = IDC_CROSS;
+		//	IDC_map[TEXT("hand"_hash)] = IDC_HAND;
+		//	IDC_map[TEXT("help"_hash)] = IDC_HELP;
+		//	IDC_map[TEXT("ibeam"_hash)] = IDC_IBEAM;
+		//	IDC_map[TEXT("no"_hash)] = IDC_NO;
+		//	IDC_map[TEXT("sizeall"_hash)] = IDC_SIZEALL;
+		//	IDC_map[TEXT("sizenesw"_hash)] = IDC_SIZENESW;
+		//	IDC_map[TEXT("sizens"_hash)] = IDC_SIZENS;
+		//	IDC_map[TEXT("sizenwse"_hash)] = IDC_SIZENWSE;
+		//	IDC_map[TEXT("sizewe"_hash)] = IDC_SIZEWE;
+		//	IDC_map[TEXT("uparrow"_hash)] = IDC_UPARROW;
+		//	IDC_map[TEXT("wait"_hash)] = IDC_WAIT;
+		//}
 
 		const auto got = IDC_map.find(cursor);
 
@@ -911,6 +934,23 @@ namespace Dcx {
 
 		return nullptr;
 	}
+
+	const static std::map<const std::hash<TString>::result_type, DWORD> IDC_SystemMap{
+		{TEXT("appstarting"_hash), OCR_APPSTARTING},
+		{TEXT("normal"_hash), OCR_NORMAL},
+		{TEXT("cross"_hash), OCR_CROSS},
+		{TEXT("hand"_hash), OCR_HAND},
+		//{TEXT("help"), OCR_HELP},
+		{TEXT("ibeam"_hash), OCR_IBEAM},
+		{TEXT("no"_hash), OCR_NO},
+		{TEXT("sizeall"_hash), OCR_SIZEALL},
+		{TEXT("sizenesw"_hash), OCR_SIZENESW},
+		{TEXT("sizens"_hash), OCR_SIZENS},
+		{TEXT("sizenwse"_hash), OCR_SIZENWSE},
+		{TEXT("sizewe"_hash), OCR_SIZEWE},
+		//{TEXT("uparrow"_hash), OCR_UPARROW},
+		{TEXT("wait"_hash), OCR_WAIT}
+	};
 
 	// convert a cursor name into a system resource number.
 	const DWORD parseSystemCursorType(const TString & cursor)
@@ -921,24 +961,24 @@ namespace Dcx {
 	// convert a cursor name (hashed) into a system resource number.
 	const DWORD parseSystemCursorType(const std::hash<TString>::result_type & cursor)
 	{
-		static std::map<const std::hash<TString>::result_type, DWORD> IDC_SystemMap;
-
-		if (IDC_SystemMap.empty()) {
-			IDC_SystemMap[TEXT("appstarting"_hash)] = OCR_APPSTARTING;
-			IDC_SystemMap[TEXT("normal"_hash)] = OCR_NORMAL;
-			IDC_SystemMap[TEXT("cross"_hash)] = OCR_CROSS;
-			IDC_SystemMap[TEXT("hand"_hash)] = OCR_HAND;
-			//IDC_SystemMap[TEXT("help")] = OCR_HELP;
-			IDC_SystemMap[TEXT("ibeam"_hash)] = OCR_IBEAM;
-			IDC_SystemMap[TEXT("no"_hash)] = OCR_NO;
-			IDC_SystemMap[TEXT("sizeall"_hash)] = OCR_SIZEALL;
-			IDC_SystemMap[TEXT("sizenesw"_hash)] = OCR_SIZENESW;
-			IDC_SystemMap[TEXT("sizens"_hash)] = OCR_SIZENS;
-			IDC_SystemMap[TEXT("sizenwse"_hash)] = OCR_SIZENWSE;
-			IDC_SystemMap[TEXT("sizewe"_hash)] = OCR_SIZEWE;
-			//IDC_SystemMap[TEXT("uparrow"_hash)] = OCR_UPARROW;
-			IDC_SystemMap[TEXT("wait"_hash)] = OCR_WAIT;
-		}
+		//static std::map<const std::hash<TString>::result_type, DWORD> IDC_SystemMap;
+		//
+		//if (IDC_SystemMap.empty()) {
+		//	IDC_SystemMap[TEXT("appstarting"_hash)] = OCR_APPSTARTING;
+		//	IDC_SystemMap[TEXT("normal"_hash)] = OCR_NORMAL;
+		//	IDC_SystemMap[TEXT("cross"_hash)] = OCR_CROSS;
+		//	IDC_SystemMap[TEXT("hand"_hash)] = OCR_HAND;
+		//	//IDC_SystemMap[TEXT("help")] = OCR_HELP;
+		//	IDC_SystemMap[TEXT("ibeam"_hash)] = OCR_IBEAM;
+		//	IDC_SystemMap[TEXT("no"_hash)] = OCR_NO;
+		//	IDC_SystemMap[TEXT("sizeall"_hash)] = OCR_SIZEALL;
+		//	IDC_SystemMap[TEXT("sizenesw"_hash)] = OCR_SIZENESW;
+		//	IDC_SystemMap[TEXT("sizens"_hash)] = OCR_SIZENS;
+		//	IDC_SystemMap[TEXT("sizenwse"_hash)] = OCR_SIZENWSE;
+		//	IDC_SystemMap[TEXT("sizewe"_hash)] = OCR_SIZEWE;
+		//	//IDC_SystemMap[TEXT("uparrow"_hash)] = OCR_UPARROW;
+		//	IDC_SystemMap[TEXT("wait"_hash)] = OCR_WAIT;
+		//}
 
 		const auto got = IDC_SystemMap.find(cursor);
 
@@ -946,6 +986,30 @@ namespace Dcx {
 			return got->second;
 		return 0;
 	}
+
+	const static std::map<const std::hash<TString>::result_type, DWORD> mIRC_AreaMap{
+		{TEXT("client"_hash), HTCLIENT},
+		//{TEXT("nowhere"_hash), HTNOWHERE},
+		{TEXT("caption"_hash), HTCAPTION},
+		{TEXT("sysmenu"_hash), HTSYSMENU},
+		{TEXT("size"_hash), HTGROWBOX},
+		{TEXT("menu"_hash), HTMENU},
+		{TEXT("vscroll"_hash), HTVSCROLL},
+		{TEXT("help"_hash), HTHELP},
+		{TEXT("hscroll"_hash), HTHSCROLL},
+		{TEXT("min"_hash), HTMINBUTTON},
+		{TEXT("max"_hash), HTMAXBUTTON},
+		{TEXT("left"_hash), HTLEFT},
+		{TEXT("right"_hash), HTRIGHT},
+		{TEXT("top"_hash), HTTOP},
+		{TEXT("topleft"_hash), HTTOPLEFT},
+		{TEXT("topright"_hash), HTTOPRIGHT},
+		{TEXT("bottom"_hash), HTBOTTOM},
+		{TEXT("bottomleft"_hash), HTBOTTOMLEFT},
+		{TEXT("bottomright"_hash), HTBOTTOMRIGHT},
+		{TEXT("border"_hash), HTBORDER},
+		{TEXT("close"_hash), HTCLOSE}
+	};
 
 	// convert an area name into a hit zone
 	const DWORD parseAreaType(const TString &tsArea)
@@ -956,31 +1020,31 @@ namespace Dcx {
 	// convert an area name (hashed) into a hit zone
 	const DWORD parseAreaType(const std::hash<TString>::result_type &tsArea)
 	{
-		static std::map<const std::hash<TString>::result_type, DWORD> mIRC_AreaMap;
-
-		if (mIRC_AreaMap.empty()) {
-			mIRC_AreaMap[TEXT("client"_hash)] = HTCLIENT;
-			//mIRC_AreaMap[TEXT("nowhere"_hash)] = HTNOWHERE;
-			mIRC_AreaMap[TEXT("caption"_hash)] = HTCAPTION;
-			mIRC_AreaMap[TEXT("sysmenu"_hash)] = HTSYSMENU;
-			mIRC_AreaMap[TEXT("size"_hash)] = HTGROWBOX;
-			mIRC_AreaMap[TEXT("menu"_hash)] = HTMENU;
-			mIRC_AreaMap[TEXT("vscroll"_hash)] = HTVSCROLL;
-			mIRC_AreaMap[TEXT("help"_hash)] = HTHELP;
-			mIRC_AreaMap[TEXT("hscroll"_hash)] = HTHSCROLL;
-			mIRC_AreaMap[TEXT("min"_hash)] = HTMINBUTTON;
-			mIRC_AreaMap[TEXT("max"_hash)] = HTMAXBUTTON;
-			mIRC_AreaMap[TEXT("left"_hash)] = HTLEFT;
-			mIRC_AreaMap[TEXT("right"_hash)] = HTRIGHT;
-			mIRC_AreaMap[TEXT("top"_hash)] = HTTOP;
-			mIRC_AreaMap[TEXT("topleft"_hash)] = HTTOPLEFT;
-			mIRC_AreaMap[TEXT("topright"_hash)] = HTTOPRIGHT;
-			mIRC_AreaMap[TEXT("bottom"_hash)] = HTBOTTOM;
-			mIRC_AreaMap[TEXT("bottomleft"_hash)] = HTBOTTOMLEFT;
-			mIRC_AreaMap[TEXT("bottomright"_hash)] = HTBOTTOMRIGHT;
-			mIRC_AreaMap[TEXT("border"_hash)] = HTBORDER;
-			mIRC_AreaMap[TEXT("close"_hash)] = HTCLOSE;
-		}
+		//static std::map<const std::hash<TString>::result_type, DWORD> mIRC_AreaMap;
+		//
+		//if (mIRC_AreaMap.empty()) {
+		//	mIRC_AreaMap[TEXT("client"_hash)] = HTCLIENT;
+		//	//mIRC_AreaMap[TEXT("nowhere"_hash)] = HTNOWHERE;
+		//	mIRC_AreaMap[TEXT("caption"_hash)] = HTCAPTION;
+		//	mIRC_AreaMap[TEXT("sysmenu"_hash)] = HTSYSMENU;
+		//	mIRC_AreaMap[TEXT("size"_hash)] = HTGROWBOX;
+		//	mIRC_AreaMap[TEXT("menu"_hash)] = HTMENU;
+		//	mIRC_AreaMap[TEXT("vscroll"_hash)] = HTVSCROLL;
+		//	mIRC_AreaMap[TEXT("help"_hash)] = HTHELP;
+		//	mIRC_AreaMap[TEXT("hscroll"_hash)] = HTHSCROLL;
+		//	mIRC_AreaMap[TEXT("min"_hash)] = HTMINBUTTON;
+		//	mIRC_AreaMap[TEXT("max"_hash)] = HTMAXBUTTON;
+		//	mIRC_AreaMap[TEXT("left"_hash)] = HTLEFT;
+		//	mIRC_AreaMap[TEXT("right"_hash)] = HTRIGHT;
+		//	mIRC_AreaMap[TEXT("top"_hash)] = HTTOP;
+		//	mIRC_AreaMap[TEXT("topleft"_hash)] = HTTOPLEFT;
+		//	mIRC_AreaMap[TEXT("topright"_hash)] = HTTOPRIGHT;
+		//	mIRC_AreaMap[TEXT("bottom"_hash)] = HTBOTTOM;
+		//	mIRC_AreaMap[TEXT("bottomleft"_hash)] = HTBOTTOMLEFT;
+		//	mIRC_AreaMap[TEXT("bottomright"_hash)] = HTBOTTOMRIGHT;
+		//	mIRC_AreaMap[TEXT("border"_hash)] = HTBORDER;
+		//	mIRC_AreaMap[TEXT("close"_hash)] = HTCLOSE;
+		//}
 
 		const auto got = mIRC_AreaMap.find(tsArea);
 
@@ -1055,47 +1119,26 @@ namespace Dcx {
 	// delete custom cursor for specific area.
 	void deleteAreaCursor(const UINT iType)
 	{
-#if _MSC_VER < 1911
-		const auto it = m_vMapOfAreas.find(iType);
-		if (it != m_vMapOfAreas.end())
-		{
-			DestroyCursor(it->second);
-			m_vMapOfAreas.erase(it);
-		}
-#else
 		if (const auto it = m_vMapOfAreas.find(iType); it != m_vMapOfAreas.end())
 		{
 			DestroyCursor(it->second);
 			m_vMapOfAreas.erase(it);
 		}
-#endif
 	}
 
 	// get custom cursor to use in place of specific system cursor.
 	HCURSOR SystemToCustomCursor(const HCURSOR hCursor)
 	{
-#if _MSC_VER < 1911
-		const auto it = m_vMapOfCursors.find(hCursor);
-		if (it != m_vMapOfCursors.end())
-			return it->second;
-#else
 		if (const auto it = m_vMapOfCursors.find(hCursor); it != m_vMapOfCursors.end())
 			return it->second;
-#endif
 		return nullptr;
 	}
 
 	// get the custom cursor to use with a specific area
 	HCURSOR AreaToCustomCursor(const UINT iType)
 	{
-#if _MSC_VER < 1911
-		const auto it = m_vMapOfAreas.find(iType);
-		if (it != m_vMapOfAreas.end())
-			return it->second;
-#else		
 		if (const auto it = m_vMapOfAreas.find(iType); it != m_vMapOfAreas.end())
 			return it->second;
-#endif
 		return nullptr;
 	}
 
@@ -1109,24 +1152,15 @@ namespace Dcx {
 	// delete a custom cursor.
 	void deleteCursor(const HCURSOR hCursor)
 	{
-#if _MSC_VER < 1911
-		const auto it = m_vMapOfCursors.find(hCursor);
-		if (it != m_vMapOfCursors.end())
-		{
-			DestroyCursor(it->second);
-			m_vMapOfCursors.erase(it);
-		}
-#else
 		if (const auto it = m_vMapOfCursors.find(hCursor); it != m_vMapOfCursors.end())
 		{
 			DestroyCursor(it->second);
 			m_vMapOfCursors.erase(it);
 		}
-#endif
 	}
 
 	// patch a dll function using detours
-	PVOID PatchAPI(const char *const c_szDllName, const char *const c_szApiName, PVOID newfPtr)
+	[[gsl::suppress(lifetimes)]] PVOID PatchAPI(const char *const c_szDllName, const char *const c_szApiName, PVOID newfPtr)
 	{
 		DetourTransactionBegin();
 		DetourUpdateThread(GetCurrentThread());
@@ -1155,7 +1189,7 @@ namespace Dcx {
 	}
 
 	// patch function for use in custom cursors
-	HCURSOR WINAPI XSetCursor(HCURSOR hCursor)
+	[[gsl::suppress(lifetimes)]] HCURSOR WINAPI XSetCursor(HCURSOR hCursor)
 	{
 		if (hCursor == nullptr)
 			return SetCursorUx(hCursor);

@@ -177,6 +177,38 @@ namespace Dcx
 			: dcxResource(make_file(tsFilename.to_wchr(), tsMode))
 		{
 		}
+
+		const uint32_t Size() const noexcept
+		{
+			// Seek End of file
+			if (fseek(*this, 0, SEEK_END))
+				return 0UL;
+
+			// Read pointer location, because pointer is at the end, results into file size
+			auto size = gsl::narrow_cast<uint32_t>(ftell(*this));
+
+			// Get back to file beginning
+			if (fseek(*this, 0, SEEK_SET))
+				return 0UL;
+
+			return size;
+		}
+
+		const uint64_t SizeEx() const noexcept
+		{
+			// Seek End of file
+			if (_fseeki64(*this, 0, SEEK_END))
+				return 0ULL;
+
+			// Read pointer location, because pointer is at the end, results into file size
+			auto size = gsl::narrow_cast<uint64_t>(_ftelli64(*this));
+
+			// Get back to file beginning
+			if (_fseeki64(*this, 0, SEEK_SET))
+				return 0ULL;
+
+			return size;
+		}
 	};
 
 	struct dcxFileHandleResource : dcxResource < dcxHandle_t >
@@ -189,6 +221,18 @@ namespace Dcx
 		dcxFileHandleResource(const TCHAR *file, DWORD dAccess, DWORD dShareMode, LPSECURITY_ATTRIBUTES lpSecurity, DWORD dCreation, DWORD dflags, HANDLE templateFile)
 			: dcxResource(make_filehandle(file, dAccess, dShareMode, lpSecurity, dCreation, dflags, templateFile))
 		{
+		}
+
+		const auto Size() const noexcept
+		{
+			return GetFileSize(*this, nullptr);
+		}
+
+		const LARGE_INTEGER SizeEx() const noexcept
+		{
+			LARGE_INTEGER sz{};
+			GetFileSizeEx(*this, &sz);
+			return sz;
 		}
 	};
 
@@ -610,13 +654,13 @@ namespace Dcx
 		{
 			VariantInit(this);
 		}
-		dcxVariant(const BSTR bStr)
+		explicit dcxVariant(const BSTR bStr)
 			: dcxVariant()
 		{
 			vt = VT_BSTR;
 			bstrVal = bStr;
 		}
-		dcxVariant(const WCHAR *cStr)
+		explicit dcxVariant(const WCHAR *cStr)
 			: dcxVariant(SysAllocString(cStr))
 		{
 		}
@@ -634,7 +678,7 @@ namespace Dcx
 			if (GetCursorPos(this) == FALSE)
 				throw Dcx::dcxException(TEXT("Unable to get Cursor Position"));
 		}
-		dcxCursorPos(HWND hwnd)
+		explicit dcxCursorPos(HWND hwnd)
 			: dcxCursorPos()
 		{
 			MapWindowPoints(nullptr, hwnd, this, 1);
@@ -647,7 +691,7 @@ namespace Dcx
 	{
 		dcxWindowRect() = delete;
 		// Gets the window rect for hwnd
-		dcxWindowRect(HWND hwnd)
+		explicit dcxWindowRect(HWND hwnd)
 		{
 			if (GetWindowRect(hwnd, this) == FALSE)
 				throw Dcx::dcxException(TEXT("Unable to get Window Rect"));
@@ -663,6 +707,11 @@ namespace Dcx
 				throw Dcx::dcxException(TEXT("Unable to Map Window Rect"));
 		}
 		~dcxWindowRect() = default;
+
+		// get the rect's width
+		long Width() const noexcept { return (right - left); }
+		// get the rect's height
+		long Height() const noexcept { return (bottom - top); }
 	};
 
 	struct dcxClassName
@@ -670,7 +719,7 @@ namespace Dcx
 	{
 		dcxClassName() = delete;
 		// Gets the class name for hwnd
-		dcxClassName(HWND hwnd)
+		explicit dcxClassName(HWND hwnd)
 		{
 			GetClassName(hwnd, this->data(), gsl::narrow_cast<int32_t>(this->size()));
 		}
@@ -762,7 +811,7 @@ namespace Dcx
 	void freeOSCompatibility(void);
 
 	IClassFactory *const getClassFactory() noexcept;
-	const TCHAR *const getLastError() noexcept;
+	const TString &getLastError() noexcept;
 	const std::byte &getGhostDrag() noexcept;
 	bool setGhostDrag(const std::byte newAlpha) noexcept;
 	const bool &isDX9Installed() noexcept;
@@ -770,7 +819,7 @@ namespace Dcx
 	//bool isFile(const WCHAR *const file);
 	//bool isFile(LPCSTR const file);
 
-	void load(LOADINFO *const lInfo);
+	void load(mIRCLinker::LOADINFO *const lInfo);
 	void unload(void);
 	const bool &initDirectX();
 	const bool &initDirectX(TCHAR *dxResult, int dxSize);
@@ -896,7 +945,10 @@ namespace Dcx
 			{
 				// Casts any string as a number
 				std::stringstream buf;
-				buf << in;
+				if constexpr(std::is_array_v<tInput>)
+					buf << &in[0];
+				else
+					buf << in;
 				tResult result;
 				buf >> result;
 				return result;
@@ -917,7 +969,7 @@ namespace Dcx
 	//}
 
 	template < typename tResult, typename tInput >
-	inline constexpr tResult numeric_cast(tInput &&in)
+	inline constexpr tResult numeric_cast(tInput &&in) noexcept
 	{
 		static_assert(is_Numeric_v<tResult>, "A Numeric return type is required");
 		return details::numeric_cast<tResult>(std::forward<tInput>(in));
@@ -925,10 +977,13 @@ namespace Dcx
 
 	// Converts any pointer to a numeric.
 	template < typename tResult, typename tInput, typename = std::enable_if_t<!std::is_same_v<std::remove_cv_t<tInput>, char> && !std::is_same_v<std::remove_cv_t<tInput>, wchar_t> > >
-	inline constexpr tResult numeric_cast(tInput *in)
+	inline constexpr tResult numeric_cast(tInput *in) noexcept
 	{
 		static_assert(is_Numeric_v<tResult>, "A Numeric return type is required");
-		return reinterpret_cast<tResult>(in);
+		//if constexpr(std::is_same_v<std::remove_cv_t<tInput>,void>)
+		//	return static_cast<tResult>(in);
+		//else
+			return reinterpret_cast<tResult>(in);
 	}
 
 	// find() - takes an array object, & something to compare against. (same as std::find(begin(),end(),val) )
@@ -967,13 +1022,32 @@ namespace Dcx
 	template <typename Cont, typename Val>
 	bool eraseIfFound(Cont &con, Val &v)
 	{
-		const auto itEnd = con.end();
-		
-		if (const auto itGot = std::find(con.begin(), itEnd, v); itGot != itEnd)
-		{
-			con.erase(itGot);
-			return true;
-		}
-		return false;
+		//if constexpr(std::is_member_function_pointer_v<decltype(&Cont::find)>)
+		//{
+		//	const auto itEnd = con.end();
+		//
+		//	if (const auto itGot = con.find(v); itGot != itEnd)
+		//	{
+		//		con.erase(itGot);
+		//		return true;
+		//	}
+		//	return false;
+		//}
+		//else {
+			const auto itEnd = con.end();
+
+			if (const auto itGot = std::find(con.begin(), itEnd, v); itGot != itEnd)
+			{
+				con.erase(itGot);
+				return true;
+			}
+			return false;
+		//}
+	}
+
+	template <class T>
+	bool IsFileEx(const T &filename)
+	{
+		return (std::experimental::filesystem::exists(filename) && std::experimental::filesystem::is_regular_file(filename));
 	}
 }
