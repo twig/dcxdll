@@ -19,7 +19,8 @@
 /*
  *
  */
-void XMenuBar::parseXMenuBarCommand(const TString &input) {
+void XMenuBar::parseXMenuBarCommand(const TString &input)
+{
 	const XSwitchFlags flags(input.getfirsttok( 1 ));
 	const auto numtok = input.numtok();
 	const auto menuName(input.getnexttok());	// tok 2
@@ -30,9 +31,11 @@ void XMenuBar::parseXMenuBarCommand(const TString &input) {
 
 	// Initialise callback.
 	// xmenubar [-M] (ALIAS)
-	if (flags[TEXT('M')]) {
+	if (flags[TEXT('M')])
+	{
 		// Set alias.
-		if (numtok > 1) {
+		if (numtok > 1)
+		{
 			// menuName == alias
 
 			// Check if alias is valid.
@@ -52,7 +55,8 @@ void XMenuBar::parseXMenuBarCommand(const TString &input) {
 
 	// Add menu
 	// xmenubar [-a] [MENU] [LABEL]
-	if (auto menuBar = GetMenu(mIRCLinker::getHWND()); flags[TEXT('a')]) {
+	if (auto menuBar = GetMenu(mIRCLinker::getHWND()); flags[TEXT('a')])
+	{
 		if (numtok < 3)
 			throw Dcx::dcxException("Insufficient parameters");
 
@@ -69,7 +73,8 @@ void XMenuBar::parseXMenuBarCommand(const TString &input) {
 	}
 	// Removes menu
 	// xmenubar [-d] [MENU]
-	else if (flags[TEXT('d')]) {
+	else if (flags[TEXT('d')])
+	{
 		if (numtok < 2)
 			throw Dcx::dcxException("Insufficient parameters");
 
@@ -82,7 +87,8 @@ void XMenuBar::parseXMenuBarCommand(const TString &input) {
 	// Replace mIRC's menubar and generate our own
 	// xmenubar [-g]
 	// TODO: add support for styles if I can think of how.
-	else if (flags[TEXT('g')]) {
+	else if (flags[TEXT('g')])
+	{
 		auto newMenu = CreateMenu();
 
 		this->setMenuBar(menuBar, newMenu);
@@ -92,11 +98,12 @@ void XMenuBar::parseXMenuBarCommand(const TString &input) {
 	}
 	// Change the label on the menu
 	// xmenubar [-l] [MENU] [LABEL]
-	else if (flags[TEXT('l')]) {
+	else if (flags[TEXT('l')])
+	{
 		if (numtok < 3)
 			throw Dcx::dcxException("Insufficient parameters");
 
-		auto p_Menu = Dcx::XPopups.getMenuByName(menuName, true);
+		const auto *const p_Menu = Dcx::XPopups.getMenuByName(menuName, true);
 
 		validateMenu(p_Menu, menuName);
 
@@ -109,12 +116,14 @@ void XMenuBar::parseXMenuBarCommand(const TString &input) {
 	}
 	// Resets to original mIRC menubar
 	// xmenubar [-r]
-	else if (flags[TEXT('r')]) {
+	else if (flags[TEXT('r')])
+	{
 		this->resetMenuBar();
 	}
 	// Trigger command for a specific mIRC menu item.
 	// xmenubar [-s] [ID]
-	else if (flags[TEXT('s')]) {
+	else if (flags[TEXT('s')])
+	{
 		if (numtok < 2)
 			throw Dcx::dcxException("Insufficient parameters");
 
@@ -162,7 +171,8 @@ void XMenuBar::parseXMenuBarInfo(const TString &input, const refString<TCHAR, MI
 	// Iterate through the names of menus added to XMenuBar.
 	// N = 0 returns total number of menus
 	// $xmenubar() [menu] [N]
-	if (prop == TEXT("menu")) {
+	if (prop == TEXT("menu"))
+	{
 		const auto iSize = m_vpXMenuBar.size();
 		const auto i = input.getnexttok().to_<VectorOfXPopupMenu::size_type>();	// tok 2
 
@@ -171,7 +181,7 @@ void XMenuBar::parseXMenuBarInfo(const TString &input, const refString<TCHAR, MI
 
 		// Return number of menus in menubar.
 		if (i == 0)
-			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), iSize);
+			_ts_snprintf(szReturnValue, TEXT("%u"), iSize);
 		// Return name of specified menu.
 		else
 			szReturnValue = m_vpXMenuBar[i - 1]->getName().to_chr();
@@ -183,7 +193,8 @@ void XMenuBar::parseXMenuBarInfo(const TString &input, const refString<TCHAR, MI
 /*
  * Adds the menu to the current menubar.
  */
-const bool XMenuBar::addToMenuBar(HMENU menubar, XPopupMenu *const p_Menu, const TString &label) {
+const bool XMenuBar::addToMenuBar(HMENU menubar, XPopupMenu *const p_Menu, const TString &label)
+{
 	m_vpXMenuBar.push_back(p_Menu);
 	return (AppendMenu(menubar, MF_POPUP, (UINT_PTR) p_Menu->getMenuHandle(), label.to_chr()) != 0);
 }
@@ -191,12 +202,14 @@ const bool XMenuBar::addToMenuBar(HMENU menubar, XPopupMenu *const p_Menu, const
 /*
  *
  */
-void XMenuBar::removeFromMenuBar(HMENU menubar, const XPopupMenu *const p_Menu) {
+void XMenuBar::removeFromMenuBar(HMENU menubar, const XPopupMenu *const p_Menu)
+{
 	if (m_vpXMenuBar.empty())
 		return;
 
 	// If no menubar is specified, get current menubar.
-	if (menubar == nullptr) {
+	if (menubar == nullptr)
+	{
 		menubar = GetMenu(mIRCLinker::getHWND());
 
 		if (!IsMenu(menubar))
@@ -234,15 +247,17 @@ void XMenuBar::removeFromMenuBar(HMENU menubar, const XPopupMenu *const p_Menu) 
 /*
  * Searches for the given menu in the menubar, and returns the zero-based index position.
  */
-const int XMenuBar::findMenuOffset(HMENU menubar, const XPopupMenu *const p_Menu) const {
-	MENUITEMINFO mii = { 0 };
+const int XMenuBar::findMenuOffset(HMENU menubar, const XPopupMenu *const p_Menu) const
+{
+	MENUITEMINFO mii{};
 	int offset = 0;					// Use 1 because 0 = the menubar itself when using GetMenuBarInfo()
 									// Changed to 0 to allow pre-increment within while()
 	mii.cbSize = sizeof(MENUITEMINFO);
 	mii.fMask = MIIM_SUBMENU;
 
 	// Whilst we can retrieve more menu items ...
-	while (GetMenuItemInfo(menubar, gsl::narrow_cast<UINT>(++offset), TRUE, &mii)) {
+	while (GetMenuItemInfo(menubar, gsl::narrow_cast<UINT>(++offset), TRUE, &mii))
+	{
 		// Continue if this isnt the menu we're after
 		if (p_Menu->getMenuHandle() == mii.hSubMenu)
 			return offset;
@@ -256,8 +271,10 @@ const int XMenuBar::findMenuOffset(HMENU menubar, const XPopupMenu *const p_Menu
  * Sets the menubar into the mIRC window, and automatically destroys the old menubar
  * if it isnt the original mIRC menubar.
  */
-void XMenuBar::setMenuBar(HMENU oldMenuBar, HMENU newMenuBar) {
-	if (newMenuBar != g_OriginalMenuBar) {
+void XMenuBar::setMenuBar(HMENU oldMenuBar, HMENU newMenuBar)
+{
+	if (newMenuBar != g_OriginalMenuBar)
+	{
 		MENUINFO mi{ sizeof(MENUINFO),(MIM_BACKGROUND | MIM_HELPID | MIM_MAXHEIGHT | MIM_MENUDATA | MIM_STYLE),0,0,nullptr,0,0 };
 
 		//ZeroMemory(&mi, sizeof(MENUINFO));
@@ -277,9 +294,8 @@ void XMenuBar::setMenuBar(HMENU oldMenuBar, HMENU newMenuBar) {
 		// scope used to make sure temp isnt used again.
 		auto temp(this->m_vpXMenuBar);
 
-		for (const auto &x : temp) {
+		for (const auto &x : temp)
 			x->detachFromMenuBar(oldMenuBar);
-		}
 	}
 	// Destroy the menu if it isnt the original mIRC menubar.
 	if (g_OriginalMenuBar == nullptr)
@@ -306,7 +322,8 @@ void XMenuBar::validateMenu(const XPopupMenu *const menu, const TString &name)
 /*
  *
  */
-void XMenuBar::resetMenuBar() {
+void XMenuBar::resetMenuBar()
+{
 	if (g_OriginalMenuBar != nullptr) {
 		auto menubar = GetMenu(mIRCLinker::getHWND());
 
@@ -318,7 +335,8 @@ void XMenuBar::resetMenuBar() {
 /*
  *
  */
-const bool XMenuBar::hasCallback() const noexcept {
+const bool XMenuBar::hasCallback() const noexcept
+{
 	return (!this->m_callback.empty());
 }
 
@@ -328,7 +346,8 @@ const bool XMenuBar::hasCallback() const noexcept {
  *
  * User should return '$true' from the callback to prevent default processing.
  */
-const bool XMenuBar::parseCallback(const UINT menuID) {
+const bool XMenuBar::parseCallback(const UINT menuID)
+{
 	TString result;
 	
 	//mIRCLinker::tsEvalex(result, TEXT("$%s(%d)"), this->m_callback.to_chr(), menuID);

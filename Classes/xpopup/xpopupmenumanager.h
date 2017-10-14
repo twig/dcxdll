@@ -28,11 +28,15 @@
 #pragma warning( disable : 2292 ) //warning #2292: destructor is declared but copy constructor and assignment operator are not
 #endif
 
-class XPopupMenuManager {
-
+class XPopupMenuManager
+{
 private:
-	XPopupMenu * m_mIRCPopupMenu;
-	XPopupMenu * m_mIRCMenuBar;
+	//XPopupMenu * m_mIRCPopupMenu;
+	//XPopupMenu * m_mIRCMenuBar;
+
+	std::unique_ptr<XPopupMenu> m_mIRCPopupMenu;
+	std::unique_ptr<XPopupMenu> m_mIRCMenuBar;
+	std::unique_ptr<XPopupMenu> m_mIRCScriptMenu;
 
 	bool m_bIsMenuBar;
 	bool m_bIsSysMenu;
@@ -52,7 +56,7 @@ public:
 	//XPopupMenuManager( );
 	//virtual ~XPopupMenuManager( );
 
-	XPopupMenuManager() : m_mIRCPopupMenu(nullptr), m_mIRCMenuBar(nullptr), m_bIsActiveMircMenubarPopup(false), m_bIsActiveMircPopup(false), m_hMenuCustom(nullptr), m_hMenuOwner(nullptr), m_vpXPMenu(), m_bIsSysMenu(false), m_bIsMenuBar(false) {}
+	XPopupMenuManager() : m_mIRCPopupMenu(nullptr), m_mIRCMenuBar(nullptr), m_mIRCScriptMenu(nullptr), m_bIsMenuBar(false), m_bIsSysMenu(false), m_bIsActiveMircPopup(false), m_bIsActiveMircMenubarPopup(false), m_hMenuCustom(nullptr), m_hMenuOwner(nullptr), m_vpXPMenu() {}
 	~XPopupMenuManager() = default;
 
 	void load(void);
@@ -70,13 +74,13 @@ public:
 
 	void setIsMenuBar(const bool value);
 
-#if DCX_USE_HASHING
 	XPopupMenu* getMenuByHash(const std::size_t uHash, const bool bCheckSpecial) const noexcept;
-#endif
 	XPopupMenu* getMenuByName(const TString &tsName, const bool bCheckSpecial) const noexcept;
 	XPopupMenu* getMenuByHandle(const HMENU hMenu) const noexcept;
 	XPopupMenu* getmIRCPopup(void) const noexcept;
 	XPopupMenu* getmIRCMenuBar(void) const noexcept;
+	XPopupMenu* getmIRCScriptMenu(void) const noexcept { return m_mIRCScriptMenu.get(); };
+
 	const bool isCustomMenu(const HMENU hMenu) const;
 	static const bool isMenuBarMenu(const HMENU hMenu, const HMENU hMatch);
 
@@ -106,7 +110,7 @@ protected:
 };
 
 extern HMENU g_OriginalMenuBar;
-extern XPopupMenu *g_mIRCScriptMenu;
+//extern XPopupMenu *g_mIRCScriptMenu;
 
 #ifdef __INTEL_COMPILER // Defined when using Intel C++ Compiler.
 #pragma warning( pop )

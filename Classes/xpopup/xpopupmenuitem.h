@@ -17,11 +17,13 @@
 
 #include "defines.h"
 
-#define XPMI_HEIGHT   22 //!< Menu Item Height
-#define XPMI_BOXLPAD  0  //!< Padding space between menu left bordure and box left bordure
-#define XPMI_BOXWIDTH 22 //!< Box Width (should be no less than 16)
-#define XPMI_BOXRPAD  5  //!< Padding space between box right border and text/line
-#define XPMI_ICONSIZE 16  //!< Icon Size
+#define XPMI_HEIGHT   22	//!< Menu Item Height
+#define XPMI_BOXLPAD  0		//!< Padding space between menu left bordure and box left bordure
+#define XPMI_BOXWIDTH 22	//!< Box Width (should be no less than 16)
+#define XPMI_BOXRPAD  5		//!< Padding space between box right border and text/line
+#define XPMI_ICONSIZE 16	//!< Icon Size
+#define XPMI_MINSTRING 20	//!< Min space reserved for string
+#define XPMI_SEPHEIGHT 3	//!< Seperator item height.
 
 // dummy class, resolved at runtime
 class XPopupMenu;
@@ -46,6 +48,20 @@ struct XPMENUCOLORS {
 	COLORREF m_clrSelectionBorder;		//!< Menu Item Selection Box Border Color
 	COLORREF m_clrSelectedText;			//!< Menu Item Selected Text Colour
 
+	XPMENUCOLORS()
+		: m_clrBack(RGB(255, 255, 255))
+		, m_clrBox(RGB(184, 199, 146))
+		, m_clrLightBox(RGB(240,243,231))
+		, m_clrSelection(RGB(255, 229, 179))
+		, m_clrDisabledSelection(RGB(255, 255, 255))
+		, m_clrText(RGB(0, 0, 0))
+		, m_clrDisabledText(RGB(128, 128, 128))
+		, m_clrCheckBox(RGB(255, 128, 0))
+		, m_clrDisabledCheckBox(RGB(200, 200, 200))
+		, m_clrSeparatorLine(RGB(128, 128, 128))
+		, m_clrSelectionBorder(RGB(0, 0, 0))
+		, m_clrSelectedText(RGB(0, 0, 0))
+	{}
 };
 using LPXPMENUCOLORS = XPMENUCOLORS *;
 

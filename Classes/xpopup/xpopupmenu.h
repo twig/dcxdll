@@ -12,6 +12,7 @@
  * © ScriptsDB.org - 2006
  */
 
+#pragma once
 #ifndef _XPOPUPMENU_H_
 #define _XPOPUPMENU_H_
 
@@ -121,7 +122,7 @@ public:
 	void destroyImageList( );
 
 	const MenuStyle &getStyle( ) const noexcept;
-	void setStyle( MenuStyle style ) noexcept;
+	void setStyle( const MenuStyle style ) noexcept;
 	const UINT &getItemStyle( ) const noexcept;
 	void setItemStyle( const UINT iExStyles ) noexcept;
 
@@ -129,11 +130,7 @@ public:
 	void deleteAllItemData( HMENU hMenu );
 
 	const TString &getName( ) const noexcept;
-#if DCX_USE_HASHING
-	const size_t &getNameHash() const noexcept {
-		return m_menuNameHash;
-	}
-#endif
+	const size_t &getNameHash() const noexcept { return m_menuNameHash;	}
 
 	const inline HMENU &getMenuHandle( ) const noexcept { return this->m_hMenu; };
 
@@ -167,7 +164,7 @@ public:
 	void setMarkedText(const TString &text);
 	const TString &getMarkedText() const noexcept;
 
-	BOOL getMenuInfo(const UINT iMask, const TString &path, MENUITEMINFO &mii) const;
+	bool getMenuInfo(const UINT iMask, const TString &path, MENUITEMINFO &mii) const;
 
 	VectorOfXPopupMenuItem m_vpMenuItem; //!< Vector of XPopupMenuItem Objects
 
@@ -179,9 +176,7 @@ protected:
 	TString m_tsMenuName; //!< Menu Name
 	TString m_tsMarkedText; //!< Extra field to store custom information
 	UINT m_MenuItemStyles; //!< Menu Item Styles
-#if DCX_USE_HASHING
 	size_t m_menuNameHash;	//!< Hash of tsMenuName
-#endif
 
 	HBITMAP m_hBitmap; //!< Menu Item Background Image in Custom Style
 
