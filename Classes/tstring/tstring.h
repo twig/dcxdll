@@ -179,13 +179,14 @@ private:
 	void deleteTempString(const bool bKeepBufferSize = false);
 #if !TSTRING_TESTCODE
 	UINT i_replace(const_pointer_const subString, const_pointer_const rString);
-#endif
 	static UINT match(const_pointer m, const_pointer n, const bool cs /* case sensitive */);
+#endif
 
 	//const size_t set_buffersize(const size_t size) { m_buffersize = TS_getmemsize(size); return m_buffersize; };	// make buffersize a multiple of 16
 	//allocate a buffer thats sized to multiples of 16 bytes, (%byte + (16 - (%byte % 16)))
 	//TCHAR *allocstr_bytes(const size_t size) { return (TCHAR *)(new BYTE[set_buffersize(size)]); };
-	auto allocstr_bytes(const size_type size) {
+	auto allocstr_bytes(const size_type size)
+	{
 #if TSTRING_INTERNALBUFFER
 		m_InternalBuffer[0] = TEXT('\0');
 		if (size <= TSTRING_INTERNALBUFFERSIZE_BYTES)
@@ -232,7 +233,8 @@ private:
 	{
 		static_assert(is_Numeric_v<T>, "Only Numeric Types accepted.");
 
-		if constexpr(std::is_signed_v<T>) {
+		if constexpr(std::is_signed_v<T>)
+		{
 			if ((m_pString == nullptr) || (N < 0) || (static_cast<size_type>(N) >= (m_buffersize / sizeof(value_type))))
 				throw std::out_of_range("TString::at()");
 		}
@@ -326,8 +328,10 @@ public:
 	TString(const_pointer_const cString, const size_type iLen)
 		: TString(iLen+1U)
 	{
-		if (cString != nullptr) {
-			if (cString[0] != TEXT('\0')) {
+		if (cString != nullptr)
+		{
+			if (cString[0] != TEXT('\0'))
+			{
 				ts_strcpyn_throw(m_pString, cString, iLen + 1);
 				m_iLen = iLen;
 			}
@@ -339,21 +343,24 @@ public:
 	//		cString	== string to add (char *)
 	//		iLen	== Length of string in characters.
 	TString(const char *const cString, const size_type iLen)
-		: m_pTempString(nullptr), m_pString(nullptr)
-		, m_savedtotaltoks(0), m_savedcurrenttok(0), m_savedpos(nullptr)
-		, m_bDirty(false), m_iLen(0)
+		: m_savedpos(nullptr), m_savedtotaltoks(0), m_savedcurrenttok(0)
+		, m_iLen(0), m_bDirty(false)
 #if TSTRING_INTERNALBUFFER
 		, m_bUsingInternal(false), m_InternalBuffer{ 0 }
 #endif
+		, m_pString(nullptr), m_pTempString(nullptr)
 	{
-		if (cString != nullptr) {
-			if (cString[0] != 0) {
+		if (cString != nullptr)
+		{
+			if (cString[0] != 0)
+			{
 				m_pString = charToWchar(cString, &m_buffersize);
 				//m_iLen = ts_strlen(m_pString);
 				m_iLen = iLen;
 			}
 		}
-		if (m_pString == nullptr) {
+		if (m_pString == nullptr)
+		{
 			m_pString = allocstr_cch(1);
 			m_pString[0] = TEXT('\0');
 		}
@@ -392,7 +399,8 @@ public:
 
 	// single + operator that handles all supported types (type checking handled by += operator)
 	template <class T>
-	TString operator +(const T &other) {
+	TString operator +(const T &other)
+	{
 		auto newTString(*this);
 		newTString += other;
 		return newTString;
@@ -429,13 +437,14 @@ public:
 
 	// final version of the += operator, properly handles numeric types (char, wchar classified as non-numeric here)
 	template <class T>
-	TString & operator +=(const T &other) {
-		if constexpr(is_Numeric_v<T>) {
+	TString & operator +=(const T &other)
+	{
+		if constexpr(is_Numeric_v<T>)
 			return append_number(other);
-		}
-		else {
+		else if constexpr(std::is_array_v<T>)
+			return append(&other[0]);
+		else
 			return append(other);
-		}
 	}
 
 	// code below is the same as above but without the is_Numeric() macro (kept as reference only)
@@ -465,7 +474,13 @@ public:
 	bool operator >=(const T &other) const noexcept { return !(*this < other); }
 
 	template <class T>
-	bool operator ==(const T &other) const noexcept { return (compare(other) == 0); }
+	bool operator ==(const T &other) const noexcept
+	{
+		if constexpr(std::is_array_v<T>)
+			return (compare(&other[0]) == 0);
+		else
+			return (compare(other) == 0);
+	}
 	template <>
 	bool operator ==(const int &iNull) const noexcept { return (m_pString == nullptr && !iNull); }
 
@@ -473,14 +488,26 @@ public:
 	bool operator !=(const T &other) const noexcept { return !(*this == other); }
 
 	template <class T>
-	bool operator <(const T &other) const noexcept { return (compare(other) < 0); }
+	bool operator <(const T &other) const noexcept
+	{
+		if constexpr(std::is_array_v<T>)
+			return (compare(&other[0]) < 0);
+		else
+			return (compare(other) < 0);
+	}
 
 	template <class T>
-	bool operator >(const T &other) const noexcept { return (compare(other) > 0); }
+	bool operator >(const T &other) const noexcept
+	{
+		if constexpr(std::is_array_v<T>)
+			return (compare(&other[0]) > 0);
+		else
+			return (compare(other) > 0);
+	}
 
 	template <class T>
-	TString operator -( const T &other ) {
-
+	TString operator -( const T &other )
+	{
 		if ( _ts_isEmpty(other) )
 			return *this;
 
@@ -498,7 +525,8 @@ public:
 	TString operator *( const int &N ) const;
 	TString & operator *=( const int &N );
 
-	TString operator ++(int N) const {
+	TString operator ++(int N) const
+	{
 		// NB: only works with space token
 		// NB: post-increment works for us as we want to return a copy (the token)
 		// NB: pre-increment doesn't work for this
@@ -507,11 +535,13 @@ public:
 	}
 	
 	// returns the current token as set by ++ operator above (or getfirsttok()/getnexttok() with a space sepchar)
-	const TString operator* () const {
+	const TString operator* () const
+	{
 		const_pointer p_cStart = m_pString;
 		if (m_savedpos != nullptr)
 			p_cStart = m_savedpos;
-		auto p_cEnd = ts_strchr(p_cStart, SPACECHAR);
+
+		const auto *const p_cEnd = ts_strchr(p_cStart, SPACECHAR);
 		if (p_cEnd == nullptr)
 			return TString(p_cStart);
 	
@@ -594,7 +624,8 @@ public:
 
 	//conversion operators.
 	template <class T, typename = std::enable_if_t<is_Numeric_v<T>> >
-	operator T() const {
+	operator T() const
+	{
 		static_assert(is_Numeric_v<T>, "Type T must be (int, long, float, double, ....)");
 		return to_<T>();
 	}
@@ -682,13 +713,14 @@ public:
 	template <typename T>
 	int find(const T &substring, const int N) const noexcept
 	{
-		if (!_ts_isEmpty(substring) && !_ts_isEmpty(m_pString)) {
-
+		if (!_ts_isEmpty(substring) && !_ts_isEmpty(m_pString))
+		{
 			const_pointer temp = nullptr, temp2 = m_pString;
 
 			auto i = decltype(N){0};
 			const auto subl = _ts_strlen(substring);
-			while ((temp = _ts_find(temp2, substring)) != nullptr) {
+			while ((temp = _ts_find(temp2, substring)) != nullptr)
+			{
 				++i;
 				//if ( N != 0 && i == N )
 				if (i == N) // i is never zero
@@ -722,16 +754,17 @@ public:
 		if (empty())
 			return 0U;
 
-		auto subl = _ts_strlen(subString);
+		const auto subl = _ts_strlen(subString);
 
 		if (subl == 0)
 			return 0U;
 
-		auto repl = _ts_strlen(rString);
+		const auto repl = _ts_strlen(rString);
 
 		auto c = 0U;
 		TString tmp;
-		auto pStart = m_pString, pfEnd = m_pString + length();
+		auto pStart = m_pString;
+		const auto *const pfEnd = m_pString + length();
 		auto pEnd = decltype(pStart){0};
 
 		while ((pEnd = _ts_find(pStart, subString)) != nullptr)
@@ -964,14 +997,6 @@ public:
 		if (_ts_isEmpty(sepChars))
 			return;
 
-		// cant add a zero number or an empty token with this
-		//if (!tToken || _ts_isEmpty(sepChars))
-		//	return;
-
-		// Ook: this code has an issue when a number is being added
-		//if (_ts_isEmpty(tToken) || _ts_isEmpty(sepChars))
-		//	return;
-
 		if (!empty())
 			*this += sepChars;
 
@@ -989,7 +1014,8 @@ public:
 		//code below has issues due to way iterator works & gets converted to numbers on return (fixed)
 		auto count = decltype(N){0};
 		return std::find_if(begin(sepChars), itEnd, [&count, &N, &cToken](const auto &x) {
-			if (x == cToken) {
+			if (x == cToken)
+			{
 				if (++count == N)
 					return true;
 			}
@@ -998,7 +1024,8 @@ public:
 	}
 
 	template <class T, typename TSepChars = const_reference>
-	void remtok(const T &cToken, const UINT N, TSepChars sepChars = SPACECHAR) {
+	void remtok(const T &cToken, const UINT N, TSepChars sepChars = SPACECHAR)
+	{
 		deltok(findtok(cToken, N, sepChars), sepChars);
 	}
 
@@ -1015,11 +1042,13 @@ public:
 			return;
 
 		TString tsTmp;
-		if (const auto nToks = numtok(sepChars); N == 1) {
+		if (const auto nToks = numtok(sepChars); N == 1)
+		{
 			// N == 1
 			// so just add new token to start & add existing token(s) at end.
 			tsTmp += cToken;
-			if (nToks > 0) {
+			if (nToks > 0)
+			{
 				tsTmp += sepChars;
 				tsTmp += *this;
 			}
@@ -1032,7 +1061,8 @@ public:
 			tsTmp += sepChars;
 			tsTmp += cToken;
 			// and any tokens after the inserted one.
-			if (N < nToks) {
+			if (N < nToks)
+			{
 				tsTmp += sepChars;
 				tsTmp += gettok(static_cast<int>(N), -1, sepChars);
 			}
@@ -1063,7 +1093,8 @@ public:
 
 			swap(tmp);
 		}
-		else if (nToks < N) {
+		else if (nToks < N)
+		{
 			// add token to end (nothing to replace)
 			addtok(cToken, sepChars);
 		}
@@ -1100,7 +1131,8 @@ public:
 		if (N > nToks)
 			return;
 
-		if (N == 1 && nToks == 1) {
+		if (N == 1 && nToks == 1)
+		{
 			clear();
 			//deleteString();
 			return;
@@ -1110,7 +1142,8 @@ public:
 		auto i = decltype(N){0};
 		const auto sepl = _ts_strlen(sepChars);
 
-		while ((p_cEnd = _ts_find(p_cStart, sepChars)) != nullptr) {
+		while ((p_cEnd = _ts_find(p_cStart, sepChars)) != nullptr)
+		{
 			++i;
 
 			if (i == N)
@@ -1124,7 +1157,8 @@ public:
 		TString tmp(l);
 
 		// last token
-		if (p_cEnd == nullptr) {
+		if (p_cEnd == nullptr)
+		{
 			--p_cStart;
 			*p_cStart = 0;
 			p_cEnd = m_pString;
@@ -1146,7 +1180,8 @@ public:
 
 	TString getlasttoks() const;															// gets all remaining tokens after a getfirsttok()/getnexttok() call.
 	const bool moretokens() const noexcept { return (m_savedpos != nullptr); }
-	void resettokens() const noexcept {
+	void resettokens() const noexcept
+	{
 		m_savedcurrenttok = 0;
 		m_savedpos = nullptr;
 		m_savedtotaltoks = 0;
@@ -1163,7 +1198,8 @@ public:
 		auto count = decltype(N){0};
 		auto itEnd = end();
 		if (auto itGot = std::find_if(begin(sepChars), itEnd, [&count, &N, &mString](const auto &x) {
-			if (_ts_find(x.to_chr(), mString) != nullptr) {
+			if (_ts_find(x.to_chr(), mString) != nullptr)
+			{
 				++count;
 				if (count >= N)
 					return true;
@@ -1191,7 +1227,8 @@ public:
 		auto iCount = 0U;
 		const auto sepl = _ts_strlen(sepChars);
 
-		while ((p_cEnd = _ts_find(p_cStart, sepChars)) != nullptr) {
+		while ((p_cEnd = _ts_find(p_cStart, sepChars)) != nullptr)
+		{
 			++iCount;
 			p_cStart = p_cEnd + sepl;
 		}
@@ -1224,18 +1261,20 @@ public:
 		auto iCount = 0;
 		const auto sepl = _ts_strlen(sepChars);
 
-		while ((p_cEnd = _ts_find(p_cStart, sepChars)) != nullptr) {
+		while ((p_cEnd = _ts_find(p_cStart, sepChars)) != nullptr)
+		{
 			++iCount;
 
-			if (iCount == iStart) {
-
+			if (iCount == iStart)
+			{
 				p_cFirst = p_cStart;
 
 				if (bFullstring)
 					break;
 			}
 
-			if (iCount == nEnd) {
+			if (iCount == nEnd)
+			{
 				p_cLast = p_cEnd;
 				break;
 			}
@@ -1245,8 +1284,8 @@ public:
 				break;
 		}
 
-		if (bFullstring) {
-
+		if (bFullstring)
+		{
 			if (static_cast<size_t>(iCount) == (nToks - 1))
 				p_cFirst = p_cStart;
 
@@ -1304,12 +1343,14 @@ public:
 		if (_ts_isEmpty(sepChars) || m_pString == nullptr || m_savedpos == nullptr || m_savedcurrenttok > m_savedtotaltoks)
 			return T();
 
-		if (const_pointer_const p_cStart = m_savedpos; m_savedcurrenttok == m_savedtotaltoks) {
+		if (const_pointer_const p_cStart = m_savedpos; m_savedcurrenttok == m_savedtotaltoks)
+		{
 			m_savedpos = nullptr;
 			//return TString(p_cStart).to_<T>();
 			return Dcx::parse_string<T, value_type>(p_cStart);
 		}
-		else if (const_pointer_const p_cEnd = _ts_find(p_cStart, sepChars); p_cEnd != nullptr) {
+		else if (const_pointer_const p_cEnd = _ts_find(p_cStart, sepChars); p_cEnd != nullptr)
+		{
 			m_savedpos = (p_cEnd + _ts_strlen(sepChars));
 			return TString(p_cStart, p_cEnd).to_<T>();
 		}
@@ -1334,11 +1375,13 @@ public:
 		if (m_savedpos == nullptr || m_savedcurrenttok > m_savedtotaltoks)
 			return {};
 
-		if (const_pointer_const p_cStart = m_savedpos; m_savedcurrenttok == m_savedtotaltoks) {
+		if (const_pointer_const p_cStart = m_savedpos; m_savedcurrenttok == m_savedtotaltoks)
+		{
 			m_savedpos = nullptr;
 			return TString(p_cStart);
 		}
-		else if (const auto *const p_cEnd = _ts_find(p_cStart, sepChars); p_cEnd != nullptr) {
+		else if (const auto *const p_cEnd = _ts_find(p_cStart, sepChars); p_cEnd != nullptr)
+		{
 			m_savedpos = (p_cEnd + _ts_strlen(sepChars));
 			return TString(p_cStart, p_cEnd);
 		}
@@ -1347,7 +1390,8 @@ public:
 
 #endif
 
-	struct SortOptions {
+	struct SortOptions
+	{
 		bool bAlpha;
 		bool bNumeric;
 		bool bPrefix;
@@ -1371,8 +1415,8 @@ public:
 		tsIterator(const tsIterator<tsType, T> &other) = default;
 		tsIterator(tsType *ptr = nullptr) : tsIterator(ptr, nullptr) { if (m_ptr == nullptr) m_iIndex = 0; }
 		tsIterator(tsType *ptr, T *const sepChars)
-			: m_ptr(ptr), m_iIndex(1), m_sepChars(sepChars), m_sepChar(), m_toks(0)/*, m_iPrevIndex(1)*/
-			, m_savedStart(nullptr), m_savedEnd(nullptr), m_savedFinal(nullptr)
+			: m_ptr(ptr), m_iIndex(1), m_toks(0), m_sepChars(sepChars)/*, m_iPrevIndex(1)*/
+			, m_savedStart(nullptr), m_savedEnd(nullptr), m_savedFinal(nullptr), m_sepChar()
 		{
 			if (m_sepChars == nullptr)
 			{
@@ -1400,7 +1444,7 @@ public:
 			}
 		}
 		tsIterator(tsType *ptr, T &sepChar)
-			: m_ptr(ptr), m_iIndex(1), m_sepChars(&m_sepChar[0]), m_toks(0)/*, m_iPrevIndex(1)*/
+			: m_ptr(ptr), m_iIndex(1), m_toks(0), m_sepChars(&m_sepChar[0])/*, m_iPrevIndex(1)*/
 			, m_savedStart(nullptr), m_savedEnd(nullptr), m_savedFinal(nullptr), m_sepChar{ sepChar, T() }
 		{
 			if (sepChar == T())
@@ -1426,7 +1470,8 @@ public:
 		~tsIterator(){}
 
 		tsIterator<tsType, T> &operator = (const tsIterator<tsType, T> &other) = default;
-		tsIterator<tsType, T> &operator = (tsType *ptr) {
+		tsIterator<tsType, T> &operator = (tsType *ptr)
+		{
 			m_ptr = ptr;
 			m_sepChars = SPACE;
 			m_sepCharsLen = 1;
@@ -1568,7 +1613,7 @@ public:
 
 #if TSTRING_TESTCODE
 	template <typename T> bool iswm(const T &a) const noexcept { return _ts_WildcardMatch(*this, a); }
-	template <typename T> bool iswmcs(const T &a) const noexcept { return _ts_WildcardMatch(*this, a); }
+	template <typename T> bool iswmcs(const T &a) const noexcept { return _ts_WildcardMatch(*this, a, true); }
 #else
 	bool iswm(const_pointer_const a) const noexcept;
 	bool iswmcs(const_pointer_const a) const noexcept;
@@ -1591,7 +1636,7 @@ public:
 	//	MakeTemp();
 	//	return m_pTempString;
 	//}
-	const char *const c_str(void) const											// returns the string as a const char * (string can't be altered)
+	const char *const c_str(void) const									// returns the string as a const char * (string can't be altered)
 	{
 		MakeTemp();
 		return m_pTempString;
@@ -1599,7 +1644,8 @@ public:
 	ULONG to_addr() const;
 
 	template <typename T>
-	T to_() const {
+	T to_() const
+	{
 		static_assert(is_Numeric_v<T>, "Type T must be (int, long, float, double, ....)");
 
 		std::basic_istringstream<value_type> ss(m_pString);	// makes copy of string :(

@@ -20,6 +20,16 @@ template <typename T>
 constexpr bool is_Numeric_v = is_Numeric<T>::value;
 
 namespace details {
+	constexpr WCHAR make_upper(const WCHAR c)
+	{
+		if (c >= L'a' && c <= L'z') return _toupper(c);
+		return c;
+	}
+	constexpr bool CompareChar(const WCHAR c, const WCHAR other, const bool bCase)
+	{
+		return (bCase) ? c == other : make_upper(c) == make_upper(other);
+	}
+
 	template <typename Result, typename Format>
 	Result &_ts_printf_do(Result &res, const Format &fmt)
 	{
@@ -44,7 +54,10 @@ namespace details {
 				else if (c == decltype(c){'%'})
 				{
 					res += val;
-					return _ts_printf_do(res, fmt + i + 1, args...);
+					if constexpr(std::is_array_v<Format> && std::is_pod_v<Format>)
+						return _ts_printf_do(res, &fmt[0] + i + 1, args...);
+					else
+						return _ts_printf_do(res, fmt + i + 1, args...);
 				}
 			}
 			else
@@ -102,7 +115,8 @@ namespace details {
 	template <typename T>
 	bool _ts_isEmpty(const T &str) noexcept
 	{
-		if constexpr(std::is_pointer_v<T>) {
+		if constexpr(std::is_pointer_v<T>)
+		{
 			// T is a pointer
 			// Test if a string is empty, works for C String char * or wchar_t *
 			using value_type = std::remove_cv_t<std::remove_pointer_t<T> >;
@@ -110,7 +124,8 @@ namespace details {
 			static_assert(std::is_same_v<value_type, char> || std::is_same_v<value_type, wchar_t>, "Invalid Type used");
 			return ((str == nullptr) || (str[0] == value_type()));
 		}
-		else if constexpr(std::is_pod_v<T>) {
+		else if constexpr(std::is_pod_v<T>)
+		{
 			// T is NOT a pointer but IS POD
 			// Test if a string is empty, works for C char or wchar_t
 			using value_type = std::remove_cv_t<T>;
@@ -118,9 +133,10 @@ namespace details {
 			static_assert(std::is_same_v<value_type, char> || std::is_same_v<value_type, wchar_t>, "Invalid Type used");
 			return (str == value_type());
 		}
-		else if constexpr(std::is_member_function_pointer_v<decltype(&T::empty)>) {
+		else if constexpr(std::is_member_function_pointer_v<decltype(&T::empty)>)
+		{
 			// T is NOT a pointer and is NOT POD
-			// Test if a string is empty, works for std::basic_string & TString objects
+			// Test if a container is empty, works for std::basic_string & TString objects or any container with an empty() member function.
 			return str.empty();
 		}
 	}
@@ -166,7 +182,10 @@ namespace details {
 	template <typename T, typename size_type = std::size_t>
 	constexpr size_type _ts_strlen(const T &str) noexcept
 	{
-		if constexpr(std::is_pointer_v<T>) {
+		if constexpr(std::is_pointer_v<T>)
+		{
+			// T is a pointer
+			//  return length of string...
 			using value_type = std::remove_cv_t<std::remove_pointer_t<T> >;
 
 			static_assert(std::is_same_v<value_type, char> || std::is_same_v<value_type, wchar_t>, "Invalid Type used");
@@ -175,10 +194,15 @@ namespace details {
 				++iLen;
 			return iLen;
 		}
-		else if constexpr(std::is_same_v<std::remove_cv_t<T>, wchar_t> || std::is_same_v<std::remove_cv_t<T>, char>) {
+		else if constexpr(std::is_same_v<std::remove_cv_t<T>, wchar_t> || std::is_same_v<std::remove_cv_t<T>, char>)
+		{
+			// T is POD, char or wchar_t
+			// checks if char is zero or not
 			return (str == T() ? 0U : 1U);
 		}
-		else if constexpr(std::is_member_function_pointer_v<decltype(&T::length)>) {
+		else if constexpr(std::is_member_function_pointer_v<decltype(&T::length)>)
+		{
+			// T has a member function length()
 			return gsl::narrow_cast<size_type>(str.length());
 		}
 	}
@@ -186,6 +210,7 @@ namespace details {
 	template <typename T, typename size_type = std::size_t, std::size_t N>
 	constexpr inline size_type _ts_strlen(T const (&)[N]) noexcept
 	{
+		// T is a fixed array
 		return (N == 0U ? 0U : N - 1);
 	}
 
@@ -570,7 +595,7 @@ T *_ts_strstr(T *input, const std::remove_const_t<T> *find)
 #define TSTRING_WILDW 0
 
 template <typename TameString, typename WildString>
-bool _ts_WildcardMatch(const TameString &pszString, const WildString &pszMatch) noexcept
+bool _ts_WildcardMatch(const TameString &pszString, const WildString &pszMatch, const bool bCase = false) noexcept
 {
 	if ((pszMatch == nullptr) || (pszString == nullptr))
 		return false;
@@ -601,7 +626,7 @@ bool _ts_WildcardMatch(const TameString &pszString, const WildString &pszMatch) 
 		else if (pszMatch[iWildOffset] == TEXT('^'))
 		{
 			++iWildOffset;
-			if (_toupper(pszMatch[iWildOffset]) == _toupper(pszString[iTameOffset]))
+			if (details::CompareChar(pszMatch[iWildOffset], pszString[iTameOffset], bCase))
 				++iTameOffset;
 			++iWildOffset;
 		}
@@ -611,7 +636,7 @@ bool _ts_WildcardMatch(const TameString &pszString, const WildString &pszMatch) 
 		{
 			// any character following a '\' is taken as a literal character.
 			++iWildOffset;
-			if (_toupper(pszMatch[iWildOffset]) != _toupper(pszString[iTameOffset]))
+			if (!details::CompareChar(pszMatch[iWildOffset], pszString[iTameOffset], bCase))
 				return false;
 			++iTameOffset;
 		}
@@ -624,7 +649,8 @@ bool _ts_WildcardMatch(const TameString &pszString, const WildString &pszMatch) 
 				++iTameOffset;
 		}
 #endif
-		else if (pszMatch[iWildOffset] == TEXT('?') || _toupper(pszMatch[iWildOffset]) == _toupper(pszString[iTameOffset]))
+		//else if (pszMatch[iWildOffset] == TEXT('?') || _toupper(pszMatch[iWildOffset]) == _toupper(pszString[iTameOffset]))
+		else if (pszMatch[iWildOffset] == TEXT('?') || details::CompareChar(pszMatch[iWildOffset],pszString[iTameOffset], bCase))
 		{
 			++iWildOffset;
 			++iTameOffset;

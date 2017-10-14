@@ -142,10 +142,11 @@ TString::TString(const WCHAR chr)
 TString::TString(const char chr)
 	: TString(2U)
 {
-	if (chr != '\0') {
+	if (chr != '\0')
+	{
 		const char cString[] = { chr, '\0' };
 
-		if (auto sTemp = charToWchar(cString, &m_buffersize); sTemp != nullptr)
+		if (const auto sTemp = charToWchar(&cString[0], &m_buffersize); sTemp != nullptr)
 		{
 			m_pString = sTemp;
 			m_bUsingInternal = false;
@@ -158,13 +159,15 @@ TString::TString(const char chr)
 	, m_savedtotaltoks(0), m_savedcurrenttok(0), m_savedpos(nullptr)
 	, m_bDirty(true), m_iLen(0)
 {
-	if (chr != '\0') {
+	if (chr != '\0')
+	{
 		const char cString[] = { chr, '\0' };
 
-		m_pString = charToWchar(cString, &m_buffersize);
+		m_pString = charToWchar(&cString[0], &m_buffersize);
 	}
 
-	if (m_pString == nullptr) {
+	if (m_pString == nullptr)
+	{
 		m_pString = allocstr_cch(1);
 		m_pString[0] = TEXT('\0');
 		m_bDirty = false;
@@ -281,8 +284,8 @@ TString::TString(const UINT tsSize)
 }
 #endif
 
-TString::~TString( ) {
-
+TString::~TString( )
+{
 	this->deleteString( );
 }
 
@@ -303,8 +306,8 @@ void TString::deleteString(const bool bKeepBufferSize)
 	this->deleteTempString(bKeepBufferSize);
 }
 
-void TString::deleteTempString(const bool bKeepBufferSize) {
-
+void TString::deleteTempString(const bool bKeepBufferSize)
+{
 	delete [] this->m_pTempString; 
 
 	this->m_pTempString = nullptr;
@@ -404,8 +407,8 @@ TString& TString::operator =( const char chr )
 */
 /****************************/
 
-TString TString::operator *( const int &N ) const {
-
+TString TString::operator *( const int &N ) const
+{
 	if (N < 0 || N == 1)
 		return *this;
 
@@ -416,7 +419,7 @@ TString TString::operator *( const int &N ) const {
 
 	TString tmp((UINT)((sz *N) + 1));
 
-	for (auto i = decltype(N){0}; i < N; i++)
+	for (auto i = decltype(N){0}; i < N; ++i)
 		ts_strcat_throw(tmp.m_pString, this->m_pString);
 
 	return tmp;
@@ -432,9 +435,10 @@ TString TString::operator *( const int &N ) const {
 */
 /****************************/
 
-TString & TString::operator *=( const int &N ) {
-
-	if (N == 0) {
+TString & TString::operator *=( const int &N )
+{
+	if (N == 0)
+	{
 		//this->deleteString();
 		this->clear();
 		return *this;
@@ -448,7 +452,7 @@ TString & TString::operator *=( const int &N ) {
 
 	TString tmp((UINT)((sz * N) + 1U));
 
-	for (auto i = decltype(N){0}; i < N; i++)
+	for (auto i = decltype(N){0}; i < N; ++i)
 	{
 		//append(*this);
 		ts_strcat_throw(tmp.m_pString, m_pString);
@@ -466,7 +470,8 @@ TString & TString::operator *=( const int &N ) {
     \return String length
 */
 
-const size_t &TString::len( ) const noexcept {
+const size_t &TString::len( ) const noexcept
+{
 	if (empty())	// check for zero length string.
 		m_iLen = 0U;
 	else if (m_bDirty)
@@ -490,8 +495,8 @@ const size_t &TString::len( ) const noexcept {
 */
 /****************************/
 
-int TString::find(const_pointer_const substring, const int N) const noexcept {
-
+int TString::find(const_pointer_const substring, const int N) const noexcept
+{
 	//if ((substring != nullptr) && (m_pString != nullptr)) {
 	//
 	//	const TCHAR * temp = nullptr, *temp2 = m_pString;
@@ -510,13 +515,14 @@ int TString::find(const_pointer_const substring, const int N) const noexcept {
 	//}
 	//return -1;
 
-	if (!_ts_isEmpty(substring) && !_ts_isEmpty(m_pString)) {
-
+	if (!_ts_isEmpty(substring) && !_ts_isEmpty(m_pString))
+	{
 		const TCHAR * temp = nullptr, *temp2 = m_pString;
 
 		auto i = decltype(N){0};
 		const auto subl = _ts_strlen(substring);
-		while ((temp = _ts_find(temp2, substring)) != nullptr) {
+		while ((temp = _ts_find(temp2, substring)) != nullptr)
+		{
 			i++;
 			//if ( N != 0 && i == N )
 			if (i == N) // i is never zero
@@ -534,7 +540,8 @@ int TString::find(const_pointer_const substring, const int N) const noexcept {
     \brief Function to find position or number of occurrences of a TCHAR in the string
 */
 /****************************/
-int TString::find(const_value_type chr, const int N) const noexcept {
+int TString::find(const_value_type chr, const int N) const noexcept
+{
 	//auto c = decltype(N){0};
 	//const auto len = this->len();
 	//
@@ -557,7 +564,8 @@ int TString::find(const_value_type chr, const int N) const noexcept {
 
 	auto c = 0;
 
-	for (auto p = m_pString; p && *p; p++) {
+	for (auto p = m_pString; p && *p; p++)
+	{
 		// found a match, increase counter
 		if (*p == chr)
 		{
@@ -592,8 +600,8 @@ int TString::find(const_value_type chr, const int N) const noexcept {
 */
 /****************************/
 
-TString TString::sub( int N, int M ) const {
-
+TString TString::sub( int N, int M ) const
+{
 	if (empty())
 		return {};
 
@@ -603,7 +611,7 @@ TString TString::sub( int N, int M ) const {
 		N += size;
 
 	if (N > size - 1 || N < 0)
-		return {};
+		return TString();
 
 	if (N + M > size)
 		M = size - N;
@@ -633,14 +641,16 @@ TString &TString::remove(const_pointer_const subString)
 	TString tmp;
 	tmp.reserve(len() + 1);
 
-	while ((sub = ts_strstr(p, subString)) != nullptr) {
+	while ((sub = ts_strstr(p, subString)) != nullptr)
+	{
 		ts_strncat_throw(tmp.m_pString, p, (sub - p)); // copy bit before substring. if any.
 
 		cnt++;
 		p = sub + subl; // update pointer to skip substring.
 	}
 
-	if (cnt > 0) {
+	if (cnt > 0)
+	{
 		ts_strcat_throw(tmp.m_pString, p); // append the end text, if any.
 
 		swap(tmp);
@@ -682,17 +692,20 @@ UINT TString::i_replace(const_pointer_const subString, const_pointer_const rStri
 
 	// Ook: needs looked at to avoid double loop if we can.
 	// see if we have any matches & how many.
-	while ((sub = ts_strstr(p, subString)) != nullptr) {
+	while ((sub = ts_strstr(p, subString)) != nullptr)
+	{
 		cnt++;
 		p = sub + subl;
 	}
 	// make final string if we have any matches.
-	if (cnt > 0) {
+	if (cnt > 0)
+	{
 		p = this->m_pString;
 
 		TString tmp((UINT)((cnt * _ts_strlen(rString)) + (this->len() - (cnt * subl)) + 1)); // allocate new string.
 
-		while ((sub = ts_strstr(p, subString)) != nullptr) {
+		while ((sub = ts_strstr(p, subString)) != nullptr)
+		{
 			ts_strncat_throw(tmp.m_pString, p, (sub - p)); // copy bit before substring. if any.
 			ts_strcat_throw(tmp.m_pString, rString); // append new replacement string.
 
@@ -711,7 +724,8 @@ UINT TString::i_replace(const_pointer_const subString, const_pointer_const rStri
 */
 /****************************/
 
-UINT TString::replace(const_pointer_const subString, const_pointer_const rString) {
+UINT TString::replace(const_pointer_const subString, const_pointer_const rString)
+{
 	return this->i_replace(subString,rString);
 }
 
@@ -721,8 +735,8 @@ UINT TString::replace(const_pointer_const subString, const_pointer_const rString
 */
 /****************************/
 
-UINT TString::replace(const_pointer_const subString, const_value_type rchr) {
-
+UINT TString::replace(const_pointer_const subString, const_value_type rchr)
+{
 	const_value_type tmp[] = { rchr, TEXT('\0') };
 	return this->i_replace(subString,tmp);
 }
@@ -733,8 +747,8 @@ UINT TString::replace(const_pointer_const subString, const_value_type rchr) {
 */
 /****************************/
 
-UINT TString::replace(const_value_type chr, const_pointer_const rString) {
-
+UINT TString::replace(const_value_type chr, const_pointer_const rString)
+{
 	const_value_type tmp[] = { chr, TEXT('\0') };
 	return this->i_replace(tmp,rString);
 }
@@ -745,13 +759,14 @@ UINT TString::replace(const_value_type chr, const_pointer_const rString) {
 */
 /****************************/
 
-UINT TString::replace( const_value_type chr, const_value_type rchr ) {
-
+UINT TString::replace( const_value_type chr, const_value_type rchr )
+{
 	auto cnt = 0U;
 	
 	for (auto p = this->m_pString; p && *p != TEXT('\0'); p++)
 	{
-		if (*p == chr) {
+		if (*p == chr)
+		{
 			*p = rchr;
 			cnt++;
 		}
@@ -772,16 +787,17 @@ UINT TString::mreplace(const_value_type chr, const_pointer_const fmt)
 	if (fmt == nullptr)
 		return cnt;
 
-	for (auto p = m_pString; p && *p != TEXT('\0'); p++)
+	for (auto p = m_pString; p && *p != TEXT('\0'); ++p)
 	{
 		auto i = 0U;
 		for (auto rchr = fmt[0]; rchr != TEXT('\0'); rchr = fmt[i])
 		{
-			if (*p == rchr) {
+			if (*p == rchr)
+			{
 				*p = chr;
-				cnt++;
+				++cnt;
 			}
-			i++;
+			++i;
 		}
 	}
 	return cnt;
@@ -913,8 +929,8 @@ UINT TString::mreplace(const_value_type chr, const_pointer_const fmt)
  * blah
  */
 
-TString TString::gettok(int N, const_pointer_const sepChars) const {
-
+TString TString::gettok(int N, const_pointer_const sepChars) const
+{
 	if (sepChars == nullptr)
 		return *this;
 
@@ -923,8 +939,8 @@ TString TString::gettok(int N, const_pointer_const sepChars) const {
 	if ((N > static_cast<int>(nToks)) || (nToks == 0))
 		return TString();
 
-	if (N < 0) {
-
+	if (N < 0)
+	{
 		N += (nToks + 1);
 		if (N < 1)
 			return TString();
@@ -935,7 +951,8 @@ TString TString::gettok(int N, const_pointer_const sepChars) const {
 	auto iCount = decltype(N){0};
 	const auto sepl = _ts_strlen(sepChars); // Ook
 
-	while ((p_cEnd = ts_strstr(p_cStart, sepChars)) != nullptr) {
+	while ((p_cEnd = ts_strstr(p_cStart, sepChars)) != nullptr)
+	{
 		iCount++;
 
 		if (iCount == N)
@@ -966,8 +983,8 @@ TString TString::gettok(int N, const_pointer_const sepChars) const {
  *				If NULL returns the whole current string.
  */
 
-TString TString::gettok(int N, int M, const_pointer_const sepChars) const {
-
+TString TString::gettok(int N, int M, const_pointer_const sepChars) const
+{
 	if (sepChars == nullptr)
 		return *this;
 
@@ -982,8 +999,8 @@ TString TString::gettok(int N, int M, const_pointer_const sepChars) const {
 	if ((N > static_cast<int>(nToks)) || (nToks == 0))
 		return TString();
 
-	if ( N < 0 ) {
-
+	if ( N < 0 )
+	{
 		N += ( nToks + 1 );
 		if ( N < 1 )
 			return TString();
@@ -998,19 +1015,20 @@ TString TString::gettok(int N, int M, const_pointer_const sepChars) const {
 	size_t iCount = 0;
 	const auto sepl = _ts_strlen( sepChars ); // Ook
 
-	while ((p_cEnd = ts_strstr(p_cStart, sepChars)) != nullptr) {
+	while ((p_cEnd = ts_strstr(p_cStart, sepChars)) != nullptr)
+	{
 		iCount++;
 
-		if (static_cast<int>(iCount) == N ) {
-
+		if (static_cast<int>(iCount) == N )
+		{
 			p_cFirst = p_cStart;
 
 			if ( M == -1 )
 				break;
 		}
 
-		if ( static_cast<int>(iCount) == M ) {
-
+		if ( static_cast<int>(iCount) == M )
+		{
 			//p_cLast = p_cStart;
 			p_cLast = p_cEnd;
 			break;
@@ -1021,8 +1039,8 @@ TString TString::gettok(int N, int M, const_pointer_const sepChars) const {
 			break;
 	}
 
-	if ( M == -1 ) {
-
+	if ( M == -1 )
+	{
 		if ( iCount == nToks - 1 )
 			p_cFirst = p_cStart;
 
@@ -1072,7 +1090,8 @@ TString TString::getfirsttok(const UINT N, const_pointer_const sepChars) const
 	//this->m_tSavedSepChars = std::make_unique<TCHAR[]>(sepl);
 	//ts_strcpy_throw(this->m_tSavedSepChars.get(), sepChars);
 
-	while ((p_cEnd = ts_strstr(p_cStart, sepChars)) != nullptr) {
+	while ((p_cEnd = ts_strstr(p_cStart, sepChars)) != nullptr)
+	{
 		iCount++;
 
 		if (iCount == N) {
@@ -1080,13 +1099,15 @@ TString TString::getfirsttok(const UINT N, const_pointer_const sepChars) const
 			return TString(p_cStart, p_cEnd);
 		}
 		p_cStart = p_cEnd + sepl; // Ook
-		if (p_cStart >= p_fEnd) {
+		if (p_cStart >= p_fEnd)
+		{
 			this->m_savedpos = nullptr;
 			break;
 		}
 	}
 
-	if (iCount == N - 1) {
+	if (iCount == N - 1)
+	{
 		//this->m_savedpos = nullptr;	// this line causes TString++ operator to fail to get the last token correctly, instead it returns the whole string...
 		return TString(p_cStart, p_fEnd);
 	}
@@ -1112,15 +1133,18 @@ TString TString::getfirsttok(const size_type N, const_reference sepChar) const
 	const_pointer_const p_fEnd = last();
 	auto iCount = decltype(N){0};
 
-	while ((p_cEnd = ts_strchr(p_cStart, sepChar)) != nullptr) {
+	while ((p_cEnd = ts_strchr(p_cStart, sepChar)) != nullptr)
+	{
 		iCount++;
 
-		if (iCount == N) {
+		if (iCount == N)
+		{
 			this->m_savedpos = p_cEnd + 1U;
 			return TString(p_cStart, p_cEnd);
 		}
 		p_cStart = p_cEnd + 1U;
-		if (p_cStart >= p_fEnd) {
+		if (p_cStart >= p_fEnd)
+		{
 			this->m_savedpos = nullptr;
 			break;
 		}
@@ -1139,8 +1163,8 @@ TString TString::getfirsttok(const size_type N, const_reference sepChar) const
 * sepChars	-	The token seperator string
 *				If NULL returns the whole current string.
 */
-TString TString::getnexttok(const_pointer_const sepChars) const {
-
+TString TString::getnexttok(const_pointer_const sepChars) const
+{
 	if (sepChars == nullptr || this->m_pString == nullptr)
 		return *this;
 
@@ -1150,13 +1174,15 @@ TString TString::getnexttok(const_pointer_const sepChars) const {
 	if ((this->m_savedcurrenttok > this->m_savedtotaltoks) || (p_cStart == nullptr))
 		return TString();
 
-	if (this->m_savedcurrenttok == this->m_savedtotaltoks) {
+	if (this->m_savedcurrenttok == this->m_savedtotaltoks)
+	{
 		this->m_savedpos = nullptr;
 		return TString(p_cStart);
 	}
 	else {
 		const auto *const p_cEnd = ts_strstr(p_cStart, sepChars);
-		if (p_cEnd != nullptr) {
+		if (p_cEnd != nullptr)
+		{
 			this->m_savedpos = (p_cEnd + _ts_strlen(sepChars));
 			return TString(p_cStart, p_cEnd);
 		}
@@ -1175,13 +1201,15 @@ TString TString::getnexttok(const_reference sepChars) const
 	if ((this->m_savedcurrenttok > this->m_savedtotaltoks) || (p_cStart == nullptr))
 		return TString();
 
-	if (this->m_savedcurrenttok == this->m_savedtotaltoks) {
+	if (this->m_savedcurrenttok == this->m_savedtotaltoks)
+	{
 		this->m_savedpos = nullptr;
 		return TString(p_cStart);
 	}
 	else {
 		const_pointer_const p_cEnd = ts_strchr(p_cStart, sepChars);
-		if (p_cEnd != nullptr) {
+		if (p_cEnd != nullptr)
+		{
 			this->m_savedpos = (p_cEnd + 1U);
 			return TString(p_cStart, p_cEnd);
 		}
@@ -1198,7 +1226,7 @@ TString TString::getnexttok(const_reference sepChars) const
 TString TString::getlasttoks( ) const
 {
 	if (empty())
-		return {};
+		return TString();
 
 	// set current token to the last one.
 	m_savedcurrenttok = m_savedtotaltoks;
@@ -1217,8 +1245,8 @@ TString TString::getlasttoks( ) const
  * params
  *	sepChars = The token seperator.
  */
-size_t TString::numtok(const_pointer_const sepChars) const noexcept {
-
+size_t TString::numtok(const_pointer_const sepChars) const noexcept
+{
 	if (sepChars == nullptr || this->empty())
 		return 0U;
 
@@ -1229,7 +1257,8 @@ size_t TString::numtok(const_pointer_const sepChars) const noexcept {
 	auto iCount = 0U;
 	const auto sepl = _ts_strlen( sepChars ); // Ook
 
-	while ((p_cEnd = ts_strstr(p_cStart, sepChars)) != nullptr) {
+	while ((p_cEnd = ts_strstr(p_cStart, sepChars)) != nullptr)
+	{
 		iCount++;
 		p_cStart = p_cEnd + sepl; // Ook
 	}
@@ -1252,7 +1281,8 @@ size_t TString::numtok(const_reference sepChar) const noexcept
 	const_pointer p_cStart = this->m_pString, p_cEnd = nullptr;
 	auto iCount = 0U;
 	
-	while ((p_cEnd = ts_strchr(p_cStart, sepChar)) != nullptr) {
+	while ((p_cEnd = ts_strchr(p_cStart, sepChar)) != nullptr)
+	{
 		iCount++;
 		p_cStart = ++p_cEnd;
 	}
@@ -1265,8 +1295,8 @@ size_t TString::numtok(const_reference sepChar) const noexcept
 * blah
 */
 
-void TString::deltok(const UINT N, const_pointer_const sepChars) {
-
+void TString::deltok(const UINT N, const_pointer_const sepChars)
+{
 	if (sepChars == nullptr || N < 1 || this->empty())
 		return;
 
@@ -1275,7 +1305,8 @@ void TString::deltok(const UINT N, const_pointer_const sepChars) {
 	if ( N > nToks )
 		return;
 
-	if ( N == 1 && nToks == 1 ) {
+	if ( N == 1 && nToks == 1 )
+	{
 		this->clear();
 		//this->deleteString();
 		return;
@@ -1285,7 +1316,8 @@ void TString::deltok(const UINT N, const_pointer_const sepChars) {
 	auto i = decltype(N){0};
 	const auto sepl = _ts_strlen( sepChars ); // Ook
 
-	while ((p_cEnd = ts_strstr(p_cStart, sepChars)) != nullptr) {
+	while ((p_cEnd = ts_strstr(p_cStart, sepChars)) != nullptr)
+	{
 		i++;
 
 		if ( i == N )
@@ -1299,7 +1331,8 @@ void TString::deltok(const UINT N, const_pointer_const sepChars) {
 	TString tmp(l);
 
 	// last token
-	if (p_cEnd == nullptr) {
+	if (p_cEnd == nullptr)
+	{
 		p_cStart--;
 		*p_cStart = 0;
 		p_cEnd = this->m_pString;
@@ -1343,7 +1376,8 @@ TString TString::matchtok(const_pointer_const mString, UINT N, const_pointer_con
 	size_t count = 0U;
 	auto itEnd = end();
 	auto itGot = std::find_if(begin(sepChars), itEnd, [&count, &N, &mString](const auto &x) {
-		if (ts_strstr(x.to_chr(), mString) != nullptr) {
+		if (ts_strstr(x.to_chr(), mString) != nullptr)
+		{
 			++count;
 			if (count >= N)
 				return true;
@@ -1369,21 +1403,26 @@ void TString::sorttok(const_pointer_const sortOptions, const_pointer_const sepCh
 	
 	for (auto p = sortOptions; *p; ++p)
 	{
-		switch (*p) {
-		case TEXT('a'): {
+		switch (*p)
+		{
+		case TEXT('a'):
+		{
 			opts.bAlpha = true;
 			opts.bNumeric = true;
 			break;
 		}
-		case TEXT('n'): {
+		case TEXT('n'):
+		{
 			opts.bNumeric = true;
 			break;
 		}
-		case TEXT('c'): {
+		case TEXT('c'):
+		{
 			opts.bPrefix = true;
 			break;
 		}
-		case TEXT('r'): {
+		case TEXT('r'):
+		{
 			opts.bReverse = true;
 			break;
 		}
@@ -1479,14 +1518,14 @@ TString &TString::trim()
 
 	// Trim from start
 	while (start != end && *start == TEXT(' '))
-		start++;
+		++start;
 
 	// Trim from end
 	while (end != start && *(--end) == TEXT(' '));
 
 	// only alloc new string if string changed.
 
-	end++;	// end must be increased by one to account for the previous decrement
+	++end;	// end must be increased by one to account for the previous decrement
 
 	if (end != oldEnd)
 		*end = TEXT('\0');	// place zero at new ending
@@ -1516,14 +1555,16 @@ bool TString::isnum(const bool bAllowNegatives) const noexcept
 {
 	auto *p = this->m_pString;
 	auto c = 0;
-	if (*p == TEXT('-')) {
+	if (*p == TEXT('-'))
+	{
 		if (!bAllowNegatives)
 			return false;
 		++p;
 	}
 	if (!bAllowNegatives && *p == TEXT('-'))
 		return false;
-	while (*p) {
+	while (*p)
+	{
 		if (*p < TEXT('0') || *p > TEXT('9'))
 			return false;
 		++c;
@@ -1561,7 +1602,8 @@ UINT TString::countchar(const_value_type chr) const noexcept
 {
 	UINT r = 0;
 
-	for (auto aux = this->m_pString; aux && *aux; ++aux) {
+	for (auto aux = this->m_pString; aux && *aux; ++aux)
+	{
 		if (*aux == chr)
 			++r;
 	}
@@ -1573,22 +1615,26 @@ UINT TString::countchar(const_value_type chr) const noexcept
 */
 bool TString::ishostmask(void) const noexcept
 {
-	register auto /*nick = false,*/ s1 = false, /*ident = false,*/ s2 = false, host = false;
-	register auto c = this->m_pString;
-	while (*c) {
+	auto /*nick = false,*/ s1 = false, /*ident = false,*/ s2 = false, host = false;
+	auto c = this->m_pString;
+	while (*c)
+	{
 		if (*c == ' ')
 			return false;
-		else if (*c == TEXT('!')) {
+		else if (*c == TEXT('!'))
+		{
 			if (s1)
 				return false;
 			s1 = true;
 		}
-		else if (*c == TEXT('@')) {
+		else if (*c == TEXT('@'))
+		{
 			if (!s1 || s2)
 				return false;
 			s2 = true;
 		}
-		else if (s1 && s2) {
+		else if (s1 && s2)
+		{
 			if (!host && *c == TEXT('.'))
 				return false;
 			host = true;
@@ -1599,7 +1645,8 @@ bool TString::ishostmask(void) const noexcept
 		//	nick = true;
 		++c;
 	}
-	if (host) {
+	if (host)
+	{
 		if (*--c == TEXT('.'))
 			return false;
 		return true;
@@ -1734,6 +1781,7 @@ inline int TString::rfc_toupper(const int c)
 	return ::toupper(c);
 }
 
+#if !TSTRING_TESTCODE
 /*
  * The next function is based on eggdrop's wild_match (by robey pointer)
  * I added an option to perform a case sensitive match
@@ -1775,10 +1823,12 @@ UINT TString::match(const_pointer m, const_pointer n, const bool cs /* case sens
 	 * and this shouldn't be called with null masks anyway, it should be
 	 * a bit faster this way */
 
-	while (*n) {
+	while (*n)
+	{
 		/* Used to test for (!*m) here, but this scheme seems to work better */
 #ifdef WILDT
-		if (*m == WILDT) {			/* Match >=1 space */
+		if (*m == WILDT)
+		{			/* Match >=1 space */
 			space = 0;				/* Don't need any spaces */
 			do {
 				++m;
@@ -1786,7 +1836,8 @@ UINT TString::match(const_pointer m, const_pointer n, const bool cs /* case sens
 			}							/* Tally 1 more space ... */
 			while ((*m == WILDT) || (*m == TEXT(' ')));	/*  for each space or ~ */
 			sofar += space;				/* Each counts as exact */
-			while (*n == TEXT(' ')) {
+			while (*n == TEXT(' '))
+			{
 				++n;
 				space--;
 			}							/* Do we have enough? */
@@ -1796,7 +1847,8 @@ UINT TString::match(const_pointer m, const_pointer n, const bool cs /* case sens
 		/* Do the fallback       */
 		else {
 #endif
-			switch (*m) {
+			switch (*m)
+			{
 			case 0:
 				do
 					m--;			/* Search backwards */
@@ -1806,8 +1858,10 @@ UINT TString::match(const_pointer m, const_pointer n, const bool cs /* case sens
 				break;
 			case WILDP:
 				while (*(++m) == WILDP);	/* Zap redundant %s */
-				if (*m != WILDS) {		/* Don't both if next=* */
-					if (*n != TEXT(' ')) {	/* WILDS can't match ' ' */
+				if (*m != WILDS)
+				{		/* Don't both if next=* */
+					if (*n != TEXT(' '))
+					{	/* WILDS can't match ' ' */
 						lpm = m;
 						lpn = n;		/* Save '%' fallback spot */
 						saved += sofar;
@@ -1833,15 +1887,18 @@ UINT TString::match(const_pointer m, const_pointer n, const bool cs /* case sens
 			case QUOTE:
 				++m;			/* Handle quoting */
 			}
-			if (cs) { /* case sensitive */
-				if (*m == *n) {		/* If matching */
+			if (cs)
+			{ /* case sensitive */
+				if (*m == *n)
+				{		/* If matching */
 					++m;
 					++n;
 					++sofar;
 					continue;		/* Tally the match */
 				}
 			}
-			else if (rfc_toupper(*m) == rfc_toupper(*n)) {		/* If matching */
+			else if (rfc_toupper(*m) == rfc_toupper(*n))
+			{		/* If matching */
 				++m;
 				++n;
 				++sofar;
@@ -1850,7 +1907,8 @@ UINT TString::match(const_pointer m, const_pointer n, const bool cs /* case sens
 #ifdef WILDT
 		}
 #endif
-		if (lpm) {			/* Try to fallback on '%' */
+		if (lpm)
+		{			/* Try to fallback on '%' */
 			n = ++lpn;
 			m = lpm;
 			sofar = 0;		/* Restore position */
@@ -1858,7 +1916,8 @@ UINT TString::match(const_pointer m, const_pointer n, const bool cs /* case sens
 				lpm = 0;		/* CanTEXT('t match 0 or ') ' */
 			continue;			/* Next TCHAR, please */
 		}
-		if (lsm) {			/* Try to fallback on '*' */
+		if (lsm)
+		{			/* Try to fallback on '*' */
 			n = ++lsn;
 			m = lsm;			/* Restore position */
 			/* Used to test for (!*n) here but it wasn't necessary so it's gone */
@@ -1881,9 +1940,9 @@ TString TString::wildtok(const_pointer_const wildString, const UINT N, const_poi
 		return {};
 
 	auto m = 0U;
-	auto itEnd = end();
-	if (auto itGot = std::find_if(begin(sepChars), itEnd, [&wildString, &m, &N](const TString &x) {
-		if (match(wildString, x.to_chr(), false) != NOMATCH) {
+	if (auto itEnd = end(), itGot = std::find_if(begin(sepChars), itEnd, [&wildString, &m, &N](const TString &x) {
+		if (match(wildString, x.to_chr(), false) != NOMATCH)
+		{
 			++m;
 			if (m == N)
 				return true;
@@ -1907,6 +1966,44 @@ UINT TString::nwildtok(const_pointer_const wildString, const_pointer_const sepCh
 	});
 	return m;
 }
+#else
+TString TString::wildtok(const_pointer_const wildString, const UINT N, const_pointer_const sepChars) const
+{
+	if (sepChars == nullptr || wildString == nullptr || N == 0 || this->empty())
+		return TString();
+
+	if (N > this->numtok(sepChars))
+		return TString();
+
+	auto m = 0U;
+	if (auto itEnd = end(), itGot = std::find_if(begin(sepChars), itEnd, [&wildString, &m, &N](const TString &x)
+	{
+		if (_ts_WildcardMatch(x, wildString, false))
+		{
+			++m;
+			if (m == N)
+				return true;
+		}
+		return false;
+	}); itGot != itEnd)
+		return *itGot;
+
+	return TString();
+}
+
+UINT TString::nwildtok(const_pointer_const wildString, const_pointer_const sepChars) const
+{
+	if (sepChars == nullptr || wildString == nullptr || this->empty())
+		return 0;
+
+	auto m = 0U;
+	std::for_each(begin(sepChars), end(), [&wildString, &m](const TString &x) {
+		if (_ts_WildcardMatch(x, wildString, false))
+			++m;
+	});
+	return m;
+}
+#endif
 
 int TString::tsprintf(const_pointer_const fmt, ...)
 {
@@ -1920,7 +2017,8 @@ int TString::tsprintf(const_pointer_const fmt, ...)
 int TString::tvprintf(const_pointer_const fmt, va_list args)
 {
 	const auto cnt = ts_vscprintf(fmt, args);
-	if (cnt > 0) {
+	if (cnt > 0)
+	{
 		TString tmp((UINT)(cnt + 2));
 
 		// warning C4996: 'vsprintf' was declared deprecated
@@ -2073,14 +2171,18 @@ WCHAR *TString::charToWchar(const char *const cString, size_t *const buffer_size
 	std::unique_ptr<WCHAR[]> res;
 
 	auto buf_size = std::remove_pointer_t < decltype(buffer_size) >{ 0 };
-	if (cString != nullptr) {
+	if (cString != nullptr)
+	{
 		//try {
-			if (auto widelen = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, cString, -1, nullptr, 0); widelen == 0) {
+			if (auto widelen = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, cString, -1, nullptr, 0); widelen == 0)
+			{
 				// zero result, error maybe?
-				if (GetLastError() == ERROR_NO_UNICODE_TRANSLATION) {
+				if (GetLastError() == ERROR_NO_UNICODE_TRANSLATION)
+				{
 					// invalid chars, assume its NOT a utf8 string then, try ascii->utf16
 					widelen = MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, cString, -1, nullptr, 0);
-					if (widelen != 0) {
+					if (widelen != 0)
+					{
 						buf_size = TS_wgetmemsize(widelen + 1);
 						res = std::make_unique<WCHAR[]>(buf_size);	// TS_getmemsize() gives a much larger buffer than we really want, but it will do.
 						if (MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, cString, -1, res.get(), widelen) == 0)
@@ -2101,7 +2203,8 @@ WCHAR *TString::charToWchar(const char *const cString, size_t *const buffer_size
 					res[0] = L'\0';
 			}
 			// NB: NormalizeString() is Vista+ ONLY
-			if (auto normLen = NormalizeString(NormalizationC, res.get(), -1, nullptr, 0); normLen > 0) {
+			if (auto normLen = NormalizeString(NormalizationC, res.get(), -1, nullptr, 0); normLen > 0)
+			{
 				auto uNewNormLen = TS_wgetmemsize(normLen + 1);
 				if (auto normRes = std::make_unique<WCHAR[]>(uNewNormLen); NormalizeString(NormalizationC, res.get(), -1, normRes.get(), static_cast<int>(uNewNormLen)) > 0)
 					res = std::move(normRes);
@@ -2125,19 +2228,20 @@ WCHAR *TString::charToWchar(const char *const cString, size_t *const buffer_size
 */
 char *TString::WcharTochar(const WCHAR *const wString, size_t *const buffer_size)
 {
-	char *res = nullptr;
+	std::unique_ptr<char[]> res = nullptr;
 	auto buf_size = std::remove_pointer_t < decltype(buffer_size) > {0};
 
-	if (const auto l = WideCharToMultiByte(CP_UTF8, 0, wString, -1, nullptr, 0, nullptr, nullptr); l > 0) {
+	if (const auto l = WideCharToMultiByte(CP_UTF8, 0, wString, -1, nullptr, 0, nullptr, nullptr); l > 0)
+	{
 		buf_size = TS_getmemsize(l + 1);
-		res = new char[buf_size];
-		if (WideCharToMultiByte(CP_UTF8, 0, wString, -1, res, l, nullptr, nullptr) == 0)
+		res = std::make_unique<char[]>(buf_size);
+		if (WideCharToMultiByte(CP_UTF8, 0, wString, -1, res.get(), l, nullptr, nullptr) == 0)
 			res[0] = '\0';
 	}
 	if (buffer_size != nullptr)
 		*buffer_size = buf_size;
 
-	return res;
+	return res.release();
 }
 
 /*!
@@ -2155,14 +2259,14 @@ TString &TString::strip()
 
 	// Trim from start
 	while (start != end && *start == TEXT(' '))
-		start++;
+		++start;
 
 	// Trim from end
 	while (end != start && *(--end) == TEXT(' '));
 
-	const size_t new_len = (size_t)(end - start) + 1;	// add one to take into account the previous decrement
+	const size_t new_len = static_cast<size_t>((end - start) + 1);	// add one to take into account the previous decrement
 
-	TString tmp((UINT)new_len + 1);				// add one for zero byte.
+	TString tmp(static_cast<UINT>(new_len + 1));				// add one for zero byte.
 
 	// now strip all ctrl codes.
 	const auto *const wtxt = start;
@@ -2170,7 +2274,8 @@ TString &TString::strip()
 	auto pos = decltype(new_len){0};
 
 	// strip out ctrl codes to correctly position text.
-	for (auto c = wtxt[pos]; pos < new_len; c = wtxt[++pos]) {
+	for (auto c = wtxt[pos]; pos < new_len; c = wtxt[++pos])
+	{
 		switch (c)
 		{
 		case 2:  // ctrl-b Bold
@@ -2184,17 +2289,20 @@ TString &TString::strip()
 				while (wtxt[pos + 1] == 3)
 					++pos; // remove multiple consecutive ctrl-k's
 
-				if (wtxt[pos + 1] >= TEXT('0') && wtxt[pos + 1] <= TEXT('9')) {
+				if (wtxt[pos + 1] >= TEXT('0') && wtxt[pos + 1] <= TEXT('9'))
+				{
 					++pos;
 
 					if (wtxt[pos + 1] >= TEXT('0') && wtxt[pos + 1] <= TEXT('9'))
 						++pos;
 
 					// maybe a background color
-					if (wtxt[pos + 1] == TEXT(',')) {
+					if (wtxt[pos + 1] == TEXT(','))
+					{
 						++pos;
 
-						if (wtxt[pos + 1] >= TEXT('0') && wtxt[pos + 1] <= TEXT('9')) {
+						if (wtxt[pos + 1] >= TEXT('0') && wtxt[pos + 1] <= TEXT('9'))
+						{
 							++pos;
 
 							if (wtxt[pos + 1] >= TEXT('0') && wtxt[pos + 1] <= TEXT('9'))
@@ -2247,17 +2355,17 @@ void TString::swap(TString &second) noexcept
 
 	if (this->m_bUsingInternal)
 	{
-		ts_copymem(m_InternalBuffer, second.m_InternalBuffer, TSTRING_INTERNALBUFFERSIZE_BYTES);
+		ts_copymem(&m_InternalBuffer[0], &second.m_InternalBuffer[0], TSTRING_INTERNALBUFFERSIZE_BYTES);
 
-		this->m_pString = m_InternalBuffer;
+		this->m_pString = &m_InternalBuffer[0];
 		// make savedpos point to the same offset within our buffer...
 		if (this->m_savedpos != nullptr)
-			this->m_savedpos = (this->m_pString + (this->m_savedpos - second.m_InternalBuffer));
+			this->m_savedpos = (this->m_pString + (this->m_savedpos - &second.m_InternalBuffer[0]));
 	}
 
 	if (second.m_bUsingInternal)
 	{
-		second.m_pString = second.m_InternalBuffer;
+		second.m_pString = &second.m_InternalBuffer[0];
 		//if (second.m_savedpos != nullptr)
 		//	second.m_savedpos = (second.m_pString + (second.m_savedpos - this->m_InternalBuffer));
 		second.m_savedpos = nullptr;
@@ -2281,41 +2389,55 @@ int TString::compare(const TString &other) const noexcept
 int TString::compare(const_reference other) const noexcept
 {
 	const_value_type tmp[] = { other, TEXT('\0') };
-	return this->compare(tmp);
+	return this->compare(&tmp[0]);
 }
 
 int TString::compare(const_pointer_const other) const noexcept
 {
-	if (this->m_pString == nullptr)
-		return (other == nullptr) ? 0 : 1;
+	// compare to self or both nullptr, match!
+	if (m_pString == other)
+		return 0;
 
+	// if we are nullptr other can't be, so no match
+	if (m_pString == nullptr)
+		return 1;
+
+	// if other is nullptr, we are not, so no match
 	if (other == nullptr)
 		return -1;
 
+	// check if strings match...
 	return (ts_strcmp(this->m_pString, other));
 }
 
 int TString::compare(const_pointer_const other, const size_t iLength) const noexcept
 {
-	if (this->m_pString == nullptr)
-		return (other == nullptr) ? 0 : 1;
+	// compare to self or both nullptr, match!
+	if (m_pString == other)
+		return 0;
 
+	// if we are nullptr other can't be, so no match
+	if (m_pString == nullptr)
+		return 1;
+
+	// if other is nullptr, we are not, so no match
 	if (other == nullptr)
 		return -1;
 
+	// check if strings match...
 	return (ts_strncmp(this->m_pString, other, iLength));
 }
 
 ULONG TString::to_addr() const
 {
-	BYTE first = (BYTE)(getfirsttok(1, TEXT('.')).to_int() & 0xFF);
-	BYTE second = (BYTE)(getnexttok(TEXT('.')).to_int() & 0xFF);
-	BYTE third = (BYTE)(getnexttok(TEXT('.')).to_int() & 0xFF);
-	BYTE forth = (BYTE)(getnexttok(TEXT('.')).to_int() & 0xFF);
+	const BYTE first = (BYTE)(getfirsttok(1, TEXT('.')).to_int() & 0xFF);
+	const BYTE second = (BYTE)(getnexttok(TEXT('.')).to_int() & 0xFF);
+	const BYTE third = (BYTE)(getnexttok(TEXT('.')).to_int() & 0xFF);
+	const BYTE forth = (BYTE)(getnexttok(TEXT('.')).to_int() & 0xFF);
 
 	//return (ULONG)MAKELONG(MAKEWORD(first,second),MAKEWORD(third,forth));
 	//return (ULONG)MAKELONG(MAKEWORD(forth, third), MAKEWORD(second, first));
-	return (ULONG)MAKEIPADDRESS(first, second, third, forth);
+	return static_cast<ULONG>(MAKEIPADDRESS(first, second, third, forth));
 }
 
 void TString::clear(void)
@@ -2374,7 +2496,7 @@ TString &TString::append(const WCHAR &chr)
 	if (chr != L'\0')
 	{
 		const WCHAR tmp[] = { chr, L'\0' };
-		append(tmp, 1);
+		append(&tmp[0], 1);
 	}
 	return *this;
 }
@@ -2408,7 +2530,8 @@ TString &TString::append(const_pointer_const cString, const size_t iChars)
 		const auto sz = this->len();
 		decltype(sz) l = (sz + iChars + 1);	// plus 1 for zero byte.
 
-		if ((l * sizeof(value_type)) <= m_buffersize) {
+		if ((l * sizeof(value_type)) <= m_buffersize)
+		{
 			// new text fits within existing buffer, so append.
 			ts_strncat_throw(this->m_pString, cString, iChars);
 
@@ -2417,7 +2540,8 @@ TString &TString::append(const_pointer_const cString, const size_t iChars)
 		else {
 			TString tmp(l);
 
-			if (sz > 0) {
+			if (sz > 0)
+			{
 				ts_strcpyn_throw(tmp.m_pString, this->m_pString, l);
 			}
 			ts_strncat_throw(tmp.m_pString, cString, iChars);
