@@ -55,7 +55,8 @@ public:
 	//void parseInfoRequest(const TString & input, PTCHAR szReturnValue) const override;
 	void parseInfoRequest(const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const override;
 	void parseCommandRequest( const TString & input ) override;
-	void parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ) override;
+	//void parseControlStyles(const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme) override;
+	std::tuple<NoTheme, WindowStyle, WindowExStyle> parseControlStyles(const TString & tsStyles) override;
 
 	//void loadmIRCPalette();
 
@@ -67,7 +68,7 @@ public:
 	LRESULT hideSelection(const BOOL iHide);
 	LRESULT setSel(const int iStart, const int iEnd);
 	LRESULT replaceSel(const BOOL bUndo, LPCTSTR lpstr);
-	LRESULT getCharFormat(const UINT iType, CHARFORMAT2 *cfm) const;
+	LRESULT getCharFormat(const UINT iType, CHARFORMAT2 *cfm) const noexcept;
 	LRESULT setCharFormat(const UINT iType, CHARFORMAT2 *cfm);
 
 	void toXml(TiXmlElement *const xml) const override;

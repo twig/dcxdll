@@ -28,20 +28,15 @@
 DcxIpAddress::DcxIpAddress(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles)
 	: DcxControl(ID, p_Dialog)
 {
-	LONG Styles = 0, ExStyles = 0;
-	BOOL bNoTheme = FALSE;
-	this->parseControlStyles(styles, &Styles, &ExStyles, &bNoTheme);
+	const auto[bNoTheme, Styles, ExStyles] = parseControlStyles(styles);
 
-	m_Hwnd = CreateWindowEx(
-		gsl::narrow_cast<DWORD>(ExStyles),
+	m_Hwnd = dcxCreateWindow(
+		ExStyles,
 		DCX_IPADDRESSCLASS,
-		nullptr,
-		WS_CHILD | gsl::narrow_cast<DWORD>(Styles),
-		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
+		Styles | WS_CHILD,
+		rc,
 		mParentHwnd,
-		(HMENU)ID,
-		GetModuleHandle(nullptr),
-		nullptr);
+		ID);
 
 	if (!IsWindow(m_Hwnd))
 		throw Dcx::dcxException("Unable To Create Window");
@@ -53,7 +48,8 @@ DcxIpAddress::DcxIpAddress(const UINT ID, DcxDialog *const p_Dialog, const HWND 
 	this->registreDefaultWindowProc();
 	SetProp(m_Hwnd, TEXT("dcx_cthis"), (HANDLE) this);
 
-	if (styles.istok(TEXT("tooltips"))) {
+	if (styles.istok(TEXT("tooltips")))
+	{
 		if (!IsWindow(p_Dialog->getToolTip()))
 			throw Dcx::dcxException("Unable to Initialize Tooltips");
 
@@ -63,7 +59,8 @@ DcxIpAddress::DcxIpAddress(const UINT ID, DcxDialog *const p_Dialog, const HWND 
 
 	// fix bug with disabled creation
 	// todo: fix this properly
-	if (dcx_testflag(Styles, WS_DISABLED)) {
+	if (dcx_testflag(Styles, WS_DISABLED))
+	{
 		EnableWindow(m_Hwnd, TRUE);
 		EnableWindow(m_Hwnd, FALSE);
 	}
@@ -75,8 +72,8 @@ DcxIpAddress::DcxIpAddress(const UINT ID, DcxDialog *const p_Dialog, const HWND 
  * blah
  */
 
-DcxIpAddress::~DcxIpAddress( ) {
-
+DcxIpAddress::~DcxIpAddress( )
+{
 	this->unregistreDefaultWindowProc( );
 }
 
@@ -103,9 +100,17 @@ TiXmlElement * DcxIpAddress::toXml(void) const
  * blah
  */
 
-void DcxIpAddress::parseControlStyles( const TString &styles, LONG *Styles, LONG *ExStyles, BOOL *bNoTheme)
+//void DcxIpAddress::parseControlStyles( const TString &styles, LONG *Styles, LONG *ExStyles, BOOL *bNoTheme)
+//{
+//	this->parseGeneralControlStyles(styles, Styles, ExStyles, bNoTheme);
+//}
+
+std::tuple<NoTheme, WindowStyle, WindowExStyle> DcxIpAddress::parseControlStyles(const TString & tsStyles)
 {
-	this->parseGeneralControlStyles(styles, Styles, ExStyles, bNoTheme);
+	WindowStyle Styles(WindowStyle::None);
+	WindowExStyle ExStyles(WindowExStyle::None);
+
+	return parseGeneralControlStyles(tsStyles, Styles, ExStyles);
 }
 
 /*!
@@ -120,8 +125,8 @@ void DcxIpAddress::parseControlStyles( const TString &styles, LONG *Styles, LONG
 void DcxIpAddress::parseInfoRequest( const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const
 {
 	// [NAME] [ID] [PROP]
-	if (input.gettok(3) == TEXT("ip")) {
-
+	if (input.gettok(3) == TEXT("ip"))
+	{
 		//DWORD ip;
 		//this->getAddress(&ip);
 		//
@@ -142,7 +147,8 @@ void DcxIpAddress::parseInfoRequest( const TString & input, const refString<TCHA
  * blah
  */
 
-void DcxIpAddress::parseCommandRequest( const TString &input) {
+void DcxIpAddress::parseCommandRequest( const TString &input)
+{
 	const XSwitchFlags flags(input.getfirsttok( 3 ));
 
 	const auto numtok = input.numtok();
@@ -152,7 +158,8 @@ void DcxIpAddress::parseCommandRequest( const TString &input) {
 		this->clearAddress();
 
 	// xdid -a [NAME] [ID] [SWITCH] IP.IP.IP.IP
-	if (flags[TEXT('a')] && numtok > 3) {
+	if (flags[TEXT('a')] && numtok > 3)
+	{
 		const auto IP(input.getnexttok().strip());	// tok 4
 
 		if (IP.numtok(TEXT('.')) != 4)
@@ -161,7 +168,8 @@ void DcxIpAddress::parseCommandRequest( const TString &input) {
 		this->setAddress(IP.to_addr());
 	}
 	// xdid -g [NAME] [ID] [SWITCH] [N] [MIN] [MAX]
-	else if (flags[TEXT('g')] && numtok > 5) {
+	else if (flags[TEXT('g')] && numtok > 5)
+	{
 		const auto nField = input.getnexttok().to_int() - 1;				// tok 4
 		const auto min = (BYTE)(input.getnexttok().to_int() & 0xFF);	// tok 5
 		const auto max = (BYTE)(input.getnexttok().to_int() & 0xFF);	// tok 6
@@ -172,7 +180,8 @@ void DcxIpAddress::parseCommandRequest( const TString &input) {
 		this->setRange(nField, min, max);
 	}
 	// xdid -j [NAME] [ID] [SWITCH] [N]
-	else if (flags[TEXT('j')] && numtok > 3) {
+	else if (flags[TEXT('j')] && numtok > 3)
+	{
 		const auto nField = input.getnexttok().to_int() - 1;	// tok 4
 
 		if (nField < 0 || nField > 3)
@@ -182,7 +191,8 @@ void DcxIpAddress::parseCommandRequest( const TString &input) {
 	}
 	// This is to avoid invalid flag message.
 	// xdid -r [NAME] [ID] [SWITCH]
-	else if (flags[TEXT('r')]) {
+	else if (flags[TEXT('r')])
+	{
 		//this->clearAddress();
 	}
 	else
@@ -195,7 +205,8 @@ void DcxIpAddress::parseCommandRequest( const TString &input) {
  * blah
  */
 
-LRESULT DcxIpAddress::setRange( const int nField, const BYTE iMin, const BYTE iMax ) {
+LRESULT DcxIpAddress::setRange( const int nField, const BYTE iMin, const BYTE iMax )
+{
 	return SendMessage( m_Hwnd, IPM_SETRANGE, (WPARAM) nField, (LPARAM) MAKEIPRANGE( iMin, iMax ) );
 }
 
@@ -205,7 +216,8 @@ LRESULT DcxIpAddress::setRange( const int nField, const BYTE iMin, const BYTE iM
  * blah
  */
 
-LRESULT DcxIpAddress::setFocus( const int nField ) {
+LRESULT DcxIpAddress::setFocus( const int nField )
+{
 	return SendMessage( m_Hwnd, IPM_SETFOCUS, (WPARAM) nField, (LPARAM) 0 );
 }
 
@@ -215,7 +227,8 @@ LRESULT DcxIpAddress::setFocus( const int nField ) {
  * blah
  */
 
-LRESULT DcxIpAddress::setAddress( const DWORD dwIpAddress ) {
+LRESULT DcxIpAddress::setAddress( const DWORD dwIpAddress )
+{
 	return SendMessage( m_Hwnd, IPM_SETADDRESS, (WPARAM) 0, (LPARAM) dwIpAddress );
 }
 
@@ -225,7 +238,8 @@ LRESULT DcxIpAddress::setAddress( const DWORD dwIpAddress ) {
  * blah
  */
 
-LRESULT DcxIpAddress::getAddress( LPDWORD lpdwIpAddress ) const {
+LRESULT DcxIpAddress::getAddress( LPDWORD lpdwIpAddress ) const
+{
 	return SendMessage( m_Hwnd, IPM_GETADDRESS, (WPARAM) 0, (LPARAM) lpdwIpAddress );
 }
 
@@ -235,7 +249,8 @@ LRESULT DcxIpAddress::getAddress( LPDWORD lpdwIpAddress ) const {
  * blah
  */
 
-LRESULT DcxIpAddress::clearAddress( ) {
+LRESULT DcxIpAddress::clearAddress( )
+{
 	return SendMessage( m_Hwnd, IPM_CLEARADDRESS, (WPARAM) 0, (LPARAM) 0 );
 }
 
@@ -244,31 +259,33 @@ LRESULT DcxIpAddress::clearAddress( ) {
  *
  * blah
  */
-LRESULT DcxIpAddress::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
-	switch( uMsg ) {
+LRESULT DcxIpAddress::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed)
+{
+	switch (uMsg)
+	{
 	case WM_NOTIFY:
+	{
+		dcxlParam(LPNMHDR, hdr);
+
+		if (hdr == nullptr)
+			break;
+
+		if (hdr->code == IPN_FIELDCHANGED)
 		{
-			dcxlParam(LPNMHDR, hdr);
-
-			if (hdr == nullptr)
-				break;
-
-			if ( hdr->code == IPN_FIELDCHANGED )
-			{
-				if (dcx_testflag(this->m_pParentDialog->getEventMask(), DCX_EVENT_EDIT))
-					this->execAliasEx(TEXT("edit,%d"), getUserID( ) );
-				bParsed = TRUE;
-			}
+			if (dcx_testflag(this->m_pParentDialog->getEventMask(), DCX_EVENT_EDIT))
+				this->execAliasEx(TEXT("edit,%d"), getUserID());
+			bParsed = TRUE;
 		}
-		break;
+	}
+	break;
 	}
 	return 0L;
 }
 
-LRESULT DcxIpAddress::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
-
-	switch (uMsg) {
-
+LRESULT DcxIpAddress::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed)
+{
+	switch (uMsg)
+	{
 	case WM_LBUTTONUP:
 	case WM_RBUTTONUP:
 	case WM_CONTEXTMENU:
@@ -277,7 +294,8 @@ LRESULT DcxIpAddress::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 
 	case WM_MOUSEACTIVATE:
 	{
-		if (dcx_testflag(this->m_pParentDialog->getEventMask(), DCX_EVENT_CLICK)) {
+		if (dcx_testflag(this->m_pParentDialog->getEventMask(), DCX_EVENT_CLICK))
+		{
 			switch (HIWORD(lParam))
 			{
 			case WM_LBUTTONUP:

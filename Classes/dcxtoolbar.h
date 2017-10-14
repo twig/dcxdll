@@ -78,6 +78,20 @@ struct DCXTBBUTTON {
 	int iTextBkgMode;				//!< Drawing mode for text on a normal button. (XP+)
 	int iTextHighlightBkgMode;		//!< Drawing mode for text on a highlighted button. (XP+) (An item is highlighted if it has the TBSTATE_MARKED style and is contained in a toolbar that has the TBSTYLE_FLAT style.)
 
+	DCXTBBUTTON()
+		: tsTipText()
+		, bText()
+		, clrText(CLR_INVALID)
+		, clrMark(CLR_INVALID)
+		, clrTextHighlight(CLR_INVALID)
+		, clrBtnFace(CLR_INVALID)
+		, clrBtnHighlight(CLR_INVALID)
+		, clrHighlightHotTrack(CLR_INVALID)
+		, bBold(false)
+		, bUline(false)
+		, iTextBkgMode(0)
+		, iTextHighlightBkgMode(0)
+	{}
 };
 using LPDCXTBBUTTON = DCXTBBUTTON *;
 
@@ -108,13 +122,15 @@ public:
 	//void parseInfoRequest(const TString & input, PTCHAR szReturnValue) const override;
 	void parseInfoRequest(const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const override;
 	void parseCommandRequest( const TString & input ) override;
-	void parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ) override;
+	//void parseControlStyles(const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme) override;
+	//void parseControlStyles(const TString & styles, LONG * Styles, LONG * ExStyles, LONG * ExStylesTb, BOOL * bNoTheme);
 
-	void parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, LONG * ExStylesTb, BOOL * bNoTheme );
+	std::tuple<NoTheme, WindowStyle, WindowExStyle> parseControlStyles(const TString & tsStyles) override;
+	WindowExStyle parseControlStylesToolBar(const TString & tsStyles);
 
 	HIMAGELIST getImageList( const dcxToolBar_ImageLists iImageList ) const;
 	void setImageList(HIMAGELIST himl, const dcxToolBar_ImageLists iImageList);
-	static HIMAGELIST createImageList( const UINT iSize );
+	static HIMAGELIST createImageList( const DcxIconSizes iSize );
 
 	LRESULT autoSize( );
 	LRESULT insertButton( const int nPos, const LPTBBUTTON lpbb );

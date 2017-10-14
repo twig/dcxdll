@@ -47,7 +47,8 @@ public:
 	//void parseInfoRequest(const TString & input, PTCHAR szReturnValue) const override;
 	void parseInfoRequest(const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const override;
 	void parseCommandRequest( const TString & input ) override;
-	void parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ) override;
+	//void parseControlStyles(const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme) override;
+	std::tuple<NoTheme, WindowStyle, WindowExStyle> parseControlStyles(const TString & tsStyles) override;
 
 	// IDispatch Interface
 	HRESULT STDMETHODCALLTYPE GetTypeInfoCount( UINT __RPC_FAR *pctinfo ) { *pctinfo = NULL; return S_OK; }

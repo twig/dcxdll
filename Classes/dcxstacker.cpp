@@ -35,20 +35,15 @@ DcxStacker::DcxStacker( const UINT ID, DcxDialog *const p_Dialog, const HWND mPa
 	, m_vImageList()
 #endif
 {
-	LONG Styles = 0, ExStyles = 0;
-	BOOL bNoTheme = FALSE;
-	this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
+	const auto[bNoTheme, Styles, ExStyles] = parseControlStyles(styles);
 
-	m_Hwnd = CreateWindowEx(
-		static_cast<DWORD>(ExStyles) | WS_EX_CONTROLPARENT,
-		TEXT("ListBox"),
-		nullptr,
-		WS_CHILD | static_cast<DWORD>(Styles),
-		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
+	m_Hwnd = dcxCreateWindow(
+		ExStyles | WS_EX_CONTROLPARENT,
+		WC_LISTBOX,
+		Styles | WS_CHILD,
+		rc,
 		mParentHwnd,
-		(HMENU) ID,
-		GetModuleHandle(nullptr), 
-		nullptr);
+		ID);
 
 	if (!IsWindow(m_Hwnd))
 		throw Dcx::dcxException("Unable To Create Window");
@@ -56,12 +51,14 @@ DcxStacker::DcxStacker( const UINT ID, DcxDialog *const p_Dialog, const HWND mPa
 	if ( bNoTheme )
 		Dcx::UXModule.dcxSetWindowTheme( m_Hwnd , L" ", L" " );
 
-	SendMessage( m_Hwnd, CCM_SETVERSION, (WPARAM) 6, (LPARAM) 0 );
+	SendMessage( m_Hwnd, CCM_SETVERSION, gsl::narrow_cast<WPARAM>(6), gsl::narrow_cast<LPARAM>(0) );
 
 	//this->m_hBackBrush = GetSysColorBrush(COLOR_3DFACE);
 
-	if (p_Dialog->getToolTip() != nullptr) {
-		if (styles.istok(TEXT("tooltips"))) {
+	if (p_Dialog->getToolTip() != nullptr)
+	{
+		if (styles.istok(TEXT("tooltips")))
+		{
 			this->m_ToolTipHWND = p_Dialog->getToolTip();
 			AddToolTipToolInfo(this->m_ToolTipHWND, m_Hwnd);
 		}
@@ -78,8 +75,8 @@ DcxStacker::DcxStacker( const UINT ID, DcxDialog *const p_Dialog, const HWND mPa
  * blah
  */
 
-DcxStacker::~DcxStacker( ) {
-
+DcxStacker::~DcxStacker( )
+{
 	this->clearImageList();
 	this->unregistreDefaultWindowProc( );
 }
@@ -87,51 +84,81 @@ DcxStacker::~DcxStacker( ) {
 void DcxStacker::clearImageList(void)
 {
 #ifdef DCX_USE_GDIPLUS
-	for (auto &x: this->m_vImageList)
-		delete x;
+	//for (auto &x: this->m_vImageList)
+	//	delete x;
 
 	this->m_vImageList.clear();
 #endif
 }
 
-void DcxStacker::parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme )
+//void DcxStacker::parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme )
+//{
+//
+//	*Styles |= LBS_OWNERDRAWVARIABLE|LBS_NOTIFY;
+//	this->m_dStyles = STACKERS_COLLAPSE;
+//
+//	for (const auto &tsStyle: styles)
+//	{
+//#if DCX_USE_HASHING
+//		switch (std::hash<TString>{}(tsStyle))
+//		{
+//			case L"vscroll"_hash:
+//				*Styles |= WS_VSCROLL;
+//				break;
+//			case L"gradient"_hash:
+//				m_dStyles |= STACKERS_GRAD;
+//				break;
+//			case L"arrows"_hash:
+//				m_dStyles |= STACKERS_ARROW;
+//				break;
+//			case L"nocollapse"_hash:
+//				m_dStyles &= ~STACKERS_COLLAPSE;
+//			default:
+//				break;
+//		}
+//#else
+//		if (tsStyle == TEXT("vscroll"))
+//			*Styles |= WS_VSCROLL;
+//		else if ( tsStyle == TEXT("gradient") )
+//			this->m_dStyles |= STACKERS_GRAD;
+//		else if ( tsStyle == TEXT("arrows") )
+//			this->m_dStyles |= STACKERS_ARROW;
+//		else if ( tsStyle == TEXT("nocollapse") )
+//			this->m_dStyles &= ~STACKERS_COLLAPSE;
+//#endif
+//	}
+//
+//	this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
+//}
+
+std::tuple<NoTheme, WindowStyle, WindowExStyle> DcxStacker::parseControlStyles(const TString & tsStyles)
 {
+	auto[bNoTheme, Styles, ExStyles] = parseGeneralControlStyles(tsStyles);
 
-	*Styles |= LBS_OWNERDRAWVARIABLE|LBS_NOTIFY;
-	this->m_dStyles = STACKERS_COLLAPSE;
+	Styles |= LBS_OWNERDRAWVARIABLE | LBS_NOTIFY;
+	m_dStyles = STACKERS_COLLAPSE;
 
-	for (const auto &tsStyle: styles)
+	for (const auto &tsStyle : tsStyles)
 	{
-#if DCX_USE_HASHING
 		switch (std::hash<TString>{}(tsStyle))
 		{
-			case L"vscroll"_hash:
-				*Styles |= WS_VSCROLL;
-				break;
-			case L"gradient"_hash:
-				m_dStyles |= STACKERS_GRAD;
-				break;
-			case L"arrows"_hash:
-				m_dStyles |= STACKERS_ARROW;
-				break;
-			case L"nocollapse"_hash:
-				m_dStyles &= ~STACKERS_COLLAPSE;
-			default:
-				break;
+		case L"vscroll"_hash:
+			Styles |= WS_VSCROLL;
+			break;
+		case L"gradient"_hash:
+			m_dStyles |= STACKERS_GRAD;
+			break;
+		case L"arrows"_hash:
+			m_dStyles |= STACKERS_ARROW;
+			break;
+		case L"nocollapse"_hash:
+			m_dStyles &= ~STACKERS_COLLAPSE;
+		default:
+			break;
 		}
-#else
-		if (tsStyle == TEXT("vscroll"))
-			*Styles |= WS_VSCROLL;
-		else if ( tsStyle == TEXT("gradient") )
-			this->m_dStyles |= STACKERS_GRAD;
-		else if ( tsStyle == TEXT("arrows") )
-			this->m_dStyles |= STACKERS_ARROW;
-		else if ( tsStyle == TEXT("nocollapse") )
-			this->m_dStyles &= ~STACKERS_COLLAPSE;
-#endif
 	}
 
-	this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
+	return { bNoTheme, Styles, ExStyles };
 }
 
 /*!
@@ -143,9 +170,8 @@ void DcxStacker::parseControlStyles( const TString & styles, LONG * Styles, LONG
  * \return > void
  */
 
-void DcxStacker::parseInfoRequest( const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const {
-
-#if DCX_USE_HASHING
+void DcxStacker::parseInfoRequest( const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const
+{
 	const auto numtok = input.numtok();
 	switch (std::hash<TString>{}(input.getfirsttok(3)))
 	{
@@ -169,11 +195,11 @@ void DcxStacker::parseInfoRequest( const TString & input, const refString<TCHAR,
 	break;
 	// [NAME] [ID] [PROP]
 	case L"num"_hash:
-		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), ListBox_GetCount(m_Hwnd));
+		_ts_snprintf(szReturnValue, TEXT("%d"), ListBox_GetCount(m_Hwnd));
 		break;
 		// [NAME] [ID] [PROP]
 	case L"sel"_hash:
-		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), ListBox_GetCurSel(m_Hwnd) + 1);
+		_ts_snprintf(szReturnValue, TEXT("%d"), ListBox_GetCurSel(m_Hwnd) + 1);
 		break;
 		// [NAME] [ID] [PROP] [N]
 	case L"haschild"_hash:
@@ -186,7 +212,7 @@ void DcxStacker::parseInfoRequest( const TString & input, const refString<TCHAR,
 		if (nSel < 0 && nSel >= ListBox_GetCount(m_Hwnd))
 			throw Dcx::dcxException("Invalid Item");
 
-		auto sitem = this->getItem(nSel);
+		const auto sitem = this->getItem(nSel);
 		if (sitem == nullptr || sitem == (LPDCXSITEM)LB_ERR)
 			throw Dcx::dcxException("Unable to get Item");
 
@@ -204,12 +230,12 @@ void DcxStacker::parseInfoRequest( const TString & input, const refString<TCHAR,
 		if (nSel < 0 && nSel >= ListBox_GetCount(m_Hwnd))
 			throw Dcx::dcxException("Invalid Item");
 
-		auto sitem = this->getItem(nSel);
+		const auto sitem = this->getItem(nSel);
 		if (sitem == nullptr || sitem == (LPDCXSITEM)LB_ERR)
 			throw Dcx::dcxException("Unable to get Item");
 
 		if (sitem->pChild != nullptr)
-			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), sitem->pChild->getUserID());
+			_ts_snprintf(szReturnValue, TEXT("%u"), sitem->pChild->getUserID());
 		else
 			szReturnValue = TEXT('0');
 	}
@@ -217,63 +243,6 @@ void DcxStacker::parseInfoRequest( const TString & input, const refString<TCHAR,
 	default:
 		parseGlobalInfoRequest(input, szReturnValue);
 	}
-#else
-	const auto numtok = input.numtok();
-	const auto prop(input.getfirsttok(3));
-
-	// [NAME] [ID] [PROP] [N]
-	if ( prop == TEXT("text") && numtok > 3 ) {
-		const auto nSel = input.getnexttok().to_int() - 1;	// tok 4
-
-		if (nSel < 0 && nSel >= ListBox_GetCount(m_Hwnd))
-			throw Dcx::dcxException("Invalid Item");
-
-		auto sitem = this->getItem(nSel);
-		if (sitem == nullptr || sitem == (LPDCXSITEM)LB_ERR)
-			throw Dcx::dcxException("Unable to get Item");
-
-		szReturnValue = sitem->tsCaption.to_chr();
-	}
-	// [NAME] [ID] [PROP]
-	else if ( prop == TEXT("num") ) {
-		wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), ListBox_GetCount( m_Hwnd ) );
-	}
-	// [NAME] [ID] [PROP]
-	else if ( prop == TEXT("sel") ) {
-		wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), ListBox_GetCurSel( m_Hwnd ) + 1 );
-	}
-	// [NAME] [ID] [PROP] [N]
-	else if ( prop == TEXT("haschild") && numtok > 3 ) {
-		const auto nSel = input.getnexttok().to_int() - 1;	// tok 4
-
-		if (nSel < 0 && nSel >= ListBox_GetCount(m_Hwnd))
-			throw Dcx::dcxException("Invalid Item");
-
-		auto sitem = this->getItem(nSel);
-		if (sitem == nullptr || sitem == (LPDCXSITEM)LB_ERR)
-			throw Dcx::dcxException("Unable to get Item");
-
-		szReturnValue = dcx_truefalse(sitem->pChild != nullptr);
-	}
-	// [NAME] [ID] [PROP] [N]
-	else if (prop == TEXT("childid") && numtok > 3) {
-		const auto nSel = input.getnexttok().to_int() - 1;	// tok 4
-
-		if (nSel < 0 && nSel >= ListBox_GetCount(m_Hwnd))
-			throw Dcx::dcxException("Invalid Item");
-
-		auto sitem = this->getItem(nSel);
-		if (sitem == nullptr || sitem == (LPDCXSITEM)LB_ERR)
-			throw Dcx::dcxException("Unable to get Item");
-
-		if (sitem->pChild != nullptr)
-			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), sitem->pChild->getUserID());
-		else
-			szReturnValue = TEXT('0');
-	}
-	else
-		parseGlobalInfoRequest(input, szReturnValue);
-#endif
 }
 
 /*!
@@ -282,7 +251,8 @@ void DcxStacker::parseInfoRequest( const TString & input, const refString<TCHAR,
  * blah
  */
 
-void DcxStacker::parseCommandRequest( const TString &input) {
+void DcxStacker::parseCommandRequest( const TString &input)
+{
 	const XSwitchFlags flags(input.getfirsttok( 3 ));
 
 	const auto numtok = input.numtok();
@@ -292,8 +262,8 @@ void DcxStacker::parseCommandRequest( const TString &input) {
 		SendMessage(m_Hwnd, LB_RESETCONTENT, (WPARAM) 0, (LPARAM) 0);
 
 	//xdid -a -> [NAME] [ID] -a [N] [+FLAGS] [IMAGE] [SIMAGE] [COLOR] [BGCOLOR] Item Text [TAB] [ID] [CONTROL] [X] [Y] [W] [H] (OPTIONS)
-	if (flags[TEXT('a')] && numtok > 9) {
-
+	if (flags[TEXT('a')] && numtok > 9)
+	{
 		auto sitem = std::make_unique<DCXSITEM>();
 
 		const auto item(input.getfirsttok(1, TSTABCHAR).trim());		// tok 1, TSTAB
@@ -315,8 +285,8 @@ void DcxStacker::parseCommandRequest( const TString &input) {
 		if (nPos == LB_ERR)
 			nPos = 0;
 
-		if (!ctrl.empty()) {
-
+		if (!ctrl.empty())
+		{
 			auto p_Control = this->m_pParentDialog->addControl(ctrl, 1, CTLF_ALLOW_ALL, m_Hwnd);
 			sitem->pChild = p_Control;
 			ShowWindow(p_Control->getHwnd(),SW_HIDE);
@@ -349,17 +319,18 @@ void DcxStacker::parseCommandRequest( const TString &input) {
 		sitem.release();
 	}
 	// xdid -c [NAME] [ID] [SWITCH] [N]
-	else if (flags[TEXT('c')] && numtok > 3) {
+	else if (flags[TEXT('c')] && numtok > 3)
+	{
 		const auto nPos = input.getnexttok().to_int() - 1;		// tok 4
 
 		if (nPos < 0 && nPos >= ListBox_GetCount(m_Hwnd))
 			throw Dcx::dcxException("Invalid Item");
 		
-		//SendMessage(m_Hwnd, LB_SETCURSEL, static_cast<WPARAM>(nPos), NULL);
 		ListBox_SetCurSel(m_Hwnd, nPos);
 	}
 	// xdid -d [NAME] [ID] [SWITCH] [N]
-	else if (flags[TEXT('d')] && (numtok > 3)) {
+	else if (flags[TEXT('d')] && (numtok > 3))
+	{
 		const auto nPos = input.getnexttok().to_int() - 1;	// tok 4
 
 		if (nPos < 0 && nPos >= ListBox_GetCount(m_Hwnd))
@@ -369,14 +340,17 @@ void DcxStacker::parseCommandRequest( const TString &input) {
 	}
 	// This is to avoid an invalid flag message.
 	//xdid -r [NAME] [ID] [SWITCH]
-	else if (flags[TEXT('r')]) {
+	else if (flags[TEXT('r')])
+	{
 	}
 	//xdid -u [NAME] [ID] [SWITCH]
-	else if ( flags[TEXT('u')] ) {
+	else if ( flags[TEXT('u')] )
+	{
 		ListBox_SetCurSel( m_Hwnd, -1 );
 	}
 	// xdid -T [NAME] [ID] [SWITCH] [N] (ToolTipText)
-	else if (flags[TEXT('T')] && numtok > 3) {
+	else if (flags[TEXT('T')] && numtok > 3)
+	{
 		const auto nPos = input.getnexttok().to_int() - 1;	// tok 4
 
 		if (nPos < 0 && nPos >= ListBox_GetCount(m_Hwnd))
@@ -389,7 +363,8 @@ void DcxStacker::parseCommandRequest( const TString &input) {
 		sitem->tsTipText = (numtok > 4 ? input.getlasttoks().trim() : TEXT(""));	// tok 5, -1
 	}
 	//xdid -w [NAME] [ID] [SWITCH] [+FLAGS] [FILE]
-	else if ( flags[TEXT('w')] && (numtok > 4)) {
+	else if ( flags[TEXT('w')] && (numtok > 4))
+	{
 #ifdef DCX_USE_GDIPLUS
 
 		const auto flag(input.getnexttok());		// tok 4
@@ -398,11 +373,13 @@ void DcxStacker::parseCommandRequest( const TString &input) {
 		if (!IsFile(filename))
 			throw Dcx::dcxException(TEXT("Unable to Access File: %"), filename);
 
-		m_vImageList.push_back(new Gdiplus::Image(filename.to_wchr()));
+		//m_vImageList.push_back(new Gdiplus::Image(filename.to_wchr()));
+		m_vImageList.push_back(std::make_unique<Gdiplus::Image>(filename.to_wchr()));
 #endif
 	}
 	//xdid -y [NAME] [ID] [SWITCH]
-	else if ( flags[TEXT('y')] ) {
+	else if ( flags[TEXT('y')] )
+	{
 		clearImageList();
 		redrawWindow();
 	}
@@ -410,38 +387,48 @@ void DcxStacker::parseCommandRequest( const TString &input) {
 		parseGlobalCommandRequest(input, flags);
 }
 
-int DcxStacker::getItemID(void) const {
-	POINT pt;
+int DcxStacker::getItemID(void) const
+{
+#if DCX_USE_WRAPPERS
+	Dcx::dcxCursorPos pt(m_Hwnd);
+#else
+	POINT pt{};
 	if (!GetCursorPos(&pt))
 		return -1;
 
 	MapWindowPoints(nullptr, m_Hwnd, &pt, 1);
-	return (int)(LOWORD((DWORD)SendMessage(m_Hwnd,LB_ITEMFROMPOINT,NULL,MAKELPARAM(pt.x,pt.y))) +1);
+#endif
+	return gsl::narrow_cast<int>(LOWORD(gsl::narrow_cast<DWORD>(SendMessage(m_Hwnd,LB_ITEMFROMPOINT,NULL,MAKELPARAM(pt.x,pt.y)))) +1);
 }
 
-int DcxStacker::getSelItemID(void) const {
-	return (int)(LOWORD((DWORD)SendMessage(m_Hwnd,LB_GETCURSEL,NULL,NULL)) +1);
+int DcxStacker::getSelItemID(void) const
+{
+	return ListBox_GetCurSel(m_Hwnd) +1;
 }
 
-DWORD DcxStacker::getItemCount(void) const {
-	return (DWORD)ListBox_GetCount(m_Hwnd);
+DWORD DcxStacker::getItemCount(void) const
+{
+	return gsl::narrow_cast<DWORD>(ListBox_GetCount(m_Hwnd));
 }
 
-LPDCXSITEM DcxStacker::getItem(const int nPos) const {
-	return reinterpret_cast<LPDCXSITEM>(SendMessage(m_Hwnd,LB_GETITEMDATA, static_cast<WPARAM>(nPos), NULL));
+LPDCXSITEM DcxStacker::getItem(const int nPos) const
+{
+	return reinterpret_cast<LPDCXSITEM>(ListBox_GetItemData(m_Hwnd, nPos));
 }
 
-LPDCXSITEM DcxStacker::getHotItem(void) const {
-	return reinterpret_cast<LPDCXSITEM>(SendMessage(m_Hwnd,LB_GETITEMDATA, static_cast<WPARAM>(this->getItemID() - 1),NULL));
+LPDCXSITEM DcxStacker::getHotItem(void) const
+{
+	return reinterpret_cast<LPDCXSITEM>(ListBox_GetItemData(m_Hwnd, this->getItemID() - 1));
 }
 
 void DcxStacker::getItemRect(const int nPos, LPRECT rc) const {
 	ListBox_GetItemRect(m_Hwnd, nPos, rc);
 }
 
-const TString DcxStacker::getStyles(void) const {
+const TString DcxStacker::getStyles(void) const
+{
 	auto styles(__super::getStyles());
-	const auto Styles = GetWindowStyle(m_Hwnd);
+	const auto Styles = dcxGetWindowStyle(m_Hwnd);
 
 	if (dcx_testflag(Styles, WS_VSCROLL))
 		styles.addtok(TEXT("vscroll"));
@@ -493,7 +480,7 @@ void DcxStacker::DrawAliasedTriangle(const HDC hdc, const LPRECT rc, const COLOR
 	points[2].X = (rc->left + (rc->right - rc->left)/2);
 	points[2].Y = rc->bottom;
 	// Fill the polygon.
-	gfx.FillPolygon(&blackBrush, points, 3);
+	gfx.FillPolygon(&blackBrush, &points[0], Dcx::countof(points));
 #endif
 }
 
@@ -507,7 +494,8 @@ void DcxStacker::DrawItemImage(const HDC hdc, Gdiplus::Image *const img, const L
 	grphx.SetSmoothingMode(Gdiplus::SmoothingModeAntiAlias);
 	grphx.SetCompositingMode(Gdiplus::CompositingModeSourceOver);
 	const int w = (rc->right - rc->left), h = (rc->bottom - rc->top);
-	if ((img->GetWidth() == 1) || (img->GetHeight() == 1)) {
+	if ((img->GetWidth() == 1) || (img->GetHeight() == 1))
+	{
 		// This fixes a GDI+ bug when resizing 1 px images
 		// http://www.devnewsgroups.net/group/microsoft.public.dotnet.framework.windowsforms/topic11515.aspx
 		grphx.SetInterpolationMode(Gdiplus::InterpolationModeNearestNeighbor);
@@ -526,7 +514,7 @@ void DcxStacker::DrawSItem(const LPDRAWITEMSTRUCT idata)
 	if (sitem == nullptr)
 		return;
 
-	RECT rcWin;
+	RECT rcWin{};
 	if (!GetClientRect(idata->hwndItem, &rcWin))
 		return;
 
@@ -535,13 +523,14 @@ void DcxStacker::DrawSItem(const LPDRAWITEMSTRUCT idata)
 	if (hFont == nullptr)
 		hFont = GetWindowFont(idata->hwndItem);
 
-	LOGFONT lf = { 0 };
+	LOGFONT lf{};
 	if (GetObject(hFont, sizeof(LOGFONT), &lf) == 0)
 		return;
 
 	// Create temp HDC as drawing buffer.
 	// if temp HDC or its bitmap fails to create, use supplied HDC without buffer.
 	auto hBuffer = CreateHDCBuffer(idata->hDC, &rcWin);
+	Auto(DeleteHDCBuffer(hBuffer));
 
 	HDC memDC = idata->hDC;
 
@@ -549,10 +538,10 @@ void DcxStacker::DrawSItem(const LPDRAWITEMSTRUCT idata)
 		memDC = *hBuffer;
 
 	auto rcText = idata->rcItem;
-	auto h = MIN_STACK_HEIGHT, button_base = 0;
+	auto button_base = 0;
 	auto Redraw = false;
+	auto h = std::max(gsl::narrow_cast<LONG>(MIN_STACK_HEIGHT),lf.lfHeight * 20);
 
-	h = std::max(static_cast<LONG>(h),lf.lfHeight * 20);
 	rcText.bottom = rcText.top + h;
 	//rcText.right -= 1;
 	if (rcText.bottom > idata->rcItem.bottom)
@@ -572,7 +561,8 @@ void DcxStacker::DrawSItem(const LPDRAWITEMSTRUCT idata)
 	rcText.right -= GetSystemMetrics(SM_CXEDGE); // move in right side past border
 
 	// fill background colour if any.
-	if (dcx_testflag(this->m_dStyles, STACKERS_GRAD)) {
+	if (dcx_testflag(this->m_dStyles, STACKERS_GRAD))
+	{
 		auto clrStart = this->m_clrStartGradient;
 		auto clrEnd = this->m_clrEndGradient;
 
@@ -586,24 +576,26 @@ void DcxStacker::DrawSItem(const LPDRAWITEMSTRUCT idata)
 
 		XPopupMenuItem::DrawGradient( memDC, &rcText, clrStart, clrEnd, FALSE);
 	}
-	else if (sitem->clrBack != CLR_INVALID) {
+	else if (sitem->clrBack != CLR_INVALID)
+	{
 		SetBkColor(memDC,sitem->clrBack);
 		ExtTextOut(memDC, rcText.left, rcText.top, ETO_CLIPPED | ETO_OPAQUE, &rcText, TEXT(""), NULL, nullptr );
 	}
 	
 	// draw GDI+ image if any, we draw the image after the  colour fill to allow for alpha in pics.
 	if (dcx_testflag(idata->itemState, ODS_SELECTED) && sitem->iSelectedItemImg > -1 && sitem->iSelectedItemImg < static_cast<int>(this->m_vImageList.size()))
-		DrawItemImage(memDC, m_vImageList[sitem->iSelectedItemImg], &rcText);
-	else if (sitem->iItemImg > -1 && sitem->iItemImg < static_cast<int>(this->m_vImageList.size()))
-		DrawItemImage(memDC, m_vImageList[sitem->iItemImg], &rcText);
+		DrawItemImage(memDC, m_vImageList[sitem->iSelectedItemImg].get(), &rcText);
+	else if (sitem->iItemImg > -1 && sitem->iItemImg < gsl::narrow_cast<int>(this->m_vImageList.size()))
+		DrawItemImage(memDC, m_vImageList[sitem->iItemImg].get(), &rcText);
 
 	// draw text if any
-	if (!sitem->tsCaption.empty()) {
+	if (!sitem->tsCaption.empty())
+	{
 		auto oldFont = SelectFont(memDC, hFont);
 		Auto(SelectFont(memDC, oldFont));
 
 		// get text colour.
-		auto clrText = sitem->clrText, oldClr = (COLORREF)CLR_INVALID;
+		auto clrText = sitem->clrText, oldClr = gsl::narrow_cast<COLORREF>(CLR_INVALID);
 		if (clrText == CLR_INVALID)
 			clrText = GetSysColor(COLOR_BTNTEXT);
 		// draw the text
@@ -642,24 +634,25 @@ void DcxStacker::DrawSItem(const LPDRAWITEMSTRUCT idata)
 		rcArrow.bottom -= 3;
 		DrawAliasedTriangle(memDC,&rcArrow,0);
 	}
-	if (idata->hDC != memDC) { // if using temp buffer HDC, render completed item to main HDC & cleanup buffer.
+	if (idata->hDC != memDC)
+	{ // if using temp buffer HDC, render completed item to main HDC & cleanup buffer.
 		BitBlt(idata->hDC,idata->rcItem.left, idata->rcItem.top, (idata->rcItem.right - idata->rcItem.left), h, memDC, idata->rcItem.left, idata->rcItem.top, SRCCOPY);
-		DeleteHDCBuffer(hBuffer);
 	}
 
 	// position child control if any.
-	if (sitem->pChild != nullptr) {
-		auto sWnd = sitem->pChild->getHwnd();
-		if (IsWindow(sWnd)) {
+	if (sitem->pChild != nullptr)
+	{
+		if (auto sWnd = sitem->pChild->getHwnd(); IsWindow(sWnd))
+		{
 			if (dcx_testflag(idata->itemState, ODS_SELECTED))
 			{
-				RECT rc;
-				if (GetWindowRect(sWnd, &rc))
+				if (RECT rc{}; GetWindowRect(sWnd, &rc))
 				{
 					SetWindowPos(sWnd, nullptr, idata->rcItem.left, button_base, (idata->rcItem.right - idata->rcItem.left), (rc.bottom - rc.top), SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE | SWP_SHOWWINDOW);
 					h += (rc.bottom - rc.top);
 				}
-				if (sWnd != this->m_hActive) {
+				if (sWnd != this->m_hActive)
+				{
 					if (IsWindow(this->m_hActive))
 						Redraw = true;
 				}
@@ -674,8 +667,10 @@ void DcxStacker::DrawSItem(const LPDRAWITEMSTRUCT idata)
 		m_hActive = nullptr;
 		Redraw = true;
 	}
-	if (h != (idata->rcItem.bottom - idata->rcItem.top)) {
-		SendMessage(idata->hwndItem,LB_SETITEMHEIGHT,idata->itemID,h);
+	if (h != (idata->rcItem.bottom - idata->rcItem.top))
+	{
+		ListBox_SetItemHeight(idata->hwndItem,idata->itemID,h);
+
 		//MEASUREITEMSTRUCT mi;
 		//SCROLLINFO sc;
 		//UINT scroll_height = 0, cnt, items = this->getItemCount(), minitemheight = -1;
@@ -715,141 +710,141 @@ void DcxStacker::DrawSItem(const LPDRAWITEMSTRUCT idata)
  *
  * blah
  */
-LRESULT DcxStacker::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
+LRESULT DcxStacker::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed)
+{
 	LRESULT lRes = 0L;
 	switch (uMsg)
 	{
 	case WM_COMMAND:
+	{
+		bParsed = TRUE;
+		switch (HIWORD(wParam))
 		{
-			bParsed = TRUE;
-			switch (HIWORD(wParam))
-			{
-			case LBN_DBLCLK:
-				{
-					if (dcx_testflag(m_pParentDialog->getEventMask(), DCX_EVENT_CLICK))
-						execAliasEx(TEXT("dclick,%u,%d"), getUserID( ), getSelItemID());
-				}
-				break;
-			case LBN_SELCHANGE:
-				{
-					if (dcx_testflag(this->m_pParentDialog->getEventMask(), DCX_EVENT_CLICK))
-						this->execAliasEx(TEXT("sclick,%u,%d"), getUserID(), getSelItemID());
-				}
-				break;
-			}
+		case LBN_DBLCLK:
+		{
+			if (dcx_testflag(m_pParentDialog->getEventMask(), DCX_EVENT_CLICK))
+				execAliasEx(TEXT("dclick,%u,%d"), getUserID(), getSelItemID());
 		}
 		break;
+		case LBN_SELCHANGE:
+		{
+			if (dcx_testflag(this->m_pParentDialog->getEventMask(), DCX_EVENT_CLICK))
+				this->execAliasEx(TEXT("sclick,%u,%d"), getUserID(), getSelItemID());
+		}
+		break;
+		}
+	}
+	break;
 	case WM_COMPAREITEM:
-		{
-			bParsed = TRUE;
-			//LPCOMPAREITEMSTRUCT idata = (LPCOMPAREITEMSTRUCT)lParam;
-		}
-		break;
+	{
+		bParsed = TRUE;
+		//LPCOMPAREITEMSTRUCT idata = (LPCOMPAREITEMSTRUCT)lParam;
+	}
+	break;
 
 	case WM_DELETEITEM:
+	{
+		dcxlParam(LPDELETEITEMSTRUCT, idata);
+		//auto idata = reinterpret_cast<DELETEITEMSTRUCT *>(lParam);
+		if (idata == nullptr)
+			break;
+
+		auto sitem = reinterpret_cast<LPDCXSITEM>(idata->itemData);
+		if (sitem == nullptr)
+			break;
+
+		bParsed = TRUE;
+		lRes = TRUE;
+		if (sitem->pChild != nullptr)
 		{
-			dcxlParam(LPDELETEITEMSTRUCT, idata);
-			//auto idata = reinterpret_cast<DELETEITEMSTRUCT *>(lParam);
-			if (idata == nullptr)
-				break;
-
-			auto sitem = reinterpret_cast<LPDCXSITEM>(idata->itemData);
-			if (sitem == nullptr)
-				break;
-
-			bParsed = TRUE;
-			lRes = TRUE;
-			if (sitem->pChild != nullptr) {
-
-				auto dct = sitem->pChild->getControlType();
-				if (dct == DcxControlTypes::DIALOG || dct == DcxControlTypes::WINDOW)
-					delete sitem->pChild;
-				else { //if ( sitem->pChild->getRefCount( ) == 0 ) {
-					this->m_pParentDialog->deleteControl(sitem->pChild); // remove from internal list!
-					if (IsWindow(sitem->pChild->getHwnd()))
-						DestroyWindow(sitem->pChild->getHwnd());
-				}
-
-				//if ( sitem->pChild->getType( ) == TEXT("dialog") || sitem->pChild->getType( ) == TEXT("window") )
-				//	delete sitem->pChild;
-				//else { //if ( sitem->pChild->getRefCount( ) == 0 ) {
-				//	this->m_pParentDialog->deleteControl( sitem->pChild ); // remove from internal list!
-				//	if (IsWindow(sitem->pChild->getHwnd()))
-				//		DestroyWindow( sitem->pChild->getHwnd() );
-				//}
+			if (const auto dct = sitem->pChild->getControlType(); dct == DcxControlTypes::DIALOG || dct == DcxControlTypes::WINDOW)
+				delete sitem->pChild;
+			else { //if ( sitem->pChild->getRefCount( ) == 0 ) {
+				this->m_pParentDialog->deleteControl(sitem->pChild); // remove from internal list!
+				if (IsWindow(sitem->pChild->getHwnd()))
+					DestroyWindow(sitem->pChild->getHwnd());
 			}
-			delete sitem;
+
+			//if ( sitem->pChild->getType( ) == TEXT("dialog") || sitem->pChild->getType( ) == TEXT("window") )
+			//	delete sitem->pChild;
+			//else { //if ( sitem->pChild->getRefCount( ) == 0 ) {
+			//	this->m_pParentDialog->deleteControl( sitem->pChild ); // remove from internal list!
+			//	if (IsWindow(sitem->pChild->getHwnd()))
+			//		DestroyWindow( sitem->pChild->getHwnd() );
+			//}
 		}
-		break;
+		delete sitem;
+	}
+	break;
 
 	case WM_MEASUREITEM:
+	{
+		dcxlParam(LPMEASUREITEMSTRUCT, idata);
+		if (idata == nullptr)
+			break;
+
+		auto sitem = reinterpret_cast<LPDCXSITEM>(idata->itemData);
+		if (sitem == nullptr)
+			break;
+
+		bParsed = TRUE;
+		lRes = TRUE;
+
+		auto hFont = sitem->hFont;
+
+		RECT rcText{};
+		if (!GetClientRect(m_Hwnd, &rcText))
+			break;
+
+		auto h = gsl::narrow_cast<long>(MIN_STACK_HEIGHT), w = (rcText.right - rcText.left);
+
+		if (hFont == nullptr)
+			hFont = GetWindowFont(m_Hwnd);
+
+		LOGFONT lf{};
+		if (GetObject(hFont, sizeof(LOGFONT), &lf) == 0)
+			break;
+
+		h = std::max(gsl::narrow_cast<LONG>(h), lf.lfHeight * 20);
+
+		if (sitem->pChild != nullptr)
 		{
-			dcxlParam(LPMEASUREITEMSTRUCT, idata);
-			if (idata == nullptr)
-				break;
-
-			auto sitem = reinterpret_cast<LPDCXSITEM>(idata->itemData);
-			if (sitem == nullptr)
-				break;
-
-			bParsed = TRUE;
-			lRes = TRUE;
-
-			auto hFont = sitem->hFont;
-
-			RECT rcText;
-			if (!GetClientRect(m_Hwnd, &rcText))
-				break;
-
-			auto h = (long)MIN_STACK_HEIGHT, w = (rcText.right - rcText.left);
-
-			if (hFont == nullptr)
-				hFont = GetWindowFont(m_Hwnd);
-
-			LOGFONT lf = { 0 };
-			if (GetObject(hFont, sizeof(LOGFONT), &lf) == 0)
-				break;
-
-			h = std::max(static_cast<LONG>(h),lf.lfHeight * 20);
-
-			if (sitem->pChild != nullptr) {
-				auto win = sitem->pChild->getHwnd();
-				if (IsWindow(win) && IsWindowVisible(win)) {
-					RECT rc;
-					if (GetWindowRect(win, &rc))
-					{
-						h += (rc.bottom - rc.top);
-						//w = max(w,(rc.right - rc.left));
-					}
+			if (auto win = sitem->pChild->getHwnd(); IsWindow(win) && IsWindowVisible(win))
+			{
+				if (RECT rc{}; GetWindowRect(win, &rc))
+				{
+					h += (rc.bottom - rc.top);
+					//w = max(w,(rc.right - rc.left));
 				}
 			}
-			idata->itemHeight = static_cast<UINT>(h);
-			idata->itemWidth = static_cast<UINT>(w);
 		}
-		break;
+		idata->itemHeight = gsl::narrow_cast<UINT>(h);
+		idata->itemWidth = gsl::narrow_cast<UINT>(w);
+	}
+	break;
 
 	case WM_DRAWITEM:
-		{
-			bParsed = TRUE;
-			lRes = TRUE;
-			DrawSItem(reinterpret_cast<LPDRAWITEMSTRUCT>(lParam));
-		}
-		break;
+	{
+		bParsed = TRUE;
+		lRes = TRUE;
+		DrawSItem(reinterpret_cast<LPDRAWITEMSTRUCT>(lParam));
+	}
+	break;
 	}
 	return lRes;
 }
 
-LRESULT DcxStacker::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
-
+LRESULT DcxStacker::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed)
+{
 	LRESULT lRes = 0L;
-	switch( uMsg )
+	switch (uMsg)
 	{
 	case WM_GETDLGCODE:
-		{
-			bParsed = TRUE;
-			return DLGC_WANTALLKEYS;
-		}
-		break;
+	{
+		bParsed = TRUE;
+		return DLGC_WANTALLKEYS;
+	}
+	break;
 
 	case WM_HSCROLL:
 	case WM_VSCROLL:
@@ -873,184 +868,181 @@ LRESULT DcxStacker::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 		//}
 
 	case WM_COMMAND:
+	{
+		if (IsWindow((HWND)lParam))
 		{
-			if (IsWindow((HWND) lParam)) {
-				auto c_this = static_cast<DcxControl *>(GetProp((HWND)lParam, TEXT("dcx_cthis")));
-				if (c_this != nullptr)
-					lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
-			}
+			if (auto c_this = static_cast<DcxControl *>(GetProp((HWND)lParam, TEXT("dcx_cthis"))); c_this != nullptr)
+				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 		}
-		break;
+	}
+	break;
 
 	case WM_COMPAREITEM:
-		{
-			dcxlParam(LPCOMPAREITEMSTRUCT, idata);
+	{
+		dcxlParam(LPCOMPAREITEMSTRUCT, idata);
 
-			if ((idata != nullptr) && (IsWindow(idata->hwndItem))) {
-				auto c_this = static_cast<DcxControl *>(GetProp(idata->hwndItem, TEXT("dcx_cthis")));
-				if (c_this != nullptr)
-					lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
-			}
+		if ((idata != nullptr) && (IsWindow(idata->hwndItem)))
+		{
+			if (auto c_this = static_cast<DcxControl *>(GetProp(idata->hwndItem, TEXT("dcx_cthis"))); c_this != nullptr)
+				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 		}
-		break;
+	}
+	break;
 
 	case WM_DELETEITEM:
-		{
-			dcxlParam(LPDELETEITEMSTRUCT, idata);
+	{
+		dcxlParam(LPDELETEITEMSTRUCT, idata);
 
-			if ((idata != nullptr) && (IsWindow(idata->hwndItem))) {
-				auto c_this = static_cast<DcxControl *>(GetProp(idata->hwndItem, TEXT("dcx_cthis")));
-				if (c_this != nullptr)
-					lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
-			}
+		if ((idata != nullptr) && (IsWindow(idata->hwndItem)))
+		{
+			if (auto c_this = static_cast<DcxControl *>(GetProp(idata->hwndItem, TEXT("dcx_cthis"))); c_this != nullptr)
+				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 		}
-		break;
+	}
+	break;
 
 	case WM_MEASUREITEM:
+	{
+		if (auto cHwnd = GetDlgItem(m_Hwnd, wParam); IsWindow(cHwnd))
 		{
-			auto cHwnd = GetDlgItem(m_Hwnd, wParam);
-			if (IsWindow(cHwnd)) {
-				auto c_this = static_cast<DcxControl *>(GetProp(cHwnd, TEXT("dcx_cthis")));
-				if (c_this != nullptr)
-					lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
-			}
+			if (auto c_this = static_cast<DcxControl *>(GetProp(cHwnd, TEXT("dcx_cthis"))); c_this != nullptr)
+				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 		}
-		break;
+	}
+	break;
 
 	case WM_DRAWITEM:
-		{
-			dcxlParam(LPDRAWITEMSTRUCT, idata);
+	{
+		dcxlParam(LPDRAWITEMSTRUCT, idata);
 
-			if ((idata != nullptr) && (IsWindow(idata->hwndItem))) {
-				auto c_this = static_cast<DcxControl *>(GetProp(idata->hwndItem, TEXT("dcx_cthis")));
-				if (c_this != nullptr)
+		if ((idata != nullptr) && (IsWindow(idata->hwndItem)))
+		{
+			if (auto c_this = static_cast<DcxControl *>(GetProp(idata->hwndItem, TEXT("dcx_cthis"))); c_this != nullptr)
+				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
+		}
+	}
+	break;
+
+	case WM_NOTIFY:
+	{
+		dcxlParam(LPNMHDR, hdr);
+
+		if (hdr == nullptr)
+			break;
+
+		if (hdr->hwndFrom == m_ToolTipHWND)
+		{
+			switch (hdr->code)
+			{
+			case TTN_GETDISPINFO:
+			{
+				dcxlParam(LPNMTTDISPINFO, di);
+				if (di == nullptr)
+					break;
+
+				auto sitem = getHotItem();
+				if (sitem == nullptr || sitem == (LPDCXSITEM)LB_ERR)
+					break;
+
+				di->lpszText = sitem->tsTipText.to_chr();
+				di->hinst = nullptr;
+				bParsed = TRUE;
+			}
+			break;
+			case TTN_LINKCLICK:
+			{
+				bParsed = TRUE;
+				this->execAliasEx(TEXT("%s,%d,%d"), TEXT("tooltiplink"), getUserID(), getItemID());
+			}
+			break;
+			}
+		}
+		else if (m_Hwnd != hdr->hwndFrom)
+		{
+			if (IsWindow(hdr->hwndFrom))
+			{
+				if (auto c_this = static_cast<DcxControl *>(GetProp(hdr->hwndFrom, TEXT("dcx_cthis"))); c_this != nullptr)
 					lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 			}
 		}
-		break;
-
-	case WM_NOTIFY: 
-		{
-			dcxlParam(LPNMHDR, hdr);
-
-			if (hdr == nullptr)
-				break;
-
-			if (hdr->hwndFrom == m_ToolTipHWND) {
-				switch( hdr->code )
-				{
-					case TTN_GETDISPINFO:
-						{
-							dcxlParam(LPNMTTDISPINFO, di);
-							if (di == nullptr)
-								break;
-
-							auto sitem = getHotItem();
-							if (sitem == nullptr || sitem == (LPDCXSITEM)LB_ERR)
-								break;
-
-							di->lpszText = sitem->tsTipText.to_chr();
-							di->hinst = nullptr;
-							bParsed = TRUE;
-						}
-						break;
-					case TTN_LINKCLICK:
-						{
-							bParsed = TRUE;
-							this->execAliasEx(TEXT("%s,%d,%d"), TEXT("tooltiplink"), getUserID( ), getItemID() );
-						}
-						break;
-				}
-			}
-			else if (m_Hwnd != hdr->hwndFrom)
-			{
-				if (IsWindow(hdr->hwndFrom)) {
-					auto c_this = static_cast<DcxControl *>(GetProp(hdr->hwndFrom, TEXT("dcx_cthis")));
-					if (c_this != nullptr)
-						lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
-				}
-			}
-		}
-		break;
+	}
+	break;
 
 	case WM_LBUTTONDBLCLK:
 		break;
 
 	case WM_LBUTTONUP:
-		{
-			if (dcx_testflag(this->m_pParentDialog->getEventMask(), DCX_EVENT_CLICK))
-				this->execAliasEx(TEXT("%s,%d,%d"), TEXT("lbup"), this->getUserID( ), this->getItemID());
-		}
-		break;
+	{
+		if (dcx_testflag(this->m_pParentDialog->getEventMask(), DCX_EVENT_CLICK))
+			this->execAliasEx(TEXT("%s,%d,%d"), TEXT("lbup"), this->getUserID(), this->getItemID());
+	}
+	break;
 
 	case WM_ENABLE:
-		{
-			this->redrawWindow();
-		}
-		break;
+	{
+		this->redrawWindow();
+	}
+	break;
 
 	case WM_ERASEBKGND:
-		{
-			bParsed = TRUE;
-			// fill background.
-			auto lastID = getItemCount();
-			if (lastID == LB_ERR)
-				break;
-			lastID--;
-			if ((lastID == 0) || (lParam != NULL))
-				DrawParentsBackground((HDC)wParam);
-			else {
-				RECT rcClient;
-				if (GetClientRect(m_Hwnd, &rcClient))
+	{
+		bParsed = TRUE;
+		// fill background.
+		auto lastID = getItemCount();
+		if (lastID == LB_ERR)
+			break;
+		lastID--;
+		if ((lastID == 0) || (lParam != NULL))
+			DrawParentsBackground((HDC)wParam);
+		else {
+			if (RECT rcClient{}; GetClientRect(m_Hwnd, &rcClient))
+			{
+				RECT rcItem{};
+				getItemRect(lastID, &rcItem);
+				if (rcItem.bottom < rcClient.bottom)
 				{
-					RECT rcItem = { 0 };
-					getItemRect(lastID, &rcItem);
-					if (rcItem.bottom < rcClient.bottom) {
-						rcClient.top = rcItem.bottom;
-						DrawParentsBackground((HDC)wParam, &rcClient);
-					}
-
-					//lastID = this->getSelItemID();
-					//if (lastID != LB_ERR) {
-					//	getItemRect(lastID, &rcItem);
-					//	DrawParentsBackground((HDC) wParam, &rcItem);
-					//}
+					rcClient.top = rcItem.bottom;
+					DrawParentsBackground((HDC)wParam, &rcClient);
 				}
+
+				//lastID = this->getSelItemID();
+				//if (lastID != LB_ERR) {
+				//	getItemRect(lastID, &rcItem);
+				//	DrawParentsBackground((HDC) wParam, &rcItem);
+				//}
 			}
-			return TRUE;
 		}
-		break;
+		return TRUE;
+	}
+	break;
 
 	case WM_PAINT:
-		{
-			if (!m_bAlphaBlend)
-				break;
+	{
+		if (!m_bAlphaBlend)
+			break;
 
-			PAINTSTRUCT ps;
-			auto hdc = BeginPaint(m_Hwnd, &ps);
+		PAINTSTRUCT ps{};
+		auto hdc = BeginPaint(m_Hwnd, &ps);
+		Auto(EndPaint(m_Hwnd, &ps));
 
-			bParsed = TRUE;
+		bParsed = TRUE;
 
-			// Setup alpha blend if any.
-			auto ai = SetupAlphaBlend(&hdc);
+		// Setup alpha blend if any.
+		auto ai = SetupAlphaBlend(&hdc);
+		Auto(FinishAlphaBlend(ai));
 
-			//lRes = CallWindowProc( m_DefaultWindowProc, m_Hwnd, uMsg, (WPARAM) hdc, lParam );
-			lRes = CallDefaultProc(m_Hwnd, uMsg, (WPARAM)hdc, lParam);
-
-			FinishAlphaBlend(ai);
-
-			EndPaint( m_Hwnd, &ps );
-		}
-		break;
+		lRes = CallDefaultProc(m_Hwnd, uMsg, (WPARAM)hdc, lParam);
+	}
+	break;
 
 	case WM_DESTROY:
-		{
-			delete this;
-			bParsed = TRUE;
-		}
-		break;
+	{
+		delete this;
+		bParsed = TRUE;
+	}
+	break;
 	default:
-		lRes = CommonMessage( uMsg, wParam, lParam, bParsed);
+		lRes = CommonMessage(uMsg, wParam, lParam, bParsed);
 		break;
 	}
 

@@ -107,7 +107,10 @@ public:
 	std::pair<bool, TString> evalAliasT(const Value &val)
 	{
 		TString tsArgs, tsRes;
-		_ts_sprintf(tsArgs, TEXT("$%(%,%)"), getAliasName(), getName(), MakeTextmIRCSafe(val));
+		if constexpr(std::is_array_v<Value> && std::is_pod_v<Value>)
+			_ts_sprintf(tsArgs, TEXT("$%(%,%)"), getAliasName(), getName(), MakeTextmIRCSafe(&val[0]));
+		else
+			_ts_sprintf(tsArgs, TEXT("$%(%,%)"), getAliasName(), getName(), MakeTextmIRCSafe(val));
 
 		incRef();
 		Auto(decRef());
@@ -170,11 +173,12 @@ public:
 	void CreateVistaStyle(void);
 	const bool CreateVistaStyleBitmap(const SIZE &szWin);
 	void RemoveVistaStyle(void);
-	void UpdateVistaStyle(const LPRECT rcUpdate = nullptr);
+	void UpdateVistaStyle(const RECT *const rcUpdate = nullptr);
 	void SetVistaStylePos(void);
 	void SetVistaStyleSize(void);
 
-	const bool isNamedId(const TString &NamedID) const {
+	const bool isNamedId(const TString &NamedID) const
+	{
 		const auto local_id = NamedID.to_<UINT>() + mIRC_ID_OFFSET;
 		const auto itEnd = m_NamedIds.end();
 
@@ -229,11 +233,12 @@ public:
 			if (uStoredID == local_id)
 				return tsStoredName;
 		}
-		return {};
+		return TString();
 	}
 	const UINT getUniqueID() const
 	{
-		for (auto iCount = 0U, i = mIRC_ID_OFFSET + DCX_NAMED_ID_OFFSET; iCount < mIRC_MAX_CONTROLS; iCount++) {
+		for (auto iCount = 0U, i = mIRC_ID_OFFSET + DCX_NAMED_ID_OFFSET; iCount < mIRC_MAX_CONTROLS; ++iCount)
+		{
 			++i;
 
 			if (isIDValid(i, true))
@@ -289,6 +294,8 @@ public:
 			return true;
 		}
 		return false;
+
+		//return Dcx::eraseIfFound(m_NamedIds, tsName);
 	}
 
 	void MapVistaRect(HWND hwnd, LPRECT rc) const;
@@ -305,7 +312,7 @@ public:
 
 	static LRESULT WINAPI WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 	static void DrawDialogBackground(HDC hdc, DcxDialog *const p_this, LPCRECT rwnd);
-	static const DWORD getAnimateStyles(const TString & flags) noexcept;
+	static const WindowAnimStyle getAnimateStyles(const TString & flags) noexcept;
 
 private:
 
@@ -327,9 +334,11 @@ private:
 	UINT m_uStyleBg;
 	UINT m_iRefCount;
 
-	LayoutManager * m_pLayoutManager; //!< Layout Manager Object
-
+	//LayoutManager * m_pLayoutManager; //!< Layout Manager Object
 	XPopupMenu * m_popup;
+
+	std::unique_ptr<LayoutManager> m_pLayoutManager; //!< Layout Manager Object
+	//std::unique_ptr<XPopupMenu> m_popup;
 
 	HCURSOR m_hCursor;  //!< Cursor Handle
 	std::pair<HCURSOR, bool> m_hCursorList[22];
@@ -375,7 +384,7 @@ private:
 	void i_showError(const TCHAR *const cType, const TCHAR *const prop, const TCHAR *const cmd, const TCHAR *const err) const;
 	void PreloadData(void);
 
-	static void parseBorderStyles(const TString & flags, LONG *const Styles, LONG *const ExStyles) noexcept;
+	static std::pair<WindowStyle, WindowExStyle> parseBorderStyles(const TString & flags) noexcept;
 	static const UINT parseBkgFlags(const TString & flags) noexcept;
 	static const UINT parseFlashFlags(const TString & flags) noexcept;
 	static const UINT parseTooltipFlags(const TString &flags) noexcept;

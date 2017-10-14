@@ -39,14 +39,14 @@ public:
 	explicit DcxWindow( const UINT mID );
 	virtual ~DcxWindow( );
 
-	bool isStyle( const LONG Styles ) const noexcept;
-	LONG removeStyle( const LONG Styles );
-	LONG addStyle( const LONG Styles );
-	LONG setStyle( const LONG Styles );
-	bool isExStyle( const LONG Styles ) const noexcept;
-	LONG removeExStyle( const LONG Styles );
-	LONG addExStyle( const LONG Styles );
-	LONG setExStyle( const LONG Styles );
+	bool isStyle( const WindowStyle Styles ) const noexcept;
+	WindowStyle removeStyle( const WindowStyle Styles );
+	WindowStyle addStyle( const WindowStyle Styles );
+	WindowStyle setStyle( const WindowStyle Styles );
+	bool isExStyle( const WindowExStyle Styles ) const noexcept;
+	WindowExStyle removeExStyle( const WindowExStyle Styles );
+	WindowExStyle addExStyle( const WindowExStyle Styles );
+	WindowExStyle setExStyle( const WindowExStyle Styles );
 
 	const HWND &getHwnd( ) const noexcept;
 	const UINT &getID( ) const noexcept;
@@ -72,26 +72,7 @@ protected:
 
 	HRGN	m_hZeroRgn;
 
-#if _MSC_VER < 1912
-	static const std::map<TString, PTCHAR> IDC_map;
-#else
-	inline const static std::map<TString, PTCHAR> IDC_map{
-		{TEXT("appstarting"), IDC_APPSTARTING},
-		{TEXT("arrow"), IDC_ARROW},
-		{TEXT("cross"), IDC_CROSS},
-		{TEXT("hand"), IDC_HAND},
-		{TEXT("help"), IDC_HELP},
-		{TEXT("ibeam"), IDC_IBEAM},
-		{TEXT("no"), IDC_NO},
-		{TEXT("sizeall"), IDC_SIZEALL},
-		{TEXT("sizenesw"), IDC_SIZENESW},
-		{TEXT("sizens"), IDC_SIZENS},
-		{TEXT("sizenwse"), IDC_SIZENWSE},
-		{TEXT("sizewe"), IDC_SIZEWE},
-		{TEXT("uparrow"), IDC_UPARROW},
-		{TEXT("wait"), IDC_WAIT}
-	};
-#endif
+	static const std::map<std::hash<TString>::result_type, PTCHAR> IDC_map;
 };
 #ifdef __INTEL_COMPILER // Defined when using Intel C++ Compiler.
 #pragma warning( pop )

@@ -150,7 +150,8 @@ public:
 	//void parseInfoRequest(const TString & input, PTCHAR szReturnValue) const override;
 	void parseInfoRequest(const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const override;
 	void parseCommandRequest(const TString & input) override;
-	void parseControlStyles(const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme) override;
+	//void parseControlStyles(const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme) override;
+	std::tuple<NoTheme, WindowStyle, WindowExStyle> parseControlStyles(const TString & tsStyles) override;
 
 	HIMAGELIST getImageList(const int iImageList) const;
 	void setImageList( const HIMAGELIST himl, const int iImageList );
@@ -215,8 +216,11 @@ private:
 	static void parseText2Item(const TString & tsTxt, TString & tsItem, const TString &tsData);
 	static int CALLBACK sortItemsEx(LPARAM lParam1, LPARAM lParam2, LPARAM lParamSort);
 	static LRESULT CALLBACK EditLabelProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+
 	//static HIMAGELIST createImageList(const bool bIcons);
-	static void parseListviewExStyles(const TString & styles, LONG * ExStyles) noexcept;
+	//static void parseListviewExStyles(const TString & styles, LONG * ExStyles) noexcept;
+
+	static const WindowExStyle parseListviewExStyles(const TString & styles) noexcept;
 
 	//
 	HFONT m_hItemFont;					// Font used for specific item changes.

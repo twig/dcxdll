@@ -19,20 +19,15 @@ DcxPager::DcxPager(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentH
 : DcxControl( ID, p_Dialog )
 , m_ChildHWND(nullptr)
 {
-	LONG Styles = 0, ExStyles = 0;
-	BOOL bNoTheme = FALSE;
-	this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
+	const auto[bNoTheme, Styles, ExStyles] = parseControlStyles(styles);
 
-	m_Hwnd = CreateWindowEx(
-		gsl::narrow_cast<DWORD>(ExStyles) | WS_EX_CONTROLPARENT,
+	m_Hwnd = dcxCreateWindow(
+		ExStyles | WS_EX_CONTROLPARENT,
 		DCX_PAGERCLASS,
-		nullptr,
-		WS_CHILD | gsl::narrow_cast<DWORD>(Styles),
-		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
+		Styles | WS_CHILD,
+		rc,
 		mParentHwnd,
-		(HMENU) ID,
-		GetModuleHandle(nullptr),
-		nullptr);
+		ID);
 
 	if (!IsWindow(m_Hwnd))
 		throw Dcx::dcxException("Unable To Create Window");
@@ -53,15 +48,15 @@ DcxPager::DcxPager(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentH
  * blah
  */
 
-DcxPager::~DcxPager( ) {
-
+DcxPager::~DcxPager( )
+{
   this->unregistreDefaultWindowProc( );
 }
 
 const TString DcxPager::getStyles(void) const
 {
 	auto styles(__super::getStyles());
-	const auto Styles = GetWindowStyle(m_Hwnd);
+	const auto Styles = dcxGetWindowStyle(m_Hwnd);
 
 	if (dcx_testflag(Styles, PGS_HORZ))
 		styles.addtok(TEXT("horizontal"));
@@ -95,30 +90,51 @@ TiXmlElement * DcxPager::toXml(void) const
  * blah
  */
 
-void DcxPager::parseControlStyles( const TString &styles, LONG *Styles, LONG *ExStyles, BOOL *bNoTheme)
+//void DcxPager::parseControlStyles( const TString &styles, LONG *Styles, LONG *ExStyles, BOOL *bNoTheme)
+//{
+//	for (const auto &tsStyle: styles)
+//	{
+//#if DCX_USE_HASHING
+//		switch (std::hash<TString>{}(tsStyle))
+//		{
+//			case L"horizontal"_hash:
+//				*Styles |= PGS_HORZ;
+//				break;
+//			case L"autoscroll"_hash:
+//				*Styles |= PGS_AUTOSCROLL;
+//			default:
+//				break;
+//		}
+//#else
+//		if (tsStyle == TEXT("horizontal"))
+//			*Styles |= PGS_HORZ;
+//		else if (tsStyle == TEXT("autoscroll"))
+//			*Styles |= PGS_AUTOSCROLL;
+//#endif
+//	}
+//
+//	this->parseGeneralControlStyles(styles, Styles, ExStyles, bNoTheme);
+//}
+
+std::tuple<NoTheme, WindowStyle, WindowExStyle> DcxPager::parseControlStyles(const TString & tsStyles)
 {
-	for (const auto &tsStyle: styles)
+	auto[bNoTheme, Styles, ExStyles] = parseGeneralControlStyles(tsStyles);
+
+	for (const auto &tsStyle : tsStyles)
 	{
-#if DCX_USE_HASHING
 		switch (std::hash<TString>{}(tsStyle))
 		{
-			case L"horizontal"_hash:
-				*Styles |= PGS_HORZ;
-				break;
-			case L"autoscroll"_hash:
-				*Styles |= PGS_AUTOSCROLL;
-			default:
-				break;
+		case L"horizontal"_hash:
+			Styles |= PGS_HORZ;
+			break;
+		case L"autoscroll"_hash:
+			Styles |= PGS_AUTOSCROLL;
+		default:
+			break;
 		}
-#else
-		if (tsStyle == TEXT("horizontal"))
-			*Styles |= PGS_HORZ;
-		else if (tsStyle == TEXT("autoscroll"))
-			*Styles |= PGS_AUTOSCROLL;
-#endif
 	}
 
-	this->parseGeneralControlStyles(styles, Styles, ExStyles, bNoTheme);
+	return { bNoTheme, Styles, ExStyles };
 }
 
 /*!
@@ -132,36 +148,20 @@ void DcxPager::parseControlStyles( const TString &styles, LONG *Styles, LONG *Ex
 
 void DcxPager::parseInfoRequest( const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const
 {
-#if DCX_USE_HASHING
 	switch (std::hash<TString>{}(input.getfirsttok(3)))
 	{
 	case L"color"_hash:
-		//wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), Pager_GetBkColor(m_Hwnd));
 		_ts_snprintf(szReturnValue, TEXT("%u"), Pager_GetBkColor(m_Hwnd));
 		break;
 	case L"bsize"_hash:
-		//wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), Pager_GetButtonSize(m_Hwnd));
 		_ts_snprintf(szReturnValue, TEXT("%d"), Pager_GetButtonSize(m_Hwnd));
 		break;
 	case L"border"_hash:
-		//wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), Pager_GetBorder(m_Hwnd));
 		_ts_snprintf(szReturnValue, TEXT("%d"), Pager_GetBorder(m_Hwnd));
 		break;
 	default:
 		parseGlobalInfoRequest(input, szReturnValue);
 	}
-#else
-	const auto prop(input.gettok( 3 ));
-
-	if (prop == TEXT("color"))
-		wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), Pager_GetBkColor(m_Hwnd) );
-	else if ( prop == TEXT("bsize"))
-		wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), Pager_GetButtonSize(m_Hwnd) );
-	else if ( prop == TEXT("border"))
-		wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), Pager_GetBorder(m_Hwnd) );
-	else
-		this->parseGlobalInfoRequest(input, szReturnValue);
-#endif
 }
 
 /*!
@@ -170,17 +170,19 @@ void DcxPager::parseInfoRequest( const TString & input, const refString<TCHAR, M
  * blah
  */
 
-void DcxPager::parseCommandRequest( const TString & input ) {
+void DcxPager::parseCommandRequest( const TString & input )
+{
 	const XSwitchFlags flags(input.getfirsttok( 3 ));
 	const auto numtok = input.numtok();
 
 	// xdid -b [NAME] [ID] [SWITCH] [W]
-	if ( flags[TEXT('b')] && numtok > 3 ) {
+	if ( flags[TEXT('b')] && numtok > 3 )
+	{
 		this->setBorderSize(input.getnexttok( ).to_int());	// tok 4
 	}
 	// xdid -c [NAME] [ID] [SWITCH] [ID] [CONTROL] [X] [Y] [W] [H] (OPTIONS)
-	else if ( flags[TEXT('c')] && numtok > 8 ) {
-
+	else if ( flags[TEXT('c')] && numtok > 8 )
+	{
 		if (IsWindow(this->m_ChildHWND))
 			throw Dcx::dcxException("Child Control already exists");
 
@@ -195,11 +197,12 @@ void DcxPager::parseCommandRequest( const TString & input ) {
 			CTLF_ALLOW_DOCK
 			, m_Hwnd);
 
-		p_Control->addStyle(CCS_NORESIZE);
+		p_Control->addStyle(WindowStyle::CCS_NoResize);
 		this->setChild(p_Control->getHwnd());
 	}
 	// xdid -d [NAME] [ID] [SWITCH] [ID]
-	else if ( flags[TEXT('d')] && numtok > 3 ) {
+	else if ( flags[TEXT('d')] && numtok > 3 )
+	{
 		const auto tsID(input.getnexttok( ));		// tok 4
 		const auto ID = this->m_pParentDialog->NameToID(tsID);
 
@@ -226,15 +229,18 @@ void DcxPager::parseCommandRequest( const TString & input ) {
 		this->m_ChildHWND = nullptr;
 	}
 	// xdid -s [NAME] [ID] [SWITCH] [SIZE]
-	else if (flags[TEXT('s')] && numtok > 3) {
+	else if (flags[TEXT('s')] && numtok > 3)
+	{
 		this->setButtonSize(input.getlasttoks().to_<LONG>());	// tok 4, -1
 	}
 	// xdid -t [NAME] [ID] [SWITCH] [COLOR]
-	else if (flags[TEXT('t')] && numtok > 3) {
+	else if (flags[TEXT('t')] && numtok > 3)
+	{
 		this->setBkColor(input.getlasttoks().to_<COLORREF>());	// tok 4, -1
 	}
 	// xdid -z [NAME] [ID] [SWITCH]
-	else if (flags[TEXT('z')] && numtok > 2) {
+	else if (flags[TEXT('z')] && numtok > 2)
+	{
 		this->reCalcSize();
 	}
 	else
@@ -266,8 +272,10 @@ void DcxPager::reCalcSize(void) const
  *
  * blah
  */
-LRESULT DcxPager::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) {
-	switch (uMsg) {
+LRESULT DcxPager::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed)
+{
+	switch (uMsg)
+	{
 	case WM_NOTIFY:
 	{
 
@@ -276,7 +284,8 @@ LRESULT DcxPager::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
 		if (hdr == nullptr)
 			break;
 
-		switch (hdr->code) {
+		switch (hdr->code)
+		{
 		case PGN_CALCSIZE:
 		{
 			bParsed = TRUE;
@@ -294,14 +303,14 @@ LRESULT DcxPager::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
 
 			if (const auto bSize = Pager_GetButtonSize(m_Hwnd); (cthis->getControlType() == DcxControlTypes::TOOLBAR))
 			{
-				SIZE sz = { 0 };
+				SIZE sz{};
 				SendMessage(m_ChildHWND, TB_GETMAXSIZE, 0, (LPARAM)&sz);
 				if (lpnmcs->dwFlag == PGF_CALCHEIGHT)
 					lpnmcs->iHeight = sz.cy + bSize;
 				else
 					lpnmcs->iWidth = sz.cx + bSize;
 			}
-			else if (RECT rc = { 0 }; GetWindowRect(m_ChildHWND, &rc))
+			else if (RECT rc{}; GetWindowRect(m_ChildHWND, &rc))
 			{
 				if (lpnmcs->dwFlag == PGF_CALCHEIGHT)
 					lpnmcs->iHeight = (rc.bottom - rc.top) + bSize;
@@ -317,119 +326,122 @@ LRESULT DcxPager::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
 	return 0L;
 }
 
-LRESULT DcxPager::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
-
+LRESULT DcxPager::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed)
+{
 	LRESULT lRes = 0L;
-	switch( uMsg ) {
+	switch (uMsg)
+	{
+	case WM_NOTIFY:
+	{
+		dcxlParam(LPNMHDR, hdr);
 
-	case WM_NOTIFY : 
+		if (hdr == nullptr)
+			break;
+
+		if (IsWindow(hdr->hwndFrom))
 		{
-
-			dcxlParam(LPNMHDR, hdr);
-
-			if (hdr == nullptr)
-				break;
-
-			if (IsWindow(hdr->hwndFrom))
-			{
-				if (auto c_this = static_cast<DcxControl *>(GetProp(hdr->hwndFrom, TEXT("dcx_cthis"))); c_this != nullptr)
-					lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
-			}
-			switch( hdr->code ) {
-			case TBN_DELETINGBUTTON:
-				{ // handle toolbar button delete.
-					this->reCalcSize();
-				}
-				break;
-			}
+			if (auto c_this = static_cast<DcxControl *>(GetProp(hdr->hwndFrom, TEXT("dcx_cthis"))); c_this != nullptr)
+				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
+		}
+		switch (hdr->code)
+		{
+		case TBN_DELETINGBUTTON:
+		{ // handle toolbar button delete.
+			this->reCalcSize();
 		}
 		break;
+		}
+	}
+	break;
 
 	case WM_HSCROLL:
 	case WM_VSCROLL:
 	case WM_COMMAND:
+	{
+		if (IsWindow((HWND)lParam))
 		{
-			if (IsWindow((HWND) lParam))
-			{
-				if (auto c_this = static_cast<DcxControl *>(GetProp((HWND)lParam, TEXT("dcx_cthis"))); c_this != nullptr)
-					lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
-			}
+			if (auto c_this = static_cast<DcxControl *>(GetProp((HWND)lParam, TEXT("dcx_cthis"))); c_this != nullptr)
+				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 		}
-		break;
+	}
+	break;
 
 	case WM_DELETEITEM:
+	{
+		dcxlParam(LPDELETEITEMSTRUCT, idata);
+		if ((idata != nullptr) && (IsWindow(idata->hwndItem)))
 		{
-			dcxlParam(LPDELETEITEMSTRUCT, idata);
-			if ((idata != nullptr) && (IsWindow(idata->hwndItem))) {
-				if (auto c_this = static_cast<DcxControl *>(GetProp(idata->hwndItem, TEXT("dcx_cthis"))); c_this != nullptr)
-					lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
-			}
+			if (auto c_this = static_cast<DcxControl *>(GetProp(idata->hwndItem, TEXT("dcx_cthis"))); c_this != nullptr)
+				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 		}
-		break;
+	}
+	break;
 
 	case WM_MEASUREITEM:
+	{
+		if (auto cHwnd = GetDlgItem(m_Hwnd, static_cast<int>(wParam)); IsWindow(cHwnd))
 		{
-			if (auto cHwnd = GetDlgItem(m_Hwnd, static_cast<int>(wParam)); IsWindow(cHwnd)) {
-				if (auto c_this = static_cast<DcxControl *>(GetProp(cHwnd, TEXT("dcx_cthis"))); c_this != nullptr)
-					lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
-			}
+			if (auto c_this = static_cast<DcxControl *>(GetProp(cHwnd, TEXT("dcx_cthis"))); c_this != nullptr)
+				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 		}
-		break;
+	}
+	break;
 
 	case WM_DRAWITEM:
-		{
-			dcxlParam(LPDRAWITEMSTRUCT, idata);
+	{
+		dcxlParam(LPDRAWITEMSTRUCT, idata);
 
-			if ((idata != nullptr) && (IsWindow(idata->hwndItem))) {
-				if (auto c_this = static_cast<DcxControl *>(GetProp(idata->hwndItem, TEXT("dcx_cthis"))); c_this != nullptr)
-					lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
-			}
+		if ((idata != nullptr) && (IsWindow(idata->hwndItem)))
+		{
+			if (auto c_this = static_cast<DcxControl *>(GetProp(idata->hwndItem, TEXT("dcx_cthis"))); c_this != nullptr)
+				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 		}
-		break;
+	}
+	break;
 
 	case WM_SIZE:
+	{
+		HWND bars = nullptr;
+
+		while ((bars = FindWindowEx(m_Hwnd, bars, DCX_REBARCTRLCLASS, nullptr)) != nullptr)
 		{
-			HWND bars = nullptr;
-
-			while ( ( bars = FindWindowEx( m_Hwnd, bars, DCX_REBARCTRLCLASS, nullptr ) ) != nullptr ) {
-
-				SendMessage( bars, WM_SIZE, (WPARAM) 0, (LPARAM) 0 );
-			}
-
-			while ( ( bars = FindWindowEx( m_Hwnd, bars, DCX_STATUSBARCLASS, nullptr ) ) != nullptr ) {
-
-				SendMessage( bars, WM_SIZE, (WPARAM) 0, (LPARAM) 0 );
-			}
-
-			while ( ( bars = FindWindowEx( m_Hwnd, bars, DCX_TOOLBARCLASS, nullptr ) ) != nullptr ) {
-
-				SendMessage( bars, WM_SIZE, (WPARAM) 0, (LPARAM) 0 );
-			}
-
-			if (dcx_testflag(this->m_pParentDialog->getEventMask(), DCX_EVENT_SIZE))
-				this->execAliasEx(TEXT("%s,%d"), TEXT("sizing"), this->getUserID( ) );
-
-			this->reCalcSize();
-			this->redrawWindow( );
+			SendMessage(bars, WM_SIZE, (WPARAM)0, (LPARAM)0);
 		}
-		break;
+
+		while ((bars = FindWindowEx(m_Hwnd, bars, DCX_STATUSBARCLASS, nullptr)) != nullptr)
+		{
+			SendMessage(bars, WM_SIZE, (WPARAM)0, (LPARAM)0);
+		}
+
+		while ((bars = FindWindowEx(m_Hwnd, bars, DCX_TOOLBARCLASS, nullptr)) != nullptr)
+		{
+			SendMessage(bars, WM_SIZE, (WPARAM)0, (LPARAM)0);
+		}
+
+		if (dcx_testflag(this->m_pParentDialog->getEventMask(), DCX_EVENT_SIZE))
+			this->execAliasEx(TEXT("%s,%d"), TEXT("sizing"), this->getUserID());
+
+		this->reCalcSize();
+		this->redrawWindow();
+	}
+	break;
 
 	case WM_SETFOCUS:
-		{
-			this->m_pParentDialog->setFocusControl( this->getUserID( ) );
-			this->reCalcSize();
-		}
-		break;
+	{
+		this->m_pParentDialog->setFocusControl(this->getUserID());
+		this->reCalcSize();
+	}
+	break;
 
 	case WM_DESTROY:
-		{
-			delete this;
-			bParsed = TRUE;
-		}
-		break;
+	{
+		delete this;
+		bParsed = TRUE;
+	}
+	break;
 
 	default:
-		lRes = this->CommonMessage( uMsg, wParam, lParam, bParsed);
+		lRes = this->CommonMessage(uMsg, wParam, lParam, bParsed);
 		break;
 	}
 

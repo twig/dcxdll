@@ -61,7 +61,8 @@ public:
 	//void parseInfoRequest(const TString & input, PTCHAR szReturnValue) const override;
 	void parseInfoRequest(const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const override;
 	void parseCommandRequest( const TString & input ) override;
-	void parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ) override;
+	//void parseControlStyles(const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme) override;
+	std::tuple<NoTheme, WindowStyle, WindowExStyle> parseControlStyles(const TString & tsStyles) override;
 
 	inline const TString getType() const override { return TEXT("tab"); };
 	inline const DcxControlTypes getControlType() const noexcept override { return DcxControlTypes::TABB; };
@@ -79,10 +80,14 @@ public:
 	void getTab(const int index, LPTCITEM tcItem) const;
 	int getTabCount() const;
 
+#if DCX_USE_GDIPLUS
 	void DrawGlow(const int32_t nTabIndex, HDC hDC, const RECT &rect) const;
+#endif
 
 protected:
-	static void GetCloseButtonRect(const RECT& rcItem, RECT& rcCloseButton);
+	//static void GetCloseButtonRect(const RECT& rcItem, RECT& rcCloseButton);
+	static RECT GetCloseButtonRect(const RECT& rcItem) noexcept;
+	int HitTestOnItem() const;
 
 	bool m_bClosable;	//!< Does tab have a close button.
 	bool m_bGradient;	//!< Does tab have a gradient fill. (only closeable)

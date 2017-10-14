@@ -58,17 +58,18 @@ public:
 	//void parseInfoRequest(const TString & input, PTCHAR szReturnValue) const override;
 	void parseInfoRequest(const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const override;
 	void parseCommandRequest(const TString & input) override;
-	void parseControlStyles(const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme) override;
+	//void parseControlStyles(const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme) override;
+	std::tuple<NoTheme, WindowStyle, WindowExStyle> parseControlStyles(const TString & tsStyles) override;
 
 	void setmIRCPalette( );
 
-	LRESULT insertItem( const int nPos, const LPARAM lParam );
-	LRESULT getCount( ) const;
-	LRESULT setCurSel( const int nPos );
-	LPDCXCCOMBOITEM getItemData( const int nItem ) const;
-	LRESULT getCurSel( ) const;
-	LRESULT deleteItem( const int nItem );
-	LRESULT resetContent( );
+	int insertItem( const int nPos, const DCXCCOMBOITEM *dci);
+	int getCount( ) const noexcept;
+	int setCurSel( const int nPos ) noexcept;
+	LPDCXCCOMBOITEM getItemData( const int nItem ) const noexcept;
+	int getCurSel( ) const;
+	int deleteItem( const int nItem );
+	int resetContent( );
 
 	inline const TString getType() const override { return TEXT("colorcombo"); };
 	inline const DcxControlTypes getControlType() const noexcept override { return DcxControlTypes::COLORCOMBO; }

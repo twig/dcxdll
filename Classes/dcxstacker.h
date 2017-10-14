@@ -41,10 +41,26 @@ struct DCXSITEM {
 	int				iSelectedItemImg;	//!< Items Selected Image index.
 	RECT			itemrc;				//!< Items Rect.
 	DWORD			dFlags;				//!< Items flags.
+
+	DCXSITEM()
+		: tsTipText()
+		, tsCaption()
+		, clrBack(CLR_INVALID)
+		, clrText(CLR_INVALID)
+		, hFont(nullptr)
+		, pChild(nullptr)
+		, iItemImg(-1)
+		, iSelectedItemImg(-1)
+		, itemrc{ 0,0,0,0 }
+		, dFlags(0)
+	{}
 };
 using LPDCXSITEM = DCXSITEM *;
 
-using VectorOfImages = std::vector<Gdiplus::Image *>;
+//using VectorOfImages = std::vector<Gdiplus::Image *>;
+//using VectorOfStackerItems = std::vector<LPDCXSITEM>;
+
+using VectorOfImages = std::vector<std::unique_ptr<Gdiplus::Image>>;
 using VectorOfStackerItems = std::vector<LPDCXSITEM>;
 
 /*!
@@ -69,7 +85,8 @@ public:
 	//void parseInfoRequest(const TString & input, PTCHAR szReturnValue) const override;
 	void parseInfoRequest(const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const override;
 	void parseCommandRequest( const TString & input ) override;
-	void parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ) override;
+	//void parseControlStyles(const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme) override;
+	std::tuple<NoTheme, WindowStyle, WindowExStyle> parseControlStyles(const TString & tsStyles) override;
 
 	inline const TString getType() const override { return TEXT("stacker"); };
 	inline const DcxControlTypes getControlType() const noexcept override { return DcxControlTypes::STACKER; }

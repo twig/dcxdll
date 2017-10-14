@@ -29,20 +29,15 @@ DcxLine::DcxLine(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwn
 	: DcxControl(ID, p_Dialog)
 	, m_bVertical(false)
 {
-	LONG Styles = 0, ExStyles = 0;
-	BOOL bNoTheme = FALSE;
-	this->parseControlStyles(styles, &Styles, &ExStyles, &bNoTheme);
+	const auto[bNoTheme, Styles, ExStyles] = parseControlStyles(styles);
 
-	m_Hwnd = CreateWindowEx(
-		gsl::narrow_cast<DWORD>(ExStyles) | WS_EX_TRANSPARENT,
-		TEXT("STATIC"),
-		nullptr,
-		WS_CHILD | gsl::narrow_cast<DWORD>(Styles),
-		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
+	m_Hwnd = dcxCreateWindow(
+		ExStyles | WindowExStyle::Transparent,
+		WC_STATIC,
+		Styles | WindowStyle::Child,
+		rc,
 		mParentHwnd,
-		(HMENU)ID,
-		GetModuleHandle(nullptr),
-		nullptr);
+		ID);
 
 	if (!IsWindow(m_Hwnd))
 		throw Dcx::dcxException("Unable To Create Window");
@@ -61,8 +56,8 @@ DcxLine::DcxLine(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwn
  * blah
  */
 
-DcxLine::~DcxLine() {
-
+DcxLine::~DcxLine()
+{
 	this->unregistreDefaultWindowProc();
 }
 
@@ -115,55 +110,92 @@ TiXmlElement * DcxLine::toXml(void) const
  * blah
  */
 
-void DcxLine::parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme )
+//void DcxLine::parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme )
+//{
+//	for (const auto &tsStyle: styles)
+//	{
+//#if DCX_USE_HASHING
+//		switch (std::hash<TString>{}(tsStyle))
+//		{
+//			case L"vertical"_hash:
+//				m_bVertical = true;
+//				break;
+//			case L"nowrap"_hash:
+//				*Styles |= SS_LEFTNOWORDWRAP;
+//				break;
+//			case L"center"_hash:
+//				*Styles |= SS_CENTER;
+//				break;
+//			case L"right"_hash:
+//				*Styles |= SS_RIGHT;
+//				break;
+//			case L"noprefix"_hash:
+//				*Styles |= SS_NOPREFIX;
+//				break;
+//			case L"endellipsis"_hash:
+//				*Styles |= SS_ENDELLIPSIS;
+//				break;
+//			case L"pathellipsis"_hash:
+//				*Styles |= SS_PATHELLIPSIS;
+//			default:
+//				break;
+//		}
+//#else
+//		if ( tsStyle == TEXT("vertical") )
+//			this->m_bVertical = true;
+//		else if (tsStyle == TEXT("nowrap"))
+//			*Styles |= SS_LEFTNOWORDWRAP;
+//		else if (tsStyle == TEXT("center"))
+//			*Styles |= SS_CENTER;
+//		else if (tsStyle == TEXT("right"))
+//			*Styles |= SS_RIGHT;
+//		else if (tsStyle == TEXT("noprefix"))
+//			*Styles |= SS_NOPREFIX;
+//		else if (tsStyle == TEXT("endellipsis"))
+//			*Styles |= SS_ENDELLIPSIS;
+//		else if (tsStyle == TEXT("pathellipsis"))
+//			*Styles |= SS_PATHELLIPSIS;
+//#endif
+//	}
+//
+//	this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
+//}
+
+std::tuple<NoTheme, WindowStyle, WindowExStyle> DcxLine::parseControlStyles(const TString & tsStyles)
 {
-	for (const auto &tsStyle: styles)
+	WindowStyle Styles(WindowStyle::None);
+	WindowExStyle ExStyles(WindowExStyle::None);
+
+	for (const auto &tsStyle : tsStyles)
 	{
-#if DCX_USE_HASHING
 		switch (std::hash<TString>{}(tsStyle))
 		{
-			case L"vertical"_hash:
-				m_bVertical = true;
-				break;
-			case L"nowrap"_hash:
-				*Styles |= SS_LEFTNOWORDWRAP;
-				break;
-			case L"center"_hash:
-				*Styles |= SS_CENTER;
-				break;
-			case L"right"_hash:
-				*Styles |= SS_RIGHT;
-				break;
-			case L"noprefix"_hash:
-				*Styles |= SS_NOPREFIX;
-				break;
-			case L"endellipsis"_hash:
-				*Styles |= SS_ENDELLIPSIS;
-				break;
-			case L"pathellipsis"_hash:
-				*Styles |= SS_PATHELLIPSIS;
-			default:
-				break;
+		case L"vertical"_hash:
+			m_bVertical = true;
+			break;
+		case L"nowrap"_hash:
+			Styles |= SS_LEFTNOWORDWRAP;
+			break;
+		case L"center"_hash:
+			Styles |= SS_CENTER;
+			break;
+		case L"right"_hash:
+			Styles |= SS_RIGHT;
+			break;
+		case L"noprefix"_hash:
+			Styles |= SS_NOPREFIX;
+			break;
+		case L"endellipsis"_hash:
+			Styles |= SS_ENDELLIPSIS;
+			break;
+		case L"pathellipsis"_hash:
+			Styles |= SS_PATHELLIPSIS;
+		default:
+			break;
 		}
-#else
-		if ( tsStyle == TEXT("vertical") )
-			this->m_bVertical = true;
-		else if (tsStyle == TEXT("nowrap"))
-			*Styles |= SS_LEFTNOWORDWRAP;
-		else if (tsStyle == TEXT("center"))
-			*Styles |= SS_CENTER;
-		else if (tsStyle == TEXT("right"))
-			*Styles |= SS_RIGHT;
-		else if (tsStyle == TEXT("noprefix"))
-			*Styles |= SS_NOPREFIX;
-		else if (tsStyle == TEXT("endellipsis"))
-			*Styles |= SS_ENDELLIPSIS;
-		else if (tsStyle == TEXT("pathellipsis"))
-			*Styles |= SS_PATHELLIPSIS;
-#endif
 	}
 
-	this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
+	return parseGeneralControlStyles(tsStyles, Styles, ExStyles);
 }
 
 /*!
@@ -192,12 +224,13 @@ void DcxLine::parseInfoRequest( const TString & input, const refString<TCHAR, MI
 void DcxLine::parseCommandRequest( const TString & input )
 {
 	//xdid -t [NAME] [ID] [SWITCH] [TEXT]
-	if (const XSwitchFlags flags(input.gettok(3)); flags[TEXT('t')]) {
+	if (const XSwitchFlags flags(input.gettok(3)); flags[TEXT('t')])
+	{
 		this->m_sText = input.getlasttoks().trim();	// tok 4, -1
 
 		// redraw if transparent
-		if (this->isExStyle(WS_EX_TRANSPARENT)) {
-
+		if (this->isExStyle(WindowExStyle::Transparent))
+		{
 			this->InvalidateParentRect(m_Hwnd);
 
 			this->redrawWindow();
@@ -212,49 +245,50 @@ void DcxLine::parseCommandRequest( const TString & input )
  *
  * blah
  */
-LRESULT DcxLine::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
+LRESULT DcxLine::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed )
+{
 	return 0L;
 }
 
-LRESULT DcxLine::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
+LRESULT DcxLine::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed)
+{
+	switch (uMsg)
+	{
+	case WM_ERASEBKGND:
+	{
+		//this->DrawParentsBackground((HDC) wParam);
+		bParsed = TRUE;
+		return TRUE;
+	}
+	break;
+	case WM_PRINTCLIENT:
+	{
+		this->DrawClientArea((HDC)wParam);
+		bParsed = TRUE;
+	}
+	break;
+	case WM_PAINT:
+	{
+		bParsed = TRUE;
+		PAINTSTRUCT ps{};
 
-	switch( uMsg ) {
+		auto hdc = BeginPaint(m_Hwnd, &ps);
+		Auto(EndPaint(m_Hwnd, &ps));
 
-		case WM_ERASEBKGND:
-			{
-				//this->DrawParentsBackground((HDC) wParam);
-				bParsed = TRUE;
-				return TRUE;
-			}
-			break;
-		case WM_PRINTCLIENT:
-			{
-				this->DrawClientArea((HDC)wParam);
-				bParsed = TRUE;
-			}
-			break;
-		case WM_PAINT:
-			{
-				bParsed = TRUE;
-				PAINTSTRUCT ps;
+		this->DrawClientArea(hdc);
+	}
+	break;
 
-				auto hdc = BeginPaint(m_Hwnd, &ps);
-				Auto(EndPaint(m_Hwnd, &ps));
+	case WM_DESTROY:
+	{
+		delete this;
+		bParsed = TRUE;
+	}
+	break;
 
-				this->DrawClientArea(hdc);
-			}
-			break;
-
-		case WM_DESTROY:
-			{
-				delete this;
-				bParsed = TRUE;
-			}
-			break;
-
-		default:
-			return this->CommonMessage( uMsg, wParam, lParam, bParsed);
-			break;
+	default:
+		return this->CommonMessage(uMsg, wParam, lParam, bParsed);
+		break;
 	}
 
 	return 0L;
@@ -262,7 +296,7 @@ LRESULT DcxLine::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 
 void DcxLine::DrawClientArea(HDC hdc)
 {
-	RECT rcClient = { 0 }, rcLine = { 0 }, rcText = { 0 };
+	RECT rcClient{}, rcLine{}, rcText{};
 
 	// get controls client area
 	if (!GetClientRect(m_Hwnd, &rcClient))
@@ -280,7 +314,8 @@ void DcxLine::DrawClientArea(HDC hdc)
 	rcText = rcClient;
 
 	// draw text if any.
-	if (!m_sText.empty()) {
+	if (!m_sText.empty())
+	{
 		HFONT oldhFont = nullptr;
 		if (this->m_hFont != nullptr)
 			oldhFont = SelectFont(hdc, this->m_hFont);
@@ -291,41 +326,30 @@ void DcxLine::DrawClientArea(HDC hdc)
 			SetTextColor(hdc, GetSysColor(IsWindowEnabled(m_Hwnd) ? COLOR_WINDOWTEXT : COLOR_GRAYTEXT));
 
 		UINT style = 0;
-		if (this->isStyle(SS_ENDELLIPSIS))
+		if (this->isStyle(WindowStyle::SS_EndEllipsis))
 			style |= DT_END_ELLIPSIS;
-		if (this->isStyle(SS_PATHELLIPSIS))
+		if (this->isStyle(WindowStyle::SS_PathEllipsis))
 			style |= DT_PATH_ELLIPSIS;
-		if (this->isStyle(SS_NOPREFIX))
+		if (this->isStyle(WindowStyle::SS_NoPrefix))
 			style |= DT_NOPREFIX;
-		if (this->isStyle(SS_LEFTNOWORDWRAP))
+		if (this->isStyle(WindowStyle::SS_LeftNoWordWrap))
 			style |= DT_SINGLELINE;
-		if (this->m_bVertical) {
-			// orig ver, relies on vertical font being set when -t command is used.
-			//SIZE sz;
-			//int oMode = SetBkMode(hdc, TRANSPARENT);
-			//GetTextExtentPoint32(hdc,this->m_sText.to_chr(),this->m_sText.len(), &sz);
-			//rcText.bottom = rcText.top + sz.cx;
-			//rcText.right = rcText.left + sz.cy;
-			//if (this->isStyle(SS_CENTER))
-			//	OffsetRect(&rcText,((rcClient.right - rcClient.left)/2) - ((rcText.right - rcText.left)/2),((rcClient.bottom - rcClient.top)/2) - ((rcText.bottom - rcText.top)/2));
-			//else if (this->isStyle(SS_RIGHT))
-			//	OffsetRect(&rcText,((rcClient.right - rcClient.left)/2) - ((rcText.right - rcText.left)/2),rcClient.bottom - (rcText.bottom - rcText.top));
-			//TextOut(hdc,rcText.left, rcText.bottom, this->m_sText.to_chr(), this->m_sText.len());
-			//SetBkMode(hdc, oMode);
 
+		if (this->m_bVertical)
+		{
 			// new working ver that does the same as the orig but using the current font.
-			SIZE sz = { 0 };
+			SIZE sz{};
 			const auto oMode = SetBkMode(hdc, TRANSPARENT);
 			Auto(SetBkMode(hdc, oMode));
 
-			GetTextExtentPoint32(hdc,this->m_sText.to_chr(), static_cast<int>(this->m_sText.len()), &sz);
+			GetTextExtentPoint32(hdc,this->m_sText.to_chr(), gsl::narrow_cast<int>(this->m_sText.len()), &sz);
 
 			rcText.bottom = rcText.top + sz.cx;
 			rcText.right = rcText.left + sz.cy;
 
-			if (this->isStyle(SS_CENTER))
+			if (this->isStyle(WindowStyle::SS_Center))
 				OffsetRect(&rcText,((rcClient.right - rcClient.left)/2) - ((rcText.right - rcText.left)/2),((rcClient.bottom - rcClient.top)/2) - ((rcText.bottom - rcText.top)/2));
-			else if (this->isStyle(SS_RIGHT))
+			else if (this->isStyle(WindowStyle::SS_Right))
 				OffsetRect(&rcText,((rcClient.right - rcClient.left)/2) - ((rcText.right - rcText.left)/2),rcClient.bottom - (rcText.bottom - rcText.top));
 
 			DrawRotatedText(this->m_sText, &rcText, hdc, 90, true, 90);
@@ -344,15 +368,10 @@ void DcxLine::DrawClientArea(HDC hdc)
 		else {
 			style |= DT_LEFT|DT_VCENTER;
 
-			//if (this->m_bCtrlCodeText)
-			//	calcStrippedRect(hdc, this->m_sText, style, &rcText, false);
-			//else
-			//	DrawTextW(hdc, this->m_sText.to_chr(), this->m_sText.len(), &rcText, DT_CALCRECT | style);
-
 			this->calcTextRect(hdc, this->m_sText, &rcText, style);
-			if (this->isStyle(SS_CENTER))
+			if (this->isStyle(WindowStyle::SS_Center))
 				OffsetRect(&rcText,((rcClient.right - rcClient.left)/2) - ((rcText.right - rcText.left)/2),0);
-			else if (this->isStyle(SS_RIGHT))
+			else if (this->isStyle(WindowStyle::SS_Right))
 				OffsetRect(&rcText,rcClient.right - (rcText.right - rcText.left),0);
 
 			// draw the text
@@ -363,7 +382,8 @@ void DcxLine::DrawClientArea(HDC hdc)
 
 		ExcludeClipRect(hdc,rcText.left, rcText.top, rcText.right, rcText.bottom);
 	}
-	if (this->m_bVertical) {
+	if (this->m_bVertical)
+	{
 		rcLine.left = rcLine.left + ((rcLine.right - rcLine.left) / 2);
 		DrawEdge(hdc, &rcLine, EDGE_ETCHED, BF_LEFT);
 	}

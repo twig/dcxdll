@@ -33,20 +33,15 @@ DcxLink::DcxLink(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwn
 	, m_bVisited(false)
 	, m_aColors{ RGB(0, 0, 255),RGB(255, 0, 0),RGB(0, 0, 255),RGB(128, 128, 128) }
 {
-	LONG Styles = 0, ExStyles = 0;
-	BOOL bNoTheme = FALSE;
-	this->parseControlStyles(styles, &Styles, &ExStyles, &bNoTheme);
+	const auto[bNoTheme, Styles, ExStyles] = parseControlStyles(styles);
 
-	m_Hwnd = CreateWindowEx(
-		gsl::narrow_cast<DWORD>(ExStyles),
-		TEXT("STATIC"),
-		nullptr,
-		WS_CHILD | gsl::narrow_cast<DWORD>(Styles),
-		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
+	m_Hwnd = dcxCreateWindow(
+		ExStyles,
+		WC_STATIC,
+		Styles | WindowStyle::Child,
+		rc,
 		mParentHwnd,
-		(HMENU)ID,
-		GetModuleHandle(nullptr),
-		nullptr);
+		ID);
 
 	if (!IsWindow(m_Hwnd))
 		throw Dcx::dcxException("Unable To Create Window");
@@ -59,8 +54,10 @@ DcxLink::DcxLink(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwn
 	//this->m_aColors[2] = RGB(0, 0, 255);
 	//this->m_aColors[3] = RGB(128, 128, 128);
 
-	if (p_Dialog->getToolTip() != nullptr) {
-		if (styles.istok(TEXT("tooltips"))) {
+	if (p_Dialog->getToolTip() != nullptr)
+	{
+		if (styles.istok(TEXT("tooltips")))
+		{
 			this->m_ToolTipHWND = p_Dialog->getToolTip();
 			if (!IsWindow(this->m_ToolTipHWND))
 				throw Dcx::dcxException("Unable to get ToolTips window");
@@ -80,8 +77,8 @@ DcxLink::DcxLink(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwn
  * blah
  */
 
-DcxLink::~DcxLink( ) {
-
+DcxLink::~DcxLink( )
+{
 	if ( this->m_hIcon != nullptr )
 		DestroyIcon( this->m_hIcon );
 
@@ -111,11 +108,21 @@ TiXmlElement * DcxLink::toXml(void) const
  * blah
  */
 
-void DcxLink::parseControlStyles( const TString &styles, LONG *Styles, LONG *ExStyles, BOOL *bNoTheme)
-{
-	*Styles |= SS_NOTIFY;
+//void DcxLink::parseControlStyles( const TString &styles, LONG *Styles, LONG *ExStyles, BOOL *bNoTheme)
+//{
+//	*Styles |= SS_NOTIFY;
+//
+//	this->parseGeneralControlStyles(styles, Styles, ExStyles, bNoTheme);
+//}
 
-	this->parseGeneralControlStyles(styles, Styles, ExStyles, bNoTheme);
+std::tuple<NoTheme, WindowStyle, WindowExStyle> DcxLink::parseControlStyles(const TString & tsStyles)
+{
+	WindowStyle Styles(WindowStyle::None);
+	WindowExStyle ExStyles(WindowExStyle::None);
+
+	Styles |= SS_NOTIFY;
+
+	return parseGeneralControlStyles(tsStyles, Styles, ExStyles);
 }
 
 /*!
@@ -130,8 +137,8 @@ void DcxLink::parseControlStyles( const TString &styles, LONG *Styles, LONG *ExS
 void DcxLink::parseInfoRequest( const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const
 {
 	// [NAME] [ID] [PROP]
-	if (input.gettok(3) == TEXT("text")) {
-
+	if (input.gettok(3) == TEXT("text"))
+	{
 		GetWindowText(m_Hwnd, szReturnValue, MIRC_BUFFER_SIZE_CCH);
 	}
 	else
@@ -144,14 +151,15 @@ void DcxLink::parseInfoRequest( const TString & input, const refString<TCHAR, MI
  * blah
  */
 
-void DcxLink::parseCommandRequest( const TString & input ) {
+void DcxLink::parseCommandRequest( const TString & input )
+{
 	const XSwitchFlags flags(input.getfirsttok(3));		// tok 3
 
 	const auto numtok = input.numtok();
 
 	// xdid -l [NAME] [ID] [SWITCH] [N] [COLOR]
-	if ( flags[TEXT('l')] && numtok > 4 ) {
-
+	if ( flags[TEXT('l')] && numtok > 4 )
+	{
 		const auto nColor = (input.getnexttok().to_<size_t>() - 1);	// tok 4
 
 		if (nColor >= Dcx::countof(m_aColors))
@@ -160,7 +168,8 @@ void DcxLink::parseCommandRequest( const TString & input ) {
 		m_aColors[nColor] = input.getnexttok( ).to_<COLORREF>( );	// tok 5
 	}
 	// xdid -q [NAME] [ID] [SWITCH] [COLOR1] ... [COLOR4]
-	else if ( flags[TEXT('q')] && numtok > 3 ) {
+	else if ( flags[TEXT('q')] && numtok > 3 )
+	{
 		const auto tsArgs(input.getlasttoks());			// tok 4, -1
 
 		UINT i = 0U;
@@ -171,14 +180,15 @@ void DcxLink::parseCommandRequest( const TString & input ) {
 		}
 	}
 	//xdid -t [NAME] [ID] [SWITCH] (TEXT)
-	else if ( flags[TEXT('t')] ) {
-
+	else if ( flags[TEXT('t')] )
+	{
 		const auto text(input.getlasttoks());	// tok 4, -1
 		SetWindowText( m_Hwnd, text.to_chr( ) );
 		this->redrawWindow( );
 	}
 	// xdid -w [NAME] [ID] [SWITCH] [+FLAGS] [INDEX] [FILENAME]
-	else if (flags[TEXT('w')] && numtok > 5) {
+	else if (flags[TEXT('w')] && numtok > 5)
+	{
 		const auto flag(input.getnexttok());		// tok 4
 		const auto index = input.getnexttok().to_int();	// tok 5
 		auto filename(input.getlasttoks());			// tok 6, -1
@@ -199,25 +209,22 @@ void DcxLink::parseCommandRequest( const TString & input ) {
  *
  * blah
  */
-LRESULT DcxLink::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
+LRESULT DcxLink::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed )
+{
 	return 0L;
 }
 
-LRESULT DcxLink::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
-
-	switch( uMsg ) {
-
+LRESULT DcxLink::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed )
+{
+	switch( uMsg )
+	{
 	case WM_MOUSEMOVE:
 		{
 			this->m_pParentDialog->setMouseControl( this->getUserID( ) );
 
-			if ( !this->m_bTracking ) {
-
-				TRACKMOUSEEVENT tme;
-				tme.cbSize = sizeof(TRACKMOUSEEVENT);
-				tme.hwndTrack = m_Hwnd;
-				tme.dwFlags = TME_LEAVE | TME_HOVER;
-				tme.dwHoverTime = HOVER_DEFAULT; //1;
+			if ( !this->m_bTracking )
+			{
+				TRACKMOUSEEVENT tme{ sizeof(TRACKMOUSEEVENT), TME_LEAVE | TME_HOVER, m_Hwnd, HOVER_DEFAULT };
 				this->m_bTracking = _TrackMouseEvent( &tme );		
 			}
 		}
@@ -225,7 +232,8 @@ LRESULT DcxLink::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 
 	case WM_MOUSEHOVER:
 		{
-			if ( !this->m_bHover && this->m_bTracking ) {
+			if ( !this->m_bHover && this->m_bTracking )
+			{
 				this->m_bHover = true;
 				InvalidateRect( m_Hwnd, nullptr, FALSE );
 			}
@@ -234,7 +242,8 @@ LRESULT DcxLink::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 
 	case WM_MOUSELEAVE:
 		{
-			if ( this->m_bTracking ) {
+			if ( this->m_bTracking )
+			{
 				this->m_bHover = false;
 				this->m_bTracking = FALSE;
 				InvalidateRect( m_Hwnd, nullptr, FALSE );
@@ -244,7 +253,8 @@ LRESULT DcxLink::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 
 	case WM_LBUTTONDOWN:
 		{
-			if ( !this->m_bVisited ) {
+			if ( !this->m_bVisited )
+			{
 				this->m_bVisited = true;
 				InvalidateRect( m_Hwnd, nullptr, FALSE );
 			}
@@ -261,13 +271,15 @@ LRESULT DcxLink::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 
 	case WM_SETCURSOR:
 		{
-			if (this->m_hCursor != nullptr) {
+			if (this->m_hCursor != nullptr)
+			{
 				if (GetCursor() != this->m_hCursor)
 					SetCursor( this->m_hCursor );
 				bParsed = TRUE;
 				return TRUE;
 			}
-			else if ( LOWORD( lParam ) == HTCLIENT && (HWND) wParam == m_Hwnd ) {
+			else if ( LOWORD( lParam ) == HTCLIENT && (HWND) wParam == m_Hwnd )
+			{
 				if (auto hCursor = LoadCursor(nullptr, IDC_HAND); GetCursor() != hCursor)
 					SetCursor( hCursor );
 				bParsed = TRUE;
@@ -278,7 +290,8 @@ LRESULT DcxLink::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 
 	case WM_ERASEBKGND:
 		{
-			if (this->isExStyle(WS_EX_TRANSPARENT)) {
+			if (this->isExStyle(WindowExStyle::Transparent))
+			{
 				bParsed = TRUE;
 				return TRUE;
 			}
@@ -294,7 +307,7 @@ LRESULT DcxLink::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 	case WM_PAINT:
 		{
 			bParsed = TRUE;
-			PAINTSTRUCT ps;
+			PAINTSTRUCT ps{};
 
 			auto hdc = BeginPaint( m_Hwnd, &ps );
 			Auto(EndPaint(m_Hwnd, &ps));
@@ -435,7 +448,7 @@ LRESULT DcxLink::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 
 void DcxLink::DrawClientArea(HDC hdc)
 {
-	RECT rect;
+	RECT rect{};
 	if (!GetClientRect(m_Hwnd, &rect))
 		return;
 

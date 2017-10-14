@@ -43,7 +43,8 @@ public:
 	//void parseInfoRequest(const TString & input, PTCHAR szReturnValue) const override;
 	void parseInfoRequest(const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const override;
 	void parseCommandRequest( const TString & input ) override;
-	void parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ) override;
+	//void parseControlStyles(const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme) override;
+	std::tuple<NoTheme, WindowStyle, WindowExStyle> parseControlStyles(const TString & tsStyles) override;
 
 	LRESULT setPosition( const int nNewPos );
 	LRESULT setRange( const int iLowLim, const int iHighLim );
@@ -54,8 +55,8 @@ public:
 	LRESULT setBarColor( const COLORREF clrBar );
 	LRESULT setBKColor( const COLORREF clrBk );
 
-	LRESULT getPosition( ) const;
-	LRESULT getRange( const BOOL fWhichLimit, PPBRANGE ppBRange ) const;
+	LRESULT getPosition( ) const noexcept;
+	LRESULT getRange( const BOOL fWhichLimit, PPBRANGE ppBRange ) const noexcept;
 
 	const TString getStyles(void) const override;
 
@@ -68,10 +69,9 @@ public:
 		const auto nYPos = HIWORD(lParam);
 		auto nPos = 0;
 
-		RECT rc;
-		if (GetClientRect(m_Hwnd, &rc))
+		if (RECT rc{}; GetClientRect(m_Hwnd, &rc))
 		{
-			if (this->isStyle(PBS_VERTICAL))
+			if (this->isStyle(WindowStyle::PBS_Vertical))
 				nPos = iHigher - dcx_round((float)(nYPos * iHigher) / (rc.bottom - rc.top - 1));
 			else
 				nPos = iLower + dcx_round((float)(nXPos * iHigher) / (rc.right - rc.left - 1));

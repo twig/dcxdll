@@ -26,22 +26,17 @@
  */
 
 DcxUpDown::DcxUpDown(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles )
-: DcxControl( ID, p_Dialog ) 
+	: DcxControl( ID, p_Dialog )
 {
-	LONG Styles = 0, ExStyles = 0;
-	BOOL bNoTheme = FALSE;
-	this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
+	const auto[bNoTheme, Styles, ExStyles] = parseControlStyles(styles);
 
-	m_Hwnd = CreateWindowEx(	
-		static_cast<DWORD>(ExStyles),
+	m_Hwnd = dcxCreateWindow(	
+		ExStyles,
 		DCX_UPDOWNCLASS, 
-		nullptr,
-		WS_CHILD | static_cast<DWORD>(Styles),
-		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
+		Styles | WS_CHILD,
+		rc,
 		mParentHwnd,
-		(HMENU) ID,
-		GetModuleHandle(nullptr), 
-		nullptr);
+		ID);
 
 	if (!IsWindow(m_Hwnd))
 		throw Dcx::dcxException("Unable To Create Window");
@@ -49,7 +44,8 @@ DcxUpDown::DcxUpDown(const UINT ID, DcxDialog *const p_Dialog, const HWND mParen
 	if ( bNoTheme )
 		Dcx::UXModule.dcxSetWindowTheme( m_Hwnd , L" ", L" " );
 
-	if (styles.istok(TEXT("tooltips"))) {
+	if (styles.istok(TEXT("tooltips")))
+	{
 		if (!IsWindow(p_Dialog->getToolTip()))
 			throw Dcx::dcxException("Unable to Initialize Tooltips");
 		
@@ -67,8 +63,8 @@ DcxUpDown::DcxUpDown(const UINT ID, DcxDialog *const p_Dialog, const HWND mParen
  * blah
  */
 
-DcxUpDown::~DcxUpDown( ) {
-
+DcxUpDown::~DcxUpDown( )
+{
   this->unregistreDefaultWindowProc( );
 }
 
@@ -78,62 +74,103 @@ DcxUpDown::~DcxUpDown( ) {
  * blah
  */
 
-void DcxUpDown::parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ) {
+//void DcxUpDown::parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme )
+//{
+//	*Styles |= UDS_ALIGNRIGHT;
+//
+//	for (const auto tsStyle : styles)
+//	{
+//#if DCX_USE_HASHING
+//		switch (std::hash<TString>{}(tsStyle))
+//		{
+//		case L"left"_hash:
+//		{
+//			*Styles &= ~UDS_ALIGNRIGHT;
+//			*Styles |= UDS_ALIGNLEFT;
+//		}
+//		break;
+//		case L"arrowkeys"_hash:
+//			*Styles |= UDS_ARROWKEYS;
+//			break;
+//		case L"horz"_hash:
+//			*Styles |= UDS_HORZ;
+//			break;
+//		case L"hottrack"_hash:
+//			*Styles |= UDS_HOTTRACK;
+//			break;
+//		case L"nothousands"_hash:
+//			*Styles |= UDS_NOTHOUSANDS;
+//			break;
+//		case L"buddyint"_hash:
+//			*Styles |= UDS_SETBUDDYINT;
+//			break;
+//		case L"wrap"_hash:
+//			*Styles |= UDS_WRAP;
+//		default:
+//			break;
+//		}
+//#else
+//		if (tsStyle == TEXT("left")) {
+//			*Styles &= ~UDS_ALIGNRIGHT;
+//			*Styles |= UDS_ALIGNLEFT;
+//		}
+//		else if (tsStyle == TEXT("arrowkeys"))
+//			*Styles |= UDS_ARROWKEYS;
+//		else if (tsStyle == TEXT("horz"))
+//			*Styles |= UDS_HORZ;
+//		else if (tsStyle == TEXT("hottrack"))
+//			*Styles |= UDS_HOTTRACK;
+//		else if (tsStyle == TEXT("nothousands"))
+//			*Styles |= UDS_NOTHOUSANDS;
+//		else if (tsStyle == TEXT("buddyint"))
+//			*Styles |= UDS_SETBUDDYINT;
+//		else if (tsStyle == TEXT("wrap"))
+//			*Styles |= UDS_WRAP;
+//#endif
+//	}
+//
+//	this->parseGeneralControlStyles(styles, Styles, ExStyles, bNoTheme);
+//}
 
-	*Styles |= UDS_ALIGNRIGHT;
+std::tuple<NoTheme, WindowStyle, WindowExStyle> DcxUpDown::parseControlStyles(const TString & tsStyles)
+{
+	auto[bNoTheme, Styles, ExStyles] = parseGeneralControlStyles(tsStyles);
 
-	for (const auto tsStyle: styles)
+	Styles |= UDS_ALIGNRIGHT;
+
+	for (const auto tsStyle : tsStyles)
 	{
-#if DCX_USE_HASHING
 		switch (std::hash<TString>{}(tsStyle))
 		{
-			case L"left"_hash:
-				{
-					*Styles &= ~UDS_ALIGNRIGHT;
-					*Styles |= UDS_ALIGNLEFT;
-				}
-				break;
-			case L"arrowkeys"_hash:
-				*Styles |= UDS_ARROWKEYS;
-				break;
-			case L"horz"_hash:
-				*Styles |= UDS_HORZ;
-				break;
-			case L"hottrack"_hash:
-				*Styles |= UDS_HOTTRACK;
-				break;
-			case L"nothousands"_hash:
-				*Styles |= UDS_NOTHOUSANDS;
-				break;
-			case L"buddyint"_hash:
-				*Styles |= UDS_SETBUDDYINT;
-				break;
-			case L"wrap"_hash:
-				*Styles |= UDS_WRAP;
-			default:
-				break;
+		case L"left"_hash:
+		{
+			Styles &= ~UDS_ALIGNRIGHT;
+			Styles |= UDS_ALIGNLEFT;
 		}
-#else
-		if (tsStyle == TEXT("left")) {
-			*Styles &= ~UDS_ALIGNRIGHT;
-			*Styles |= UDS_ALIGNLEFT;
+		break;
+		case L"arrowkeys"_hash:
+			Styles |= UDS_ARROWKEYS;
+			break;
+		case L"horz"_hash:
+			Styles |= UDS_HORZ;
+			break;
+		case L"hottrack"_hash:
+			Styles |= UDS_HOTTRACK;
+			break;
+		case L"nothousands"_hash:
+			Styles |= UDS_NOTHOUSANDS;
+			break;
+		case L"buddyint"_hash:
+			Styles |= UDS_SETBUDDYINT;
+			break;
+		case L"wrap"_hash:
+			Styles |= UDS_WRAP;
+		default:
+			break;
 		}
-		else if ( tsStyle == TEXT("arrowkeys") )
-			*Styles |= UDS_ARROWKEYS;
-		else if ( tsStyle == TEXT("horz") )
-			*Styles |= UDS_HORZ;
-		else if ( tsStyle == TEXT("hottrack") )
-			*Styles |= UDS_HOTTRACK;
-		else if ( tsStyle == TEXT("nothousands") )
-			*Styles |= UDS_NOTHOUSANDS;
-		else if ( tsStyle == TEXT("buddyint") )
-			*Styles |= UDS_SETBUDDYINT;
-		else if ( tsStyle == TEXT("wrap") )
-			*Styles |= UDS_WRAP;
-#endif
 	}
 
-	this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
+	return { bNoTheme, Styles, ExStyles };
 }
 
 /*!
@@ -147,46 +184,27 @@ void DcxUpDown::parseControlStyles( const TString & styles, LONG * Styles, LONG 
 
 void DcxUpDown::parseInfoRequest( const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const
 {
-#if DCX_USE_HASHING
 	switch (std::hash<TString>{}(input.getfirsttok(3)))
 	{
 	// [NAME] [ID] [PROP]
 	case L"value"_hash:
 	{
 		BOOL bError = FALSE;
-		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), getPos32(&bError));
+
+		_ts_snprintf(szReturnValue, TEXT("%d"), getPos32(&bError));
 	}
 	break;
 	// [NAME] [ID] [PROP]
 	case L"range"_hash:
 	{
-		int iMin = 0, iMax  = 0;
-		getRange32(&iMin, &iMax);
-		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d"), iMin, iMax);
+		const auto[iMin,iMax] = getRange32();
+
+		_ts_snprintf(szReturnValue, TEXT("%d %d"), iMin, iMax);
 	}
 	break;
 	default:
 		parseGlobalInfoRequest(input, szReturnValue);
 	}
-#else
-	const auto prop(input.getfirsttok(3));
-
-	// [NAME] [ID] [PROP]
-	if ( prop == TEXT("value") ) {
-
-		BOOL bError;
-		wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), this->getPos32( &bError ) );
-	}
-	// [NAME] [ID] [PROP]
-	else if ( prop == TEXT("range") ) {
-
-		int iMin, iMax;
-		this->getRange32( &iMin, &iMax );
-		wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d"), iMin, iMax );
-	}
-	else
-		this->parseGlobalInfoRequest(input, szReturnValue);
-#endif
 }
 
 /*!
@@ -195,14 +213,14 @@ void DcxUpDown::parseInfoRequest( const TString & input, const refString<TCHAR, 
  * blah
  */
 
-void DcxUpDown::parseCommandRequest( const TString & input ) {
+void DcxUpDown::parseCommandRequest( const TString & input )
+{
 	const XSwitchFlags flags(input.getfirsttok( 3 ));
 	const auto numtok = input.numtok();
 
 	// xdid -c [NAME] [ID] [SWITCH] [BUDDYID]
-	if ( flags[TEXT('c')] && numtok > 3 ) {
-
-
+	if ( flags[TEXT('c')] && numtok > 3 )
+	{
 		auto tsID(input.getnexttok());
 		auto ID = m_pParentDialog->NameToID(tsID);
 
@@ -211,9 +229,8 @@ void DcxUpDown::parseCommandRequest( const TString & input ) {
 		if (p_Control == nullptr)
 			throw Dcx::dcxException("Unable to get control");
 
-		const auto &cType(p_Control->getControlType());
 		// Text notifications
-		if (cType == DcxControlTypes::TEXT || cType == DcxControlTypes::EDIT)
+		if (const auto &cType(p_Control->getControlType()); cType == DcxControlTypes::TEXT || cType == DcxControlTypes::EDIT)
 			setBuddy(p_Control->getHwnd());
 
 		//auto p_Control = m_pParentDialog->getControlByID(input.getnexttok().to_<UINT>() + mIRC_ID_OFFSET);	// tok 4
@@ -242,23 +259,23 @@ void DcxUpDown::parseCommandRequest( const TString & input ) {
 
 	}
 	// xdid -r [NAME] [ID] [SWITCH] [MIN] [MAX]
-	else if ( flags[TEXT('r')] && numtok > 4 ) {
-
+	else if ( flags[TEXT('r')] && numtok > 4 )
+	{
 		const auto iMin = input.getnexttok().to_int();	// tok 4
 		const auto iMax = input.getnexttok().to_int();	// tok 5
 
 		setRange32( iMin, iMax );
 	}
 	// xdid -t [NAME] [ID] [SWITCH] [BASE]
-	else if ( flags[TEXT('t')] && numtok > 3 ) {
-
+	else if ( flags[TEXT('t')] && numtok > 3 )
+	{
 		const auto nBase = input.getnexttok().to_int();	// tok 4
 
 		setBase( nBase );
 	}
 	// xdid -v [NAME] [ID] [SWITCH] [POS]
-	else if ( flags[TEXT('v')] && numtok > 3 ) {
-
+	else if ( flags[TEXT('v')] && numtok > 3 )
+	{
 		const auto nPos = input.getnexttok().to_int();	// tok 4
 
 		setPos32( nPos );
@@ -273,7 +290,8 @@ void DcxUpDown::parseCommandRequest( const TString & input ) {
  * blah
  */
 
-LRESULT DcxUpDown::setBuddy( const HWND mHwnd ) {
+LRESULT DcxUpDown::setBuddy( const HWND mHwnd )
+{
   return SendMessage( m_Hwnd, UDM_SETBUDDY, (WPARAM) mHwnd , (LPARAM) 0 );
 }
 
@@ -283,8 +301,9 @@ LRESULT DcxUpDown::setBuddy( const HWND mHwnd ) {
  * blah
  */
 
-LRESULT DcxUpDown::setRange32( const int iLow, const int iHigh ) {
-  return SendMessage( m_Hwnd, UDM_SETRANGE32, (WPARAM) iLow, (LPARAM) iHigh );
+LRESULT DcxUpDown::setRange32( const int iLow, const int iHigh ) noexcept
+{
+  return SendMessage( m_Hwnd, UDM_SETRANGE32, gsl::narrow_cast<WPARAM>(iLow), gsl::narrow_cast<LPARAM>(iHigh) );
 }
 
 /*!
@@ -293,8 +312,11 @@ LRESULT DcxUpDown::setRange32( const int iLow, const int iHigh ) {
  * blah
  */
 
-LRESULT DcxUpDown::getRange32( LPINT iLow, LPINT iHigh ) const {
-  return SendMessage( m_Hwnd, UDM_GETRANGE32, (WPARAM) iLow, (LPARAM) iHigh );
+std::pair<int,int> DcxUpDown::getRange32() const noexcept
+{
+	int iMin = 0, iMax = 0;
+	SendMessage(m_Hwnd, UDM_GETRANGE32, (WPARAM)&iMin, (LPARAM)&iMax);
+	return{ iMin,iMax };
 }
 
 /*!
@@ -303,8 +325,9 @@ LRESULT DcxUpDown::getRange32( LPINT iLow, LPINT iHigh ) const {
  * blah
  */
 
-LRESULT DcxUpDown::setBase( const int iBase ) {
-  return SendMessage( m_Hwnd, UDM_SETBASE, (WPARAM) iBase, (LPARAM) 0 );
+LRESULT DcxUpDown::setBase( const int iBase ) noexcept
+{
+  return SendMessage( m_Hwnd, UDM_SETBASE, gsl::narrow_cast<WPARAM>(iBase), (LPARAM) 0 );
 }
 
 /*!
@@ -313,7 +336,8 @@ LRESULT DcxUpDown::setBase( const int iBase ) {
  * blah
  */
 
-LRESULT DcxUpDown::getBase( ) const {
+LRESULT DcxUpDown::getBase( ) const noexcept
+{
   return SendMessage( m_Hwnd, UDM_GETBASE, (WPARAM) 0, (LPARAM) 0 );
 }
 
@@ -323,7 +347,8 @@ LRESULT DcxUpDown::getBase( ) const {
  * blah
  */
 
-LRESULT DcxUpDown::setPos32( const INT nPos ) {
+LRESULT DcxUpDown::setPos32( const INT nPos ) noexcept
+{
   return SendMessage( m_Hwnd, UDM_SETPOS32, (WPARAM) 0, (LPARAM) nPos );
 }
 
@@ -333,14 +358,15 @@ LRESULT DcxUpDown::setPos32( const INT nPos ) {
  * blah
  */
 
-LRESULT DcxUpDown::getPos32( LPBOOL pfError ) const {
+LRESULT DcxUpDown::getPos32( LPBOOL pfError ) const noexcept
+{
   return SendMessage( m_Hwnd, UDM_GETPOS32, (WPARAM) 0, (LPARAM) pfError );
 }
 
 const TString DcxUpDown::getStyles(void) const
 {
 	auto styles(__super::getStyles());
-	const auto Styles = GetWindowStyle(m_Hwnd);
+	const auto Styles = dcxGetWindowStyle(m_Hwnd);
 
 	if (dcx_testflag(Styles,UDS_ALIGNLEFT))
 		styles.addtok(TEXT("left"));
@@ -362,47 +388,50 @@ const TString DcxUpDown::getStyles(void) const
  *
  * blah
  */
-LRESULT DcxUpDown::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
-	switch( uMsg ) {
-	case WM_NOTIFY : 
+LRESULT DcxUpDown::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed )
+{
+	switch (uMsg)
+	{
+	case WM_NOTIFY:
+	{
+		dcxlParam(LPNMHDR, hdr);
+
+		if (hdr == nullptr)
+			break;
+
+		switch (hdr->code)
 		{
-			dcxlParam(LPNMHDR, hdr);
-
-			if (!hdr)
-				break;
-
-			switch( hdr->code ) {
-			case UDN_DELTAPOS:
-				{
-					if (dcx_testflag(m_pParentDialog->getEventMask(), DCX_EVENT_CLICK))
-						execAliasEx(TEXT("sclick,%u"), getUserID( ) );
-					bParsed = TRUE;
-				}
-				break;
-			}
+		case UDN_DELTAPOS:
+		{
+			if (dcx_testflag(m_pParentDialog->getEventMask(), DCX_EVENT_CLICK))
+				execAliasEx(TEXT("sclick,%u"), getUserID());
+			bParsed = TRUE;
 		}
 		break;
+		}
+	}
+	break;
 	}
 	return 0L;
 }
 
-LRESULT DcxUpDown::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
+LRESULT DcxUpDown::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed)
+{
+	switch (uMsg)
+	{
+	case WM_LBUTTONUP:
+		break;
 
-	switch( uMsg ) {
+	case WM_DESTROY:
+	{
+		delete this;
+		bParsed = TRUE;
+	}
+	break;
 
-		case WM_LBUTTONUP:
-			break;
-
-		case WM_DESTROY:
-			{
-				delete this;
-				bParsed = TRUE;
-			}
-			break;
-
-		default:
-			return CommonMessage( uMsg, wParam, lParam, bParsed);
-			break;
+	default:
+		return CommonMessage(uMsg, wParam, lParam, bParsed);
+		break;
 	}
 
 	return 0L;

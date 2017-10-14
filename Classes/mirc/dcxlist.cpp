@@ -34,20 +34,15 @@ DcxList::DcxList(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwn
 	m_iLastDrawnLine(0),
 	m_bUseDrawInsert(true)
 {
-	LONG Styles = 0, ExStyles = 0;
-	BOOL bNoTheme = FALSE;
-	this->parseControlStyles(styles, &Styles, &ExStyles, &bNoTheme);
+	const auto[bNoTheme, Styles, ExStyles] = parseControlStyles(styles);
 
-	m_Hwnd = CreateWindowEx(
-		gsl::narrow_cast<DWORD>(ExStyles) | WS_EX_CLIENTEDGE,
-		TEXT("LISTBOX"),
-		nullptr,
-		WS_CHILD | gsl::narrow_cast<DWORD>(Styles),
-		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
+	m_Hwnd = dcxCreateWindow(
+		ExStyles | WindowExStyle::ClientEdge,
+		WC_LISTBOX,
+		Styles | WindowStyle::Child,
+		rc,
 		mParentHwnd,
-		(HMENU)ID,
-		GetModuleHandle(nullptr),
-		nullptr);
+		ID);
 
 	if (!IsWindow(m_Hwnd))
 		throw Dcx::dcxException("Unable To Create Window");
@@ -63,7 +58,7 @@ DcxList::DcxList(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwn
 	if (styles.istok(TEXT("draglist")))
 	{
 		// if its multiple select, cant use
-		if (!this->isStyle(LBS_MULTIPLESEL))
+		if (!this->isStyle(static_cast<WindowStyle>(LBS_MULTIPLESEL)))
 			throw Dcx::dcxException("Cannot apply draglist style with multi style");
 
 		if (!MakeDragList(m_Hwnd))
@@ -82,7 +77,8 @@ DcxList::DcxList(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwn
  * blah
  */
 
-DcxList::~DcxList() {
+DcxList::~DcxList()
+{
 	this->m_pParentDialog->UnregisterDragList(this);
 	this->unregistreDefaultWindowProc();
 }
@@ -126,87 +122,144 @@ const TString DcxList::getStyles(void) const
  * blah
  */
 
-void DcxList::parseControlStyles( const TString &styles, LONG *Styles, LONG *ExStyles, BOOL *bNoTheme)
-{
-	*Styles |= LBS_NOTIFY | LBS_HASSTRINGS | LBS_OWNERDRAWFIXED;
+//void DcxList::parseControlStyles( const TString &styles, LONG *Styles, LONG *ExStyles, BOOL *bNoTheme)
+//{
+//	*Styles |= LBS_NOTIFY | LBS_HASSTRINGS | LBS_OWNERDRAWFIXED;
+//
+//	for (const auto &tsStyle: styles)
+//	{
+//#if DCX_USE_HASHING
+//		switch (std::hash<TString>{}(tsStyle))
+//		{
+//			case L"noscroll"_hash:
+//				*Styles |= LBS_DISABLENOSCROLL;
+//				break;
+//			case L"multi"_hash:
+//				*Styles |= LBS_MULTIPLESEL;
+//				break;
+//			case L"extsel"_hash:
+//				*Styles |= LBS_EXTENDEDSEL;
+//				break;
+//			case L"nointegral"_hash:
+//				*Styles |= LBS_NOINTEGRALHEIGHT;
+//				break;
+//			case L"nosel"_hash:
+//				*Styles |= LBS_NOSEL;
+//				break;
+//			case L"sort"_hash:
+//				*Styles |= LBS_SORT;
+//				break;
+//			case L"tabs"_hash:
+//				*Styles |= LBS_USETABSTOPS;
+//				break;
+//			case L"multicol"_hash:
+//				*Styles |= LBS_MULTICOLUMN;
+//				break;
+//			case L"vsbar"_hash:
+//				*Styles |= WS_VSCROLL;
+//				break;
+//			case L"hsbar"_hash:
+//				*Styles |= WS_HSCROLL;
+//				break;
+//			case L"dragline"_hash:
+//				this->m_bUseDrawInsert = false;
+//				break;
+//			case L"noformat"_hash: // dont remove from here
+//				*Styles &= ~LBS_OWNERDRAWFIXED;
+//				break;
+//			//case L"shadow"_hash: // looks crap
+//			//	this->m_bShadowText = true;
+//			default:
+//				break;
+//		}
+//#else
+//		if (tsStyle == TEXT("noscroll"))
+//			*Styles |= LBS_DISABLENOSCROLL;
+//		else if (tsStyle == TEXT("multi"))
+//			*Styles |= LBS_MULTIPLESEL;
+//		else if (tsStyle == TEXT("extsel"))
+//			*Styles |= LBS_EXTENDEDSEL;
+//		else if (tsStyle == TEXT("nointegral"))
+//			*Styles |= LBS_NOINTEGRALHEIGHT;
+//		else if (tsStyle == TEXT("nosel"))
+//			*Styles |= LBS_NOSEL;
+//		else if (tsStyle == TEXT("sort"))
+//			*Styles |= LBS_SORT;
+//		else if (tsStyle == TEXT("tabs"))
+//			*Styles |= LBS_USETABSTOPS;
+//		else if (tsStyle == TEXT("multicol"))
+//			*Styles |= LBS_MULTICOLUMN;
+//		else if (tsStyle == TEXT("vsbar"))
+//			*Styles |= WS_VSCROLL;
+//		else if (tsStyle == TEXT("hsbar"))
+//			*Styles |= WS_HSCROLL;
+//		else if (tsStyle == TEXT("dragline"))
+//			this->m_bUseDrawInsert = false;
+//		else if (tsStyle == TEXT("noformat")) // dont remove from here
+//			*Styles &= ~LBS_OWNERDRAWFIXED;
+//		//else if (tsStyle == TEXT("shadow")) // looks crap
+//		//	this->m_bShadowText = true;
+//#endif
+//	}
+//
+//	this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
+//}
 
-	for (const auto &tsStyle: styles)
+std::tuple<NoTheme, WindowStyle, WindowExStyle> DcxList::parseControlStyles(const TString & tsStyles)
+{
+	WindowStyle Styles(WindowStyle::None);
+	WindowExStyle ExStyles(WindowExStyle::None);
+
+	Styles |= LBS_NOTIFY | LBS_HASSTRINGS | LBS_OWNERDRAWFIXED;
+
+	for (const auto &tsStyle : tsStyles)
 	{
-#if DCX_USE_HASHING
 		switch (std::hash<TString>{}(tsStyle))
 		{
-			case L"noscroll"_hash:
-				*Styles |= LBS_DISABLENOSCROLL;
-				break;
-			case L"multi"_hash:
-				*Styles |= LBS_MULTIPLESEL;
-				break;
-			case L"extsel"_hash:
-				*Styles |= LBS_EXTENDEDSEL;
-				break;
-			case L"nointegral"_hash:
-				*Styles |= LBS_NOINTEGRALHEIGHT;
-				break;
-			case L"nosel"_hash:
-				*Styles |= LBS_NOSEL;
-				break;
-			case L"sort"_hash:
-				*Styles |= LBS_SORT;
-				break;
-			case L"tabs"_hash:
-				*Styles |= LBS_USETABSTOPS;
-				break;
-			case L"multicol"_hash:
-				*Styles |= LBS_MULTICOLUMN;
-				break;
-			case L"vsbar"_hash:
-				*Styles |= WS_VSCROLL;
-				break;
-			case L"hsbar"_hash:
-				*Styles |= WS_HSCROLL;
-				break;
-			case L"dragline"_hash:
-				this->m_bUseDrawInsert = false;
-				break;
-			case L"noformat"_hash: // dont remove from here
-				*Styles &= ~LBS_OWNERDRAWFIXED;
-				break;
+		case L"noscroll"_hash:
+			Styles |= LBS_DISABLENOSCROLL;
+			break;
+		case L"multi"_hash:
+			Styles |= LBS_MULTIPLESEL;
+			break;
+		case L"extsel"_hash:
+			Styles |= LBS_EXTENDEDSEL;
+			break;
+		case L"nointegral"_hash:
+			Styles |= LBS_NOINTEGRALHEIGHT;
+			break;
+		case L"nosel"_hash:
+			Styles |= LBS_NOSEL;
+			break;
+		case L"sort"_hash:
+			Styles |= LBS_SORT;
+			break;
+		case L"tabs"_hash:
+			Styles |= LBS_USETABSTOPS;
+			break;
+		case L"multicol"_hash:
+			Styles |= LBS_MULTICOLUMN;
+			break;
+		case L"vsbar"_hash:
+			Styles |= WS_VSCROLL;
+			break;
+		case L"hsbar"_hash:
+			Styles |= WS_HSCROLL;
+			break;
+		case L"dragline"_hash:
+			this->m_bUseDrawInsert = false;
+			break;
+		case L"noformat"_hash: // dont remove from here
+			Styles &= static_cast<DWORD>(~LBS_OWNERDRAWFIXED);
+			break;
 			//case L"shadow"_hash: // looks crap
 			//	this->m_bShadowText = true;
-			default:
-				break;
+		default:
+			break;
 		}
-#else
-		if (tsStyle == TEXT("noscroll"))
-			*Styles |= LBS_DISABLENOSCROLL;
-		else if (tsStyle == TEXT("multi"))
-			*Styles |= LBS_MULTIPLESEL;
-		else if (tsStyle == TEXT("extsel"))
-			*Styles |= LBS_EXTENDEDSEL;
-		else if (tsStyle == TEXT("nointegral"))
-			*Styles |= LBS_NOINTEGRALHEIGHT;
-		else if (tsStyle == TEXT("nosel"))
-			*Styles |= LBS_NOSEL;
-		else if (tsStyle == TEXT("sort"))
-			*Styles |= LBS_SORT;
-		else if (tsStyle == TEXT("tabs"))
-			*Styles |= LBS_USETABSTOPS;
-		else if (tsStyle == TEXT("multicol"))
-			*Styles |= LBS_MULTICOLUMN;
-		else if (tsStyle == TEXT("vsbar"))
-			*Styles |= WS_VSCROLL;
-		else if (tsStyle == TEXT("hsbar"))
-			*Styles |= WS_HSCROLL;
-		else if (tsStyle == TEXT("dragline"))
-			this->m_bUseDrawInsert = false;
-		else if (tsStyle == TEXT("noformat")) // dont remove from here
-			*Styles &= ~LBS_OWNERDRAWFIXED;
-		//else if (tsStyle == TEXT("shadow")) // looks crap
-		//	this->m_bShadowText = true;
-#endif
 	}
 
-	this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
+	return parseGeneralControlStyles(tsStyles, Styles, ExStyles);
 }
 
 /*!
@@ -220,7 +273,6 @@ void DcxList::parseControlStyles( const TString &styles, LONG *Styles, LONG *ExS
 
 void DcxList::parseInfoRequest( const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const
 {
-#if DCX_USE_HASHING
 	switch (const auto numtok = input.numtok(); std::hash<TString>{}(input.getfirsttok(3)))
 	{
 		// [NAME] [ID] [PROP] [N]
@@ -244,13 +296,16 @@ void DcxList::parseInfoRequest( const TString & input, const refString<TCHAR, MI
 	case L"seltext"_hash:
 	{
 		auto nSel = -1;
-		if (this->isStyle(LBS_MULTIPLESEL) || this->isStyle(LBS_EXTENDEDSEL)) {
-			if (const auto n = ListBox_GetSelCount(m_Hwnd); n > 0) {
+		if (this->isStyle(WindowStyle::LBS_MultiSel) || this->isStyle(WindowStyle::LBS_ExtendedSel))
+		{
+			if (const auto n = ListBox_GetSelCount(m_Hwnd); n > 0)
+			{
 				auto p = std::make_unique<int[]>(gsl::narrow_cast<size_t>(n));
 				ListBox_GetSelItems(m_Hwnd, n, p.get());
 
 				// get a unique value
-				if (numtok > 3) {
+				if (numtok > 3)
+				{
 					const auto i = (input.getnexttok().to_int() - 1);	// tok 4
 
 					if ((i < 0) || (i >= n))
@@ -266,7 +321,8 @@ void DcxList::parseInfoRequest( const TString & input, const refString<TCHAR, MI
 		else
 			nSel = ListBox_GetCurSel(m_Hwnd);
 
-		if (nSel > -1) {
+		if (nSel > -1)
+		{
 			if (const auto l = ListBox_GetTextLen(m_Hwnd, nSel); (l == LB_ERR && l >= MIRC_BUFFER_SIZE_CCH))
 				throw Dcx::dcxException("String Too Long (Greater than Max chars)");
 
@@ -276,20 +332,23 @@ void DcxList::parseInfoRequest( const TString & input, const refString<TCHAR, MI
 	break;
 	// [NAME] [ID] [PROP]
 	case L"num"_hash:
-		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), ListBox_GetCount(m_Hwnd));
+		_ts_snprintf(szReturnValue, TEXT("%d"), ListBox_GetCount(m_Hwnd));
 		break;
 		// [NAME] [ID] [PROP] (N)
 	case L"sel"_hash:
 	{
-		if (this->isStyle(LBS_MULTIPLESEL) || this->isStyle(LBS_EXTENDEDSEL)) {
-			if (const auto n = ListBox_GetSelCount(m_Hwnd); n > 0) {
+		if (this->isStyle(WindowStyle::LBS_MultiSel) || this->isStyle(WindowStyle::LBS_ExtendedSel))
+		{
+			if (const auto n = ListBox_GetSelCount(m_Hwnd); n > 0)
+			{
 				auto p = std::make_unique<int[]>(gsl::narrow_cast<size_t>(n));
 				ListBox_GetSelItems(m_Hwnd, n, p.get());
 
 				TString path;
 
 				// get a unique value
-				if (numtok > 3) {
+				if (numtok > 3)
+				{
 					if (const auto i = input.getnexttok().to_int(); i == 0)
 						path += n;	// get total number of selected items
 					else if ((i > 0) && (i <= n))
@@ -298,7 +357,7 @@ void DcxList::parseInfoRequest( const TString & input, const refString<TCHAR, MI
 				else {
 					// get all items in a long comma seperated string
 
-					for (auto i = decltype(n){0}; i < n; i++)
+					for (auto i = decltype(n){0}; i < n; ++i)
 						path.addtok((p[gsl::narrow_cast<size_t>(i)] + 1), TSCOMMACHAR);
 				}
 				if (path.len() > MIRC_BUFFER_SIZE_CCH)
@@ -309,13 +368,13 @@ void DcxList::parseInfoRequest( const TString & input, const refString<TCHAR, MI
 		}
 		// single select
 		else
-			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), ListBox_GetCurSel(m_Hwnd) + 1);
+			_ts_snprintf(szReturnValue, TEXT("%d"), ListBox_GetCurSel(m_Hwnd) + 1);
 	}
 	break;
 	// [NAME] [ID] [PROP] [N]
 	case L"tbitem"_hash:
 	{
-		RECT rc;
+		RECT rc{};
 
 		if (!GetClientRect(m_Hwnd, &rc))
 			throw Dcx::dcxException("Unable to get client rect!");
@@ -330,7 +389,7 @@ void DcxList::parseInfoRequest( const TString & input, const refString<TCHAR, MI
 		if (bottom > count)
 			bottom = count;
 
-		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d"), top, bottom);
+		_ts_snprintf(szReturnValue, TEXT("%d %d"), top, bottom);
 	}
 	break;
 	// [NAME] [ID] [PROP] {TAB}[MATCHTEXT]{TAB} [T] [N]
@@ -351,32 +410,31 @@ void DcxList::parseInfoRequest( const TString & input, const refString<TCHAR, MI
 		const auto nItems = ListBox_GetCount(m_Hwnd);
 
 		// count total
-		if (N == 0) {
-
+		if (N == 0)
+		{
 			auto count = 0;
 
-			for (auto i = decltype(nItems){0}; i < nItems; i++) {
-
+			for (auto i = decltype(nItems){0}; i < nItems; ++i)
+			{
 				if (matchItemText(i, matchtext, SearchType))
-					count++;
+					++count;
 			}
 
-			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), count);
+			_ts_snprintf(szReturnValue, TEXT("%d"), count);
 		}
 		// find Nth matching
 		else {
-
 			auto count = decltype(N){0};
 
-			for (auto i = decltype(nItems){0}; i < nItems; i++) {
-
+			for (auto i = decltype(nItems){0}; i < nItems; ++i)
+			{
 				if (matchItemText(i, matchtext, SearchType))
-					count++;
+					++count;
 
 				// found Nth matching
-				if (count == N) {
-
-					wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), i + 1);
+				if (count == N)
+				{
+					_ts_snprintf(szReturnValue, TEXT("%d"), i + 1);
 					return;
 				}
 			}
@@ -387,167 +445,6 @@ void DcxList::parseInfoRequest( const TString & input, const refString<TCHAR, MI
 		parseGlobalInfoRequest(input, szReturnValue);
 		break;
 	}
-#else
-	const auto numtok = input.numtok();
-
-	const auto prop(input.getfirsttok(3));
-
-	// [NAME] [ID] [PROP] [N]
-	if ( prop == TEXT("text") && numtok > 3 ) {
-		const auto nSel = input.getnexttok().to_int() - 1;	// tok 4
-
-		if ( nSel < 0 || nSel >= ListBox_GetCount( m_Hwnd ) )
-			throw Dcx::dcxException("String Too Long (Greater than Max chars)");
-
-		const auto l = ListBox_GetTextLen(m_Hwnd, nSel);
-		if (l == LB_ERR || l >= MIRC_BUFFER_SIZE_CCH)
-			throw Dcx::dcxException("String Too Long (Greater than Max chars)");
-			
-		ListBox_GetText(m_Hwnd, nSel, szReturnValue);
-	}
-	// [NAME] [ID] [PROP] (N)
-	else if ( prop == TEXT("seltext") ) {
-		auto nSel = -1;
-		if (this->isStyle(LBS_MULTIPLESEL) || this->isStyle(LBS_EXTENDEDSEL)) {
-			const auto n = ListBox_GetSelCount(m_Hwnd);
-
-			if (n > 0) {
-				auto p = std::make_unique<int[]>(n);
-				ListBox_GetSelItems(m_Hwnd, n, p.get());
-
-				// get a unique value
-				if (numtok > 3) {
-					const auto i = (input.getnexttok().to_int() - 1);	// tok 4
-
-					if ((i < 0) || (i >= n))
-						throw Dcx::dcxException("Requested Item Out Of Selection Range");
-					
-					nSel = p[i];
-				}
-				else
-					nSel = p[0];	// no item requested, so return the first selected item.
-			}
-		}
-		// single select
-		else
-			nSel = ListBox_GetCurSel(m_Hwnd);
-
-		if ( nSel > -1 ) {
-			const auto l = ListBox_GetTextLen(m_Hwnd, nSel);
-			if (l == LB_ERR && l >= MIRC_BUFFER_SIZE_CCH)
-				throw Dcx::dcxException("String Too Long (Greater than Max chars)");
-			
-			ListBox_GetText(m_Hwnd, nSel, szReturnValue);
-		}
-	}
-	// [NAME] [ID] [PROP]
-	else if ( prop == TEXT("num") ) {
-
-		wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), ListBox_GetCount( m_Hwnd ) );
-	}
-	// [NAME] [ID] [PROP] (N)
-	else if (prop == TEXT("sel")) {
-		if (this->isStyle(LBS_MULTIPLESEL) || this->isStyle(LBS_EXTENDEDSEL)) {
-			const auto n = ListBox_GetSelCount(m_Hwnd);
-
-			if (n > 0) {
-				auto p = std::make_unique<int[]>(n);
-				ListBox_GetSelItems(m_Hwnd, n, p.get());
-
-				TString path;
-
-				// get a unique value
-				if (numtok > 3) {
-					const auto i = input.getnexttok().to_int();	// tok 4
-
-					if (i == 0)
-						path += n;	// get total number of selected items
-					else if ((i > 0) && (i <= n))
-						path += (p[i - 1] + 1);
-				}
-				else {
-					// get all items in a long comma seperated string
-
-					for (auto i = decltype(n){0}; i < n; i++)
-						path.addtok((p[i] + 1), TSCOMMACHAR);
-
-				}
-				if (path.len() > MIRC_BUFFER_SIZE_CCH)
-					throw Dcx::dcxException("String too long");
-
-				dcx_strcpyn(szReturnValue, path.to_chr(), MIRC_BUFFER_SIZE_CCH);
-			}
-		}
-		// single select
-		else
-			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), ListBox_GetCurSel(m_Hwnd) +1);
-	}
-	// [NAME] [ID] [PROP] [N]
-	else if (prop == TEXT("tbitem")) {
-		const auto count = ListBox_GetCount(m_Hwnd);
-		RECT rc;
-
-		if (!GetClientRect(m_Hwnd, &rc))
-			throw Dcx::dcxException("Unable to get client rect!");
-
-		const auto top = SendMessage(m_Hwnd, LB_GETTOPINDEX, NULL, NULL);
-		const auto height = SendMessage(m_Hwnd, LB_GETITEMHEIGHT, NULL, NULL);
-
-		auto bottom = top + ((rc.bottom - rc.top) / height);
-
-		if (bottom > count)
-			bottom = count;
-
-		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d"), top, bottom);
-	}
-	// [NAME] [ID] [PROP] {TAB}[MATCHTEXT]{TAB} [T] [N]
-	else if (prop == TEXT("find") && numtok > 5) {
-		const auto matchtext(input.getfirsttok(2, TSTABCHAR).trim());
-		const auto params(input.getnexttok(TSTABCHAR).trim());	// tok 3
-
-		if (matchtext.empty())
-			throw Dcx::dcxException("No Match text supplied");
-
-		auto SearchType = CharToSearchType(params++[0]);
-
-		const auto N = params++.to_<UINT>();	// tok 2
-		const auto nItems = ListBox_GetCount(m_Hwnd);
-
-		// count total
-		if (N == 0) {
-
-			auto count = 0;
-
-			for (auto i = decltype(nItems){0}; i < nItems; i++) {
-
-				if (matchItemText(i, matchtext, SearchType))
-					count++;
-			}
-
-			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), count);
-		}
-		// find Nth matching
-		else {
-
-			auto count = decltype(N){0};
-
-			for (auto i = decltype(nItems){0}; i < nItems; i++) {
-
-				if (matchItemText(i, matchtext, SearchType))
-					count++;
-
-				// found Nth matching
-				if (count == N) {
-
-					wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), i + 1);
-					return;
-				}
-			}
-		} // else
-	}
-	else
-		parseGlobalInfoRequest(input, szReturnValue);
-#endif
 }
 
 /*!
@@ -556,7 +453,8 @@ void DcxList::parseInfoRequest( const TString & input, const refString<TCHAR, MI
  * blah
  */
 
-void DcxList::parseCommandRequest( const TString & input ) {
+void DcxList::parseCommandRequest( const TString & input )
+{
 	const XSwitchFlags flags(input.getfirsttok( 3 ));
 	const auto numtok = input.numtok();
 
@@ -566,8 +464,8 @@ void DcxList::parseCommandRequest( const TString & input ) {
 
 	//xdid -a [NAME] [ID] [SWITCH] [N] [TEXT]
 	//xdid -a -> [NAME] [ID] -a [N] [TEXT]
-	if ( flags[TEXT('a')] && numtok > 4 ) {
-
+	if ( flags[TEXT('a')] && numtok > 4 )
+	{
 		auto nPos = input.getnexttok().to_int() - 1;	// tok 4
 		const auto tsItem(input.getlasttoks());			// tok 5, -1
 
@@ -588,8 +486,8 @@ void DcxList::parseCommandRequest( const TString & input ) {
 	}
 	//xdid -A [NAME] [ID] [SWITCH] [N] [+FLAGS] [TEXT]
 	//xdid -A -> [NAME] [ID] -A [N] [+FLAGS] [TEXT]
-	else if (flags[TEXT('A')] && numtok > 5) {
-
+	else if (flags[TEXT('A')] && numtok > 5)
+	{
 		auto nPos = input.getnexttok().to_int() - 1;	// tok 4
 
 		if ( nPos == -1 )
@@ -669,7 +567,8 @@ void DcxList::parseCommandRequest( const TString & input ) {
 			this->setRedraw(FALSE);
 			Auto({ this->setRedraw(TRUE); this->redrawWindow(); });
 
-			for (auto i = startN; i <= endN; i++) {
+			for (auto i = startN; i <= endN; ++i)
+			{
 				//mIRCLinker::tsEvalex(tsRes, TEXT("$hget(%s,%d).data"), htable.to_chr(), i);
 				mIRCLinker::eval(tsRes, TEXT("$hget(%,%).data"), htable, i);
 
@@ -696,7 +595,8 @@ void DcxList::parseCommandRequest( const TString & input ) {
 			auto tok = TEXT("\r\n");
 
 			auto max_lines = contents.numtok(tok);
-			if (max_lines == 1U) {
+			if (max_lines == 1U)
+			{
 				tok = TEXT("\n");
 				max_lines = contents.numtok(tok);
 			}
@@ -771,12 +671,12 @@ void DcxList::parseCommandRequest( const TString & input ) {
 	}
 	//xdid -c [NAME] [ID] [N,[N,[...]]]
 	//xdid -c -> [NAME] [ID] -c [N,[N,[...]]]
-	else if ( flags[TEXT('c')] && numtok > 3 ) {
-
+	else if ( flags[TEXT('c')] && numtok > 3 )
+	{
 		const auto nItems = ListBox_GetCount(m_Hwnd);
 
-		if ( this->isStyle( LBS_MULTIPLESEL ) || this->isStyle( LBS_EXTENDEDSEL ) ) {
-
+		if (this->isStyle(WindowStyle::LBS_MultiSel) || this->isStyle(WindowStyle::LBS_ExtendedSel))
+		{
 			const auto Ns(input.getnexttok());	// tok 4
 
 			for (auto itStart = Ns.begin(TSCOMMACHAR), itEnd = Ns.end(); itStart != itEnd; ++itStart)
@@ -788,12 +688,11 @@ void DcxList::parseCommandRequest( const TString & input ) {
 				if ( (iStart < 0) || (iEnd < 0) || (iStart >= nItems) || (iEnd >= nItems) )
 					throw Dcx::dcxException(TEXT("Invalid index %."), tsLine);
 
-				for (auto nSel = iStart; nSel <= iEnd; nSel++)
+				for (auto nSel = iStart; nSel <= iEnd; ++nSel)
 					ListBox_SetSel( m_Hwnd, TRUE, nSel );
 			}
 		}
 		else {
-
 			auto nSel = (input.getnexttok().to_int() - 1);	// tok 4
 
 			if (nSel == -1)
@@ -806,8 +705,8 @@ void DcxList::parseCommandRequest( const TString & input ) {
 	//xdid -d [NAME] [ID] [SWITCH] [N](,[N],[N1]-N2],...)
 	//xdid -d -> [NAME] [ID] -d [N](,[N],[N1]-N2],...)
 	//xdid -d -> [NAME] [ID] -d [N] [+flags] [match text]
-	else if ( flags[TEXT('d')] && numtok > 3 ) {
-
+	else if ( flags[TEXT('d')] && numtok > 3 )
+	{
 		const auto Ns(input.getnexttok());			// tok 4
 		
 		const auto nItems = ListBox_GetCount(m_Hwnd);
@@ -819,8 +718,8 @@ void DcxList::parseCommandRequest( const TString & input ) {
 
 			auto SearchType = FlagsToSearchType(xFlags);
 
-			for (auto nPos = Ns.to_int(); nPos < nItems; nPos++) {
-
+			for (auto nPos = Ns.to_int(); nPos < nItems; ++nPos)
+			{
 				if (this->matchItemText(nPos, tsMatchText, SearchType))
 					ListBox_DeleteString(m_Hwnd, nPos--);		// NB: we do nPos-- here as a lines just been removed so we have to check the same nPos again
 			}
@@ -842,27 +741,31 @@ void DcxList::parseCommandRequest( const TString & input ) {
 	}
 	// Used to prevent invalid flag message.
 	//xdid -r [NAME] [ID] [SWITCH]
-	else if (flags[TEXT('r')]) {
+	else if (flags[TEXT('r')])
+	{
 	}
 	//xdid -u [NAME] [ID] [SWITCH]
-	else if ( flags[TEXT('u')] ) {
-
-		if ( this->isStyle( LBS_MULTIPLESEL ) || this->isStyle( LBS_EXTENDEDSEL ) )
+	else if ( flags[TEXT('u')] )
+	{
+		if (this->isStyle(WindowStyle::LBS_MultiSel) || this->isStyle(WindowStyle::LBS_ExtendedSel))
 			ListBox_SetSel( m_Hwnd, FALSE, -1 );
 		else 
 			ListBox_SetCurSel( m_Hwnd, -1 );
 	}
 	//xdid -m [NAME] [ID] [SWITCH] [+FLAGS] [N](,[N]...)
 	//xdid -m -> [NAME] [ID] -m [+FLAGS] [N](,[N]...)
-	else if (flags[TEXT('m')] && numtok > 4) {
+	else if (flags[TEXT('m')] && numtok > 4)
+	{
 		const XSwitchFlags xflags(input.getnexttok( ));	// tok 4
 
 		if (xflags[TEXT('w')])
 			ListBox_SetColumnWidth( m_Hwnd, input.getnexttok( ).to_int( ));	// tok 5
-		else if (xflags[TEXT('t')]) {
+		else if (xflags[TEXT('t')])
+		{
 			const auto Ns(input.getnexttok());	// tok 5
 
-			if (const auto n = Ns.numtok(TSCOMMACHAR); n == 1) {
+			if (const auto n = Ns.numtok(TSCOMMACHAR); n == 1)
+			{
 				const auto nTab = Ns.to_int();
 				if (nTab < 0)
 					ListBox_SetTabStops( m_Hwnd, NULL, nullptr);
@@ -886,7 +789,8 @@ void DcxList::parseCommandRequest( const TString & input ) {
 	}
 	//xdid -o [NAME] [ID] [N] [TEXT]
 	//xdid -o -> [NAME] [ID] -o [N] [TEXT]
-	else if (flags[TEXT('o')]) {
+	else if (flags[TEXT('o')])
+	{
 		auto nPos = input.getnexttok().to_int() - 1;	// tok 4
 
 		if (nPos == -1)
@@ -900,7 +804,8 @@ void DcxList::parseCommandRequest( const TString & input ) {
 	}
 	//xdid -z [NAME] [ID]
 	// update horiz scrollbar
-	else if ( flags[TEXT('z')] ) {
+	else if ( flags[TEXT('z')] )
+	{
 		// Now update the horizontal scroller
 		this->UpdateHorizExtent();
 	}
@@ -913,84 +818,85 @@ void DcxList::parseCommandRequest( const TString & input ) {
  *
  * blah
  */
-LRESULT DcxList::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
-	if ( uMsg == m_iDragList)
+LRESULT DcxList::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed)
+{
+	if (uMsg == m_iDragList)
 	{
 		bParsed = TRUE;
 
 		dcxlParam(LPDRAGLISTINFO, dli);
 
 		const auto sel = ListBox_GetCurSel(m_Hwnd) + 1;
-	//	TCHAR szRet[20] = { 0 };
-//
-	//	switch (dli->uNotification)
-	//	{
-	//		// begin dragging item
-	//	case DL_BEGINDRAG:
-	//		{
-	//			// callback DIALOG itemdragbegin THIS_ID DRAGGEDITEM
-	//			evalAliasEx(szRet, Dcx::countof(szRet), TEXT("itemdragbegin,%u,%d"), getUserID(), sel);
-//
-	//			// cancel drag event
-	//			return (lstrcmpi(szRet, TEXT("nodrag")) != 0);
-	//		}
-	//		// cancel drag
-	//	case DL_CANCELDRAG:
-	//		{
-	//			// callback DIALOG itemdragcancel THIS_ID DRAGGEDITEM
-	//			evalAliasEx(szRet, Dcx::countof(szRet), TEXT("itemdragcancel,%u,%d"), getUserID(), sel);
-		//
-	//			if (m_bUseDrawInsert)
-	//				m_pParentDialog->redrawWindow();
-	//			else
-	//				redrawWindow();
-	//		}
-	//		break;
-//
-	//		// current dragging, as mirc if it needs to change the cursor or not
-	//	case DL_DRAGGING:
-	//		{
-	//			const auto item = LBItemFromPt(m_Hwnd, dli->ptCursor, TRUE);
-//
-	//			if (m_bUseDrawInsert)
-	//				DrawInsert(this->m_pParentHWND, m_Hwnd, item);
-	//			else
-	//				DrawDragLine(item);
-//
-	//			// callback DIALOG itemdrag THIS_ID SEL_ITEM MOUSE_OVER_ITEM
-	//			evalAliasEx(szRet, Dcx::countof(szRet), TEXT("itemdrag,%u,%d,%d"), getUserID(), sel, item +1);
-//
-	//			if (szRet[0] != 0) // check for empty string first
-	//			{
-	//				if (lstrcmpi(szRet, TEXT("stop")) == 0)
-	//					return DL_STOPCURSOR;
-	//				else if (lstrcmpi(szRet, TEXT("copy")) == 0)
-	//					return DL_COPYCURSOR;
-	//			}
-//
-	//			return DL_MOVECURSOR;
-	//		}
-	//		break;
-//
-	//		// finish dragging
-	//	case DL_DROPPED:
-	//		{
-	//			// callback DIALOG itemdragfinish THIS_ID SEL_ITEM MOUSE_OVER_ITEM
-	//			const auto item = LBItemFromPt(m_Hwnd, dli->ptCursor, TRUE);
-//
-	//			execAliasEx(TEXT("%s,%d,%d,%d"), TEXT("itemdragfinish"), getUserID(), sel, item +1);
-//
-	//			if (m_bUseDrawInsert)
-	//				// refresh m_pParent to remove drawing leftovers
-	//				m_pParentDialog->redrawWindow();
-	//			else
-	//				redrawWindow();
-	//		}
-	//		break;
-	//	}
-//
-	//	return 0L;
-	//}
+		//	TCHAR szRet[20] = { 0 };
+	//
+		//	switch (dli->uNotification)
+		//	{
+		//		// begin dragging item
+		//	case DL_BEGINDRAG:
+		//		{
+		//			// callback DIALOG itemdragbegin THIS_ID DRAGGEDITEM
+		//			evalAliasEx(szRet, Dcx::countof(szRet), TEXT("itemdragbegin,%u,%d"), getUserID(), sel);
+	//
+		//			// cancel drag event
+		//			return (lstrcmpi(szRet, TEXT("nodrag")) != 0);
+		//		}
+		//		// cancel drag
+		//	case DL_CANCELDRAG:
+		//		{
+		//			// callback DIALOG itemdragcancel THIS_ID DRAGGEDITEM
+		//			evalAliasEx(szRet, Dcx::countof(szRet), TEXT("itemdragcancel,%u,%d"), getUserID(), sel);
+			//
+		//			if (m_bUseDrawInsert)
+		//				m_pParentDialog->redrawWindow();
+		//			else
+		//				redrawWindow();
+		//		}
+		//		break;
+	//
+		//		// current dragging, as mirc if it needs to change the cursor or not
+		//	case DL_DRAGGING:
+		//		{
+		//			const auto item = LBItemFromPt(m_Hwnd, dli->ptCursor, TRUE);
+	//
+		//			if (m_bUseDrawInsert)
+		//				DrawInsert(this->m_pParentHWND, m_Hwnd, item);
+		//			else
+		//				DrawDragLine(item);
+	//
+		//			// callback DIALOG itemdrag THIS_ID SEL_ITEM MOUSE_OVER_ITEM
+		//			evalAliasEx(szRet, Dcx::countof(szRet), TEXT("itemdrag,%u,%d,%d"), getUserID(), sel, item +1);
+	//
+		//			if (szRet[0] != 0) // check for empty string first
+		//			{
+		//				if (lstrcmpi(szRet, TEXT("stop")) == 0)
+		//					return DL_STOPCURSOR;
+		//				else if (lstrcmpi(szRet, TEXT("copy")) == 0)
+		//					return DL_COPYCURSOR;
+		//			}
+	//
+		//			return DL_MOVECURSOR;
+		//		}
+		//		break;
+	//
+		//		// finish dragging
+		//	case DL_DROPPED:
+		//		{
+		//			// callback DIALOG itemdragfinish THIS_ID SEL_ITEM MOUSE_OVER_ITEM
+		//			const auto item = LBItemFromPt(m_Hwnd, dli->ptCursor, TRUE);
+	//
+		//			execAliasEx(TEXT("%s,%d,%d,%d"), TEXT("itemdragfinish"), getUserID(), sel, item +1);
+	//
+		//			if (m_bUseDrawInsert)
+		//				// refresh m_pParent to remove drawing leftovers
+		//				m_pParentDialog->redrawWindow();
+		//			else
+		//				redrawWindow();
+		//		}
+		//		break;
+		//	}
+	//
+		//	return 0L;
+		//}
 
 		stString<20> szRet;
 
@@ -1063,114 +969,117 @@ LRESULT DcxList::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 		return 0L;
 	}
 
-	switch( uMsg )
+	switch (uMsg)
 	{
 	case WM_COMMAND:
+	{
+		if (dcx_testflag(this->m_pParentDialog->getEventMask(), DCX_EVENT_CLICK))
 		{
-			if (dcx_testflag(this->m_pParentDialog->getEventMask(), DCX_EVENT_CLICK)) {
-				switch ( HIWORD( wParam ) ) {
-				case LBN_SELCHANGE:
-					{
-						const auto nItem = ListBox_GetCurSel(m_Hwnd);
-
-						if ( this->isStyle( LBS_MULTIPLESEL ) || this->isStyle( LBS_EXTENDEDSEL ) ) {
-							if ( ListBox_GetSel( m_Hwnd, nItem ) > 0 )
-								this->execAliasEx(TEXT("%s,%d,%d"), TEXT("sclick"), this->getUserID( ), nItem + 1 );
-						}
-						else if ( nItem != LB_ERR )
-							this->execAliasEx(TEXT("%s,%d,%d"), TEXT("sclick"), this->getUserID( ), nItem + 1 );
-					}
-					break;
-
-				case LBN_DBLCLK:
-					{
-						const auto nItem = ListBox_GetCurSel(m_Hwnd);
-
-						if ( this->isStyle( LBS_MULTIPLESEL ) || this->isStyle( LBS_EXTENDEDSEL ) ) { 
-							if ( ListBox_GetSel( m_Hwnd, nItem ) > 0 )
-								this->execAliasEx(TEXT("%s,%d,%d"), TEXT("dclick"), this->getUserID( ), nItem + 1 );
-						}
-						else if ( nItem != LB_ERR )
-							this->execAliasEx(TEXT("%s,%d,%d"), TEXT("dclick"), this->getUserID( ), nItem + 1 );
-					}
-					break;
-				} // switch ( HIWORD( wParam ) )
-			}
-		}
-		break;
-	case WM_DRAWITEM:
-		{
-			dcxlParam(LPDRAWITEMSTRUCT, lpDrawItem);
-
-			const auto len = ListBox_GetTextLen(lpDrawItem->hwndItem, lpDrawItem->itemID);
-			if (len == LB_ERR)
-				break;
-
-			bParsed = TRUE;
-
-			RECT rc = { 0 };
-			COLORREF clrText = CLR_INVALID;
-
-			CopyRect(&rc, &lpDrawItem->rcItem);
-
-			if (this->m_hBackBrush == nullptr)
-				FillRect(lpDrawItem->hDC, &rc, GetStockBrush(WHITE_BRUSH));
-			else
-				DcxControl::DrawCtrlBackground(lpDrawItem->hDC, this, &rc);
-
-			if (dcx_testflag(lpDrawItem->itemState, ODS_SELECTED))
+			switch (HIWORD(wParam))
 			{
-				// fill background with selected colour.
-				FillRect(lpDrawItem->hDC, &rc, GetSysColorBrush(COLOR_HIGHLIGHT));
-				// draw focus rect around selected item.
-				DrawFocusRect(lpDrawItem->hDC, &rc);
-				// set selected text colour.
-				clrText = SetTextColor(lpDrawItem->hDC, GetSysColor(COLOR_HIGHLIGHTTEXT));
+			case LBN_SELCHANGE:
+			{
+				const auto nItem = ListBox_GetCurSel(m_Hwnd);
+
+				if (this->isStyle(WindowStyle::LBS_MultiSel) || this->isStyle(WindowStyle::LBS_ExtendedSel))
+				{
+					if (ListBox_GetSel(m_Hwnd, nItem) > 0)
+						this->execAliasEx(TEXT("%s,%d,%d"), TEXT("sclick"), this->getUserID(), nItem + 1);
+				}
+				else if (nItem != LB_ERR)
+					this->execAliasEx(TEXT("%s,%d,%d"), TEXT("sclick"), this->getUserID(), nItem + 1);
 			}
-			else {
-				// set text colour.
-				if (this->m_clrText != CLR_INVALID)
-					clrText = SetTextColor(lpDrawItem->hDC, this->m_clrText);
+			break;
+
+			case LBN_DBLCLK:
+			{
+				const auto nItem = ListBox_GetCurSel(m_Hwnd);
+
+				if (this->isStyle(WindowStyle::LBS_MultiSel) || this->isStyle(WindowStyle::LBS_ExtendedSel))
+				{
+					if (ListBox_GetSel(m_Hwnd, nItem) > 0)
+						this->execAliasEx(TEXT("%s,%d,%d"), TEXT("dclick"), this->getUserID(), nItem + 1);
+				}
+				else if (nItem != LB_ERR)
+					this->execAliasEx(TEXT("%s,%d,%d"), TEXT("dclick"), this->getUserID(), nItem + 1);
 			}
-
-			if (len > 0) { // Only do all this if theres any text to draw.
-
-				TString txt((UINT)len + 1);
-
-				ListBox_GetText(lpDrawItem->hwndItem, lpDrawItem->itemID, txt.to_chr());
-
-				rc.left += 2;
-
-				UINT style = DT_LEFT|DT_VCENTER|DT_SINGLELINE;
-
-				if (this->isStyle(LBS_USETABSTOPS))
-					style |= DT_EXPANDTABS;
-
-				//calcStrippedRect(lpDrawItem->hDC, txt, style, &rc, false);
-				this->calcTextRect(lpDrawItem->hDC, txt, &rc, style);
-
-				this->ctrlDrawText(lpDrawItem->hDC, txt, &rc, style);
-			}
-
-			if (clrText != CLR_INVALID)
-				SetTextColor(lpDrawItem->hDC, clrText);
-
-			return TRUE;
+			break;
+			} // switch ( HIWORD( wParam ) )
 		}
-		break;
-		//case WM_MEASUREITEM:
-		//	{
-		//		LPMEASUREITEMSTRUCT lpMeasureItem = (LPMEASUREITEMSTRUCT) lParam;
-		//		//lpMeasureItem->itemHeight = 16;
-		//		//return TRUE;
-		//	}
-		//	break;
+	}
+	break;
+	case WM_DRAWITEM:
+	{
+		dcxlParam(LPDRAWITEMSTRUCT, lpDrawItem);
+
+		const auto len = ListBox_GetTextLen(lpDrawItem->hwndItem, lpDrawItem->itemID);
+		if (len == LB_ERR)
+			break;
+
+		bParsed = TRUE;
+
+		RECT rc{};
+		COLORREF clrText = CLR_INVALID;
+
+		CopyRect(&rc, &lpDrawItem->rcItem);
+
+		if (this->m_hBackBrush == nullptr)
+			FillRect(lpDrawItem->hDC, &rc, GetStockBrush(WHITE_BRUSH));
+		else
+			DcxControl::DrawCtrlBackground(lpDrawItem->hDC, this, &rc);
+
+		if (dcx_testflag(lpDrawItem->itemState, ODS_SELECTED))
+		{
+			// fill background with selected colour.
+			FillRect(lpDrawItem->hDC, &rc, GetSysColorBrush(COLOR_HIGHLIGHT));
+			// draw focus rect around selected item.
+			DrawFocusRect(lpDrawItem->hDC, &rc);
+			// set selected text colour.
+			clrText = SetTextColor(lpDrawItem->hDC, GetSysColor(COLOR_HIGHLIGHTTEXT));
+		}
+		else {
+			// set text colour.
+			if (this->m_clrText != CLR_INVALID)
+				clrText = SetTextColor(lpDrawItem->hDC, this->m_clrText);
+		}
+
+		if (len > 0)
+		{ // Only do all this if theres any text to draw.
+			TString txt((UINT)len + 1);
+
+			ListBox_GetText(lpDrawItem->hwndItem, lpDrawItem->itemID, txt.to_chr());
+
+			rc.left += 2;
+
+			const UINT style = (isStyle(WindowStyle::LBS_UseTabStops)) ? DT_LEFT | DT_VCENTER | DT_SINGLELINE | DT_EXPANDTABS : DT_LEFT | DT_VCENTER | DT_SINGLELINE;
+
+			//calcStrippedRect(lpDrawItem->hDC, txt, style, &rc, false);
+			this->calcTextRect(lpDrawItem->hDC, txt, &rc, style);
+
+			this->ctrlDrawText(lpDrawItem->hDC, txt, &rc, style);
+		}
+
+		if (clrText != CLR_INVALID)
+			SetTextColor(lpDrawItem->hDC, clrText);
+
+		return TRUE;
+	}
+	break;
+	//case WM_MEASUREITEM:
+	//	{
+	//		LPMEASUREITEMSTRUCT lpMeasureItem = (LPMEASUREITEMSTRUCT) lParam;
+	//		//lpMeasureItem->itemHeight = 16;
+	//		//return TRUE;
+	//	}
+	//	break;
 	}
 	return 0L;
 }
 
-LRESULT DcxList::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
-	switch( uMsg ) {
+LRESULT DcxList::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed )
+{
+	switch (uMsg)
+	{
 	case WM_LBUTTONUP: // Prevents CommonMessage() handling of this.
 	case WM_LBUTTONDBLCLK:
 		break;
@@ -1185,34 +1094,34 @@ LRESULT DcxList::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 		break;
 
 	case WM_PAINT:
-		{
-			if (!this->m_bAlphaBlend)
-				break;
+	{
+		if (!this->m_bAlphaBlend)
+			break;
 
-			PAINTSTRUCT ps;
+		PAINTSTRUCT ps{};
 
-			auto hdc = BeginPaint(m_Hwnd, &ps);
-			Auto(EndPaint(m_Hwnd, &ps));
+		auto hdc = BeginPaint(m_Hwnd, &ps);
+		Auto(EndPaint(m_Hwnd, &ps));
 
-			bParsed = TRUE;
+		bParsed = TRUE;
 
-			// Setup alpha blend if any.
-			auto ai = this->SetupAlphaBlend(&hdc);
-			Auto(this->FinishAlphaBlend(ai));
+		// Setup alpha blend if any.
+		auto ai = this->SetupAlphaBlend(&hdc);
+		Auto(this->FinishAlphaBlend(ai));
 
-			return CallDefaultProc(m_Hwnd, uMsg, (WPARAM)hdc, lParam);
-		}
-		break;
+		return CallDefaultProc(m_Hwnd, uMsg, (WPARAM)hdc, lParam);
+	}
+	break;
 
 	case WM_DESTROY:
-		{
-			delete this;
-			bParsed = TRUE;
-		}
-		break;
+	{
+		delete this;
+		bParsed = TRUE;
+	}
+	break;
 
 	default:
-		return this->CommonMessage( uMsg, wParam, lParam, bParsed);
+		return this->CommonMessage(uMsg, wParam, lParam, bParsed);
 		break;
 	}
 
@@ -1223,7 +1132,7 @@ LRESULT DcxList::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 // Ported from http://www.vb-hellfire.de/knowlib/draglist.php
 void DcxList::DrawDragLine(const int location)
 {
-	RECT rc = { 0 };
+	RECT rc{};
 
 	if (ListBox_GetItemRect(m_Hwnd, location, &rc) == LB_ERR)
 		return;
@@ -1240,7 +1149,8 @@ void DcxList::DrawDragLine(const int location)
 		return;
 	Auto(ReleaseDC(m_Hwnd, hDC));
 
-	if (auto hPen = CreatePen(PS_SOLID, 1, GetSysColor(COLOR_WINDOWTEXT)); hPen != nullptr) {
+	if (auto hPen = CreatePen(PS_SOLID, 1, GetSysColor(COLOR_WINDOWTEXT)); hPen != nullptr)
+	{
 		Auto(DeletePen(hPen));
 
 		auto hOldPen = SelectPen(hDC, hPen);
@@ -1385,7 +1295,8 @@ void DcxList::DrawDragLine(const int location)
 
 bool DcxList::matchItemText(const int nItem, const TString &search, const DcxSearchTypes &SearchType) const
 {
-	if (const auto len = ListBox_GetTextLen(m_Hwnd, nItem); len > 0) {
+	if (const auto len = ListBox_GetTextLen(m_Hwnd, nItem); len > 0)
+	{
 		//auto itemtext = std::make_unique<TCHAR[]>(static_cast<size_t>(std::max(len + 1, MIRC_BUFFER_SIZE_CCH)));
 		//
 		//ListBox_GetText(m_Hwnd, nItem, itemtext.get());
@@ -1442,7 +1353,7 @@ void DcxList::UpdateHorizExtent(const int nPos)
 		Auto(ReleaseDC(m_Hwnd, hdc));
 
 		HFONT hFont = getFont(), hOldFont = nullptr;
-		SIZE sz = { 0 };
+		SIZE sz{};
 
 		const auto nHorizExtent = ListBox_GetHorizontalExtent(m_Hwnd);
 
@@ -1472,7 +1383,8 @@ void DcxList::UpdateHorizExtent(void)
 	const auto nTotalItems = ListBox_GetCount(m_Hwnd);
 	auto nMaxStrlen = 0, iLongestItem = -1;
 
-	for (auto i = decltype(nTotalItems){0}; i < nTotalItems; i++) {
+	for (auto i = decltype(nTotalItems){0}; i < nTotalItems; ++i)
+	{
 		if (const auto nLen = ListBox_GetTextLen(m_Hwnd, i); nLen > nMaxStrlen)
 		{
 			nMaxStrlen = nLen;

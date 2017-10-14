@@ -60,7 +60,8 @@ public:
 	//void parseInfoRequest(const TString & input, PTCHAR szReturnValue) const override;
 	void parseInfoRequest(const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const override;
 	void parseCommandRequest( const TString & input ) override;
-	void parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ) override;
+	//void parseControlStyles(const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme) override;
+	std::tuple<NoTheme, WindowStyle, WindowExStyle> parseControlStyles(const TString & tsStyles) override;
 
 	HIMAGELIST getImageList( ) const;
 	void setImageList( HIMAGELIST himl );
@@ -70,16 +71,16 @@ public:
 
 	LRESULT insertBand( const int uIndex, LPREBARBANDINFO lprbbi );
 	LRESULT deleteBand( const UINT uIndex );
-	LRESULT getBandInfo( const UINT uBand, LPREBARBANDINFO lprbbi ) const;
+	LRESULT getBandInfo( const UINT uBand, LPREBARBANDINFO lprbbi ) const noexcept;
 	LRESULT setBandInfo( const UINT uBand, LPREBARBANDINFO lprbbi );
 	LRESULT setBarInfo( LPREBARINFO lprbi );
-	LRESULT getBarInfo( LPREBARINFO lprbi ) const;
-	LRESULT getRowCount( ) const;
-	LRESULT hitTest( LPRBHITTESTINFO lprbht ) const;
-	LRESULT getToolTips( ) const;
+	LRESULT getBarInfo( LPREBARINFO lprbi ) const noexcept;
+	LRESULT getRowCount( ) const noexcept;
+	LRESULT hitTest( LPRBHITTESTINFO lprbht ) const noexcept;
+	LRESULT getToolTips( ) const noexcept;
 	LRESULT setToolTips( const HWND hwndToolTip );
-	LRESULT getIDToIndex( const UINT uBandID ) const;
-	LRESULT getBandCount( ) const;
+	LRESULT getIDToIndex( const UINT uBandID ) const noexcept;
+	LRESULT getBandCount( ) const noexcept;
 	LRESULT setReDraw( const BOOL uState );
 	LRESULT showBand( const UINT uBand, const BOOL fShow );
 	LRESULT moveBand( const UINT iFrom, const UINT iTo );

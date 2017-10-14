@@ -37,21 +37,15 @@ DcxWebControl::DcxWebControl(const UINT ID, DcxDialog *const p_Dialog, const HWN
 	, m_pOleObject(nullptr)
 	, m_pWebBrowser2(nullptr)
 {
-	LONG Styles = 0, ExStyles = 0;
-	BOOL bNoTheme = FALSE;
+	const auto[bNoTheme, Styles, ExStyles] = parseControlStyles(styles);
 
-	parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
-
-	m_Hwnd = CreateWindowEx(	
-		static_cast<DWORD>(ExStyles),
-		TEXT("STATIC"),
-		nullptr,
-		WS_CHILD | WS_CLIPSIBLINGS | static_cast<DWORD>(Styles),
-		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
+	m_Hwnd = dcxCreateWindow(	
+		ExStyles,
+		WC_STATIC,
+		Styles | WS_CHILD | WS_CLIPSIBLINGS,
+		rc,
 		mParentHwnd,
-		(HMENU) ID,
-		GetModuleHandle(nullptr),
-		nullptr);
+		ID);
 
 	if (!IsWindow(m_Hwnd))
 		throw Dcx::dcxException("Unable To Create Window");
@@ -83,8 +77,7 @@ DcxWebControl::DcxWebControl(const UINT ID, DcxDialog *const p_Dialog, const HWN
 
 		m_pWebBrowser2->Navigate(url, &v, &v, &v, &v);  // dont use L""
 #else
-		auto url = SysAllocString(TEXT("about:blank"));
-		if (url != nullptr) {
+		if (auto url = SysAllocString(TEXT("about:blank")); url != nullptr) {
 			Auto(SysFreeString(url));
 
 			VARIANT v;
@@ -110,8 +103,8 @@ DcxWebControl::DcxWebControl(const UINT ID, DcxDialog *const p_Dialog, const HWN
  * blah
  */
 
-DcxWebControl::~DcxWebControl( ) {
-
+DcxWebControl::~DcxWebControl( )
+{
 	//Release all Web Control pointers
 	//SafeRelease();	// causes an odd crash when IE11 is used...
 
@@ -175,12 +168,14 @@ void DcxWebControl::SafeRelease() noexcept
 	{
 		SafeReleaseCom(&m_pOleInPlaceObject);
 	}
-	if (m_pOleObject != nullptr) {
+	if (m_pOleObject != nullptr)
+	{
 		m_pOleObject->Close(OLECLOSE_NOSAVE);
 		SafeReleaseCom(&m_pOleObject);
 	}
 
-	if (m_pWebBrowser2 != nullptr) {
+	if (m_pWebBrowser2 != nullptr)
+	{
 		m_pWebBrowser2->Quit();
 		SafeReleaseCom(&m_pWebBrowser2);
 	}
@@ -192,9 +187,14 @@ void DcxWebControl::SafeRelease() noexcept
  * blah
  */
 
-void DcxWebControl::parseControlStyles( const TString &styles, LONG *Styles, LONG *ExStyles, BOOL *bNoTheme)
+//void DcxWebControl::parseControlStyles( const TString &styles, LONG *Styles, LONG *ExStyles, BOOL *bNoTheme)
+//{
+//	parseGeneralControlStyles(styles, Styles, ExStyles, bNoTheme);
+//}
+
+std::tuple<NoTheme, WindowStyle, WindowExStyle> DcxWebControl::parseControlStyles(const TString & tsStyles)
 {
-	parseGeneralControlStyles(styles, Styles, ExStyles, bNoTheme);
+	return parseGeneralControlStyles(tsStyles);
 }
 
 /*!
@@ -208,7 +208,6 @@ void DcxWebControl::parseControlStyles( const TString &styles, LONG *Styles, LON
 
 void DcxWebControl::parseInfoRequest( const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const
 {
-#if DCX_USE_HASHING
 	switch (std::hash<TString>{}(input.getfirsttok(3)))
 	{
 		// [NAME] [ID] [PROP]
@@ -216,9 +215,9 @@ void DcxWebControl::parseInfoRequest( const TString & input, const refString<TCH
 	{
 		BSTR str;
 
-		if (SUCCEEDED(this->m_pWebBrowser2->get_LocationURL(&str))) {
-
-			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%ws"), str); // possible overflow, needs fixing at some point.
+		if (SUCCEEDED(this->m_pWebBrowser2->get_LocationURL(&str)))
+		{
+			_ts_snprintf(szReturnValue, TEXT("%ws"), str); // possible overflow, needs fixing at some point.
 			SysFreeString(str);
 		}
 	}
@@ -227,10 +226,10 @@ void DcxWebControl::parseInfoRequest( const TString & input, const refString<TCH
 	case L"ready"_hash:
 	{
 		READYSTATE ready_state;
-		if (SUCCEEDED(this->m_pWebBrowser2->get_ReadyState(&ready_state))) {
-
-			if (ready_state == READYSTATE_COMPLETE) {
-
+		if (SUCCEEDED(this->m_pWebBrowser2->get_ReadyState(&ready_state)))
+		{
+			if (ready_state == READYSTATE_COMPLETE)
+			{
 				szReturnValue = TEXT("$true");
 				return;
 			}
@@ -242,10 +241,10 @@ void DcxWebControl::parseInfoRequest( const TString & input, const refString<TCH
 	case L"statusbar"_hash:
 	{
 		VARIANT_BOOL bState;
-		if (SUCCEEDED(this->m_pWebBrowser2->get_StatusBar(&bState))) {
-
-			if (bState == VARIANT_TRUE) {
-
+		if (SUCCEEDED(this->m_pWebBrowser2->get_StatusBar(&bState)))
+		{
+			if (bState == VARIANT_TRUE)
+			{
 				szReturnValue = TEXT("$true");
 				return;
 			}
@@ -257,78 +256,22 @@ void DcxWebControl::parseInfoRequest( const TString & input, const refString<TCH
 	{
 		BSTR str;
 
-		if (SUCCEEDED(this->m_pWebBrowser2->get_StatusText(&str))) {
-
-			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%ws"), str); // possible overflow, needs fixing at some point.
+		if (SUCCEEDED(this->m_pWebBrowser2->get_StatusText(&str)))
+		{
+			_ts_snprintf(szReturnValue, TEXT("%ws"), str); // possible overflow, needs fixing at some point.
 			SysFreeString(str);
 		}
 	}
 	break;
 	case L"script"_hash:
 	{
-		const auto tsRes(CallScript(input.getlasttoks()));
-		if (!tsRes.empty())
+		if (const auto tsRes(CallScript(input.getlasttoks())); !tsRes.empty())
 			szReturnValue = tsRes.to_chr();
 	}
 	break;
 	default:
 		parseGlobalInfoRequest(input, szReturnValue);
 	}
-#else
-	const auto prop(input.getfirsttok( 3 ));
-
-	// [NAME] [ID] [PROP]
-	if ( prop == TEXT("url") ) {
-
-		BSTR str;
-
-		if( SUCCEEDED( this->m_pWebBrowser2->get_LocationURL( &str ) ) ) {
-
-			wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%ws"), str ); // possible overflow, needs fixing at some point.
-			SysFreeString( str );
-		}
-	}
-	// [NAME] [ID] [PROP]
-	else if ( prop == TEXT("ready") ) {
-
-		READYSTATE ready_state;
-		if ( SUCCEEDED( this->m_pWebBrowser2->get_ReadyState( &ready_state ) ) ) {
-
-			if ( ready_state == READYSTATE_COMPLETE ) {
-
-				szReturnValue = TEXT("$true");
-				return;
-			}
-		}
-		szReturnValue = TEXT("$false");
-	}
-	// [NAME] [ID] [PROP]
-	else if ( prop == TEXT("statusbar") ) {
-
-		VARIANT_BOOL bState;
-		if ( SUCCEEDED( this->m_pWebBrowser2->get_StatusBar(&bState) ) ) {
-
-			if ( bState == VARIANT_TRUE ) {
-
-				szReturnValue = TEXT("$true");
-				return;
-			}
-		}
-		szReturnValue = TEXT("$false");
-	}
-	else if ( prop == TEXT("statustext") ) {
-
-		BSTR str;
-
-		if( SUCCEEDED( this->m_pWebBrowser2->get_StatusText( &str ) ) ) {
-
-			wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%ws"), str ); // possible overflow, needs fixing at some point.
-			SysFreeString( str );
-		}
-	}
-	else
-		this->parseGlobalInfoRequest(input, szReturnValue);
-#endif
 }
 
 /*!
@@ -337,7 +280,11 @@ void DcxWebControl::parseInfoRequest( const TString & input, const refString<TCH
  * blah
  */
 
-void DcxWebControl::parseCommandRequest( const TString & input) {
+void DcxWebControl::parseCommandRequest( const TString & input)
+{
+	if (m_pWebBrowser2 == nullptr)
+		return;
+
 	const XSwitchFlags flags(input.getfirsttok( 3 ));
 	const auto numtok = input.numtok();
 
@@ -345,9 +292,8 @@ void DcxWebControl::parseCommandRequest( const TString & input) {
 	if ( flags[TEXT('g')] )
 		m_pWebBrowser2->GoHome( );
 	// xdid -i [NAME] [ID] [SWITCH]
-	else if ( flags[TEXT('i')] ) {
+	else if ( flags[TEXT('i')] )
 		m_pWebBrowser2->GoForward( );
-	}
 	// xdid -j [NAME] [ID] [SWITCH] [JAVASCRIPT]
 	else if ( flags[TEXT('j')] && numtok > 3 )
 	{
@@ -505,14 +451,12 @@ void DcxWebControl::parseCommandRequest( const TString & input) {
 //		}
 	}
 	// xdid -k [NAME] [ID] [SWITCH]
-	else if ( flags[TEXT('k')] ) {
-
+	else if ( flags[TEXT('k')] )
 		m_pWebBrowser2->GoBack( );
-	}
 	// xdid -m [NAME] [ID] [SWITCH] [+FLAGS] [+MASK] (URL)
 	// [NAME] [ID] -m [+FLAGS] [+MASK] (URL)
-	else if ( flags[TEXT('m')] && numtok > 4 ) {
-
+	else if ( flags[TEXT('m')] && numtok > 4 )
+	{
 		const XSwitchFlags xflags(input.getnexttok());		// tok 4 flags to change
 		const XSwitchFlags xmask(input.getnexttok());		// tok 5 state mask, flags here are enabled, otherwise they are disabled.
 		const auto URL(input.getlasttoks().trim());		// tok 6, -1 optional
@@ -571,7 +515,8 @@ void DcxWebControl::parseCommandRequest( const TString & input) {
 			m_pWebBrowser2->put_StatusBar(bEnabled);
 		}
 		// only open url if one supplied.
-		if (!URL.empty()) {
+		if (!URL.empty())
+		{
 #if DCX_USE_WRAPPERS
 			Dcx::dcxBSTRResource bstrUrl(URL.to_wchr());
 
@@ -588,8 +533,8 @@ void DcxWebControl::parseCommandRequest( const TString & input) {
 	}
 	// xdid -n [NAME] [ID] [SWITCH] [URL]
 	// [NAME] [ID] -n [URL]
-	else if ( flags[TEXT('n')] && numtok > 3 ) {
-
+	else if ( flags[TEXT('n')] && numtok > 3 )
+	{
 		const auto URL(input.getlasttoks().trim());	// tok 4, -1
 
 #if DCX_USE_WRAPPERS
@@ -611,15 +556,11 @@ void DcxWebControl::parseCommandRequest( const TString & input) {
 #endif
 	}
 	// xdid -r [NAME] [ID] [SWITCH]
-	else if ( flags[TEXT('r')] ) {
-
+	else if ( flags[TEXT('r')] )
 		m_pWebBrowser2->Refresh( );
-	}
 	// xdid -t [NAME] [ID] [SWITCH]
-	else if ( flags[TEXT('t')] ) {
-
+	else if ( flags[TEXT('t')] )
 		m_pWebBrowser2->Stop( );
-	}
 	else
 		parseGlobalCommandRequest( input, flags );
 }
@@ -769,7 +710,8 @@ HRESULT DcxWebControl::Invoke( DISPID dispIdMember,
 	try {
 		if (!m_bHideEvents)
 		{
-			switch (dispIdMember) {
+			switch (dispIdMember)
+			{
 			case DISPID_NAVIGATECOMPLETE2:
 			{
 				hRes = DispGetParam(pDispParams, 1, VT_BSTR, &arg2, &err);
@@ -795,7 +737,7 @@ HRESULT DcxWebControl::Invoke( DISPID dispIdMember,
 				//	*pDispParams->rgvarg->pboolVal = VARIANT_FALSE;
 
 				stString<256> sRet;
-				evalAliasEx(sRet, static_cast<int>(sRet.size()), TEXT("nav_begin,%u,%ws"), getUserID(), arg2.bstrVal);
+				evalAliasEx(sRet, gsl::narrow_cast<int>(sRet.size()), TEXT("nav_begin,%u,%ws"), getUserID(), arg2.bstrVal);
 
 				if (sRet == TEXT("cancel"))
 					*pDispParams->rgvarg->pboolVal = VARIANT_TRUE;
@@ -833,7 +775,7 @@ HRESULT DcxWebControl::Invoke( DISPID dispIdMember,
 				//	*pDispParams->rgvarg->pboolVal = VARIANT_FALSE;
 
 				stString<256> sRet;
-				evalAliasEx(sRet, static_cast<int>(sRet.size()), TEXT("win_open,%u"), getUserID());
+				evalAliasEx(sRet, gsl::narrow_cast<int>(sRet.size()), TEXT("win_open,%u"), getUserID());
 
 				if (sRet == TEXT("cancel"))
 					*pDispParams->rgvarg->pboolVal = VARIANT_TRUE;
@@ -886,7 +828,8 @@ HRESULT DcxWebControl::Invoke( DISPID dispIdMember,
 				if (FAILED(hRes))
 					throw Dcx::dcxException(TEXT("DcxWebControl::Invoke(DISPID_COMMANDSTATECHANGE) -> Unable to get Params: %"), err);
 
-				switch (arg1.bstrVal[0]) {
+				switch (arg1.bstrVal[0])
+				{
 				case L'1':
 					execAliasEx(TEXT("forward,%u,%s"), getUserID(), arg2.boolVal ? TEXT("$true") : TEXT("$false"));
 					break;
@@ -924,17 +867,14 @@ HRESULT STDMETHODCALLTYPE DcxWebControl::QueryInterface( REFIID riid, void __RPC
 {
 	*ppvObject = nullptr;
 
-	if ( IID_IUnknown == riid ) { 
+	if ( IID_IUnknown == riid )
 		*ppvObject = (IUnknown*)(IOleClientSite*) this; 
-	}
-	else if ( IID_IOleInPlaceSite == riid ) { 
+	else if ( IID_IOleInPlaceSite == riid )
 		*ppvObject = (IOleInPlaceSite*) this; 
-	}
-	else if ( DIID_DWebBrowserEvents2 == riid ) { 
+	else if ( DIID_DWebBrowserEvents2 == riid )
 		*ppvObject = (DWebBrowserEvents2*) this; 
-	}
 
-	return *ppvObject ? S_OK : E_NOINTERFACE;
+	return *ppvObject != nullptr ? S_OK : E_NOINTERFACE;
 }
 
 /*!
@@ -980,78 +920,78 @@ LRESULT DcxWebControl::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 	//mIRCLinker::signalex(true,TEXT("webctrl debug %lu"), uMsg);
 	mIRCLinker::signal(TEXT("webctrl debug %"), uMsg);
 #endif
-	switch( uMsg ) {
-
+	switch (uMsg)
+	{
 	case WM_CHILDACTIVATE:
 	case WM_SIZE:
-		{
-			if (m_pOleInPlaceObject == nullptr)
-				break;
+	{
+		if (m_pOleInPlaceObject == nullptr)
+			break;
 
-			RECT rc; 
-			if (GetClientRect( m_Hwnd, &rc ))
-				m_pOleInPlaceObject->SetObjectRects( &rc, &rc );
-		}
-		break;
+		RECT rc{};
+		if (GetClientRect(m_Hwnd, &rc))
+			m_pOleInPlaceObject->SetObjectRects(&rc, &rc);
+	}
+	break;
 
 	case WM_MOUSEACTIVATE:
-		{
-			bParsed = TRUE;
-			//HWND web = nullptr;
-			//HRESULT r = this->m_pWebBrowser2->get_HWND((long *)&web);
-			//if (SUCCEEDED(r)) {
-			//	mIRCError(TEXT("worked"));
-			//	SetActiveWindow(web);
-			//}
-			//else
-			//	mIRCDebug(TEXT("no activate r %d web %d"), r, web);
-			//SetActiveWindow((HWND)wParam);
-			//SetFocus((HWND)wParam);
-			return MA_NOACTIVATE;
-		}
-		break;
+	{
+		bParsed = TRUE;
+		//HWND web = nullptr;
+		//HRESULT r = this->m_pWebBrowser2->get_HWND((long *)&web);
+		//if (SUCCEEDED(r)) {
+		//	mIRCError(TEXT("worked"));
+		//	SetActiveWindow(web);
+		//}
+		//else
+		//	mIRCDebug(TEXT("no activate r %d web %d"), r, web);
+		//SetActiveWindow((HWND)wParam);
+		//SetFocus((HWND)wParam);
+		return MA_NOACTIVATE;
+	}
+	break;
 
-		//case WM_GETDLGCODE:
-		//		{
-		//			bParsed = TRUE;
-		//			return DLGC_WANTALLKEYS;
-		//		}
-		//		break;
-		//case WM_HSCROLL:
-		//case WM_VSCROLL:
-		//	{
-		//		mIRCDebug(TEXT("scroll"));
-		//	}
-		//	break;
-		//case WM_MOUSEWHEEL:
-		//	{
-		//		mIRCDebug(TEXT("wheel"));
-		//	}
-		//	break;
-		//
-		//case WM_NCHITTEST:
-		//	{
-		//		bParsed = TRUE;
-		//		return HTCLIENT;
-		//		//return DefWindowProc( m_Hwnd, uMsg, wParam, lParam);
-		//	}
-		//	break;
-
-		// original version
-	//case WM_DESTROY:
-	//{
-	//	delete this;
-	//	bParsed = TRUE;
-	//}
-	//break;
-
-	//case WM_DESTROY:
+	//case WM_GETDLGCODE:
+	//		{
+	//			bParsed = TRUE;
+	//			return DLGC_WANTALLKEYS;
+	//		}
+	//		break;
+	//case WM_HSCROLL:
+	//case WM_VSCROLL:
 	//	{
-	//		SafeRelease();
-	//		//delete this;
-	//		//bParsed = TRUE;
+	//		mIRCDebug(TEXT("scroll"));
 	//	}
 	//	break;
+	//case WM_MOUSEWHEEL:
+	//	{
+	//		mIRCDebug(TEXT("wheel"));
+	//	}
+	//	break;
+	//
+	//case WM_NCHITTEST:
+	//	{
+	//		bParsed = TRUE;
+	//		return HTCLIENT;
+	//		//return DefWindowProc( m_Hwnd, uMsg, wParam, lParam);
+	//	}
+	//	break;
+
+	// original version
+//case WM_DESTROY:
+//{
+//	delete this;
+//	bParsed = TRUE;
+//}
+//break;
+
+//case WM_DESTROY:
+//	{
+//		SafeRelease();
+//		//delete this;
+//		//bParsed = TRUE;
+//	}
+//	break;
 
 	case WM_NCDESTROY:
 	{
@@ -1069,7 +1009,7 @@ LRESULT DcxWebControl::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 	}
 	break;
 	default:
-		return CommonMessage( uMsg, wParam, lParam, bParsed);
+		return CommonMessage(uMsg, wParam, lParam, bParsed);
 		break;
 	}
 

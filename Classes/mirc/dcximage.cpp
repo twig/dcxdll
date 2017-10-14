@@ -48,20 +48,15 @@ DcxImage::DcxImage(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentH
 	, m_iYOffset(0)
 	, m_iIconSize(DcxIconSizes::SmallIcon)
 {
-	LONG Styles = 0, ExStyles = 0;
-	BOOL bNoTheme = FALSE;
-	this->parseControlStyles(styles, &Styles, &ExStyles, &bNoTheme);
+	const auto[bNoTheme, Styles, ExStyles] = parseControlStyles(styles);
 
-	m_Hwnd = CreateWindowEx(
-		gsl::narrow_cast<DWORD>(ExStyles),
-		TEXT("STATIC"),
-		nullptr,
-		WS_CHILD | gsl::narrow_cast<DWORD>(Styles),
-		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
+	m_Hwnd = dcxCreateWindow(
+		ExStyles,
+		WC_STATIC,
+		Styles | WindowStyle::Child,
+		rc,
 		mParentHwnd,
-		(HMENU)ID,
-		GetModuleHandle(nullptr),
-		nullptr);
+		ID);
 
 	if (!IsWindow(m_Hwnd))
 		throw Dcx::dcxException("Unable To Create Window");
@@ -69,8 +64,10 @@ DcxImage::DcxImage(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentH
 	if (bNoTheme)
 		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
 
-	if (p_Dialog->getToolTip() != nullptr) {
-		if (styles.istok(TEXT("tooltips"))) {
+	if (p_Dialog->getToolTip() != nullptr)
+	{
+		if (styles.istok(TEXT("tooltips")))
+		{
 			this->m_ToolTipHWND = p_Dialog->getToolTip();
 			if (!IsWindow(this->m_ToolTipHWND))
 				throw Dcx::dcxException("Unable to get ToolTips window");
@@ -80,7 +77,7 @@ DcxImage::DcxImage(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentH
 	}
 
 #ifdef DCX_USE_GDIPLUS
-	if (p_Dialog->isExStyle(WS_EX_COMPOSITED))
+	if (p_Dialog->isExStyle(WindowExStyle::Composited))
 		this->m_bBuffer = true;
 #endif
 
@@ -94,7 +91,8 @@ DcxImage::DcxImage(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentH
  * blah
  */
 
-DcxImage::~DcxImage() {
+DcxImage::~DcxImage()
+{
 	PreloadData();
 
 	this->unregistreDefaultWindowProc();
@@ -106,11 +104,21 @@ DcxImage::~DcxImage() {
  * blah
  */
 
-void DcxImage::parseControlStyles(const TString &styles, LONG *Styles, LONG *ExStyles, BOOL *bNoTheme)
-{
-	*Styles |= SS_NOTIFY;
+//void DcxImage::parseControlStyles(const TString &styles, LONG *Styles, LONG *ExStyles, BOOL *bNoTheme)
+//{
+//	*Styles |= SS_NOTIFY;
+//
+//	this->parseGeneralControlStyles(styles, Styles, ExStyles, bNoTheme);
+//}
 
-	this->parseGeneralControlStyles(styles, Styles, ExStyles, bNoTheme);
+std::tuple<NoTheme, WindowStyle, WindowExStyle> DcxImage::parseControlStyles(const TString & tsStyles)
+{
+	WindowStyle Styles(WindowStyle::None);
+	WindowExStyle ExStyles(WindowExStyle::None);
+
+	Styles |= SS_NOTIFY;
+
+	return parseGeneralControlStyles(tsStyles, Styles, ExStyles);
 }
 
 /*!
@@ -132,13 +140,16 @@ void DcxImage::parseInfoRequest( const TString & input, const refString<TCHAR, M
 }
 
 // clears existing image and icon data and sets pointers to null
-void DcxImage::PreloadData() {
-	if (this->m_hBitmap != nullptr) {
+void DcxImage::PreloadData()
+{
+	if (this->m_hBitmap != nullptr)
+	{
 		DeleteBitmap(this->m_hBitmap);
 		this->m_hBitmap = nullptr;
 	}
 
-	if (this->m_hIcon != nullptr) {
+	if (this->m_hIcon != nullptr)
+	{
 		DestroyIcon(this->m_hIcon);
 		this->m_hIcon = nullptr;
 	}
@@ -151,25 +162,29 @@ void DcxImage::PreloadData() {
 }
 
 #ifdef DCX_USE_GDIPLUS
-bool DcxImage::LoadGDIPlusImage(const TString &flags, TString &filename) {
+bool DcxImage::LoadGDIPlusImage(const TString &flags, TString &filename)
+{
 	if (!IsFile(filename))
 		throw Dcx::dcxException(TEXT("Unable to Access File: %"), filename);
 
 	this->m_pImage = new Gdiplus::Image(filename.to_chr(),TRUE);
 
 	// for some reason this returns `OutOfMemory` when the file doesnt exist instead of `FileNotFound`
-	if (const auto status = this->m_pImage->GetLastStatus(); status != Gdiplus::Status::Ok) {
+	if (const auto status = this->m_pImage->GetLastStatus(); status != Gdiplus::Status::Ok)
+	{
 		PreloadData();
 		throw Dcx::dcxException(TEXT("Failed to load image: %"),GetLastStatusStr(status));
 	}
 
 	const XSwitchFlags xflags(flags);
 
-	if (xflags[TEXT('h')]) { // High Quality
+	if (xflags[TEXT('h')])
+	{ // High Quality
 		this->m_CQuality = Gdiplus::CompositingQualityHighQuality;
 		this->m_IMode = Gdiplus::InterpolationModeHighQualityBicubic;
 	}
-	else {
+	else
+	{
 		this->m_CQuality = Gdiplus::CompositingQualityDefault;
 		this->m_IMode = Gdiplus::InterpolationModeDefault;
 	}
@@ -199,12 +214,14 @@ bool DcxImage::LoadGDIPlusImage(const TString &flags, TString &filename) {
  * blah
  */
 
-void DcxImage::parseCommandRequest( const TString & input) {
+void DcxImage::parseCommandRequest( const TString & input)
+{
 	const XSwitchFlags flags(input.getfirsttok(3));
 	const auto numtok = input.numtok();
 
 	// xdid -w [NAME] [ID] [SWITCH] [+FLAGS] [INDEX] [SIZE] [FILENAME]
-	if (flags[TEXT('w')] && numtok > 6) {
+	if (flags[TEXT('w')] && numtok > 6)
+	{
 		const auto flag(input.getnexttok());		// tok 4
 		const auto index = input.getnexttok().to_int();	// tok 5
 		const auto size = input.getnexttok().to_int();	// tok 6
@@ -221,12 +238,7 @@ void DcxImage::parseCommandRequest( const TString & input) {
 		this->m_bIsIcon = true;
 
 		// resize window to size of icon
-		RECT wnd;
-
-		//if (!GetWindowRect(m_Hwnd, &wnd))
-		//	throw Dcx::dcxException("Unable to get windows rect");
-		//
-		//MapWindowRect(nullptr, GetParent(m_Hwnd), &wnd);
+		RECT wnd{};
 
 		if (!GetWindowRectParent(m_Hwnd, &wnd))
 			throw Dcx::dcxException("Unable to get windows rect");
@@ -235,7 +247,8 @@ void DcxImage::parseCommandRequest( const TString & input) {
 		this->redrawWindow();
 	}
 	//xdid -i [NAME] [ID] [SWITCH] [+FLAGS] [IMAGE]
-	else if (flags[TEXT('i')] && numtok > 4) {
+	else if (flags[TEXT('i')] && numtok > 4)
+	{
 		const auto flag(input.getnexttok().trim());	// tok 4
 		auto filename(input.getlasttoks().trim());	// tok 5, -1
 
@@ -247,7 +260,8 @@ void DcxImage::parseCommandRequest( const TString & input) {
 #ifdef DCX_USE_GDIPLUS
 		// using this method allows you to render BMP, ICON, GIF, JPEG, Exif, PNG, TIFF, WMF, and EMF (no animation)
 		//if (Dcx::GDIModule.isUseable() && flag.find(TEXT('g'),0)) { // makes GDI+ the default method, bitmap is only used when GDI+ isn't supported.
-		if (Dcx::GDIModule.isUseable()) {
+		if (Dcx::GDIModule.isUseable())
+		{
 			if (!LoadGDIPlusImage(flag,filename))
 				throw Dcx::dcxException("Unable to load Image with GDI+"); // <- should never throw this
 		}
@@ -268,20 +282,22 @@ void DcxImage::parseCommandRequest( const TString & input) {
 		InvalidateRect(m_Hwnd, nullptr, TRUE);
 	}
 	// xdid -k [NAME] [ID] [SWITCH] [COLOR]
-	else if (flags[TEXT('k')] && numtok > 3) {
+	else if (flags[TEXT('k')] && numtok > 3)
+	{
 		this->m_clrTransColor = input.getnexttok( ).to_<COLORREF>();	// tok 4
 		this->redrawWindow();
 	}
 	// xdid -o [NAME] [ID] [SWITCH] [XOFFSET] [YOFFSET]
-	else if (flags[TEXT('o')] && numtok > 4) {
+	else if (flags[TEXT('o')] && numtok > 4)
+	{
 		this->m_iXOffset = input++.to_int();	// tok 4
 		this->m_iYOffset = input++.to_int();	// tok 5
 
 		this->redrawWindow();
 	}
 	// xdid -S [NAME] [ID] [SWITCH] [1|0]
-	else if (flags[TEXT('S')] && numtok > 3) {
-
+	else if (flags[TEXT('S')] && numtok > 3)
+	{
 		m_bResizeImage = (input.getnexttok().to_int() > 0);	// tok 4
 
 		InvalidateRect(m_Hwnd, nullptr, TRUE);
@@ -301,7 +317,8 @@ void DcxImage::DrawGDIImage(HDC hdc, const int x, const int y, const int w, cons
 	grphx.SetCompositingMode(this->m_CMode);
 	grphx.SetSmoothingMode(this->m_SMode);
 
-	if (((this->m_pImage->GetWidth() == 1) || (this->m_pImage->GetHeight() == 1)) && this->m_bResizeImage) {
+	if (((this->m_pImage->GetWidth() == 1) || (this->m_pImage->GetHeight() == 1)) && this->m_bResizeImage)
+	{
 		// This fixes a GDI+ bug when resizing 1 px images
 		// http://www.devnewsgroups.net/group/microsoft.public.dotnet.framework.windowsforms/topic11515.aspx
 		grphx.SetInterpolationMode(Gdiplus::InterpolationModeNearestNeighbor);
@@ -310,7 +327,8 @@ void DcxImage::DrawGDIImage(HDC hdc, const int x, const int y, const int w, cons
 	else
 		grphx.SetInterpolationMode(this->m_IMode);
 
-	if (this->m_bTileImage) {
+	if (this->m_bTileImage)
+	{
 		Gdiplus::ImageAttributes imAtt;
 		imAtt.SetWrapMode(Gdiplus::WrapModeTile);
 
@@ -382,62 +400,63 @@ TiXmlElement * DcxImage::toXml() const
  *
  * blah
  */
-LRESULT DcxImage::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
+LRESULT DcxImage::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed )
+{
 	return 0L;
 }
 
-LRESULT DcxImage::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
-
-	switch( uMsg ) {
-
+LRESULT DcxImage::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed )
+{
+	switch (uMsg)
+	{
 	case WM_ERASEBKGND:
-		{
-			//<#IF USER == 'hkr' COMMENT OUT, UNLESS ITS THE TIME WHEN HE WANTS THIS>
-			if (this->isExStyle(WS_EX_TRANSPARENT))
-				this->DrawParentsBackground((HDC)wParam);
-			//if (this->isExStyle(WS_EX_TRANSPARENT))
-			//	this->DrawParentsBackground((HDC)wParam);
-			//else
-			//	DcxControl::DrawCtrlBackground((HDC) wParam,this);
-			//<END>
-			bParsed = TRUE;
-			return TRUE;
-		}
-		break;
+	{
+		//<#IF USER == 'hkr' COMMENT OUT, UNLESS ITS THE TIME WHEN HE WANTS THIS>
+		if (this->isExStyle(WindowExStyle::Transparent))
+			this->DrawParentsBackground((HDC)wParam);
+		//if (this->isExStyle(WS_EX_TRANSPARENT))
+		//	this->DrawParentsBackground((HDC)wParam);
+		//else
+		//	DcxControl::DrawCtrlBackground((HDC) wParam,this);
+		//<END>
+		bParsed = TRUE;
+		return TRUE;
+	}
+	break;
 
 	case WM_PRINTCLIENT:
-		{
-			this->DrawClientArea((HDC)wParam);
-			bParsed = TRUE;
-		}
-		break;
+	{
+		this->DrawClientArea((HDC)wParam);
+		bParsed = TRUE;
+	}
+	break;
 
 	case WM_PAINT:
-		{
-			bParsed = TRUE;
-			PAINTSTRUCT ps; 
-			auto hdc = BeginPaint(m_Hwnd, &ps);
-			Auto(EndPaint(m_Hwnd, &ps));
+	{
+		bParsed = TRUE;
+		PAINTSTRUCT ps{};
+		auto hdc = BeginPaint(m_Hwnd, &ps);
+		Auto(EndPaint(m_Hwnd, &ps));
 
-			this->DrawClientArea(hdc);
-		}
-		break;
+		this->DrawClientArea(hdc);
+	}
+	break;
 
 	case WM_SIZE:
-		{
-			InvalidateRect( m_Hwnd, nullptr, TRUE );
-		}
-		break;
+	{
+		InvalidateRect(m_Hwnd, nullptr, TRUE);
+	}
+	break;
 
 	case WM_DESTROY:
-		{
-			delete this;
-			bParsed = TRUE;
-		}
-		break;
+	{
+		delete this;
+		bParsed = TRUE;
+	}
+	break;
 
 	default:
-		return this->CommonMessage( uMsg, wParam, lParam, bParsed);
+		return this->CommonMessage(uMsg, wParam, lParam, bParsed);
 		break;
 	}
 
@@ -446,7 +465,7 @@ LRESULT DcxImage::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 
 void DcxImage::DrawClientArea(HDC hdc)
 {
-	RECT rect;
+	RECT rect{};
 	// default paint method
 	if (!GetClientRect(m_Hwnd, &rect))
 		return;
@@ -462,15 +481,17 @@ void DcxImage::DrawClientArea(HDC hdc)
 
 	// draw bitmap
 #ifdef DCX_USE_GDIPLUS
-	if ((m_hBitmap != nullptr) && (!m_bIsIcon) && (m_pImage == nullptr)) {
+	if ((m_hBitmap != nullptr) && (!m_bIsIcon) && (m_pImage == nullptr))
+	{
 #else
-	if ((m_hBitmap != nullptr) && (!m_bIsIcon)) {
+	if ((m_hBitmap != nullptr) && (!m_bIsIcon))
+	{
 #endif
 		DrawBMPImage(hdc, x, y, w, h);
 	}
 	// draw icon
 	else if ((m_hIcon != nullptr) && (m_bIsIcon))
-		DrawIconEx(hdc, 0, 0, m_hIcon, static_cast<int>(m_iIconSize), static_cast<int>(m_iIconSize), 0, m_hBackBrush, DI_NORMAL | DI_COMPAT);
+		DrawIconEx(hdc, 0, 0, m_hIcon, gsl::narrow_cast<int>(m_iIconSize), gsl::narrow_cast<int>(m_iIconSize), 0, m_hBackBrush, DI_NORMAL | DI_COMPAT);
 #ifdef DCX_USE_GDIPLUS
 	else if ((m_pImage != nullptr) && (Dcx::GDIModule.isUseable()))
 		DrawGDIImage(hdc, x, y, w, h);

@@ -45,20 +45,15 @@ DcxDirectshow::DcxDirectshow(const UINT ID, DcxDialog *const p_Dialog, const HWN
 	//assert(DIRECT3D_VERSION >= 9);	// make sure directx version 9+ is available.
 	static_assert(DIRECT3D_VERSION >= 9,"Invalid DirectX version, v9+ required...");	// make sure directx version 9+ is available.
 
-	LONG Styles = 0, ExStyles = 0;
-	BOOL bNoTheme = FALSE;
-	this->parseControlStyles(styles, &Styles, &ExStyles, &bNoTheme);
+	const auto[bNoTheme, Styles, ExStyles] = parseControlStyles(styles);
 
-	m_Hwnd = CreateWindowEx(
-		gsl::narrow_cast<DWORD>(ExStyles | WS_EX_CLIENTEDGE),
-		TEXT("STATIC"),
-		nullptr,
-		gsl::narrow_cast<DWORD>(WS_CHILD | WS_CLIPSIBLINGS | Styles),
-		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
+	m_Hwnd = dcxCreateWindow(
+		ExStyles | WS_EX_CLIENTEDGE,
+		WC_STATIC,
+		Styles | WS_CHILD | WS_CLIPSIBLINGS,
+		rc,
 		mParentHwnd,
-		(HMENU)ID,
-		GetModuleHandle(nullptr),
-		nullptr);
+		ID);
 
 	if (!IsWindow(m_Hwnd))
 		throw Dcx::dcxException("Unable To Create Window");
@@ -77,8 +72,8 @@ DcxDirectshow::DcxDirectshow(const UINT ID, DcxDialog *const p_Dialog, const HWN
  * blah
  */
 
-DcxDirectshow::~DcxDirectshow() {
-
+DcxDirectshow::~DcxDirectshow()
+{
 	this->ReleaseAll();
 	this->unregistreDefaultWindowProc();
 }
@@ -93,20 +88,27 @@ const TString DcxDirectshow::getStyles(void) const
 	return styles;
 }
 
-void DcxDirectshow::parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme )
+//void DcxDirectshow::parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme )
+//{
+//	*Styles |= SS_NOTIFY;
+//
+//	if (styles.istok(TEXT("fixratio")))
+//		m_bKeepRatio = true;
+//
+//	parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
+//}
+
+std::tuple<NoTheme, WindowStyle, WindowExStyle> DcxDirectshow::parseControlStyles(const TString & tsStyles)
 {
-	*Styles |= SS_NOTIFY;
+	WindowStyle Styles(WindowStyle::None);
+	WindowExStyle ExStyles(WindowExStyle::None);
 
-	//for (TString tsStyle(styles.getfirsttok(1)); !tsStyle.empty(); tsStyle = styles.getnexttok())
-	//{
-	//	if (( tsStyle == TEXT("fixratio") ))
-	//		this->m_bKeepRatio = true;
-	//}
+	Styles |= SS_NOTIFY;
 
-	if (styles.istok(TEXT("fixratio")))
+	if (tsStyles.istok(TEXT("fixratio")))
 		m_bKeepRatio = true;
 
-	parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
+	return parseGeneralControlStyles(tsStyles, Styles, ExStyles);
 }
 
 /*!
@@ -120,10 +122,10 @@ void DcxDirectshow::parseControlStyles( const TString & styles, LONG * Styles, L
 
 void DcxDirectshow::parseInfoRequest( const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const
 {
-#if DCX_USE_HASHING
 	const auto prop(input.getfirsttok(3));
 
-	if (const auto propHash = std::hash<TString>{}(prop); this->m_pGraph == nullptr) {
+	if (const auto propHash = std::hash<TString>{}(prop); this->m_pGraph == nullptr)
+	{
 		switch (propHash)
 		{
 			// [NAME] [ID] [PROP]
@@ -156,13 +158,13 @@ void DcxDirectshow::parseInfoRequest( const TString & input, const refString<TCH
 		{
 			long lWidth = 0, lHeight = 0, lARWidth = 0, lARHeight = 0;
 			
-			if (auto hr = m_pWc->GetNativeVideoSize(&lWidth, &lHeight, &lARWidth, &lARHeight); FAILED(hr)) {
+			if (auto hr = m_pWc->GetNativeVideoSize(&lWidth, &lHeight, &lARWidth, &lARHeight); FAILED(hr))
+			{
 				DX_ERR(prop.to_chr(), nullptr, hr);
 				throw Dcx::dcxException("Unable to get Native Video Size");
 			}
 
 			// width height arwidth arheight
-			//wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d %d %d"), lWidth, lHeight, lARWidth, lARHeight);
 			_ts_snprintf(szReturnValue, TEXT("%d %d %d %d"), lWidth, lHeight, lARWidth, lARHeight);
 		}
 		break;
@@ -177,9 +179,10 @@ void DcxDirectshow::parseInfoRequest( const TString & input, const refString<TCH
 			// [NAME] [ID] [PROP]
 		case L"video"_hash:
 		{
-			VMR9ProcAmpControl amc;
+			VMR9ProcAmpControl amc{};
 			
-			if (auto hr = this->getVideo(&amc); FAILED(hr)) {
+			if (auto hr = this->getVideo(&amc); FAILED(hr))
+			{
 				DX_ERR(prop.to_chr(), nullptr, hr);
 				throw Dcx::dcxException("Unable to get Video Information");
 			}
@@ -195,81 +198,78 @@ void DcxDirectshow::parseInfoRequest( const TString & input, const refString<TCH
 				vflags += TEXT('s');
 
 			// NB: wnsprintf() doesn't support %f
-			//swprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%s %f %f %f %f"), vflags.to_chr(), amc.Brightness, amc.Contrast, amc.Hue, amc.Saturation);
 			_ts_snprintf(szReturnValue, TEXT("%s %f %f %f %f"), vflags.to_chr(), amc.Brightness, amc.Contrast, amc.Hue, amc.Saturation);
 		}
 		break;
 		// [NAME] [ID] [PROP]
 		case L"brange"_hash:
 		{
-			VMR9ProcAmpControlRange acr;
+			VMR9ProcAmpControlRange acr{};
 
-			if (auto hr = this->getVideoRange(ProcAmpControl9_Brightness, &acr); FAILED(hr)) {
+			if (auto hr = this->getVideoRange(ProcAmpControl9_Brightness, &acr); FAILED(hr))
+			{
 				DX_ERR(prop.to_chr(), nullptr, hr);
 				throw Dcx::dcxException("Unable to get Video Information");
 			}
 
 			_ts_snprintf(szReturnValue, TEXT("%f %f %f %f"), acr.DefaultValue, acr.MinValue, acr.MaxValue, acr.StepSize);
-			//swprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%f %f %f %f"), acr.DefaultValue, acr.MinValue, acr.MaxValue, acr.StepSize);
 			// NB: wnsprintf() doesn't support %f
 		}
 		break;
 		// [NAME] [ID] [PROP]
 		case L"crange"_hash:
 		{
-			VMR9ProcAmpControlRange acr;
+			VMR9ProcAmpControlRange acr{};
 
-			if (auto hr = this->getVideoRange(ProcAmpControl9_Contrast, &acr); FAILED(hr)) {
+			if (auto hr = this->getVideoRange(ProcAmpControl9_Contrast, &acr); FAILED(hr))
+			{
 				DX_ERR(prop.to_chr(), nullptr, hr);
 				throw Dcx::dcxException("Unable to get Video Information");
 			}
 
 			_ts_snprintf(szReturnValue, TEXT("%f %f %f %f"), acr.DefaultValue, acr.MinValue, acr.MaxValue, acr.StepSize);
-			//swprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%f %f %f %f"), acr.DefaultValue, acr.MinValue, acr.MaxValue, acr.StepSize);
 			// NB: wnsprintf() doesn't support %f
 		}
 		break;
 		// [NAME] [ID] [PROP]
 		case L"hrange"_hash:
 		{
-			VMR9ProcAmpControlRange acr;
+			VMR9ProcAmpControlRange acr{};
 
-			if (auto hr = this->getVideoRange(ProcAmpControl9_Hue, &acr); FAILED(hr)) {
+			if (auto hr = this->getVideoRange(ProcAmpControl9_Hue, &acr); FAILED(hr))
+			{
 				DX_ERR(prop.to_chr(), nullptr, hr);
 				throw Dcx::dcxException("Unable to get Video Information");
 			}
 
 			_ts_snprintf(szReturnValue, TEXT("%f %f %f %f"), acr.DefaultValue, acr.MinValue, acr.MaxValue, acr.StepSize);
-			//swprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%f %f %f %f"), acr.DefaultValue, acr.MinValue, acr.MaxValue, acr.StepSize);
 			// NB: wnsprintf() doesn't support %f
 		}
 		break;
 		// [NAME] [ID] [PROP]
 		case L"srange"_hash:
 		{
-			VMR9ProcAmpControlRange acr;
+			VMR9ProcAmpControlRange acr{};
 
-			if (auto hr = getVideoRange(ProcAmpControl9_Saturation, &acr); FAILED(hr)) {
+			if (auto hr = getVideoRange(ProcAmpControl9_Saturation, &acr); FAILED(hr))
+			{
 				DX_ERR(prop.to_chr(), nullptr, hr);
 				throw Dcx::dcxException("Unable to get Video Information");
 			}
 
 			_ts_snprintf(szReturnValue, TEXT("%f %f %f %f"), acr.DefaultValue, acr.MinValue, acr.MaxValue, acr.StepSize);
-			//swprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%f %f %f %f"), acr.DefaultValue, acr.MinValue, acr.MaxValue, acr.StepSize);
 			// NB: wnsprintf() doesn't support %f
 		}
 		break;
 		// [NAME] [ID] [PROP]
 		case L"currentpos"_hash:
 			_ts_snprintf(szReturnValue, TEXT("D_OK %I64u"), getPosition());
-			//wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("D_OK %I64u"), getPosition());
 			break;
 			// [NAME] [ID] [PROP]
 		case L"duration"_hash:
 		{
 			if (this->CheckSeekCapabilities(AM_SEEKING_CanGetDuration) & AM_SEEKING_CanGetDuration)
 				_ts_snprintf(szReturnValue, TEXT("D_OK %I64u"), getDuration());
-			//wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("D_OK %I64u"), this->getDuration());
 			else
 				szReturnValue = TEXT("D_ERROR Method Not Supported");
 		}
@@ -277,7 +277,6 @@ void DcxDirectshow::parseInfoRequest( const TString & input, const refString<TCH
 		// [NAME] [ID] [PROP]
 		case L"volume"_hash:
 			_ts_snprintf(szReturnValue, TEXT("D_OK %ld"), getVolume());
-			//swprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("D_OK %ld"), getVolume());
 			break;
 			// [NAME] [ID] [PROP]
 		case L"state"_hash:
@@ -298,7 +297,8 @@ void DcxDirectshow::parseInfoRequest( const TString & input, const refString<TCH
 			{
 				PTCHAR szState = nullptr;
 
-				switch (pfs) {
+				switch (pfs)
+				{
 				case State_Stopped:
 					szState = TEXT("stopped");
 					break;
@@ -312,7 +312,6 @@ void DcxDirectshow::parseInfoRequest( const TString & input, const refString<TCH
 					szState = TEXT("unknown");
 					break;
 				}
-				//wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("D_OK %s"), szState);
 				_ts_snprintf(szReturnValue, TEXT("D_OK %s"), szState);
 			}
 			else {
@@ -325,175 +324,6 @@ void DcxDirectshow::parseInfoRequest( const TString & input, const refString<TCH
 			parseGlobalInfoRequest(input, szReturnValue);
 		}
 	}
-#else
-	const auto prop(input.getfirsttok(3));
-
-	if (this->m_pGraph == nullptr) {
-		// [NAME] [ID] [PROP]
-		if ( prop == TEXT("isloaded")) {
-			dcx_strcpyn(szReturnValue, TEXT("$false"), MIRC_BUFFER_SIZE_CCH);
-		}
-		// [NAME] [ID] [PROP]
-		else if (prop == TEXT("state")) {
-			dcx_strcpyn(szReturnValue, TEXT("D_OK nofile"), MIRC_BUFFER_SIZE_CCH);
-		}
-		else if (!parseGlobalInfoRequest(input, szReturnValue))
-			throw Dcx::dcxException("No File Loaded");
-	}
-	// [NAME] [ID] [PROP]
-	else if ( prop == TEXT("isloaded")) {
-		dcx_strcpyn(szReturnValue, TEXT("$true"), MIRC_BUFFER_SIZE_CCH);
-	}
-	// [NAME] [ID] [PROP]
-	else if ( prop == TEXT("fname")) {
-		dcx_strcpyn(szReturnValue, this->m_tsFilename.to_chr(), MIRC_BUFFER_SIZE_CCH);
-	}
-	// [NAME] [ID] [PROP]
-	else if ( prop == TEXT("size")) {
-		long lWidth, lHeight, lARWidth, lARHeight;
-		auto hr = m_pWc->GetNativeVideoSize(&lWidth, &lHeight, &lARWidth, &lARHeight);
-		if (FAILED(hr)) {
-			DX_ERR(prop.to_chr(), nullptr, hr);
-			throw Dcx::dcxException("Unable to get Native Video Size");
-		}
-
-		// width height arwidth arheight
-		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d %d %d"), lWidth, lHeight, lARWidth, lARHeight);
-	}
-	// [NAME] [ID] [PROP]
-	else if ( prop == TEXT("author")) {
-		getProperty(szReturnValue, PROP_AUTHOR);
-	}
-	// [NAME] [ID] [PROP]
-	else if ( prop == TEXT("title")) {
-		getProperty(szReturnValue, PROP_TITLE);
-	}
-	// [NAME] [ID] [PROP]
-	else if ( prop == TEXT("video")) {
-		VMR9ProcAmpControl amc;
-		auto hr = this->getVideo(&amc);
-		if (FAILED(hr)) {
-			DX_ERR(prop.to_chr(), nullptr, hr);
-			throw Dcx::dcxException("Unable to get Video Information");
-		}
-
-		TString vflags(TEXT('+'));
-		if (amc.dwFlags & ProcAmpControl9_Brightness)
-			vflags += TEXT('b');
-		if (amc.dwFlags & ProcAmpControl9_Contrast)
-			vflags += TEXT('c');
-		if (amc.dwFlags & ProcAmpControl9_Hue)
-			vflags += TEXT('h');
-		if (amc.dwFlags & ProcAmpControl9_Saturation)
-			vflags += TEXT('s');
-
-		// NB: wnsprintf() doesn't support %f
-		swprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%s %f %f %f %f"), vflags.to_chr(), amc.Brightness, amc.Contrast, amc.Hue, amc.Saturation);
-	}
-	// [NAME] [ID] [PROP]
-	else if ( prop == TEXT("brange")) {
-		VMR9ProcAmpControlRange acr;
-		auto hr = this->getVideoRange(ProcAmpControl9_Brightness, &acr);
-		if (FAILED(hr)) {
-			DX_ERR(prop.to_chr(), nullptr, hr);
-			throw Dcx::dcxException("Unable to get Video Information");
-		}
-
-		swprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH,TEXT("%f %f %f %f"), acr.DefaultValue, acr.MinValue, acr.MaxValue, acr.StepSize);
-		// NB: wnsprintf() doesn't support %f
-	}
-	// [NAME] [ID] [PROP]
-	else if ( prop == TEXT("crange")) {
-		VMR9ProcAmpControlRange acr;
-		auto hr = this->getVideoRange(ProcAmpControl9_Contrast, &acr);
-		if (FAILED(hr)) {
-			DX_ERR(prop.to_chr(), nullptr, hr);
-			throw Dcx::dcxException("Unable to get Video Information");
-		}
-
-		swprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%f %f %f %f"), acr.DefaultValue, acr.MinValue, acr.MaxValue, acr.StepSize);
-		// NB: wnsprintf() doesn't support %f
-	}
-	// [NAME] [ID] [PROP]
-	else if ( prop == TEXT("hrange")) {
-		VMR9ProcAmpControlRange acr;
-		auto hr = this->getVideoRange(ProcAmpControl9_Hue, &acr);
-		if (FAILED(hr)) {
-			DX_ERR(prop.to_chr(), nullptr, hr);
-			throw Dcx::dcxException("Unable to get Video Information");
-		}
-
-		swprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%f %f %f %f"), acr.DefaultValue, acr.MinValue, acr.MaxValue, acr.StepSize);
-		// NB: wnsprintf() doesn't support %f
-	}
-	// [NAME] [ID] [PROP]
-	else if ( prop == TEXT("srange")) {
-		VMR9ProcAmpControlRange acr;
-		auto hr = this->getVideoRange(ProcAmpControl9_Saturation, &acr);
-		if (FAILED(hr)) {
-			DX_ERR(prop.to_chr(), nullptr, hr);
-			throw Dcx::dcxException("Unable to get Video Information");
-		}
-
-		swprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%f %f %f %f"), acr.DefaultValue, acr.MinValue, acr.MaxValue, acr.StepSize);
-		// NB: wnsprintf() doesn't support %f
-	}
-	// [NAME] [ID] [PROP]
-	else if ( prop == TEXT("currentpos")) {
-		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("D_OK %I64u"), this->getPosition());
-	}
-	// [NAME] [ID] [PROP]
-	else if ( prop == TEXT("duration")) {
-		if (this->CheckSeekCapabilities(AM_SEEKING_CanGetDuration) & AM_SEEKING_CanGetDuration)
-			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("D_OK %I64u"), this->getDuration());
-		else
-			dcx_strcpyn(szReturnValue, TEXT("D_ERROR Method Not Supported"), MIRC_BUFFER_SIZE_CCH);
-	}
-	// [NAME] [ID] [PROP]
-	else if ( prop == TEXT("volume")) {
-		swprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("D_OK %ld"), this->getVolume());
-	}
-	// [NAME] [ID] [PROP]
-	else if (prop == TEXT("state")) {
-		/*
-		sprintf(szReturnValue, TEXT("D_OK %s"), TEXT("nofile"));  // done
-		sprintf(szReturnValue, TEXT("D_OK %s"), TEXT("stopped")); // done
-		sprintf(szReturnValue, TEXT("D_OK %s"), TEXT("paused"));  // done
-		sprintf(szReturnValue, TEXT("D_OK %s"), TEXT("playing")); // done
-		sprintf(szReturnValue, TEXT("D_OK %s"), TEXT("rewind"));
-		sprintf(szReturnValue, TEXT("D_OK %s"), TEXT("fastforward"));
-		and anything else you can think of i guess
-		*/
-
-		OAFilterState pfs = 0;
-		PTCHAR szState = nullptr;
-		auto hr = this->m_pControl->GetState(1000, &pfs);
-
-		if (SUCCEEDED(hr)) {
-			switch (pfs) {
-			case State_Stopped:
-				szState = TEXT("stopped");
-				break;
-			case State_Paused:
-				szState = TEXT("paused");
-				break;
-			case State_Running:
-				szState = TEXT("playing");
-				break;
-			default:
-				szState = TEXT("unknown");
-				break;
-			}
-			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("D_OK %s"), szState);
-		}
-		else {
-			DX_ERR(prop.to_chr(), nullptr, hr);
-			throw Dcx::dcxException("Unable to get State Information");
-		}
-	}
-	else
-		this->parseGlobalInfoRequest(input, szReturnValue);
-#endif
 }
 
 /*!
@@ -502,12 +332,14 @@ void DcxDirectshow::parseInfoRequest( const TString & input, const refString<TCH
  * blah
  */
 
-void DcxDirectshow::parseCommandRequest( const TString &input) {
+void DcxDirectshow::parseCommandRequest( const TString &input)
+{
 	const XSwitchFlags flags(input.getfirsttok( 3 ));
 	const auto numtok = input.numtok( );
 
 	// xdid -a [NAME] [ID] [SWITCH] [+FLAGS] [FILE]
-	if ( flags[TEXT('a')] && numtok > 4 ) {
+	if ( flags[TEXT('a')] && numtok > 4 )
+	{
 		const XSwitchFlags xflags(input.getnexttok( ).trim());	// tok 4
 		auto filename(input.getlasttoks().trim());			// tok 5, -1
 
@@ -550,14 +382,16 @@ void DcxDirectshow::parseCommandRequest( const TString &input) {
 			if (FAILED(hr))
 				throw Dcx::dcxException("Unable to Set Window Notify");
 			
-			if (!xflags[TEXT('a')]) {
+			if (!xflags[TEXT('a')])
+			{
 				hr = DcxDirectshow::InitWindowlessVMR(m_Hwnd, this->m_pGraph, &this->m_pWc);
 
 				if (FAILED(hr))
 					throw Dcx::dcxException("Unable to Create VMR9");
 			}
 
-			if (this->m_pWc != nullptr) {
+			if (this->m_pWc != nullptr)
+			{
 				if (this->m_bKeepRatio)
 					hr = this->m_pWc->SetAspectRatioMode(VMR9ARMode_LetterBox); // caused video to maintain aspect ratio
 				else
@@ -571,7 +405,8 @@ void DcxDirectshow::parseCommandRequest( const TString &input) {
 			if (FAILED(hr))
 				throw Dcx::dcxException("Unable to render file (No codec for file format?)");
 
-			if (this->m_pWc != nullptr) {
+			if (this->m_pWc != nullptr)
+			{
 				hr = this->SetVideoPos();
 				if (FAILED(hr))
 					throw Dcx::dcxException("Unable to set Video Position");
@@ -580,7 +415,7 @@ void DcxDirectshow::parseCommandRequest( const TString &input) {
 					this->setAlpha(0.5);
 			}
 			else { // if VMR == nullptr then disable video.
-				IVideoWindow *p_Video;
+				IVideoWindow *p_Video = nullptr;
 				hr = this->m_pGraph->QueryInterface(IID_IVideoWindow, (void **)&p_Video);
 				if (FAILED(hr))
 					throw Dcx::dcxException("Unable to get video window");
@@ -591,23 +426,18 @@ void DcxDirectshow::parseCommandRequest( const TString &input) {
 				p_Video->put_AutoShow(OAFALSE);
 				p_Video->put_Owner((OAHWND)m_Hwnd);
 				p_Video->put_MessageDrain((OAHWND)m_Hwnd);
-				DWORD styles = 0;
+				long styles = 0;
 
-				hr = p_Video->get_WindowStyle((long *)&styles);
+				hr = p_Video->get_WindowStyle(&styles);
 				if (FAILED(hr))
 					throw Dcx::dcxException("Unable to get window styles");
 
 				styles &= ~(WS_OVERLAPPEDWINDOW | WS_POPUPWINDOW | WS_DLGFRAME);
 				styles |= WS_CHILD;
-				p_Video->put_WindowStyle((long)styles);
+				p_Video->put_WindowStyle(styles);
 				p_Video->put_Left(0);
 				p_Video->put_Top(0);
 			}
-
-			//if (xflags[TEXT('l')])
-			//	this->m_bLoop = true;
-			//else
-			//	this->m_bLoop = false;
 
 			m_bLoop = xflags[TEXT('l')];
 
@@ -626,11 +456,11 @@ void DcxDirectshow::parseCommandRequest( const TString &input) {
 		}
 	}
 	// xdid -c [NAME] [ID] [SWITCH] [COMMAND]
-	else if ( flags[TEXT('c')] && numtok > 3 ) {
+	else if ( flags[TEXT('c')] && numtok > 3 )
+	{
 		if (this->m_pControl == nullptr)
 			throw Dcx::dcxException("No File Loaded");
 
-#if DCX_USE_HASHING
 		switch (std::hash<TString>{}(input.getnexttok()))
 		{
 		case TEXT("play"_hash): // play
@@ -663,45 +493,10 @@ void DcxDirectshow::parseCommandRequest( const TString &input) {
 		default:
 			throw Dcx::dcxException("Invalid Command");
 		}
-#else
-		static const TString cmdlist(TEXT("play pause stop close seek"));
-		const auto nType = cmdlist.findtok(input.getnexttok(), 1);	// tok 4
-		switch (nType)
-		{
-		case 1: // play
-			this->m_pControl->Run();
-			break;
-		case 2: // pause
-			this->m_pControl->Pause();
-			break;
-		case 3: // stop
-		{
-			this->m_pControl->Stop(); // stop play
-			this->setPosition(0);
-			this->m_pControl->StopWhenReady(); // causes new image to be rendered.
-		}
-		break;
-		case 4: //close
-		{
-			this->m_pControl->Stop();
-			this->ReleaseAll();
-		}
-		break;
-		case 5: // seek
-		{
-			this->m_pControl->Pause(); // pause play
-			this->setPosition(input.getnexttok().to_<UINT64>());	// tok 5
-			this->m_pControl->StopWhenReady(); // causes new image to be rendered.
-		}
-		break;
-		case 0: // error
-		default:
-			throw Dcx::dcxException("Invalid Command");
-		}
-#endif // DCX_USE_HASHING
 	}
 	// xdid -v [NAME] [ID] [SWITCH] [+FLAGS] [BRIGHTNESS] [CONTRAST] [HUE] [SATURATION]
-	else if ( flags[TEXT('v')] && numtok > 7 ) {
+	else if ( flags[TEXT('v')] && numtok > 7 )
+	{
 		if (m_pControl == nullptr)
 			throw Dcx::dcxException("No File Loaded");
 
@@ -711,13 +506,15 @@ void DcxDirectshow::parseCommandRequest( const TString &input) {
 		const auto fHue(input.getnexttok().to_<float>());
 		const auto fSaturation(input.getnexttok().to_<float>());
 
-		if (auto hr = setVideo(tsFlags, fBrightness, fContrast, fHue, fSaturation); FAILED(hr)) {
+		if (auto hr = setVideo(tsFlags, fBrightness, fContrast, fHue, fSaturation); FAILED(hr))
+		{
 			DX_ERR(nullptr,TEXT("-v"), hr);
 			throw Dcx::dcxException("Unable to set video");
 		}
 	}
 	// xdid -V [NAME] [ID] [SWITCH] [+FLAGS] [ARGS]
-	else if ( flags[TEXT('V')] && numtok > 4 ) {
+	else if ( flags[TEXT('V')] && numtok > 4 )
+	{
 		const auto flag(input.getnexttok());	// tok 4
 
 		if (flag[0] != TEXT('+'))
@@ -726,10 +523,12 @@ void DcxDirectshow::parseCommandRequest( const TString &input) {
 		if (this->m_pControl == nullptr)
 			throw Dcx::dcxException("No File Loaded");
 
-		switch (flag[1]) {
+		switch (flag[1])
+		{
 		case TEXT('v'): // Volume
 		{
-			if (auto hr = this->setVolume(input.getnexttok().to_<long>()); FAILED(hr)) {
+			if (auto hr = this->setVolume(input.getnexttok().to_<long>()); FAILED(hr))
+			{
 				DX_ERR(nullptr, TEXT("-V +v"), hr);
 				throw Dcx::dcxException("Unable to Set Volume");
 			}
@@ -750,11 +549,13 @@ void DcxDirectshow::parseCommandRequest( const TString &input) {
  *
  * blah
  */
-LRESULT DcxDirectshow::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
+LRESULT DcxDirectshow::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed )
+{
 	return 0L;
 }
 
-LRESULT DcxDirectshow::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
+LRESULT DcxDirectshow::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed )
+{
 
 	LRESULT lRes = 0L;
 	switch (uMsg)
@@ -787,10 +588,11 @@ LRESULT DcxDirectshow::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 	case WM_PAINT:
 	{
 		bParsed = TRUE;
-		PAINTSTRUCT ps;
+		PAINTSTRUCT ps{};
 
 		auto hdc = BeginPaint(m_Hwnd, &ps);
 		Auto(EndPaint(m_Hwnd, &ps));
+
 		if (hdc != nullptr)
 		{
 			if (this->m_pWc != nullptr)
@@ -897,7 +699,7 @@ HRESULT DcxDirectshow::InitWindowlessVMR(
 
 		// Set the rendering mode.
 		{
-			IVMRFilterConfig9* pConfig;
+			IVMRFilterConfig9* pConfig = nullptr;
 			hr = pVmr->QueryInterface(IID_IVMRFilterConfig9, (void**)&pConfig);
 			if (FAILED(hr))
 				throw Dcx::dcxException("InitWindowlessVMR() - Unable to Get Filter Config9");
@@ -955,9 +757,8 @@ HRESULT DcxDirectshow::SetVideoPos(void)
 	auto hr = this->m_pWc->GetNativeVideoSize(&lWidth, &lHeight, nullptr, nullptr);
 	if (SUCCEEDED(hr))
 	{
-		RECT rcSrc, rcDest;
+		RECT rcSrc{ 0,0,lWidth,lHeight }, rcDest;
 		// Set the source rectangle.
-		SetRect(&rcSrc, 0, 0, lWidth, lHeight);
 
 		// Get the window client area.
 		if (!GetClientRect(m_Hwnd, &rcDest))
@@ -976,7 +777,8 @@ void DcxDirectshow::ReleaseAll(void)
 {
 	if (this->m_pControl != nullptr)
 		this->m_pControl->Release();
-	if (this->m_pEvent != nullptr) {
+	if (this->m_pEvent != nullptr)
+	{
 		this->m_pEvent->SetNotifyWindow(NULL,0,0);
 		this->m_pEvent->Release();
 	}
@@ -999,7 +801,8 @@ HRESULT DcxDirectshow::getProperty(const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> 
 {
 	IAMMediaContent *iam = nullptr;
 	auto hr = this->m_pGraph->QueryInterface(IID_IAMMediaContent, (void **)&iam);
-	if (SUCCEEDED(hr)) {
+	if (SUCCEEDED(hr))
+	{
 		Auto(iam->Release());
 
 		BSTR com_prop = nullptr;
@@ -1018,9 +821,8 @@ HRESULT DcxDirectshow::getProperty(const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> 
 			hr = iam->get_Description(&com_prop);
 			break;
 		}
-		if (SUCCEEDED(hr) && (com_prop != nullptr)) {
-			//_snwprintf(prop, MIRC_BUFFER_SIZE_CCH, TEXT("%lS"), com_prop);
-			//_snwprintf(prop, MIRC_BUFFER_SIZE_CCH, TEXT("%ws"), com_prop);
+		if (SUCCEEDED(hr) && (com_prop != nullptr))
+		{
 			_ts_snprintf(prop, TEXT("%ws"), com_prop);
 			SysFreeString(com_prop);
 		}
@@ -1038,7 +840,7 @@ HRESULT DcxDirectshow::setAlpha(float alpha)
 	if ((alpha < 0) || (alpha > 1.0))
 		alpha = 1.0;
 
-	RECT rcClient = { 0 }, rcWin = { 0 };
+	RECT rcClient{}, rcWin{};
 
 	if ((!GetClientRect(m_Hwnd, &rcClient)) || (!GetWindowRect(m_Hwnd, &rcWin)))
 		return E_FAIL;
@@ -1053,7 +855,8 @@ HRESULT DcxDirectshow::setAlpha(float alpha)
 
 	IVMRMixerControl9 *pMixer = nullptr;
 	hr = pVmr->QueryInterface(IID_IVMRMixerControl9, (void**)&pMixer);
-	if (SUCCEEDED(hr)) {
+	if (SUCCEEDED(hr))
+	{
 		Auto(pMixer->Release());
 
 		// this works BUT only gives u alpha over other streams in the mixer, not the dialog/controls bg.
@@ -1074,7 +877,8 @@ HRESULT DcxDirectshow::setAlpha(float alpha)
 	}
 	IVMRMixerBitmap9 *pBm = nullptr;
 	hr = pVmr->QueryInterface(IID_IVMRMixerBitmap9, (void**)&pBm);
-	if (SUCCEEDED(hr)) {
+	if (SUCCEEDED(hr))
+	{
 		Auto(pBm->Release());
 
 #if DCX_USE_WRAPPERS && 0
@@ -1125,7 +929,8 @@ HRESULT DcxDirectshow::setAlpha(float alpha)
 			}
 		}
 #else
-		if (auto hdc = GetDC(m_Hwnd); hdc != nullptr) { // make duplicate hdc;
+		if (auto hdc = GetDC(m_Hwnd); hdc != nullptr)
+		{ // make duplicate hdc;
 			Auto(ReleaseDC(m_Hwnd, hdc));
 
 			if (const auto hdcBuf = CreateHDCBuffer(hdc, &rcWin); hdcBuf != nullptr)
@@ -1137,9 +942,9 @@ HRESULT DcxDirectshow::setAlpha(float alpha)
 				this->DrawParentsBackground(*hdcBuf, &rcClient);
 
 				hr = this->m_pWc->GetNativeVideoSize(&cx, &cy, nullptr, nullptr);
-				if (SUCCEEDED(hr)) {
-					VMR9AlphaBitmap bmpInfo;
-					ZeroMemory(&bmpInfo, sizeof(bmpInfo));
+				if (SUCCEEDED(hr))
+				{
+					VMR9AlphaBitmap bmpInfo{};
 					const auto w = (rcWin.right - rcWin.left), h = (rcWin.bottom - rcWin.top);
 
 					bmpInfo.dwFlags = VMR9AlphaBitmap_hDC;
@@ -1155,7 +960,8 @@ HRESULT DcxDirectshow::setAlpha(float alpha)
 					bmpInfo.rDest.right = 1.0; //(float)w / cx;
 					bmpInfo.rDest.bottom = 1.0; //(float)h / cy;
 					hr = pBm->SetAlphaBitmap(&bmpInfo);
-					if (SUCCEEDED(hr)) {
+					if (SUCCEEDED(hr))
+					{
 						ZeroMemory(&bmpInfo, sizeof(bmpInfo));
 						bmpInfo.dwFlags = VMR9AlphaBitmap_SrcRect;
 						bmpInfo.hdc = nullptr;
@@ -1196,7 +1002,8 @@ HRESULT DcxDirectshow::setVideo(const TString &flags, const float brightness, co
 
 	IVMRMixerControl9 *pMixer = nullptr;
 	hr = pVmr->QueryInterface(IID_IVMRMixerControl9, (void**)&pMixer);
-	if (SUCCEEDED(hr)) {
+	if (SUCCEEDED(hr))
+	{
 		Auto(pMixer->Release());
 
 		const XSwitchFlags xflags(flags);
@@ -1210,8 +1017,9 @@ HRESULT DcxDirectshow::setVideo(const TString &flags, const float brightness, co
 		if (xflags[TEXT('s')])
 			dwflags |= ProcAmpControl9_Saturation;
 
-		if (dwflags != 0) {
-			VMR9ProcAmpControl amc;
+		if (dwflags != 0)
+		{
+			VMR9ProcAmpControl amc{};
 			amc.dwFlags = dwflags;
 			amc.dwSize = sizeof(VMR9ProcAmpControl);
 			amc.Brightness = brightness;
@@ -1236,7 +1044,8 @@ HRESULT DcxDirectshow::getVideo(VMR9ProcAmpControl *amc) const
 
 	IVMRMixerControl9 *pMixer = nullptr;
 	hr = pVmr->QueryInterface(IID_IVMRMixerControl9, (void**)&pMixer);
-	if (SUCCEEDED(hr)) {
+	if (SUCCEEDED(hr))
+	{
 		Auto(pMixer->Release());
 
 		ZeroMemory(amc,sizeof(VMR9ProcAmpControl));
@@ -1258,7 +1067,8 @@ HRESULT DcxDirectshow::getVideoRange(VMR9ProcAmpControlFlags prop, VMR9ProcAmpCo
 
 	IVMRMixerControl9 *pMixer = nullptr;
 	hr = pVmr->QueryInterface(IID_IVMRMixerControl9, (void**)&pMixer);
-	if (SUCCEEDED(hr)) {
+	if (SUCCEEDED(hr))
+	{
 		Auto(pMixer->Release());
 
 		ZeroMemory(acr,sizeof(VMR9ProcAmpControlRange));
@@ -1337,7 +1147,8 @@ HRESULT DcxDirectshow::setVolume(const long vol)
 
 	IBasicAudio *pAudio = nullptr;
 	auto hr = this->m_pGraph->QueryInterface(IID_IBasicAudio, (void**)&pAudio);
-	if (SUCCEEDED(hr)) {
+	if (SUCCEEDED(hr))
+	{
 		Auto(pAudio->Release());
 
 #pragma warning(push,3)
@@ -1355,7 +1166,8 @@ long DcxDirectshow::getVolume() const
 	IBasicAudio *pAudio = nullptr;
 	long vol = 0;
 
-	if (auto hr = this->m_pGraph->QueryInterface(IID_IBasicAudio, (void**)&pAudio); SUCCEEDED(hr)) {
+	if (auto hr = this->m_pGraph->QueryInterface(IID_IBasicAudio, (void**)&pAudio); SUCCEEDED(hr))
+	{
 		Auto(pAudio->Release());
 
 		long t = 0;

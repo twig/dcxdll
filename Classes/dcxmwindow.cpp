@@ -29,25 +29,23 @@
 DcxMWindow::DcxMWindow(const HWND cHwnd, const HWND pHwnd, const UINT ID, DcxDialog *const p_Dialog, const RECT *const rc, const TString & styles)
 	: DcxControl(ID, p_Dialog)
 {
-	LONG Styles = 0, ExStyles = 0;
-	BOOL bNoTheme = FALSE;
-	this->parseControlStyles(styles, &Styles, &ExStyles, &bNoTheme);
+	parseControlStyles(styles);
 
 	m_Hwnd = cHwnd;
 	this->m_OrigParentHwnd = GetParent(m_Hwnd);
 
-	this->m_OrigStyles = this->removeStyle(WS_CAPTION | DS_FIXEDSYS | DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_SYSMENU | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_THICKFRAME);
+	this->m_OrigStyles = this->removeStyle(WindowStyle::Caption | DS_FIXEDSYS | DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_SYSMENU | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_THICKFRAME);
 
-	this->m_OrigExStyles = this->removeExStyle(WS_EX_CONTROLPARENT | WS_EX_MDICHILD);
+	this->m_OrigExStyles = this->removeExStyle(WindowExStyle::ControlParent | WS_EX_MDICHILD);
 
-	this->addStyle(WS_CHILD);
+	this->addStyle(WindowStyle::Child);
 
 	SetParent(m_Hwnd, pHwnd);
 	SetWindowPos(m_Hwnd, nullptr, rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top, NULL);
 	ShowWindow(m_Hwnd, SW_SHOWNOACTIVATE);
 	UpdateWindow(m_Hwnd);
 
-	this->m_OrigID = gsl::narrow_cast<UINT>(SetWindowLong(m_Hwnd, GWL_ID, gsl::narrow_cast<LONG>(ID)));
+	this->m_OrigID = dcxSetWindowID(m_Hwnd, ID);
 
 	this->registreDefaultWindowProc();
 	SetProp(m_Hwnd, TEXT("dcx_cthis"), (HANDLE) this);
@@ -59,8 +57,8 @@ DcxMWindow::DcxMWindow(const HWND cHwnd, const HWND pHwnd, const UINT ID, DcxDia
  * blah
  */
 
-DcxMWindow::~DcxMWindow( ) {
-
+DcxMWindow::~DcxMWindow( )
+{
 	auto parent = GetParent(m_Hwnd);
 	if ( parent == this->m_OrigParentHwnd && this->m_OrigParentHwnd != this->m_pParentDialog->getHwnd())
 		return;
@@ -71,10 +69,12 @@ DcxMWindow::~DcxMWindow( ) {
 	if ( !bHide )
 		ShowWindow( m_Hwnd, SW_HIDE );
 
-	SetWindowLong( m_Hwnd, GWL_ID, gsl::narrow_cast<LONG>(this->m_OrigID ));
+	dcxSetWindowID( m_Hwnd, m_OrigID );
+
 	//SetParent( m_Hwnd, this->m_OrigParentHwnd );
 	//this->removeStyle(WS_CHILDWINDOW);
 	//SetParent( m_Hwnd, nullptr );
+
 	if (parent == this->m_OrigParentHwnd) // handles oddness where orig parent == current when it shouldnt, maybe due to init event docking.
 		parent = GetParent(parent);
 	else
@@ -117,14 +117,23 @@ void DcxMWindow::parseInfoRequest( const TString & input, const refString<TCHAR,
  * blah
  */
 
-void DcxMWindow::parseCommandRequest( const TString & input ) {
+void DcxMWindow::parseCommandRequest( const TString & input )
+{
 	const XSwitchFlags flags(input.gettok(3));
 
 	this->parseGlobalCommandRequest( input, flags );
 }
 
-void DcxMWindow::parseControlStyles( const TString &styles, LONG *Styles, LONG *ExStyles, BOOL *bNoTheme) {
-	this->m_OrigName = styles;
+//void DcxMWindow::parseControlStyles( const TString &styles, LONG *Styles, LONG *ExStyles, BOOL *bNoTheme)
+//{
+//	this->m_OrigName = styles;
+//}
+
+std::tuple<NoTheme, WindowStyle, WindowExStyle> DcxMWindow::parseControlStyles(const TString & tsStyles)
+{
+	m_OrigName = tsStyles;
+
+	return{ false, WindowStyle::None, WindowExStyle::None };
 }
 
 /*!
@@ -135,14 +144,15 @@ void DcxMWindow::parseControlStyles( const TString &styles, LONG *Styles, LONG *
  * \param lParam Window Procedure LPARAM
  * \param bParsed Indicates if subclassed procedure parsed the message
  */
-LRESULT DcxMWindow::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
+LRESULT DcxMWindow::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed )
+{
 	return 0L;
 }
 
-LRESULT DcxMWindow::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
-
-	switch( uMsg ) {
-
+LRESULT DcxMWindow::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed)
+{
+	switch (uMsg)
+	{
 		//case WM_GETDLGCODE:
 		//	{
 		//		bParsed = TRUE;
@@ -150,16 +160,16 @@ LRESULT DcxMWindow::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 		//	}
 		//	break;
 
-		case WM_DESTROY:
-			{
-				delete this;
-				bParsed = TRUE;
-			}
-			break;
+	case WM_DESTROY:
+	{
+		delete this;
+		bParsed = TRUE;
+	}
+	break;
 
-		default:
-			return this->CommonMessage( uMsg, wParam, lParam, bParsed);
-			break;
+	default:
+		return this->CommonMessage(uMsg, wParam, lParam, bParsed);
+		break;
 	}
 
 	return 0L;

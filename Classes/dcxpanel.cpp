@@ -31,20 +31,15 @@
 DcxPanel::DcxPanel(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles )
 : DcxControl( ID, p_Dialog ) 
 {
-	LONG Styles = 0, ExStyles = 0;
-	BOOL bNoTheme = FALSE;
-	this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
+	const auto[bNoTheme, Styles, ExStyles] = parseControlStyles(styles);
 
-	m_Hwnd = CreateWindowEx(	
-		gsl::narrow_cast<DWORD>(ExStyles) | WS_EX_CONTROLPARENT, 
+	m_Hwnd = dcxCreateWindow(	
+		ExStyles | WS_EX_CONTROLPARENT, 
 		DCX_PANELCLASS, 
-		nullptr,
-		WS_CHILD | gsl::narrow_cast<DWORD>(Styles),
-		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
+		Styles | WS_CHILD,
+		rc,
 		mParentHwnd,
-		(HMENU) ID,
-		GetModuleHandle(nullptr), 
-		nullptr);
+		ID);
 
 	if (!IsWindow(m_Hwnd))
 		throw Dcx::dcxException("Unable To Create Window");
@@ -64,8 +59,8 @@ DcxPanel::DcxPanel(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentH
  * blah
  */
 
-DcxPanel::~DcxPanel( ) {
-
+DcxPanel::~DcxPanel( )
+{
 	delete this->m_pLayoutManager;
 
 	this->unregistreDefaultWindowProc( );
@@ -91,9 +86,14 @@ TiXmlElement * DcxPanel::toXml(void) const
  * blah
  */
 
-void DcxPanel::parseControlStyles( const TString &styles, LONG *Styles, LONG *ExStyles, BOOL *bNoTheme)
+//void DcxPanel::parseControlStyles( const TString &styles, LONG *Styles, LONG *ExStyles, BOOL *bNoTheme)
+//{
+//	parseGeneralControlStyles(styles, Styles, ExStyles, bNoTheme);
+//}
+
+std::tuple<NoTheme, WindowStyle, WindowExStyle> DcxPanel::parseControlStyles(const TString & tsStyles)
 {
-	parseGeneralControlStyles(styles, Styles, ExStyles, bNoTheme);
+	return parseGeneralControlStyles(tsStyles);
 }
 
 /*!
@@ -116,13 +116,14 @@ void DcxPanel::parseInfoRequest(const TString & input, const refString<TCHAR, MI
  * blah
  */
 
-void DcxPanel::parseCommandRequest( const TString & input ) {
+void DcxPanel::parseCommandRequest( const TString & input )
+{
 	const XSwitchFlags flags(input.getfirsttok( 3 ));
 	const auto numtok = input.numtok();
 
 	// xdid -c [NAME] [ID] [SWITCH] [ID] [CONTROL] [X] [Y] [W] [H] (OPTIONS)
-	if ( flags[TEXT('c')] && numtok > 8 ) {
-
+	if ( flags[TEXT('c')] && numtok > 8 )
+	{
 		//const auto ID = mIRC_ID_OFFSET + (UINT)input.getnexttok().to_int();	// tok 4
 		//
 		//if (!this->m_pParentDialog->isIDValid(ID, true))
@@ -141,8 +142,8 @@ void DcxPanel::parseCommandRequest( const TString & input ) {
 		redrawWindow();
 	}
 	// xdid -d [NAME] [ID] [SWITCH] [ID]
-	else if ( flags[TEXT('d')] && numtok > 3 ) {
-
+	else if ( flags[TEXT('d')] && numtok > 3 )
+	{
 		const auto ID = mIRC_ID_OFFSET + input.getnexttok().to_<UINT>();	// tok 4
 
 		if (!this->m_pParentDialog->isIDValid(ID))
@@ -183,9 +184,8 @@ void DcxPanel::parseCommandRequest( const TString & input ) {
 	add PATH[TAB]+flpiw [ID] [WEIGHT] [W] [H]
 	space PATH[TAB]+ [L] [T] [R] [B]
 	*/
-	else if ( flags[TEXT('l')] && numtok > 3 ) {
-
-#if DCX_USE_HASHING
+	else if ( flags[TEXT('l')] && numtok > 3 )
+	{
 		if (m_pLayoutManager == nullptr)
 			throw Dcx::dcxException("No LayoutManager available");
 
@@ -193,7 +193,7 @@ void DcxPanel::parseCommandRequest( const TString & input ) {
 		{
 		case L"update"_hash:
 		{
-			RECT rc;
+			RECT rc{};
 			if (!GetClientRect(m_Hwnd, &rc))
 				throw Dcx::dcxException("Unable to get client rect!");
 
@@ -218,37 +218,10 @@ void DcxPanel::parseCommandRequest( const TString & input ) {
 		}
 
 		}
-#else
-		if (m_pLayoutManager == nullptr)
-			throw Dcx::dcxException("No LayoutManager available");
-
-		const auto tsCmd(input.getnexttok());	// tok 4
-
-		if (tsCmd == TEXT("update")) {
-			RECT rc;
-			if (!GetClientRect(m_Hwnd, &rc))
-				throw Dcx::dcxException("Unable to get client rect!");
-
-			m_pLayoutManager->updateLayout(rc);
-
-			redrawWindow();
-		}
-		else if (tsCmd == TEXT("clear")) {
-			delete m_pLayoutManager;
-			m_pLayoutManager = new LayoutManager(m_Hwnd);
-			//redrawWindow(); // dont redraw here, leave that for an `update` cmd
-		}
-		else
-		{
-			if (numtok <= 8)
-				throw Dcx::dcxException("Invalid Args: Not enough arguments");
-
-			m_pLayoutManager->AddCell(input, 4);
-		}
-#endif
 	}
 	// xdid -t [NAME] [ID] [SWITCH] [TEXT]
-	else if (flags[TEXT('t')] && numtok > 3) {
+	else if (flags[TEXT('t')] && numtok > 3)
+	{
 		SetWindowText(m_Hwnd, input.getlasttoks().to_chr());	// tok 4, -1
 	}
 	else
@@ -260,205 +233,215 @@ void DcxPanel::parseCommandRequest( const TString & input ) {
  *
  * blah
  */
-LRESULT DcxPanel::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
+LRESULT DcxPanel::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed )
+{
 	return 0L;
 }
 
-LRESULT DcxPanel::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
-
+LRESULT DcxPanel::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed)
+{
 	LRESULT lRes = 0L;
-	switch( uMsg ) {
+	switch (uMsg)
+	{
+	case WM_NOTIFY:
+	{
+		dcxlParam(LPNMHDR, hdr);
 
-		case WM_NOTIFY : 
+		if (hdr == nullptr)
+			break;
+
+		if (IsWindow(hdr->hwndFrom))
+		{
+			if (auto c_this = static_cast<DcxControl *>(GetProp(hdr->hwndFrom, TEXT("dcx_cthis"))); c_this != nullptr)
+				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
+		}
+	}
+	break;
+
+	case WM_HSCROLL:
+	case WM_VSCROLL:
+	case WM_COMMAND:
+	{
+		if (IsWindow((HWND)lParam))
+		{
+			if (auto c_this = static_cast<DcxControl *>(GetProp((HWND)lParam, TEXT("dcx_cthis"))); c_this != nullptr)
+				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
+		}
+	}
+	break;
+
+	case WM_COMPAREITEM:
+	{
+		dcxlParam(LPCOMPAREITEMSTRUCT, idata);
+
+		if ((idata != nullptr) && (IsWindow(idata->hwndItem)))
+		{
+			if (auto c_this = static_cast<DcxControl *>(GetProp(idata->hwndItem, TEXT("dcx_cthis"))); c_this != nullptr)
+				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
+		}
+	}
+	break;
+
+	case WM_DELETEITEM:
+	{
+		dcxlParam(LPDELETEITEMSTRUCT, idata);
+
+		if ((idata != nullptr) && (IsWindow(idata->hwndItem)))
+		{
+			if (auto c_this = static_cast<DcxControl *>(GetProp(idata->hwndItem, TEXT("dcx_cthis"))); c_this != nullptr)
+				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
+		}
+	}
+	break;
+
+	case WM_MEASUREITEM:
+	{
+		if (auto cHwnd = GetDlgItem(m_Hwnd, static_cast<int>(wParam)); IsWindow(cHwnd))
+		{
+			if (auto c_this = static_cast<DcxControl *>(GetProp(cHwnd, TEXT("dcx_cthis"))); c_this != nullptr)
+				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
+		}
+	}
+	break;
+
+	case WM_DRAWITEM:
+	{
+		dcxlParam(LPDRAWITEMSTRUCT, idata);
+
+		if ((idata != nullptr) && (IsWindow(idata->hwndItem)))
+		{
+			if (auto c_this = static_cast<DcxControl *>(GetProp(idata->hwndItem, TEXT("dcx_cthis"))); c_this != nullptr)
+				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
+		}
+	}
+	break;
+
+	case WM_SIZE:
+	{
+		HWND bars = nullptr;
+
+		while ((bars = FindWindowEx(m_Hwnd, bars, DCX_REBARCTRLCLASS, nullptr)) != nullptr)
+		{
+			SendMessage(bars, WM_SIZE, (WPARAM)0, (LPARAM)0);
+		}
+
+		while ((bars = FindWindowEx(m_Hwnd, bars, DCX_STATUSBARCLASS, nullptr)) != nullptr)
+		{
+			SendMessage(bars, WM_SIZE, (WPARAM)0, (LPARAM)0);
+		}
+
+		//while ((bars = FindWindowEx(m_Hwnd, bars, DCX_PANELCLASS, nullptr)) != nullptr) {
+		//	SendMessage(bars, WM_SIZE, (WPARAM) 0, (LPARAM) 0);
+		//}
+
+		while ((bars = FindWindowEx(m_Hwnd, bars, DCX_TOOLBARCLASS, nullptr)) != nullptr)
+		{
+			SendMessage(bars, WM_SIZE, (WPARAM)0, (LPARAM)0);
+		}
+
+		if (dcx_testflag(this->m_pParentDialog->getEventMask(), DCX_EVENT_SIZE))
+			this->execAliasEx(TEXT("%s,%d"), TEXT("sizing"), this->getUserID());
+
+		//if (this->m_pLayoutManager != nullptr) {
+		//	RECT rc;
+		//	SetRect( &rc, 0, 0, LOWORD( lParam ), HIWORD( lParam ) );
+		//	if (this->m_pLayoutManager->updateLayout( rc ))
+		//		this->redrawWindow( );
+		//}
+	}
+	break;
+	case WM_WINDOWPOSCHANGING:
+	{
+		if (lParam != NULL) {
+			dcxlParam(LPWINDOWPOS, wp);
+
+			if (this->m_pLayoutManager != nullptr)
 			{
-				dcxlParam(LPNMHDR, hdr);
+				RECT rc{ 0, 0, wp->cx, wp->cy };
 
-				if (hdr == nullptr)
-					break;
-
-				if (IsWindow(hdr->hwndFrom)) {
-					if (auto c_this = static_cast<DcxControl *>(GetProp(hdr->hwndFrom, TEXT("dcx_cthis"))); c_this != nullptr)
-						lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
-				}
+				//if (this->m_pLayoutManager->updateLayout( rc ))
+				//	this->redrawWindow( );
+				this->m_pLayoutManager->updateLayout(rc);
 			}
-			break;
+		}
+	}
+	break;
 
-		case WM_HSCROLL:
-		case WM_VSCROLL:
-		case WM_COMMAND:
+	//case WM_EXITSIZEMOVE:
+	//	{
+	//		this->redrawWindow();
+	//	}
+	//	break;
+
+	case WM_ERASEBKGND:
+	{
+		// fill background.
+		if (this->isExStyle(WindowExStyle::Transparent))
+			this->DrawParentsBackground((HDC)wParam);
+		else // normal bkg
+			DcxControl::DrawCtrlBackground((HDC)wParam, this);
+		bParsed = TRUE;
+		return TRUE;
+	}
+	break;
+
+	case WM_PRINTCLIENT:
+	{
+		dcxwParam(HDC, hdc);
+
+		bParsed = TRUE;
+
+		// Setup alpha blend if any.
+		const auto ai = this->SetupAlphaBlend(&hdc);
+		Auto(this->FinishAlphaBlend(ai));
+
+		{ // simply fill with bkg
+			if (this->isExStyle(WindowExStyle::Transparent))
 			{
-				if (IsWindow((HWND) lParam)) {
-					if (auto c_this = static_cast<DcxControl *>(GetProp((HWND)lParam, TEXT("dcx_cthis"))); c_this != nullptr)
-						lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
-				}
+				if (!this->m_bAlphaBlend)
+					this->DrawParentsBackground(hdc);
 			}
-			break;
+			else
+				DcxControl::DrawCtrlBackground(hdc, this);
+		}
+	}
+	break;
 
-		case WM_COMPAREITEM:
+	case WM_PAINT:
+	{
+		PAINTSTRUCT ps{};
+
+		auto hdc = BeginPaint(m_Hwnd, &ps);
+		Auto(EndPaint(m_Hwnd, &ps));
+
+		bParsed = TRUE;
+
+		// Setup alpha blend if any.
+		auto ai = this->SetupAlphaBlend(&hdc);
+		Auto(this->FinishAlphaBlend(ai));
+
+		{ // simply fill with bkg
+			if (this->isExStyle(WindowExStyle::Transparent))
 			{
-				dcxlParam(LPCOMPAREITEMSTRUCT, idata);
-
-				if ((idata != nullptr) && (IsWindow(idata->hwndItem))) {
-					if (auto c_this = static_cast<DcxControl *>(GetProp(idata->hwndItem, TEXT("dcx_cthis"))); c_this != nullptr)
-						lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
-				}
+				if (!this->m_bAlphaBlend)
+					this->DrawParentsBackground(hdc);
 			}
-			break;
+			else
+				DcxControl::DrawCtrlBackground(hdc, this);
+		}
+	}
+	break;
 
-		case WM_DELETEITEM:
-			{
-				dcxlParam(LPDELETEITEMSTRUCT, idata);
+	case WM_DESTROY:
+	{
+		delete this;
+		bParsed = TRUE;
+	}
+	break;
 
-				if ((idata != nullptr) && (IsWindow(idata->hwndItem))) {
-					if (auto c_this = static_cast<DcxControl *>(GetProp(idata->hwndItem, TEXT("dcx_cthis"))); c_this != nullptr)
-						lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
-				}
-			}
-			break;
-
-		case WM_MEASUREITEM:
-			{
-				if (auto cHwnd = GetDlgItem(m_Hwnd, static_cast<int>(wParam)); IsWindow(cHwnd)) {
-					if (auto c_this = static_cast<DcxControl *>(GetProp(cHwnd, TEXT("dcx_cthis"))); c_this != nullptr)
-						lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
-				}
-			}
-			break;
-
-		case WM_DRAWITEM:
-			{
-				dcxlParam(LPDRAWITEMSTRUCT, idata);
-
-				if ((idata != nullptr) && (IsWindow(idata->hwndItem))) {
-					if (auto c_this = static_cast<DcxControl *>(GetProp(idata->hwndItem, TEXT("dcx_cthis"))); c_this != nullptr)
-						lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
-				}
-			}
-			break;
-
-		case WM_SIZE:
-			{
-					//bParsed = TRUE;
-					//lRes = CallWindowProc(this->m_DefaultWindowProc, m_Hwnd, uMsg, wParam, lParam);
-
-				HWND bars = nullptr;
-
-				while ( ( bars = FindWindowEx( m_Hwnd, bars, DCX_REBARCTRLCLASS, nullptr ) ) != nullptr ) {
-					SendMessage( bars, WM_SIZE, (WPARAM) 0, (LPARAM) 0 );
-				}
-
-				while ( ( bars = FindWindowEx( m_Hwnd, bars, DCX_STATUSBARCLASS, nullptr ) ) != nullptr ) {
-					SendMessage( bars, WM_SIZE, (WPARAM) 0, (LPARAM) 0 );
-				}
-
-				//while ((bars = FindWindowEx(m_Hwnd, bars, DCX_PANELCLASS, nullptr)) != nullptr) {
-				//	SendMessage(bars, WM_SIZE, (WPARAM) 0, (LPARAM) 0);
-				//}
-
-				while ( ( bars = FindWindowEx( m_Hwnd, bars, DCX_TOOLBARCLASS, nullptr ) ) != nullptr ) {
-					SendMessage( bars, WM_SIZE, (WPARAM) 0, (LPARAM) 0 );
-				}
-
-				if (dcx_testflag(this->m_pParentDialog->getEventMask(), DCX_EVENT_SIZE))
-					this->execAliasEx(TEXT("%s,%d"), TEXT("sizing"), this->getUserID( ) );
-
-				//if (this->m_pLayoutManager != nullptr) {
-				//	RECT rc;
-				//	SetRect( &rc, 0, 0, LOWORD( lParam ), HIWORD( lParam ) );
-				//	if (this->m_pLayoutManager->updateLayout( rc ))
-				//		this->redrawWindow( );
-				//}
-			}
-			break;
-		case WM_WINDOWPOSCHANGING:
-			{
-				if (lParam != NULL) {
-					dcxlParam(LPWINDOWPOS, wp);
-
-					if (this->m_pLayoutManager != nullptr) {
-						RECT rc;
-						SetRect( &rc, 0, 0, wp->cx, wp->cy );
-						//if (this->m_pLayoutManager->updateLayout( rc ))
-						//	this->redrawWindow( );
-						this->m_pLayoutManager->updateLayout( rc );
-					}
-				}
-			}
-			break;
-
-		//case WM_EXITSIZEMOVE:
-		//	{
-		//		this->redrawWindow();
-		//	}
-		//	break;
-
-		case WM_ERASEBKGND:
-			{
-				// fill background.
-				if (this->isExStyle(WS_EX_TRANSPARENT))
-					this->DrawParentsBackground((HDC)wParam);
-				else // normal bkg
-					DcxControl::DrawCtrlBackground((HDC)wParam, this);
-				bParsed = TRUE;
-				return TRUE;
-			}
-			break;
-
-		case WM_PRINTCLIENT:
-			{
-				dcxwParam(HDC, hdc);
-
-				bParsed = TRUE;
-
-				// Setup alpha blend if any.
-				const auto ai = this->SetupAlphaBlend(&hdc);
-				Auto(this->FinishAlphaBlend(ai));
-
-				{ // simply fill with bkg
-					if (this->isExStyle(WS_EX_TRANSPARENT)) {
-						if (!this->m_bAlphaBlend)
-							this->DrawParentsBackground(hdc);
-					}
-					else
-						DcxControl::DrawCtrlBackground(hdc,this);
-				}
-			}
-			break;
-
-		case WM_PAINT:
-			{
-				PAINTSTRUCT ps;
-
-				auto hdc = BeginPaint(m_Hwnd, &ps);
-				Auto(EndPaint(m_Hwnd, &ps));
-
-				bParsed = TRUE;
-
-				// Setup alpha blend if any.
-				auto ai = this->SetupAlphaBlend(&hdc);
-				Auto(this->FinishAlphaBlend(ai));
-
-				{ // simply fill with bkg
-					if (this->isExStyle(WS_EX_TRANSPARENT)) {
-						if (!this->m_bAlphaBlend)
-							this->DrawParentsBackground(hdc);
-					}
-					else
-						DcxControl::DrawCtrlBackground(hdc,this);
-				}
-			}
-			break;
-
-		case WM_DESTROY:
-			{
-				delete this;
-				bParsed = TRUE;
-			}
-			break;
-
-		default:
-			lRes = this->CommonMessage( uMsg, wParam, lParam, bParsed);
-			break;
+	default:
+		lRes = this->CommonMessage(uMsg, wParam, lParam, bParsed);
+		break;
 	}
 
 	return lRes;

@@ -43,15 +43,16 @@ public:
 	//void parseInfoRequest(const TString & input, PTCHAR szReturnValue) const override;
 	void parseInfoRequest(const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const override;
 	void parseCommandRequest(const TString & input) override;
-	void parseControlStyles(const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme) override;
+	//void parseControlStyles(const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme) override;
+	std::tuple<NoTheme, WindowStyle, WindowExStyle> parseControlStyles(const TString & tsStyles) override;
 
 	inline const TString getType() const override { return TEXT("dialog"); };
 	inline const DcxControlTypes getControlType() const noexcept override { return DcxControlTypes::DIALOG; }
 
 protected:
 
-	LONG m_OrigStyles;      //!< Dialog Original Styles
-	LONG m_OrigExStyles;    //!< Dialog Original Extended Styles
+	WindowStyle m_OrigStyles;      //!< Dialog Original Styles
+	WindowExStyle m_OrigExStyles;    //!< Dialog Original Extended Styles
 	HWND m_OrigParentHwnd;  //!< Dialog Original Parent Handle
 	UINT m_OrigID;          //!< Dialog Original Control ID
 	TString m_OrigName;     //!< Dialog Original Name

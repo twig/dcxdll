@@ -76,6 +76,14 @@ struct DCXTVSORT {
 	DcxTreeView *pthis;								//!< TreeView control object pointer
 	TCHAR		itemtext1[MIRC_BUFFER_SIZE_CCH];	// Item text buffer One
 	TCHAR		itemtext2[MIRC_BUFFER_SIZE_CCH];	// Item Text Buffer Two
+
+	DCXTVSORT()
+		: tsCustomAlias()
+		, iSortFlags(0)
+		, pthis(nullptr)
+		, itemtext1{}
+		, itemtext2{}
+	{}
 };
 using LPDCXTVSORT = DCXTVSORT *;
 
@@ -94,6 +102,17 @@ struct DCXTVITEM {
 	bool		bBold;		//!< Is Item Caption Bold ?
 	bool		bUline;		//!< Is Item Caption Underlined
 	bool		bItalic;	//!< Is Item Caption Italicised
+
+	DCXTVITEM()
+		: tsTipText()
+		, tsMark()
+		, clrText(CLR_INVALID)
+		, clrBkg(CLR_INVALID)
+		, hHandle(nullptr)
+		, bBold(false)
+		, bUline(false)
+		, bItalic(false)
+	{}
 };
 using LPDCXTVITEM = DCXTVITEM *;
 
@@ -121,7 +140,8 @@ public:
 	//void parseInfoRequest(const TString & input, PTCHAR szReturnValue) const override;
 	void parseInfoRequest(const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const override;
 	void parseCommandRequest( const TString & input ) override;
-	void parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ) override;
+	//void parseControlStyles(const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme) override;
+	std::tuple<NoTheme, WindowStyle, WindowExStyle> parseControlStyles(const TString & tsStyles) override;
 
 	HIMAGELIST getImageList( const int type ) const;
 	void setImageList( HIMAGELIST himl, const int type );
@@ -129,8 +149,8 @@ public:
 
 	void insertItem( const TString &tsPath, const TString &tsData, const TString &tsTooltip );
 
-	void getItemText( HTREEITEM * hItem, TCHAR * szBuffer, const int cchTextMax ) const;
-	int getChildCount( HTREEITEM * hParent ) const;
+	void getItemText( const HTREEITEM hItem, TCHAR * szBuffer, const int cchTextMax ) const;
+	int getChildCount( const HTREEITEM hParent ) const;
 
 	inline const TString getType() const override { return TEXT("treeview"); };
 	inline const DcxControlTypes getControlType() const noexcept override { return DcxControlTypes::TREEVIEW; }
@@ -152,14 +172,14 @@ protected:
 	/* *** */
 
 	HTREEITEM parsePath(const TString &path, HTREEITEM *hParent = nullptr, HTREEITEM *hInsertAt = nullptr) const;
-	TString getPathFromItem(HTREEITEM *item) const;
+	TString getPathFromItem(const HTREEITEM item) const;
 
-	bool matchItemText( HTREEITEM * hItem, const TString &search, const DcxSearchTypes &SearchType ) const;
-	bool findItemText( HTREEITEM * hStart, HTREEITEM * hItem, const TString &queryText, const int n, int &matchCount, const DcxSearchTypes &SearchType ) const;
-	void expandAllItems( HTREEITEM * hStart, const UINT expandOption );
+	bool matchItemText( const HTREEITEM hItem, const TString &search, const DcxSearchTypes &SearchType ) const;
+	std::pair<bool, HTREEITEM> findItemText( const HTREEITEM hStart, const TString &queryText, const int n, int &matchCount, const DcxSearchTypes &SearchType ) const;
+	void expandAllItems( const HTREEITEM hStart, const UINT expandOption );
 
-	HTREEITEM cloneItem( HTREEITEM * hItem, HTREEITEM * hParentTo, HTREEITEM * hAfterTo );
-	void copyAllItems( HTREEITEM *hItem, HTREEITEM * hParentTo );
+	HTREEITEM cloneItem( const HTREEITEM hItem, const HTREEITEM hParentTo, const HTREEITEM hAfterTo );
+	void copyAllItems( const HTREEITEM hItem, const HTREEITEM hParentTo );
 	HTREEITEM copyAllItems(const TString &pathFrom, const TString &pathTo);
 
 	static UINT parseIconFlagOptions( const TString & flags );
@@ -168,7 +188,8 @@ protected:
 	static UINT parseColorFlags( const TString & flags );
 	static UINT parseToggleFlags( const TString & flags );
 	static int CALLBACK sortItemsEx(LPARAM lParam1, LPARAM lParam2, LPARAM lParamSort);
-	static void parseTreeViewExStyles(const TString & styles, LONG * ExStyles);
+	//static void parseTreeViewExStyles(const TString & styles, LONG * ExStyles);
+	WindowExStyle parseTreeViewExStyles(const TString & styles) const;
 	static LRESULT CALLBACK EditLabelProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 	HFONT m_hItemFont; // Font used for specific item changes.
@@ -181,7 +202,8 @@ protected:
 	bool LoadGDIPlusImage(const TString &flags, TString &filename);
 	void DrawGDIPlusImage(HDC hdc);
 
-	Gdiplus::Image *m_pImage;							// Background Image
+	//Gdiplus::Image *m_pImage;							// Background Image
+	std::unique_ptr<Gdiplus::Image> m_pImage;							// Background Image
 	Gdiplus::CompositingQuality m_CQuality;// Image Rendering Quality
 	Gdiplus::CompositingMode m_CMode;			// Image Rendering Mode
 	Gdiplus::InterpolationMode m_IMode;		//

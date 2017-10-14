@@ -42,15 +42,17 @@ public:
 	//void parseInfoRequest(const TString & input, PTCHAR szReturnValue) const override;
 	void parseInfoRequest(const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const override;
 	void parseCommandRequest( const TString & input ) override;
-	void parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ) override;
+	//void parseControlStyles(const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme) override;
+	std::tuple<NoTheme, WindowStyle, WindowExStyle> parseControlStyles(const TString & tsStyles) override;
 
 	LRESULT setBuddy( const HWND mHwnd );
-	LRESULT setRange32( const int iLow, const int iHigh );
-	LRESULT getRange32( LPINT iLow, LPINT iHigh ) const;
-	LRESULT setBase( const int iBase );
-	LRESULT getBase( ) const;
-	LRESULT setPos32( const INT nPos );
-	LRESULT getPos32( LPBOOL pfError ) const;
+	LRESULT setRange32( const int iLow, const int iHigh ) noexcept;
+	std::pair<int,int> getRange32() const noexcept;
+	LRESULT setBase( const int iBase ) noexcept;
+	LRESULT getBase( ) const noexcept;
+	LRESULT setPos32( const INT nPos ) noexcept;
+	LRESULT getPos32( LPBOOL pfError ) const noexcept;
+
 	const TString getStyles(void) const override;
 
 	inline const TString getType() const override { return TEXT("updown"); };

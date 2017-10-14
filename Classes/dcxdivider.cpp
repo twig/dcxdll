@@ -28,20 +28,15 @@
 DcxDivider::DcxDivider(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles)
 	: DcxControl(ID, p_Dialog)
 {
-	LONG Styles = 0, ExStyles = 0;
-	BOOL bNoTheme = FALSE;
-	this->parseControlStyles(styles, &Styles, &ExStyles, &bNoTheme);
+	const auto[bNoTheme, Styles, ExStyles] = parseControlStyles(styles);
 
-	m_Hwnd = CreateWindowEx(
-		gsl::narrow_cast<DWORD>(ExStyles) | WS_EX_CONTROLPARENT,
+	m_Hwnd = dcxCreateWindow(
+		ExStyles | WS_EX_CONTROLPARENT,
 		DCX_DIVIDERCLASS,
-		nullptr,
-		WS_CHILD | gsl::narrow_cast<DWORD>(Styles),
-		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
+		Styles | WS_CHILD,
+		rc,
 		mParentHwnd,
-		(HMENU)ID,
-		GetModuleHandle(nullptr),
-		nullptr);
+		ID);
 
 	if (!IsWindow(m_Hwnd))
 		throw Dcx::dcxException("Unable To Create Window");
@@ -59,8 +54,8 @@ DcxDivider::DcxDivider(const UINT ID, DcxDialog *const p_Dialog, const HWND mPar
  * blah
  */
 
-DcxDivider::~DcxDivider() {
-
+DcxDivider::~DcxDivider()
+{
 	this->unregistreDefaultWindowProc();
 }
 
@@ -81,20 +76,33 @@ const TString DcxDivider::getStyles(void) const
 	return styles;
 }
 
-void DcxDivider::parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme )
+//void DcxDivider::parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme )
+//{
+//	*Styles |= DVS_HORZ;
+//
+//	//for (auto tsStyle(styles.getfirsttok(1)); !tsStyle.empty(); tsStyle = styles.getnexttok())
+//	//{
+//	//	if ( tsStyle == TEXT("vertical") )
+//	//		*Styles |= DVS_VERT;
+//	//}
+//
+//	if (styles.istok(TEXT("vertical")))
+//		*Styles |= DVS_VERT;
+//
+//	this->parseGeneralControlStyles(styles, Styles, ExStyles, bNoTheme);
+//}
+
+std::tuple<NoTheme, WindowStyle, WindowExStyle> DcxDivider::parseControlStyles(const TString & tsStyles)
 {
-	*Styles |= DVS_HORZ;
+	WindowStyle Styles(WindowStyle::None);
+	WindowExStyle ExStyles(WindowExStyle::None);
 
-	//for (auto tsStyle(styles.getfirsttok(1)); !tsStyle.empty(); tsStyle = styles.getnexttok())
-	//{
-	//	if ( tsStyle == TEXT("vertical") )
-	//		*Styles |= DVS_VERT;
-	//}
+	Styles |= DVS_HORZ;
 
-	if (styles.istok(TEXT("vertical")))
-		*Styles |= DVS_VERT;
+	if (tsStyles.istok(TEXT("vertical")))
+		Styles |= DVS_VERT;
 
-	this->parseGeneralControlStyles(styles, Styles, ExStyles, bNoTheme);
+	return parseGeneralControlStyles(tsStyles, Styles, ExStyles);
 }
 
 /*!
@@ -108,21 +116,26 @@ void DcxDivider::parseControlStyles( const TString & styles, LONG * Styles, LONG
 
 void DcxDivider::parseInfoRequest( const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const
 {
-	const auto prop(input.getfirsttok(3));
-
-	// [NAME] [ID] [PROP]
-	if (prop == TEXT("position")) {
+	switch (std::hash<TString>{}(input.getfirsttok(3)))
+	{
+		// [NAME] [ID] [PROP]
+	case TEXT("position"_hash):
+	{
 		auto iDivPos = 0;
 
-		SendMessage(m_Hwnd, DV_GETDIVPOS, (WPARAM) NULL, (LPARAM) &iDivPos);
-		//wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), iDivPos);
+		SendMessage(m_Hwnd, DV_GETDIVPOS, (WPARAM)NULL, (LPARAM)&iDivPos);
 		_ts_snprintf(szReturnValue, TEXT("%d"), iDivPos);
 	}
-	else if (prop == TEXT("isvertical"))
-		//wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), (GetWindowStyle(m_Hwnd) & DVS_VERT));
-		_ts_snprintf(szReturnValue, TEXT("%d"), (GetWindowStyle(m_Hwnd) & DVS_VERT));
-	else
+	break;
+
+	case TEXT("isvertical"_hash):
+		_ts_snprintf(szReturnValue, TEXT("%u"), (dcxGetWindowStyle(m_Hwnd) & DVS_VERT));
+		break;
+
+	default:
 		this->parseGlobalInfoRequest(input, szReturnValue);
+		break;
+	}
 }
 
 /*!
@@ -131,17 +144,16 @@ void DcxDivider::parseInfoRequest( const TString & input, const refString<TCHAR,
  * blah
  */
 
-void DcxDivider::parseCommandRequest( const TString & input ) {
+void DcxDivider::parseCommandRequest( const TString & input )
+{
 	const XSwitchFlags flags(input.getfirsttok( 3 ));
 
 	const auto numtok = input.numtok();
 
 	// xdid -l|r [NAME] [ID] [SWITCH] [MIN] [IDEAL][TAB][ID] [CONTROL] [X] [Y] [W] [H] (OPTIONS)
-	if ( ( flags[TEXT('l')] || flags[TEXT('r')] ) && numtok > 9 ) {
-
+	if ( ( flags[TEXT('l')] || flags[TEXT('r')] ) && numtok > 9 )
+	{
 		DVPANEINFO dvpi;
-		//ZeroMemory( &dvpi, sizeof( DVPANEINFO ) );
-		//dvpi.cbSize = sizeof( DVPANEINFO );
 
 		const auto data(input.getfirsttok(1, TSTABCHAR).trim());
 		TString control_data;
@@ -178,7 +190,8 @@ void DcxDivider::parseCommandRequest( const TString & input ) {
 		}
 	}
 	// xdid -v [NAME] [ID] [SWITCH] [POS]
-	else if (flags[TEXT('v')] && numtok > 3) {
+	else if (flags[TEXT('v')] && numtok > 3)
+	{
 		if (!setDivPos(input.getnexttok( ).to_<UINT>()))	// tok 4
 			throw Dcx::dcxException("Divider position must be between bounds.");
 	}
@@ -192,7 +205,8 @@ void DcxDivider::parseCommandRequest( const TString & input ) {
  * blah
  */
 
-LRESULT DcxDivider::setPane( const UINT iPaneId, LPDVPANEINFO lpdvpi ) {
+LRESULT DcxDivider::setPane( const UINT iPaneId, LPDVPANEINFO lpdvpi )
+{
   return SendMessage( m_Hwnd, DV_SETPANE, (WPARAM) iPaneId, (LPARAM) lpdvpi );
 }
 
@@ -202,7 +216,8 @@ LRESULT DcxDivider::setPane( const UINT iPaneId, LPDVPANEINFO lpdvpi ) {
  * blah
  */
 
-LRESULT DcxDivider::setDivPos( const UINT iDivPos ) {
+LRESULT DcxDivider::setDivPos( const UINT iDivPos )
+{
   return SendMessage( m_Hwnd, DV_SETDIVPOS, (WPARAM) 0U, (LPARAM) iDivPos );
 }
 
@@ -248,100 +263,106 @@ TiXmlElement * DcxDivider::toXml(void) const
  *
  * blah
  */
-LRESULT DcxDivider::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
+LRESULT DcxDivider::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed )
+{
 	return 0L;
 }
 
-LRESULT DcxDivider::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
-
+LRESULT DcxDivider::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed)
+{
 	LRESULT lRes = 0L;
-	switch( uMsg ) {
+	switch (uMsg)
+	{
+	case WM_NOTIFY:
+	{
+		dcxlParam(LPNMHDR, hdr);
 
-	case WM_NOTIFY : 
+		if (hdr == nullptr)
+			break;
+
+		if (IsWindow(hdr->hwndFrom))
 		{
-			dcxlParam(LPNMHDR, hdr);
-
-			if (hdr == nullptr)
-				break;
-
-			if (IsWindow(hdr->hwndFrom))
-			{
-				if (auto c_this = static_cast<DcxControl *>(GetProp(hdr->hwndFrom, TEXT("dcx_cthis"))); c_this != nullptr)
-					lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
-			}
+			if (auto c_this = static_cast<DcxControl *>(GetProp(hdr->hwndFrom, TEXT("dcx_cthis"))); c_this != nullptr)
+				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 		}
-		break;
+	}
+	break;
 
-	case WM_HSCROLL: 
-	case WM_VSCROLL: 
+	case WM_HSCROLL:
+	case WM_VSCROLL:
 	case WM_COMMAND:
+	{
+		if (IsWindow((HWND)lParam))
 		{
-			if (IsWindow((HWND) lParam)) {
-				if (auto c_this = static_cast<DcxControl *>(GetProp((HWND)lParam, TEXT("dcx_cthis"))); c_this != nullptr)
-					lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
-			}
+			if (auto c_this = static_cast<DcxControl *>(GetProp((HWND)lParam, TEXT("dcx_cthis"))); c_this != nullptr)
+				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 		}
-		break;
+	}
+	break;
 	case WM_COMPAREITEM:
-		{
-			dcxlParam(LPCOMPAREITEMSTRUCT, idata);
+	{
+		dcxlParam(LPCOMPAREITEMSTRUCT, idata);
 
-			if ((idata != nullptr) && (IsWindow(idata->hwndItem))) {
-				if (auto c_this = static_cast<DcxControl *>(GetProp(idata->hwndItem, TEXT("dcx_cthis"))); c_this != nullptr)
-					lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
-			}
+		if ((idata != nullptr) && (IsWindow(idata->hwndItem)))
+		{
+			if (auto c_this = static_cast<DcxControl *>(GetProp(idata->hwndItem, TEXT("dcx_cthis"))); c_this != nullptr)
+				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 		}
-		break;
+	}
+	break;
 
 	case WM_DELETEITEM:
-		{
-			dcxlParam(LPDELETEITEMSTRUCT, idata);
+	{
+		dcxlParam(LPDELETEITEMSTRUCT, idata);
 
-			if ((idata != nullptr) && (IsWindow(idata->hwndItem))) {
-				if (auto c_this = static_cast<DcxControl *>(GetProp(idata->hwndItem, TEXT("dcx_cthis"))); c_this != nullptr)
-					lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
-			}
+		if ((idata != nullptr) && (IsWindow(idata->hwndItem)))
+		{
+			if (auto c_this = static_cast<DcxControl *>(GetProp(idata->hwndItem, TEXT("dcx_cthis"))); c_this != nullptr)
+				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 		}
-		break;
+	}
+	break;
 
 	case WM_MEASUREITEM:
+	{
+		if (auto cHwnd = GetDlgItem(m_Hwnd, gsl::narrow_cast<int>(wParam)); IsWindow(cHwnd))
 		{
-			if (auto cHwnd = GetDlgItem(m_Hwnd, gsl::narrow_cast<int>(wParam)); IsWindow(cHwnd)) {
-				if (auto c_this = static_cast<DcxControl *>(GetProp(cHwnd, TEXT("dcx_cthis"))); c_this != nullptr)
-					lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
-			}
+			if (auto c_this = static_cast<DcxControl *>(GetProp(cHwnd, TEXT("dcx_cthis"))); c_this != nullptr)
+				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 		}
-		break;
+	}
+	break;
 
 	case WM_DRAWITEM:
-		{
-			dcxlParam(LPDRAWITEMSTRUCT, idata);
+	{
+		dcxlParam(LPDRAWITEMSTRUCT, idata);
 
-			if ((idata != nullptr) && (IsWindow(idata->hwndItem))) {
-				if (auto c_this = static_cast<DcxControl *>(GetProp(idata->hwndItem, TEXT("dcx_cthis"))); c_this != nullptr)
-					lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
-			}
+		if ((idata != nullptr) && (IsWindow(idata->hwndItem)))
+		{
+			if (auto c_this = static_cast<DcxControl *>(GetProp(idata->hwndItem, TEXT("dcx_cthis"))); c_this != nullptr)
+				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 		}
-		break;
+	}
+	break;
 
 	case WM_DESTROY:
-		{
-			delete this;
-			bParsed = TRUE;
-		}
-		break;
+	{
+		delete this;
+		bParsed = TRUE;
+	}
+	break;
 
 	case DV_CHANGEPOS:
-		{
-			const auto phase = gsl::narrow_cast<int>(wParam);
-			const auto pt = reinterpret_cast<LPPOINT>(lParam);
+	{
+		const auto phase = gsl::narrow_cast<int>(wParam);
+		const auto pt = reinterpret_cast<LPPOINT>(lParam);
 
-			this->execAliasEx(TEXT("%s,%d,%d,%d"), (phase == DVNM_DRAG_START ? TEXT("dragbegin") : (phase == DVNM_DRAG_END ? TEXT("dragfinish") : TEXT("drag"))), this->getUserID(), pt->x, pt->y);
-		}
-		break;
+		this->execAliasEx(TEXT("%s,%d,%d,%d"), (phase == DVNM_DRAG_START ? TEXT("dragbegin") : (phase == DVNM_DRAG_END ? TEXT("dragfinish") : TEXT("drag"))), this->getUserID(), pt->x, pt->y);
+	}
+	break;
 
 	default:
-		lRes = this->CommonMessage( uMsg, wParam, lParam, bParsed);
+		lRes = this->CommonMessage(uMsg, wParam, lParam, bParsed);
 		break;
 	}
 

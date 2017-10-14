@@ -62,7 +62,8 @@ DcxDialog * DcxDialogCollection::getDialogByHandle(const HWND mHwnd) const
 	if (m_vpDialog.empty())
 		return nullptr;
 
-	for (const auto &x: m_vpDialog) {
+	for (const auto &x: m_vpDialog)
+	{
 		if (x->getHwnd() == mHwnd)
 			return x;
 	}
@@ -89,7 +90,8 @@ DcxDialog * DcxDialogCollection::getDialogByChildHandle(const HWND mHwnd) const
 	if (m_vpDialog.empty())
 		return nullptr;
 
-	for (const auto &x: m_vpDialog) {
+	for (const auto &x: m_vpDialog)
+	{
 		if (x->getControlByHWND(mHwnd) != nullptr)
 			return x;
 	}
@@ -116,7 +118,8 @@ DcxDialog * DcxDialogCollection::getDialogByName(const TString & tsName) const
 	if (m_vpDialog.empty())
 		return nullptr;
 
-	for (const auto &x: m_vpDialog) {
+	for (const auto &x: m_vpDialog)
+	{
 		if (x->getName() == tsName)
 			return x;
 	}
@@ -129,8 +132,8 @@ DcxDialog * DcxDialogCollection::getDialogByName(const TString & tsName) const
  * blah
  */
 
-void DcxDialogCollection::deleteDialog( const DcxDialog *const p_Dialog ) {
-
+void DcxDialogCollection::deleteDialog( const DcxDialog *const p_Dialog )
+{
 	if (( p_Dialog == nullptr ) || (m_closeall) || (m_vpDialog.empty()))
 		return;
 
@@ -170,11 +173,13 @@ void DcxDialogCollection::deleteDialog( const DcxDialog *const p_Dialog ) {
  * blah
  */
 
-const bool DcxDialogCollection::safeToCloseAll(void) const {
+const bool DcxDialogCollection::safeToCloseAll(void) const
+{
 	if (m_vpDialog.empty())
 		return true;
 
-	for (const auto &x: m_vpDialog) {
+	for (const auto &x: m_vpDialog)
+	{
 		if (x->getRefCount() != 0)
 			return false;
 	}
@@ -187,8 +192,8 @@ const bool DcxDialogCollection::safeToCloseAll(void) const {
  * blah
  */
 
-const bool DcxDialogCollection::closeDialogs() {
-
+const bool DcxDialogCollection::closeDialogs()
+{
 	if (!safeToCloseAll())
 		return true;
 

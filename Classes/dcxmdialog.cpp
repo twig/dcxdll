@@ -30,26 +30,23 @@ DcxMDialog::DcxMDialog(const HWND cHwnd, const HWND pHwnd, const UINT ID, DcxDia
 	: DcxControl(ID, p_Dialog)
 	, m_DeleteByDestroy(false)
 {
-	LONG Styles = 0, ExStyles = 0;
-	BOOL bNoTheme = FALSE;
-	this->parseControlStyles(styles, &Styles, &ExStyles, &bNoTheme);
+	parseControlStyles(styles);
 
 	m_Hwnd = cHwnd;
 	this->m_OrigParentHwnd = GetParent(m_Hwnd);
 
-	this->m_OrigStyles = this->removeStyle(WS_CAPTION | DS_FIXEDSYS | DS_SETFONT | DS_3DLOOK | DS_MODALFRAME |
-		WS_POPUP | WS_SYSMENU | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_THICKFRAME);
+	this->m_OrigStyles = this->removeStyle(WindowStyle::Caption | DS_FIXEDSYS | DS_SETFONT | DS_3DLOOK | DS_MODALFRAME | WS_POPUP | WS_SYSMENU | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_THICKFRAME);
 
-	this->m_OrigExStyles = this->setExStyle(WS_EX_CONTROLPARENT);
+	this->m_OrigExStyles = this->setExStyle(WindowExStyle::ControlParent);
 
-	this->addStyle(WS_CHILD);
+	this->addStyle(WindowStyle::Child);
 
 	SetParent(m_Hwnd, pHwnd);
 	SetWindowPos(m_Hwnd, nullptr, rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top, 0);
 	ShowWindow(m_Hwnd, SW_SHOWNOACTIVATE);
 	UpdateWindow(m_Hwnd);
 
-	this->m_OrigID = gsl::narrow_cast<UINT>(SetWindowLong(m_Hwnd, GWL_ID, gsl::narrow_cast<LONG>(ID)));
+	this->m_OrigID = dcxSetWindowID(m_Hwnd, ID);
 
 	this->registreDefaultWindowProc();
 	SetProp(m_Hwnd, TEXT("dcx_cthis"), (HANDLE) this);
@@ -61,22 +58,25 @@ DcxMDialog::DcxMDialog(const HWND cHwnd, const HWND pHwnd, const UINT ID, DcxDia
  * blah
  */
 
-DcxMDialog::~DcxMDialog( ) {
+DcxMDialog::~DcxMDialog( )
+{
 	auto parent = GetParent(m_Hwnd);
 	if ( parent == this->m_OrigParentHwnd && this->m_OrigParentHwnd != this->m_pParentDialog->getHwnd())
 		return;
 
 	this->unregistreDefaultWindowProc( );
-	if (!m_DeleteByDestroy) { // all this isn't needed if control is deleted because of closing the dialog
-
+	if (!m_DeleteByDestroy)
+	{ // all this isn't needed if control is deleted because of closing the dialog
 		auto bHide = (IsWindowVisible(m_Hwnd) != FALSE);
 		if ( !bHide )
 			ShowWindow( m_Hwnd, SW_HIDE );
 
-		SetWindowLong( m_Hwnd, GWL_ID, gsl::narrow_cast<LONG>(this->m_OrigID ));
+		dcxSetWindowID( m_Hwnd, m_OrigID );
+
 		//this->removeStyle(WS_CHILD);
 		//this->addStyle(WS_POPUP);
 		//SetParent( m_Hwnd, nullptr );
+
 		if (parent == this->m_OrigParentHwnd) // handles oddness where orig parent == current when it shouldnt, maybe due to init event docking.
 			parent = GetParent(parent);
 		else
@@ -119,7 +119,8 @@ void DcxMDialog::parseInfoRequest( const TString &input, const refString<TCHAR, 
  * blah
  */
 
-void DcxMDialog::parseCommandRequest( const TString & input ) {
+void DcxMDialog::parseCommandRequest( const TString & input )
+{
 	const XSwitchFlags flags(input.getfirsttok( 3 ));
 
 	this->parseGlobalCommandRequest(input, flags);
@@ -131,9 +132,16 @@ void DcxMDialog::parseCommandRequest( const TString & input ) {
  * blah
  */
 
-void DcxMDialog::parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme)
+//void DcxMDialog::parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme)
+//{
+//	this->m_OrigName = styles;
+//}
+
+std::tuple<NoTheme, WindowStyle, WindowExStyle> DcxMDialog::parseControlStyles(const TString & tsStyles)
 {
-	this->m_OrigName = styles;
+	m_OrigName = tsStyles;
+
+	return{ false, WindowStyle::None, WindowExStyle::None };
 }
 
 /*!
@@ -144,29 +152,31 @@ void DcxMDialog::parseControlStyles( const TString & styles, LONG * Styles, LONG
  * \param lParam Window Procedure LPARAM
  * \param bParsed Indicates if subclassed procedure parsed the message
  */
-LRESULT DcxMDialog::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
+LRESULT DcxMDialog::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed )
+{
 	return 0L;
 }
 
-LRESULT DcxMDialog::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
+LRESULT DcxMDialog::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed)
+{
 
-	switch( uMsg ) {
-
+	switch (uMsg)
+	{
 	case WM_DESTROY:
-		{
-			//auto wnd = this->m_DefaultWindowProc;
-			auto wnd = this->m_hDefaultWindowProc;
-			auto mHwnd = m_Hwnd;
-			m_DeleteByDestroy = true;
-			delete this;
-			ShowWindow(mHwnd, SW_HIDE);
-			CallWindowProc(wnd, mHwnd, uMsg, wParam, lParam);
-			bParsed = TRUE;
-		}
-		break;
+	{
+		//auto wnd = this->m_DefaultWindowProc;
+		auto wnd = this->m_hDefaultWindowProc;
+		auto mHwnd = m_Hwnd;
+		m_DeleteByDestroy = true;
+		delete this;
+		ShowWindow(mHwnd, SW_HIDE);
+		CallWindowProc(wnd, mHwnd, uMsg, wParam, lParam);
+		bParsed = TRUE;
+	}
+	break;
 
 	default:
-		return this->CommonMessage( uMsg, wParam, lParam, bParsed);
+		return this->CommonMessage(uMsg, wParam, lParam, bParsed);
 		break;
 	}
 	return 0L;

@@ -123,6 +123,20 @@ enum class DcxIconSizes : int {
 	SmallIcon = 16, MediumIcon = 24, LargeIcon = 32,
 	MaxSize = LargeIcon
 };
+//enum class NoTheme : bool {
+//	None = true, Theme = false
+//};
+
+//struct NoTheme {
+//	bool m_Val;
+//
+//	NoTheme() : m_Val(false) {}
+//	NoTheme(bool val) : m_Val(val) {}
+//	operator bool() { return m_Val; }
+//	//NoTheme operator =(const bool &other) { m_Val = other; return *this; }
+//};
+
+using NoTheme = bool;
 
 class DcxDialog;
 
@@ -185,9 +199,13 @@ public:
 	//virtual void parseInfoRequest( const TString & input, PTCHAR szReturnValue ) const = 0;
 	//virtual void parseInfoRequest(const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const = 0;
 	//virtual void parseCommandRequest( const TString & input ) = 0;
-	virtual void parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ) = 0;
+	//virtual void parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ) = 0;
 
-	void parseGeneralControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
+	virtual std::tuple<NoTheme, WindowStyle, WindowExStyle> parseControlStyles(const TString & tsStyles) = 0;
+
+	//void parseGeneralControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
+	std::tuple<NoTheme,WindowStyle,WindowExStyle> parseGeneralControlStyles(const TString & styles, WindowStyle &Styles, WindowExStyle &ExStyles);
+	std::tuple<NoTheme, WindowStyle, WindowExStyle> parseGeneralControlStyles(const TString & styles);
 
 	bool evalAliasEx(TCHAR *const szReturn, const int maxlen, const TCHAR *const szFormat, ... );
 
@@ -207,7 +225,7 @@ public:
 	//	m_pParentDialog->execAlias(_ts_sprintf(tsBuf, fmt, val, args...).to_chr());
 	//}
 
-	const UINT &getUserID( ) const noexcept;
+	const UINT &getUserID() const noexcept { return m_UserID; }
 
 	virtual LRESULT PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) = 0;
 	virtual LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) = 0;
@@ -254,7 +272,7 @@ public:
 
 	static LRESULT CALLBACK WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 	static DcxControl * controlFactory(DcxDialog *const p_Dialog, const UINT mID, const TString & input, const UINT offset, const UINT64 mask = CTLF_ALLOW_ALL, HWND hParent = nullptr);
-	static void DrawCtrlBackground(const HDC hdc, const DcxControl *const p_this, const LPRECT rwnd = nullptr, HTHEME hTheme = nullptr, const int iPartId = 0, const int iStateId = 0);
+	static void DrawCtrlBackground(const HDC hdc, const DcxControl *const p_this, const RECT *const rwnd = nullptr, HTHEME hTheme = nullptr, const int iPartId = 0, const int iStateId = 0);
 	static HBITMAP resizeBitmap(HBITMAP srcBM, const RECT *const rc);
 	static DcxControlTypes TSTypeToControlType(const TString &t);
 	// Convert a number into the closest icon size
@@ -317,7 +335,7 @@ protected:
 	void ctrlDrawText(HDC hdc, const TString &txt, const LPRECT rc, const UINT style);
 	void calcTextRect(HDC hdc, const TString &txt, LPRECT rc, const UINT style);
 
-	static std::pair<DWORD, DWORD> parseBorderStyles(const TString & flags);
+	static std::pair<WindowStyle, WindowExStyle> parseBorderStyles(const TString & flags) noexcept;
 	static void InvalidateParentRect(HWND hwnd);
 	static const UINT parseColorFlags(const TString & flags);
 };
