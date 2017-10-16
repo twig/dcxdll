@@ -153,12 +153,12 @@ constexpr WindowAnimStyle operator |(const T &dStyle, const WindowAnimStyle &eSt
 }
 
 template <typename T>
-inline WindowStyle to_WindowStyle(T &other)
+inline WindowStyle to_WindowStyle(T other)
 {
 	return static_cast<WindowStyle>(other);
 }
 template <typename T>
-inline WindowExStyle to_WindowExStyle(T &other)
+inline WindowExStyle to_WindowExStyle(T other)
 {
 	return static_cast<WindowExStyle>(other);
 }

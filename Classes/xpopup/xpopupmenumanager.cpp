@@ -483,7 +483,7 @@ void XPopupMenuManager::parseCommand( const TString & input, XPopupMenu *const p
 		else {
 			// Adjust relative location to take multi-monitor into account
 			MONITORINFO mi{};
-			auto hMon = MonitorFromWindow(mIRCLinker::getHWND(), MONITOR_DEFAULTTONEAREST);
+			const auto hMon = MonitorFromWindow(mIRCLinker::getHWND(), MONITOR_DEFAULTTONEAREST);
 
 			mi.cbSize = sizeof(mi);
 			GetMonitorInfo(hMon, &mi);
@@ -503,7 +503,7 @@ void XPopupMenuManager::parseCommand( const TString & input, XPopupMenu *const p
 		if (numtok < 3)
 			throw Dcx::dcxException(TEXT("Invalid Arguments"));
 
-		auto style = XPopupMenu::parseStyle(input.getnexttok());	// tok 3
+		const auto style = XPopupMenu::parseStyle(input.getnexttok());	// tok 3
 
 		p_Menu->setStyle(style);
 	}
@@ -543,7 +543,7 @@ void XPopupMenuManager::parseCommand( const TString & input, XPopupMenu *const p
 			p_Menu->SetRounded((input.getnexttok( ).to_int() > 0));	// tok 4
 		else if (xflags[TEXT('a')]) // Set Alpha value of menu. 0-255
 		{
-			const auto alpha = (BYTE)(input.getnexttok().to_<UINT>() & 0xFF);	// tok 4
+			const auto alpha = gsl::narrow_cast<BYTE>(input.getnexttok().to_<UINT>() & 0xFF);	// tok 4
 
 			p_Menu->SetAlpha(alpha);
 		}
@@ -1399,83 +1399,88 @@ const TString XPopupMenuManager::GetMenuAttributeFromXML(const char *const attri
 }
 
 #if DCX_DEBUG_OUTPUT && 0
-LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
-
+LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
 	// Incase execution somehow ends up here without this pointer being set.
 	if (XPopupMenuManager::g_OldmIRCMenusWindowProc == nullptr)
-		return DefWindowProc( mHwnd, uMsg, wParam, lParam);
+		return DefWindowProc(mHwnd, uMsg, wParam, lParam);
 
-	switch (uMsg) {
-		case WM_NCCREATE:
-			{
-				CREATESTRUCT *cs = (CREATESTRUCT *)lParam;
-				cs->dwExStyle |= WS_EX_LAYERED;
-				//return TRUE;
-				//return CallWindowProc(XPopupMenuManager::g_OldmIRCMenusWindowProc, mHwnd, uMsg, wParam, lParam);
-			}
-			break;
-		case WM_CREATE:
-			{
-				//CREATESTRUCT *cs = (CREATESTRUCT *)lParam;
-				AddStyles(mHwnd, GWL_EXSTYLE, WS_EX_LAYERED);
-				SetLayeredWindowAttributes(mHwnd, 0, (BYTE)0xCC, LWA_ALPHA); // 0xCC = 80% Opaque
-			}
-			break;
+	switch (uMsg)
+	{
+	case WM_NCCREATE:
+	{
+		CREATESTRUCT *cs = (CREATESTRUCT *)lParam;
+		cs->dwExStyle |= WS_EX_LAYERED;
+		//return TRUE;
+		//return CallWindowProc(XPopupMenuManager::g_OldmIRCMenusWindowProc, mHwnd, uMsg, wParam, lParam);
+	}
+	break;
+	case WM_CREATE:
+	{
+		//CREATESTRUCT *cs = (CREATESTRUCT *)lParam;
+		AddStyles(mHwnd, GWL_EXSTYLE, WS_EX_LAYERED);
+		SetLayeredWindowAttributes(mHwnd, 0, (BYTE)0xCC, LWA_ALPHA); // 0xCC = 80% Opaque
+	}
+	break;
+	case WM_MOUSELEAVE:
+	{
+		// auto close menu on mouse leave??
+	}
+	break;
+	//case WM_PAINT:
+	//{
+	//	BOOL bEnabled = FALSE;
+	//	Dcx::VistaModule.dcxDwmIsCompositionEnabled(&bEnabled);
+	//	if (bEnabled) {
+	//		DWM_BLURBEHIND blur{DWM_BB_ENABLE, TRUE, nullptr, FALSE};
+	//		Dcx::VistaModule.dcxDwmEnableBlurBehindWindow(mHwnd, &blur);
+	//	}
 
-		//case WM_PAINT:
-		//{
-		//	BOOL bEnabled = FALSE;
-		//	Dcx::VistaModule.dcxDwmIsCompositionEnabled(&bEnabled);
-		//	if (bEnabled) {
-		//		DWM_BLURBEHIND blur{DWM_BB_ENABLE, TRUE, nullptr, FALSE};
-		//		Dcx::VistaModule.dcxDwmEnableBlurBehindWindow(mHwnd, &blur);
-		//	}
+	//	//// playing around with menu transparency
+	//	//const BYTE alpha = 0x7F;
 
-		//	//// playing around with menu transparency
-		//	//const BYTE alpha = 0x7F;
+	//	// If alpha == 255 then menu is fully opaque so no need to change to layered.
+	//	//if (alpha < 255) {
+	//	//	HWND hMenuWnd = mHwnd;
 
-		//	// If alpha == 255 then menu is fully opaque so no need to change to layered.
-		//	//if (alpha < 255) {
-		//	//	HWND hMenuWnd = mHwnd;
+	//	//	if (IsWindow(hMenuWnd)) {
+	//	//		DWORD dwStyle = GetWindowExStyle(hMenuWnd);
 
-		//	//	if (IsWindow(hMenuWnd)) {
-		//	//		DWORD dwStyle = GetWindowExStyle(hMenuWnd);
+	//	//		if (!dcx_testflag(dwStyle, WS_EX_LAYERED))
+	//	//		{
+	//	//			SetWindowLong(hMenuWnd, GWL_EXSTYLE, dwStyle | WS_EX_LAYERED);
+	//	//			SetLayeredWindowAttributes(hMenuWnd, 0, (BYTE)alpha, LWA_ALPHA); // 0xCC = 80% Opaque
+	//	//		}
+	//	//	}
+	//	//}
+	//}
+	//break;
 
-		//	//		if (!dcx_testflag(dwStyle, WS_EX_LAYERED))
-		//	//		{
-		//	//			SetWindowLong(hMenuWnd, GWL_EXSTYLE, dwStyle | WS_EX_LAYERED);
-		//	//			SetLayeredWindowAttributes(hMenuWnd, 0, (BYTE)alpha, LWA_ALPHA); // 0xCC = 80% Opaque
-		//	//		}
-		//	//	}
-		//	//}
-		//}
-		//break;
-			
-		//case WM_ERASEBKGND:
-		//	{
-		//		if (GetProp(mHwnd, TEXT("dcx_ghosted")) == nullptr) {
-		//			SetProp(mHwnd, TEXT("dcx_ghosted"), (HANDLE)1);
-		//			LRESULT lRes = CallWindowProc(XPopupMenuManager::g_OldmIRCMenusWindowProc, mHwnd, uMsg, wParam, lParam);
-		//			AddStyles(mHwnd, GWL_EXSTYLE, WS_EX_LAYERED);
-		//			SetLayeredWindowAttributes(mHwnd, 0, (BYTE)0xCC, LWA_ALPHA); // 0xCC = 80% Opaque
-		//			RedrawWindow(mHwnd, nullptr, nullptr, RDW_INTERNALPAINT|RDW_ALLCHILDREN|RDW_UPDATENOW|RDW_INVALIDATE|RDW_ERASE|RDW_FRAME);
-		//			return lRes;
-		//		}
-		//	}
-		//	break;
-		//case WM_DESTROY:
-		//	{
-		//		if (GetProp(mHwnd, TEXT("dcx_ghosted")) != nullptr) {
-		//			RemoveProp(mHwnd, TEXT("dcx_ghosted"));
-		//		}
-		//	}
-		//	break;
+	//case WM_ERASEBKGND:
+	//	{
+	//		if (GetProp(mHwnd, TEXT("dcx_ghosted")) == nullptr) {
+	//			SetProp(mHwnd, TEXT("dcx_ghosted"), (HANDLE)1);
+	//			LRESULT lRes = CallWindowProc(XPopupMenuManager::g_OldmIRCMenusWindowProc, mHwnd, uMsg, wParam, lParam);
+	//			AddStyles(mHwnd, GWL_EXSTYLE, WS_EX_LAYERED);
+	//			SetLayeredWindowAttributes(mHwnd, 0, (BYTE)0xCC, LWA_ALPHA); // 0xCC = 80% Opaque
+	//			RedrawWindow(mHwnd, nullptr, nullptr, RDW_INTERNALPAINT|RDW_ALLCHILDREN|RDW_UPDATENOW|RDW_INVALIDATE|RDW_ERASE|RDW_FRAME);
+	//			return lRes;
+	//		}
+	//	}
+	//	break;
+	//case WM_DESTROY:
+	//	{
+	//		if (GetProp(mHwnd, TEXT("dcx_ghosted")) != nullptr) {
+	//			RemoveProp(mHwnd, TEXT("dcx_ghosted"));
+	//		}
+	//	}
+	//	break;
 
-		//case WM_ERASEBKGND:
-		//	{
-		//		return TRUE;
-		//	}
-		//	break;
+	//case WM_ERASEBKGND:
+	//	{
+	//		return TRUE;
+	//	}
+	//	break;
 	}
 
 	return CallWindowProc(XPopupMenuManager::g_OldmIRCMenusWindowProc, mHwnd, uMsg, wParam, lParam);

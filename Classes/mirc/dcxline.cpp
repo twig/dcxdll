@@ -224,7 +224,7 @@ void DcxLine::parseInfoRequest( const TString & input, const refString<TCHAR, MI
 void DcxLine::parseCommandRequest( const TString & input )
 {
 	//xdid -t [NAME] [ID] [SWITCH] [TEXT]
-	if (const XSwitchFlags flags(input.gettok(3)); flags[TEXT('t')])
+	if (const XSwitchFlags flags(input.getfirsttok(3)); flags[TEXT('t')])
 	{
 		this->m_sText = input.getlasttoks().trim();	// tok 4, -1
 

@@ -68,14 +68,23 @@ class DcxDialog;
  * blah
  */
 
-struct DCXLVSORT {
-
+struct DCXLVSORT
+{
 	TString tsCustomAlias;  //!< Custom Sorting Alias
 	UINT iSortFlags;        //!< Sorting Flags
 	HWND m_Hwnd;            //!< ListView Handle
 	int nColumn;            //!< Sorting Column
 	TCHAR itemtext1[MIRC_BUFFER_SIZE_CCH];
 	TCHAR itemtext2[MIRC_BUFFER_SIZE_CCH];
+
+	DCXLVSORT()
+		: tsCustomAlias()
+		, iSortFlags(0)
+		, m_Hwnd(nullptr)
+		, nColumn(0)
+		, itemtext1{ 0 }
+		, itemtext2{ 0 }
+	{}
 };
 using LPDCXLVSORT = DCXLVSORT *;
 
@@ -83,6 +92,12 @@ struct DCXLVRENDERINFO {
 	DWORD		m_dFlags;	//!< Render flags (bold etc..)
 	COLORREF	m_cText;	//!< Text Colour
 	COLORREF	m_cBg;		//!< Background Colour.
+
+	DCXLVRENDERINFO()
+		: m_dFlags(0)
+		, m_cText(CLR_INVALID)
+		, m_cBg(CLR_INVALID)
+	{}
 };
 using LPDCXLVRENDERINFO = DCXLVRENDERINFO *;
 
@@ -104,6 +119,12 @@ struct DCXLVCOLUMNINFO {
 	int			m_iColumn;	// the column affected by this info.
 	DWORD		m_dFlags;	// size flags (autosize, % width etc..)
 	int			m_iSize;	// size of column (meaning depends on flags)
+
+	DCXLVCOLUMNINFO()
+		: m_iColumn(0)
+		, m_dFlags(0)
+		, m_iSize(0)
+	{}
 };
 using LPDCXLVCOLUMNINFO = DCXLVCOLUMNINFO *;
 
@@ -122,7 +143,15 @@ struct DCXLVITEM {
 	DcxControl *pbar;
 	//DcxProgressBar *pbar;
 	int iPbarCol;
-	VectorOfRenderInfo	vInfo;	//!< Render Info for each colum
+	VectorOfRenderInfo	vInfo;	//!< Render Info for each column
+
+	DCXLVITEM()
+		: tsTipText()
+		, tsMark()
+		, pbar(nullptr)
+		, iPbarCol(0)
+		, vInfo()
+	{}
 };
 using LPDCXLVITEM = DCXLVITEM *;
 
@@ -141,8 +170,8 @@ public:
 	DcxListView(const DcxListView &) = delete;
 	DcxListView &operator =(const DcxListView &) = delete;	// No assignments!
 
-	DcxListView(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles );
-	virtual ~DcxListView( );
+	DcxListView(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles);
+	virtual ~DcxListView();
 
 	LRESULT PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) override;
 	LRESULT ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) override;
@@ -154,17 +183,17 @@ public:
 	std::tuple<NoTheme, WindowStyle, WindowExStyle> parseControlStyles(const TString & tsStyles) override;
 
 	HIMAGELIST getImageList(const int iImageList) const;
-	void setImageList( const HIMAGELIST himl, const int iImageList );
+	void setImageList(const HIMAGELIST himl, const int iImageList);
 
-	bool isListViewStyle( const DWORD dwView ) const noexcept;
+	bool isListViewStyle(const WindowStyle dwView) const noexcept;
 
-	const int &getColumnCount( ) const;
+	const int &getColumnCount() const;
 
-	inline const TString getType() const override { return{ TEXT("listview") }; };
+	inline const TString getType() const override { return TEXT("listview"); };
 	inline const DcxControlTypes getControlType() const noexcept override { return DcxControlTypes::LISTVIEW; }
 
-	int getTopIndex( ) const;
-	int getBottomIndex( ) const;
+	int getTopIndex() const;
+	int getBottomIndex() const;
 
 	void toXml(TiXmlElement *const xml) const override;
 	TiXmlElement * toXml(void) const override;
@@ -175,21 +204,21 @@ protected:
 
 	WNDPROC m_OrigEditProc; //!< Label Edit Control Orignal Procedure
 
-	static UINT parseIconFlagOptions( const TString & flags );
-	static UINT parseItemFlags( const TString & flags );
-	static UINT parseHeaderFlags( const TString & flags );
-	static INT parseHeaderFlags2( const TString & flags );
-	static INT parseHeaderFlags2( const XSwitchFlags & xflags );
-	static UINT parseSortFlags( const TString & flags );
-	static UINT parseColorFlags( const TString & flags );
-	static UINT parseImageFlags( const TString & flags );
-	static UINT parseGroupFlags( const TString & flags );
-	static UINT parseGroupState( const TString & flags );
+	static UINT parseIconFlagOptions(const TString & flags);
+	static UINT parseItemFlags(const TString & flags);
+	static UINT parseHeaderFlags(const TString & flags);
+	static INT parseHeaderFlags2(const TString & flags);
+	static INT parseHeaderFlags2(const XSwitchFlags & xflags);
+	static UINT parseSortFlags(const TString & flags);
+	static UINT parseColorFlags(const TString & flags);
+	static UINT parseImageFlags(const TString & flags);
+	static UINT parseGroupFlags(const TString & flags);
+	static UINT parseGroupState(const TString & flags);
 
 	bool matchItemText(const int nItem, const int nSubItem, const TString &search, const DcxSearchTypes &SearchType) const;
 
 	void autoSize(const int nColumn, const TString &flags);
-	void autoSize(const int nColumn, const int iFlags , const int iWidth = 0);
+	void autoSize(const int nColumn, const int iFlags, const int iWidth = 0);
 
 	//bool m_bDrag; //!< Dragging Items ?
 
@@ -211,8 +240,8 @@ private:
 	// static functions.
 	//static void getItemRange(const TString &tsItems, const int nItemCnt, int *iStart_range, int *iEnd_range);
 	//static std::pair<int, int> getItemRange(const TString &tsItems, const int nItemCnt);
-
-	static UINT parseMassItemFlags( const TString & flags );
+	
+	static UINT parseMassItemFlags(const TString & flags);
 	static void parseText2Item(const TString & tsTxt, TString & tsItem, const TString &tsData);
 	static int CALLBACK sortItemsEx(LPARAM lParam1, LPARAM lParam2, LPARAM lParamSort);
 	static LRESULT CALLBACK EditLabelProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);

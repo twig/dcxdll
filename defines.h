@@ -190,6 +190,12 @@ http://symbiancorner.blogspot.com/2007/05/how-to-detect-version-of-ms-visual.htm
 #define DCX_SWITCH_OBJ 0
 #endif
 
+#if DCX_SWITCH_OBJ
+#if !__has_include("SwitchObjects.h")
+#error "Switch Objects enabled: "SwitchObjects.h" Required!"
+#endif
+#endif
+
 // --------------------------------------------------
 // Include files
 // --------------------------------------------------
@@ -501,23 +507,8 @@ inline void dcx_strcpyn(TCHAR *const sDest, const TCHAR *sSrc, const T &iSize) {
 
 constexpr const TCHAR *const dcx_truefalse(const bool &x) noexcept { return (x) ? &(TEXT("$true"))[0] : &(TEXT("$false")[0]); }
 
-//#define dcx_Con(x,y) dcx_strcpyn((y), (((x)) ? TEXT("$true") : TEXT("$false")), MIRC_BUFFER_SIZE_CCH);
-//#define dcx_ConRet(x,y) { \
-//	if (lstrcpyn((y), (((x)) ? TEXT("$true") : TEXT("$false")), MIRC_BUFFER_SIZE_CCH) != nullptr) return; \
-//}
-//#define dcx_ConRetState(x,y) { \
-//	if (lstrcpyn((y), (((x)) ? TEXT("$true") : TEXT("$false")), MIRC_BUFFER_SIZE_CCH) != nullptr) return TRUE; \
-//}
-
 #define dcx_Con(x,y) dcx_strcpyn((y), dcx_truefalse((x)), MIRC_BUFFER_SIZE_CCH);
 
-//#define dcx_ConRet(x,y) { \
-//	if (ts_strcpyn((y), dcx_truefalse((x)), MIRC_BUFFER_SIZE_CCH) != nullptr) return; \
-//}
-//#define dcx_ConRetState(x,y) { \
-//	if (ts_strcpyn((y), dcx_truefalse((x)), MIRC_BUFFER_SIZE_CCH) != nullptr) return true; \
-//}
-//
 #define dcx_ConChar(x,y) { \
 if ((x)) (y)[0] = TEXT('1'); \
 	else (y)[0] = TEXT('0'); \
@@ -541,7 +532,6 @@ TString ParseLogfontToCommand(const LPLOGFONT lf);
 UINT parseFontFlags(const TString &flags);
 UINT parseFontCharSet(const TString &charset);
 
-//std::unique_ptr<BYTE[]> readFile(const PTCHAR filename);
 auto readFile(const TString &filename)->std::unique_ptr<BYTE[]>;
 TString readTextFile(const TString &tFile);
 bool SaveDataToFile(const TString &tsFile, const TString &tsData);
@@ -551,7 +541,6 @@ int CALLBACK BrowseFolderCallback(HWND hwnd, UINT uMsg, LPARAM lParam, LPARAM lp
 gsl::owner<LPITEMIDLIST> GetFolderFromCSIDL(const int nCsidl);
 
 HWND GetHwndFromString(const TString &str);
-//HWND GetHwndFromString(gsl::not_null<const TCHAR *> str);
 HWND FindOwner(const TString & data, const gsl::not_null<HWND> &defaultWnd);
 bool CopyToClipboard(const HWND owner, const TString & str);
 

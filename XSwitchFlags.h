@@ -41,25 +41,6 @@
 
 #include "Classes/TString/tstring.h"
 
-//class XSwitchFlags {
-//	public:
-//		XSwitchFlags() = delete;
-//		XSwitchFlags(const XSwitchFlags &) = delete;
-//		XSwitchFlags &operator =(const XSwitchFlags &) = delete;	// No assignments!
-//
-//		explicit XSwitchFlags(const TString &switches) noexcept;
-//		~XSwitchFlags() = default;
-//
-//		// Function checks if flag is set
-//		const bool &isSet(const TCHAR c) const noexcept;
-//		const bool &operator[](const TCHAR c) const noexcept;
-//
-////	protected:
-//private:
-//		bool flags[28];     //!< Lowercase switches a-z
-//		bool flags_cap[26]; //!< Uppercase switches A-Z
-//};
-
 struct XSwitchFlags {
 	XSwitchFlags() = delete;
 	XSwitchFlags(const XSwitchFlags &) = delete;
@@ -69,22 +50,20 @@ struct XSwitchFlags {
 	~XSwitchFlags() = default;
 
 	// Function checks if flag is set
-	//const bool &isSet(const TCHAR c) const noexcept;
-	//const bool &operator[](const TCHAR c) const noexcept { return isSet(c); }
-
 	const bool isSet(const TCHAR c) const noexcept;
 	const bool operator[](const TCHAR c) const noexcept { return isSet(c); }
 	explicit operator ULONGLONG() const noexcept { return m_dFlagMask; }
 
 private:
-	//bool	m_bFlags[28];		//!< Lowercase switches a-z
-	//bool	m_bFlags_cap[26];	//!< Uppercase switches A-Z
 	ULONGLONG	m_dFlagMask;		//!< a bitmask of all selected letters...
 
-	static const bool m_bFalse;
+	static constexpr bool m_bFalse = false;
 };
 
 #if DCX_SWITCH_OBJ
+#if !__has_include("SwitchObjects.h")
+#error "Switch Objects enabled: "SwitchObjects.h" Required!"
+#endif
 #include "SwitchObjects.h"
 #endif
 

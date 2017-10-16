@@ -860,7 +860,8 @@ namespace Dcx
 
 	// parse_string, taken from somewhere on stackoverflow (sorry can't remember where) & modified for our use.
 	template <typename RETURN_TYPE, typename STRING_TYPE>
-	RETURN_TYPE parse_string(const STRING_TYPE *str) {
+	RETURN_TYPE parse_string(const STRING_TYPE *str)
+	{
 		static_assert(std::is_same_v<WCHAR, STRING_TYPE> || std::is_same_v<CHAR, STRING_TYPE>, "Only WCHAR, CHAR, or TCHAR type supported!");
 
 		std::basic_stringstream<STRING_TYPE> buf;
