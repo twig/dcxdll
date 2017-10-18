@@ -252,7 +252,7 @@ std::tuple<NoTheme, WindowStyle, WindowExStyle> DcxControl::parseGeneralControlS
 			ExStyles |= WS_EX_TRANSPARENT;
 			break;
 		case L"hidden"_hash:
-			Styles &= static_cast<DWORD>(~WS_VISIBLE);
+			Styles &= ~WS_VISIBLE;
 			break;
 		case L"alpha"_hash:
 			m_bAlphaBlend = true;

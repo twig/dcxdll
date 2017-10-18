@@ -220,6 +220,21 @@ WindowExStyle DcxToolBar::parseControlStylesToolBar(const TString & tsStyles)
 		case L"arrows"_hash:
 			ToolBarExStyles |= TBSTYLE_EX_DRAWDDARROWS;
 			break;
+		case L"doublebuffer"_hash:
+			ToolBarExStyles |= TBSTYLE_EX_DOUBLEBUFFER;
+			break;
+		case L"vertical"_hash:
+			ToolBarExStyles |= TBSTYLE_EX_VERTICAL;
+			break;
+		case L"nopartial"_hash:
+			ToolBarExStyles |= TBSTYLE_EX_HIDECLIPPEDBUTTONS;
+			break;
+		case L"mixedbuttons"_hash:
+			ToolBarExStyles |= TBSTYLE_EX_MIXEDBUTTONS;
+			break;
+		case L"multicolumn"_hash:
+			ToolBarExStyles |= TBSTYLE_EX_MULTICOLUMN;	// can't be used with TBSTYLE_WRAPABLE
+			break;
 		default:
 			break;
 		}
@@ -244,6 +259,27 @@ std::tuple<NoTheme, WindowStyle, WindowExStyle> DcxToolBar::parseControlStyles(c
 		{
 		case L"flat"_hash:
 			Styles |= TBSTYLE_FLAT;
+			break;
+		case L"check"_hash:
+			Styles |= BTNS_CHECK;
+			break;
+		case L"group"_hash:
+			Styles |= BTNS_GROUP;
+			break;
+		case L"dropdown"_hash:
+			Styles |= BTNS_DROPDOWN;
+			break;
+		case L"autosize"_hash:
+			Styles |= BTNS_AUTOSIZE;
+			break;
+		case L"noprefix"_hash:
+			Styles |= BTNS_NOPREFIX;
+			break;
+		case L"showtext"_hash:
+			Styles |= BTNS_SHOWTEXT;	// only applicable when used with TBSTYLE_EX_MIXEDBUTTONS
+			break;
+		case L"wholedropdown"_hash:
+			Styles |= BTNS_WHOLEDROPDOWN;
 			break;
 		case L"tooltips"_hash:
 			Styles |= TBSTYLE_TOOLTIPS;

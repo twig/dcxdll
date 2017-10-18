@@ -25,7 +25,7 @@
 int dcx_round(const float x)
 {
 	const auto t = gsl::narrow_cast<int>(x);
-	if (x - gsl::narrow_cast<float>(t) > 0.5)
+	if ((x - gsl::narrow_cast<float>(t)) > 0.5)
 		return t +1;
 	return t;
 }

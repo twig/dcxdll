@@ -423,7 +423,7 @@ void XPopupMenuManager::parseCommand( const TString & input, XPopupMenu *const p
 		if (numtok < 4)
 			throw Dcx::dcxException(TEXT("Invalid Arguments"));
 
-		const auto nColor = XPopupMenu::MenuColours(input.getnexttok( ).to_<UINT>( ));	// tok 3
+		const auto nColor = gsl::narrow_cast<XPopupMenu::MenuColours>(input.getnexttok( ).to_<UINT>( ));	// tok 3
 		const auto clr(input.getnexttok());				// tok 4
 
 		if (clr == TEXT("default"))
@@ -453,9 +453,9 @@ void XPopupMenuManager::parseCommand( const TString & input, XPopupMenu *const p
 		for (const auto &tmp : colors)
 		{
 			if (tmp == TEXT("default"))
-				p_Menu->setDefaultColor(XPopupMenu::MenuColours(i));
+				p_Menu->setDefaultColor(gsl::narrow_cast<XPopupMenu::MenuColours>(i));
 			else
-				p_Menu->setColor(XPopupMenu::MenuColours(i), tmp.to_<COLORREF>());
+				p_Menu->setColor(gsl::narrow_cast<XPopupMenu::MenuColours>(i), tmp.to_<COLORREF>());
 			++i;
 		}
 	}
@@ -678,7 +678,7 @@ void XPopupMenuManager::parseIdentifier(const TString & input, const refString<T
 		if (nColor < XPopupMenu::MenuColours::XPMC_MIN || nColor > XPopupMenu::MenuColours::XPMC_MAX)
 			throw Dcx::dcxException(TEXT("Invalid colour index used: %"), nColor);
 
-		_ts_snprintf(szReturnValue, TEXT("%lu"), p_Menu->getColor(XPopupMenu::MenuColours(nColor)));
+		_ts_snprintf(szReturnValue, TEXT("%lu"), p_Menu->getColor(gsl::narrow_cast<XPopupMenu::MenuColours>(nColor)));
 	}
 	break;
 	case TEXT("isrounded"_hash):

@@ -10,3 +10,4 @@ DCX V3.1 TODO List
 6: update the docs!!! @svn991 so far, becomes 2.0 at 1020 when changed to utf, becomes 3.0 at ???, 3.1 changes added.
 7: change how RichEdit control loads text to allow loading from xml.
 8: change how RichEdit control saves text to allow saving to xml.
+9: rewrite button/check/radio controls to be a single button control that supports diff styles.

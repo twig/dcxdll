@@ -98,7 +98,7 @@ TiXmlElement * DcxCheck::toXml(void) const
 const TString DcxCheck::getStyles(void) const
 {
 	auto styles(__super::getStyles());
-	const auto Styles = GetWindowStyle(m_Hwnd);
+	const auto Styles = dcxGetWindowStyle(m_Hwnd);
 
 	if (dcx_testflag(Styles, BS_RIGHT))
 		styles.addtok(TEXT("rjustify"));

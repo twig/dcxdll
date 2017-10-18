@@ -809,8 +809,8 @@ void XPopupMenuItem::DrawGradient( const HDC hdc, const LPRECT lprc, const COLOR
 	////vert [1] .Alpha  = 0x0C00;
 
 	TRIVERTEX        vert[2] = {
-		{ lprc->left, lprc->top, (COLOR16)((StartRed & 0xff) << 8), (COLOR16)((StartGreen & 0xff) << 8), (COLOR16)((StartBlue & 0xff) << 8), 0xff00 },
-		{ lprc->right, lprc->bottom, (COLOR16)((EndRed & 0xff) << 8), (COLOR16)((EndGreen & 0xff) << 8), (COLOR16)((EndBlue & 0xff) << 8), 0xff00 }
+		{ lprc->left, lprc->top, gsl::narrow_cast<COLOR16>((StartRed & 0xff) << 8), gsl::narrow_cast<COLOR16>((StartGreen & 0xff) << 8), gsl::narrow_cast<COLOR16>((StartBlue & 0xff) << 8), 0xff00 },
+		{ lprc->right, lprc->bottom, gsl::narrow_cast<COLOR16>((EndRed & 0xff) << 8), gsl::narrow_cast<COLOR16>((EndGreen & 0xff) << 8), gsl::narrow_cast<COLOR16>((EndBlue & 0xff) << 8), 0xff00 }
 	};
 
 	GRADIENT_RECT    gRect{0,1};
@@ -981,7 +981,7 @@ bool XPopupMenuItem::DrawMenuBitmap(const LPDRAWITEMSTRUCT lpdis, const bool bBi
 	}
 	else {
 		BITMAP bm{};
-		if (GetObject((HBITMAP)GetCurrentObject(lpdis->hDC, OBJ_BITMAP), sizeof(BITMAP), &bm) == 0)
+		if (GetObject(static_cast<HBITMAP>(GetCurrentObject(lpdis->hDC, OBJ_BITMAP)), sizeof(BITMAP), &bm) == 0)
 			return false;
 
 		//RECT rcIntersect;

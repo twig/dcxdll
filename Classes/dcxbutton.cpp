@@ -89,12 +89,6 @@ DcxButton::~DcxButton()
 {
 	ImageList_Destroy(getImageList());
 
-	//for (auto i = 0U; i < Dcx::countof(m_aBitmaps); ++i)
-	//{
-	//	if (m_aBitmaps[i] != nullptr)
-	//		DeleteBitmap(m_aBitmaps[i]);
-	//}
-
 	for (const auto &x: m_aBitmaps)
 	{
 		if (x != nullptr)
@@ -154,6 +148,13 @@ std::tuple<NoTheme, WindowStyle, WindowExStyle> DcxButton::parseControlStyles(co
 			break;
 		case L"default"_hash:
 			Styles |= BS_DEFPUSHBUTTON;
+			break;
+		case L"split"_hash:
+			Styles |= BS_SPLITBUTTON;
+			break;
+		case L"commandlink"_hash:
+			Styles |= BS_COMMANDLINK;
+			break;
 		default:
 			break;
 		}
@@ -319,6 +320,31 @@ void DcxButton::parseCommandRequest( const TString & input )
 		m_bBitmapText = (b > 0);	// any value > 0 taken as being true
 		redrawWindow();
 	}
+	// xdid -n [NAME] [ID] [SWITCH] +(FLAGS) Text
+	else if (flags[TEXT('n')])
+	{
+		if (numtok < 4)
+			throw Dcx::dcxException("Invalid args for xdid -n");
+
+		const XSwitchFlags xFlags(input.getnexttok());	// tok 4
+		const auto tsText(input.getlasttoks().trim());	// tok 5, -1
+
+		if (!xFlags[TEXT('+')])
+			throw Dcx::dcxException("Invalid flags, missing +");
+
+		m_tsCaption.clear();
+
+		if (xFlags[TEXT('n')])
+		{	// note (for command link style)
+			Button_SetNote(m_Hwnd, tsText.to_chr());
+		}
+		else
+		{
+			Button_SetText(m_Hwnd, tsText.to_chr());
+		}
+
+		redrawWindow();
+	}
 	else
 		parseGlobalCommandRequest( input, flags );
 }
@@ -444,24 +470,39 @@ LRESULT DcxButton::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 		}
 	}
 	break;
-	//case WM_NOTIFY:
-	//	{
-	//		LPNMHDR pnmh = (LPNMHDR)lParam;
-	//		switch (pnmh->code) {
-	//			case BCN_HOTITEMCHANGE:
-	//				{
-	//					LPNMBCHOTITEM item = (LPNMBCHOTITEM)lParam;
-	//					if (item->dwFlags & HICF_ENTERING)
-	//						mIRCError(TEXT("Entering Button"));
-	//					else
-	//						mIRCError(TEXT("Leaving Button"));
-	//				}
-	//				break;
-	//			default:
-	//				break;
-	//		}
-	//	}
-	//	break;
+	case WM_NOTIFY:
+	{
+		dcxlParam(LPNMHDR, pnmh);
+
+		if (pnmh == nullptr)
+			break;
+
+		switch (pnmh->code)
+		{
+		case BCN_HOTITEMCHANGE:
+		{
+			if (dcxlParam(LPNMBCHOTITEM, item); dcx_testflag(m_pParentDialog->getEventMask(), DCX_EVENT_FOCUS))
+			{
+				if (dcx_testflag(item->dwFlags, HICF_ENTERING))
+					execAliasEx(TEXT("hotchange,%u,entering"), getUserID());
+				else
+					execAliasEx(TEXT("hotchange,%u,leaving"), getUserID());
+			}
+		}
+		break;
+		case BCN_DROPDOWN:
+		{
+			if (dcxlParam(LPNMBCDROPDOWN, item); dcx_testflag(m_pParentDialog->getEventMask(), DCX_EVENT_CLICK))
+			{
+				execAliasEx(TEXT("dropdown,%u,%d,%d,%d,%d"), getUserID(), item->rcButton.top, item->rcButton.left, item->rcButton.bottom, item->rcButton.right);
+			}
+		}
+		break;
+		default:
+			break;
+		}
+	}
+	break;
 	}
 	return 0L;
 }
