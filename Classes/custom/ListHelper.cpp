@@ -38,7 +38,7 @@ bool DcxListHelper::matchItemText(const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &
 	case DcxSearchTypes::SEARCH_W:	// wildcard match
 		return TString(sItemText.data()).iswm(search);
 	case DcxSearchTypes::SEARCH_E:   // exact match
-		return sItemText == search.to_chr();
+		return search == sItemText;
 	default:
 		return false;
 	}
@@ -53,14 +53,24 @@ const DcxSearchTypes DcxListHelper::StringToSearchType(const TString & tsType) n
 
 const DcxSearchTypes DcxListHelper::CharToSearchType(const TCHAR & cType) noexcept
 {
-	auto SearchType = DcxSearchTypes::SEARCH_E;
+	//auto SearchType = DcxSearchTypes::SEARCH_E;
+	//if ((cType == TEXT('R')) || (cType == TEXT('r')))
+	//	SearchType = DcxSearchTypes::SEARCH_R;
+	//else if ((cType == TEXT('W')) || (cType == TEXT('w')))
+	//	SearchType = DcxSearchTypes::SEARCH_W;
+	//return SearchType;
 
-	if ((cType == TEXT('R')) || (cType == TEXT('r')))
-		SearchType = DcxSearchTypes::SEARCH_R;
-	else if ((cType == TEXT('W')) || (cType == TEXT('w')))
-		SearchType = DcxSearchTypes::SEARCH_W;
-
-	return SearchType;
+	switch (cType)
+	{
+	case TEXT('R'):
+	case TEXT('r'):
+		return DcxSearchTypes::SEARCH_R;
+	case TEXT('W'):
+	case TEXT('w'):
+		return DcxSearchTypes::SEARCH_W;
+	default:
+		return DcxSearchTypes::SEARCH_E;
+	}
 }
 
 const DcxSearchTypes DcxListHelper::FlagsToSearchType(const XSwitchFlags & xFlags) noexcept
