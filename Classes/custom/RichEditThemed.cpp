@@ -70,14 +70,14 @@ bool CRichEditThemed::Attach(HWND hRichEdit)
 //
 //////////////////////////////////////////////////////////////////////////////
 CRichEditThemed::CRichEditThemed(HWND hRichEdit)
-	: m_hRichEdit(hRichEdit), m_bThemedBorder(false)
+	: m_hRichEdit(hRichEdit), m_bThemedBorder(false), m_rcClientPos{0,0,0,0}
 {
 	//Subclass the richedit control, this way, the caller doesn't have to relay the messages by itself
 	m_aInstances[hRichEdit] = this;
-	m_pOriginalWndProc = (WNDPROC)SetWindowLongPtr(hRichEdit, GWLP_WNDPROC, (LONG_PTR)&RichEditStyledProc);
+	m_pOriginalWndProc = SubclassWindow(hRichEdit, &RichEditStyledProc);
 
 	//Check the current state of the richedit control
-	ZeroMemory(&m_rcClientPos, sizeof(RECT));
+	//ZeroMemory(&m_rcClientPos, sizeof(RECT));
 	VerifyThemedBorderState();
 }
 
@@ -141,11 +141,11 @@ LRESULT CALLBACK CRichEditThemed::RichEditStyledProc(HWND hwnd, UINT uMsg, WPARA
 	//This function is the subclassed winproc of the richedit control
 	//It is used to monitor the actions of the control, in a nice and transparent manner
 	
-	if(auto itCurInstance = m_aInstances.find(hwnd); itCurInstance != m_aInstances.end())
+	if(const auto &itCurInstance = m_aInstances.find(hwnd); itCurInstance != m_aInstances.end())
 	{
 		//A winproc is always static, this one is common to all the richedit controls managed by this class
 		//We need to get a pointer to the object controlling the richedit which is receiving this message
-		auto pObj = itCurInstance->second;
+		const auto pObj = itCurInstance->second;
 		
 		//If you get a compilation error here, it is probably because _WIN32_WINNT is not defined to at least 0x0501
 		if(uMsg == WM_THEMECHANGED || uMsg == WM_STYLECHANGED)
@@ -157,7 +157,7 @@ LRESULT CALLBACK CRichEditThemed::RichEditStyledProc(HWND hwnd, UINT uMsg, WPARA
 		else if(uMsg == WM_NCPAINT)
 		{
 			//Let the control paint its own non-client elements (such as its scrollbars)
-			LRESULT nOriginalReturn = CallWindowProc(pObj->m_pOriginalWndProc, hwnd, uMsg, wParam, lParam);
+			const auto nOriginalReturn = CallWindowProc(pObj->m_pOriginalWndProc, hwnd, uMsg, wParam, lParam);
 
 			//Draw the theme, if necessary
 			if(pObj->OnNCPaint())
@@ -176,10 +176,10 @@ LRESULT CALLBACK CRichEditThemed::RichEditStyledProc(HWND hwnd, UINT uMsg, WPARA
 			if(wParam)
 			{
 				//Ask the control to first calculate the space it needs
-				LRESULT nOriginalReturn = CallWindowProc(pObj->m_pOriginalWndProc, hwnd, uMsg, wParam, lParam);
+				const auto nOriginalReturn = CallWindowProc(pObj->m_pOriginalWndProc, hwnd, uMsg, wParam, lParam);
 
 				//Alter the size for our own border, if necessary
-				if(NCCALCSIZE_PARAMS *csparam = (NCCALCSIZE_PARAMS*)lParam; pObj->OnNCCalcSize(csparam))
+				if(const auto csparam = reinterpret_cast<NCCALCSIZE_PARAMS*>(lParam); pObj->OnNCCalcSize(csparam))
 					return WVR_REDRAW;
 
 				return nOriginalReturn;
@@ -224,8 +224,8 @@ void CRichEditThemed::VerifyThemedBorderState()
 	bool bCurrentThemedBorder = m_bThemedBorder;
 	m_bThemedBorder = false;
 
-	auto dStyle = GetWindowStyle(m_hRichEdit);
-	auto dExStyle = GetWindowExStyle(m_hRichEdit);
+	const auto dStyle = GetWindowStyle(m_hRichEdit);
+	const auto dExStyle = GetWindowExStyle(m_hRichEdit);
 
 	//First, check if the control is supposed to have a border
 	if(bCurrentThemedBorder || (dStyle & WS_BORDER || dExStyle & WS_EX_CLIENTEDGE))
@@ -255,11 +255,11 @@ bool CRichEditThemed::OnNCPaint()
 	{
 		if(m_bThemedBorder)
 		{
-			if(HTHEME hTheme = pOpenThemeData(m_hRichEdit, L"edit"); hTheme != nullptr)
+			if(const auto hTheme = pOpenThemeData(m_hRichEdit, VSCLASS_EDIT); hTheme != nullptr)
 			{
 				Auto(pCloseThemeData(hTheme));
 
-				if (HDC hdc = GetWindowDC(m_hRichEdit); hdc != nullptr)
+				if (const auto hdc = GetWindowDC(m_hRichEdit); hdc != nullptr)
 				{
 					Auto(ReleaseDC(m_hRichEdit, hdc));
 
@@ -269,7 +269,8 @@ bool CRichEditThemed::OnNCPaint()
 					rcBorder.right -= rcBorder.left; rcBorder.bottom -= rcBorder.top;
 					rcBorder.left = rcBorder.top = 0;
 
-					RECT rcClient; memcpy(&rcClient, &rcBorder, sizeof(RECT));
+					RECT rcClient;
+					memcpy(&rcClient, &rcBorder, sizeof(RECT));
 					rcClient.left += m_rcClientPos.left;
 					rcClient.top += m_rcClientPos.top;
 					rcClient.right -= m_rcClientPos.right;
@@ -314,22 +315,16 @@ bool CRichEditThemed::OnNCCalcSize(NCCALCSIZE_PARAMS *csparam)
 		if(m_bThemedBorder)
 		{
 			//Load the theme associated with edit boxes
-			if(HTHEME hTheme = pOpenThemeData(m_hRichEdit, L"edit"); hTheme != nullptr)
+			if(const auto hTheme = pOpenThemeData(m_hRichEdit, VSCLASS_EDIT); hTheme != nullptr)
 			{
 				Auto(pCloseThemeData(hTheme));
 
-				bool bToReturn = false;
-
 				//Get the size required by the current theme to be displayed properly
-				if (HDC hdc = GetDC(GetParent(m_hRichEdit)); hdc != nullptr)
+				if (const auto hdc = GetDC(GetParent(m_hRichEdit)); hdc != nullptr)
 				{
-
 					Auto(ReleaseDC(GetParent(m_hRichEdit), hdc));
-
-					RECT rcClient;
-					ZeroMemory(&rcClient, sizeof(RECT));
-
-					if (pGetThemeBackgroundContentRect(hTheme, hdc, EP_EDITTEXT, ETS_NORMAL, &csparam->rgrc[0], &rcClient) == S_OK)
+					
+					if (RECT rcClient{}; pGetThemeBackgroundContentRect(hTheme, hdc, EP_EDITTEXT, ETS_NORMAL, &csparam->rgrc[0], &rcClient) == S_OK)
 					{
 						//Add a pixel to every edge so that the client area is not too close to the border drawn by the theme (thus simulating a native edit box)
 						InflateRect(&rcClient, -1, -1);
@@ -340,10 +335,9 @@ bool CRichEditThemed::OnNCCalcSize(NCCALCSIZE_PARAMS *csparam)
 						m_rcClientPos.bottom = csparam->rgrc[0].bottom - rcClient.bottom;
 
 						memcpy(&csparam->rgrc[0], &rcClient, sizeof(RECT));
-						bToReturn = true;
+						return true;
 					}
 				}
-				return bToReturn;
 			}
 		}
 

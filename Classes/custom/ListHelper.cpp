@@ -10,7 +10,8 @@ void DcxListHelper::getItemRange(const TString &tsItems, const int nItemCnt, int
 std::pair<int, int> DcxListHelper::getItemRange(const TString &tsItems, const int nItemCnt)
 {
 	int iStart = 0, iEnd = 0;
-	if (tsItems.numtok(TEXT('-')) == 2) {
+	if (tsItems.numtok(TEXT('-')) == 2)
+	{
 		iStart = tsItems.getfirsttok(1, TEXT('-')).to_int() - 1;
 		iEnd = tsItems.getnexttok(TEXT('-')).to_int() - 1;
 
@@ -25,7 +26,6 @@ std::pair<int, int> DcxListHelper::getItemRange(const TString &tsItems, const in
 		else
 			iStart = iEnd;
 	}
-	//return std::make_pair(iStart, iEnd);
 	return { iStart, iEnd };
 }
 
@@ -75,12 +75,12 @@ const DcxSearchTypes DcxListHelper::CharToSearchType(const TCHAR & cType) noexce
 
 const DcxSearchTypes DcxListHelper::FlagsToSearchType(const XSwitchFlags & xFlags) noexcept
 {
-	auto SearchType = DcxSearchTypes::SEARCH_E;	// plain text exact match delete
+	auto SearchType = DcxSearchTypes::SEARCH_E;	// plain text exact match
 
 	if (xFlags[TEXT('w')] || xFlags[TEXT('W')])
-		SearchType = DcxSearchTypes::SEARCH_W;	// wildcard delete
+		SearchType = DcxSearchTypes::SEARCH_W;	// wildcard
 	else if (xFlags[TEXT('r')] || xFlags[TEXT('R')])
-		SearchType = DcxSearchTypes::SEARCH_R;	// regex delete
+		SearchType = DcxSearchTypes::SEARCH_R;	// regex
 
 	return SearchType;
 }

@@ -21,9 +21,12 @@ public:
 
 	DcxTrayIcon &operator =(const DcxTrayIcon &) = delete;	// No assignments!
 
-	const HWND &GetHwnd() const noexcept;
+	const inline HWND &GetHwnd() const noexcept
+	{
+		return m_hwnd;
+	}
 	const bool idExists(const int id) const;
-	const bool modifyIcon(const int id, const DWORD msg, const HICON icon = nullptr, const TString *const tooltip = nullptr);
+	const bool modifyIcon(const int id, const DWORD msg, gsl::owner<const HICON> icon = nullptr, const TString *const tooltip = nullptr);
 
 private:
 	VectorOfInts trayIconIDs;
@@ -37,7 +40,7 @@ private:
 	static LRESULT CALLBACK TrayWndProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 };
 
-extern DcxTrayIcon *trayIcons;
+extern std::unique_ptr<DcxTrayIcon> trayIcons;
 
 #ifdef __INTEL_COMPILER // Defined when using Intel C++ Compiler.
 #pragma warning( pop )
