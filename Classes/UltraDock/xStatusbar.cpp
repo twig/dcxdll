@@ -76,7 +76,7 @@ mIRC(xstatusbar)
 
 			auto c = 0U;
 			TString p;
-			for (auto i = decltype(nParts){0}; i < nParts; i++)
+			for (auto i = decltype(nParts){0}; i < nParts; ++i)
 			{
 				if (c >= 100)
 					throw Dcx::dcxException("Can't Allocate Over 100% of Statusbar!");
@@ -123,7 +123,8 @@ mIRC(xstatusbar)
 			DestroyIcon(DcxDock::status_getIcon(nPos));
 			DcxDock::status_setIcon(nPos, nullptr);
 
-			if (dcx_testflag(iFlags, SBT_OWNERDRAW)) {
+			if (dcx_testflag(iFlags, SBT_OWNERDRAW))
+			{
 				auto pPart = std::make_unique<SB_PARTINFOD>();
 
 				// commented out parts alrdy set by SB_PARTINFOD constructor
@@ -166,7 +167,7 @@ mIRC(xstatusbar)
 
 				if (const auto iFlags = DcxDock::status_getPartFlags(nPos); dcx_testflag(iFlags, SBT_OWNERDRAW))
 				{
-					if (auto pPart = reinterpret_cast<LPSB_PARTINFOD>(DcxDock::status_getText(nPos, nullptr)); pPart != nullptr)
+					if (const auto pPart = reinterpret_cast<LPSB_PARTINFOD>(DcxDock::status_getText(nPos, nullptr)); pPart != nullptr)
 					{
 						if (pPart->m_BkgCol != nullptr)
 							DeleteBrush(pPart->m_BkgCol);
@@ -294,9 +295,9 @@ mIRC(_xstatusbar)
 
 			DcxDock::status_getParts(SB_MAX_PARTSD, &parts[0]);
 
-			TString tsOut(gsl::narrow_cast<UINT>(mIRCLinker::m_mIRC_Buffer_Size_cch));
+			TString tsOut(gsl::narrow_cast<UINT>(mIRCLinker::c_mIRC_Buffer_Size_cch));
 
-			for (auto i = decltype(nParts){0}; i < nParts; i++)
+			for (auto i = decltype(nParts){0}; i < nParts; ++i)
 				tsOut.addtok(parts[i]);
 
 			refData = tsOut;
@@ -305,7 +306,7 @@ mIRC(_xstatusbar)
 		case TEXT("tooltip"_hash):
 		{
 			if (const auto iPart = d.getnexttok().to_int(), nParts = gsl::narrow_cast<int>(DcxDock::status_getParts(SB_MAX_PARTSD, 0)); (iPart > -1 && iPart < nParts))
-				DcxDock::status_getTipText(iPart, mIRCLinker::m_mIRC_Buffer_Size_cch, data);
+				DcxDock::status_getTipText(iPart, mIRCLinker::c_mIRC_Buffer_Size_cch, data);
 		}
 		break;
 		default:	// error
