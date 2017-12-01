@@ -21,20 +21,26 @@
 */
 SYSTEMTIME MircTimeToSystemTime(const long mircTime)
 {
+	//TString str;
+	//SYSTEMTIME st = { 0 };
+	//
+	////mIRCLinker::tsEvalex(str, TEXT("$asctime(%ld, d m yyyy hh nn ss)"), mircTime);
+	//mIRCLinker::eval(str, TEXT("$asctime(%,d m yyyy hh nn ss)"), mircTime);
+	//
+	//st.wDay = str.getfirsttok(1).to_<WORD>();
+	//st.wMonth = str.getnexttok().to_<WORD>();
+	//st.wYear = str.getnexttok().to_<WORD>();
+	//st.wHour = str.getnexttok().to_<WORD>();
+	//st.wMinute = str.getnexttok().to_<WORD>();
+	//st.wSecond = str.getnexttok().to_<WORD>();
+	//
+	//return st;
+
 	TString str;
-	SYSTEMTIME st = { 0 };
 
-	//mIRCLinker::tsEvalex(str, TEXT("$asctime(%ld, d m yyyy hh nn ss)"), mircTime);
-	mIRCLinker::eval(str, TEXT("$asctime(%, d m yyyy hh nn ss)"), mircTime);
+	mIRCLinker::eval(str, TEXT("$asctime(%,yyyy m d hh nn ss)"), mircTime);
 
-	st.wDay = str.getfirsttok(1).to_<WORD>();
-	st.wMonth = str.getnexttok().to_<WORD>();
-	st.wYear = str.getnexttok().to_<WORD>();
-	st.wHour = str.getnexttok().to_<WORD>();
-	st.wMinute = str.getnexttok().to_<WORD>();
-	st.wSecond = str.getnexttok().to_<WORD>();
-
-	return st;
+	return { str.getfirsttok(1).to_<WORD>(), str.getnexttok().to_<WORD>(), 0, str.getnexttok().to_<WORD>(), str.getnexttok().to_<WORD>(), str.getnexttok().to_<WORD>(), str.getnexttok().to_<WORD>(), 0 };
 }
 
 long SystemTimeToMircTime(const LPSYSTEMTIME pst)

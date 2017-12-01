@@ -36,20 +36,45 @@ HWND FindOwner(const TString & data, const gsl::not_null<HWND> &defaultWnd)
 	if (i < data.numtok( ))
 	{
 		const auto tsHwnd(data.gettok(gsl::narrow_cast<int>(i) + 1));
-		// if it is a number (HWND) passed
-		auto wnd = reinterpret_cast<HWND>(tsHwnd.to_<DWORD>());
 
-		if (wnd != nullptr)
+		// if it is a number (HWND) passed		
+		if (const auto wnd = reinterpret_cast<HWND>(tsHwnd.to_<DWORD>()); wnd != nullptr)
 			return wnd;
 
 		// try to retrieve dialog hwnd from name
-		wnd = GetHwndFromString(tsHwnd);
-
-		if (wnd != nullptr)
+		if (const auto wnd = GetHwndFromString(tsHwnd); wnd != nullptr)
 			return wnd;
 	}
 
 	return defaultWnd;
+}
+
+std::optional<HWND> FindOwner(const TString & data)
+{
+	if (data.empty())
+		return {};
+
+	const auto i = data.findtok(TEXT("owner"), 1);
+
+	// 'owner' token not found in data
+	if (i == 0)
+		return {};
+
+	// if there is a token after 'owner'
+	if (i < data.numtok())
+	{
+		const auto tsHwnd(data.gettok(gsl::narrow_cast<int>(i) + 1));
+
+		// if it is a number (HWND) passed		
+		if (const auto wnd = reinterpret_cast<HWND>(tsHwnd.to_<DWORD>()); wnd != nullptr)
+			return wnd;
+
+		// try to retrieve dialog hwnd from name
+		if (const auto wnd = GetHwndFromString(tsHwnd); wnd != nullptr)
+			return wnd;
+	}
+
+	return {};
 }
 
 /*!
@@ -63,7 +88,7 @@ HWND GetHwndFromString(const TString &str)
 	//return GetHwndFromString(str.to_chr());
 
 	// test code to allow docking by hwnd (wtf its only 3 lines)
-	if (auto hwnd = reinterpret_cast<HWND>(str.to_<DWORD>()); IsWindow(hwnd))
+	if (const auto hwnd = reinterpret_cast<HWND>(str.to_<DWORD>()); IsWindow(hwnd))
 		return hwnd;
 
 	TString tsRes;
@@ -539,14 +564,14 @@ HRGN BitmapRegion(HBITMAP hBitmap, const COLORREF cTransparentColor, const bool 
 	auto Pixeles = (BYTE*)bmNewBitmap.bmBits + (bmNewBitmap.bmHeight - 1)*bmNewBitmap.bmWidthBytes;
 
 	// Main loop
-	for (auto Row = 0; Row < bmBitmap.bmHeight; Row++)
+	for (auto Row = 0; Row < bmBitmap.bmHeight; ++Row)
 	{
 		// Horizontal loop
-		for (auto Column = 0; Column < bmBitmap.bmWidth; Column++)
+		for (auto Column = 0; Column < bmBitmap.bmWidth; ++Column)
 		{
 			// We optimized searching for adjacent transparent pixels!
-			int Xo = Column;
-			auto Pixel = (RGBQUAD*)Pixeles + Column;
+			const int Xo = Column;
+			const auto *Pixel = (RGBQUAD*)Pixeles + Column;
 
 			while (Column < bmBitmap.bmWidth)
 			{
@@ -564,8 +589,8 @@ HRGN BitmapRegion(HBITMAP hBitmap, const COLORREF cTransparentColor, const bool 
 				if ((!bIsTransparent) && (!bInRange))
 					break;
 
-				Pixel++;
-				Column++;
+				++Pixel;
+				++Column;
 			} // while (Column < bm.bmWidth)
 
 			if (Column > Xo)
@@ -582,7 +607,7 @@ HRGN BitmapRegion(HBITMAP hBitmap, const COLORREF cTransparentColor, const bool 
 					pData = (RGNDATA *)GlobalLock(hData);
 				}	// if (pData->rdh.nCount>=maxRect)
 
-				auto pRect = (RECT*)&pData->Buffer[0];
+				const auto pRect = (RECT*)&pData->Buffer[0];
 				SetRect(&pRect[pData->rdh.nCount], Xo, Row, Column, Row + 1);
 
 				if (Xo<pData->rdh.rcBound.left)
@@ -597,7 +622,7 @@ HRGN BitmapRegion(HBITMAP hBitmap, const COLORREF cTransparentColor, const bool 
 				if (Row + 1>pData->rdh.rcBound.bottom)
 					pData->rdh.rcBound.bottom = Row + 1;
 
-				pData->rdh.nCount++;
+				++pData->rdh.nCount;
 
 				// In Win95/08 there is a limitation on the maximum number of
 				// rectangles a RGN_DATA can store (aprox. 4500), so we call
@@ -615,7 +640,7 @@ HRGN BitmapRegion(HBITMAP hBitmap, const COLORREF cTransparentColor, const bool 
 						if (hRegion != nullptr)
 						{
 							CombineRgn(hRegion, hRegion, hNewRegion, RGN_OR);
-							DeleteObject(hNewRegion);
+							DeleteRgn(hNewRegion);
 						}
 						else
 							hRegion = hNewRegion;

@@ -277,7 +277,7 @@ bool CopyToClipboard(const HWND owner, const TString & str)
 	}
 
 	{	// simply sets scope for vars
-		auto strCopy = (TCHAR *)GlobalLock(hglbCopy);
+		const auto strCopy = static_cast<TCHAR *>(GlobalLock(hglbCopy));
 
 		if (strCopy == nullptr)
 		{
@@ -286,7 +286,7 @@ bool CopyToClipboard(const HWND owner, const TString & str)
 			return false;
 		}
 
-		dcx_strcpyn(strCopy, str.to_chr(), cbsize);
+		dcx_strcpyn(strCopy, str.to_chr(), str.len() +1);
 
 		GlobalUnlock(hglbCopy);
 	}
@@ -344,7 +344,7 @@ bool ParseCommandToLogfont(const TString& cmd, LPLOGFONT lf)
 		lf->lfUnderline = TRUE;
 
 	dcx_strcpyn(&lf->lfFaceName[0], fName.to_chr(), Dcx::countof(lf->lfFaceName));
-	lf->lfFaceName[31] = 0;
+	lf->lfFaceName[Dcx::countof(lf->lfFaceName) -1] = 0;
 
 	return true;
 }
@@ -405,12 +405,10 @@ const static std::map<std::hash<TString>::result_type, UINT> charset_map{
  */
 UINT parseFontCharSet(const TString &charset)
 {
-	UINT res = DEFAULT_CHARSET;
+	if (const auto it = charset_map.find(std::hash<TString>()(charset)); it != charset_map.end())
+		return it->second;
 
-	if (auto it = charset_map.find(std::hash<TString>()(charset)); it != charset_map.end())
-		res = it->second;
-
-	return res;
+	return DEFAULT_CHARSET;
 }
 
 TString ParseLogfontToCommand(const LPLOGFONT lf)
@@ -698,89 +696,6 @@ HICON dcxLoadIcon(const int index, TString &filename, const bool large, const TS
 	return icon;
 }
 
-//HBITMAP GDIPlusToBitmap(Bitmap *gdiPlusBmp)
-//{
-//	//HDC hSrcDC = CreateCompatibleDC(NULL);
-//	//HBITMAP oldSrcBmp = SelectBitmap(hSrcDC, hBmp);
-//	//BITMAP bmp;
-//	//GetObject(hBmp, sizeof(BITMAP), &bmp);
-//	//HDC hDstDC = CreateCompatibleDC(NULL);
-//	//HBITMAP hDstBmp = CreateCompatibleBitmap(hSrcDC, bmp.bmWidth, bmp.bmHeight);
-//	//HBITMAP oldDstBmp = SelectBitmap(hDstDC, hDstBmp);
-//
-//	//BitBlt(hDstDC, 0,0, bmp.bmWidth, bmp.bmHeight, hSrcDC, 0,0, SRCCOPY);
-//
-//	//SelectBitmap(hDstDC, oldDstBmp);
-//	//DeleteDC(hDstDC);
-//	//SelectBitmap(hSrcDC, oldSrcBmp);
-//	//DeleteDC(hSrcDC);
-//	HDC hScreen = CreateDC(TEXT("DISPLAY"), NULL, NULL, NULL);
-//	HDC hDstDC = CreateCompatibleDC(hScreen);
-//	HBITMAP hDstBmp = CreateCompatibleBitmap(hScreen, gdiPlusBmp->GetWidth(), gdiPlusBmp->GetHeight());
-//	HBITMAP oldDstBmp = SelectBitmap(hDstDC, hDstBmp);
-//
-//	Graphics gfx(hDstDC);
-//
-//	gfx.DrawImage(gdiPlusBmp, 0,0 );
-//
-//	gfx.ReleaseHDC(hDstDC);
-//
-//	SelectBitmap(hDstDC, oldDstBmp);
-//	DeleteDC(hDstDC);
-//	DeleteDC(hScreen);
-//	return hDstBmp;
-//}
-
-//HBITMAP dcxLoadBitmap(HBITMAP dest, TString &filename) {
-//	filename.trim();
-//
-//	if (dest != NULL) {
-//		DeleteBitmap(dest);
-//		dest = NULL;
-//	}
-//	if (!IsFile(filename)) {
-//		Dcx::errorex(TEXT("dcxLoadBitmap"), TEXT("Could Not Access File: %s"), filename.to_chr());
-//		return NULL;
-//	}
-//
-//#ifdef DCX_USE_GDIPLUS
-//	if (Dcx::GDIModule.isUseable()) {
-//		try {
-//#if UNICODE
-//			Bitmap *p_Img = new Bitmap(filename.to_chr());
-//#else
-//			Bitmap *p_Img = new Bitmap(filename.to_wchr());
-//#endif
-//			// for some reason this returns `OutOfMemory` when the file doesnt exist instead of `FileNotFound`
-//			Status status = p_Img->GetLastStatus();
-//			if (status != Ok)
-//				Dcx::error(TEXT("dcxLoadBitmap"), GetLastStatusStr(status));
-//			else {
-//				if ((status = p_Img->GetHBITMAP(Color(), &dest)) != Ok) {
-//					Dcx::error(TEXT("dcxLoadBitmap"), TEXT("Unable to Get GDI+ Bitmap Info"));
-//					Dcx::error(TEXT("dcxLoadBitmap"), GetLastStatusStr(status));
-//					dest = NULL;
-//				}
-//				//if (dest != NULL) {
-//				//	dest = GDIPlusToBitmap(p_Img);
-//				//}
-//				GdiFlush();
-//			}
-//			delete p_Img;
-//		}
-//		catch (const std::bad_alloc)
-//		{
-//			Dcx::error(TEXT("dcxLoadBitmap"), TEXT("Unable to Allocate Image Object"));
-//		}
-//	}
-//	else
-//		dest = (HBITMAP) LoadImage(GetModuleHandle(NULL), filename.to_chr(), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE);
-//#else
-//	dest = (HBITMAP) LoadImage(GetModuleHandle(NULL), filename.to_chr(), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE);
-//#endif
-//	return dest;
-//}
-
 HBITMAP dcxLoadBitmap(HBITMAP dest, TString &filename)
 {
 	filename.trim();
@@ -813,9 +728,6 @@ HBITMAP dcxLoadBitmap(HBITMAP dest, TString &filename)
 				Dcx::error(TEXT("dcxLoadBitmap"), GetLastStatusStr(status));
 				dest = nullptr;
 			}
-			//if (dest != NULL) {
-			//	dest = GDIPlusToBitmap(p_Img);
-			//}
 			GdiFlush();
 		}
 	}
@@ -965,13 +877,13 @@ HICON CreateGrayscaleIcon( HICON hIcon, COLORREF* pPalette )
 
 				auto c1 = (DWORD)(sz.cx * sz.cy);
 
-				auto lpBits = (LPDWORD)::GlobalAlloc(GMEM_FIXED, (c1) * 4);
+				const auto lpBits = (LPDWORD)::GlobalAlloc(GMEM_FIXED, (c1) * 4);
 
 				if (lpBits && ::GetDIBits(hdc, icInfo.hbmColor, 0, (UINT)sz.cy, lpBits, &bmpInfo, DIB_RGB_COLORS) != 0)
 				{
 					auto lpBitsPtr     = (LPBYTE)lpBits;
 
-					for (auto i = decltype(c1){0}; i < c1; i++)
+					for (auto i = decltype(c1){0}; i < c1; ++i)
 					{
 						auto off = (UINT)( 255 - (( lpBitsPtr[0] + lpBitsPtr[1] + lpBitsPtr[2] ) / 3) );
 
@@ -1002,7 +914,6 @@ HICON CreateGrayscaleIcon( HICON hIcon, COLORREF* pPalette )
 					}
 
 					::GlobalFree(lpBits);
-					//lpBits = NULL;
 				}
 			}
 
@@ -1021,7 +932,7 @@ HICON CreateGrayscaleIcon( HICON hIcon )
 	if (!bGrayPaletteSet)
 	{
 		//#pragma loop(hint_parallel(2))
-		for(auto i = 0U; i < Dcx::countof(defaultGrayPalette); i++)
+		for(auto i = 0U; i < Dcx::countof(defaultGrayPalette); ++i)
 		{
 			defaultGrayPalette[i] = RGB(255-i, 255-i, 255-i);
 		}
@@ -1097,7 +1008,7 @@ static const TCHAR *GDIErrors[] = {
 	TEXT("PropertyNotSupported"),
 	TEXT("ProfileNotFound")
 };
-const TCHAR *GetLastStatusStr(Gdiplus::Status status)
+constexpr const TCHAR *GetLastStatusStr(Gdiplus::Status status)
 {
 	//if (status > DCX_MAX_GDI_ERRORS)
 	//	return GDIErrors[1]; // status not in table, return GenericError
@@ -1258,7 +1169,18 @@ bool IsFile(TString &filename)
 //    return dwVersion;
 //}
 
-COLORREF staticPalette[mIRC_PALETTE_SIZE] = { CLR_INVALID };
+COLORREF staticPalette[mIRC_PALETTE_SIZE] = {
+	CLR_INVALID, CLR_INVALID, CLR_INVALID, CLR_INVALID, CLR_INVALID, CLR_INVALID, CLR_INVALID, CLR_INVALID,
+	CLR_INVALID, CLR_INVALID, CLR_INVALID, CLR_INVALID, CLR_INVALID, CLR_INVALID, CLR_INVALID, CLR_INVALID,
+	0x470000, 0x472100, 0x474700, 0x324700, 0x004700, 0x00472c, 0x004747, 0x002747, 0x000047, 0x2e0047, 0x470047,
+	0x47002a, 0x740000, 0x743a00, 0x747400, 0x517400, 0x007400, 0x007449, 0x007474, 0x004074, 0x000074, 0x4b0074,
+	0x740074, 0x740045, 0xb50000, 0xb56300, 0xb5b500, 0x7db500, 0x00b500, 0x00b571, 0x00b5b5, 0x0063b5, 0x0000b5,
+	0x7500b5, 0xb500b5, 0xb5006b, 0xff0000, 0xff8c00, 0xffff00, 0xb2ff00, 0x00ff00, 0x00ffa0, 0x00ffff, 0x008cff,
+	0x0000ff, 0xa500ff, 0xff00ff, 0xff0098, 0xff5959, 0xffb459, 0xffff71, 0xcfff60, 0x6fff6f, 0x65ffc9, 0x6dffff,
+	0x59b4ff, 0x5959ff, 0xc459ff, 0xff66ff, 0xff59bc, 0xff9c9c, 0xffd39c, 0xffff9c, 0xe2ff9c, 0x9cff9c, 0x9cffdb,
+	0x9cffff, 0x9cd3ff, 0x9c9cff, 0xdc9cff, 0xff9cff, 0xff94d3, 0x000000, 0x131313, 0x282828, 0x363636, 0x4d4d4d,
+	0x656565, 0x818181, 0x9f9f9f, 0xbcbcbc, 0xe2e2e2, 0xffffff
+};
 
 /*!
 * \brief Get all mIRC Colours.
@@ -1305,7 +1227,7 @@ void getmIRCPalette(COLORREF *const Palette, const UINT PaletteItems)
 // uMask        - bitmask of items to get.
 //
 // Copies staticPalette to Palette based on a 16bit mask, one bit for every colour (updates staticPalette if needed)
-//
+// NB: This ONLY update sthe first 16 colours, not the full 99, > 16 are static anyway...
 void getmIRCPaletteMask(COLORREF *const Palette, const UINT PaletteItems, uint16_t uMask)
 {
 	if ((PaletteItems > mIRC_PALETTE_SIZE) || (Palette == &staticPalette[0]))
@@ -1330,10 +1252,17 @@ void getmIRCPaletteMask(COLORREF *const Palette, const UINT PaletteItems, uint16
 
 int unfoldColor(const WCHAR *color)
 {
+	//auto nColor = _ts_atoi(color);
+	//
+	//while (nColor > 15)
+	//	nColor -= 16;
+	//
+	//return nColor;
+
 	auto nColor = _ts_atoi(color);
 
-	while (nColor > 15)
-		nColor -= 16;
+	while (nColor > 99)
+		nColor -= 100;
 
 	return nColor;
 }
@@ -1540,21 +1469,27 @@ void mIRC_DrawText(HDC hdc, const TString &txt, LPRECT rc, const UINT style, con
 				//usingBGclr = false;
 				if (wtxt[pos +1] >= L'0' && wtxt[pos +1] <= L'9')
 				{
-					WCHAR colbuf[3];
-					colbuf[0] = wtxt[pos +1];
-					colbuf[1] = L'\0';
-					colbuf[2] = L'\0';
-					++pos;
+					//WCHAR colbuf[3];
+					//colbuf[0] = wtxt[pos +1];
+					//colbuf[1] = L'\0';
+					//colbuf[2] = L'\0';
 
-					if (wtxt[pos +1] >= L'0' && wtxt[pos +1] <= L'9')
 					{
-						colbuf[1] = wtxt[pos +1];
+						UINT umIRCColour = (wtxt[pos + 1] - L'0'); // must be => 0 <= 9
 						++pos;
-					}
 
-					// color code number
-					clrFG = cPalette[unfoldColor(&colbuf[0])];
-					//clrFG = cPalette[unfoldColor<WCHAR>(colbuf)];
+						if (wtxt[pos + 1] >= L'0' && wtxt[pos + 1] <= L'9')
+						{
+							//colbuf[1] = wtxt[pos +1];
+							umIRCColour *= 10;	// becomes a max of 90
+							umIRCColour += (wtxt[pos + 1] - L'0');	// becomes a max of 99
+							++pos;
+						}
+
+						// color code number
+						//clrFG = cPalette[unfoldColor(&colbuf[0])];
+						clrFG = cPalette[umIRCColour];
+					}
 
 					// maybe a background color
 					if (wtxt[pos+1] == L',')
@@ -1563,21 +1498,24 @@ void mIRC_DrawText(HDC hdc, const TString &txt, LPRECT rc, const UINT style, con
 
 						if (wtxt[pos +1] >= L'0' && wtxt[pos +1] <= L'9')
 						{
-							colbuf[0] = wtxt[pos +1];
+							//colbuf[0] = wtxt[pos +1];
+							UINT umIRCColour = (wtxt[pos + 1] - L'0'); // must be => 0 <= 9
 							++pos;
 
 							if (wtxt[pos +1] >= L'0' && wtxt[pos +1] <= L'9')
 							{
-								colbuf[1] = wtxt[pos +1];
+								//colbuf[1] = wtxt[pos +1];
+								umIRCColour *= 10;	// becomes a max of 90
+								umIRCColour += (wtxt[pos + 1] - L'0');	// becomes a max of 99
 								++pos;
 							}
-							else
-								colbuf[1] = L'\0';
+							//else
+							//	colbuf[1] = L'\0';
 
 
 							// color code number
-							clrBG = cPalette[unfoldColor(&colbuf[0])];
-							//clrBG = cPalette[unfoldColor<WCHAR>(colbuf)];
+							//clrBG = cPalette[unfoldColor(&colbuf[0])];
+							clrBG = cPalette[umIRCColour];
 							SetBkMode(hdc, OPAQUE);
 							//usingBGclr = true;
 						}
@@ -1640,14 +1578,14 @@ void mIRC_DrawText(HDC hdc, const TString &txt, LPRECT rc, const UINT style, con
 			{
 				if (!tmp.empty())
 					mIRC_OutText(hdc, tmp, &rcOut, &lf, iStyle, clrFG, shadow);
-				lf.lfItalic = (BYTE)(lf.lfItalic ? 0 : 1);
+				lf.lfItalic = (lf.lfItalic ? 0U : 1U);
 			}
 			break;
 		case 31: // ctrl+u
 			{
 				if (!tmp.empty())
 					mIRC_OutText(hdc, tmp, &rcOut, &lf, iStyle, clrFG, shadow);
-				lf.lfUnderline = (BYTE)(lf.lfUnderline ? 0 : 1);
+				lf.lfUnderline = (lf.lfUnderline ? 0U : 1U);
 			}
 			break;
 		case 10:
@@ -1688,7 +1626,7 @@ void mIRC_DrawText(HDC hdc, const TString &txt, LPRECT rc, const UINT style, con
 						{
 							if (nFit > 0)
 							{
-								auto o = tmp[nFit];
+								const auto o = tmp[nFit];
 								//mIRC_OutText(hdc, tmp.wsub(0,nFit), &rcOut, &lf, iStyle, clrFG, shadow);
 								auto tsSub(tmp.sub(0, nFit));
 								mIRC_OutText(hdc, tsSub, &rcOut, &lf, iStyle, clrFG, shadow);
@@ -1789,7 +1727,7 @@ gsl::owner<HDC *> CreateHDCBuffer(gsl::not_null<HDC> hdc, const LPRECT rc)
 	if (buf->m_hBitmap == nullptr)
 	{
 #ifdef DEBUG
-		DWORD err = GetLastError(), errBufSize = 16;
+		DWORD err = GetLastError(), errBufSize = 16U;
 		if (LPTSTR errBuf = nullptr; FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_IGNORE_INSERTS, nullptr, err, 0, (LPTSTR)&errBuf, errBufSize, nullptr) != 0) {
 			mIRCLinker::debug(TEXT("CreateHDCBuffer"),errBuf);
 			LocalFree(errBuf);
@@ -1861,7 +1799,7 @@ int TGetWindowText(HWND hwnd, TString &txt)
 	const auto nText = GetWindowTextLength(hwnd) + 2;	// NB: needs to include space for end 0
 	if (nText > 2)
 	{
-		txt.reserve((UINT)(nText));
+		txt.reserve(gsl::narrow_cast<UINT>(nText));
 		if (GetWindowText(hwnd, txt.to_chr(), nText) != 0)
 			return nText;
 
@@ -1916,11 +1854,24 @@ bool isRegexMatch(const TCHAR *matchtext, const TCHAR *pattern)
 		return false;
 
 	// NB: CREGEX version is incomplete
-#ifdef DCX_USE_CREGEX
+#if DCX_USE_CREGEX
 	try {
-		std::basic_regex<TCHAR> r(pattern, std::regex_constants::ECMAScript);
-		if (std::regex_match(matchtext, r, std::regex_constants::match_default))
-			return true;
+		const auto patlen = _ts_strlen(pattern);
+		if ((pattern[0] == TEXT('/')) && (pattern[patlen - 1] == TEXT('/')))
+		{
+			// need to remove the // from the pattern so /^blah$/ becomes ^blah$
+			// also need to handle m/^blah$/i etc..
+
+			//auto tmp = std::make_unique<TCHAR[]>(patlen);
+			//_ts_strcpyn(tmp.get(), pattern +1, patlen -2);
+			//std::basic_regex<TCHAR> r(tmp.get(), std::regex_constants::ECMAScript);
+			std::basic_regex<TCHAR> r(pattern, std::regex_constants::ECMAScript);
+			return std::regex_search(matchtext, r);
+		}
+		else {
+			std::basic_regex<TCHAR> r(pattern, std::regex_constants::ECMAScript);
+			return std::regex_search(matchtext, r);
+		}
 	}
 	catch (const std::regex_error) {
 	}
@@ -1957,7 +1908,7 @@ bool AddFileIcons(HIMAGELIST himl, TString &filename, const bool bLarge, const i
 		return bAdded;
 
 	do {
-		Dcx::dcxIconResource hIcon(filename, fIndex, bLarge);
+		const Dcx::dcxIconResource hIcon(filename, fIndex, bLarge);
 
 		bGotIcon = (hIcon != nullptr);
 		if (bGotIcon)
@@ -1967,7 +1918,8 @@ bool AddFileIcons(HIMAGELIST himl, TString &filename, const bool bLarge, const i
 			else
 				ImageList_ReplaceIcon(himl, i++, hIcon);
 			bAdded = true;
-			fIndex++;
+
+			++fIndex;
 			if (fIndex > iEnd)
 				break;
 		}
@@ -1999,7 +1951,8 @@ bool AddFileIcons(HIMAGELIST himl, TString &filename, const bool bLarge, const i
 				ImageList_ReplaceIcon(himl, i++, hIcon);
 			bAdded = true;
 		}
-		fIndex++;
+
+		++fIndex;
 		if (fIndex > iEnd)
 			break;
 	} while (hIcon != nullptr);
@@ -2074,7 +2027,7 @@ void DrawRotatedText(const TString &strDraw, const gsl::not_null<LPRECT> &rc, co
 //void DrawRotatedText(HDC hdc, TCHAR *str, LPRECT rect, double angle, UINT nOptions = 0)
 //{
 //	// convert angle to radian
-//	double pi = 3.141592654;
+//	constexpr double pi = 3.141592654;
 //	double radian = pi * 2 / 360 * angle;
 //
 //	size_t len = lstrlen(str);
@@ -2111,7 +2064,7 @@ int queryIntAttribute(gsl::not_null<const TiXmlElement *> element, gsl::not_null
 	//auto integer = defaultValue;
 	//return (element->QueryIntAttribute(attribute, &integer) == TIXML_SUCCESS) ? integer : defaultValue;
 
-	if (auto[iStatus, integer] = element->QueryIntAttribute(attribute); iStatus == TIXML_SUCCESS)
+	if (const auto&[iStatus, integer] = element->QueryIntAttribute(attribute); iStatus == TIXML_SUCCESS)
 		return integer;
 
 	return defaultValue;
@@ -2140,10 +2093,9 @@ TString MakeTextmIRCSafe(const TCHAR *const tString)
 	bool bLastWasSpace = true;	// start as true as the beginning of the line is treated the same as a space here
 
 	// look for ()[]%$; we dont want to change , as this is needed
-	for (auto i = decltype(len){0}; i < len; i++)
+	for (auto i = decltype(len){0}; i < len; ++i)
 	{
-		const auto c = tString[i];
-		switch (c)
+		switch (const auto &c = tString[i]; c)
 		{
 		case TEXT('('):
 		case TEXT(')'):
