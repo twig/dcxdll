@@ -30,7 +30,7 @@ mIRC(ColorDialog)
 
 		bool			retDefault(false);
 		CHOOSECOLOR		cc = { 0 };
-		static COLORREF clr[16];
+		static COLORREF clr[16];	// MUST be 16 (not related to mIRC colours)
 		const auto		sel = d.getfirsttok(1).to_<COLORREF>();
 		DWORD			styles = CC_RGBINIT;
 
@@ -185,7 +185,7 @@ TString FileDialog(const TString & data, const TString &method, const HWND pWnd)
 
 	//Dcx::dcxStringResource szFilename(MIRC_BUFFER_SIZE_CCH);
 
-	auto szFilename = std::make_unique<TCHAR[]>(MIRC_BUFFER_SIZE_CCH);
+	const auto szFilename = std::make_unique<TCHAR[]>(MIRC_BUFFER_SIZE_CCH);
 
 	// seperate the tokenz
 	const auto styles(data.getfirsttok(1, TSTABCHAR).trim());
@@ -194,7 +194,7 @@ TString FileDialog(const TString & data, const TString &method, const HWND pWnd)
 
 	// Get Current dir for resetting later.
 	const UINT tsBufSize = GetCurrentDirectory(0, nullptr);
-	TString tsCurrentDir((UINT)tsBufSize);
+	TString tsCurrentDir(tsBufSize);
 	GetCurrentDirectory(tsBufSize,tsCurrentDir.to_chr());
 
 	// format the filter into the format WinAPI wants, with double NULL TERMINATOR at end
@@ -268,6 +268,7 @@ TString FileDialog(const TString & data, const TString &method, const HWND pWnd)
 			break;
 		case TEXT("owner"_hash):
 			ofn.hwndOwner = FindOwner(styles, pWnd);
+			//ofn.hwndOwner = FindOwner(styles).value_or(pWnd);
 			break;
 		default:
 			break;
@@ -437,7 +438,7 @@ mIRC(BrowseDialog)
 
 		extra.flags = bi.ulFlags;
 
-		auto pidl = SHBrowseForFolder(&bi);
+		const auto pidl = SHBrowseForFolder(&bi);
 
 		// User cancelled
 		if (pidl == nullptr)
@@ -487,7 +488,7 @@ gsl::owner<LPITEMIDLIST> GetFolderFromCSIDL(const int nCsidl)
 
 int CALLBACK BrowseFolderCallback(HWND hwnd, UINT uMsg, LPARAM lParam, LPARAM lpData)
 {
-	switch (auto extra = reinterpret_cast<LPXBROWSEDIALOGSETTINGS>(lpData); uMsg)
+	switch (const auto extra = reinterpret_cast<LPXBROWSEDIALOGSETTINGS>(lpData); uMsg)
 	{
 		// User typed invalid name (non-existant folder) into editbox.
 		// This must return non-zero, otherwise it will close the dialog.
@@ -554,10 +555,6 @@ int CALLBACK BrowseFolderCallback(HWND hwnd, UINT uMsg, LPARAM lParam, LPARAM lp
 */
 mIRC(FontDialog)
 {
-	DWORD style = CF_INITTOLOGFONTSTRUCT | CF_FORCEFONTEXIST | CF_LIMITSIZE;
-	CHOOSEFONT cf = { 0 };
-	LOGFONT lf = { 0 };
-
 	// seperate the tokens (by tabs)
 	TString input(data);
 
@@ -566,12 +563,16 @@ mIRC(FontDialog)
 	try {
 		input.trim();
 
+		DWORD style = CF_INITTOLOGFONTSTRUCT | CF_FORCEFONTEXIST | CF_LIMITSIZE;
+		LOGFONT lf = { 0 };
+
 		// set up the LF structure
 		//ZeroMemory(&lf, sizeof(LOGFONT));
 		if (GetObject(GetStockObject(DEFAULT_GUI_FONT), sizeof(LOGFONT), &lf) == 0)
 			throw Dcx::dcxException("Unable to get LOGFONT");
 
 		// set up the CF struct
+		CHOOSEFONT cf = { 0 };
 		//ZeroMemory(&cf, sizeof(CHOOSEFONT));
 		cf.lStructSize = sizeof(CHOOSEFONT);
 		cf.hwndOwner = mWnd;
@@ -583,7 +584,7 @@ mIRC(FontDialog)
 		{
 			const auto option(*itStart);
 			const auto numtok = option.numtok();
-			const auto tsType(option.getfirsttok(1));	// tok 1
+			//const auto hashType = std::hash<TString>()(option.getfirsttok(1));	// tok 1
 
 			/*
 			default +flags(ibsua) charset size fontname
@@ -601,8 +602,13 @@ mIRC(FontDialog)
 			*/
 
 			// flags +
-			if (tsType == TEXT("flags") && numtok > 1)
+			switch (std::hash<TString>{}(option.getfirsttok(1)))
 			{
+			case TEXT("flags"_hash):
+			{
+				if (numtok < 2)
+					throw Dcx::dcxException("Invalid Args");
+
 				const XSwitchFlags xflags(option.getnexttok());	// tok 2
 
 				if (xflags[TEXT('a')])
@@ -640,21 +646,97 @@ mIRC(FontDialog)
 				if (xflags[TEXT('z')])
 					style |= CF_NOSIZESEL;
 			}
-			// defaults +flags(ibsua) charset size fontname
-			else if (tsType == TEXT("default") && numtok > 4)
-				ParseCommandToLogfont(option.getlasttoks(), &lf);	// tok 2, -1
-			// color rgb
-			else if (tsType == TEXT("color") && numtok > 1)
-				cf.rgbColors = option.getnexttok().to_<COLORREF>();	// tok 2
-			// minmaxsize min max
-			else if (tsType == TEXT("minmaxsize") && numtok > 2)
+			case TEXT("default"_hash):
 			{
+				if (numtok < 5)
+					throw Dcx::dcxException("Invalid Args");
+
+				ParseCommandToLogfont(option.getlasttoks(), &lf);	// tok 2, -1
+			}
+			break;
+			case TEXT("color"_hash):
+			{
+				if (numtok < 2)
+					throw Dcx::dcxException("Invalid Args");
+
+				cf.rgbColors = option.getnexttok().to_<COLORREF>();	// tok 2
+			}
+			break;
+			case TEXT("minmaxsize"_hash):
+			{
+				if (numtok < 3)
+					throw Dcx::dcxException("Invalid Args");
+
 				cf.nSizeMin = option.getnexttok().to_int();	// tok 2
 				cf.nSizeMax = option.getnexttok().to_int();	// tok 3
 			}
-			// owner
-			else if (tsType == TEXT("owner") && numtok > 1)
+			break;
+			case TEXT("owner"_hash):
+			{
+				if (numtok < 2)
+					throw Dcx::dcxException("Invalid Args");
+
 				cf.hwndOwner = FindOwner(option, mWnd);
+			}
+			break;
+			default:
+				break;
+			}
+
+			//if (hashType == TEXT("flags"_hash) && numtok > 1)
+			//{
+			//	const XSwitchFlags xflags(option.getnexttok());	// tok 2
+			//
+			//	if (xflags[TEXT('a')])
+			//		style |= CF_NOFACESEL;
+			//	if (xflags[TEXT('b')])
+			//		style |= CF_SCRIPTSONLY;
+			//	if (xflags[TEXT('c')])
+			//		style |= CF_SCALABLEONLY;// (Scalable fonts include vector fonts, scalable printer fonts, TrueType fonts, and fonts scaled by other technologies.)
+			//	if (xflags[TEXT('e')])
+			//		style |= CF_EFFECTS;
+			//	if (xflags[TEXT('f')])
+			//		style |= CF_FORCEFONTEXIST;
+			//	if (xflags[TEXT('h')])
+			//		style |= CF_NOSCRIPTSEL;
+			//	if (xflags[TEXT('i')])
+			//		style |= CF_NOSIMULATIONS;
+			//	if (xflags[TEXT('m')])
+			//		style |= CF_SELECTSCRIPT;
+			//	if (xflags[TEXT('n')])
+			//		style |= CF_PRINTERFONTS;
+			//	if (xflags[TEXT('p')])
+			//		style |= CF_FIXEDPITCHONLY;
+			//	if (xflags[TEXT('r')])
+			//		style |= CF_NOVERTFONTS;
+			//	if (xflags[TEXT('s')])
+			//		style |= CF_SCREENFONTS;
+			//	if (xflags[TEXT('t')])
+			//		style |= CF_TTONLY;
+			//	if (xflags[TEXT('v')])
+			//		style |= CF_NOVECTORFONTS;
+			//	if (xflags[TEXT('w')])
+			//		style |= CF_WYSIWYG;
+			//	if (xflags[TEXT('y')])
+			//		style |= CF_NOSTYLESEL;
+			//	if (xflags[TEXT('z')])
+			//		style |= CF_NOSIZESEL;
+			//}
+			//// defaults +flags(ibsua) charset size fontname
+			//else if (hashType == TEXT("default"_hash) && numtok > 4)
+			//	ParseCommandToLogfont(option.getlasttoks(), &lf);	// tok 2, -1
+			//// color rgb
+			//else if (hashType == TEXT("color"_hash) && numtok > 1)
+			//	cf.rgbColors = option.getnexttok().to_<COLORREF>();	// tok 2
+			//// minmaxsize min max
+			//else if (hashType == TEXT("minmaxsize"_hash) && numtok > 2)
+			//{
+			//	cf.nSizeMin = option.getnexttok().to_int();	// tok 2
+			//	cf.nSizeMax = option.getnexttok().to_int();	// tok 3
+			//}
+			//// owner
+			//else if (hashType == TEXT("owner"_hash) && numtok > 1)
+			//	cf.hwndOwner = FindOwner(option, mWnd);
 		}
 
 		// check that at least some fonts are showing

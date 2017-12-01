@@ -1,7 +1,5 @@
 #include "defines.h"
 
-//const bool XSwitchFlags::m_bFalse{ false };
-
 // Constructor
 XSwitchFlags::XSwitchFlags(const TString &switches) noexcept
 	: m_dFlagMask(0ULL)
