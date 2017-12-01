@@ -3,7 +3,7 @@
 
 namespace mIRCLinker {
 	HANDLE		m_hFileMap				= nullptr;	//!< Handle to the mIRC DLL File Map
-	const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> m_pData;	//!< Pointer to a character buffer of size MIRC_BUFFER_SIZE_CCH to send mIRC custom commands
+	const refString<TCHAR, c_mIRC_Buffer_Size_cch> m_pData;	//!< Pointer to a character buffer of size MIRC_BUFFER_SIZE_CCH to send mIRC custom commands
 	HWND		m_mIRCHWND				= nullptr;	//!< mIRC Window Handle
 	DWORD		m_dwVersion				= 0;		//!< mIRC Version info.
 	DWORD		m_dwBeta				= 0;		//!< mIRC Beta Version info.
@@ -25,11 +25,13 @@ namespace mIRCLinker {
 		return m_bDebug;
 	}
 
-	bool isVersion(const WORD main, const WORD sub) noexcept {
+	bool isVersion(const WORD main, const WORD sub) noexcept
+	{
 		return getMainVersion() == main && getSubVersion() == sub;
 	}
 
-	bool isOrNewerVersion(const WORD main, const WORD sub) noexcept {
+	bool isOrNewerVersion(const WORD main, const WORD sub) noexcept
+	{
 		return getMainVersion() > main || (getMainVersion() == main && getSubVersion() >= sub);
 	}
 
@@ -130,18 +132,18 @@ namespace mIRCLinker {
 			m_hFileMap = CreateFileMapping(INVALID_HANDLE_VALUE, 0, PAGE_READWRITE, 0, MIRC_MAP_SIZE, map_name.to_chr());
 
 			// if create failed, fall back on old method.
-			if ((m_hFileMap == nullptr) || (m_hFileMap == INVALID_HANDLE_VALUE)) {
+			if ((m_hFileMap == nullptr) || (m_hFileMap == INVALID_HANDLE_VALUE))
+			{
 				cnt = 0;
 				break;
 			}
 
 			// if mapfile already exists then close & try another name.
-			if (GetLastError() == ERROR_ALREADY_EXISTS) {
-				CloseHandle(m_hFileMap);
-				m_hFileMap = nullptr;
-			}
-			else
+			if (GetLastError() != ERROR_ALREADY_EXISTS)
 				break;
+
+			CloseHandle(m_hFileMap);
+			m_hFileMap = nullptr;
 
 			++cnt;
 		}
@@ -152,9 +154,8 @@ namespace mIRCLinker {
 		m_iMapCnt = cnt; // set mapfile counter for SendMessage()'s
 
 		// use old method for < mirc 6.2 or when new method fails.
-		if (cnt == 0) {
+		if (cnt == 0)
 			m_hFileMap = CreateFileMapping(INVALID_HANDLE_VALUE, 0, PAGE_READWRITE, 0, MIRC_MAP_SIZE, TEXT("mIRC"));
-		}
 
 		//if (m_hFileMap != nullptr)
 		//	m_pData = (PTCHAR)MapViewOfFile(m_hFileMap, FILE_MAP_ALL_ACCESS, 0, 0, 0);
@@ -236,7 +237,8 @@ namespace mIRCLinker {
 		m_wpmIRCDefaultWndProc = SubclassWindow(m_mIRCHWND, newProc);
 	}
 
-	void resetWindowProc(void) {
+	void resetWindowProc(void)
+	{
 		//if (m_wpmIRCDefaultWndProc != NULL)
 		//	SubclassWindow(m_mIRCHWND, m_wpmIRCDefaultWndProc);
 		//m_wpmIRCDefaultWndProc = NULL;
@@ -361,7 +363,8 @@ namespace mIRCLinker {
 
 		m_pData = data;
 		{
-			if (mIRC_SndMsg(WM_MEVALUATE)) {
+			if (mIRC_SndMsg(WM_MEVALUATE))
+			{
 				*res = dcx_atoi64(m_pData.data());
 				return (*res != 0);
 			}

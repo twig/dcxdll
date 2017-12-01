@@ -6,10 +6,11 @@
 
 namespace mIRCLinker
 {
-	constexpr auto		m_mIRC_Buffer_Size_cch = MIRC_BUFFER_SIZE_CCH;
+	constexpr auto		c_mIRC_Buffer_Size_cch = MIRC_BUFFER_SIZE_CCH;
+	constexpr auto		c_mIRC_Max_Colours = 100;
 
 	extern HANDLE		m_hFileMap;		//!< Handle to the mIRC DLL File Map
-	extern const refString<TCHAR, m_mIRC_Buffer_Size_cch> m_pData;		//!< Pointer to a character buffer of size MIRC_BUFFER_SIZE_CCH to send mIRC custom commands
+	extern const refString<TCHAR, c_mIRC_Buffer_Size_cch> m_pData;		//!< Pointer to a character buffer of size MIRC_BUFFER_SIZE_CCH to send mIRC custom commands
 	extern HWND			m_mIRCHWND;		//!< mIRC Window Handle
 	extern DWORD		m_dwVersion;
 	extern DWORD		m_dwBeta;
@@ -125,7 +126,10 @@ namespace mIRCLinker
 	template <typename Output, typename Input>
 	bool eval(Output &res, const Input &data)
 	{
-		m_pData = data;
+		if constexpr(std::is_array_v<Input> && std::is_pod_v<Input>)
+			m_pData = &data[0];
+		else
+			m_pData = data;
 		{
 			if (mIRC_SndMsg(WM_MEVALUATE)) {
 				res = m_pData;
@@ -138,7 +142,10 @@ namespace mIRCLinker
 	template <typename Input>
 	bool eval(nullptr_t res, const Input &data)
 	{
-		m_pData = data;
+		if constexpr(std::is_array_v<Input> && std::is_pod_v<Input>)
+			m_pData = &data[0];
+		else
+			m_pData = data;
 		{
 			if (mIRC_SndMsg(WM_MEVALUATE))
 				return (m_pData != TEXT("$false"));

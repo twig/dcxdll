@@ -153,9 +153,9 @@ void DcxDock::UnDockWindow(const HWND hwnd)
 	//	}
 	//}
 
-	if (auto itEnd = m_VectorDocks.end(), itGot = std::find_if(m_VectorDocks.begin(), itEnd, [hwnd](const DCXULTRADOCK *const ud) { if (ud != nullptr) { return (ud->hwnd == hwnd); } return false; }); itGot != itEnd)
+	if (const auto itEnd = m_VectorDocks.end(), itGot = std::find_if(m_VectorDocks.begin(), itEnd, [hwnd](const DCXULTRADOCK *const ud) { if (ud != nullptr) { return (ud->hwnd == hwnd); } return false; }); itGot != itEnd)
 	{
-		auto ud = *itGot;
+		const auto ud = *itGot;
 		m_VectorDocks.erase(itGot);
 
 		//SetWindowLongPtr(ud->hwnd, GWL_STYLE, static_cast<LONG>(ud->old_styles));
@@ -210,7 +210,7 @@ void DcxDock::UnDockWindow(const HWND hwnd)
 	//}
 }
 
-void DcxDock::UnDockWindowPtr(gsl::owner<LPDCXULTRADOCK> ud) noexcept
+void DcxDock::UnDockWindowPtr(const gsl::owner<LPDCXULTRADOCK> ud) noexcept
 {
 	if (ud == nullptr)
 		return;
@@ -257,7 +257,7 @@ bool DcxDock::FindDock(const HWND hwnd) const
 	//}
 	//return false;
 
-	auto itEnd = m_VectorDocks.end();
+	const auto itEnd = m_VectorDocks.end();
 	return (std::find_if(m_VectorDocks.begin(), itEnd, [hwnd](const DCXULTRADOCK *const ud) { if (ud != nullptr) { return (ud->hwnd == hwnd); } return false; }) != itEnd);
 }
 
@@ -271,7 +271,7 @@ LPDCXULTRADOCK DcxDock::GetDock(const HWND hwnd) const
 	//}
 	//return nullptr;
 
-	if (auto itEnd = m_VectorDocks.end(), itGot = std::find_if(m_VectorDocks.begin(), itEnd, [hwnd](const DCXULTRADOCK *const ud) { if (ud != nullptr) { return (ud->hwnd == hwnd); } return false; }); itGot != itEnd)
+	if (const auto itEnd = m_VectorDocks.end(), itGot = std::find_if(m_VectorDocks.begin(), itEnd, [hwnd](const DCXULTRADOCK *const ud) { if (ud != nullptr) { return (ud->hwnd == hwnd); } return false; }); itGot != itEnd)
 		return *itGot;
 	return nullptr;
 }
@@ -378,7 +378,7 @@ void DcxDock::AdjustRect(WINDOWPOS *wp)
 
 LRESULT CALLBACK DcxDock::mIRCRefWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-	auto pthis = static_cast<DcxDock *>(GetProp(mHwnd, TEXT("DcxDock")));
+	const auto pthis = static_cast<DcxDock *>(GetProp(mHwnd, TEXT("DcxDock")));
 	if (pthis == nullptr)
 		return DefWindowProc(mHwnd, uMsg, wParam, lParam);
 
@@ -594,7 +594,7 @@ LRESULT CALLBACK DcxDock::mIRCRefWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, L
 
 LRESULT CALLBACK DcxDock::mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-	auto pthis = static_cast<DcxDock *>(GetProp(mHwnd, TEXT("DcxDock")));
+	const auto pthis = static_cast<DcxDock *>(GetProp(mHwnd, TEXT("DcxDock")));
 	if (pthis == nullptr)
 		return DefWindowProc(mHwnd, uMsg, wParam, lParam);
 
@@ -697,14 +697,39 @@ LRESULT CALLBACK DcxDock::mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 
 						if (!buf.empty())
 						{
-							static const TString sbcolor(TEXT("s s message s event s highlight")); // 's' is used as a spacer.
-							const auto clr = sbcolor.findtok(buf, 1U);
-							if ((clr == 0) || (clr >= Dcx::countof(DcxDock::g_clrTreebarColours))) // no match, do normal colours
+							//static const TString sbcolor(TEXT("s s message s event s highlight")); // 's' is used as a spacer.
+							//const auto clr = sbcolor.findtok(buf, 1U);
+							//if ((clr == 0) || (clr >= Dcx::countof(DcxDock::g_clrTreebarColours))) // no match, do normal colours
+							//	break;
+							//if (DcxDock::g_clrTreebarColours[clr - 1] != CLR_INVALID) // text colour
+							//	lpntvcd->clrText = DcxDock::g_clrTreebarColours[clr - 1];
+							//if (DcxDock::g_clrTreebarColours[clr] != CLR_INVALID) // bkg colour
+							//	lpntvcd->clrTextBk = DcxDock::g_clrTreebarColours[clr];
+
+							COLORREF cText = CLR_INVALID, cBkg = CLR_INVALID;
+							switch (std::hash<TString>{}(buf))
+							{
+							case L"message"_hash:
+							{
+								cText = DcxDock::g_clrTreebarColours[TREEBAR_COLOUR_MESSAGE];
+								cBkg = DcxDock::g_clrTreebarColours[TREEBAR_COLOUR_MESSAGE_BKG];
+							}
+							break;
+							case L"event"_hash:
+								cText = DcxDock::g_clrTreebarColours[TREEBAR_COLOUR_EVENT];
+								cBkg = DcxDock::g_clrTreebarColours[TREEBAR_COLOUR_EVENT_BKG];
 								break;
-							if (DcxDock::g_clrTreebarColours[clr - 1] != CLR_INVALID) // text colour
-								lpntvcd->clrText = DcxDock::g_clrTreebarColours[clr - 1];
-							if (DcxDock::g_clrTreebarColours[clr] != CLR_INVALID) // bkg colour
-								lpntvcd->clrTextBk = DcxDock::g_clrTreebarColours[clr];
+							case L"highlight"_hash:
+								cText = DcxDock::g_clrTreebarColours[TREEBAR_COLOUR_HIGHLIGHT];
+								cBkg = DcxDock::g_clrTreebarColours[TREEBAR_COLOUR_HIGHLIGHT_BKG];
+								break;
+							default:
+								break;
+							}
+							if (cText != CLR_INVALID) // text colour
+								lpntvcd->clrText = cText;
+							if (cBkg != CLR_INVALID) // bkg colour
+								lpntvcd->clrTextBk = cBkg;
 						}
 					}
 					return CDRF_NEWFONT;
@@ -1040,7 +1065,7 @@ std::tuple<NoTheme, WindowStyle, WindowExStyle> DcxDock::status_parseControlStyl
 
 	for (const auto &tsStyle: styles)
 	{
-		switch (std::hash<TString>()(tsStyle))
+		switch (std::hash<TString>{}(tsStyle))
 		{
 		case TEXT("grip"_hash):
 			Styles |= SBARS_SIZEGRIP;
@@ -1245,7 +1270,7 @@ void DcxDock::status_updateParts(void)
 
 	const auto w = (rcClient.right - rcClient.left) / 100; // - (2 * borders[1]);
 
-	for (auto i = decltype(nParts){0}; i < nParts; i++)
+	for (auto i = decltype(nParts){0}; i < nParts; ++i)
 	{
 		auto pw = DcxDock::g_iFixedParts[i];
 		if (DcxDock::g_iDynamicParts[i] != 0)

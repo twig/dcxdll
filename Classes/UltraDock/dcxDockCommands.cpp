@@ -59,7 +59,7 @@ BOOL CALLBACK EnumDocked(HWND hwnd,LPARAM lParam)
 BOOL CALLBACK SizeDocked(HWND hwnd,LPARAM lParam)
 {
 	const auto flags = reinterpret_cast<DWORD>(GetProp(hwnd, TEXT("dcx_docked")));
-	auto hParent = GetParent(hwnd);
+	const auto hParent = GetParent(hwnd);
 	if (flags != 0 && flags != DOCKF_NORMAL)
 	{
 		RECT rcParent{}, rcThis{};
@@ -84,7 +84,7 @@ BOOL CALLBACK SizeDocked(HWND hwnd,LPARAM lParam)
 			//if (!(sbi.rgstate[0] & (STATE_SYSTEM_INVISIBLE|STATE_SYSTEM_OFFSCREEN|STATE_SYSTEM_UNAVAILABLE)))
 			//	rcParent.bottom -= (sbi.rcScrollBar.bottom - sbi.rcScrollBar.top);
 
-			if (auto hScroll = FindWindowEx(hParent, nullptr, TEXT("ScrollBar"), nullptr); IsWindow(hScroll) /*&& IsWindowVisible(hScroll)*/)
+			if (const auto hScroll = FindWindowEx(hParent, nullptr, TEXT("ScrollBar"), nullptr); IsWindow(hScroll) /*&& IsWindowVisible(hScroll)*/)
 			{
 				RECT rcScroll{};
 
@@ -114,7 +114,7 @@ BOOL CALLBACK SizeDocked(HWND hwnd,LPARAM lParam)
 
 LRESULT CALLBACK mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-	auto dd = static_cast<LPDCXDOCK>(GetProp(mHwnd, TEXT("dcx_dock")));
+	const auto dd = static_cast<LPDCXDOCK>(GetProp(mHwnd, TEXT("dcx_dock")));
 #ifdef DCX_DEBUG_OUTPUT
 	//mIRCLinker::signalex(dcxSignal.xdock, TEXT("debug %u"), uMsg);
 	if (dcxSignal.xdock)
@@ -127,10 +127,6 @@ LRESULT CALLBACK mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lP
 	{
 	case WM_SIZE:
 		{
-			//if (!dd->type.empty())
-			//	mIRCLinker::signalex(dcxSignal.xdock, TEXT("size %s %u %u %u"), dd->type.to_chr(), dd->win, LOWORD(lParam), HIWORD(lParam));
-			//else
-			//	mIRCLinker::signalex(dcxSignal.xdock, TEXT("size Custom %u %u %u"), dd->win, LOWORD(lParam), HIWORD(lParam));
 			if (dcxSignal.xdock)
 			{
 				if (!dd->type.empty())
@@ -150,13 +146,6 @@ LRESULT CALLBACK mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lP
 #ifdef DCX_DEBUG_OUTPUT
 	case WM_CLOSE:
 		{
-			//if (dcxSignal.xdock)
-			//{
-			//	if (!dd->type.empty())
-			//		mIRCLinker::signalex(dcxSignal.xdock, TEXT("close %s %u"), dd->type.to_chr(), dd->win);
-			//	else
-			//		mIRCLinker::signalex(dcxSignal.xdock, TEXT("close Custom %u"), dd->win);
-			//}
 			if (dcxSignal.xdock)
 			{
 				if (!dd->type.empty())
@@ -342,7 +331,7 @@ mIRC(xdock)
 		if (numtok < 2)
 			throw Dcx::dcxException("Invalid Flag");
 
-		auto dockHwnd = reinterpret_cast<HWND>(input.getnexttok().to_<DWORD>()); // tok 2
+		const auto dockHwnd = reinterpret_cast<HWND>(input.getnexttok().to_<DWORD>()); // tok 2
 
 		// show/hide switchbar
 		// [-S] [1|0]
@@ -709,7 +698,7 @@ mIRC(_xdock)
 			}
 		}
 		else {
-			auto hwnd = (HWND)d.getfirsttok(1).to_<DWORD>();
+			const auto hwnd = (HWND)d.getfirsttok(1).to_<DWORD>();
 
 			if (!IsWindow(hwnd))
 				throw Dcx::dcxException(TEXT("Invalid window (%)"), d.gettok(1));
@@ -773,7 +762,7 @@ mIRC(_xdock)
 			case TEXT("text"_hash):
 			{
 				if (GetWindowTextLength(hwnd) > 0)
-					GetWindowText(hwnd, data, mIRCLinker::m_mIRC_Buffer_Size_cch);
+					GetWindowText(hwnd, data, mIRCLinker::c_mIRC_Buffer_Size_cch);
 			}
 			break;
 			case 0: // error

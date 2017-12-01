@@ -60,14 +60,14 @@ void CloseUltraDock(void)
 	//delete g_dockTreebar;
 	//delete g_dockMDI;
 
-	g_dockMDI = nullptr;
-	g_dockSwitchbar = nullptr;
-	g_dockToolbar = nullptr;
-	g_dockTreebar = nullptr;
+	g_dockMDI.reset(nullptr);
+	g_dockSwitchbar.reset(nullptr);
+	g_dockToolbar.reset(nullptr);
+	g_dockTreebar.reset(nullptr);
 
 	if (IsWindow(mIRCLinker::getTreeview()) && mIRCLinker::getTreeImages() != nullptr)
 	{
-		if (auto o = TreeView_SetImageList(mIRCLinker::getTreeview(), mIRCLinker::getTreeImages(), TVSIL_NORMAL); (o != nullptr && o != mIRCLinker::getTreeImages()))
+		if (const auto o = TreeView_SetImageList(mIRCLinker::getTreeview(), mIRCLinker::getTreeImages(), TVSIL_NORMAL); (o != nullptr && o != mIRCLinker::getTreeImages()))
 			ImageList_Destroy(o);
 	}
 
