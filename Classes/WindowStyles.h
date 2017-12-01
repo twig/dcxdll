@@ -153,12 +153,12 @@ constexpr WindowAnimStyle operator |(const T &dStyle, const WindowAnimStyle &eSt
 }
 
 template <typename T>
-inline WindowStyle to_WindowStyle(T other)
+constexpr inline WindowStyle to_WindowStyle(T other)
 {
 	return static_cast<WindowStyle>(other);
 }
 template <typename T>
-inline WindowExStyle to_WindowExStyle(T other)
+constexpr inline WindowExStyle to_WindowExStyle(T other)
 {
 	return static_cast<WindowExStyle>(other);
 }
@@ -183,7 +183,7 @@ inline WindowExStyle dcxSetWindowExStyle(HWND Hwnd, WindowExStyle style)
 	return static_cast<WindowExStyle>(SetWindowLongPtr(Hwnd, GWL_EXSTYLE, static_cast<LONG>(style)));
 }
 
-inline HWND dcxCreateWindow(const WindowExStyle ExStyles, const TCHAR *const szClass, const WindowStyle Styles, const RECT *const rc, HWND hParent, const UINT uID)
+inline HWND dcxCreateWindow(const WindowExStyle ExStyles, const TCHAR *const szClass, const WindowStyle Styles, const RECT *const rc, HWND hParent, const UINT uID, const void *const pthis = nullptr)
 {
 	return CreateWindowEx(
 		gsl::narrow_cast<DWORD>(ExStyles),
@@ -194,7 +194,7 @@ inline HWND dcxCreateWindow(const WindowExStyle ExStyles, const TCHAR *const szC
 		hParent,
 		(HMENU)uID,
 		GetModuleHandle(nullptr),
-		nullptr);
+		(LPVOID)pthis);
 }
 
 inline UINT dcxSetWindowID(HWND Hwnd, const UINT uID)
