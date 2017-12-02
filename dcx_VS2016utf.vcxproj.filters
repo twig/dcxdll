@@ -569,6 +569,9 @@
     <ClInclude Include="Classes\WindowStyles.h">
       <Filter>Header Files\General</Filter>
     </ClInclude>
+    <ClInclude Include="GSL\pointers">
+      <Filter>Header Files\GSL</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="dcx_zip\dcx.mrc">
@@ -601,5 +604,10 @@
     <Text Include="dcx_zip\license.txt">
       <Filter>Resource Files</Filter>
     </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="GSL.natvis">
+      <Filter>Resource Files</Filter>
+    </Natvis>
   </ItemGroup>
 </Project>

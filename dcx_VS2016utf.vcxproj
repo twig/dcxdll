@@ -695,6 +695,9 @@
     <ClInclude Include="GSL\string_span">
       <FileType>Document</FileType>
     </ClInclude>
+    <ClInclude Include="GSL\pointers">
+      <FileType>Document</FileType>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Xml Include="dcx_zip\dc.xml" />
@@ -705,6 +708,9 @@
   <ItemGroup>
     <Text Include="dcx_zip\license.txt" />
     <Text Include="TODO.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="GSL.natvis" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
 </Project>
