@@ -35,14 +35,9 @@ http://msdn.microsoft.com/library/default.asp?url=/library/en-us/shellcc/platfor
 #include <mshtml.h>
 #include <exdispid.h>
 
-// Tray Icon stuff
-DcxTrayIcon *trayIcons = nullptr; // tray icon manager
-
-
 // XMenuBar stuff
 HMENU g_OriginalMenuBar = nullptr;
 //XPopupMenu *g_mIRCScriptMenu = nullptr; // Wrapper for the mIRC scriptable menu.
-
 
 // XPopup Stuff
 
@@ -77,7 +72,8 @@ BOOL WINAPI DllMain(
 
 		// Enforce only one instance of dcx.dll loaded at a time.
 		hDcxMutex = CreateMutex(nullptr, TRUE, &mutex[0]); // Windows 2000:  Do not create a named synchronization object in DllMain because the system will then load an additional DLL. This restriction does not apply to subsequent versions of Windows.
-		if (hDcxMutex == nullptr) return FALSE;		// TODO: solve this issue or are we going to make the dll XP+ only now?
+		if (hDcxMutex == nullptr)
+			return FALSE;		// TODO: solve this issue or are we going to make the dll XP+ only now?
 		else if (GetLastError() == ERROR_ALREADY_EXISTS)
 		{
 			//ReleaseMutex(hDcxMutex);
@@ -719,7 +715,7 @@ mIRC(Version)
 		}
 
 		{	// test _ts_strcpyn()
-			char chr_test[128] = { 0 };
+			const char chr_test[128] = { 0 };
 			char chr_buf[128] = { 0 };
 
 			ts_strcpyn(&chr_buf[0], &chr_test[0], std::extent_v<decltype(chr_buf)>);
@@ -1056,8 +1052,7 @@ mIRC(GetSystemColor)
 		if (col == -1)
 		{
 			RGBQUAD clr{};
-			BOOL bOpaque = FALSE;
-			if (FAILED(Dcx::VistaModule.dcxDwmGetColorizationColor((DWORD *)&clr, &bOpaque)))
+			if (BOOL bOpaque = FALSE; FAILED(Dcx::VistaModule.dcxDwmGetColorizationColor((DWORD *)&clr, &bOpaque)))
 				throw Dcx::dcxException("Unable to get glass colour.");
 		
 			//wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), RGB(clr.rgbRed, clr.rgbGreen, clr.rgbBlue));
@@ -1112,55 +1107,15 @@ mIRC(xdid)
 		const auto IDs(d.getnexttok());			// tok 2
 		const auto tsArgs(d.getlasttoks());		// tok 3, -1
 		const auto n = IDs.numtok(TSCOMMACHAR);
-
-		// Multiple IDs id,id,id,id-id,id-id
-		if (n > 1)
-		{
-			for (auto itStart = IDs.begin(TSCOMMACHAR), itEnd = IDs.end(); itStart != itEnd; ++itStart)
-			{
-				UINT id_start = 0, id_end = 0;
-				const TString tsID(*itStart);
-				if (tsID.numtok(TEXT('-')) == 2)
-				{
-					id_start = tsID.getfirsttok(1, TEXT('-')).to_<UINT>();
-					id_end = tsID.getnexttok(TEXT('-')).to_<UINT>();
-				}
-				else
-					id_start = id_end = p_Dialog->NameToUserID(tsID);
-
-				if (id_end < id_start)
-					throw Dcx::dcxException(TEXT("Invalid ID : % (dialog : %)"), id_end, tsDname);
-				if (id_start == 0)
-					throw Dcx::dcxException(TEXT("Invalid ID : % (dialog : %)"), id_start, tsDname);
-				if (id_end == 0)
-					throw Dcx::dcxException(TEXT("Invalid ID : % (dialog : %)"), id_end, tsDname);
-
-				for (auto id = id_start; id <= id_end; ++id)
-				{
-					const auto p_Control = p_Dialog->getControlByID(id + mIRC_ID_OFFSET);
-
-					if (p_Control == nullptr)
-						throw Dcx::dcxException(TEXT("Unable to find control: % (dialog : %)"), id, tsDname);
-
-					TString d2(tsDname);
-					d2.addtok(id);
-					d2.addtok(tsArgs);
-
-					p_Control->parseCommandRequest(d2);
-				}
-			}
-		}
-		//Single ID or single id-id
-		else {
+		auto HandleIDRange = [=](const TString &tsID) {
 			UINT id_start = 0, id_end = 0;
-
-			if (IDs.numtok(TEXT('-')) == 2)
+			if (tsID.numtok(TEXT('-')) == 2)
 			{
-				id_start = IDs.getfirsttok(1, TEXT('-')).to_<UINT>();
-				id_end = IDs.getnexttok(TEXT('-')).to_<UINT>();
+				id_start = tsID.getfirsttok(1, TEXT('-')).to_<UINT>();
+				id_end = tsID.getnexttok(TEXT('-')).to_<UINT>();
 			}
 			else
-				id_start = id_end = p_Dialog->NameToUserID(IDs);
+				id_start = id_end = p_Dialog->NameToUserID(tsID);
 
 			if (id_end < id_start)
 				throw Dcx::dcxException(TEXT("Invalid ID : % (dialog : %)"), id_end, tsDname);
@@ -1176,8 +1131,83 @@ mIRC(xdid)
 				if (p_Control == nullptr)
 					throw Dcx::dcxException(TEXT("Unable to find control: % (dialog : %)"), id, tsDname);
 
-				p_Control->parseCommandRequest(d);
+				TString d2(tsDname);
+				d2.addtok(id);
+				d2.addtok(tsArgs);
+
+				p_Control->parseCommandRequest(d2);
 			}
+		};
+
+		// Multiple IDs id,id,id,id-id,id-id
+		if (n > 1)
+		{
+			for (auto itStart = IDs.begin(TSCOMMACHAR), itEnd = IDs.end(); itStart != itEnd; ++itStart)
+			{
+				//UINT id_start = 0, id_end = 0;
+				//const TString tsID(*itStart);
+				//if (tsID.numtok(TEXT('-')) == 2)
+				//{
+				//	id_start = tsID.getfirsttok(1, TEXT('-')).to_<UINT>();
+				//	id_end = tsID.getnexttok(TEXT('-')).to_<UINT>();
+				//}
+				//else
+				//	id_start = id_end = p_Dialog->NameToUserID(tsID);
+				//
+				//if (id_end < id_start)
+				//	throw Dcx::dcxException(TEXT("Invalid ID : % (dialog : %)"), id_end, tsDname);
+				//if (id_start == 0)
+				//	throw Dcx::dcxException(TEXT("Invalid ID : % (dialog : %)"), id_start, tsDname);
+				//if (id_end == 0)
+				//	throw Dcx::dcxException(TEXT("Invalid ID : % (dialog : %)"), id_end, tsDname);
+				//
+				//for (auto id = id_start; id <= id_end; ++id)
+				//{
+				//	const auto p_Control = p_Dialog->getControlByID(id + mIRC_ID_OFFSET);
+				//
+				//	if (p_Control == nullptr)
+				//		throw Dcx::dcxException(TEXT("Unable to find control: % (dialog : %)"), id, tsDname);
+				//
+				//	TString d2(tsDname);
+				//	d2.addtok(id);
+				//	d2.addtok(tsArgs);
+				//
+				//	p_Control->parseCommandRequest(d2);
+				//}
+
+				HandleIDRange(*itStart);
+			}
+		}
+		//Single ID or single id-id
+		else {
+			//UINT id_start = 0, id_end = 0;
+			//
+			//if (IDs.numtok(TEXT('-')) == 2)
+			//{
+			//	id_start = IDs.getfirsttok(1, TEXT('-')).to_<UINT>();
+			//	id_end = IDs.getnexttok(TEXT('-')).to_<UINT>();
+			//}
+			//else
+			//	id_start = id_end = p_Dialog->NameToUserID(IDs);
+			//
+			//if (id_end < id_start)
+			//	throw Dcx::dcxException(TEXT("Invalid ID : % (dialog : %)"), id_end, tsDname);
+			//if (id_start == 0)
+			//	throw Dcx::dcxException(TEXT("Invalid ID : % (dialog : %)"), id_start, tsDname);
+			//if (id_end == 0)
+			//	throw Dcx::dcxException(TEXT("Invalid ID : % (dialog : %)"), id_end, tsDname);
+			//
+			//for (auto id = id_start; id <= id_end; ++id)
+			//{
+			//	const auto p_Control = p_Dialog->getControlByID(id + mIRC_ID_OFFSET);
+			//
+			//	if (p_Control == nullptr)
+			//		throw Dcx::dcxException(TEXT("Unable to find control: % (dialog : %)"), id, tsDname);
+			//
+			//	p_Control->parseCommandRequest(d);
+			//}
+
+			HandleIDRange(IDs);
 		}
 		return 1;
 	}
@@ -1229,9 +1259,7 @@ mIRC(_xdid)
 		if (!p_Dialog->isNamedId(tsID))
 			throw Dcx::dcxException(TEXT("Invalid ID : % (dialog %)"), tsID, tsDname);
 
-		const auto local_id = p_Dialog->NameToID(tsID);
-
-		const auto *const p_Control = p_Dialog->getControlByID(local_id);
+		const auto *const p_Control = p_Dialog->getControlByID(p_Dialog->NameToID(tsID));
 
 		if (p_Control == nullptr)
 			throw Dcx::dcxException(TEXT("Unable to find control: % (dialog %)"), tsID, tsDname);
@@ -1322,7 +1350,7 @@ mIRC(xdialog)
 		if (d.numtok() < 2)
 			throw Dcx::dcxException(TEXT("Invalid arguments ( dialog %)"), tsDname);
 
-		auto p_Dialog = Dcx::Dialogs.getDialogByName(tsDname);
+		const auto p_Dialog = Dcx::Dialogs.getDialogByName(tsDname);
 
 		if (p_Dialog == nullptr)
 			throw Dcx::dcxException(TEXT("Unknown dialog \"%\": see Mark command"), tsDname);
@@ -1426,7 +1454,7 @@ mIRC(xpop)
 		if ((uHash == TEXT("mirc"_hash)) || (uHash == TEXT("mircbar"_hash)))
 			throw Dcx::dcxException("Invalid menu name : mirc or mircbar menus don't have access to this feature.");
 
-		auto p_Menu = Dcx::XPopups.getMenuByHash(uHash, false);
+		const auto p_Menu = Dcx::XPopups.getMenuByHash(uHash, false);
 
 		if (p_Menu == nullptr)
 			throw Dcx::dcxException(TEXT("Unknown menu \"%\": see /xpopup -c command"), tsMenu);
@@ -1979,7 +2007,7 @@ mIRC(SetSystemCursors)
 		//auto tsFilename(d.getlasttoks());
 		//const auto systemCursorId = Dcx::parseSystemCursorType(tsCursor);
 
-		const auto systemCursorId = Dcx::parseSystemCursorType(std::hash<TString>()(d.getfirsttok(1)));
+		const auto systemCursorId = Dcx::parseSystemCursorType(std::hash<TString>{}(d.getfirsttok(1)));
 		auto tsFilename(d.getlasttoks());
 
 		if (!IsFile(tsFilename))
@@ -2032,9 +2060,13 @@ mIRC(SetmIRCCursors)
 
 		const auto tsCursor(d.getfirsttok(1));
 		auto tsFilename(d.getlasttoks());
+
+		if (!tsFilename.empty() && !IsFile(tsFilename))
+			throw Dcx::dcxException("Unable to open file");
+
 		for (auto itStart = tsCursor.begin(TSCOMMACHAR), itEnd = tsCursor.end(); itStart != itEnd; ++itStart)
 		{
-			const auto uAreaHash(std::hash<TString>()(*itStart));
+			const auto uAreaHash(std::hash<TString>{}(*itStart));
 			
 			if (const auto AreaId = Dcx::parseAreaType(uAreaHash); AreaId > 0)
 			{
@@ -2043,12 +2075,8 @@ mIRC(SetmIRCCursors)
 					// empty filename == remove custom cursor, if any.
 					Dcx::deleteAreaCursor(AreaId);
 				}
-				else {
-					if (!IsFile(tsFilename))
-						throw Dcx::dcxException("Unable to open file");
-
+				else
 					Dcx::setAreaCursor(Dcx::dcxLoadCursorFromFile(tsFilename), AreaId);
-				}
 			}
 			else {
 				const auto CursorId = Dcx::parseCursorType(uAreaHash);
@@ -2061,12 +2089,8 @@ mIRC(SetmIRCCursors)
 
 					Dcx::deleteCursor(hSystemCursor);
 				}
-				else {
-					if (!IsFile(tsFilename))
-						throw Dcx::dcxException("Unable to open file");
-
+				else
 					Dcx::setCursor(hSystemCursor, Dcx::dcxLoadCursorFromFile(tsFilename));
-				}
 			}
 		}
 		return 1;

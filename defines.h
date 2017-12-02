@@ -64,24 +64,24 @@ http://symbiancorner.blogspot.com/2007/05/how-to-detect-version-of-ms-visual.htm
 // Optional build libraries for DCX
 // --------------------------------------------------
 // DCX using DirectX SDK? (Required for DirectShow)
-// If not, get off your arse & install it!
+// This is included as part of the win10 sdk with vs2017 no separate install needed.
 #define DCX_USE_DXSDK 1
 // end of DirectX SDK
 
 // always 1
 #define DCX_USE_WINSDK 1
 
-// DCX using GDI+? (Required for advanced graphics routines)
+// DCX using GDI+? (Required for advanced graphics routines) (replace with Direct2D ?)
 #define DCX_USE_GDIPLUS 1
 #define DCX_MAX_GDI_ERRORS 21
 // end of GDI+
 
-// use string hashes for compares etc..?
+// use string hashes for compares etc..? (non-hashing code removed, always use this now)
 #define DCX_USE_HASHING 1
 
 // DCX Using C++11 regex
 // NB: Can't be used with either BOOST OR PCRE enabled.
-//#define DCX_USE_CREGEX 1
+#define DCX_USE_CREGEX 0
 
 // --------------------------------------------------
 // Some compiler/library definitions
@@ -226,6 +226,7 @@ http://symbiancorner.blogspot.com/2007/05/how-to-detect-version-of-ms-visual.htm
 
 #include <memory>
 #include <experimental\filesystem>
+#include <optional>
 
 // BrowseFolder
 #include <shlobj.h>
@@ -382,7 +383,7 @@ enum class mIRC_SendMessage_ErrorCodes : UINT {
 #define mIRC_ID_OFFSET 6000U //!< mIRC Dialog ID Offset
 #define mIRC_ID_MAX (UINT_MAX -1)	//!< Highest ID allowed.
 #define mIRC_MAX_CONTROLS	10000U	//!< Max number of controls allowed per dialog.
-#define mIRC_PALETTE_SIZE	16U		// Number of colours in mIRC's palette
+#define mIRC_PALETTE_SIZE	100U	// Number of colours in mIRC's palette (mIRC v7.51.212+ support 100 colours, 0 - 15 same as old mirc, 16-99 new colour palette)
 
 #define DCX_LISTVIEWCLASS    TEXT("DCXListViewClass")     //!< DCX Listview Class Name
 #define DCX_PROGRESSBARCLASS TEXT("DCXProgressBarClass")  //!< DCX ProgressBar Class Name
@@ -402,14 +403,23 @@ enum class mIRC_SendMessage_ErrorCodes : UINT {
 #define DCX_PANELCLASS       TEXT("DCXPanelClass")        //!< DCX Panel Class Name
 #define DCX_CALENDARCLASS    TEXT("DCXCalendarClass")     //!< DCX Panel Class Name
 #define DCX_DATETIMECLASS    TEXT("DCXDateTimeClass")     //!< DCX DateTime Class Name
-#define DCX_PAGERCLASS       TEXT("DCXCPagerClass")       //!< DCX Panel Class Name
+#define DCX_PAGERCLASS       TEXT("DCXPagerClass")        //!< DCX Panel Class Name
 #define DCX_BOXCLASS         TEXT("DCXBoxClass")          //!< DCX Box Class Name
-//#define DCX_RADIOCLASS       TEXT("DCXRadioClass")        //!< DCX Radio Class Name
-//#define DCX_CHECKCLASS       TEXT("DCXCheckClass")        //!< DCX Check Class Name
-//#define DCX_SCROLLBARCLASS   TEXT("DCXScrollBarClass")    //!< DCX ScrollBar Class Name
+#define DCX_RADIOCLASS       TEXT("DCXRadioClass")        //!< DCX Radio Class Name
+#define DCX_CHECKCLASS       TEXT("DCXCheckClass")        //!< DCX Check Class Name
+#define DCX_SCROLLBARCLASS   TEXT("DCXScrollBarClass")    //!< DCX ScrollBar Class Name
 //#define DCX_SHADOWCLASS				TEXT("DCXShadowClass")			//!< DCX Shadow Class Name
-#define DCX_VISTACLASS				TEXT("DCXVistaClass")				//!< DCX Vista Dialog Class Name
-#define DCX_STACKERCLASS			TEXT("DCXStackerClass")			//!< DCX Stacker Class Name
+#define DCX_VISTACLASS			TEXT("DCXVistaClass")     //!< DCX Vista Dialog Class Name
+#define DCX_STACKERCLASS		TEXT("DCXStackerClass")   //!< DCX Stacker Class Name
+#define DCX_IMAGECLASS			TEXT("DCXImageClass")     //!< DCX Image Class Name
+#define DCX_EDITCLASS			TEXT("DCXEditClass")      //!< DCX Edit Class Name
+#define DCX_WEBCLASS			TEXT("DCXWebClass")       //!< DCX Web Class Name
+#define DCX_LINECLASS			TEXT("DCXLineClass")      //!< DCX Line Class Name
+#define DCX_LINKCLASS			TEXT("DCXLinkClass")      //!< DCX Link Class Name
+#define DCX_LISTCLASS			TEXT("DCXListClass")      //!< DCX List Class Name
+#define DCX_SCROLLCLASS			TEXT("DCXScrollClass")    //!< DCX Text Class Name
+#define DCX_TEXTCLASS			TEXT("DCXTextClass")      //!< DCX Text Class Name
+#define DCX_DIRECTSHOWCLASS		TEXT("DCXDirectShowClass") //!< DCX Text Class Name
 
 // --------------------------------------------------
 // CLA constants
@@ -483,8 +493,8 @@ struct SIGNALSWITCH
 
 	SIGNALSWITCH()
 		: xdock(false)
-		, xstatusbar(false)
-		, xtray(false)
+		, xstatusbar(true)
+		, xtray(true)
 	{}
 };
 using LPSIGNALSWITCH = SIGNALSWITCH *;
@@ -542,6 +552,7 @@ gsl::owner<LPITEMIDLIST> GetFolderFromCSIDL(const int nCsidl);
 
 HWND GetHwndFromString(const TString &str);
 HWND FindOwner(const TString & data, const gsl::not_null<HWND> &defaultWnd);
+std::optional<HWND> FindOwner(const TString & data);
 bool CopyToClipboard(const HWND owner, const TString & str);
 
 HBITMAP dcxLoadBitmap(HBITMAP dest, TString &filename);
@@ -562,7 +573,7 @@ long SystemTimeToMircTime(const LPSYSTEMTIME pst);
 
 void AddToolTipToolInfo(const HWND tiphwnd, const HWND ctrl);
 #ifdef DCX_USE_GDIPLUS
-const TCHAR *GetLastStatusStr(Gdiplus::Status status);
+constexpr const TCHAR *GetLastStatusStr(Gdiplus::Status status);
 #endif
 
 bool IsFile(TString &filename);
