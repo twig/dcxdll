@@ -62,6 +62,13 @@ struct NMDIVIDER {
 		, fStyle(0)
 		, lParam(0)
 	{}
+	NMDIVIDER(const HWND hHwnd, const UINT uCode, const UINT uMask, const UINT uPaneId, const UINT uStyle, const LPARAM uExt)
+		: hdr{hHwnd, static_cast<UINT>(GetWindowLong(hHwnd, GWL_ID)), uCode}
+		, fMask(uMask)
+		, iPaneId(uPaneId)
+		, fStyle(uStyle)
+		, lParam(uExt)
+	{}
 };
 using LPNMDIVIDER = NMDIVIDER *;
 
