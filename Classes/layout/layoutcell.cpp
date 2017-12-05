@@ -106,7 +106,7 @@ LayoutCell::~LayoutCell()
  * blah
  */
 
-void LayoutCell::setParent(LayoutCell * p_Cell) noexcept
+void LayoutCell::setParent(LayoutCell *const p_Cell) noexcept
 {
 	m_Parent = p_Cell;
 }
@@ -117,7 +117,7 @@ void LayoutCell::setParent(LayoutCell * p_Cell) noexcept
  * blah
  */
 
-void LayoutCell::setSibling(LayoutCell * p_Cell) noexcept
+void LayoutCell::setSibling(LayoutCell *const p_Cell) noexcept
 {
 	m_NextSibling = p_Cell;
 }

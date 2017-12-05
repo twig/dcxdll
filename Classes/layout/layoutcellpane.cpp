@@ -134,7 +134,7 @@ HDWP LayoutCellPane::ExecuteLayout( const HDWP hdwp )
  * blah
  */
 
-void LayoutCellPane::getMinMaxInfo( CellMinMaxInfo * pCMMI ) const
+void LayoutCellPane::getMinMaxInfo( CellMinMaxInfo *const pCMMI ) const
 {
 	const auto nMaxWidthX = pCMMI->m_MaxSize.x;
 	const auto nMaxWidthY = pCMMI->m_MaxSize.y;
@@ -172,7 +172,7 @@ void LayoutCellPane::getMinMaxInfo( CellMinMaxInfo * pCMMI ) const
 	pCMMI->m_MaxSize.y = std::min( pCMMI->m_MaxSize.y, gsl::narrow_cast<LONG>(GetSystemMetrics( SM_CYMAXTRACK )) );
 }
 
-void LayoutCellPane::toXml(TiXmlElement *xml)
+void LayoutCellPane::toXml(TiXmlElement *const xml)
 {
 	if (this->m_nType == LayoutCellPane::HORZ)
 		xml->SetAttribute("cascade", "h");
@@ -183,7 +183,7 @@ void LayoutCellPane::toXml(TiXmlElement *xml)
 	{
 		if (lc != nullptr)
 		{
-			auto inner = lc->toXml();
+			const auto inner = lc->toXml();
 			if (weight != 0)
 				inner->SetAttribute("weight", gsl::narrow_cast<int>(weight));
 			xml->LinkEndChild(inner);
@@ -340,7 +340,7 @@ void LayoutCellPane::AdjustPos( )
 
 	for (const auto &x: this->m_vpCells)
 	{
-		auto pChild = x.first;
+		const auto pChild = x.first;
 
 		if (pChild == nullptr)
 			continue;

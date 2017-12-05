@@ -107,7 +107,7 @@ HDWP LayoutCellFill::ExecuteLayout(const HDWP hdwp)
  * blah
  */
 
-void LayoutCellFill::getMinMaxInfo(CellMinMaxInfo * pCMMI) const
+void LayoutCellFill::getMinMaxInfo(CellMinMaxInfo *const pCMMI) const
 {
 	if (this->isVisible())
 	{
@@ -123,7 +123,7 @@ void LayoutCellFill::getMinMaxInfo(CellMinMaxInfo * pCMMI) const
 		ZeroMemory(pCMMI, sizeof(CellMinMaxInfo));
 }
 
-void LayoutCellFill::toXml(TiXmlElement * xml)
+void LayoutCellFill::toXml(TiXmlElement *const xml)
 {
 	if (this->m_BaseControl != nullptr)
 		this->m_BaseControl->toXml(xml);
@@ -131,7 +131,14 @@ void LayoutCellFill::toXml(TiXmlElement * xml)
 	if (m_rcBorders.top != 0 || m_rcBorders.bottom != 0 || m_rcBorders.left != 0 || m_rcBorders.right != 0)
 	{
 		TString margin;
-		margin.tsprintf(TEXT("%d %d %d %d"), m_rcBorders.left, m_rcBorders.top, m_rcBorders.right, m_rcBorders.bottom);
+
+		//margin.tsprintf(TEXT("%d %d %d %d"), m_rcBorders.left, m_rcBorders.top, m_rcBorders.right, m_rcBorders.bottom);
+		//_ts_snprintf(margin, TEXT("%d %d %d %d"), m_rcBorders.left, m_rcBorders.top, m_rcBorders.right, m_rcBorders.bottom);
+		margin.addtok(m_rcBorders.left);
+		margin.addtok(m_rcBorders.top);
+		margin.addtok(m_rcBorders.right);
+		margin.addtok(m_rcBorders.bottom);
+
 		xml->SetAttribute("margin", margin.c_str());
 	}
 }
@@ -141,12 +148,19 @@ TiXmlElement * LayoutCellFill::toXml(void)
 {
 	if (this->m_BaseControl != nullptr)
 	{
-		auto xml = this->m_BaseControl->toXml();
+		const auto xml = this->m_BaseControl->toXml();
 
 		if (xml != nullptr && (m_rcBorders.top != 0 || m_rcBorders.bottom != 0 || m_rcBorders.left != 0 || m_rcBorders.right != 0))
 		{
 			TString margin;
-			margin.tsprintf(TEXT("%d %d %d %d"), m_rcBorders.left, m_rcBorders.top, m_rcBorders.right, m_rcBorders.bottom);
+
+			//margin.tsprintf(TEXT("%d %d %d %d"), m_rcBorders.left, m_rcBorders.top, m_rcBorders.right, m_rcBorders.bottom);
+			//_ts_snprintf(margin, TEXT("%d %d %d %d"), m_rcBorders.left, m_rcBorders.top, m_rcBorders.right, m_rcBorders.bottom);
+			margin.addtok(m_rcBorders.left);
+			margin.addtok(m_rcBorders.top);
+			margin.addtok(m_rcBorders.right);
+			margin.addtok(m_rcBorders.bottom);
+
 			xml->SetAttribute("margin", margin.c_str());
 		}
 		return xml;

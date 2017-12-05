@@ -99,7 +99,7 @@ TiXmlElement * LayoutCellFixed::toXml(void)
 	if (this->m_BaseControl == nullptr)
 		return nullptr;
 
-	auto base = this->m_BaseControl->toXml();
+	const auto base = this->m_BaseControl->toXml();
 
 	if (base != nullptr)
 	{
@@ -111,7 +111,7 @@ TiXmlElement * LayoutCellFixed::toXml(void)
 	return base;
 }
 
-void LayoutCellFixed::toXml(TiXmlElement * xml)
+void LayoutCellFixed::toXml(TiXmlElement *const xml)
 {
 	if (this->m_BaseControl != nullptr)
 		this->m_BaseControl->toXml(xml);
@@ -149,7 +149,7 @@ HDWP LayoutCellFixed::ExecuteLayout(const HDWP hdwp)
  * blah
  */
 
-void LayoutCellFixed::getMinMaxInfo(CellMinMaxInfo * pCMMI) const
+void LayoutCellFixed::getMinMaxInfo(CellMinMaxInfo *const pCMMI) const
 {
 	if (this->isVisible())
 	{
@@ -180,8 +180,8 @@ void LayoutCellFixed::getMinMaxInfo(CellMinMaxInfo * pCMMI) const
 
 		pCMMI->m_MinSize.x = std::max(pCMMI->m_MinSize.x, 0L);
 		pCMMI->m_MinSize.y = std::max(pCMMI->m_MinSize.y, 0L);
-		pCMMI->m_MaxSize.x = std::min(pCMMI->m_MaxSize.x, static_cast<LONG>(GetSystemMetrics(SM_CXMAXTRACK)));
-		pCMMI->m_MaxSize.y = std::min(pCMMI->m_MaxSize.y, static_cast<LONG>(GetSystemMetrics(SM_CYMAXTRACK)));
+		pCMMI->m_MaxSize.x = std::min(pCMMI->m_MaxSize.x, gsl::narrow_cast<LONG>(GetSystemMetrics(SM_CXMAXTRACK)));
+		pCMMI->m_MaxSize.y = std::min(pCMMI->m_MaxSize.y, gsl::narrow_cast<LONG>(GetSystemMetrics(SM_CYMAXTRACK)));
 	}
 	else
 		ZeroMemory(pCMMI, sizeof(CellMinMaxInfo));

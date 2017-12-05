@@ -39,8 +39,8 @@ public:
 
 	virtual void LayoutChild() final;
 	virtual HDWP ExecuteLayout( const HDWP hdwp ) final;
-	virtual void getMinMaxInfo( CellMinMaxInfo * pCMMI ) const final;
-	virtual void toXml(TiXmlElement * xml) final;
+	virtual void getMinMaxInfo( CellMinMaxInfo *const pCMMI ) const final;
+	virtual void toXml(TiXmlElement *const xml) final;
 	virtual TiXmlElement * toXml(void) final;
 
 	const CellType getType() const noexcept final;

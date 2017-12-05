@@ -79,12 +79,12 @@ public:
 
 	virtual void LayoutChild( ) = 0;
 	virtual HDWP ExecuteLayout( const HDWP hdwp ) = 0;
-	virtual void getMinMaxInfo( CellMinMaxInfo * pCMMI ) const = 0;
-	virtual void toXml(TiXmlElement * xml) = 0;
+	virtual void getMinMaxInfo( CellMinMaxInfo *const pCMMI ) const = 0;
+	virtual void toXml(TiXmlElement *const xml) = 0;
 	virtual TiXmlElement * toXml(void) = 0;
 
-	void setSibling( LayoutCell * p_Cell ) noexcept;
-	void setParent( LayoutCell * p_Cell ) noexcept;
+	void setSibling( LayoutCell *const p_Cell ) noexcept;
+	void setParent( LayoutCell *const p_Cell ) noexcept;
 
 	virtual const CellType getType( ) const noexcept = 0;
 
