@@ -12,16 +12,7 @@ PFNDWMEXTENDFRAMEINTOCLIENTAREA DcxDWMModule::DwmExtendFrameIntoClientAreaUx = n
 PFNDWMENABLEBLURBEHINDWINDOW DcxDWMModule::DwmEnableBlurBehindWindowUx = nullptr;
 PFNDWMGETCOLORIZATIONCOLOR DcxDWMModule::DwmGetColorizationColorUx = nullptr;
 
-DcxDWMModule::DcxDWMModule(void) :
-m_bAero(false),
-m_bVista(false),
-m_bWin7(false),
-m_bWin8(false),
-m_bWin10(false)
-{
-}
-
-DcxDWMModule::~DcxDWMModule(void)
+DcxDWMModule::~DcxDWMModule(void) noexcept
 {
 	unload();
 }
@@ -65,7 +56,7 @@ bool DcxDWMModule::load(void)
 	return isUseable();
 }
 
-bool DcxDWMModule::unload(void) 
+bool DcxDWMModule::unload(void) noexcept
 {
 	if (isUseable())
 	{
@@ -82,7 +73,7 @@ bool DcxDWMModule::unload(void)
 }
 #pragma warning(pop)
 
-const bool &DcxDWMModule::refreshComposite()
+const bool &DcxDWMModule::refreshComposite() noexcept
 {
 	BOOL bAero;
 	if (FAILED(dcxDwmIsCompositionEnabled(&bAero)))
@@ -92,21 +83,21 @@ const bool &DcxDWMModule::refreshComposite()
 	return m_bAero;
 }
 
-HRESULT DcxDWMModule::dcxDwmSetWindowAttribute(HWND hwnd, DWORD dwAttribute, LPCVOID pvAttribute, DWORD cbAttribute)
+HRESULT DcxDWMModule::dcxDwmSetWindowAttribute(HWND hwnd, DWORD dwAttribute, LPCVOID pvAttribute, DWORD cbAttribute) noexcept
 {
 	if (DwmSetWindowAttributeUx != nullptr)
 		return DwmSetWindowAttributeUx(hwnd, dwAttribute, pvAttribute, cbAttribute);
 	return DWM_E_COMPOSITIONDISABLED;
 }
 
-HRESULT DcxDWMModule::dcxDwmGetWindowAttribute(HWND hwnd, DWORD dwAttribute, PVOID pvAttribute, DWORD cbAttribute)
+HRESULT DcxDWMModule::dcxDwmGetWindowAttribute(HWND hwnd, DWORD dwAttribute, PVOID pvAttribute, DWORD cbAttribute) noexcept
 {
 	if (DwmGetWindowAttributeUx != nullptr)
 		return DwmGetWindowAttributeUx(hwnd, dwAttribute, pvAttribute, cbAttribute);
 	return DWM_E_COMPOSITIONDISABLED;
 }
 
-HRESULT DcxDWMModule::dcxDwmIsCompositionEnabled(BOOL *pfEnabled)
+HRESULT DcxDWMModule::dcxDwmIsCompositionEnabled(BOOL *pfEnabled) noexcept
 {
 	if (DwmIsCompositionEnabledUx != nullptr)
 		return DwmIsCompositionEnabledUx(pfEnabled);
@@ -114,21 +105,21 @@ HRESULT DcxDWMModule::dcxDwmIsCompositionEnabled(BOOL *pfEnabled)
 	return DWM_E_COMPOSITIONDISABLED;
 }
 
-HRESULT DcxDWMModule::dcxDwmExtendFrameIntoClientArea(HWND hwnd, const MARGINS *pMarInset)
+HRESULT DcxDWMModule::dcxDwmExtendFrameIntoClientArea(HWND hwnd, const MARGINS *pMarInset) noexcept
 {
 	if (DwmExtendFrameIntoClientAreaUx != nullptr)
 		return DwmExtendFrameIntoClientAreaUx(hwnd, pMarInset);
 	return DWM_E_COMPOSITIONDISABLED;
 }
 
-HRESULT DcxDWMModule::dcxDwmEnableBlurBehindWindow(HWND hwnd, __in const DWM_BLURBEHIND *pBlurBehind)
+HRESULT DcxDWMModule::dcxDwmEnableBlurBehindWindow(HWND hwnd, __in const DWM_BLURBEHIND *pBlurBehind) noexcept
 {
 	if (DwmEnableBlurBehindWindowUx != nullptr)
 		return DwmEnableBlurBehindWindowUx(hwnd, pBlurBehind);
 	return DWM_E_COMPOSITIONDISABLED;
 }
 
-HRESULT DcxDWMModule::dcxDwmGetColorizationColor( __out  DWORD *pcrColorization, __out  BOOL *pfOpaqueBlend)
+HRESULT DcxDWMModule::dcxDwmGetColorizationColor( __out  DWORD *pcrColorization, __out  BOOL *pfOpaqueBlend) noexcept
 {
 	if (DwmGetColorizationColorUx != nullptr)
 		return DwmGetColorizationColorUx(pcrColorization, pfOpaqueBlend);

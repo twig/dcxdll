@@ -24,18 +24,25 @@ class DcxDWMModule :
 	static PFNDWMGETCOLORIZATIONCOLOR DwmGetColorizationColorUx;
 
 public:
-	DcxDWMModule(void);
-	virtual ~DcxDWMModule(void);
+	constexpr DcxDWMModule(void) noexcept :
+		m_bAero(false),
+		m_bVista(false),
+		m_bWin7(false),
+		m_bWin8(false),
+		m_bWin10(false)
+	{
+	}
+	virtual ~DcxDWMModule(void) noexcept;
 
 	bool load(void) final;
-	bool unload(void) final;
-	const bool &refreshComposite();
-	HRESULT dcxDwmSetWindowAttribute(HWND hwnd, DWORD dwAttribute, LPCVOID pvAttribute, DWORD cbAttribute);
-	HRESULT dcxDwmGetWindowAttribute(HWND hwnd, DWORD dwAttribute, PVOID pvAttribute, DWORD cbAttribute);
-	HRESULT dcxDwmIsCompositionEnabled(BOOL *pfEnabled);
-	HRESULT dcxDwmExtendFrameIntoClientArea(HWND hwnd, const MARGINS *pMarInset);
-	HRESULT dcxDwmEnableBlurBehindWindow(HWND hwnd, __in const DWM_BLURBEHIND *pBlurBehind);
-	HRESULT dcxDwmGetColorizationColor( __out  DWORD *pcrColorization, __out  BOOL *pfOpaqueBlend);
+	bool unload(void) noexcept final;
+	const bool &refreshComposite() noexcept;
+	HRESULT dcxDwmSetWindowAttribute(HWND hwnd, DWORD dwAttribute, LPCVOID pvAttribute, DWORD cbAttribute) noexcept;
+	HRESULT dcxDwmGetWindowAttribute(HWND hwnd, DWORD dwAttribute, PVOID pvAttribute, DWORD cbAttribute) noexcept;
+	HRESULT dcxDwmIsCompositionEnabled(BOOL *pfEnabled) noexcept;
+	HRESULT dcxDwmExtendFrameIntoClientArea(HWND hwnd, const MARGINS *pMarInset) noexcept;
+	HRESULT dcxDwmEnableBlurBehindWindow(HWND hwnd, __in const DWM_BLURBEHIND *pBlurBehind) noexcept;
+	HRESULT dcxDwmGetColorizationColor( __out  DWORD *pcrColorization, __out  BOOL *pfOpaqueBlend) noexcept;
 
 	const bool &isAero(void) const noexcept { return m_bAero; };
 	const bool &isVista(void) const noexcept { return m_bVista; };

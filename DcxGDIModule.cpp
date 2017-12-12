@@ -2,7 +2,7 @@
 #include "DcxGDIModule.h"
 #include "Dcx.h"
 
-DcxGDIModule::~DcxGDIModule()
+DcxGDIModule::~DcxGDIModule() noexcept
 {
 	unload();
 }
@@ -18,7 +18,7 @@ bool DcxGDIModule::load(void)
 	m_hModule = LoadLibrary(TEXT("GDIPLUS.DLL"));
 	if (m_hModule != nullptr)
 	{
-		Gdiplus::GdiplusStartupInput gsi;
+		const Gdiplus::GdiplusStartupInput gsi;
 
 		// default constructor sets this alrdy
 		//gsi.GdiplusVersion = 1;
@@ -40,7 +40,7 @@ bool DcxGDIModule::load(void)
 	return isUseable();
 }
 
-bool DcxGDIModule::unload(void)
+bool DcxGDIModule::unload(void) noexcept
 {
 #ifdef DCX_USE_GDIPLUS
 	// Shutdown GDI+

@@ -5,11 +5,13 @@ class DcxGDIModule :
 	public DcxModule
 {
 public:
-	DcxGDIModule() : m_GDIToken(0UL) {}
-	virtual ~DcxGDIModule();
+	constexpr DcxGDIModule() noexcept
+		: m_GDIToken(0UL)
+	{}
+	virtual ~DcxGDIModule() noexcept;
 
 	bool load(void) final;
-	bool unload(void) final;
+	bool unload(void) noexcept final;
 
 private:
 	ULONG_PTR m_GDIToken;

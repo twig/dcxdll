@@ -16,8 +16,10 @@
 class DcxModule
 {
 public:
-	DcxModule(void) : m_hModule(nullptr) {}
-	virtual ~DcxModule(void) = default;
+	constexpr DcxModule(void) noexcept
+		: m_hModule(nullptr)
+	{}
+	virtual ~DcxModule(void) noexcept {};
 
 	bool isUseable() const noexcept	{ return !(m_hModule == nullptr); }
 
