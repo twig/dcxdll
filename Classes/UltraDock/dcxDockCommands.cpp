@@ -28,7 +28,7 @@ struct DCXDOCK {
 	DWORD flags;
 	TString type;
 
-	DCXDOCK()
+	DCXDOCK() noexcept
 		: oldProc(nullptr)
 		, win(nullptr)
 		, flags(0U)
@@ -116,7 +116,6 @@ LRESULT CALLBACK mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lP
 {
 	const auto dd = static_cast<LPDCXDOCK>(GetProp(mHwnd, TEXT("dcx_dock")));
 #ifdef DCX_DEBUG_OUTPUT
-	//mIRCLinker::signalex(dcxSignal.xdock, TEXT("debug %u"), uMsg);
 	if (dcxSignal.xdock)
 		mIRCLinker::signal(TEXT("dock debug %"), uMsg);
 #endif
@@ -221,7 +220,7 @@ bool DockWindow(const HWND mWnd, const HWND temp, const TCHAR *find, const TStri
 
 	// get window pos
 #if DCX_USE_WRAPPERS
-	Dcx::dcxWindowRect rc(temp);
+	const Dcx::dcxWindowRect rc(temp);
 #else
 	RECT rc{};
 	if (!GetWindowRect(temp, &rc))
@@ -577,7 +576,7 @@ mIRC(_xdock)
 
 		if (d.getfirsttok(1) == TEXT("mIRC"))
 		{
-			auto DockTypeToSwitchbarPos = [refData](const DockTypes dType) {
+			const auto DockTypeToSwitchbarPos = [refData](const DockTypes dType) noexcept {
 				switch (SwitchbarPos(dType))
 				{
 				case SwitchBarPos::SWB_RIGHT:
@@ -617,20 +616,19 @@ mIRC(_xdock)
 			case TEXT("switchBarSize"_hash):
 			{
 #if DCX_USE_WRAPPERS
-				Dcx::dcxWindowRect rc(mIRCLinker::getSwitchbar());
+				const Dcx::dcxWindowRect rc(mIRCLinker::getSwitchbar());
 #else
 				RECT rc;
 				if (!GetWindowRect(mIRCLinker::getSwitchbar(), &rc))
 					throw Dcx::dcxException("Unable to get window rect");
 #endif
-				//wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d %d %d"), rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top);
 				_ts_snprintf(refData, TEXT("%d %d %d %d"), rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top);
 			}
 			break;
 			case TEXT("toolBarSize"_hash):
 			{
 #if DCX_USE_WRAPPERS
-				Dcx::dcxWindowRect rc(mIRCLinker::getToolbar());
+				const Dcx::dcxWindowRect rc(mIRCLinker::getToolbar());
 #else
 				RECT rc;
 				if (!GetWindowRect(mIRCLinker::getToolbar(), &rc))
@@ -642,7 +640,7 @@ mIRC(_xdock)
 			case TEXT("treeBarSize"_hash):
 			{
 #if DCX_USE_WRAPPERS
-				Dcx::dcxWindowRect rc(mIRCLinker::getTreebar());
+				const Dcx::dcxWindowRect rc(mIRCLinker::getTreebar());
 #else
 				RECT rc;
 				if (!GetWindowRect(mIRCLinker::getTreebar(), &rc))

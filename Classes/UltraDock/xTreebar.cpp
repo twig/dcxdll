@@ -577,7 +577,7 @@ mIRC(_xtreebar)
 			if (index < 1) // if index < 1 return total items.
 				_ts_snprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), cnt);
 			else {
-				stString<MIRC_BUFFER_SIZE_CCH> szbuf;
+				const stString<MIRC_BUFFER_SIZE_CCH> szbuf;
 				item.hItem = TreeView_MapAccIDToHTREEITEM(mIRCLinker::getTreeview(), index);
 				item.mask = TVIF_TEXT;
 				item.pszText = szbuf;	// PVS-Studio reports `V507 pointer stored outside of scope` this is fine.

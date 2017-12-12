@@ -88,7 +88,7 @@ struct SB_PARTINFOD {
 	COLORREF	m_TxtCol;	// colour of the text be default in this item.
 	HBRUSH		m_BkgCol;	// brush to be used when drawing the bkg in this item.
 
-	SB_PARTINFOD()
+	SB_PARTINFOD() noexcept
 		: m_Child(nullptr)
 		, m_iIcon(-1)
 		, m_TxtCol(CLR_INVALID)
@@ -117,17 +117,17 @@ public:
 	DcxDock &operator =(const DcxDock &) = delete;	// No assignments!
 
 	DcxDock(HWND refHwnd, HWND dockHwnd, const DockTypes dockType);
-	virtual ~DcxDock(void);
+	~DcxDock(void);
 
-	virtual bool DockWindow(HWND hwnd, const TString &flag);
-	virtual void UnDockWindow(const HWND hwnd);
+	bool DockWindow(HWND hwnd, const TString &flag);
+	void UnDockWindow(const HWND hwnd);
 	void UnDockWindowPtr(const gsl::owner<LPDCXULTRADOCK> ud) noexcept;
 	void UnDockAll(void) noexcept;
 	void UpdateLayout(void) const noexcept { SendMessage(this->m_hParent,WM_SIZE,NULL,NULL); };
 	bool FindDock(const HWND hwnd) const;
 	bool isDocked(const HWND hwnd) const;
 	LPDCXULTRADOCK GetDock(const HWND hwnd) const;
-	virtual void AdjustRect(WINDOWPOS *wp);
+	void AdjustRect(WINDOWPOS *wp) noexcept;
 	//void RedrawRef(void);
 
 	//HCURSOR getCursor(const UINT iType)
@@ -153,31 +153,31 @@ public:
 	static void UnInitStatusbar(void);
 	static bool IsStatusbar(void) noexcept;
 	static std::tuple<NoTheme,WindowStyle,WindowExStyle> status_parseControlStyles( const TString & styles );
-	static void status_getRect(LPRECT rc);
-	static void status_setBkColor(const COLORREF clr);
-	static void status_setParts( const UINT nParts, const LPINT aWidths );
-	static UINT status_getParts( const UINT nParts, LPINT aWidths );
-	static void status_setText(const int iPart, const int Style, const WCHAR *const lpstr);
-	static LRESULT status_getText( const int iPart, LPWSTR lpstr );
-	static UINT status_getTextLength( const int iPart );
-	static UINT status_getPartFlags( const int iPart );
-	static void status_setTipText( const int iPart, const WCHAR *const lpstr );
-	static void status_getTipText( const int iPart, const int nSize, LPWSTR lpstr );
-	static void status_getRect( const int iPart, LPRECT lprc );
-	static void status_setIcon( const int iPart, const HICON hIcon );
-	static HICON status_getIcon( const int iPart );
+	static void status_getRect(LPRECT rc) noexcept;
+	static void status_setBkColor(const COLORREF clr) noexcept;
+	static void status_setParts( const UINT nParts, const LPINT aWidths ) noexcept;
+	static UINT status_getParts( const UINT nParts, const LPINT aWidths ) noexcept;
+	static void status_setText(const int iPart, const int Style, const WCHAR *const lpstr) noexcept;
+	static LRESULT status_getText( const int iPart, LPWSTR lpstr ) noexcept;
+	static UINT status_getTextLength( const int iPart ) noexcept;
+	static UINT status_getPartFlags( const int iPart ) noexcept;
+	static void status_setTipText( const int iPart, const WCHAR *const lpstr ) noexcept;
+	static void status_getTipText( const int iPart, const int nSize, const LPWSTR lpstr ) noexcept;
+	static void status_getRect( const int iPart, const LPRECT lprc ) noexcept;
+	static void status_setIcon( const int iPart, const HICON hIcon ) noexcept;
+	static HICON status_getIcon( const int iPart ) noexcept;
 	static HIMAGELIST &status_getImageList(void) noexcept;
-	static void status_setImageList( HIMAGELIST himl );
-	static HIMAGELIST status_createImageList(void);
-	static const UINT status_parseItemFlags( const TString & flags );
-	static void status_cleanPartIcons( );
-	static LRESULT status_getBorders( LPINT aWidths );
+	static void status_setImageList( HIMAGELIST himl ) noexcept;
+	static HIMAGELIST status_createImageList(void) noexcept;
+	static const UINT status_parseItemFlags( const TString & flags ) noexcept;
+	static void status_cleanPartIcons( ) noexcept;
+	static LRESULT status_getBorders( const LPINT aWidths ) noexcept;
 	static void status_updateParts(void);
-	static void status_setFont(HFONT f);
-	static LRESULT status_setPartInfo( const int iPart, const int Style, const LPSB_PARTINFOD pPart);
+	static void status_setFont(HFONT f) noexcept;
+	static LRESULT status_setPartInfo( const int iPart, const int Style, const LPSB_PARTINFOD pPart) noexcept;
 	static void status_deletePartInfo(const int iPart);
 	//
-	static const SwitchBarPos getPos(const int x, const int y, const int w, const int h);
+	static const SwitchBarPos getPos(const int x, const int y, const int w, const int h) noexcept;
 	//
 	static TString getTreebarItemType(const LPARAM lParam);
 	//static UINT getTreebarChildState(const HTREEITEM hParent, LPTVITEMEX pitem);
@@ -214,7 +214,7 @@ protected:
 
 void InitUltraDock(void);
 void CloseUltraDock(void);
-const SwitchBarPos SwitchbarPos(const DockTypes type);
+const SwitchBarPos SwitchbarPos(const DockTypes type) noexcept;
 void UpdatemIRC(void) noexcept;
 
 #ifdef __INTEL_COMPILER // Defined when using Intel C++ Compiler.

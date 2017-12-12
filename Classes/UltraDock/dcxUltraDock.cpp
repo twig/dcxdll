@@ -143,7 +143,7 @@ void TreebarUnDock(const HWND hwnd)
 
 // #####################################################################################
 // 0 == no swb, 1 == Left, 2 == Right, 3 == Top, 4 == Bottom
-const SwitchBarPos SwitchbarPos(const DockTypes type)
+const SwitchBarPos SwitchbarPos(const DockTypes type) noexcept
 {
 	HWND hwnd = nullptr;
 
