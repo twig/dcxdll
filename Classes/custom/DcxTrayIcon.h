@@ -37,7 +37,7 @@ private:
 
 	const bool DeleteIconId(const int id);
 	void AddIconId(const int id);
-	static LRESULT CALLBACK TrayWndProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+	static LRESULT CALLBACK TrayWndProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept;
 };
 
 extern std::unique_ptr<DcxTrayIcon> trayIcons;

@@ -85,7 +85,7 @@ constexpr const int TiXmlBase::utf8ByteTable[256] =
 };
 
 
-void TiXmlBase::ConvertUTF32ToUTF8( unsigned long input, char* output, int* length )
+void TiXmlBase::ConvertUTF32ToUTF8( unsigned long input, char* output, int* length ) noexcept
 {
 	constexpr const unsigned long BYTE_MASK = 0xBF;
 	constexpr const unsigned long BYTE_MARK = 0x80;
@@ -126,7 +126,7 @@ void TiXmlBase::ConvertUTF32ToUTF8( unsigned long input, char* output, int* leng
 }
 
 
-/*static*/ int TiXmlBase::IsAlpha( unsigned char anyByte, TiXmlEncoding /*encoding*/ )
+/*static*/ int TiXmlBase::IsAlpha( unsigned char anyByte, TiXmlEncoding /*encoding*/ ) noexcept
 {
 	// This will only work for low-ascii, everything else is assumed to be a valid
 	// letter. I'm not sure this is the best approach, but it is quite tricky trying
@@ -147,7 +147,7 @@ void TiXmlBase::ConvertUTF32ToUTF8( unsigned long input, char* output, int* leng
 }
 
 
-/*static*/ int TiXmlBase::IsAlphaNum( unsigned char anyByte, TiXmlEncoding /*encoding*/ )
+/*static*/ int TiXmlBase::IsAlphaNum( unsigned char anyByte, TiXmlEncoding /*encoding*/ ) noexcept
 {
 	// This will only work for low-ascii, everything else is assumed to be a valid
 	// letter. I'm not sure this is the best approach, but it is quite tricky trying
@@ -172,13 +172,13 @@ class TiXmlParsingData
 {
 	friend class TiXmlDocument;
   public:
-	void Stamp( const char* now, TiXmlEncoding encoding );
+	void Stamp( const char* now, TiXmlEncoding encoding ) noexcept;
 
-	const TiXmlCursor& Cursor()	{ return cursor; }
+	const TiXmlCursor& Cursor()	noexcept { return cursor; }
 
   private:
 	// Only used by the document!
-	TiXmlParsingData( const char* start, const int _tabsize, const int row, const int col )
+	TiXmlParsingData( const char* start, const int _tabsize, const int row, const int col ) noexcept
 		: stamp(start)
 		, tabsize(_tabsize)
 		, cursor{ row, col }
@@ -196,7 +196,7 @@ class TiXmlParsingData
 };
 
 
-void TiXmlParsingData::Stamp( const char* now, TiXmlEncoding encoding )
+void TiXmlParsingData::Stamp( const char* now, TiXmlEncoding encoding ) noexcept
 {
 	assert( now );
 
@@ -313,7 +313,7 @@ void TiXmlParsingData::Stamp( const char* now, TiXmlEncoding encoding )
 }
 
 
-const char* TiXmlBase::SkipWhiteSpace( const char* p, TiXmlEncoding encoding )
+const char* TiXmlBase::SkipWhiteSpace( const char* p, TiXmlEncoding encoding ) noexcept
 {
 	if ( !p || !*p )
 		return 0;
@@ -436,7 +436,7 @@ const char* TiXmlBase::ReadName( const char* p, TIXML_STRING * name, TiXmlEncodi
 	return 0;
 }
 
-const char* TiXmlBase::GetEntity( const char* p, char* value, int* length, TiXmlEncoding encoding )
+const char* TiXmlBase::GetEntity( const char* p, char* value, int* length, TiXmlEncoding encoding ) noexcept
 {
 	// Presume an entity, and pull it out.
     //TIXML_STRING ent;
@@ -455,7 +455,8 @@ const char* TiXmlBase::GetEntity( const char* p, char* value, int* length, TiXml
 			if ( !*(p+3) ) return 0;
 
 			const char* q = p+3;
-			q = strchr( q, ';' );
+			//q = strchr( q, ';' );
+			q = _ts_find(q, ';');
 
 			if ( !q || !*q ) return 0;
 
@@ -482,7 +483,8 @@ const char* TiXmlBase::GetEntity( const char* p, char* value, int* length, TiXml
 			if ( !*(p+2) ) return 0;
 
 			const char* q = p+2;
-			q = strchr( q, ';' );
+			//q = strchr( q, ';' );
+			q = _ts_find(q, ';');
 
 			if ( !q || !*q ) return 0;
 
@@ -535,7 +537,7 @@ const char* TiXmlBase::GetEntity( const char* p, char* value, int* length, TiXml
 bool TiXmlBase::StringEqual( const char* p,
 							 const char* tag,
 							 bool ignoreCase,
-							 TiXmlEncoding encoding )
+							 TiXmlEncoding encoding ) noexcept
 {
 	assert( p );
 	assert( tag );
@@ -765,8 +767,8 @@ const char* TiXmlDocument::Parse( const char* p, TiXmlParsingData* prevData, TiX
 		if (    encoding == TIXML_ENCODING_UNKNOWN
 			 && node->ToDeclaration() )
 		{
-			const auto dec = node->ToDeclaration();
-			const char* enc = dec->Encoding();
+			const auto *const dec = node->ToDeclaration();
+			const char *const enc = dec->Encoding();
 			assert( enc );
 
 			if ( *enc == 0 )
@@ -783,7 +785,8 @@ const char* TiXmlDocument::Parse( const char* p, TiXmlParsingData* prevData, TiX
 	}
 
 	// Was this empty?
-	if ( !firstChild ) {
+	if ( !firstChild )
+	{
 		SetError( TIXML_ERROR_DOCUMENT_EMPTY, 0, 0, encoding );
 		return nullptr;
 	}
@@ -860,7 +863,7 @@ TiXmlNode* TiXmlNode::Identify( const char* p, TiXmlEncoding encoding )
 		#ifdef DEBUG_PARSER
 			TIXML_LOG( "XML parsing CDATA\n" );
 		#endif
-		TiXmlText* text = new TiXmlText( "" );
+		const auto text = new TiXmlText( "" );
 		text->SetCDATA( true );
 		returnNode = text;
 	}
@@ -1691,9 +1694,9 @@ const char* TiXmlDeclaration::Parse( const char* p, TiXmlParsingData* data, TiXm
 	return 0;
 }
 
-bool TiXmlText::Blank() const
+bool TiXmlText::Blank() const noexcept
 {
-	for ( unsigned i=0; i<value.length(); i++ )
+	for ( unsigned i=0; i<value.length(); ++i )
 		if ( !IsWhiteSpace( value[i] ) )
 			return false;
 	return true;

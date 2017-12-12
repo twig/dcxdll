@@ -163,7 +163,7 @@ DcxTrayIcon::~DcxTrayIcon(void)
 	}
 }
 
-LRESULT CALLBACK DcxTrayIcon::TrayWndProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+LRESULT CALLBACK DcxTrayIcon::TrayWndProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept
 {
 	if ((uMsg == DCXM_TRAYICON) && (dcxSignal.xtray))
 	{

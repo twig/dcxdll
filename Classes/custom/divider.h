@@ -47,6 +47,8 @@
  * \brief Divider Notification Structure
  */
 
+#pragma warning(push)
+#pragma warning( disable : 26472 ) //  warning C26472 : Don't use a static_cast for arithmetic conversions. Use brace initialization, gsl::narrow_cast or gsl::narow (type.1: http://go.microsoft.com/fwlink/p/?LinkID=620417).
 struct NMDIVIDER {
 
     NMHDR hdr;      //!< Notification NMHDR structure, must be first always
@@ -55,14 +57,14 @@ struct NMDIVIDER {
     UINT fStyle;    //!< Pane Style Flags
     LPARAM lParam;  //!< Extra Storage Value
 
-	NMDIVIDER()
+	NMDIVIDER() noexcept
 		: hdr{}
 		, fMask(0)
 		, iPaneId(0)
 		, fStyle(0)
 		, lParam(0)
 	{}
-	NMDIVIDER(const HWND hHwnd, const UINT uCode, const UINT uMask, const UINT uPaneId, const UINT uStyle, const LPARAM uExt)
+	NMDIVIDER(const HWND hHwnd, const UINT uCode, const UINT uMask, const UINT uPaneId, const UINT uStyle, const LPARAM uExt) noexcept
 		: hdr{hHwnd, static_cast<UINT>(GetWindowLong(hHwnd, GWL_ID)), uCode}
 		, fMask(uMask)
 		, iPaneId(uPaneId)
@@ -71,6 +73,7 @@ struct NMDIVIDER {
 	{}
 };
 using LPNMDIVIDER = NMDIVIDER *;
+#pragma warning(pop)
 
 #define DVNM_LPARAM   0x01  //!< NMDIVIDER lParam Value is Valid
 #define DVNM_STYLE    0x02  //!< NMDIVIDER fStyle Value is Valid
@@ -94,7 +97,7 @@ struct DVPANEINFO {
 	HWND hChild;    //!< Pane Child Window Handle
 	LPARAM lParam;  //!< Extra Storage For Each Pane
 
-	DVPANEINFO()
+	DVPANEINFO() noexcept
 		: cbSize(sizeof(DVPANEINFO))
 		, fMask(0)
 		, fStyle(0)
@@ -119,7 +122,7 @@ struct DVCONTROLDATA {
 	int m_iOldPos;          //!< Moving Old Position
 	bool m_bDragging;       //!< Are We Dragging The Bar?
 
-	DVCONTROLDATA()
+	DVCONTROLDATA() noexcept
 		: m_LeftTopPane()
 		, m_RightBottomPane()
 		, m_iLineWidth(2)

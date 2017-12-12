@@ -2,7 +2,7 @@
 #include "ListHelper.h"
 
 
-void DcxListHelper::getItemRange(const TString &tsItems, const int nItemCnt, int *iStart_range, int *iEnd_range)
+void DcxListHelper::getItemRange(const TString &tsItems, const int nItemCnt, const gsl::not_null<int *> &iStart_range, const gsl::not_null<int *> &iEnd_range)
 {
 	std::tie(*iStart_range, *iEnd_range) = getItemRange(tsItems, nItemCnt);
 }

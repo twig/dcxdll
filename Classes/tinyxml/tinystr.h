@@ -75,7 +75,8 @@ public:
 
 
 	// TiXmlString empty constructor
-	TiXmlString() : rep_(&nullrep_)
+	TiXmlString() noexcept
+		: rep_(&nullrep_)
 	{
 	}
 
@@ -105,14 +106,15 @@ public:
 	}
 
 	// TiXmlString constructor, based on a string
-	TIXML_EXPLICIT TiXmlString(const char * str, size_type len) : rep_(0)
+	TIXML_EXPLICIT TiXmlString(const char * str, size_type len)
+		: rep_(0)
 	{
 		init(len);
 		memcpy(start(), str, len);
 	}
 
 	// TiXmlString destructor
-	~TiXmlString()
+	~TiXmlString() noexcept
 	{
 		quit();
 	}
@@ -168,27 +170,27 @@ public:
 	size_type capacity() const noexcept { return rep_->capacity; }
 
 	// single char extraction
-	const char& at(size_type index) const
+	const char& at(size_type index) const noexcept
 	{
 		assert(index < length());
 		return rep_->str[index];
 	}
 
 	// [] operator
-	char& operator [] (size_type index) const
+	char& operator [] (size_type index) const noexcept
 	{
 		assert(index < length());
 		return rep_->str[index];
 	}
 
 	// find a char in a string. Return TiXmlString::npos if not found
-	size_type find(char lookup) const
+	size_type find(char lookup) const noexcept
 	{
 		return find(lookup, 0);
 	}
 
 	// find a char in a string from an offset. Return TiXmlString::npos if not found
-	size_type find(char tofind, size_type offset) const
+	size_type find(char tofind, size_type offset) const noexcept
 	{
 		if (offset >= length()) return npos;
 
@@ -232,7 +234,7 @@ public:
 private:
 
 	void init(size_type sz) { init(sz, sz); }
-	void set_size(size_type sz) { rep_->str[rep_->size = sz] = '\0'; }
+	void set_size(size_type sz) noexcept { rep_->str[rep_->size = sz] = '\0'; }
 	char* start() const noexcept { return &rep_->str[0]; }
 	char* finish() const noexcept { return &rep_->str[0] + rep_->size; }
 
@@ -265,7 +267,7 @@ private:
 		}
 	}
 
-	void quit()
+	void quit() noexcept
 	{
 		if (rep_ != &nullrep_)
 		{
@@ -281,25 +283,25 @@ private:
 };
 
 
-inline bool operator == (const TiXmlString & a, const TiXmlString & b)
+inline bool operator == (const TiXmlString & a, const TiXmlString & b) noexcept
 {
 	return    (a.length() == b.length())				// optimization on some platforms
 		&& (strcmp(a.c_str(), b.c_str()) == 0);	// actual compare
 }
-inline bool operator < (const TiXmlString & a, const TiXmlString & b)
+inline bool operator < (const TiXmlString & a, const TiXmlString & b) noexcept
 {
 	return strcmp(a.c_str(), b.c_str()) < 0;
 }
 
-inline bool operator != (const TiXmlString & a, const TiXmlString & b) { return !(a == b); }
-inline bool operator >  (const TiXmlString & a, const TiXmlString & b) { return b < a; }
-inline bool operator <= (const TiXmlString & a, const TiXmlString & b) { return !(b < a); }
-inline bool operator >= (const TiXmlString & a, const TiXmlString & b) { return !(a < b); }
+inline bool operator != (const TiXmlString & a, const TiXmlString & b) noexcept { return !(a == b); }
+inline bool operator >  (const TiXmlString & a, const TiXmlString & b) noexcept { return b < a; }
+inline bool operator <= (const TiXmlString & a, const TiXmlString & b) noexcept { return !(b < a); }
+inline bool operator >= (const TiXmlString & a, const TiXmlString & b) noexcept { return !(a < b); }
 
-inline bool operator == (const TiXmlString & a, const char* b) { return strcmp(a.c_str(), b) == 0; }
-inline bool operator == (const char* a, const TiXmlString & b) { return b == a; }
-inline bool operator != (const TiXmlString & a, const char* b) { return !(a == b); }
-inline bool operator != (const char* a, const TiXmlString & b) { return !(b == a); }
+inline bool operator == (const TiXmlString & a, const char* b) noexcept { return strcmp(a.c_str(), b) == 0; }
+inline bool operator == (const char* a, const TiXmlString & b) noexcept { return b == a; }
+inline bool operator != (const TiXmlString & a, const char* b) noexcept { return !(a == b); }
+inline bool operator != (const char* a, const TiXmlString & b) noexcept { return !(b == a); }
 
 TiXmlString operator + (const TiXmlString & a, const TiXmlString & b);
 TiXmlString operator + (const TiXmlString & a, const char* b);

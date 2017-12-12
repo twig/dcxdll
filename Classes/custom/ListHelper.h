@@ -8,7 +8,7 @@ public:
 	DcxListHelper() = default;
 	~DcxListHelper() = default;
 
-	static void getItemRange(const TString &tsItems, const int nItemCnt, int *iStart, int *iEnd);
+	static void getItemRange(const TString &tsItems, const int nItemCnt, const gsl::not_null<int *> &iStart, const gsl::not_null<int *> &iEnd);
 	static std::pair<int, int> getItemRange(const TString &tsItems, const int nItemCnt);
 	static bool matchItemText(const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &sItemText, const TString &search, const DcxSearchTypes &SearchType);
 	static const DcxSearchTypes StringToSearchType(const TString &tsType) noexcept;
