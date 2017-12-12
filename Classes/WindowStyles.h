@@ -47,30 +47,30 @@ enum class WindowStyle : DWORD {
 //};
 
 template <typename T>
-constexpr WindowStyle &operator |=(WindowStyle &eStyle, const T &dStyle)
+constexpr WindowStyle &operator |=(WindowStyle &eStyle, const T &dStyle) noexcept
 {
 	return eStyle = static_cast<WindowStyle>(static_cast<DWORD>(eStyle) | static_cast<DWORD>(dStyle));
 }
 
 template <typename T>
-constexpr WindowStyle &operator &=(WindowStyle &eStyle, const T &dStyle)
+constexpr WindowStyle &operator &=(WindowStyle &eStyle, const T &dStyle) noexcept
 {
 	return eStyle = static_cast<WindowStyle>(static_cast<DWORD>(eStyle) & static_cast<DWORD>(dStyle));
 }
 
 template <typename T>
-constexpr WindowStyle operator &(const WindowStyle &eStyle, const T &dStyle)
+constexpr WindowStyle operator &(const WindowStyle &eStyle, const T &dStyle) noexcept
 {
 	return static_cast<WindowStyle>(static_cast<DWORD>(eStyle) & static_cast<DWORD>(dStyle));
 }
 
 template <typename T>
-constexpr WindowStyle operator |(const WindowStyle &eStyle, const T &dStyle)
+constexpr WindowStyle operator |(const WindowStyle &eStyle, const T &dStyle) noexcept
 {
 	return static_cast<WindowStyle>(static_cast<DWORD>(eStyle) | static_cast<DWORD>(dStyle));
 }
 
-constexpr WindowStyle operator ~(const WindowStyle &eStyle)
+constexpr WindowStyle operator ~(const WindowStyle &eStyle) noexcept
 {
 	return static_cast<WindowStyle>(~static_cast<DWORD>(eStyle));
 }
@@ -91,30 +91,30 @@ enum class WindowExStyle : DWORD {
 };
 
 template <typename T>
-constexpr WindowExStyle &operator |=(WindowExStyle &eStyle, const T &dStyle)
+constexpr WindowExStyle &operator |=(WindowExStyle &eStyle, const T &dStyle) noexcept
 {
 	return eStyle = static_cast<WindowExStyle>(static_cast<DWORD>(eStyle) | static_cast<DWORD>(dStyle));
 }
 
 template <typename T>
-constexpr WindowExStyle &operator &=(WindowExStyle &eStyle, const T &dStyle)
+constexpr WindowExStyle &operator &=(WindowExStyle &eStyle, const T &dStyle) noexcept
 {
 	return eStyle = static_cast<WindowExStyle>(static_cast<DWORD>(eStyle) & static_cast<DWORD>(dStyle));
 }
 
 template <typename T>
-constexpr WindowExStyle operator &(const WindowExStyle &eStyle, const T &dStyle)
+constexpr WindowExStyle operator &(const WindowExStyle &eStyle, const T &dStyle) noexcept
 {
 	return static_cast<WindowExStyle>(static_cast<DWORD>(eStyle) & static_cast<DWORD>(dStyle));
 }
 
 template <typename T>
-constexpr WindowExStyle operator |(const WindowExStyle &eStyle, const T &dStyle)
+constexpr WindowExStyle operator |(const WindowExStyle &eStyle, const T &dStyle) noexcept
 {
 	return static_cast<WindowExStyle>(static_cast<DWORD>(eStyle) | static_cast<DWORD>(dStyle));
 }
 
-constexpr WindowExStyle operator ~(const WindowExStyle &eStyle)
+constexpr WindowExStyle operator ~(const WindowExStyle &eStyle) noexcept
 {
 	return static_cast<WindowExStyle>(~static_cast<DWORD>(eStyle));
 }
@@ -124,66 +124,66 @@ enum class WindowAnimStyle : DWORD {
 };
 
 template <typename T>
-constexpr WindowAnimStyle &operator |=(WindowAnimStyle &eStyle, const T &dStyle)
+constexpr WindowAnimStyle &operator |=(WindowAnimStyle &eStyle, const T &dStyle) noexcept
 {
 	return eStyle = static_cast<WindowAnimStyle>(static_cast<DWORD>(eStyle) | static_cast<DWORD>(dStyle));
 }
 
 template <typename T>
-constexpr WindowAnimStyle &operator &=(WindowAnimStyle &eStyle, const T &dStyle)
+constexpr WindowAnimStyle &operator &=(WindowAnimStyle &eStyle, const T &dStyle) noexcept
 {
 	return eStyle = static_cast<WindowAnimStyle>(static_cast<DWORD>(eStyle) & static_cast<DWORD>(dStyle));
 }
 
 template <typename T>
-constexpr WindowAnimStyle operator &(const WindowAnimStyle &eStyle, const T &dStyle)
+constexpr WindowAnimStyle operator &(const WindowAnimStyle &eStyle, const T &dStyle) noexcept
 {
 	return static_cast<WindowAnimStyle>(static_cast<DWORD>(eStyle) & static_cast<DWORD>(dStyle));
 }
 
 template <typename T>
-constexpr WindowAnimStyle operator |(const WindowAnimStyle &eStyle, const T &dStyle)
+constexpr WindowAnimStyle operator |(const WindowAnimStyle &eStyle, const T &dStyle) noexcept
 {
 	return static_cast<WindowAnimStyle>(static_cast<DWORD>(eStyle) | static_cast<DWORD>(dStyle));
 }
 template <typename T>
-constexpr WindowAnimStyle operator |(const T &dStyle, const WindowAnimStyle &eStyle)
+constexpr WindowAnimStyle operator |(const T &dStyle, const WindowAnimStyle &eStyle) noexcept
 {
 	return static_cast<WindowAnimStyle>(static_cast<DWORD>(dStyle) | static_cast<DWORD>(eStyle));
 }
 
 template <typename T>
-constexpr inline WindowStyle to_WindowStyle(T other)
+constexpr inline WindowStyle to_WindowStyle(T other) noexcept
 {
 	return static_cast<WindowStyle>(other);
 }
 template <typename T>
-constexpr inline WindowExStyle to_WindowExStyle(T other)
+constexpr inline WindowExStyle to_WindowExStyle(T other) noexcept
 {
 	return static_cast<WindowExStyle>(other);
 }
 
-inline WindowStyle dcxGetWindowStyle(HWND Hwnd)
+inline WindowStyle dcxGetWindowStyle(HWND Hwnd) noexcept
 {
 	return static_cast<WindowStyle>(GetWindowStyle(Hwnd));
 }
 
-inline WindowExStyle dcxGetWindowExStyle(HWND Hwnd)
+inline WindowExStyle dcxGetWindowExStyle(HWND Hwnd) noexcept
 {
 	return static_cast<WindowExStyle>(GetWindowExStyle(Hwnd));
 }
 
-inline WindowStyle dcxSetWindowStyle(HWND Hwnd, WindowStyle style)
+inline WindowStyle dcxSetWindowStyle(HWND Hwnd, WindowStyle style) noexcept
 {
 	return static_cast<WindowStyle>(SetWindowLongPtr(Hwnd, GWL_STYLE, static_cast<LONG>(style)));
 }
 
-inline WindowExStyle dcxSetWindowExStyle(HWND Hwnd, WindowExStyle style)
+inline WindowExStyle dcxSetWindowExStyle(HWND Hwnd, WindowExStyle style) noexcept
 {
 	return static_cast<WindowExStyle>(SetWindowLongPtr(Hwnd, GWL_EXSTYLE, static_cast<LONG>(style)));
 }
 
-inline HWND dcxCreateWindow(const WindowExStyle ExStyles, const TCHAR *const szClass, const WindowStyle Styles, const RECT *const rc, HWND hParent, const UINT uID, const void *const pthis = nullptr)
+inline HWND dcxCreateWindow(const WindowExStyle ExStyles, const TCHAR *const szClass, const WindowStyle Styles, const RECT *const rc, HWND hParent, const UINT uID, const void *const pthis = nullptr) noexcept
 {
 	return CreateWindowEx(
 		gsl::narrow_cast<DWORD>(ExStyles),
@@ -197,7 +197,7 @@ inline HWND dcxCreateWindow(const WindowExStyle ExStyles, const TCHAR *const szC
 		(LPVOID)pthis);
 }
 
-inline UINT dcxSetWindowID(HWND Hwnd, const UINT uID)
+inline UINT dcxSetWindowID(HWND Hwnd, const UINT uID) noexcept
 {
 	return static_cast<UINT>(SetWindowLongPtr(Hwnd, GWLP_ID, static_cast<LONG>(uID)));
 }
