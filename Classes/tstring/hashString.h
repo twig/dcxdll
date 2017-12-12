@@ -33,9 +33,9 @@
 // mostly taken from https://stackoverflow.com/questions/2111667/compile-time-string-hashing or based on this.
 
 // create a crc8 of a const string.
-uint32_t tcrc8(const char * str);
+uint32_t tcrc8(const char * str) noexcept;
 // create a crc32
-uint32_t crc32_1byte(const void* data, size_t length, uint32_t previousCrc32 = 0);
+uint32_t crc32_1byte(const void* data, size_t length, uint32_t previousCrc32 = 0) noexcept;
 
 namespace detail {
 	// CRC32 Table (zlib polynomial)
@@ -108,21 +108,24 @@ namespace detail {
 
 // create a compile time hash of a const string. (no overflow bug, but causes dll size increase)
 template <typename T>
-constexpr size_t const_hash(const T *const input) {
+constexpr size_t const_hash(const T *const input) noexcept
+{
 	return *input ?
 		(static_cast<size_t>(*input) + 33U) + detail::crc_table[((const_hash(input + 1) ^ static_cast<size_t>(*input)) & 0xFF)] :
 		5381U;
 }
 
 template <typename T>
-size_t dcx_hash(const T *const input) {
-	static_assert(std::is_same<char, std::remove_cv_t<T>>::value || std::is_same<wchar_t, std::remove_cv_t<T>>::value, "Type must be char or wchar_t");
-	return dcx_hash(input, _ts_strlen(input));
-}
-template <typename T>
-size_t dcx_hash(const T *const input, const size_t &N) {
+size_t dcx_hash(const T *const input, const size_t &N) noexcept
+{
 	static_assert(std::is_same<char, std::remove_cv_t<T>>::value || std::is_same<wchar_t, std::remove_cv_t<T>>::value, "Type must be char or wchar_t");
 	return crc32_1byte(input, N * sizeof(T));
+}
+template <typename T>
+size_t dcx_hash(const T *const input) noexcept
+{
+	static_assert(std::is_same<char, std::remove_cv_t<T>>::value || std::is_same<wchar_t, std::remove_cv_t<T>>::value, "Type must be char or wchar_t");
+	return dcx_hash(input, _ts_strlen(input));
 }
 
 // "owner"
@@ -151,21 +154,27 @@ size_t dcx_hash(const T *const input, const size_t &N) {
 //}
 
 // This gives us compile time hashing...
-constexpr unsigned int crc32_char(const char v, const unsigned int crc) {
+constexpr unsigned int crc32_char(const char v, const unsigned int crc) noexcept
+{
 	return detail::crc_table[(crc ^ v) & 0xff] ^ (crc >> 8);
 }
-constexpr unsigned int crc32_helper(const char* v, const unsigned int c, const unsigned int crc) {
+
+constexpr unsigned int crc32_helper(const char* v, const unsigned int c, const unsigned int crc) noexcept
+{
 	return c == 0 ?
 		~crc :
 		crc32_helper(&v[1], c - 1, crc32_char(v[0], crc));
 }
-constexpr unsigned int crc32_helper(const wchar_t * v, unsigned int c, unsigned int crc) {
+
+constexpr unsigned int crc32_helper(const wchar_t * v, unsigned int c, unsigned int crc) noexcept
+{
 	return c == 0 ?
 		~crc :
 		crc32_helper(&v[1], c - 1, crc32_char(((v[0] >> 8) & 0xFF), crc32_char((v[0] & 0xFF), crc)));
 }
 
-constexpr unsigned int operator "" _crc32(const char* v, unsigned int c) {
+constexpr unsigned int operator "" _crc32(const char* v, unsigned int c)
+{
 	return crc32_helper(v, c, 0xFFFFFFFF);
 }
 
@@ -186,7 +195,7 @@ namespace std {
 	{
 		typedef TString argument_type;
 		typedef std::size_t result_type;
-		result_type operator()(argument_type const& s) const
+		result_type operator()(argument_type const& s) const noexcept
 		{
 			return dcx_hash(s.to_chr(), s.len());
 		}
@@ -195,7 +204,7 @@ namespace std {
 	{
 		typedef const char * argument_type;
 		typedef std::size_t result_type;
-		result_type operator()(argument_type const& s) const
+		result_type operator()(argument_type const& s) const noexcept
 		{
 			return dcx_hash(s);
 		}
@@ -204,7 +213,7 @@ namespace std {
 	{
 		typedef const wchar_t * argument_type;
 		typedef std::size_t result_type;
-		result_type operator()(argument_type const& s) const
+		result_type operator()(argument_type const& s) const noexcept
 		{
 			return dcx_hash(s);
 		}

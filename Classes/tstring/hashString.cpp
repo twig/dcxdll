@@ -47,15 +47,15 @@
 //	0xb40bbe37, 0xc30c8ea1, 0x5a05df1b, 0x2d02ef8d
 //};
 
-uint32_t tcrc8(const char * str)
+uint32_t tcrc8(const char * str) noexcept
 {
 	const auto sepl = _ts_strlen(str);
 	uint8_t crc = 0;
-	for (auto i = decltype(sepl){0}; i < sepl; i++)
+	for (auto i = decltype(sepl){0}; i < sepl; ++i)
 	{
 		crc = gsl::narrow_cast<uint8_t>((crc ^ *str++));
 
-		for (auto j = 0U; j < 8U; j++)
+		for (auto j = 0U; j < 8U; ++j)
 		{
 			if ((crc & 0x80) != 0)
 			{
@@ -70,7 +70,7 @@ uint32_t tcrc8(const char * str)
 }
 
 /// compute CRC32 (standard algorithm)
-uint32_t crc32_1byte(const void* data, size_t length, uint32_t previousCrc32)
+uint32_t crc32_1byte(const void* data, size_t length, uint32_t previousCrc32) noexcept
 {
 	uint32_t crc = ~previousCrc32; // same as previousCrc32 ^ 0xFFFFFFFF
 	const uint8_t* current = static_cast<const uint8_t*>(data);

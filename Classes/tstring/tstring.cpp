@@ -284,7 +284,7 @@ TString::TString(const UINT tsSize)
 }
 #endif
 
-TString::~TString( )
+TString::~TString( ) noexcept
 {
 	this->deleteString( );
 }
@@ -292,7 +292,7 @@ TString::~TString( )
 /*!
  * \brief Deletes the allocated TCHAR buffer
  */
-void TString::deleteString(const bool bKeepBufferSize)
+void TString::deleteString(const bool bKeepBufferSize) noexcept
 {
 #if TSTRING_INTERNALBUFFER
 	if (!m_bUsingInternal)
@@ -306,7 +306,7 @@ void TString::deleteString(const bool bKeepBufferSize)
 	this->deleteTempString(bKeepBufferSize);
 }
 
-void TString::deleteTempString(const bool bKeepBufferSize)
+void TString::deleteTempString(const bool bKeepBufferSize) noexcept
 {
 	delete [] this->m_pTempString; 
 
@@ -780,7 +780,7 @@ UINT TString::replace( const_value_type chr, const_value_type rchr )
 \brief replace every character in string that matches a character in `fmt` with `chr`
 */
 /****************************/
-UINT TString::mreplace(const_value_type chr, const_pointer_const fmt)
+UINT TString::mreplace(const_value_type chr, const_pointer_const fmt) noexcept
 {
 	auto cnt = 0U;
 
@@ -2203,9 +2203,9 @@ WCHAR *TString::charToWchar(const char *const cString, size_t *const buffer_size
 					res[0] = L'\0';
 			}
 			// NB: NormalizeString() is Vista+ ONLY
-			if (auto normLen = NormalizeString(NormalizationC, res.get(), -1, nullptr, 0); normLen > 0)
+			if (const auto normLen = NormalizeString(NormalizationC, res.get(), -1, nullptr, 0); normLen > 0)
 			{
-				auto uNewNormLen = TS_wgetmemsize(normLen + 1);
+				const auto uNewNormLen = TS_wgetmemsize(normLen + 1);
 				if (auto normRes = std::make_unique<WCHAR[]>(uNewNormLen); NormalizeString(NormalizationC, res.get(), -1, normRes.get(), static_cast<int>(uNewNormLen)) > 0)
 					res = std::move(normRes);
 			}
@@ -2220,6 +2220,16 @@ WCHAR *TString::charToWchar(const char *const cString, size_t *const buffer_size
 
 	return res.release();
 }
+
+//void TString::Normalize()
+//{
+//	if (const auto normLen = NormalizeString(NormalizationC, m_pString, -1, nullptr, 0); normLen > 0)
+//	{
+//		const auto uNewNormLen = TS_wgetmemsize(normLen + 1);
+//		if (auto normRes = std::make_unique<WCHAR[]>(uNewNormLen); NormalizeString(NormalizationC, m_pString, -1, normRes.get(), static_cast<int>(uNewNormLen)) > 0)
+//			*this = normRes.get();
+//	}
+//}
 
 /*!
 * \brief blah
@@ -2440,7 +2450,7 @@ ULONG TString::to_addr() const
 	return static_cast<ULONG>(MAKEIPADDRESS(first, second, third, forth));
 }
 
-void TString::clear(void)
+void TString::clear(void) noexcept
 {
 //	if (this->m_pString == nullptr)
 //		this->m_pString = allocstr_bytes(1);

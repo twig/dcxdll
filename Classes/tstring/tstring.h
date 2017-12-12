@@ -175,8 +175,8 @@ public:
 
 private:
 
-	void deleteString(const bool bKeepBufferSize = false);
-	void deleteTempString(const bool bKeepBufferSize = false);
+	void deleteString(const bool bKeepBufferSize = false) noexcept;
+	void deleteTempString(const bool bKeepBufferSize = false) noexcept;
 #if !TSTRING_TESTCODE
 	UINT i_replace(const_pointer_const subString, const_pointer_const rString);
 	static UINT match(const_pointer m, const_pointer n, const bool cs /* case sensitive */);
@@ -272,7 +272,7 @@ public:
 	static const_pointer_const m_cComma;
 	static const_pointer_const m_cTab;
 
-	TString()
+	TString() noexcept
 		: TString(0U)
 	{
 	}
@@ -390,7 +390,7 @@ public:
 	explicit TString(const UINT tsSize);
 
 	//! Destructor
-	~TString( );
+	~TString( ) noexcept;
 
 	// Operator Overloads
 
@@ -647,7 +647,7 @@ public:
 	// pointer to the end of the buffer
 	const_pointer_const last() const noexcept { return m_pString + len(); }
 	// clear string buffer & reset all vars & pointers (frees buffer)
-	void clear();
+	void clear() noexcept;
 	// shrink string buffer to min size required for string (while still being a multiple of 16)
 	void shrink_to_fit();
 	// append a single wide char
@@ -689,7 +689,7 @@ public:
 	// compare 'this' to an array, array type can be anything supported by the == operator.
 	// returns the index of the matching item, or zero for failure, Index is One based.
 	template <typename T, UINT iArraySize>
-	UINT acompare(const T (&array)[iArraySize]) const
+	UINT acompare(const T (&array)[iArraySize]) const noexcept
 	{
 		for (auto i = decltype(iArraySize){0}; i < iArraySize; ++i)
 		{
@@ -742,6 +742,7 @@ public:
 
 	TString &trim();	// removes spaces at start & end of text.
 	TString &strip();	// removes spaces at start & end of text & all ctrl codes in text.
+	//void Normalize();
 
 #if TSTRING_TESTCODE
 	//	Replace
@@ -789,7 +790,7 @@ public:
 
 		return c;
 	}
-	UINT mreplace(const_value_type chr, const_pointer_const fmt);					// replace any char in fmt with chr
+	UINT mreplace(const_value_type chr, const_pointer_const fmt) noexcept;					// replace any char in fmt with chr
 
 	template <typename T>
 	TString &remove(const T &str)
@@ -1013,7 +1014,7 @@ public:
 
 		//code below has issues due to way iterator works & gets converted to numbers on return (fixed)
 		auto count = decltype(N){0};
-		return std::find_if(begin(sepChars), itEnd, [&count, &N, &cToken](const auto &x) {
+		return std::find_if(begin(sepChars), itEnd, [&count, &N, &cToken](const auto &x) noexcept {
 			if (x == cToken)
 			{
 				if (++count == N)
@@ -1196,8 +1197,8 @@ public:
 	TString matchtok(const_pointer_const mString, UINT N, TSepChars sepChars = SPACECHAR) const
 	{
 		auto count = decltype(N){0};
-		auto itEnd = end();
-		if (auto itGot = std::find_if(begin(sepChars), itEnd, [&count, &N, &mString](const auto &x) {
+		
+		if (const auto itEnd = end(), itGot = std::find_if(begin(sepChars), itEnd, [&count, &N, &mString](const auto &x) noexcept {
 			if (_ts_find(x.to_chr(), mString) != nullptr)
 			{
 				++count;
@@ -1208,7 +1209,7 @@ public:
 		}); itGot != itEnd)
 			return *itGot;
 
-		return {};
+		return TString();
 	}
 
 	/*!
@@ -1239,7 +1240,7 @@ public:
 	//const tuple_type gettokenrange(const int nStart, const int nEnd, const_reference sepChars = SPACECHAR) const;
 
 	template <typename TSepChars = const_reference>
-	const TString::tuple_type gettokenrange(const int nStart, const int nEnd, TSepChars sepChars = SPACECHAR) const
+	const TString::tuple_type gettokenrange(const int nStart, const int nEnd, TSepChars sepChars = SPACECHAR) const noexcept
 	{
 		const_pointer p_cStart = m_pString, p_cEnd = nullptr, p_fEnd = last();
 
@@ -1314,7 +1315,7 @@ public:
 	{
 		//std::tie(std::ignore, m_savedpos, m_savedtotaltoks) = gettokenrange(N, N, sepChars);
 
-		auto rng = gettokenrange(N, N, sepChars);
+		const auto rng = gettokenrange(N, N, sepChars);
 
 		m_savedcurrenttok = static_cast<UINT>(N);
 		m_savedtotaltoks = std::get<2>(rng);
@@ -1373,7 +1374,7 @@ public:
 			return *this;
 
 		if (m_savedpos == nullptr || m_savedcurrenttok > m_savedtotaltoks)
-			return {};
+			return TString();
 
 		if (const_pointer_const p_cStart = m_savedpos; m_savedcurrenttok == m_savedtotaltoks)
 		{
@@ -1385,7 +1386,7 @@ public:
 			m_savedpos = (p_cEnd + _ts_strlen(sepChars));
 			return TString(p_cStart, p_cEnd);
 		}
-		return {};
+		return TString();
 	}
 
 #endif
@@ -1397,7 +1398,7 @@ public:
 		bool bPrefix;
 		bool bReverse;
 
-		SortOptions()
+		SortOptions() noexcept
 			: bAlpha(false), bNumeric(false), bPrefix(false), bReverse(false) {}
 	};
 
@@ -1409,12 +1410,23 @@ public:
 
 	template <typename tsType, typename T = const TCHAR>
 	class tsIterator
-		: public std::iterator<std::forward_iterator_tag, tsType, ptrdiff_t, tsType*, tsType&>
+		//: public std::iterator<std::forward_iterator_tag, tsType, ptrdiff_t, tsType*, tsType&>
 	{
 	public:
-		tsIterator(const tsIterator<tsType, T> &other) = default;
-		tsIterator(tsType *ptr = nullptr) : tsIterator(ptr, nullptr) { if (m_ptr == nullptr) m_iIndex = 0; }
-		tsIterator(tsType *ptr, T *const sepChars)
+		using iterator_category = std::forward_iterator_tag;
+		using value_type = tsType;
+		using difference_type = ptrdiff_t;
+		using pointer = tsType *;
+		using reference = tsType &;
+
+		tsIterator(const tsIterator<tsType, T> &other) noexcept = default;
+		tsIterator(tsType *ptr = nullptr) noexcept
+			: tsIterator(ptr, nullptr)
+		{
+			if (m_ptr == nullptr)
+				m_iIndex = 0;
+		}
+		tsIterator(tsType *ptr, T *const sepChars) noexcept
 			: m_ptr(ptr), m_iIndex(1), m_toks(0), m_sepChars(sepChars)/*, m_iPrevIndex(1)*/
 			, m_savedStart(nullptr), m_savedEnd(nullptr), m_savedFinal(nullptr), m_sepChar()
 		{
@@ -1443,7 +1455,7 @@ public:
 				}
 			}
 		}
-		tsIterator(tsType *ptr, T &sepChar)
+		tsIterator(tsType *ptr, T &sepChar) noexcept
 			: m_ptr(ptr), m_iIndex(1), m_toks(0), m_sepChars(&m_sepChar[0])/*, m_iPrevIndex(1)*/
 			, m_savedStart(nullptr), m_savedEnd(nullptr), m_savedFinal(nullptr), m_sepChar{ sepChar, T() }
 		{
@@ -1467,10 +1479,10 @@ public:
 				}
 			}
 		}
-		~tsIterator(){}
+		~tsIterator() noexcept {}
 
 		tsIterator<tsType, T> &operator = (const tsIterator<tsType, T> &other) = default;
-		tsIterator<tsType, T> &operator = (tsType *ptr)
+		tsIterator<tsType, T> &operator = (tsType *ptr) noexcept
 		{
 			m_ptr = ptr;
 			m_sepChars = SPACE;
@@ -1502,7 +1514,7 @@ public:
 		bool operator == (const tsIterator<tsType, T> &other) const noexcept { return (m_ptr == other.getConstPtr()); }
 		bool operator != (const tsIterator<tsType, T> &other) const noexcept { return (m_ptr != other.getConstPtr()); }
 
-		const tsIterator<tsType, T> &operator++ ()
+		const tsIterator<tsType, T> &operator++ () noexcept
 		{
 			++m_iIndex;
 
@@ -1570,14 +1582,14 @@ public:
 	using iterator = tsIterator<TString, const_value_type>;
 	using const_iterator = tsIterator<const TString, const_value_type>;
 
-	inline iterator begin() { return iterator(this); }
-	inline iterator begin(const_pointer_const sepChars) { return iterator(this, sepChars); }
-	inline iterator begin(const_reference sepChar) { return iterator(this, sepChar); }
-	inline iterator end() { return iterator(); }
-	inline const const_iterator begin() const { return const_iterator(this); };
-	inline const const_iterator begin(const_pointer_const sepChars) const { return const_iterator(this, sepChars); }
-	inline const const_iterator begin(const_reference sepChar) const { return const_iterator(this, sepChar); }
-	inline const const_iterator end() const { return const_iterator(); }
+	inline iterator begin() noexcept { return iterator(this); }
+	inline iterator begin(const_pointer_const sepChars) noexcept { return iterator(this, sepChars); }
+	inline iterator begin(const_reference sepChar) noexcept { return iterator(this, sepChar); }
+	inline iterator end() noexcept { return iterator(); }
+	inline const const_iterator begin() const noexcept { return const_iterator(this); };
+	inline const const_iterator begin(const_pointer_const sepChars) const noexcept { return const_iterator(this, sepChars); }
+	inline const const_iterator begin(const_reference sepChar) const noexcept { return const_iterator(this, sepChar); }
+	inline const const_iterator end() const noexcept { return const_iterator(); }
 
 	// add the contents of any container class to the TString using the specified seperator (can also add other TString's like this)
 	template <class T, class TS = const_reference> auto &join(const T &Cont, const TS sepChars = SPACECHAR)
@@ -1658,11 +1670,12 @@ public:
 	auto to_dword() const { return to_<DWORD>(); };
 
 	template <typename T>
-	auto &append_number(T Number)
+	TString &append_number(T Number)
 	{
 		static_assert(is_Numeric_v<T>, "Type T must be (int, long, float, double, ....)");
 
-		return append(std::to_wstring(Number).data());
+		const auto str(std::to_wstring(Number));
+		return append(str.data(), str.length());
 	}
 
 	static inline int rfc_tolower(const int c);
