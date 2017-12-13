@@ -25,11 +25,11 @@
 #pragma warning( disable : 1419 )
 #endif
 
-HRESULT GetDirectXVersionViaDxDiag( DWORD* pdwDirectXVersionMajor, DWORD* pdwDirectXVersionMinor, TCHAR* pcDirectXVersionLetter );
+HRESULT GetDirectXVersionViaDxDiag( DWORD* pdwDirectXVersionMajor, DWORD* pdwDirectXVersionMinor, TCHAR* pcDirectXVersionLetter ) noexcept;
 HRESULT GetDirectXVersionViaFileVersions( DWORD* pdwDirectXVersionMajor, DWORD* pdwDirectXVersionMinor, TCHAR* pcDirectXVersionLetter );
-HRESULT GetFileVersion( TCHAR* szPath, ULARGE_INTEGER* pllFileVersion );
-ULARGE_INTEGER MakeInt64( WORD a, WORD b, WORD c, WORD d );
-int CompareLargeInts( ULARGE_INTEGER ullParam1, ULARGE_INTEGER ullParam2 );
+HRESULT GetFileVersion( const TCHAR *const szPath, ULARGE_INTEGER* pllFileVersion );
+constexpr ULARGE_INTEGER MakeInt64( WORD a, WORD b, WORD c, WORD d ) noexcept;
+constexpr int CompareLargeInts( ULARGE_INTEGER ullParam1, ULARGE_INTEGER ullParam2 ) noexcept;
 
 
 
@@ -138,7 +138,7 @@ HRESULT GetDXVersion(DWORD* pdwDirectXVersion, TCHAR* strDirectXVersion, int cch
 // Name: GetDirectXVersionViaDxDiag()
 // Desc: Tries to get the DirectX version from DxDiag's COM interface
 //-----------------------------------------------------------------------------
-HRESULT GetDirectXVersionViaDxDiag(DWORD* pdwDirectXVersionMajor, DWORD* pdwDirectXVersionMinor, TCHAR* pcDirectXVersionLetter)
+HRESULT GetDirectXVersionViaDxDiag(DWORD* pdwDirectXVersionMajor, DWORD* pdwDirectXVersionMinor, TCHAR* pcDirectXVersionLetter) noexcept
 {
 	// Init COM.  COM may fail if its already been inited with a different
 	// concurrency model.  And if it fails you shouldn't release it.
@@ -483,7 +483,7 @@ HRESULT GetDirectXVersionViaFileVersions(DWORD* pdwDirectXVersionMajor, DWORD* p
 // Name: GetFileVersion()
 // Desc: Returns ULARGE_INTEGER with a file version of a file, or a failure code.
 //-----------------------------------------------------------------------------
-HRESULT GetFileVersion(TCHAR* szPath, ULARGE_INTEGER* pllFileVersion)
+HRESULT GetFileVersion(const TCHAR *const szPath, ULARGE_INTEGER* pllFileVersion)
 {
 	//if (szPath == NULL || pllFileVersion == NULL)
 	//	return E_INVALIDARG;
@@ -526,17 +526,12 @@ HRESULT GetFileVersion(TCHAR* szPath, ULARGE_INTEGER* pllFileVersion)
 		return E_INVALIDARG;
 
 		DWORD dwHandle = 0;
-		UINT  cb = GetFileVersionInfoSize(szPath, &dwHandle);
-		if (cb > 0)
-		{
-			//BYTE* pFileVersionBuffer = new BYTE[cb];
-			auto pFileVersionBuffer = std::make_unique<BYTE[]>(cb);
 
-			if (GetFileVersionInfo(szPath, 0, cb, pFileVersionBuffer.get()))
+		if (UINT  cb = GetFileVersionInfoSize(szPath, &dwHandle); cb > 0)
+		{
+			if (auto pFileVersionBuffer = std::make_unique<BYTE[]>(cb); GetFileVersionInfo(szPath, 0, cb, pFileVersionBuffer.get()))
 			{
-				VS_FIXEDFILEINFO* pVersion = nullptr;
-				if (VerQueryValue(pFileVersionBuffer.get(), TEXT("\\"), (VOID**)&pVersion, &cb) &&
-					pVersion != nullptr)
+				if (VS_FIXEDFILEINFO* pVersion = nullptr; VerQueryValue(pFileVersionBuffer.get(), TEXT("\\"), (VOID**)&pVersion, &cb) && pVersion != nullptr)
 				{
 					pllFileVersion->HighPart = pVersion->dwFileVersionMS;
 					pllFileVersion->LowPart = pVersion->dwFileVersionLS;
@@ -560,12 +555,14 @@ HRESULT GetFileVersion(TCHAR* szPath, ULARGE_INTEGER* pllFileVersion)
 // Name: MakeInt64()
 // Desc: Returns a ULARGE_INTEGER where a<<48|b<<32|c<<16|d<<0
 //-----------------------------------------------------------------------------
-ULARGE_INTEGER MakeInt64(WORD a, WORD b, WORD c, WORD d)
+constexpr ULARGE_INTEGER MakeInt64(WORD a, WORD b, WORD c, WORD d) noexcept
 {
-	ULARGE_INTEGER ull;
-	ull.HighPart = (DWORD)MAKELONG(b, a);
-	ull.LowPart = (DWORD)MAKELONG(d, c);
-	return ull;
+	//ULARGE_INTEGER ull;
+	//ull.HighPart = (DWORD)MAKELONG(b, a);
+	//ull.LowPart = (DWORD)MAKELONG(d, c);
+	//return ull;
+
+	return{ static_cast<DWORD>(MAKELONG(d, c)), static_cast<DWORD>(MAKELONG(b, a)) };
 }
 
 
@@ -577,7 +574,7 @@ ULARGE_INTEGER MakeInt64(WORD a, WORD b, WORD c, WORD d)
 //       Returns 0 if ullParam1 = ullParam2
 //       Returns -1 if ullParam1 < ullParam2
 //-----------------------------------------------------------------------------
-int CompareLargeInts(ULARGE_INTEGER ullParam1, ULARGE_INTEGER ullParam2)
+constexpr int CompareLargeInts(ULARGE_INTEGER ullParam1, ULARGE_INTEGER ullParam2) noexcept
 {
 	if (ullParam1.HighPart > ullParam2.HighPart)
 		return 1;

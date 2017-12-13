@@ -8,6 +8,7 @@ namespace mIRCLinker
 {
 	constexpr auto		c_mIRC_Buffer_Size_cch = MIRC_BUFFER_SIZE_CCH;
 	constexpr auto		c_mIRC_Max_Colours = 100;
+	constexpr TCHAR		cFalse[] = TEXT("$false");
 
 	extern HANDLE		m_hFileMap;		//!< Handle to the mIRC DLL File Map
 	extern const refString<TCHAR, c_mIRC_Buffer_Size_cch> m_pData;		//!< Pointer to a character buffer of size MIRC_BUFFER_SIZE_CCH to send mIRC custom commands
@@ -51,7 +52,7 @@ namespace mIRCLinker
 	DWORD &getVersion() noexcept;
 	WORD getMainVersion() noexcept;
 	WORD getSubVersion() noexcept;
-	bool setTreeFont(const HFONT newFont);
+	bool setTreeFont(const HFONT newFont) noexcept;
 	bool isOrNewerVersion(const WORD main, const WORD sub) noexcept;
 	bool isVersion(const WORD main, const WORD sub) noexcept;
 	bool &isDebug() noexcept;
@@ -61,11 +62,11 @@ namespace mIRCLinker
 	bool isAlias(const TString &aliasName);
 
 	void load(LOADINFO *const lInfo);
-	void unload(void);
+	void unload(void) noexcept;
 
-	void hookWindowProc(WNDPROC newProc);
-	void resetWindowProc(void);
-	LRESULT callDefaultWindowProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam);
+	void hookWindowProc(WNDPROC newProc) noexcept;
+	void resetWindowProc(void) noexcept;
+	LRESULT callDefaultWindowProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam) noexcept;
 
 	bool mIRC_SndMsg(const UINT uMsg);
 
@@ -131,9 +132,10 @@ namespace mIRCLinker
 		else
 			m_pData = data;
 		{
-			if (mIRC_SndMsg(WM_MEVALUATE)) {
+			if (mIRC_SndMsg(WM_MEVALUATE))
+			{
 				res = m_pData;
-				return (m_pData != TEXT("$false"));
+				return (m_pData != &cFalse[0]);
 			}
 		}
 		m_pData.clear();
@@ -148,7 +150,7 @@ namespace mIRCLinker
 			m_pData = data;
 		{
 			if (mIRC_SndMsg(WM_MEVALUATE))
-				return (m_pData != TEXT("$false"));
+				return (m_pData != &cFalse[0]);
 		}
 		m_pData.clear();
 		return false;

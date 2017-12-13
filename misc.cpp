@@ -22,7 +22,7 @@
 /*!
 * \brief Rounding function
 */
-int dcx_round(const float x)
+int dcx_round(const float x) noexcept
 {
 	const auto t = gsl::narrow_cast<int>(x);
 	if ((x - gsl::narrow_cast<float>(t)) > 0.5)
@@ -355,7 +355,7 @@ bool ParseCommandToLogfont(const TString& cmd, LPLOGFONT lf)
  *
  * blah
  */
-UINT parseFontFlags(const TString &flags)
+UINT parseFontFlags(const TString &flags) noexcept
 {
 	UINT iFlags = 0U;
 	const XSwitchFlags xflags(flags);
@@ -475,14 +475,14 @@ TString ParseLogfontToCommand(const LPLOGFONT lf)
 	//
 	//return tmp;
 
-	auto hdc = GetDC(nullptr);
+	const auto hdc = GetDC(nullptr);
 
 	if (hdc == nullptr)
 		return tmp;
 
 	Auto(ReleaseDC(nullptr, hdc));
 
-	auto hf = CreateFontIndirect(lf);
+	const auto hf = CreateFontIndirect(lf);
 
 	if (hf == nullptr)
 		return tmp;
@@ -841,7 +841,7 @@ update for 32bpp icons & rewrite
 COLORREF defaultGrayPalette[256];
 bool bGrayPaletteSet = false;
 
-HICON CreateGrayscaleIcon( HICON hIcon, COLORREF* pPalette )
+HICON CreateGrayscaleIcon( HICON hIcon, COLORREF* pPalette ) noexcept
 {
 	if (hIcon == nullptr)
 		return nullptr;
@@ -875,11 +875,11 @@ HICON CreateGrayscaleIcon( HICON hIcon, COLORREF* pPalette )
 
 				bmpInfo.bmiHeader.biCompression = BI_RGB;
 
-				auto c1 = (DWORD)(sz.cx * sz.cy);
+				const auto c1 = gsl::narrow_cast<DWORD>(sz.cx * sz.cy);
 
 				const auto lpBits = (LPDWORD)::GlobalAlloc(GMEM_FIXED, (c1) * 4);
 
-				if (lpBits && ::GetDIBits(hdc, icInfo.hbmColor, 0, (UINT)sz.cy, lpBits, &bmpInfo, DIB_RGB_COLORS) != 0)
+				if (lpBits && ::GetDIBits(hdc, icInfo.hbmColor, 0, gsl::narrow_cast<UINT>(sz.cy), lpBits, &bmpInfo, DIB_RGB_COLORS) != 0)
 				{
 					auto lpBitsPtr     = (LPBYTE)lpBits;
 
@@ -905,7 +905,7 @@ HICON CreateGrayscaleIcon( HICON hIcon, COLORREF* pPalette )
 					{
 						Auto(::DeleteObject(icGrayInfo.hbmColor));
 
-						::SetDIBits(hdc, icGrayInfo.hbmColor, 0, (UINT)sz.cy, lpBits, &bmpInfo, DIB_RGB_COLORS);
+						::SetDIBits(hdc, icGrayInfo.hbmColor, 0, gsl::narrow_cast<UINT>(sz.cy), lpBits, &bmpInfo, DIB_RGB_COLORS);
 
 						icGrayInfo.hbmMask = icInfo.hbmMask;
 						icGrayInfo.fIcon   = TRUE;
@@ -924,7 +924,7 @@ HICON CreateGrayscaleIcon( HICON hIcon, COLORREF* pPalette )
 	return hGrayIcon;
 }
 
-HICON CreateGrayscaleIcon( HICON hIcon )
+HICON CreateGrayscaleIcon( HICON hIcon ) noexcept
 {
 	if (hIcon == nullptr)
 		return nullptr;
@@ -943,7 +943,7 @@ HICON CreateGrayscaleIcon( HICON hIcon )
 	return CreateGrayscaleIcon(hIcon, &defaultGrayPalette[0]);
 }
 
-void AddToolTipToolInfo(const HWND tiphwnd, const HWND ctrl)
+void AddToolTipToolInfo(const HWND tiphwnd, const HWND ctrl) noexcept
 {
 	TOOLINFO ti{};
 	ti.cbSize = sizeof(TOOLINFO);
@@ -956,7 +956,7 @@ void AddToolTipToolInfo(const HWND tiphwnd, const HWND ctrl)
 	SendMessage(tiphwnd, TTM_ADDTOOL, NULL, (LPARAM)&ti);
 }
 
-void dcxDrawShadowText(HDC hdc, LPCWSTR pszText, UINT cch, RECT *pRect, DWORD dwFlags, COLORREF crText, COLORREF crShadow, int ixOffset, int iyOffset)
+void dcxDrawShadowText(HDC hdc, LPCWSTR pszText, UINT cch, RECT *pRect, DWORD dwFlags, COLORREF crText, COLORREF crShadow, int ixOffset, int iyOffset) noexcept
 {
 	if ((hdc == nullptr) || (pszText == nullptr) || (pRect == nullptr))
 		return;
@@ -973,7 +973,7 @@ void dcxDrawShadowText(HDC hdc, LPCWSTR pszText, UINT cch, RECT *pRect, DWORD dw
 			RECT rcOffset = *pRect;
 			OffsetRect(&rcOffset, ixOffset, iyOffset);
 
-			auto old_clr = SetTextColor(hdc, crShadow);
+			const auto old_clr = SetTextColor(hdc, crShadow);
 			Auto(SetTextColor(hdc, old_clr));
 
 			DrawTextW(hdc, pszText, gsl::narrow_cast<int>(cch), &rcOffset, dwFlags);
@@ -1008,7 +1008,7 @@ static const TCHAR *GDIErrors[] = {
 	TEXT("PropertyNotSupported"),
 	TEXT("ProfileNotFound")
 };
-constexpr const TCHAR *GetLastStatusStr(Gdiplus::Status status)
+constexpr const TCHAR *GetLastStatusStr(Gdiplus::Status status) noexcept
 {
 	//if (status > DCX_MAX_GDI_ERRORS)
 	//	return GDIErrors[1]; // status not in table, return GenericError
@@ -1250,7 +1250,7 @@ void getmIRCPaletteMask(COLORREF *const Palette, const UINT PaletteItems, uint16
 	}
 }
 
-int unfoldColor(const WCHAR *color)
+int unfoldColor(const WCHAR *color) noexcept
 {
 	//auto nColor = _ts_atoi(color);
 	//
@@ -1319,14 +1319,14 @@ int unfoldColor(const WCHAR *color)
 //	}
 //}
 
-void mIRC_OutText(HDC hdc, TString &txt, LPRECT rcOut, const LPLOGFONT lf, const UINT iStyle, const COLORREF clrFG, const bool shadow)
+void mIRC_OutText(HDC hdc, TString &txt, LPRECT rcOut, const LPLOGFONT lf, const UINT iStyle, const COLORREF clrFG, const bool shadow) noexcept
 {
 	if (txt.empty())
 		return;
 
 	const auto len = txt.len();
 	TEXTMETRICW tm = { 0 };
-	auto hOldFont = SelectFont(hdc, CreateFontIndirect(lf));
+	const auto hOldFont = SelectFont(hdc, CreateFontIndirect(lf));
 	GetTextMetrics(hdc, &tm);
 	auto rcTmp = *rcOut;
 
@@ -1369,7 +1369,7 @@ void mIRC_DrawText(HDC hdc, const TString &txt, LPRECT rc, const UINT style, con
 
 	//savedDC = SaveDC(hdc);
 
-	COLORREF origFG = GetTextColor(hdc), origBG = GetBkColor(hdc);
+	const COLORREF origFG = GetTextColor(hdc), origBG = GetBkColor(hdc);
 	COLORREF clrFG = origFG, clrBG = origBG;
 	COLORREF cPalette[mIRC_PALETTE_SIZE] = {CLR_INVALID}; // mIRC palette
 
@@ -1388,7 +1388,7 @@ void mIRC_DrawText(HDC hdc, const TString &txt, LPRECT rc, const UINT style, con
 	dtp.cbSize = sizeof(DRAWTEXTPARAMS);
 	dtp.iTabLength = 4;*/
 
-	auto origWeight = lf.lfWeight;
+	const auto origWeight = lf.lfWeight;
 	auto origLeft = rc->left;
 
 	SetBkMode(hdc,TRANSPARENT);
@@ -1727,8 +1727,9 @@ gsl::owner<HDC *> CreateHDCBuffer(gsl::not_null<HDC> hdc, const LPRECT rc)
 	if (buf->m_hBitmap == nullptr)
 	{
 #ifdef DEBUG
-		DWORD err = GetLastError(), errBufSize = 16U;
-		if (LPTSTR errBuf = nullptr; FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_IGNORE_INSERTS, nullptr, err, 0, (LPTSTR)&errBuf, errBufSize, nullptr) != 0) {
+		const DWORD err = GetLastError(), errBufSize = 16U;
+		if (const LPTSTR errBuf = nullptr; FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_IGNORE_INSERTS, nullptr, err, 0, (LPTSTR)&errBuf, errBufSize, nullptr) != 0)
+		{
 			mIRCLinker::debug(TEXT("CreateHDCBuffer"),errBuf);
 			LocalFree(errBuf);
 		}
@@ -1762,7 +1763,7 @@ gsl::owner<HDC *> CreateHDCBuffer(gsl::not_null<HDC> hdc, const LPRECT rc)
 	return gsl::owner<HDC *>(buf.release());
 }
 
-void DeleteHDCBuffer(gsl::owner<HDC *> hBuffer)
+void DeleteHDCBuffer(gsl::owner<HDC *> hBuffer) noexcept
 {
 	if (hBuffer == nullptr)
 		return;
@@ -1796,8 +1797,8 @@ int TGetWindowText(HWND hwnd, TString &txt)
 	if (hwnd == nullptr)
 		return 0;
 
-	const auto nText = GetWindowTextLength(hwnd) + 2;	// NB: needs to include space for end 0
-	if (nText > 2)
+	// NB: needs to include space for end 0
+	if (const auto nText = GetWindowTextLength(hwnd) + 2; nText > 2)
 	{
 		txt.reserve(gsl::narrow_cast<UINT>(nText));
 		if (GetWindowText(hwnd, txt.to_chr(), nText) != 0)
@@ -1820,7 +1821,7 @@ ULONG_PTR gdi_token = NULL;
 #endif
 HMODULE DWMModule = nullptr;		//!< dwmapi.dll Module Handle
 
-void FreeOSCompatibility(void)
+void FreeOSCompatibility(void) noexcept
 {
 #ifdef DCX_USE_GDIPLUS
 	// Shutdown GDI+
@@ -1961,7 +1962,7 @@ bool AddFileIcons(HIMAGELIST himl, TString &filename, const bool bLarge, const i
 	return bAdded;
 }
 
-BOOL dcxGetWindowRect(const gsl::not_null<HWND> &hWnd, const gsl::not_null<LPRECT> &lpRect)
+BOOL dcxGetWindowRect(const gsl::not_null<HWND> &hWnd, const gsl::not_null<LPRECT> &lpRect) noexcept
 {
 	// as described in a comment at http://msdn.microsoft.com/en-us/library/ms633519(VS.85).aspx
 	// GetWindowRect does not return the real size of a window if u are using vista with areo glass
@@ -1974,8 +1975,8 @@ BOOL dcxGetWindowRect(const gsl::not_null<HWND> &hWnd, const gsl::not_null<LPREC
 /*
 	*	DrawRotatedText() function taken from ms example & modified for our needs.
 */
-void DrawRotatedText(const TString &strDraw, const gsl::not_null<LPRECT> &rc, const gsl::not_null<HDC> &hDC, const int nAngleLine/* = 0*/, const bool bEnableAngleChar /*= false*/, const int nAngleChar /*= 0*/) {
-
+void DrawRotatedText(const TString &strDraw, const gsl::not_null<LPRECT> &rc, const gsl::not_null<HDC> &hDC, const int nAngleLine/* = 0*/, const bool bEnableAngleChar /*= false*/, const int nAngleChar /*= 0*/) noexcept
+{
 	if ((nAngleLine == 0) && (!bEnableAngleChar))
 	{
 		TextOut(hDC, rc->left, rc->bottom, strDraw.to_chr(), gsl::narrow_cast<int>(strDraw.len()));
@@ -2056,7 +2057,7 @@ void DrawRotatedText(const TString &strDraw, const gsl::not_null<LPRECT> &rc, co
 const char *queryAttribute(gsl::not_null<const TiXmlElement *> element, gsl::not_null<const char *> attribute, gsl::not_null<const char *> defaultValue)
 {
 	const auto t = element->Attribute(attribute);
-	return (t != nullptr) ? t : defaultValue;
+	return (t != nullptr) ? t : defaultValue.get();
 }
 
 int queryIntAttribute(gsl::not_null<const TiXmlElement *> element, gsl::not_null<const char *> attribute, const int defaultValue)
@@ -2064,7 +2065,7 @@ int queryIntAttribute(gsl::not_null<const TiXmlElement *> element, gsl::not_null
 	//auto integer = defaultValue;
 	//return (element->QueryIntAttribute(attribute, &integer) == TIXML_SUCCESS) ? integer : defaultValue;
 
-	if (const auto&[iStatus, integer] = element->QueryIntAttribute(attribute); iStatus == TIXML_SUCCESS)
+	if (const auto[iStatus, integer] = element->QueryIntAttribute(attribute); iStatus == TIXML_SUCCESS)
 		return integer;
 
 	return defaultValue;

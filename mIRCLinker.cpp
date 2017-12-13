@@ -39,7 +39,7 @@ namespace mIRCLinker {
 	{
 		// check if the alias exists
 		//return evalex(nullptr, 0, TEXT("$isalias(%s)"), aliasName.to_chr());
-		return eval(nullptr, TEXT("$isalias(%)"), aliasName);
+		return eval(nullptr, TEXT("$isalias(%)"), aliasName) && !aliasName.empty();
 	}
 
 	void load(LOADINFO *const lInfo)
@@ -98,7 +98,7 @@ namespace mIRCLinker {
 		}
 	}
 
-	void unload()
+	void unload() noexcept
 	{
 		// Reset mIRC's WndProc if changed
 		resetWindowProc();
@@ -109,7 +109,7 @@ namespace mIRCLinker {
 		// reset the treebars font if it's been changed.
 		if (mIRCLinker::getTreeFont() != nullptr)
 		{
-			if (auto hfont = GetWindowFont(m_hTreeview); hfont != m_hTreeFont)
+			if (const auto hfont = GetWindowFont(m_hTreeview); hfont != m_hTreeFont)
 			{
 				SetWindowFont(m_hTreeview, m_hTreeFont, TRUE);
 				DeleteFont(hfont);
@@ -221,7 +221,7 @@ namespace mIRCLinker {
 		return HIWORD(m_dwVersion);
 	}
 
-	bool setTreeFont(const HFONT newFont)
+	bool setTreeFont(const HFONT newFont) noexcept
 	{
 		const auto f = GetWindowFont(m_hTreeview);
 		if (m_hTreeFont == nullptr)
@@ -232,12 +232,12 @@ namespace mIRCLinker {
 		return true;
 	}
 
-	void hookWindowProc(WNDPROC newProc)
+	void hookWindowProc(WNDPROC newProc) noexcept
 	{
 		m_wpmIRCDefaultWndProc = SubclassWindow(m_mIRCHWND, newProc);
 	}
 
-	void resetWindowProc(void)
+	void resetWindowProc(void) noexcept
 	{
 		//if (m_wpmIRCDefaultWndProc != NULL)
 		//	SubclassWindow(m_mIRCHWND, m_wpmIRCDefaultWndProc);
@@ -254,7 +254,7 @@ namespace mIRCLinker {
 		m_wpmIRCDefaultWndProc = nullptr;
 	}
 
-	LRESULT callDefaultWindowProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
+	LRESULT callDefaultWindowProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam) noexcept
 	{
 		if (m_wpmIRCDefaultWndProc != nullptr)
 			return CallWindowProc(m_wpmIRCDefaultWndProc, hWnd, Msg, wParam, lParam);
