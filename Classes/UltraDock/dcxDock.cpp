@@ -19,7 +19,7 @@ VectorOfDParts DcxDock::g_vParts;
 bool DcxDock::g_bTakeOverTreebar = false;
 COLORREF DcxDock::g_clrTreebarColours[TREEBAR_COLOUR_MAX +1] = { CLR_INVALID };
 
-DcxDock::DcxDock(HWND refHwnd, HWND dockHwnd, const DockTypes dockType)
+DcxDock::DcxDock(HWND refHwnd, HWND dockHwnd, const DockTypes dockType) noexcept
 : m_OldRefWndProc(nullptr)
 , m_OldDockWndProc(nullptr)
 , m_RefHwnd(refHwnd)
@@ -41,9 +41,8 @@ DcxDock::DcxDock(HWND refHwnd, HWND dockHwnd, const DockTypes dockType)
 	//	AddStyles(this->m_RefHwnd,GWL_EXSTYLE,WS_EX_TRANSPARENT);
 }
 
-DcxDock::~DcxDock(void)
+DcxDock::~DcxDock(void) noexcept
 {
-
 	UnDockAll();
 
 	// reset to orig WndProc
@@ -365,7 +364,7 @@ void DcxDock::AdjustRect(WINDOWPOS *wp) noexcept
 		}
 		break;
 		}
-		if (auto tmp = DeferWindowPos(hdwp, ud->hwnd, nullptr, x, y, w, h, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE); tmp != nullptr)
+		if (const auto tmp = DeferWindowPos(hdwp, ud->hwnd, nullptr, x, y, w, h, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE); tmp != nullptr)
 			hdwp = tmp;
 	}
 
@@ -1009,7 +1008,7 @@ bool DcxDock::InitStatusbar(const TString &styles)
 	return false;
 }
 
-void DcxDock::UnInitStatusbar(void)
+void DcxDock::UnInitStatusbar(void) noexcept
 {
 	if (IsWindow(g_StatusBar))
 	{

@@ -118,8 +118,8 @@ public:
 
 	static HMENU parsePath( const TString & path, const HMENU hParent, const UINT depth = 1 );
 
-	HIMAGELIST &getImageList( );
-	void destroyImageList( );
+	HIMAGELIST &getImageList( ) noexcept;
+	void destroyImageList( ) noexcept;
 
 	const MenuStyle &getStyle() const noexcept
 	{
@@ -217,14 +217,14 @@ public:
 	static LRESULT OnDrawItem( const HWND mHwnd, LPDRAWITEMSTRUCT lpdis ); 
 
 	void convertMenu( HMENU hMenu, const BOOL bForce );
-	static void cleanMenu( HMENU hMenu );
-	void clearAllMenuItems( );
+	static void cleanMenu( HMENU hMenu ) noexcept;
+	void clearAllMenuItems( ) noexcept;
 
 	const HBITMAP &getBackBitmap() const noexcept
 	{
 		return m_hBitmap;
 	}
-	void setBackBitmap( HBITMAP hBitmap );
+	void setBackBitmap( HBITMAP hBitmap ) noexcept;
 
 	const inline bool &IsRounded(void) const noexcept { return this->m_bRoundedSel; };
 	const inline BYTE &IsAlpha(void) const noexcept { return this->m_uiAlpha; };

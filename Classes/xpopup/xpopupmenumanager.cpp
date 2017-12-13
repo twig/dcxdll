@@ -128,7 +128,7 @@ void XPopupMenuManager::load(void)
 	}
 }
 
-void XPopupMenuManager::unload(void)
+void XPopupMenuManager::unload(void) noexcept
 {
 	/***** XPopup Stuff *****/
 //#ifdef DEBUG
@@ -228,7 +228,7 @@ LRESULT XPopupMenuManager::OnUninitMenuPopup(HWND mHwnd, WPARAM wParam, LPARAM l
 	return mIRCLinker::callDefaultWindowProc(mHwnd, WM_UNINITMENUPOPUP, wParam, lParam);
 }
 	
-LRESULT XPopupMenuManager::OnExitMenuLoop(HWND mHwnd, WPARAM wParam, LPARAM lParam)
+LRESULT XPopupMenuManager::OnExitMenuLoop(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept
 {
 	if (!m_bIsMenuBar && m_bIsActiveMircPopup)
 		m_mIRCMenuBar->clearAllMenuItems();
@@ -1023,7 +1023,7 @@ void XPopupMenuManager::deleteMenu( const XPopupMenu *const p_Menu )
  * blah
  */
 
-void XPopupMenuManager::clearMenus( )
+void XPopupMenuManager::clearMenus( ) noexcept
 {
 	for (const auto &a: this->m_vpXPMenu)
 		delete a;
@@ -1092,7 +1092,7 @@ XPopupMenu* XPopupMenuManager::getMenuByHandle(const HMENU hMenu) const noexcept
 /*
  * Check if menu handle is a custom menu (don't include converted mIRC menus)
  */
-const bool XPopupMenuManager::isCustomMenu(const HMENU hMenu) const
+const bool XPopupMenuManager::isCustomMenu(const HMENU hMenu) const noexcept
 {
 	for (const auto &x: this->m_vpXPMenu)
 	{
@@ -1196,9 +1196,10 @@ void XPopupMenuManager::LoadPopupsFromXML(const TiXmlElement *const popups, cons
 
 	// Create menu with style (from specific or global)
 	const auto style = XPopupMenu::parseStyle(GetMenuAttributeFromXML("style", popup, globalStyles));
+	// Ook: this needs looke dat, should be protected....
 	const auto menu = new XPopupMenu(popupName, style);
 
-	const TString colors(TEXT("bgcolour iconcolour cbcolour discbcolour disselcolour distextcolour selcolour selbordercolour seperatorcolour textcolour seltextcolour"));
+	const static TString colors(TEXT("bgcolour iconcolour cbcolour discbcolour disselcolour distextcolour selcolour selbordercolour seperatorcolour textcolour seltextcolour"));
 
 	UINT i = 1;
 	for (const auto &tmp: colors)
@@ -1224,7 +1225,7 @@ void XPopupMenuManager::LoadPopupsFromXML(const TiXmlElement *const popups, cons
 			//mIRCLinker::tsEval(filename, tsBkg.to_chr());
 			mIRCLinker::eval(filename, tsBkg);
 
-			if (auto hBitmap = dcxLoadBitmap(nullptr, filename); hBitmap != nullptr)
+			if (const auto hBitmap = dcxLoadBitmap(nullptr, filename); hBitmap != nullptr)
 				menu->setBackBitmap(hBitmap);
 		}
 	}
@@ -1260,7 +1261,6 @@ void XPopupMenuManager::LoadPopupsFromXML(const TiXmlElement *const popups, cons
 						_ts_sprintf(command, TEXT("% -i % % %"), popupName, flags, (*itStart), tsFilename);
 						Dcx::XPopups.parseCommand(command, menu);
 					}
-					//tsFilename.clear();
 				}
 			}
 		}

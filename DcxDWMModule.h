@@ -24,15 +24,21 @@ class DcxDWMModule :
 	static PFNDWMGETCOLORIZATIONCOLOR DwmGetColorizationColorUx;
 
 public:
-	constexpr DcxDWMModule(void) noexcept :
-		m_bAero(false),
-		m_bVista(false),
-		m_bWin7(false),
-		m_bWin8(false),
-		m_bWin10(false)
+	constexpr DcxDWMModule(void) noexcept
+		: DcxModule()
+		, m_bAero(false)
+		, m_bVista(false)
+		, m_bWin7(false)
+		, m_bWin8(false)
+		, m_bWin10(false)
 	{
 	}
 	virtual ~DcxDWMModule(void) noexcept;
+
+	DcxDWMModule(const DcxDWMModule &other) = delete;	// no copy constructor
+	DcxDWMModule(const DcxDWMModule &&other) = delete;	// no move constructor
+	DcxDWMModule &operator =(const DcxDWMModule &) = delete;	// No assignments!
+	DcxDWMModule &operator =(const DcxDWMModule &&) = delete;	// No move assignments!
 
 	bool load(void) final;
 	bool unload(void) noexcept final;

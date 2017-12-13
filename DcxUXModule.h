@@ -54,8 +54,15 @@ class DcxUXModule :
 	static bool m_bBufferedPaintEnabled;
 
 public:
-	constexpr DcxUXModule(void) noexcept = default;
+	constexpr DcxUXModule(void) noexcept
+		: DcxModule()
+	{}
 	virtual ~DcxUXModule(void) noexcept;
+
+	DcxUXModule(const DcxUXModule &other) = delete;	// no copy constructor
+	DcxUXModule(const DcxUXModule &&other) = delete;	// no move constructor
+	DcxUXModule &operator =(const DcxUXModule &) = delete;	// No assignments!
+	DcxUXModule &operator =(const DcxUXModule &&) = delete;	// No move assignments!
 
 	bool load(void) final;
 	bool unload(void) noexcept final;

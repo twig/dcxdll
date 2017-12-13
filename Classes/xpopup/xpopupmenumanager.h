@@ -63,7 +63,7 @@ public:
 	~XPopupMenuManager() = default;
 
 	void load(void);
-	void unload(void);
+	void unload(void) noexcept;
 
 	void parseCommand( const TString & input );
 	void parseCommand( const TString & input, XPopupMenu *const p_Menu );
@@ -73,7 +73,7 @@ public:
 
 	void addMenu( XPopupMenu *const p_Menu );
 	void deleteMenu( const XPopupMenu *const p_Menu );
-	void clearMenus( );
+	void clearMenus( ) noexcept;
 
 	constexpr void setIsMenuBar(const bool value) noexcept { m_bIsMenuBar = value; }
 
@@ -85,7 +85,7 @@ public:
 	XPopupMenu* getmIRCMenuBar(void) const noexcept { return m_mIRCMenuBar.get(); }
 	XPopupMenu* getmIRCScriptMenu(void) const noexcept { return m_mIRCScriptMenu.get(); };
 
-	const bool isCustomMenu(const HMENU hMenu) const;
+	const bool isCustomMenu(const HMENU hMenu) const noexcept;
 	static const bool isMenuBarMenu(const HMENU hMenu, const HMENU hMatch);
 
 	static constexpr bool isPatched(void) noexcept { return false; };
@@ -97,7 +97,7 @@ public:
 
 	LRESULT OnInitMenuPopup(HWND mHwnd, WPARAM wParam, LPARAM lParam);
 	LRESULT OnUninitMenuPopup(HWND mHwnd, WPARAM wParam, LPARAM lParam);
-	LRESULT OnExitMenuLoop(HWND mHwnd, WPARAM wParam, LPARAM lParam);
+	LRESULT OnExitMenuLoop(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept;
 	LRESULT OnCommand(HWND mHwnd, WPARAM wParam, LPARAM lParam);
 
 protected:

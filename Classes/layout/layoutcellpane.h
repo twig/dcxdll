@@ -40,8 +40,8 @@ public:
 
 	//LayoutCellPane() = delete;
 	LayoutCellPane(const LayoutCellPane &) = delete;
-	explicit LayoutCellPane(const PaneType nType = HORZ);
-	virtual ~LayoutCellPane( );
+	explicit LayoutCellPane(const PaneType nType = HORZ) noexcept;
+	virtual ~LayoutCellPane( ) noexcept;
 
 	LayoutCellPane &operator =(const LayoutCellPane &) = delete;	// No assignments!
 

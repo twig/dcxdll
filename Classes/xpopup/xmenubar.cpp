@@ -247,7 +247,7 @@ void XMenuBar::removeFromMenuBar(HMENU menubar, const XPopupMenu *const p_Menu)
 /*
  * Searches for the given menu in the menubar, and returns the zero-based index position.
  */
-const int XMenuBar::findMenuOffset(HMENU menubar, const XPopupMenu *const p_Menu) const
+const int XMenuBar::findMenuOffset(HMENU menubar, const XPopupMenu *const p_Menu) const noexcept
 {
 	MENUITEMINFO mii{};
 	int offset = 0;					// Use 1 because 0 = the menubar itself when using GetMenuBarInfo()

@@ -43,11 +43,11 @@ public:
 	LayoutCellFixed(const LayoutCellFixed &) = delete;
 	LayoutCellFixed &operator =(const LayoutCellFixed &) = delete;	// No assignments!
 
-	explicit LayoutCellFixed(DcxControl * dcxc, const FixedType nType = BOTH);
-	explicit LayoutCellFixed( const HWND mHwnd, const FixedType nType = BOTH );
-	explicit LayoutCellFixed(const RECT & rc, const FixedType nType = BOTH);
-	LayoutCellFixed(const HWND mHwnd, const RECT & rc, const FixedType nType = BOTH);
-	virtual ~LayoutCellFixed( );
+	explicit LayoutCellFixed(DcxControl * dcxc, const FixedType nType = BOTH) noexcept;
+	explicit LayoutCellFixed( const HWND mHwnd, const FixedType nType = BOTH ) noexcept;
+	explicit LayoutCellFixed(const RECT & rc, const FixedType nType = BOTH) noexcept;
+	LayoutCellFixed(const HWND mHwnd, const RECT & rc, const FixedType nType = BOTH) noexcept;
+	virtual ~LayoutCellFixed( ) noexcept;
 
 	virtual void LayoutChild() final;
 	virtual HDWP ExecuteLayout( const HDWP hdwp ) final;

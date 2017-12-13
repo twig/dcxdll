@@ -116,8 +116,8 @@ public:
 	DcxDock(const DcxDock &other) = delete;	// no copy constructor
 	DcxDock &operator =(const DcxDock &) = delete;	// No assignments!
 
-	DcxDock(HWND refHwnd, HWND dockHwnd, const DockTypes dockType);
-	~DcxDock(void);
+	DcxDock(HWND refHwnd, HWND dockHwnd, const DockTypes dockType) noexcept;
+	~DcxDock(void) noexcept;
 
 	bool DockWindow(HWND hwnd, const TString &flag);
 	void UnDockWindow(const HWND hwnd);
@@ -150,7 +150,7 @@ public:
 
 	// Statusbar Functions.
 	static bool InitStatusbar(const TString &styles);
-	static void UnInitStatusbar(void);
+	static void UnInitStatusbar(void) noexcept;
 	static bool IsStatusbar(void) noexcept;
 	static std::tuple<NoTheme,WindowStyle,WindowExStyle> status_parseControlStyles( const TString & styles );
 	static void status_getRect(LPRECT rc) noexcept;
@@ -213,7 +213,7 @@ protected:
 };
 
 void InitUltraDock(void);
-void CloseUltraDock(void);
+void CloseUltraDock(void) noexcept;
 const SwitchBarPos SwitchbarPos(const DockTypes type) noexcept;
 void UpdatemIRC(void) noexcept;
 

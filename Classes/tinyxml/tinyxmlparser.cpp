@@ -1402,7 +1402,6 @@ const char* TiXmlComment::Parse( const char* p, TiXmlParsingData* data, TiXmlEnc
 	//
 	//return p;
 
-	const auto document = GetDocument();
 	value = "";
 
 	p = SkipWhiteSpace(p, encoding);
@@ -1417,7 +1416,8 @@ const char* TiXmlComment::Parse( const char* p, TiXmlParsingData* data, TiXmlEnc
 
 	if (!StringEqual(p, &startTag[0], false, encoding))
 	{
-		document->SetError(TIXML_ERROR_PARSING_COMMENT, p, data, encoding);
+		if (const auto document = GetDocument(); document)
+			document->SetError(TIXML_ERROR_PARSING_COMMENT, p, data, encoding);
 		return nullptr;
 	}
 	p += _ts_strlen(startTag);
@@ -1564,7 +1564,6 @@ void TiXmlText::StreamIn( std::istream * in, TIXML_STRING * tag )
 const char* TiXmlText::Parse( const char* p, TiXmlParsingData* data, TiXmlEncoding encoding )
 {
 	value = "";
-	auto document = GetDocument();
 
 	if ( data )
 	{
@@ -1581,7 +1580,8 @@ const char* TiXmlText::Parse( const char* p, TiXmlParsingData* data, TiXmlEncodi
 
 		if ( !StringEqual( p, startTag, false, encoding ) )
 		{
-			document->SetError( TIXML_ERROR_PARSING_CDATA, p, data, encoding );
+			if (const auto document = GetDocument(); document)
+				document->SetError( TIXML_ERROR_PARSING_CDATA, p, data, encoding );
 			return nullptr;
 		}
 		p += _ts_strlen( startTag );

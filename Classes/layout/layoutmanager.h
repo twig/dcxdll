@@ -37,7 +37,7 @@ public:
 	LayoutManager() = default;
 	~LayoutManager() = default;
 
-	explicit LayoutManager( HWND mHwnd );
+	explicit LayoutManager( HWND mHwnd ) noexcept;
 
 	LayoutManager(const LayoutManager &) = delete;
 	LayoutManager &operator =(const LayoutManager &) = delete;	// No assignments!
@@ -47,7 +47,7 @@ public:
 	//void setRoot( gsl::owner<LayoutCell *> p_Root );
 	//constexpr LayoutCell * getRoot() const noexcept { return m_pRoot.get(); }
 
-	void setRoot(std::unique_ptr<LayoutCell> p_Root);
+	void setRoot(std::unique_ptr<LayoutCell> p_Root) noexcept;
 	LayoutCell * getRoot() const noexcept { return m_pRoot.get(); }
 
 	LayoutCell * getCell( const TString & path ) const;
@@ -59,7 +59,7 @@ public:
 	inline bool empty(void) const noexcept { return (m_pRoot == nullptr); }
 
 	static LayoutCell * parsePath(const TString & path, const LayoutCell *const hParent, const UINT depth);
-	static const UINT parseLayoutFlags(const TString & flags);
+	static const UINT parseLayoutFlags(const TString & flags) noexcept;
 
 	// this is here for reference only
 	//typedef class std::vector<LayoutCell *>::iterator iterator;

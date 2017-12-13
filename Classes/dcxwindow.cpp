@@ -22,7 +22,7 @@
  * \param mID Window ID
  */
 
-DcxWindow::DcxWindow( const HWND mHwnd, const UINT mID )
+DcxWindow::DcxWindow( const HWND mHwnd, const UINT mID ) noexcept
 	: m_Hwnd( mHwnd ), m_ID( mID ), m_hDefaultWindowProc(nullptr), m_hZeroRgn(CreateRectRgn(0, 0, 0, 0))
 {
 }
@@ -33,7 +33,7 @@ DcxWindow::DcxWindow( const HWND mHwnd, const UINT mID )
  * \param mID Window ID
  */
 
-DcxWindow::DcxWindow( const UINT mID )
+DcxWindow::DcxWindow( const UINT mID ) noexcept
 : DcxWindow(nullptr, mID)
 {
 }
@@ -44,7 +44,7 @@ DcxWindow::DcxWindow( const UINT mID )
  * Destructor
  */
 
-DcxWindow::~DcxWindow( )
+DcxWindow::~DcxWindow( ) noexcept
 {
 	if (m_hZeroRgn != nullptr)
 		DeleteRgn(m_hZeroRgn);
@@ -67,7 +67,7 @@ bool DcxWindow::isStyle( const WindowStyle Styles ) const noexcept
  * blah
  */
 
-WindowStyle DcxWindow::removeStyle( const WindowStyle Styles )
+WindowStyle DcxWindow::removeStyle( const WindowStyle Styles ) noexcept
 {
 	const auto winStyles = dcxGetWindowStyle(m_Hwnd);
 	return dcxSetWindowStyle( m_Hwnd, winStyles & ~Styles );
@@ -79,7 +79,7 @@ WindowStyle DcxWindow::removeStyle( const WindowStyle Styles )
  * blah
  */
 
-WindowStyle DcxWindow::addStyle( const WindowStyle Styles )
+WindowStyle DcxWindow::addStyle( const WindowStyle Styles ) noexcept
 {
 	const auto winStyles = dcxGetWindowStyle(m_Hwnd);
 	return dcxSetWindowStyle( m_Hwnd, winStyles | Styles );
@@ -91,7 +91,7 @@ WindowStyle DcxWindow::addStyle( const WindowStyle Styles )
  * blah
  */
 
-WindowStyle DcxWindow::setStyle( const WindowStyle Styles )
+WindowStyle DcxWindow::setStyle( const WindowStyle Styles ) noexcept
 {
 	return dcxSetWindowStyle(m_Hwnd, Styles);
 }
@@ -113,7 +113,7 @@ bool DcxWindow::isExStyle( const WindowExStyle Styles ) const noexcept
  * blah
  */
 
-WindowExStyle DcxWindow::removeExStyle( const WindowExStyle Styles )
+WindowExStyle DcxWindow::removeExStyle( const WindowExStyle Styles ) noexcept
 {
 	const auto winStyles = dcxGetWindowExStyle(m_Hwnd);
 	return dcxSetWindowExStyle( m_Hwnd, winStyles & ~Styles );
@@ -125,7 +125,7 @@ WindowExStyle DcxWindow::removeExStyle( const WindowExStyle Styles )
  * blah
  */
 
-WindowExStyle DcxWindow::addExStyle( const WindowExStyle Styles )
+WindowExStyle DcxWindow::addExStyle( const WindowExStyle Styles ) noexcept
 {
 	const auto winStyles = dcxGetWindowExStyle(m_Hwnd);
 	return dcxSetWindowExStyle( m_Hwnd, winStyles | Styles );
@@ -137,7 +137,7 @@ WindowExStyle DcxWindow::addExStyle( const WindowExStyle Styles )
  * blah
  */
 
-WindowExStyle DcxWindow::setExStyle( const WindowExStyle Styles )
+WindowExStyle DcxWindow::setExStyle( const WindowExStyle Styles ) noexcept
 {
 	return dcxSetWindowExStyle(m_Hwnd, Styles);
 }
@@ -170,7 +170,7 @@ const HWND &DcxWindow::getHwnd( ) const noexcept
  * blah
  */
 
-void DcxWindow::redrawWindow( )
+void DcxWindow::redrawWindow( ) noexcept
 {
 	RedrawWindow( m_Hwnd, nullptr, nullptr, RDW_INTERNALPAINT|RDW_ALLCHILDREN|RDW_INVALIDATE|RDW_ERASE/*|RDW_FRAME|RDW_UPDATENOW*/ );
 }
@@ -189,16 +189,16 @@ void DcxWindow::redrawBufferedWindow( )
 		return;
 	}
 
-	auto hdc = GetWindowDC(m_Hwnd);
+	const auto hdc = GetWindowDC(m_Hwnd);
 
 	if (hdc == nullptr)
 		return;
 	Auto(ReleaseDC(m_Hwnd, hdc));
 
 #if DCX_USE_WRAPPERS
-	Dcx::dcxWindowRect rc(m_Hwnd);
+	const Dcx::dcxWindowRect rc(m_Hwnd);
 
-	Dcx::dcxHDCBuffer hBuffer(hdc, rc);
+	const Dcx::dcxHDCBuffer hBuffer(hdc, rc);
 
 	SendMessage(m_Hwnd, WM_PRINT, (WPARAM)(HDC)hBuffer, PRF_NONCLIENT | PRF_CLIENT | PRF_CHILDREN | PRF_CHECKVISIBLE | PRF_ERASEBKGND);
 
@@ -206,7 +206,7 @@ void DcxWindow::redrawBufferedWindow( )
 #else
 	if (RECT rc{}; GetWindowRect(m_Hwnd, &rc))
 	{
-		if (auto hBuffer = CreateHDCBuffer(hdc, &rc); hBuffer != nullptr)
+		if (const auto hBuffer = CreateHDCBuffer(hdc, &rc); hBuffer != nullptr)
 		{
 			Auto(DeleteHDCBuffer(hBuffer));
 
@@ -254,7 +254,7 @@ PTCHAR DcxWindow::parseCursorType( const TString & cursor )
  * blah
  */
 
-UINT DcxWindow::parseCursorFlags(const TString &flags)
+UINT DcxWindow::parseCursorFlags(const TString &flags) noexcept
 {
 	UINT iFlags = 0;
 	const XSwitchFlags xflags(flags);
@@ -271,7 +271,7 @@ UINT DcxWindow::parseCursorFlags(const TString &flags)
 	return iFlags;
 }
 
-UINT DcxWindow::parseCursorArea(const TString & flags)
+UINT DcxWindow::parseCursorArea(const TString & flags) noexcept
 {
 	UINT iFlags = 0;
 	const XSwitchFlags xflags(flags);
@@ -328,7 +328,7 @@ UINT DcxWindow::parseCursorArea(const TString & flags)
 	return iFlags;
 }
 
-HIMAGELIST DcxWindow::createImageList(const bool bBigIcons)
+HIMAGELIST DcxWindow::createImageList(const bool bBigIcons) noexcept
 {
 	const auto sz = (bBigIcons ? DcxIconSizes::LargeIcon : DcxIconSizes::SmallIcon);
 
@@ -340,7 +340,7 @@ HIMAGELIST DcxWindow::createImageList(const bool bBigIcons)
 	return himl;
 }
 
-LRESULT DcxWindow::CallDefaultProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+LRESULT DcxWindow::CallDefaultProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept
 {
 	if (m_hDefaultWindowProc == nullptr)
 		return DefWindowProc(mHwnd, uMsg, wParam, lParam);

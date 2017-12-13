@@ -2011,11 +2011,11 @@ void DrawRotatedText(const TString &strDraw, const gsl::not_null<LPRECT> &rc, co
 	Auto(SetGraphicsMode(hDC, nOldGMode));
 
 	// Select the new font created
-	if (auto hFont = CreateFontIndirect(&lf); hFont != nullptr)
+	if (const auto hFont = CreateFontIndirect(&lf); hFont != nullptr)
 	{
 		Auto(DeleteFont(hFont));
 
-		auto hPrevFont = SelectFont(hDC, hFont);
+		const auto hPrevFont = SelectFont(hDC, hFont);
 		Auto(SelectFont(hDC, hPrevFont));
 
 		// Draw text to screen
@@ -2054,22 +2054,35 @@ void DrawRotatedText(const TString &strDraw, const gsl::not_null<LPRECT> &rc, co
 //		nOptions, rect, str, len, NULL);
 //}
 
-const char *queryAttribute(gsl::not_null<const TiXmlElement *> element, gsl::not_null<const char *> attribute, gsl::not_null<const char *> defaultValue)
+const char *queryAttribute(gsl::not_null<const TiXmlElement *> element, gsl::not_null<const char *> attribute, gsl::not_null<const char *> defaultValue) noexcept
 {
 	const auto t = element->Attribute(attribute);
 	return (t != nullptr) ? t : defaultValue.get();
 }
 
+//std::optional<const char *> queryAttribute(gsl::not_null<const TiXmlElement *> element, gsl::not_null<const char *> attribute) noexcept
+//{
+//	const auto t = element->Attribute(attribute);
+//	if (t != nullptr)
+//		return t;
+//	return {};
+//}
+
 int queryIntAttribute(gsl::not_null<const TiXmlElement *> element, gsl::not_null<const char *> attribute, const int defaultValue)
 {
-	//auto integer = defaultValue;
-	//return (element->QueryIntAttribute(attribute, &integer) == TIXML_SUCCESS) ? integer : defaultValue;
-
 	if (const auto[iStatus, integer] = element->QueryIntAttribute(attribute); iStatus == TIXML_SUCCESS)
 		return integer;
 
 	return defaultValue;
 }
+
+//std::optional<int> queryIntAttribute(gsl::not_null<const TiXmlElement *> element, gsl::not_null<const char *> attribute)
+//{
+//	if (const auto[iStatus, integer] = element->QueryIntAttribute(attribute); iStatus == TIXML_SUCCESS)
+//		return integer;
+//
+//	return {};
+//}
 
 /*
 	TString MakeTextmIRCSafe(const TCHAR *const tString)

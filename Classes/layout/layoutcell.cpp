@@ -34,7 +34,7 @@
 //	SetRectEmpty(&this->m_rcWindow);
 //}
 
-LayoutCell::LayoutCell()
+LayoutCell::LayoutCell() noexcept
 	: LayoutCell(HWND())
 {
 }
@@ -45,7 +45,7 @@ LayoutCell::LayoutCell()
  * blah
  */
 
-LayoutCell::LayoutCell(const HWND mHwnd)
+LayoutCell::LayoutCell(const HWND mHwnd) noexcept
 : LayoutCell(mHwnd, RECT())
 {
 	if (m_Hwnd != nullptr)
@@ -58,7 +58,7 @@ LayoutCell::LayoutCell(const HWND mHwnd)
  * blah
  */
 
-LayoutCell::LayoutCell(const HWND mHwnd, const RECT & rc)
+LayoutCell::LayoutCell(const HWND mHwnd, const RECT & rc) noexcept
 : m_Hwnd(mHwnd)
 , m_rcWindow(rc)
 , m_Parent(nullptr)
@@ -79,7 +79,7 @@ LayoutCell::LayoutCell(const HWND mHwnd, const RECT & rc)
 	}
 }
 
-LayoutCell::LayoutCell(DcxControl * dcxc)
+LayoutCell::LayoutCell(DcxControl * dcxc) noexcept
 : LayoutCell()
 {
 	m_BaseControl = dcxc;
@@ -96,7 +96,7 @@ LayoutCell::LayoutCell(DcxControl * dcxc)
  * blah
  */
 
-LayoutCell::~LayoutCell()
+LayoutCell::~LayoutCell() noexcept
 {
 }
 
@@ -161,7 +161,7 @@ LayoutCell * LayoutCell::getNextSibling() const noexcept
  * blah
  */
 
-void LayoutCell::setRect(RECT & rc)
+void LayoutCell::setRect(RECT & rc) noexcept
 {
 	CellMinMaxInfo cmmi;
 	cmmi.m_MinSize.x = 0;
@@ -219,7 +219,7 @@ void LayoutCell::getClientRect(RECT & rc) const noexcept
  * blah
  */
 
-void LayoutCell::setBorder(const RECT & rc)
+void LayoutCell::setBorder(const RECT & rc) noexcept
 {
 	// remove old borders
 	this->m_rcWindow.right -= this->m_rcBorders.left + this->m_rcBorders.right;
@@ -239,7 +239,7 @@ void LayoutCell::setBorder(const RECT & rc)
  * blah
  */
 
-void LayoutCell::setBorder(const int &nBorder)
+void LayoutCell::setBorder(const int &nBorder) noexcept
 {
 	const RECT rc{ nBorder, nBorder, nBorder, nBorder };
 	setBorder(rc);
@@ -262,7 +262,7 @@ void LayoutCell::getBorder(RECT & rc) const noexcept
  * blah
  */
 
-const bool LayoutCell::isVisible() const
+const bool LayoutCell::isVisible() const noexcept
 {
 	return (m_Hwnd == nullptr || (IsWindow(m_Hwnd) && IsWindowVisible(m_Hwnd)));
 }

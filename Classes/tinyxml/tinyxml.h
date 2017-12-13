@@ -133,30 +133,30 @@ struct TiXmlCursor
 class TiXmlVisitor
 {
 public:
-	virtual ~TiXmlVisitor() {}
+	virtual ~TiXmlVisitor() noexcept {}
 
 	/// Visit a document.
-	virtual bool VisitEnter( const TiXmlDocument& /*doc*/ )			{ return true; }
+	virtual bool VisitEnter( const TiXmlDocument& /*doc*/ ) noexcept { return true; }
 	/// Visit a document.
-	virtual bool VisitExit( const TiXmlDocument& /*doc*/ )			{ return true; }
+	virtual bool VisitExit( const TiXmlDocument& /*doc*/ ) noexcept { return true; }
 
 	/// Visit an m_pElement.
-	virtual bool VisitEnter( const TiXmlElement& /*m_pElement*/, const TiXmlAttribute* /*firstAttribute*/ )	{ return true; }
+	virtual bool VisitEnter( const TiXmlElement& /*m_pElement*/, const TiXmlAttribute* /*firstAttribute*/ ) { return true; }
 	/// Visit an m_pElement.
-	virtual bool VisitExit( const TiXmlElement& /*m_pElement*/ )		{ return true; }
+	virtual bool VisitExit( const TiXmlElement& /*m_pElement*/ ) { return true; }
 
 	/// Visit a declaration
-	virtual bool Visit( const TiXmlDeclaration& /*declaration*/ )	{ return true; }
+	virtual bool Visit( const TiXmlDeclaration& /*declaration*/ ) { return true; }
 	/// Visit a text node
-	virtual bool Visit( const TiXmlText& /*text*/ )					{ return true; }
+	virtual bool Visit( const TiXmlText& /*text*/ ) { return true; }
 	/// Visit a comment node
-	virtual bool Visit( const TiXmlComment& /*comment*/ )			{ return true; }
+	virtual bool Visit( const TiXmlComment& /*comment*/ ) { return true; }
 	/// Visit an unknow node
-	virtual bool Visit( const TiXmlUnknown& /*unknown*/ )			{ return true; }
+	virtual bool Visit( const TiXmlUnknown& /*unknown*/ ) { return true; }
 };
 
 // Only used by Attribute::Query functions
-enum 
+enum TiXmlReturns : int
 { 
 	TIXML_SUCCESS,
 	TIXML_NO_ATTRIBUTE,
@@ -206,7 +206,7 @@ public:
 	TiXmlBase() noexcept 
 		: userData(0)
 	{}
-	virtual ~TiXmlBase()			{}
+	virtual ~TiXmlBase() noexcept {}
 
 	/**	All TinyXml classes can print themselves to a filestream
 		or the string class (TiXmlString in non-STL mode, std::string
@@ -478,7 +478,7 @@ public:
 		TINYXML_TYPECOUNT
 	};
 
-	virtual ~TiXmlNode();
+	virtual ~TiXmlNode() noexcept;
 
 	/** The meaning of 'value' changes for the specific type of
 		TiXmlNode.
@@ -521,7 +521,7 @@ public:
 	#endif
 
 	/// Delete all the children of this node. Does not affect 'this'.
-	void Clear();
+	void Clear() noexcept;
 
 	/// One step up the DOM.
 	TiXmlNode* Parent() noexcept { return parent; }
@@ -602,7 +602,7 @@ public:
 
 		@sa InsertEndChild
 	*/
-	TiXmlNode* LinkEndChild( TiXmlNode* addThis );
+	TiXmlNode* LinkEndChild( TiXmlNode *const addThis );
 
 	/** Add a new node related to this. Adds a child before the specified child.
 		Returns a pointer to the new object or nullptr if an error occured.
@@ -620,7 +620,7 @@ public:
 	TiXmlNode* ReplaceChild( TiXmlNode* replaceThis, const TiXmlNode& withThis );
 
 	/// Delete a child of this node.
-	bool RemoveChild( TiXmlNode* removeThis );
+	bool RemoveChild( TiXmlNode* removeThis ) noexcept;
 
 	/// Navigate to a sibling node.
 	const TiXmlNode* PreviousSibling() const noexcept { return prev; }
@@ -655,8 +655,8 @@ public:
 		Calls NextSibling and ToElement. Will skip all non-Element
 		nodes. Returns 0 if there is not another m_pElement.
 	*/
-	const TiXmlElement* NextSiblingElement() const;
-	TiXmlElement* NextSiblingElement()
+	const TiXmlElement* NextSiblingElement() const noexcept;
+	TiXmlElement* NextSiblingElement() noexcept
 	{
 		return const_cast< TiXmlElement* >( (const_cast< const TiXmlNode* >(this))->NextSiblingElement() );
 	}
@@ -665,8 +665,9 @@ public:
 		Calls NextSibling and ToElement. Will skip all non-Element
 		nodes. Returns 0 if there is not another m_pElement.
 	*/
-	const TiXmlElement* NextSiblingElement( const char * ) const;
-	TiXmlElement* NextSiblingElement( const char *_next ) {
+	const TiXmlElement* NextSiblingElement( const char * ) const noexcept;
+	TiXmlElement* NextSiblingElement( const char *_next ) noexcept
+	{
 		return const_cast< TiXmlElement* >( (const_cast< const TiXmlNode* >(this))->NextSiblingElement( _next ) );
 	}
 
@@ -676,14 +677,16 @@ public:
 	#endif
 
 	/// Convenience function to get through elements.
-	const TiXmlElement* FirstChildElement()	const;
-	TiXmlElement* FirstChildElement() {
+	const TiXmlElement* FirstChildElement()	const noexcept;
+	TiXmlElement* FirstChildElement() noexcept
+	{
 		return const_cast< TiXmlElement* >( (const_cast< const TiXmlNode* >(this))->FirstChildElement() );
 	}
 
 	/// Convenience function to get through elements.
-	const TiXmlElement* FirstChildElement( const char * _value ) const;
-	TiXmlElement* FirstChildElement( const char * _value ) {
+	const TiXmlElement* FirstChildElement( const char * _value ) const noexcept;
+	TiXmlElement* FirstChildElement( const char * _value ) noexcept
+	{
 		return const_cast< TiXmlElement* >( (const_cast< const TiXmlNode* >(this))->FirstChildElement( _value ) );
 	}
 
@@ -701,27 +704,28 @@ public:
 	/** Return a pointer to the Document this node lives in.
 		Returns null if not in a document.
 	*/
-	const TiXmlDocument* GetDocument() const;
-	TiXmlDocument* GetDocument() {
+	const TiXmlDocument* GetDocument() const noexcept;
+	TiXmlDocument* GetDocument() noexcept
+	{
 		return const_cast< TiXmlDocument* >( (const_cast< const TiXmlNode* >(this))->GetDocument() );
 	}
 
 	/// Returns true if this node has no children.
 	bool NoChildren() const	noexcept { return !firstChild; }
 
-	virtual const TiXmlDocument*    ToDocument()    const { return 0; } ///< Cast to a more defined type. Will return null if not of the requested type.
-	virtual const TiXmlElement*     ToElement()     const { return 0; } ///< Cast to a more defined type. Will return null if not of the requested type.
-	virtual const TiXmlComment*     ToComment()     const { return 0; } ///< Cast to a more defined type. Will return null if not of the requested type.
-	virtual const TiXmlUnknown*     ToUnknown()     const { return 0; } ///< Cast to a more defined type. Will return null if not of the requested type.
-	virtual const TiXmlText*        ToText()        const { return 0; } ///< Cast to a more defined type. Will return null if not of the requested type.
-	virtual const TiXmlDeclaration* ToDeclaration() const { return 0; } ///< Cast to a more defined type. Will return null if not of the requested type.
+	virtual const TiXmlDocument*    ToDocument()    const noexcept { return 0; } ///< Cast to a more defined type. Will return null if not of the requested type.
+	virtual const TiXmlElement*     ToElement()     const noexcept { return 0; } ///< Cast to a more defined type. Will return null if not of the requested type.
+	virtual const TiXmlComment*     ToComment()     const noexcept { return 0; } ///< Cast to a more defined type. Will return null if not of the requested type.
+	virtual const TiXmlUnknown*     ToUnknown()     const noexcept { return 0; } ///< Cast to a more defined type. Will return null if not of the requested type.
+	virtual const TiXmlText*        ToText()        const noexcept { return 0; } ///< Cast to a more defined type. Will return null if not of the requested type.
+	virtual const TiXmlDeclaration* ToDeclaration() const noexcept { return 0; } ///< Cast to a more defined type. Will return null if not of the requested type.
 
-	virtual TiXmlDocument*          ToDocument()    { return 0; } ///< Cast to a more defined type. Will return null if not of the requested type.
-	virtual TiXmlElement*           ToElement()	    { return 0; } ///< Cast to a more defined type. Will return null if not of the requested type.
-	virtual TiXmlComment*           ToComment()     { return 0; } ///< Cast to a more defined type. Will return null if not of the requested type.
-	virtual TiXmlUnknown*           ToUnknown()	    { return 0; } ///< Cast to a more defined type. Will return null if not of the requested type.
-	virtual TiXmlText*	            ToText()        { return 0; } ///< Cast to a more defined type. Will return null if not of the requested type.
-	virtual TiXmlDeclaration*       ToDeclaration() { return 0; } ///< Cast to a more defined type. Will return null if not of the requested type.
+	virtual TiXmlDocument*          ToDocument() noexcept { return 0; } ///< Cast to a more defined type. Will return null if not of the requested type.
+	virtual TiXmlElement*           ToElement() noexcept { return 0; } ///< Cast to a more defined type. Will return null if not of the requested type.
+	virtual TiXmlComment*           ToComment() noexcept { return 0; } ///< Cast to a more defined type. Will return null if not of the requested type.
+	virtual TiXmlUnknown*           ToUnknown()	noexcept { return 0; } ///< Cast to a more defined type. Will return null if not of the requested type.
+	virtual TiXmlText*	            ToText()    noexcept { return 0; } ///< Cast to a more defined type. Will return null if not of the requested type.
+	virtual TiXmlDeclaration*       ToDeclaration() noexcept { return 0; } ///< Cast to a more defined type. Will return null if not of the requested type.
 
 	/** Create an exact duplicate of this node and return it. The memory must be deleted
 		by the caller. 
@@ -757,7 +761,7 @@ protected:
 
 	// Copy to the allocated object. Shared functionality between Clone, Copy constructor,
 	// and the assignment operator.
-	void CopyTo( TiXmlNode* target ) const;
+	virtual void CopyTo( TiXmlNode* target ) const noexcept;
 
 	#ifdef TIXML_USE_STL
 	    // The real work of the input operator.
@@ -824,8 +828,8 @@ public:
 	#ifdef TIXML_USE_STL
 	const std::string& ValueStr() const noexcept { return value; }				///< Return the value of this attribute.
 	#endif
-	int				IntValue() const;									///< Return the value of this attribute, converted to an integer.
-	double			DoubleValue() const;								///< Return the value of this attribute, converted to a double.
+	int				IntValue() const noexcept;									///< Return the value of this attribute, converted to an integer.
+	double			DoubleValue() const noexcept;								///< Return the value of this attribute, converted to a double.
 
 	// Get the tinyxml string representation
 	const TIXML_STRING& NameTStr() const noexcept { return name; }
@@ -839,9 +843,9 @@ public:
 		A specialized but useful call. Note that for success it returns 0,
 		which is the opposite of almost all other TinyXml calls.
 	*/
-	int QueryIntValue( int *const _value ) const;
+	TiXmlReturns QueryIntValue( int *const _value ) const noexcept;
 	/// QueryDoubleValue examines the value string. See QueryIntValue().
-	int QueryDoubleValue( double *const _value ) const;
+	TiXmlReturns QueryDoubleValue( double *const _value ) const noexcept;
 
 	void SetName( const char* _name )	{ name = _name; }				///< Set the name of this attribute.
 	void SetValue( const char* _value )	{ value = _value; }				///< Set the value.
@@ -882,7 +886,7 @@ public:
 	// Prints this Attribute to a FILE stream.
 	virtual void Print( FILE* cfile, int depth ) const
 	{
-		Print( cfile, depth, 0 );
+		Print( cfile, depth, nullptr );
 	}
 	void Print( FILE* cfile, int depth, TIXML_STRING* str ) const;
 
@@ -918,6 +922,11 @@ public:
 	TiXmlAttributeSet() noexcept;
 	~TiXmlAttributeSet() noexcept;
 
+	//*ME:	Because of hidden/disabled copy-construktor in TiXmlAttribute (sentinel-m_pElement),
+	//*ME:	this class must be also use a hidden/disabled copy-constructor !!!
+	TiXmlAttributeSet(const TiXmlAttributeSet&) = delete;	// not allowed
+	TiXmlAttributeSet& operator=(const TiXmlAttributeSet&) = delete;	// not allowed (as TiXmlAttribute)
+
 	void Add( TiXmlAttribute* attribute ) noexcept;
 	void Remove( const TiXmlAttribute *const attribute ) noexcept;
 
@@ -936,11 +945,6 @@ public:
 
 
 private:
-	//*ME:	Because of hidden/disabled copy-construktor in TiXmlAttribute (sentinel-m_pElement),
-	//*ME:	this class must be also use a hidden/disabled copy-constructor !!!
-	TiXmlAttributeSet( const TiXmlAttributeSet& ) = delete;	// not allowed
-	TiXmlAttributeSet& operator=( const TiXmlAttributeSet& ) = delete;	// not allowed (as TiXmlAttribute)
-
 	TiXmlAttribute sentinel;
 };
 
@@ -962,14 +966,15 @@ public:
 
 	TiXmlElement( const TiXmlElement& );
 
+	//warning C26434 : Function 'TiXmlElement::operator=' hides a non - virtual function 'TiXmlNode::operator=' (c.128: http://go.microsoft.com/fwlink/?linkid=853923).
 	TiXmlElement &operator=(const TiXmlElement& base);
 
-	virtual ~TiXmlElement();
+	virtual ~TiXmlElement() noexcept;
 
 	/** Given an attribute name, Attribute() returns the value
 		for the attribute of that name, or null if none exists.
 	*/
-	const char* Attribute( const char* name ) const;
+	const char* Attribute( const char* name ) const noexcept;
 
 	/** Given an attribute name, Attribute() returns the value
 		for the attribute of that name, or null if none exists.
@@ -977,7 +982,7 @@ public:
 		the integer value will be put in the return 'i', if 'i'
 		is non-null.
 	*/
-	const char* Attribute( const char* name, int* i ) const;
+	const char* Attribute( const char* name, int* i ) const noexcept;
 
 	/** Given an attribute name, Attribute() returns the value
 		for the attribute of that name, or null if none exists.
@@ -985,7 +990,7 @@ public:
 		the double value will be put in the return 'd', if 'd'
 		is non-null.
 	*/
-	const char* Attribute( const char* name, double* d ) const;
+	const char* Attribute( const char* name, double* d ) const noexcept;
 
 	/** QueryIntAttribute examines the attribute - it is an alternative to the
 		Attribute() method with richer error checking.
@@ -994,15 +999,15 @@ public:
 		an integer, it returns TIXML_WRONG_TYPE. If the attribute
 		does not exist, then TIXML_NO_ATTRIBUTE is returned.
 	*/	
-	int QueryIntAttribute( const char* name, int *const _value ) const;
-	std::pair<int,int> QueryIntAttribute(const char* name) const;
+	TiXmlReturns QueryIntAttribute( const char* name, int *const _value ) const noexcept;
+	std::pair<TiXmlReturns,int> QueryIntAttribute(const char* name) const noexcept;
 	/// QueryDoubleAttribute examines the attribute - see QueryIntAttribute().
-	int QueryDoubleAttribute( const char* name, double *const _value ) const;
+	TiXmlReturns QueryDoubleAttribute( const char* name, double *const _value ) const noexcept;
 	/// QueryFloatAttribute examines the attribute - see QueryIntAttribute().
-	int QueryFloatAttribute( const char* name, float *const _value ) const
+	TiXmlReturns QueryFloatAttribute( const char* name, float *const _value ) const noexcept
 	{
 		double d;
-		const int result = QueryDoubleAttribute( name, &d );
+		const auto result = QueryDoubleAttribute( name, &d );
 		if ( result == TIXML_SUCCESS )
 		{
 			*_value = gsl::narrow_cast<float>(d);
@@ -1086,7 +1091,7 @@ public:
 
 	/** Deletes an attribute with the given name.
 	*/
-	void RemoveAttribute( const char * name );
+	void RemoveAttribute( const char * name ) noexcept;
     #ifdef TIXML_USE_STL
 	void RemoveAttribute( const std::string& name )	{	RemoveAttribute (name.c_str ());	}	///< STL std::string form.
 	#endif
@@ -1128,7 +1133,7 @@ public:
 				 similarly named TiXmlHandle::Text() and TiXmlNode::ToText() which are 
 				 safe type casts on the referenced node.
 	*/
-	const char* GetText() const;
+	const char* GetText() const noexcept;
 
 	/// Creates a new Element and returns it - the returned m_pElement is a copy.
 	virtual TiXmlNode* Clone() const;
@@ -1140,8 +1145,8 @@ public:
 	*/
 	virtual const char* Parse( const char* p, TiXmlParsingData* data, TiXmlEncoding encoding );
 
-	virtual const TiXmlElement*     ToElement()     const { return this; } ///< Cast to a more defined type. Will return null not of the requested type.
-	virtual TiXmlElement*           ToElement()	          { return this; } ///< Cast to a more defined type. Will return null not of the requested type.
+	virtual const TiXmlElement*     ToElement() const noexcept { return this; } ///< Cast to a more defined type. Will return null not of the requested type.
+	virtual TiXmlElement*           ToElement() noexcept { return this; } ///< Cast to a more defined type. Will return null not of the requested type.
 
 	/** Walk the XML tree visiting this node and all of its children. 
 	*/
@@ -1150,7 +1155,7 @@ public:
 protected:
 
 	void CopyTo( TiXmlElement* target ) const;
-	void ClearThis();	// like clear, but initializes 'this' object as well
+	void ClearThis() noexcept;	// like clear, but initializes 'this' object as well
 
 	// Used to be public [internal use]
 	#ifdef TIXML_USE_STL
@@ -1182,10 +1187,11 @@ public:
 	{
 		SetValue( _value );
 	}
-	TiXmlComment( const TiXmlComment& );
-	TiXmlComment &operator=(const TiXmlComment& base);
+	TiXmlComment( const TiXmlComment& ) noexcept;
+	//warning C26434 : Function 'TiXmlComment::operator=' hides a non - virtual function 'TiXmlNode::operator=' (c.128: http://go.microsoft.com/fwlink/?linkid=853923).
+	TiXmlComment &operator=(const TiXmlComment& base) noexcept;
 
-	virtual ~TiXmlComment()	{}
+	virtual ~TiXmlComment()	noexcept {}
 
 	/// Returns a copy of this Comment.
 	virtual TiXmlNode* Clone() const;
@@ -1197,15 +1203,16 @@ public:
 	*/
 	virtual const char* Parse( const char* p, TiXmlParsingData* data, TiXmlEncoding encoding );
 
-	virtual const TiXmlComment*  ToComment() const { return this; } ///< Cast to a more defined type. Will return null not of the requested type.
-	virtual TiXmlComment*  ToComment() { return this; } ///< Cast to a more defined type. Will return null not of the requested type.
+	virtual const TiXmlComment*  ToComment() const noexcept { return this; } ///< Cast to a more defined type. Will return null not of the requested type.
+	virtual TiXmlComment*  ToComment() noexcept { return this; } ///< Cast to a more defined type. Will return null not of the requested type.
 
 	/** Walk the XML tree visiting this node and all of its children. 
 	*/
 	virtual bool Accept( TiXmlVisitor* visitor ) const;
 
 protected:
-	void CopyTo( TiXmlComment* target ) const;
+	//warning C26434 : Function 'TiXmlComment::CopyTo' hides a non - virtual function 'TiXmlNode::CopyTo' (c.128: http://go.microsoft.com/fwlink/?linkid=853923).
+	//void CopyTo( TiXmlComment* target ) const;
 
 	// used to be public
 	#ifdef TIXML_USE_STL
@@ -1241,7 +1248,7 @@ public:
 	{
 		SetValue( initValue );
 	}
-	virtual ~TiXmlText() {}
+	virtual ~TiXmlText() noexcept {}
 
 	#ifdef TIXML_USE_STL
 	/// Constructor.
@@ -1271,8 +1278,8 @@ public:
 
 	virtual const char* Parse( const char* p, TiXmlParsingData* data, TiXmlEncoding encoding );
 
-	virtual const TiXmlText* ToText() const { return this; } ///< Cast to a more defined type. Will return null not of the requested type.
-	virtual TiXmlText*       ToText()       { return this; } ///< Cast to a more defined type. Will return null not of the requested type.
+	virtual const TiXmlText* ToText() const noexcept { return this; } ///< Cast to a more defined type. Will return null not of the requested type.
+	virtual TiXmlText*       ToText() noexcept { return this; } ///< Cast to a more defined type. Will return null not of the requested type.
 
 	/** Walk the XML tree visiting this node and all of its children. 
 	*/
@@ -1281,7 +1288,7 @@ public:
 protected :
 	///  [internal use] Creates a new Element and returns it.
 	virtual TiXmlNode* Clone() const;
-	void CopyTo( TiXmlText* target ) const;
+	virtual void CopyTo( TiXmlText* target ) const noexcept final;
 
 	bool Blank() const noexcept;	// returns true if all white space and new lines
 	// [internal use]
@@ -1328,9 +1335,10 @@ public:
 						const char* _standalone );
 
 	TiXmlDeclaration( const TiXmlDeclaration& copy );
+	//warning C26434 : Function 'TiXmlDeclaration::operator=' hides a non - virtual function 'TiXmlNode::operator=' (c.128: http://go.microsoft.com/fwlink/?linkid=853923).
 	TiXmlDeclaration &operator=(const TiXmlDeclaration& copy);
 
-	virtual ~TiXmlDeclaration()	{}
+	virtual ~TiXmlDeclaration() noexcept {}
 
 	/// Version. Will return an empty string if none was found.
 	const char *Version() const noexcept		{ return version.c_str (); }
@@ -1343,20 +1351,22 @@ public:
 	virtual TiXmlNode* Clone() const;
 	// Print this declaration to a FILE stream.
 	virtual void Print( FILE* cfile, int depth, TIXML_STRING* str ) const;
-	virtual void Print( FILE* cfile, int depth ) const {
+	virtual void Print( FILE* cfile, int depth ) const
+	{
 		Print( cfile, depth, 0 );
 	}
 
 	virtual const char* Parse( const char* p, TiXmlParsingData* data, TiXmlEncoding encoding );
 
-	virtual const TiXmlDeclaration* ToDeclaration() const { return this; } ///< Cast to a more defined type. Will return null not of the requested type.
-	virtual TiXmlDeclaration*       ToDeclaration()       { return this; } ///< Cast to a more defined type. Will return null not of the requested type.
+	virtual const TiXmlDeclaration* ToDeclaration() const noexcept { return this; } ///< Cast to a more defined type. Will return null not of the requested type.
+	virtual TiXmlDeclaration*       ToDeclaration() noexcept { return this; } ///< Cast to a more defined type. Will return null not of the requested type.
 
 	/** Walk the XML tree visiting this node and all of its children. 
 	*/
 	virtual bool Accept( TiXmlVisitor* visitor ) const;
 
 protected:
+	//warning C26434 : Function 'TiXmlDeclaration::CopyTo' hides a non - virtual function 'TiXmlNode::CopyTo' (c.128: http://go.microsoft.com/fwlink/?linkid=853923).
 	void CopyTo( TiXmlDeclaration* target ) const;
 	// used to be public
 	#ifdef TIXML_USE_STL
@@ -1384,7 +1394,7 @@ public:
 	TiXmlUnknown() noexcept
 		: TiXmlNode( TiXmlNode::TINYXML_UNKNOWN )
 	{}
-	virtual ~TiXmlUnknown() {}
+	virtual ~TiXmlUnknown() noexcept {}
 
 	TiXmlUnknown( const TiXmlUnknown& copy ) : TiXmlNode( TiXmlNode::TINYXML_UNKNOWN )		{ copy.CopyTo( this ); }
 	//warning C26434 : Function 'TiXmlUnknown::operator=' hides a non - virtual function 'TiXmlNode::operator=' (c.128: http://go.microsoft.com/fwlink/?linkid=853923).
@@ -1397,8 +1407,8 @@ public:
 
 	virtual const char* Parse( const char* p, TiXmlParsingData* data, TiXmlEncoding encoding );
 
-	virtual const TiXmlUnknown*     ToUnknown()     const { return this; } ///< Cast to a more defined type. Will return null not of the requested type.
-	virtual TiXmlUnknown*           ToUnknown()	    { return this; } ///< Cast to a more defined type. Will return null not of the requested type.
+	virtual const TiXmlUnknown*     ToUnknown() const noexcept { return this; } ///< Cast to a more defined type. Will return null not of the requested type.
+	virtual TiXmlUnknown*           ToUnknown() noexcept { return this; } ///< Cast to a more defined type. Will return null not of the requested type.
 
 	/** Walk the XML tree visiting this node and all of its children. 
 	*/
@@ -1424,7 +1434,7 @@ class TiXmlDocument : public TiXmlNode
 {
 public:
 	/// Create an empty document, that has no name.
-	TiXmlDocument();
+	TiXmlDocument() noexcept;
 	/// Create a document with a name. The name of the document is also the filename of the xml.
 	TiXmlDocument( const char * documentName );
 
@@ -1434,9 +1444,10 @@ public:
 	#endif
 
 	TiXmlDocument( const TiXmlDocument& copy );
+	//warning C26434 : Function 'TiXmlDocument::operator=' hides a non - virtual function 'TiXmlNode::operator=' (c.128: http://go.microsoft.com/fwlink/?linkid=853923).
 	TiXmlDocument &operator=(const TiXmlDocument& copy);
 
-	virtual ~TiXmlDocument() {}
+	virtual ~TiXmlDocument() noexcept {}
 
 	/** Load a file using the current document value.
 		Returns true if successful. Will delete any existing
@@ -1559,8 +1570,8 @@ public:
 	// [internal use]
 	void SetError(tixmlErrors err, const char* errorLocation, TiXmlParsingData* prevData, TiXmlEncoding encoding );
 
-	virtual const TiXmlDocument*    ToDocument()    const { return this; } ///< Cast to a more defined type. Will return null not of the requested type.
-	virtual TiXmlDocument*          ToDocument()          { return this; } ///< Cast to a more defined type. Will return null not of the requested type.
+	virtual const TiXmlDocument*    ToDocument() const noexcept { return this; } ///< Cast to a more defined type. Will return null not of the requested type.
+	virtual TiXmlDocument*          ToDocument() noexcept { return this; } ///< Cast to a more defined type. Will return null not of the requested type.
 
 	/** Walk the XML tree visiting this node and all of its children. 
 	*/
@@ -1677,16 +1688,16 @@ public:
 	/// Return a handle to the first child node.
 	TiXmlHandle FirstChild() const noexcept;
 	/// Return a handle to the first child node with the given name.
-	TiXmlHandle FirstChild( const char * value ) const;
+	TiXmlHandle FirstChild( const char * value ) const noexcept;
 	/// Return a handle to the first child m_pElement.
-	TiXmlHandle FirstChildElement() const;
+	TiXmlHandle FirstChildElement() const noexcept;
 	/// Return a handle to the first child m_pElement with the given name.
-	TiXmlHandle FirstChildElement( const char * value ) const;
+	TiXmlHandle FirstChildElement( const char * value ) const noexcept;
 
 	/** Return a handle to the "index" child with the given name. 
 		The first child is 0, the second 1, etc.
 	*/
-	TiXmlHandle Child( const char* value, int index ) const;
+	TiXmlHandle Child( const char* value, int index ) const noexcept;
 	/** Return a handle to the "index" child. 
 		The first child is 0, the second 1, etc.
 	*/
@@ -1695,12 +1706,12 @@ public:
 		The first child m_pElement is 0, the second 1, etc. Note that only TiXmlElements
 		are indexed: other types are not counted.
 	*/
-	TiXmlHandle ChildElement( const char* value, int index ) const;
+	TiXmlHandle ChildElement( const char* value, int index ) const noexcept;
 	/** Return a handle to the "index" child m_pElement. 
 		The first child m_pElement is 0, the second 1, etc. Note that only TiXmlElements
 		are indexed: other types are not counted.
 	*/
-	TiXmlHandle ChildElement( int index ) const;
+	TiXmlHandle ChildElement( int index ) const noexcept;
 
 	#ifdef TIXML_USE_STL
 	TiXmlHandle FirstChild( const std::string& _value ) const				{ return FirstChild( _value.c_str() ); }
@@ -1772,8 +1783,8 @@ public:
 		buffer(), indent( "    " ), lineBreak( "\n" )
 	{}
 
-	virtual bool VisitEnter( const TiXmlDocument& doc );
-	virtual bool VisitExit( const TiXmlDocument& doc );
+	virtual bool VisitEnter( const TiXmlDocument& doc ) noexcept;
+	virtual bool VisitExit( const TiXmlDocument& doc ) noexcept;
 
 	virtual bool VisitEnter( const TiXmlElement& element, const TiXmlAttribute* firstAttribute );
 	virtual bool VisitExit( const TiXmlElement& element );
@@ -1814,11 +1825,13 @@ public:
 	#endif
 
 private:
-	void DoIndent()	{
+	void DoIndent()
+	{
 		for( int i=0; i<depth; ++i )
 			buffer += indent;
 	}
-	void DoLineBreak() {
+	void DoLineBreak()
+	{
 		buffer += lineBreak;
 	}
 

@@ -63,18 +63,18 @@ public:
 	LayoutCell(const LayoutCell &) = delete;
 	LayoutCell &operator =(const LayoutCell &) = delete;	// No assignments!
 
-	LayoutCell( );
-	explicit LayoutCell( const HWND mHwnd );
-	LayoutCell( const HWND mHwnd, const RECT & rc );
-	explicit LayoutCell( DcxControl * dcxc );
+	LayoutCell( ) noexcept;
+	explicit LayoutCell( const HWND mHwnd ) noexcept;
+	LayoutCell( const HWND mHwnd, const RECT & rc ) noexcept;
+	explicit LayoutCell( DcxControl * dcxc ) noexcept;
 
-	virtual ~LayoutCell( );
+	virtual ~LayoutCell( ) noexcept;
 
-	void setRect(RECT & rc);
+	void setRect(RECT & rc) noexcept;
 	void getRect( RECT & rc ) const noexcept;
 	void getClientRect( RECT & rc ) const noexcept;
-	void setBorder( const RECT & rc );
-	void setBorder( const int &nBorder );
+	void setBorder( const RECT & rc ) noexcept;
+	void setBorder( const int &nBorder ) noexcept;
 	void getBorder( RECT & rc ) const noexcept;
 
 	virtual void LayoutChild( ) = 0;
@@ -92,7 +92,7 @@ public:
 	LayoutCell * getParent( ) const noexcept;
 	LayoutCell * getNextSibling( ) const noexcept;
 
-	const bool isVisible( ) const;
+	const bool isVisible( ) const noexcept;
 
 	const size_t	&size(void) const noexcept { return m_iCount; }
 	const bool		empty(void) const noexcept { return (m_iCount == 0); }

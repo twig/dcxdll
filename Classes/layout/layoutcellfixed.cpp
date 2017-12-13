@@ -20,7 +20,7 @@
  * blah
  */
 
-LayoutCellFixed::LayoutCellFixed(DcxControl * dcxc, const FixedType nType)
+LayoutCellFixed::LayoutCellFixed(DcxControl * dcxc, const FixedType nType) noexcept
 : LayoutCell(dcxc)
 , m_nType(nType)
 {
@@ -32,7 +32,7 @@ LayoutCellFixed::LayoutCellFixed(DcxControl * dcxc, const FixedType nType)
  * blah
  */
 
-LayoutCellFixed::LayoutCellFixed(const HWND mHwnd, const FixedType nType)
+LayoutCellFixed::LayoutCellFixed(const HWND mHwnd, const FixedType nType) noexcept
 : LayoutCell(mHwnd)
 , m_nType(nType)
 {
@@ -44,7 +44,7 @@ LayoutCellFixed::LayoutCellFixed(const HWND mHwnd, const FixedType nType)
  * blah
  */
 
-LayoutCellFixed::LayoutCellFixed(const RECT & rc, const FixedType nType)
+LayoutCellFixed::LayoutCellFixed(const RECT & rc, const FixedType nType) noexcept
 : LayoutCell(nullptr, rc)
 , m_nType(nType)
 {
@@ -56,7 +56,7 @@ LayoutCellFixed::LayoutCellFixed(const RECT & rc, const FixedType nType)
  * blah
  */
 
-LayoutCellFixed::LayoutCellFixed(const HWND mHwnd, const RECT & rc, const FixedType nType)
+LayoutCellFixed::LayoutCellFixed(const HWND mHwnd, const RECT & rc, const FixedType nType) noexcept
 : LayoutCell(mHwnd, rc)
 , m_nType(nType)
 {
@@ -68,7 +68,7 @@ LayoutCellFixed::LayoutCellFixed(const HWND mHwnd, const RECT & rc, const FixedT
  * blah
  */
 
-LayoutCellFixed::~LayoutCellFixed()
+LayoutCellFixed::~LayoutCellFixed() noexcept
 {
 }
 

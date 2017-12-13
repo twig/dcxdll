@@ -49,7 +49,7 @@ class XMenuBar {
 		VectorOfXPopupMenu m_vpXMenuBar; //!< Vector of XPopupMenu objects added to the menubar.
 		TString m_callback;
 
-		const int findMenuOffset(HMENU menubar, const XPopupMenu *const p_menu) const;
+		const int findMenuOffset(HMENU menubar, const XPopupMenu *const p_menu) const noexcept;
 		static void validateMenu(const XPopupMenu *const menu, const TString &name);
 };
 #endif // _XMENUBAR_H_

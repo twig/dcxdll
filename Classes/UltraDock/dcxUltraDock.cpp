@@ -49,7 +49,7 @@ void InitUltraDock(void)
 /*
 	*	Eject ALL Docked dialogs.
 */
-void CloseUltraDock(void)
+void CloseUltraDock(void) noexcept
 {
 	EnumChildWindows(mIRCLinker::getHWND(),EnumDocked, NULL);
 

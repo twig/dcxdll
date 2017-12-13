@@ -21,6 +21,11 @@ public:
 	{}
 	virtual ~DcxModule(void) noexcept {};
 
+	DcxModule(const DcxModule &other) = delete;	// no copy constructor
+	DcxModule(const DcxModule &&other) = delete;	// no move constructor
+	DcxModule &operator =(const DcxModule &) = delete;	// No assignments!
+	DcxModule &operator =(const DcxModule &&) = delete;	// No move assignments!
+
 	bool isUseable() const noexcept	{ return !(m_hModule == nullptr); }
 
 	virtual bool load() = 0;

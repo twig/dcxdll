@@ -35,23 +35,23 @@ public:
 	DcxWindow(const DcxWindow &other) = delete;
 	DcxWindow &operator =(const DcxWindow &) = delete;	// No assignments!
 
-	DcxWindow( const HWND mHwnd, const UINT mID );
-	explicit DcxWindow( const UINT mID );
-	virtual ~DcxWindow( );
+	DcxWindow( const HWND mHwnd, const UINT mID ) noexcept;
+	explicit DcxWindow( const UINT mID ) noexcept;
+	virtual ~DcxWindow( ) noexcept;
 
 	bool isStyle( const WindowStyle Styles ) const noexcept;
-	WindowStyle removeStyle( const WindowStyle Styles );
-	WindowStyle addStyle( const WindowStyle Styles );
-	WindowStyle setStyle( const WindowStyle Styles );
+	WindowStyle removeStyle( const WindowStyle Styles ) noexcept;
+	WindowStyle addStyle( const WindowStyle Styles ) noexcept;
+	WindowStyle setStyle( const WindowStyle Styles ) noexcept;
 	bool isExStyle( const WindowExStyle Styles ) const noexcept;
-	WindowExStyle removeExStyle( const WindowExStyle Styles );
-	WindowExStyle addExStyle( const WindowExStyle Styles );
-	WindowExStyle setExStyle( const WindowExStyle Styles );
+	WindowExStyle removeExStyle( const WindowExStyle Styles ) noexcept;
+	WindowExStyle addExStyle( const WindowExStyle Styles ) noexcept;
+	WindowExStyle setExStyle( const WindowExStyle Styles ) noexcept;
 
 	const HWND &getHwnd( ) const noexcept;
 	const UINT &getID( ) const noexcept;
 
-	void redrawWindow( );
+	void redrawWindow( ) noexcept;
 	void redrawBufferedWindow( );
 	virtual void toXml(TiXmlElement *const xml) const = 0;
 
@@ -59,11 +59,11 @@ public:
 	//virtual void parseInfoRequest( const TString & input, TCHAR * szReturnValue ) const = 0;
 	virtual void parseInfoRequest(const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const = 0;
 	static PTCHAR parseCursorType(const TString & cursor);
-	static UINT parseCursorFlags(const TString & flags);
-	static UINT parseCursorArea(const TString &flags);
-	static HIMAGELIST createImageList(bool bBigIcons = false);
+	static UINT parseCursorFlags(const TString & flags) noexcept;
+	static UINT parseCursorArea(const TString &flags) noexcept;
+	static HIMAGELIST createImageList(bool bBigIcons = false) noexcept;
 
-	LRESULT CallDefaultProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+	LRESULT CallDefaultProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept;
 
 protected:
 	WNDPROC m_hDefaultWindowProc; //!< Old Window Procedure

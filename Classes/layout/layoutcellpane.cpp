@@ -21,7 +21,7 @@
  * blah
  */
 
-LayoutCellPane::LayoutCellPane( const PaneType nType )
+LayoutCellPane::LayoutCellPane( const PaneType nType ) noexcept
 : LayoutCell( )
 , m_nType( nType )
 , m_vpCells()
@@ -34,7 +34,7 @@ LayoutCellPane::LayoutCellPane( const PaneType nType )
  * blah
  */
 
-LayoutCellPane::~LayoutCellPane( )
+LayoutCellPane::~LayoutCellPane( ) noexcept
 {
 	for (const auto &x: m_vpCells)
 		delete x.first;
@@ -141,6 +141,8 @@ void LayoutCellPane::getMinMaxInfo( CellMinMaxInfo *const pCMMI ) const
 
 	for (const auto &[pChild, nWeight]: this->m_vpCells)
 	{
+		UNREFERENCED_PARAMETER(nWeight);
+
 		if (pChild != nullptr)
 		{
 			if (pChild->isVisible())

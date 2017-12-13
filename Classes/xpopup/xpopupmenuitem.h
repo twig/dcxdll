@@ -82,7 +82,7 @@ public:
 	XPopupMenuItem(const XPopupMenuItem &) = delete;
 	XPopupMenuItem &operator = (const XPopupMenuItem &) = delete;
 
-	XPopupMenuItem( XPopupMenu * Parent, const bool bSep, ULONG_PTR dwDataBackup = NULL );
+	XPopupMenuItem( XPopupMenu * Parent, const bool bSep, ULONG_PTR dwDataBackup = NULL ) noexcept;
 	XPopupMenuItem( XPopupMenu * Parent, const TString &tsItemText, const int nIcon, const bool bSubMenu, ULONG_PTR dwDataBackup = NULL );
 	virtual ~XPopupMenuItem( ) noexcept;
 
@@ -90,19 +90,40 @@ public:
 	void DrawItemBackground( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol );
 	void DrawItemBox( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol );
 	void DrawItemText( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol, const bool bDis = false );
-	void DrawItemIcon( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol, const UINT iExStyles, const bool bSel = false, const bool bDis = false );
-	void DrawItemSeparator( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol );
+	void DrawItemIcon( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol, const UINT iExStyles, const bool bSel = false, const bool bDis = false ) noexcept;
+	void DrawItemSeparator( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol ) noexcept;
 
 	SIZE getItemSize( const HWND mHwnd );
 
-	static void DrawItemSelection(const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol, const bool bDis = false, const bool bRounded = false);
-	static void DrawItemCheckBox(const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol, const bool bDis = false);
-	static void DrawItemSubArrow(const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol, const bool bDis = false);
+	static void DrawItemSelection(const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol, const bool bDis = false, const bool bRounded = false) noexcept;
+	static void DrawItemCheckBox(const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol, const bool bDis = false) noexcept;
+	static void DrawItemSubArrow(const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol, const bool bDis = false) noexcept;
 	static bool DrawMenuBitmap(const LPDRAWITEMSTRUCT lpdis, const bool bBigImage, const HBITMAP bmImage);
-	static void DrawGradient(const HDC hdc, const LPRECT lprc, const COLORREF clrStart, const COLORREF clrEnd, const bool bHorz = false);
+	static void DrawGradient(const HDC hdc, const LPRECT lprc, const COLORREF clrStart, const COLORREF clrEnd, const bool bHorz = false) noexcept;
 	static void DrawVerticalBar( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol, const bool bReversed);
+
 	static COLORREF LightenColor( const UINT iScale, const COLORREF clrColor ) noexcept;
 	static COLORREF DarkenColor( const UINT iScale, const COLORREF clrColor ) noexcept;
+
+	// oddly the functions below cause VS2017 15.5.1 to crash
+	//constexpr COLORREF LightenColor(const UINT iScale, const COLORREF clrColor) noexcept
+	//{
+	//	const auto nScale = gsl::narrow_cast<int>(iScale);
+	//	const auto R = Dcx::dcxMulDiv32(255 - GetRValue(clrColor), nScale, 255) + GetRValue(clrColor);
+	//	const auto G = Dcx::dcxMulDiv32(255 - GetGValue((clrColor & 0xFFFF)), nScale, 255) + GetGValue((clrColor & 0xFFFF));
+	//	const auto B = Dcx::dcxMulDiv32(255 - GetBValue(clrColor), nScale, 255) + GetBValue(clrColor);
+
+	//	return RGB(R, G, B);
+	//}
+	//constexpr COLORREF DarkenColor(const UINT iScale, const COLORREF clrColor) noexcept
+	//{
+	//	const auto nScale = gsl::narrow_cast<int>(iScale);
+	//	const auto R = Dcx::dcxMulDiv32(GetRValue(clrColor), (255 - nScale), 255);
+	//	const auto G = Dcx::dcxMulDiv32(GetGValue((clrColor & 0xFFFF)), (255 - nScale), 255);
+	//	const auto B = Dcx::dcxMulDiv32(GetBValue(clrColor), (255 - nScale), 255);
+
+	//	return RGB(R, G, B);
+	//}
 
 	void setSubMenu( const bool bSubMenu ) noexcept;
 	void setItemText( const TString & tsItemText );

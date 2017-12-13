@@ -554,7 +554,7 @@ void XPopupMenu::parseXPopIdentifier(const TString & input, const refString<TCHA
  * blah
  */
 
-HIMAGELIST &XPopupMenu::getImageList()
+HIMAGELIST &XPopupMenu::getImageList() noexcept
 {
 	if (m_hImageList == nullptr)
 		m_hImageList = ImageList_Create(16, 16, ILC_COLOR32 | ILC_MASK, 1, 0);
@@ -568,7 +568,7 @@ HIMAGELIST &XPopupMenu::getImageList()
  * blah
  */
 
-void XPopupMenu::destroyImageList()
+void XPopupMenu::destroyImageList() noexcept
 {
 	if (this->m_hImageList != nullptr)
 		ImageList_Destroy(this->m_hImageList);
@@ -957,7 +957,7 @@ void XPopupMenu::convertMenu(HMENU hMenu, const BOOL bForce)
  * blah
  */
 
-void XPopupMenu::cleanMenu(HMENU hMenu)
+void XPopupMenu::cleanMenu(HMENU hMenu) noexcept
 {
 	MENUITEMINFO mii{};
 	//ZeroMemory(&mii, sizeof(MENUITEMINFO));
@@ -989,7 +989,7 @@ void XPopupMenu::cleanMenu(HMENU hMenu)
  * blah
  */
 
-void XPopupMenu::clearAllMenuItems()
+void XPopupMenu::clearAllMenuItems() noexcept
 {
 	for (const auto &a : this->m_vpMenuItem)
 		delete a;
@@ -1003,7 +1003,7 @@ void XPopupMenu::clearAllMenuItems()
  * blah
  */
 
-void XPopupMenu::setBackBitmap(HBITMAP hBitmap)
+void XPopupMenu::setBackBitmap(HBITMAP hBitmap) noexcept
 {
 	if (this->m_hBitmap != nullptr)
 		DeleteBitmap(this->m_hBitmap);

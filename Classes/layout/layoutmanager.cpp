@@ -31,7 +31,7 @@
  * blah
  */
 
-LayoutManager::LayoutManager(HWND mHwnd)
+LayoutManager::LayoutManager(HWND mHwnd) noexcept
 : m_pRoot(nullptr)
 , m_Hwnd(mHwnd)
 , m_iCount(0)
@@ -92,7 +92,7 @@ const bool LayoutManager::updateLayout(RECT & rc)
  * blah
  */
 
-void LayoutManager::setRoot(std::unique_ptr<LayoutCell> p_Root)
+void LayoutManager::setRoot(std::unique_ptr<LayoutCell> p_Root) noexcept
 {
 	// clean memory in case we use more than once
 	//delete m_pRoot;
@@ -182,7 +182,7 @@ void LayoutManager::AddCell(const TString &input, const UINT iOffset)
 
 	if ((com == TEXT("root"_hash)) || com == TEXT("cell"_hash))
 	{
-		auto cHwnd = GetDlgItem(m_Hwnd, static_cast<int>(mIRC_ID_OFFSET + ID));
+		const auto cHwnd = GetDlgItem(m_Hwnd, static_cast<int>(mIRC_ID_OFFSET + ID));
 
 		std::unique_ptr<LayoutCell> p_Cell = nullptr;
 
@@ -273,7 +273,7 @@ void LayoutManager::AddCell(const TString &input, const UINT iOffset)
 			if (p_GetCell->getType() != LayoutCell::PANE)
 				throw Dcx::dcxException("Invalid parent Cell");
 
-			auto p_PaneCell = (LayoutCellPane *)p_GetCell;
+			const auto p_PaneCell = (LayoutCellPane *)p_GetCell;
 			p_PaneCell->addChild(p_Cell.release(), WGT);
 		} // else if ( com == TEXT("cell") )
 
@@ -297,7 +297,7 @@ void LayoutManager::AddCell(const TString &input, const UINT iOffset)
 		throw Dcx::dcxException("Invalid command");
 }
 
-const UINT LayoutManager::parseLayoutFlags(const TString & flags)
+const UINT LayoutManager::parseLayoutFlags(const TString & flags) noexcept
 {
 	const XSwitchFlags xflags(flags);
 	UINT iFlags = 0;
