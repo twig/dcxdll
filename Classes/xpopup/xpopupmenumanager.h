@@ -56,7 +56,10 @@ public:
 	//XPopupMenuManager( );
 	//virtual ~XPopupMenuManager( );
 
-	XPopupMenuManager() : m_mIRCPopupMenu(nullptr), m_mIRCMenuBar(nullptr), m_mIRCScriptMenu(nullptr), m_bIsMenuBar(false), m_bIsSysMenu(false), m_bIsActiveMircPopup(false), m_bIsActiveMircMenubarPopup(false), m_hMenuCustom(nullptr), m_hMenuOwner(nullptr), m_vpXPMenu() {}
+	XPopupMenuManager() noexcept
+		: m_mIRCPopupMenu(nullptr), m_mIRCMenuBar(nullptr), m_mIRCScriptMenu(nullptr), m_bIsMenuBar(false), m_bIsSysMenu(false)
+		, m_bIsActiveMircPopup(false), m_bIsActiveMircMenubarPopup(false), m_hMenuCustom(nullptr), m_hMenuOwner(nullptr), m_vpXPMenu()
+	{}
 	~XPopupMenuManager() = default;
 
 	void load(void);
@@ -72,13 +75,14 @@ public:
 	void deleteMenu( const XPopupMenu *const p_Menu );
 	void clearMenus( );
 
-	void setIsMenuBar(const bool value);
+	constexpr void setIsMenuBar(const bool value) noexcept { m_bIsMenuBar = value; }
 
 	XPopupMenu* getMenuByHash(const std::size_t uHash, const bool bCheckSpecial) const noexcept;
 	XPopupMenu* getMenuByName(const TString &tsName, const bool bCheckSpecial) const noexcept;
 	XPopupMenu* getMenuByHandle(const HMENU hMenu) const noexcept;
-	XPopupMenu* getmIRCPopup(void) const noexcept;
-	XPopupMenu* getmIRCMenuBar(void) const noexcept;
+
+	XPopupMenu* getmIRCPopup(void) const noexcept { return m_mIRCPopupMenu.get(); }
+	XPopupMenu* getmIRCMenuBar(void) const noexcept { return m_mIRCMenuBar.get(); }
 	XPopupMenu* getmIRCScriptMenu(void) const noexcept { return m_mIRCScriptMenu.get(); };
 
 	const bool isCustomMenu(const HMENU hMenu) const;

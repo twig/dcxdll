@@ -45,7 +45,8 @@ XPopupMenuItem::XPopupMenuItem( XPopupMenu * Parent, const TString &tsItemText, 
  * blah
  */
 
-XPopupMenuItem::~XPopupMenuItem( ) {
+XPopupMenuItem::~XPopupMenuItem( ) noexcept
+{
 
 }
 
@@ -114,63 +115,50 @@ const int &XPopupMenuItem::getItemIcon(  ) const noexcept
 
 SIZE XPopupMenuItem::getItemSize( const HWND mHwnd )
 {
-	SIZE size{};
+	if (this->m_bSep)
+		return{ XPMI_BOXLPAD + XPMI_BOXWIDTH + XPMI_BOXRPAD, XPMI_SEPHEIGHT };
 
-	if ( !this->m_bSep )
+	if (const auto typeHash = m_pXParentMenu->getNameHash(); ((typeHash == TEXT("mirc"_hash)) || (typeHash == TEXT("mircbar"_hash)) || (typeHash == TEXT("dialog"_hash))))
 	{
-		if (const auto typeHash = m_pXParentMenu->getNameHash(); ((typeHash == TEXT("mirc"_hash)) || (typeHash == TEXT("mircbar"_hash)) || (typeHash == TEXT("dialog"_hash))))
+		if (m_tsItemText.numtok(TEXT('\v')) > 1)
 		{
-			if (m_tsItemText.numtok(TEXT('\v')) > 1)
-			{
-				m_nIcon = m_tsItemText.getfirsttok(1, TEXT('\v')).to_int() - 1;		// tok 1, TEXT("\v")
-				m_tsItemText = m_tsItemText.getnexttok(TEXT('\v')).trim();				// tok 2, TEXT("\v")
-			}
+			m_nIcon = m_tsItemText.getfirsttok(1, TEXT('\v')).to_int() - 1;		// tok 1, TEXT("\v")
+			m_tsItemText = m_tsItemText.getnexttok(TEXT('\v')).trim();			// tok 2, TEXT("\v")
 		}
-		else
-			//mIRCLinker::tsEval(m_tsItemText, m_tsItemText.to_chr());
-			mIRCLinker::eval(m_tsItemText, m_tsItemText);
-
-		//check if the first char is $chr(12), if so then the text is utf8 (this is kept for compatability with old script only)
-		if (m_tsItemText[0] == 12)
-		{
-			// remove $chr(12) from text and trim whitespaces
-			m_tsItemText = m_tsItemText.right(-1).trim();
-		}
-
-		// Odd error in size returned by GetTextExtentPoint32() when dealing with utf text, length is cut short for some reason...
-		// text needs normalized?
-		//GetTextExtentPoint32( hdc, this->m_tsItemText.to_chr( ), this->m_tsItemText.len( ), &size );
-
-		//RECT rc{};
-		//DrawText(hdc, this->m_tsItemText.to_chr(), gsl::narrow_cast<int>(this->m_tsItemText.len()), &rc, DT_CALCRECT | DT_LEFT | DT_SINGLELINE | DT_VCENTER);
-		//size.cx = (rc.right - rc.left);
-
-		auto hdc = GetDC(mHwnd);
-		if (hdc != nullptr)
-		{
-			Auto(ReleaseDC(mHwnd, hdc));
-
-			RECT rc{};
-			TString tsStripped(m_tsItemText);
-			tsStripped.strip();
-			DrawText(hdc, tsStripped.to_chr(), gsl::narrow_cast<int>(tsStripped.len()), &rc, DT_CALCRECT | DT_LEFT | DT_SINGLELINE | DT_VCENTER);
-			size.cx = std::max<long>((rc.right - rc.left), XPMI_MINSTRING);
-		}
-		size.cy = XPMI_HEIGHT;
 	}
 	else
-		size.cy = XPMI_SEPHEIGHT;
+		mIRCLinker::eval(m_tsItemText, m_tsItemText);
 
-	size.cx += XPMI_BOXLPAD + XPMI_BOXWIDTH + XPMI_BOXRPAD;
+	//check if the first char is $chr(12), if so then the text is utf8 (this is kept for compatability with old script only)
+	if (m_tsItemText[0] == 12)
+	{
+		// remove $chr(12) from text and trim whitespaces
+		m_tsItemText = m_tsItemText.right(-1).trim();
+	}
+
+	SIZE size{ XPMI_BOXLPAD + XPMI_BOXWIDTH + XPMI_BOXRPAD, XPMI_HEIGHT };
+
+	if (const auto hdc = GetDC(mHwnd); hdc != nullptr)
+	{
+		Auto(ReleaseDC(mHwnd, hdc));
+
+		RECT rc{};
+		TString tsStripped(m_tsItemText);
+		tsStripped.strip();
+		DrawText(hdc, tsStripped.to_chr(), gsl::narrow_cast<int>(tsStripped.len()), &rc, DT_CALCRECT | DT_LEFT | DT_SINGLELINE | DT_VCENTER);
+		size.cx += std::max<long>((rc.right - rc.left), XPMI_MINSTRING);
+
+		//// Odd error in size returned by GetTextExtentPoint32() when dealing with utf text, length is cut short for some reason...
+		//TString tsStripped(m_tsItemText);
+		//tsStripped.strip();
+		//tsStripped.Normalize();
+		//GetTextExtentPoint32(hdc, tsStripped.to_chr(), tsStripped.len(), &size);
+		//size.cx += std::max<long>(size.cx, XPMI_MINSTRING);
+	}
 
 	return size;
 }
 	
-const ULONG_PTR &XPopupMenuItem::getItemDataBackup() const noexcept
-{
-	return m_dwItemDataBackup;
-}
-
 /*!
  * \brief blah
  *
@@ -310,7 +298,7 @@ void XPopupMenuItem::DrawItemBackground(const LPDRAWITEMSTRUCT lpdis, const LPXP
 	case XPopupMenu::XPMS_VERTICAL_REV:
 	default:
 	{
-		if (auto hBrush = CreateSolidBrush(lpcol->m_clrBack); hBrush != nullptr)
+		if (const auto hBrush = CreateSolidBrush(lpcol->m_clrBack); hBrush != nullptr)
 		{
 			FillRect(lpdis->hDC, &lpdis->rcItem, hBrush);
 			DeleteBrush(hBrush);
@@ -342,7 +330,7 @@ void XPopupMenuItem::DrawItemBox(const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOL
 	{
 		RECT rc{ XPMI_BOXLPAD, lpdis->rcItem.top, XPMI_BOXLPAD + XPMI_BOXWIDTH, lpdis->rcItem.bottom };
 		
-		if (auto hBrush = CreateSolidBrush(lpcol->m_clrBox); hBrush != nullptr)
+		if (const auto hBrush = CreateSolidBrush(lpcol->m_clrBox); hBrush != nullptr)
 		{
 			FillRect(lpdis->hDC, &rc, hBrush);
 			DeleteBrush(hBrush);
@@ -370,7 +358,7 @@ void XPopupMenuItem::DrawItemBox(const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOL
 		if (this->m_bSep)
 			break;
 
-		RECT rc = lpdis->rcItem;
+		const RECT rc = lpdis->rcItem;
 
 		UINT uiStyle = DFCS_BUTTONPUSH | DFCS_ADJUSTRECT;
 		const auto bGrayed = dcx_testflag(lpdis->itemState, ODS_GRAYED);
@@ -415,7 +403,7 @@ void XPopupMenuItem::DrawItemSelection( const LPDRAWITEMSTRUCT lpdis, const LPXP
 	//	return;
 	//}
 
-	auto hPen = CreatePen( PS_SOLID, 1, lpcol->m_clrSelectionBorder );
+	const auto hPen = CreatePen( PS_SOLID, 1, lpcol->m_clrSelectionBorder );
 
 	if (hPen == nullptr)
 		return;
@@ -425,14 +413,14 @@ void XPopupMenuItem::DrawItemSelection( const LPDRAWITEMSTRUCT lpdis, const LPXP
 	Auto(SelectPen(lpdis->hDC, hOldPen));
 
 	
-	if (auto hBrush = CreateSolidBrush(bDis ? lpcol->m_clrDisabledSelection : lpcol->m_clrSelection); hBrush != nullptr)
+	if (const auto hBrush = CreateSolidBrush(bDis ? lpcol->m_clrDisabledSelection : lpcol->m_clrSelection); hBrush != nullptr)
 	{
 		Auto(DeleteBrush(hBrush));
 
-		auto hOldBrush = SelectBrush( lpdis->hDC, hBrush );
+		const auto hOldBrush = SelectBrush( lpdis->hDC, hBrush );
 		Auto(SelectBrush(lpdis->hDC, hOldBrush));
 
-		RECT rc = lpdis->rcItem;
+		const RECT rc = lpdis->rcItem;
 
 		if (bRounded)
 			RoundRect( lpdis->hDC, rc.left, rc.top, rc.right, rc.bottom, 10, 10 );
@@ -449,13 +437,13 @@ void XPopupMenuItem::DrawItemSelection( const LPDRAWITEMSTRUCT lpdis, const LPXP
 
 void XPopupMenuItem::DrawItemCheckBox( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol, const bool bDis )
 {
-	auto hBrush = CreateSolidBrush(bDis ? lpcol->m_clrDisabledCheckBox : lpcol->m_clrCheckBox);
+	const auto hBrush = CreateSolidBrush(bDis ? lpcol->m_clrDisabledCheckBox : lpcol->m_clrCheckBox);
 	Auto(DeleteBrush(hBrush));
 
-	auto hPenBorder = CreatePen(PS_SOLID, 1, lpcol->m_clrSelectionBorder);
+	const auto hPenBorder = CreatePen(PS_SOLID, 1, lpcol->m_clrSelectionBorder);
 	Auto(DeletePen(hPenBorder));
 
-	auto hPenText = CreatePen(PS_SOLID, 1, bDis ? lpcol->m_clrDisabledText : lpcol->m_clrText);
+	const auto hPenText = CreatePen(PS_SOLID, 1, bDis ? lpcol->m_clrDisabledText : lpcol->m_clrText);
 	Auto(DeletePen(hPenText));
 
 	if ((hBrush == nullptr) || (hPenBorder == nullptr) || (hPenText == nullptr))
@@ -572,7 +560,7 @@ void XPopupMenuItem::DrawItemText( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUC
 
 void XPopupMenuItem::DrawItemIcon( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol, const UINT iExStyles, const bool bSel, const bool bDis )
 {
-	if (auto himl = this->m_pXParentMenu->getImageList(); (himl != nullptr && this->m_nIcon > -1 && this->m_nIcon < ImageList_GetImageCount( himl ) ))
+	if (const auto himl = this->m_pXParentMenu->getImageList(); (himl != nullptr && this->m_nIcon > -1 && this->m_nIcon < ImageList_GetImageCount( himl ) ))
 	{
 		constexpr auto x = (XPMI_BOXLPAD + XPMI_BOXLPAD + XPMI_BOXWIDTH - XPMI_ICONSIZE) / 2;
 		const auto y = (lpdis->rcItem.top + lpdis->rcItem.bottom - XPMI_ICONSIZE) / 2;
@@ -676,7 +664,7 @@ void XPopupMenuItem::DrawItemSubArrow( const LPDRAWITEMSTRUCT lpdis, const LPXPM
 //	ExcludeClipRect( lpdis->hDC, lpdis->rcItem.right - 11, lpdis->rcItem.top, lpdis->rcItem.right, lpdis->rcItem.bottom );
 //#else
 
-	auto hPen = CreatePen(PS_SOLID, 1, bDis ? lpcol->m_clrDisabledText : lpcol->m_clrText);
+	const auto hPen = CreatePen(PS_SOLID, 1, bDis ? lpcol->m_clrDisabledText : lpcol->m_clrText);
 
 	if (hPen == nullptr)
 		return;
@@ -726,8 +714,7 @@ void XPopupMenuItem::DrawItemSeparator( const LPDRAWITEMSTRUCT lpdis, const LPXP
 	case XPopupMenu::XPMS_NORMAL:
 	case XPopupMenu::XPMS_BUTTON:
 	{
-
-		auto hPen = CreatePen(PS_SOLID, 1, lpcol->m_clrSeparatorLine);
+		const auto hPen = CreatePen(PS_SOLID, 1, lpcol->m_clrSeparatorLine);
 
 		if (hPen == nullptr)
 			break;
@@ -756,7 +743,7 @@ void XPopupMenuItem::DrawItemSeparator( const LPDRAWITEMSTRUCT lpdis, const LPXP
 	case XPopupMenu::XPMS_VERTICAL_REV:
 	default:
 	{
-		auto hPen = CreatePen(PS_SOLID, 1, lpcol->m_clrSeparatorLine);
+		const auto hPen = CreatePen(PS_SOLID, 1, lpcol->m_clrSeparatorLine);
 
 		if (hPen == nullptr)
 			break;
@@ -808,40 +795,35 @@ void XPopupMenuItem::DrawGradient( const HDC hdc, const LPRECT lprc, const COLOR
 	//vert [1] .Alpha  = 0xff00;
 	////vert [1] .Alpha  = 0x0C00;
 
-	TRIVERTEX        vert[2] = {
+	TRIVERTEX vert[2] = {
 		{ lprc->left, lprc->top, gsl::narrow_cast<COLOR16>((StartRed & 0xff) << 8), gsl::narrow_cast<COLOR16>((StartGreen & 0xff) << 8), gsl::narrow_cast<COLOR16>((StartBlue & 0xff) << 8), 0xff00 },
 		{ lprc->right, lprc->bottom, gsl::narrow_cast<COLOR16>((EndRed & 0xff) << 8), gsl::narrow_cast<COLOR16>((EndGreen & 0xff) << 8), gsl::narrow_cast<COLOR16>((EndBlue & 0xff) << 8), 0xff00 }
 	};
 
-	GRADIENT_RECT    gRect{0,1};
+	GRADIENT_RECT    gRect{ 0,1 };
 
 	const ULONG gMode = (bHorz) ? GRADIENT_FILL_RECT_V : GRADIENT_FILL_RECT_H;
 
 	if (!GradientFill(hdc,&vert[0],std::extent_v<decltype(vert)>,&gRect,1,gMode))
 	{
 		// if GradientFill fails do our own method.
-		auto n = 0;
-		const auto dy = 2;
-
-		if ( bHorz )
-			n = lprc->bottom - lprc->top - dy;
-		else
-			n = lprc->right - lprc->left - dy;
+		constexpr auto dy = 2;
+		const auto n = ( bHorz ) ? lprc->bottom - lprc->top - dy : lprc->right - lprc->left - dy;
 
 		RECT rc{};
 
 		for (auto dn = decltype(n){0}; dn <= n; dn += dy)
 		{
 			const auto Red = gsl::narrow_cast<BYTE>(MulDiv(gsl::narrow_cast<int>(EndRed) - StartRed, dn, n) + StartRed);
-			const auto Green = (BYTE)(MulDiv(gsl::narrow_cast<int>(EndGreen) - StartGreen, dn, n) + StartGreen);
-			const auto Blue = (BYTE)(MulDiv(gsl::narrow_cast<int>(EndBlue) - StartBlue, dn, n) + StartBlue);
+			const auto Green = gsl::narrow_cast<BYTE>(MulDiv(gsl::narrow_cast<int>(EndGreen) - StartGreen, dn, n) + StartGreen);
+			const auto Blue = gsl::narrow_cast<BYTE>(MulDiv(gsl::narrow_cast<int>(EndBlue) - StartBlue, dn, n) + StartBlue);
 
 			if ( bHorz )
 				SetRect( &rc, lprc->left, lprc->top + dn, lprc->right , lprc->top + dn + dy );
 			else
 				SetRect( &rc, lprc->left + dn, lprc->top, lprc->left + dn + dy, lprc->bottom );
 
-			if (auto hBrush = CreateSolidBrush(RGB(Red, Green, Blue)); hBrush != nullptr)
+			if (const auto hBrush = CreateSolidBrush(RGB(Red, Green, Blue)); hBrush != nullptr)
 			{
 				FillRect( hdc, &rc, hBrush );
 				DeleteBrush( hBrush );
@@ -969,9 +951,7 @@ bool XPopupMenuItem::DrawMenuBitmap(const LPDRAWITEMSTRUCT lpdis, const bool bBi
 	{
 		Dcx::dcxHDCBitmapResource hdcbmp(lpdis->hDC, bmImage);
 
-		BITMAP bmp{};
-
-		if (GetObject(bmImage, sizeof(BITMAP), &bmp) != 0)
+		if (BITMAP bmp{}; GetObject(bmImage, sizeof(BITMAP), &bmp) != 0)
 		{
 			const int oldMode = SetStretchBltMode(lpdis->hDC, STRETCH_HALFTONE);
 			SetBrushOrgEx(lpdis->hDC, 0, 0, nullptr);
@@ -1034,17 +1014,15 @@ bool XPopupMenuItem::DrawMenuBitmap(const LPDRAWITEMSTRUCT lpdis, const bool bBi
 
 	if (!bBigImage)
 	{
-		auto hdcbmp = CreateCompatibleDC(lpdis->hDC);
+		const auto hdcbmp = CreateCompatibleDC(lpdis->hDC);
 
 		if (hdcbmp == nullptr)
 			return false;
 		Auto(DeleteDC(hdcbmp));
 
-		BITMAP bmp{};
-
-		if (GetObject(bmImage, sizeof(BITMAP), &bmp) != 0)
+		if (BITMAP bmp{}; GetObject(bmImage, sizeof(BITMAP), &bmp) != 0)
 		{
-			auto hOldBm = SelectBitmap(hdcbmp, bmImage);
+			const auto hOldBm = SelectBitmap(hdcbmp, bmImage);
 			Auto(SelectBitmap(hdcbmp, hOldBm));
 
 			const auto oldMode = SetStretchBltMode(lpdis->hDC, STRETCH_HALFTONE);
@@ -1076,7 +1054,7 @@ bool XPopupMenuItem::DrawMenuBitmap(const LPDRAWITEMSTRUCT lpdis, const bool bBi
 		RECT rcIntersect{ 0, lpdis->rcItem.top, rcBar.right, lpdis->rcItem.bottom };
 
 		// set up a buffer to draw the whole whole menus background.
-		auto hdcBuffer = CreateHDCBuffer(lpdis->hDC, &rcBar);
+		const auto hdcBuffer = CreateHDCBuffer(lpdis->hDC, &rcBar);
 
 		if (hdcBuffer == nullptr)
 			return false;
@@ -1084,7 +1062,8 @@ bool XPopupMenuItem::DrawMenuBitmap(const LPDRAWITEMSTRUCT lpdis, const bool bBi
 
 		// draw into the buffer
 		auto hdcbmp = CreateCompatibleDC(lpdis->hDC);
-		if (hdcbmp != nullptr) {
+		if (hdcbmp != nullptr)
+		{
 			Auto(DeleteDC(hdcbmp));
 
 			BITMAP bmp{};

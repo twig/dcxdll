@@ -31,10 +31,10 @@ namespace Dcx {
 		{
 			
 		}
-		const TCHAR *const reason() const noexcept { return !tsErr.empty() ? tsErr.to_chr() : sUnknown_Err; }
+		const TCHAR *const reason() const noexcept { return !tsErr.empty() ? tsErr.to_chr() : &sUnknown_Err[0]; }
 	private:
 		static TString tsErr;
-		static constexpr TCHAR *sUnknown_Err = TEXT("Unknown Exception");
+		static constexpr TCHAR sUnknown_Err[] = TEXT("Unknown Exception");
 	};
 }
 

@@ -121,23 +121,95 @@ public:
 	HIMAGELIST &getImageList( );
 	void destroyImageList( );
 
-	const MenuStyle &getStyle( ) const noexcept;
-	void setStyle( const MenuStyle style ) noexcept;
-	const UINT &getItemStyle( ) const noexcept;
-	void setItemStyle( const UINT iExStyles ) noexcept;
+	const MenuStyle &getStyle() const noexcept
+	{
+		return this->m_MenuStyle;
+	}
+	constexpr void setStyle(const MenuStyle style) noexcept
+	{
+		this->m_MenuStyle = style;
+	}
+	const UINT &getItemStyle() const noexcept
+	{
+		return this->m_MenuItemStyles;
+	}
+	constexpr void setItemStyle(const UINT iExStyles) noexcept
+	{
+		this->m_MenuItemStyles = iExStyles;
+	}
 
 	void deleteMenuItemData(const XPopupMenuItem *const p_Item, LPMENUITEMINFO mii = nullptr);
 	void deleteAllItemData( HMENU hMenu );
 
-	const TString &getName( ) const noexcept;
+	const TString &getName() const noexcept
+	{
+		return this->m_tsMenuName;
+	}
 	const size_t &getNameHash() const noexcept { return m_menuNameHash;	}
 
 	const inline HMENU &getMenuHandle( ) const noexcept { return this->m_hMenu; };
 
-	const LPXPMENUCOLORS getColors( ) const noexcept;
+	const LPXPMENUCOLORS getColors() const noexcept
+	{
+		return (LPXPMENUCOLORS)&m_MenuColors;
+	}
 	void setColor( const MenuColours nColor, const COLORREF clrColor ) noexcept;
 	COLORREF getColor( const MenuColours nColor ) const noexcept;
-	void setDefaultColor(const MenuColours nColor) noexcept;
+	constexpr void setDefaultColor(const MenuColours nColor) noexcept
+	{
+		switch (nColor)
+		{
+		case XPMC_BACKGROUND:
+			this->m_MenuColors.m_clrBack = RGB(255, 255, 255);
+			break;
+
+		case XPMC_ICONBOX:
+			m_MenuColors.m_clrBox = RGB(184, 199, 146);
+			//m_MenuColors.m_clrLightBox = XPopupMenuItem::LightenColor(200, m_MenuColors.m_clrBox); // == XPopupMenuItem::LightenColor(200, RGB(184, 199, 146)) == RGB(240, 243, 231)
+			m_MenuColors.m_clrLightBox = RGB(240, 243, 231);
+			break;
+
+		case XPMC_CHECKBOX:
+			this->m_MenuColors.m_clrCheckBox = RGB(255, 128, 0);
+			break;
+
+		case XPMC_CHECKBOX_DISABLED:
+			this->m_MenuColors.m_clrDisabledCheckBox = RGB(200, 200, 200);
+			break;
+
+		case XPMC_SELECTIONBOX_DISABLED:
+			this->m_MenuColors.m_clrDisabledSelection = RGB(255, 255, 255);
+			break;
+
+		case XPMC_TEXT_DISABLED:
+			this->m_MenuColors.m_clrDisabledText = RGB(128, 128, 128);
+			break;
+
+		case XPMC_SELECTIONBOX:
+			this->m_MenuColors.m_clrSelection = RGB(255, 229, 179);
+			break;
+
+		case XPMC_SELECTIONBOX_BORDER:
+			this->m_MenuColors.m_clrSelectionBorder = RGB(0, 0, 0);
+			break;
+
+		case XPMC_SEPARATOR:
+			this->m_MenuColors.m_clrSeparatorLine = RGB(128, 128, 128);
+			break;
+
+		case XPMC_TEXT:
+			this->m_MenuColors.m_clrText = RGB(0, 0, 0);
+			break;
+
+		case XPMC_SELECTEDTEXT:
+			this->m_MenuColors.m_clrSelectedText = RGB(0, 0, 0);
+			break;
+
+		case XPMC_MAX:
+		default:
+			break;
+		}
+	}
 
 	static LRESULT CALLBACK XPopupWinProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
 
@@ -148,21 +220,30 @@ public:
 	static void cleanMenu( HMENU hMenu );
 	void clearAllMenuItems( );
 
-	HBITMAP getBackBitmap( ) const noexcept;
+	const HBITMAP &getBackBitmap() const noexcept
+	{
+		return m_hBitmap;
+	}
 	void setBackBitmap( HBITMAP hBitmap );
 
 	const inline bool &IsRounded(void) const noexcept { return this->m_bRoundedSel; };
 	const inline BYTE &IsAlpha(void) const noexcept { return this->m_uiAlpha; };
-	void SetRounded(const bool rounded) noexcept { this->m_bRoundedSel = rounded; };
-	void SetAlpha(const BYTE alpha) noexcept { this->m_uiAlpha = alpha; };
+	constexpr void SetRounded(const bool rounded) noexcept { this->m_bRoundedSel = rounded; };
+	constexpr void SetAlpha(const BYTE alpha) noexcept { this->m_uiAlpha = alpha; };
 
 	// Methods to attach and detach from mIRC menu.
 	bool attachToMenuBar(HMENU menubar, const TString &label);
 	void detachFromMenuBar(HMENU menubar);
 
 	// Methods to access marked text.
-	void setMarkedText(const TString &text);
-	const TString &getMarkedText() const noexcept;
+	void setMarkedText(const TString &text)
+	{
+		this->m_tsMarkedText = text;
+	}
+	const TString &getMarkedText() const noexcept
+	{
+		return this->m_tsMarkedText;
+	}
 
 	bool getMenuInfo(const UINT iMask, const TString &path, MENUITEMINFO &mii) const;
 

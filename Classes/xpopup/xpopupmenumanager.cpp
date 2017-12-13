@@ -115,7 +115,7 @@ void XPopupMenuManager::load(void)
 		// We've found the tools menu, next one is the scriptable popup.
 		if (label == TEXT("&Tools"))
 		{
-			auto scriptable = GetSubMenu(menu, gsl::narrow_cast<int>(i + 1));
+			const auto scriptable = GetSubMenu(menu, gsl::narrow_cast<int>(i + 1));
 
 			// TODO: check if the next one is "&Window"
 			//g_mIRCScriptMenu = new XPopupMenu(TEXT("scriptpopup"), scriptable);
@@ -164,26 +164,20 @@ void XPopupMenuManager::unload(void)
 
 LRESULT XPopupMenuManager::OnInitMenuPopup(HWND mHwnd, WPARAM wParam, LPARAM lParam)
 {
-	auto menu = reinterpret_cast<HMENU>(wParam);
-	const auto isWinMenu = (HIWORD(lParam) != FALSE);
-	auto currentMenubar = GetMenu(mIRCLinker::getHWND());
-	//const auto switchMenu = (g_mIRCScriptMenu != nullptr) &&                  // The mIRC scriptpopup menu has been wrapped,
-	//	              (menu == g_mIRCScriptMenu->getMenuHandle()) && // The menu the same as the one just shown,
-	//				  (currentMenubar != g_OriginalMenuBar) &&       // The menubar is our generated menubar,
-	//				  (g_OriginalMenuBar != nullptr);                   // And ensure it has been generated.
-
-	const auto switchMenu = (m_mIRCScriptMenu != nullptr) &&                  // The mIRC scriptpopup menu has been wrapped,
-		(menu == m_mIRCScriptMenu->getMenuHandle()) && // The menu the same as the one just shown,
-		(currentMenubar != g_OriginalMenuBar) &&       // The menubar is our generated menubar,
-		(g_OriginalMenuBar != nullptr);                   // And ensure it has been generated.
-
-	if (!isWinMenu)
+	if (const auto isWinMenu = (HIWORD(lParam) != FALSE); !isWinMenu)
 	{
+		const auto menu = reinterpret_cast<HMENU>(wParam);
+		const auto currentMenubar = GetMenu(mIRCLinker::getHWND());
+		const auto switchMenu = (m_mIRCScriptMenu != nullptr) &&                  // The mIRC scriptpopup menu has been wrapped,
+			(menu == m_mIRCScriptMenu->getMenuHandle()) && // The menu the same as the one just shown,
+			(currentMenubar != g_OriginalMenuBar) &&       // The menubar is our generated menubar,
+			(g_OriginalMenuBar != nullptr);                   // And ensure it has been generated.
+
 		if (switchMenu)
 			SetMenu(mIRCLinker::getHWND(), g_OriginalMenuBar);
 
 		// let mIRC populate the menus dynamically
-		auto lRes = mIRCLinker::callDefaultWindowProc(mHwnd, WM_INITMENUPOPUP, wParam, lParam);
+		const auto lRes = mIRCLinker::callDefaultWindowProc(mHwnd, WM_INITMENUPOPUP, wParam, lParam);
 
 		if (switchMenu)
 			SetMenu(mIRCLinker::getHWND(), currentMenubar);
@@ -194,14 +188,13 @@ LRESULT XPopupMenuManager::OnInitMenuPopup(HWND mHwnd, WPARAM wParam, LPARAM lPa
 
 			if (m_bIsActiveMircMenubarPopup)
 			{
-				auto hActive = (HWND)SendMessage(mIRCLinker::getMDIClient(), WM_MDIGETACTIVE, 0L, 0L);
 				const bool isCustomMenu = Dcx::XPopups.isCustomMenu(menu);
 
 				// Store the handle of the menu being displayed.
 				if (isCustomMenu && (m_hMenuCustom == nullptr))
 					m_hMenuCustom = menu;
 
-				if (((!IsZoomed(hActive) || GetSystemMenu(hActive,FALSE) != menu)) && (!isCustomMenu) && (m_hMenuCustom == nullptr)) // This checks for custom submenus.
+				if (const auto hActive = (HWND)SendMessage(mIRCLinker::getMDIClient(), WM_MDIGETACTIVE, 0L, 0L); ((!IsZoomed(hActive) || GetSystemMenu(hActive,FALSE) != menu)) && (!isCustomMenu) && (m_hMenuCustom == nullptr)) // This checks for custom submenus.
 					m_mIRCMenuBar->convertMenu(menu, TRUE);
 			}
 		}
@@ -217,6 +210,7 @@ LRESULT XPopupMenuManager::OnInitMenuPopup(HWND mHwnd, WPARAM wParam, LPARAM lPa
 	}
 	else
 		m_bIsSysMenu = true;
+
 	return mIRCLinker::callDefaultWindowProc(mHwnd, WM_INITMENUPOPUP, wParam, lParam);
 }
 
@@ -230,6 +224,7 @@ LRESULT XPopupMenuManager::OnUninitMenuPopup(HWND mHwnd, WPARAM wParam, LPARAM l
 
 	if (m_bIsMenuBar && !m_bIsSysMenu && m_bIsActiveMircMenubarPopup)
 		m_mIRCMenuBar->deleteAllItemData(menu);
+
 	return mIRCLinker::callDefaultWindowProc(mHwnd, WM_UNINITMENUPOPUP, wParam, lParam);
 }
 	
@@ -237,6 +232,7 @@ LRESULT XPopupMenuManager::OnExitMenuLoop(HWND mHwnd, WPARAM wParam, LPARAM lPar
 {
 	if (!m_bIsMenuBar && m_bIsActiveMircPopup)
 		m_mIRCMenuBar->clearAllMenuItems();
+
 	return mIRCLinker::callDefaultWindowProc(mHwnd, WM_EXITMENULOOP, wParam, lParam);
 }
 
@@ -258,20 +254,8 @@ LRESULT XPopupMenuManager::OnCommand(HWND mHwnd, WPARAM wParam, LPARAM lParam)
 		{
 			switch (LOWORD(wParam))
 			{
-				//case 110: // menubar, can't be re-enabled from menu obviously
-				//	{
-				//		if (IsWindowVisible(menubar))
-				//			mIRCSignalDCX(dcxSignal.xdock, TEXT("menubar disabled"));
-				//		else
-				//			mIRCSignalDCX(dcxSignal.xdock, TEXT("menubar enabled"));
-				//	}
-				//	break;
 			case 111: // toolbar
 			{
-				//if (IsWindowVisible(mIRCLinker::getToolbar()))
-				//	mIRCLinker::signalex(dcxSignal.xdock, TEXT("toolbar disabled"));
-				//else
-				//	mIRCLinker::signalex(dcxSignal.xdock, TEXT("toolbar enabled"));
 				if (IsWindowVisible(mIRCLinker::getToolbar()))
 					mIRCLinker::signal(TEXT("toolbar disabled"));
 				else
@@ -280,10 +264,6 @@ LRESULT XPopupMenuManager::OnCommand(HWND mHwnd, WPARAM wParam, LPARAM lParam)
 			break;
 			case 112: // switchbar
 			{
-				//if (IsWindowVisible(mIRCLinker::getSwitchbar()))
-				//	mIRCLinker::signalex(dcxSignal.xdock, TEXT("switchbar disabled"));
-				//else
-				//	mIRCLinker::signalex(dcxSignal.xdock, TEXT("switchbar enabled"));
 				if (IsWindowVisible(mIRCLinker::getSwitchbar()))
 					mIRCLinker::signal(TEXT("switchbar disabled"));
 				else
@@ -292,10 +272,6 @@ LRESULT XPopupMenuManager::OnCommand(HWND mHwnd, WPARAM wParam, LPARAM lParam)
 			break;
 			case 210: // treebar
 			{
-				//if (IsWindowVisible(mIRCLinker::getTreebar()))
-				//	mIRCLinker::signalex(dcxSignal.xdock, TEXT("treebar disabled"));
-				//else
-				//	mIRCLinker::signalex(dcxSignal.xdock, TEXT("treebar enabled"));
 				if (IsWindowVisible(mIRCLinker::getTreebar()))
 					mIRCLinker::signal(TEXT("treebar disabled"));
 				else
@@ -318,7 +294,7 @@ LRESULT XPopupMenuManager::OnCommand(HWND mHwnd, WPARAM wParam, LPARAM lParam)
 
 void XPopupMenuManager::parseCommand(const TString & input)
 {
-	auto p_Menu = getMenuByName(input.getfirsttok(1), true);	// tok 1
+	const auto p_Menu = getMenuByName(input.getfirsttok(1), true);	// tok 1
 	const XSwitchFlags flags(input.getnexttok());	// tok 2
 
 	// Special mIRC Menu
@@ -400,7 +376,7 @@ void XPopupMenuManager::parseCommand( const TString & input, XPopupMenu *const p
 		auto filename(input.getlasttoks());				// tok 5, -1
 
 #if DCX_USE_WRAPPERS
-		Dcx::dcxIconResource icon(index, filename, false, tsFlags);
+		const Dcx::dcxIconResource icon(index, filename, false, tsFlags);
 
 		ImageList_AddIcon(himl, icon);
 #else
@@ -472,7 +448,7 @@ void XPopupMenuManager::parseCommand( const TString & input, XPopupMenu *const p
 		/*
 		Add offsetting for multiple monitor based on supplied hwnd this menu is to be associated with
 		*/
-		if (auto hTrack = (HWND)input.getnexttok().to_<ULONG_PTR>(); (hTrack != nullptr && IsWindow(hTrack)))
+		if (const auto hTrack = (HWND)input.getnexttok().to_<ULONG_PTR>(); (hTrack != nullptr && IsWindow(hTrack)))
 		{
 			// map window relative pos ($mouse.x/y) to screen pos for TrackPopupMenuEx()
 			POINT pt{ x, y };
@@ -1049,15 +1025,10 @@ void XPopupMenuManager::deleteMenu( const XPopupMenu *const p_Menu )
 
 void XPopupMenuManager::clearMenus( )
 {
-	for (auto &a: this->m_vpXPMenu)
+	for (const auto &a: this->m_vpXPMenu)
 		delete a;
 
 	this->m_vpXPMenu.clear();
-}
-
-void XPopupMenuManager::setIsMenuBar(const bool value)
-{
-	m_bIsMenuBar = value;
 }
 
 /*!
@@ -1118,16 +1089,6 @@ XPopupMenu* XPopupMenuManager::getMenuByHandle(const HMENU hMenu) const noexcept
 	return nullptr;
 }
 
-XPopupMenu* XPopupMenuManager::getmIRCPopup(void) const noexcept
-{
-	return m_mIRCPopupMenu.get();
-}
-
-XPopupMenu* XPopupMenuManager::getmIRCMenuBar(void) const noexcept
-{
-	return m_mIRCMenuBar.get();
-}
-
 /*
  * Check if menu handle is a custom menu (don't include converted mIRC menus)
  */
@@ -1148,9 +1109,9 @@ const bool XPopupMenuManager::isMenuBarMenu(const HMENU hMenu, const HMENU hMatc
 {
 	const auto n = GetMenuItemCount(hMenu);
 
-	for (auto i = decltype(n){0}; i < n; i++)
+	for (auto i = decltype(n){0}; i < n; ++i)
 	{
-		if (auto hTemp = GetSubMenu(hMenu, i); hTemp != nullptr)
+		if (const auto hTemp = GetSubMenu(hMenu, i); hTemp != nullptr)
 		{
 			if (hTemp == hMatch)
 				return true;
@@ -1221,30 +1182,28 @@ void XPopupMenuManager::LoadPopupsFromXML(const TiXmlElement *const popups, cons
 	
 
 	// Destroy a menu which already exists
-	if (auto menu = Dcx::XPopups.getMenuByName(popupName, false); menu != nullptr)
+	if (const auto menu = Dcx::XPopups.getMenuByName(popupName, false); menu != nullptr)
 		Dcx::XPopups.deleteMenu(menu);
 
 	// Find global styles branch
 	auto globalStyles = popups->FirstChildElement("styles");
 
-	// Move to TEXT("all") branch
+	// Move to "all" branch
 	if (globalStyles != nullptr)
 		globalStyles = globalStyles->FirstChildElement("all");
 	else
 		globalStyles = nullptr;
 
 	// Create menu with style (from specific or global)
-	auto style = XPopupMenu::parseStyle(GetMenuAttributeFromXML("style", popup, globalStyles));
-	auto menu = new XPopupMenu(popupName, style);
+	const auto style = XPopupMenu::parseStyle(GetMenuAttributeFromXML("style", popup, globalStyles));
+	const auto menu = new XPopupMenu(popupName, style);
 
 	const TString colors(TEXT("bgcolour iconcolour cbcolour discbcolour disselcolour distextcolour selcolour selbordercolour seperatorcolour textcolour seltextcolour"));
 
 	UINT i = 1;
 	for (const auto &tmp: colors)
 	{
-		auto tsAttr = GetMenuAttributeFromXML(tmp.c_str(), popup, globalStyles);	// tok i
-
-		if (!tsAttr.empty())
+		if (auto tsAttr = GetMenuAttributeFromXML(tmp.c_str(), popup, globalStyles); !tsAttr.empty())
 		{
 			//mIRCLinker::tsEval(tsAttr, tsAttr.to_chr());
 			mIRCLinker::eval(tsAttr, tsAttr);
@@ -1274,7 +1233,7 @@ void XPopupMenuManager::LoadPopupsFromXML(const TiXmlElement *const popups, cons
 	Dcx::XPopups.addMenu(menu);
 
 	// Parse icons
-	if (auto element = popup->FirstChildElement("icons"); element != nullptr)
+	if (const auto *element = popup->FirstChildElement("icons"); element != nullptr)
 	{
 		for (element = element->FirstChildElement("icon"); element != nullptr; element = element->NextSiblingElement("icon"))
 		{

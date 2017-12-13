@@ -60,7 +60,7 @@ void XMenuBar::parseXMenuBarCommand(const TString &input)
 		if (numtok < 3)
 			throw Dcx::dcxException("Insufficient parameters");
 
-		auto p_Menu = Dcx::XPopups.getMenuByName(menuName, true);
+		const auto p_Menu = Dcx::XPopups.getMenuByName(menuName, true);
 
 		validateMenu(p_Menu, menuName);
 
@@ -78,7 +78,7 @@ void XMenuBar::parseXMenuBarCommand(const TString &input)
 		if (numtok < 2)
 			throw Dcx::dcxException("Insufficient parameters");
 
-		auto p_Menu = Dcx::XPopups.getMenuByName(menuName, true);
+		const auto p_Menu = Dcx::XPopups.getMenuByName(menuName, true);
 
 		validateMenu(p_Menu, menuName);
 

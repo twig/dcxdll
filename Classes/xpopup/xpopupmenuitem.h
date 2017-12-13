@@ -48,7 +48,7 @@ struct XPMENUCOLORS {
 	COLORREF m_clrSelectionBorder;		//!< Menu Item Selection Box Border Color
 	COLORREF m_clrSelectedText;			//!< Menu Item Selected Text Colour
 
-	XPMENUCOLORS()
+	XPMENUCOLORS() noexcept
 		: m_clrBack(RGB(255, 255, 255))
 		, m_clrBox(RGB(184, 199, 146))
 		, m_clrLightBox(RGB(240,243,231))
@@ -84,7 +84,7 @@ public:
 
 	XPopupMenuItem( XPopupMenu * Parent, const bool bSep, ULONG_PTR dwDataBackup = NULL );
 	XPopupMenuItem( XPopupMenu * Parent, const TString &tsItemText, const int nIcon, const bool bSubMenu, ULONG_PTR dwDataBackup = NULL );
-	virtual ~XPopupMenuItem( );
+	virtual ~XPopupMenuItem( ) noexcept;
 
 	void DrawItem(const LPDRAWITEMSTRUCT lpdis);
 	void DrawItemBackground( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol );
@@ -110,7 +110,10 @@ public:
 	const TString &getItemText( ) const noexcept;
 	const int &getItemIcon(  ) const noexcept;
 
-	const ULONG_PTR &getItemDataBackup() const noexcept;
+	const ULONG_PTR &getItemDataBackup() const noexcept
+	{
+		return m_dwItemDataBackup;
+	}
 
 protected:
 

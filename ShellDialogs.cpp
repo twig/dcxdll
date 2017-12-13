@@ -478,7 +478,7 @@ mIRC(BrowseDialog)
 
 // TODO: make this accept CSIDL stuff as initial folder.
 */
-gsl::owner<LPITEMIDLIST> GetFolderFromCSIDL(const int nCsidl)
+gsl::owner<LPITEMIDLIST> GetFolderFromCSIDL(const int nCsidl) noexcept
 {
 	if (LPITEMIDLIST pidlRoot = nullptr; S_OK == SHGetFolderLocation(nullptr, nCsidl, nullptr, 0, &pidlRoot))
 		return pidlRoot;
@@ -486,7 +486,7 @@ gsl::owner<LPITEMIDLIST> GetFolderFromCSIDL(const int nCsidl)
 	return nullptr;                // Caller assumes responsibility
 }
 
-int CALLBACK BrowseFolderCallback(HWND hwnd, UINT uMsg, LPARAM lParam, LPARAM lpData)
+int CALLBACK BrowseFolderCallback(HWND hwnd, UINT uMsg, LPARAM lParam, LPARAM lpData) noexcept
 {
 	switch (const auto extra = reinterpret_cast<LPXBROWSEDIALOGSETTINGS>(lpData); uMsg)
 	{
@@ -523,7 +523,7 @@ int CALLBACK BrowseFolderCallback(HWND hwnd, UINT uMsg, LPARAM lParam, LPARAM lp
 		//	SendMessage(hwnd, BFFM_SETSTATUSTEXT, 0, NULL);
 		//}
 
-		stString<MAX_PATH> sPath;
+		const stString<MAX_PATH> sPath;
 
 		if (SHGetPathFromIDList(reinterpret_cast<LPITEMIDLIST>(lParam), sPath))
 		{
@@ -962,7 +962,7 @@ mIRC(PickIcon)
 		//	wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("D_ERROR %d %s"), index, iconPath.get());
 		//return 3;
 
-		stString<MAX_PATH + 1U> sIconPath;
+		const stString<MAX_PATH + 1U> sIconPath;
 
 		GetFullPathName(tsFilename.to_chr(), sIconPath.size(), sIconPath, nullptr);
 
@@ -988,7 +988,7 @@ mIRC(PickIcon)
 /*
 * Icon Picker for WinXP SP2 & Win 2k3 (Others may or may not support it)
 */
-int dcxPickIconDlg(const gsl::not_null<HWND> &hwnd, gsl::not_null<LPWSTR> pszIconPath, const UINT &cchIconPath, gsl::not_null<int *> piIconIndex)
+int dcxPickIconDlg(const gsl::not_null<HWND> &hwnd, gsl::not_null<LPWSTR> pszIconPath, const UINT &cchIconPath, gsl::not_null<int *> piIconIndex) noexcept
 {
 	return PickIconDlg(hwnd, pszIconPath, cchIconPath, piIconIndex);
 }
