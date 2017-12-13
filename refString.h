@@ -26,14 +26,25 @@ struct refString
 	//constexpr refString(const refString<T,N> &other) = delete;
 	//constexpr refString(refString<T,N> &&other) = delete;
 
-	constexpr refString() : m_data(nullptr) {};
-	constexpr refString(const refString<T, N> &other) = default;
-	constexpr refString(refString<T, N> &&other) = default;
+	constexpr refString() noexcept
+		: m_data(nullptr)
+	{};
+
+	constexpr refString(const refString<T, N> &other) noexcept
+		: refString(other.m_data)
+	{	}
+
+	constexpr refString(refString<T, N> &&other) noexcept
+		: refString()
+	{
+		using std::swap;
+
+		swap(m_data, other.m_data);
+	}
 
 	constexpr explicit refString(const_pointer other) noexcept
 		: m_data(other)
-	{
-	}
+	{	}
 
 	constexpr refString(std::nullptr_t other) noexcept
 		: m_data(nullptr)
@@ -55,7 +66,7 @@ struct refString
 	//{
 	//}
 
-	~refString() = default;
+	~refString() noexcept {}
 
 	const refString<T,N> &operator =(const value_type *const other) const noexcept
 	{
@@ -106,7 +117,6 @@ struct refString
 
 		return *this;
 	}
-
 	const refString<T, N> &operator +=(const value_type &other) const noexcept
 	{
 		__assume(m_data != nullptr);
@@ -121,7 +131,11 @@ struct refString
 		}
 		return *this;
 	}
-
+	template <std::size_t otherSize>
+	const refString &operator +=(const_value_type(&other)[otherSize]) const noexcept
+	{
+		return (*this += &other[0]);
+	}
 	template <typename otherT, typename = std::enable_if_t<std::is_same_v<otherT::value_type, value_type> && std::is_member_function_pointer_v<decltype(&otherT::data)>> >
 	const refString<T, N> &operator +=(const otherT &other) const noexcept
 	{
@@ -136,33 +150,47 @@ struct refString
 		return *this;
 	}
 
+	template <std::size_t otherSize>
+	constexpr bool operator ==(const_value_type(&other)[otherSize]) const noexcept { return (*this == &other[0]); }
 	constexpr bool operator ==(const refString<T, N> &other) const noexcept { return (*this == other.data()); }
-	constexpr bool operator !=(const refString<T, N> &other) const noexcept { return !(*this == other); }
-
 	constexpr bool operator ==(const_pointer other) const noexcept
 	{
 		__assume(m_data != nullptr);
 		return (_ts_strncmp(m_data, other, N) == 0);
 	}
+
+	template <std::size_t otherSize>
+	constexpr bool operator !=(const_value_type(&other)[otherSize]) const noexcept { return !(*this == &other[0]); }
+	constexpr bool operator !=(const refString<T, N> &other) const noexcept { return !(*this == other); }
 	constexpr bool operator !=(const_pointer other) const noexcept { return !(*this == other); }
 
 	constexpr explicit operator bool() const noexcept { return !empty(); }
-	constexpr operator pointer() const noexcept
+	//constexpr operator pointer() const noexcept
+	//{
+	//	__assume(m_data != nullptr);
+	//	return const_cast<pointer>(m_data);
+	//}
+	constexpr operator const_pointer() const noexcept
 	{
 		__assume(m_data != nullptr);
-		return const_cast<pointer>(m_data);
+		return m_data;
 	}
 	constexpr reference operator [](const ptrdiff_type &iOffSet) const noexcept { return m_data[iOffSet]; }
-	constexpr size_type length() const
+	constexpr size_type length() const noexcept
 	{
 		__assume(m_data != nullptr);
 		return _ts_strnlen(m_data, N);
 	}
 	constexpr const size_type size() const noexcept { return N; }
-	constexpr pointer data() const noexcept
+	//constexpr pointer data() const noexcept
+	//{
+	//	__assume(m_data != nullptr);
+	//	return const_cast<pointer>(m_data);
+	//}
+	constexpr const_pointer data() const noexcept
 	{
 		__assume(m_data != nullptr);
-		return const_cast<pointer>(m_data);
+		return m_data;
 	}
 	constexpr bool empty() const noexcept { return (m_data == nullptr || m_data[0] == value_type()); }
 	constexpr void clear() const noexcept { if (!empty()) m_data[0] = value_type(); }
