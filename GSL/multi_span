@@ -1052,7 +1052,9 @@ struct dim_t<dynamic_range>
 {
     static const std::ptrdiff_t value = dynamic_range;
     const std::ptrdiff_t dvalue;
-    dim_t(std::ptrdiff_t size) : dvalue(size) {}
+    dim_t(std::ptrdiff_t size) noexcept
+		: dvalue(size)
+	{}
 };
 
 template <std::ptrdiff_t N, class = std::enable_if_t<(N >= 0)>>
