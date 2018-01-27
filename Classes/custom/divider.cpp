@@ -273,7 +273,7 @@ LRESULT CALLBACK DividerWndProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
  * blah
  */
 
-void Divider_SizeWindowContents(HWND mHwnd, const int nWidth, const int nHeight)
+void Divider_SizeWindowContents(HWND mHwnd, const int nWidth, const int nHeight) noexcept
 {
 	if (const auto lpdvdata = static_cast<LPDVCONTROLDATA>(GetProp(mHwnd, TEXT("dvc_data"))); dcx_testflag(GetWindowStyle(mHwnd), DVS_VERT))
 	{
@@ -295,7 +295,7 @@ void Divider_SizeWindowContents(HWND mHwnd, const int nWidth, const int nHeight)
  * blah
  */
 
-void DrawXorBar(HDC hdc, const int x1, const int y1, const int width, const int height)
+void DrawXorBar(HDC hdc, const int x1, const int y1, const int width, const int height) noexcept
 {
 	// Ook: Possibly pre-allocate these...
 	constexpr static const WORD _dotPatternBmp[8] =
@@ -304,7 +304,7 @@ void DrawXorBar(HDC hdc, const int x1, const int y1, const int width, const int 
 		0x00aa, 0x0055, 0x00aa, 0x0055
 	};
 
-	if (const auto hbm = CreateBitmap(8, 8, 1, 1, _dotPatternBmp); hbm != nullptr)
+	if (const auto hbm = CreateBitmap(8, 8, 1, 1, &_dotPatternBmp[0]); hbm != nullptr)
 	{
 		Auto(DeleteBitmap(hbm));
 
@@ -321,7 +321,7 @@ void DrawXorBar(HDC hdc, const int x1, const int y1, const int width, const int 
 	}
 }
 
-void Divider_GetChildControl(HWND mHwnd, const UINT pane, LPDVPANEINFO result)
+void Divider_GetChildControl(HWND mHwnd, const UINT pane, const LPDVPANEINFO result) noexcept
 {
 	SendMessage(mHwnd, DV_GETPANE, pane, (LPARAM)result);
 }
@@ -332,7 +332,7 @@ void Divider_GetChildControl(HWND mHwnd, const UINT pane, LPDVPANEINFO result)
  * blah
  */
 
-void Divider_CalcBarPos(HWND mHwnd, POINT * pt, RECT * rect)
+void Divider_CalcBarPos(HWND mHwnd, POINT * pt, RECT * rect) noexcept
 {
 	const auto lpdvdata = static_cast<LPDVCONTROLDATA>(GetProp(mHwnd, TEXT("dvc_data")));
 
@@ -378,7 +378,7 @@ void Divider_CalcBarPos(HWND mHwnd, POINT * pt, RECT * rect)
  * blah
  */
 
-LRESULT Divider_OnLButtonDown(HWND mHwnd, const UINT iMsg, WPARAM wParam, LPARAM lParam)
+LRESULT Divider_OnLButtonDown(HWND mHwnd, const UINT iMsg, WPARAM wParam, LPARAM lParam) noexcept
 {
 	const auto lpdvdata = static_cast<LPDVCONTROLDATA>(GetProp(mHwnd, TEXT("dvc_data")));
 
@@ -396,7 +396,7 @@ LRESULT Divider_OnLButtonDown(HWND mHwnd, const UINT iMsg, WPARAM wParam, LPARAM
 
 	SetCapture(mHwnd);
 
-	if (auto hdc = GetWindowDC(mHwnd); hdc != nullptr)
+	if (const auto hdc = GetWindowDC(mHwnd); hdc != nullptr)
 	{
 		Auto(ReleaseDC(mHwnd, hdc));
 
@@ -421,7 +421,7 @@ LRESULT Divider_OnLButtonDown(HWND mHwnd, const UINT iMsg, WPARAM wParam, LPARAM
  * blah
  */
 
-LRESULT Divider_OnLButtonUp(HWND mHwnd, const UINT iMsg, WPARAM wParam, LPARAM lParam)
+LRESULT Divider_OnLButtonUp(HWND mHwnd, const UINT iMsg, WPARAM wParam, LPARAM lParam) noexcept
 {
 	const auto lpdvdata = static_cast<LPDVCONTROLDATA>(GetProp(mHwnd, TEXT("dvc_data")));
 
@@ -438,7 +438,7 @@ LRESULT Divider_OnLButtonUp(HWND mHwnd, const UINT iMsg, WPARAM wParam, LPARAM l
 
 	Divider_CalcBarPos(mHwnd, &pt, &rect);
 
-	if (auto hdc = GetWindowDC(mHwnd); hdc != nullptr)
+	if (const auto hdc = GetWindowDC(mHwnd); hdc != nullptr)
 	{
 		Auto(ReleaseDC(mHwnd, hdc));
 
@@ -485,7 +485,7 @@ LRESULT Divider_OnLButtonUp(HWND mHwnd, const UINT iMsg, WPARAM wParam, LPARAM l
  * blah
  */
 
-LRESULT Divider_OnMouseMove(HWND mHwnd, const UINT iMsg, WPARAM wParam, LPARAM lParam)
+LRESULT Divider_OnMouseMove(HWND mHwnd, const UINT iMsg, WPARAM wParam, LPARAM lParam) noexcept
 {
 	const auto lpdvdata = static_cast<LPDVCONTROLDATA>(GetProp(mHwnd, TEXT("dvc_data")));
 
@@ -549,7 +549,7 @@ LRESULT Divider_OnMouseMove(HWND mHwnd, const UINT iMsg, WPARAM wParam, LPARAM l
 		{
 			if (pt.x != lpdvdata->m_iOldPos)
 			{
-				if (auto hdc = GetWindowDC(mHwnd); hdc != nullptr)
+				if (const auto hdc = GetWindowDC(mHwnd); hdc != nullptr)
 				{
 					Auto(ReleaseDC(mHwnd, hdc));
 
@@ -564,7 +564,7 @@ LRESULT Divider_OnMouseMove(HWND mHwnd, const UINT iMsg, WPARAM wParam, LPARAM l
 
 			if (pt.y != lpdvdata->m_iOldPos)
 			{
-				if (auto hdc = GetWindowDC(mHwnd); hdc != nullptr)
+				if (const auto hdc = GetWindowDC(mHwnd); hdc != nullptr)
 				{
 					Auto(ReleaseDC(mHwnd, hdc));
 
