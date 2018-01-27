@@ -67,7 +67,7 @@ protected:
 
 	void AdjustMinSize( UINT & nSizeLeft, UINT & nTotalWeight );
 	void AdjustSize( UINT & nSizeLeft, UINT & nTotalWeight );
-	void AdjustPos( );
+	void AdjustPos( ) noexcept;
 
 };
 

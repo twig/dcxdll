@@ -329,7 +329,7 @@ void LayoutCellPane::AdjustSize( UINT & nSizeLeft, UINT & nTotalWeight )
  * blah
  */
 
-void LayoutCellPane::AdjustPos( )
+void LayoutCellPane::AdjustPos( ) noexcept
 {
 	int nPos = 0;
 	RECT rect{};

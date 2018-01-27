@@ -73,7 +73,7 @@ LayoutCell::LayoutCell(const HWND mHwnd, const RECT & rc) noexcept
 	{
 		if (Dcx::Dialogs.getDialogByHandle(mHwnd) == nullptr)
 		{
-			if (const auto d = Dcx::Dialogs.getDialogByChildHandle(mHwnd); d != nullptr)
+			if (const auto *const d = Dcx::Dialogs.getDialogByChildHandle(mHwnd); d != nullptr)
 				m_BaseControl = d->getControlByHWND(mHwnd);
 		}
 	}
@@ -163,11 +163,13 @@ LayoutCell * LayoutCell::getNextSibling() const noexcept
 
 void LayoutCell::setRect(RECT & rc) noexcept
 {
-	CellMinMaxInfo cmmi;
-	cmmi.m_MinSize.x = 0;
-	cmmi.m_MinSize.y = 0;
-	cmmi.m_MaxSize.x = rc.right - rc.left;
-	cmmi.m_MaxSize.y = rc.bottom - rc.top;
+	CellMinMaxInfo cmmi{ {0,0},{rc.right - rc.left,rc.bottom - rc.top} };
+
+	//CellMinMaxInfo cmmi;
+	//cmmi.m_MinSize.x = 0;
+	//cmmi.m_MinSize.y = 0;
+	//cmmi.m_MaxSize.x = rc.right - rc.left;
+	//cmmi.m_MaxSize.y = rc.bottom - rc.top;
 
 	getMinMaxInfo(&cmmi);
 
