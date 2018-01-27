@@ -349,7 +349,7 @@ namespace mIRCLinker {
 	//	return false;
 	//}
 
-	bool iEval(__int64  *const res, const TCHAR *const data)
+	bool iEval(int64_t * const res, const TCHAR *const data)
 	{
 		//if (ts_strcpyn(m_pData, data, MIRC_BUFFER_SIZE_CCH) != nullptr)
 		//{

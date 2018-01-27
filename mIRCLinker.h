@@ -168,7 +168,29 @@ namespace mIRCLinker
 		return eval(res, _ts_sprintf(line, fmt, val, args...));
 	}
 
-	bool iEval(__int64 *const res, const TCHAR *const data);
+	bool iEval(int64_t * const res, const TCHAR *const data);
+	template <class T, class Value> std::pair<bool, T> uEval(const Value &data)
+	{
+		static_assert(is_Numeric_v<T>, "Only Numeric types allowed");
+
+		if constexpr(std::is_array_v<Value> && std::is_pod_v<Value>)
+			m_pData = &data[0];
+		else
+			m_pData = data;
+
+		{
+			if (mIRC_SndMsg(WM_MEVALUATE))
+				return{ true, gsl::narrow_cast<T>(_ts_atoi64(m_pData.data())) };
+		}
+		m_pData.clear();
+		return { false, T{} };
+	}
+	template <typename Output, typename Input, typename Value, typename... Arguments>
+	std::pair<bool, Output> uEval(const Input &fmt, const Value &val, Arguments&&... args)
+	{
+		TString line;
+		return uEval<Output>(_ts_sprintf(line, fmt, val, args...));
+	}
 
 	template <typename Input>
 	bool exec(const Input &data)
