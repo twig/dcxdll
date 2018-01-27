@@ -42,17 +42,20 @@ public:
 	static bool Attach(HWND hRichEdit);
 
 private:
-	CRichEditThemed() = delete;
 	explicit CRichEditThemed(HWND hRichEdit);
 	~CRichEditThemed();
 
-	CRichEditThemed &operator =(const CRichEditThemed &) = delete;	// No assignments!
+	CRichEditThemed() = delete;
+	CRichEditThemed(const CRichEditThemed &) = delete;
+	CRichEditThemed(CRichEditThemed &&) = delete;
+	CRichEditThemed &operator =(const CRichEditThemed &) = delete;
+	CRichEditThemed &operator =(CRichEditThemed &&) = delete;
 
-	void VerifyThemedBorderState();
-	bool OnNCPaint();
-	bool OnNCCalcSize(NCCALCSIZE_PARAMS *csparam);
+	void VerifyThemedBorderState() noexcept;
+	bool OnNCPaint() noexcept;
+	bool OnNCCalcSize(NCCALCSIZE_PARAMS *csparam) noexcept;
 
-	static bool InitLibrary();
+	static bool InitLibrary() noexcept;
 	static LRESULT CALLBACK RichEditStyledProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 private:

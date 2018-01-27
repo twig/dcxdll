@@ -104,7 +104,7 @@ CRichEditThemed::~CRichEditThemed()
 
 //
 //////////////////////////////////////////////////////////////////////////////
-bool CRichEditThemed::InitLibrary()
+bool CRichEditThemed::InitLibrary() noexcept
 {
 	//Are we already initialised?
 	if(pOpenThemeData && pCloseThemeData && pDrawThemeBackground && pGetThemeBackgroundContentRect && pIsThemeActive && pDrawThemeParentBackground && pIsThemeBackgroundPartiallyTransparent)
@@ -219,9 +219,9 @@ LRESULT CALLBACK CRichEditThemed::RichEditStyledProc(HWND hwnd, UINT uMsg, WPARA
 
 //
 //////////////////////////////////////////////////////////////////////////////
-void CRichEditThemed::VerifyThemedBorderState()
+void CRichEditThemed::VerifyThemedBorderState() noexcept
 {
-	bool bCurrentThemedBorder = m_bThemedBorder;
+	const bool bCurrentThemedBorder = m_bThemedBorder;
 	m_bThemedBorder = false;
 
 	const auto dStyle = GetWindowStyle(m_hRichEdit);
@@ -249,7 +249,7 @@ void CRichEditThemed::VerifyThemedBorderState()
 
 //
 //////////////////////////////////////////////////////////////////////////////
-bool CRichEditThemed::OnNCPaint()
+bool CRichEditThemed::OnNCPaint() noexcept
 {
 	try
 	{
@@ -306,7 +306,7 @@ bool CRichEditThemed::OnNCPaint()
 
 //
 //////////////////////////////////////////////////////////////////////////////
-bool CRichEditThemed::OnNCCalcSize(NCCALCSIZE_PARAMS *csparam)
+bool CRichEditThemed::OnNCCalcSize(NCCALCSIZE_PARAMS *csparam) noexcept
 {
 	try
 	{

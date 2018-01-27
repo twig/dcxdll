@@ -36,7 +36,8 @@ bool DcxListHelper::matchItemText(const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &
 	case DcxSearchTypes::SEARCH_R:	// regex match
 		return isRegexMatch(sItemText, search.to_chr());
 	case DcxSearchTypes::SEARCH_W:	// wildcard match
-		return TString(sItemText.data()).iswm(search);
+		//return TString(sItemText.data()).iswm(search);	// makes copy of string...
+		return _ts_WildcardMatch(sItemText, search);		// avoids copy
 	case DcxSearchTypes::SEARCH_E:   // exact match
 		return search == sItemText;
 	default:
@@ -53,13 +54,6 @@ const DcxSearchTypes DcxListHelper::StringToSearchType(const TString & tsType) n
 
 const DcxSearchTypes DcxListHelper::CharToSearchType(const TCHAR & cType) noexcept
 {
-	//auto SearchType = DcxSearchTypes::SEARCH_E;
-	//if ((cType == TEXT('R')) || (cType == TEXT('r')))
-	//	SearchType = DcxSearchTypes::SEARCH_R;
-	//else if ((cType == TEXT('W')) || (cType == TEXT('w')))
-	//	SearchType = DcxSearchTypes::SEARCH_W;
-	//return SearchType;
-
 	switch (cType)
 	{
 	case TEXT('R'):

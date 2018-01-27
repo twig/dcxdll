@@ -40,7 +40,6 @@ struct DCXDOCK {
 		, flags(f)
 		, type(t)
 	{}
-	~DCXDOCK() = default;
 };
 using LPDCXDOCK = DCXDOCK *;
 
