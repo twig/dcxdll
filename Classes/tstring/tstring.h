@@ -296,7 +296,7 @@ public:
 	{
 	}
 	
-	TString(TString &&tString);					// move constructor C++11 only
+	TString(TString &&tString) noexcept;					// move constructor C++11 only
 	
 	TString(const std::initializer_list<TString> &lt);	// Initializer list constructor (allows TString name{ "text", "text2", othertstring } )
 
@@ -1678,8 +1678,8 @@ public:
 		return append(str.data(), str.length());
 	}
 
-	static inline int rfc_tolower(const int c);
-	static inline int rfc_toupper(const int c);
+	static inline int rfc_tolower(const int c) noexcept;
+	static inline int rfc_toupper(const int c) noexcept;
 	//
 };
 #define TSTAB TString::m_cTab

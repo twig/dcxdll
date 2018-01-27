@@ -214,7 +214,7 @@ TString::TString(const char chr)
 \param tString TString object to copy
 */
 /****************************/
-TString::TString(TString && tString)
+TString::TString(TString && tString) noexcept
 	: TString()
 {
 	swap(tString);
@@ -1761,7 +1761,7 @@ TString TString::right(int n) const
 
 // Ook - match() function taken from aircdll.dll by Tabo source.
 /* taken from the hybrid-5.3p7 source */
-inline int TString::rfc_tolower(const int c)
+inline int TString::rfc_tolower(const int c) noexcept
 {
 	//TCHAR tmp[2];
 	//tmp[0] = (TCHAR)c;
@@ -1771,7 +1771,7 @@ inline int TString::rfc_tolower(const int c)
 	return ::tolower(c);
 }
 
-inline int TString::rfc_toupper(const int c)
+inline int TString::rfc_toupper(const int c) noexcept
 {
 	//TCHAR tmp[2];
 	//tmp[0] = (TCHAR)c;
@@ -1976,7 +1976,7 @@ TString TString::wildtok(const_pointer_const wildString, const UINT N, const_poi
 		return TString();
 
 	auto m = 0U;
-	if (auto itEnd = end(), itGot = std::find_if(begin(sepChars), itEnd, [&wildString, &m, &N](const TString &x)
+	if (auto itEnd = end(), itGot = std::find_if(begin(sepChars), itEnd, [&wildString, &m, &N](const TString &x) noexcept
 	{
 		if (_ts_WildcardMatch(x, wildString, false))
 		{
@@ -1997,7 +1997,7 @@ UINT TString::nwildtok(const_pointer_const wildString, const_pointer_const sepCh
 		return 0;
 
 	auto m = 0U;
-	std::for_each(begin(sepChars), end(), [&wildString, &m](const TString &x) {
+	std::for_each(begin(sepChars), end(), [&wildString, &m](const TString &x) noexcept {
 		if (_ts_WildcardMatch(x, wildString, false))
 			++m;
 	});
@@ -2295,39 +2295,40 @@ TString &TString::strip()
 		case 31: // ctrl-u Underline
 			break;
 		case 3: // ctrl-k Colour
+		{
+			while (wtxt[pos + 1] == 3)
+				++pos; // remove multiple consecutive ctrl-k's
+
+			if (wtxt[pos + 1] >= TEXT('0') && wtxt[pos + 1] <= TEXT('9'))
 			{
-				while (wtxt[pos + 1] == 3)
-					++pos; // remove multiple consecutive ctrl-k's
+				++pos;
 
 				if (wtxt[pos + 1] >= TEXT('0') && wtxt[pos + 1] <= TEXT('9'))
+					++pos;
+
+				// maybe a background color
+				if (wtxt[pos + 1] == TEXT(','))
 				{
 					++pos;
 
 					if (wtxt[pos + 1] >= TEXT('0') && wtxt[pos + 1] <= TEXT('9'))
-						++pos;
-
-					// maybe a background color
-					if (wtxt[pos + 1] == TEXT(','))
 					{
 						++pos;
 
 						if (wtxt[pos + 1] >= TEXT('0') && wtxt[pos + 1] <= TEXT('9'))
-						{
 							++pos;
-
-							if (wtxt[pos + 1] >= TEXT('0') && wtxt[pos + 1] <= TEXT('9'))
-								++pos;
-						}
 					}
 				}
 			}
-			break;
+		}
+		break;
 		case 32:	// space character
 		{
-				   while (wtxt[pos + 1] == 32)
-					   ++pos; // remove multiple consecutive spaces
-				   // fall through to save first space
+			while (wtxt[pos + 1] == 32)
+				++pos; // remove multiple consecutive spaces
+			// fall through to save first space
 		}
+		[[fallthrough]];
 		default:
 			*p++ = c;
 			break;
