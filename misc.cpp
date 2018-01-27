@@ -185,7 +185,7 @@ auto readFile(const TString &filename)
 		return nullptr;
 
 	// Read pointer location, because pointer is at the end, results into file size
-	auto size = gsl::narrow_cast<size_t>(ftell(file));
+	const auto size = gsl::narrow_cast<size_t>(ftell(file));
 
 	// Get back to file beginning
 	if (fseek(file, 0, SEEK_SET))
@@ -213,10 +213,14 @@ auto readFile(const TString &filename)
 */
 TString readTextFile(const TString &tFile)
 {
-	auto data = readFile(tFile);
+	//auto data = readFile(tFile);
+	//
+	//if (data == nullptr)
+	//	return TString();
+	//
+	//return Normalise(data.get());
 
-	if (data == nullptr)
-		return TString();
+	const auto data = readFile(tFile);
 
 	return Normalise(data.get());
 }
@@ -316,7 +320,7 @@ bool ParseCommandToLogfont(const TString& cmd, LPLOGFONT lf)
 		return false;
 
 	{
-		auto hdc = GetDC(nullptr);
+		const auto hdc = GetDC(nullptr);
 
 		if (hdc == nullptr)
 			return false;
@@ -405,7 +409,7 @@ const static std::map<std::hash<TString>::result_type, UINT> charset_map{
  */
 UINT parseFontCharSet(const TString &charset)
 {
-	if (const auto it = charset_map.find(std::hash<TString>()(charset)); it != charset_map.end())
+	if (const auto it = charset_map.find(std::hash<TString>{}(charset)); it != charset_map.end())
 		return it->second;
 
 	return DEFAULT_CHARSET;
@@ -838,12 +842,12 @@ update for 32bpp icons & rewrite
 //	return hGrayIcon;
 //} // End of CreateGrayscaleIcon
 
-COLORREF defaultGrayPalette[256];
-bool bGrayPaletteSet = false;
+//COLORREF defaultGrayPalette[256];
+//bool bGrayPaletteSet = false;
 
-HICON CreateGrayscaleIcon( HICON hIcon, COLORREF* pPalette ) noexcept
+HICON CreateGrayscaleIcon( HICON hIcon, const COLORREF *const pPalette ) noexcept
 {
-	if (hIcon == nullptr)
+	if ((hIcon == nullptr) || (pPalette == nullptr))
 		return nullptr;
 
 	auto hdc = ::GetDC(nullptr);
@@ -929,16 +933,83 @@ HICON CreateGrayscaleIcon( HICON hIcon ) noexcept
 	if (hIcon == nullptr)
 		return nullptr;
 
-	if (!bGrayPaletteSet)
-	{
-		//#pragma loop(hint_parallel(2))
-		for(auto i = 0U; i < Dcx::countof(defaultGrayPalette); ++i)
-		{
-			defaultGrayPalette[i] = RGB(255-i, 255-i, 255-i);
-		}
+	//if (!bGrayPaletteSet)
+	//{
+	//	//#pragma loop(hint_parallel(2))
+	//	for(auto i = 0U; i < Dcx::countof(defaultGrayPalette); ++i)
+	//	{
+	//		defaultGrayPalette[i] = RGB(255-i, 255-i, 255-i);
+	//	}
+	//
+	//	bGrayPaletteSet = true;
+	//}
 
-		bGrayPaletteSet = true;
-	}
+	const static COLORREF defaultGrayPalette[256] = {
+		RGB(255 - 0, 255 - 0, 255 - 0), RGB(255 - 1, 255 - 1, 255 - 1), RGB(255 - 2, 255 - 2, 255 - 2), RGB(255 - 3, 255 - 3, 255 - 3),
+		RGB(255 - 4, 255 - 4, 255 - 4), RGB(255 - 5, 255 - 5, 255 - 5), RGB(255 - 6, 255 - 6, 255 - 6), RGB(255 - 7, 255 - 7, 255 - 7),
+		RGB(255 - 8, 255 - 8, 255 - 8), RGB(255 - 9, 255 - 9, 255 - 9), RGB(255 - 10, 255 - 10, 255 - 10), RGB(255 - 11, 255 - 11, 255 - 11),
+		RGB(255 - 12, 255 - 12, 255 - 12), RGB(255 - 13, 255 - 13, 255 - 13), RGB(255 - 14, 255 - 14, 255 - 14), RGB(255 - 15, 255 - 15, 255 - 15),
+		RGB(255 - 16, 255 - 16, 255 - 16), RGB(255 - 17, 255 - 17, 255 - 17), RGB(255 - 18, 255 - 18, 255 - 18), RGB(255 - 19, 255 - 19, 255 - 19),
+		RGB(255 - 20, 255 - 20, 255 - 20), RGB(255 - 21, 255 - 21, 255 - 21), RGB(255 - 22, 255 - 22, 255 - 22), RGB(255 - 23, 255 - 23, 255 - 23),
+		RGB(255 - 24, 255 - 24, 255 - 24), RGB(255 - 25, 255 - 25, 255 - 25), RGB(255 - 26, 255 - 26, 255 - 26), RGB(255 - 27, 255 - 27, 255 - 27),
+		RGB(255 - 28, 255 - 28, 255 - 28), RGB(255 - 29, 255 - 29, 255 - 29), RGB(255 - 30, 255 - 30, 255 - 30), RGB(255 - 31, 255 - 31, 255 - 31),
+		RGB(255 - 32, 255 - 32, 255 - 32), RGB(255 - 33, 255 - 33, 255 - 33), RGB(255 - 34, 255 - 34, 255 - 34), RGB(255 - 35, 255 - 35, 255 - 35),
+		RGB(255 - 36, 255 - 36, 255 - 36), RGB(255 - 37, 255 - 37, 255 - 37), RGB(255 - 38, 255 - 38, 255 - 38), RGB(255 - 39, 255 - 39, 255 - 39),
+		RGB(255 - 40, 255 - 40, 255 - 40), RGB(255 - 41, 255 - 41, 255 - 41), RGB(255 - 42, 255 - 42, 255 - 42), RGB(255 - 43, 255 - 43, 255 - 43),
+		RGB(255 - 44, 255 - 44, 255 - 44), RGB(255 - 45, 255 - 45, 255 - 45), RGB(255 - 46, 255 - 46, 255 - 46), RGB(255 - 47, 255 - 47, 255 - 47),
+		RGB(255 - 48, 255 - 48, 255 - 48), RGB(255 - 49, 255 - 49, 255 - 49), RGB(255 - 50, 255 - 50, 255 - 50), RGB(255 - 51, 255 - 51, 255 - 51),
+		RGB(255 - 52, 255 - 52, 255 - 52), RGB(255 - 53, 255 - 53, 255 - 53), RGB(255 - 54, 255 - 54, 255 - 54), RGB(255 - 55, 255 - 55, 255 - 55),
+		RGB(255 - 56, 255 - 56, 255 - 56), RGB(255 - 57, 255 - 57, 255 - 57), RGB(255 - 58, 255 - 58, 255 - 58), RGB(255 - 59, 255 - 59, 255 - 59),
+		RGB(255 - 60, 255 - 60, 255 - 60), RGB(255 - 61, 255 - 61, 255 - 61), RGB(255 - 62, 255 - 62, 255 - 62), RGB(255 - 63, 255 - 63, 255 - 63),
+		RGB(255 - 64, 255 - 64, 255 - 64), RGB(255 - 65, 255 - 65, 255 - 65), RGB(255 - 66, 255 - 66, 255 - 66), RGB(255 - 67, 255 - 67, 255 - 67),
+		RGB(255 - 68, 255 - 68, 255 - 68), RGB(255 - 69, 255 - 69, 255 - 69), RGB(255 - 70, 255 - 70, 255 - 70), RGB(255 - 71, 255 - 71, 255 - 71),
+		RGB(255 - 72, 255 - 72, 255 - 72), RGB(255 - 73, 255 - 73, 255 - 73), RGB(255 - 74, 255 - 74, 255 - 74), RGB(255 - 75, 255 - 75, 255 - 75),
+		RGB(255 - 76, 255 - 76, 255 - 76), RGB(255 - 77, 255 - 77, 255 - 77), RGB(255 - 78, 255 - 78, 255 - 78), RGB(255 - 79, 255 - 79, 255 - 79),
+		RGB(255 - 80, 255 - 80, 255 - 80), RGB(255 - 81, 255 - 81, 255 - 81), RGB(255 - 82, 255 - 82, 255 - 82), RGB(255 - 83, 255 - 83, 255 - 83),
+		RGB(255 - 84, 255 - 84, 255 - 84), RGB(255 - 85, 255 - 85, 255 - 85), RGB(255 - 86, 255 - 86, 255 - 86), RGB(255 - 87, 255 - 87, 255 - 87),
+		RGB(255 - 88, 255 - 88, 255 - 88), RGB(255 - 89, 255 - 89, 255 - 89), RGB(255 - 90, 255 - 90, 255 - 90), RGB(255 - 91, 255 - 91, 255 - 91),
+		RGB(255 - 92, 255 - 92, 255 - 92), RGB(255 - 93, 255 - 93, 255 - 93), RGB(255 - 94, 255 - 94, 255 - 94), RGB(255 - 95, 255 - 95, 255 - 95),
+		RGB(255 - 96, 255 - 96, 255 - 96), RGB(255 - 97, 255 - 97, 255 - 97), RGB(255 - 98, 255 - 98, 255 - 98), RGB(255 - 99, 255 - 99, 255 - 99),
+		RGB(255 - 100, 255 - 100, 255 - 100), RGB(255 - 101, 255 - 101, 255 - 101), RGB(255 - 102, 255 - 102, 255 - 102), RGB(255 - 103, 255 - 103, 255 - 103),
+		RGB(255 - 104, 255 - 104, 255 - 104), RGB(255 - 105, 255 - 105, 255 - 105), RGB(255 - 106, 255 - 106, 255 - 106), RGB(255 - 107, 255 - 107, 255 - 107),
+		RGB(255 - 108, 255 - 108, 255 - 108), RGB(255 - 109, 255 - 109, 255 - 109), RGB(255 - 110, 255 - 110, 255 - 110), RGB(255 - 111, 255 - 111, 255 - 111),
+		RGB(255 - 112, 255 - 112, 255 - 112), RGB(255 - 113, 255 - 113, 255 - 113), RGB(255 - 114, 255 - 114, 255 - 114), RGB(255 - 115, 255 - 115, 255 - 115),
+		RGB(255 - 116, 255 - 116, 255 - 116), RGB(255 - 117, 255 - 117, 255 - 117), RGB(255 - 118, 255 - 118, 255 - 118), RGB(255 - 119, 255 - 119, 255 - 119),
+		RGB(255 - 120, 255 - 120, 255 - 120), RGB(255 - 121, 255 - 121, 255 - 121), RGB(255 - 122, 255 - 122, 255 - 122), RGB(255 - 123, 255 - 123, 255 - 123),
+		RGB(255 - 124, 255 - 124, 255 - 124), RGB(255 - 125, 255 - 125, 255 - 125), RGB(255 - 126, 255 - 126, 255 - 126), RGB(255 - 127, 255 - 127, 255 - 127),
+		RGB(255 - 128, 255 - 128, 255 - 128), RGB(255 - 129, 255 - 129, 255 - 129), RGB(255 - 130, 255 - 130, 255 - 130), RGB(255 - 131, 255 - 131, 255 - 131),
+		RGB(255 - 132, 255 - 132, 255 - 132), RGB(255 - 133, 255 - 133, 255 - 133), RGB(255 - 134, 255 - 134, 255 - 134), RGB(255 - 135, 255 - 135, 255 - 135),
+		RGB(255 - 136, 255 - 136, 255 - 136), RGB(255 - 137, 255 - 137, 255 - 137), RGB(255 - 138, 255 - 138, 255 - 138), RGB(255 - 139, 255 - 139, 255 - 139),
+		RGB(255 - 140, 255 - 140, 255 - 140), RGB(255 - 141, 255 - 141, 255 - 141), RGB(255 - 142, 255 - 142, 255 - 142), RGB(255 - 143, 255 - 143, 255 - 143),
+		RGB(255 - 144, 255 - 144, 255 - 144), RGB(255 - 145, 255 - 145, 255 - 145), RGB(255 - 146, 255 - 146, 255 - 146), RGB(255 - 147, 255 - 147, 255 - 147),
+		RGB(255 - 148, 255 - 148, 255 - 148), RGB(255 - 149, 255 - 149, 255 - 149), RGB(255 - 150, 255 - 150, 255 - 150), RGB(255 - 151, 255 - 151, 255 - 151),
+		RGB(255 - 152, 255 - 152, 255 - 152), RGB(255 - 153, 255 - 153, 255 - 153), RGB(255 - 154, 255 - 154, 255 - 154), RGB(255 - 155, 255 - 155, 255 - 155),
+		RGB(255 - 156, 255 - 156, 255 - 156), RGB(255 - 157, 255 - 157, 255 - 157), RGB(255 - 158, 255 - 158, 255 - 158), RGB(255 - 159, 255 - 159, 255 - 159),
+		RGB(255 - 160, 255 - 160, 255 - 160), RGB(255 - 161, 255 - 161, 255 - 161), RGB(255 - 162, 255 - 162, 255 - 162), RGB(255 - 163, 255 - 163, 255 - 163),
+		RGB(255 - 164, 255 - 164, 255 - 164), RGB(255 - 165, 255 - 165, 255 - 165), RGB(255 - 166, 255 - 166, 255 - 166), RGB(255 - 167, 255 - 167, 255 - 167),
+		RGB(255 - 168, 255 - 168, 255 - 168), RGB(255 - 169, 255 - 169, 255 - 169), RGB(255 - 170, 255 - 170, 255 - 170), RGB(255 - 171, 255 - 171, 255 - 171),
+		RGB(255 - 172, 255 - 172, 255 - 172), RGB(255 - 173, 255 - 173, 255 - 173), RGB(255 - 174, 255 - 174, 255 - 174), RGB(255 - 175, 255 - 175, 255 - 175),
+		RGB(255 - 176, 255 - 176, 255 - 176), RGB(255 - 177, 255 - 177, 255 - 177), RGB(255 - 178, 255 - 178, 255 - 178), RGB(255 - 179, 255 - 179, 255 - 179),
+		RGB(255 - 180, 255 - 180, 255 - 180), RGB(255 - 181, 255 - 181, 255 - 181), RGB(255 - 182, 255 - 182, 255 - 182), RGB(255 - 183, 255 - 183, 255 - 183),
+		RGB(255 - 184, 255 - 184, 255 - 184), RGB(255 - 185, 255 - 185, 255 - 185), RGB(255 - 186, 255 - 186, 255 - 186), RGB(255 - 187, 255 - 187, 255 - 187),
+		RGB(255 - 188, 255 - 188, 255 - 188), RGB(255 - 189, 255 - 189, 255 - 189), RGB(255 - 190, 255 - 190, 255 - 190), RGB(255 - 191, 255 - 139, 255 - 191),
+		RGB(255 - 192, 255 - 192, 255 - 192), RGB(255 - 193, 255 - 193, 255 - 193), RGB(255 - 194, 255 - 194, 255 - 194), RGB(255 - 195, 255 - 195, 255 - 195),
+		RGB(255 - 196, 255 - 196, 255 - 196), RGB(255 - 197, 255 - 197, 255 - 197), RGB(255 - 198, 255 - 198, 255 - 198), RGB(255 - 199, 255 - 199, 255 - 199),
+		RGB(255 - 200, 255 - 200, 255 - 200), RGB(255 - 201, 255 - 201, 255 - 201), RGB(255 - 202, 255 - 202, 255 - 202), RGB(255 - 203, 255 - 203, 255 - 203),
+		RGB(255 - 204, 255 - 204, 255 - 204), RGB(255 - 205, 255 - 205, 255 - 205), RGB(255 - 206, 255 - 206, 255 - 206), RGB(255 - 207, 255 - 207, 255 - 207),
+		RGB(255 - 208, 255 - 208, 255 - 208), RGB(255 - 209, 255 - 209, 255 - 209), RGB(255 - 210, 255 - 210, 255 - 210), RGB(255 - 211, 255 - 211, 255 - 211),
+		RGB(255 - 212, 255 - 212, 255 - 212), RGB(255 - 213, 255 - 213, 255 - 213), RGB(255 - 214, 255 - 214, 255 - 214), RGB(255 - 215, 255 - 215, 255 - 215),
+		RGB(255 - 216, 255 - 216, 255 - 216), RGB(255 - 217, 255 - 217, 255 - 217), RGB(255 - 218, 255 - 218, 255 - 218), RGB(255 - 219, 255 - 219, 255 - 219),
+		RGB(255 - 220, 255 - 220, 255 - 220), RGB(255 - 221, 255 - 221, 255 - 221), RGB(255 - 222, 255 - 222, 255 - 222), RGB(255 - 223, 255 - 223, 255 - 223),
+		RGB(255 - 224, 255 - 224, 255 - 224), RGB(255 - 225, 255 - 225, 255 - 225), RGB(255 - 226, 255 - 226, 255 - 226), RGB(255 - 227, 255 - 227, 255 - 227),
+		RGB(255 - 228, 255 - 228, 255 - 228), RGB(255 - 229, 255 - 229, 255 - 229), RGB(255 - 230, 255 - 230, 255 - 230), RGB(255 - 231, 255 - 231, 255 - 231),
+		RGB(255 - 232, 255 - 232, 255 - 232), RGB(255 - 233, 255 - 233, 255 - 233), RGB(255 - 234, 255 - 234, 255 - 234), RGB(255 - 235, 255 - 235, 255 - 235),
+		RGB(255 - 236, 255 - 236, 255 - 236), RGB(255 - 237, 255 - 237, 255 - 237), RGB(255 - 238, 255 - 238, 255 - 238), RGB(255 - 239, 255 - 239, 255 - 239),
+		RGB(255 - 240, 255 - 240, 255 - 240), RGB(255 - 241, 255 - 241, 255 - 241), RGB(255 - 242, 255 - 242, 255 - 242), RGB(255 - 243, 255 - 243, 255 - 243),
+		RGB(255 - 244, 255 - 244, 255 - 244), RGB(255 - 245, 255 - 245, 255 - 245), RGB(255 - 246, 255 - 246, 255 - 246), RGB(255 - 247, 255 - 247, 255 - 247),
+		RGB(255 - 248, 255 - 248, 255 - 248), RGB(255 - 249, 255 - 249, 255 - 249), RGB(255 - 250, 255 - 250, 255 - 250), RGB(255 - 251, 255 - 251, 255 - 251),
+		RGB(255 - 252, 255 - 252, 255 - 252), RGB(255 - 253, 255 - 253, 255 - 253), RGB(255 - 254, 255 - 254, 255 - 254), RGB(255 - 255, 255 - 255, 255 - 255)
+	};
 
 	return CreateGrayscaleIcon(hIcon, &defaultGrayPalette[0]);
 }
@@ -1190,7 +1261,7 @@ COLORREF staticPalette[mIRC_PALETTE_SIZE] = {
 */
 void getmIRCPalette()
 {
-	if (staticPalette[0] == CLR_INVALID)
+	if ((staticPalette[0] == CLR_INVALID) || (!Dcx::setting_bStaticColours))
 	{
 		TString colors;
 		static constexpr TCHAR com[] = TEXT("$color(0) $color(1) $color(2) $color(3) $color(4) $color(5) $color(6) $color(7) $color(8) $color(9) $color(10) $color(11) $color(12) $color(13) $color(14) $color(15)");
@@ -1213,9 +1284,6 @@ void getmIRCPalette(COLORREF *const Palette, const UINT PaletteItems)
 	if ((PaletteItems > mIRC_PALETTE_SIZE) || (Palette == &staticPalette[0]))
 		return;
 
-	if (!Dcx::setting_bStaticColours)
-		staticPalette[0] = CLR_INVALID;
-
 	getmIRCPalette();
 
 	CopyMemory(Palette, &staticPalette[0], sizeof(COLORREF) * PaletteItems);
@@ -1227,44 +1295,35 @@ void getmIRCPalette(COLORREF *const Palette, const UINT PaletteItems)
 // uMask        - bitmask of items to get.
 //
 // Copies staticPalette to Palette based on a 16bit mask, one bit for every colour (updates staticPalette if needed)
-// NB: This ONLY update sthe first 16 colours, not the full 99, > 16 are static anyway...
+// NB: This ONLY updates the first 16 colours, not the full 99, > 16 are static anyway...
 void getmIRCPaletteMask(COLORREF *const Palette, const UINT PaletteItems, uint16_t uMask)
 {
-	if ((PaletteItems > mIRC_PALETTE_SIZE) || (Palette == &staticPalette[0]))
+	if ((Palette == nullptr) || (PaletteItems < 16) || (PaletteItems > std::extent_v<decltype(staticPalette)>))
 		return;
-
-	if (!Dcx::setting_bStaticColours)
-		staticPalette[0] = CLR_INVALID;
 
 	getmIRCPalette();
 
-	uint32_t count = 0;
-	for (const auto &x : staticPalette)
+	for (uint32_t count = 0; count < PaletteItems; ++count)
 	{
 		if ((uMask & 0x01) != 0)
 		{
-			Palette[count] = x;
+			Palette[count] = staticPalette[count];
 		}
 		uMask >>= 1;
-		++count;
 	}
 }
 
-int unfoldColor(const WCHAR *color) noexcept
+constexpr int unfoldColor(int nColor) noexcept
 {
-	//auto nColor = _ts_atoi(color);
-	//
-	//while (nColor > 15)
-	//	nColor -= 16;
-	//
-	//return nColor;
-
-	auto nColor = _ts_atoi(color);
-
 	while (nColor > 99)
 		nColor -= 100;
 
 	return nColor;
+}
+
+int unfoldColor(const WCHAR *color) noexcept
+{
+	return unfoldColor(_ts_atoi(color));
 }
 
 //void calcStrippedRect(HDC hdc, const TString &txt, const UINT style, LPRECT rc, const bool ignoreleft)
@@ -1354,7 +1413,7 @@ void mIRC_DrawText(HDC hdc, const TString &txt, LPRECT rc, const UINT style, con
 		return;
 
 	// create an hdc buffer to avoid flicker during drawing.
-	auto hBuffer = CreateHDCBuffer(hdc, rc);
+	const auto hBuffer = CreateHDCBuffer(hdc, rc);
 
 	if (hBuffer == nullptr)
 		return;
@@ -1375,7 +1434,7 @@ void mIRC_DrawText(HDC hdc, const TString &txt, LPRECT rc, const UINT style, con
 
 	getmIRCPalette(&cPalette[0], Dcx::countof(cPalette)); // get mIRC palette
 
-	auto hFont = (HFONT)GetCurrentObject(hdc, OBJ_FONT);
+	const auto hFont = (HFONT)GetCurrentObject(hdc, OBJ_FONT);
 
 	LOGFONT lf{};
 	if (GetObject(hFont, sizeof(LOGFONT), &lf) == 0)
@@ -1436,218 +1495,208 @@ void mIRC_DrawText(HDC hdc, const TString &txt, LPRECT rc, const UINT style, con
 
 	}
 
-	TString tmp;
-	const auto wtxt = txt.to_wchr();
-	const auto len = txt.len();
-	bool /*usingBGclr = false,*/ usingRevTxt = false;
-	UINT pos = 0;
-
-	for (auto c = wtxt[pos]; pos < len; c = wtxt[++pos])
 	{
-		switch (c)
+		TString tmp;
 		{
-		case 2: // Bold
+			const auto wtxt = txt.to_wchr();
+			const auto len = txt.len();
+			bool usingRevTxt = false;
+			UINT pos = 0;
+
+			for (auto c = wtxt[pos]; pos < len; c = wtxt[++pos])
 			{
-				if (!tmp.empty())
-					mIRC_OutText(hdc, tmp, &rcOut, &lf, iStyle, clrFG, shadow);
-				if (lf.lfWeight == FW_BOLD)
-					lf.lfWeight = origWeight;
-				else
-					lf.lfWeight = FW_BOLD;
-			}
-			break;
-		case 3: // Colour
-			{
-				if (!tmp.empty())
-					mIRC_OutText(hdc, tmp, &rcOut, &lf, iStyle, clrFG, shadow);
-
-				while (wtxt[pos+1] == 3)
-					++pos; // remove multiple consecutive ctrl-k's
-
-				SetBkMode(hdc,TRANSPARENT);
-
-				//usingBGclr = false;
-				if (wtxt[pos +1] >= L'0' && wtxt[pos +1] <= L'9')
+				switch (c)
 				{
-					//WCHAR colbuf[3];
-					//colbuf[0] = wtxt[pos +1];
-					//colbuf[1] = L'\0';
-					//colbuf[2] = L'\0';
+				case 2: // Bold
+				{
+					if (!tmp.empty())
+						mIRC_OutText(hdc, tmp, &rcOut, &lf, iStyle, clrFG, shadow);
+					if (lf.lfWeight == FW_BOLD)
+						lf.lfWeight = origWeight;
+					else
+						lf.lfWeight = FW_BOLD;
+				}
+				break;
+				case 3: // Colour
+				{
+					if (!tmp.empty())
+						mIRC_OutText(hdc, tmp, &rcOut, &lf, iStyle, clrFG, shadow);
 
+					while (wtxt[pos + 1] == 3)
+						++pos; // remove multiple consecutive ctrl-k's
+
+					SetBkMode(hdc, TRANSPARENT);
+
+					//usingBGclr = false;
+					if (wtxt[pos + 1] >= L'0' && wtxt[pos + 1] <= L'9')
 					{
-						UINT umIRCColour = (wtxt[pos + 1] - L'0'); // must be => 0 <= 9
-						++pos;
-
-						if (wtxt[pos + 1] >= L'0' && wtxt[pos + 1] <= L'9')
 						{
-							//colbuf[1] = wtxt[pos +1];
-							umIRCColour *= 10;	// becomes a max of 90
-							umIRCColour += (wtxt[pos + 1] - L'0');	// becomes a max of 99
-							++pos;
-						}
-
-						// color code number
-						//clrFG = cPalette[unfoldColor(&colbuf[0])];
-						clrFG = cPalette[umIRCColour];
-					}
-
-					// maybe a background color
-					if (wtxt[pos+1] == L',')
-					{
-						++pos;
-
-						if (wtxt[pos +1] >= L'0' && wtxt[pos +1] <= L'9')
-						{
-							//colbuf[0] = wtxt[pos +1];
 							UINT umIRCColour = (wtxt[pos + 1] - L'0'); // must be => 0 <= 9
 							++pos;
 
-							if (wtxt[pos +1] >= L'0' && wtxt[pos +1] <= L'9')
+							if (wtxt[pos + 1] >= L'0' && wtxt[pos + 1] <= L'9')
 							{
-								//colbuf[1] = wtxt[pos +1];
 								umIRCColour *= 10;	// becomes a max of 90
 								umIRCColour += (wtxt[pos + 1] - L'0');	// becomes a max of 99
 								++pos;
 							}
-							//else
-							//	colbuf[1] = L'\0';
-
 
 							// color code number
-							//clrBG = cPalette[unfoldColor(&colbuf[0])];
-							clrBG = cPalette[umIRCColour];
+							clrFG = cPalette[umIRCColour];
+						}
+
+						// maybe a background color
+						if (wtxt[pos + 1] == L',')
+						{
+							++pos;
+
+							if (wtxt[pos + 1] >= L'0' && wtxt[pos + 1] <= L'9')
+							{
+								UINT umIRCColour = (wtxt[pos + 1] - L'0'); // must be => 0 <= 9
+								++pos;
+
+								if (wtxt[pos + 1] >= L'0' && wtxt[pos + 1] <= L'9')
+								{
+									umIRCColour *= 10;	// becomes a max of 90
+									umIRCColour += (wtxt[pos + 1] - L'0');	// becomes a max of 99
+									++pos;
+								}
+
+								// color code number
+								clrBG = cPalette[umIRCColour];
+								SetBkMode(hdc, OPAQUE);
+							}
+						}
+						if (usingRevTxt)
+						{ // reverse text swap fg & bg colours
+							const auto ct = clrFG;
+							clrFG = clrBG;
+							clrBG = ct;
 							SetBkMode(hdc, OPAQUE);
-							//usingBGclr = true;
 						}
 					}
-					if (usingRevTxt)
-					{ // reverse text swap fg & bg colours
-						const auto ct = clrFG;
-						clrFG = clrBG;
-						clrBG = ct;
-						SetBkMode(hdc,OPAQUE);
+					else {
+						clrFG = origFG;
+						clrBG = origBG;
 					}
+					SetTextColor(hdc, clrFG);
+					SetBkColor(hdc, clrBG);
 				}
-				else {
+				break;
+				case 15: // ctrl+o
+				{
+					if (!tmp.empty())
+						mIRC_OutText(hdc, tmp, &rcOut, &lf, iStyle, clrFG, shadow);
+
+					while (wtxt[pos + 1] == 15)
+						++pos; // remove multiple consecutive ctrl-o's
+
+					lf.lfWeight = origWeight;
+					lf.lfUnderline = 0;
 					clrFG = origFG;
 					clrBG = origBG;
+					SetTextColor(hdc, origFG);
+					SetBkColor(hdc, origBG);
+					SetBkMode(hdc, TRANSPARENT);
+					usingRevTxt = false;
 				}
-				SetTextColor(hdc, clrFG);
-				SetBkColor(hdc, clrBG);
-			}
-			break;
-		case 15: // ctrl+o
-			{
-				if (!tmp.empty())
-					mIRC_OutText(hdc, tmp, &rcOut, &lf, iStyle, clrFG, shadow);
-
-				while (wtxt[pos+1] == 15)
-					++pos; // remove multiple consecutive ctrl-o's
-
-				lf.lfWeight = origWeight;
-				lf.lfUnderline = 0;
-				clrFG = origFG;
-				clrBG = origBG;
-				SetTextColor(hdc, origFG);
-				SetBkColor(hdc, origBG);
-				SetBkMode(hdc,TRANSPARENT);
-				//usingBGclr = false;
-				usingRevTxt = false;
-			}
-			break;
-		case 22: // ctrl+r
-			{
-				if (!tmp.empty())
-					mIRC_OutText(hdc, tmp, &rcOut, &lf, iStyle, clrFG, shadow);
-
-				usingRevTxt = (usingRevTxt ? false : true);
-
-				if (usingRevTxt)
-					SetBkMode(hdc,OPAQUE);
-				else
-					SetBkMode(hdc,TRANSPARENT);
-
-				const COLORREF ct = clrBG;
-				clrBG = clrFG;
-				clrFG = ct;
-				SetTextColor(hdc, clrFG);
-				SetBkColor(hdc, clrBG);
-			}
-			break;
-		case 29: // ctrl-i Italics
-			{
-				if (!tmp.empty())
-					mIRC_OutText(hdc, tmp, &rcOut, &lf, iStyle, clrFG, shadow);
-				lf.lfItalic = (lf.lfItalic ? 0U : 1U);
-			}
-			break;
-		case 31: // ctrl+u
-			{
-				if (!tmp.empty())
-					mIRC_OutText(hdc, tmp, &rcOut, &lf, iStyle, clrFG, shadow);
-				lf.lfUnderline = (lf.lfUnderline ? 0U : 1U);
-			}
-			break;
-		case 10:
-		case 13:
-			{
-				if (dcx_testflag(iStyle, DT_SINGLELINE))
-				{ // when single line, replace with a space or ignore?
-					//while ((wtxt[pos+1] == 13) || (wtxt[pos+1] == 10)) pos++; // remove multiple consecutive line feeds (causes exception??)
-					tmp += TEXT(' '); //" ";
-				}
-				else {
-					if (const auto tlen = tmp.len(); tlen > 0)
-					{
-						SIZE sz{};
-						GetTextExtentPoint32(hdc, tmp.to_chr(), gsl::narrow_cast<int>(tlen), &sz);
-						mIRC_OutText(hdc, tmp, &rcOut, &lf, iStyle, clrFG, shadow);
-						rcOut.top += sz.cy;
-					}
-
-					if (dcx_testflag(style, DT_RIGHT))
-						rcOut.left = origLeft;
-					else
-						rcOut.left = rc->left;
-				}
-			}
-			break;
-		default: // normal TCHAR
-			{
-				if (!dcx_testflag(iStyle, DT_SINGLELINE))
-				{ // don't bother if a single line.
+				break;
+				case 22: // ctrl+r
+				{
 					if (!tmp.empty())
-					{
-						SIZE sz{};
-						int nFit = 0;
-						const auto tlen = gsl::narrow_cast<int>(tmp.len());
-						GetTextExtentExPoint(hdc, txt.to_chr(), tlen, (rcOut.right - rcOut.left), &nFit, NULL, &sz);
-						if (nFit < tlen)
+						mIRC_OutText(hdc, tmp, &rcOut, &lf, iStyle, clrFG, shadow);
+
+					usingRevTxt = (usingRevTxt ? false : true);
+
+					if (usingRevTxt)
+						SetBkMode(hdc, OPAQUE);
+					else
+						SetBkMode(hdc, TRANSPARENT);
+
+					const COLORREF ct = clrBG;
+					clrBG = clrFG;
+					clrFG = ct;
+					SetTextColor(hdc, clrFG);
+					SetBkColor(hdc, clrBG);
+				}
+				break;
+				case 29: // ctrl-i Italics
+				{
+					if (!tmp.empty())
+						mIRC_OutText(hdc, tmp, &rcOut, &lf, iStyle, clrFG, shadow);
+					lf.lfItalic = (lf.lfItalic ? 0U : 1U);
+				}
+				break;
+				case 31: // ctrl+u
+				{
+					if (!tmp.empty())
+						mIRC_OutText(hdc, tmp, &rcOut, &lf, iStyle, clrFG, shadow);
+					lf.lfUnderline = (lf.lfUnderline ? 0U : 1U);
+				}
+				break;
+				case 10:
+				case 13:
+				{
+					if (dcx_testflag(iStyle, DT_SINGLELINE))
+					{ // when single line, replace with a space or ignore?
+						//while ((wtxt[pos+1] == 13) || (wtxt[pos+1] == 10)) pos++; // remove multiple consecutive line feeds (causes exception??)
+						tmp += TEXT(' '); //" ";
+					}
+					else {
+						if (const auto tlen = tmp.len(); tlen > 0)
 						{
-							if (nFit > 0)
+							SIZE sz{};
+							GetTextExtentPoint32(hdc, tmp.to_chr(), gsl::narrow_cast<int>(tlen), &sz);
+							mIRC_OutText(hdc, tmp, &rcOut, &lf, iStyle, clrFG, shadow);
+							rcOut.top += sz.cy;
+						}
+
+						if (dcx_testflag(style, DT_RIGHT))
+							rcOut.left = origLeft;
+						else
+							rcOut.left = rc->left;
+					}
+				}
+				break;
+				default: // normal TCHAR
+				{
+					if (!dcx_testflag(iStyle, DT_SINGLELINE))
+					{ // don't bother if a single line.
+						if (!tmp.empty())
+						{
+							SIZE sz{};
+							int nFit = 0;
+							const auto tlen = gsl::narrow_cast<int>(tmp.len());
+							GetTextExtentExPoint(hdc, txt.to_chr(), tlen, (rcOut.right - rcOut.left), &nFit, NULL, &sz);
+							if (nFit < tlen)
 							{
-								const auto o = tmp[nFit];
-								//mIRC_OutText(hdc, tmp.wsub(0,nFit), &rcOut, &lf, iStyle, clrFG, shadow);
-								auto tsSub(tmp.sub(0, nFit));
-								mIRC_OutText(hdc, tsSub, &rcOut, &lf, iStyle, clrFG, shadow);
-								//tmp = "";
-								rcOut.top += sz.cy;
-								rcOut.left = origLeft;
-								tmp = o;
-								//mIRC_OutText(hdc, tmp, &rcOut, &lf, iStyle, clrFG, shadow);
+								if (nFit > 0)
+								{
+									const auto o = tmp[nFit];
+									//mIRC_OutText(hdc, tmp.wsub(0,nFit), &rcOut, &lf, iStyle, clrFG, shadow);
+									auto tsSub(tmp.sub(0, nFit));
+									mIRC_OutText(hdc, tsSub, &rcOut, &lf, iStyle, clrFG, shadow);
+									//tmp = "";
+									rcOut.top += sz.cy;
+									rcOut.left = origLeft;
+									tmp = o;
+									//mIRC_OutText(hdc, tmp, &rcOut, &lf, iStyle, clrFG, shadow);
+								}
+								else
+									tmp.clear();	// tmp = TEXT("");
 							}
-							else
-								tmp.clear();	// tmp = TEXT("");
 						}
 					}
+					tmp += c;
 				}
-				tmp += c;
+				break;
+				}
 			}
-			break;
 		}
+		if (!tmp.empty())
+			mIRC_OutText(hdc, tmp, &rcOut, &lf, iStyle, clrFG, shadow);
 	}
-	if (!tmp.empty())
-		mIRC_OutText(hdc, tmp, &rcOut, &lf, iStyle, clrFG, shadow);
+
 	//RestoreDC(hdc, savedDC);
 
 	if (!dcx_testflag(iStyle, DT_CALCRECT))
@@ -1778,20 +1827,6 @@ void DeleteHDCBuffer(gsl::owner<HDC *> hBuffer) noexcept
 	delete buf;
 }
 
-//int TGetWindowText(HWND hwnd, TString &txt)
-//{
-//	const int nText = GetWindowTextLength(hwnd);
-//	if (nText > 0) {
-//		PTCHAR text = new TCHAR[nText + 2];
-//		GetWindowText(hwnd, text, nText + 1);	// NB: needs to include space for end 0
-//		txt = text;
-//		delete[] text;
-//	}
-//	else
-//		txt.clear();	// txt = TEXT("");
-//	return nText;
-//}
-
 int TGetWindowText(HWND hwnd, TString &txt)
 {
 	if (hwnd == nullptr)
@@ -1803,15 +1838,25 @@ int TGetWindowText(HWND hwnd, TString &txt)
 		txt.reserve(gsl::narrow_cast<UINT>(nText));
 		if (GetWindowText(hwnd, txt.to_chr(), nText) != 0)
 			return nText;
-
-		//auto text = std::make_unique<TCHAR[]>(nText + 2);
-		//if (GetWindowText(hwnd, text.get(), nText + 1) != 0) {	// NB: needs to include space for end 0
-		//	txt = text.get();
-		//	return nText;
-		//}
 	}
 	txt.clear();	// txt = TEXT("");
 	return 0;
+}
+
+TString TGetWindowText(HWND hwnd)
+{
+	TString txt;
+
+	if (hwnd == nullptr)
+		return txt;
+
+	// NB: needs to include space for end 0
+	if (const auto nText = GetWindowTextLength(hwnd) + 2; nText > 2)
+	{
+		txt.reserve(gsl::narrow_cast<UINT>(nText));
+		GetWindowText(hwnd, txt.to_chr(), nText);
+	}
+	return txt;
 }
 
 HMODULE UXModule = nullptr;         //!< UxTheme.dll Module Handle
@@ -2085,25 +2130,37 @@ int queryIntAttribute(gsl::not_null<const TiXmlElement *> element, gsl::not_null
 //}
 
 /*
-	TString MakeTextmIRCSafe(const TCHAR *const tString)
-
 	Make the text safe for passing to the callback alias
 
 	Change special characters $%()[]; into there $chr() equivalents
 */
 TString MakeTextmIRCSafe(const TString &tsStr)
 {
-	return MakeTextmIRCSafe(tsStr.to_chr());
+	return MakeTextmIRCSafe(tsStr.to_chr(), tsStr.len());
 }
 
+/*
+Make the text safe for passing to the callback alias
+
+Change special characters $%()[]; into there $chr() equivalents
+*/
 TString MakeTextmIRCSafe(const TCHAR *const tString)
+{
+	return MakeTextmIRCSafe(tString, _ts_strlen(tString));
+}
+
+/*
+Make the text safe for passing to the callback alias
+
+Change special characters $%()[]; into there $chr() equivalents
+*/
+TString MakeTextmIRCSafe(const TCHAR *const tString, const std::size_t len)
 {
 	TString tsRes((UINT)MIRC_BUFFER_SIZE_CCH);	// use MIRC_BUFFER_SIZE_CCH as starting buffer size (shouldnt be bigger...)
 
-	if (tString == nullptr)
+	if ((tString == nullptr) || (len == 0))
 		return tsRes;
 
-	const auto len = _ts_strlen(tString);
 	bool bLastWasSpace = true;	// start as true as the beginning of the line is treated the same as a space here
 
 	// look for ()[]%$; we dont want to change , as this is needed

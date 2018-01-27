@@ -397,7 +397,7 @@ HRGN BitmapRegion(HBITMAP hBitmap, const COLORREF cTransparentColor, const bool 
 	// We create a memory context for working with the bitmap
 	// The memory context is compatible with the display context (screen)
 
-	Dcx::dcxHDCResource hMemDC((HDC)nullptr);
+	const Dcx::dcxHDCResource hMemDC((HDC)nullptr);
 
 	// In order to make the space for the region, we
 	// create a bitmap with 32bit depth color and with the
@@ -415,12 +415,12 @@ HRGN BitmapRegion(HBITMAP hBitmap, const COLORREF cTransparentColor, const bool 
 
 	// With the previous information, we create the new bitmap!
 
-	Dcx::dcxBitmapResource hNewBitmap(hMemDC, (BITMAPINFO *)&RGB32BITSBITMAPINFO, DIB_RGB_COLORS, &pBits, nullptr, 0);
+	const Dcx::dcxBitmapResource hNewBitmap(hMemDC, (BITMAPINFO *)&RGB32BITSBITMAPINFO, DIB_RGB_COLORS, &pBits, nullptr, 0);
 
 	GdiFlush();
 	// We select the bitmap onto the created memory context
 	// and then we store the previosly selected bitmap on this context!
-	auto hPrevBmp = SelectBitmap(hMemDC, hNewBitmap);
+	const auto hPrevBmp = SelectBitmap(hMemDC, hNewBitmap);
 
 	Auto(SelectBitmap(hMemDC, hPrevBmp));
 
@@ -436,7 +436,7 @@ HRGN BitmapRegion(HBITMAP hBitmap, const COLORREF cTransparentColor, const bool 
 	// We create another device context compatible with the first!
 	// Copy of the original bitmap on the memory context!
 
-	Dcx::dcxHDCBitmapResource hDC((HDC)hMemDC, hBitmap);
+	const Dcx::dcxHDCBitmapResource hDC((HDC)hMemDC, hBitmap);
 
 	BitBlt(hMemDC, 0, 0, bmBitmap.bmWidth, bmBitmap.bmHeight, hDC, 0, 0, SRCCOPY);
 #else
@@ -445,22 +445,22 @@ HRGN BitmapRegion(HBITMAP hBitmap, const COLORREF cTransparentColor, const bool 
 
 	// If the passed bitmap is NULL, go away!
 	if (hBitmap == nullptr)
-	return nullptr;
+		return nullptr;
 
 	// Computation of the bitmap size
 	BITMAP		bmBitmap;
 
 	if (GetObject(hBitmap, sizeof(bmBitmap), &bmBitmap) == 0)
-	throw Dcx::dcxException("BitmapRegion() - Unable to get bitmap info");
+		throw Dcx::dcxException("BitmapRegion() - Unable to get bitmap info");
 
 	// We create a memory context for working with the bitmap
 	// The memory context is compatible with the display context (screen)
 
-	HDC hMemDC = CreateCompatibleDC(nullptr);
+	const HDC hMemDC = CreateCompatibleDC(nullptr);
 
 	// If no context is created, go away, too!
 	if (hMemDC == nullptr)
-	throw Dcx::dcxException("BitmapRegion() - Unable to create DC");
+		throw Dcx::dcxException("BitmapRegion() - Unable to create DC");
 
 	Auto(DeleteDC(hMemDC));
 
@@ -487,18 +487,18 @@ HRGN BitmapRegion(HBITMAP hBitmap, const COLORREF cTransparentColor, const bool 
 
 	// With the previous information, we create the new bitmap!
 
-	auto		hNewBitmap = CreateDIBSection(hMemDC, (BITMAPINFO *)&RGB32BITSBITMAPINFO, DIB_RGB_COLORS, &pBits, nullptr, 0);
+	const auto		hNewBitmap = CreateDIBSection(hMemDC, (BITMAPINFO *)&RGB32BITSBITMAPINFO, DIB_RGB_COLORS, &pBits, nullptr, 0);
 
 	// If the creation process succeded...
 	if (hNewBitmap == nullptr)
-	throw Dcx::dcxException("BitmapRegion() - CreateDIBSection() Failed: Invalid Parameter");
+		throw Dcx::dcxException("BitmapRegion() - CreateDIBSection() Failed: Invalid Parameter");
 
 	Auto(DeleteBitmap(hNewBitmap));
 
 	GdiFlush();
 	// We select the bitmap onto the created memory context
 	// and then we store the previosly selected bitmap on this context!
-	auto hPrevBmp = SelectBitmap(hMemDC, hNewBitmap);
+	const auto hPrevBmp = SelectBitmap(hMemDC, hNewBitmap);
 
 	Auto(SelectBitmap(hMemDC, hPrevBmp));
 
@@ -518,13 +518,13 @@ HRGN BitmapRegion(HBITMAP hBitmap, const COLORREF cTransparentColor, const bool 
 	BITMAP		bmNewBitmap;
 
 	if (GetObject(hNewBitmap, sizeof(bmNewBitmap), &bmNewBitmap) == 0)
-	throw Dcx::dcxException("BitmapRegion() - Unable to get bitmap info");
+		throw Dcx::dcxException("BitmapRegion() - Unable to get bitmap info");
 
 	while (bmNewBitmap.bmWidthBytes % 4)
-	bmNewBitmap.bmWidthBytes++;
+		bmNewBitmap.bmWidthBytes++;
 
 	// Copy of the original bitmap on the memory context!
-	auto		hPrevBmpOrg = SelectBitmap(hDC, hBitmap);
+	const auto		hPrevBmpOrg = SelectBitmap(hDC, hBitmap);
 
 	Auto(SelectBitmap(hDC, hPrevBmpOrg));
 

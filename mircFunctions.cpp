@@ -45,7 +45,7 @@ SYSTEMTIME MircTimeToSystemTime(const long mircTime)
 
 long SystemTimeToMircTime(const LPSYSTEMTIME pst)
 {
-	if (pst->wMonth == 0)
+	if ((pst == nullptr) || (pst->wMonth == 0))
 	{
 		Dcx::error(TEXT("SystemTimeToMircTime"), TEXT("invalid SYSTEMTIME parameter."));
 		return 0;
@@ -77,13 +77,27 @@ long SystemTimeToMircTime(const LPSYSTEMTIME pst)
 	//	months[pst->wMonth -1],
 	//	pst->wYear);
 
-	mIRCLinker::eval(sRet, TEXT("$ctime(%:%:% % % %)"),
+	//mIRCLinker::eval(sRet, TEXT("$ctime(%:%:% % % %)"),
+	//	pst->wHour,
+	//	pst->wMinute,
+	//	pst->wSecond,
+	//	pst->wDay,
+	//	months[pst->wMonth - 1],
+	//	pst->wYear);
+	//
+	//return dcx_atoi(sRet.data());
+
+	
+
+	if (const auto[bOk, iNum] = mIRCLinker::uEval<long>(TEXT("$ctime(%:%:% % % %)"),
 		pst->wHour,
 		pst->wMinute,
 		pst->wSecond,
 		pst->wDay,
 		months[pst->wMonth - 1],
-		pst->wYear);
+		pst->wYear); bOk)
+		return iNum;
 
-	return dcx_atoi(sRet.data());
+	Dcx::error(TEXT("SystemTimeToMircTime"), TEXT("Unable to get time."));
+	return 0;
 }
