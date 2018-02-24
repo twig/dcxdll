@@ -125,10 +125,10 @@ namespace details
 
         span_iterator() = default;
 
-        constexpr span_iterator(const Span* span, typename Span::index_type index) GSL_NOEXCEPT
-            : span_(span), index_(index)
+        constexpr span_iterator(const Span* span, typename Span::index_type idx) GSL_NOEXCEPT
+            : span_(span), index_(idx)
         {
-            Expects(span == nullptr || (0 <= index_ && index <= span_->size()));
+            Expects(span == nullptr || (0 <= index_ && index_ <= span_->size()));
         }
 
         friend span_iterator<Span, true>;
@@ -253,7 +253,7 @@ namespace details
     };
 
     template <class Span, bool IsConst>
-    inline constexpr span_iterator<Span, IsConst>
+    constexpr span_iterator<Span, IsConst>
     operator+(typename span_iterator<Span, IsConst>::difference_type n,
               span_iterator<Span, IsConst> rhs) GSL_NOEXCEPT
     {
@@ -261,7 +261,7 @@ namespace details
     }
 
     template <class Span, bool IsConst>
-    inline constexpr span_iterator<Span, IsConst>
+    constexpr span_iterator<Span, IsConst>
     operator-(typename span_iterator<Span, IsConst>::difference_type n,
               span_iterator<Span, IsConst> rhs) GSL_NOEXCEPT
     {
@@ -535,43 +535,43 @@ private:
 
 // [span.comparison], span comparison operators
 template <class ElementType, std::ptrdiff_t FirstExtent, std::ptrdiff_t SecondExtent>
-inline constexpr bool operator==(span<ElementType, FirstExtent> l,
-                                 span<ElementType, SecondExtent> r)
+constexpr bool operator==(span<ElementType, FirstExtent> l,
+                          span<ElementType, SecondExtent> r)
 {
     return std::equal(l.begin(), l.end(), r.begin(), r.end());
 }
 
 template <class ElementType, std::ptrdiff_t Extent>
-inline constexpr bool operator!=(span<ElementType, Extent> l,
-                                 span<ElementType, Extent> r)
+constexpr bool operator!=(span<ElementType, Extent> l,
+                          span<ElementType, Extent> r)
 {
     return !(l == r);
 }
 
 template <class ElementType, std::ptrdiff_t Extent>
-inline constexpr bool operator<(span<ElementType, Extent> l,
-                                span<ElementType, Extent> r)
+constexpr bool operator<(span<ElementType, Extent> l,
+                         span<ElementType, Extent> r)
 {
     return std::lexicographical_compare(l.begin(), l.end(), r.begin(), r.end());
 }
 
 template <class ElementType, std::ptrdiff_t Extent>
-inline constexpr bool operator<=(span<ElementType, Extent> l,
-                                 span<ElementType, Extent> r)
+constexpr bool operator<=(span<ElementType, Extent> l,
+                          span<ElementType, Extent> r)
 {
     return !(l > r);
 }
 
 template <class ElementType, std::ptrdiff_t Extent>
-inline constexpr bool operator>(span<ElementType, Extent> l,
-                                span<ElementType, Extent> r)
+constexpr bool operator>(span<ElementType, Extent> l,
+                         span<ElementType, Extent> r)
 {
     return r < l;
 }
 
 template <class ElementType, std::ptrdiff_t Extent>
-inline constexpr bool operator>=(span<ElementType, Extent> l,
-                                 span<ElementType, Extent> r)
+constexpr bool operator>=(span<ElementType, Extent> l,
+                          span<ElementType, Extent> r)
 {
     return !(l < r);
 }
@@ -619,53 +619,53 @@ as_writeable_bytes(span<ElementType, Extent> s) GSL_NOEXCEPT
 // make_span() - Utility functions for creating spans
 //
 template <class ElementType>
-span<ElementType> make_span(ElementType* ptr, typename span<ElementType>::index_type count)
+constexpr span<ElementType> make_span(ElementType* ptr, typename span<ElementType>::index_type count)
 {
     return span<ElementType>(ptr, count);
 }
 
 template <class ElementType>
-span<ElementType> make_span(ElementType* firstElem, ElementType* lastElem)
+constexpr span<ElementType> make_span(ElementType* firstElem, ElementType* lastElem)
 {
     return span<ElementType>(firstElem, lastElem);
 }
 
 template <class ElementType, std::size_t N>
-span<ElementType, N> make_span(ElementType (&arr)[N])
+constexpr span<ElementType, N> make_span(ElementType (&arr)[N])
 {
     return span<ElementType, N>(arr);
 }
 
 template <class Container>
-span<typename Container::value_type> make_span(Container& cont)
+constexpr span<typename Container::value_type> make_span(Container& cont)
 {
     return span<typename Container::value_type>(cont);
 }
 
 template <class Container>
-span<const typename Container::value_type> make_span(const Container& cont)
+constexpr span<const typename Container::value_type> make_span(const Container& cont)
 {
     return span<const typename Container::value_type>(cont);
 }
 
 template <class Ptr>
-span<typename Ptr::element_type> make_span(Ptr& cont, std::ptrdiff_t count)
+constexpr span<typename Ptr::element_type> make_span(Ptr& cont, std::ptrdiff_t count)
 {
     return span<typename Ptr::element_type>(cont, count);
 }
 
 template <class Ptr>
-span<typename Ptr::element_type> make_span(Ptr& cont)
+constexpr span<typename Ptr::element_type> make_span(Ptr& cont)
 {
     return span<typename Ptr::element_type>(cont);
 }
 
 // Specialization of gsl::at for span
 template <class ElementType, std::ptrdiff_t Extent>
-inline constexpr ElementType& at(span<ElementType, Extent> s, std::ptrdiff_t index)
+constexpr ElementType& at(span<ElementType, Extent> s, index i)
 {
     // No bounds checking here because it is done in span::operator[] called below
-    return s[index];
+    return s[i];
 }
 
 } // namespace gsl

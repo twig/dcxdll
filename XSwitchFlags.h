@@ -44,10 +44,12 @@
 struct XSwitchFlags {
 	XSwitchFlags() = delete;
 	XSwitchFlags(const XSwitchFlags &) = delete;
-	XSwitchFlags &operator =(const XSwitchFlags &) = delete;	// No assignments!
+	XSwitchFlags &operator =(const XSwitchFlags &) = delete;
+	XSwitchFlags(XSwitchFlags &&) = delete;
+	XSwitchFlags &operator =(XSwitchFlags &&) = delete;
 
 	explicit XSwitchFlags(const TString &switches) noexcept;
-	~XSwitchFlags() = default;
+	//~XSwitchFlags() = default;
 
 	// Function checks if flag is set
 	const bool isSet(const TCHAR c) const noexcept;

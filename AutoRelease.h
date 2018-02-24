@@ -18,11 +18,13 @@ public:
 	AutoOutOfScope(T& destructor) noexcept
 		: m_destructor(destructor)
 	{ }
-	AutoOutOfScope(AutoOutOfScope &) = delete;	// Can't be copied!
-	AutoOutOfScope() = delete;					// must have args!
 	~AutoOutOfScope() { m_destructor(); }
 
-	AutoOutOfScope &operator =(const AutoOutOfScope &) = delete;	// No assignments!
+	AutoOutOfScope(const AutoOutOfScope &) = delete;
+	AutoOutOfScope() = delete;
+	AutoOutOfScope &operator =(const AutoOutOfScope &) = delete;
+	AutoOutOfScope(AutoOutOfScope &&) = delete;
+	AutoOutOfScope &operator =(AutoOutOfScope &&) = delete;
 
 private:
 	T& m_destructor;
