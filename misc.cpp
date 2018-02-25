@@ -168,9 +168,22 @@ auto readFile(const TString &filename)
 		return nullptr;
 
 #if DCX_USE_WRAPPERS
-	Dcx::dcxFileResource file(filename, TEXT("rb"));
+	const Dcx::dcxFileResource file(filename, TEXT("rb"));
 
 	const auto size = file.Size();
+
+	// make data container for file contents
+	auto fileContents = std::make_unique<BYTE[]>(size + 2);
+
+	// Null terminate the string (use double zero)
+	fileContents[size] = 0;
+	fileContents[size + 1U] = 0;
+
+	// read the file
+	fread(fileContents.get(), 1U, size, file.get());
+
+	// return memory block containing file data
+	return fileContents;
 #else
 	auto file = dcx_fopen(filename, TEXT("rb"));
 	
@@ -190,7 +203,6 @@ auto readFile(const TString &filename)
 	// Get back to file beginning
 	if (fseek(file, 0, SEEK_SET))
 		return nullptr;
-#endif
 
 	// make data container for file contents
 	auto fileContents = std::make_unique<BYTE[]>(size + 2);
@@ -204,6 +216,7 @@ auto readFile(const TString &filename)
 
 	// return memory block containing file data
 	return fileContents;
+#endif
 }
 
 /*!
@@ -233,7 +246,16 @@ TString readTextFile(const TString &tFile)
 bool SaveDataToFile(const TString &tsFile, const TString &tsData)
 {
 #if DCX_USE_WRAPPERS
-	Dcx::dcxFileResource file(tsFile, TEXT("wb"));
+	const Dcx::dcxFileResource file(tsFile, TEXT("wb"));
+
+	constexpr WCHAR tBOM = 0xFEFF;	// unicode BOM
+
+	fwrite(&tBOM, sizeof(TCHAR), 1, file.get());
+
+	// if not in unicode mode then save without BOM as ascii/utf8
+	fwrite(tsData.to_chr(), sizeof(TCHAR), tsData.len(), file.get());
+	fflush(file.get());
+	return true;
 #else
 	auto file = dcx_fopen(tsFile.to_chr(), TEXT("wb"));
 	
@@ -241,7 +263,6 @@ bool SaveDataToFile(const TString &tsFile, const TString &tsData)
 		return false;
 	
 	Auto(fclose(file));
-#endif
 
 	constexpr WCHAR tBOM = 0xFEFF;	// unicode BOM
 
@@ -251,6 +272,7 @@ bool SaveDataToFile(const TString &tsFile, const TString &tsData)
 	fwrite(tsData.to_chr(), sizeof(TCHAR), tsData.len(), file);
 	fflush(file);
 	return true;
+#endif
 }
 
 /*!
@@ -1956,13 +1978,13 @@ bool AddFileIcons(HIMAGELIST himl, TString &filename, const bool bLarge, const i
 	do {
 		const Dcx::dcxIconResource hIcon(filename, fIndex, bLarge);
 
-		bGotIcon = (hIcon != nullptr);
+		bGotIcon = (hIcon.get() != nullptr);
 		if (bGotIcon)
 		{
 			if (i == -1)
-				ImageList_ReplaceIcon(himl, -1, hIcon);	// same as ImageList_AddIcon()
+				ImageList_ReplaceIcon(himl, -1, hIcon.get());	// same as ImageList_AddIcon()
 			else
-				ImageList_ReplaceIcon(himl, i++, hIcon);
+				ImageList_ReplaceIcon(himl, i++, hIcon.get());
 			bAdded = true;
 
 			++fIndex;
@@ -1984,7 +2006,8 @@ bool AddFileIcons(HIMAGELIST himl, TString &filename, const bool bLarge, const i
 		else
 			ExtractIconEx(filename.to_chr(), fIndex, nullptr, &hIcon, 1);
 	
-		if (hIcon != nullptr) {
+		if (hIcon != nullptr)
+		{
 			// auto free handle hIcon when going out of scope or throwing an exception
 			//Auto(DestroyIcon(hIcon));
 	
