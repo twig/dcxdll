@@ -210,7 +210,7 @@ void XPopupMenuItem::DrawItem( const LPDRAWITEMSTRUCT lpdis )
 //#endif
 
 	// All Items
-	this->DrawItemBackground( lpdis, lpcol );
+	this->DrawItemBackground( lpdis, lpcol);
 	this->DrawItemBox( lpdis, lpcol );
 
 	// alrdy done in getsize
@@ -262,7 +262,7 @@ void XPopupMenuItem::DrawItem( const LPDRAWITEMSTRUCT lpdis )
  * blah
  */
 
-void XPopupMenuItem::DrawItemBackground(const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol)
+void XPopupMenuItem::DrawItemBackground(const LPDRAWITEMSTRUCT lpdis, const XPMENUCOLORS *const lpcol)
 {
 	switch (this->m_pXParentMenu->getStyle())
 	{
@@ -289,6 +289,7 @@ void XPopupMenuItem::DrawItemBackground(const LPDRAWITEMSTRUCT lpdis, const LPXP
 			break;
 	}
 	// fall through when unable to draw bitmap (no bitmap or error)
+	[[fallthrough]];
 	case XPopupMenu::XPMS_OFFICEXP:
 	case XPopupMenu::XPMS_NORMAL:
 	case XPopupMenu::XPMS_OFFICE2003_REV:
@@ -315,20 +316,20 @@ void XPopupMenuItem::DrawItemBackground(const LPDRAWITEMSTRUCT lpdis, const LPXP
  * blah
  */
 
-void XPopupMenuItem::DrawItemBox(const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol)
+void XPopupMenuItem::DrawItemBox(const LPDRAWITEMSTRUCT lpdis, const XPMENUCOLORS *const lpcol)
 {
 	switch (this->m_pXParentMenu->getStyle())
 	{
 	case XPopupMenu::XPMS_OFFICE2003_REV:
 	{
-		RECT rc{ XPMI_BOXLPAD, lpdis->rcItem.top, XPMI_BOXLPAD + XPMI_BOXWIDTH, lpdis->rcItem.bottom };
+		const RECT rc{ XPMI_BOXLPAD, lpdis->rcItem.top, XPMI_BOXLPAD + XPMI_BOXWIDTH, lpdis->rcItem.bottom };
 		XPopupMenuItem::DrawGradient(lpdis->hDC, &rc, lpcol->m_clrBox, lpcol->m_clrLightBox);
 		break;
 	}
 
 	case XPopupMenu::XPMS_OFFICEXP:
 	{
-		RECT rc{ XPMI_BOXLPAD, lpdis->rcItem.top, XPMI_BOXLPAD + XPMI_BOXWIDTH, lpdis->rcItem.bottom };
+		const RECT rc{ XPMI_BOXLPAD, lpdis->rcItem.top, XPMI_BOXLPAD + XPMI_BOXWIDTH, lpdis->rcItem.bottom };
 		
 		if (const auto hBrush = CreateSolidBrush(lpcol->m_clrBox); hBrush != nullptr)
 		{
@@ -380,7 +381,7 @@ void XPopupMenuItem::DrawItemBox(const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOL
 	case XPopupMenu::XPMS_OFFICE2003:
 	default:
 	{
-		RECT rc{ XPMI_BOXLPAD, lpdis->rcItem.top, XPMI_BOXLPAD + XPMI_BOXWIDTH, lpdis->rcItem.bottom };
+		const RECT rc{ XPMI_BOXLPAD, lpdis->rcItem.top, XPMI_BOXLPAD + XPMI_BOXWIDTH, lpdis->rcItem.bottom };
 
 		XPopupMenuItem::DrawGradient(lpdis->hDC, &rc, lpcol->m_clrLightBox, lpcol->m_clrBox);
 		break;
@@ -394,7 +395,7 @@ void XPopupMenuItem::DrawItemBox(const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOL
  * blah
  */
 
-void XPopupMenuItem::DrawItemSelection( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol, const bool bDis, const bool bRounded ) noexcept
+void XPopupMenuItem::DrawItemSelection( const LPDRAWITEMSTRUCT lpdis, const XPMENUCOLORS *const lpcol, const bool bDis, const bool bRounded ) noexcept
 {
 
 	//if (dcx_testflag(lpdis->itemState, ODS_HOTLIGHT))
@@ -435,7 +436,7 @@ void XPopupMenuItem::DrawItemSelection( const LPDRAWITEMSTRUCT lpdis, const LPXP
  * blah
  */
 
-void XPopupMenuItem::DrawItemCheckBox( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol, const bool bDis ) noexcept
+void XPopupMenuItem::DrawItemCheckBox( const LPDRAWITEMSTRUCT lpdis, const XPMENUCOLORS *const lpcol, const bool bDis ) noexcept
 {
 	const auto hBrush = CreateSolidBrush(bDis ? lpcol->m_clrDisabledCheckBox : lpcol->m_clrCheckBox);
 	Auto(DeleteBrush(hBrush));
@@ -491,7 +492,7 @@ void XPopupMenuItem::DrawItemCheckBox( const LPDRAWITEMSTRUCT lpdis, const LPXPM
  *
  * blah
  */
-void XPopupMenuItem::DrawItemText( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol, const bool bDis )
+void XPopupMenuItem::DrawItemText( const LPDRAWITEMSTRUCT lpdis, const XPMENUCOLORS *const lpcol, const bool bDis )
 {
 	const auto oldClr = SetTextColor(lpdis->hDC, (bDis ? lpcol->m_clrDisabledText : ((dcx_testflag(lpdis->itemState, ODS_SELECTED)) ? lpcol->m_clrSelectedText : lpcol->m_clrText)));
 	Auto(SetTextColor(lpdis->hDC, oldClr));
@@ -558,7 +559,7 @@ void XPopupMenuItem::DrawItemText( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUC
  * blah
  */
 
-void XPopupMenuItem::DrawItemIcon( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol, const UINT iExStyles, const bool bSel, const bool bDis ) noexcept
+void XPopupMenuItem::DrawItemIcon( const LPDRAWITEMSTRUCT lpdis, const XPMENUCOLORS *const lpcol, const UINT iExStyles, const bool bSel, const bool bDis ) noexcept
 {
 	if (const auto himl = this->m_pXParentMenu->getImageList(); (himl != nullptr && this->m_nIcon > -1 && this->m_nIcon < ImageList_GetImageCount( himl ) ))
 	{
@@ -602,7 +603,7 @@ void XPopupMenuItem::DrawItemIcon( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUC
  * blah
  */
 
-void XPopupMenuItem::DrawItemSubArrow( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol, const bool bDis ) noexcept
+void XPopupMenuItem::DrawItemSubArrow( const LPDRAWITEMSTRUCT lpdis, const XPMENUCOLORS *const lpcol, const bool bDis ) noexcept
 {
 
 //#ifdef DCX_USE_GDIPLUS
@@ -705,7 +706,7 @@ void XPopupMenuItem::DrawItemSubArrow( const LPDRAWITEMSTRUCT lpdis, const LPXPM
  * blah
  */
 
-void XPopupMenuItem::DrawItemSeparator( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol ) noexcept
+void XPopupMenuItem::DrawItemSeparator( const LPDRAWITEMSTRUCT lpdis, const XPMENUCOLORS *const lpcol ) noexcept
 {
 	switch (this->m_pXParentMenu->getStyle())
 	{
@@ -768,7 +769,7 @@ void XPopupMenuItem::DrawItemSeparator( const LPDRAWITEMSTRUCT lpdis, const LPXP
  * blah
  */
 
-void XPopupMenuItem::DrawGradient( const HDC hdc, const LPRECT lprc, const COLORREF clrStart, const COLORREF clrEnd, const bool bHorz ) noexcept
+void XPopupMenuItem::DrawGradient( const HDC hdc, const RECT *const lprc, const COLORREF clrStart, const COLORREF clrEnd, const bool bHorz ) noexcept
 {
 	const auto StartRed = GetRValue(clrStart);
 	const auto StartGreen = GetGValue((clrStart & 0xFFFF));
@@ -814,9 +815,13 @@ void XPopupMenuItem::DrawGradient( const HDC hdc, const LPRECT lprc, const COLOR
 
 		for (auto dn = decltype(n){0}; dn <= n; dn += dy)
 		{
-			const auto Red = gsl::narrow_cast<BYTE>(MulDiv(gsl::narrow_cast<int>(EndRed) - StartRed, dn, n) + StartRed);
-			const auto Green = gsl::narrow_cast<BYTE>(MulDiv(gsl::narrow_cast<int>(EndGreen) - StartGreen, dn, n) + StartGreen);
-			const auto Blue = gsl::narrow_cast<BYTE>(MulDiv(gsl::narrow_cast<int>(EndBlue) - StartBlue, dn, n) + StartBlue);
+			//const auto Red = gsl::narrow_cast<BYTE>(MulDiv(gsl::narrow_cast<int>(EndRed) - StartRed, dn, n) + StartRed);
+			//const auto Green = gsl::narrow_cast<BYTE>(MulDiv(gsl::narrow_cast<int>(EndGreen) - StartGreen, dn, n) + StartGreen);
+			//const auto Blue = gsl::narrow_cast<BYTE>(MulDiv(gsl::narrow_cast<int>(EndBlue) - StartBlue, dn, n) + StartBlue);
+
+			const auto Red = gsl::narrow_cast<BYTE>(Dcx::dcxMulDiv32(gsl::narrow_cast<int>(EndRed) - StartRed, dn, n) + StartRed);
+			const auto Green = gsl::narrow_cast<BYTE>(Dcx::dcxMulDiv32(gsl::narrow_cast<int>(EndGreen) - StartGreen, dn, n) + StartGreen);
+			const auto Blue = gsl::narrow_cast<BYTE>(Dcx::dcxMulDiv32(gsl::narrow_cast<int>(EndBlue) - StartBlue, dn, n) + StartBlue);
 
 			if ( bHorz )
 				SetRect( &rc, lprc->left, lprc->top + dn, lprc->right , lprc->top + dn + dy );
@@ -832,7 +837,7 @@ void XPopupMenuItem::DrawGradient( const HDC hdc, const LPRECT lprc, const COLOR
 	}
 }
 
-void XPopupMenuItem::DrawVerticalBar(const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol, const bool bReversed)
+void XPopupMenuItem::DrawVerticalBar(const LPDRAWITEMSTRUCT lpdis, const XPMENUCOLORS *const lpcol, const bool bReversed)
 {
 	// Working code: Calculates height of complete menu, and draws gradient to fill. Samples taken off complete gradient when needed.
 	///*

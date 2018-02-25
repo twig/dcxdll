@@ -81,26 +81,28 @@ public:
 	XPopupMenuItem() = delete;
 	XPopupMenuItem(const XPopupMenuItem &) = delete;
 	XPopupMenuItem &operator = (const XPopupMenuItem &) = delete;
+	XPopupMenuItem(XPopupMenuItem &&) = delete;
+	XPopupMenuItem &operator = (XPopupMenuItem &&) = delete;
 
 	XPopupMenuItem( XPopupMenu * Parent, const bool bSep, ULONG_PTR dwDataBackup = NULL ) noexcept;
 	XPopupMenuItem( XPopupMenu * Parent, const TString &tsItemText, const int nIcon, const bool bSubMenu, ULONG_PTR dwDataBackup = NULL );
 	virtual ~XPopupMenuItem( ) noexcept;
 
 	void DrawItem(const LPDRAWITEMSTRUCT lpdis);
-	void DrawItemBackground( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol );
-	void DrawItemBox( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol );
-	void DrawItemText( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol, const bool bDis = false );
-	void DrawItemIcon( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol, const UINT iExStyles, const bool bSel = false, const bool bDis = false ) noexcept;
-	void DrawItemSeparator( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol ) noexcept;
+	void DrawItemBackground( const LPDRAWITEMSTRUCT lpdis, const XPMENUCOLORS *const lpcol );
+	void DrawItemBox( const LPDRAWITEMSTRUCT lpdis, const XPMENUCOLORS *const lpcol );
+	void DrawItemText( const LPDRAWITEMSTRUCT lpdis, const XPMENUCOLORS *const lpcol, const bool bDis = false );
+	void DrawItemIcon( const LPDRAWITEMSTRUCT lpdis, const XPMENUCOLORS *const lpcol, const UINT iExStyles, const bool bSel = false, const bool bDis = false ) noexcept;
+	void DrawItemSeparator( const LPDRAWITEMSTRUCT lpdis, const XPMENUCOLORS *const lpcol ) noexcept;
 
 	SIZE getItemSize( const HWND mHwnd );
 
-	static void DrawItemSelection(const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol, const bool bDis = false, const bool bRounded = false) noexcept;
-	static void DrawItemCheckBox(const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol, const bool bDis = false) noexcept;
-	static void DrawItemSubArrow(const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol, const bool bDis = false) noexcept;
+	static void DrawItemSelection(const LPDRAWITEMSTRUCT lpdis, const XPMENUCOLORS *const lpcol, const bool bDis = false, const bool bRounded = false) noexcept;
+	static void DrawItemCheckBox(const LPDRAWITEMSTRUCT lpdis, const XPMENUCOLORS *const lpcol, const bool bDis = false) noexcept;
+	static void DrawItemSubArrow(const LPDRAWITEMSTRUCT lpdis, const XPMENUCOLORS *const lpcol, const bool bDis = false) noexcept;
 	static bool DrawMenuBitmap(const LPDRAWITEMSTRUCT lpdis, const bool bBigImage, const HBITMAP bmImage);
-	static void DrawGradient(const HDC hdc, const LPRECT lprc, const COLORREF clrStart, const COLORREF clrEnd, const bool bHorz = false) noexcept;
-	static void DrawVerticalBar( const LPDRAWITEMSTRUCT lpdis, const LPXPMENUCOLORS lpcol, const bool bReversed);
+	static void DrawGradient(const HDC hdc, const RECT *const lprc, const COLORREF clrStart, const COLORREF clrEnd, const bool bHorz = false) noexcept;
+	static void DrawVerticalBar( const LPDRAWITEMSTRUCT lpdis, const XPMENUCOLORS *const lpcol, const bool bReversed);
 
 	static COLORREF LightenColor( const UINT iScale, const COLORREF clrColor ) noexcept;
 	static COLORREF DarkenColor( const UINT iScale, const COLORREF clrColor ) noexcept;

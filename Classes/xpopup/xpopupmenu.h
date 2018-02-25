@@ -106,6 +106,8 @@ public:
 	XPopupMenu() = delete;
 	XPopupMenu(const XPopupMenu &) = delete;
 	XPopupMenu &operator = (const XPopupMenu &) = delete;
+	XPopupMenu(XPopupMenu &&) = delete;
+	XPopupMenu &operator =(XPopupMenu &&) = delete;
 
 	XPopupMenu(const TString &tsName, HMENU hMenu);
 	XPopupMenu( const TString & tsMenuName, MenuStyle mStyle );
@@ -149,9 +151,9 @@ public:
 
 	const inline HMENU &getMenuHandle( ) const noexcept { return this->m_hMenu; };
 
-	const LPXPMENUCOLORS getColors() const noexcept
+	const XPMENUCOLORS *getColors() const noexcept
 	{
-		return (LPXPMENUCOLORS)&m_MenuColors;
+		return &m_MenuColors;
 	}
 	void setColor( const MenuColours nColor, const COLORREF clrColor ) noexcept;
 	COLORREF getColor( const MenuColours nColor ) const noexcept;
@@ -227,9 +229,9 @@ public:
 	void setBackBitmap( HBITMAP hBitmap ) noexcept;
 
 	const inline bool &IsRounded(void) const noexcept { return this->m_bRoundedSel; };
-	const inline BYTE &IsAlpha(void) const noexcept { return this->m_uiAlpha; };
+	const inline std::byte &IsAlpha(void) const noexcept { return this->m_uiAlpha; };
 	constexpr void SetRounded(const bool rounded) noexcept { this->m_bRoundedSel = rounded; };
-	constexpr void SetAlpha(const BYTE alpha) noexcept { this->m_uiAlpha = alpha; };
+	constexpr void SetAlpha(const std::byte alpha) noexcept { this->m_uiAlpha = alpha; };
 
 	// Methods to attach and detach from mIRC menu.
 	bool attachToMenuBar(HMENU menubar, const TString &label);
@@ -251,23 +253,23 @@ public:
 
 protected:
 
-	HMENU m_hMenu; //!< Menu Handle
-	HIMAGELIST m_hImageList; //!< Menu ImageList
-	MenuStyle m_MenuStyle; //!< Menu Style
-	TString m_tsMenuName; //!< Menu Name
-	TString m_tsMarkedText; //!< Extra field to store custom information
-	UINT m_MenuItemStyles; //!< Menu Item Styles
-	size_t m_menuNameHash;	//!< Hash of tsMenuName
+	HMENU m_hMenu;						//!< Menu Handle
+	HIMAGELIST m_hImageList{ nullptr };	//!< Menu ImageList
+	MenuStyle m_MenuStyle{ XPMS_OFFICE2003 };//!< Menu Style
+	TString m_tsMenuName;				//!< Menu Name
+	TString m_tsMarkedText;				//!< Extra field to store custom information
+	UINT m_MenuItemStyles{};			//!< Menu Item Styles
+	size_t m_menuNameHash;				//!< Hash of tsMenuName
 
-	HBITMAP m_hBitmap; //!< Menu Item Background Image in Custom Style
+	HBITMAP m_hBitmap{ nullptr };		//!< Menu Item Background Image in Custom Style
 
-	XPMENUCOLORS m_MenuColors; //!< Menu Colors
+	XPMENUCOLORS m_MenuColors;			//!< Menu Colors
 
-	BYTE m_uiAlpha;			//!< Menu is alpha blended. 0 -> 255
+	std::byte m_uiAlpha{ 255 };			//!< Menu is alpha blended. 0 -> 255
 
-	bool m_bRoundedSel; //!< Menu has rounded selection box.
-	bool m_bAttachedToMenuBar; //!< Is the menu attached to the mIRC window menubar?
-	bool m_bReserved[2];				//!< Reserved for future use.
+	bool m_bRoundedSel{ false };		//!< Menu has rounded selection box.
+	bool m_bAttachedToMenuBar{ false }; //!< Is the menu attached to the mIRC window menubar?
+	bool m_bReserved[2]{};				//!< Reserved for future use.
 };
 #ifdef __INTEL_COMPILER // Defined when using Intel C++ Compiler.
 #pragma warning( pop )

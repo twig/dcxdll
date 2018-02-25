@@ -24,28 +24,6 @@
   * blah
   */
 
-
-  //XPopupMenu::XPopupMenu( const TString & tsMenuName, MenuStyle mStyle )
-  //: m_tsMenuName( tsMenuName ), m_MenuStyle( mStyle ), m_MenuItemStyles(0), m_hImageList(nullptr),
-  //m_hBitmap(nullptr), m_bRoundedSel(false), m_uiAlpha(255), m_bAttachedToMenuBar(false)
-  //{
-  //
-  //	this->m_hMenu = CreatePopupMenu( );
-  //
-  //	this->m_MenuColors.m_clrBack = RGB( 255, 255, 255 );
-  //	this->m_MenuColors.m_clrBox =  RGB( 184, 199, 146 );
-  //	m_MenuColors.m_clrLightBox = XPopupMenuItem::LightenColor(200, m_MenuColors.m_clrBox);
-  //	this->m_MenuColors.m_clrCheckBox = RGB( 255, 128, 0 );
-  //	this->m_MenuColors.m_clrDisabledCheckBox = RGB( 200, 200, 200 );
-  //	this->m_MenuColors.m_clrDisabledSelection = RGB( 255, 255, 255 );
-  //	this->m_MenuColors.m_clrDisabledText = RGB( 128, 128, 128 );
-  //	this->m_MenuColors.m_clrSelection = RGB( 255, 229, 179 );
-  //	this->m_MenuColors.m_clrSelectionBorder = RGB( 0, 0, 0 );
-  //	this->m_MenuColors.m_clrSeparatorLine = RGB( 128, 128, 128 );
-  //	this->m_MenuColors.m_clrText = RGB( 0, 0, 0 );
-  //	this->m_MenuColors.m_clrSelectedText = RGB( 0, 0, 0 );
-  //}
-
 XPopupMenu::XPopupMenu(const TString & tsMenuName, MenuStyle mStyle)
 	: XPopupMenu(tsMenuName, CreatePopupMenu())
 {
@@ -59,24 +37,8 @@ XPopupMenu::XPopupMenu(const TString & tsMenuName, MenuStyle mStyle)
  */
 
 XPopupMenu::XPopupMenu(const TString &tsName, HMENU hMenu)
-	: m_hMenu(hMenu), m_MenuItemStyles(0), m_MenuStyle(XPMS_OFFICE2003), m_hImageList(nullptr), m_hBitmap(nullptr)
-	, m_tsMenuName(tsName), m_bRoundedSel(false), m_uiAlpha(255), m_bAttachedToMenuBar(false)
-	, m_MenuColors()
-	, m_menuNameHash(std::hash<TString>{}(tsName))
-	, m_bReserved{}
+	: m_hMenu(hMenu), m_tsMenuName(tsName), m_menuNameHash(std::hash<TString>{}(tsName))
 {
-	//this->m_MenuColors.m_clrBack = RGB( 255, 255, 255 );
-	//this->m_MenuColors.m_clrBox =  RGB( 184, 199, 146 );
-	//m_MenuColors.m_clrLightBox = XPopupMenuItem::LightenColor(200, m_MenuColors.m_clrBox);
-	//this->m_MenuColors.m_clrCheckBox = RGB( 255, 128, 0 );
-	//this->m_MenuColors.m_clrDisabledCheckBox = RGB( 200, 200, 200 );
-	//this->m_MenuColors.m_clrDisabledSelection = RGB( 255, 255, 255 );
-	//this->m_MenuColors.m_clrDisabledText = RGB( 128, 128, 128 );
-	//this->m_MenuColors.m_clrSelection = RGB( 255, 229, 179 );
-	//this->m_MenuColors.m_clrSelectionBorder = RGB( 0, 0, 0 );
-	//this->m_MenuColors.m_clrSeparatorLine = RGB( 128, 128, 128 );
-	//this->m_MenuColors.m_clrText = RGB( 0, 0, 0 );
-	//this->m_MenuColors.m_clrSelectedText = RGB( 0, 0, 0 );
 }
 
 /*!
@@ -765,7 +727,7 @@ void XPopupMenu::deleteAllItemData(HMENU hMenu)
 	{
 		if (GetMenuItemInfo(hMenu, gsl::narrow_cast<UINT>(i), TRUE, &mii))
 		{
-			if (const auto p_Item = reinterpret_cast<XPopupMenuItem *>(mii.dwItemData); p_Item != nullptr)
+			if (const auto *const p_Item = reinterpret_cast<XPopupMenuItem *>(mii.dwItemData); p_Item != nullptr)
 			{
 				// load the old dwItemData value back to make mIRC happy
 				this->deleteMenuItemData(p_Item, &mii);

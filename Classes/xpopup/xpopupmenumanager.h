@@ -31,36 +31,29 @@
 class XPopupMenuManager
 {
 private:
-	//XPopupMenu * m_mIRCPopupMenu;
-	//XPopupMenu * m_mIRCMenuBar;
+	std::unique_ptr<XPopupMenu> m_mIRCPopupMenu{ nullptr };
+	std::unique_ptr<XPopupMenu> m_mIRCMenuBar{ nullptr };
+	std::unique_ptr<XPopupMenu> m_mIRCScriptMenu{ nullptr };
 
-	std::unique_ptr<XPopupMenu> m_mIRCPopupMenu;
-	std::unique_ptr<XPopupMenu> m_mIRCMenuBar;
-	std::unique_ptr<XPopupMenu> m_mIRCScriptMenu;
+	bool m_bIsMenuBar{ false };
+	bool m_bIsSysMenu{ false };
 
-	bool m_bIsMenuBar;
-	bool m_bIsSysMenu;
-
-	bool m_bIsActiveMircPopup;
-	bool m_bIsActiveMircMenubarPopup;
+	bool m_bIsActiveMircPopup{ false };
+	bool m_bIsActiveMircMenubarPopup{ false };
 
 
-	HMENU m_hMenuCustom;
-	HWND m_hMenuOwner; //!< Menu Owner Window Which Processes WM_ Menu Messages 
+	HMENU m_hMenuCustom{ nullptr };
+	HWND m_hMenuOwner{ nullptr }; //!< Menu Owner Window Which Processes WM_ Menu Messages 
 
 public:
 
 	XPopupMenuManager(const XPopupMenuManager &) = delete;
 	XPopupMenuManager &operator = (const XPopupMenuManager &) = delete;
+	XPopupMenuManager(XPopupMenuManager &&) = delete;
+	XPopupMenuManager &operator =(XPopupMenuManager &&) = delete;
 
-	//XPopupMenuManager( );
-	//virtual ~XPopupMenuManager( );
-
-	XPopupMenuManager() noexcept
-		: m_mIRCPopupMenu(nullptr), m_mIRCMenuBar(nullptr), m_mIRCScriptMenu(nullptr), m_bIsMenuBar(false), m_bIsSysMenu(false)
-		, m_bIsActiveMircPopup(false), m_bIsActiveMircMenubarPopup(false), m_hMenuCustom(nullptr), m_hMenuOwner(nullptr), m_vpXPMenu()
-	{}
-	~XPopupMenuManager() = default;
+	XPopupMenuManager() noexcept = default;
+	~XPopupMenuManager() noexcept = default;
 
 	void load(void);
 	void unload(void) noexcept;

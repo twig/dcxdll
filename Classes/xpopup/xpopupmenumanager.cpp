@@ -519,7 +519,7 @@ void XPopupMenuManager::parseCommand( const TString & input, XPopupMenu *const p
 			p_Menu->SetRounded((input.getnexttok( ).to_int() > 0));	// tok 4
 		else if (xflags[TEXT('a')]) // Set Alpha value of menu. 0-255
 		{
-			const auto alpha = gsl::narrow_cast<BYTE>(input.getnexttok().to_<UINT>() & 0xFF);	// tok 4
+			const std::byte alpha{ (input.getnexttok().to_<UINT>() & 0xFF) };	// tok 4
 
 			p_Menu->SetAlpha(alpha);
 		}
