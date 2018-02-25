@@ -20,18 +20,18 @@ struct simpleString {
 	using size_type = std::size_t;
 
 	constexpr simpleString() noexcept
-		: m_data{ 0 }, m_pData(&m_data[0])
+		: m_data{ 0 }
 	{
 	}
 	constexpr simpleString(const simpleString<T,N> &other) = default;
 	constexpr simpleString(simpleString<T,N> &&other) = default;
 	constexpr simpleString(const_pointer other) noexcept
-		: m_data{ 0 }, m_pData(&m_data[0])
+		: m_data{ 0 }
 	{
 		_ts_strcpyn(&m_data[0], other, N);
 	}
 	constexpr simpleString(const value_type &other) noexcept
-		: m_data{ other, value_type{} }, m_pData(&m_data[0])
+		: m_data{ other, value_type{} }
 	{
 	}
 
@@ -114,7 +114,7 @@ struct simpleString {
 
 private:
 	value_type	m_data[N];
-	pointer		m_pData;
+	pointer		m_pData{ &m_data[0] };
 };
 
 template <size_t N>
