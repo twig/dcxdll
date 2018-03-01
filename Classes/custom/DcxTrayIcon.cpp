@@ -127,13 +127,7 @@ mIRC(TrayIcon)
 }
 
 DcxTrayIcon::DcxTrayIcon(void)
-	: m_hwnd(nullptr)
-	, m_hwndTooltip(nullptr)
-	, m_wndProc(nullptr)
-	, trayIconIDs()
 {
-	//trayIconIDs.clear();
-
 	// create a "dialog" and dont bother showing it
 	this->m_hwnd = CreateWindow(TEXT("#32770"), TEXT(""), 0, 0, 0, 48, 48, nullptr, nullptr, GetModuleHandle(nullptr), nullptr);
 

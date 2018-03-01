@@ -30,10 +30,10 @@ public:
 
 private:
 	VectorOfInts trayIconIDs;
-	HWND m_hwnd;
-	WNDPROC m_wndProc;
+	HWND m_hwnd{ nullptr };
+	WNDPROC m_wndProc{ nullptr };
 
-	HWND m_hwndTooltip; //!< Balloon tooltip control
+	HWND m_hwndTooltip{ nullptr }; //!< Balloon tooltip control
 
 	const bool DeleteIconId(const int id);
 	void AddIconId(const int id);

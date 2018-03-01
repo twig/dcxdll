@@ -153,12 +153,12 @@ constexpr WindowAnimStyle operator |(const T &dStyle, const WindowAnimStyle &eSt
 }
 
 template <typename T>
-constexpr inline WindowStyle to_WindowStyle(T other) noexcept
+constexpr WindowStyle to_WindowStyle(T other) noexcept
 {
 	return static_cast<WindowStyle>(other);
 }
 template <typename T>
-constexpr inline WindowExStyle to_WindowExStyle(T other) noexcept
+constexpr WindowExStyle to_WindowExStyle(T other) noexcept
 {
 	return static_cast<WindowExStyle>(other);
 }

@@ -63,8 +63,8 @@ private:
 
 	HWND m_hRichEdit;
 	WNDPROC m_pOriginalWndProc;
-	bool m_bThemedBorder;
-	RECT m_rcClientPos;
+	bool m_bThemedBorder{ false };
+	RECT m_rcClientPos{ 0,0,0,0 };
 
 	//Function pointers from the UxTheme library
 	static HMODULE m_hUxTheme;
