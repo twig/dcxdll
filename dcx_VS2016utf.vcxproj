@@ -238,7 +238,7 @@
       <DisableSpecificWarnings>4710;4571</DisableSpecificWarnings>
       <ControlFlowGuard>Guard</ControlFlowGuard>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
-      <AdditionalOptions>/constexpr:steps400000 /constexpr:backtrace400000 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/constexpr:steps400000 /constexpr:backtrace400000 %(AdditionalOptions) /Qspectre</AdditionalOptions>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <ConformanceMode>true</ConformanceMode>
@@ -294,6 +294,7 @@
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalOptions> /Qspectre</AdditionalOptions>
     </ClCompile>
     <Link>
       <AdditionalOptions>/LTCG:NOSTATUS /ignore:4254 %(AdditionalOptions)</AdditionalOptions>
@@ -341,6 +342,7 @@
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalOptions> /Qspectre</AdditionalOptions>
     </ClCompile>
     <Link>
       <AdditionalOptions>/LTCG:NOSTATUS /ignore:4254 %(AdditionalOptions)</AdditionalOptions>
@@ -384,7 +386,7 @@
       <DebugInformationFormat />
       <CallingConvention>FastCall</CallingConvention>
       <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
-      <AdditionalOptions>/Qpar-report:1 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/Qpar-report:1 %(AdditionalOptions) /Qspectre</AdditionalOptions>
       <SDLCheck>true</SDLCheck>
       <CompileAsManaged>false</CompileAsManaged>
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
@@ -435,7 +437,7 @@
       </DebugInformationFormat>
       <CallingConvention>FastCall</CallingConvention>
       <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
-      <AdditionalOptions>/Qpar-report:1 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/Qpar-report:1 %(AdditionalOptions) /Qspectre</AdditionalOptions>
       <SDLCheck>true</SDLCheck>
       <CompileAsManaged>false</CompileAsManaged>
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
@@ -491,6 +493,7 @@
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalOptions> /Qspectre</AdditionalOptions>
     </ClCompile>
     <Link>
       <AdditionalOptions>/LTCG:NOSTATUS /ignore:4254 %(AdditionalOptions)</AdditionalOptions>
