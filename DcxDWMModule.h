@@ -11,11 +11,11 @@ typedef HRESULT (WINAPI *PFNDWMGETCOLORIZATIONCOLOR)( __out  DWORD *pcrColorizat
 class DcxDWMModule :
 	public DcxModule
 {
-	bool m_bAero;
-	bool m_bVista;
-	bool m_bWin7;
-	bool m_bWin8;
-	bool m_bWin10;
+	bool m_bAero{ false };
+	bool m_bVista{ false };
+	bool m_bWin7{ false };
+	bool m_bWin8{ false };
+	bool m_bWin10{ false };
 	static PFNDWMISCOMPOSITIONENABLED DwmIsCompositionEnabledUx;
 	static PFNDWMGETWINDOWATTRIBUTE DwmGetWindowAttributeUx;
 	static PFNDWMSETWINDOWATTRIBUTE DwmSetWindowAttributeUx;
@@ -26,14 +26,9 @@ class DcxDWMModule :
 public:
 	constexpr DcxDWMModule(void) noexcept
 		: DcxModule()
-		, m_bAero(false)
-		, m_bVista(false)
-		, m_bWin7(false)
-		, m_bWin8(false)
-		, m_bWin10(false)
 	{
 	}
-	virtual ~DcxDWMModule(void) noexcept;
+	~DcxDWMModule(void) noexcept;
 
 	DcxDWMModule(const DcxDWMModule &other) = delete;	// no copy constructor
 	DcxDWMModule(const DcxDWMModule &&other) = delete;	// no move constructor

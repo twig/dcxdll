@@ -16,9 +16,7 @@
 class DcxModule
 {
 public:
-	constexpr DcxModule(void) noexcept
-		: m_hModule(nullptr)
-	{}
+	constexpr DcxModule(void) noexcept {}
 	virtual ~DcxModule(void) noexcept {};
 
 	DcxModule(const DcxModule &other) = delete;	// no copy constructor
@@ -32,7 +30,7 @@ public:
 	virtual bool unload() = 0;
 
 protected:
-	HMODULE m_hModule;
+	HMODULE m_hModule{ nullptr };
 
 };
 

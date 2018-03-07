@@ -57,7 +57,7 @@ public:
 	constexpr DcxUXModule(void) noexcept
 		: DcxModule()
 	{}
-	virtual ~DcxUXModule(void) noexcept;
+	~DcxUXModule(void) noexcept;
 
 	DcxUXModule(const DcxUXModule &other) = delete;	// no copy constructor
 	DcxUXModule(const DcxUXModule &&other) = delete;	// no move constructor
