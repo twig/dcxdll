@@ -598,7 +598,7 @@ T *_ts_strstr(T *input, const std::remove_const_t<T> *find)
 template <typename TameString, typename WildString>
 bool _ts_WildcardMatch(const TameString &pszString, const WildString &pszMatch, const bool bCase = false) noexcept
 {
-	if ((pszMatch == nullptr) || (pszString == nullptr))
+	if ((!pszMatch) || (!pszString))
 		return false;
 
 	ptrdiff_t MatchPlaceholder = 0;
