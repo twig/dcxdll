@@ -23,8 +23,9 @@
  * blah
  */
 
-class LayoutCellPane : public LayoutCell {
-
+class LayoutCellPane
+	: public LayoutCell
+{
 public:
 
 	/*!
@@ -40,14 +41,16 @@ public:
 
 	//LayoutCellPane() = delete;
 	LayoutCellPane(const LayoutCellPane &) = delete;
-	explicit LayoutCellPane(const PaneType nType = HORZ) noexcept;
-	virtual ~LayoutCellPane( ) noexcept;
-
 	LayoutCellPane &operator =(const LayoutCellPane &) = delete;	// No assignments!
+	LayoutCellPane(LayoutCellPane &&) = delete;
+	LayoutCellPane &operator =(LayoutCellPane &&) = delete;
 
-	virtual void LayoutChild() final;
-	virtual HDWP ExecuteLayout( const HDWP hdwp ) final;
-	virtual void getMinMaxInfo( CellMinMaxInfo *const pCMMI ) const final;
+	explicit LayoutCellPane(const PaneType nType = HORZ) noexcept;
+	~LayoutCellPane( ) noexcept;
+
+	void LayoutChild() final;
+	HDWP ExecuteLayout( const HDWP hdwp ) final;
+	void getMinMaxInfo( CellMinMaxInfo *const pCMMI ) const final;
 
 	void toXml(TiXmlElement *const xml) final;
 	TiXmlElement * toXml(void) final;

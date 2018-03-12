@@ -75,9 +75,9 @@ const LayoutCell::CellType LayoutCellFill::getType() const noexcept
  * blah
  */
 
-void LayoutCellFill::LayoutChild()
-{
-}
+//void LayoutCellFill::LayoutChild()
+//{
+//}
 
 /*!
  * \brief blah
@@ -85,7 +85,7 @@ void LayoutCellFill::LayoutChild()
  * blah
  */
 
-HDWP LayoutCellFill::ExecuteLayout(const HDWP hdwp)
+HDWP LayoutCellFill::ExecuteLayout(const HDWP hdwp) noexcept
 {
 	auto hdwpdef = hdwp;
 
@@ -107,7 +107,7 @@ HDWP LayoutCellFill::ExecuteLayout(const HDWP hdwp)
  * blah
  */
 
-void LayoutCellFill::getMinMaxInfo(CellMinMaxInfo *const pCMMI) const
+void LayoutCellFill::getMinMaxInfo(CellMinMaxInfo *const pCMMI) const noexcept
 {
 	if (this->isVisible())
 	{

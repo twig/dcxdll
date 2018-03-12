@@ -23,8 +23,9 @@
  * blah
  */
 
-class LayoutCellFill : public LayoutCell {
-
+class LayoutCellFill
+	: public LayoutCell
+{
 public:
 
 	using LayoutCell::LayoutCell;
@@ -37,11 +38,11 @@ public:
 
 	LayoutCellFill &operator =(const LayoutCellFill &) = delete;	// No assignments!
 
-	virtual void LayoutChild() final;
-	virtual HDWP ExecuteLayout( const HDWP hdwp ) final;
-	virtual void getMinMaxInfo( CellMinMaxInfo *const pCMMI ) const final;
-	virtual void toXml(TiXmlElement *const xml) final;
-	virtual TiXmlElement * toXml(void) final;
+	void LayoutChild() noexcept final {};
+	HDWP ExecuteLayout( const HDWP hdwp ) noexcept final;
+	void getMinMaxInfo( CellMinMaxInfo *const pCMMI ) const noexcept final;
+	void toXml(TiXmlElement *const xml) final;
+	TiXmlElement * toXml(void) final;
 
 	const CellType getType() const noexcept final;
 

@@ -14,15 +14,15 @@
 #include "layoutcellfixed.h"
 #include <windowsx.h>
 
-/*!
- * \brief Constructor
- *
- * blah
- */
+ /*!
+  * \brief Constructor
+  *
+  * blah
+  */
 
 LayoutCellFixed::LayoutCellFixed(DcxControl * dcxc, const FixedType nType) noexcept
-: LayoutCell(dcxc)
-, m_nType(nType)
+	: LayoutCell(dcxc)
+	, m_nType(nType)
 {
 }
 
@@ -33,8 +33,8 @@ LayoutCellFixed::LayoutCellFixed(DcxControl * dcxc, const FixedType nType) noexc
  */
 
 LayoutCellFixed::LayoutCellFixed(const HWND mHwnd, const FixedType nType) noexcept
-: LayoutCell(mHwnd)
-, m_nType(nType)
+	: LayoutCell(mHwnd)
+	, m_nType(nType)
 {
 }
 
@@ -45,8 +45,8 @@ LayoutCellFixed::LayoutCellFixed(const HWND mHwnd, const FixedType nType) noexce
  */
 
 LayoutCellFixed::LayoutCellFixed(const RECT & rc, const FixedType nType) noexcept
-: LayoutCell(nullptr, rc)
-, m_nType(nType)
+	: LayoutCell(nullptr, rc)
+	, m_nType(nType)
 {
 }
 
@@ -57,8 +57,8 @@ LayoutCellFixed::LayoutCellFixed(const RECT & rc, const FixedType nType) noexcep
  */
 
 LayoutCellFixed::LayoutCellFixed(const HWND mHwnd, const RECT & rc, const FixedType nType) noexcept
-: LayoutCell(mHwnd, rc)
-, m_nType(nType)
+	: LayoutCell(mHwnd, rc)
+	, m_nType(nType)
 {
 }
 
@@ -68,9 +68,9 @@ LayoutCellFixed::LayoutCellFixed(const HWND mHwnd, const RECT & rc, const FixedT
  * blah
  */
 
-LayoutCellFixed::~LayoutCellFixed() noexcept
-{
-}
+//LayoutCellFixed::~LayoutCellFixed() noexcept
+//{
+//}
 
 /*!
  * \brief blah
@@ -89,9 +89,9 @@ const LayoutCell::CellType LayoutCellFixed::getType() const noexcept
  * blah
  */
 
-void LayoutCellFixed::LayoutChild()
-{
-}
+//void LayoutCellFixed::LayoutChild() noexcept
+//{
+//}
 
 
 TiXmlElement * LayoutCellFixed::toXml(void)
@@ -128,7 +128,7 @@ void LayoutCellFixed::toXml(TiXmlElement *const xml)
  * blah
  */
 
-HDWP LayoutCellFixed::ExecuteLayout(const HDWP hdwp)
+HDWP LayoutCellFixed::ExecuteLayout(const HDWP hdwp) noexcept
 {
 	auto hdwpdef = hdwp;
 
@@ -149,7 +149,7 @@ HDWP LayoutCellFixed::ExecuteLayout(const HDWP hdwp)
  * blah
  */
 
-void LayoutCellFixed::getMinMaxInfo(CellMinMaxInfo *const pCMMI) const
+void LayoutCellFixed::getMinMaxInfo(CellMinMaxInfo *const pCMMI) const noexcept
 {
 	if (this->isVisible())
 	{

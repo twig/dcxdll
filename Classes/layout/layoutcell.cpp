@@ -16,23 +16,23 @@
 #include "Classes/dcxdialog.h"
 #include "Dcx.h"
 
-/*!
- * \brief Constructor
- *
- * blah
- */
+ /*!
+  * \brief Constructor
+  *
+  * blah
+  */
 
-//LayoutCell::LayoutCell()
-//: m_Hwnd(nullptr)
-//, m_Parent(nullptr)
-//, m_FirstChild(nullptr)
-//, m_NextSibling(nullptr)
-//, m_BaseControl(nullptr)
-//, m_iCount(0)
-//{
-//	SetRectEmpty(&this->m_rcBorders);
-//	SetRectEmpty(&this->m_rcWindow);
-//}
+  //LayoutCell::LayoutCell()
+  //: m_Hwnd(nullptr)
+  //, m_Parent(nullptr)
+  //, m_FirstChild(nullptr)
+  //, m_NextSibling(nullptr)
+  //, m_BaseControl(nullptr)
+  //, m_iCount(0)
+  //{
+  //	SetRectEmpty(&this->m_rcBorders);
+  //	SetRectEmpty(&this->m_rcWindow);
+  //}
 
 LayoutCell::LayoutCell() noexcept
 	: LayoutCell(HWND())
@@ -46,7 +46,7 @@ LayoutCell::LayoutCell() noexcept
  */
 
 LayoutCell::LayoutCell(const HWND mHwnd) noexcept
-: LayoutCell(mHwnd, RECT())
+	: LayoutCell(mHwnd, RECT())
 {
 	if (m_Hwnd != nullptr)
 		GetWindowRect(m_Hwnd, &m_rcWindow);
@@ -59,13 +59,8 @@ LayoutCell::LayoutCell(const HWND mHwnd) noexcept
  */
 
 LayoutCell::LayoutCell(const HWND mHwnd, const RECT & rc) noexcept
-: m_Hwnd(mHwnd)
-, m_rcWindow(rc)
-, m_Parent(nullptr)
-, m_FirstChild(nullptr)
-, m_NextSibling(nullptr)
-, m_BaseControl(nullptr)
-, m_iCount(0)
+	: m_Hwnd(mHwnd)
+	, m_rcWindow(rc)
 {
 	SetRectEmpty(&m_rcBorders);
 
@@ -80,7 +75,7 @@ LayoutCell::LayoutCell(const HWND mHwnd, const RECT & rc) noexcept
 }
 
 LayoutCell::LayoutCell(DcxControl * dcxc) noexcept
-: LayoutCell()
+	: LayoutCell()
 {
 	m_BaseControl = dcxc;
 
@@ -96,9 +91,9 @@ LayoutCell::LayoutCell(DcxControl * dcxc) noexcept
  * blah
  */
 
-LayoutCell::~LayoutCell() noexcept
-{
-}
+//LayoutCell::~LayoutCell() noexcept
+//{
+//}
 
 /*!
  * \brief blah

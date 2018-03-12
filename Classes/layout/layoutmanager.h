@@ -41,6 +41,8 @@ public:
 
 	LayoutManager(const LayoutManager &) = delete;
 	LayoutManager &operator =(const LayoutManager &) = delete;	// No assignments!
+	LayoutManager(LayoutManager &&) = delete;
+	LayoutManager &operator =(LayoutManager &&) = delete;
 
 	const bool updateLayout(RECT & rc);
 
@@ -74,11 +76,10 @@ public:
 
 protected:
 
-	HWND m_Hwnd; //!< Dialog Window Handle
+	HWND m_Hwnd{ nullptr }; //!< Dialog Window Handle
 
-	//LayoutCell * m_pRoot; //!< Root LayoutCell Element
-	std::unique_ptr<LayoutCell> m_pRoot; //!< Root LayoutCell Element
-	size_t		m_iCount;
+	std::unique_ptr<LayoutCell> m_pRoot{ nullptr }; //!< Root LayoutCell Element
+	size_t		m_iCount{};
 };
 #ifdef __INTEL_COMPILER // Defined when using Intel C++ Compiler.
 #pragma warning( pop )

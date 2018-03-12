@@ -62,13 +62,15 @@ public:
 
 	LayoutCell(const LayoutCell &) = delete;
 	LayoutCell &operator =(const LayoutCell &) = delete;	// No assignments!
+	LayoutCell(LayoutCell &&) = delete;
+	LayoutCell &operator =(LayoutCell &&) = delete;
 
 	LayoutCell( ) noexcept;
 	explicit LayoutCell( const HWND mHwnd ) noexcept;
 	LayoutCell( const HWND mHwnd, const RECT & rc ) noexcept;
 	explicit LayoutCell( DcxControl * dcxc ) noexcept;
 
-	virtual ~LayoutCell( ) noexcept;
+	virtual ~LayoutCell() noexcept {};
 
 	void setRect(RECT & rc) noexcept;
 	void getRect( RECT & rc ) const noexcept;
@@ -103,13 +105,13 @@ protected:
 
 	RECT m_rcBorders; //!< Border defining rectangle
 	RECT m_rcWindow;  //!< Available Window defining rectangle including Borders
-	DcxControl * m_BaseControl;
+	DcxControl * m_BaseControl{ nullptr };
 
-	LayoutCell * m_Parent; //!< Used for navigation
-	LayoutCell * m_FirstChild; //!< Used for navigation
-	LayoutCell * m_NextSibling; //!< Used for navigation
+	LayoutCell * m_Parent{ nullptr }; //!< Used for navigation
+	LayoutCell * m_FirstChild{ nullptr }; //!< Used for navigation
+	LayoutCell * m_NextSibling{ nullptr }; //!< Used for navigation
 
-	size_t		m_iCount;
+	size_t		m_iCount{};
 };
 #ifdef __INTEL_COMPILER // Defined when using Intel C++ Compiler.
 #pragma warning( pop )

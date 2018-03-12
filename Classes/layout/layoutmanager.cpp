@@ -14,27 +14,25 @@
 #include "defines.h"
 #include "layoutmanager.h"
 
-/*!
- * \brief Constructor
- *
- * blah
- */
+ /*!
+  * \brief Constructor
+  *
+  * blah
+  */
 
-//LayoutManager::LayoutManager()
-//: LayoutManager(nullptr)
-//{
-//}
+  //LayoutManager::LayoutManager()
+  //: LayoutManager(nullptr)
+  //{
+  //}
 
-/*!
- * \brief Constructor
- *
- * blah
- */
+  /*!
+   * \brief Constructor
+   *
+   * blah
+   */
 
 LayoutManager::LayoutManager(HWND mHwnd) noexcept
-: m_pRoot(nullptr)
-, m_Hwnd(mHwnd)
-, m_iCount(0)
+	: m_Hwnd(mHwnd)
 {
 }
 
@@ -44,15 +42,15 @@ LayoutManager::LayoutManager(HWND mHwnd) noexcept
  * blah
  */
 
-//LayoutManager::~LayoutManager() {
-//
-//}
+ //LayoutManager::~LayoutManager() {
+ //
+ //}
 
-/*!
- * \brief blah
- *
- * blah
- */
+ /*!
+  * \brief blah
+  *
+  * blah
+  */
 
 const bool LayoutManager::updateLayout(RECT & rc)
 {
@@ -107,16 +105,16 @@ void LayoutManager::setRoot(std::unique_ptr<LayoutCell> p_Root) noexcept
  * blah
  */
 
-//LayoutCell * LayoutManager::getRoot() const noexcept {
-//
-//	return m_pRoot;
-//}
+ //LayoutCell * LayoutManager::getRoot() const noexcept {
+ //
+ //	return m_pRoot;
+ //}
 
-/*!
- * \brief blah
- *
- * blah
- */
+ /*!
+  * \brief blah
+  *
+  * blah
+  */
 
 LayoutCell * LayoutManager::getCell(const TString & path) const
 {
@@ -223,7 +221,7 @@ void LayoutManager::AddCell(const TString &input, const UINT iOffset)
 			// Defined Rectangle
 			if (dcx_testflag(iflags, LAYOUTDIM))
 			{
-				const RECT rc{0,0,W,H};
+				const RECT rc{ 0,0,W,H };
 
 				if (dcx_testflag(iflags, LAYOUTID))
 				{
@@ -273,7 +271,8 @@ void LayoutManager::AddCell(const TString &input, const UINT iOffset)
 			if (p_GetCell->getType() != LayoutCell::PANE)
 				throw Dcx::dcxException("Invalid parent Cell");
 
-			const auto p_PaneCell = (LayoutCellPane *)p_GetCell;
+			//const auto p_PaneCell = (LayoutCellPane *)p_GetCell;
+			const auto p_PaneCell = reinterpret_cast<LayoutCellPane *>(p_GetCell);
 			p_PaneCell->addChild(p_Cell.release(), WGT);
 		} // else if ( com == TEXT("cell") )
 
