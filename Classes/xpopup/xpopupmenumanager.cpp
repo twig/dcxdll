@@ -294,14 +294,16 @@ LRESULT XPopupMenuManager::OnCommand(HWND mHwnd, WPARAM wParam, LPARAM lParam)
 
 void XPopupMenuManager::parseCommand(const TString & input)
 {
-	const auto p_Menu = getMenuByName(input.getfirsttok(1), true);	// tok 1
-	const XSwitchFlags flags(input.getnexttok());	// tok 2
+	//const auto p_Menu = getMenuByName(input.getfirsttok(1), true);	// tok 1
+	//const XSwitchFlags flags(input.getnexttok());	// tok 2
+	//
+	//// Special mIRC Menu
+	//if (p_Menu == nullptr && !flags[TEXT('c')])
+	//	throw Dcx::dcxException(TEXT("\"%\" doesn't exist : see /xpopup -c"), input.gettok(1));
+	//
+	//parseCommand(input, p_Menu);
 
-	// Special mIRC Menu
-	if (p_Menu == nullptr && !flags[TEXT('c')])
-		throw Dcx::dcxException(TEXT("\"%\" doesn't exist : see /xpopup -c"), input.gettok(1));
-
-	parseCommand(input, p_Menu);
+	parseCommand(input, getMenuByName(input.getfirsttok(1), true));
 }
 
 void XPopupMenuManager::parseCommand( const TString & input, XPopupMenu *const p_Menu )
@@ -309,6 +311,10 @@ void XPopupMenuManager::parseCommand( const TString & input, XPopupMenu *const p
 	const auto tsMenuName(input.getfirsttok( 1 ));
 	const XSwitchFlags flags(input.getnexttok( ));	// tok 2
 	const auto numtok = input.numtok();
+
+	// Special mIRC Menu
+	if (p_Menu == nullptr && !flags[TEXT('c')])
+		throw Dcx::dcxException(TEXT("\"%\" doesn't exist : see /xpopup -c"), tsMenuName);
 
 	// xpopup -b - [MENU] [SWITCH] [FILENAME]
 	if (flags[TEXT('b')])
@@ -378,7 +384,7 @@ void XPopupMenuManager::parseCommand( const TString & input, XPopupMenu *const p
 #if DCX_USE_WRAPPERS
 		const Dcx::dcxIconResource icon(index, filename, false, tsFlags);
 
-		ImageList_AddIcon(himl, icon);
+		ImageList_AddIcon(himl, icon.get());
 #else
 		const HICON icon = dcxLoadIcon(index, filename, false, tsFlags);
 		if (icon == nullptr)
@@ -1182,7 +1188,7 @@ void XPopupMenuManager::LoadPopupsFromXML(const TiXmlElement *const popups, cons
 	
 
 	// Destroy a menu which already exists
-	if (const auto menu = Dcx::XPopups.getMenuByName(popupName, false); menu != nullptr)
+	if (const auto *const menu = Dcx::XPopups.getMenuByName(popupName, false); menu != nullptr)
 		Dcx::XPopups.deleteMenu(menu);
 
 	// Find global styles branch

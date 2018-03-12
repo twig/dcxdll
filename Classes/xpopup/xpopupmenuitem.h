@@ -107,14 +107,13 @@ public:
 	static COLORREF LightenColor( const UINT iScale, const COLORREF clrColor ) noexcept;
 	static COLORREF DarkenColor( const UINT iScale, const COLORREF clrColor ) noexcept;
 
-	// oddly the functions below cause VS2017 15.5.1 to crash
+	// oddly the functions below cause VS2017 15.5.1 - 15.6 to crash
 	//constexpr COLORREF LightenColor(const UINT iScale, const COLORREF clrColor) noexcept
 	//{
 	//	const auto nScale = gsl::narrow_cast<int>(iScale);
 	//	const auto R = Dcx::dcxMulDiv32(255 - GetRValue(clrColor), nScale, 255) + GetRValue(clrColor);
 	//	const auto G = Dcx::dcxMulDiv32(255 - GetGValue((clrColor & 0xFFFF)), nScale, 255) + GetGValue((clrColor & 0xFFFF));
 	//	const auto B = Dcx::dcxMulDiv32(255 - GetBValue(clrColor), nScale, 255) + GetBValue(clrColor);
-
 	//	return RGB(R, G, B);
 	//}
 	//constexpr COLORREF DarkenColor(const UINT iScale, const COLORREF clrColor) noexcept
@@ -123,7 +122,6 @@ public:
 	//	const auto R = Dcx::dcxMulDiv32(GetRValue(clrColor), (255 - nScale), 255);
 	//	const auto G = Dcx::dcxMulDiv32(GetGValue((clrColor & 0xFFFF)), (255 - nScale), 255);
 	//	const auto B = Dcx::dcxMulDiv32(GetBValue(clrColor), (255 - nScale), 255);
-
 	//	return RGB(R, G, B);
 	//}
 
@@ -145,10 +143,10 @@ protected:
 	int m_nIcon;					//!< Menu Item Icon Index
 	XPopupMenu * m_pXParentMenu;	//!< Parent XPopupMenu
 	ULONG_PTR m_dwItemDataBackup;
-	bool m_bBigBitmap;				//!< Single large bitmap image used for whole menu?
+	bool m_bBigBitmap{ false };				//!< Single large bitmap image used for whole menu?
 	bool m_bSep;					//!< Is Separator ?
 	bool m_bSubMenu;				//!< Has A SubMenu ?
-	bool m_bReserved;				//!< Reserved for future use.
+	bool m_bReserved{ false };				//!< Reserved for future use.
 };
 
 using VectorOfXPopupMenuItem = std::vector<XPopupMenuItem *>; //!< Vector of XPopupMenuItem Objects

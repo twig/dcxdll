@@ -220,7 +220,7 @@ void XPopupMenu::parseXPopCommand(const TString & input)
 			DestroyMenu(mii.hSubMenu);
 		}
 
-		if (const auto p_Item = reinterpret_cast<XPopupMenuItem *>(mii.dwItemData); p_Item != nullptr)
+		if (const auto *const p_Item = reinterpret_cast<XPopupMenuItem *>(mii.dwItemData); p_Item != nullptr)
 			this->deleteMenuItemData(p_Item, nullptr);
 
 		DeleteMenu(hMenu, gsl::narrow_cast<UINT>(nPos), MF_BYPOSITION);
@@ -872,7 +872,6 @@ void XPopupMenu::convertMenu(HMENU hMenu, const BOOL bForce)
 	mii.fMask = MIIM_SUBMENU | MIIM_DATA | MIIM_FTYPE | MIIM_STRING;
 	auto string = std::make_unique<TCHAR[]>(MIRC_BUFFER_SIZE_CCH);
 
-	//auto k = 0;
 	const auto n = GetMenuItemCount(hMenu);
 
 	for (auto i = decltype(n){0}; i < n; ++i)
@@ -906,8 +905,6 @@ void XPopupMenu::convertMenu(HMENU hMenu, const BOOL bForce)
 				mii.dwItemData = reinterpret_cast<ULONG_PTR>(p_Item.get());
 				this->m_vpMenuItem.push_back(p_Item.release());
 				SetMenuItemInfo(hMenu, gsl::narrow_cast<UINT>(i), TRUE, &mii);
-
-				//++k;
 			}
 		}
 	}
