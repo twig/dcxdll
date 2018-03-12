@@ -73,7 +73,6 @@ public:
 	// Error value for find primitive
 	static const size_type npos; // = -1;
 
-
 	// TiXmlString empty constructor
 	TiXmlString() noexcept
 		: rep_(&nullrep_)
@@ -257,8 +256,8 @@ private:
 			const size_type intsNeeded = (bytesNeeded + sizeof(int) - 1) / sizeof(int);
 			rep_ = reinterpret_cast<Rep*>(new int[intsNeeded]);
 
-			// Ook: possible buffer overrun issue here...
-			rep_->str[rep_->size = sz] = '\0';
+			rep_->size = sz;
+			rep_->str[sz] = '\0';
 			rep_->capacity = cap;
 		}
 		else
