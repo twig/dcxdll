@@ -5,6 +5,7 @@
 	By Marko Tintor (http://blog.memsql.com/c-error-handling-with-auto/)
 
 	Minimal changes made so it compiles ok with vs2013
+	Changed again for vs2017
 */
 //#include <stdexcept>	// for exceptions
 
