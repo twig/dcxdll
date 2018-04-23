@@ -8,13 +8,14 @@
 template<class _Ty>
 struct is_Numeric
 	: std::integral_constant<bool,
-	std::is_arithmetic_v<_Ty>
+	(std::is_arithmetic_v<_Ty> || std::is_same_v<_Ty, std::byte>)
 	&& !std::is_same_v<_Ty, wchar_t>
 	&& !std::is_same_v<_Ty, char>
 	&& !std::is_pointer_v<_Ty>
 	>
 {
 };
+
 // determine whether T is a Number type (excluding char / wchar), same as is_Numeric<T>::value
 template <typename T>
 constexpr bool is_Numeric_v = is_Numeric<T>::value;
@@ -567,6 +568,24 @@ namespace details {
 			return _wtof(buf);
 		}
 	};
+
+	template <typename T>
+	struct _impl_itoa {
+	};
+	template <>
+	struct _impl_itoa<char> {
+		auto operator()(const int val, char *const buf, const int radix) noexcept
+		{
+			return _itoa(val, buf, radix);
+		}
+	};
+	template <>
+	struct _impl_itoa<wchar_t> {
+		auto operator()(const int val, wchar_t *const buf, const int radix) noexcept
+		{
+			return _itow(val, buf, radix);
+		}
+	};
 }
 
 // Check string bounds, make sure dest is not within the source string & vice versa (this could be a possible reason for some strcpyn() fails we see)
@@ -867,4 +886,12 @@ auto _ts_atof(const T *const buf) noexcept
 	static_assert(std::is_same_v<T, char> || std::is_same_v<T, wchar_t>, "Only char & wchar_t supported...");
 
 	return details::_impl_atof<T>()(buf);
+}
+
+template <typename T>
+auto _ts_itoa(const int val, T *const buf, const int radix) noexcept
+{
+	static_assert(std::is_same_v<T, char> || std::is_same_v<T, wchar_t>, "Only char & wchar_t supported...");
+
+	return details::_impl_itoa<T>()(val, buf, radix);
 }

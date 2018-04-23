@@ -60,22 +60,14 @@
 #ifndef _TSTRING_H_
 #define _TSTRING_H_
 
- // VS2015+ only
-#if _MSC_VER < 1900
-#error "This version of TString needs Visual Studio 2015 or newer"
+ // VS2017+ only
+#if _MSC_VER < 1912
+#error "This version of TString needs Visual Studio 2017 or newer"
 #endif
  
-// Required for VS 2005
-//#define _CRT_SECURE_NO_DEPRECATE 1
-// end VS2005
-// for VS2012
-//#define _CRT_SECURE_NO_WARNINGS 1
-// end VS2012
-
 #include <tchar.h>
 #include <stdio.h>
 #include <stdlib.h>
-//#include <string.h>
 #include <stdexcept>
 #include <memory>
 #include <algorithm>
@@ -103,7 +95,7 @@
 // Enable/Disable test code...
 #define TSTRING_TESTCODE 1
 
-// enable this to include a small internal buffer that avoids an allocation for small strings.
+// enable this to include a small internal buffer that avoids an allocation for small strings. (always used now)
 #define TSTRING_INTERNALBUFFER 1
 // internal buffer size in characters
 #define TSTRING_INTERNALBUFFERSIZE_CCH TS_getmemsize(64)
@@ -175,8 +167,6 @@ public:
 
 private:
 
-	void deleteString(const bool bKeepBufferSize = false) noexcept;
-	void deleteTempString(const bool bKeepBufferSize = false) noexcept;
 #if !TSTRING_TESTCODE
 	UINT i_replace(const_pointer_const subString, const_pointer_const rString);
 	static UINT match(const_pointer m, const_pointer n, const bool cs /* case sensitive */);
@@ -187,7 +177,6 @@ private:
 	//TCHAR *allocstr_bytes(const size_t size) { return (TCHAR *)(new BYTE[set_buffersize(size)]); };
 	auto allocstr_bytes(const size_type size)
 	{
-#if TSTRING_INTERNALBUFFER
 		m_InternalBuffer[0] = TEXT('\0');
 		if (size <= TSTRING_INTERNALBUFFERSIZE_BYTES)
 		{
@@ -199,7 +188,7 @@ private:
 		}
 		else
 			m_bUsingInternal = false;
-#endif
+
 		return allocstr_bytes(size, m_buffersize);
 	};
 	//allocate a buffer thats sized to multiples of 16 bytes, (%byte + (16 - (%byte % 16))), iActual contains the buffer size allocated
@@ -247,33 +236,28 @@ private:
 	static WCHAR *charToWchar(const char *const cString, size_t *const buffer_size = nullptr);
 	static char *WcharTochar(const WCHAR *const wString, size_t *const buffer_size = nullptr);
 
-	mutable const_pointer m_savedpos;
-	mutable UINT	m_savedtotaltoks;
-	mutable UINT	m_savedcurrenttok;
-	//mutable std::unique_ptr<TCHAR[]> m_tSavedSepChars;
-	//mutable size_t	m_savedSepCharsLength;
+	mutable const_pointer m_savedpos{ nullptr };
+	mutable UINT		m_savedtotaltoks{};
+	mutable UINT		m_savedcurrenttok{};
 
-	size_type			m_buffersize;	// size of string buffer in use. (size in bytes)
-	mutable size_type	m_iLen;			// the string length of m_pString
-	mutable bool		m_bDirty;		// is buffer `dirty` (string length is unknown)?
-
-#if TSTRING_INTERNALBUFFER
-	mutable bool	m_bUsingInternal;
-	mutable value_type	m_InternalBuffer[TSTRING_INTERNALBUFFERSIZE_CCH];
-#endif
+	size_type			m_buffersize{ TSTRING_INTERNALBUFFERSIZE_BYTES };		// size of string buffer in use. (size in bytes)
+	mutable size_type	m_iLen{};												// the string length of m_pString
+	mutable bool		m_bDirty{ true };										// is buffer `dirty` (string length is unknown)?
+	mutable bool		m_bUsingInternal{ true };								// using internal buffer?
+	mutable value_type	m_InternalBuffer[TSTRING_INTERNALBUFFERSIZE_CCH]{};		// the internal small buffer
 
 public:
 
-	pointer m_pString; //!< String buffer
+	pointer m_pString{ &m_InternalBuffer[0] }; //!< String buffer
 	// Temp string buffer used for string conversion to/from wchar/char or vice versa depending on what TCHAR is.
 	// changes made to m_pTempString are NOT reflected in m_pString!
-	mutable char * m_pTempString;
+	mutable char * m_pTempString{ nullptr };
 	static const_pointer_const m_cSpace;
 	static const_pointer_const m_cComma;
 	static const_pointer_const m_cTab;
 
-	TString() noexcept
-		: TString(0U)
+	constexpr TString() noexcept
+		: m_bDirty(false)
 	{
 	}
 	
@@ -284,12 +268,15 @@ public:
 		static_assert(std::is_same_v<T, WCHAR> || std::is_same_v<T, char>, "MUST be a WCHAR or char string");
 	}
 
+#pragma warning(push)
+#pragma warning(disable: 26495) // warning C26495 : Variable 'TString::m_savedpos' is uninitialized.Always initialize a member variable(type.6: http://go.microsoft.com/fwlink/p/?LinkID=620422).
 	template <typename T, typename = std::enable_if_t<std::is_pointer_v<T>> >
 	TString(const T cString)
 		: TString(cString, _ts_strlen(cString))
 	{
 		static_assert(std::is_same_v<std::remove_cv_t<std::remove_pointer_t<T>>, WCHAR> || std::is_same_v<std::remove_cv_t<std::remove_pointer_t<T>>, char>, "MUST be a WCHAR or char string");
 	}
+#pragma warning(pop)
 
 	TString(const TString & tString)
 		: TString(tString.data(), tString.len())
@@ -301,6 +288,8 @@ public:
 	TString(const std::initializer_list<TString> &lt);	// Initializer list constructor (allows TString name{ "text", "text2", othertstring } )
 
 #if TSTRING_TESTCODE
+#pragma warning(push)
+#pragma warning(disable: 26495) // warning C26495 : Variable 'TString::m_savedpos' is uninitialized.Always initialize a member variable(type.6: http://go.microsoft.com/fwlink/p/?LinkID=620422).
 	using pair_type = std::pair<pointer, pointer>;
 	using tuple_type = std::tuple<const_pointer, const_pointer, size_type>;
 
@@ -311,6 +300,7 @@ public:
 	TString(const tuple_type &rng)
 		: TString(std::get<0>(rng), std::get<1>(rng))
 	{}
+#pragma warning(pop)
 #endif
 
 	// template version of the unique ptr constructor, handles WCHAR * & CHAR *
@@ -343,32 +333,30 @@ public:
 	//		cString	== string to add (char *)
 	//		iLen	== Length of string in characters.
 	TString(const char *const cString, const size_type iLen)
-		: m_savedpos(nullptr), m_savedtotaltoks(0), m_savedcurrenttok(0)
-		, m_iLen(0), m_bDirty(false)
-#if TSTRING_INTERNALBUFFER
-		, m_bUsingInternal(false), m_InternalBuffer{ 0 }
-#endif
-		, m_pString(nullptr), m_pTempString(nullptr)
 	{
 		if (cString != nullptr)
 		{
 			if (cString[0] != 0)
 			{
 				m_pString = charToWchar(cString, &m_buffersize);
-				//m_iLen = ts_strlen(m_pString);
-				m_iLen = iLen;
+
+				if (m_pString == nullptr)
+				{
+					m_pString = &m_InternalBuffer[0];
+					m_buffersize = TSTRING_INTERNALBUFFERSIZE_BYTES;
+				}
+				else
+					m_iLen = iLen;
 			}
 		}
-		if (m_pString == nullptr)
-		{
-			m_pString = allocstr_cch(1);
-			m_pString[0] = TEXT('\0');
-		}
+		m_bDirty = false;
 	}
 
 	//	Constructor
 	//		pStart	== start of string to add (wchar_t * or char *)
 	//		pEnd	== end of string to add.
+#pragma warning(push)
+#pragma warning(disable: 26495) // warning C26495 : Variable 'TString::m_savedpos' is uninitialized.Always initialize a member variable(type.6: http://go.microsoft.com/fwlink/p/?LinkID=620422).
 	template <typename T>
 	TString(const T *const pStart, const T *const pEnd)
 		: TString(pStart, static_cast<size_type>(pEnd - pStart))
@@ -378,13 +366,14 @@ public:
 		if (pEnd < pStart)
 			throw std::invalid_argument("TString(): End of string < start");
 	}
+#pragma warning(pop)
 
 	//	Constructor
 	//		chr	== character to add (wchar_t)
-	explicit TString(const WCHAR chr);
+	explicit TString(const WCHAR chr) noexcept;
 	//	Constructor
 	//		chr	== character to add (char)
-	explicit TString(const char chr);
+	explicit TString(const char chr) noexcept;
 	//	Constructor
 	//		tsSize	== Length of buffer to allocate in characters.
 	explicit TString(const UINT tsSize);
@@ -408,9 +397,9 @@ public:
 
 	TString & operator =(const TString &tString);
 	TString & operator =(const WCHAR *const cString);
-	TString & operator =(const WCHAR chr);
+	TString & operator =(const WCHAR chr) noexcept;
 	TString & operator =(const char *const cString);
-	TString & operator =(const char chr);
+	TString & operator =(const char chr) noexcept;
 
 	// code below is broken & causes crashes, reason unknown at this time
 	//template <typename T>
@@ -800,12 +789,6 @@ public:
 		return *this;
 	}
 
-	//TString &setzero(const TCHAR *const subString)
-	//{
-	//	mreplace(TEXT('\0'), subString);
-	//	return *this;
-	//}
-
 #else
 	// remove sub string from string
 	TString &remove(const_pointer_const subString);
@@ -1007,7 +990,7 @@ public:
 	template <class T, class R = size_t, typename TSepChars = const_reference>
 	R findtok(const T &cToken, const UINT N, TSepChars sepChars = SPACECHAR) const
 	{
-		auto itEnd = end();
+		const auto itEnd = end();
 
 		if (_ts_isEmpty(sepChars) || empty() || !cToken)
 			return itEnd;
@@ -1135,7 +1118,6 @@ public:
 		if (N == 1 && nToks == 1)
 		{
 			clear();
-			//deleteString();
 			return;
 		}
 
@@ -1427,14 +1409,10 @@ public:
 				m_iIndex = 0;
 		}
 		tsIterator(tsType *ptr, T *const sepChars) noexcept
-			: m_ptr(ptr), m_iIndex(1), m_toks(0), m_sepChars(sepChars)/*, m_iPrevIndex(1)*/
-			, m_savedStart(nullptr), m_savedEnd(nullptr), m_savedFinal(nullptr), m_sepChar()
+			: m_ptr(ptr), m_iIndex(1), m_sepChars(sepChars), m_sepChar{ T{}, T{} }
 		{
 			if (m_sepChars == nullptr)
 			{
-				//m_sepChars = SPACE;
-				//m_sepCharsLen = 1;
-
 				m_sepChar[0] = SPACECHAR;
 				m_sepChar[1] = T();
 				m_sepChars = &m_sepChar[0];
@@ -1450,21 +1428,16 @@ public:
 				if (m_savedStart != nullptr)
 				{
 					m_savedEnd = ts_strstr(m_savedStart, m_sepChars);
-					//m_savedFinal = (TCHAR *)(m_savedStart + m_ptr->len());
 					m_savedFinal = m_ptr->last();
 				}
 			}
 		}
 		tsIterator(tsType *ptr, T &sepChar) noexcept
-			: m_ptr(ptr), m_iIndex(1), m_toks(0), m_sepChars(&m_sepChar[0])/*, m_iPrevIndex(1)*/
-			, m_savedStart(nullptr), m_savedEnd(nullptr), m_savedFinal(nullptr), m_sepChar{ sepChar, T() }
+			: m_ptr(ptr), m_iIndex(1), m_sepChars(&m_sepChar[0]), m_sepChar{ sepChar, T() }
 		{
 			if (sepChar == T())
 				m_sepChar[0] = SPACECHAR;
-			//else
-			//	m_sepChar[0] = sepChar;
 
-			//m_sepChar[1] = T();
 			m_sepCharsLen = 1;
 
 			if (m_ptr != nullptr)
@@ -1474,12 +1447,11 @@ public:
 				if (m_savedStart != nullptr)
 				{
 					m_savedEnd = ts_strstr(m_savedStart, m_sepChars);
-					//m_savedFinal = (TCHAR *)(m_savedStart + m_ptr->len());
 					m_savedFinal = m_ptr->last();
 				}
 			}
 		}
-		~tsIterator() noexcept {}
+		//~tsIterator() noexcept {}
 
 		tsIterator<tsType, T> &operator = (const tsIterator<tsType, T> &other) = default;
 		tsIterator<tsType, T> &operator = (tsType *ptr) noexcept
@@ -1568,15 +1540,15 @@ public:
 
 	//protected:
 	private:
-		tsType *m_ptr;
-		size_t	m_iIndex;
-		size_t	m_sepCharsLen;
-		size_t	m_toks;
-		T		*m_sepChars;
-		mutable const_pointer m_savedStart;
-		mutable const_pointer m_savedEnd;
-		const_pointer m_savedFinal;
-		std::remove_cv_t<T>		m_sepChar[2];
+		tsType * m_ptr{ nullptr };
+		size_t	m_iIndex{};
+		size_t	m_sepCharsLen{};
+		size_t	m_toks{};
+		T		*m_sepChars{ nullptr };
+		mutable const_pointer m_savedStart{ nullptr };
+		mutable const_pointer m_savedEnd{ nullptr };
+		const_pointer m_savedFinal{ nullptr };
+		std::remove_cv_t<T>		m_sepChar[2]{};
 	};
 
 	using iterator = tsIterator<TString, const_value_type>;
