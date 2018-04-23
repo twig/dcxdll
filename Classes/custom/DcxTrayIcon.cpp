@@ -246,7 +246,7 @@ const bool DcxTrayIcon::modifyIcon(const int id, const DWORD msg, gsl::owner<con
 	if (tooltip != nullptr && !tooltip->empty())
 	{
 		nid.uFlags |= NIF_TIP;
-		dcx_strcpyn(&nid.szTip[0], tooltip->to_chr(), Dcx::countof(nid.szTip)); // 128 max
+		dcx_strcpyn(&nid.szTip[0], tooltip->to_chr(), std::extent_v<decltype(nid.szTip)>); // 128 max
 	}
 
 	if (icon != nullptr)

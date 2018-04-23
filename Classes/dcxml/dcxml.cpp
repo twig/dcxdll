@@ -59,15 +59,9 @@ mIRC(dcxml) {
 			auto tsFilename(input.getlasttoks().trim());		// tok 4, -1
 
 			{
-#if DCX_USE_HASHING
 				const auto popupNameHash = std::hash<TString>{}(popupName);
 				if ((popupNameHash == L"mircbar"_hash) || (popupNameHash == L"mirc"_hash) || (popupNameHash == L"scriptpopup"_hash))
 					throw Dcx::dcxException(TEXT("Menu name '%' is reserved."), popupName);
-#else
-				static const TString menuNames(TEXT("mircbar mirc scriptpopup"));
-				if (menuNames.istok(popupName))
-					throw Dcx::dcxException(TEXT("Menu name '%' is reserved."), popupName);
-#endif
 			}
 
 			if (!IsFile(tsFilename))

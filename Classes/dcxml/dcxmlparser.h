@@ -5,15 +5,67 @@
 
 #define DCXML_ID_OFFSET 2000U
 
+struct DcxmlControlAttributes {
+	UINT m_iID{};
+	UINT m_iParentID{};
+	const char *m_sElem{ nullptr };
+	const char *m_sParentelem{ nullptr };
+	const char *m_sParenttype{ nullptr };
+	const char *m_sType{ nullptr };
+	const char *m_sSTclass{ nullptr };
+	const char *m_sWeight{ nullptr };
+	const char *m_sHeight{ nullptr };
+	const char *m_sDropdown{ nullptr };
+	const char *m_sWidth{ nullptr };
+	const char *m_sMargin{ nullptr };
+	const char *m_sStyles{ nullptr };
+	const char *m_sCaption{ nullptr };
+	const char *m_sTooltip{ nullptr };
+	const char *m_sCascade{ nullptr };
+	const char *m_sIcon{ nullptr };
+	const char *m_sTFlags{ nullptr };
+	const char *m_sIntegral{ nullptr };
+	const char *m_sState{ nullptr };
+	const char *m_sIndent{ nullptr };
+	const char *m_sSrc{ nullptr };
+	const char *m_sCells{ nullptr };
+	const char *m_sRebarMinHeight{ nullptr };
+	const char *m_sRebarMinWidth{ nullptr };
+	const char *m_sIconsize{ nullptr };
+	const char *m_sFontstyle{ nullptr };
+	const char *m_sCharset{ nullptr };
+	const char *m_sFontsize{ nullptr };
+	const char *m_sFontname{ nullptr };
+	const char *m_sBorder{ nullptr };
+	const char *m_sCursor{ nullptr };
+	const char *m_sBgcolour{ nullptr };
+	const char *m_sTextbgcolour{ nullptr };
+	const char *m_sTextcolour{ nullptr };
+	const char *m_sGradientstart{ nullptr };
+	const char *m_sGradientend{ nullptr };
+	const char *m_sDisabledsrc{ nullptr };
+	const char *m_sHoversrc{ nullptr };
+	const char *m_sSelectedsrc{ nullptr };
+};
+
+struct DcxmlControlTemplates {
+	const TiXmlElement*					m_pTemplateRef{ nullptr };
+	int									m_iTemplateRefcCla{};
+	const char *						m_sTemplateRefclaPath{ nullptr };
+	std::map<const char*, const char*>	m_mTemplate_vars;
+};
+
 class DcxmlParser {
 
 public:
 	//constructor
-	DcxmlParser();
-	~DcxmlParser() = default;
+	DcxmlParser() noexcept {};
+	~DcxmlParser() noexcept {};
 
 	DcxmlParser(const DcxmlParser &) = delete;
-	DcxmlParser &operator =(const DcxmlParser &) = delete;	// No assignments!
+	DcxmlParser(DcxmlParser &&) = delete;
+	DcxmlParser &operator =(const DcxmlParser &) = delete;
+	DcxmlParser &operator =(DcxmlParser &&) = delete;
 
 	bool ParseXML(const TString &tsFilePath, const TString &tsDialogMark,const TString &DialogName,const bool verbose, const bool autoClose);
 	void parseAttributes();
@@ -25,10 +77,10 @@ public:
 	void parseStyle(int depth = 0);
 	void parseIcons(int depth = 0);
 	void parseItems(const TiXmlElement *const element, const UINT depth = 0, const char *const itemPath = "");
-	void parseTemplate(const UINT dialogDepth=0, const char *const claPath = "root", const UINT passedid = 2000);
-	void parseDialog(const UINT depth=0,const char *claPath = "root",const UINT passedid = 2000,const bool ignoreParent = false);
+	void parseTemplate(const UINT dialogDepth=0, const char *const claPath = "root", const UINT passedid = DCXML_ID_OFFSET);
+	void parseDialog(const UINT depth=0,const char *claPath = "root",const UINT passedid = DCXML_ID_OFFSET,const bool ignoreParent = false);
 
-	void setDialog(const TString &tsDialogMark);
+	void setDialog(const TString &tsDialogMark) noexcept;
 	void setDialogMark (const TString &v) { m_tsDialogMark = v; }
 	void setDialogName (const TString &v) { m_tsDialogName = v; }
 
@@ -66,8 +118,6 @@ private:
 	const bool &isVerbose() const noexcept { return m_bVerbose; }
 	const bool &isAutoClose() const noexcept { return m_bAutoClose; }
 
-	//int mIRCEvalToUnsignedInt(const TString &value);
-	std::pair<bool, UINT> mIRCEvalToUnsignedInt2(const TString &value);
 	UINT parseId(const TiXmlElement *const idElement);
 
 	void registerId(const TiXmlElement *const idElement, const UINT iNewID);
@@ -78,84 +128,81 @@ private:
 	void xdialogEX(const TCHAR *const sw, const TCHAR *const dFormat, ...);
 	void xdidEX(const UINT cid, const TCHAR *const sw, const TCHAR *const dFormat, ...);
 
-	const TiXmlElement *m_pElement; //!< current Element
-	const TiXmlElement *m_pParent; //!< current Element's m_pParent
-	UINT m_iControls; //!< Simple counter for controls
+	const TiXmlElement *m_pElement{ nullptr }; //!< current Element
+	const TiXmlElement *m_pParent{ nullptr }; //!< current Element's Parent
+	UINT m_iControls{}; //!< Simple counter for controls
 
 	//Attribute vars
-	UINT m_iID;
-	UINT m_iParentID;
-	const char *m_sElem;
-	const char *m_sParentelem;
-	const char *m_sParenttype;
-	const char *m_sType;
-	const char *m_sSTclass;
-	const char *m_sWeight;
-	const char *m_sHeight;
-	const char *m_sDropdown;
-	const char *m_sWidth;
-	const char *m_sMargin;
-	const char *m_sStyles;
-	const char *m_sCaption;
-	const char *m_sTooltip;
-	const char *m_sCascade;
-	const char *m_sIcon;
-	const char *m_sTFlags;
-	const char *m_sIntegral;
-	const char *m_sState;
-	const char *m_sIndent;
-	const char *m_sSrc;
-	const char *m_sCells;
-	const char *m_sRebarMinHeight;
-	const char *m_sRebarMinWidth;
-	const char *m_sIconsize;
-	const char *m_sFontstyle;
-	const char *m_sCharset;
-	const char *m_sFontsize;
-	const char *m_sFontname;
-	const char *m_sBorder;
-	const char *m_sCursor;
-	const char *m_sBgcolour;
-	const char *m_sTextbgcolour;
-	const char *m_sTextcolour;
-	const char *m_sGradientstart;
-	const char *m_sGradientend;
-	const char *m_sDisabledsrc;
-	const char *m_sHoversrc;
-	const char *m_sSelectedsrc;
+	UINT m_iID{};
+	UINT m_iParentID{};
+	const char *m_sElem{ nullptr };
+	const char *m_sParentelem{ nullptr };
+	const char *m_sParenttype{ nullptr };
+	const char *m_sType{ nullptr };
+	const char *m_sSTclass{ nullptr };
+	const char *m_sWeight{ nullptr };
+	const char *m_sHeight{ nullptr };
+	const char *m_sDropdown{ nullptr };
+	const char *m_sWidth{ nullptr };
+	const char *m_sMargin{ nullptr };
+	const char *m_sStyles{ nullptr };
+	const char *m_sCaption{ nullptr };
+	const char *m_sTooltip{ nullptr };
+	const char *m_sCascade{ nullptr };
+	const char *m_sIcon{ nullptr };
+	const char *m_sTFlags{ nullptr };
+	const char *m_sIntegral{ nullptr };
+	const char *m_sState{ nullptr };
+	const char *m_sIndent{ nullptr };
+	const char *m_sSrc{ nullptr };
+	const char *m_sCells{ nullptr };
+	const char *m_sRebarMinHeight{ nullptr };
+	const char *m_sRebarMinWidth{ nullptr };
+	const char *m_sIconsize{ nullptr };
+	const char *m_sFontstyle{ nullptr };
+	const char *m_sCharset{ nullptr };
+	const char *m_sFontsize{ nullptr };
+	const char *m_sFontname{ nullptr };
+	const char *m_sBorder{ nullptr };
+	const char *m_sCursor{ nullptr };
+	const char *m_sBgcolour{ nullptr };
+	const char *m_sTextbgcolour{ nullptr };
+	const char *m_sTextcolour{ nullptr };
+	const char *m_sGradientstart{ nullptr };
+	const char *m_sGradientend{ nullptr };
+	const char *m_sDisabledsrc{ nullptr };
+	const char *m_sHoversrc{ nullptr };
+	const char *m_sSelectedsrc{ nullptr };
 	/*
 	const char *elementProperties [] = "type","STclass","weigth","height","width","margin","styles","caption","tooltip",
 	"cascade","icon","tFlags""integral","state","indent","src",	"cells","rebarMinHeight",
 	"rebarMinWidth","iconsize","fontstyle","charset","fontsize","fontname","border","cursor","bgcolour",
 	"textbgcolour","textcolour","gradientstart","gradientend","disabledsrc","hoversrc","selectedsrc"
 	];*/
-	const TiXmlElement* m_pTemplateRef;
-	int m_iTemplateRefcCla;
-	const char *m_sTemplateRefclaPath;
+	const TiXmlElement* m_pTemplateRef{ nullptr };
+	int m_iTemplateRefcCla{};
+	const char *m_sTemplateRefclaPath{ nullptr };
 	std::map<const char*, const char*> m_mTemplate_vars;
 
-	int m_iEval;
-
-	//tempvar to dump attribute values in;
-	//const char *m_sTemp;
+	int m_iEval{};
 
 	//CLA variables
-	const char *g_claPath;
-	const char *g_claPathx;
-	bool g_bResetCLA;
+	const char *g_claPath{ nullptr };
+	const char *g_claPathx{ nullptr };
+	bool g_bResetCLA{ false };
 
-	bool m_bLoadSuccess;
-	bool m_bVerbose;
-	bool m_bAutoClose;
-	bool m_bZlayered;
+	bool m_bLoadSuccess{ false };
+	bool m_bVerbose{ false };
+	bool m_bAutoClose{ false };
+	bool m_bZlayered{ false };
 
 	TString m_tsFilePath;
 	TString m_tsDialogMark;
 	TString m_tsDialogName;
-	DcxDialog* m_pDcxDialog;
-	const TiXmlElement *m_pRootElement;
-	const TiXmlElement *m_pDialogsElement;
-	const TiXmlElement *m_pDialogElement;
+	DcxDialog* m_pDcxDialog{ nullptr };
+	const TiXmlElement *m_pRootElement{ nullptr };
+	const TiXmlElement *m_pDialogsElement{ nullptr };
+	const TiXmlElement *m_pDialogElement{ nullptr };
 	TiXmlDocument m_xmlDocument;
 };
 #endif

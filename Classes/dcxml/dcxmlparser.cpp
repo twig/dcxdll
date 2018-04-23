@@ -20,38 +20,9 @@
 /*
 dcxml [-FLAGS] [DNAME] [DATASET] "[PATH]"
 */
-DcxmlParser::DcxmlParser() :
-	m_pElement(nullptr), m_pParent(nullptr),
-	m_iControls(0U),
-	m_iID(0U), m_iParentID(0U),
-	m_sElem(nullptr),	m_sParentelem(nullptr), m_sParenttype(nullptr),	m_sType(nullptr),
-	m_sSTclass(nullptr),
-	m_sWeight(nullptr), m_sHeight(nullptr), m_sDropdown(nullptr), m_sWidth(nullptr), m_sMargin(nullptr),
-	m_sStyles(nullptr),
-	m_sCaption(nullptr),
-	m_sTooltip(nullptr),
-	m_sCascade(nullptr),
-	m_sIcon(nullptr),
-	m_sTFlags(nullptr),
-	m_sIntegral(nullptr), m_sState(nullptr), m_sIndent(nullptr),
-	m_sSrc(nullptr),
-	m_sCells(nullptr),
-	m_sRebarMinHeight(nullptr), m_sRebarMinWidth(nullptr),
-	m_sIconsize(nullptr),
-	m_sFontstyle(nullptr), m_sCharset(nullptr), m_sFontsize(nullptr), m_sFontname(nullptr),
-	m_sBorder(nullptr),
-	m_sCursor(nullptr),
-	m_sBgcolour(nullptr), m_sTextbgcolour(nullptr), m_sTextcolour(nullptr),
-	m_sGradientstart(nullptr), m_sGradientend(nullptr),
-	m_sDisabledsrc(nullptr), m_sHoversrc(nullptr), m_sSelectedsrc(nullptr),
-	m_mTemplate_vars(),	m_pTemplateRef(nullptr), m_iTemplateRefcCla(0), m_sTemplateRefclaPath(nullptr),
-	m_iEval(0),
-	g_claPath(nullptr), g_claPathx(nullptr), g_bResetCLA(false),
-	m_bLoadSuccess(false), m_bVerbose(false), m_bAutoClose(false), m_bZlayered(false),
-	m_pDcxDialog(nullptr), m_pRootElement(nullptr), m_pDialogElement(nullptr), m_pDialogsElement(nullptr),
-	m_xmlDocument(), m_tsDialogMark(), m_tsDialogName(), m_tsFilePath()
-{
-}
+//DcxmlParser::DcxmlParser() noexcept
+//{
+//}
 
 //DcxmlParser::~DcxmlParser() {
 //}
@@ -134,7 +105,7 @@ bool DcxmlParser::ParseXML(const TString &tsFilePath,const TString &tsDialogMark
 	}
 }
 
-void DcxmlParser::setDialog(const TString &tsDialogMark)
+void DcxmlParser::setDialog(const TString &tsDialogMark) noexcept
 {
 	m_pDcxDialog = Dcx::Dialogs.getDialogByName(tsDialogMark);
 }
@@ -380,7 +351,7 @@ void DcxmlParser::xdialogEX(const TCHAR *const sw,const TCHAR *const dFormat, ..
 	TString txt;
 
 	{
-		va_list args = nullptr;
+		va_list args{};
 
 		va_start(args, dFormat);
 		txt.tvprintf(dFormat, args);
@@ -435,7 +406,7 @@ void DcxmlParser::xdidEX(const UINT cid, const TCHAR *const sw, const TCHAR *con
 	TString txt;
 
 	{
-		va_list args = nullptr;
+		va_list args{};
 
 		va_start(args, dFormat);
 		txt.tvprintf(dFormat, args);
@@ -461,8 +432,18 @@ TString DcxmlParser::parseCLA(const int cCla)
 		const char * fHeigth = "";
 		const char * fWidth = "";
 		const char * fixed = "l";
-		if (m_pElement->Attribute("height") != nullptr) { fHeigth = "v"; fixed = "f"; m_sWeight = "0"; }
-		if (m_pElement->Attribute("width") != nullptr) { fWidth = "h"; fixed = "f"; m_sWeight = "0"; }
+		if (m_pElement->Attribute("height") != nullptr)
+		{
+			fHeigth = "v";
+			fixed = "f";
+			m_sWeight = "0";
+		}
+		if (m_pElement->Attribute("width") != nullptr)
+		{
+			fWidth = "h";
+			fixed = "f";
+			m_sWeight = "0";
+		}
 
 		if (sParentelemHash == "dialog"_hash)
 			xdialogEX(TEXT("-l"), TEXT("cell %S \t +%S%S%Si %u %S %S %S"), g_claPath, fixed, fHeigth, fWidth, m_iID, m_sWeight, m_sWidth, m_sHeight);
@@ -488,6 +469,7 @@ TString DcxmlParser::parseCLA(const int cCla)
 			}
 		}
 	}
+
 	TString claPathx;
 
 	if (g_bResetCLA)
@@ -536,7 +518,7 @@ void DcxmlParser::setStyle(const TiXmlElement *const style)
 	m_sTextbgcolour = queryAttribute(style, "textbgcolour", "");
 	m_sTextcolour = queryAttribute(style, "textcolour", "");
 
-	const auto sTypeHash = std::hash<const char *>{}(m_sType);
+	const auto sTypeHash = dcx_hash(m_sType);
 
 	if (!_ts_isEmpty(m_sBgcolour))
 	{
@@ -690,7 +672,7 @@ void DcxmlParser::parseIcons(int depth)
 					TypeElement = tiIcon;
 			}
 			
-			if (const auto t_id = parseId(tiIcon); t_id == m_iID)
+			if (m_iID == parseId(tiIcon))
 				IdElement = tiIcon;
 		}
 
@@ -733,10 +715,10 @@ void DcxmlParser::parseIcons(int depth)
 				{
 					const auto tflags = queryAttribute(iconchild, "flags", "n");
 					const auto tindex = queryAttribute(iconchild, "index", "0");
-					const auto tsrc = iconchild->Attribute("src");
-					//if (tsrc != nullptr)
+					
+					//if (const auto tsrc = iconchild->Attribute("src"); tsrc != nullptr)
 					//	mIRCLinker::execex(TEXT("//xdid -w %s %u +%S %S %S"),getDialogMark().to_chr(),m_iID,tflags,tindex,tsrc);
-					if (tsrc != nullptr)
+					if (const auto tsrc = iconchild->Attribute("src"); tsrc != nullptr)
 						mIRCLinker::exec(TEXT("//xdid -w % % +% % %"), getDialogMark(), m_iID, tflags, tindex, tsrc);
 				}
 			}
@@ -953,7 +935,7 @@ void DcxmlParser::parseDialog(const UINT depth,const char *claPath,const UINT pa
 		{
 			if (0 == ts_strcmp(m_sParentelem, "template"))
 			{
-				const auto xNodeTmp = m_pTemplateRef->Parent();
+				const gsl::not_null<const TiXmlNode *> xNodeTmp = m_pTemplateRef->Parent();
 				m_pParent = xNodeTmp->ToElement();
 				m_sParentelem = xNodeTmp->Value();
 				cCla = m_iTemplateRefcCla;
@@ -1045,25 +1027,6 @@ void DcxmlParser::parseDialog(const UINT depth,const char *claPath,const UINT pa
 	}
 } 
 
-// NB: never returns a ZERO, other code relies on this.
-//int DcxmlParser::mIRCEvalToUnsignedInt (const TString &value)
-//{
-//	//Todo: method returns -1 for failure which odd for a *ToUnsignedInt method.
-//	__int64 iNum;
-//	mIRCLinker::iEval(&iNum, value.to_chr());
-//	return gsl::narrow_cast<int>(((iNum > 0) ? iNum : -1LL));
-//}
-
-std::pair<bool,UINT> DcxmlParser::mIRCEvalToUnsignedInt2(const TString &value)
-{
-	//__int64 iNum;
-	//return { mIRCLinker::iEval(&iNum, value.to_chr()), gsl::narrow_cast<int>(iNum) };
-
-	int64_t iNum;
-	mIRCLinker::iEval(&iNum, value.to_chr());
-	return { iNum > 0, gsl::narrow_cast<UINT>(iNum) };
-}
-
 void DcxmlParser::registerId(const TiXmlElement *const idElement, const UINT iNewID)
 {
 	//auto elementId = 0;
@@ -1076,21 +1039,34 @@ void DcxmlParser::registerId(const TiXmlElement *const idElement, const UINT iNe
 	//	}
 	//}
 
-#pragma warning(push)
-#pragma warning(disable: 4101)	//warning C4101 : 'elementId' : unreferenced local variable
+//#pragma warning(push)
+//#pragma warning(disable: 4101)	//warning C4101 : 'elementId' : unreferenced local variable
+//
+//	if (const auto[iStatus, elementId] = idElement->QueryIntAttribute("id"); iStatus != TIXML_SUCCESS) //<! id attr. is not an int
+//	{
+//		if (const TString elementNamedId(idElement->Attribute("id")); !elementNamedId.empty())
+//		{
+//			//if (mIRCEvalToUnsignedInt(elementNamedId) < 0) //<! id attr. doesn't evaluate to an int
+//			//	getDialog()->AddNamedId(elementNamedId, iNewID + mIRC_ID_OFFSET);
+//
+//			//if (const auto[bSuccess, _elementId] = mIRCEvalToUnsignedInt2(elementNamedId); !bSuccess) //<! id attr. doesn't evaluate to an int
+//			//	getDialog()->AddNamedId(elementNamedId, iNewID + mIRC_ID_OFFSET);
+//
+//			if (mIRCEvalToUnsignedInt2(elementNamedId).first) //<! id attr. doesn't evaluate to an int
+//				getDialog()->AddNamedId(elementNamedId, iNewID + mIRC_ID_OFFSET);
+//		}
+//	}
+//#pragma warning(pop)
 
-	if (const auto[iStatus, elementId] = idElement->QueryIntAttribute("id"); iStatus != TIXML_SUCCESS) //<! id attr. is not an int
+	if (idElement->QueryIntAttribute("id").first != TIXML_SUCCESS) //<! id attr. is not an int
 	{
 		if (const TString elementNamedId(idElement->Attribute("id")); !elementNamedId.empty())
 		{
-			//if (mIRCEvalToUnsignedInt(elementNamedId) < 0) //<! id attr. doesn't evaluate to an int
-			//	getDialog()->AddNamedId(elementNamedId, iNewID + mIRC_ID_OFFSET);
-
-			if (const auto[bSuccess, _elementId] = mIRCEvalToUnsignedInt2(elementNamedId); !bSuccess) //<! id attr. doesn't evaluate to an int
+			//if (mIRCEvalToUnsignedInt2(elementNamedId).first) //<! id attr. doesn't evaluate to an int
+			if (mIRCLinker::uEval<UINT>(elementNamedId).first) //<! id attr. doesn't evaluate to an int
 				getDialog()->AddNamedId(elementNamedId, iNewID + mIRC_ID_OFFSET);
 		}
 	}
-#pragma warning(pop)
 }
 
 UINT DcxmlParser::parseId(const TiXmlElement *const idElement)
@@ -1139,17 +1115,14 @@ UINT DcxmlParser::parseId(const TiXmlElement *const idElement)
 		// got ID attrib, evaluate it to try & resolve to a number.
 
 		// if ID is > zero return it.
-		//if (auto local_id = mIRCEvalToUnsignedInt(attributeIdValue); local_id > 0)
-		//	return gsl::narrow_cast<UINT>(local_id);
 
-		if (const auto[bSuccess,local_id] = mIRCEvalToUnsignedInt2(attributeIdValue); bSuccess)
+		//if (const auto[bSuccess,local_id] = mIRCEvalToUnsignedInt2(attributeIdValue); bSuccess)
+		//	return local_id;
+
+		if (const auto[bSuccess, local_id] = mIRCLinker::uEval<UINT>(attributeIdValue); bSuccess)
 			return local_id;
 
 		// didn't evaluate to a number, so must be a name...
-		//auto it = getDialog()->getNamedIds().find(attributeIdValue);
-		//if (it != getDialog()->getNamedIds().end())
-		//	return it->second;
-
 		return getDialog()->NameToUserID(attributeIdValue);
 	}
 	return 0U;

@@ -39,7 +39,8 @@ LRESULT CALLBACK DividerWndProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 		//lpdvdata->m_Panes[0].cbSize = sizeof(DVPANEINFO);
 		//lpdvdata->m_Panes[1].cbSize = sizeof(DVPANEINFO);
 
-		SetProp(mHwnd, TEXT("dvc_data"), static_cast<HANDLE>(lpdvdata));
+		//SetProp(mHwnd, TEXT("dvc_data"), static_cast<HANDLE>(lpdvdata));
+		SetProp(mHwnd, TEXT("dvc_data"), lpdvdata);
 
 		return 0L;
 	}
