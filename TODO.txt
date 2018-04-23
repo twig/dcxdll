@@ -12,3 +12,4 @@ DCX V3.1 TODO List
 8: change how RichEdit control saves text to allow saving to xml.
 9: rewrite button/check/radio controls to be a single button control that supports diff styles.
 10: fix box controls group disable button
+11: change Link control to use WC_LINK instead of WC_STATIC

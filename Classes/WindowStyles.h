@@ -35,17 +35,6 @@ enum class WindowStyle : DWORD {
 	DTS_ShowNone = DTS_SHOWNONE
 };
 
-//struct ButtonStyle {
-//	enum class Style: DWORD {
-//		Bitmap = BS_BITMAP,
-//		OwnerDraw = BS_OWNERDRAW
-//	};
-//
-//	operator WindowStyle() const noexcept { return static_cast<WindowStyle>(m_buttonStyle); }
-//
-//	Style m_buttonStyle;
-//};
-
 template <typename T>
 constexpr WindowStyle &operator |=(WindowStyle &eStyle, const T &dStyle) noexcept
 {

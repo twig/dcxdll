@@ -71,29 +71,22 @@ enum TreeBarColours : UINT {
 };
 
 struct DCXULTRADOCK {
-	HWND hwnd;
-	DWORD flags;
-	WindowStyle old_styles;
-	WindowExStyle old_exstyles;
-	RECT rc;
+	HWND hwnd{ nullptr };
+	DWORD flags{};
+	WindowStyle old_styles{};
+	WindowExStyle old_exstyles{};
+	RECT rc{};
 };
 using LPDCXULTRADOCK = DCXULTRADOCK *;
 
 using VectorOfDocks = std::vector<LPDCXULTRADOCK>;
 
 struct SB_PARTINFOD {
-	HWND		m_Child;
+	HWND		m_Child{ nullptr };
 	TString		m_Text;
-	int			m_iIcon;
-	COLORREF	m_TxtCol;	// colour of the text be default in this item.
-	HBRUSH		m_BkgCol;	// brush to be used when drawing the bkg in this item.
-
-	SB_PARTINFOD() noexcept
-		: m_Child(nullptr)
-		, m_iIcon(-1)
-		, m_TxtCol(CLR_INVALID)
-		, m_BkgCol(nullptr)
-	{}
+	int			m_iIcon{ -1 };
+	COLORREF	m_TxtCol{ CLR_INVALID };	// colour of the text be default in this item.
+	HBRUSH		m_BkgCol{ nullptr };	// brush to be used when drawing the bkg in this item.
 };
 using LPSB_PARTINFOD = SB_PARTINFOD *;
 
@@ -115,6 +108,8 @@ public:
 	DcxDock() = delete;	// no default constructor
 	DcxDock(const DcxDock &other) = delete;	// no copy constructor
 	DcxDock &operator =(const DcxDock &) = delete;	// No assignments!
+	DcxDock(DcxDock &&) = delete;
+	DcxDock &operator =(DcxDock &&) = delete;
 
 	DcxDock(HWND refHwnd, HWND dockHwnd, const DockTypes dockType) noexcept;
 	~DcxDock(void) noexcept;
@@ -128,25 +123,6 @@ public:
 	bool isDocked(const HWND hwnd) const;
 	LPDCXULTRADOCK GetDock(const HWND hwnd) const;
 	void AdjustRect(WINDOWPOS *wp) noexcept;
-	//void RedrawRef(void);
-
-	//HCURSOR getCursor(const UINT iType)
-	//{
-	//	auto it = m_vMapOfCursors.find(iType);
-	//	if (it != m_vMapOfCursors.end())
-	//		return it->second.m_hCursor;
-	//
-	//	return nullptr;
-	//}
-	//void setCursor(const Cursor_Data &hCursor, const UINT iType) {
-	//	auto it = m_vMapOfCursors.find(iType);
-	//	if (it != m_vMapOfCursors.end())
-	//	{
-	//		if (!it->second.m_bNoDestroy)
-	//			DestroyCursor(it->second.m_hCursor);
-	//	}
-	//	m_vMapOfCursors[iType] = hCursor;
-	//}
 
 	// Statusbar Functions.
 	static bool InitStatusbar(const TString &styles);
@@ -198,18 +174,13 @@ public:
 protected:
 	static LRESULT CALLBACK mIRCRefWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 	static LRESULT CALLBACK mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-	VectorOfDocks m_VectorDocks; //!< list of windows docked here.
-	//static VectorOfDocks g_VectorAllDocks; //!< list of all docked windows.
-	WNDPROC m_OldRefWndProc; //!< The Windows Old WndProc.
-	WNDPROC m_OldDockWndProc; //!< The Windows Old WndProc.
-	HWND m_RefHwnd; //!< The HWND that windows are docked around, usually the main child window. This window is subclassed.
-	HWND m_hParent; //!< The HWND that docked windows are docked too. This window is subclassed.
-	DockTypes m_iType; //!< The dock type.
 
-//private:
-//	typedef std::map<UINT, Cursor_Data> MapOfCursors;
-//
-//	MapOfCursors	m_vMapOfCursors;
+	VectorOfDocks m_VectorDocks; //!< list of windows docked here.
+	WNDPROC m_OldRefWndProc{ nullptr }; //!< The Windows Old WndProc.
+	WNDPROC m_OldDockWndProc{ nullptr }; //!< The Windows Old WndProc.
+	HWND m_RefHwnd{ nullptr }; //!< The HWND that windows are docked around, usually the main child window. This window is subclassed.
+	HWND m_hParent{ nullptr }; //!< The HWND that docked windows are docked too. This window is subclassed.
+	DockTypes m_iType{}; //!< The dock type.
 };
 
 void InitUltraDock(void);
@@ -218,5 +189,5 @@ const SwitchBarPos SwitchbarPos(const DockTypes type) noexcept;
 void UpdatemIRC(void) noexcept;
 
 #ifdef __INTEL_COMPILER // Defined when using Intel C++ Compiler.
-#pragma warning( pop )
+#pragma warning( pop );
 #endif
