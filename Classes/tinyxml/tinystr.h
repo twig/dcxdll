@@ -42,60 +42,49 @@ distribution.
 #include <assert.h>
 #include <string.h>
 
-/*	The support for explicit isn't that universal, and it isn't really
-	required - it is used to check that the TiXmlString class isn't incorrectly
-	used. Be nice to old compilers and macro it here:
-*/
+ /*	The support for explicit isn't that universal, and it isn't really
+	 required - it is used to check that the TiXmlString class isn't incorrectly
+	 used. Be nice to old compilers and macro it here:
+ */
 #if defined(_MSC_VER) && (_MSC_VER >= 1200 )
-	// Microsoft visual studio, version 6 and higher.
-	#define TIXML_EXPLICIT explicit
+ // Microsoft visual studio, version 6 and higher.
+#define TIXML_EXPLICIT explicit
 #elif defined(__GNUC__) && (__GNUC__ >= 3 )
-	// GCC version 3 and higher.s
-	#define TIXML_EXPLICIT explicit
+ // GCC version 3 and higher.s
+#define TIXML_EXPLICIT explicit
 #else
-	#define TIXML_EXPLICIT
+#define TIXML_EXPLICIT
 #endif
 
 
-/*
-   TiXmlString is an emulation of a subset of the std::string template.
-   Its purpose is to allow compiling TinyXML on compilers with no or poor STL support.
-   Only the member functions relevant to the TinyXML project have been implemented.
-   The buffer allocation is made by a simplistic power of 2 like mechanism : if we increase
-   a string and there's no more room, we allocate a buffer twice as big as we need.
-*/
+ /*
+	TiXmlString is an emulation of a subset of the std::string template.
+	Its purpose is to allow compiling TinyXML on compilers with no or poor STL support.
+	Only the member functions relevant to the TinyXML project have been implemented.
+	The buffer allocation is made by a simplistic power of 2 like mechanism : if we increase
+	a string and there's no more room, we allocate a buffer twice as big as we need.
+ */
 class TiXmlString
 {
 public:
 	// The size type used
-	using size_type = size_t;
+	using size_type = std::size_t;
 
 	// Error value for find primitive
-	static const size_type npos; // = -1;
+	//static const size_type npos; // = -1;
+	static constexpr size_type npos{ std::numeric_limits<size_type>::max() };
 
 	// TiXmlString empty constructor
-	TiXmlString() noexcept
-		: rep_(&nullrep_)
-	{
-	}
-
-	//// TiXmlString copy constructor
-	//TiXmlString(const TiXmlString & copy) : rep_(0)
-	//{
-	//	init(copy.length());
-	//	memcpy(start(), copy.data(), length());
-	//}
-	//
-	//// TiXmlString constructor, based on a string
-	//TIXML_EXPLICIT TiXmlString(const char * copy) : rep_(0)
-	//{
-	//	init(gsl::narrow_cast<size_type>(strlen(copy)));
-	//	memcpy(start(), copy, length());
-	//}
+	TiXmlString() noexcept = default;
 
 	TiXmlString(const TiXmlString & copy)
 		: TiXmlString(copy.data(), copy.length())
 	{
+	}
+
+	TiXmlString(TiXmlString && copy) noexcept
+	{
+		swap(copy);
 	}
 
 	// TiXmlString constructor, based on a string
@@ -106,7 +95,6 @@ public:
 
 	// TiXmlString constructor, based on a string
 	TIXML_EXPLICIT TiXmlString(const char * str, size_type len)
-		: rep_(0)
 	{
 		init(len);
 		memcpy(start(), str, len);
@@ -130,6 +118,16 @@ public:
 		return assign(copy.start(), copy.length());
 	}
 
+	// = operator
+	TiXmlString& operator = (TiXmlString && copy) noexcept
+	{
+		if (this == &copy)	// self assignment check.
+			return *this;
+
+		swap(copy);
+
+		return *this;
+	}
 
 	// += operator. Maps to append
 	TiXmlString& operator += (const char * suffix)
@@ -157,16 +155,16 @@ public:
 	const char * data() const noexcept { return &rep_->str[0]; }
 
 	// Return the length of a TiXmlString
-	size_type length() const noexcept { return rep_->size; }
+	const size_type &length() const noexcept { return rep_->size; }
 
 	// Alias for length()
-	size_type size() const noexcept { return rep_->size; }
+	const size_type &size() const noexcept { return rep_->size; }
 
 	// Checks if a TiXmlString is empty
 	bool empty() const noexcept { return rep_->size == 0; }
 
 	// Return capacity of string
-	size_type capacity() const noexcept { return rep_->capacity; }
+	const size_type &capacity() const noexcept { return rep_->capacity; }
 
 	// single char extraction
 	const char& at(size_type index) const noexcept
@@ -191,11 +189,13 @@ public:
 	// find a char in a string from an offset. Return TiXmlString::npos if not found
 	size_type find(char tofind, size_type offset) const noexcept
 	{
-		if (offset >= length()) return npos;
+		if (offset >= length())
+			return npos;
 
 		for (const char* p = c_str() + offset; *p != '\0'; ++p)
 		{
-			if (*p == tofind) return gsl::narrow_cast<size_type>(p - c_str());
+			if (*p == tofind)
+				return gsl::narrow_cast<size_type>(p - c_str());
 		}
 		return npos;
 	}
@@ -221,13 +221,21 @@ public:
 
 	void swap(TiXmlString& other) noexcept
 	{
-		Rep* r = rep_;
-		rep_ = other.rep_;
+		//Rep *const r = rep_;
+		//rep_ = other.rep_;
+		//other.rep_ = r;
+
+		auto r = rep_;
+		auto otherr = other.rep_;
+
+		if (rep_ == &nullrep_)
+			r = &other.nullrep_;
+
+		if (other.rep_ == &other.nullrep_)
+			otherr = &nullrep_;
+
+		rep_ = otherr;
 		other.rep_ = r;
-
-		//using std::swap;
-
-		//swap(rep_, other.rep_);
 	}
 
 private:
@@ -276,20 +284,19 @@ private:
 		}
 	}
 
-	Rep * rep_;
+	Rep * rep_{ &nullrep_ };
 	static Rep nullrep_;
-
 };
 
 
 inline bool operator == (const TiXmlString & a, const TiXmlString & b) noexcept
 {
 	return    (a.length() == b.length())				// optimization on some platforms
-		&& (strcmp(a.c_str(), b.c_str()) == 0);	// actual compare
+		&& (_ts_strcmp(a.c_str(), b.c_str()) == 0);	// actual compare
 }
 inline bool operator < (const TiXmlString & a, const TiXmlString & b) noexcept
 {
-	return strcmp(a.c_str(), b.c_str()) < 0;
+	return _ts_strcmp(a.c_str(), b.c_str()) < 0;
 }
 
 inline bool operator != (const TiXmlString & a, const TiXmlString & b) noexcept { return !(a == b); }
@@ -297,7 +304,7 @@ inline bool operator >  (const TiXmlString & a, const TiXmlString & b) noexcept 
 inline bool operator <= (const TiXmlString & a, const TiXmlString & b) noexcept { return !(b < a); }
 inline bool operator >= (const TiXmlString & a, const TiXmlString & b) noexcept { return !(a < b); }
 
-inline bool operator == (const TiXmlString & a, const char* b) noexcept { return strcmp(a.c_str(), b) == 0; }
+inline bool operator == (const TiXmlString & a, const char* b) noexcept { return _ts_strcmp(a.c_str(), b) == 0; }
 inline bool operator == (const char* a, const TiXmlString & b) noexcept { return b == a; }
 inline bool operator != (const TiXmlString & a, const char* b) noexcept { return !(a == b); }
 inline bool operator != (const char* a, const TiXmlString & b) noexcept { return !(b == a); }
@@ -309,9 +316,10 @@ TiXmlString operator + (const char* a, const TiXmlString & b);
 
 /*
    TiXmlOutStream is an emulation of std::ostream. It is based on TiXmlString.
-   Only the operators that we need for TinyXML have been developped.
+   Only the operators that we need for TinyXML have been developed.
 */
-class TiXmlOutStream : public TiXmlString
+class TiXmlOutStream
+	: public TiXmlString
 {
 public:
 

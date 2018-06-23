@@ -35,7 +35,7 @@ distribution.
 
 
 // Error value for find primitive
-const TiXmlString::size_type TiXmlString::npos = static_cast< TiXmlString::size_type >(-1);
+//const TiXmlString::size_type TiXmlString::npos = static_cast< TiXmlString::size_type >(-1);
 
 
 // Null rep.

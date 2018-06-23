@@ -165,14 +165,14 @@ enum TiXmlReturns : int
 
 
 // Used by the parsing routines.
-enum TiXmlEncoding
+enum TiXmlEncoding : int
 {
 	TIXML_ENCODING_UNKNOWN,
 	TIXML_ENCODING_UTF8,
 	TIXML_ENCODING_LEGACY
 };
 
-constexpr const TiXmlEncoding TIXML_DEFAULT_ENCODING = TIXML_ENCODING_UNKNOWN;
+constexpr const TiXmlEncoding TIXML_DEFAULT_ENCODING = TiXmlEncoding::TIXML_ENCODING_UNKNOWN;
 
 /** TiXmlBase is a base class for every class in TinyXml.
 	It does little except to establish that TinyXml classes
@@ -203,10 +203,13 @@ class TiXmlBase
 	friend class TiXmlDocument;
 
 public:
-	TiXmlBase() noexcept 
-		: userData(0)
-	{}
-	virtual ~TiXmlBase() noexcept {}
+	TiXmlBase() noexcept = default;
+	virtual ~TiXmlBase() noexcept = default;
+
+	TiXmlBase(const TiXmlBase&) = delete;				// not implemented.
+	TiXmlBase& operator=(const TiXmlBase& base) = delete;	// not allowed.
+	TiXmlBase(TiXmlBase&&) = delete;				// not implemented.
+	TiXmlBase& operator=(TiXmlBase&& base) = delete;	// not allowed.
 
 	/**	All TinyXml classes can print themselves to a filestream
 		or the string class (TiXmlString in non-STL mode, std::string
@@ -381,7 +384,7 @@ protected:
 	TiXmlCursor location;
 
     /// Field containing a generic user pointer
-	void*			userData;
+	void*			userData{ nullptr };
 	
 	// None of these methods are reliable for any language except English.
 	// Good for approximation, not great for accuracy.
@@ -402,9 +405,6 @@ protected:
 	static void ConvertUTF32ToUTF8( unsigned long input, char* output, int* length ) noexcept;
 
 private:
-	TiXmlBase( const TiXmlBase& ) = delete;				// not implemented.
-	TiXmlBase& operator=( const TiXmlBase& base ) = delete;	// not allowed.
-
 	struct Entity
 	{
 		const char*     str;
@@ -428,7 +428,8 @@ private:
 	in a document, or stand on its own. The type of a TiXmlNode
 	can be queried, and it can be cast to its more defined type.
 */
-class TiXmlNode : public TiXmlBase
+class TiXmlNode
+	: public TiXmlBase
 {
 	friend class TiXmlDocument;
 	friend class TiXmlElement;
@@ -776,16 +777,16 @@ protected:
 	// Figure out what is at *p, and parse it. Returns null if it is not an xml node.
 	TiXmlNode* Identify( const char* start, TiXmlEncoding encoding );
 
-	TiXmlNode*		parent;
-	NodeType		type;
+	TiXmlNode*		parent{ nullptr };
+	NodeType		type{ NodeType::TINYXML_UNKNOWN };
 
-	TiXmlNode*		firstChild;
-	TiXmlNode*		lastChild;
+	TiXmlNode*		firstChild{ nullptr };
+	TiXmlNode*		lastChild{ nullptr };
 
 	TIXML_STRING	value;
 
-	TiXmlNode*		prev;
-	TiXmlNode*		next;
+	TiXmlNode*		prev{ nullptr };
+	TiXmlNode*		next{ nullptr };
 };
 
 
@@ -796,7 +797,8 @@ protected:
 		  part of the tinyXML document object model. There are other
 		  suggested ways to look at this problem.
 */
-class TiXmlAttribute : public TiXmlBase
+class TiXmlAttribute
+	: public TiXmlBase
 {
 	friend class TiXmlAttributeSet;
 
@@ -1177,7 +1179,8 @@ private:
 
 /**	An XML comment.
 */
-class TiXmlComment : public TiXmlNode
+class TiXmlComment
+	: public TiXmlNode
 {
 public:
 	/// Constructs an empty comment.
@@ -1199,7 +1202,7 @@ public:
 	/// Returns a copy of this Comment.
 	TiXmlNode* Clone() const override;
 	// Write this Comment to a FILE stream.
-	void Print( FILE* cfile, int depth ) const override;
+	void Print( FILE* cfile, int depth ) const noexcept override;
 
 	/*	Attribtue parsing starts: at the ! of the !--
 						 returns: next char past '>'
@@ -1216,6 +1219,7 @@ public:
 protected:
 	//warning C26434 : Function 'TiXmlComment::CopyTo' hides a non - virtual function 'TiXmlNode::CopyTo' (c.128: http://go.microsoft.com/fwlink/?linkid=853923).
 	//void CopyTo( TiXmlComment* target ) const;
+	using TiXmlNode::CopyTo;
 
 	// used to be public
 	#ifdef TIXML_USE_STL
@@ -1243,7 +1247,6 @@ public:
 	*/
 	TiXmlText() noexcept
 		: TiXmlNode(TiXmlNode::TINYXML_TEXT)
-		, cdata(false)
 	{}
 
 	TiXmlText (const char * initValue ) noexcept
@@ -1300,7 +1303,7 @@ protected :
 	#endif
 
 private:
-	bool cdata;			// true if this should be input and output as a CDATA style text m_pElement
+	bool cdata{ false };			// true if this should be input and output as a CDATA style text m_pElement
 };
 
 
@@ -1369,7 +1372,6 @@ public:
 	bool Accept( TiXmlVisitor* visitor ) const override;
 
 protected:
-	//warning C26434 : Function 'TiXmlDeclaration::CopyTo' hides a non - virtual function 'TiXmlNode::CopyTo' (c.128: http://go.microsoft.com/fwlink/?linkid=853923).
 	void CopyTo( TiXmlDeclaration* target ) const;
 	// used to be public
 	#ifdef TIXML_USE_STL
@@ -1391,24 +1393,28 @@ private:
 
 	DTD tags get thrown into TiXmlUnknowns.
 */
-class TiXmlUnknown : public TiXmlNode
+class TiXmlUnknown
+	: public TiXmlNode
 {
 public:
 	TiXmlUnknown() noexcept
 		: TiXmlNode( TiXmlNode::TINYXML_UNKNOWN )
 	{}
-	~TiXmlUnknown() noexcept {}
+	~TiXmlUnknown() noexcept = default;
 
 	TiXmlUnknown( const TiXmlUnknown& copy ) noexcept
 		: TiXmlNode( TiXmlNode::TINYXML_UNKNOWN )
-	{ copy.CopyTo( this ); }
+	{
+		copy.CopyTo( this );
+	}
+
 	//warning C26434 : Function 'TiXmlUnknown::operator=' hides a non - virtual function 'TiXmlNode::operator=' (c.128: http://go.microsoft.com/fwlink/?linkid=853923).
 	TiXmlUnknown &operator=(const TiXmlUnknown& copy) noexcept { copy.CopyTo(this); return *this; }
 
 	/// Creates a copy of this Unknown and returns it.
 	TiXmlNode* Clone() const override;
 	// Print this Unknown to a FILE stream.
-	void Print( FILE* cfile, int depth ) const override;
+	void Print( FILE* cfile, int depth ) const noexcept override;
 
 	const char* Parse( const char* p, TiXmlParsingData* data, TiXmlEncoding encoding ) override;
 
@@ -1421,6 +1427,7 @@ public:
 
 protected:
 	//void CopyTo( TiXmlUnknown* target ) const;
+	using TiXmlNode::CopyTo;
 
 	#ifdef TIXML_USE_STL
 	virtual void StreamIn( std::istream * in, TIXML_STRING * tag );
@@ -1435,7 +1442,8 @@ private:
 	XML pieces. It can be saved, loaded, and printed to the screen.
 	The 'value' of a document node is the xml file name.
 */
-class TiXmlDocument : public TiXmlNode
+class TiXmlDocument
+	: public TiXmlNode
 {
 public:
 	/// Create an empty document, that has no name.
@@ -1592,12 +1600,12 @@ protected :
 private:
 	void CopyTo( TiXmlDocument* target ) const;
 
-	int  errorId;
+	int  errorId{};
 	TIXML_STRING errorDesc;
-	int tabsize;
+	int tabsize{ 4 };
 	TiXmlCursor errorLocation;
-	bool useMicrosoftBOM;		// the UTF-8 BOM were found when read. Note this, and try to write.
-	bool error;
+	bool useMicrosoftBOM{ false };		// the UTF-8 BOM were found when read. Note this, and try to write.
+	bool error{ false };
 };
 
 
@@ -1684,11 +1692,17 @@ private:
 class TiXmlHandle
 {
 public:
+	TiXmlHandle() noexcept = default;
 	/// Create a handle from any node (at any depth of the tree.) This can be a null pointer.
 	TiXmlHandle(TiXmlNode* _node) noexcept : node(_node) {}
 	/// Copy constructor
 	TiXmlHandle(const TiXmlHandle& ref) noexcept : node(ref.node) {}
 	TiXmlHandle &operator=( const TiXmlHandle& ref ) noexcept { this->node = ref.node; return *this; }
+
+	TiXmlHandle(TiXmlHandle&& ref) noexcept
+		: node(ref.node)
+	{}
+	TiXmlHandle &operator=(TiXmlHandle&& ref) noexcept { this->node = ref.node; return *this; }
 
 	/// Return a handle to the first child node.
 	TiXmlHandle FirstChild() const noexcept;
@@ -1757,7 +1771,7 @@ public:
 	TiXmlUnknown* Unknown() const noexcept	{ return ToUnknown(); }
 
 private:
-	TiXmlNode* node;
+	TiXmlNode * node{ nullptr };
 };
 
 
@@ -1780,12 +1794,12 @@ private:
 	fprintf( stdout, "%s", printer.CStr() );
 	@endverbatim
 */
-class TiXmlPrinter : public TiXmlVisitor
+class TiXmlPrinter
+	: public TiXmlVisitor
 {
 public:
 	TiXmlPrinter() noexcept
-		: depth( 0 ), simpleTextPrint( false ),
-		buffer(), indent( "    " ), lineBreak( "\n" )
+		: indent( "    " ), lineBreak( "\n" )
 	{}
 
 	bool VisitEnter( const TiXmlDocument& doc ) noexcept override;
@@ -1840,8 +1854,8 @@ private:
 		buffer += lineBreak;
 	}
 
-	int depth;
-	bool simpleTextPrint;
+	int depth{};
+	bool simpleTextPrint{ false };
 	TIXML_STRING buffer;
 	TIXML_STRING indent;
 	TIXML_STRING lineBreak;
