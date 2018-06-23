@@ -44,7 +44,7 @@ public:
 	*
 	* Availbale XPopupMenu Styles
 	*/
-	enum MenuStyle: UINT {
+	enum MenuStyle : UINT {
 		XPMS_OFFICE2003,
 		XPMS_OFFICE2003_REV,
 		XPMS_OFFICEXP,
@@ -110,18 +110,18 @@ public:
 	XPopupMenu &operator =(XPopupMenu &&) = delete;
 
 	XPopupMenu(const TString &tsName, HMENU hMenu);
-	XPopupMenu( const TString & tsMenuName, MenuStyle mStyle );
-	virtual ~XPopupMenu( );
+	XPopupMenu(const TString & tsMenuName, MenuStyle mStyle);
+	virtual ~XPopupMenu();
 
 	void parseXPopCommand(const TString & input);
 	//void parseXPopIdentifier( const TString & input, TCHAR * szReturnValue ) const;
 	void parseXPopIdentifier(const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const;
 	static XPopupMenu::MenuStyle parseStyle(const TString &style) noexcept;
 
-	static HMENU parsePath( const TString & path, const HMENU hParent, const UINT depth = 1 );
+	static HMENU parsePath(const TString & path, const HMENU hParent, const UINT depth = 1);
 
-	HIMAGELIST &getImageList( ) noexcept;
-	void destroyImageList( ) noexcept;
+	HIMAGELIST &getImageList() noexcept;
+	void destroyImageList() noexcept;
 
 	const MenuStyle &getStyle() const noexcept
 	{
@@ -141,22 +141,22 @@ public:
 	}
 
 	void deleteMenuItemData(const XPopupMenuItem *const p_Item, LPMENUITEMINFO mii = nullptr);
-	void deleteAllItemData( HMENU hMenu );
+	void deleteAllItemData(HMENU hMenu);
 
 	const TString &getName() const noexcept
 	{
 		return this->m_tsMenuName;
 	}
-	const size_t &getNameHash() const noexcept { return m_menuNameHash;	}
+	const size_t &getNameHash() const noexcept { return m_menuNameHash; }
 
-	const inline HMENU &getMenuHandle( ) const noexcept { return this->m_hMenu; };
+	const inline HMENU &getMenuHandle() const noexcept { return this->m_hMenu; };
 
 	const XPMENUCOLORS *getColors() const noexcept
 	{
 		return &m_MenuColors;
 	}
-	void setColor( const MenuColours nColor, const COLORREF clrColor ) noexcept;
-	COLORREF getColor( const MenuColours nColor ) const noexcept;
+	void setColor(const MenuColours nColor, const COLORREF clrColor) noexcept;
+	COLORREF getColor(const MenuColours nColor) const noexcept;
 	constexpr void setDefaultColor(const MenuColours nColor) noexcept
 	{
 		switch (nColor)
@@ -213,20 +213,20 @@ public:
 		}
 	}
 
-	static LRESULT CALLBACK XPopupWinProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
+	static LRESULT CALLBACK XPopupWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
-	static LRESULT OnMeasureItem( const HWND mHwnd, LPMEASUREITEMSTRUCT lpmis );
-	static LRESULT OnDrawItem( const HWND mHwnd, LPDRAWITEMSTRUCT lpdis ); 
+	static LRESULT OnMeasureItem(const HWND mHwnd, LPMEASUREITEMSTRUCT lpmis);
+	static LRESULT OnDrawItem(const HWND mHwnd, LPDRAWITEMSTRUCT lpdis);
 
-	void convertMenu( HMENU hMenu, const BOOL bForce );
-	static void cleanMenu( HMENU hMenu ) noexcept;
-	void clearAllMenuItems( ) noexcept;
+	void convertMenu(HMENU hMenu, const BOOL bForce);
+	static void cleanMenu(HMENU hMenu) noexcept;
+	void clearAllMenuItems() noexcept;
 
 	const HBITMAP &getBackBitmap() const noexcept
 	{
 		return m_hBitmap;
 	}
-	void setBackBitmap( HBITMAP hBitmap ) noexcept;
+	void setBackBitmap(HBITMAP hBitmap) noexcept;
 
 	const inline bool &IsRounded(void) const noexcept { return this->m_bRoundedSel; };
 	const inline std::byte &IsAlpha(void) const noexcept { return this->m_uiAlpha; };
