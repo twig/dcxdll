@@ -30,10 +30,6 @@ grey icons
 
 DcxToolBar::DcxToolBar(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles)
 	: DcxControl(ID, p_Dialog)
-	, m_hItemFont(nullptr)
-	, m_hOldItemFont(nullptr)
-	, m_bOverrideTheme(false)
-	, m_bAutoStretch(false)
 {
 	//We need to divide ExStyles and tbExStyles here because the first is used for
 	//global transparent style and the second for arrows style
@@ -47,7 +43,8 @@ DcxToolBar::DcxToolBar(const UINT ID, DcxDialog *const p_Dialog, const HWND mPar
 		Styles | WS_CHILD,
 		rc,
 		mParentHwnd,
-		ID);
+		ID,
+		this);
 
 	if (!IsWindow(m_Hwnd))
 		throw Dcx::dcxException("Unable To Create Window");
@@ -59,19 +56,18 @@ DcxToolBar::DcxToolBar(const UINT ID, DcxDialog *const p_Dialog, const HWND mPar
 		SendMessage(m_Hwnd, TB_SETEXTENDEDSTYLE, 0U, gsl::narrow_cast<LPARAM>(ExStylesTb));
 
 	SendMessage(m_Hwnd, TB_BUTTONSTRUCTSIZE, sizeof(TBBUTTON), 0L);
-	this->m_ToolTipHWND = (HWND)SendMessage(m_Hwnd, TB_GETTOOLTIPS, NULL, NULL);
-	if (styles.istok(TEXT("balloon")) && this->m_ToolTipHWND != nullptr)
+
+	this->setToolTipHWND((HWND)SendMessage(m_Hwnd, TB_GETTOOLTIPS, NULL, NULL));
+	if (styles.istok(TEXT("balloon")) && IsWindow(getToolTipHWND()))
 	{
 		//SetWindowLong(this->m_ToolTipHWND, GWL_STYLE, gsl::narrow_cast<LONG>(GetWindowStyle(this->m_ToolTipHWND) | TTS_BALLOON));
-		dcxSetWindowStyle(m_ToolTipHWND, dcxGetWindowStyle(m_ToolTipHWND) | TTS_BALLOON);
+		dcxSetWindowStyle(getToolTipHWND(), dcxGetWindowStyle(getToolTipHWND()) | TTS_BALLOON);
 	}
 	//SendMessage( m_Hwnd, TB_SETPARENT, (WPARAM)mParentHwnd, NULL);
 
 	this->autoSize();
 
 	this->setControlFont(GetStockFont(DEFAULT_GUI_FONT), FALSE);
-	this->registreDefaultWindowProc();
-	SetProp(m_Hwnd, TEXT("dcx_cthis"), (HANDLE) this);
 }
 
 /*!
@@ -87,8 +83,6 @@ DcxToolBar::~DcxToolBar( )
 	ImageList_Destroy( this->getImageList( TB_IML_NORMAL ) );
 	ImageList_Destroy( this->getImageList( TB_IML_DISABLE ) );
 	ImageList_Destroy( this->getImageList( TB_IML_HOT ) );
-
-	this->unregistreDefaultWindowProc( );
 }
 
 ///*!
@@ -160,7 +154,7 @@ DcxToolBar::~DcxToolBar( )
 //			case L"arrows"_hash:
 //				*ExStylesTb |= TBSTYLE_EX_DRAWDDARROWS;
 //				break;
-//			case L"override"_hash:
+//			case L"final"_hash:
 //				m_bOverrideTheme = true;
 //			default:
 //				break;
@@ -196,7 +190,7 @@ DcxToolBar::~DcxToolBar( )
 //			*Styles |= TBSTYLE_WRAPABLE;
 //		else if ( tsStyle == TEXT("arrows") )
 //			*ExStylesTb |= TBSTYLE_EX_DRAWDDARROWS;
-//		else if ( tsStyle == TEXT("override") )
+//		else if ( tsStyle == TEXT("final") )
 //			this->m_bOverrideTheme = true;
 //#endif
 //	}
@@ -320,7 +314,7 @@ std::tuple<NoTheme, WindowStyle, WindowExStyle> DcxToolBar::parseControlStyles(c
 		case L"wrap"_hash:
 			Styles |= TBSTYLE_WRAPABLE;
 			break;
-		case L"override"_hash:
+		case L"final"_hash:
 			m_bOverrideTheme = true;
 		default:
 			break;
@@ -493,8 +487,11 @@ void DcxToolBar::parseCommandRequest( const TString & input )
 		this->resetContent();
 
 	// xdid -a [NAME] [ID] [SWITCH] [N] [+FLAGS] [WIDTH] [#ICON] [COLOR] (Button Text) [TAB] Tooltip Text
-	if ( flags[TEXT('a')] && numtok > 4 )
+	if ( flags[TEXT('a')] )
 	{
+		if (numtok < 5)
+			throw Dcx::dcxException("Insufficient parameters");
+
 		auto nPos = input.getnexttok().to_int() - 1;	// tok 4
 
 		if ( nPos == -1 )
@@ -510,7 +507,7 @@ void DcxToolBar::parseCommandRequest( const TString & input )
 
 		tbb.fsState = parseButtonStateFlags( tsFlags );
 		tbb.idCommand = this->getFreeButtonID( );
-		auto buttonStyles = parseButtonStyleFlags(tsFlags);
+		const auto buttonStyles = parseButtonStyleFlags(tsFlags);
 		tbb.fsStyle = gsl::narrow_cast<BYTE>(buttonStyles & 0xFF);
 
 		if (( icon == -1 ) || (iNumtok < 7))
@@ -588,8 +585,11 @@ void DcxToolBar::parseCommandRequest( const TString & input )
 			this->autoStretchButtons( );
 	}
 	// xdid -c [NAME] [ID] [SWITCH] [N] [+FLAGS] [RGB] [+REMOVEFLAGS]
-	else if ( flags[TEXT('c')] && numtok > 5 )
+	else if ( flags[TEXT('c')] )
 	{
+		if (numtok < 7)
+			throw Dcx::dcxException("Insufficient parameters");
+
 		const auto iButton = input.getnexttok( ).to_int( ) - 1;						// tok 4
 		const auto buttonStyles = parseButtonStyleFlags(input.getnexttok());		// tok 5
 		const auto clrColor = input.getnexttok().to_<COLORREF>();					// tok 6
@@ -614,7 +614,7 @@ void DcxToolBar::parseCommandRequest( const TString & input )
 			if (this->getButtonInfo(iButton, &tbbi) == -1)
 				throw Dcx::dcxException("Unable to get button info");
 
-			auto lpdcxtbb = reinterpret_cast<LPDCXTBBUTTON>(tbbi.lParam);
+			const auto lpdcxtbb = reinterpret_cast<LPDCXTBBUTTON>(tbbi.lParam);
 
 			if ( dcx_testflag(buttonStyles, BTNS_UNDERLINE ))
 				lpdcxtbb->bUline = true;
@@ -668,16 +668,22 @@ void DcxToolBar::parseCommandRequest( const TString & input )
 		}
 	}
 	// xdid -d [NAME] [ID] [SWITCH] [N]
-	else if ( flags[TEXT('d')] && numtok > 3 )
+	else if ( flags[TEXT('d')] )
 	{
+		if (numtok < 4)
+			throw Dcx::dcxException("Insufficient parameters");
+
 		const auto nButton = input.getnexttok().to_int() - 1;	// tok 4
 
 		if (nButton > -1)
 			this->deleteButton(nButton);
 	}
 	// xdid -i [NAME] [ID] [SWITCH] [N] [IMAGE]
-	else if ( flags[TEXT('i')] && numtok > 4 )
+	else if ( flags[TEXT('i')] )
 	{
+		if (numtok < 5)
+			throw Dcx::dcxException("Insufficient parameters");
+
 		const auto nButton = input.getnexttok().to_int() - 1;	// tok 4
 		auto iImage = input.getnexttok().to_int() - 1;			// tok 5
 
@@ -692,16 +698,22 @@ void DcxToolBar::parseCommandRequest( const TString & input )
 		this->setButtonInfo( nButton /*this->getIndexToCommand( nButton )*/, &tbbi );
 	}
 	// xdid -j -> [NAME] [ID] -j [MIN] [MAX]
-	else if ( flags[TEXT('j')] && numtok > 4 )
+	else if ( flags[TEXT('j')] )
 	{
+		if (numtok < 5)
+			throw Dcx::dcxException("Insufficient parameters");
+
 		const auto nMin = input.getnexttok().to_int();	// tok 4
 		const auto nMax = input.getnexttok().to_int();	// tok 5	// was tok 4 should be 5
 
 		this->setButtonWidth( nMin, nMax );
 	}
 	// xdid -l [NAME] [ID] [SWITCH] [SIZE]
-	else if (flags[TEXT('l')] && numtok > 3)
+	else if (flags[TEXT('l')])
 	{
+		if (numtok < 4)
+			throw Dcx::dcxException("Insufficient parameters");
+
 		const auto size = NumToIconSize(input.getnexttok().to_<UINT>());	// tok 4
 
 		// these are destroyed after being removed from toolbar by setImageList() function.
@@ -709,28 +721,31 @@ void DcxToolBar::parseCommandRequest( const TString & input )
 		//ImageList_Destroy(this->getImageList(TB_IML_DISABLE));
 		//ImageList_Destroy(this->getImageList(TB_IML_HOT));
 
-		auto himl = createImageList(size);
-		setImageList(himl, TB_IML_NORMAL);
+		setImageList(createImageList(size), TB_IML_NORMAL);
 
-		himl = createImageList(size);
-		setImageList(himl, TB_IML_DISABLE);
+		setImageList(createImageList(size), TB_IML_DISABLE);
 
-		himl = createImageList(size);
-		setImageList(himl, TB_IML_HOT);
+		setImageList(createImageList(size), TB_IML_HOT);
 
 		redrawWindow();
 	}
 	// xdid -m [NAME] [ID] [SWITCH] [1|0]
-	else if ( flags[TEXT('m')] && numtok > 3 )
+	else if ( flags[TEXT('m')] )
 	{
+		if (numtok < 4)
+			throw Dcx::dcxException("Insufficient parameters");
+
 		m_bAutoStretch = (input.getnexttok() == TEXT('1'));	// tok 4
 
 		if (m_bAutoStretch)
 			autoStretchButtons( );
 	}
 	// xdid -q [NAME] [ID] [SWITCH] [N] (TIPTEXT)
-	else if (flags[TEXT('q')] && numtok > 3)
+	else if (flags[TEXT('q')])
 	{
+		if (numtok < 4)
+			throw Dcx::dcxException("Insufficient parameters");
+
 		const auto nButton = input.getnexttok().to_int() - 1;	// tok 4
 
 		if (nButton < 0 && nButton >= this->getButtonCount())
@@ -756,8 +771,11 @@ void DcxToolBar::parseCommandRequest( const TString & input )
 	{
 	}
 	// xdid -t [NAME] [ID] [SWITCH] [N] [+FLAGS]
-	else if ( flags[TEXT('t')] && numtok > 4 )
+	else if ( flags[TEXT('t')] )
 	{
+		if (numtok < 5)
+			throw Dcx::dcxException("Insufficient parameters");
+
 		const auto nButton = input.getnexttok().to_int() - 1;				// tok 4
 		const auto fStates = parseButtonStateFlags(input.getnexttok());	// tok 5
 
@@ -767,16 +785,22 @@ void DcxToolBar::parseCommandRequest( const TString & input )
 			this->setButtonState( idButton, fStates );
 	}
 	// xdid -u [NAME] [ID] [SWITCH] [DX] [DY]
-	else if ( flags[TEXT('u')] && numtok > 4 )
+	else if ( flags[TEXT('u')] )
 	{
+		if (numtok < 5)
+			throw Dcx::dcxException("Insufficient parameters");
+
 		const auto dxButton = input.getnexttok().to_int();		// tok 4
 		const auto dyButton = input.getnexttok().to_int();		// tok 5
 
 		this->setButtonSize( dxButton, dyButton );
 	}
 	// xdid -v [NAME] [ID] [SWITCH] [N] (TEXT)
-	else if ( flags[TEXT('v')] && numtok > 3 )
+	else if ( flags[TEXT('v')] )
 	{
+		if (numtok < 4)
+			throw Dcx::dcxException("Insufficient parameters");
+
 		const auto nButton = input.getnexttok().to_int() - 1;		// tok 4
 
 		if (nButton < 0 && nButton >= this->getButtonCount())
@@ -806,8 +830,11 @@ void DcxToolBar::parseCommandRequest( const TString & input )
 		}
 	}
 	// xdid -w [NAME] [ID] [SWITCH] [+FLAGS] [INDEX] [FILENAME]
-	else if (flags[TEXT('w')] && numtok > 5)
+	else if (flags[TEXT('w')])
 	{
+		if (numtok < 6)
+			throw Dcx::dcxException("Insufficient parameters");
+
 		const auto tsFlags(input.getnexttok( ));	// tok 4
 		const auto iFlags = this->parseImageListFlags(tsFlags);
 
@@ -817,81 +844,42 @@ void DcxToolBar::parseCommandRequest( const TString & input )
 		const auto index = input.getnexttok().to_int();	// tok 5
 		auto filename(input.getlasttoks());			// tok 6, -1
 
-		auto himl = this->getImageList(TB_IML_NORMAL);
-
-		// load the icon
-		if (himl == nullptr)
-			throw Dcx::dcxException("Unable to get Normal Image List");
-
 		int cx = 0, cy = 0;
-		if (!ImageList_GetIconSize(himl, &cx, &cy))
+		if (!ImageList_GetIconSize(this->getImageList(TB_IML_NORMAL), &cx, &cy))
 			throw Dcx::dcxException("Unable to get Icon Size");
 
+		// load the icon
 #if DCX_USE_WRAPPERS
-		Dcx::dcxIconResource icon(index, filename, (NumToIconSize(cx) > DcxIconSizes::SmallIcon), tsFlags);
-
-		// NORMAL IML
-		if (dcx_testflag(iFlags, TB_IML_NORMAL))
-		{
-			himl = this->getImageList(TB_IML_NORMAL);
-
-			if (himl != nullptr)
-				ImageList_AddIcon(himl, icon);
-		}
-
-		// DISABLED IML
-		if (dcx_testflag(iFlags, TB_IML_DISABLE))
-		{
-			himl = this->getImageList(TB_IML_DISABLE);
-
-			if (himl != nullptr)
-				ImageList_AddIcon(himl, icon);
-		}
-
-		// HOT IML
-		if (dcx_testflag(iFlags, TB_IML_HOT))
-		{
-			himl = this->getImageList(TB_IML_HOT);
-
-			if (himl != nullptr)
-				ImageList_AddIcon(himl, icon);
-		}
+		const Dcx::dcxIconResource icon(index, filename, (NumToIconSize(cx) > DcxIconSizes::SmallIcon), tsFlags);
 #else
-		auto icon = dcxLoadIcon(index, filename, (NumToIconSize(cx) > DcxIconSizes::SmallIcon), tsFlags);
+		const auto icon = dcxLoadIcon(index, filename, (NumToIconSize(cx) > DcxIconSizes::SmallIcon), tsFlags);
 		
 		// if there is an icon to process
 		if (icon == nullptr)
 			throw Dcx::dcxException(TEXT("Icon Failed To Load: %"), filename);
-		
+
+		Auto(DestroyIcon(icon));
+#endif
 		// NORMAL IML
 		if (dcx_testflag(iFlags, TB_IML_NORMAL))
 		{
-			himl = this->getImageList(TB_IML_NORMAL);
-		
-			if (himl != nullptr)
+			if (auto himl = this->getImageList(TB_IML_NORMAL); himl != nullptr)
 				ImageList_AddIcon(himl, icon);
 		}
-		
+
 		// DISABLED IML
 		if (dcx_testflag(iFlags, TB_IML_DISABLE))
 		{
-			himl = this->getImageList(TB_IML_DISABLE);
-		
-			if (himl != nullptr)
+			if (auto himl = this->getImageList(TB_IML_DISABLE); himl != nullptr)
 				ImageList_AddIcon(himl, icon);
 		}
-		
+
 		// HOT IML
 		if (dcx_testflag(iFlags, TB_IML_HOT))
 		{
-			himl = this->getImageList(TB_IML_HOT);
-		
-			if (himl != nullptr)
+			if (auto himl = this->getImageList(TB_IML_HOT); himl != nullptr)
 				ImageList_AddIcon(himl, icon);
 		}
-		
-		DestroyIcon(icon);
-#endif
 	}
 	else
 		parseGlobalCommandRequest( input, flags );
@@ -903,7 +891,7 @@ void DcxToolBar::parseCommandRequest( const TString & input )
 * blah
 */
 
-BYTE DcxToolBar::parseButtonStateFlags( const TString & flags )
+BYTE DcxToolBar::parseButtonStateFlags( const TString & flags ) noexcept
 {
 	const XSwitchFlags xflags(flags);
 	BYTE iFlags = TBSTATE_ENABLED;
@@ -934,7 +922,7 @@ BYTE DcxToolBar::parseButtonStateFlags( const TString & flags )
 * blah
 */
 
-UINT DcxToolBar::parseButtonStyleFlags( const TString & flags ) 
+UINT DcxToolBar::parseButtonStyleFlags( const TString & flags ) noexcept
 {
 	const XSwitchFlags xflags(flags);
 	UINT iFlags = BTNS_BUTTON;
@@ -982,7 +970,7 @@ UINT DcxToolBar::parseButtonStyleFlags( const TString & flags )
 *
 * blah
 */
-UINT DcxToolBar::parseImageListFlags( const TString &flags)
+UINT DcxToolBar::parseImageListFlags( const TString &flags) noexcept
 {
 	const XSwitchFlags xflags(flags);
 	UINT iFlags = 0;
@@ -1009,7 +997,7 @@ UINT DcxToolBar::parseImageListFlags( const TString &flags)
 * blah
 */
 
-HIMAGELIST DcxToolBar::getImageList( const dcxToolBar_ImageLists iImageList ) const
+HIMAGELIST DcxToolBar::getImageList( const dcxToolBar_ImageLists iImageList ) const noexcept
 {
 	if ( iImageList == TB_IML_NORMAL )
 		return (HIMAGELIST) SendMessage( m_Hwnd, TB_GETIMAGELIST, (WPARAM) 0, (LPARAM) 0);
@@ -1026,7 +1014,7 @@ HIMAGELIST DcxToolBar::getImageList( const dcxToolBar_ImageLists iImageList ) co
 * blah
 */
 
-void DcxToolBar::setImageList(HIMAGELIST himl, const dcxToolBar_ImageLists iImageList)
+void DcxToolBar::setImageList(const HIMAGELIST himl, const dcxToolBar_ImageLists iImageList) noexcept
 {
 	HIMAGELIST himlOld = nullptr;
 
@@ -1047,7 +1035,7 @@ void DcxToolBar::setImageList(HIMAGELIST himl, const dcxToolBar_ImageLists iImag
 * blah
 */
 
-HIMAGELIST DcxToolBar::createImageList( const DcxIconSizes iSize )
+HIMAGELIST DcxToolBar::createImageList( const DcxIconSizes iSize ) noexcept
 {
 	return ImageList_Create(gsl::narrow_cast<int>(iSize), gsl::narrow_cast<int>(iSize), ILC_COLOR32 | ILC_MASK, 1, 0);
 }
@@ -1058,7 +1046,7 @@ HIMAGELIST DcxToolBar::createImageList( const DcxIconSizes iSize )
 * blah
 */
 
-void DcxToolBar::resetContent( )
+void DcxToolBar::resetContent( ) noexcept
 {
 	auto nButtons = this->getButtonCount( );
 
@@ -1072,7 +1060,7 @@ void DcxToolBar::resetContent( )
 * blah
 */
 
-void DcxToolBar::autoStretchButtons( )
+void DcxToolBar::autoStretchButtons( ) noexcept
 {
 	const auto nButtons = this->getButtonCount();
 	auto nTotalButtons = nButtons;
@@ -1087,7 +1075,7 @@ void DcxToolBar::autoStretchButtons( )
 	TBBUTTON tbb{};
 
 	// Find the button width
-	for (auto i = decltype(nButtons){0}; i < nButtons; i++)
+	for (auto i = decltype(nButtons){0}; i < nButtons; ++i)
 	{
 		getButton( i, &tbb );
 
@@ -1122,7 +1110,7 @@ void DcxToolBar::autoStretchButtons( )
 	}
 }
 
-void DcxToolBar::autoPosition( const int width, const int height )
+void DcxToolBar::autoPosition( const int width, const int height ) noexcept
 {
 	if ( !this->isStyle( WindowStyle::CCS_NoParentAlign | CCS_NORESIZE ) )
 		SendMessage( m_Hwnd, WM_SIZE, (WPARAM) 0, (LPARAM) 0 );
@@ -1134,7 +1122,7 @@ void DcxToolBar::autoPosition( const int width, const int height )
 * blah
 */
 
-LRESULT DcxToolBar::autoSize( )
+LRESULT DcxToolBar::autoSize( ) noexcept
 {
 	return SendMessage( m_Hwnd, TB_AUTOSIZE, (WPARAM) 0, (LPARAM) 0 );
 }
@@ -1145,7 +1133,7 @@ LRESULT DcxToolBar::autoSize( )
 * blah
 */
 
-LRESULT DcxToolBar::insertButton( const int nPos, const LPTBBUTTON lpbb )
+LRESULT DcxToolBar::insertButton( const int nPos, const LPTBBUTTON lpbb ) noexcept
 {
 	return SendMessage( m_Hwnd, TB_INSERTBUTTON, gsl::narrow_cast<WPARAM>(nPos), (LPARAM) lpbb );
 }
@@ -1156,9 +1144,9 @@ LRESULT DcxToolBar::insertButton( const int nPos, const LPTBBUTTON lpbb )
 * blah
 */
 
-LRESULT DcxToolBar::hitTest( const LPPOINT lpt ) const
+LRESULT DcxToolBar::hitTest( const LPPOINT lpt ) const noexcept
 {
-	return SendMessage( m_Hwnd, TB_HITTEST, (WPARAM) 0, (LPARAM) lpt );
+	return SendMessage( m_Hwnd, TB_HITTEST, 0, (LPARAM) lpt );
 }
 
 /*!
@@ -1167,7 +1155,7 @@ LRESULT DcxToolBar::hitTest( const LPPOINT lpt ) const
 * blah
 */
 
-LRESULT DcxToolBar::getItemRect( const int iButton, LPRECT lprc ) const
+LRESULT DcxToolBar::getItemRect( const int iButton, const LPRECT lprc ) const noexcept
 {
 	return SendMessage( m_Hwnd, TB_GETITEMRECT, gsl::narrow_cast<WPARAM>(iButton), (LPARAM) lprc );
 }
@@ -1178,7 +1166,7 @@ LRESULT DcxToolBar::getItemRect( const int iButton, LPRECT lprc ) const
 * blah
 */
 
-LRESULT DcxToolBar::getButtonCount( ) const
+LRESULT DcxToolBar::getButtonCount( ) const noexcept
 {
 	return SendMessage( m_Hwnd, TB_BUTTONCOUNT, (WPARAM) 0, (LPARAM) 0 );
 }
@@ -1189,7 +1177,7 @@ LRESULT DcxToolBar::getButtonCount( ) const
 * blah
 */
 
-LRESULT DcxToolBar::setButtonWidth( const int cxMin, const int cxMax )
+LRESULT DcxToolBar::setButtonWidth( const int cxMin, const int cxMax ) noexcept
 {
 	return SendMessage( m_Hwnd, TB_SETBUTTONWIDTH, (WPARAM) 0, gsl::narrow_cast<LPARAM>(MAKELONG ( cxMin, cxMax )) );
 }
@@ -1200,7 +1188,7 @@ LRESULT DcxToolBar::setButtonWidth( const int cxMin, const int cxMax )
 * blah
 */
 
-LRESULT DcxToolBar::deleteButton(const int iButton)
+LRESULT DcxToolBar::deleteButton(const int iButton) noexcept
 {
 	return (LRESULT) SendMessage( m_Hwnd, TB_DELETEBUTTON, gsl::narrow_cast<WPARAM>(iButton), (LPARAM) 0 );
 }
@@ -1211,7 +1199,7 @@ LRESULT DcxToolBar::deleteButton(const int iButton)
 * blah
 */
 
-LRESULT DcxToolBar::setButtonInfo( const int idButton, LPTBBUTTONINFO lpbi )
+LRESULT DcxToolBar::setButtonInfo( const int idButton, const LPTBBUTTONINFO lpbi ) noexcept
 {
 	return SendMessage( m_Hwnd, TB_SETBUTTONINFO, gsl::narrow_cast<WPARAM>(idButton), (LPARAM) lpbi );
 }
@@ -1222,7 +1210,7 @@ LRESULT DcxToolBar::setButtonInfo( const int idButton, LPTBBUTTONINFO lpbi )
 * blah
 */
 
-LRESULT DcxToolBar::getButtonInfo( const int idButton, LPTBBUTTONINFO lpbi ) const
+LRESULT DcxToolBar::getButtonInfo( const int idButton, const LPTBBUTTONINFO lpbi ) const noexcept
 {
 	return SendMessage(m_Hwnd, TB_GETBUTTONINFO, gsl::narrow_cast<WPARAM>(idButton), (LPARAM) lpbi);
 }
@@ -1233,7 +1221,7 @@ LRESULT DcxToolBar::getButtonInfo( const int idButton, LPTBBUTTONINFO lpbi ) con
 * blah
 */
 
-LRESULT DcxToolBar::getTooltips( ) const
+LRESULT DcxToolBar::getTooltips( ) const noexcept
 {
 	return SendMessage( m_Hwnd, TB_GETTOOLTIPS, (WPARAM) 0, (LPARAM) 0 );
 }
@@ -1244,7 +1232,7 @@ LRESULT DcxToolBar::getTooltips( ) const
 * blah
 */
 
-LRESULT DcxToolBar::getButtonText( const int idButton, LPSTR lpszText ) const
+LRESULT DcxToolBar::getButtonText( const int idButton, const LPSTR lpszText ) const noexcept
 {
 	return (LRESULT) SendMessage( m_Hwnd, TB_GETBUTTONTEXT, gsl::narrow_cast<WPARAM>(idButton), (LPARAM) lpszText );
 }
@@ -1255,7 +1243,7 @@ LRESULT DcxToolBar::getButtonText( const int idButton, LPSTR lpszText ) const
 * blah
 */
 
-LRESULT DcxToolBar::getButton( const int iButton, LPTBBUTTON lpb ) const
+LRESULT DcxToolBar::getButton( const int iButton, const LPTBBUTTON lpb ) const noexcept
 {
 	return SendMessage( m_Hwnd, TB_GETBUTTON, gsl::narrow_cast<WPARAM>(iButton), (LPARAM) lpb );
 }
@@ -1266,7 +1254,7 @@ LRESULT DcxToolBar::getButton( const int iButton, LPTBBUTTON lpb ) const
 * blah
 */
 
-LRESULT DcxToolBar::getCommandToIndex( const int idButton ) const
+LRESULT DcxToolBar::getCommandToIndex( const int idButton ) const noexcept
 {
 	return SendMessage( m_Hwnd, TB_COMMANDTOINDEX, gsl::narrow_cast<WPARAM>(idButton), (LPARAM) 0 );
 }
@@ -1277,7 +1265,7 @@ LRESULT DcxToolBar::getCommandToIndex( const int idButton ) const
 * blah
 */
 
-LRESULT DcxToolBar::moveButton( const int iButtonFrom, const int iButtonTo )
+LRESULT DcxToolBar::moveButton( const int iButtonFrom, const int iButtonTo ) noexcept
 {
 	return SendMessage( m_Hwnd, TB_MOVEBUTTON, gsl::narrow_cast<WPARAM>(iButtonFrom), gsl::narrow_cast<LPARAM>(iButtonTo) );
 }
@@ -1288,7 +1276,7 @@ LRESULT DcxToolBar::moveButton( const int iButtonFrom, const int iButtonTo )
 * blah
 */
 
-LRESULT DcxToolBar::markButton( const int iButton, const bool fHighlight )
+LRESULT DcxToolBar::markButton( const int iButton, const bool fHighlight ) noexcept
 {
 	return SendMessage( m_Hwnd, TB_MARKBUTTON, gsl::narrow_cast<WPARAM>(iButton), gsl::narrow_cast<LPARAM>(MAKELONG ( fHighlight, 0 )) );
 }
@@ -1299,7 +1287,7 @@ LRESULT DcxToolBar::markButton( const int iButton, const bool fHighlight )
 * blah
 */
 
-LRESULT DcxToolBar::setButtonState( const int idButton, const UINT fState )
+LRESULT DcxToolBar::setButtonState( const int idButton, const UINT fState ) noexcept
 {
 	return SendMessage( m_Hwnd, TB_SETSTATE, gsl::narrow_cast<WPARAM>(idButton), gsl::narrow_cast<LPARAM>(MAKELONG ( fState, 0 )) );
 }
@@ -1310,9 +1298,9 @@ LRESULT DcxToolBar::setButtonState( const int idButton, const UINT fState )
 * blah
 */
 
-LRESULT DcxToolBar::setButtonSize( const int dxButton, const int dyButton )
+LRESULT DcxToolBar::setButtonSize( const int dxButton, const int dyButton ) noexcept
 {
-	return SendMessage( m_Hwnd, TB_SETBUTTONSIZE, (WPARAM) 0, gsl::narrow_cast<LPARAM>(MAKELONG (dxButton, dyButton)) );
+	return SendMessage( m_Hwnd, TB_SETBUTTONSIZE, 0, gsl::narrow_cast<LPARAM>(MAKELONG (dxButton, dyButton)) );
 }
 
 
@@ -1322,7 +1310,7 @@ LRESULT DcxToolBar::setButtonSize( const int dxButton, const int dyButton )
 * blah
 */
 
-int DcxToolBar::getFreeButtonID( ) const
+int DcxToolBar::getFreeButtonID( ) const noexcept
 {
 	int i = 0, iID = 0;
 	do {
@@ -1337,7 +1325,7 @@ int DcxToolBar::getFreeButtonID( ) const
 * blah
 */
 
-int DcxToolBar::getIndexToCommand(const int iIndex) const
+int DcxToolBar::getIndexToCommand(const int iIndex) const noexcept
 {
 	const auto nButtons = this->getButtonCount();
 
@@ -1361,10 +1349,13 @@ LRESULT DcxToolBar::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 	{
 	case WM_COMMAND:
 	{
-		if (dcx_testflag(this->m_pParentDialog->getEventMask(), DCX_EVENT_CLICK))
+		if (HIWORD(wParam) == BN_CLICKED)
 		{
-			if (auto iButton = gsl::narrow_cast<int>(wParam); iButton > -1)
-				this->execAliasEx(TEXT("%s,%d,%d"), TEXT("sclick"), this->getUserID(), this->getCommandToIndex(iButton) + 1);
+			if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
+			{
+				if (const auto iButton = gsl::narrow_cast<int>(LOWORD(wParam)); iButton > -1)
+					this->execAliasEx(TEXT("sclick,%u,%d"), getUserID(), this->getCommandToIndex(iButton) + 1);
+			}
 		}
 		bParsed = TRUE;
 	}
@@ -1379,22 +1370,38 @@ LRESULT DcxToolBar::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 
 		switch (hdr->code) 
 		{
+		//case NM_CLICK:	// WM_COMMAND is used instead, keep for reference
+		//{
+		//	if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
+		//	{
+		//		dcxlParam(LPNMCLICK, lpnm);
+		//		this->execAliasEx(TEXT("nm_sclick,%u,%u"), getUserID(), lpnm->dwItemSpec);
+		//	}
+		//	bParsed = TRUE;
+		//	return TRUE;
+		//}
+		//break;
+
 		case NM_RCLICK:
 		{
-			if (dcx_testflag(this->m_pParentDialog->getEventMask(), DCX_EVENT_CLICK))
+			if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
 			{
-				dcxlParam(LPNMMOUSE, lpnm);
+				dcxlParam(LPNMCLICK, lpnm);
 
-				auto pt = lpnm->pt;
+				//auto pt = lpnm->pt;
+				//if (const auto iButton = this->hitTest(&pt); iButton > -1)
+				//{
+				//	RECT rc{};
+				//	this->getItemRect(iButton, &rc);
+				//	MapWindowRect(m_Hwnd, nullptr, &rc);
+				//	this->execAliasEx(TEXT("rclick,%u,%d,%d,%d,%d,%d"), getUserID(), iButton + 1, rc.left, rc.bottom, rc.right, rc.top);
+				//}
 
-				if (const auto iButton = this->hitTest(&pt); iButton > -1)
-				{
-					RECT rc{};
-					this->getItemRect(iButton, &rc);
-					MapWindowRect(m_Hwnd, nullptr, &rc);
+				RECT rc{};
+				this->getItemRect(lpnm->dwItemSpec, &rc);
+				MapWindowRect(m_Hwnd, nullptr, &rc);
 
-					this->execAliasEx(TEXT("%s,%d,%d,%d,%d,%d,%d"), TEXT("rclick"), this->getUserID(), iButton + 1, rc.left, rc.bottom, rc.right, rc.top);
-				}
+				this->execAliasEx(TEXT("rclick,%u,%u,%d,%d,%d,%d"), getUserID(), lpnm->dwItemSpec, rc.left, rc.bottom, rc.right, rc.top);
 			}
 			bParsed = TRUE;
 			return TRUE;
@@ -1403,7 +1410,7 @@ LRESULT DcxToolBar::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 
 		case TBN_DROPDOWN:
 		{
-			if (dcx_testflag(this->m_pParentDialog->getEventMask(), DCX_EVENT_CLICK))
+			if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
 			{
 				dcxlParam(LPNMTOOLBAR, lpnmtb);
 
@@ -1413,7 +1420,7 @@ LRESULT DcxToolBar::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 					this->getItemRect(iButton, &rc);
 					MapWindowRect(m_Hwnd, nullptr, &rc);
 
-					this->execAliasEx(TEXT("%s,%d,%d,%d,%d,%d,%d"), TEXT("dropdown"), this->getUserID(), iButton + 1, rc.left, rc.bottom, rc.right, rc.top);
+					this->execAliasEx(TEXT("dropdown,%u,%d,%d,%d,%d,%d"), getUserID(), iButton + 1, rc.left, rc.bottom, rc.right, rc.top);
 				}
 			}
 			bParsed = TRUE;
@@ -1434,7 +1441,7 @@ LRESULT DcxToolBar::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 			case CDDS_ITEMPREPAINT:
 			{
 
-				auto lpdtbb = reinterpret_cast<LPDCXTBBUTTON>(lpntbcd->nmcd.lItemlParam);
+				const auto lpdtbb = reinterpret_cast<LPDCXTBBUTTON>(lpntbcd->nmcd.lItemlParam);
 
 				if (lpdtbb == nullptr)
 					return CDRF_DODEFAULT;
@@ -1456,7 +1463,7 @@ LRESULT DcxToolBar::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 				if (lpdtbb->clrTextHighlight != CLR_INVALID)
 					lpntbcd->clrTextHighlight = lpdtbb->clrTextHighlight;
 
-				if (auto hFont = GetWindowFont(m_Hwnd); hFont != nullptr)
+				if (const auto hFont = GetWindowFont(m_Hwnd); hFont != nullptr)
 				{
 					if (LOGFONT lf{}; GetObject(hFont, sizeof(LOGFONT), &lf) != 0)
 					{
@@ -1541,7 +1548,7 @@ LRESULT DcxToolBar::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 		// NM_CHAR code all works, but do we want it?
 		//case NM_CHAR:
 		//	{
-		//		if (dcx_testflag(this->m_pParentDialog->getEventMask(), DCX_EVENT_EDIT)) {
+		//		if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_EDIT)) {
 		//			auto lpnmc = (LPNMCHAR) lParam;
 		//			this->execAliasEx(TEXT("%s,%d,%d,%d"), TEXT("keyup"), this->getUserID(), lpnmc->ch, lpnmc->dwItemPrev);
 		//		}
@@ -1573,7 +1580,7 @@ LRESULT DcxToolBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 
 	case WM_PAINT:
 	{
-		if (!this->m_bAlphaBlend)
+		if (!this->IsAlphaBlend())
 			break;
 
 		PAINTSTRUCT ps{};
@@ -1586,7 +1593,7 @@ LRESULT DcxToolBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 		auto ai = this->SetupAlphaBlend(&hdc);
 		Auto(this->FinishAlphaBlend(ai));
 
-		return CallDefaultProc(m_Hwnd, uMsg, (WPARAM)hdc, lParam);
+		return CallDefaultClassProc(uMsg, (WPARAM)hdc, lParam);
 	}
 	break;
 
@@ -1637,7 +1644,7 @@ const TString DcxToolBar::getStyles(void) const
 		tsStyles.addtok(TEXT("wrap"));
 
 	if (m_bOverrideTheme)
-		tsStyles.addtok(TEXT("override"));
+		tsStyles.addtok(TEXT("final"));
 
 	if (dcx_testflag(ExStylesTb, TBSTYLE_EX_DRAWDDARROWS))
 		tsStyles.addtok(TEXT("arrows"));
@@ -1657,4 +1664,14 @@ TiXmlElement * DcxToolBar::toXml(void) const
 	auto xml = std::make_unique<TiXmlElement>("control");
 	toXml(xml.get());
 	return xml.release();
+}
+
+WNDPROC DcxToolBar::m_hDefaultClassProc = nullptr;
+
+LRESULT DcxToolBar::CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept
+{
+	if (m_hDefaultClassProc != nullptr)
+		return CallWindowProc(m_hDefaultClassProc, this->m_Hwnd, uMsg, wParam, lParam);
+
+	return DefWindowProc(this->m_Hwnd, uMsg, wParam, lParam);
 }

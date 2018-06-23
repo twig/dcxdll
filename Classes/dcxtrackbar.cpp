@@ -27,15 +27,8 @@ http://www.codeproject.com/miscctrl/transparentslider.asp
  */
 
 DcxTrackBar::DcxTrackBar(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles)
-	: DcxControl(ID, p_Dialog),
-	m_bUpdatingTooltip(false),
-	m_colTransparent(CLR_INVALID)
+	: DcxControl(ID, p_Dialog)
 {
-	this->m_hbmp[TBBMP_BACK] = nullptr;
-	this->m_hbmp[TBBMP_THUMB] = nullptr;
-	this->m_hbmp[TBBMP_THUMBDRAG] = nullptr;
-	this->m_hbmp[TBBMP_CHANNEL] = nullptr;
-
 	const auto[bNoTheme, Styles, ExStyles] = parseControlStyles(styles);
 
 	m_Hwnd = dcxCreateWindow(
@@ -44,7 +37,8 @@ DcxTrackBar::DcxTrackBar(const UINT ID, DcxDialog *const p_Dialog, const HWND mP
 		Styles | WS_CHILD,
 		rc,
 		mParentHwnd,
-		ID);
+		ID,
+		this);
 
 	if (!IsWindow(m_Hwnd))
 		throw Dcx::dcxException("Unable To Create Window");
@@ -55,15 +49,11 @@ DcxTrackBar::DcxTrackBar(const UINT ID, DcxDialog *const p_Dialog, const HWND mP
 	// Keep track of the tooltip
 	if (dcx_testflag(Styles, TBS_TOOLTIPS))
 	{
-		auto tooltip = (HWND)SendMessage(m_Hwnd, TBM_GETTOOLTIPS, NULL, NULL);
-
-		if (tooltip != nullptr)
+		if (const auto tooltip = (HWND)SendMessage(m_Hwnd, TBM_GETTOOLTIPS, NULL, NULL); tooltip != nullptr)
 			this->m_ToolTipHWND = tooltip;
 	}
 
 	this->setControlFont(GetStockFont(DEFAULT_GUI_FONT), FALSE);
-	this->registreDefaultWindowProc();
-	SetProp(m_Hwnd, TEXT("dcx_cthis"), (HANDLE) this);
 }
 
 /*!
@@ -82,8 +72,6 @@ DcxTrackBar::~DcxTrackBar( )
 		DeleteBitmap(this->m_hbmp[TBBMP_THUMBDRAG]);
 	if (this->m_hbmp[TBBMP_CHANNEL] != nullptr)
 		DeleteBitmap(this->m_hbmp[TBBMP_CHANNEL]);
-
-  this->unregistreDefaultWindowProc( );
 }
 
 /*!
@@ -283,14 +271,20 @@ void DcxTrackBar::parseCommandRequest( const TString & input )
 	const auto numtok = input.numtok();
 
 	// xdid -c [NAME] [ID] [SWITCH] [VALUE]
-	if ( flags[TEXT('c')] && numtok > 3 )
+	if ( flags[TEXT('c')] )
 	{
+		if (numtok < 4)
+			throw Dcx::dcxException("Insufficient parameters");
+
 		const auto lPosition = input.getnexttok().to_<long>();	// tok 4
 		this->setTic( lPosition );
 	}
 	// xdid -g [NAME] [ID] [SWITCH] [FLAGS] [FILE]
-	else if (flags[TEXT('g')] && numtok > 4)
+	else if (flags[TEXT('g')])
 	{
+		if (numtok < 5)
+			throw Dcx::dcxException("Insufficient parameters");
+
 		const auto tflags = parseImageFlags(input.getnexttok());	// tok 4
 		auto filename(input.getlasttoks().trim());				// tok 5, -1
 
@@ -312,38 +306,53 @@ void DcxTrackBar::parseCommandRequest( const TString & input )
 		//InvalidateRect(m_Hwnd, nullptr, TRUE);
 	}
 	// xdid -j [NAME] [ID] [SWITCH] [MIN] [MAX]
-	else if ( flags[TEXT('j')] && numtok > 4 )
+	else if ( flags[TEXT('j')] )
 	{
+		if (numtok < 5)
+			throw Dcx::dcxException("Insufficient parameters");
+
 		const auto iMin = input.getnexttok().to_<long>();	// tok 4
 		const auto iMax = input.getnexttok().to_<long>();	// tok 5
 		this->setSel( iMin, iMax );
 	}
 	// xdid -l [NAME] [ID] [SWITCH] [VALUE]
-	else if ( flags[TEXT('l')] && numtok > 3 )
+	else if ( flags[TEXT('l')] )
 	{
+		if (numtok < 4)
+			throw Dcx::dcxException("Insufficient parameters");
+
 		const auto lLineSize = input.getnexttok().to_<long>();	// tok 4
 		this->setLineSize( lLineSize );
 	}
 	// xdid -m [NAME] [ID] [SWITCH] [VALUE]
-	else if ( flags[TEXT('m')] && numtok > 3 )
+	else if ( flags[TEXT('m')] )
 	{
+		if (numtok < 4)
+			throw Dcx::dcxException("Insufficient parameters");
+
 		const auto lPageSize = input.getnexttok().to_<long>();	// tok 4
 		this->setPageSize( lPageSize );
 	}
 	// xdid -n [NAME] [ID] [SWITCH] [VALUE]
-	else if ( flags[TEXT('n')] && numtok > 3 )
+	else if ( flags[TEXT('n')] )
 	{
+		if (numtok < 4)
+			throw Dcx::dcxException("Insufficient parameters");
+
 		const auto iTicFreq = input.getnexttok().to_<long>();	// tok 4
 		this->setTicFreq( iTicFreq );
 	}
-	// xdid -q [NAME] [ID] [SWITCH] [VALUE]
+	// xdid -q [NAME] [ID] [SWITCH]
 	else if ( flags[TEXT('q')] )
 	{
 		this->clearTics( );
 	}
 	// xdid -r [NAME] [ID] [SWITCH] [MIN] [MAX]
-	else if ( flags[TEXT('r')] && numtok > 4 )
+	else if ( flags[TEXT('r')] )
 	{
+		if (numtok < 5)
+			throw Dcx::dcxException("Insufficient parameters");
+
 		const auto lMinRange = input.getnexttok().to_<long>();	// tok 4
 		const auto lMaxRange = input.getnexttok().to_<long>();	// tok 5
 
@@ -351,35 +360,63 @@ void DcxTrackBar::parseCommandRequest( const TString & input )
 		this->setRangeMax( lMaxRange );
 	}
 	// xdid -o [NAME] [ID] [SWITCH] [VALUE]
-	else if (flags[TEXT('o')] && numtok > 3)
+	else if (flags[TEXT('o')])
 	{
+		if (numtok < 4)
+			throw Dcx::dcxException("Insufficient parameters");
+
 		m_colTransparent = input.getnexttok().to_<COLORREF>();	// tok 4
 		this->redrawWindow();
 	}
 	// xdid -t [NAME] [ID] [SWITCH] [VALUE]
-	else if ( flags[TEXT('t')] && numtok > 3 )
+	else if ( flags[TEXT('t')] )
 	{
-		const auto value(input.getnexttok());	// tok 4
+		if (numtok < 4)
+			throw Dcx::dcxException("Insufficient parameters");
 
-		if ( value == TEXT("left") )
-			this->setTipSide( TBTS_LEFT );
-		else if ( value == TEXT("right") )
-			this->setTipSide( TBTS_RIGHT );
-		else if ( value == TEXT("bottom") )
-			this->setTipSide( TBTS_BOTTOM );
-		else
-			this->setTipSide( TBTS_TOP );
+		//const auto value(input.getnexttok());	// tok 4
+		//
+		//if ( value == TEXT("left") )
+		//	this->setTipSide( TBTS_LEFT );
+		//else if ( value == TEXT("right") )
+		//	this->setTipSide( TBTS_RIGHT );
+		//else if ( value == TEXT("bottom") )
+		//	this->setTipSide( TBTS_BOTTOM );
+		//else
+		//	this->setTipSide( TBTS_TOP );
+
+		switch (std::hash<TString>{}(input.getnexttok()))
+		{
+		case TEXT("left"_hash):
+			this->setTipSide(TBTS_LEFT);
+			break;
+		case TEXT("right"_hash):
+			this->setTipSide(TBTS_RIGHT);
+			break;
+		case TEXT("bottom"_hash):
+			this->setTipSide(TBTS_BOTTOM);
+			break;
+		default:
+			this->setTipSide(TBTS_TOP);
+			break;
+		}
 	}
 	// xdid -u [NAME] [ID] [SWITCH] [VALUE]
-	else if ( flags[TEXT('u')] && numtok > 3 )
+	else if ( flags[TEXT('u')] )
 	{
+		if (numtok < 4)
+			throw Dcx::dcxException("Insufficient parameters");
+
 		const auto lLength = input.getnexttok().to_<UINT>();	// tok 4
 
 		this->setThumbLength( lLength );
 	}
 	// xdid -v [NAME] [ID] [SWITCH] [VALUE]
-	else if ( flags[TEXT('v')] && numtok > 3 )
+	else if ( flags[TEXT('v')] )
 	{
+		if (numtok < 4)
+			throw Dcx::dcxException("Insufficient parameters");
+
 		const auto lPosition = input.getnexttok().to_<long>();	// tok 4
 
 		this->setPos( lPosition );
@@ -394,7 +431,7 @@ void DcxTrackBar::parseCommandRequest( const TString & input )
 * blah
 */
 
-LRESULT DcxTrackBar::setRangeMin( const LONG iLowLim )
+LRESULT DcxTrackBar::setRangeMin( const LONG iLowLim ) noexcept
 {
 	return SendMessage( m_Hwnd, TBM_SETRANGEMIN, (WPARAM) TRUE, (LPARAM) iLowLim );
 }
@@ -405,7 +442,7 @@ LRESULT DcxTrackBar::setRangeMin( const LONG iLowLim )
 * blah
 */
 
-LRESULT DcxTrackBar::getRangeMin(  ) const
+LRESULT DcxTrackBar::getRangeMin(  ) const noexcept
 {
 	return SendMessage( m_Hwnd, TBM_GETRANGEMIN, (WPARAM) 0U, (LPARAM) 0U );
 }
@@ -416,7 +453,7 @@ LRESULT DcxTrackBar::getRangeMin(  ) const
 * blah
 */
 
-LRESULT DcxTrackBar::setRangeMax( const LONG iHighLim )
+LRESULT DcxTrackBar::setRangeMax( const LONG iHighLim ) noexcept
 {
 	return SendMessage( m_Hwnd, TBM_SETRANGEMAX, (WPARAM) TRUE, (LPARAM) iHighLim );
 }
@@ -427,7 +464,7 @@ LRESULT DcxTrackBar::setRangeMax( const LONG iHighLim )
 * blah
 */
 
-LRESULT DcxTrackBar::getRangeMax(  ) const
+LRESULT DcxTrackBar::getRangeMax(  ) const noexcept
 {
 	return SendMessage( m_Hwnd, TBM_GETRANGEMAX, (WPARAM) 0U, (LPARAM) 0U );
 }
@@ -438,7 +475,7 @@ LRESULT DcxTrackBar::getRangeMax(  ) const
 * blah
 */
 
-LRESULT DcxTrackBar::setRange( const LONG iLowLim, const LONG iHighLim )
+LRESULT DcxTrackBar::setRange( const LONG iLowLim, const LONG iHighLim ) noexcept
 {
 	return SendMessage( m_Hwnd, TBM_SETRANGE, (WPARAM) TRUE, (LPARAM) MAKELONG ( iLowLim, iHighLim ) );
 }
@@ -449,7 +486,7 @@ LRESULT DcxTrackBar::setRange( const LONG iLowLim, const LONG iHighLim )
 * blah
 */
 
-LRESULT DcxTrackBar::setPos( const LONG lPosition )
+LRESULT DcxTrackBar::setPos( const LONG lPosition ) noexcept
 {
 	return SendMessage( m_Hwnd, TBM_SETPOS, (WPARAM) TRUE, (LPARAM) lPosition );
 }
@@ -460,7 +497,7 @@ LRESULT DcxTrackBar::setPos( const LONG lPosition )
 * blah
 */
 
-LRESULT DcxTrackBar::getPos(  ) const
+LRESULT DcxTrackBar::getPos(  ) const noexcept
 {
 	return SendMessage( m_Hwnd, TBM_GETPOS, (WPARAM) 0U, (LPARAM) 0U );
 }
@@ -471,7 +508,7 @@ LRESULT DcxTrackBar::getPos(  ) const
 * blah
 */
 
-void DcxTrackBar::setTic( const LONG lPosition )
+void DcxTrackBar::setTic( const LONG lPosition ) noexcept
 {
 	SendMessage( m_Hwnd, TBM_SETTIC, (WPARAM) 0U, (LPARAM) lPosition );
 }
@@ -482,7 +519,7 @@ void DcxTrackBar::setTic( const LONG lPosition )
 * blah
 */
 
-void DcxTrackBar::setTicFreq( const LONG wFreq )
+void DcxTrackBar::setTicFreq( const LONG wFreq ) noexcept
 {
 	SendMessage( m_Hwnd, TBM_SETTICFREQ, (WPARAM) wFreq, (LPARAM) 0U );
 }
@@ -493,7 +530,7 @@ void DcxTrackBar::setTicFreq( const LONG wFreq )
 * blah
 */
 
-LRESULT DcxTrackBar::clearTics( )
+LRESULT DcxTrackBar::clearTics( ) noexcept
 {
 	return SendMessage( m_Hwnd, TBM_CLEARTICS, (WPARAM) TRUE, (LPARAM) 0U );
 }
@@ -504,7 +541,7 @@ LRESULT DcxTrackBar::clearTics( )
 * blah
 */
 
-LRESULT DcxTrackBar::setTipSide( const int fLocation )
+LRESULT DcxTrackBar::setTipSide( const int fLocation ) noexcept
 {
 	return SendMessage( m_Hwnd, TBM_SETTIPSIDE, (WPARAM) fLocation, (LPARAM) 0U );
 }
@@ -515,7 +552,7 @@ LRESULT DcxTrackBar::setTipSide( const int fLocation )
 * blah
 */
 
-LRESULT DcxTrackBar::setPageSize( const LONG lPageSize )
+LRESULT DcxTrackBar::setPageSize( const LONG lPageSize ) noexcept
 {
 	return SendMessage( m_Hwnd, TBM_SETPAGESIZE, (WPARAM) 0U, (LPARAM) lPageSize );
 }
@@ -526,7 +563,7 @@ LRESULT DcxTrackBar::setPageSize( const LONG lPageSize )
 * blah
 */
 
-LRESULT DcxTrackBar::getPageSize(  ) const
+LRESULT DcxTrackBar::getPageSize(  ) const noexcept
 {
 	return SendMessage( m_Hwnd, TBM_GETPAGESIZE, (WPARAM) 0U, (LPARAM) 0U );
 }
@@ -537,7 +574,7 @@ LRESULT DcxTrackBar::getPageSize(  ) const
 * blah
 */
 
-LRESULT DcxTrackBar::setLineSize( const LONG lLineSize )
+LRESULT DcxTrackBar::setLineSize( const LONG lLineSize ) noexcept
 {
 	return SendMessage( m_Hwnd, TBM_SETLINESIZE, (WPARAM) 0U, (LPARAM) lLineSize );
 }
@@ -548,7 +585,7 @@ LRESULT DcxTrackBar::setLineSize( const LONG lLineSize )
 * blah
 */
 
-LRESULT DcxTrackBar::getLineSize(  ) const
+LRESULT DcxTrackBar::getLineSize(  ) const noexcept
 {
 	return SendMessage( m_Hwnd, TBM_GETLINESIZE, (WPARAM) 0U, (LPARAM) 0U );
 }
@@ -559,7 +596,7 @@ LRESULT DcxTrackBar::getLineSize(  ) const
 * blah
 */
 
-LRESULT DcxTrackBar::setThumbLength( const UINT iLength )
+LRESULT DcxTrackBar::setThumbLength( const UINT iLength ) noexcept
 {
 	return SendMessage( m_Hwnd, TBM_SETTHUMBLENGTH, (WPARAM) iLength, (LPARAM) 0U );
 }
@@ -570,7 +607,7 @@ LRESULT DcxTrackBar::setThumbLength( const UINT iLength )
 * blah
 */
 
-LRESULT DcxTrackBar::setSel( const LONG iLowLim, const LONG iHighLim )
+LRESULT DcxTrackBar::setSel( const LONG iLowLim, const LONG iHighLim ) noexcept
 {
 	return SendMessage( m_Hwnd, TBM_SETSEL, (WPARAM) TRUE, (LPARAM) MAKELONG( iLowLim, iHighLim ) );
 }
@@ -581,7 +618,7 @@ LRESULT DcxTrackBar::setSel( const LONG iLowLim, const LONG iHighLim )
 * blah
 */
 
-LRESULT DcxTrackBar::getSelStart(  ) const
+LRESULT DcxTrackBar::getSelStart(  ) const noexcept
 {
 	return SendMessage( m_Hwnd, TBM_GETSELSTART, (WPARAM) 0, (LPARAM) 0 );
 }
@@ -592,7 +629,7 @@ LRESULT DcxTrackBar::getSelStart(  ) const
 * blah
 */
 
-LRESULT DcxTrackBar::getSelEnd(  ) const
+LRESULT DcxTrackBar::getSelEnd(  ) const noexcept
 {
 	return SendMessage( m_Hwnd, TBM_GETSELEND, (WPARAM) 0, (LPARAM) 0 );
 }
@@ -612,35 +649,35 @@ LRESULT DcxTrackBar::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 		switch (LOWORD(wParam)) 
 		{
 		case TB_TOP:
-			this->execAliasEx(TEXT("%s,%d,%d"), TEXT("top"), this->getUserID(), this->getPos());
+			this->execAliasEx(TEXT("top,%u,%d"), getUserID(), this->getPos());
 			break;
 
 		case TB_BOTTOM:
-			this->execAliasEx(TEXT("%s,%d,%d"), TEXT("bottom"), this->getUserID(), this->getPos());
+			this->execAliasEx(TEXT("bottom,%u,%d"), getUserID(), this->getPos());
 			break;
 
 		case TB_PAGEUP:
-			this->execAliasEx(TEXT("%s,%d,%d"), TEXT("pageup"), this->getUserID(), this->getPos());
+			this->execAliasEx(TEXT("pageup,%u,%d"), getUserID(), this->getPos());
 			break;
 
 		case TB_PAGEDOWN:
-			this->execAliasEx(TEXT("%s,%d,%d"), TEXT("pagedown"), this->getUserID(), this->getPos());
+			this->execAliasEx(TEXT("pagedown,%u,%d"), getUserID(), this->getPos());
 			break;
 
 		case TB_LINEUP:
-			this->execAliasEx(TEXT("%s,%d,%d"), TEXT("lineup"), this->getUserID(), this->getPos());
+			this->execAliasEx(TEXT("lineup,%u,%d"), getUserID(), this->getPos());
 			break;
 
 		case TB_LINEDOWN:
-			this->execAliasEx(TEXT("%s,%d,%d"), TEXT("linedown"), this->getUserID(), this->getPos());
+			this->execAliasEx(TEXT("linedown,%u,%d"), getUserID(), this->getPos());
 			break;
 
 		case TB_THUMBPOSITION:
-			this->execAliasEx(TEXT("%s,%d,%d"), TEXT("trackend"), this->getUserID(), this->getPos());
+			this->execAliasEx(TEXT("trackend,%u,%d"), getUserID(), this->getPos());
 			break;
 
 		case SB_THUMBTRACK:
-			this->execAliasEx(TEXT("%s,%d,%d"), TEXT("tracking"), this->getUserID(), this->getPos());
+			this->execAliasEx(TEXT("tracking,%u,%d"), getUserID(), this->getPos());
 			break;
 		}
 
@@ -796,7 +833,7 @@ LRESULT DcxTrackBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
 
 	case WM_PAINT:
 	{
-		if (!this->m_bAlphaBlend)
+		if (!this->IsAlphaBlend())
 			break;
 
 		PAINTSTRUCT ps{};
@@ -814,7 +851,7 @@ LRESULT DcxTrackBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
 		//else
 		//	DcxControl::DrawCtrlBackground(hdc,this,&ps.rcPaint);
 
-		return CallDefaultProc(m_Hwnd, uMsg, (WPARAM)hdc, lParam);
+		return CallDefaultClassProc(uMsg, (WPARAM)hdc, lParam);
 	}
 	break;
 
@@ -834,7 +871,7 @@ LRESULT DcxTrackBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
 }
 
 
-UINT DcxTrackBar::parseImageFlags(const TString &flags)
+UINT DcxTrackBar::parseImageFlags(const TString &flags) noexcept
 {
 	const XSwitchFlags xflags(flags);
 	UINT iFlags = 0;
@@ -949,4 +986,14 @@ TiXmlElement * DcxTrackBar::toXml(void) const
 	auto xml = std::make_unique<TiXmlElement>("control");
 	toXml(xml.get());
 	return xml.release();
+}
+
+WNDPROC DcxTrackBar::m_hDefaultClassProc = nullptr;
+
+LRESULT DcxTrackBar::CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept
+{
+	if (m_hDefaultClassProc != nullptr)
+		return CallWindowProc(m_hDefaultClassProc, this->m_Hwnd, uMsg, wParam, lParam);
+
+	return DefWindowProc(this->m_Hwnd, uMsg, wParam, lParam);
 }

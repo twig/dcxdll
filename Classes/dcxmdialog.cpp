@@ -28,7 +28,6 @@
 
 DcxMDialog::DcxMDialog(const HWND cHwnd, const HWND pHwnd, const UINT ID, DcxDialog *const p_Dialog, const RECT *const rc, const TString & styles)
 	: DcxControl(ID, p_Dialog)
-	, m_DeleteByDestroy(false)
 {
 	parseControlStyles(styles);
 
@@ -48,8 +47,7 @@ DcxMDialog::DcxMDialog(const HWND cHwnd, const HWND pHwnd, const UINT ID, DcxDia
 
 	this->m_OrigID = dcxSetWindowID(m_Hwnd, ID);
 
-	this->registreDefaultWindowProc();
-	SetProp(m_Hwnd, TEXT("dcx_cthis"), (HANDLE) this);
+	SetProp(this->m_Hwnd, TEXT("dcx_cthis"), (HANDLE)this);
 }
 
 /*!
@@ -61,13 +59,12 @@ DcxMDialog::DcxMDialog(const HWND cHwnd, const HWND pHwnd, const UINT ID, DcxDia
 DcxMDialog::~DcxMDialog( )
 {
 	auto parent = GetParent(m_Hwnd);
-	if ( parent == this->m_OrigParentHwnd && this->m_OrigParentHwnd != this->m_pParentDialog->getHwnd())
+	if ( parent == this->m_OrigParentHwnd && this->m_OrigParentHwnd != this->getParentDialog()->getHwnd())
 		return;
 
-	this->unregistreDefaultWindowProc( );
 	if (!m_DeleteByDestroy)
 	{ // all this isn't needed if control is deleted because of closing the dialog
-		auto bHide = (IsWindowVisible(m_Hwnd) != FALSE);
+		const auto bHide = (IsWindowVisible(m_Hwnd) != FALSE);
 		if ( !bHide )
 			ShowWindow( m_Hwnd, SW_HIDE );
 
@@ -152,7 +149,7 @@ std::tuple<NoTheme, WindowStyle, WindowExStyle> DcxMDialog::parseControlStyles(c
  * \param lParam Window Procedure LPARAM
  * \param bParsed Indicates if subclassed procedure parsed the message
  */
-LRESULT DcxMDialog::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed )
+LRESULT DcxMDialog::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) noexcept
 {
 	return 0L;
 }
@@ -164,8 +161,8 @@ LRESULT DcxMDialog::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
 	{
 	case WM_DESTROY:
 	{
-		//auto wnd = this->m_DefaultWindowProc;
-		auto wnd = this->m_hDefaultWindowProc;
+		auto wnd = this->m_hDefaultClassProc;
+		//auto wnd = this->m_hDefaultWindowProc;
 		auto mHwnd = m_Hwnd;
 		m_DeleteByDestroy = true;
 		delete this;
@@ -180,4 +177,14 @@ LRESULT DcxMDialog::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
 		break;
 	}
 	return 0L;
+}
+
+WNDPROC DcxMDialog::m_hDefaultClassProc = nullptr;
+
+LRESULT DcxMDialog::CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept
+{
+	if (m_hDefaultClassProc != nullptr)
+		return CallWindowProc(m_hDefaultClassProc, this->m_Hwnd, uMsg, wParam, lParam);
+
+	return DefWindowProc(this->m_Hwnd, uMsg, wParam, lParam);
 }

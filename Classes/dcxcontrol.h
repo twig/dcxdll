@@ -123,58 +123,77 @@ enum class DcxIconSizes : int {
 	SmallIcon = 16, MediumIcon = 24, LargeIcon = 32,
 	MaxSize = LargeIcon
 };
-//enum class NoTheme : bool {
-//	None = true, Theme = false
-//};
-
-//struct NoTheme {
-//	bool m_Val;
-//
-//	NoTheme() : m_Val(false) {}
-//	NoTheme(bool val) : m_Val(val) {}
-//	operator bool() { return m_Val; }
-//	//NoTheme operator =(const bool &other) { m_Val = other; return *this; }
-//};
 
 using NoTheme = bool;
 
 class DcxDialog;
 
 struct ALPHAINFO {
-	HDC ai_hdc;
-	HDC *ai_hdcBuffer;
-	HDC ai_Oldhdc;
-	HBITMAP ai_bitmap;
-	HBITMAP ai_bkg;
-	HBITMAP ai_oldBM;
-	RECT ai_rcClient;
-	RECT ai_rcWin;
-	BLENDFUNCTION ai_bf;
-	HPAINTBUFFER ai_Buffer;
+	HDC ai_hdc{ nullptr };
+	HDC *ai_hdcBuffer{ nullptr };
+	HDC ai_Oldhdc{ nullptr };
+	HBITMAP ai_bitmap{ nullptr };
+	HBITMAP ai_bkg{ nullptr };
+	HBITMAP ai_oldBM{ nullptr };
+	RECT ai_rcClient{ 0,0,0,0 };
+	RECT ai_rcWin{ 0,0,0,0 };
+	BLENDFUNCTION ai_bf{ AC_SRC_OVER, 255 };
+	HPAINTBUFFER ai_Buffer{ nullptr };
 
-	ALPHAINFO()
-		: ai_hdc(nullptr)
-		, ai_hdcBuffer(nullptr)
-		, ai_Oldhdc(nullptr)
-		, ai_bitmap(nullptr)
-		, ai_bkg(nullptr)
-		, ai_oldBM(nullptr)
-		, ai_rcClient{ 0,0,0,0 }
-		, ai_rcWin{ 0,0,0,0 }
-		, ai_bf{ AC_SRC_OVER, 255 }
-		, ai_Buffer(nullptr)
-	{}
 	ALPHAINFO(HWND hwnd)
-		: ALPHAINFO()
 	{
 		if (!GetClientRect(hwnd, &ai_rcClient))
 			throw Dcx::dcxException("Unable to get Client Rect");
 		if (!GetWindowRect(hwnd, &ai_rcWin))
 			throw Dcx::dcxException("Unable to get Window Rect");
 	}
-	~ALPHAINFO() = default;
 };
 using LPALPHAINFO = ALPHAINFO *;
+
+template <class pClassObj>
+void dcxRegisterClassEx(const TCHAR *const szClass, const TCHAR *const DcxClass) noexcept
+{
+	WNDCLASSEX wc{};
+	wc.cbSize = sizeof(WNDCLASSEX);
+
+	if (GetClassInfoEx(nullptr, szClass, &wc) != 0)
+	{
+		wc.lpszClassName = szDcxClass;
+		pClassObj::m_hDefaultClassProc = wc.lpfnWndProc;
+		wc.lpfnWndProc = DcxControl::WindowProc;
+		wc.hInstance = GetModuleHandle(nullptr);
+		wc.style &= ~CS_GLOBALCLASS;
+		RegisterClassEx(&wc);
+	}
+}
+template <class pClassObj>
+void dcxRegisterClass(const TCHAR *const szClass, const TCHAR *const szDcxClass) noexcept
+{
+	WNDCLASSEX wc{};
+	wc.cbSize = sizeof(WNDCLASSEX);
+
+	if (GetClassInfoEx(nullptr, szClass, &wc) != 0)
+	{
+		wc.lpszClassName = szDcxClass;
+		pClassObj::m_hDefaultClassProc = wc.lpfnWndProc;
+		wc.lpfnWndProc = DcxControl::WindowProc;
+		wc.hInstance = GetModuleHandle(nullptr);
+		wc.style &= ~CS_GLOBALCLASS;
+		RegisterClassEx(&wc);
+	}
+};
+
+// no default constructor
+// no copy constructor
+// No copy assignments!
+// no move constructor
+// No move assignments!
+#define DCX_DELETE_CONTROL_METHODS(xclass) \
+xclass() = delete; \
+xclass(const xclass &other) = delete; \
+xclass &operator =(const xclass &) = delete; \
+xclass(xclass &&other) = delete; \
+xclass &operator =(xclass &&) = delete;
 
 /*!
  * \brief blah
@@ -186,12 +205,17 @@ using LPALPHAINFO = ALPHAINFO *;
 #pragma warning( disable : 2292 ) //warning #2292: destructor is declared but copy constructor and assignment operator are not
 #endif
 
-class DcxControl : public DcxWindow {
-
+class DcxControl
+	: public DcxWindow
+{
 public:
+	//DCX_DELETE_CONTROL_METHODS(DcxControl);
+
 	DcxControl() = delete;	// no default constructor
 	DcxControl(const DcxControl &other) = delete;	// no copy constructor
-	DcxControl &operator =(const DcxControl &) = delete;	// No assignments!
+	DcxControl &operator =(const DcxControl &) = delete;	// No copy assignments!
+	DcxControl(DcxControl &&other) = delete;	// no move constructor
+	DcxControl &operator =(DcxControl &&) = delete;	// No move assignments!
 
 	DcxControl( const UINT mID, DcxDialog *const p_Dialog );
 	virtual ~DcxControl( );
@@ -203,7 +227,6 @@ public:
 
 	virtual std::tuple<NoTheme, WindowStyle, WindowExStyle> parseControlStyles(const TString & tsStyles) = 0;
 
-	//void parseGeneralControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
 	std::tuple<NoTheme,WindowStyle,WindowExStyle> parseGeneralControlStyles(const TString & styles, WindowStyle &Styles, WindowExStyle &ExStyles);
 	std::tuple<NoTheme, WindowStyle, WindowExStyle> parseGeneralControlStyles(const TString & styles);
 
@@ -213,7 +236,7 @@ public:
 	//bool evalAliasEx(TCHAR *const szReturn, const int maxlen, const Format &fmt, const Value val, Arguments&&... args) const
 	//{
 	//	TString tsBuf;
-	//	m_pParentDialog->evalAlias(szReturn, maxlen, _ts_sprintf(tsBuf, fmt, val, args...).to_chr());
+	//	getParentDialog()->evalAlias(szReturn, maxlen, _ts_sprintf(tsBuf, fmt, val, args...).to_chr());
 	//}
 
 	bool execAliasEx(const TCHAR *const szFormat, ... );
@@ -222,7 +245,7 @@ public:
 	//bool execAliasEx(const Format &fmt, const Value val, Arguments&&... args) const
 	//{
 	//	TString tsBuf;
-	//	m_pParentDialog->execAlias(_ts_sprintf(tsBuf, fmt, val, args...).to_chr());
+	//	getParentDialog()->execAlias(_ts_sprintf(tsBuf, fmt, val, args...).to_chr());
 	//}
 
 	const UINT &getUserID() const noexcept { return m_UserID; }
@@ -230,21 +253,7 @@ public:
 	virtual LRESULT PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) = 0;
 	virtual LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) = 0;
 
-	LRESULT setFont( const HFONT hFont, const BOOL fRedraw );
-	HFONT getFont( ) const noexcept;
-
-	void setControlFont( const HFONT hFont, const BOOL fRedraw );
-
-	LRESULT setRedraw( const BOOL fView );
-
-	const HBRUSH &getBackClrBrush( ) const noexcept;
-	const COLORREF &getBackColor( ) const noexcept;
-	const COLORREF &getTextColor( ) const noexcept;
-	const COLORREF &getStartGradientColor(void) const noexcept { return m_clrStartGradient; };
-	const COLORREF &getEndGradientColor(void) const noexcept { return m_clrEndGradient; };
-	const RECT getWindowPosition(void) const noexcept;
-
-	virtual const TString getType( ) const = 0;
+	virtual const TString getType() const = 0;
 	virtual const DcxControlTypes getControlType() const noexcept = 0;
 
 	virtual const TString getStyles(void) const;
@@ -252,17 +261,66 @@ public:
 	virtual void toXml(TiXmlElement *const xml) const;
 	virtual TiXmlElement * toXml(void) const;
 
+	virtual LRESULT CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) = 0;
+
+	LRESULT setFont( const HFONT hFont, const BOOL fRedraw ) noexcept;
+	void setControlFont( const HFONT hFont, const BOOL fRedraw ) noexcept;
+	LRESULT setRedraw(const BOOL fView) noexcept;
+	void setBackClrBrush(const HBRUSH c) noexcept { m_hBackBrush = c; }
+	void setBackColor(const COLORREF c) noexcept { m_clrBackText = c; }
+	void setTextColor(const COLORREF c) noexcept { m_clrText = c; }
+	void setStartGradientColor(const COLORREF c) noexcept { m_clrStartGradient = c; }
+	void setEndGradientColor(const COLORREF c) noexcept { m_clrEndGradient = c; }
+
+	void setToolTipHWND(const HWND hwnd) noexcept { m_ToolTipHWND = hwnd; }
+	void setNoThemed(const bool b) noexcept { m_bThemed = b; }
+	void setAlphaBlended(const bool b) noexcept { m_bAlphaBlend = b; }
+	void setControlCursor(const HCURSOR c) noexcept { m_hCursor = c; }
+	void setShadowTextState(const bool b) noexcept { m_bShadowText = b; }
+	void setControlCodeTextState(const bool b) noexcept { m_bCtrlCodeText = b; }
+
+	HFONT getFont() const noexcept;
+	const HFONT &getControlFont() const noexcept {
+		return this->m_hFont;
+	}
+	const HBRUSH &getBackClrBrush() const noexcept
+	{
+		return this->m_hBackBrush;
+	}
+	const COLORREF &getBackColor() const noexcept
+	{
+		return this->m_clrBackText;
+	}
+	const COLORREF &getTextColor() const noexcept
+	{
+		return this->m_clrText;
+	}
+	const COLORREF &getStartGradientColor(void) const noexcept { return m_clrStartGradient; };
+	const COLORREF &getEndGradientColor(void) const noexcept { return m_clrEndGradient; };
+	const RECT getWindowPosition(void) const noexcept;
+	DcxDialog *const getParentDialog() const noexcept { return m_pParentDialog; }
+	const HWND &getParentHWND() const noexcept { return m_pParentHWND; }
+	const HWND &getToolTipHWND() const noexcept { return m_ToolTipHWND; }
+	const HCURSOR &getControlCursor() const noexcept {
+		return m_hCursor;
+	}
+
+	const inline bool &IsAlphaBlend() const noexcept { return m_bAlphaBlend; }
+	const inline bool &IsThemed() const noexcept { return m_bThemed; }
+	const inline bool &IsShadowTextEnabled() const noexcept { return m_bShadowText; }
+	const inline bool &IsControlCodeTextEnabled() const noexcept { return m_bCtrlCodeText; }
+	const inline bool &IsGradientFillEnabled() const noexcept { return m_bGradientFill; }
+	const inline bool &IsGradientFillVertical() const noexcept { return m_bGradientVertical; }
+
 	inline void incRef( ) noexcept { ++m_iRefCount; };
 	inline void decRef( ) noexcept { --m_iRefCount; };
 	inline const UINT &getRefCount( ) const noexcept { return m_iRefCount; };
 
-	//DcxControl *getParentCtrl() const noexcept { return this->m_pParentCtrl; };
 	void updateParentCtrl(void) noexcept; //!< updates controls host control pointers, MUST be called before these pointers are used.
 	void DrawParentsBackground(const HDC hdc, const RECT *const rcBounds = nullptr, const HWND dHwnd = nullptr);
 	LPALPHAINFO SetupAlphaBlend(HDC *hdc, const bool DoubleBuffer = false);
-	void FinishAlphaBlend(LPALPHAINFO ai);
+	void FinishAlphaBlend(LPALPHAINFO ai) noexcept;
 	void showError(const TCHAR *const prop, const TCHAR *const cmd, const TCHAR *const err) const;
-	//void showErrorEx(const TCHAR *const prop, const TCHAR *const cmd, const TCHAR *const fmt, ...) const;
 	template <typename Format, typename Value, typename... Arguments>
 	void showError(const TCHAR *const prop, const TCHAR *const cmd, const Format &fmt, const Value &val, Arguments&&... args) const
 	{
@@ -272,72 +330,74 @@ public:
 
 	static LRESULT CALLBACK WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 	static DcxControl * controlFactory(DcxDialog *const p_Dialog, const UINT mID, const TString & input, const UINT offset, const UINT64 mask = CTLF_ALLOW_ALL, HWND hParent = nullptr);
-	static void DrawCtrlBackground(const HDC hdc, const DcxControl *const p_this, const RECT *const rwnd = nullptr, HTHEME hTheme = nullptr, const int iPartId = 0, const int iStateId = 0);
-	static HBITMAP resizeBitmap(HBITMAP srcBM, const RECT *const rc);
+	static void DrawCtrlBackground(const HDC hdc, const DcxControl *const p_this, const RECT *const rwnd = nullptr, HTHEME hTheme = nullptr, const int iPartId = 0, const int iStateId = 0) noexcept;
+	static HBITMAP resizeBitmap(HBITMAP srcBM, const RECT *const rc) noexcept;
 	static DcxControlTypes TSTypeToControlType(const TString &t);
 	// Convert a number into the closest icon size
 	static DcxIconSizes NumToIconSize(const int &num) noexcept;
 
+	static void InitializeDcxControls(void);
+	static void UnInitializeDcxControls() noexcept;
+
 protected:
+	//private:
+	static bool m_bInitialized;
 
 	DcxDialog * m_pParentDialog;	//!< Parent DcxDialog object
 
-	HFONT m_hFont;					//!< Control Font
+	HFONT m_hFont{ nullptr };					//!< Control Font
 
 	TString m_tsMark;				//!< Mark Information (see /xdid -M)
 	TString m_tsToolTip;			//!< This controls tooltip text (if any).
 
-	COLORREF m_clrText;				//!< Font color
-	COLORREF m_clrBackText;			//!< Font Back Color (not supported)
-	COLORREF m_colTransparentBg;
-	COLORREF m_clrBackground;		//!< Background Colour. (used to make m_hBackBrush)
-	COLORREF m_clrStartGradient;
-	COLORREF m_clrEndGradient;
+	COLORREF m_clrText{ CLR_INVALID };				//!< Font color
+	COLORREF m_clrBackText{ CLR_INVALID };			//!< Font Back Color (not supported)
+	COLORREF m_colTransparentBg{ CLR_INVALID };
+	COLORREF m_clrBackground{ CLR_INVALID };		//!< Background Colour. (used to make m_hBackBrush)
+	COLORREF m_clrStartGradient{ CLR_INVALID };
+	COLORREF m_clrEndGradient{ CLR_INVALID };
 
-	HBRUSH m_hBackBrush;			//!< Background control color
-	HBRUSH m_hBorderBrush;			//!< Controls Border Colour.
+	HBRUSH m_hBackBrush{ nullptr };			//!< Background control color
+	HBRUSH m_hBorderBrush{ nullptr };		//!< Controls Border Colour.
 
-	HBITMAP m_bitmapBg;				//!< Background bitmap
+	HBITMAP m_bitmapBg{ nullptr };			//!< Background bitmap
 
-	UINT m_iRefCount;				//!< Controls reference counter
-	UINT m_UserID;					//!< controls User ID (ID - mIRC_ID_OFFSET)
+	HCURSOR m_hCursor{ nullptr };			//!< Cursor Handle
 
-	HCURSOR m_hCursor;				//!< Cursor Handle
+	HWND m_ToolTipHWND{ nullptr };			//!< Tooltip window (if any)
+	HWND m_pParentHWND{ nullptr };
 
-	HWND m_ToolTipHWND;				//!< Tooltip window (if any)
-	HWND m_pParentHWND;
+	UINT m_iRefCount{};						//!< Controls reference counter
+	UINT m_UserID;							//!< controls User ID (ID - mIRC_ID_OFFSET)
 
 	DWORD m_dEventMask;
 
-	BYTE m_iAlphaLevel;				//!< The amount the control is alpha blended.
+	BYTE m_iAlphaLevel{ 0x7f };				//!< The amount the control is alpha blended.
 
-	bool m_bCursorFromFile;			//!< Cursor comes from a file?
-	bool m_bAlphaBlend;				//!< Control is alpha blended.
-	bool m_bGradientFill;
-	bool m_bGradientVertical;
-	bool m_bInPrint;
-	bool m_bShadowText;				//!< Text is drawn with a shadow.
-	bool m_bCtrlCodeText;			//!< mIRC's ctrl codes are used to change the text's appearance.
-	bool m_bNoTheme;				//!< Control isn't themed.
-	//int m_iThemePartId;
+	bool m_bCursorFromFile{ false };		//!< Cursor comes from a file?
+	bool m_bAlphaBlend{ false };			//!< Control is alpha blended.
+	bool m_bGradientFill{ false };			//!< Gradient fill the background.
+	bool m_bGradientVertical{ false };		//!< Draw gradient vertically.
+	bool m_bInPrint{ false };				//!< Are we in the middle of a WM_PRINTCLIENT ?
+	bool m_bShadowText{ false };			//!< Text is drawn with a shadow.
+	bool m_bCtrlCodeText{ true };			//!< mIRC's ctrl codes are used to change the text's appearance.
+	bool m_bThemed{ true };					//!< Is Control themed.
 
 	/* ***** */
-
+//protected:
 	void parseGlobalCommandRequest(const TString & input, const XSwitchFlags & flags );
-	//bool parseGlobalInfoRequest(const TString & input, TCHAR *const szReturnValue) const;
 	bool parseGlobalInfoRequest(const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const;
 
-	void registreDefaultWindowProc( );
-	void unregistreDefaultWindowProc( );
-
 	LRESULT CommonMessage( const UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
+	void HandleChildrenSize();
+
 	void DrawControl(HDC hDC, HWND hwnd);
 	void ctrlDrawText(HDC hdc, const TString &txt, const LPRECT rc, const UINT style);
 	void calcTextRect(HDC hdc, const TString &txt, LPRECT rc, const UINT style);
 
 	static std::pair<WindowStyle, WindowExStyle> parseBorderStyles(const TString & flags) noexcept;
 	static void InvalidateParentRect(HWND hwnd);
-	static const UINT parseColorFlags(const TString & flags);
+	static const UINT parseColorFlags(const TString & flags) noexcept;
 };
 #ifdef __INTEL_COMPILER // Defined when using Intel C++ Compiler.
 #pragma warning( pop )

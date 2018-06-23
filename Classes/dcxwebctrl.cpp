@@ -29,23 +29,17 @@
 
 DcxWebControl::DcxWebControl(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles )
 	: DcxControl(ID, p_Dialog)
-	, m_bHideEvents(true)
-	, m_dwCookie(0)
-	, m_pCP(nullptr)
-	, m_pCPC(nullptr)
-	, m_pOleInPlaceObject(nullptr)
-	, m_pOleObject(nullptr)
-	, m_pWebBrowser2(nullptr)
 {
 	const auto[bNoTheme, Styles, ExStyles] = parseControlStyles(styles);
 
 	m_Hwnd = dcxCreateWindow(	
 		ExStyles,
-		WC_STATIC,
+		DCX_WEBCLASS,
 		Styles | WS_CHILD | WS_CLIPSIBLINGS,
 		rc,
 		mParentHwnd,
-		ID);
+		ID,
+		this);
 
 	if (!IsWindow(m_Hwnd))
 		throw Dcx::dcxException("Unable To Create Window");
@@ -67,17 +61,15 @@ DcxWebControl::DcxWebControl(const UINT ID, DcxDialog *const p_Dialog, const HWN
 		SUCCEEDED( m_pOleObject->DoVerb( OLEIVERB_INPLACEACTIVATE, 0, (IOleClientSite*) this, 0, m_Hwnd, rc ) )
 		)
 	{
-		registreDefaultWindowProc( );
-		SetProp( m_Hwnd, TEXT("dcx_cthis"), (HANDLE) this );
-
 #if DCX_USE_WRAPPERS
-		Dcx::dcxBSTRResource url(TEXT("about:blank"));
+		const Dcx::dcxBSTRResource url(TEXT("about:blank"));
 
 		Dcx::dcxVariant v;
 
 		m_pWebBrowser2->Navigate(url, &v, &v, &v, &v);  // dont use L""
 #else
-		if (auto url = SysAllocString(TEXT("about:blank")); url != nullptr) {
+		if (const auto url = SysAllocString(TEXT("about:blank")); url != nullptr)
+		{
 			Auto(SysFreeString(url));
 
 			VARIANT v;
@@ -107,8 +99,6 @@ DcxWebControl::~DcxWebControl( )
 {
 	//Release all Web Control pointers
 	//SafeRelease();	// causes an odd crash when IE11 is used...
-
-	unregistreDefaultWindowProc( );
 }
 
 void DcxWebControl::SafeRelease() noexcept
@@ -295,8 +285,11 @@ void DcxWebControl::parseCommandRequest( const TString & input)
 	else if ( flags[TEXT('i')] )
 		m_pWebBrowser2->GoForward( );
 	// xdid -j [NAME] [ID] [SWITCH] [JAVASCRIPT]
-	else if ( flags[TEXT('j')] && numtok > 3 )
+	else if ( flags[TEXT('j')] )
 	{
+		if (numtok < 4)
+			throw Dcx::dcxException("Insufficient parameters");
+
 		const auto CMD(input.getlasttoks().trim());		// tok 4, -1
 
 		CallScript(CMD);
@@ -455,8 +448,11 @@ void DcxWebControl::parseCommandRequest( const TString & input)
 		m_pWebBrowser2->GoBack( );
 	// xdid -m [NAME] [ID] [SWITCH] [+FLAGS] [+MASK] (URL)
 	// [NAME] [ID] -m [+FLAGS] [+MASK] (URL)
-	else if ( flags[TEXT('m')] && numtok > 4 )
+	else if ( flags[TEXT('m')] )
 	{
+		if (numtok < 5)
+			throw Dcx::dcxException("Insufficient parameters");
+
 		const XSwitchFlags xflags(input.getnexttok());		// tok 4 flags to change
 		const XSwitchFlags xmask(input.getnexttok());		// tok 5 state mask, flags here are enabled, otherwise they are disabled.
 		const auto URL(input.getlasttoks().trim());		// tok 6, -1 optional
@@ -518,7 +514,7 @@ void DcxWebControl::parseCommandRequest( const TString & input)
 		if (!URL.empty())
 		{
 #if DCX_USE_WRAPPERS
-			Dcx::dcxBSTRResource bstrUrl(URL.to_wchr());
+			const Dcx::dcxBSTRResource bstrUrl(URL.to_wchr());
 
 			m_pWebBrowser2->Navigate(bstrUrl, &vFlags, &vEmpty, &vEmpty, &vEmpty);
 #else
@@ -533,15 +529,18 @@ void DcxWebControl::parseCommandRequest( const TString & input)
 	}
 	// xdid -n [NAME] [ID] [SWITCH] [URL]
 	// [NAME] [ID] -n [URL]
-	else if ( flags[TEXT('n')] && numtok > 3 )
+	else if ( flags[TEXT('n')] )
 	{
+		if (numtok < 4)
+			throw Dcx::dcxException("Insufficient parameters");
+
 		const auto URL(input.getlasttoks().trim());	// tok 4, -1
 
 #if DCX_USE_WRAPPERS
 		Dcx::dcxVariant v;
-		Dcx::dcxBSTRResource bstrUrl(URL.to_wchr());
+		const Dcx::dcxBSTRResource bstrUrl(URL.to_wchr());
 
-		m_pWebBrowser2->Navigate(bstrUrl, &v, &v, &v, &v);
+		m_pWebBrowser2->Navigate(bstrUrl.get(), &v, &v, &v, &v);
 #else
 		VARIANT v;
 		VariantInit(&v);
@@ -736,7 +735,7 @@ HRESULT DcxWebControl::Invoke( DISPID dispIdMember,
 				//else
 				//	*pDispParams->rgvarg->pboolVal = VARIANT_FALSE;
 
-				stString<256> sRet;
+				const stString<256> sRet;
 				evalAliasEx(sRet, gsl::narrow_cast<int>(sRet.size()), TEXT("nav_begin,%u,%ws"), getUserID(), arg2.bstrVal);
 
 				if (sRet == TEXT("cancel"))
@@ -774,7 +773,7 @@ HRESULT DcxWebControl::Invoke( DISPID dispIdMember,
 				//else
 				//	*pDispParams->rgvarg->pboolVal = VARIANT_FALSE;
 
-				stString<256> sRet;
+				const stString<256> sRet;
 				evalAliasEx(sRet, gsl::narrow_cast<int>(sRet.size()), TEXT("win_open,%u"), getUserID());
 
 				if (sRet == TEXT("cancel"))
@@ -863,7 +862,7 @@ HRESULT DcxWebControl::Invoke( DISPID dispIdMember,
  * blah
  */
 
-HRESULT STDMETHODCALLTYPE DcxWebControl::QueryInterface( REFIID riid, void __RPC_FAR *__RPC_FAR * ppvObject )
+HRESULT STDMETHODCALLTYPE DcxWebControl::QueryInterface( REFIID riid, void __RPC_FAR *__RPC_FAR * ppvObject ) noexcept
 {
 	*ppvObject = nullptr;
 
@@ -887,7 +886,7 @@ HRESULT STDMETHODCALLTYPE DcxWebControl::GetWindowContext( IOleInPlaceFrame __RP
                                                           IOleInPlaceUIWindow __RPC_FAR *__RPC_FAR * ppDoc, 
                                                           LPRECT pPR, 
                                                           LPRECT pCR, 
-                                                          LPOLEINPLACEFRAMEINFO pFI ) 
+                                                          LPOLEINPLACEFRAMEINFO pFI ) noexcept
 {
 	*ppFrame = nullptr;
 	*ppDoc = nullptr;
@@ -909,7 +908,7 @@ HRESULT STDMETHODCALLTYPE DcxWebControl::GetWindowContext( IOleInPlaceFrame __RP
  *
  * blah
  */
-LRESULT DcxWebControl::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed )
+LRESULT DcxWebControl::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) noexcept
 {
 	return 0L;
 }
@@ -995,13 +994,7 @@ LRESULT DcxWebControl::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 
 	case WM_NCDESTROY:
 	{
-		//LRESULT lRes = 0L;
-		//if (m_DefaultWindowProc != nullptr)
-		//	lRes = CallWindowProc(m_DefaultWindowProc, m_Hwnd, uMsg, wParam, lParam);
-		//else
-		//	lRes = DefWindowProc(m_Hwnd, uMsg, wParam, lParam);
-
-		LRESULT lRes = CallDefaultProc(m_Hwnd, uMsg, wParam, lParam);
+		const LRESULT lRes = CallDefaultClassProc(uMsg, wParam, lParam);
 
 		delete this;
 		bParsed = TRUE;
@@ -1159,4 +1152,14 @@ TString DcxWebControl::CallScript(const TString & tsCmd) const
 		}
 	}
 	return tsRes;
+}
+
+WNDPROC DcxWebControl::m_hDefaultClassProc = nullptr;
+
+LRESULT DcxWebControl::CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept
+{
+	if (m_hDefaultClassProc != nullptr)
+		return CallWindowProc(m_hDefaultClassProc, this->m_Hwnd, uMsg, wParam, lParam);
+
+	return DefWindowProc(this->m_Hwnd, uMsg, wParam, lParam);
 }

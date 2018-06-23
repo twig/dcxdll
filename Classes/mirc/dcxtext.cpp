@@ -32,11 +32,12 @@ DcxText::DcxText(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwn
 
 	m_Hwnd = dcxCreateWindow(
 		ExStyles,
-		WC_STATIC,
+		DCX_TEXTCLASS,
 		Styles | WindowStyle::Child,
 		rc,
 		mParentHwnd,
-		ID);
+		ID,
+		this);
 
 	if (!IsWindow(m_Hwnd))
 		throw Dcx::dcxException("Unable To Create Window");
@@ -48,19 +49,17 @@ DcxText::DcxText(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwn
 	if (bNoTheme)
 		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
 
-	m_clrText = GetSysColor(COLOR_WINDOWTEXT);
+	setTextColor(GetSysColor(COLOR_WINDOWTEXT));
 
 	setControlFont(GetStockFont(DEFAULT_GUI_FONT), FALSE);
-	registreDefaultWindowProc();
-	SetProp(m_Hwnd, TEXT("dcx_cthis"), (HANDLE) this);
 
 	if (styles.istok(TEXT("tooltips")))
 	{
 		if (!IsWindow(p_Dialog->getToolTip()))
 			throw Dcx::dcxException("Unable to Initialize Tooltips");
 
-		m_ToolTipHWND = p_Dialog->getToolTip();
-		AddToolTipToolInfo(m_ToolTipHWND, m_Hwnd);
+		setToolTipHWND(p_Dialog->getToolTip());
+		AddToolTipToolInfo(getToolTipHWND(), m_Hwnd);
 	}
 }
 
@@ -72,7 +71,6 @@ DcxText::DcxText(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwn
 
 DcxText::~DcxText( )
 {
-	this->unregistreDefaultWindowProc( );
 }
 
 /*!
@@ -212,8 +210,11 @@ void DcxText::parseCommandRequest(const TString &input)
 	}
 
 	// xdid -a [NAME] [ID] [SPACE 0|1] [TEXT]
-	if (flags[TEXT('a')] && numtok > 2)
+	if (flags[TEXT('a')])
 	{
+		if (numtok < 3)
+			throw Dcx::dcxException("Insufficient parameters");
+
 		if (input.getnexttok( ).to_int() == 1)	// tok 4
 			this->m_tsText += TEXT(' ');
 
@@ -250,7 +251,7 @@ void DcxText::parseCommandRequest(const TString &input)
  *
  * blah
  */
-LRESULT DcxText::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed )
+LRESULT DcxText::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) noexcept
 {
 	return 0L;
 }
@@ -326,9 +327,6 @@ void DcxText::DrawClientArea(HDC hdc)
 	if (hdc == nullptr)
 		return;
 
-	TString wtext;
-	TGetWindowText(m_Hwnd, wtext);
-
 	DcxControl::DrawCtrlBackground(hdc,this,&r);
 
 	HFONT oldFont = nullptr;
@@ -336,15 +334,16 @@ void DcxText::DrawClientArea(HDC hdc)
 	COLORREF oldBkgClr = CLR_INVALID;
 
 	// check if font is valid & set it.
-	if (this->m_hFont != nullptr)
-		oldFont = SelectFont(hdc, this->m_hFont);
+	if (const auto hFont = this->getControlFont(); hFont != nullptr)
+		oldFont = SelectFont(hdc, hFont);
+
 	// check if control is enabled.
 	if (IsWindowEnabled(m_Hwnd))
 	{
-		if (this->m_clrText != CLR_INVALID)
-			oldClr = SetTextColor(hdc, this->m_clrText);
-		if (this->m_clrBackText != CLR_INVALID)
-			oldBkgClr = SetBkColor(hdc, this->m_clrBackText);
+		if (const auto clr = this->getTextColor(); clr != CLR_INVALID)
+			oldClr = SetTextColor(hdc, clr);
+		if (const auto clr = this->getBackColor(); clr != CLR_INVALID)
+			oldBkgClr = SetBkColor(hdc, clr);
 	}
 	else { // disabled controls colouring
 		oldClr = SetTextColor(hdc, GetSysColor(COLOR_GRAYTEXT));
@@ -372,6 +371,7 @@ void DcxText::DrawClientArea(HDC hdc)
 //
 //#else
 
+	const TString wtext(TGetWindowText(m_Hwnd));
 	this->ctrlDrawText(hdc, wtext, &r, this->m_uiStyle);
 //#endif
 
@@ -408,8 +408,7 @@ void DcxText::toXml(TiXmlElement *const xml) const
 {
 	__super::toXml(xml);
 
-	TString wtext;
-	TGetWindowText(m_Hwnd, wtext);
+	const TString wtext(TGetWindowText(m_Hwnd));
 	xml->SetAttribute("caption", wtext.c_str());
 	xml->SetAttribute("styles", getStyles().c_str());
 }
@@ -419,4 +418,14 @@ TiXmlElement * DcxText::toXml(void) const
 	auto xml = std::make_unique<TiXmlElement>("control");
 	toXml(xml.get());
 	return xml.release();
+}
+
+WNDPROC DcxText::m_hDefaultClassProc = nullptr;
+
+LRESULT DcxText::CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept
+{
+	if (m_hDefaultClassProc != nullptr)
+		return CallWindowProc(m_hDefaultClassProc, this->m_Hwnd, uMsg, wParam, lParam);
+
+	return DefWindowProc(this->m_Hwnd, uMsg, wParam, lParam);
 }

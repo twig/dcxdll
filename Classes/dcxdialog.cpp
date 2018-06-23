@@ -33,10 +33,8 @@
 
 #include "Classes/xpopup\xpopupmenumanager.h"
 
-bool DcxDialog::m_bIsMenuBar = false;
-bool DcxDialog::m_bIsSysMenu = false;
-
-
+bool DcxDialog::m_bIsMenuBar{ false };
+bool DcxDialog::m_bIsSysMenu{ false };
 
 /*!
  * \brief Constructor
@@ -49,41 +47,9 @@ bool DcxDialog::m_bIsSysMenu = false;
 
 DcxDialog::DcxDialog(const HWND mHwnd, const TString &tsName, const TString &tsAliasName)
 : DcxWindow(mHwnd, 0)
-, m_uStyleBg(DBS_BKGNORMAL)
 , m_tsName(tsName)
 , m_tsAliasName(tsAliasName)
-, m_hBackBrush(nullptr)
-, m_bitmapBg(nullptr)
-, m_colTransparentBg(RGB(255,0,255))
-, m_hCursor(nullptr)
-, m_bCursorFromFile(false)
-, m_MouseID(0)
-, m_FocusID(0)
-, m_ToolTipHWND(nullptr)
-, m_iRefCount(0)
-, m_bDoDrag(false)
-, m_dEventMask(DCX_EVENT_ALL)
-, m_bTracking(FALSE)
-, m_uGhostDragAlpha(255)
-, m_bGhosted(false)
-, m_zLayerCurrent(0)
-, m_popup(nullptr)
-//, m_hOldWindowProc(nullptr)
-, m_hFakeHwnd(nullptr)
-, m_iAlphaLevel(255)
-, m_bHaveKeyColour(false)
-, m_cKeyColour(CLR_NONE)
-, m_bVistaStyle(false)
-, m_pVistaBits(nullptr)
-, m_hVistaBitmap(nullptr)
-, m_hVistaHDC(nullptr)
-, m_bVerboseErrors(true)
-, m_bErrorTriggered(false)
-, m_bDialogActive(true)
-, m_hCursorList( )
-//, m_pLayoutManager(new LayoutManager(m_Hwnd))
 , m_pLayoutManager(std::make_unique<LayoutManager>(m_Hwnd))
-, m_GlassOffsets()
 {
 	addStyle(WindowStyle::ClipChildren);
 
@@ -217,7 +183,7 @@ void DcxDialog::deleteControl(const DcxControl *const p_Control)
  *
  * The ID must include the mIRC_ID_OFFSET of 6000.
  */
-DcxControl *DcxDialog::getControlByID(const UINT ID) const
+DcxControl *DcxDialog::getControlByID(const UINT ID) const noexcept
 {
 	for (const auto &x: m_vpControls)
 	{
@@ -226,9 +192,7 @@ DcxControl *DcxDialog::getControlByID(const UINT ID) const
 	}
 	return nullptr;
 
-	//auto itEnd = m_vpControls.end();
-	//auto itGot = std::find_if(m_vpControls.begin(), itEnd, [ID](VectorOfControlPtrs::const_reference arg) { return (arg->getID() == ID); });
-	//if (itGot != itEnd)
+	//if (const auto itEnd = m_vpControls.end(), itGot = std::find_if(m_vpControls.begin(), itEnd, [ID](VectorOfControlPtrs::const_reference arg) { return (arg->getID() == ID); }); itGot != itEnd)
 	//	return (*itGot);
 	//return nullptr;
 }
@@ -238,7 +202,7 @@ DcxControl *DcxDialog::getControlByID(const UINT ID) const
 // *
 // * Returns DcxControl * if found or nullptr if not.
 //
-DcxControl *DcxDialog::getControlByHWND(const HWND mHwnd) const
+DcxControl *DcxDialog::getControlByHWND(const HWND mHwnd) const noexcept
 {
 	for (const auto &x: m_vpControls)
 	{
@@ -247,15 +211,13 @@ DcxControl *DcxDialog::getControlByHWND(const HWND mHwnd) const
 	}
 	return nullptr;
 
-	//auto itEnd = m_vpControls.end();
-	//auto itGot = std::find_if(m_vpControls.begin(), itEnd, [mHwnd](VectorOfControlPtrs::const_reference arg) { return (arg->getHwnd() == mHwnd); });
-	//if (itGot != itEnd)
+	//if (const auto itEnd = m_vpControls.end(), itGot = std::find_if(m_vpControls.begin(), itEnd, [mHwnd](VectorOfControlPtrs::const_reference arg) noexcept { return (arg->getHwnd() == mHwnd); }); itGot != itEnd)
 	//	return (*itGot);
 	//return nullptr;
 }
 
 // clears existing image and icon data and sets pointers to null
-void DcxDialog::PreloadData()
+void DcxDialog::PreloadData() noexcept
 {
 	if (m_bitmapBg != nullptr)
 	{
@@ -533,7 +495,12 @@ void DcxDialog::parseCommandRequest( const TString &input)
 			//else // Modeless Dialog
 			//	DestroyWindow(m_Hwnd);
 
-			if (mIRCLinker::eval(nullptr, TEXT("$dialog(%).modal"), m_tsName)) // Modal Dialog
+			//if (mIRCLinker::eval(nullptr, TEXT("$dialog(%).modal"), m_tsName)) // Modal Dialog
+			//	SendMessage(m_Hwnd, WM_CLOSE, NULL, NULL); // this allows the dialogs WndProc to EndDialog() if needed.
+			//else // Modeless Dialog
+			//	DestroyWindow(m_Hwnd);
+
+			if (mIRCLinker::o_eval<TString>(TEXT("$dialog(%).modal"), m_tsName).has_value()) // Modal Dialog
 				SendMessage(m_Hwnd, WM_CLOSE, NULL, NULL); // this allows the dialogs WndProc to EndDialog() if needed.
 			else // Modeless Dialog
 				DestroyWindow(m_Hwnd);
@@ -767,7 +734,7 @@ void DcxDialog::parseCommandRequest( const TString &input)
 
 #if DCX_USE_WRAPPERS
 			// variables used to move control
-			Dcx::dcxWindowRect r(ctrl->getHwnd(), GetParent(ctrl->getHwnd()));
+			const Dcx::dcxWindowRect r(ctrl->getHwnd(), GetParent(ctrl->getHwnd()));
 
 			// for each control in the internal list
 			for (const auto &x : m_vZLayers)
@@ -1123,8 +1090,8 @@ void DcxDialog::parseCommandRequest( const TString &input)
 		//
 		//SetWindowPos( m_Hwnd, nullptr, x, y, w + ptDiff.x, h + ptDiff.y, iFlags );
 
-		auto Diffx = (rcWindow.right - rcWindow.left) - rcClient.right;
-		auto Diffy = (rcWindow.bottom - rcWindow.top) - rcClient.bottom;
+		const auto Diffx = (rcWindow.right - rcWindow.left) - rcClient.right;
+		const auto Diffy = (rcWindow.bottom - rcWindow.top) - rcClient.bottom;
 
 		SetWindowPos(m_Hwnd, nullptr, x, y, w + Diffx, h + Diffy, iFlags);
 	}
@@ -1859,7 +1826,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 
 		if (IsWindow(hdr->hwndFrom))
 		{
-			if (auto c_this = static_cast<DcxControl *>(GetProp(hdr->hwndFrom, TEXT("dcx_cthis"))); c_this != nullptr)
+			if (const auto c_this = static_cast<DcxControl *>(GetProp(hdr->hwndFrom, TEXT("dcx_cthis"))); c_this != nullptr)
 				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 		}
 		break;
@@ -1885,12 +1852,13 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 		}
 	}
 	// fall through
+	[[fallthrough]];
 	case WM_HSCROLL:
 	case WM_VSCROLL:
 	{
 		if (IsWindow((HWND)lParam))
 		{
-			if (auto c_this = static_cast<DcxControl *>(GetProp((HWND)lParam, TEXT("dcx_cthis"))); c_this != nullptr)
+			if (const auto c_this = static_cast<DcxControl *>(GetProp((HWND)lParam, TEXT("dcx_cthis"))); c_this != nullptr)
 				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 		}
 		break;
@@ -1900,7 +1868,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 	{
 		if (dcxlParam(const LPCOMPAREITEMSTRUCT, idata); (idata != nullptr) && (IsWindow(idata->hwndItem)))
 		{
-			if (auto c_this = static_cast<DcxControl *>(GetProp(idata->hwndItem, TEXT("dcx_cthis"))); c_this != nullptr)
+			if (const auto c_this = static_cast<DcxControl *>(GetProp(idata->hwndItem, TEXT("dcx_cthis"))); c_this != nullptr)
 				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 		}
 	}
@@ -1910,7 +1878,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 	{
 		if (dcxlParam(const LPDELETEITEMSTRUCT, idata); (idata != nullptr) && (IsWindow(idata->hwndItem)))
 		{
-			if (auto c_this = static_cast<DcxControl *>(GetProp(idata->hwndItem, TEXT("dcx_cthis"))); c_this != nullptr)
+			if (const auto c_this = static_cast<DcxControl *>(GetProp(idata->hwndItem, TEXT("dcx_cthis"))); c_this != nullptr)
 				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 		}
 		break;
@@ -1918,9 +1886,9 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 
 	case WM_MEASUREITEM:
 	{
-		if (auto cHwnd = GetDlgItem(mHwnd, gsl::narrow_cast<int>(wParam)); IsWindow(cHwnd))
+		if (const auto cHwnd = GetDlgItem(mHwnd, gsl::narrow_cast<int>(wParam)); IsWindow(cHwnd))
 		{
-			if (auto c_this = static_cast<DcxControl *>(GetProp(cHwnd, TEXT("dcx_cthis"))); c_this != nullptr)
+			if (const auto c_this = static_cast<DcxControl *>(GetProp(cHwnd, TEXT("dcx_cthis"))); c_this != nullptr)
 				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 		}
 
@@ -1993,6 +1961,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 					bParsed = TRUE;	// Ook: needs looked at as do the other switches here...
 					p_this->m_bInMoving = true;
 					lRes = DefWindowProc(mHwnd, uMsg, wParam, lParam);
+					//lRes = p_this->CallDefaultProc(mHwnd, uMsg, wParam, lParam);
 				}
 			}
 			break;
@@ -2048,6 +2017,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 				{
 					bParsed = TRUE;
 					lRes = DefWindowProc(mHwnd, uMsg, wParam, lParam);
+					//lRes = p_this->CallDefaultProc(mHwnd, uMsg, wParam, lParam);
 				}
 			}
 			break;
@@ -2079,6 +2049,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 				{
 					bParsed = TRUE;
 					lRes = DefWindowProc(mHwnd, uMsg, wParam, lParam);
+					//lRes = p_this->CallDefaultProc(mHwnd, uMsg, wParam, lParam);
 				}
 			}
 
@@ -2142,6 +2113,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 				bParsed = TRUE;
 				p_this->m_bInSizing = true;
 				lRes = DefWindowProc(mHwnd, uMsg, wParam, lParam);
+				//lRes = p_this->CallDefaultProc(mHwnd, uMsg, wParam, lParam);
 			}
 			break;
 		}
@@ -2230,24 +2202,20 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 
 		HWND bars = nullptr;
 
-		//SendMessage(mHwnd, WM_SETREDRAW, FALSE, 0);
 		while ((bars = FindWindowEx(mHwnd, bars, DCX_REBARCTRLCLASS, nullptr)) != nullptr)
 			SendMessage(bars, WM_SIZE, (WPARAM)0, (LPARAM)0);
 
 		while ((bars = FindWindowEx(mHwnd, bars, DCX_STATUSBARCLASS, nullptr)) != nullptr)
 		{
-			//SendMessage(bars, WM_SETREDRAW, FALSE, 0);
 			SendMessage(bars, WM_SIZE, (WPARAM)0, (LPARAM)0);
-			//SendMessage(bars, WM_SETREDRAW, TRUE, 0);
 		}
 		while ((bars = FindWindowEx(mHwnd, bars, DCX_PANELCLASS, nullptr)) != nullptr)
 			SendMessage(bars, WM_SIZE, (WPARAM)0, (LPARAM)0);
 
 		while ((bars = FindWindowEx(mHwnd, bars, DCX_TOOLBARCLASS, nullptr)) != nullptr)
 		{
-			if (auto t = static_cast<DcxToolBar*>(p_this->getControlByHWND(bars)); t != nullptr)
+			if (const auto t = static_cast<DcxToolBar*>(p_this->getControlByHWND(bars)); t != nullptr)
 				t->autoPosition(LOWORD(lParam), HIWORD(lParam));
-			//SendMessage( bars, WM_SIZE, (WPARAM) 0, (LPARAM) lParam );
 		}
 
 		RECT rc{ 0, 0, LOWORD(lParam), HIWORD(lParam) };
@@ -2255,7 +2223,6 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 		p_this->SetVistaStyleSize();
 		p_this->updateLayout(rc);
 
-		//SendMessage(mHwnd, WM_SETREDRAW, TRUE, 0);
 		//This is needed (or some other solution) to update the bkg image & transp controls on it
 //#if defined(NDEBUG) && !defined(DCX_DEV_BUILD)
 //				p_this->redrawWindow(); // Causes alot of flicker.
@@ -2312,7 +2279,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 			//else if (ts_strcmp(TEXT("nochange"), ret) == 0)
 			//	wp->flags |= SWP_NOSIZE | SWP_NOMOVE;
 
-			TCHAR *p = nullptr;
+			const TCHAR *p = nullptr;
 
 			switch ((wp->flags & (SWP_NOSIZE | SWP_NOMOVE)))
 			{
@@ -2341,7 +2308,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 			//else if (sRet == TEXT("nochange"))
 			//	wp->flags |= SWP_NOSIZE | SWP_NOMOVE;
 
-			switch (std::hash<TString>()(p_this->evalAliasT(TEXT("changing,0,%,%,%,%,%"), p, wp->x, wp->y, wp->cx, wp->cy).second))
+			switch (std::hash<TString>{}(p_this->evalAliasT(TEXT("changing,0,%,%,%,%,%"), p, wp->x, wp->y, wp->cx, wp->cy).second))
 			{
 			case TEXT("nosize"_hash):
 				wp->flags |= SWP_NOSIZE;
@@ -2615,7 +2582,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 		//	lRes = TRUE;
 		//}
 
-		if (auto wHitCode = LOWORD(lParam); (HWND)wParam == p_this->getHwnd())
+		if (const auto wHitCode = LOWORD(lParam); (HWND)wParam == p_this->getHwnd())
 		{
 			auto hCursor = p_this->getCursor(wHitCode);
 			if (hCursor == nullptr)
@@ -2664,7 +2631,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 		//
 		//DragFinish(files);
 
-		stString<500> stFilename;
+		const stString<500> stFilename;
 
 		if (const auto count = DragQueryFile(files, 0xFFFFFFFF, stFilename, Dcx::countof(stFilename)); count > 0)
 		{
@@ -2735,6 +2702,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 		} // switch
 		break;
 	}
+
 	case LB_GETITEMRECT:
 	{
 		/*
@@ -2832,7 +2800,7 @@ void DcxDialog::DrawDialogBackground(HDC hdc, DcxDialog *const p_this, LPCRECT r
 		return;
 
 #if DCX_USE_WRAPPERS
-	Dcx::dcxHDCBitmapResource hdcbmp(hdc, p_this->m_bitmapBg);
+	const Dcx::dcxHDCBitmapResource hdcbmp(hdc, p_this->m_bitmapBg);
 #else
 	auto hdcbmp = CreateCompatibleDC(hdc);
 
@@ -2859,7 +2827,7 @@ void DcxDialog::DrawDialogBackground(HDC hdc, DcxDialog *const p_this, LPCRECT r
 		
 		SetStretchBltMode(hdc, STRETCH_HALFTONE);
 		SetBrushOrgEx(hdc, 0, 0, nullptr);
-		TransparentBlt(hdc, x, y, w, h, hdcbmp, 0, 0, bmp.bmWidth, bmp.bmHeight, p_this->m_colTransparentBg);
+		TransparentBlt(hdc, x, y, w, h, hdcbmp.get(), 0, 0, bmp.bmWidth, bmp.bmHeight, p_this->m_colTransparentBg);
 	}
 	// tile
 	else if (dcx_testflag(p_this->m_uStyleBg, DBS_BKGTILE))
@@ -2869,7 +2837,7 @@ void DcxDialog::DrawDialogBackground(HDC hdc, DcxDialog *const p_this, LPCRECT r
 			for (x = 0; x < w; x += bmp.bmWidth)
 			{
 				//BitBlt(hdc, x, y, bmp.bmWidth, bmp.bmHeight, hdcbmp, 0, 0, SRCCOPY);
-				TransparentBlt(hdc, x, y, bmp.bmWidth, bmp.bmHeight, hdcbmp, 0, 0, bmp.bmWidth, bmp.bmHeight, p_this->m_colTransparentBg);
+				TransparentBlt(hdc, x, y, bmp.bmWidth, bmp.bmHeight, hdcbmp.get(), 0, 0, bmp.bmWidth, bmp.bmHeight, p_this->m_colTransparentBg);
 			}
 		}
 	}
@@ -2888,7 +2856,7 @@ void DcxDialog::DrawDialogBackground(HDC hdc, DcxDialog *const p_this, LPCRECT r
 		else if (dcx_testflag(p_this->m_uStyleBg, DBS_BKGBOTTOM))
 			y = h - bmp.bmHeight;
 
-		TransparentBlt(hdc, x, y, bmp.bmWidth, bmp.bmHeight, hdcbmp, 0, 0, bmp.bmWidth, bmp.bmHeight, p_this->m_colTransparentBg);
+		TransparentBlt(hdc, x, y, bmp.bmWidth, bmp.bmHeight, hdcbmp.get(), 0, 0, bmp.bmWidth, bmp.bmHeight, p_this->m_colTransparentBg);
 	}
 }
 
@@ -2997,7 +2965,7 @@ void DcxDialog::CreateVistaStyle(void)
 	{
 		// this code is for windows 2000 & windows XP
 #if DCX_USE_WRAPPERS
-		Dcx::dcxWindowRect rc(m_Hwnd);
+		const Dcx::dcxWindowRect rc(m_Hwnd);
 
 		const SIZE szWin{ rc.Width(), rc.Height() };
 #else
@@ -3032,7 +3000,7 @@ void DcxDialog::CreateVistaStyle(void)
 #endif
 }
 
-const bool DcxDialog::CreateVistaStyleBitmap(const SIZE &szWin)
+const bool DcxDialog::CreateVistaStyleBitmap(const SIZE &szWin) noexcept
 {
 #ifdef DCX_USE_GDIPLUS
 	if (this->m_hVistaBitmap != nullptr)
@@ -3060,7 +3028,7 @@ const bool DcxDialog::CreateVistaStyleBitmap(const SIZE &szWin)
 	return false;
 }
 
-void DcxDialog::RemoveVistaStyle(void)
+void DcxDialog::RemoveVistaStyle(void) noexcept
 {
 	m_bVistaStyle = false;
 	if (IsWindow(m_hFakeHwnd))
@@ -3078,11 +3046,11 @@ void DcxDialog::RemoveVistaStyle(void)
 #ifdef DCX_USE_GDIPLUS
 void DcxDialog::DrawCaret(Gdiplus::Graphics & graph)
 {
-	auto pWnd = GetFocus();
+	const auto pWnd = GetFocus();
 	if( pWnd == nullptr || !IsWindow(pWnd) )
 		return;
 
-	stString<MAX_PATH> strClassName;
+	const stString<MAX_PATH> strClassName;
 	::GetClassName( pWnd, strClassName, gsl::narrow_cast<int>(strClassName.size()));
 
 	if( strClassName != WC_EDIT)
@@ -3100,11 +3068,11 @@ void DcxDialog::DrawCaret(Gdiplus::Graphics & graph)
 void DcxDialog::DrawDialog(Gdiplus::Graphics & graphics, HDC hDC)
 {
 #if DCX_USE_WRAPPERS
-	Dcx::dcxWindowRect rc(m_Hwnd);
+	const Dcx::dcxWindowRect rc(m_Hwnd);
 
-	Dcx::dcxHDCBitmap2Resource hdcMemory(hDC, rc.Width(), rc.Height());
+	const Dcx::dcxHDCBitmap2Resource hdcMemory(hDC, rc.Width(), rc.Height());
 
-	SendMessage(m_Hwnd, WM_PRINT, (WPARAM)(HDC)hdcMemory, PRF_CLIENT | PRF_NONCLIENT | PRF_ERASEBKGND);
+	SendMessage(m_Hwnd, WM_PRINT, (WPARAM)hdcMemory.get(), PRF_CLIENT | PRF_NONCLIENT | PRF_ERASEBKGND);
 
 	Gdiplus::Bitmap bitmap(hdcMemory.getBitMap(), nullptr);
 	graphics.DrawImage(&bitmap, 0, 0);
@@ -3121,7 +3089,7 @@ void DcxDialog::DrawDialog(Gdiplus::Graphics & graphics, HDC hDC)
 
 	Auto(DeleteDC(hdcMemory));
 
-	auto w = (rc.right - rc.left), h = (rc.bottom - rc.top);
+	const auto w = (rc.right - rc.left), h = (rc.bottom - rc.top);
 	auto hBitmap = ::CreateCompatibleBitmap(hDC, w, h);
 
 	if (hBitmap == nullptr)
@@ -3158,7 +3126,7 @@ void DcxDialog::DrawCtrl(Gdiplus::Graphics & graphics, HDC hDC, HWND hWnd)
 
 	Dcx::dcxHDCBitmap2Resource hdcMemory(hDC, w, h);
 
-	SendMessage(hWnd, WM_PRINT, (WPARAM)(HDC)hdcMemory, (LPARAM)PRF_NONCLIENT | PRF_CLIENT | PRF_CHILDREN | PRF_CHECKVISIBLE | PRF_ERASEBKGND);
+	SendMessage(hWnd, WM_PRINT, (WPARAM)hdcMemory.get(), (LPARAM)PRF_NONCLIENT | PRF_CLIENT | PRF_CHILDREN | PRF_CHECKVISIBLE | PRF_ERASEBKGND);
 
 	Gdiplus::Bitmap bitmap(hdcMemory.getBitMap(), nullptr);
 	graphics.DrawImage(&bitmap, rc.left, rc.top);
@@ -3211,9 +3179,9 @@ void DcxDialog::UpdateVistaStyle(const RECT *const rcUpdate)
 		return;
 
 	{ // maintain a matching region.
-		if (auto hRgn = CreateRectRgn(0, 0, 0, 0); GetWindowRgn(m_Hwnd, hRgn))
+		if (const auto hRgn = CreateRectRgn(0, 0, 0, 0); GetWindowRgn(m_Hwnd, hRgn))
 		{
-			auto hFakeRgn = CreateRectRgn(0, 0, 0, 0);
+			const auto hFakeRgn = CreateRectRgn(0, 0, 0, 0);
 			Auto(DeleteRgn(hFakeRgn));
 
 			if (GetWindowRgn(m_hFakeHwnd, hFakeRgn))
@@ -3244,29 +3212,29 @@ void DcxDialog::UpdateVistaStyle(const RECT *const rcUpdate)
 	POINT ptSrc{ 0, 0 };
 	POINT ptWinPos{ rc.left, rc.top };
 
-	auto alpha = ((m_bGhosted) ? m_uGhostDragAlpha : m_iAlphaLevel);
+	const auto alpha = ((m_bGhosted) ? m_uGhostDragAlpha : m_iAlphaLevel);
 
 	const auto half_alpha = gsl::narrow_cast<BYTE>((alpha / 2));
 
 	BLENDFUNCTION stBlend = { AC_SRC_OVER, 0, alpha, AC_SRC_ALPHA };
 
-	auto hDC = ::GetDC(m_hFakeHwnd);
+	const auto hDC = ::GetDC(m_hFakeHwnd);
 	if (hDC == nullptr)
 		return;
 
 	Auto(ReleaseDC(m_hFakeHwnd, hDC));
 
-	auto hdcMemory = ::CreateCompatibleDC(hDC);
+	const auto hdcMemory = ::CreateCompatibleDC(hDC);
 
 	if (hdcMemory == nullptr)
 		return;
 
 	Auto(DeleteDC(hdcMemory));
 
-	auto pvBits = m_pVistaBits;
-	auto hbmpMem = m_hVistaBitmap;
+	const auto pvBits = m_pVistaBits;
+	const auto hbmpMem = m_hVistaBitmap;
 
-	auto hbmpOld = SelectBitmap(hdcMemory, hbmpMem);
+	const auto hbmpOld = SelectBitmap(hdcMemory, hbmpMem);
 
 	Auto(SelectBitmap(hdcMemory, hbmpOld));
 
@@ -3288,7 +3256,7 @@ void DcxDialog::UpdateVistaStyle(const RECT *const rcUpdate)
 	SIZE szWin{ (rc.right - rc.left), (rc.bottom - rc.top) };
 
 	// Glass area = window edge +/- offset
-	RECT glassOffsets{ szOffsets.cx + m_GlassOffsets.left, szOffsets.cy + m_GlassOffsets.top, szWin.cx - ((rcParentWin.right - rcParentClient.right) + m_GlassOffsets.right), szWin.cy - ((rcParentWin.bottom - rcParentClient.bottom) + m_GlassOffsets.bottom) };
+	const RECT glassOffsets{ szOffsets.cx + m_GlassOffsets.left, szOffsets.cy + m_GlassOffsets.top, szWin.cx - ((rcParentWin.right - rcParentClient.right) + m_GlassOffsets.right), szWin.cy - ((rcParentWin.bottom - rcParentClient.bottom) + m_GlassOffsets.bottom) };
 
 	// Check for update rect (area of child control in screen coordinates)
 	// If found set clipping area as child control's area.
@@ -3296,7 +3264,7 @@ void DcxDialog::UpdateVistaStyle(const RECT *const rcUpdate)
 	{
 		CopyRect(&rcClip, rcUpdate);
 		OffsetRect(&rcClip, -rcParentWin.left, -rcParentWin.top);
-		Gdiplus::Rect clipRect(rcClip.left, rcClip.top , (rcClip.right - rcClip.left), (rcClip.bottom - rcClip.top));
+		const Gdiplus::Rect clipRect(rcClip.left, rcClip.top , (rcClip.right - rcClip.left), (rcClip.bottom - rcClip.top));
 		graph.SetClip(clipRect);
 		DrawDialog( graph, hDC); // draw dialog after setting update controls clip rect.
 	}
@@ -3305,7 +3273,7 @@ void DcxDialog::UpdateVistaStyle(const RECT *const rcUpdate)
 		rcClip.right = szWin.cx;
 		rcClip.bottom = szWin.cy;
 		DrawDialog( graph, hDC); // draw dialog before setting client area clip rect.
-		Gdiplus::Rect clipRect(szOffsets.cx, szOffsets.cy, (rcParentClient.right - rcParentClient.left), (rcParentClient.bottom - rcParentClient.top));
+		const Gdiplus::Rect clipRect(szOffsets.cx, szOffsets.cy, (rcParentClient.right - rcParentClient.left), (rcParentClient.bottom - rcParentClient.top));
 		graph.SetClip(clipRect);
 	}
 
@@ -3319,7 +3287,7 @@ void DcxDialog::UpdateVistaStyle(const RECT *const rcUpdate)
 		const auto Xend = std::min(rcClip.right, szWin.cx), Xbase = std::max(rcClip.left, 0L);
 		POINT pt{};
 
-		for( auto y = Ybase; y < Yend; y++)
+		for( auto y = Ybase; y < Yend; ++y)
 		{
 			// (szWin.cx * 4 * y) == row
 			// (Xbase * 4) == offset within row.
@@ -3327,13 +3295,13 @@ void DcxDialog::UpdateVistaStyle(const RECT *const rcUpdate)
 
 			pt.y = y; //szWin.cy - y;
 
-			for (auto x = Xbase; x < Xend; x++)
+			for (auto x = Xbase; x < Xend; ++x)
 			{
 				pt.x = x;
-				//if (this->m_bHaveKeyColour) {
-				//	if ((pPixel[0] == GetRValue(this->m_cKeyColour)) && (pPixel[1] == GetGValue(this->m_cKeyColour)) && (pPixel[2] == GetBValue(this->m_cKeyColour))) {
+				//if (this->m_bHaveKeyColour)
+				//{
+				//	if ((pPixel[0] == GetRValue(this->m_cKeyColour)) && (pPixel[1] == GetGValue(this->m_cKeyColour)) && (pPixel[2] == GetBValue(this->m_cKeyColour)))
 				//		pPixel[3] = 0;
-				//	}
 				//}
 				if (!PtInRect(&glassOffsets,pt))
 				{
@@ -3350,13 +3318,17 @@ void DcxDialog::UpdateVistaStyle(const RECT *const rcUpdate)
 	//}
 
 	// Draw all the controls
-	auto hwndChild = ::GetWindow(m_Hwnd, GW_CHILD);
-	while(hwndChild)
-	{
-		DrawCtrl( graph, hDC, hwndChild);
-		hwndChild = ::GetWindow( hwndChild, GW_HWNDNEXT);
-	}
+	//auto hwndChild = ::GetWindow(m_Hwnd, GW_CHILD);
+	//while(hwndChild)
+	//{
+	//	DrawCtrl( graph, hDC, hwndChild);
+	//	hwndChild = ::GetWindow( hwndChild, GW_HWNDNEXT);
+	//}
 
+	// Draw all the controls
+	for (auto hwndChild = ::GetWindow(m_Hwnd, GW_CHILD); hwndChild; hwndChild = ::GetWindow(hwndChild, GW_HWNDNEXT))
+		DrawCtrl(graph, hDC, hwndChild);
+		
 	// draw the caret
 	DrawCaret(graph);
 
@@ -3364,11 +3336,11 @@ void DcxDialog::UpdateVistaStyle(const RECT *const rcUpdate)
 	//// Alpha when ghost dragging or alpha is set for whole dialog.
 	//if( alpha >= 0 && alpha < 255 )
 	//{
-	//	for( int y = 0; y < szWin.cy; y++)
+	//	for( int y = 0; y < szWin.cy; ++y)
 	//	{
 	//		PBYTE pPixel = ((PBYTE)pvBits) + szWin.cx * 4 * y;
 	//
-	//		for( int x = 0; x < szWin.cx; x++)
+	//		for( int x = 0; x < szWin.cx; ++x)
 	//		{
 	//			if( alpha < pPixel[3] )
 	//			{
@@ -3389,7 +3361,7 @@ void DcxDialog::UpdateVistaStyle(const RECT *const rcUpdate)
 #endif
 }
 
-void DcxDialog::SetVistaStylePos(void)
+void DcxDialog::SetVistaStylePos(void) noexcept
 {
 	if (!IsWindow(m_hFakeHwnd))
 		return;
@@ -3398,7 +3370,7 @@ void DcxDialog::SetVistaStylePos(void)
 		SetWindowPos(m_hFakeHwnd, nullptr, rc.left, rc.top, 0,0, SWP_NOSIZE|SWP_NOZORDER);
 }
 
-void DcxDialog::SetVistaStyleSize(void)
+void DcxDialog::SetVistaStyleSize(void) noexcept
 {
 	if (!IsWindow(m_hFakeHwnd))
 		return;
@@ -3411,7 +3383,7 @@ void DcxDialog::SetVistaStyleSize(void)
 	}
 }
 
-void DcxDialog::MapVistaRect(HWND hwnd, LPRECT rc) const
+void DcxDialog::MapVistaRect(HWND hwnd, LPRECT rc) const noexcept
 {
 	MapWindowRect(hwnd, m_Hwnd, rc);
 	OffsetRect(rc, m_sVistaOffsets.cx, m_sVistaOffsets.cy);
@@ -3481,8 +3453,7 @@ void DcxDialog::toXml(TiXmlElement *const xml, const TString &name) const
 	if (xml == nullptr)
 		return;
 
-	TString dest;
-	TGetWindowText(m_Hwnd, dest);
+	const TString dest(TGetWindowText(m_Hwnd));
 	xml->SetAttribute("name", name.c_str());
 	xml->SetAttribute("caption", dest.c_str());
 
@@ -3536,7 +3507,7 @@ TiXmlElement * DcxDialog::toXml(const TString & name) const
 //}
 //#endif
 
-const bool DcxDialog::isIDValid(_In_ const UINT ID, _In_ const bool bUnused) const
+const bool DcxDialog::isIDValid(_In_ const UINT ID, _In_ const bool bUnused) const noexcept
 {
 	if (bUnused)	// a valid ID thats NOT in use
 		return ((ID > (mIRC_ID_OFFSET - 1)) && !IsWindow(GetDlgItem(m_Hwnd, gsl::narrow_cast<int>(ID))) && (getControlByID(ID) == nullptr));

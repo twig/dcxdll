@@ -1063,7 +1063,8 @@ void DcxmlParser::registerId(const TiXmlElement *const idElement, const UINT iNe
 		if (const TString elementNamedId(idElement->Attribute("id")); !elementNamedId.empty())
 		{
 			//if (mIRCEvalToUnsignedInt2(elementNamedId).first) //<! id attr. doesn't evaluate to an int
-			if (mIRCLinker::uEval<UINT>(elementNamedId).first) //<! id attr. doesn't evaluate to an int
+			//if (mIRCLinker::uEval<UINT>(elementNamedId).first) //<! id attr. doesn't evaluate to an int
+			if (mIRCLinker::uEval<UINT>(elementNamedId).has_value()) //<! id attr. doesn't evaluate to an int
 				getDialog()->AddNamedId(elementNamedId, iNewID + mIRC_ID_OFFSET);
 		}
 	}
@@ -1119,8 +1120,11 @@ UINT DcxmlParser::parseId(const TiXmlElement *const idElement)
 		//if (const auto[bSuccess,local_id] = mIRCEvalToUnsignedInt2(attributeIdValue); bSuccess)
 		//	return local_id;
 
-		if (const auto[bSuccess, local_id] = mIRCLinker::uEval<UINT>(attributeIdValue); bSuccess)
-			return local_id;
+		//if (const auto[bSuccess, local_id] = mIRCLinker::uEval<UINT>(attributeIdValue); bSuccess)
+		//	return local_id;
+
+		if (const auto local_id = mIRCLinker::uEval<UINT>(attributeIdValue); local_id.has_value())
+			return *local_id;
 
 		// didn't evaluate to a number, so must be a name...
 		return getDialog()->NameToUserID(attributeIdValue);

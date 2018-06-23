@@ -34,31 +34,37 @@ class DcxDialog;
  * blah
  */
 
-class DcxDirectshow : public DcxControl {
-
+class DcxDirectshow
+	: public DcxControl
+{
 public:
 	DcxDirectshow() = delete;
 	DcxDirectshow(const DcxDirectshow &) = delete;
 	DcxDirectshow &operator =(const DcxDirectshow &) = delete;	// No assignments!
+	DcxDirectshow(DcxDirectshow &&) = delete;
+	DcxDirectshow &operator =(DcxDirectshow &&) = delete;
 
 	DcxDirectshow( const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles );
-	virtual ~DcxDirectshow( );
+	~DcxDirectshow( );
 
-	LRESULT PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) override;
-	LRESULT ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) override;
+	LRESULT PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) final;
+	LRESULT ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) noexcept final;
 
-	//void parseInfoRequest(const TString & input, PTCHAR szReturnValue) const override;
-	void parseInfoRequest(const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const override;
-	void parseCommandRequest(const TString & input) override;
-	//void parseControlStyles(const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme) override;
-	std::tuple<NoTheme, WindowStyle, WindowExStyle> parseControlStyles(const TString & tsStyles) override;
+	//void parseInfoRequest(const TString & input, PTCHAR szReturnValue) const final;
+	void parseInfoRequest(const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const final;
+	void parseCommandRequest(const TString & input) final;
+	//void parseControlStyles(const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme) final;
+	std::tuple<NoTheme, WindowStyle, WindowExStyle> parseControlStyles(const TString & tsStyles) final;
 
-	inline const TString getType() const override { return TEXT("directshow"); };
-	inline const DcxControlTypes getControlType() const noexcept override { return DcxControlTypes::DIRECTSHOW; }
+	inline const TString getType() const final { return TEXT("directshow"); };
+	inline const DcxControlTypes getControlType() const noexcept final { return DcxControlTypes::DIRECTSHOW; }
 
-	void toXml(TiXmlElement *const xml) const override;
-	TiXmlElement * toXml(void) const override;
-	const TString getStyles(void) const override;
+	void toXml(TiXmlElement *const xml) const final;
+	TiXmlElement * toXml(void) const final;
+	const TString getStyles(void) const final;
+
+	static WNDPROC m_hDefaultClassProc;	//!< Default window procedure
+	LRESULT CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept final;
 
 protected:
 	HRESULT InitWindowlessVMR(const HWND hwndApp, IGraphBuilder* pGraph, IVMRWindowlessControl9** ppWc);
@@ -82,17 +88,17 @@ protected:
 #define WM_GRAPHNOTIFY  WM_APP + 1
 
 private:
-	IGraphBuilder			*m_pGraph;
-	IMediaControl			*m_pControl;
-	IMediaEventEx			*m_pEvent;
-	IMediaSeeking			*m_pSeek;
-	IVMRWindowlessControl9	*m_pWc;
+	IGraphBuilder			* m_pGraph{ nullptr };
+	IMediaControl			*m_pControl{ nullptr };
+	IMediaEventEx			*m_pEvent{ nullptr };
+	IMediaSeeking			*m_pSeek{ nullptr };
+	IVMRWindowlessControl9	*m_pWc{ nullptr };
 
 	TString					m_tsFilename;
 
-	bool					m_bKeepRatio;
-	bool					m_bLoop;
-	bool					m_bReserved[2];
+	bool					m_bKeepRatio{ false };
+	bool					m_bLoop{ false };
+	bool					m_bReserved[2]{ false };
 };
 
 #pragma comment(lib, "Strmiids.lib")

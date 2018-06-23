@@ -40,16 +40,14 @@ DcxColorCombo::DcxColorCombo(const UINT ID, DcxDialog *const p_Dialog, const HWN
 		Styles | WindowStyle::Child,
 		rc,
 		mParentHwnd,
-		ID);
+		ID,
+		this);
 
 	if (!IsWindow(m_Hwnd))
 		throw Dcx::dcxException("Unable To Create Window");
 
 	if (bNoTheme)
 		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
-
-	this->registreDefaultWindowProc();
-	SetProp(m_Hwnd, TEXT("dcx_cthis"), (HANDLE) this);
 }
 
 /*!
@@ -61,7 +59,6 @@ DcxColorCombo::DcxColorCombo(const UINT ID, DcxDialog *const p_Dialog, const HWN
 DcxColorCombo::~DcxColorCombo()
 {
 	this->resetContent();
-	this->unregistreDefaultWindowProc();
 }
 
 /*!
@@ -108,14 +105,14 @@ void DcxColorCombo::parseInfoRequest( const TString & input, const refString<TCH
 	case L"color"_hash:
 	{
 		if (input.numtok() < 4)
-			throw Dcx::dcxException("Invalid number of argumnets");
+			throw Dcx::dcxException("Invalid number of arguments");
 
 		const auto nItem = input.getnexttok().to_int() - 1;	// tok 4
 
 		if (nItem < 0 || nItem >= getCount())
 			throw Dcx::dcxException("Invalid Item");
 
-		auto lpdcxcci = getItemData(nItem);
+		const auto lpdcxcci = getItemData(nItem);
 
 		if (lpdcxcci == nullptr)
 			throw Dcx::dcxException("Unable to get item data");
@@ -125,7 +122,7 @@ void DcxColorCombo::parseInfoRequest( const TString & input, const refString<TCH
 	break;
 	// [NAME] [ID] [PROP]
 	case L"sel"_hash:
-		_ts_snprintf(szReturnValue, TEXT("%d"), gsl::narrow_cast<int>(getCurSel()) + 1);
+		_ts_snprintf(szReturnValue, TEXT("%d"), getCurSel() + 1);
 		break;
 	default:
 		parseGlobalInfoRequest(input, szReturnValue);
@@ -148,20 +145,28 @@ void DcxColorCombo::parseCommandRequest( const TString &input)
 		this->resetContent();
 
 	// xdid -a [NAME] [ID] [SWITCH] [N] [RGB]
-	if (flags[TEXT('a')] && numtok > 4)
+	if (flags[TEXT('a')])
 	{
+		if (numtok < 5)
+			throw Dcx::dcxException("Insufficient parameters");
+
 		auto nItem = input.getnexttok().to_int() - 1;	// tok 4
 
 		if (nItem >= this->getCount())
 			nItem = -1;
 
-		if (const auto clrItem = input.getnexttok().to_<COLORREF>(); nItem > -2) {
-			this->insertItem(nItem, new DCXCCOMBOITEM(clrItem));
+		if (const auto clrItem = input.getnexttok().to_<COLORREF>(); nItem > -2)
+		{
+			if (const auto item = new DCXCCOMBOITEM(clrItem); this->insertItem(nItem, item) < 0)
+				delete item;
 		}
 	}
 	// xdid -c [NAME] [ID] [SWITCH] [N]
-	else if (flags[TEXT('c')] && numtok > 3)
+	else if (flags[TEXT('c')])
 	{
+		if (numtok < 4)
+			throw Dcx::dcxException("Insufficient parameters");
+
 		const auto nItem = input.getnexttok().to_int() - 1;	// tok 4
 
 		if ((nItem < -1) || (nItem >= this->getCount()))
@@ -170,8 +175,11 @@ void DcxColorCombo::parseCommandRequest( const TString &input)
 		this->setCurSel(nItem);
 	}
 	// xdid -d [NAME] [ID] [SWITCH] [N]
-	else if (flags[TEXT('d')] && numtok > 3)
+	else if (flags[TEXT('d')])
 	{
+		if (numtok < 4)
+			throw Dcx::dcxException("Insufficient parameters");
+
 		const auto nItem = input.getnexttok().to_int() - 1;	// tok 4
 
 		if ((nItem < -1) || (nItem >= this->getCount()))
@@ -185,14 +193,17 @@ void DcxColorCombo::parseCommandRequest( const TString &input)
 		this->setmIRCPalette();
 	}
 	// xdid -o [NAME] [ID] [SWITCH] [N] [RGB]
-	else if (flags[TEXT('o')] && numtok > 4)
+	else if (flags[TEXT('o')])
 	{
+		if (numtok < 5)
+			throw Dcx::dcxException("Insufficient parameters");
+
 		const auto nItem = input.getnexttok().to_int() - 1;	// tok 4
 
 		if ((nItem < -1) || (nItem >= this->getCount()))
 			throw Dcx::dcxException("Item out of range");
 
-		if (auto lpdcxcci = this->getItemData(nItem); lpdcxcci != nullptr)
+		if (const auto lpdcxcci = this->getItemData(nItem); lpdcxcci != nullptr)
 			lpdcxcci->clrItem = input.getnexttok().to_<COLORREF>();	// tok 5
 	}
 	// This is to avoid invalid flag message.
@@ -228,22 +239,27 @@ void DcxColorCombo::setmIRCPalette( )
 
 	for (const auto &col : staticPalette)
 	{
-		this->insertItem(-1, new DCXCCOMBOITEM(col));
+		if (const auto item = new DCXCCOMBOITEM(col); this->insertItem(-1, item) < 0)
+			delete item;
 	}
-	//Dcx::dcxPalette cPalette(); // mIRC palette
-	//
-	//for (const auto &col : cPalette)
-	//{
-	//	this->insertItem(-1, new DCXCCOMBOITEM(col));
-	//}
+
 #else
+	//COLORREF cPalette[mIRC_PALETTE_SIZE] = { CLR_INVALID }; // mIRC palette
+	//
+	//getmIRCPalette(&cPalette[0], std::extent_v<decltype(cPalette)>); // get mIRC palette
+	//
+	//for (const auto &col: cPalette)
+	//{
+	//	this->insertItem( -1, new DCXCCOMBOITEM(col));
+	//}
+
 	COLORREF cPalette[mIRC_PALETTE_SIZE] = { CLR_INVALID }; // mIRC palette
 
-	getmIRCPalette(&cPalette[0], Dcx::countof(cPalette)); // get mIRC palette
+	getmIRCPalette(cPalette); // get mIRC palette
 
-	for (const auto &col: cPalette)
+	for (const auto &col : cPalette)
 	{
-		this->insertItem( -1, new DCXCCOMBOITEM(col));
+		this->insertItem(-1, new DCXCCOMBOITEM(col));
 	}
 #endif
 }
@@ -254,7 +270,7 @@ void DcxColorCombo::setmIRCPalette( )
  * blah
  */
 
-int DcxColorCombo::insertItem(const int nPos, const DCXCCOMBOITEM *dci)
+int DcxColorCombo::insertItem(const int nPos, const DCXCCOMBOITEM *dci) noexcept
 {
 	return ComboBox_InsertString(m_Hwnd, nPos, dci);
 	//return SendMessage(m_Hwnd, CB_INSERTSTRING, gsl::narrow_cast<WPARAM>(nPos), lParam);
@@ -302,7 +318,7 @@ LPDCXCCOMBOITEM DcxColorCombo::getItemData(const int nItem) const noexcept
  * blah
  */
 
-int DcxColorCombo::getCurSel( ) const
+int DcxColorCombo::getCurSel( ) const noexcept
 {
 	return ComboBox_GetCurSel(m_Hwnd);
 	//return SendMessage( m_Hwnd, CB_GETCURSEL, (WPARAM) 0U, (LPARAM) 0U );
@@ -314,7 +330,7 @@ int DcxColorCombo::getCurSel( ) const
  * blah
  */
 
-int DcxColorCombo::deleteItem(const int nItem)
+int DcxColorCombo::deleteItem(const int nItem) noexcept
 {
 	return ComboBox_DeleteString(m_Hwnd, nItem);
 	//return SendMessage(m_Hwnd, CB_DELETESTRING, gsl::narrow_cast<WPARAM>(nItem), (LPARAM)0U);
@@ -326,7 +342,7 @@ int DcxColorCombo::deleteItem(const int nItem)
  * blah
  */
 
-int DcxColorCombo::resetContent()
+int DcxColorCombo::resetContent() noexcept
 {
 	return ComboBox_ResetContent(m_Hwnd);
 	//return SendMessage(m_Hwnd, CB_RESETCONTENT, (WPARAM)0U, (LPARAM)0U);
@@ -346,7 +362,7 @@ LRESULT DcxColorCombo::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 	{
 		if (HIWORD(wParam) == CBN_SELENDOK)
 		{
-			if (dcx_testflag(this->m_pParentDialog->getEventMask(), DCX_EVENT_CLICK))
+			if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
 				execAliasEx(TEXT("sclick,%u,%d"), getUserID(), getCurSel() + 1);
 			bParsed = TRUE;
 			return 0L;
@@ -427,7 +443,7 @@ LRESULT DcxColorCombo::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 		if (lpmis == nullptr)
 			break;
 
-		lpmis->itemHeight = 16;
+		lpmis->itemHeight = DCX_COLORCOMBO_ITEM_HEIGHT;
 
 		bParsed = TRUE;
 		return TRUE;
@@ -443,7 +459,7 @@ LRESULT DcxColorCombo::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 	{
 	case WM_LBUTTONUP:
 	{
-		if (dcx_testflag(this->m_pParentDialog->getEventMask(), DCX_EVENT_CLICK))
+		if (dcx_testflag(getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
 			execAliasEx(TEXT("lbup,%u"), getUserID());
 	}
 	break;
@@ -460,4 +476,14 @@ LRESULT DcxColorCombo::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 	}
 
 	return 0L;
+}
+
+WNDPROC DcxColorCombo::m_hDefaultClassProc = nullptr;
+
+LRESULT DcxColorCombo::CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept
+{
+	if (m_hDefaultClassProc != nullptr)
+		return CallWindowProc(m_hDefaultClassProc, this->m_Hwnd, uMsg, wParam, lParam);
+
+	return DefWindowProc(this->m_Hwnd, uMsg, wParam, lParam);
 }

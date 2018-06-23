@@ -33,7 +33,9 @@ class DcxWindow {
 public:
 	DcxWindow() = delete;
 	DcxWindow(const DcxWindow &other) = delete;
-	DcxWindow &operator =(const DcxWindow &) = delete;	// No assignments!
+	DcxWindow &operator =(const DcxWindow &) = delete;
+	DcxWindow(DcxWindow &&other) = delete;
+	DcxWindow &operator =(DcxWindow &&) = delete;
 
 	DcxWindow( const HWND mHwnd, const UINT mID ) noexcept;
 	explicit DcxWindow( const UINT mID ) noexcept;
@@ -66,7 +68,7 @@ public:
 	LRESULT CallDefaultProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept;
 
 protected:
-	WNDPROC m_hDefaultWindowProc; //!< Old Window Procedure
+	WNDPROC m_hDefaultWindowProc{ nullptr }; //!< Old Window Procedure
 	HWND m_Hwnd;
 	UINT m_ID;
 

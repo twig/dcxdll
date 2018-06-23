@@ -71,33 +71,33 @@ class DcxDialog;
 struct DCXLVSORT
 {
 	TString tsCustomAlias;  //!< Custom Sorting Alias
-	UINT iSortFlags;        //!< Sorting Flags
-	HWND m_Hwnd;            //!< ListView Handle
-	int nColumn;            //!< Sorting Column
-	TCHAR itemtext1[MIRC_BUFFER_SIZE_CCH];
-	TCHAR itemtext2[MIRC_BUFFER_SIZE_CCH];
+	UINT iSortFlags{};        //!< Sorting Flags
+	HWND m_Hwnd{ nullptr };            //!< ListView Handle
+	int nColumn{};            //!< Sorting Column
+	TCHAR itemtext1[MIRC_BUFFER_SIZE_CCH]{};
+	TCHAR itemtext2[MIRC_BUFFER_SIZE_CCH]{};
 
-	DCXLVSORT()
-		: tsCustomAlias()
-		, iSortFlags(0)
-		, m_Hwnd(nullptr)
-		, nColumn(0)
-		, itemtext1{ 0 }
-		, itemtext2{ 0 }
-	{}
+	//DCXLVSORT()
+	//	: tsCustomAlias()
+	//	, iSortFlags(0)
+	//	, m_Hwnd(nullptr)
+	//	, nColumn(0)
+	//	, itemtext1{ 0 }
+	//	, itemtext2{ 0 }
+	//{}
 };
 using LPDCXLVSORT = DCXLVSORT *;
 
 struct DCXLVRENDERINFO {
-	DWORD		m_dFlags;	//!< Render flags (bold etc..)
-	COLORREF	m_cText;	//!< Text Colour
-	COLORREF	m_cBg;		//!< Background Colour.
+	DWORD		m_dFlags{};	//!< Render flags (bold etc..)
+	COLORREF	m_cText{ CLR_INVALID };	//!< Text Colour
+	COLORREF	m_cBg{ CLR_INVALID };		//!< Background Colour.
 
-	DCXLVRENDERINFO()
-		: m_dFlags(0)
-		, m_cText(CLR_INVALID)
-		, m_cBg(CLR_INVALID)
-	{}
+	//DCXLVRENDERINFO()
+	//	: m_dFlags(0)
+	//	, m_cText(CLR_INVALID)
+	//	, m_cBg(CLR_INVALID)
+	//{}
 };
 using LPDCXLVRENDERINFO = DCXLVRENDERINFO *;
 
@@ -116,15 +116,15 @@ using VectorOfRenderInfo = std::vector<LPDCXLVRENDERINFO>;
 #define DCX_LV_COLUMNF_FIXED		16		// m_iSize is the fixed width of the column
 
 struct DCXLVCOLUMNINFO {
-	int			m_iColumn;	// the column affected by this info.
-	DWORD		m_dFlags;	// size flags (autosize, % width etc..)
-	int			m_iSize;	// size of column (meaning depends on flags)
+	int			m_iColumn{};	// the column affected by this info.
+	DWORD		m_dFlags{};	// size flags (autosize, % width etc..)
+	int			m_iSize{};	// size of column (meaning depends on flags)
 
-	DCXLVCOLUMNINFO()
-		: m_iColumn(0)
-		, m_dFlags(0)
-		, m_iSize(0)
-	{}
+	//DCXLVCOLUMNINFO()
+	//	: m_iColumn(0)
+	//	, m_dFlags(0)
+	//	, m_iSize(0)
+	//{}
 };
 using LPDCXLVCOLUMNINFO = DCXLVCOLUMNINFO *;
 
@@ -140,18 +140,18 @@ using VectorOfColumnInfo = std::vector<LPDCXLVCOLUMNINFO>;
 struct DCXLVITEM {
 	TString tsTipText;	//!< Tooltip text
 	TString tsMark;		// Marked text
-	DcxControl *pbar;
-	//DcxProgressBar *pbar;
-	int iPbarCol;
+	DcxControl *pbar{ nullptr };
+	//DcxProgressBar *pbar{ nullptr };
+	int iPbarCol{};
 	VectorOfRenderInfo	vInfo;	//!< Render Info for each column
 
-	DCXLVITEM()
-		: tsTipText()
-		, tsMark()
-		, pbar(nullptr)
-		, iPbarCol(0)
-		, vInfo()
-	{}
+	//DCXLVITEM()
+	//	: tsTipText()
+	//	, tsMark()
+	//	, pbar(nullptr)
+	//	, iPbarCol(0)
+	//	, vInfo()
+	//{}
 };
 using LPDCXLVITEM = DCXLVITEM *;
 
@@ -169,40 +169,45 @@ public:
 	DcxListView() = delete;
 	DcxListView(const DcxListView &) = delete;
 	DcxListView &operator =(const DcxListView &) = delete;	// No assignments!
+	DcxListView(DcxListView &&) = delete;
+	DcxListView &operator =(DcxListView &&) = delete;
 
 	DcxListView(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles);
-	virtual ~DcxListView();
+	~DcxListView();
 
-	LRESULT PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) override;
-	LRESULT ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) override;
+	LRESULT PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) final;
+	LRESULT ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) final;
 
-	//void parseInfoRequest(const TString & input, PTCHAR szReturnValue) const override;
-	void parseInfoRequest(const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const override;
-	void parseCommandRequest(const TString & input) override;
-	//void parseControlStyles(const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme) override;
-	std::tuple<NoTheme, WindowStyle, WindowExStyle> parseControlStyles(const TString & tsStyles) override;
+	//void parseInfoRequest(const TString & input, PTCHAR szReturnValue) const final;
+	void parseInfoRequest(const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const final;
+	void parseCommandRequest(const TString & input) final;
+	//void parseControlStyles(const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme) final;
+	std::tuple<NoTheme, WindowStyle, WindowExStyle> parseControlStyles(const TString & tsStyles) final;
 
-	HIMAGELIST getImageList(const int iImageList) const;
-	void setImageList(const HIMAGELIST himl, const int iImageList);
+	HIMAGELIST getImageList(const int iImageList) const noexcept;
+	void setImageList(const HIMAGELIST himl, const int iImageList) noexcept;
 
 	bool isListViewStyle(const WindowStyle dwView) const noexcept;
 
-	const int &getColumnCount() const;
+	const int &getColumnCount() const noexcept;
 
-	inline const TString getType() const override { return TEXT("listview"); };
-	inline const DcxControlTypes getControlType() const noexcept override { return DcxControlTypes::LISTVIEW; }
+	inline const TString getType() const final { return TEXT("listview"); };
+	inline const DcxControlTypes getControlType() const noexcept final { return DcxControlTypes::LISTVIEW; }
 
-	int getTopIndex() const;
-	int getBottomIndex() const;
+	int getTopIndex() const noexcept;
+	int getBottomIndex() const noexcept;
 
-	void toXml(TiXmlElement *const xml) const override;
-	TiXmlElement * toXml(void) const override;
+	void toXml(TiXmlElement *const xml) const final;
+	TiXmlElement * toXml(void) const final;
 
-	const TString getStyles(void) const override;
+	const TString getStyles(void) const final;
+
+	static WNDPROC m_hDefaultClassProc;	//!< Default window procedure
+	LRESULT CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept final;
 
 protected:
 
-	WNDPROC m_OrigEditProc; //!< Label Edit Control Orignal Procedure
+	WNDPROC m_OrigEditProc{ nullptr }; //!< Label Edit Control Orignal Procedure
 
 	static UINT parseIconFlagOptions(const TString & flags);
 	static UINT parseItemFlags(const TString & flags);
@@ -218,9 +223,9 @@ protected:
 	bool matchItemText(const int nItem, const int nSubItem, const TString &search, const DcxSearchTypes &SearchType) const;
 
 	void autoSize(const int nColumn, const TString &flags);
-	void autoSize(const int nColumn, const int iFlags, const int iWidth = 0);
+	void autoSize(const int nColumn, const int iFlags, const int iWidth = 0) noexcept;
 
-	//bool m_bDrag; //!< Dragging Items ?
+	//bool m_bDrag{ false }; //!< Dragging Items ?
 
 private:
 	DcxControl* CreatePbar(LPLVITEM lvi, const TString &style);
@@ -244,7 +249,7 @@ private:
 	static UINT parseMassItemFlags(const TString & flags);
 	static void parseText2Item(const TString & tsTxt, TString & tsItem, const TString &tsData);
 	static int CALLBACK sortItemsEx(LPARAM lParam1, LPARAM lParam2, LPARAM lParamSort);
-	static LRESULT CALLBACK EditLabelProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+	static LRESULT CALLBACK EditLabelProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept;
 
 	//static HIMAGELIST createImageList(const bool bIcons);
 	//static void parseListviewExStyles(const TString & styles, LONG * ExStyles) noexcept;
@@ -252,14 +257,14 @@ private:
 	static const WindowExStyle parseListviewExStyles(const TString & styles) noexcept;
 
 	//
-	HFONT m_hItemFont;					// Font used for specific item changes.
-	HFONT m_hOldItemFont;				// Font used for specific item changes.
-	int m_iSelectedItem;				// Items currently selected.
-	int m_iSelectedSubItem;				// SubItems currently selected.
-	mutable int m_iColumnCount;			// the number of columns in the listview, a -1 value mean "dont know"
+	HFONT m_hItemFont{ nullptr };					// Font used for specific item changes.
+	HFONT m_hOldItemFont{ nullptr };				// Font used for specific item changes.
+	int m_iSelectedItem{};				// Items currently selected.
+	int m_iSelectedSubItem{};				// SubItems currently selected.
+	mutable int m_iColumnCount{ -1 };			// the number of columns in the listview, a -1 value mean "dont know"
 	VectorOfColumnInfo	m_vWidths;		// column widths for dynamic sizing of columns.
-	bool m_bHasPBars;					// true if listview has pbars at all, if it does, a slower update is used that checks & moves pbars. (better system needed)
-	bool m_bReserved[3];
+	bool m_bHasPBars{ false };					// true if listview has pbars at all, if it does, a slower update is used that checks & moves pbars. (better system needed)
+	bool m_bReserved[3]{ false };
 };
 
 #endif // _DCXLISTVIEW_H_

@@ -15,33 +15,29 @@
 #include "Classes/mirc/dcxlink.h"
 #include "Classes/dcxdialog.h"
 
-/*!
- * \brief Constructor
- *
- * \param ID Control ID
- * \param p_Dialog Parent DcxDialog Object
- * \param mParentHwnd Parent Window Handle
- * \param rc Window Rectangle
- * \param styles Window Style Tokenized List
- */
+ /*!
+  * \brief Constructor
+  *
+  * \param ID Control ID
+  * \param p_Dialog Parent DcxDialog Object
+  * \param mParentHwnd Parent Window Handle
+  * \param rc Window Rectangle
+  * \param styles Window Style Tokenized List
+  */
 
 DcxLink::DcxLink(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles)
 	: DcxControl(ID, p_Dialog)
-	, m_hIcon(nullptr)
-	, m_bHover(false)
-	, m_bTracking(FALSE)
-	, m_bVisited(false)
-	, m_aColors{ RGB(0, 0, 255),RGB(255, 0, 0),RGB(0, 0, 255),RGB(128, 128, 128) }
 {
 	const auto[bNoTheme, Styles, ExStyles] = parseControlStyles(styles);
 
 	m_Hwnd = dcxCreateWindow(
 		ExStyles,
-		WC_STATIC,
+		DCX_LINKCLASS,
 		Styles | WindowStyle::Child,
 		rc,
 		mParentHwnd,
-		ID);
+		ID,
+		this);
 
 	if (!IsWindow(m_Hwnd))
 		throw Dcx::dcxException("Unable To Create Window");
@@ -58,17 +54,15 @@ DcxLink::DcxLink(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwn
 	{
 		if (styles.istok(TEXT("tooltips")))
 		{
-			this->m_ToolTipHWND = p_Dialog->getToolTip();
-			if (!IsWindow(this->m_ToolTipHWND))
+			setToolTipHWND(p_Dialog->getToolTip());
+			if (!IsWindow(getToolTipHWND()))
 				throw Dcx::dcxException("Unable to get ToolTips window");
 
-			AddToolTipToolInfo(this->m_ToolTipHWND, m_Hwnd);
+			AddToolTipToolInfo(getToolTipHWND(), m_Hwnd);
 		}
 	}
 
 	this->setControlFont(GetStockFont(DEFAULT_GUI_FONT), FALSE);
-	this->registreDefaultWindowProc();
-	SetProp(m_Hwnd, TEXT("dcx_cthis"), (HANDLE) this);
 }
 
 /*!
@@ -77,12 +71,10 @@ DcxLink::DcxLink(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwn
  * blah
  */
 
-DcxLink::~DcxLink( )
+DcxLink::~DcxLink()
 {
-	if ( this->m_hIcon != nullptr )
-		DestroyIcon( this->m_hIcon );
-
-	this->unregistreDefaultWindowProc( );
+	if (this->m_hIcon != nullptr)
+		DestroyIcon(this->m_hIcon);
 }
 
 
@@ -90,8 +82,7 @@ void DcxLink::toXml(TiXmlElement *const xml) const
 {
 	__super::toXml(xml);
 
-	TString buf;
-	TGetWindowText( m_Hwnd, buf );
+	const TString buf(TGetWindowText(m_Hwnd));
 	xml->SetAttribute("caption", buf.c_str());
 }
 
@@ -108,12 +99,12 @@ TiXmlElement * DcxLink::toXml(void) const
  * blah
  */
 
-//void DcxLink::parseControlStyles( const TString &styles, LONG *Styles, LONG *ExStyles, BOOL *bNoTheme)
-//{
-//	*Styles |= SS_NOTIFY;
-//
-//	this->parseGeneralControlStyles(styles, Styles, ExStyles, bNoTheme);
-//}
+ //void DcxLink::parseControlStyles( const TString &styles, LONG *Styles, LONG *ExStyles, BOOL *bNoTheme)
+ //{
+ //	*Styles |= SS_NOTIFY;
+ //
+ //	this->parseGeneralControlStyles(styles, Styles, ExStyles, bNoTheme);
+ //}
 
 std::tuple<NoTheme, WindowStyle, WindowExStyle> DcxLink::parseControlStyles(const TString & tsStyles)
 {
@@ -134,7 +125,7 @@ std::tuple<NoTheme, WindowStyle, WindowExStyle> DcxLink::parseControlStyles(cons
  * \return > void
  */
 
-void DcxLink::parseInfoRequest( const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const
+void DcxLink::parseInfoRequest(const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const
 {
 	// [NAME] [ID] [PROP]
 	if (input.gettok(3) == TEXT("text"))
@@ -151,44 +142,53 @@ void DcxLink::parseInfoRequest( const TString & input, const refString<TCHAR, MI
  * blah
  */
 
-void DcxLink::parseCommandRequest( const TString & input )
+void DcxLink::parseCommandRequest(const TString & input)
 {
 	const XSwitchFlags flags(input.getfirsttok(3));		// tok 3
 
 	const auto numtok = input.numtok();
 
 	// xdid -l [NAME] [ID] [SWITCH] [N] [COLOR]
-	if ( flags[TEXT('l')] && numtok > 4 )
+	if (flags[TEXT('l')])
 	{
+		if (numtok < 5)
+			throw Dcx::dcxException("Insufficient parameters");
+
 		const auto nColor = (input.getnexttok().to_<size_t>() - 1);	// tok 4
 
-		if (nColor >= Dcx::countof(m_aColors))
+		if (nColor >= std::extent_v<decltype(m_aColors)>)
 			throw Dcx::dcxException("Invalid Colour Index");
 
-		m_aColors[nColor] = input.getnexttok( ).to_<COLORREF>( );	// tok 5
+		m_aColors[nColor] = input.getnexttok().to_<COLORREF>();	// tok 5
 	}
 	// xdid -q [NAME] [ID] [SWITCH] [COLOR1] ... [COLOR4]
-	else if ( flags[TEXT('q')] && numtok > 3 )
+	else if (flags[TEXT('q')])
 	{
+		if (numtok < 4)
+			throw Dcx::dcxException("Insufficient parameters");
+
 		const auto tsArgs(input.getlasttoks());			// tok 4, -1
 
 		UINT i = 0U;
-		for (const auto &arg: tsArgs)
+		for (const auto &arg : tsArgs)
 		{
 			m_aColors[i] = arg.to_<COLORREF>();	// tok i+1
 			++i;
 		}
 	}
 	//xdid -t [NAME] [ID] [SWITCH] (TEXT)
-	else if ( flags[TEXT('t')] )
+	else if (flags[TEXT('t')])
 	{
 		const auto text(input.getlasttoks());	// tok 4, -1
-		SetWindowText( m_Hwnd, text.to_chr( ) );
-		this->redrawWindow( );
+		SetWindowText(m_Hwnd, text.to_chr());
+		this->redrawWindow();
 	}
 	// xdid -w [NAME] [ID] [SWITCH] [+FLAGS] [INDEX] [FILENAME]
-	else if (flags[TEXT('w')] && numtok > 5)
+	else if (flags[TEXT('w')])
 	{
+		if (numtok < 6)
+			throw Dcx::dcxException("Insufficient parameters");
+
 		const auto flag(input.getnexttok());		// tok 4
 		const auto index = input.getnexttok().to_int();	// tok 5
 		auto filename(input.getlasttoks());			// tok 6, -1
@@ -201,7 +201,7 @@ void DcxLink::parseCommandRequest( const TString & input )
 		this->redrawWindow();
 	}
 	else
-		this->parseGlobalCommandRequest( input, flags );
+		this->parseGlobalCommandRequest(input, flags);
 }
 
 /*!
@@ -209,122 +209,122 @@ void DcxLink::parseCommandRequest( const TString & input )
  *
  * blah
  */
-LRESULT DcxLink::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed )
+LRESULT DcxLink::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) noexcept
 {
 	return 0L;
 }
 
-LRESULT DcxLink::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed )
+LRESULT DcxLink::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed)
 {
-	switch( uMsg )
+	switch (uMsg)
 	{
 	case WM_MOUSEMOVE:
-		{
-			this->m_pParentDialog->setMouseControl( this->getUserID( ) );
+	{
+		getParentDialog()->setMouseControl(this->getUserID());
 
-			if ( !this->m_bTracking )
-			{
-				TRACKMOUSEEVENT tme{ sizeof(TRACKMOUSEEVENT), TME_LEAVE | TME_HOVER, m_Hwnd, HOVER_DEFAULT };
-				this->m_bTracking = _TrackMouseEvent( &tme );		
-			}
+		if (!this->m_bTracking)
+		{
+			TRACKMOUSEEVENT tme{ sizeof(TRACKMOUSEEVENT), TME_LEAVE | TME_HOVER, m_Hwnd, HOVER_DEFAULT };
+			this->m_bTracking = _TrackMouseEvent(&tme);
 		}
-		break;
+	}
+	break;
 
 	case WM_MOUSEHOVER:
+	{
+		if (!this->m_bHover && this->m_bTracking)
 		{
-			if ( !this->m_bHover && this->m_bTracking )
-			{
-				this->m_bHover = true;
-				InvalidateRect( m_Hwnd, nullptr, FALSE );
-			}
+			this->m_bHover = true;
+			InvalidateRect(m_Hwnd, nullptr, FALSE);
 		}
-		break;
+	}
+	break;
 
 	case WM_MOUSELEAVE:
+	{
+		if (this->m_bTracking)
 		{
-			if ( this->m_bTracking )
-			{
-				this->m_bHover = false;
-				this->m_bTracking = FALSE;
-				InvalidateRect( m_Hwnd, nullptr, FALSE );
-			}
+			this->m_bHover = false;
+			this->m_bTracking = FALSE;
+			InvalidateRect(m_Hwnd, nullptr, FALSE);
 		}
-		break;
+	}
+	break;
 
 	case WM_LBUTTONDOWN:
+	{
+		if (!this->m_bVisited)
 		{
-			if ( !this->m_bVisited )
-			{
-				this->m_bVisited = true;
-				InvalidateRect( m_Hwnd, nullptr, FALSE );
-			}
-			if (dcx_testflag(this->m_pParentDialog->getEventMask(), DCX_EVENT_CLICK))
-				this->execAliasEx(TEXT("%s,%d"), TEXT("lbdown"), this->getUserID( ) );
+			this->m_bVisited = true;
+			InvalidateRect(m_Hwnd, nullptr, FALSE);
 		}
-		break;
+		if (dcx_testflag(getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
+			this->execAliasEx(TEXT("lbdown,%u"), getUserID());
+	}
+	break;
 
 	case WM_ENABLE:
-		{
-			InvalidateRect( m_Hwnd, nullptr, FALSE );
-		}
-		break;
+	{
+		InvalidateRect(m_Hwnd, nullptr, FALSE);
+	}
+	break;
 
 	case WM_SETCURSOR:
+	{
+		if (const auto hCtrl_Cursor = getControlCursor(); hCtrl_Cursor != nullptr)
 		{
-			if (this->m_hCursor != nullptr)
-			{
-				if (GetCursor() != this->m_hCursor)
-					SetCursor( this->m_hCursor );
-				bParsed = TRUE;
-				return TRUE;
-			}
-			else if ( LOWORD( lParam ) == HTCLIENT && (HWND) wParam == m_Hwnd )
-			{
-				if (auto hCursor = LoadCursor(nullptr, IDC_HAND); GetCursor() != hCursor)
-					SetCursor( hCursor );
-				bParsed = TRUE;
-				return TRUE;
-			}
+			if (GetCursor() != hCtrl_Cursor)
+				SetCursor(hCtrl_Cursor);
+			bParsed = TRUE;
+			return TRUE;
 		}
-		break;
+		else if (LOWORD(lParam) == HTCLIENT && (HWND)wParam == m_Hwnd)
+		{
+			if (const auto hStm_Cursor = LoadCursor(nullptr, IDC_HAND); GetCursor() != hStm_Cursor)
+				SetCursor(hStm_Cursor);
+			bParsed = TRUE;
+			return TRUE;
+		}
+	}
+	break;
 
 	case WM_ERASEBKGND:
+	{
+		if (this->isExStyle(WindowExStyle::Transparent))
 		{
-			if (this->isExStyle(WindowExStyle::Transparent))
-			{
-				bParsed = TRUE;
-				return TRUE;
-			}
-			break;
+			bParsed = TRUE;
+			return TRUE;
 		}
+		break;
+	}
 
 	case WM_PRINTCLIENT:
-		{
-			this->DrawClientArea((HDC)wParam);
-			bParsed = TRUE;
-		}
-		break;
+	{
+		this->DrawClientArea((HDC)wParam);
+		bParsed = TRUE;
+	}
+	break;
 	case WM_PAINT:
-		{
-			bParsed = TRUE;
-			PAINTSTRUCT ps{};
+	{
+		bParsed = TRUE;
+		PAINTSTRUCT ps{};
 
-			auto hdc = BeginPaint( m_Hwnd, &ps );
-			Auto(EndPaint(m_Hwnd, &ps));
+		auto hdc = BeginPaint(m_Hwnd, &ps);
+		Auto(EndPaint(m_Hwnd, &ps));
 
-			this->DrawClientArea(hdc);
-		}
-		break;
+		this->DrawClientArea(hdc);
+	}
+	break;
 
 	case WM_DESTROY:
-		{
-			delete this;
-			bParsed = TRUE;
-		}
-		break;
+	{
+		delete this;
+		bParsed = TRUE;
+	}
+	break;
 
 	default:
-		return this->CommonMessage( uMsg, wParam, lParam, bParsed);
+		return this->CommonMessage(uMsg, wParam, lParam, bParsed);
 		break;
 	}
 
@@ -453,34 +453,30 @@ void DcxLink::DrawClientArea(HDC hdc)
 		return;
 
 	// Setup alpha blend if any.
-	auto ai = SetupAlphaBlend(&hdc, true);
+	const auto ai = SetupAlphaBlend(&hdc, true);
 	Auto(FinishAlphaBlend(ai));
 
 	// fill background.
 	DcxControl::DrawCtrlBackground(hdc, this, &rect);
 
-	auto hFont = this->m_hFont;
-
-	if (hFont == nullptr)
-		hFont = GetStockFont(DEFAULT_GUI_FONT /*SYSTEM_FONT*/);
+	const auto hFont = (getControlFont() == nullptr) ? GetStockFont(DEFAULT_GUI_FONT) : getControlFont();
 
 	if (LOGFONT lf{}; GetObject(hFont, sizeof(LOGFONT), &lf) != 0)
 	{
-
 		lf.lfUnderline = TRUE;
 
-		if (auto hNewFont = CreateFontIndirect(&lf); hNewFont != nullptr)
+		if (const auto hNewFont = CreateFontIndirect(&lf); hNewFont != nullptr)
 		{
 			Auto(DeleteFont(hNewFont));
 
-			auto hOldFont = SelectFont(hdc, hNewFont);
+			const auto hOldFont = SelectFont(hdc, hNewFont);
 			Auto(SelectFont(hdc, hOldFont));
 
 			const auto oldMode = SetBkMode(hdc, TRANSPARENT);
 			Auto(SetBkMode(hdc, oldMode));
 
-			if (this->m_hIcon != nullptr) {
-
+			if (this->m_hIcon != nullptr)
+			{
 				const auto y = ((rect.top + rect.bottom - 16) / 2);
 				DrawIconEx(hdc, rect.left, y, this->m_hIcon, 0, 0, NULL, nullptr, DI_NORMAL);
 
@@ -488,17 +484,15 @@ void DcxLink::DrawClientArea(HDC hdc)
 			}
 
 			if (IsWindowEnabled(m_Hwnd) == FALSE)
-				this->m_clrText = this->m_aColors[3];
+				setTextColor(this->m_aColors[3]);
 			else if (this->m_bHover)
-				this->m_clrText = this->m_aColors[1];
+				setTextColor(this->m_aColors[1]);
 			else if (this->m_bVisited)
-				this->m_clrText = this->m_aColors[2];
+				setTextColor(this->m_aColors[2]);
 			else
-				this->m_clrText = this->m_aColors[0];
+				setTextColor(this->m_aColors[0]);
 
-			TString wtext;
-
-			TGetWindowText(m_Hwnd, wtext);
+			const TString wtext(TGetWindowText(m_Hwnd));
 			this->ctrlDrawText(hdc, wtext, &rect, DT_LEFT | DT_NOPREFIX | DT_SINGLELINE | DT_VCENTER);
 		}
 	}
@@ -559,4 +553,14 @@ void DcxLink::DrawClientArea(HDC hdc)
 	//	}
 	//}
 	//this->FinishAlphaBlend(ai);
+}
+
+WNDPROC DcxLink::m_hDefaultClassProc = nullptr;
+
+LRESULT DcxLink::CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept
+{
+	if (m_hDefaultClassProc != nullptr)
+		return CallWindowProc(m_hDefaultClassProc, this->m_Hwnd, uMsg, wParam, lParam);
+
+	return DefWindowProc(this->m_Hwnd, uMsg, wParam, lParam);
 }

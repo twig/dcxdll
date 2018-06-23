@@ -27,37 +27,38 @@ class DcxDialog;
  * blah
  */
 
-class DcxPanel : public DcxControl {
-
+class DcxPanel
+	: public DcxControl
+{
 public:
 	DcxPanel() = delete;
 	DcxPanel(const DcxPanel &) = delete;
 	DcxPanel &operator =(const DcxPanel &) = delete;	// No assignments!
+	DcxPanel(DcxPanel &&) = delete;
+	DcxPanel &operator =(DcxPanel &&) = delete;
 
 	DcxPanel(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles );
-	virtual ~DcxPanel( );
+	~DcxPanel( );
 
-	LRESULT PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) override;
-	LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) override;
+	LRESULT PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) final;
+	LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) noexcept final;
 
-	//void parseInfoRequest(const TString & input, PTCHAR szReturnValue) const override;
-	void parseInfoRequest(const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const override;
-	void parseCommandRequest( const TString & input ) override;
-	//void parseControlStyles(const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme) override;
-	std::tuple<NoTheme, WindowStyle, WindowExStyle> parseControlStyles(const TString & tsStyles) override;
+	void parseInfoRequest(const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const final;
+	void parseCommandRequest( const TString & input ) final;
+	std::tuple<NoTheme, WindowStyle, WindowExStyle> parseControlStyles(const TString & tsStyles) final;
 
-	inline const TString getType() const override { return TEXT("panel"); };
-	inline const DcxControlTypes getControlType() const noexcept override { return DcxControlTypes::PANEL; }
+	inline const TString getType() const final { return TEXT("panel"); };
+	inline const DcxControlTypes getControlType() const noexcept final { return DcxControlTypes::PANEL; }
 
-	void toXml(TiXmlElement *const xml) const override;
-	TiXmlElement * toXml(void) const override;
+	void toXml(TiXmlElement *const xml) const final;
+	TiXmlElement * toXml(void) const final;
+
+	static WNDPROC m_hDefaultClassProc;	//!< Default window procedure
+	LRESULT CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept final;
 
 protected:
 
-	//static const UINT parseLayoutFlags( const TString & flags );
-
-	LayoutManager * m_pLayoutManager; //!< Layout Manager Object
-
+	std::unique_ptr<LayoutManager> m_pLayoutManager; //!< Layout Manager Object
 };
 
 #endif // _DCXPANEL_H_

@@ -45,7 +45,8 @@ DcxCalendar::DcxCalendar(const UINT ID, DcxDialog *const p_Dialog, const HWND mP
 		Styles | WindowStyle::Child,
 		rc,
 		mParentHwnd,
-		ID);
+		ID,
+		this);
 
 	if (!IsWindow(m_Hwnd))
 		throw Dcx::dcxException("Unable To Create Window");
@@ -54,8 +55,6 @@ DcxCalendar::DcxCalendar(const UINT ID, DcxDialog *const p_Dialog, const HWND mP
 		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
 
 	this->setControlFont(GetStockFont(DEFAULT_GUI_FONT), FALSE);
-	this->registreDefaultWindowProc();
-	SetProp(m_Hwnd, TEXT("dcx_cthis"), (HANDLE) this);
 }
 
 /*!
@@ -66,7 +65,6 @@ DcxCalendar::DcxCalendar(const UINT ID, DcxDialog *const p_Dialog, const HWND mP
 
 DcxCalendar::~DcxCalendar()
 {
-	this->unregistreDefaultWindowProc();
 }
 
 void DcxCalendar::toXml(TiXmlElement *const xml) const
@@ -281,8 +279,11 @@ void DcxCalendar::parseCommandRequest( const TString &input)
 	const auto numtok = input.numtok();
 
 	// xdid -k [NAME] [ID] [SWITCH] [+FLAGS] [$RGB]
-	if (flags[TEXT('k')] && numtok > 4)
+	if (flags[TEXT('k')])
 	{
+		if (numtok < 5)
+			throw Dcx::dcxException("Insufficient parameters");
+
 		const XSwitchFlags xflags(input.getnexttok( ));	// tok 4
 		const auto col = input.getnexttok().to_<COLORREF>();	// tok 5
 
@@ -311,15 +312,21 @@ void DcxCalendar::parseCommandRequest( const TString &input)
 			MonthCal_SetColor(m_Hwnd, MCSC_TRAILINGTEXT, static_cast<LPARAM>(col));
 	}
 	//xdid -m [NAME] [ID] [SWITCH] [MAX]
-	else if (flags[TEXT('m')] && numtok > 3)
+	else if (flags[TEXT('m')])
 	{
+		if (numtok < 4)
+			throw Dcx::dcxException("Insufficient parameters");
+
 		const auto max = input.getnexttok().to_int();	// tok 4
 
 		MonthCal_SetMaxSelCount(m_Hwnd, max);
 	}
 	//xdid -r [NAME] [ID] [SWITCH] [MIN] [MAX]
-	else if (flags[TEXT('r')] && numtok > 4)
+	else if (flags[TEXT('r')])
 	{
+		if (numtok < 5)
+			throw Dcx::dcxException("Insufficient parameters");
+
 		DWORD dflags = 0;
 		SYSTEMTIME range[2]{};
 
@@ -340,8 +347,11 @@ void DcxCalendar::parseCommandRequest( const TString &input)
 		MonthCal_SetRange(m_Hwnd, dflags, range);
 	}
 	//xdid -s [NAME] [ID] [SWITCH] [MIN] (MAX)
-	else if (flags[TEXT('s')] && numtok > 3)
+	else if (flags[TEXT('s')])
 	{
+		if (numtok < 4)
+			throw Dcx::dcxException("Insufficient parameters");
+
 		const auto min = input.getnexttok().to_<long>();	// tok 4
 		SYSTEMTIME range[2]{};
 
@@ -364,8 +374,11 @@ void DcxCalendar::parseCommandRequest( const TString &input)
 			MonthCal_SetCurSel(m_Hwnd, &(range[0]));
 	}
 	//xdid -t [NAME] [ID] [SWITCH] [TIMESTAMP]
-	else if (flags[TEXT('t')] && numtok > 3)
+	else if (flags[TEXT('t')])
 	{
+		if (numtok < 4)
+			throw Dcx::dcxException("Insufficient parameters");
+
 		const auto mircTime = input.getnexttok().to_<long>();	// tok 4
 		const auto sysTime = MircTimeToSystemTime(mircTime);
 
@@ -424,19 +437,19 @@ LRESULT DcxCalendar::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 			for (auto i = decltype(iMax){0}; i < iMax; ++i)
 			{
 				// daystate ctrlid startdate
-				const TString strDays(m_pParentDialog->evalAliasT(TEXT("daystate,%,%"), getUserID(), SystemTimeToMircTime(&(lpNMDayState->stStart))).second.trim());
+				const TString strDays(getParentDialog()->evalAliasT(TEXT("daystate,%,%"), getUserID(), SystemTimeToMircTime(&(lpNMDayState->stStart))).second.trim());
 				m_MonthDayStates[i] = static_cast<MONTHDAYSTATE>(0);
 
 				for (auto itStart = strDays.begin(TSCOMMACHAR), itEnd = strDays.end(); itStart != itEnd; ++itStart)
 					BOLDDAY(m_MonthDayStates[i], (*itStart).to_int());
 
 				// increment the month so we get a proper offset
-				lpNMDayState->stStart.wMonth++;
+				++lpNMDayState->stStart.wMonth;
 
 				if (lpNMDayState->stStart.wMonth > 12)
 				{
 					lpNMDayState->stStart.wMonth = 1;
-					lpNMDayState->stStart.wYear++;
+					++lpNMDayState->stStart.wYear;
 				}
 			}
 
@@ -485,7 +498,7 @@ LRESULT DcxCalendar::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 		}
 		case NM_RELEASEDCAPTURE:
 		{
-			if (dcx_testflag(m_pParentDialog->getEventMask(), DCX_EVENT_CLICK))
+			if (dcx_testflag(getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
 				execAliasEx(TEXT("sclick,%u"), getUserID());
 			break;
 		}
@@ -503,7 +516,7 @@ LRESULT DcxCalendar::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 	{
 	case WM_LBUTTONUP:
 	{
-		if (dcx_testflag(m_pParentDialog->getEventMask(), DCX_EVENT_CLICK))
+		if (dcx_testflag(getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
 			execAliasEx(TEXT("lbup,%u"), getUserID());
 	}
 	break;
@@ -527,4 +540,14 @@ LRESULT DcxCalendar::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 	}
 
 	return 0L;
+}
+
+WNDPROC DcxCalendar::m_hDefaultClassProc = nullptr;
+
+LRESULT DcxCalendar::CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept
+{
+	if (m_hDefaultClassProc != nullptr)
+		return CallWindowProc(m_hDefaultClassProc, this->m_Hwnd, uMsg, wParam, lParam);
+
+	return DefWindowProc(this->m_Hwnd, uMsg, wParam, lParam);
 }

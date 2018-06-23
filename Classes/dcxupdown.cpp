@@ -15,46 +15,45 @@
 #include "Classes/dcxupdown.h"
 #include "Classes/dcxdialog.h"
 
-/*!
- * \brief Constructor
- *
- * \param ID Control ID
- * \param p_Dialog Parent DcxDialog Object
- * \param mParentHwnd Parent Window Handle
- * \param rc Window Rectangle
- * \param styles Window Style Tokenized List
- */
+ /*!
+  * \brief Constructor
+  *
+  * \param ID Control ID
+  * \param p_Dialog Parent DcxDialog Object
+  * \param mParentHwnd Parent Window Handle
+  * \param rc Window Rectangle
+  * \param styles Window Style Tokenized List
+  */
 
-DcxUpDown::DcxUpDown(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles )
-	: DcxControl( ID, p_Dialog )
+DcxUpDown::DcxUpDown(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles)
+	: DcxControl(ID, p_Dialog)
 {
 	const auto[bNoTheme, Styles, ExStyles] = parseControlStyles(styles);
 
-	m_Hwnd = dcxCreateWindow(	
+	m_Hwnd = dcxCreateWindow(
 		ExStyles,
-		DCX_UPDOWNCLASS, 
+		DCX_UPDOWNCLASS,
 		Styles | WS_CHILD,
 		rc,
 		mParentHwnd,
-		ID);
+		ID,
+		this);
 
 	if (!IsWindow(m_Hwnd))
 		throw Dcx::dcxException("Unable To Create Window");
 
-	if ( bNoTheme )
-		Dcx::UXModule.dcxSetWindowTheme( m_Hwnd , L" ", L" " );
+	if (bNoTheme)
+		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
 
 	if (styles.istok(TEXT("tooltips")))
 	{
 		if (!IsWindow(p_Dialog->getToolTip()))
 			throw Dcx::dcxException("Unable to Initialize Tooltips");
-		
+
 		this->m_ToolTipHWND = p_Dialog->getToolTip();
 		AddToolTipToolInfo(this->m_ToolTipHWND, m_Hwnd);
 	}
-	this->setControlFont( GetStockFont( DEFAULT_GUI_FONT ), FALSE );
-	this->registreDefaultWindowProc( );
-	SetProp( m_Hwnd, TEXT("dcx_cthis"), (HANDLE) this );
+	this->setControlFont(GetStockFont(DEFAULT_GUI_FONT), FALSE);
 }
 
 /*!
@@ -63,9 +62,8 @@ DcxUpDown::DcxUpDown(const UINT ID, DcxDialog *const p_Dialog, const HWND mParen
  * blah
  */
 
-DcxUpDown::~DcxUpDown( )
+DcxUpDown::~DcxUpDown()
 {
-  this->unregistreDefaultWindowProc( );
 }
 
 /*!
@@ -74,63 +72,63 @@ DcxUpDown::~DcxUpDown( )
  * blah
  */
 
-//void DcxUpDown::parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme )
-//{
-//	*Styles |= UDS_ALIGNRIGHT;
-//
-//	for (const auto tsStyle : styles)
-//	{
-//#if DCX_USE_HASHING
-//		switch (std::hash<TString>{}(tsStyle))
-//		{
-//		case L"left"_hash:
-//		{
-//			*Styles &= ~UDS_ALIGNRIGHT;
-//			*Styles |= UDS_ALIGNLEFT;
-//		}
-//		break;
-//		case L"arrowkeys"_hash:
-//			*Styles |= UDS_ARROWKEYS;
-//			break;
-//		case L"horz"_hash:
-//			*Styles |= UDS_HORZ;
-//			break;
-//		case L"hottrack"_hash:
-//			*Styles |= UDS_HOTTRACK;
-//			break;
-//		case L"nothousands"_hash:
-//			*Styles |= UDS_NOTHOUSANDS;
-//			break;
-//		case L"buddyint"_hash:
-//			*Styles |= UDS_SETBUDDYINT;
-//			break;
-//		case L"wrap"_hash:
-//			*Styles |= UDS_WRAP;
-//		default:
-//			break;
-//		}
-//#else
-//		if (tsStyle == TEXT("left")) {
-//			*Styles &= ~UDS_ALIGNRIGHT;
-//			*Styles |= UDS_ALIGNLEFT;
-//		}
-//		else if (tsStyle == TEXT("arrowkeys"))
-//			*Styles |= UDS_ARROWKEYS;
-//		else if (tsStyle == TEXT("horz"))
-//			*Styles |= UDS_HORZ;
-//		else if (tsStyle == TEXT("hottrack"))
-//			*Styles |= UDS_HOTTRACK;
-//		else if (tsStyle == TEXT("nothousands"))
-//			*Styles |= UDS_NOTHOUSANDS;
-//		else if (tsStyle == TEXT("buddyint"))
-//			*Styles |= UDS_SETBUDDYINT;
-//		else if (tsStyle == TEXT("wrap"))
-//			*Styles |= UDS_WRAP;
-//#endif
-//	}
-//
-//	this->parseGeneralControlStyles(styles, Styles, ExStyles, bNoTheme);
-//}
+ //void DcxUpDown::parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme )
+ //{
+ //	*Styles |= UDS_ALIGNRIGHT;
+ //
+ //	for (const auto tsStyle : styles)
+ //	{
+ //#if DCX_USE_HASHING
+ //		switch (std::hash<TString>{}(tsStyle))
+ //		{
+ //		case L"left"_hash:
+ //		{
+ //			*Styles &= ~UDS_ALIGNRIGHT;
+ //			*Styles |= UDS_ALIGNLEFT;
+ //		}
+ //		break;
+ //		case L"arrowkeys"_hash:
+ //			*Styles |= UDS_ARROWKEYS;
+ //			break;
+ //		case L"horz"_hash:
+ //			*Styles |= UDS_HORZ;
+ //			break;
+ //		case L"hottrack"_hash:
+ //			*Styles |= UDS_HOTTRACK;
+ //			break;
+ //		case L"nothousands"_hash:
+ //			*Styles |= UDS_NOTHOUSANDS;
+ //			break;
+ //		case L"buddyint"_hash:
+ //			*Styles |= UDS_SETBUDDYINT;
+ //			break;
+ //		case L"wrap"_hash:
+ //			*Styles |= UDS_WRAP;
+ //		default:
+ //			break;
+ //		}
+ //#else
+ //		if (tsStyle == TEXT("left")) {
+ //			*Styles &= ~UDS_ALIGNRIGHT;
+ //			*Styles |= UDS_ALIGNLEFT;
+ //		}
+ //		else if (tsStyle == TEXT("arrowkeys"))
+ //			*Styles |= UDS_ARROWKEYS;
+ //		else if (tsStyle == TEXT("horz"))
+ //			*Styles |= UDS_HORZ;
+ //		else if (tsStyle == TEXT("hottrack"))
+ //			*Styles |= UDS_HOTTRACK;
+ //		else if (tsStyle == TEXT("nothousands"))
+ //			*Styles |= UDS_NOTHOUSANDS;
+ //		else if (tsStyle == TEXT("buddyint"))
+ //			*Styles |= UDS_SETBUDDYINT;
+ //		else if (tsStyle == TEXT("wrap"))
+ //			*Styles |= UDS_WRAP;
+ //#endif
+ //	}
+ //
+ //	this->parseGeneralControlStyles(styles, Styles, ExStyles, bNoTheme);
+ //}
 
 std::tuple<NoTheme, WindowStyle, WindowExStyle> DcxUpDown::parseControlStyles(const TString & tsStyles)
 {
@@ -182,11 +180,11 @@ std::tuple<NoTheme, WindowStyle, WindowExStyle> DcxUpDown::parseControlStyles(co
  * \return > void
  */
 
-void DcxUpDown::parseInfoRequest( const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const
+void DcxUpDown::parseInfoRequest(const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const
 {
 	switch (std::hash<TString>{}(input.getfirsttok(3)))
 	{
-	// [NAME] [ID] [PROP]
+		// [NAME] [ID] [PROP]
 	case L"value"_hash:
 	{
 		BOOL bError = FALSE;
@@ -197,7 +195,7 @@ void DcxUpDown::parseInfoRequest( const TString & input, const refString<TCHAR, 
 	// [NAME] [ID] [PROP]
 	case L"range"_hash:
 	{
-		const auto[iMin,iMax] = getRange32();
+		const auto[iMin, iMax] = getRange32();
 
 		_ts_snprintf(szReturnValue, TEXT("%d %d"), iMin, iMax);
 	}
@@ -213,18 +211,21 @@ void DcxUpDown::parseInfoRequest( const TString & input, const refString<TCHAR, 
  * blah
  */
 
-void DcxUpDown::parseCommandRequest( const TString & input )
+void DcxUpDown::parseCommandRequest(const TString & input)
 {
-	const XSwitchFlags flags(input.getfirsttok( 3 ));
+	const XSwitchFlags flags(input.getfirsttok(3));
 	const auto numtok = input.numtok();
 
 	// xdid -c [NAME] [ID] [SWITCH] [BUDDYID]
-	if ( flags[TEXT('c')] && numtok > 3 )
+	if (flags[TEXT('c')])
 	{
-		auto tsID(input.getnexttok());
-		auto ID = m_pParentDialog->NameToID(tsID);
+		if (numtok < 4)
+			throw Dcx::dcxException("Insufficient parameters");
 
-		auto p_Control = m_pParentDialog->getControlByID(ID);	// tok 4
+		const auto tsID(input.getnexttok());
+		const auto ID = getParentDialog()->NameToID(tsID);
+
+		const auto *const p_Control = getParentDialog()->getControlByID(ID);	// tok 4
 
 		if (p_Control == nullptr)
 			throw Dcx::dcxException("Unable to get control");
@@ -233,7 +234,7 @@ void DcxUpDown::parseCommandRequest( const TString & input )
 		if (const auto &cType(p_Control->getControlType()); cType == DcxControlTypes::TEXT || cType == DcxControlTypes::EDIT)
 			setBuddy(p_Control->getHwnd());
 
-		//auto p_Control = m_pParentDialog->getControlByID(input.getnexttok().to_<UINT>() + mIRC_ID_OFFSET);	// tok 4
+		//auto p_Control = getParentDialog()->getControlByID(input.getnexttok().to_<UINT>() + mIRC_ID_OFFSET);	// tok 4
 		//
 		//if (p_Control == nullptr)
 		//	throw Dcx::dcxException("Unable to get control");
@@ -259,29 +260,38 @@ void DcxUpDown::parseCommandRequest( const TString & input )
 
 	}
 	// xdid -r [NAME] [ID] [SWITCH] [MIN] [MAX]
-	else if ( flags[TEXT('r')] && numtok > 4 )
+	else if (flags[TEXT('r')])
 	{
+		if (numtok < 5)
+			throw Dcx::dcxException("Insufficient parameters");
+
 		const auto iMin = input.getnexttok().to_int();	// tok 4
 		const auto iMax = input.getnexttok().to_int();	// tok 5
 
-		setRange32( iMin, iMax );
+		setRange32(iMin, iMax);
 	}
 	// xdid -t [NAME] [ID] [SWITCH] [BASE]
-	else if ( flags[TEXT('t')] && numtok > 3 )
+	else if (flags[TEXT('t')])
 	{
+		if (numtok < 4)
+			throw Dcx::dcxException("Insufficient parameters");
+
 		const auto nBase = input.getnexttok().to_int();	// tok 4
 
-		setBase( nBase );
+		setBase(nBase);
 	}
 	// xdid -v [NAME] [ID] [SWITCH] [POS]
-	else if ( flags[TEXT('v')] && numtok > 3 )
+	else if (flags[TEXT('v')])
 	{
+		if (numtok < 4)
+			throw Dcx::dcxException("Insufficient parameters");
+
 		const auto nPos = input.getnexttok().to_int();	// tok 4
 
-		setPos32( nPos );
+		setPos32(nPos);
 	}
 	else
-		parseGlobalCommandRequest( input, flags );
+		parseGlobalCommandRequest(input, flags);
 }
 
 /*!
@@ -290,9 +300,9 @@ void DcxUpDown::parseCommandRequest( const TString & input )
  * blah
  */
 
-LRESULT DcxUpDown::setBuddy( const HWND mHwnd )
+LRESULT DcxUpDown::setBuddy(const HWND mHwnd) noexcept
 {
-  return SendMessage( m_Hwnd, UDM_SETBUDDY, (WPARAM) mHwnd , (LPARAM) 0 );
+	return SendMessage(m_Hwnd, UDM_SETBUDDY, (WPARAM)mHwnd, (LPARAM)0);
 }
 
 /*!
@@ -301,9 +311,9 @@ LRESULT DcxUpDown::setBuddy( const HWND mHwnd )
  * blah
  */
 
-LRESULT DcxUpDown::setRange32( const int iLow, const int iHigh ) noexcept
+LRESULT DcxUpDown::setRange32(const int iLow, const int iHigh) noexcept
 {
-  return SendMessage( m_Hwnd, UDM_SETRANGE32, gsl::narrow_cast<WPARAM>(iLow), gsl::narrow_cast<LPARAM>(iHigh) );
+	return SendMessage(m_Hwnd, UDM_SETRANGE32, gsl::narrow_cast<WPARAM>(iLow), gsl::narrow_cast<LPARAM>(iHigh));
 }
 
 /*!
@@ -312,7 +322,7 @@ LRESULT DcxUpDown::setRange32( const int iLow, const int iHigh ) noexcept
  * blah
  */
 
-std::pair<int,int> DcxUpDown::getRange32() const noexcept
+std::pair<int, int> DcxUpDown::getRange32() const noexcept
 {
 	int iMin = 0, iMax = 0;
 	SendMessage(m_Hwnd, UDM_GETRANGE32, (WPARAM)&iMin, (LPARAM)&iMax);
@@ -325,9 +335,9 @@ std::pair<int,int> DcxUpDown::getRange32() const noexcept
  * blah
  */
 
-LRESULT DcxUpDown::setBase( const int iBase ) noexcept
+LRESULT DcxUpDown::setBase(const int iBase) noexcept
 {
-  return SendMessage( m_Hwnd, UDM_SETBASE, gsl::narrow_cast<WPARAM>(iBase), (LPARAM) 0 );
+	return SendMessage(m_Hwnd, UDM_SETBASE, gsl::narrow_cast<WPARAM>(iBase), (LPARAM)0);
 }
 
 /*!
@@ -336,9 +346,9 @@ LRESULT DcxUpDown::setBase( const int iBase ) noexcept
  * blah
  */
 
-LRESULT DcxUpDown::getBase( ) const noexcept
+LRESULT DcxUpDown::getBase() const noexcept
 {
-  return SendMessage( m_Hwnd, UDM_GETBASE, (WPARAM) 0, (LPARAM) 0 );
+	return SendMessage(m_Hwnd, UDM_GETBASE, (WPARAM)0, (LPARAM)0);
 }
 
 /*!
@@ -347,9 +357,9 @@ LRESULT DcxUpDown::getBase( ) const noexcept
  * blah
  */
 
-LRESULT DcxUpDown::setPos32( const INT nPos ) noexcept
+LRESULT DcxUpDown::setPos32(const INT nPos) noexcept
 {
-  return SendMessage( m_Hwnd, UDM_SETPOS32, (WPARAM) 0, (LPARAM) nPos );
+	return SendMessage(m_Hwnd, UDM_SETPOS32, (WPARAM)0, (LPARAM)nPos);
 }
 
 /*!
@@ -358,9 +368,9 @@ LRESULT DcxUpDown::setPos32( const INT nPos ) noexcept
  * blah
  */
 
-LRESULT DcxUpDown::getPos32( LPBOOL pfError ) const noexcept
+LRESULT DcxUpDown::getPos32(const LPBOOL pfError) const noexcept
 {
-  return SendMessage( m_Hwnd, UDM_GETPOS32, (WPARAM) 0, (LPARAM) pfError );
+	return SendMessage(m_Hwnd, UDM_GETPOS32, 0, (LPARAM)pfError);
 }
 
 const TString DcxUpDown::getStyles(void) const
@@ -368,17 +378,17 @@ const TString DcxUpDown::getStyles(void) const
 	auto styles(__super::getStyles());
 	const auto Styles = dcxGetWindowStyle(m_Hwnd);
 
-	if (dcx_testflag(Styles,UDS_ALIGNLEFT))
+	if (dcx_testflag(Styles, UDS_ALIGNLEFT))
 		styles.addtok(TEXT("left"));
-	if (dcx_testflag(Styles,UDS_HORZ))
+	if (dcx_testflag(Styles, UDS_HORZ))
 		styles.addtok(TEXT("horz"));
-	if (dcx_testflag(Styles,UDS_HOTTRACK))
+	if (dcx_testflag(Styles, UDS_HOTTRACK))
 		styles.addtok(TEXT("hottrack"));
-	if (dcx_testflag(Styles,UDS_NOTHOUSANDS))
+	if (dcx_testflag(Styles, UDS_NOTHOUSANDS))
 		styles.addtok(TEXT("nothousands"));
-	if (dcx_testflag(Styles,UDS_SETBUDDYINT))
+	if (dcx_testflag(Styles, UDS_SETBUDDYINT))
 		styles.addtok(TEXT("buddyint"));
-	if (dcx_testflag(Styles,UDS_WRAP))
+	if (dcx_testflag(Styles, UDS_WRAP))
 		styles.addtok(TEXT("wrap"));
 	return styles;
 }
@@ -388,7 +398,7 @@ const TString DcxUpDown::getStyles(void) const
  *
  * blah
  */
-LRESULT DcxUpDown::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed )
+LRESULT DcxUpDown::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed)
 {
 	switch (uMsg)
 	{
@@ -403,7 +413,7 @@ LRESULT DcxUpDown::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
 		{
 		case UDN_DELTAPOS:
 		{
-			if (dcx_testflag(m_pParentDialog->getEventMask(), DCX_EVENT_CLICK))
+			if (dcx_testflag(getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
 				execAliasEx(TEXT("sclick,%u"), getUserID());
 			bParsed = TRUE;
 		}
@@ -435,4 +445,14 @@ LRESULT DcxUpDown::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 	}
 
 	return 0L;
+}
+
+WNDPROC DcxUpDown::m_hDefaultClassProc = nullptr;
+
+LRESULT DcxUpDown::CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept
+{
+	if (m_hDefaultClassProc != nullptr)
+		return CallWindowProc(m_hDefaultClassProc, this->m_Hwnd, uMsg, wParam, lParam);
+
+	return DefWindowProc(this->m_Hwnd, uMsg, wParam, lParam);
 }

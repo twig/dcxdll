@@ -26,30 +26,37 @@ class DcxDialog;
  * blah
  */
 
-class DcxDateTime : public DcxControl {
+class DcxDateTime
+	: public DcxControl
+{
 public:
 	DcxDateTime() = delete;
 	DcxDateTime(const DcxDateTime &) = delete;
 	DcxDateTime &operator =(const DcxDateTime &) = delete;	// No assignments!
+	DcxDateTime(DcxDateTime &&) = delete;
+	DcxDateTime &operator =(DcxDateTime &&) = delete;
 
 	DcxDateTime(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString &styles);
-	virtual ~DcxDateTime();
+	~DcxDateTime();
 
-	LRESULT PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bParsed) override;
-	LRESULT ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bParsed) override;
+	LRESULT PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bParsed) final;
+	LRESULT ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bParsed) final;
 
-	//void parseInfoRequest(const TString & input, PTCHAR szReturnValue) const override;
-	void parseInfoRequest(const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const override;
-	void parseCommandRequest(const TString & input) override;
-	//void parseControlStyles(const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme) override;
-	std::tuple<NoTheme, WindowStyle, WindowExStyle> parseControlStyles(const TString & tsStyles) override;
+	//void parseInfoRequest(const TString & input, PTCHAR szReturnValue) const final;
+	void parseInfoRequest(const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const final;
+	void parseCommandRequest(const TString & input) final;
+	//void parseControlStyles(const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme) final;
+	std::tuple<NoTheme, WindowStyle, WindowExStyle> parseControlStyles(const TString & tsStyles) final;
 
-	inline const TString getType() const override { return TEXT("datetime"); };
-	inline const DcxControlTypes getControlType() const noexcept override { return DcxControlTypes::DATETIME; }
+	inline const TString getType() const final { return TEXT("datetime"); };
+	inline const DcxControlTypes getControlType() const noexcept final { return DcxControlTypes::DATETIME; }
 
-	void toXml(TiXmlElement *const xml) const override;
-	TiXmlElement * toXml(void) const override;
-	const TString getStyles(void) const override;
+	void toXml(TiXmlElement *const xml) const final;
+	TiXmlElement * toXml(void) const final;
+	const TString getStyles(void) const final;
+
+	static WNDPROC m_hDefaultClassProc;	//!< Default window procedure
+	LRESULT CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept final;
 };
 
 #endif // _DCXDATETIME_H_

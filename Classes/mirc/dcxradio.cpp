@@ -32,11 +32,12 @@ DcxRadio::DcxRadio(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentH
 
 	m_Hwnd = dcxCreateWindow(
 		ExStyles,
-		WC_BUTTON,
+		DCX_BUTTONCLASS,
 		Styles | WindowStyle::Child,
 		rc,
 		mParentHwnd,
-		ID);
+		ID,
+		this);
 
 	if (!IsWindow(m_Hwnd))
 		throw Dcx::dcxException("Unable To Create Window");
@@ -44,22 +45,20 @@ DcxRadio::DcxRadio(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentH
 	if (bNoTheme)
 		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
 
-	this->m_bNoTheme = (bNoTheme != FALSE);
+	setNoThemed( (bNoTheme != FALSE) );
 
 	if (p_Dialog->getToolTip() != nullptr)
 	{
 		if (styles.istok(TEXT("tooltips")))
 		{
-			this->m_ToolTipHWND = p_Dialog->getToolTip();
-			if (!IsWindow(this->m_ToolTipHWND))
+			setToolTipHWND(p_Dialog->getToolTip());
+			if (!IsWindow(getToolTipHWND()))
 				throw Dcx::dcxException("Unable to get ToolTips window");
 
-			AddToolTipToolInfo(this->m_ToolTipHWND, m_Hwnd);
+			AddToolTipToolInfo(getToolTipHWND(), m_Hwnd);
 		}
 	}
 	this->setControlFont(GetStockFont(DEFAULT_GUI_FONT), FALSE);
-	this->registreDefaultWindowProc();
-	SetProp(m_Hwnd, TEXT("dcx_cthis"), (HANDLE) this);
 }
 
 /*!
@@ -70,13 +69,12 @@ DcxRadio::DcxRadio(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentH
 
 DcxRadio::~DcxRadio( )
 {
-	this->unregistreDefaultWindowProc( );
 }
 
 const TString DcxRadio::getStyles(void) const
 {
 	auto styles(__super::getStyles());
-	const auto Styles = GetWindowStyle(m_Hwnd);
+	const auto Styles = dcxGetWindowStyle(m_Hwnd);
 
 	if (dcx_testflag(Styles, BS_RIGHT))
 		styles.addtok(TEXT("rjustify"));
@@ -219,8 +217,11 @@ void DcxRadio::parseCommandRequest( const TString & input )
 		Button_SetCheck( m_Hwnd, BST_CHECKED );
 	}
 	//xdid -t [NAME] [ID] [SWITCH] [TEXT]
-	else if ( flags[TEXT('t')] && numtok > 3 )
+	else if ( flags[TEXT('t')] )
 	{
+		if (numtok < 4)
+			throw Dcx::dcxException("Insufficient parameters");
+
 		SetWindowText(m_Hwnd, input.getlasttoks().trim().to_chr());	// tok 4, -1
 	}
 	//xdid -u [NAME] [ID] [SWITCH]
@@ -237,7 +238,7 @@ void DcxRadio::parseCommandRequest( const TString & input )
  *
  * blah
  */
-LRESULT DcxRadio::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed )
+LRESULT DcxRadio::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) noexcept
 {
 	return 0L;
 }
@@ -291,25 +292,23 @@ void DcxRadio::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 	auto ai = SetupAlphaBlend(&hdc);
 	Auto(FinishAlphaBlend(ai));
 
-	if (this->m_bNoTheme || !Dcx::UXModule.dcxIsThemeActive())
+	if (!IsThemed() || !Dcx::UXModule.dcxIsThemeActive())
 	{
 		// get controls client area
 		if (RECT rcClient{}; GetClientRect(m_Hwnd, &rcClient))
 		{
-			if (this->m_clrBackText != CLR_INVALID)
-				SetBkColor(hdc, this->m_clrBackText);
+			if (const auto clr = getBackColor(); clr != CLR_INVALID)
+				SetBkColor(hdc, clr);
 
-			if (this->m_clrText != CLR_INVALID)
-				SetTextColor(hdc, this->m_clrText);
+			if (const auto clr = getTextColor(); clr != CLR_INVALID)
+				SetTextColor(hdc, clr);
 
-			auto bWasTransp = false;
-			if (this->isExStyle(WindowExStyle::Transparent))
-				bWasTransp = true;
+			const auto bWasTransp = this->isExStyle(WindowExStyle::Transparent);
 
 			// fill background.
 			if (bWasTransp)
 			{
-				if (!this->m_bAlphaBlend)
+				if (!IsAlphaBlend())
 					this->DrawParentsBackground(hdc, &rcClient);
 			}
 			else
@@ -318,22 +317,21 @@ void DcxRadio::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 			if (!bWasTransp)
 				this->addExStyle(WindowExStyle::Transparent);
 
-			CallDefaultProc(m_Hwnd, uMsg, (WPARAM)hdc, lParam);
+			CallDefaultClassProc(uMsg, (WPARAM)hdc, lParam);
 
 			if (!bWasTransp)
 				this->removeExStyle(WindowExStyle::Transparent);
 		}
 	}
 	else
-		CallDefaultProc(m_Hwnd, uMsg, (WPARAM)hdc, lParam);
+		CallDefaultClassProc(uMsg, (WPARAM)hdc, lParam);
 }
 
 void DcxRadio::toXml(TiXmlElement *const xml) const
 {
 	__super::toXml(xml);
 
-	TString wtext;
-	TGetWindowText(m_Hwnd, wtext);
+	const TString wtext(TGetWindowText(m_Hwnd));
 	xml->SetAttribute("caption", wtext.c_str());
 	xml->SetAttribute("styles", getStyles().c_str());
 }
@@ -343,4 +341,14 @@ TiXmlElement * DcxRadio::toXml(void) const
 	auto xml = std::make_unique<TiXmlElement>("control");
 	toXml(xml.get());
 	return xml.release();
+}
+
+WNDPROC DcxRadio::m_hDefaultClassProc = nullptr;
+
+LRESULT DcxRadio::CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept
+{
+	if (m_hDefaultClassProc != nullptr)
+		return CallWindowProc(m_hDefaultClassProc, this->m_Hwnd, uMsg, wParam, lParam);
+
+	return DefWindowProc(this->m_Hwnd, uMsg, wParam, lParam);
 }

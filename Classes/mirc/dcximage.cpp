@@ -30,33 +30,17 @@
 
 DcxImage::DcxImage(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles)
 	: DcxControl(ID, p_Dialog)
-#ifdef DCX_USE_GDIPLUS
-	, m_pImage(nullptr)
-	, m_CMode(Gdiplus::CompositingModeSourceCopy)
-	, m_CQuality(Gdiplus::CompositingQualityDefault)
-	, m_IMode(Gdiplus::InterpolationModeDefault)
-	, m_SMode(Gdiplus::SmoothingModeDefault)
-#endif
-	, m_hBitmap(nullptr)
-	, m_clrTransColor(CLR_INVALID)
-	, m_hIcon(nullptr)
-	, m_bIsIcon(false)
-	, m_bResizeImage(true)
-	, m_bTileImage(false)
-	, m_bBuffer(false)
-	, m_iXOffset(0)
-	, m_iYOffset(0)
-	, m_iIconSize(DcxIconSizes::SmallIcon)
 {
 	const auto[bNoTheme, Styles, ExStyles] = parseControlStyles(styles);
 
 	m_Hwnd = dcxCreateWindow(
 		ExStyles,
-		WC_STATIC,
+		DCX_IMAGECLASS,
 		Styles | WindowStyle::Child,
 		rc,
 		mParentHwnd,
-		ID);
+		ID,
+		this);
 
 	if (!IsWindow(m_Hwnd))
 		throw Dcx::dcxException("Unable To Create Window");
@@ -81,8 +65,6 @@ DcxImage::DcxImage(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentH
 		this->m_bBuffer = true;
 #endif
 
-	this->registreDefaultWindowProc();
-	SetProp(m_Hwnd, TEXT("dcx_cthis"), (HANDLE) this);
 }
 
 /*!
@@ -94,8 +76,6 @@ DcxImage::DcxImage(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentH
 DcxImage::~DcxImage()
 {
 	PreloadData();
-
-	this->unregistreDefaultWindowProc();
 }
 
 /*!
@@ -140,7 +120,7 @@ void DcxImage::parseInfoRequest( const TString & input, const refString<TCHAR, M
 }
 
 // clears existing image and icon data and sets pointers to null
-void DcxImage::PreloadData()
+void DcxImage::PreloadData() noexcept
 {
 	if (this->m_hBitmap != nullptr)
 	{
@@ -155,8 +135,7 @@ void DcxImage::PreloadData()
 	}
 
 #ifdef DCX_USE_GDIPLUS
-	delete this->m_pImage;
-	this->m_pImage = nullptr;
+	this->m_pImage.reset(nullptr);
 #endif
 	this->m_tsFilename.clear();	// = TEXT("");
 }
@@ -167,7 +146,7 @@ bool DcxImage::LoadGDIPlusImage(const TString &flags, TString &filename)
 	if (!IsFile(filename))
 		throw Dcx::dcxException(TEXT("Unable to Access File: %"), filename);
 
-	this->m_pImage = new Gdiplus::Image(filename.to_chr(),TRUE);
+	this->m_pImage = std::make_unique<Gdiplus::Image>(filename.to_chr(),TRUE);
 
 	// for some reason this returns `OutOfMemory` when the file doesnt exist instead of `FileNotFound`
 	if (const auto status = this->m_pImage->GetLastStatus(); status != Gdiplus::Status::Ok)
@@ -199,10 +178,7 @@ bool DcxImage::LoadGDIPlusImage(const TString &flags, TString &filename)
 	else
 		this->m_SMode = Gdiplus::SmoothingModeDefault;
 
-	if (xflags[TEXT('t')]) // Tile
-		this->m_bTileImage = true;
-	else
-		this->m_bTileImage = false;
+	this->m_bTileImage = xflags[TEXT('t')]; // Tile
 
 	return true;
 }
@@ -332,16 +308,16 @@ void DcxImage::DrawGDIImage(HDC hdc, const int x, const int y, const int w, cons
 		Gdiplus::ImageAttributes imAtt;
 		imAtt.SetWrapMode(Gdiplus::WrapModeTile);
 
-		grphx.DrawImage(this->m_pImage,
+		grphx.DrawImage(this->m_pImage.get(),
 			Gdiplus::Rect(x + this->m_iXOffset, y + this->m_iYOffset, w, h),  // dest rect
 			0, 0, w, h,       // source rect
 			Gdiplus::UnitPixel,
 			&imAtt);
 	}
 	else if (this->m_bResizeImage)
-		grphx.DrawImage( this->m_pImage, this->m_iXOffset, this->m_iYOffset, w, h );
+		grphx.DrawImage( this->m_pImage.get(), this->m_iXOffset, this->m_iYOffset, w, h );
 	else
-		grphx.DrawImage( this->m_pImage, this->m_iXOffset, this->m_iYOffset);
+		grphx.DrawImage( this->m_pImage.get(), this->m_iXOffset, this->m_iYOffset);
 }
 #endif
 
@@ -353,9 +329,9 @@ void DcxImage::DrawBMPImage(HDC hdc, const int x, const int y, const int w, cons
 	if (BITMAP bmp{}; GetObject(m_hBitmap, sizeof(BITMAP), &bmp) != 0)
 	{
 		if (m_clrTransColor != CLR_INVALID)
-			TransparentBlt(hdc, x, y, w, h, hdcbmp, 0, 0, bmp.bmWidth, bmp.bmHeight, m_clrTransColor);
+			TransparentBlt(hdc, x, y, w, h, hdcbmp.get(), 0, 0, bmp.bmWidth, bmp.bmHeight, m_clrTransColor);
 		else
-			StretchBlt(hdc, x, y, w, h, hdcbmp, 0, 0, bmp.bmWidth, bmp.bmHeight, SRCCOPY);
+			StretchBlt(hdc, x, y, w, h, hdcbmp.get(), 0, 0, bmp.bmWidth, bmp.bmHeight, SRCCOPY);
 	}
 #else
 	auto hdcbmp = CreateCompatibleDC(hdc);
@@ -400,7 +376,7 @@ TiXmlElement * DcxImage::toXml() const
  *
  * blah
  */
-LRESULT DcxImage::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed )
+LRESULT DcxImage::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) noexcept
 {
 	return 0L;
 }
@@ -474,7 +450,7 @@ void DcxImage::DrawClientArea(HDC hdc)
 
 	// Setup alpha blend if any.
 	// Double Buffer required for GDI+ to look right in WS_EX_COMPOSITED
-	auto ai = SetupAlphaBlend(&hdc, m_bBuffer);
+	const auto ai = SetupAlphaBlend(&hdc, m_bBuffer);
 	Auto(FinishAlphaBlend(ai));
 
 	DcxControl::DrawCtrlBackground(hdc,this,&rect);
@@ -496,4 +472,14 @@ void DcxImage::DrawClientArea(HDC hdc)
 	else if ((m_pImage != nullptr) && (Dcx::GDIModule.isUseable()))
 		DrawGDIImage(hdc, x, y, w, h);
 #endif
+}
+
+WNDPROC DcxImage::m_hDefaultClassProc = nullptr;
+
+LRESULT DcxImage::CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept
+{
+	if (m_hDefaultClassProc != nullptr)
+		return CallWindowProc(m_hDefaultClassProc, this->m_Hwnd, uMsg, wParam, lParam);
+
+	return DefWindowProc(this->m_Hwnd, uMsg, wParam, lParam);
 }

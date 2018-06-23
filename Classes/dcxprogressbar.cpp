@@ -25,12 +25,9 @@
  * \param styles Window Style Tokenized List
  */
 
-DcxProgressBar::DcxProgressBar( _In_ const UINT ID, _In_ DcxDialog *const p_Dialog, _In_ const HWND mParentHwnd, _In_ const RECT *const rc, _In_ const TString & styles )
-: DcxControl( ID, p_Dialog )
-, m_bIsAbsoluteValue(false)
-, m_hfontVertical(nullptr)
-, m_bIsGrad(false)
-, m_tsText(TEXT("%d %%"))
+DcxProgressBar::DcxProgressBar(_In_ const UINT ID, _In_ DcxDialog *const p_Dialog, _In_ const HWND mParentHwnd, _In_ const RECT *const rc, _In_ const TString & styles)
+	: DcxControl(ID, p_Dialog)
+	, m_tsText(TEXT("%d %%"))
 {
 	const auto[bNoTheme, Styles, ExStyles] = parseControlStyles(styles);
 
@@ -40,7 +37,8 @@ DcxProgressBar::DcxProgressBar( _In_ const UINT ID, _In_ DcxDialog *const p_Dial
 		Styles | WS_CHILD,
 		rc,
 		mParentHwnd,
-		ID);
+		ID,
+		this);
 
 	if (!IsWindow(m_Hwnd))
 		throw Dcx::dcxException("Unable To Create Window");
@@ -52,13 +50,11 @@ DcxProgressBar::DcxProgressBar( _In_ const UINT ID, _In_ DcxDialog *const p_Dial
 	{
 		if (!IsWindow(p_Dialog->getToolTip()))
 			throw Dcx::dcxException("Unable to Initialize Tooltips");
-		
-		this->m_ToolTipHWND = p_Dialog->getToolTip();
-		AddToolTipToolInfo(this->m_ToolTipHWND, m_Hwnd);
+
+		setToolTipHWND(p_Dialog->getToolTip());
+		AddToolTipToolInfo(getToolTipHWND(), m_Hwnd);
 	}
 	this->setControlFont( GetStockFont( DEFAULT_GUI_FONT ), FALSE );
-	this->registreDefaultWindowProc( );
-	SetProp( m_Hwnd, TEXT("dcx_cthis"), (HANDLE) this );
 }
 
 /*!
@@ -69,7 +65,6 @@ DcxProgressBar::DcxProgressBar( _In_ const UINT ID, _In_ DcxDialog *const p_Dial
 
 DcxProgressBar::~DcxProgressBar( )
 {
-  this->unregistreDefaultWindowProc( );
 }
 
 const TString DcxProgressBar::getStyles(void) const
@@ -212,6 +207,9 @@ void DcxProgressBar::parseCommandRequest( const TString &input)
 	// xdid -c name ID $rgb(color)
 	if (flags[TEXT('c')])
 	{
+		if (numtok < 4)
+			throw Dcx::dcxException("Insufficient parameters");
+
 		setBarColor(input.getnexttok( ).to_<COLORREF>());	// tok 4
 	}
 	//// xdid -g name ID [1|0]
@@ -231,6 +229,9 @@ void DcxProgressBar::parseCommandRequest( const TString &input)
 	// xdid -j name ID [a|p]
 	else if (flags[TEXT('j')])
 	{
+		if (numtok < 4)
+			throw Dcx::dcxException("Insufficient parameters");
+
 		m_bIsAbsoluteValue = (input.getnexttok() == TEXT('a'));
 
 		redrawWindow();
@@ -238,6 +239,9 @@ void DcxProgressBar::parseCommandRequest( const TString &input)
 	// xdid -k name ID $rgb(color)
 	else if (flags[TEXT('k')])
 	{
+		if (numtok < 4)
+			throw Dcx::dcxException("Insufficient parameters");
+
 		setBKColor(input.getnexttok( ).to_<COLORREF>());	// tok 4
 	}
 	// xdid -m(o|g) name ID N
@@ -245,7 +249,12 @@ void DcxProgressBar::parseCommandRequest( const TString &input)
 	{
 		// -mo
 		if (flags[TEXT('o')])
-			setMarquee(TRUE, input.getnexttok( ).to_int());	// tok 4
+		{
+			if (numtok < 4)
+				throw Dcx::dcxException("Insufficient parameters");
+
+			setMarquee(TRUE, input.getnexttok().to_int());	// tok 4
+		}
 		// -mg
 		else if (flags[TEXT('g')])
 			setMarquee(FALSE, 0);
@@ -253,14 +262,22 @@ void DcxProgressBar::parseCommandRequest( const TString &input)
 	// xdid -q name ID [COLOR]
 	else if ( flags[TEXT('q')] )
 	{
-		m_clrText = input.getnexttok( ).to_<COLORREF>();	// tok 4
+		if (numtok < 4)
+			throw Dcx::dcxException("Insufficient parameters");
+
+		setTextColor(input.getnexttok( ).to_<COLORREF>());	// tok 4
 		redrawWindow();
 	}
 	// xdid -r name ID RLow RHigh
 	else if (flags[TEXT('r')])
 	{
-		if (numtok > 4)
-			setRange(input.getnexttok( ).to_int(), input.gettok( 5 ).to_int());
+		if (numtok < 5)
+			throw Dcx::dcxException("Insufficient parameters");
+
+		const auto iLow = input.getnexttok().to_int();
+		const auto iHigh = input.getnexttok().to_int();
+
+		setRange(iLow, iHigh);
 	}
 	// xdid -t name ID
 	else if (flags[TEXT('t')])
@@ -270,24 +287,29 @@ void DcxProgressBar::parseCommandRequest( const TString &input)
 	// xdid -u name ID N
 	else if (flags[TEXT('u')])
 	{
+		if (numtok < 4)
+			throw Dcx::dcxException("Insufficient parameters");
+
 		setStep(input.getnexttok( ).to_int());	// tok 4
 	}
 	// xdid -v name ID N
 	else if (flags[TEXT('v')])
 	{
-		if (numtok > 3)
-			setPosition(input.getnexttok( ).to_int());	// tok 4
+		if (numtok < 4)
+			throw Dcx::dcxException("Insufficient parameters");
+
+		setPosition(input.getnexttok( ).to_int());	// tok 4
 	}
 	// xdid [-o] [NAME] [ID] [ENABLED]
 	// vertical fonts [1|0]
 	else if (flags[TEXT('o')])
 	{
 		if (numtok < 4)
-			return;
+			throw Dcx::dcxException("Insufficient parameters");
 
 		LOGFONT lfCurrent{};
 
-		if (GetObject(m_hFont, sizeof(LOGFONT), &lfCurrent) == 0)
+		if (GetObject(getControlFont(), sizeof(LOGFONT), &lfCurrent) == 0)
 			throw Dcx::dcxException("Unable to get LOGFONT");
 
 		const auto angle = input.getnexttok().to_int();	// tok 4
@@ -323,7 +345,7 @@ void DcxProgressBar::parseCommandRequest( const TString &input)
  * blah
  */
 
-LRESULT DcxProgressBar::setPosition(const int nNewPos)
+LRESULT DcxProgressBar::setPosition(const int nNewPos) noexcept
 {
 	return SendMessage(m_Hwnd, PBM_SETPOS, gsl::narrow_cast<WPARAM>(nNewPos), (LPARAM)0);
 }
@@ -334,7 +356,7 @@ LRESULT DcxProgressBar::setPosition(const int nNewPos)
  * blah
  */
 
-LRESULT DcxProgressBar::setRange(const int iLowLim, const int iHighLim)
+LRESULT DcxProgressBar::setRange(const int iLowLim, const int iHighLim) noexcept
 {
 	return SendMessage(m_Hwnd, PBM_SETRANGE32, gsl::narrow_cast<WPARAM>(iLowLim), gsl::narrow_cast<LPARAM>(iHighLim));
 }
@@ -356,7 +378,7 @@ LRESULT DcxProgressBar::getPosition() const noexcept
  * blah
  */
 
-LRESULT DcxProgressBar::getRange(const BOOL fWhichLimit, PPBRANGE ppBRange) const noexcept
+LRESULT DcxProgressBar::getRange(const BOOL fWhichLimit, const PPBRANGE ppBRange) const noexcept
 {
 	return SendMessage(m_Hwnd, PBM_GETRANGE, gsl::narrow_cast<WPARAM>(fWhichLimit), reinterpret_cast<LPARAM>(ppBRange));
 }
@@ -367,7 +389,7 @@ LRESULT DcxProgressBar::getRange(const BOOL fWhichLimit, PPBRANGE ppBRange) cons
  * blah
  */
 
-LRESULT DcxProgressBar::setMarquee(const BOOL fStart, const int fTime)
+LRESULT DcxProgressBar::setMarquee(const BOOL fStart, const int fTime) noexcept
 {
 	return SendMessage(m_Hwnd, PBM_SETMARQUEE, gsl::narrow_cast<WPARAM>(fStart), gsl::narrow_cast<LPARAM>(fTime));
 }
@@ -378,7 +400,7 @@ LRESULT DcxProgressBar::setMarquee(const BOOL fStart, const int fTime)
  * blah
  */
 
-LRESULT DcxProgressBar::stepIt()
+LRESULT DcxProgressBar::stepIt() noexcept
 {
 	return SendMessage(m_Hwnd, PBM_STEPIT, gsl::narrow_cast<WPARAM>(0), gsl::narrow_cast<LPARAM>(0));
 }
@@ -389,7 +411,8 @@ LRESULT DcxProgressBar::stepIt()
  * blah
  */
 
-LRESULT DcxProgressBar::setStep(const int nStepInc) {
+LRESULT DcxProgressBar::setStep(const int nStepInc) noexcept
+{
 	return SendMessage(m_Hwnd, PBM_SETSTEP, gsl::narrow_cast<WPARAM>(nStepInc), gsl::narrow_cast<LPARAM>(0));
 }
 
@@ -399,9 +422,9 @@ LRESULT DcxProgressBar::setStep(const int nStepInc) {
  * blah
  */
 
-LRESULT DcxProgressBar::setBarColor(const COLORREF clrBar)
+LRESULT DcxProgressBar::setBarColor(const COLORREF clrBar) noexcept
 {
-	m_clrStartGradient = clrBar;
+	setStartGradientColor(clrBar);
 	return SendMessage(m_Hwnd, PBM_SETBARCOLOR, gsl::narrow_cast<WPARAM>(0), gsl::narrow_cast<LPARAM>(clrBar));
 }
 /*!
@@ -410,9 +433,9 @@ LRESULT DcxProgressBar::setBarColor(const COLORREF clrBar)
  * blah
  */
 
-LRESULT DcxProgressBar::setBKColor( const COLORREF clrBk )
+LRESULT DcxProgressBar::setBKColor( const COLORREF clrBk ) noexcept
 {
-	m_clrEndGradient = clrBk;
+	setEndGradientColor(clrBk);
 	return SendMessage( m_Hwnd, PBM_SETBKCOLOR, gsl::narrow_cast<WPARAM>(0), gsl::narrow_cast<LPARAM>(clrBk) );
 }
 
@@ -435,7 +458,7 @@ TiXmlElement * DcxProgressBar::toXml(void) const
  *
  * blah
  */
-LRESULT DcxProgressBar::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed )
+LRESULT DcxProgressBar::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) noexcept
 {
 	return 0L;
 }
@@ -475,39 +498,54 @@ LRESULT DcxProgressBar::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 
 	case WM_LBUTTONUP:
 	{
-		if (dcx_testflag(m_pParentDialog->getEventMask(), DCX_EVENT_CLICK))
+		if (dcx_testflag(getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
 		{
 			const auto iLower = getRange(TRUE, nullptr);
 			const auto iHigher = getRange(FALSE, nullptr);
 
-			execAliasEx(TEXT("sclick,%d,%d,%d,%d,%d"), getUserID(), getPredictedPos(lParam, iLower, iHigher), iLower, iHigher, getPosition());
+			execAliasEx(TEXT("sclick,%u,%d,%d,%d,%d"), getUserID(), getPredictedPos(lParam, iLower, iHigher), iLower, iHigher, getPosition());
 		}
 	}
 	break;
 
-	case WM_RBUTTONUP:
+	//case WM_RBUTTONUP:
+	//{
+	//	if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
+	//	{
+	//		const auto iLower = getRange(TRUE, nullptr);
+	//		const auto iHigher = getRange(FALSE, nullptr);
+
+	//		execAliasEx(TEXT("rclick,%u,%d,%d,%d,%d"), getUserID(), getPredictedPos(lParam, iLower, iHigher), iLower, iHigher, getPosition());
+	//	}
+	//}
+	//break;
+	//case WM_CONTEXTMENU:	// stops second rclick event
+	//	break;
+
+	case WM_CONTEXTMENU:
 	{
-		if (dcx_testflag(this->m_pParentDialog->getEventMask(), DCX_EVENT_CLICK))
+		if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
 		{
 			const auto iLower = getRange(TRUE, nullptr);
 			const auto iHigher = getRange(FALSE, nullptr);
 
-			execAliasEx(TEXT("rclick,%d,%d,%d,%d,%d"), getUserID(), getPredictedPos(lParam, iLower, iHigher), iLower, iHigher, getPosition());
+			execAliasEx(TEXT("rclick,%u,%d,%d,%d,%d"), getUserID(), getPredictedPos(lParam, iLower, iHigher), iLower, iHigher, getPosition());
 		}
 	}
 	break;
 
 	case WM_MOUSEMOVE:
 	{
-		this->m_pParentDialog->setMouseControl(this->getUserID());
+		this->getParentDialog()->setMouseControl(this->getUserID());
 
-		if (dcx_testflag(this->m_pParentDialog->getEventMask(), DCX_EVENT_CLICK))
+		if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
 		{
-			if (wParam == MK_LBUTTON) {
+			if (wParam == MK_LBUTTON)
+			{
 				const auto iLower = this->getRange(TRUE, nullptr);
 				const auto iHigher = this->getRange(FALSE, nullptr);
 
-				this->execAliasEx(TEXT("mousebar,%d,%d,%d,%d, %d"), getUserID(), getPredictedPos(lParam, iLower, iHigher), iLower, iHigher, getPosition());
+				this->execAliasEx(TEXT("mousebar,%u,%d,%d,%d, %d"), getUserID(), getPredictedPos(lParam, iLower, iHigher), iLower, iHigher, getPosition());
 			}
 		}
 	}
@@ -529,7 +567,7 @@ LRESULT DcxProgressBar::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 }
 
 
-int DcxProgressBar::CalculatePosition() const
+int DcxProgressBar::CalculatePosition() const noexcept
 {
 	const auto iPos = getPosition();
 
@@ -562,8 +600,8 @@ void DcxProgressBar::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 	{
 		DcxControl::DrawCtrlBackground(hdc, this, &rc);
 
-		auto clrStart = m_clrStartGradient;
-		auto clrEnd = m_clrEndGradient;
+		auto clrStart = getStartGradientColor();
+		auto clrEnd = getEndGradientColor();
 
 		if (clrEnd == CLR_INVALID)
 			clrEnd = GetSysColor(COLOR_GRADIENTACTIVECAPTION);
@@ -583,7 +621,7 @@ void DcxProgressBar::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 		}
 	}
 	else
-		CallDefaultProc(m_Hwnd, uMsg, (WPARAM)hdc, lParam);
+		CallDefaultClassProc(uMsg, (WPARAM)hdc, lParam);
 
 	if (!m_tsText.empty())
 	{
@@ -592,8 +630,8 @@ void DcxProgressBar::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 
 		COLORREF oldColour = CLR_INVALID;
 
-		if (m_clrText != CLR_INVALID)
-			oldColour = SetTextColor(hdc, m_clrText);
+		if (const auto clr = getTextColor(); clr != CLR_INVALID)
+			oldColour = SetTextColor(hdc, clr);
 
 		// used to calc text value on pbar
 		TString text;
@@ -603,8 +641,8 @@ void DcxProgressBar::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 
 		HFONT oldfont = nullptr;
 		// NEEDS FIXED: font selection needs looked at
-		if (m_hFont != nullptr)
-			oldfont = SelectFont(hdc, m_hFont);
+		if (const auto f = getControlFont(); f != nullptr)
+			oldfont = SelectFont(hdc, f);
 
 		// rect for text
 		auto rcText = rc;
@@ -638,4 +676,14 @@ void DcxProgressBar::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 		if (oldColour != CLR_INVALID)
 			SetTextColor(hdc, oldColour);
 	}
+}
+
+WNDPROC DcxProgressBar::m_hDefaultClassProc = nullptr;
+
+LRESULT DcxProgressBar::CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept
+{
+	if (m_hDefaultClassProc != nullptr)
+		return CallWindowProc(m_hDefaultClassProc, this->m_Hwnd, uMsg, wParam, lParam);
+
+	return DefWindowProc(this->m_Hwnd, uMsg, wParam, lParam);
 }

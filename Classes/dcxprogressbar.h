@@ -27,43 +27,49 @@ class DcxDialog;
  * blah
  */
 
-class DcxProgressBar : public DcxControl {
-
+class DcxProgressBar
+	: public DcxControl
+{
 public:
 	DcxProgressBar() = delete;
 	DcxProgressBar(const DcxProgressBar &) = delete;
 	DcxProgressBar &operator =(const DcxProgressBar &) = delete;	// No assignments!
+	DcxProgressBar(DcxProgressBar &&) = delete;
+	DcxProgressBar &operator =(DcxProgressBar &&) = delete;
 
 	DcxProgressBar(_In_ const UINT ID, _In_ DcxDialog *const p_Dialog, _In_ const HWND mParentHwnd, _In_ const RECT *const rc, _In_ const TString & styles);
-	virtual ~DcxProgressBar( );
+	~DcxProgressBar( );
 
-	LRESULT PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) override;
-	LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) override;
+	LRESULT PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) final;
+	LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) noexcept final;
 
-	//void parseInfoRequest(const TString & input, PTCHAR szReturnValue) const override;
-	void parseInfoRequest(const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const override;
-	void parseCommandRequest( const TString & input ) override;
-	//void parseControlStyles(const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme) override;
-	std::tuple<NoTheme, WindowStyle, WindowExStyle> parseControlStyles(const TString & tsStyles) override;
+	//void parseInfoRequest(const TString & input, PTCHAR szReturnValue) const final;
+	void parseInfoRequest(const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const final;
+	void parseCommandRequest( const TString & input ) final;
+	//void parseControlStyles(const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme) final;
+	std::tuple<NoTheme, WindowStyle, WindowExStyle> parseControlStyles(const TString & tsStyles) final;
 
-	LRESULT setPosition( const int nNewPos );
-	LRESULT setRange( const int iLowLim, const int iHighLim );
+	LRESULT setPosition( const int nNewPos ) noexcept;
+	LRESULT setRange( const int iLowLim, const int iHighLim ) noexcept;
 
-	LRESULT setMarquee( const BOOL fStart, const int fTime );
-	LRESULT stepIt( );
-	LRESULT setStep( const int nStepInc );
-	LRESULT setBarColor( const COLORREF clrBar );
-	LRESULT setBKColor( const COLORREF clrBk );
+	LRESULT setMarquee( const BOOL fStart, const int fTime ) noexcept;
+	LRESULT stepIt( ) noexcept;
+	LRESULT setStep( const int nStepInc ) noexcept;
+	LRESULT setBarColor( const COLORREF clrBar ) noexcept;
+	LRESULT setBKColor( const COLORREF clrBk ) noexcept;
 
 	LRESULT getPosition( ) const noexcept;
-	LRESULT getRange( const BOOL fWhichLimit, PPBRANGE ppBRange ) const noexcept;
+	LRESULT getRange( const BOOL fWhichLimit, const PPBRANGE ppBRange ) const noexcept;
 
-	const TString getStyles(void) const override;
+	const TString getStyles(void) const final;
 
-	void toXml(TiXmlElement *const xml) const override;
-	TiXmlElement * toXml(void) const override;
+	void toXml(TiXmlElement *const xml) const final;
+	TiXmlElement * toXml(void) const final;
 
-	auto getPredictedPos(LPARAM lParam, const int iLower, const int iHigher) const
+	static WNDPROC m_hDefaultClassProc;	//!< Default window procedure
+	LRESULT CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept final;
+
+	auto getPredictedPos(LPARAM lParam, const int iLower, const int iHigher) const noexcept
 	{
 		const auto nXPos = LOWORD(lParam);
 		const auto nYPos = HIWORD(lParam);
@@ -78,20 +84,19 @@ public:
 		}
 		return nPos;
 	}
-	inline const TString getType() const override { return TEXT("pbar"); };
-	inline const DcxControlTypes getControlType() const noexcept override { return DcxControlTypes::PROGRESSBAR; }
+	inline const TString getType() const final { return TEXT("pbar"); };
+	inline const DcxControlTypes getControlType() const noexcept final { return DcxControlTypes::PROGRESSBAR; }
 
 protected:
 
-	//COLORREF m_clrText;		//!< Caption Text Color
-	TString m_tsText;			//!< Caption Text
-	HFONT m_hfontVertical;
-	bool m_bIsAbsoluteValue;	//!< Caption Numerical Placeholder Format
-	bool m_bIsGrad;				//!< Draw Gradient?
-	bool m_bReserved[2];
-	//COLORREF m_clrGrad;		//!< Gradients Color
+	TString m_tsText;					//!< Caption Text
+	HFONT m_hfontVertical{ nullptr };
+	bool m_bIsAbsoluteValue{ false };	//!< Caption Numerical Placeholder Format
+	bool m_bIsGrad{ false };			//!< Draw Gradient?
+	bool m_bReserved[2]{ false };
+
 private:
-	int CalculatePosition(void) const;
+	int CalculatePosition(void) const noexcept;
 	void DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam);
 };
 

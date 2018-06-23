@@ -15,20 +15,18 @@
 #include "Classes/dcxstatusbar.h"
 #include "Classes/dcxdialog.h"
 
-/*!
- * \brief Constructor
- *
- * \param ID Control ID
- * \param p_Dialog Parent DcxDialog Object
- * \param mParentHwnd Parent Window Handle
- * \param rc Window Rectangle
- * \param styles Window Style Tokenized List
- */
+ /*!
+  * \brief Constructor
+  *
+  * \param ID Control ID
+  * \param p_Dialog Parent DcxDialog Object
+  * \param mParentHwnd Parent Window Handle
+  * \param rc Window Rectangle
+  * \param styles Window Style Tokenized List
+  */
 
-DcxStatusBar::DcxStatusBar(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles )
-: DcxControl( ID, p_Dialog )
-, m_hImageList(nullptr)
-, m_vParts()
+DcxStatusBar::DcxStatusBar(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles)
+	: DcxControl(ID, p_Dialog)
 {
 	const auto[bNoTheme, Styles, ExStyles] = parseControlStyles(styles);
 
@@ -38,23 +36,22 @@ DcxStatusBar::DcxStatusBar(const UINT ID, DcxDialog *const p_Dialog, const HWND 
 		Styles | WS_CHILD,
 		rc,
 		mParentHwnd,
-		ID);
+		ID,
+		this);
 
 	if (!IsWindow(m_Hwnd))
 		throw Dcx::dcxException("Unable To Create Window");
 
-	if ( bNoTheme )
-		Dcx::UXModule.dcxSetWindowTheme( m_Hwnd , L" ", L" " );
+	if (bNoTheme)
+		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
 
 	ZeroMemory(&m_iDynamicParts[0], sizeof(m_iDynamicParts));
 	ZeroMemory(&m_iFixedParts[0], sizeof(m_iFixedParts));
 
 	if (const auto h = rc->bottom - rc->top; h > 0)
-		SendMessage(m_Hwnd,SB_SETMINHEIGHT, gsl::narrow_cast<WPARAM>(h), 0);
+		SendMessage(m_Hwnd, SB_SETMINHEIGHT, gsl::narrow_cast<WPARAM>(h), 0);
 
-	setControlFont( GetStockFont( DEFAULT_GUI_FONT ), FALSE );
-	registreDefaultWindowProc( );
-	SetProp( m_Hwnd, TEXT("dcx_cthis"), (HANDLE) this );
+	setControlFont(GetStockFont(DEFAULT_GUI_FONT), FALSE);
 }
 
 /*!
@@ -63,15 +60,13 @@ DcxStatusBar::DcxStatusBar(const UINT ID, DcxDialog *const p_Dialog, const HWND 
  * blah
  */
 
-DcxStatusBar::~DcxStatusBar( )
+DcxStatusBar::~DcxStatusBar()
 {
 	for (const auto pPart : m_vParts)
 		delete pPart;
 
-	cleanPartIcons( );
-	ImageList_Destroy( getImageList( ) );
-
-	unregistreDefaultWindowProc( );
+	cleanPartIcons();
+	ImageList_Destroy(getImageList());
 }
 
 /*!
@@ -80,78 +75,78 @@ DcxStatusBar::~DcxStatusBar( )
  * blah
  */
 
-//void DcxStatusBar::parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme )
-//{
-//	for (const auto &tsStyle: styles)
-//	{
-//#if DCX_USE_HASHING
-//		switch (std::hash<TString>{}(tsStyle))
-//		{
-//			case L"grip"_hash:
-//				*Styles |= SBARS_SIZEGRIP;
-//				break;
-//			case L"tooltips"_hash:
-//				*Styles |= SBARS_TOOLTIPS;
-//				break;
-//			case L"nodivider"_hash:
-//				*Styles |= CCS_NODIVIDER;
-//				break;
-//			case L"top"_hash:
-//				{
-//					*Styles |= CCS_TOP;
-//					*Styles &= ~SBARS_SIZEGRIP; // size grip doesn't work for left or top styles.
-//				}
-//				break;
-//			case L"noresize"_hash:
-//				*Styles |= CCS_NORESIZE;
-//				break;
-//			case L"noparentalign"_hash:
-//				*Styles |= CCS_NOPARENTALIGN;
-//				break;
-//			case L"noauto"_hash:
-//				*Styles |= CCS_NOPARENTALIGN | CCS_NORESIZE;
-//				break;
-//			//case L"left"_hash:
-//			//{ // NB: left & right styles don't render the parts vertically.
-//			//	*Styles |= CCS_LEFT;
-//			//	*Styles &= ~SBARS_SIZEGRIP;
-//			//}
-//			//break;
-//			//case L"right"_hash:
-//			//	*Styles |= CCS_RIGHT;
-//			//	break;
-//			default:
-//				break;
-//		}
-//#else
-//		if (tsStyle == TEXT("grip"))
-//			*Styles |= SBARS_SIZEGRIP;
-//		else if (tsStyle == TEXT("tooltips"))
-//			*Styles |= SBARS_TOOLTIPS;
-//		else if (tsStyle == TEXT("nodivider"))
-//			*Styles |= CCS_NODIVIDER;
-//		else if (tsStyle == TEXT("top")) {
-//			*Styles |= CCS_TOP;
-//			*Styles &= ~SBARS_SIZEGRIP; // size grip doesn't work for left or top styles.
-//		}
-//		else if (tsStyle == TEXT("noresize"))
-//			*Styles |= CCS_NORESIZE;
-//		else if (tsStyle == TEXT("noparentalign"))
-//			*Styles |= CCS_NOPARENTALIGN;
-//		else if (tsStyle == TEXT("noauto"))
-//			*Styles |= CCS_NOPARENTALIGN | CCS_NORESIZE;
-//		//else if ( tsStyle == TEXT("left") )
-//		//{ // NB: left & right styles don't render the parts vertically.
-//		//	*Styles |= CCS_LEFT;
-//		//	*Styles &= ~SBARS_SIZEGRIP;
-//		//}
-//		//else if ( tsStyle == TEXT("right") )
-//		//	*Styles |= CCS_RIGHT;
-//#endif
-//	}
-//
-//	parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
-//}
+ //void DcxStatusBar::parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme )
+ //{
+ //	for (const auto &tsStyle: styles)
+ //	{
+ //#if DCX_USE_HASHING
+ //		switch (std::hash<TString>{}(tsStyle))
+ //		{
+ //			case L"grip"_hash:
+ //				*Styles |= SBARS_SIZEGRIP;
+ //				break;
+ //			case L"tooltips"_hash:
+ //				*Styles |= SBARS_TOOLTIPS;
+ //				break;
+ //			case L"nodivider"_hash:
+ //				*Styles |= CCS_NODIVIDER;
+ //				break;
+ //			case L"top"_hash:
+ //				{
+ //					*Styles |= CCS_TOP;
+ //					*Styles &= ~SBARS_SIZEGRIP; // size grip doesn't work for left or top styles.
+ //				}
+ //				break;
+ //			case L"noresize"_hash:
+ //				*Styles |= CCS_NORESIZE;
+ //				break;
+ //			case L"noparentalign"_hash:
+ //				*Styles |= CCS_NOPARENTALIGN;
+ //				break;
+ //			case L"noauto"_hash:
+ //				*Styles |= CCS_NOPARENTALIGN | CCS_NORESIZE;
+ //				break;
+ //			//case L"left"_hash:
+ //			//{ // NB: left & right styles don't render the parts vertically.
+ //			//	*Styles |= CCS_LEFT;
+ //			//	*Styles &= ~SBARS_SIZEGRIP;
+ //			//}
+ //			//break;
+ //			//case L"right"_hash:
+ //			//	*Styles |= CCS_RIGHT;
+ //			//	break;
+ //			default:
+ //				break;
+ //		}
+ //#else
+ //		if (tsStyle == TEXT("grip"))
+ //			*Styles |= SBARS_SIZEGRIP;
+ //		else if (tsStyle == TEXT("tooltips"))
+ //			*Styles |= SBARS_TOOLTIPS;
+ //		else if (tsStyle == TEXT("nodivider"))
+ //			*Styles |= CCS_NODIVIDER;
+ //		else if (tsStyle == TEXT("top")) {
+ //			*Styles |= CCS_TOP;
+ //			*Styles &= ~SBARS_SIZEGRIP; // size grip doesn't work for left or top styles.
+ //		}
+ //		else if (tsStyle == TEXT("noresize"))
+ //			*Styles |= CCS_NORESIZE;
+ //		else if (tsStyle == TEXT("noparentalign"))
+ //			*Styles |= CCS_NOPARENTALIGN;
+ //		else if (tsStyle == TEXT("noauto"))
+ //			*Styles |= CCS_NOPARENTALIGN | CCS_NORESIZE;
+ //		//else if ( tsStyle == TEXT("left") )
+ //		//{ // NB: left & right styles don't render the parts vertically.
+ //		//	*Styles |= CCS_LEFT;
+ //		//	*Styles &= ~SBARS_SIZEGRIP;
+ //		//}
+ //		//else if ( tsStyle == TEXT("right") )
+ //		//	*Styles |= CCS_RIGHT;
+ //#endif
+ //	}
+ //
+ //	parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
+ //}
 
 std::tuple<NoTheme, WindowStyle, WindowExStyle> DcxStatusBar::parseControlStyles(const TString & tsStyles)
 {
@@ -211,7 +206,7 @@ std::tuple<NoTheme, WindowStyle, WindowExStyle> DcxStatusBar::parseControlStyles
  * \return > void
  */
 
-void DcxStatusBar::parseInfoRequest( const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const
+void DcxStatusBar::parseInfoRequest(const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const
 {
 	const auto numtok = input.numtok();
 
@@ -312,15 +307,18 @@ void DcxStatusBar::deletePartInfo(const int iPart)
  * blah
  */
 
-void DcxStatusBar::parseCommandRequest( const TString & input )
+void DcxStatusBar::parseCommandRequest(const TString & input)
 {
-	const XSwitchFlags flags(input.getfirsttok( 3 ));
+	const XSwitchFlags flags(input.getfirsttok(3));
 
 	const auto numtok = input.numtok();
 
 	// xdid -k [NAME] [ID] [SWITCH] [COLOR]
-	if (flags[TEXT('k')] && numtok > 3)
+	if (flags[TEXT('k')])
 	{
+		if (numtok < 4)
+			throw Dcx::dcxException("Insufficient parameters");
+
 		const auto col = input.getnexttok().to_<COLORREF>();	// tok 4
 		if (col == CLR_INVALID)
 			this->setBkColor(CLR_DEFAULT);
@@ -328,8 +326,11 @@ void DcxStatusBar::parseCommandRequest( const TString & input )
 			this->setBkColor(col);
 	}
 	// xdid -l -> [NAME] [ID] -l [POS [POS POS ...]]
-	else if ( flags[TEXT('l')] && numtok > 3 )
+	else if (flags[TEXT('l')])
 	{
+		if (numtok < 4)
+			throw Dcx::dcxException("Insufficient parameters");
+
 		const auto nParts = numtok - 3;
 		auto parts = std::make_unique<INT[]>(DCX_STATUSBAR_MAX_PARTS);
 
@@ -340,7 +341,7 @@ void DcxStatusBar::parseCommandRequest( const TString & input )
 			if (c >= 100)
 				throw Dcx::dcxException("Can't Allocate Over 100% of Statusbar!");
 
-			p = input.getnexttok( );	// tok i+4
+			p = input.getnexttok();	// tok i+4
 			const auto t = p.to_int();
 
 			if (p.right(1) == TEXT('%'))
@@ -353,36 +354,39 @@ void DcxStatusBar::parseCommandRequest( const TString & input )
 
 			parts[i] = t;
 		}
-		setParts( nParts, parts.get() );
+		setParts(nParts, parts.get());
 		updateParts();
 	}
 	// xdid -t [NAME] [ID] [SWITCH] N [+FLAGS] [#ICON] [Cell Text][TAB]Tooltip Text
 	// xdid -t [NAME] [ID] [SWITCH] N [+c] [#ICON] [CID] [CTRL] [X] [Y] [W] [H] (OPTIONS)
 	// xdid -t [NAME] [ID] [SWITCH] N [+f] [#ICON] (TEXT)[TAB]Tooltip Text
-	else if ( flags[TEXT('t')] && numtok > 5 )
+	else if (flags[TEXT('t')])
 	{
+		if (numtok < 6)
+			throw Dcx::dcxException("Insufficient parameters");
+
 		const auto nPos = input.getnexttok().to_int() - 1;	// tok 4
 		const auto flag(input.getnexttok());			// tok 5
 		const auto icon = input.getnexttok().to_int() - 1;	// tok 6
 		const auto tsTabOne(input.getfirsttok(1, TSTABCHAR).trim());
 		const auto tsTabTwo(input.getlasttoks().trim());
 
-		if ( nPos < 0 || nPos >= this->getParts(DCX_STATUSBAR_MAX_PARTS, 0 ) )
+		if (nPos < 0 || nPos >= this->getParts(DCX_STATUSBAR_MAX_PARTS, 0))
 			throw Dcx::dcxException("Invalid Part");
 
 		TString itemtext;
 		TString tooltip;
 
 		deletePartInfo(nPos); // delete custom info if any.
-		DestroyIcon( getIcon( nPos ) ); // delete any icon for this part.
-		setIcon( nPos, nullptr ); // set as no icon.
+		DestroyIcon(getIcon(nPos)); // delete any icon for this part.
+		setIcon(nPos, nullptr); // set as no icon.
 
 		const auto iFlags = parseItemFlags(flag);
 
-		if ( tsTabOne.numtok( ) > 6 )
+		if (tsTabOne.numtok() > 6)
 			itemtext = tsTabOne.gettok(7, -1).trim();
 
-		if ( !tsTabTwo.empty() )
+		if (!tsTabTwo.empty())
 			tooltip = tsTabTwo;
 
 		if (dcx_testflag(iFlags, SBT_OWNERDRAW))
@@ -391,31 +395,31 @@ void DcxStatusBar::parseCommandRequest( const TString & input )
 
 			pPart->m_xChild = nullptr;
 			pPart->m_xiIcon = icon;
-			if (flag.find(TEXT('f'),0)) { // mIRC formatted text
+			if (flag.find(TEXT('f'), 0)) { // mIRC formatted text
 				pPart->m_xText = itemtext;
-				setTipText( nPos, tooltip.to_chr( ) );
+				setTipText(nPos, tooltip.to_chr());
 			}
 			else { // child control
-				auto p_Control = m_pParentDialog->addControl(itemtext, 1,
-					CTLF_ALLOW_PBAR|CTLF_ALLOW_TRACKBAR|CTLF_ALLOW_COMBOEX|/*CTLF_ALLOW_COLORCOMBO|*/
-					CTLF_ALLOW_STATUSBAR|CTLF_ALLOW_TOOLBAR|
-					CTLF_ALLOW_TREEVIEW|CTLF_ALLOW_LISTVIEW|CTLF_ALLOW_REBAR|
-					CTLF_ALLOW_BUTTON|/*CTLF_ALLOW_RICHEDIT|*/CTLF_ALLOW_EDIT|
-					CTLF_ALLOW_UPDOWN|CTLF_ALLOW_IPADDRESS|CTLF_ALLOW_WEBCTRL|
-					CTLF_ALLOW_CALANDER|CTLF_ALLOW_DIVIDER|CTLF_ALLOW_PANEL|
-					CTLF_ALLOW_TAB|CTLF_ALLOW_LINE|CTLF_ALLOW_BOX|CTLF_ALLOW_RADIO|
-					CTLF_ALLOW_CHECK|CTLF_ALLOW_TEXT|CTLF_ALLOW_SCROLL|CTLF_ALLOW_LIST|
-					CTLF_ALLOW_LINK|CTLF_ALLOW_IMAGE|CTLF_ALLOW_PAGER|CTLF_ALLOW_DATETIME|
-					CTLF_ALLOW_STACKER|CTLF_ALLOW_DIRECTSHOW,
+				auto p_Control = getParentDialog()->addControl(itemtext, 1,
+					CTLF_ALLOW_PBAR | CTLF_ALLOW_TRACKBAR | CTLF_ALLOW_COMBOEX |/*CTLF_ALLOW_COLORCOMBO|*/
+					CTLF_ALLOW_STATUSBAR | CTLF_ALLOW_TOOLBAR |
+					CTLF_ALLOW_TREEVIEW | CTLF_ALLOW_LISTVIEW | CTLF_ALLOW_REBAR |
+					CTLF_ALLOW_BUTTON |/*CTLF_ALLOW_RICHEDIT|*/CTLF_ALLOW_EDIT |
+					CTLF_ALLOW_UPDOWN | CTLF_ALLOW_IPADDRESS | CTLF_ALLOW_WEBCTRL |
+					CTLF_ALLOW_CALANDER | CTLF_ALLOW_DIVIDER | CTLF_ALLOW_PANEL |
+					CTLF_ALLOW_TAB | CTLF_ALLOW_LINE | CTLF_ALLOW_BOX | CTLF_ALLOW_RADIO |
+					CTLF_ALLOW_CHECK | CTLF_ALLOW_TEXT | CTLF_ALLOW_SCROLL | CTLF_ALLOW_LIST |
+					CTLF_ALLOW_LINK | CTLF_ALLOW_IMAGE | CTLF_ALLOW_PAGER | CTLF_ALLOW_DATETIME |
+					CTLF_ALLOW_STACKER | CTLF_ALLOW_DIRECTSHOW,
 					m_Hwnd);
 
 				pPart->m_xChild = p_Control;
-				ShowWindow(p_Control->getHwnd(),SW_HIDE); // hide control untill a WM_DRAWITEM is recieved.
-				SendMessage(m_Hwnd,WM_SIZE,0,0);
+				ShowWindow(p_Control->getHwnd(), SW_HIDE); // hide control untill a WM_DRAWITEM is recieved.
+				SendMessage(m_Hwnd, WM_SIZE, 0, 0);
 
 				//const auto ID = mIRC_ID_OFFSET + (UINT)itemtext.gettok(1).to_int();
 				//
-				//if (!this->m_pParentDialog->isIDValid(ID, true))
+				//if (!this->getParentDialog()->isIDValid(ID, true))
 				//	throw Dcx::dcxException(TEXT("Control with ID \"%\" already exists"), ID - mIRC_ID_OFFSET);
 				//
 				//try {
@@ -432,7 +436,7 @@ void DcxStatusBar::parseCommandRequest( const TString & input )
 				//						CTLF_ALLOW_STACKER|CTLF_ALLOW_DIRECTSHOW,m_Hwnd);
 				//
 				//	// problems with colorcombo/richedit, causes odd gfx glitches & dialog slow down.
-				//	this->m_pParentDialog->addControl( p_Control );
+				//	this->getParentDialog()->addControl( p_Control );
 				//	pPart->m_xChild = p_Control;
 				//	ShowWindow(p_Control->getHwnd(),SW_HIDE); // hide control untill a WM_DRAWITEM is recieved.
 				//	SendMessage(m_Hwnd,WM_SIZE,0,0);
@@ -442,30 +446,33 @@ void DcxStatusBar::parseCommandRequest( const TString & input )
 				//	throw;
 				//}
 			}
-			setPartInfo( nPos, iFlags, pPart.release() );
+			setPartInfo(nPos, iFlags, pPart.release());
 		}
 		else {
 
-			if ( icon != -1 )
-				setIcon( nPos, ImageList_GetIcon( getImageList( ), icon, ILD_TRANSPARENT ) );
+			if (icon != -1)
+				setIcon(nPos, ImageList_GetIcon(getImageList(), icon, ILD_TRANSPARENT));
 
-			setText( nPos, iFlags, itemtext.to_chr( ) );
-			setTipText( nPos, tooltip.to_chr( ) );
+			setText(nPos, iFlags, itemtext.to_chr());
+			setTipText(nPos, tooltip.to_chr());
 		}
 	}
 	// xdid -v [NAME] [ID] [SWITCH] [N] (TEXT)
-	else if ( flags[TEXT('v')] && numtok > 3 )
+	else if (flags[TEXT('v')])
 	{
+		if (numtok < 4)
+			throw Dcx::dcxException("Insufficient parameters");
+
 		const auto nPos = input.getnexttok().to_int() - 1;	// tok 4
 
 		if (nPos < 0 || nPos >= this->getParts(DCX_STATUSBAR_MAX_PARTS, 0))
 			throw Dcx::dcxException("Invalid Part");
 
 		TString itemtext;
-		if ( numtok > 4 )
+		if (numtok > 4)
 			itemtext = input.getlasttoks();	// tok 5, -1
 
-		if (dcx_testflag(HIWORD( getTextLength( nPos ) ), SBT_OWNERDRAW))
+		if (dcx_testflag(HIWORD(getTextLength(nPos)), SBT_OWNERDRAW))
 		{
 			if (auto pPart = reinterpret_cast<LPSB_PARTINFOX>(getText(nPos, nullptr)); pPart != nullptr)
 			{
@@ -475,12 +482,15 @@ void DcxStatusBar::parseCommandRequest( const TString & input )
 		}
 		else {
 			auto text = std::make_unique<TCHAR[]>(MIRC_BUFFER_SIZE_CCH);
-			setText( nPos, HIWORD( getText( nPos, text.get() ) ), itemtext.to_chr( ) );
+			setText(nPos, HIWORD(getText(nPos, text.get())), itemtext.to_chr());
 		}
 	}
 	// xdid -w [NAME] [ID] [SWITCH] [FLAGS] [INDEX] [FILENAME]
-	else if (flags[TEXT('w')] && numtok > 5)
+	else if (flags[TEXT('w')])
 	{
+		if (numtok < 6)
+			throw Dcx::dcxException("Insufficient parameters");
+
 		const auto flag(input.getnexttok());			// tok 4
 		const auto index = input.getnexttok().to_int();		// tok 5
 		auto filename(input.getlasttoks());				// tok 6, -1
@@ -499,27 +509,27 @@ void DcxStatusBar::parseCommandRequest( const TString & input )
 			throw Dcx::dcxException("Unable to get imagelist");
 
 #if DCX_USE_WRAPPERS
-		Dcx::dcxIconResource icon(index, filename, false, flag);
+		const Dcx::dcxIconResource icon(index, filename, false, flag);
 
-		ImageList_AddIcon(himl, icon);
+		ImageList_AddIcon(himl, icon.get());
 #else
 		HICON icon = dcxLoadIcon(index, filename, false, flag);
-		
+
 		if (icon == nullptr)
 			throw Dcx::dcxException("Unable to load icon");
-		
+
 		ImageList_AddIcon(himl, icon);
 		DestroyIcon(icon);
 #endif
 	}
 	// xdid -y [NAME] [ID] [SWITCH] [+FLAGS]
-	else if ( flags[TEXT('y')] )
+	else if (flags[TEXT('y')])
 	{
-		ImageList_Destroy( getImageList( ) );
+		ImageList_Destroy(getImageList());
 		setImageList(nullptr);
 	}
 	else
-		parseGlobalCommandRequest( input, flags );
+		parseGlobalCommandRequest(input, flags);
 }
 
 /*!
@@ -528,9 +538,9 @@ void DcxStatusBar::parseCommandRequest( const TString & input )
  * blah
  */
 
-HIMAGELIST DcxStatusBar::getImageList( ) const noexcept
+HIMAGELIST DcxStatusBar::getImageList() const noexcept
 {
-  return m_hImageList;
+	return m_hImageList;
 }
 
 /*!
@@ -539,9 +549,9 @@ HIMAGELIST DcxStatusBar::getImageList( ) const noexcept
  * blah
  */
 
-void DcxStatusBar::setImageList( HIMAGELIST himl )
+void DcxStatusBar::setImageList(const HIMAGELIST himl) noexcept
 {
-  m_hImageList = himl;
+	m_hImageList = himl;
 }
 
 /*!
@@ -550,24 +560,24 @@ void DcxStatusBar::setImageList( HIMAGELIST himl )
  * blah
  */
 
-//HIMAGELIST DcxStatusBar::createImageList( )
-//{
-//  return ImageList_Create( 16, 16, ILC_COLOR32|ILC_MASK, 1, 0 );
-//}
+ //HIMAGELIST DcxStatusBar::createImageList( )
+ //{
+ //  return ImageList_Create( 16, 16, ILC_COLOR32|ILC_MASK, 1, 0 );
+ //}
 
-/*!
- * \brief blah
- *
- * blah
- */
+ /*!
+  * \brief blah
+  *
+  * blah
+  */
 
-UINT DcxStatusBar::parseItemFlags( const TString & flags )
+UINT DcxStatusBar::parseItemFlags(const TString & flags) noexcept
 {
 	const XSwitchFlags xflags(flags);
 	UINT iFlags = 0;
 
 	// no +sign, missing params
-	if ( !xflags[TEXT('+')] ) 
+	if (!xflags[TEXT('+')])
 		return iFlags;
 
 	if (xflags[TEXT('n')])
@@ -588,10 +598,10 @@ UINT DcxStatusBar::parseItemFlags( const TString & flags )
  * blah
  */
 
-void DcxStatusBar::cleanPartIcons( )
+void DcxStatusBar::cleanPartIcons() noexcept
 {
 	for (auto n = 0; n < DCX_STATUSBAR_MAX_PARTS; ++n)
-		DestroyIcon( getIcon( n ) );
+		DestroyIcon(getIcon(n));
 }
 
 void DcxStatusBar::toXml(TiXmlElement *const xml) const
@@ -637,9 +647,9 @@ const TString DcxStatusBar::getStyles(void) const
  * blah
  */
 
-LRESULT DcxStatusBar::setParts( const int nParts, const LPINT aWidths )
+LRESULT DcxStatusBar::setParts(const int nParts, const LPINT aWidths) noexcept
 {
-  return SendMessage( m_Hwnd, SB_SETPARTS, gsl::narrow_cast<WPARAM>(nParts), (LPARAM) aWidths );
+	return SendMessage(m_Hwnd, SB_SETPARTS, gsl::narrow_cast<WPARAM>(nParts), (LPARAM)aWidths);
 }
 
 /*!
@@ -648,9 +658,9 @@ LRESULT DcxStatusBar::setParts( const int nParts, const LPINT aWidths )
  * blah
  */
 
-LRESULT DcxStatusBar::getParts( const int nParts, LPINT aWidths ) const
+LRESULT DcxStatusBar::getParts(const int nParts, LPINT aWidths) const noexcept
 {
-  return SendMessage( m_Hwnd, SB_GETPARTS, gsl::narrow_cast<WPARAM>(nParts), (LPARAM) aWidths );
+	return SendMessage(m_Hwnd, SB_GETPARTS, gsl::narrow_cast<WPARAM>(nParts), (LPARAM)aWidths);
 }
 
 /*!
@@ -659,9 +669,9 @@ LRESULT DcxStatusBar::getParts( const int nParts, LPINT aWidths ) const
  * blah
  */
 
-LRESULT DcxStatusBar::getBorders( LPINT aWidths ) const
+LRESULT DcxStatusBar::getBorders(LPINT aWidths) const noexcept
 {
-  return SendMessage( m_Hwnd, SB_GETBORDERS, 0U, (LPARAM) aWidths );
+	return SendMessage(m_Hwnd, SB_GETBORDERS, 0U, (LPARAM)aWidths);
 }
 
 /*!
@@ -670,9 +680,9 @@ LRESULT DcxStatusBar::getBorders( LPINT aWidths ) const
  * blah
  */
 
-LRESULT DcxStatusBar::setBkColor( const COLORREF clrBk )
+LRESULT DcxStatusBar::setBkColor(const COLORREF clrBk) noexcept
 {
-  return SendMessage( m_Hwnd, SB_SETBKCOLOR, 0U, gsl::narrow_cast<LPARAM>(clrBk) );
+	return SendMessage(m_Hwnd, SB_SETBKCOLOR, 0U, gsl::narrow_cast<LPARAM>(clrBk));
 }
 
 /*!
@@ -681,9 +691,9 @@ LRESULT DcxStatusBar::setBkColor( const COLORREF clrBk )
  * blah
  */
 
-LRESULT DcxStatusBar::setText( const int iPart, const int Style, const PTCHAR lpstr )
+LRESULT DcxStatusBar::setText(const int iPart, const int Style, const PTCHAR lpstr) noexcept
 {
-  return SendMessage( m_Hwnd, SB_SETTEXT, gsl::narrow_cast<WPARAM>(iPart) | Style, (LPARAM) lpstr );
+	return SendMessage(m_Hwnd, SB_SETTEXT, gsl::narrow_cast<WPARAM>(iPart) | Style, (LPARAM)lpstr);
 }
 
 /*!
@@ -692,9 +702,9 @@ LRESULT DcxStatusBar::setText( const int iPart, const int Style, const PTCHAR lp
  * blah
  */
 
-LRESULT DcxStatusBar::setPartInfo( const int iPart, const int Style, gsl::owner<const LPSB_PARTINFOX> pPart)
+LRESULT DcxStatusBar::setPartInfo(const int iPart, const int Style, gsl::owner<const LPSB_PARTINFOX> pPart) noexcept
 {
-  return SendMessage( m_Hwnd, SB_SETTEXT, gsl::narrow_cast<WPARAM>(iPart) | (Style | SBT_OWNERDRAW), reinterpret_cast<LPARAM>(pPart) );
+	return SendMessage(m_Hwnd, SB_SETTEXT, gsl::narrow_cast<WPARAM>(iPart) | (Style | SBT_OWNERDRAW), reinterpret_cast<LPARAM>(pPart));
 }
 
 /*!
@@ -703,9 +713,9 @@ LRESULT DcxStatusBar::setPartInfo( const int iPart, const int Style, gsl::owner<
  * blah
  */
 
-LRESULT DcxStatusBar::getText( const int iPart, PTCHAR lpstr ) const
+LRESULT DcxStatusBar::getText(const int iPart, PTCHAR lpstr) const noexcept
 {
-  return SendMessage( m_Hwnd, SB_GETTEXT, gsl::narrow_cast<WPARAM>(iPart), (LPARAM) lpstr );
+	return SendMessage(m_Hwnd, SB_GETTEXT, gsl::narrow_cast<WPARAM>(iPart), (LPARAM)lpstr);
 }
 
 /*!
@@ -714,9 +724,9 @@ LRESULT DcxStatusBar::getText( const int iPart, PTCHAR lpstr ) const
  * blah
  */
 
-LRESULT DcxStatusBar::getTextLength( const int iPart ) const
+LRESULT DcxStatusBar::getTextLength(const int iPart) const noexcept
 {
-  return SendMessage( m_Hwnd, SB_GETTEXTLENGTH, gsl::narrow_cast<WPARAM>(iPart), (LPARAM) 0 );
+	return SendMessage(m_Hwnd, SB_GETTEXTLENGTH, gsl::narrow_cast<WPARAM>(iPart), (LPARAM)0);
 }
 
 /*!
@@ -725,9 +735,9 @@ LRESULT DcxStatusBar::getTextLength( const int iPart ) const
  * blah
  */
 
-LRESULT DcxStatusBar::setTipText( const int iPart, const PTCHAR lpstr )
+LRESULT DcxStatusBar::setTipText(const int iPart, const PTCHAR lpstr) noexcept
 {
-  return SendMessage( m_Hwnd, SB_SETTIPTEXT, gsl::narrow_cast<WPARAM>(iPart), (LPARAM) lpstr );
+	return SendMessage(m_Hwnd, SB_SETTIPTEXT, gsl::narrow_cast<WPARAM>(iPart), (LPARAM)lpstr);
 }
 
 /*!
@@ -736,9 +746,9 @@ LRESULT DcxStatusBar::setTipText( const int iPart, const PTCHAR lpstr )
  * blah
  */
 
-LRESULT DcxStatusBar::getTipText( const int iPart, const int nSize, PTCHAR lpstr ) const
+LRESULT DcxStatusBar::getTipText(const int iPart, const int nSize, PTCHAR lpstr) const noexcept
 {
-  return SendMessage( m_Hwnd, SB_GETTIPTEXT, MAKEWPARAM (iPart, nSize), (LPARAM) lpstr );
+	return SendMessage(m_Hwnd, SB_GETTIPTEXT, MAKEWPARAM(iPart, nSize), (LPARAM)lpstr);
 }
 
 /*!
@@ -747,9 +757,9 @@ LRESULT DcxStatusBar::getTipText( const int iPart, const int nSize, PTCHAR lpstr
  * blah
  */
 
-LRESULT DcxStatusBar::getRect( const int iPart, gsl::not_null<LPRECT> lprc ) const
+LRESULT DcxStatusBar::getRect(const int iPart, gsl::not_null<LPRECT> lprc) const noexcept
 {
-  return SendMessage( m_Hwnd, SB_GETRECT, gsl::narrow_cast<WPARAM>(iPart), reinterpret_cast<LPARAM>(lprc.get()) );
+	return SendMessage(m_Hwnd, SB_GETRECT, gsl::narrow_cast<WPARAM>(iPart), reinterpret_cast<LPARAM>(lprc.get()));
 }
 
 /*!
@@ -758,9 +768,9 @@ LRESULT DcxStatusBar::getRect( const int iPart, gsl::not_null<LPRECT> lprc ) con
  * blah
  */
 
-LRESULT DcxStatusBar::setIcon( const int iPart, const HICON hIcon )
+LRESULT DcxStatusBar::setIcon(const int iPart, const HICON hIcon) noexcept
 {
-  return SendMessage( m_Hwnd, SB_SETICON, gsl::narrow_cast<WPARAM>(iPart), (LPARAM) hIcon );
+	return SendMessage(m_Hwnd, SB_SETICON, gsl::narrow_cast<WPARAM>(iPart), (LPARAM)hIcon);
 }
 
 /*!
@@ -769,9 +779,9 @@ LRESULT DcxStatusBar::setIcon( const int iPart, const HICON hIcon )
  * blah
  */
 
-HICON DcxStatusBar::getIcon( const int iPart ) const
+HICON DcxStatusBar::getIcon(const int iPart) const noexcept
 {
-  return reinterpret_cast<HICON>(SendMessage( m_Hwnd, SB_GETICON, gsl::narrow_cast<WPARAM>(iPart), (LPARAM) 0 ));
+	return reinterpret_cast<HICON>(SendMessage(m_Hwnd, SB_GETICON, gsl::narrow_cast<WPARAM>(iPart), (LPARAM)0));
 }
 
 /*!
@@ -780,7 +790,7 @@ HICON DcxStatusBar::getIcon( const int iPart ) const
 * blah
 */
 
-UINT DcxStatusBar::getPartFlags(const int iPart) const
+UINT DcxStatusBar::getPartFlags(const int iPart) const noexcept
 {
 	return gsl::narrow_cast<UINT>(HIWORD(SendMessage(m_Hwnd, SB_GETTEXTLENGTH, gsl::narrow_cast<WPARAM>(iPart), NULL)));
 }
@@ -791,16 +801,15 @@ UINT DcxStatusBar::getPartFlags(const int iPart) const
  * blah
  */
 
-int DcxStatusBar::hitTest( const POINT & pt ) const
+int DcxStatusBar::hitTest(const POINT & pt) const noexcept
 {
-
 	RECT rc = { 0 };
 	const auto nParts = getParts(DCX_STATUSBAR_MAX_PARTS, 0);
 
-	for (auto n = decltype(nParts){0}; n < nParts; n++)
+	for (auto n = decltype(nParts){0}; n < nParts; ++n)
 	{
-		getRect( n, &rc );
-		if ( PtInRect( &rc, pt ) )
+		getRect(n, &rc);
+		if (PtInRect(&rc, pt))
 			return n;
 	}
 	return -1;
@@ -826,20 +835,20 @@ LRESULT DcxStatusBar::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 		{
 		case NM_CLICK:
 		{
-			if (dcx_testflag(this->m_pParentDialog->getEventMask(), DCX_EVENT_CLICK))
+			if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
 			{
 #if DCX_USE_WRAPPERS
-				Dcx::dcxCursorPos pt(m_Hwnd);
+				const Dcx::dcxCursorPos pt(m_Hwnd);
 
 				if (const auto cell = this->hitTest(pt); cell != -1)
-					this->execAliasEx(TEXT("%s,%d,%d"), TEXT("sclick"), this->getUserID(), cell + 1);
+					this->execAliasEx(TEXT("sclick,%u,%d"), getUserID(), cell + 1);
 #else
 				if (POINT pt{}; GetCursorPos(&pt))
 				{
 					MapWindowPoints(nullptr, m_Hwnd, &pt, 1);
 
 					if (const auto cell = this->hitTest(pt); cell != -1)
-						this->execAliasEx(TEXT("%s,%d,%d"), TEXT("sclick"), this->getUserID(), cell + 1);
+						this->execAliasEx(TEXT("sclick,%u,%d"), getUserID(), cell + 1);
 				}
 #endif
 			}
@@ -849,20 +858,20 @@ LRESULT DcxStatusBar::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 
 		case NM_RCLICK:
 		{
-			if (dcx_testflag(this->m_pParentDialog->getEventMask(), DCX_EVENT_CLICK))
+			if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
 			{
 #if DCX_USE_WRAPPERS
-				Dcx::dcxCursorPos pt(m_Hwnd);
+				const Dcx::dcxCursorPos pt(m_Hwnd);
 
 				if (const auto cell = this->hitTest(pt); cell != -1)
-					this->execAliasEx(TEXT("%s,%d,%d"), TEXT("rclick"), this->getUserID(), cell + 1);
+					this->execAliasEx(TEXT("rclick,%u,%d"), getUserID(), cell + 1);
 #else
 				if (POINT pt{}; GetCursorPos(&pt))
 				{
 					MapWindowPoints(nullptr, m_Hwnd, &pt, 1);
 
 					if (const auto cell = this->hitTest(pt); cell != -1)
-						this->execAliasEx(TEXT("%s,%d,%d"), TEXT("rclick"), this->getUserID(), cell + 1);
+						this->execAliasEx(TEXT("rclick,%u,%d"), getUserID(), cell + 1);
 				}
 #endif
 			}
@@ -872,20 +881,20 @@ LRESULT DcxStatusBar::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 
 		case NM_DBLCLK:
 		{
-			if (dcx_testflag(this->m_pParentDialog->getEventMask(), DCX_EVENT_CLICK))
+			if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
 			{
 #if DCX_USE_WRAPPERS
-				Dcx::dcxCursorPos pt(m_Hwnd);
+				const Dcx::dcxCursorPos pt(m_Hwnd);
 
 				if (const auto cell = this->hitTest(pt); cell != -1)
-					this->execAliasEx(TEXT("%s,%d,%d"), TEXT("dclick"), this->getUserID(), cell + 1);
+					this->execAliasEx(TEXT("dclick,%u,%d"), getUserID(), cell + 1);
 #else
 				if (POINT pt{}; GetCursorPos(&pt))
 				{
 					MapWindowPoints(nullptr, m_Hwnd, &pt, 1);
 
 					if (const auto cell = this->hitTest(pt); cell != -1)
-						this->execAliasEx(TEXT("%s,%d,%d"), TEXT("dclick"), this->getUserID(), cell + 1);
+						this->execAliasEx(TEXT("dclick,%u,%d"), getUserID(), cell + 1);
 				}
 #endif
 			}
@@ -904,7 +913,7 @@ LRESULT DcxStatusBar::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 		{
 			bParsed = TRUE;
 
-			if (const auto pPart = reinterpret_cast<LPSB_PARTINFOX>(lpDrawItem->itemData); pPart != nullptr)
+			if (const auto *const pPart = reinterpret_cast<LPSB_PARTINFOX>(lpDrawItem->itemData); pPart != nullptr)
 			{
 				auto rc = lpDrawItem->rcItem;
 
@@ -947,7 +956,7 @@ LRESULT DcxStatusBar::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
 	{
 		if (IsWindow((HWND)lParam))
 		{
-			if (auto c_this = reinterpret_cast<DcxControl *>(GetProp((HWND)lParam, TEXT("dcx_cthis"))); c_this != nullptr)
+			if (const auto c_this = static_cast<DcxControl *>(GetProp((HWND)lParam, TEXT("dcx_cthis"))); c_this != nullptr)
 				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 		}
 	}
@@ -959,7 +968,7 @@ LRESULT DcxStatusBar::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
 
 		if ((idata != nullptr) && (IsWindow(idata->hwndItem)))
 		{
-			if (auto c_this = reinterpret_cast<DcxControl *>(GetProp(idata->hwndItem, TEXT("dcx_cthis"))); c_this != nullptr)
+			if (const auto c_this = static_cast<DcxControl *>(GetProp(idata->hwndItem, TEXT("dcx_cthis"))); c_this != nullptr)
 				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 		}
 	}
@@ -971,7 +980,7 @@ LRESULT DcxStatusBar::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
 
 		if ((idata != nullptr) && (IsWindow(idata->hwndItem)))
 		{
-			if (auto c_this = reinterpret_cast<DcxControl *>(GetProp(idata->hwndItem, TEXT("dcx_cthis"))); c_this != nullptr)
+			if (const auto c_this = static_cast<DcxControl *>(GetProp(idata->hwndItem, TEXT("dcx_cthis"))); c_this != nullptr)
 				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 		}
 	}
@@ -979,9 +988,9 @@ LRESULT DcxStatusBar::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
 
 	case WM_MEASUREITEM:
 	{
-		if (auto cHwnd = GetDlgItem(m_Hwnd, wParam); IsWindow(cHwnd))
+		if (const auto cHwnd = GetDlgItem(m_Hwnd, wParam); IsWindow(cHwnd))
 		{
-			if (auto c_this = reinterpret_cast<DcxControl *>(GetProp(cHwnd, TEXT("dcx_cthis"))); c_this != nullptr)
+			if (const auto c_this = static_cast<DcxControl *>(GetProp(cHwnd, TEXT("dcx_cthis"))); c_this != nullptr)
 				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 		}
 	}
@@ -993,7 +1002,7 @@ LRESULT DcxStatusBar::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
 
 		if ((idata != nullptr) && (IsWindow(idata->hwndItem)))
 		{
-			if (auto c_this = reinterpret_cast<DcxControl *>(GetProp(idata->hwndItem, TEXT("dcx_cthis"))); c_this != nullptr)
+			if (const auto c_this = static_cast<DcxControl *>(GetProp(idata->hwndItem, TEXT("dcx_cthis"))); c_this != nullptr)
 				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 		}
 	}
@@ -1010,7 +1019,7 @@ LRESULT DcxStatusBar::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
 		{
 			if (IsWindow(hdr->hwndFrom))
 			{
-				if (auto c_this = reinterpret_cast<DcxControl *>(GetProp(hdr->hwndFrom, TEXT("dcx_cthis"))); c_this != nullptr)
+				if (const auto c_this = static_cast<DcxControl *>(GetProp(hdr->hwndFrom, TEXT("dcx_cthis"))); c_this != nullptr)
 					lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 			}
 		}
@@ -1098,4 +1107,14 @@ void DcxStatusBar::updateParts(void)
 	}
 
 	setParts(nParts, pParts.get());
+}
+
+WNDPROC DcxStatusBar::m_hDefaultClassProc = nullptr;
+
+LRESULT DcxStatusBar::CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept
+{
+	if (m_hDefaultClassProc != nullptr)
+		return CallWindowProc(m_hDefaultClassProc, this->m_Hwnd, uMsg, wParam, lParam);
+
+	return DefWindowProc(this->m_Hwnd, uMsg, wParam, lParam);
 }

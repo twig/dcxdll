@@ -29,7 +29,7 @@
  */
 
 DcxPanel::DcxPanel(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles )
-: DcxControl( ID, p_Dialog ) 
+	: DcxControl( ID, p_Dialog ) 
 {
 	const auto[bNoTheme, Styles, ExStyles] = parseControlStyles(styles);
 
@@ -39,7 +39,8 @@ DcxPanel::DcxPanel(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentH
 		Styles | WS_CHILD,
 		rc,
 		mParentHwnd,
-		ID);
+		ID,
+		this);
 
 	if (!IsWindow(m_Hwnd))
 		throw Dcx::dcxException("Unable To Create Window");
@@ -47,10 +48,7 @@ DcxPanel::DcxPanel(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentH
 	if ( bNoTheme )
 		Dcx::UXModule.dcxSetWindowTheme( m_Hwnd , L" ", L" " );
 
-	this->m_pLayoutManager = new LayoutManager( m_Hwnd );
-
-	this->registreDefaultWindowProc( );
-	SetProp( m_Hwnd, TEXT("dcx_cthis"), (HANDLE) this );
+	this->m_pLayoutManager = std::make_unique<LayoutManager>(m_Hwnd);
 }
 
 /*!
@@ -61,9 +59,6 @@ DcxPanel::DcxPanel(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentH
 
 DcxPanel::~DcxPanel( )
 {
-	delete this->m_pLayoutManager;
-
-	this->unregistreDefaultWindowProc( );
 }
 
 void DcxPanel::toXml(TiXmlElement *const xml) const
@@ -85,12 +80,6 @@ TiXmlElement * DcxPanel::toXml(void) const
  *
  * blah
  */
-
-//void DcxPanel::parseControlStyles( const TString &styles, LONG *Styles, LONG *ExStyles, BOOL *bNoTheme)
-//{
-//	parseGeneralControlStyles(styles, Styles, ExStyles, bNoTheme);
-//}
-
 std::tuple<NoTheme, WindowStyle, WindowExStyle> DcxPanel::parseControlStyles(const TString & tsStyles)
 {
 	return parseGeneralControlStyles(tsStyles);
@@ -104,7 +93,6 @@ std::tuple<NoTheme, WindowStyle, WindowExStyle> DcxPanel::parseControlStyles(con
  *
  * \return > void
  */
-
 void DcxPanel::parseInfoRequest(const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const
 {
 	parseGlobalInfoRequest(input, szReturnValue);
@@ -122,58 +110,39 @@ void DcxPanel::parseCommandRequest( const TString & input )
 	const auto numtok = input.numtok();
 
 	// xdid -c [NAME] [ID] [SWITCH] [ID] [CONTROL] [X] [Y] [W] [H] (OPTIONS)
-	if ( flags[TEXT('c')] && numtok > 8 )
+	if ( flags[TEXT('c')] )
 	{
-		//const auto ID = mIRC_ID_OFFSET + (UINT)input.getnexttok().to_int();	// tok 4
-		//
-		//if (!this->m_pParentDialog->isIDValid(ID, true))
-		//	throw Dcx::dcxException(TEXT("Control with ID \"%\" already exists"), ID - mIRC_ID_OFFSET);
-	//
-		//try {
-		//	m_pParentDialog->addControl(DcxControl::controlFactory(m_pParentDialog, ID, input, 5, CTLF_ALLOW_ALL, m_Hwnd));
-		//}
-		//catch (const std::exception &e ) {
-		//	showErrorEx(nullptr, TEXT("-c"), TEXT("Unable To Create Control %d (%S)"), ID - mIRC_ID_OFFSET, e.what());
-		//	throw;
-		//}
-		//this->redrawWindow();
+		if (numtok < 9)
+			throw Dcx::dcxException("Insufficient parameters");
 
-		m_pParentDialog->addControl(input, 4, CTLF_ALLOW_ALL, m_Hwnd);
+		getParentDialog()->addControl(input, 4, CTLF_ALLOW_ALL, m_Hwnd);
 		redrawWindow();
 	}
 	// xdid -d [NAME] [ID] [SWITCH] [ID]
-	else if ( flags[TEXT('d')] && numtok > 3 )
+	else if ( flags[TEXT('d')] )
 	{
+		if (numtok < 4)
+			throw Dcx::dcxException("Insufficient parameters");
+
 		const auto ID = mIRC_ID_OFFSET + input.getnexttok().to_<UINT>();	// tok 4
 
-		if (!this->m_pParentDialog->isIDValid(ID))
-			throw Dcx::dcxException(TEXT("Unknown control with ID \"%\" (dialog %)"), ID - mIRC_ID_OFFSET, this->m_pParentDialog->getName());
+		if (!this->getParentDialog()->isIDValid(ID))
+			throw Dcx::dcxException(TEXT("Unknown control with ID \"%\" (dialog %)"), ID - mIRC_ID_OFFSET, this->getParentDialog()->getName());
 
-		auto p_Control = this->m_pParentDialog->getControlByID(ID);
+		const auto p_Control = this->getParentDialog()->getControlByID(ID);
 		if (p_Control == nullptr)
-			throw Dcx::dcxException(TEXT("Unable to get control with ID \"%\" (dialog %)"), ID - mIRC_ID_OFFSET, this->m_pParentDialog->getName());
+			throw Dcx::dcxException(TEXT("Unable to get control with ID \"%\" (dialog %)"), ID - mIRC_ID_OFFSET, this->getParentDialog()->getName());
 
 		if (const auto dct = p_Control->getControlType(); (dct == DcxControlTypes::DIALOG || dct == DcxControlTypes::WINDOW))
 			delete p_Control;
 		else {
 			if (p_Control->getRefCount() != 0)
-				throw Dcx::dcxException(TEXT("Can't delete control with ID \"%\" when it is inside it's own event (dialog %)"), p_Control->getUserID(), this->m_pParentDialog->getName());
+				throw Dcx::dcxException(TEXT("Can't delete control with ID \"%\" when it is inside it's own event (dialog %)"), p_Control->getUserID(), this->getParentDialog()->getName());
 
-			auto cHwnd = p_Control->getHwnd();
-			this->m_pParentDialog->deleteControl(p_Control); // remove from internal list!
+			const auto cHwnd = p_Control->getHwnd();
+			this->getParentDialog()->deleteControl(p_Control); // remove from internal list!
 			DestroyWindow(cHwnd);
 		}
-
-		//if (p_Control->getType() == TEXT("dialog") || p_Control->getType() == TEXT("window"))
-		//	delete p_Control;
-		//else {
-		//	if (p_Control->getRefCount() != 0)
-		//		throw Dcx::dcxException(TEXT("Can't delete control with ID \"%\" when it is inside it's own event (dialog %)"), p_Control->getUserID(), this->m_pParentDialog->getName());
-		//	
-		//	auto cHwnd = p_Control->getHwnd();
-		//	this->m_pParentDialog->deleteControl(p_Control); // remove from internal list!
-		//	DestroyWindow(cHwnd);
-		//}
 	}
 	/*
 	//xdid -l [NAME] [ID] [SWITCH] [OPTIONS]
@@ -184,8 +153,11 @@ void DcxPanel::parseCommandRequest( const TString & input )
 	add PATH[TAB]+flpiw [ID] [WEIGHT] [W] [H]
 	space PATH[TAB]+ [L] [T] [R] [B]
 	*/
-	else if ( flags[TEXT('l')] && numtok > 3 )
+	else if ( flags[TEXT('l')] )
 	{
+		if (numtok < 4)
+			throw Dcx::dcxException("Insufficient parameters");
+
 		if (m_pLayoutManager == nullptr)
 			throw Dcx::dcxException("No LayoutManager available");
 
@@ -204,24 +176,30 @@ void DcxPanel::parseCommandRequest( const TString & input )
 		break;
 		case L"clear"_hash:
 		{
-			delete m_pLayoutManager;
-			m_pLayoutManager = new LayoutManager(m_Hwnd);
-			//redrawWindow(); // dont redraw here, leave that for an `update` cmd
+			//delete m_pLayoutManager;
+			//m_pLayoutManager = new LayoutManager(m_Hwnd);
+			////redrawWindow(); // dont redraw here, leave that for an `update` cmd
+
+			//m_pLayoutManager.reset(new LayoutManager(m_Hwnd));
+			m_pLayoutManager = std::make_unique<LayoutManager>(m_Hwnd);
 		}
 		break;
 		default:
 		{
-			if (numtok <= 8)
-				throw Dcx::dcxException("Invalid Args: Not enough arguments");
-			
+			if (numtok < 9)
+				throw Dcx::dcxException("Insufficient parameters");
+
 			m_pLayoutManager->AddCell(input, 4);
 		}
 
 		}
 	}
 	// xdid -t [NAME] [ID] [SWITCH] [TEXT]
-	else if (flags[TEXT('t')] && numtok > 3)
+	else if (flags[TEXT('t')])
 	{
+		if (numtok < 4)
+			throw Dcx::dcxException("Insufficient parameters");
+
 		SetWindowText(m_Hwnd, input.getlasttoks().to_chr());	// tok 4, -1
 	}
 	else
@@ -233,7 +211,7 @@ void DcxPanel::parseCommandRequest( const TString & input )
  *
  * blah
  */
-LRESULT DcxPanel::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed )
+LRESULT DcxPanel::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) noexcept
 {
 	return 0L;
 }
@@ -252,7 +230,7 @@ LRESULT DcxPanel::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 
 		if (IsWindow(hdr->hwndFrom))
 		{
-			if (auto c_this = static_cast<DcxControl *>(GetProp(hdr->hwndFrom, TEXT("dcx_cthis"))); c_this != nullptr)
+			if (const auto c_this = static_cast<DcxControl *>(GetProp(hdr->hwndFrom, TEXT("dcx_cthis"))); c_this != nullptr)
 				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 		}
 	}
@@ -264,7 +242,7 @@ LRESULT DcxPanel::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 	{
 		if (IsWindow((HWND)lParam))
 		{
-			if (auto c_this = static_cast<DcxControl *>(GetProp((HWND)lParam, TEXT("dcx_cthis"))); c_this != nullptr)
+			if (const auto c_this = static_cast<DcxControl *>(GetProp((HWND)lParam, TEXT("dcx_cthis"))); c_this != nullptr)
 				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 		}
 	}
@@ -276,7 +254,7 @@ LRESULT DcxPanel::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 
 		if ((idata != nullptr) && (IsWindow(idata->hwndItem)))
 		{
-			if (auto c_this = static_cast<DcxControl *>(GetProp(idata->hwndItem, TEXT("dcx_cthis"))); c_this != nullptr)
+			if (const auto c_this = static_cast<DcxControl *>(GetProp(idata->hwndItem, TEXT("dcx_cthis"))); c_this != nullptr)
 				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 		}
 	}
@@ -288,7 +266,7 @@ LRESULT DcxPanel::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 
 		if ((idata != nullptr) && (IsWindow(idata->hwndItem)))
 		{
-			if (auto c_this = static_cast<DcxControl *>(GetProp(idata->hwndItem, TEXT("dcx_cthis"))); c_this != nullptr)
+			if (const auto c_this = static_cast<DcxControl *>(GetProp(idata->hwndItem, TEXT("dcx_cthis"))); c_this != nullptr)
 				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 		}
 	}
@@ -296,9 +274,9 @@ LRESULT DcxPanel::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 
 	case WM_MEASUREITEM:
 	{
-		if (auto cHwnd = GetDlgItem(m_Hwnd, static_cast<int>(wParam)); IsWindow(cHwnd))
+		if (const auto cHwnd = GetDlgItem(m_Hwnd, static_cast<int>(wParam)); IsWindow(cHwnd))
 		{
-			if (auto c_this = static_cast<DcxControl *>(GetProp(cHwnd, TEXT("dcx_cthis"))); c_this != nullptr)
+			if (const auto c_this = static_cast<DcxControl *>(GetProp(cHwnd, TEXT("dcx_cthis"))); c_this != nullptr)
 				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 		}
 	}
@@ -310,7 +288,7 @@ LRESULT DcxPanel::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 
 		if ((idata != nullptr) && (IsWindow(idata->hwndItem)))
 		{
-			if (auto c_this = static_cast<DcxControl *>(GetProp(idata->hwndItem, TEXT("dcx_cthis"))); c_this != nullptr)
+			if (const auto c_this = static_cast<DcxControl *>(GetProp(idata->hwndItem, TEXT("dcx_cthis"))); c_this != nullptr)
 				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 		}
 	}
@@ -318,29 +296,7 @@ LRESULT DcxPanel::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 
 	case WM_SIZE:
 	{
-		HWND bars = nullptr;
-
-		while ((bars = FindWindowEx(m_Hwnd, bars, DCX_REBARCTRLCLASS, nullptr)) != nullptr)
-		{
-			SendMessage(bars, WM_SIZE, (WPARAM)0, (LPARAM)0);
-		}
-
-		while ((bars = FindWindowEx(m_Hwnd, bars, DCX_STATUSBARCLASS, nullptr)) != nullptr)
-		{
-			SendMessage(bars, WM_SIZE, (WPARAM)0, (LPARAM)0);
-		}
-
-		//while ((bars = FindWindowEx(m_Hwnd, bars, DCX_PANELCLASS, nullptr)) != nullptr) {
-		//	SendMessage(bars, WM_SIZE, (WPARAM) 0, (LPARAM) 0);
-		//}
-
-		while ((bars = FindWindowEx(m_Hwnd, bars, DCX_TOOLBARCLASS, nullptr)) != nullptr)
-		{
-			SendMessage(bars, WM_SIZE, (WPARAM)0, (LPARAM)0);
-		}
-
-		if (dcx_testflag(this->m_pParentDialog->getEventMask(), DCX_EVENT_SIZE))
-			this->execAliasEx(TEXT("%s,%d"), TEXT("sizing"), this->getUserID());
+		HandleChildrenSize();
 
 		//if (this->m_pLayoutManager != nullptr) {
 		//	RECT rc;
@@ -352,7 +308,8 @@ LRESULT DcxPanel::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 	break;
 	case WM_WINDOWPOSCHANGING:
 	{
-		if (lParam != NULL) {
+		if (lParam != NULL)
+		{
 			dcxlParam(LPWINDOWPOS, wp);
 
 			if (this->m_pLayoutManager != nullptr)
@@ -398,7 +355,7 @@ LRESULT DcxPanel::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 		{ // simply fill with bkg
 			if (this->isExStyle(WindowExStyle::Transparent))
 			{
-				if (!this->m_bAlphaBlend)
+				if (!this->IsAlphaBlend())
 					this->DrawParentsBackground(hdc);
 			}
 			else
@@ -423,7 +380,7 @@ LRESULT DcxPanel::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 		{ // simply fill with bkg
 			if (this->isExStyle(WindowExStyle::Transparent))
 			{
-				if (!this->m_bAlphaBlend)
+				if (!this->IsAlphaBlend())
 					this->DrawParentsBackground(hdc);
 			}
 			else
@@ -445,4 +402,14 @@ LRESULT DcxPanel::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 	}
 
 	return lRes;
+}
+
+WNDPROC DcxPanel::m_hDefaultClassProc = nullptr;
+
+LRESULT DcxPanel::CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept
+{
+	if (m_hDefaultClassProc != nullptr)
+		return CallWindowProc(m_hDefaultClassProc, this->m_Hwnd, uMsg, wParam, lParam);
+
+	return DefWindowProc(this->m_Hwnd, uMsg, wParam, lParam);
 }

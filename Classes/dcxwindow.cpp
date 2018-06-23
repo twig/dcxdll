@@ -23,7 +23,7 @@
  */
 
 DcxWindow::DcxWindow( const HWND mHwnd, const UINT mID ) noexcept
-	: m_Hwnd( mHwnd ), m_ID( mID ), m_hDefaultWindowProc(nullptr), m_hZeroRgn(CreateRectRgn(0, 0, 0, 0))
+	: m_Hwnd( mHwnd ), m_ID( mID ), m_hZeroRgn(CreateRectRgn(0, 0, 0, 0))
 {
 }
 
@@ -200,9 +200,9 @@ void DcxWindow::redrawBufferedWindow( )
 
 	const Dcx::dcxHDCBuffer hBuffer(hdc, rc);
 
-	SendMessage(m_Hwnd, WM_PRINT, (WPARAM)(HDC)hBuffer, PRF_NONCLIENT | PRF_CLIENT | PRF_CHILDREN | PRF_CHECKVISIBLE | PRF_ERASEBKGND);
+	SendMessage(m_Hwnd, WM_PRINT, (WPARAM)hBuffer.get(), PRF_NONCLIENT | PRF_CLIENT | PRF_CHILDREN | PRF_CHECKVISIBLE | PRF_ERASEBKGND);
 
-	BitBlt(hdc, 0, 0, (rc.right - rc.left), (rc.bottom - rc.top), hBuffer, 0, 0, SRCCOPY);
+	BitBlt(hdc, 0, 0, (rc.right - rc.left), (rc.bottom - rc.top), hBuffer.get(), 0, 0, SRCCOPY);
 #else
 	if (RECT rc{}; GetWindowRect(m_Hwnd, &rc))
 	{
@@ -243,7 +243,7 @@ const std::map<std::hash<TString>::result_type, PTCHAR> DcxWindow::IDC_map{
 
 PTCHAR DcxWindow::parseCursorType( const TString & cursor )
 {
-	if (const auto got = IDC_map.find(std::hash<TString>()(cursor)); got != IDC_map.end())
+	if (const auto got = IDC_map.find(std::hash<TString>{}(cursor)); got != IDC_map.end())
 		return got->second;
 	return nullptr;
 }

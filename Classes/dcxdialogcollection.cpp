@@ -54,12 +54,9 @@ void DcxDialogCollection::markDialog( const HWND mHwnd, const TString & tsName, 
  * blah
  */
 
-DcxDialog * DcxDialogCollection::getDialogByHandle(const HWND mHwnd) const
+DcxDialog * DcxDialogCollection::getDialogByHandle(const HWND mHwnd) const noexcept
 {
-	if (mHwnd == nullptr)
-		return nullptr;
-
-	if (m_vpDialog.empty())
+	if ((mHwnd == nullptr) || (m_vpDialog.empty()))
 		return nullptr;
 
 	for (const auto &x: m_vpDialog)
@@ -69,10 +66,8 @@ DcxDialog * DcxDialogCollection::getDialogByHandle(const HWND mHwnd) const
 	}
 	return nullptr;
 
-	//auto itEnd = m_vpDialog.end();
-	//auto got = std::find_if(m_vpDialog.begin(), itEnd, [mHwnd](const auto &x) { return (x->getHwnd() == mHwnd); });
-	//if (got != itEnd)
-	//	return *got;
+	//if (const auto itEnd = m_vpDialog.end(), itGot = std::find_if(m_vpDialog.begin(), itEnd, [mHwnd](const auto &x) { return (x->getHwnd() == mHwnd); }); itGot != itEnd)
+	//	return *itGot;
 	//return nullptr;
 }
 
@@ -82,12 +77,9 @@ DcxDialog * DcxDialogCollection::getDialogByHandle(const HWND mHwnd) const
  * blah
  */
 
-DcxDialog * DcxDialogCollection::getDialogByChildHandle(const HWND mHwnd) const
+DcxDialog * DcxDialogCollection::getDialogByChildHandle(const HWND mHwnd) const noexcept
 {
-	if (mHwnd == nullptr)
-		return nullptr;
-
-	if (m_vpDialog.empty())
+	if ((mHwnd == nullptr) || (m_vpDialog.empty()))
 		return nullptr;
 
 	for (const auto &x: m_vpDialog)
@@ -97,10 +89,8 @@ DcxDialog * DcxDialogCollection::getDialogByChildHandle(const HWND mHwnd) const
 	}
 	return nullptr;
 
-	//auto itEnd = m_vpDialog.end();
-	//auto got = std::find_if(m_vpDialog.begin(), itEnd, [mHwnd](const auto &x) { return (x->getControlByHWND(mHwnd) != nullptr); });
-	//if (got != itEnd)
-	//	return *got;
+	//if (const auto itEnd = m_vpDialog.end(), itGot = std::find_if(m_vpDialog.begin(), itEnd, [mHwnd](const auto &x) { return (x->getControlByHWND(mHwnd) != nullptr); }); itGot != itEnd)
+	//	return *itGot;
 	//return nullptr;
 }
 
@@ -110,12 +100,9 @@ DcxDialog * DcxDialogCollection::getDialogByChildHandle(const HWND mHwnd) const
  * blah
  */
 
-DcxDialog * DcxDialogCollection::getDialogByName(const TString & tsName) const
+DcxDialog * DcxDialogCollection::getDialogByName(const TString & tsName) const noexcept
 {
-	if (tsName.empty())
-		return nullptr;
-
-	if (m_vpDialog.empty())
+	if ((tsName.empty()) || (m_vpDialog.empty()))
 		return nullptr;
 
 	for (const auto &x: m_vpDialog)
@@ -137,31 +124,7 @@ void DcxDialogCollection::deleteDialog( const DcxDialog *const p_Dialog )
 	if (( p_Dialog == nullptr ) || (m_closeall) || (m_vpDialog.empty()))
 		return;
 
-	//auto itStart = m_vpDialog.begin();
-	//auto itEnd = m_vpDialog.end();
-	//
-	//while ( itStart != itEnd ) {
-	//
-	//	if ( *itStart == p_Dialog ) {
-	//
-	//		m_vpDialog.erase( itStart );
-	//		return;
-	//	} 
-	//
-	//	++itStart;
-	//}
-
-	//for (auto itStart = m_vpDialog.begin(), itEnd = m_vpDialog.end(); itStart != itEnd; ++itStart)
-	//{
-	//	if (*itStart == p_Dialog) {
-	//		m_vpDialog.erase(itStart);
-	//		return;
-	//	}
-	//}
-
-	//const auto itEnd = m_vpDialog.end();
-	//const auto itGot = std::find(m_vpDialog.begin(), itEnd, p_Dialog);
-	//if (itGot != itEnd)
+	//if (const auto itEnd = m_vpDialog.end(), itGot = std::find(m_vpDialog.begin(), itEnd, p_Dialog); itGot != itEnd)
 	//	m_vpDialog.erase(itGot);
 
 	Dcx::eraseIfFound(m_vpDialog, p_Dialog);
@@ -173,7 +136,7 @@ void DcxDialogCollection::deleteDialog( const DcxDialog *const p_Dialog )
  * blah
  */
 
-const bool DcxDialogCollection::safeToCloseAll(void) const
+const bool DcxDialogCollection::safeToCloseAll(void) const noexcept
 {
 	if (m_vpDialog.empty())
 		return true;
@@ -192,7 +155,7 @@ const bool DcxDialogCollection::safeToCloseAll(void) const
  * blah
  */
 
-const bool DcxDialogCollection::closeDialogs()
+const bool DcxDialogCollection::closeDialogs() noexcept
 {
 	if (!safeToCloseAll())
 		return true;

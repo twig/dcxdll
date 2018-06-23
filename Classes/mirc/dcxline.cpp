@@ -27,17 +27,17 @@
 
 DcxLine::DcxLine(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles)
 	: DcxControl(ID, p_Dialog)
-	, m_bVertical(false)
 {
 	const auto[bNoTheme, Styles, ExStyles] = parseControlStyles(styles);
 
 	m_Hwnd = dcxCreateWindow(
 		ExStyles | WindowExStyle::Transparent,
-		WC_STATIC,
+		DCX_LINECLASS,
 		Styles | WindowStyle::Child,
 		rc,
 		mParentHwnd,
-		ID);
+		ID,
+		this);
 
 	if (!IsWindow(m_Hwnd))
 		throw Dcx::dcxException("Unable To Create Window");
@@ -46,8 +46,6 @@ DcxLine::DcxLine(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwn
 		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
 
 	this->setControlFont(GetStockFont(DEFAULT_GUI_FONT), FALSE);
-	this->registreDefaultWindowProc();
-	SetProp(m_Hwnd, TEXT("dcx_cthis"), (HANDLE) this);
 }
 
 /*!
@@ -58,13 +56,12 @@ DcxLine::DcxLine(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwn
 
 DcxLine::~DcxLine()
 {
-	this->unregistreDefaultWindowProc();
 }
 
 const TString DcxLine::getStyles(void) const
 {
 	auto styles(__super::getStyles());
-	const auto Styles = GetWindowStyle(m_Hwnd);
+	const auto Styles = dcxGetWindowStyle(m_Hwnd);
 	if (this->m_bVertical)
 		styles.addtok(TEXT("vertical"));
 	if (dcx_testflag(Styles, SS_LEFTNOWORDWRAP))
@@ -245,7 +242,7 @@ void DcxLine::parseCommandRequest( const TString & input )
  *
  * blah
  */
-LRESULT DcxLine::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed )
+LRESULT DcxLine::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) noexcept
 {
 	return 0L;
 }
@@ -317,11 +314,11 @@ void DcxLine::DrawClientArea(HDC hdc)
 	if (!m_sText.empty())
 	{
 		HFONT oldhFont = nullptr;
-		if (this->m_hFont != nullptr)
-			oldhFont = SelectFont(hdc, this->m_hFont);
+		if (const auto f = getControlFont(); f != nullptr)
+			oldhFont = SelectFont(hdc, f);
 
-		if (this->m_clrText != CLR_INVALID)
-			SetTextColor(hdc, this->m_clrText);
+		if (const auto clr = getTextColor(); clr != CLR_INVALID)
+			SetTextColor(hdc, clr);
 		else
 			SetTextColor(hdc, GetSysColor(IsWindowEnabled(m_Hwnd) ? COLOR_WINDOWTEXT : COLOR_GRAYTEXT));
 
@@ -391,4 +388,14 @@ void DcxLine::DrawClientArea(HDC hdc)
 		rcLine.bottom = rcLine.bottom / 2;
 		DrawEdge(hdc, &rcLine, EDGE_ETCHED, BF_BOTTOM);
 	}
+}
+
+WNDPROC DcxLine::m_hDefaultClassProc = nullptr;
+
+LRESULT DcxLine::CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept
+{
+	if (m_hDefaultClassProc != nullptr)
+		return CallWindowProc(m_hDefaultClassProc, this->m_Hwnd, uMsg, wParam, lParam);
+
+	return DefWindowProc(this->m_Hwnd, uMsg, wParam, lParam);
 }

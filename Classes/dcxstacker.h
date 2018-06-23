@@ -33,27 +33,27 @@
 struct DCXSITEM {
 	TString			tsTipText;			//!< Tooltip text
 	TString			tsCaption;			//!< Title Buttons text
-	COLORREF		clrBack;			//!< Line Background Caption Color
-	COLORREF		clrText;			//!< Line Caption Color
-	HFONT			hFont;				//!< Items font.
-	DcxControl		*pChild;			//!< Items child control
-	int				iItemImg;			//!< Items Normal Image index.
-	int				iSelectedItemImg;	//!< Items Selected Image index.
-	RECT			itemrc;				//!< Items Rect.
-	DWORD			dFlags;				//!< Items flags.
+	COLORREF		clrBack{ CLR_INVALID };			//!< Line Background Caption Color
+	COLORREF		clrText{ CLR_INVALID };			//!< Line Caption Color
+	HFONT			hFont{ nullptr };				//!< Items font.
+	DcxControl		*pChild{ nullptr };			//!< Items child control
+	int				iItemImg{ -1 };			//!< Items Normal Image index.
+	int				iSelectedItemImg{ -1 };	//!< Items Selected Image index.
+	RECT			itemrc{};				//!< Items Rect.
+	DWORD			dFlags{};				//!< Items flags.
 
-	DCXSITEM()
-		: tsTipText()
-		, tsCaption()
-		, clrBack(CLR_INVALID)
-		, clrText(CLR_INVALID)
-		, hFont(nullptr)
-		, pChild(nullptr)
-		, iItemImg(-1)
-		, iSelectedItemImg(-1)
-		, itemrc{ 0,0,0,0 }
-		, dFlags(0)
-	{}
+	//DCXSITEM() noexcept
+	//	: tsTipText()
+	//	, tsCaption()
+	//	, clrBack(CLR_INVALID)
+	//	, clrText(CLR_INVALID)
+	//	, hFont(nullptr)
+	//	, pChild(nullptr)
+	//	, iItemImg(-1)
+	//	, iSelectedItemImg(-1)
+	//	, itemrc{ 0,0,0,0 }
+	//	, dFlags(0)
+	//{}
 };
 using LPDCXSITEM = DCXSITEM *;
 
@@ -69,45 +69,51 @@ using VectorOfStackerItems = std::vector<LPDCXSITEM>;
  * blah
  */
 
-class DcxStacker : public DcxControl {
-
+class DcxStacker
+	: public DcxControl
+{
 public:
 	DcxStacker() = delete;
 	DcxStacker(const DcxStacker &) = delete;
-	DcxStacker &operator =(const DcxStacker &) = delete;	// No assignments!
+	DcxStacker &operator =(const DcxStacker &) = delete;
+	DcxStacker(DcxStacker &&) = delete;
+	DcxStacker &operator =(DcxStacker &&) = delete;
 
 	DcxStacker( const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles );
-	virtual ~DcxStacker( );
+	~DcxStacker( );
 
-	LRESULT PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) override;
-	LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) override;
+	LRESULT PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) final;
+	LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) final;
 
-	//void parseInfoRequest(const TString & input, PTCHAR szReturnValue) const override;
-	void parseInfoRequest(const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const override;
-	void parseCommandRequest( const TString & input ) override;
-	//void parseControlStyles(const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme) override;
-	std::tuple<NoTheme, WindowStyle, WindowExStyle> parseControlStyles(const TString & tsStyles) override;
+	//void parseInfoRequest(const TString & input, PTCHAR szReturnValue) const final;
+	void parseInfoRequest(const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const final;
+	void parseCommandRequest( const TString & input ) final;
+	//void parseControlStyles(const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme) final;
+	std::tuple<NoTheme, WindowStyle, WindowExStyle> parseControlStyles(const TString & tsStyles) final;
 
-	inline const TString getType() const override { return TEXT("stacker"); };
-	inline const DcxControlTypes getControlType() const noexcept override { return DcxControlTypes::STACKER; }
+	inline const TString getType() const final { return TEXT("stacker"); };
+	inline const DcxControlTypes getControlType() const noexcept final { return DcxControlTypes::STACKER; }
 
-	const TString getStyles(void) const override;
-	void toXml(TiXmlElement *const xml) const override;
-	TiXmlElement * toXml(void) const override;
+	const TString getStyles(void) const final;
+	void toXml(TiXmlElement *const xml) const final;
+	TiXmlElement * toXml(void) const final;
+
+	static WNDPROC m_hDefaultClassProc;	//!< Default window procedure
+	LRESULT CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept final;
 
 protected:
-	HWND m_hActive;
-	DWORD m_dStyles;
+	HWND m_hActive{ nullptr };
+	DWORD m_dStyles{};
 	VectorOfImages m_vImageList;
 	VectorOfStackerItems m_vItems;
 
 	//
 	int getItemID(void) const;
-	int getSelItemID(void) const;
-	DWORD getItemCount(void) const;
-	LPDCXSITEM getItem(const int nPos) const;
+	int getSelItemID(void) const noexcept;
+	DWORD getItemCount(void) const noexcept;
+	LPDCXSITEM getItem(const int nPos) const noexcept;
 	LPDCXSITEM getHotItem(void) const;
-	void getItemRect(const int nPos, LPRECT rc) const;
+	void getItemRect(const int nPos, LPRECT rc) const noexcept;
 
 	//
 	//int setItem(int nPos, LPDCXSITEM item);
@@ -120,7 +126,7 @@ protected:
 	static void DrawAliasedTriangle(const HDC hdc, const LPRECT rc, const COLORREF clrShape);
 	void DrawItemImage(const HDC hdc, Gdiplus::Image *const img, const LPRECT rc);
 	//
-	void clearImageList(void);
+	void clearImageList(void) noexcept;
 	void clearItemList(void);
 	//
 	void calcItemRect(LPRECT rc);

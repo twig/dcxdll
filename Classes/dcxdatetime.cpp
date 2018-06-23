@@ -39,7 +39,8 @@ DcxDateTime::DcxDateTime(const UINT ID, DcxDialog *const p_Dialog, const HWND mP
 		Styles | WindowStyle::Child,
 		rc,
 		mParentHwnd,
-		ID);
+		ID,
+		this);
 
 	if (!IsWindow(m_Hwnd))
 		throw Dcx::dcxException("Unable To Create Window");
@@ -48,8 +49,6 @@ DcxDateTime::DcxDateTime(const UINT ID, DcxDialog *const p_Dialog, const HWND mP
 		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
 
 	this->setControlFont((HFONT)GetStockObject(DEFAULT_GUI_FONT), FALSE);
-	this->registreDefaultWindowProc();
-	SetProp(m_Hwnd, TEXT("dcx_cthis"), (HANDLE) this);
 }
 
 /*!
@@ -59,7 +58,6 @@ DcxDateTime::DcxDateTime(const UINT ID, DcxDialog *const p_Dialog, const HWND mP
  */
 DcxDateTime::~DcxDateTime()
 {
-	this->unregistreDefaultWindowProc();
 }
 
 void DcxDateTime::toXml(TiXmlElement *const xml) const
@@ -274,19 +272,25 @@ void DcxDateTime::parseCommandRequest( const TString &input)
 			DateTime_SetFormat(m_Hwnd, nullptr);
 	}
 	// xdid -D [NAME] [ID] [SWITCH] [+FLAGS] [CHARSET] [SIZE] [FONTNAME]
-	else if (flags[TEXT('D')] && numtok > 3)
+	else if (flags[TEXT('D')])
 	{
+		if (numtok < 4)
+			throw Dcx::dcxException("Insufficient parameters");
+
 		if (LOGFONT lf{}; ParseCommandToLogfont(input.gettok(4, -1), &lf))
 		{
-			auto hFont = CreateFontIndirect(&lf);
+			const auto hFont = CreateFontIndirect(&lf);
 			DateTime_SetMonthCalFont(m_Hwnd, hFont, FALSE);	// NB: doesnt seem to sctually change the font....
 		}
 
 		redrawWindow();
 	}
 	//xdid -r [NAME] [ID] [SWITCH] [MIN] [MAX]
-	else if (flags[TEXT('r')] && numtok > 4)
+	else if (flags[TEXT('r')])
 	{
+		if (numtok < 5)
+			throw Dcx::dcxException("Insufficient parameters");
+
 		DWORD dflags = 0;
 		SYSTEMTIME range[2]{};
 
@@ -309,8 +313,11 @@ void DcxDateTime::parseCommandRequest( const TString &input)
 		DateTime_SetRange(m_Hwnd, dflags, &range[0]);
 	}
 	//xdid -t [NAME] [ID] [SWITCH] [TIMESTAMP]
-	else if (flags[TEXT('t')] && numtok > 3)
+	else if (flags[TEXT('t')])
 	{
+		if (numtok < 4)
+			throw Dcx::dcxException("Insufficient parameters");
+
 		const auto ts(input++);	// tok 4
 
 		if (ts == TEXT("reset"))
@@ -349,7 +356,7 @@ LRESULT DcxDateTime::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 		{
 		case DTN_CLOSEUP:
 		{
-			this->execAliasEx(TEXT("closed,%d"), getUserID());
+			this->execAliasEx(TEXT("closed,%u"), getUserID());
 			break;
 		}
 
@@ -413,7 +420,7 @@ LRESULT DcxDateTime::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 			*/
 
 			// TODO: allow for calendar customisation. see DTN_DROPDOWN http://msdn2.microsoft.com/en-us/library/bb761739.aspx
-			execAliasEx(TEXT("open,%d"), getUserID());
+			execAliasEx(TEXT("open,%u"), getUserID());
 			break;
 		}
 
@@ -422,9 +429,9 @@ LRESULT DcxDateTime::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 			dcxlParam(LPNMDATETIMECHANGE, dtc);
 
 			if (dtc->dwFlags == GDT_NONE)
-				execAliasEx(TEXT("change,%d,none"), getUserID());
+				execAliasEx(TEXT("change,%u,none"), getUserID());
 			else
-				execAliasEx(TEXT("change,%d,%d"), getUserID(), SystemTimeToMircTime(&(dtc->st)));
+				execAliasEx(TEXT("change,%u,%d"), getUserID(), SystemTimeToMircTime(&(dtc->st)));
 
 			return 0L;
 		}
@@ -450,4 +457,14 @@ LRESULT DcxDateTime::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 	}
 
 	return 0L;
+}
+
+WNDPROC DcxDateTime::m_hDefaultClassProc = nullptr;
+
+LRESULT DcxDateTime::CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept
+{
+	if (m_hDefaultClassProc != nullptr)
+		return CallWindowProc(m_hDefaultClassProc, this->m_Hwnd, uMsg, wParam, lParam);
+
+	return DefWindowProc(this->m_Hwnd, uMsg, wParam, lParam);
 }

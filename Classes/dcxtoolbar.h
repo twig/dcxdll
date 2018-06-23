@@ -67,31 +67,31 @@ enum dcxToolBar_Styles : DWORD {
 struct DCXTBBUTTON {
 	TString tsTipText;				//!< Tooltip text
 	TString bText;					//!< Buttons text, MUST be persistant.
-	COLORREF clrText;				//!< Button Caption Color
-	COLORREF clrMark;				//!< background color that the button will use when marked.
-	COLORREF clrTextHighlight;		//!< Button Caption Color when highlighted. (An item is highlighted if it has the TBSTATE_MARKED style and is contained in a toolbar that has the TBSTYLE_FLAT style.)
-	COLORREF clrBtnFace;			//!< The Buttons normal colour.
-	COLORREF clrBtnHighlight;		//!< The Buttons highlight colour. (An item is highlighted if it has the TBSTATE_MARKED style and is contained in a toolbar that has the TBSTYLE_FLAT style.)
-	COLORREF clrHighlightHotTrack;	//!< The Buttons hottrack colour (TBSTYLE_FLAT)
-	bool bBold;						//!< Is Button Caption Bold ?
-	bool bUline;					//!< Is Button Caption Underlined
-	int iTextBkgMode;				//!< Drawing mode for text on a normal button. (XP+)
-	int iTextHighlightBkgMode;		//!< Drawing mode for text on a highlighted button. (XP+) (An item is highlighted if it has the TBSTATE_MARKED style and is contained in a toolbar that has the TBSTYLE_FLAT style.)
+	COLORREF clrText{ CLR_INVALID };				//!< Button Caption Color
+	COLORREF clrMark{ CLR_INVALID };				//!< background color that the button will use when marked.
+	COLORREF clrTextHighlight{ CLR_INVALID };		//!< Button Caption Color when highlighted. (An item is highlighted if it has the TBSTATE_MARKED style and is contained in a toolbar that has the TBSTYLE_FLAT style.)
+	COLORREF clrBtnFace{ CLR_INVALID };			//!< The Buttons normal colour.
+	COLORREF clrBtnHighlight{ CLR_INVALID };		//!< The Buttons highlight colour. (An item is highlighted if it has the TBSTATE_MARKED style and is contained in a toolbar that has the TBSTYLE_FLAT style.)
+	COLORREF clrHighlightHotTrack{ CLR_INVALID };	//!< The Buttons hottrack colour (TBSTYLE_FLAT)
+	bool bBold{ false };						//!< Is Button Caption Bold ?
+	bool bUline{ false };					//!< Is Button Caption Underlined
+	int iTextBkgMode{};				//!< Drawing mode for text on a normal button. (XP+)
+	int iTextHighlightBkgMode{};		//!< Drawing mode for text on a highlighted button. (XP+) (An item is highlighted if it has the TBSTATE_MARKED style and is contained in a toolbar that has the TBSTYLE_FLAT style.)
 
-	DCXTBBUTTON()
-		: tsTipText()
-		, bText()
-		, clrText(CLR_INVALID)
-		, clrMark(CLR_INVALID)
-		, clrTextHighlight(CLR_INVALID)
-		, clrBtnFace(CLR_INVALID)
-		, clrBtnHighlight(CLR_INVALID)
-		, clrHighlightHotTrack(CLR_INVALID)
-		, bBold(false)
-		, bUline(false)
-		, iTextBkgMode(0)
-		, iTextHighlightBkgMode(0)
-	{}
+	//DCXTBBUTTON() noexcept
+	//	: tsTipText()
+	//	, bText()
+	//	, clrText(CLR_INVALID)
+	//	, clrMark(CLR_INVALID)
+	//	, clrTextHighlight(CLR_INVALID)
+	//	, clrBtnFace(CLR_INVALID)
+	//	, clrBtnHighlight(CLR_INVALID)
+	//	, clrHighlightHotTrack(CLR_INVALID)
+	//	, bBold(false)
+	//	, bUline(false)
+	//	, iTextBkgMode(0)
+	//	, iTextHighlightBkgMode(0)
+	//{}
 };
 using LPDCXTBBUTTON = DCXTBBUTTON *;
 
@@ -106,80 +106,86 @@ using LPDCXTBBUTTON = DCXTBBUTTON *;
 #pragma warning( disable : 2292 ) //warning #2292: destructor is declared but copy constructor and assignment operator are not
 #endif
 
-class DcxToolBar : public DcxControl {
+class DcxToolBar
+	: public DcxControl
+{
 
 public:
 	DcxToolBar() = delete;
 	DcxToolBar(const DcxToolBar &) = delete;
-	DcxToolBar &operator =(const DcxToolBar &) = delete;	// No assignments!
+	DcxToolBar &operator =(const DcxToolBar &) = delete;
+	DcxToolBar(DcxToolBar &&) = delete;
+	DcxToolBar &operator =(DcxToolBar &&) = delete;
 
 	DcxToolBar( const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles );
-	virtual ~DcxToolBar( );
+	~DcxToolBar( );
 
-	LRESULT PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) override;
-	LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) override;
+	LRESULT PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) final;
+	LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) final;
 
-	//void parseInfoRequest(const TString & input, PTCHAR szReturnValue) const override;
-	void parseInfoRequest(const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const override;
-	void parseCommandRequest( const TString & input ) override;
-	//void parseControlStyles(const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme) override;
+	//void parseInfoRequest(const TString & input, PTCHAR szReturnValue) const final;
+	void parseInfoRequest(const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const final;
+	void parseCommandRequest( const TString & input ) final;
+	//void parseControlStyles(const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme) final;
 	//void parseControlStyles(const TString & styles, LONG * Styles, LONG * ExStyles, LONG * ExStylesTb, BOOL * bNoTheme);
 
-	std::tuple<NoTheme, WindowStyle, WindowExStyle> parseControlStyles(const TString & tsStyles) override;
+	std::tuple<NoTheme, WindowStyle, WindowExStyle> parseControlStyles(const TString & tsStyles) final;
 	WindowExStyle parseControlStylesToolBar(const TString & tsStyles);
 
-	HIMAGELIST getImageList( const dcxToolBar_ImageLists iImageList ) const;
-	void setImageList(HIMAGELIST himl, const dcxToolBar_ImageLists iImageList);
-	static HIMAGELIST createImageList( const DcxIconSizes iSize );
+	HIMAGELIST getImageList( const dcxToolBar_ImageLists iImageList ) const noexcept;
+	void setImageList(const HIMAGELIST himl, const dcxToolBar_ImageLists iImageList) noexcept;
+	static HIMAGELIST createImageList( const DcxIconSizes iSize ) noexcept;
 
-	LRESULT autoSize( );
-	LRESULT insertButton( const int nPos, const LPTBBUTTON lpbb );
-	LRESULT hitTest( const LPPOINT lpt ) const;
-	LRESULT getItemRect( const int iButton, LPRECT lprc ) const;
-	LRESULT getButtonCount( ) const;
-	LRESULT setButtonWidth( const int cxMin, const int cxMax );
-	LRESULT deleteButton( const int iButton );
-	LRESULT setButtonInfo( const int idButton, LPTBBUTTONINFO lpbi );
-	LRESULT getButtonInfo( const int idButton, LPTBBUTTONINFO lpbi ) const;
-	LRESULT getTooltips( ) const;
-	LRESULT getButtonText( const int idButton, LPSTR lpszText ) const;
-	LRESULT getButton( const int iButton, LPTBBUTTON lpb ) const;
-	LRESULT setButtonState( const int idButton, const UINT fState );
-	LRESULT getCommandToIndex( const int idButton ) const;
-	LRESULT moveButton( const int iButtonFrom, const int iButtonTo );
-	LRESULT markButton( const int iButton, const bool fHighlight );
-	LRESULT setButtonSize( const int dxButton, const int dyButton );
+	LRESULT autoSize( ) noexcept;
+	LRESULT insertButton( const int nPos, const LPTBBUTTON lpbb ) noexcept;
+	LRESULT hitTest( const LPPOINT lpt ) const noexcept;
+	LRESULT getItemRect( const int iButton, const LPRECT lprc ) const noexcept;
+	LRESULT getButtonCount( ) const noexcept;
+	LRESULT setButtonWidth( const int cxMin, const int cxMax ) noexcept;
+	LRESULT deleteButton( const int iButton ) noexcept;
+	LRESULT setButtonInfo( const int idButton, const LPTBBUTTONINFO lpbi ) noexcept;
+	LRESULT getButtonInfo( const int idButton, const LPTBBUTTONINFO lpbi ) const noexcept;
+	LRESULT getTooltips( ) const noexcept;
+	LRESULT getButtonText( const int idButton, const LPSTR lpszText ) const noexcept;
+	LRESULT getButton( const int iButton, const LPTBBUTTON lpb ) const noexcept;
+	LRESULT setButtonState( const int idButton, const UINT fState ) noexcept;
+	LRESULT getCommandToIndex( const int idButton ) const noexcept;
+	LRESULT moveButton( const int iButtonFrom, const int iButtonTo ) noexcept;
+	LRESULT markButton( const int iButton, const bool fHighlight ) noexcept;
+	LRESULT setButtonSize( const int dxButton, const int dyButton ) noexcept;
 
-	void autoStretchButtons( );
+	void autoStretchButtons( ) noexcept;
 
-	void autoPosition( const int width, const int height );
+	void autoPosition( const int width, const int height ) noexcept;
 
-	inline const TString getType() const override { return TEXT("toolbar"); };
-	inline const DcxControlTypes getControlType() const noexcept override { return DcxControlTypes::TOOLBAR; }
+	inline const TString getType() const final { return TEXT("toolbar"); };
+	inline const DcxControlTypes getControlType() const noexcept final { return DcxControlTypes::TOOLBAR; }
 
-	void toXml(TiXmlElement *const xml) const override;
-	TiXmlElement * toXml(void) const override;
-	const TString getStyles(void) const override;
+	void toXml(TiXmlElement *const xml) const final;
+	TiXmlElement * toXml(void) const final;
+	const TString getStyles(void) const final;
+
+	static WNDPROC m_hDefaultClassProc;	//!< Default window procedure
+	LRESULT CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept final;
 
 private:
-	HFONT m_hOldItemFont; //!< Item fonts (only used during custom draw)
-	HFONT m_hItemFont;
+	HFONT m_hOldItemFont{ nullptr }; //!< Item fonts (only used during custom draw)
+	HFONT m_hItemFont{ nullptr };
 
-	bool m_bAutoStretch; //!< Auto Stretch Variable
-	bool m_bOverrideTheme; //!< Allow drawing of custom colours when control is themed.
+	bool m_bAutoStretch{ false }; //!< Auto Stretch Variable
+	bool m_bOverrideTheme{ false }; //!< Allow drawing of custom colours when control is themed.
 
 protected:
 
-	static UINT parseImageListFlags( const TString & flags );
+	static UINT parseImageListFlags( const TString & flags ) noexcept;
 
-	int getFreeButtonID( ) const;
-	int getIndexToCommand( const int iIndex ) const;
+	int getFreeButtonID( ) const noexcept;
+	int getIndexToCommand( const int iIndex ) const noexcept;
 
-	static BYTE parseButtonStateFlags( const TString & flags );
-	static UINT parseButtonStyleFlags( const TString & flags );
+	static BYTE parseButtonStateFlags( const TString & flags ) noexcept;
+	static UINT parseButtonStyleFlags( const TString & flags ) noexcept;
 
-	void resetContent( );
-
+	void resetContent( ) noexcept;
 };
 #ifdef __INTEL_COMPILER // Defined when using Intel C++ Compiler.
 #pragma warning( pop )

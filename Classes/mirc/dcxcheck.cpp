@@ -35,11 +35,12 @@ DcxCheck::DcxCheck(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentH
 
 	m_Hwnd = dcxCreateWindow(
 		ExStyles,
-		WC_BUTTON,
+		DCX_CHECKCLASS,
 		Styles | WindowStyle::Child,
 		rc,
 		mParentHwnd,
-		ID);
+		ID,
+		this);
 
 	if (!IsWindow(m_Hwnd))
 		throw Dcx::dcxException("Unable To Create Window");
@@ -47,23 +48,18 @@ DcxCheck::DcxCheck(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentH
 	if (bNoTheme)
 		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
 
-	this->m_bNoTheme = (bNoTheme != FALSE);
+	this->setNoThemed( (bNoTheme != FALSE) );
 
-	if (p_Dialog->getToolTip() != nullptr)
+	if (styles.istok(TEXT("tooltips")))
 	{
-		if (styles.istok(TEXT("tooltips")))
-		{
-			this->m_ToolTipHWND = p_Dialog->getToolTip();
-			if (!IsWindow(this->m_ToolTipHWND))
-				throw Dcx::dcxException("Unable to get ToolTips window");
+		if (!IsWindow(p_Dialog->getToolTip()))
+			throw Dcx::dcxException("Unable to Initialize Tooltips");
 
-			AddToolTipToolInfo(this->m_ToolTipHWND, m_Hwnd);
-		}
+		setToolTipHWND(p_Dialog->getToolTip());
+		AddToolTipToolInfo(getToolTipHWND(), m_Hwnd);
 	}
 
 	this->setControlFont(GetStockFont(DEFAULT_GUI_FONT), FALSE);
-	this->registreDefaultWindowProc();
-	SetProp(m_Hwnd, TEXT("dcx_cthis"), (HANDLE) this);
 }
 
 /*!
@@ -74,7 +70,6 @@ DcxCheck::DcxCheck(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentH
 
 DcxCheck::~DcxCheck( )
 {
-	this->unregistreDefaultWindowProc( );
 }
 
 
@@ -82,8 +77,7 @@ void DcxCheck::toXml(TiXmlElement *const xml) const
 {
 	__super::toXml(xml);
 
-	TString wtext;
-	TGetWindowText(m_Hwnd, wtext);
+	const TString wtext(TGetWindowText(m_Hwnd));
 	xml->SetAttribute("caption", wtext.c_str());
 	xml->SetAttribute("styles", getStyles().c_str());
 }
@@ -296,18 +290,18 @@ LRESULT DcxCheck::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
 			// catch this so we can use $xdid(checkbox).state in sclick callback
 		case BN_CLICKED:
 		{
-			if (dcx_testflag(this->m_pParentDialog->getEventMask(), DCX_EVENT_CLICK))
+			if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
 			{
 				//execAliasEx(TEXT("sclick,%u"), getUserID());
 
 				// /.timer repetitions delay alias dialog event id
 				//mIRCLinker::execex(TEXT("/.timer 1 0 %s %s sclick %u"),
-				//	this->m_pParentDialog->getAliasName().to_chr(),
-				//	this->m_pParentDialog->getName().to_chr(),
+				//	this->getParentDialog()->getAliasName().to_chr(),
+				//	this->getParentDialog()->getName().to_chr(),
 				//	getUserID());
 				mIRCLinker::exec(TEXT("/.timer 1 0 % % sclick %"),
-					this->m_pParentDialog->getAliasName(),
-					this->m_pParentDialog->getName(),
+					this->getParentDialog()->getAliasName(),
+					this->getParentDialog()->getName(),
 					getUserID());
 			}
 
@@ -328,7 +322,7 @@ LRESULT DcxCheck::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 	{
 	case WM_LBUTTONUP:
 	{
-		if (dcx_testflag(this->m_pParentDialog->getEventMask(), DCX_EVENT_CLICK))
+		if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
 			execAliasEx(TEXT("lbup,%u"), getUserID());
 	}
 	break;
@@ -385,26 +379,26 @@ LRESULT DcxCheck::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 void DcxCheck::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 {
 	// Setup alpha blend if any.
-	auto ai = SetupAlphaBlend(&hdc);
+	const auto ai = SetupAlphaBlend(&hdc);
 	Auto(FinishAlphaBlend(ai));
 
-	if (this->m_bNoTheme || !Dcx::UXModule.dcxIsThemeActive())
+	if (!this->IsThemed() || !Dcx::UXModule.dcxIsThemeActive())
 	{
 		// get controls client area
 		if (RECT rcClient{}; GetClientRect(m_Hwnd, &rcClient))
 		{
-			if (this->m_clrBackText != CLR_INVALID)
-				SetBkColor(hdc, this->m_clrBackText);
+			if (const auto clr = getBackColor(); clr != CLR_INVALID)
+				SetBkColor(hdc, clr);
 
-			if (this->m_clrText != CLR_INVALID)
-				SetTextColor(hdc, this->m_clrText);
+			if (const auto clr = getTextColor(); clr != CLR_INVALID)
+				SetTextColor(hdc, clr);
 
 			const auto bWasTransp = this->isExStyle(WindowExStyle::Transparent);
 
 			// fill background.
 			if (bWasTransp)
 			{
-				if (!this->m_bAlphaBlend)
+				if (!this->IsAlphaBlend())
 					this->DrawParentsBackground(hdc, &rcClient);
 			}
 			else
@@ -414,12 +408,22 @@ void DcxCheck::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 			if (!bWasTransp)
 				this->addExStyle(WindowExStyle::Transparent);
 
-			CallDefaultProc(m_Hwnd, uMsg, (WPARAM)hdc, lParam);
+			CallDefaultClassProc(uMsg, (WPARAM)hdc, lParam);
 
 			if (!bWasTransp)
 				this->removeExStyle(WindowExStyle::Transparent);
 		}
 	}
 	else
-		CallDefaultProc(m_Hwnd, WM_PRINTCLIENT, (WPARAM)hdc, PRF_NONCLIENT | PRF_CLIENT | PRF_CHILDREN);
+		CallDefaultClassProc(WM_PRINTCLIENT, (WPARAM)hdc, PRF_NONCLIENT | PRF_CLIENT | PRF_CHILDREN);
+}
+
+WNDPROC DcxCheck::m_hDefaultClassProc = nullptr;
+
+LRESULT DcxCheck::CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept
+{
+	if (m_hDefaultClassProc != nullptr)
+		return CallWindowProc(m_hDefaultClassProc, this->m_Hwnd, uMsg, wParam, lParam);
+
+	return DefWindowProc(this->m_Hwnd, uMsg, wParam, lParam);
 }

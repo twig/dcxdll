@@ -32,14 +32,6 @@
 
 DcxDirectshow::DcxDirectshow(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles)
 	: DcxControl(ID, p_Dialog)
-	, m_pGraph(nullptr)
-	, m_pControl(nullptr)
-	, m_pEvent(nullptr)
-	, m_pWc(nullptr)
-	, m_pSeek(nullptr)
-	, m_bKeepRatio(false)
-	, m_bLoop(false)
-	, m_bReserved{ false, false }
 {
 	//assert(_DXSDK_BUILD_MAJOR == 1962);  //this checks that the DirectX SDK (June 2010) build is installed. (directx sdk is now included in windows sdk 8.0+)
 	//assert(DIRECT3D_VERSION >= 9);	// make sure directx version 9+ is available.
@@ -49,11 +41,12 @@ DcxDirectshow::DcxDirectshow(const UINT ID, DcxDialog *const p_Dialog, const HWN
 
 	m_Hwnd = dcxCreateWindow(
 		ExStyles | WS_EX_CLIENTEDGE,
-		WC_STATIC,
+		DCX_DIRECTSHOWCLASS,
 		Styles | WS_CHILD | WS_CLIPSIBLINGS,
 		rc,
 		mParentHwnd,
-		ID);
+		ID,
+		this);
 
 	if (!IsWindow(m_Hwnd))
 		throw Dcx::dcxException("Unable To Create Window");
@@ -62,8 +55,6 @@ DcxDirectshow::DcxDirectshow(const UINT ID, DcxDialog *const p_Dialog, const HWN
 		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
 
 	this->setControlFont(GetStockFont(DEFAULT_GUI_FONT), FALSE);
-	this->registreDefaultWindowProc();
-	SetProp(m_Hwnd, TEXT("dcx_cthis"), (HANDLE) this);
 }
 
 /*!
@@ -75,7 +66,6 @@ DcxDirectshow::DcxDirectshow(const UINT ID, DcxDialog *const p_Dialog, const HWN
 DcxDirectshow::~DcxDirectshow()
 {
 	this->ReleaseAll();
-	this->unregistreDefaultWindowProc();
 }
 
 const TString DcxDirectshow::getStyles(void) const
@@ -158,7 +148,7 @@ void DcxDirectshow::parseInfoRequest( const TString & input, const refString<TCH
 		{
 			long lWidth = 0, lHeight = 0, lARWidth = 0, lARHeight = 0;
 			
-			if (auto hr = m_pWc->GetNativeVideoSize(&lWidth, &lHeight, &lARWidth, &lARHeight); FAILED(hr))
+			if (const auto hr = m_pWc->GetNativeVideoSize(&lWidth, &lHeight, &lARWidth, &lARHeight); FAILED(hr))
 			{
 				DX_ERR(prop.to_chr(), nullptr, hr);
 				throw Dcx::dcxException("Unable to get Native Video Size");
@@ -181,7 +171,7 @@ void DcxDirectshow::parseInfoRequest( const TString & input, const refString<TCH
 		{
 			VMR9ProcAmpControl amc{};
 			
-			if (auto hr = this->getVideo(&amc); FAILED(hr))
+			if (const auto hr = this->getVideo(&amc); FAILED(hr))
 			{
 				DX_ERR(prop.to_chr(), nullptr, hr);
 				throw Dcx::dcxException("Unable to get Video Information");
@@ -206,7 +196,7 @@ void DcxDirectshow::parseInfoRequest( const TString & input, const refString<TCH
 		{
 			VMR9ProcAmpControlRange acr{};
 
-			if (auto hr = this->getVideoRange(ProcAmpControl9_Brightness, &acr); FAILED(hr))
+			if (const auto hr = this->getVideoRange(ProcAmpControl9_Brightness, &acr); FAILED(hr))
 			{
 				DX_ERR(prop.to_chr(), nullptr, hr);
 				throw Dcx::dcxException("Unable to get Video Information");
@@ -221,7 +211,7 @@ void DcxDirectshow::parseInfoRequest( const TString & input, const refString<TCH
 		{
 			VMR9ProcAmpControlRange acr{};
 
-			if (auto hr = this->getVideoRange(ProcAmpControl9_Contrast, &acr); FAILED(hr))
+			if (const auto hr = this->getVideoRange(ProcAmpControl9_Contrast, &acr); FAILED(hr))
 			{
 				DX_ERR(prop.to_chr(), nullptr, hr);
 				throw Dcx::dcxException("Unable to get Video Information");
@@ -236,7 +226,7 @@ void DcxDirectshow::parseInfoRequest( const TString & input, const refString<TCH
 		{
 			VMR9ProcAmpControlRange acr{};
 
-			if (auto hr = this->getVideoRange(ProcAmpControl9_Hue, &acr); FAILED(hr))
+			if (const auto hr = this->getVideoRange(ProcAmpControl9_Hue, &acr); FAILED(hr))
 			{
 				DX_ERR(prop.to_chr(), nullptr, hr);
 				throw Dcx::dcxException("Unable to get Video Information");
@@ -251,7 +241,7 @@ void DcxDirectshow::parseInfoRequest( const TString & input, const refString<TCH
 		{
 			VMR9ProcAmpControlRange acr{};
 
-			if (auto hr = getVideoRange(ProcAmpControl9_Saturation, &acr); FAILED(hr))
+			if (const auto hr = getVideoRange(ProcAmpControl9_Saturation, &acr); FAILED(hr))
 			{
 				DX_ERR(prop.to_chr(), nullptr, hr);
 				throw Dcx::dcxException("Unable to get Video Information");
@@ -293,9 +283,9 @@ void DcxDirectshow::parseInfoRequest( const TString & input, const refString<TCH
 
 			OAFilterState pfs = State_Stopped;
 
-			if (auto hr = this->m_pControl->GetState(1000, &pfs); SUCCEEDED(hr))
+			if (const auto hr = this->m_pControl->GetState(1000, &pfs); SUCCEEDED(hr))
 			{
-				PTCHAR szState = nullptr;
+				const TCHAR *szState = nullptr;
 
 				switch (pfs)
 				{
@@ -338,8 +328,11 @@ void DcxDirectshow::parseCommandRequest( const TString &input)
 	const auto numtok = input.numtok( );
 
 	// xdid -a [NAME] [ID] [SWITCH] [+FLAGS] [FILE]
-	if ( flags[TEXT('a')] && numtok > 4 )
+	if ( flags[TEXT('a')] )
 	{
+		if (numtok < 5)
+			throw Dcx::dcxException("Insufficient parameters");
+
 		const XSwitchFlags xflags(input.getnexttok( ).trim());	// tok 4
 		auto filename(input.getlasttoks().trim());			// tok 5, -1
 
@@ -411,7 +404,7 @@ void DcxDirectshow::parseCommandRequest( const TString &input)
 				if (FAILED(hr))
 					throw Dcx::dcxException("Unable to set Video Position");
 
-				if (this->m_bAlphaBlend)
+				if (this->IsAlphaBlend())
 					this->setAlpha(0.5);
 			}
 			else { // if VMR == nullptr then disable video.
@@ -456,8 +449,11 @@ void DcxDirectshow::parseCommandRequest( const TString &input)
 		}
 	}
 	// xdid -c [NAME] [ID] [SWITCH] [COMMAND]
-	else if ( flags[TEXT('c')] && numtok > 3 )
+	else if ( flags[TEXT('c')] )
 	{
+		if (numtok < 4)
+			throw Dcx::dcxException("Insufficient parameters");
+
 		if (this->m_pControl == nullptr)
 			throw Dcx::dcxException("No File Loaded");
 
@@ -495,8 +491,11 @@ void DcxDirectshow::parseCommandRequest( const TString &input)
 		}
 	}
 	// xdid -v [NAME] [ID] [SWITCH] [+FLAGS] [BRIGHTNESS] [CONTRAST] [HUE] [SATURATION]
-	else if ( flags[TEXT('v')] && numtok > 7 )
+	else if ( flags[TEXT('v')] )
 	{
+		if (numtok < 8)
+			throw Dcx::dcxException("Insufficient parameters");
+
 		if (m_pControl == nullptr)
 			throw Dcx::dcxException("No File Loaded");
 
@@ -506,15 +505,18 @@ void DcxDirectshow::parseCommandRequest( const TString &input)
 		const auto fHue(input.getnexttok().to_<float>());
 		const auto fSaturation(input.getnexttok().to_<float>());
 
-		if (auto hr = setVideo(tsFlags, fBrightness, fContrast, fHue, fSaturation); FAILED(hr))
+		if (const auto hr = setVideo(tsFlags, fBrightness, fContrast, fHue, fSaturation); FAILED(hr))
 		{
 			DX_ERR(nullptr,TEXT("-v"), hr);
 			throw Dcx::dcxException("Unable to set video");
 		}
 	}
 	// xdid -V [NAME] [ID] [SWITCH] [+FLAGS] [ARGS]
-	else if ( flags[TEXT('V')] && numtok > 4 )
+	else if ( flags[TEXT('V')] )
 	{
+		if (numtok < 5)
+			throw Dcx::dcxException("Insufficient parameters");
+
 		const auto flag(input.getnexttok());	// tok 4
 
 		if (flag[0] != TEXT('+'))
@@ -527,7 +529,7 @@ void DcxDirectshow::parseCommandRequest( const TString &input)
 		{
 		case TEXT('v'): // Volume
 		{
-			if (auto hr = this->setVolume(input.getnexttok().to_<long>()); FAILED(hr))
+			if (const auto hr = this->setVolume(input.getnexttok().to_<long>()); FAILED(hr))
 			{
 				DX_ERR(nullptr, TEXT("-V +v"), hr);
 				throw Dcx::dcxException("Unable to Set Volume");
@@ -549,7 +551,7 @@ void DcxDirectshow::parseCommandRequest( const TString &input)
  *
  * blah
  */
-LRESULT DcxDirectshow::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed )
+LRESULT DcxDirectshow::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) noexcept
 {
 	return 0L;
 }
@@ -1105,10 +1107,10 @@ HRESULT DcxDirectshow::setPosition(const UINT64 pos)
 		return E_POINTER;
 
 	UINT64 mpos = pos * 10000; // convert to 100-nano secs units.
-	DWORD dwCaps = AM_SEEKING_CanSeekAbsolute;
+	//DWORD dwCaps = AM_SEEKING_CanSeekAbsolute;
 	HRESULT hr = E_FAIL;
 
-	if (dcx_testflag(this->CheckSeekCapabilities(dwCaps), AM_SEEKING_CanSeekAbsolute))
+	if (dcx_testflag(this->CheckSeekCapabilities(AM_SEEKING_CanSeekAbsolute), AM_SEEKING_CanSeekAbsolute))
 		hr = this->m_pSeek->SetPositions((LONGLONG *)&mpos,AM_SEEKING_AbsolutePositioning,nullptr,AM_SEEKING_NoPositioning);
 
 	return hr;
@@ -1119,8 +1121,8 @@ UINT64 DcxDirectshow::getDuration() const
 	if (this->m_pSeek == nullptr)
 		return 0;
 
-	DWORD dwCaps = AM_SEEKING_CanGetDuration;
-	if (dcx_testflag(this->CheckSeekCapabilities(dwCaps), AM_SEEKING_CanGetDuration))
+	//const DWORD dwCaps = AM_SEEKING_CanGetDuration;
+	if (dcx_testflag(this->CheckSeekCapabilities(AM_SEEKING_CanGetDuration), AM_SEEKING_CanGetDuration))
 	{ // can get current pos
 		UINT64 pos = 0ULL;
 		if (SUCCEEDED(this->m_pSeek->GetDuration((INT64 *)&pos)))
@@ -1195,6 +1197,16 @@ TiXmlElement * DcxDirectshow::toXml(void) const
 	auto xml = std::make_unique<TiXmlElement>("control");
 	toXml(xml.get());
 	return xml.release();
+}
+
+WNDPROC DcxDirectshow::m_hDefaultClassProc = nullptr;
+
+LRESULT DcxDirectshow::CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept
+{
+	if (m_hDefaultClassProc != nullptr)
+		return CallWindowProc(m_hDefaultClassProc, this->m_Hwnd, uMsg, wParam, lParam);
+
+	return DefWindowProc(this->m_Hwnd, uMsg, wParam, lParam);
 }
 
 #endif // DCX_USE_DXSDK

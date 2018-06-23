@@ -27,18 +27,17 @@
 
 DcxEdit::DcxEdit(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString &styles)
 	: DcxControl(ID, p_Dialog)
-	, m_bIgnoreRepeat(false)
-	, m_PassChar(0)
 {
 	const auto[bNoTheme, Styles, ExStyles] = parseControlStyles(styles);
 
 	m_Hwnd = dcxCreateWindow(
 		ExStyles | WindowExStyle::ClientEdge,
-		WC_EDIT,
+		DCX_EDITCLASS,
 		Styles | WindowStyle::Child,
 		rc,
 		mParentHwnd,
-		ID);
+		ID,
+		this);
 
 	if (!IsWindow(m_Hwnd))
 		throw Dcx::dcxException("Unable To Create Window");
@@ -50,19 +49,17 @@ DcxEdit::DcxEdit(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwn
 
 	//SendMessage(m_Hwnd, CCM_SETUNICODEFORMAT, TRUE, NULL);
 
-	if (p_Dialog->getToolTip() != nullptr)
+	if (styles.istok(TEXT("tooltips")))
 	{
-		if (styles.istok(TEXT("tooltips")))
-		{
-			this->m_ToolTipHWND = p_Dialog->getToolTip();
-			AddToolTipToolInfo(this->m_ToolTipHWND, m_Hwnd);
-		}
+		if (!IsWindow(p_Dialog->getToolTip()))
+			throw Dcx::dcxException("Unable to Initialize Tooltips");
+
+		setToolTipHWND(p_Dialog->getToolTip());
+		AddToolTipToolInfo(getToolTipHWND(), m_Hwnd);
 	}
 
 	this->m_bIgnoreRepeat = true;
 	this->setControlFont(GetStockFont(DEFAULT_GUI_FONT), FALSE);
-	this->registreDefaultWindowProc();
-	SetProp(m_Hwnd, TEXT("dcx_cthis"), reinterpret_cast<HANDLE>(this));
 	DragAcceptFiles(m_Hwnd, TRUE);
 }
 
@@ -73,7 +70,6 @@ DcxEdit::DcxEdit(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwn
 */
 DcxEdit::~DcxEdit()
 {
-	this->unregistreDefaultWindowProc();
 }
 
 
@@ -226,7 +222,7 @@ std::tuple<NoTheme, WindowStyle, WindowExStyle> DcxEdit::parseControlStyles(cons
 
 	for (const auto &tsStyle : tsStyles)
 	{
-		switch (std::hash<TString>{}(tsStyle.to_chr()))
+		switch (std::hash<TString>{}(tsStyle))
 		{
 		case L"multi"_hash:
 			Styles |= ES_MULTILINE;
@@ -411,19 +407,28 @@ void DcxEdit::parseCommandRequest( const TString &input)
 	}
 
 	// xdid -a [NAME] [ID] [SWITCH] [TEXT]
-	if (flags[TEXT('a')] && numtok > 3)
+	if (flags[TEXT('a')])
 	{
+		if (numtok < 4)
+			throw Dcx::dcxException("Insufficient parameters");
+
 		this->m_tsText += input.getlasttoks();	// tok 4, -1
 		SetWindowTextW(m_Hwnd, this->m_tsText.to_wchr());
 	}
 	// xdid -c [NAME] [ID] [SWITCH]
-	else if (flags[TEXT('c')] && numtok > 2)
+	else if (flags[TEXT('c')])
 	{
+		if (numtok < 3)
+			throw Dcx::dcxException("Insufficient parameters");
+
 		CopyToClipboard(m_Hwnd, this->m_tsText);
 	}
 	// xdid -d [NAME] [ID] [SWITCH] [N]
-	else if (flags[TEXT('d')] && numtok > 3)
+	else if (flags[TEXT('d')])
 	{
+		if (numtok < 4)
+			throw Dcx::dcxException("Insufficient parameters");
+
 		if (this->isStyle(WindowStyle::ES_MultiLine))
 		{
 			const auto nLine = input.getnexttok().to_<UINT>();	// tok 4
@@ -432,8 +437,11 @@ void DcxEdit::parseCommandRequest( const TString &input)
 		}
 	}
 	// xdid -i [NAME] [ID] [SWITCH] [N] [TEXT]
-	else if (flags[TEXT('i')] && numtok > 4)
+	else if (flags[TEXT('i')])
 	{
+		if (numtok < 5)
+			throw Dcx::dcxException("Insufficient parameters");
+
 		if (this->isStyle(WindowStyle::ES_MultiLine))
 		{
 			const auto nLine = input.getnexttok().to_<UINT>();	// tok 4
@@ -444,8 +452,11 @@ void DcxEdit::parseCommandRequest( const TString &input)
 		SetWindowTextW(m_Hwnd, this->m_tsText.to_wchr());
 	}
 	// xdid -j [NAME] [ID] [SWITCH] [0|1]
-	else if (flags[TEXT('j')] && numtok > 3)
+	else if (flags[TEXT('j')])
 	{
+		if (numtok < 4)
+			throw Dcx::dcxException("Insufficient parameters");
+
 		const auto i = input.getnexttok().to_<UINT>();	// tok 4
 
 		auto c = Edit_GetPasswordChar(m_Hwnd);
@@ -483,15 +494,21 @@ void DcxEdit::parseCommandRequest( const TString &input)
 		this->redrawWindow();
 	}
 	// xdid -l [NAME] [ID] [SWITCH] [ON|OFF]
-	else if (flags[TEXT('l')] && numtok > 3)
+	else if (flags[TEXT('l')])
 	{
+		if (numtok < 4)
+			throw Dcx::dcxException("Insufficient parameters");
+
 		const BOOL enabled = (input.getnexttok().to_int() > 0);	// tok 4
 
 		SendMessage(m_Hwnd, EM_SETREADONLY, gsl::narrow_cast<WPARAM>(enabled), NULL);
 	}
 	// xdid -o [NAME] [ID] [SWITCH] [N] [TEXT]
-	else if (flags[TEXT('o')] && numtok > 3)
+	else if (flags[TEXT('o')])
 	{
+		if (numtok < 4)
+			throw Dcx::dcxException("Insufficient parameters");
+
 		if (this->isStyle(WindowStyle::ES_MultiLine))
 		{
 			const auto nLine = input.getnexttok().to_<UINT>();	// tok 4
@@ -502,13 +519,16 @@ void DcxEdit::parseCommandRequest( const TString &input)
 		SetWindowTextW(m_Hwnd, this->m_tsText.to_wchr());
 	}
 	// xdid -P [NAME] [ID]
-	else if (flags[TEXT('P')] && numtok > 1)
+	else if (flags[TEXT('P')])
 	{
 		SendMessage(this->getHwnd(),WM_PASTE,NULL,NULL);
 	}
 	// xdid -q [NAME] [ID] [SWITCH] [SIZE]
-	else if (flags[TEXT('q')] && numtok > 3)
+	else if (flags[TEXT('q')])
 	{
+		if (numtok < 4)
+			throw Dcx::dcxException("Insufficient parameters");
+
 		if (const auto N = input.getnexttok().to_int(); N > -1)
 			Edit_LimitText(m_Hwnd, N);
 	}
@@ -518,8 +538,11 @@ void DcxEdit::parseCommandRequest( const TString &input)
 	{
 	}
 	// xdid -t [NAME] [ID] [SWITCH] [FILENAME]
-	else if (flags[TEXT('t')] && numtok > 3)
+	else if (flags[TEXT('t')])
 	{
+		if (numtok < 4)
+			throw Dcx::dcxException("Insufficient parameters");
+
 		auto tsFile(input.getlasttoks().trim());	// tok 4, -1
 
 		if (!IsFile(tsFile))
@@ -529,8 +552,11 @@ void DcxEdit::parseCommandRequest( const TString &input)
 		SetWindowTextW(m_Hwnd, m_tsText.to_wchr());
 	}
 	// xdid -u [NAME] [ID] [SWITCH] [FILENAME]
-	else if (flags[TEXT('u')] && numtok > 3)
+	else if (flags[TEXT('u')])
 	{
+		if (numtok < 4)
+			throw Dcx::dcxException("Insufficient parameters");
+
 		if (const auto tsFile(input.getlasttoks().trim()); !SaveDataToFile(tsFile, this->m_tsText))
 			throw Dcx::dcxException(TEXT("Unable to save: %"), tsFile);
 	}
@@ -539,30 +565,34 @@ void DcxEdit::parseCommandRequest( const TString &input)
 	{
 		SendMessage(m_Hwnd, EM_SCROLLCARET, NULL, NULL);
 	}
-	// xdid -S [NAME] [ID] [SWITCH] [START] [END]
-	else if (flags[TEXT('S')] && numtok > 3)
+	// xdid -S [NAME] [ID] [SWITCH] [START] (END)
+	else if (flags[TEXT('S')])
 	{
-		const auto istart = input.getnexttok().to_int();	// tok 4
-		int iend = istart;
-		
-		if (numtok > 4)
-			iend = input.getnexttok( ).to_int();	// tok 5
+		if (numtok < 4)
+			throw Dcx::dcxException("Insufficient parameters");
 
+		const auto istart = input.getnexttok().to_int();	// tok 4
+		const auto iend = (numtok > 4) ? input.getnexttok().to_int() : istart;
+		
 		SendMessage(m_Hwnd, EM_SETSEL, gsl::narrow_cast<WPARAM>(istart), gsl::narrow_cast<LPARAM>(iend));
 		SendMessage(m_Hwnd, EM_SCROLLCARET, NULL, NULL);
 	}
 	// xdid -E [NAME] [ID] [SWITCH] [CUE TEXT]
-	else if (flags[TEXT('E')] && numtok > 3)
+	else if (flags[TEXT('E')])
 	{
+		if (numtok < 4)
+			throw Dcx::dcxException("Insufficient parameters");
+
 		this->m_tsCue = input.getlasttoks();	// tok 4, -1
 		Edit_SetCueBannerText(m_Hwnd,this->m_tsCue.to_wchr());
 	}
 	// xdid -y [NAME] [ID] [SWITCH] [0|1]
-	else if (flags[TEXT('y')] && numtok > 3)
+	else if (flags[TEXT('y')])
 	{
-		const auto state = input.getnexttok().to_int();	// tok 4
+		if (numtok < 4)
+			throw Dcx::dcxException("Insufficient parameters");
 
-		this->m_bIgnoreRepeat = (state > 0);
+		this->m_bIgnoreRepeat = (input.getnexttok().to_int() > 0);	// tok 4
 	}
 	else
 		this->parseGlobalCommandRequest(input, flags);
@@ -584,8 +614,8 @@ LRESULT DcxEdit::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bP
 		case EN_CHANGE:
 		{
 			TGetWindowText(m_Hwnd, this->m_tsText);
-			if (dcx_testflag(this->m_pParentDialog->getEventMask(), DCX_EVENT_EDIT))
-				this->execAliasEx(TEXT("%s,%u"), TEXT("edit"), this->getUserID());
+			if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_EDIT))
+				this->execAliasEx(TEXT("edit,%u"), getUserID());
 		}
 
 		break;
@@ -616,15 +646,15 @@ LRESULT DcxEdit::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bPar
 	{
 		//if (wParam == VK_ESCAPE)
 		//	bParsed = TRUE; // prevents m_pParent window closing.
-		if (dcx_testflag(this->m_pParentDialog->getEventMask(), DCX_EVENT_EDIT))
+		if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_EDIT))
 		{
 			if (wParam == VK_RETURN)
-				this->execAliasEx(TEXT("%s,%u"), TEXT("return"), this->getUserID());
+				this->execAliasEx(TEXT("return,%u"), getUserID());
 
 			if ((this->m_bIgnoreRepeat) && (lParam & 0x40000000)) // ignore repeats
 				break;
 
-			this->execAliasEx(TEXT("%s,%u,%u"), TEXT("keydown"), this->getUserID(), wParam);
+			this->execAliasEx(TEXT("keydown,%u,%u"), getUserID(), wParam);
 		}
 		/*
 		// CTRL+A, select text and return so control doesnt beep
@@ -641,9 +671,9 @@ LRESULT DcxEdit::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bPar
 	}
 	case WM_COPY:
 	{
-		if (dcx_testflag(this->m_pParentDialog->getEventMask(), DCX_EVENT_EDIT))
+		if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_EDIT))
 		{
-			stString<256> szRet;
+			const stString<256> szRet;
 
 			evalAliasEx(szRet, gsl::narrow_cast<int>(szRet.size()), TEXT("copy,%u"), getUserID());
 
@@ -657,9 +687,9 @@ LRESULT DcxEdit::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bPar
 	}
 	case WM_CUT:
 	{
-		if (dcx_testflag(this->m_pParentDialog->getEventMask(), DCX_EVENT_EDIT))
+		if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_EDIT))
 		{
-			stString<256> szRet;
+			const stString<256> szRet;
 
 			evalAliasEx(szRet, gsl::narrow_cast<int>(szRet.size()), TEXT("cut,%u"), getUserID());
 
@@ -673,9 +703,9 @@ LRESULT DcxEdit::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bPar
 	}
 	case WM_PASTE:
 	{
-		if (dcx_testflag(this->m_pParentDialog->getEventMask(), DCX_EVENT_EDIT))
+		if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_EDIT))
 		{
-			stString<256> szRet;
+			const stString<256> szRet;
 
 			evalAliasEx(szRet, gsl::narrow_cast<int>(szRet.size()), TEXT("paste,%u"), getUserID());
 
@@ -689,13 +719,13 @@ LRESULT DcxEdit::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bPar
 	}
 	case WM_KEYUP:
 	{
-		if (dcx_testflag(this->m_pParentDialog->getEventMask(), DCX_EVENT_EDIT))
+		if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_EDIT))
 			execAliasEx(TEXT("keyup,%u,%u"), getUserID(), wParam);
 		break;
 	}
 	case WM_PAINT:
 	{
-		if (!this->m_bAlphaBlend)
+		if (!this->IsAlphaBlend())
 			break;
 		PAINTSTRUCT ps{};
 
@@ -705,10 +735,10 @@ LRESULT DcxEdit::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bPar
 		bParsed = TRUE;
 
 		// Setup alpha blend if any.
-		auto ai = this->SetupAlphaBlend(&hdc);
+		const auto ai = this->SetupAlphaBlend(&hdc);
 		Auto(this->FinishAlphaBlend(ai));
 
-		return CallDefaultProc(m_Hwnd, uMsg, (WPARAM)hdc, lParam);
+		return CallDefaultClassProc(uMsg, (WPARAM)hdc, lParam);
 	}
 	break;
 
@@ -724,4 +754,14 @@ LRESULT DcxEdit::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bPar
 	}
 
 	return 0L;
+}
+
+WNDPROC DcxEdit::m_hDefaultClassProc = nullptr;
+
+LRESULT DcxEdit::CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept
+{
+	if (m_hDefaultClassProc != nullptr)
+		return CallWindowProc(m_hDefaultClassProc, this->m_Hwnd, uMsg, wParam, lParam);
+
+	return DefWindowProc(this->m_Hwnd, uMsg, wParam, lParam);
 }

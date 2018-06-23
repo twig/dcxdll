@@ -68,12 +68,15 @@ using IntegerHash = std::map<TString, UINT>;
 #pragma warning( disable : 2292 ) //warning #2292: destructor is declared but copy constructor and assignment operator are not
 #endif
 
-class DcxDialog : public DcxWindow {
-
+class DcxDialog
+	: public DcxWindow
+{
 public:
 	DcxDialog() = delete;
 	DcxDialog(const DcxDialog &other) = delete;
+	DcxDialog(DcxDialog &&other) = delete;
 	DcxDialog &operator =(const DcxDialog &) = delete;	// No assignments!
+	DcxDialog &operator =(DcxDialog &&) = delete;	// No move assignments!
 
 	DcxDialog( const HWND mHwnd, const TString & tsName, const TString & tsAliasName);
 	virtual ~DcxDialog( );
@@ -121,8 +124,8 @@ public:
 		return{ bRes, tsRes };
 	}
 
-	DcxControl * getControlByID( const UINT ID ) const;
-	DcxControl * getControlByHWND( const HWND mHwnd ) const;
+	DcxControl * getControlByID( const UINT ID ) const noexcept;
+	DcxControl * getControlByHWND( const HWND mHwnd ) const noexcept;
 
 	void addControl( DcxControl * p_Control );
 	DcxControl *addControl(const TString & input, const UINT offset, const UINT64 mask, HWND hParent);
@@ -135,13 +138,13 @@ public:
 
 	inline const TString &getName() const noexcept { return m_tsName; }
 	inline const TString &getAliasName() const noexcept { return m_tsAliasName; }
-	inline const HBRUSH &DcxDialog::getBackClrBrush() const noexcept { return m_hBackBrush; }
+	inline const HBRUSH &getBackClrBrush() const noexcept { return m_hBackBrush; }
 	inline const UINT &getFocusControl() const noexcept { return m_FocusID; };
 	inline void setParentName(const TString &strParent) { m_tsParentName = strParent; }
 	inline const TString &getParentName() const noexcept { return m_tsParentName; }
 	inline const HCURSOR &getCursor( ) const noexcept { return m_hCursor; };
 	inline const HCURSOR &getCursor(const WORD wHitCode) const noexcept {
-		if (wHitCode < _countof(m_hCursorList)) return m_hCursorList[wHitCode].first;
+		if (wHitCode < std::extent_v<decltype(m_hCursorList)>) return m_hCursorList[wHitCode].first;
 		return m_hCursor;
 	};
 	inline const HWND &getToolTip(void) const noexcept { return m_ToolTipHWND; };
@@ -171,11 +174,11 @@ public:
 	void DrawDialog(Gdiplus::Graphics & graphics, HDC hDC);
 #endif
 	void CreateVistaStyle(void);
-	const bool CreateVistaStyleBitmap(const SIZE &szWin);
-	void RemoveVistaStyle(void);
+	const bool CreateVistaStyleBitmap(const SIZE &szWin) noexcept;
+	void RemoveVistaStyle(void) noexcept;
 	void UpdateVistaStyle(const RECT *const rcUpdate = nullptr);
-	void SetVistaStylePos(void);
-	void SetVistaStyleSize(void);
+	void SetVistaStylePos(void) noexcept;
+	void SetVistaStyleSize(void) noexcept;
 
 	const bool isNamedId(const TString &NamedID) const
 	{
@@ -223,6 +226,8 @@ public:
 	}
 	const TString &IDToName(const UINT local_id) const
 	{
+		static const TString tsEmpty;
+
 		//const auto itEnd = namedIds.end();
 		//const auto itGot = std::find_if(namedIds.begin(), itEnd, [local_id](const auto &arg) { return (arg.second == local_id); });
 		//if (itGot != itEnd)
@@ -233,7 +238,7 @@ public:
 			if (uStoredID == local_id)
 				return tsStoredName;
 		}
-		return TString();
+		return tsEmpty;
 	}
 	const UINT getUniqueID() const
 	{
@@ -286,9 +291,7 @@ public:
 	}
 	bool deleteNamedID(const TString &tsName)
 	{
-		const auto itEnd = m_NamedIds.end();
-		
-		if (const auto itGot = m_NamedIds.find(tsName); itGot != itEnd)
+		if (const auto itEnd = m_NamedIds.end(), itGot = m_NamedIds.find(tsName); itGot != itEnd)
 		{
 			m_NamedIds.erase(itGot);
 			return true;
@@ -298,7 +301,7 @@ public:
 		//return Dcx::eraseIfFound(m_NamedIds, tsName);
 	}
 
-	void MapVistaRect(HWND hwnd, LPRECT rc) const;
+	void MapVistaRect(HWND hwnd, LPRECT rc) const noexcept;
 
 	void RegisterDragList(DcxList *const list);
 	void UnregisterDragList(const DcxList *const list);
@@ -308,7 +311,7 @@ public:
 	TiXmlElement * toXml(const TString &name) const;
 	void toXml(TiXmlElement *const xml, const TString &name) const;
 
-	const bool isIDValid(_In_ const UINT ID, _In_ const bool bUnused = false) const;
+	const bool isIDValid(_In_ const UINT ID, _In_ const bool bUnused = false) const noexcept;
 
 	static LRESULT WINAPI WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 	static void DrawDialogBackground(HDC hdc, DcxDialog *const p_this, LPCRECT rwnd);
@@ -323,66 +326,64 @@ private:
 
 	VectorOfControlPtrs m_vpControls; //!< Vector of DCX Controls
 	VectorOfInts m_vZLayers;
-	VectorOfInts::size_type m_zLayerCurrent;
+	VectorOfInts::size_type m_zLayerCurrent{};
 
 	VectorOfDragListPtrs m_vDragLists; //!< Registered draglists
 
-	HBRUSH m_hBackBrush;    //!< Background control color
+	HBRUSH m_hBackBrush{ nullptr };    //!< Background control color
 
-	UINT m_MouseID; //!< Mouse Hover ID
-	UINT m_FocusID; //!< Mouse Hover ID
-	UINT m_uStyleBg;
-	UINT m_iRefCount;
+	UINT m_MouseID{}; //!< Mouse Hover ID
+	UINT m_FocusID{}; //!< Mouse Hover ID
+	UINT m_uStyleBg{ DBS_BKGNORMAL };
+	UINT m_iRefCount{};
 
-	//LayoutManager * m_pLayoutManager; //!< Layout Manager Object
-	XPopupMenu * m_popup;
+	XPopupMenu * m_popup{ nullptr };
 
 	std::unique_ptr<LayoutManager> m_pLayoutManager; //!< Layout Manager Object
-	//std::unique_ptr<XPopupMenu> m_popup;
 
-	HCURSOR m_hCursor;  //!< Cursor Handle
+	HCURSOR m_hCursor{ nullptr };  //!< Cursor Handle
 	std::pair<HCURSOR, bool> m_hCursorList[22];
 
-	HBITMAP m_bitmapBg;
-	HBITMAP m_hVistaBitmap;
+	HBITMAP m_bitmapBg{ nullptr };
+	HBITMAP m_hVistaBitmap{ nullptr };
 
-	COLORREF m_colTransparentBg;
-	COLORREF m_cKeyColour;
+	COLORREF m_colTransparentBg{ RGB(255,0,255) };
+	COLORREF m_cKeyColour{ CLR_NONE };
 
-	HWND m_ToolTipHWND; //!< Dialogs general tooltip control for use with all controls that don't have their own tooltips.
-	HWND m_hFakeHwnd;
+	HWND m_ToolTipHWND{ nullptr }; //!< Dialogs general tooltip control for use with all controls that don't have their own tooltips.
+	HWND m_hFakeHwnd{ nullptr };
 
-	DWORD m_dEventMask;
+	DWORD m_dEventMask{ DCX_EVENT_ALL };
 
-	BYTE m_iAlphaLevel;
-	BYTE m_uGhostDragAlpha;
-	BOOL m_bTracking;
+	BYTE m_iAlphaLevel{ 255 };
+	BYTE m_uGhostDragAlpha{ 255 };
+	BOOL m_bTracking{ FALSE };
 
-	bool m_bInSizing; //!< In Moving Motion
-	bool m_bInMoving; //!< In Sizing Motion
-	bool m_bCursorFromFile; //!< Cursor comes from a file?
-	bool m_bDoDrag;
-	bool m_bDrag;
-	bool m_bGhosted;
-	bool m_bVerboseErrors; //!< Should all errors be echo'd to status?
-	bool m_bHaveKeyColour;
-	bool m_bVistaStyle;
-	mutable bool m_bErrorTriggered;		// set to true when an error has been triggered & used to avoid error loops
-	mutable bool m_bDialogActive;		// set to true when dialog is active
+	bool m_bInSizing{ false }; //!< In Moving Motion
+	bool m_bInMoving{ false }; //!< In Sizing Motion
+	bool m_bCursorFromFile{ false }; //!< Cursor comes from a file?
+	bool m_bDoDrag{ false };
+	bool m_bDrag{ false };
+	bool m_bGhosted{ false };
+	bool m_bVerboseErrors{ true }; //!< Should all errors be echo'd to status?
+	bool m_bHaveKeyColour{ false };
+	bool m_bVistaStyle{ false };
+	mutable bool m_bErrorTriggered{ false };		// set to true when an error has been triggered & used to avoid error loops
+	mutable bool m_bDialogActive{ true };		// set to true when dialog is active
 	static bool m_bIsMenuBar;
 	static bool m_bIsSysMenu;
-	bool m_bReserved;				//!< Reserved for future use.
+	bool m_bReserved{ false };				//!< Reserved for future use.
 
-	PVOID m_pVistaBits;
+	PVOID m_pVistaBits{ nullptr };
 
-	HDC m_hVistaHDC;
+	HDC m_hVistaHDC{ nullptr };
 
-	SIZE m_sVistaOffsets;
+	SIZE m_sVistaOffsets{};
 
-	RECT m_GlassOffsets;
+	RECT m_GlassOffsets{};
 
 	void i_showError(const TCHAR *const cType, const TCHAR *const prop, const TCHAR *const cmd, const TCHAR *const err) const;
-	void PreloadData(void);
+	void PreloadData(void) noexcept;
 
 	static std::pair<WindowStyle, WindowExStyle> parseBorderStyles(const TString & flags) noexcept;
 	static const UINT parseBkgFlags(const TString & flags) noexcept;

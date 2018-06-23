@@ -29,20 +29,18 @@
  */
 
 DcxList::DcxList(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles)
-	: DcxControl(ID, p_Dialog),
-	m_iDragList(0),
-	m_iLastDrawnLine(0),
-	m_bUseDrawInsert(true)
+	: DcxControl(ID, p_Dialog)
 {
 	const auto[bNoTheme, Styles, ExStyles] = parseControlStyles(styles);
 
 	m_Hwnd = dcxCreateWindow(
 		ExStyles | WindowExStyle::ClientEdge,
-		WC_LISTBOX,
+		DCX_LISTCLASS,
 		Styles | WindowStyle::Child,
 		rc,
 		mParentHwnd,
-		ID);
+		ID,
+		this);
 
 	if (!IsWindow(m_Hwnd))
 		throw Dcx::dcxException("Unable To Create Window");
@@ -51,8 +49,6 @@ DcxList::DcxList(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwn
 		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
 
 	this->setControlFont(GetStockFont(DEFAULT_GUI_FONT), FALSE);
-	this->registreDefaultWindowProc();
-	SetProp(m_Hwnd, TEXT("dcx_cthis"), (HANDLE) this);
 
 	// Check for "draglist" style
 	if (styles.istok(TEXT("draglist")))
@@ -65,7 +61,8 @@ DcxList::DcxList(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwn
 			throw Dcx::dcxException("Error applying draglist style");
 
 		m_iDragList = RegisterWindowMessage(DRAGLISTMSGSTRING);
-		this->m_pParentDialog->RegisterDragList(this);
+
+		this->getParentDialog()->RegisterDragList(this);
 	}
 
 	DragAcceptFiles(m_Hwnd, TRUE);
@@ -79,14 +76,13 @@ DcxList::DcxList(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwn
 
 DcxList::~DcxList()
 {
-	this->m_pParentDialog->UnregisterDragList(this);
-	this->unregistreDefaultWindowProc();
+	this->getParentDialog()->UnregisterDragList(this);
 }
 
 const TString DcxList::getStyles(void) const
 {
 	auto styles(__super::getStyles());
-	const auto Styles = GetWindowStyle(m_Hwnd);
+	const auto Styles = dcxGetWindowStyle(m_Hwnd);
 
 	if (dcx_testflag(Styles, LBS_DISABLENOSCROLL))
 		styles.addtok(TEXT("noscroll"));
@@ -464,8 +460,11 @@ void DcxList::parseCommandRequest( const TString & input )
 
 	//xdid -a [NAME] [ID] [SWITCH] [N] [TEXT]
 	//xdid -a -> [NAME] [ID] -a [N] [TEXT]
-	if ( flags[TEXT('a')] && numtok > 4 )
+	if ( flags[TEXT('a')] )
 	{
+		if (numtok < 5)
+			throw Dcx::dcxException("Insufficient parameters");
+
 		auto nPos = input.getnexttok().to_int() - 1;	// tok 4
 		const auto tsItem(input.getlasttoks());			// tok 5, -1
 
@@ -486,8 +485,11 @@ void DcxList::parseCommandRequest( const TString & input )
 	}
 	//xdid -A [NAME] [ID] [SWITCH] [N] [+FLAGS] [TEXT]
 	//xdid -A -> [NAME] [ID] -A [N] [+FLAGS] [TEXT]
-	else if (flags[TEXT('A')] && numtok > 5)
+	else if (flags[TEXT('A')])
 	{
+		if (numtok < 6)
+			throw Dcx::dcxException("Insufficient parameters");
+
 		auto nPos = input.getnexttok().to_int() - 1;	// tok 4
 
 		if ( nPos == -1 )
@@ -652,7 +654,7 @@ void DcxList::parseCommandRequest( const TString & input )
 			setRedraw(FALSE);
 			Auto({ setRedraw(TRUE); redrawWindow(); });
 
-			for (auto itStart = contents.begin(tok), itEnd = contents.end(); itStart != itEnd; ++itStart)
+			for (auto itStart = contents.begin(&tok[0]), itEnd = contents.end(); itStart != itEnd; ++itStart)
 			{
 				itemtext = (*itStart);
 				
@@ -671,8 +673,11 @@ void DcxList::parseCommandRequest( const TString & input )
 	}
 	//xdid -c [NAME] [ID] [N,[N,[...]]]
 	//xdid -c -> [NAME] [ID] -c [N,[N,[...]]]
-	else if ( flags[TEXT('c')] && numtok > 3 )
+	else if ( flags[TEXT('c')] )
 	{
+		if (numtok < 4)
+			throw Dcx::dcxException("Insufficient parameters");
+
 		const auto nItems = ListBox_GetCount(m_Hwnd);
 
 		if (this->isStyle(WindowStyle::LBS_MultiSel) || this->isStyle(WindowStyle::LBS_ExtendedSel))
@@ -705,8 +710,11 @@ void DcxList::parseCommandRequest( const TString & input )
 	//xdid -d [NAME] [ID] [SWITCH] [N](,[N],[N1]-N2],...)
 	//xdid -d -> [NAME] [ID] -d [N](,[N],[N1]-N2],...)
 	//xdid -d -> [NAME] [ID] -d [N] [+flags] [match text]
-	else if ( flags[TEXT('d')] && numtok > 3 )
+	else if ( flags[TEXT('d')] )
 	{
+		if (numtok < 4)
+			throw Dcx::dcxException("Insufficient parameters");
+
 		const auto Ns(input.getnexttok());			// tok 4
 		
 		const auto nItems = ListBox_GetCount(m_Hwnd);
@@ -716,7 +724,7 @@ void DcxList::parseCommandRequest( const TString & input )
 			// have flags, so its a match text delete
 			const auto tsMatchText(input.getnexttok());
 
-			auto SearchType = FlagsToSearchType(xFlags);
+			const auto SearchType = FlagsToSearchType(xFlags);
 
 			for (auto nPos = Ns.to_int(); nPos < nItems; ++nPos)
 			{
@@ -734,7 +742,7 @@ void DcxList::parseCommandRequest( const TString & input )
 				if ((iStart < 0) || (iEnd < 0) || (iStart >= nItems) || (iEnd >= nItems))
 					throw Dcx::dcxException(TEXT("Invalid index %."), tsLine);
 
-				for (auto nPos = iStart; nPos <= iEnd; nPos++)
+				for (auto nPos = iStart; nPos <= iEnd; ++nPos)
 					ListBox_DeleteString(m_Hwnd, nPos);
 			}
 		}
@@ -754,8 +762,11 @@ void DcxList::parseCommandRequest( const TString & input )
 	}
 	//xdid -m [NAME] [ID] [SWITCH] [+FLAGS] [N](,[N]...)
 	//xdid -m -> [NAME] [ID] -m [+FLAGS] [N](,[N]...)
-	else if (flags[TEXT('m')] && numtok > 4)
+	else if (flags[TEXT('m')])
 	{
+		if (numtok < 5)
+			throw Dcx::dcxException("Insufficient parameters");
+
 		const XSwitchFlags xflags(input.getnexttok( ));	// tok 4
 
 		if (xflags[TEXT('w')])
@@ -847,7 +858,7 @@ LRESULT DcxList::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 		//			evalAliasEx(szRet, Dcx::countof(szRet), TEXT("itemdragcancel,%u,%d"), getUserID(), sel);
 			//
 		//			if (m_bUseDrawInsert)
-		//				m_pParentDialog->redrawWindow();
+		//				getParentDialog()->redrawWindow();
 		//			else
 		//				redrawWindow();
 		//		}
@@ -888,7 +899,7 @@ LRESULT DcxList::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 	//
 		//			if (m_bUseDrawInsert)
 		//				// refresh m_pParent to remove drawing leftovers
-		//				m_pParentDialog->redrawWindow();
+		//				getParentDialog()->redrawWindow();
 		//			else
 		//				redrawWindow();
 		//		}
@@ -898,7 +909,7 @@ LRESULT DcxList::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 		//	return 0L;
 		//}
 
-		stString<20> szRet;
+		const stString<20> szRet;
 
 		switch (dli->uNotification)
 		{
@@ -918,7 +929,7 @@ LRESULT DcxList::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 			evalAliasEx(szRet, static_cast<int>(szRet.size()), TEXT("itemdragcancel,%u,%d"), getUserID(), sel);
 
 			if (m_bUseDrawInsert)
-				m_pParentDialog->redrawWindow();
+				getParentDialog()->redrawWindow();
 			else
 				redrawWindow();
 		}
@@ -930,7 +941,7 @@ LRESULT DcxList::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 			const auto item = LBItemFromPt(m_Hwnd, dli->ptCursor, TRUE);
 
 			if (m_bUseDrawInsert)
-				DrawInsert(this->m_pParentHWND, m_Hwnd, item);
+				DrawInsert(this->getParentHWND(), m_Hwnd, item);
 			else
 				DrawDragLine(item);
 
@@ -955,11 +966,11 @@ LRESULT DcxList::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 			// callback DIALOG itemdragfinish THIS_ID SEL_ITEM MOUSE_OVER_ITEM
 			const auto item = LBItemFromPt(m_Hwnd, dli->ptCursor, TRUE);
 
-			execAliasEx(TEXT("%s,%d,%d,%d"), TEXT("itemdragfinish"), getUserID(), sel, item + 1);
+			execAliasEx(TEXT("itemdragfinish,%u,%d,%d"), getUserID(), sel, item + 1);
 
 			if (m_bUseDrawInsert)
 				// refresh m_pParent to remove drawing leftovers
-				m_pParentDialog->redrawWindow();
+				getParentDialog()->redrawWindow();
 			else
 				redrawWindow();
 		}
@@ -973,7 +984,7 @@ LRESULT DcxList::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 	{
 	case WM_COMMAND:
 	{
-		if (dcx_testflag(this->m_pParentDialog->getEventMask(), DCX_EVENT_CLICK))
+		if (dcx_testflag(getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
 		{
 			switch (HIWORD(wParam))
 			{
@@ -984,10 +995,10 @@ LRESULT DcxList::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 				if (this->isStyle(WindowStyle::LBS_MultiSel) || this->isStyle(WindowStyle::LBS_ExtendedSel))
 				{
 					if (ListBox_GetSel(m_Hwnd, nItem) > 0)
-						this->execAliasEx(TEXT("%s,%d,%d"), TEXT("sclick"), this->getUserID(), nItem + 1);
+						this->execAliasEx(TEXT("sclick,%u,%d"), getUserID(), nItem + 1);
 				}
 				else if (nItem != LB_ERR)
-					this->execAliasEx(TEXT("%s,%d,%d"), TEXT("sclick"), this->getUserID(), nItem + 1);
+					this->execAliasEx(TEXT("sclick,%u,%d"), getUserID(), nItem + 1);
 			}
 			break;
 
@@ -998,10 +1009,10 @@ LRESULT DcxList::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 				if (this->isStyle(WindowStyle::LBS_MultiSel) || this->isStyle(WindowStyle::LBS_ExtendedSel))
 				{
 					if (ListBox_GetSel(m_Hwnd, nItem) > 0)
-						this->execAliasEx(TEXT("%s,%d,%d"), TEXT("dclick"), this->getUserID(), nItem + 1);
+						this->execAliasEx(TEXT("dclick,%u,%d"), getUserID(), nItem + 1);
 				}
 				else if (nItem != LB_ERR)
-					this->execAliasEx(TEXT("%s,%d,%d"), TEXT("dclick"), this->getUserID(), nItem + 1);
+					this->execAliasEx(TEXT("dclick,%u,%d"), getUserID(), nItem + 1);
 			}
 			break;
 			} // switch ( HIWORD( wParam ) )
@@ -1023,7 +1034,7 @@ LRESULT DcxList::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 
 		CopyRect(&rc, &lpDrawItem->rcItem);
 
-		if (this->m_hBackBrush == nullptr)
+		if (getBackClrBrush() == nullptr)
 			FillRect(lpDrawItem->hDC, &rc, GetStockBrush(WHITE_BRUSH));
 		else
 			DcxControl::DrawCtrlBackground(lpDrawItem->hDC, this, &rc);
@@ -1039,13 +1050,13 @@ LRESULT DcxList::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 		}
 		else {
 			// set text colour.
-			if (this->m_clrText != CLR_INVALID)
-				clrText = SetTextColor(lpDrawItem->hDC, this->m_clrText);
+			if (const auto clr = getTextColor(); clr != CLR_INVALID)
+				clrText = SetTextColor(lpDrawItem->hDC, clr);
 		}
 
 		if (len > 0)
 		{ // Only do all this if theres any text to draw.
-			TString txt((UINT)len + 1);
+			TString txt(gsl::narrow_cast<UINT>(len + 1));
 
 			ListBox_GetText(lpDrawItem->hwndItem, lpDrawItem->itemID, txt.to_chr());
 
@@ -1086,16 +1097,16 @@ LRESULT DcxList::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 
 	case WM_VSCROLL:
 		if (LOWORD(wParam) == SB_ENDSCROLL)
-			this->execAliasEx(TEXT("%s,%d"), TEXT("scrollend"), this->getUserID());
+			this->execAliasEx(TEXT("scrollend,%u"), getUserID());
 		break;
 
 	case WM_MOUSEWHEEL:
-		SendMessage(this->m_pParentDialog->getHwnd(), uMsg, wParam, lParam);
+		SendMessage(getParentDialog()->getHwnd(), uMsg, wParam, lParam);
 		break;
 
 	case WM_PAINT:
 	{
-		if (!this->m_bAlphaBlend)
+		if (!IsAlphaBlend())
 			break;
 
 		PAINTSTRUCT ps{};
@@ -1109,7 +1120,7 @@ LRESULT DcxList::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 		auto ai = this->SetupAlphaBlend(&hdc);
 		Auto(this->FinishAlphaBlend(ai));
 
-		return CallDefaultProc(m_Hwnd, uMsg, (WPARAM)hdc, lParam);
+		return CallDefaultClassProc(uMsg, (WPARAM)hdc, lParam);
 	}
 	break;
 
@@ -1130,7 +1141,7 @@ LRESULT DcxList::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 
 // Draws a horizontal line to insert rather than the arrow
 // Ported from http://www.vb-hellfire.de/knowlib/draglist.php
-void DcxList::DrawDragLine(const int location)
+void DcxList::DrawDragLine(const int location) noexcept
 {
 	RECT rc{};
 
@@ -1143,17 +1154,17 @@ void DcxList::DrawDragLine(const int location)
 		m_iLastDrawnLine = location;
 	}
 
-	auto hDC = GetDC(m_Hwnd);
+	const auto hDC = GetDC(m_Hwnd);
 
 	if (hDC == nullptr)
 		return;
 	Auto(ReleaseDC(m_Hwnd, hDC));
 
-	if (auto hPen = CreatePen(PS_SOLID, 1, GetSysColor(COLOR_WINDOWTEXT)); hPen != nullptr)
+	if (const auto hPen = CreatePen(PS_SOLID, 1, GetSysColor(COLOR_WINDOWTEXT)); hPen != nullptr)
 	{
 		Auto(DeletePen(hPen));
 
-		auto hOldPen = SelectPen(hDC, hPen);
+		const auto hOldPen = SelectPen(hDC, hPen);
 		Auto(SelectPen(hDC, hOldPen));
 
 		// get width
@@ -1348,7 +1359,7 @@ void DcxList::UpdateHorizExtent(const int nPos)
 	if (nPos < -1)
 		return;
 
-	if (auto hdc = GetDC(m_Hwnd); hdc != nullptr)
+	if (const auto hdc = GetDC(m_Hwnd); hdc != nullptr)
 	{
 		Auto(ReleaseDC(m_Hwnd, hdc));
 
@@ -1366,7 +1377,7 @@ void DcxList::UpdateHorizExtent(const int nPos)
 
 		if (ListBox_GetText(m_Hwnd, nPos, itemtext.to_chr()) != LB_ERR)
 		{
-			if (GetTextExtentPoint32(hdc, itemtext.to_chr(), static_cast<int>(itemtext.len()), &sz))
+			if (GetTextExtentPoint32(hdc, itemtext.to_chr(), gsl::narrow_cast<int>(itemtext.len()), &sz))
 			{
 				if (sz.cx > nHorizExtent)
 					ListBox_SetHorizontalExtent(m_Hwnd, sz.cx);
@@ -1408,4 +1419,14 @@ TiXmlElement * DcxList::toXml(void) const
 	auto xml = std::make_unique<TiXmlElement>("control");
 	toXml(xml.get());
 	return xml.release();
+}
+
+WNDPROC DcxList::m_hDefaultClassProc = nullptr;
+
+LRESULT DcxList::CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept
+{
+	if (m_hDefaultClassProc != nullptr)
+		return CallWindowProc(m_hDefaultClassProc, this->m_Hwnd, uMsg, wParam, lParam);
+
+	return DefWindowProc(this->m_Hwnd, uMsg, wParam, lParam);
 }

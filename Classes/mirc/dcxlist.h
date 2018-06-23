@@ -36,31 +36,35 @@ public:
 	DcxList() = delete;
 	DcxList(const DcxList &) = delete;
 	DcxList &operator =(const DcxList &) = delete;	// No assignments!
+	DcxList(DcxList &&) = delete;
+	DcxList &operator =(DcxList &&) = delete;
 
 	DcxList(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles );
-	virtual ~DcxList( );
+	~DcxList( );
 
-	LRESULT PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) override;
-	LRESULT ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) override;
+	LRESULT PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) final;
+	LRESULT ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) final;
 
-	//void parseInfoRequest(const TString & input, PTCHAR szReturnValue) const override;
-	void parseInfoRequest(const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const override;
-	void parseCommandRequest(const TString & input) override;
-	//void parseControlStyles(const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme) override;
-	std::tuple<NoTheme, WindowStyle, WindowExStyle> parseControlStyles(const TString & tsStyles) override;
+	//void parseInfoRequest(const TString & input, PTCHAR szReturnValue) const final;
+	void parseInfoRequest(const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const final;
+	void parseCommandRequest(const TString & input) final;
+	//void parseControlStyles(const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme) final;
+	std::tuple<NoTheme, WindowStyle, WindowExStyle> parseControlStyles(const TString & tsStyles) final;
 
-	inline const TString getType() const override { return TEXT("list"); };
-	inline const DcxControlTypes getControlType() const noexcept override { return DcxControlTypes::LIST; }
+	inline const TString getType() const final { return TEXT("list"); };
+	inline const DcxControlTypes getControlType() const noexcept final { return DcxControlTypes::LIST; }
 
 	inline const UINT &getDragListId() const noexcept { return m_iDragList; };
 
-	void toXml(TiXmlElement *const xml) const override;
-	TiXmlElement * toXml(void) const override;
-	const TString getStyles(void) const override;
+	void toXml(TiXmlElement *const xml) const final;
+	TiXmlElement * toXml(void) const final;
+	const TString getStyles(void) const final;
 
-protected:
+	static WNDPROC m_hDefaultClassProc;	//!< Default window procedure
+	LRESULT CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept final;
 
-	void DrawDragLine(const int location);
+private:
+	void DrawDragLine(const int location) noexcept;
 	bool matchItemText(const int nItem, const TString &search, const DcxSearchTypes &SearchType) const;
 
 	//static void getItemRange(const TString &tsItems, const int nItemCnt, int *iStart, int *iEnd);
@@ -71,10 +75,10 @@ protected:
 	void UpdateHorizExtent();
 	void UpdateHorizExtent(const int nPos);
 
-	UINT m_iDragList;
-	int m_iLastDrawnLine;
-	bool m_bUseDrawInsert;
-	bool m_bReserved[3];
+	UINT m_iDragList{};
+	int m_iLastDrawnLine{};
+	bool m_bUseDrawInsert{ true };
+	bool m_bReserved[3]{ false };
 };
 
 #endif // _DCXLIST_H_

@@ -47,8 +47,7 @@ DcxMWindow::DcxMWindow(const HWND cHwnd, const HWND pHwnd, const UINT ID, DcxDia
 
 	this->m_OrigID = dcxSetWindowID(m_Hwnd, ID);
 
-	this->registreDefaultWindowProc();
-	SetProp(m_Hwnd, TEXT("dcx_cthis"), (HANDLE) this);
+	SetProp(this->m_Hwnd, TEXT("dcx_cthis"), (HANDLE)this);
 }
 
 /*!
@@ -60,12 +59,10 @@ DcxMWindow::DcxMWindow(const HWND cHwnd, const HWND pHwnd, const UINT ID, DcxDia
 DcxMWindow::~DcxMWindow( )
 {
 	auto parent = GetParent(m_Hwnd);
-	if ( parent == this->m_OrigParentHwnd && this->m_OrigParentHwnd != this->m_pParentDialog->getHwnd())
+	if ( parent == this->m_OrigParentHwnd && this->m_OrigParentHwnd != this->getParentDialog()->getHwnd())
 		return;
 
-	this->unregistreDefaultWindowProc( );
-
-	auto bHide = (IsWindowVisible(m_Hwnd) != FALSE);
+	const auto bHide = (IsWindowVisible(m_Hwnd) != FALSE);
 	if ( !bHide )
 		ShowWindow( m_Hwnd, SW_HIDE );
 
@@ -144,7 +141,7 @@ std::tuple<NoTheme, WindowStyle, WindowExStyle> DcxMWindow::parseControlStyles(c
  * \param lParam Window Procedure LPARAM
  * \param bParsed Indicates if subclassed procedure parsed the message
  */
-LRESULT DcxMWindow::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed )
+LRESULT DcxMWindow::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) noexcept
 {
 	return 0L;
 }
@@ -173,4 +170,14 @@ LRESULT DcxMWindow::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
 	}
 
 	return 0L;
+}
+
+WNDPROC DcxMWindow::m_hDefaultClassProc = nullptr;
+
+LRESULT DcxMWindow::CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept
+{
+	if (m_hDefaultClassProc != nullptr)
+		return CallWindowProc(m_hDefaultClassProc, this->m_Hwnd, uMsg, wParam, lParam);
+
+	return DefWindowProc(this->m_Hwnd, uMsg, wParam, lParam);
 }

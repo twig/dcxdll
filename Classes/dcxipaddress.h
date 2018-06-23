@@ -26,30 +26,33 @@ class DcxDialog;
  * blah
  */
 
-class DcxIpAddress : public DcxControl {
-
+class DcxIpAddress
+	: public DcxControl
+{
 public:
 	DcxIpAddress() = delete;
 	DcxIpAddress(const DcxIpAddress &) = delete;
 	DcxIpAddress &operator =(const DcxIpAddress &) = delete;	// No assignments!
+	DcxIpAddress(DcxIpAddress &&) = delete;
+	DcxIpAddress &operator =(DcxIpAddress &&) = delete;
 
 	DcxIpAddress(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles );
-	virtual ~DcxIpAddress( );
+	~DcxIpAddress( );
 
-	LRESULT PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) override;
-	LRESULT ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) override;
+	LRESULT PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) final;
+	LRESULT ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) final;
 
-	//void parseInfoRequest(const TString & input, PTCHAR szReturnValue) const override;
-	void parseInfoRequest(const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const override;
-	void parseCommandRequest(const TString & input) override;
-	//void parseControlStyles(const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme) override;
-	std::tuple<NoTheme, WindowStyle, WindowExStyle> parseControlStyles(const TString & tsStyles) override;
+	//void parseInfoRequest(const TString & input, PTCHAR szReturnValue) const final;
+	void parseInfoRequest(const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const final;
+	void parseCommandRequest(const TString & input) final;
+	//void parseControlStyles(const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme) final;
+	std::tuple<NoTheme, WindowStyle, WindowExStyle> parseControlStyles(const TString & tsStyles) final;
 
-	LRESULT setRange( const int nField, const BYTE iMin, const BYTE iMax );
-	LRESULT setFocus( const int nField );
-	LRESULT setAddress( const DWORD dwIpAddress );
-	LRESULT getAddress( LPDWORD lpdwIpAddress ) const;
-	LRESULT clearAddress( );
+	LRESULT setRange( const int nField, const BYTE iMin, const BYTE iMax ) noexcept;
+	LRESULT setFocus( const int nField ) noexcept;
+	LRESULT setAddress( const DWORD dwIpAddress ) noexcept;
+	LRESULT getAddress( const LPDWORD lpdwIpAddress ) const noexcept;
+	LRESULT clearAddress( ) noexcept;
 
 	template <typename T>
 	void AddressToString(T *strBuffer, size_t iSize) const noexcept
@@ -74,13 +77,14 @@ public:
 		}
 	}
 
-	inline const TString getType() const override { return TEXT("ipaddress"); };
-	inline const DcxControlTypes getControlType() const noexcept override { return DcxControlTypes::IPADDRESS; }
+	inline const TString getType() const final { return TEXT("ipaddress"); };
+	inline const DcxControlTypes getControlType() const noexcept final { return DcxControlTypes::IPADDRESS; }
 
-	void toXml(TiXmlElement *const xml) const override;
-	TiXmlElement * toXml(void) const override;
+	void toXml(TiXmlElement *const xml) const final;
+	TiXmlElement * toXml(void) const final;
 
-protected:
+	static WNDPROC m_hDefaultClassProc;	//!< Default window procedure
+	LRESULT CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept final;
 
 };
 
