@@ -19,14 +19,10 @@ struct simpleString {
 	using const_reference = std::add_const_t<reference>;
 	using size_type = std::size_t;
 
-	constexpr simpleString() noexcept
-		: m_data{ 0 }
-	{
-	}
-	constexpr simpleString(const simpleString<T,N> &other) = default;
-	constexpr simpleString(simpleString<T,N> &&other) = default;
+	constexpr simpleString() noexcept = default;
+	constexpr simpleString(const simpleString<T,N> &other) noexcept = default;
+	constexpr simpleString(simpleString<T,N> &&other) noexcept = default;
 	constexpr simpleString(const_pointer other) noexcept
-		: m_data{ 0 }
 	{
 		_ts_strcpyn(&m_data[0], other, N);
 	}
@@ -35,8 +31,8 @@ struct simpleString {
 	{
 	}
 
-	simpleString<T, N> &operator =(const simpleString<T, N> &other) = default;
-	simpleString<T, N> &operator =(simpleString<T, N> &&other) = default;
+	simpleString<T, N> &operator =(const simpleString<T, N> &other) noexcept = default;
+	simpleString<T, N> &operator =(simpleString<T, N> &&other) noexcept = default;
 	simpleString<T, N> &operator =(const_pointer other) noexcept
 	{
 		_ts_strcpyn(&m_data[0], other, N);
@@ -104,7 +100,7 @@ struct simpleString {
 	//constexpr operator pointer() const noexcept { return const_cast<pointer>(&m_data[0]); }
 	constexpr operator const_pointer() const noexcept { return m_pData; }
 	constexpr reference operator [](const size_type &iOffSet) const noexcept { return m_data[iOffSet]; }
-	constexpr size_type length() const { return _ts_strnlen((const_pointer)&m_data[0], N); }
+	constexpr size_type length() const { return _ts_strnlen(m_pData, N); }
 	constexpr const size_type size() const noexcept { return N; }
 	constexpr const size_type bytes() const noexcept { return N * sizeof(value_type); }
 	//constexpr pointer data() const noexcept { return const_cast<pointer>(&m_data[0]); }
@@ -113,7 +109,7 @@ struct simpleString {
 	void clear() noexcept { m_data[0] = value_type(); }
 
 private:
-	value_type	m_data[N];
+	value_type	m_data[N]{};
 	pointer		m_pData{ &m_data[0] };
 };
 
