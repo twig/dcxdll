@@ -47,39 +47,67 @@ SIGNALSWITCH dcxSignal;
 	* function added to insure that only a single instance of dcx.dll is loaded.
 */
 
-HANDLE hDcxMutex = nullptr;
+//HANDLE hDcxMutex = nullptr;
 
+namespace {
+	HANDLE getMutex() noexcept
+	{
+		static HANDLE hDcxMutex = nullptr;
+
+		if (hDcxMutex)
+			return hDcxMutex;
+
+		TCHAR mutex[128];
+		// add pid of mIRC.exe to name so mutex is specific to this instance of mIRC.
+		// GetModuleHandle(nullptr) was returning a consistant result.
+		_ts_snprintf(&mutex[0], std::extent_v<decltype(mutex)>, TEXT("DCX_LOADED%lx"), GetCurrentProcessId()); // NB: calls user32.dll, is this ok? See warnings in DllMain() docs.
+																														   // Enforce only one instance of dcx.dll loaded at a time.
+		hDcxMutex = CreateMutex(nullptr, TRUE, &mutex[0]);
+
+		if ((hDcxMutex == nullptr) || (GetLastError() == ERROR_ALREADY_EXISTS))
+			return nullptr;
+
+		return hDcxMutex;
+	}
+}
 /*! \brief DllMain function is used to ensure that only one copy of DCX is loaded at a time.
  *
  */
 BOOL WINAPI DllMain(
 					HINSTANCE hinstDLL,  // handle to DLL module
 					DWORD fdwReason,     // reason for calling function
-					LPVOID lpReserved )  // reserved
+					LPVOID lpReserved ) noexcept  // reserved
 {
 	// Perform actions based on the reason for calling.
 	switch (fdwReason)
 	{
 	case DLL_PROCESS_ATTACH:
 	{
-		TCHAR mutex[128];
+		//TCHAR mutex[128];
+		//// Initialize once for each new process.
+		//// Return FALSE to fail DLL load.
+		//DisableThreadLibraryCalls(hinstDLL);
+		//// add pid of mIRC.exe to name so mutex is specific to this instance of mIRC.
+		//// GetModuleHandle(nullptr) was returning a consistant result.
+		//_ts_snprintf(&mutex[0], gsl::narrow_cast<int>(Dcx::countof(mutex)), TEXT("DCX_LOADED%lx"), GetCurrentProcessId()); // NB: calls user32.dll, is this ok? See warnings in DllMain() docs.
+		//
+		//// Enforce only one instance of dcx.dll loaded at a time.
+		//hDcxMutex = CreateMutex(nullptr, TRUE, &mutex[0]);
+		//if (hDcxMutex == nullptr)
+		//	return FALSE;
+		//else if (GetLastError() == ERROR_ALREADY_EXISTS)
+		//{
+		//	//ReleaseMutex(hDcxMutex);
+		//	//CloseHandle(hDcxMutex);
+		//	return FALSE;
+		//}
+
 		// Initialize once for each new process.
 		// Return FALSE to fail DLL load.
 		DisableThreadLibraryCalls(hinstDLL);
-		// add pid of mIRC.exe to name so mutex is specific to this instance of mIRC.
-		// GetModuleHandle(nullptr) was returning a consistant result.
-		_ts_snprintf(&mutex[0], gsl::narrow_cast<int>(Dcx::countof(mutex)), TEXT("DCX_LOADED%lx"), GetCurrentProcessId()); // NB: calls user32.dll, is this ok? See warnings in DllMain() docs.
 
-		// Enforce only one instance of dcx.dll loaded at a time.
-		hDcxMutex = CreateMutex(nullptr, TRUE, &mutex[0]); // Windows 2000:  Do not create a named synchronization object in DllMain because the system will then load an additional DLL. This restriction does not apply to subsequent versions of Windows.
-		if (hDcxMutex == nullptr)
-			return FALSE;		// TODO: solve this issue or are we going to make the dll XP+ only now?
-		else if (GetLastError() == ERROR_ALREADY_EXISTS)
-		{
-			//ReleaseMutex(hDcxMutex);
-			//CloseHandle(hDcxMutex);
+		if (getMutex() == nullptr)
 			return FALSE;
-		}
 	}
 	break;
 
@@ -90,11 +118,18 @@ BOOL WINAPI DllMain(
 
 	case DLL_PROCESS_DETACH:
 		// Perform any necessary cleanup.
-		if (hDcxMutex != nullptr)
+
+		//if (hDcxMutex != nullptr)
+		//{
+		//	ReleaseMutex(hDcxMutex);
+		//	CloseHandle(hDcxMutex);
+		//	hDcxMutex = nullptr;
+		//}
+
+		if (const HANDLE hMutex = getMutex(); hMutex != nullptr)
 		{
-			ReleaseMutex(hDcxMutex);
-			CloseHandle(hDcxMutex);
-			hDcxMutex = nullptr;
+			ReleaseMutex(hMutex);
+			CloseHandle(hMutex);
 		}
 		break;
 	}
@@ -218,7 +253,7 @@ mIRC(Version)
 		}
 
 		{	// test refString
-			refString<TCHAR, MIRC_BUFFER_SIZE_CCH> rData(data);
+			const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> rData(data);
 			Ensures(rData.data() != nullptr);
 			Ensures(rData.size() == MIRC_BUFFER_SIZE_CCH);
 
@@ -479,7 +514,7 @@ mIRC(Version)
 
 #if __has_include(<ColourString.h>)
 		{
-			TCHAR ctrlk = TEXT('\u0003');
+			const TCHAR ctrlk = TEXT('\u0003');
 			std::basic_string<TCHAR> str(TEXT("test "));
 			str += ctrlk;
 			str += TEXT("04red");
@@ -835,9 +870,9 @@ mIRC(Version)
 /*!
 * \brief DCX DLL is DcxDirectShow supported?
 */
-static TString dxData;
 mIRC(IsUsingDirectX)
 {
+	static TString dxData;
 	if (Dcx::isDX9Installed())
 	{
 		ret(dxData.to_chr());
@@ -853,7 +888,7 @@ mIRC(IsUsingDirectX)
 /*!
 * \brief DCX DLL is GDI+ supported?
 */
-mIRC(IsUsingGDI)
+mIRC(IsUsingGDI) noexcept
 {
 	//ret((Dcx::GDIModule.isUseable() ? TEXT("$true") : TEXT("$false")));
 	ret(dcx_truefalse(Dcx::GDIModule.isUseable()));
@@ -862,7 +897,7 @@ mIRC(IsUsingGDI)
 /*!
 * \brief Check if it's safe to unload DLL
 */
-mIRC(IsUnloadSafe)
+mIRC(IsUnloadSafe) noexcept
 {
 	//ret((Dcx::isUnloadSafe() ? TEXT("$true") : TEXT("$false")));
 	ret(dcx_truefalse(Dcx::isUnloadSafe()));
@@ -871,7 +906,7 @@ mIRC(IsUnloadSafe)
 /*!
 * \brief Check if windows is themed
 */
-mIRC(IsThemedXP)
+mIRC(IsThemedXP) noexcept
 {
 	//ret((Dcx::UXModule.dcxIsThemeActive() ? TEXT("$true") : TEXT("$false")));
 	ret(dcx_truefalse(Dcx::UXModule.dcxIsThemeActive() != FALSE));
@@ -892,7 +927,7 @@ mIRC(Mark)
 
 	data[0] = 0;
 
-	refString<TCHAR, MIRC_BUFFER_SIZE_CCH> szReturnValue(data);
+	const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> szReturnValue(data);
 
 	try {
 		d.trim();
@@ -900,20 +935,26 @@ mIRC(Mark)
 		if (d.numtok() < 2)
 			throw Dcx::dcxException("[NAME] [ALIAS]");
 
-		return Dcx::mark(szReturnValue, d.gettok(1), d.gettok(2));
+		const TString tsDialog(d.getfirsttok(1));
+		const TString tsCallback(d.getnexttok());
+		Dcx::mark(tsDialog, tsCallback);
+
+		szReturnValue = TEXT("D_OK Mark: Dialog Marked");
+		return 3;
 	}
 	catch (const std::exception &e)
 	{
-		//Dcx::errorex(TEXT("/dcx Mark"), TEXT("\"%s\" error: %S"), d.to_chr(), e.what());
 		Dcx::error(TEXT("/dcx Mark"), TEXT("\"%\" error: %"), d, e.what());
 	}
 	catch (...) {
 		// stop any left over exceptions...
-		//Dcx::errorex(TEXT("/dcx Mark"), TEXT("\"%s\" error: Unknown Exception"), d.to_chr());
 		Dcx::error(TEXT("/dcx Mark"), TEXT("\"%\" error: Unknown Exception"), d);
 	}
-	szReturnValue = Dcx::getLastError();
-	return 3;
+	mIRCLinker::echo(TEXT("$!dcx(Mark,[name],[alias])"));
+	mIRCLinker::echo(TEXT("/dcx Mark [name] [alias]"));
+	mIRCLinker::echo(TEXT("[name] = the name of the dialog to mark"));
+	mIRCLinker::echo(TEXT("[alias] = the callback alias to use."));
+	return 0;
 }
 
 /*!
@@ -1055,12 +1096,10 @@ mIRC(GetSystemColor)
 			if (BOOL bOpaque = FALSE; FAILED(Dcx::VistaModule.dcxDwmGetColorizationColor((DWORD *)&clr, &bOpaque)))
 				throw Dcx::dcxException("Unable to get glass colour.");
 		
-			//wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), RGB(clr.rgbRed, clr.rgbGreen, clr.rgbBlue));
 			_ts_snprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), RGB(clr.rgbRed, clr.rgbGreen, clr.rgbBlue));
 		}
 		else {
 			// max of 8 digits, 9 for null terminator
-			//wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), GetSysColor(col));
 			_ts_snprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), GetSysColor(col));
 		}
 		return 3;
@@ -1075,6 +1114,8 @@ mIRC(GetSystemColor)
 		//Dcx::errorex(TEXT("$!dcx(GetSystemColor)"), TEXT("\"%s\" error: Unknown Exception"), d.to_chr());
 		Dcx::error(TEXT("$!dcx(GetSystemColor)"), TEXT("\"%\" error: Unknown Exception"), d);
 	}
+	mIRCLinker::echo(TEXT("$!dcx(GetSystemColor,[attribute])"));
+	mIRCLinker::echo(TEXT("[attribute] = the name of the colour to get. (see docs for list)"));
 	return 0;
 }
 
@@ -1107,7 +1148,7 @@ mIRC(xdid)
 		const auto IDs(d.getnexttok());			// tok 2
 		const auto tsArgs(d.getlasttoks());		// tok 3, -1
 		const auto n = IDs.numtok(TSCOMMACHAR);
-		auto HandleIDRange = [=](const TString &tsID) {
+		const auto HandleIDRange = [=](const TString &tsID) {
 			UINT id_start = 0, id_end = 0;
 			if (tsID.numtok(TEXT('-')) == 2)
 			{
@@ -1296,7 +1337,7 @@ mIRC(GetTaskbarPos)
 	data[0] = 0;
 
 	try {
-		auto hTaskbar = FindWindow(TEXT("Shell_TrayWnd"), nullptr);
+		const auto hTaskbar = FindWindow(TEXT("Shell_TrayWnd"), nullptr);
 
 		if (!IsWindow(hTaskbar))
 			throw Dcx::dcxException("Could not find taskbar");
@@ -1510,7 +1551,7 @@ mIRC(_xpop)
 		if (p_Menu == nullptr)
 			throw Dcx::dcxException(TEXT("Unknown menu \"%\": see /xpopup -c command"), tsMenu);
 
-		p_Menu->parseXPopIdentifier(d, refString<TCHAR, MIRC_BUFFER_SIZE_CCH>(data));
+		p_Menu->parseXPopIdentifier(d, mIRCResultString(data));
 		return 3;
 	}
 	catch (const std::exception &e)
@@ -1585,12 +1626,23 @@ mIRC(_xpopup)
 	data[0] = 0;
 
 	try {
+		//d.trim();
+		//
+		//if (d.numtok() < 2)
+		//	throw Dcx::dcxException("Invalid Arguments");
+		//
+		//Dcx::XPopups.parseIdentifier(d, mIRCResultString(data));
+		//return 3;
+
 		d.trim();
 
 		if (d.numtok() < 2)
 			throw Dcx::dcxException("Invalid Arguments");
 
-		Dcx::XPopups.parseIdentifier(d, refString<TCHAR, MIRC_BUFFER_SIZE_CCH>(data));
+		mIRCResultString refData(data);
+
+		refData = Dcx::XPopups.parseIdentifier(d);
+
 		return 3;
 	}
 	catch (const std::exception &e)
@@ -1653,7 +1705,7 @@ mIRC(_xmenubar)
 	data[0] = 0;
 
 	try {
-		Dcx::XMenubar.parseXMenuBarInfo(d.trim(), refString<TCHAR, MIRC_BUFFER_SIZE_CCH>(data));
+		Dcx::XMenubar.parseXMenuBarInfo(d.trim(), mIRCResultString(data));
 		return 3;
 	}
 	catch (const std::exception &e)

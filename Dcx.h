@@ -42,6 +42,16 @@ namespace std
 		wstring wstr(str.to_wchr());
 		return wstr;
 	}
+
+	inline string to_string(const std::byte &num)
+	{
+		return to_string(gsl::narrow_cast<uint8_t>(num));
+	}
+
+	inline wstring to_wstring(const std::byte &num)
+	{
+		return to_wstring(gsl::narrow_cast<uint8_t>(num));
+	}
 }
 
 namespace Dcx
@@ -50,7 +60,7 @@ namespace Dcx
 	extern std::byte m_iGhostDrag;
 	extern IClassFactory *m_pClassFactory;
 	extern bool m_bDX9Installed;
-	extern HMODULE m_hRichEditLib;
+	//extern HMODULE m_hRichEditLib;
 
 	extern DcxDialogCollection Dialogs;
 	extern DcxGDIModule GDIModule;
@@ -64,6 +74,25 @@ namespace Dcx
 	extern bool m_bErrorTriggered;
 
 	extern bool setting_bStaticColours;
+
+	constexpr int32_t dcxMulDiv32(const int32_t iNum, const int32_t iMul, const int32_t iDiv) noexcept
+	{
+		return gsl::narrow_cast<int32_t>((gsl::narrow_cast<int64_t>(iNum) * gsl::narrow_cast<int64_t>(iMul)) / iDiv);
+	}
+	template <class T>
+	constexpr T dcxMulDiv(const T &iNum, const T &iMul, const T &iDiv) noexcept
+	{
+		return gsl::narrow_cast<T>((gsl::narrow_cast<int64_t>(iNum) * gsl::narrow_cast<int64_t>(iMul)) / iDiv);
+	}
+
+	template <class Result, class Input>
+	constexpr Result dcxRound(const Input in) noexcept
+	{
+		const auto t = gsl::narrow_cast<Result>(in);
+		if ((in - gsl::narrow_cast<Input>(t)) > 0.5)
+			return t + Result{ 1 };
+		return t;
+	}
 
 	HCURSOR dcxLoadCursorFromFile(const TString &filename);
 	HCURSOR dcxLoadCursorFromResource(const TCHAR *CursorType);
@@ -116,14 +145,14 @@ namespace Dcx
 	using dcxBSTR_t = std::unique_ptr<OLECHAR, void(*)(BSTR)>;
 
 	inline dcxCursor_t make_cursor(const TString &tsFilename) {
-		return make_resource(dcxLoadCursorFromFile, [](HCURSOR hCursor){ if (hCursor != nullptr) DestroyCursor(hCursor); }, tsFilename);
+		return make_resource(dcxLoadCursorFromFile, [](HCURSOR hCursor) noexcept { if (hCursor != nullptr) DestroyCursor(hCursor); }, tsFilename);
 	}
 	inline dcxIcon_t make_icon(const int index, TString &filename, const bool large, const TString &flags) {
-		return make_resource(dcxLoadIcon, [](HICON hIcon){ if (hIcon != nullptr) DestroyIcon(hIcon); }, index, filename, large, flags);
+		return make_resource(dcxLoadIcon, [](HICON hIcon) noexcept { if (hIcon != nullptr) DestroyIcon(hIcon); }, index, filename, large, flags);
 	}
-	inline dcxFile_t make_file(const WCHAR *file, const WCHAR *modes) { return make_resource(_wfopen, [](FILE *file){ fclose(file); }, file, modes); }
-	inline dcxHDC_t make_hdc(HDC hdc) { return make_resource(CreateCompatibleDC, [](HDC obj){ DeleteDC(obj); }, hdc); }
-	inline dcxBitmap_t make_bitmap(HDC hdc, int x, int y) { return make_resource(CreateCompatibleBitmap, [](HBITMAP obj){ DeleteBitmap(obj); }, hdc, x, y); }
+	inline dcxFile_t make_file(const WCHAR *file, const WCHAR *modes) { return make_resource(_wfopen, [](FILE *file) noexcept { fclose(file); }, file, modes); }
+	inline dcxHDC_t make_hdc(HDC hdc) { return make_resource(CreateCompatibleDC, [](HDC obj) noexcept { DeleteDC(obj); }, hdc); }
+	inline dcxBitmap_t make_bitmap(HDC hdc, int x, int y) { return make_resource(CreateCompatibleBitmap, [](HBITMAP obj) noexcept { DeleteBitmap(obj); }, hdc, x, y); }
 
 	//inline ULONG_PTR *dcxCreateFile(const TCHAR *file, DWORD dAccess, DWORD dShareMode, LPSECURITY_ATTRIBUTES lpSecurity, DWORD dCreation, DWORD dflags, HANDLE templateFile) {
 	//	return (ULONG_PTR *)CreateFile(file, dAccess, dShareMode, lpSecurity, dCreation, dflags, templateFile);
@@ -131,10 +160,10 @@ namespace Dcx
 	inline dcxHandle_t make_filehandle(const TCHAR *file, DWORD dAccess, DWORD dShareMode, LPSECURITY_ATTRIBUTES lpSecurity, DWORD dCreation, DWORD dflags, HANDLE templateFile) {
 		//return make_resource(dcxCreateFile, [](ULONG_PTR *file){ CloseHandle((HANDLE)file); }, file, dAccess, dShareMode, lpSecurity, dCreation, dflags, templateFile);
 		return make_resource(
-			[](const TCHAR *file, DWORD dAccess, DWORD dShareMode, LPSECURITY_ATTRIBUTES lpSecurity, DWORD dCreation, DWORD dflags, HANDLE templateFile) { return (ULONG_PTR *)CreateFile(file, dAccess, dShareMode, lpSecurity, dCreation, dflags, templateFile); },
-			[](ULONG_PTR *file) { CloseHandle((HANDLE)file); }, file, dAccess, dShareMode, lpSecurity, dCreation, dflags, templateFile);
+			[](const TCHAR *file, DWORD dAccess, DWORD dShareMode, LPSECURITY_ATTRIBUTES lpSecurity, DWORD dCreation, DWORD dflags, HANDLE templateFile) noexcept { return (ULONG_PTR *)CreateFile(file, dAccess, dShareMode, lpSecurity, dCreation, dflags, templateFile); },
+			[](ULONG_PTR *file) noexcept { CloseHandle((HANDLE)file); }, file, dAccess, dShareMode, lpSecurity, dCreation, dflags, templateFile);
 	}
-	inline dcxBSTR_t make_bstr(const WCHAR *const wstr) { return make_resource(SysAllocString, [](BSTR obj) { if (obj != nullptr) SysFreeString(obj); }, wstr); }
+	inline dcxBSTR_t make_bstr(const WCHAR *const wstr) { return make_resource(SysAllocString, [](BSTR obj) noexcept { if (obj != nullptr) SysFreeString(obj); }, wstr); }
 
 	// NB: BaseType can be defined as some other pointer type
 	// so we static_cast it later on
@@ -143,12 +172,14 @@ namespace Dcx
 		dcxResource() = delete;																		// no default!
 		dcxResource(const dcxResource<Unique,BaseType> &) = delete;									// no copy!
 		dcxResource<Unique, BaseType> &operator =(const dcxResource<Unique, BaseType> &) = delete;	// No assignments!
+		dcxResource(dcxResource<Unique, BaseType> &&) = delete;									// no move!
+		dcxResource<Unique, BaseType> &operator =(dcxResource<Unique, BaseType> &&) = delete;	// No assignments!
 
 		using pointer = typename Unique::pointer;
 		using element_type = typename Unique::element_type;
 		using return_type = BaseType;
 
-		constexpr dcxResource(Unique u)
+		constexpr dcxResource(Unique u) noexcept
 			: m_uni(std::move(u))
 		{
 		}
@@ -165,6 +196,8 @@ namespace Dcx
 		dcxFileResource() = delete;										// no default!
 		dcxFileResource(const dcxFileResource &) = delete;				// no copy!
 		dcxFileResource &operator =(const dcxFileResource &) = delete;	// No assignments!
+		dcxFileResource(dcxFileResource &&) = delete;				// no copy!
+		dcxFileResource &operator =(dcxFileResource &&) = delete;	// No assignments!
 
 		// calls _wfopen()
 		dcxFileResource(const WCHAR *tsFilename, const WCHAR *tsMode)
@@ -181,14 +214,14 @@ namespace Dcx
 		const uint32_t Size() const noexcept
 		{
 			// Seek End of file
-			if (fseek(*this, 0, SEEK_END))
+			if (fseek(this->get(), 0, SEEK_END))
 				return 0UL;
 
 			// Read pointer location, because pointer is at the end, results into file size
-			auto size = gsl::narrow_cast<uint32_t>(ftell(*this));
+			const auto size = gsl::narrow_cast<uint32_t>(ftell(this->get()));
 
 			// Get back to file beginning
-			if (fseek(*this, 0, SEEK_SET))
+			if (fseek(this->get(), 0, SEEK_SET))
 				return 0UL;
 
 			return size;
@@ -197,14 +230,14 @@ namespace Dcx
 		const uint64_t SizeEx() const noexcept
 		{
 			// Seek End of file
-			if (_fseeki64(*this, 0, SEEK_END))
+			if (_fseeki64(this->get(), 0, SEEK_END))
 				return 0ULL;
 
 			// Read pointer location, because pointer is at the end, results into file size
-			auto size = gsl::narrow_cast<uint64_t>(_ftelli64(*this));
+			const auto size = gsl::narrow_cast<uint64_t>(_ftelli64(this->get()));
 
 			// Get back to file beginning
-			if (_fseeki64(*this, 0, SEEK_SET))
+			if (_fseeki64(this->get(), 0, SEEK_SET))
 				return 0ULL;
 
 			return size;
@@ -216,6 +249,8 @@ namespace Dcx
 		dcxFileHandleResource() = delete;											// no default!
 		dcxFileHandleResource(const dcxFileHandleResource &) = delete;				// no copy!
 		dcxFileHandleResource &operator =(const dcxFileHandleResource &) = delete;	// No assignments!
+		dcxFileHandleResource(dcxFileHandleResource &&) = delete;				// no copy!
+		dcxFileHandleResource &operator =(dcxFileHandleResource &&) = delete;	// No assignments!
 
 		// calls CreateFile()
 		dcxFileHandleResource(const TCHAR *file, DWORD dAccess, DWORD dShareMode, LPSECURITY_ATTRIBUTES lpSecurity, DWORD dCreation, DWORD dflags, HANDLE templateFile)
@@ -225,13 +260,13 @@ namespace Dcx
 
 		const auto Size() const noexcept
 		{
-			return GetFileSize(*this, nullptr);
+			return GetFileSize(this->get(), nullptr);
 		}
 
 		const LARGE_INTEGER SizeEx() const noexcept
 		{
 			LARGE_INTEGER sz{};
-			GetFileSizeEx(*this, &sz);
+			GetFileSizeEx(this->get(), &sz);
 			return sz;
 		}
 	};
@@ -253,6 +288,8 @@ namespace Dcx
 		dcxBSTRResource() = delete;										// no default!
 		dcxBSTRResource(const dcxBSTRResource &) = delete;				// no copy!
 		dcxBSTRResource &operator =(const dcxBSTRResource &) = delete;	// No assignments!
+		dcxBSTRResource(dcxBSTRResource &&) = delete;
+		dcxBSTRResource &operator =(dcxBSTRResource &&) = delete;
 
 		dcxBSTRResource(const WCHAR *const wstr)
 			: dcxResource(make_bstr(wstr))
@@ -264,6 +301,8 @@ namespace Dcx
 		dcxCursorResource() = delete;										// no default!
 		dcxCursorResource(const dcxCursorResource &) = delete;				// no copy!
 		dcxCursorResource &operator =(const dcxCursorResource &) = delete;	// No assignments!
+		dcxCursorResource(dcxCursorResource &&) = delete;
+		dcxCursorResource &operator =(dcxCursorResource &&) = delete;
 
 		// calls dcxLoadCursorFromFile()
 		explicit dcxCursorResource(const TString &tsFilename)
@@ -272,7 +311,7 @@ namespace Dcx
 		}
 		// calls dcxLoadCursorFromResource()
 		explicit dcxCursorResource(const PTCHAR CursorType)
-			: dcxResource(make_resource(dcxLoadCursorFromResource, [](HCURSOR hCursor) { if (hCursor != nullptr) DestroyCursor(hCursor); }, CursorType))
+			: dcxResource(make_resource(dcxLoadCursorFromResource, [](HCURSOR hCursor) noexcept { if (hCursor != nullptr) DestroyCursor(hCursor); }, CursorType))
 		{
 		}
 	};
@@ -282,6 +321,8 @@ namespace Dcx
 		dcxIconResource() = delete;										// no default!
 		dcxIconResource(const dcxIconResource &) = delete;				// no copy!
 		dcxIconResource &operator =(const dcxIconResource &) = delete;	// No assignments!
+		dcxIconResource(dcxIconResource &&) = delete;
+		dcxIconResource &operator =(dcxIconResource &&) = delete;
 
 		// calls dcxLoadIcon()
 		dcxIconResource(const int index, TString &filename, const bool large, const TString &flags)
@@ -291,14 +332,14 @@ namespace Dcx
 
 		// calls ExtractIconEx()
 		dcxIconResource(const TString &filename, const int fIndex, const bool bLarge)
-			: dcxResource(make_resource([](const TString &filename, const int fIndex, const bool bLarge) {
+			: dcxResource(make_resource([](const TString &filename, const int fIndex, const bool bLarge) noexcept {
 			HICON m_hIcon = nullptr;
 			if (bLarge)
 				ExtractIconEx(filename.to_chr(), fIndex, &m_hIcon, nullptr, 1);
 			else
 				ExtractIconEx(filename.to_chr(), fIndex, nullptr, &m_hIcon, 1);
 			return m_hIcon;
-		}, [](HICON hIcon) { if (hIcon != nullptr) DestroyIcon(hIcon); }, filename, fIndex, bLarge))
+		}, [](HICON hIcon) noexcept { if (hIcon != nullptr) DestroyIcon(hIcon); }, filename, fIndex, bLarge))
 		{
 		}
 	};
@@ -308,6 +349,8 @@ namespace Dcx
 		dcxHDCResource() = delete;										// no default!
 		dcxHDCResource(const dcxHDCResource &) = delete;				// no copy!
 		dcxHDCResource &operator =(const dcxHDCResource &) = delete;	// No assignments!
+		dcxHDCResource(dcxHDCResource &&) = delete;
+		dcxHDCResource &operator =(dcxHDCResource &&) = delete;
 
 		// calls CreateCompatibleDC()
 		explicit dcxHDCResource(HDC hdc)
@@ -316,7 +359,7 @@ namespace Dcx
 		}
 		// calls CreateDC()
 		dcxHDCResource(HDC hdc, LPCTSTR lpszDriver, LPCTSTR lpszDevice, LPCTSTR lpszOutput, const DEVMODE *lpInitData)
-			: dcxResource(make_resource(CreateDC, [](HDC obj) { DeleteDC(obj); }, lpszDriver, lpszDevice, lpszOutput, lpInitData))
+			: dcxResource(make_resource(CreateDC, [](HDC obj) noexcept { DeleteDC(obj); }, lpszDriver, lpszDevice, lpszOutput, lpInitData))
 		{
 		}
 		//// calls GetDC() - broken
@@ -344,22 +387,23 @@ namespace Dcx
 		dcxHDCBitmapResource() = delete;											// no default!
 		dcxHDCBitmapResource(const dcxHDCBitmapResource &) = delete;				// no copy!
 		dcxHDCBitmapResource &operator =(const dcxHDCBitmapResource &) = delete;	// No assignments!
+		dcxHDCBitmapResource(dcxHDCBitmapResource &&) = delete;				// no move!
+		dcxHDCBitmapResource &operator =(dcxHDCBitmapResource &&) = delete;	// No assignments!
 
 		//calls CreateCompatibleDC() then SelectBitmap()
 		dcxHDCBitmapResource(HDC hdc, HBITMAP hBitmap)
 			: dcxHDCResource(hdc)
-			, m_hOldBitmap(nullptr)
 		{
 			if (hBitmap != nullptr)
-				m_hOldBitmap = SelectBitmap(*this, hBitmap);
+				m_hOldBitmap = SelectBitmap(this->get(), hBitmap);
 		}
 		~dcxHDCBitmapResource()
 		{
 			if (m_hOldBitmap != nullptr)
-				SelectBitmap(*this, m_hOldBitmap);
+				SelectBitmap(this->get(), m_hOldBitmap);
 		}
 	private:
-		HBITMAP	m_hOldBitmap;
+		HBITMAP	m_hOldBitmap{ nullptr };
 	};
 
 	struct dcxBitmapResource : dcxResource < dcxBitmap_t >
@@ -367,6 +411,8 @@ namespace Dcx
 		dcxBitmapResource() = delete;										// no default!
 		dcxBitmapResource(const dcxBitmapResource &) = delete;				// no copy!
 		dcxBitmapResource &operator =(const dcxBitmapResource &) = delete;	// No assignments!
+		dcxBitmapResource(dcxBitmapResource &&) = delete;
+		dcxBitmapResource &operator =(dcxBitmapResource &&) = delete;
 
 		// calls CreateCompatibleBitmap()
 		dcxBitmapResource(HDC hdc, int w, int h)
@@ -376,13 +422,13 @@ namespace Dcx
 		
 		//calls CreateDIBitmap();
 		dcxBitmapResource(HDC hdc, const BITMAPINFOHEADER *pbmih, DWORD flInit, const void *pjBits, const BITMAPINFO *pbmi, UINT iUsage)
-			: dcxResource(make_resource(CreateDIBitmap, [](HBITMAP obj) { DeleteBitmap(obj); }, hdc, pbmih, flInit, pjBits, pbmi, iUsage))
+			: dcxResource(make_resource(CreateDIBitmap, [](HBITMAP obj) noexcept { DeleteBitmap(obj); }, hdc, pbmih, flInit, pjBits, pbmi, iUsage))
 		{
 		}
 
 		//calls CreateDIBSection();
 		dcxBitmapResource(HDC hdc,const BITMAPINFO *pbmi, UINT usage,void **ppvBits, HANDLE hSection, DWORD offset)
-			: dcxResource(make_resource(CreateDIBSection, [](HBITMAP obj) { DeleteBitmap(obj); }, hdc, pbmi, usage, ppvBits, hSection, offset))
+			: dcxResource(make_resource(CreateDIBSection, [](HBITMAP obj) noexcept { DeleteBitmap(obj); }, hdc, pbmi, usage, ppvBits, hSection, offset))
 		{
 		}
 	};
@@ -393,6 +439,8 @@ namespace Dcx
 		dcxHDCBitmap2Resource() = delete;											// no default!
 		dcxHDCBitmap2Resource(const dcxHDCBitmap2Resource &) = delete;				// no copy!
 		dcxHDCBitmap2Resource &operator =(const dcxHDCBitmap2Resource &) = delete;	// No assignments!
+		dcxHDCBitmap2Resource(dcxHDCBitmap2Resource &&) = delete;
+		dcxHDCBitmap2Resource &operator =(dcxHDCBitmap2Resource &&) = delete;
 
 		//calls CreateCompatibleDC() then CreateCompatibleBitmap(), then SelectBitmap()
 		dcxHDCBitmap2Resource(HDC hdc, const int &w, const int &h)
@@ -401,12 +449,12 @@ namespace Dcx
 			, m_Width(w)
 			, m_Height(h)
 		{
-			m_hOldBitmap = SelectBitmap(*this, m_hBitmap);
+			m_hOldBitmap = SelectBitmap(this->get(), m_hBitmap.get());
 		}
 		~dcxHDCBitmap2Resource()
 		{
 			if (m_hOldBitmap != nullptr)
-				SelectBitmap(*this, m_hOldBitmap);
+				SelectBitmap(this->get(), m_hOldBitmap);
 		}
 		const int &getWidth() const noexcept { return m_Width; }
 		const int &getHeight() const noexcept { return m_Height; }
@@ -613,27 +661,28 @@ namespace Dcx
 		dcxHDCBuffer() = delete;
 		dcxHDCBuffer(const dcxHDCBuffer &) = delete;
 		dcxHDCBuffer &operator = (const dcxHDCBuffer &) = delete;
+		dcxHDCBuffer(dcxHDCBuffer &&) = delete;
+		dcxHDCBuffer &operator = (dcxHDCBuffer &&) = delete;
 
 		dcxHDCBuffer(const HDC hdc, const RECT &rc)
 			: dcxHDCBitmap2Resource(hdc, (rc.right - rc.left), (rc.bottom - rc.top))
-			, m_hOldFont(nullptr)
 		{
 			// copy settings from hdc to buffer's hdc.
-			SetDCBrushColor(*this, GetDCBrushColor(hdc));
-			SetDCPenColor(*this, GetDCPenColor(hdc));
-			SetLayout(*this, GetLayout(hdc));
-			m_hOldFont = SelectFont(*this, GetCurrentObject(hdc, OBJ_FONT));
-			SetTextColor(*this, GetTextColor(hdc));
-			SetBkColor(*this, GetBkColor(hdc));
-			SetBkMode(*this, GetBkMode(hdc));
-			SetROP2(*this, GetROP2(hdc));
-			SetMapMode(*this, GetMapMode(hdc));
-			SetPolyFillMode(*this, GetPolyFillMode(hdc));
-			SetStretchBltMode(*this, GetStretchBltMode(hdc));
-			SetGraphicsMode(*this, GetGraphicsMode(hdc));
+			SetDCBrushColor(this->get(), GetDCBrushColor(hdc));
+			SetDCPenColor(this->get(), GetDCPenColor(hdc));
+			SetLayout(this->get(), GetLayout(hdc));
+			m_hOldFont = SelectFont(this->get(), GetCurrentObject(hdc, OBJ_FONT));
+			SetTextColor(this->get(), GetTextColor(hdc));
+			SetBkColor(this->get(), GetBkColor(hdc));
+			SetBkMode(this->get(), GetBkMode(hdc));
+			SetROP2(this->get(), GetROP2(hdc));
+			SetMapMode(this->get(), GetMapMode(hdc));
+			SetPolyFillMode(this->get(), GetPolyFillMode(hdc));
+			SetStretchBltMode(this->get(), GetStretchBltMode(hdc));
+			SetGraphicsMode(this->get(), GetGraphicsMode(hdc));
 
 			// copy contents of hdc within area to buffer.
-			BitBlt(*this, 0, 0, getWidth(), getHeight(), hdc, rc.left, rc.top, SRCCOPY);
+			BitBlt(this->get(), 0, 0, getWidth(), getHeight(), hdc, rc.left, rc.top, SRCCOPY);
 
 			// buffer is an exact duplicate of the hdc within the area specified.
 		}
@@ -641,33 +690,37 @@ namespace Dcx
 		{
 			GdiFlush();
 			if (m_hOldFont != nullptr)
-				SelectFont(*this, m_hOldFont);
+				SelectFont(this->get(), m_hOldFont);
 		}
 	private:
-		HFONT m_hOldFont;
+		HFONT m_hOldFont{ nullptr };
 	};
 
 	struct dcxVariant
 		: VARIANT
 	{
-		dcxVariant()
+		dcxVariant() noexcept
 		{
 			VariantInit(this);
 		}
-		explicit dcxVariant(const BSTR bStr)
+		explicit dcxVariant(const BSTR bStr) noexcept
 			: dcxVariant()
 		{
 			vt = VT_BSTR;
 			bstrVal = bStr;
 		}
-		explicit dcxVariant(const WCHAR *cStr)
+		explicit dcxVariant(const WCHAR *cStr) noexcept
 			: dcxVariant(SysAllocString(cStr))
 		{
 		}
-		~dcxVariant()
+		~dcxVariant() noexcept
 		{
 			VariantClear(this);	// this does SysFreeString() for us.
 		}
+		dcxVariant(const dcxVariant &) noexcept = default;
+		dcxVariant &operator = (const dcxVariant &) noexcept = default;
+		dcxVariant(dcxVariant &&) noexcept = default;
+		dcxVariant &operator = (dcxVariant &&) noexcept = default;
 	};
 
 	struct dcxCursorPos
@@ -712,6 +765,7 @@ namespace Dcx
 		long Width() const noexcept { return (right - left); }
 		// get the rect's height
 		long Height() const noexcept { return (bottom - top); }
+		RECT CopyRect() const noexcept { return { left, top, right, bottom }; }
 	};
 
 	struct dcxClassName
@@ -719,7 +773,7 @@ namespace Dcx
 	{
 		dcxClassName() = delete;
 		// Gets the class name for hwnd
-		explicit dcxClassName(HWND hwnd)
+		explicit dcxClassName(HWND hwnd) noexcept
 		{
 			GetClassName(hwnd, this->data(), gsl::narrow_cast<int32_t>(this->size()));
 		}
@@ -728,10 +782,10 @@ namespace Dcx
 
 	struct dcxPalette
 	{
-		dcxPalette()
-			: m_Palette{ CLR_INVALID }
+		dcxPalette() noexcept
 		{
-			getmIRCPalette(&m_Palette[0], m_size); // get mIRC palette
+			//getmIRCPalette(&m_Palette[0], m_size); // get mIRC palette
+			getmIRCPalette(m_Palette); // get mIRC palette
 		}
 		explicit operator COLORREF *() noexcept
 		{
@@ -757,8 +811,9 @@ namespace Dcx
 		iter end() const noexcept { return{ size(), nullptr }; }
 
 		constexpr static const ptrdiff_t m_size = mIRC_PALETTE_SIZE;
-		COLORREF m_Palette[m_size];
+		COLORREF m_Palette[m_size]{ CLR_INVALID };
 	};
+
 	using MapOfCursors = std::map<HCURSOR, HCURSOR>;
 	using MapOfAreas = std::map<UINT, HCURSOR>;
 
@@ -791,31 +846,31 @@ namespace Dcx
 		constexpr operator std::make_unsigned_t<T>() const noexcept { return gsl::narrow_cast<std::make_unsigned_t<T>>(m_nValue); }
 		constexpr operator std::make_signed_t<T>() const noexcept { return gsl::narrow_cast<std::make_signed_t<T>>(m_nValue); }
 		constexpr explicit operator bool() const noexcept { return (m_nValue != T()); }
-		T &operator =(const std::make_unsigned_t<T> &other)
+		T &operator =(const std::make_unsigned_t<T> &other) noexcept
 		{
 			m_nValue = T(other);
 			return m_nValue;
 		}
-		T &operator =(const std::make_signed_t<T> &other)
+		T &operator =(const std::make_signed_t<T> &other) noexcept
 		{
 			m_nValue = T(other);
 			return m_nValue;
 		}
-		bool operator ==(const std::make_unsigned_t<T> &other) { return m_nValue == T(other); }
-		bool operator ==(const std::make_signed_t<T> &other) { return m_nValue == T(other); }
+		bool operator ==(const std::make_unsigned_t<T> &other) const noexcept { return m_nValue == T(other); }
+		bool operator ==(const std::make_signed_t<T> &other) const noexcept { return m_nValue == T(other); }
 
 		T m_nValue;
 	};
 
 	void setupOSCompatibility(void);
-	void freeOSCompatibility(void);
+	void freeOSCompatibility(void) noexcept;
 
 	IClassFactory *const getClassFactory() noexcept;
 	const TString &getLastError() noexcept;
 	const std::byte &getGhostDrag() noexcept;
 	bool setGhostDrag(const std::byte newAlpha) noexcept;
 	const bool &isDX9Installed() noexcept;
-	bool isUnloadSafe();
+	bool isUnloadSafe() noexcept;
 	//bool isFile(const WCHAR *const file);
 	//bool isFile(LPCSTR const file);
 
@@ -832,12 +887,10 @@ namespace Dcx
 		error(cmd, _ts_sprintf(tsErr, fmt, val, args...).to_chr());
 	}
 
-	//int mark(TCHAR *const data, const TString & tsDName, const TString & tsCallbackName);
-	int mark(const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &data, const TString & tsDName, const TString & tsCallbackName);
+	void mark(const TString & tsDName, const TString & tsCallbackName);
 	LRESULT CALLBACK mIRCSubClassWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-	//const char *const dcxGetFormattedString(const TCHAR *const fmt, ...);
-	const TCHAR *const parseCursorType(const TString & cursor);
-	const TCHAR *const parseCursorType(const std::hash<TString>::result_type & cursor);
+	[[gsl::suppress(lifetimes.1)]] const TCHAR *const parseCursorType(const TString & cursor);
+	[[gsl::suppress(lifetimes.1)]] const TCHAR *const parseCursorType(const std::hash<TString>::result_type & cursor);
 	const DWORD parseSystemCursorType(const TString & cursor);
 	const DWORD parseSystemCursorType(const std::hash<TString>::result_type & cursor);
 	const DWORD parseAreaType(const TString &tsArea);
@@ -850,8 +903,8 @@ namespace Dcx
 	void setCursor(const HCURSOR hSystemCursor, const HCURSOR hCustomCursor);
 	void deleteCursor(const HCURSOR hCursor);
 	HCURSOR WINAPI XSetCursor(HCURSOR hCursor);
-	PVOID PatchAPI(const char *const c_szDllName, const char *const c_szApiName, PVOID newfPtr);
-	void RemovePatch(PVOID fPtr, PVOID newfPtr);
+	PVOID PatchAPI(const char *const c_szDllName, const char *const c_szApiName, PVOID newfPtr) noexcept;
+	void RemovePatch(PVOID fPtr, PVOID newfPtr) noexcept;
 
 	//typedef HCURSOR(WINAPI *PFNSETCURSOR)(HCURSOR hCursor);
 	using PFNSETCURSOR = HCURSOR(WINAPI *)(HCURSOR hCursor);
@@ -1014,7 +1067,7 @@ namespace Dcx
 
 	// countof() for container objects
 	template <class C>
-	std::size_t countof(C const & c)
+	constexpr std::size_t countof(C const & c) noexcept
 	{
 		return c.size();
 	}
@@ -1035,9 +1088,8 @@ namespace Dcx
 		//	return false;
 		//}
 		//else {
-			const auto itEnd = con.end();
-
-			if (const auto itGot = std::find(con.begin(), itEnd, v); itGot != itEnd)
+			
+			if (const auto itEnd = con.end(), itGot = std::find(con.begin(), itEnd, v); itGot != itEnd)
 			{
 				con.erase(itGot);
 				return true;
@@ -1047,8 +1099,25 @@ namespace Dcx
 	}
 
 	template <class T>
-	bool IsFileEx(const T &filename)
+	bool IsFileEx(const T &filename) noexcept
 	{
 		return (std::experimental::filesystem::exists(filename) && std::experimental::filesystem::is_regular_file(filename));
 	}
+
+#if DCX_USE_CREGEX
+	template <class Input>
+	std::basic_regex<TCHAR> make_mirc_regex(const Input &str)
+	{
+		// need to remove the // from the pattern so /^blah$/ becomes ^blah$
+		const auto patlen = _ts_strlen(str);
+		auto tmp = std::make_unique<TCHAR[]>(patlen);
+		auto rType = std::regex::ECMAScript;
+
+		//if ()
+		_ts_strcpyn(tmp.get(), pattern +1, patlen -2);
+		return std::basic_regex<TCHAR>(tmp.get(), rType);
+
+	}
+#endif
+
 }

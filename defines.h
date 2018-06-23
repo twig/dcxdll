@@ -31,8 +31,8 @@ http://symbiancorner.blogspot.com/2007/05/how-to-detect-version-of-ms-visual.htm
 #define _DEFINES_H_
 
 // VS2017+ only
-#if !defined(_MSC_FULL_VER) || _MSC_FULL_VER < 191125542
-#error "This version of DCX needs Visual Studio 2017.4.0 or newer"
+#if !defined(_MSC_FULL_VER) || _MSC_FULL_VER < 19142643
+#error "This version of DCX needs Visual Studio 2017 15.7.4 or newer"
 #endif
 
 #ifdef __INTEL_COMPILER // Defined when using Intel C++ Compiler.
@@ -59,6 +59,16 @@ http://symbiancorner.blogspot.com/2007/05/how-to-detect-version-of-ms-visual.htm
 #pragma warning( disable : 26499 ) //  warning C26499 : Could not find any lifetime tracking information for '........'
 #pragma warning( disable : 26481 ) //  warning C26481 : Don't use pointer arithmetic. Use span instead. (bounds.1: http://go.microsoft.com/fwlink/p/?LinkID=620413)
 #pragma warning( disable : 26482 ) //  warning C26482 : Only index into arrays using constant expressions. (bounds.2: http://go.microsoft.com/fwlink/p/?LinkID=620414)
+#pragma warning( disable : 26415 ) //  warning C26415 : Smart pointer parameter '.....' is used only to access contained pointer.Use T* or T & instead(r.30: http://go.microsoft.com/fwlink/?linkid=845475).
+#pragma warning( disable : 26417 ) //  warning C26417 : Shared pointer parameter '....' is passed by reference and not reset or reassigned.Use T* or T & instead(r.35: http://go.microsoft.com/fwlink/?linkid=845488).
+#pragma warning( disable : 26418 ) //  warning C26418 : Shared pointer parameter '....' is not copied or moved.Use T* or T & instead(r.36: http://go.microsoft.com/fwlink/?linkid=845489).
+#pragma warning( disable : 26426 ) //  warning C26426 : Global initializer calls a non - constexpr function '....' (i.22: http://go.microsoft.com/fwlink/?linkid=853919).
+#pragma warning( disable : 26425 ) //  warning C26425 : Assigning 'nullptr' to a static variable.
+#pragma warning( disable : 26412 ) //  warning C26412 : Do not dereference an invalid pointer(lifetimes rule 1). '....' was invalidated at line ??? by '......'.
+#pragma warning( disable : 26490 ) //  warning C26490 : Don't use reinterpret_cast (type.1: http://go.microsoft.com/fwlink/p/?LinkID=620417).
+#pragma warning( disable : 26413 ) //  warning C26413 : Do not dereference nullptr (lifetimes rule 2). '....' was pointed to nullptr at line ???.
+#pragma warning( disable : 26429 ) //  warning C26429 : Symbol '...' is never tested for nullness, it can be marked as not_null(f.23: http://go.microsoft.com/fwlink/?linkid=853921).
+#pragma warning( disable : 26472 ) //  warning C26472 : Don't use a static_cast for arithmetic conversions. Use brace initialization, gsl::narrow_cast or gsl::narow (type.1: http://go.microsoft.com/fwlink/p/?LinkID=620417).
 
 // --------------------------------------------------
 // Optional build libraries for DCX
@@ -151,6 +161,7 @@ http://symbiancorner.blogspot.com/2007/05/how-to-detect-version-of-ms-visual.htm
 
 #define _CRT_SECURE_NO_DEPRECATE 1
 #define _CRT_SECURE_NO_WARNINGS 1
+#define _SCL_SECURE_NO_WARNINGS 1
 
 #define _CRT_RAND_S 1
 
@@ -294,8 +305,6 @@ http://symbiancorner.blogspot.com/2007/05/how-to-detect-version-of-ms-visual.htm
 #include "classes/dcxdialogcollection.h"
 #include "Classes\tinyxml\tinyxml.h"
 
-//#include "AggressiveOptimize.h"
-
 #include "dcxExceptions.h"
 #include "Classes\WindowStyles.h"
 
@@ -421,6 +430,8 @@ enum class mIRC_SendMessage_ErrorCodes : UINT {
 #define DCX_TEXTCLASS			TEXT("DCXTextClass")      //!< DCX Text Class Name
 #define DCX_DIRECTSHOWCLASS		TEXT("DCXDirectShowClass") //!< DCX Text Class Name
 
+using mIRCResultString = refString<TCHAR, MIRC_BUFFER_SIZE_CCH>;
+
 // --------------------------------------------------
 // CLA constants
 // --------------------------------------------------
@@ -477,7 +488,7 @@ enum class SwitchBarPos: UINT {
 // DLL stuff
 // --------------------------------------------------
 // mIRC Function Alias
-#define mIRC(x) _INTEL_DLL_ int WINAPI x(HWND mWnd, HWND aWnd, TCHAR * data, TCHAR * parms, BOOL, BOOL)
+#define mIRC(x) _INTEL_DLL_ int WINAPI x(HWND mWnd, HWND aWnd, TCHAR *const data, const TCHAR *const parms, BOOL, BOOL)
 
 // Return String DLL Alias (data is limited to MIRC_BUFFER_SIZE_CCH)
 #define ret(x) { if (ts_strcpyn(data, (x), MIRC_BUFFER_SIZE_CCH) == nullptr) data[0] = 0; return 3; }
@@ -487,15 +498,9 @@ enum class SwitchBarPos: UINT {
 // mIRC Signal structure
 struct SIGNALSWITCH
 {
-	bool xdock;
-	bool xstatusbar;
-	bool xtray;
-
-	SIGNALSWITCH()
-		: xdock(false)
-		, xstatusbar(true)
-		, xtray(true)
-	{}
+	bool xdock{ false };
+	bool xstatusbar{ true };
+	bool xtray{ true };
 };
 using LPSIGNALSWITCH = SIGNALSWITCH *;
 
@@ -508,12 +513,12 @@ using VectorOfInts = std::vector<int>; //<! Vector of int
 #define dcx_fopen(x,y) _wfopen(x,y)
 #define dcx_strstr(x,y) ts_strstr((x),(y))
 #define dcx_strncmp(x,y,z) ts_strncmp((x),(y),(z))
-#define dcx_itoa(x,y,z) _itow((x), (y), (z))
+#define dcx_itoa(x,y,z) _ts_itoa((x), (y), (z))
 
 //#define dcx_strcpyn(x, y, z) { if (lstrcpyn((x), (y), gsl::narrow_cast<int>((z))) == nullptr) (x)[0] = 0; }
 
 template <typename T>
-inline void dcx_strcpyn(TCHAR *const sDest, const TCHAR *sSrc, const T &iSize) { if (ts_strcpyn(sDest, sSrc, iSize) == nullptr) sDest[0] = 0; }
+inline void dcx_strcpyn(TCHAR *const sDest, const TCHAR *sSrc, const T &iSize) noexcept { if (ts_strcpyn(sDest, sSrc, iSize) == nullptr) sDest[0] = 0; }
 
 constexpr const TCHAR *const dcx_truefalse(const bool &x) noexcept { return (x) ? &(TEXT("$true"))[0] : &(TEXT("$false")[0]); }
 
@@ -535,11 +540,11 @@ constexpr bool dcx_testflag(T x, M y) noexcept { return ((x & gsl::narrow_cast<T
 // DLL routines
 // --------------------------------------------------
 
-int dcx_round(const float x);
+int dcx_round(const float x) noexcept;
 
 bool ParseCommandToLogfont(const TString& cmd, LPLOGFONT lf);
 TString ParseLogfontToCommand(const LPLOGFONT lf);
-UINT parseFontFlags(const TString &flags);
+UINT parseFontFlags(const TString &flags) noexcept;
 UINT parseFontCharSet(const TString &charset);
 
 auto readFile(const TString &filename)->std::unique_ptr<BYTE[]>;
@@ -547,8 +552,8 @@ TString readTextFile(const TString &tFile);
 bool SaveDataToFile(const TString &tsFile, const TString &tsData);
 TString FileDialog(const TString & data, const TString &method, const HWND pWnd);
 
-int CALLBACK BrowseFolderCallback(HWND hwnd, UINT uMsg, LPARAM lParam, LPARAM lpData);
-gsl::owner<LPITEMIDLIST> GetFolderFromCSIDL(const int nCsidl);
+int CALLBACK BrowseFolderCallback(HWND hwnd, UINT uMsg, LPARAM lParam, LPARAM lpData) noexcept;
+gsl::owner<LPITEMIDLIST> GetFolderFromCSIDL(const int nCsidl) noexcept;
 
 HWND GetHwndFromString(const TString &str);
 HWND FindOwner(const TString & data, const gsl::not_null<HWND> &defaultWnd);
@@ -557,56 +562,61 @@ bool CopyToClipboard(const HWND owner, const TString & str);
 
 HBITMAP dcxLoadBitmap(HBITMAP dest, TString &filename);
 HICON dcxLoadIcon(const int index, TString &filename, const bool large, const TString &flags);
-HICON CreateGrayscaleIcon(HICON hIcon);
+HICON CreateGrayscaleIcon(HICON hIcon) noexcept;
 
 HRGN BitmapRegion(HBITMAP hBitmap, const COLORREF cTransparentColor, const bool bIsTransparent);
 
 void ChangeHwndIcon(const HWND hwnd, const TString &flags, const int index, TString &filename);
 bool AddFileIcons(HIMAGELIST himl, TString &filename, const bool bLarge, const int iIndex, const int iStart = 0, const int iEnd = -1);
-int dcxPickIconDlg(const gsl::not_null<HWND> &hwnd, gsl::not_null<LPWSTR> pszIconPath, const UINT &cchIconPath, gsl::not_null<int *> piIconIndex);
+int dcxPickIconDlg(const gsl::not_null<HWND> &hwnd, gsl::not_null<LPWSTR> pszIconPath, const UINT &cchIconPath, gsl::not_null<int *> piIconIndex) noexcept;
 
-BOOL dcxGetWindowRect(const gsl::not_null<HWND> &hWnd, const gsl::not_null<LPRECT> &lpRect);
+BOOL dcxGetWindowRect(const gsl::not_null<HWND> &hWnd, const gsl::not_null<LPRECT> &lpRect) noexcept;
 bool GetWindowRectParent(const gsl::not_null<HWND> &hwnd, gsl::not_null<RECT *> rcWin);
 
 SYSTEMTIME MircTimeToSystemTime(const long mircTime);
 long SystemTimeToMircTime(const LPSYSTEMTIME pst);
 
-void AddToolTipToolInfo(const HWND tiphwnd, const HWND ctrl);
+void AddToolTipToolInfo(const HWND tiphwnd, const HWND ctrl) noexcept;
 #ifdef DCX_USE_GDIPLUS
-constexpr const TCHAR *GetLastStatusStr(Gdiplus::Status status);
+constexpr const TCHAR *GetLastStatusStr(Gdiplus::Status status) noexcept;
 #endif
 
 bool IsFile(TString &filename);
 
-void dcxDrawShadowText(HDC hdc, LPCWSTR pszText, UINT cch, RECT *pRect, DWORD dwFlags, COLORREF crText, COLORREF crShadow, int ixOffset, int iyOffset);
+void dcxDrawShadowText(HDC hdc, LPCWSTR pszText, UINT cch, RECT *pRect, DWORD dwFlags, COLORREF crText, COLORREF crShadow, int ixOffset, int iyOffset) noexcept;
 //void calcStrippedRect(HDC hdc, const TString &txt, const UINT style, LPRECT rc, const bool ignoreleft);
 void mIRC_DrawText(HDC hdc, const TString &txt, LPRECT rc, const UINT style, const bool shadow);
-void DrawRotatedText(const TString &strDraw, const gsl::not_null<LPRECT> &rc, const gsl::not_null<HDC> &hDC, const int nAngleLine = 0, const bool bEnableAngleChar = false, const int nAngleChar = 0);
+void DrawRotatedText(const TString &strDraw, const gsl::not_null<LPRECT> &rc, const gsl::not_null<HDC> &hDC, const int nAngleLine = 0, const bool bEnableAngleChar = false, const int nAngleChar = 0) noexcept;
 
 gsl::owner<HDC *> CreateHDCBuffer(gsl::not_null<HDC> hdc, const LPRECT rc);
-void DeleteHDCBuffer(gsl::owner<HDC *> hBuffer);
+void DeleteHDCBuffer(gsl::owner<HDC *> hBuffer) noexcept;
 
 int TGetWindowText(HWND hwnd, TString &txt);
-void FreeOSCompatibility(void);
+TString TGetWindowText(HWND hwnd);
+void FreeOSCompatibility(void) noexcept;
 bool isRegexMatch(const TCHAR *matchtext, const TCHAR *pattern);
 
-const char *queryAttribute(gsl::not_null<const TiXmlElement *> element, gsl::not_null<const char *> attribute, gsl::not_null<const char *> defaultValue = "");
+const char *queryAttribute(gsl::not_null<const TiXmlElement *> element, gsl::not_null<const char *> attribute, gsl::not_null<const char *> defaultValue = "") noexcept;
+//std::optional<const char *> queryAttribute(gsl::not_null<const TiXmlElement *> element, gsl::not_null<const char *> attribute) noexcept;
 int queryIntAttribute(gsl::not_null<const TiXmlElement *> element, gsl::not_null<const char *> attribute, const int defaultValue = 0);
+//std::optional<int> queryIntAttribute(gsl::not_null<const TiXmlElement *> element, gsl::not_null<const char *> attribute);
 
 void getmIRCPalette();
 void getmIRCPalette(COLORREF *const Palette, const UINT PaletteItems);
+void getmIRCPalette(gsl::span<COLORREF> Palette);
 void getmIRCPaletteMask(COLORREF *const Palette, const UINT PaletteItems, uint16_t uMask);
-int unfoldColor(const WCHAR *color);
+int unfoldColor(const WCHAR *color) noexcept;
 
 // UltraDock
-void RemStyles(const gsl::not_null<HWND> &hwnd,int parm,long RemStyles);
-void AddStyles(const gsl::not_null<HWND> &hwnd,int parm,long AddStyles);
+void RemStyles(const gsl::not_null<HWND> &hwnd, const int parm, const long RemStyles) noexcept;
+void AddStyles(const gsl::not_null<HWND> &hwnd, const int parm, const long AddStyles) noexcept;
 
 // DirectX
 HRESULT GetDXVersion( DWORD* pdwDirectXVersion, TCHAR* strDirectXVersion, int cchDirectXVersion );
 
 TString MakeTextmIRCSafe(const TString &tsStr);
 TString MakeTextmIRCSafe(const TCHAR *const tString);
+TString MakeTextmIRCSafe(const TCHAR *const tString, const std::size_t len);
 
 extern SIGNALSWITCH dcxSignal;
 extern COLORREF staticPalette[mIRC_PALETTE_SIZE];

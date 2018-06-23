@@ -1,7 +1,7 @@
 #pragma once
 //#ifdef __INTEL_COMPILER // Defined when using Intel C++ Compiler.
-//#pragma warning( push )
-//#pragma warning( disable : 2292 ) //warning #2292: destructor is declared but copy constructor and assignment operator are not
+//#pragma warning( push );
+//#pragma warning( disable : 2292 ); //warning #2292: destructor is declared but copy constructor and assignment operator are not
 //#endif
 
 namespace mIRCLinker
@@ -168,8 +168,61 @@ namespace mIRCLinker
 		return eval(res, _ts_sprintf(line, fmt, val, args...));
 	}
 
+	template <typename Output, typename Input>
+	std::optional<Output> o_eval(const Input &data)
+	{
+		if constexpr(std::is_array_v<Input> && std::is_pod_v<Input>)
+			m_pData = &data[0];
+		else
+			m_pData = data;
+		{
+			if (mIRC_SndMsg(WM_MEVALUATE))
+				return { m_pData.data() };
+		}
+		m_pData.clear();
+		return {};
+	}
+	template <typename Output, typename Input, typename Value, typename... Arguments>
+	std::optional<Output> o_eval(const Input &fmt, const Value &val, Arguments&&... args)
+	{
+		TString line;
+		return o_eval<Output>(_ts_sprintf(line, fmt, val, args...));
+	}
+	template <typename Output, typename Input, typename Value>
+	std::optional<Output> o_eval(const Input &fmt, const Value &val)
+	{
+		TString line;
+		return o_eval<Output>(_ts_sprintf(line, fmt, val));
+	}
+
 	bool iEval(int64_t * const res, const TCHAR *const data);
-	template <class T, class Value> std::pair<bool, T> uEval(const Value &data)
+
+	//template <class T, class Value>
+	//std::pair<bool, T> uEval(const Value &data)
+	//{
+	//	static_assert(is_Numeric_v<T>, "Only Numeric types allowed");
+	//
+	//	if constexpr(std::is_array_v<Value> && std::is_pod_v<Value>)
+	//		m_pData = &data[0];
+	//	else
+	//		m_pData = data;
+	//
+	//	{
+	//		if (mIRC_SndMsg(WM_MEVALUATE))
+	//			return{ true, gsl::narrow_cast<T>(_ts_atoi64(m_pData.data())) };
+	//	}
+	//	m_pData.clear();
+	//	return { false, T{} };
+	//}
+	//template <typename Output, typename Input, typename Value, typename... Arguments>
+	//std::pair<bool, Output> uEval(const Input &fmt, const Value &val, Arguments&&... args)
+	//{
+	//	TString line;
+	//	return uEval<Output>(_ts_sprintf(line, fmt, val, args...));
+	//}
+
+	template <class T, class Value>
+	std::optional<T> uEval(const Value &data)
 	{
 		static_assert(is_Numeric_v<T>, "Only Numeric types allowed");
 
@@ -180,13 +233,13 @@ namespace mIRCLinker
 
 		{
 			if (mIRC_SndMsg(WM_MEVALUATE))
-				return{ true, gsl::narrow_cast<T>(_ts_atoi64(m_pData.data())) };
+				return{ gsl::narrow_cast<T>(_ts_atoi64(m_pData.data())) };
 		}
 		m_pData.clear();
-		return { false, T{} };
+		return { };
 	}
 	template <typename Output, typename Input, typename Value, typename... Arguments>
-	std::pair<bool, Output> uEval(const Input &fmt, const Value &val, Arguments&&... args)
+	std::optional<Output> uEval(const Input &fmt, const Value &val, Arguments&&... args)
 	{
 		TString line;
 		return uEval<Output>(_ts_sprintf(line, fmt, val, args...));
@@ -276,5 +329,5 @@ namespace mIRCLinker
 //#endif
 };
 //#ifdef __INTEL_COMPILER // Defined when using Intel C++ Compiler.
-//#pragma warning( pop )
+//#pragma warning( pop );
 //#endif
