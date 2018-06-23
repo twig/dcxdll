@@ -167,6 +167,12 @@ public:
 
 private:
 
+	struct TokenRange {
+		const_pointer m_pStart{ nullptr };
+		const_pointer m_pEnd{ nullptr };
+		size_type	m_count{};
+	};
+
 #if !TSTRING_TESTCODE
 	UINT i_replace(const_pointer_const subString, const_pointer_const rString);
 	static UINT match(const_pointer m, const_pointer n, const bool cs /* case sensitive */);
@@ -283,23 +289,28 @@ public:
 	{
 	}
 	
-	TString(TString &&tString) noexcept;					// move constructor C++11 only
+	TString(TString &&tString) noexcept;	// move constructor
 	
 	TString(const std::initializer_list<TString> &lt);	// Initializer list constructor (allows TString name{ "text", "text2", othertstring } )
 
 #if TSTRING_TESTCODE
 #pragma warning(push)
 #pragma warning(disable: 26495) // warning C26495 : Variable 'TString::m_savedpos' is uninitialized.Always initialize a member variable(type.6: http://go.microsoft.com/fwlink/p/?LinkID=620422).
-	using pair_type = std::pair<pointer, pointer>;
-	using tuple_type = std::tuple<const_pointer, const_pointer, size_type>;
+	//using pair_type = std::pair<pointer, pointer>;
+	//using tuple_type = std::tuple<const_pointer, const_pointer, size_type>;
+	//
+	//TString(const pair_type &rng)
+	//	: TString(rng.first, rng.second)
+	//{}
+	//
+	//TString(const tuple_type &rng)
+	//	: TString(std::get<0>(rng), std::get<1>(rng))
+	//{}
 
-	TString(const pair_type &rng)
-		: TString(rng.first, rng.second)
+	TString(const TokenRange &rng)
+		: TString(rng.m_pStart, rng.m_pEnd)
 	{}
 
-	TString(const tuple_type &rng)
-		: TString(std::get<0>(rng), std::get<1>(rng))
-	{}
 #pragma warning(pop)
 #endif
 
@@ -1221,8 +1232,67 @@ public:
 	//const tuple_type gettokenrange(const int nStart, const int nEnd, const_pointer sepChars) const;
 	//const tuple_type gettokenrange(const int nStart, const int nEnd, const_reference sepChars = SPACECHAR) const;
 
+	//template <typename TSepChars = const_reference>
+	//const TString::tuple_type gettokenrange(const int nStart, const int nEnd, TSepChars sepChars = SPACECHAR) const noexcept
+	//{
+	//	const_pointer p_cStart = m_pString, p_cEnd = nullptr, p_fEnd = last();
+	//
+	//	if (_ts_isEmpty(sepChars))
+	//		return { p_cStart, p_fEnd, decltype(m_savedtotaltoks){1} };
+	//
+	//	const auto nToks = numtok(sepChars);
+	//	auto iStart = nStart;
+	//
+	//	if (iStart < 0)
+	//		iStart += (nToks + 1);
+	//
+	//	if (p_cStart == nullptr || p_fEnd == nullptr || iStart < 1 || ((nEnd < iStart) && (nEnd != -1)) || static_cast<size_t>(iStart) > nToks)
+	//		return { nullptr, nullptr, decltype(m_savedtotaltoks){0} };
+	//
+	//	const auto bFullstring = ((static_cast<size_t>(nEnd) >= nToks) || (nEnd < 0));
+	//
+	//	const_pointer p_cFirst = nullptr, p_cLast = nullptr;
+	//	auto iCount = 0;
+	//	const auto sepl = _ts_strlen(sepChars);
+	//
+	//	while ((p_cEnd = _ts_find(p_cStart, sepChars)) != nullptr)
+	//	{
+	//		++iCount;
+	//
+	//		if (iCount == iStart)
+	//		{
+	//			p_cFirst = p_cStart;
+	//
+	//			if (bFullstring)
+	//				break;
+	//		}
+	//
+	//		if (iCount == nEnd)
+	//		{
+	//			p_cLast = p_cEnd;
+	//			break;
+	//		}
+	//
+	//		p_cStart = p_cEnd + sepl;
+	//		if (p_cStart >= p_fEnd)	// look out for overrun...
+	//			break;
+	//	}
+	//
+	//	if (bFullstring)
+	//	{
+	//		if (static_cast<size_t>(iCount) == (nToks - 1))
+	//			p_cFirst = p_cStart;
+	//
+	//		p_cLast = p_fEnd;
+	//	}
+	//	else if (static_cast<size_t>(iCount) == (nToks - 1))
+	//		p_cLast = p_cEnd;
+	//
+	//	return { p_cFirst, p_cLast, nToks };
+	//}
+
 	template <typename TSepChars = const_reference>
-	const TString::tuple_type gettokenrange(const int nStart, const int nEnd, TSepChars sepChars = SPACECHAR) const noexcept
+	const TokenRange gettokenrange(const int nStart, const int nEnd, TSepChars sepChars = SPACECHAR) const noexcept
 	{
 		const_pointer p_cStart = m_pString, p_cEnd = nullptr, p_fEnd = last();
 
@@ -1236,7 +1306,7 @@ public:
 			iStart += (nToks + 1);
 
 		if (p_cStart == nullptr || p_fEnd == nullptr || iStart < 1 || ((nEnd < iStart) && (nEnd != -1)) || static_cast<size_t>(iStart) > nToks)
-			return { nullptr, nullptr, decltype(m_savedtotaltoks){0} };
+			return { };
 
 		const auto bFullstring = ((static_cast<size_t>(nEnd) >= nToks) || (nEnd < 0));
 
@@ -1295,13 +1365,22 @@ public:
 	template <typename T = const_reference>
 	inline TString getfirsttok(const int N, T sepChars = SPACECHAR) const
 	{
-		//std::tie(std::ignore, m_savedpos, m_savedtotaltoks) = gettokenrange(N, N, sepChars);
+		//const auto rng = gettokenrange(N, N, sepChars);
+		//
+		//m_savedcurrenttok = static_cast<UINT>(N);
+		//m_savedtotaltoks = std::get<2>(rng);
+		//m_savedpos = std::get<1>(rng);
+		//
+		//if (m_savedpos != nullptr)
+		//	++m_savedpos;
+		//
+		//return rng;
 
 		const auto rng = gettokenrange(N, N, sepChars);
 
 		m_savedcurrenttok = static_cast<UINT>(N);
-		m_savedtotaltoks = std::get<2>(rng);
-		m_savedpos = std::get<1>(rng);
+		m_savedtotaltoks = rng.m_count;
+		m_savedpos = rng.m_pEnd;
 
 		if (m_savedpos != nullptr)
 			++m_savedpos;
@@ -1330,7 +1409,7 @@ public:
 		{
 			m_savedpos = nullptr;
 			//return TString(p_cStart).to_<T>();
-			return Dcx::parse_string<T, value_type>(p_cStart);
+			return Dcx::template parse_string<T, value_type>(p_cStart);
 		}
 		else if (const_pointer_const p_cEnd = _ts_find(p_cStart, sepChars); p_cEnd != nullptr)
 		{
