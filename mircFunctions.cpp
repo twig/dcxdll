@@ -52,7 +52,7 @@ long SystemTimeToMircTime(const LPSYSTEMTIME pst)
 	}
 
 	//TCHAR sRet[100];
-	stString<100U> sRet;
+	//stString<100U> sRet;
 
 	static const TCHAR *months[12] = {
 		TEXT("January"),
@@ -89,14 +89,23 @@ long SystemTimeToMircTime(const LPSYSTEMTIME pst)
 
 	
 
-	if (const auto[bOk, iNum] = mIRCLinker::uEval<long>(TEXT("$ctime(%:%:% % % %)"),
+	//if (const auto[bOk, iNum] = mIRCLinker::uEval<long>(TEXT("$ctime(%:%:% % % %)"),
+	//	pst->wHour,
+	//	pst->wMinute,
+	//	pst->wSecond,
+	//	pst->wDay,
+	//	months[pst->wMonth - 1],
+	//	pst->wYear); bOk)
+	//	return iNum;
+
+	if (const auto iNum = mIRCLinker::uEval<long>(TEXT("$ctime(%:%:% % % %)"),
 		pst->wHour,
 		pst->wMinute,
 		pst->wSecond,
 		pst->wDay,
 		months[pst->wMonth - 1],
-		pst->wYear); bOk)
-		return iNum;
+		pst->wYear); iNum.has_value())
+		return *iNum;
 
 	Dcx::error(TEXT("SystemTimeToMircTime"), TEXT("Unable to get time."));
 	return 0;

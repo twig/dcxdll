@@ -369,8 +369,8 @@ bool ParseCommandToLogfont(const TString& cmd, LPLOGFONT lf)
 	if (dcx_testflag(flags, dcxFontFlags::DCF_UNDERLINE))
 		lf->lfUnderline = TRUE;
 
-	dcx_strcpyn(&lf->lfFaceName[0], fName.to_chr(), Dcx::countof(lf->lfFaceName));
-	lf->lfFaceName[Dcx::countof(lf->lfFaceName) -1] = 0;
+	dcx_strcpyn(&lf->lfFaceName[0], fName.to_chr(), std::extent_v<decltype(lf->lfFaceName)>);
+	lf->lfFaceName[std::extent_v<decltype(lf->lfFaceName)> -1] = 0;
 
 	return true;
 }
@@ -1311,6 +1311,18 @@ void getmIRCPalette(COLORREF *const Palette, const UINT PaletteItems)
 	CopyMemory(Palette, &staticPalette[0], sizeof(COLORREF) * PaletteItems);
 }
 
+/*!
+* \brief Get mIRC Colours.
+*
+* Copies the staticPalette to Palette (updates staticPalette if needed)
+*/
+void getmIRCPalette(gsl::span<COLORREF> Palette)
+{
+	getmIRCPalette();
+
+	gsl::copy(gsl::span<COLORREF>(staticPalette), Palette);
+}
+
 // void getmIRCPaletteMask(COLORREF *const Palette, const UINT PaletteItems, uint16_t uMask)
 // Palette      - Palette to fill
 // PaletteItems - Total number of items in Palette
@@ -1454,7 +1466,8 @@ void mIRC_DrawText(HDC hdc, const TString &txt, LPRECT rc, const UINT style, con
 	COLORREF clrFG = origFG, clrBG = origBG;
 	COLORREF cPalette[mIRC_PALETTE_SIZE] = {CLR_INVALID}; // mIRC palette
 
-	getmIRCPalette(&cPalette[0], Dcx::countof(cPalette)); // get mIRC palette
+	//getmIRCPalette(&cPalette[0], std::extent_v<decltype(cPalette)>); // get mIRC palette
+	getmIRCPalette(cPalette); // get mIRC palette
 
 	const auto hFont = (HFONT)GetCurrentObject(hdc, OBJ_FONT);
 

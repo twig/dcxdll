@@ -116,7 +116,7 @@ HWND GetHwndFromString(const TString &str)
 //}
 
 // Removes window style to a window
-void RemStyles(const gsl::not_null<HWND> &hwnd,int parm,long RemStyles) noexcept
+void RemStyles(const gsl::not_null<HWND> &hwnd, const int parm, const long RemStyles) noexcept
 {
 	auto Styles = gsl::narrow_cast<DWORD>(GetWindowLong(hwnd, parm));
 	Styles &= ~RemStyles;
@@ -124,7 +124,7 @@ void RemStyles(const gsl::not_null<HWND> &hwnd,int parm,long RemStyles) noexcept
 }
 
 //	Adds window styles to a window
-void AddStyles(const gsl::not_null<HWND> &hwnd,int parm,long AddStyles) noexcept
+void AddStyles(const gsl::not_null<HWND> &hwnd, const int parm, const long AddStyles) noexcept
 {
 	auto Styles = gsl::narrow_cast<DWORD>(GetWindowLong(hwnd, parm));
 	Styles |= AddStyles;
