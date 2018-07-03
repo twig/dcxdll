@@ -46,8 +46,7 @@ public:
 	//void parseInfoRequest(const TString & input, PTCHAR szReturnValue) const final;
 	void parseInfoRequest(const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const final;
 	void parseCommandRequest(const TString & input) final;
-	//void parseControlStyles(const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme) final;
-	std::tuple<NoTheme, WindowStyle, WindowExStyle> parseControlStyles(const TString & tsStyles) final;
+	dcxWindowStyles parseControlStyles(const TString & tsStyles) final;
 
 	LRESULT setPane( const UINT iPaneId, const LPDVPANEINFO lpdvpi ) noexcept;
 	LRESULT setDivPos( const UINT iDivPos ) noexcept;

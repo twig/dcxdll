@@ -18,25 +18,25 @@
 #include "Classes/dcxdialog.h"
 #include "Dcx.h"
 
-/*!
- * \brief Constructor
- *
- * \param ID Control ID
- * \param p_Dialog Parent DcxDialog Object
- * \param mParentHwnd Parent Window Handle
- * \param rc Window Rectangle
- * \param styles Window Style Tokenized List
- */
+ /*!
+  * \brief Constructor
+  *
+  * \param ID Control ID
+  * \param p_Dialog Parent DcxDialog Object
+  * \param mParentHwnd Parent Window Handle
+  * \param rc Window Rectangle
+  * \param styles Window Style Tokenized List
+  */
 
 DcxList::DcxList(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles)
 	: DcxControl(ID, p_Dialog)
 {
-	const auto[bNoTheme, Styles, ExStyles] = parseControlStyles(styles);
+	const auto ws = parseControlStyles(styles);
 
 	m_Hwnd = dcxCreateWindow(
-		ExStyles | WindowExStyle::ClientEdge,
+		ws.m_ExStyles | WindowExStyle::ClientEdge,
 		DCX_LISTCLASS,
-		Styles | WindowStyle::Child,
+		ws.m_Styles | WindowStyle::Child,
 		rc,
 		mParentHwnd,
 		ID,
@@ -45,7 +45,7 @@ DcxList::DcxList(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwn
 	if (!IsWindow(m_Hwnd))
 		throw Dcx::dcxException("Unable To Create Window");
 
-	if (bNoTheme)
+	if (ws.m_NoTheme)
 		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
 
 	this->setControlFont(GetStockFont(DEFAULT_GUI_FONT), FALSE);
@@ -118,135 +118,51 @@ const TString DcxList::getStyles(void) const
  * blah
  */
 
-//void DcxList::parseControlStyles( const TString &styles, LONG *Styles, LONG *ExStyles, BOOL *bNoTheme)
-//{
-//	*Styles |= LBS_NOTIFY | LBS_HASSTRINGS | LBS_OWNERDRAWFIXED;
-//
-//	for (const auto &tsStyle: styles)
-//	{
-//#if DCX_USE_HASHING
-//		switch (std::hash<TString>{}(tsStyle))
-//		{
-//			case L"noscroll"_hash:
-//				*Styles |= LBS_DISABLENOSCROLL;
-//				break;
-//			case L"multi"_hash:
-//				*Styles |= LBS_MULTIPLESEL;
-//				break;
-//			case L"extsel"_hash:
-//				*Styles |= LBS_EXTENDEDSEL;
-//				break;
-//			case L"nointegral"_hash:
-//				*Styles |= LBS_NOINTEGRALHEIGHT;
-//				break;
-//			case L"nosel"_hash:
-//				*Styles |= LBS_NOSEL;
-//				break;
-//			case L"sort"_hash:
-//				*Styles |= LBS_SORT;
-//				break;
-//			case L"tabs"_hash:
-//				*Styles |= LBS_USETABSTOPS;
-//				break;
-//			case L"multicol"_hash:
-//				*Styles |= LBS_MULTICOLUMN;
-//				break;
-//			case L"vsbar"_hash:
-//				*Styles |= WS_VSCROLL;
-//				break;
-//			case L"hsbar"_hash:
-//				*Styles |= WS_HSCROLL;
-//				break;
-//			case L"dragline"_hash:
-//				this->m_bUseDrawInsert = false;
-//				break;
-//			case L"noformat"_hash: // dont remove from here
-//				*Styles &= ~LBS_OWNERDRAWFIXED;
-//				break;
-//			//case L"shadow"_hash: // looks crap
-//			//	this->m_bShadowText = true;
-//			default:
-//				break;
-//		}
-//#else
-//		if (tsStyle == TEXT("noscroll"))
-//			*Styles |= LBS_DISABLENOSCROLL;
-//		else if (tsStyle == TEXT("multi"))
-//			*Styles |= LBS_MULTIPLESEL;
-//		else if (tsStyle == TEXT("extsel"))
-//			*Styles |= LBS_EXTENDEDSEL;
-//		else if (tsStyle == TEXT("nointegral"))
-//			*Styles |= LBS_NOINTEGRALHEIGHT;
-//		else if (tsStyle == TEXT("nosel"))
-//			*Styles |= LBS_NOSEL;
-//		else if (tsStyle == TEXT("sort"))
-//			*Styles |= LBS_SORT;
-//		else if (tsStyle == TEXT("tabs"))
-//			*Styles |= LBS_USETABSTOPS;
-//		else if (tsStyle == TEXT("multicol"))
-//			*Styles |= LBS_MULTICOLUMN;
-//		else if (tsStyle == TEXT("vsbar"))
-//			*Styles |= WS_VSCROLL;
-//		else if (tsStyle == TEXT("hsbar"))
-//			*Styles |= WS_HSCROLL;
-//		else if (tsStyle == TEXT("dragline"))
-//			this->m_bUseDrawInsert = false;
-//		else if (tsStyle == TEXT("noformat")) // dont remove from here
-//			*Styles &= ~LBS_OWNERDRAWFIXED;
-//		//else if (tsStyle == TEXT("shadow")) // looks crap
-//		//	this->m_bShadowText = true;
-//#endif
-//	}
-//
-//	this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
-//}
-
-std::tuple<NoTheme, WindowStyle, WindowExStyle> DcxList::parseControlStyles(const TString & tsStyles)
+dcxWindowStyles DcxList::parseControlStyles(const TString & tsStyles)
 {
-	WindowStyle Styles(WindowStyle::None);
-	WindowExStyle ExStyles(WindowExStyle::None);
+	dcxWindowStyles ws;
 
-	Styles |= LBS_NOTIFY | LBS_HASSTRINGS | LBS_OWNERDRAWFIXED;
+	ws.m_Styles |= LBS_NOTIFY | LBS_HASSTRINGS | LBS_OWNERDRAWFIXED;
 
 	for (const auto &tsStyle : tsStyles)
 	{
 		switch (std::hash<TString>{}(tsStyle))
 		{
 		case L"noscroll"_hash:
-			Styles |= LBS_DISABLENOSCROLL;
+			ws.m_Styles |= LBS_DISABLENOSCROLL;
 			break;
 		case L"multi"_hash:
-			Styles |= LBS_MULTIPLESEL;
+			ws.m_Styles |= LBS_MULTIPLESEL;
 			break;
 		case L"extsel"_hash:
-			Styles |= LBS_EXTENDEDSEL;
+			ws.m_Styles |= LBS_EXTENDEDSEL;
 			break;
 		case L"nointegral"_hash:
-			Styles |= LBS_NOINTEGRALHEIGHT;
+			ws.m_Styles |= LBS_NOINTEGRALHEIGHT;
 			break;
 		case L"nosel"_hash:
-			Styles |= LBS_NOSEL;
+			ws.m_Styles |= LBS_NOSEL;
 			break;
 		case L"sort"_hash:
-			Styles |= LBS_SORT;
+			ws.m_Styles |= LBS_SORT;
 			break;
 		case L"tabs"_hash:
-			Styles |= LBS_USETABSTOPS;
+			ws.m_Styles |= LBS_USETABSTOPS;
 			break;
 		case L"multicol"_hash:
-			Styles |= LBS_MULTICOLUMN;
+			ws.m_Styles |= LBS_MULTICOLUMN;
 			break;
 		case L"vsbar"_hash:
-			Styles |= WS_VSCROLL;
+			ws.m_Styles |= WS_VSCROLL;
 			break;
 		case L"hsbar"_hash:
-			Styles |= WS_HSCROLL;
+			ws.m_Styles |= WS_HSCROLL;
 			break;
 		case L"dragline"_hash:
 			this->m_bUseDrawInsert = false;
 			break;
 		case L"noformat"_hash: // dont remove from here
-			Styles &= static_cast<DWORD>(~LBS_OWNERDRAWFIXED);
+			ws.m_Styles &= static_cast<DWORD>(~LBS_OWNERDRAWFIXED);
 			break;
 			//case L"shadow"_hash: // looks crap
 			//	this->m_bShadowText = true;
@@ -255,7 +171,7 @@ std::tuple<NoTheme, WindowStyle, WindowExStyle> DcxList::parseControlStyles(cons
 		}
 	}
 
-	return parseGeneralControlStyles(tsStyles, Styles, ExStyles);
+	return parseGeneralControlStyles(tsStyles, ws);
 }
 
 /*!
@@ -267,7 +183,7 @@ std::tuple<NoTheme, WindowStyle, WindowExStyle> DcxList::parseControlStyles(cons
  * \return > void
  */
 
-void DcxList::parseInfoRequest( const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const
+void DcxList::parseInfoRequest(const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const
 {
 	switch (const auto numtok = input.numtok(); std::hash<TString>{}(input.getfirsttok(3)))
 	{
@@ -288,7 +204,7 @@ void DcxList::parseInfoRequest( const TString & input, const refString<TCHAR, MI
 		ListBox_GetText(m_Hwnd, nSel, szReturnValue);
 	}
 	break;
-		// [NAME] [ID] [PROP] (N)
+	// [NAME] [ID] [PROP] (N)
 	case L"seltext"_hash:
 	{
 		auto nSel = -1;
@@ -449,18 +365,18 @@ void DcxList::parseInfoRequest( const TString & input, const refString<TCHAR, MI
  * blah
  */
 
-void DcxList::parseCommandRequest( const TString & input )
+void DcxList::parseCommandRequest(const TString & input)
 {
-	const XSwitchFlags flags(input.getfirsttok( 3 ));
+	const XSwitchFlags flags(input.getfirsttok(3));
 	const auto numtok = input.numtok();
 
 	//xdid -r [NAME] [ID] [SWITCH]
 	if (flags[TEXT('r')])
-		ListBox_ResetContent( m_Hwnd );
+		ListBox_ResetContent(m_Hwnd);
 
 	//xdid -a [NAME] [ID] [SWITCH] [N] [TEXT]
 	//xdid -a -> [NAME] [ID] -a [N] [TEXT]
-	if ( flags[TEXT('a')] )
+	if (flags[TEXT('a')])
 	{
 		if (numtok < 5)
 			throw Dcx::dcxException("Insufficient parameters");
@@ -468,10 +384,10 @@ void DcxList::parseCommandRequest( const TString & input )
 		auto nPos = input.getnexttok().to_int() - 1;	// tok 4
 		const auto tsItem(input.getlasttoks());			// tok 5, -1
 
-		if ( nPos == -1 )
-			nPos = ListBox_GetCount( m_Hwnd );
+		if (nPos == -1)
+			nPos = ListBox_GetCount(m_Hwnd);
 
-		ListBox_InsertString( m_Hwnd, nPos, tsItem.to_chr( ) );
+		ListBox_InsertString(m_Hwnd, nPos, tsItem.to_chr());
 
 		// Now update the horizontal scroller
 		//const int nHorizExtent = ListBox_GetHorizontalExtent( m_Hwnd );
@@ -492,8 +408,8 @@ void DcxList::parseCommandRequest( const TString & input )
 
 		auto nPos = input.getnexttok().to_int() - 1;	// tok 4
 
-		if ( nPos == -1 )
-			nPos = ListBox_GetCount( m_Hwnd );
+		if (nPos == -1)
+			nPos = ListBox_GetCount(m_Hwnd);
 
 		const XSwitchFlags xOpts(input.getnexttok());		// tok 5
 		auto itemtext(input.getlasttoks().trim());		// tok 6, -1
@@ -514,7 +430,7 @@ void DcxList::parseCommandRequest( const TString & input )
 			if (ListBox_InsertString(m_Hwnd, nPos, tsRes.to_chr()) < 0)
 				throw Dcx::dcxException(TEXT("Error Adding item: %"), tsRes);
 		}
-		else if(xOpts[TEXT('n')]) // [TEXT] == [table] [N]
+		else if (xOpts[TEXT('n')]) // [TEXT] == [table] [N]
 		{
 			if (iItemToks != 2) // load single item from hash table by index
 				throw Dcx::dcxException("Invalid Syntax");
@@ -525,11 +441,11 @@ void DcxList::parseCommandRequest( const TString & input )
 			if (ListBox_InsertString(m_Hwnd, nPos, tsRes.to_chr()) < 0)
 				throw Dcx::dcxException(TEXT("Error Adding item: %"), tsRes);
 		}
-		else if(xOpts[TEXT('t')]) // [TEXT] == [table] [startN] [endN]
+		else if (xOpts[TEXT('t')]) // [TEXT] == [table] [startN] [endN]
 		{
 			if (iItemToks != 3) // add contents of a hash table to list
 				throw Dcx::dcxException("Invalid Syntax");
-			
+
 			const auto htable(itemtext.getfirsttok(1));
 			auto startN = itemtext.getnexttok().to_int();	// tok 2
 			auto endN = itemtext.getnexttok().to_int();		// tok 3
@@ -578,7 +494,7 @@ void DcxList::parseCommandRequest( const TString & input )
 					throw Dcx::dcxException(TEXT("Error Adding item: %"), tsRes);
 			}
 		}
-		else if(xOpts[TEXT('f')]) // [TEXT] == [startN] [endN] [filename]
+		else if (xOpts[TEXT('f')]) // [TEXT] == [startN] [endN] [filename]
 		{
 			if (iItemToks < 3) // add contents of a file to list
 				throw Dcx::dcxException("Invalid Syntax");
@@ -636,7 +552,7 @@ void DcxList::parseCommandRequest( const TString & input )
 			for (auto itStart = contents.begin(tok), itEnd = contents.end(); itStart != itEnd; ++itStart)
 			{
 				itemtext = (*itStart);
-				
+
 				if (ListBox_InsertString(m_Hwnd, nPos++, itemtext.to_chr()) < 0)
 					throw Dcx::dcxException(TEXT("Error Adding item: %"), itemtext);
 			}
@@ -657,7 +573,7 @@ void DcxList::parseCommandRequest( const TString & input )
 			for (auto itStart = contents.begin(&tok[0]), itEnd = contents.end(); itStart != itEnd; ++itStart)
 			{
 				itemtext = (*itStart);
-				
+
 				if (ListBox_InsertString(m_Hwnd, nPos++, itemtext.to_chr()) < 0)
 					throw Dcx::dcxException(TEXT("Error Adding item: %"), itemtext);
 			}
@@ -673,7 +589,7 @@ void DcxList::parseCommandRequest( const TString & input )
 	}
 	//xdid -c [NAME] [ID] [N,[N,[...]]]
 	//xdid -c -> [NAME] [ID] -c [N,[N,[...]]]
-	else if ( flags[TEXT('c')] )
+	else if (flags[TEXT('c')])
 	{
 		if (numtok < 4)
 			throw Dcx::dcxException("Insufficient parameters");
@@ -688,35 +604,35 @@ void DcxList::parseCommandRequest( const TString & input )
 			{
 				const TString tsLine(*itStart);
 
-				const auto [iStart, iEnd] = getItemRange(tsLine, nItems);
+				const auto[iStart, iEnd] = getItemRange(tsLine, nItems);
 
-				if ( (iStart < 0) || (iEnd < 0) || (iStart >= nItems) || (iEnd >= nItems) )
+				if ((iStart < 0) || (iEnd < 0) || (iStart >= nItems) || (iEnd >= nItems))
 					throw Dcx::dcxException(TEXT("Invalid index %."), tsLine);
 
 				for (auto nSel = iStart; nSel <= iEnd; ++nSel)
-					ListBox_SetSel( m_Hwnd, TRUE, nSel );
+					ListBox_SetSel(m_Hwnd, TRUE, nSel);
 			}
 		}
 		else {
 			auto nSel = (input.getnexttok().to_int() - 1);	// tok 4
 
 			if (nSel == -1)
-				nSel = nItems -1;
+				nSel = nItems - 1;
 
-			if ( nSel > -1 && nSel < nItems )
-				ListBox_SetCurSel( m_Hwnd, nSel );
+			if (nSel > -1 && nSel < nItems)
+				ListBox_SetCurSel(m_Hwnd, nSel);
 		}
 	}
 	//xdid -d [NAME] [ID] [SWITCH] [N](,[N],[N1]-N2],...)
 	//xdid -d -> [NAME] [ID] -d [N](,[N],[N1]-N2],...)
 	//xdid -d -> [NAME] [ID] -d [N] [+flags] [match text]
-	else if ( flags[TEXT('d')] )
+	else if (flags[TEXT('d')])
 	{
 		if (numtok < 4)
 			throw Dcx::dcxException("Insufficient parameters");
 
 		const auto Ns(input.getnexttok());			// tok 4
-		
+
 		const auto nItems = ListBox_GetCount(m_Hwnd);
 
 		if (const XSwitchFlags xFlags(input.getnexttok()); xFlags[TEXT('+')])
@@ -736,8 +652,8 @@ void DcxList::parseCommandRequest( const TString & input )
 			for (auto itStart = Ns.begin(TSCOMMACHAR), itEnd = Ns.end(); itStart != itEnd; ++itStart)
 			{
 				const TString tsLine(*itStart);
-				
-				const auto [iStart, iEnd] = getItemRange(tsLine, nItems);
+
+				const auto[iStart, iEnd] = getItemRange(tsLine, nItems);
 
 				if ((iStart < 0) || (iEnd < 0) || (iStart >= nItems) || (iEnd >= nItems))
 					throw Dcx::dcxException(TEXT("Invalid index %."), tsLine);
@@ -753,12 +669,12 @@ void DcxList::parseCommandRequest( const TString & input )
 	{
 	}
 	//xdid -u [NAME] [ID] [SWITCH]
-	else if ( flags[TEXT('u')] )
+	else if (flags[TEXT('u')])
 	{
 		if (this->isStyle(WindowStyle::LBS_MultiSel) || this->isStyle(WindowStyle::LBS_ExtendedSel))
-			ListBox_SetSel( m_Hwnd, FALSE, -1 );
-		else 
-			ListBox_SetCurSel( m_Hwnd, -1 );
+			ListBox_SetSel(m_Hwnd, FALSE, -1);
+		else
+			ListBox_SetCurSel(m_Hwnd, -1);
 	}
 	//xdid -m [NAME] [ID] [SWITCH] [+FLAGS] [N](,[N]...)
 	//xdid -m -> [NAME] [ID] -m [+FLAGS] [N](,[N]...)
@@ -767,10 +683,10 @@ void DcxList::parseCommandRequest( const TString & input )
 		if (numtok < 5)
 			throw Dcx::dcxException("Insufficient parameters");
 
-		const XSwitchFlags xflags(input.getnexttok( ));	// tok 4
+		const XSwitchFlags xflags(input.getnexttok());	// tok 4
 
 		if (xflags[TEXT('w')])
-			ListBox_SetColumnWidth( m_Hwnd, input.getnexttok( ).to_int( ));	// tok 5
+			ListBox_SetColumnWidth(m_Hwnd, input.getnexttok().to_int());	// tok 5
 		else if (xflags[TEXT('t')])
 		{
 			const auto Ns(input.getnexttok());	// tok 5
@@ -779,9 +695,9 @@ void DcxList::parseCommandRequest( const TString & input )
 			{
 				const auto nTab = Ns.to_int();
 				if (nTab < 0)
-					ListBox_SetTabStops( m_Hwnd, NULL, nullptr);
+					ListBox_SetTabStops(m_Hwnd, NULL, nullptr);
 				else
-					ListBox_SetTabStops( m_Hwnd, 1, &nTab);
+					ListBox_SetTabStops(m_Hwnd, 1, &nTab);
 			}
 			else {
 				auto tabs = std::make_unique<int[]>(n);
@@ -792,7 +708,7 @@ void DcxList::parseCommandRequest( const TString & input )
 					tabs[i++] = (*itStart).to_int();	// tok i
 				}
 
-				ListBox_SetTabStops( m_Hwnd, n, tabs.get());
+				ListBox_SetTabStops(m_Hwnd, n, tabs.get());
 			}
 		}
 		else
@@ -805,23 +721,23 @@ void DcxList::parseCommandRequest( const TString & input )
 		auto nPos = input.getnexttok().to_int() - 1;	// tok 4
 
 		if (nPos == -1)
-			nPos = ListBox_GetCount( m_Hwnd ) -1;
+			nPos = ListBox_GetCount(m_Hwnd) - 1;
 
 		if (nPos < 0 && nPos >= ListBox_GetCount(m_Hwnd))
 			throw Dcx::dcxException("Item out of range");
 
 		ListBox_DeleteString(m_Hwnd, nPos);
-		ListBox_InsertString(m_Hwnd, nPos, input.getlasttoks().to_chr( ));	// tok 5, -1
+		ListBox_InsertString(m_Hwnd, nPos, input.getlasttoks().to_chr());	// tok 5, -1
 	}
 	//xdid -z [NAME] [ID]
 	// update horiz scrollbar
-	else if ( flags[TEXT('z')] )
+	else if (flags[TEXT('z')])
 	{
 		// Now update the horizontal scroller
 		this->UpdateHorizExtent();
 	}
 	else
-		this->parseGlobalCommandRequest( input, flags );
+		this->parseGlobalCommandRequest(input, flags);
 }
 
 /*!
@@ -1087,7 +1003,7 @@ LRESULT DcxList::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 	return 0L;
 }
 
-LRESULT DcxList::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed )
+LRESULT DcxList::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed)
 {
 	switch (uMsg)
 	{

@@ -28,12 +28,12 @@
 DcxButton::DcxButton(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles)
 	: DcxControl(ID, p_Dialog)
 {
-	const auto[bNoTheme, Styles, ExStyles] = parseControlStyles(styles);
+	const auto ws = parseControlStyles(styles);
 
 	m_Hwnd = dcxCreateWindow(
-		ExStyles,
+		ws.m_ExStyles,
 		DCX_BUTTONCLASS,
-		Styles | WindowStyle::Child | BS_PUSHBUTTON,
+		ws.m_Styles | WindowStyle::Child | BS_PUSHBUTTON,
 		rc,
 		mParentHwnd,
 		ID,
@@ -42,10 +42,10 @@ DcxButton::DcxButton(const UINT ID, DcxDialog *const p_Dialog, const HWND mParen
 	if (!IsWindow(m_Hwnd))
 		throw Dcx::dcxException("Unable To Create Window");
 
-	if (bNoTheme)
+	if (ws.m_NoTheme)
 		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
 
-	setNoThemed( (bNoTheme != FALSE) );
+	setNoThemed( (ws.m_NoTheme != false) );
 
 	m_aColors[0] = GetSysColor(COLOR_BTNTEXT); // normal
 	m_aColors[1] = m_aColors[0]; // hover
@@ -64,7 +64,7 @@ DcxButton::DcxButton(const UINT ID, DcxDialog *const p_Dialog, const HWND mParen
 	}
 
 	// fix to allow pressing enter to work.
-	if (dcx_testflag(Styles, BS_DEFPUSHBUTTON))
+	if (dcx_testflag(ws.m_Styles, BS_DEFPUSHBUTTON))
 		SetFocus(m_Hwnd);
 }
 
@@ -119,35 +119,34 @@ DcxButton::~DcxButton()
 //	parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
 //}
 
-std::tuple<NoTheme, WindowStyle, WindowExStyle> DcxButton::parseControlStyles(const TString & tsStyles)
+dcxWindowStyles DcxButton::parseControlStyles(const TString & tsStyles)
 {
-	WindowStyle Styles(WindowStyle::None);
-	WindowExStyle ExStyles(WindowExStyle::None);
+	dcxWindowStyles ws;
 
-	Styles |= BS_NOTIFY;
+	ws.m_Styles |= BS_NOTIFY;
 
 	for (const auto &tsStyle : tsStyles)
 	{
 		switch (std::hash<TString>{}(tsStyle))
 		{
 		case L"bitmap"_hash:
-			Styles |= BS_BITMAP;
+			ws.m_Styles |= BS_BITMAP;
 			break;
 		case L"default"_hash:
-			Styles |= BS_DEFPUSHBUTTON;
+			ws.m_Styles |= BS_DEFPUSHBUTTON;
 			break;
 		case L"split"_hash:
-			Styles |= BS_SPLITBUTTON;
+			ws.m_Styles |= BS_SPLITBUTTON;
 			break;
 		case L"commandlink"_hash:
-			Styles |= BS_COMMANDLINK;
+			ws.m_Styles |= BS_COMMANDLINK;
 			break;
 		default:
 			break;
 		}
 	}
 
-	return parseGeneralControlStyles(tsStyles, Styles, ExStyles);
+	return parseGeneralControlStyles(tsStyles, ws);
 }
 
 /*!

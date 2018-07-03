@@ -37,12 +37,12 @@ DcxDirectshow::DcxDirectshow(const UINT ID, DcxDialog *const p_Dialog, const HWN
 	//assert(DIRECT3D_VERSION >= 9);	// make sure directx version 9+ is available.
 	static_assert(DIRECT3D_VERSION >= 9,"Invalid DirectX version, v9+ required...");	// make sure directx version 9+ is available.
 
-	const auto[bNoTheme, Styles, ExStyles] = parseControlStyles(styles);
+	const auto ws = parseControlStyles(styles);
 
 	m_Hwnd = dcxCreateWindow(
-		ExStyles | WS_EX_CLIENTEDGE,
+		ws.m_ExStyles | WS_EX_CLIENTEDGE,
 		DCX_DIRECTSHOWCLASS,
-		Styles | WS_CHILD | WS_CLIPSIBLINGS,
+		ws.m_Styles | WS_CHILD | WS_CLIPSIBLINGS,
 		rc,
 		mParentHwnd,
 		ID,
@@ -51,7 +51,7 @@ DcxDirectshow::DcxDirectshow(const UINT ID, DcxDialog *const p_Dialog, const HWN
 	if (!IsWindow(m_Hwnd))
 		throw Dcx::dcxException("Unable To Create Window");
 
-	if (bNoTheme)
+	if (ws.m_NoTheme)
 		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
 
 	this->setControlFont(GetStockFont(DEFAULT_GUI_FONT), FALSE);
@@ -88,17 +88,16 @@ const TString DcxDirectshow::getStyles(void) const
 //	parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
 //}
 
-std::tuple<NoTheme, WindowStyle, WindowExStyle> DcxDirectshow::parseControlStyles(const TString & tsStyles)
+dcxWindowStyles DcxDirectshow::parseControlStyles(const TString & tsStyles)
 {
-	WindowStyle Styles(WindowStyle::None);
-	WindowExStyle ExStyles(WindowExStyle::None);
+	dcxWindowStyles ws;
 
-	Styles |= SS_NOTIFY;
+	ws.m_Styles |= SS_NOTIFY;
 
 	if (tsStyles.istok(TEXT("fixratio")))
 		m_bKeepRatio = true;
 
-	return parseGeneralControlStyles(tsStyles, Styles, ExStyles);
+	return parseGeneralControlStyles(tsStyles, ws);
 }
 
 /*!

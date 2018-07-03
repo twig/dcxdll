@@ -121,32 +121,31 @@ DcxControl::~DcxControl( )
  * blah
  */
 
-std::tuple<NoTheme, WindowStyle, WindowExStyle> DcxControl::parseGeneralControlStyles(const TString & styles, WindowStyle &Styles, WindowExStyle &ExStyles)
+dcxWindowStyles DcxControl::parseGeneralControlStyles(const TString & styles, dcxWindowStyles &ws)
 {
-	Styles |= WS_CLIPCHILDREN | WS_VISIBLE;
-	NoTheme bNoTheme = false;
+	ws.m_Styles |= WS_CLIPCHILDREN | WS_VISIBLE;
 
 	for (const auto &tsStyle : styles)
 	{
 		switch (std::hash<TString>{}(tsStyle))
 		{
 		case L"notheme"_hash:
-			bNoTheme = true;
+			ws.m_NoTheme = true;
 			break;
 		case L"tabstop"_hash:
-			Styles |= WS_TABSTOP;
+			ws.m_Styles |= WS_TABSTOP;
 			break;
 		case L"group"_hash:
-			Styles |= WS_GROUP;
+			ws.m_Styles |= WS_GROUP;
 			break;
 		case L"disabled"_hash:
-			Styles |= WS_DISABLED;
+			ws.m_Styles |= WS_DISABLED;
 			break;
 		case L"transparent"_hash:
-			ExStyles |= WS_EX_TRANSPARENT;
+			ws.m_ExStyles |= WS_EX_TRANSPARENT;
 			break;
 		case L"hidden"_hash:
-			Styles &= ~WS_VISIBLE;
+			ws.m_Styles &= ~WS_VISIBLE;
 			break;
 		case L"alpha"_hash:
 			m_bAlphaBlend = true;
@@ -170,62 +169,64 @@ std::tuple<NoTheme, WindowStyle, WindowExStyle> DcxControl::parseGeneralControlS
 			break;
 		}
 	}
-	return{ bNoTheme,Styles,ExStyles };
+	return ws;
 }
 
-std::tuple<NoTheme, WindowStyle, WindowExStyle> DcxControl::parseGeneralControlStyles(const TString & styles)
+dcxWindowStyles DcxControl::parseGeneralControlStyles(const TString & styles)
 {
-	WindowStyle Styles(WindowStyle::None);
-	WindowExStyle ExStyles(WindowExStyle::None);
+	//dcxWindowStyles ws;
+	//
+	//ws.m_Styles |= WS_CLIPCHILDREN | WS_VISIBLE;
+	//
+	//for (const auto &tsStyle : styles)
+	//{
+	//	switch (std::hash<TString>{}(tsStyle))
+	//	{
+	//	case L"notheme"_hash:
+	//		ws.m_NoTheme = true;
+	//		break;
+	//	case L"tabstop"_hash:
+	//		ws.m_Styles |= WS_TABSTOP;
+	//		break;
+	//	case L"group"_hash:
+	//		ws.m_Styles |= WS_GROUP;
+	//		break;
+	//	case L"disabled"_hash:
+	//		ws.m_Styles |= WS_DISABLED;
+	//		break;
+	//	case L"transparent"_hash:
+	//		ws.m_ExStyles |= WS_EX_TRANSPARENT;
+	//		break;
+	//	case L"hidden"_hash:
+	//		ws.m_Styles &= static_cast<DWORD>(~WS_VISIBLE);
+	//		break;
+	//	case L"alpha"_hash:
+	//		m_bAlphaBlend = true;
+	//		break;
+	//	case L"shadow"_hash:
+	//		m_bShadowText = true;
+	//		break;
+	//	case L"noformat"_hash:
+	//		m_bCtrlCodeText = false;
+	//		break;
+	//	case L"hgradient"_hash:
+	//		m_bGradientFill = true;
+	//		break;
+	//	case L"vgradient"_hash:
+	//	{
+	//		m_bGradientFill = true;
+	//		m_bGradientVertical = true;
+	//	}
+	//	break;
+	//	default:
+	//		break;
+	//	}
+	//}
+	//return ws;
 
-	Styles |= WS_CLIPCHILDREN | WS_VISIBLE;
-	NoTheme bNoTheme = false;
+	dcxWindowStyles ws;
 
-	for (const auto &tsStyle : styles)
-	{
-		switch (std::hash<TString>{}(tsStyle))
-		{
-		case L"notheme"_hash:
-			bNoTheme = true;
-			break;
-		case L"tabstop"_hash:
-			Styles |= WS_TABSTOP;
-			break;
-		case L"group"_hash:
-			Styles |= WS_GROUP;
-			break;
-		case L"disabled"_hash:
-			Styles |= WS_DISABLED;
-			break;
-		case L"transparent"_hash:
-			ExStyles |= WS_EX_TRANSPARENT;
-			break;
-		case L"hidden"_hash:
-			Styles &= static_cast<DWORD>(~WS_VISIBLE);
-			break;
-		case L"alpha"_hash:
-			m_bAlphaBlend = true;
-			break;
-		case L"shadow"_hash:
-			m_bShadowText = true;
-			break;
-		case L"noformat"_hash:
-			m_bCtrlCodeText = false;
-			break;
-		case L"hgradient"_hash:
-			m_bGradientFill = true;
-			break;
-		case L"vgradient"_hash:
-		{
-			m_bGradientFill = true;
-			m_bGradientVertical = true;
-		}
-		break;
-		default:
-			break;
-		}
-	}
-	return{ bNoTheme,Styles,ExStyles };
+	return parseGeneralControlStyles(styles, ws);
 }
 
 /*!

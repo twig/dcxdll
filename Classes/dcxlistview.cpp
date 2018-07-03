@@ -36,12 +36,12 @@
 DcxListView::DcxListView(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles)
 	: DcxControl(ID, p_Dialog)
 {
-	const auto[bNoTheme, Styles, ExStyles] = parseControlStyles(styles);
+	const auto ws = parseControlStyles(styles);
 
 	m_Hwnd = dcxCreateWindow(
-		ExStyles,
+		ws.m_ExStyles,
 		DCX_LISTVIEWCLASS,
-		(Styles & ~WS_CLIPCHILDREN) | WS_CHILD, // can't be ws_clipchildren as this causes render bug when progressbar items are selected.
+		(ws.m_Styles & ~WS_CLIPCHILDREN) | WS_CHILD, // can't be ws_clipchildren as this causes render bug when progressbar items are selected.
 		rc,
 		mParentHwnd,
 		ID,
@@ -50,7 +50,7 @@ DcxListView::DcxListView(const UINT ID, DcxDialog *const p_Dialog, const HWND mP
 	if (!IsWindow(m_Hwnd))
 		throw Dcx::dcxException("Unable To Create Window");
 
-	if (bNoTheme)
+	if (ws.m_NoTheme)
 		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
 
 	SendMessage(m_Hwnd, CCM_SETVERSION, (WPARAM)COMCTL32_VERSION, (LPARAM)0);
@@ -170,69 +170,68 @@ const TString DcxListView::getStyles(void) const
 * blah
 */
 
-std::tuple<NoTheme, WindowStyle, WindowExStyle> DcxListView::parseControlStyles(const TString & tsStyles)
+dcxWindowStyles DcxListView::parseControlStyles(const TString & tsStyles)
 {
-	WindowStyle Styles(WindowStyle::None);
-	WindowExStyle ExStyles(WindowExStyle::None);
+	dcxWindowStyles ws;
 
-	ExStyles |= WS_EX_CLIENTEDGE;
+	ws.m_ExStyles |= WS_EX_CLIENTEDGE;
 
 	for (const auto &tsStyle : tsStyles)
 	{
 		switch (std::hash<TString>{}(tsStyle))
 		{
 		case L"report"_hash:
-			Styles |= LVS_REPORT;
+			ws.m_Styles |= LVS_REPORT;
 			break;
 		case L"icon"_hash:
-			Styles |= LVS_ICON;
+			ws.m_Styles |= LVS_ICON;
 			break;
 		case L"smallicon"_hash:
-			Styles |= LVS_SMALLICON;
+			ws.m_Styles |= LVS_SMALLICON;
 			break;
 		case L"list"_hash:
-			Styles |= LVS_LIST;
+			ws.m_Styles |= LVS_LIST;
 			break;
 		case L"noheader"_hash:
-			Styles |= LVS_NOCOLUMNHEADER;
+			ws.m_Styles |= LVS_NOCOLUMNHEADER;
 			break;
 		case L"alignleft"_hash:
-			Styles |= LVS_ALIGNLEFT;
+			ws.m_Styles |= LVS_ALIGNLEFT;
 			break;
 		case L"aligntop"_hash:
-			Styles |= LVS_ALIGNTOP;
+			ws.m_Styles |= LVS_ALIGNTOP;
 			break;
 		case L"autoarrage"_hash:
-			Styles |= LVS_AUTOARRANGE;
+			ws.m_Styles |= LVS_AUTOARRANGE;
 			break;
 		case L"nolabelwrap"_hash:
-			Styles |= LVS_NOLABELWRAP;
+			ws.m_Styles |= LVS_NOLABELWRAP;
 			break;
 		case L"showsel"_hash:
-			Styles |= LVS_SHOWSELALWAYS;
+			ws.m_Styles |= LVS_SHOWSELALWAYS;
 			break;
 		case L"singlesel"_hash:
-			Styles |= LVS_SINGLESEL;
+			ws.m_Styles |= LVS_SINGLESEL;
 			break;
 		case L"editlabel"_hash:
-			Styles |= LVS_EDITLABELS;
+			ws.m_Styles |= LVS_EDITLABELS;
 			break;
 		case L"sortasc"_hash:
-			Styles |= LVS_SORTASCENDING;
+			ws.m_Styles |= LVS_SORTASCENDING;
 			break;
 		case L"sortdesc"_hash:
-			Styles |= LVS_SORTDESCENDING;
+			ws.m_Styles |= LVS_SORTDESCENDING;
 			break;
 		case L"noscoll"_hash:
-			Styles |= LVS_NOSCROLL;
+			ws.m_Styles |= LVS_NOSCROLL;
 			break;
 		case L"noheadersort"_hash:
-			Styles |= LVS_NOSORTHEADER;
+			ws.m_Styles |= LVS_NOSORTHEADER;
 			break;
 		}
 	}
 
-	return parseGeneralControlStyles(tsStyles, Styles, ExStyles);
+	return parseGeneralControlStyles(tsStyles, ws);
 }
 
 const WindowExStyle DcxListView::parseListviewExStyles(const TString & styles) noexcept

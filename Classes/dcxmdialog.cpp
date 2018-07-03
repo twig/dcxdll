@@ -134,11 +134,11 @@ void DcxMDialog::parseCommandRequest( const TString & input )
 //	this->m_OrigName = styles;
 //}
 
-std::tuple<NoTheme, WindowStyle, WindowExStyle> DcxMDialog::parseControlStyles(const TString & tsStyles)
+dcxWindowStyles DcxMDialog::parseControlStyles(const TString & tsStyles)
 {
 	m_OrigName = tsStyles;
 
-	return{ false, WindowStyle::None, WindowExStyle::None };
+	return{ };
 }
 
 /*!

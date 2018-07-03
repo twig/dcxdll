@@ -15,25 +15,25 @@
 #include "Classes/mirc/dcxradio.h"
 #include "Classes/dcxdialog.h"
 
-/*!
- * \brief Constructor
- *
- * \param ID Control ID
- * \param p_Dialog Parent DcxDialog Object
- * \param mParentHwnd Parent Window Handle
- * \param rc Window Rectangle
- * \param styles Window Style Tokenized List
- */
+ /*!
+  * \brief Constructor
+  *
+  * \param ID Control ID
+  * \param p_Dialog Parent DcxDialog Object
+  * \param mParentHwnd Parent Window Handle
+  * \param rc Window Rectangle
+  * \param styles Window Style Tokenized List
+  */
 
 DcxRadio::DcxRadio(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles)
 	: DcxControl(ID, p_Dialog)
 {
-	const auto[bNoTheme, Styles, ExStyles] = parseControlStyles(styles);
+	const auto ws = parseControlStyles(styles);
 
 	m_Hwnd = dcxCreateWindow(
-		ExStyles,
+		ws.m_ExStyles,
 		DCX_BUTTONCLASS,
-		Styles | WindowStyle::Child,
+		ws.m_Styles | WindowStyle::Child,
 		rc,
 		mParentHwnd,
 		ID,
@@ -42,10 +42,10 @@ DcxRadio::DcxRadio(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentH
 	if (!IsWindow(m_Hwnd))
 		throw Dcx::dcxException("Unable To Create Window");
 
-	if (bNoTheme)
+	if (ws.m_NoTheme)
 		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
 
-	setNoThemed( (bNoTheme != FALSE) );
+	setNoThemed((ws.m_NoTheme != false));
 
 	if (p_Dialog->getToolTip() != nullptr)
 	{
@@ -67,7 +67,7 @@ DcxRadio::DcxRadio(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentH
  * blah
  */
 
-DcxRadio::~DcxRadio( )
+DcxRadio::~DcxRadio()
 {
 }
 
@@ -97,80 +97,36 @@ const TString DcxRadio::getStyles(void) const
  * blah
  */
 
-//void DcxRadio::parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme )
-//{
-//	*Styles |= BS_AUTORADIOBUTTON;
-//
-//	for (const auto &tsStyle: styles)
-//	{
-//#if DCX_USE_HASHING
-//		switch (std::hash<TString>{}(tsStyle))
-//		{
-//			case L"rjustify"_hash:
-//				*Styles |= BS_RIGHT;
-//				break;
-//			case L"center"_hash:
-//				*Styles |= BS_CENTER;
-//				break;
-//			case L"ljustify"_hash:
-//				*Styles |= BS_LEFT;
-//				break;
-//			case L"right"_hash:
-//				*Styles |= BS_RIGHTBUTTON;
-//				break;
-//			case L"pushlike"_hash:
-//				*Styles |= BS_PUSHLIKE;
-//			default:
-//				break;
-//		}
-//#else
-//		if ( tsStyle == TEXT("rjustify") )
-//			*Styles |= BS_RIGHT;
-//		else if ( tsStyle == TEXT("center") )
-//			*Styles |= BS_CENTER;
-//		else if ( tsStyle == TEXT("ljustify") )
-//			*Styles |= BS_LEFT;
-//		else if ( tsStyle == TEXT("right") )
-//			*Styles |= BS_RIGHTBUTTON;
-//		else if ( tsStyle == TEXT("pushlike") )
-//			*Styles |= BS_PUSHLIKE;
-//#endif
-//	}
-//
-//	this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
-//}
-
-std::tuple<NoTheme, WindowStyle, WindowExStyle> DcxRadio::parseControlStyles(const TString & tsStyles)
+dcxWindowStyles DcxRadio::parseControlStyles(const TString & tsStyles)
 {
-	WindowStyle Styles(WindowStyle::None);
-	WindowExStyle ExStyles(WindowExStyle::None);
+	dcxWindowStyles ws;
 
-	Styles |= BS_AUTORADIOBUTTON;
+	ws.m_Styles |= BS_AUTORADIOBUTTON;
 
 	for (const auto &tsStyle : tsStyles)
 	{
 		switch (std::hash<TString>{}(tsStyle))
 		{
 		case L"rjustify"_hash:
-			Styles |= BS_RIGHT;
+			ws.m_Styles |= BS_RIGHT;
 			break;
 		case L"center"_hash:
-			Styles |= BS_CENTER;
+			ws.m_Styles |= BS_CENTER;
 			break;
 		case L"ljustify"_hash:
-			Styles |= BS_LEFT;
+			ws.m_Styles |= BS_LEFT;
 			break;
 		case L"right"_hash:
-			Styles |= BS_RIGHTBUTTON;
+			ws.m_Styles |= BS_RIGHTBUTTON;
 			break;
 		case L"pushlike"_hash:
-			Styles |= BS_PUSHLIKE;
+			ws.m_Styles |= BS_PUSHLIKE;
 		default:
 			break;
 		}
 	}
 
-	return parseGeneralControlStyles(tsStyles, Styles, ExStyles);
+	return parseGeneralControlStyles(tsStyles, ws);
 }
 
 /*!
@@ -182,14 +138,14 @@ std::tuple<NoTheme, WindowStyle, WindowExStyle> DcxRadio::parseControlStyles(con
  * \return > void
  */
 
-void DcxRadio::parseInfoRequest( const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const
+void DcxRadio::parseInfoRequest(const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const
 {
 	const auto prop(input.getfirsttok(3));
 
 	// [NAME] [ID] [PROP]
-	if ( prop == TEXT("text") )
+	if (prop == TEXT("text"))
 	{
-		GetWindowText( m_Hwnd, szReturnValue, MIRC_BUFFER_SIZE_CCH );
+		GetWindowText(m_Hwnd, szReturnValue, MIRC_BUFFER_SIZE_CCH);
 	}
 	// [NAME] [ID] [PROP]
 	else if (prop == TEXT("state"))
@@ -206,18 +162,18 @@ void DcxRadio::parseInfoRequest( const TString & input, const refString<TCHAR, M
  * blah
  */
 
-void DcxRadio::parseCommandRequest( const TString & input )
+void DcxRadio::parseCommandRequest(const TString & input)
 {
-	const XSwitchFlags flags(input.getfirsttok( 3 ));
+	const XSwitchFlags flags(input.getfirsttok(3));
 	const auto numtok = input.numtok();
 
 	//xdid -c [NAME] [ID] [SWITCH]
-	if ( flags[TEXT('c')] )
+	if (flags[TEXT('c')])
 	{
-		Button_SetCheck( m_Hwnd, BST_CHECKED );
+		Button_SetCheck(m_Hwnd, BST_CHECKED);
 	}
 	//xdid -t [NAME] [ID] [SWITCH] [TEXT]
-	else if ( flags[TEXT('t')] )
+	else if (flags[TEXT('t')])
 	{
 		if (numtok < 4)
 			throw Dcx::dcxException("Insufficient parameters");
@@ -225,12 +181,12 @@ void DcxRadio::parseCommandRequest( const TString & input )
 		SetWindowText(m_Hwnd, input.getlasttoks().trim().to_chr());	// tok 4, -1
 	}
 	//xdid -u [NAME] [ID] [SWITCH]
-	else if ( flags[TEXT('u')] )
+	else if (flags[TEXT('u')])
 	{
-		Button_SetCheck( m_Hwnd, BST_UNCHECKED );
+		Button_SetCheck(m_Hwnd, BST_UNCHECKED);
 	}
 	else
-		this->parseGlobalCommandRequest( input, flags );
+		this->parseGlobalCommandRequest(input, flags);
 }
 
 /*!
@@ -238,12 +194,12 @@ void DcxRadio::parseCommandRequest( const TString & input )
  *
  * blah
  */
-LRESULT DcxRadio::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) noexcept
+LRESULT DcxRadio::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) noexcept
 {
 	return 0L;
 }
 
-LRESULT DcxRadio::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed )
+LRESULT DcxRadio::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed)
 {
 	switch (uMsg)
 	{

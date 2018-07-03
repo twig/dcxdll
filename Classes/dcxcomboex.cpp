@@ -28,12 +28,12 @@
 DcxComboEx::DcxComboEx(const UINT ID, DcxDialog *const  p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles)
 	: DcxControl(ID, p_Dialog)
 {
-	const auto[bNoTheme, Styles, ExStyles] = parseControlStyles(styles);
+	const auto ws = parseControlStyles(styles);
 
 	m_Hwnd = dcxCreateWindow(
-		ExStyles,
+		ws.m_ExStyles,
 		DCX_COMBOEXCLASS,
-		Styles | WindowStyle::Child | CBS_AUTOHSCROLL,
+		ws.m_Styles | WindowStyle::Child | CBS_AUTOHSCROLL,
 		rc,
 		mParentHwnd,
 		ID,
@@ -42,7 +42,7 @@ DcxComboEx::DcxComboEx(const UINT ID, DcxDialog *const  p_Dialog, const HWND mPa
 	if (!IsWindow(m_Hwnd))
 		throw Dcx::dcxException("Unable To Create Window");
 
-	if (bNoTheme)
+	if (ws.m_NoTheme)
 	{
 		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
 		//SendMessage( m_Hwnd, CBEM_SETWINDOWTHEME, NULL, (LPARAM)(LPCWSTR)L" "); // do this instead?
@@ -52,7 +52,7 @@ DcxComboEx::DcxComboEx(const UINT ID, DcxDialog *const  p_Dialog, const HWND mPa
 
 	if (IsWindow(this->m_EditHwnd))
 	{
-		if (bNoTheme)
+		if (ws.m_NoTheme)
 			Dcx::UXModule.dcxSetWindowTheme(this->m_EditHwnd, L" ", L" ");
 
 		this->m_exEdit.cHwnd = m_Hwnd;
@@ -66,7 +66,7 @@ DcxComboEx::DcxComboEx(const UINT ID, DcxDialog *const  p_Dialog, const HWND mPa
 	this->m_hComboHwnd = (HWND)SendMessage(m_Hwnd, CBEM_GETCOMBOCONTROL, 0, 0);
 	if (IsWindow(this->m_hComboHwnd))
 	{
-		if (bNoTheme)
+		if (ws.m_NoTheme)
 			Dcx::UXModule.dcxSetWindowTheme(this->m_hComboHwnd, L" ", L" ");
 
 		COMBOBOXINFO cbi{};
@@ -101,7 +101,7 @@ DcxComboEx::DcxComboEx(const UINT ID, DcxDialog *const  p_Dialog, const HWND mPa
 
 	// fix bug with disabled creation
 	// todo: fix this properly
-	if (dcx_testflag(Styles, WS_DISABLED))
+	if (dcx_testflag(ws.m_Styles, WS_DISABLED))
 	{
 		EnableWindow(m_Hwnd, TRUE);
 		EnableWindow(m_Hwnd, FALSE);
@@ -158,31 +158,30 @@ DcxComboEx::~DcxComboEx( )
 //	this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
 //}
 
-std::tuple<NoTheme, WindowStyle, WindowExStyle> DcxComboEx::parseControlStyles(const TString & tsStyles)
+dcxWindowStyles DcxComboEx::parseControlStyles(const TString & tsStyles)
 {
-	WindowStyle Styles(WindowStyle::None);
-	WindowExStyle ExStyles(WindowExStyle::None);
+	dcxWindowStyles ws;
 
-	//ExStyles |= CBES_EX_NOSIZELIMIT;
+	//ws.m_ExStyles |= CBES_EX_NOSIZELIMIT;
 
 	for (const auto &tsStyle : tsStyles)
 	{
 		switch (std::hash<TString>{}(tsStyle))
 		{
 		case L"simple"_hash:
-			Styles |= CBS_SIMPLE;
+			ws.m_Styles |= CBS_SIMPLE;
 			break;
 		case L"dropdown"_hash:
-			Styles |= CBS_DROPDOWNLIST;
+			ws.m_Styles |= CBS_DROPDOWNLIST;
 			break;
 		case L"dropedit"_hash:
-			Styles |= CBS_DROPDOWN;
+			ws.m_Styles |= CBS_DROPDOWN;
 		default:
 			break;
 		}
 	}
 
-	return parseGeneralControlStyles(tsStyles, Styles, ExStyles);
+	return parseGeneralControlStyles(tsStyles, ws);
 }
 
 /*!

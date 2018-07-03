@@ -15,26 +15,26 @@
 #include "Classes/dcxprogressbar.h"
 #include "Classes/dcxdialog.h"
 
-/*!
- * \brief Constructor
- *
- * \param ID Control ID
- * \param p_Dialog Parent DcxDialog Object
- * \param mParentHwnd Parent Window Handle
- * \param rc Window Rectangle
- * \param styles Window Style Tokenized List
- */
+ /*!
+  * \brief Constructor
+  *
+  * \param ID Control ID
+  * \param p_Dialog Parent DcxDialog Object
+  * \param mParentHwnd Parent Window Handle
+  * \param rc Window Rectangle
+  * \param styles Window Style Tokenized List
+  */
 
 DcxProgressBar::DcxProgressBar(_In_ const UINT ID, _In_ DcxDialog *const p_Dialog, _In_ const HWND mParentHwnd, _In_ const RECT *const rc, _In_ const TString & styles)
 	: DcxControl(ID, p_Dialog)
 	, m_tsText(TEXT("%d %%"))
 {
-	const auto[bNoTheme, Styles, ExStyles] = parseControlStyles(styles);
+	const auto ws = parseControlStyles(styles);
 
 	m_Hwnd = dcxCreateWindow(
-		ExStyles | WS_EX_CLIENTEDGE,
+		ws.m_ExStyles | WS_EX_CLIENTEDGE,
 		DCX_PROGRESSBARCLASS,
-		Styles | WS_CHILD,
+		ws.m_Styles | WS_CHILD,
 		rc,
 		mParentHwnd,
 		ID,
@@ -43,8 +43,8 @@ DcxProgressBar::DcxProgressBar(_In_ const UINT ID, _In_ DcxDialog *const p_Dialo
 	if (!IsWindow(m_Hwnd))
 		throw Dcx::dcxException("Unable To Create Window");
 
-	if ( bNoTheme )
-		Dcx::UXModule.dcxSetWindowTheme( m_Hwnd , L" ", L" " );
+	if (ws.m_NoTheme)
+		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
 
 	if (styles.istok(TEXT("tooltips")))
 	{
@@ -54,7 +54,7 @@ DcxProgressBar::DcxProgressBar(_In_ const UINT ID, _In_ DcxDialog *const p_Dialo
 		setToolTipHWND(p_Dialog->getToolTip());
 		AddToolTipToolInfo(getToolTipHWND(), m_Hwnd);
 	}
-	this->setControlFont( GetStockFont( DEFAULT_GUI_FONT ), FALSE );
+	this->setControlFont(GetStockFont(DEFAULT_GUI_FONT), FALSE);
 }
 
 /*!
@@ -63,7 +63,7 @@ DcxProgressBar::DcxProgressBar(_In_ const UINT ID, _In_ DcxDialog *const p_Dialo
  * blah
  */
 
-DcxProgressBar::~DcxProgressBar( )
+DcxProgressBar::~DcxProgressBar()
 {
 }
 
@@ -89,52 +89,9 @@ const TString DcxProgressBar::getStyles(void) const
  * blah
  */
 
-//void DcxProgressBar::parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme )
-//{
-//	this->m_bIsGrad = false;
-//
-//	for (const auto &tsStyle: styles)
-//	{
-//#if DCX_USE_HASHING
-//		switch (std::hash<TString>{}(tsStyle))
-//		{
-//			case L"smooth"_hash:
-//				*Styles |= PBS_SMOOTH;
-//				break;
-//			case L"vertical"_hash:
-//				*Styles |= PBS_VERTICAL;
-//				break;
-//			case L"marquee"_hash:
-//				*Styles |= PBS_MARQUEE;
-//				break;
-//			case L"gradient"_hash:
-//				{
-//					*Styles |= PBS_SMOOTH;
-//					this->m_bIsGrad = true;
-//				}
-//			default:
-//				break;
-//		}
-//#else
-//		if (tsStyle == TEXT("smooth"))
-//			*Styles |= PBS_SMOOTH;
-//		else if (tsStyle == TEXT("vertical"))
-//			*Styles |= PBS_VERTICAL;
-//		else if (tsStyle == TEXT("marquee"))
-//			*Styles |= PBS_MARQUEE;
-//		else if (tsStyle == TEXT("gradient")) {
-//			*Styles |= PBS_SMOOTH;
-//			this->m_bIsGrad = true;
-//		}
-//#endif
-//	}
-//
-//	this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
-//}
-
-std::tuple<NoTheme, WindowStyle, WindowExStyle> DcxProgressBar::parseControlStyles(const TString & tsStyles)
+dcxWindowStyles DcxProgressBar::parseControlStyles(const TString & tsStyles)
 {
-	auto[bNoTheme, Styles, ExStyles] = parseGeneralControlStyles(tsStyles);
+	auto ws = parseGeneralControlStyles(tsStyles);
 
 	m_bIsGrad = false;
 
@@ -143,24 +100,24 @@ std::tuple<NoTheme, WindowStyle, WindowExStyle> DcxProgressBar::parseControlStyl
 		switch (std::hash<TString>{}(tsStyle))
 		{
 		case L"smooth"_hash:
-			Styles |= PBS_SMOOTH;
+			ws.m_Styles |= PBS_SMOOTH;
 			break;
 		case L"vertical"_hash:
-			Styles |= PBS_VERTICAL;
+			ws.m_Styles |= PBS_VERTICAL;
 			break;
 		case L"marquee"_hash:
-			Styles |= PBS_MARQUEE;
+			ws.m_Styles |= PBS_MARQUEE;
 			break;
 		case L"gradient"_hash:
 		{
-			Styles |= PBS_SMOOTH;
+			ws.m_Styles |= PBS_SMOOTH;
 			m_bIsGrad = true;
 		}
 		default:
 			break;
 		}
 	}
-	return { bNoTheme, Styles, ExStyles };
+	return ws;
 }
 
 /*!
@@ -172,7 +129,7 @@ std::tuple<NoTheme, WindowStyle, WindowExStyle> DcxProgressBar::parseControlStyl
  * \return > void
  */
 
-void DcxProgressBar::parseInfoRequest( const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const
+void DcxProgressBar::parseInfoRequest(const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const
 {
 	switch (std::hash<TString>{}(input.getfirsttok(3)))
 	{
@@ -199,9 +156,9 @@ void DcxProgressBar::parseInfoRequest( const TString & input, const refString<TC
  * \param input [NAME] [SWITCH] [ID] (OPTIONS)
  */
 
-void DcxProgressBar::parseCommandRequest( const TString &input)
+void DcxProgressBar::parseCommandRequest(const TString &input)
 {
-	const XSwitchFlags flags(input.getfirsttok( 3 ));
+	const XSwitchFlags flags(input.getfirsttok(3));
 	const auto numtok = input.numtok();
 
 	// xdid -c name ID $rgb(color)
@@ -210,7 +167,7 @@ void DcxProgressBar::parseCommandRequest( const TString &input)
 		if (numtok < 4)
 			throw Dcx::dcxException("Insufficient parameters");
 
-		setBarColor(input.getnexttok( ).to_<COLORREF>());	// tok 4
+		setBarColor(input.getnexttok().to_<COLORREF>());	// tok 4
 	}
 	//// xdid -g name ID [1|0]
 	//else if ( flags[TEXT('g')] ) {
@@ -242,7 +199,7 @@ void DcxProgressBar::parseCommandRequest( const TString &input)
 		if (numtok < 4)
 			throw Dcx::dcxException("Insufficient parameters");
 
-		setBKColor(input.getnexttok( ).to_<COLORREF>());	// tok 4
+		setBKColor(input.getnexttok().to_<COLORREF>());	// tok 4
 	}
 	// xdid -m(o|g) name ID N
 	else if (flags[TEXT('m')])
@@ -260,12 +217,12 @@ void DcxProgressBar::parseCommandRequest( const TString &input)
 			setMarquee(FALSE, 0);
 	}
 	// xdid -q name ID [COLOR]
-	else if ( flags[TEXT('q')] )
+	else if (flags[TEXT('q')])
 	{
 		if (numtok < 4)
 			throw Dcx::dcxException("Insufficient parameters");
 
-		setTextColor(input.getnexttok( ).to_<COLORREF>());	// tok 4
+		setTextColor(input.getnexttok().to_<COLORREF>());	// tok 4
 		redrawWindow();
 	}
 	// xdid -r name ID RLow RHigh
@@ -290,7 +247,7 @@ void DcxProgressBar::parseCommandRequest( const TString &input)
 		if (numtok < 4)
 			throw Dcx::dcxException("Insufficient parameters");
 
-		setStep(input.getnexttok( ).to_int());	// tok 4
+		setStep(input.getnexttok().to_int());	// tok 4
 	}
 	// xdid -v name ID N
 	else if (flags[TEXT('v')])
@@ -298,7 +255,7 @@ void DcxProgressBar::parseCommandRequest( const TString &input)
 		if (numtok < 4)
 			throw Dcx::dcxException("Insufficient parameters");
 
-		setPosition(input.getnexttok( ).to_int());	// tok 4
+		setPosition(input.getnexttok().to_int());	// tok 4
 	}
 	// xdid [-o] [NAME] [ID] [ENABLED]
 	// vertical fonts [1|0]
@@ -433,10 +390,10 @@ LRESULT DcxProgressBar::setBarColor(const COLORREF clrBar) noexcept
  * blah
  */
 
-LRESULT DcxProgressBar::setBKColor( const COLORREF clrBk ) noexcept
+LRESULT DcxProgressBar::setBKColor(const COLORREF clrBk) noexcept
 {
 	setEndGradientColor(clrBk);
-	return SendMessage( m_Hwnd, PBM_SETBKCOLOR, gsl::narrow_cast<WPARAM>(0), gsl::narrow_cast<LPARAM>(clrBk) );
+	return SendMessage(m_Hwnd, PBM_SETBKCOLOR, gsl::narrow_cast<WPARAM>(0), gsl::narrow_cast<LPARAM>(clrBk));
 }
 
 void DcxProgressBar::toXml(TiXmlElement *const xml) const
@@ -458,7 +415,7 @@ TiXmlElement * DcxProgressBar::toXml(void) const
  *
  * blah
  */
-LRESULT DcxProgressBar::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) noexcept
+LRESULT DcxProgressBar::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) noexcept
 {
 	return 0L;
 }

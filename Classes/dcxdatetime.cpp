@@ -31,12 +31,12 @@ http://msdn2.microsoft.com/en-us/library/bb761727.aspx
 DcxDateTime::DcxDateTime(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString &styles)
 	: DcxControl(ID, p_Dialog)
 {
-	const auto[bNoTheme, Styles, ExStyles] = parseControlStyles(styles);
+	const auto ws = parseControlStyles(styles);
 
 	m_Hwnd = dcxCreateWindow(
-		ExStyles | WS_EX_CLIENTEDGE,
+		ws.m_ExStyles | WS_EX_CLIENTEDGE,
 		DCX_DATETIMECLASS,
-		Styles | WindowStyle::Child,
+		ws.m_Styles | WindowStyle::Child,
 		rc,
 		mParentHwnd,
 		ID,
@@ -45,7 +45,7 @@ DcxDateTime::DcxDateTime(const UINT ID, DcxDialog *const p_Dialog, const HWND mP
 	if (!IsWindow(m_Hwnd))
 		throw Dcx::dcxException("Unable To Create Window");
 
-	if (bNoTheme)
+	if (ws.m_NoTheme)
 		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
 
 	this->setControlFont((HFONT)GetStockObject(DEFAULT_GUI_FONT), FALSE);
@@ -162,41 +162,40 @@ const TString DcxDateTime::getStyles(void) const
 //	this->parseGeneralControlStyles(styles, Styles, ExStyles, bNoTheme);
 //}
 
-std::tuple<NoTheme, WindowStyle, WindowExStyle> DcxDateTime::parseControlStyles(const TString & tsStyles)
+dcxWindowStyles DcxDateTime::parseControlStyles(const TString & tsStyles)
 {
-	WindowStyle Styles(WindowStyle::None);
-	WindowExStyle ExStyles(WindowExStyle::None);
+	dcxWindowStyles ws;
 
 	for (const auto &tsStyle : tsStyles)
 	{
 		switch (std::hash<TString>{}(tsStyle))
 		{
 		case L"longdateformat"_hash:
-			Styles |= DTS_LONGDATEFORMAT;
+			ws.m_Styles |= DTS_LONGDATEFORMAT;
 			break;
 		case L"shortdateformat"_hash:
-			Styles |= DTS_SHORTDATEFORMAT;
+			ws.m_Styles |= DTS_SHORTDATEFORMAT;
 			break;
 		case L"shortdatecenturyformat"_hash:
-			Styles |= DTS_SHORTDATECENTURYFORMAT;
+			ws.m_Styles |= DTS_SHORTDATECENTURYFORMAT;
 			break;
 		case L"timeformat"_hash:
-			Styles |= DTS_TIMEFORMAT;
+			ws.m_Styles |= DTS_TIMEFORMAT;
 			break;
 		case L"right"_hash:
-			Styles |= DTS_RIGHTALIGN;
+			ws.m_Styles |= DTS_RIGHTALIGN;
 			break;
 		case L"shownone"_hash:
-			Styles |= DTS_SHOWNONE;
+			ws.m_Styles |= DTS_SHOWNONE;
 			break;
 		case L"updown"_hash:
-			Styles |= DTS_UPDOWN;
+			ws.m_Styles |= DTS_UPDOWN;
 		default:
 			break;
 		}
 	}
 
-	return parseGeneralControlStyles(tsStyles, Styles, ExStyles);
+	return parseGeneralControlStyles(tsStyles, ws);
 }
 
 /*!

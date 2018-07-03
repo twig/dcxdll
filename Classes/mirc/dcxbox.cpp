@@ -33,12 +33,12 @@
 DcxBox::DcxBox(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles)
 	: DcxControl(ID, p_Dialog)
 {
-	const auto[bNoTheme, Styles, ExStyles] = parseControlStyles(styles);
+	const auto ws = parseControlStyles(styles);
 
 	m_Hwnd = dcxCreateWindow(
-		ExStyles | WindowExStyle::ControlParent,
+		ws.m_ExStyles | WindowExStyle::ControlParent,
 		DCX_BOXCLASS,
-		Styles | WindowStyle::Child,
+		ws.m_Styles | WindowStyle::Child,
 		rc,
 		mParentHwnd,
 		ID,
@@ -51,7 +51,7 @@ DcxBox::DcxBox(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd,
 	removeStyle(WindowStyle::Border | WS_DLGFRAME);
 	removeExStyle(WindowExStyle::ClientEdge | WS_EX_DLGMODALFRAME | WS_EX_STATICEDGE | WS_EX_WINDOWEDGE);
 
-	if (bNoTheme)
+	if (ws.m_NoTheme)
 		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
 
 	m_pLayoutManager = std::make_unique<LayoutManager>(m_Hwnd);
@@ -152,11 +152,11 @@ DcxBox::~DcxBox()
 //	parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
 //}
 
-std::tuple<NoTheme, WindowStyle, WindowExStyle> DcxBox::parseControlStyles(const TString & tsStyles)
+dcxWindowStyles DcxBox::parseControlStyles(const TString & tsStyles)
 {
 	m_iBoxStyles = 0;
 
-	auto[bNoTheme, Styles, ExStyles] = parseGeneralControlStyles(tsStyles);
+	auto ws = parseGeneralControlStyles(tsStyles);
 
 	for (const auto &tsStyle : tsStyles)
 	{
@@ -189,14 +189,12 @@ std::tuple<NoTheme, WindowStyle, WindowExStyle> DcxBox::parseControlStyles(const
 			m_iBoxStyles |= BOXS_RADIO;
 		}
 		break;
-		case L"transparent"_hash:
-			ExStyles |= WS_EX_TRANSPARENT;
 		default:
 			break;
 		}
 	}
 
-	return { bNoTheme, Styles, ExStyles };
+	return ws;
 }
 
 /*!

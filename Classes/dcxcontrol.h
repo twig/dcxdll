@@ -150,8 +150,14 @@ struct ALPHAINFO {
 };
 using LPALPHAINFO = ALPHAINFO *;
 
+struct dcxWindowStyles {
+	WindowStyle		m_Styles{ WindowStyle::None };
+	WindowExStyle	m_ExStyles{ WindowExStyle::None };
+	NoTheme			m_NoTheme{ false };
+};
+
 template <class pClassObj>
-void dcxRegisterClassEx(const TCHAR *const szClass, const TCHAR *const DcxClass) noexcept
+void dcxRegisterClassEx(const TCHAR *const szClass, const TCHAR *const szDcxClass) noexcept
 {
 	WNDCLASSEX wc{};
 	wc.cbSize = sizeof(WNDCLASSEX);
@@ -225,10 +231,10 @@ public:
 	//virtual void parseCommandRequest( const TString & input ) = 0;
 	//virtual void parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ) = 0;
 
-	virtual std::tuple<NoTheme, WindowStyle, WindowExStyle> parseControlStyles(const TString & tsStyles) = 0;
+	virtual dcxWindowStyles parseControlStyles(const TString & tsStyles) = 0;
 
-	std::tuple<NoTheme,WindowStyle,WindowExStyle> parseGeneralControlStyles(const TString & styles, WindowStyle &Styles, WindowExStyle &ExStyles);
-	std::tuple<NoTheme, WindowStyle, WindowExStyle> parseGeneralControlStyles(const TString & styles);
+	dcxWindowStyles parseGeneralControlStyles(const TString & styles, dcxWindowStyles &ws);
+	dcxWindowStyles parseGeneralControlStyles(const TString & styles);
 
 	bool evalAliasEx(TCHAR *const szReturn, const int maxlen, const TCHAR *const szFormat, ... );
 

@@ -18,25 +18,25 @@
 
 
 
-/*!
- * \brief Constructor
- *
- * \param ID Control ID
- * \param p_Dialog Parent DcxDialog Object
- * \param mParentHwnd Parent Window Handle
- * \param rc Window Rectangle
- * \param styles Window Style Tokenized List
- */
+ /*!
+  * \brief Constructor
+  *
+  * \param ID Control ID
+  * \param p_Dialog Parent DcxDialog Object
+  * \param mParentHwnd Parent Window Handle
+  * \param rc Window Rectangle
+  * \param styles Window Style Tokenized List
+  */
 
 DcxImage::DcxImage(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles)
 	: DcxControl(ID, p_Dialog)
 {
-	const auto[bNoTheme, Styles, ExStyles] = parseControlStyles(styles);
+	const auto ws = parseControlStyles(styles);
 
 	m_Hwnd = dcxCreateWindow(
-		ExStyles,
+		ws.m_ExStyles,
 		DCX_IMAGECLASS,
-		Styles | WindowStyle::Child,
+		ws.m_Styles | WindowStyle::Child,
 		rc,
 		mParentHwnd,
 		ID,
@@ -45,7 +45,7 @@ DcxImage::DcxImage(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentH
 	if (!IsWindow(m_Hwnd))
 		throw Dcx::dcxException("Unable To Create Window");
 
-	if (bNoTheme)
+	if (ws.m_NoTheme)
 		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
 
 	if (p_Dialog->getToolTip() != nullptr)
@@ -84,21 +84,13 @@ DcxImage::~DcxImage()
  * blah
  */
 
-//void DcxImage::parseControlStyles(const TString &styles, LONG *Styles, LONG *ExStyles, BOOL *bNoTheme)
-//{
-//	*Styles |= SS_NOTIFY;
-//
-//	this->parseGeneralControlStyles(styles, Styles, ExStyles, bNoTheme);
-//}
-
-std::tuple<NoTheme, WindowStyle, WindowExStyle> DcxImage::parseControlStyles(const TString & tsStyles)
+dcxWindowStyles DcxImage::parseControlStyles(const TString & tsStyles)
 {
-	WindowStyle Styles(WindowStyle::None);
-	WindowExStyle ExStyles(WindowExStyle::None);
+	auto ws = parseGeneralControlStyles(tsStyles);
 
-	Styles |= SS_NOTIFY;
+	ws.m_Styles |= SS_NOTIFY;
 
-	return parseGeneralControlStyles(tsStyles, Styles, ExStyles);
+	return ws;
 }
 
 /*!
@@ -110,7 +102,7 @@ std::tuple<NoTheme, WindowStyle, WindowExStyle> DcxImage::parseControlStyles(con
  * \return > void
  */
 
-void DcxImage::parseInfoRequest( const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const
+void DcxImage::parseInfoRequest(const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const
 {
 	// [NAME] [ID] [PROP]
 	if (const auto prop(input.getfirsttok(3)); prop == TEXT("fname"))
@@ -146,13 +138,13 @@ bool DcxImage::LoadGDIPlusImage(const TString &flags, TString &filename)
 	if (!IsFile(filename))
 		throw Dcx::dcxException(TEXT("Unable to Access File: %"), filename);
 
-	this->m_pImage = std::make_unique<Gdiplus::Image>(filename.to_chr(),TRUE);
+	this->m_pImage = std::make_unique<Gdiplus::Image>(filename.to_chr(), TRUE);
 
 	// for some reason this returns `OutOfMemory` when the file doesnt exist instead of `FileNotFound`
 	if (const auto status = this->m_pImage->GetLastStatus(); status != Gdiplus::Status::Ok)
 	{
 		PreloadData();
-		throw Dcx::dcxException(TEXT("Failed to load image: %"),GetLastStatusStr(status));
+		throw Dcx::dcxException(TEXT("Failed to load image: %"), GetLastStatusStr(status));
 	}
 
 	const XSwitchFlags xflags(flags);
@@ -190,7 +182,7 @@ bool DcxImage::LoadGDIPlusImage(const TString &flags, TString &filename)
  * blah
  */
 
-void DcxImage::parseCommandRequest( const TString & input)
+void DcxImage::parseCommandRequest(const TString & input)
 {
 	const XSwitchFlags flags(input.getfirsttok(3));
 	const auto numtok = input.numtok();
@@ -238,7 +230,7 @@ void DcxImage::parseCommandRequest( const TString & input)
 		//if (Dcx::GDIModule.isUseable() && flag.find(TEXT('g'),0)) { // makes GDI+ the default method, bitmap is only used when GDI+ isn't supported.
 		if (Dcx::GDIModule.isUseable())
 		{
-			if (!LoadGDIPlusImage(flag,filename))
+			if (!LoadGDIPlusImage(flag, filename))
 				throw Dcx::dcxException("Unable to load Image with GDI+"); // <- should never throw this
 		}
 		else
@@ -260,7 +252,7 @@ void DcxImage::parseCommandRequest( const TString & input)
 	// xdid -k [NAME] [ID] [SWITCH] [COLOR]
 	else if (flags[TEXT('k')] && numtok > 3)
 	{
-		this->m_clrTransColor = input.getnexttok( ).to_<COLORREF>();	// tok 4
+		this->m_clrTransColor = input.getnexttok().to_<COLORREF>();	// tok 4
 		this->redrawWindow();
 	}
 	// xdid -o [NAME] [ID] [SWITCH] [XOFFSET] [YOFFSET]
@@ -287,7 +279,7 @@ void DcxImage::parseCommandRequest( const TString & input)
 #ifdef DCX_USE_GDIPLUS
 void DcxImage::DrawGDIImage(HDC hdc, const int x, const int y, const int w, const int h)
 {
-	Gdiplus::Graphics grphx( hdc );
+	Gdiplus::Graphics grphx(hdc);
 
 	grphx.SetCompositingQuality(this->m_CQuality);
 	grphx.SetCompositingMode(this->m_CMode);
@@ -315,9 +307,9 @@ void DcxImage::DrawGDIImage(HDC hdc, const int x, const int y, const int w, cons
 			&imAtt);
 	}
 	else if (this->m_bResizeImage)
-		grphx.DrawImage( this->m_pImage.get(), this->m_iXOffset, this->m_iYOffset, w, h );
+		grphx.DrawImage(this->m_pImage.get(), this->m_iXOffset, this->m_iYOffset, w, h);
 	else
-		grphx.DrawImage( this->m_pImage.get(), this->m_iXOffset, this->m_iYOffset);
+		grphx.DrawImage(this->m_pImage.get(), this->m_iXOffset, this->m_iYOffset);
 }
 #endif
 
@@ -376,12 +368,12 @@ TiXmlElement * DcxImage::toXml() const
  *
  * blah
  */
-LRESULT DcxImage::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) noexcept
+LRESULT DcxImage::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) noexcept
 {
 	return 0L;
 }
 
-LRESULT DcxImage::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed )
+LRESULT DcxImage::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed)
 {
 	switch (uMsg)
 	{
@@ -453,7 +445,7 @@ void DcxImage::DrawClientArea(HDC hdc)
 	const auto ai = SetupAlphaBlend(&hdc, m_bBuffer);
 	Auto(FinishAlphaBlend(ai));
 
-	DcxControl::DrawCtrlBackground(hdc,this,&rect);
+	DcxControl::DrawCtrlBackground(hdc, this, &rect);
 
 	// draw bitmap
 #ifdef DCX_USE_GDIPLUS

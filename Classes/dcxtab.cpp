@@ -15,25 +15,25 @@
 #include "Classes/dcxtab.h"
 #include "Classes/dcxdialog.h"
 
-/*!
- * \brief Constructor
- *
- * \param ID Control ID
- * \param p_Dialog Parent DcxDialog Object
- * \param mParentHwnd Parent Window Handle
- * \param rc Window Rectangle
- * \param styles Window Style Tokenized List
- */
+ /*!
+  * \brief Constructor
+  *
+  * \param ID Control ID
+  * \param p_Dialog Parent DcxDialog Object
+  * \param mParentHwnd Parent Window Handle
+  * \param rc Window Rectangle
+  * \param styles Window Style Tokenized List
+  */
 
-DcxTab::DcxTab(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles )
+DcxTab::DcxTab(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles)
 	: DcxControl(ID, p_Dialog)
 {
-	const auto[bNoTheme, Styles, ExStyles] = parseControlStyles(styles);
+	const auto ws = parseControlStyles(styles);
 
-	m_Hwnd = dcxCreateWindow(	
-		ExStyles | WS_EX_CONTROLPARENT,
-		DCX_TABCTRLCLASS, 
-		Styles | WS_CHILD,
+	m_Hwnd = dcxCreateWindow(
+		ws.m_ExStyles | WS_EX_CONTROLPARENT,
+		DCX_TABCTRLCLASS,
+		ws.m_Styles | WS_CHILD,
 		rc,
 		mParentHwnd,
 		ID,
@@ -42,8 +42,8 @@ DcxTab::DcxTab(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd,
 	if (!IsWindow(m_Hwnd))
 		throw Dcx::dcxException("Unable To Create Window");
 
-	if ( bNoTheme )
-		Dcx::UXModule.dcxSetWindowTheme( m_Hwnd , L" ", L" " );
+	if (ws.m_NoTheme)
+		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
 
 	if (this->m_bClosable)
 	{
@@ -62,13 +62,13 @@ DcxTab::DcxTab(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd,
  * blah
  */
 
-DcxTab::~DcxTab( )
+DcxTab::~DcxTab()
 {
-	ImageList_Destroy( this->getImageList( ) );
+	ImageList_Destroy(this->getImageList());
 
-	const auto nItems = TabCtrl_GetItemCount( m_Hwnd );
+	const auto nItems = TabCtrl_GetItemCount(m_Hwnd);
 	for (auto n = decltype(nItems){0}; n < nItems; ++n)
-		this->deleteLParamInfo( n );
+		this->deleteLParamInfo(n);
 }
 
 /*!
@@ -77,55 +77,55 @@ DcxTab::~DcxTab( )
  * blah
  */
 
-std::tuple<NoTheme, WindowStyle, WindowExStyle> DcxTab::parseControlStyles(const TString & tsStyles)
+dcxWindowStyles DcxTab::parseControlStyles(const TString & tsStyles)
 {
-	auto[bNoTheme, Styles, ExStyles] = parseGeneralControlStyles(tsStyles);
+	auto ws = parseGeneralControlStyles(tsStyles);
 
 	//ExStyles = WS_EX_CONTROLPARENT;
-	Styles |= TCS_OWNERDRAWFIXED;
+	ws.m_Styles |= TCS_OWNERDRAWFIXED;
 
 	for (const auto &tsStyle : tsStyles)
 	{
 		switch (std::hash<TString>{}(tsStyle))
 		{
 		case L"vertical"_hash:
-			Styles |= TCS_VERTICAL;
+			ws.m_Styles |= TCS_VERTICAL;
 			break;
 		case L"bottom"_hash:
-			Styles |= TCS_BOTTOM;
+			ws.m_Styles |= TCS_BOTTOM;
 			break;
 		case L"right"_hash:
-			Styles |= TCS_RIGHT;
+			ws.m_Styles |= TCS_RIGHT;
 			break;
 		case L"fixedwidth"_hash:
-			Styles |= TCS_FIXEDWIDTH;
+			ws.m_Styles |= TCS_FIXEDWIDTH;
 			break;
 		case L"buttons"_hash:
-			Styles |= TCS_BUTTONS;
+			ws.m_Styles |= TCS_BUTTONS;
 			break;
 		case L"flat"_hash:
-			Styles |= TCS_FLATBUTTONS;
+			ws.m_Styles |= TCS_FLATBUTTONS;
 			break;
 		case L"hottrack"_hash:
-			Styles |= TCS_HOTTRACK;
+			ws.m_Styles |= TCS_HOTTRACK;
 			break;
 		case L"multiline"_hash:
-			Styles |= TCS_MULTILINE;
+			ws.m_Styles |= TCS_MULTILINE;
 			break;
 		case L"rightjustify"_hash:
-			Styles |= TCS_RIGHTJUSTIFY;
+			ws.m_Styles |= TCS_RIGHTJUSTIFY;
 			break;
 		case L"scrollopposite"_hash:
-			Styles |= TCS_SCROLLOPPOSITE;
+			ws.m_Styles |= TCS_SCROLLOPPOSITE;
 			break;
 			//case L"tooltips"_hash:
 			//  Styles |= TCS_TOOLTIPS;
 			//	break;
 		case L"flatseps"_hash:
-			ExStyles |= TCS_EX_FLATSEPARATORS;
+			ws.m_ExStyles |= TCS_EX_FLATSEPARATORS;
 			break;
 		case L"forcelabelleft"_hash:
-			Styles |= TCS_FORCELABELLEFT;
+			ws.m_Styles |= TCS_FORCELABELLEFT;
 			break;
 		case L"closable"_hash:
 		{
@@ -140,7 +140,7 @@ std::tuple<NoTheme, WindowStyle, WindowExStyle> DcxTab::parseControlStyles(const
 		}
 	}
 
-	return { bNoTheme, Styles, ExStyles };
+	return ws;
 }
 
 /*!
@@ -152,7 +152,7 @@ std::tuple<NoTheme, WindowStyle, WindowExStyle> DcxTab::parseControlStyles(const
  * \return > void
  */
 
-void DcxTab::parseInfoRequest( const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const
+void DcxTab::parseInfoRequest(const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const
 {
 	const auto numtok = input.numtok();
 
@@ -269,9 +269,9 @@ void DcxTab::parseInfoRequest( const TString & input, const refString<TCHAR, MIR
  * blah
  */
 
-void DcxTab::parseCommandRequest( const TString & input )
+void DcxTab::parseCommandRequest(const TString & input)
 {
-	const XSwitchFlags xflags(input.getfirsttok( 3 ));
+	const XSwitchFlags xflags(input.getfirsttok(3));
 	const auto numtok = input.numtok();
 
 	// xdid -r [NAME] [ID] [SWITCH]
@@ -300,7 +300,7 @@ void DcxTab::parseCommandRequest( const TString & input )
 	}
 
 	// xdid -a [NAME] [ID] [SWITCH] [N] [ICON] [TEXT][TAB][ID] [CONTROL] [X] [Y] [W] [H] (OPTIONS)[TAB](TOOLTIP)
-	if ( xflags[TEXT('a')] )
+	if (xflags[TEXT('a')])
 	{
 		if (numtok < 5)
 			throw Dcx::dcxException("Insufficient parameters");
@@ -314,20 +314,20 @@ void DcxTab::parseCommandRequest( const TString & input )
 		TString tooltip;
 		const auto nToks = input.numtok(TSTABCHAR);
 
-		if ( nToks > 1 )
+		if (nToks > 1)
 		{
-			control_data = input.getnexttok( TSTABCHAR).trim();	// tok 2
+			control_data = input.getnexttok(TSTABCHAR).trim();	// tok 2
 
-			if ( nToks > 2 )
+			if (nToks > 2)
 				tooltip = input.getlasttoks().trim();	// tok 3, -1, TSTAB
 		}
 
 		auto nIndex = data.getfirsttok(4).to_int() - 1;
 
-		if ( nIndex < 0 )
-			nIndex = TabCtrl_GetItemCount( m_Hwnd );
+		if (nIndex < 0)
+			nIndex = TabCtrl_GetItemCount(m_Hwnd);
 
-		tci.iImage = data.getnexttok( ).to_int( ) - 1;	// tok 5
+		tci.iImage = data.getnexttok().to_int() - 1;	// tok 5
 
 		//auto lpdtci = new DCXTCITEM;
 		auto lpdtci = std::make_unique<DCXTCITEM>();
@@ -336,7 +336,7 @@ void DcxTab::parseCommandRequest( const TString & input )
 
 		// Itemtext
 		TString itemtext;
-		if ( data.numtok( ) > 5 )
+		if (data.numtok() > 5)
 		{
 			itemtext = data.getlasttoks();	// tok 6, -1
 			tci.mask |= TCIF_TEXT;
@@ -349,10 +349,10 @@ void DcxTab::parseCommandRequest( const TString & input )
 			//	TabCtrl_SetPadding(m_Hwnd, 0, 0);
 			//}
 
-			tci.pszText = itemtext.to_chr( );
+			tci.pszText = itemtext.to_chr();
 		}
 
-		if ( control_data.numtok( ) > 5 )
+		if (control_data.numtok() > 5)
 		{
 			const DcxControl *const p_Control = this->getParentDialog()->addControl(control_data, 1,
 				CTLF_ALLOW_TREEVIEW |
@@ -368,29 +368,29 @@ void DcxTab::parseCommandRequest( const TString & input )
 				CTLF_ALLOW_LIST
 				, m_Hwnd);
 
-			lpdtci->mChildHwnd = p_Control->getHwnd( );
+			lpdtci->mChildHwnd = p_Control->getHwnd();
 		}
 		tci.lParam = (LPARAM)lpdtci.release();
 
-		TabCtrl_InsertItem( m_Hwnd, nIndex, &tci );
-		this->activateSelectedTab( );
+		TabCtrl_InsertItem(m_Hwnd, nIndex, &tci);
+		this->activateSelectedTab();
 	}
 	// xdid -c [NAME] [ID] [SWITCH] [N]
-	else if ( xflags[TEXT('c')] )
+	else if (xflags[TEXT('c')])
 	{
 		if (numtok < 4)
 			throw Dcx::dcxException("Insufficient parameters");
 
 		const auto nItem = input.getnexttok().to_int() - 1;	// tok 4
 
-		if ( nItem < 0 && nItem >= TabCtrl_GetItemCount( m_Hwnd ) )
+		if (nItem < 0 && nItem >= TabCtrl_GetItemCount(m_Hwnd))
 			throw Dcx::dcxException("Invalid Item");
-		
+
 		TabCtrl_SetCurSel(m_Hwnd, nItem);
-		this->activateSelectedTab( );
+		this->activateSelectedTab();
 	}
 	// xdid -d [NAME] [ID] [SWITCH] [N]
-	else if ( xflags[TEXT('d')] )
+	else if (xflags[TEXT('d')])
 	{
 		if (numtok < 4)
 			throw Dcx::dcxException("Insufficient parameters");
@@ -400,7 +400,7 @@ void DcxTab::parseCommandRequest( const TString & input )
 		// if a valid item to delete
 		if (nItem < 0 && nItem >= TabCtrl_GetItemCount(m_Hwnd))
 			throw Dcx::dcxException("Invalid Item");
-		
+
 		const auto curSel = TabCtrl_GetCurSel(m_Hwnd);
 		TCITEM tci{};
 
@@ -408,14 +408,14 @@ void DcxTab::parseCommandRequest( const TString & input )
 
 		if (TabCtrl_GetItem(m_Hwnd, nItem, &tci))
 		{
-			if (auto lpdtci = reinterpret_cast<LPDCXTCITEM>(tci.lParam); lpdtci != nullptr && lpdtci->mChildHwnd != nullptr && IsWindow( lpdtci->mChildHwnd ) )
+			if (auto lpdtci = reinterpret_cast<LPDCXTCITEM>(tci.lParam); lpdtci != nullptr && lpdtci->mChildHwnd != nullptr && IsWindow(lpdtci->mChildHwnd))
 			{
-				DestroyWindow( lpdtci->mChildHwnd );
+				DestroyWindow(lpdtci->mChildHwnd);
 				delete lpdtci;
 			}
 		}
 
-		TabCtrl_DeleteItem( m_Hwnd, nItem );
+		TabCtrl_DeleteItem(m_Hwnd, nItem);
 
 		// select the next tab item if its the current one
 		if (const auto iTotal = TabCtrl_GetItemCount(m_Hwnd); ((curSel == nItem) && (iTotal > 0)))
@@ -423,9 +423,9 @@ void DcxTab::parseCommandRequest( const TString & input )
 			if (nItem < iTotal)
 				TabCtrl_SetCurSel(m_Hwnd, nItem);
 			else
-				TabCtrl_SetCurSel(m_Hwnd, iTotal -1);	// nItem -1
+				TabCtrl_SetCurSel(m_Hwnd, iTotal - 1);	// nItem -1
 
-			this->activateSelectedTab( );
+			this->activateSelectedTab();
 		}
 	}
 	// xdid -l [NAME] [ID] [SWITCH] [N] [ICON]
@@ -439,31 +439,31 @@ void DcxTab::parseCommandRequest( const TString & input )
 
 		if (nItem < 0 && nItem >= TabCtrl_GetItemCount(m_Hwnd))
 			throw Dcx::dcxException("Invalid Item");
-		
+
 		TCITEM tci{};
 		tci.mask = TCIF_IMAGE;
 		tci.iImage = nIcon;
 
-		TabCtrl_SetItem( m_Hwnd, nItem, &tci );
+		TabCtrl_SetItem(m_Hwnd, nItem, &tci);
 	}
 	// xdid -m [NAME] [ID] [SWITCH] [X] [Y]
-	else if ( xflags[TEXT('m')] )
+	else if (xflags[TEXT('m')])
 	{
 		if (numtok < 5)
 			throw Dcx::dcxException("Insufficient parameters");
 
-		const auto X = input.getnexttok( ).to_int( );	// tok 4
+		const auto X = input.getnexttok().to_int();	// tok 4
 		const auto Y = input.getnexttok().to_int();	// tok 5
 
-		TabCtrl_SetItemSize( m_Hwnd, X, Y );
+		TabCtrl_SetItemSize(m_Hwnd, X, Y);
 	}
 	// This it to avoid an invalid flag message.
 	// xdid -r [NAME] [ID] [SWITCH]
-	else if ( xflags[TEXT('r')] )
+	else if (xflags[TEXT('r')])
 	{
 	}
 	// xdid -t [NAME] [ID] [SWITCH] [N] (text)
-	else if ( xflags[TEXT('t')] )
+	else if (xflags[TEXT('t')])
 	{
 		if (numtok < 4)
 			throw Dcx::dcxException("Insufficient parameters");
@@ -475,14 +475,14 @@ void DcxTab::parseCommandRequest( const TString & input )
 
 		TString itemtext;
 
-		if ( numtok > 4 )
+		if (numtok > 4)
 			itemtext = input.getlasttoks().trim();	// tok 5, -1
 
 		TCITEM tci{};
 		tci.mask = TCIF_TEXT;
-		tci.pszText = itemtext.to_chr( );
+		tci.pszText = itemtext.to_chr();
 
-		TabCtrl_SetItem( m_Hwnd, nItem, &tci );
+		TabCtrl_SetItem(m_Hwnd, nItem, &tci);
 	}
 	// xdid -v [DNAME] [ID] [SWITCH] [N] [POS]
 	else if (xflags[TEXT('v')])
@@ -560,7 +560,7 @@ void DcxTab::parseCommandRequest( const TString & input )
 #if DCX_USE_WRAPPERS
 		const Dcx::dcxIconResource icon(index, filename, false, flag);
 
-		ImageList_AddIcon(himl, icon);
+		ImageList_AddIcon(himl, icon.get());
 #else
 		if (const HICON icon = dcxLoadIcon(index, filename, false, flag); icon != nullptr)
 		{
@@ -570,9 +570,9 @@ void DcxTab::parseCommandRequest( const TString & input )
 #endif
 	}
 	// xdid -y [NAME] [ID] [SWITCH] [+FLAGS]
-	else if ( xflags[TEXT('y')] )
+	else if (xflags[TEXT('y')])
 	{
-		ImageList_Destroy( this->getImageList( ) );
+		ImageList_Destroy(this->getImageList());
 	}
 	// xdid -m [NAME] [ID] [SWITCH] [+FLAGS] [WIDTH]
 	// xdid -m -> [NAME] [ID] -m [+FLAGS] [WIDTH]
@@ -592,7 +592,7 @@ void DcxTab::parseCommandRequest( const TString & input )
 		this->activateSelectedTab();
 	}
 	else
-		this->parseGlobalCommandRequest( input, xflags );
+		this->parseGlobalCommandRequest(input, xflags);
 }
 
 /*!
@@ -601,9 +601,9 @@ void DcxTab::parseCommandRequest( const TString & input )
  * blah
  */
 
-HIMAGELIST DcxTab::getImageList(  ) const noexcept
+HIMAGELIST DcxTab::getImageList() const noexcept
 {
-  return TabCtrl_GetImageList( m_Hwnd );
+	return TabCtrl_GetImageList(m_Hwnd);
 }
 
 /*!
@@ -612,9 +612,9 @@ HIMAGELIST DcxTab::getImageList(  ) const noexcept
  * blah
  */
 
-void DcxTab::setImageList( const HIMAGELIST himl ) noexcept
+void DcxTab::setImageList(const HIMAGELIST himl) noexcept
 {
-  TabCtrl_SetImageList( m_Hwnd, himl );
+	TabCtrl_SetImageList(m_Hwnd, himl);
 }
 
 /*!
@@ -623,16 +623,16 @@ void DcxTab::setImageList( const HIMAGELIST himl ) noexcept
  * blah
  */
 
-//HIMAGELIST DcxTab::createImageList( ) {
-//
-//  return ImageList_Create( 16, 16, ILC_COLOR32|ILC_MASK, 1, 0 );
-//}
+ //HIMAGELIST DcxTab::createImageList( ) {
+ //
+ //  return ImageList_Create( 16, 16, ILC_COLOR32|ILC_MASK, 1, 0 );
+ //}
 
-/*!
- * \brief blah
- *
- * blah
- */
+ /*!
+  * \brief blah
+  *
+  * blah
+  */
 
 void DcxTab::deleteLParamInfo(const int nItem) noexcept
 {
@@ -652,7 +652,7 @@ void DcxTab::deleteLParamInfo(const int nItem) noexcept
  * blah
  */
 
-void DcxTab::activateSelectedTab( )
+void DcxTab::activateSelectedTab()
 {
 	auto nTab = TabCtrl_GetItemCount(m_Hwnd);
 	const auto nSel = TabCtrl_GetCurSel(m_Hwnd);
@@ -839,10 +839,10 @@ void DcxTab::toXml(TiXmlElement *const xml) const
 
 	for (auto i = decltype(count){0}; i < count; ++i)
 	{
-		tci.cchTextMax = MIRC_BUFFER_SIZE_CCH -1;
+		tci.cchTextMax = MIRC_BUFFER_SIZE_CCH - 1;
 		tci.pszText = buf.get();
 		tci.mask |= TCIF_TEXT;
-		if(TabCtrl_GetItem(m_Hwnd, i, &tci))
+		if (TabCtrl_GetItem(m_Hwnd, i, &tci))
 		{
 			if (const auto lpdtci = reinterpret_cast<LPDCXTCITEM>(tci.lParam); lpdtci != nullptr)
 			{

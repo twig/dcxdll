@@ -28,12 +28,12 @@
 DcxEdit::DcxEdit(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString &styles)
 	: DcxControl(ID, p_Dialog)
 {
-	const auto[bNoTheme, Styles, ExStyles] = parseControlStyles(styles);
+	const auto ws = parseControlStyles(styles);
 
 	m_Hwnd = dcxCreateWindow(
-		ExStyles | WindowExStyle::ClientEdge,
+		ws.m_ExStyles | WindowExStyle::ClientEdge,
 		DCX_EDITCLASS,
-		Styles | WindowStyle::Child,
+		ws.m_Styles | WindowStyle::Child,
 		rc,
 		mParentHwnd,
 		ID,
@@ -42,7 +42,7 @@ DcxEdit::DcxEdit(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwn
 	if (!IsWindow(m_Hwnd))
 		throw Dcx::dcxException("Unable To Create Window");
 
-	if (bNoTheme)
+	if (ws.m_NoTheme)
 		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
 
 	Edit_LimitText(m_Hwnd, 0);
@@ -129,148 +129,62 @@ TiXmlElement * DcxEdit::toXml(void) const
 *
 * blah
 */
-//void DcxEdit::parseControlStyles( const TString &styles, LONG *Styles, LONG *ExStyles, BOOL *bNoTheme)
-//{
-//	for (const auto &tsStyle : styles)
-//	{
-//#if DCX_USE_HASHING
-//		switch (std::hash<TString>{}(tsStyle.to_chr()))
-//		{
-//			case L"multi"_hash:
-//				*Styles |= ES_MULTILINE;
-//				break;
-//			case L"center"_hash:
-//				*Styles |= ES_CENTER;
-//				break;
-//			case L"right"_hash:
-//				*Styles |= ES_RIGHT;
-//				break;
-//			case L"autohs"_hash:
-//				*Styles |= ES_AUTOHSCROLL;
-//				break;
-//			case L"autovs"_hash:
-//				*Styles |= ES_AUTOVSCROLL;
-//				break;
-//			case L"vsbar"_hash:
-//				*Styles |= WS_VSCROLL;
-//				break;
-//			case L"hsbar"_hash:
-//				*Styles |= WS_HSCROLL;
-//				break;
-//			case L"lowercase"_hash:
-//				*Styles |= ES_LOWERCASE;
-//				break;
-//			case L"number"_hash:
-//				*Styles |= ES_NUMBER;
-//				break;
-//			case L"password"_hash:
-//				*Styles |= ES_PASSWORD;
-//				break;
-//			case L"uppercase"_hash:
-//				*Styles |= ES_UPPERCASE;
-//				break;
-//			case L"return"_hash:
-//				*Styles |= ES_WANTRETURN;
-//				break;
-//			case L"readonly"_hash:
-//				*Styles |= ES_READONLY;
-//				break;
-//			case L"showsel"_hash:
-//				*Styles |= ES_NOHIDESEL;
-//			default:
-//				break;
-//		}
-//#else
-//		if (tsStyle == TEXT("multi")) 
-//			*Styles |= ES_MULTILINE;
-//		else if (tsStyle == TEXT("center"))
-//			*Styles |= ES_CENTER;
-//		else if (tsStyle == TEXT("right"))
-//			*Styles |= ES_RIGHT;
-//		else if (tsStyle == TEXT("autohs"))
-//			*Styles |= ES_AUTOHSCROLL;
-//		else if (tsStyle == TEXT("autovs"))
-//			*Styles |= ES_AUTOVSCROLL;
-//		else if (tsStyle == TEXT("vsbar"))
-//			*Styles |= WS_VSCROLL;
-//		else if (tsStyle == TEXT("hsbar"))
-//			*Styles |= WS_HSCROLL;
-//		else if (tsStyle == TEXT("lowercase"))
-//			*Styles |= ES_LOWERCASE;
-//		else if (tsStyle == TEXT("number"))
-//			*Styles |= ES_NUMBER;
-//		else if (tsStyle == TEXT("password"))
-//			*Styles |= ES_PASSWORD;
-//		else if (tsStyle == TEXT("uppercase"))
-//			*Styles |= ES_UPPERCASE;
-//		else if (tsStyle == TEXT("return"))
-//			*Styles |= ES_WANTRETURN;
-//		else if (tsStyle == TEXT("readonly"))
-//			*Styles |= ES_READONLY;
-//		else if (tsStyle == TEXT("showsel"))
-//			*Styles |= ES_NOHIDESEL;
-//#endif
-//	}
-//
-//	this->parseGeneralControlStyles(styles, Styles, ExStyles, bNoTheme);
-//}
 
-std::tuple<NoTheme, WindowStyle, WindowExStyle> DcxEdit::parseControlStyles(const TString & tsStyles)
+dcxWindowStyles DcxEdit::parseControlStyles(const TString & tsStyles)
 {
-	WindowStyle Styles(WindowStyle::None);
-	WindowExStyle ExStyles(WindowExStyle::None);
+	dcxWindowStyles ws;
 
 	for (const auto &tsStyle : tsStyles)
 	{
 		switch (std::hash<TString>{}(tsStyle))
 		{
 		case L"multi"_hash:
-			Styles |= ES_MULTILINE;
+			ws.m_Styles |= ES_MULTILINE;
 			break;
 		case L"center"_hash:
-			Styles |= ES_CENTER;
+			ws.m_Styles |= ES_CENTER;
 			break;
 		case L"right"_hash:
-			Styles |= ES_RIGHT;
+			ws.m_Styles |= ES_RIGHT;
 			break;
 		case L"autohs"_hash:
-			Styles |= ES_AUTOHSCROLL;
+			ws.m_Styles |= ES_AUTOHSCROLL;
 			break;
 		case L"autovs"_hash:
-			Styles |= ES_AUTOVSCROLL;
+			ws.m_Styles |= ES_AUTOVSCROLL;
 			break;
 		case L"vsbar"_hash:
-			Styles |= WS_VSCROLL;
+			ws.m_Styles |= WS_VSCROLL;
 			break;
 		case L"hsbar"_hash:
-			Styles |= WS_HSCROLL;
+			ws.m_Styles |= WS_HSCROLL;
 			break;
 		case L"lowercase"_hash:
-			Styles |= ES_LOWERCASE;
+			ws.m_Styles |= ES_LOWERCASE;
 			break;
 		case L"number"_hash:
-			Styles |= ES_NUMBER;
+			ws.m_Styles |= ES_NUMBER;
 			break;
 		case L"password"_hash:
-			Styles |= ES_PASSWORD;
+			ws.m_Styles |= ES_PASSWORD;
 			break;
 		case L"uppercase"_hash:
-			Styles |= ES_UPPERCASE;
+			ws.m_Styles |= ES_UPPERCASE;
 			break;
 		case L"return"_hash:
-			Styles |= ES_WANTRETURN;
+			ws.m_Styles |= ES_WANTRETURN;
 			break;
 		case L"readonly"_hash:
-			Styles |= ES_READONLY;
+			ws.m_Styles |= ES_READONLY;
 			break;
 		case L"showsel"_hash:
-			Styles |= ES_NOHIDESEL;
+			ws.m_Styles |= ES_NOHIDESEL;
 		default:
 			break;
 		}
 	}
 
-	return parseGeneralControlStyles(tsStyles, Styles, ExStyles);
+	return parseGeneralControlStyles(tsStyles, ws);
 }
 
 /*!
@@ -281,7 +195,7 @@ std::tuple<NoTheme, WindowStyle, WindowExStyle> DcxEdit::parseControlStyles(cons
 *
 * \return > void
 */
-void DcxEdit::parseInfoRequest( const TString &input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const
+void DcxEdit::parseInfoRequest(const TString &input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const
 {
 	switch (std::hash<TString>{}(input.getfirsttok(3)))
 	{
@@ -394,9 +308,9 @@ void DcxEdit::parseInfoRequest( const TString &input, const refString<TCHAR, MIR
 *
 * blah
 */
-void DcxEdit::parseCommandRequest( const TString &input)
+void DcxEdit::parseCommandRequest(const TString &input)
 {
-	const XSwitchFlags flags(input.getfirsttok( 3 ));
+	const XSwitchFlags flags(input.getfirsttok(3));
 	const auto numtok = input.numtok();
 
 	// xdid -r [NAME] [ID] [SWITCH]
@@ -521,7 +435,7 @@ void DcxEdit::parseCommandRequest( const TString &input)
 	// xdid -P [NAME] [ID]
 	else if (flags[TEXT('P')])
 	{
-		SendMessage(this->getHwnd(),WM_PASTE,NULL,NULL);
+		SendMessage(this->getHwnd(), WM_PASTE, NULL, NULL);
 	}
 	// xdid -q [NAME] [ID] [SWITCH] [SIZE]
 	else if (flags[TEXT('q')])
@@ -547,7 +461,7 @@ void DcxEdit::parseCommandRequest( const TString &input)
 
 		if (!IsFile(tsFile))
 			throw Dcx::dcxException(TEXT("Unable to open: %"), tsFile);
-		
+
 		m_tsText = readTextFile(tsFile);
 		SetWindowTextW(m_Hwnd, m_tsText.to_wchr());
 	}
@@ -573,7 +487,7 @@ void DcxEdit::parseCommandRequest( const TString &input)
 
 		const auto istart = input.getnexttok().to_int();	// tok 4
 		const auto iend = (numtok > 4) ? input.getnexttok().to_int() : istart;
-		
+
 		SendMessage(m_Hwnd, EM_SETSEL, gsl::narrow_cast<WPARAM>(istart), gsl::narrow_cast<LPARAM>(iend));
 		SendMessage(m_Hwnd, EM_SCROLLCARET, NULL, NULL);
 	}
@@ -584,7 +498,7 @@ void DcxEdit::parseCommandRequest( const TString &input)
 			throw Dcx::dcxException("Insufficient parameters");
 
 		this->m_tsCue = input.getlasttoks();	// tok 4, -1
-		Edit_SetCueBannerText(m_Hwnd,this->m_tsCue.to_wchr());
+		Edit_SetCueBannerText(m_Hwnd, this->m_tsCue.to_wchr());
 	}
 	// xdid -y [NAME] [ID] [SWITCH] [0|1]
 	else if (flags[TEXT('y')])

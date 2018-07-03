@@ -28,12 +28,12 @@
 DcxStatusBar::DcxStatusBar(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles)
 	: DcxControl(ID, p_Dialog)
 {
-	const auto[bNoTheme, Styles, ExStyles] = parseControlStyles(styles);
+	const auto ws = parseControlStyles(styles);
 
 	m_Hwnd = dcxCreateWindow(
-		ExStyles | WS_EX_CONTROLPARENT,
+		ws.m_ExStyles | WS_EX_CONTROLPARENT,
 		DCX_STATUSBARCLASS,
-		Styles | WS_CHILD,
+		ws.m_Styles | WS_CHILD,
 		rc,
 		mParentHwnd,
 		ID,
@@ -42,7 +42,7 @@ DcxStatusBar::DcxStatusBar(const UINT ID, DcxDialog *const p_Dialog, const HWND 
 	if (!IsWindow(m_Hwnd))
 		throw Dcx::dcxException("Unable To Create Window");
 
-	if (bNoTheme)
+	if (ws.m_NoTheme)
 		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
 
 	ZeroMemory(&m_iDynamicParts[0], sizeof(m_iDynamicParts));
@@ -75,110 +75,37 @@ DcxStatusBar::~DcxStatusBar()
  * blah
  */
 
- //void DcxStatusBar::parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme )
- //{
- //	for (const auto &tsStyle: styles)
- //	{
- //#if DCX_USE_HASHING
- //		switch (std::hash<TString>{}(tsStyle))
- //		{
- //			case L"grip"_hash:
- //				*Styles |= SBARS_SIZEGRIP;
- //				break;
- //			case L"tooltips"_hash:
- //				*Styles |= SBARS_TOOLTIPS;
- //				break;
- //			case L"nodivider"_hash:
- //				*Styles |= CCS_NODIVIDER;
- //				break;
- //			case L"top"_hash:
- //				{
- //					*Styles |= CCS_TOP;
- //					*Styles &= ~SBARS_SIZEGRIP; // size grip doesn't work for left or top styles.
- //				}
- //				break;
- //			case L"noresize"_hash:
- //				*Styles |= CCS_NORESIZE;
- //				break;
- //			case L"noparentalign"_hash:
- //				*Styles |= CCS_NOPARENTALIGN;
- //				break;
- //			case L"noauto"_hash:
- //				*Styles |= CCS_NOPARENTALIGN | CCS_NORESIZE;
- //				break;
- //			//case L"left"_hash:
- //			//{ // NB: left & right styles don't render the parts vertically.
- //			//	*Styles |= CCS_LEFT;
- //			//	*Styles &= ~SBARS_SIZEGRIP;
- //			//}
- //			//break;
- //			//case L"right"_hash:
- //			//	*Styles |= CCS_RIGHT;
- //			//	break;
- //			default:
- //				break;
- //		}
- //#else
- //		if (tsStyle == TEXT("grip"))
- //			*Styles |= SBARS_SIZEGRIP;
- //		else if (tsStyle == TEXT("tooltips"))
- //			*Styles |= SBARS_TOOLTIPS;
- //		else if (tsStyle == TEXT("nodivider"))
- //			*Styles |= CCS_NODIVIDER;
- //		else if (tsStyle == TEXT("top")) {
- //			*Styles |= CCS_TOP;
- //			*Styles &= ~SBARS_SIZEGRIP; // size grip doesn't work for left or top styles.
- //		}
- //		else if (tsStyle == TEXT("noresize"))
- //			*Styles |= CCS_NORESIZE;
- //		else if (tsStyle == TEXT("noparentalign"))
- //			*Styles |= CCS_NOPARENTALIGN;
- //		else if (tsStyle == TEXT("noauto"))
- //			*Styles |= CCS_NOPARENTALIGN | CCS_NORESIZE;
- //		//else if ( tsStyle == TEXT("left") )
- //		//{ // NB: left & right styles don't render the parts vertically.
- //		//	*Styles |= CCS_LEFT;
- //		//	*Styles &= ~SBARS_SIZEGRIP;
- //		//}
- //		//else if ( tsStyle == TEXT("right") )
- //		//	*Styles |= CCS_RIGHT;
- //#endif
- //	}
- //
- //	parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
- //}
-
-std::tuple<NoTheme, WindowStyle, WindowExStyle> DcxStatusBar::parseControlStyles(const TString & tsStyles)
+dcxWindowStyles DcxStatusBar::parseControlStyles(const TString & tsStyles)
 {
-	auto[bNoTheme, Styles, ExStyles] = parseGeneralControlStyles(tsStyles);
+	auto ws = parseGeneralControlStyles(tsStyles);
 
 	for (const auto &tsStyle : tsStyles)
 	{
 		switch (std::hash<TString>{}(tsStyle))
 		{
 		case L"grip"_hash:
-			Styles |= SBARS_SIZEGRIP;
+			ws.m_Styles |= SBARS_SIZEGRIP;
 			break;
 		case L"tooltips"_hash:
-			Styles |= SBARS_TOOLTIPS;
+			ws.m_Styles |= SBARS_TOOLTIPS;
 			break;
 		case L"nodivider"_hash:
-			Styles |= CCS_NODIVIDER;
+			ws.m_Styles |= CCS_NODIVIDER;
 			break;
 		case L"top"_hash:
 		{
-			Styles |= CCS_TOP;
-			Styles &= ~SBARS_SIZEGRIP; // size grip doesn't work for left or top styles.
+			ws.m_Styles |= CCS_TOP;
+			ws.m_Styles &= ~SBARS_SIZEGRIP; // size grip doesn't work for left or top styles.
 		}
 		break;
 		case L"noresize"_hash:
-			Styles |= CCS_NORESIZE;
+			ws.m_Styles |= CCS_NORESIZE;
 			break;
 		case L"noparentalign"_hash:
-			Styles |= CCS_NOPARENTALIGN;
+			ws.m_Styles |= CCS_NOPARENTALIGN;
 			break;
 		case L"noauto"_hash:
-			Styles |= CCS_NOPARENTALIGN | CCS_NORESIZE;
+			ws.m_Styles |= CCS_NOPARENTALIGN | CCS_NORESIZE;
 			break;
 			//case L"left"_hash:
 			//{ // NB: left & right styles don't render the parts vertically.
@@ -194,7 +121,7 @@ std::tuple<NoTheme, WindowStyle, WindowExStyle> DcxStatusBar::parseControlStyles
 		}
 	}
 
-	return { bNoTheme, Styles, ExStyles };
+	return ws;
 }
 
 /*!

@@ -28,12 +28,12 @@
 DcxUpDown::DcxUpDown(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles)
 	: DcxControl(ID, p_Dialog)
 {
-	const auto[bNoTheme, Styles, ExStyles] = parseControlStyles(styles);
+	const auto ws = parseControlStyles(styles);
 
 	m_Hwnd = dcxCreateWindow(
-		ExStyles,
+		ws.m_ExStyles,
 		DCX_UPDOWNCLASS,
-		Styles | WS_CHILD,
+		ws.m_Styles | WS_CHILD,
 		rc,
 		mParentHwnd,
 		ID,
@@ -42,7 +42,7 @@ DcxUpDown::DcxUpDown(const UINT ID, DcxDialog *const p_Dialog, const HWND mParen
 	if (!IsWindow(m_Hwnd))
 		throw Dcx::dcxException("Unable To Create Window");
 
-	if (bNoTheme)
+	if (ws.m_NoTheme)
 		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
 
 	if (styles.istok(TEXT("tooltips")))
@@ -72,69 +72,11 @@ DcxUpDown::~DcxUpDown()
  * blah
  */
 
- //void DcxUpDown::parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme )
- //{
- //	*Styles |= UDS_ALIGNRIGHT;
- //
- //	for (const auto tsStyle : styles)
- //	{
- //#if DCX_USE_HASHING
- //		switch (std::hash<TString>{}(tsStyle))
- //		{
- //		case L"left"_hash:
- //		{
- //			*Styles &= ~UDS_ALIGNRIGHT;
- //			*Styles |= UDS_ALIGNLEFT;
- //		}
- //		break;
- //		case L"arrowkeys"_hash:
- //			*Styles |= UDS_ARROWKEYS;
- //			break;
- //		case L"horz"_hash:
- //			*Styles |= UDS_HORZ;
- //			break;
- //		case L"hottrack"_hash:
- //			*Styles |= UDS_HOTTRACK;
- //			break;
- //		case L"nothousands"_hash:
- //			*Styles |= UDS_NOTHOUSANDS;
- //			break;
- //		case L"buddyint"_hash:
- //			*Styles |= UDS_SETBUDDYINT;
- //			break;
- //		case L"wrap"_hash:
- //			*Styles |= UDS_WRAP;
- //		default:
- //			break;
- //		}
- //#else
- //		if (tsStyle == TEXT("left")) {
- //			*Styles &= ~UDS_ALIGNRIGHT;
- //			*Styles |= UDS_ALIGNLEFT;
- //		}
- //		else if (tsStyle == TEXT("arrowkeys"))
- //			*Styles |= UDS_ARROWKEYS;
- //		else if (tsStyle == TEXT("horz"))
- //			*Styles |= UDS_HORZ;
- //		else if (tsStyle == TEXT("hottrack"))
- //			*Styles |= UDS_HOTTRACK;
- //		else if (tsStyle == TEXT("nothousands"))
- //			*Styles |= UDS_NOTHOUSANDS;
- //		else if (tsStyle == TEXT("buddyint"))
- //			*Styles |= UDS_SETBUDDYINT;
- //		else if (tsStyle == TEXT("wrap"))
- //			*Styles |= UDS_WRAP;
- //#endif
- //	}
- //
- //	this->parseGeneralControlStyles(styles, Styles, ExStyles, bNoTheme);
- //}
-
-std::tuple<NoTheme, WindowStyle, WindowExStyle> DcxUpDown::parseControlStyles(const TString & tsStyles)
+dcxWindowStyles DcxUpDown::parseControlStyles(const TString & tsStyles)
 {
-	auto[bNoTheme, Styles, ExStyles] = parseGeneralControlStyles(tsStyles);
+	auto ws = parseGeneralControlStyles(tsStyles);
 
-	Styles |= UDS_ALIGNRIGHT;
+	ws.m_Styles |= UDS_ALIGNRIGHT;
 
 	for (const auto tsStyle : tsStyles)
 	{
@@ -142,33 +84,33 @@ std::tuple<NoTheme, WindowStyle, WindowExStyle> DcxUpDown::parseControlStyles(co
 		{
 		case L"left"_hash:
 		{
-			Styles &= ~UDS_ALIGNRIGHT;
-			Styles |= UDS_ALIGNLEFT;
+			ws.m_Styles &= ~UDS_ALIGNRIGHT;
+			ws.m_Styles |= UDS_ALIGNLEFT;
 		}
 		break;
 		case L"arrowkeys"_hash:
-			Styles |= UDS_ARROWKEYS;
+			ws.m_Styles |= UDS_ARROWKEYS;
 			break;
 		case L"horz"_hash:
-			Styles |= UDS_HORZ;
+			ws.m_Styles |= UDS_HORZ;
 			break;
 		case L"hottrack"_hash:
-			Styles |= UDS_HOTTRACK;
+			ws.m_Styles |= UDS_HOTTRACK;
 			break;
 		case L"nothousands"_hash:
-			Styles |= UDS_NOTHOUSANDS;
+			ws.m_Styles |= UDS_NOTHOUSANDS;
 			break;
 		case L"buddyint"_hash:
-			Styles |= UDS_SETBUDDYINT;
+			ws.m_Styles |= UDS_SETBUDDYINT;
 			break;
 		case L"wrap"_hash:
-			Styles |= UDS_WRAP;
+			ws.m_Styles |= UDS_WRAP;
 		default:
 			break;
 		}
 	}
 
-	return { bNoTheme, Styles, ExStyles };
+	return ws;
 }
 
 /*!

@@ -29,12 +29,12 @@
 DcxRichEdit::DcxRichEdit(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString &styles)
 	: DcxControl(ID, p_Dialog)
 {
-	const auto[bNoTheme, Styles, ExStyles] = parseControlStyles(styles);
+	const auto ws = parseControlStyles(styles);
 
 	m_Hwnd = dcxCreateWindow(
-		ExStyles | WS_EX_CLIENTEDGE,
+		ws.m_ExStyles | WS_EX_CLIENTEDGE,
 		DCX_RICHEDITCLASS,
-		Styles | WS_CHILD,
+		ws.m_Styles | WS_CHILD,
 		rc,
 		mParentHwnd,
 		ID,
@@ -43,8 +43,8 @@ DcxRichEdit::DcxRichEdit(const UINT ID, DcxDialog *const p_Dialog, const HWND mP
 	if (!IsWindow(m_Hwnd))
 		throw Dcx::dcxException("Unable To Create Window");
 
-	if (bNoTheme)
-		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd , L" ", L" ");
+	if (ws.m_NoTheme)
+		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
 	else
 		CRichEditThemed::Attach(m_Hwnd);
 
@@ -56,7 +56,7 @@ DcxRichEdit::DcxRichEdit(const UINT ID, DcxDialog *const p_Dialog, const HWND mP
 
 	this->setContentsFont();
 
-	SendMessage(m_Hwnd, EM_SETEVENTMASK, NULL, (LPARAM) (ENM_SELCHANGE | ENM_CHANGE | ENM_LINK));
+	SendMessage(m_Hwnd, EM_SETEVENTMASK, NULL, (LPARAM)(ENM_SELCHANGE | ENM_CHANGE | ENM_LINK));
 	//SendMessage(m_Hwnd, CCM_SETUNICODEFORMAT, TRUE, NULL);
 
 	if (styles.istok(TEXT("tooltips")))
@@ -146,9 +146,9 @@ DcxRichEdit::~DcxRichEdit()
 //	this->parseGeneralControlStyles(styles, Styles, ExStyles, bNoTheme);
 //}
 
-std::tuple<NoTheme, WindowStyle, WindowExStyle> DcxRichEdit::parseControlStyles(const TString & tsStyles)
+dcxWindowStyles DcxRichEdit::parseControlStyles(const TString & tsStyles)
 {
-	auto[bNoTheme, Styles, ExStyles] = parseGeneralControlStyles(tsStyles);
+	auto ws = parseGeneralControlStyles(tsStyles);
 
 	//Styles |= ES_READONLY;
 	//ES_NOHIDESEL
@@ -158,36 +158,36 @@ std::tuple<NoTheme, WindowStyle, WindowExStyle> DcxRichEdit::parseControlStyles(
 		switch (std::hash<TString>{}(tsStyle))
 		{
 		case L"multi"_hash:
-			Styles |= ES_MULTILINE | ES_WANTRETURN;
+			ws.m_Styles |= ES_MULTILINE | ES_WANTRETURN;
 			break;
 		case L"readonly"_hash:
-			Styles |= ES_READONLY;
+			ws.m_Styles |= ES_READONLY;
 			break;
 		case L"center"_hash:
-			Styles |= ES_CENTER;
+			ws.m_Styles |= ES_CENTER;
 			break;
 		case L"right"_hash:
-			Styles |= ES_RIGHT;
+			ws.m_Styles |= ES_RIGHT;
 			break;
 		case L"autohs"_hash:
-			Styles |= ES_AUTOHSCROLL;
+			ws.m_Styles |= ES_AUTOHSCROLL;
 			break;
 		case L"autovs"_hash:
-			Styles |= ES_AUTOVSCROLL;
+			ws.m_Styles |= ES_AUTOVSCROLL;
 			break;
 		case L"vsbar"_hash:
-			Styles |= WS_VSCROLL;
+			ws.m_Styles |= WS_VSCROLL;
 			break;
 		case L"hsbar"_hash:
-			Styles |= WS_HSCROLL;
+			ws.m_Styles |= WS_HSCROLL;
 			break;
 		case L"disablescroll"_hash:
-			Styles |= ES_DISABLENOSCROLL;
+			ws.m_Styles |= ES_DISABLENOSCROLL;
 		default:
 			break;
 		}
 	}
-	return { bNoTheme, Styles, ExStyles };
+	return ws;
 }
 /*!
 * \brief $xdid Parsing Function
@@ -197,7 +197,7 @@ std::tuple<NoTheme, WindowStyle, WindowExStyle> DcxRichEdit::parseControlStyles(
 *
 * \return > void
 */
-void DcxRichEdit::parseInfoRequest( const TString &input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const
+void DcxRichEdit::parseInfoRequest(const TString &input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const
 {
 	const auto numtok = input.numtok();
 
@@ -344,7 +344,7 @@ void DcxRichEdit::parseInfoRequest( const TString &input, const refString<TCHAR,
 
 bool DcxRichEdit::SaveRichTextToFile(HWND hWnd, const TString &tsFilename) noexcept
 {
-	const auto hFile = CreateFile(tsFilename.to_chr(), GENERIC_WRITE, 0, nullptr,	CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
+	const auto hFile = CreateFile(tsFilename.to_chr(), GENERIC_WRITE, 0, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
 	Auto(CloseHandle(hFile));
 
 	if (hFile == INVALID_HANDLE_VALUE)
@@ -426,7 +426,7 @@ DWORD CALLBACK DcxRichEdit::StreamInFromFileCallback(DWORD_PTR dwCookie, LPBYTE 
 */
 void DcxRichEdit::parseCommandRequest(const TString &input)
 {
-	const XSwitchFlags flags(input.getfirsttok( 3 ));
+	const XSwitchFlags flags(input.getfirsttok(3));
 	const auto numtok = input.numtok();
 
 	// xdid -r [NAME] [ID] [SWITCH]
@@ -497,8 +497,8 @@ void DcxRichEdit::parseCommandRequest(const TString &input)
 		{
 			this->setRedraw(FALSE);
 
-			this->m_byteCharset = gsl::narrow_cast<BYTE>(parseFontCharSet(input.getnexttok( )));	// tok 5
-			this->m_iFontSize = 20U * input.getnexttok( ).to_<UINT>();			// tok 6
+			this->m_byteCharset = gsl::narrow_cast<BYTE>(parseFontCharSet(input.getnexttok()));	// tok 5
+			this->m_iFontSize = 20U * input.getnexttok().to_<UINT>();			// tok 6
 			this->m_tsFontFaceName = input.getlasttoks().trim();				// tok 7, -1
 
 			m_bFontBold = dcx_testflag(iFontFlags, dcxFontFlags::DCF_BOLD);
@@ -550,9 +550,9 @@ void DcxRichEdit::parseCommandRequest(const TString &input)
 		if (numtok < 5)
 			throw Dcx::dcxException("Insufficient parameters");
 
-		const auto nColor = input.getnexttok( ).to_int() -1;	// tok 4
+		const auto nColor = input.getnexttok().to_int() - 1;	// tok 4
 
-		if (nColor < 0 || nColor > gsl::narrow_cast<int>(std::extent_v<decltype(m_aColorPalette)> - 1))
+		if (nColor < 0 || nColor > gsl::narrow_cast<int>(std::extent_v<decltype(m_aColorPalette)> -1))
 			throw Dcx::dcxException("Invalid Colour");
 
 		this->m_aColorPalette[nColor] = input.getnexttok().to_<COLORREF>();	// tok 5
@@ -572,7 +572,7 @@ void DcxRichEdit::parseCommandRequest(const TString &input)
 		if (numtok < 4)
 			throw Dcx::dcxException("Insufficient parameters");
 
-		const auto b = (input.getnexttok( ).to_int() > 0);	// tok 4
+		const auto b = (input.getnexttok().to_int() > 0);	// tok 4
 
 		this->setAutoUrlDetect(b ? TRUE : FALSE);
 	}
@@ -587,14 +587,14 @@ void DcxRichEdit::parseCommandRequest(const TString &input)
 		if (this->isStyle(WindowStyle::ES_MultiLine))
 			this->m_tsText.puttok(input.getlasttoks(), nLine, TEXT("\r\n"));	// tok 5, -1
 		else
-			this->m_tsText = input.getlasttoks( );	// tok 5, -1
+			this->m_tsText = input.getlasttoks();	// tok 5, -1
 
 		this->parseContents(TRUE);
 	}
 	// xdid -P [NAME] [ID]
 	else if (flags[TEXT('P')])
 	{
-		SendMessage(this->getHwnd(),WM_PASTE,NULL,NULL);
+		SendMessage(this->getHwnd(), WM_PASTE, NULL, NULL);
 	}
 	// xdid -q -> [NAME] [ID] -q [COLOR1] ... [COLOR16]
 	else if (flags[TEXT('q')])
@@ -604,7 +604,7 @@ void DcxRichEdit::parseCommandRequest(const TString &input)
 
 		const auto nColor = numtok - 3;
 
-		if (nColor >= std::min(std::extent_v<decltype(m_aColorPalette)>,16U))
+		if (nColor >= std::min(std::extent_v<decltype(m_aColorPalette)>, 16U))
 			throw Dcx::dcxException("Invalid Colour Count");
 
 		for (auto i = decltype(nColor){0}; i < nColor; ++i)
@@ -631,10 +631,10 @@ void DcxRichEdit::parseCommandRequest(const TString &input)
 		if (!xflags[TEXT('+')])
 		{
 			bOldMethod = true;
-			tsArgs = input.gettok(4, -1 ).trim();	// 4, -1
+			tsArgs = input.gettok(4, -1).trim();	// 4, -1
 		}
 		else
-			tsArgs = input.getlasttoks( ).trim();	// 5, -1
+			tsArgs = input.getlasttoks().trim();	// 5, -1
 
 		if (xflags[TEXT('o')])
 			bOldMethod = true;
@@ -663,11 +663,11 @@ void DcxRichEdit::parseCommandRequest(const TString &input)
 				if (tsArgs.numtok() < 2)
 					throw Dcx::dcxException(TEXT("No dataset specified"));
 
-				TString tsFile(tsArgs.gettok(1, gsl::narrow_cast<int>(tsArgs.numtok()) -1));
+				TString tsFile(tsArgs.gettok(1, gsl::narrow_cast<int>(tsArgs.numtok()) - 1));
 				const TString tsDataSet(tsArgs.gettok(tsArgs.numtok()));
 
 				if (!LoadRichTextFromXml(m_Hwnd, tsFile, tsDataSet))	// default load rtf text
-					throw Dcx::dcxException(TEXT("Unable to load: % Dataset: %"), tsFile,  tsDataSet);
+					throw Dcx::dcxException(TEXT("Unable to load: % Dataset: %"), tsFile, tsDataSet);
 			}
 			else {
 				if (!IsFile(tsArgs))
@@ -732,14 +732,14 @@ void DcxRichEdit::parseCommandRequest(const TString &input)
 
 		CHARRANGE c;
 
-		c.cpMin = input.getnexttok( ).to_int();	// tok 4
+		c.cpMin = input.getnexttok().to_int();	// tok 4
 
 		if (numtok > 4)
-			c.cpMax = input.getnexttok( ).to_int();	// tok 5
+			c.cpMax = input.getnexttok().to_int();	// tok 5
 		else
 			c.cpMax = c.cpMin;
 
-		SendMessage(m_Hwnd, EM_EXSETSEL, NULL, (LPARAM) &c);
+		SendMessage(m_Hwnd, EM_EXSETSEL, NULL, (LPARAM)&c);
 		SendMessage(m_Hwnd, EM_SCROLLCARET, NULL, NULL);
 
 		//DWORD dwAbsoluteStartSelPos = 0;
@@ -835,7 +835,7 @@ void DcxRichEdit::setContentsFont() noexcept
 	if (!this->m_tsFontFaceName.empty())
 	{
 		dcx_strcpyn(&chrf.szFaceName[0], this->m_tsFontFaceName.to_chr(), std::extent_v<decltype(chrf.szFaceName)>);
-		chrf.szFaceName[std::extent_v<decltype(chrf.szFaceName)> - 1] = 0;
+		chrf.szFaceName[std::extent_v<decltype(chrf.szFaceName)> -1] = 0;
 	}
 
 	this->hideSelection(TRUE);

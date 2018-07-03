@@ -28,12 +28,12 @@
 DcxLink::DcxLink(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles)
 	: DcxControl(ID, p_Dialog)
 {
-	const auto[bNoTheme, Styles, ExStyles] = parseControlStyles(styles);
+	const auto ws = parseControlStyles(styles);
 
 	m_Hwnd = dcxCreateWindow(
-		ExStyles,
+		ws.m_ExStyles,
 		DCX_LINKCLASS,
-		Styles | WindowStyle::Child,
+		ws.m_Styles | WindowStyle::Child,
 		rc,
 		mParentHwnd,
 		ID,
@@ -42,7 +42,7 @@ DcxLink::DcxLink(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwn
 	if (!IsWindow(m_Hwnd))
 		throw Dcx::dcxException("Unable To Create Window");
 
-	if (bNoTheme)
+	if (ws.m_NoTheme)
 		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
 
 	//this->m_aColors[0] = RGB(0, 0, 255);
@@ -99,21 +99,13 @@ TiXmlElement * DcxLink::toXml(void) const
  * blah
  */
 
- //void DcxLink::parseControlStyles( const TString &styles, LONG *Styles, LONG *ExStyles, BOOL *bNoTheme)
- //{
- //	*Styles |= SS_NOTIFY;
- //
- //	this->parseGeneralControlStyles(styles, Styles, ExStyles, bNoTheme);
- //}
-
-std::tuple<NoTheme, WindowStyle, WindowExStyle> DcxLink::parseControlStyles(const TString & tsStyles)
+dcxWindowStyles DcxLink::parseControlStyles(const TString & tsStyles)
 {
-	WindowStyle Styles(WindowStyle::None);
-	WindowExStyle ExStyles(WindowExStyle::None);
+	auto ws = parseGeneralControlStyles(tsStyles);
 
-	Styles |= SS_NOTIFY;
+	ws.m_Styles |= SS_NOTIFY;
 
-	return parseGeneralControlStyles(tsStyles, Styles, ExStyles);
+	return ws;
 }
 
 /*!

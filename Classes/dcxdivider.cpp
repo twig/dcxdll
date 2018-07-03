@@ -28,12 +28,12 @@
 DcxDivider::DcxDivider(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles)
 	: DcxControl(ID, p_Dialog)
 {
-	const auto[bNoTheme, Styles, ExStyles] = parseControlStyles(styles);
+	const auto ws = parseControlStyles(styles);
 
 	m_Hwnd = dcxCreateWindow(
-		ExStyles | WS_EX_CONTROLPARENT,
+		ws.m_ExStyles | WS_EX_CONTROLPARENT,
 		DCX_DIVIDERCLASS,
-		Styles | WS_CHILD,
+		ws.m_Styles | WS_CHILD,
 		rc,
 		mParentHwnd,
 		ID,
@@ -42,7 +42,7 @@ DcxDivider::DcxDivider(const UINT ID, DcxDialog *const p_Dialog, const HWND mPar
 	if (!IsWindow(m_Hwnd))
 		throw Dcx::dcxException("Unable To Create Window");
 
-	if (bNoTheme)
+	if (ws.m_NoTheme)
 		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
 }
 
@@ -89,17 +89,16 @@ const TString DcxDivider::getStyles(void) const
 //	this->parseGeneralControlStyles(styles, Styles, ExStyles, bNoTheme);
 //}
 
-std::tuple<NoTheme, WindowStyle, WindowExStyle> DcxDivider::parseControlStyles(const TString & tsStyles)
+dcxWindowStyles DcxDivider::parseControlStyles(const TString & tsStyles)
 {
-	WindowStyle Styles(WindowStyle::None);
-	WindowExStyle ExStyles(WindowExStyle::None);
+	dcxWindowStyles ws;
 
-	Styles |= DVS_HORZ;
+	ws.m_Styles |= DVS_HORZ;
 
 	if (tsStyles.istok(TEXT("vertical")))
-		Styles |= DVS_VERT;
+		ws.m_Styles |= DVS_VERT;
 
-	return parseGeneralControlStyles(tsStyles, Styles, ExStyles);
+	return parseGeneralControlStyles(tsStyles, ws);
 }
 
 /*!

@@ -28,12 +28,12 @@
 DcxLine::DcxLine(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles)
 	: DcxControl(ID, p_Dialog)
 {
-	const auto[bNoTheme, Styles, ExStyles] = parseControlStyles(styles);
+	const auto ws = parseControlStyles(styles);
 
 	m_Hwnd = dcxCreateWindow(
-		ExStyles | WindowExStyle::Transparent,
+		ws.m_ExStyles | WindowExStyle::Transparent,
 		DCX_LINECLASS,
-		Styles | WindowStyle::Child,
+		ws.m_Styles | WindowStyle::Child,
 		rc,
 		mParentHwnd,
 		ID,
@@ -42,7 +42,7 @@ DcxLine::DcxLine(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwn
 	if (!IsWindow(m_Hwnd))
 		throw Dcx::dcxException("Unable To Create Window");
 
-	if (bNoTheme)
+	if (ws.m_NoTheme)
 		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
 
 	this->setControlFont(GetStockFont(DEFAULT_GUI_FONT), FALSE);
@@ -107,61 +107,9 @@ TiXmlElement * DcxLine::toXml(void) const
  * blah
  */
 
-//void DcxLine::parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme )
-//{
-//	for (const auto &tsStyle: styles)
-//	{
-//#if DCX_USE_HASHING
-//		switch (std::hash<TString>{}(tsStyle))
-//		{
-//			case L"vertical"_hash:
-//				m_bVertical = true;
-//				break;
-//			case L"nowrap"_hash:
-//				*Styles |= SS_LEFTNOWORDWRAP;
-//				break;
-//			case L"center"_hash:
-//				*Styles |= SS_CENTER;
-//				break;
-//			case L"right"_hash:
-//				*Styles |= SS_RIGHT;
-//				break;
-//			case L"noprefix"_hash:
-//				*Styles |= SS_NOPREFIX;
-//				break;
-//			case L"endellipsis"_hash:
-//				*Styles |= SS_ENDELLIPSIS;
-//				break;
-//			case L"pathellipsis"_hash:
-//				*Styles |= SS_PATHELLIPSIS;
-//			default:
-//				break;
-//		}
-//#else
-//		if ( tsStyle == TEXT("vertical") )
-//			this->m_bVertical = true;
-//		else if (tsStyle == TEXT("nowrap"))
-//			*Styles |= SS_LEFTNOWORDWRAP;
-//		else if (tsStyle == TEXT("center"))
-//			*Styles |= SS_CENTER;
-//		else if (tsStyle == TEXT("right"))
-//			*Styles |= SS_RIGHT;
-//		else if (tsStyle == TEXT("noprefix"))
-//			*Styles |= SS_NOPREFIX;
-//		else if (tsStyle == TEXT("endellipsis"))
-//			*Styles |= SS_ENDELLIPSIS;
-//		else if (tsStyle == TEXT("pathellipsis"))
-//			*Styles |= SS_PATHELLIPSIS;
-//#endif
-//	}
-//
-//	this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
-//}
-
-std::tuple<NoTheme, WindowStyle, WindowExStyle> DcxLine::parseControlStyles(const TString & tsStyles)
+dcxWindowStyles DcxLine::parseControlStyles(const TString & tsStyles)
 {
-	WindowStyle Styles(WindowStyle::None);
-	WindowExStyle ExStyles(WindowExStyle::None);
+	dcxWindowStyles ws;
 
 	for (const auto &tsStyle : tsStyles)
 	{
@@ -171,28 +119,28 @@ std::tuple<NoTheme, WindowStyle, WindowExStyle> DcxLine::parseControlStyles(cons
 			m_bVertical = true;
 			break;
 		case L"nowrap"_hash:
-			Styles |= SS_LEFTNOWORDWRAP;
+			ws.m_Styles |= SS_LEFTNOWORDWRAP;
 			break;
 		case L"center"_hash:
-			Styles |= SS_CENTER;
+			ws.m_Styles |= SS_CENTER;
 			break;
 		case L"right"_hash:
-			Styles |= SS_RIGHT;
+			ws.m_Styles |= SS_RIGHT;
 			break;
 		case L"noprefix"_hash:
-			Styles |= SS_NOPREFIX;
+			ws.m_Styles |= SS_NOPREFIX;
 			break;
 		case L"endellipsis"_hash:
-			Styles |= SS_ENDELLIPSIS;
+			ws.m_Styles |= SS_ENDELLIPSIS;
 			break;
 		case L"pathellipsis"_hash:
-			Styles |= SS_PATHELLIPSIS;
+			ws.m_Styles |= SS_PATHELLIPSIS;
 		default:
 			break;
 		}
 	}
 
-	return parseGeneralControlStyles(tsStyles, Styles, ExStyles);
+	return parseGeneralControlStyles(tsStyles, ws);
 }
 
 /*!

@@ -44,8 +44,7 @@ public:
 	//void parseInfoRequest(const TString & input, PTCHAR szReturnValue) const final;
 	void parseInfoRequest(const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const final;
 	void parseCommandRequest(const TString & input) final;
-	//void parseControlStyles(const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme) final;
-	std::tuple<NoTheme, WindowStyle, WindowExStyle> parseControlStyles(const TString & tsStyles) final;
+	dcxWindowStyles parseControlStyles(const TString & tsStyles) final;
 
 	inline const TString getType() const final { return TEXT("line"); };
 	inline const DcxControlTypes getControlType() const noexcept final { return DcxControlTypes::LINE; }

@@ -31,12 +31,12 @@
 DcxCheck::DcxCheck(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles)
 	: DcxControl(ID, p_Dialog)
 {
-	const auto[bNoTheme, Styles, ExStyles] = parseControlStyles(styles);
+	const auto ws = parseControlStyles(styles);
 
 	m_Hwnd = dcxCreateWindow(
-		ExStyles,
+		ws.m_ExStyles,
 		DCX_CHECKCLASS,
-		Styles | WindowStyle::Child,
+		ws.m_Styles | WindowStyle::Child,
 		rc,
 		mParentHwnd,
 		ID,
@@ -45,10 +45,10 @@ DcxCheck::DcxCheck(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentH
 	if (!IsWindow(m_Hwnd))
 		throw Dcx::dcxException("Unable To Create Window");
 
-	if (bNoTheme)
+	if (ws.m_NoTheme)
 		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
 
-	this->setNoThemed( (bNoTheme != FALSE) );
+	this->setNoThemed( (ws.m_NoTheme != false) );
 
 	if (styles.istok(TEXT("tooltips")))
 	{
@@ -115,95 +115,42 @@ const TString DcxCheck::getStyles(void) const
  * blah
  */
 
-//void DcxCheck::parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme )
-//{
-//	*Styles |= BS_AUTOCHECKBOX;
-//
-//	for (const auto &tsStyle: styles)
-//	{
-//#if DCX_USE_HASHING
-//		switch (std::hash<TString>{}(tsStyle.to_chr()))
-//		{
-//			case L"rjustify"_hash:
-//				*Styles |= BS_RIGHT;
-//				break;
-//			case L"center"_hash:
-//				*Styles |= BS_CENTER;
-//				break;
-//			case L"ljustify"_hash:
-//				*Styles |= BS_LEFT;
-//				break;
-//			case L"right"_hash:
-//				*Styles |= BS_RIGHTBUTTON;
-//				break;
-//			case L"pushlike"_hash:
-//				*Styles |= BS_PUSHLIKE;
-//				break;
-//			case L"3state"_hash: {
-//				*Styles &= ~BS_AUTOCHECKBOX;
-//				*Styles |= BS_AUTO3STATE;
-//			default:
-//				break;
-//			}
-//		}
-//#else
-//		if ( tsStyle == TEXT("rjustify") )
-//			*Styles |= BS_RIGHT;
-//		else if ( tsStyle == TEXT("center") )
-//			*Styles |= BS_CENTER;
-//		else if ( tsStyle == TEXT("ljustify") )
-//			*Styles |= BS_LEFT;
-//		else if ( tsStyle == TEXT("right") )
-//			*Styles |= BS_RIGHTBUTTON;
-//		else if ( tsStyle == TEXT("pushlike") )
-//			*Styles |= BS_PUSHLIKE;
-//		else if ( tsStyle == TEXT("3state") ) {
-//			*Styles &= ~BS_AUTOCHECKBOX;
-//			*Styles |= BS_AUTO3STATE;
-//		}
-//#endif
-//	}
-//
-//	parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
-//}
-
-std::tuple<NoTheme, WindowStyle, WindowExStyle> DcxCheck::parseControlStyles(const TString & tsStyles)
+dcxWindowStyles DcxCheck::parseControlStyles(const TString & tsStyles)
 {
-	WindowStyle Styles(WindowStyle::None);
-	WindowExStyle ExStyles(WindowExStyle::None);
+	dcxWindowStyles ws;
 
-	Styles |= BS_AUTOCHECKBOX;
+	ws.m_Styles |= BS_AUTOCHECKBOX;
 
 	for (const auto &tsStyle : tsStyles)
 	{
 		switch (std::hash<TString>{}(tsStyle.to_chr()))
 		{
 		case L"rjustify"_hash:
-			Styles |= BS_RIGHT;
+			ws.m_Styles |= BS_RIGHT;
 			break;
 		case L"center"_hash:
-			Styles |= BS_CENTER;
+			ws.m_Styles |= BS_CENTER;
 			break;
 		case L"ljustify"_hash:
-			Styles |= BS_LEFT;
+			ws.m_Styles |= BS_LEFT;
 			break;
 		case L"right"_hash:
-			Styles |= BS_RIGHTBUTTON;
+			ws.m_Styles |= BS_RIGHTBUTTON;
 			break;
 		case L"pushlike"_hash:
-			Styles |= BS_PUSHLIKE;
+			ws.m_Styles |= BS_PUSHLIKE;
 			break;
 		case L"3state"_hash:
 		{
-			Styles &= gsl::narrow_cast<DWORD>(~BS_AUTOCHECKBOX);
-			Styles |= BS_AUTO3STATE;
+			ws.m_Styles &= gsl::narrow_cast<DWORD>(~BS_AUTOCHECKBOX);
+			ws.m_Styles |= BS_AUTO3STATE;
 		}
 		default:
 			break;
 		}
 	}
 
-	return parseGeneralControlStyles(tsStyles, Styles, ExStyles);
+	return parseGeneralControlStyles(tsStyles, ws);
 }
 
 /*!

@@ -31,12 +31,12 @@
 DcxTreeView::DcxTreeView(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles)
 	: DcxControl(ID, p_Dialog)
 {
-	const auto[bNoTheme, Styles, ExStyles] = parseControlStyles(styles);
+	const auto ws = parseControlStyles(styles);
 
 	m_Hwnd = dcxCreateWindow(
-		ExStyles | WS_EX_CLIENTEDGE,
+		ws.m_ExStyles | WS_EX_CLIENTEDGE,
 		DCX_TREEVIEWCLASS,
-		Styles | WS_CHILD,
+		ws.m_Styles | WS_CHILD,
 		rc,
 		mParentHwnd,
 		ID,
@@ -45,13 +45,13 @@ DcxTreeView::DcxTreeView(const UINT ID, DcxDialog *const p_Dialog, const HWND mP
 	if (!IsWindow(m_Hwnd))
 		throw Dcx::dcxException("Unable To Create Window");
 
-	if (bNoTheme)
+	if (ws.m_NoTheme)
 		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
 
 	SendMessage(m_Hwnd, CCM_SETVERSION, (WPARAM)6, (LPARAM)0);
 
 	// Ook: ExStyle or Style needs checked...
-	if ((Styles & WindowStyle::TVS_CheckBoxes) != WindowStyle::None)
+	if ((ws.m_Styles & WindowStyle::TVS_CheckBoxes) != WindowStyle::None)
 		this->addStyle(WindowStyle::TVS_CheckBoxes);
 
 	this->setToolTipHWND((HWND)TreeView_GetToolTips(m_Hwnd));
@@ -101,157 +101,54 @@ DcxTreeView::~DcxTreeView()
  * blah
  */
 
- //void DcxTreeView::parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme )
- //{
- //	*Styles |= TVS_INFOTIP;
- //
- //	for (const auto &tsStyle: styles)
- //	{
- //#if DCX_USE_HASHING
- //		switch (std::hash<TString>{}(tsStyle))
- //		{
- //			case L"haslines"_hash:
- //				*Styles |= TVS_HASLINES;
- //				break;
- //			case L"hasbuttons"_hash:
- //				*Styles |= TVS_HASBUTTONS;
- //				break;
- //			case L"linesatroot"_hash:
- //				*Styles |= TVS_LINESATROOT;
- //				break;
- //			case L"showsel"_hash:
- //				*Styles |= TVS_SHOWSELALWAYS;
- //				break;
- //			case L"editlabel"_hash:
- //				*Styles |= TVS_EDITLABELS;
- //				break;
- //			case L"nohscroll"_hash:
- //				*Styles |= TVS_NOHSCROLL;
- //				break;
- //			case L"notooltips"_hash:
- //				*Styles |= TVS_NOTOOLTIPS;
- //				break;
- //			case L"noscroll"_hash:
- //				*Styles |= TVS_NOSCROLL;
- //				break;
- //			case L"fullrow"_hash:
- //				*Styles |= TVS_FULLROWSELECT;
- //				break;
- //			case L"singleexpand"_hash:
- //				*Styles |= TVS_SINGLEEXPAND;
- //				break;
- //			case L"checkbox"_hash:
- //				*ExStyles |= TVS_CHECKBOXES;
- //			default:
- //				break;
- //		}
- //#else
- //		if (tsStyle == TEXT("haslines"))
- //			*Styles |= TVS_HASLINES;
- //		else if ( tsStyle == TEXT("hasbuttons") ) 
- //			*Styles |= TVS_HASBUTTONS;
- //		else if ( tsStyle == TEXT("linesatroot") ) 
- //			*Styles |= TVS_LINESATROOT;
- //		else if ( tsStyle == TEXT("showsel") ) 
- //			*Styles |= TVS_SHOWSELALWAYS;
- //		else if ( tsStyle == TEXT("editlabel") ) 
- //			*Styles |= TVS_EDITLABELS;
- //		else if ( tsStyle == TEXT("nohscroll") ) 
- //			*Styles |= TVS_NOHSCROLL;
- //		else if ( tsStyle == TEXT("notooltips") ) 
- //			*Styles |= TVS_NOTOOLTIPS;
- //		else if ( tsStyle == TEXT("noscroll") ) 
- //			*Styles |= TVS_NOSCROLL;
- //		else if ( tsStyle == TEXT("fullrow") ) 
- //			*Styles |= TVS_FULLROWSELECT;
- //		else if ( tsStyle == TEXT("singleexpand") ) 
- //			*Styles |= TVS_SINGLEEXPAND;
- //		else if ( tsStyle == TEXT("checkbox") ) 
- //			*ExStyles |= TVS_CHECKBOXES;
- //#endif
- //	}
- //
- //	this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
- //}
- //void DcxTreeView::parseTreeViewExStyles(const TString &styles, LONG * ExStyles)
- //{
- //	// Vista+ ONLY!
- //	for (const auto &tsStyle : styles)
- //	{
- //		switch (std::hash<TString>{}(tsStyle))
- //		{
- //		case L"fadebuttons"_hash:
- //			*ExStyles |= TVS_EX_FADEINOUTEXPANDOS;
- //			break;
- //		case L"doublebuffer"_hash:
- //			*ExStyles |= TVS_EX_DOUBLEBUFFER;
- //			break;
- //			//case L"multi"_hash:
- //			//  *ExStyles |= TVS_EX_MULTISELECT; // Style NOT to be used (unsupported by commctrl)
- //			//	break;
- //		case L"noident"_hash:
- //			*ExStyles |= TVS_EX_NOINDENTSTATE;
- //			break;
- //		case L"richtooltip"_hash:
- //			*ExStyles |= TVS_EX_RICHTOOLTIP;
- //			break;
- //		case L"autohscroll"_hash:
- //			*ExStyles |= TVS_EX_AUTOHSCROLL;
- //			break;
- //		default:
- //			break;
- //		}
- //	}
- //}
-
-std::tuple<NoTheme, WindowStyle, WindowExStyle> DcxTreeView::parseControlStyles(const TString & tsStyles)
+dcxWindowStyles DcxTreeView::parseControlStyles(const TString & tsStyles)
 {
-	auto[bNoTheme, Styles, ExStyles] = parseGeneralControlStyles(tsStyles);
+	auto ws = parseGeneralControlStyles(tsStyles);
 
-	Styles |= TVS_INFOTIP;
+	ws.m_Styles |= TVS_INFOTIP;
 
 	for (const auto &tsStyle : tsStyles)
 	{
 		switch (std::hash<TString>{}(tsStyle))
 		{
 		case L"haslines"_hash:
-			Styles |= TVS_HASLINES;
+			ws.m_Styles |= TVS_HASLINES;
 			break;
 		case L"hasbuttons"_hash:
-			Styles |= TVS_HASBUTTONS;
+			ws.m_Styles |= TVS_HASBUTTONS;
 			break;
 		case L"linesatroot"_hash:
-			Styles |= TVS_LINESATROOT;
+			ws.m_Styles |= TVS_LINESATROOT;
 			break;
 		case L"showsel"_hash:
-			Styles |= TVS_SHOWSELALWAYS;
+			ws.m_Styles |= TVS_SHOWSELALWAYS;
 			break;
 		case L"editlabel"_hash:
-			Styles |= TVS_EDITLABELS;
+			ws.m_Styles |= TVS_EDITLABELS;
 			break;
 		case L"nohscroll"_hash:
-			Styles |= TVS_NOHSCROLL;
+			ws.m_Styles |= TVS_NOHSCROLL;
 			break;
 		case L"notooltips"_hash:
-			Styles |= TVS_NOTOOLTIPS;
+			ws.m_Styles |= TVS_NOTOOLTIPS;
 			break;
 		case L"noscroll"_hash:
-			Styles |= TVS_NOSCROLL;
+			ws.m_Styles |= TVS_NOSCROLL;
 			break;
 		case L"fullrow"_hash:
-			Styles |= TVS_FULLROWSELECT;
+			ws.m_Styles |= TVS_FULLROWSELECT;
 			break;
 		case L"singleexpand"_hash:
-			Styles |= TVS_SINGLEEXPAND;
+			ws.m_Styles |= TVS_SINGLEEXPAND;
 			break;
 		case L"checkbox"_hash:
-			Styles |= TVS_CHECKBOXES;
+			ws.m_Styles |= TVS_CHECKBOXES;
 		default:
 			break;
 		}
 	}
 
-	return { bNoTheme, Styles, ExStyles };
+	return ws;
 }
 
 WindowExStyle DcxTreeView::parseTreeViewExStyles(const TString &styles) const

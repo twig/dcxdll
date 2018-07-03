@@ -37,12 +37,12 @@ DcxCalendar::DcxCalendar(const UINT ID, DcxDialog *const p_Dialog, const HWND mP
 	: DcxControl(ID, p_Dialog)
 	, m_MonthDayStates()
 {
-	const auto[bNoTheme, Styles, ExStyles] = parseControlStyles(styles);
+	const auto ws = parseControlStyles(styles);
 
 	m_Hwnd = dcxCreateWindow(
-		ExStyles | WindowExStyle::ClientEdge,
+		ws.m_ExStyles | WindowExStyle::ClientEdge,
 		DCX_CALENDARCLASS,
-		Styles | WindowStyle::Child,
+		ws.m_Styles | WindowStyle::Child,
 		rc,
 		mParentHwnd,
 		ID,
@@ -51,7 +51,7 @@ DcxCalendar::DcxCalendar(const UINT ID, DcxDialog *const p_Dialog, const HWND mP
 	if (!IsWindow(m_Hwnd))
 		throw Dcx::dcxException("Unable To Create Window");
 
-	if (bNoTheme)
+	if (ws.m_NoTheme)
 		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
 
 	this->setControlFont(GetStockFont(DEFAULT_GUI_FONT), FALSE);
@@ -181,35 +181,34 @@ const TString DcxCalendar::getValue(void) const
 //	this->parseGeneralControlStyles(styles, Styles, ExStyles, bNoTheme);
 //}
 
-std::tuple<NoTheme, WindowStyle, WindowExStyle> DcxCalendar::parseControlStyles(const TString & tsStyles)
+dcxWindowStyles DcxCalendar::parseControlStyles(const TString & tsStyles)
 {
-	WindowStyle Styles(WindowStyle::None);
-	WindowExStyle ExStyles(WindowExStyle::None);
+	dcxWindowStyles ws;
 
 	for (const auto &tsStyle : tsStyles)
 	{
 		switch (std::hash<TString>{}(tsStyle))
 		{
 		case L"multi"_hash:
-			Styles |= MCS_MULTISELECT;
+			ws.m_Styles |= MCS_MULTISELECT;
 			break;
 		case L"notoday"_hash:
-			Styles |= MCS_NOTODAY;
+			ws.m_Styles |= MCS_NOTODAY;
 			break;
 		case L"notodaycircle"_hash:
-			Styles |= MCS_NOTODAYCIRCLE;
+			ws.m_Styles |= MCS_NOTODAYCIRCLE;
 			break;
 		case L"weeknum"_hash:
-			Styles |= MCS_WEEKNUMBERS;
+			ws.m_Styles |= MCS_WEEKNUMBERS;
 			break;
 		case L"daystate"_hash:
-			Styles |= MCS_DAYSTATE;
+			ws.m_Styles |= MCS_DAYSTATE;
 		default:
 			break;
 		}
 	}
 
-	return parseGeneralControlStyles(tsStyles, Styles, ExStyles);
+	return parseGeneralControlStyles(tsStyles, ws);
 }
 
 /*!

@@ -28,7 +28,7 @@
 DcxText::DcxText(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles)
 	: DcxControl(ID, p_Dialog)
 {
-	const auto[bNoTheme, Styles, ExStyles] = parseControlStyles(styles);
+	const auto[Styles, ExStyles, bNoTheme] = parseControlStyles(styles);
 
 	m_Hwnd = dcxCreateWindow(
 		ExStyles,
@@ -131,12 +131,11 @@ DcxText::~DcxText( )
 //	this->parseGeneralControlStyles(styles, Styles, ExStyles, bNoTheme);
 //}
 
-std::tuple<NoTheme, WindowStyle, WindowExStyle> DcxText::parseControlStyles(const TString & tsStyles)
+dcxWindowStyles DcxText::parseControlStyles(const TString & tsStyles)
 {
-	WindowStyle Styles(WindowStyle::None);
-	WindowExStyle ExStyles(WindowExStyle::None);
+	dcxWindowStyles ws;
 
-	Styles |= SS_NOTIFY;
+	ws.m_Styles |= SS_NOTIFY;
 	this->m_uiStyle = DT_LEFT;
 
 	for (const auto &tsStyle : tsStyles)
@@ -168,7 +167,7 @@ std::tuple<NoTheme, WindowStyle, WindowExStyle> DcxText::parseControlStyles(cons
 	if (!dcx_testflag(this->m_uiStyle, DT_SINGLELINE))
 		this->m_uiStyle |= DT_WORDBREAK;
 
-	return parseGeneralControlStyles(tsStyles, Styles, ExStyles);
+	return parseGeneralControlStyles(tsStyles, ws);
 }
 
 /*!

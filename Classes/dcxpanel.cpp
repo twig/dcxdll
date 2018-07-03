@@ -31,12 +31,12 @@
 DcxPanel::DcxPanel(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles )
 	: DcxControl( ID, p_Dialog ) 
 {
-	const auto[bNoTheme, Styles, ExStyles] = parseControlStyles(styles);
+	const auto ws = parseControlStyles(styles);
 
 	m_Hwnd = dcxCreateWindow(	
-		ExStyles | WS_EX_CONTROLPARENT, 
+		ws.m_ExStyles | WS_EX_CONTROLPARENT,
 		DCX_PANELCLASS, 
-		Styles | WS_CHILD,
+		ws.m_Styles | WS_CHILD,
 		rc,
 		mParentHwnd,
 		ID,
@@ -45,7 +45,7 @@ DcxPanel::DcxPanel(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentH
 	if (!IsWindow(m_Hwnd))
 		throw Dcx::dcxException("Unable To Create Window");
 
-	if ( bNoTheme )
+	if (ws.m_NoTheme )
 		Dcx::UXModule.dcxSetWindowTheme( m_Hwnd , L" ", L" " );
 
 	this->m_pLayoutManager = std::make_unique<LayoutManager>(m_Hwnd);
@@ -80,7 +80,7 @@ TiXmlElement * DcxPanel::toXml(void) const
  *
  * blah
  */
-std::tuple<NoTheme, WindowStyle, WindowExStyle> DcxPanel::parseControlStyles(const TString & tsStyles)
+dcxWindowStyles DcxPanel::parseControlStyles(const TString & tsStyles)
 {
 	return parseGeneralControlStyles(tsStyles);
 }
