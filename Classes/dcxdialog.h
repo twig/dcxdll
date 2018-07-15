@@ -118,10 +118,24 @@ public:
 		incRef();
 		Auto(decRef());
 
-		//const auto bRes = mIRCLinker::tsEval(tsRes, tsArgs.to_chr());
 		const auto bRes = mIRCLinker::eval(tsRes, tsArgs);
 
 		return{ bRes, tsRes };
+	}
+
+	template <typename Value>
+	std::optional<TString> o_evalAliasT(const Value &val)
+	{
+		TString tsArgs, tsRes;
+		if constexpr(std::is_array_v<Value> && std::is_pod_v<Value>)
+			_ts_sprintf(tsArgs, TEXT("$%(%,%)"), getAliasName(), getName(), MakeTextmIRCSafe(&val[0]));
+		else
+			_ts_sprintf(tsArgs, TEXT("$%(%,%)"), getAliasName(), getName(), MakeTextmIRCSafe(val));
+
+		incRef();
+		Auto(decRef());
+
+		return mIRCLinker::o_eval<TString>(tsArgs);
 	}
 
 	DcxControl * getControlByID( const UINT ID ) const noexcept;
@@ -342,7 +356,7 @@ private:
 	std::unique_ptr<LayoutManager> m_pLayoutManager; //!< Layout Manager Object
 
 	HCURSOR m_hCursor{ nullptr };  //!< Cursor Handle
-	std::pair<HCURSOR, bool> m_hCursorList[22];
+	std::pair<HCURSOR, bool> m_hCursorList[22]{};
 
 	HBITMAP m_bitmapBg{ nullptr };
 	HBITMAP m_hVistaBitmap{ nullptr };

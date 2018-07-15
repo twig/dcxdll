@@ -1076,26 +1076,16 @@ namespace Dcx
 	template <typename Cont, typename Val>
 	bool eraseIfFound(Cont &con, Val &v)
 	{
-		//if constexpr(std::is_member_function_pointer_v<decltype(&Cont::find)>)
-		//{
-		//	const auto itEnd = con.end();
-		//
-		//	if (const auto itGot = con.find(v); itGot != itEnd)
-		//	{
-		//		con.erase(itGot);
-		//		return true;
-		//	}
-		//	return false;
-		//}
-		//else {
-			
-			if (const auto itEnd = con.end(), itGot = std::find(con.begin(), itEnd, v); itGot != itEnd)
-			{
-				con.erase(itGot);
-				return true;
-			}
-			return false;
-		//}
+		if (const auto itEnd = con.end(), itGot = std::find(con.begin(), itEnd, v); itGot != itEnd)
+		{
+			con.erase(itGot);
+			return true;
+		}
+		return false;
+
+		//  Ook: is this OK? needs testing...
+		//const auto itEnd = con.end();
+		//return (con.erase(std::find(con.begin(), itEnd, v)) != itEnd);
 	}
 
 	template <class T>

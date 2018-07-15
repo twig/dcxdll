@@ -1,5 +1,6 @@
 #pragma once
 // support functions for TString & c-string handling...
+// v1.2
 
 #include <tchar.h>
 #include <stdlib.h>
@@ -586,6 +587,24 @@ namespace details {
 			return _itow(val, buf, radix);
 		}
 	};
+
+	template <typename T>
+	struct _impl_strtoul {
+	};
+	template <>
+	struct _impl_strtoul<char> {
+		auto operator()(const char *const buf, char **endptr, int radx) noexcept
+		{
+			return strtoul(buf, endptr, radx);
+		}
+	};
+	template <>
+	struct _impl_strtoul<wchar_t> {
+		auto operator()(const wchar_t *const buf, wchar_t **endptr, int radx) noexcept
+		{
+			return wcstoul(buf, endptr, radx);
+		}
+	};
 }
 
 // Check string bounds, make sure dest is not within the source string & vice versa (this could be a possible reason for some strcpyn() fails we see)
@@ -619,6 +638,9 @@ bool _ts_WildcardMatch(const TameString &pszString, const WildString &pszMatch, 
 {
 	if ((!pszMatch) || (!pszString))
 		return false;
+
+	//if (_ts_isEmpty(pszMatch) || _ts_isEmpty(pszString))
+	//	return false;
 
 	ptrdiff_t MatchPlaceholder = 0;
 	ptrdiff_t StringPlaceholder = 0;
@@ -894,4 +916,12 @@ auto _ts_itoa(const int val, T *const buf, const int radix) noexcept
 	static_assert(std::is_same_v<T, char> || std::is_same_v<T, wchar_t>, "Only char & wchar_t supported...");
 
 	return details::_impl_itoa<T>()(val, buf, radix);
+}
+
+template <typename T>
+auto _ts_strtoul(const T *const buf, T **endptr, int base) noexcept
+{
+	static_assert(std::is_same_v<T, char> || std::is_same_v<T, wchar_t>, "Only char & wchar_t supported...");
+
+	return details::_impl_strtoul<T>()(buf, endptr, base);
 }

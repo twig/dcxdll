@@ -309,7 +309,7 @@ void DcxRichEdit::parseInfoRequest(const TString &input, const refString<TCHAR, 
 		UINT iFlags = SF_RTF;
 		const auto tsFlags(input.getnexttok());
 
-		std::stringstream rtf;
+		stringstream_type rtf;
 
 		EDITSTREAM es{};
 		es.dwCookie = (DWORD_PTR)&rtf;
@@ -374,9 +374,9 @@ bool DcxRichEdit::LoadRichTextFromFile(HWND hWnd, const TString &tsFilename) noe
 
 DWORD CALLBACK DcxRichEdit::StreamOutToVarCallback(DWORD_PTR dwCookie, const LPBYTE pbBuff, const LONG cb, LONG *pcb)
 {
-	const auto rtf = reinterpret_cast<std::stringstream *>(dwCookie);
-
-	rtf->write((char *)pbBuff, cb);
+	const auto rtf = reinterpret_cast<stringstream_type *>(dwCookie);
+	
+	rtf->write((stringstream_type::char_type *)pbBuff, cb);
 
 	*pcb = cb;
 	return 0;

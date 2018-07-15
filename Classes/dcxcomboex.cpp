@@ -114,9 +114,9 @@ DcxComboEx::DcxComboEx(const UINT ID, DcxDialog *const  p_Dialog, const HWND mPa
 * blah
 */
 
-DcxComboEx::~DcxComboEx( )
+DcxComboEx::~DcxComboEx()
 {
-	ImageList_Destroy( this->getImageList( ) );
+	ImageList_Destroy(this->getImageList());
 }
 
 /*!
@@ -193,7 +193,7 @@ dcxWindowStyles DcxComboEx::parseControlStyles(const TString & tsStyles)
 * \return > void
 */
 
-void DcxComboEx::parseInfoRequest( const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const
+void DcxComboEx::parseInfoRequest(const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const
 {
 	const auto numtok = input.numtok();
 
@@ -215,7 +215,12 @@ void DcxComboEx::parseInfoRequest( const TString & input, const refString<TCHAR,
 			if (nItem != -1 || (!this->isStyle(WindowStyle::CBS_DropDown) && !this->isStyle(WindowStyle::CBS_Simple)))
 				throw Dcx::dcxException("Invalid Item");
 
-			szReturnValue = m_tsSelected.to_chr();
+			//szReturnValue = m_tsSelected;
+
+			if (IsWindow(m_EditHwnd))
+				GetWindowText(m_EditHwnd, szReturnValue, MIRC_BUFFER_SIZE_CCH);
+			else
+				szReturnValue = m_tsSelected;
 		}
 	}
 	break;
@@ -322,9 +327,9 @@ void DcxComboEx::parseInfoRequest( const TString & input, const refString<TCHAR,
 * blah
 */
 
-void DcxComboEx::parseCommandRequest( const TString &input)
+void DcxComboEx::parseCommandRequest(const TString &input)
 {
-	const XSwitchFlags flags(input.getfirsttok( 3 ));
+	const XSwitchFlags flags(input.getfirsttok(3));
 
 	const auto numtok = input.numtok();
 
@@ -446,13 +451,13 @@ void DcxComboEx::parseCommandRequest( const TString &input)
 
 		if (cbiDcx == nullptr)
 			throw Dcx::dcxException("Unable to get Item Info");
-		
+
 		const XSwitchFlags xflags(input.getnexttok());	// tok 5
 		const auto info(input.getlasttoks());		// tok 6, -1
 
 		if (!xflags[TEXT('M')])
 			throw Dcx::dcxException(TEXT("Unknown flags %"), input.gettok(5));
-		
+
 		cbiDcx->tsMark = info;
 	}
 	// xdid -c [NAME] [ID] [SWITCH] [N]
@@ -569,9 +574,9 @@ void DcxComboEx::parseCommandRequest( const TString &input)
 * blah
 */
 
-HIMAGELIST DcxComboEx::getImageList(  ) const noexcept
+HIMAGELIST DcxComboEx::getImageList() const noexcept
 {
-	return (HIMAGELIST) SendMessage( m_Hwnd, CBEM_GETIMAGELIST, (WPARAM) 0U, (LPARAM) 0U );
+	return (HIMAGELIST)SendMessage(m_Hwnd, CBEM_GETIMAGELIST, (WPARAM)0U, (LPARAM)0U);
 }
 
 /*!
@@ -580,9 +585,9 @@ HIMAGELIST DcxComboEx::getImageList(  ) const noexcept
 * blah
 */
 
-void DcxComboEx::setImageList( const HIMAGELIST himl ) noexcept
+void DcxComboEx::setImageList(const HIMAGELIST himl) noexcept
 {
-	SendMessage( m_Hwnd, CBEM_SETIMAGELIST, (WPARAM) 0U, (LPARAM) himl );
+	SendMessage(m_Hwnd, CBEM_SETIMAGELIST, (WPARAM)0U, (LPARAM)himl);
 }
 
 /*!
@@ -655,9 +660,9 @@ bool DcxComboEx::matchItemText(const int nItem, const TString &search, const Dcx
 * blah
 */
 
-LRESULT DcxComboEx::insertItem( const PCOMBOBOXEXITEM lpcCBItem ) noexcept
+LRESULT DcxComboEx::insertItem(const PCOMBOBOXEXITEM lpcCBItem) noexcept
 {
-	return SendMessage( m_Hwnd, CBEM_INSERTITEM, (WPARAM) 0U, (LPARAM) lpcCBItem );
+	return SendMessage(m_Hwnd, CBEM_INSERTITEM, (WPARAM)0U, (LPARAM)lpcCBItem);
 }
 
 /*!
@@ -666,9 +671,9 @@ LRESULT DcxComboEx::insertItem( const PCOMBOBOXEXITEM lpcCBItem ) noexcept
 * blah
 */
 
-LRESULT DcxComboEx::getItem( const PCOMBOBOXEXITEM lpcCBItem ) const noexcept
+LRESULT DcxComboEx::getItem(const PCOMBOBOXEXITEM lpcCBItem) const noexcept
 {
-	return SendMessage( m_Hwnd, CBEM_GETITEM, (WPARAM) 0U, (LPARAM) lpcCBItem );
+	return SendMessage(m_Hwnd, CBEM_GETITEM, (WPARAM)0U, (LPARAM)lpcCBItem);
 }
 
 /*!
@@ -677,9 +682,9 @@ LRESULT DcxComboEx::getItem( const PCOMBOBOXEXITEM lpcCBItem ) const noexcept
 * blah
 */
 
-HWND DcxComboEx::getEditControl( ) const noexcept
+HWND DcxComboEx::getEditControl() const noexcept
 {
-	return reinterpret_cast<HWND>(SendMessage( m_Hwnd, CBEM_GETEDITCONTROL, (WPARAM) 0U, (LPARAM) 0U ));
+	return reinterpret_cast<HWND>(SendMessage(m_Hwnd, CBEM_GETEDITCONTROL, (WPARAM)0U, (LPARAM)0U));
 }
 
 /*!
@@ -688,9 +693,9 @@ HWND DcxComboEx::getEditControl( ) const noexcept
 * blah
 */
 
-LRESULT DcxComboEx::deleteItem( const int iIndex ) noexcept
+LRESULT DcxComboEx::deleteItem(const int iIndex) noexcept
 {
-	return SendMessage( m_Hwnd, CBEM_DELETEITEM, (WPARAM) iIndex, (LPARAM) 0U );
+	return SendMessage(m_Hwnd, CBEM_DELETEITEM, (WPARAM)iIndex, (LPARAM)0U);
 }
 
 /*!
@@ -699,9 +704,9 @@ LRESULT DcxComboEx::deleteItem( const int iIndex ) noexcept
 * blah
 */
 
-LRESULT DcxComboEx::setCurSel( const int iIndex ) noexcept
+LRESULT DcxComboEx::setCurSel(const int iIndex) noexcept
 {
-	return SendMessage( m_Hwnd, CB_SETCURSEL, (WPARAM) iIndex, (LPARAM) 0U );
+	return SendMessage(m_Hwnd, CB_SETCURSEL, (WPARAM)iIndex, (LPARAM)0U);
 }
 
 /*!
@@ -710,9 +715,9 @@ LRESULT DcxComboEx::setCurSel( const int iIndex ) noexcept
 * blah
 */
 
-LRESULT DcxComboEx::getCurSel( ) const noexcept
+LRESULT DcxComboEx::getCurSel() const noexcept
 {
-	return SendMessage( m_Hwnd, CB_GETCURSEL, (WPARAM) 0U, (LPARAM) 0U );
+	return SendMessage(m_Hwnd, CB_GETCURSEL, (WPARAM)0U, (LPARAM)0U);
 }
 
 /*!
@@ -721,9 +726,9 @@ LRESULT DcxComboEx::getCurSel( ) const noexcept
 * blah
 */
 
-LRESULT DcxComboEx::getLBText( const int iIndex, LPSTR lps ) noexcept
+LRESULT DcxComboEx::getLBText(const int iIndex, LPSTR lps) noexcept
 {
-	return SendMessage( m_Hwnd, CB_GETLBTEXT, (WPARAM) iIndex, (LPARAM) lps );
+	return SendMessage(m_Hwnd, CB_GETLBTEXT, (WPARAM)iIndex, (LPARAM)lps);
 }
 
 /*!
@@ -732,9 +737,9 @@ LRESULT DcxComboEx::getLBText( const int iIndex, LPSTR lps ) noexcept
 * blah
 */
 
-LRESULT DcxComboEx::resetContent( ) noexcept
+LRESULT DcxComboEx::resetContent() noexcept
 {
-	return SendMessage( m_Hwnd, CB_RESETCONTENT, (WPARAM) 0U, (LPARAM) 0U );
+	return SendMessage(m_Hwnd, CB_RESETCONTENT, (WPARAM)0U, (LPARAM)0U);
 }
 
 /*!
@@ -743,9 +748,9 @@ LRESULT DcxComboEx::resetContent( ) noexcept
 * blah
 */
 
-LRESULT DcxComboEx::getCount( ) const noexcept
+LRESULT DcxComboEx::getCount() const noexcept
 {
-	return SendMessage( m_Hwnd, CB_GETCOUNT, (WPARAM) 0U, (LPARAM) 0U );
+	return SendMessage(m_Hwnd, CB_GETCOUNT, (WPARAM)0U, (LPARAM)0U);
 }
 
 /*!
@@ -754,9 +759,9 @@ LRESULT DcxComboEx::getCount( ) const noexcept
 * blah
 */
 
-LRESULT DcxComboEx::limitText( const int iLimit ) noexcept
+LRESULT DcxComboEx::limitText(const int iLimit) noexcept
 {
-	return SendMessage( m_Hwnd, CB_LIMITTEXT, (WPARAM) iLimit, (LPARAM) 0U );
+	return SendMessage(m_Hwnd, CB_LIMITTEXT, (WPARAM)iLimit, (LPARAM)0U);
 }
 
 //void DcxComboEx::getItemRange(const TString &tsItems, const int nItemCnt, int *iStart_range, int *iEnd_range)
@@ -811,9 +816,9 @@ const TString DcxComboEx::getStyles(void) const
 
 	if (dcx_testflag(Styles, CBS_SIMPLE))
 		styles.addtok(TEXT("simple"));
-	if (dcx_testflag(Styles, CBS_DROPDOWNLIST)) 
+	if (dcx_testflag(Styles, CBS_DROPDOWNLIST))
 		styles.addtok(TEXT("dropdown"));
-	if (dcx_testflag(Styles, CBS_DROPDOWN)) 
+	if (dcx_testflag(Styles, CBS_DROPDOWN))
 		styles.addtok(TEXT("dropedit"));
 
 	return styles;
@@ -837,13 +842,10 @@ LRESULT DcxComboEx::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
 			bParsed = TRUE;
 			return TRUE;
 			break;
-
 		case CBN_SELENDOK:
 		{
 			if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
 				execAliasEx(TEXT("sclick,%u,%d"), getUserID(), getCurSel() + 1);
-
-			//TCHAR itemtext[MIRC_BUFFER_SIZE_CCH];
 
 			auto itemtext = std::make_unique<TCHAR[]>(MIRC_BUFFER_SIZE_CCH);
 

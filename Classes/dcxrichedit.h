@@ -102,7 +102,9 @@ protected:
 	bool m_bIgnoreInput{ false };		//!< Ignore keyboard input?
 	bool m_bIgnoreRepeat{ true };		//!< Ignore repeat keys?
 
-	//static int unfoldColor(const TCHAR *color);
+	// allows quickly changing stream from wchar to char etc..
+	using stringstream_type = std::stringstream;
+
 	static DWORD CALLBACK StreamOutToVarCallback(DWORD_PTR dwCookie, const LPBYTE pbBuff, const LONG cb, LONG *pcb);
 	static DWORD CALLBACK StreamOutToFileCallback(DWORD_PTR dwCookie, const LPBYTE pbBuff, const LONG cb, LONG *pcb) noexcept;
 	static DWORD CALLBACK StreamInFromFileCallback(DWORD_PTR dwCookie, LPBYTE pbBuff, const LONG cb, LONG *pcb) noexcept;
