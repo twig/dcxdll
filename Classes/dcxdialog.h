@@ -369,8 +369,8 @@ private:
 
 	DWORD m_dEventMask{ DCX_EVENT_ALL };
 
-	BYTE m_iAlphaLevel{ 255 };
-	BYTE m_uGhostDragAlpha{ 255 };
+	std::byte m_iAlphaLevel{ 255 };
+	std::byte m_uGhostDragAlpha{ 255 };
 	BOOL m_bTracking{ FALSE };
 
 	bool m_bInSizing{ false }; //!< In Moving Motion

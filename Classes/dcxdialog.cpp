@@ -547,7 +547,7 @@ void DcxDialog::parseCommandRequest( const TString &input)
 		{
 			if (tsArgs == TEXT("none"))
 			{
-				this->m_iAlphaLevel = 255;
+				this->m_iAlphaLevel = std::byte{ 255 };
 				if (!this->m_bVistaStyle)
 				{
 					if (this->isExStyle(WindowExStyle::Layered))
@@ -560,7 +560,7 @@ void DcxDialog::parseCommandRequest( const TString &input)
 				}
 			}
 			else {
-				this->m_iAlphaLevel = (BYTE)(tsArgs.to_int() & 0xFF);
+				this->m_iAlphaLevel = std::byte{ (BYTE)(tsArgs.to_int() & 0xFF) };
 
 				if (!this->m_bVistaStyle)
 				{
@@ -568,7 +568,7 @@ void DcxDialog::parseCommandRequest( const TString &input)
 					this->addExStyle(WindowExStyle::Layered);
 
 					// Make this window x% alpha
-					SetLayeredWindowAttributes(m_Hwnd, 0, this->m_iAlphaLevel, LWA_ALPHA);
+					SetLayeredWindowAttributes(m_Hwnd, 0, std::to_integer<BYTE>(this->m_iAlphaLevel), LWA_ALPHA);
 				}
 			}
 		}
@@ -586,8 +586,8 @@ void DcxDialog::parseCommandRequest( const TString &input)
 					{
 						this->removeExStyle(WindowExStyle::Layered);
 						this->addExStyle(WindowExStyle::Layered);
-						if (this->m_iAlphaLevel != 255) // reapply alpha if any.
-							SetLayeredWindowAttributes(m_Hwnd, 0, this->m_iAlphaLevel, LWA_ALPHA);
+						if (this->m_iAlphaLevel != std::byte{ 255 }) // reapply alpha if any.
+							SetLayeredWindowAttributes(m_Hwnd, 0, std::to_integer<BYTE>(this->m_iAlphaLevel), LWA_ALPHA);
 					}
 				}
 			}
@@ -622,11 +622,11 @@ void DcxDialog::parseCommandRequest( const TString &input)
 				if (this->isExStyle(WindowExStyle::Layered | WS_EX_TRANSPARENT))
 					this->removeExStyle(WindowExStyle::Layered | WS_EX_TRANSPARENT);
 				// re-apply any alpha or keycolour.
-				if (((this->m_iAlphaLevel != 255) || (this->m_bHaveKeyColour)) && (!this->m_bVistaStyle))
+				if (((this->m_iAlphaLevel != std::byte{ 255 }) || (this->m_bHaveKeyColour)) && (!this->m_bVistaStyle))
 				{
 					this->addExStyle(WindowExStyle::Layered);
-					if (this->m_iAlphaLevel != 255) // reapply alpha if any.
-						SetLayeredWindowAttributes(m_Hwnd, 0, this->m_iAlphaLevel, LWA_ALPHA);
+					if (this->m_iAlphaLevel != std::byte{ 255 }) // reapply alpha if any.
+						SetLayeredWindowAttributes(m_Hwnd, 0, std::to_integer<BYTE>(this->m_iAlphaLevel), LWA_ALPHA);
 					if (this->m_bHaveKeyColour) // reapply keycolour if any.
 						SetLayeredWindowAttributes(m_Hwnd, this->m_cKeyColour, 0, LWA_COLORKEY);
 				}
@@ -920,7 +920,7 @@ void DcxDialog::parseCommandRequest( const TString &input)
 				pnts[cnt].y = strPoint.getnexttok(TSCOMMACHAR).to_<LONG>();	// tok 2
 				++cnt;
 			}
-			m_Region = CreatePolygonRgn(pnts.get(), static_cast<int>(tPoints),WINDING);
+			m_Region = CreatePolygonRgn(pnts.get(), gsl::narrow_cast<int>(tPoints),WINDING);
 		}
 		else if (xflags[TEXT('d')]) // drag - <1|0>
 		{
@@ -929,7 +929,7 @@ void DcxDialog::parseCommandRequest( const TString &input)
 		}
 		else if (xflags[TEXT('g')]) // ghost drag - <0-255>
 		{
-			m_uGhostDragAlpha = (BYTE)(input.getnexttok().to_<UINT>() & 0xFF);	// tok 4
+			m_uGhostDragAlpha = std::byte{ (input.getnexttok().to_<UINT>() & 0xFF) };	// tok 4
 
 			noRegion = true;
 		}
@@ -2125,7 +2125,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 	// ghost drag stuff
 	case WM_ENTERSIZEMOVE:
 	{
-		if (p_this->m_uGhostDragAlpha < 255)
+		if (p_this->m_uGhostDragAlpha < std::byte{ 255 })
 		{
 			if (!p_this->m_bVistaStyle)
 			{
@@ -2141,7 +2141,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 				if (!dcx_testflag(style, WS_EX_LAYERED))
 					dcxSetWindowExStyle(mHwnd, style | WS_EX_LAYERED);
 				// Make this window alpha
-				SetLayeredWindowAttributes(mHwnd, 0, p_this->m_uGhostDragAlpha, LWA_ALPHA);
+				SetLayeredWindowAttributes(mHwnd, 0, std::to_integer<BYTE>(p_this->m_uGhostDragAlpha), LWA_ALPHA);
 			}
 			p_this->m_bGhosted = true;
 		}
@@ -2168,7 +2168,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 			if (!p_this->m_bVistaStyle)
 			{
 				// Make this window solid
-				SetLayeredWindowAttributes(mHwnd, 0, p_this->m_iAlphaLevel, LWA_ALPHA);
+				SetLayeredWindowAttributes(mHwnd, 0, std::to_integer<BYTE>(p_this->m_iAlphaLevel), LWA_ALPHA);
 			}
 			p_this->m_bGhosted = false;
 		}
@@ -3034,7 +3034,7 @@ void DcxDialog::RemoveVistaStyle(void) noexcept
 	if (IsWindow(m_hFakeHwnd))
 	{
 		if (isExStyle(WindowExStyle::Layered))
-			SetLayeredWindowAttributes(m_Hwnd,0,m_iAlphaLevel,LWA_ALPHA);
+			SetLayeredWindowAttributes(m_Hwnd,0,std::to_integer<BYTE>(m_iAlphaLevel),LWA_ALPHA);
 		DestroyWindow(m_hFakeHwnd);
 	}
 	if (m_hVistaBitmap != nullptr)
@@ -3214,9 +3214,9 @@ void DcxDialog::UpdateVistaStyle(const RECT *const rcUpdate)
 
 	const auto alpha = ((m_bGhosted) ? m_uGhostDragAlpha : m_iAlphaLevel);
 
-	const auto half_alpha = gsl::narrow_cast<BYTE>((alpha / 2));
+	const auto half_alpha = gsl::narrow_cast<BYTE>((std::to_integer<BYTE>(alpha) / 2));
 
-	BLENDFUNCTION stBlend = { AC_SRC_OVER, 0, alpha, AC_SRC_ALPHA };
+	BLENDFUNCTION stBlend = { AC_SRC_OVER, 0, std::to_integer<BYTE>(alpha), AC_SRC_ALPHA };
 
 	const auto hDC = ::GetDC(m_hFakeHwnd);
 	if (hDC == nullptr)
