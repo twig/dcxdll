@@ -1451,7 +1451,7 @@ DcxControl * DcxControl::controlFactory(DcxDialog *const p_Dialog, const UINT mI
 				throw Dcx::dcxException(TEXT("No such dialog: %"), tsDname);
 
 			if (p_Dialog->getControlByHWND(winHwnd) != nullptr)
-				Dcx::dcxException(TEXT("Control already exists : %"), tsDname);
+				throw Dcx::dcxException(TEXT("Control already exists : %"), tsDname);
 
 			//auto newDialog = new DcxMDialog(winHwnd, hParent, mID, p_Dialog, &rc, styles);
 			auto newDialog = std::make_unique<DcxMDialog>(winHwnd, hParent, mID, p_Dialog, &rc, styles);
@@ -2479,6 +2479,9 @@ void DcxControl::calcTextRect(HDC hdc, const TString &txt, LPRECT rc, const UINT
 
 void DcxControl::ctrlDrawText(HDC hdc, const TString &txt, const LPRECT rc, const UINT style)
 {
+	const auto oldClr = SetTextColor(hdc, m_clrText);
+	Auto(SetTextColor(hdc, oldClr));
+
 	if (!this->IsControlCodeTextEnabled())
 	{
 		const auto oldBkgMode = SetBkMode(hdc, TRANSPARENT);
