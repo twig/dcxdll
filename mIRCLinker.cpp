@@ -85,13 +85,11 @@ namespace mIRCLinker {
 		DCX_DEBUG(debug, TEXT("LoadmIRCLink"), TEXT("Finding mIRC_SwitchBar..."));
 		m_hSwitchbar = FindWindowEx(m_mIRCHWND, nullptr, TEXT("mIRC_SwitchBar"), nullptr);
 
-		// v2 dll for mirc V7+ anyway.
 		DCX_DEBUG(debug, TEXT("LoadmIRCLink"), TEXT("Finding mIRC_TreeBar..."));
 		m_hTreebar = FindWindowEx(m_mIRCHWND, nullptr, TEXT("mIRC_TreeBar"), nullptr);
 
 		if (IsWindow(m_hTreebar))
 		{
-			//m_hTreeview = GetWindow(mIRCLink.m_hTreebar,GW_CHILD);
 			m_hTreeview = FindWindowEx(m_hTreebar, nullptr, WC_TREEVIEW, nullptr);
 			if (IsWindow(m_hTreeview))
 				m_hTreeImages = TreeView_GetImageList(m_hTreeview, TVSIL_NORMAL);
