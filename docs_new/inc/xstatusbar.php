@@ -110,8 +110,8 @@ function get_xstatusbar(&$XSTATUSBAR) {
         ),
         't' => array(
             '__desc' => 'This command lets you set the icon, text and tooltip of a statusbar cell.',
-            '__cmd' => '[N] [+FLAGS] [#ICON] (Cell Text) $chr(9) (Tooltip)',
-            '__eg' => '2 +p 0 Cell Text $chr(9) Tooltip Text',
+            '__cmd' => '[N] [+FLAGS] [#ICON] [BKGCOLOR] [TXTCOLOR] (Cell Text) $chr(9) (Tooltip)',
+            '__eg' => '2 +p 0 -1 -1 Cell Text $chr(9) Tooltip Text',
             '__params' => array(
                 'N' => 'Status bar cell number to modify.',
                 '+FLAGS' => array(
@@ -119,9 +119,12 @@ function get_xstatusbar(&$XSTATUSBAR) {
                     '__values' => array(
                         'p' => 'Popup style border around cell.',
                         'n' => 'No borders around cell.',
+						'f' => 'Enables Owner Draw, allowing control codes in the text & custom colours'
                     ),
                 ),
                 '#ICON' => 'Icon number for the statusbar cell (0 for no icon)',
+                'BKGCOLOR' => 'The background colour (requires +f)',
+                'TXTCOLOR' => 'The text colour (requires +f)',
             ),
             '__notes' => 'Tooltip is only displayed if cell text is absent or cell text is too long to fit in cell.',
         ),

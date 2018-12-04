@@ -586,6 +586,9 @@
     <None Include="dll.def">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="cpp.hint">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Xml Include="dcx_zip\dc.xml">

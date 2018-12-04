@@ -163,11 +163,11 @@
 	<tr><td colspan="2">This command lets you set the icon, text and tooltip of a statusbar cell.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xstatusbar -t [N] [+FLAGS] [#ICON] (Cell Text) $chr(9) (Tooltip)</div></td>
+		<td><div class="syntax">/xstatusbar -t [N] [+FLAGS] [#ICON] [BKGCOLOR] [TXTCOLOR] (Cell Text) $chr(9) (Tooltip)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xstatusbar -t 2 +p 0 Cell Text $chr(9) Tooltip Text</div></td>
+		<td><div class="example">/xstatusbar -t 2 +p 0 -1 -1 Cell Text $chr(9) Tooltip Text</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -187,8 +187,20 @@
 		<td>No borders around cell.</td>
 	</tr>
 	<tr>
+		<td class="value">f</td>
+		<td>Enables Owner Draw, allowing control codes in the text & custom colours</td>
+	</tr>
+	<tr>
 		<td class="param">#ICON</td>
 		<td>Icon number for the statusbar cell (0 for no icon)</td>
+	</tr>
+	<tr>
+		<td class="param">BKGCOLOR</td>
+		<td>The background colour (requires +f)</td>
+	</tr>
+	<tr>
+		<td class="param">TXTCOLOR</td>
+		<td>The text colour (requires +f)</td>
 	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> Tooltip is only displayed if cell text is absent or cell text is too long to fit in cell.</td></tr></table>
 <br />
@@ -401,7 +413,7 @@
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2018</td>
-		<td style="text-align: right;">Last Updated: 23rd June, 18</td>
+		<td style="text-align: right;">Last Updated: 4th December, 18</td>
 	</tr>
 </table>
 <div style="text-align: center;">
