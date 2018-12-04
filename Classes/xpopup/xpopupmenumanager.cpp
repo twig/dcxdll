@@ -25,32 +25,32 @@ WNDPROC XPopupMenuManager::g_OldmIRCMenusWindowProc = nullptr;
  * blah
  */
 
-//XPopupMenuManager::XPopupMenuManager()
-//: m_mIRCPopupMenu(nullptr)
-//, m_mIRCMenuBar(nullptr)
-//, m_bIsActiveMircMenubarPopup(false)
-//, m_bIsActiveMircPopup(false)
-//, m_bIsMenuBar(false)
-//, m_bIsSysMenu(false)
-//, m_hMenuCustom(nullptr)
-//, m_hMenuOwner(nullptr)
-//{
-//}
-//
-///*!
-// * \brief Destructor
-// *
-// * blah
-// */
-//
-//XPopupMenuManager::~XPopupMenuManager() {
-//}
+ //XPopupMenuManager::XPopupMenuManager()
+ //: m_mIRCPopupMenu(nullptr)
+ //, m_mIRCMenuBar(nullptr)
+ //, m_bIsActiveMircMenubarPopup(false)
+ //, m_bIsActiveMircPopup(false)
+ //, m_bIsMenuBar(false)
+ //, m_bIsSysMenu(false)
+ //, m_hMenuCustom(nullptr)
+ //, m_hMenuOwner(nullptr)
+ //{
+ //}
+ //
+ ///*!
+ // * \brief Destructor
+ // *
+ // * blah
+ // */
+ //
+ //XPopupMenuManager::~XPopupMenuManager() {
+ //}
 
-/*!
- * \brief blah
- *
- * blah
- */
+ /*!
+  * \brief blah
+  *
+  * blah
+  */
 
 void XPopupMenuManager::load(void)
 {
@@ -65,31 +65,31 @@ void XPopupMenuManager::load(void)
 	//RegisterClassEx(&wc);
 	//DCX_DEBUG(mIRCLinker::debug,TEXT("LoadDLL"), TEXT("Subclassed Menu Class"));
 
-	HWND tmp_hwnd = CreateWindowEx(0,TEXT("#32768"),nullptr,WS_POPUP,0,0,1,1,nullptr,nullptr,GetModuleHandle(nullptr),nullptr);
+	HWND tmp_hwnd = CreateWindowEx(0, TEXT("#32768"), nullptr, WS_POPUP, 0, 0, 1, 1, nullptr, nullptr, GetModuleHandle(nullptr), nullptr);
 	if (tmp_hwnd != nullptr) {
 		g_OldmIRCMenusWindowProc = (WNDPROC)SetClassLongPtr(tmp_hwnd, GCLP_WNDPROC, (LONG_PTR)XPopupMenuManager::mIRCMenusWinProc);
 		DestroyWindow(tmp_hwnd);
-		DCX_DEBUG(mIRCLinker::debug,TEXT("LoadDLL"), TEXT("Subclassed Menu Class"));
+		DCX_DEBUG(mIRCLinker::debug, TEXT("LoadDLL"), TEXT("Subclassed Menu Class"));
 	}
 #endif
 
-	DCX_DEBUG(mIRCLinker::debug,TEXT("LoadDLL"), TEXT("Registering XPopup..."));
+	DCX_DEBUG(mIRCLinker::debug, TEXT("LoadDLL"), TEXT("Registering XPopup..."));
 
 	wc.cbSize = sizeof(WNDCLASSEX);
-	wc.style         = 0;
-	wc.lpfnWndProc   = XPopupMenu::XPopupWinProc;
-	wc.cbClsExtra    = 0;
-	wc.cbWndExtra    = 0;
-	wc.hInstance     = GetModuleHandle( nullptr );
-	wc.hIcon         = nullptr;
-	wc.hCursor       = nullptr;
-	wc.hbrBackground = (HBRUSH)(COLOR_WINDOW+1);
-	wc.lpszMenuName  = nullptr;
+	wc.style = 0;
+	wc.lpfnWndProc = XPopupMenu::XPopupWinProc;
+	wc.cbClsExtra = 0;
+	wc.cbWndExtra = 0;
+	wc.hInstance = GetModuleHandle(nullptr);
+	wc.hIcon = nullptr;
+	wc.hCursor = nullptr;
+	wc.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
+	wc.lpszMenuName = nullptr;
 	wc.lpszClassName = XPOPUPMENUCLASS;
-	wc.hIconSm       = nullptr;
+	wc.hIconSm = nullptr;
 	RegisterClassEx(&wc);
 
-	DCX_DEBUG(mIRCLinker::debug,TEXT("LoadDLL"), TEXT("Creating menu owner..."));
+	DCX_DEBUG(mIRCLinker::debug, TEXT("LoadDLL"), TEXT("Creating menu owner..."));
 	m_hMenuOwner = CreateWindow(XPOPUPMENUCLASS, nullptr, 0, 0, 0, 0, 0, HWND_MESSAGE, 0, GetModuleHandle(nullptr), 0);
 
 	//m_mIRCPopupMenu = new XPopupMenu(TEXT("mirc"),(HMENU)nullptr);
@@ -194,7 +194,7 @@ LRESULT XPopupMenuManager::OnInitMenuPopup(HWND mHwnd, WPARAM wParam, LPARAM lPa
 				if (isCustomMenu && (m_hMenuCustom == nullptr))
 					m_hMenuCustom = menu;
 
-				if (const auto hActive = (HWND)SendMessage(mIRCLinker::getMDIClient(), WM_MDIGETACTIVE, 0L, 0L); ((!IsZoomed(hActive) || GetSystemMenu(hActive,FALSE) != menu)) && (!isCustomMenu) && (m_hMenuCustom == nullptr)) // This checks for custom submenus.
+				if (const auto hActive = (HWND)SendMessage(mIRCLinker::getMDIClient(), WM_MDIGETACTIVE, 0L, 0L); ((!IsZoomed(hActive) || GetSystemMenu(hActive, FALSE) != menu)) && (!isCustomMenu) && (m_hMenuCustom == nullptr)) // This checks for custom submenus.
 					m_mIRCMenuBar->convertMenu(menu, TRUE);
 			}
 		}
@@ -227,7 +227,7 @@ LRESULT XPopupMenuManager::OnUninitMenuPopup(HWND mHwnd, WPARAM wParam, LPARAM l
 
 	return mIRCLinker::callDefaultWindowProc(mHwnd, WM_UNINITMENUPOPUP, wParam, lParam);
 }
-	
+
 LRESULT XPopupMenuManager::OnExitMenuLoop(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept
 {
 	if (!m_bIsMenuBar && m_bIsActiveMircPopup)
@@ -306,10 +306,10 @@ void XPopupMenuManager::parseCommand(const TString & input)
 	parseCommand(input, getMenuByName(input.getfirsttok(1), true));
 }
 
-void XPopupMenuManager::parseCommand( const TString & input, XPopupMenu *const p_Menu )
+void XPopupMenuManager::parseCommand(const TString & input, XPopupMenu *const p_Menu)
 {
-	const auto tsMenuName(input.getfirsttok( 1 ));
-	const XSwitchFlags flags(input.getnexttok( ));	// tok 2
+	const auto tsMenuName(input.getfirsttok(1));
+	const XSwitchFlags flags(input.getnexttok());	// tok 2
 	const auto numtok = input.numtok();
 
 	// Special mIRC Menu
@@ -332,7 +332,7 @@ void XPopupMenuManager::parseCommand( const TString & input, XPopupMenu *const p
 			else {
 				if (!IsFile(filename))
 					throw Dcx::dcxException(TEXT("Unable to Access File: %"), filename);
-				
+
 				hBitmap = dcxLoadBitmap(hBitmap, filename);
 
 				if (hBitmap == nullptr)
@@ -340,7 +340,7 @@ void XPopupMenuManager::parseCommand( const TString & input, XPopupMenu *const p
 			}
 		}
 
-		p_Menu->setBackBitmap( hBitmap );
+		p_Menu->setBackBitmap(hBitmap);
 
 	}
 	// xpopup -c -> [MENU] [SWITCH] [STYLE]
@@ -361,17 +361,17 @@ void XPopupMenuManager::parseCommand( const TString & input, XPopupMenu *const p
 		this->m_vpXPMenu.push_back(new XPopupMenu(tsMenuName, style));
 	}
 	// xpopup -d -> [MENU] [SWITCH]
-	else if ( flags[TEXT('d')])
+	else if (flags[TEXT('d')])
 	{
 		const auto uMenuHash = std::hash<TString>{}(tsMenuName);
 
 		if (uMenuHash == TEXT("mirc"_hash) || uMenuHash == TEXT("mircbar"_hash))
 			throw Dcx::dcxException(TEXT("Command not supported with mirc or mircbar menus"));
 
-		this->deleteMenu( p_Menu );
+		this->deleteMenu(p_Menu);
 	}
 	// xpopup -i -> [MENU] -i [FLAGS] [INDEX] [FILENAME]
-	else if ( flags[TEXT('i')])
+	else if (flags[TEXT('i')])
 	{
 		if (numtok < 5)
 			throw Dcx::dcxException(TEXT("Invalid Arguments"));
@@ -389,7 +389,7 @@ void XPopupMenuManager::parseCommand( const TString & input, XPopupMenu *const p
 		const HICON icon = dcxLoadIcon(index, filename, false, tsFlags);
 		if (icon == nullptr)
 			throw Dcx::dcxException(TEXT("Unable to Load Icon: % in file: %"), index, filename);
-		
+
 		ImageList_AddIcon(himl, icon);
 		DestroyIcon(icon);
 #endif
@@ -400,12 +400,12 @@ void XPopupMenuManager::parseCommand( const TString & input, XPopupMenu *const p
 		p_Menu->destroyImageList();
 	}
 	// xpopup -l -> [MENU] [SWITCH] [N] [COLOR | default]
-	else if ( flags[TEXT('l')])
+	else if (flags[TEXT('l')])
 	{
 		if (numtok < 4)
 			throw Dcx::dcxException(TEXT("Invalid Arguments"));
 
-		const auto nColor = gsl::narrow_cast<XPopupMenu::MenuColours>(input.getnexttok( ).to_<UINT>( ));	// tok 3
+		const auto nColor = gsl::narrow_cast<XPopupMenu::MenuColours>(input.getnexttok().to_<UINT>());	// tok 3
 		const auto clr(input.getnexttok());				// tok 4
 
 		if (clr == TEXT("default"))
@@ -414,7 +414,7 @@ void XPopupMenuManager::parseCommand( const TString & input, XPopupMenu *const p
 			p_Menu->setColor(nColor, clr.to_<COLORREF>());
 	}
 	// xpopup -m -> mirc -m
-	else if ( flags[TEXT('m')])
+	else if (flags[TEXT('m')])
 	{
 		// do nothing in utf dll as this dll is mirc v7+ only.
 	}
@@ -424,7 +424,7 @@ void XPopupMenuManager::parseCommand( const TString & input, XPopupMenu *const p
 		p_Menu->setMarkedText(input.getlasttoks());	// tok 3, -1
 	}
 	// xpopup -p -> [MENU] [SWITCH] [COLORS]
-	else if ( flags[TEXT('p')])
+	else if (flags[TEXT('p')])
 	{
 		if (numtok < 3)
 			throw Dcx::dcxException(TEXT("Invalid Arguments"));
@@ -442,7 +442,7 @@ void XPopupMenuManager::parseCommand( const TString & input, XPopupMenu *const p
 		}
 	}
 	// xpopup -s -> [MENU] [SWITCH] [+FLAGS] [X] [Y] (OVER HWND)
-	else if ( flags[TEXT('s')])
+	else if (flags[TEXT('s')])
 	{
 		if (numtok < 5)
 			throw Dcx::dcxException(TEXT("Invalid Arguments"));
@@ -480,7 +480,7 @@ void XPopupMenuManager::parseCommand( const TString & input, XPopupMenu *const p
 		mIRCLinker::exec(TEXT("//.signal -n XPopup-% %"), p_Menu->getName(), ID);
 	}
 	// xpopup -t -> [MENU] [SWITCH] [STYLE]
-	else if (flags[TEXT('t')] )
+	else if (flags[TEXT('t')])
 	{
 		if (numtok < 3)
 			throw Dcx::dcxException(TEXT("Invalid Arguments"));
@@ -490,12 +490,12 @@ void XPopupMenuManager::parseCommand( const TString & input, XPopupMenu *const p
 		p_Menu->setStyle(style);
 	}
 	// xpopup -x -> [MENU] [SWITCH] [+FLAGS]
-	else if ( flags[TEXT('x')] )
+	else if (flags[TEXT('x')])
 	{
 		if (numtok < 3)
 			throw Dcx::dcxException(TEXT("Invalid Arguments"));
 
-		const XSwitchFlags xflags(input.getnexttok( ));	// tok 3
+		const XSwitchFlags xflags(input.getnexttok());	// tok 3
 
 		if (!xflags[TEXT('+')])
 			throw Dcx::dcxException("Missing '+' in front of flags");
@@ -508,21 +508,21 @@ void XPopupMenuManager::parseCommand( const TString & input, XPopupMenu *const p
 		if (xflags[TEXT('p')])
 			iStyles |= XPS_ICON3DSHADOW;
 
-		p_Menu->setItemStyle( iStyles );
+		p_Menu->setItemStyle(iStyles);
 	}
 	// xpopup -R -> [MENU] [SWITCH] [+FLAGS] (FLAG OPTIONS)
-	else if ( flags[TEXT('R')] )
+	else if (flags[TEXT('R')])
 	{
 		if (numtok < 3)
 			throw Dcx::dcxException(TEXT("Invalid Arguments"));
 
-		const XSwitchFlags xflags(input.getnexttok( ));	// tok 3
+		const XSwitchFlags xflags(input.getnexttok());	// tok 3
 
 		if (!xflags[TEXT('+')])
 			throw Dcx::dcxException("Missing '+' in front of flags");
 
 		if (xflags[TEXT('r')]) // Set Rounded Selector on/off
-			p_Menu->SetRounded((input.getnexttok( ).to_int() > 0));	// tok 4
+			p_Menu->SetRounded((input.getnexttok().to_int() > 0));	// tok 4
 		else if (xflags[TEXT('a')]) // Set Alpha value of menu. 0-255
 		{
 			const std::byte alpha{ (input.getnexttok().to_<UINT>() & 0xFF) };	// tok 4
@@ -538,160 +538,160 @@ void XPopupMenuManager::parseCommand( const TString & input, XPopupMenu *const p
  * blah [MENU] [PROP]
  */
 
-//void XPopupMenuManager::parseIdentifier(const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const
-//{
-//	const auto numtok = input.numtok();
-//	const auto tsMenuName(input.getfirsttok(1));
-//	const auto prop(input.getnexttok());	// tok 2
-//
-//	switch (const auto *const p_Menu = getMenuByName(tsMenuName, true); std::hash<TString>{}(prop))
-//	{
-//	case TEXT("ismenu"_hash):
-//	{
-//		szReturnValue = dcx_truefalse(p_Menu != nullptr);
-//	}
-//	break;
-//	case TEXT("menuname"_hash):
-//	{
-//		const auto i = tsMenuName.to_dword();
-//
-//		if (i > m_vpXPMenu.size())
-//			throw Dcx::dcxException(TEXT("Invalid index: %"), i);
-//
-//		// Return number of menus.
-//		if (i == 0)
-//			_ts_snprintf(szReturnValue, TEXT("%u"), m_vpXPMenu.size());
-//		// Return name of specified menu.
-//		else
-//			szReturnValue = m_vpXPMenu[i - 1]->getName();
-//	}
-//	break;
-//	case TEXT("menubar"_hash):
-//		break;
-//	case TEXT("style"_hash):
-//	{
-//		if (p_Menu == nullptr)
-//			throw Dcx::dcxException(TEXT("\"%\" doesn't exist, see /xpopup -c"), tsMenuName);
-//
-//		switch (p_Menu->getStyle())
-//		{
-//		case XPopupMenu::XPMS_OFFICE2003:
-//			szReturnValue = TEXT("office2003");
-//			break;
-//		case XPopupMenu::XPMS_OFFICE2003_REV:
-//			szReturnValue = TEXT("office2003rev");
-//			break;
-//		case XPopupMenu::XPMS_OFFICEXP:
-//			szReturnValue = TEXT("officeXP");
-//			break;
-//		case XPopupMenu::XPMS_ICY:
-//			szReturnValue = TEXT("icy");
-//			break;
-//		case XPopupMenu::XPMS_ICY_REV:
-//			szReturnValue = TEXT("icyrev");
-//			break;
-//		case XPopupMenu::XPMS_GRADE:
-//			szReturnValue = TEXT("grade");
-//			break;
-//		case XPopupMenu::XPMS_GRADE_REV:
-//			szReturnValue = TEXT("graderev");
-//			break;
-//		case XPopupMenu::XPMS_VERTICAL:
-//			szReturnValue = TEXT("vertical");
-//			break;
-//		case XPopupMenu::XPMS_VERTICAL_REV:
-//			szReturnValue = TEXT("verticalrev");
-//			break;
-//		case XPopupMenu::XPMS_NORMAL:
-//			szReturnValue = TEXT("normal");
-//			break;
-//		case XPopupMenu::XPMS_CUSTOM:
-//			szReturnValue = TEXT("custom");
-//			break;
-//		case XPopupMenu::XPMS_BUTTON:
-//			szReturnValue = TEXT("button");
-//			break;
-//		case XPopupMenu::XPMS_CUSTOMBIG:
-//			szReturnValue = TEXT("custombig");
-//			break;
-//		default:
-//			szReturnValue = TEXT("unknown");
-//			break;
-//		}
-//	}
-//	break;
-//	case TEXT("exstyle"_hash):
-//	{
-//		if (p_Menu == nullptr)
-//			throw Dcx::dcxException(TEXT("\"%\" doesn't exist, see /xpopup -c"), tsMenuName);
-//
-//		stString<MIRC_BUFFER_SIZE_CCH> szStyles(TEXT('+'));
-//		const auto iExStyles = p_Menu->getItemStyle();
-//
-//		if (dcx_testflag(iExStyles, XPS_ICON3D))
-//			szStyles += TEXT('i');
-//		if (dcx_testflag(iExStyles, XPS_DISABLEDSEL))
-//			szStyles += TEXT('d');
-//		if (dcx_testflag(iExStyles, XPS_ICON3DSHADOW))
-//			szStyles += TEXT('p');
-//
-//		szReturnValue = szStyles;
-//	}
-//	break;
-//	case TEXT("colors"_hash):
-//	{
-//		if (p_Menu == nullptr)
-//			throw Dcx::dcxException(TEXT("\"%\" doesn't exist, see /xpopup -c"), tsMenuName);
-//
-//		_ts_snprintf(szReturnValue, TEXT("%lu %lu %lu %lu %lu %lu %lu %lu %lu %lu %lu"), p_Menu->getColor(XPopupMenu::MenuColours::XPMC_BACKGROUND), p_Menu->getColor(XPopupMenu::MenuColours::XPMC_ICONBOX),
-//			p_Menu->getColor(XPopupMenu::MenuColours::XPMC_CHECKBOX), p_Menu->getColor(XPopupMenu::MenuColours::XPMC_CHECKBOX_DISABLED), p_Menu->getColor(XPopupMenu::MenuColours::XPMC_SELECTIONBOX_DISABLED), p_Menu->getColor(XPopupMenu::MenuColours::XPMC_TEXT_DISABLED),
-//			p_Menu->getColor(XPopupMenu::MenuColours::XPMC_SELECTIONBOX), p_Menu->getColor(XPopupMenu::MenuColours::XPMC_SELECTIONBOX_BORDER), p_Menu->getColor(XPopupMenu::MenuColours::XPMC_SEPARATOR), p_Menu->getColor(XPopupMenu::MenuColours::XPMC_TEXT), p_Menu->getColor(XPopupMenu::MenuColours::XPMC_SELECTEDTEXT));
-//	}
-//	break;
-//	case TEXT("color"_hash):
-//	{
-//		if (p_Menu == nullptr)
-//			throw Dcx::dcxException(TEXT("\"%\" doesn't exist, see /xpopup -c"), tsMenuName);
-//
-//		if (numtok != 3)
-//			throw Dcx::dcxException(TEXT("Invalid number of arguments"));
-//
-//		const auto nColor = input.getnexttok().to_<UINT>();	// tok 3
-//		if (nColor < XPopupMenu::MenuColours::XPMC_MIN || nColor > XPopupMenu::MenuColours::XPMC_MAX)
-//			throw Dcx::dcxException(TEXT("Invalid colour index used: %"), nColor);
-//
-//		_ts_snprintf(szReturnValue, TEXT("%lu"), p_Menu->getColor(gsl::narrow_cast<XPopupMenu::MenuColours>(nColor)));
-//	}
-//	break;
-//	case TEXT("isrounded"_hash):
-//	{
-//		if (p_Menu == nullptr)
-//			throw Dcx::dcxException(TEXT("\"%\" doesn't exist, see /xpopup -c"), tsMenuName);
-//
-//		szReturnValue = dcx_truefalse(p_Menu->IsRounded());
-//	}
-//	break;
-//	case TEXT("alpha"_hash):
-//	{
-//		if (p_Menu == nullptr)
-//			throw Dcx::dcxException(TEXT("\"%\" doesn't exist, see /xpopup -c"), tsMenuName);
-//
-//		_ts_snprintf(szReturnValue, TEXT("%d"), p_Menu->IsAlpha());
-//	}
-//	break;
-//	case TEXT("marked"_hash):
-//	{
-//		if (p_Menu == nullptr)
-//			throw Dcx::dcxException(TEXT("\"%\" doesn't exist, see /xpopup -c"), tsMenuName);
-//
-//		szReturnValue = p_Menu->getMarkedText();
-//	}
-//	break;
-//	case 0:
-//	default:
-//		throw Dcx::dcxException(TEXT("Unknown prop \"%\""), prop);
-//	}
-//}
+ //void XPopupMenuManager::parseIdentifier(const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const
+ //{
+ //	const auto numtok = input.numtok();
+ //	const auto tsMenuName(input.getfirsttok(1));
+ //	const auto prop(input.getnexttok());	// tok 2
+ //
+ //	switch (const auto *const p_Menu = getMenuByName(tsMenuName, true); std::hash<TString>{}(prop))
+ //	{
+ //	case TEXT("ismenu"_hash):
+ //	{
+ //		szReturnValue = dcx_truefalse(p_Menu != nullptr);
+ //	}
+ //	break;
+ //	case TEXT("menuname"_hash):
+ //	{
+ //		const auto i = tsMenuName.to_dword();
+ //
+ //		if (i > m_vpXPMenu.size())
+ //			throw Dcx::dcxException(TEXT("Invalid index: %"), i);
+ //
+ //		// Return number of menus.
+ //		if (i == 0)
+ //			_ts_snprintf(szReturnValue, TEXT("%u"), m_vpXPMenu.size());
+ //		// Return name of specified menu.
+ //		else
+ //			szReturnValue = m_vpXPMenu[i - 1]->getName();
+ //	}
+ //	break;
+ //	case TEXT("menubar"_hash):
+ //		break;
+ //	case TEXT("style"_hash):
+ //	{
+ //		if (p_Menu == nullptr)
+ //			throw Dcx::dcxException(TEXT("\"%\" doesn't exist, see /xpopup -c"), tsMenuName);
+ //
+ //		switch (p_Menu->getStyle())
+ //		{
+ //		case XPopupMenu::XPMS_OFFICE2003:
+ //			szReturnValue = TEXT("office2003");
+ //			break;
+ //		case XPopupMenu::XPMS_OFFICE2003_REV:
+ //			szReturnValue = TEXT("office2003rev");
+ //			break;
+ //		case XPopupMenu::XPMS_OFFICEXP:
+ //			szReturnValue = TEXT("officeXP");
+ //			break;
+ //		case XPopupMenu::XPMS_ICY:
+ //			szReturnValue = TEXT("icy");
+ //			break;
+ //		case XPopupMenu::XPMS_ICY_REV:
+ //			szReturnValue = TEXT("icyrev");
+ //			break;
+ //		case XPopupMenu::XPMS_GRADE:
+ //			szReturnValue = TEXT("grade");
+ //			break;
+ //		case XPopupMenu::XPMS_GRADE_REV:
+ //			szReturnValue = TEXT("graderev");
+ //			break;
+ //		case XPopupMenu::XPMS_VERTICAL:
+ //			szReturnValue = TEXT("vertical");
+ //			break;
+ //		case XPopupMenu::XPMS_VERTICAL_REV:
+ //			szReturnValue = TEXT("verticalrev");
+ //			break;
+ //		case XPopupMenu::XPMS_NORMAL:
+ //			szReturnValue = TEXT("normal");
+ //			break;
+ //		case XPopupMenu::XPMS_CUSTOM:
+ //			szReturnValue = TEXT("custom");
+ //			break;
+ //		case XPopupMenu::XPMS_BUTTON:
+ //			szReturnValue = TEXT("button");
+ //			break;
+ //		case XPopupMenu::XPMS_CUSTOMBIG:
+ //			szReturnValue = TEXT("custombig");
+ //			break;
+ //		default:
+ //			szReturnValue = TEXT("unknown");
+ //			break;
+ //		}
+ //	}
+ //	break;
+ //	case TEXT("exstyle"_hash):
+ //	{
+ //		if (p_Menu == nullptr)
+ //			throw Dcx::dcxException(TEXT("\"%\" doesn't exist, see /xpopup -c"), tsMenuName);
+ //
+ //		stString<MIRC_BUFFER_SIZE_CCH> szStyles(TEXT('+'));
+ //		const auto iExStyles = p_Menu->getItemStyle();
+ //
+ //		if (dcx_testflag(iExStyles, XPS_ICON3D))
+ //			szStyles += TEXT('i');
+ //		if (dcx_testflag(iExStyles, XPS_DISABLEDSEL))
+ //			szStyles += TEXT('d');
+ //		if (dcx_testflag(iExStyles, XPS_ICON3DSHADOW))
+ //			szStyles += TEXT('p');
+ //
+ //		szReturnValue = szStyles;
+ //	}
+ //	break;
+ //	case TEXT("colors"_hash):
+ //	{
+ //		if (p_Menu == nullptr)
+ //			throw Dcx::dcxException(TEXT("\"%\" doesn't exist, see /xpopup -c"), tsMenuName);
+ //
+ //		_ts_snprintf(szReturnValue, TEXT("%lu %lu %lu %lu %lu %lu %lu %lu %lu %lu %lu"), p_Menu->getColor(XPopupMenu::MenuColours::XPMC_BACKGROUND), p_Menu->getColor(XPopupMenu::MenuColours::XPMC_ICONBOX),
+ //			p_Menu->getColor(XPopupMenu::MenuColours::XPMC_CHECKBOX), p_Menu->getColor(XPopupMenu::MenuColours::XPMC_CHECKBOX_DISABLED), p_Menu->getColor(XPopupMenu::MenuColours::XPMC_SELECTIONBOX_DISABLED), p_Menu->getColor(XPopupMenu::MenuColours::XPMC_TEXT_DISABLED),
+ //			p_Menu->getColor(XPopupMenu::MenuColours::XPMC_SELECTIONBOX), p_Menu->getColor(XPopupMenu::MenuColours::XPMC_SELECTIONBOX_BORDER), p_Menu->getColor(XPopupMenu::MenuColours::XPMC_SEPARATOR), p_Menu->getColor(XPopupMenu::MenuColours::XPMC_TEXT), p_Menu->getColor(XPopupMenu::MenuColours::XPMC_SELECTEDTEXT));
+ //	}
+ //	break;
+ //	case TEXT("color"_hash):
+ //	{
+ //		if (p_Menu == nullptr)
+ //			throw Dcx::dcxException(TEXT("\"%\" doesn't exist, see /xpopup -c"), tsMenuName);
+ //
+ //		if (numtok != 3)
+ //			throw Dcx::dcxException(TEXT("Invalid number of arguments"));
+ //
+ //		const auto nColor = input.getnexttok().to_<UINT>();	// tok 3
+ //		if (nColor < XPopupMenu::MenuColours::XPMC_MIN || nColor > XPopupMenu::MenuColours::XPMC_MAX)
+ //			throw Dcx::dcxException(TEXT("Invalid colour index used: %"), nColor);
+ //
+ //		_ts_snprintf(szReturnValue, TEXT("%lu"), p_Menu->getColor(gsl::narrow_cast<XPopupMenu::MenuColours>(nColor)));
+ //	}
+ //	break;
+ //	case TEXT("isrounded"_hash):
+ //	{
+ //		if (p_Menu == nullptr)
+ //			throw Dcx::dcxException(TEXT("\"%\" doesn't exist, see /xpopup -c"), tsMenuName);
+ //
+ //		szReturnValue = dcx_truefalse(p_Menu->IsRounded());
+ //	}
+ //	break;
+ //	case TEXT("alpha"_hash):
+ //	{
+ //		if (p_Menu == nullptr)
+ //			throw Dcx::dcxException(TEXT("\"%\" doesn't exist, see /xpopup -c"), tsMenuName);
+ //
+ //		_ts_snprintf(szReturnValue, TEXT("%d"), p_Menu->IsAlpha());
+ //	}
+ //	break;
+ //	case TEXT("marked"_hash):
+ //	{
+ //		if (p_Menu == nullptr)
+ //			throw Dcx::dcxException(TEXT("\"%\" doesn't exist, see /xpopup -c"), tsMenuName);
+ //
+ //		szReturnValue = p_Menu->getMarkedText();
+ //	}
+ //	break;
+ //	case 0:
+ //	default:
+ //		throw Dcx::dcxException(TEXT("Unknown prop \"%\""), prop);
+ //	}
+ //}
 
 TString XPopupMenuManager::parseIdentifier(const TString & input) const
 {
@@ -716,7 +716,7 @@ TString XPopupMenuManager::parseIdentifier(const TString & input) const
 		// Return number of menus.
 		if (i == 0)
 		{
-			
+
 			TString tsRes;
 			tsRes += m_vpXPMenu.size();
 			return tsRes;
@@ -1106,7 +1106,7 @@ TString XPopupMenuManager::parseIdentifier(const TString & input) const
 
 const int XPopupMenuManager::parseMPopup(const TString & input)
 {
-	if (input.numtok( ) < 2)
+	if (input.numtok() < 2)
 		throw Dcx::dcxException("Invalid Arguments");
 
 	const auto uMenuHash = std::hash<TString>{}(input.getfirsttok(1));
@@ -1132,10 +1132,10 @@ const int XPopupMenuManager::parseMPopup(const TString & input)
  * blah
  */
 
-void XPopupMenuManager::addMenu( XPopupMenu *const p_Menu )
+void XPopupMenuManager::addMenu(XPopupMenu *const p_Menu)
 {
-  if ( p_Menu != nullptr )
-    this->m_vpXPMenu.push_back( p_Menu );
+	if (p_Menu != nullptr)
+		this->m_vpXPMenu.push_back(p_Menu);
 }
 
 /*!
@@ -1144,7 +1144,7 @@ void XPopupMenuManager::addMenu( XPopupMenu *const p_Menu )
  * blah
  */
 
-void XPopupMenuManager::deleteMenu( const XPopupMenu *const p_Menu )
+void XPopupMenuManager::deleteMenu(const XPopupMenu *const p_Menu)
 {
 	if (this->m_vpXPMenu.empty())
 		return;
@@ -1182,9 +1182,9 @@ void XPopupMenuManager::deleteMenu( const XPopupMenu *const p_Menu )
  * blah
  */
 
-void XPopupMenuManager::clearMenus( ) noexcept
+void XPopupMenuManager::clearMenus() noexcept
 {
-	for (const auto &a: this->m_vpXPMenu)
+	for (const auto &a : this->m_vpXPMenu)
 		delete a;
 
 	this->m_vpXPMenu.clear();
@@ -1237,7 +1237,7 @@ XPopupMenu* XPopupMenuManager::getMenuByHandle(const HMENU hMenu) const noexcept
 	else if (hMenu == m_mIRCScriptMenu->getMenuHandle())
 		return m_mIRCScriptMenu.get();
 
-	for (const auto &x: this->m_vpXPMenu)
+	for (const auto &x : this->m_vpXPMenu)
 	{
 		if (x != nullptr)
 		{
@@ -1253,7 +1253,7 @@ XPopupMenu* XPopupMenuManager::getMenuByHandle(const HMENU hMenu) const noexcept
  */
 const bool XPopupMenuManager::isCustomMenu(const HMENU hMenu) const noexcept
 {
-	for (const auto &x: this->m_vpXPMenu)
+	for (const auto &x : this->m_vpXPMenu)
 	{
 		if (x != nullptr)
 		{
@@ -1289,12 +1289,12 @@ const bool XPopupMenuManager::isMenuBarMenu(const HMENU hMenu, const HMENU hMatc
  * blah
  */
 
-const UINT XPopupMenuManager::parseTrackFlags( const TString & flags ) noexcept
+const UINT XPopupMenuManager::parseTrackFlags(const TString & flags) noexcept
 {
 	UINT iFlags = 0;
 	const XSwitchFlags xflags(flags);
 
-	if ( !xflags[TEXT('+')] )
+	if (!xflags[TEXT('+')])
 		return 0;
 
 	if (xflags[TEXT('b')])
@@ -1338,7 +1338,7 @@ void XPopupMenuManager::LoadPopupsFromXML(const TiXmlElement *const popups, cons
 	if (popup == nullptr)
 		throw Dcx::dcxException(TEXT("No Popup Dataset %"), popupDataset);
 
-	
+
 
 	// Destroy a menu which already exists
 	if (const auto *const menu = Dcx::XPopups.getMenuByName(popupName, false); menu != nullptr)
@@ -1361,7 +1361,7 @@ void XPopupMenuManager::LoadPopupsFromXML(const TiXmlElement *const popups, cons
 	const static TString colors(TEXT("bgcolour iconcolour cbcolour discbcolour disselcolour distextcolour selcolour selbordercolour seperatorcolour textcolour seltextcolour"));
 
 	UINT i = 1;
-	for (const auto &tmp: colors)
+	for (const auto &tmp : colors)
 	{
 		if (auto tsAttr = GetMenuAttributeFromXML(tmp.c_str(), popup, globalStyles); !tsAttr.empty())
 		{
@@ -1442,7 +1442,7 @@ const bool XPopupMenuManager::LoadPopupItemsFromXML(XPopupMenu *menu, HMENU hMen
 	for (const auto *element = items->FirstChildElement("item"); element != nullptr; element = element->NextSiblingElement("item"))
 	{
 		MENUITEMINFO mii{};
-		const auto nPos = gsl::narrow_cast<UINT>(GetMenuItemCount(hMenu)) +1U;
+		const auto nPos = gsl::narrow_cast<UINT>(GetMenuItemCount(hMenu)) + 1U;
 
 		mii.cbSize = sizeof(MENUITEMINFO);
 
@@ -1470,7 +1470,7 @@ const bool XPopupMenuManager::LoadPopupItemsFromXML(XPopupMenu *menu, HMENU hMen
 			// Checked
 			if (xState[TEXT('c')])
 				mii.fState |= MFS_CHECKED;
-			
+
 			// Gray
 			if (xState[TEXT('g')])
 				mii.fState |= MFS_GRAYED;

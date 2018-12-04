@@ -463,7 +463,8 @@ void XPopupMenu::parseXPopIdentifier(const TString & input, const refString<TCHA
 		if (hMenu == nullptr)
 			throw Dcx::dcxException("Unable to get menu");
 
-		_ts_snprintf(szReturnValue, TEXT("%d"), GetMenuItemCount(hMenu));
+		const auto i = GetMenuItemCount(hMenu);
+		_ts_snprintf(szReturnValue, TEXT("%d"), i);
 	}
 	break;
 	case TEXT("text"_hash):
@@ -478,7 +479,10 @@ void XPopupMenu::parseXPopIdentifier(const TString & input, const refString<TCHA
 			if (propHash == TEXT("text"_hash))
 				szReturnValue = p_Item->getItemText(); // .to_chr();
 			else if (propHash == TEXT("icon"_hash))
-				_ts_snprintf(szReturnValue, TEXT("%d"), p_Item->getItemIcon() + 1);
+			{
+				const auto i = p_Item->getItemIcon() + 1;
+				_ts_snprintf(szReturnValue, TEXT("%d"), i);
+			}
 		}
 	}
 	break;
