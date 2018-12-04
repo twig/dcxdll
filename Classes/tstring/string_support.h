@@ -1,9 +1,18 @@
 #pragma once
 // support functions for TString & c-string handling...
-// v1.2
+// v1.6
 
 #include <tchar.h>
 #include <stdlib.h>
+
+#ifdef max
+#undef max
+#endif
+#ifdef min
+#undef min
+#endif
+
+#include <gsl/gsl>
 
 // determine whether _Ty is a Number type (excluding char / wchar)
 template<class _Ty>
@@ -27,7 +36,16 @@ namespace details {
 		if (c >= L'a' && c <= L'z') return _toupper(c);
 		return c;
 	}
+	constexpr char make_upper(const char c) noexcept
+	{
+		if (c >= L'a' && c <= L'z') return _toupper(c);
+		return c;
+	}
 	constexpr bool CompareChar(const WCHAR c, const WCHAR other, const bool bCase) noexcept
+	{
+		return (bCase) ? c == other : make_upper(c) == make_upper(other);
+	}
+	constexpr bool CompareChar(const char c, const char other, const bool bCase) noexcept
 	{
 		return (bCase) ? c == other : make_upper(c) == make_upper(other);
 	}
@@ -55,8 +73,19 @@ namespace details {
 				}
 				else if (c == decltype(c){'%'})
 				{
-					res += val;
-					if constexpr(std::is_array_v<Format> && std::is_pod_v<Format>)
+					if constexpr (is_Numeric_v<Value>)
+					{
+						if constexpr (std::is_same_v<std::string, std::remove_cv_t<Result>>)
+							res += std::to_string(val);
+						else if constexpr (std::is_same_v<std::wstring, std::remove_cv_t<Result>>)
+							res += std::to_wstring(val);
+						else
+							res += val;	// assumes this type can handle adding numbers.
+					}
+					else
+						res += val;
+
+					if constexpr (std::is_array_v<Format> && std::is_pod_v<Format>)
 						return _ts_printf_do(res, &fmt[0] + i + 1, args...);
 					else
 						return _ts_printf_do(res, fmt + i + 1, args...);
@@ -77,7 +106,7 @@ namespace details {
 		ptype operator()(ptype input, cptype find)
 		{
 			do {
-				cptype p, q;
+				ptype p{}, q{};
 				for (p = input, q = find; !TR::eq(*q, 0) && TR::eq(*p, *q); p++, q++) {}
 
 				if (TR::eq(*q, 0))
@@ -118,7 +147,7 @@ namespace details {
 	template <typename T>
 	bool _ts_isEmpty(const T &str) noexcept
 	{
-		if constexpr(std::is_pointer_v<T>)
+		if constexpr (std::is_pointer_v<T>)
 		{
 			// T is a pointer
 			// Test if a string is empty, works for C String char * or wchar_t *
@@ -127,16 +156,27 @@ namespace details {
 			static_assert(std::is_same_v<value_type, char> || std::is_same_v<value_type, wchar_t>, "Invalid Type used");
 			return ((str == nullptr) || (str[0] == value_type()));
 		}
-		else if constexpr(std::is_pod_v<T>)
+		else if constexpr (std::is_pod_v<T>)
 		{
-			// T is NOT a pointer but IS POD
-			// Test if a string is empty, works for C char or wchar_t
-			using value_type = std::remove_cv_t<T>;
+			if constexpr (std::is_array_v<T>)
+			{
+				// T is NOT a pointer but IS POD and IS an array (char[3] ...)
+				// Test if a string is empty, works for C char or wchar_t
+				using value_type = std::remove_all_extents_t<std::remove_cv_t<T>>;
 
-			static_assert(std::is_same_v<value_type, char> || std::is_same_v<value_type, wchar_t>, "Invalid Type used");
-			return (str == value_type());
+				static_assert(std::is_same_v<value_type, char> || std::is_same_v<value_type, wchar_t>, "Invalid Type used");
+				return (str[0] == value_type());
+			}
+			else {
+				// T is NOT a pointer but IS POD and is NOT an array (single char ...)
+				// Test if a string is empty, works for C char or wchar_t
+				using value_type = std::remove_cv_t<T>;
+
+				static_assert(std::is_same_v<value_type, char> || std::is_same_v<value_type, wchar_t>, "Invalid Type used");
+				return (str == value_type());
+			}
 		}
-		else if constexpr(std::is_member_function_pointer_v<decltype(&T::empty)>)
+		else if constexpr (std::is_member_function_pointer_v<decltype(&T::empty)>)
 		{
 			// T is NOT a pointer and is NOT POD
 			// Test if a container is empty, works for std::basic_string & TString objects or any container with an empty() member function.
@@ -185,7 +225,7 @@ namespace details {
 	template <typename T, typename size_type = std::size_t>
 	constexpr size_type _ts_strlen(const T &str) noexcept
 	{
-		if constexpr(std::is_pointer_v<T>)
+		if constexpr (std::is_pointer_v<T>)
 		{
 			// T is a pointer
 			//  return length of string...
@@ -197,13 +237,13 @@ namespace details {
 				++iLen;
 			return iLen;
 		}
-		else if constexpr(std::is_same_v<std::remove_cv_t<T>, wchar_t> || std::is_same_v<std::remove_cv_t<T>, char>)
+		else if constexpr (std::is_same_v<std::remove_cv_t<T>, wchar_t> || std::is_same_v<std::remove_cv_t<T>, char>)
 		{
 			// T is POD, char or wchar_t
 			// checks if char is zero or not
 			return (str == T() ? 0U : 1U);
 		}
-		else if constexpr(std::is_member_function_pointer_v<decltype(&T::length)>)
+		else if constexpr (std::is_member_function_pointer_v<decltype(&T::length)>)
 		{
 			// T has a member function length()
 			return gsl::narrow_cast<size_type>(str.length());
@@ -512,7 +552,13 @@ namespace details {
 	struct _impl_snprintf<T, typename T::value_type, Arguments...> {
 		const std::enable_if_t<std::is_member_function_pointer_v<decltype(&T::data)> && std::is_member_function_pointer_v<decltype(&T::size)>, int> operator()(T &buf, const typename T::value_type *const fmt, const Arguments&&... args) noexcept
 		{
-			return _ts_snprintf(buf.data(), buf.size(), fmt, args...);
+			//return _ts_snprintf(buf.data(), buf.size(), fmt, args...);
+			//return _impl_snprintf<T::value_type, T::value_type, Arguments...>()(buf.data(), buf.size(), fmt, std::forward<Arguments>(args)...);
+
+			if constexpr (std::is_same_v<char, T::value_type>)
+				return snprintf(buf.data(), buf.size(), fmt, args...);
+			else
+				return _snwprintf(buf.data(), buf.size(), fmt, args...);
 		}
 	};
 
@@ -605,6 +651,7 @@ namespace details {
 			return wcstoul(buf, endptr, radx);
 		}
 	};
+
 }
 
 // Check string bounds, make sure dest is not within the source string & vice versa (this could be a possible reason for some strcpyn() fails we see)
@@ -626,90 +673,6 @@ template <class T>
 T *_ts_strstr(T *input, const std::remove_const_t<T> *find)
 {
 	return details::impl_strstr<T>()(input, find);
-}
-
-#define TSTRING_WILDT 0
-#define TSTRING_WILDA 0
-#define TSTRING_WILDE 0
-#define TSTRING_WILDW 0
-
-template <typename TameString, typename WildString>
-bool _ts_WildcardMatch(const TameString &pszString, const WildString &pszMatch, const bool bCase = false) noexcept
-{
-	if ((!pszMatch) || (!pszString))
-		return false;
-
-	//if (_ts_isEmpty(pszMatch) || _ts_isEmpty(pszString))
-	//	return false;
-
-	ptrdiff_t MatchPlaceholder = 0;
-	ptrdiff_t StringPlaceholder = 0;
-	ptrdiff_t iWildOffset = 0;
-	ptrdiff_t iTameOffset = 0;
-
-	while (pszString[iTameOffset])
-	{
-		if (pszMatch[iWildOffset] == TEXT('*'))
-		{
-			if (pszMatch[++iWildOffset] == TEXT('\0'))
-				return true;
-			MatchPlaceholder = iWildOffset;
-			StringPlaceholder = iTameOffset + 1;
-		}
-#if TSTRING_WILDT
-		else if (pszMatch[iWildOffset] == TEXT('~') && pszString[iTameOffset] == TEXT(' '))
-		{
-			++iWildOffset;
-			while (pszString[iTameOffset] == TEXT(' '))
-				++iTameOffset;
-		}
-#endif
-#if TSTRING_WILDA
-		else if (pszMatch[iWildOffset] == TEXT('^'))
-		{
-			++iWildOffset;
-			if (details::CompareChar(pszMatch[iWildOffset], pszString[iTameOffset], bCase))
-				++iTameOffset;
-			++iWildOffset;
-		}
-#endif
-#if TSTRING_WILDE
-		else if (pszMatch[iWildOffset] == TEXT('\\'))
-		{
-			// any character following a '\' is taken as a literal character.
-			++iWildOffset;
-			if (!details::CompareChar(pszMatch[iWildOffset], pszString[iTameOffset], bCase))
-				return false;
-			++iTameOffset;
-		}
-#endif
-#if TSTRING_WILDW
-		else if (pszMatch[iWildOffset] == TEXT('#'))
-		{
-			++iWildOffset;
-			while (pszString[iTameOffset] && (pszString[iTameOffset] != TEXT(' ') || pszString[iTameOffset] != TEXT('\t') || pszString[iTameOffset] != TEXT('\n') || pszString[iTameOffset] != TEXT('\r')))
-				++iTameOffset;
-		}
-#endif
-		//else if (pszMatch[iWildOffset] == TEXT('?') || _toupper(pszMatch[iWildOffset]) == _toupper(pszString[iTameOffset]))
-		else if (pszMatch[iWildOffset] == TEXT('?') || details::CompareChar(pszMatch[iWildOffset],pszString[iTameOffset], bCase))
-		{
-			++iWildOffset;
-			++iTameOffset;
-		}
-		else if (StringPlaceholder == 0)
-			return false;
-		else
-		{
-			iWildOffset = MatchPlaceholder;
-			iTameOffset = StringPlaceholder++;
-		}
-	}
-
-	while (pszMatch[iWildOffset] == TEXT('*'))
-		++iWildOffset;
-
-	return (pszMatch[iWildOffset] == TEXT('\0'));
 }
 
 // Get String length
@@ -783,13 +746,13 @@ T *_ts_strcpyn(T *const sDest, const T *const sSrc, const size_t iChars) noexcep
 {
 	static_assert(std::is_same_v<T, char> || std::is_same_v<T, wchar_t>, "Only char & wchar_t supported...");
 
-//#if DCX_DEBUG_OUTPUT
-//	if ((sDest == nullptr) || (sSrc == nullptr) || isInBounds<std::remove_cv_t<T> >(sDest, sSrc, iChars))
-//		return nullptr;
-//#else
+	//#if DCX_DEBUG_OUTPUT
+	//	if ((sDest == nullptr) || (sSrc == nullptr) || isInBounds<std::remove_cv_t<T> >(sDest, sSrc, iChars))
+	//		return nullptr;
+	//#else
 	if ((sDest == nullptr) || (sSrc == nullptr))
 		return nullptr;
-//#endif
+	//#endif
 
 	return details::_impl_strcpyn<T>()(sDest, sSrc, iChars);
 }
@@ -924,4 +887,190 @@ auto _ts_strtoul(const T *const buf, T **endptr, int base) noexcept
 	static_assert(std::is_same_v<T, char> || std::is_same_v<T, wchar_t>, "Only char & wchar_t supported...");
 
 	return details::_impl_strtoul<T>()(buf, endptr, base);
+}
+
+// replace all instances of 'rep' in 'str' with 'with'
+template <class T, class RepThis, class WithThis>
+T &_ts_replace(T &str, RepThis rep, WithThis with)
+{
+	for (std::size_t wlen = _ts_strlen(with), rlen = _ts_strlen(rep), pos = 0U; ; pos += wlen)
+	{
+		pos = str.find(rep, pos);
+		if (pos == T::npos)
+			break;
+
+		if constexpr (std::is_same_v<char, std::remove_cv_t<WithThis>> || std::is_same_v<wchar_t, std::remove_cv_t<WithThis>>)
+		{
+			str.replace(pos, rlen, 1, with);
+		}
+		else
+		{
+			str.replace(pos, rlen, with);
+		}
+		//str.erase(pos, rlen);
+		//str.insert(pos, with);
+	}
+	return str;
+}
+
+//void ReplaceStringInPlace(std::string& subject, const std::string& search, const std::string& replace)
+//{
+//	size_t pos = 0;
+//	while ((pos = subject.find(search, pos)) != std::string::npos)
+//	{
+//		subject.replace(pos, search.length(), replace);
+//		pos += replace.length();
+//	}
+//}
+
+// replace all instances of each character in 'rep' in 'str' with 'with'
+template <class T, class RepThis, class WithThis>
+T &_ts_mreplace(T &str, RepThis rep, WithThis with)
+{
+	for (std::ptrdiff_t i = 0; rep[i] != 0; ++i)
+		_ts_replace(str, rep[i], with);
+	return str;
+}
+
+template <class T, class RemThis>
+T &_ts_remove(T &str, RemThis rep)
+{
+	for (auto itEnd = str.end(), itStart = str.begin(); str.erase(std::find(itStart, itEnd, rep)) != itEnd; ) {}
+
+	return str;
+}
+
+template <class T>
+T &_ts_trim(T &str)
+{
+	while (str.front() == _T(' '))
+		str.erase(0, 1);
+
+	while (str.back() == _T(' '))
+		str.pop_back();
+
+	return str;
+}
+
+template <class T>
+T &_ts_strip(T &str)
+{
+	//_ts_remove(str, _T('\0x02'));	//02
+	//_ts_remove(str, _T('\0x0F'));	//15
+	//_ts_remove(str, _T('\0x16'));	//22
+	//_ts_remove(str, _T('\0x1D'));	//29
+	_ts_replace(str, _T("  "), _T(' '));
+	// NB: TODO: add ctrl-k removal for colour codes.
+	return _ts_trim(str);
+}
+
+template <class T>
+T &_ts_toupper(T &str)
+{
+	for (auto &a : str)
+		a = details::make_upper(a);
+	return str;
+}
+
+template <class T, class Input>
+T _ts_to_(Input &str)
+{
+	static_assert(is_Numeric_v<T>, "Type T must be (int, long, float, double, ....)");
+
+	std::basic_istringstream<TCHAR> ss(str);	// makes copy of string :(
+	T result;
+	return ss >> result ? result : T();
+}
+
+#define TSTRING_WILDT 0
+#define TSTRING_WILDA 0
+#define TSTRING_WILDE 0
+#define TSTRING_WILDW 0
+
+template <typename TameString, typename WildString>
+bool _ts_WildcardMatch(const TameString &pszString, const WildString &pszMatch, const bool bCase = false) noexcept
+{
+	//if ((!pszMatch) || (!pszString))
+	//	return false;
+
+	if (_ts_isEmpty(pszMatch) || _ts_isEmpty(pszString))
+		return false;
+
+	ptrdiff_t MatchPlaceholder = 0;
+	ptrdiff_t StringPlaceholder = 0;
+	ptrdiff_t iWildOffset = 0;
+	ptrdiff_t iTameOffset = 0;
+
+	while (pszString[iTameOffset])
+	{
+		if (pszMatch[iWildOffset] == TEXT('*'))
+		{
+			if (pszMatch[++iWildOffset] == TEXT('\0'))
+				return true;
+			MatchPlaceholder = iWildOffset;
+			StringPlaceholder = iTameOffset + 1;
+		}
+#if TSTRING_WILDT
+		else if (pszMatch[iWildOffset] == TEXT('~') && pszString[iTameOffset] == TEXT(' '))
+		{
+			++iWildOffset;
+			while (pszString[iTameOffset] == TEXT(' '))
+				++iTameOffset;
+		}
+#endif
+#if TSTRING_WILDA
+		else if (pszMatch[iWildOffset] == TEXT('^'))
+		{
+			++iWildOffset;
+			if (details::CompareChar(pszMatch[iWildOffset], pszString[iTameOffset], bCase))
+				++iTameOffset;
+			++iWildOffset;
+		}
+#endif
+#if TSTRING_WILDE
+		else if (pszMatch[iWildOffset] == TEXT('\\'))
+		{
+			// any character following a '\' is taken as a literal character.
+			++iWildOffset;
+			if (!details::CompareChar(pszMatch[iWildOffset], pszString[iTameOffset], bCase))
+				return false;
+			++iTameOffset;
+		}
+#endif
+#if TSTRING_WILDW
+		else if (pszMatch[iWildOffset] == TEXT('#'))
+		{
+			++iWildOffset;
+			while (pszString[iTameOffset] && (pszString[iTameOffset] != TEXT(' ') || pszString[iTameOffset] != TEXT('\t') || pszString[iTameOffset] != TEXT('\n') || pszString[iTameOffset] != TEXT('\r')))
+				++iTameOffset;
+		}
+#endif
+		//else if (pszMatch[iWildOffset] == TEXT('?') || _toupper(pszMatch[iWildOffset]) == _toupper(pszString[iTameOffset]))
+		else if (pszMatch[iWildOffset] == TEXT('?') || details::CompareChar(pszMatch[iWildOffset], pszString[iTameOffset], bCase))
+		{
+			++iWildOffset;
+			++iTameOffset;
+		}
+		else if (StringPlaceholder == 0)
+			return false;
+		else
+		{
+			iWildOffset = MatchPlaceholder;
+			iTameOffset = StringPlaceholder++;
+		}
+	}
+
+	while (pszMatch[iWildOffset] == TEXT('*'))
+		++iWildOffset;
+
+	return !pszMatch[iWildOffset];
+}
+
+template <typename T> T* _ts_AddMem(std::vector<std::shared_ptr<std::vector<char>>>& mem, std::size_t sz = sizeof(T))
+{
+	std::shared_ptr<std::vector<char>> x = std::make_shared<std::vector<char>>();
+	x->resize(sz);
+	mem.push_back(x);
+	T* d = (T*)mem[mem.size() - 1].get()->data();
+	return d;
 }
