@@ -61,10 +61,10 @@
 #define _TSTRING_H_
 
  // VS2017+ only
-#if _MSC_VER < 1912
-#error "This version of TString needs Visual Studio 2017 or newer"
+#if !defined(_MSC_FULL_VER) || _MSC_FULL_VER < 191526726
+#error "This version of TString needs Visual Studio 2017 15.8.2 or newer"
 #endif
- 
+
 #include <tchar.h>
 #include <stdio.h>
 #include <stdlib.h>
