@@ -17,17 +17,17 @@
 #include "dcxmlincludes.h"
 #include "dcxmlparser.h"
 
-/*
-dcxml [-FLAGS] [DNAME] [DATASET] "[PATH]"
-*/
-//DcxmlParser::DcxmlParser() noexcept
-//{
-//}
+ /*
+ dcxml [-FLAGS] [DNAME] [DATASET] "[PATH]"
+ */
+ //DcxmlParser::DcxmlParser() noexcept
+ //{
+ //}
 
-//DcxmlParser::~DcxmlParser() {
-//}
+ //DcxmlParser::~DcxmlParser() {
+ //}
 
-bool DcxmlParser::ParseXML(const TString &tsFilePath,const TString &tsDialogMark,const TString &tsDialogName, const bool verbose, const bool autoClose)
+bool DcxmlParser::ParseXML(const TString &tsFilePath, const TString &tsDialogMark, const TString &tsDialogName, const bool verbose, const bool autoClose)
 {
 	m_bLoadSuccess = true;
 
@@ -67,7 +67,7 @@ bool DcxmlParser::ParseXML(const TString &tsFilePath,const TString &tsDialogMark
 		const auto tMargin = queryAttribute(tx, "margin", "0 0 0 0");
 		const auto tCaption = queryAttribute(tx, "caption", tsDialogName.c_str());
 		const auto tBorder = tx->Attribute("border");
-		
+
 		m_iControls = 0;
 		//m_sMargin = (m_sTemp = m_pElement->Attribute("padding")) ? m_sTemp : "0 0 0 0";
 
@@ -123,7 +123,7 @@ void DcxmlParser::loadDocument()
 	if (!m_bLoadSuccess)
 		throw Dcx::dcxException(TEXT("XML error in \"%\" (row % column %) %"), tsPath, doc.ErrorRow(), doc.ErrorCol(), doc.ErrorDesc());
 
-	m_xmlDocument = doc; 
+	m_xmlDocument = doc;
 }
 
 void DcxmlParser::loadDialog()
@@ -144,12 +144,12 @@ void DcxmlParser::loadDialogElement()
 		throw Dcx::dcxException(TEXT("Theres no <dialogs> child for <dcxml> in \"%\""), getFilePath());
 
 	/*
-	* This finds the Dialog m_pElement. 
+	* This finds the Dialog m_pElement.
 	* Important Note:
-	* The for loop has an ugly side assigment: it sets this->m_pElement 
+	* The for loop has an ugly side assigment: it sets this->m_pElement
 	* which is used as a recursion cursor for this->parseDialog()
 	*/
-	for(m_pElement = getDialogsElement()->FirstChildElement("dialog"); m_pElement != nullptr; m_pElement = m_pElement->NextSiblingElement("dialog"))
+	for (m_pElement = getDialogsElement()->FirstChildElement("dialog"); m_pElement != nullptr; m_pElement = m_pElement->NextSiblingElement("dialog"))
 	{
 		if (getDialogName() == m_pElement->Attribute("name"))
 		{
@@ -172,8 +172,8 @@ void DcxmlParser::parseAttributes(const TiXmlElement *const tElement)
 	m_sElem = tElement->Value();
 	m_sParentelem = m_pParent->Value();
 	m_sParenttype = queryAttribute(m_pParent, "type", "panel");
-	m_sType = queryAttribute(m_pElement,"type","panel");
-	m_sSTclass = queryAttribute(m_pElement,"class","");
+	m_sType = queryAttribute(m_pElement, "type", "panel");
+	m_sSTclass = queryAttribute(m_pElement, "class");
 	m_sWeight = queryAttribute(tElement, "weight", "1");
 	m_sHeight = queryAttribute(tElement, "height", "0");
 	m_sDropdown = nullptr;
@@ -190,15 +190,15 @@ void DcxmlParser::parseAttributes(const TiXmlElement *const tElement)
 	if (m_sCaption == nullptr)
 		m_sCaption = tElement->GetText();
 
-	m_sTooltip = queryAttribute(tElement, "tooltip", "");
-	m_sCascade = queryAttribute(tElement, "cascade", "");
+	m_sTooltip = queryAttribute(tElement, "tooltip");
+	m_sCascade = queryAttribute(tElement, "cascade");
 	m_sIcon = queryAttribute(tElement, "icon", "0");
 	m_sIntegral = queryAttribute(tElement, "integral", "0");
 	m_sState = queryAttribute(tElement, "state", "0");
 	m_sIndent = queryAttribute(tElement, "indent", "0");
 	//flags attribute defaults different per type/item
 	m_sTFlags = tElement->Attribute("flags");
-	m_sSrc = queryAttribute(tElement, "src", "");
+	m_sSrc = queryAttribute(tElement, "src");
 	m_sCells = queryAttribute(tElement, "cells", "-1");
 	m_sRebarMinHeight = queryAttribute(tElement, "minheight", "0");
 	m_sRebarMinWidth = queryAttribute(tElement, "minwidth", "0");
@@ -207,20 +207,20 @@ void DcxmlParser::parseAttributes(const TiXmlElement *const tElement)
 
 	m_sFontstyle = queryAttribute(tElement, "fontstyle", "d");
 	m_sCharset = queryAttribute(tElement, "charset", "ansi");
-	m_sFontsize = queryAttribute(tElement, "fontsize", "");
-	m_sFontname = queryAttribute(tElement, "fontname", "");
-	m_sBorder = queryAttribute(tElement, "border", "");
+	m_sFontsize = queryAttribute(tElement, "fontsize");
+	m_sFontname = queryAttribute(tElement, "fontname");
+	m_sBorder = queryAttribute(tElement, "border");
 	m_sCursor = queryAttribute(tElement, "cursor", "arrow");
 	m_sBgcolour = queryAttribute(tElement, "bgcolour", "0");
-	m_sTextbgcolour = queryAttribute(tElement, "textbgcolour", "");
+	m_sTextbgcolour = queryAttribute(tElement, "textbgcolour");
 	m_sTextcolour = queryAttribute(tElement, "textcolour", "0");
 
-	m_sGradientstart = queryAttribute(tElement, "gradientstart", "");
-	m_sGradientend = queryAttribute(tElement, "gradientend", "");
+	m_sGradientstart = queryAttribute(tElement, "gradientstart");
+	m_sGradientend = queryAttribute(tElement, "gradientend");
 
-	m_sDisabledsrc = queryAttribute(tElement, "disabledsrc", "");
-	m_sHoversrc = queryAttribute(tElement, "hoversrc", "");
-	m_sSelectedsrc = queryAttribute(tElement, "selectedsrc", "");
+	m_sDisabledsrc = queryAttribute(tElement, "disabledsrc");
+	m_sHoversrc = queryAttribute(tElement, "hoversrc");
+	m_sSelectedsrc = queryAttribute(tElement, "selectedsrc");
 }
 
 /* parseControl() : if current m_pElement is a control perform some extra commands*/
@@ -232,7 +232,6 @@ void DcxmlParser::parseControl()
 		setZlayered(true);
 	}
 
-	//const auto nType = dcx_hash(m_sParenttype);
 	switch (const auto nType = dcx_hash(m_sType); nType)
 	{
 	case "divider"_hash:		//	divider
@@ -294,7 +293,7 @@ void DcxmlParser::parseControl()
 		break;
 	case "edit"_hash:	//	edit
 	case "richedit"_hash:	//	richedit
-		if (m_sCaption != nullptr) 
+		if (m_sCaption != nullptr)
 		{
 			TString mystring(m_sCaption);
 
@@ -341,13 +340,13 @@ void DcxmlParser::parseControl()
 		break;
 	}
 
-	m_sDisabledsrc = queryAttribute(m_pElement, "disabledsrc", "");
-	m_sHoversrc = queryAttribute(m_pElement, "hoversrc", "");
+	m_sDisabledsrc = queryAttribute(m_pElement, "disabledsrc");
+	m_sHoversrc = queryAttribute(m_pElement, "hoversrc");
 }
 
 /* xdialogEX(switch,format[,args[]]) : performs an xdialog command internally or through mIRC */
-void DcxmlParser::xdialogEX(const TCHAR *const sw,const TCHAR *const dFormat, ...)
-{ 
+void DcxmlParser::xdialogEX(const TCHAR *const sw, const TCHAR *const dFormat, ...)
+{
 	TString txt;
 
 	{
@@ -363,13 +362,13 @@ void DcxmlParser::xdialogEX(const TCHAR *const sw,const TCHAR *const dFormat, ..
 
 void DcxmlParser::xml_xdialog(const TCHAR * const sSwitch, const TString & sArgs)
 {
-//#if DCX_DEBUG_OUTPUT
-//	if (isVerbose())
-//		mIRCLinker::execex(TEXT("/echo -a dcxml debug: /xdialog %s %s %s"), sSwitch, getDialogMark().to_chr(), sArgs);
-//#endif
-//
-//	if (m_iEval > 0) mIRCLinker::execex(TEXT("//xdialog %s %s %s"), sSwitch, getDialogMark().to_chr(), sArgs);
-//	else getDialog()->parseCommandRequestEX(TEXT("%s %s %s"), getDialogMark().to_chr(), sSwitch, sArgs);
+	//#if DCX_DEBUG_OUTPUT
+	//	if (isVerbose())
+	//		mIRCLinker::execex(TEXT("/echo -a dcxml debug: /xdialog %s %s %s"), sSwitch, getDialogMark().to_chr(), sArgs);
+	//#endif
+	//
+	//	if (m_iEval > 0) mIRCLinker::execex(TEXT("//xdialog %s %s %s"), sSwitch, getDialogMark().to_chr(), sArgs);
+	//	else getDialog()->parseCommandRequestEX(TEXT("%s %s %s"), getDialogMark().to_chr(), sSwitch, sArgs);
 
 #if DCX_DEBUG_OUTPUT
 	if (isVerbose())
@@ -383,13 +382,13 @@ void DcxmlParser::xml_xdialog(const TCHAR * const sSwitch, const TString & sArgs
 /* xdidEX(controlId,switch,args) : performs an xdid command internally or through mIRC on the specified ID */
 void DcxmlParser::xml_xdid(const UINT cid, const TCHAR *const sSwitch, const TString & sArgs)
 {
-//#if DCX_DEBUG_OUTPUT
-//	if (isVerbose())
-//		mIRCLinker::execex(TEXT("/echo -a dcxml debug: /xdid %s %s %u %s"), sSwitch, getDialogMark().to_chr(), cid, sArgs);
-//#endif
-//
-//	if (m_iEval > 0) mIRCLinker::execex(TEXT("//xdid %s %s %u %s"), sSwitch, getDialogMark().to_chr(), cid, sArgs);
-//	else getDialog()->parseComControlRequestEX(cid, TEXT("%s %u %s %s"), getDialogMark().to_chr(), cid, sSwitch, sArgs);
+	//#if DCX_DEBUG_OUTPUT
+	//	if (isVerbose())
+	//		mIRCLinker::execex(TEXT("/echo -a dcxml debug: /xdid %s %s %u %s"), sSwitch, getDialogMark().to_chr(), cid, sArgs);
+	//#endif
+	//
+	//	if (m_iEval > 0) mIRCLinker::execex(TEXT("//xdid %s %s %u %s"), sSwitch, getDialogMark().to_chr(), cid, sArgs);
+	//	else getDialog()->parseComControlRequestEX(cid, TEXT("%s %u %s %s"), getDialogMark().to_chr(), cid, sSwitch, sArgs);
 
 #if DCX_DEBUG_OUTPUT
 	if (isVerbose())
@@ -503,20 +502,20 @@ void DcxmlParser::setStyle(const TiXmlElement *const style)
 	//font
 	m_sFontstyle = queryAttribute(style, "fontstyle", "d");
 	m_sCharset = queryAttribute(style, "charset", "ansi");
-	m_sFontsize = queryAttribute(style, "fontsize", "");
-	m_sFontname = queryAttribute(style, "fontname", "");
+	m_sFontsize = queryAttribute(style, "fontsize");
+	m_sFontname = queryAttribute(style, "fontname");
 	if ((style->Attribute("fontsize") != nullptr) || (style->Attribute("fontname") != nullptr))
 		xdidEX(m_iID, TEXT("-f"), TEXT("+%S %S %S %S"), m_sFontstyle, m_sCharset, m_sFontsize, m_sFontname);
 	//border
-	m_sBorder = queryAttribute(style, "border", "");
+	m_sBorder = queryAttribute(style, "border");
 	if (!_ts_isEmpty(m_sBorder))
 		xdidEX(m_iID, TEXT("-x"), TEXT("+%S"), m_sBorder);
 	//colours
 	//m_sCursor = queryAttribute(style, "cursor", "arrow");
 	m_sCursor = style->Attribute("cursor");	// can be null
-	m_sBgcolour = queryAttribute(style, "bgcolour", "");
-	m_sTextbgcolour = queryAttribute(style, "textbgcolour", "");
-	m_sTextcolour = queryAttribute(style, "textcolour", "");
+	m_sBgcolour = queryAttribute(style, "bgcolour");
+	m_sTextbgcolour = queryAttribute(style, "textbgcolour");
+	m_sTextcolour = queryAttribute(style, "textcolour");
 
 	const auto sTypeHash = dcx_hash(m_sType);
 
@@ -584,7 +583,7 @@ void DcxmlParser::setStyle(const TiXmlElement *const style)
 
 /* parseStyle(recursionDepth) : Simple recursive method to cascade find the right style to apply to an m_pElement */
 void DcxmlParser::parseStyle(int depth)
-{ 
+{
 	if (depth > 2)
 		return;
 
@@ -609,14 +608,14 @@ void DcxmlParser::parseStyle(int depth)
 		const TiXmlElement* TypeElement = nullptr;
 		const TiXmlElement* IdElement = nullptr;
 
-		for( style = tiStyles->FirstChildElement("style"); style != nullptr; style = style->NextSiblingElement())
+		for (style = tiStyles->FirstChildElement("style"); style != nullptr; style = style->NextSiblingElement())
 		{
 			if (const auto ctmp = style->Attribute("class"); ctmp != nullptr)
 			{
 				if (0 == ts_strcmp(ctmp, m_sSTclass))
 					ClassElement = style;
 			}
-			
+
 			if (const auto ctmp = style->Attribute("type"); ctmp != nullptr)
 			{
 				if (0 == ts_strcmp(ctmp, m_sType))
@@ -639,7 +638,7 @@ void DcxmlParser::parseStyle(int depth)
 
 /* parseIcons(recursionDepth) : Simple recursive method to cascade find the right icons to apply to an m_pElement */
 void DcxmlParser::parseIcons(int depth)
-{ 
+{
 	if (depth > 1)
 		return;
 
@@ -658,20 +657,20 @@ void DcxmlParser::parseIcons(int depth)
 		const TiXmlElement* TypeElement = nullptr;
 		const TiXmlElement* ClassElement = nullptr;
 
-		for( tiIcon = icons->FirstChildElement("icon"); tiIcon != nullptr; tiIcon = tiIcon->NextSiblingElement())
+		for (tiIcon = icons->FirstChildElement("icon"); tiIcon != nullptr; tiIcon = tiIcon->NextSiblingElement())
 		{
 			if (const auto ctmp = tiIcon->Attribute("class"); ctmp != nullptr)
 			{
 				if (0 == ts_strcmp(ctmp, m_sSTclass))
 					ClassElement = tiIcon;
 			}
-			
+
 			if (const auto ctmp = tiIcon->Attribute("type"); ctmp != nullptr)
 			{
 				if (0 == ts_strcmp(ctmp, m_sType))
 					TypeElement = tiIcon;
 			}
-			
+
 			if (m_iID == parseId(tiIcon))
 				IdElement = tiIcon;
 		}
@@ -695,7 +694,7 @@ void DcxmlParser::parseIcons(int depth)
 			if (tIconSrc != nullptr)
 			{
 				// Ook: change this to call /xdid -w with an index range
-				if (indexmin <= indexmax) 
+				if (indexmin <= indexmax)
 					//method sucks but looping in C++ is WAYYY too fast for mIRC
 				{
 					//mIRCLinker::execex(TEXT("//var %%x = %i | while (%%x <= %i ) { xdid -w %s %u +%S %%x %S | inc %%x }"), indexmin,indexmax,getDialogMark().to_chr(),m_iID,flags,tIconSrc);
@@ -705,7 +704,7 @@ void DcxmlParser::parseIcons(int depth)
 					mIRCLinker::exec(TEXT("//var \\%x = % | while (\\%x <= % ) { xdid -w % % +% \\%x % | inc %x }"), indexmin, indexmax, getDialogMark(), m_iID, flags, tIconSrc);
 					//mIRCLinker::exec(TEXT("//xdid -w % % +% %-% %"), getDialogMark(), m_iID, flags, indexmin, indexmax, tIconSrc);
 				}
-				else 
+				else
 					//mIRCLinker::execex(TEXT("//xdid -w %s %u +%S %S %S"),getDialogMark().to_chr(),m_iID,flags,index,tIconSrc);
 					mIRCLinker::exec(TEXT("//xdid -w % % +% % %"), getDialogMark(), m_iID, flags, index, tIconSrc);
 			}
@@ -715,7 +714,7 @@ void DcxmlParser::parseIcons(int depth)
 				{
 					const auto tflags = queryAttribute(iconchild, "flags", "n");
 					const auto tindex = queryAttribute(iconchild, "index", "0");
-					
+
 					//if (const auto tsrc = iconchild->Attribute("src"); tsrc != nullptr)
 					//	mIRCLinker::execex(TEXT("//xdid -w %s %u +%S %S %S"),getDialogMark().to_chr(),m_iID,tflags,tindex,tsrc);
 					if (const auto tsrc = iconchild->Attribute("src"); tsrc != nullptr)
@@ -729,7 +728,7 @@ void DcxmlParser::parseIcons(int depth)
 }
 
 /* parseItems(XmlElement,recursionDepth,itemPath) : recursively applies items for a control */
-void DcxmlParser::parseItems(const TiXmlElement *const tiElement,const UINT depth, const char *const itemPath)
+void DcxmlParser::parseItems(const TiXmlElement *const tiElement, const UINT depth, const char *const itemPath)
 {
 	auto item = 0, cell = 0;
 	const auto sTypeHash = dcx_hash(m_sType);
@@ -760,7 +759,7 @@ void DcxmlParser::parseItems(const TiXmlElement *const tiElement,const UINT dept
 						queryAttribute(column, "icon", "0"),
 						queryAttribute(column, "width", "0"),
 						queryAttribute(column, "caption"));
-					
+
 					tsArguments.addtok(tsBuffer, TEXT('\t'));
 
 					//_ts_sprintf(tsBuffer, TEXT("+% % % % "),
@@ -804,23 +803,23 @@ void DcxmlParser::parseItems(const TiXmlElement *const tiElement,const UINT dept
 			}
 			else if (sTypeHash == "treeview"_hash)
 			{
-					// Ook: recursive loop needs looked at, use a TString reference object instead of multiple char[]'s for itemPath
-					//itemPath += item;
-					//xdidEX(m_iID, TEXT("-a"), TEXT("%s \t +%S %S %S 0 %S %S %S %S %S \t %S"), itemPath.to_chr(), ((m_sTFlags) ? m_sTFlags : "a"), m_sIcon, m_sIcon, m_sState, m_sIntegral, m_sTextcolour, m_sBgcolour, m_sCaption, m_sTooltip);
-					//parseItems(child, depth, itemPath);
-					char pathx[100];
-					//wnsprintfA(&pathx[0], gsl::narrow_cast<int>(Dcx::countof(pathx)), "%s %i", itemPath, item);
-					_ts_snprintf(&pathx[0], gsl::narrow_cast<int>(Dcx::countof(pathx)), "%s %i", itemPath, item);
-					if (m_sCaption != nullptr)
-						xdidEX(m_iID, TEXT("-a"), TEXT("%S \t +%S %S %S 0 %S %S %S %S %S \t %S"), &pathx[0], ((m_sTFlags != nullptr) ? m_sTFlags : "a"), m_sIcon, m_sIcon, m_sState, m_sIntegral, m_sTextcolour, m_sBgcolour, m_sCaption, m_sTooltip);
-					parseItems(child, depth, &pathx[0]);
-				}
+				// Ook: recursive loop needs looked at, use a TString reference object instead of multiple char[]'s for itemPath
+				//itemPath += item;
+				//xdidEX(m_iID, TEXT("-a"), TEXT("%s \t +%S %S %S 0 %S %S %S %S %S \t %S"), itemPath.to_chr(), ((m_sTFlags) ? m_sTFlags : "a"), m_sIcon, m_sIcon, m_sState, m_sIntegral, m_sTextcolour, m_sBgcolour, m_sCaption, m_sTooltip);
+				//parseItems(child, depth, itemPath);
+				char pathx[100];
+				//wnsprintfA(&pathx[0], gsl::narrow_cast<int>(Dcx::countof(pathx)), "%s %i", itemPath, item);
+				_ts_snprintf(&pathx[0], gsl::narrow_cast<int>(Dcx::countof(pathx)), "%s %i", itemPath, item);
+				if (m_sCaption != nullptr)
+					xdidEX(m_iID, TEXT("-a"), TEXT("%S \t +%S %S %S 0 %S %S %S %S %S \t %S"), &pathx[0], ((m_sTFlags != nullptr) ? m_sTFlags : "a"), m_sIcon, m_sIcon, m_sState, m_sIntegral, m_sTextcolour, m_sBgcolour, m_sCaption, m_sTooltip);
+				parseItems(child, depth, &pathx[0]);
+			}
 		}
 	}
 }
 
 /* parseTemplate(recursionDepth,claPath,firstFreeControlId) : finds a template and parses it into the current dialog */
-void DcxmlParser::parseTemplate(const UINT dialogDepth,const char *const claPath,const UINT passedid)
+void DcxmlParser::parseTemplate(const UINT dialogDepth, const char *const claPath, const UINT passedid)
 {
 	// find templates element
 	const auto lookIn = getDialogsElement()->FirstChildElement("templates");
@@ -853,7 +852,7 @@ void DcxmlParser::parseTemplate(const UINT dialogDepth,const char *const claPath
 }
 
 /* parseDialog(recursionDepth,claPath,firstFreeControlId,ignoreParentFlag) : finds a template and parses it into the current dialog */
-void DcxmlParser::parseDialog(const UINT depth,const char *claPath,const UINT passedid,const bool ignoreParent)
+void DcxmlParser::parseDialog(const UINT depth, const char *claPath, const UINT passedid, const bool ignoreParent)
 {
 	auto control = 0, cCla = 0, cell = 0;
 	g_claPath = nullptr;
@@ -920,7 +919,7 @@ void DcxmlParser::parseDialog(const UINT depth,const char *claPath,const UINT pa
 		{
 			++m_iControls;
 			m_iID = parseId(m_pElement);
-			
+
 			if (m_iID == 0)
 				m_iID = DCXML_ID_OFFSET + m_iControls;	// this is user id, so will later have mIRC_ID_OFFSET added to it.
 
@@ -935,7 +934,7 @@ void DcxmlParser::parseDialog(const UINT depth,const char *claPath,const UINT pa
 		{
 			if (0 == ts_strcmp(m_sParentelem, "template"))
 			{
-				const gsl::not_null<const TiXmlNode *> xNodeTmp = m_pTemplateRef->Parent();
+				const gsl::not_null<const TiXmlNode *> xNodeTmp(m_pTemplateRef->Parent());
 				m_pParent = xNodeTmp->ToElement();
 				m_sParentelem = xNodeTmp->Value();
 				cCla = m_iTemplateRefcCla;
@@ -1025,7 +1024,7 @@ void DcxmlParser::parseDialog(const UINT depth,const char *claPath,const UINT pa
 		//mIRCLinker::execex(TEXT("//echo -a clapath:%s"),claPathx);
 		parseDialog(depth + 1, claPathx.c_str(), m_iID);
 	}
-} 
+}
 
 void DcxmlParser::registerId(const TiXmlElement *const idElement, const UINT iNewID)
 {
