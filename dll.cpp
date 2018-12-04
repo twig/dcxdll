@@ -414,7 +414,7 @@ mIRC(Version)
 			Ensures(tsTestCrash == TEXT("a token"_ts));
 
 			// gettok(N,numtok()) get all tokens from N onwards, untill very last token
-			tsTestCrash = tmp.gettok(2, static_cast<int>(tmp.numtok()));
+			tsTestCrash = tmp.gettok(2, gsl::narrow_cast<int>(tmp.numtok()));
 			Ensures(tsTestCrash == TEXT("a token put string 100 chars putted e_put"_ts));
 
 			// gettok(N,-1) get whole string starting at the Nth token
@@ -811,26 +811,34 @@ mIRC(Version)
 #ifdef DCX_DEV_BUILD
 	if (mIRCLinker::isUnicode())
 	{
-		_ts_snprintf(data, MIRC_BUFFER_SIZE_CCH,
-			TEXT("DCX (XPopup) DLL %s %s%d UTF by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2005 Compiled on " __DATE__ " " __TIME__),
-			DLL_VERSION, DLL_STATE, DLL_DEV_BUILD);
+		//_ts_snprintf(data, MIRC_BUFFER_SIZE_CCH,
+		//	TEXT("DCX (XPopup) DLL %s %s%d UTF by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2005 Compiled on " __DATE__ " " __TIME__),
+		//	DLL_VERSION, DLL_STATE, DLL_DEV_BUILD);
+
+		_ts_strcpyn<wchar_t >(data, _T("DCX (XPopup) DLL " GIT_DESCRIBEA " " DLL_STATE DLL_DEV_BUILD " UTF by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2005 Compiled on " __DATE__ " " __TIME__), MIRC_BUFFER_SIZE_CCH);
 	}
 	else {
-		_ts_snprintf((char *)data, MIRC_BUFFER_SIZE_CCH,
-			"DCX (XPopup) DLL %S %S%d UTF by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2005 Compiled on " __DATE__ " " __TIME__,
-			DLL_VERSION, DLL_STATE, DLL_DEV_BUILD);
+		//_ts_snprintf((char *)data, MIRC_BUFFER_SIZE_CCH,
+		//	"DCX (XPopup) DLL %S %S%d UTF by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2005 Compiled on " __DATE__ " " __TIME__,
+		//	DLL_VERSION, DLL_STATE, DLL_DEV_BUILD);
+
+		_ts_strcpyn<char>((char *)data, "DCX (XPopup) DLL " GIT_DESCRIBEA " " DLL_STATE DLL_DEV_BUILD " UTF by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2005 Compiled on " __DATE__ " " __TIME__, MIRC_BUFFER_SIZE_CCH);
 	}
 #else
 	if (mIRCLinker::isUnicode())
 	{
-		_ts_snprintf(data, MIRC_BUFFER_SIZE_CCH,
-			TEXT("DCX (XPopup) DLL %s %s UTF by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2005 Compiled on " __DATE__ " " __TIME__),
-			DLL_VERSION, DLL_STATE);
+		//_ts_snprintf(data, MIRC_BUFFER_SIZE_CCH,
+		//	TEXT("DCX (XPopup) DLL %s %s UTF by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2005 Compiled on " __DATE__ " " __TIME__),
+		//	DLL_VERSION, DLL_STATE);
+
+		_ts_strcpyn<wchar_t>(data, _T("DCX (XPopup) DLL " GIT_DESCRIBEA " " DLL_STATE " ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2005 Compiled on " __DATE__ " " __TIME__), MIRC_BUFFER_SIZE_CCH);
 	}
 	else {
-		_ts_snprintf((char *)data, MIRC_BUFFER_SIZE_CCH,
-			"DCX (XPopup) DLL %S %S UTF by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2005 Compiled on " __DATE__ " " __TIME__,
-			DLL_VERSION, DLL_STATE);
+		//_ts_snprintf((char *)data, MIRC_BUFFER_SIZE_CCH,
+		//	"DCX (XPopup) DLL %S %S UTF by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2005 Compiled on " __DATE__ " " __TIME__,
+		//	DLL_VERSION, DLL_STATE);
+
+		_ts_strcpyn<char>((char *)data, "DCX (XPopup) DLL " GIT_DESCRIBEA " " DLL_STATE " ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2005 Compiled on " __DATE__ " " __TIME__, MIRC_BUFFER_SIZE_CCH);
 	}
 #endif
 	return 3;
@@ -841,26 +849,34 @@ mIRC(Version)
 #ifdef DCX_DEV_BUILD
 	if (mIRCLinker::isUnicode())
 	{
-		_ts_snprintf(data, MIRC_BUFFER_SIZE_CCH,
-			TEXT("DCX (XPopup) DLL %s %s%d UTF by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2005 Compiled on " __DATE__ " " __TIME__),
-			DLL_VERSION, DLL_STATE, DLL_DEV_BUILD);
+		//_ts_snprintf(data, MIRC_BUFFER_SIZE_CCH,
+		//	TEXT("DCX (XPopup) DLL %s %s%d UTF by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2005 Compiled on " __DATE__ " " __TIME__),
+		//	DLL_VERSION, DLL_STATE, DLL_DEV_BUILD);
+
+		_ts_strcpyn<wchar_t >(data, _T("DCX (XPopup) DLL " GIT_DESCRIBEA " " DLL_STATE DLL_DEV_BUILD " UTF by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2005 Compiled on " __DATE__ " " __TIME__), MIRC_BUFFER_SIZE_CCH);
 	}
 	else {
-		_ts_snprintf((char *)data, MIRC_BUFFER_SIZE_CCH,
-			"DCX (XPopup) DLL %S %S%d UTF by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2005 Compiled on " __DATE__ " " __TIME__,
-			DLL_VERSION, DLL_STATE, DLL_DEV_BUILD);
+		//_ts_snprintf((char *)data, MIRC_BUFFER_SIZE_CCH,
+		//	"DCX (XPopup) DLL %S %S%d UTF by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2005 Compiled on " __DATE__ " " __TIME__,
+		//	DLL_VERSION, DLL_STATE, DLL_DEV_BUILD);
+
+		_ts_strcpyn<char>((char *)data, "DCX (XPopup) DLL " GIT_DESCRIBEA " " DLL_STATE DLL_DEV_BUILD " UTF by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2005 Compiled on " __DATE__ " " __TIME__, MIRC_BUFFER_SIZE_CCH);
 	}
 #else
 	if (mIRCLinker::isUnicode())
 	{
-		_ts_snprintf(data, MIRC_BUFFER_SIZE_CCH,
-			TEXT("DCX (XPopup) DLL %s %s UTF by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2005 Compiled on " __DATE__ " " __TIME__),
-			DLL_VERSION, DLL_STATE);
+		//_ts_snprintf(data, MIRC_BUFFER_SIZE_CCH,
+		//	TEXT("DCX (XPopup) DLL %s %s UTF by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2005 Compiled on " __DATE__ " " __TIME__),
+		//	DLL_VERSION, DLL_STATE);
+
+		_ts_strcpyn<wchar_t>(data, _T("DCX (XPopup) DLL " GIT_DESCRIBEA " " DLL_STATE " ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2005 Compiled on " __DATE__ " " __TIME__), MIRC_BUFFER_SIZE_CCH);
 	}
 	else {
-		_ts_snprintf((char *)data, MIRC_BUFFER_SIZE_CCH,
-			"DCX (XPopup) DLL %S %S UTF by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2005 Compiled on " __DATE__ " " __TIME__,
-			DLL_VERSION, DLL_STATE);
+		//_ts_snprintf((char *)data, MIRC_BUFFER_SIZE_CCH,
+		//	"DCX (XPopup) DLL %S %S UTF by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2005 Compiled on " __DATE__ " " __TIME__,
+		//	DLL_VERSION, DLL_STATE);
+
+		_ts_strcpyn<char>((char *)data, "DCX (XPopup) DLL " GIT_DESCRIBEA " " DLL_STATE " ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2005 Compiled on " __DATE__ " " __TIME__, MIRC_BUFFER_SIZE_CCH);
 	}
 #endif
 	return 3;
@@ -1890,7 +1906,7 @@ mIRC(WindowProps)
 			margin.cxLeftWidth = input.getnexttok().to_<int>();		// tok 4
 			margin.cyBottomHeight = input.getnexttok().to_<int>();	// tok 5
 			margin.cxRightWidth = input.getnexttok().to_<int>();	// tok 6
-			AddStyles(hwnd, GWL_EXSTYLE, WS_EX_LAYERED);
+			AddStyles(gsl::not_null<HWND>(hwnd), GWL_EXSTYLE, WS_EX_LAYERED);
 
 			//RGBQUAD clr = {0};
 			//BOOL bOpaque = FALSE;
