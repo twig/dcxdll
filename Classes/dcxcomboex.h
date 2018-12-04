@@ -108,7 +108,7 @@ protected:
 
 	HWND				m_EditHwnd{ nullptr };	//!< Combo's Edit Control Handle
 	HWND				m_hComboHwnd{ nullptr };	//!< Combo's handle
-	TString				m_tsSelected;
+	//TString				m_tsSelected;
 private:
 	DCXCOMBOEXEDIT		m_exEdit{};
 

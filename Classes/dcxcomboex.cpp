@@ -219,8 +219,8 @@ void DcxComboEx::parseInfoRequest(const TString & input, const refString<TCHAR, 
 
 			if (IsWindow(m_EditHwnd))
 				GetWindowText(m_EditHwnd, szReturnValue, MIRC_BUFFER_SIZE_CCH);
-			else
-				szReturnValue = m_tsSelected;
+			//else
+			//	szReturnValue = m_tsSelected;
 		}
 	}
 	break;
@@ -847,17 +847,18 @@ LRESULT DcxComboEx::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
 			if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
 				execAliasEx(TEXT("sclick,%u,%d"), getUserID(), getCurSel() + 1);
 
-			auto itemtext = std::make_unique<TCHAR[]>(MIRC_BUFFER_SIZE_CCH);
-
-			itemtext[0] = TEXT('\0');
-
-			COMBOBOXEXITEM cbex{ CBEIF_TEXT, getCurSel(), itemtext.get(), MIRC_BUFFER_SIZE_CCH };
-
-			getItem(&cbex);
-
-			if (IsWindow(m_EditHwnd))
-				SetWindowText(m_EditHwnd, itemtext.get());
-			m_tsSelected = itemtext;
+			// Ook: This code seems completely unneeded.
+			//auto itemtext = std::make_unique<TCHAR[]>(MIRC_BUFFER_SIZE_CCH);
+			//
+			//itemtext[0] = TEXT('\0');
+			//
+			//COMBOBOXEXITEM cbex{ CBEIF_TEXT, getCurSel(), itemtext.get(), MIRC_BUFFER_SIZE_CCH };
+			//
+			//getItem(&cbex);
+			//
+			//if (IsWindow(m_EditHwnd))
+			//	SetWindowText(m_EditHwnd, itemtext.get());
+			//m_tsSelected = itemtext;
 
 			bParsed = TRUE;
 			return TRUE;
