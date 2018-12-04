@@ -128,11 +128,11 @@ function get_xstatusbar(&$XSTATUSBAR) {
             ),
             '__notes' => 'Tooltip is only displayed if cell text is absent or cell text is too long to fit in cell.',
         ),
-	'v' => array(
-	    '__desc' => 'This command lets you change the text of a statusbar cell.',
-	    '__cmd' => '[N] (TEXT)',
-	    '__eg' => "2 New Text",
-        ),
+		'v' => array(
+		    '__desc' => 'This command lets you change the text of a statusbar cell.',
+			'__cmd' => '[N] (TEXT)',
+			'__eg' => "2 New Text",
+		),
         'w' => array(
             '__desc' => 'This command lets you add an icon to the statusbar image list.',
             '__cmd' => '[+FLAGS] [INDEX] [FILENAME]',
@@ -141,7 +141,7 @@ function get_xstatusbar(&$XSTATUSBAR) {
                     // +FLAGS
 	            'INDEX' => 'Icon index in icon archive',
 		    'FILENAME' => 'Icon archive filename',
-            ),
+		),
 	    '__notes' => "Use [v]0[/v] for [p]INDEX[/p] if the file is a single icon file.",
 	),
 	'y' => 'This command lets you clear the statusbar image list.',
@@ -173,7 +173,7 @@ function xstatusbar_events() {
 	$data = array(
 		'__params' => array(
 		    'xstatusbar' => 'The event signal identifier.',
-                        'DCXStatusbar' => 'This is to let the user know which event was triggered.',
+            'DCXStatusbar' => 'This is to let the user know which event was triggered.',
 			'EVENT' => array(
 				'__desc' => 'Information about event occurred.',
 				'__values' => array(
@@ -183,8 +183,8 @@ function xstatusbar_events() {
 					'rclick'  => 'A part of the statusbar was single right-clicked.',
 				),
 			),
-                        'HWND' => 'The hwnd of the XStatusBar.',
-                        'PART' => 'The ID of the part which the event occurred on.',
+            'HWND' => 'The hwnd of the XStatusBar.',
+            'PART' => 'The ID of the part which the event occurred on.',
 		),
 	);
 	
