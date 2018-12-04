@@ -297,7 +297,7 @@ void DcxLine::DrawClientArea(HDC hdc)
 			else if (this->isStyle(WindowStyle::SS_Right))
 				OffsetRect(&rcText,((rcClient.right - rcClient.left)/2) - ((rcText.right - rcText.left)/2),rcClient.bottom - (rcText.bottom - rcText.top));
 
-			DrawRotatedText(this->m_sText, &rcText, hdc, 90, true, 90);
+			DrawRotatedText(this->m_sText, gsl::not_null(&rcText), gsl::not_null(hdc), 90, true, 90);
 
 			// test ver that uses a diff routine entierly to draw vertical text
 			//int oMode = SetBkMode(hdc, TRANSPARENT);

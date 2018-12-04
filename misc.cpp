@@ -1447,7 +1447,7 @@ void mIRC_DrawText(HDC hdc, const TString &txt, LPRECT rc, const UINT style, con
 		return;
 
 	// create an hdc buffer to avoid flicker during drawing.
-	const auto hBuffer = CreateHDCBuffer(gsl::not_null(hdc), rc);
+	const auto hBuffer = CreateHDCBuffer(hdc, rc);
 
 	if (hBuffer == nullptr)
 		return;

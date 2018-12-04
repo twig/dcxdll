@@ -57,7 +57,7 @@ mIRC(ColorDialog)
 				styles |= CC_SOLIDCOLOR;
 				break;
 			case TEXT("owner"_hash):
-				cc.hwndOwner = FindOwner(d, mWnd);
+				cc.hwndOwner = FindOwner(d, gsl::not_null(mWnd));
 				break;
 			case TEXT("returndefault"_hash):
 				retDefault = true;
@@ -267,7 +267,7 @@ TString FileDialog(const TString & data, const TString &method, const HWND pWnd)
 			style |= OFN_PATHMUSTEXIST;
 			break;
 		case TEXT("owner"_hash):
-			ofn.hwndOwner = FindOwner(styles, pWnd);
+			ofn.hwndOwner = FindOwner(styles, gsl::not_null(pWnd));
 			//ofn.hwndOwner = FindOwner(styles).value_or(pWnd);
 			break;
 		default:
@@ -407,7 +407,7 @@ mIRC(BrowseDialog)
 				break;
 				// owner
 			case TEXT("owner"_hash):
-				bi.hwndOwner = FindOwner(param, mWnd);
+				bi.hwndOwner = FindOwner(param, gsl::not_null(mWnd));
 				break;
 			}
 		}
@@ -676,7 +676,7 @@ mIRC(FontDialog)
 				if (numtok < 2)
 					throw Dcx::dcxException("Invalid Args");
 
-				cf.hwndOwner = FindOwner(option, mWnd);
+				cf.hwndOwner = FindOwner(option, gsl::not_null(mWnd));
 			}
 			break;
 			default:
@@ -870,7 +870,7 @@ mIRC(MsgBox)
 				style |= MB_TOPMOST;
 				break;
 			case TEXT("owner"_hash):
-				owner = FindOwner(strStyles, mWnd);
+				owner = FindOwner(strStyles, gsl::not_null(mWnd));
 				break;
 			default:
 				break;
@@ -988,7 +988,7 @@ mIRC(PickIcon)
 /*
 * Icon Picker for WinXP SP2 & Win 2k3 (Others may or may not support it)
 */
-int dcxPickIconDlg(const gsl::not_null<HWND> &hwnd, gsl::not_null<LPWSTR> pszIconPath, const UINT &cchIconPath, gsl::not_null<int *> piIconIndex) noexcept
+int dcxPickIconDlg(const HWND hwnd, LPWSTR pszIconPath, const UINT &cchIconPath, int *piIconIndex) noexcept
 {
 	return PickIconDlg(hwnd, pszIconPath, cchIconPath, piIconIndex);
 }

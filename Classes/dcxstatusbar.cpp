@@ -730,12 +730,12 @@ UINT DcxStatusBar::getPartFlags(const int iPart) const noexcept
 
 int DcxStatusBar::hitTest(const POINT & pt) const noexcept
 {
-	RECT rc = { 0 };
 	const auto nParts = getParts(DCX_STATUSBAR_MAX_PARTS, 0);
 
 	for (auto n = decltype(nParts){0}; n < nParts; ++n)
 	{
-		getRect(n, &rc);
+		RECT rc{};
+		getRect(n, gsl::not_null(&rc));
 		if (PtInRect(&rc, pt))
 			return n;
 	}

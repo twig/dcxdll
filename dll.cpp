@@ -1906,7 +1906,7 @@ mIRC(WindowProps)
 			margin.cxLeftWidth = input.getnexttok().to_<int>();		// tok 4
 			margin.cyBottomHeight = input.getnexttok().to_<int>();	// tok 5
 			margin.cxRightWidth = input.getnexttok().to_<int>();	// tok 6
-			AddStyles(gsl::not_null<HWND>(hwnd), GWL_EXSTYLE, WS_EX_LAYERED);
+			AddStyles(hwnd, GWL_EXSTYLE, WS_EX_LAYERED);
 
 			//RGBQUAD clr = {0};
 			//BOOL bOpaque = FALSE;
