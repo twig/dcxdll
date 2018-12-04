@@ -372,7 +372,8 @@ void DcxDock::AdjustRect(WINDOWPOS *wp) noexcept
 	wp->y = ytopoffset;
 	wp->cx = refw;
 	wp->cy = refh;
-	EndDeferWindowPos(hdwp);
+	if (hdwp != nullptr)
+		EndDeferWindowPos(hdwp);
 }
 
 LRESULT CALLBACK DcxDock::mIRCRefWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)

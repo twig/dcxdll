@@ -565,7 +565,7 @@ mIRC(_xdock)
 
 	data[0] = 0;
 
-	const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> refData(data);
+	const mIRCResultString refData(data);
 
 	try {
 		d.trim();
@@ -676,17 +676,20 @@ mIRC(_xdock)
 			break;
 			case TEXT("switchBarHwnd"_hash):
 			{
-				_ts_snprintf(refData, TEXT("%lu"), Dcx::numeric_cast<DWORD>(mIRCLinker::getSwitchbar())); // don't use %p as this gives a hex result.
+				const auto i = Dcx::numeric_cast<DWORD>(mIRCLinker::getSwitchbar());
+				_ts_snprintf(refData, TEXT("%lu"), i); // don't use %p as this gives a hex result.
 			}
 			break;
 			case TEXT("toolBarHwnd"_hash):
 			{
-				_ts_snprintf(refData, TEXT("%lu"), Dcx::numeric_cast<DWORD>(mIRCLinker::getToolbar()));
+				const auto i = Dcx::numeric_cast<DWORD>(mIRCLinker::getToolbar());
+				_ts_snprintf(refData, TEXT("%lu"), i);
 			}
 			break;
 			case TEXT("treeBarHwnd"_hash):
 			{
-				_ts_snprintf(refData, TEXT("%lu"), Dcx::numeric_cast<DWORD>(mIRCLinker::getTreebar()));
+				const auto i = Dcx::numeric_cast<DWORD>(mIRCLinker::getTreebar());
+				_ts_snprintf(refData, TEXT("%lu"), i);
 			}
 			break;
 			case 0: // error
