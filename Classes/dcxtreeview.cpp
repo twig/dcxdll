@@ -2614,7 +2614,8 @@ const TiXmlElement *DcxTreeView::xmlInsertItems(HTREEITEM hParent, HTREEITEM &hI
 		if (auto i = queryIntAttribute(xNode, "overlay"); (i > 0 && i < 16))
 			TreeView_SetItemState(m_Hwnd, hInsertAfter, INDEXTOOVERLAYMASK(gsl::narrow_cast<UINT>(i)), TVIS_OVERLAYMASK);
 
-		if (xNode->FirstChild("tvitem") != nullptr) {
+		if (xNode->FirstChild("tvitem") != nullptr)
+		{
 			// item has children. NB: DON'T update xNode to the result of this call as this stops subsequent items being added.
 			this->xmlInsertItems(hInsertAfter, hInsertAfter, xNode);
 		}

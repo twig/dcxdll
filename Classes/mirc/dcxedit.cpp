@@ -218,7 +218,10 @@ void DcxEdit::parseInfoRequest(const TString &input, const refString<TCHAR, MIRC
 	case L"num"_hash:
 	{
 		if (this->isStyle(WindowStyle::ES_MultiLine))
-			_ts_snprintf(szReturnValue, TEXT("%u"), this->m_tsText.numtok(TEXT("\r\n")));
+		{
+			const auto i = this->m_tsText.numtok(TEXT("\r\n"));
+			_ts_snprintf(szReturnValue, TEXT("%u"), i);
+		}
 		else {
 			// single line control so always 1 line.
 			szReturnValue[0] = TEXT('1');
@@ -245,11 +248,11 @@ void DcxEdit::parseInfoRequest(const TString &input, const refString<TCHAR, MIRC
 		if (this->isStyle(WindowStyle::ES_MultiLine))
 		{
 			// current line
-			const auto iLinePos = SendMessage(m_Hwnd, EM_LINEFROMCHAR, gsl::narrow_cast<WPARAM>(-1), NULL);
+			const auto iLinePos = SendMessage(m_Hwnd, EM_LINEFROMCHAR, gsl::narrow_cast<WPARAM>(-1), NULL) + 1;
 			// line offset
-			const auto iAbsoluteCharPos = gsl::narrow_cast<int>(SendMessage(m_Hwnd, EM_LINEINDEX, gsl::narrow_cast<WPARAM>(-1), NULL));
+			const auto CharPos = (dwAbsoluteStartSelPos - gsl::narrow_cast<int>(SendMessage(m_Hwnd, EM_LINEINDEX, gsl::narrow_cast<WPARAM>(-1), NULL)));
 
-			_ts_snprintf(szReturnValue, TEXT("%d %u"), iLinePos + 1, dwAbsoluteStartSelPos - iAbsoluteCharPos);
+			_ts_snprintf(szReturnValue, TEXT("%d %u"), iLinePos, CharPos);
 		}
 		else {
 			// return selstart

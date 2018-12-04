@@ -244,9 +244,12 @@ void DcxList::parseInfoRequest(const TString & input, const refString<TCHAR, MIR
 	break;
 	// [NAME] [ID] [PROP]
 	case L"num"_hash:
-		_ts_snprintf(szReturnValue, TEXT("%d"), ListBox_GetCount(m_Hwnd));
-		break;
-		// [NAME] [ID] [PROP] (N)
+	{
+		const auto i = ListBox_GetCount(m_Hwnd);
+		_ts_snprintf(szReturnValue, TEXT("%d"), i);
+	}
+	break;
+	// [NAME] [ID] [PROP] (N)
 	case L"sel"_hash:
 	{
 		if (this->isStyle(WindowStyle::LBS_MultiSel) || this->isStyle(WindowStyle::LBS_ExtendedSel))
@@ -280,7 +283,10 @@ void DcxList::parseInfoRequest(const TString & input, const refString<TCHAR, MIR
 		}
 		// single select
 		else
-			_ts_snprintf(szReturnValue, TEXT("%d"), ListBox_GetCurSel(m_Hwnd) + 1);
+		{
+			const auto i = ListBox_GetCurSel(m_Hwnd) + 1;
+			_ts_snprintf(szReturnValue, TEXT("%d"), i);
+		}
 	}
 	break;
 	// [NAME] [ID] [PROP] [N]
@@ -346,7 +352,8 @@ void DcxList::parseInfoRequest(const TString & input, const refString<TCHAR, MIR
 				// found Nth matching
 				if (count == N)
 				{
-					_ts_snprintf(szReturnValue, TEXT("%d"), i + 1);
+					++i;
+					_ts_snprintf(szReturnValue, TEXT("%d"), i);
 					return;
 				}
 			}
