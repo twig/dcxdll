@@ -14,7 +14,7 @@ class refString
 	static_assert(std::is_same_v<char, std::remove_cv_t<T>> || std::is_same_v<wchar_t, std::remove_cv_t<T>>, "Type must be char or wchar_t");
 
 public:
-	using value_type = T;
+	using value_type = typename T;
 	using const_value_type = std::add_const_t<value_type>;
 	using size_type = std::size_t;
 	using ptrdiff_type = std::ptrdiff_t;

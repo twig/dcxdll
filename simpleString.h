@@ -11,7 +11,7 @@ struct simpleString {
 	static_assert(N > 1, "N Must be > 1");
 	static_assert(std::is_same_v<char, std::remove_cv_t<T>> || std::is_same_v<wchar_t, std::remove_cv_t<T>>, "Type must be char or wchar_t");
 
-	using value_type = std::remove_cv_t<T>;
+	using value_type = typename std::remove_cv_t<T>;
 	using pointer = std::add_pointer_t<value_type>;
 	using reference = std::add_lvalue_reference_t<value_type>;
 	using const_value_type = std::add_const_t<value_type>;
