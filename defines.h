@@ -31,8 +31,8 @@ http://symbiancorner.blogspot.com/2007/05/how-to-detect-version-of-ms-visual.htm
 #define _DEFINES_H_
 
 // VS2017+ only
-#if !defined(_MSC_FULL_VER) || _MSC_FULL_VER < 19142643
-#error "This version of DCX needs Visual Studio 2017 15.7.4 or newer"
+#if !defined(_MSC_FULL_VER) || _MSC_FULL_VER < 191627024
+#error "This version of DCX needs Visual Studio 2017 15.8.9.2 or newer"
 #endif
 
 #ifdef __INTEL_COMPILER // Defined when using Intel C++ Compiler.
@@ -78,12 +78,9 @@ http://symbiancorner.blogspot.com/2007/05/how-to-detect-version-of-ms-visual.htm
 #define DCX_USE_DXSDK 1
 // end of DirectX SDK
 
-// always 1
-#define DCX_USE_WINSDK 1
-
 // DCX using GDI+? (Required for advanced graphics routines) (replace with Direct2D ?)
 #define DCX_USE_GDIPLUS 1
-#define DCX_MAX_GDI_ERRORS 21
+constexpr auto DCX_MAX_GDI_ERRORS = 21;
 // end of GDI+
 
 // use string hashes for compares etc..? (non-hashing code removed, always use this now)
@@ -173,28 +170,28 @@ http://symbiancorner.blogspot.com/2007/05/how-to-detect-version-of-ms-visual.htm
 // --------------------------------------------------
 #define DLL_VERSION    GIT_DESCRIBE
 #define DLL_BUILD      GIT_HASH
-#define DLL_DEV_BUILD  52
+#define DLL_DEV_BUILD  "52"
 
 #ifdef NDEBUG
 #ifdef DCX_DEV_BUILD
 // Dev Build, enable debug output.
 #define DCX_DEBUG_OUTPUT 1
 #define DCX_DEBUG(x,y,z) x((y), (z));
-#define DLL_STATE      TEXT("Development Build")
+#define DLL_STATE      "Development Build"
 // Link with DirectX error lib, enables extra error reporting.
 #define DCX_DX_ERR	1
 #else
 // Release Build, disable debug info.
 #define DCX_DEBUG_OUTPUT 0
 #define DCX_DEBUG(x,y,z)
-#define DLL_STATE      TEXT("Release Build")
+#define DLL_STATE      "Release Build"
 #define _SECURE_SCL 0 // disables checked iterators
 #endif
 #else
 // Debug Build, enable debug output.
 #define DCX_DEBUG_OUTPUT 1
 #define DCX_DEBUG(x,y,z) x((y), (z));
-#define DLL_STATE      TEXT("Debug Build")
+#define DLL_STATE      "Debug Build"
 // Link with DirectX error lib, enables extra error reporting.
 #define DCX_DX_ERR	1
 // Use Object switch code (testing only)
@@ -568,10 +565,10 @@ HRGN BitmapRegion(HBITMAP hBitmap, const COLORREF cTransparentColor, const bool 
 
 void ChangeHwndIcon(const HWND hwnd, const TString &flags, const int index, TString &filename);
 bool AddFileIcons(HIMAGELIST himl, TString &filename, const bool bLarge, const int iIndex, const int iStart = 0, const int iEnd = -1);
-int dcxPickIconDlg(const gsl::not_null<HWND> &hwnd, gsl::not_null<LPWSTR> pszIconPath, const UINT &cchIconPath, gsl::not_null<int *> piIconIndex) noexcept;
+int dcxPickIconDlg(const HWND hwnd, LPWSTR pszIconPath, const UINT &cchIconPath, int *piIconIndex) noexcept;
 
-BOOL dcxGetWindowRect(const gsl::not_null<HWND> &hWnd, const gsl::not_null<LPRECT> &lpRect) noexcept;
-bool GetWindowRectParent(const gsl::not_null<HWND> &hwnd, gsl::not_null<RECT *> rcWin);
+BOOL dcxGetWindowRect(const HWND hWnd, const LPRECT lpRect) noexcept;
+bool GetWindowRectParent(const HWND hwnd, RECT *rcWin);
 
 SYSTEMTIME MircTimeToSystemTime(const long mircTime);
 long SystemTimeToMircTime(const LPSYSTEMTIME pst);
@@ -586,9 +583,9 @@ bool IsFile(TString &filename);
 void dcxDrawShadowText(HDC hdc, LPCWSTR pszText, UINT cch, RECT *pRect, DWORD dwFlags, COLORREF crText, COLORREF crShadow, int ixOffset, int iyOffset) noexcept;
 //void calcStrippedRect(HDC hdc, const TString &txt, const UINT style, LPRECT rc, const bool ignoreleft);
 void mIRC_DrawText(HDC hdc, const TString &txt, LPRECT rc, const UINT style, const bool shadow);
-void DrawRotatedText(const TString &strDraw, const gsl::not_null<LPRECT> &rc, const gsl::not_null<HDC> &hDC, const int nAngleLine = 0, const bool bEnableAngleChar = false, const int nAngleChar = 0) noexcept;
+void DrawRotatedText(const TString &strDraw, const LPRECT rc, const HDC hDC, const int nAngleLine = 0, const bool bEnableAngleChar = false, const int nAngleChar = 0) noexcept;
 
-gsl::owner<HDC *> CreateHDCBuffer(gsl::not_null<HDC> hdc, const LPRECT rc);
+gsl::owner<HDC *> CreateHDCBuffer(HDC hdc, const LPRECT rc);
 void DeleteHDCBuffer(gsl::owner<HDC *> hBuffer) noexcept;
 
 int TGetWindowText(HWND hwnd, TString &txt);
@@ -596,9 +593,11 @@ TString TGetWindowText(HWND hwnd);
 void FreeOSCompatibility(void) noexcept;
 bool isRegexMatch(const TCHAR *matchtext, const TCHAR *pattern);
 
-const char *queryAttribute(gsl::not_null<const TiXmlElement *> element, gsl::not_null<const char *> attribute, gsl::not_null<const char *> defaultValue = "") noexcept;
+const char * queryAttribute(const TiXmlElement * element, const char *attribute, const char *defaultValue = "") noexcept;
+//gsl::not_null<const char *> queryAttribute(gsl::not_null<const TiXmlElement *> element, gsl::not_null<const char *> attribute, gsl::not_null<const char *> defaultValue = gsl::not_null<const char *>("")) noexcept;
 //std::optional<const char *> queryAttribute(gsl::not_null<const TiXmlElement *> element, gsl::not_null<const char *> attribute) noexcept;
-int queryIntAttribute(gsl::not_null<const TiXmlElement *> element, gsl::not_null<const char *> attribute, const int defaultValue = 0);
+int queryIntAttribute(const TiXmlElement *element, const char *attribute, const int defaultValue = 0);
+//int queryIntAttribute(gsl::not_null<const TiXmlElement *> element, gsl::not_null<const char *> attribute, const int defaultValue = 0);
 //std::optional<int> queryIntAttribute(gsl::not_null<const TiXmlElement *> element, gsl::not_null<const char *> attribute);
 
 void getmIRCPalette();
@@ -608,8 +607,8 @@ void getmIRCPaletteMask(COLORREF *const Palette, const UINT PaletteItems, uint16
 int unfoldColor(const WCHAR *color) noexcept;
 
 // UltraDock
-void RemStyles(const gsl::not_null<HWND> &hwnd, const int parm, const long RemStyles) noexcept;
-void AddStyles(const gsl::not_null<HWND> &hwnd, const int parm, const long AddStyles) noexcept;
+void RemStyles(const HWND hwnd, const int parm, const long RemStyles) noexcept;
+void AddStyles(const HWND hwnd, const int parm, const long AddStyles) noexcept;
 
 // DirectX
 HRESULT GetDXVersion( DWORD* pdwDirectXVersion, TCHAR* strDirectXVersion, int cchDirectXVersion );

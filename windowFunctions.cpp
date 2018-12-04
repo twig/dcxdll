@@ -116,7 +116,7 @@ HWND GetHwndFromString(const TString &str)
 //}
 
 // Removes window style to a window
-void RemStyles(const gsl::not_null<HWND> &hwnd, const int parm, const long RemStyles) noexcept
+void RemStyles(const HWND hwnd, const int parm, const long RemStyles) noexcept
 {
 	auto Styles = gsl::narrow_cast<DWORD>(GetWindowLong(hwnd, parm));
 	Styles &= ~RemStyles;
@@ -124,7 +124,7 @@ void RemStyles(const gsl::not_null<HWND> &hwnd, const int parm, const long RemSt
 }
 
 //	Adds window styles to a window
-void AddStyles(const gsl::not_null<HWND> &hwnd, const int parm, const long AddStyles) noexcept
+void AddStyles(const HWND hwnd, const int parm, const long AddStyles) noexcept
 {
 	auto Styles = gsl::narrow_cast<DWORD>(GetWindowLong(hwnd, parm));
 	Styles |= AddStyles;
@@ -727,7 +727,7 @@ void ChangeHwndIcon(const HWND hwnd, const TString &flags, const int index, TStr
 		DestroyIcon(iconLarge);
 }
 
-bool GetWindowRectParent(const gsl::not_null<HWND> &hwnd, gsl::not_null<RECT *> rcWin)
+bool GetWindowRectParent(const HWND hwnd, RECT *rcWin)
 {
 #if DCX_USE_WRAPPERS
 	const Dcx::dcxWindowRect rc(hwnd, GetParent(hwnd));

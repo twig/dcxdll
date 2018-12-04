@@ -25,7 +25,7 @@
 int dcx_round(const float x) noexcept
 {
 	const auto t = gsl::narrow_cast<int>(x);
-	if ((x - gsl::narrow_cast<float>(t)) > 0.5)
+	if ((x - gsl::narrow_cast<float>(t)) > 0.5f)
 		return t +1;
 	return t;
 }
@@ -1447,7 +1447,7 @@ void mIRC_DrawText(HDC hdc, const TString &txt, LPRECT rc, const UINT style, con
 		return;
 
 	// create an hdc buffer to avoid flicker during drawing.
-	const auto hBuffer = CreateHDCBuffer(hdc, rc);
+	const auto hBuffer = CreateHDCBuffer(gsl::not_null(hdc), rc);
 
 	if (hBuffer == nullptr)
 		return;
@@ -1774,7 +1774,7 @@ struct HDCBuffer {
 };
 using LPHDCBuffer = HDCBuffer *;
 
-gsl::owner<HDC *> CreateHDCBuffer(gsl::not_null<HDC> hdc, const LPRECT rc)
+gsl::owner<HDC *> CreateHDCBuffer(HDC hdc, const LPRECT rc)
 {
 	//if ((hdc == nullptr) /*|| (rc == NULL)*/)
 	//	return nullptr;
@@ -2043,7 +2043,7 @@ bool AddFileIcons(HIMAGELIST himl, TString &filename, const bool bLarge, const i
 	return bAdded;
 }
 
-BOOL dcxGetWindowRect(const gsl::not_null<HWND> &hWnd, const gsl::not_null<LPRECT> &lpRect) noexcept
+BOOL dcxGetWindowRect(const HWND hWnd, const LPRECT lpRect) noexcept
 {
 	// as described in a comment at http://msdn.microsoft.com/en-us/library/ms633519(VS.85).aspx
 	// GetWindowRect does not return the real size of a window if u are using vista with areo glass
@@ -2056,7 +2056,7 @@ BOOL dcxGetWindowRect(const gsl::not_null<HWND> &hWnd, const gsl::not_null<LPREC
 /*
 	*	DrawRotatedText() function taken from ms example & modified for our needs.
 */
-void DrawRotatedText(const TString &strDraw, const gsl::not_null<LPRECT> &rc, const gsl::not_null<HDC> &hDC, const int nAngleLine/* = 0*/, const bool bEnableAngleChar /*= false*/, const int nAngleChar /*= 0*/) noexcept
+void DrawRotatedText(const TString &strDraw, const LPRECT rc, const HDC hDC, const int nAngleLine/* = 0*/, const bool bEnableAngleChar /*= false*/, const int nAngleChar /*= 0*/) noexcept
 {
 	if ((nAngleLine == 0) && (!bEnableAngleChar))
 	{
@@ -2076,7 +2076,7 @@ void DrawRotatedText(const TString &strDraw, const gsl::not_null<LPRECT> &rc, co
 
 	// Specify the angle to draw line
 	lf.lfEscapement = nAngleLine*10;
-	int nOldGMode = 0;
+	int nOldGMode{};
 	if( bEnableAngleChar ) // Enable character angle
 	{
 		// Set graphics mode to advance to enable orientation
@@ -2135,11 +2135,17 @@ void DrawRotatedText(const TString &strDraw, const gsl::not_null<LPRECT> &rc, co
 //		nOptions, rect, str, len, NULL);
 //}
 
-const char *queryAttribute(gsl::not_null<const TiXmlElement *> element, gsl::not_null<const char *> attribute, gsl::not_null<const char *> defaultValue) noexcept
+const char *queryAttribute(const TiXmlElement *element, const char *attribute, const char *defaultValue) noexcept
 {
 	const auto t = element->Attribute(attribute);
-	return (t != nullptr) ? t : defaultValue.get();
+	return (t != nullptr) ? t : defaultValue;
 }
+
+//gsl::not_null<const char *> queryAttribute(gsl::not_null<const TiXmlElement *> element, gsl::not_null<const char *> attribute, gsl::not_null<const char *> defaultValue) noexcept
+//{
+//	const auto t = element->Attribute(attribute);
+//	return gsl::not_null<const char *>((t != nullptr) ? t : defaultValue.get());
+//}
 
 //std::optional<const char *> queryAttribute(gsl::not_null<const TiXmlElement *> element, gsl::not_null<const char *> attribute) noexcept
 //{
@@ -2149,13 +2155,21 @@ const char *queryAttribute(gsl::not_null<const TiXmlElement *> element, gsl::not
 //	return {};
 //}
 
-int queryIntAttribute(gsl::not_null<const TiXmlElement *> element, gsl::not_null<const char *> attribute, const int defaultValue)
+int queryIntAttribute(const TiXmlElement *element, const char *attribute, const int defaultValue)
 {
 	if (const auto[iStatus, integer] = element->QueryIntAttribute(attribute); iStatus == TIXML_SUCCESS)
 		return integer;
 
 	return defaultValue;
 }
+
+//int queryIntAttribute(gsl::not_null<const TiXmlElement *> element, gsl::not_null<const char *> attribute, const int defaultValue)
+//{
+//	if (const auto[iStatus, integer] = element->QueryIntAttribute(attribute); iStatus == TIXML_SUCCESS)
+//		return integer;
+//
+//	return defaultValue;
+//}
 
 //std::optional<int> queryIntAttribute(gsl::not_null<const TiXmlElement *> element, gsl::not_null<const char *> attribute)
 //{
