@@ -114,6 +114,10 @@ mIRC(xstatusbar)
 			const auto icon = (tsTabOne.getnexttok().to_int() - 1);				// tok 4
 			const auto bkgClr = tsTabOne.getnexttok().to_<COLORREF>();			// tok 5
 			const auto txtClr = tsTabOne.getnexttok().to_<COLORREF>();			// tok 6
+
+			if (flags[0] != TEXT('+'))
+				throw Dcx::dcxException("Invalid Flags");
+
 			const auto iFlags = DcxDock::status_parseItemFlags(flags);
 
 			if (tsTabOne.numtok() > 6)
@@ -221,7 +225,7 @@ mIRC(xstatusbar)
 				throw Dcx::dcxException("Unable To Load Icon");
 #endif
 
-			if (ImageList_AddIcon(himl, icon) == -1)
+			if (ImageList_AddIcon(himl, icon.get()) == -1)
 				throw Dcx::dcxException("Unable To Add Image to ImageList");
 		}
 		break;
