@@ -922,6 +922,8 @@ namespace Dcx
 		RETURN_TYPE val;
 		buf >> val;
 		return val;
+
+		//std::from_chars();
 	}
 
 	namespace details {
@@ -1059,6 +1061,7 @@ namespace Dcx
 	}
 
 	// C++11 Better countof() for arrays, taken from http://www.g-truc.net/post-0708.html
+	// replaced by std::size() in code.
 	template <typename T, std::size_t N>
 	constexpr std::size_t countof(T const (&)[N]) noexcept
 	{
@@ -1101,7 +1104,7 @@ namespace Dcx
 		// need to remove the // from the pattern so /^blah$/ becomes ^blah$
 		const auto patlen = _ts_strlen(str);
 		auto tmp = std::make_unique<TCHAR[]>(patlen);
-		auto rType = std::regex::ECMAScript;
+		auto rType = std::regex::awk;
 
 		//if ()
 		_ts_strcpyn(tmp.get(), pattern +1, patlen -2);

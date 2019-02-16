@@ -1716,8 +1716,7 @@ void DcxListView::parseCommandRequest(const TString &input)
 			// load normal icon
 			if (auto himl = this->initImageList(LVSIL_NORMAL); index < 0)
 			{
-				if (!AddFileIcons(himl, filename, true, -1))
-					throw Dcx::dcxException(TEXT("Unable to Add %'s Icons"), filename);
+				AddFileIcons(himl, filename, true, -1);
 			}
 			else {
 #if DCX_USE_WRAPPERS
@@ -1741,8 +1740,7 @@ void DcxListView::parseCommandRequest(const TString &input)
 			// load small icon
 			if (auto himl = this->initImageList(LVSIL_SMALL); index < 0)
 			{
-				if (!AddFileIcons(himl, filename, false, -1))
-					throw Dcx::dcxException(TEXT("Unable to Add %'s Icons"), filename);
+				AddFileIcons(himl, filename, false, -1);
 			}
 			else {
 #if DCX_USE_WRAPPERS
@@ -1769,8 +1767,7 @@ void DcxListView::parseCommandRequest(const TString &input)
 		{
 			if (auto himl = this->initImageList(LVSIL_STATE); index < 0)
 			{
-				if (!AddFileIcons(himl, filename, false, -1))
-					throw Dcx::dcxException(TEXT("Unable to Add %'s Icons"), filename);
+				AddFileIcons(himl, filename, false, -1);
 			}
 			else {
 #if DCX_USE_WRAPPERS

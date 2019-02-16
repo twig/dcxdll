@@ -19,11 +19,11 @@
 
 #ifdef DCX_USE_DXSDK
 #include "Classes/dcxcontrol.h"
-#include <dshow.h>
-#include <initguid.h>
-#include <qnetwork.h>
-#include <d3d9.h>
-#include <vmr9.h>
+//#include <dshow.h>
+//#include <initguid.h>
+//#include <qnetwork.h>
+//#include <d3d9.h>
+//#include <vmr9.h>
 //#include <DXGIDebug.h> // win8 only
 
 class DcxDialog;

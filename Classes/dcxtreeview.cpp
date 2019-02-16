@@ -889,8 +889,7 @@ void DcxTreeView::parseCommandRequest(const TString & input)
 			{
 				if (index < 0)
 				{
-					if (!AddFileIcons(himl, filename, bLarge, -1))
-						throw Dcx::dcxException(TEXT("Unable to Add %'s Icons"), filename);
+					AddFileIcons(himl, filename, bLarge, -1);
 				}
 				else if (const auto i = ImageList_AddIcon(himl, icon); tsFlags.find(TEXT('o'), 0))
 				{
@@ -922,8 +921,7 @@ void DcxTreeView::parseCommandRequest(const TString & input)
 			{
 				if (index < 0)
 				{
-					if (!AddFileIcons(himl, filename, bLarge, -1))
-						throw Dcx::dcxException(TEXT("Unable to Add %'s Icons"), filename);
+					AddFileIcons(himl, filename, bLarge, -1);
 				}
 				else
 					ImageList_AddIcon(himl, icon);
@@ -1206,11 +1204,11 @@ void DcxTreeView::insertItem(const TString &tsPath, const TString &tsData, const
 	lpmytvi.release();
 
 	if (state > -1 && state < 5) // zero is no state image.
-		TreeView_SetItemState(m_Hwnd, hItem, INDEXTOSTATEIMAGEMASK(static_cast<UINT>(state)), TVIS_STATEIMAGEMASK);
+		TreeView_SetItemState(m_Hwnd, hItem, INDEXTOSTATEIMAGEMASK(gsl::narrow_cast<UINT>(state)), TVIS_STATEIMAGEMASK);
 
 	// overlay is 1-based index
 	if (overlay > 0 && overlay < 16)
-		TreeView_SetItemState(m_Hwnd, hItem, INDEXTOOVERLAYMASK(static_cast<UINT>(overlay)), TVIS_OVERLAYMASK);
+		TreeView_SetItemState(m_Hwnd, hItem, INDEXTOOVERLAYMASK(gsl::narrow_cast<UINT>(overlay)), TVIS_OVERLAYMASK);
 
 	return;
 }

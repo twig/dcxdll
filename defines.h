@@ -84,7 +84,7 @@ constexpr auto DCX_MAX_GDI_ERRORS = 21;
 // end of GDI+
 
 // use string hashes for compares etc..? (non-hashing code removed, always use this now)
-#define DCX_USE_HASHING 1
+//constexpr auto DCX_USE_HASHING = 1;
 
 // DCX Using C++11 regex
 // NB: Can't be used with either BOOST OR PCRE enabled.
@@ -265,6 +265,20 @@ constexpr auto DCX_MAX_GDI_ERRORS = 21;
 #endif
 
 #ifdef DCX_USE_DXSDK
+#include <dshow.h>
+#include <initguid.h>
+#include <qnetwork.h>
+#include <d3d9.h>
+#include <vmr9.h>
+#if __has_include(<dxerr/dxerr.h>)
+#ifdef DCX_DX_ERR
+#include <dxerr/dxerr.h>
+#pragma comment(lib, "DxErr.lib")
+#define DX_ERR(prop,cmd,hr) showError((prop), (cmd), TEXT("%: %"), DXGetErrorString((hr)), DXGetErrorDescription((hr)))
+#else
+#define DX_ERR(prop,cmd,hr)
+#endif
+#else
 #if !__has_include(<Dxsdkver.h>)
 #error "DirectX SDK Required!"
 #endif
@@ -276,6 +290,7 @@ constexpr auto DCX_MAX_GDI_ERRORS = 21;
 #define DX_ERR(prop,cmd,hr) showError((prop), (cmd), TEXT("%: %"), DXGetErrorString((hr)), DXGetErrorDescription((hr)))
 #else
 #define DX_ERR(prop,cmd,hr)
+#endif
 #endif
 #endif
 
@@ -389,7 +404,7 @@ enum class mIRC_SendMessage_ErrorCodes : UINT {
 #define mIRC_ID_OFFSET 6000U //!< mIRC Dialog ID Offset
 #define mIRC_ID_MAX (UINT_MAX -1)	//!< Highest ID allowed.
 #define mIRC_MAX_CONTROLS	10000U	//!< Max number of controls allowed per dialog.
-#define mIRC_PALETTE_SIZE	100U	// Number of colours in mIRC's palette (mIRC v7.51.212+ support 100 colours, 0 - 15 same as old mirc, 16-99 new colour palette)
+constexpr auto mIRC_PALETTE_SIZE = 100U;	// Number of colours in mIRC's palette (mIRC v7.51.212+ support 100 colours, 0 - 15 same as old mirc, 16-99 new colour palette)
 
 #define DCX_LISTVIEWCLASS    TEXT("DCXListViewClass")     //!< DCX Listview Class Name
 #define DCX_PROGRESSBARCLASS TEXT("DCXProgressBarClass")  //!< DCX ProgressBar Class Name
@@ -564,7 +579,7 @@ HICON CreateGrayscaleIcon(HICON hIcon) noexcept;
 HRGN BitmapRegion(HBITMAP hBitmap, const COLORREF cTransparentColor, const bool bIsTransparent);
 
 void ChangeHwndIcon(const HWND hwnd, const TString &flags, const int index, TString &filename);
-bool AddFileIcons(HIMAGELIST himl, TString &filename, const bool bLarge, const int iIndex, const int iStart = 0, const int iEnd = -1);
+void AddFileIcons(HIMAGELIST himl, TString &filename, const bool bLarge, const int iIndex, const int iStart = 0, const int iEnd = -1);
 int dcxPickIconDlg(const HWND hwnd, LPWSTR pszIconPath, const UINT &cchIconPath, int *piIconIndex) noexcept;
 
 BOOL dcxGetWindowRect(const HWND hWnd, const LPRECT lpRect) noexcept;

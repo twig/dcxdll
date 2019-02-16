@@ -60,7 +60,7 @@ namespace {
 		TCHAR mutex[128];
 		// add pid of mIRC.exe to name so mutex is specific to this instance of mIRC.
 		// GetModuleHandle(nullptr) was returning a consistant result.
-		_ts_snprintf(&mutex[0], std::extent_v<decltype(mutex)>, TEXT("DCX_LOADED%lx"), GetCurrentProcessId()); // NB: calls user32.dll, is this ok? See warnings in DllMain() docs.
+		_ts_snprintf(&mutex[0], std::size(mutex), TEXT("DCX_LOADED%lx"), GetCurrentProcessId()); // NB: calls user32.dll, is this ok? See warnings in DllMain() docs.
 																														   // Enforce only one instance of dcx.dll loaded at a time.
 		hDcxMutex = CreateMutex(nullptr, TRUE, &mutex[0]);
 

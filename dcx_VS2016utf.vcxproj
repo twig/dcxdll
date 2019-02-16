@@ -174,8 +174,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\Program Files %28x86%29\Microsoft Research\Detours Express 3.0\include;$(IncludePath);$(DXSDK_DIR)Include</IncludePath>
-    <LibraryPath>C:\Program Files %28x86%29\Microsoft Research\Detours Express 3.0\lib.X86;$(LibraryPath);$(DXSDK_DIR)Lib\x86</LibraryPath>
+    <IncludePath>C:\Program Files %28x86%29\Microsoft Research\Detours Express 3.0\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Program Files %28x86%29\Microsoft Research\Detours Express 3.0\lib.X86;$(LibraryPath);$(OutDir)</LibraryPath>
     <CustomBuildAfterTargets>Build</CustomBuildAfterTargets>
     <EnableCppCoreCheck>true</EnableCppCoreCheck>
     <EnableExperimentalCppCoreCheck>true</EnableExperimentalCppCoreCheck>
@@ -186,31 +186,31 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>C:\Program Files %28x86%29\Microsoft Research\Detours Express 3.0\include;$(IncludePath);$(DXSDK_DIR)Include</IncludePath>
-    <LibraryPath>C:\Program Files %28x86%29\Microsoft Research\Detours Express 3.0\lib.X86;$(LibraryPath);$(DXSDK_DIR)Lib\x86</LibraryPath>
+    <IncludePath>C:\Program Files %28x86%29\Microsoft Research\Detours Express 3.0\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Program Files %28x86%29\Microsoft Research\Detours Express 3.0\lib.X86;$(LibraryPath);$(OutDir)</LibraryPath>
     <PostBuildEventUseInBuild>false</PostBuildEventUseInBuild>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release Dll|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>C:\Program Files %28x86%29\Microsoft Research\Detours Express 3.0\include;$(IncludePath);$(DXSDK_DIR)Include</IncludePath>
-    <LibraryPath>C:\Program Files %28x86%29\Microsoft Research\Detours Express 3.0\lib.X86;$(LibraryPath);$(DXSDK_DIR)Lib\x86</LibraryPath>
+    <IncludePath>C:\Program Files %28x86%29\Microsoft Research\Detours Express 3.0\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Program Files %28x86%29\Microsoft Research\Detours Express 3.0\lib.X86;$(LibraryPath);$(OutDir)</LibraryPath>
     <PostBuildEventUseInBuild>false</PostBuildEventUseInBuild>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release Optimal|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>C:\Program Files %28x86%29\Microsoft Research\Detours Express 3.0\include;$(IncludePath);$(DXSDK_DIR)Include</IncludePath>
-    <LibraryPath>C:\Program Files %28x86%29\Microsoft Research\Detours Express 3.0\lib.X86;$(LibraryPath);$(DXSDK_DIR)Lib\x86</LibraryPath>
+    <IncludePath>C:\Program Files %28x86%29\Microsoft Research\Detours Express 3.0\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Program Files %28x86%29\Microsoft Research\Detours Express 3.0\lib.X86;$(LibraryPath);$(OutDir)</LibraryPath>
     <PostBuildEventUseInBuild>false</PostBuildEventUseInBuild>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release SSE42 AVX2|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>C:\Program Files %28x86%29\Microsoft Research\Detours Express 3.0\include;$(IncludePath);$(DXSDK_DIR)Include</IncludePath>
-    <LibraryPath>C:\Program Files %28x86%29\Microsoft Research\Detours Express 3.0\lib.X86;$(LibraryPath);$(DXSDK_DIR)Lib\x86</LibraryPath>
+    <IncludePath>C:\Program Files %28x86%29\Microsoft Research\Detours Express 3.0\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Program Files %28x86%29\Microsoft Research\Detours Express 3.0\lib.X86;$(LibraryPath);$(OutDir)</LibraryPath>
     <PostBuildEventUseInBuild>false</PostBuildEventUseInBuild>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Development|Win32'">
-    <IncludePath>C:\Program Files %28x86%29\Microsoft Research\Detours Express 3.0\include;$(IncludePath);$(DXSDK_DIR)Include</IncludePath>
-    <LibraryPath>C:\Program Files %28x86%29\Microsoft Research\Detours Express 3.0\lib.X86;$(LibraryPath);$(DXSDK_DIR)Lib\x86</LibraryPath>
+    <IncludePath>C:\Program Files %28x86%29\Microsoft Research\Detours Express 3.0\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Program Files %28x86%29\Microsoft Research\Detours Express 3.0\lib.X86;$(LibraryPath);$(OutDir)</LibraryPath>
     <PostBuildEventUseInBuild>false</PostBuildEventUseInBuild>
     <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
@@ -606,6 +606,7 @@
     <ClInclude Include="Dcx.h" />
     <ClInclude Include="dcxExceptions.h" />
     <ClInclude Include="defines.h" />
+    <ClInclude Include="dxerr_nov2015\dxerr.h" />
     <ClInclude Include="mIRCLinker.h" />
     <ClInclude Include="refString.h" />
     <ClInclude Include="resource.h" />

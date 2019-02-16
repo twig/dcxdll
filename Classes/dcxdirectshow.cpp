@@ -1207,5 +1207,4 @@ LRESULT DcxDirectshow::CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPAR
 
 	return DefWindowProc(this->m_Hwnd, uMsg, wParam, lParam);
 }
-
 #endif // DCX_USE_DXSDK

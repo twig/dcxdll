@@ -85,6 +85,9 @@
     <Filter Include="Header Files\GSL">
       <UniqueIdentifier>{5707c8b1-8877-43e0-89bd-e0d398a37c19}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\DirectX">
+      <UniqueIdentifier>{d32befc0-4bc4-4e3c-b38e-0c1d5a7e05d0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Dcx.cpp">
@@ -571,6 +574,9 @@
     </ClInclude>
     <ClInclude Include="GSL\pointers">
       <Filter>Header Files\GSL</Filter>
+    </ClInclude>
+    <ClInclude Include="dxerr_nov2015\dxerr.h">
+      <Filter>Header Files\DirectX</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

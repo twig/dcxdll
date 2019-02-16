@@ -495,14 +495,13 @@ mIRC(xtreebar)
 
 				if (fIndex < 0)
 				{ // file index is -1, so add ALL icons in file at iIndex pos.
-					if (!AddFileIcons(himl, filename, false, iIndex))
-						throw Dcx::dcxException(TEXT("Unable to Add %'s Icons"), filename);
+					AddFileIcons(himl, filename, false, iIndex);
 				}
 				else {
 #if DCX_USE_WRAPPERS
 					Dcx::dcxIconResource icon(fIndex, filename, false, cflag);
 
-					ImageList_ReplaceIcon(himl, iIndex, icon);
+					ImageList_ReplaceIcon(himl, iIndex, icon.get());
 #else
 					HICON hIcon = dcxLoadIcon(fIndex, filename, false, cflag);
 					if (hIcon == nullptr)

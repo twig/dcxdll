@@ -1946,11 +1946,11 @@ bool isRegexMatch(const TCHAR *matchtext, const TCHAR *pattern)
 			//auto tmp = std::make_unique<TCHAR[]>(patlen);
 			//_ts_strcpyn(tmp.get(), pattern +1, patlen -2);
 			//std::basic_regex<TCHAR> r(tmp.get(), std::regex_constants::ECMAScript);
-			std::basic_regex<TCHAR> r(pattern, std::regex_constants::ECMAScript);
+			std::basic_regex<TCHAR> r(pattern, std::regex_constants::awk);
 			return std::regex_search(matchtext, r);
 		}
 		else {
-			std::basic_regex<TCHAR> r(pattern, std::regex_constants::ECMAScript);
+			std::basic_regex<TCHAR> r(pattern, std::regex_constants::awk);
 			return std::regex_search(matchtext, r);
 		}
 	}
@@ -1973,74 +1973,51 @@ bool isRegexMatch(const TCHAR *matchtext, const TCHAR *pattern)
 #endif // DCX_USE_CREGEX
 }
 
-bool AddFileIcons(HIMAGELIST himl, TString &filename, const bool bLarge, const int iIndex, const int iStart, const int iEnd)
+void AddFileIcons(HIMAGELIST himl, TString &filename, const bool bLarge, const int iIndex, const int iStart, const int iEnd)
 {
-	if (himl == nullptr)
-		return false;
+	if ((himl == nullptr) || (iStart < 0) || (iEnd != -1 && iStart > iEnd))
+		throw Dcx::dcxException(TEXT("Invalid Args"));
 
 	if (!IsFile(filename))
-		return false;
+		throw Dcx::dcxException(TEXT("Unable to Access file: %"), filename);
 
 #if DCX_USE_WRAPPERS
-	int fIndex = iStart, i = iIndex;
-	auto bAdded = false, bGotIcon = false;
+	for (auto FileIndex{ iStart }, IconIndex{ iIndex }; FileIndex <= iEnd; ++FileIndex)
+	{
+		const Dcx::dcxIconResource hIcon(filename, FileIndex, bLarge);	// throws on fail...
 
-	if (fIndex < 0 || (iEnd != -1 && fIndex > iEnd))
-		return bAdded;
+		if (ImageList_ReplaceIcon(himl, IconIndex, hIcon.get()) == -1)
+			throw Dcx::dcxException(TEXT("Unable to Add %'s Icon %"), filename, FileIndex);
 
-	do {
-		const Dcx::dcxIconResource hIcon(filename, fIndex, bLarge);
-
-		bGotIcon = (hIcon.get() != nullptr);
-		if (bGotIcon)
-		{
-			if (i == -1)
-				ImageList_ReplaceIcon(himl, -1, hIcon.get());	// same as ImageList_AddIcon()
-			else
-				ImageList_ReplaceIcon(himl, i++, hIcon.get());
-			bAdded = true;
-
-			++fIndex;
-			if (fIndex > iEnd)
-				break;
-		}
-	} while (bGotIcon);
+		if (IconIndex != -1)
+			++IconIndex;
+	}
 #else
-	int fIndex = iStart, i = iIndex;
 	HICON hIcon = nullptr;
-	auto bAdded = false;
 	
-	if (fIndex < 0 || (iEnd != -1 && fIndex > iEnd))
-		return bAdded;
-	
-	do {
+	for (auto FileIndex{ iStart }, IconIndex{ iIndex }; FileIndex <= iEnd; ++FileIndex)
+	{
 		if (bLarge)
-			ExtractIconEx(filename.to_chr(), fIndex, &hIcon, nullptr, 1);
+			ExtractIconEx(filename.to_chr(), FileIndex, &hIcon, nullptr, 1);
 		else
-			ExtractIconEx(filename.to_chr(), fIndex, nullptr, &hIcon, 1);
+			ExtractIconEx(filename.to_chr(), FileIndex, nullptr, &hIcon, 1);
 	
-		if (hIcon != nullptr)
-		{
-			// auto free handle hIcon when going out of scope or throwing an exception
-			//Auto(DestroyIcon(hIcon));
-	
-			// auto free handle hIcon when going out of scope or throwing an exception (testing)
-			auto IconGuard = gsl::finally([hIcon]() { DestroyIcon(hIcon); });
-	
-			if (i == -1)
-				ImageList_ReplaceIcon(himl, -1, hIcon);
-			else
-				ImageList_ReplaceIcon(himl, i++, hIcon);
-			bAdded = true;
-		}
+		if (!hIcon)
+			throw Dcx::dcxException(TEXT("Unable to Add %'s Icon %"), filename, FileIndex);
 
-		++fIndex;
-		if (fIndex > iEnd)
-			break;
-	} while (hIcon != nullptr);
+		// auto free handle hIcon when going out of scope or throwing an exception
+		//Auto(DestroyIcon(hIcon));
+	
+		// auto free handle hIcon when going out of scope or throwing an exception (testing)
+		auto IconGuard = gsl::finally([hIcon]() { DestroyIcon(hIcon); });
+	
+		if (ImageList_ReplaceIcon(himl, IconIndex, hIcon) == -1)
+			throw Dcx::dcxException(TEXT("Unable to Add %'s Icon %"), filename, FileIndex);
+
+		if (IconIndex != -1)
+			++IconIndex;
+	}
 #endif
-
-	return bAdded;
 }
 
 BOOL dcxGetWindowRect(const HWND hWnd, const LPRECT lpRect) noexcept
