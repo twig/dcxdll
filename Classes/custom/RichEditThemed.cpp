@@ -204,7 +204,7 @@ LRESULT CALLBACK CRichEditThemed::RichEditStyledProc(HWND hwnd, UINT uMsg, WPARA
 			//Fail-safe: don't restore the original wndproc pointer if it has been modified since the creation of this object
 			if (IsWindow(hwnd))
 			{
-				if ((WNDPROC)GetWindowLongPtr(hwnd, GWLP_WNDPROC) == &RichEditStyledProc)
+				if (Dcx::dcxGetWindowProc(hwnd) == &RichEditStyledProc)
 					SubclassWindow(hwnd, pObj->m_pOriginalWndProc);
 			}
 

@@ -78,19 +78,14 @@
 
 #include "string_support.h"
 
-#define TS_getmemsize(x) (size_t)(((x) - 1U) + (16U - (((x) - 1U) % 16U) ))
+template<typename T>
+constexpr auto TS_getmemsize(T x) { return (size_t)(((x) - 1U) + (16U - (((x) - 1U) % 16U) )); }
 //#define TS_wgetmemsize(x) (unsigned long)(((((x) - 1)*sizeof(WCHAR)) + (16 - ((((x) - 1)*sizeof(WCHAR)) % 16)))/sizeof(WCHAR))
-#define TS_wgetmemsize(x) (TS_getmemsize((x)*sizeof(WCHAR))/sizeof(WCHAR))
+template<typename T>
+constexpr auto TS_wgetmemsize(T x) { return (TS_getmemsize((x)*sizeof(WCHAR))/sizeof(WCHAR)); }
 
 // enable this define if you wish to use the mIRC extra functions
 #define INCLUDE_MIRC_EXTRAS 0
-
-// enable this define to include code to support: for (auto x: TString)
-//#define TSTRING_PARTS 1
-//#define TSTRING_ITERATOR 1
-
-// enable this define to enable using templates to convert TString to numbers. (TString->to_<int>() etc..)
-//#define TSTRING_TEMPLATES 1
 
 // Enable/Disable test code...
 #define TSTRING_TESTCODE 1
@@ -123,8 +118,10 @@
 #define ts_strcat_s(x,y,z) wcscat_s((x),(z),(y))
 #define ts_strcat(x,y) _ts_strcat((x),(y))
 #define ts_strncat(x,y,z) _ts_strncat((x),(y),gsl::narrow_cast<size_t>(z))
-#define ts_toupper(c) ((((c) >= TEXT('a')) && ((c) <= TEXT('z'))) ? _toupper((c)) : (c) )
-#define ts_tolower(c) ((((c) >= TEXT('A')) && ((c) <= TEXT('Z'))) ? _tolower((c)) : (c) )
+template<typename T>
+constexpr auto ts_toupper(T c) { return ((((c) >= TEXT('a')) && ((c) <= TEXT('z'))) ? _toupper((c)) : (c) ); }
+template<typename T>
+constexpr auto ts_tolower(T c) { return ((((c) >= TEXT('A')) && ((c) <= TEXT('Z'))) ? _tolower((c)) : (c) ); }
 #define ts_strcpyn(dest,src,len) _ts_strcpyn((dest),(src),gsl::narrow_cast<size_t>(len))
 #define ts_strcpy(dest,src) _ts_strcpy((dest),(src))
 //#define ts_strcpyn(dest,src,len) lstrcpyn((dest),(src),gsl::narrow_cast<size_t>(len))
@@ -329,13 +326,10 @@ public:
 	TString(const_pointer_const cString, const size_type iLen)
 		: TString(iLen+1U)
 	{
-		if (cString != nullptr)
+		if ((cString) && (cString[0] != TEXT('\0')) && iLen > 0)
 		{
-			if (cString[0] != TEXT('\0'))
-			{
-				ts_strcpyn_throw(m_pString, cString, iLen + 1);
-				m_iLen = iLen;
-			}
+			ts_strcpyn_throw(m_pString, cString, iLen + 1);
+			m_iLen = iLen;
 		}
 		m_bDirty = false;
 	}
@@ -345,20 +339,17 @@ public:
 	//		iLen	== Length of string in characters.
 	TString(const char *const cString, const size_type iLen)
 	{
-		if (cString != nullptr)
+		if ((cString) && (cString[0] != 0) && iLen > 0)
 		{
-			if (cString[0] != 0)
-			{
-				m_pString = charToWchar(cString, &m_buffersize);
+			m_pString = charToWchar(cString, &m_buffersize);
 
-				if (m_pString == nullptr)
-				{
-					m_pString = &m_InternalBuffer[0];
-					m_buffersize = TSTRING_INTERNALBUFFERSIZE_BYTES;
-				}
-				else
-					m_iLen = iLen;
+			if (!m_pString)
+			{
+				m_pString = &m_InternalBuffer[0];
+				m_buffersize = TSTRING_INTERNALBUFFERSIZE_BYTES;
 			}
+			else
+				m_iLen = iLen;
 		}
 		m_bDirty = false;
 	}
@@ -482,7 +473,7 @@ public:
 			return (compare(other) == 0);
 	}
 	template <>
-	bool operator ==(const int &iNull) const noexcept { return (m_pString == nullptr && !iNull); }
+	bool operator ==(const int &iNull) const noexcept { return (!m_pString && !iNull); }
 
 	template <class T>
 	bool operator !=(const T &other) const noexcept { return !(*this == other); }
@@ -679,7 +670,7 @@ public:
 	// allocate memory for string, preserves contents...
 	void reserve(const size_t tsSize);
 	// copy string...
-	void copy(TString other);
+	void copy(TString other) noexcept;
 	// compare strings...
 	int compare(const TString &other) const noexcept;
 	int compare(const_reference other) const noexcept;
@@ -697,6 +688,14 @@ public:
 				return i + 1;
 		}
 		return 0U;
+
+		//UINT i{};
+		//for (const auto& a : array)
+		//{
+		//	if (*this == a)
+		//		return i + 1;
+		//}
+		//return 0U;
 	}
 
 #if TSTRING_TESTCODE
@@ -795,7 +794,7 @@ public:
 	template <typename T>
 	TString &remove(const T &str)
 	{
-		const_value_type sTmp[2] = { 0 };
+		const_value_type sTmp[2]{};
 		replace(str, &sTmp[0]);
 		return *this;
 	}
@@ -1151,7 +1150,7 @@ public:
 		TString tmp(l);
 
 		// last token
-		if (p_cEnd == nullptr)
+		if (!p_cEnd)
 		{
 			--p_cStart;
 			*p_cStart = 0;
@@ -1231,7 +1230,6 @@ public:
 
 	//const tuple_type gettokenrange(const int nStart, const int nEnd, const_pointer sepChars) const;
 	//const tuple_type gettokenrange(const int nStart, const int nEnd, const_reference sepChars = SPACECHAR) const;
-
 	//template <typename TSepChars = const_reference>
 	//const TString::tuple_type gettokenrange(const int nStart, const int nEnd, TSepChars sepChars = SPACECHAR) const noexcept
 	//{
@@ -1305,7 +1303,7 @@ public:
 		if (iStart < 0)
 			iStart += (nToks + 1);
 
-		if (p_cStart == nullptr || p_fEnd == nullptr || iStart < 1 || ((nEnd < iStart) && (nEnd != -1)) || static_cast<size_t>(iStart) > nToks)
+		if (!p_cStart || !p_fEnd || iStart < 1 || ((nEnd < iStart) && (nEnd != -1)) || static_cast<size_t>(iStart) > nToks)
 			return { };
 
 		const auto bFullstring = ((static_cast<size_t>(nEnd) >= nToks) || (nEnd < 0));
@@ -1382,7 +1380,7 @@ public:
 		m_savedtotaltoks = rng.m_count;
 		m_savedpos = rng.m_pEnd;
 
-		if (m_savedpos != nullptr)
+		if (m_savedpos)
 			++m_savedpos;
 
 		return rng;
@@ -1484,13 +1482,13 @@ public:
 		tsIterator(tsType *ptr = nullptr) noexcept
 			: tsIterator(ptr, nullptr)
 		{
-			if (m_ptr == nullptr)
+			if (!m_ptr)
 				m_iIndex = 0;
 		}
 		tsIterator(tsType *ptr, T *const sepChars) noexcept
-			: m_ptr(ptr), m_iIndex(1), m_sepChars(sepChars), m_sepChar{ T{}, T{} }
+			: m_ptr{ ptr }, m_iIndex{ 1 }, m_sepChars{ sepChars }, m_sepChar{ T{}, T{} }
 		{
-			if (m_sepChars == nullptr)
+			if (!m_sepChars)
 			{
 				m_sepChar[0] = SPACECHAR;
 				m_sepChar[1] = T();
@@ -1500,11 +1498,11 @@ public:
 			else
 				m_sepCharsLen = _ts_strlen(m_sepChars);
 
-			if (m_ptr != nullptr)
+			if (m_ptr)
 			{
 				m_toks = m_ptr->numtok(m_sepChars);
 				m_savedStart = m_ptr->m_pString;
-				if (m_savedStart != nullptr)
+				if (m_savedStart)
 				{
 					m_savedEnd = ts_strstr(m_savedStart, m_sepChars);
 					m_savedFinal = m_ptr->last();
@@ -1512,18 +1510,18 @@ public:
 			}
 		}
 		tsIterator(tsType *ptr, T &sepChar) noexcept
-			: m_ptr(ptr), m_iIndex(1), m_sepChars(&m_sepChar[0]), m_sepChar{ sepChar, T() }
+			: m_ptr{ ptr }, m_iIndex{ 1 }, m_sepChar{ sepChar, T() }, m_sepChars{ &m_sepChar[0] }
 		{
 			if (sepChar == T())
 				m_sepChar[0] = SPACECHAR;
 
 			m_sepCharsLen = 1;
 
-			if (m_ptr != nullptr)
+			if (m_ptr)
 			{
 				m_toks = m_ptr->numtok(m_sepChars);
 				m_savedStart = m_ptr->m_pString;
-				if (m_savedStart != nullptr)
+				if (m_savedStart)
 				{
 					m_savedEnd = ts_strstr(m_savedStart, m_sepChars);
 					m_savedFinal = m_ptr->last();
@@ -1591,7 +1589,7 @@ public:
 		tsType operator* () const
 		{
 			// should we return a blank/empty tsType here instead of throwing an exception?
-			if (m_ptr == nullptr)
+			if (!m_ptr)
 				throw std::out_of_range("TString::iterator");
 			//if (m_ptr == nullptr)
 			//	return TEXT("");
@@ -1604,10 +1602,10 @@ public:
 			//	return m_ptr->getfirsttok(m_iIndex, m_sepChars);
 			//return m_ptr->getnexttok(m_sepChars);
 
-			if (m_sepChars == nullptr || m_savedStart == nullptr)
+			if (!m_sepChars || !m_savedStart)
 				return tsType();
 
-			if ((m_iIndex == m_toks) || (m_savedEnd == nullptr))
+			if ((m_iIndex == m_toks) || (!m_savedEnd))
 				return tsType( m_savedStart );
 
 			return tsType(m_savedStart, m_savedEnd);

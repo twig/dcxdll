@@ -74,7 +74,7 @@ namespace Dcx {
 
 		//get IClassFactory* for WebBrowser (move this to DcxControl & setup in InitializeDcxControls())
 		DCX_DEBUG(mIRCLinker::debug, TEXT("LoadDLL"), TEXT("Generating class factory for WebBrowser..."));
-		if (FAILED(CoGetClassObject(CLSID_WebBrowser, CLSCTX_INPROC_SERVER, 0, IID_IClassFactory, (void**)&m_pClassFactory)))
+		if (FAILED(CoGetClassObject(CLSID_WebBrowser, CLSCTX_INPROC_SERVER, nullptr, IID_IClassFactory, (void**)&m_pClassFactory)))
 		{
 			// failed...
 			DCX_DEBUG(mIRCLinker::debug, TEXT("LoadDLL"), TEXT("Unable to get WebBrowser..."));
@@ -129,9 +129,9 @@ namespace Dcx {
 		trayIcons.reset(nullptr);
 
 		// reset the treebars font if it's been changed.
-		if (mIRCLinker::getTreeFont() != nullptr)
+		if (mIRCLinker::getTreeFont())
 		{
-			if (const auto hfont = GetWindowFont(mIRCLinker::getTreeview()); hfont != mIRCLinker::getTreeFont())
+			if (const auto hfont = GetWindowFont(mIRCLinker::getTreeview()); hfont && hfont != mIRCLinker::getTreeFont())
 			{
 				SetWindowFont(mIRCLinker::getTreeview(), mIRCLinker::getTreeFont(), TRUE);
 				DeleteFont(hfont);
@@ -353,9 +353,12 @@ namespace Dcx {
 		{
 			dcxlParam(LPMEASUREITEMSTRUCT, lpmis);
 
+			if (!lpmis)
+				break;
+
 			if (lpmis->CtlType == ODT_MENU)
 			{
-				if (const auto p_Item = reinterpret_cast<XPopupMenuItem *>(lpmis->itemData); p_Item != nullptr)
+				if (const auto p_Item = reinterpret_cast<XPopupMenuItem *>(lpmis->itemData); p_Item)
 				{
 					//const auto size = p_Item->getItemSize(mHwnd);
 					//
@@ -376,9 +379,12 @@ namespace Dcx {
 		{
 			dcxlParam(LPDRAWITEMSTRUCT, lpdis);
 
+			if (!lpdis)
+				break;
+
 			if (lpdis->CtlType == ODT_MENU)
 			{
-				if (const auto p_Item = reinterpret_cast<XPopupMenuItem *>(lpdis->itemData); p_Item != nullptr)
+				if (const auto p_Item = reinterpret_cast<XPopupMenuItem *>(lpdis->itemData); p_Item)
 				{
 					p_Item->DrawItem(lpdis);
 					return TRUE;
@@ -625,7 +631,7 @@ namespace Dcx {
 
 	// load a cursor from a file or resource, depending on flags
 	// throws a dcxException on fail.
-	HCURSOR dcxLoadCursor(const UINT iFlags, const TCHAR *CursorType, bool &bCursorFromFile, const HCURSOR oldCursor, TString &filename)
+	HCURSOR dcxLoadCursor(const DcxResourceFlags iFlags, const TCHAR *CursorType, bool &bCursorFromFile, const HCURSOR oldCursor, TString &filename)
 	{
 		HCURSOR hCursor = nullptr;
 		HCURSOR newCursor = nullptr;
@@ -635,9 +641,9 @@ namespace Dcx {
 
 		bCursorFromFile = false;
 
-		if (dcx_testflag(iFlags, DCCS_FROMRESSOURCE))
+		if (iFlags == DcxResourceFlags::FROMRESSOURCE)
 			newCursor = dcxLoadCursorFromResource(CursorType);
-		else if (dcx_testflag(iFlags, DCCS_FROMFILE))
+		else if (iFlags == DcxResourceFlags::FROMFILE)
 		{
 			if (!IsFile(filename))
 				throw Dcx::dcxException(TEXT("Unable to Access File: %"), filename);

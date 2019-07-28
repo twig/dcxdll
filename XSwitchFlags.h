@@ -57,7 +57,7 @@ struct XSwitchFlags {
 	explicit operator ULONGLONG() const noexcept { return m_dFlagMask; }
 
 private:
-	ULONGLONG	m_dFlagMask;		//!< a bitmask of all selected letters...
+	ULONGLONG	m_dFlagMask{};		//!< a bitmask of all selected letters...
 
 	static constexpr bool m_bFalse = false;
 };

@@ -76,7 +76,7 @@ DcxEdit::~DcxEdit()
 const TString DcxEdit::getStyles(void) const
 {
 	auto styles(__super::getStyles());
-	const auto Styles = GetWindowStyle(m_Hwnd);
+	const auto Styles = dcxGetWindowStyle(m_Hwnd);
 
 	if (dcx_testflag(Styles, ES_MULTILINE))
 		styles.addtok(TEXT("multi"));
@@ -240,10 +240,10 @@ void DcxEdit::parseInfoRequest(const TString &input, const refString<TCHAR, MIRC
 		// [NAME] [ID] [PROP]
 	case L"caretpos"_hash:
 	{
-		DWORD dwAbsoluteStartSelPos = 0;
+		DWORD dwAbsoluteStartSelPos{};
 
 		// caret startsel position
-		SendMessage(m_Hwnd, EM_GETSEL, (WPARAM)&dwAbsoluteStartSelPos, NULL);
+		SendMessage(m_Hwnd, EM_GETSEL, reinterpret_cast<WPARAM>(&dwAbsoluteStartSelPos), NULL);
 
 		if (this->isStyle(WindowStyle::ES_MultiLine))
 		{
@@ -262,35 +262,35 @@ void DcxEdit::parseInfoRequest(const TString &input, const refString<TCHAR, MIRC
 	break;
 	case L"selstart"_hash:
 	{
-		DWORD dwSelStart = 0; // selection range starting position
+		DWORD dwSelStart{}; // selection range starting position
 
-		SendMessage(m_Hwnd, EM_GETSEL, (WPARAM)&dwSelStart, NULL);
+		SendMessage(m_Hwnd, EM_GETSEL, reinterpret_cast<WPARAM>(&dwSelStart), NULL);
 		_ts_snprintf(szReturnValue, TEXT("%u"), dwSelStart);
 	}
 	break;
 	case L"selend"_hash:
 	{
-		DWORD dwSelEnd = 0;   // selection range ending position
+		DWORD dwSelEnd{};   // selection range ending position
 
-		SendMessage(m_Hwnd, EM_GETSEL, NULL, (LPARAM)&dwSelEnd);
+		SendMessage(m_Hwnd, EM_GETSEL, NULL, reinterpret_cast<LPARAM>(&dwSelEnd));
 		_ts_snprintf(szReturnValue, TEXT("%u"), dwSelEnd);
 	}
 	break;
 	case L"sel"_hash:
 	{
-		DWORD dwSelStart = 0; // selection range starting position
-		DWORD dwSelEnd = 0;   // selection range ending position
+		DWORD dwSelStart{}; // selection range starting position
+		DWORD dwSelEnd{};   // selection range ending position
 
-		SendMessage(m_Hwnd, EM_GETSEL, (WPARAM)&dwSelStart, (LPARAM)&dwSelEnd);
+		SendMessage(m_Hwnd, EM_GETSEL, reinterpret_cast<WPARAM>(&dwSelStart), reinterpret_cast<LPARAM>(&dwSelEnd));
 		_ts_snprintf(szReturnValue, TEXT("%u %u"), dwSelStart, dwSelEnd);
 	}
 	break;
 	case L"seltext"_hash:
 	{
-		DWORD dwSelStart = 0; // selection range starting position
-		DWORD dwSelEnd = 0;   // selection range ending position
+		DWORD dwSelStart{}; // selection range starting position
+		DWORD dwSelEnd{};   // selection range ending position
 
-		SendMessage(m_Hwnd, EM_GETSEL, (WPARAM)&dwSelStart, (LPARAM)&dwSelEnd);
+		SendMessage(m_Hwnd, EM_GETSEL, reinterpret_cast<WPARAM>(&dwSelStart), reinterpret_cast<LPARAM>(&dwSelEnd));
 		szReturnValue = m_tsText.mid(gsl::narrow_cast<int>(dwSelStart), gsl::narrow_cast<int>(dwSelEnd - dwSelStart)).to_chr();
 	}
 	break;
@@ -655,7 +655,7 @@ LRESULT DcxEdit::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bPar
 		const auto ai = this->SetupAlphaBlend(&hdc);
 		Auto(this->FinishAlphaBlend(ai));
 
-		return CallDefaultClassProc(uMsg, (WPARAM)hdc, lParam);
+		return CallDefaultClassProc(uMsg, reinterpret_cast<WPARAM>(hdc), lParam);
 	}
 	break;
 
@@ -673,11 +673,11 @@ LRESULT DcxEdit::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bPar
 	return 0L;
 }
 
-WNDPROC DcxEdit::m_hDefaultClassProc = nullptr;
+WNDPROC DcxEdit::m_hDefaultClassProc{ nullptr };
 
 LRESULT DcxEdit::CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept
 {
-	if (m_hDefaultClassProc != nullptr)
+	if (m_hDefaultClassProc)
 		return CallWindowProc(m_hDefaultClassProc, this->m_Hwnd, uMsg, wParam, lParam);
 
 	return DefWindowProc(this->m_Hwnd, uMsg, wParam, lParam);

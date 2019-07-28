@@ -444,7 +444,7 @@ void XPopupMenuManager::parseCommand(const TString & input, XPopupMenu *const p_
 	// xpopup -s -> [MENU] [SWITCH] [+FLAGS] [X] [Y] (OVER HWND)
 	else if (flags[TEXT('s')])
 	{
-		if (numtok < 5)
+		if ((numtok < 5) || (!p_Menu))
 			throw Dcx::dcxException(TEXT("Invalid Arguments"));
 
 		const auto mflags = this->parseTrackFlags(input.getnexttok());	// tok 3
@@ -476,7 +476,6 @@ void XPopupMenuManager::parseCommand(const TString & input, XPopupMenu *const p_
 
 		const auto ID = TrackPopupMenuEx(p_Menu->getMenuHandle(), TPM_RETURNCMD | mflags, x, y, m_hMenuOwner, nullptr);
 
-		//mIRCLinker::execex(TEXT("//.signal -n XPopup-%s %d"), p_Menu->getName( ).to_chr( ), ID );
 		mIRCLinker::exec(TEXT("//.signal -n XPopup-% %"), p_Menu->getName(), ID);
 	}
 	// xpopup -t -> [MENU] [SWITCH] [STYLE]

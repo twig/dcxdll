@@ -112,13 +112,13 @@ public:
 	DcxDock &operator =(DcxDock &&) = delete;
 
 	DcxDock(HWND refHwnd, HWND dockHwnd, const DockTypes dockType) noexcept;
-	~DcxDock(void) noexcept;
+	~DcxDock() noexcept;
 
 	bool DockWindow(HWND hwnd, const TString &flag);
 	void UnDockWindow(const HWND hwnd);
 	void UnDockWindowPtr(const gsl::owner<LPDCXULTRADOCK> ud) noexcept;
-	void UnDockAll(void) noexcept;
-	void UpdateLayout(void) const noexcept { SendMessage(this->m_hParent,WM_SIZE,NULL,NULL); };
+	void UnDockAll() noexcept;
+	void UpdateLayout() const noexcept { SendMessage(this->m_hParent,WM_SIZE,NULL,NULL); };
 	bool FindDock(const HWND hwnd) const;
 	bool isDocked(const HWND hwnd) const;
 	LPDCXULTRADOCK GetDock(const HWND hwnd) const;
@@ -126,8 +126,8 @@ public:
 
 	// Statusbar Functions.
 	static bool InitStatusbar(const TString &styles);
-	static void UnInitStatusbar(void) noexcept;
-	static bool IsStatusbar(void) noexcept;
+	static void UnInitStatusbar() noexcept;
+	static bool IsStatusbar() noexcept;
 	static std::tuple<NoTheme,WindowStyle,WindowExStyle> status_parseControlStyles( const TString & styles );
 	static void status_getRect(LPRECT rc) noexcept;
 	static void status_setBkColor(const COLORREF clr) noexcept;
@@ -142,13 +142,13 @@ public:
 	static void status_getRect( const int iPart, const LPRECT lprc ) noexcept;
 	static void status_setIcon( const int iPart, const HICON hIcon ) noexcept;
 	static HICON status_getIcon( const int iPart ) noexcept;
-	static HIMAGELIST &status_getImageList(void) noexcept;
+	static HIMAGELIST &status_getImageList() noexcept;
 	static void status_setImageList( HIMAGELIST himl ) noexcept;
-	static HIMAGELIST status_createImageList(void) noexcept;
+	static HIMAGELIST status_createImageList() noexcept;
 	static const UINT status_parseItemFlags( const TString & flags ) noexcept;
 	static void status_cleanPartIcons( ) noexcept;
 	static LRESULT status_getBorders( const LPINT aWidths ) noexcept;
-	static void status_updateParts(void);
+	static void status_updateParts();
 	static void status_setFont(HFONT f) noexcept;
 	static LRESULT status_setPartInfo( const int iPart, const int Style, const LPSB_PARTINFOD pPart) noexcept;
 	static void status_deletePartInfo(const int iPart);

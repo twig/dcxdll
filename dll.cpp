@@ -52,19 +52,19 @@ SIGNALSWITCH dcxSignal;
 namespace {
 	HANDLE getMutex() noexcept
 	{
-		static HANDLE hDcxMutex = nullptr;
+		static HANDLE hDcxMutex{ nullptr };
 
 		if (hDcxMutex)
 			return hDcxMutex;
 
-		TCHAR mutex[128];
+		TCHAR mutex[128]{};
 		// add pid of mIRC.exe to name so mutex is specific to this instance of mIRC.
 		// GetModuleHandle(nullptr) was returning a consistant result.
-		_ts_snprintf(&mutex[0], std::size(mutex), TEXT("DCX_LOADED%lx"), GetCurrentProcessId()); // NB: calls user32.dll, is this ok? See warnings in DllMain() docs.
+		_ts_snprintf(std::addressof(mutex[0]), std::size(mutex), TEXT("DCX_LOADED%lx"), GetCurrentProcessId()); // NB: calls user32.dll, is this ok? See warnings in DllMain() docs.
 																														   // Enforce only one instance of dcx.dll loaded at a time.
-		hDcxMutex = CreateMutex(nullptr, TRUE, &mutex[0]);
+		hDcxMutex = CreateMutex(nullptr, TRUE, std::addressof(mutex[0]));
 
-		if ((hDcxMutex == nullptr) || (GetLastError() == ERROR_ALREADY_EXISTS))
+		if ((!hDcxMutex) || (GetLastError() == ERROR_ALREADY_EXISTS))
 			return nullptr;
 
 		return hDcxMutex;
@@ -83,25 +83,6 @@ BOOL WINAPI DllMain(
 	{
 	case DLL_PROCESS_ATTACH:
 	{
-		//TCHAR mutex[128];
-		//// Initialize once for each new process.
-		//// Return FALSE to fail DLL load.
-		//DisableThreadLibraryCalls(hinstDLL);
-		//// add pid of mIRC.exe to name so mutex is specific to this instance of mIRC.
-		//// GetModuleHandle(nullptr) was returning a consistant result.
-		//_ts_snprintf(&mutex[0], gsl::narrow_cast<int>(Dcx::countof(mutex)), TEXT("DCX_LOADED%lx"), GetCurrentProcessId()); // NB: calls user32.dll, is this ok? See warnings in DllMain() docs.
-		//
-		//// Enforce only one instance of dcx.dll loaded at a time.
-		//hDcxMutex = CreateMutex(nullptr, TRUE, &mutex[0]);
-		//if (hDcxMutex == nullptr)
-		//	return FALSE;
-		//else if (GetLastError() == ERROR_ALREADY_EXISTS)
-		//{
-		//	//ReleaseMutex(hDcxMutex);
-		//	//CloseHandle(hDcxMutex);
-		//	return FALSE;
-		//}
-
 		// Initialize once for each new process.
 		// Return FALSE to fail DLL load.
 		DisableThreadLibraryCalls(hinstDLL);
@@ -118,13 +99,6 @@ BOOL WINAPI DllMain(
 
 	case DLL_PROCESS_DETACH:
 		// Perform any necessary cleanup.
-
-		//if (hDcxMutex != nullptr)
-		//{
-		//	ReleaseMutex(hDcxMutex);
-		//	CloseHandle(hDcxMutex);
-		//	hDcxMutex = nullptr;
-		//}
 
 		if (const HANDLE hMutex = getMutex(); hMutex != nullptr)
 		{
@@ -456,7 +430,7 @@ mIRC(Version)
 			Ensures(tsNum == TEXT("blah1 blah2 blah3"_ts));
 
 			// set tsNum to second token & get it
-			tsNum++;
+			const auto _d = tsNum++;
 			tok = *tsNum;	// "blah2"
 			Ensures(tsNum == TEXT("blah1 blah2 blah3"_ts));
 			Ensures(tok == TEXT("blah2"_ts));

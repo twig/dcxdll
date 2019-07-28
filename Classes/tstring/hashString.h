@@ -113,6 +113,11 @@ constexpr unsigned int operator "" _crc32(const char* v, unsigned int c)
 {
 	return CRC32::crc32_helper(v, c, 0xFFFFFFFF);
 }
+// turns a literal string into a hash number at compile time.
+constexpr size_t operator""_crc32(const wchar_t* p, size_t N)
+{
+	return CRC32::crc32_helper(p, N, 0xFFFFFFFF);
+}
 
 namespace ZobHash {
 	constexpr uint32_t RotateLeft(const uint32_t value, const int32_t count) noexcept
@@ -410,6 +415,50 @@ constexpr unsigned int operator "" _zob(const char* v, unsigned int c)
 	return ZobHash::ZobHash(v, c);
 }
 
+namespace FNV1a {
+	// From https://github.com/foonathan/string_id. As usually, thanks Jonathan.
+
+	using hash_t = std::uint64_t;
+
+	// See http://www.isthe.com/chongo/tech/comp/fnv/#FNV-param
+	constexpr hash_t fnv_basis = 14695981039346656037ull;
+	constexpr hash_t fnv_prime = 1099511628211ull;
+
+	// FNV-1a 64 bit hash
+	constexpr hash_t fnv1a_hash(std::size_t n, const char* str, hash_t hash = fnv_basis)
+	{
+		return n > 0 ? fnv1a_hash(n - 1, str + 1, (hash ^ *str) * fnv_prime) : hash;
+	}
+
+	template<std::size_t N>
+	constexpr hash_t fnv1a_hash(const char(&array)[N])
+	{
+		return fnv1a_hash(N - 1, &array[0]);
+	}
+
+	constexpr hash_t fnv1a_hash(std::size_t n, const wchar_t* str, hash_t hash = fnv_basis)
+	{
+		return n > 0 ? fnv1a_hash(n - 1, str + 1, (hash ^ *str) * fnv_prime) : hash;
+	}
+
+	template<std::size_t N>
+	constexpr hash_t fnv1a_hash(const wchar_t(&array)[N])
+	{
+		return fnv1a_hash(N - 1, &array[0]);
+	}
+}
+// turns a literal string into a hash number at compile time.
+constexpr FNV1a::hash_t operator""_fnv1a(const char* p, size_t N)
+{
+	return FNV1a::fnv1a_hash(N - 1, p);
+}
+
+// turns a literal string into a hash number at compile time.
+constexpr FNV1a::hash_t operator""_fnv1a(const wchar_t* p, size_t N)
+{
+	return FNV1a::fnv1a_hash(N - 1, p);
+}
+
 // create a compile time hash of a const string. (no overflow bug, but causes dll size increase)
 template <typename T>
 constexpr size_t const_hash(const T *const input) noexcept
@@ -453,6 +502,7 @@ namespace std {
 		result_type operator()(argument_type const& s) const noexcept
 		{
 			return dcx_hash(s.to_chr(), s.len());
+			//return FNV1a::fnv1a_hash(s.len(), s.to_chr());
 		}
 	};
 	template<> struct hash<const char *>
@@ -462,6 +512,7 @@ namespace std {
 		result_type operator()(argument_type const& s) const noexcept
 		{
 			return dcx_hash(s);
+			//return FNV1a::fnv1a_hash(_ts_strlen(s),s);
 		}
 	};
 	template<> struct hash<const wchar_t *>
@@ -471,6 +522,7 @@ namespace std {
 		result_type operator()(argument_type const& s) const noexcept
 		{
 			return dcx_hash(s);
+			//return FNV1a::fnv1a_hash(_ts_strlen(s), s);
 		}
 	};
 }

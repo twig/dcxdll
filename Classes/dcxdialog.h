@@ -79,9 +79,9 @@ public:
 	DcxDialog &operator =(DcxDialog &&) = delete;	// No move assignments!
 
 	DcxDialog( const HWND mHwnd, const TString & tsName, const TString & tsAliasName);
-	virtual ~DcxDialog( );
+	~DcxDialog( );
 
-	void parseCommandRequest( const TString & input );
+	void parseCommandRequest( const TString & input ) final;
 	void parseCommandRequestEX(const TCHAR *const szFormat, ...);
 	void parseComControlRequestEX(const UINT id, const TCHAR *const szFormat, ...);
 	//void parseInfoRequest( const TString & input, TCHAR * szReturnValue ) const;
@@ -157,8 +157,12 @@ public:
 	inline void setParentName(const TString &strParent) { m_tsParentName = strParent; }
 	inline const TString &getParentName() const noexcept { return m_tsParentName; }
 	inline const HCURSOR &getCursor( ) const noexcept { return m_hCursor; };
-	inline const HCURSOR &getCursor(const WORD wHitCode) const noexcept {
-		if (wHitCode < std::extent_v<decltype(m_hCursorList)>) return m_hCursorList[wHitCode].first;
+	inline const HCURSOR &getCursor(const WORD wHitCode) const noexcept
+	{
+		//if (wHitCode < std::size(m_hCursorList)) return m_hCursorList[wHitCode].first;
+		//return m_hCursor;
+
+		[[gsl::suppress(bounds)]] if (wHitCode < std::size(m_hCursorList)) return m_hCursorList[wHitCode].cursor;
 		return m_hCursor;
 	};
 	inline const HWND &getToolTip(void) const noexcept { return m_ToolTipHWND; };
@@ -194,7 +198,7 @@ public:
 	void SetVistaStylePos(void) noexcept;
 	void SetVistaStyleSize(void) noexcept;
 
-	const bool isNamedId(const TString &NamedID) const
+	[[gsl::suppress(lifetime)]] const bool isNamedId(const TString &NamedID) const
 	{
 		const auto local_id = NamedID.to_<UINT>() + mIRC_ID_OFFSET;
 		const auto itEnd = m_NamedIds.end();
@@ -238,7 +242,7 @@ public:
 		}
 		return 0U;
 	}
-	const TString &IDToName(const UINT local_id) const
+	const TString &IDToName(const UINT local_id) const noexcept
 	{
 		static const TString tsEmpty;
 
@@ -356,7 +360,13 @@ private:
 	std::unique_ptr<LayoutManager> m_pLayoutManager; //!< Layout Manager Object
 
 	HCURSOR m_hCursor{ nullptr };  //!< Cursor Handle
-	std::pair<HCURSOR, bool> m_hCursorList[22]{};
+	struct CursorPair
+	{
+		HCURSOR	cursor{ nullptr };
+		bool	enabled{ false };
+	};
+	CursorPair m_hCursorList[22]{};
+	//std::vector<CursorPair> m_hCursorList2;
 
 	HBITMAP m_bitmapBg{ nullptr };
 	HBITMAP m_hVistaBitmap{ nullptr };

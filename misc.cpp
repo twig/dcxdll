@@ -665,7 +665,7 @@ HICON dcxLoadIcon(const int index, TString &filename, const bool large, const TS
 	if (!IsFile(filename))
 		throw Dcx::dcxException(TEXT("dcxLoadIcon: Could Not Access File: %"), filename);
 
-	HICON icon = nullptr;
+	HICON icon{};
 
 	if (xflags[TEXT('a')])
 	{
@@ -733,7 +733,6 @@ HBITMAP dcxLoadBitmap(HBITMAP dest, TString &filename)
 	}
 	if (!IsFile(filename))
 	{
-		//Dcx::errorex(TEXT("dcxLoadBitmap"), TEXT("Could Not Access File: %s"), filename.to_chr());
 		Dcx::error(TEXT("dcxLoadBitmap"), TEXT("Could Not Access File: %"), filename);
 		return nullptr;
 	}
@@ -897,7 +896,7 @@ HICON CreateGrayscaleIcon( HICON hIcon, const COLORREF *const pPalette ) noexcep
 				//sz.cx = bmpInfo.bmiHeader.biWidth;
 				//sz.cy = bmpInfo.bmiHeader.biHeight;
 
-				SIZE sz{ bmpInfo.bmiHeader.biWidth, bmpInfo.bmiHeader.biHeight };
+				const SIZE sz{ bmpInfo.bmiHeader.biWidth, bmpInfo.bmiHeader.biHeight };
 
 				bmpInfo.bmiHeader.biCompression = BI_RGB;
 
@@ -1103,11 +1102,7 @@ static const TCHAR *GDIErrors[] = {
 };
 constexpr const TCHAR *GetLastStatusStr(Gdiplus::Status status) noexcept
 {
-	//if (status > DCX_MAX_GDI_ERRORS)
-	//	return GDIErrors[1]; // status not in table, return GenericError
-	//return GDIErrors[(UINT)status];
-
-	if (gsl::narrow_cast<UINT>(status) >= Dcx::countof(GDIErrors))
+	if (gsl::narrow_cast<UINT>(status) >= std::size(GDIErrors))
 		return GDIErrors[1]; // status not in table, return GenericError
 	return GDIErrors[gsl::narrow_cast<UINT>(status)];
 }
@@ -1262,6 +1257,7 @@ bool IsFile(TString &filename)
 //    return dwVersion;
 //}
 
+// mIRC Colours, only the first 16 of these are changable.
 COLORREF staticPalette[mIRC_PALETTE_SIZE] = {
 	CLR_INVALID, CLR_INVALID, CLR_INVALID, CLR_INVALID, CLR_INVALID, CLR_INVALID, CLR_INVALID, CLR_INVALID,
 	CLR_INVALID, CLR_INVALID, CLR_INVALID, CLR_INVALID, CLR_INVALID, CLR_INVALID, CLR_INVALID, CLR_INVALID,
@@ -1287,8 +1283,7 @@ void getmIRCPalette()
 	{
 		TString colors;
 		static constexpr TCHAR com[] = TEXT("$color(0) $color(1) $color(2) $color(3) $color(4) $color(5) $color(6) $color(7) $color(8) $color(9) $color(10) $color(11) $color(12) $color(13) $color(14) $color(15)");
-		//mIRCLinker::tsEval(colors, &com[0]);
-		mIRCLinker::eval(colors, &com[0]);
+		mIRCLinker::eval(colors, std::addressof(com[0]));
 
 		size_t i = 0;
 		for (const auto &a : colors)
@@ -1303,12 +1298,12 @@ void getmIRCPalette()
 */
 void getmIRCPalette(COLORREF *const Palette, const UINT PaletteItems)
 {
-	if ((PaletteItems > mIRC_PALETTE_SIZE) || (Palette == &staticPalette[0]))
+	if ((PaletteItems > mIRC_PALETTE_SIZE) || (Palette == std::addressof(staticPalette[0])))
 		return;
 
 	getmIRCPalette();
 
-	CopyMemory(Palette, &staticPalette[0], sizeof(COLORREF) * PaletteItems);
+	CopyMemory(Palette, std::addressof(staticPalette[0]), sizeof(COLORREF) * PaletteItems);
 }
 
 /*!
@@ -1332,7 +1327,7 @@ void getmIRCPalette(gsl::span<COLORREF> Palette)
 // NB: This ONLY updates the first 16 colours, not the full 99, > 16 are static anyway...
 void getmIRCPaletteMask(COLORREF *const Palette, const UINT PaletteItems, uint16_t uMask)
 {
-	if ((Palette == nullptr) || (PaletteItems < 16) || (PaletteItems > std::extent_v<decltype(staticPalette)>))
+	if ((Palette == nullptr) || (PaletteItems < 16) || (PaletteItems > std::size(staticPalette)))
 		return;
 
 	getmIRCPalette();
@@ -1418,25 +1413,27 @@ void mIRC_OutText(HDC hdc, TString &txt, LPRECT rcOut, const LPLOGFONT lf, const
 		return;
 
 	const auto len = txt.len();
-	TEXTMETRICW tm = { 0 };
 	const auto hOldFont = SelectFont(hdc, CreateFontIndirect(lf));
-	GetTextMetrics(hdc, &tm);
 	auto rcTmp = *rcOut;
 
 	if (!dcx_testflag(iStyle,DT_CALCRECT))
 	{	// if DT_CALCRECT flag NOT given then do calcrect here.
 		//DrawText(hdc, txt.to_chr(), len, &rcTmp, iStyle | DT_CALCRECT);
 		if (shadow)
-			dcxDrawShadowText(hdc,txt.to_chr(), len, &rcTmp, iStyle | DT_CALCRECT, clrFG, 0, 5, 5);
+			dcxDrawShadowText(hdc, txt.to_chr(), len, std::addressof(rcTmp), iStyle | DT_CALCRECT, clrFG, 0, 5, 5);
 		else
-			DrawText(hdc, txt.to_chr(), gsl::narrow_cast<int>(len), &rcTmp, iStyle | DT_CALCRECT);
+			DrawText(hdc, txt.to_chr(), gsl::narrow_cast<int>(len), std::addressof(rcTmp), iStyle | DT_CALCRECT);
 	}
 	if (shadow)
-		dcxDrawShadowText(hdc,txt.to_chr(), len, &rcTmp, iStyle, clrFG, 0, 5, 5);
+		dcxDrawShadowText(hdc,txt.to_chr(), len, std::addressof(rcTmp), iStyle, clrFG, 0, 5, 5);
 	else
-		DrawText(hdc, txt.to_chr(), gsl::narrow_cast<int>(len), &rcTmp, iStyle);
+		DrawText(hdc, txt.to_chr(), gsl::narrow_cast<int>(len), std::addressof(rcTmp), iStyle);
 
-	rcOut->left += (rcTmp.right - rcTmp.left) - tm.tmOverhang;
+	if (TEXTMETRICW tm{}; GetTextMetrics(hdc, std::addressof(tm)))
+		rcOut->left += (rcTmp.right - rcTmp.left) - tm.tmOverhang;
+	else
+		rcOut->left += (rcTmp.right - rcTmp.left);
+
 	DeleteFont(SelectFont( hdc, hOldFont ));
 	txt.clear();	// txt = TEXT("");
 }
@@ -1766,10 +1763,10 @@ void mIRC_DrawText(HDC hdc, const TString &txt, LPRECT rc, const UINT style, con
 //}
 
 struct HDCBuffer {
-	HDC m_hHDC;
-	HBITMAP m_hOldBitmap;
-	HBITMAP m_hBitmap;
-	HFONT m_hOldFont;
+	HDC m_hHDC{};
+	HBITMAP m_hOldBitmap{};
+	HBITMAP m_hBitmap{};
+	HFONT m_hOldFont{};
 	// needs work...
 };
 using LPHDCBuffer = HDCBuffer *;
@@ -1784,18 +1781,20 @@ gsl::owner<HDC *> CreateHDCBuffer(HDC hdc, const LPRECT rc)
 
 	// create HDC for buffer.
 	buf->m_hHDC = CreateCompatibleDC(hdc);
-	if (buf->m_hHDC == nullptr)
+	if (!buf->m_hHDC)
 		return nullptr;
 
 	// get size of bitmap to alloc.
-	BITMAP bm = { 0 };
-	int x = 0, y = 0;
+	BITMAP bm{};
+	int x{}, y{};
 
-	if (rc == nullptr)
+	if (!rc)
 	{
 		// no size specified, use hdc's bitmap size.
-		if (GetObject((HBITMAP)GetCurrentObject(hdc, OBJ_BITMAP), sizeof(BITMAP), &bm) == 0)
+		if (auto [code, value] = Dcx::dcxGetObject<BITMAP>(Dcx::dcxGetCurrentObject<HBITMAP>(hdc, OBJ_BITMAP)); code == 0)
 			return nullptr;
+		else
+			bm = value;
 	}
 	else {
 		// use size specified.
@@ -1808,7 +1807,7 @@ gsl::owner<HDC *> CreateHDCBuffer(HDC hdc, const LPRECT rc)
 	// alloc bitmap for buffer.
 	buf->m_hBitmap = CreateCompatibleBitmap(hdc, bm.bmWidth, bm.bmHeight);
 
-	if (buf->m_hBitmap == nullptr)
+	if (!buf->m_hBitmap)
 	{
 #ifdef DEBUG
 		const DWORD err = GetLastError(), errBufSize = 16U;

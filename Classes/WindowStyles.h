@@ -154,22 +154,22 @@ constexpr WindowExStyle to_WindowExStyle(T other) noexcept
 
 inline WindowStyle dcxGetWindowStyle(HWND Hwnd) noexcept
 {
-	return static_cast<WindowStyle>(GetWindowStyle(Hwnd));
+	return to_WindowStyle(GetWindowStyle(Hwnd));
 }
 
 inline WindowExStyle dcxGetWindowExStyle(HWND Hwnd) noexcept
 {
-	return static_cast<WindowExStyle>(GetWindowExStyle(Hwnd));
+	return to_WindowExStyle(GetWindowExStyle(Hwnd));
 }
 
 inline WindowStyle dcxSetWindowStyle(HWND Hwnd, WindowStyle style) noexcept
 {
-	return static_cast<WindowStyle>(SetWindowLongPtr(Hwnd, GWL_STYLE, static_cast<LONG>(style)));
+	return to_WindowStyle(SetWindowLongPtr(Hwnd, GWL_STYLE, static_cast<LONG>(style)));
 }
 
 inline WindowExStyle dcxSetWindowExStyle(HWND Hwnd, WindowExStyle style) noexcept
 {
-	return static_cast<WindowExStyle>(SetWindowLongPtr(Hwnd, GWL_EXSTYLE, static_cast<LONG>(style)));
+	return to_WindowExStyle(SetWindowLongPtr(Hwnd, GWL_EXSTYLE, static_cast<LONG>(style)));
 }
 
 inline HWND dcxCreateWindow(const WindowExStyle ExStyles, const TCHAR *const szClass, const WindowStyle Styles, const RECT *const rc, HWND hParent, const UINT uID, const void *const pthis = nullptr) noexcept

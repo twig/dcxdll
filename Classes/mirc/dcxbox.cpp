@@ -432,12 +432,12 @@ LRESULT DcxBox::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPar
 	{
 		dcxlParam(LPNMHDR, hdr);
 
-		if (hdr == nullptr)
+		if (!hdr)
 			break;
 
 		if (IsWindow(hdr->hwndFrom))
 		{
-			if (const auto c_this = reinterpret_cast<DcxControl *>(GetProp(hdr->hwndFrom, TEXT("dcx_cthis"))); c_this != nullptr)
+			if (const auto c_this = reinterpret_cast<DcxControl *>(GetProp(hdr->hwndFrom, TEXT("dcx_cthis"))); c_this)
 				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 		}
 	}
@@ -506,7 +506,7 @@ LRESULT DcxBox::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPar
 
 		if (IsWindow((HWND)lParam))
 		{
-			if (const auto c_this = reinterpret_cast<DcxControl *>(GetProp((HWND)lParam, TEXT("dcx_cthis"))); c_this != nullptr)
+			if (const auto c_this = reinterpret_cast<DcxControl *>(GetProp((HWND)lParam, TEXT("dcx_cthis"))); c_this)
 				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 		}
 	}
@@ -514,9 +514,9 @@ LRESULT DcxBox::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPar
 
 	case WM_COMPAREITEM:
 	{
-		if (dcxlParam(LPCOMPAREITEMSTRUCT, idata); ((idata != nullptr) && (IsWindow(idata->hwndItem))))
+		if (dcxlParam(LPCOMPAREITEMSTRUCT, idata); ((idata) && (IsWindow(idata->hwndItem))))
 		{
-			if (const auto c_this = reinterpret_cast<DcxControl *>(GetProp((HWND)lParam, TEXT("dcx_cthis"))); c_this != nullptr)
+			if (const auto c_this = reinterpret_cast<DcxControl *>(GetProp((HWND)lParam, TEXT("dcx_cthis"))); c_this)
 				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 		}
 	}
@@ -524,9 +524,9 @@ LRESULT DcxBox::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPar
 
 	case WM_DELETEITEM:
 	{
-		if (dcxlParam(LPDELETEITEMSTRUCT, idata); ((idata != nullptr) && (IsWindow(idata->hwndItem))))
+		if (dcxlParam(LPDELETEITEMSTRUCT, idata); ((idata) && (IsWindow(idata->hwndItem))))
 		{
-			if (const auto c_this = reinterpret_cast<DcxControl *>(GetProp((HWND)lParam, TEXT("dcx_cthis"))); c_this != nullptr)
+			if (const auto c_this = reinterpret_cast<DcxControl *>(GetProp((HWND)lParam, TEXT("dcx_cthis"))); c_this)
 				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 		}
 	}
@@ -536,7 +536,7 @@ LRESULT DcxBox::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPar
 	{
 		if (const auto cHwnd = GetDlgItem(m_Hwnd, gsl::narrow_cast<int>(wParam)); IsWindow(cHwnd))
 		{
-			if (const auto c_this = reinterpret_cast<DcxControl *>(GetProp(cHwnd, TEXT("dcx_cthis"))); c_this != nullptr)
+			if (const auto c_this = reinterpret_cast<DcxControl *>(GetProp(cHwnd, TEXT("dcx_cthis"))); c_this)
 				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 		}
 	}
@@ -544,9 +544,9 @@ LRESULT DcxBox::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPar
 
 	case WM_DRAWITEM:
 	{
-		if (dcxlParam(LPDRAWITEMSTRUCT, idata); ((idata != nullptr) && (IsWindow(idata->hwndItem))))
+		if (dcxlParam(LPDRAWITEMSTRUCT, idata); ((idata) && (IsWindow(idata->hwndItem))))
 		{
-			if (const auto c_this = reinterpret_cast<DcxControl *>(GetProp(idata->hwndItem, TEXT("dcx_cthis"))); c_this != nullptr)
+			if (const auto c_this = reinterpret_cast<DcxControl *>(GetProp(idata->hwndItem, TEXT("dcx_cthis"))); c_this)
 				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 		}
 	}
@@ -569,9 +569,12 @@ LRESULT DcxBox::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPar
 		if (lParam == 0L)
 			break;
 
-		if (m_pLayoutManager != nullptr)
+		if (m_pLayoutManager)
 		{
 			dcxlParam(LPWINDOWPOS, wp);
+
+			if (!wp)
+				break;
 
 			RECT rc{ 0, 0, wp->cx, wp->cy };
 			m_pLayoutManager->updateLayout(rc);
@@ -616,7 +619,7 @@ LRESULT DcxBox::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPar
 
 	case WM_THEMECHANGED:
 	{
-		if (_hTheme != nullptr)
+		if (_hTheme)
 		{
 			Dcx::UXModule.dcxCloseThemeData(_hTheme);
 			_hTheme = Dcx::UXModule.dcxOpenThemeData(m_Hwnd, VSCLASS_BUTTON);
@@ -648,7 +651,7 @@ void DcxBox::EraseBackground(HDC hdc)
 		else // normal bkg
 			DcxControl::DrawCtrlBackground(hdc, this, &rc);
 		// Update CLA if any.
-		if (m_pLayoutManager != nullptr)
+		if (m_pLayoutManager)
 			m_pLayoutManager->updateLayout(rc);
 	}
 }
@@ -686,7 +689,7 @@ void DcxBox::DrawClientArea(HDC hdc)
 	// draw text
 	else {
 		// prepare for appearance
-		if (const auto f = getControlFont(); f != nullptr)
+		if (const auto f = getControlFont(); f)
 			SelectFont(hdc, f);
 
 		if (m_clrText != CLR_INVALID)
@@ -791,11 +794,11 @@ void DcxBox::DrawClientArea(HDC hdc)
 	}
 }
 
-WNDPROC DcxBox::m_hDefaultClassProc = nullptr;
+WNDPROC DcxBox::m_hDefaultClassProc{ nullptr };
 
 LRESULT DcxBox::CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept
 {
-	if (m_hDefaultClassProc != nullptr)
+	if (m_hDefaultClassProc)
 		return CallWindowProc(m_hDefaultClassProc, this->m_Hwnd, uMsg, wParam, lParam);
 
 	return DefWindowProc(this->m_Hwnd, uMsg, wParam, lParam);
@@ -813,7 +816,7 @@ void DcxBox::DrawBorder(HDC hdc, RECT & rc) noexcept
 			DcxControl::DrawCtrlBackground(hdc, this, &rc);
 			SelectClipRgn(hdc, nullptr);
 
-			const auto hBorderBrush = m_hBorderBrush != nullptr ? m_hBorderBrush : GetStockBrush(BLACK_BRUSH);
+			const auto hBorderBrush = (m_hBorderBrush) ? m_hBorderBrush : GetStockBrush(BLACK_BRUSH);
 
 			FrameRgn(hdc, m_Region, hBorderBrush, 1, 1);
 		}

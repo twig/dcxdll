@@ -146,7 +146,7 @@ DcxControl *DcxDialog::addControl(const TString &input, const UINT offset, const
 
 void DcxDialog::deleteControl(const DcxControl *const p_Control)
 {
-	if (p_Control == nullptr)
+	if (!p_Control)
 		return;
 
 	//auto itStart = m_vpControls.begin();
@@ -464,7 +464,7 @@ void DcxDialog::parseCommandRequest( const TString &input)
 		const auto CursorType = parseCursorType(filename);
 
 		if (const auto CursorArea = parseCursorArea(tsFlags); CursorArea > 0)
-			m_hCursorList[CursorArea].first = Dcx::dcxLoadCursor(iFlags, CursorType, m_hCursorList[CursorArea].second, m_hCursorList[CursorArea].first, filename);
+			m_hCursorList[CursorArea].cursor = Dcx::dcxLoadCursor(iFlags, CursorType, m_hCursorList[CursorArea].enabled, m_hCursorList[CursorArea].cursor, filename);
 		else
 			m_hCursor = Dcx::dcxLoadCursor(iFlags, CursorType, m_bCursorFromFile, m_hCursor, filename);
 	}
@@ -560,7 +560,7 @@ void DcxDialog::parseCommandRequest( const TString &input)
 				}
 			}
 			else {
-				this->m_iAlphaLevel = std::byte{ (BYTE)(tsArgs.to_int() & 0xFF) };
+				this->m_iAlphaLevel = std::byte{ gsl::narrow_cast<BYTE>(tsArgs.to_int() & 0xFF) };
 
 				if (!this->m_bVistaStyle)
 				{
@@ -2754,7 +2754,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 	{
 		if (IsWindow(mHwnd))
 		{
-			if ((WNDPROC)GetWindowLongPtr(mHwnd, GWLP_WNDPROC) == DcxDialog::WindowProc)
+			if (Dcx::dcxGetWindowProc(mHwnd) == DcxDialog::WindowProc)
 				SubclassWindow(mHwnd, p_this->m_hDefaultWindowProc);
 		}
 
@@ -2786,12 +2786,12 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 void DcxDialog::DrawDialogBackground(HDC hdc, DcxDialog *const p_this, LPCRECT rwnd)
 {
 	// background color
-	if (p_this->getBackClrBrush() != nullptr)
+	if (p_this->getBackClrBrush())
 		FillRect(hdc, rwnd, p_this->getBackClrBrush());
 	else
 		FillRect(hdc, rwnd, GetSysColorBrush(COLOR_3DFACE));
 
-	if (p_this->m_bitmapBg == nullptr)
+	if (!p_this->m_bitmapBg)
 		return;
 
 	BITMAP bmp{};
@@ -2804,7 +2804,7 @@ void DcxDialog::DrawDialogBackground(HDC hdc, DcxDialog *const p_this, LPCRECT r
 #else
 	auto hdcbmp = CreateCompatibleDC(hdc);
 
-	if (hdcbmp == nullptr)
+	if (!hdcbmp)
 		return;
 
 	Auto(DeleteDC(hdcbmp));

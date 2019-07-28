@@ -222,7 +222,7 @@ namespace mIRCLinker {
 	bool setTreeFont(const HFONT newFont) noexcept
 	{
 		const auto f = GetWindowFont(m_hTreeview);
-		if (m_hTreeFont == nullptr)
+		if (!m_hTreeFont)
 			m_hTreeFont = f;
 		SetWindowFont(m_hTreeview, newFont, TRUE);
 		if (f != m_hTreeFont)
@@ -235,18 +235,18 @@ namespace mIRCLinker {
 		m_wpmIRCDefaultWndProc = SubclassWindow(m_mIRCHWND, newProc);
 	}
 
-	void resetWindowProc(void) noexcept
+	void resetWindowProc() noexcept
 	{
 		//if (m_wpmIRCDefaultWndProc != NULL)
 		//	SubclassWindow(m_mIRCHWND, m_wpmIRCDefaultWndProc);
 		//m_wpmIRCDefaultWndProc = NULL;
 
-		if (m_wpmIRCDefaultWndProc == nullptr)
+		if (!m_wpmIRCDefaultWndProc)
 			return;
 
 		if (IsWindow(m_mIRCHWND))
 		{
-			if ((WNDPROC)GetWindowLongPtr(m_mIRCHWND, GWLP_WNDPROC) == Dcx::mIRCSubClassWinProc)
+			if (Dcx::dcxGetWindowProc(m_mIRCHWND) == Dcx::mIRCSubClassWinProc)
 				SubclassWindow(m_mIRCHWND, m_wpmIRCDefaultWndProc);
 		}
 		m_wpmIRCDefaultWndProc = nullptr;
@@ -254,7 +254,7 @@ namespace mIRCLinker {
 
 	LRESULT callDefaultWindowProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam) noexcept
 	{
-		if (m_wpmIRCDefaultWndProc != nullptr)
+		if (m_wpmIRCDefaultWndProc)
 			return CallWindowProc(m_wpmIRCDefaultWndProc, hWnd, Msg, wParam, lParam);
 		return DefWindowProc(hWnd, Msg, wParam, lParam);
 	}

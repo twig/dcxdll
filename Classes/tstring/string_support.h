@@ -62,6 +62,7 @@ namespace details {
 	{
 		auto i = 0U;
 		auto bSkip = false;
+
 		for (auto c = fmt[0]; c != decltype(c){'\0'}; c = fmt[++i])
 		{
 			if (!bSkip)
@@ -84,7 +85,7 @@ namespace details {
 					}
 					else
 						res += val;
-
+		
 					if constexpr (std::is_array_v<Format> && std::is_pod_v<Format>)
 						return _ts_printf_do(res, &fmt[0] + i + 1, args...);
 					else
@@ -95,6 +96,40 @@ namespace details {
 				bSkip = false;
 			res += c;
 		}
+
+		//// Ook: needs checked may need work
+		//for (const auto &c: fmt)
+		//{
+		//	if (!bSkip)
+		//	{
+		//		if (c == decltype(c){'\\'})
+		//		{
+		//			bSkip = true;
+		//			continue;
+		//		}
+		//		else if (c == decltype(c){'%'})
+		//		{
+		//			if constexpr (is_Numeric_v<Value>)
+		//			{
+		//				if constexpr (std::is_same_v<std::string, std::remove_cv_t<Result>>)
+		//					res += std::to_string(val);
+		//				else if constexpr (std::is_same_v<std::wstring, std::remove_cv_t<Result>>)
+		//					res += std::to_wstring(val);
+		//				else
+		//					res += val;	// assumes this type can handle adding numbers.
+		//			}
+		//			else
+		//				res += val;
+		//			if constexpr (std::is_array_v<Format> && std::is_pod_v<Format>)
+		//				return _ts_printf_do(res, &fmt[0] + i + 1, args...);
+		//			else
+		//				return _ts_printf_do(res, fmt + i + 1, args...);
+		//		}
+		//	}
+		//	else
+		//		bSkip = false;
+		//	res += c;
+		//}
 		return res;
 	}
 

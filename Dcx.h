@@ -17,11 +17,17 @@
 
 namespace std
 {
-	inline string to_string(const wstring &wstr)
+	inline string to_string(const wstring& wstr)
 	{
-		string str;
-		str.assign(wstr.begin(), wstr.end());
-		return str;
+		//string str;
+		//str.assign(wstr.begin(), wstr.end());
+		//return str;
+
+		using convert_type = std::codecvt_utf8<wchar_t>;
+		std::wstring_convert<convert_type, wchar_t> converter;
+
+		//use converter (.to_bytes: wstr->str, .from_bytes: str->wstr)
+		return converter.to_bytes(wstr);
 	}
 
 	inline wstring to_wstring(const string &str)
@@ -167,7 +173,7 @@ namespace Dcx
 
 	// NB: BaseType can be defined as some other pointer type
 	// so we static_cast it later on
-	template <typename Unique, typename BaseType = Unique::pointer>
+	template <typename Unique, typename BaseType = typename Unique::pointer>
 	struct dcxResource {
 		dcxResource() = delete;																		// no default!
 		dcxResource(const dcxResource<Unique,BaseType> &) = delete;									// no copy!
@@ -895,7 +901,7 @@ namespace Dcx
 	const DWORD parseSystemCursorType(const std::hash<TString>::result_type & cursor);
 	const DWORD parseAreaType(const TString &tsArea);
 	const DWORD parseAreaType(const std::hash<TString>::result_type &tsArea);
-	HCURSOR dcxLoadCursor(const UINT iFlags, const TCHAR *CursorType, bool &bCursorFromFile, const HCURSOR oldCursor, TString &filename);
+	HCURSOR dcxLoadCursor(const DcxResourceFlags iFlags, const TCHAR *CursorType, bool &bCursorFromFile, const HCURSOR oldCursor, TString &filename);
 	void setAreaCursor(const HCURSOR hCursor, const UINT iType);
 	void deleteAreaCursor(const UINT iType);
 	HCURSOR SystemToCustomCursor(const HCURSOR hCursor);
@@ -1095,6 +1101,37 @@ namespace Dcx
 	bool IsFileEx(const T &filename) noexcept
 	{
 		return (std::experimental::filesystem::exists(filename) && std::experimental::filesystem::is_regular_file(filename));
+	}
+
+	template <class T>
+	struct CodeValue {
+		int		code{};
+		T		value{};
+	};
+
+	template <class T>
+	auto dcxGetObject(HANDLE h) noexcept
+	{
+		CodeValue<T> v;
+		v.code = GetObject(h, sizeof(T), &v.value);
+		return v;
+	}
+
+	template <class T>
+	T dcxGetStockObject(int i) noexcept
+	{
+		return static_cast<T>(GetStockObject(i));
+	}
+
+	template <class T>
+	T dcxGetCurrentObject(HDC hdc, UINT type) noexcept
+	{
+		return static_cast<T>(GetCurrentObject(hdc, type));
+	}
+
+	[[gsl::suppress(lifetime)]] inline WNDPROC dcxGetWindowProc(HWND hwnd) noexcept
+	{
+		return reinterpret_cast<WNDPROC>(GetWindowLongPtr(hwnd, GWLP_WNDPROC));
 	}
 
 #if DCX_USE_CREGEX

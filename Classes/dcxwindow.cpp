@@ -15,15 +15,15 @@
 #include "defines.h"
 #include "dcxwindow.h"
 
-/*!
- * \brief Constructor
- *
- * \param mHwnd Window Handle
- * \param mID Window ID
- */
+ /*!
+  * \brief Constructor
+  *
+  * \param mHwnd Window Handle
+  * \param mID Window ID
+  */
 
-DcxWindow::DcxWindow( const HWND mHwnd, const UINT mID ) noexcept
-	: m_Hwnd( mHwnd ), m_ID( mID ), m_hZeroRgn(CreateRectRgn(0, 0, 0, 0))
+DcxWindow::DcxWindow(const HWND mHwnd, const UINT mID) noexcept
+	: m_Hwnd(mHwnd), m_ID(mID), m_hZeroRgn(CreateRectRgn(0, 0, 0, 0))
 {
 }
 
@@ -33,8 +33,8 @@ DcxWindow::DcxWindow( const HWND mHwnd, const UINT mID ) noexcept
  * \param mID Window ID
  */
 
-DcxWindow::DcxWindow( const UINT mID ) noexcept
-: DcxWindow(nullptr, mID)
+DcxWindow::DcxWindow(const UINT mID) noexcept
+	: DcxWindow(nullptr, mID)
 {
 }
 
@@ -44,9 +44,9 @@ DcxWindow::DcxWindow( const UINT mID ) noexcept
  * Destructor
  */
 
-DcxWindow::~DcxWindow( ) noexcept
+DcxWindow::~DcxWindow() noexcept
 {
-	if (m_hZeroRgn != nullptr)
+	if (m_hZeroRgn)
 		DeleteRgn(m_hZeroRgn);
 }
 
@@ -56,7 +56,7 @@ DcxWindow::~DcxWindow( ) noexcept
  * blah
  */
 
-bool DcxWindow::isStyle( const WindowStyle Styles ) const noexcept
+bool DcxWindow::isStyle(const WindowStyle Styles) const noexcept
 {
 	return dcx_testflag(dcxGetWindowStyle(m_Hwnd), Styles);	// this makes sure ALL flags match not just some.
 }
@@ -67,10 +67,10 @@ bool DcxWindow::isStyle( const WindowStyle Styles ) const noexcept
  * blah
  */
 
-WindowStyle DcxWindow::removeStyle( const WindowStyle Styles ) noexcept
+WindowStyle DcxWindow::removeStyle(const WindowStyle Styles) noexcept
 {
 	const auto winStyles = dcxGetWindowStyle(m_Hwnd);
-	return dcxSetWindowStyle( m_Hwnd, winStyles & ~Styles );
+	return dcxSetWindowStyle(m_Hwnd, winStyles & ~Styles);
 }
 
 /*!
@@ -79,10 +79,10 @@ WindowStyle DcxWindow::removeStyle( const WindowStyle Styles ) noexcept
  * blah
  */
 
-WindowStyle DcxWindow::addStyle( const WindowStyle Styles ) noexcept
+WindowStyle DcxWindow::addStyle(const WindowStyle Styles) noexcept
 {
 	const auto winStyles = dcxGetWindowStyle(m_Hwnd);
-	return dcxSetWindowStyle( m_Hwnd, winStyles | Styles );
+	return dcxSetWindowStyle(m_Hwnd, winStyles | Styles);
 }
 
 /*!
@@ -91,7 +91,7 @@ WindowStyle DcxWindow::addStyle( const WindowStyle Styles ) noexcept
  * blah
  */
 
-WindowStyle DcxWindow::setStyle( const WindowStyle Styles ) noexcept
+WindowStyle DcxWindow::setStyle(const WindowStyle Styles) noexcept
 {
 	return dcxSetWindowStyle(m_Hwnd, Styles);
 }
@@ -102,7 +102,7 @@ WindowStyle DcxWindow::setStyle( const WindowStyle Styles ) noexcept
  * blah
  */
 
-bool DcxWindow::isExStyle( const WindowExStyle Styles ) const noexcept
+bool DcxWindow::isExStyle(const WindowExStyle Styles) const noexcept
 {
 	return dcx_testflag(dcxGetWindowExStyle(m_Hwnd), Styles);
 }
@@ -113,10 +113,10 @@ bool DcxWindow::isExStyle( const WindowExStyle Styles ) const noexcept
  * blah
  */
 
-WindowExStyle DcxWindow::removeExStyle( const WindowExStyle Styles ) noexcept
+WindowExStyle DcxWindow::removeExStyle(const WindowExStyle Styles) noexcept
 {
 	const auto winStyles = dcxGetWindowExStyle(m_Hwnd);
-	return dcxSetWindowExStyle( m_Hwnd, winStyles & ~Styles );
+	return dcxSetWindowExStyle(m_Hwnd, winStyles & ~Styles);
 }
 
 /*!
@@ -125,10 +125,10 @@ WindowExStyle DcxWindow::removeExStyle( const WindowExStyle Styles ) noexcept
  * blah
  */
 
-WindowExStyle DcxWindow::addExStyle( const WindowExStyle Styles ) noexcept
+WindowExStyle DcxWindow::addExStyle(const WindowExStyle Styles) noexcept
 {
 	const auto winStyles = dcxGetWindowExStyle(m_Hwnd);
-	return dcxSetWindowExStyle( m_Hwnd, winStyles | Styles );
+	return dcxSetWindowExStyle(m_Hwnd, winStyles | Styles);
 }
 
 /*!
@@ -137,18 +137,44 @@ WindowExStyle DcxWindow::addExStyle( const WindowExStyle Styles ) noexcept
  * blah
  */
 
-WindowExStyle DcxWindow::setExStyle( const WindowExStyle Styles ) noexcept
+WindowExStyle DcxWindow::setExStyle(const WindowExStyle Styles) noexcept
 {
 	return dcxSetWindowExStyle(m_Hwnd, Styles);
 }
 
+dcxWindowStyles DcxWindow::parseBorderStyles(const TString& tsFlags) noexcept
+{
+	const XSwitchFlags xflags(tsFlags);
+	WindowStyle Styles(WindowStyle::None);
+	WindowExStyle ExStyles(WindowExStyle::None);
+
+	// no +sign, missing params
+	if (!xflags[TEXT('+')])
+		return { Styles, ExStyles };
+
+	if (xflags[TEXT('b')])
+		Styles |= WS_BORDER;
+	if (xflags[TEXT('c')])
+		ExStyles |= WS_EX_CLIENTEDGE;
+	if (xflags[TEXT('d')])
+		Styles |= WS_DLGFRAME;
+	if (xflags[TEXT('f')])
+		ExStyles |= WS_EX_DLGMODALFRAME;
+	if (xflags[TEXT('s')])
+		ExStyles |= WS_EX_STATICEDGE;
+	if (xflags[TEXT('w')])
+		ExStyles |= WS_EX_WINDOWEDGE;
+
+	return { Styles, ExStyles };
+}
+
 /*!
  * \brief blah
  *
  * blah
  */
 
-const UINT &DcxWindow::getID( ) const noexcept
+const UINT& DcxWindow::getID() const noexcept
 {
 	return m_ID;
 }
@@ -159,7 +185,7 @@ const UINT &DcxWindow::getID( ) const noexcept
  * blah
  */
 
-const HWND &DcxWindow::getHwnd( ) const noexcept
+const HWND& DcxWindow::getHwnd() const noexcept
 {
 	return m_Hwnd;
 }
@@ -170,9 +196,9 @@ const HWND &DcxWindow::getHwnd( ) const noexcept
  * blah
  */
 
-void DcxWindow::redrawWindow( ) noexcept
+void DcxWindow::redrawWindow() noexcept
 {
-	RedrawWindow( m_Hwnd, nullptr, nullptr, RDW_INTERNALPAINT|RDW_ALLCHILDREN|RDW_INVALIDATE|RDW_ERASE/*|RDW_FRAME|RDW_UPDATENOW*/ );
+	RedrawWindow(m_Hwnd, nullptr, nullptr, RDW_INTERNALPAINT | RDW_ALLCHILDREN | RDW_INVALIDATE | RDW_ERASE/*|RDW_FRAME|RDW_UPDATENOW*/);
 }
 
 /*
@@ -181,7 +207,7 @@ void DcxWindow::redrawWindow( ) noexcept
  * Composited windows already have buffered draw.
 */
 // TODO: this changes the border style of children upon resize of dialog.
-void DcxWindow::redrawBufferedWindow( )
+void DcxWindow::redrawBufferedWindow()
 {
 	if (this->isExStyle(WindowExStyle::Composited))
 	{
@@ -191,7 +217,7 @@ void DcxWindow::redrawBufferedWindow( )
 
 	const auto hdc = GetWindowDC(m_Hwnd);
 
-	if (hdc == nullptr)
+	if (!hdc)
 		return;
 	Auto(ReleaseDC(m_Hwnd, hdc));
 
@@ -206,11 +232,11 @@ void DcxWindow::redrawBufferedWindow( )
 #else
 	if (RECT rc{}; GetWindowRect(m_Hwnd, &rc))
 	{
-		if (const auto hBuffer = CreateHDCBuffer(hdc, &rc); hBuffer != nullptr)
+		if (const auto hBuffer = CreateHDCBuffer(hdc, &rc); hBuffer)
 		{
 			Auto(DeleteHDCBuffer(hBuffer));
 
-			SendMessage(m_Hwnd, WM_PRINT, (WPARAM)*hBuffer, PRF_NONCLIENT | PRF_CLIENT | PRF_CHILDREN | PRF_CHECKVISIBLE | PRF_ERASEBKGND);
+			SendMessage(m_Hwnd, WM_PRINT, (WPARAM)* hBuffer, PRF_NONCLIENT | PRF_CLIENT | PRF_CHILDREN | PRF_CHECKVISIBLE | PRF_ERASEBKGND);
 
 			BitBlt(hdc, 0, 0, (rc.right - rc.left), (rc.bottom - rc.top), *hBuffer, 0, 0, SRCCOPY);
 		}
@@ -224,25 +250,26 @@ void DcxWindow::redrawBufferedWindow( )
  *
  * blah
  */
-const std::map<std::hash<TString>::result_type, PTCHAR> DcxWindow::IDC_map{
-	{ TEXT("appstarting"_hash), IDC_APPSTARTING },
-	{ TEXT("arrow"_hash), IDC_ARROW },
-	{ TEXT("cross"_hash), IDC_CROSS },
-	{ TEXT("hand"_hash), IDC_HAND },
-	{ TEXT("help"_hash), IDC_HELP },
-	{ TEXT("ibeam"_hash), IDC_IBEAM },
-	{ TEXT("no"_hash), IDC_NO },
-	{ TEXT("sizeall"_hash), IDC_SIZEALL },
-	{ TEXT("sizenesw"_hash), IDC_SIZENESW },
-	{ TEXT("sizens"_hash), IDC_SIZENS },
-	{ TEXT("sizenwse"_hash), IDC_SIZENWSE },
-	{ TEXT("sizewe"_hash), IDC_SIZEWE },
-	{ TEXT("uparrow"_hash), IDC_UPARROW },
-	{ TEXT("wait"_hash), IDC_WAIT }
-};
 
-PTCHAR DcxWindow::parseCursorType( const TString & cursor )
+PTCHAR DcxWindow::parseCursorType(const TString& cursor)
 {
+	const static std::map<std::hash<TString>::result_type, PTCHAR> IDC_map{
+		{ TEXT("appstarting"_hash), IDC_APPSTARTING },
+		{ TEXT("arrow"_hash), IDC_ARROW },
+		{ TEXT("cross"_hash), IDC_CROSS },
+		{ TEXT("hand"_hash), IDC_HAND },
+		{ TEXT("help"_hash), IDC_HELP },
+		{ TEXT("ibeam"_hash), IDC_IBEAM },
+		{ TEXT("no"_hash), IDC_NO },
+		{ TEXT("sizeall"_hash), IDC_SIZEALL },
+		{ TEXT("sizenesw"_hash), IDC_SIZENESW },
+		{ TEXT("sizens"_hash), IDC_SIZENS },
+		{ TEXT("sizenwse"_hash), IDC_SIZENWSE },
+		{ TEXT("sizewe"_hash), IDC_SIZEWE },
+		{ TEXT("uparrow"_hash), IDC_UPARROW },
+		{ TEXT("wait"_hash), IDC_WAIT }
+	};
+
 	if (const auto got = IDC_map.find(std::hash<TString>{}(cursor)); got != IDC_map.end())
 		return got->second;
 	return nullptr;
@@ -254,9 +281,9 @@ PTCHAR DcxWindow::parseCursorType( const TString & cursor )
  * blah
  */
 
-UINT DcxWindow::parseCursorFlags(const TString &flags) noexcept
+DcxResourceFlags DcxWindow::parseCursorFlags(const TString& flags) noexcept
 {
-	UINT iFlags = 0;
+	DcxResourceFlags iFlags{ DcxResourceFlags::None };
 	const XSwitchFlags xflags(flags);
 
 	// no +sign, missing params
@@ -264,14 +291,14 @@ UINT DcxWindow::parseCursorFlags(const TString &flags) noexcept
 		return iFlags;
 
 	if (xflags[TEXT('f')])	// load file
-		iFlags |= DCCS_FROMFILE;
-	if (xflags[TEXT('r')])	// load resource
-		iFlags |= DCCS_FROMRESSOURCE;
+		iFlags = DcxResourceFlags::FROMFILE;
+	else if (xflags[TEXT('r')])	// load resource
+		iFlags = DcxResourceFlags::FROMRESSOURCE;
 
 	return iFlags;
 }
 
-UINT DcxWindow::parseCursorArea(const TString & flags) noexcept
+UINT DcxWindow::parseCursorArea(const TString& flags) noexcept
 {
 	UINT iFlags = 0;
 	const XSwitchFlags xflags(flags);
@@ -334,7 +361,7 @@ HIMAGELIST DcxWindow::createImageList(const bool bBigIcons) noexcept
 
 	auto himl = ImageList_Create(gsl::narrow_cast<int>(sz), gsl::narrow_cast<int>(sz), ILC_COLOR32 | ILC_MASK, 1, 0);
 
-	if (himl != nullptr)
+	if (himl)
 		ImageList_SetBkColor(himl, RGB(255, 255, 255));
 
 	return himl;
@@ -342,7 +369,7 @@ HIMAGELIST DcxWindow::createImageList(const bool bBigIcons) noexcept
 
 LRESULT DcxWindow::CallDefaultProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept
 {
-	if (m_hDefaultWindowProc == nullptr)
+	if (!m_hDefaultWindowProc)
 		return DefWindowProc(mHwnd, uMsg, wParam, lParam);
 
 	return CallWindowProc(m_hDefaultWindowProc, mHwnd, uMsg, wParam, lParam);

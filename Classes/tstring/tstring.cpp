@@ -2101,7 +2101,7 @@ void TString::swap(TString &second) noexcept
 	}
 }
 
-void TString::copy(TString other) // <- copy made here, so just swap them
+void TString::copy(TString other) noexcept // <- copy made here, so just swap them
 {
 	this->swap(other);
 }
@@ -2124,15 +2124,15 @@ int TString::compare(const_pointer_const other) const noexcept
 		return 0;
 
 	// if we are nullptr other can't be, so no match
-	if (m_pString == nullptr)
+	if (!m_pString)
 		return 1;
 
 	// if other is nullptr, we are not, so no match
-	if (other == nullptr)
+	if (!other)
 		return -1;
 
 	// check if strings match...
-	return (ts_strcmp(this->m_pString, other));
+	return (ts_strcmp(m_pString, other));
 }
 
 int TString::compare(const_pointer_const other, const size_t iLength) const noexcept
@@ -2142,11 +2142,11 @@ int TString::compare(const_pointer_const other, const size_t iLength) const noex
 		return 0;
 
 	// if we are nullptr other can't be, so no match
-	if (m_pString == nullptr)
+	if (!m_pString)
 		return 1;
 
 	// if other is nullptr, we are not, so no match
-	if (other == nullptr)
+	if (!other)
 		return -1;
 
 	// check if strings match...
@@ -2155,10 +2155,10 @@ int TString::compare(const_pointer_const other, const size_t iLength) const noex
 
 ULONG TString::to_addr() const
 {
-	const BYTE first = (BYTE)(getfirsttok(1, TEXT('.')).to_int() & 0xFF);
-	const BYTE second = (BYTE)(getnexttok(TEXT('.')).to_int() & 0xFF);
-	const BYTE third = (BYTE)(getnexttok(TEXT('.')).to_int() & 0xFF);
-	const BYTE forth = (BYTE)(getnexttok(TEXT('.')).to_int() & 0xFF);
+	const BYTE first = gsl::narrow_cast<BYTE>(getfirsttok(1, TEXT('.')).to_int() & 0xFF);
+	const BYTE second = gsl::narrow_cast<BYTE>(getnexttok(TEXT('.')).to_int() & 0xFF);
+	const BYTE third = gsl::narrow_cast<BYTE>(getnexttok(TEXT('.')).to_int() & 0xFF);
+	const BYTE forth = gsl::narrow_cast<BYTE>(getnexttok(TEXT('.')).to_int() & 0xFF);
 
 	//return (ULONG)MAKELONG(MAKEWORD(first,second),MAKEWORD(third,forth));
 	//return (ULONG)MAKELONG(MAKEWORD(forth, third), MAKEWORD(second, first));
