@@ -273,6 +273,8 @@ LRESULT DcxIpAddress::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 
 		if (hdr == nullptr)
 			break;
+#pragma warning(push)
+#pragma warning(disable: 26454)	//: warning C26454 : Arithmetic overflow : '-' operation produces a negative unsigned result at compile time(io.5).
 
 		if (hdr->code == IPN_FIELDCHANGED)
 		{
@@ -280,6 +282,7 @@ LRESULT DcxIpAddress::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 				this->execAliasEx(TEXT("edit,%u"), getUserID());
 			bParsed = TRUE;
 		}
+#pragma warning(pop)
 	}
 	break;
 	}

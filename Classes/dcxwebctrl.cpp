@@ -287,7 +287,7 @@ void DcxWebControl::parseCommandRequest(const TString & input)
 
 		const auto CMD(input.getlasttoks().trim());		// tok 4, -1
 
-		CallScript(CMD);
+		const auto _d = CallScript(CMD);
 
 		//		READYSTATE ready_state;
 		//

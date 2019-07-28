@@ -76,15 +76,6 @@ struct DCXLVSORT
 	int nColumn{};            //!< Sorting Column
 	TCHAR itemtext1[MIRC_BUFFER_SIZE_CCH]{};
 	TCHAR itemtext2[MIRC_BUFFER_SIZE_CCH]{};
-
-	//DCXLVSORT()
-	//	: tsCustomAlias()
-	//	, iSortFlags(0)
-	//	, m_Hwnd(nullptr)
-	//	, nColumn(0)
-	//	, itemtext1{ 0 }
-	//	, itemtext2{ 0 }
-	//{}
 };
 using LPDCXLVSORT = DCXLVSORT *;
 
@@ -92,12 +83,8 @@ struct DCXLVRENDERINFO {
 	DWORD		m_dFlags{};	//!< Render flags (bold etc..)
 	COLORREF	m_cText{ CLR_INVALID };	//!< Text Colour
 	COLORREF	m_cBg{ CLR_INVALID };		//!< Background Colour.
-
-	//DCXLVRENDERINFO()
-	//	: m_dFlags(0)
-	//	, m_cText(CLR_INVALID)
-	//	, m_cBg(CLR_INVALID)
-	//{}
+	COLORREF	m_cOrigText{ CLR_INVALID };
+	COLORREF	m_cOrigBg{ CLR_INVALID };
 };
 using LPDCXLVRENDERINFO = DCXLVRENDERINFO *;
 
@@ -119,12 +106,6 @@ struct DCXLVCOLUMNINFO {
 	int			m_iColumn{};	// the column affected by this info.
 	DWORD		m_dFlags{};	// size flags (autosize, % width etc..)
 	int			m_iSize{};	// size of column (meaning depends on flags)
-
-	//DCXLVCOLUMNINFO()
-	//	: m_iColumn(0)
-	//	, m_dFlags(0)
-	//	, m_iSize(0)
-	//{}
 };
 using LPDCXLVCOLUMNINFO = DCXLVCOLUMNINFO *;
 
@@ -144,14 +125,6 @@ struct DCXLVITEM {
 	//DcxProgressBar *pbar{ nullptr };
 	int iPbarCol{};
 	VectorOfRenderInfo	vInfo;	//!< Render Info for each column
-
-	//DCXLVITEM()
-	//	: tsTipText()
-	//	, tsMark()
-	//	, pbar(nullptr)
-	//	, iPbarCol(0)
-	//	, vInfo()
-	//{}
 };
 using LPDCXLVITEM = DCXLVITEM *;
 

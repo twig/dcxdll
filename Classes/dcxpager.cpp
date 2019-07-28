@@ -337,11 +337,14 @@ LRESULT DcxPager::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 			if (const auto c_this = static_cast<DcxControl *>(GetProp(hdr->hwndFrom, TEXT("dcx_cthis"))); c_this != nullptr)
 			{
 				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
+#pragma warning(push)
+#pragma warning(disable: 26454)	//: warning C26454 : Arithmetic overflow : '-' operation produces a negative unsigned result at compile time(io.5).
 				if ((c_this->getControlType() == DcxControlTypes::TOOLBAR) && (hdr->code == TBN_DELETINGBUTTON))
 				{
 					// handle toolbar button delete.
 					reCalcSize();
 				}
+#pragma warning(pop)
 			}
 		}
 	}
