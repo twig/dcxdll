@@ -75,26 +75,26 @@ public:
 	static constexpr size_type npos{ std::numeric_limits<size_type>::max() };
 
 	// TiXmlString empty constructor
-	TiXmlString() noexcept = default;
+	constexpr TiXmlString() noexcept = default;
 
-	TiXmlString(const TiXmlString & copy)
+	TiXmlString(const TiXmlString& copy)
 		: TiXmlString(copy.data(), copy.length())
 	{
 	}
 
-	TiXmlString(TiXmlString && copy) noexcept
+	TiXmlString(TiXmlString&& copy) noexcept
 	{
 		swap(copy);
 	}
 
 	// TiXmlString constructor, based on a string
-	TIXML_EXPLICIT TiXmlString(const char * copy)
+	TIXML_EXPLICIT TiXmlString(const char* copy)
 		: TiXmlString(copy, gsl::narrow_cast<size_type>(_ts_strlen(copy)))
 	{
 	}
 
 	// TiXmlString constructor, based on a string
-	TIXML_EXPLICIT TiXmlString(const char * str, size_type len)
+	TIXML_EXPLICIT TiXmlString(const char* str, size_type len)
 	{
 		init(len);
 		memcpy(start(), str, len);
@@ -107,19 +107,19 @@ public:
 	}
 
 	// = operator
-	TiXmlString& operator = (const char * copy)
+	TiXmlString& operator = (const char* copy)
 	{
 		return assign(copy, gsl::narrow_cast<size_type>(_ts_strlen(copy)));
 	}
 
 	// = operator
-	TiXmlString& operator = (const TiXmlString & copy)
+	TiXmlString& operator = (const TiXmlString& copy)
 	{
 		return assign(copy.start(), copy.length());
 	}
 
 	// = operator
-	TiXmlString& operator = (TiXmlString && copy) noexcept
+	TiXmlString& operator = (TiXmlString&& copy) noexcept
 	{
 		if (this == &copy)	// self assignment check.
 			return *this;
@@ -130,7 +130,7 @@ public:
 	}
 
 	// += operator. Maps to append
-	TiXmlString& operator += (const char * suffix)
+	TiXmlString& operator += (const char* suffix)
 	{
 		return append(suffix, gsl::narrow_cast<size_type>(_ts_strlen(suffix)));
 	}
@@ -142,29 +142,29 @@ public:
 	}
 
 	// += operator. Maps to append
-	TiXmlString& operator += (const TiXmlString & suffix)
+	TiXmlString& operator += (const TiXmlString& suffix)
 	{
 		return append(suffix.data(), suffix.length());
 	}
 
 
 	// Convert a TiXmlString into a null-terminated char *
-	const char * c_str() const noexcept { return &rep_->str[0]; }
+	const char* c_str() const noexcept { return &rep_->str[0]; }
 
 	// Convert a TiXmlString into a char * (need not be null terminated).
-	const char * data() const noexcept { return &rep_->str[0]; }
+	const char* data() const noexcept { return &rep_->str[0]; }
 
 	// Return the length of a TiXmlString
-	const size_type &length() const noexcept { return rep_->size; }
+	const size_type& length() const noexcept { return rep_->size; }
 
 	// Alias for length()
-	const size_type &size() const noexcept { return rep_->size; }
+	const size_type& size() const noexcept { return rep_->size; }
 
 	// Checks if a TiXmlString is empty
 	bool empty() const noexcept { return rep_->size == 0; }
 
 	// Return capacity of string
-	const size_type &capacity() const noexcept { return rep_->capacity; }
+	const size_type& capacity() const noexcept { return rep_->capacity; }
 
 	// single char extraction
 	const char& at(size_type index) const noexcept
@@ -238,17 +238,40 @@ public:
 		other.rep_ = r;
 	}
 
+	struct iter
+	{
+		char operator * () const noexcept { return *n; }
+		iter& operator ++() noexcept { ++n; return *this; }
+		friend
+			bool operator != (iter const& lhs, iter const& rhs) noexcept
+		{
+			return lhs.n != rhs.n;
+		}
+	
+		char* n{ nullptr };
+	};
+	
+	iter begin() const noexcept { return{ start() }; }
+	iter end() const noexcept { return{ finish() }; }
+
 private:
 
-	void init(size_type sz) { init(sz, sz); }
-	void set_size(size_type sz) noexcept { rep_->str[rep_->size = sz] = '\0'; }
+	void init(size_type sz)
+	{
+		init(sz, sz);
+	}
+	void set_size(size_type sz) noexcept
+	{
+		rep_->size = sz;
+		rep_->str[sz] = '\0';
+	}
 	char* start() const noexcept { return &rep_->str[0]; }
 	char* finish() const noexcept { return &rep_->str[0] + rep_->size; }
 
 	struct Rep
 	{
-		size_type size, capacity;
-		char str[1];
+		size_type size{}, capacity{};
+		char str[1]{};
 	};
 
 	void init(size_type sz, size_type cap)
@@ -284,34 +307,34 @@ private:
 		}
 	}
 
-	Rep * rep_{ &nullrep_ };
+	Rep* rep_{ &nullrep_ };
 	static Rep nullrep_;
 };
 
 
-inline bool operator == (const TiXmlString & a, const TiXmlString & b) noexcept
+inline bool operator == (const TiXmlString& a, const TiXmlString& b) noexcept
 {
 	return    (a.length() == b.length())				// optimization on some platforms
 		&& (_ts_strcmp(a.c_str(), b.c_str()) == 0);	// actual compare
 }
-inline bool operator < (const TiXmlString & a, const TiXmlString & b) noexcept
+inline bool operator < (const TiXmlString& a, const TiXmlString& b) noexcept
 {
 	return _ts_strcmp(a.c_str(), b.c_str()) < 0;
 }
 
-inline bool operator != (const TiXmlString & a, const TiXmlString & b) noexcept { return !(a == b); }
-inline bool operator >  (const TiXmlString & a, const TiXmlString & b) noexcept { return b < a; }
-inline bool operator <= (const TiXmlString & a, const TiXmlString & b) noexcept { return !(b < a); }
-inline bool operator >= (const TiXmlString & a, const TiXmlString & b) noexcept { return !(a < b); }
+inline bool operator != (const TiXmlString& a, const TiXmlString& b) noexcept { return !(a == b); }
+inline bool operator >  (const TiXmlString& a, const TiXmlString& b) noexcept { return b < a; }
+inline bool operator <= (const TiXmlString& a, const TiXmlString& b) noexcept { return !(b < a); }
+inline bool operator >= (const TiXmlString& a, const TiXmlString& b) noexcept { return !(a < b); }
 
-inline bool operator == (const TiXmlString & a, const char* b) noexcept { return _ts_strcmp(a.c_str(), b) == 0; }
-inline bool operator == (const char* a, const TiXmlString & b) noexcept { return b == a; }
-inline bool operator != (const TiXmlString & a, const char* b) noexcept { return !(a == b); }
-inline bool operator != (const char* a, const TiXmlString & b) noexcept { return !(b == a); }
+inline bool operator == (const TiXmlString& a, const char* b) noexcept { return _ts_strcmp(a.c_str(), b) == 0; }
+inline bool operator == (const char* a, const TiXmlString& b) noexcept { return b == a; }
+inline bool operator != (const TiXmlString& a, const char* b) noexcept { return !(a == b); }
+inline bool operator != (const char* a, const TiXmlString& b) noexcept { return !(b == a); }
 
-TiXmlString operator + (const TiXmlString & a, const TiXmlString & b);
-TiXmlString operator + (const TiXmlString & a, const char* b);
-TiXmlString operator + (const char* a, const TiXmlString & b);
+TiXmlString operator + (const TiXmlString& a, const TiXmlString& b);
+TiXmlString operator + (const TiXmlString& a, const char* b);
+TiXmlString operator + (const char* a, const TiXmlString& b);
 
 
 /*
@@ -324,14 +347,14 @@ class TiXmlOutStream
 public:
 
 	// TiXmlOutStream << operator.
-	TiXmlOutStream & operator << (const TiXmlString & in)
+	TiXmlOutStream& operator << (const TiXmlString& in)
 	{
 		*this += in;
 		return *this;
 	}
 
 	// TiXmlOutStream << operator.
-	TiXmlOutStream & operator << (const char * in)
+	TiXmlOutStream& operator << (const char* in)
 	{
 		*this += in;
 		return *this;
