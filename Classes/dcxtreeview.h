@@ -73,7 +73,7 @@ class DcxTreeView;
 struct DCXTVSORT {
 	TString		tsCustomAlias;						//!< Custom Sorting Alias
 	UINT		iSortFlags{};							//!< Sorting Flags
-	DcxTreeView *pthis{ nullptr };								//!< TreeView control object pointer
+	DcxTreeView* pthis{ nullptr };								//!< TreeView control object pointer
 	TCHAR		itemtext1[MIRC_BUFFER_SIZE_CCH]{};	// Item text buffer One
 	TCHAR		itemtext2[MIRC_BUFFER_SIZE_CCH]{};	// Item Text Buffer Two
 
@@ -117,37 +117,40 @@ class DcxTreeView
 {
 public:
 	DcxTreeView() = delete;
-	DcxTreeView(const DcxTreeView &) = delete;
-	DcxTreeView &operator =(const DcxTreeView &) = delete;
-	DcxTreeView(DcxTreeView &&) = delete;
-	DcxTreeView &operator =(DcxTreeView &&) = delete;
+	DcxTreeView(const DcxTreeView&) = delete;
+	DcxTreeView& operator =(const DcxTreeView&) = delete;
+	DcxTreeView(DcxTreeView&&) = delete;
+	DcxTreeView& operator =(DcxTreeView&&) = delete;
 
-	DcxTreeView( const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles );
-	~DcxTreeView( );
+	DcxTreeView(const UINT ID, DcxDialog* const p_Dialog, const HWND mParentHwnd, const RECT* const rc, const TString& styles);
+	~DcxTreeView();
 
-	LRESULT PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) final;
-	LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) final;
+	LRESULT PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed) final;
+	LRESULT ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed) final;
 
 	//void parseInfoRequest(const TString & input, PTCHAR szReturnValue) const final;
-	void parseInfoRequest(const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const final;
-	void parseCommandRequest( const TString & input ) final;
-	dcxWindowStyles parseControlStyles(const TString & tsStyles) final;
+	void parseInfoRequest(const TString& input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>& szReturnValue) const final;
+	void parseCommandRequest(const TString& input) final;
+	dcxWindowStyles parseControlStyles(const TString& tsStyles) final;
 
-	HIMAGELIST getImageList( const int type ) const noexcept;
-	void setImageList( const HIMAGELIST himl, const int type ) noexcept;
-	HIMAGELIST createImageList( ) noexcept;
+	HIMAGELIST getImageList(const int type) const noexcept;
+	void setImageList(const HIMAGELIST himl, const int type) noexcept;
+	HIMAGELIST createImageList() noexcept;
 
-	void insertItem( const TString &tsPath, const TString &tsData, const TString &tsTooltip );
+	void insertItem(const TString& tsPath, const TString& tsData, const TString& tsTooltip);
 
-	void getItemText( const HTREEITEM hItem, TCHAR * szBuffer, const int cchTextMax ) const noexcept;
-	int getChildCount( const HTREEITEM hParent ) const noexcept;
+	void getItemText(const HTREEITEM hItem, TCHAR* szBuffer, const int cchTextMax) const noexcept;
+	TString getItemText(const HTREEITEM hItem) const;
+	int getChildCount(const HTREEITEM hParent) const noexcept;
+	LPDCXTVITEM getItemParam(const HTREEITEM hItem) const noexcept;
+	int getItemImageID(const HTREEITEM hItem) const noexcept;
 
 	inline const TString getType() const final { return TEXT("treeview"); };
 	inline const DcxControlTypes getControlType() const noexcept final { return DcxControlTypes::TREEVIEW; }
 
-	const TString getStyles(void) const final;
-	void toXml(TiXmlElement *const xml) const final;
-	TiXmlElement * toXml(void) const final;
+	const TString getStyles() const final;
+	void toXml(TiXmlElement* const xml) const final;
+	TiXmlElement* toXml() const final;
 
 	static WNDPROC m_hDefaultClassProc;	//!< Default window procedure
 	LRESULT CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept final;
@@ -164,26 +167,26 @@ protected:
 
 	/* *** */
 
-	HTREEITEM parsePath(const TString &path, HTREEITEM *hParent = nullptr, HTREEITEM *hInsertAt = nullptr) const;
+	HTREEITEM parsePath(const TString& path, HTREEITEM* hParent = nullptr, HTREEITEM* hInsertAt = nullptr) const;
 	TString getPathFromItem(const HTREEITEM item) const;
 
-	bool matchItemText( const HTREEITEM hItem, const TString &search, const DcxSearchTypes &SearchType ) const;
+	bool matchItemText(const HTREEITEM hItem, const TString& search, const DcxSearchTypes& SearchType) const;
 	//std::pair<bool, HTREEITEM> findItemText( const HTREEITEM hStart, const TString &queryText, const int n, int &matchCount, const DcxSearchTypes &SearchType ) const;
-	std::optional<HTREEITEM> findItemText(const HTREEITEM hStart, const TString &queryText, const int n, int &matchCount, const DcxSearchTypes &SearchType) const;
-	void expandAllItems( const HTREEITEM hStart, const UINT expandOption ) noexcept;
+	std::optional<HTREEITEM> findItemText(const HTREEITEM hStart, const TString& queryText, const int n, int& matchCount, const DcxSearchTypes& SearchType) const;
+	void expandAllItems(const HTREEITEM hStart, const UINT expandOption) noexcept;
 
-	HTREEITEM cloneItem( const HTREEITEM hItem, const HTREEITEM hParentTo, const HTREEITEM hAfterTo );
-	void copyAllItems( const HTREEITEM hItem, const HTREEITEM hParentTo );
-	HTREEITEM copyAllItems(const TString &pathFrom, const TString &pathTo);
+	HTREEITEM cloneItem(const HTREEITEM hItem, const HTREEITEM hParentTo, const HTREEITEM hAfterTo);
+	void copyAllItems(const HTREEITEM hItem, const HTREEITEM hParentTo);
+	HTREEITEM copyAllItems(const TString& pathFrom, const TString& pathTo);
 
-	static UINT parseIconFlagOptions( const TString & flags ) noexcept;
-	static UINT parseItemFlags( const TString & flags ) noexcept;
-	static UINT parseSortFlags( const TString & flags ) noexcept;
-	static UINT parseColorFlags( const TString & flags ) noexcept;
-	static UINT parseToggleFlags( const TString & flags ) noexcept;
+	static UINT parseIconFlagOptions(const TString& flags) noexcept;
+	static UINT parseItemFlags(const TString& flags) noexcept;
+	static UINT parseSortFlags(const TString& flags) noexcept;
+	static UINT parseColorFlags(const TString& flags) noexcept;
+	static UINT parseToggleFlags(const TString& flags) noexcept;
 	static int CALLBACK sortItemsEx(LPARAM lParam1, LPARAM lParam2, LPARAM lParamSort);
 	//static void parseTreeViewExStyles(const TString & styles, LONG * ExStyles);
-	WindowExStyle parseTreeViewExStyles(const TString & styles) const;
+	WindowExStyle parseTreeViewExStyles(const TString& styles) const;
 	static LRESULT CALLBACK EditLabelProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept;
 
 	HFONT m_hItemFont{ nullptr }; // Font used for specific item changes.
@@ -193,11 +196,11 @@ protected:
 	void PreloadData() noexcept;
 
 #ifdef DCX_USE_GDIPLUS
-	bool LoadGDIPlusImage(const TString &flags, TString &filename);
+	void LoadGDIPlusImage(const TString& flags, TString& filename);
 	void DrawGDIPlusImage(HDC hdc);
 
 	std::unique_ptr<Gdiplus::Image> m_pImage{ nullptr };							// Background Image
-	Gdiplus::CompositingQuality m_CQuality{ Gdiplus::CompositingQualityDefault };// Image Rendering Quality
+	Gdiplus::CompositingQuality m_CQuality{ Gdiplus::CompositingQualityDefault };	// Image Rendering Quality
 	Gdiplus::CompositingMode m_CMode{ Gdiplus::CompositingModeSourceCopy };			// Image Rendering Mode
 	Gdiplus::InterpolationMode m_IMode{ Gdiplus::InterpolationModeDefault };		//
 	Gdiplus::SmoothingMode m_SMode{ Gdiplus::SmoothingModeDefault };				// Image Smoothing Mode
@@ -208,10 +211,16 @@ protected:
 	int m_iYOffset{};								// Images Y Offset
 #endif
 
-	bool xmlSaveTree(HTREEITEM hFromItem, const TString &name, TString &filename);
-	bool xmlGetItems(const HTREEITEM hFirstSibling, TiXmlElement *xElm, TCHAR *buf);
-	HTREEITEM xmlLoadTree(HTREEITEM hInsertAfter, HTREEITEM hParent, const TString &name, TString &filename);
-	const TiXmlElement *xmlInsertItems(HTREEITEM hParent, HTREEITEM &hInsertAfter, const TiXmlElement *xElm);
+	void xmlSaveTree(HTREEITEM hFromItem, const TString& name, TString& filename);
+	bool xmlGetItems(const HTREEITEM hFirstSibling, TiXmlElement* xElm, TCHAR* buf);
+	HTREEITEM xmlLoadTree(HTREEITEM hInsertAfter, HTREEITEM hParent, const TString& name, TString& filename);
+	const TiXmlElement* xmlInsertItems(HTREEITEM hParent, HTREEITEM& hInsertAfter, const TiXmlElement* xElm);
+
+	const size_t size() const noexcept
+	{
+		// NB: This macro returns values 0 - 32767 ok, but 32768 - 65536 are returned as negatives, & anything > 65536 returns as zero & the treeview fails to display.
+		return TreeView_GetCount(m_Hwnd);
+	}
 };
 
 #endif // _DCXTREEVIEW_H_

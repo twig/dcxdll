@@ -599,7 +599,7 @@ bool IsFile(TString &filename);
 void dcxDrawShadowText(HDC hdc, LPCWSTR pszText, UINT cch, RECT *pRect, DWORD dwFlags, COLORREF crText, COLORREF crShadow, int ixOffset, int iyOffset) noexcept;
 //void calcStrippedRect(HDC hdc, const TString &txt, const UINT style, LPRECT rc, const bool ignoreleft);
 void mIRC_DrawText(HDC hdc, const TString &txt, LPRECT rc, const UINT style, const bool shadow);
-void DrawRotatedText(const TString &strDraw, const LPRECT rc, const HDC hDC, const int nAngleLine = 0, const bool bEnableAngleChar = false, const int nAngleChar = 0) noexcept;
+void DrawRotatedText(const TString &strDraw, const LPCRECT rc, const HDC hDC, const int nAngleLine = 0, const bool bEnableAngleChar = false, const int nAngleChar = 0) noexcept;
 
 gsl::owner<HDC *> CreateHDCBuffer(HDC hdc, const LPRECT rc);
 void DeleteHDCBuffer(gsl::owner<HDC *> hBuffer) noexcept;

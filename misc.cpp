@@ -26,7 +26,7 @@ int dcx_round(const float x) noexcept
 {
 	const auto t = gsl::narrow_cast<int>(x);
 	if ((x - gsl::narrow_cast<float>(t)) > 0.5f)
-		return t +1;
+		return t + 1;
 	return t;
 }
 
@@ -161,7 +161,7 @@ TString Normalise(PBYTE pBuffer)
 */
 //std::unique_ptr<BYTE[]> readFile(const PTCHAR filename)
 
-auto readFile(const TString &filename)
+auto readFile(const TString& filename)
 -> std::unique_ptr<BYTE[]>
 {
 	if (filename.empty())
@@ -186,11 +186,11 @@ auto readFile(const TString &filename)
 	return fileContents;
 #else
 	auto file = dcx_fopen(filename, TEXT("rb"));
-	
+
 	// Open file in binary mode and read
 	if (file == nullptr)
 		return nullptr;
-	
+
 	Auto(fclose(file));
 
 	// Seek End of file
@@ -224,7 +224,7 @@ auto readFile(const TString &filename)
 *
 * This function correctly handles BOM types for ascii,utf8,utf16BE,utf16LE & returns text in a TString object.
 */
-TString readTextFile(const TString &tFile)
+TString readTextFile(const TString& tFile)
 {
 	//auto data = readFile(tFile);
 	//
@@ -243,7 +243,7 @@ TString readTextFile(const TString &tFile)
 *
 * TODO: ...
 */
-bool SaveDataToFile(const TString &tsFile, const TString &tsData)
+bool SaveDataToFile(const TString& tsFile, const TString& tsData)
 {
 #if DCX_USE_WRAPPERS
 	const Dcx::dcxFileResource file(tsFile, TEXT("wb"));
@@ -258,10 +258,10 @@ bool SaveDataToFile(const TString &tsFile, const TString &tsData)
 	return true;
 #else
 	auto file = dcx_fopen(tsFile.to_chr(), TEXT("wb"));
-	
-	if (file == nullptr)
+
+	if (!file)
 		return false;
-	
+
 	Auto(fclose(file));
 
 	constexpr WCHAR tBOM = 0xFEFF;	// unicode BOM
@@ -282,37 +282,37 @@ bool SaveDataToFile(const TString &tsFile, const TString &tsData)
 *
 * http://msdn.microsoft.com/library/default.asp?url=/library/en-us/winui/winui/windowsuserinterface/dataexchange/clipboard/usingtheclipboard.asp
 */
-bool CopyToClipboard(const HWND owner, const TString & str)
+bool CopyToClipboard(const HWND owner, const TString& str)
 {
 	if (!OpenClipboard(owner))
 	{
-		Dcx::error(TEXT("CopyToClipboard"),TEXT("Couldn't open clipboard"));
+		Dcx::error(TEXT("CopyToClipboard"), TEXT("Couldn't open clipboard"));
 		return false;
 	}
 
 	Auto(CloseClipboard());
 
-	const size_t cbsize = (str.len() +1) * sizeof(TCHAR);
+	const size_t cbsize = (str.len() + 1) * sizeof(TCHAR);
 	EmptyClipboard();
 	auto hglbCopy = GlobalAlloc(GMEM_MOVEABLE, cbsize);
 
-	if (hglbCopy == nullptr)
+	if (!hglbCopy)
 	{
-		Dcx::error(TEXT("CopyToClipboard"),TEXT("Couldn't open global memory"));
+		Dcx::error(TEXT("CopyToClipboard"), TEXT("Couldn't open global memory"));
 		return false;
 	}
 
 	{	// simply sets scope for vars
-		const auto strCopy = static_cast<TCHAR *>(GlobalLock(hglbCopy));
+		const auto strCopy = static_cast<TCHAR*>(GlobalLock(hglbCopy));
 
-		if (strCopy == nullptr)
+		if (!strCopy)
 		{
 			GlobalFree(hglbCopy);
 			Dcx::error(TEXT("CopyToClipboard"), TEXT("Couldn't lock global memory"));
 			return false;
 		}
 
-		dcx_strcpyn(strCopy, str.to_chr(), str.len() +1);
+		dcx_strcpyn(strCopy, str.to_chr(), str.len() + 1);
 
 		GlobalUnlock(hglbCopy);
 	}
@@ -325,18 +325,18 @@ bool CopyToClipboard(const HWND owner, const TString & str)
 // Turns a command (+flags CHARSET SIZE FONTNAME) into a LOGFONT struct
 bool ParseCommandToLogfont(const TString& cmd, LPLOGFONT lf)
 {
-	if (cmd.numtok( ) < 4)
+	if (cmd.numtok() < 4)
 		return false;
 
 	ZeroMemory(lf, sizeof(LOGFONT));
-	const auto flags = parseFontFlags(cmd.getfirsttok( 1 ));
+	const auto flags = parseFontFlags(cmd.getfirsttok(1));
 
 	if (dcx_testflag(flags, dcxFontFlags::DCF_DEFAULT))
 		return (GetObject((HFONT)GetStockObject(DEFAULT_GUI_FONT), sizeof(LOGFONT), lf) != 0);
 
-	lf->lfCharSet = gsl::narrow_cast<BYTE>(parseFontCharSet(cmd.getnexttok( )) & 0xFF);	// tok 2
-	const auto fSize = cmd.getnexttok( ).to_int();				// tok 3
-	const auto fName(cmd.getlasttoks( ).trim());				// tok 4, -1
+	lf->lfCharSet = gsl::narrow_cast<BYTE>(parseFontCharSet(cmd.getnexttok()) & 0xFF);	// tok 2
+	const auto fSize = cmd.getnexttok().to_int();				// tok 3
+	const auto fName(cmd.getlasttoks().trim());				// tok 4, -1
 
 	if (!fSize)
 		return false;
@@ -344,7 +344,7 @@ bool ParseCommandToLogfont(const TString& cmd, LPLOGFONT lf)
 	{
 		const auto hdc = GetDC(nullptr);
 
-		if (hdc == nullptr)
+		if (!hdc)
 			return false;
 
 		Auto(ReleaseDC(nullptr, hdc));
@@ -369,8 +369,8 @@ bool ParseCommandToLogfont(const TString& cmd, LPLOGFONT lf)
 	if (dcx_testflag(flags, dcxFontFlags::DCF_UNDERLINE))
 		lf->lfUnderline = TRUE;
 
-	dcx_strcpyn(&lf->lfFaceName[0], fName.to_chr(), std::extent_v<decltype(lf->lfFaceName)>);
-	lf->lfFaceName[std::extent_v<decltype(lf->lfFaceName)> -1] = 0;
+	dcx_strcpyn(&lf->lfFaceName[0], fName.to_chr(), std::size(lf->lfFaceName));
+	lf->lfFaceName[std::size(lf->lfFaceName) - 1] = 0;
 
 	return true;
 }
@@ -381,7 +381,7 @@ bool ParseCommandToLogfont(const TString& cmd, LPLOGFONT lf)
  *
  * blah
  */
-UINT parseFontFlags(const TString &flags) noexcept
+UINT parseFontFlags(const TString& flags) noexcept
 {
 	UINT iFlags = 0U;
 	const XSwitchFlags xflags(flags);
@@ -405,32 +405,31 @@ UINT parseFontFlags(const TString &flags) noexcept
 	return iFlags;
 }
 
-
-const static std::map<std::hash<TString>::result_type, UINT> charset_map{
-	{TEXT("ansi"_hash), ANSI_CHARSET},
-	{TEXT("baltic"_hash), BALTIC_CHARSET},
-	{TEXT("chinesebig"_hash), CHINESEBIG5_CHARSET},
-	{TEXT("default"_hash), DEFAULT_CHARSET},
-	{TEXT("easteurope"_hash), EASTEUROPE_CHARSET},
-	{TEXT("gb2312"_hash), GB2312_CHARSET},
-	{TEXT("greek"_hash), GREEK_CHARSET},
-	{TEXT("hangul"_hash), HANGUL_CHARSET},
-	{TEXT("mac"_hash), MAC_CHARSET},
-	{TEXT("oem"_hash), OEM_CHARSET},
-	{TEXT("russian"_hash), RUSSIAN_CHARSET},
-	{TEXT("shiftjis"_hash), SHIFTJIS_CHARSET},
-	{TEXT("symbol"_hash), SYMBOL_CHARSET},
-	{TEXT("turkish"_hash), TURKISH_CHARSET},
-	{TEXT("vietnamese"_hash), VIETNAMESE_CHARSET}
-};
-
 /*!
  * \brief blah
  *
  * blah
  */
-UINT parseFontCharSet(const TString &charset)
+UINT parseFontCharSet(const TString& charset)
 {
+	const static std::map<std::hash<TString>::result_type, UINT> charset_map{
+		{TEXT("ansi"_hash), ANSI_CHARSET},
+		{TEXT("baltic"_hash), BALTIC_CHARSET},
+		{TEXT("chinesebig"_hash), CHINESEBIG5_CHARSET},
+		{TEXT("default"_hash), DEFAULT_CHARSET},
+		{TEXT("easteurope"_hash), EASTEUROPE_CHARSET},
+		{TEXT("gb2312"_hash), GB2312_CHARSET},
+		{TEXT("greek"_hash), GREEK_CHARSET},
+		{TEXT("hangul"_hash), HANGUL_CHARSET},
+		{TEXT("mac"_hash), MAC_CHARSET},
+		{TEXT("oem"_hash), OEM_CHARSET},
+		{TEXT("russian"_hash), RUSSIAN_CHARSET},
+		{TEXT("shiftjis"_hash), SHIFTJIS_CHARSET},
+		{TEXT("symbol"_hash), SYMBOL_CHARSET},
+		{TEXT("turkish"_hash), TURKISH_CHARSET},
+		{TEXT("vietnamese"_hash), VIETNAMESE_CHARSET}
+	};
+
 	if (const auto it = charset_map.find(std::hash<TString>{}(charset)); it != charset_map.end())
 		return it->second;
 
@@ -503,14 +502,14 @@ TString ParseLogfontToCommand(const LPLOGFONT lf)
 
 	const auto hdc = GetDC(nullptr);
 
-	if (hdc == nullptr)
+	if (!hdc)
 		return tmp;
 
 	Auto(ReleaseDC(nullptr, hdc));
 
 	const auto hf = CreateFontIndirect(lf);
 
-	if (hf == nullptr)
+	if (!hf)
 		return tmp;
 
 	Auto(DeleteFont(hf));
@@ -629,7 +628,7 @@ TString ParseLogfontToCommand(const LPLOGFONT lf)
 //	return icon;
 //}
 
-HICON dcxLoadIcon(const int index, TString &filename, const bool large, const TString &flags)
+HICON dcxLoadIcon(const int index, TString& filename, const bool large, const TString& flags)
 {
 	filename.trim();
 
@@ -716,17 +715,17 @@ HICON dcxLoadIcon(const int index, TString &filename, const bool large, const TS
 	if (xflags[TEXT('g')])
 		icon = CreateGrayscaleIcon(icon);
 
-	if (icon == nullptr)
+	if (!icon)
 		throw Dcx::dcxException("dcxLoadIcon: Unable to create icon");
 
 	return icon;
 }
 
-HBITMAP dcxLoadBitmap(HBITMAP dest, TString &filename)
+HBITMAP dcxLoadBitmap(HBITMAP dest, TString& filename)
 {
 	filename.trim();
 
-	if (dest != nullptr)
+	if (dest)
 	{
 		DeleteBitmap(dest);
 		dest = nullptr;
@@ -757,9 +756,9 @@ HBITMAP dcxLoadBitmap(HBITMAP dest, TString &filename)
 		}
 	}
 	else
-		dest = (HBITMAP)LoadImage(GetModuleHandle(NULL), filename.to_chr(), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE);
+		dest = static_cast<HBITMAP>(LoadImage(GetModuleHandle(NULL), filename.to_chr(), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE));
 #else
-	dest = (HBITMAP)LoadImage(GetModuleHandle(NULL), filename.to_chr(), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE);
+	dest = static_cast<HBITMAP>(LoadImage(GetModuleHandle(NULL), filename.to_chr(), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE));
 #endif
 	return dest;
 }
@@ -866,27 +865,27 @@ update for 32bpp icons & rewrite
 //COLORREF defaultGrayPalette[256];
 //bool bGrayPaletteSet = false;
 
-HICON CreateGrayscaleIcon( HICON hIcon, const COLORREF *const pPalette ) noexcept
+HICON CreateGrayscaleIcon(HICON hIcon, const COLORREF* const pPalette) noexcept
 {
-	if ((hIcon == nullptr) || (pPalette == nullptr))
+	if ((!hIcon) || (!pPalette))
 		return nullptr;
 
 	auto hdc = ::GetDC(nullptr);
 	Auto(::ReleaseDC(nullptr, hdc));
 
-	HICON      hGrayIcon = nullptr;
-	ICONINFO   icInfo         = { 0 };
-	ICONINFO   icGrayInfo     = { 0 };
+	HICON      hGrayIcon{ nullptr };
+	ICONINFO   icInfo{};
+	ICONINFO   icGrayInfo{};
 	//LPDWORD    lpBits         = NULL;
 	//LPBYTE     lpBitsPtr      = NULL;
 	//SIZE sz;
 	//DWORD c1 = 0;
-	BITMAPINFO bmpInfo        = { 0 };
-	bmpInfo.bmiHeader.biSize  = sizeof(BITMAPINFOHEADER);
+	BITMAPINFO bmpInfo = { 0 };
+	bmpInfo.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
 
 	if (::GetIconInfo(hIcon, &icInfo))
 	{
-		if (icInfo.hbmColor != nullptr)
+		if (icInfo.hbmColor)
 		{
 			Auto(::DeleteObject(icInfo.hbmColor));
 
@@ -902,15 +901,15 @@ HICON CreateGrayscaleIcon( HICON hIcon, const COLORREF *const pPalette ) noexcep
 
 				const auto c1 = gsl::narrow_cast<DWORD>(sz.cx * sz.cy);
 
-				const auto lpBits = (LPDWORD)::GlobalAlloc(GMEM_FIXED, (c1) * 4);
+				const auto lpBits = static_cast<LPDWORD>(::GlobalAlloc(GMEM_FIXED, (c1) * 4));
 
 				if (lpBits && ::GetDIBits(hdc, icInfo.hbmColor, 0, gsl::narrow_cast<UINT>(sz.cy), lpBits, &bmpInfo, DIB_RGB_COLORS) != 0)
 				{
-					auto lpBitsPtr     = (LPBYTE)lpBits;
+					auto lpBitsPtr = reinterpret_cast<LPBYTE>(lpBits);
 
 					for (auto i = decltype(c1){0}; i < c1; ++i)
 					{
-						auto off = (UINT)( 255 - (( lpBitsPtr[0] + lpBitsPtr[1] + lpBitsPtr[2] ) / 3) );
+						auto off = gsl::narrow_cast<UINT>((255 - ((lpBitsPtr[0] + lpBitsPtr[1] + lpBitsPtr[2]) / 3)));
 
 						if (lpBitsPtr[3] != 0 || off != 255)
 						{
@@ -918,7 +917,7 @@ HICON CreateGrayscaleIcon( HICON hIcon, const COLORREF *const pPalette ) noexcep
 							{
 								off = 1;
 							}
-							lpBits[i] = pPalette[off] | ( lpBitsPtr[3] << 24 );
+							lpBits[i] = pPalette[off] | (lpBitsPtr[3] << 24);
 						}
 
 						lpBitsPtr += 4;
@@ -926,14 +925,14 @@ HICON CreateGrayscaleIcon( HICON hIcon, const COLORREF *const pPalette ) noexcep
 
 					icGrayInfo.hbmColor = ::CreateCompatibleBitmap(hdc, sz.cx, sz.cy);
 
-					if (icGrayInfo.hbmColor != nullptr)
+					if (icGrayInfo.hbmColor)
 					{
 						Auto(::DeleteObject(icGrayInfo.hbmColor));
 
 						::SetDIBits(hdc, icGrayInfo.hbmColor, 0, gsl::narrow_cast<UINT>(sz.cy), lpBits, &bmpInfo, DIB_RGB_COLORS);
 
 						icGrayInfo.hbmMask = icInfo.hbmMask;
-						icGrayInfo.fIcon   = TRUE;
+						icGrayInfo.fIcon = TRUE;
 
 						hGrayIcon = ::CreateIconIndirect(&icGrayInfo);
 					}
@@ -942,16 +941,16 @@ HICON CreateGrayscaleIcon( HICON hIcon, const COLORREF *const pPalette ) noexcep
 				}
 			}
 
-			if (icInfo.hbmMask != nullptr)
+			if (icInfo.hbmMask)
 				::DeleteObject(icInfo.hbmMask);
 		}
 	}
 	return hGrayIcon;
 }
 
-HICON CreateGrayscaleIcon( HICON hIcon ) noexcept
+HICON CreateGrayscaleIcon(HICON hIcon) noexcept
 {
-	if (hIcon == nullptr)
+	if (!hIcon)
 		return nullptr;
 
 	//if (!bGrayPaletteSet)
@@ -1042,20 +1041,20 @@ void AddToolTipToolInfo(const HWND tiphwnd, const HWND ctrl) noexcept
 	//ti.uFlags = TTF_IDISHWND | TTF_SUBCLASS | TTF_PARSELINKS;
 	ti.uFlags = TTF_IDISHWND | TTF_TRANSPARENT | TTF_SUBCLASS | TTF_PARSELINKS;
 	ti.hwnd = ctrl;
-	ti.uId = (UINT_PTR)ctrl;
+	ti.uId = reinterpret_cast<UINT_PTR>(ctrl);
 	ti.lpszText = LPSTR_TEXTCALLBACK;
 
-	SendMessage(tiphwnd, TTM_ADDTOOL, NULL, (LPARAM)&ti);
+	SendMessage(tiphwnd, TTM_ADDTOOL, NULL, reinterpret_cast<LPARAM>(&ti));
 }
 
-void dcxDrawShadowText(HDC hdc, LPCWSTR pszText, UINT cch, RECT *pRect, DWORD dwFlags, COLORREF crText, COLORREF crShadow, int ixOffset, int iyOffset) noexcept
+void dcxDrawShadowText(HDC hdc, LPCWSTR pszText, UINT cch, RECT* pRect, DWORD dwFlags, COLORREF crText, COLORREF crShadow, int ixOffset, int iyOffset) noexcept
 {
-	if ((hdc == nullptr) || (pszText == nullptr) || (pRect == nullptr))
+	if ((!hdc) || (!pszText) || (!pRect))
 		return;
 
 	if (DrawShadowText(hdc, pszText, cch, pRect, dwFlags, crText, crShadow, ixOffset, iyOffset) == 0)
 	{
-		if (dcx_testflag(dwFlags,DT_CALCRECT))
+		if (dcx_testflag(dwFlags, DT_CALCRECT))
 		{
 			DrawTextW(hdc, pszText, gsl::narrow_cast<int>(cch), pRect, dwFlags);
 			OffsetRect(pRect, ixOffset, iyOffset);
@@ -1070,13 +1069,13 @@ void dcxDrawShadowText(HDC hdc, LPCWSTR pszText, UINT cch, RECT *pRect, DWORD dw
 
 			DrawTextW(hdc, pszText, gsl::narrow_cast<int>(cch), &rcOffset, dwFlags);
 			SetTextColor(hdc, crText);
-			DrawTextW(hdc, pszText, gsl::narrow_cast<int>(cch), (LPRECT)pRect, dwFlags);
+			DrawTextW(hdc, pszText, gsl::narrow_cast<int>(cch), static_cast<LPRECT>(pRect), dwFlags);
 		}
 	}
 }
 
 #ifdef DCX_USE_GDIPLUS
-static const TCHAR *GDIErrors[] = {
+static const TCHAR* GDIErrors[] = {
 	TEXT("Ok"), // No Error.
 	TEXT("GenericError"),
 	TEXT("InvalidParameter"),
@@ -1100,7 +1099,7 @@ static const TCHAR *GDIErrors[] = {
 	TEXT("PropertyNotSupported"),
 	TEXT("ProfileNotFound")
 };
-constexpr const TCHAR *GetLastStatusStr(Gdiplus::Status status) noexcept
+constexpr const TCHAR* GetLastStatusStr(Gdiplus::Status status) noexcept
 {
 	if (gsl::narrow_cast<UINT>(status) >= std::size(GDIErrors))
 		return GDIErrors[1]; // status not in table, return GenericError
@@ -1163,7 +1162,7 @@ constexpr const TCHAR *GetLastStatusStr(Gdiplus::Status status) noexcept
 //	return false;
 //}
 
-bool IsFile(TString &filename)
+bool IsFile(TString& filename)
 {
 	if (filename.empty())
 		return false;
@@ -1194,7 +1193,7 @@ bool IsFile(TString &filename)
 		Dcx::dcxStringResource buf(res + 1U);
 #else
 		//auto buf = std::make_unique<TCHAR[]>(res + 1U);
-		
+
 		stString<res + 1U> buf;
 #endif
 		res = SearchPath(nullptr, filename.to_chr(), nullptr, res, buf.get(), nullptr);
@@ -1286,7 +1285,7 @@ void getmIRCPalette()
 		mIRCLinker::eval(colors, std::addressof(com[0]));
 
 		size_t i = 0;
-		for (const auto &a : colors)
+		for (const auto& a : colors)
 			staticPalette[i++] = a.to_<COLORREF>();
 	}
 }
@@ -1296,7 +1295,7 @@ void getmIRCPalette()
 *
 * Copies the staticPalette to Palette (updates staticPalette if needed)
 */
-void getmIRCPalette(COLORREF *const Palette, const UINT PaletteItems)
+void getmIRCPalette(COLORREF* const Palette, const UINT PaletteItems)
 {
 	if ((PaletteItems > mIRC_PALETTE_SIZE) || (Palette == std::addressof(staticPalette[0])))
 		return;
@@ -1325,9 +1324,9 @@ void getmIRCPalette(gsl::span<COLORREF> Palette)
 //
 // Copies staticPalette to Palette based on a 16bit mask, one bit for every colour (updates staticPalette if needed)
 // NB: This ONLY updates the first 16 colours, not the full 99, > 16 are static anyway...
-void getmIRCPaletteMask(COLORREF *const Palette, const UINT PaletteItems, uint16_t uMask)
+void getmIRCPaletteMask(COLORREF* const Palette, const UINT PaletteItems, uint16_t uMask)
 {
-	if ((Palette == nullptr) || (PaletteItems < 16) || (PaletteItems > std::size(staticPalette)))
+	if ((!Palette) || (PaletteItems < 16) || (PaletteItems > std::size(staticPalette)))
 		return;
 
 	getmIRCPalette();
@@ -1350,7 +1349,7 @@ constexpr int unfoldColor(int nColor) noexcept
 	return nColor;
 }
 
-int unfoldColor(const WCHAR *color) noexcept
+int unfoldColor(const WCHAR* color) noexcept
 {
 	return unfoldColor(_ts_atoi(color));
 }
@@ -1407,7 +1406,7 @@ int unfoldColor(const WCHAR *color) noexcept
 //	}
 //}
 
-void mIRC_OutText(HDC hdc, TString &txt, LPRECT rcOut, const LPLOGFONT lf, const UINT iStyle, const COLORREF clrFG, const bool shadow) noexcept
+void mIRC_OutText(HDC hdc, TString& txt, LPRECT rcOut, const LPLOGFONT lf, const UINT iStyle, const COLORREF clrFG, const bool shadow) noexcept
 {
 	if (txt.empty())
 		return;
@@ -1416,7 +1415,7 @@ void mIRC_OutText(HDC hdc, TString &txt, LPRECT rcOut, const LPLOGFONT lf, const
 	const auto hOldFont = SelectFont(hdc, CreateFontIndirect(lf));
 	auto rcTmp = *rcOut;
 
-	if (!dcx_testflag(iStyle,DT_CALCRECT))
+	if (!dcx_testflag(iStyle, DT_CALCRECT))
 	{	// if DT_CALCRECT flag NOT given then do calcrect here.
 		//DrawText(hdc, txt.to_chr(), len, &rcTmp, iStyle | DT_CALCRECT);
 		if (shadow)
@@ -1425,7 +1424,7 @@ void mIRC_OutText(HDC hdc, TString &txt, LPRECT rcOut, const LPLOGFONT lf, const
 			DrawText(hdc, txt.to_chr(), gsl::narrow_cast<int>(len), std::addressof(rcTmp), iStyle | DT_CALCRECT);
 	}
 	if (shadow)
-		dcxDrawShadowText(hdc,txt.to_chr(), len, std::addressof(rcTmp), iStyle, clrFG, 0, 5, 5);
+		dcxDrawShadowText(hdc, txt.to_chr(), len, std::addressof(rcTmp), iStyle, clrFG, 0, 5, 5);
 	else
 		DrawText(hdc, txt.to_chr(), gsl::narrow_cast<int>(len), std::addressof(rcTmp), iStyle);
 
@@ -1434,11 +1433,11 @@ void mIRC_OutText(HDC hdc, TString &txt, LPRECT rcOut, const LPLOGFONT lf, const
 	else
 		rcOut->left += (rcTmp.right - rcTmp.left);
 
-	DeleteFont(SelectFont( hdc, hOldFont ));
+	DeleteFont(SelectFont(hdc, hOldFont));
 	txt.clear();	// txt = TEXT("");
 }
 
-void mIRC_DrawText(HDC hdc, const TString &txt, LPRECT rc, const UINT style, const bool shadow)
+void mIRC_DrawText(HDC hdc, const TString& txt, LPRECT rc, const UINT style, const bool shadow)
 {
 	if (txt.empty()) // if no text just exit.
 		return;
@@ -1455,21 +1454,24 @@ void mIRC_DrawText(HDC hdc, const TString &txt, LPRECT rc, const UINT style, con
 	auto oldHDC = hdc;
 	hdc = *hBuffer;
 	// change rcOut to be zero offset.
-	OffsetRect(&rcOut,-rcOut.left, -rcOut.top);
+	OffsetRect(&rcOut, -rcOut.left, -rcOut.top);
 
 	//savedDC = SaveDC(hdc);
 
 	const COLORREF origFG = GetTextColor(hdc), origBG = GetBkColor(hdc);
 	COLORREF clrFG = origFG, clrBG = origBG;
-	COLORREF cPalette[mIRC_PALETTE_SIZE] = {CLR_INVALID}; // mIRC palette
+	COLORREF cPalette[mIRC_PALETTE_SIZE] = { CLR_INVALID }; // mIRC palette
 
 	//getmIRCPalette(&cPalette[0], std::extent_v<decltype(cPalette)>); // get mIRC palette
 	getmIRCPalette(cPalette); // get mIRC palette
 
-	const auto hFont = (HFONT)GetCurrentObject(hdc, OBJ_FONT);
+	//const auto hFont = Dcx::dcxGetCurrentObject<HFONT>(hdc, OBJ_FONT);
+	//LOGFONT lf{};
+	//if (GetObject(hFont, sizeof(LOGFONT), &lf) == 0)
+	//	return;
 
-	LOGFONT lf{};
-	if (GetObject(hFont, sizeof(LOGFONT), &lf) == 0)
+	auto [code, lf] = Dcx::dcxGetObject<LOGFONT>(Dcx::dcxGetCurrentObject<HFONT>(hdc, OBJ_FONT));
+	if (code == 0)
 		return;
 
 	// bug #721 -> http://dcx.scriptsdb.org/bug/index.php?do=details&task_id=721
@@ -1482,19 +1484,19 @@ void mIRC_DrawText(HDC hdc, const TString &txt, LPRECT rc, const UINT style, con
 	const auto origWeight = lf.lfWeight;
 	auto origLeft = rc->left;
 
-	SetBkMode(hdc,TRANSPARENT);
+	SetBkMode(hdc, TRANSPARENT);
 
 	const UINT iStyle = (style & ~(DT_CENTER | DT_RIGHT | DT_VCENTER)) | DT_LEFT; // make sure its to left
 
-	if (!dcx_testflag(iStyle,DT_CALCRECT))
+	if (!dcx_testflag(iStyle, DT_CALCRECT))
 	{ // if NOT doing DT_CALCRECT calc rect needed here.
 		//mIRC_DrawText(hdc, txt, &rcOut, style | DT_CALCRECT, shadow);
-		if (dcx_testflag(style,DT_CENTER) || dcx_testflag(style,DT_RIGHT) || dcx_testflag(style,DT_VCENTER))
+		if (dcx_testflag(style, DT_CENTER) || dcx_testflag(style, DT_RIGHT) || dcx_testflag(style, DT_VCENTER))
 		{
 			// strip out ctrl codes to correctly position text.
 			auto rcTmp = *rc;
 			auto t(txt);
-			if (dcx_testflag(iStyle,DT_SINGLELINE))
+			if (dcx_testflag(iStyle, DT_SINGLELINE))
 			{
 				//t.replace(TEXT('\n'), TEXT(' '));
 				//t.replace(TEXT('\r'), TEXT(' '));
@@ -1505,12 +1507,12 @@ void mIRC_DrawText(HDC hdc, const TString &txt, LPRECT rc, const UINT style, con
 			//DrawText(hdc, txt, lstrlen(txt), &rcTmp, style | DT_CALCRECT /*| DT_NOPREFIX*/);
 			//DrawTextEx(hdc, t.strip().to_chr(), t.len(), &rcTmp, style | DT_CALCRECT /*| DT_NOPREFIX*/, &dtp);
 			// style can be either center or right, not both, but it can be center+vcenter or right+vcenter
-			if (dcx_testflag(style,DT_CENTER))
+			if (dcx_testflag(style, DT_CENTER))
 			{ // get center text start offset
 				// (total width) - (required width) / 2 = equal space to each side.
 				origLeft = rcOut.left = (((rcOut.right - rcOut.left) - (rcTmp.right - rcTmp.left)) / 2);
 			}
-			else if (dcx_testflag(style,DT_RIGHT))
+			else if (dcx_testflag(style, DT_RIGHT))
 			{ // get right text start offset
 				// adjust start to right
 				origLeft = rcOut.left = (rcOut.right - (rcTmp.right - rcTmp.left));
@@ -1519,7 +1521,7 @@ void mIRC_DrawText(HDC hdc, const TString &txt, LPRECT rc, const UINT style, con
 				//origLeft = rcOut.left = (rcOut.right - (rcTmp.right - rcTmp.left) - tm.tmAveCharWidth);
 				//origLeft = rcOut.left = rcTmp.left;
 			}
-			if (dcx_testflag(style,DT_VCENTER))
+			if (dcx_testflag(style, DT_VCENTER))
 			{ // get Veritcal center text start offset
 				rcOut.top += (((rcOut.bottom - rcOut.top) - (rcTmp.bottom - rcTmp.top)) / 2);
 			}
@@ -1697,7 +1699,7 @@ void mIRC_DrawText(HDC hdc, const TString &txt, LPRECT rc, const UINT style, con
 						if (!tmp.empty())
 						{
 							SIZE sz{};
-							int nFit = 0;
+							int nFit{};
 							const auto tlen = gsl::narrow_cast<int>(tmp.len());
 							GetTextExtentExPoint(hdc, txt.to_chr(), tlen, (rcOut.right - rcOut.left), &nFit, NULL, &sz);
 							if (nFit < tlen)
@@ -1771,7 +1773,7 @@ struct HDCBuffer {
 };
 using LPHDCBuffer = HDCBuffer *;
 
-gsl::owner<HDC *> CreateHDCBuffer(HDC hdc, const LPRECT rc)
+gsl::owner<HDC*> CreateHDCBuffer(HDC hdc, const LPRECT rc)
 {
 	//if ((hdc == nullptr) /*|| (rc == NULL)*/)
 	//	return nullptr;
@@ -1811,10 +1813,10 @@ gsl::owner<HDC *> CreateHDCBuffer(HDC hdc, const LPRECT rc)
 	{
 #ifdef DEBUG
 		const DWORD err = GetLastError(), errBufSize = 16U;
-		if (const LPTSTR errBuf = nullptr; FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_IGNORE_INSERTS, nullptr, err, 0, (LPTSTR)&errBuf, errBufSize, nullptr) != 0)
+		if (LPTSTR errBuf{ nullptr }; FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_IGNORE_INSERTS, nullptr, err, 0U, reinterpret_cast<LPTSTR>(&errBuf), errBufSize, nullptr) != 0)
 		{
-			mIRCLinker::debug(TEXT("CreateHDCBuffer"),errBuf);
-			LocalFree(errBuf);
+			Auto(LocalFree(errBuf));
+			mIRCLinker::debug(TEXT("CreateHDCBuffer"), errBuf);
 		}
 #endif
 		DeleteDC(buf->m_hHDC);
@@ -1827,7 +1829,7 @@ gsl::owner<HDC *> CreateHDCBuffer(HDC hdc, const LPRECT rc)
 	SetDCBrushColor(buf->m_hHDC, GetDCBrushColor(hdc));
 	SetDCPenColor(buf->m_hHDC, GetDCPenColor(hdc));
 	SetLayout(buf->m_hHDC, GetLayout(hdc));
-	buf->m_hOldFont = SelectFont(buf->m_hHDC, GetCurrentObject(hdc, OBJ_FONT));
+	buf->m_hOldFont = SelectFont(buf->m_hHDC, Dcx::dcxGetCurrentObject<HFONT>(hdc, OBJ_FONT));
 	SetTextColor(buf->m_hHDC, GetTextColor(hdc));
 	SetBkColor(buf->m_hHDC, GetBkColor(hdc));
 	SetBkMode(buf->m_hHDC, GetBkMode(hdc));
@@ -1843,27 +1845,27 @@ gsl::owner<HDC *> CreateHDCBuffer(HDC hdc, const LPRECT rc)
 	// buffer is an exact duplicate of the hdc within the area specified.
 	// return buffer typed as an HDC *
 	//return (HDC *)buf.release();
-	return gsl::owner<HDC *>(buf.release());
+	return gsl::owner<HDC*>(buf.release());
 }
 
-void DeleteHDCBuffer(gsl::owner<HDC *> hBuffer) noexcept
+void DeleteHDCBuffer(gsl::owner<HDC*> hBuffer) noexcept
 {
-	if (hBuffer == nullptr)
+	if (!hBuffer)
 		return;
 
 	auto buf = gsl::owner<LPHDCBuffer>(reinterpret_cast<LPHDCBuffer>(hBuffer));
 
 	GdiFlush();
 	SelectFont(buf->m_hHDC, buf->m_hOldFont);
-	SelectBitmap(buf->m_hHDC,buf->m_hOldBitmap);
+	SelectBitmap(buf->m_hHDC, buf->m_hOldBitmap);
 	DeleteBitmap(buf->m_hBitmap);
 	DeleteDC(buf->m_hHDC);
 	delete buf;
 }
 
-int TGetWindowText(HWND hwnd, TString &txt)
+int TGetWindowText(HWND hwnd, TString& txt)
 {
-	if (hwnd == nullptr)
+	if (!hwnd)
 		return 0;
 
 	// NB: needs to include space for end 0
@@ -1881,7 +1883,7 @@ TString TGetWindowText(HWND hwnd)
 {
 	TString txt;
 
-	if (hwnd == nullptr)
+	if (!hwnd)
 		return txt;
 
 	// NB: needs to include space for end 0
@@ -1893,20 +1895,20 @@ TString TGetWindowText(HWND hwnd)
 	return txt;
 }
 
-HMODULE UXModule = nullptr;         //!< UxTheme.dll Module Handle
+HMODULE UXModule{ nullptr };         //!< UxTheme.dll Module Handle
 #ifdef DCX_USE_GDIPLUS
-HMODULE GDIPlusModule = nullptr;	//!< gdiplus.dll Module Handle
-ULONG_PTR gdi_token = NULL;
+HMODULE GDIPlusModule{ nullptr };	//!< gdiplus.dll Module Handle
+ULONG_PTR gdi_token{ NULL };
 #endif
-HMODULE DWMModule = nullptr;		//!< dwmapi.dll Module Handle
+HMODULE DWMModule{ nullptr };		//!< dwmapi.dll Module Handle
 
-void FreeOSCompatibility(void) noexcept
+void FreeOSCompatibility() noexcept
 {
 #ifdef DCX_USE_GDIPLUS
 	// Shutdown GDI+
-	if (GDIPlusModule != nullptr)
+	if (GDIPlusModule)
 	{
-		if (gdi_token != NULL)
+		if (gdi_token)
 			Gdiplus::GdiplusShutdown(gdi_token);
 
 		FreeLibrary(GDIPlusModule);
@@ -1914,23 +1916,23 @@ void FreeOSCompatibility(void) noexcept
 	}
 #endif
 
-	if (UXModule != nullptr)
+	if (UXModule)
 	{
 		Dcx::UXModule.dcxBufferedPaintUnInit();
 
 		FreeLibrary(UXModule);
 		UXModule = nullptr;
 	}
-	if (DWMModule != nullptr)
+	if (DWMModule)
 	{
 		FreeLibrary(DWMModule);
 		DWMModule = nullptr;
 	}
 }
 
-bool isRegexMatch(const TCHAR *matchtext, const TCHAR *pattern)
+bool isRegexMatch(const TCHAR* matchtext, const TCHAR* pattern)
 {
-	if ((matchtext == nullptr) || (pattern == nullptr))
+	if ((!matchtext) || (!pattern))
 		return false;
 
 	// NB: CREGEX version is incomplete
@@ -1972,9 +1974,9 @@ bool isRegexMatch(const TCHAR *matchtext, const TCHAR *pattern)
 #endif // DCX_USE_CREGEX
 }
 
-void AddFileIcons(HIMAGELIST himl, TString &filename, const bool bLarge, const int iIndex, const int iStart, const int iEnd)
+void AddFileIcons(HIMAGELIST himl, TString& filename, const bool bLarge, const int iIndex, const int iStart, const int iEnd)
 {
-	if ((himl == nullptr) || (iStart < 0) || (iEnd != -1 && iStart > iEnd))
+	if ((!himl) || (iStart < 0) || (iEnd != -1 && iStart > iEnd))
 		throw Dcx::dcxException(TEXT("Invalid Args"));
 
 	if (!IsFile(filename))
@@ -1992,24 +1994,24 @@ void AddFileIcons(HIMAGELIST himl, TString &filename, const bool bLarge, const i
 			++IconIndex;
 	}
 #else
-	HICON hIcon = nullptr;
-	
+	HICON hIcon{ nullptr };
+
 	for (auto FileIndex{ iStart }, IconIndex{ iIndex }; FileIndex <= iEnd; ++FileIndex)
 	{
 		if (bLarge)
 			ExtractIconEx(filename.to_chr(), FileIndex, &hIcon, nullptr, 1);
 		else
 			ExtractIconEx(filename.to_chr(), FileIndex, nullptr, &hIcon, 1);
-	
+
 		if (!hIcon)
 			throw Dcx::dcxException(TEXT("Unable to Add %'s Icon %"), filename, FileIndex);
 
 		// auto free handle hIcon when going out of scope or throwing an exception
 		//Auto(DestroyIcon(hIcon));
-	
+
 		// auto free handle hIcon when going out of scope or throwing an exception (testing)
 		auto IconGuard = gsl::finally([hIcon]() { DestroyIcon(hIcon); });
-	
+
 		if (ImageList_ReplaceIcon(himl, IconIndex, hIcon) == -1)
 			throw Dcx::dcxException(TEXT("Unable to Add %'s Icon %"), filename, FileIndex);
 
@@ -2022,7 +2024,7 @@ void AddFileIcons(HIMAGELIST himl, TString &filename, const bool bLarge, const i
 BOOL dcxGetWindowRect(const HWND hWnd, const LPRECT lpRect) noexcept
 {
 	// as described in a comment at http://msdn.microsoft.com/en-us/library/ms633519(VS.85).aspx
-	// GetWindowRect does not return the real size of a window if u are using vista with areo glass
+	// GetWindowRect does not return the real size of a window if you are using vista with areo glass
 	// using DwmGetWindowAttribute now to fix that (fixes bug 685)
 	if (Dcx::VistaModule.isUseable())
 		return (Dcx::VistaModule.dcxDwmGetWindowAttribute(hWnd, DWMWA_EXTENDED_FRAME_BOUNDS, lpRect, sizeof(RECT)) == S_OK);
@@ -2032,7 +2034,7 @@ BOOL dcxGetWindowRect(const HWND hWnd, const LPRECT lpRect) noexcept
 /*
 	*	DrawRotatedText() function taken from ms example & modified for our needs.
 */
-void DrawRotatedText(const TString &strDraw, const LPRECT rc, const HDC hDC, const int nAngleLine/* = 0*/, const bool bEnableAngleChar /*= false*/, const int nAngleChar /*= 0*/) noexcept
+void DrawRotatedText(const TString& strDraw, const LPCRECT rc, const HDC hDC, const int nAngleLine/* = 0*/, const bool bEnableAngleChar /*= false*/, const int nAngleChar /*= 0*/) noexcept
 {
 	if ((nAngleLine == 0) && (!bEnableAngleChar))
 	{
@@ -2040,9 +2042,13 @@ void DrawRotatedText(const TString &strDraw, const LPRECT rc, const HDC hDC, con
 		//DrawText(hDC, strDraw.to_chr(), strDraw.len(), rc, styles);
 		return;
 	}
-	LOGFONT lf{};
+	//LOGFONT lf{};
+	//
+	//if (GetObject(Dcx::dcxGetCurrentObject<HFONT>(hDC, OBJ_FONT), sizeof(LOGFONT), &lf) == 0)
+	//	return;
 
-	if (GetObject((HFONT)GetCurrentObject(hDC, OBJ_FONT), sizeof(LOGFONT), &lf) == 0)
+	auto [code, lf] = Dcx::dcxGetObject<LOGFONT>(Dcx::dcxGetCurrentObject<HFONT>(hDC, OBJ_FONT));
+	if (code == 0)
 		return;
 
 	// Set the background mode to transparent for the
@@ -2051,24 +2057,24 @@ void DrawRotatedText(const TString &strDraw, const LPRECT rc, const HDC hDC, con
 	Auto(SetBkMode(hDC, nOldBkMode));
 
 	// Specify the angle to draw line
-	lf.lfEscapement = nAngleLine*10;
+	lf.lfEscapement = nAngleLine * 10;
 	int nOldGMode{};
-	if( bEnableAngleChar ) // Enable character angle
+	if (bEnableAngleChar) // Enable character angle
 	{
 		// Set graphics mode to advance to enable orientation
-		nOldGMode = SetGraphicsMode( hDC, GM_ADVANCED );
+		nOldGMode = SetGraphicsMode(hDC, GM_ADVANCED);
 		// Specify the angle of characters
-		lf.lfOrientation = nAngleChar*10;
+		lf.lfOrientation = nAngleChar * 10;
 	}
 	else // Draw in normal mode
 	{
-		nOldGMode = SetGraphicsMode( hDC, GM_COMPATIBLE );
+		nOldGMode = SetGraphicsMode(hDC, GM_COMPATIBLE);
 	}
 	// Restore old values
 	Auto(SetGraphicsMode(hDC, nOldGMode));
 
 	// Select the new font created
-	if (const auto hFont = CreateFontIndirect(&lf); hFont != nullptr)
+	if (const auto hFont = CreateFontIndirect(&lf); hFont)
 	{
 		Auto(DeleteFont(hFont));
 
@@ -2111,10 +2117,10 @@ void DrawRotatedText(const TString &strDraw, const LPRECT rc, const HDC hDC, con
 //		nOptions, rect, str, len, NULL);
 //}
 
-const char *queryAttribute(const TiXmlElement *element, const char *attribute, const char *defaultValue) noexcept
+const char* queryAttribute(const TiXmlElement* element, const char* attribute, const char* defaultValue) noexcept
 {
 	const auto t = element->Attribute(attribute);
-	return (t != nullptr) ? t : defaultValue;
+	return (t) ? t : defaultValue;
 }
 
 //gsl::not_null<const char *> queryAttribute(gsl::not_null<const TiXmlElement *> element, gsl::not_null<const char *> attribute, gsl::not_null<const char *> defaultValue) noexcept
@@ -2131,9 +2137,9 @@ const char *queryAttribute(const TiXmlElement *element, const char *attribute, c
 //	return {};
 //}
 
-int queryIntAttribute(const TiXmlElement *element, const char *attribute, const int defaultValue)
+int queryIntAttribute(const TiXmlElement* element, const char* attribute, const int defaultValue)
 {
-	if (const auto[iStatus, integer] = element->QueryIntAttribute(attribute); iStatus == TIXML_SUCCESS)
+	if (const auto [iStatus, integer] = element->QueryIntAttribute(attribute); iStatus == TIXML_SUCCESS)
 		return integer;
 
 	return defaultValue;
@@ -2160,7 +2166,7 @@ int queryIntAttribute(const TiXmlElement *element, const char *attribute, const 
 
 	Change special characters $%()[]; into there $chr() equivalents
 */
-TString MakeTextmIRCSafe(const TString &tsStr)
+TString MakeTextmIRCSafe(const TString& tsStr)
 {
 	return MakeTextmIRCSafe(tsStr.to_chr(), tsStr.len());
 }
@@ -2170,7 +2176,7 @@ Make the text safe for passing to the callback alias
 
 Change special characters $%()[]; into there $chr() equivalents
 */
-TString MakeTextmIRCSafe(const TCHAR *const tString)
+TString MakeTextmIRCSafe(const TCHAR* const tString)
 {
 	return MakeTextmIRCSafe(tString, _ts_strlen(tString));
 }
@@ -2180,11 +2186,11 @@ Make the text safe for passing to the callback alias
 
 Change special characters $%()[]; into there $chr() equivalents
 */
-TString MakeTextmIRCSafe(const TCHAR *const tString, const std::size_t len)
+TString MakeTextmIRCSafe(const TCHAR* const tString, const std::size_t len)
 {
-	TString tsRes((UINT)MIRC_BUFFER_SIZE_CCH);	// use MIRC_BUFFER_SIZE_CCH as starting buffer size (shouldnt be bigger...)
+	TString tsRes(gsl::narrow_cast<UINT>(MIRC_BUFFER_SIZE_CCH));	// use MIRC_BUFFER_SIZE_CCH as starting buffer size (shouldnt be bigger...)
 
-	if ((tString == nullptr) || (len == 0))
+	if ((!tString) || (len == 0))
 		return tsRes;
 
 	bool bLastWasSpace = true;	// start as true as the beginning of the line is treated the same as a space here
@@ -2192,7 +2198,7 @@ TString MakeTextmIRCSafe(const TCHAR *const tString, const std::size_t len)
 	// look for ()[]%$; we dont want to change , as this is needed
 	for (auto i = decltype(len){0}; i < len; ++i)
 	{
-		switch (const auto &c = tString[i]; c)
+		switch (const auto & c = tString[i]; c)
 		{
 		case TEXT('('):
 		case TEXT(')'):
