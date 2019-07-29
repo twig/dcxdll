@@ -5,6 +5,7 @@
   <PropertyGroup Label="UserMacros">
     <mIRCDir>C:\mIRC_Basic</mIRCDir>
     <PHPDir>C:\php</PHPDir>
+    <DetoursDir>$(SolutionDir)..\..\Detours-4.0.1\</DetoursDir>
   </PropertyGroup>
   <PropertyGroup>
     <_ProjectFileVersion>11.0.50727.1</_ProjectFileVersion>
@@ -33,6 +34,9 @@
     </BuildMacro>
     <BuildMacro Include="PHPDir">
       <Value>$(PHPDir)</Value>
+    </BuildMacro>
+    <BuildMacro Include="DetoursDir">
+      <Value>$(DetoursDir)</Value>
     </BuildMacro>
   </ItemGroup>
 </Project>
