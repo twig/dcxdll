@@ -1535,7 +1535,7 @@ void DcxListView::parseCommandRequest(const TString & input)
 	// xdid -Q [NAME] [ID] [SWITCH] Del [GID]
 	else if (flags[TEXT('Q')])
 	{
-		if (numtok < 6)
+		if (numtok < 4)
 			throw Dcx::dcxException("Insufficient parameters");
 
 		const auto tsCmd(input++);										// tok 4
@@ -1577,6 +1577,9 @@ void DcxListView::parseCommandRequest(const TString & input)
 		}
 		case TEXT("Move"_hash):
 		{
+			if (numtok < 6)
+				throw Dcx::dcxException("Insufficient parameters");
+
 			const auto gid = input++.to_int();								// tok 5
 			const auto index = input++.to_int() - 1;						// tok 6
 
@@ -1588,6 +1591,9 @@ void DcxListView::parseCommandRequest(const TString & input)
 		}
 		case TEXT("Del"_hash):
 		{
+			if (numtok < 5)
+				throw Dcx::dcxException("Insufficient parameters");
+
 			const auto gid = input++.to_int();								// tok 5
 
 			if (gid == -1)
