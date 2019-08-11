@@ -1129,6 +1129,49 @@
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xdid.big.Q"></a>/xdid -Q	</td></tr>
+	<tr><td colspan="2">This command lets you add, move, & delete groups.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -Q [DNAME] [ID] Add [N] [+FLAGS] [GID] [GROUPTEXT]|Move [GID] [N]|Del [GID]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -Q dcx 4 Add 1 +l 101 Group 101!<br />/xdid -Q dcx 4 Move 101 4<br />/xdid -Q dcx 4 Del 101<br /></div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">N</td>
+		<td>Group index order.</td>
+	</tr>
+	<tr>
+		<td class="param">+FLAGS</td>
+		<td>Group flags.</td>
+	</tr>
+	<tr>
+		<td class="value">c</td>
+		<td>Group text is centered.</td>
+	</tr>
+	<tr>
+		<td class="value">l</td>
+		<td>Group text is left aligned.</td>
+	</tr>
+	<tr>
+		<td class="value">r</td>
+		<td>Group text is right aligned.</td>
+	</tr>
+	<tr>
+		<td class="param">GID</td>
+		<td>ID that identifies the group when adding items in <a>/xdid -a</a>.</td>
+	</tr>
+	<tr>
+		<td class="param">GROUPTEXT</td>
+		<td>Label for the group.</td>
+	</tr>
+</table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
 			<a name="xdid.big.S"></a>/xdid -S	</td></tr>
 	<tr><td colspan="2">This command lets you save the items in a listview to file/@window/hashtable/xml</td></tr>
 	<tr>
@@ -1344,6 +1387,20 @@
 	<tr>
 		<td class="example">Example:</td>
 		<td><div class="example">$xdid(dcx, 4).genabled</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
+			<a name="xdidprop.gnum"></a>$xdid().gnum	</td></tr>
+	<tr><td colspan="2">This property retreives the number of groups.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID).gnum</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4).gnum</div></td>
 	</tr>
 </table>
 <br />
@@ -1962,6 +2019,7 @@
 		<a class='flag' href="#xdid.big.B"><div>-B</div></a>
 		<a class='flag' href="#xdid.big.G"><div>-G</div></a>
 		<a class='flag' href="#xdid.big.H"><div>-H</div></a>
+		<a class='flag' href="#xdid.big.Q"><div>-Q</div></a>
 		<a class='flag' href="#xdid.big.S"><div>-S</div></a>
 		<a class='flag' href="#xdid.big.T"><div>-T</div></a>
 		<a class='flag' href="#xdid.big.V"><div>-V</div></a>
@@ -1973,6 +2031,7 @@
 		<a class='flag' href="#xdidprop.columns"><div>columns</div></a>
 		<a class='flag' href="#xdidprop.find"><div>find</div></a>
 		<a class='flag' href="#xdidprop.genabled"><div>genabled</div></a>
+		<a class='flag' href="#xdidprop.gnum"><div>gnum</div></a>
 		<a class='flag' href="#xdidprop.hicon"><div>hicon</div></a>
 		<a class='flag' href="#xdidprop.hstate"><div>hstate</div></a>
 		<a class='flag' href="#xdidprop.htext"><div>htext</div></a>
@@ -2018,7 +2077,7 @@
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2019</td>
-		<td style="text-align: right;">Last Updated: 28th July, 19</td>
+		<td style="text-align: right;">Last Updated: 11th August, 19</td>
 	</tr>
 </table>
 <div style="text-align: center;">

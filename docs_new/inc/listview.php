@@ -49,7 +49,7 @@ function get_styles_listview(&$STYLES) {
 function get_xdid_listview(&$XDID) {
 	$XDID = array(
 		'a' => array(
-		        '__desc' => 'This command lets you add an item to the listview.',
+	        '__desc' => 'This command lets you add an item to the listview.',
 			'__cmd' => '[N] [INDENT] [+FLAGS] [ICON] [STATE] [OVERLAY] [GROUPID] [COLOR] [BGCOLOR] (TEXT) [TAB] [+FLAGS] [ICON] [OVERLAY] [COLOR] [BGCOLOR] (TEXT) [TAB] ...',
 			'__eg' => '1 0 +cbku 1 0 0 0 $rgb(170,213,255) $rgb(0,255,255) text $chr(9) + 0 -1 $rgb(10,210,250) $rgb(255,0,255) text2 $chr(9) + 0 -1 $rgb(120,255,210) $rgb(255,255,0) text3',
 			'__params' => array(
@@ -363,6 +363,28 @@ function get_xdid_listview(&$XDID) {
                 'GROUPTEXT' => 'Label for the group.'
 			),
 		),
+		'Q' => array(
+	        '__desc' => 'This command lets you add, move, & delete groups.',
+	        '__cmd' => 'Add [N] [+FLAGS] [GID] [GROUPTEXT]|Move [GID] [N]|Del [GID]',
+	        '__eg' => array(
+                'Add 1 +l 101 Group 101!',
+                'Move 101 4',
+                'Del 101'
+            ),
+	        '__params' => array(
+	            'N' => 'Group index order.',
+                '+FLAGS' => array(
+                    '__desc' => "Group flags.",
+                    '__values' => array(
+						'c' => 'Group text is centered.',
+						'l' => 'Group text is left aligned.',
+						'r' => 'Group text is right aligned.',
+					),
+				),
+                'GID' => 'ID that identifies the group when adding items in <a>/xdid -a</a>.',
+                'GROUPTEXT' => 'Label for the group.'
+			),
+		),
 		'r' => 'This command lets you clear all the listview items.',
 		't' => array(
 			'__desc' => 'This command lets you set the different column header text, width and alignment.',
@@ -649,6 +671,7 @@ function get_xdidprops_listview(&$XDIDPROPS) {
 	        '__eg' => '2',
 		),
 		'genabled' => 'This property lets you retreive whether groups are enabled or not.',
+		'gnum' => 'This property retreives the number of groups.',
 		'pbar' => array(
 			'__desc' => "This property lets you retreive ProgressBar properties from a specific cell.",
 			'__cmd' => 'N, NSUB, PBARPROP',
