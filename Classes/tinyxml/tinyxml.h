@@ -96,11 +96,9 @@ constexpr const int TIXML_PATCH_VERSION = 1;
 /*	Internal structure for tracking location of items
 	in the XML file.
 */
-struct TiXmlCursor
+struct TiXmlCursor final
 {
 	TiXmlCursor() noexcept = default;
-	//	: TiXmlCursor(-1, -1)
-	//{}
 	TiXmlCursor(const int& _row, const int& _col) noexcept
 		: row(_row), col(_col)
 	{}
@@ -136,8 +134,6 @@ struct TiXmlCursor
 class TiXmlVisitor
 {
 public:
-	virtual ~TiXmlVisitor() noexcept {}
-
 	/// Visit a document.
 	virtual bool VisitEnter(const TiXmlDocument& /*doc*/) noexcept { return true; }
 	/// Visit a document.
@@ -156,10 +152,17 @@ public:
 	virtual bool Visit(const TiXmlComment& /*comment*/) { return true; }
 	/// Visit an unknow node
 	virtual bool Visit(const TiXmlUnknown& /*unknown*/) { return true; }
+
+	TiXmlVisitor() noexcept = default;
+	virtual ~TiXmlVisitor() noexcept = default;
+	TiXmlVisitor(const TiXmlVisitor&) = default;
+	TiXmlVisitor& operator=(const TiXmlVisitor&) = default;
+	TiXmlVisitor(TiXmlVisitor&&) = default;
+	TiXmlVisitor& operator=(TiXmlVisitor&&) = default;
 };
 
 // Only used by Attribute::Query functions
-enum TiXmlReturns : int
+enum class TiXmlReturns : int
 {
 	TIXML_SUCCESS,
 	TIXML_NO_ATTRIBUTE,
@@ -168,14 +171,14 @@ enum TiXmlReturns : int
 
 
 // Used by the parsing routines.
-enum TiXmlEncoding : int
+enum class TiXmlEncoding : int
 {
 	TIXML_ENCODING_UNKNOWN,
 	TIXML_ENCODING_UTF8,
 	TIXML_ENCODING_LEGACY
 };
 
-constexpr const TiXmlEncoding TIXML_DEFAULT_ENCODING = TiXmlEncoding::TIXML_ENCODING_UNKNOWN;
+constexpr auto TIXML_DEFAULT_ENCODING = TiXmlEncoding::TIXML_ENCODING_UNKNOWN;
 
 /** TiXmlBase is a base class for every class in TinyXml.
 	It does little except to establish that TinyXml classes
@@ -274,7 +277,8 @@ public:
 	*/
 	static void EncodeString(const TIXML_STRING& str, TIXML_STRING* out);
 
-	enum tixmlErrors
+	enum class tixmlErrors
+		: int
 	{
 		TIXML_NO_ERROR = 0,
 		TIXML_ERROR,
@@ -340,9 +344,9 @@ protected:
 	inline static const char* GetChar(const char* p, char* _value, int* length, TiXmlEncoding encoding) noexcept
 	{
 		assert(p);
-		if (encoding == TIXML_ENCODING_UTF8)
+		if (encoding == TiXmlEncoding::TIXML_ENCODING_UTF8)
 		{
-			*length = utf8ByteTable[*(reinterpret_cast<const unsigned char*>(p))];
+			*length = gsl::at(utf8ByteTable, *(reinterpret_cast<const unsigned char*>(p)));
 			assert(*length >= 0 && *length < 5);
 		}
 		else
@@ -382,7 +386,7 @@ protected:
 		bool ignoreCase,
 		TiXmlEncoding encoding) noexcept;
 
-	static const char* errorString[TIXML_ERROR_STRING_COUNT];
+	static const char* errorString[gsl::narrow_cast<UINT>(tixmlErrors::TIXML_ERROR_STRING_COUNT)];
 
 	TiXmlCursor location;
 
@@ -395,7 +399,7 @@ protected:
 	static int IsAlphaNum(unsigned char anyByte, TiXmlEncoding encoding) noexcept;
 	inline static int ToLower(int v, TiXmlEncoding encoding) noexcept
 	{
-		if (encoding == TIXML_ENCODING_UTF8)
+		if (encoding == TiXmlEncoding::TIXML_ENCODING_UTF8)
 		{
 			if (v < 128) return tolower(v);
 			return v;
@@ -421,7 +425,7 @@ private:
 
 	};
 	static Entity entity[NUM_ENTITY];
-	static bool condenseWhiteSpace;
+	static inline bool condenseWhiteSpace{ true };
 };
 
 
@@ -471,7 +475,7 @@ public:
 	/** The types of XML nodes supported by TinyXml. (All the
 			unsupported types are picked up by UNKNOWN.)
 	*/
-	enum NodeType : UINT
+	enum class NodeType : UINT
 	{
 		TINYXML_DOCUMENT,
 		TINYXML_ELEMENT,
@@ -540,17 +544,19 @@ public:
 	TiXmlNode* FirstChild() noexcept { return firstChild; }
 	const TiXmlNode* FirstChild(const char* value) const noexcept;			///< The first child of this node with the matching 'value'. Will be null if none found.
 	/// The first child of this node with the matching 'value'. Will be null if none found.
-	TiXmlNode* FirstChild(const char* _value) noexcept
+	[[gsl::suppress(type.3)]] TiXmlNode* FirstChild(const char* _value) noexcept
 	{
 		// Call through to the const version - safe since nothing is changed. Exiting syntax: cast this to a const (always safe)
 		// call the method, cast the return back to non-const.
 		return const_cast<TiXmlNode*> ((const_cast<const TiXmlNode*>(this))->FirstChild(_value));
+
+		//return const_cast<TiXmlNode*> ((std::as_const<TiXmlNode *>(this))->FirstChild(_value));
 	}
 	const TiXmlNode* LastChild() const noexcept { return lastChild; }		/// The last child of this node. Will be null if there are no children.
 	TiXmlNode* LastChild() noexcept { return lastChild; }
 
 	const TiXmlNode* LastChild(const char* value) const noexcept;			/// The last child of this node matching 'value'. Will be null if there are no children.
-	TiXmlNode* LastChild(const char* _value) noexcept
+	[[gsl::suppress(type.3)]] TiXmlNode* LastChild(const char* _value) noexcept
 	{
 		return const_cast<TiXmlNode*> ((const_cast<const TiXmlNode*>(this))->LastChild(_value));
 	}
@@ -579,14 +585,14 @@ public:
 	first. IterateChildren will return null when done.
 */
 	const TiXmlNode* IterateChildren(const TiXmlNode* previous) const noexcept;
-	TiXmlNode* IterateChildren(const TiXmlNode* previous) noexcept
+	[[gsl::suppress(type.3)]] TiXmlNode* IterateChildren(const TiXmlNode* previous) noexcept
 	{
 		return const_cast<TiXmlNode*>((const_cast<const TiXmlNode*>(this))->IterateChildren(previous));
 	}
 
 	/// This flavor of IterateChildren searches for children with a particular 'value'
 	const TiXmlNode* IterateChildren(const char* value, const TiXmlNode* previous) const noexcept;
-	TiXmlNode* IterateChildren(const char* _value, const TiXmlNode* previous) noexcept
+	[[gsl::suppress(type.3)]] TiXmlNode* IterateChildren(const char* _value, const TiXmlNode* previous) noexcept
 	{
 		return const_cast<TiXmlNode*>((const_cast<const TiXmlNode*>(this))->IterateChildren(_value, previous));
 	}
@@ -637,7 +643,7 @@ public:
 
 	/// Navigate to a sibling node.
 	const TiXmlNode* PreviousSibling(const char*) const noexcept;
-	TiXmlNode* PreviousSibling(const char* _prev) noexcept
+	[[gsl::suppress(type.3)]] TiXmlNode* PreviousSibling(const char* _prev) noexcept
 	{
 		return const_cast<TiXmlNode*>((const_cast<const TiXmlNode*>(this))->PreviousSibling(_prev));
 	}
@@ -665,7 +671,7 @@ public:
 		nodes. Returns 0 if there is not another m_pElement.
 	*/
 	const TiXmlElement* NextSiblingElement() const noexcept;
-	TiXmlElement* NextSiblingElement() noexcept
+	[[gsl::suppress(type.3)]] TiXmlElement* NextSiblingElement() noexcept
 	{
 		return const_cast<TiXmlElement*>((const_cast<const TiXmlNode*>(this))->NextSiblingElement());
 	}
@@ -675,7 +681,7 @@ public:
 		nodes. Returns 0 if there is not another m_pElement.
 	*/
 	const TiXmlElement* NextSiblingElement(const char*) const noexcept;
-	TiXmlElement* NextSiblingElement(const char* _next) noexcept
+	[[gsl::suppress(type.3)]] TiXmlElement* NextSiblingElement(const char* _next) noexcept
 	{
 		return const_cast<TiXmlElement*>((const_cast<const TiXmlNode*>(this))->NextSiblingElement(_next));
 	}
@@ -687,14 +693,14 @@ public:
 
 /// Convenience function to get through elements.
 	const TiXmlElement* FirstChildElement()	const noexcept;
-	TiXmlElement* FirstChildElement() noexcept
+	[[gsl::suppress(type.3)]] TiXmlElement* FirstChildElement() noexcept
 	{
 		return const_cast<TiXmlElement*>((const_cast<const TiXmlNode*>(this))->FirstChildElement());
 	}
 
 	/// Convenience function to get through elements.
 	const TiXmlElement* FirstChildElement(const char* _value) const noexcept;
-	TiXmlElement* FirstChildElement(const char* _value) noexcept
+	[[gsl::suppress(type.3)]] TiXmlElement* FirstChildElement(const char* _value) noexcept
 	{
 		return const_cast<TiXmlElement*>((const_cast<const TiXmlNode*>(this))->FirstChildElement(_value));
 	}
@@ -714,7 +720,7 @@ public:
 		Returns null if not in a document.
 	*/
 	const TiXmlDocument* GetDocument() const noexcept;
-	TiXmlDocument* GetDocument() noexcept
+	[[gsl::suppress(type.3)]] TiXmlDocument* GetDocument() noexcept
 	{
 		return const_cast<TiXmlDocument*>((const_cast<const TiXmlNode*>(this))->GetDocument());
 	}
@@ -800,7 +806,7 @@ protected:
 		  part of the tinyXML document object model. There are other
 		  suggested ways to look at this problem.
 */
-class TiXmlAttribute
+class TiXmlAttribute final
 	: public TiXmlBase
 {
 	friend class TiXmlAttributeSet;
@@ -868,7 +874,7 @@ public:
 
 	/// Get the next sibling attribute in the DOM. Returns null at end.
 	const TiXmlAttribute* Next() const noexcept;
-	TiXmlAttribute* Next() noexcept
+	[[gsl::suppress(type.3)]] TiXmlAttribute* Next() noexcept
 	{
 		return const_cast<TiXmlAttribute*>((const_cast<const TiXmlAttribute*>(this))->Next());
 	}
@@ -899,8 +905,8 @@ public:
 	iter end() const noexcept { return{}; }
 
 	bool operator==(const TiXmlAttribute& rhs) const noexcept { return rhs.name == name; }
-	bool operator<(const TiXmlAttribute& rhs)	 const noexcept { return name < rhs.name; }
-	bool operator>(const TiXmlAttribute& rhs)  const noexcept { return name > rhs.name; }
+	bool operator<(const TiXmlAttribute& rhs) const noexcept { return name < rhs.name; }
+	bool operator>(const TiXmlAttribute& rhs) const noexcept { return name > rhs.name; }
 
 	/*	Attribute parsing starts: first letter of the name
 						 returns: the next char after the value end quote
@@ -940,7 +946,7 @@ private:
 		- I like circular lists
 		- it demonstrates some independence from the (typical) doubly linked list.
 */
-class TiXmlAttributeSet
+class TiXmlAttributeSet final
 {
 public:
 	TiXmlAttributeSet() noexcept;
@@ -979,7 +985,8 @@ private:
 	and can contain other elements, text, comments, and unknowns.
 	Elements also contain an arbitrary number of attributes.
 */
-class TiXmlElement : public TiXmlNode
+class TiXmlElement final
+	: public TiXmlNode
 {
 public:
 	/// Construct an m_pElement.
@@ -993,9 +1000,13 @@ public:
 	TiXmlElement(const TiXmlElement&);
 
 	//warning C26434 : Function 'TiXmlElement::operator=' hides a non - virtual function 'TiXmlNode::operator=' (c.128: http://go.microsoft.com/fwlink/?linkid=853923).
-	TiXmlElement& operator=(const TiXmlElement& base);
+	//TiXmlElement& operator=(const TiXmlElement& base);
 
-	virtual ~TiXmlElement() noexcept;
+	~TiXmlElement() noexcept;
+
+	TiXmlElement& operator=(const TiXmlElement&) = delete;
+	TiXmlElement(TiXmlElement&&) = delete;
+	TiXmlElement& operator=(TiXmlElement&&) = delete;
 
 	/** Given an attribute name, Attribute() returns the value
 		for the attribute of that name, or null if none exists.
@@ -1034,7 +1045,7 @@ public:
 	{
 		double d;
 		const auto result = QueryDoubleAttribute(name, &d);
-		if (result == TIXML_SUCCESS)
+		if (result == TiXmlReturns::TIXML_SUCCESS)
 		{
 			*_value = gsl::narrow_cast<float>(d);
 		}
@@ -1073,7 +1084,7 @@ public:
 		if (!sstream.fail())
 			return TIXML_SUCCESS;
 		return TIXML_WRONG_TYPE;
-}
+	}
 
 	int QueryValueAttribute(const std::string& name, std::string* outValue) const
 	{
@@ -1200,25 +1211,29 @@ private:
 
 /**	An XML comment.
 */
-class TiXmlComment
+class TiXmlComment final
 	: public TiXmlNode
 {
 public:
 	/// Constructs an empty comment.
 	TiXmlComment() noexcept
-		: TiXmlNode(TiXmlNode::TINYXML_COMMENT)
+		: TiXmlNode(TiXmlNode::NodeType::TINYXML_COMMENT)
 	{}
 	/// Construct a comment from text.
 	TiXmlComment(const char* _value)
-		: TiXmlNode(TiXmlNode::TINYXML_COMMENT)
+		: TiXmlNode(TiXmlNode::NodeType::TINYXML_COMMENT)
 	{
 		SetValue(_value);
 	}
-	TiXmlComment(const TiXmlComment& copy) noexcept;
+	TiXmlComment(const TiXmlComment& copy);
 	//warning C26434 : Function 'TiXmlComment::operator=' hides a non - virtual function 'TiXmlNode::operator=' (c.128: http://go.microsoft.com/fwlink/?linkid=853923).
-	TiXmlComment& operator=(const TiXmlComment& base);
+	//TiXmlComment& operator=(const TiXmlComment& base);
 
 	~TiXmlComment()	noexcept = default;
+
+	TiXmlComment& operator=(const TiXmlComment&) = delete;
+	TiXmlComment(TiXmlComment&&) = delete;
+	TiXmlComment& operator=(TiXmlComment&&) = delete;
 
 	/// Returns a copy of this Comment.
 	TiXmlNode* Clone() const override;
@@ -1258,7 +1273,8 @@ private:
 	you generally want to leave it alone, but you can change the output mode with
 	SetCDATA() and query it with CDATA().
 */
-class TiXmlText : public TiXmlNode
+class TiXmlText final
+	: public TiXmlNode
 {
 	friend class TiXmlElement;
 public:
@@ -1267,7 +1283,7 @@ public:
 		m_pElement, set the parameter _cdata to 'true'
 	*/
 	TiXmlText() noexcept
-		: TiXmlNode(TiXmlNode::TINYXML_TEXT)
+		: TiXmlNode(TiXmlNode::NodeType::TINYXML_TEXT)
 	{}
 
 	TiXmlText(const char* initValue)
@@ -1275,7 +1291,7 @@ public:
 	{
 		SetValue(initValue);
 	}
-	//~TiXmlText() noexcept {}
+	~TiXmlText() noexcept = default;
 
 #ifdef TIXML_USE_STL
 /// Constructor.
@@ -1286,14 +1302,18 @@ public:
 	}
 #endif
 
-	TiXmlText(const TiXmlText& copy) noexcept
+	TiXmlText(const TiXmlText& copy)
 		: TiXmlText()
 	{
 		copy.CopyTo(this);
 	}
 
 	//warning C26434 : Function 'TiXmlText::operator=' hides a non - virtual function 'TiXmlNode::operator=' (c.128: http://go.microsoft.com/fwlink/?linkid=853923).
-	TiXmlText& operator=(const TiXmlText& base)	noexcept { base.CopyTo(this); return *this; }
+	//TiXmlText& operator=(const TiXmlText& base) { base.CopyTo(this); return *this; }
+
+	TiXmlText& operator=(const TiXmlText&) = delete;
+	TiXmlText(TiXmlText&&) = delete;
+	TiXmlText& operator=(TiXmlText&&) = delete;
 
 	// Write this text object to a FILE stream.
 	void Print(FILE* cfile, int depth) const override;
@@ -1341,12 +1361,13 @@ private:
 	handled as special cases, not generic attributes, simply
 	because there can only be at most 3 and they are always the same.
 */
-class TiXmlDeclaration : public TiXmlNode
+class TiXmlDeclaration final
+	: public TiXmlNode
 {
 public:
 	/// Construct an empty declaration.
 	TiXmlDeclaration() noexcept
-		: TiXmlNode(TiXmlNode::TINYXML_DECLARATION)
+		: TiXmlNode(TiXmlNode::NodeType::TINYXML_DECLARATION)
 	{}
 
 #ifdef TIXML_USE_STL
@@ -1357,15 +1378,16 @@ public:
 #endif
 
 	/// Construct.
-	TiXmlDeclaration(const char* _version,
-		const char* _encoding,
-		const char* _standalone);
-
+	TiXmlDeclaration(const char* _version, const char* _encoding, const char* _standalone);
 	TiXmlDeclaration(const TiXmlDeclaration& copy);
 	//warning C26434 : Function 'TiXmlDeclaration::operator=' hides a non - virtual function 'TiXmlNode::operator=' (c.128: http://go.microsoft.com/fwlink/?linkid=853923).
-	TiXmlDeclaration& operator=(const TiXmlDeclaration& copy);
+	//TiXmlDeclaration& operator=(const TiXmlDeclaration& copy);
 
-	~TiXmlDeclaration() noexcept {}
+	~TiXmlDeclaration() noexcept = default;
+
+	TiXmlDeclaration& operator=(const TiXmlDeclaration&) = delete;
+	TiXmlDeclaration(TiXmlDeclaration&&) = delete;
+	TiXmlDeclaration& operator=(TiXmlDeclaration&&) = delete;
 
 	/// Version. Will return an empty string if none was found.
 	const char* Version() const noexcept { return version.c_str(); }
@@ -1381,7 +1403,7 @@ public:
 	void Print(FILE* cfile, int depth) const override
 	{
 		Print(cfile, depth, nullptr);
-}
+	}
 
 	const char* Parse(const char* p, TiXmlParsingData* data, TiXmlEncoding encoding) override;
 
@@ -1414,23 +1436,27 @@ private:
 
 	DTD tags get thrown into TiXmlUnknowns.
 */
-class TiXmlUnknown
+class TiXmlUnknown final
 	: public TiXmlNode
 {
 public:
 	TiXmlUnknown() noexcept
-		: TiXmlNode(TiXmlNode::TINYXML_UNKNOWN)
+		: TiXmlNode(TiXmlNode::NodeType::TINYXML_UNKNOWN)
 	{}
 	~TiXmlUnknown() noexcept = default;
 
-	TiXmlUnknown(const TiXmlUnknown& copy) noexcept
-		: TiXmlNode(TiXmlNode::TINYXML_UNKNOWN)
+	TiXmlUnknown(const TiXmlUnknown& copy)
+		: TiXmlNode(TiXmlNode::NodeType::TINYXML_UNKNOWN)
 	{
 		copy.CopyTo(this);
 	}
 
 	//warning C26434 : Function 'TiXmlUnknown::operator=' hides a non - virtual function 'TiXmlNode::operator=' (c.128: http://go.microsoft.com/fwlink/?linkid=853923).
-	TiXmlUnknown& operator=(const TiXmlUnknown& copy) noexcept { copy.CopyTo(this); return *this; }
+	//TiXmlUnknown& operator=(const TiXmlUnknown& copy) { copy.CopyTo(this); return *this; }
+	
+	TiXmlUnknown& operator=(const TiXmlUnknown&) = delete;
+	TiXmlUnknown(TiXmlUnknown&&) = delete;
+	TiXmlUnknown& operator=(TiXmlUnknown&&) = delete;
 
 	/// Creates a copy of this Unknown and returns it.
 	TiXmlNode* Clone() const override;
@@ -1463,7 +1489,7 @@ private:
 	XML pieces. It can be saved, loaded, and printed to the screen.
 	The 'value' of a document node is the xml file name.
 */
-class TiXmlDocument
+class TiXmlDocument final
 	: public TiXmlNode
 {
 public:
@@ -1483,6 +1509,10 @@ public:
 
 	//~TiXmlDocument() noexcept {}
 	~TiXmlDocument() noexcept = default;
+
+	//TiXmlDocument& operator=(const TiXmlDocument&) = delete;
+	TiXmlDocument(TiXmlDocument&&) = delete;
+	TiXmlDocument& operator=(TiXmlDocument&&) = delete;
 
 	/** Load a file using the current document value.
 		Returns true if successful. Will delete any existing
@@ -1541,7 +1571,7 @@ public:
 	/** Generally, you probably want the error string ( ErrorDesc() ). But if you
 		prefer the ErrorId, this function will fetch it.
 	*/
-	const int& ErrorId()	const noexcept { return errorId; }
+	const tixmlErrors& ErrorId()	const noexcept { return errorId; }
 
 	/** Returns the location (if known) of the error. The first column is column 1,
 		and the first row is row 1. A value of 0 means the row and column wasn't applicable
@@ -1584,10 +1614,11 @@ public:
 	/** If you have handled the error, it can be reset with this call. The error
 		state is automatically cleared if you Parse a new XML block.
 	*/
-	void ClearError() noexcept {
+	void ClearError() noexcept
+	{
 		error = false;
-		errorId = 0;
-		errorDesc = "";
+		errorId = tixmlErrors::TIXML_NO_ERROR;
+		errorDesc.clear(); // = "";
 		errorLocation.row = errorLocation.col = 0;
 		//errorLocation.last = 0; 
 	}
@@ -1623,7 +1654,7 @@ protected:
 private:
 	void CopyTo(TiXmlDocument* target) const;
 
-	int  errorId{};
+	tixmlErrors errorId{};
 	TIXML_STRING errorDesc;
 	int tabsize{ 4 };
 	TiXmlCursor errorLocation;
@@ -1828,11 +1859,11 @@ private:
 	fprintf( stdout, "%s", printer.CStr() );
 	@endverbatim
 */
-class TiXmlPrinter
+class TiXmlPrinter final
 	: public TiXmlVisitor
 {
 public:
-	TiXmlPrinter() noexcept
+	TiXmlPrinter()
 		: indent("    "), lineBreak("\n")
 	{}
 
@@ -1850,28 +1881,29 @@ public:
 	/** Set the indent characters for printing. By default 4 spaces
 		but tab (\t) is also useful, or null/empty string for no indentation.
 	*/
-	void SetIndent(const char* _indent) noexcept { indent = _indent ? _indent : ""; }
+	void SetIndent(const char* _indent) { indent = _indent ? _indent : ""; }
 	/// Query the indention string.
-	const char* Indent() noexcept { return indent.c_str(); }
+	const char* Indent() const noexcept { return indent.c_str(); }
 	/** Set the line breaking string. By default set to newline (\n).
 		Some operating systems prefer other characters, or can be
 		set to the null/empty string for no indenation.
 	*/
-	void SetLineBreak(const char* _lineBreak) noexcept { lineBreak = _lineBreak ? _lineBreak : ""; }
+	void SetLineBreak(const char* _lineBreak) { lineBreak = _lineBreak ? _lineBreak : ""; }
 	/// Query the current line breaking string.
-	const char* LineBreak() noexcept { return lineBreak.c_str(); }
+	const char* LineBreak() const noexcept { return lineBreak.c_str(); }
 
 	/** Switch over to "stream printing" which is the most dense formatting without
 		linebreaks. Common when the XML is needed for network transmission.
 	*/
-	void SetStreamPrinting() noexcept {
-		indent = "";
-		lineBreak = "";
+	void SetStreamPrinting() noexcept
+	{
+		indent.clear(); // = "";
+		lineBreak.clear(); // = "";
 	}
 	/// Return the result.
-	const char* CStr() noexcept { return buffer.c_str(); }
+	const char* CStr() const noexcept { return buffer.c_str(); }
 	/// Return the length of the result string.
-	const size_t Size() noexcept { return buffer.size(); }
+	const size_t Size() const noexcept { return buffer.size(); }
 
 #ifdef TIXML_USE_STL
 	/// Return the result.

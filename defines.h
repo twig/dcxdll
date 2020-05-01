@@ -36,39 +36,43 @@ http://symbiancorner.blogspot.com/2007/05/how-to-detect-version-of-ms-visual.htm
 #endif
 
 #ifdef __INTEL_COMPILER // Defined when using Intel C++ Compiler.
-#pragma warning( disable : 1195 )
+#pragma warning( disable : 383 )	// remark #383: value copied to temporary, reference to temporary used
+#pragma warning( disable : 444 )	// remark #444: destructor for base class "DWebBrowserEvents2" (declared at line 1948 of "C:\Program Files\Microsoft SDKs\Windows\v7.0\\include\exdisp.h") is not virtual
 #pragma warning( disable : 504 )
-#pragma warning( disable : 1563 )
+#pragma warning( disable : 654 )	// warning #654: overloaded virtual function "DcxControl::toXml" is only partially overridden in class
 #pragma warning( disable : 869 )	// remark #869: parameter "doc" was never referenced
 #pragma warning( disable : 981 )	// remark #981: operands are evaluated in unspecified order
-#pragma warning( disable : 1419 )	// remark #1419: external declaration in primary source file
+#pragma warning( disable : 1195 )
 #pragma warning( disable : 1418 )	// remark #1418: external function definition with no prior declaration http://software.intel.com/en-us/articles/cdiag1418/
-#pragma warning( disable : 383 )	// remark #383: value copied to temporary, reference to temporary used
+#pragma warning( disable : 1419 )	// remark #1419: external declaration in primary source file
+#pragma warning( disable : 1563 )
 #pragma warning( disable : 2292 )	// warning #2292: destructor is declared but copy constructor and assignment operator are not
-#pragma warning( disable : 654 )	// warning #654: overloaded virtual function "DcxControl::toXml" is only partially overridden in class
-#pragma warning( disable : 444 )	// remark #444: destructor for base class "DWebBrowserEvents2" (declared at line 1948 of "C:\Program Files\Microsoft SDKs\Windows\v7.0\\include\exdisp.h") is not virtual
 // intel compiler has problems with .def file
 #define _INTEL_DLL_ __declspec(dllexport)
 #else
 #pragma warning( disable : 4100 ) // unreferenced formal parameter
 #pragma warning( disable : 4530 )
-#pragma warning( disable : 4995 ) // name was marked as #pragma deprecated
 #pragma warning( disable : 4820 ) // 'x' bytes padding added after data member '....'
+#pragma warning( disable : 4995 ) // name was marked as #pragma deprecated
 #define _INTEL_DLL_ __declspec(dllexport)
 #endif
-#pragma warning( disable : 26499 ) //  warning C26499 : Could not find any lifetime tracking information for '........'
-#pragma warning( disable : 26481 ) //  warning C26481 : Don't use pointer arithmetic. Use span instead. (bounds.1: http://go.microsoft.com/fwlink/p/?LinkID=620413)
-#pragma warning( disable : 26482 ) //  warning C26482 : Only index into arrays using constant expressions. (bounds.2: http://go.microsoft.com/fwlink/p/?LinkID=620414)
+#pragma warning( disable : 26412 ) //  warning C26412 : Do not dereference an invalid pointer(lifetimes rule 1). '....' was invalidated at line ??? by '......'.
+#pragma warning( disable : 26413 ) //  warning C26413 : Do not dereference nullptr (lifetimes rule 2). '....' was pointed to nullptr at line ???.
 #pragma warning( disable : 26415 ) //  warning C26415 : Smart pointer parameter '.....' is used only to access contained pointer.Use T* or T & instead(r.30: http://go.microsoft.com/fwlink/?linkid=845475).
 #pragma warning( disable : 26417 ) //  warning C26417 : Shared pointer parameter '....' is passed by reference and not reset or reassigned.Use T* or T & instead(r.35: http://go.microsoft.com/fwlink/?linkid=845488).
 #pragma warning( disable : 26418 ) //  warning C26418 : Shared pointer parameter '....' is not copied or moved.Use T* or T & instead(r.36: http://go.microsoft.com/fwlink/?linkid=845489).
-#pragma warning( disable : 26426 ) //  warning C26426 : Global initializer calls a non - constexpr function '....' (i.22: http://go.microsoft.com/fwlink/?linkid=853919).
 #pragma warning( disable : 26425 ) //  warning C26425 : Assigning 'nullptr' to a static variable.
-#pragma warning( disable : 26412 ) //  warning C26412 : Do not dereference an invalid pointer(lifetimes rule 1). '....' was invalidated at line ??? by '......'.
-#pragma warning( disable : 26490 ) //  warning C26490 : Don't use reinterpret_cast (type.1: http://go.microsoft.com/fwlink/p/?LinkID=620417).
-#pragma warning( disable : 26413 ) //  warning C26413 : Do not dereference nullptr (lifetimes rule 2). '....' was pointed to nullptr at line ???.
+#pragma warning( disable : 26426 ) //  warning C26426 : Global initializer calls a non - constexpr function '....' (i.22: http://go.microsoft.com/fwlink/?linkid=853919).
 #pragma warning( disable : 26429 ) //  warning C26429 : Symbol '...' is never tested for nullness, it can be marked as not_null(f.23: http://go.microsoft.com/fwlink/?linkid=853921).
+#pragma warning( disable : 26461 ) //  Warning C26461 : The pointer argument '...' for function '...' can be marked as a pointer to const (con.3).
+#pragma warning( disable : 26462 ) //  Warning C26462 : The value pointed to by 'lpnmtb' is assigned only once, mark it as a pointer to const (con.4).
 #pragma warning( disable : 26472 ) //  warning C26472 : Don't use a static_cast for arithmetic conversions. Use brace initialization, gsl::narrow_cast or gsl::narow (type.1: http://go.microsoft.com/fwlink/p/?LinkID=620417).
+#pragma warning( disable : 26481 ) //  warning C26481 : Don't use pointer arithmetic. Use span instead. (bounds.1: http://go.microsoft.com/fwlink/p/?LinkID=620413)
+#pragma warning( disable : 26482 ) //  warning C26482 : Only index into arrays using constant expressions. (bounds.2: http://go.microsoft.com/fwlink/p/?LinkID=620414)
+#pragma warning( disable : 26486 ) //  Warning C26486 : Don't pass a pointer that may be invalid to a function. Parameter 0 '(*hdc)' in call to 'DcxUXModule::dcxBeginBufferedPaint' may be invalid (lifetime.3).
+#pragma warning( disable : 26489 ) //  Warning C26489 : Don't dereference a pointer that may be invalid: '....'. '....' may have been invalidated at line ... (lifetime.1).
+#pragma warning( disable : 26490 ) //  warning C26490 : Don't use reinterpret_cast (type.1: http://go.microsoft.com/fwlink/p/?LinkID=620417).
+#pragma warning( disable : 26499 ) //  warning C26499 : Could not find any lifetime tracking information for '........'
 
 // --------------------------------------------------
 // Optional build libraries for DCX
@@ -234,7 +238,11 @@ constexpr auto DCX_MAX_GDI_ERRORS = 21;
 #endif
 
 #include <memory>
+#if !defined(_MSC_FULL_VER) || _MSC_FULL_VER < 192328105
 #include <experimental\filesystem>
+#else
+#include <filesystem>
+#endif
 #include <optional>
 
 // BrowseFolder
@@ -300,11 +308,39 @@ constexpr auto DCX_MAX_GDI_ERRORS = 21;
 #undef max
 #undef min
 #define GSL_THROW_ON_CONTRACT_VIOLATION 1
-#include "GSL\gsl"
+#include <GSL\gsl>
 //#pragma pop_macro("max")
 //using gsl::byte;
 //using std::byte;
 //using gsl::to_integer;
+namespace gsl {
+	template <class Cont>
+#if defined(__clang__) || defined(__GNUC__)
+#else
+	[[gsl::suppress(type.1, bounds.4, r.32)]]
+#endif
+	constexpr auto at(const std::unique_ptr<Cont []> &cont, const index i) -> decltype(cont[0])
+	{
+		//Expects(i >= 0 && i < narrow_cast<index>(cont.size()));
+		//using size_type = decltype(cont.size());
+		//return cont[static_cast<size_type>(i)];
+
+		return cont[static_cast<std::size_t>(i)];
+	}
+}
+
+namespace Dcx {
+	template<class _Ty>
+	struct is_pod
+		: std::integral_constant<bool, std::is_standard_layout_v<_Ty> && std::is_trivial_v<_Ty> >
+	{
+	};
+
+	template <typename T>
+	constexpr bool is_pod_v = is_pod<T>::value;
+}
+
+#define UMAX_PATH static_cast<uint32_t>(MAX_PATH)
 
 #include "AutoRelease.h"
 
@@ -571,7 +607,7 @@ gsl::owner<LPITEMIDLIST> GetFolderFromCSIDL(const int nCsidl) noexcept;
 HWND GetHwndFromString(const TString &str);
 HWND FindOwner(const TString & data, const gsl::not_null<HWND> &defaultWnd);
 std::optional<HWND> FindOwner(const TString & data);
-bool CopyToClipboard(const HWND owner, const TString & str);
+bool CopyToClipboard(const HWND owner, const TString & str) noexcept;
 
 HBITMAP dcxLoadBitmap(HBITMAP dest, TString &filename);
 HICON dcxLoadIcon(const int index, TString &filename, const bool large, const TString &flags);
@@ -612,7 +648,7 @@ bool isRegexMatch(const TCHAR *matchtext, const TCHAR *pattern);
 const char * queryAttribute(const TiXmlElement * element, const char *attribute, const char *defaultValue = "") noexcept;
 //gsl::not_null<const char *> queryAttribute(gsl::not_null<const TiXmlElement *> element, gsl::not_null<const char *> attribute, gsl::not_null<const char *> defaultValue = gsl::not_null<const char *>("")) noexcept;
 //std::optional<const char *> queryAttribute(gsl::not_null<const TiXmlElement *> element, gsl::not_null<const char *> attribute) noexcept;
-int queryIntAttribute(const TiXmlElement *element, const char *attribute, const int defaultValue = 0);
+int queryIntAttribute(const TiXmlElement *element, const char *attribute, const int defaultValue = 0) noexcept;
 //int queryIntAttribute(gsl::not_null<const TiXmlElement *> element, gsl::not_null<const char *> attribute, const int defaultValue = 0);
 //std::optional<int> queryIntAttribute(gsl::not_null<const TiXmlElement *> element, gsl::not_null<const char *> attribute);
 

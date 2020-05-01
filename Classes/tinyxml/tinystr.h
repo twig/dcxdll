@@ -200,14 +200,15 @@ public:
 		return npos;
 	}
 
-	void clear()
+	void clear() noexcept
 	{
 		//Lee:
 		//The original was just too strange, though correct:
 		//	TiXmlString().swap(*this);
 		//Instead use the quit & re-init:
 		quit();
-		init(0, 0);
+		//init(0, 0);
+		rep_ = &nullrep_;
 	}
 
 	/*	Function to reserve a big amount of data when we know we'll need it. Be aware that this
@@ -341,7 +342,7 @@ TiXmlString operator + (const char* a, const TiXmlString& b);
    TiXmlOutStream is an emulation of std::ostream. It is based on TiXmlString.
    Only the operators that we need for TinyXML have been developed.
 */
-class TiXmlOutStream
+class TiXmlOutStream final
 	: public TiXmlString
 {
 public:
