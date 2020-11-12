@@ -41,7 +41,8 @@
 
 #include "Classes/TString/tstring.h"
 
-struct XSwitchFlags {
+struct XSwitchFlags final
+{
 	XSwitchFlags() = delete;
 	XSwitchFlags(const XSwitchFlags &) = delete;
 	XSwitchFlags &operator =(const XSwitchFlags &) = delete;
@@ -59,7 +60,7 @@ struct XSwitchFlags {
 private:
 	ULONGLONG	m_dFlagMask{};		//!< a bitmask of all selected letters...
 
-	static constexpr bool m_bFalse = false;
+	static constexpr bool m_bFalse{ false };
 };
 
 #if DCX_SWITCH_OBJ

@@ -17,14 +17,14 @@ private:
 	bool m_break;
 
 public:
-	explicit CaseBreakDefault(const T &value) :
+	explicit CaseBreakDefault(const T &value) noexcept :
 		m_value(value),
 		m_match(false),
 		m_break(false)
 	{
 	}
 
-	CaseBreakDefault(const CaseBreakDefault &other) :
+	CaseBreakDefault(const CaseBreakDefault &other) noexcept :
 		m_value(other.m_value),
 		m_match(other.m_match),
 		m_break(other.m_break),
@@ -51,7 +51,7 @@ public:
 		return Case(value, nullptr);
 	}
 
-	CaseDefault<T> &Break()
+	CaseDefault<T> &Break() noexcept
 	{
 		if (m_match)
 			m_break = true;
@@ -73,10 +73,11 @@ private:
 };
 
 template <class T>
-class CaseDefault : public CaseBreakDefault<T>
+class CaseDefault final
+	: public CaseBreakDefault<T>
 {
 public:
-	explicit CaseDefault(const T &value) :
+	explicit CaseDefault(const T &value) noexcept :
 		CaseBreakDefault(value)
 	{
 	}
