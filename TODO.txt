@@ -13,3 +13,4 @@ DCX V3.1 TODO List
 9: rewrite button/check/radio controls to be a single button control that supports diff styles.
 10: fix box controls group disable button
 11: change Link control to use WC_LINK instead of WC_STATIC
+12: webctrl fails with msft edge installed.
