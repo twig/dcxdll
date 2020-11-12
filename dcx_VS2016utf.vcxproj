@@ -92,6 +92,7 @@
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
+    <UseDebugLibraries>true</UseDebugLibraries>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Development|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -174,7 +175,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(DetoursDir)include;$(IncludePath)</IncludePath>
+    <IncludePath>$(GSLDir);$(DetoursDir)include;$(IncludePath)</IncludePath>
     <LibraryPath>$(DetoursDir)lib.X86;$(LibraryPath);$(OutDir)</LibraryPath>
     <CustomBuildAfterTargets>Build</CustomBuildAfterTargets>
     <EnableCppCoreCheck>true</EnableCppCoreCheck>
@@ -188,34 +189,34 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(DetoursDir)include;$(IncludePath)</IncludePath>
+    <IncludePath>$(GSLDir);$(DetoursDir)include;$(IncludePath)</IncludePath>
     <LibraryPath>$(DetoursDir)lib.X86;$(LibraryPath);$(OutDir)</LibraryPath>
     <PostBuildEventUseInBuild>false</PostBuildEventUseInBuild>
     <CodeAnalysisRuleSet>dcxrules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release Dll|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(DetoursDir)include;$(IncludePath)</IncludePath>
+    <IncludePath>$(GSLDir);$(DetoursDir)include;$(IncludePath)</IncludePath>
     <LibraryPath>$(DetoursDir)lib.X86;$(LibraryPath);$(OutDir)</LibraryPath>
     <PostBuildEventUseInBuild>false</PostBuildEventUseInBuild>
     <CodeAnalysisRuleSet>dcxrules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release Optimal|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(DetoursDir)include;$(IncludePath)</IncludePath>
+    <IncludePath>$(GSLDir);$(DetoursDir)include;$(IncludePath)</IncludePath>
     <LibraryPath>$(DetoursDir)lib.X86;$(LibraryPath);$(OutDir)</LibraryPath>
     <PostBuildEventUseInBuild>false</PostBuildEventUseInBuild>
     <CodeAnalysisRuleSet>dcxrules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release SSE42 AVX2|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(DetoursDir)include;$(IncludePath)</IncludePath>
+    <IncludePath>$(GSLDir);$(DetoursDir)include;$(IncludePath)</IncludePath>
     <LibraryPath>$(DetoursDir)lib.X86;$(LibraryPath);$(OutDir)</LibraryPath>
     <PostBuildEventUseInBuild>false</PostBuildEventUseInBuild>
     <CodeAnalysisRuleSet>dcxrules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Development|Win32'">
-    <IncludePath>$(DetoursDir)include;$(IncludePath)</IncludePath>
+    <IncludePath>$(GSLDir);$(DetoursDir)include;$(IncludePath)</IncludePath>
     <LibraryPath>$(DetoursDir)lib.X86;$(LibraryPath);$(OutDir)</LibraryPath>
     <PostBuildEventUseInBuild>false</PostBuildEventUseInBuild>
     <LinkIncremental>false</LinkIncremental>
@@ -232,6 +233,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release Optimal|x64'">
     <CodeAnalysisRuleSet>dcxrules.ruleset</CodeAnalysisRuleSet>
+    <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release SSE42 AVX2|x64'">
     <CodeAnalysisRuleSet>dcxrules.ruleset</CodeAnalysisRuleSet>
@@ -532,6 +534,70 @@
       <Command>"$(ProjectDir)..\upx" --ultra-brute "$(TargetPath)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <SDLCheck>true</SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+      <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>defines.h</PrecompiledHeaderFile>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Development|x64'">
+    <ClCompile>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <SDLCheck>true</SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+      <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>defines.h</PrecompiledHeaderFile>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <SDLCheck>true</SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+      <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>defines.h</PrecompiledHeaderFile>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release Dll|x64'">
+    <ClCompile>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <SDLCheck>true</SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+      <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>defines.h</PrecompiledHeaderFile>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release Optimal|x64'">
+    <ClCompile>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <SDLCheck>true</SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+      <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>defines.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <Link>
+      <Version>3.1</Version>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release SSE42 AVX2|x64'">
+    <ClCompile>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <SDLCheck>true</SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+      <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>defines.h</PrecompiledHeaderFile>
+    </ClCompile>
+  </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Classes\custom\ListHelper.cpp" />
     <ClCompile Include="Classes\tstring\hashString.cpp" />
@@ -729,6 +795,7 @@
     <ClInclude Include="GSL\pointers">
       <FileType>Document</FileType>
     </ClInclude>
+    <None Include="gsl\span_ext" />
   </ItemGroup>
   <ItemGroup>
     <Xml Include="dcx_zip\dc.xml" />

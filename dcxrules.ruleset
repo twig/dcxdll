@@ -21,5 +21,7 @@
   <Include Path="nativerecommendedrules.ruleset" Action="Default" />
   <Rules AnalyzerId="Microsoft.Analyzers.NativeCodeAnalysis" RuleNamespace="Microsoft.Rules.Native">
     <Rule Id="C26477" Action="None" />
+    <Rule Id="C6298" Action="Warning" />
+    <Rule Id="C6323" Action="Warning" />
   </Rules>
 </RuleSet>

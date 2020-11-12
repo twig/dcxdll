@@ -595,6 +595,9 @@
     <None Include="cpp.hint">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="gsl\span_ext">
+      <Filter>Header Files\GSL</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Xml Include="dcx_zip\dc.xml">
