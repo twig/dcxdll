@@ -2,16 +2,30 @@
 
 #include "Classes\tstring\tstring.h"
 
+namespace refStringConcepts
+{
+	template <class T>
+	concept IsPODText = std::is_same_v<char, std::remove_cv_t<T>> || std::is_same_v<wchar_t, std::remove_cv_t<T>>;
+
+	template <class T>
+	concept HasDataFunction = std::is_member_function_pointer_v<decltype(&T::data)>;
+
+	//template <class T>
+	//concept IsSameBaseType = requires(T t, T a)
+	//{
+	//}
+};
+
 // refString<type, size>
 //  type = char or wchar_t
 //  size = the size of the buffer already allocated.
 //
 // NB: NO buffer is allocated, all data MUST be preallocated.
-template <typename T, size_t N>
-class refString
+template <refStringConcepts::IsPODText T, size_t N>
+class refString final
 {
 	static_assert(N > 1, "N Must be > 1");
-	static_assert(std::is_same_v<char, std::remove_cv_t<T>> || std::is_same_v<wchar_t, std::remove_cv_t<T>>, "Type must be char or wchar_t");
+	static_assert(refStringConcepts::IsPODText<T>, "Type must be char or wchar_t");
 
 public:
 	using value_type = typename T;
@@ -24,8 +38,8 @@ public:
 	using const_reference = std::add_const_t<reference>;
 
 	constexpr refString() noexcept = default;
-	constexpr refString(const refString<T, N> &other) noexcept = default;
-	constexpr refString(refString<T, N> &&other) noexcept = default;
+	constexpr refString(const refString<T, N>& other) noexcept = default;
+	constexpr refString(refString<T, N>&& other) noexcept = default;
 
 	constexpr explicit refString(const_pointer other) noexcept
 		: m_data(other)
@@ -37,27 +51,32 @@ public:
 
 	~refString() noexcept = default;
 
-	const refString<T,N> &operator =(const value_type *const other) const noexcept
+	const refString<T, N>& operator =(const value_type* const other) const noexcept
 	{
 		_ts_strcpyn(m_data, other, N);
 		return *this;
 	}
 
-	const refString<T, N> &operator =(const value_type &other) const noexcept
+	const refString<T, N>& operator =(const value_type& other) const noexcept
 	{
 		m_data[0] = other;
 		m_data[1] = value_type();
 		return *this;
 	}
 
-	template <typename otherT, typename = std::enable_if_t<std::is_same_v<otherT::value_type, value_type> && std::is_member_function_pointer_v<decltype(&otherT::data)>> >
-	const refString<T, N> &operator =(const otherT &other) const noexcept
+	template <typename otherT, typename = std::enable_if_t<std::is_same_v<otherT::value_type, value_type>&& std::is_member_function_pointer_v<decltype(&otherT::data)>> >
+	//template <refStringConcepts::HasDataFunction otherT>
+	//requires(otherT t)
+	//{
+	//	std::same_as<otherT:value_type, value_type>;
+	//}
+	const refString<T, N>& operator =(const otherT& other) const noexcept
 	{
 		_ts_strcpyn(m_data, other.data(), N);
 		return *this;
 	}
 
-	const refString<T, N> &operator =(const refString<T, N> &&other) const noexcept
+	const refString<T, N>& operator =(const refString<T, N>&& other) const noexcept
 	{
 		using std::swap;
 
@@ -65,7 +84,7 @@ public:
 		return *this;
 	}
 
-	const refString<T, N> &operator +=(const value_type *const other) const noexcept
+	const refString<T, N>& operator +=(const value_type* const other) const noexcept
 	{
 		const size_type nLen = length();
 		const size_type nOtherLen = _ts_strlen(other);
@@ -76,7 +95,7 @@ public:
 
 		return *this;
 	}
-	const refString<T, N> &operator +=(const value_type &other) const noexcept
+	const refString<T, N>& operator +=(const value_type& other) const noexcept
 	{
 		const size_type nLen = length();
 		const size_type nDiff = N - (nLen + 1);
@@ -90,9 +109,9 @@ public:
 		return *this;
 	}
 	template <std::size_t otherSize>
-	const refString &operator +=(const_value_type(&other)[otherSize]) const noexcept { return (*this += &other[0]); }
-	template <typename otherT, typename = std::enable_if_t<std::is_same_v<otherT::value_type, value_type> && std::is_member_function_pointer_v<decltype(&otherT::data)>> >
-	const refString<T, N> &operator +=(const otherT &other) const noexcept
+	const refString& operator +=(const_value_type(&other)[otherSize]) const noexcept { return (*this += &other[0]); }
+	template <typename otherT, typename = std::enable_if_t<std::is_same_v<otherT::value_type, value_type>&& std::is_member_function_pointer_v<decltype(&otherT::data)>> >
+	const refString<T, N>& operator +=(const otherT& other) const noexcept
 	{
 		const size_type nLen = length();
 		const size_type nOtherLen = _ts_strlen(other);
@@ -106,34 +125,34 @@ public:
 
 	template <std::size_t otherSize>
 	constexpr bool operator ==(const_value_type(&other)[otherSize]) const noexcept { return (*this == &other[0]); }
-	constexpr bool operator ==(const refString<T, N> &other) const noexcept { return (*this == other.data()); }
+	constexpr bool operator ==(const refString<T, N>& other) const noexcept { return (*this == other.data()); }
 	constexpr bool operator ==(const_pointer other) const noexcept { return (_ts_strncmp(m_data, other, N) == 0); }
 
 	template <std::size_t otherSize>
 	constexpr bool operator !=(const_value_type(&other)[otherSize]) const noexcept { return !(*this == &other[0]); }
-	constexpr bool operator !=(const refString<T, N> &other) const noexcept { return !(*this == other); }
+	constexpr bool operator !=(const refString<T, N>& other) const noexcept { return !(*this == other); }
 	constexpr bool operator !=(const_pointer other) const noexcept { return !(*this == other); }
 
 	constexpr explicit operator bool() const noexcept { return !empty(); }
 	constexpr operator const_pointer() const noexcept { return m_data; }
 
-	constexpr reference operator [](const ptrdiff_type &iOffSet) const noexcept { return m_data[iOffSet]; }
+	constexpr reference operator [](const ptrdiff_type& iOffSet) const noexcept { return m_data[iOffSet]; }
 
-	constexpr size_type length() const noexcept	{ return _ts_strnlen(m_data, N); }
+	constexpr size_type length() const noexcept { return _ts_strnlen(m_data, N); }
 	constexpr const size_type size() const noexcept { return N; }
 	constexpr const_pointer data() const noexcept { return m_data; }
 	constexpr bool empty() const noexcept { return (m_data == nullptr || m_data[0] == value_type()); }
 	constexpr void clear() const noexcept { if (!empty()) m_data[0] = value_type(); }
 
-	constexpr void assign(const refString<T, N> &other) const noexcept
+	constexpr void assign(const refString<T, N>& other) const noexcept
 	{
 		//std::swap(m_data, other.m_data);
 
-		const_cast<refString *>(this)->swap(other);
+		const_cast<refString*>(this)->swap(other);
 
 		//swap(other);
 	}
-	void swap(const refString<T, N> &other) noexcept
+	void swap(const refString<T, N>& other) noexcept
 	{
 		using std::swap;
 
