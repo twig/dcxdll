@@ -7,7 +7,8 @@
 //  size = the size of the buffer to allocate.
 //
 template <typename T, size_t N>
-struct simpleString {
+struct simpleString
+{
 	static_assert(N > 1, "N Must be > 1");
 	static_assert(std::is_same_v<char, std::remove_cv_t<T>> || std::is_same_v<wchar_t, std::remove_cv_t<T>>, "Type must be char or wchar_t");
 
@@ -43,7 +44,7 @@ struct simpleString {
 	simpleString<T, N> &operator +=(const_value_type (&other)[otherSize]) noexcept
 	{
 		const size_type nLen = length();
-		const size_type nOtherLen = otherSize;
+		constexpr size_type nOtherLen = otherSize;
 		const size_type nDiff = N - (nLen + nOtherLen);
 
 		if (nDiff > 1U)	// > 1 to account for zero char
@@ -101,8 +102,14 @@ struct simpleString {
 	constexpr operator const_pointer() const noexcept { return m_pData; }
 	constexpr reference operator [](const size_type &iOffSet) const noexcept { return m_data[iOffSet]; }
 	constexpr size_type length() const { return _ts_strnlen(m_pData, N); }
+	// size of buffer in characters
 	constexpr const size_type size() const noexcept { return N; }
+	// size of buffer in bytes
 	constexpr const size_type bytes() const noexcept { return N * sizeof(value_type); }
+	// size of buffer in bytes
+	constexpr const size_type capacity() const noexcept { return bytes(); }
+	// size of buffer in characters
+	constexpr const size_type capacity_cch() const noexcept { return size(); }
 	//constexpr pointer data() const noexcept { return const_cast<pointer>(&m_data[0]); }
 	constexpr const_pointer data() const noexcept { return m_pData; }
 	constexpr bool empty() const noexcept { return (m_data[0] == value_type()); }
