@@ -5,7 +5,8 @@
   <PropertyGroup Label="UserMacros">
     <mIRCDir>C:\mIRC_Basic</mIRCDir>
     <PHPDir>C:\php</PHPDir>
-    <DetoursDir>$(SolutionDir)..\..\Detours-4.0.1\</DetoursDir>
+    <DetoursDir>$(SolutionDir)..\..\Detours\</DetoursDir>
+    <GSLDir>F:\CSource\GSL-Master\GSL\include</GSLDir>
   </PropertyGroup>
   <PropertyGroup>
     <_ProjectFileVersion>11.0.50727.1</_ProjectFileVersion>
