@@ -13,13 +13,13 @@
 #define TOKEN_PASTE(x, y) TOKEN_PASTEx(x, y)
 
 template <typename T>
-class AutoOutOfScope
+class AutoOutOfScope final
 {
 public:
 	AutoOutOfScope(T& destructor) noexcept
 		: m_destructor(destructor)
 	{ }
-	~AutoOutOfScope() { m_destructor(); }
+	~AutoOutOfScope() noexcept { m_destructor(); }
 
 	AutoOutOfScope(const AutoOutOfScope &) = delete;
 	AutoOutOfScope() = delete;
