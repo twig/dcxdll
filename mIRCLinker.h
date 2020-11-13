@@ -15,6 +15,8 @@ namespace mIRCLinker
 	extern HWND			m_mIRCHWND;		//!< mIRC Window Handle
 	extern DWORD		m_dwVersion;
 	extern DWORD		m_dwBeta;
+	extern DWORD		m_dwBytes;		//!< Max bytes to be writen to data & parm args
+	extern DWORD		m_dwCharacters;	//!< Max characters to be writen to data & parm args
 	extern int			m_iMapCnt;		//!< MapFile counter.
 	extern bool			m_bDebug;		//!< is mIRC is using /debug upon DCX LoadDLL().
 	extern HWND			m_hSwitchbar;	//!< The Switchbars HWND
@@ -30,45 +32,47 @@ namespace mIRCLinker
 	extern bool			m_bSendMessageDisabled;
 
 	// mIRC DLL Loading Structure
-	struct LOADINFO {
+	struct LOADINFO final
+	{
 		DWORD  mVersion; //!< mIRC Version
 		HWND   mHwnd;    //!< mIRC Hwnd 
 		BOOL   mKeep;    //!< mIRC variable stating to keep DLL in memory
 		BOOL   mUnicode; //!< mIRC V7+ unicode enabled dll.
 		DWORD  mBeta;    //!< mIRC V7.49.363+ Beta version
+		DWORD  dBytes;	 //!< mIRC V7.63.416+ maximum number of bytes allowed when writing to the data and parms strings.
 	};
 	using LPLOADINFO = LOADINFO *;
 
 	void initMapFile();
 
-	HWND &getSwitchbar() noexcept;
-	HWND &getToolbar() noexcept;
-	HWND &getTreebar() noexcept;
-	HWND &getTreeview() noexcept;
-	HIMAGELIST &getTreeImages() noexcept;
-	HFONT &getTreeFont() noexcept;
-	HWND &getMDIClient() noexcept;
-	HWND &getHWND() noexcept;
-	DWORD &getVersion() noexcept;
+	HWND& getSwitchbar() noexcept;
+	HWND& getToolbar() noexcept;
+	HWND& getTreebar() noexcept;
+	HWND& getTreeview() noexcept;
+	HIMAGELIST& getTreeImages() noexcept;
+	HFONT& getTreeFont() noexcept;
+	HWND& getMDIClient() noexcept;
+	HWND& getHWND() noexcept;
+	DWORD& getVersion() noexcept;
 	WORD getMainVersion() noexcept;
 	WORD getSubVersion() noexcept;
 	bool setTreeFont(const HFONT newFont) noexcept;
 	bool isOrNewerVersion(const WORD main, const WORD sub) noexcept;
 	bool isVersion(const WORD main, const WORD sub) noexcept;
-	bool &isDebug() noexcept;
-	__inline bool &isUnicode() noexcept { return m_bUnicodemIRC; };
+	const bool& isDebug() noexcept;
+	__inline const bool& isUnicode() noexcept { return m_bUnicodemIRC; };
 
 	//bool isDXInstalled9();
-	bool isAlias(const TString &aliasName);
+	bool isAlias(const TString& aliasName);
 
-	void load(LOADINFO *const lInfo);
+	void load(LOADINFO* const lInfo);
 	void unload(void) noexcept;
 
 	void hookWindowProc(WNDPROC newProc) noexcept;
 	void resetWindowProc(void) noexcept;
 	LRESULT callDefaultWindowProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam) noexcept;
 
-	bool mIRC_SndMsg(const UINT uMsg);
+	bool mIRC_SndMsg(const UINT uMsg) noexcept;
 
 	/*!
 	* \brief Requests mIRC $identifiers to be evaluated.
@@ -125,9 +129,9 @@ namespace mIRCLinker
 	//}
 
 	template <typename Output, typename Input>
-	bool eval(Output &res, const Input &data)
+	GSL_SUPPRESS(f.6) bool eval(Output& res, const Input& data)
 	{
-		if constexpr(std::is_array_v<Input> && std::is_pod_v<Input>)
+		if constexpr (std::is_array_v<Input> && Dcx::is_pod_v<Input>)
 			m_pData = &data[0];
 		else
 			m_pData = data;
@@ -142,9 +146,9 @@ namespace mIRCLinker
 		return false;
 	}
 	template <typename Input>
-	bool eval(nullptr_t res, const Input &data)
+	bool eval(nullptr_t res, const Input& data) noexcept
 	{
-		if constexpr(std::is_array_v<Input> && std::is_pod_v<Input>)
+		if constexpr (std::is_array_v<Input> && Dcx::is_pod_v<Input>)
 			m_pData = &data[0];
 		else
 			m_pData = data;
@@ -156,22 +160,22 @@ namespace mIRCLinker
 		return false;
 	}
 	template <typename Output, typename Input, typename Value, typename... Arguments>
-	bool eval(Output &res, const Input &fmt, const Value &val, Arguments&&... args)
+	bool eval(Output& res, const Input& fmt, const Value& val, Arguments&& ... args)
 	{
 		TString line;
 		return eval(res, _ts_sprintf(line, fmt, val, args...));
 	}
 	template <typename Input, typename Value, typename... Arguments>
-	bool eval(nullptr_t res, const Input &fmt, const Value &val, Arguments&&... args)
+	bool eval(nullptr_t res, const Input& fmt, const Value& val, Arguments&& ... args)
 	{
 		TString line;
 		return eval(res, _ts_sprintf(line, fmt, val, args...));
 	}
 
 	template <typename Output, typename Input>
-	std::optional<Output> o_eval(const Input &data)
+	std::optional<Output> o_eval(const Input& data)
 	{
-		if constexpr(std::is_array_v<Input> && std::is_pod_v<Input>)
+		if constexpr (std::is_array_v<Input> && Dcx::is_pod_v<Input>)
 			m_pData = &data[0];
 		else
 			m_pData = data;
@@ -183,19 +187,19 @@ namespace mIRCLinker
 		return {};
 	}
 	template <typename Output, typename Input, typename Value, typename... Arguments>
-	std::optional<Output> o_eval(const Input &fmt, const Value &val, Arguments&&... args)
+	std::optional<Output> o_eval(const Input& fmt, const Value& val, Arguments&& ... args)
 	{
 		TString line;
 		return o_eval<Output>(_ts_sprintf(line, fmt, val, args...));
 	}
 	template <typename Output, typename Input, typename Value>
-	std::optional<Output> o_eval(const Input &fmt, const Value &val)
+	std::optional<Output> o_eval(const Input& fmt, const Value& val)
 	{
 		TString line;
 		return o_eval<Output>(_ts_sprintf(line, fmt, val));
 	}
 
-	bool iEval(int64_t * const res, const TCHAR *const data);
+	bool iEval(int64_t* const res, const TCHAR* const data) noexcept;
 
 	//template <class T, class Value>
 	//std::pair<bool, T> uEval(const Value &data)
@@ -222,11 +226,11 @@ namespace mIRCLinker
 	//}
 
 	template <class T, class Value>
-	std::optional<T> uEval(const Value &data)
+	std::optional<T> uEval(const Value& data) noexcept
 	{
 		static_assert(is_Numeric_v<T>, "Only Numeric types allowed");
 
-		if constexpr(std::is_array_v<Value> && std::is_pod_v<Value>)
+		if constexpr (std::is_array_v<Value> && Dcx::is_pod_v<Value>)
 			m_pData = &data[0];
 		else
 			m_pData = data;
@@ -239,16 +243,16 @@ namespace mIRCLinker
 		return { };
 	}
 	template <typename Output, typename Input, typename Value, typename... Arguments>
-	std::optional<Output> uEval(const Input &fmt, const Value &val, Arguments&&... args)
+	std::optional<Output> uEval(const Input& fmt, const Value& val, Arguments&& ... args)
 	{
 		TString line;
 		return uEval<Output>(_ts_sprintf(line, fmt, val, args...));
 	}
 
 	template <typename Input>
-	bool exec(const Input &data)
+	bool exec(const Input& data) noexcept
 	{
-		if constexpr(std::is_array_v<Input> && std::is_pod_v<Input>)
+		if constexpr (std::is_array_v<Input> && Dcx::is_pod_v<Input>)
 			m_pData = &data[0];
 		else
 			m_pData = data;
@@ -262,17 +266,17 @@ namespace mIRCLinker
 	}
 
 	template <typename Input, typename Value, typename... Arguments>
-	bool exec(const Input &fmt, const Value &val, Arguments&&... args)
+	bool exec(const Input& fmt, const Value& val, Arguments&& ... args)
 	{
 		TString line;
 		return exec(_ts_sprintf(line, fmt, val, args...));
 	}
 
 	template <typename Input>
-	void signal(const Input &msg)
+	void signal(const Input& msg) noexcept
 	{
 		m_pData = TEXT("//.signal -n DCX ");
-		if constexpr(std::is_array_v<Input> && std::is_pod_v<Input>)
+		if constexpr (std::is_array_v<Input> && Dcx::is_pod_v<Input>)
 			m_pData += &msg[0];
 		else
 			m_pData += msg;
@@ -280,17 +284,17 @@ namespace mIRCLinker
 	}
 
 	template <typename Input, typename Value, typename... Arguments>
-	void signal(const Input &fmt, const Value &val, Arguments&&... args)
+	void signal(const Input& fmt, const Value& val, Arguments&& ... args)
 	{
 		TString line;
 		return signal(_ts_sprintf(line, fmt, val, args...));
 	}
 
 	template <typename Input>
-	void echo(const Input &data)
+	void echo(const Input& data) noexcept
 	{
 		m_pData = TEXT("//echo -s ");
-		if constexpr(std::is_array_v<Input> && std::is_pod_v<Input>)
+		if constexpr (std::is_array_v<Input> && Dcx::is_pod_v<Input>)
 			m_pData += &data[0];
 		else
 			m_pData += data;
@@ -298,14 +302,14 @@ namespace mIRCLinker
 	}
 
 	template <typename Input, typename Value, typename... Arguments>
-	void echo(const Input &fmt, const Value &val, Arguments&&... args)
+	void echo(const Input& fmt, const Value& val, Arguments&& ... args)
 	{
 		TString line;
 		return echo(_ts_sprintf(line, fmt, val, args...));
 	}
 #if DCX_DEBUG_OUTPUT
 	template <typename Command, typename Message>
-	void debug(const Command &cmd, const Message &msg)
+	void debug(const Command& cmd, const Message& msg)
 	{
 		if (!isDebug()) return;
 		TString err;

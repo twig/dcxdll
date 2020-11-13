@@ -11,7 +11,7 @@
 //#include <stdexcept>
 #include "Classes\tstring\tstring.h"
 namespace Dcx {
-	class dcxException
+	class dcxException final
 		: public std::exception
 	{
 	public:
@@ -20,7 +20,7 @@ namespace Dcx {
 		{
 			tsErr = msg;
 		}
-		explicit dcxException(const WCHAR *const msg)
+		explicit dcxException(const wchar_t *const msg)
 			: exception(TString(msg).c_str())
 		{
 			tsErr = msg;
@@ -35,6 +35,50 @@ namespace Dcx {
 	private:
 		static TString tsErr;
 		static constexpr TCHAR sUnknown_Err[] = TEXT("Unknown Exception");
+	};
+}
+
+namespace DcxExceptions
+{
+	class dcxInvalidArguments final
+		: public std::exception
+	{
+	public:
+		dcxInvalidArguments() noexcept
+			: exception("Invalid Arguments")
+		{}
+	};
+	class dcxInvalidFilename final
+		: public std::exception
+	{
+	public:
+		dcxInvalidFilename() noexcept
+			: exception("Invalid Filename")
+		{}
+	};
+	class dcxInvalidFlag final
+		: public std::exception
+	{
+	public:
+		dcxInvalidFlag() noexcept
+			: exception("Invalid Flag")
+		{}
+	};
+	class dcxInvalidPath final
+		: public std::exception
+	{
+	public:
+		dcxInvalidPath() noexcept
+			: exception("Invalid Path")
+		{}
+	};
+	class dcxInvalidCommand final
+		: public std::exception
+	{
+	public:
+		dcxInvalidCommand() noexcept
+			: exception("Invalid Command")
+		{}
 	};
 }
 

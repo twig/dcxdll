@@ -9,30 +9,30 @@
  * © ScriptsDB.org - 2006
  */
 
-/*
-Some useful values for _MSC_VER if you need to target to a specific compiler.
-http://symbiancorner.blogspot.com/2007/05/how-to-detect-version-of-ms-visual.html
+ /*
+ Some useful values for _MSC_VER if you need to target to a specific compiler.
+ http://symbiancorner.blogspot.com/2007/05/how-to-detect-version-of-ms-visual.html
 
-#if _MSC_VER >= 1911 // Visual C++ 2017.3
-#elif _MSC_VER >= 1910 // Visual C++ 2017
-#elif _MSC_VER >= 1900 // Visual C++ 2015
-#elif _MSC_VER >= 1800 // Visual C++ 2013
-#elif _MSC_VER >= 1700 // Visual C++ 2012
-#elif _MSC_VER >= 1600 // Visual C++ 2010 ?
-#elif _MSC_VER >= 1500 // Visual C++ 2008
-#elif _MSC_VER >= 1400 // Visual C++ 2005
-#elif _MSC_VER >= 1310 // Visual C++ .NET 2003
-#elif _MSC_VER > 1300 // Visual C++ .NET 2002
-#endif
-*/
+ #if _MSC_VER >= 1911 // Visual C++ 2017.3
+ #elif _MSC_VER >= 1910 // Visual C++ 2017
+ #elif _MSC_VER >= 1900 // Visual C++ 2015
+ #elif _MSC_VER >= 1800 // Visual C++ 2013
+ #elif _MSC_VER >= 1700 // Visual C++ 2012
+ #elif _MSC_VER >= 1600 // Visual C++ 2010 ?
+ #elif _MSC_VER >= 1500 // Visual C++ 2008
+ #elif _MSC_VER >= 1400 // Visual C++ 2005
+ #elif _MSC_VER >= 1310 // Visual C++ .NET 2003
+ #elif _MSC_VER > 1300 // Visual C++ .NET 2002
+ #endif
+ */
 #pragma once
 
 #ifndef _DEFINES_H_
 #define _DEFINES_H_
 
-// VS2017+ only
-#if !defined(_MSC_FULL_VER) || _MSC_FULL_VER < 191627024
-#error "This version of DCX needs Visual Studio 2017 15.8.9.2 or newer"
+ // VS2019+ only
+#if !defined(_MSC_FULL_VER) || _MSC_FULL_VER < 192829333
+#error "This version of DCX needs Visual Studio 2019 16.8.0 or newer"
 #endif
 
 #ifdef __INTEL_COMPILER // Defined when using Intel C++ Compiler.
@@ -80,11 +80,23 @@ http://symbiancorner.blogspot.com/2007/05/how-to-detect-version-of-ms-visual.htm
 // DCX using DirectX SDK? (Required for DirectShow)
 // This is included as part of the win10 sdk with vs2017 no separate install needed.
 #define DCX_USE_DXSDK 1
+
+#if DCX_USE_DXSDK
+#pragma message ("### DCX OPTION: Use DirectX SDK - Enabled")
+#else
+#pragma message ("### DCX OPTION: Use DirectX SDK - Disabled")
+#endif
 // end of DirectX SDK
 
 // DCX using GDI+? (Required for advanced graphics routines) (replace with Direct2D ?)
 #define DCX_USE_GDIPLUS 1
 constexpr auto DCX_MAX_GDI_ERRORS = 21;
+
+#if DCX_USE_GDIPLUS
+#pragma message ("### DCX OPTION: Use GDI Plus - Enabled")
+#else
+#pragma message ("### DCX OPTION: Use GDI Plus - Disabled")
+#endif
 // end of GDI+
 
 // use string hashes for compares etc..? (non-hashing code removed, always use this now)
@@ -94,60 +106,67 @@ constexpr auto DCX_MAX_GDI_ERRORS = 21;
 // NB: Can't be used with either BOOST OR PCRE enabled.
 #define DCX_USE_CREGEX 0
 
+#if DCX_USE_CREGEX
+#pragma message ("### DCX OPTION: Use C++1 Regex - Enabled")
+#else
+#pragma message ("### DCX OPTION: Use C++11 Regex - Disabled")
+#endif
+// end of C++11 regex
+
 // --------------------------------------------------
 // Some compiler/library definitions
 // --------------------------------------------------
 //#define WIN32_LEAN_AND_MEAN //!< blah
-
+//
 // Windows 98 + IE V5.01 + GDI+ 1.0
 //#define _WIN32_WINDOWS 0x0410
 //#define _WIN32_WINNT 0x0410
 //#define _WIN32_IE 0x0501
 //#define WINVER 0x0410
 //#define GDIPVER 0x0100
-
+//
 // Windows XP + IE V5.01 + GDI+ 1.0
 //#define _WIN32_WINNT 0x0501
 //#define _WIN32_IE 0x0501
 //#define WINVER 0x0501
 //#define GDIPVER 0x0100
-
+//
 // Windows XP SP1 + IE V6 + GDI+ 1.0
 //#define _WIN32_WINNT 0x0502
 //#define _WIN32_IE 0x0600
 //#define WINVER 0x0502
 //#define GDIPVER 0x0100
-
+//
 // Windows XP SP2 + IE V6 + GDI+ 1.1
 //#define _WIN32_WINNT 0x0503
 //#define _WIN32_IE 0x0600
 //#define WINVER 0x0503
 //#define GDIPVER 0x0110
-
+//
 // Windows Vista + IE V7 + GDI+ 1.1
 //#define _WIN32_WINNT 0x0600
 //#define _WIN32_IE 0x0700
 //#define WINVER 0x0600
 //#define GDIPVER 0x0110
-
+//
 // Windows 7 + IE V8 + GDI+ 1.1
 //#define _WIN32_WINNT 0x0601
 //#define _WIN32_IE 0x0800
 //#define WINVER 0x0601
 //#define GDIPVER 0x0110
-
+//
 // Windows 7 + IE V10 + GDI+ 1.1
 //#define _WIN32_WINNT 0x0601
 //#define _WIN32_IE 0x0A00
 //#define WINVER 0x0601
 //#define GDIPVER 0x0110
-
+//
 // Windows 8 + IE V10 + GDI+ 1.1
 //#define _WIN32_WINNT 0x0602
 //#define _WIN32_IE 0x0A00
 //#define WINVER 0x0602
 //#define GDIPVER 0x0110
-
+//
 // Windows 8.1 + IE V10 + GDI+ 1.1
 //#define _WIN32_WINNT 0x0603
 //#define _WIN32_IE 0x0A00
@@ -175,7 +194,7 @@ constexpr auto DCX_MAX_GDI_ERRORS = 21;
 // --------------------------------------------------
 #define DLL_VERSION    GIT_DESCRIBE
 #define DLL_BUILD      GIT_HASH
-#define DLL_DEV_BUILD  "52"
+#define DLL_DEV_BUILD  "53"
 
 #ifdef NDEBUG
 #ifdef DCX_DEV_BUILD
@@ -226,6 +245,8 @@ constexpr auto DCX_MAX_GDI_ERRORS = 21;
 #include <windows.h>
 #include <windowsx.h>
 #pragma warning(pop)
+#include <concepts>
+#include <ranges>
 #include <vector>
 #include <map>
 #include <unordered_map>
@@ -238,11 +259,7 @@ constexpr auto DCX_MAX_GDI_ERRORS = 21;
 #endif
 
 #include <memory>
-#if !defined(_MSC_FULL_VER) || _MSC_FULL_VER < 192328105
-#include <experimental\filesystem>
-#else
 #include <filesystem>
-#endif
 #include <optional>
 
 // BrowseFolder
@@ -304,22 +321,17 @@ constexpr auto DCX_MAX_GDI_ERRORS = 21;
 #endif
 
 // max() macro causes issues with GSL, just use std::max/min instead
-//#pragma push_macro("max")
 #undef max
 #undef min
-#define GSL_THROW_ON_CONTRACT_VIOLATION 1
+//#define GSL_THROW_ON_CONTRACT_VIOLATION 1
 #include <GSL\gsl>
-//#pragma pop_macro("max")
-//using gsl::byte;
-//using std::byte;
-//using gsl::to_integer;
+
 namespace gsl {
 	template <class Cont>
-#if defined(__clang__) || defined(__GNUC__)
-#else
-	[[gsl::suppress(type.1, bounds.4, r.32)]]
-#endif
-	constexpr auto at(const std::unique_ptr<Cont []> &cont, const index i) -> decltype(cont[0])
+	GSL_SUPPRESS(type.1)
+	GSL_SUPPRESS(bounds.4)
+	GSL_SUPPRESS(r.32)
+	constexpr auto at(const std::unique_ptr<Cont[]>& cont, const index i) -> decltype(cont[0])
 	{
 		//Expects(i >= 0 && i < narrow_cast<index>(cont.size()));
 		//using size_type = decltype(cont.size());
@@ -332,7 +344,7 @@ namespace gsl {
 namespace Dcx {
 	template<class _Ty>
 	struct is_pod
-		: std::integral_constant<bool, std::is_standard_layout_v<_Ty> && std::is_trivial_v<_Ty> >
+		: std::integral_constant<bool, std::is_standard_layout_v<_Ty>&& std::is_trivial_v<_Ty> >
 	{
 	};
 
@@ -413,7 +425,9 @@ namespace Dcx {
 #define MIRCF_ERR_SCRIPT		32
 #define MIRCF_ERR_DISABLED		64
 
-enum class mIRC_SendMessage_Flags : UINT {
+enum class mIRC_SendMessage_Flags
+	: UINT
+{
 	EDITBOX = 1,
 	CMD = 2,
 	FLOOD = 4,
@@ -421,7 +435,9 @@ enum class mIRC_SendMessage_Flags : UINT {
 	ENHANCEDERRORS = 16 // causes mIRC 7.33Beta+ to return more detailed error information
 };
 
-enum class mIRC_SendMessage_ErrorCodes : UINT {
+enum class mIRC_SendMessage_ErrorCodes
+	: UINT
+{
 	OK,
 	ERR_FAILED = 1,
 	ERR_MAP_NAME = 2,
@@ -484,27 +500,100 @@ using mIRCResultString = refString<TCHAR, MIRC_BUFFER_SIZE_CCH>;
 // --------------------------------------------------
 // CLA constants
 // --------------------------------------------------
-enum CLATypes: UINT {
-	LAYOUTFIXED	= 0x01,  //!< Layout Cell Fixed Type
-	LAYOUTFILL	= 0x02,  //!< Layout Cell Fill Type
-	LAYOUTPANE	= 0x04,  //!< Layout Cell Pane Type
-	LAYOUTID	= 0x08,  //!< Layout Control ID is Valid
-	LAYOUTDIM	= 0x10,  //!< Layout Control Dimensions are Valid (Only works with LayoutCellFixed)
-	LAYOUTVERT	= 0x20,  //!< Layout Cell Vertical Style (LayoutCellPane and LayoutCellFixed)
-	LAYOUTHORZ	= 0x40  //!< Layout Cell Horizontal Style (LayoutCellPane and LayoutCellFixed)
+enum class CLATypes
+	: UINT
+{
+	LAYOUTFIXED = 0x01,  //!< Layout Cell Fixed Type
+	LAYOUTFILL = 0x02,  //!< Layout Cell Fill Type
+	LAYOUTPANE = 0x04,  //!< Layout Cell Pane Type
+	LAYOUTID = 0x08,  //!< Layout Control ID is Valid
+	LAYOUTDIM = 0x10,  //!< Layout Control Dimensions are Valid (Only works with LayoutCellFixed)
+	LAYOUTVERT = 0x20,  //!< Layout Cell Vertical Style (LayoutCellPane and LayoutCellFixed)
+	LAYOUTHORZ = 0x40  //!< Layout Cell Horizontal Style (LayoutCellPane and LayoutCellFixed)
 };
+template <typename T>
+constexpr CLATypes& operator |=(CLATypes& eStyle, const T& dStyle) noexcept
+{
+	return eStyle = static_cast<CLATypes>(static_cast<UINT>(eStyle) | static_cast<UINT>(dStyle));
+}
+
+template <typename T>
+constexpr CLATypes& operator &=(CLATypes& eStyle, const T& dStyle) noexcept
+{
+	return eStyle = static_cast<CLATypes>(static_cast<UINT>(eStyle) & static_cast<UINT>(dStyle));
+}
+
+template <typename T>
+constexpr CLATypes operator &(const CLATypes& eStyle, const T& dStyle) noexcept
+{
+	return static_cast<CLATypes>(static_cast<UINT>(eStyle) & static_cast<UINT>(dStyle));
+}
+
+template <typename T>
+constexpr CLATypes operator |(const CLATypes& eStyle, const T& dStyle) noexcept
+{
+	return static_cast<CLATypes>(static_cast<UINT>(eStyle) | static_cast<UINT>(dStyle));
+}
+
+template <typename T>
+constexpr CLATypes operator ^(const CLATypes& eStyle, const T& dStyle) noexcept
+{
+	return static_cast<CLATypes>(static_cast<UINT>(eStyle) ^ static_cast<UINT>(dStyle));
+}
+
+constexpr CLATypes operator ~(const CLATypes& eStyle) noexcept
+{
+	return static_cast<CLATypes>(~static_cast<UINT>(eStyle));
+}
+
 
 // --------------------------------------------------
 // DCX Font stuff
 // --------------------------------------------------
-enum dcxFontFlags: UINT {
-	DCF_ANTIALIASE	= 0x01, //!< Control Font Anti-Aliase Style
-	DCF_BOLD		= 0x02, //!< Control Font Bold Style
-	DCF_ITALIC		= 0x04, //!< Control Font Italic Style
-	DCF_STRIKEOUT	= 0x08, //!< Control Font Strikeout Style
-	DCF_UNDERLINE	= 0x10, //!< Control Font Underline Style
-	DCF_DEFAULT		= 0x20	//!< Control Font Default Style
+enum class dcxFontFlags
+	: UINT
+{
+	DCF_ANTIALIASE = 0x01, //!< Control Font Anti-Aliase Style
+	DCF_BOLD = 0x02, //!< Control Font Bold Style
+	DCF_ITALIC = 0x04, //!< Control Font Italic Style
+	DCF_STRIKEOUT = 0x08, //!< Control Font Strikeout Style
+	DCF_UNDERLINE = 0x10, //!< Control Font Underline Style
+	DCF_DEFAULT = 0x20	//!< Control Font Default Style
 };
+template <typename T>
+constexpr dcxFontFlags& operator |=(dcxFontFlags& eStyle, const T& dStyle) noexcept
+{
+	return eStyle = static_cast<dcxFontFlags>(static_cast<UINT>(eStyle) | static_cast<UINT>(dStyle));
+}
+
+template <typename T>
+constexpr dcxFontFlags& operator &=(dcxFontFlags& eStyle, const T& dStyle) noexcept
+{
+	return eStyle = static_cast<dcxFontFlags>(static_cast<UINT>(eStyle) & static_cast<UINT>(dStyle));
+}
+
+template <typename T>
+constexpr dcxFontFlags operator &(const dcxFontFlags& eStyle, const T& dStyle) noexcept
+{
+	return static_cast<dcxFontFlags>(static_cast<UINT>(eStyle) & static_cast<UINT>(dStyle));
+}
+
+template <typename T>
+constexpr dcxFontFlags operator |(const dcxFontFlags& eStyle, const T& dStyle) noexcept
+{
+	return static_cast<dcxFontFlags>(static_cast<UINT>(eStyle) | static_cast<UINT>(dStyle));
+}
+
+template <typename T>
+constexpr dcxFontFlags operator ^(const dcxFontFlags& eStyle, const T& dStyle) noexcept
+{
+	return static_cast<dcxFontFlags>(static_cast<UINT>(eStyle) ^ static_cast<UINT>(dStyle));
+}
+
+constexpr dcxFontFlags operator ~(const dcxFontFlags& eStyle) noexcept
+{
+	return static_cast<dcxFontFlags>(~static_cast<UINT>(eStyle));
+}
 
 // --------------------------------------------------
 // XPopup stuff
@@ -515,7 +604,9 @@ enum dcxFontFlags: UINT {
 // Ultradock stuff
 // --------------------------------------------------
 
-enum class SwitchBarPos: UINT {
+enum class SwitchBarPos
+	: UINT
+{
 	SWB_NONE = 0,
 	SWB_LEFT,
 	SWB_RIGHT,
@@ -539,8 +630,8 @@ enum class SwitchBarPos: UINT {
 // mIRC Function Alias
 #define mIRC(x) _INTEL_DLL_ int WINAPI x(HWND mWnd, HWND aWnd, TCHAR *const data, const TCHAR *const parms, BOOL, BOOL)
 
-// Return String DLL Alias (data is limited to MIRC_BUFFER_SIZE_CCH)
-#define ret(x) { if (ts_strcpyn(data, (x), MIRC_BUFFER_SIZE_CCH) == nullptr) data[0] = 0; return 3; }
+// Return String DLL Alias (data is limited to mIRCLinker::m_dwBytes)
+#define ret(x) { if (ts_strcpyn(data, (x), mIRCLinker::m_dwCharacters) == nullptr) data[0] = 0; return 3; }
 
 #define PACKVERSION(major,minor) MAKELONG(minor,major)
 
@@ -551,7 +642,7 @@ struct SIGNALSWITCH
 	bool xstatusbar{ true };
 	bool xtray{ true };
 };
-using LPSIGNALSWITCH = SIGNALSWITCH *;
+using LPSIGNALSWITCH = SIGNALSWITCH*;
 
 using VectorOfInts = std::vector<int>; //<! Vector of int
 
@@ -567,11 +658,11 @@ using VectorOfInts = std::vector<int>; //<! Vector of int
 //#define dcx_strcpyn(x, y, z) { if (lstrcpyn((x), (y), gsl::narrow_cast<int>((z))) == nullptr) (x)[0] = 0; }
 
 template <typename T>
-inline void dcx_strcpyn(TCHAR *const sDest, const TCHAR *sSrc, const T &iSize) noexcept { if (ts_strcpyn(sDest, sSrc, iSize) == nullptr) sDest[0] = 0; }
+inline void dcx_strcpyn(TCHAR* const sDest, const TCHAR* sSrc, const T& iSize) noexcept { if (ts_strcpyn(sDest, sSrc, iSize) == nullptr) sDest[0] = 0; }
 
-constexpr const TCHAR *const dcx_truefalse(const bool &x) noexcept { return (x) ? &(TEXT("$true"))[0] : &(TEXT("$false")[0]); }
+constexpr const TCHAR* const dcx_truefalse(const bool& x) noexcept { return (x) ? &(TEXT("$true"))[0] : &(TEXT("$false")[0]); }
 
-#define dcx_Con(x,y) dcx_strcpyn((y), dcx_truefalse((x)), MIRC_BUFFER_SIZE_CCH);
+#define dcx_Con(x,y) dcx_strcpyn((y), dcx_truefalse((x)), mIRCLinker::m_dwCharacters);
 
 #define dcx_ConChar(x,y) { \
 if ((x)) (y)[0] = TEXT('1'); \
@@ -593,81 +684,81 @@ int dcx_round(const float x) noexcept;
 
 bool ParseCommandToLogfont(const TString& cmd, LPLOGFONT lf);
 TString ParseLogfontToCommand(const LPLOGFONT lf);
-UINT parseFontFlags(const TString &flags) noexcept;
-UINT parseFontCharSet(const TString &charset);
+dcxFontFlags parseFontFlags(const TString& flags) noexcept;
+UINT parseFontCharSet(const TString& charset);
 
-auto readFile(const TString &filename)->std::unique_ptr<BYTE[]>;
-TString readTextFile(const TString &tFile);
-bool SaveDataToFile(const TString &tsFile, const TString &tsData);
-TString FileDialog(const TString & data, const TString &method, const HWND pWnd);
+auto readFile(const TString& filename)->std::unique_ptr<BYTE[]>;
+TString readTextFile(const TString& tFile);
+bool SaveDataToFile(const TString& tsFile, const TString& tsData);
+TString FileDialog(const TString& data, const TString& method, const HWND pWnd);
 
 int CALLBACK BrowseFolderCallback(HWND hwnd, UINT uMsg, LPARAM lParam, LPARAM lpData) noexcept;
-gsl::owner<LPITEMIDLIST> GetFolderFromCSIDL(const int nCsidl) noexcept;
+[[nodiscard("Memory Leak")]] gsl::owner<LPITEMIDLIST> GetFolderFromCSIDL(const int nCsidl) noexcept;
 
-HWND GetHwndFromString(const TString &str);
-HWND FindOwner(const TString & data, const gsl::not_null<HWND> &defaultWnd);
-std::optional<HWND> FindOwner(const TString & data);
-bool CopyToClipboard(const HWND owner, const TString & str) noexcept;
+HWND GetHwndFromString(const TString& str);
+HWND FindOwner(const TString& data, const gsl::not_null<HWND>& defaultWnd);
+std::optional<HWND> FindOwner(const TString& data);
+bool CopyToClipboard(const HWND owner, const TString& str) noexcept;
 
-HBITMAP dcxLoadBitmap(HBITMAP dest, TString &filename);
-HICON dcxLoadIcon(const int index, TString &filename, const bool large, const TString &flags);
-HICON CreateGrayscaleIcon(HICON hIcon) noexcept;
+[[nodiscard("Memory Leak")]] HBITMAP dcxLoadBitmap(HBITMAP dest, TString& filename);
+[[nodiscard("Memory Leak")]] HICON dcxLoadIcon(const int index, TString& filename, const bool large, const TString& flags);
+[[nodiscard("Memory Leak")]] HICON CreateGrayscaleIcon(HICON hIcon) noexcept;
 
-HRGN BitmapRegion(HBITMAP hBitmap, const COLORREF cTransparentColor, const bool bIsTransparent);
+[[nodiscard("Memory Leak")]] HRGN BitmapRegion(HBITMAP hBitmap, const COLORREF cTransparentColor, const bool bIsTransparent);
 
-void ChangeHwndIcon(const HWND hwnd, const TString &flags, const int index, TString &filename);
-void AddFileIcons(HIMAGELIST himl, TString &filename, const bool bLarge, const int iIndex, const int iStart = 0, const int iEnd = -1);
-int dcxPickIconDlg(const HWND hwnd, LPWSTR pszIconPath, const UINT &cchIconPath, int *piIconIndex) noexcept;
+void ChangeHwndIcon(const HWND hwnd, const TString& flags, const int index, TString& filename);
+void AddFileIcons(HIMAGELIST himl, TString& filename, const bool bLarge, const int iIndex, const int iStart = 0, const int iEnd = -1);
+int dcxPickIconDlg(const HWND hwnd, LPWSTR pszIconPath, const UINT& cchIconPath, int* piIconIndex) noexcept;
 
 BOOL dcxGetWindowRect(const HWND hWnd, const LPRECT lpRect) noexcept;
-bool GetWindowRectParent(const HWND hwnd, RECT *rcWin);
+bool GetWindowRectParent(const HWND hwnd, RECT* rcWin);
 
 SYSTEMTIME MircTimeToSystemTime(const long mircTime);
 long SystemTimeToMircTime(const LPSYSTEMTIME pst);
 
 void AddToolTipToolInfo(const HWND tiphwnd, const HWND ctrl) noexcept;
 #ifdef DCX_USE_GDIPLUS
-constexpr const TCHAR *GetLastStatusStr(Gdiplus::Status status) noexcept;
+constexpr const TCHAR* GetLastStatusStr(Gdiplus::Status status) noexcept;
 #endif
 
-bool IsFile(TString &filename);
+bool IsFile(TString& filename);
 
-void dcxDrawShadowText(HDC hdc, LPCWSTR pszText, UINT cch, RECT *pRect, DWORD dwFlags, COLORREF crText, COLORREF crShadow, int ixOffset, int iyOffset) noexcept;
+void dcxDrawShadowText(HDC hdc, LPCWSTR pszText, UINT cch, RECT* pRect, DWORD dwFlags, COLORREF crText, COLORREF crShadow, int ixOffset, int iyOffset) noexcept;
 //void calcStrippedRect(HDC hdc, const TString &txt, const UINT style, LPRECT rc, const bool ignoreleft);
-void mIRC_DrawText(HDC hdc, const TString &txt, LPRECT rc, const UINT style, const bool shadow);
-void DrawRotatedText(const TString &strDraw, const LPCRECT rc, const HDC hDC, const int nAngleLine = 0, const bool bEnableAngleChar = false, const int nAngleChar = 0) noexcept;
+void mIRC_DrawText(HDC hdc, const TString& txt, LPRECT rc, const UINT style, const bool shadow);
+void DrawRotatedText(const TString& strDraw, const LPCRECT rc, const HDC hDC, const int nAngleLine = 0, const bool bEnableAngleChar = false, const int nAngleChar = 0) noexcept;
 
-gsl::owner<HDC *> CreateHDCBuffer(HDC hdc, const LPRECT rc);
-void DeleteHDCBuffer(gsl::owner<HDC *> hBuffer) noexcept;
+[[nodiscard("Memory Leak")]] gsl::owner<HDC*> CreateHDCBuffer(HDC hdc, const LPRECT rc);
+void DeleteHDCBuffer(gsl::owner<HDC*> hBuffer) noexcept;
 
-int TGetWindowText(HWND hwnd, TString &txt);
+int TGetWindowText(HWND hwnd, TString& txt);
 TString TGetWindowText(HWND hwnd);
 void FreeOSCompatibility(void) noexcept;
-bool isRegexMatch(const TCHAR *matchtext, const TCHAR *pattern);
+bool isRegexMatch(const TCHAR* matchtext, const TCHAR* pattern);
 
-const char * queryAttribute(const TiXmlElement * element, const char *attribute, const char *defaultValue = "") noexcept;
+const char* queryAttribute(const TiXmlElement* element, const char* attribute, const char* defaultValue = "") noexcept;
 //gsl::not_null<const char *> queryAttribute(gsl::not_null<const TiXmlElement *> element, gsl::not_null<const char *> attribute, gsl::not_null<const char *> defaultValue = gsl::not_null<const char *>("")) noexcept;
 //std::optional<const char *> queryAttribute(gsl::not_null<const TiXmlElement *> element, gsl::not_null<const char *> attribute) noexcept;
-int queryIntAttribute(const TiXmlElement *element, const char *attribute, const int defaultValue = 0) noexcept;
+int queryIntAttribute(const TiXmlElement* element, const char* attribute, const int defaultValue = 0) noexcept;
 //int queryIntAttribute(gsl::not_null<const TiXmlElement *> element, gsl::not_null<const char *> attribute, const int defaultValue = 0);
 //std::optional<int> queryIntAttribute(gsl::not_null<const TiXmlElement *> element, gsl::not_null<const char *> attribute);
 
 void getmIRCPalette();
-void getmIRCPalette(COLORREF *const Palette, const UINT PaletteItems);
+void getmIRCPalette(COLORREF* const Palette, const UINT PaletteItems);
 void getmIRCPalette(gsl::span<COLORREF> Palette);
-void getmIRCPaletteMask(COLORREF *const Palette, const UINT PaletteItems, uint16_t uMask);
-int unfoldColor(const WCHAR *color) noexcept;
+void getmIRCPaletteMask(COLORREF* const Palette, const UINT PaletteItems, uint16_t uMask);
+int unfoldColor(const WCHAR* color) noexcept;
 
 // UltraDock
 void RemStyles(const HWND hwnd, const int parm, const long RemStyles) noexcept;
 void AddStyles(const HWND hwnd, const int parm, const long AddStyles) noexcept;
 
 // DirectX
-HRESULT GetDXVersion( DWORD* pdwDirectXVersion, TCHAR* strDirectXVersion, int cchDirectXVersion );
+HRESULT GetDXVersion(DWORD* pdwDirectXVersion, TCHAR* strDirectXVersion, int cchDirectXVersion);
 
-TString MakeTextmIRCSafe(const TString &tsStr);
-TString MakeTextmIRCSafe(const TCHAR *const tString);
-TString MakeTextmIRCSafe(const TCHAR *const tString, const std::size_t len);
+TString MakeTextmIRCSafe(const TString& tsStr);
+TString MakeTextmIRCSafe(const TCHAR* const tString);
+TString MakeTextmIRCSafe(const TCHAR* const tString, const std::size_t len);
 
 extern SIGNALSWITCH dcxSignal;
 extern COLORREF staticPalette[mIRC_PALETTE_SIZE];
