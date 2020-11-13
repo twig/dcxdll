@@ -35,7 +35,7 @@ LayoutCellPane::LayoutCellPane(const PaneType nType) noexcept
 
 LayoutCellPane::~LayoutCellPane() noexcept
 {
-	for (const auto &x : m_vpCells)
+	for (const auto& x : m_vpCells)
 		delete x.first;
 }
 
@@ -45,7 +45,7 @@ LayoutCellPane::~LayoutCellPane() noexcept
  * blah
  */
 
-LayoutCell * LayoutCellPane::addChild(gsl::owner<LayoutCell *> p_Cell, const UINT nWeight)
+LayoutCell* LayoutCellPane::addChild(gsl::owner<LayoutCell*> p_Cell, const UINT nWeight)
 {
 	//if (p_Cell == nullptr) // this should never happen :)
 	//	throw Dcx::dcxException("addChild() - NULL Cell supplied");
@@ -57,7 +57,7 @@ LayoutCell * LayoutCellPane::addChild(gsl::owner<LayoutCell *> p_Cell, const UIN
 
 	if (!m_vpCells.empty())
 	{
-		if (auto p_Last = m_vpCells.back().first; p_Last != nullptr)
+		if (auto p_Last = m_vpCells.back().first; p_Last)
 			p_Last->setSibling(p_Cell);
 	}
 
@@ -76,7 +76,7 @@ LayoutCell * LayoutCellPane::addChild(gsl::owner<LayoutCell *> p_Cell, const UIN
 
 const LayoutCell::CellType LayoutCellPane::getType() const noexcept
 {
-	return PANE;
+	return CellType::PANE;
 }
 
 /*!
@@ -102,9 +102,9 @@ void LayoutCellPane::LayoutChild()
 	this->AdjustPos();
 
 	// Send Layout Command one layer lower
-	for (const auto &x : this->m_vpCells)
+	for (const auto& x : this->m_vpCells)
 	{
-		if (x.first != nullptr)
+		if (x.first)
 			x.first->LayoutChild();
 	}
 }
@@ -119,9 +119,9 @@ HDWP LayoutCellPane::ExecuteLayout(const HDWP hdwp)
 {
 	HDWP hdwpdef = hdwp;
 	// Send Layout Command one layer lower
-	for (const auto &x : this->m_vpCells)
+	for (const auto& x : this->m_vpCells)
 	{
-		if (x.first != nullptr)
+		if (x.first)
 			hdwpdef = x.first->ExecuteLayout(hdwpdef);
 	}
 	return hdwpdef;
@@ -133,16 +133,16 @@ HDWP LayoutCellPane::ExecuteLayout(const HDWP hdwp)
  * blah
  */
 
-void LayoutCellPane::getMinMaxInfo(CellMinMaxInfo *const pCMMI) const
+void LayoutCellPane::getMinMaxInfo(CellMinMaxInfo* const pCMMI) const noexcept
 {
 	const auto nMaxWidthX = pCMMI->m_MaxSize.x;
 	const auto nMaxWidthY = pCMMI->m_MaxSize.y;
 
-	for (const auto &[pChild, nWeight] : this->m_vpCells)
+	for (const auto& [pChild, nWeight] : this->m_vpCells)
 	{
 		UNREFERENCED_PARAMETER(nWeight);
 
-		if (pChild != nullptr)
+		if (pChild)
 		{
 			if (pChild->isVisible())
 			{
@@ -150,7 +150,7 @@ void LayoutCellPane::getMinMaxInfo(CellMinMaxInfo *const pCMMI) const
 
 				pChild->getMinMaxInfo(&cmmiChild);
 
-				if (this->m_nType == HORZ)
+				if (this->m_nType == PaneType::HORZ)
 				{
 					pCMMI->m_MinSize.x += cmmiChild.m_MinSize.x;
 					pCMMI->m_MaxSize.x += cmmiChild.m_MaxSize.x;
@@ -173,16 +173,16 @@ void LayoutCellPane::getMinMaxInfo(CellMinMaxInfo *const pCMMI) const
 	pCMMI->m_MaxSize.y = std::min(pCMMI->m_MaxSize.y, gsl::narrow_cast<LONG>(GetSystemMetrics(SM_CYMAXTRACK)));
 }
 
-void LayoutCellPane::toXml(TiXmlElement *const xml)
+void LayoutCellPane::toXml(TiXmlElement* const xml)
 {
-	if (this->m_nType == LayoutCellPane::HORZ)
+	if (this->m_nType == LayoutCellPane::PaneType::HORZ)
 		xml->SetAttribute("cascade", "h");
-	else if (this->m_nType == LayoutCellPane::VERT)
+	else if (this->m_nType == LayoutCellPane::PaneType::VERT)
 		xml->SetAttribute("cascade", "v");
 
-	for (const auto &[lc, weight] : this->m_vpCells)
+	for (const auto& [lc, weight] : this->m_vpCells)
 	{
-		if (lc != nullptr)
+		if (lc)
 		{
 			const auto inner = lc->toXml();
 			if (weight != 0)
@@ -192,7 +192,7 @@ void LayoutCellPane::toXml(TiXmlElement *const xml)
 	}
 }
 
-TiXmlElement * LayoutCellPane::toXml(void)
+TiXmlElement* LayoutCellPane::toXml(void)
 {
 	auto xml = std::make_unique<TiXmlElement>("pane");
 	this->toXml(xml.get());
@@ -205,14 +205,14 @@ TiXmlElement * LayoutCellPane::toXml(void)
  * blah
  */
 
-void LayoutCellPane::AdjustMinSize(UINT & nSizeLeft, UINT & nTotalWeight)
+void LayoutCellPane::AdjustMinSize(UINT& nSizeLeft, UINT& nTotalWeight) noexcept
 {
 	RECT rc{}, rect{};
 	getClientRect(rc);
 
 	int nSize = 0;
 
-	if (m_nType == HORZ)
+	if (m_nType == PaneType::HORZ)
 	{
 		nSize = rc.bottom - rc.top;
 		nSizeLeft = gsl::narrow_cast<UINT>(rc.right - rc.left);
@@ -222,9 +222,9 @@ void LayoutCellPane::AdjustMinSize(UINT & nSizeLeft, UINT & nTotalWeight)
 		nSizeLeft = gsl::narrow_cast<UINT>(rc.bottom - rc.top);
 	}
 
-	for (const auto &[pChild, nWeight] : m_vpCells)
+	for (const auto& [pChild, nWeight] : m_vpCells)
 	{
-		if (pChild == nullptr)
+		if (!pChild)
 			continue;
 		if (!pChild->isVisible())
 			continue;
@@ -234,7 +234,7 @@ void LayoutCellPane::AdjustMinSize(UINT & nSizeLeft, UINT & nTotalWeight)
 		pChild->getMinMaxInfo(&cmmiChild);
 		pChild->getRect(rect);
 
-		if (m_nType == HORZ)
+		if (m_nType == PaneType::HORZ)
 		{
 			rect.right = rect.left + cmmiChild.m_MinSize.x;
 			rect.bottom = rect.top + nSize;
@@ -257,7 +257,7 @@ void LayoutCellPane::AdjustMinSize(UINT & nSizeLeft, UINT & nTotalWeight)
  * blah
  */
 
-void LayoutCellPane::AdjustSize(UINT & nSizeLeft, UINT & nTotalWeight)
+void LayoutCellPane::AdjustSize(UINT& nSizeLeft, UINT& nTotalWeight) noexcept
 {
 	RECT rc{};
 	this->getClientRect(rc);
@@ -265,9 +265,9 @@ void LayoutCellPane::AdjustSize(UINT & nSizeLeft, UINT & nTotalWeight)
 	UINT nNewTotalWeight = 0U;
 	auto nNewSizeLeft = nSizeLeft;
 
-	for (const auto &[pChild, nWeight] : this->m_vpCells)
+	for (const auto& [pChild, nWeight] : this->m_vpCells)
 	{
-		if (pChild == nullptr)
+		if (!pChild)
 			continue;
 
 		// don't put extra width/height on items of zero weight
@@ -281,7 +281,7 @@ void LayoutCellPane::AdjustSize(UINT & nSizeLeft, UINT & nTotalWeight)
 		pChild->getRect(rectOld);
 		auto rectNew = rectOld;
 
-		if (m_nType == HORZ)
+		if (m_nType == PaneType::HORZ)
 		{
 			rectNew.right += nAddSize;
 			pChild->setRect(rectNew);
@@ -334,16 +334,16 @@ void LayoutCellPane::AdjustPos() noexcept
 	RECT rect{};
 	this->getClientRect(rect);
 
-	if (m_nType == HORZ)
+	if (m_nType == PaneType::HORZ)
 		nPos = rect.left;
 	else
 		nPos = rect.top;
 
-	for (const auto &x : this->m_vpCells)
+	for (const auto& x : this->m_vpCells)
 	{
 		const auto pChild = x.first;
 
-		if (pChild == nullptr)
+		if (!pChild)
 			continue;
 
 		if (!pChild->isVisible())
@@ -352,7 +352,7 @@ void LayoutCellPane::AdjustPos() noexcept
 		RECT rectChild{};
 		pChild->getRect(rectChild);
 
-		if (m_nType == HORZ)
+		if (m_nType == PaneType::HORZ)
 		{
 			OffsetRect(&rectChild, nPos - rectChild.left, rect.top - rectChild.top);
 			nPos = rectChild.right;

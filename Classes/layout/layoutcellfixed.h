@@ -23,7 +23,7 @@
  * blah
  */
 
-class LayoutCellFixed
+class LayoutCellFixed final
 	: public LayoutCell
 {
 public:
@@ -33,12 +33,18 @@ public:
 	*
 	* blah
 	*/
-	enum FixedType: UINT
+	enum class FixedType
+		: UINT
 	{
 		HEIGHT=1,         //!< Fixed Size in Height
 		WIDTH=HEIGHT<<1,  //!< Fixed Size in Width
 		BOTH=HEIGHT|WIDTH //!< Fixed Size in Both
 	};
+	template <typename T>
+	friend constexpr FixedType operator &(const FixedType& eStyle, const T& dStyle) noexcept
+	{
+		return static_cast<FixedType>(static_cast<DWORD>(eStyle)& static_cast<DWORD>(dStyle));
+	}
 
 	LayoutCellFixed() = delete;
 	LayoutCellFixed(const LayoutCellFixed &) = delete;
@@ -46,10 +52,10 @@ public:
 	LayoutCellFixed(LayoutCellFixed &&) = delete;
 	LayoutCellFixed &operator =(LayoutCellFixed &&) = delete;
 
-	explicit LayoutCellFixed(DcxControl * dcxc, const FixedType nType = BOTH) noexcept;
-	explicit LayoutCellFixed( const HWND mHwnd, const FixedType nType = BOTH ) noexcept;
-	explicit LayoutCellFixed(const RECT & rc, const FixedType nType = BOTH) noexcept;
-	LayoutCellFixed(const HWND mHwnd, const RECT & rc, const FixedType nType = BOTH) noexcept;
+	explicit LayoutCellFixed(DcxControl * dcxc, const FixedType nType = FixedType::BOTH) noexcept;
+	explicit LayoutCellFixed( const HWND mHwnd, const FixedType nType = FixedType::BOTH ) noexcept;
+	explicit LayoutCellFixed(const RECT & rc, const FixedType nType = FixedType::BOTH) noexcept;
+	LayoutCellFixed(const HWND mHwnd, const RECT & rc, const FixedType nType = FixedType::BOTH) noexcept;
 	~LayoutCellFixed() noexcept {};
 
 	void LayoutChild() noexcept final {};

@@ -48,7 +48,7 @@ LayoutCell::LayoutCell() noexcept
 LayoutCell::LayoutCell(const HWND mHwnd) noexcept
 	: LayoutCell(mHwnd, RECT())
 {
-	if (m_Hwnd != nullptr)
+	if (m_Hwnd)
 		GetWindowRect(m_Hwnd, &m_rcWindow);
 }
 
@@ -58,31 +58,31 @@ LayoutCell::LayoutCell(const HWND mHwnd) noexcept
  * blah
  */
 
-LayoutCell::LayoutCell(const HWND mHwnd, const RECT & rc) noexcept
+LayoutCell::LayoutCell(const HWND mHwnd, const RECT& rc) noexcept
 	: m_Hwnd(mHwnd)
 	, m_rcWindow(rc)
 {
 	SetRectEmpty(&m_rcBorders);
 
-	if (mHwnd != nullptr)
+	if (mHwnd)
 	{
 		if (Dcx::Dialogs.getDialogByHandle(mHwnd) == nullptr)
 		{
-			if (const auto *const d = Dcx::Dialogs.getDialogByChildHandle(mHwnd); d != nullptr)
+			if (const auto* const d = Dcx::Dialogs.getDialogByChildHandle(mHwnd); d)
 				m_BaseControl = d->getControlByHWND(mHwnd);
 		}
 	}
 }
 
-LayoutCell::LayoutCell(DcxControl * dcxc) noexcept
+LayoutCell::LayoutCell(DcxControl* dcxc) noexcept
 	: LayoutCell()
 {
 	m_BaseControl = dcxc;
 
-	if (dcxc != nullptr)
+	if (dcxc)
 		m_Hwnd = dcxc->getHwnd();
 
-	if (m_Hwnd != nullptr)
+	if (m_Hwnd)
 		GetWindowRect(m_Hwnd, &m_rcWindow);
 }
 /*!
@@ -91,17 +91,17 @@ LayoutCell::LayoutCell(DcxControl * dcxc) noexcept
  * blah
  */
 
-//LayoutCell::~LayoutCell() noexcept
-//{
-//}
+ //LayoutCell::~LayoutCell() noexcept
+ //{
+ //}
 
-/*!
- * \brief blah
- *
- * blah
- */
+ /*!
+  * \brief blah
+  *
+  * blah
+  */
 
-void LayoutCell::setParent(LayoutCell *const p_Cell) noexcept
+void LayoutCell::setParent(LayoutCell* const p_Cell) noexcept
 {
 	m_Parent = p_Cell;
 }
@@ -112,7 +112,7 @@ void LayoutCell::setParent(LayoutCell *const p_Cell) noexcept
  * blah
  */
 
-void LayoutCell::setSibling(LayoutCell *const p_Cell) noexcept
+void LayoutCell::setSibling(LayoutCell* const p_Cell) noexcept
 {
 	m_NextSibling = p_Cell;
 }
@@ -123,7 +123,7 @@ void LayoutCell::setSibling(LayoutCell *const p_Cell) noexcept
  * blah
  */
 
-LayoutCell * LayoutCell::getFirstChild() const noexcept
+LayoutCell* LayoutCell::getFirstChild() const noexcept
 {
 	return m_FirstChild;
 }
@@ -134,7 +134,7 @@ LayoutCell * LayoutCell::getFirstChild() const noexcept
  * blah
  */
 
-LayoutCell * LayoutCell::getParent() const noexcept
+LayoutCell* LayoutCell::getParent() const noexcept
 {
 	return m_Parent;
 }
@@ -145,7 +145,7 @@ LayoutCell * LayoutCell::getParent() const noexcept
  * blah
  */
 
-LayoutCell * LayoutCell::getNextSibling() const noexcept
+LayoutCell* LayoutCell::getNextSibling() const noexcept
 {
 	return m_NextSibling;
 }
@@ -156,7 +156,7 @@ LayoutCell * LayoutCell::getNextSibling() const noexcept
  * blah
  */
 
-void LayoutCell::setRect(RECT & rc) noexcept
+void LayoutCell::setRect(RECT& rc) noexcept
 {
 	CellMinMaxInfo cmmi{ {0,0},{rc.right - rc.left,rc.bottom - rc.top} };
 
@@ -189,7 +189,7 @@ void LayoutCell::setRect(RECT & rc) noexcept
  * blah
  */
 
-void LayoutCell::getRect(RECT & rc) const noexcept
+void LayoutCell::getRect(RECT& rc) const noexcept
 {
 	rc = m_rcWindow;
 }
@@ -200,7 +200,7 @@ void LayoutCell::getRect(RECT & rc) const noexcept
  * blah
  */
 
-void LayoutCell::getClientRect(RECT & rc) const noexcept
+void LayoutCell::getClientRect(RECT& rc) const noexcept
 {
 	getRect(rc);
 
@@ -216,7 +216,7 @@ void LayoutCell::getClientRect(RECT & rc) const noexcept
  * blah
  */
 
-void LayoutCell::setBorder(const RECT & rc) noexcept
+void LayoutCell::setBorder(const RECT& rc) noexcept
 {
 	// remove old borders
 	this->m_rcWindow.right -= this->m_rcBorders.left + this->m_rcBorders.right;
@@ -236,7 +236,7 @@ void LayoutCell::setBorder(const RECT & rc) noexcept
  * blah
  */
 
-void LayoutCell::setBorder(const int &nBorder) noexcept
+void LayoutCell::setBorder(const int& nBorder) noexcept
 {
 	const RECT rc{ nBorder, nBorder, nBorder, nBorder };
 	setBorder(rc);
@@ -248,7 +248,7 @@ void LayoutCell::setBorder(const int &nBorder) noexcept
  * blah
  */
 
-void LayoutCell::getBorder(RECT & rc) const noexcept
+void LayoutCell::getBorder(RECT& rc) const noexcept
 {
 	rc = m_rcBorders;
 }

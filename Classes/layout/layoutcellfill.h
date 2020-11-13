@@ -23,7 +23,7 @@
  * blah
  */
 
-class LayoutCellFill
+class LayoutCellFill final
 	: public LayoutCell
 {
 public:

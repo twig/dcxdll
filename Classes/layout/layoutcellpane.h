@@ -23,7 +23,7 @@
  * blah
  */
 
-class LayoutCellPane
+class LayoutCellPane final
 	: public LayoutCell
 {
 public:
@@ -33,7 +33,8 @@ public:
 	*
 	* blah
 	*/
-	enum PaneType: UINT
+	enum class PaneType
+		: UINT
 	{
 		HORZ=1,         //!< Horizontal Stacked LayoutCells
 		VERT=HORZ<<1   //!< Vertical Stacked LayoutCells
@@ -45,12 +46,12 @@ public:
 	LayoutCellPane(LayoutCellPane &&) = delete;
 	LayoutCellPane &operator =(LayoutCellPane &&) = delete;
 
-	explicit LayoutCellPane(const PaneType nType = HORZ) noexcept;
+	explicit LayoutCellPane(const PaneType nType = PaneType::HORZ) noexcept;
 	~LayoutCellPane( ) noexcept;
 
 	void LayoutChild() final;
 	HDWP ExecuteLayout( const HDWP hdwp ) final;
-	void getMinMaxInfo( CellMinMaxInfo *const pCMMI ) const final;
+	void getMinMaxInfo( CellMinMaxInfo *const pCMMI ) const noexcept final;
 
 	void toXml(TiXmlElement *const xml) final;
 	TiXmlElement * toXml(void) final;
@@ -68,8 +69,8 @@ protected:
 
 	VectorOfNodePtrs m_vpCells; //!< Vector Of Stacked LayoutCell
 
-	void AdjustMinSize( UINT & nSizeLeft, UINT & nTotalWeight );
-	void AdjustSize( UINT & nSizeLeft, UINT & nTotalWeight );
+	void AdjustMinSize( UINT & nSizeLeft, UINT & nTotalWeight ) noexcept;
+	void AdjustSize( UINT & nSizeLeft, UINT & nTotalWeight ) noexcept;
 	void AdjustPos( ) noexcept;
 
 };

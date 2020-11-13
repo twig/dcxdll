@@ -80,7 +80,7 @@ LayoutCellFixed::LayoutCellFixed(const HWND mHwnd, const RECT & rc, const FixedT
 
 const LayoutCell::CellType LayoutCellFixed::getType() const noexcept
 {
-	return FIXED;
+	return CellType::FIXED;
 }
 
 /*!
@@ -96,16 +96,16 @@ const LayoutCell::CellType LayoutCellFixed::getType() const noexcept
 
 TiXmlElement * LayoutCellFixed::toXml(void)
 {
-	if (this->m_BaseControl == nullptr)
+	if (!this->m_BaseControl)
 		return nullptr;
 
 	const auto base = this->m_BaseControl->toXml();
 
-	if (base != nullptr)
+	if (base)
 	{
-		if (dcx_testflag(this->m_nType, HEIGHT))
+		if (dcx_testflag(this->m_nType, FixedType::HEIGHT))
 			base->SetAttribute("height", this->m_rcWindow.bottom - this->m_rcWindow.top);
-		if (dcx_testflag(this->m_nType, WIDTH))
+		if (dcx_testflag(this->m_nType, FixedType::WIDTH))
 			base->SetAttribute("width", this->m_rcWindow.right - this->m_rcWindow.left);
 	}
 	return base;
@@ -113,12 +113,12 @@ TiXmlElement * LayoutCellFixed::toXml(void)
 
 void LayoutCellFixed::toXml(TiXmlElement *const xml)
 {
-	if (this->m_BaseControl != nullptr)
+	if (this->m_BaseControl)
 		this->m_BaseControl->toXml(xml);
 
-	if (dcx_testflag(this->m_nType, HEIGHT))
+	if (dcx_testflag(this->m_nType, FixedType::HEIGHT))
 		xml->SetAttribute("height", this->m_rcWindow.bottom - this->m_rcWindow.top);
-	if (dcx_testflag(this->m_nType, WIDTH))
+	if (dcx_testflag(this->m_nType, FixedType::WIDTH))
 		xml->SetAttribute("width", this->m_rcWindow.right - this->m_rcWindow.left);
 }
 
@@ -132,7 +132,7 @@ HDWP LayoutCellFixed::ExecuteLayout(const HDWP hdwp) noexcept
 {
 	auto hdwpdef = hdwp;
 
-	if (m_Hwnd != nullptr && IsWindow(m_Hwnd))
+	if (m_Hwnd && IsWindow(m_Hwnd))
 	{
 		RECT rc{};
 		this->getClientRect(rc);
@@ -159,9 +159,9 @@ void LayoutCellFixed::getMinMaxInfo(CellMinMaxInfo *const pCMMI) const noexcept
 		//pCMMI->m_MinSize.x = this->m_rcBorders.left + this->m_rcBorders.right;
 		//pCMMI->m_MinSize.y = this->m_rcBorders.top + this->m_rcBorders.bottom;
 
-		if (dcx_testflag(m_nType, WIDTH))
+		if (dcx_testflag(m_nType, FixedType::WIDTH))
 		{
-			if (m_nType != BOTH)
+			if (m_nType != FixedType::BOTH)
 				pCMMI->m_MinSize.y = this->m_rcBorders.top + this->m_rcBorders.bottom;
 
 			pCMMI->m_MinSize.x = rc.right - rc.left;
@@ -169,9 +169,9 @@ void LayoutCellFixed::getMinMaxInfo(CellMinMaxInfo *const pCMMI) const noexcept
 
 		}
 
-		if (dcx_testflag(m_nType, HEIGHT))
+		if (dcx_testflag(m_nType, FixedType::HEIGHT))
 		{
-			if (m_nType != BOTH)
+			if (m_nType != FixedType::BOTH)
 				pCMMI->m_MinSize.x = this->m_rcBorders.left + this->m_rcBorders.right;
 
 			pCMMI->m_MinSize.y = rc.bottom - rc.top;

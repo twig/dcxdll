@@ -30,8 +30,8 @@
 #pragma warning( disable : 2292 ) //warning #2292: destructor is declared but copy constructor and assignment operator are not
 #endif
 
-class LayoutManager {
-
+class LayoutManager final
+{
 public:
 
 	LayoutManager() = default;
@@ -54,14 +54,14 @@ public:
 
 	LayoutCell * getCell( const TString & path ) const;
 
-	void AddCell(const TString &input, const UINT iOffset = 3);
+	void AddCell(const TString &input, const UINT iOffset = 3, DcxDialog *dialog = nullptr);
 
 	inline constexpr const size_t &size(void) const noexcept { return m_iCount; }
 	//inline constexpr bool empty(void) const noexcept { return (m_pRoot == nullptr); }
 	inline bool empty(void) const noexcept { return (m_pRoot == nullptr); }
 
 	static LayoutCell * parsePath(const TString & path, const LayoutCell *const hParent, const UINT depth);
-	static const UINT parseLayoutFlags(const TString & flags) noexcept;
+	static const CLATypes parseLayoutFlags(const TString & flags) noexcept;
 
 	// this is here for reference only
 	//typedef class std::vector<LayoutCell *>::iterator iterator;

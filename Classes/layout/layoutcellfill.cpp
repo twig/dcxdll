@@ -15,58 +15,58 @@
 #include "layoutcellfill.h"
 #include <windowsx.h>
 
-/*!
- * \brief Constructor
- *
- * blah
- */
+ /*!
+  * \brief Constructor
+  *
+  * blah
+  */
 
-//LayoutCellFill::LayoutCellFill()
-//: LayoutCell()
-//{
-//}
-//
-///*!
-// * \brief Constructor
-// *
-// * blah
-// */
-//
-//LayoutCellFill::LayoutCellFill(const HWND mHwnd)
-//: LayoutCell(mHwnd)
-//{
-//}
-//
-///*!
-// * \brief Constructor
-// *
-// * blah
-// */
-//
-//LayoutCellFill::LayoutCellFill(DcxControl * dcxc)
-//: LayoutCell(dcxc)
-//{
-//}
-//
-///*!
-// * \brief Destructor
-// *
-// * blah
-// */
-//
-//LayoutCellFill::~LayoutCellFill() {
-//
-//}
+  //LayoutCellFill::LayoutCellFill()
+  //: LayoutCell()
+  //{
+  //}
+  //
+  ///*!
+  // * \brief Constructor
+  // *
+  // * blah
+  // */
+  //
+  //LayoutCellFill::LayoutCellFill(const HWND mHwnd)
+  //: LayoutCell(mHwnd)
+  //{
+  //}
+  //
+  ///*!
+  // * \brief Constructor
+  // *
+  // * blah
+  // */
+  //
+  //LayoutCellFill::LayoutCellFill(DcxControl * dcxc)
+  //: LayoutCell(dcxc)
+  //{
+  //}
+  //
+  ///*!
+  // * \brief Destructor
+  // *
+  // * blah
+  // */
+  //
+  //LayoutCellFill::~LayoutCellFill() {
+  //
+  //}
 
-/*!
- * \brief blah
- *
- * blah
- */
+  /*!
+   * \brief blah
+   *
+   * blah
+   */
 
 const LayoutCell::CellType LayoutCellFill::getType() const noexcept
 {
-	return FILL;
+	return CellType::FILL;
 }
 
 /*!
@@ -75,21 +75,21 @@ const LayoutCell::CellType LayoutCellFill::getType() const noexcept
  * blah
  */
 
-//void LayoutCellFill::LayoutChild()
-//{
-//}
+ //void LayoutCellFill::LayoutChild()
+ //{
+ //}
 
-/*!
- * \brief blah
- *
- * blah
- */
+ /*!
+  * \brief blah
+  *
+  * blah
+  */
 
 HDWP LayoutCellFill::ExecuteLayout(const HDWP hdwp) noexcept
 {
 	auto hdwpdef = hdwp;
 
-	if (m_Hwnd != nullptr && IsWindow(m_Hwnd))
+	if (m_Hwnd && IsWindow(m_Hwnd))
 	{
 		RECT rc{};
 		this->getClientRect(rc);
@@ -107,7 +107,7 @@ HDWP LayoutCellFill::ExecuteLayout(const HDWP hdwp) noexcept
  * blah
  */
 
-void LayoutCellFill::getMinMaxInfo(CellMinMaxInfo *const pCMMI) const noexcept
+void LayoutCellFill::getMinMaxInfo(CellMinMaxInfo* const pCMMI) const noexcept
 {
 	if (this->isVisible())
 	{
@@ -123,9 +123,9 @@ void LayoutCellFill::getMinMaxInfo(CellMinMaxInfo *const pCMMI) const noexcept
 		ZeroMemory(pCMMI, sizeof(CellMinMaxInfo));
 }
 
-void LayoutCellFill::toXml(TiXmlElement *const xml)
+void LayoutCellFill::toXml(TiXmlElement* const xml)
 {
-	if (this->m_BaseControl != nullptr)
+	if (this->m_BaseControl)
 		this->m_BaseControl->toXml(xml);
 
 	if (m_rcBorders.top != 0 || m_rcBorders.bottom != 0 || m_rcBorders.left != 0 || m_rcBorders.right != 0)
@@ -144,13 +144,13 @@ void LayoutCellFill::toXml(TiXmlElement *const xml)
 }
 
 
-TiXmlElement * LayoutCellFill::toXml(void)
+TiXmlElement* LayoutCellFill::toXml(void)
 {
-	if (this->m_BaseControl != nullptr)
+	if (this->m_BaseControl)
 	{
 		const auto xml = this->m_BaseControl->toXml();
 
-		if (xml != nullptr && (m_rcBorders.top != 0 || m_rcBorders.bottom != 0 || m_rcBorders.left != 0 || m_rcBorders.right != 0))
+		if (xml && (m_rcBorders.top != 0 || m_rcBorders.bottom != 0 || m_rcBorders.left != 0 || m_rcBorders.right != 0))
 		{
 			TString margin;
 

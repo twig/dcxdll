@@ -52,7 +52,7 @@ LayoutManager::LayoutManager(HWND mHwnd) noexcept
   * blah
   */
 
-const bool LayoutManager::updateLayout(RECT & rc)
+const bool LayoutManager::updateLayout(RECT& rc)
 {
 	//if (empty())
 	//	return false;
@@ -116,7 +116,7 @@ void LayoutManager::setRoot(std::unique_ptr<LayoutCell> p_Root) noexcept
   * blah
   */
 
-LayoutCell * LayoutManager::getCell(const TString & path) const
+LayoutCell* LayoutManager::getCell(const TString& path) const
 {
 	return parsePath(path, m_pRoot.get(), 1);
 }
@@ -127,9 +127,9 @@ LayoutCell * LayoutManager::getCell(const TString & path) const
  * blah
  */
 
-LayoutCell * LayoutManager::parsePath(const TString & path, const LayoutCell *const hParent, const UINT depth)
+LayoutCell* LayoutManager::parsePath(const TString& path, const LayoutCell* const hParent, const UINT depth)
 {
-	if (hParent == nullptr)
+	if (!hParent)
 		return nullptr;
 
 	const auto k = path.gettok(gsl::narrow_cast<int>(depth)).to_<UINT>();
@@ -139,7 +139,7 @@ LayoutCell * LayoutManager::parsePath(const TString & path, const LayoutCell *co
 
 	auto hCurrentCell = hParent->getFirstChild();
 
-	if (hCurrentCell == nullptr)
+	if (!hCurrentCell)
 		return nullptr;
 
 	UINT i = 1;
@@ -162,16 +162,20 @@ LayoutCell * LayoutManager::parsePath(const TString & path, const LayoutCell *co
 	return nullptr;
 }
 
-void LayoutManager::AddCell(const TString &input, const UINT iOffset)
+void LayoutManager::AddCell(const TString& input, const UINT iOffset, DcxDialog* dialog)
 {
 	const auto tsInput(input.getfirsttok(1, TSTABCHAR));
 	const auto p2(input.getnexttok(TSTABCHAR).trim());
 
-	const auto com = std::hash<TString>{}(tsInput.getfirsttok(static_cast<int>(iOffset)).trim());		// 3
+	const auto com = std::hash<TString>{}(tsInput.getfirsttok(gsl::narrow_cast<int>(iOffset)).trim());		// 3
 	const auto path(tsInput.getlasttoks().trim());	// 4
 
 	const auto iflags = parseLayoutFlags(p2.getfirsttok(1));
-	const auto ID = p2.getnexttok().to_<UINT>();	// tok 2
+	//const auto ID = p2.getnexttok().to_<UINT>();	// tok 2
+
+	const TString tsID(p2.getnexttok());
+	const auto ID = (dialog) ? dialog->NameToUserID(tsID) : tsID.to_<UINT>();
+
 	const auto WGT = p2.getnexttok().to_<UINT>();	// tok 3
 	const auto W = p2.getnexttok().to_<INT>();	// tok 4
 	const auto H = p2.getnexttok().to_<INT>();	// tok 5
@@ -180,24 +184,24 @@ void LayoutManager::AddCell(const TString &input, const UINT iOffset)
 
 	if ((com == TEXT("root"_hash)) || com == TEXT("cell"_hash))
 	{
-		const auto cHwnd = GetDlgItem(m_Hwnd, static_cast<int>(mIRC_ID_OFFSET + ID));
+		const auto cHwnd = GetDlgItem(m_Hwnd, gsl::narrow_cast<int>(mIRC_ID_OFFSET + ID));
 
 		std::unique_ptr<LayoutCell> p_Cell = nullptr;
 
 		// LayoutCellPane
-		if (dcx_testflag(iflags, LAYOUTPANE))
+		if (dcx_testflag(iflags, CLATypes::LAYOUTPANE))
 		{
-			if (dcx_testflag(iflags, LAYOUTHORZ))
-				p_Cell = std::make_unique<LayoutCellPane>(LayoutCellPane::HORZ);
+			if (dcx_testflag(iflags, CLATypes::LAYOUTHORZ))
+				p_Cell = std::make_unique<LayoutCellPane>(LayoutCellPane::PaneType::HORZ);
 			else
-				p_Cell = std::make_unique<LayoutCellPane>(LayoutCellPane::VERT);
-		} // if (dcx_testflag(flags, LAYOUTPANE))
+				p_Cell = std::make_unique<LayoutCellPane>(LayoutCellPane::PaneType::VERT);
+		} // if (dcx_testflag(flags, CLATypes::LAYOUTPANE))
 		  // LayoutFill Cell
-		else if (dcx_testflag(iflags, LAYOUTFILL))
+		else if (dcx_testflag(iflags, CLATypes::LAYOUTFILL))
 		{
-			if (dcx_testflag(iflags, LAYOUTID))
+			if (dcx_testflag(iflags, CLATypes::LAYOUTID))
 			{
-				if (cHwnd == nullptr || !IsWindow(cHwnd))
+				if (!cHwnd || !IsWindow(cHwnd))
 					throw Dcx::dcxException("Cell Fill -> Invalid ID");
 
 				p_Cell = std::make_unique<LayoutCellFill>(cHwnd);
@@ -206,26 +210,26 @@ void LayoutManager::AddCell(const TString &input, const UINT iOffset)
 				p_Cell = std::make_unique<LayoutCellFill>();
 		} // else if (dcx_testflag(flags, LAYOUTFILL))
 		  // LayoutCellFixed
-		else if (dcx_testflag(iflags, LAYOUTFIXED))
+		else if (dcx_testflag(iflags, CLATypes::LAYOUTFIXED))
 		{
-			auto type = LayoutCellFixed::WIDTH;
+			auto type = LayoutCellFixed::FixedType::WIDTH;
 
-			if (dcx_testflag(iflags, LAYOUTVERT))
+			if (dcx_testflag(iflags, CLATypes::LAYOUTVERT))
 			{
-				if (dcx_testflag(iflags, LAYOUTHORZ))
-					type = LayoutCellFixed::BOTH;
+				if (dcx_testflag(iflags, CLATypes::LAYOUTHORZ))
+					type = LayoutCellFixed::FixedType::BOTH;
 				else
-					type = LayoutCellFixed::HEIGHT;
+					type = LayoutCellFixed::FixedType::HEIGHT;
 			}
 
 			// Defined Rectangle
-			if (dcx_testflag(iflags, LAYOUTDIM))
+			if (dcx_testflag(iflags, CLATypes::LAYOUTDIM))
 			{
 				const RECT rc{ 0,0,W,H };
 
-				if (dcx_testflag(iflags, LAYOUTID))
+				if (dcx_testflag(iflags, CLATypes::LAYOUTID))
 				{
-					if (cHwnd == nullptr || !IsWindow(cHwnd))
+					if (!cHwnd || !IsWindow(cHwnd))
 						throw Dcx::dcxException("Cell Fixed -> Invalid ID");
 
 					p_Cell = std::make_unique<LayoutCellFixed>(cHwnd, rc, type);
@@ -236,9 +240,9 @@ void LayoutManager::AddCell(const TString &input, const UINT iOffset)
 			}
 			// No defined Rectangle
 			else {
-				if (dcx_testflag(iflags, LAYOUTID))
+				if (dcx_testflag(iflags, CLATypes::LAYOUTID))
 				{
-					if (cHwnd == nullptr || !IsWindow(cHwnd))
+					if (!cHwnd || !IsWindow(cHwnd))
 						throw Dcx::dcxException("Cell Fixed -> Invalid ID");
 
 					p_Cell = std::make_unique<LayoutCellFixed>(cHwnd, type);
@@ -250,7 +254,7 @@ void LayoutManager::AddCell(const TString &input, const UINT iOffset)
 		else
 			throw Dcx::dcxException("Unknown Cell Type");
 
-		if (p_Cell == nullptr)
+		if (!p_Cell)
 			throw Dcx::dcxException("Unable to Create Cell");
 
 		//if (com == TEXT("root"_hash))
@@ -265,14 +269,15 @@ void LayoutManager::AddCell(const TString &input, const UINT iOffset)
 			if (!bPathRoot)
 				p_GetCell = getCell(path);
 
-			if (p_GetCell == nullptr)
-				throw Dcx::dcxException("Invalid item path");
+			if (!p_GetCell)
+				//throw Dcx::dcxException("Invalid item path");
+				throw DcxExceptions::dcxInvalidPath();
 
-			if (p_GetCell->getType() != LayoutCell::PANE)
+			if (p_GetCell->getType() != LayoutCell::CellType::PANE)
 				throw Dcx::dcxException("Invalid parent Cell");
 
 			//const auto p_PaneCell = (LayoutCellPane *)p_GetCell;
-			const auto p_PaneCell = reinterpret_cast<LayoutCellPane *>(p_GetCell);
+			const auto p_PaneCell = reinterpret_cast<LayoutCellPane*>(p_GetCell);
 			p_PaneCell->addChild(p_Cell.release(), WGT);
 		} // else if ( com == TEXT("cell") )
 
@@ -286,20 +291,22 @@ void LayoutManager::AddCell(const TString &input, const UINT iOffset)
 		if (!bPathRoot)
 			p_GetCell = getCell(path);
 
-		if (p_GetCell == nullptr)
-			throw Dcx::dcxException("Invalid item path");
+		if (!p_GetCell)
+			//throw Dcx::dcxException("Invalid item path");
+			throw DcxExceptions::dcxInvalidPath();
 
 		const RECT rc{ gsl::narrow_cast<int>(ID), gsl::narrow_cast<int>(WGT), W, H };
 		p_GetCell->setBorder(rc);
 	} // else if ( com == TEXT("space") )
 	else
-		throw Dcx::dcxException("Invalid command");
+		//throw Dcx::dcxException("Invalid command");
+		throw DcxExceptions::dcxInvalidCommand();
 }
 
-const UINT LayoutManager::parseLayoutFlags(const TString & flags) noexcept
+const CLATypes LayoutManager::parseLayoutFlags(const TString& flags) noexcept
 {
 	const XSwitchFlags xflags(flags);
-	UINT iFlags = 0;
+	CLATypes iFlags{};
 
 	// no +sign, missing params
 	if (!xflags[TEXT('+')])
