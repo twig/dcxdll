@@ -111,10 +111,12 @@ int dcx_round(const float x) noexcept
 
 TString Normalise(PBYTE pBuffer)
 {
-	PWSTR			pwStr;		// pointer to a wchar_t buffer
-
+	// pointer to a wchar_t buffer
 	// obtain a wide character pointer to check BOMs
-	pwStr = reinterpret_cast<PWSTR>(pBuffer);
+	PWSTR pwStr = reinterpret_cast<PWSTR>(pBuffer);
+
+	if (!pwStr)
+		return TString();
 
 	// check if the first word is a Unicode Byte Order Mark
 	if (*pwStr == 0xFFFE || *pwStr == 0xFEFF)
@@ -127,8 +129,8 @@ TString Normalise(PBYTE pBuffer)
 			while (*pwStr)
 			{
 				// swap bytes in each word of the buffer
-				WCHAR	wcTemp = (WCHAR)(*pwStr >> 8);
-				wcTemp |= *pwStr << 8;
+				WCHAR	wcTemp = static_cast<WCHAR>((*pwStr >> 8));
+				wcTemp |= (*pwStr << 8);
 				*pwStr = wcTemp;
 				++pwStr;
 			}
@@ -176,8 +178,8 @@ auto readFile(const TString& filename)
 	auto fileContents = std::make_unique<BYTE[]>(size + 2);
 
 	// Null terminate the string (use double zero)
-	fileContents[size] = 0;
-	fileContents[size + 1U] = 0;
+	gsl::at(fileContents, size) = 0;
+	gsl::at(fileContents, size + 1U) = 0;
 
 	// read the file
 	fread(fileContents.get(), 1U, size, file.get());
@@ -188,7 +190,7 @@ auto readFile(const TString& filename)
 	auto file = dcx_fopen(filename, TEXT("rb"));
 
 	// Open file in binary mode and read
-	if (file == nullptr)
+	if (!file)
 		return nullptr;
 
 	Auto(fclose(file));
@@ -282,7 +284,7 @@ bool SaveDataToFile(const TString& tsFile, const TString& tsData)
 *
 * http://msdn.microsoft.com/library/default.asp?url=/library/en-us/winui/winui/windowsuserinterface/dataexchange/clipboard/usingtheclipboard.asp
 */
-bool CopyToClipboard(const HWND owner, const TString& str)
+bool CopyToClipboard(const HWND owner, const TString& str) noexcept
 {
 	if (!OpenClipboard(owner))
 	{
@@ -323,7 +325,7 @@ bool CopyToClipboard(const HWND owner, const TString& str)
 
 
 // Turns a command (+flags CHARSET SIZE FONTNAME) into a LOGFONT struct
-bool ParseCommandToLogfont(const TString& cmd, LPLOGFONT lf)
+GSL_SUPPRESS(bounds.3) bool ParseCommandToLogfont(const TString& cmd, LPLOGFONT lf)
 {
 	if (cmd.numtok() < 4)
 		return false;
@@ -332,7 +334,7 @@ bool ParseCommandToLogfont(const TString& cmd, LPLOGFONT lf)
 	const auto flags = parseFontFlags(cmd.getfirsttok(1));
 
 	if (dcx_testflag(flags, dcxFontFlags::DCF_DEFAULT))
-		return (GetObject((HFONT)GetStockObject(DEFAULT_GUI_FONT), sizeof(LOGFONT), lf) != 0);
+		return (GetObject(Dcx::dcxGetStockObject<HFONT>(DEFAULT_GUI_FONT), sizeof(LOGFONT), lf) != 0);
 
 	lf->lfCharSet = gsl::narrow_cast<BYTE>(parseFontCharSet(cmd.getnexttok()) & 0xFF);	// tok 2
 	const auto fSize = cmd.getnexttok().to_int();				// tok 3
@@ -370,7 +372,7 @@ bool ParseCommandToLogfont(const TString& cmd, LPLOGFONT lf)
 		lf->lfUnderline = TRUE;
 
 	dcx_strcpyn(&lf->lfFaceName[0], fName.to_chr(), std::size(lf->lfFaceName));
-	lf->lfFaceName[std::size(lf->lfFaceName) - 1] = 0;
+	gsl::at(lf->lfFaceName, std::size(lf->lfFaceName) - 1) = 0;
 
 	return true;
 }
@@ -381,9 +383,9 @@ bool ParseCommandToLogfont(const TString& cmd, LPLOGFONT lf)
  *
  * blah
  */
-UINT parseFontFlags(const TString& flags) noexcept
+dcxFontFlags parseFontFlags(const TString& flags) noexcept
 {
-	UINT iFlags = 0U;
+	dcxFontFlags iFlags{};
 	const XSwitchFlags xflags(flags);
 
 	if (!xflags[TEXT('+')])
@@ -427,7 +429,11 @@ UINT parseFontCharSet(const TString& charset)
 		{TEXT("shiftjis"_hash), SHIFTJIS_CHARSET},
 		{TEXT("symbol"_hash), SYMBOL_CHARSET},
 		{TEXT("turkish"_hash), TURKISH_CHARSET},
-		{TEXT("vietnamese"_hash), VIETNAMESE_CHARSET}
+		{TEXT("vietnamese"_hash), VIETNAMESE_CHARSET},
+		{TEXT("johab"_hash), JOHAB_CHARSET},
+		{TEXT("hebrew"_hash), HEBREW_CHARSET},
+		{TEXT("arabic"_hash), ARABIC_CHARSET},
+		{TEXT("thai"_hash), THAI_CHARSET}
 	};
 
 	if (const auto it = charset_map.find(std::hash<TString>{}(charset)); it != charset_map.end())
@@ -457,6 +463,10 @@ TString ParseLogfontToCommand(const LPLOGFONT lf)
 	case SYMBOL_CHARSET: charset = TEXT("symbol"); break;
 	case TURKISH_CHARSET: charset = TEXT("turkish"); break;
 	case VIETNAMESE_CHARSET: charset = TEXT("vietnamese"); break;
+	case JOHAB_CHARSET: charset = TEXT("johab"); break;
+	case HEBREW_CHARSET: charset = TEXT("hebrew"); break;
+	case ARABIC_CHARSET: charset = TEXT("arabic"); break;
+	case THAI_CHARSET: charset = TEXT("thai"); break;
 	case DEFAULT_CHARSET:
 	default: charset = TEXT("default"); break;
 	}
@@ -512,18 +522,17 @@ TString ParseLogfontToCommand(const LPLOGFONT lf)
 	if (!hf)
 		return tmp;
 
-	Auto(DeleteFont(hf));
+	Auto(DeleteObject(hf));
 
-	const auto oldhf = SelectFont(hdc, hf);
+	const auto oldhf = SelectObject(hdc, hf);
 
-	Auto(SelectFont(hdc, oldhf));
+	Auto(SelectObject(hdc, oldhf));
 
 	if (TEXTMETRIC tm{}; GetTextMetrics(hdc, &tm))
 	{
 		//auto ptSize = (int) (-1 * (lfCurrent.lfHeight * 72 / GetDeviceCaps(hdc, LOGPIXELSY)));
 		const auto ptSize = MulDiv(tm.tmHeight - tm.tmInternalLeading, 72, GetDeviceCaps(hdc, LOGPIXELSY));
 		// [+FLAGS] [CHARSET] [SIZE] [FONTNAME]
-		//tmp.tsprintf(TEXT("%s %s %d %s"), flags.to_chr(), charset.to_chr(), ptSize, lf->lfFaceName);
 		_ts_sprintf(tmp, TEXT("% % % %"), flags, charset, ptSize, lf->lfFaceName);
 	}
 	return tmp;
@@ -628,6 +637,7 @@ TString ParseLogfontToCommand(const LPLOGFONT lf)
 //	return icon;
 //}
 
+GSL_SUPPRESS(Enum.3)
 HICON dcxLoadIcon(const int index, TString& filename, const bool large, const TString& flags)
 {
 	filename.trim();
@@ -654,7 +664,7 @@ HICON dcxLoadIcon(const int index, TString& filename, const bool large, const TS
 
 		TString filetype{ TEXT("."), filename };
 
-		if (SHGetFileInfo(filetype.to_chr(), FILE_ATTRIBUTE_NORMAL, &shfi, sizeof(SHFILEINFO), (UINT)(SHGFI_ICON | SHGFI_USEFILEATTRIBUTES | (large ? SHGFI_LARGEICON : SHGFI_SMALLICON))) == 0)
+		if (SHGetFileInfo(filetype.to_chr(), FILE_ATTRIBUTE_NORMAL, &shfi, sizeof(SHFILEINFO), gsl::narrow_cast<UINT>(SHGFI_ICON | SHGFI_USEFILEATTRIBUTES | (large ? SHGFI_LARGEICON : SHGFI_SMALLICON))) == 0)
 			throw Dcx::dcxException("dcxLoadIcon: Unable to get filetype icon");
 
 		return shfi.hIcon;
@@ -727,7 +737,7 @@ HBITMAP dcxLoadBitmap(HBITMAP dest, TString& filename)
 
 	if (dest)
 	{
-		DeleteBitmap(dest);
+		DeleteObject(dest);
 		dest = nullptr;
 	}
 	if (!IsFile(filename))
@@ -756,9 +766,9 @@ HBITMAP dcxLoadBitmap(HBITMAP dest, TString& filename)
 		}
 	}
 	else
-		dest = static_cast<HBITMAP>(LoadImage(GetModuleHandle(NULL), filename.to_chr(), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE));
+		dest = static_cast<HBITMAP>(LoadImage(GetModuleHandle(nullptr), filename.to_chr(), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE));
 #else
-	dest = static_cast<HBITMAP>(LoadImage(GetModuleHandle(NULL), filename.to_chr(), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE));
+	dest = static_cast<HBITMAP>(LoadImage(GetModuleHandle(nullptr), filename.to_chr(), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE));
 #endif
 	return dest;
 }
@@ -1034,6 +1044,7 @@ HICON CreateGrayscaleIcon(HICON hIcon) noexcept
 	return CreateGrayscaleIcon(hIcon, &defaultGrayPalette[0]);
 }
 
+GSL_SUPPRESS(type.4)
 void AddToolTipToolInfo(const HWND tiphwnd, const HWND ctrl) noexcept
 {
 	TOOLINFO ti{};
@@ -1069,7 +1080,7 @@ void dcxDrawShadowText(HDC hdc, LPCWSTR pszText, UINT cch, RECT* pRect, DWORD dw
 
 			DrawTextW(hdc, pszText, gsl::narrow_cast<int>(cch), &rcOffset, dwFlags);
 			SetTextColor(hdc, crText);
-			DrawTextW(hdc, pszText, gsl::narrow_cast<int>(cch), static_cast<LPRECT>(pRect), dwFlags);
+			DrawTextW(hdc, pszText, gsl::narrow_cast<int>(cch), pRect, dwFlags);
 		}
 	}
 }
@@ -1103,7 +1114,7 @@ constexpr const TCHAR* GetLastStatusStr(Gdiplus::Status status) noexcept
 {
 	if (gsl::narrow_cast<UINT>(status) >= std::size(GDIErrors))
 		return GDIErrors[1]; // status not in table, return GenericError
-	return GDIErrors[gsl::narrow_cast<UINT>(status)];
+	return gsl::at(GDIErrors, gsl::narrow_cast<UINT>(status));
 }
 #endif
 
@@ -1280,13 +1291,24 @@ void getmIRCPalette()
 {
 	if ((staticPalette[0] == CLR_INVALID) || (!Dcx::setting_bStaticColours))
 	{
-		TString colors;
+		// max length = (number of colours * max colour string result) + spaces between colours + zero char
+		// max result length = (16 * 10) + 15 + 1 = 160 + 16 = 176
+
+		//TString colors;
+		//static constexpr TCHAR com[] = TEXT("$color(0) $color(1) $color(2) $color(3) $color(4) $color(5) $color(6) $color(7) $color(8) $color(9) $color(10) $color(11) $color(12) $color(13) $color(14) $color(15)");
+		//mIRCLinker::eval(colors, std::addressof(com[0]));
+		//size_t i{};
+		//for (const auto& a : colors)
+		//	gsl::at(staticPalette, i++) = a.to_<COLORREF>();
+
+		TString colors(180U);
 		static constexpr TCHAR com[] = TEXT("$color(0) $color(1) $color(2) $color(3) $color(4) $color(5) $color(6) $color(7) $color(8) $color(9) $color(10) $color(11) $color(12) $color(13) $color(14) $color(15)");
 		mIRCLinker::eval(colors, std::addressof(com[0]));
 
-		size_t i = 0;
+		size_t i{};
+
 		for (const auto& a : colors)
-			staticPalette[i++] = a.to_<COLORREF>();
+			gsl::at(staticPalette, i++) = a.to_<COLORREF>();
 	}
 }
 
@@ -1335,7 +1357,7 @@ void getmIRCPaletteMask(COLORREF* const Palette, const UINT PaletteItems, uint16
 	{
 		if ((uMask & 0x01) != 0)
 		{
-			Palette[count] = staticPalette[count];
+			Palette[count] = gsl::at(staticPalette, count);
 		}
 		uMask >>= 1;
 	}
@@ -1412,7 +1434,7 @@ void mIRC_OutText(HDC hdc, TString& txt, LPRECT rcOut, const LPLOGFONT lf, const
 		return;
 
 	const auto len = txt.len();
-	const auto hOldFont = SelectFont(hdc, CreateFontIndirect(lf));
+	const auto hOldFont = SelectObject(hdc, CreateFontIndirect(lf));
 	auto rcTmp = *rcOut;
 
 	if (!dcx_testflag(iStyle, DT_CALCRECT))
@@ -1433,7 +1455,7 @@ void mIRC_OutText(HDC hdc, TString& txt, LPRECT rcOut, const LPLOGFONT lf, const
 	else
 		rcOut->left += (rcTmp.right - rcTmp.left);
 
-	DeleteFont(SelectFont(hdc, hOldFont));
+	DeleteObject(SelectObject(hdc, hOldFont));
 	txt.clear();	// txt = TEXT("");
 }
 
@@ -1445,7 +1467,7 @@ void mIRC_DrawText(HDC hdc, const TString& txt, LPRECT rc, const UINT style, con
 	// create an hdc buffer to avoid flicker during drawing.
 	const auto hBuffer = CreateHDCBuffer(hdc, rc);
 
-	if (hBuffer == nullptr)
+	if (!hBuffer)
 		return;
 
 	Auto(DeleteHDCBuffer(hBuffer));
@@ -1576,7 +1598,7 @@ void mIRC_DrawText(HDC hdc, const TString& txt, LPRECT rc, const UINT style, con
 							}
 
 							// color code number
-							clrFG = cPalette[umIRCColour];
+							clrFG = gsl::at(cPalette, umIRCColour);
 						}
 
 						// maybe a background color
@@ -1597,7 +1619,7 @@ void mIRC_DrawText(HDC hdc, const TString& txt, LPRECT rc, const UINT style, con
 								}
 
 								// color code number
-								clrBG = cPalette[umIRCColour];
+								clrBG = gsl::at(cPalette, umIRCColour);
 								SetBkMode(hdc, OPAQUE);
 							}
 						}
@@ -1701,7 +1723,7 @@ void mIRC_DrawText(HDC hdc, const TString& txt, LPRECT rc, const UINT style, con
 							SIZE sz{};
 							int nFit{};
 							const auto tlen = gsl::narrow_cast<int>(tmp.len());
-							GetTextExtentExPoint(hdc, txt.to_chr(), tlen, (rcOut.right - rcOut.left), &nFit, NULL, &sz);
+							GetTextExtentExPoint(hdc, txt.to_chr(), tlen, (rcOut.right - rcOut.left), &nFit, nullptr, &sz);
 							if (nFit < tlen)
 							{
 								if (nFit > 0)
@@ -1771,7 +1793,7 @@ struct HDCBuffer {
 	HFONT m_hOldFont{};
 	// needs work...
 };
-using LPHDCBuffer = HDCBuffer *;
+using LPHDCBuffer = HDCBuffer*;
 
 gsl::owner<HDC*> CreateHDCBuffer(HDC hdc, const LPRECT rc)
 {
@@ -1812,7 +1834,8 @@ gsl::owner<HDC*> CreateHDCBuffer(HDC hdc, const LPRECT rc)
 	if (!buf->m_hBitmap)
 	{
 #ifdef DEBUG
-		const DWORD err = GetLastError(), errBufSize = 16U;
+		const DWORD err = GetLastError();
+		constexpr DWORD errBufSize = 16U;
 		if (LPTSTR errBuf{ nullptr }; FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_IGNORE_INSERTS, nullptr, err, 0U, reinterpret_cast<LPTSTR>(&errBuf), errBufSize, nullptr) != 0)
 		{
 			Auto(LocalFree(errBuf));
@@ -1823,13 +1846,13 @@ gsl::owner<HDC*> CreateHDCBuffer(HDC hdc, const LPRECT rc)
 		return nullptr;
 	}
 	// select bitmap into hdc
-	buf->m_hOldBitmap = SelectBitmap(buf->m_hHDC, buf->m_hBitmap);
+	buf->m_hOldBitmap = Dcx::dcxSelectObject(buf->m_hHDC, buf->m_hBitmap);
 
 	// copy settings from hdc to buffer's hdc.
 	SetDCBrushColor(buf->m_hHDC, GetDCBrushColor(hdc));
 	SetDCPenColor(buf->m_hHDC, GetDCPenColor(hdc));
 	SetLayout(buf->m_hHDC, GetLayout(hdc));
-	buf->m_hOldFont = SelectFont(buf->m_hHDC, Dcx::dcxGetCurrentObject<HFONT>(hdc, OBJ_FONT));
+	buf->m_hOldFont = Dcx::dcxSelectObject(buf->m_hHDC, Dcx::dcxGetCurrentObject<HFONT>(hdc, OBJ_FONT));
 	SetTextColor(buf->m_hHDC, GetTextColor(hdc));
 	SetBkColor(buf->m_hHDC, GetBkColor(hdc));
 	SetBkMode(buf->m_hHDC, GetBkMode(hdc));
@@ -1856,9 +1879,9 @@ void DeleteHDCBuffer(gsl::owner<HDC*> hBuffer) noexcept
 	auto buf = gsl::owner<LPHDCBuffer>(reinterpret_cast<LPHDCBuffer>(hBuffer));
 
 	GdiFlush();
-	SelectFont(buf->m_hHDC, buf->m_hOldFont);
-	SelectBitmap(buf->m_hHDC, buf->m_hOldBitmap);
-	DeleteBitmap(buf->m_hBitmap);
+	SelectObject(buf->m_hHDC, buf->m_hOldFont);
+	SelectObject(buf->m_hHDC, buf->m_hOldBitmap);
+	DeleteObject(buf->m_hBitmap);
 	DeleteDC(buf->m_hHDC);
 	delete buf;
 }
@@ -1977,7 +2000,8 @@ bool isRegexMatch(const TCHAR* matchtext, const TCHAR* pattern)
 void AddFileIcons(HIMAGELIST himl, TString& filename, const bool bLarge, const int iIndex, const int iStart, const int iEnd)
 {
 	if ((!himl) || (iStart < 0) || (iEnd != -1 && iStart > iEnd))
-		throw Dcx::dcxException(TEXT("Invalid Args"));
+		//throw Dcx::dcxException(TEXT("Invalid Args"));
+		throw DcxExceptions::dcxInvalidArguments();
 
 	if (!IsFile(filename))
 		throw Dcx::dcxException(TEXT("Unable to Access file: %"), filename);
@@ -2076,10 +2100,10 @@ void DrawRotatedText(const TString& strDraw, const LPCRECT rc, const HDC hDC, co
 	// Select the new font created
 	if (const auto hFont = CreateFontIndirect(&lf); hFont)
 	{
-		Auto(DeleteFont(hFont));
+		Auto(DeleteObject(hFont));
 
-		const auto hPrevFont = SelectFont(hDC, hFont);
-		Auto(SelectFont(hDC, hPrevFont));
+		const auto hPrevFont = SelectObject(hDC, hFont);
+		Auto(SelectObject(hDC, hPrevFont));
 
 		// Draw text to screen
 		//TextOut(hDC, rc->right / 2, rc->bottom / 2, strDraw.to_chr(), strDraw.len());
@@ -2137,9 +2161,9 @@ const char* queryAttribute(const TiXmlElement* element, const char* attribute, c
 //	return {};
 //}
 
-int queryIntAttribute(const TiXmlElement* element, const char* attribute, const int defaultValue)
+int queryIntAttribute(const TiXmlElement* element, const char* attribute, const int defaultValue) noexcept
 {
-	if (const auto [iStatus, integer] = element->QueryIntAttribute(attribute); iStatus == TIXML_SUCCESS)
+	if (const auto [iStatus, integer] = element->QueryIntAttribute(attribute); iStatus == TiXmlReturns::TIXML_SUCCESS)
 		return integer;
 
 	return defaultValue;
@@ -2198,7 +2222,7 @@ TString MakeTextmIRCSafe(const TCHAR* const tString, const std::size_t len)
 	// look for ()[]%$; we dont want to change , as this is needed
 	for (auto i = decltype(len){0}; i < len; ++i)
 	{
-		switch (const auto & c = tString[i]; c)
+		switch (const auto& c = tString[i]; c)
 		{
 		case TEXT('('):
 		case TEXT(')'):
@@ -2212,6 +2236,8 @@ TString MakeTextmIRCSafe(const TCHAR* const tString, const std::size_t len)
 
 			switch (c)
 			{
+			default:
+				break;
 			case TEXT('('):
 				tsRes += TEXT("$chr(40)");
 				break;
