@@ -27,11 +27,11 @@ bool DcxDWMModule::load(void)
 	m_bWin8 = IsWindows8OrGreater();		// OS is Windows8+
 	m_bWin10 = IsWindows10OrGreater();	// OS is Windows10+
 
-	DCX_DEBUG(mIRCLinker::debug, TEXT("LoadDLL"), TEXT("Loading DWMAPI.DLL..."));
+	DCX_DEBUG(mIRCLinker::debug, __FUNCTIONW__, TEXT("Loading DWMAPI.DLL..."));
 	m_hModule = LoadLibrary(TEXT("dwmapi.dll"));
-	if (m_hModule != nullptr)
+	if (m_hModule)
 	{
-		DCX_DEBUG(mIRCLinker::debug, TEXT("LoadDLL"), TEXT("DWMAPI.DLL Loaded, Vista+ OS Assumed"));
+		DCX_DEBUG(mIRCLinker::debug, __FUNCTIONW__, TEXT("DWMAPI.DLL Loaded, Vista+ OS Assumed"));
 
 #pragma warning(push)
 #pragma warning(disable: 4191)
@@ -47,8 +47,8 @@ bool DcxDWMModule::load(void)
 #pragma warning(pop)
 
 #if DCX_DEBUG_OUTPUT
-		if (DwmIsCompositionEnabledUx != nullptr)
-			mIRCLinker::debug(TEXT("LoadDLL"), TEXT("Found Vista DWM Functions"));
+		if (DwmIsCompositionEnabledUx)
+			mIRCLinker::debug(__FUNCTIONW__, TEXT("Found Vista DWM Functions"));
 #endif
 
 		refreshComposite();

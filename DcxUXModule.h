@@ -26,8 +26,8 @@ typedef HPAINTBUFFER (WINAPI *PFNBEGINBUFFEREDPAINT)(HDC hdcTarget, const RECT *
 typedef HRESULT (WINAPI *PFNENDBUFFEREDPAINT)(HPAINTBUFFER hBufferedPaint, BOOL fUpdateTarget);
 typedef HRESULT (WINAPI *PFBUFFEREDPAINTSETALPHA)(HPAINTBUFFER hBufferedPaint, _In_ const RECT *prc, BYTE alpha);
 
-class DcxUXModule :
-	public DcxModule
+class DcxUXModule final
+	: public DcxModule
 {
 	static PFNSETTHEME SetWindowThemeUx;
 	static PFNISTHEMEACTIVE IsThemeActiveUx;

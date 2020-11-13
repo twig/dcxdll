@@ -41,7 +41,7 @@ bool DcxUXModule::load()
 		return false;
 
 	// UXModule Loading
-	DCX_DEBUG(mIRCLinker::debug,TEXT("LoadDLL"), TEXT("Loading UXTHEME.DLL..."));
+	DCX_DEBUG(mIRCLinker::debug, __FUNCTIONW__, TEXT("Loading UXTHEME.DLL..."));
 	m_hModule = LoadLibrary(TEXT("UXTHEME.DLL"));
 
 	if (m_hModule)
@@ -81,10 +81,10 @@ bool DcxUXModule::load()
 			DrawThemeBackgroundUx && GetThemeBackgroundContentRectUx && IsThemeBackgroundPartiallyTransparentUx &&
 			DrawThemeParentBackgroundUx && DrawThemeTextUx && GetThemeBackgroundRegionUx && GetWindowThemeUx && DrawThemeEdgeUx && GetThemeColorUx)
 		{
-			DCX_DEBUG(mIRCLinker::debug, TEXT("LoadDLL"), TEXT("Found XP+ Theme Functions"));
+			DCX_DEBUG(mIRCLinker::debug, __FUNCTIONW__, TEXT("Found XP+ Theme Functions"));
 			if (DrawThemeParentBackgroundExUx && BufferedPaintInitUx && BufferedPaintUnInitUx && BeginBufferedPaintUx && EndBufferedPaintUx && BufferedPaintSetAlphaUx)
 			{
-				DCX_DEBUG(mIRCLinker::debug, TEXT("LoadDLL"), TEXT("Found Vista Theme Functions"));
+				DCX_DEBUG(mIRCLinker::debug, __FUNCTIONW__, TEXT("Found Vista Theme Functions"));
 				if (!m_bBufferedPaintEnabled)
 					m_bBufferedPaintEnabled = SUCCEEDED(dcxBufferedPaintInit());
 			}
@@ -269,7 +269,7 @@ HRESULT DcxUXModule::dcxDrawThemeParentBackgroundEx(HWND hwnd, HDC hdc, DWORD dw
 	return E_NOTIMPL;
 }
 
-[[gsl::suppress(lifetime)]] gsl::owner<HPAINTBUFFER> DcxUXModule::dcxBeginBufferedPaint(HDC hdcTarget, const RECT *prcTarget, BP_BUFFERFORMAT dwFormat, BP_PAINTPARAMS *pPaintParams, HDC *phdc) noexcept
+[[gsl::suppress(lifetime,Enum.3)]] gsl::owner<HPAINTBUFFER> DcxUXModule::dcxBeginBufferedPaint(HDC hdcTarget, const RECT *prcTarget, BP_BUFFERFORMAT dwFormat, BP_PAINTPARAMS *pPaintParams, HDC *phdc) noexcept
 {
 	if (BeginBufferedPaintUx)
 		return BeginBufferedPaintUx(hdcTarget, prcTarget, dwFormat, pPaintParams, phdc);

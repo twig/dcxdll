@@ -1,8 +1,8 @@
 #pragma once
 #include "dcxmodule.h"
 
-class DcxGDIModule :
-	public DcxModule
+class DcxGDIModule final
+	: public DcxModule
 {
 public:
 	constexpr DcxGDIModule() noexcept

@@ -8,8 +8,8 @@ typedef HRESULT (WINAPI *PFNDWMEXTENDFRAMEINTOCLIENTAREA)(HWND hWnd, const MARGI
 typedef HRESULT (WINAPI *PFNDWMENABLEBLURBEHINDWINDOW)(HWND hWnd, __in const DWM_BLURBEHIND *pBlurBehind);
 typedef HRESULT (WINAPI *PFNDWMGETCOLORIZATIONCOLOR)( __out  DWORD *pcrColorization, __out  BOOL *pfOpaqueBlend);
 
-class DcxDWMModule :
-	public DcxModule
+class DcxDWMModule final
+	: public DcxModule
 {
 	bool m_bAero{ false };
 	bool m_bVista{ false };
