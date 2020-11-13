@@ -109,6 +109,8 @@ void TiXmlBase::ConvertUTF32ToUTF8(unsigned long input, char* output, int* lengt
 	// Scary scary fall throughs.
 	switch (*length)
 	{
+	default:
+		break;
 	case 4:
 		--output;
 		*output = gsl::narrow_cast<char>(((input | BYTE_MARK) & BYTE_MASK));

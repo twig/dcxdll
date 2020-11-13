@@ -248,10 +248,10 @@ public:
 		{
 			return lhs.n != rhs.n;
 		}
-	
+
 		char* n{ nullptr };
 	};
-	
+
 	iter begin() const noexcept { return{ start() }; }
 	iter end() const noexcept { return{ finish() }; }
 

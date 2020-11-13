@@ -140,18 +140,18 @@ public:
 	virtual bool VisitExit(const TiXmlDocument& /*doc*/) noexcept { return true; }
 
 	/// Visit an m_pElement.
-	virtual bool VisitEnter(const TiXmlElement& /*m_pElement*/, const TiXmlAttribute* /*firstAttribute*/) { return true; }
+	GSL_SUPPRESS(f.6) virtual bool VisitEnter(const TiXmlElement& /*m_pElement*/, const TiXmlAttribute* /*firstAttribute*/) { return true; }
 	/// Visit an m_pElement.
-	virtual bool VisitExit(const TiXmlElement& /*m_pElement*/) { return true; }
+	GSL_SUPPRESS(f.6) virtual bool VisitExit(const TiXmlElement& /*m_pElement*/) { return true; }
 
 	/// Visit a declaration
-	virtual bool Visit(const TiXmlDeclaration& /*declaration*/) { return true; }
+	GSL_SUPPRESS(f.6) virtual bool Visit(const TiXmlDeclaration& /*declaration*/) { return true; }
 	/// Visit a text node
-	virtual bool Visit(const TiXmlText& /*text*/) { return true; }
+	GSL_SUPPRESS(f.6) virtual bool Visit(const TiXmlText& /*text*/) { return true; }
 	/// Visit a comment node
-	virtual bool Visit(const TiXmlComment& /*comment*/) { return true; }
+	GSL_SUPPRESS(f.6) virtual bool Visit(const TiXmlComment& /*comment*/) { return true; }
 	/// Visit an unknow node
-	virtual bool Visit(const TiXmlUnknown& /*unknown*/) { return true; }
+	GSL_SUPPRESS(f.6) virtual bool Visit(const TiXmlUnknown& /*unknown*/) { return true; }
 
 	TiXmlVisitor() noexcept = default;
 	virtual ~TiXmlVisitor() noexcept = default;
@@ -661,7 +661,7 @@ public:
 
 	/// Navigate to a sibling node with the given 'value'.
 	const TiXmlNode* NextSibling(const char*) const noexcept;
-	TiXmlNode* NextSibling(const char* _next) noexcept
+	GSL_SUPPRESS(type.3) TiXmlNode* NextSibling(const char* _next) noexcept
 	{
 		return const_cast<TiXmlNode*>((const_cast<const TiXmlNode*>(this))->NextSibling(_next));
 	}
@@ -671,7 +671,7 @@ public:
 		nodes. Returns 0 if there is not another m_pElement.
 	*/
 	const TiXmlElement* NextSiblingElement() const noexcept;
-	[[gsl::suppress(type.3)]] TiXmlElement* NextSiblingElement() noexcept
+	GSL_SUPPRESS(type.3) TiXmlElement* NextSiblingElement() noexcept
 	{
 		return const_cast<TiXmlElement*>((const_cast<const TiXmlNode*>(this))->NextSiblingElement());
 	}
@@ -1863,7 +1863,7 @@ class TiXmlPrinter final
 	: public TiXmlVisitor
 {
 public:
-	TiXmlPrinter()
+	GSL_SUPPRESS(f.6) TiXmlPrinter()
 		: indent("    "), lineBreak("\n")
 	{}
 
