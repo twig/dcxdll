@@ -2,7 +2,7 @@
 #include "dcxtrayicon.h"
 #include "Dcx.h"
 
-std::unique_ptr<DcxTrayIcon> trayIcons = nullptr; // tray icon manager
+//std::unique_ptr<DcxTrayIcon> trayIcons = nullptr; // tray icon manager
 
 // http://msdn.microsoft.com/library/default.asp?url=/library/en-us/shellcc/platform/shell/reference/structures/notifyicondata.asp
 // http://msdn.microsoft.com/library/default.asp?url=/library/en-us/shellcc/platform/shell/reference/functions/shell_notifyicon.asp
@@ -23,17 +23,17 @@ mIRC(TrayIcon)
 	data[0] = 0;
 
 	try {
-		if (trayIcons == nullptr)
-			//trayIcons = new DcxTrayIcon();
+		if (!trayIcons)
 			trayIcons = std::make_unique<DcxTrayIcon>();
 
-		if (trayIcons->GetHwnd() == nullptr)
+		if (!*trayIcons)
 			throw Dcx::dcxException("Could not start trayicon manager");
 
 		const auto numtok = d.trim().numtok();
 
 		if (numtok < 2)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const XSwitchFlags xflags(d.getfirsttok(1));
 		const auto id = d.getnexttok().to_int();	// tok 2
@@ -113,40 +113,47 @@ mIRC(TrayIcon)
 
 		return 1;
 	}
-	catch (const std::exception &e)
+	catch (const std::exception& e)
 	{
-		//Dcx::errorex(TEXT("/xtray"), TEXT("\"%s\" error: %S"), d.to_chr(), e.what());
 		Dcx::error(TEXT("/xtray"), TEXT("\"%\" error: %"), d, e.what());
 	}
 	catch (...) {
 		// stop any left over exceptions...
-		//Dcx::errorex(TEXT("/xtray"), TEXT("\"%s\" error: Unknown Exception"), d.to_chr());
 		Dcx::error(TEXT("/xtray"), TEXT("\"%\" error: Unknown Exception"), d);
 	}
 	return 0;
 }
 
-DcxTrayIcon::DcxTrayIcon(void)
+DcxTrayIcon::DcxTrayIcon(void) noexcept
 {
 	// create a "dialog" and dont bother showing it
 	this->m_hwnd = CreateWindow(TEXT("#32770"), TEXT(""), 0, 0, 0, 48, 48, nullptr, nullptr, GetModuleHandle(nullptr), nullptr);
 
-	if (!IsWindow(m_hwnd))
-		throw Dcx::dcxException("Problem initialising trayicons");
+	//if (!IsWindow(m_hwnd))
+	//	throw Dcx::dcxException("Problem initialising trayicons");
 
-	m_wndProc = SubclassWindow(m_hwnd, DcxTrayIcon::TrayWndProc);
+	if (IsWindow(m_hwnd))
+		m_wndProc = SubclassWindow(m_hwnd, DcxTrayIcon::TrayWndProc);
 }
 
-DcxTrayIcon::~DcxTrayIcon(void)
+DcxTrayIcon::~DcxTrayIcon(void) noexcept
 {
-	if (m_hwnd != nullptr)
+	if (m_hwnd)
 	{
-		// make copy of vector
-		const auto TempIDs(trayIconIDs);
+		//// make copy of vector
+		//const auto TempIDs(trayIconIDs);
+		//
+		//// use temp vector to delete icons (this modifies the original vector)
+		//for (const auto& x : TempIDs)
+		//	modifyIcon(x, NIM_DELETE);
 
-		// use temp vector to delete icons (this modifies the original vector)
-		for (const auto &x : TempIDs)
-			modifyIcon(x, NIM_DELETE);
+		NOTIFYICONDATA nid{ sizeof(NOTIFYICONDATA), m_hwnd, 0U, NIF_MESSAGE, DCXM_TRAYICON };
+		for (const auto& x : trayIconIDs)
+		{
+			nid.uID = gsl::narrow_cast<UINT>(x);
+			Shell_NotifyIcon(NIM_DELETE, std::addressof(nid));
+		}
+		trayIconIDs.clear();
 
 		SubclassWindow(m_hwnd, m_wndProc);
 
@@ -163,36 +170,39 @@ LRESULT CALLBACK DcxTrayIcon::TrayWndProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 	{
 		const auto uMouseMsg = gsl::narrow_cast<UINT>(lParam);
 
-		switch (const auto id = gsl::narrow_cast<UINT>(wParam); uMouseMsg)
-		{
-		case WM_LBUTTONDBLCLK:
-			mIRCLinker::signal(TEXT("trayicon dclick %"), id);
-			break;
+		try {
+			switch (const auto id = gsl::narrow_cast<UINT>(wParam); uMouseMsg)
+			{
+			case WM_LBUTTONDBLCLK:
+				mIRCLinker::signal(TEXT("trayicon dclick %"), id);
+				break;
 
-		case WM_LBUTTONUP:
-			mIRCLinker::signal(TEXT("trayicon sclick %"), id);
-			break;
+			case WM_LBUTTONUP:
+				mIRCLinker::signal(TEXT("trayicon sclick %"), id);
+				break;
 
-		case WM_RBUTTONUP:
-		case WM_CONTEXTMENU:
-			mIRCLinker::signal(TEXT("trayicon rclick %"), id);
-			break;
+			case WM_RBUTTONUP:
+			case WM_CONTEXTMENU:
+				mIRCLinker::signal(TEXT("trayicon rclick %"), id);
+				break;
 
-		case WM_RBUTTONDBLCLK:
-			mIRCLinker::signal(TEXT("trayicon rdclick %"), id);
-			break;
+			case WM_RBUTTONDBLCLK:
+				mIRCLinker::signal(TEXT("trayicon rdclick %"), id);
+				break;
 
-		case WM_MBUTTONUP:
-			mIRCLinker::signal(TEXT("trayicon mclick %"), id);
-			break;
+			case WM_MBUTTONUP:
+				mIRCLinker::signal(TEXT("trayicon mclick %"), id);
+				break;
 
-		case WM_MBUTTONDBLCLK:
-			mIRCLinker::signal(TEXT("trayicon mdclick %"), id);
-			break;
+			case WM_MBUTTONDBLCLK:
+				mIRCLinker::signal(TEXT("trayicon mdclick %"), id);
+				break;
 
-		default:
-			break;
+			default:
+				break;
+			}
 		}
+		catch (...) {}
 	}
 
 	return DefWindowProc(mHwnd, uMsg, wParam, lParam);
@@ -204,7 +214,7 @@ void DcxTrayIcon::AddIconId(const int id)
 	trayIconIDs.emplace_back(id);
 }
 
-const bool DcxTrayIcon::DeleteIconId(const int id)
+const bool DcxTrayIcon::DeleteIconId(const int id) noexcept
 {
 	// remove from internal vector list
 
@@ -219,7 +229,7 @@ const bool DcxTrayIcon::DeleteIconId(const int id)
 	return Dcx::eraseIfFound(trayIconIDs, id);
 }
 
-const bool DcxTrayIcon::idExists(const int id) const
+const bool DcxTrayIcon::idExists(const int id) const noexcept
 {
 	// find in internal vector list
 
@@ -230,26 +240,28 @@ const bool DcxTrayIcon::idExists(const int id) const
 	return Dcx::find(trayIconIDs, id);
 }
 
-const bool DcxTrayIcon::modifyIcon(const int id, const DWORD msg, gsl::owner<const HICON> icon, const TString *const tooltip)
+const bool DcxTrayIcon::modifyIcon(const int id, const DWORD msg, gsl::owner<const HICON> icon, const TString* const tooltip)
 {
 	// set up the icon info struct
 	auto res = false;
-	NOTIFYICONDATA nid{};
-	//ZeroMemory(&nid, sizeof(NOTIFYICONDATA));
 
-	nid.cbSize = sizeof(NOTIFYICONDATA);
-	nid.hWnd = GetHwnd();
-	nid.uID = gsl::narrow_cast<UINT>(id);
-	nid.uFlags = NIF_MESSAGE;
-	nid.uCallbackMessage = DCXM_TRAYICON;
+	//NOTIFYICONDATA nid{};
+	//
+	//nid.cbSize = sizeof(NOTIFYICONDATA);
+	//nid.hWnd = GetHwnd();
+	//nid.uID = gsl::narrow_cast<UINT>(id);
+	//nid.uFlags = NIF_MESSAGE;
+	//nid.uCallbackMessage = DCXM_TRAYICON;
 
-	if (tooltip != nullptr && !tooltip->empty())
+	NOTIFYICONDATA nid{ sizeof(NOTIFYICONDATA), GetHwnd(), gsl::narrow_cast<UINT>(id), NIF_MESSAGE, DCXM_TRAYICON };
+
+	if (tooltip && !tooltip->empty())
 	{
 		nid.uFlags |= NIF_TIP;
-		dcx_strcpyn(&nid.szTip[0], tooltip->to_chr(), std::extent_v<decltype(nid.szTip)>); // 128 max
+		GSL_SUPPRESS(bounds.3) dcx_strcpyn(&nid.szTip[0], tooltip->to_chr(), std::size(nid.szTip)); // 128 max
 	}
 
-	if (icon != nullptr)
+	if (icon)
 	{
 		nid.uFlags |= NIF_ICON;
 		nid.hIcon = icon;
@@ -266,7 +278,7 @@ const bool DcxTrayIcon::modifyIcon(const int id, const DWORD msg, gsl::owner<con
 		res = true;
 	}
 
-	if (icon != nullptr)
+	if (icon)
 		DestroyIcon(icon);
 
 	return res;
