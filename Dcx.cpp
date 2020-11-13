@@ -5,7 +5,8 @@
 #include "Classes/custom/DcxTrayIcon.h"
 
 namespace Dcx {
-	TString m_sLastError;
+	//TString m_sLastError;
+	static TCHAR szLastError[MIRC_BUFFER_SIZE_CCH]{};
 	IClassFactory * m_pClassFactory;
 	DcxGDIModule GDIModule;
 	DcxUXModule UXModule;
@@ -39,14 +40,14 @@ namespace Dcx {
 		mIRCLinker::load(lInfo);
 
 		// Initializing OLE Support
-		DCX_DEBUG(mIRCLinker::debug, TEXT("LoadDLL"), TEXT("Initializing OLE Support..."));
+		DCX_DEBUG(mIRCLinker::debug, __FUNCTIONW__, TEXT("Initializing OLE Support..."));
 
 		{
 			const auto hr = OleInitialize(nullptr);
 			if ((hr == OLE_E_WRONGCOMPOBJ) || (hr == RPC_E_CHANGED_MODE))
 			{
 				// init failed...
-				DCX_DEBUG(mIRCLinker::debug, TEXT("LoadDLL"), TEXT("OLE Failed to init"));
+				DCX_DEBUG(mIRCLinker::debug, __FUNCTIONW__, TEXT("OLE Failed to init"));
 			}
 		}
 
@@ -58,34 +59,39 @@ namespace Dcx {
 		VistaModule.load();
 
 		// Load Control definitions
-		DCX_DEBUG(mIRCLinker::debug, TEXT("LoadDLL"), TEXT("Loading control classes"));
+		DCX_DEBUG(mIRCLinker::debug, __FUNCTIONW__, TEXT("Loading control classes"));
 
 		if (const INITCOMMONCONTROLSEX icex{ sizeof(INITCOMMONCONTROLSEX), ICC_TREEVIEW_CLASSES | ICC_BAR_CLASSES | ICC_PROGRESS_CLASS | ICC_LISTVIEW_CLASSES |
 			ICC_USEREX_CLASSES | ICC_COOL_CLASSES | ICC_STANDARD_CLASSES | ICC_UPDOWN_CLASS | ICC_DATE_CLASSES |
 			ICC_TAB_CLASSES | ICC_INTERNET_CLASSES | ICC_PAGESCROLLER_CLASS };
 			!InitCommonControlsEx(&icex))
 		{
-			DCX_DEBUG(mIRCLinker::debug, TEXT("LoadDLL"), TEXT("Unable to init common controls"));
+			DCX_DEBUG(mIRCLinker::debug, __FUNCTIONW__, TEXT("Unable to init common controls"));
 		}
 
-		// RichEdit DLL Loading Ook: why is this loaded? never used...
-		//DCX_DEBUG(mIRCLinker::debug, TEXT("LoadDLL"), TEXT("Generating class for RichEdit..."));
-		//m_hRichEditLib = LoadLibrary(TEXT("RICHED20.DLL"));
+		// RichEdit DLL Loading this is required before using richedit
+		DCX_DEBUG(mIRCLinker::debug, __FUNCTIONW__, TEXT("Loading Dll for RichEdit..."));
+		//LoadLibrary(TEXT("RICHED20.DLL"));
+		LoadLibrary(TEXT("Msftedit.dll"));
 
 		//get IClassFactory* for WebBrowser (move this to DcxControl & setup in InitializeDcxControls())
-		DCX_DEBUG(mIRCLinker::debug, TEXT("LoadDLL"), TEXT("Generating class factory for WebBrowser..."));
-		if (FAILED(CoGetClassObject(CLSID_WebBrowser, CLSCTX_INPROC_SERVER, nullptr, IID_IClassFactory, (void**)&m_pClassFactory)))
+		DCX_DEBUG(mIRCLinker::debug, __FUNCTIONW__, TEXT("Generating class factory for WebBrowser..."));
+		if (FAILED(CoGetClassObject(CLSID_WebBrowser, CLSCTX_INPROC_SERVER, nullptr, IID_IClassFactory, reinterpret_cast<void**>(&m_pClassFactory))))
 		{
 			// failed...
-			DCX_DEBUG(mIRCLinker::debug, TEXT("LoadDLL"), TEXT("Unable to get WebBrowser..."));
+			DCX_DEBUG(mIRCLinker::debug, __FUNCTIONW__, TEXT("Unable to get WebBrowser..."));
 		}
 
+		DCX_DEBUG(mIRCLinker::debug, __FUNCTIONW__, TEXT("Initializing Controls..."));
 		DcxControl::InitializeDcxControls();
 
+		DCX_DEBUG(mIRCLinker::debug, __FUNCTIONW__, TEXT("Setup OS Compatibility..."));
 		setupOSCompatibility();
 
+		DCX_DEBUG(mIRCLinker::debug, __FUNCTIONW__, TEXT("Subclass mIRC Window..."));
 		mIRCLinker::hookWindowProc(Dcx::mIRCSubClassWinProc);
 
+		DCX_DEBUG(mIRCLinker::debug, __FUNCTIONW__, TEXT("Initializing Popups..."));
 		XPopups.load();
 
 
@@ -96,6 +102,7 @@ namespace Dcx {
 		//ReportLiveObjects();
 
 		// Patch SetCursor() function for custom cursors
+		DCX_DEBUG(mIRCLinker::debug, __FUNCTIONW__, TEXT("Patch SetCursor..."));
 		SetCursorUx = static_cast<PFNSETCURSOR>(PatchAPI("User32.dll", "SetCursor", Dcx::XSetCursor));
 	}
 
@@ -103,7 +110,7 @@ namespace Dcx {
 	{
 		if (Dialogs.closeDialogs())
 		{ // if unable to close dialogs stop unload.
-			Dcx::error(TEXT("UnloadDll"), TEXT("Unable to Unload DLL from within the DLL"));
+			Dcx::error(__FUNCTIONW__, TEXT("Unable to Unload DLL from within the DLL"));
 			//return 0; // NB: This DOESN'T stop the unload, & mIRC will still crash.
 		}
 
@@ -116,7 +123,7 @@ namespace Dcx {
 		UnregisterClass(DCX_VISTACLASS, GetModuleHandle(nullptr));
 
 		// Class Factory of Web Control
-		if (m_pClassFactory != nullptr)
+		if (m_pClassFactory)
 			m_pClassFactory->Release();
 
 		// Terminating OLE Support
@@ -134,14 +141,14 @@ namespace Dcx {
 			if (const auto hfont = GetWindowFont(mIRCLinker::getTreeview()); hfont && hfont != mIRCLinker::getTreeFont())
 			{
 				SetWindowFont(mIRCLinker::getTreeview(), mIRCLinker::getTreeFont(), TRUE);
-				DeleteFont(hfont);
+				DeleteObject(hfont);
 			}
 		}
 
 		/***** XMenuBar Stuff *****/
 		XMenubar.resetMenuBar();
 
-		//if (m_hRichEditLib != nullptr)
+		//if (m_hRichEditLib)
 		//	FreeLibrary(m_hRichEditLib);
 
 		XPopups.unload();
@@ -164,10 +171,9 @@ namespace Dcx {
 	void setupOSCompatibility(void)
 	{
 		WNDCLASSEX wc{};
-		//ZeroMemory((void*)&wc, sizeof(WNDCLASSEX));
 
 		// Vista Dialog Class
-		DCX_DEBUG(mIRCLinker::debug, TEXT("LoadDLL"), TEXT("Registering Vista Dialog..."));
+		DCX_DEBUG(mIRCLinker::debug, __FUNCTIONW__, TEXT("Registering Vista Dialog..."));
 		wc.cbSize = sizeof(WNDCLASSEX);
 		wc.style = CS_HREDRAW | CS_VREDRAW;
 		wc.lpfnWndProc = DefWindowProc;
@@ -176,7 +182,8 @@ namespace Dcx {
 		wc.hInstance = GetModuleHandle(nullptr);
 		wc.hIcon = nullptr;
 		wc.hCursor = LoadCursor(nullptr, IDC_ARROW);
-		wc.hbrBackground = reinterpret_cast<HBRUSH>(COLOR_WINDOW + 1);
+		//wc.hbrBackground = reinterpret_cast<HBRUSH>(COLOR_WINDOW + 1);
+		wc.hbrBackground = GetStockBrush(COLOR_WINDOWFRAME);
 		wc.lpszMenuName = nullptr;
 		wc.lpszClassName = DCX_VISTACLASS;
 		wc.hIconSm = nullptr;
@@ -190,9 +197,13 @@ namespace Dcx {
 		GDIModule.unload();
 	}
 
-	const TString &getLastError() noexcept
+	//const TString &getLastError() noexcept
+	//{
+	//	return m_sLastError;
+	//}
+	const TCHAR *getLastError() noexcept
 	{
-		return m_sLastError;
+		return &szLastError[0];
 	}
 
 	IClassFactory *const getClassFactory() noexcept
@@ -229,21 +240,21 @@ namespace Dcx {
 	const bool &initDirectX(TCHAR *dxResult, int dxSize)
 	{
 #ifdef DCX_USE_DXSDK
-		DCX_DEBUG(mIRCLinker::debug, TEXT("DXSetup"), TEXT("Checking DirectX Version..."));
+		DCX_DEBUG(mIRCLinker::debug, __FUNCTIONW__, TEXT("Checking DirectX Version..."));
 		if (DWORD dx_ver = 0; GetDXVersion(&dx_ver, dxResult, dxSize) == S_OK)
 		{
 			if (dx_ver < 0x00090000)
 			{
-				DCX_DEBUG(mIRCLinker::debug, TEXT("DXSetup"), TEXT("Got DirectX Version: Need V9+"));
+				DCX_DEBUG(mIRCLinker::debug, __FUNCTIONW__, TEXT("Got DirectX Version: Need V9+"));
 				m_bDX9Installed = false;
 			}
 			else {
-				DCX_DEBUG(mIRCLinker::debug, TEXT("DXSetup"), TEXT("Got DirectX Version: V9+ Installed"));
+				DCX_DEBUG(mIRCLinker::debug, __FUNCTIONW__, TEXT("Got DirectX Version: V9+ Installed"));
 				m_bDX9Installed = true;
 			}
 		}
 		else {
-			DCX_DEBUG(mIRCLinker::debug, TEXT("DXSetup"), TEXT("Couldn't Get DirectX Version"));
+			DCX_DEBUG(mIRCLinker::debug, __FUNCTIONW__, TEXT("Couldn't Get DirectX Version"));
 			m_bDX9Installed = false;
 		}
 #endif
@@ -253,22 +264,45 @@ namespace Dcx {
 	/*!
 	 * \brief Sends an error message to mIRC.
 	 */
-	void error(const TCHAR *const cmd, const TCHAR *const msg)
+	//void error(const TCHAR *const cmd, const TCHAR *const msg)
+	//{
+	//	if (m_bErrorTriggered)
+	//		return;
+	//
+	//	_ts_sprintf(m_sLastError, TEXT("D_ERROR % (%)"), cmd, msg);
+	//
+	//	m_bErrorTriggered = true;
+	//
+	//	if (mIRCLinker::m_bSendMessageDisabled)
+	//	{
+	//		m_sLastError.addtok(TEXT("SendMessage() disabled, re-enable this in mIRC's Lock Options"), TEXT("\r\n"));
+	//		MessageBox(mIRCLinker::m_mIRCHWND, m_sLastError.to_chr(), nullptr, MB_OK);
+	//	}
+	//	else
+	//		mIRCLinker::echo(m_sLastError);
+	//
+	//	m_bErrorTriggered = false;
+	//}
+
+	/*!
+	 * \brief Sends an error message to mIRC.
+	 */
+	void error(const TCHAR* const cmd, const TCHAR* const msg) noexcept
 	{
 		if (m_bErrorTriggered)
 			return;
 
-		_ts_sprintf(m_sLastError, TEXT("D_ERROR % (%)"), cmd, msg);
+		_ts_snprintf(&szLastError[0], std::size(szLastError), TEXT("D_ERROR %s (%s)"), cmd, msg);
 
 		m_bErrorTriggered = true;
 
 		if (mIRCLinker::m_bSendMessageDisabled)
 		{
-			m_sLastError.addtok(TEXT("SendMessage() disabled, re-enable this in mIRC's Lock Options"), TEXT("\r\n"));
-			MessageBox(mIRCLinker::m_mIRCHWND, m_sLastError.to_chr(), nullptr, MB_OK);
+			_ts_strncat(&szLastError[0], TEXT("\r\nSendMessage() disabled, re-enable this in mIRC's Lock Options"), std::size(szLastError));
+			MessageBox(mIRCLinker::m_mIRCHWND, &szLastError[0], nullptr, MB_OK);
 		}
 		else
-			mIRCLinker::echo(m_sLastError);
+			mIRCLinker::echo(&szLastError[0]);
 
 		m_bErrorTriggered = false;
 	}
@@ -300,12 +334,12 @@ namespace Dcx {
 		if (!IsWindow(mHwnd))
 			throw Dcx::dcxException(TEXT("Invalid Dialog Window : %"), tsDName);
 
-		if (Dialogs.getDialogByHandle(mHwnd) != nullptr)
+		if (Dialogs.getDialogByHandle(mHwnd))
 			throw Dcx::dcxException(TEXT("Window Already Marked : %"), tsDName);
 
 		Dialogs.markDialog(mHwnd, tsDName, tsCallbackName);
 
-		if (const auto pTmp = Dialogs.getDialogByHandle(mHwnd); pTmp != nullptr)
+		if (const auto pTmp = Dialogs.getDialogByHandle(mHwnd); pTmp)
 			pTmp->SetVerbose(pTmp->evalAliasEx(nullptr, 0, TEXT("isverbose,0")));
 
 		return;
@@ -321,9 +355,8 @@ namespace Dcx {
 		switch (uMsg)
 		{
 		case WM_SIZE:
-			//mIRCLinker::signalex(dcxSignal.xdock, TEXT("size mIRC %u %u %u"), mHwnd, LOWORD(lParam), HIWORD(lParam));
 			if (dcxSignal.xdock)
-				mIRCLinker::signal(TEXT("size mIRC % % %"), reinterpret_cast<DWORD>(mHwnd), LOWORD(lParam), HIWORD(lParam));
+				mIRCLinker::signal(TEXT("size mIRC % % %"), reinterpret_cast<DWORD>(mHwnd), Dcx::dcxLOWORD(lParam), Dcx::dcxHIWORD(lParam));
 			break;
 
 			//		case WM_SYSCOMMAND:
@@ -421,7 +454,7 @@ namespace Dcx {
 		case WM_EXITSIZEMOVE:
 		{
 			// turn off ghosting.
-			if (GetProp(mIRCLinker::getHWND(), TEXT("dcx_ghosted")) != nullptr)
+			if (GetProp(mIRCLinker::getHWND(), TEXT("dcx_ghosted")))
 			{
 				// Make this window solid
 				SetLayeredWindowAttributes(mIRCLinker::getHWND(), 0, 255, LWA_ALPHA);
@@ -460,12 +493,12 @@ namespace Dcx {
 
 		case WM_SETCURSOR:
 		{
-			if (SetCursorUx == nullptr)
+			if (!SetCursorUx)
 				break;
 
-			const auto iType = gsl::narrow_cast<UINT>(LOWORD(lParam));
+			const auto iType = gsl::narrow_cast<UINT>(Dcx::dcxLOWORD(lParam));
 
-			if (const auto hCursor = AreaToCustomCursor(iType); hCursor != nullptr)
+			if (const auto hCursor = AreaToCustomCursor(iType); hCursor)
 			{
 				SetCursorUx(hCursor);
 				return TRUE;
@@ -476,7 +509,7 @@ namespace Dcx {
 
 			const auto lRes = mIRCLinker::callDefaultWindowProc(mHwnd, uMsg, wParam, lParam);
 
-			if (const auto hCursor = SystemToCustomCursor(GetCursor()); hCursor != nullptr)
+			if (const auto hCursor = SystemToCustomCursor(GetCursor()); hCursor)
 			{
 				SetCursorUx(hCursor);
 				return TRUE;
@@ -508,13 +541,13 @@ namespace Dcx {
 	//}
 
 	// convert a cursor name into a resource number.
-	[[gsl::suppress(lifetimes.1)]] const TCHAR *const parseCursorType(const TString & cursor)
+	GSL_SUPPRESS(lifetimes.1) const TCHAR *const parseCursorType(const TString & cursor)
 	{
 		return parseCursorType(std::hash<TString>{}(cursor));
 	}
 
 	// convert a cursor name (hashed) into a resource number.
-	[[gsl::suppress(lifetimes.1)]] const TCHAR *const parseCursorType(const std::hash<TString>::result_type & cursor)
+	GSL_SUPPRESS(lifetimes.1) const TCHAR *const parseCursorType(const std::hash<TString>::result_type & cursor)
 	{
 		const static std::map<std::hash<TString>::result_type, const TCHAR *> IDC_map{
 			{ TEXT("appstarting"_hash), IDC_APPSTARTING },
@@ -614,7 +647,7 @@ namespace Dcx {
 	HCURSOR dcxLoadCursorFromFile(const TString &filename)
 	{
 		const auto hCursor = static_cast<HCURSOR>(LoadImage(nullptr, filename.to_chr(), IMAGE_CURSOR, 0, 0, LR_DEFAULTSIZE | LR_LOADFROMFILE));
-		if (hCursor == nullptr)
+		if (!hCursor)
 			throw Dcx::dcxException("Unable to load cursor file");
 		return hCursor;
 	}
@@ -624,7 +657,7 @@ namespace Dcx {
 	HCURSOR dcxLoadCursorFromResource(const TCHAR *CursorType)
 	{
 		const auto hCursor = static_cast<HCURSOR>(LoadImage(nullptr, CursorType, IMAGE_CURSOR, 0, 0, LR_DEFAULTSIZE | LR_SHARED));
-		if (hCursor == nullptr)
+		if (!hCursor)
 			throw Dcx::dcxException("Unable to load cursor resource");
 		return hCursor;
 	}
@@ -652,13 +685,13 @@ namespace Dcx {
 
 			bCursorFromFile = true;
 		}
-		if (newCursor == nullptr)
+		if (!newCursor)
 			throw Dcx::dcxException("Unable to Load Cursor");
 
 		if (GetCursor() == hCursor)
 			SetCursor(newCursor);
 
-		if (hCursor != nullptr)
+		if (hCursor)
 			DestroyCursor(hCursor);
 
 		return newCursor;
@@ -720,7 +753,7 @@ namespace Dcx {
 		DetourTransactionBegin();
 		DetourUpdateThread(GetCurrentThread());
 		PVOID fPtr = DetourFindFunction(c_szDllName, c_szApiName);
-		if (fPtr != nullptr)
+		if (fPtr)
 		{
 			DetourAttach(&fPtr, newfPtr);
 			DetourTransactionCommit();
@@ -734,7 +767,7 @@ namespace Dcx {
 	// remove a detours patch
 	void RemovePatch(PVOID fPtr, PVOID newfPtr) noexcept
 	{
-		if (fPtr == nullptr || newfPtr == nullptr)
+		if (!fPtr || !newfPtr)
 			return;
 
 		DetourTransactionBegin();
@@ -746,11 +779,11 @@ namespace Dcx {
 	// patch function for use in custom cursors
 	[[gsl::suppress(lifetimes)]] HCURSOR WINAPI XSetCursor(HCURSOR hCursor)
 	{
-		if (hCursor == nullptr)
+		if (!hCursor)
 			return SetCursorUx(hCursor);
 
 		auto hTemp = SystemToCustomCursor(hCursor);
-		if (hTemp == nullptr)
+		if (!hTemp)
 			hTemp = hCursor;
 		return SetCursorUx(hTemp);
 	}
