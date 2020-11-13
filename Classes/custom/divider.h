@@ -49,21 +49,14 @@
 
 #pragma warning(push)
 #pragma warning( disable : 26472 ) //  warning C26472 : Don't use a static_cast for arithmetic conversions. Use brace initialization, gsl::narrow_cast or gsl::narow (type.1: http://go.microsoft.com/fwlink/p/?LinkID=620417).
-struct NMDIVIDER {
+struct NMDIVIDER
+{
+	NMHDR hdr{};      //!< Notification NMHDR structure, must be first always
+	UINT fMask{};     //!< Valid Member Mask Flags
+	UINT iPaneId{};   //!< Pane ID -> DVF_PANELEFT or DVF_PANERIGHT
+	UINT fStyle{};    //!< Pane Style Flags
+	LPARAM lParam{};  //!< Extra Storage Value
 
-    NMHDR hdr;      //!< Notification NMHDR structure, must be first always
-    UINT fMask;     //!< Valid Member Mask Flags
-    UINT iPaneId;   //!< Pane ID -> DVF_PANELEFT or DVF_PANERIGHT
-    UINT fStyle;    //!< Pane Style Flags
-    LPARAM lParam;  //!< Extra Storage Value
-
-	NMDIVIDER() noexcept
-		: hdr{}
-		, fMask(0)
-		, iPaneId(0)
-		, fStyle(0)
-		, lParam(0)
-	{}
 	NMDIVIDER(const HWND hHwnd, const UINT uCode, const UINT uMask, const UINT uPaneId, const UINT uStyle, const LPARAM uExt) noexcept
 		: hdr{hHwnd, static_cast<UINT>(GetWindowLong(hHwnd, GWL_ID)), uCode}
 		, fMask(uMask)
@@ -87,8 +80,8 @@ using LPNMDIVIDER = NMDIVIDER *;
  * \brief Divider Pane Info Structure
  */
 
-struct DVPANEINFO {
-
+struct DVPANEINFO
+{
 	UINT cbSize{ sizeof(DVPANEINFO) };    //!< DVPANEINFO Structure Size
 	UINT fMask{};     //!< Valid Member Mask Flags
 	UINT fStyle{};    //!< Divider Pane Style Flags
@@ -96,16 +89,6 @@ struct DVPANEINFO {
 	UINT cxIdeal{};   //!< Divider Pane Ideal Width/Height
 	HWND hChild{ nullptr };    //!< Pane Child Window Handle
 	LPARAM lParam{};  //!< Extra Storage For Each Pane
-
-	//DVPANEINFO() noexcept
-	//	: cbSize(sizeof(DVPANEINFO))
-	//	, fMask(0)
-	//	, fStyle(0)
-	//	, cxMin(0)
-	//	, cxIdeal(0)
-	//	, hChild(nullptr)
-	//	, lParam(0)
-	//{}
 };
 using LPDVPANEINFO = DVPANEINFO *;
 
@@ -113,23 +96,14 @@ using LPDVPANEINFO = DVPANEINFO *;
  * \brief Divider Control Data Structure
  */
 
-struct DVCONTROLDATA {
-
+struct DVCONTROLDATA
+{
 	DVPANEINFO m_LeftTopPane;		//!< Divider Panes
 	DVPANEINFO m_RightBottomPane;	//!< Divider Panes
 	UINT m_iLineWidth{ 2 };			//!< Divider Line Width
 	UINT m_iBarPos{ 100 };			//!< Position of the bar
 	int m_iOldPos{};				//!< Moving Old Position
 	bool m_bDragging{ false };		//!< Are We Dragging The Bar?
-
-	//DVCONTROLDATA() noexcept
-	//	: m_LeftTopPane()
-	//	, m_RightBottomPane()
-	//	, m_iLineWidth(2)
-	//	, m_iBarPos(100)
-	//	, m_iOldPos(0)
-	//	, m_bDragging(false)
-	//{}
 };
 using LPDVCONTROLDATA = DVCONTROLDATA *;
 
