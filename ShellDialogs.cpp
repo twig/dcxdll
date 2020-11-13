@@ -7,10 +7,10 @@
  * Structure to store settings for use in BrowseFolderCallback.
  */
 struct XBROWSEDIALOGSETTINGS {
-	PTCHAR initialFolder;
-	UINT flags;
+	PTCHAR initialFolder{};
+	UINT flags{};
 };
-using LPXBROWSEDIALOGSETTINGS = XBROWSEDIALOGSETTINGS *;
+using LPXBROWSEDIALOGSETTINGS = XBROWSEDIALOGSETTINGS*;
 
 
 /*!
@@ -29,18 +29,16 @@ mIRC(ColorDialog)
 		d.trim();
 
 		bool			retDefault(false);
-		CHOOSECOLOR		cc = { 0 };
-		static COLORREF clr[16];	// MUST be 16 (not related to mIRC colours)
+		CHOOSECOLOR		cc{};
+		static COLORREF clr[16]{};	// MUST be 16 (not related to mIRC colours)
 		const auto		sel = d.getfirsttok(1).to_<COLORREF>();
 		DWORD			styles = CC_RGBINIT;
-
-		//ZeroMemory(&cc, sizeof(CHOOSECOLOR));
 
 		// initial settings
 		cc.lStructSize = sizeof(CHOOSECOLOR);
 		cc.hwndOwner = mWnd;
 
-		for (const auto &tsStyle : d)
+		for (const auto& tsStyle : d)
 		{
 			switch (std::hash<TString>{}(tsStyle))
 			{
@@ -61,6 +59,7 @@ mIRC(ColorDialog)
 				break;
 			case TEXT("returndefault"_hash):
 				retDefault = true;
+				break;
 			default:
 				break;
 			}
@@ -73,28 +72,26 @@ mIRC(ColorDialog)
 		// User clicked OK
 		if (ChooseColor(&cc))
 		{
-			_ts_snprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), cc.rgbResult);
-			return 3; //ret(data);
+			_ts_snprintf(data, mIRCLinker::m_dwCharacters, TEXT("%u"), cc.rgbResult);
+			return 3;
 		}
 		// User clicked cancel, return default color
 		else if (retDefault)
 		{
-			_ts_snprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), sel);
-			return 3; //ret(data);
+			_ts_snprintf(data, mIRCLinker::m_dwCharacters, TEXT("%u"), sel);
+			return 3;
 		}
 		// User clicked cancel, dont bother with default color
 		else
 			ret(TEXT("-1"));
 	}
-	catch (const std::exception &e)
+	catch (const std::exception& e)
 	{
-		//Dcx::errorex(TEXT("$!dcx(ColorDialog)"), TEXT("\"%s\" error: %S"), d.to_chr(), e.what());
 		Dcx::error(TEXT("$!dcx(ColorDialog)"), TEXT("\"%\" error: %"), d, e.what());
 		//Dcx::error(__FUNCTIONW__, TEXT("\"%\" error: %"), d, e.what());
 	}
 	catch (...) {
 		// stop any left over exceptions...
-		//Dcx::errorex(TEXT("$!dcx(ColorDialog)"), TEXT("\"%s\" error: Unknown Exception"), d.to_chr());
 		Dcx::error(TEXT("$!dcx(ColorDialog)"), TEXT("\"%\" error: Unknown Exception"), d);
 	}
 	return 0;
@@ -121,18 +118,17 @@ mIRC(OpenDialog)
 
 		// count number of tab tokens
 		if (d.numtok(TSTABCHAR) != 3)
-			throw Dcx::dcxException("Invalid Arguments");
+			//throw Dcx::dcxException("Invalid Arguments");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		ret(FileDialog(d, TEXT("OPEN"), mWnd).to_chr());
 	}
-	catch (const std::exception &e)
+	catch (const std::exception& e)
 	{
-		//Dcx::errorex(TEXT("$!dcx(OpenDialog)"), TEXT("\"%s\" error: %S"), d.to_chr(), e.what());
 		Dcx::error(TEXT("$!dcx(OpenDialog)"), TEXT("\"%\" error: %"), d, e.what());
 	}
 	catch (...) {
 		// stop any left over exceptions...
-		//Dcx::errorex(TEXT("$!dcx(OpenDialog)"), TEXT("\"%s\" error: Unknown Exception"), d.to_chr());
 		Dcx::error(TEXT("$!dcx(OpenDialog)"), TEXT("\"%\" error: Unknown Exception"), d);
 	}
 	return 0;
@@ -150,18 +146,17 @@ mIRC(SaveDialog)
 
 		// count number of tab tokens
 		if (d.numtok(TSTABCHAR) != 3)
-			throw Dcx::dcxException("Invalid Arguments");
+			//throw Dcx::dcxException("Invalid Arguments");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		ret(FileDialog(d, TEXT("SAVE"), mWnd).to_chr());
 	}
-	catch (const std::exception &e)
+	catch (const std::exception& e)
 	{
-		//Dcx::errorex(TEXT("$!dcx(SaveDialog)"), TEXT("\"%s\" error: %S"), d.to_chr(), e.what());
 		Dcx::error(TEXT("$!dcx(SaveDialog)"), TEXT("\"%\" error: %"), d, e.what());
 	}
 	catch (...) {
 		// stop any left over exceptions...
-		//Dcx::errorex(TEXT("$!dcx(SaveDialog)"), TEXT("\"%s\" error: Unknown Exception"), d.to_chr());
 		Dcx::error(TEXT("$!dcx(SaveDialog)"), TEXT("\"%\" error: Unknown Exception"), d);
 	}
 	return 0;
@@ -175,7 +170,7 @@ mIRC(SaveDialog)
 * \return > TString "" if cancelled
 *         > TString Path+Filename
 */
-TString FileDialog(const TString & data, const TString &method, const HWND pWnd)
+TString FileDialog(const TString& data, const TString& method, const HWND pWnd)
 {
 	//TCHAR szFilename[MIRC_BUFFER_SIZE_CCH];
 
@@ -185,7 +180,7 @@ TString FileDialog(const TString & data, const TString &method, const HWND pWnd)
 
 	//Dcx::dcxStringResource szFilename(MIRC_BUFFER_SIZE_CCH);
 
-	const auto szFilename = std::make_unique<TCHAR[]>(MIRC_BUFFER_SIZE_CCH);
+	const auto szFilename = std::make_unique<TCHAR[]>(mIRCLinker::m_dwCharacters);
 
 	// seperate the tokenz
 	const auto styles(data.getfirsttok(1, TSTABCHAR).trim());
@@ -195,7 +190,7 @@ TString FileDialog(const TString & data, const TString &method, const HWND pWnd)
 	// Get Current dir for resetting later.
 	const UINT tsBufSize = GetCurrentDirectory(0, nullptr);
 	TString tsCurrentDir(tsBufSize);
-	GetCurrentDirectory(tsBufSize,tsCurrentDir.to_chr());
+	GetCurrentDirectory(tsBufSize, tsCurrentDir.to_chr());
 
 	// format the filter into the format WinAPI wants, with double NULL TERMINATOR at end
 	if (filter.empty())
@@ -206,10 +201,8 @@ TString FileDialog(const TString & data, const TString &method, const HWND pWnd)
 	filter.mreplace(TEXT('\0'), TEXT("|"));
 
 	// set up the OFN struct
-	OPENFILENAME ofn = { 0 };
-	//ZeroMemory(&ofn, sizeof(ofn));
-	//dcx_strcpyn(szFilename, file.to_chr(), MIRC_BUFFER_SIZE_CCH);
-	dcx_strcpyn(szFilename.get(), file.to_chr(), MIRC_BUFFER_SIZE_CCH);
+	OPENFILENAME ofn{};
+	dcx_strcpyn(szFilename.get(), file.to_chr(), mIRCLinker::m_dwCharacters);
 	//szFilename = file.to_chr();
 
 	ofn.lStructSize = sizeof(ofn); // SEE NOTE BELOW
@@ -217,12 +210,12 @@ TString FileDialog(const TString & data, const TString &method, const HWND pWnd)
 	ofn.lpstrFilter = filter.to_chr();
 	//ofn.lpstrFile = szFilename;
 	ofn.lpstrFile = szFilename.get();
-	ofn.nMaxFile = MIRC_BUFFER_SIZE_CCH;
+	ofn.nMaxFile = mIRCLinker::m_dwCharacters;
 	ofn.lpstrDefExt = TEXT("");
 
 	DWORD style = OFN_EXPLORER;
 
-	for (const auto &tsStyle : styles)
+	for (const auto& tsStyle : styles)
 	{
 		switch (std::hash<TString>{}(tsStyle))
 		{
@@ -285,21 +278,21 @@ TString FileDialog(const TString & data, const TString &method, const HWND pWnd)
 		if (dcx_testflag(style, OFN_ALLOWMULTISELECT))
 		{
 			//const TCHAR *p = szFilename;
-			const TCHAR *p = szFilename.get();
+			const TCHAR* p = szFilename.get();
 
 			// process the file name at p since its null terminated
 			while (*p != TEXT('\0'))
 			{
 				tsResult.addtok(p, TEXT('|'));
 				p += _ts_strlen(p) + 1;
-			} 
+			}
 		}
 		// copy the string directly
 		else
-			tsResult = szFilename;
+			tsResult = szFilename.get();
 	}
 	else if (method == TEXT("SAVE") && GetSaveFileName(&ofn))
-		tsResult = szFilename;
+		tsResult = szFilename.get();
 
 	// Reset current dir.
 	if (!tsCurrentDir.empty())
@@ -332,25 +325,23 @@ mIRC(BrowseDialog)
 		bool bInitialFolder = false;
 		bool bDialogText = false;
 
-		TString initPath((UINT)MAX_PATH);
-		TString displayPath((UINT)MAX_PATH);
-		LPITEMIDLIST pidlRoot = nullptr;
+		TString initPath(UMAX_PATH);
+		TString displayPath(UMAX_PATH);
+		gsl::owner<LPITEMIDLIST> pidlRoot = nullptr;
 
 		// set up the BI structure
-		XBROWSEDIALOGSETTINGS extra = { 0 };
-		BROWSEINFO bi = { 0 };
-		//ZeroMemory(&bi, sizeof(BROWSEINFO));
-		//ZeroMemory(&extra, sizeof(XBROWSEDIALOGSETTINGS));
+		XBROWSEDIALOGSETTINGS extra{};
+		BROWSEINFO bi{};
 		bi.hwndOwner = mWnd;                                             // Default owner: mIRC main window
 		bi.lpfn = BrowseFolderCallback;
 		bi.pszDisplayName = displayPath.to_chr();
 		bi.ulFlags = BIF_VALIDATE;
-		bi.lParam = (LPARAM)&extra;
+		bi.lParam = reinterpret_cast<LPARAM>(std::addressof(extra));
 
 		// Parse styles
 		auto param(input.gettok(currentParam, TSTABCHAR));
 
-		for (const auto &flag : param)
+		for (const auto& flag : param)
 		{
 			/*
 			style1 style2 style3 $chr(9) initial folder
@@ -409,13 +400,15 @@ mIRC(BrowseDialog)
 			case TEXT("owner"_hash):
 				bi.hwndOwner = FindOwner(param, gsl::not_null(mWnd));
 				break;
+			default:
+				break;
 			}
 		}
 
 		Auto(CoTaskMemFree(pidlRoot));
 
 		// Set initial folder
-		if (bInitialFolder && (pidlRoot == nullptr))
+		if (bInitialFolder && (!pidlRoot))
 		{
 			++currentParam;
 			initPath = input.gettok(currentParam, TSTABCHAR).trim();
@@ -433,7 +426,7 @@ mIRC(BrowseDialog)
 		}
 
 		// Set root folder
-		if (pidlRoot != nullptr)
+		if (pidlRoot)
 			bi.pidlRoot = pidlRoot;
 
 		extra.flags = bi.ulFlags;
@@ -441,29 +434,27 @@ mIRC(BrowseDialog)
 		const auto pidl = SHBrowseForFolder(&bi);
 
 		// User cancelled
-		if (pidl == nullptr)
+		if (!pidl)
 			return 3;
 
 		Auto(CoTaskMemFree(pidl));
 
 		// If we were searching for a computer ...
 		if (dcx_testflag(bi.ulFlags, BIF_BROWSEFORCOMPUTER))
-			_ts_snprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("//%s"), displayPath.to_chr());
+			_ts_snprintf(data, mIRCLinker::m_dwCharacters, TEXT("//%s"), displayPath.to_chr());
 		else {
 			SHGetPathFromIDList(pidl, initPath.to_chr());
-			dcx_strcpyn(data, initPath.to_chr(), MIRC_BUFFER_SIZE_CCH);
+			dcx_strcpyn(data, initPath.to_chr(), mIRCLinker::m_dwCharacters);
 		}
 
 		return 3;
 	}
-	catch (const std::exception &e)
+	catch (const std::exception& e)
 	{
-		//Dcx::errorex(TEXT("$!dcx(BrowseDialog)"), TEXT("\"%s\" error: %S"), input.to_chr(), e.what());
 		Dcx::error(TEXT("$!dcx(BrowseDialog)"), TEXT("\"%\" error: %"), input, e.what());
 	}
 	catch (...) {
 		// stop any left over exceptions...
-		//Dcx::errorex(TEXT("$!dcx(BrowseDialog)"), TEXT("\"%s\" error: Unknown Exception"), input.to_chr());
 		Dcx::error(TEXT("$!dcx(BrowseDialog)"), TEXT("\"%\" error: Unknown Exception"), input);
 	}
 	return 0;
@@ -480,7 +471,7 @@ mIRC(BrowseDialog)
 */
 gsl::owner<LPITEMIDLIST> GetFolderFromCSIDL(const int nCsidl) noexcept
 {
-	if (LPITEMIDLIST pidlRoot = nullptr; S_OK == SHGetFolderLocation(nullptr, nCsidl, nullptr, 0, &pidlRoot))
+	if (LPITEMIDLIST pidlRoot{ nullptr }; S_OK == SHGetFolderLocation(nullptr, nCsidl, nullptr, 0, &pidlRoot))
 		return pidlRoot;
 
 	return nullptr;                // Caller assumes responsibility
@@ -497,8 +488,8 @@ int CALLBACK BrowseFolderCallback(HWND hwnd, UINT uMsg, LPARAM lParam, LPARAM lp
 
 	case BFFM_INITIALIZED:
 		// Sets initial folder if it is specified.
-		if (lpData != NULL)
-			SendMessage(hwnd, BFFM_SETSELECTION, TRUE, (LPARAM)extra->initialFolder);
+		if (extra)
+			SendMessage(hwnd, BFFM_SETSELECTION, TRUE, reinterpret_cast<LPARAM>(extra->initialFolder));
 		else
 			// Disable OK button.
 			SendMessage(hwnd, BFFM_ENABLEOK, TRUE, FALSE);
@@ -528,7 +519,7 @@ int CALLBACK BrowseFolderCallback(HWND hwnd, UINT uMsg, LPARAM lParam, LPARAM lp
 		if (SHGetPathFromIDList(reinterpret_cast<LPITEMIDLIST>(lParam), sPath))
 		{
 			SendMessage(hwnd, BFFM_ENABLEOK, TRUE, TRUE);
-			SendMessage(hwnd, BFFM_SETSTATUSTEXT, 0, (LPARAM)sPath.data());
+			SendMessage(hwnd, BFFM_SETSTATUSTEXT, 0, reinterpret_cast<LPARAM>(sPath.data()));
 		}
 		else {
 			SendMessage(hwnd, BFFM_ENABLEOK, TRUE, FALSE);
@@ -564,179 +555,187 @@ mIRC(FontDialog)
 		input.trim();
 
 		DWORD style = CF_INITTOLOGFONTSTRUCT | CF_FORCEFONTEXIST | CF_LIMITSIZE;
-		LOGFONT lf = { 0 };
+		LOGFONT lf{};
 
 		// set up the LF structure
-		//ZeroMemory(&lf, sizeof(LOGFONT));
 		if (GetObject(GetStockObject(DEFAULT_GUI_FONT), sizeof(LOGFONT), &lf) == 0)
 			throw Dcx::dcxException("Unable to get LOGFONT");
 
 		// set up the CF struct
-		CHOOSEFONT cf = { 0 };
-		//ZeroMemory(&cf, sizeof(CHOOSEFONT));
+		CHOOSEFONT cf{};
 		cf.lStructSize = sizeof(CHOOSEFONT);
 		cf.hwndOwner = mWnd;
 		cf.lpLogFont = &lf;
 		cf.nSizeMin = 8;
 		cf.nSizeMax = 72;
 
-		for (auto itStart = input.begin(TSTABCHAR), itEnd = input.end(); itStart != itEnd; ++itStart)
 		{
-			const auto option(*itStart);
-			const auto numtok = option.numtok();
-			//const auto hashType = std::hash<TString>()(option.getfirsttok(1));	// tok 1
+			const auto itEnd = input.end();
 
-			/*
-			default +flags(ibsua) charset size fontname
-			flags +etc
-			color rgb
-			minmaxsize min max (Ranges from 8 to 72, if "D" is used 5 to 30)
-			owner hwnd
-
-			+flag to use mirc colors
-			palette col...16...col
-
-			//clear | echo -a $dcx(FontDialog, hello asd $chr(9) flags +abcdef $chr(9) color 255 $chr(9) owner dcxtest_1146984371 $chr(9) default + default 10 Verdana) | /udcx
-
-			http://msdn.microsoft.com/library/default.asp?url=/library/en-us/winui/winui/windowsuserinterface/userinput/commondialogboxlibrary/commondialogboxreference/commondialogboxstructures/choosefont.asp
-			*/
-
-			// flags +
-			switch (std::hash<TString>{}(option.getfirsttok(1)))
+			for (auto itStart = input.begin(TSTABCHAR); itStart != itEnd; ++itStart)
 			{
-			case TEXT("flags"_hash):
-			{
-				if (numtok < 2)
-					throw Dcx::dcxException("Invalid Args");
+				const auto option(*itStart);
+				const auto numtok = option.numtok();
+				//const auto hashType = std::hash<TString>()(option.getfirsttok(1));	// tok 1
 
-				const XSwitchFlags xflags(option.getnexttok());	// tok 2
+				/*
+				default +flags(ibsua) charset size fontname
+				flags +etc
+				color rgb
+				minmaxsize min max (Ranges from 8 to 72, if "D" is used 5 to 30)
+				owner hwnd
 
-				if (xflags[TEXT('a')])
-					style |= CF_NOFACESEL;
-				if (xflags[TEXT('b')])
-					style |= CF_SCRIPTSONLY;
-				if (xflags[TEXT('c')])
-					style |= CF_SCALABLEONLY;// (Scalable fonts include vector fonts, scalable printer fonts, TrueType fonts, and fonts scaled by other technologies.)
-				if (xflags[TEXT('e')])
-					style |= CF_EFFECTS;
-				if (xflags[TEXT('f')])
-					style |= CF_FORCEFONTEXIST;
-				if (xflags[TEXT('h')])
-					style |= CF_NOSCRIPTSEL;
-				if (xflags[TEXT('i')])
-					style |= CF_NOSIMULATIONS;
-				if (xflags[TEXT('m')])
-					style |= CF_SELECTSCRIPT;
-				if (xflags[TEXT('n')])
-					style |= CF_PRINTERFONTS;
-				if (xflags[TEXT('p')])
-					style |= CF_FIXEDPITCHONLY;
-				if (xflags[TEXT('r')])
-					style |= CF_NOVERTFONTS;
-				if (xflags[TEXT('s')])
-					style |= CF_SCREENFONTS;
-				if (xflags[TEXT('t')])
-					style |= CF_TTONLY;
-				if (xflags[TEXT('v')])
-					style |= CF_NOVECTORFONTS;
-				if (xflags[TEXT('w')])
-					style |= CF_WYSIWYG;
-				if (xflags[TEXT('y')])
-					style |= CF_NOSTYLESEL;
-				if (xflags[TEXT('z')])
-					style |= CF_NOSIZESEL;
-			}
-			case TEXT("default"_hash):
-			{
-				if (numtok < 5)
-					throw Dcx::dcxException("Invalid Args");
+				+flag to use mirc colors
+				palette col...16...col
 
-				ParseCommandToLogfont(option.getlasttoks(), &lf);	// tok 2, -1
-			}
-			break;
-			case TEXT("color"_hash):
-			{
-				if (numtok < 2)
-					throw Dcx::dcxException("Invalid Args");
+				//clear | echo -a $dcx(FontDialog, hello asd $chr(9) flags +abcdef $chr(9) color 255 $chr(9) owner dcxtest_1146984371 $chr(9) default + default 10 Verdana) | /udcx
 
-				cf.rgbColors = option.getnexttok().to_<COLORREF>();	// tok 2
-			}
-			break;
-			case TEXT("minmaxsize"_hash):
-			{
-				if (numtok < 3)
-					throw Dcx::dcxException("Invalid Args");
+				http://msdn.microsoft.com/library/default.asp?url=/library/en-us/winui/winui/windowsuserinterface/userinput/commondialogboxlibrary/commondialogboxreference/commondialogboxstructures/choosefont.asp
+				*/
 
-				cf.nSizeMin = option.getnexttok().to_int();	// tok 2
-				cf.nSizeMax = option.getnexttok().to_int();	// tok 3
-			}
-			break;
-			case TEXT("owner"_hash):
-			{
-				if (numtok < 2)
-					throw Dcx::dcxException("Invalid Args");
+				// flags +
+				switch (std::hash<TString>{}(option.getfirsttok(1)))
+				{
+				case TEXT("flags"_hash):
+				{
+					if (numtok < 2)
+						//throw Dcx::dcxException("Invalid Args");
+						throw DcxExceptions::dcxInvalidArguments();
 
-				cf.hwndOwner = FindOwner(option, gsl::not_null(mWnd));
-			}
-			break;
-			default:
+					const XSwitchFlags xflags(option.getnexttok());	// tok 2
+
+					if (xflags[TEXT('a')])
+						style |= CF_NOFACESEL;
+					if (xflags[TEXT('b')])
+						style |= CF_SCRIPTSONLY;
+					if (xflags[TEXT('c')])
+						style |= CF_SCALABLEONLY;// (Scalable fonts include vector fonts, scalable printer fonts, TrueType fonts, and fonts scaled by other technologies.)
+					if (xflags[TEXT('e')])
+						style |= CF_EFFECTS;
+					if (xflags[TEXT('f')])
+						style |= CF_FORCEFONTEXIST;
+					if (xflags[TEXT('h')])
+						style |= CF_NOSCRIPTSEL;
+					if (xflags[TEXT('i')])
+						style |= CF_NOSIMULATIONS;
+					if (xflags[TEXT('m')])
+						style |= CF_SELECTSCRIPT;
+					if (xflags[TEXT('n')])
+						style |= CF_PRINTERFONTS;
+					if (xflags[TEXT('p')])
+						style |= CF_FIXEDPITCHONLY;
+					if (xflags[TEXT('r')])
+						style |= CF_NOVERTFONTS;
+					if (xflags[TEXT('s')])
+						style |= CF_SCREENFONTS;
+					if (xflags[TEXT('t')])
+						style |= CF_TTONLY;
+					if (xflags[TEXT('v')])
+						style |= CF_NOVECTORFONTS;
+					if (xflags[TEXT('w')])
+						style |= CF_WYSIWYG;
+					if (xflags[TEXT('y')])
+						style |= CF_NOSTYLESEL;
+					if (xflags[TEXT('z')])
+						style |= CF_NOSIZESEL;
+				}
 				break;
-			}
+				case TEXT("default"_hash):
+				{
+					if (numtok < 5)
+						//throw Dcx::dcxException("Invalid Args");
+						throw DcxExceptions::dcxInvalidArguments();
 
-			//if (hashType == TEXT("flags"_hash) && numtok > 1)
-			//{
-			//	const XSwitchFlags xflags(option.getnexttok());	// tok 2
-			//
-			//	if (xflags[TEXT('a')])
-			//		style |= CF_NOFACESEL;
-			//	if (xflags[TEXT('b')])
-			//		style |= CF_SCRIPTSONLY;
-			//	if (xflags[TEXT('c')])
-			//		style |= CF_SCALABLEONLY;// (Scalable fonts include vector fonts, scalable printer fonts, TrueType fonts, and fonts scaled by other technologies.)
-			//	if (xflags[TEXT('e')])
-			//		style |= CF_EFFECTS;
-			//	if (xflags[TEXT('f')])
-			//		style |= CF_FORCEFONTEXIST;
-			//	if (xflags[TEXT('h')])
-			//		style |= CF_NOSCRIPTSEL;
-			//	if (xflags[TEXT('i')])
-			//		style |= CF_NOSIMULATIONS;
-			//	if (xflags[TEXT('m')])
-			//		style |= CF_SELECTSCRIPT;
-			//	if (xflags[TEXT('n')])
-			//		style |= CF_PRINTERFONTS;
-			//	if (xflags[TEXT('p')])
-			//		style |= CF_FIXEDPITCHONLY;
-			//	if (xflags[TEXT('r')])
-			//		style |= CF_NOVERTFONTS;
-			//	if (xflags[TEXT('s')])
-			//		style |= CF_SCREENFONTS;
-			//	if (xflags[TEXT('t')])
-			//		style |= CF_TTONLY;
-			//	if (xflags[TEXT('v')])
-			//		style |= CF_NOVECTORFONTS;
-			//	if (xflags[TEXT('w')])
-			//		style |= CF_WYSIWYG;
-			//	if (xflags[TEXT('y')])
-			//		style |= CF_NOSTYLESEL;
-			//	if (xflags[TEXT('z')])
-			//		style |= CF_NOSIZESEL;
-			//}
-			//// defaults +flags(ibsua) charset size fontname
-			//else if (hashType == TEXT("default"_hash) && numtok > 4)
-			//	ParseCommandToLogfont(option.getlasttoks(), &lf);	// tok 2, -1
-			//// color rgb
-			//else if (hashType == TEXT("color"_hash) && numtok > 1)
-			//	cf.rgbColors = option.getnexttok().to_<COLORREF>();	// tok 2
-			//// minmaxsize min max
-			//else if (hashType == TEXT("minmaxsize"_hash) && numtok > 2)
-			//{
-			//	cf.nSizeMin = option.getnexttok().to_int();	// tok 2
-			//	cf.nSizeMax = option.getnexttok().to_int();	// tok 3
-			//}
-			//// owner
-			//else if (hashType == TEXT("owner"_hash) && numtok > 1)
-			//	cf.hwndOwner = FindOwner(option, mWnd);
+					ParseCommandToLogfont(option.getlasttoks(), &lf);	// tok 2, -1
+				}
+				break;
+				case TEXT("color"_hash):
+				{
+					if (numtok < 2)
+						//throw Dcx::dcxException("Invalid Args");
+						throw DcxExceptions::dcxInvalidArguments();
+
+					cf.rgbColors = option.getnexttok().to_<COLORREF>();	// tok 2
+				}
+				break;
+				case TEXT("minmaxsize"_hash):
+				{
+					if (numtok < 3)
+						//throw Dcx::dcxException("Invalid Args");
+						throw DcxExceptions::dcxInvalidArguments();
+
+					cf.nSizeMin = option.getnexttok().to_int();	// tok 2
+					cf.nSizeMax = option.getnexttok().to_int();	// tok 3
+				}
+				break;
+				case TEXT("owner"_hash):
+				{
+					if (numtok < 2)
+						//throw Dcx::dcxException("Invalid Args");
+						throw DcxExceptions::dcxInvalidArguments();
+
+					cf.hwndOwner = FindOwner(option, gsl::not_null(mWnd));
+				}
+				break;
+				default:
+					break;
+				}
+
+				//if (hashType == TEXT("flags"_hash) && numtok > 1)
+				//{
+				//	const XSwitchFlags xflags(option.getnexttok());	// tok 2
+				//
+				//	if (xflags[TEXT('a')])
+				//		style |= CF_NOFACESEL;
+				//	if (xflags[TEXT('b')])
+				//		style |= CF_SCRIPTSONLY;
+				//	if (xflags[TEXT('c')])
+				//		style |= CF_SCALABLEONLY;// (Scalable fonts include vector fonts, scalable printer fonts, TrueType fonts, and fonts scaled by other technologies.)
+				//	if (xflags[TEXT('e')])
+				//		style |= CF_EFFECTS;
+				//	if (xflags[TEXT('f')])
+				//		style |= CF_FORCEFONTEXIST;
+				//	if (xflags[TEXT('h')])
+				//		style |= CF_NOSCRIPTSEL;
+				//	if (xflags[TEXT('i')])
+				//		style |= CF_NOSIMULATIONS;
+				//	if (xflags[TEXT('m')])
+				//		style |= CF_SELECTSCRIPT;
+				//	if (xflags[TEXT('n')])
+				//		style |= CF_PRINTERFONTS;
+				//	if (xflags[TEXT('p')])
+				//		style |= CF_FIXEDPITCHONLY;
+				//	if (xflags[TEXT('r')])
+				//		style |= CF_NOVERTFONTS;
+				//	if (xflags[TEXT('s')])
+				//		style |= CF_SCREENFONTS;
+				//	if (xflags[TEXT('t')])
+				//		style |= CF_TTONLY;
+				//	if (xflags[TEXT('v')])
+				//		style |= CF_NOVECTORFONTS;
+				//	if (xflags[TEXT('w')])
+				//		style |= CF_WYSIWYG;
+				//	if (xflags[TEXT('y')])
+				//		style |= CF_NOSTYLESEL;
+				//	if (xflags[TEXT('z')])
+				//		style |= CF_NOSIZESEL;
+				//}
+				//// defaults +flags(ibsua) charset size fontname
+				//else if (hashType == TEXT("default"_hash) && numtok > 4)
+				//	ParseCommandToLogfont(option.getlasttoks(), &lf);	// tok 2, -1
+				//// color rgb
+				//else if (hashType == TEXT("color"_hash) && numtok > 1)
+				//	cf.rgbColors = option.getnexttok().to_<COLORREF>();	// tok 2
+				//// minmaxsize min max
+				//else if (hashType == TEXT("minmaxsize"_hash) && numtok > 2)
+				//{
+				//	cf.nSizeMin = option.getnexttok().to_int();	// tok 2
+				//	cf.nSizeMax = option.getnexttok().to_int();	// tok 3
+				//}
+				//// owner
+				//else if (hashType == TEXT("owner"_hash) && numtok > 1)
+				//	cf.hwndOwner = FindOwner(option, mWnd);
+			}
 		}
 
 		// check that at least some fonts are showing
@@ -752,18 +751,16 @@ mIRC(FontDialog)
 			const auto fntflags(ParseLogfontToCommand(&lf));
 
 			// color flags font info
-			_ts_snprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%u %s"), cf.rgbColors, fntflags.to_chr());
+			_ts_snprintf(data, mIRCLinker::m_dwCharacters, TEXT("%u %s"), cf.rgbColors, fntflags.to_chr());
 		}
 		return 3;
 	}
-	catch (const std::exception &e)
+	catch (const std::exception& e)
 	{
-		//Dcx::errorex(TEXT("$!dcx(FontDialog)"), TEXT("\"%s\" error: %S"), input.to_chr(), e.what());
 		Dcx::error(TEXT("$!dcx(FontDialog)"), TEXT("\"%\" error: %"), input, e.what());
 	}
 	catch (...) {
 		// stop any left over exceptions...
-		//Dcx::errorex(TEXT("$!dcx(FontDialog)"), TEXT("\"%s\" error: Unknown Exception"), input.to_chr());
 		Dcx::error(TEXT("$!dcx(FontDialog)"), TEXT("\"%\" error: Unknown Exception"), input);
 	}
 	return 0;
@@ -783,7 +780,8 @@ mIRC(MsgBox)
 		d.trim();
 
 		if (d.numtok(TSTABCHAR) < 3)
-			throw Dcx::dcxException("invalid parameters");
+			//throw Dcx::dcxException("invalid parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		DWORD			style = MB_DEFBUTTON1;
 		const auto	strStyles(d.getfirsttok(1, TSTABCHAR).trim());		// tok 1
@@ -791,7 +789,7 @@ mIRC(MsgBox)
 		const auto	strMsg(d.getlasttoks().trim());					// tok 3, -1
 		auto			owner = aWnd;
 
-		for (const auto &tsStyle : strStyles)
+		for (const auto& tsStyle : strStyles)
 		{
 			//		MB_ABORTRETRYIGNORE
 			//		MB_CANCELTRYCONTINUE && Dcx::XPPlusModule.isUseable()
@@ -881,47 +879,91 @@ mIRC(MsgBox)
 		if (dcx_testflag(style, MB_TASKMODAL))
 			owner = nullptr;
 
-		switch (MessageBox(owner, strMsg.to_chr(), strTitle.to_chr(), style))
-		{
-		case IDABORT:
-			ret(TEXT("abort"));
-			break;
-		case IDCANCEL:
-			ret(TEXT("cancel"));
-			break;
-		case IDCONTINUE:
-			ret(TEXT("continue"));
-			break;
-		case IDIGNORE:
-			ret(TEXT("ignore"));
-			break;
-		case IDNO:
-			ret(TEXT("no"));
-			break;
-		case IDOK:
-			ret(TEXT("ok"));
-			break;
-		case IDRETRY:
-			ret(TEXT("retry"));
-			break;
-		case IDTRYAGAIN:
-			ret(TEXT("tryagain"));
-			break;
-		case IDYES:
-			ret(TEXT("yes"));
-			break;
-		default:
-			break;
-		}
+		//const TCHAR *const IDMSGS[] = {
+		//	TEXT("abort"),
+		//	TEXT("cancel"),
+		//	TEXT("continue"),
+		//	TEXT("ignore"),
+		//	TEXT("no"),
+		//	TEXT("ok"),
+		//	TEXT("retry"),
+		//	TEXT("tryagain"),
+		//	TEXT("yes")
+		//};
+		//
+		//switch (MessageBox(owner, strMsg.to_chr(), strTitle.to_chr(), style))
+		//{
+		//case IDABORT:
+		//	ret(IDMSGS[0]);
+		//	break;
+		//case IDCANCEL:
+		//	ret(IDMSGS[1]);
+		//	break;
+		//case IDCONTINUE:
+		//	ret(IDMSGS[2]);
+		//	break;
+		//case IDIGNORE:
+		//	ret(IDMSGS[3]);
+		//	break;
+		//case IDNO:
+		//	ret(IDMSGS[4]);
+		//	break;
+		//case IDOK:
+		//	ret(IDMSGS[5]);
+		//	break;
+		//case IDRETRY:
+		//	ret(IDMSGS[6]);
+		//	break;
+		//case IDTRYAGAIN:
+		//	ret(IDMSGS[7]);
+		//	break;
+		//case IDYES:
+		//	ret(IDMSGS[8]);
+		//	break;
+		//default:
+		//	break;
+		//}
+
+		const TCHAR* const IDMSGS[] = {
+			nullptr,
+			TEXT("ok"),
+			TEXT("cancel"),
+			TEXT("abort"),
+			TEXT("retry"),
+			TEXT("ignore"),
+			TEXT("yes"),
+			TEXT("no"),
+			TEXT("close"),
+			TEXT("help"),
+			TEXT("tryagain"),
+			TEXT("continue")
+		};
+
+		//switch (const auto res = MessageBox(owner, strMsg.to_chr(), strTitle.to_chr(), style); res)
+		//{
+		//case IDABORT:
+		//case IDCANCEL:
+		//case IDCONTINUE:
+		//case IDIGNORE:
+		//case IDNO:
+		//case IDOK:
+		//case IDRETRY:
+		//case IDTRYAGAIN:
+		//case IDYES:
+		//	ret(gsl::at(IDMSGS,res));
+		//	break;
+		//default:
+		//	break;
+		//}
+
+		ret(gsl::at(IDMSGS, MessageBox(owner, strMsg.to_chr(), strTitle.to_chr(), style)));
 	}
-	catch (const std::exception &e)
+	catch (const std::exception& e)
 	{
-		//Dcx::errorex(TEXT("$!dcx(MsgBox)"), TEXT("\"%s\" error: %S"), d.to_chr(), e.what());
 		Dcx::error(TEXT("$!dcx(MsgBox)"), TEXT("\"%\" error: %"), d, e.what());
 	}
 	catch (...) {
 		// stop any left over exceptions...
-		//Dcx::errorex(TEXT("$!dcx(MsgBox)"), TEXT("\"%s\" error: Unknown Exception"), d.to_chr());
 		Dcx::error(TEXT("$!dcx(MsgBox)"), TEXT("\"%\" error: Unknown Exception"), d);
 	}
 	return 0;
@@ -942,13 +984,15 @@ mIRC(PickIcon)
 		d.trim();
 
 		if (d.numtok() < 2)
-			throw Dcx::dcxException("Invalid parameters");
+			//throw Dcx::dcxException("Invalid parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		auto index = d.getfirsttok(1).to_int();	// tok 1
 		auto tsFilename(d.getlasttoks());			// tok 2, -1
 
 		if (!IsFile(tsFilename))
-			throw Dcx::dcxException("Invalid filename");
+			//throw Dcx::dcxException("Invalid filename");
+			throw DcxExceptions::dcxInvalidFilename();
 
 		////TCHAR iconPath[MAX_PATH + 1];
 		//
@@ -957,9 +1001,9 @@ mIRC(PickIcon)
 		//GetFullPathName(filename.to_chr(), MAX_PATH, iconPath, nullptr);
 		//
 		//if (dcxPickIconDlg(aWnd, iconPath.get(), MAX_PATH, &index))
-		//	wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("D_OK %d %s"), index, iconPath.get());
+		//	wnsprintf(data, mIRCLinker::m_dwCharacters, TEXT("D_OK %d %s"), index, iconPath.get());
 		//else
-		//	wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("D_ERROR %d %s"), index, iconPath.get());
+		//	wnsprintf(data, mIRCLinker::m_dwCharacters, TEXT("D_ERROR %d %s"), index, iconPath.get());
 		//return 3;
 
 		const stString<MAX_PATH + 1U> sIconPath;
@@ -967,19 +1011,17 @@ mIRC(PickIcon)
 		GetFullPathName(tsFilename.to_chr(), sIconPath.size(), sIconPath, nullptr);
 
 		if (dcxPickIconDlg(aWnd, sIconPath.data(), sIconPath.size(), &index))
-			_ts_snprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("D_OK %d %s"), index, sIconPath.data());
+			_ts_snprintf(data, mIRCLinker::m_dwCharacters, TEXT("D_OK %d %s"), index, sIconPath.data());
 		else
-			_ts_snprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("D_ERROR %d %s"), index, sIconPath.data());
+			_ts_snprintf(data, mIRCLinker::m_dwCharacters, TEXT("D_ERROR %d %s"), index, sIconPath.data());
 		return 3;
 	}
-	catch (const std::exception &e)
+	catch (const std::exception& e)
 	{
-		//Dcx::errorex(TEXT("$!dcx(PickIcon)"), TEXT("\"%s\" error: %S"), d.to_chr(), e.what());
 		Dcx::error(TEXT("$!dcx(PickIcon)"), TEXT("\"%\" error: %"), d, e.what());
 	}
 	catch (...) {
 		// stop any left over exceptions...
-		//Dcx::errorex(TEXT("$!dcx(PickIcon)"), TEXT("\"%s\" error: Unknown Exception"), d.to_chr());
 		Dcx::error(TEXT("$!dcx(PickIcon)"), TEXT("\"%\" error: Unknown Exception"), d);
 	}
 	return 0;
@@ -988,7 +1030,7 @@ mIRC(PickIcon)
 /*
 * Icon Picker for WinXP SP2 & Win 2k3 (Others may or may not support it)
 */
-int dcxPickIconDlg(const HWND hwnd, LPWSTR pszIconPath, const UINT &cchIconPath, int *piIconIndex) noexcept
+int dcxPickIconDlg(const HWND hwnd, LPWSTR pszIconPath, const UINT& cchIconPath, int* piIconIndex) noexcept
 {
 	return PickIconDlg(hwnd, pszIconPath, cchIconPath, piIconIndex);
 }
@@ -1006,24 +1048,23 @@ mIRC(CountIcons)
 		filename.trim();
 
 		if (filename.empty())
-			throw Dcx::dcxException("Invalid parameters");
+			//throw Dcx::dcxException("Invalid parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		if (!IsFile(filename))
-			throw Dcx::dcxException("Invalid filename");
+			//throw Dcx::dcxException("Invalid filename");
+			throw DcxExceptions::dcxInvalidFilename();
 
-		//wnsprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("D_OK %u %s"), ExtractIconEx(filename.to_chr(), -1, nullptr, nullptr, 0), filename.to_chr());
-		_ts_snprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("D_OK %u %s"), ExtractIconEx(filename.to_chr(), -1, nullptr, nullptr, 0), filename.to_chr());
+		_ts_snprintf(data, mIRCLinker::m_dwCharacters, TEXT("D_OK %u %s"), ExtractIconEx(filename.to_chr(), -1, nullptr, nullptr, 0), filename.to_chr());
 
 		return 3;
 	}
-	catch (const std::exception &e)
+	catch (const std::exception& e)
 	{
-		//Dcx::errorex(TEXT("$!dcx(CountIcons)"), TEXT("\"%s\" error: %S"), filename.to_chr(), e.what());
 		Dcx::error(TEXT("$!dcx(CountIcons)"), TEXT("\"%\" error: %"), filename, e.what());
 	}
 	catch (...) {
 		// stop any left over exceptions...
-		//Dcx::errorex(TEXT("$!dcx(CountIcons)"), TEXT("\"%s\" error: Unknown Exception"), filename.to_chr());
 		Dcx::error(TEXT("$!dcx(CountIcons)"), TEXT("\"%\" error: Unknown Exception"), filename);
 	}
 	return 0;

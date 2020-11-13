@@ -38,11 +38,11 @@ HWND FindOwner(const TString & data, const gsl::not_null<HWND> &defaultWnd)
 		const auto tsHwnd(data.gettok(gsl::narrow_cast<int>(i) + 1));
 
 		// if it is a number (HWND) passed		
-		if (const auto wnd = reinterpret_cast<HWND>(tsHwnd.to_<DWORD>()); wnd != nullptr)
+		if (const auto wnd = reinterpret_cast<HWND>(tsHwnd.to_<DWORD>()); wnd)
 			return wnd;
 
 		// try to retrieve dialog hwnd from name
-		if (const auto wnd = GetHwndFromString(tsHwnd); wnd != nullptr)
+		if (const auto wnd = GetHwndFromString(tsHwnd); wnd)
 			return wnd;
 	}
 
@@ -66,15 +66,19 @@ std::optional<HWND> FindOwner(const TString & data)
 		const auto tsHwnd(data.gettok(gsl::narrow_cast<int>(i) + 1));
 
 		// if it is a number (HWND) passed		
-		if (const auto wnd = reinterpret_cast<HWND>(tsHwnd.to_<DWORD>()); wnd != nullptr)
+		if (const auto wnd = reinterpret_cast<HWND>(tsHwnd.to_<DWORD>()); wnd)
 			return wnd;
 
 		// try to retrieve dialog hwnd from name
-		if (const auto wnd = GetHwndFromString(tsHwnd); wnd != nullptr)
+		if (const auto wnd = GetHwndFromString(tsHwnd); wnd)
 			return wnd;
 	}
 
 	return {};
+
+	//if (auto wnd = FindOwner(data, nullptr); wnd)
+	//	return wnd;
+	//return {};
 }
 
 /*!
@@ -381,15 +385,15 @@ void AddStyles(const HWND hwnd, const int parm, const long AddStyles) noexcept
 HRGN BitmapRegion(HBITMAP hBitmap, const COLORREF cTransparentColor, const bool bIsTransparent)
 {
 #if DCX_USE_WRAPPERS
+	// If the passed bitmap is NULL, go away!
+	if (!hBitmap)
+		return nullptr;
+
 	// We create an empty region
 	HRGN		hRegion = nullptr;
 
-	// If the passed bitmap is NULL, go away!
-	if (hBitmap == nullptr)
-		return nullptr;
-
 	// Computation of the bitmap size
-	BITMAP		bmBitmap;
+	BITMAP		bmBitmap{};
 
 	if (GetObject(hBitmap, sizeof(bmBitmap), &bmBitmap) == 0)
 		throw Dcx::dcxException("BitmapRegion() - Unable to get bitmap info");
@@ -420,12 +424,12 @@ HRGN BitmapRegion(HBITMAP hBitmap, const COLORREF cTransparentColor, const bool 
 	GdiFlush();
 	// We select the bitmap onto the created memory context
 	// and then we store the previosly selected bitmap on this context!
-	const auto hPrevBmp = SelectBitmap(hMemDC, hNewBitmap);
+	const auto hPrevBmp = SelectObject(hMemDC, hNewBitmap);
 
-	Auto(SelectBitmap(hMemDC, hPrevBmp));
+	Auto(SelectObject(hMemDC, hPrevBmp));
 
 	// We compute the number of bytes per row that the bitmap contains, rounding to 32 bit-multiples
-	BITMAP		bmNewBitmap;
+	BITMAP		bmNewBitmap{};
 
 	if (GetObject(hNewBitmap, sizeof(bmNewBitmap), &bmNewBitmap) == 0)
 		throw Dcx::dcxException("BitmapRegion() - Unable to get bitmap info");
@@ -444,7 +448,7 @@ HRGN BitmapRegion(HBITMAP hBitmap, const COLORREF cTransparentColor, const bool 
 	HRGN		hRegion = nullptr;
 
 	// If the passed bitmap is NULL, go away!
-	if (hBitmap == nullptr)
+	if (!hBitmap)
 		return nullptr;
 
 	// Computation of the bitmap size
@@ -459,7 +463,7 @@ HRGN BitmapRegion(HBITMAP hBitmap, const COLORREF cTransparentColor, const bool 
 	const HDC hMemDC = CreateCompatibleDC(nullptr);
 
 	// If no context is created, go away, too!
-	if (hMemDC == nullptr)
+	if (!hMemDC)
 		throw Dcx::dcxException("BitmapRegion() - Unable to create DC");
 
 	Auto(DeleteDC(hMemDC));
@@ -490,17 +494,17 @@ HRGN BitmapRegion(HBITMAP hBitmap, const COLORREF cTransparentColor, const bool 
 	const auto		hNewBitmap = CreateDIBSection(hMemDC, (BITMAPINFO *)&RGB32BITSBITMAPINFO, DIB_RGB_COLORS, &pBits, nullptr, 0);
 
 	// If the creation process succeded...
-	if (hNewBitmap == nullptr)
+	if (!hNewBitmap)
 		throw Dcx::dcxException("BitmapRegion() - CreateDIBSection() Failed: Invalid Parameter");
 
-	Auto(DeleteBitmap(hNewBitmap));
+	Auto(DeleteObject(hNewBitmap));
 
 	GdiFlush();
 	// We select the bitmap onto the created memory context
 	// and then we store the previosly selected bitmap on this context!
-	const auto hPrevBmp = SelectBitmap(hMemDC, hNewBitmap);
+	const auto hPrevBmp = SelectObject(hMemDC, hNewBitmap);
 
-	Auto(SelectBitmap(hMemDC, hPrevBmp));
+	Auto(SelectObject(hMemDC, hPrevBmp));
 
 	// We create another device context compatible with the first!
 
@@ -524,9 +528,9 @@ HRGN BitmapRegion(HBITMAP hBitmap, const COLORREF cTransparentColor, const bool 
 		bmNewBitmap.bmWidthBytes++;
 
 	// Copy of the original bitmap on the memory context!
-	const auto		hPrevBmpOrg = SelectBitmap(hDC, hBitmap);
+	const auto		hPrevBmpOrg = SelectObject(hDC, hBitmap);
 
-	Auto(SelectBitmap(hDC, hPrevBmpOrg));
+	Auto(SelectObject(hDC, hPrevBmpOrg));
 
 	BitBlt(hMemDC, 0, 0, bmBitmap.bmWidth, bmBitmap.bmHeight, hDC, 0, 0, SRCCOPY);
 #endif
@@ -546,7 +550,7 @@ HRGN BitmapRegion(HBITMAP hBitmap, const COLORREF cTransparentColor, const bool 
 	// We create the memory data
 	auto hData = GlobalAlloc(GMEM_MOVEABLE, sizeof(RGNDATAHEADER) + (sizeof(RECT)*maxRect));
 
-	if (hData == nullptr)
+	if (!hData)
 		throw Dcx::dcxException("BitmapRegion() - GlobalAlloc() failed");
 
 	Auto(GlobalFree(hData));
@@ -632,15 +636,15 @@ HRGN BitmapRegion(HBITMAP hBitmap, const COLORREF cTransparentColor, const bool 
 				// rectangle found, we call them every 2000 rectangles!!!
 				if (pData->rdh.nCount == 2000)
 				{
-					if (auto hNewRegion = ExtCreateRegion(nullptr, sizeof(RGNDATAHEADER) + (sizeof(RECT) * maxRect), pData); hNewRegion != nullptr)
+					if (auto hNewRegion = ExtCreateRegion(nullptr, sizeof(RGNDATAHEADER) + (sizeof(RECT) * maxRect), pData); hNewRegion)
 					{
 						// Si ya existe la región principal,sumamos la nueva,
 						// si no,entonces de momento la principal coincide con
 						// la nueva región.
-						if (hRegion != nullptr)
+						if (hRegion)
 						{
 							CombineRgn(hRegion, hRegion, hNewRegion, RGN_OR);
-							DeleteRgn(hNewRegion);
+							DeleteObject(hNewRegion);
 						}
 						else
 							hRegion = hNewRegion;
@@ -665,10 +669,10 @@ HRGN BitmapRegion(HBITMAP hBitmap, const COLORREF cTransparentColor, const bool 
 	{
 		// Una vez finalizado el proceso,procedemos a la fusión de la
 		// región remanente desde la última fusión hasta el final			
-		if (auto hNewRegion = ExtCreateRegion(nullptr, sizeof(RGNDATAHEADER) + (sizeof(RECT)*maxRect), pData); hNewRegion != nullptr)
+		if (auto hNewRegion = ExtCreateRegion(nullptr, sizeof(RGNDATAHEADER) + (sizeof(RECT)*maxRect), pData); hNewRegion)
 		{
 			// If the main region does already exist, we add the new one,
-			if (hRegion != nullptr)
+			if (hRegion)
 			{
 				CombineRgn(hRegion, hRegion, hNewRegion, RGN_OR);
 				DeleteObject(hNewRegion);
@@ -698,8 +702,8 @@ void ChangeHwndIcon(const HWND hwnd, const TString &flags, const int index, TStr
 	if (!IsFile(filename))
 		throw Dcx::dcxException(TEXT("ChangeHwndIcon() - Unable to Access File: %"), filename);
 
-	HICON iconSmall = nullptr;
-	HICON iconLarge = nullptr;
+	HICON iconSmall{ nullptr };
+	HICON iconLarge{ nullptr };
 	// check for +s small icon flag
 	if (xflags[TEXT('s')])
 		iconSmall = dcxLoadIcon(index, filename, false, flags);
@@ -707,7 +711,7 @@ void ChangeHwndIcon(const HWND hwnd, const TString &flags, const int index, TStr
 	if (xflags[TEXT('b')])
 		iconLarge = dcxLoadIcon(index, filename, true, flags);
 
-	if ((iconLarge == nullptr) && (iconSmall == nullptr))
+	if ((!iconLarge) && (!iconSmall))
 	{
 		// No big or small flags, so do both icons.
 		iconSmall = dcxLoadIcon(index, filename, false, flags);
@@ -715,15 +719,15 @@ void ChangeHwndIcon(const HWND hwnd, const TString &flags, const int index, TStr
 	}
 
 	// set the new icons, get back the current icon
-	if (iconSmall != nullptr)
+	if (iconSmall)
 		iconSmall = (HICON) SendMessage(hwnd, WM_SETICON, ICON_SMALL, (LPARAM) iconSmall);
-	if (iconLarge != nullptr)
+	if (iconLarge)
 		iconLarge = (HICON) SendMessage(hwnd, WM_SETICON, ICON_BIG, (LPARAM) iconLarge);
 
 	// delete the old icons
-	if (iconSmall != nullptr)
+	if (iconSmall)
 		DestroyIcon(iconSmall);
-	if ((iconLarge != nullptr) && (iconSmall != iconLarge)) // dont delete twice
+	if ((iconLarge) && (iconSmall != iconLarge)) // dont delete twice
 		DestroyIcon(iconLarge);
 }
 
