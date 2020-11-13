@@ -31,32 +31,33 @@
 #include "RichEditThemed.h"
 
 //This STL map is used to keep track of all the instances of the class
-std::map<HWND,CRichEditThemed*> CRichEditThemed::m_aInstances;
+//std::map<HWND,CRichEditThemed*> CRichEditThemed::m_aInstances;
 
 //The theme-specific functions are imported at runtime for backward compatibility reasons
 //A nicer alternative if you are using Visual C++ 7.0 or above is the use of the "delay load" mechanism
-HMODULE CRichEditThemed::m_hUxTheme = nullptr;
-HTHEME(WINAPI *CRichEditThemed::pOpenThemeData)(HWND, LPCWSTR) = nullptr;
-HRESULT(WINAPI *CRichEditThemed::pCloseThemeData)(HTHEME) = nullptr;
-HRESULT(WINAPI *CRichEditThemed::pDrawThemeBackground)(HTHEME, HDC, int, int, const RECT*, const RECT *) = nullptr;
-HRESULT(WINAPI *CRichEditThemed::pGetThemeBackgroundContentRect)(HTHEME, HDC, int, int, const RECT *, RECT *) = nullptr;
-BOOL(WINAPI *CRichEditThemed::pIsThemeActive)() = nullptr;
-HRESULT(WINAPI *CRichEditThemed::pDrawThemeParentBackground)(HWND, HDC, RECT*) = nullptr;
-BOOL(WINAPI *CRichEditThemed::pIsThemeBackgroundPartiallyTransparent)(HTHEME, int, int) = nullptr;
+//HMODULE CRichEditThemed::m_hUxTheme = nullptr;
+HTHEME(WINAPI* CRichEditThemed::pOpenThemeData)(HWND, LPCWSTR) = nullptr;
+HRESULT(WINAPI* CRichEditThemed::pCloseThemeData)(HTHEME) = nullptr;
+HRESULT(WINAPI* CRichEditThemed::pDrawThemeBackground)(HTHEME, HDC, int, int, const RECT*, const RECT*) = nullptr;
+HRESULT(WINAPI* CRichEditThemed::pGetThemeBackgroundContentRect)(HTHEME, HDC, int, int, const RECT*, RECT*) = nullptr;
+BOOL(WINAPI* CRichEditThemed::pIsThemeActive)() = nullptr;
+HRESULT(WINAPI* CRichEditThemed::pDrawThemeParentBackground)(HWND, HDC, RECT*) = nullptr;
+BOOL(WINAPI* CRichEditThemed::pIsThemeBackgroundPartiallyTransparent)(HTHEME, int, int) = nullptr;
 
 //
 // This function is the one and only public function your program must use
 // It needs to be called during the creation/initialisation of the parent window
 //////////////////////////////////////////////////////////////////////////////
+GSL_SUPPRESS(r.11)
 bool CRichEditThemed::Attach(HWND hRichEdit)
 {
-	if(IsWindow(hRichEdit)) //It is your responsibility to ensure that the handle parameter is, indeed, a richedit window
+	if (IsWindow(hRichEdit)) //It is your responsibility to ensure that the handle parameter is, indeed, a richedit window
 	{
 		//Prevent double subclassing
-		if(CRichEditThemed::m_aInstances.find(hRichEdit) == CRichEditThemed::m_aInstances.end())
+		if (CRichEditThemed::m_aInstances.find(hRichEdit) == CRichEditThemed::m_aInstances.end())
 		{
 			//If this function fails, this version of Windows doesn't support themes
-			if(InitLibrary())
+			if (InitLibrary())
 			{
 				//Note: the object will be automatically deleted when the richedit control dies
 				/*CRichEditThemed *obj =*/ new CRichEditThemed(hRichEdit);
@@ -69,6 +70,7 @@ bool CRichEditThemed::Attach(HWND hRichEdit)
 
 //
 //////////////////////////////////////////////////////////////////////////////
+GSL_SUPPRESS(type.4)
 CRichEditThemed::CRichEditThemed(HWND hRichEdit)
 	: m_hRichEdit(hRichEdit)
 {
@@ -87,9 +89,9 @@ CRichEditThemed::~CRichEditThemed()
 {
 	//Unload the UxTheme library if it is not needed anymore by a control
 	m_aInstances.erase(m_hRichEdit);
-	if(m_aInstances.empty())
+	if (m_aInstances.empty())
 	{
-		pOpenThemeData =  nullptr;
+		pOpenThemeData = nullptr;
 		pCloseThemeData = nullptr;
 		pDrawThemeBackground = nullptr;
 		pGetThemeBackgroundContentRect = nullptr;
@@ -104,30 +106,31 @@ CRichEditThemed::~CRichEditThemed()
 
 //
 //////////////////////////////////////////////////////////////////////////////
+GSL_SUPPRESS(type.4)
 bool CRichEditThemed::InitLibrary() noexcept
 {
 	//Are we already initialised?
-	if(pOpenThemeData && pCloseThemeData && pDrawThemeBackground && pGetThemeBackgroundContentRect && pIsThemeActive && pDrawThemeParentBackground && pIsThemeBackgroundPartiallyTransparent)
+	if (pOpenThemeData && pCloseThemeData && pDrawThemeBackground && pGetThemeBackgroundContentRect && pIsThemeActive && pDrawThemeParentBackground && pIsThemeBackgroundPartiallyTransparent)
 		return true;
 
 	//Try to get the function pointers of the UxTheme library
-	if(m_hUxTheme == nullptr)
+	if (!m_hUxTheme)
 	{
 		m_hUxTheme = LoadLibrary(_T("UxTheme.dll"));
-		if(m_hUxTheme == nullptr)
+		if (!m_hUxTheme)
 			return false;
 	}
 
 #pragma warning(push)
 #pragma warning(disable: 4191)
 
-	pOpenThemeData = (HTHEME (WINAPI *)(HWND, LPCWSTR))GetProcAddress(m_hUxTheme, "OpenThemeData");
-	pCloseThemeData = (HRESULT (WINAPI *)(HTHEME))GetProcAddress(m_hUxTheme, "CloseThemeData");
-	pDrawThemeBackground = (HRESULT (WINAPI *)(HTHEME, HDC, int, int, const RECT*, const RECT *))GetProcAddress(m_hUxTheme, "DrawThemeBackground");
-	pGetThemeBackgroundContentRect = (HRESULT (WINAPI *)(HTHEME, HDC, int, int,  const RECT *, RECT *))GetProcAddress(m_hUxTheme, "GetThemeBackgroundContentRect");
-	pIsThemeActive = (BOOL (WINAPI *)())GetProcAddress(m_hUxTheme, "IsThemeActive");
-	pDrawThemeParentBackground = (HRESULT (WINAPI *)(HWND, HDC, RECT*))GetProcAddress(m_hUxTheme, "DrawThemeParentBackground");
-	pIsThemeBackgroundPartiallyTransparent = (BOOL (WINAPI *)(HTHEME, int, int))GetProcAddress(m_hUxTheme, "IsThemeBackgroundPartiallyTransparent");
+	pOpenThemeData = (HTHEME(WINAPI*)(HWND, LPCWSTR))GetProcAddress(m_hUxTheme, "OpenThemeData");
+	pCloseThemeData = (HRESULT(WINAPI*)(HTHEME))GetProcAddress(m_hUxTheme, "CloseThemeData");
+	pDrawThemeBackground = (HRESULT(WINAPI*)(HTHEME, HDC, int, int, const RECT*, const RECT*))GetProcAddress(m_hUxTheme, "DrawThemeBackground");
+	pGetThemeBackgroundContentRect = (HRESULT(WINAPI*)(HTHEME, HDC, int, int, const RECT*, RECT*))GetProcAddress(m_hUxTheme, "GetThemeBackgroundContentRect");
+	pIsThemeActive = (BOOL(WINAPI*)())GetProcAddress(m_hUxTheme, "IsThemeActive");
+	pDrawThemeParentBackground = (HRESULT(WINAPI*)(HWND, HDC, RECT*))GetProcAddress(m_hUxTheme, "DrawThemeParentBackground");
+	pIsThemeBackgroundPartiallyTransparent = (BOOL(WINAPI*)(HTHEME, int, int))GetProcAddress(m_hUxTheme, "IsThemeBackgroundPartiallyTransparent");
 
 #pragma warning(pop)
 
@@ -136,56 +139,57 @@ bool CRichEditThemed::InitLibrary() noexcept
 
 //
 //////////////////////////////////////////////////////////////////////////////
+GSL_SUPPRESS(type.4)
 LRESULT CALLBACK CRichEditThemed::RichEditStyledProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	//This function is the subclassed winproc of the richedit control
 	//It is used to monitor the actions of the control, in a nice and transparent manner
-	
-	if(const auto &itCurInstance = m_aInstances.find(hwnd); itCurInstance != m_aInstances.end())
+
+	if (const auto& itCurInstance = m_aInstances.find(hwnd); itCurInstance != m_aInstances.end())
 	{
 		//A winproc is always static, this one is common to all the richedit controls managed by this class
 		//We need to get a pointer to the object controlling the richedit which is receiving this message
 		const auto pObj = itCurInstance->second;
-		
+
 		//If you get a compilation error here, it is probably because _WIN32_WINNT is not defined to at least 0x0501
-		if(uMsg == WM_THEMECHANGED || uMsg == WM_STYLECHANGED)
+		if (uMsg == WM_THEMECHANGED || uMsg == WM_STYLECHANGED)
 		{
 			//Someone just changed the style of the richedit control or the user changed its theme
 			//Make sure the control is being kept up to date by verifying its state
 			pObj->VerifyThemedBorderState();
 		}
-		else if(uMsg == WM_NCPAINT)
+		else if (uMsg == WM_NCPAINT)
 		{
 			//Let the control paint its own non-client elements (such as its scrollbars)
 			const auto nOriginalReturn = CallWindowProc(pObj->m_pOriginalWndProc, hwnd, uMsg, wParam, lParam);
 
 			//Draw the theme, if necessary
-			if(pObj->OnNCPaint())
+			if (pObj->OnNCPaint())
 				return 0;
 
 			return nOriginalReturn;
 		}
-		else if(uMsg == WM_ENABLE)
+		else if (uMsg == WM_ENABLE)
 		{
 			//Redraw the border depending on the state of the richedit control
-			RedrawWindow(hwnd, nullptr, nullptr, RDW_INVALIDATE|RDW_NOCHILDREN|RDW_UPDATENOW|RDW_FRAME);
+			RedrawWindow(hwnd, nullptr, nullptr, RDW_INVALIDATE | RDW_NOCHILDREN | RDW_UPDATENOW | RDW_FRAME);
 		}
-		else if(uMsg == WM_NCCALCSIZE)
+		else if (uMsg == WM_NCCALCSIZE)
 		{
 			//If wParam is FALSE, we don't need to make any calculation
-			if(wParam)
+			if (wParam)
 			{
 				//Ask the control to first calculate the space it needs
 				const auto nOriginalReturn = CallWindowProc(pObj->m_pOriginalWndProc, hwnd, uMsg, wParam, lParam);
 
 				//Alter the size for our own border, if necessary
-				if(const auto csparam = reinterpret_cast<NCCALCSIZE_PARAMS*>(lParam); pObj->OnNCCalcSize(csparam))
+				if (const auto csparam = reinterpret_cast<NCCALCSIZE_PARAMS*>(lParam); pObj->OnNCCalcSize(csparam))
 					return WVR_REDRAW;
 
 				return nOriginalReturn;
 			}
 		}
-		else if(uMsg == WM_DESTROY)
+		else if (uMsg == WM_DESTROY)
 		{
 			////Fail-safe: don't restore the original wndproc pointer if it has been modified since the creation of this object
 			//if(IsWindow(hwnd))
@@ -224,27 +228,27 @@ void CRichEditThemed::VerifyThemedBorderState() noexcept
 	const bool bCurrentThemedBorder = m_bThemedBorder;
 	m_bThemedBorder = false;
 
-	const auto dStyle = GetWindowStyle(m_hRichEdit);
-	const auto dExStyle = GetWindowExStyle(m_hRichEdit);
+	const auto dStyle = dcxGetWindowStyle(m_hRichEdit);
+	const auto dExStyle = dcxGetWindowExStyle(m_hRichEdit);
 
 	//First, check if the control is supposed to have a border
-	if(bCurrentThemedBorder || (dStyle & WS_BORDER || dExStyle & WS_EX_CLIENTEDGE))
+	if (bCurrentThemedBorder || dcx_testflag(dStyle, WS_BORDER) || dcx_testflag(dExStyle, WS_EX_CLIENTEDGE))
 	{
 		//Check if a theme is presently active
-		if(pIsThemeActive())
+		if (pIsThemeActive())
 		{
 			//Remove the border style, we don't want the control to draw its own border
 			m_bThemedBorder = true;
-			if(dStyle & WS_BORDER)
-				SetWindowLong(m_hRichEdit, GWL_STYLE, static_cast<long>(dStyle ^WS_BORDER));
-			if(dExStyle & WS_EX_CLIENTEDGE)
-				SetWindowLong(m_hRichEdit, GWL_EXSTYLE, static_cast<long>(dExStyle ^WS_EX_CLIENTEDGE));
+			if (dcx_testflag(dStyle, WS_BORDER))
+				SetWindowLong(m_hRichEdit, GWL_STYLE, static_cast<long>(dStyle ^ WS_BORDER));
+			if (dcx_testflag(dExStyle, WS_EX_CLIENTEDGE))
+				SetWindowLong(m_hRichEdit, GWL_EXSTYLE, static_cast<long>(dExStyle ^ WS_EX_CLIENTEDGE));
 		}
 	}
 
 	//Recalculate the NC area and repaint the window
-	SetWindowPos(m_hRichEdit, nullptr, 0, 0, 0, 0, SWP_NOMOVE|SWP_NOSIZE|SWP_NOZORDER|SWP_NOACTIVATE|SWP_FRAMECHANGED);
-	RedrawWindow(m_hRichEdit, nullptr, nullptr, RDW_INVALIDATE|RDW_NOCHILDREN|RDW_UPDATENOW|RDW_FRAME);
+	SetWindowPos(m_hRichEdit, nullptr, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED);
+	RedrawWindow(m_hRichEdit, nullptr, nullptr, RDW_INVALIDATE | RDW_NOCHILDREN | RDW_UPDATENOW | RDW_FRAME);
 }
 
 //
@@ -253,13 +257,13 @@ bool CRichEditThemed::OnNCPaint() noexcept
 {
 	try
 	{
-		if(m_bThemedBorder)
+		if (m_bThemedBorder)
 		{
-			if(const auto hTheme = pOpenThemeData(m_hRichEdit, VSCLASS_EDIT); hTheme != nullptr)
+			if (const auto hTheme = pOpenThemeData(m_hRichEdit, VSCLASS_EDIT); hTheme)
 			{
 				Auto(pCloseThemeData(hTheme));
 
-				if (const auto hdc = GetWindowDC(m_hRichEdit); hdc != nullptr)
+				if (const auto hdc = GetWindowDC(m_hRichEdit); hdc)
 				{
 					Auto(ReleaseDC(m_hRichEdit, hdc));
 
@@ -296,7 +300,7 @@ bool CRichEditThemed::OnNCPaint() noexcept
 			}
 		}
 	}
-	catch(...)
+	catch (...)
 	{
 		//No exception is supposed to be thrown here but you can never be too safe
 		//Trace an error here with your favorite TRACE macro
@@ -306,24 +310,24 @@ bool CRichEditThemed::OnNCPaint() noexcept
 
 //
 //////////////////////////////////////////////////////////////////////////////
-bool CRichEditThemed::OnNCCalcSize(NCCALCSIZE_PARAMS *csparam) noexcept
+bool CRichEditThemed::OnNCCalcSize(NCCALCSIZE_PARAMS* csparam) noexcept
 {
 	try
 	{
 		//Here, we indicate to Windows that the non-client area of the richedit control is not what it thinks it should be
 		//This gives us the necessary space to draw the special border later on
-		if(m_bThemedBorder)
+		if (m_bThemedBorder)
 		{
 			//Load the theme associated with edit boxes
-			if(const auto hTheme = pOpenThemeData(m_hRichEdit, VSCLASS_EDIT); hTheme != nullptr)
+			if (const auto hTheme = pOpenThemeData(m_hRichEdit, VSCLASS_EDIT); hTheme)
 			{
 				Auto(pCloseThemeData(hTheme));
 
 				//Get the size required by the current theme to be displayed properly
-				if (const auto hdc = GetDC(GetParent(m_hRichEdit)); hdc != nullptr)
+				if (const auto hdc = GetDC(GetParent(m_hRichEdit)); hdc)
 				{
 					Auto(ReleaseDC(GetParent(m_hRichEdit), hdc));
-					
+
 					if (RECT rcClient{}; pGetThemeBackgroundContentRect(hTheme, hdc, EP_EDITTEXT, ETS_NORMAL, &csparam->rgrc[0], &rcClient) == S_OK)
 					{
 						//Add a pixel to every edge so that the client area is not too close to the border drawn by the theme (thus simulating a native edit box)
@@ -342,7 +346,7 @@ bool CRichEditThemed::OnNCCalcSize(NCCALCSIZE_PARAMS *csparam) noexcept
 		}
 
 	}
-	catch(...)
+	catch (...)
 	{
 		//No exception is supposed to be thrown here but you can never be too safe
 		//Trace an error here with your favorite TRACE macro

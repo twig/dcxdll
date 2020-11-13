@@ -34,7 +34,7 @@
 #include <tmschema.h>	//Definitions used by some of the UxTheme library functions
 #endif
 
-class CRichEditThemed
+class CRichEditThemed final
 {
 public:
 	//This function must be called during the creation of your window, like in WM_INITDIALOG or WM_CREATE
@@ -59,15 +59,15 @@ private:
 	static LRESULT CALLBACK RichEditStyledProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 private:
-	static std::map<HWND,CRichEditThemed*> m_aInstances;
+	static inline std::map<HWND,CRichEditThemed*> m_aInstances;
 
-	HWND m_hRichEdit;
-	WNDPROC m_pOriginalWndProc;
+	HWND m_hRichEdit{ nullptr };
+	WNDPROC m_pOriginalWndProc{ nullptr };
 	bool m_bThemedBorder{ false };
 	RECT m_rcClientPos{ 0,0,0,0 };
 
 	//Function pointers from the UxTheme library
-	static HMODULE m_hUxTheme;
+	static inline HMODULE m_hUxTheme{ nullptr };
 	static HTHEME (WINAPI *pOpenThemeData)(HWND, LPCWSTR);
 	static HRESULT (WINAPI *pCloseThemeData)(HTHEME);
 	static HRESULT (WINAPI *pDrawThemeBackground)(HTHEME, HDC, int, int, const RECT*, const RECT *);
