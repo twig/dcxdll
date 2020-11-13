@@ -5,7 +5,8 @@
 
 #define DCXML_ID_OFFSET 2000U
 
-struct DcxmlControlAttributes {
+struct DcxmlControlAttributes final
+{
 	UINT m_iID{};
 	UINT m_iParentID{};
 	const char *m_sElem{ nullptr };
@@ -48,19 +49,20 @@ struct DcxmlControlAttributes {
 	const char *m_sSelectedsrc{ nullptr };
 };
 
-struct DcxmlControlTemplates {
+struct DcxmlControlTemplates final
+{
 	const TiXmlElement*					m_pTemplateRef{ nullptr };
 	int									m_iTemplateRefcCla{};
 	const char *						m_sTemplateRefclaPath{ nullptr };
 	std::map<const char*, const char*>	m_mTemplate_vars;
 };
 
-class DcxmlParser {
-
+class DcxmlParser final
+{
 public:
 	//constructor
 	DcxmlParser() noexcept {};
-	~DcxmlParser() noexcept {};
+	~DcxmlParser() noexcept = default;
 
 	DcxmlParser(const DcxmlParser &) = delete;
 	DcxmlParser(DcxmlParser &&) = delete;
@@ -68,8 +70,8 @@ public:
 	DcxmlParser &operator =(DcxmlParser &&) = delete;
 
 	bool ParseXML(const TString &tsFilePath, const TString &tsDialogMark,const TString &DialogName,const bool verbose, const bool autoClose);
-	void parseAttributes();
-	void parseAttributes(const TiXmlElement *const tElement);
+	void parseAttributes() noexcept;
+	void parseAttributes(const TiXmlElement *const tElement) noexcept;
 	void parseControl();
 	TString parseCLA(const int cCla);
 

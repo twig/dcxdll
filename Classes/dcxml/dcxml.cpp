@@ -17,16 +17,17 @@
 #include "dcxmlincludes.h"
 #include "dcxmlparser.h"
 
-/*
- * /dcxml -[SWITCH] [?NAME] [DATASET] [PARMS]
- *
- * -d = [DNAME] [DATASET] [FILENAME]
- * -p = [PNAME] [DATASET] [FILENAME]
- */
+ /*
+  * /dcxml -[SWITCH] [?NAME] [DATASET] [PARMS]
+  *
+  * -d = [DNAME] [DATASET] [FILENAME]
+  * -p = [PNAME] [DATASET] [FILENAME]
+  */
 
 DcxmlParser Parser;
 
-mIRC(dcxml) {
+mIRC(dcxml)
+{
 	const TString input(data);
 
 	data[0] = 0;
@@ -35,12 +36,14 @@ mIRC(dcxml) {
 		const auto numtok = input.numtok();
 
 		if (numtok < 3)
-			throw Dcx::dcxException("Insuffient parameters");
+			//throw Dcx::dcxException("Insuffient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const XSwitchFlags flags(input.getfirsttok(1));
 
 		// Parse XDialog XML.
-		if (flags[TEXT('d')]) {
+		if (flags[TEXT('d')])
+		{
 			const auto tsMark(input.getnexttok());			// tok 2
 			const auto tsName(input.getnexttok());			// tok 3
 			auto tsFilename(input.getlasttoks().trim());	// tok 4, -1
@@ -53,7 +56,8 @@ mIRC(dcxml) {
 		}
 		// Parse XPopup DCXML.
 
-		else if (flags[TEXT('p')]) {
+		else if (flags[TEXT('p')])
+		{
 			const auto popupName(input.getnexttok());		// tok 2
 			const auto popupDataset(input.getnexttok());		// tok 3
 			auto tsFilename(input.getlasttoks().trim());		// tok 4, -1
@@ -75,7 +79,7 @@ mIRC(dcxml) {
 			if (dcxmlElem == nullptr)
 				throw Dcx::dcxException("Unable to find <dcxml> group");
 
-			const auto *const popups = dcxmlElem->FirstChildElement("popups");
+			const auto* const popups = dcxmlElem->FirstChildElement("popups");
 			if (popups == nullptr)
 				throw Dcx::dcxException("Unable to find <popups> group");
 
@@ -87,14 +91,12 @@ mIRC(dcxml) {
 		else
 			throw Dcx::dcxException(TEXT("Unknown flag %"), input.gettok(1));
 	}
-	catch (const std::exception &e)
+	catch (const std::exception& e)
 	{
-		//Dcx::errorex(TEXT("/dcxml"), TEXT("\"%s\" error: %S"), input.to_chr(), e.what());
 		Dcx::error(TEXT("/dcxml"), TEXT("\"%\" error: %"), input, e.what());
 	}
 	catch (...) {
 		// stop any left over exceptions...
-		//Dcx::errorex(TEXT("/dcxml"), TEXT("\"%s\" error: Unknown Exception"), input.to_chr());
 		Dcx::error(TEXT("/dcxml"), TEXT("\"%\" error: Unknown Exception"), input);
 	}
 	return 0;
@@ -120,7 +122,7 @@ mIRC(_dcxml)
 
 		return 3;
 	}
-	catch (const std::exception &e)
+	catch (const std::exception& e)
 	{
 		//Dcx::errorex(TEXT("$!dcxml"), TEXT("\"%s\" error: %S"), d.to_chr(), e.what());
 		Dcx::error(TEXT("$!dcxml"), TEXT("\"%\" error: %"), d, e.what());

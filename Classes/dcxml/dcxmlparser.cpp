@@ -124,6 +124,9 @@ void DcxmlParser::loadDocument()
 		throw Dcx::dcxException(TEXT("XML error in \"%\" (row % column %) %"), tsPath, doc.ErrorRow(), doc.ErrorCol(), doc.ErrorDesc());
 
 	m_xmlDocument = doc;
+
+	//m_xmlDocument.Clear();
+	//doc.CopyTo(m_xmlDocument);
 }
 
 void DcxmlParser::loadDialog()
@@ -160,12 +163,12 @@ void DcxmlParser::loadDialogElement()
 	throw Dcx::dcxException(TEXT("Theres no <dialog> element with attribute name=\"%\" in \"%\""), getDialogName(), getFilePath());
 }
 
-void DcxmlParser::parseAttributes()
+void DcxmlParser::parseAttributes() noexcept
 {
 	parseAttributes(m_pElement);
 }
 
-void DcxmlParser::parseAttributes(const TiXmlElement* const tElement)
+void DcxmlParser::parseAttributes(const TiXmlElement* const tElement) noexcept
 {
 	m_sElem = tElement->Value();
 	m_sParentelem = m_pParent->Value();
@@ -238,18 +241,26 @@ void DcxmlParser::parseControl()
 		break;
 	case "button"_hash:		//	button
 		xdidEX(m_iID, TEXT("-l"), TEXT("%S"), m_sIconsize);
+		[[fallthrough]];
 	case "radio"_hash:		//	radio
+		[[fallthrough]];
 	case "link"_hash:		//	link
+		[[fallthrough]];
 	case "check"_hash:	//	check
+		[[fallthrough]];
 	case "box"_hash:	//	box
 		if (m_sCaption)
 			xdidEX(m_iID, TEXT("-t"), TEXT("%S"), m_sCaption);
 		break;
 	case "toolbar"_hash:		//	toolbar
+		[[fallthrough]];
 	case "treeview"_hash:		//	treeview
 		xdidEX(m_iID, TEXT("-l"), TEXT("%S"), m_sIconsize);
+		[[fallthrough]];
 	case "comboex"_hash:		//	comboex
+		[[fallthrough]];
 	case "list"_hash:		//	list
+		[[fallthrough]];
 	case "listview"_hash:		//	listview
 		parseItems(m_pElement);
 		break;
@@ -290,6 +301,7 @@ void DcxmlParser::parseControl()
 		}
 		break;
 	case "edit"_hash:	//	edit
+		[[fallthrough]];
 	case "richedit"_hash:	//	richedit
 		if (m_sCaption)
 		{
@@ -315,11 +327,14 @@ void DcxmlParser::parseControl()
 				mystring.replace(TEXT("\\i"), TEXT('\x1D'));	// italics
 				mystring.replace(TEXT("\\o"), TEXT('\x0F'));	// ctrl-o
 			}
-			UINT line = 0U;
-			for (auto itStart = mystring.begin(TEXT("\r\n")), itEnd = mystring.end(); itStart != itEnd; ++itStart)
 			{
-				++line;
-				xdidEX(m_iID, TEXT("-i"), TEXT("%u %s"), line, (*itStart).to_chr());
+				UINT line = 0U;
+				const auto itEnd = mystring.end();
+				for (auto itStart = mystring.begin(TEXT("\r\n")); itStart != itEnd; ++itStart)
+				{
+					++line;
+					xdidEX(m_iID, TEXT("-i"), TEXT("%u %s"), line, (*itStart).to_chr());
+				}
 			}
 		}
 		break;
@@ -334,6 +349,7 @@ void DcxmlParser::parseControl()
 	case "image"_hash:	//	image
 		if (m_sSrc)
 			xdidEX(m_iID, TEXT("-i"), TEXT("+%S %S"), ((m_sTFlags) ? m_sTFlags : ""), m_sSrc);
+		break;
 	default:	//	unknown?!?!?!
 		break;
 	}
@@ -343,6 +359,8 @@ void DcxmlParser::parseControl()
 }
 
 /* xdialogEX(switch,format[,args[]]) : performs an xdialog command internally or through mIRC */
+GSL_SUPPRESS(es.47)
+GSL_SUPPRESS(type.3)
 void DcxmlParser::xdialogEX(const TCHAR* const sw, const TCHAR* const dFormat, ...)
 {
 	TString txt;
@@ -398,6 +416,8 @@ void DcxmlParser::xml_xdid(const UINT cid, const TCHAR* const sSwitch, const TSt
 }
 
 /* xdidEX(controlId,switch,format[,args[]]) : performs an xdid command internally or through mIRC on the specified ID */
+GSL_SUPPRESS(es.47)
+GSL_SUPPRESS(type.3)
 void DcxmlParser::xdidEX(const UINT cid, const TCHAR* const sw, const TCHAR* const dFormat, ...)
 {
 	TString txt;
@@ -905,21 +925,21 @@ void DcxmlParser::parseDialog(const UINT depth, const char* claPath, const UINT 
 				//	mIRCLinker::exec(TEXT("//unset \\%%"), iter->first);
 				//}
 
-				for (const auto &attribute: *m_pElement->FirstAttribute())
+				for (const auto& attribute : *m_pElement->FirstAttribute())
 				{
 					const refString<const char, -1> refName(attribute->Name());
 					if (refName == "name")
 						continue;
 					m_mTemplate_vars[refName] = attribute->Value();
 				}
-				for (const auto &x: m_mTemplate_vars)
+				for (const auto& x : m_mTemplate_vars)
 				{
 					mIRCLinker::exec(TEXT("//set \\%% %"), x.first, x.second);
 				}
 				m_sTemplateRefclaPath = t_claPathx;
 				parseTemplate(depth, claPath, passedid);
 				m_pTemplateRef = nullptr;
-				for (const auto &x: m_mTemplate_vars)
+				for (const auto& x : m_mTemplate_vars)
 				{
 					mIRCLinker::exec(TEXT("//unset \\%%"), x.first);
 				}
@@ -995,7 +1015,9 @@ void DcxmlParser::parseDialog(const UINT depth, const char* claPath, const UINT 
 				case "pager"_hash:
 					if (control != 1)
 						break;
+					[[fallthrough]];
 				case "panel"_hash:
+					[[fallthrough]];
 				case "box"_hash:
 					xdidEX(m_iParentID, TEXT("-c"), TEXT("%u %S 0 0 %S %S %S"), m_iID, m_sType, m_sWidth, (m_sDropdown ? m_sDropdown : m_sHeight), m_sStyles);
 					break;
@@ -1003,7 +1025,8 @@ void DcxmlParser::parseDialog(const UINT depth, const char* claPath, const UINT 
 					xdidEX(m_iParentID, TEXT("-a"), TEXT("0 %S %S \t %u %S 0 0 %S %S %S \t %S"), m_sIcon, m_sCaption, m_iID, m_sType, m_sWidth, (m_sDropdown ? m_sDropdown : m_sHeight), m_sStyles, m_sTooltip);
 					break;
 				case "divider"_hash:
-					if (control <= 2) {
+					if (control <= 2)
+					{
 						// <= 2 so MUST be either 1 or 2, can't be zero
 						if (control == 1)
 							xdidEX(m_iParentID, TEXT("-l"), TEXT("%S 0 \t %u %S 0 0 %S %S %S"), m_sWidth, m_iID, m_sType, m_sWidth, (m_sDropdown ? m_sDropdown : m_sHeight), m_sStyles);
@@ -1022,6 +1045,7 @@ void DcxmlParser::parseDialog(const UINT depth, const char* claPath, const UINT 
 					break;
 				case "statusbar"_hash:
 					xdidEX(m_iParentID, TEXT("-t"), TEXT("%i +c %S %u %S 0 0 0 0 %S"), cell, m_sIcon, m_iID, m_sType, m_sStyles);
+					break;
 				default:
 					break;
 				}
@@ -1075,7 +1099,7 @@ void DcxmlParser::registerId(const TiXmlElement* const idElement, const UINT iNe
 //	}
 //#pragma warning(pop)
 
-	if (idElement->QueryIntAttribute("id").first != TIXML_SUCCESS) //<! id attr. is not an int
+	if (idElement->QueryIntAttribute("id").first != TiXmlReturns::TIXML_SUCCESS) //<! id attr. is not an int
 	{
 		if (const TString elementNamedId(idElement->Attribute("id")); !elementNamedId.empty())
 		{
@@ -1122,7 +1146,7 @@ UINT DcxmlParser::parseId(const TiXmlElement* const idElement)
 		return 0U;
 
 	//<! if id attribute is already integer return it
-	if (const auto [iStatus, local_id] = idElement->QueryIntAttribute("id"); iStatus == TIXML_SUCCESS)
+	if (const auto [iStatus, local_id] = idElement->QueryIntAttribute("id"); iStatus == TiXmlReturns::TIXML_SUCCESS)
 	{
 		// found ID as a number,  if its not a negative, return it.
 		return gsl::narrow_cast<UINT>(std::max(local_id, 0));
