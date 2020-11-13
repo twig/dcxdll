@@ -102,7 +102,7 @@ HRESULT GetDXVersion(DWORD* pdwDirectXVersion, TCHAR* strDirectXVersion, int cch
 		return E_FAIL;
 
 	// Set the output values to what we got and return
-	cDirectXVersionLetter = (TCHAR)tolower(cDirectXVersionLetter);
+	cDirectXVersionLetter = gsl::narrow_cast<TCHAR>(tolower(cDirectXVersionLetter));
 
 	if (pdwDirectXVersion)
 	{
@@ -123,9 +123,9 @@ HRESULT GetDXVersion(DWORD* pdwDirectXVersion, TCHAR* strDirectXVersion, int cch
 		// If strDirectXVersion is non-NULL, then set it to something
 		// like "8.1b" which would represent DirectX8.1b
 		if (cDirectXVersionLetter == TEXT(' '))
-			StringCchPrintf(strDirectXVersion, (size_t)cchDirectXVersion, TEXT("%u.%u"), dwDirectXVersionMajor, dwDirectXVersionMinor);
+			StringCchPrintf(strDirectXVersion, gsl::narrow_cast<size_t>(cchDirectXVersion), TEXT("%u.%u"), dwDirectXVersionMajor, dwDirectXVersionMinor);
 		else
-			StringCchPrintf(strDirectXVersion, (size_t)cchDirectXVersion, TEXT("%u.%u%c"), dwDirectXVersionMajor, dwDirectXVersionMinor, cDirectXVersionLetter);
+			StringCchPrintf(strDirectXVersion, gsl::narrow_cast<size_t>(cchDirectXVersion), TEXT("%u.%u%c"), dwDirectXVersionMajor, dwDirectXVersionMinor, cDirectXVersionLetter);
 	}
 
 	return S_OK;
@@ -531,7 +531,7 @@ HRESULT GetFileVersion(const TCHAR *const szPath, ULARGE_INTEGER* pllFileVersion
 		{
 			if (auto pFileVersionBuffer = std::make_unique<BYTE[]>(cb); GetFileVersionInfo(szPath, 0, cb, pFileVersionBuffer.get()))
 			{
-				if (VS_FIXEDFILEINFO* pVersion = nullptr; VerQueryValue(pFileVersionBuffer.get(), TEXT("\\"), (VOID**)&pVersion, &cb) && pVersion != nullptr)
+				if (VS_FIXEDFILEINFO* pVersion = nullptr; VerQueryValue(pFileVersionBuffer.get(), TEXT("\\"), (VOID**)&pVersion, &cb) && pVersion)
 				{
 					pllFileVersion->HighPart = pVersion->dwFileVersionMS;
 					pllFileVersion->LowPart = pVersion->dwFileVersionLS;

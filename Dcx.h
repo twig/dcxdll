@@ -1046,7 +1046,7 @@ namespace Dcx
 		T b, e;
 	};
 	template< typename T > range_t<T>  make_range(T b, T e) noexcept { return{ b, e }; }
-	template< typename T > range_t<T>  make_range(const TString& tsItems, T nItemCnt)
+	template< DcxConcepts::IsNumeric T > range_t<T>  make_range(const TString& tsItems, T nItemCnt)
 	{
 		T iStart{}, iEnd{};
 		if (tsItems.numtok(TEXT('-')) == 2)
