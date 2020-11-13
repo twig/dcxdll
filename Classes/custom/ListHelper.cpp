@@ -2,34 +2,77 @@
 #include "ListHelper.h"
 
 
-void DcxListHelper::getItemRange(const TString &tsItems, const int nItemCnt, const gsl::not_null<int *> &iStart_range, const gsl::not_null<int *> &iEnd_range)
+//void DcxListHelper::getItemRange(const TString& tsItems, const int nItemCnt, const gsl::not_null<int*>& iStart_range, const gsl::not_null<int*>& iEnd_range)
+//{
+//	std::tie(*iStart_range, *iEnd_range) = getItemRange(tsItems, nItemCnt);
+//}
+
+std::pair<int, int> DcxListHelper::getItemRange(const TString& tsItems, const int nItemCnt)
 {
-	std::tie(*iStart_range, *iEnd_range) = getItemRange(tsItems, nItemCnt);
+	//int iStart = 0, iEnd = 0;
+	//if (tsItems.numtok(TEXT('-')) == 2)
+	//{
+	//	iStart = tsItems.getfirsttok(1, TEXT('-')).to_int() - 1;
+	//	iEnd = tsItems.getnexttok(TEXT('-')).to_int() - 1;
+	//
+	//	if (iEnd == -1)	// special case
+	//		iEnd = nItemCnt - 1;
+	//}
+	//else {
+	//	iEnd = tsItems.to_int() - 1;
+	//
+	//	if (iEnd == -1)	// special case
+	//		iStart = iEnd = nItemCnt - 1;
+	//	else
+	//		iStart = iEnd;
+	//}
+	//return { iStart, iEnd };
+
+	const auto rng = Dcx::make_range(tsItems, nItemCnt);
+	return { rng.b, rng.e };
 }
 
-std::pair<int, int> DcxListHelper::getItemRange(const TString &tsItems, const int nItemCnt)
+Dcx::range_t<int> DcxListHelper::getItemRange2(const TString& tsItems, const int nItemCnt)
 {
-	int iStart = 0, iEnd = 0;
-	if (tsItems.numtok(TEXT('-')) == 2)
-	{
-		iStart = tsItems.getfirsttok(1, TEXT('-')).to_int() - 1;
-		iEnd = tsItems.getnexttok(TEXT('-')).to_int() - 1;
+	//int iStart = 0, iEnd = 0;
+	//if (tsItems.numtok(TEXT('-')) == 2)
+	//{
+	//	iStart = tsItems.getfirsttok(1, TEXT('-')).to_int() - 1;
+	//	iEnd = tsItems.getnexttok(TEXT('-')).to_int() - 1;
+	//
+	//	if (iEnd == -1)	// special case
+	//		iEnd = nItemCnt - 1;
+	//}
+	//else {
+	//	iEnd = tsItems.to_int() - 1;
+	//
+	//	if (iEnd == -1)	// special case
+	//		iStart = iEnd = nItemCnt - 1;
+	//	else
+	//		iStart = iEnd;
+	//}
+	//return Dcx::make_range(iStart, iEnd);
 
-		if (iEnd == -1)	// special case
-			iEnd = nItemCnt - 1;
-	}
-	else {
-		iEnd = tsItems.to_int() - 1;
-
-		if (iEnd == -1)	// special case
-			iStart = iEnd = nItemCnt - 1;
-		else
-			iStart = iEnd;
-	}
-	return { iStart, iEnd };
+	return Dcx::make_range(tsItems, nItemCnt);
 }
 
-bool DcxListHelper::matchItemText(const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &sItemText, const TString &search, const DcxSearchTypes &SearchType)
+//bool DcxListHelper::matchItemText(const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &sItemText, const TString &search, const DcxSearchTypes &SearchType)
+//{
+//	switch (SearchType)
+//	{
+//	case DcxSearchTypes::SEARCH_R:	// regex match
+//		return isRegexMatch(sItemText, search.to_chr());
+//	case DcxSearchTypes::SEARCH_W:	// wildcard match
+//		//return TString(sItemText.data()).iswm(search);	// makes copy of string...
+//		return _ts_WildcardMatch(sItemText, search);		// avoids copy
+//	case DcxSearchTypes::SEARCH_E:   // exact match
+//		return search == sItemText;
+//	default:
+//		return false;
+//	}
+//}
+
+bool DcxListHelper::matchItemText(const TCHAR* sItemText, const TString& search, const DcxSearchTypes& SearchType)
 {
 	switch (SearchType)
 	{
@@ -45,14 +88,14 @@ bool DcxListHelper::matchItemText(const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &
 	}
 }
 
-const DcxSearchTypes DcxListHelper::StringToSearchType(const TString & tsType) noexcept
+const DcxSearchTypes DcxListHelper::StringToSearchType(const TString& tsType) noexcept
 {
 	const XSwitchFlags xFlags(tsType);
 
 	return FlagsToSearchType(xFlags);
 }
 
-const DcxSearchTypes DcxListHelper::CharToSearchType(const TCHAR & cType) noexcept
+const DcxSearchTypes DcxListHelper::CharToSearchType(const TCHAR& cType) noexcept
 {
 	switch (cType)
 	{
@@ -67,7 +110,7 @@ const DcxSearchTypes DcxListHelper::CharToSearchType(const TCHAR & cType) noexce
 	}
 }
 
-const DcxSearchTypes DcxListHelper::FlagsToSearchType(const XSwitchFlags & xFlags) noexcept
+const DcxSearchTypes DcxListHelper::FlagsToSearchType(const XSwitchFlags& xFlags) noexcept
 {
 	auto SearchType = DcxSearchTypes::SEARCH_E;	// plain text exact match
 
