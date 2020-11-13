@@ -7,11 +7,6 @@
 
 BOOL CALLBACK EnumDocked(HWND hwnd,LPARAM lParam);
 
-//gsl::owner<DcxDock *> g_dockMDI = nullptr;
-//gsl::owner<DcxDock *> g_dockTreebar = nullptr;
-//gsl::owner<DcxDock *> g_dockSwitchbar = nullptr; // needed to adjust size for statusbar.
-//gsl::owner<DcxDock *> g_dockToolbar = nullptr; // needed to adjust size for statusbar.
-
 std::unique_ptr<DcxDock> g_dockMDI = nullptr;
 std::unique_ptr<DcxDock> g_dockTreebar = nullptr;
 std::unique_ptr<DcxDock> g_dockSwitchbar = nullptr; // needed to adjust size for statusbar.
@@ -29,45 +24,33 @@ void UpdatemIRC(void) noexcept
 void InitUltraDock(void)
 {
 	// set all colours as invalid
-	//for (auto i = 0U; i < Dcx::countof(DcxDock::g_clrTreebarColours); i++)
-	//	DcxDock::g_clrTreebarColours[i] = CLR_INVALID;
-
 	for (auto &x : DcxDock::g_clrTreebarColours)
 		x = CLR_INVALID;
 
-	//g_dockMDI = new DcxDock(mIRCLinker::getMDIClient(), mIRCLinker::getHWND(), DOCK_TYPE_MDI);
-	//g_dockTreebar = new DcxDock(mIRCLinker::getTreeview(), mIRCLinker::getTreebar(), DOCK_TYPE_TREE);
-	//g_dockSwitchbar = new DcxDock(nullptr, mIRCLinker::getSwitchbar(), DOCK_TYPE_SWITCH);
-	//g_dockToolbar = new DcxDock(nullptr, mIRCLinker::getToolbar(), DOCK_TYPE_TOOL);
-
-	g_dockMDI = std::make_unique<DcxDock>(mIRCLinker::getMDIClient(), mIRCLinker::getHWND(), DOCK_TYPE_MDI);
-	g_dockTreebar = std::make_unique<DcxDock>(mIRCLinker::getTreeview(), mIRCLinker::getTreebar(), DOCK_TYPE_TREE);
-	g_dockSwitchbar = std::make_unique<DcxDock>(nullptr, mIRCLinker::getSwitchbar(), DOCK_TYPE_SWITCH);
-	g_dockToolbar = std::make_unique<DcxDock>(nullptr, mIRCLinker::getToolbar(), DOCK_TYPE_TOOL);
+	g_dockMDI = std::make_unique<DcxDock>(mIRCLinker::getMDIClient(), mIRCLinker::getHWND(), DockTypes::DOCK_TYPE_MDI);
+	g_dockTreebar = std::make_unique<DcxDock>(mIRCLinker::getTreeview(), mIRCLinker::getTreebar(), DockTypes::DOCK_TYPE_TREE);
+	g_dockSwitchbar = std::make_unique<DcxDock>(nullptr, mIRCLinker::getSwitchbar(), DockTypes::DOCK_TYPE_SWITCH);
+	g_dockToolbar = std::make_unique<DcxDock>(nullptr, mIRCLinker::getToolbar(), DockTypes::DOCK_TYPE_TOOL);
 }
 
 /*
 	*	Eject ALL Docked dialogs.
 */
+GSL_SUPPRESS(type.4)
 void CloseUltraDock(void) noexcept
 {
 	EnumChildWindows(mIRCLinker::getHWND(),EnumDocked, NULL);
 
 	DcxDock::UnInitStatusbar();
 
-	//delete g_dockToolbar;
-	//delete g_dockSwitchbar;
-	//delete g_dockTreebar;
-	//delete g_dockMDI;
-
 	g_dockMDI.reset(nullptr);
 	g_dockSwitchbar.reset(nullptr);
 	g_dockToolbar.reset(nullptr);
 	g_dockTreebar.reset(nullptr);
 
-	if (IsWindow(mIRCLinker::getTreeview()) && mIRCLinker::getTreeImages() != nullptr)
+	if (IsWindow(mIRCLinker::getTreeview()) && mIRCLinker::getTreeImages())
 	{
-		if (const auto o = TreeView_SetImageList(mIRCLinker::getTreeview(), mIRCLinker::getTreeImages(), TVSIL_NORMAL); (o != nullptr && o != mIRCLinker::getTreeImages()))
+		if (const auto o = TreeView_SetImageList(mIRCLinker::getTreeview(), mIRCLinker::getTreeImages(), TVSIL_NORMAL); (o && o != mIRCLinker::getTreeImages()))
 			ImageList_Destroy(o);
 	}
 
@@ -76,21 +59,21 @@ void CloseUltraDock(void) noexcept
 
 bool FindUltraDock(const HWND hwnd)
 {
-	if (g_dockMDI == nullptr)
+	if (!g_dockMDI)
 		return false;
 	return g_dockMDI->FindDock(hwnd);
 }
 
 bool FindTreebarDock(const HWND hwnd)
 {
-	if (g_dockTreebar == nullptr)
+	if (!g_dockTreebar)
 		return false;
 	return g_dockTreebar->FindDock(hwnd);
 }
 
 LPDCXULTRADOCK GetUltraDock(const HWND hwnd)
 {
-	if (g_dockMDI == nullptr)
+	if (!g_dockMDI)
 		return nullptr;
 	return g_dockMDI->GetDock(hwnd);
 }
@@ -99,9 +82,9 @@ void UltraDock(const HWND mWnd, HWND temp, const TString &flag)
 {
 	UNREFERENCED_PARAMETER(mWnd);
 	// mWnd is unused.
-	if (g_dockMDI == nullptr)
+	if (!g_dockMDI)
 		return;
-	if ((FindUltraDock(temp)) || (FindTreebarDock(temp)) || (GetProp(temp,TEXT("dcx_docked")) != nullptr))
+	if ((FindUltraDock(temp)) || (FindTreebarDock(temp)) || (GetProp(temp,TEXT("dcx_docked"))))
 		throw Dcx::dcxException("Window already docked");
 
 	g_dockMDI->DockWindow(temp, flag);
@@ -109,14 +92,14 @@ void UltraDock(const HWND mWnd, HWND temp, const TString &flag)
 
 void UltraUnDock(const HWND hwnd)
 {
-	if (g_dockMDI == nullptr)
+	if (!g_dockMDI)
 		return;
 	g_dockMDI->UnDockWindow(hwnd);
 }
 
 LPDCXULTRADOCK GetTreebarDock(const HWND hwnd)
 {
-	if (g_dockTreebar == nullptr)
+	if (!g_dockTreebar)
 		return nullptr;
 	return g_dockTreebar->GetDock(hwnd);
 }
@@ -124,9 +107,9 @@ LPDCXULTRADOCK GetTreebarDock(const HWND hwnd)
 void TreebarDock(HWND temp, const TString &flag)
 {
 	// mWnd is unused.
-	if (g_dockTreebar == nullptr)
+	if (!g_dockTreebar)
 		return;
-	if ((FindUltraDock(temp)) || (FindTreebarDock(temp)) || (GetProp(temp,TEXT("dcx_docked")) != nullptr))
+	if ((FindUltraDock(temp)) || (FindTreebarDock(temp)) || (GetProp(temp,TEXT("dcx_docked"))))
 		throw Dcx::dcxException("Window already docked");
 	
 	g_dockTreebar->DockWindow(temp, flag);
@@ -136,7 +119,7 @@ void TreebarDock(HWND temp, const TString &flag)
 
 void TreebarUnDock(const HWND hwnd)
 {
-	if (g_dockTreebar == nullptr)
+	if (!g_dockTreebar)
 		return;
 	g_dockTreebar->UnDockWindow(hwnd);
 }
@@ -145,21 +128,21 @@ void TreebarUnDock(const HWND hwnd)
 // 0 == no swb, 1 == Left, 2 == Right, 3 == Top, 4 == Bottom
 const SwitchBarPos SwitchbarPos(const DockTypes type) noexcept
 {
-	HWND hwnd = nullptr;
+	HWND hwnd{ nullptr };
 
 	switch (type)
 	{
-	case DOCK_TYPE_TOOL: // toolbar
+	case DockTypes::DOCK_TYPE_TOOL: // toolbar
 		hwnd = mIRCLinker::getToolbar();
 		break;
-	case DOCK_TYPE_TREE: // treebar
+	case DockTypes::DOCK_TYPE_TREE: // treebar
 		hwnd = mIRCLinker::getTreebar();
 		break;
 	default:
-	case DOCK_TYPE_SWITCH: // switchbar
+	case DockTypes::DOCK_TYPE_SWITCH: // switchbar
 		hwnd = mIRCLinker::getSwitchbar();
 		break;
-	case DOCK_TYPE_MDI:	// should never be called with this...
+	case DockTypes::DOCK_TYPE_MDI:	// should never be called with this...
 		return SwitchBarPos::SWB_NONE;
 		break;
 	}

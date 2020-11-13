@@ -5,15 +5,16 @@
 #include "Classes/UltraDock/dcxDock.h"
 #include "Dcx.h"
 
-void TraverseChildren(const HTREEITEM hParent, TString &buf, TString &res, LPTVITEMEX pitem)
+GSL_SUPPRESS(type.4)
+void TraverseChildren(const HTREEITEM hParent, TString& buf, TString& res, LPTVITEMEX pitem)
 {
 	ZeroMemory(pitem, sizeof(TVITEMEX));
-	for (auto ptvitem = TreeView_GetChild(mIRCLinker::getTreeview(), hParent); ptvitem != nullptr; ptvitem = TreeView_GetNextSibling(mIRCLinker::getTreeview(), ptvitem))
+	for (auto ptvitem = TreeView_GetChild(mIRCLinker::getTreeview(), hParent); ptvitem; ptvitem = TreeView_GetNextSibling(mIRCLinker::getTreeview(), ptvitem))
 	{
 		pitem->hItem = ptvitem;
 		pitem->pszText = buf.to_chr();
-		pitem->cchTextMax = MIRC_BUFFER_SIZE_CCH;
-		pitem->mask = TVIF_TEXT|TVIF_PARAM;
+		pitem->cchTextMax = buf.capacity_cch();
+		pitem->mask = TVIF_TEXT | TVIF_PARAM;
 		if (TreeView_GetItem(mIRCLinker::getTreeview(), pitem))
 		{
 			{
@@ -24,14 +25,14 @@ void TraverseChildren(const HTREEITEM hParent, TString &buf, TString &res, LPTVI
 				mIRCLinker::exec(TEXT("/!set -nu1 \\%dcx_% %"), pitem->lParam, pitem->pszText);
 				mIRCLinker::eval(res, TEXT("$xtreebar_callback(geticons,%,\\%dcx_%)"), tsType, pitem->lParam);
 			}
-			pitem->mask = TVIF_IMAGE|TVIF_SELECTEDIMAGE|TVIF_EXPANDEDIMAGE;
+			pitem->mask = TVIF_IMAGE | TVIF_SELECTEDIMAGE | TVIF_EXPANDEDIMAGE;
 
 			// image
 			auto i = res.getfirsttok(1).to_int() - 1;
 			pitem->iImage = (i < 0) ? I_IMAGENONE : i;
 
 			// selected image (if none supplied use the standard image)
-			i = res.getnexttok( ).to_int() -1;
+			i = res.getnexttok().to_int() - 1;
 			pitem->iSelectedImage = (i < 0) ? pitem->iImage : i;
 
 			// expanded image (if none supplied use the standard image)
@@ -44,6 +45,7 @@ void TraverseChildren(const HTREEITEM hParent, TString &buf, TString &res, LPTVI
 	}
 }
 
+GSL_SUPPRESS(type.4)
 void TraverseTreebarItems(void)
 {
 	SetWindowRedraw(mIRCLinker::getTreeview(), FALSE);
@@ -53,12 +55,12 @@ void TraverseTreebarItems(void)
 	TString res;
 	TVITEMEX item{};
 
-	for (auto ptvitem = TreeView_GetRoot(mIRCLinker::getTreeview()); ptvitem != nullptr; ptvitem = TreeView_GetNextSibling(mIRCLinker::getTreeview(), ptvitem))
+	for (auto ptvitem = TreeView_GetRoot(mIRCLinker::getTreeview()); ptvitem; ptvitem = TreeView_GetNextSibling(mIRCLinker::getTreeview(), ptvitem))
 	{
 		item.hItem = ptvitem;
 		item.pszText = buf.to_chr();
-		item.cchTextMax = MIRC_BUFFER_SIZE_CCH;
-		item.mask = TVIF_TEXT|TVIF_PARAM;
+		item.cchTextMax = buf.capacity_cch(); //MIRC_BUFFER_SIZE_CCH;
+		item.mask = TVIF_TEXT | TVIF_PARAM;
 		if (TreeView_GetItem(mIRCLinker::getTreeview(), &item))
 		{
 			{
@@ -69,14 +71,14 @@ void TraverseTreebarItems(void)
 				mIRCLinker::exec(TEXT("/!set -nu1 \\%dcx_% %"), item.lParam, item.pszText);
 				mIRCLinker::eval(res, TEXT("$xtreebar_callback(geticons,%,\\%dcx_%)"), tsType, item.lParam);
 			}
-			item.mask = TVIF_IMAGE|TVIF_SELECTEDIMAGE|TVIF_EXPANDEDIMAGE;
+			item.mask = TVIF_IMAGE | TVIF_SELECTEDIMAGE | TVIF_EXPANDEDIMAGE;
 
 			// image
 			auto i = res.getfirsttok(1).to_int() - 1;
 			item.iImage = (i < 0) ? I_IMAGENONE : i;
 
 			// selected image (if none supplied use the standard image)
-			i = res.getnexttok( ).to_int() -1;
+			i = res.getnexttok().to_int() - 1;
 			item.iSelectedImage = (i < 0) ? item.iImage : i;
 
 			// expanded image (if none supplied use the standard image)
@@ -90,6 +92,7 @@ void TraverseTreebarItems(void)
 }
 
 // [SWITCH] [OPTIONS]
+GSL_SUPPRESS(type.4)
 mIRC(xtreebar)
 {
 	TString input(data);
@@ -111,18 +114,19 @@ mIRC(xtreebar)
 
 		switch (switches[1])
 		{
-		//case TEXT('a'):	// [] add items to treeview
-		//	{
-		//	}
-		//	break;
+			//case TEXT('a'):	// [] add items to treeview
+			//	{
+			//	}
+			//	break;
 		case TEXT('f'): // [+FONTFLAGS] [CHARSET] [SIZE] [FONTNAME]
 		{
 			if (numtok < 5)
-				throw Dcx::dcxException("Invalid Font Args");
+				//throw Dcx::dcxException("Invalid Font Args");
+				throw DcxExceptions::dcxInvalidArguments();
 
 			if (LOGFONT lf{}; ParseCommandToLogfont(input.getlasttoks(), &lf))	// tok 2, -1
 			{
-				if (auto hFont = CreateFontIndirect(&lf); hFont != nullptr)
+				if (auto hFont = CreateFontIndirect(&lf); hFont)
 					mIRCLinker::setTreeFont(hFont);
 			}
 		}
@@ -130,7 +134,8 @@ mIRC(xtreebar)
 		case TEXT('s'): // [STYLES]
 		{
 			if (numtok < 2)
-				throw Dcx::dcxException("Invalid Style Args");
+				//throw Dcx::dcxException("Invalid Style Args");
+				throw DcxExceptions::dcxInvalidArguments();
 
 			auto stylef = dcxGetWindowStyle(mIRCLinker::getTreeview());
 			auto exstylef = dcxGetWindowExStyle(mIRCLinker::getTreeview());
@@ -264,7 +269,7 @@ mIRC(xtreebar)
 
 			const TString tsStyles(input.getlasttoks());
 
-			for (const auto &x: tsStyles)
+			for (const auto& x : tsStyles)
 			{
 				switch (std::hash<TString>{}(x))		// tok 2+
 				{
@@ -364,13 +369,13 @@ mIRC(xtreebar)
 					break;
 				case L"balloon"_hash: // balloon (off by default)
 				{
-					if (const auto tips = TreeView_GetToolTips(mIRCLinker::getTreeview()); tips != nullptr)
+					if (const auto tips = TreeView_GetToolTips(mIRCLinker::getTreeview()); tips)
 						AddStyles(tips, GWL_STYLE, TTS_BALLOON);
 				}
 				break;
 				case L"noballoon"_hash: // noballoon
 				{
-					if (const auto tips = TreeView_GetToolTips(mIRCLinker::getTreeview()); tips != nullptr)
+					if (const auto tips = TreeView_GetToolTips(mIRCLinker::getTreeview()); tips)
 						RemStyles(tips, GWL_STYLE, TTS_BALLOON);
 				}
 				break;
@@ -392,7 +397,8 @@ mIRC(xtreebar)
 		case TEXT('c'): // [COLOUR FLAGS] [COLOUR]
 		{
 			if (numtok < 3)
-				throw Dcx::dcxException("Invalid Colour Args");
+				//throw Dcx::dcxException("Invalid Colour Args");
+				throw DcxExceptions::dcxInvalidArguments();
 
 			const auto cflag(input.getnexttok());						// tok 2
 			const auto clr = input.getnexttok().to_<COLORREF>();	// tok 3
@@ -415,34 +421,34 @@ mIRC(xtreebar)
 				TreeView_SetInsertMarkColor(mIRCLinker::getTreeview(), clr);
 				break;
 			case TEXT('s'): // selected text colour
-				DcxDock::g_clrTreebarColours[TREEBAR_COLOUR_SELECTED] = clr;
+				gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<UINT>(TreeBarColours::TREEBAR_COLOUR_SELECTED)) = clr;
 				break;
 			case TEXT('S'): // selected bkg colour
-				DcxDock::g_clrTreebarColours[TREEBAR_COLOUR_SELECTED_BKG] = clr;
+				gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<UINT>(TreeBarColours::TREEBAR_COLOUR_SELECTED_BKG)) = clr;
 				break;
 			case TEXT('m'): // message colour
-				DcxDock::g_clrTreebarColours[TREEBAR_COLOUR_MESSAGE] = clr;
+				gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<UINT>(TreeBarColours::TREEBAR_COLOUR_MESSAGE)) = clr;
 				break;
 			case TEXT('M'): // message bkg colour
-				DcxDock::g_clrTreebarColours[TREEBAR_COLOUR_MESSAGE_BKG] = clr;
+				gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<UINT>(TreeBarColours::TREEBAR_COLOUR_MESSAGE_BKG)) = clr;
 				break;
 			case TEXT('e'): // event colour
-				DcxDock::g_clrTreebarColours[TREEBAR_COLOUR_EVENT] = clr;
+				gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<UINT>(TreeBarColours::TREEBAR_COLOUR_EVENT)) = clr;
 				break;
 			case TEXT('E'): // event bkg colour
-				DcxDock::g_clrTreebarColours[TREEBAR_COLOUR_EVENT_BKG] = clr;
+				gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<UINT>(TreeBarColours::TREEBAR_COLOUR_EVENT_BKG)) = clr;
 				break;
 			case TEXT('z'): // highlight colour
-				DcxDock::g_clrTreebarColours[TREEBAR_COLOUR_HIGHLIGHT] = clr;
+				gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<UINT>(TreeBarColours::TREEBAR_COLOUR_HIGHLIGHT)) = clr;
 				break;
 			case TEXT('Z'): // highlight bkg colour
-				DcxDock::g_clrTreebarColours[TREEBAR_COLOUR_HIGHLIGHT_BKG] = clr;
+				gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<UINT>(TreeBarColours::TREEBAR_COLOUR_HIGHLIGHT_BKG)) = clr;
 				break;
 			case TEXT('h'): // hot text colour
-				DcxDock::g_clrTreebarColours[TREEBAR_COLOUR_HOT_TEXT] = clr;
+				gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<UINT>(TreeBarColours::TREEBAR_COLOUR_HOT_TEXT)) = clr;
 				break;
 			case TEXT('H'): // hot bkg colour
-				DcxDock::g_clrTreebarColours[TREEBAR_COLOUR_HOT_BKG] = clr;
+				gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<UINT>(TreeBarColours::TREEBAR_COLOUR_HOT_BKG)) = clr;
 				break;
 			default:
 				throw Dcx::dcxException("Invalid Colour flag");
@@ -451,34 +457,34 @@ mIRC(xtreebar)
 		break;
 		case TEXT('w'): // [clear|default|mirc] | [index] [+flags] [icon index] [filename]
 		{
-			if (mIRCLinker::getTreeImages() == nullptr)
+			if (!mIRCLinker::getTreeImages())
 				throw Dcx::dcxException("No Valid TreeView Image List");
 
 			const auto tsIndex(input.getnexttok());		// tok 2
 			if (tsIndex == TEXT("clear"))
 			{ // no images.
-				if (const auto o = TreeView_SetImageList(mIRCLinker::getTreeview(), nullptr, TVSIL_NORMAL); (o != nullptr && o != mIRCLinker::getTreeImages()))
+				if (const auto o = TreeView_SetImageList(mIRCLinker::getTreeview(), nullptr, TVSIL_NORMAL); (o && o != mIRCLinker::getTreeImages()))
 					ImageList_Destroy(o);
 			}
 			else if (tsIndex == TEXT("default"))
 			{ // mIRC's default image list
-				if (const auto o = TreeView_SetImageList(mIRCLinker::getTreeview(), mIRCLinker::getTreeImages(), TVSIL_NORMAL); (o != nullptr && o != mIRCLinker::getTreeImages()))
+				if (const auto o = TreeView_SetImageList(mIRCLinker::getTreeview(), mIRCLinker::getTreeImages(), TVSIL_NORMAL); (o && o != mIRCLinker::getTreeImages()))
 					ImageList_Destroy(o);
 			}
 			else { // our custom image list
-				HIMAGELIST himl = nullptr, ohiml = TreeView_GetImageList(mIRCLinker::getTreeview(), TVSIL_NORMAL);
-				if (ohiml != nullptr && ohiml != mIRCLinker::getTreeImages())
+				HIMAGELIST himl{ nullptr };
+				if (auto ohiml = TreeView_GetImageList(mIRCLinker::getTreeview(), TVSIL_NORMAL); (ohiml && ohiml != mIRCLinker::getTreeImages()))
 					himl = ohiml;
 				else {
-					int w, h;
+					int w{}, h{};
 					if (!ImageList_GetIconSize(mIRCLinker::getTreeImages(), &w, &h)) // try to get image size.
 						w = h = 16; // default to 16x16
 
 					himl = ImageList_Create(w, h, ILC_COLOR32 | ILC_MASK, 1, 0);
-					if (himl != nullptr)
+					if (himl)
 						TreeView_SetImageList(mIRCLinker::getTreeview(), himl, TVSIL_NORMAL);
 				}
-				if (himl == nullptr)
+				if (!himl)
 					throw Dcx::dcxException("Unable to Create ImageList");
 
 				auto iIndex = tsIndex.to_int() - 1;
@@ -504,9 +510,9 @@ mIRC(xtreebar)
 					ImageList_ReplaceIcon(himl, iIndex, icon.get());
 #else
 					HICON hIcon = dcxLoadIcon(fIndex, filename, false, cflag);
-					if (hIcon == nullptr)
+					if (!hIcon)
 						throw Dcx::dcxException("Unable to load icon");
-					
+
 					ImageList_ReplaceIcon(himl, iIndex, hIcon);
 					DestroyIcon(hIcon);
 #endif
@@ -534,20 +540,19 @@ mIRC(xtreebar)
 		RedrawWindow(mIRCLinker::getTreeview(), nullptr, nullptr, RDW_INTERNALPAINT | RDW_ALLCHILDREN | RDW_INVALIDATE | RDW_ERASE);
 		return 1;
 	}
-	catch (const std::exception &e)
+	catch (const std::exception& e)
 	{
-		//Dcx::errorex(TEXT("/xtreebar"), TEXT("\"%s\" error: %S"), input.to_chr(), e.what());
 		Dcx::error(TEXT("/xtreebar"), TEXT("\"%\" error: %"), input, e.what());
 	}
 	catch (...) {
 		// stop any left over exceptions...
-		//Dcx::errorex(TEXT("/xtreebar"), TEXT("\"%s\" error: Unknown Exception"), input.to_chr());
 		Dcx::error(TEXT("/xtreebar"), TEXT("\"%\" error: Unknown Exception"), input);
 	}
 	return 0;
 }
 
 // prop
+GSL_SUPPRESS(type.4)
 mIRC(_xtreebar)
 {
 	TString d(data);
@@ -580,7 +585,7 @@ mIRC(_xtreebar)
 				item.hItem = TreeView_MapAccIDToHTREEITEM(mIRCLinker::getTreeview(), index);
 				item.mask = TVIF_TEXT;
 				item.pszText = szbuf;	// PVS-Studio reports `V507 pointer stored outside of scope` this is fine.
-				item.cchTextMax = MIRC_BUFFER_SIZE_CCH;
+				item.cchTextMax = szbuf.capacity_cch();  //MIRC_BUFFER_SIZE_CCH;
 				if (!TreeView_GetItem(mIRCLinker::getTreeview(), &item))
 					throw Dcx::dcxException("Unable To Get Item");
 
@@ -606,14 +611,12 @@ mIRC(_xtreebar)
 		}
 		return 3;
 	}
-	catch (const std::exception &e)
+	catch (const std::exception& e)
 	{
-		//Dcx::errorex(TEXT("/xtreebar"), TEXT("\"%s\" error: %S"), d.to_chr(), e.what());
 		Dcx::error(TEXT("/xtreebar"), TEXT("\"%\" error: %"), d, e.what());
 	}
 	catch (...) {
 		// stop any left over exceptions...
-		//Dcx::errorex(TEXT("/xtreebar"), TEXT("\"%s\" error: Unknown Exception"), d.to_chr());
 		Dcx::error(TEXT("/xtreebar"), TEXT("\"%\" error: Unknown Exception"), d);
 	}
 	return 0;

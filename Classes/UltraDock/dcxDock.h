@@ -8,7 +8,9 @@
 
 #define SB_MAX_PARTSD 256
 
-enum DockTypes : UINT {
+enum class DockTypes
+	: UINT
+{
 	DOCK_TYPE_SWITCH,
 	DOCK_TYPE_TOOL,
 	DOCK_TYPE_TREE,
@@ -20,7 +22,10 @@ enum DockTypes : UINT {
 //#define DOCK_TYPE_TREE		0x02
 //#define DOCK_TYPE_MDI		0x03
 
-enum DockFlags : UINT {
+enum class DockFlags
+	: UINT
+{
+	DOCKF_NONE = 0x00,
 	DOCKF_NORMAL = 0x001,			//!< No special flags.
 	DOCKF_AUTOH = 0x002,			//!< Auto Horizontal size.
 	DOCKF_AUTOV = 0x004,			//!< Auto Vertical size.
@@ -32,6 +37,30 @@ enum DockFlags : UINT {
 	DOCKF_NOSCROLLBARS = 0x100,		//!< Disable parents scrollbars.
 	DOCKF_SHOWSCROLLBARS = 0x200	//!< Stop the auto-sized window from covering the scrollbars of its parent.
 };
+template <typename T>
+constexpr DockFlags& operator |=(DockFlags& eStyle, const T& dStyle) noexcept
+{
+	return eStyle = static_cast<DockFlags>(static_cast<DWORD>(eStyle) | static_cast<DWORD>(dStyle));
+}
+template <typename T>
+constexpr DockFlags& operator &=(DockFlags& eStyle, const T& dStyle) noexcept
+{
+	return eStyle = static_cast<DockFlags>(static_cast<DWORD>(eStyle)& static_cast<DWORD>(dStyle));
+}
+template <typename T>
+constexpr DockFlags operator &(const DockFlags& eStyle, const T& dStyle) noexcept
+{
+	return static_cast<DockFlags>(static_cast<DWORD>(eStyle)& static_cast<DWORD>(dStyle));
+}
+template <typename T>
+constexpr DockFlags operator |(const DockFlags& eStyle, const T& dStyle) noexcept
+{
+	return static_cast<DockFlags>(static_cast<DWORD>(eStyle) | static_cast<DWORD>(dStyle));
+}
+constexpr DockFlags operator ~(const DockFlags& eStyle) noexcept
+{
+	return static_cast<DockFlags>(~static_cast<DWORD>(eStyle));
+}
 
 //#define DOCKF_NORMAL					0x001	//!< No special flags.
 //#define DOCKF_AUTOH						0x002	//!< Auto Horizontal size.
@@ -56,7 +85,9 @@ enum DockFlags : UINT {
 //#define TREEBAR_COLOUR_HOT_BKG			9
 //#define TREEBAR_COLOUR_MAX				9
 
-enum TreeBarColours : UINT {
+enum class TreeBarColours
+	: UINT
+{
 	TREEBAR_COLOUR_SELECTED,
 	TREEBAR_COLOUR_SELECTED_BKG,
 	TREEBAR_COLOUR_MESSAGE,
@@ -67,28 +98,30 @@ enum TreeBarColours : UINT {
 	TREEBAR_COLOUR_HIGHLIGHT_BKG,
 	TREEBAR_COLOUR_HOT_TEXT,
 	TREEBAR_COLOUR_HOT_BKG,
-	TREEBAR_COLOUR_MAX = TreeBarColours::TREEBAR_COLOUR_HOT_BKG
+	TREEBAR_COLOUR_MAX = gsl::narrow_cast<UINT>(TreeBarColours::TREEBAR_COLOUR_HOT_BKG)
 };
 
-struct DCXULTRADOCK {
+struct DCXULTRADOCK final
+{
 	HWND hwnd{ nullptr };
-	DWORD flags{};
+	DockFlags flags{};
 	WindowStyle old_styles{};
 	WindowExStyle old_exstyles{};
 	RECT rc{};
 };
-using LPDCXULTRADOCK = DCXULTRADOCK *;
+using LPDCXULTRADOCK = DCXULTRADOCK*;
 
 using VectorOfDocks = std::vector<LPDCXULTRADOCK>;
 
-struct SB_PARTINFOD {
+struct SB_PARTINFOD final
+{
 	HWND		m_Child{ nullptr };
 	TString		m_Text;
 	int			m_iIcon{ -1 };
 	COLORREF	m_TxtCol{ CLR_INVALID };	// colour of the text be default in this item.
 	HBRUSH		m_BkgCol{ nullptr };	// brush to be used when drawing the bkg in this item.
 };
-using LPSB_PARTINFOD = SB_PARTINFOD *;
+using LPSB_PARTINFOD = SB_PARTINFOD*;
 
 using VectorOfDParts = std::vector<LPSB_PARTINFOD>;
 
@@ -102,56 +135,56 @@ using VectorOfDParts = std::vector<LPSB_PARTINFOD>;
 #pragma warning( disable : 2292 ) //warning #2292: destructor is declared but copy constructor and assignment operator are not
 #endif
 
-class DcxDock
+class DcxDock final
 {
 public:
 	DcxDock() = delete;	// no default constructor
-	DcxDock(const DcxDock &other) = delete;	// no copy constructor
-	DcxDock &operator =(const DcxDock &) = delete;	// No assignments!
-	DcxDock(DcxDock &&) = delete;
-	DcxDock &operator =(DcxDock &&) = delete;
+	DcxDock(const DcxDock& other) = delete;	// no copy constructor
+	DcxDock& operator =(const DcxDock&) = delete;	// No assignments!
+	DcxDock(DcxDock&&) = delete;
+	DcxDock& operator =(DcxDock&&) = delete;
 
 	DcxDock(HWND refHwnd, HWND dockHwnd, const DockTypes dockType) noexcept;
 	~DcxDock() noexcept;
 
-	bool DockWindow(HWND hwnd, const TString &flag);
+	bool DockWindow(HWND hwnd, const TString& flag);
 	void UnDockWindow(const HWND hwnd);
 	void UnDockWindowPtr(const gsl::owner<LPDCXULTRADOCK> ud) noexcept;
 	void UnDockAll() noexcept;
-	void UpdateLayout() const noexcept { SendMessage(this->m_hParent,WM_SIZE,NULL,NULL); };
+	void UpdateLayout() const noexcept { SendMessage(this->m_hParent, WM_SIZE, NULL, NULL); };
 	bool FindDock(const HWND hwnd) const;
 	bool isDocked(const HWND hwnd) const;
 	LPDCXULTRADOCK GetDock(const HWND hwnd) const;
-	void AdjustRect(WINDOWPOS *wp) noexcept;
+	void AdjustRect(WINDOWPOS* wp) noexcept;
 
 	// Statusbar Functions.
-	static bool InitStatusbar(const TString &styles);
+	static bool InitStatusbar(const TString& styles);
 	static void UnInitStatusbar() noexcept;
 	static bool IsStatusbar() noexcept;
-	static std::tuple<NoTheme,WindowStyle,WindowExStyle> status_parseControlStyles( const TString & styles );
+	static std::tuple<NoTheme, WindowStyle, WindowExStyle> status_parseControlStyles(const TString& styles);
 	static void status_getRect(LPRECT rc) noexcept;
 	static void status_setBkColor(const COLORREF clr) noexcept;
-	static void status_setParts( const UINT nParts, const LPINT aWidths ) noexcept;
-	static UINT status_getParts( const UINT nParts, const LPINT aWidths ) noexcept;
-	static void status_setText(const int iPart, const int Style, const WCHAR *const lpstr) noexcept;
-	static LRESULT status_getText( const int iPart, LPWSTR lpstr ) noexcept;
-	static UINT status_getTextLength( const int iPart ) noexcept;
-	static UINT status_getPartFlags( const int iPart ) noexcept;
-	static void status_setTipText( const int iPart, const WCHAR *const lpstr ) noexcept;
-	static void status_getTipText( const int iPart, const int nSize, const LPWSTR lpstr ) noexcept;
-	static void status_getRect( const int iPart, const LPRECT lprc ) noexcept;
-	static void status_setIcon( const int iPart, const HICON hIcon ) noexcept;
-	static HICON status_getIcon( const int iPart ) noexcept;
-	static HIMAGELIST &status_getImageList() noexcept;
-	static void status_setImageList( HIMAGELIST himl ) noexcept;
+	static void status_setParts(const UINT nParts, const LPINT aWidths) noexcept;
+	static UINT status_getParts(const UINT nParts, const LPINT aWidths) noexcept;
+	static void status_setText(const int iPart, const int Style, const WCHAR* const lpstr) noexcept;
+	static LRESULT status_getText(const int iPart, LPWSTR lpstr) noexcept;
+	static UINT status_getTextLength(const int iPart) noexcept;
+	static UINT status_getPartFlags(const int iPart) noexcept;
+	static void status_setTipText(const int iPart, const WCHAR* const lpstr) noexcept;
+	static void status_getTipText(const int iPart, const int nSize, const LPWSTR lpstr) noexcept;
+	static void status_getRect(const int iPart, const LPRECT lprc) noexcept;
+	static void status_setIcon(const int iPart, const HICON hIcon) noexcept;
+	static HICON status_getIcon(const int iPart) noexcept;
+	static HIMAGELIST& status_getImageList() noexcept;
+	static void status_setImageList(HIMAGELIST himl) noexcept;
 	static HIMAGELIST status_createImageList() noexcept;
-	static const UINT status_parseItemFlags( const TString & flags ) noexcept;
-	static void status_cleanPartIcons( ) noexcept;
-	static LRESULT status_getBorders( const LPINT aWidths ) noexcept;
+	static const UINT status_parseItemFlags(const TString& flags) noexcept;
+	static void status_cleanPartIcons() noexcept;
+	static LRESULT status_getBorders(const LPINT aWidths) noexcept;
 	static void status_updateParts();
 	static void status_setFont(HFONT f) noexcept;
-	static LRESULT status_setPartInfo( const int iPart, const int Style, const LPSB_PARTINFOD pPart) noexcept;
-	static void status_deletePartInfo(const int iPart);
+	static LRESULT status_setPartInfo(const int iPart, const int Style, const LPSB_PARTINFOD pPart) noexcept;
+	static void status_deletePartInfo(const int iPart) noexcept;
 	//
 	static const SwitchBarPos getPos(const int x, const int y, const int w, const int h) noexcept;
 	//
@@ -169,7 +202,7 @@ public:
 	static bool g_bTakeOverTreebar; //!< take over the drawing of the treebar from mIRC.
 	// 0 = selected, 1 = selected bkg, 2 = message, 3 = message bkg
 	// 4 = event, 5 = event bkg, 6 = highlight, 7 = highlight bkg
-	static COLORREF g_clrTreebarColours[TREEBAR_COLOUR_MAX +1];
+	static COLORREF g_clrTreebarColours[gsl::narrow_cast<UINT>(TreeBarColours::TREEBAR_COLOUR_MAX) + 1];
 
 protected:
 	static LRESULT CALLBACK mIRCRefWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);

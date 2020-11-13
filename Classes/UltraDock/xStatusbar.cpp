@@ -20,7 +20,8 @@ mIRC(xstatusbar)
 		const auto numtok = input.numtok();
 
 		if (numtok < 1)
-			throw Dcx::dcxException("Invalid Parameters");
+			//throw Dcx::dcxException("Invalid Parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		switch (const auto switches(input.getfirsttok(1)); switches[1])
 		{
@@ -28,7 +29,8 @@ mIRC(xstatusbar)
 		{
 			// check syntax
 			if (numtok < 2)
-				throw Dcx::dcxException("Invalid Parameters");
+				//throw Dcx::dcxException("Invalid Parameters");
+				throw DcxExceptions::dcxInvalidArguments();
 
 			// Enable/Disable the Statusbar.
 			// -A [0|1] [options] = notheme grip tooltips nodivider utf8
@@ -47,7 +49,8 @@ mIRC(xstatusbar)
 		{
 			// check syntax
 			if (numtok < 5)
-				throw Dcx::dcxException("Invalid Parameters");
+				//throw Dcx::dcxException("Invalid Parameters");
+				throw DcxExceptions::dcxInvalidArguments();
 
 			if (LOGFONT lf{}; ParseCommandToLogfont(input.getlasttoks(), &lf))	// tok 2, -1
 				DcxDock::status_setFont(CreateFontIndirect(&lf));
@@ -57,7 +60,8 @@ mIRC(xstatusbar)
 		{
 			// check syntax
 			if (numtok != 2)
-				throw Dcx::dcxException("Invalid Parameters");
+				//throw Dcx::dcxException("Invalid Parameters");
+				throw DcxExceptions::dcxInvalidArguments();
 
 			if (const auto col = input.getnexttok().to_<COLORREF>(); col == CLR_INVALID)
 				DcxDock::status_setBkColor(CLR_DEFAULT);
@@ -69,7 +73,8 @@ mIRC(xstatusbar)
 		{
 			// check syntax
 			if (numtok < 2)
-				throw Dcx::dcxException("Invalid Parameters");
+				//throw Dcx::dcxException("Invalid Parameters");
+				throw DcxExceptions::dcxInvalidArguments();
 
 			const auto nParts = numtok - 1;
 			INT parts[SB_MAX_PARTSD] = { 0 };
@@ -87,13 +92,13 @@ mIRC(xstatusbar)
 
 				if (p.right(1) == TEXT('%'))
 				{
-					DcxDock::g_iDynamicParts[i] = t;
+					gsl::at(DcxDock::g_iDynamicParts,i) = t;
 					c += t;
 				}
 				else
-					DcxDock::g_iFixedParts[i] = t;
+					gsl::at(DcxDock::g_iFixedParts,i) = t;
 
-				parts[i] = t;
+				gsl::at(parts,i) = t;
 			}
 			DcxDock::status_setParts(nParts, &parts[0]);
 			DcxDock::status_updateParts();
@@ -103,7 +108,8 @@ mIRC(xstatusbar)
 		{
 			// check syntax (text can be blank)
 			if (numtok < 6)
-				throw Dcx::dcxException("Invalid Parameters");
+				//throw Dcx::dcxException("Invalid Parameters");
+				throw DcxExceptions::dcxInvalidArguments();
 
 			const auto tsTabOne(input.getfirsttok(1, TSTABCHAR));	// tok 1, TSTAB
 			const auto tooltip(input.getnexttok(TSTABCHAR).trim());	// tok 2, TSTAB;
@@ -158,7 +164,8 @@ mIRC(xstatusbar)
 		{
 			// check syntax (text can be blank)
 			if (numtok < 4)
-				throw Dcx::dcxException("Invalid Parameters");
+				//throw Dcx::dcxException("Invalid Parameters");
+				throw DcxExceptions::dcxInvalidArguments();
 
 			if (const auto nPos = (input.getnexttok().to_int() - 1); (nPos > -1 && gsl::narrow_cast<UINT>(nPos) < DcxDock::status_getParts(SB_MAX_PARTSD, 0)))
 			{
@@ -171,10 +178,10 @@ mIRC(xstatusbar)
 
 				if (const auto iFlags = DcxDock::status_getPartFlags(nPos); dcx_testflag(iFlags, SBT_OWNERDRAW))
 				{
-					if (const auto pPart = reinterpret_cast<LPSB_PARTINFOD>(DcxDock::status_getText(nPos, nullptr)); pPart != nullptr)
+					if (const auto pPart = reinterpret_cast<LPSB_PARTINFOD>(DcxDock::status_getText(nPos, nullptr)); pPart)
 					{
-						if (pPart->m_BkgCol != nullptr)
-							DeleteBrush(pPart->m_BkgCol);
+						if (pPart->m_BkgCol)
+							DeleteObject(pPart->m_BkgCol);
 
 						pPart->m_Text = itemtext;
 						if (bkgClr != CLR_INVALID)
@@ -188,7 +195,7 @@ mIRC(xstatusbar)
 				}
 				else {
 					auto text = std::make_unique<WCHAR[]>(DcxDock::status_getTextLength(nPos) + 1);
-					DcxDock::status_setText(nPos, HIWORD(DcxDock::status_getText(nPos, text.get())), itemtext.to_chr());
+					DcxDock::status_setText(nPos, Dcx::dcxHIWORD(DcxDock::status_getText(nPos, text.get())), itemtext.to_chr());
 				}
 			}
 		}
@@ -197,36 +204,40 @@ mIRC(xstatusbar)
 		{
 			// check syntax
 			if (numtok < 4)
-				throw Dcx::dcxException("Invalid Parameters");
+				//throw Dcx::dcxException("Invalid Parameters");
+				throw DcxExceptions::dcxInvalidArguments();
 
 			auto himl = DcxDock::status_getImageList();
 			const auto flags(input.getnexttok());				// tok 2
 			const auto index = input.getnexttok().to_int();		// tok 3
 			auto filename(input.getlasttoks());					// tok 4, -1
 
-			if (himl == nullptr)
+			if (!himl)
 			{
 				himl = DcxDock::status_createImageList();
 
-				if (himl != nullptr)
+				if (himl)
 					DcxDock::status_setImageList(himl);
 			}
 
-			if (himl == nullptr)
+			if (!himl)
 				throw Dcx::dcxException("Unable To Create ImageList");
 
 #if DCX_USE_WRAPPERS
 			Dcx::dcxIconResource icon(index, filename, false, flags);
+
+			if (ImageList_AddIcon(himl, icon.get()) == -1)
+				throw Dcx::dcxException("Unable To Add Image to ImageList");
 #else
 			auto icon = dcxLoadIcon(index, filename, false, flags);
 			Auto(DestroyIcon(icon));
 
-			if (icon == nullptr)
+			if (!icon)
 				throw Dcx::dcxException("Unable To Load Icon");
-#endif
 
-			if (ImageList_AddIcon(himl, icon.get()) == -1)
+			if (ImageList_AddIcon(himl, icon) == -1)
 				throw Dcx::dcxException("Unable To Add Image to ImageList");
+#endif
 		}
 		break;
 		case TEXT('y'): // destroy image list.
@@ -242,13 +253,11 @@ mIRC(xstatusbar)
 	}
 	catch (const std::exception &e)
 	{
-		//Dcx::errorex(TEXT("/xstatusbar"), TEXT("\"%s\" error: %S"), input.to_chr(), e.what());
 		Dcx::error(TEXT("/xstatusbar"), TEXT("\"%\" error: %"), input, e.what());
 		return 0;
 	}
 	catch (...) {
 		// stop any left over exceptions...
-		//Dcx::errorex(TEXT("/xstatusbar"), TEXT("\"%s\" error: Unknown Exception"), input.to_chr());
 		Dcx::error(TEXT("/xstatusbar"), TEXT("\"%\" error: Unknown Exception"), input);
 		return 0;
 	}
@@ -279,7 +288,7 @@ mIRC(_xstatusbar)
 			{
 				if (const auto iFlags = DcxDock::status_getPartFlags(iPart); dcx_testflag(iFlags, SBT_OWNERDRAW))
 				{
-					if (const auto *const pPart = reinterpret_cast<LPSB_PARTINFOD>(DcxDock::status_getText(iPart, nullptr)); pPart != nullptr)
+					if (const auto *const pPart = reinterpret_cast<LPSB_PARTINFOD>(DcxDock::status_getText(iPart, nullptr)); pPart)
 						refData = pPart->m_Text;
 				}
 				else {
@@ -302,7 +311,7 @@ mIRC(_xstatusbar)
 			TString tsOut(gsl::narrow_cast<UINT>(mIRCLinker::c_mIRC_Buffer_Size_cch));
 
 			for (auto i = decltype(nParts){0}; i < nParts; ++i)
-				tsOut.addtok(parts[i]);
+				tsOut.addtok(gsl::at(parts,i));
 
 			refData = tsOut;
 		}
@@ -320,12 +329,10 @@ mIRC(_xstatusbar)
 	}
 	catch (const std::exception &e)
 	{
-		//Dcx::errorex(TEXT("$!xstatusbar"), TEXT("\"%s\" error: %S"), d.to_chr(), e.what());
 		Dcx::error(TEXT("$!xstatusbar"), TEXT("\"%\" error: %"), d, e.what());
 	}
 	catch (...) {
 		// stop any left over exceptions...
-		//Dcx::errorex(TEXT("$!xstatusbar"), TEXT("\"%s\" error: Unknown Exception"), d.to_chr());
 		Dcx::error(TEXT("$!xstatusbar"), TEXT("\"%\" error: Unknown Exception"), d);
 	}
 	return 0;

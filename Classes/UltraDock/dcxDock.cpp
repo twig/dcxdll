@@ -8,16 +8,16 @@
 #include "Dcx.h"
 
 // statusbar stuff
-HWND DcxDock::g_StatusBar = nullptr;
-HIMAGELIST DcxDock::g_hImageList = nullptr;
+HWND DcxDock::g_StatusBar{ nullptr };
+HIMAGELIST DcxDock::g_hImageList{ nullptr };
 INT DcxDock::g_iDynamicParts[SB_MAX_PARTSD] = { 0 };
 INT DcxDock::g_iFixedParts[SB_MAX_PARTSD] = { 0 };
-HFONT DcxDock::g_StatusFont = nullptr;
+HFONT DcxDock::g_StatusFont{ nullptr };
 VectorOfDParts DcxDock::g_vParts;
 
 // treebar stuff
-bool DcxDock::g_bTakeOverTreebar = false;
-COLORREF DcxDock::g_clrTreebarColours[TREEBAR_COLOUR_MAX + 1] = { CLR_INVALID };
+bool DcxDock::g_bTakeOverTreebar{ false };
+COLORREF DcxDock::g_clrTreebarColours[gsl::narrow_cast<UINT>(TreeBarColours::TREEBAR_COLOUR_MAX) + 1] = { CLR_INVALID };
 
 DcxDock::DcxDock(HWND refHwnd, HWND dockHwnd, const DockTypes dockType) noexcept
 	: m_OldRefWndProc(nullptr)
@@ -61,7 +61,8 @@ DcxDock::~DcxDock() noexcept
 	UpdateLayout();
 }
 
-bool DcxDock::DockWindow(HWND hwnd, const TString &flag)
+GSL_SUPPRESS(r.11)
+bool DcxDock::DockWindow(HWND hwnd, const TString& flag)
 {
 	if (isDocked(hwnd))
 		throw Dcx::dcxException(TEXT("Window (%) is already docked"), reinterpret_cast<DWORD>(hwnd));
@@ -98,26 +99,26 @@ bool DcxDock::DockWindow(HWND hwnd, const TString &flag)
 	//
 	//this->m_VectorDocks.push_back(ud);
 
-	DWORD dFlags = DOCKF_LEFT;
+	DockFlags dFlags = DockFlags::DOCKF_LEFT;
 
 	if (flag.len() > 1)
 	{
 		switch (flag[1])
 		{
 		case TEXT('r'):
-			dFlags = DOCKF_RIGHT;
+			dFlags = DockFlags::DOCKF_RIGHT;
 			break;
 
 		case TEXT('t'):
-			dFlags = DOCKF_TOP;
+			dFlags = DockFlags::DOCKF_TOP;
 			break;
 
 		case TEXT('b'):
-			dFlags = DOCKF_BOTTOM;
+			dFlags = DockFlags::DOCKF_BOTTOM;
 			break;
 
 		default:
-			dFlags = DOCKF_LEFT;
+			dFlags = DockFlags::DOCKF_LEFT;
 			break;
 		}
 	}
@@ -152,7 +153,7 @@ void DcxDock::UnDockWindow(const HWND hwnd)
 	//	}
 	//}
 
-	if (const auto itEnd = m_VectorDocks.end(), itGot = std::find_if(m_VectorDocks.begin(), itEnd, [hwnd](const DCXULTRADOCK *const ud) { return (ud) ? (ud->hwnd == hwnd) : false; }); itGot != itEnd)
+	if (const auto itEnd = m_VectorDocks.end(), itGot = std::find_if(m_VectorDocks.begin(), itEnd, [hwnd](const DCXULTRADOCK* const ud) noexcept { return (ud) ? (ud->hwnd == hwnd) : false; }); itGot != itEnd)
 	{
 		const auto ud = *itGot;
 		m_VectorDocks.erase(itGot);
@@ -209,6 +210,7 @@ void DcxDock::UnDockWindow(const HWND hwnd)
 	//}
 }
 
+GSL_SUPPRESS(r.11)
 void DcxDock::UnDockWindowPtr(const gsl::owner<LPDCXULTRADOCK> ud) noexcept
 {
 	if (ud)
@@ -229,7 +231,7 @@ void DcxDock::UnDockWindowPtr(const gsl::owner<LPDCXULTRADOCK> ud) noexcept
 void DcxDock::UnDockAll() noexcept
 {
 	// UnDock all windows.
-	for (const auto &ud : m_VectorDocks)
+	for (const auto& ud : m_VectorDocks)
 	{
 		//if (ud)
 		//{
@@ -257,7 +259,7 @@ bool DcxDock::FindDock(const HWND hwnd) const
 	//return false;
 
 	const auto itEnd = m_VectorDocks.end();
-	return (std::find_if(m_VectorDocks.begin(), itEnd, [hwnd](const DCXULTRADOCK *const ud) { return (ud) ? (ud->hwnd == hwnd) : false; }) != itEnd);
+	return (std::find_if(m_VectorDocks.begin(), itEnd, [hwnd](const DCXULTRADOCK* const ud) noexcept { return (ud) ? (ud->hwnd == hwnd) : false; }) != itEnd);
 }
 
 LPDCXULTRADOCK DcxDock::GetDock(const HWND hwnd) const
@@ -270,7 +272,7 @@ LPDCXULTRADOCK DcxDock::GetDock(const HWND hwnd) const
 	//}
 	//return nullptr;
 
-	if (const auto itEnd = m_VectorDocks.end(), itGot = std::find_if(m_VectorDocks.begin(), itEnd, [hwnd](const DCXULTRADOCK *const ud) { return (ud) ? (ud->hwnd == hwnd) : false; }); itGot != itEnd)
+	if (const auto itEnd = m_VectorDocks.end(), itGot = std::find_if(m_VectorDocks.begin(), itEnd, [hwnd](const DCXULTRADOCK* const ud) { return (ud) ? (ud->hwnd == hwnd) : false; }); itGot != itEnd)
 		return *itGot;
 	return nullptr;
 }
@@ -280,7 +282,7 @@ bool DcxDock::isDocked(const HWND hwnd) const
 	return (FindDock(hwnd) || (GetProp(hwnd, TEXT("dcx_docked"))));
 }
 
-void DcxDock::AdjustRect(WINDOWPOS *wp) noexcept
+void DcxDock::AdjustRect(WINDOWPOS* wp) noexcept
 {
 	if (dcx_testflag(wp->flags, SWP_NOSIZE) && dcx_testflag(wp->flags, SWP_NOMOVE)) // handle min/max case;
 		return;
@@ -312,7 +314,7 @@ void DcxDock::AdjustRect(WINDOWPOS *wp) noexcept
 		return;
 
 	// size docks
-	for (const auto &ud : m_VectorDocks)
+	for (const auto& ud : m_VectorDocks)
 	{
 		if (!ud)
 			continue;
@@ -323,7 +325,7 @@ void DcxDock::AdjustRect(WINDOWPOS *wp) noexcept
 		OffsetRect(&rcDocked, -rcDocked.left, -rcDocked.top);
 		switch (ud->flags)
 		{
-		case DOCKF_LEFT:
+		case DockFlags::DOCKF_LEFT:
 		{ // docked to left
 			x = xleftoffset;
 			y = ytopoffset;
@@ -333,7 +335,7 @@ void DcxDock::AdjustRect(WINDOWPOS *wp) noexcept
 			refw -= rcDocked.right;
 		}
 		break;
-		case DOCKF_RIGHT:
+		case DockFlags::DOCKF_RIGHT:
 		{ // docked to right
 			x = xrightoffset - rcDocked.right;
 			y = ytopoffset;
@@ -343,7 +345,7 @@ void DcxDock::AdjustRect(WINDOWPOS *wp) noexcept
 			refw -= rcDocked.right;
 		}
 		break;
-		case DOCKF_TOP:
+		case DockFlags::DOCKF_TOP:
 		{ // dock to top
 			x = xleftoffset;
 			y = ytopoffset;
@@ -378,7 +380,7 @@ void DcxDock::AdjustRect(WINDOWPOS *wp) noexcept
 
 LRESULT CALLBACK DcxDock::mIRCRefWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-	const auto pthis = static_cast<DcxDock *>(GetProp(mHwnd, TEXT("DcxDock")));
+	const auto pthis = Dcx::dcxGetProp<DcxDock*>(mHwnd, TEXT("DcxDock"));
 	if (!pthis)
 		return DefWindowProc(mHwnd, uMsg, wParam, lParam);
 
@@ -391,7 +393,7 @@ LRESULT CALLBACK DcxDock::mIRCRefWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, L
 		if (!wp)
 			break;
 
-		if (((pthis->m_iType == DOCK_TYPE_MDI) || (pthis->m_iType == DOCK_TYPE_TREE)) && DcxDock::IsStatusbar())
+		if (((pthis->m_iType == DockTypes::DOCK_TYPE_MDI) || (pthis->m_iType == DockTypes::DOCK_TYPE_TREE)) && DcxDock::IsStatusbar())
 		{
 			RECT rc{};
 			DcxDock::status_getRect(&rc);
@@ -438,14 +440,14 @@ LRESULT CALLBACK DcxDock::mIRCRefWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, L
 
 	case WM_ERASEBKGND:
 	{
-		if (pthis->m_iType == DOCK_TYPE_TREE && DcxDock::g_bTakeOverTreebar)
+		if (pthis->m_iType == DockTypes::DOCK_TYPE_TREE && DcxDock::g_bTakeOverTreebar)
 			return FALSE;
 		//return ((GetWindowLong(mHwnd, GWL_EXSTYLE) & WS_EX_TRANSPARENT) ? TRUE : FALSE);
 	}
 	break;
 	case TVM_SETITEM:
 	{
-		if (pthis->m_iType != DOCK_TYPE_TREE || !DcxDock::g_bTakeOverTreebar)
+		if (pthis->m_iType != DockTypes::DOCK_TYPE_TREE || !DcxDock::g_bTakeOverTreebar)
 			break;
 
 		dcxlParam(LPTVITEMEX, pitem);
@@ -453,7 +455,7 @@ LRESULT CALLBACK DcxDock::mIRCRefWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, L
 		if (!pitem)
 			break;
 
-		if (HIWORD(pitem->lParam) != 0)
+		if (Dcx::dcxHIWORD(pitem->lParam) != 0)
 		{
 			TString buf(DcxDock::getTreebarItemType(pitem->lParam));
 
@@ -464,7 +466,7 @@ LRESULT CALLBACK DcxDock::mIRCRefWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, L
 
 			constexpr TCHAR sSel[] = TEXT("selected");
 			constexpr TCHAR sDeSel[] = TEXT("deselected");
-			mIRCLinker::eval(nullptr, TEXT("$xtreebar_callback(setitem,%,%,%)"), buf, HIWORD(pitem->lParam), dcx_testflag(LOWORD(pitem->lParam), 256) ? &sSel[0] : &sDeSel[0]);
+			mIRCLinker::eval(nullptr, TEXT("$xtreebar_callback(setitem,%,%,%)"), buf, Dcx::dcxHIWORD(pitem->lParam), dcx_testflag(Dcx::dcxLOWORD(pitem->lParam), 256) ? &sSel[0] : &sDeSel[0]);
 		}
 	}
 	break;
@@ -575,6 +577,8 @@ LRESULT CALLBACK DcxDock::mIRCRefWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, L
 		//	if ((pthis->m_OldRefWndProc != nullptr) && ((WNDPROC)GetWindowLongPtr(mHwnd, GWLP_WNDPROC) == DcxDock::mIRCRefWinProc))
 		//		SubclassWindow(mHwnd, pthis->m_OldRefWndProc);
 		//}
+	default:
+		break;
 	}
 	if (!pthis->m_OldRefWndProc)
 		return DefWindowProc(mHwnd, uMsg, wParam, lParam);
@@ -597,7 +601,8 @@ LRESULT CALLBACK DcxDock::mIRCRefWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, L
 
 LRESULT CALLBACK DcxDock::mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-	const auto pthis = static_cast<DcxDock *>(GetProp(mHwnd, TEXT("DcxDock")));
+	//const auto pthis = static_cast<DcxDock*>(GetProp(mHwnd, TEXT("DcxDock")));
+	const auto pthis = Dcx::dcxGetProp<DcxDock*>(mHwnd, TEXT("DcxDock"));
 	if (!pthis)
 		return DefWindowProc(mHwnd, uMsg, wParam, lParam);
 
@@ -605,7 +610,7 @@ LRESULT CALLBACK DcxDock::mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 	{
 	case WM_SIZE:
 	{
-		if ((pthis->m_iType == DOCK_TYPE_MDI) && DcxDock::IsStatusbar())
+		if ((pthis->m_iType == DockTypes::DOCK_TYPE_MDI) && DcxDock::IsStatusbar())
 		{ // parent of MDI type == main mIRC win.
 			InvalidateRect(DcxDock::g_StatusBar, nullptr, FALSE); // needed to stop display corruption
 			SendMessage(DcxDock::g_StatusBar, WM_SIZE, 0U, 0);
@@ -616,7 +621,7 @@ LRESULT CALLBACK DcxDock::mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 
 	case WM_WINDOWPOSCHANGING:
 	{
-		if ((lParam != NULL) && (pthis->m_iType != DOCK_TYPE_MDI) && DcxDock::IsStatusbar())
+		if ((lParam != NULL) && (pthis->m_iType != DockTypes::DOCK_TYPE_MDI) && DcxDock::IsStatusbar())
 		{
 			dcxlParam(LPWINDOWPOS, wp);
 
@@ -641,7 +646,7 @@ LRESULT CALLBACK DcxDock::mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 	break;
 	case WM_NOTIFY:
 	{
-		if (pthis->m_iType == DOCK_TYPE_TREE)
+		if (pthis->m_iType == DockTypes::DOCK_TYPE_TREE)
 		{
 			dcxlParam(LPNMHDR, hdr);
 
@@ -660,23 +665,23 @@ LRESULT CALLBACK DcxDock::mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 				{
 					if (dcx_testflag(lpntvcd->nmcd.uItemState, CDIS_HOT))
 					{ // This makes sure the hot colour doesnt show as blue.
-						if (DcxDock::g_clrTreebarColours[TREEBAR_COLOUR_HOT_TEXT] != CLR_INVALID)
-							lpntvcd->clrText = DcxDock::g_clrTreebarColours[TREEBAR_COLOUR_HOT_TEXT];
+						if (gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<UINT>(TreeBarColours::TREEBAR_COLOUR_HOT_TEXT)) != CLR_INVALID)
+							lpntvcd->clrText = gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<UINT>(TreeBarColours::TREEBAR_COLOUR_HOT_TEXT));
 						else
 							lpntvcd->clrText = GetSysColor(COLOR_HOTLIGHT);
 
-						if (DcxDock::g_clrTreebarColours[TREEBAR_COLOUR_HOT_BKG] != CLR_INVALID) // only set a bkg colour if one is set in prefs.
-							lpntvcd->clrTextBk = DcxDock::g_clrTreebarColours[TREEBAR_COLOUR_HOT_BKG];
+						if (gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<UINT>(TreeBarColours::TREEBAR_COLOUR_HOT_BKG)) != CLR_INVALID) // only set a bkg colour if one is set in prefs.
+							lpntvcd->clrTextBk = gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<UINT>(TreeBarColours::TREEBAR_COLOUR_HOT_BKG));
 					}
 					if (dcx_testflag(lpntvcd->nmcd.uItemState, CDIS_SELECTED))
 					{ // This makes sure the selected colour doesnt show as grayed.
-						if (DcxDock::g_clrTreebarColours[TREEBAR_COLOUR_SELECTED] != CLR_INVALID)
-							lpntvcd->clrText = DcxDock::g_clrTreebarColours[TREEBAR_COLOUR_SELECTED];
+						if (gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<UINT>(TreeBarColours::TREEBAR_COLOUR_SELECTED)) != CLR_INVALID)
+							lpntvcd->clrText = gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<UINT>(TreeBarColours::TREEBAR_COLOUR_SELECTED));
 						else
 							lpntvcd->clrText = GetSysColor(COLOR_HIGHLIGHTTEXT);
 
-						if (DcxDock::g_clrTreebarColours[TREEBAR_COLOUR_SELECTED_BKG] != CLR_INVALID)
-							lpntvcd->clrTextBk = DcxDock::g_clrTreebarColours[TREEBAR_COLOUR_SELECTED_BKG];
+						if (gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<UINT>(TreeBarColours::TREEBAR_COLOUR_SELECTED_BKG)) != CLR_INVALID)
+							lpntvcd->clrTextBk = gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<UINT>(TreeBarColours::TREEBAR_COLOUR_SELECTED_BKG));
 						else
 							lpntvcd->clrTextBk = GetSysColor(COLOR_HIGHLIGHT);
 					}
@@ -695,7 +700,7 @@ LRESULT CALLBACK DcxDock::mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 						//	}
 						//}
 
-						const int wid = HIWORD(lpntvcd->nmcd.lItemlParam);
+						const auto wid = Dcx::dcxHIWORD(lpntvcd->nmcd.lItemlParam);
 						TString buf;
 
 						//mIRCLinker::tsEvalex(buf, TEXT("$window(@%d).sbcolor"), wid);
@@ -717,17 +722,17 @@ LRESULT CALLBACK DcxDock::mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 							{
 							case L"message"_hash:
 							{
-								cText = DcxDock::g_clrTreebarColours[TREEBAR_COLOUR_MESSAGE];
-								cBkg = DcxDock::g_clrTreebarColours[TREEBAR_COLOUR_MESSAGE_BKG];
+								cText = gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<UINT>(TreeBarColours::TREEBAR_COLOUR_MESSAGE));
+								cBkg = gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<UINT>(TreeBarColours::TREEBAR_COLOUR_MESSAGE_BKG));
 							}
 							break;
 							case L"event"_hash:
-								cText = DcxDock::g_clrTreebarColours[TREEBAR_COLOUR_EVENT];
-								cBkg = DcxDock::g_clrTreebarColours[TREEBAR_COLOUR_EVENT_BKG];
+								cText = gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<UINT>(TreeBarColours::TREEBAR_COLOUR_EVENT));
+								cBkg = gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<UINT>(TreeBarColours::TREEBAR_COLOUR_EVENT_BKG));
 								break;
 							case L"highlight"_hash:
-								cText = DcxDock::g_clrTreebarColours[TREEBAR_COLOUR_HIGHLIGHT];
-								cBkg = DcxDock::g_clrTreebarColours[TREEBAR_COLOUR_HIGHLIGHT_BKG];
+								cText = gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<UINT>(TreeBarColours::TREEBAR_COLOUR_HIGHLIGHT));
+								cBkg = gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<UINT>(TreeBarColours::TREEBAR_COLOUR_HIGHLIGHT_BKG));
 								break;
 							default:
 								break;
@@ -777,9 +782,11 @@ LRESULT CALLBACK DcxDock::mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 				return 0L;
 			}
 			break;
+			default:
+				break;
 			}
 		}
-		else if ((pthis->m_iType == DOCK_TYPE_MDI) && DcxDock::IsStatusbar() && dcxSignal.xstatusbar)
+		else if ((pthis->m_iType == DockTypes::DOCK_TYPE_MDI) && DcxDock::IsStatusbar() && dcxSignal.xstatusbar)
 		{
 			dcxlParam(LPNMHDR, hdr);
 
@@ -843,6 +850,8 @@ LRESULT CALLBACK DcxDock::mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 				return TRUE;
 			}
 			break;
+			default:
+				break;
 			}
 		}
 	}
@@ -933,8 +942,8 @@ LRESULT CALLBACK DcxDock::mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 
 	case WM_PARENTNOTIFY:
 	{
-		if (LOWORD(wParam) == WM_DESTROY)
-			pthis->UnDockWindow((HWND)lParam);
+		if (Dcx::dcxLOWORD(wParam) == WM_DESTROY)
+			pthis->UnDockWindow(reinterpret_cast<HWND>(lParam));
 	}
 	break;
 
@@ -981,6 +990,8 @@ LRESULT CALLBACK DcxDock::mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 //
 		//	return lRes;
 		//}
+	default:
+		break;
 	}
 	if (!pthis->m_OldDockWndProc)
 		return DefWindowProc(mHwnd, uMsg, wParam, lParam);
@@ -988,7 +999,7 @@ LRESULT CALLBACK DcxDock::mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 	return CallWindowProc(pthis->m_OldDockWndProc, mHwnd, uMsg, wParam, lParam);
 }
 
-bool DcxDock::InitStatusbar(const TString &styles)
+bool DcxDock::InitStatusbar(const TString& styles)
 {
 	if (IsWindow(g_StatusBar))
 		return true;
@@ -996,7 +1007,7 @@ bool DcxDock::InitStatusbar(const TString &styles)
 	ZeroMemory(&DcxDock::g_iDynamicParts[0], sizeof(DcxDock::g_iDynamicParts));
 	ZeroMemory(&DcxDock::g_iFixedParts[0], sizeof(DcxDock::g_iFixedParts));
 
-	const auto[bNoTheme, Styles, ExStyles] = DcxDock::status_parseControlStyles(styles);
+	const auto [bNoTheme, Styles, ExStyles] = DcxDock::status_parseControlStyles(styles);
 
 	g_StatusBar = CreateWindowExW(
 		gsl::narrow_cast<DWORD>(ExStyles),
@@ -1034,12 +1045,12 @@ void DcxDock::UnInitStatusbar() noexcept
 		//	++itStart;
 		//}
 
-		for (const auto &x : DcxDock::g_vParts)
+		for (const auto& x : DcxDock::g_vParts)
 		{
 			if (x)
 			{
 				if (x->m_BkgCol)
-					DeleteBrush(x->m_BkgCol);
+					DeleteObject(x->m_BkgCol);
 				delete x;
 			}
 		}
@@ -1052,7 +1063,7 @@ void DcxDock::UnInitStatusbar() noexcept
 	g_hImageList = nullptr;
 
 	if (g_StatusFont)
-		DeleteFont(g_StatusFont);
+		DeleteObject(g_StatusFont);
 	g_StatusFont = nullptr;
 }
 
@@ -1061,7 +1072,7 @@ bool DcxDock::IsStatusbar() noexcept
 	return (IsWindow(g_StatusBar) != FALSE);
 }
 
-std::tuple<NoTheme, WindowStyle, WindowExStyle> DcxDock::status_parseControlStyles(const TString & styles)
+std::tuple<NoTheme, WindowStyle, WindowExStyle> DcxDock::status_parseControlStyles(const TString& styles)
 {
 	WindowStyle Styles(WindowStyle::None);
 	WindowExStyle ExStyles(WindowExStyle::None);
@@ -1069,7 +1080,7 @@ std::tuple<NoTheme, WindowStyle, WindowExStyle> DcxDock::status_parseControlStyl
 
 	Styles |= WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | WS_CLIPSIBLINGS;
 
-	for (const auto &tsStyle : styles)
+	for (const auto& tsStyle : styles)
 	{
 		switch (std::hash<TString>{}(tsStyle))
 		{
@@ -1090,6 +1101,8 @@ std::tuple<NoTheme, WindowStyle, WindowExStyle> DcxDock::status_parseControlStyl
 			break;
 		case TEXT("transparent"_hash):
 			ExStyles |= WS_EX_TRANSPARENT;
+			break;
+		default:
 			break;
 		}
 	}
@@ -1116,19 +1129,19 @@ UINT DcxDock::status_getParts(const UINT nParts, const LPINT aWidths) noexcept
 	return gsl::narrow_cast<UINT>(SendMessage(g_StatusBar, SB_GETPARTS, gsl::narrow_cast<WPARAM>(nParts), reinterpret_cast<LPARAM>(aWidths)));
 }
 
-void DcxDock::status_setText(const int iPart, const int Style, const WCHAR *const lpstr) noexcept
+void DcxDock::status_setText(const int iPart, const int Style, const WCHAR* const lpstr) noexcept
 {
 	SendMessage(g_StatusBar, SB_SETTEXTW, gsl::narrow_cast<WPARAM>(iPart | Style), reinterpret_cast<LPARAM>(lpstr));
 }
 
 UINT DcxDock::status_getTextLength(const int iPart) noexcept
 {
-	return gsl::narrow_cast<UINT>(LOWORD(SendMessage(g_StatusBar, SB_GETTEXTLENGTHW, gsl::narrow_cast<WPARAM>(iPart), NULL)));
+	return gsl::narrow_cast<UINT>(Dcx::dcxLOWORD(SendMessage(g_StatusBar, SB_GETTEXTLENGTHW, gsl::narrow_cast<WPARAM>(iPart), NULL)));
 }
 
 UINT DcxDock::status_getPartFlags(const int iPart) noexcept
 {
-	return gsl::narrow_cast<UINT>(HIWORD(SendMessage(g_StatusBar, SB_GETTEXTLENGTHW, gsl::narrow_cast<WPARAM>(iPart), NULL)));
+	return gsl::narrow_cast<UINT>(Dcx::dcxHIWORD(SendMessage(g_StatusBar, SB_GETTEXTLENGTHW, gsl::narrow_cast<WPARAM>(iPart), NULL)));
 }
 
 LRESULT DcxDock::status_getText(const int iPart, LPWSTR lpstr) noexcept
@@ -1136,7 +1149,7 @@ LRESULT DcxDock::status_getText(const int iPart, LPWSTR lpstr) noexcept
 	return SendMessage(g_StatusBar, SB_GETTEXTW, gsl::narrow_cast<WPARAM>(iPart), reinterpret_cast<LPARAM>(lpstr));
 }
 
-void DcxDock::status_setTipText(const int iPart, const WCHAR *const lpstr) noexcept
+void DcxDock::status_setTipText(const int iPart, const WCHAR* const lpstr) noexcept
 {
 	SendMessage(g_StatusBar, SB_SETTIPTEXTW, gsl::narrow_cast<WPARAM>(iPart), reinterpret_cast<LPARAM>(lpstr));
 }
@@ -1156,6 +1169,7 @@ void DcxDock::status_setIcon(const int iPart, const HICON hIcon) noexcept
 	SendMessage(g_StatusBar, SB_SETICON, gsl::narrow_cast<WPARAM>(iPart), reinterpret_cast<LPARAM>(hIcon));
 }
 
+GSL_SUPPRESS(lifetime.4)
 HICON DcxDock::status_getIcon(const int iPart) noexcept
 {
 	return reinterpret_cast<HICON>(SendMessage(g_StatusBar, SB_GETICON, gsl::narrow_cast<WPARAM>(iPart), gsl::narrow_cast<LPARAM>(0)));
@@ -1166,7 +1180,7 @@ LRESULT DcxDock::status_setPartInfo(const int iPart, const int Style, const LPSB
 	return SendMessage(g_StatusBar, SB_SETTEXT, gsl::narrow_cast<WPARAM>(iPart | (Style | SBT_OWNERDRAW)), reinterpret_cast<LPARAM>(pPart));
 }
 
-void DcxDock::status_deletePartInfo(const int iPart)
+void DcxDock::status_deletePartInfo(const int iPart) noexcept
 {
 	if (dcx_testflag(DcxDock::status_getPartFlags(iPart), SBT_OWNERDRAW))
 	{
@@ -1211,7 +1225,7 @@ void DcxDock::status_deletePartInfo(const int iPart)
 	}
 }
 
-HIMAGELIST &DcxDock::status_getImageList() noexcept
+HIMAGELIST& DcxDock::status_getImageList() noexcept
 {
 	return g_hImageList;
 }
@@ -1226,7 +1240,7 @@ HIMAGELIST DcxDock::status_createImageList() noexcept
 	return ImageList_Create(16, 16, ILC_COLOR32 | ILC_MASK, 1, 0);
 }
 
-const UINT DcxDock::status_parseItemFlags(const TString & flags) noexcept
+const UINT DcxDock::status_parseItemFlags(const TString& flags) noexcept
 {
 	const XSwitchFlags xflags(flags);
 	UINT iFlags = 0;
@@ -1280,23 +1294,24 @@ void DcxDock::status_updateParts(void)
 
 	for (auto i = decltype(nParts){0}; i < nParts; ++i)
 	{
-		auto pw = DcxDock::g_iFixedParts[i];
-		if (DcxDock::g_iDynamicParts[i] != 0)
-			pw = w * DcxDock::g_iDynamicParts[i];
+		auto pw = gsl::at(DcxDock::g_iFixedParts, i);
+		if (gsl::at(DcxDock::g_iDynamicParts, i) != 0)
+			pw = w * gsl::at(DcxDock::g_iDynamicParts, i);
 
 		if (i == 0)
-			pParts[i] = pw;
+			gsl::at(pParts, i) = pw;
 		else {
 			if (pw == -1)
-				pParts[i] = -1;
+				gsl::at(pParts, i) = -1;
 			else
-				pParts[i] = (pParts[i - 1] + pw);
+				gsl::at(pParts, i) = (gsl::at(pParts, i - 1) + pw);
 		}
 	}
 
 	DcxDock::status_setParts(nParts, pParts.get());
 }
 
+GSL_SUPPRESS(type.4)
 void DcxDock::status_setFont(HFONT f) noexcept
 {
 	if (f)
@@ -1304,7 +1319,7 @@ void DcxDock::status_setFont(HFONT f) noexcept
 		SetWindowFont(g_StatusBar, f, TRUE);
 
 		if (g_StatusFont)
-			DeleteFont(g_StatusFont);
+			DeleteObject(g_StatusFont);
 		g_StatusFont = f;
 	}
 }
@@ -1328,7 +1343,7 @@ TString DcxDock::getTreebarItemType(const LPARAM lParam)
 {
 	TString tsType;
 
-	switch (const UINT wid = HIWORD(lParam); wid)
+	switch (const UINT wid = Dcx::dcxHIWORD(lParam); wid)
 	{
 	case 15000: // channel folder
 		tsType = TEXT("channelfolder");
@@ -1347,7 +1362,6 @@ TString DcxDock::getTreebarItemType(const LPARAM lParam)
 		break;
 	default:
 	{
-		//mIRCLinker::tsEvalex(tsType, TEXT("$window(@%d).type"), wid);
 		mIRCLinker::eval(tsType, TEXT("$window(@%).type"), wid);
 		if (tsType.empty())
 			tsType = TEXT("notify");
