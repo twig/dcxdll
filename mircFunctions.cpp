@@ -45,7 +45,7 @@ SYSTEMTIME MircTimeToSystemTime(const long mircTime)
 
 long SystemTimeToMircTime(const LPSYSTEMTIME pst)
 {
-	if ((pst == nullptr) || (pst->wMonth == 0))
+	if ((!pst) || (pst->wMonth == 0))
 	{
 		Dcx::error(TEXT("SystemTimeToMircTime"), TEXT("invalid SYSTEMTIME parameter."));
 		return 0;
@@ -103,7 +103,7 @@ long SystemTimeToMircTime(const LPSYSTEMTIME pst)
 		pst->wMinute,
 		pst->wSecond,
 		pst->wDay,
-		months[pst->wMonth - 1],
+		gsl::at(months,pst->wMonth - 1),
 		pst->wYear); iNum.has_value())
 		return *iNum;
 

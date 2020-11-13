@@ -37,7 +37,6 @@ http://msdn.microsoft.com/library/default.asp?url=/library/en-us/shellcc/platfor
 
 // XMenuBar stuff
 HMENU g_OriginalMenuBar = nullptr;
-//XPopupMenu *g_mIRCScriptMenu = nullptr; // Wrapper for the mIRC scriptable menu.
 
 // XPopup Stuff
 
@@ -46,8 +45,6 @@ SIGNALSWITCH dcxSignal;
 	* DllMain()
 	* function added to insure that only a single instance of dcx.dll is loaded.
 */
-
-//HANDLE hDcxMutex = nullptr;
 
 namespace {
 	HANDLE getMutex() noexcept
@@ -74,9 +71,9 @@ namespace {
  *
  */
 BOOL WINAPI DllMain(
-					HINSTANCE hinstDLL,  // handle to DLL module
-					DWORD fdwReason,     // reason for calling function
-					LPVOID lpReserved ) noexcept  // reserved
+	HINSTANCE hinstDLL,  // handle to DLL module
+	DWORD fdwReason,     // reason for calling function
+	LPVOID lpReserved) noexcept  // reserved
 {
 	// Perform actions based on the reason for calling.
 	switch (fdwReason)
@@ -87,7 +84,7 @@ BOOL WINAPI DllMain(
 		// Return FALSE to fail DLL load.
 		DisableThreadLibraryCalls(hinstDLL);
 
-		if (getMutex() == nullptr)
+		if (!getMutex())
 			return FALSE;
 	}
 	break;
@@ -100,11 +97,13 @@ BOOL WINAPI DllMain(
 	case DLL_PROCESS_DETACH:
 		// Perform any necessary cleanup.
 
-		if (const HANDLE hMutex = getMutex(); hMutex != nullptr)
+		if (const HANDLE hMutex = getMutex(); hMutex)
 		{
 			ReleaseMutex(hMutex);
 			CloseHandle(hMutex);
 		}
+		break;
+	default:
 		break;
 	}
 	return TRUE;  // Successful DLL_PROCESS_ATTACH.
@@ -123,17 +122,16 @@ BOOL WINAPI DllMain(
 *
 * \param load mIRC Load Structure Pointer
 */
-_INTEL_DLL_ void WINAPI LoadDll(mIRCLinker::LOADINFO * load)
+_INTEL_DLL_ void WINAPI LoadDll(mIRCLinker::LOADINFO* load)
 {
 	try {
 		Dcx::load(load);
 
-		DCX_DEBUG(mIRCLinker::debug, TEXT("LoadDLL"), TEXT("Initialising UltraDock..."));
+		DCX_DEBUG(mIRCLinker::debug, __FUNCTIONW__, TEXT("Initialising UltraDock..."));
 		InitUltraDock();
 	}
-	catch (const std::exception &e)
+	catch (const std::exception & e)
 	{
-		//Dcx::errorex(TEXT("LoadDLL"), TEXT("error: %S"), e.what());
 		Dcx::error(TEXT("LoadDLL"), TEXT("error: %"), e.what());
 	}
 	catch (...)
@@ -175,9 +173,18 @@ _INTEL_DLL_ int WINAPI UnloadDll(int timeout)
 mIRC(Version)
 {
 	try {
+		//auto heap = HeapCreate(0, 1024, 512);
+
+		//auto e = GetLastError();
+
+		//HEAP_SUMMARY hsum{};
+		//HeapSummary(heap, 0, &hsum);
+
+		//if (heap)
+		//	HeapDestroy(heap);
+
 		TString tmp(TEXT(" This is a token string "));
 
-		//mIRCLinker::execex(TEXT("/echo -a \" This is a token string \" :: \"%s\""), tmp.to_chr());
 		mIRCLinker::echo(TEXT("\" This is a token string \" :: \"%\""), tmp);
 
 
@@ -187,7 +194,7 @@ mIRC(Version)
 
 			mIRCLinker::echo(TEXT("Success: trim() - all tests passed"));
 		}
-		
+
 		{
 			Dcx::dcxNumber<int> iNum{ -10 };
 
@@ -196,7 +203,7 @@ mIRC(Version)
 
 			Ensures(signednum == -10);
 			Ensures(unsignednum == (UINT)-10);
-			
+
 			signednum = 0;
 			unsignednum = 0;
 
@@ -365,7 +372,7 @@ mIRC(Version)
 			Ensures(tmp == TEXT("putter a token put string 100 chars putted"_ts));
 
 			// puttok(string,end of token string)
-			tmp.puttok(TEXT("e_put"), tmp.numtok() +1);	// "putter a token put string 100 chars putted e_put"
+			tmp.puttok(TEXT("e_put"), tmp.numtok() + 1);	// "putter a token put string 100 chars putted e_put"
 			Ensures(tmp == TEXT("putter a token put string 100 chars putted e_put"_ts));
 
 			mIRCLinker::echo(TEXT("Success: puttok() - all tests passed"));
@@ -448,7 +455,8 @@ mIRC(Version)
 			auto nIter = decltype(nToks){0};
 
 			// begin()/end() based loop
-			auto itStart = tmp.begin(), itEnd = tmp.end();
+			auto itStart = tmp.begin();
+			const auto itEnd = tmp.end();
 			while (itStart != itEnd)
 			{
 				const TString tsTmp(*itStart);
@@ -488,7 +496,7 @@ mIRC(Version)
 
 #if __has_include(<ColourString.h>)
 		{
-			const TCHAR ctrlk = TEXT('\u0003');
+			constexpr TCHAR ctrlk = TEXT('\u0003');
 			std::basic_string<TCHAR> str(TEXT("test "));
 			str += ctrlk;
 			str += TEXT("04red");
@@ -512,7 +520,7 @@ mIRC(Version)
 
 			Ensures(cc != cc2);
 
-			ColourString<TCHAR> cc3{ cc, TEXT(" "), cc2 };
+			ColourString<TCHAR> cc3{ cc, ColourString(TEXT(" ")), cc2 };
 			//Ensures(cc3 == L"test \u000304red\u0003\u0002 bold\u0002  \x1Funderline\x1F  \x1Ditalic\x1D  \x16reverse\x16 \xF end test \u000304red\u0003\u0002 bold\u0002  \x1Funderline\x1F  \x1Ditalic\x1D  \x16reverse\x16 \xF end some extra text");
 
 			ColourString<char> cc4("test here");
@@ -642,7 +650,7 @@ mIRC(Version)
 
 		{
 			// test constructors
-			const TCHAR *ctmp = TEXT("test");
+			const TCHAR* ctmp = TEXT("test");
 			auto test1 = TString(TEXT("test"));
 			Ensures(test1 == TEXT("test"_ts));
 
@@ -727,7 +735,7 @@ mIRC(Version)
 			const char chr_test[128] = { 0 };
 			char chr_buf[128] = { 0 };
 
-			ts_strcpyn(&chr_buf[0], &chr_test[0], std::extent_v<decltype(chr_buf)>);
+			ts_strcpyn(&chr_buf[0], &chr_test[0], std::size(chr_buf));
 
 			Ensures(ts_strcmp(&chr_test[0], &chr_buf[0]) == 0);
 
@@ -738,15 +746,16 @@ mIRC(Version)
 			tok = TEXT("123");
 			UINT iTest = Dcx::numeric_cast<UINT>(tok);
 			Ensures(iTest == 123);
-			
+
 			iTest = Dcx::numeric_cast<UINT>("400");
 			Ensures(iTest == 400);
 
 			const auto fTest = Dcx::numeric_cast<float>("3.14");
-			Ensures(fTest == float(3.14));
+			Ensures(fTest == 3.14f);
+			//_ts_strlen("3.14");
 
 			const auto dTest = Dcx::numeric_cast<double>("3.14");
-			Ensures(dTest == double(3.14));
+			Ensures(dTest == 3.14);
 
 			mIRCLinker::echo(TEXT("Success: numeric_cast() - all tests passed"));
 		}
@@ -776,43 +785,26 @@ mIRC(Version)
 		throw Dcx::dcxException(TEXT("No such Exception"));
 		//throw Dcx::dcxException("No such Exception: % :: %", iTest, tok);
 	}
-	catch (const std::exception &e)
+	catch (const std::exception & e)
 	{
-		//Dcx::errorex(TEXT("Version"), TEXT("error: %S"), e.what());
 		Dcx::error(TEXT("Version"), TEXT("error: %"), e.what());
 	}
 
 #ifdef DCX_DEV_BUILD
 	if (mIRCLinker::isUnicode())
 	{
-		//_ts_snprintf(data, MIRC_BUFFER_SIZE_CCH,
-		//	TEXT("DCX (XPopup) DLL %s %s%d UTF by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2005 Compiled on " __DATE__ " " __TIME__),
-		//	DLL_VERSION, DLL_STATE, DLL_DEV_BUILD);
-
-		_ts_strcpyn<wchar_t >(data, _T("DCX (XPopup) DLL " GIT_DESCRIBEA " " DLL_STATE DLL_DEV_BUILD " UTF by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2005 Compiled on " __DATE__ " " __TIME__), MIRC_BUFFER_SIZE_CCH);
+		_ts_strcpyn<wchar_t >(data, _T("DCX (XPopup) DLL " GIT_DESCRIBEA " " DLL_STATE DLL_DEV_BUILD " UTF by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2005 Compiled on " __DATE__ " " __TIME__), mIRCLinker::m_dwCharacters);
 	}
 	else {
-		//_ts_snprintf((char *)data, MIRC_BUFFER_SIZE_CCH,
-		//	"DCX (XPopup) DLL %S %S%d UTF by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2005 Compiled on " __DATE__ " " __TIME__,
-		//	DLL_VERSION, DLL_STATE, DLL_DEV_BUILD);
-
-		_ts_strcpyn<char>((char *)data, "DCX (XPopup) DLL " GIT_DESCRIBEA " " DLL_STATE DLL_DEV_BUILD " UTF by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2005 Compiled on " __DATE__ " " __TIME__, MIRC_BUFFER_SIZE_CCH);
+		_ts_strcpyn<char>((char*)data, "DCX (XPopup) DLL " GIT_DESCRIBEA " " DLL_STATE DLL_DEV_BUILD " UTF by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2005 Compiled on " __DATE__ " " __TIME__, mIRCLinker::m_dwBytes);
 	}
 #else
 	if (mIRCLinker::isUnicode())
 	{
-		//_ts_snprintf(data, MIRC_BUFFER_SIZE_CCH,
-		//	TEXT("DCX (XPopup) DLL %s %s UTF by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2005 Compiled on " __DATE__ " " __TIME__),
-		//	DLL_VERSION, DLL_STATE);
-
-		_ts_strcpyn<wchar_t>(data, _T("DCX (XPopup) DLL " GIT_DESCRIBEA " " DLL_STATE " ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2005 Compiled on " __DATE__ " " __TIME__), MIRC_BUFFER_SIZE_CCH);
+		_ts_strcpyn<wchar_t>(data, _T("DCX (XPopup) DLL " GIT_DESCRIBEA " " DLL_STATE " ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2005 Compiled on " __DATE__ " " __TIME__), mIRCLinker::m_dwCharacters);
 	}
 	else {
-		//_ts_snprintf((char *)data, MIRC_BUFFER_SIZE_CCH,
-		//	"DCX (XPopup) DLL %S %S UTF by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2005 Compiled on " __DATE__ " " __TIME__,
-		//	DLL_VERSION, DLL_STATE);
-
-		_ts_strcpyn<char>((char *)data, "DCX (XPopup) DLL " GIT_DESCRIBEA " " DLL_STATE " ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2005 Compiled on " __DATE__ " " __TIME__, MIRC_BUFFER_SIZE_CCH);
+		_ts_strcpyn<char>(reinterpret_cast<char*>(data), "DCX (XPopup) DLL " GIT_DESCRIBEA " " DLL_STATE " ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2005 Compiled on " __DATE__ " " __TIME__, mIRCLinker::m_dwBytes);
 	}
 #endif
 	return 3;
@@ -827,14 +819,14 @@ mIRC(Version)
 		//	TEXT("DCX (XPopup) DLL %s %s%d UTF by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2005 Compiled on " __DATE__ " " __TIME__),
 		//	DLL_VERSION, DLL_STATE, DLL_DEV_BUILD);
 
-		_ts_strcpyn<wchar_t >(data, _T("DCX (XPopup) DLL " GIT_DESCRIBEA " " DLL_STATE DLL_DEV_BUILD " UTF by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2005 Compiled on " __DATE__ " " __TIME__), MIRC_BUFFER_SIZE_CCH);
+		_ts_strcpyn<wchar_t >(data, _T("DCX (XPopup) DLL " GIT_DESCRIBEA " " DLL_STATE DLL_DEV_BUILD " UTF by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2005 Compiled on " __DATE__ " " __TIME__), mIRCLinker::m_dwCharacters);
 	}
 	else {
 		//_ts_snprintf((char *)data, MIRC_BUFFER_SIZE_CCH,
 		//	"DCX (XPopup) DLL %S %S%d UTF by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2005 Compiled on " __DATE__ " " __TIME__,
 		//	DLL_VERSION, DLL_STATE, DLL_DEV_BUILD);
 
-		_ts_strcpyn<char>((char *)data, "DCX (XPopup) DLL " GIT_DESCRIBEA " " DLL_STATE DLL_DEV_BUILD " UTF by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2005 Compiled on " __DATE__ " " __TIME__, MIRC_BUFFER_SIZE_CCH);
+		_ts_strcpyn<char>(reinterpret_cast<char*>(data), "DCX (XPopup) DLL " GIT_DESCRIBEA " " DLL_STATE DLL_DEV_BUILD " UTF by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2005 Compiled on " __DATE__ " " __TIME__, mIRCLinker::m_dwBytes);
 	}
 #else
 	if (mIRCLinker::isUnicode())
@@ -843,14 +835,14 @@ mIRC(Version)
 		//	TEXT("DCX (XPopup) DLL %s %s UTF by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2005 Compiled on " __DATE__ " " __TIME__),
 		//	DLL_VERSION, DLL_STATE);
 
-		_ts_strcpyn<wchar_t>(data, _T("DCX (XPopup) DLL " GIT_DESCRIBEA " " DLL_STATE " ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2005 Compiled on " __DATE__ " " __TIME__), MIRC_BUFFER_SIZE_CCH);
+		_ts_strcpyn<wchar_t>(data, _T("DCX (XPopup) DLL " GIT_DESCRIBEA " " DLL_STATE " ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2005 Compiled on " __DATE__ " " __TIME__), mIRCLinker::m_dwCharacters);
 	}
 	else {
 		//_ts_snprintf((char *)data, MIRC_BUFFER_SIZE_CCH,
 		//	"DCX (XPopup) DLL %S %S UTF by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2005 Compiled on " __DATE__ " " __TIME__,
 		//	DLL_VERSION, DLL_STATE);
 
-		_ts_strcpyn<char>((char *)data, "DCX (XPopup) DLL " GIT_DESCRIBEA " " DLL_STATE " ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2005 Compiled on " __DATE__ " " __TIME__, MIRC_BUFFER_SIZE_CCH);
+		_ts_strcpyn<char>(reinterpret_cast<char*>(data), "DCX (XPopup) DLL " GIT_DESCRIBEA " " DLL_STATE " ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2005 Compiled on " __DATE__ " " __TIME__, mIRCLinker::m_dwBytes);
 	}
 #endif
 	return 3;
@@ -867,7 +859,7 @@ mIRC(IsUsingDirectX)
 	{
 		ret(dxData.to_chr());
 	}
-	else if (Dcx::initDirectX(data, MIRC_BUFFER_SIZE_CCH))
+	else if (Dcx::initDirectX(data, mIRCLinker::m_dwCharacters))
 	{
 		dxData = data;
 		return 3;
@@ -880,7 +872,6 @@ mIRC(IsUsingDirectX)
 */
 mIRC(IsUsingGDI) noexcept
 {
-	//ret((Dcx::GDIModule.isUseable() ? TEXT("$true") : TEXT("$false")));
 	ret(dcx_truefalse(Dcx::GDIModule.isUseable()));
 }
 
@@ -889,7 +880,6 @@ mIRC(IsUsingGDI) noexcept
 */
 mIRC(IsUnloadSafe) noexcept
 {
-	//ret((Dcx::isUnloadSafe() ? TEXT("$true") : TEXT("$false")));
 	ret(dcx_truefalse(Dcx::isUnloadSafe()));
 }
 
@@ -898,7 +888,6 @@ mIRC(IsUnloadSafe) noexcept
 */
 mIRC(IsThemedXP) noexcept
 {
-	//ret((Dcx::UXModule.dcxIsThemeActive() ? TEXT("$true") : TEXT("$false")));
 	ret(dcx_truefalse(Dcx::UXModule.dcxIsThemeActive() != FALSE));
 }
 
@@ -911,28 +900,23 @@ mIRC(IsThemedXP) noexcept
 // Mark [NAME] [ALIAS]
 mIRC(Mark)
 {
-	__assume(data != nullptr);
-
 	TString d(data);
 
 	data[0] = 0;
-
-	const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> szReturnValue(data);
 
 	try {
 		d.trim();
 
 		if (d.numtok() < 2)
-			throw Dcx::dcxException("[NAME] [ALIAS]");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const TString tsDialog(d.getfirsttok(1));
 		const TString tsCallback(d.getnexttok());
 		Dcx::mark(tsDialog, tsCallback);
 
-		szReturnValue = TEXT("D_OK Mark: Dialog Marked");
-		return 3;
+		ret(TEXT("D_OK Mark: Dialog Marked"));
 	}
-	catch (const std::exception &e)
+	catch (const std::exception & e)
 	{
 		Dcx::error(TEXT("/dcx Mark"), TEXT("\"%\" error: %"), d, e.what());
 	}
@@ -963,7 +947,7 @@ mIRC(GetSystemColor)
 		d.trim();
 
 		if (d.numtok() < 1)
-			throw Dcx::dcxException("Invalid Arguments");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		int col = 0;
 		switch (std::hash<TString>{}(d.gettok(1)))
@@ -1077,31 +1061,29 @@ mIRC(GetSystemColor)
 			col = -1;
 			break;
 		default:
-			throw Dcx::dcxException("Invalid parameter specified");
+			throw DcxExceptions::dcxInvalidArguments();
 		}
 
 		if (col == -1)
 		{
 			RGBQUAD clr{};
-			if (BOOL bOpaque = FALSE; FAILED(Dcx::VistaModule.dcxDwmGetColorizationColor((DWORD *)&clr, &bOpaque)))
+			if (BOOL bOpaque = FALSE; FAILED(Dcx::VistaModule.dcxDwmGetColorizationColor(reinterpret_cast<DWORD*>(&clr), &bOpaque)))
 				throw Dcx::dcxException("Unable to get glass colour.");
-		
-			_ts_snprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), RGB(clr.rgbRed, clr.rgbGreen, clr.rgbBlue));
+
+			_ts_snprintf(data, mIRCLinker::m_dwCharacters, TEXT("%u"), RGB(clr.rgbRed, clr.rgbGreen, clr.rgbBlue));
 		}
 		else {
 			// max of 8 digits, 9 for null terminator
-			_ts_snprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), GetSysColor(col));
+			_ts_snprintf(data, mIRCLinker::m_dwCharacters, TEXT("%u"), GetSysColor(col));
 		}
 		return 3;
 	}
-	catch (const std::exception &e)
+	catch (const std::exception & e)
 	{
-		//Dcx::errorex(TEXT("$!dcx(GetSystemColor)"), TEXT("\"%s\" error: %S"), d.to_chr(), e.what());
 		Dcx::error(TEXT("$!dcx(GetSystemColor)"), TEXT("\"%\" error: %"), d, e.what());
 	}
 	catch (...) {
 		// stop any left over exceptions...
-		//Dcx::errorex(TEXT("$!dcx(GetSystemColor)"), TEXT("\"%s\" error: Unknown Exception"), d.to_chr());
 		Dcx::error(TEXT("$!dcx(GetSystemColor)"), TEXT("\"%\" error: Unknown Exception"), d);
 	}
 	mIRCLinker::echo(TEXT("$!dcx(GetSystemColor,[attribute])"));
@@ -1127,18 +1109,18 @@ mIRC(xdid)
 		d.trim();
 
 		if (d.numtok() < 3)
-			throw Dcx::dcxException("Invalid Arguments");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto tsDname(d.getfirsttok(1));
-		const auto *const p_Dialog = Dcx::Dialogs.getDialogByName(tsDname);
+		const auto* const p_Dialog = Dcx::Dialogs.getDialogByName(tsDname);
 
-		if (p_Dialog == nullptr)
+		if (!p_Dialog)
 			throw Dcx::dcxException(TEXT("Unknown dialog \"%\": see Mark command"), tsDname);
 
 		const auto IDs(d.getnexttok());			// tok 2
 		const auto tsArgs(d.getlasttoks());		// tok 3, -1
 		const auto n = IDs.numtok(TSCOMMACHAR);
-		const auto HandleIDRange = [=](const TString &tsID) {
+		const auto HandleIDRange = [=](const TString& tsID) {
 			UINT id_start = 0, id_end = 0;
 			if (tsID.numtok(TEXT('-')) == 2)
 			{
@@ -1159,7 +1141,7 @@ mIRC(xdid)
 			{
 				const auto p_Control = p_Dialog->getControlByID(id + mIRC_ID_OFFSET);
 
-				if (p_Control == nullptr)
+				if (!p_Control)
 					throw Dcx::dcxException(TEXT("Unable to find control: % (dialog : %)"), id, tsDname);
 
 				TString d2(tsDname);
@@ -1173,7 +1155,8 @@ mIRC(xdid)
 		// Multiple IDs id,id,id,id-id,id-id
 		if (n > 1)
 		{
-			for (auto itStart = IDs.begin(TSCOMMACHAR), itEnd = IDs.end(); itStart != itEnd; ++itStart)
+			const auto itEnd = IDs.end();
+			for (auto itStart = IDs.begin(TSCOMMACHAR); itStart != itEnd; ++itStart)
 			{
 				//UINT id_start = 0, id_end = 0;
 				//const TString tsID(*itStart);
@@ -1242,14 +1225,12 @@ mIRC(xdid)
 		}
 		return 1;
 	}
-	catch (const std::exception &e)
+	catch (const std::exception & e)
 	{
-		//Dcx::errorex(TEXT("/xdid"), TEXT("\"%s\" error: %S"), d.to_chr(), e.what());
 		Dcx::error(TEXT("/xdid"), TEXT("\"%\" error: %"), d, e.what());
 	}
 	catch (...) {
 		// stop any left over exceptions...
-		//Dcx::errorex(TEXT("/xdid"), TEXT("\"%s\" error: Unknown Exception"), d.to_chr());
 		Dcx::error(TEXT("/xdid"), TEXT("\"%\" error: Unknown Exception"), d);
 	}
 	mIRCLinker::echo(TEXT("/xdid -[switch] [dialog] [ID] [options]"));
@@ -1277,35 +1258,33 @@ mIRC(_xdid)
 		d.trim();
 
 		if (d.numtok() < 3)
-			throw Dcx::dcxException("Invalid Arguments");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto tsDname(d.getfirsttok(1));
 		const auto tsID(d.getnexttok());
 
-		const auto *const p_Dialog = Dcx::Dialogs.getDialogByName(tsDname);
+		const auto* const p_Dialog = Dcx::Dialogs.getDialogByName(tsDname);
 
-		if (p_Dialog == nullptr)
+		if (!p_Dialog)
 			throw Dcx::dcxException(TEXT("Unknown dialog \"%\": see Mark command"), tsDname);
 
 		if (!p_Dialog->isNamedId(tsID))
 			throw Dcx::dcxException(TEXT("Invalid ID : % (dialog %)"), tsID, tsDname);
 
-		const auto *const p_Control = p_Dialog->getControlByID(p_Dialog->NameToID(tsID));
+		const auto* const p_Control = p_Dialog->getControlByID(p_Dialog->NameToID(tsID));
 
-		if (p_Control == nullptr)
+		if (!p_Control)
 			throw Dcx::dcxException(TEXT("Unable to find control: % (dialog %)"), tsID, tsDname);
 
-		p_Control->parseInfoRequest(d, refString<TCHAR, MIRC_BUFFER_SIZE_CCH>(data));
+		p_Control->parseInfoRequest(d, mIRCResultString(data));
 		return 3;
 	}
-	catch (const std::exception &e)
+	catch (const std::exception & e)
 	{
-		//Dcx::errorex(TEXT("$!xdid"), TEXT("\"%s\" error: %S"), d.to_chr(), e.what());
 		Dcx::error(TEXT("$!xdid"), TEXT("\"%\" error: %"), d, e.what());
 	}
 	catch (...) {
 		// stop any left over exceptions...
-		//Dcx::errorex(TEXT("$!xdid"), TEXT("\"%s\" error: Unknown Exception"), d.to_chr());
 		Dcx::error(TEXT("$!xdid"), TEXT("\"%\" error: Unknown Exception"), d);
 	}
 	mIRCLinker::echo(TEXT("$!xdid([dialog],[ID](,options)).prop"));
@@ -1335,20 +1314,19 @@ mIRC(GetTaskbarPos)
 #if DCX_USE_WRAPPERS
 		Dcx::dcxWindowRect rc(hTaskbar);
 
-		_ts_snprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d %d %d"), rc.left, rc.top, rc.Width(), rc.Height());
+		_ts_snprintf(data, mIRCLinker::m_dwCharacters, TEXT("%d %d %d %d"), rc.left, rc.top, rc.Width(), rc.Height());
 #else
 		RECT rc{};
 
 		if (!GetWindowRect(hTaskbar, &rc))
 			throw Dcx::dcxException("Unable to get window rect");
 
-		_ts_snprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d %d %d"), rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top);
+		_ts_snprintf(data, mIRCLinker::m_dwCharacters, TEXT("%d %d %d %d"), rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top);
 #endif
 		return 3;
 	}
-	catch (const std::exception &e)
+	catch (const std::exception & e)
 	{
-		//Dcx::errorex(TEXT("$!dcx(GetTaskbarPos)"), TEXT("error: %S"), e.what());
 		Dcx::error(TEXT("$!dcx(GetTaskbarPos)"), TEXT("error: %"), e.what());
 	}
 	catch (...) {
@@ -1379,24 +1357,22 @@ mIRC(xdialog)
 		const auto tsDname(d.gettok(1));
 
 		if (d.numtok() < 2)
-			throw Dcx::dcxException(TEXT("Invalid arguments ( dialog %)"), tsDname);
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto p_Dialog = Dcx::Dialogs.getDialogByName(tsDname);
 
-		if (p_Dialog == nullptr)
+		if (!p_Dialog)
 			throw Dcx::dcxException(TEXT("Unknown dialog \"%\": see Mark command"), tsDname);
 
 		p_Dialog->parseCommandRequest(d);
 		return 1;
 	}
-	catch (const std::exception &e)
+	catch (const std::exception & e)
 	{
-		//Dcx::errorex(TEXT("/xdialog"), TEXT("\"%s\" error: %S"), d.to_chr(), e.what());
 		Dcx::error(TEXT("/xdialog"), TEXT("\"%\" error: %"), d, e.what());
 	}
 	catch (...) {
 		// stop any left over exceptions...
-		//Dcx::errorex(TEXT("/xdialog"), TEXT("\"%s\" error: Unknown Exception"), d.to_chr());
 		Dcx::error(TEXT("/xdialog"), TEXT("\"%\" error: Unknown Exception"), d);
 	}
 	mIRCLinker::echo(TEXT("/xdialog -[switch] [dialog] [options]"));
@@ -1426,11 +1402,11 @@ mIRC(_xdialog)
 		const auto tsDname(d.getfirsttok(1));
 
 		if (d.numtok() < 2)
-			throw Dcx::dcxException(TEXT("Invalid arguments ( dialog %)"), tsDname);
+			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto *const p_Dialog = Dcx::Dialogs.getDialogByName(tsDname);
+		const auto* const p_Dialog = Dcx::Dialogs.getDialogByName(tsDname);
 
-		if (p_Dialog == nullptr)
+		if (!p_Dialog)
 		{
 			if (d.getnexttok() != TEXT("ismarked"))
 				throw Dcx::dcxException(TEXT("Unknown dialog \"%\": see Mark command"), tsDname);
@@ -1438,17 +1414,15 @@ mIRC(_xdialog)
 			ret(TEXT("$false"));
 		}
 
-		p_Dialog->parseInfoRequest(d, refString<TCHAR, MIRC_BUFFER_SIZE_CCH>(data));
+		p_Dialog->parseInfoRequest(d, mIRCResultString(data));
 		return 3;
 	}
-	catch (const std::exception &e)
+	catch (const std::exception & e)
 	{
-		//Dcx::errorex(TEXT("$!xdialog"), TEXT("\"%s\" error: %S"), d.to_chr(), e.what());
 		Dcx::error(TEXT("$!xdialog"), TEXT("\"%\" error: %"), d, e.what());
 	}
 	catch (...) {
 		// stop any left over exceptions...
-		//Dcx::errorex(TEXT("$!xdialog"), TEXT("\"%s\" error: Unknown Exception"), d.to_chr());
 		Dcx::error(TEXT("$!xdialog"), TEXT("\"%\" error: Unknown Exception"), d);
 	}
 	mIRCLinker::echo(TEXT("$!xdialog([dialog],[options]).prop"));
@@ -1458,7 +1432,7 @@ mIRC(_xdialog)
 	return 0;
 }
 
-/***** XPopup Stuff 
+/***** XPopup Stuff
 
 *!
 * \brief XPopup DLL /xpop Function
@@ -1477,7 +1451,7 @@ mIRC(xpop)
 		d.trim();
 
 		if (d.numtok() < 3)
-			throw Dcx::dcxException("Invalid Arguments");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto tsMenu(d.gettok(1));
 		const auto uHash = std::hash<TString>{}(tsMenu);
@@ -1487,20 +1461,18 @@ mIRC(xpop)
 
 		const auto p_Menu = Dcx::XPopups.getMenuByHash(uHash, false);
 
-		if (p_Menu == nullptr)
+		if (!p_Menu)
 			throw Dcx::dcxException(TEXT("Unknown menu \"%\": see /xpopup -c command"), tsMenu);
 
 		p_Menu->parseXPopCommand(d);
 		return 1;
 	}
-	catch (const std::exception &e)
+	catch (const std::exception & e)
 	{
-		//Dcx::errorex(TEXT("/xpop"), TEXT("\"%s\" error: %S"), d.to_chr(), e.what());
 		Dcx::error(TEXT("/xpop"), TEXT("\"%\" error: %"), d, e.what());
 	}
 	catch (...) {
 		// stop any left over exceptions...
-		//Dcx::errorex(TEXT("/xpop"), TEXT("\"%s\" error: Unknown Exception"), d.to_chr());
 		Dcx::error(TEXT("/xpop"), TEXT("\"%\" error: Unknown Exception"), d);
 	}
 	mIRCLinker::echo(TEXT("/xpop -[switch] [menu] [path] [tab] [option]"));
@@ -1528,7 +1500,7 @@ mIRC(_xpop)
 		d.trim();
 
 		if (d.numtok() < 3)
-			throw Dcx::dcxException("Invalid Arguments");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto tsMenu(d.gettok(1));
 		const auto uHash = std::hash<TString>{}(tsMenu);
@@ -1536,22 +1508,20 @@ mIRC(_xpop)
 		if ((uHash == TEXT("mirc"_hash)) || (uHash == TEXT("mircbar"_hash)))
 			throw Dcx::dcxException("Invalid menu name : mirc or mircbar menus don't have access to this feature.");
 
-		const auto *const p_Menu = Dcx::XPopups.getMenuByHash(uHash, false);
+		const auto* const p_Menu = Dcx::XPopups.getMenuByHash(uHash, false);
 
-		if (p_Menu == nullptr)
+		if (!p_Menu)
 			throw Dcx::dcxException(TEXT("Unknown menu \"%\": see /xpopup -c command"), tsMenu);
 
 		p_Menu->parseXPopIdentifier(d, mIRCResultString(data));
 		return 3;
 	}
-	catch (const std::exception &e)
+	catch (const std::exception & e)
 	{
-		//Dcx::errorex(TEXT("$!xpop"), TEXT("\"%s\" error: %S"), d.to_chr(), e.what());
 		Dcx::error(TEXT("$!xpop"), TEXT("\"%\" error: %"), d, e.what());
 	}
 	catch (...) {
 		// stop any left over exceptions...
-		//Dcx::errorex(TEXT("$!xpop"), TEXT("\"%s\" error: Unknown Exception"), d.to_chr());
 		Dcx::error(TEXT("$!xpop"), TEXT("\"%\" error: Unknown Exception"), d);
 	}
 	mIRCLinker::echo(TEXT("$!xpop([menu],[path],[options]).prop"));
@@ -1579,20 +1549,17 @@ mIRC(xpopup)
 		d.trim();
 
 		if (d.numtok() < 2)
-			throw Dcx::dcxException("Invalid Arguments");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		Dcx::XPopups.parseCommand(d);
 		return 1;
 	}
-	catch (const std::exception &e)
+	catch (const std::exception & e)
 	{
-		//Dcx::errorex(TEXT("/xpopup"), TEXT("\"%s\" error: %S"), d.to_chr(), e.what());
-		//Dcx::error(__FUNCTIONW__, TEXT("\"%\" error: %"), d, e.what());
 		Dcx::error(TEXT("/xpopup"), TEXT("\"%\" error: %"), d, e.what());
 	}
 	catch (...) {
 		// stop any left over exceptions...
-		//Dcx::errorex(TEXT("/xpopup"), TEXT("\"%s\" error: Unknown Exception"), d.to_chr());
 		Dcx::error(TEXT("/xpopup"), TEXT("\"%\" error: Unknown Exception"), d);
 	}
 	mIRCLinker::echo(TEXT("/xpopup -[switch] [menu] (options)"));
@@ -1627,22 +1594,20 @@ mIRC(_xpopup)
 		d.trim();
 
 		if (d.numtok() < 2)
-			throw Dcx::dcxException("Invalid Arguments");
+			throw DcxExceptions::dcxInvalidArguments();
 
-		mIRCResultString refData(data);
+		const mIRCResultString refData(data);
 
 		refData = Dcx::XPopups.parseIdentifier(d);
 
 		return 3;
 	}
-	catch (const std::exception &e)
+	catch (const std::exception & e)
 	{
-		//Dcx::errorex(TEXT("$!xpopup"), TEXT("\"%s\" error: %S"), d.to_chr(), e.what());
 		Dcx::error(TEXT("$!xpopup"), TEXT("\"%\" error: %"), d, e.what());
 	}
 	catch (...) {
 		// stop any left over exceptions...
-		//Dcx::errorex(TEXT("$!xpopup"), TEXT("\"%s\" error: Unknown Exception"), d.to_chr());
 		Dcx::error(TEXT("$!xpopup"), TEXT("\"%\" error: Unknown Exception"), d);
 	}
 	mIRCLinker::echo(TEXT("$!xpopup([menu],[options]).prop"));
@@ -1667,14 +1632,12 @@ mIRC(xmenubar)
 		Dcx::XMenubar.parseXMenuBarCommand(d.trim());
 		return 1;
 	}
-	catch (const std::exception &e)
+	catch (const std::exception & e)
 	{
-		//Dcx::errorex(TEXT("/xmenubar"), TEXT("\"%s\" error: %S"), d.to_chr(), e.what());
 		Dcx::error(TEXT("/xmenubar"), TEXT("\"%\" error: %"), d, e.what());
 	}
 	catch (...) {
 		// stop any left over exceptions...
-		//Dcx::errorex(TEXT("/xmenubar"), TEXT("\"%s\" error: Unknown Exception"), d.to_chr());
 		Dcx::error(TEXT("/xmenubar"), TEXT("\"%\" error: Unknown Exception"), d);
 	}
 	mIRCLinker::echo(TEXT("/xmenubar -[switch] (options)"));
@@ -1698,14 +1661,12 @@ mIRC(_xmenubar)
 		Dcx::XMenubar.parseXMenuBarInfo(d.trim(), mIRCResultString(data));
 		return 3;
 	}
-	catch (const std::exception &e)
+	catch (const std::exception & e)
 	{
-		//Dcx::errorex(TEXT("$!xmenubar"), TEXT("\"%s\" error: %S"), d.to_chr(), e.what());
 		Dcx::error(TEXT("$!xmenubar"), TEXT("\"%\" error: %"), d, e.what());
 	}
 	catch (...) {
 		// stop any left over exceptions...
-		//Dcx::errorex(TEXT("$!xmenubar"), TEXT("\"%s\" error: Unknown Exception"), d.to_chr());
 		Dcx::error(TEXT("$!xmenubar"), TEXT("\"%\" error: Unknown Exception"), d);
 	}
 	mIRCLinker::echo(TEXT("$!xmenubar([options]).prop"));
@@ -1730,14 +1691,12 @@ mIRC(mpopup)
 	try {
 		return Dcx::XPopups.parseMPopup(d.trim());
 	}
-	catch (const std::exception &e)
+	catch (const std::exception & e)
 	{
-		//Dcx::errorex(TEXT("/mpopup"), TEXT("\"%s\" error: %S"), d.to_chr(), e.what());
 		Dcx::error(TEXT("/mpopup"), TEXT("\"%\" error: %"), d, e.what());
 	}
 	catch (...) {
 		// stop any left over exceptions...
-		//Dcx::errorex(TEXT("/mpopup"), TEXT("\"%s\" error: Unknown Exception"), d.to_chr());
 		Dcx::error(TEXT("/mpopup"), TEXT("\"%\" error: Unknown Exception"), d);
 	}
 	mIRCLinker::echo(TEXT("/mpopup [MENU] [1|0]"));
@@ -1774,18 +1733,16 @@ mIRC(xSignal)
 		else if (xflags[TEXT('t')])
 			dcxSignal.xtray = bState;
 		else
-			throw Dcx::dcxException("Unknown flag specified.");
+			throw DcxExceptions::dcxInvalidFlag();
 
 		return 1;
 	}
-	catch (const std::exception &e)
+	catch (const std::exception & e)
 	{
-		//Dcx::errorex(TEXT("/dcx xSignal"), TEXT("\"%s\" error: %S"), d.to_chr(), e.what());
 		Dcx::error(TEXT("/dcx xSignal"), TEXT("\"%\" error: %"), d, e.what());
 	}
 	catch (...) {
 		// stop any left over exceptions...
-		//Dcx::errorex(TEXT("/dcx xSignal"), TEXT("\"%s\" error: Unknown Exception"), d.to_chr());
 		Dcx::error(TEXT("/dcx xSignal"), TEXT("\"%\" error: Unknown Exception"), d);
 	}
 	mIRCLinker::echo(TEXT("/dcx xSignal [1|0] (+FLAGS)"));
@@ -1805,9 +1762,9 @@ mIRC(WindowProps)
 		const auto numtok = input.numtok();
 
 		if (numtok < 2)
-			throw Dcx::dcxException("Insuffient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
-		auto hwnd = (HWND)input.getfirsttok(1).to_<DWORD>();	// tok 1
+		auto hwnd = reinterpret_cast<HWND>(input.getfirsttok(1).to_<DWORD>());	// tok 1
 
 		if (!IsWindow(hwnd))
 			throw Dcx::dcxException("Invalid window");
@@ -1819,7 +1776,7 @@ mIRC(WindowProps)
 			throw Dcx::dcxException("No Flags Found");
 
 		if (!xflags[TEXT('T')] && !xflags[TEXT('i')] && !xflags[TEXT('t')] && !xflags[TEXT('r')] && !xflags[TEXT('v')])
-			throw Dcx::dcxException("Unknown Flags");
+			throw DcxExceptions::dcxInvalidFlag();
 
 		// set hwnd NoTheme
 		// +T
@@ -1837,7 +1794,7 @@ mIRC(WindowProps)
 		{
 			// invalid args
 			if (numtok < 3)
-				throw Dcx::dcxException("Invalid Args");
+				throw DcxExceptions::dcxInvalidArguments();
 
 			const auto index = input.getnexttok().to_int();	// tok 3
 			//auto filename(input.gettok(1, TSTAB).gettok(4, -1).trim());
@@ -1867,7 +1824,7 @@ mIRC(WindowProps)
 		{
 			const auto x = input.getnexttok().to_<UINT>();	// tok 3
 			const auto y = input.getnexttok().to_<UINT>();	// tok 4
-			const LPARAM parm = MAKELONG(x, y);
+			const auto parm = Dcx::dcxMAKELPARAM(x, y);
 			SendMessage(hwnd, WM_RBUTTONDOWN, MK_RBUTTON, parm);
 			PostMessage(hwnd, WM_RBUTTONUP, MK_RBUTTON, parm); // MUST be a PostMessage or the dll hangs untill the menu is closed.
 		}
@@ -1875,7 +1832,7 @@ mIRC(WindowProps)
 		// +v [top] [left] [bottom] [right]
 		else if (xflags[TEXT('v')])
 		{
-			MARGINS margin;
+			MARGINS margin{};
 			margin.cyTopHeight = input.getnexttok().to_<int>();		// tok 3
 			margin.cxLeftWidth = input.getnexttok().to_<int>();		// tok 4
 			margin.cyBottomHeight = input.getnexttok().to_<int>();	// tok 5
@@ -1897,14 +1854,12 @@ mIRC(WindowProps)
 		}
 		return 1;
 	}
-	catch (const std::exception &e)
+	catch (const std::exception & e)
 	{
-		//Dcx::errorex(TEXT("/dcx WindowProps"), TEXT("\"%s\" error: %S"), input.to_chr(), e.what());
 		Dcx::error(TEXT("/dcx WindowProps"), TEXT("\"%\" error: %"), input, e.what());
 	}
 	catch (...) {
 		// stop any left over exceptions...
-		//Dcx::errorex(TEXT("/dcx WindowProps"), TEXT("\"%s\" error: Unknown Exception"), input.to_chr());
 		Dcx::error(TEXT("/dcx WindowProps"), TEXT("\"%\" error: Unknown Exception"), input);
 	}
 	mIRCLinker::echo(TEXT("/dcx WindowProps [HWND] [+FLAGS] (ARGS)"));
@@ -1935,7 +1890,7 @@ mIRC(ActiveWindow)
 		const auto numtok = input.numtok();
 
 		if (numtok < 1)
-			throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto hwnd = GetForegroundWindow();
 
@@ -1951,36 +1906,34 @@ mIRC(ActiveWindow)
 		switch (std::hash<TString>{}(input.gettok(1)))
 		{
 		case TEXT("hwnd"_hash):		// handle
-			_ts_snprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%lu"), (DWORD)hwnd);	// don't use %p as this gives a hex result.
+			_ts_snprintf(data, mIRCLinker::m_dwCharacters, TEXT("%lu"), (DWORD)hwnd);	// don't use %p as this gives a hex result.
 			break;
 		case TEXT("x"_hash):		// left
-			_ts_snprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), wi.rcWindow.left);
+			_ts_snprintf(data, mIRCLinker::m_dwCharacters, TEXT("%d"), wi.rcWindow.left);
 			break;
 		case TEXT("y"_hash):		// top
-			_ts_snprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), wi.rcWindow.top);
+			_ts_snprintf(data, mIRCLinker::m_dwCharacters, TEXT("%d"), wi.rcWindow.top);
 			break;
 		case TEXT("w"_hash):		// width
-			_ts_snprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), wi.rcWindow.right - wi.rcWindow.left);
+			_ts_snprintf(data, mIRCLinker::m_dwCharacters, TEXT("%d"), wi.rcWindow.right - wi.rcWindow.left);
 			break;
 		case TEXT("h"_hash):		// height
-			_ts_snprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), wi.rcWindow.bottom - wi.rcWindow.top);
+			_ts_snprintf(data, mIRCLinker::m_dwCharacters, TEXT("%d"), wi.rcWindow.bottom - wi.rcWindow.top);
 			break;
 		case TEXT("caption"_hash):	// title text
-			GetWindowText(hwnd, data, MIRC_BUFFER_SIZE_CCH);
+			GetWindowText(hwnd, data, mIRCLinker::m_dwCharacters);
 			break;
 		default:					// otherwise
-			throw Dcx::dcxException("Invalid parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 		}
 		return 3;
 	}
-	catch (const std::exception &e)
+	catch (const std::exception & e)
 	{
-		//Dcx::errorex(TEXT("$!dcx(ActiveWindow)"), TEXT("\"%s\" error: %S"), input.to_chr(), e.what());
 		Dcx::error(TEXT("$!dcx(ActiveWindow)"), TEXT("\"%\" error: %"), input, e.what());
 	}
 	catch (...) {
 		// stop any left over exceptions...
-		//Dcx::errorex(TEXT("$!dcx(ActiveWindow)"), TEXT("\"%s\" error: Unknown Exception"), input.to_chr());
 		Dcx::error(TEXT("$!dcx(ActiveWindow)"), TEXT("\"%\" error: Unknown Exception"), input);
 	}
 	mIRCLinker::echo(TEXT("$!dcx(ActiveWindow, [property])"));
@@ -2001,7 +1954,7 @@ mIRC(GhostDrag)
 		input.trim();
 
 		if (input.empty())
-			throw Dcx::dcxException("Invalid parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		// [0-255] enable or (255 == disable) ghost drag for main mIRC window.
 		const auto alpha = static_cast<std::byte>(input.gettok(1).to_<UINT>() & 0xFF);
@@ -2011,14 +1964,12 @@ mIRC(GhostDrag)
 
 		return 1;
 	}
-	catch (const std::exception &e)
+	catch (const std::exception & e)
 	{
-		//Dcx::errorex(TEXT("/dcx GhostDrag"), TEXT("\"%s\" error: %S"), input.to_chr(), e.what());
 		Dcx::error(TEXT("/dcx GhostDrag"), TEXT("\"%\" error: %"), input, e.what());
 	}
 	catch (...) {
 		// stop any left over exceptions...
-		//Dcx::errorex(TEXT("/dcx GhostDrag"), TEXT("\"%s\" error: Unknown Exception"), input.to_chr());
 		Dcx::error(TEXT("/dcx GhostDrag"), TEXT("\"%\" error: Unknown Exception"), input);
 	}
 	mIRCLinker::echo(TEXT("/dcx GhostDrag [alpha]"));
@@ -2043,7 +1994,7 @@ mIRC(SetSystemCursors)
 		d.trim();
 
 		if (d.empty())
-			throw Dcx::dcxException("Invalid Arguments");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		//const auto tsCursor(d.getfirsttok(1));
 		//auto tsFilename(d.getlasttoks());
@@ -2053,11 +2004,11 @@ mIRC(SetSystemCursors)
 		auto tsFilename(d.getlasttoks());
 
 		if (!IsFile(tsFilename))
-			throw Dcx::dcxException("Unable to open file");
+			throw DcxExceptions::dcxInvalidFilename();
 
-		auto hCursor = (HCURSOR)LoadImage(nullptr, tsFilename.to_chr(), IMAGE_CURSOR, 0, 0, LR_DEFAULTSIZE | LR_LOADFROMFILE);
+		auto hCursor = static_cast<HCURSOR>(LoadImage(nullptr, tsFilename.to_chr(), IMAGE_CURSOR, 0, 0, LR_DEFAULTSIZE | LR_LOADFROMFILE));
 
-		if (hCursor == nullptr)
+		if (!hCursor)
 			throw Dcx::dcxException("Unable to load cursor");
 
 		if (!SetSystemCursor(hCursor, systemCursorId))
@@ -2065,13 +2016,12 @@ mIRC(SetSystemCursors)
 
 		return 1;
 	}
-	catch (const std::exception &e)
+	catch (const std::exception & e)
 	{
 		Dcx::error(TEXT("/dcx SetSystemCursors"), TEXT("\"%\" error: %"), d, e.what());
 	}
 	catch (...) {
 		// stop any left over exceptions...
-		//Dcx::errorex(TEXT("/dcx SetSystemCursors"), TEXT("\"%s\" error: Unknown Exception"), d.to_chr());
 		Dcx::error(TEXT("/dcx SetSystemCursors"), TEXT("\"%\" error: Unknown Exception"), d);
 	}
 	mIRCLinker::echo(TEXT("/dcx SetSystemCursors [cursor id] [filename]"));
@@ -2098,18 +2048,19 @@ mIRC(SetmIRCCursors)
 		d.trim();
 
 		if (d.empty())
-			throw Dcx::dcxException("Invalid Arguments");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto tsCursor(d.getfirsttok(1));
 		auto tsFilename(d.getlasttoks());
 
 		if (!tsFilename.empty() && !IsFile(tsFilename))
-			throw Dcx::dcxException("Unable to open file");
+			throw DcxExceptions::dcxInvalidFilename();
 
-		for (auto itStart = tsCursor.begin(TSCOMMACHAR), itEnd = tsCursor.end(); itStart != itEnd; ++itStart)
+		const auto itEnd = tsCursor.end();
+		for (auto itStart = tsCursor.begin(TSCOMMACHAR); itStart != itEnd; ++itStart)
 		{
 			const auto uAreaHash(std::hash<TString>{}(*itStart));
-			
+
 			if (const auto AreaId = Dcx::parseAreaType(uAreaHash); AreaId > 0)
 			{
 				if (tsFilename.empty())
@@ -2122,7 +2073,7 @@ mIRC(SetmIRCCursors)
 			}
 			else {
 				const auto CursorId = Dcx::parseCursorType(uAreaHash);
-				if (CursorId == nullptr)
+				if (!CursorId)
 					throw Dcx::dcxException("Unknown cursor type");
 
 				if (auto hSystemCursor = Dcx::dcxLoadCursorFromResource(CursorId); tsFilename.empty())
@@ -2157,14 +2108,12 @@ mIRC(SetmIRCCursors)
 		//}
 		//return 1;
 	}
-	catch (const std::exception &e)
+	catch (const std::exception & e)
 	{
-		//Dcx::errorex(TEXT("/dcx SetmIRCCursors"), TEXT("\"%s\" error: %S"), d.to_chr(), e.what());
 		Dcx::error(TEXT("/dcx SetmIRCCursors"), TEXT("\"%\" error: %"), d, e.what());
 	}
 	catch (...) {
 		// stop any left over exceptions...
-		//Dcx::errorex(TEXT("/dcx SetmIRCCursors"), TEXT("\"%s\" error: Unknown Exception"), d.to_chr());
 		Dcx::error(TEXT("/dcx SetmIRCCursors"), TEXT("\"%\" error: Unknown Exception"), d);
 	}
 
@@ -2192,7 +2141,7 @@ mIRC(SetDCXSettings)
 		d.trim();
 
 		if (d.empty())
-			throw Dcx::dcxException("Invalid Arguments");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto tsOpt(d.getfirsttok(1));
 
@@ -2206,26 +2155,24 @@ mIRC(SetDCXSettings)
 		case L"UpdateColours"_hash:
 		{
 			const auto btmp = Dcx::setting_bStaticColours;
-		
+
 			Dcx::setting_bStaticColours = false;
 			getmIRCPalette();
-		
+
 			Dcx::setting_bStaticColours = btmp;
 			break;
 		}
 		default:
-			throw Dcx::dcxException("Invalid Option");
+			throw DcxExceptions::dcxInvalidArguments();
 		}
 		return 1;
 	}
-	catch (const std::exception &e)
+	catch (const std::exception & e)
 	{
-		//Dcx::errorex(TEXT("/dcx SetDCXSettings"), TEXT("\"%s\" error: %S"), d.to_chr(), e.what());
 		Dcx::error(TEXT("/dcx SetDCXSettings"), TEXT("\"%\" error: %"), d, e.what());
 	}
 	catch (...) {
 		// stop any left over exceptions...
-		//Dcx::errorex(TEXT("/dcx SetDCXSettings"), TEXT("\"%s\" error: Unknown Exception"), d.to_chr());
 		Dcx::error(TEXT("/dcx SetDCXSettings"), TEXT("\"%\" error: Unknown Exception"), d);
 	}
 
