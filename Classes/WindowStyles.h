@@ -2,7 +2,9 @@
 
 // Window Styles Helper enums.
 
-enum class WindowStyle : DWORD {
+enum class WindowStyle
+	: DWORD
+{
 	None,
 	Child = WS_CHILD,
 	Border = WS_BORDER,
@@ -59,6 +61,12 @@ constexpr WindowStyle operator |(const WindowStyle &eStyle, const T &dStyle) noe
 	return static_cast<WindowStyle>(static_cast<DWORD>(eStyle) | static_cast<DWORD>(dStyle));
 }
 
+template <typename T>
+constexpr WindowStyle operator ^(const WindowStyle& eStyle, const T& dStyle) noexcept
+{
+	return static_cast<WindowStyle>(static_cast<DWORD>(eStyle) ^ static_cast<DWORD>(dStyle));
+}
+
 constexpr WindowStyle operator ~(const WindowStyle &eStyle) noexcept
 {
 	return static_cast<WindowStyle>(~static_cast<DWORD>(eStyle));
@@ -70,7 +78,9 @@ constexpr WindowStyle operator ~(const WindowStyle &eStyle) noexcept
 //	return static_cast<WindowStyle>(static_cast<DWORD>(eStyle));
 //}
 
-enum class WindowExStyle : DWORD {
+enum class WindowExStyle
+	: DWORD
+{
 	None,
 	ControlParent = WS_EX_CONTROLPARENT,
 	ClientEdge = WS_EX_CLIENTEDGE,
@@ -103,12 +113,20 @@ constexpr WindowExStyle operator |(const WindowExStyle &eStyle, const T &dStyle)
 	return static_cast<WindowExStyle>(static_cast<DWORD>(eStyle) | static_cast<DWORD>(dStyle));
 }
 
+template <typename T>
+constexpr WindowExStyle operator ^(const WindowExStyle& eStyle, const T& dStyle) noexcept
+{
+	return static_cast<WindowExStyle>(static_cast<DWORD>(eStyle) ^ static_cast<DWORD>(dStyle));
+}
+
 constexpr WindowExStyle operator ~(const WindowExStyle &eStyle) noexcept
 {
 	return static_cast<WindowExStyle>(~static_cast<DWORD>(eStyle));
 }
 
-enum class WindowAnimStyle : DWORD {
+enum class WindowAnimStyle
+	: DWORD
+{
 	None
 };
 
@@ -142,6 +160,12 @@ constexpr WindowAnimStyle operator |(const T &dStyle, const WindowAnimStyle &eSt
 }
 
 template <typename T>
+constexpr WindowAnimStyle operator ^(const WindowAnimStyle& eStyle, const T& dStyle) noexcept
+{
+	return static_cast<WindowAnimStyle>(static_cast<DWORD>(eStyle) ^ static_cast<DWORD>(dStyle));
+}
+
+template <typename T>
 constexpr WindowStyle to_WindowStyle(T other) noexcept
 {
 	return static_cast<WindowStyle>(other);
@@ -154,12 +178,12 @@ constexpr WindowExStyle to_WindowExStyle(T other) noexcept
 
 inline WindowStyle dcxGetWindowStyle(HWND Hwnd) noexcept
 {
-	return to_WindowStyle(GetWindowStyle(Hwnd));
+	return to_WindowStyle(GetWindowLong(Hwnd, GWL_STYLE));
 }
 
 inline WindowExStyle dcxGetWindowExStyle(HWND Hwnd) noexcept
 {
-	return to_WindowExStyle(GetWindowExStyle(Hwnd));
+	return to_WindowExStyle(GetWindowLong(Hwnd, GWL_EXSTYLE));
 }
 
 inline WindowStyle dcxSetWindowStyle(HWND Hwnd, WindowStyle style) noexcept

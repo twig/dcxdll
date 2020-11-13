@@ -484,7 +484,7 @@ TString ParseLogfontToCommand(const LPLOGFONT lf)
 		flags += TEXT('u');
 
 	//lf.lfHeight = -MulDiv( fSize, GetDeviceCaps(hdc, LOGPIXELSY ), 72 );
-
+	//
 	//auto hdc = GetDC(nullptr);
 	//
 	//if (hdc == nullptr)
@@ -658,7 +658,7 @@ HICON dcxLoadIcon(const int index, TString& filename, const bool large, const TS
 
 		//TString filetype;
 		//filetype.tsprintf(TEXT(".%s"), filename.to_chr());
-
+		//
 		//TString filetype(TEXT('.'));
 		//filetype += filename;
 
@@ -886,10 +886,12 @@ HICON CreateGrayscaleIcon(HICON hIcon, const COLORREF* const pPalette) noexcept
 	HICON      hGrayIcon{ nullptr };
 	ICONINFO   icInfo{};
 	ICONINFO   icGrayInfo{};
+
 	//LPDWORD    lpBits         = NULL;
 	//LPBYTE     lpBitsPtr      = NULL;
 	//SIZE sz;
 	//DWORD c1 = 0;
+
 	BITMAPINFO bmpInfo = { 0 };
 	bmpInfo.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
 
