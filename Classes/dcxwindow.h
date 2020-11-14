@@ -18,7 +18,9 @@
 #include <map>
 #include "Classes/tinyxml/tinyxml.h"
 
-enum class DcxResourceFlags : UINT {
+enum class DcxResourceFlags
+	: UINT
+{
 	None,
 	FROMRESSOURCE,			//!< Cursor from ressource;
 	FROMFILE				//!< Cursor from File;
@@ -30,13 +32,6 @@ struct dcxWindowStyles {
 	WindowStyle		m_Styles{ WindowStyle::None };
 	WindowExStyle	m_ExStyles{ WindowExStyle::None };
 	NoTheme			m_NoTheme{ false };
-
-	//dcxWindowStyles(HWND hwnd) noexcept
-	//	: m_ExStyles{ dcxGetWindowExStyle(hwnd) }
-	//	, m_Styles{ dcxGetWindowStyle(hwnd) }
-	//	, m_NoTheme{ Dcx::UXModule.dcxGetWindowTheme(hwnd) == nullptr }
-	//{			
-	//}
 
 	TString ToString() const
 	{
@@ -87,6 +82,25 @@ struct dcxWindowStyles {
 	}
 };
 
+enum class SizingTypes
+	: UINT
+{
+	ReBar = 1,
+	Status = 2,
+	Panel = 4,
+	Toolbar = 8
+};
+template <typename T>
+constexpr SizingTypes operator |(const SizingTypes& eStyle, const T& dStyle) noexcept
+{
+	return static_cast<SizingTypes>(static_cast<UINT>(eStyle) | static_cast<UINT>(dStyle));
+}
+template <typename T>
+constexpr SizingTypes operator &(const SizingTypes& eStyle, const T& dStyle) noexcept
+{
+	return static_cast<SizingTypes>(static_cast<UINT>(eStyle) & static_cast<UINT>(dStyle));
+}
+
 /*!
  * \brief blah
  *
@@ -97,43 +111,58 @@ struct dcxWindowStyles {
 #pragma warning( disable : 2292 ) //warning #2292: destructor is declared but copy constructor and assignment operator are not
 #endif
 
-class DcxWindow {
+class DcxBase
+{
+	DcxBase() = delete;
+	DcxBase(const DcxBase& other) = delete;
+	DcxBase& operator =(const DcxBase&) = delete;
+	DcxBase(DcxBase&& other) = delete;
+	DcxBase& operator =(DcxBase&&) = delete;
 
+	virtual void toXml(TiXmlElement* const xml) const = 0;
+	virtual void parseCommandRequest(const TString& input) = 0;
+	virtual void parseInfoRequest(const TString& input, const mIRCResultString& szReturnValue) const = 0;
+
+};
+
+class DcxWindow
+{
 public:
 	DcxWindow() = delete;
-	DcxWindow(const DcxWindow &other) = delete;
-	DcxWindow &operator =(const DcxWindow &) = delete;
-	DcxWindow(DcxWindow &&other) = delete;
-	DcxWindow &operator =(DcxWindow &&) = delete;
+	DcxWindow(const DcxWindow& other) = delete;
+	DcxWindow& operator =(const DcxWindow&) = delete;
+	DcxWindow(DcxWindow&& other) = delete;
+	DcxWindow& operator =(DcxWindow&&) = delete;
 
-	DcxWindow( const HWND mHwnd, const UINT mID ) noexcept;
-	explicit DcxWindow( const UINT mID ) noexcept;
-	virtual ~DcxWindow( ) noexcept;
+	DcxWindow(const HWND mHwnd, const UINT mID) noexcept;
+	explicit DcxWindow(const UINT mID) noexcept;
+	virtual ~DcxWindow() noexcept;
 
-	bool isStyle( const WindowStyle Styles ) const noexcept;
-	WindowStyle removeStyle( const WindowStyle Styles ) noexcept;
-	WindowStyle addStyle( const WindowStyle Styles ) noexcept;
-	WindowStyle setStyle( const WindowStyle Styles ) noexcept;
-	bool isExStyle( const WindowExStyle Styles ) const noexcept;
-	WindowExStyle removeExStyle( const WindowExStyle Styles ) noexcept;
-	WindowExStyle addExStyle( const WindowExStyle Styles ) noexcept;
-	WindowExStyle setExStyle( const WindowExStyle Styles ) noexcept;
+	bool isStyle(const WindowStyle Styles) const noexcept;
+	WindowStyle removeStyle(const WindowStyle Styles) noexcept;
+	WindowStyle addStyle(const WindowStyle Styles) noexcept;
+	WindowStyle setStyle(const WindowStyle Styles) noexcept;
+	bool isExStyle(const WindowExStyle Styles) const noexcept;
+	WindowExStyle removeExStyle(const WindowExStyle Styles) noexcept;
+	WindowExStyle addExStyle(const WindowExStyle Styles) noexcept;
+	WindowExStyle setExStyle(const WindowExStyle Styles) noexcept;
 
-	const HWND &getHwnd( ) const noexcept;
-	const UINT &getID( ) const noexcept;
+	const HWND& getHwnd() const noexcept;
+	const UINT& getID() const noexcept;
 
-	void redrawWindow( ) noexcept;
-	void redrawBufferedWindow( );
+	void redrawWindow() const noexcept;
+	void redrawBufferedWindow();
 
-	virtual void toXml(TiXmlElement *const xml) const = 0;
-	virtual void parseCommandRequest(const TString & input) = 0;
-	//virtual void parseInfoRequest( const TString & input, TCHAR * szReturnValue ) const = 0;
-	virtual void parseInfoRequest(const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const = 0;
+	void HandleChildSizing(SizingTypes sz) const noexcept;
 
-	static PTCHAR parseCursorType(const TString & cursor);
-	static DcxResourceFlags parseCursorFlags(const TString & flags) noexcept;
-	static UINT parseCursorArea(const TString &flags) noexcept;
-	static HIMAGELIST createImageList(bool bBigIcons = false) noexcept;
+	virtual void toXml(TiXmlElement* const xml) const = 0;
+	virtual void parseCommandRequest(const TString& input) = 0;
+	virtual void parseInfoRequest(const TString& input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>& szReturnValue) const = 0;
+
+	static PTCHAR parseCursorType(const TString& cursor);
+	static DcxResourceFlags parseCursorFlags(const TString& flags) noexcept;
+	static UINT parseCursorArea(const TString& flags) noexcept;
+	[[nodiscard("Memory Leak")]] static HIMAGELIST createImageList(bool bBigIcons = false) noexcept;
 	static dcxWindowStyles parseBorderStyles(const TString& tsFlags) noexcept;
 
 	LRESULT CallDefaultProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept;

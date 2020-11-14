@@ -196,7 +196,7 @@ const HWND& DcxWindow::getHwnd() const noexcept
  * blah
  */
 
-void DcxWindow::redrawWindow() noexcept
+void DcxWindow::redrawWindow() const noexcept
 {
 	RedrawWindow(m_Hwnd, nullptr, nullptr, RDW_INTERNALPAINT | RDW_ALLCHILDREN | RDW_INVALIDATE | RDW_ERASE/*|RDW_FRAME|RDW_UPDATENOW*/);
 }
@@ -226,7 +226,7 @@ void DcxWindow::redrawBufferedWindow()
 
 	const Dcx::dcxHDCBuffer hBuffer(hdc, rc);
 
-	SendMessage(m_Hwnd, WM_PRINT, (WPARAM)hBuffer.get(), PRF_NONCLIENT | PRF_CLIENT | PRF_CHILDREN | PRF_CHECKVISIBLE | PRF_ERASEBKGND);
+	SendMessage(m_Hwnd, WM_PRINT, reinterpret_cast<WPARAM>(hBuffer.get()), PRF_NONCLIENT | PRF_CLIENT | PRF_CHILDREN | PRF_CHECKVISIBLE | PRF_ERASEBKGND);
 
 	BitBlt(hdc, 0, 0, (rc.right - rc.left), (rc.bottom - rc.top), hBuffer.get(), 0, 0, SRCCOPY);
 #else
@@ -243,6 +243,25 @@ void DcxWindow::redrawBufferedWindow()
 	}
 #endif
 	ValidateRect(m_Hwnd, nullptr);
+}
+
+void DcxWindow::HandleChildSizing(SizingTypes sz) const noexcept
+{
+	if (dcx_testflag(sz, SizingTypes::ReBar))
+		for (auto bars = FindWindowEx(m_Hwnd, nullptr, DCX_REBARCTRLCLASS, nullptr); bars; bars = FindWindowEx(m_Hwnd, bars, DCX_REBARCTRLCLASS, nullptr))
+			SendMessage(bars, WM_SIZE, 0U, 0);
+
+	if (dcx_testflag(sz, SizingTypes::Status))
+		for (auto bars = FindWindowEx(m_Hwnd, nullptr, DCX_STATUSBARCLASS, nullptr); bars; bars = FindWindowEx(m_Hwnd, bars, DCX_STATUSBARCLASS, nullptr))
+			SendMessage(bars, WM_SIZE, 0U, 0);
+
+	if (dcx_testflag(sz, SizingTypes::Panel))
+		for (auto bars = FindWindowEx(m_Hwnd, nullptr, DCX_PANELCLASS, nullptr); bars; bars = FindWindowEx(m_Hwnd, bars, DCX_STATUSBARCLASS, nullptr))
+			SendMessage(bars, WM_SIZE, 0U, 0);
+
+	if (dcx_testflag(sz, SizingTypes::Toolbar))
+		for (auto bars = FindWindowEx(m_Hwnd, nullptr, DCX_TOOLBARCLASS, nullptr); bars; bars = FindWindowEx(m_Hwnd, bars, DCX_TOOLBARCLASS, nullptr))
+			SendMessage(bars, WM_SIZE, 0U, 0);
 }
 
 /*!
