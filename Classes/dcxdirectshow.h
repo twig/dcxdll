@@ -48,7 +48,7 @@ constexpr inline long PercentageToRange(long perc) noexcept
 	//return (long)-(10000 - (100 * perc));
 	if ((perc < 0) || (perc > 100))
 		return RangeTable[0];
-	return RangeTable[perc];
+	return gsl::at(RangeTable, perc);
 }
 
 // find the percentage of 0 to -10000 range
@@ -85,17 +85,43 @@ constexpr inline long RangeToPercentage(long range) noexcept
 
 template <class T>
 struct MyBaseCOMClass {
-	using value_type = T *;
+	using value_type = T*;
 
 	MyBaseCOMClass() noexcept = default;
+	MyBaseCOMClass(const MyBaseCOMClass&) noexcept = delete;
+	MyBaseCOMClass(MyBaseCOMClass&&) noexcept = default;
+	MyBaseCOMClass& operator =(const MyBaseCOMClass&) noexcept = delete;
+	MyBaseCOMClass& operator =(MyBaseCOMClass&&) noexcept = default;
+
 	MyBaseCOMClass(IUnknown* obj, const IID& riid) noexcept
 	{
-		mHR = obj->QueryInterface(riid, (void**)& mData);
+		try {
+			mHR = obj->QueryInterface(riid, reinterpret_cast<void**>(&mData));
+		}
+		catch (...)
+		{
+			mHR = NULL;
+		}
+	}
+	MyBaseCOMClass(IGraphBuilder* obj, const WCHAR* pName) noexcept
+	{
+		try {
+			mHR = obj->FindFilterByName(pName, &mData);
+		}
+		catch (...)
+		{
+			mHR = NULL;
+		}
 	}
 	virtual ~MyBaseCOMClass() noexcept
 	{
-		if (mData)
-			mData->Release();
+		try {
+			if (mData)
+				mData->Release();
+		}
+		catch (...)
+		{
+		}
 		mData = nullptr;
 	}
 
@@ -117,29 +143,32 @@ struct MyBaseCOMClass {
 	HRESULT mHR{};
 };
 
-template <class T, class IValue>
-struct MyCOMMClass : MyBaseCOMClass<T>
-{
-	explicit MyCOMMClass(IUnknown* obj) noexcept
-		: MyBaseCOMClass(obj, IValue)
-	{
-	}
-};
+//template <class T, class IValue>
+//struct MyCOMMClass final
+//	: MyBaseCOMClass<T>
+//{
+//	explicit MyCOMMClass(IUnknown* obj) noexcept
+//		: MyBaseCOMClass(obj, IValue)
+//	{
+//	}
+//};
 
 template <class T>
 struct MyCOMClass {};
 
 template <>
-struct MyCOMClass<IBasicAudio> : MyBaseCOMClass<IBasicAudio>
+struct MyCOMClass<IBasicAudio> final
+	: MyBaseCOMClass<IBasicAudio>
 {
-		explicit MyCOMClass(IUnknown *obj) noexcept
-			: MyBaseCOMClass(obj, IID_IBasicAudio)
-		{
-		}
+	explicit MyCOMClass(IUnknown* obj) noexcept
+		: MyBaseCOMClass(obj, IID_IBasicAudio)
+	{
+	}
 };
 
 template <>
-struct MyCOMClass<IBasicVideo> : MyBaseCOMClass<IBasicVideo>
+struct MyCOMClass<IBasicVideo> final
+	: MyBaseCOMClass<IBasicVideo>
 {
 	explicit MyCOMClass(IUnknown* obj) noexcept
 		: MyBaseCOMClass(obj, IID_IBasicVideo)
@@ -148,7 +177,8 @@ struct MyCOMClass<IBasicVideo> : MyBaseCOMClass<IBasicVideo>
 };
 
 template <>
-struct MyCOMClass<IVMRMixerControl9> : MyBaseCOMClass<IVMRMixerControl9>
+struct MyCOMClass<IVMRMixerControl9> final
+	: MyBaseCOMClass<IVMRMixerControl9>
 {
 	explicit MyCOMClass(IUnknown* obj) noexcept
 		: MyBaseCOMClass(obj, IID_IVMRMixerControl9)
@@ -157,7 +187,18 @@ struct MyCOMClass<IVMRMixerControl9> : MyBaseCOMClass<IVMRMixerControl9>
 };
 
 template <>
-struct MyCOMClass<IAMMediaContent> : MyBaseCOMClass<IAMMediaContent>
+struct MyCOMClass<IVMRMixerBitmap9> final
+	: MyBaseCOMClass<IVMRMixerBitmap9>
+{
+	explicit MyCOMClass(IUnknown* obj) noexcept
+		: MyBaseCOMClass(obj, IID_IVMRMixerBitmap9)
+	{
+	}
+};
+
+template <>
+struct MyCOMClass<IAMMediaContent> final
+	: MyBaseCOMClass<IAMMediaContent>
 {
 	explicit MyCOMClass(IUnknown* obj) noexcept
 		: MyBaseCOMClass(obj, IID_IAMMediaContent)
@@ -165,7 +206,8 @@ struct MyCOMClass<IAMMediaContent> : MyBaseCOMClass<IAMMediaContent>
 	}
 };
 template <>
-struct MyCOMClass<IVMRWindowlessControl9> : MyBaseCOMClass<IVMRWindowlessControl9>
+struct MyCOMClass<IVMRWindowlessControl9> final
+	: MyBaseCOMClass<IVMRWindowlessControl9>
 {
 	explicit MyCOMClass(IUnknown* obj) noexcept
 		: MyBaseCOMClass(obj, IID_IVMRWindowlessControl9)
@@ -173,13 +215,86 @@ struct MyCOMClass<IVMRWindowlessControl9> : MyBaseCOMClass<IVMRWindowlessControl
 	}
 };
 template <>
-struct MyCOMClass<IVMRFilterConfig9> : MyBaseCOMClass<IVMRFilterConfig9>
+struct MyCOMClass<IVMRFilterConfig9> final
+	: MyBaseCOMClass<IVMRFilterConfig9>
 {
 	explicit MyCOMClass(IUnknown* obj) noexcept
 		: MyBaseCOMClass(obj, IID_IVMRFilterConfig9)
 	{
 	}
 };
+template <>
+struct MyCOMClass<IVideoWindow> final
+	: MyBaseCOMClass<IVideoWindow>
+{
+	explicit MyCOMClass(IUnknown* obj) noexcept
+		: MyBaseCOMClass(obj, IID_IVideoWindow)
+	{
+	}
+};
+template <>
+struct MyCOMClass<IDispatch> final
+	: MyBaseCOMClass<IDispatch>
+{
+	explicit MyCOMClass(IUnknown* obj) noexcept
+		: MyBaseCOMClass(obj, IID_IDispatch)
+	{
+	}
+};
+//template <>
+//struct MyCOMClass<IHTMLDocument2> final
+//	: MyBaseCOMClass<IHTMLDocument2>
+//{
+//	explicit MyCOMClass(IUnknown* obj) noexcept
+//		: MyBaseCOMClass(obj, IID_IHTMLDocument2)
+//	{
+//	}
+//};
+//template <>
+//struct MyCOMClass<IWebBrowser2> final
+//	: MyBaseCOMClass<IWebBrowser2>
+//{
+//	explicit MyCOMClass(IUnknown* obj) noexcept
+//		: MyBaseCOMClass(obj, IID_IWebBrowser2)
+//	{
+//	}
+//};
+//template <>
+//struct MyCOMClass<IOleInPlaceObject> final
+//	: MyBaseCOMClass<IOleInPlaceObject>
+//{
+//	explicit MyCOMClass(IUnknown* obj) noexcept
+//		: MyBaseCOMClass(obj, IID_IOleInPlaceObject)
+//	{
+//	}
+//};
+//template <>
+//struct MyCOMClass<IOleObject> final
+//	: MyBaseCOMClass<IOleObject>
+//{
+//	explicit MyCOMClass(IUnknown* obj) noexcept
+//		: MyBaseCOMClass(obj, IID_IOleObject)
+//	{
+//	}
+//};
+//template <>
+//struct MyCOMClass<IConnectionPointContainer> final
+//	: MyBaseCOMClass<IConnectionPointContainer>
+//{
+//	explicit MyCOMClass(IUnknown* obj) noexcept
+//		: MyBaseCOMClass(obj, IID_IConnectionPointContainer)
+//	{
+//	}
+//};
+//template <>
+//struct MyCOMClass<IConnectionPoint> final
+//	: MyBaseCOMClass<IConnectionPoint>
+//{
+//	explicit MyCOMClass(IUnknown* obj) noexcept
+//		: MyBaseCOMClass(obj, IID_IConnectionPoint)
+//	{
+//	}
+//};
 
 /*!
  * \brief blah
@@ -187,7 +302,7 @@ struct MyCOMClass<IVMRFilterConfig9> : MyBaseCOMClass<IVMRFilterConfig9>
  * blah
  */
 
-class DcxDirectshow
+class DcxDirectshow final
 	: public DcxControl
 {
 public:
@@ -200,7 +315,7 @@ public:
 	DcxDirectshow(const UINT ID, DcxDialog* const p_Dialog, const HWND mParentHwnd, const RECT* const rc, const TString& styles);
 	~DcxDirectshow();
 
-	LRESULT PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed) final;
+	LRESULT OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed) final;
 	LRESULT ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed) noexcept final;
 
 	//void parseInfoRequest(const TString & input, PTCHAR szReturnValue) const final;
@@ -215,17 +330,17 @@ public:
 	TiXmlElement* toXml(void) const final;
 	const TString getStyles(void) const final;
 
-	static WNDPROC m_hDefaultClassProc;	//!< Default window procedure
+	static inline WNDPROC m_hDefaultClassProc{ nullptr };	//!< Default window procedure
 	LRESULT CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept final;
 
 protected:
-	IVMRWindowlessControl9 *InitWindowlessVMR(const HWND hwndApp, IGraphBuilder* pGraph);
+	IVMRWindowlessControl9* InitWindowlessVMR(const HWND hwndApp, IGraphBuilder* pGraph);
 	HRESULT SetVideoPos(void);
-	void ReleaseAll(void);
+	void ReleaseAll(void) noexcept;
 
 	enum Properties : UINT { PROP_AUTHOR = 0, PROP_TITLE, PROP_RATING, PROP_DESCRIPTION };
 
-	HRESULT getProperty(const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>& prop, const int type) const;
+	HRESULT getProperty(const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>& prop, const int type) const noexcept;
 	HRESULT setAlpha(float alpha);
 	HRESULT setVideo(const TString& flags, const float brightness, const float contrast, const float hue, const float saturation);
 	HRESULT getVideo(VMR9ProcAmpControl* amc) const;
@@ -243,7 +358,7 @@ protected:
 #define WM_GRAPHNOTIFY  WM_APP + 1
 
 private:
-	IGraphBuilder * m_pGraph{ nullptr };
+	IGraphBuilder* m_pGraph{ nullptr };
 	IMediaControl* m_pControl{ nullptr };
 	IMediaEventEx* m_pEvent{ nullptr };
 	IMediaSeeking* m_pSeek{ nullptr };

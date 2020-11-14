@@ -25,7 +25,7 @@
 * \param styles Window Style Tokenized List
 */
 
-DcxEdit::DcxEdit(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString &styles)
+DcxEdit::DcxEdit(const UINT ID, DcxDialog* const p_Dialog, const HWND mParentHwnd, const RECT* const rc, const TString& styles)
 	: DcxControl(ID, p_Dialog)
 {
 	const auto ws = parseControlStyles(styles);
@@ -59,7 +59,7 @@ DcxEdit::DcxEdit(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwn
 	}
 
 	this->m_bIgnoreRepeat = true;
-	this->setControlFont(GetStockFont(DEFAULT_GUI_FONT), FALSE);
+	this->setControlFont(Dcx::dcxGetStockObject<HFONT>(DEFAULT_GUI_FONT), FALSE);
 	DragAcceptFiles(m_Hwnd, TRUE);
 }
 
@@ -68,7 +68,7 @@ DcxEdit::DcxEdit(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwn
 *
 * blah
 */
-DcxEdit::~DcxEdit()
+DcxEdit::~DcxEdit() noexcept
 {
 }
 
@@ -109,7 +109,7 @@ const TString DcxEdit::getStyles(void) const
 	return styles;
 }
 
-void DcxEdit::toXml(TiXmlElement *const xml) const
+void DcxEdit::toXml(TiXmlElement* const xml) const
 {
 	__super::toXml(xml);
 
@@ -117,7 +117,7 @@ void DcxEdit::toXml(TiXmlElement *const xml) const
 	xml->SetAttribute("styles", getStyles().c_str());
 }
 
-TiXmlElement * DcxEdit::toXml(void) const
+TiXmlElement* DcxEdit::toXml(void) const
 {
 	auto xml = std::make_unique<TiXmlElement>("control");
 	toXml(xml.get());
@@ -130,11 +130,11 @@ TiXmlElement * DcxEdit::toXml(void) const
 * blah
 */
 
-dcxWindowStyles DcxEdit::parseControlStyles(const TString & tsStyles)
+dcxWindowStyles DcxEdit::parseControlStyles(const TString& tsStyles)
 {
 	dcxWindowStyles ws;
 
-	for (const auto &tsStyle : tsStyles)
+	for (const auto& tsStyle : tsStyles)
 	{
 		switch (std::hash<TString>{}(tsStyle))
 		{
@@ -179,6 +179,7 @@ dcxWindowStyles DcxEdit::parseControlStyles(const TString & tsStyles)
 			break;
 		case L"showsel"_hash:
 			ws.m_Styles |= ES_NOHIDESEL;
+			break;
 		default:
 			break;
 		}
@@ -195,7 +196,7 @@ dcxWindowStyles DcxEdit::parseControlStyles(const TString & tsStyles)
 *
 * \return > void
 */
-void DcxEdit::parseInfoRequest(const TString &input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const
+void DcxEdit::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>& szReturnValue) const
 {
 	switch (std::hash<TString>{}(input.getfirsttok(3)))
 	{
@@ -311,7 +312,7 @@ void DcxEdit::parseInfoRequest(const TString &input, const refString<TCHAR, MIRC
 *
 * blah
 */
-void DcxEdit::parseCommandRequest(const TString &input)
+void DcxEdit::parseCommandRequest(const TString& input)
 {
 	const XSwitchFlags flags(input.getfirsttok(3));
 	const auto numtok = input.numtok();
@@ -520,7 +521,7 @@ void DcxEdit::parseCommandRequest(const TString &input)
  *
  * blah
  */
-LRESULT DcxEdit::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bParsed)
+LRESULT DcxEdit::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed)
 {
 	switch (uMsg)
 	{
@@ -536,16 +537,20 @@ LRESULT DcxEdit::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bP
 		}
 
 		break;
+		default:
+			break;
 		}
 
 		break;
 	} // WM_COMMAND
+	default:
+		break;
 	}
 
 	return 0L;
 }
 
-LRESULT DcxEdit::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bParsed)
+LRESULT DcxEdit::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed)
 {
 	switch (uMsg)
 	{
@@ -672,8 +677,6 @@ LRESULT DcxEdit::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bPar
 
 	return 0L;
 }
-
-WNDPROC DcxEdit::m_hDefaultClassProc{ nullptr };
 
 LRESULT DcxEdit::CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept
 {

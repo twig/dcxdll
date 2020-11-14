@@ -27,7 +27,7 @@ class DcxDialog;
  * blah
  */
 
-class DcxProgressBar
+class DcxProgressBar final
 	: public DcxControl
 {
 public:
@@ -38,9 +38,9 @@ public:
 	DcxProgressBar &operator =(DcxProgressBar &&) = delete;
 
 	DcxProgressBar(_In_ const UINT ID, _In_ DcxDialog *const p_Dialog, _In_ const HWND mParentHwnd, _In_ const RECT *const rc, _In_ const TString & styles);
-	~DcxProgressBar( );
+	~DcxProgressBar( ) noexcept;
 
-	LRESULT PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) final;
+	LRESULT OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) final;
 	LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) noexcept final;
 
 	//void parseInfoRequest(const TString & input, PTCHAR szReturnValue) const final;
@@ -65,7 +65,7 @@ public:
 	void toXml(TiXmlElement *const xml) const final;
 	TiXmlElement * toXml(void) const final;
 
-	static WNDPROC m_hDefaultClassProc;	//!< Default window procedure
+	static inline WNDPROC m_hDefaultClassProc{ nullptr };	//!< Default window procedure
 	LRESULT CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept final;
 
 	auto getPredictedPos(LPARAM lParam, const int iLower, const int iHigher) const noexcept
@@ -77,9 +77,9 @@ public:
 		if (RECT rc{}; GetClientRect(m_Hwnd, &rc))
 		{
 			if (this->isStyle(WindowStyle::PBS_Vertical))
-				nPos = iHigher - dcx_round((float)(nYPos * iHigher) / (rc.bottom - rc.top - 1));
+				nPos = iHigher - dcx_round(gsl::narrow_cast<float>((nYPos * iHigher)) / (rc.bottom - rc.top - 1));
 			else
-				nPos = iLower + dcx_round((float)(nXPos * iHigher) / (rc.right - rc.left - 1));
+				nPos = iLower + dcx_round(gsl::narrow_cast<float>((nXPos * iHigher)) / (rc.right - rc.left - 1));
 		}
 		return nPos;
 	}

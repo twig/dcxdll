@@ -30,35 +30,20 @@
 
 #define STACKERF_SELECTED	0x01
 
-struct DCXSITEM {
+struct DCXSITEM
+{
 	TString			tsTipText;			//!< Tooltip text
 	TString			tsCaption;			//!< Title Buttons text
 	COLORREF		clrBack{ CLR_INVALID };			//!< Line Background Caption Color
 	COLORREF		clrText{ CLR_INVALID };			//!< Line Caption Color
 	HFONT			hFont{ nullptr };				//!< Items font.
-	DcxControl		*pChild{ nullptr };			//!< Items child control
+	DcxControl* pChild{ nullptr };			//!< Items child control
 	int				iItemImg{ -1 };			//!< Items Normal Image index.
 	int				iSelectedItemImg{ -1 };	//!< Items Selected Image index.
 	RECT			itemrc{};				//!< Items Rect.
 	DWORD			dFlags{};				//!< Items flags.
-
-	//DCXSITEM() noexcept
-	//	: tsTipText()
-	//	, tsCaption()
-	//	, clrBack(CLR_INVALID)
-	//	, clrText(CLR_INVALID)
-	//	, hFont(nullptr)
-	//	, pChild(nullptr)
-	//	, iItemImg(-1)
-	//	, iSelectedItemImg(-1)
-	//	, itemrc{ 0,0,0,0 }
-	//	, dFlags(0)
-	//{}
 };
 using LPDCXSITEM = DCXSITEM *;
-
-//using VectorOfImages = std::vector<Gdiplus::Image *>;
-//using VectorOfStackerItems = std::vector<LPDCXSITEM>;
 
 using VectorOfImages = std::vector<std::unique_ptr<Gdiplus::Image>>;
 using VectorOfStackerItems = std::vector<LPDCXSITEM>;
@@ -69,35 +54,35 @@ using VectorOfStackerItems = std::vector<LPDCXSITEM>;
  * blah
  */
 
-class DcxStacker
+class DcxStacker final
 	: public DcxControl
 {
 public:
 	DcxStacker() = delete;
-	DcxStacker(const DcxStacker &) = delete;
-	DcxStacker &operator =(const DcxStacker &) = delete;
-	DcxStacker(DcxStacker &&) = delete;
-	DcxStacker &operator =(DcxStacker &&) = delete;
+	DcxStacker(const DcxStacker&) = delete;
+	DcxStacker& operator =(const DcxStacker&) = delete;
+	DcxStacker(DcxStacker&&) = delete;
+	DcxStacker& operator =(DcxStacker&&) = delete;
 
-	DcxStacker( const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles );
-	~DcxStacker( );
+	DcxStacker(const UINT ID, DcxDialog* const p_Dialog, const HWND mParentHwnd, const RECT* const rc, const TString& styles);
+	~DcxStacker() noexcept;
 
-	LRESULT PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) final;
-	LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) final;
+	LRESULT OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed) final;
+	LRESULT ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed) final;
 
 	//void parseInfoRequest(const TString & input, PTCHAR szReturnValue) const final;
-	void parseInfoRequest(const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const final;
-	void parseCommandRequest( const TString & input ) final;
-	dcxWindowStyles parseControlStyles(const TString & tsStyles) final;
+	void parseInfoRequest(const TString& input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>& szReturnValue) const final;
+	void parseCommandRequest(const TString& input) final;
+	dcxWindowStyles parseControlStyles(const TString& tsStyles) final;
 
 	inline const TString getType() const final { return TEXT("stacker"); };
 	inline const DcxControlTypes getControlType() const noexcept final { return DcxControlTypes::STACKER; }
 
 	const TString getStyles(void) const final;
-	void toXml(TiXmlElement *const xml) const final;
-	TiXmlElement * toXml(void) const final;
+	void toXml(TiXmlElement* const xml) const final;
+	TiXmlElement* toXml(void) const final;
 
-	static WNDPROC m_hDefaultClassProc;	//!< Default window procedure
+	static inline WNDPROC m_hDefaultClassProc{ nullptr };	//!< Default window procedure
 	LRESULT CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept final;
 
 protected:
@@ -107,12 +92,12 @@ protected:
 	VectorOfStackerItems m_vItems;
 
 	//
-	int getItemID(void) const;
+	int getItemID(void) const noexcept;
 	int getSelItemID(void) const noexcept;
 	DWORD getItemCount(void) const noexcept;
 	LPDCXSITEM getItem(const int nPos) const noexcept;
-	LPDCXSITEM getHotItem(void) const;
-	void getItemRect(const int nPos, LPRECT rc) const noexcept;
+	LPDCXSITEM getHotItem(void) const noexcept;
+	void getItemRect(const int nPos, LPCRECT rc) const noexcept;
 
 	//
 	//int setItem(int nPos, LPDCXSITEM item);
@@ -122,8 +107,8 @@ protected:
 	//
 
 	void DrawSItem(const LPDRAWITEMSTRUCT idata);
-	static void DrawAliasedTriangle(const HDC hdc, const LPRECT rc, const COLORREF clrShape);
-	void DrawItemImage(const HDC hdc, Gdiplus::Image *const img, const LPRECT rc);
+	static void DrawAliasedTriangle(const HDC hdc, const LPCRECT rc, const COLORREF clrShape);
+	void DrawItemImage(const HDC hdc, Gdiplus::Image* const img, const LPCRECT rc);
 	//
 	void clearImageList(void) noexcept;
 	void clearItemList(void);

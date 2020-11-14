@@ -70,7 +70,7 @@ DcxTreeView::DcxTreeView(const UINT ID, DcxDialog* const p_Dialog, const HWND mP
 		TreeView_SetExtendedStyle(m_Hwnd, gsl::narrow_cast<LPARAM>(ExStylesTreeView), gsl::narrow_cast<WPARAM>(ExStylesTreeView));
 	}
 
-	this->setControlFont(GetStockFont(DEFAULT_GUI_FONT), FALSE);
+	this->setControlFont(Dcx::dcxGetStockObject<HFONT>(DEFAULT_GUI_FONT), FALSE);
 
 	DragAcceptFiles(m_Hwnd, TRUE);
 	m_bTransparent = isExStyle(WindowExStyle::Transparent);
@@ -82,7 +82,7 @@ DcxTreeView::DcxTreeView(const UINT ID, DcxDialog* const p_Dialog, const HWND mP
  * blah
  */
 
-DcxTreeView::~DcxTreeView()
+DcxTreeView::~DcxTreeView() noexcept
 {
 	// make sure that there are no sensless events called when deleting all items
 	m_bDestroying = true;
@@ -143,6 +143,7 @@ dcxWindowStyles DcxTreeView::parseControlStyles(const TString& tsStyles)
 			break;
 		case L"checkbox"_hash:
 			ws.m_Styles |= TVS_CHECKBOXES;
+			break;
 		default:
 			break;
 		}
@@ -329,7 +330,7 @@ void DcxTreeView::parseInfoRequest(const TString& input, const refString<TCHAR, 
 		const auto path(input.getlasttoks());	// tok 4, -1
 		const auto* const item = this->parsePath(path);
 
-		if (item == nullptr)
+		if (!item)
 			throw Dcx::dcxException(TEXT("Unable to parse path: %"), path);
 
 		if (this->isStyle(WindowStyle::TVS_CheckBoxes))
@@ -1641,23 +1642,23 @@ int DcxTreeView::getItemImageID(const HTREEITEM hItem) const noexcept
  * blah
  */
 
-bool DcxTreeView::matchItemText(const HTREEITEM hItem, const TString& search, const DcxSearchTypes& SearchType) const
+[[gsl::suppress(bounds.4, con.4, r.5)]] bool DcxTreeView::matchItemText(const HTREEITEM hItem, const TString& search, const DcxSearchTypes& SearchType) const
 {
-	//auto itemtext = std::make_unique<TCHAR[]>(MIRC_BUFFER_SIZE_CCH);
-	//itemtext[0] = TEXT('\0');
-	//
-	//getItemText(hItem, itemtext.get(), MIRC_BUFFER_SIZE_CCH);
-	//
-	//return DcxListHelper::matchItemText(itemtext.get(), search, SearchType);
-
 	auto itemtext = std::make_unique<TCHAR[]>(MIRC_BUFFER_SIZE_CCH);
-	itemtext[0] = TEXT('\0');
+	gsl::at(itemtext, 0) = TEXT('\0');
 
-	auto refText = mIRCResultString(itemtext.get());
+	getItemText(hItem, itemtext.get(), MIRC_BUFFER_SIZE_CCH);
 
-	getItemText(hItem, refText, MIRC_BUFFER_SIZE_CCH);
+	return DcxListHelper::matchItemText(itemtext.get(), search, SearchType);
 
-	return DcxListHelper::matchItemText(refText, search, SearchType);
+	//auto itemtext = std::make_unique<TCHAR[]>(MIRC_BUFFER_SIZE_CCH);
+	//gsl::at(itemtext, 0) = TEXT('\0');
+
+	//auto refText = mIRCResultString(itemtext.get());
+
+	//getItemText(hItem, refText, MIRC_BUFFER_SIZE_CCH);
+
+	//return DcxListHelper::matchItemText(refText, search, SearchType);
 }
 
 /*!
@@ -1749,6 +1750,13 @@ void DcxTreeView::expandAllItems(const HTREEITEM hStart, const UINT expandOption
 		expandAllItems(hCurrentItem, expandOption);
 		TreeView_Expand(m_Hwnd, hCurrentItem, expandOption);
 	}
+
+	//Dcx::dcxTreeItem tr(m_Hwnd, hStart);
+	//for (const auto& hCurrentItem : tr)
+	//{
+	//	expandAllItems(hCurrentItem, expandOption);
+	//	TreeView_Expand(m_Hwnd, hCurrentItem, expandOption);
+	//}
 }
 
 /*!
@@ -1760,8 +1768,7 @@ void DcxTreeView::expandAllItems(const HTREEITEM hStart, const UINT expandOption
 HTREEITEM DcxTreeView::cloneItem(const HTREEITEM hItem, const HTREEITEM hParentTo, const HTREEITEM hAfterTo)
 {
 	// Move the root node
-	TCHAR itemtext[MIRC_BUFFER_SIZE_CCH];
-	itemtext[0] = 0;
+	TCHAR itemtext[MIRC_BUFFER_SIZE_CCH]{};
 	TVITEMEX tvi{};
 
 	tvi.mask = TVIF_TEXT | TVIF_IMAGE | TVIF_SELECTEDIMAGE | TVIF_EXPANDEDIMAGE | TVIF_STATE | TVIF_INTEGRAL | TVIF_PARAM | TVIF_HANDLE;
@@ -1777,20 +1784,34 @@ HTREEITEM DcxTreeView::cloneItem(const HTREEITEM hItem, const HTREEITEM hParentT
 	if (!lpdcxtvitem)
 		return nullptr;
 
-	//const auto lpdcxtvitem2 = new DCXTVITEM;
-	//*lpdcxtvitem2 = *lpdcxtvitem;
+	////const auto lpdcxtvitem2 = new DCXTVITEM;
+	////*lpdcxtvitem2 = *lpdcxtvitem;
+	//
+	//const auto lpdcxtvitem2 = new DCXTVITEM(*lpdcxtvitem);
+	//
+	//tvi.hItem = nullptr;
+	//tvi.mask = TVIF_TEXT | TVIF_IMAGE | TVIF_SELECTEDIMAGE | TVIF_EXPANDEDIMAGE | TVIF_STATE | TVIF_INTEGRAL | TVIF_PARAM;
+	//tvi.lParam = reinterpret_cast<LPARAM>(lpdcxtvitem2);
+	//
+	//TVINSERTSTRUCT tvin{ hParentTo, hAfterTo, tvi };
+	//
+	//const auto item = TreeView_InsertItem(m_Hwnd, &tvin);
+	//if (!item)
+	//	delete lpdcxtvitem2;
+	//
+	//return item;
 
-	const auto lpdcxtvitem2 = new DCXTVITEM(*lpdcxtvitem);
+	auto lpdcxtvitem2 = std::make_unique<DCXTVITEM>(*lpdcxtvitem);
 
 	tvi.hItem = nullptr;
 	tvi.mask = TVIF_TEXT | TVIF_IMAGE | TVIF_SELECTEDIMAGE | TVIF_EXPANDEDIMAGE | TVIF_STATE | TVIF_INTEGRAL | TVIF_PARAM;
-	tvi.lParam = reinterpret_cast<LPARAM>(lpdcxtvitem2);
+	tvi.lParam = reinterpret_cast<LPARAM>(lpdcxtvitem2.get());
 
 	TVINSERTSTRUCT tvin{ hParentTo, hAfterTo, tvi };
 
 	const auto item = TreeView_InsertItem(m_Hwnd, &tvin);
-	if (!item)
-		delete lpdcxtvitem2;
+	if (item)
+		lpdcxtvitem2.release();
 
 	return item;
 }
@@ -2098,7 +2119,7 @@ LRESULT DcxTreeView::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 				if (const auto edit_hwnd = TreeView_GetEditControl(m_Hwnd); edit_hwnd)
 				{
 					m_OrigEditProc = SubclassWindow(edit_hwnd, DcxTreeView::EditLabelProc);
-					SetProp(edit_hwnd, TEXT("dcx_pthis"), (HANDLE)this);
+					SetProp(edit_hwnd, TEXT("dcx_pthis"), this);
 				}
 			}
 
@@ -2204,7 +2225,7 @@ LRESULT DcxTreeView::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 
 							m_hItemFont = CreateFontIndirect(&lf);
 							if (m_hItemFont)
-								m_hOldItemFont = SelectFont(lpntvcd->nmcd.hdc, m_hItemFont);
+								m_hOldItemFont = Dcx::dcxSelectObject(lpntvcd->nmcd.hdc, m_hItemFont);
 						}
 					}
 				}
@@ -2235,12 +2256,12 @@ LRESULT DcxTreeView::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 			{
 				if (m_hOldItemFont)
 				{
-					SelectFont(lpntvcd->nmcd.hdc, m_hOldItemFont);
+					Dcx::dcxSelectObject(lpntvcd->nmcd.hdc, m_hOldItemFont);
 					m_hOldItemFont = nullptr;
 				}
 				if (m_hItemFont)
 				{
-					DeleteFont(m_hItemFont);
+					DeleteObject(m_hItemFont);
 					m_hItemFont = nullptr;
 				}
 				return CDRF_DODEFAULT;
@@ -2282,14 +2303,18 @@ LRESULT DcxTreeView::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 		//	}
 		//	break;
 
+		default:
+			break;
 		} // switch
 	}
 	break;
+	default:
+		break;
 	}
 	return 0L;
 }
 
-LRESULT DcxTreeView::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed)
+LRESULT DcxTreeView::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed)
 {
 	switch (uMsg)
 	{
@@ -2352,6 +2377,8 @@ LRESULT CALLBACK DcxTreeView::EditLabelProc(HWND mHwnd, UINT uMsg, WPARAM wParam
 			SubclassWindow(mHwnd, pthis->m_OrigEditProc);
 	}
 	break;
+	default:
+		break;
 	}
 	return CallWindowProc(pthis->m_OrigEditProc, mHwnd, uMsg, wParam, lParam);
 }
@@ -2382,6 +2409,7 @@ void DcxTreeView::PreloadData() noexcept
 }
 
 #ifdef DCX_USE_GDIPLUS
+GSL_SUPPRESS(Enum.3)
 void DcxTreeView::LoadGDIPlusImage(const TString& flags, TString& filename)
 {
 	if (!IsFile(filename))
@@ -2440,7 +2468,7 @@ void DcxTreeView::DrawGDIPlusImage(HDC hdc)
 			if (hBrush)
 			{
 				FillRect(hdc, &rc, hBrush);
-				DeleteBrush(hBrush);
+				DeleteObject(hBrush);
 			}
 		}
 		else
@@ -2751,6 +2779,15 @@ const TiXmlElement* DcxTreeView::xmlInsertItems(HTREEITEM hParent, HTREEITEM& hI
 	return xRes;
 }
 
+GSL_SUPPRESS(type.4)
+HTREEITEM DcxTreeView::TV_GetLastSibling(HTREEITEM child) const noexcept
+{
+	HTREEITEM current{};
+	for (HTREEITEM tmp = TreeView_GetNextSibling(m_Hwnd, child); tmp; tmp = TreeView_GetNextSibling(m_Hwnd, current))
+		current = tmp;
+	return current;
+}
+
 const TString DcxTreeView::getStyles() const
 {
 	auto styles(__super::getStyles());
@@ -2804,7 +2841,7 @@ HTREEITEM DcxTreeView::parsePath(const TString& path, HTREEITEM* hParent, HTREEI
 
 		// Keep track of the current parent.
 		if (bFillLocation)
-			* hParent = current;
+			*hParent = current;
 
 		current = TreeView_GetChild(m_Hwnd, current);
 
@@ -2820,7 +2857,7 @@ HTREEITEM DcxTreeView::parsePath(const TString& path, HTREEITEM* hParent, HTREEI
 		if (dir == 1)
 		{
 			if (bFillLocation)
-				* hInsertAt = current;
+				*hInsertAt = current;
 		}
 		// Insert at very start.
 		// Not used unless for insertion or moving.
@@ -2836,15 +2873,10 @@ HTREEITEM DcxTreeView::parsePath(const TString& path, HTREEITEM* hParent, HTREEI
 		// else if (dir == -1)
 		else if (dir < 0)
 		{
-			//HTREEITEM tmp{};
-			//while ((tmp = TreeView_GetNextSibling(m_Hwnd, current)))
-			//	current = tmp;
-
-			for (HTREEITEM tmp = TreeView_GetNextSibling(m_Hwnd, current); tmp; tmp = TreeView_GetNextSibling(m_Hwnd, current))
-				current = tmp;
+			current = TV_GetLastSibling(current);
 
 			if (bFillLocation)
-				* hInsertAt = TVI_LAST;
+				*hInsertAt = TVI_LAST;
 		}
 		// Search for Nth child.
 		else {
@@ -2873,22 +2905,21 @@ HTREEITEM DcxTreeView::parsePath(const TString& path, HTREEITEM* hParent, HTREEI
 			//	if (++i == dir)
 			//		break;
 			//}
-
-			for (HTREEITEM tmp = TreeView_GetNextSibling(m_Hwnd, current); tmp; tmp = TreeView_GetNextSibling(m_Hwnd, current))
-			{
-				current = tmp;
-				if (bFillLocation)
-					* hInsertAt = current;
-				if (++i == dir)
-					break;
-			}
-
 			// using last item + 1 in a path only works wenn fill location is true, and we are at the last level
 			//if ((bFillLocation) && (++i == dir) && (k == count))
 			//	*hInsertAt = current;
 			// else we need to be sure that the last item wasn't null
 			//else 
 			//	current = tmp;
+
+			for (HTREEITEM tmp = TreeView_GetNextSibling(m_Hwnd, current); tmp; tmp = TreeView_GetNextSibling(m_Hwnd, current))
+			{
+				current = tmp;
+				if (bFillLocation)
+					*hInsertAt = current;
+				if (++i == dir)
+					break;
+			}
 		}
 
 		// Couldnt find specified path.
@@ -2915,8 +2946,6 @@ TiXmlElement* DcxTreeView::toXml() const
 	toXml(xml.get());
 	return xml.release();
 }
-
-WNDPROC DcxTreeView::m_hDefaultClassProc{ nullptr };
 
 LRESULT DcxTreeView::CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept
 {

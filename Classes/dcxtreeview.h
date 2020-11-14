@@ -70,20 +70,13 @@ class DcxTreeView;
  * blah
  */
 
-struct DCXTVSORT {
+struct DCXTVSORT
+{
 	TString		tsCustomAlias;						//!< Custom Sorting Alias
 	UINT		iSortFlags{};							//!< Sorting Flags
 	DcxTreeView* pthis{ nullptr };								//!< TreeView control object pointer
 	TCHAR		itemtext1[MIRC_BUFFER_SIZE_CCH]{};	// Item text buffer One
 	TCHAR		itemtext2[MIRC_BUFFER_SIZE_CCH]{};	// Item Text Buffer Two
-
-	//DCXTVSORT() noexcept
-	//	: tsCustomAlias()
-	//	, iSortFlags(0)
-	//	, pthis(nullptr)
-	//	, itemtext1{}
-	//	, itemtext2{}
-	//{}
 };
 using LPDCXTVSORT = DCXTVSORT *;
 
@@ -93,7 +86,8 @@ using LPDCXTVSORT = DCXTVSORT *;
  * blah
  */
 
-struct DCXTVITEM {
+struct DCXTVITEM
+{
 	TString		tsTipText;	//!< Tooltip text
 	TString		tsMark;		// Marked item text.
 	COLORREF	clrText{ CLR_INVALID };	//!< Item Caption Color
@@ -111,7 +105,7 @@ using LPDCXTVITEM = DCXTVITEM *;
  * blah
  */
 
-class DcxTreeView
+class DcxTreeView final
 	: public DcxControl
 	, public DcxListHelper
 {
@@ -123,12 +117,11 @@ public:
 	DcxTreeView& operator =(DcxTreeView&&) = delete;
 
 	DcxTreeView(const UINT ID, DcxDialog* const p_Dialog, const HWND mParentHwnd, const RECT* const rc, const TString& styles);
-	~DcxTreeView();
+	~DcxTreeView() noexcept;
 
-	LRESULT PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed) final;
+	LRESULT OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed) final;
 	LRESULT ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed) final;
 
-	//void parseInfoRequest(const TString & input, PTCHAR szReturnValue) const final;
 	void parseInfoRequest(const TString& input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>& szReturnValue) const final;
 	void parseCommandRequest(const TString& input) final;
 	dcxWindowStyles parseControlStyles(const TString& tsStyles) final;
@@ -152,7 +145,7 @@ public:
 	void toXml(TiXmlElement* const xml) const final;
 	TiXmlElement* toXml() const final;
 
-	static WNDPROC m_hDefaultClassProc;	//!< Default window procedure
+	static inline WNDPROC m_hDefaultClassProc{ nullptr };	//!< Default window procedure
 	LRESULT CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept final;
 
 protected:
@@ -221,6 +214,7 @@ protected:
 		// NB: This macro returns values 0 - 32767 ok, but 32768 - 65536 are returned as negatives, & anything > 65536 returns as zero & the treeview fails to display.
 		return TreeView_GetCount(m_Hwnd);
 	}
+	HTREEITEM TV_GetLastSibling(HTREEITEM child) const noexcept;
 };
 
 #endif // _DCXTREEVIEW_H_

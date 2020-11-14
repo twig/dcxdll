@@ -56,7 +56,7 @@ DcxBox::DcxBox(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd,
 
 	m_pLayoutManager = std::make_unique<LayoutManager>(m_Hwnd);
 
-	setControlFont(GetStockFont(DEFAULT_GUI_FONT), FALSE);
+	setControlFont(Dcx::dcxGetStockObject<HFONT>(DEFAULT_GUI_FONT), FALSE);
 
 	//if (dcx_testflag(m_iBoxStyles, BOXS_CHECK) || dcx_testflag(m_iBoxStyles, BOXS_RADIO))
 	//{
@@ -99,7 +99,7 @@ DcxBox::DcxBox(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd,
 
 DcxBox::~DcxBox()
 {
-	if (_hTheme != nullptr)
+	if (_hTheme)
 		Dcx::UXModule.dcxCloseThemeData(_hTheme);
 }
 
@@ -224,7 +224,7 @@ void DcxBox::parseInfoRequest(const TString & input, const refString<TCHAR, MIRC
 		if (GetWindowTextLength(m_Hwnd) > 0)
 		{
 			const auto hdc = GetDC(m_Hwnd);
-			if (hdc == nullptr)
+			if (!hdc)
 				throw Dcx::dcxException("Unable to get windows DC");
 
 			Auto(ReleaseDC(m_Hwnd, hdc));
@@ -232,14 +232,14 @@ void DcxBox::parseInfoRequest(const TString & input, const refString<TCHAR, MIRC
 			HFONT oldFont = nullptr;
 			RECT rcText = rc;
 
-			if (const auto f = getControlFont(); f != nullptr)
-				oldFont = SelectFont(hdc, f);
+			if (const auto f = getControlFont(); f)
+				oldFont = Dcx::dcxSelectObject<HFONT>(hdc, f);
 
 			const TString text(TGetWindowText(m_Hwnd));
 			DrawText(hdc, text.to_chr(), gsl::narrow_cast<int>(text.len()), &rcText, DT_CALCRECT);
 
-			if (oldFont != nullptr)
-				SelectFont(hdc, oldFont);
+			if (oldFont)
+				Dcx::dcxSelectObject<HFONT>(hdc, oldFont);
 
 			if (const auto h = rcText.bottom - rcText.top; dcx_testflag(m_iBoxStyles, BOXS_BOTTOM))
 				rc.bottom -= (h + 2);
@@ -286,12 +286,12 @@ void DcxBox::parseCommandRequest(const TString & input)
 		const auto ID = getParentDialog()->NameToID(tsID);
 
 		if (!getParentDialog()->isIDValid(ID))
-			throw Dcx::dcxException(TEXT("Unknown control with ID \"%\" (dialog %)"), ID - mIRC_ID_OFFSET, getParentDialog()->getName());
+			throw Dcx::dcxException(TEXT("Unknown control with ID %(%) (dialog %)"), tsID, ID - mIRC_ID_OFFSET, this->getParentDialog()->getName());
 
 		const auto p_Control = getParentDialog()->getControlByID(ID);
 
-		if (p_Control == nullptr)
-			throw Dcx::dcxException("Unable to get control");
+		if (!p_Control)
+			throw Dcx::dcxException(TEXT("Unable to get control with ID %(%) (dialog %)"), tsID, ID - mIRC_ID_OFFSET, this->getParentDialog()->getName());
 
 		if (const auto dct = p_Control->getControlType(); (dct == DcxControlTypes::DIALOG || dct == DcxControlTypes::WINDOW))
 			delete p_Control;
@@ -346,7 +346,7 @@ void DcxBox::parseCommandRequest(const TString & input)
 		break;
 		default:
 			if (numtok > 8)
-				m_pLayoutManager->AddCell(input, 4);
+				m_pLayoutManager->AddCell(input, 4, this->getParentDialog());
 		}
 	}
 	//xdid -t [NAME] [ID] [SWITCH]
@@ -384,11 +384,19 @@ void DcxBox::toXml(TiXmlElement *const xml) const
 		m_pLayoutManager->getRoot()->toXml(xml);
 }
 
-TiXmlElement * DcxBox::toXml(void) const
+GSL_SUPPRESS(lifetime.4)
+TiXmlElement * DcxBox::toXml() const
 {
 	auto xml = std::make_unique<TiXmlElement>("control");
 	toXml(xml.get());
 	return xml.release();
+}
+
+std::unique_ptr<TiXmlElement> DcxBox::toXml(int blah) const
+{
+	auto xml = std::make_unique<TiXmlElement>("control");
+	toXml(xml.get());
+	return xml;
 }
 
 const TString DcxBox::getStyles(void) const
@@ -423,7 +431,7 @@ LRESULT DcxBox::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 	return 0L;
 }
 
-LRESULT DcxBox::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed)
+LRESULT DcxBox::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed)
 {
 	LRESULT lRes = 0L;
 	switch (uMsg)
@@ -437,7 +445,9 @@ LRESULT DcxBox::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPar
 
 		if (IsWindow(hdr->hwndFrom))
 		{
-			if (const auto c_this = reinterpret_cast<DcxControl *>(GetProp(hdr->hwndFrom, TEXT("dcx_cthis"))); c_this)
+			//if (const auto c_this = static_cast<DcxControl *>(GetProp(hdr->hwndFrom, TEXT("dcx_cthis"))); c_this)
+			//	lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
+			if (const auto c_this = Dcx::dcxGetProp<DcxControl *>(hdr->hwndFrom, TEXT("dcx_cthis")); c_this)
 				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 		}
 	}
@@ -504,9 +514,11 @@ LRESULT DcxBox::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPar
 		if (lParam == 0L)
 			break;
 
-		if (IsWindow((HWND)lParam))
+		if (IsWindow(reinterpret_cast<HWND>(lParam)))
 		{
-			if (const auto c_this = reinterpret_cast<DcxControl *>(GetProp((HWND)lParam, TEXT("dcx_cthis"))); c_this)
+			//if (const auto c_this = static_cast<DcxControl *>(GetProp(reinterpret_cast<HWND>(lParam), TEXT("dcx_cthis"))); c_this)
+			//	lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
+			if (const auto c_this = Dcx::dcxGetProp<DcxControl*>(lParam, TEXT("dcx_cthis")); c_this)
 				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 		}
 	}
@@ -516,7 +528,9 @@ LRESULT DcxBox::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPar
 	{
 		if (dcxlParam(LPCOMPAREITEMSTRUCT, idata); ((idata) && (IsWindow(idata->hwndItem))))
 		{
-			if (const auto c_this = reinterpret_cast<DcxControl *>(GetProp((HWND)lParam, TEXT("dcx_cthis"))); c_this)
+			//if (const auto c_this = static_cast<DcxControl *>(GetProp(reinterpret_cast<HWND>(lParam), TEXT("dcx_cthis"))); c_this)
+			//	lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
+			if (const auto c_this = Dcx::dcxGetProp<DcxControl*>(lParam, TEXT("dcx_cthis")); c_this)
 				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 		}
 	}
@@ -526,7 +540,9 @@ LRESULT DcxBox::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPar
 	{
 		if (dcxlParam(LPDELETEITEMSTRUCT, idata); ((idata) && (IsWindow(idata->hwndItem))))
 		{
-			if (const auto c_this = reinterpret_cast<DcxControl *>(GetProp((HWND)lParam, TEXT("dcx_cthis"))); c_this)
+			//if (const auto c_this = static_cast<DcxControl *>(GetProp(reinterpret_cast<HWND>(lParam), TEXT("dcx_cthis"))); c_this)
+			//	lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
+			if (const auto c_this = Dcx::dcxGetProp<DcxControl*>(lParam, TEXT("dcx_cthis")); c_this)
 				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 		}
 	}
@@ -536,7 +552,9 @@ LRESULT DcxBox::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPar
 	{
 		if (const auto cHwnd = GetDlgItem(m_Hwnd, gsl::narrow_cast<int>(wParam)); IsWindow(cHwnd))
 		{
-			if (const auto c_this = reinterpret_cast<DcxControl *>(GetProp(cHwnd, TEXT("dcx_cthis"))); c_this)
+			//if (const auto c_this = static_cast<DcxControl *>(GetProp(cHwnd, TEXT("dcx_cthis"))); c_this)
+			//	lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
+			if (const auto c_this = Dcx::dcxGetProp<DcxControl*>(cHwnd, TEXT("dcx_cthis")); c_this)
 				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 		}
 	}
@@ -546,7 +564,9 @@ LRESULT DcxBox::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPar
 	{
 		if (dcxlParam(LPDRAWITEMSTRUCT, idata); ((idata) && (IsWindow(idata->hwndItem))))
 		{
-			if (const auto c_this = reinterpret_cast<DcxControl *>(GetProp(idata->hwndItem, TEXT("dcx_cthis"))); c_this)
+			//if (const auto c_this = static_cast<DcxControl *>(GetProp(idata->hwndItem, TEXT("dcx_cthis"))); c_this)
+			//	lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
+			if (const auto c_this = Dcx::dcxGetProp<DcxControl*>(idata->hwndItem, TEXT("dcx_cthis")); c_this)
 				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 		}
 	}
@@ -554,9 +574,9 @@ LRESULT DcxBox::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPar
 
 	case WM_SIZE:
 	{
-		HandleChildrenSize();
+		HandleChildControlSize();
 
-		//if (m_pLayoutManager != nullptr)
+		//if (m_pLayoutManager)
 		//{
 		//	RECT rc{ 0, 0, LOWORD( lParam ), HIWORD( lParam ) };
 		//	if (m_pLayoutManager->updateLayout( rc ))
@@ -590,7 +610,7 @@ LRESULT DcxBox::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPar
 
 	case WM_ERASEBKGND:
 	{
-		EraseBackground((HDC)wParam);
+		EraseBackground(reinterpret_cast<HDC>(wParam));
 		bParsed = TRUE;
 		return TRUE;
 	}
@@ -598,7 +618,7 @@ LRESULT DcxBox::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPar
 
 	case WM_PRINTCLIENT:
 	{
-		DrawClientArea((HDC)wParam);
+		DrawClientArea(reinterpret_cast<HDC>(wParam));
 		bParsed = TRUE;
 	}
 	break;
@@ -690,7 +710,7 @@ void DcxBox::DrawClientArea(HDC hdc)
 	else {
 		// prepare for appearance
 		if (const auto f = getControlFont(); f)
-			SelectFont(hdc, f);
+			Dcx::dcxSelectObject<HFONT>(hdc, f);
 
 		if (m_clrText != CLR_INVALID)
 			SetTextColor(hdc, m_clrText);
@@ -794,8 +814,6 @@ void DcxBox::DrawClientArea(HDC hdc)
 	}
 }
 
-WNDPROC DcxBox::m_hDefaultClassProc{ nullptr };
-
 LRESULT DcxBox::CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept
 {
 	if (m_hDefaultClassProc)
@@ -808,15 +826,15 @@ void DcxBox::DrawBorder(HDC hdc, RECT & rc) noexcept
 {
 	if (dcx_testflag(m_iBoxStyles, BOXS_ROUNDED))
 	{
-		if (const auto m_Region = CreateRoundRectRgn(rc.left, rc.top, rc.right, rc.bottom, 10, 10); m_Region != nullptr)
+		if (const auto m_Region = CreateRoundRectRgn(rc.left, rc.top, rc.right, rc.bottom, 10, 10); m_Region)
 		{
-			Auto(DeleteRgn(m_Region));
+			Auto(DeleteObject(m_Region));
 
 			SelectClipRgn(hdc, m_Region);
 			DcxControl::DrawCtrlBackground(hdc, this, &rc);
 			SelectClipRgn(hdc, nullptr);
 
-			const auto hBorderBrush = (m_hBorderBrush) ? m_hBorderBrush : GetStockBrush(BLACK_BRUSH);
+			const auto hBorderBrush = (m_hBorderBrush) ? m_hBorderBrush : Dcx::dcxGetStockObject<HBRUSH>(BLACK_BRUSH);
 
 			FrameRgn(hdc, m_Region, hBorderBrush, 1, 1);
 		}

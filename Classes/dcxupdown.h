@@ -26,7 +26,7 @@ class DcxDialog;
  * blah
  */
 
-class DcxUpDown
+class DcxUpDown final
 	: public DcxControl
 {
 public:
@@ -37,9 +37,9 @@ public:
 	DcxUpDown &operator =(DcxUpDown &&) = delete;
 
 	DcxUpDown(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles );
-	~DcxUpDown( );
+	~DcxUpDown( ) noexcept;
 
-	LRESULT PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) final;
+	LRESULT OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) final;
 	LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) final;
 
 	//void parseInfoRequest(const TString & input, PTCHAR szReturnValue) const final;
@@ -60,7 +60,7 @@ public:
 	inline const TString getType() const final { return TEXT("updown"); };
 	inline const DcxControlTypes getControlType() const noexcept final { return DcxControlTypes::UPDOWN; }
 
-	static WNDPROC m_hDefaultClassProc;	//!< Default window procedure
+	static inline WNDPROC m_hDefaultClassProc{ nullptr };	//!< Default window procedure
 	LRESULT CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept final;
 };
 

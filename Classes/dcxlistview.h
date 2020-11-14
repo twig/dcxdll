@@ -79,7 +79,8 @@ struct DCXLVSORT
 };
 using LPDCXLVSORT = DCXLVSORT *;
 
-struct DCXLVRENDERINFO {
+struct DCXLVRENDERINFO
+{
 	DWORD		m_dFlags{};	//!< Render flags (bold etc..)
 	COLORREF	m_cText{ CLR_INVALID };	//!< Text Colour
 	COLORREF	m_cBg{ CLR_INVALID };		//!< Background Colour.
@@ -102,7 +103,8 @@ using VectorOfRenderInfo = std::vector<LPDCXLVRENDERINFO>;
 #define DCX_LV_COLUMNF_PERCENT		8		// m_iSize is a % width between 0 & 100 (zero width columns are hidden)
 #define DCX_LV_COLUMNF_FIXED		16		// m_iSize is the fixed width of the column
 
-struct DCXLVCOLUMNINFO {
+struct DCXLVCOLUMNINFO
+{
 	int			m_iColumn{};	// the column affected by this info.
 	DWORD		m_dFlags{};	// size flags (autosize, % width etc..)
 	int			m_iSize{};	// size of column (meaning depends on flags)
@@ -118,7 +120,8 @@ using VectorOfColumnInfo = std::vector<LPDCXLVCOLUMNINFO>;
  * blah
  */
 
-struct DCXLVITEM {
+struct DCXLVITEM
+{
 	TString tsTipText;	//!< Tooltip text
 	TString tsMark;		// Marked text
 	DcxControl *pbar{ nullptr };
@@ -134,7 +137,7 @@ using LPDCXLVITEM = DCXLVITEM *;
  * blah
  */
 
-class DcxListView
+class DcxListView final
 	: public DcxControl
 	, public DcxListHelper
 {
@@ -146,9 +149,9 @@ public:
 	DcxListView &operator =(DcxListView &&) = delete;
 
 	DcxListView(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles);
-	~DcxListView();
+	~DcxListView() noexcept;
 
-	LRESULT PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) final;
+	LRESULT OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) final;
 	LRESULT ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) final;
 
 	//void parseInfoRequest(const TString & input, PTCHAR szReturnValue) const final;
@@ -174,7 +177,7 @@ public:
 
 	const TString getStyles(void) const final;
 
-	static WNDPROC m_hDefaultClassProc;	//!< Default window procedure
+	static inline WNDPROC m_hDefaultClassProc{ nullptr };	//!< Default window procedure
 	LRESULT CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept final;
 
 protected:
@@ -206,11 +209,11 @@ private:
 	HIMAGELIST initImageList(const int iImageList);
 	bool xmlLoadListview(const int nPos, const TString &dataset, TString &filename);
 	void xmlSetItem(const int nItem, const int nSubItem, const TiXmlElement *xNode, LPLVITEM lvi, LPDCXLVITEM lpmylvi, TString &tsBuf);
-	bool ctrlLoadListview(const int nPos, const TString &tsData);
+	bool ctrlLoadListview(const int nPos, const TString &tsData) noexcept;
 	bool xLoadListview(const int nPos, const TString &tsData, const TCHAR *sTest, const TCHAR *sCount, const TCHAR *sGet, const TCHAR *sGetNamed);
 	void massSetItem(const int nPos, const TString &input);
 	void setHeaderStyle(HWND h, const int nCol, const TString &info);
-	void DeleteColumns(const int nColumn);
+	void DeleteColumns(const int nColumn) noexcept;
 	TString ItemToString(int nItem, int iColumns);
 	bool xSaveListview(const int nStartPos, const int nEndPos, const TString & tsData, const TCHAR * sTestCommand, const TCHAR * sStoreCommand);
 

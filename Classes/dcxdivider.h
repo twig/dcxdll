@@ -27,7 +27,7 @@ class DcxDialog;
  * blah
  */
 
-class DcxDivider
+class DcxDivider final
 	: public DcxControl
 {
 public:
@@ -38,9 +38,9 @@ public:
 	DcxDivider &operator =(DcxDivider &&) = delete;
 
 	DcxDivider(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles );
-	~DcxDivider( );
+	~DcxDivider( ) noexcept;
 
-	LRESULT PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) final;
+	LRESULT OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) final;
 	LRESULT ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) noexcept final;
 
 	//void parseInfoRequest(const TString & input, PTCHAR szReturnValue) const final;
@@ -58,7 +58,7 @@ public:
 	void toXml(TiXmlElement *const xml) const final;
 	TiXmlElement * toXml(void) const final;
 
-	static WNDPROC m_hDefaultClassProc;	//!< Default window procedure
+	static inline WNDPROC m_hDefaultClassProc{ nullptr };	//!< Default window procedure
 	LRESULT CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept final;
 
 protected:

@@ -48,7 +48,7 @@ DcxDateTime::DcxDateTime(const UINT ID, DcxDialog *const p_Dialog, const HWND mP
 	if (ws.m_NoTheme)
 		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
 
-	this->setControlFont((HFONT)GetStockObject(DEFAULT_GUI_FONT), FALSE);
+	this->setControlFont(Dcx::dcxGetStockObject<HFONT>(DEFAULT_GUI_FONT), FALSE);
 }
 
 /*!
@@ -56,18 +56,18 @@ DcxDateTime::DcxDateTime(const UINT ID, DcxDialog *const p_Dialog, const HWND mP
  *
  * blah
  */
-DcxDateTime::~DcxDateTime()
+DcxDateTime::~DcxDateTime() noexcept
 {
 }
 
 void DcxDateTime::toXml(TiXmlElement *const xml) const
 {
-	char buf[64] = { 0 };
+	char buf[64]{};
 	SYSTEMTIME st{};
 
 	DateTime_GetSystemtime(m_Hwnd, &st);
 
-	_ts_snprintf(&buf[0], Dcx::countof(buf), "%ld", SystemTimeToMircTime(&st));
+	_ts_snprintf(&buf[0], std::size(buf), "%ld", SystemTimeToMircTime(&st));
 
 	__super::toXml(xml);
 	xml->SetAttribute("caption", &buf[0]);
@@ -190,6 +190,7 @@ dcxWindowStyles DcxDateTime::parseControlStyles(const TString & tsStyles)
 			break;
 		case L"updown"_hash:
 			ws.m_Styles |= DTS_UPDOWN;
+			break;
 		default:
 			break;
 		}
@@ -216,8 +217,6 @@ void DcxDateTime::parseInfoRequest( const TString &input, const refString<TCHAR,
 		SYSTEMTIME st[2]{};
 		TString dmin(TEXT("nolimit"));
 		TString dmax(TEXT("nolimit"));
-
-		//ZeroMemory(&st[0], sizeof(SYSTEMTIME) *2);
 
 		const auto val = DateTime_GetRange(m_Hwnd, st);
 
@@ -290,10 +289,8 @@ void DcxDateTime::parseCommandRequest( const TString &input)
 		if (numtok < 5)
 			throw Dcx::dcxException("Insufficient parameters");
 
-		DWORD dflags = 0;
+		DWORD dflags{};
 		SYSTEMTIME range[2]{};
-
-		//ZeroMemory(&range[0], sizeof(SYSTEMTIME) *2);
 
 		if (const auto tsMin(input++); tsMin != TEXT("nolimit"))
 		{
@@ -348,7 +345,7 @@ LRESULT DcxDateTime::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 	{
 		dcxlParam(LPNMHDR, hdr);
 
-		if (hdr == nullptr)
+		if (!hdr)
 			break;
 
 		switch (hdr->code)
@@ -434,14 +431,19 @@ LRESULT DcxDateTime::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 
 			return 0L;
 		}
+		default:
+			break;
 		} // end switch
 	}
+	break;
+	default:
+		break;
 	}
 
 	return 0L;
 }
 
-LRESULT DcxDateTime::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bParsed)
+LRESULT DcxDateTime::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bParsed)
 {
 	switch (uMsg)
 	{
@@ -458,11 +460,9 @@ LRESULT DcxDateTime::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 	return 0L;
 }
 
-WNDPROC DcxDateTime::m_hDefaultClassProc = nullptr;
-
 LRESULT DcxDateTime::CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept
 {
-	if (m_hDefaultClassProc != nullptr)
+	if (m_hDefaultClassProc)
 		return CallWindowProc(m_hDefaultClassProc, this->m_Hwnd, uMsg, wParam, lParam);
 
 	return DefWindowProc(this->m_Hwnd, uMsg, wParam, lParam);

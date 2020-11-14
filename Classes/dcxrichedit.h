@@ -41,7 +41,7 @@ using LPDCXSTREAM = DCXSTREAM *;
 * blah
 */
 
-class DcxRichEdit
+class DcxRichEdit final
 	: public DcxControl
 {
 public:
@@ -52,9 +52,9 @@ public:
 	DcxRichEdit &operator =(DcxRichEdit &&) = delete;
 
 	DcxRichEdit(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString &styles);
-	~DcxRichEdit();
+	~DcxRichEdit() noexcept = default;
 
-	LRESULT PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bParsed) final;
+	LRESULT OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bParsed) final;
 	LRESULT ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bParsed) final;
 
 	//void parseInfoRequest(const TString & input, PTCHAR szReturnValue) const final;
@@ -77,7 +77,7 @@ public:
 	TiXmlElement * toXml(void) const final;
 	const TString getStyles(void) const final;
 
-	static WNDPROC m_hDefaultClassProc;	//!< Default window procedure
+	static inline WNDPROC m_hDefaultClassProc{ nullptr };	//!< Default window procedure
 	LRESULT CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept final;
 
 	//LRESULT getLineLength();

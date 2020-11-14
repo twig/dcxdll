@@ -30,17 +30,11 @@
 #define BOXS_CHECK		0x20 //!< Box has check button in title to enable/disable contents.
 #define BOXS_RADIO		0x40 //!< Box has radio button in title to enable/disable contents.
 
-struct DCXENUM {
-
-	HWND mChildHwnd;	//!< Hwnd to child window
-	HWND mBox;			//!< The Box control itself
-	BOOL mState;		//!< Enable/Disable state
-
-	//DCXENUM() noexcept
-	//	: mChildHwnd(nullptr)
-	//	, mBox(nullptr)
-	//	, mState(FALSE)
-	//{}
+struct DCXENUM
+{
+	HWND mChildHwnd{ nullptr };	//!< Hwnd to child window
+	HWND mBox{ nullptr };			//!< The Box control itself
+	BOOL mState{ FALSE };		//!< Enable/Disable state
 };
 using LPDCXENUM = DCXENUM *;
 
@@ -52,7 +46,7 @@ class DcxDialog;
  * blah
  */
 
-class DcxBox
+class DcxBox final
 	: public DcxControl
 {
 public:
@@ -67,7 +61,7 @@ public:
 	DcxBox( const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles );
 	~DcxBox( );
 
-	LRESULT PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) final;
+	LRESULT OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) final;
 	LRESULT ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) noexcept final;
 	
 	//void parseInfoRequest( const TString & input, PTCHAR szReturnValue ) const final;
@@ -79,11 +73,12 @@ public:
 	inline const DcxControlTypes getControlType() const noexcept final { return DcxControlTypes::BOX; }
 
 	void toXml(TiXmlElement *const xml) const final;
-	TiXmlElement * toXml(void) const final;
+	TiXmlElement * toXml() const final;
+	std::unique_ptr<TiXmlElement> toXml(int blah) const;
 	const TString getStyles(void) const final;
 
 	LRESULT CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept final;
-	static WNDPROC m_hDefaultClassProc;	//!< Default window procedure
+	static inline WNDPROC m_hDefaultClassProc{ nullptr };	//!< Default window procedure
 
 private:
 	//static const UINT parseLayoutFlags( const TString & flags );

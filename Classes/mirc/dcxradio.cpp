@@ -47,7 +47,7 @@ DcxRadio::DcxRadio(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentH
 
 	setNoThemed((ws.m_NoTheme != false));
 
-	if (p_Dialog->getToolTip() != nullptr)
+	if (p_Dialog->getToolTip())
 	{
 		if (styles.istok(TEXT("tooltips")))
 		{
@@ -58,7 +58,7 @@ DcxRadio::DcxRadio(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentH
 			AddToolTipToolInfo(getToolTipHWND(), m_Hwnd);
 		}
 	}
-	this->setControlFont(GetStockFont(DEFAULT_GUI_FONT), FALSE);
+	this->setControlFont(Dcx::dcxGetStockObject<HFONT>(DEFAULT_GUI_FONT), FALSE);
 }
 
 /*!
@@ -67,7 +67,7 @@ DcxRadio::DcxRadio(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentH
  * blah
  */
 
-DcxRadio::~DcxRadio()
+DcxRadio::~DcxRadio() noexcept
 {
 }
 
@@ -121,6 +121,7 @@ dcxWindowStyles DcxRadio::parseControlStyles(const TString & tsStyles)
 			break;
 		case L"pushlike"_hash:
 			ws.m_Styles |= BS_PUSHLIKE;
+			break;
 		default:
 			break;
 		}
@@ -199,7 +200,7 @@ LRESULT DcxRadio::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
 	return 0L;
 }
 
-LRESULT DcxRadio::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed)
+LRESULT DcxRadio::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed)
 {
 	switch (uMsg)
 	{
@@ -211,7 +212,7 @@ LRESULT DcxRadio::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 	break;
 	case WM_PRINTCLIENT:
 	{
-		this->DrawClientArea((HDC)wParam, uMsg, lParam);
+		this->DrawClientArea(reinterpret_cast<HDC>(wParam), uMsg, lParam);
 		bParsed = TRUE;
 	}
 	break;
@@ -273,14 +274,14 @@ void DcxRadio::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 			if (!bWasTransp)
 				this->addExStyle(WindowExStyle::Transparent);
 
-			CallDefaultClassProc(uMsg, (WPARAM)hdc, lParam);
+			CallDefaultClassProc(uMsg, reinterpret_cast<WPARAM>(hdc), lParam);
 
 			if (!bWasTransp)
 				this->removeExStyle(WindowExStyle::Transparent);
 		}
 	}
 	else
-		CallDefaultClassProc(uMsg, (WPARAM)hdc, lParam);
+		CallDefaultClassProc(uMsg, reinterpret_cast<WPARAM>(hdc), lParam);
 }
 
 void DcxRadio::toXml(TiXmlElement *const xml) const
@@ -299,11 +300,9 @@ TiXmlElement * DcxRadio::toXml(void) const
 	return xml.release();
 }
 
-WNDPROC DcxRadio::m_hDefaultClassProc = nullptr;
-
 LRESULT DcxRadio::CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept
 {
-	if (m_hDefaultClassProc != nullptr)
+	if (m_hDefaultClassProc)
 		return CallWindowProc(m_hDefaultClassProc, this->m_Hwnd, uMsg, wParam, lParam);
 
 	return DefWindowProc(this->m_Hwnd, uMsg, wParam, lParam);

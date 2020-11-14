@@ -22,15 +22,11 @@ class DcxDialog;
 
 #define DCX_STATUSBAR_MAX_PARTS 256
 
-struct SB_PARTINFOX {
+struct SB_PARTINFOX
+{
 	DcxControl	*m_xChild{ nullptr };
 	TString		m_xText;
 	int			m_xiIcon{ -1 };
-
-	//SB_PARTINFOX() noexcept
-	//	: m_xChild(nullptr)
-	//	, m_xiIcon(-1)
-	//{}
 };
 using LPSB_PARTINFOX = SB_PARTINFOX *;
 
@@ -42,7 +38,7 @@ using VectorOfXParts = std::vector<LPSB_PARTINFOX>;
  * blah
  */
 
-class DcxStatusBar
+class DcxStatusBar final
 	: public DcxControl
 {
 public:
@@ -53,9 +49,9 @@ public:
 	DcxStatusBar &operator =(DcxStatusBar &&) = delete;
 
 	DcxStatusBar(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles );
-	~DcxStatusBar( );
+	~DcxStatusBar( ) noexcept;
 
-	LRESULT PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) final;
+	LRESULT OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) final;
 	LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) final;
 
 	//void parseInfoRequest(const TString & input, PTCHAR szReturnValue) const final;
@@ -92,12 +88,12 @@ public:
 
 	int hitTest( const POINT & pt ) const noexcept;
 
-	void deletePartInfo(const int iPart);
+	void deletePartInfo(const int iPart) noexcept;
 
 	inline const TString getType() const final { return TEXT("statusbar"); };
 	inline const DcxControlTypes getControlType() const noexcept final { return DcxControlTypes::STATUSBAR; }
 
-	static WNDPROC m_hDefaultClassProc;	//!< Default window procedure
+	static inline WNDPROC m_hDefaultClassProc{ nullptr };	//!< Default window procedure
 	LRESULT CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept final;
 
 protected:

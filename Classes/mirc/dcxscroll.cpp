@@ -56,7 +56,7 @@ DcxScroll::DcxScroll(const UINT ID, DcxDialog *const p_Dialog, const HWND mParen
  * blah
  */
 
-DcxScroll::~DcxScroll( )
+DcxScroll::~DcxScroll( ) noexcept
 {
 }
 
@@ -408,7 +408,7 @@ LRESULT DcxScroll::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 		if (!GetScrollInfo(m_Hwnd, SB_CTL, &si))
 			return FALSE;
 
-		switch (LOWORD(wParam))
+		switch (Dcx::dcxLOWORD(wParam))
 		{
 		case SB_TOP:
 		{
@@ -485,6 +485,8 @@ LRESULT DcxScroll::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 			this->execAliasEx(TEXT("tracking,%u,%d"), getUserID(), si.nTrackPos);
 			break;
 		}
+		default:
+			break;
 		}
 
 		si.fMask = SIF_POS;
@@ -496,12 +498,14 @@ LRESULT DcxScroll::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 	case WM_VSCROLL:
 		bParsed = HandleScroll();
 		break;
+	default:
+		break;
 	}
 
 	return 0L;
 }
 
-LRESULT DcxScroll::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed)
+LRESULT DcxScroll::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed)
 {
 	switch (uMsg)
 	{
@@ -521,7 +525,7 @@ LRESULT DcxScroll::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 		const auto ai = this->SetupAlphaBlend(&hdc);
 		Auto(this->FinishAlphaBlend(ai));
 
-		return CallDefaultClassProc(uMsg, (WPARAM)hdc, lParam);
+		return CallDefaultClassProc(uMsg, reinterpret_cast<WPARAM>(hdc), lParam);
 	}
 	break;
 
@@ -556,11 +560,9 @@ TiXmlElement * DcxScroll::toXml(void) const
 	return xml.release();
 }
 
-WNDPROC DcxScroll::m_hDefaultClassProc = nullptr;
-
 LRESULT DcxScroll::CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept
 {
-	if (m_hDefaultClassProc != nullptr)
+	if (m_hDefaultClassProc)
 		return CallWindowProc(m_hDefaultClassProc, this->m_Hwnd, uMsg, wParam, lParam);
 
 	return DefWindowProc(this->m_Hwnd, uMsg, wParam, lParam);

@@ -45,7 +45,7 @@ DcxLine::DcxLine(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwn
 	if (ws.m_NoTheme)
 		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
 
-	this->setControlFont(GetStockFont(DEFAULT_GUI_FONT), FALSE);
+	this->setControlFont(Dcx::dcxGetStockObject<HFONT>(DEFAULT_GUI_FONT), FALSE);
 }
 
 /*!
@@ -54,7 +54,7 @@ DcxLine::DcxLine(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwn
  * blah
  */
 
-DcxLine::~DcxLine()
+DcxLine::~DcxLine() noexcept
 {
 }
 
@@ -135,6 +135,7 @@ dcxWindowStyles DcxLine::parseControlStyles(const TString & tsStyles)
 			break;
 		case L"pathellipsis"_hash:
 			ws.m_Styles |= SS_PATHELLIPSIS;
+			break;
 		default:
 			break;
 		}
@@ -195,7 +196,7 @@ LRESULT DcxLine::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
 	return 0L;
 }
 
-LRESULT DcxLine::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed)
+LRESULT DcxLine::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed)
 {
 	switch (uMsg)
 	{
@@ -208,7 +209,7 @@ LRESULT DcxLine::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 	break;
 	case WM_PRINTCLIENT:
 	{
-		this->DrawClientArea((HDC)wParam);
+		this->DrawClientArea(reinterpret_cast<HDC>(wParam));
 		bParsed = TRUE;
 	}
 	break;
@@ -261,16 +262,16 @@ void DcxLine::DrawClientArea(HDC hdc)
 	// draw text if any.
 	if (!m_sText.empty())
 	{
-		HFONT oldhFont = nullptr;
-		if (const auto f = getControlFont(); f != nullptr)
-			oldhFont = SelectFont(hdc, f);
+		HFONT oldhFont{ nullptr };
+		if (const auto f = getControlFont(); f)
+			oldhFont = Dcx::dcxSelectObject<HFONT>(hdc, f);
 
 		if (const auto clr = getTextColor(); clr != CLR_INVALID)
 			SetTextColor(hdc, clr);
 		else
 			SetTextColor(hdc, GetSysColor(IsWindowEnabled(m_Hwnd) ? COLOR_WINDOWTEXT : COLOR_GRAYTEXT));
 
-		UINT style = 0;
+		UINT style{};
 		if (this->isStyle(WindowStyle::SS_EndEllipsis))
 			style |= DT_END_ELLIPSIS;
 		if (this->isStyle(WindowStyle::SS_PathEllipsis))
@@ -322,8 +323,8 @@ void DcxLine::DrawClientArea(HDC hdc)
 			// draw the text
 			this->ctrlDrawText(hdc, this->m_sText, &rcText, style);
 		}
-		if (oldhFont != nullptr)
-			SelectFont(hdc, oldhFont);
+		if (oldhFont)
+			Dcx::dcxSelectObject<HFONT>(hdc, oldhFont);
 
 		ExcludeClipRect(hdc,rcText.left, rcText.top, rcText.right, rcText.bottom);
 	}
@@ -338,11 +339,9 @@ void DcxLine::DrawClientArea(HDC hdc)
 	}
 }
 
-WNDPROC DcxLine::m_hDefaultClassProc = nullptr;
-
 LRESULT DcxLine::CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept
 {
-	if (m_hDefaultClassProc != nullptr)
+	if (m_hDefaultClassProc)
 		return CallWindowProc(m_hDefaultClassProc, this->m_Hwnd, uMsg, wParam, lParam);
 
 	return DefWindowProc(this->m_Hwnd, uMsg, wParam, lParam);

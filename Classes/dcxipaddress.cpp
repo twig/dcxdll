@@ -15,17 +15,17 @@
 #include "Classes/dcxipaddress.h"
 #include "Classes/dcxdialog.h"
 
-/*!
- * \brief Constructor
- *
- * \param ID Control ID
- * \param p_Dialog Parent DcxDialog Object
- * \param mParentHwnd Parent Window Handle
- * \param rc Window Rectangle
- * \param styles Window Style Tokenized List
- */
+ /*!
+  * \brief Constructor
+  *
+  * \param ID Control ID
+  * \param p_Dialog Parent DcxDialog Object
+  * \param mParentHwnd Parent Window Handle
+  * \param rc Window Rectangle
+  * \param styles Window Style Tokenized List
+  */
 
-DcxIpAddress::DcxIpAddress(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles)
+DcxIpAddress::DcxIpAddress(const UINT ID, DcxDialog* const p_Dialog, const HWND mParentHwnd, const RECT* const rc, const TString& styles)
 	: DcxControl(ID, p_Dialog)
 {
 	const auto ws = parseControlStyles(styles);
@@ -45,7 +45,7 @@ DcxIpAddress::DcxIpAddress(const UINT ID, DcxDialog *const p_Dialog, const HWND 
 	if (ws.m_NoTheme)
 		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
 
-	this->setControlFont(GetStockFont(DEFAULT_GUI_FONT), FALSE);
+	this->setControlFont(Dcx::dcxGetStockObject<HFONT>(DEFAULT_GUI_FONT), FALSE);
 
 	if (styles.istok(TEXT("tooltips")))
 	{
@@ -71,11 +71,11 @@ DcxIpAddress::DcxIpAddress(const UINT ID, DcxDialog *const p_Dialog, const HWND 
  * blah
  */
 
-DcxIpAddress::~DcxIpAddress( )
+DcxIpAddress::~DcxIpAddress() noexcept
 {
 }
 
-void DcxIpAddress::toXml(TiXmlElement *const xml) const
+void DcxIpAddress::toXml(TiXmlElement* const xml) const
 {
 	char buf[128];
 	this->AddressToString(&buf[0], Dcx::countof(buf));
@@ -85,7 +85,7 @@ void DcxIpAddress::toXml(TiXmlElement *const xml) const
 	xml->SetAttribute("caption", &buf[0]);
 }
 
-TiXmlElement * DcxIpAddress::toXml(void) const
+TiXmlElement* DcxIpAddress::toXml(void) const
 {
 	auto xml = std::make_unique<TiXmlElement>("control");
 	toXml(xml.get());
@@ -98,12 +98,12 @@ TiXmlElement * DcxIpAddress::toXml(void) const
  * blah
  */
 
-//void DcxIpAddress::parseControlStyles( const TString &styles, LONG *Styles, LONG *ExStyles, BOOL *bNoTheme)
-//{
-//	this->parseGeneralControlStyles(styles, Styles, ExStyles, bNoTheme);
-//}
+ //void DcxIpAddress::parseControlStyles( const TString &styles, LONG *Styles, LONG *ExStyles, BOOL *bNoTheme)
+ //{
+ //	this->parseGeneralControlStyles(styles, Styles, ExStyles, bNoTheme);
+ //}
 
-dcxWindowStyles DcxIpAddress::parseControlStyles(const TString & tsStyles)
+dcxWindowStyles DcxIpAddress::parseControlStyles(const TString& tsStyles)
 {
 	return parseGeneralControlStyles(tsStyles);
 }
@@ -117,7 +117,7 @@ dcxWindowStyles DcxIpAddress::parseControlStyles(const TString & tsStyles)
  * \return > void
  */
 
-void DcxIpAddress::parseInfoRequest( const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const
+void DcxIpAddress::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>& szReturnValue) const
 {
 	// [NAME] [ID] [PROP]
 	if (input.gettok(3) == TEXT("ip"))
@@ -142,9 +142,9 @@ void DcxIpAddress::parseInfoRequest( const TString & input, const refString<TCHA
  * blah
  */
 
-void DcxIpAddress::parseCommandRequest( const TString &input)
+void DcxIpAddress::parseCommandRequest(const TString& input)
 {
-	const XSwitchFlags flags(input.getfirsttok( 3 ));
+	const XSwitchFlags flags(input.getfirsttok(3));
 
 	const auto numtok = input.numtok();
 
@@ -172,8 +172,8 @@ void DcxIpAddress::parseCommandRequest( const TString &input)
 			throw Dcx::dcxException("Insufficient parameters");
 
 		const auto nField = input.getnexttok().to_int() - 1;				// tok 4
-		const auto min = (BYTE)(input.getnexttok().to_int() & 0xFF);	// tok 5
-		const auto max = (BYTE)(input.getnexttok().to_int() & 0xFF);	// tok 6
+		const auto min = gsl::narrow_cast<BYTE>(input.getnexttok().to_int() & 0xFF);	// tok 5
+		const auto max = gsl::narrow_cast<BYTE>(input.getnexttok().to_int() & 0xFF);	// tok 6
 
 		if (nField < 0 || nField > 3)
 			throw Dcx::dcxException("Out of Range");
@@ -190,7 +190,7 @@ void DcxIpAddress::parseCommandRequest( const TString &input)
 
 		if (nField < 0 || nField > 3)
 			throw Dcx::dcxException("Out of Range");
-		
+
 		this->setFocus(nField);
 	}
 	// This is to avoid invalid flag message.
@@ -209,9 +209,9 @@ void DcxIpAddress::parseCommandRequest( const TString &input)
  * blah
  */
 
-LRESULT DcxIpAddress::setRange( const int nField, const BYTE iMin, const BYTE iMax ) noexcept
+LRESULT DcxIpAddress::setRange(const int nField, const BYTE iMin, const BYTE iMax) noexcept
 {
-	return SendMessage( m_Hwnd, IPM_SETRANGE, gsl::narrow_cast<WPARAM>(nField), gsl::narrow_cast<LPARAM>(MAKEIPRANGE( iMin, iMax )) );
+	return SendMessage(m_Hwnd, IPM_SETRANGE, gsl::narrow_cast<WPARAM>(nField), gsl::narrow_cast<LPARAM>(MAKEIPRANGE(iMin, iMax)));
 }
 
 /*!
@@ -220,9 +220,9 @@ LRESULT DcxIpAddress::setRange( const int nField, const BYTE iMin, const BYTE iM
  * blah
  */
 
-LRESULT DcxIpAddress::setFocus( const int nField ) noexcept
+LRESULT DcxIpAddress::setFocus(const int nField) noexcept
 {
-	return SendMessage( m_Hwnd, IPM_SETFOCUS, gsl::narrow_cast<WPARAM>(nField), 0 );
+	return SendMessage(m_Hwnd, IPM_SETFOCUS, gsl::narrow_cast<WPARAM>(nField), 0);
 }
 
 /*!
@@ -231,9 +231,9 @@ LRESULT DcxIpAddress::setFocus( const int nField ) noexcept
  * blah
  */
 
-LRESULT DcxIpAddress::setAddress( const DWORD dwIpAddress ) noexcept
+LRESULT DcxIpAddress::setAddress(const DWORD dwIpAddress) noexcept
 {
-	return SendMessage( m_Hwnd, IPM_SETADDRESS, (WPARAM) 0, gsl::narrow_cast<LPARAM>(dwIpAddress) );
+	return SendMessage(m_Hwnd, IPM_SETADDRESS, 0U, gsl::narrow_cast<LPARAM>(dwIpAddress));
 }
 
 /*!
@@ -242,9 +242,9 @@ LRESULT DcxIpAddress::setAddress( const DWORD dwIpAddress ) noexcept
  * blah
  */
 
-LRESULT DcxIpAddress::getAddress( const LPDWORD lpdwIpAddress ) const noexcept
+LRESULT DcxIpAddress::getAddress(const LPDWORD lpdwIpAddress) const noexcept
 {
-	return SendMessage( m_Hwnd, IPM_GETADDRESS, (WPARAM) 0, (LPARAM) lpdwIpAddress );
+	return SendMessage(m_Hwnd, IPM_GETADDRESS, 0U, reinterpret_cast<LPARAM>(lpdwIpAddress));
 }
 
 /*!
@@ -253,9 +253,9 @@ LRESULT DcxIpAddress::getAddress( const LPDWORD lpdwIpAddress ) const noexcept
  * blah
  */
 
-LRESULT DcxIpAddress::clearAddress( ) noexcept
+LRESULT DcxIpAddress::clearAddress() noexcept
 {
-	return SendMessage( m_Hwnd, IPM_CLEARADDRESS, (WPARAM) 0, (LPARAM) 0 );
+	return SendMessage(m_Hwnd, IPM_CLEARADDRESS, 0U, 0);
 }
 
 /*!
@@ -263,7 +263,7 @@ LRESULT DcxIpAddress::clearAddress( ) noexcept
  *
  * blah
  */
-LRESULT DcxIpAddress::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed)
+LRESULT DcxIpAddress::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed)
 {
 	switch (uMsg)
 	{
@@ -271,7 +271,7 @@ LRESULT DcxIpAddress::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 	{
 		dcxlParam(LPNMHDR, hdr);
 
-		if (hdr == nullptr)
+		if (!hdr)
 			break;
 #pragma warning(push)
 #pragma warning(disable: 26454)	//: warning C26454 : Arithmetic overflow : '-' operation produces a negative unsigned result at compile time(io.5).
@@ -285,11 +285,13 @@ LRESULT DcxIpAddress::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 #pragma warning(pop)
 	}
 	break;
+	default:
+		break;
 	}
 	return 0L;
 }
 
-LRESULT DcxIpAddress::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed)
+LRESULT DcxIpAddress::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed)
 {
 	switch (uMsg)
 	{
@@ -303,7 +305,7 @@ LRESULT DcxIpAddress::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
 	{
 		if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
 		{
-			switch (HIWORD(lParam))
+			switch (Dcx::dcxHIWORD(lParam))
 			{
 			case WM_LBUTTONUP:
 			{
@@ -315,6 +317,8 @@ LRESULT DcxIpAddress::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
 				execAliasEx(TEXT("rclick,%u"), getUserID());
 			}
 			break;
+			default:
+				break;
 			}
 		}
 		bParsed = TRUE;
@@ -341,11 +345,9 @@ LRESULT DcxIpAddress::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
 	return 0L;
 }
 
-WNDPROC DcxIpAddress::m_hDefaultClassProc = nullptr;
-
 LRESULT DcxIpAddress::CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept
 {
-	if (m_hDefaultClassProc != nullptr)
+	if (m_hDefaultClassProc)
 		return CallWindowProc(m_hDefaultClassProc, this->m_Hwnd, uMsg, wParam, lParam);
 
 	return DefWindowProc(this->m_Hwnd, uMsg, wParam, lParam);

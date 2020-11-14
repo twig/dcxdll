@@ -15,18 +15,18 @@
 #include "Classes/dcxmwindow.h"
 #include "Classes/dcxdialog.h"
 
-/*!
- * \brief Constructor
- *
- * \param cHwnd Attached \@window Handle
- * \param pHwnd Parent Window
- * \param ID Control ID
- * \param p_Dialog Parent DcxDialog Object
- * \param rc Window Rectangle
- * \param styles Window Style Tokenized List
- */
+ /*!
+  * \brief Constructor
+  *
+  * \param cHwnd Attached \@window Handle
+  * \param pHwnd Parent Window
+  * \param ID Control ID
+  * \param p_Dialog Parent DcxDialog Object
+  * \param rc Window Rectangle
+  * \param styles Window Style Tokenized List
+  */
 
-DcxMWindow::DcxMWindow(const HWND cHwnd, const HWND pHwnd, const UINT ID, DcxDialog *const p_Dialog, const RECT *const rc, const TString & styles)
+DcxMWindow::DcxMWindow(const HWND cHwnd, const HWND pHwnd, const UINT ID, DcxDialog* const p_Dialog, const RECT* const rc, const TString& styles)
 	: DcxControl(ID, p_Dialog)
 {
 	parseControlStyles(styles);
@@ -47,7 +47,7 @@ DcxMWindow::DcxMWindow(const HWND cHwnd, const HWND pHwnd, const UINT ID, DcxDia
 
 	this->m_OrigID = dcxSetWindowID(m_Hwnd, ID);
 
-	SetProp(this->m_Hwnd, TEXT("dcx_cthis"), (HANDLE)this);
+	SetProp(this->m_Hwnd, TEXT("dcx_cthis"), this);
 }
 
 /*!
@@ -56,17 +56,17 @@ DcxMWindow::DcxMWindow(const HWND cHwnd, const HWND pHwnd, const UINT ID, DcxDia
  * blah
  */
 
-DcxMWindow::~DcxMWindow( )
+DcxMWindow::~DcxMWindow() noexcept
 {
 	auto parent = GetParent(m_Hwnd);
-	if ( parent == this->m_OrigParentHwnd && this->m_OrigParentHwnd != this->getParentDialog()->getHwnd())
+	if (parent == this->m_OrigParentHwnd && this->m_OrigParentHwnd != this->getParentDialog()->getHwnd())
 		return;
 
 	const auto bHide = (IsWindowVisible(m_Hwnd) != FALSE);
-	if ( !bHide )
-		ShowWindow( m_Hwnd, SW_HIDE );
+	if (!bHide)
+		ShowWindow(m_Hwnd, SW_HIDE);
 
-	dcxSetWindowID( m_Hwnd, m_OrigID );
+	dcxSetWindowID(m_Hwnd, m_OrigID);
 
 	//SetParent( m_Hwnd, this->m_OrigParentHwnd );
 	//this->removeStyle(WS_CHILDWINDOW);
@@ -77,15 +77,15 @@ DcxMWindow::~DcxMWindow( )
 	else
 		parent = this->m_OrigParentHwnd;
 
-	SetParent( m_Hwnd, parent );
-	this->setStyle( this->m_OrigStyles );
-	this->setExStyle( this->m_OrigExStyles );
+	SetParent(m_Hwnd, parent);
+	this->setStyle(this->m_OrigStyles);
+	this->setExStyle(this->m_OrigExStyles);
 
-	SetWindowPos( m_Hwnd, nullptr, 30, 30, 0, 0, SWP_NOSIZE|SWP_FRAMECHANGED );
-	UpdateWindow( m_Hwnd );
+	SetWindowPos(m_Hwnd, nullptr, 30, 30, 0, 0, SWP_NOSIZE | SWP_FRAMECHANGED);
+	UpdateWindow(m_Hwnd);
 
-	if ( !bHide )
-		ShowWindow( m_Hwnd, SW_SHOW );
+	if (!bHide)
+		ShowWindow(m_Hwnd, SW_SHOW);
 }
 
 /*!
@@ -97,7 +97,7 @@ DcxMWindow::~DcxMWindow( )
  * \return > void
  */
 
-void DcxMWindow::parseInfoRequest( const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const
+void DcxMWindow::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>& szReturnValue) const
 {
 	//  auto numtok = input.numtok( );
 
@@ -114,11 +114,11 @@ void DcxMWindow::parseInfoRequest( const TString & input, const refString<TCHAR,
  * blah
  */
 
-void DcxMWindow::parseCommandRequest( const TString & input )
+void DcxMWindow::parseCommandRequest(const TString& input)
 {
 	const XSwitchFlags flags(input.gettok(3));
 
-	this->parseGlobalCommandRequest( input, flags );
+	this->parseGlobalCommandRequest(input, flags);
 }
 
 //void DcxMWindow::parseControlStyles( const TString &styles, LONG *Styles, LONG *ExStyles, BOOL *bNoTheme)
@@ -126,7 +126,7 @@ void DcxMWindow::parseCommandRequest( const TString & input )
 //	this->m_OrigName = styles;
 //}
 
-dcxWindowStyles DcxMWindow::parseControlStyles(const TString & tsStyles)
+dcxWindowStyles DcxMWindow::parseControlStyles(const TString& tsStyles)
 {
 	m_OrigName = tsStyles;
 
@@ -141,12 +141,12 @@ dcxWindowStyles DcxMWindow::parseControlStyles(const TString & tsStyles)
  * \param lParam Window Procedure LPARAM
  * \param bParsed Indicates if subclassed procedure parsed the message
  */
-LRESULT DcxMWindow::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) noexcept
+LRESULT DcxMWindow::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed) noexcept
 {
 	return 0L;
 }
 
-LRESULT DcxMWindow::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed)
+LRESULT DcxMWindow::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed)
 {
 	switch (uMsg)
 	{
@@ -172,11 +172,9 @@ LRESULT DcxMWindow::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
 	return 0L;
 }
 
-WNDPROC DcxMWindow::m_hDefaultClassProc = nullptr;
-
 LRESULT DcxMWindow::CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept
 {
-	if (m_hDefaultClassProc != nullptr)
+	if (m_hDefaultClassProc)
 		return CallWindowProc(m_hDefaultClassProc, this->m_Hwnd, uMsg, wParam, lParam);
 
 	return DefWindowProc(this->m_Hwnd, uMsg, wParam, lParam);

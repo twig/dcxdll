@@ -26,7 +26,7 @@ class DcxDialog;
  * blah
  */
 
-class DcxImage
+class DcxImage final
 	: public DcxControl
 {
 public:
@@ -37,9 +37,9 @@ public:
 	DcxImage &operator =(DcxImage &&) = delete;
 
 	DcxImage( const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles );
-	~DcxImage( );
+	~DcxImage( ) noexcept;
 
-	LRESULT PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) final;
+	LRESULT OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) final;
 	LRESULT ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) noexcept final;
 
 	//void parseInfoRequest(const TString & input, PTCHAR szReturnValue) const final;
@@ -54,7 +54,7 @@ public:
 	TiXmlElement *toXml() const final;
 
 	LRESULT CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept final;
-	static WNDPROC m_hDefaultClassProc;	//!< Default window procedure
+	static inline WNDPROC m_hDefaultClassProc{ nullptr };	//!< Default window procedure
 
 private:
 #ifdef DCX_USE_GDIPLUS

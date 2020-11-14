@@ -25,7 +25,7 @@
   * \param styles Window Style Tokenized List
   */
 
-DcxProgressBar::DcxProgressBar(_In_ const UINT ID, _In_ DcxDialog *const p_Dialog, _In_ const HWND mParentHwnd, _In_ const RECT *const rc, _In_ const TString & styles)
+DcxProgressBar::DcxProgressBar(_In_ const UINT ID, _In_ DcxDialog* const p_Dialog, _In_ const HWND mParentHwnd, _In_ const RECT* const rc, _In_ const TString& styles)
 	: DcxControl(ID, p_Dialog)
 	, m_tsText(TEXT("%d %%"))
 {
@@ -54,7 +54,7 @@ DcxProgressBar::DcxProgressBar(_In_ const UINT ID, _In_ DcxDialog *const p_Dialo
 		setToolTipHWND(p_Dialog->getToolTip());
 		AddToolTipToolInfo(getToolTipHWND(), m_Hwnd);
 	}
-	this->setControlFont(GetStockFont(DEFAULT_GUI_FONT), FALSE);
+	this->setControlFont(Dcx::dcxGetStockObject<HFONT>(DEFAULT_GUI_FONT), FALSE);
 }
 
 /*!
@@ -63,7 +63,7 @@ DcxProgressBar::DcxProgressBar(_In_ const UINT ID, _In_ DcxDialog *const p_Dialo
  * blah
  */
 
-DcxProgressBar::~DcxProgressBar()
+DcxProgressBar::~DcxProgressBar() noexcept
 {
 }
 
@@ -89,13 +89,13 @@ const TString DcxProgressBar::getStyles(void) const
  * blah
  */
 
-dcxWindowStyles DcxProgressBar::parseControlStyles(const TString & tsStyles)
+dcxWindowStyles DcxProgressBar::parseControlStyles(const TString& tsStyles)
 {
 	auto ws = parseGeneralControlStyles(tsStyles);
 
 	m_bIsGrad = false;
 
-	for (const auto &tsStyle : tsStyles)
+	for (const auto& tsStyle : tsStyles)
 	{
 		switch (std::hash<TString>{}(tsStyle))
 		{
@@ -113,6 +113,7 @@ dcxWindowStyles DcxProgressBar::parseControlStyles(const TString & tsStyles)
 			ws.m_Styles |= PBS_SMOOTH;
 			m_bIsGrad = true;
 		}
+		break;
 		default:
 			break;
 		}
@@ -129,7 +130,7 @@ dcxWindowStyles DcxProgressBar::parseControlStyles(const TString & tsStyles)
  * \return > void
  */
 
-void DcxProgressBar::parseInfoRequest(const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const
+void DcxProgressBar::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>& szReturnValue) const
 {
 	switch (std::hash<TString>{}(input.getfirsttok(3)))
 	{
@@ -156,7 +157,7 @@ void DcxProgressBar::parseInfoRequest(const TString & input, const refString<TCH
  * \param input [NAME] [SWITCH] [ID] (OPTIONS)
  */
 
-void DcxProgressBar::parseCommandRequest(const TString &input)
+void DcxProgressBar::parseCommandRequest(const TString& input)
 {
 	const XSwitchFlags flags(input.getfirsttok(3));
 	const auto numtok = input.numtok();
@@ -264,29 +265,29 @@ void DcxProgressBar::parseCommandRequest(const TString &input)
 		if (numtok < 4)
 			throw Dcx::dcxException("Insufficient parameters");
 
-		LOGFONT lfCurrent{};
-
-		if (GetObject(getControlFont(), sizeof(LOGFONT), &lfCurrent) == 0)
-			throw Dcx::dcxException("Unable to get LOGFONT");
-
 		const auto angle = input.getnexttok().to_int();	// tok 4
 
 		//TODO: let user specify angle of text?
 		if (angle > 0)
 		{
+			auto [code, lfCurrent] = Dcx::dcxGetObject<LOGFONT>(getControlFont());
+			if (code == 0)
+				throw Dcx::dcxException("Unable to get LOGFONT");
+
 			// input is angle based, expected angle = *10
 			//lfCurrent.lfEscapement = angle * 10;
 			//lfCurrent.lfOrientation = angle * 10;
 			lfCurrent.lfEscapement = 900;
 			lfCurrent.lfOrientation = 900;
 
-			if (m_hfontVertical != nullptr)
-				DeleteFont(m_hfontVertical);
+			if (m_hfontVertical)
+				DeleteObject(m_hfontVertical);
 
 			m_hfontVertical = CreateFontIndirect(&lfCurrent);
 		}
-		else {
-			DeleteFont(m_hfontVertical);
+		else if (m_hfontVertical)
+		{
+			DeleteObject(m_hfontVertical);
 			m_hfontVertical = nullptr;
 		}
 
@@ -304,7 +305,7 @@ void DcxProgressBar::parseCommandRequest(const TString &input)
 
 LRESULT DcxProgressBar::setPosition(const int nNewPos) noexcept
 {
-	return SendMessage(m_Hwnd, PBM_SETPOS, gsl::narrow_cast<WPARAM>(nNewPos), (LPARAM)0);
+	return SendMessage(m_Hwnd, PBM_SETPOS, gsl::narrow_cast<WPARAM>(nNewPos), 0);
 }
 
 /*!
@@ -326,7 +327,7 @@ LRESULT DcxProgressBar::setRange(const int iLowLim, const int iHighLim) noexcept
 
 LRESULT DcxProgressBar::getPosition() const noexcept
 {
-	return SendMessage(m_Hwnd, PBM_GETPOS, gsl::narrow_cast<WPARAM>(0), gsl::narrow_cast<LPARAM>(0));
+	return SendMessage(m_Hwnd, PBM_GETPOS, gsl::narrow_cast<WPARAM>(0), 0);
 }
 
 /*!
@@ -359,7 +360,7 @@ LRESULT DcxProgressBar::setMarquee(const BOOL fStart, const int fTime) noexcept
 
 LRESULT DcxProgressBar::stepIt() noexcept
 {
-	return SendMessage(m_Hwnd, PBM_STEPIT, gsl::narrow_cast<WPARAM>(0), gsl::narrow_cast<LPARAM>(0));
+	return SendMessage(m_Hwnd, PBM_STEPIT, gsl::narrow_cast<WPARAM>(0), 0);
 }
 
 /*!
@@ -370,7 +371,7 @@ LRESULT DcxProgressBar::stepIt() noexcept
 
 LRESULT DcxProgressBar::setStep(const int nStepInc) noexcept
 {
-	return SendMessage(m_Hwnd, PBM_SETSTEP, gsl::narrow_cast<WPARAM>(nStepInc), gsl::narrow_cast<LPARAM>(0));
+	return SendMessage(m_Hwnd, PBM_SETSTEP, gsl::narrow_cast<WPARAM>(nStepInc), 0);
 }
 
 /*!
@@ -382,7 +383,7 @@ LRESULT DcxProgressBar::setStep(const int nStepInc) noexcept
 LRESULT DcxProgressBar::setBarColor(const COLORREF clrBar) noexcept
 {
 	setStartGradientColor(clrBar);
-	return SendMessage(m_Hwnd, PBM_SETBARCOLOR, gsl::narrow_cast<WPARAM>(0), gsl::narrow_cast<LPARAM>(clrBar));
+	return SendMessage(m_Hwnd, PBM_SETBARCOLOR, 0U, gsl::narrow_cast<LPARAM>(clrBar));
 }
 /*!
  * \brief blah
@@ -393,17 +394,17 @@ LRESULT DcxProgressBar::setBarColor(const COLORREF clrBar) noexcept
 LRESULT DcxProgressBar::setBKColor(const COLORREF clrBk) noexcept
 {
 	setEndGradientColor(clrBk);
-	return SendMessage(m_Hwnd, PBM_SETBKCOLOR, gsl::narrow_cast<WPARAM>(0), gsl::narrow_cast<LPARAM>(clrBk));
+	return SendMessage(m_Hwnd, PBM_SETBKCOLOR, 0U, gsl::narrow_cast<LPARAM>(clrBk));
 }
 
-void DcxProgressBar::toXml(TiXmlElement *const xml) const
+void DcxProgressBar::toXml(TiXmlElement* const xml) const
 {
 	__super::toXml(xml);
 
 	xml->SetAttribute("styles", getStyles().c_str());
 }
 
-TiXmlElement * DcxProgressBar::toXml(void) const
+TiXmlElement* DcxProgressBar::toXml(void) const
 {
 	auto xml = std::make_unique<TiXmlElement>("control");
 	toXml(xml.get());
@@ -415,12 +416,12 @@ TiXmlElement * DcxProgressBar::toXml(void) const
  *
  * blah
  */
-LRESULT DcxProgressBar::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) noexcept
+LRESULT DcxProgressBar::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed) noexcept
 {
 	return 0L;
 }
 
-LRESULT DcxProgressBar::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed)
+LRESULT DcxProgressBar::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed)
 {
 	switch (uMsg)
 	{
@@ -428,7 +429,7 @@ LRESULT DcxProgressBar::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 	{
 		if (isExStyle(WindowExStyle::Transparent))
 		{
-			DrawParentsBackground((HDC)wParam);
+			DrawParentsBackground(reinterpret_cast<HDC>(wParam));
 			bParsed = TRUE;
 			return TRUE;
 		}
@@ -437,7 +438,7 @@ LRESULT DcxProgressBar::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 
 	case WM_PRINTCLIENT:
 	{
-		DrawClientArea((HDC)wParam, uMsg, lParam);
+		DrawClientArea(reinterpret_cast<HDC>(wParam), uMsg, lParam);
 		bParsed = TRUE;
 	}
 	break;
@@ -578,14 +579,14 @@ void DcxProgressBar::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 		}
 	}
 	else
-		CallDefaultClassProc(uMsg, (WPARAM)hdc, lParam);
+		CallDefaultClassProc(uMsg, reinterpret_cast<WPARAM>(hdc), lParam);
 
 	if (!m_tsText.empty())
 	{
 		const auto oldMode = SetBkMode(hdc, TRANSPARENT);
 		Auto(SetBkMode(hdc, oldMode));
 
-		COLORREF oldColour = CLR_INVALID;
+		COLORREF oldColour{ CLR_INVALID };
 
 		if (const auto clr = getTextColor(); clr != CLR_INVALID)
 			oldColour = SetTextColor(hdc, clr);
@@ -596,10 +597,10 @@ void DcxProgressBar::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 
 		text.tsprintf(m_tsText.to_chr(), iPos);
 
-		HFONT oldfont = nullptr;
+		HFONT oldfont{ nullptr };
 		// NEEDS FIXED: font selection needs looked at
-		if (const auto f = getControlFont(); f != nullptr)
-			oldfont = SelectFont(hdc, f);
+		if (const auto f = getControlFont(); f)
+			oldfont = Dcx::dcxSelectObject(hdc, f);
 
 		// rect for text
 		auto rcText = rc;
@@ -610,14 +611,14 @@ void DcxProgressBar::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 		const auto h = rcText.bottom - rcText.top;
 
 		// reposition the new text area to be at the center
-		if (m_hfontVertical != nullptr)
+		if (m_hfontVertical)
 		{
 			rc.left = ((rc.right - rc.left) - h) / 2;
 			// added a +w +h as well to as text is drawn ABOVE the damn rect
 			rc.top = ((rc.bottom - rc.top) + w + h) / 2;
 			rc.right = rc.left + h;
 			rc.bottom = rc.top + w;
-			SelectFont(hdc, m_hfontVertical);
+			Dcx::dcxSelectObject(hdc, m_hfontVertical);
 		}
 		else {
 			rc.left = ((rc.right - rc.left) - w) / 2;
@@ -628,18 +629,16 @@ void DcxProgressBar::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 
 		ctrlDrawText(hdc, text, &rc, DT_SINGLELINE | DT_NOPREFIX | DT_NOCLIP);
 
-		if (oldfont != nullptr)
-			SelectFont(hdc, oldfont);
+		if (oldfont)
+			Dcx::dcxSelectObject(hdc, oldfont);
 		if (oldColour != CLR_INVALID)
 			SetTextColor(hdc, oldColour);
 	}
 }
 
-WNDPROC DcxProgressBar::m_hDefaultClassProc = nullptr;
-
 LRESULT DcxProgressBar::CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept
 {
-	if (m_hDefaultClassProc != nullptr)
+	if (m_hDefaultClassProc)
 		return CallWindowProc(m_hDefaultClassProc, this->m_Hwnd, uMsg, wParam, lParam);
 
 	return DefWindowProc(this->m_Hwnd, uMsg, wParam, lParam);

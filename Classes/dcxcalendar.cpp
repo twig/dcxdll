@@ -3,9 +3,9 @@ TODO: monthchange event
 http://msdn.microsoft.com/library/default.asp?url=/library/en-us/shellcc/platform/commctls/monthcal/structures/nmdaystate.asp
 
 MCHT_TITLEBTNNEXT
-    The given point was over the button at the top right corner of the control. If the user clicks here, the month calendar will scroll its display to the next month or set of months.
+	The given point was over the button at the top right corner of the control. If the user clicks here, the month calendar will scroll its display to the next month or set of months.
 MCHT_TITLEBTNPREV
-    The given point was over the button at the top left corner of the control. If the user clicks here, the month calendar will scroll its display to the previous month or set of months.
+	The given point was over the button at the top left corner of the control. If the user clicks here, the month calendar will scroll its display to the previous month or set of months.
 
  * \file dcxcalendar.cpp
  * \brief blah
@@ -23,17 +23,17 @@ MCHT_TITLEBTNPREV
 #include "Classes/dcxcalendar.h"
 #include "Classes/dcxdialog.h"
 
-/*!
- * \brief Constructor
- *
- * \param ID Control ID
- * \param p_Dialog Parent DcxDialog Object
- * \param mParentHwnd Parent Window Handle
- * \param rc Window Rectangle
- * \param styles Window Style Tokenized List
- */
+ /*!
+  * \brief Constructor
+  *
+  * \param ID Control ID
+  * \param p_Dialog Parent DcxDialog Object
+  * \param mParentHwnd Parent Window Handle
+  * \param rc Window Rectangle
+  * \param styles Window Style Tokenized List
+  */
 
-DcxCalendar::DcxCalendar(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles)
+DcxCalendar::DcxCalendar(const UINT ID, DcxDialog* const p_Dialog, const HWND mParentHwnd, const RECT* const rc, const TString& styles)
 	: DcxControl(ID, p_Dialog)
 	, m_MonthDayStates()
 {
@@ -54,7 +54,7 @@ DcxCalendar::DcxCalendar(const UINT ID, DcxDialog *const p_Dialog, const HWND mP
 	if (ws.m_NoTheme)
 		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
 
-	this->setControlFont(GetStockFont(DEFAULT_GUI_FONT), FALSE);
+	this->setControlFont(Dcx::dcxGetStockObject<HFONT>(DEFAULT_GUI_FONT), FALSE);
 }
 
 /*!
@@ -63,11 +63,11 @@ DcxCalendar::DcxCalendar(const UINT ID, DcxDialog *const p_Dialog, const HWND mP
  * blah
  */
 
-DcxCalendar::~DcxCalendar()
+DcxCalendar::~DcxCalendar() noexcept
 {
 }
 
-void DcxCalendar::toXml(TiXmlElement *const xml) const
+void DcxCalendar::toXml(TiXmlElement* const xml) const
 {
 	__super::toXml(xml);
 
@@ -75,7 +75,7 @@ void DcxCalendar::toXml(TiXmlElement *const xml) const
 	xml->SetAttribute("styles", getStyles().c_str());
 }
 
-TiXmlElement * DcxCalendar::toXml(void) const
+TiXmlElement* DcxCalendar::toXml(void) const
 {
 	auto xml = std::make_unique<TiXmlElement>("control");
 	toXml(xml.get());
@@ -103,12 +103,12 @@ const TString DcxCalendar::getStyles(void) const
 
 const TString DcxCalendar::getValue(void) const
 {
-	long start = 0, end = 0;
+	long start{}, end{};
 
 	if (isStyle(WindowStyle::MCS_MultiSelect))
 	{
 		SYSTEMTIME st[2]{};
-		//ZeroMemory(&st[0], sizeof(SYSTEMTIME) *2);
+
 		MonthCal_GetSelRange(m_Hwnd, st);
 
 		start = SystemTimeToMircTime(&(st[0]));
@@ -140,52 +140,52 @@ const TString DcxCalendar::getValue(void) const
  * blah
  */
 
-//void DcxCalendar::parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme)
-//{
-//	for (const auto &tsStyle: styles)
-//	{
-//#if DCX_USE_HASHING
-//		switch (std::hash<TString>{}(tsStyle))
-//		{
-//			case L"multi"_hash:
-//				*Styles |= MCS_MULTISELECT;
-//				break;
-//			case L"notoday"_hash:
-//				*Styles |= MCS_NOTODAY;
-//				break;
-//			case L"notodaycircle"_hash:
-//				*Styles |= MCS_NOTODAYCIRCLE;
-//				break;
-//			case L"weeknum"_hash:
-//				*Styles |= MCS_WEEKNUMBERS;
-//				break;
-//			case L"daystate"_hash:
-//				*Styles |= MCS_DAYSTATE;
-//			default:
-//				break;
-//		}
-//#else
-//		if (tsStyle == TEXT("multi"))
-//			*Styles |= MCS_MULTISELECT;
-//		else if (tsStyle == TEXT("notoday"))
-//			*Styles |= MCS_NOTODAY;
-//		else if (tsStyle == TEXT("notodaycircle"))
-//			*Styles |= MCS_NOTODAYCIRCLE;
-//		else if (tsStyle == TEXT("weeknum"))
-//			*Styles |= MCS_WEEKNUMBERS;
-//		else if (tsStyle == TEXT("daystate"))
-//			*Styles |= MCS_DAYSTATE;
-//#endif
-//	}
-//
-//	this->parseGeneralControlStyles(styles, Styles, ExStyles, bNoTheme);
-//}
+ //void DcxCalendar::parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme)
+ //{
+ //	for (const auto &tsStyle: styles)
+ //	{
+ //#if DCX_USE_HASHING
+ //		switch (std::hash<TString>{}(tsStyle))
+ //		{
+ //			case L"multi"_hash:
+ //				*Styles |= MCS_MULTISELECT;
+ //				break;
+ //			case L"notoday"_hash:
+ //				*Styles |= MCS_NOTODAY;
+ //				break;
+ //			case L"notodaycircle"_hash:
+ //				*Styles |= MCS_NOTODAYCIRCLE;
+ //				break;
+ //			case L"weeknum"_hash:
+ //				*Styles |= MCS_WEEKNUMBERS;
+ //				break;
+ //			case L"daystate"_hash:
+ //				*Styles |= MCS_DAYSTATE;
+ //			default:
+ //				break;
+ //		}
+ //#else
+ //		if (tsStyle == TEXT("multi"))
+ //			*Styles |= MCS_MULTISELECT;
+ //		else if (tsStyle == TEXT("notoday"))
+ //			*Styles |= MCS_NOTODAY;
+ //		else if (tsStyle == TEXT("notodaycircle"))
+ //			*Styles |= MCS_NOTODAYCIRCLE;
+ //		else if (tsStyle == TEXT("weeknum"))
+ //			*Styles |= MCS_WEEKNUMBERS;
+ //		else if (tsStyle == TEXT("daystate"))
+ //			*Styles |= MCS_DAYSTATE;
+ //#endif
+ //	}
+ //
+ //	this->parseGeneralControlStyles(styles, Styles, ExStyles, bNoTheme);
+ //}
 
-dcxWindowStyles DcxCalendar::parseControlStyles(const TString & tsStyles)
+dcxWindowStyles DcxCalendar::parseControlStyles(const TString& tsStyles)
 {
 	dcxWindowStyles ws;
 
-	for (const auto &tsStyle : tsStyles)
+	for (const auto& tsStyle : tsStyles)
 	{
 		switch (std::hash<TString>{}(tsStyle))
 		{
@@ -203,6 +203,7 @@ dcxWindowStyles DcxCalendar::parseControlStyles(const TString & tsStyles)
 			break;
 		case L"daystate"_hash:
 			ws.m_Styles |= MCS_DAYSTATE;
+			break;
 		default:
 			break;
 		}
@@ -220,7 +221,7 @@ dcxWindowStyles DcxCalendar::parseControlStyles(const TString & tsStyles)
  * \return > void
  */
 
-void DcxCalendar::parseInfoRequest(const TString &input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const
+void DcxCalendar::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>& szReturnValue) const
 {
 	switch (std::hash<TString>{}(input.getfirsttok(3)))
 	{
@@ -233,8 +234,6 @@ void DcxCalendar::parseInfoRequest(const TString &input, const refString<TCHAR, 
 		SYSTEMTIME st[2]{};
 		TString dmin(TEXT("nolimit"));
 		TString dmax(TEXT("nolimit"));
-
-		//ZeroMemory(&st[0], sizeof(SYSTEMTIME) * 2);
 
 		const auto val = MonthCal_GetRange(m_Hwnd, st);
 
@@ -269,11 +268,11 @@ void DcxCalendar::parseInfoRequest(const TString &input, const refString<TCHAR, 
  *
  * blah
  */
-void DcxCalendar::parseCommandRequest( const TString &input)
+void DcxCalendar::parseCommandRequest(const TString& input)
 {
-	const XSwitchFlags flags(input.getfirsttok( 3 ));
+	const XSwitchFlags flags(input.getfirsttok(3));
 
-//SetDayState
+	//SetDayState
 
 	const auto numtok = input.numtok();
 
@@ -283,32 +282,32 @@ void DcxCalendar::parseCommandRequest( const TString &input)
 		if (numtok < 5)
 			throw Dcx::dcxException("Insufficient parameters");
 
-		const XSwitchFlags xflags(input.getnexttok( ));	// tok 4
+		const XSwitchFlags xflags(input.getnexttok());	// tok 4
 		const auto col = input.getnexttok().to_<COLORREF>();	// tok 5
 
 		// Set the background color displayed between months.
 		if (xflags[TEXT('b')])
-			MonthCal_SetColor(m_Hwnd, MCSC_BACKGROUND, static_cast<LPARAM>(col));
+			MonthCal_SetColor(m_Hwnd, MCSC_BACKGROUND, gsl::narrow_cast<LPARAM>(col));
 
 		// Set the background color displayed within the month.
 		if (xflags[TEXT('g')])
-			MonthCal_SetColor(m_Hwnd, MCSC_MONTHBK, static_cast<LPARAM>(col));
+			MonthCal_SetColor(m_Hwnd, MCSC_MONTHBK, gsl::narrow_cast<LPARAM>(col));
 
 		// Set the color used to display text within a month.
 		if (xflags[TEXT('t')])
-			MonthCal_SetColor(m_Hwnd, MCSC_TEXT, static_cast<LPARAM>(col));
+			MonthCal_SetColor(m_Hwnd, MCSC_TEXT, gsl::narrow_cast<LPARAM>(col));
 
 		// Set the background color displayed in the calendar's title and selection color.
 		if (xflags[TEXT('i')])
-			MonthCal_SetColor(m_Hwnd, MCSC_TITLEBK, static_cast<LPARAM>(col));
+			MonthCal_SetColor(m_Hwnd, MCSC_TITLEBK, gsl::narrow_cast<LPARAM>(col));
 
 		// Set the color used to display text within the calendar's title.
 		if (xflags[TEXT('a')])
-			MonthCal_SetColor(m_Hwnd, MCSC_TITLETEXT, static_cast<LPARAM>(col));
+			MonthCal_SetColor(m_Hwnd, MCSC_TITLETEXT, gsl::narrow_cast<LPARAM>(col));
 
 		// Set the color used to display header day and trailing day text. Header and trailing days are the days from the previous and following months that appear on the current month calendar.
 		if (xflags[TEXT('r')])
-			MonthCal_SetColor(m_Hwnd, MCSC_TRAILINGTEXT, static_cast<LPARAM>(col));
+			MonthCal_SetColor(m_Hwnd, MCSC_TRAILINGTEXT, gsl::narrow_cast<LPARAM>(col));
 	}
 	//xdid -m [NAME] [ID] [SWITCH] [MAX]
 	else if (flags[TEXT('m')])
@@ -326,7 +325,7 @@ void DcxCalendar::parseCommandRequest( const TString &input)
 		if (numtok < 5)
 			throw Dcx::dcxException("Insufficient parameters");
 
-		DWORD dflags = 0;
+		DWORD dflags{};
 		SYSTEMTIME range[2]{};
 
 		//ZeroMemory(&range[0], sizeof(SYSTEMTIME) *2);
@@ -384,7 +383,7 @@ void DcxCalendar::parseCommandRequest( const TString &input)
 		MonthCal_SetToday(m_Hwnd, &sysTime);
 	}
 	else
-		this->parseGlobalCommandRequest( input, flags );
+		this->parseGlobalCommandRequest(input, flags);
 }
 
 /*!
@@ -392,7 +391,7 @@ void DcxCalendar::parseCommandRequest( const TString &input)
  *
  * blah
  */
-LRESULT DcxCalendar::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed)
+LRESULT DcxCalendar::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed)
 {
 	switch (uMsg)
 	{
@@ -400,7 +399,7 @@ LRESULT DcxCalendar::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 	{
 		dcxlParam(LPNMHDR, hdr);
 
-		if (hdr == nullptr)
+		if (!hdr)
 			break;
 
 		switch (hdr->code)
@@ -433,14 +432,18 @@ LRESULT DcxCalendar::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 			//	}
 			//}
 
-			for (auto i = decltype(iMax){0}; i < iMax; ++i)
+			GSL_SUPPRESS(bounds.3)
+				for (auto i = decltype(iMax){0}; i < iMax; ++i)
 			{
 				// daystate ctrlid startdate
 				const TString strDays(getParentDialog()->evalAliasT(TEXT("daystate,%,%"), getUserID(), SystemTimeToMircTime(&(lpNMDayState->stStart))).second.trim());
-				m_MonthDayStates[i] = static_cast<MONTHDAYSTATE>(0);
+				gsl::at(m_MonthDayStates, i) = 0;
 
-				for (auto itStart = strDays.begin(TSCOMMACHAR), itEnd = strDays.end(); itStart != itEnd; ++itStart)
-					BOLDDAY(m_MonthDayStates[i], (*itStart).to_int());
+				{
+					const auto itEnd = strDays.end();
+					for (auto itStart = strDays.begin(TSCOMMACHAR); itStart != itEnd; ++itStart)
+						BOLDDAY(gsl::at(m_MonthDayStates, i), (*itStart).to_int());
+				}
 
 				// increment the month so we get a proper offset
 				++lpNMDayState->stStart.wMonth;
@@ -505,11 +508,14 @@ LRESULT DcxCalendar::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 			break;
 		} // end switch
 	}
+	break;
+	default:
+		break;
 	}
 	return 0L;
 }
 
-LRESULT DcxCalendar::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed)
+LRESULT DcxCalendar::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed)
 {
 	switch (uMsg)
 	{
@@ -541,11 +547,9 @@ LRESULT DcxCalendar::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 	return 0L;
 }
 
-WNDPROC DcxCalendar::m_hDefaultClassProc = nullptr;
-
 LRESULT DcxCalendar::CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept
 {
-	if (m_hDefaultClassProc != nullptr)
+	if (m_hDefaultClassProc)
 		return CallWindowProc(m_hDefaultClassProc, this->m_Hwnd, uMsg, wParam, lParam);
 
 	return DefWindowProc(this->m_Hwnd, uMsg, wParam, lParam);

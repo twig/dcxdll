@@ -15,10 +15,11 @@
 #ifndef _DCXDIALOGCOLLECTION_H_
 #define _DCXDIALOGCOLLECTION_H_
 
-// dummy runtime class definition
+ // dummy runtime class definition
 class DcxDialog;
 
 using VectorOfDialogPtrs = std::vector<DcxDialog *>; //!< blah
+//using VectorOfDialogPtrs = std::vector<std::unique_ptr<DcxDialog>>; //!< blah
 
 /*!
  * \brief blah
@@ -26,23 +27,23 @@ using VectorOfDialogPtrs = std::vector<DcxDialog *>; //!< blah
  * blah
  */
 
-class DcxDialogCollection {
-
+class DcxDialogCollection
+{
 public:
 
-	DcxDialogCollection(const DcxDialogCollection &) = delete;
-	DcxDialogCollection &operator =(const DcxDialogCollection &) = delete;
-	DcxDialogCollection(DcxDialogCollection &&) = delete;
-	DcxDialogCollection &operator =(DcxDialogCollection &&) = delete;
+	DcxDialogCollection(const DcxDialogCollection&) = delete;
+	DcxDialogCollection& operator =(const DcxDialogCollection&) = delete;
+	DcxDialogCollection(DcxDialogCollection&&) = delete;
+	DcxDialogCollection& operator =(DcxDialogCollection&&) = delete;
 
 	DcxDialogCollection() noexcept = default;
-	~DcxDialogCollection( ) noexcept = default;
+	~DcxDialogCollection() noexcept = default;
 
-	void markDialog(const HWND mHwnd, const TString & tsName, const TString & tsAliasName);
-	void deleteDialog( const DcxDialog *const p_Dialog );
-	DcxDialog * getDialogByHandle( const HWND mHwnd ) const noexcept;
-	DcxDialog * getDialogByChildHandle(const HWND mHwnd) const noexcept;
-	DcxDialog * getDialogByName(const TString & tsName) const noexcept;
+	void markDialog(const HWND mHwnd, const TString& tsName, const TString& tsAliasName);
+	void deleteDialog(const DcxDialog* const p_Dialog);
+	DcxDialog* getDialogByHandle(const HWND mHwnd) const noexcept;
+	DcxDialog* getDialogByChildHandle(const HWND mHwnd) const noexcept;
+	DcxDialog* getDialogByName(const TString& tsName) const noexcept;
 
 	const bool closeDialogs() noexcept;
 	const bool safeToCloseAll(void) const noexcept;

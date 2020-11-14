@@ -25,7 +25,7 @@
   * \param styles Window Style Tokenized List
   */
 
-DcxLink::DcxLink(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles)
+DcxLink::DcxLink(const UINT ID, DcxDialog* const p_Dialog, const HWND mParentHwnd, const RECT* const rc, const TString& styles)
 	: DcxControl(ID, p_Dialog)
 {
 	const auto ws = parseControlStyles(styles);
@@ -50,7 +50,7 @@ DcxLink::DcxLink(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwn
 	//this->m_aColors[2] = RGB(0, 0, 255);
 	//this->m_aColors[3] = RGB(128, 128, 128);
 
-	if (p_Dialog->getToolTip() != nullptr)
+	if (p_Dialog->getToolTip())
 	{
 		if (styles.istok(TEXT("tooltips")))
 		{
@@ -62,7 +62,7 @@ DcxLink::DcxLink(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwn
 		}
 	}
 
-	this->setControlFont(GetStockFont(DEFAULT_GUI_FONT), FALSE);
+	this->setControlFont(Dcx::dcxGetStockObject<HFONT>(DEFAULT_GUI_FONT), FALSE);
 }
 
 /*!
@@ -71,14 +71,14 @@ DcxLink::DcxLink(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwn
  * blah
  */
 
-DcxLink::~DcxLink()
+DcxLink::~DcxLink() noexcept
 {
-	if (this->m_hIcon != nullptr)
+	if (this->m_hIcon)
 		DestroyIcon(this->m_hIcon);
 }
 
 
-void DcxLink::toXml(TiXmlElement *const xml) const
+void DcxLink::toXml(TiXmlElement* const xml) const
 {
 	__super::toXml(xml);
 
@@ -86,7 +86,7 @@ void DcxLink::toXml(TiXmlElement *const xml) const
 	xml->SetAttribute("caption", buf.c_str());
 }
 
-TiXmlElement * DcxLink::toXml(void) const
+TiXmlElement* DcxLink::toXml(void) const
 {
 	auto xml = std::make_unique<TiXmlElement>("control");
 	toXml(xml.get());
@@ -99,7 +99,7 @@ TiXmlElement * DcxLink::toXml(void) const
  * blah
  */
 
-dcxWindowStyles DcxLink::parseControlStyles(const TString & tsStyles)
+dcxWindowStyles DcxLink::parseControlStyles(const TString& tsStyles)
 {
 	auto ws = parseGeneralControlStyles(tsStyles);
 
@@ -117,7 +117,7 @@ dcxWindowStyles DcxLink::parseControlStyles(const TString & tsStyles)
  * \return > void
  */
 
-void DcxLink::parseInfoRequest(const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const
+void DcxLink::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>& szReturnValue) const
 {
 	// [NAME] [ID] [PROP]
 	if (input.gettok(3) == TEXT("text"))
@@ -134,7 +134,7 @@ void DcxLink::parseInfoRequest(const TString & input, const refString<TCHAR, MIR
  * blah
  */
 
-void DcxLink::parseCommandRequest(const TString & input)
+void DcxLink::parseCommandRequest(const TString& input)
 {
 	const XSwitchFlags flags(input.getfirsttok(3));		// tok 3
 
@@ -148,10 +148,10 @@ void DcxLink::parseCommandRequest(const TString & input)
 
 		const auto nColor = (input.getnexttok().to_<size_t>() - 1);	// tok 4
 
-		if (nColor >= std::extent_v<decltype(m_aColors)>)
+		if (nColor >= std::size(m_aColors))
 			throw Dcx::dcxException("Invalid Colour Index");
 
-		m_aColors[nColor] = input.getnexttok().to_<COLORREF>();	// tok 5
+		gsl::at(m_aColors, nColor) = input.getnexttok().to_<COLORREF>();	// tok 5
 	}
 	// xdid -q [NAME] [ID] [SWITCH] [COLOR1] ... [COLOR4]
 	else if (flags[TEXT('q')])
@@ -162,9 +162,9 @@ void DcxLink::parseCommandRequest(const TString & input)
 		const auto tsArgs(input.getlasttoks());			// tok 4, -1
 
 		UINT i = 0U;
-		for (const auto &arg : tsArgs)
+		for (const auto& arg : tsArgs)
 		{
-			m_aColors[i] = arg.to_<COLORREF>();	// tok i+1
+			gsl::at(m_aColors, i) = arg.to_<COLORREF>();	// tok i+1
 			++i;
 		}
 	}
@@ -185,7 +185,7 @@ void DcxLink::parseCommandRequest(const TString & input)
 		const auto index = input.getnexttok().to_int();	// tok 5
 		auto filename(input.getlasttoks());			// tok 6, -1
 
-		if (this->m_hIcon != nullptr)
+		if (this->m_hIcon)
 			DestroyIcon(this->m_hIcon);
 
 		this->m_hIcon = dcxLoadIcon(index, filename, false, flag);
@@ -201,12 +201,12 @@ void DcxLink::parseCommandRequest(const TString & input)
  *
  * blah
  */
-LRESULT DcxLink::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) noexcept
+LRESULT DcxLink::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed) noexcept
 {
 	return 0L;
 }
 
-LRESULT DcxLink::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed)
+LRESULT DcxLink::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed)
 {
 	switch (uMsg)
 	{
@@ -263,14 +263,14 @@ LRESULT DcxLink::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 
 	case WM_SETCURSOR:
 	{
-		if (const auto hCtrl_Cursor = getControlCursor(); hCtrl_Cursor != nullptr)
+		if (const auto hCtrl_Cursor = getControlCursor(); hCtrl_Cursor)
 		{
 			if (GetCursor() != hCtrl_Cursor)
 				SetCursor(hCtrl_Cursor);
 			bParsed = TRUE;
 			return TRUE;
 		}
-		else if (LOWORD(lParam) == HTCLIENT && (HWND)wParam == m_Hwnd)
+		else if (Dcx::dcxLOWORD(lParam) == HTCLIENT && reinterpret_cast<HWND>(wParam) == m_Hwnd)
 		{
 			if (const auto hStm_Cursor = LoadCursor(nullptr, IDC_HAND); GetCursor() != hStm_Cursor)
 				SetCursor(hStm_Cursor);
@@ -292,7 +292,7 @@ LRESULT DcxLink::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 
 	case WM_PRINTCLIENT:
 	{
-		this->DrawClientArea((HDC)wParam);
+		this->DrawClientArea(reinterpret_cast<HDC>(wParam));
 		bParsed = TRUE;
 	}
 	break;
@@ -451,23 +451,23 @@ void DcxLink::DrawClientArea(HDC hdc)
 	// fill background.
 	DcxControl::DrawCtrlBackground(hdc, this, &rect);
 
-	const auto hFont = (getControlFont() == nullptr) ? GetStockFont(DEFAULT_GUI_FONT) : getControlFont();
+	const auto hFont = (!getControlFont()) ? Dcx::dcxGetStockObject<HFONT>(DEFAULT_GUI_FONT) : getControlFont();
 
-	if (LOGFONT lf{}; GetObject(hFont, sizeof(LOGFONT), &lf) != 0)
+	if (auto [code, lf] = Dcx::dcxGetObject<LOGFONT>(hFont); code != 0)
 	{
 		lf.lfUnderline = TRUE;
 
-		if (const auto hNewFont = CreateFontIndirect(&lf); hNewFont != nullptr)
+		if (const auto hNewFont = CreateFontIndirect(&lf); hNewFont)
 		{
-			Auto(DeleteFont(hNewFont));
+			Auto(DeleteObject(hNewFont));
 
-			const auto hOldFont = SelectFont(hdc, hNewFont);
-			Auto(SelectFont(hdc, hOldFont));
+			const auto hOldFont = Dcx::dcxSelectObject<HFONT>(hdc, hNewFont);
+			Auto(Dcx::dcxSelectObject<HFONT>(hdc, hOldFont));
 
 			const auto oldMode = SetBkMode(hdc, TRANSPARENT);
 			Auto(SetBkMode(hdc, oldMode));
 
-			if (this->m_hIcon != nullptr)
+			if (this->m_hIcon)
 			{
 				const auto y = ((rect.top + rect.bottom - 16) / 2);
 				DrawIconEx(hdc, rect.left, y, this->m_hIcon, 0, 0, NULL, nullptr, DI_NORMAL);
@@ -547,11 +547,9 @@ void DcxLink::DrawClientArea(HDC hdc)
 	//this->FinishAlphaBlend(ai);
 }
 
-WNDPROC DcxLink::m_hDefaultClassProc = nullptr;
-
 LRESULT DcxLink::CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept
 {
-	if (m_hDefaultClassProc != nullptr)
+	if (m_hDefaultClassProc)
 		return CallWindowProc(m_hDefaultClassProc, this->m_Hwnd, uMsg, wParam, lParam);
 
 	return DefWindowProc(this->m_Hwnd, uMsg, wParam, lParam);

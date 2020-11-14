@@ -26,7 +26,7 @@ class DcxDialog;
  * blah
  */
 
-class DcxDateTime
+class DcxDateTime final
 	: public DcxControl
 {
 public:
@@ -37,9 +37,9 @@ public:
 	DcxDateTime &operator =(DcxDateTime &&) = delete;
 
 	DcxDateTime(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString &styles);
-	~DcxDateTime();
+	~DcxDateTime() noexcept;
 
-	LRESULT PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bParsed) final;
+	LRESULT OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bParsed) final;
 	LRESULT ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bParsed) final;
 
 	//void parseInfoRequest(const TString & input, PTCHAR szReturnValue) const final;
@@ -54,7 +54,7 @@ public:
 	TiXmlElement * toXml(void) const final;
 	const TString getStyles(void) const final;
 
-	static WNDPROC m_hDefaultClassProc;	//!< Default window procedure
+	static inline WNDPROC m_hDefaultClassProc{ nullptr };	//!< Default window procedure
 	LRESULT CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept final;
 };
 

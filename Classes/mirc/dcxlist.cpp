@@ -28,7 +28,7 @@
   * \param styles Window Style Tokenized List
   */
 
-DcxList::DcxList(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles)
+DcxList::DcxList(const UINT ID, DcxDialog* const p_Dialog, const HWND mParentHwnd, const RECT* const rc, const TString& styles)
 	: DcxControl(ID, p_Dialog)
 {
 	const auto ws = parseControlStyles(styles);
@@ -48,7 +48,7 @@ DcxList::DcxList(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwn
 	if (ws.m_NoTheme)
 		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
 
-	this->setControlFont(GetStockFont(DEFAULT_GUI_FONT), FALSE);
+	this->setControlFont(Dcx::dcxGetStockObject<HFONT>(DEFAULT_GUI_FONT), FALSE);
 
 	// Check for "draglist" style
 	if (styles.istok(TEXT("draglist")))
@@ -118,13 +118,13 @@ const TString DcxList::getStyles(void) const
  * blah
  */
 
-dcxWindowStyles DcxList::parseControlStyles(const TString & tsStyles)
+dcxWindowStyles DcxList::parseControlStyles(const TString& tsStyles)
 {
 	dcxWindowStyles ws;
 
 	ws.m_Styles |= LBS_NOTIFY | LBS_HASSTRINGS | LBS_OWNERDRAWFIXED;
 
-	for (const auto &tsStyle : tsStyles)
+	for (const auto& tsStyle : tsStyles)
 	{
 		switch (std::hash<TString>{}(tsStyle))
 		{
@@ -183,7 +183,7 @@ dcxWindowStyles DcxList::parseControlStyles(const TString & tsStyles)
  * \return > void
  */
 
-void DcxList::parseInfoRequest(const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const
+void DcxList::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>& szReturnValue) const
 {
 	switch (const auto numtok = input.numtok(); std::hash<TString>{}(input.getfirsttok(3)))
 	{
@@ -223,10 +223,10 @@ void DcxList::parseInfoRequest(const TString & input, const refString<TCHAR, MIR
 					if ((i < 0) || (i >= n))
 						throw Dcx::dcxException("Requested Item Out Of Selection Range");
 
-					nSel = p[gsl::narrow_cast<size_t>(i)];
+					nSel = gsl::at(p, gsl::narrow_cast<size_t>(i));
 				}
 				else
-					nSel = p[0U];	// no item requested, so return the first selected item.
+					nSel = gsl::at(p, 0U);	// no item requested, so return the first selected item.
 			}
 		}
 		// single select
@@ -267,13 +267,13 @@ void DcxList::parseInfoRequest(const TString & input, const refString<TCHAR, MIR
 					if (const auto i = input.getnexttok().to_int(); i == 0)
 						path += n;	// get total number of selected items
 					else if ((i > 0) && (i <= n))
-						path += (p[gsl::narrow_cast<size_t>(i) - 1U] + 1);
+						path += (gsl::at(p, gsl::narrow_cast<size_t>(i) - 1U) + 1);
 				}
 				else {
 					// get all items in a long comma seperated string
 
 					for (auto i = decltype(n){0}; i < n; ++i)
-						path.addtok((p[gsl::narrow_cast<size_t>(i)] + 1), TSCOMMACHAR);
+						path.addtok((gsl::at(p, gsl::narrow_cast<size_t>(i)) + 1), TSCOMMACHAR);
 				}
 				if (path.len() > MIRC_BUFFER_SIZE_CCH)
 					throw Dcx::dcxException("String too long");
@@ -372,7 +372,7 @@ void DcxList::parseInfoRequest(const TString & input, const refString<TCHAR, MIR
  * blah
  */
 
-void DcxList::parseCommandRequest(const TString & input)
+void DcxList::parseCommandRequest(const TString& input)
 {
 	const XSwitchFlags flags(input.getfirsttok(3));
 	const auto numtok = input.numtok();
@@ -556,12 +556,15 @@ void DcxList::parseCommandRequest(const TString & input)
 			this->setRedraw(FALSE);
 			Auto({ this->setRedraw(TRUE); this->redrawWindow(); });
 
-			for (auto itStart = contents.begin(tok), itEnd = contents.end(); itStart != itEnd; ++itStart)
 			{
-				itemtext = (*itStart);
+				const auto itEnd = contents.end();
+				for (auto itStart = contents.begin(tok); itStart != itEnd; ++itStart)
+				{
+					itemtext = (*itStart);
 
-				if (ListBox_InsertString(m_Hwnd, nPos++, itemtext.to_chr()) < 0)
-					throw Dcx::dcxException(TEXT("Error Adding item: %"), itemtext);
+					if (ListBox_InsertString(m_Hwnd, nPos++, itemtext.to_chr()) < 0)
+						throw Dcx::dcxException(TEXT("Error Adding item: %"), itemtext);
+				}
 			}
 		}
 		else if (xOpts[TEXT('T')]) // [TEXT] == [C] [text][c][text]......
@@ -569,22 +572,24 @@ void DcxList::parseCommandRequest(const TString & input)
 			if (iItemToks < 2) // add tokens to list
 				throw Dcx::dcxException("Invalid Syntax");
 
-			TCHAR tok[2];
+			TCHAR tok[2]{};
 			tok[0] = gsl::narrow_cast<TCHAR>(itemtext.getfirsttok(1).to_int());
 			tok[1] = 0;
 			const auto contents(itemtext.getlasttoks());	// tok 2, -1
 
 			setRedraw(FALSE);
-			Auto({ setRedraw(TRUE); redrawWindow(); });
+			Auto({ this->setRedraw(TRUE); this->redrawWindow(); });
 
-			for (auto itStart = contents.begin(&tok[0]), itEnd = contents.end(); itStart != itEnd; ++itStart)
 			{
-				itemtext = (*itStart);
+				const auto itEnd = contents.end();
+				for (auto itStart = contents.begin(&tok[0]); itStart != itEnd; ++itStart)
+				{
+					itemtext = (*itStart);
 
-				if (ListBox_InsertString(m_Hwnd, nPos++, itemtext.to_chr()) < 0)
-					throw Dcx::dcxException(TEXT("Error Adding item: %"), itemtext);
+					if (ListBox_InsertString(m_Hwnd, nPos++, itemtext.to_chr()) < 0)
+						throw Dcx::dcxException(TEXT("Error Adding item: %"), itemtext);
+				}
 			}
-
 		}
 		else
 		{
@@ -607,17 +612,20 @@ void DcxList::parseCommandRequest(const TString & input)
 		{
 			const auto Ns(input.getnexttok());	// tok 4
 
-			for (auto itStart = Ns.begin(TSCOMMACHAR), itEnd = Ns.end(); itStart != itEnd; ++itStart)
 			{
-				const TString tsLine(*itStart);
+				const auto itEnd = Ns.end();
+				for (auto itStart = Ns.begin(TSCOMMACHAR); itStart != itEnd; ++itStart)
+				{
+					const TString tsLine(*itStart);
 
-				const auto[iStart, iEnd] = getItemRange(tsLine, nItems);
+					const auto [iStart, iEnd] = getItemRange(tsLine, nItems);
 
-				if ((iStart < 0) || (iEnd < 0) || (iStart >= nItems) || (iEnd >= nItems))
-					throw Dcx::dcxException(TEXT("Invalid index %."), tsLine);
+					if ((iStart < 0) || (iEnd < 0) || (iStart >= nItems) || (iEnd >= nItems))
+						throw Dcx::dcxException(TEXT("Invalid index %."), tsLine);
 
-				for (auto nSel = iStart; nSel <= iEnd; ++nSel)
-					ListBox_SetSel(m_Hwnd, TRUE, nSel);
+					for (auto nSel = iStart; nSel <= iEnd; ++nSel)
+						ListBox_SetSel(m_Hwnd, TRUE, nSel);
+				}
 			}
 		}
 		else {
@@ -656,17 +664,20 @@ void DcxList::parseCommandRequest(const TString & input)
 			}
 		}
 		else {
-			for (auto itStart = Ns.begin(TSCOMMACHAR), itEnd = Ns.end(); itStart != itEnd; ++itStart)
 			{
-				const TString tsLine(*itStart);
+				const auto itEnd = Ns.end();
+				for (auto itStart = Ns.begin(TSCOMMACHAR); itStart != itEnd; ++itStart)
+				{
+					const TString tsLine(*itStart);
 
-				const auto[iStart, iEnd] = getItemRange(tsLine, nItems);
+					const auto [iStart, iEnd] = getItemRange(tsLine, nItems);
 
-				if ((iStart < 0) || (iEnd < 0) || (iStart >= nItems) || (iEnd >= nItems))
-					throw Dcx::dcxException(TEXT("Invalid index %."), tsLine);
+					if ((iStart < 0) || (iEnd < 0) || (iStart >= nItems) || (iEnd >= nItems))
+						throw Dcx::dcxException(TEXT("Invalid index %."), tsLine);
 
-				for (auto nPos = iStart; nPos <= iEnd; ++nPos)
-					ListBox_DeleteString(m_Hwnd, nPos);
+					for (auto nPos = iStart; nPos <= iEnd; ++nPos)
+						ListBox_DeleteString(m_Hwnd, nPos);
+				}
 			}
 		}
 	}
@@ -709,10 +720,13 @@ void DcxList::parseCommandRequest(const TString & input)
 			else {
 				auto tabs = std::make_unique<int[]>(n);
 
-				UINT i = 0;
-				for (auto itStart = Ns.begin(TSCOMMACHAR), itEnd = Ns.end(); itStart != itEnd; ++itStart)
 				{
-					tabs[i++] = (*itStart).to_int();	// tok i
+					const auto itEnd = Ns.end();
+					UINT i = 0;
+					for (auto itStart = Ns.begin(TSCOMMACHAR); itStart != itEnd; ++itStart)
+					{
+						gsl::at(tabs, i++) = (*itStart).to_int();	// tok i
+					}
 				}
 
 				ListBox_SetTabStops(m_Hwnd, n, tabs.get());
@@ -752,13 +766,16 @@ void DcxList::parseCommandRequest(const TString & input)
  *
  * blah
  */
-LRESULT DcxList::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed)
+LRESULT DcxList::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed)
 {
 	if (uMsg == m_iDragList)
 	{
 		bParsed = TRUE;
 
 		dcxlParam(LPDRAGLISTINFO, dli);
+
+		if (!dli)
+			return 0L;
 
 		const auto sel = ListBox_GetCurSel(m_Hwnd) + 1;
 		//	TCHAR szRet[20] = { 0 };
@@ -898,6 +915,8 @@ LRESULT DcxList::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 				redrawWindow();
 		}
 		break;
+		default:
+			break;
 		}
 
 		return 0L;
@@ -938,6 +957,8 @@ LRESULT DcxList::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 					this->execAliasEx(TEXT("dclick,%u,%d"), getUserID(), nItem + 1);
 			}
 			break;
+			default:
+				break;
 			} // switch ( HIWORD( wParam ) )
 		}
 	}
@@ -945,6 +966,9 @@ LRESULT DcxList::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 	case WM_DRAWITEM:
 	{
 		dcxlParam(LPDRAWITEMSTRUCT, lpDrawItem);
+
+		if (!lpDrawItem)
+			break;
 
 		const auto len = ListBox_GetTextLen(lpDrawItem->hwndItem, lpDrawItem->itemID);
 		if (len == LB_ERR)
@@ -957,8 +981,8 @@ LRESULT DcxList::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 
 		CopyRect(&rc, &lpDrawItem->rcItem);
 
-		if (getBackClrBrush() == nullptr)
-			FillRect(lpDrawItem->hDC, &rc, GetStockBrush(WHITE_BRUSH));
+		if (!getBackClrBrush())
+			FillRect(lpDrawItem->hDC, &rc, Dcx::dcxGetStockObject<HBRUSH>(WHITE_BRUSH));
 		else
 			DcxControl::DrawCtrlBackground(lpDrawItem->hDC, this, &rc);
 
@@ -1006,11 +1030,13 @@ LRESULT DcxList::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 	//		//return TRUE;
 	//	}
 	//	break;
+	default:
+		break;
 	}
 	return 0L;
 }
 
-LRESULT DcxList::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed)
+LRESULT DcxList::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed)
 {
 	switch (uMsg)
 	{
@@ -1019,7 +1045,7 @@ LRESULT DcxList::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 		break;
 
 	case WM_VSCROLL:
-		if (LOWORD(wParam) == SB_ENDSCROLL)
+		if (Dcx::dcxLOWORD(wParam) == SB_ENDSCROLL)
 			this->execAliasEx(TEXT("scrollend,%u"), getUserID());
 		break;
 
@@ -1043,7 +1069,7 @@ LRESULT DcxList::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 		auto ai = this->SetupAlphaBlend(&hdc);
 		Auto(this->FinishAlphaBlend(ai));
 
-		return CallDefaultClassProc(uMsg, (WPARAM)hdc, lParam);
+		return CallDefaultClassProc(uMsg, reinterpret_cast<WPARAM>(hdc), lParam);
 	}
 	break;
 
@@ -1079,16 +1105,16 @@ void DcxList::DrawDragLine(const int location) noexcept
 
 	const auto hDC = GetDC(m_Hwnd);
 
-	if (hDC == nullptr)
+	if (!hDC)
 		return;
 	Auto(ReleaseDC(m_Hwnd, hDC));
 
-	if (const auto hPen = CreatePen(PS_SOLID, 1, GetSysColor(COLOR_WINDOWTEXT)); hPen != nullptr)
+	if (const auto hPen = CreatePen(PS_SOLID, 1, GetSysColor(COLOR_WINDOWTEXT)); hPen)
 	{
-		Auto(DeletePen(hPen));
+		Auto(DeleteObject(hPen));
 
-		const auto hOldPen = SelectPen(hDC, hPen);
-		Auto(SelectPen(hDC, hOldPen));
+		const auto hOldPen = Dcx::dcxSelectObject<HPEN>(hDC, hPen);
+		Auto(Dcx::dcxSelectObject<HPEN>(hDC, hOldPen));
 
 		// get width
 		const auto lWidth = (rc.right - rc.left);
@@ -1227,22 +1253,25 @@ void DcxList::DrawDragLine(const int location) noexcept
 //	return std::make_pair(iStart, iEnd);
 //}
 
-bool DcxList::matchItemText(const int nItem, const TString &search, const DcxSearchTypes &SearchType) const
+GSL_SUPPRESS(bounds.4)
+GSL_SUPPRESS(con.4)
+GSL_SUPPRESS(r.5)
+bool DcxList::matchItemText(const int nItem, const TString& search, const DcxSearchTypes& SearchType) const
 {
 	if (const auto len = ListBox_GetTextLen(m_Hwnd, nItem); len > 0)
 	{
-		//auto itemtext = std::make_unique<TCHAR[]>(static_cast<size_t>(std::max(len + 1, MIRC_BUFFER_SIZE_CCH)));
-		//
-		//ListBox_GetText(m_Hwnd, nItem, itemtext.get());
-		//
-		//return DcxListHelper::matchItemText(itemtext.get(), search, SearchType);
-
 		auto itemtext = std::make_unique<TCHAR[]>(gsl::narrow_cast<size_t>(std::max(len + 1, MIRC_BUFFER_SIZE_CCH)));
-		auto refText = refString<TCHAR, MIRC_BUFFER_SIZE_CCH>(itemtext.get());
+		
+		ListBox_GetText(m_Hwnd, nItem, itemtext.get());
+		
+		return DcxListHelper::matchItemText(itemtext.get(), search, SearchType);
 
-		ListBox_GetText(m_Hwnd, nItem, refText);
+		//auto itemtext = std::make_unique<TCHAR[]>(gsl::narrow_cast<size_t>(std::max(len + 1, MIRC_BUFFER_SIZE_CCH)));
+		//auto refText = mIRCResultString(itemtext.get());
 
-		return DcxListHelper::matchItemText(refText, search, SearchType);
+		//ListBox_GetText(m_Hwnd, nItem, refText);
+
+		//return DcxListHelper::matchItemText(refText, search, SearchType);
 	}
 	return false;
 }
@@ -1282,7 +1311,7 @@ void DcxList::UpdateHorizExtent(const int nPos)
 	if (nPos < -1)
 		return;
 
-	if (const auto hdc = GetDC(m_Hwnd); hdc != nullptr)
+	if (const auto hdc = GetDC(m_Hwnd); hdc)
 	{
 		Auto(ReleaseDC(m_Hwnd, hdc));
 
@@ -1291,12 +1320,12 @@ void DcxList::UpdateHorizExtent(const int nPos)
 
 		const auto nHorizExtent = ListBox_GetHorizontalExtent(m_Hwnd);
 
-		if (hFont != nullptr)
-			hOldFont = SelectFont(hdc, hFont);
+		if (hFont)
+			hOldFont = Dcx::dcxSelectObject<HFONT>(hdc, hFont);
 
 		const auto iLen = ListBox_GetTextLen(m_Hwnd, nPos);
 
-		TString itemtext((UINT)iLen + 1);
+		TString itemtext(gsl::narrow_cast<UINT>(iLen + 1));
 
 		if (ListBox_GetText(m_Hwnd, nPos, itemtext.to_chr()) != LB_ERR)
 		{
@@ -1306,8 +1335,8 @@ void DcxList::UpdateHorizExtent(const int nPos)
 					ListBox_SetHorizontalExtent(m_Hwnd, sz.cx);
 			}
 		}
-		if (hFont != nullptr)
-			SelectFont(hdc, hOldFont);
+		if (hFont)
+			Dcx::dcxSelectObject<HFONT>(hdc, hOldFont);
 
 	}
 }
@@ -1330,25 +1359,23 @@ void DcxList::UpdateHorizExtent(void)
 		UpdateHorizExtent(iLongestItem);
 }
 
-void DcxList::toXml(TiXmlElement *const xml) const
+void DcxList::toXml(TiXmlElement* const xml) const
 {
 	__super::toXml(xml);
 
 	xml->SetAttribute("styles", getStyles().c_str());
 }
 
-TiXmlElement * DcxList::toXml(void) const
+TiXmlElement* DcxList::toXml(void) const
 {
 	auto xml = std::make_unique<TiXmlElement>("control");
 	toXml(xml.get());
 	return xml.release();
 }
 
-WNDPROC DcxList::m_hDefaultClassProc = nullptr;
-
 LRESULT DcxList::CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept
 {
-	if (m_hDefaultClassProc != nullptr)
+	if (m_hDefaultClassProc)
 		return CallWindowProc(m_hDefaultClassProc, this->m_Hwnd, uMsg, wParam, lParam);
 
 	return DefWindowProc(this->m_Hwnd, uMsg, wParam, lParam);

@@ -25,7 +25,7 @@
   * \param styles Window Style Tokenized List
   */
 
-DcxUpDown::DcxUpDown(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles)
+DcxUpDown::DcxUpDown(const UINT ID, DcxDialog* const p_Dialog, const HWND mParentHwnd, const RECT* const rc, const TString& styles)
 	: DcxControl(ID, p_Dialog)
 {
 	const auto ws = parseControlStyles(styles);
@@ -53,7 +53,7 @@ DcxUpDown::DcxUpDown(const UINT ID, DcxDialog *const p_Dialog, const HWND mParen
 		this->m_ToolTipHWND = p_Dialog->getToolTip();
 		AddToolTipToolInfo(this->m_ToolTipHWND, m_Hwnd);
 	}
-	this->setControlFont(GetStockFont(DEFAULT_GUI_FONT), FALSE);
+	this->setControlFont(Dcx::dcxGetStockObject<HFONT>(DEFAULT_GUI_FONT), FALSE);
 }
 
 /*!
@@ -62,7 +62,7 @@ DcxUpDown::DcxUpDown(const UINT ID, DcxDialog *const p_Dialog, const HWND mParen
  * blah
  */
 
-DcxUpDown::~DcxUpDown()
+DcxUpDown::~DcxUpDown() noexcept
 {
 }
 
@@ -72,7 +72,7 @@ DcxUpDown::~DcxUpDown()
  * blah
  */
 
-dcxWindowStyles DcxUpDown::parseControlStyles(const TString & tsStyles)
+dcxWindowStyles DcxUpDown::parseControlStyles(const TString& tsStyles)
 {
 	auto ws = parseGeneralControlStyles(tsStyles);
 
@@ -105,6 +105,7 @@ dcxWindowStyles DcxUpDown::parseControlStyles(const TString & tsStyles)
 			break;
 		case L"wrap"_hash:
 			ws.m_Styles |= UDS_WRAP;
+			break;
 		default:
 			break;
 		}
@@ -122,7 +123,7 @@ dcxWindowStyles DcxUpDown::parseControlStyles(const TString & tsStyles)
  * \return > void
  */
 
-void DcxUpDown::parseInfoRequest(const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const
+void DcxUpDown::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>& szReturnValue) const
 {
 	switch (std::hash<TString>{}(input.getfirsttok(3)))
 	{
@@ -137,7 +138,7 @@ void DcxUpDown::parseInfoRequest(const TString & input, const refString<TCHAR, M
 	// [NAME] [ID] [PROP]
 	case L"range"_hash:
 	{
-		const auto[iMin, iMax] = getRange32();
+		const auto [iMin, iMax] = getRange32();
 
 		_ts_snprintf(szReturnValue, TEXT("%d %d"), iMin, iMax);
 	}
@@ -153,7 +154,7 @@ void DcxUpDown::parseInfoRequest(const TString & input, const refString<TCHAR, M
  * blah
  */
 
-void DcxUpDown::parseCommandRequest(const TString & input)
+void DcxUpDown::parseCommandRequest(const TString& input)
 {
 	const XSwitchFlags flags(input.getfirsttok(3));
 	const auto numtok = input.numtok();
@@ -167,13 +168,13 @@ void DcxUpDown::parseCommandRequest(const TString & input)
 		const auto tsID(input.getnexttok());
 		const auto ID = getParentDialog()->NameToID(tsID);
 
-		const auto *const p_Control = getParentDialog()->getControlByID(ID);	// tok 4
+		const auto* const p_Control = getParentDialog()->getControlByID(ID);	// tok 4
 
-		if (p_Control == nullptr)
+		if (!p_Control)
 			throw Dcx::dcxException("Unable to get control");
 
 		// Text notifications
-		if (const auto &cType(p_Control->getControlType()); cType == DcxControlTypes::TEXT || cType == DcxControlTypes::EDIT)
+		if (const auto & cType(p_Control->getControlType()); cType == DcxControlTypes::TEXT || cType == DcxControlTypes::EDIT)
 			setBuddy(p_Control->getHwnd());
 
 		//auto p_Control = getParentDialog()->getControlByID(input.getnexttok().to_<UINT>() + mIRC_ID_OFFSET);	// tok 4
@@ -244,7 +245,7 @@ void DcxUpDown::parseCommandRequest(const TString & input)
 
 LRESULT DcxUpDown::setBuddy(const HWND mHwnd) noexcept
 {
-	return SendMessage(m_Hwnd, UDM_SETBUDDY, (WPARAM)mHwnd, (LPARAM)0);
+	return SendMessage(m_Hwnd, UDM_SETBUDDY, reinterpret_cast<WPARAM>(mHwnd), 0);
 }
 
 /*!
@@ -266,8 +267,8 @@ LRESULT DcxUpDown::setRange32(const int iLow, const int iHigh) noexcept
 
 std::pair<int, int> DcxUpDown::getRange32() const noexcept
 {
-	int iMin = 0, iMax = 0;
-	SendMessage(m_Hwnd, UDM_GETRANGE32, (WPARAM)&iMin, (LPARAM)&iMax);
+	int iMin{}, iMax{};
+	SendMessage(m_Hwnd, UDM_GETRANGE32, reinterpret_cast<WPARAM>(&iMin), reinterpret_cast<LPARAM>(&iMax));
 	return{ iMin,iMax };
 }
 
@@ -279,7 +280,7 @@ std::pair<int, int> DcxUpDown::getRange32() const noexcept
 
 LRESULT DcxUpDown::setBase(const int iBase) noexcept
 {
-	return SendMessage(m_Hwnd, UDM_SETBASE, gsl::narrow_cast<WPARAM>(iBase), (LPARAM)0);
+	return SendMessage(m_Hwnd, UDM_SETBASE, gsl::narrow_cast<WPARAM>(iBase), 0);
 }
 
 /*!
@@ -290,7 +291,7 @@ LRESULT DcxUpDown::setBase(const int iBase) noexcept
 
 LRESULT DcxUpDown::getBase() const noexcept
 {
-	return SendMessage(m_Hwnd, UDM_GETBASE, (WPARAM)0, (LPARAM)0);
+	return SendMessage(m_Hwnd, UDM_GETBASE, 0U, 0);
 }
 
 /*!
@@ -301,7 +302,7 @@ LRESULT DcxUpDown::getBase() const noexcept
 
 LRESULT DcxUpDown::setPos32(const INT nPos) noexcept
 {
-	return SendMessage(m_Hwnd, UDM_SETPOS32, (WPARAM)0, (LPARAM)nPos);
+	return SendMessage(m_Hwnd, UDM_SETPOS32, 0U, gsl::narrow_cast<LPARAM>(nPos));
 }
 
 /*!
@@ -312,7 +313,7 @@ LRESULT DcxUpDown::setPos32(const INT nPos) noexcept
 
 LRESULT DcxUpDown::getPos32(const LPBOOL pfError) const noexcept
 {
-	return SendMessage(m_Hwnd, UDM_GETPOS32, 0, (LPARAM)pfError);
+	return SendMessage(m_Hwnd, UDM_GETPOS32, 0U, reinterpret_cast<LPARAM>(pfError));
 }
 
 const TString DcxUpDown::getStyles(void) const
@@ -340,7 +341,7 @@ const TString DcxUpDown::getStyles(void) const
  *
  * blah
  */
-LRESULT DcxUpDown::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed)
+LRESULT DcxUpDown::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed)
 {
 	switch (uMsg)
 	{
@@ -348,7 +349,7 @@ LRESULT DcxUpDown::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 	{
 		dcxlParam(LPNMHDR, hdr);
 
-		if (hdr == nullptr)
+		if (!hdr)
 			break;
 
 		switch (hdr->code)
@@ -360,14 +361,18 @@ LRESULT DcxUpDown::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 			bParsed = TRUE;
 		}
 		break;
+		default:
+			break;
 		}
 	}
 	break;
+	default:
+		break;
 	}
 	return 0L;
 }
 
-LRESULT DcxUpDown::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed)
+LRESULT DcxUpDown::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed)
 {
 	switch (uMsg)
 	{
@@ -389,11 +394,9 @@ LRESULT DcxUpDown::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 	return 0L;
 }
 
-WNDPROC DcxUpDown::m_hDefaultClassProc = nullptr;
-
 LRESULT DcxUpDown::CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept
 {
-	if (m_hDefaultClassProc != nullptr)
+	if (m_hDefaultClassProc)
 		return CallWindowProc(m_hDefaultClassProc, this->m_Hwnd, uMsg, wParam, lParam);
 
 	return DefWindowProc(this->m_Hwnd, uMsg, wParam, lParam);

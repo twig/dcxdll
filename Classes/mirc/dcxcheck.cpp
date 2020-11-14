@@ -18,17 +18,17 @@
 
 
 
-/*!
- * \brief Constructor
- *
- * \param ID Control ID
- * \param p_Dialog Parent DcxDialog Object
- * \param mParentHwnd Parent Window Handle
- * \param rc Window Rectangle
- * \param styles Window Style Tokenized List
- */
+ /*!
+  * \brief Constructor
+  *
+  * \param ID Control ID
+  * \param p_Dialog Parent DcxDialog Object
+  * \param mParentHwnd Parent Window Handle
+  * \param rc Window Rectangle
+  * \param styles Window Style Tokenized List
+  */
 
-DcxCheck::DcxCheck(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles)
+DcxCheck::DcxCheck(const UINT ID, DcxDialog* const p_Dialog, const HWND mParentHwnd, const RECT* const rc, const TString& styles)
 	: DcxControl(ID, p_Dialog)
 {
 	const auto ws = parseControlStyles(styles);
@@ -48,7 +48,7 @@ DcxCheck::DcxCheck(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentH
 	if (ws.m_NoTheme)
 		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
 
-	this->setNoThemed( (ws.m_NoTheme != false) );
+	this->setNoThemed((ws.m_NoTheme != false));
 
 	if (styles.istok(TEXT("tooltips")))
 	{
@@ -59,7 +59,7 @@ DcxCheck::DcxCheck(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentH
 		AddToolTipToolInfo(getToolTipHWND(), m_Hwnd);
 	}
 
-	this->setControlFont(GetStockFont(DEFAULT_GUI_FONT), FALSE);
+	this->setControlFont(Dcx::dcxGetStockObject<HFONT>(DEFAULT_GUI_FONT), FALSE);
 }
 
 /*!
@@ -68,12 +68,12 @@ DcxCheck::DcxCheck(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentH
  * blah
  */
 
-DcxCheck::~DcxCheck( )
+DcxCheck::~DcxCheck()
 {
 }
 
 
-void DcxCheck::toXml(TiXmlElement *const xml) const
+void DcxCheck::toXml(TiXmlElement* const xml) const
 {
 	__super::toXml(xml);
 
@@ -82,11 +82,18 @@ void DcxCheck::toXml(TiXmlElement *const xml) const
 	xml->SetAttribute("styles", getStyles().c_str());
 }
 
-TiXmlElement * DcxCheck::toXml(void) const
+TiXmlElement* DcxCheck::toXml(void) const
 {
 	auto xml = std::make_unique<TiXmlElement>("control");
 	toXml(xml.get());
 	return xml.release();
+}
+
+std::unique_ptr<TiXmlElement> DcxCheck::toXml(int blah) const
+{
+	auto xml = std::make_unique<TiXmlElement>("control");
+	toXml(xml.get());
+	return xml;
 }
 
 const TString DcxCheck::getStyles(void) const
@@ -115,13 +122,13 @@ const TString DcxCheck::getStyles(void) const
  * blah
  */
 
-dcxWindowStyles DcxCheck::parseControlStyles(const TString & tsStyles)
+dcxWindowStyles DcxCheck::parseControlStyles(const TString& tsStyles)
 {
 	dcxWindowStyles ws;
 
 	ws.m_Styles |= BS_AUTOCHECKBOX;
 
-	for (const auto &tsStyle : tsStyles)
+	for (const auto& tsStyle : tsStyles)
 	{
 		switch (std::hash<TString>{}(tsStyle.to_chr()))
 		{
@@ -145,6 +152,7 @@ dcxWindowStyles DcxCheck::parseControlStyles(const TString & tsStyles)
 			ws.m_Styles &= gsl::narrow_cast<DWORD>(~BS_AUTOCHECKBOX);
 			ws.m_Styles |= BS_AUTO3STATE;
 		}
+		break;
 		default:
 			break;
 		}
@@ -162,7 +170,7 @@ dcxWindowStyles DcxCheck::parseControlStyles(const TString & tsStyles)
  * \return > void
  */
 
-void DcxCheck::parseInfoRequest( const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const
+void DcxCheck::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>& szReturnValue) const
 {
 	switch (std::hash<TString>{}(input.getfirsttok(3)))
 	{
@@ -196,7 +204,7 @@ void DcxCheck::parseInfoRequest( const TString & input, const refString<TCHAR, M
  * blah
  */
 
-void DcxCheck::parseCommandRequest(const TString & input)
+void DcxCheck::parseCommandRequest(const TString& input)
 {
 	//xdid -c [NAME] [ID] [SWITCH]
 	if (const XSwitchFlags flags(input.getfirsttok(3)); flags[TEXT('c')])
@@ -226,7 +234,7 @@ void DcxCheck::parseCommandRequest(const TString & input)
  *
  * blah
  */
-LRESULT DcxCheck::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed)
+LRESULT DcxCheck::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed)
 {
 	switch (uMsg)
 	{
@@ -254,16 +262,20 @@ LRESULT DcxCheck::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
 
 			break;
 		}
+		default:
+			break;
 		}
 
 		break;
 	}
+	default:
+		break;
 	}
 
 	return 0L;
 }
 
-LRESULT DcxCheck::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed)
+LRESULT DcxCheck::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed)
 {
 	switch (uMsg)
 	{
@@ -283,7 +295,7 @@ LRESULT DcxCheck::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 
 	case WM_PRINTCLIENT:
 	{
-		this->DrawClientArea((HDC)wParam, uMsg, lParam);
+		this->DrawClientArea(reinterpret_cast<HDC>(wParam), uMsg, lParam);
 		bParsed = TRUE;
 	}
 	break;
@@ -355,21 +367,19 @@ void DcxCheck::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 			if (!bWasTransp)
 				this->addExStyle(WindowExStyle::Transparent);
 
-			CallDefaultClassProc(uMsg, (WPARAM)hdc, lParam);
+			CallDefaultClassProc(uMsg, reinterpret_cast<WPARAM>(hdc), lParam);
 
 			if (!bWasTransp)
 				this->removeExStyle(WindowExStyle::Transparent);
 		}
 	}
 	else
-		CallDefaultClassProc(WM_PRINTCLIENT, (WPARAM)hdc, PRF_NONCLIENT | PRF_CLIENT | PRF_CHILDREN);
+		CallDefaultClassProc(WM_PRINTCLIENT, reinterpret_cast<WPARAM>(hdc), PRF_NONCLIENT | PRF_CLIENT | PRF_CHILDREN);
 }
-
-WNDPROC DcxCheck::m_hDefaultClassProc = nullptr;
 
 LRESULT DcxCheck::CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept
 {
-	if (m_hDefaultClassProc != nullptr)
+	if (m_hDefaultClassProc)
 		return CallWindowProc(m_hDefaultClassProc, this->m_Hwnd, uMsg, wParam, lParam);
 
 	return DefWindowProc(this->m_Hwnd, uMsg, wParam, lParam);

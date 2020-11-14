@@ -26,7 +26,7 @@ http://www.codeproject.com/miscctrl/transparentslider.asp
   * \param styles Window Style Tokenized List
   */
 
-DcxTrackBar::DcxTrackBar(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles)
+DcxTrackBar::DcxTrackBar(const UINT ID, DcxDialog* const p_Dialog, const HWND mParentHwnd, const RECT* const rc, const TString& styles)
 	: DcxControl(ID, p_Dialog)
 {
 	const auto ws = parseControlStyles(styles);
@@ -49,11 +49,11 @@ DcxTrackBar::DcxTrackBar(const UINT ID, DcxDialog *const p_Dialog, const HWND mP
 	// Keep track of the tooltip
 	if (dcx_testflag(ws.m_Styles, TBS_TOOLTIPS))
 	{
-		if (const auto tooltip = (HWND)SendMessage(m_Hwnd, TBM_GETTOOLTIPS, NULL, NULL); tooltip != nullptr)
+		if (const auto tooltip = reinterpret_cast<HWND>(SendMessage(m_Hwnd, TBM_GETTOOLTIPS, NULL, NULL)); tooltip)
 			this->m_ToolTipHWND = tooltip;
 	}
 
-	this->setControlFont(GetStockFont(DEFAULT_GUI_FONT), FALSE);
+	this->setControlFont(Dcx::dcxGetStockObject<HFONT>(DEFAULT_GUI_FONT), FALSE);
 }
 
 /*!
@@ -62,16 +62,13 @@ DcxTrackBar::DcxTrackBar(const UINT ID, DcxDialog *const p_Dialog, const HWND mP
  * blah
  */
 
-DcxTrackBar::~DcxTrackBar()
+DcxTrackBar::~DcxTrackBar() noexcept
 {
-	if (this->m_hbmp[TBBMP_BACK] != nullptr)
-		DeleteBitmap(this->m_hbmp[TBBMP_BACK]);
-	if (this->m_hbmp[TBBMP_THUMB] != nullptr)
-		DeleteBitmap(this->m_hbmp[TBBMP_THUMB]);
-	if (this->m_hbmp[TBBMP_THUMBDRAG] != nullptr)
-		DeleteBitmap(this->m_hbmp[TBBMP_THUMBDRAG]);
-	if (this->m_hbmp[TBBMP_CHANNEL] != nullptr)
-		DeleteBitmap(this->m_hbmp[TBBMP_CHANNEL]);
+	for (const auto& x : m_hbmp)
+	{
+		if (x)
+			DeleteBitmap(x);
+	}
 }
 
 /*!
@@ -80,13 +77,13 @@ DcxTrackBar::~DcxTrackBar()
  * blah
  */
 
-dcxWindowStyles DcxTrackBar::parseControlStyles(const TString & tsStyles)
+dcxWindowStyles DcxTrackBar::parseControlStyles(const TString& tsStyles)
 {
 	auto ws = parseGeneralControlStyles(tsStyles);
 
 	ws.m_Styles |= TBS_FIXEDLENGTH;
 
-	for (const auto &tsStyle : tsStyles)
+	for (const auto& tsStyle : tsStyles)
 	{
 		switch (std::hash<TString>{}(tsStyle))
 		{
@@ -131,6 +128,7 @@ dcxWindowStyles DcxTrackBar::parseControlStyles(const TString & tsStyles)
 			break;
 		case L"transparentbkg"_hash:
 			ws.m_Styles |= TBS_TRANSPARENTBKGND;
+			break;
 		default:
 			break;
 		}
@@ -148,7 +146,7 @@ dcxWindowStyles DcxTrackBar::parseControlStyles(const TString & tsStyles)
  * \return > void
  */
 
-void DcxTrackBar::parseInfoRequest(const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const
+void DcxTrackBar::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>& szReturnValue) const
 {
 	switch (std::hash<TString>{}(input.getfirsttok(3)))
 	{
@@ -177,7 +175,7 @@ void DcxTrackBar::parseInfoRequest(const TString & input, const refString<TCHAR,
  * \param input [NAME] [SWITCH] [ID] (OPTIONS)
  */
 
-void DcxTrackBar::parseCommandRequest(const TString & input)
+void DcxTrackBar::parseCommandRequest(const TString& input)
 {
 	const XSwitchFlags flags(input.getfirsttok(3));
 	const auto numtok = input.numtok();
@@ -202,16 +200,16 @@ void DcxTrackBar::parseCommandRequest(const TString & input)
 
 		// background
 		if (dcx_testflag(tflags, TBCS_BACK))
-			this->m_hbmp[TBBMP_BACK] = dcxLoadBitmap(this->m_hbmp[TBBMP_BACK], filename);
+			gsl::at(this->m_hbmp, gsl::narrow_cast<UINT>(TrackBarParts::TBBMP_BACK)) = dcxLoadBitmap(gsl::at(this->m_hbmp, gsl::narrow_cast<UINT>(TrackBarParts::TBBMP_BACK)), filename);
 		// thumb
 		if (dcx_testflag(tflags, TBCS_THUMB))
-			this->m_hbmp[TBBMP_THUMB] = dcxLoadBitmap(this->m_hbmp[TBBMP_THUMB], filename);
+			gsl::at(this->m_hbmp, gsl::narrow_cast<UINT>(TrackBarParts::TBBMP_THUMB)) = dcxLoadBitmap(gsl::at(this->m_hbmp, gsl::narrow_cast<UINT>(TrackBarParts::TBBMP_THUMB)), filename);
 		// thumb hover
 		if (dcx_testflag(tflags, TBCS_THUMBDRAG))
-			this->m_hbmp[TBBMP_THUMBDRAG] = dcxLoadBitmap(this->m_hbmp[TBBMP_THUMBDRAG], filename);
+			gsl::at(this->m_hbmp, gsl::narrow_cast<UINT>(TrackBarParts::TBBMP_THUMBDRAG)) = dcxLoadBitmap(gsl::at(this->m_hbmp, gsl::narrow_cast<UINT>(TrackBarParts::TBBMP_THUMBDRAG)), filename);
 		// channel
 		if (dcx_testflag(tflags, TBCS_CHANNEL))
-			this->m_hbmp[TBBMP_CHANNEL] = dcxLoadBitmap(this->m_hbmp[TBBMP_CHANNEL], filename);
+			gsl::at(this->m_hbmp, gsl::narrow_cast<UINT>(TrackBarParts::TBBMP_CHANNEL)) = dcxLoadBitmap(gsl::at(this->m_hbmp, gsl::narrow_cast<UINT>(TrackBarParts::TBBMP_CHANNEL)), filename);
 
 		// these dont seem to work so dont bother calling it
 		//this->redrawWindow();
@@ -286,17 +284,6 @@ void DcxTrackBar::parseCommandRequest(const TString & input)
 		if (numtok < 4)
 			throw Dcx::dcxException("Insufficient parameters");
 
-		//const auto value(input.getnexttok());	// tok 4
-		//
-		//if ( value == TEXT("left") )
-		//	this->setTipSide( TBTS_LEFT );
-		//else if ( value == TEXT("right") )
-		//	this->setTipSide( TBTS_RIGHT );
-		//else if ( value == TEXT("bottom") )
-		//	this->setTipSide( TBTS_BOTTOM );
-		//else
-		//	this->setTipSide( TBTS_TOP );
-
 		switch (std::hash<TString>{}(input.getnexttok()))
 		{
 		case TEXT("left"_hash):
@@ -345,7 +332,7 @@ void DcxTrackBar::parseCommandRequest(const TString & input)
 
 LRESULT DcxTrackBar::setRangeMin(const LONG iLowLim) noexcept
 {
-	return SendMessage(m_Hwnd, TBM_SETRANGEMIN, (WPARAM)TRUE, (LPARAM)iLowLim);
+	return SendMessage(m_Hwnd, TBM_SETRANGEMIN, 1U, gsl::narrow_cast<LPARAM>(iLowLim));
 }
 
 /*!
@@ -356,7 +343,7 @@ LRESULT DcxTrackBar::setRangeMin(const LONG iLowLim) noexcept
 
 LRESULT DcxTrackBar::getRangeMin() const noexcept
 {
-	return SendMessage(m_Hwnd, TBM_GETRANGEMIN, (WPARAM)0U, (LPARAM)0U);
+	return SendMessage(m_Hwnd, TBM_GETRANGEMIN, 0U, 0);
 }
 
 /*!
@@ -367,7 +354,7 @@ LRESULT DcxTrackBar::getRangeMin() const noexcept
 
 LRESULT DcxTrackBar::setRangeMax(const LONG iHighLim) noexcept
 {
-	return SendMessage(m_Hwnd, TBM_SETRANGEMAX, (WPARAM)TRUE, (LPARAM)iHighLim);
+	return SendMessage(m_Hwnd, TBM_SETRANGEMAX, 1U, gsl::narrow_cast<LPARAM>(iHighLim));
 }
 
 /*!
@@ -378,7 +365,7 @@ LRESULT DcxTrackBar::setRangeMax(const LONG iHighLim) noexcept
 
 LRESULT DcxTrackBar::getRangeMax() const noexcept
 {
-	return SendMessage(m_Hwnd, TBM_GETRANGEMAX, (WPARAM)0U, (LPARAM)0U);
+	return SendMessage(m_Hwnd, TBM_GETRANGEMAX, 0U, 0);
 }
 
 /*!
@@ -389,7 +376,8 @@ LRESULT DcxTrackBar::getRangeMax() const noexcept
 
 LRESULT DcxTrackBar::setRange(const LONG iLowLim, const LONG iHighLim) noexcept
 {
-	return SendMessage(m_Hwnd, TBM_SETRANGE, (WPARAM)TRUE, (LPARAM)MAKELONG(iLowLim, iHighLim));
+	//return SendMessage(m_Hwnd, TBM_SETRANGE, 1U, MAKELPARAM(iLowLim, iHighLim));
+	return SendMessage(m_Hwnd, TBM_SETRANGE, 1U, Dcx::dcxMAKELPARAM(iLowLim, iHighLim));
 }
 
 /*!
@@ -400,7 +388,7 @@ LRESULT DcxTrackBar::setRange(const LONG iLowLim, const LONG iHighLim) noexcept
 
 LRESULT DcxTrackBar::setPos(const LONG lPosition) noexcept
 {
-	return SendMessage(m_Hwnd, TBM_SETPOS, (WPARAM)TRUE, (LPARAM)lPosition);
+	return SendMessage(m_Hwnd, TBM_SETPOS, 1U, gsl::narrow_cast<LPARAM>(lPosition));
 }
 
 /*!
@@ -411,7 +399,7 @@ LRESULT DcxTrackBar::setPos(const LONG lPosition) noexcept
 
 LRESULT DcxTrackBar::getPos() const noexcept
 {
-	return SendMessage(m_Hwnd, TBM_GETPOS, (WPARAM)0U, (LPARAM)0U);
+	return SendMessage(m_Hwnd, TBM_GETPOS, 0U, 0);
 }
 
 /*!
@@ -422,7 +410,7 @@ LRESULT DcxTrackBar::getPos() const noexcept
 
 void DcxTrackBar::setTic(const LONG lPosition) noexcept
 {
-	SendMessage(m_Hwnd, TBM_SETTIC, (WPARAM)0U, (LPARAM)lPosition);
+	SendMessage(m_Hwnd, TBM_SETTIC, 0U, gsl::narrow_cast<LPARAM>(lPosition));
 }
 
 /*!
@@ -433,7 +421,7 @@ void DcxTrackBar::setTic(const LONG lPosition) noexcept
 
 void DcxTrackBar::setTicFreq(const LONG wFreq) noexcept
 {
-	SendMessage(m_Hwnd, TBM_SETTICFREQ, (WPARAM)wFreq, (LPARAM)0U);
+	SendMessage(m_Hwnd, TBM_SETTICFREQ, gsl::narrow_cast<WPARAM>(wFreq), 0);
 }
 
 /*!
@@ -444,7 +432,7 @@ void DcxTrackBar::setTicFreq(const LONG wFreq) noexcept
 
 LRESULT DcxTrackBar::clearTics() noexcept
 {
-	return SendMessage(m_Hwnd, TBM_CLEARTICS, (WPARAM)TRUE, (LPARAM)0U);
+	return SendMessage(m_Hwnd, TBM_CLEARTICS, 1U, 0);
 }
 
 /*!
@@ -455,7 +443,7 @@ LRESULT DcxTrackBar::clearTics() noexcept
 
 LRESULT DcxTrackBar::setTipSide(const int fLocation) noexcept
 {
-	return SendMessage(m_Hwnd, TBM_SETTIPSIDE, (WPARAM)fLocation, (LPARAM)0U);
+	return SendMessage(m_Hwnd, TBM_SETTIPSIDE, gsl::narrow_cast<WPARAM>(fLocation), 0);
 }
 
 /*!
@@ -466,7 +454,7 @@ LRESULT DcxTrackBar::setTipSide(const int fLocation) noexcept
 
 LRESULT DcxTrackBar::setPageSize(const LONG lPageSize) noexcept
 {
-	return SendMessage(m_Hwnd, TBM_SETPAGESIZE, (WPARAM)0U, (LPARAM)lPageSize);
+	return SendMessage(m_Hwnd, TBM_SETPAGESIZE, 0U, gsl::narrow_cast<LPARAM>(lPageSize));
 }
 
 /*!
@@ -477,7 +465,7 @@ LRESULT DcxTrackBar::setPageSize(const LONG lPageSize) noexcept
 
 LRESULT DcxTrackBar::getPageSize() const noexcept
 {
-	return SendMessage(m_Hwnd, TBM_GETPAGESIZE, (WPARAM)0U, (LPARAM)0U);
+	return SendMessage(m_Hwnd, TBM_GETPAGESIZE, 0U, 0);
 }
 
 /*!
@@ -488,7 +476,7 @@ LRESULT DcxTrackBar::getPageSize() const noexcept
 
 LRESULT DcxTrackBar::setLineSize(const LONG lLineSize) noexcept
 {
-	return SendMessage(m_Hwnd, TBM_SETLINESIZE, (WPARAM)0U, (LPARAM)lLineSize);
+	return SendMessage(m_Hwnd, TBM_SETLINESIZE, 0U, gsl::narrow_cast<LPARAM>(lLineSize));
 }
 
 /*!
@@ -499,7 +487,7 @@ LRESULT DcxTrackBar::setLineSize(const LONG lLineSize) noexcept
 
 LRESULT DcxTrackBar::getLineSize() const noexcept
 {
-	return SendMessage(m_Hwnd, TBM_GETLINESIZE, (WPARAM)0U, (LPARAM)0U);
+	return SendMessage(m_Hwnd, TBM_GETLINESIZE, 0U, 0);
 }
 
 /*!
@@ -510,7 +498,7 @@ LRESULT DcxTrackBar::getLineSize() const noexcept
 
 LRESULT DcxTrackBar::setThumbLength(const UINT iLength) noexcept
 {
-	return SendMessage(m_Hwnd, TBM_SETTHUMBLENGTH, (WPARAM)iLength, (LPARAM)0U);
+	return SendMessage(m_Hwnd, TBM_SETTHUMBLENGTH, gsl::narrow_cast<WPARAM>(iLength), 0);
 }
 
 /*!
@@ -521,7 +509,8 @@ LRESULT DcxTrackBar::setThumbLength(const UINT iLength) noexcept
 
 LRESULT DcxTrackBar::setSel(const LONG iLowLim, const LONG iHighLim) noexcept
 {
-	return SendMessage(m_Hwnd, TBM_SETSEL, (WPARAM)TRUE, (LPARAM)MAKELONG(iLowLim, iHighLim));
+	//return SendMessage(m_Hwnd, TBM_SETSEL, 1U, MAKELPARAM(iLowLim, iHighLim));
+	return SendMessage(m_Hwnd, TBM_SETSEL, 1U, Dcx::dcxMAKELPARAM(iLowLim, iHighLim));
 }
 
 /*!
@@ -532,7 +521,7 @@ LRESULT DcxTrackBar::setSel(const LONG iLowLim, const LONG iHighLim) noexcept
 
 LRESULT DcxTrackBar::getSelStart() const noexcept
 {
-	return SendMessage(m_Hwnd, TBM_GETSELSTART, (WPARAM)0, (LPARAM)0);
+	return SendMessage(m_Hwnd, TBM_GETSELSTART, 0U, 0);
 }
 
 /*!
@@ -543,7 +532,7 @@ LRESULT DcxTrackBar::getSelStart() const noexcept
 
 LRESULT DcxTrackBar::getSelEnd() const noexcept
 {
-	return SendMessage(m_Hwnd, TBM_GETSELEND, (WPARAM)0, (LPARAM)0);
+	return SendMessage(m_Hwnd, TBM_GETSELEND, 0U, 0);
 }
 
 /*!
@@ -551,14 +540,14 @@ LRESULT DcxTrackBar::getSelEnd() const noexcept
 *
 * blah
 */
-LRESULT DcxTrackBar::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed)
+LRESULT DcxTrackBar::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed)
 {
 	switch (uMsg)
 	{
 	case WM_VSCROLL:
 	case WM_HSCROLL:
 	{
-		switch (LOWORD(wParam))
+		switch (Dcx::dcxLOWORD(wParam))
 		{
 		case TB_TOP:
 			this->execAliasEx(TEXT("top,%u,%d"), getUserID(), this->getPos());
@@ -591,6 +580,9 @@ LRESULT DcxTrackBar::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 		case SB_THUMBTRACK:
 			this->execAliasEx(TEXT("tracking,%u,%d"), getUserID(), this->getPos());
 			break;
+
+		default:
+			break;
 		}
 
 		break;
@@ -600,7 +592,7 @@ LRESULT DcxTrackBar::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 	{
 		dcxlParam(LPNMHDR, hdr);
 
-		if (hdr == nullptr)
+		if (!hdr)
 			break;
 
 		switch (hdr->code)
@@ -609,19 +601,19 @@ LRESULT DcxTrackBar::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 		{
 			// if (no items to draw)
 			if (
-				(this->m_hbmp[TBBMP_BACK] == nullptr) &&
-				(this->m_hbmp[TBBMP_THUMB] == nullptr) &&
-				(this->m_hbmp[TBBMP_THUMBDRAG] == nullptr) &&
-				(this->m_hbmp[TBBMP_CHANNEL] == nullptr)
+				(!gsl::at(this->m_hbmp, gsl::narrow_cast<UINT>(TrackBarParts::TBBMP_BACK))) &&
+				(!gsl::at(this->m_hbmp, gsl::narrow_cast<UINT>(TrackBarParts::TBBMP_THUMB))) &&
+				(!gsl::at(this->m_hbmp, gsl::narrow_cast<UINT>(TrackBarParts::TBBMP_THUMBDRAG))) &&
+				(!gsl::at(this->m_hbmp, gsl::narrow_cast<UINT>(TrackBarParts::TBBMP_CHANNEL)))
 				)
 				break;
 
 			dcxlParam(LPNMCUSTOMDRAW, nmcd);
-			if (nmcd == nullptr)
+			if (!nmcd)
 				break;
 
 			auto hdc = nmcd->hdc;
-			if (hdc == nullptr)
+			if (!hdc)
 				break;
 
 			bParsed = TRUE;
@@ -641,9 +633,9 @@ LRESULT DcxTrackBar::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 				if (nmcd->dwItemSpec == TBCD_CHANNEL)
 				{
 					// draw the background here
-					DrawTrackBarPart(hdc, TBBMP_BACK);
+					DrawTrackBarPart(hdc, TrackBarParts::TBBMP_BACK);
 
-					if (DrawTrackBarPart(hdc, TBBMP_CHANNEL, &nmcd->rc))
+					if (DrawTrackBarPart(hdc, TrackBarParts::TBBMP_CHANNEL, &nmcd->rc))
 						return /*CDRF_NOTIFYPOSTPAINT | */CDRF_SKIPDEFAULT;
 
 					//								return CDRF_NOTIFYPOSTPAINT | CDRF_SKIPDEFAULT;
@@ -656,11 +648,11 @@ LRESULT DcxTrackBar::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 				// us during post-paint.
 				if (nmcd->dwItemSpec == TBCD_THUMB)
 				{
-					auto iPartId = TBBMP_THUMB;
+					auto iPartId = TrackBarParts::TBBMP_THUMB;
 
 					// if thumb is selected/focussed, switch brushes
 					if (dcx_testflag(nmcd->uItemState, CDIS_SELECTED))
-						iPartId = TBBMP_THUMBDRAG;
+						iPartId = TrackBarParts::TBBMP_THUMBDRAG;
 
 					if (DrawTrackBarPart(hdc, iPartId, &nmcd->rc))
 						return CDRF_SKIPDEFAULT;
@@ -681,13 +673,18 @@ LRESULT DcxTrackBar::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 			//break; // unreachable
 		} // end NM_CUSTOMDRAW
 
+		default:
+			break;
 		} // end SWITCH
 	} // end notify
+	break;
+	default:
+		break;
 	}
 	return 0L;
 }
 
-LRESULT DcxTrackBar::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed)
+LRESULT DcxTrackBar::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed)
 {
 	switch (uMsg)
 	{
@@ -709,20 +706,39 @@ LRESULT DcxTrackBar::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 	{
 		dcxlParam(LPNMHDR, hdr);
 
-		if (hdr == nullptr)
+		if (!hdr)
 			break;
 
 		switch (hdr->code)
 		{
 			// Show tooltip
 		case TTN_SHOW:
+		{
 			// Check if its currently being updated.
 			if (this->m_bUpdatingTooltip)
 				break;
 
-			TString buff(80U);
+			//TString buff(80U);
+			//evalAliasEx(buff.to_chr(), gsl::narrow_cast<int>(buff.capacity()), TEXT("showtip,%u,%d"), getUserID(), getPos());
+			//
+			//if (!buff.empty())
+			//{
+			//	TOOLINFO ti{};
+			//
+			//	ti.cbSize = sizeof(TOOLINFO);
+			//	ti.hinst = GetModuleHandle(nullptr);
+			//	ti.hwnd = m_Hwnd;
+			//	ti.uId = reinterpret_cast<UINT_PTR>(m_Hwnd);
+			//	ti.lpszText = buff.to_chr();
+			//
+			//	this->m_bUpdatingTooltip = true;
+			//	SendMessage(this->m_ToolTipHWND, TTM_UPDATETIPTEXT, NULL, reinterpret_cast<LPARAM>(&ti));
+			//	this->m_bUpdatingTooltip = false;
+			//}
 
-			evalAliasEx(buff.to_chr(), gsl::narrow_cast<int>(buff.capacity()), TEXT("showtip,%u,%d"), getUserID(), getPos());
+			const stString<80> buff;
+
+			evalAliasEx(buff.data(), gsl::narrow_cast<int>(buff.size()), TEXT("showtip,%u,%d"), getUserID(), getPos());
 
 			if (!buff.empty())
 			{
@@ -731,14 +747,17 @@ LRESULT DcxTrackBar::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 				ti.cbSize = sizeof(TOOLINFO);
 				ti.hinst = GetModuleHandle(nullptr);
 				ti.hwnd = m_Hwnd;
-				ti.uId = (UINT_PTR)m_Hwnd;
-				ti.lpszText = buff.to_chr();
+				ti.uId = reinterpret_cast<UINT_PTR>(m_Hwnd);
+				ti.lpszText = buff.data();
 
 				this->m_bUpdatingTooltip = true;
-				SendMessage(this->m_ToolTipHWND, TTM_UPDATETIPTEXT, NULL, (LPARAM)&ti);
+				SendMessage(this->m_ToolTipHWND, TTM_UPDATETIPTEXT, NULL, reinterpret_cast<LPARAM>(&ti));
 				this->m_bUpdatingTooltip = false;
 			}
-			break; // case TTN_SHOW
+		}
+		break; // case TTN_SHOW
+		default:
+			break;
 		}
 		break; // case WM_NOTIFY
 	}
@@ -763,7 +782,7 @@ LRESULT DcxTrackBar::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 		//else
 		//	DcxControl::DrawCtrlBackground(hdc,this,&ps.rcPaint);
 
-		return CallDefaultClassProc(uMsg, (WPARAM)hdc, lParam);
+		return CallDefaultClassProc(uMsg, reinterpret_cast<WPARAM>(hdc), lParam);
 	}
 	break;
 
@@ -783,7 +802,7 @@ LRESULT DcxTrackBar::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 }
 
 
-UINT DcxTrackBar::parseImageFlags(const TString &flags) noexcept
+UINT DcxTrackBar::parseImageFlags(const TString& flags) noexcept
 {
 	const XSwitchFlags xflags(flags);
 	UINT iFlags = 0;
@@ -804,13 +823,13 @@ UINT DcxTrackBar::parseImageFlags(const TString &flags) noexcept
 	return iFlags;
 }
 
-bool DcxTrackBar::DrawTrackBarPart(HDC hdc, const TrackBarParts iPartId, const RECT *const rc)
+bool DcxTrackBar::DrawTrackBarPart(HDC hdc, const TrackBarParts iPartId, const RECT* const rc)
 {
-	if (m_hbmp[iPartId] == nullptr)
+	if (!gsl::at(m_hbmp, gsl::narrow_cast<UINT>(iPartId)))
 		return false;
 
 	RECT rect{};
-	if (rc == nullptr)
+	if (!rc)
 	{
 		if (!GetClientRect(m_Hwnd, &rect))
 			return false;
@@ -819,20 +838,20 @@ bool DcxTrackBar::DrawTrackBarPart(HDC hdc, const TrackBarParts iPartId, const R
 		CopyRect(&rect, rc);
 
 	BITMAP bmp{};
-	if (GetObject(m_hbmp[iPartId], sizeof(BITMAP), &bmp) == 0)
+	if (GetObject(gsl::at(m_hbmp, gsl::narrow_cast<UINT>(iPartId)), sizeof(BITMAP), &bmp) == 0)
 		return false;
 
 #if DCX_USE_WRAPPERS
-	Dcx::dcxHDCBitmapResource hdcbmp(hdc, m_hbmp[iPartId]);
+	Dcx::dcxHDCBitmapResource hdcbmp(hdc, gsl::at(m_hbmp, gsl::narrow_cast<UINT>(iPartId)));
 #else
 	auto hdcbmp = CreateCompatibleDC(hdc);
 
-	if (hdcbmp == nullptr)
+	if (!hdcbmp)
 		return false;
 	Auto(DeleteDC(hdcbmp));
 
-	auto oldBM = SelectBitmap(hdcbmp, m_hbmp[iPartId]);
-	Auto(SelectBitmap(hdcbmp, oldBM));
+	auto oldBM = Dcx::dcxSelectObject(hdcbmp, gsl::at(m_hbmp, gsl::narrow_cast<UINT>(iPartId)));
+	Auto(Dcx::dcxSelectObject(hdcbmp, oldBM));
 #endif
 
 	TransparentBlt(hdc,
@@ -886,25 +905,23 @@ const TString DcxTrackBar::getStyles(void) const
 	return tsStyles;
 }
 
-void DcxTrackBar::toXml(TiXmlElement *const xml) const
+void DcxTrackBar::toXml(TiXmlElement* const xml) const
 {
 	__super::toXml(xml);
 
 	xml->SetAttribute("styles", getStyles().c_str());
 }
 
-TiXmlElement * DcxTrackBar::toXml(void) const
+TiXmlElement* DcxTrackBar::toXml(void) const
 {
 	auto xml = std::make_unique<TiXmlElement>("control");
 	toXml(xml.get());
 	return xml.release();
 }
 
-WNDPROC DcxTrackBar::m_hDefaultClassProc = nullptr;
-
 LRESULT DcxTrackBar::CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept
 {
-	if (m_hDefaultClassProc != nullptr)
+	if (m_hDefaultClassProc)
 		return CallWindowProc(m_hDefaultClassProc, this->m_Hwnd, uMsg, wParam, lParam);
 
 	return DefWindowProc(this->m_Hwnd, uMsg, wParam, lParam);

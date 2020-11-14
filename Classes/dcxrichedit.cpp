@@ -26,7 +26,7 @@
 * \param rc Window Rectangle
 * \param styles Window Style Tokenized List
 */
-DcxRichEdit::DcxRichEdit(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString &styles)
+DcxRichEdit::DcxRichEdit(const UINT ID, DcxDialog* const p_Dialog, const HWND mParentHwnd, const RECT* const rc, const TString& styles)
 	: DcxControl(ID, p_Dialog)
 {
 	const auto ws = parseControlStyles(styles);
@@ -56,7 +56,7 @@ DcxRichEdit::DcxRichEdit(const UINT ID, DcxDialog *const p_Dialog, const HWND mP
 
 	this->setContentsFont();
 
-	SendMessage(m_Hwnd, EM_SETEVENTMASK, NULL, (LPARAM)(ENM_SELCHANGE | ENM_CHANGE | ENM_LINK));
+	SendMessage(m_Hwnd, EM_SETEVENTMASK, NULL, (ENM_SELCHANGE | ENM_CHANGE | ENM_LINK));
 	//SendMessage(m_Hwnd, CCM_SETUNICODEFORMAT, TRUE, NULL);
 
 	if (styles.istok(TEXT("tooltips")))
@@ -74,9 +74,9 @@ DcxRichEdit::DcxRichEdit(const UINT ID, DcxDialog *const p_Dialog, const HWND mP
 *
 * blah
 */
-DcxRichEdit::~DcxRichEdit()
-{
-}
+//DcxRichEdit::~DcxRichEdit() noexcept
+//{
+//}
 
 /*!
 * \brief blah
@@ -146,14 +146,14 @@ DcxRichEdit::~DcxRichEdit()
 //	this->parseGeneralControlStyles(styles, Styles, ExStyles, bNoTheme);
 //}
 
-dcxWindowStyles DcxRichEdit::parseControlStyles(const TString & tsStyles)
+dcxWindowStyles DcxRichEdit::parseControlStyles(const TString& tsStyles)
 {
 	auto ws = parseGeneralControlStyles(tsStyles);
 
 	//Styles |= ES_READONLY;
 	//ES_NOHIDESEL
 
-	for (const auto &tsStyle : tsStyles)
+	for (const auto& tsStyle : tsStyles)
 	{
 		switch (std::hash<TString>{}(tsStyle))
 		{
@@ -183,6 +183,7 @@ dcxWindowStyles DcxRichEdit::parseControlStyles(const TString & tsStyles)
 			break;
 		case L"disablescroll"_hash:
 			ws.m_Styles |= ES_DISABLENOSCROLL;
+			break;
 		default:
 			break;
 		}
@@ -197,7 +198,7 @@ dcxWindowStyles DcxRichEdit::parseControlStyles(const TString & tsStyles)
 *
 * \return > void
 */
-void DcxRichEdit::parseInfoRequest(const TString &input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const
+void DcxRichEdit::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>& szReturnValue) const
 {
 	const auto numtok = input.numtok();
 
@@ -221,11 +222,11 @@ void DcxRichEdit::parseInfoRequest(const TString &input, const refString<TCHAR, 
 		const auto len = SendMessage(m_Hwnd, EM_LINELENGTH, gsl::narrow_cast<WPARAM>(offset), NULL) + 1;
 		// create and fill the buffer
 		auto p = std::make_unique<TCHAR[]>(len);
-		*((LPWORD)p.get()) = gsl::narrow_cast<WORD>(len);
+		*(reinterpret_cast<LPWORD>(p.get())) = gsl::narrow_cast<WORD>(len);
 		SendMessage(m_Hwnd, EM_GETLINE, gsl::narrow_cast<WPARAM>(line), reinterpret_cast<LPARAM>(p.get()));
 
 		// terminate the string at the right position
-		p[len - 1] = TEXT('\0');
+		gsl::at(p, len - 1) = TEXT('\0');
 
 		// copy to result
 		szReturnValue = p.get();
@@ -235,7 +236,7 @@ void DcxRichEdit::parseInfoRequest(const TString &input, const refString<TCHAR, 
 	case L"num"_hash:
 	{
 		if (this->isStyle(WindowStyle::ES_MultiLine))
-			_ts_snprintf(szReturnValue, TEXT("%d"), gsl::narrow_cast<int>(SendMessage(m_Hwnd, EM_GETLINECOUNT, 0, 0L)));
+			_ts_snprintf(szReturnValue, TEXT("%d"), gsl::narrow_cast<int>(SendMessage(m_Hwnd, EM_GETLINECOUNT, 0U, 0L)));
 		else {
 			// single line control so always 1 line.
 			szReturnValue = TEXT('1');
@@ -245,10 +246,10 @@ void DcxRichEdit::parseInfoRequest(const TString &input, const refString<TCHAR, 
 	// [NAME] [ID] [PROP]
 	case L"caretpos"_hash:
 	{
-		DWORD dwAbsoluteStartSelPos = 0;
+		DWORD dwAbsoluteStartSelPos{};
 
 		// caret startsel position
-		SendMessage(m_Hwnd, EM_GETSEL, (WPARAM)&dwAbsoluteStartSelPos, NULL);
+		SendMessage(m_Hwnd, EM_GETSEL, reinterpret_cast<WPARAM>(&dwAbsoluteStartSelPos), NULL);
 
 		if (this->isStyle(WindowStyle::ES_MultiLine))
 		{
@@ -264,12 +265,13 @@ void DcxRichEdit::parseInfoRequest(const TString &input, const refString<TCHAR, 
 			_ts_snprintf(szReturnValue, TEXT("1 %u"), dwAbsoluteStartSelPos);
 		}
 	}
+	break;
 	// [NAME] [ID] [PROP]
 	case L"selstart"_hash:
 	{
 		CHARRANGE c{};
 
-		SendMessage(m_Hwnd, EM_EXGETSEL, NULL, (LPARAM)&c);
+		SendMessage(m_Hwnd, EM_EXGETSEL, NULL, reinterpret_cast<LPARAM>(&c));
 		_ts_snprintf(szReturnValue, TEXT("%d"), c.cpMin);
 	}
 	break;
@@ -278,7 +280,7 @@ void DcxRichEdit::parseInfoRequest(const TString &input, const refString<TCHAR, 
 	{
 		CHARRANGE c{};
 
-		SendMessage(m_Hwnd, EM_EXGETSEL, NULL, (LPARAM)&c);
+		SendMessage(m_Hwnd, EM_EXGETSEL, NULL, reinterpret_cast<LPARAM>(&c));
 		_ts_snprintf(szReturnValue, TEXT("%d"), c.cpMax);
 	}
 	break;
@@ -287,7 +289,7 @@ void DcxRichEdit::parseInfoRequest(const TString &input, const refString<TCHAR, 
 	{
 		CHARRANGE c{};
 
-		SendMessage(m_Hwnd, EM_EXGETSEL, NULL, (LPARAM)&c);
+		SendMessage(m_Hwnd, EM_EXGETSEL, NULL, reinterpret_cast<LPARAM>(&c));
 		_ts_snprintf(szReturnValue, TEXT("%d %d"), c.cpMin, c.cpMax);
 	}
 	break;
@@ -296,10 +298,10 @@ void DcxRichEdit::parseInfoRequest(const TString &input, const refString<TCHAR, 
 	{
 		CHARRANGE c{};
 
-		SendMessage(m_Hwnd, EM_EXGETSEL, NULL, (LPARAM)&c);
+		SendMessage(m_Hwnd, EM_EXGETSEL, NULL, reinterpret_cast<LPARAM>(&c));
 		auto buffer = std::make_unique<TCHAR[]>(c.cpMax - c.cpMin);
 
-		SendMessage(m_Hwnd, EM_GETSELTEXT, NULL, (LPARAM)buffer.get());
+		SendMessage(m_Hwnd, EM_GETSELTEXT, NULL, reinterpret_cast<LPARAM>(buffer.get()));
 		szReturnValue = buffer.get();
 	}
 	break;
@@ -312,7 +314,7 @@ void DcxRichEdit::parseInfoRequest(const TString &input, const refString<TCHAR, 
 		stringstream_type rtf;
 
 		EDITSTREAM es{};
-		es.dwCookie = (DWORD_PTR)&rtf;
+		es.dwCookie = reinterpret_cast<DWORD_PTR>(&rtf);
 		es.pfnCallback = &StreamOutToVarCallback;
 
 		if (tsFlags == TEXT("utf8"))
@@ -342,7 +344,7 @@ void DcxRichEdit::parseInfoRequest(const TString &input, const refString<TCHAR, 
 	}
 }
 
-bool DcxRichEdit::SaveRichTextToFile(HWND hWnd, const TString &tsFilename) noexcept
+bool DcxRichEdit::SaveRichTextToFile(HWND hWnd, const TString& tsFilename) noexcept
 {
 	const auto hFile = CreateFile(tsFilename.to_chr(), GENERIC_WRITE, 0, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
 	Auto(CloseHandle(hFile));
@@ -350,14 +352,17 @@ bool DcxRichEdit::SaveRichTextToFile(HWND hWnd, const TString &tsFilename) noexc
 	if (hFile == INVALID_HANDLE_VALUE)
 		return false;
 
-	EDITSTREAM es{};
-	es.dwCookie = (DWORD)hFile;
-	es.pfnCallback = StreamOutToFileCallback;
-	SendMessage(hWnd, EM_STREAMOUT, SF_RTF, (LPARAM)&es);
+	//EDITSTREAM es{};
+	//es.dwCookie = reinterpret_cast<DWORD>(hFile);
+	//es.pfnCallback = StreamOutToFileCallback;
+
+	EDITSTREAM es{ reinterpret_cast<DWORD>(hFile), 0U, StreamOutToFileCallback };
+
+	SendMessage(hWnd, EM_STREAMOUT, SF_RTF, reinterpret_cast<LPARAM>(&es));
 	return (es.dwError == 0);
 }
 
-bool DcxRichEdit::LoadRichTextFromFile(HWND hWnd, const TString &tsFilename) noexcept
+bool DcxRichEdit::LoadRichTextFromFile(HWND hWnd, const TString& tsFilename) noexcept
 {
 	const auto hFile = CreateFile(tsFilename.to_chr(), GENERIC_READ, 0, nullptr, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
 	Auto(CloseHandle(hFile));
@@ -365,18 +370,21 @@ bool DcxRichEdit::LoadRichTextFromFile(HWND hWnd, const TString &tsFilename) noe
 	if (hFile == INVALID_HANDLE_VALUE)
 		return false;
 
-	EDITSTREAM es{};
-	es.dwCookie = (DWORD)hFile;
-	es.pfnCallback = StreamInFromFileCallback;
-	SendMessage(hWnd, EM_STREAMIN, SF_RTF, (LPARAM)&es);
+	//EDITSTREAM es{};
+	//es.dwCookie = reinterpret_cast<DWORD>(hFile);
+	//es.pfnCallback = StreamInFromFileCallback;
+
+	EDITSTREAM es{ reinterpret_cast<DWORD>(hFile), 0U,StreamInFromFileCallback };
+
+	SendMessage(hWnd, EM_STREAMIN, SF_RTF, reinterpret_cast<LPARAM>(&es));
 	return (es.dwError == 0);
 }
 
-DWORD CALLBACK DcxRichEdit::StreamOutToVarCallback(DWORD_PTR dwCookie, const LPBYTE pbBuff, const LONG cb, LONG *pcb)
+DWORD CALLBACK DcxRichEdit::StreamOutToVarCallback(DWORD_PTR dwCookie, const LPBYTE pbBuff, const LONG cb, LONG* pcb)
 {
-	const auto rtf = reinterpret_cast<stringstream_type *>(dwCookie);
-	
-	rtf->write((stringstream_type::char_type *)pbBuff, cb);
+	const auto rtf = reinterpret_cast<stringstream_type*>(dwCookie);
+
+	rtf->write(reinterpret_cast<stringstream_type::char_type*>(pbBuff), cb);
 
 	*pcb = cb;
 	return 0;
@@ -389,10 +397,10 @@ DWORD CALLBACK DcxRichEdit::StreamOutToVarCallback(DWORD_PTR dwCookie, const LPB
 	//return 0;
 }
 
-DWORD CALLBACK DcxRichEdit::StreamOutToFileCallback(DWORD_PTR dwCookie, const LPBYTE pbBuff, const LONG cb, LONG *pcb) noexcept
+DWORD CALLBACK DcxRichEdit::StreamOutToFileCallback(DWORD_PTR dwCookie, const LPBYTE pbBuff, const LONG cb, LONG* pcb) noexcept
 {
 	const auto hFile = reinterpret_cast<HANDLE>(dwCookie);
-	DWORD NumberOfBytesWritten = 0;
+	DWORD NumberOfBytesWritten{};
 
 	if (!WriteFile(hFile, pbBuff, cb, &NumberOfBytesWritten, nullptr))
 	{
@@ -404,7 +412,7 @@ DWORD CALLBACK DcxRichEdit::StreamOutToFileCallback(DWORD_PTR dwCookie, const LP
 	return 0;
 }
 
-DWORD CALLBACK DcxRichEdit::StreamInFromFileCallback(DWORD_PTR dwCookie, LPBYTE pbBuff, const LONG cb, LONG *pcb) noexcept
+DWORD CALLBACK DcxRichEdit::StreamInFromFileCallback(DWORD_PTR dwCookie, LPBYTE pbBuff, const LONG cb, LONG* pcb) noexcept
 {
 	const auto hFile = reinterpret_cast<HANDLE>(dwCookie);
 	DWORD NumberOfBytesRead = 0;
@@ -424,7 +432,7 @@ DWORD CALLBACK DcxRichEdit::StreamInFromFileCallback(DWORD_PTR dwCookie, LPBYTE 
 *
 * blah
 */
-void DcxRichEdit::parseCommandRequest(const TString &input)
+[[gsl::suppress(bounds.3)]] void DcxRichEdit::parseCommandRequest(const TString& input)
 {
 	const XSwitchFlags flags(input.getfirsttok(3));
 	const auto numtok = input.numtok();
@@ -552,10 +560,10 @@ void DcxRichEdit::parseCommandRequest(const TString &input)
 
 		const auto nColor = input.getnexttok().to_int() - 1;	// tok 4
 
-		if (nColor < 0 || nColor > gsl::narrow_cast<int>(std::extent_v<decltype(m_aColorPalette)> -1))
+		if (nColor < 0 || nColor > gsl::narrow_cast<int>(std::size(m_aColorPalette) - 1))
 			throw Dcx::dcxException("Invalid Colour");
 
-		this->m_aColorPalette[nColor] = input.getnexttok().to_<COLORREF>();	// tok 5
+		gsl::at(this->m_aColorPalette, nColor) = input.getnexttok().to_<COLORREF>();	// tok 5
 		this->parseContents(TRUE);
 	}
 	// xdid -m [NAME] [ID] [SWITCH]
@@ -604,11 +612,11 @@ void DcxRichEdit::parseCommandRequest(const TString &input)
 
 		const auto nColor = numtok - 3;
 
-		if (nColor >= std::min(std::extent_v<decltype(m_aColorPalette)>, 16U))
+		if (nColor >= std::min(std::size(m_aColorPalette), 16U))
 			throw Dcx::dcxException("Invalid Colour Count");
 
 		for (auto i = decltype(nColor){0}; i < nColor; ++i)
-			m_aColorPalette[i] = input.getnexttok().to_<COLORREF>();	// tok 4 + i
+			gsl::at(m_aColorPalette, i) = input.getnexttok().to_<COLORREF>();	// tok 4 + i
 
 		this->parseContents(TRUE);
 	}
@@ -730,16 +738,13 @@ void DcxRichEdit::parseCommandRequest(const TString &input)
 		if (numtok < 4)
 			throw Dcx::dcxException("Insufficient parameters");
 
-		CHARRANGE c;
-
+		CHARRANGE c{};
 		c.cpMin = input.getnexttok().to_int();	// tok 4
+		c.cpMax = (numtok > 4) ? input.getnexttok().to_int() : c.cpMin;	// tok 5
 
-		if (numtok > 4)
-			c.cpMax = input.getnexttok().to_int();	// tok 5
-		else
-			c.cpMax = c.cpMin;
+		//CHARRANGE c{ input.getnexttok().to_int(), (numtok > 4) ? input.getnexttok().to_int() : c.cpMin };
 
-		SendMessage(m_Hwnd, EM_EXSETSEL, NULL, (LPARAM)&c);
+		SendMessage(m_Hwnd, EM_EXSETSEL, NULL, reinterpret_cast<LPARAM>(&c));
 		SendMessage(m_Hwnd, EM_SCROLLCARET, NULL, NULL);
 
 		//DWORD dwAbsoluteStartSelPos = 0;
@@ -1066,7 +1071,7 @@ void DcxRichEdit::parseContents(const BOOL fNewLine) noexcept
 	this->parseStringContents(this->m_tsText, fNewLine);
 }
 
-void DcxRichEdit::parseStringContents(const TString &tsStr, const BOOL fNewLine) noexcept
+[[gsl::suppress(bounds.3)]] void DcxRichEdit::parseStringContents(const TString& tsStr, const BOOL fNewLine) noexcept
 {
 	this->m_bIgnoreInput = true;
 	this->setRedraw(FALSE);
@@ -1156,7 +1161,7 @@ void DcxRichEdit::parseStringContents(const TString &tsStr, const BOOL fNewLine)
 
 					// color code number
 					bmcolor = true;
-					mcolor = m_aColorPalette[umIRCColour];
+					mcolor = gsl::at(m_aColorPalette, umIRCColour);
 				}
 
 				// maybe a background color
@@ -1178,7 +1183,7 @@ void DcxRichEdit::parseStringContents(const TString &tsStr, const BOOL fNewLine)
 
 						// color code number
 						bbkgcolor = true;
-						bkgcolor = m_aColorPalette[umIRCColour];
+						bkgcolor = gsl::at(m_aColorPalette, umIRCColour);
 					}
 				}
 			}
@@ -1261,7 +1266,7 @@ void DcxRichEdit::parseStringContents(const TString &tsStr, const BOOL fNewLine)
 *
 * blah
 */
-void DcxRichEdit::insertText(const TCHAR *const text, bool bline, bool uline, bool iline, bool bcolor, COLORREF color, bool bbkgcolor, COLORREF bkgcolor, int reverse) noexcept
+void DcxRichEdit::insertText(const TCHAR* const text, bool bline, bool uline, bool iline, bool bcolor, COLORREF color, bool bbkgcolor, COLORREF bkgcolor, int reverse) noexcept
 {
 	// get total length
 	auto len = GetWindowTextLength(m_Hwnd);
@@ -1364,7 +1369,7 @@ LRESULT DcxRichEdit::replaceSel(const BOOL bUndo, LPCTSTR lpstr) noexcept
 *
 * blah
 */
-LRESULT DcxRichEdit::getCharFormat(const UINT iType, const CHARFORMAT2 *cfm) const noexcept
+LRESULT DcxRichEdit::getCharFormat(const UINT iType, const CHARFORMAT2* cfm) const noexcept
 {
 	return SendMessage(m_Hwnd, EM_GETCHARFORMAT, gsl::narrow_cast<WPARAM>(iType), reinterpret_cast<LPARAM>(cfm));
 }
@@ -1375,12 +1380,12 @@ LRESULT DcxRichEdit::getCharFormat(const UINT iType, const CHARFORMAT2 *cfm) con
 * blah
 */
 
-LRESULT DcxRichEdit::setCharFormat(const UINT iType, const CHARFORMAT2 *cfm) noexcept
+LRESULT DcxRichEdit::setCharFormat(const UINT iType, const CHARFORMAT2* cfm) noexcept
 {
 	return SendMessage(m_Hwnd, EM_SETCHARFORMAT, gsl::narrow_cast<WPARAM>(iType), reinterpret_cast<LPARAM>(cfm));
 }
 
-void DcxRichEdit::toXml(TiXmlElement *const xml) const
+void DcxRichEdit::toXml(TiXmlElement* const xml) const
 {
 	__super::toXml(xml);
 
@@ -1389,7 +1394,7 @@ void DcxRichEdit::toXml(TiXmlElement *const xml) const
 	xml->LinkEndChild(new TiXmlText(this->m_tsText.c_str()));
 }
 
-TiXmlElement * DcxRichEdit::toXml(void) const
+TiXmlElement* DcxRichEdit::toXml(void) const
 {
 	auto xml = std::make_unique<TiXmlElement>("control");
 	toXml(xml.get());
@@ -1425,7 +1430,7 @@ const TString DcxRichEdit::getStyles(void) const
 *
 * blah
 */
-LRESULT DcxRichEdit::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bParsed)
+LRESULT DcxRichEdit::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed)
 {
 	switch (uMsg)
 	{
@@ -1433,7 +1438,7 @@ LRESULT DcxRichEdit::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 	{
 		dcxlParam(LPNMHDR, hdr);
 
-		if (hdr == nullptr)
+		if (!hdr)
 			break;
 
 		switch (hdr->code)
@@ -1442,9 +1447,7 @@ LRESULT DcxRichEdit::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 		{
 			if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
 			{
-				if (dcxlParam(ENLINK *, enl); (enl->msg == WM_LBUTTONDOWN) ||
-					(enl->msg == WM_LBUTTONDBLCLK) ||
-					(enl->msg == WM_RBUTTONDOWN))
+				if (dcxlParam(ENLINK*, enl); (enl) && ((enl->msg == WM_LBUTTONDOWN) || (enl->msg == WM_LBUTTONDBLCLK) || (enl->msg == WM_RBUTTONDOWN)))
 				{
 					TEXTRANGE tr{};
 
@@ -1478,13 +1481,14 @@ LRESULT DcxRichEdit::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 
 			if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_EDIT))
 			{
-				if (const auto *const sel = reinterpret_cast<SELCHANGE*>(lParam); sel->seltyp != SEL_EMPTY)
+				if (const auto* const sel = reinterpret_cast<SELCHANGE*>(lParam); (sel) && (sel->seltyp != SEL_EMPTY))
 				{
+					auto str = std::make_unique<TCHAR[]>((sel->chrg.cpMax - sel->chrg.cpMin) + 1U);
+
 					TEXTRANGE tr{};
 
 					// get information about selected text
 					tr.chrg = sel->chrg;
-					auto str = std::make_unique<TCHAR[]>((sel->chrg.cpMax - sel->chrg.cpMin) + 1U);
 					tr.lpstrText = str.get();
 					SendMessage(m_Hwnd, EM_GETTEXTRANGE, NULL, reinterpret_cast<LPARAM>(&tr));
 
@@ -1493,16 +1497,20 @@ LRESULT DcxRichEdit::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 			}
 			break;
 		} // EN_SELCHANGE
+		default:
+			break;
 		} // switch(hdr->code)
 
 		break;
 	} // WM_NOTIFY
+	default:
+		break;
 	}	// switch (uMsg)
 
 	return 0L;
 }
 
-LRESULT DcxRichEdit::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bParsed)
+LRESULT DcxRichEdit::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed)
 {
 	switch (uMsg)
 	{
@@ -1598,7 +1606,7 @@ LRESULT DcxRichEdit::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 	return 0L;
 }
 
-bool DcxRichEdit::LoadRichTextFromXml(HWND hWnd, TString & tsFilename, const TString & tsDataSet)
+bool DcxRichEdit::LoadRichTextFromXml(HWND hWnd, TString& tsFilename, const TString& tsDataSet)
 {
 	if (!IsFile(tsFilename))
 		throw Dcx::dcxException(TEXT("Unable To Access File: %"), tsFilename);
@@ -1610,28 +1618,28 @@ bool DcxRichEdit::LoadRichTextFromXml(HWND hWnd, TString & tsFilename, const TSt
 	if (!doc.LoadFile())
 		throw Dcx::dcxException(TEXT("Not an XML File: %"), tsFilename);
 
-	const auto *const xRoot = doc.FirstChildElement("dcxml");
-	if (xRoot == nullptr)
+	const auto* const xRoot = doc.FirstChildElement("dcxml");
+	if (!xRoot)
 		throw Dcx::dcxException("Unable Find 'dcxml' root");
 
-	const auto *xElm = xRoot->FirstChildElement("richedit_data");
-	if (xElm == nullptr)
+	const auto* xElm = xRoot->FirstChildElement("richedit_data");
+	if (!xElm)
 		throw Dcx::dcxException("Unable To Find 'richedit_data' element");
 
 	xElm = xElm->FirstChildElement(tsDataSet.c_str());
-	if (xElm == nullptr)
+	if (!xElm)
 		throw Dcx::dcxException(TEXT("Unable To Find Dataset: %"), tsDataSet);
 
 	//xElm->Value();
 
+	// incomplete....
+
 	return false;
 }
 
-WNDPROC DcxRichEdit::m_hDefaultClassProc = nullptr;
-
 LRESULT DcxRichEdit::CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept
 {
-	if (m_hDefaultClassProc != nullptr)
+	if (m_hDefaultClassProc)
 		return CallWindowProc(m_hDefaultClassProc, this->m_Hwnd, uMsg, wParam, lParam);
 
 	return DefWindowProc(this->m_Hwnd, uMsg, wParam, lParam);

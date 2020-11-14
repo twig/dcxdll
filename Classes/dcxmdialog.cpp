@@ -15,18 +15,18 @@
 #include "Classes/dcxmdialog.h"
 #include "Classes/dcxdialog.h"
 
-/*!
- * \brief Constructor
- *
- * \param cHwnd Attached dialog Handle
- * \param pHwnd Parent Window
- * \param ID Control ID
- * \param p_Dialog Parent DcxDialog Object
- * \param rc Window Rectangle
- * \param styles Window Style Tokenized List
- */
+ /*!
+  * \brief Constructor
+  *
+  * \param cHwnd Attached dialog Handle
+  * \param pHwnd Parent Window
+  * \param ID Control ID
+  * \param p_Dialog Parent DcxDialog Object
+  * \param rc Window Rectangle
+  * \param styles Window Style Tokenized List
+  */
 
-DcxMDialog::DcxMDialog(const HWND cHwnd, const HWND pHwnd, const UINT ID, DcxDialog *const p_Dialog, const RECT *const rc, const TString & styles)
+DcxMDialog::DcxMDialog(const HWND cHwnd, const HWND pHwnd, const UINT ID, DcxDialog* const p_Dialog, const RECT* const rc, const TString& styles)
 	: DcxControl(ID, p_Dialog)
 {
 	parseControlStyles(styles);
@@ -47,7 +47,7 @@ DcxMDialog::DcxMDialog(const HWND cHwnd, const HWND pHwnd, const UINT ID, DcxDia
 
 	this->m_OrigID = dcxSetWindowID(m_Hwnd, ID);
 
-	SetProp(this->m_Hwnd, TEXT("dcx_cthis"), (HANDLE)this);
+	SetProp(this->m_Hwnd, TEXT("dcx_cthis"), this);
 }
 
 /*!
@@ -56,19 +56,19 @@ DcxMDialog::DcxMDialog(const HWND cHwnd, const HWND pHwnd, const UINT ID, DcxDia
  * blah
  */
 
-DcxMDialog::~DcxMDialog( )
+DcxMDialog::~DcxMDialog() noexcept
 {
 	auto parent = GetParent(m_Hwnd);
-	if ( parent == this->m_OrigParentHwnd && this->m_OrigParentHwnd != this->getParentDialog()->getHwnd())
+	if ((parent == this->m_OrigParentHwnd) && (this->m_OrigParentHwnd != this->getParentDialog()->getHwnd()))
 		return;
 
 	if (!m_DeleteByDestroy)
 	{ // all this isn't needed if control is deleted because of closing the dialog
 		const auto bHide = (IsWindowVisible(m_Hwnd) != FALSE);
-		if ( !bHide )
-			ShowWindow( m_Hwnd, SW_HIDE );
+		if (!bHide)
+			ShowWindow(m_Hwnd, SW_HIDE);
 
-		dcxSetWindowID( m_Hwnd, m_OrigID );
+		dcxSetWindowID(m_Hwnd, m_OrigID);
 
 		//this->removeStyle(WS_CHILD);
 		//this->addStyle(WS_POPUP);
@@ -79,16 +79,16 @@ DcxMDialog::~DcxMDialog( )
 		else
 			parent = this->m_OrigParentHwnd;
 
-		SetParent( m_Hwnd, parent );
+		SetParent(m_Hwnd, parent);
 		//SetParent( m_Hwnd, this->m_OrigParentHwnd);
-		this->setStyle( this->m_OrigStyles);
-		this->setExStyle( this->m_OrigExStyles );
+		this->setStyle(this->m_OrigStyles);
+		this->setExStyle(this->m_OrigExStyles);
 
-		SetWindowPos( m_Hwnd, nullptr, 30, 30, 0, 0, SWP_NOSIZE | SWP_FRAMECHANGED);
-		this->redrawWindow( );
+		SetWindowPos(m_Hwnd, nullptr, 30, 30, 0, 0, SWP_NOSIZE | SWP_FRAMECHANGED);
+		this->redrawWindow();
 
-		if ( !bHide )
-			ShowWindow( m_Hwnd, SW_SHOW );
+		if (!bHide)
+			ShowWindow(m_Hwnd, SW_SHOW);
 	}
 }
 
@@ -101,7 +101,7 @@ DcxMDialog::~DcxMDialog( )
  * \return > void
  */
 
-void DcxMDialog::parseInfoRequest( const TString &input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const
+void DcxMDialog::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>& szReturnValue) const
 {
 	// [NAME] [ID] [PROP]
 	if (input.gettok(3) == TEXT("dname"))
@@ -116,9 +116,9 @@ void DcxMDialog::parseInfoRequest( const TString &input, const refString<TCHAR, 
  * blah
  */
 
-void DcxMDialog::parseCommandRequest( const TString & input )
+void DcxMDialog::parseCommandRequest(const TString& input)
 {
-	const XSwitchFlags flags(input.getfirsttok( 3 ));
+	const XSwitchFlags flags(input.getfirsttok(3));
 
 	this->parseGlobalCommandRequest(input, flags);
 }
@@ -129,12 +129,12 @@ void DcxMDialog::parseCommandRequest( const TString & input )
  * blah
  */
 
-//void DcxMDialog::parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme)
-//{
-//	this->m_OrigName = styles;
-//}
+ //void DcxMDialog::parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme)
+ //{
+ //	this->m_OrigName = styles;
+ //}
 
-dcxWindowStyles DcxMDialog::parseControlStyles(const TString & tsStyles)
+dcxWindowStyles DcxMDialog::parseControlStyles(const TString& tsStyles)
 {
 	m_OrigName = tsStyles;
 
@@ -149,12 +149,12 @@ dcxWindowStyles DcxMDialog::parseControlStyles(const TString & tsStyles)
  * \param lParam Window Procedure LPARAM
  * \param bParsed Indicates if subclassed procedure parsed the message
  */
-LRESULT DcxMDialog::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) noexcept
+LRESULT DcxMDialog::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed) noexcept
 {
 	return 0L;
 }
 
-LRESULT DcxMDialog::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed)
+LRESULT DcxMDialog::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed)
 {
 
 	switch (uMsg)
@@ -162,7 +162,6 @@ LRESULT DcxMDialog::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
 	case WM_DESTROY:
 	{
 		auto wnd = this->m_hDefaultClassProc;
-		//auto wnd = this->m_hDefaultWindowProc;
 		auto mHwnd = m_Hwnd;
 		m_DeleteByDestroy = true;
 		delete this;
@@ -179,11 +178,9 @@ LRESULT DcxMDialog::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
 	return 0L;
 }
 
-WNDPROC DcxMDialog::m_hDefaultClassProc = nullptr;
-
 LRESULT DcxMDialog::CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept
 {
-	if (m_hDefaultClassProc != nullptr)
+	if (m_hDefaultClassProc)
 		return CallWindowProc(m_hDefaultClassProc, this->m_Hwnd, uMsg, wParam, lParam);
 
 	return DefWindowProc(this->m_Hwnd, uMsg, wParam, lParam);

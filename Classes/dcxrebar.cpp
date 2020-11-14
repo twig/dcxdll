@@ -26,7 +26,7 @@
   * \param styles Window Style Tokenized List
   */
 
-DcxReBar::DcxReBar(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles)
+DcxReBar::DcxReBar(const UINT ID, DcxDialog* const p_Dialog, const HWND mParentHwnd, const RECT* const rc, const TString& styles)
 	: DcxControl(ID, p_Dialog)
 {
 	const auto ws = parseControlStyles(styles);
@@ -56,7 +56,7 @@ DcxReBar::DcxReBar(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentH
 		//rbi.himl = nullptr;
 		//this->setBarInfo( &rbi );
 	}
-	this->setControlFont(GetStockFont(DEFAULT_GUI_FONT), FALSE);
+	this->setControlFont(Dcx::dcxGetStockObject<HFONT>(DEFAULT_GUI_FONT), FALSE);
 }
 
 /*!
@@ -106,7 +106,7 @@ const TString DcxReBar::getStyles(void) const
 }
 
 
-void DcxReBar::toXml(TiXmlElement *const xml) const
+void DcxReBar::toXml(TiXmlElement* const xml) const
 {
 	__super::toXml(xml);
 
@@ -116,7 +116,7 @@ void DcxReBar::toXml(TiXmlElement *const xml) const
 	{
 		for (auto i = decltype(count){0}; i < count; ++i)
 		{
-			if (const auto *const c = this->getControl(i); c != nullptr)
+			if (const auto* const c = this->getControl(i); c)
 			{
 				auto subs = std::make_unique<TiXmlElement>("control");
 				c->toXml(subs.get());
@@ -126,20 +126,18 @@ void DcxReBar::toXml(TiXmlElement *const xml) const
 	}
 }
 
-TiXmlElement * DcxReBar::toXml(void) const
+TiXmlElement* DcxReBar::toXml(void) const
 {
 	auto xml = std::make_unique<TiXmlElement>("control");
 	toXml(xml.get());
 	return xml.release();
 }
 
-DcxControl * DcxReBar::getControl(const int index) const noexcept
+DcxControl* DcxReBar::getControl(const int index) const noexcept
 {
 	if (index > -1 && index < this->getBandCount())
 	{
-		REBARBANDINFO rbBand{};
-		rbBand.cbSize = sizeof(REBARBANDINFO);
-		rbBand.fMask = RBBIM_CHILD;
+		REBARBANDINFO rbBand{ sizeof(REBARBANDINFO), RBBIM_CHILD };
 
 		if (this->getBandInfo(gsl::narrow_cast<UINT>(index), &rbBand) != 0)
 			return this->getParentDialog()->getControlByHWND(rbBand.hwndChild);
@@ -154,7 +152,7 @@ DcxControl * DcxReBar::getControl(const int index) const noexcept
  * blah
  */
 
-dcxWindowStyles DcxReBar::parseControlStyles(const TString & tsStyles)
+dcxWindowStyles DcxReBar::parseControlStyles(const TString& tsStyles)
 {
 	auto ws = parseGeneralControlStyles(tsStyles);
 
@@ -162,7 +160,7 @@ dcxWindowStyles DcxReBar::parseControlStyles(const TString & tsStyles)
 
 	//ExStyles |= WS_EX_CONTROLPARENT;
 
-	for (const auto &tsStyle : tsStyles)
+	for (const auto& tsStyle : tsStyles)
 	{
 		switch (std::hash<TString>{}(tsStyle))
 		{
@@ -201,6 +199,7 @@ dcxWindowStyles DcxReBar::parseControlStyles(const TString & tsStyles)
 			break;
 		case L"noauto"_hash:
 			ws.m_Styles |= CCS_NOPARENTALIGN | CCS_NORESIZE;
+			break;
 		default:
 			break;
 		}
@@ -216,9 +215,7 @@ dcxWindowStyles DcxReBar::parseControlStyles(const TString & tsStyles)
 
 HIMAGELIST DcxReBar::getImageList() const noexcept
 {
-	REBARINFO ri{};
-	ri.cbSize = sizeof(REBARINFO);
-	ri.fMask = RBIM_IMAGELIST;
+	REBARINFO ri{ sizeof(REBARINFO),RBIM_IMAGELIST };
 
 	getBarInfo(&ri);
 
@@ -233,10 +230,7 @@ HIMAGELIST DcxReBar::getImageList() const noexcept
 
 void DcxReBar::setImageList(HIMAGELIST himl) noexcept
 {
-	REBARINFO ri{};
-	ri.cbSize = sizeof(REBARINFO);
-	ri.himl = himl;
-	ri.fMask = RBIM_IMAGELIST;
+	REBARINFO ri{ sizeof(REBARINFO), RBIM_IMAGELIST, himl };
 
 	setBarInfo(&ri);
 }
@@ -260,7 +254,7 @@ void DcxReBar::setImageList(HIMAGELIST himl) noexcept
   * \return > void
   */
 
-void DcxReBar::parseInfoRequest(const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const
+void DcxReBar::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>& szReturnValue) const
 {
 	const auto numtok = input.numtok();
 
@@ -299,7 +293,7 @@ void DcxReBar::parseInfoRequest(const TString & input, const refString<TCHAR, MI
 		if (n < 0 || n >= this->getBandCount())
 			throw Dcx::dcxException("Invalid Index");
 
-		if (const auto *const c = this->getControl(n); c != nullptr)
+		if (const auto* const c = this->getControl(n); c)
 			_ts_snprintf(szReturnValue, TEXT("%u"), c->getUserID());
 	}
 	break;
@@ -332,7 +326,7 @@ void DcxReBar::parseInfoRequest(const TString & input, const refString<TCHAR, MI
  * \param input [NAME] [SWITCH] [ID] (OPTIONS)
  */
 
-void DcxReBar::parseCommandRequest(const TString & input)
+void DcxReBar::parseCommandRequest(const TString& input)
 {
 	const XSwitchFlags flags(input.getfirsttok(3));
 	const auto numtok = input.numtok();
@@ -406,9 +400,9 @@ void DcxReBar::parseCommandRequest(const TString & input)
 			rbBand.fMask |= RBBIM_IMAGE;
 		}
 
-		rbBand.lParam = (LPARAM)lpdcxrbb.get();
+		rbBand.lParam = reinterpret_cast<LPARAM>(lpdcxrbb.get());
 
-		DcxControl * p_Control = nullptr;
+		DcxControl* p_Control{ nullptr };
 		if (control_data.numtok() > 5)
 		{
 			p_Control = this->getParentDialog()->addControl(control_data, 1,
@@ -438,7 +432,7 @@ void DcxReBar::parseCommandRequest(const TString & input)
 		if (this->insertBand(nIndex, &rbBand) == 0L)
 		{ // 0L means failed.
 			this->getParentDialog()->deleteControl(p_Control);
-			if (rbBand.hwndChild != nullptr)
+			if (rbBand.hwndChild)
 				DestroyWindow(rbBand.hwndChild);
 
 			throw Dcx::dcxException("Unable To Add Band");
@@ -461,8 +455,8 @@ void DcxReBar::parseCommandRequest(const TString & input)
 		rbi.fMask = RBBIM_LPARAM;
 
 		this->getBandInfo(gsl::narrow_cast<UINT>(n), &rbi);
-		auto pdcxrbb = reinterpret_cast<LPDCXRBBAND>(rbi.lParam);
-		pdcxrbb->tsMarkText = (numtok > 4 ? input.getlasttoks() : TEXT(""));	// tok 5, -1
+		if (auto pdcxrbb = reinterpret_cast<LPDCXRBBAND>(rbi.lParam); pdcxrbb)
+			pdcxrbb->tsMarkText = (numtok > 4 ? input.getlasttoks() : TEXT(""));	// tok 5, -1
 	}
 	// xdid -d [NAME] [ID] [SWITCH] [N]
 	else if (flags[TEXT('d')])
@@ -676,27 +670,27 @@ void DcxReBar::parseCommandRequest(const TString & input)
 
 		auto himl = this->getImageList();
 
-		if (himl == nullptr)
+		if (!himl)
 		{
 			himl = this->createImageList();
 
-			if (himl != nullptr)
+			if (himl)
 				this->setImageList(himl);
 		}
 
-		if (himl == nullptr)
+		if (!himl)
 			throw Dcx::dcxException("Unable to get imagelist");
 #if DCX_USE_WRAPPERS
 		const Dcx::dcxIconResource icon(index, filename, false, flag);
 		ImageList_AddIcon(himl, icon.get());
 #else
-		if (const HICON icon = dcxLoadIcon(index, filename, false, flag); icon != nullptr)
+		if (const HICON icon = dcxLoadIcon(index, filename, false, flag); icon)
 		{
 			ImageList_AddIcon(himl, icon);
 			DestroyIcon(icon);
-		}
-#endif
 	}
+#endif
+}
 	// xdid -y [NAME] [ID] [SWITCH] [+FLAGS]
 	else if (flags[TEXT('y')])
 	{
@@ -726,7 +720,7 @@ void DcxReBar::resetContents() noexcept
  * blah
  */
 
-UINT DcxReBar::parseBandStyleFlags(const TString & flags) noexcept
+UINT DcxReBar::parseBandStyleFlags(const TString& flags) noexcept
 {
 	const XSwitchFlags xflags(flags);
 	UINT iFlags = 0;
@@ -953,7 +947,7 @@ LRESULT DcxReBar::minBand(const UINT uBand, const BOOL fIdeal) noexcept
  *
  * blah
  */
-LRESULT DcxReBar::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed)
+LRESULT DcxReBar::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed)
 {
 	switch (uMsg)
 	{
@@ -961,7 +955,7 @@ LRESULT DcxReBar::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
 	{
 		dcxlParam(LPNMHDR, hdr);
 
-		if (hdr == nullptr)
+		if (!hdr)
 			break;
 
 		switch (hdr->code)
@@ -980,7 +974,7 @@ LRESULT DcxReBar::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
 			{
 				const auto lpdcxrbb = reinterpret_cast<LPDCXRBBAND>(lpncd->lItemlParam);
 
-				if (lpdcxrbb == nullptr)
+				if (!lpdcxrbb)
 					return CDRF_DODEFAULT;
 
 				if (lpdcxrbb->clrText != CLR_INVALID)
@@ -1025,7 +1019,7 @@ LRESULT DcxReBar::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
 
 			dcxlParam(LPNMREBAR, lpnmrb);
 
-			if (lpnmrb == nullptr)
+			if (!lpnmrb)
 				break;
 
 			REBARBANDINFO rbBand{};
@@ -1042,29 +1036,28 @@ LRESULT DcxReBar::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
 			}
 		}
 		break;
+		default:
+			break;
 		} // switch
 	}
 	break;
+	default:
+		break;
 	}
 
 	return 0L;
 }
 
-LRESULT DcxReBar::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed)
+LRESULT DcxReBar::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed)
 {
 	LRESULT lRes = 0L;
 	switch (uMsg)
 	{
 	case WM_NOTIFY:
 	{
-		dcxlParam(LPNMHDR, hdr);
-
-		if (hdr == nullptr)
-			break;
-
-		if (IsWindow(hdr->hwndFrom))
+		if (dcxlParam(LPNMHDR, hdr); (hdr) && IsWindow(hdr->hwndFrom))
 		{
-			if (const auto c_this = static_cast<DcxControl *>(GetProp(hdr->hwndFrom, TEXT("dcx_cthis"))); c_this != nullptr)
+			if (const auto c_this = static_cast<DcxControl*>(GetProp(hdr->hwndFrom, TEXT("dcx_cthis"))); c_this)
 				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 		}
 	}
@@ -1074,9 +1067,9 @@ LRESULT DcxReBar::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 	case WM_VSCROLL:
 	case WM_COMMAND:
 	{
-		if (IsWindow((HWND)lParam))
+		if (IsWindow(reinterpret_cast<HWND>(lParam)))
 		{
-			if (const auto c_this = static_cast<DcxControl *>(GetProp((HWND)lParam, TEXT("dcx_cthis"))); c_this != nullptr)
+			if (const auto c_this = static_cast<DcxControl*>(GetProp(reinterpret_cast<HWND>(lParam), TEXT("dcx_cthis"))); c_this)
 				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 		}
 	}
@@ -1084,11 +1077,9 @@ LRESULT DcxReBar::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 
 	case WM_DELETEITEM:
 	{
-		dcxlParam(LPDELETEITEMSTRUCT, idata);
-
-		if ((idata != nullptr) && (IsWindow(idata->hwndItem)))
+		if (dcxlParam(LPDELETEITEMSTRUCT, idata); (idata) && (IsWindow(idata->hwndItem)))
 		{
-			if (const auto c_this = static_cast<DcxControl *>(GetProp(idata->hwndItem, TEXT("dcx_cthis"))); c_this != nullptr)
+			if (const auto c_this = static_cast<DcxControl*>(GetProp(idata->hwndItem, TEXT("dcx_cthis"))); c_this)
 				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 		}
 	}
@@ -1098,7 +1089,7 @@ LRESULT DcxReBar::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 	{
 		if (const auto cHwnd = GetDlgItem(m_Hwnd, gsl::narrow_cast<int>(wParam)); IsWindow(cHwnd))
 		{
-			if (const auto c_this = static_cast<DcxControl *>(GetProp(cHwnd, TEXT("dcx_cthis"))); c_this != nullptr)
+			if (const auto c_this = static_cast<DcxControl*>(GetProp(cHwnd, TEXT("dcx_cthis"))); c_this)
 				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 		}
 	}
@@ -1106,11 +1097,9 @@ LRESULT DcxReBar::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 
 	case WM_DRAWITEM:
 	{
-		dcxlParam(LPDRAWITEMSTRUCT, idata);
-
-		if ((idata != nullptr) && (IsWindow(idata->hwndItem)))
+		if (dcxlParam(LPDRAWITEMSTRUCT, idata); (idata) && (IsWindow(idata->hwndItem)))
 		{
-			if (const auto c_this = static_cast<DcxControl *>(GetProp(idata->hwndItem, TEXT("dcx_cthis"))); c_this != nullptr)
+			if (const auto c_this = static_cast<DcxControl*>(GetProp(idata->hwndItem, TEXT("dcx_cthis"))); c_this)
 				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 		}
 	}
@@ -1118,8 +1107,7 @@ LRESULT DcxReBar::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 
 	case WM_LBUTTONUP:
 	{
-		RBHITTESTINFO rbhi{};
-		if (GetCursorPos(&rbhi.pt))
+		if (RBHITTESTINFO rbhi{}; GetCursorPos(&rbhi.pt))
 		{
 			MapWindowPoints(nullptr, m_Hwnd, &rbhi.pt, 1);
 
@@ -1138,8 +1126,7 @@ LRESULT DcxReBar::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 	{
 		if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
 		{
-			RBHITTESTINFO rbhi{};
-			if (GetCursorPos(&rbhi.pt))
+			if (RBHITTESTINFO rbhi{}; GetCursorPos(&rbhi.pt))
 			{
 				MapWindowPoints(nullptr, m_Hwnd, &rbhi.pt, 1);
 
@@ -1171,11 +1158,9 @@ LRESULT DcxReBar::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 	return lRes;
 }
 
-WNDPROC DcxReBar::m_hDefaultClassProc = nullptr;
-
 LRESULT DcxReBar::CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept
 {
-	if (m_hDefaultClassProc != nullptr)
+	if (m_hDefaultClassProc)
 		return CallWindowProc(m_hDefaultClassProc, this->m_Hwnd, uMsg, wParam, lParam);
 
 	return DefWindowProc(this->m_Hwnd, uMsg, wParam, lParam);

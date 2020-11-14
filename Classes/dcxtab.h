@@ -26,15 +26,10 @@ class DcxDialog;
  * blah
  */
 
-struct DCXTCITEM {
-
+struct DCXTCITEM
+{
 	TString		tsTipText;	//!< Tooltip Text
 	HWND		mChildHwnd{ nullptr };	//!< Hwnd to child window
-
-	//DCXTCITEM() noexcept
-	//	: mChildHwnd(nullptr)
-	//	, tsTipText()
-	//{}
 };
 using LPDCXTCITEM = DCXTCITEM *;
 
@@ -44,7 +39,7 @@ using LPDCXTCITEM = DCXTCITEM *;
  * blah
  */
 
-class DcxTab
+class DcxTab final
 	: public DcxControl
 {
 public:
@@ -55,9 +50,9 @@ public:
 	DcxTab &operator =(DcxTab &&) = delete;
 
 	DcxTab(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles );
-	~DcxTab( );
+	~DcxTab( ) noexcept;
 
-	LRESULT PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) final;
+	LRESULT OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) final;
 	LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) final;
 
 	//void parseInfoRequest(const TString & input, PTCHAR szReturnValue) const final;
@@ -72,7 +67,7 @@ public:
 	void toXml(TiXmlElement *const xml) const final;
 	TiXmlElement * toXml(void) const final;
 
-	static WNDPROC m_hDefaultClassProc;	//!< Default window procedure
+	static inline WNDPROC m_hDefaultClassProc{ nullptr };	//!< Default window procedure
 	LRESULT CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept final;
 
 	HIMAGELIST getImageList( ) const noexcept;

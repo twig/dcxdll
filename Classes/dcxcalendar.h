@@ -28,7 +28,7 @@ class DcxDialog;
  * blah
  */
 
-class DcxCalendar
+class DcxCalendar final
 	: public DcxControl
 {
 public:
@@ -39,9 +39,9 @@ public:
 	DcxCalendar &operator =(DcxCalendar &&) = delete;
 
 	DcxCalendar( const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles );
-	~DcxCalendar( );
+	~DcxCalendar( ) noexcept;
 
-	LRESULT PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) final;
+	LRESULT OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) final;
 	LRESULT ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) final;
 
 	//void parseInfoRequest(const TString & input, PTCHAR szReturnValue) const final;
@@ -57,7 +57,7 @@ public:
 	const TString getStyles(void) const final;
 	const TString getValue(void) const;
 
-	static WNDPROC m_hDefaultClassProc;	//!< Default window procedure
+	static inline WNDPROC m_hDefaultClassProc{ nullptr };	//!< Default window procedure
 	LRESULT CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept final;
 
 private:

@@ -52,7 +52,7 @@ DcxDivider::DcxDivider(const UINT ID, DcxDialog *const p_Dialog, const HWND mPar
  * blah
  */
 
-DcxDivider::~DcxDivider()
+DcxDivider::~DcxDivider() noexcept
 {
 }
 
@@ -119,7 +119,7 @@ void DcxDivider::parseInfoRequest(const TString & input, const refString<TCHAR, 
 	{
 		auto iDivPos = 0;
 
-		SendMessage(m_Hwnd, DV_GETDIVPOS, (WPARAM)NULL, (LPARAM)&iDivPos);
+		SendMessage(m_Hwnd, DV_GETDIVPOS, 0U, reinterpret_cast<LPARAM>(&iDivPos));
 		_ts_snprintf(szReturnValue, TEXT("%d"), iDivPos);
 	}
 	break;
@@ -167,10 +167,12 @@ void DcxDivider::parseCommandRequest(const TString & input)
 		if (control_data.numtok() < 6)
 			throw Dcx::dcxException("Insufficient Parameters");
 
-		const auto ID = mIRC_ID_OFFSET + control_data.gettok(1).to_<UINT>();
+		//const auto ID = mIRC_ID_OFFSET + control_data.gettok(1).to_<UINT>();
+		const TString tsID(control_data.gettok(1));
+		const auto ID = getParentDialog()->NameToID(tsID);
 
-		if (!getParentDialog()->isIDValid(ID, true))
-			throw Dcx::dcxException(TEXT("Control with ID \"%\" already exists"), ID - mIRC_ID_OFFSET);
+		if (!getParentDialog()->isIDValid(ID, true) || ID)
+			throw Dcx::dcxException(TEXT("Control with ID %(%) already exists"), tsID, ID - mIRC_ID_OFFSET);
 
 		try {
 			dvpi.hChild = getParentDialog()->addControl(control_data, 1, CTLF_ALLOW_ALLBUTDOCK, m_Hwnd)->getHwnd();
@@ -182,9 +184,9 @@ void DcxDivider::parseCommandRequest(const TString & input)
 
 			redrawWindow();
 		}
-		catch (const std::exception &e) {
-			//showErrorEx(nullptr, TEXT("-c"), TEXT("Unable To Create Control %d (%S)"), ID - mIRC_ID_OFFSET, e.what());
-			showError(nullptr, TEXT("-c"), TEXT("Unable To Create Control % (%)"), ID - mIRC_ID_OFFSET, e.what());
+		catch (const std::exception &e)
+		{
+			showError(nullptr, TEXT("-c"), TEXT("Unable To Create Control %(%) (%)"), tsID, ID - mIRC_ID_OFFSET, e.what());
 			throw;
 		}
 	}
@@ -209,7 +211,7 @@ void DcxDivider::parseCommandRequest(const TString & input)
 
 LRESULT DcxDivider::setPane(const UINT iPaneId, const LPDVPANEINFO lpdvpi) noexcept
 {
-	return SendMessage(m_Hwnd, DV_SETPANE, (WPARAM)iPaneId, (LPARAM)lpdvpi);
+	return SendMessage(m_Hwnd, DV_SETPANE, gsl::narrow_cast<WPARAM>(iPaneId), reinterpret_cast<LPARAM>(lpdvpi));
 }
 
 /*!
@@ -220,7 +222,7 @@ LRESULT DcxDivider::setPane(const UINT iPaneId, const LPDVPANEINFO lpdvpi) noexc
 
 LRESULT DcxDivider::setDivPos(const UINT iDivPos) noexcept
 {
-	return SendMessage(m_Hwnd, DV_SETDIVPOS, (WPARAM)0U, (LPARAM)iDivPos);
+	return SendMessage(m_Hwnd, DV_SETDIVPOS, 0U, gsl::narrow_cast<LPARAM>(iDivPos));
 }
 
 void DcxDivider::toXml(TiXmlElement *const xml) const
@@ -233,18 +235,18 @@ void DcxDivider::toXml(TiXmlElement *const xml) const
 	DVPANEINFO right;
 	Divider_GetChildControl(m_Hwnd, DVF_PANELEFT, &left);
 	Divider_GetChildControl(m_Hwnd, DVF_PANERIGHT, &right);
-	if (left.hChild != nullptr)
+	if (left.hChild)
 	{
-		if (const auto *const dcxcleft = this->getParentDialog()->getControlByHWND(left.hChild); dcxcleft != nullptr)
+		if (const auto *const dcxcleft = this->getParentDialog()->getControlByHWND(left.hChild); dcxcleft)
 			xml->LinkEndChild(dcxcleft->toXml());
 		else
 			xml->LinkEndChild(new TiXmlElement("control"));
 	}
 	else
 		xml->LinkEndChild(new TiXmlElement("control"));
-	if (right.hChild != nullptr)
+	if (right.hChild)
 	{
-		if (const auto *const dcxcright = this->getParentDialog()->getControlByHWND(right.hChild); dcxcright != nullptr)
+		if (const auto *const dcxcright = this->getParentDialog()->getControlByHWND(right.hChild); dcxcright)
 			xml->LinkEndChild(dcxcright->toXml());
 		else
 			xml->LinkEndChild(new TiXmlElement("control"));
@@ -270,7 +272,7 @@ LRESULT DcxDivider::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL 
 	return 0L;
 }
 
-LRESULT DcxDivider::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed)
+LRESULT DcxDivider::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed)
 {
 	LRESULT lRes = 0L;
 	switch (uMsg)
@@ -279,12 +281,12 @@ LRESULT DcxDivider::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
 	{
 		dcxlParam(LPNMHDR, hdr);
 
-		if (hdr == nullptr)
+		if (!hdr)
 			break;
 
 		if (IsWindow(hdr->hwndFrom))
 		{
-			if (const auto c_this = static_cast<DcxControl *>(GetProp(hdr->hwndFrom, TEXT("dcx_cthis"))); c_this != nullptr)
+			if (const auto c_this = static_cast<DcxControl *>(GetProp(hdr->hwndFrom, TEXT("dcx_cthis"))); c_this)
 				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 		}
 	}
@@ -294,9 +296,9 @@ LRESULT DcxDivider::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
 	case WM_VSCROLL:
 	case WM_COMMAND:
 	{
-		if (IsWindow((HWND)lParam))
+		if (IsWindow(reinterpret_cast<HWND>(lParam)))
 		{
-			if (const auto c_this = static_cast<DcxControl *>(GetProp((HWND)lParam, TEXT("dcx_cthis"))); c_this != nullptr)
+			if (const auto c_this = static_cast<DcxControl *>(GetProp(reinterpret_cast<HWND>(lParam), TEXT("dcx_cthis"))); c_this)
 				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 		}
 	}
@@ -305,9 +307,9 @@ LRESULT DcxDivider::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
 	{
 		dcxlParam(LPCOMPAREITEMSTRUCT, idata);
 
-		if ((idata != nullptr) && (IsWindow(idata->hwndItem)))
+		if ((idata) && (IsWindow(idata->hwndItem)))
 		{
-			if (const auto c_this = static_cast<DcxControl *>(GetProp(idata->hwndItem, TEXT("dcx_cthis"))); c_this != nullptr)
+			if (const auto c_this = static_cast<DcxControl *>(GetProp(idata->hwndItem, TEXT("dcx_cthis"))); c_this)
 				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 		}
 	}
@@ -317,9 +319,9 @@ LRESULT DcxDivider::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
 	{
 		dcxlParam(LPDELETEITEMSTRUCT, idata);
 
-		if ((idata != nullptr) && (IsWindow(idata->hwndItem)))
+		if ((idata) && (IsWindow(idata->hwndItem)))
 		{
-			if (const auto c_this = static_cast<DcxControl *>(GetProp(idata->hwndItem, TEXT("dcx_cthis"))); c_this != nullptr)
+			if (const auto c_this = static_cast<DcxControl *>(GetProp(idata->hwndItem, TEXT("dcx_cthis"))); c_this)
 				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 		}
 	}
@@ -329,7 +331,7 @@ LRESULT DcxDivider::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
 	{
 		if (auto cHwnd = GetDlgItem(m_Hwnd, gsl::narrow_cast<int>(wParam)); IsWindow(cHwnd))
 		{
-			if (const auto c_this = static_cast<DcxControl *>(GetProp(cHwnd, TEXT("dcx_cthis"))); c_this != nullptr)
+			if (const auto c_this = static_cast<DcxControl *>(GetProp(cHwnd, TEXT("dcx_cthis"))); c_this)
 				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 		}
 	}
@@ -339,9 +341,9 @@ LRESULT DcxDivider::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
 	{
 		dcxlParam(LPDRAWITEMSTRUCT, idata);
 
-		if ((idata != nullptr) && (IsWindow(idata->hwndItem)))
+		if ((idata) && (IsWindow(idata->hwndItem)))
 		{
-			if (const auto c_this = static_cast<DcxControl *>(GetProp(idata->hwndItem, TEXT("dcx_cthis"))); c_this != nullptr)
+			if (const auto c_this = static_cast<DcxControl *>(GetProp(idata->hwndItem, TEXT("dcx_cthis"))); c_this)
 				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 		}
 	}
@@ -359,7 +361,10 @@ LRESULT DcxDivider::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
 		const auto phase = gsl::narrow_cast<int>(wParam);
 		const auto pt = reinterpret_cast<LPPOINT>(lParam);
 
-		this->execAliasEx(TEXT("%s,%u,%d,%d"), (phase == DVNM_DRAG_START ? TEXT("dragbegin") : (phase == DVNM_DRAG_END ? TEXT("dragfinish") : TEXT("drag"))), this->getUserID(), pt->x, pt->y);
+		constexpr TCHAR szdrag_begin[] = TEXT("dragbegin");
+		constexpr TCHAR szdrag[] = TEXT("drag");
+		constexpr TCHAR szdrag_finish[] = TEXT("dragfinish");
+		this->execAliasEx(TEXT("%s,%u,%d,%d"), (phase == DVNM_DRAG_START ? &szdrag_begin[0] : (phase == DVNM_DRAG_END ? &szdrag_finish[0] : &szdrag[0])), this->getUserID(), pt->x, pt->y);
 	}
 	break;
 
@@ -371,11 +376,9 @@ LRESULT DcxDivider::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & 
 	return lRes;
 }
 
-WNDPROC DcxDivider::m_hDefaultClassProc = nullptr;
-
 LRESULT DcxDivider::CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept
 {
-	if (m_hDefaultClassProc != nullptr)
+	if (m_hDefaultClassProc)
 		return CallWindowProc(m_hDefaultClassProc, this->m_Hwnd, uMsg, wParam, lParam);
 
 	return DefWindowProc(this->m_Hwnd, uMsg, wParam, lParam);

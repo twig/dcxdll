@@ -28,7 +28,7 @@
   * \param styles Window Style Tokenized List
   */
 
-DcxImage::DcxImage(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles)
+DcxImage::DcxImage(const UINT ID, DcxDialog* const p_Dialog, const HWND mParentHwnd, const RECT* const rc, const TString& styles)
 	: DcxControl(ID, p_Dialog)
 {
 	const auto ws = parseControlStyles(styles);
@@ -48,7 +48,7 @@ DcxImage::DcxImage(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentH
 	if (ws.m_NoTheme)
 		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
 
-	if (p_Dialog->getToolTip() != nullptr)
+	if (p_Dialog->getToolTip())
 	{
 		if (styles.istok(TEXT("tooltips")))
 		{
@@ -73,7 +73,7 @@ DcxImage::DcxImage(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentH
  * blah
  */
 
-DcxImage::~DcxImage()
+DcxImage::~DcxImage() noexcept
 {
 	PreloadData();
 }
@@ -84,7 +84,7 @@ DcxImage::~DcxImage()
  * blah
  */
 
-dcxWindowStyles DcxImage::parseControlStyles(const TString & tsStyles)
+dcxWindowStyles DcxImage::parseControlStyles(const TString& tsStyles)
 {
 	auto ws = parseGeneralControlStyles(tsStyles);
 
@@ -102,7 +102,7 @@ dcxWindowStyles DcxImage::parseControlStyles(const TString & tsStyles)
  * \return > void
  */
 
-void DcxImage::parseInfoRequest(const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const
+void DcxImage::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>& szReturnValue) const
 {
 	// [NAME] [ID] [PROP]
 	if (const auto prop(input.getfirsttok(3)); prop == TEXT("fname"))
@@ -114,13 +114,13 @@ void DcxImage::parseInfoRequest(const TString & input, const refString<TCHAR, MI
 // clears existing image and icon data and sets pointers to null
 void DcxImage::PreloadData() noexcept
 {
-	if (this->m_hBitmap != nullptr)
+	if (this->m_hBitmap)
 	{
-		DeleteBitmap(this->m_hBitmap);
+		DeleteObject(this->m_hBitmap);
 		this->m_hBitmap = nullptr;
 	}
 
-	if (this->m_hIcon != nullptr)
+	if (this->m_hIcon)
 	{
 		DestroyIcon(this->m_hIcon);
 		this->m_hIcon = nullptr;
@@ -133,7 +133,7 @@ void DcxImage::PreloadData() noexcept
 }
 
 #ifdef DCX_USE_GDIPLUS
-bool DcxImage::LoadGDIPlusImage(const TString &flags, TString &filename)
+bool DcxImage::LoadGDIPlusImage(const TString& flags, TString& filename)
 {
 	if (!IsFile(filename))
 		throw Dcx::dcxException(TEXT("Unable to Access File: %"), filename);
@@ -182,7 +182,7 @@ bool DcxImage::LoadGDIPlusImage(const TString &flags, TString &filename)
  * blah
  */
 
-void DcxImage::parseCommandRequest(const TString & input)
+void DcxImage::parseCommandRequest(const TString& input)
 {
 	const XSwitchFlags flags(input.getfirsttok(3));
 	const auto numtok = input.numtok();
@@ -236,7 +236,7 @@ void DcxImage::parseCommandRequest(const TString & input)
 		else
 			this->m_hBitmap = dcxLoadBitmap(this->m_hBitmap, filename);
 
-		if ((this->m_hBitmap == nullptr) && (this->m_pImage == nullptr))
+		if ((!this->m_hBitmap) && (!this->m_pImage))
 			throw Dcx::dcxException("Failed to load image");
 
 		this->m_tsFilename = filename;
@@ -318,7 +318,7 @@ void DcxImage::DrawBMPImage(HDC hdc, const int x, const int y, const int w, cons
 #if DCX_USE_WRAPPERS
 	Dcx::dcxHDCBitmapResource hdcbmp(hdc, m_hBitmap);
 
-	if (BITMAP bmp{}; GetObject(m_hBitmap, sizeof(BITMAP), &bmp) != 0)
+	if (auto [code, bmp] = Dcx::dcxGetObject<BITMAP>(m_hBitmap); code != 0)
 	{
 		if (m_clrTransColor != CLR_INVALID)
 			TransparentBlt(hdc, x, y, w, h, hdcbmp.get(), 0, 0, bmp.bmWidth, bmp.bmHeight, m_clrTransColor);
@@ -328,16 +328,16 @@ void DcxImage::DrawBMPImage(HDC hdc, const int x, const int y, const int w, cons
 #else
 	auto hdcbmp = CreateCompatibleDC(hdc);
 
-	if (hdcbmp == nullptr)
+	if (!hdcbmp)
 		return;
 
 	Auto(DeleteDC(hdcbmp));
 
-	if (BITMAP bmp{}; GetObject(m_hBitmap, sizeof(BITMAP), &bmp) != 0)
+	if (auto [code, bmp] = Dcx::dcxGetObject<BITMAP>(m_hBitmap); code != 0)
 	{
-		auto oldBitmap = SelectBitmap(hdcbmp, m_hBitmap);
+		auto oldBitmap = Dcx::dcxSelectObject<HBITMAP>(hdcbmp, m_hBitmap);
 
-		Auto(SelectBitmap(hdcbmp, oldBitmap));
+		Auto(Dcx::dcxSelectObject<HBITMAP>(hdcbmp, oldBitmap));
 
 		if (m_clrTransColor != CLR_INVALID)
 			TransparentBlt(hdc, x, y, w, h, hdcbmp, 0, 0, bmp.bmWidth, bmp.bmHeight, m_clrTransColor);
@@ -347,7 +347,7 @@ void DcxImage::DrawBMPImage(HDC hdc, const int x, const int y, const int w, cons
 #endif
 }
 
-void DcxImage::toXml(TiXmlElement *const xml) const
+void DcxImage::toXml(TiXmlElement* const xml) const
 {
 	__super::toXml(xml);
 
@@ -356,7 +356,7 @@ void DcxImage::toXml(TiXmlElement *const xml) const
 	//xml->SetAttribute("styles", getStyles().c_str());
 }
 
-TiXmlElement * DcxImage::toXml() const
+TiXmlElement* DcxImage::toXml() const
 {
 	auto xml = std::make_unique<TiXmlElement>("control");
 	toXml(xml.get());
@@ -368,12 +368,12 @@ TiXmlElement * DcxImage::toXml() const
  *
  * blah
  */
-LRESULT DcxImage::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) noexcept
+LRESULT DcxImage::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed) noexcept
 {
 	return 0L;
 }
 
-LRESULT DcxImage::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed)
+LRESULT DcxImage::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed)
 {
 	switch (uMsg)
 	{
@@ -381,7 +381,7 @@ LRESULT DcxImage::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 	{
 		//<#IF USER == 'hkr' COMMENT OUT, UNLESS ITS THE TIME WHEN HE WANTS THIS>
 		if (this->isExStyle(WindowExStyle::Transparent))
-			this->DrawParentsBackground((HDC)wParam);
+			this->DrawParentsBackground(reinterpret_cast<HDC>(wParam));
 		//if (this->isExStyle(WS_EX_TRANSPARENT))
 		//	this->DrawParentsBackground((HDC)wParam);
 		//else
@@ -394,7 +394,7 @@ LRESULT DcxImage::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 
 	case WM_PRINTCLIENT:
 	{
-		this->DrawClientArea((HDC)wParam);
+		this->DrawClientArea(reinterpret_cast<HDC>(wParam));
 		bParsed = TRUE;
 	}
 	break;
@@ -449,28 +449,26 @@ void DcxImage::DrawClientArea(HDC hdc)
 
 	// draw bitmap
 #ifdef DCX_USE_GDIPLUS
-	if ((m_hBitmap != nullptr) && (!m_bIsIcon) && (m_pImage == nullptr))
+	if ((m_hBitmap) && (!m_bIsIcon) && (!m_pImage))
 	{
 #else
-	if ((m_hBitmap != nullptr) && (!m_bIsIcon))
+	if ((m_hBitmap) && (!m_bIsIcon))
 	{
 #endif
 		DrawBMPImage(hdc, x, y, w, h);
 	}
 	// draw icon
-	else if ((m_hIcon != nullptr) && (m_bIsIcon))
+	else if ((m_hIcon) && (m_bIsIcon))
 		DrawIconEx(hdc, 0, 0, m_hIcon, gsl::narrow_cast<int>(m_iIconSize), gsl::narrow_cast<int>(m_iIconSize), 0, m_hBackBrush, DI_NORMAL | DI_COMPAT);
 #ifdef DCX_USE_GDIPLUS
-	else if ((m_pImage != nullptr) && (Dcx::GDIModule.isUseable()))
+	else if ((m_pImage) && (Dcx::GDIModule.isUseable()))
 		DrawGDIImage(hdc, x, y, w, h);
 #endif
 }
 
-WNDPROC DcxImage::m_hDefaultClassProc = nullptr;
-
 LRESULT DcxImage::CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept
 {
-	if (m_hDefaultClassProc != nullptr)
+	if (m_hDefaultClassProc)
 		return CallWindowProc(m_hDefaultClassProc, this->m_Hwnd, uMsg, wParam, lParam);
 
 	return DefWindowProc(this->m_Hwnd, uMsg, wParam, lParam);

@@ -30,17 +30,16 @@ class DcxDialog;
  * blah
  */
 
-struct DCXCOMBOEXEDIT {
-
+struct DCXCOMBOEXEDIT
+{
 	WNDPROC OldProc{ nullptr }; //!< Subclassed Window Procedure of Combo
 	HWND cHwnd{ nullptr };      //!< Parent ComboEx Handle
 	HWND pHwnd{ nullptr };      //!< Dialog Handle
-
-	//DCXCOMBOEXEDIT() noexcept : OldProc(nullptr), cHwnd(nullptr), pHwnd(nullptr) {}
 };
 using LPDCXCOMBOEXEDIT = DCXCOMBOEXEDIT * ;
 
-struct DCXCBITEM {
+struct DCXCBITEM
+{
 	TString tsMark;		// Marked text
 };
 using LPDCXCBITEM = DCXCBITEM *;
@@ -51,7 +50,7 @@ using LPDCXCBITEM = DCXCBITEM *;
  * blah
  */
 
-class DcxComboEx
+class DcxComboEx final
 	: public DcxControl
 	, public DcxListHelper
 {
@@ -63,9 +62,9 @@ public:
 	DcxComboEx &operator =(DcxComboEx &&) = delete;
 
 	DcxComboEx(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles );
-	~DcxComboEx( );
+	~DcxComboEx( ) noexcept;
 
-	LRESULT PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) final;
+	LRESULT OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) final;
 	LRESULT ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) final;
 
 	//void parseInfoRequest(const TString & input, PTCHAR szReturnValue) const final;
@@ -101,14 +100,13 @@ public:
 	TiXmlElement * toXml(void) const final;
 	const TString getStyles(void) const final;
 
-	static WNDPROC m_hDefaultClassProc;	//!< Default window procedure
+	static inline WNDPROC m_hDefaultClassProc{ nullptr };	//!< Default window procedure
 	LRESULT CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept final;
 
 protected:
 
 	HWND				m_EditHwnd{ nullptr };	//!< Combo's Edit Control Handle
 	HWND				m_hComboHwnd{ nullptr };	//!< Combo's handle
-	//TString				m_tsSelected;
 private:
 	DCXCOMBOEXEDIT		m_exEdit{};
 

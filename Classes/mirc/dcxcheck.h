@@ -26,7 +26,7 @@ class DcxDialog;
  * blah
  */
 
-class DcxCheck
+class DcxCheck final
 	: public DcxControl
 {
 public:
@@ -39,7 +39,7 @@ public:
 	DcxCheck(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles);
 	~DcxCheck( );
 
-	LRESULT PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) final;
+	LRESULT OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) final;
 	LRESULT ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) final;
 
 	//void parseInfoRequest(const TString & input, PTCHAR szReturnValue) const final;
@@ -52,10 +52,12 @@ public:
 
 	void toXml(TiXmlElement *const xml) const final;
 	TiXmlElement * toXml(void) const final;
+	std::unique_ptr<TiXmlElement> toXml(int blah) const;
+
 	const TString getStyles(void) const final;
 
 	LRESULT CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept final;
-	static WNDPROC m_hDefaultClassProc;	//!< Default window procedure
+	static inline WNDPROC m_hDefaultClassProc{ nullptr };	//!< Default window procedure
 
 private:
 	void DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam);

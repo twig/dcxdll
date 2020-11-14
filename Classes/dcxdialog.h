@@ -15,6 +15,7 @@
 #ifndef _DCXDIALOG_H_
 #define _DCXDIALOG_H_
 
+#include "defines.h"
 #include "dcxwindow.h"
 #include "xpopup/xpopupmenu.h"
 #include "layout/layoutmanager.h"
@@ -27,7 +28,7 @@
 #define DBS_BKGTILE		0x00000008 // tiled across whole dialog
 #define DBS_BKGSTRETCH	0x00000010 // stretched to fit
 
-// used with DBS_BKGNORMAL
+ // used with DBS_BKGNORMAL
 #define DBS_BKGCENTER	0x00000020 // centered horizontally
 #define DBS_BKGVCENTER	0x00000040 // centered vertically
 #define DBS_BKGRIGHT	0x00000080 // right aligned
@@ -51,10 +52,9 @@
 // dummy runtime classe definition
 class DcxControl;
 class DcxList;
-//class Dcx;
 
-using VectorOfControlPtrs = std::vector<DcxControl *>; //!< blah
-using VectorOfDragListPtrs = std::vector<DcxList *>; //!< Vector of draglists
+using VectorOfControlPtrs = std::vector<DcxControl*>; //!< blah
+using VectorOfDragListPtrs = std::vector<DcxList*>; //!< Vector of draglists
 using IntegerHash = std::map<TString, UINT>;
 
 /*!
@@ -68,49 +68,49 @@ using IntegerHash = std::map<TString, UINT>;
 #pragma warning( disable : 2292 ) //warning #2292: destructor is declared but copy constructor and assignment operator are not
 #endif
 
-class DcxDialog
+class DcxDialog final
 	: public DcxWindow
 {
 public:
 	DcxDialog() = delete;
-	DcxDialog(const DcxDialog &other) = delete;
-	DcxDialog(DcxDialog &&other) = delete;
-	DcxDialog &operator =(const DcxDialog &) = delete;	// No assignments!
-	DcxDialog &operator =(DcxDialog &&) = delete;	// No move assignments!
+	DcxDialog(const DcxDialog& other) = delete;
+	DcxDialog(DcxDialog&& other) = delete;
+	DcxDialog& operator =(const DcxDialog&) = delete;	// No assignments!
+	DcxDialog& operator =(DcxDialog&&) = delete;	// No move assignments!
 
-	DcxDialog( const HWND mHwnd, const TString & tsName, const TString & tsAliasName);
-	~DcxDialog( );
+	DcxDialog(const HWND mHwnd, const TString& tsName, const TString& tsAliasName);
+	~DcxDialog() noexcept;
 
-	void parseCommandRequest( const TString & input ) final;
-	void parseCommandRequestEX(const TCHAR *const szFormat, ...);
-	void parseComControlRequestEX(const UINT id, const TCHAR *const szFormat, ...);
+	void parseCommandRequest(const TString& input) final;
+	void parseCommandRequestEX(const TCHAR* const szFormat, ...);
+	void parseComControlRequestEX(const UINT id, const TCHAR* const szFormat, ...);
 	//void parseInfoRequest( const TString & input, TCHAR * szReturnValue ) const;
-	void parseInfoRequest(const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const;
+	void parseInfoRequest(const TString& input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>& szReturnValue) const override;
 
 	//bool evalAliasEx( TCHAR *const szReturn, const int maxlen, const TCHAR *const szFormat, ... );
 	//bool evalAlias( TCHAR *const szReturn, const int maxlen, const TCHAR *const szArgs);
-	bool evalAliasEx(const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturn, const int maxlen, const TCHAR *const szFormat, ...);
-	bool evalAlias(const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturn, const int maxlen, const TCHAR *const szArgs);
-	bool execAliasEx( const TCHAR *const szFormat, ... );
-	bool execAlias( const TCHAR *const szArgs);
+	bool evalAliasEx(const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>& szReturn, const int maxlen, const TCHAR* const szFormat, ...) const;
+	bool evalAlias(const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>& szReturn, const int maxlen, const TCHAR* const szArgs) const;
+	bool execAliasEx(const TCHAR* const szFormat, ...) const;
+	bool execAlias(const TCHAR* const szArgs) const;
 
 	template <typename Format, typename Value, typename... Arguments>
-	std::pair<bool,TString> evalAliasT(const Format &fmt, const Value &val, Arguments&&... args)
+	auto evalAliasT(const Format& fmt, const Value& val, Arguments&& ... args)
 	{
 		TString tsArgs;
 		return evalAliasT(_ts_sprintf(tsArgs, fmt, val, args...));
 	}
 	template <typename Format, typename Value>
-	std::pair<bool, TString> evalAliasT(const Format &fmt, const Value &val)
+	auto evalAliasT(const Format& fmt, const Value& val)
 	{
 		TString tsArgs;
 		return evalAliasT(_ts_sprintf(tsArgs, fmt, val));
 	}
 	template <typename Value>
-	std::pair<bool, TString> evalAliasT(const Value &val)
+	std::pair<bool, TString> evalAliasT(const Value& val)
 	{
 		TString tsArgs, tsRes;
-		if constexpr(std::is_array_v<Value> && std::is_pod_v<Value>)
+		if constexpr (std::is_array_v<Value> && Dcx::is_pod_v<Value>)
 			_ts_sprintf(tsArgs, TEXT("$%(%,%)"), getAliasName(), getName(), MakeTextmIRCSafe(&val[0]));
 		else
 			_ts_sprintf(tsArgs, TEXT("$%(%,%)"), getAliasName(), getName(), MakeTextmIRCSafe(val));
@@ -124,10 +124,10 @@ public:
 	}
 
 	template <typename Value>
-	std::optional<TString> o_evalAliasT(const Value &val)
+	auto o_evalAliasT(const Value& val)
 	{
 		TString tsArgs, tsRes;
-		if constexpr(std::is_array_v<Value> && std::is_pod_v<Value>)
+		if constexpr (std::is_array_v<Value> && Dcx::is_pod_v<Value>)
 			_ts_sprintf(tsArgs, TEXT("$%(%,%)"), getAliasName(), getName(), MakeTextmIRCSafe(&val[0]));
 		else
 			_ts_sprintf(tsArgs, TEXT("$%(%,%)"), getAliasName(), getName(), MakeTextmIRCSafe(val));
@@ -138,76 +138,125 @@ public:
 		return mIRCLinker::o_eval<TString>(tsArgs);
 	}
 
-	DcxControl * getControlByID( const UINT ID ) const noexcept;
-	DcxControl * getControlByHWND( const HWND mHwnd ) const noexcept;
+	DcxControl* getControlByID(const UINT ID) const noexcept;
+	DcxControl* getControlByHWND(const HWND mHwnd) const noexcept;
 
-	void addControl( DcxControl * p_Control );
-	DcxControl *addControl(const TString & input, const UINT offset, const UINT64 mask, HWND hParent);
-	void deleteControl(const DcxControl *const p_Control);
+	//void addControl(DcxControl* const p_Control);
+	DcxControl* addControl(const TString& input, const UINT offset, const UINT64 mask, HWND hParent);
+	void deleteControl(const DcxControl* const p_Control) noexcept;
 
-	const bool updateLayout( RECT & rc );
+	void deleteAllControls() noexcept;
 
-	void setMouseControl( const UINT mUID );
-	void setFocusControl( const UINT mUID );
+	const bool updateLayout(RECT& rc);
 
-	inline const TString &getName() const noexcept { return m_tsName; }
-	inline const TString &getAliasName() const noexcept { return m_tsAliasName; }
-	inline const HBRUSH &getBackClrBrush() const noexcept { return m_hBackBrush; }
-	inline const UINT &getFocusControl() const noexcept { return m_FocusID; };
-	inline void setParentName(const TString &strParent) { m_tsParentName = strParent; }
-	inline const TString &getParentName() const noexcept { return m_tsParentName; }
-	inline const HCURSOR &getCursor( ) const noexcept { return m_hCursor; };
-	inline const HCURSOR &getCursor(const WORD wHitCode) const noexcept
+	void setMouseControl(const UINT mUID);
+	void setFocusControl(const UINT mUID);
+
+	/// <summary>
+	/// Get the dialogs name.
+	/// </summary>
+	/// <returns>TString - Dialogs name</returns>
+	inline const TString& getName() const noexcept { return m_tsName; }
+	/// <summary>
+	/// Get alias name for this dialog
+	/// </summary>
+	/// <returns>TString - Alias name</returns>
+	inline const TString& getAliasName() const noexcept { return m_tsAliasName; }
+	/// <summary>
+	/// Get background brush
+	/// </summary>
+	/// <returns>HBRUSH - Colour brush</returns>
+	inline const HBRUSH& getBackClrBrush() const noexcept { return m_hBackBrush; }
+	/// <summary>
+	/// Get the ID of the control that has focus.
+	/// </summary>
+	/// <returns>UINT - ID number</returns>
+	inline const UINT& getFocusControl() const noexcept { return m_FocusID; };
+	/// <summary>
+	/// Sets this dialogs parent name
+	/// </summary>
+	/// <param name="strParent">- TString - Name of parent</param>
+	inline void setParentName(const TString& strParent) { m_tsParentName = strParent; }
+	/// <summary>
+	/// Gets the parent name.
+	/// </summary>
+	/// <returns>TString - The parents name.</returns>
+	inline const TString& getParentName() const noexcept { return m_tsParentName; }
+	/// <summary>
+	/// Get the current cursor.
+	/// </summary>
+	/// <returns>HCURSOR - Current cursor</returns>
+	inline const HCURSOR& getCursor() const noexcept { return m_hCursor; };
+	/// <summary>
+	/// Get the current cursor for a specific zone
+	/// </summary>
+	/// <param name="wHitCode">- WORD - Zone code</param>
+	/// <returns>HCURSOR - Current cursor for specified zone. Returns nullptr on failure.</returns>
+	inline const HCURSOR& getCursor(const WORD wHitCode) const noexcept
 	{
 		//if (wHitCode < std::size(m_hCursorList)) return m_hCursorList[wHitCode].first;
 		//return m_hCursor;
 
-		[[gsl::suppress(bounds)]] if (wHitCode < std::size(m_hCursorList)) return m_hCursorList[wHitCode].cursor;
+		GSL_SUPPRESS(bounds) if (wHitCode < std::size(m_hCursorList)) return gsl::at(m_hCursorList,wHitCode).cursor;
 		return m_hCursor;
-	};
-	inline const HWND &getToolTip(void) const noexcept { return m_ToolTipHWND; };
-	inline void incRef( ) noexcept { ++m_iRefCount; };
-	inline void decRef( ) noexcept { --m_iRefCount; };
-	inline const UINT &getRefCount( ) const noexcept { return m_iRefCount; };
-	inline const DWORD &getEventMask( ) const noexcept { return m_dEventMask; };
-	inline const HBITMAP &getBgBitmap() const noexcept { return m_bitmapBg; };
-	inline const COLORREF &getBgTransparentCol() const noexcept { return m_colTransparentBg; };
-	inline const bool &IsVistaStyle(void) const noexcept { return m_bVistaStyle; };
-	inline const HDC &GetVistaHDC(void) const noexcept { return m_hVistaHDC; };
-	inline const HWND &GetVistaHWND(void) const noexcept { return m_hFakeHwnd; };
-	inline const SIZE &GetVistaOffsets(void) const noexcept { return m_sVistaOffsets; };
-	inline const HBITMAP &GetVistaBitmap(void) const noexcept { return m_hVistaBitmap; };
-	inline void SetVerbose(const bool state) noexcept { m_bVerboseErrors = state; };
-	inline const bool &IsVerbose(void) const noexcept { return m_bVerboseErrors; };
-	inline const bool &isDialogActive(void) const noexcept { return m_bDialogActive; };	// returns dialogs active state
-	inline const IntegerHash &getNamedIds(void) const noexcept { return m_NamedIds; };
 
-	void showError(const TCHAR *const prop, const TCHAR *const cmd, const TCHAR *const err) const;
-	void showErrorEx(const TCHAR *const prop, const TCHAR *const cmd, const TCHAR *const fmt, ...) const;
-	void showControlError(const TCHAR *const prop, const TCHAR *const cmd, const TCHAR *const err) const;
-	void showControlErrorEx(const TCHAR *const prop, const TCHAR *const cmd, const TCHAR *const fmt, ...) const;
+		//GSL_SUPPRESS(bounds) if (wHitCode < std::size(m_hCursorList)) return gsl::at(m_hCursorList, wHitCode).value;
+		//return m_hCursor;
+	};
+	inline const HWND& getToolTip(void) const noexcept { return m_ToolTipHWND; };
+	inline void incRef() const noexcept { ++m_iRefCount; };
+	inline void decRef() const noexcept { --m_iRefCount; };
+	inline const UINT& getRefCount() const noexcept { return m_iRefCount; };
+	inline const DWORD& getEventMask() const noexcept { return m_dEventMask; };
+	inline const HBITMAP& getBgBitmap() const noexcept { return m_bitmapBg; };
+	inline const COLORREF& getBgTransparentCol() const noexcept { return m_colTransparentBg; };
+	inline const bool& IsVistaStyle(void) const noexcept { return m_bVistaStyle; };
+	inline const HDC& GetVistaHDC(void) const noexcept { return m_hVistaHDC; };
+	inline const HWND& GetVistaHWND(void) const noexcept { return m_hFakeHwnd; };
+	inline const SIZE& GetVistaOffsets(void) const noexcept { return m_sVistaOffsets; };
+	inline const HBITMAP& GetVistaBitmap(void) const noexcept { return m_hVistaBitmap; };
+	inline void SetVerbose(const bool state) noexcept { m_bVerboseErrors = state; };
+	inline const bool& IsVerbose(void) const noexcept { return m_bVerboseErrors; };
+	inline const bool& isDialogActive(void) const noexcept { return m_bDialogActive; };	// returns dialogs active state
+	inline const IntegerHash& getNamedIds(void) const noexcept { return m_NamedIds; };
+
+	void showError(const TCHAR* const prop, const TCHAR* const cmd, const TCHAR* const err) const;
+	void showErrorEx(const TCHAR* const prop, const TCHAR* const cmd, const TCHAR* const fmt, ...) const;
+	void showControlError(const TCHAR* const prop, const TCHAR* const cmd, const TCHAR* const err) const;
+	void showControlErrorEx(const TCHAR* const prop, const TCHAR* const cmd, const TCHAR* const fmt, ...) const;
 #ifdef DCX_USE_GDIPLUS
-	void DrawCaret(Gdiplus::Graphics & graph);
-	void DrawCtrl(Gdiplus::Graphics & graphics, HDC hDC, HWND hWnd);
-	void DrawDialog(Gdiplus::Graphics & graphics, HDC hDC);
+	void DrawCaret(Gdiplus::Graphics& graph);
+	void DrawCtrl(Gdiplus::Graphics& graphics, HDC hDC, HWND hWnd);
+	void DrawDialog(Gdiplus::Graphics& graphics, HDC hDC);
 #endif
 	void CreateVistaStyle(void);
-	const bool CreateVistaStyleBitmap(const SIZE &szWin) noexcept;
+	const bool CreateVistaStyleBitmap(const SIZE& szWin) noexcept;
 	void RemoveVistaStyle(void) noexcept;
-	void UpdateVistaStyle(const RECT *const rcUpdate = nullptr);
+	void UpdateVistaStyle(const RECT* const rcUpdate = nullptr);
 	void SetVistaStylePos(void) noexcept;
 	void SetVistaStyleSize(void) noexcept;
 
-	[[gsl::suppress(lifetime)]] const bool isNamedId(const TString &NamedID) const
+	/// <summary>
+	/// Check if a name already exists on the internal list.
+	/// </summary>
+	/// <param name="NamedID">- TString - The named ID.</param>
+	/// <returns>bool - true/false</returns>
+	GSL_SUPPRESS(lifetime) const bool isNamedId(const TString& NamedID) const
 	{
 		const auto local_id = NamedID.to_<UINT>() + mIRC_ID_OFFSET;
 		const auto itEnd = m_NamedIds.end();
 
-		const auto itGot = std::find_if(m_NamedIds.begin(), itEnd, [local_id,NamedID](const auto &arg) { return ((arg.second == local_id) || (arg.first == NamedID)); });
+		const auto itGot = std::find_if(m_NamedIds.begin(), itEnd, [local_id, NamedID](const auto& arg) noexcept { return ((arg.second == local_id) || (arg.first == NamedID)); });
 
 		return (itGot != itEnd);
 	}
-	const bool AddNamedId(const TString &NamedID, const UINT local_id)
+	/// <summary>
+	/// Add a name and ID pair to the internal list.
+	/// </summary>
+	/// <param name="NamedID">- The name to add</param>
+	/// <param name="local_id">- The ID to associate with the given name.</param>
+	/// <returns>bool - true on success</returns>
+	const bool AddNamedId(const TString& NamedID, const UINT local_id)
 	{
 		if (isNamedId(NamedID))
 			return false;
@@ -215,34 +264,47 @@ public:
 		m_NamedIds[NamedID] = local_id;
 		return true;
 	}
-	const UINT NameToID(const TString &NamedID) const
+	/// <summary>
+	/// Convert a name to an ID
+	/// </summary>
+	/// <param name="NamedID">- The name to convert</param>
+	/// <returns>UINT - The ID associated with that name or zero on failure.</returns>
+	const UINT NameToID(const TString& NamedID) const
 	{
 		const auto local_id = NamedID.to_<UINT>() + mIRC_ID_OFFSET;
 
-		for (const auto &[tsStoredName, uStoredID] : m_NamedIds)
+		for (const auto& [tsStoredName, uStoredID] : m_NamedIds)
 		{
 			if ((tsStoredName == NamedID) || (uStoredID == local_id))
 				return uStoredID;
 		}
 		return 0U;
 	}
-	const UINT NameToUserID(const TString &NamedID) const
+	/// <summary>
+	/// Convert a name to a UserID
+	/// </summary>
+	/// <param name="NamedID">- The name to convert</param>
+	/// <returns>UINT - The UserID associated with that name or zero on failure.</returns>
+	const UINT NameToUserID(const TString& NamedID) const
 	{
-		const auto local_id = NamedID.to_<UINT>() + mIRC_ID_OFFSET;
-		//const auto itEnd = namedIds.end();
-		//
-		//const auto itGot = std::find_if(namedIds.begin(), itEnd, [local_id, NamedID](const auto &arg) { return ((arg.second == local_id) || (arg.first == NamedID)); });
-		//if (itGot != itEnd)
-		//	return itGot->second - mIRC_ID_OFFSET;
+		//const auto local_id = NamedID.to_<UINT>() + mIRC_ID_OFFSET;
+		//for (const auto& [tsStoredName, uStoredID] : m_NamedIds)
+		//{
+		//	if ((tsStoredName == NamedID) || (uStoredID == local_id))
+		//		return uStoredID - mIRC_ID_OFFSET;
+		//}
+		//return 0U;
 
-		for (const auto &[tsStoredName, uStoredID] : m_NamedIds)
-		{
-			if ((tsStoredName == NamedID) || (uStoredID == local_id))
-				return uStoredID - mIRC_ID_OFFSET;
-		}
+		if (const auto local_id = NameToID(NamedID); local_id > mIRC_ID_OFFSET)
+			return local_id - mIRC_ID_OFFSET;
 		return 0U;
 	}
-	const TString &IDToName(const UINT local_id) const noexcept
+	/// <summary>
+	/// Convert an ID number to its name.
+	/// </summary>
+	/// <param name="local_id">- The ID number</param>
+	/// <returns>TString - The name associated with that ID number. Returns an empty string on failure.</returns>
+	const TString& IDToName(const UINT local_id) const noexcept
 	{
 		static const TString tsEmpty;
 
@@ -251,14 +313,18 @@ public:
 		//if (itGot != itEnd)
 		//	return itGot->first;
 
-		for (const auto &[tsStoredName, uStoredID] : m_NamedIds)
+		for (const auto& [tsStoredName, uStoredID] : m_NamedIds)
 		{
 			if (uStoredID == local_id)
 				return tsStoredName;
 		}
 		return tsEmpty;
 	}
-	const UINT getUniqueID() const
+	/// <summary>
+	/// Get a unique ID
+	/// </summary>
+	/// <returns>UINT - A unique ID number. Returns zero on failure</returns>
+	const UINT getUniqueID() const noexcept
 	{
 		for (auto iCount = 0U, i = mIRC_ID_OFFSET + DCX_NAMED_ID_OFFSET; iCount < mIRC_MAX_CONTROLS; ++iCount)
 		{
@@ -272,7 +338,7 @@ public:
 				//	return i;
 
 				bool bFound = false;
-				for (const auto &x : m_NamedIds)
+				for (const auto& x : m_NamedIds)
 				{
 					if (x.second == i)
 					{
@@ -286,7 +352,7 @@ public:
 		}
 		return 0U;
 	}
-	bool deleteNamedID(const UINT local_id)
+	bool deleteNamedID(const UINT local_id) noexcept
 	{
 		//const auto itEnd = namedIds.end();
 		//const auto itGot = std::find_if(namedIds.begin(), itEnd, [local_id](const auto &arg) { return (arg.second == local_id); });
@@ -307,7 +373,7 @@ public:
 		}
 		return false;
 	}
-	bool deleteNamedID(const TString &tsName)
+	bool deleteNamedID(const TString& tsName)
 	{
 		if (const auto itEnd = m_NamedIds.end(), itGot = m_NamedIds.find(tsName); itGot != itEnd)
 		{
@@ -321,19 +387,19 @@ public:
 
 	void MapVistaRect(HWND hwnd, LPRECT rc) const noexcept;
 
-	void RegisterDragList(DcxList *const list);
-	void UnregisterDragList(const DcxList *const list);
+	void RegisterDragList(DcxList* const list);
+	void UnregisterDragList(const DcxList* const list) noexcept;
 
-	void toXml(TiXmlElement *const xml) const;
-	TiXmlElement * toXml() const;
-	TiXmlElement * toXml(const TString &name) const;
-	void toXml(TiXmlElement *const xml, const TString &name) const;
+	void toXml(TiXmlElement* const xml) const override;
+	[[nodiscard("Memory Leak")]] TiXmlElement* toXml() const;
+	[[nodiscard("Memory Leak")]] TiXmlElement* toXml(const TString& name) const;
+	void toXml(TiXmlElement* const xml, const TString& name) const;
 
 	const bool isIDValid(_In_ const UINT ID, _In_ const bool bUnused = false) const noexcept;
 
 	static LRESULT WINAPI WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-	static void DrawDialogBackground(HDC hdc, DcxDialog *const p_this, LPCRECT rwnd);
-	static const WindowAnimStyle getAnimateStyles(const TString & flags) noexcept;
+	static void DrawDialogBackground(HDC hdc, DcxDialog* const p_this, LPCRECT rwnd);
+	static const WindowAnimStyle getAnimateStyles(const TString& flags) noexcept;
 
 private:
 
@@ -353,17 +419,23 @@ private:
 	UINT m_MouseID{}; //!< Mouse Hover ID
 	UINT m_FocusID{}; //!< Mouse Hover ID
 	UINT m_uStyleBg{ DBS_BKGNORMAL };
-	UINT m_iRefCount{};
+	mutable UINT m_iRefCount{};
 
-	XPopupMenu * m_popup{ nullptr };
+	XPopupMenu* m_popup{ nullptr };
 
 	std::unique_ptr<LayoutManager> m_pLayoutManager; //!< Layout Manager Object
 
 	HCURSOR m_hCursor{ nullptr };  //!< Cursor Handle
+	//using CursorPair = Dcx::CodeValue<HCURSOR, bool>;
 	struct CursorPair
 	{
 		HCURSOR	cursor{ nullptr };
 		bool	enabled{ false };
+
+		explicit operator bool() const noexcept
+		{
+			return enabled && cursor;
+		}
 	};
 	CursorPair m_hCursorList[22]{};
 	//std::vector<CursorPair> m_hCursorList2;
@@ -394,8 +466,8 @@ private:
 	bool m_bVistaStyle{ false };
 	mutable bool m_bErrorTriggered{ false };		// set to true when an error has been triggered & used to avoid error loops
 	mutable bool m_bDialogActive{ true };		// set to true when dialog is active
-	static bool m_bIsMenuBar;
-	static bool m_bIsSysMenu;
+	static inline bool m_bIsMenuBar{ false };
+	static inline bool m_bIsSysMenu{ false };
 	bool m_bReserved{ false };				//!< Reserved for future use.
 
 	PVOID m_pVistaBits{ nullptr };
@@ -406,13 +478,13 @@ private:
 
 	RECT m_GlassOffsets{};
 
-	void i_showError(const TCHAR *const cType, const TCHAR *const prop, const TCHAR *const cmd, const TCHAR *const err) const;
+	void i_showError(const TCHAR* const cType, const TCHAR* const prop, const TCHAR* const cmd, const TCHAR* const err) const;
 	void PreloadData(void) noexcept;
 
-	static std::pair<WindowStyle, WindowExStyle> parseBorderStyles(const TString & flags) noexcept;
-	static const UINT parseBkgFlags(const TString & flags) noexcept;
-	static const UINT parseFlashFlags(const TString & flags) noexcept;
-	static const UINT parseTooltipFlags(const TString &flags) noexcept;
+	static std::pair<WindowStyle, WindowExStyle> parseBorderStyles(const TString& flags) noexcept;
+	static const UINT parseBkgFlags(const TString& flags) noexcept;
+	static const UINT parseFlashFlags(const TString& flags) noexcept;
+	static const UINT parseTooltipFlags(const TString& flags) noexcept;
 
 	//// Helper to calculate the alpha-premultiled value for a pixel
 	//constexpr static inline const DWORD PreMultiply(const COLORREF cl, const unsigned char nAlpha) noexcept
@@ -423,7 +495,7 @@ private:
 	//		(GetGValue((cl & 0xFFFF)) * dAlpha / 255) << 8 |
 	//		(GetBValue(cl) * dAlpha / 255);
 	//}
-	static LRESULT ProcessDragListMessage(DcxDialog *const p_this, UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bParsed);
+	static LRESULT ProcessDragListMessage(DcxDialog* const p_this, UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed);
 };
 #ifdef __INTEL_COMPILER // Defined when using Intel C++ Compiler.
 #pragma warning( pop )

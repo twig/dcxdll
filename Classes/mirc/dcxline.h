@@ -26,8 +26,9 @@ class DcxDialog;
  * blah
  */
 
-class DcxLine : public DcxControl {
-
+class DcxLine final
+	: public DcxControl
+{
 public:
 	DcxLine() = delete;
 	DcxLine(const DcxLine &) = delete;
@@ -36,9 +37,9 @@ public:
 	DcxLine &operator =(DcxLine &&) = delete;
 
 	DcxLine( const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles );
-	~DcxLine( );
+	~DcxLine( ) noexcept;
 
-	LRESULT PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) final;
+	LRESULT OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) final;
 	LRESULT ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) noexcept final;
 
 	//void parseInfoRequest(const TString & input, PTCHAR szReturnValue) const final;
@@ -54,7 +55,7 @@ public:
 	const TString getStyles(void) const final;
 
 	LRESULT CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept final;
-	static WNDPROC m_hDefaultClassProc;	//!< Default window procedure
+	static inline WNDPROC m_hDefaultClassProc{ nullptr };	//!< Default window procedure
 
 private:
 	void DrawClientArea(HDC hdc);

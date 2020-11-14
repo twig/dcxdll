@@ -31,88 +31,95 @@ class DcxDialog;
  * blah
  */
 
-class DcxWebControl
+class DcxWebControl final
 	: public DcxControl, public IOleClientSite, public IOleInPlaceSite, public DWebBrowserEvents2
 {
 public:
 	DcxWebControl() = delete;
-	DcxWebControl(const DcxWebControl &) = delete;
-	DcxWebControl &operator =(const DcxWebControl &) = delete;	// No assignments!
-	DcxWebControl(DcxWebControl &&) = delete;
-	DcxWebControl &operator =(DcxWebControl &&) = delete;
+	DcxWebControl(const DcxWebControl&) = delete;
+	DcxWebControl& operator =(const DcxWebControl&) = delete;	// No assignments!
+	DcxWebControl(DcxWebControl&&) = delete;
+	DcxWebControl& operator =(DcxWebControl&&) = delete;
 
-	DcxWebControl(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles );
-	~DcxWebControl( );
+	DcxWebControl(const UINT ID, DcxDialog* const p_Dialog, const HWND mParentHwnd, const RECT* const rc, const TString& styles);
+	~DcxWebControl() noexcept;
 
-	LRESULT PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) final;
-	LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) noexcept final;
+	LRESULT OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed) final;
+	LRESULT ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed) noexcept final;
 
 	//void parseInfoRequest(const TString & input, PTCHAR szReturnValue) const final;
-	void parseInfoRequest(const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const final;
-	void parseCommandRequest( const TString & input ) final;
-	dcxWindowStyles parseControlStyles(const TString & tsStyles) final;
+	void parseInfoRequest(const TString& input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>& szReturnValue) const final;
+	void parseCommandRequest(const TString& input) final;
+	dcxWindowStyles parseControlStyles(const TString& tsStyles) final;
+
+	bool InitializeInterface() noexcept;
 
 	// IDispatch Interface
-	HRESULT STDMETHODCALLTYPE GetTypeInfoCount( UINT __RPC_FAR *pctinfo ) noexcept override { *pctinfo = NULL; return S_OK; }
-	HRESULT STDMETHODCALLTYPE GetTypeInfo( UINT,LCID,ITypeInfo __RPC_FAR *__RPC_FAR * ) noexcept override { return E_NOTIMPL; }
-	HRESULT STDMETHODCALLTYPE GetIDsOfNames( REFIID,LPOLESTR __RPC_FAR*, UINT,LCID,DISPID __RPC_FAR* ) noexcept override { return E_NOTIMPL; }
-	HRESULT STDMETHODCALLTYPE Invoke( DISPID, REFIID, LCID, WORD, DISPPARAMS __RPC_FAR *, VARIANT __RPC_FAR *, EXCEPINFO __RPC_FAR *, UINT __RPC_FAR * ) override;
+	HRESULT STDMETHODCALLTYPE GetTypeInfoCount(UINT __RPC_FAR* pctinfo) noexcept override { *pctinfo = NULL; return S_OK; }
+	HRESULT STDMETHODCALLTYPE GetTypeInfo(UINT, LCID, ITypeInfo __RPC_FAR* __RPC_FAR*) noexcept override { return E_NOTIMPL; }
+	HRESULT STDMETHODCALLTYPE GetIDsOfNames(REFIID, LPOLESTR __RPC_FAR*, UINT, LCID, DISPID __RPC_FAR*) noexcept override { return E_NOTIMPL; }
+	HRESULT STDMETHODCALLTYPE Invoke(DISPID, REFIID, LCID, WORD, DISPPARAMS __RPC_FAR*, VARIANT __RPC_FAR*, EXCEPINFO __RPC_FAR*, UINT __RPC_FAR*) override;
 
 	// IOleClientSite Interface
-	HRESULT STDMETHODCALLTYPE SaveObject( ) noexcept override { return S_OK; }
-	HRESULT STDMETHODCALLTYPE GetMoniker( DWORD, DWORD, IMoniker __RPC_FAR *__RPC_FAR * ) noexcept override { return E_NOTIMPL; }
-	HRESULT STDMETHODCALLTYPE GetContainer( IOleContainer __RPC_FAR *__RPC_FAR* ) noexcept override { return E_NOTIMPL; }
-	HRESULT STDMETHODCALLTYPE ShowObject( ) noexcept override { return S_OK; }
-	HRESULT STDMETHODCALLTYPE OnShowWindow( BOOL ) noexcept override { return S_OK; }
-	HRESULT STDMETHODCALLTYPE RequestNewObjectLayout( ) noexcept override { return S_OK; }
+	HRESULT STDMETHODCALLTYPE SaveObject() noexcept override { return S_OK; }
+	HRESULT STDMETHODCALLTYPE GetMoniker(DWORD, DWORD, IMoniker __RPC_FAR* __RPC_FAR*) noexcept override { return E_NOTIMPL; }
+	HRESULT STDMETHODCALLTYPE GetContainer(IOleContainer __RPC_FAR* __RPC_FAR*) noexcept override { return E_NOTIMPL; }
+	HRESULT STDMETHODCALLTYPE ShowObject() noexcept override { return S_OK; }
+	HRESULT STDMETHODCALLTYPE OnShowWindow(BOOL) noexcept override { return S_OK; }
+	HRESULT STDMETHODCALLTYPE RequestNewObjectLayout() noexcept override { return S_OK; }
 
 	// IOleInPlaceSite Interface
-	HRESULT STDMETHODCALLTYPE CanInPlaceActivate( ) noexcept override { return S_OK; }
-	HRESULT STDMETHODCALLTYPE OnInPlaceActivate( ) noexcept override { return S_OK; };
-	HRESULT STDMETHODCALLTYPE OnUIActivate( ) noexcept override { return S_OK; }
-	HRESULT STDMETHODCALLTYPE Scroll( SIZE ) noexcept override { return E_NOTIMPL; }
-	HRESULT STDMETHODCALLTYPE OnUIDeactivate( BOOL ) noexcept override { return S_OK; }
-	HRESULT STDMETHODCALLTYPE OnInPlaceDeactivate( ) noexcept override { return S_OK; }
-	HRESULT STDMETHODCALLTYPE DiscardUndoState( ) noexcept override { return S_OK; }
-	HRESULT STDMETHODCALLTYPE DeactivateAndUndo( ) noexcept override { return S_OK; }
-	HRESULT STDMETHODCALLTYPE OnPosRectChange( LPCRECT ) noexcept override { return S_OK; }
-	HRESULT STDMETHODCALLTYPE GetWindowContext( IOleInPlaceFrame __RPC_FAR *__RPC_FAR*, IOleInPlaceUIWindow __RPC_FAR *__RPC_FAR*, LPRECT, LPRECT, LPOLEINPLACEFRAMEINFO ) noexcept override;
+	HRESULT STDMETHODCALLTYPE CanInPlaceActivate() noexcept override { return S_OK; }
+	HRESULT STDMETHODCALLTYPE OnInPlaceActivate() noexcept override { return S_OK; };
+	HRESULT STDMETHODCALLTYPE OnUIActivate() noexcept override { return S_OK; }
+	HRESULT STDMETHODCALLTYPE Scroll(SIZE) noexcept override { return E_NOTIMPL; }
+	HRESULT STDMETHODCALLTYPE OnUIDeactivate(BOOL) noexcept override { return S_OK; }
+	HRESULT STDMETHODCALLTYPE OnInPlaceDeactivate() noexcept override { return S_OK; }
+	HRESULT STDMETHODCALLTYPE DiscardUndoState() noexcept override { return S_OK; }
+	HRESULT STDMETHODCALLTYPE DeactivateAndUndo() noexcept override { return S_OK; }
+	HRESULT STDMETHODCALLTYPE OnPosRectChange(LPCRECT) noexcept override { return S_OK; }
+	HRESULT STDMETHODCALLTYPE GetWindowContext(IOleInPlaceFrame __RPC_FAR* __RPC_FAR*, IOleInPlaceUIWindow __RPC_FAR* __RPC_FAR*, LPRECT, LPRECT, LPOLEINPLACEFRAMEINFO) noexcept override;
 
 	// IOleWindow Interface
-	HRESULT STDMETHODCALLTYPE GetWindow( HWND __RPC_FAR * phwnd ) noexcept override { *phwnd = m_Hwnd; return S_OK; }
-	HRESULT STDMETHODCALLTYPE ContextSensitiveHelp( BOOL ) noexcept override { return E_NOTIMPL; }
+	HRESULT STDMETHODCALLTYPE GetWindow(HWND __RPC_FAR* phwnd) noexcept override { *phwnd = m_Hwnd; return S_OK; }
+	HRESULT STDMETHODCALLTYPE ContextSensitiveHelp(BOOL) noexcept override { return E_NOTIMPL; }
 
 	// IUnknown Interface
-	ULONG STDMETHODCALLTYPE AddRef( ) noexcept override { return 2; }
-	ULONG STDMETHODCALLTYPE Release( ) noexcept override { return 8; }
-	HRESULT STDMETHODCALLTYPE QueryInterface( REFIID, __RPC_FAR void* __RPC_FAR * ) noexcept override;
+	ULONG STDMETHODCALLTYPE AddRef() noexcept override { return 2; }
+	ULONG STDMETHODCALLTYPE Release() noexcept override { return 8; }
+	HRESULT STDMETHODCALLTYPE QueryInterface(REFIID, __RPC_FAR void* __RPC_FAR*) noexcept override;
 
 	inline const TString getType() const final { return TEXT("webctrl"); };
 	inline const DcxControlTypes getControlType() const noexcept final { return DcxControlTypes::WEBCTRL; }
 
-	static WNDPROC m_hDefaultClassProc;	//!< Default window procedure
+	static inline WNDPROC m_hDefaultClassProc{ nullptr };	//!< Default window procedure
 	LRESULT CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept final;
 
 private:
 	void SafeRelease() noexcept;
-	TString CallScript(const TString &tsCmd) const;
+	TString CallScript(const TString& tsCmd) const;
 
 	template <typename T>
-	void SafeReleaseCom(T *face) noexcept
+	void SafeReleaseCom(T* face) const noexcept
 	{
 		T tmp = *face;
 		*face = nullptr;
-		if (tmp != nullptr)
-			tmp->Release();
+		try {
+			if (tmp)
+				tmp->Release();
+		}
+		catch (...)
+		{
+		}
 	}
 
-//protected:
+	//protected:
 
-	IOleInPlaceObject	* m_pOleInPlaceObject{ nullptr };
-	IWebBrowser2 * m_pWebBrowser2{ nullptr };
-	IOleObject * m_pOleObject{ nullptr };
-	IConnectionPointContainer	* m_pCPC{ nullptr };
-	IConnectionPoint * m_pCP{ nullptr };
+	IOleInPlaceObject* m_pOleInPlaceObject{ nullptr };
+	IWebBrowser2* m_pWebBrowser2{ nullptr };
+	IOleObject* m_pOleObject{ nullptr };
+	IConnectionPointContainer* m_pCPC{ nullptr };
+	IConnectionPoint* m_pCP{ nullptr };
 
 	DWORD m_dwCookie{};
 	bool m_bHideEvents{ true };

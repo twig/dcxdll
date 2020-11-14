@@ -56,7 +56,7 @@ DcxColorCombo::DcxColorCombo(const UINT ID, DcxDialog *const p_Dialog, const HWN
  * blah
  */
 
-DcxColorCombo::~DcxColorCombo()
+DcxColorCombo::~DcxColorCombo() noexcept
 {
 	this->resetContent();
 }
@@ -106,7 +106,7 @@ void DcxColorCombo::parseInfoRequest( const TString & input, const refString<TCH
 
 		const auto lpdcxcci = getItemData(nItem);
 
-		if (lpdcxcci == nullptr)
+		if (!lpdcxcci)
 			throw Dcx::dcxException("Unable to get item data");
 
 		_ts_snprintf(szReturnValue, TEXT("%u"), lpdcxcci->clrItem);
@@ -195,7 +195,7 @@ void DcxColorCombo::parseCommandRequest( const TString &input)
 		if ((nItem < -1) || (nItem >= this->getCount()))
 			throw Dcx::dcxException("Item out of range");
 
-		if (const auto lpdcxcci = this->getItemData(nItem); lpdcxcci != nullptr)
+		if (const auto lpdcxcci = this->getItemData(nItem); lpdcxcci)
 			lpdcxcci->clrItem = input.getnexttok().to_<COLORREF>();	// tok 5
 	}
 	// This is to avoid invalid flag message.
@@ -352,7 +352,7 @@ LRESULT DcxColorCombo::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 	{
 	case WM_COMMAND:
 	{
-		if (HIWORD(wParam) == CBN_SELENDOK)
+		if (Dcx::dcxHIWORD(wParam) == CBN_SELENDOK)
 		{
 			if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
 				execAliasEx(TEXT("sclick,%u,%d"), getUserID(), getCurSel() + 1);
@@ -365,7 +365,7 @@ LRESULT DcxColorCombo::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 	{
 		dcxlParam(PDELETEITEMSTRUCT, delis);
 
-		if (delis == nullptr)
+		if (!delis)
 			break;
 
 		auto lpdcxcci = reinterpret_cast<LPDCXCCOMBOITEM>(delis->itemData);
@@ -381,19 +381,19 @@ LRESULT DcxColorCombo::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 	{
 		dcxlParam(LPDRAWITEMSTRUCT, lpdis);
 
-		if (lpdis == nullptr || lpdis->itemID == -1)
+		if (!lpdis || lpdis->itemID == -1)
 			break;
 
 		const auto lpdcxcci = reinterpret_cast<LPDCXCCOMBOITEM>(lpdis->itemData);
 
-		if (lpdcxcci == nullptr)
+		if (!lpdcxcci)
 			break;
 
 		const auto hPen = CreatePen(PS_SOLID, 1, RGB(0, 0, 0));
-		Auto(DeletePen(hPen));
+		Auto(DeleteObject(hPen));
 
-		const auto oldPen = SelectPen(lpdis->hDC, hPen);
-		Auto(SelectPen(lpdis->hDC, oldPen));
+		const auto oldPen = Dcx::dcxSelectObject<HPEN>(lpdis->hDC, hPen);
+		Auto(Dcx::dcxSelectObject<HPEN>(lpdis->hDC, oldPen));
 
 		auto rcItem = lpdis->rcItem;
 
@@ -432,7 +432,7 @@ LRESULT DcxColorCombo::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 	{
 		dcxlParam(LPMEASUREITEMSTRUCT, lpmis);
 
-		if (lpmis == nullptr)
+		if (!lpmis)
 			break;
 
 		lpmis->itemHeight = DCX_COLORCOMBO_ITEM_HEIGHT;
@@ -441,11 +441,13 @@ LRESULT DcxColorCombo::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 		return TRUE;
 	}
 	break;
+	default:
+		break;
 	}
 	return 0L;
 }
 
-LRESULT DcxColorCombo::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed)
+LRESULT DcxColorCombo::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed)
 {
 	switch (uMsg)
 	{
@@ -470,11 +472,9 @@ LRESULT DcxColorCombo::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 	return 0L;
 }
 
-WNDPROC DcxColorCombo::m_hDefaultClassProc = nullptr;
-
 LRESULT DcxColorCombo::CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept
 {
-	if (m_hDefaultClassProc != nullptr)
+	if (m_hDefaultClassProc)
 		return CallWindowProc(m_hDefaultClassProc, this->m_Hwnd, uMsg, wParam, lParam);
 
 	return DefWindowProc(this->m_Hwnd, uMsg, wParam, lParam);
