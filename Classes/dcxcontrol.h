@@ -25,7 +25,9 @@
  //constexpr auto DCCS_FROMRESSOURCE = 0x01;	//!< Cursor from ressource;
  //constexpr auto DCCS_FROMFILE = 0x02;	//!< Cursor from File;
 
-enum class DcxColourFlags : UINT {
+enum class DcxColourFlags
+	: UINT
+{
 	None,
 	TEXTCOLOR,				//!< Control Text Color;
 	TEXTBKGCOLOR,			//!< Control Text Background Color;
@@ -72,43 +74,45 @@ constexpr DcxColourFlags operator ~(const DcxColourFlags& eStyle) noexcept
 #include "defines.h"
 #include "dcxwindow.h"
 
-#define CTLF_ALLOW_PBAR				(UINT64)0x000000001
-#define CTLF_ALLOW_TRACKBAR			(UINT64)0x000000002
-#define CTLF_ALLOW_COMBOEX			(UINT64)0x000000004
-#define CTLF_ALLOW_COLORCOMBO		(UINT64)0x000000008
-#define CTLF_ALLOW_STATUSBAR		(UINT64)0x000000010
-#define CTLF_ALLOW_TOOLBAR			(UINT64)0x000000020
-#define CTLF_ALLOW_TREEVIEW			(UINT64)0x000000040
-#define CTLF_ALLOW_LISTVIEW			(UINT64)0x000000080
-#define CTLF_ALLOW_REBAR			(UINT64)0x000000100
-#define CTLF_ALLOW_BUTTON			(UINT64)0x000000200
-#define CTLF_ALLOW_RICHEDIT			(UINT64)0x000000400
-#define CTLF_ALLOW_EDIT				(UINT64)0x000000800
-#define CTLF_ALLOW_UPDOWN			(UINT64)0x000001000
-#define CTLF_ALLOW_IPADDRESS		(UINT64)0x000002000
-#define CTLF_ALLOW_WEBCTRL			(UINT64)0x000004000
-#define CTLF_ALLOW_CALANDER			(UINT64)0x000008000
-#define CTLF_ALLOW_DIVIDER			(UINT64)0x000010000
-#define CTLF_ALLOW_PANEL			(UINT64)0x000020000
-#define CTLF_ALLOW_TAB				(UINT64)0x000040000
-#define CTLF_ALLOW_LINE				(UINT64)0x000080000
-#define CTLF_ALLOW_BOX				(UINT64)0x000100000
-#define CTLF_ALLOW_RADIO			(UINT64)0x000200000
-#define CTLF_ALLOW_CHECK			(UINT64)0x000400000
-#define CTLF_ALLOW_TEXT				(UINT64)0x000800000
-#define CTLF_ALLOW_SCROLL			(UINT64)0x001000000
-#define CTLF_ALLOW_LIST				(UINT64)0x002000000
-#define CTLF_ALLOW_LINK				(UINT64)0x004000000
-#define CTLF_ALLOW_IMAGE			(UINT64)0x008000000
-#define CTLF_ALLOW_PAGER			(UINT64)0x010000000
-#define CTLF_ALLOW_DOCK				(UINT64)0x020000000 // allows @Window and Dialog docking
-#define CTLF_ALLOW_DATETIME			(UINT64)0x040000000
-#define CTLF_ALLOW_STACKER			(UINT64)0x080000000
-#define CTLF_ALLOW_DIRECTSHOW		(UINT64)0x100000000
-#define CTLF_ALLOW_ALL				(UINT64)0xFFFFFFFFFFFFFFFF
-#define CTLF_ALLOW_ALLBUTDOCK		(UINT64)(CTLF_ALLOW_ALL & ~CTLF_ALLOW_DOCK)
+#define CTLF_ALLOW_PBAR				0x0000000000000001ULL
+#define CTLF_ALLOW_TRACKBAR			0x0000000000000002ULL
+#define CTLF_ALLOW_COMBOEX			0x0000000000000004ULL
+#define CTLF_ALLOW_COLORCOMBO		0x0000000000000008ULL
+#define CTLF_ALLOW_STATUSBAR		0x0000000000000010ULL
+#define CTLF_ALLOW_TOOLBAR			0x0000000000000020ULL
+#define CTLF_ALLOW_TREEVIEW			0x0000000000000040ULL
+#define CTLF_ALLOW_LISTVIEW			0x0000000000000080ULL
+#define CTLF_ALLOW_REBAR			0x0000000000000100ULL
+#define CTLF_ALLOW_BUTTON			0x0000000000000200ULL
+#define CTLF_ALLOW_RICHEDIT			0x0000000000000400ULL
+#define CTLF_ALLOW_EDIT				0x0000000000000800ULL
+#define CTLF_ALLOW_UPDOWN			0x0000000000001000ULL
+#define CTLF_ALLOW_IPADDRESS		0x0000000000002000ULL
+#define CTLF_ALLOW_WEBCTRL			0x0000000000004000ULL
+#define CTLF_ALLOW_CALANDER			0x0000000000008000ULL
+#define CTLF_ALLOW_DIVIDER			0x0000000000010000ULL
+#define CTLF_ALLOW_PANEL			0x0000000000020000ULL
+#define CTLF_ALLOW_TAB				0x0000000000040000ULL
+#define CTLF_ALLOW_LINE				0x0000000000080000ULL
+#define CTLF_ALLOW_BOX				0x0000000000100000ULL
+#define CTLF_ALLOW_RADIO			0x0000000000200000ULL
+#define CTLF_ALLOW_CHECK			0x0000000000400000ULL
+#define CTLF_ALLOW_TEXT				0x0000000000800000ULL
+#define CTLF_ALLOW_SCROLL			0x0000000001000000ULL
+#define CTLF_ALLOW_LIST				0x0000000002000000ULL
+#define CTLF_ALLOW_LINK				0x0000000004000000ULL
+#define CTLF_ALLOW_IMAGE			0x0000000008000000ULL
+#define CTLF_ALLOW_PAGER			0x0000000010000000ULL
+#define CTLF_ALLOW_DOCK				0x0000000020000000ULL // allows @Window and Dialog docking
+#define CTLF_ALLOW_DATETIME			0x0000000040000000ULL
+#define CTLF_ALLOW_STACKER			0x0000000080000000ULL
+#define CTLF_ALLOW_DIRECTSHOW		0x0000000100000000ULL
+#define CTLF_ALLOW_ALL				0xFFFFFFFFFFFFFFFFULL
+#define CTLF_ALLOW_ALLBUTDOCK		(CTLF_ALLOW_ALL & ~CTLF_ALLOW_DOCK)
 
-enum class DcxAllowControls : UINT64 {
+enum class DcxAllowControls
+	: UINT64
+{
 	ALLOW_PBAR = (UINT64)0x000000001,
 	ALLOW_TRACKBAR = (UINT64)0x000000002,
 	ALLOW_COMBOEX = (UINT64)0x000000004,
@@ -147,7 +151,9 @@ enum class DcxAllowControls : UINT64 {
 };
 
 // Control types...
-enum class DcxControlTypes : UINT {
+enum class DcxControlTypes
+	: UINT
+{
 	UNKNOWN = 0, BOX = 1,
 	CHECK, EDIT, IMAGE, LINE, LINK, LIST, RADIO, SCROLL, TEXT, BUTTON, CALENDAR,
 	COLORCOMBO, COMBOEX, DATETIME, DIRECTSHOW, DIVIDER, IPADDRESS, LISTVIEW, DIALOG,
@@ -156,21 +162,26 @@ enum class DcxControlTypes : UINT {
 };
 
 // Search types...
-enum class DcxSearchTypes : UINT {
+enum class DcxSearchTypes
+	: UINT
+{
 	SEARCH_W = 0x01,	//!< WildCard Search
 	SEARCH_R,			//!< Regex Search
 	SEARCH_E			//!< Exact Match
 };
 
 // icon sizes...
-enum class DcxIconSizes : int {
+enum class DcxIconSizes
+	: int
+{
 	SmallIcon = 16, MediumIcon = 24, LargeIcon = 32,
 	MaxSize = LargeIcon
 };
 
 class DcxDialog;
 
-struct ALPHAINFO {
+struct ALPHAINFO
+{
 	HDC ai_hdc{ nullptr };
 	HDC* ai_hdcBuffer{ nullptr };
 	HDC ai_Oldhdc{ nullptr };
@@ -190,40 +201,7 @@ struct ALPHAINFO {
 			throw Dcx::dcxException("Unable to get Window Rect");
 	}
 };
-using LPALPHAINFO = ALPHAINFO *;
-
-template <class pClassObj>
-void dcxRegisterClassEx(const TCHAR* const szClass, const TCHAR* const szDcxClass) noexcept
-{
-	WNDCLASSEX wc{};
-	wc.cbSize = sizeof(WNDCLASSEX);
-
-	if (GetClassInfoEx(nullptr, szClass, &wc) != 0)
-	{
-		wc.lpszClassName = szDcxClass;
-		pClassObj::m_hDefaultClassProc = wc.lpfnWndProc;
-		wc.lpfnWndProc = DcxControl::WindowProc;
-		wc.hInstance = GetModuleHandle(nullptr);
-		wc.style &= ~CS_GLOBALCLASS;
-		RegisterClassEx(&wc);
-	}
-}
-template <class pClassObj>
-void dcxRegisterClass(const TCHAR* const szClass, const TCHAR* const szDcxClass) noexcept
-{
-	WNDCLASSEX wc{};
-	wc.cbSize = sizeof(WNDCLASSEX);
-
-	if (GetClassInfoEx(nullptr, szClass, &wc) != 0)
-	{
-		wc.lpszClassName = szDcxClass;
-		pClassObj::m_hDefaultClassProc = wc.lpfnWndProc;
-		wc.lpfnWndProc = DcxControl::WindowProc;
-		wc.hInstance = GetModuleHandle(nullptr);
-		wc.style &= ~CS_GLOBALCLASS;
-		RegisterClassEx(&wc);
-	}
-};
+using LPALPHAINFO = ALPHAINFO*;
 
 // no default constructor
 // no copy constructor
@@ -259,8 +237,8 @@ public:
 	DcxControl(DcxControl&& other) = delete;	// no move constructor
 	DcxControl& operator =(DcxControl&&) = delete;	// No move assignments!
 
-	DcxControl(const UINT mID, DcxDialog* const p_Dialog);
-	~DcxControl();
+	DcxControl(const UINT mID, DcxDialog* const p_Dialog) noexcept;
+	~DcxControl() noexcept;
 
 	//virtual void parseInfoRequest( const TString & input, PTCHAR szReturnValue ) const = 0;
 	//virtual void parseInfoRequest(const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const = 0;
@@ -272,7 +250,7 @@ public:
 	dcxWindowStyles parseGeneralControlStyles(const TString& styles, dcxWindowStyles& ws);
 	dcxWindowStyles parseGeneralControlStyles(const TString& styles);
 
-	bool evalAliasEx(TCHAR* const szReturn, const int maxlen, const TCHAR* const szFormat, ...);
+	bool evalAliasEx(TCHAR* const szReturn, const int maxlen, const TCHAR* const szFormat, ...) const;
 
 	//template <typename Format, typename Value, typename... Arguments>
 	//bool evalAliasEx(TCHAR *const szReturn, const int maxlen, const Format &fmt, const Value val, Arguments&&... args) const
@@ -281,7 +259,7 @@ public:
 	//	getParentDialog()->evalAlias(szReturn, maxlen, _ts_sprintf(tsBuf, fmt, val, args...).to_chr());
 	//}
 
-	bool execAliasEx(const TCHAR* const szFormat, ...);
+	bool execAliasEx(const TCHAR* const szFormat, ...) const;
 
 	//template <typename Format, typename Value, typename... Arguments>
 	//bool execAliasEx(const Format &fmt, const Value val, Arguments&&... args) const
@@ -295,7 +273,7 @@ public:
 		return m_UserID;
 	}
 
-	virtual LRESULT PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed) = 0;
+	virtual LRESULT OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed) = 0;
 	virtual LRESULT ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed) = 0;
 
 	virtual const TString getType() const = 0;
@@ -407,7 +385,7 @@ public:
 
 	void updateParentCtrl() noexcept; //!< updates controls host control pointers, MUST be called before these pointers are used.
 	void DrawParentsBackground(const HDC hdc, const RECT* const rcBounds = nullptr, const HWND dHwnd = nullptr);
-	LPALPHAINFO SetupAlphaBlend(HDC* hdc, const bool DoubleBuffer = false);
+	[[nodiscard("Memory Leak")]] LPALPHAINFO SetupAlphaBlend(HDC* hdc, const bool DoubleBuffer = false);
 	void FinishAlphaBlend(LPALPHAINFO ai) noexcept;
 	void showError(const TCHAR* const prop, const TCHAR* const cmd, const TCHAR* const err) const;
 	template <typename Format, typename Value, typename... Arguments>
@@ -418,7 +396,7 @@ public:
 	}
 
 	static LRESULT CALLBACK WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-	static DcxControl* controlFactory(DcxDialog* const p_Dialog, const UINT mID, const TString& input, const UINT offset, const UINT64 mask = CTLF_ALLOW_ALL, HWND hParent = nullptr);
+	[[nodiscard("Memory Leak")]] static DcxControl* controlFactory(DcxDialog* const p_Dialog, const UINT mID, const TString& input, const UINT offset, const UINT64 mask = CTLF_ALLOW_ALL, HWND hParent = nullptr);
 	static void DrawCtrlBackground(const HDC hdc, const DcxControl* const p_this, const RECT* const rwnd = nullptr, HTHEME hTheme = nullptr, const int iPartId = 0, const int iStateId = 0) noexcept;
 	static HBITMAP resizeBitmap(HBITMAP srcBM, const RECT* const rc) noexcept;
 	static DcxControlTypes TSTypeToControlType(const TString& t);
@@ -430,7 +408,7 @@ public:
 
 protected:
 	//private:
-	static bool m_bInitialized;
+	static inline bool m_bInitialized{ false };
 
 	DcxDialog* m_pParentDialog{ nullptr };	//!< Parent DcxDialog object
 
@@ -478,7 +456,7 @@ protected:
 	bool parseGlobalInfoRequest(const TString& input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>& szReturnValue) const;
 
 	LRESULT CommonMessage(const UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed);
-	void HandleChildrenSize();
+	void HandleChildControlSize();
 
 	void DrawControl(HDC hDC, HWND hwnd);
 	void ctrlDrawText(HDC hdc, const TString& txt, const LPRECT rc, const UINT style);
@@ -488,6 +466,40 @@ protected:
 	static void InvalidateParentRect(HWND hwnd);
 	static const DcxColourFlags parseColorFlags(const TString& flags) noexcept;
 };
+
+template <class pClassObj>
+void dcxRegisterClassEx(const TCHAR* const szClass, const TCHAR* const szDcxClass) noexcept
+{
+	WNDCLASSEX wc{};
+	wc.cbSize = sizeof(WNDCLASSEX);
+
+	if (GetClassInfoEx(nullptr, szClass, &wc) != 0)
+	{
+		wc.lpszClassName = szDcxClass;
+		pClassObj::m_hDefaultClassProc = wc.lpfnWndProc;
+		wc.lpfnWndProc = DcxControl::WindowProc;
+		wc.hInstance = GetModuleHandle(nullptr);
+		wc.style &= ~CS_GLOBALCLASS;
+		RegisterClassEx(&wc);
+	}
+}
+template <class pClassObj>
+void dcxRegisterClass(const TCHAR* const szClass, const TCHAR* const szDcxClass) noexcept
+{
+	WNDCLASSEX wc{};
+	wc.cbSize = sizeof(WNDCLASSEX);
+
+	if (GetClassInfoEx(nullptr, szClass, &wc) != 0)
+	{
+		wc.lpszClassName = szDcxClass;
+		pClassObj::m_hDefaultClassProc = wc.lpfnWndProc;
+		wc.lpfnWndProc = DcxControl::WindowProc;
+		wc.hInstance = GetModuleHandle(nullptr);
+		wc.style &= ~CS_GLOBALCLASS;
+		RegisterClassEx(&wc);
+	}
+};
+
 #ifdef __INTEL_COMPILER // Defined when using Intel C++ Compiler.
 #pragma warning( pop )
 #endif
