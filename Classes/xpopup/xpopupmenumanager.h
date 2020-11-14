@@ -28,7 +28,7 @@
 #pragma warning( disable : 2292 ) //warning #2292: destructor is declared but copy constructor and assignment operator are not
 #endif
 
-class XPopupMenuManager
+class XPopupMenuManager final
 {
 private:
 	std::unique_ptr<XPopupMenu> m_mIRCPopupMenu{ nullptr };
@@ -66,7 +66,7 @@ public:
 	const int parseMPopup(const TString & input);
 
 	void addMenu( XPopupMenu *const p_Menu );
-	void deleteMenu( const XPopupMenu *const p_Menu );
+	void deleteMenu( const XPopupMenu *const p_Menu ) noexcept;
 	void clearMenus( ) noexcept;
 
 	constexpr void setIsMenuBar(const bool value) noexcept { m_bIsMenuBar = value; }

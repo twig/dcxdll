@@ -19,9 +19,9 @@
 #include "defines.h"
 #include "Classes/xpopup/xpopupmenuitem.h"
 
-#define XPS_ICON3D        0x01 //!< Icons have a 3D effect
-#define XPS_DISABLEDSEL   0x02 //!< Disabled Items have a selectionbox
-#define XPS_ICON3DSHADOW  0x04 //!< Icons have a 3D effect with undershadow
+constexpr auto XPS_ICON3D = 0x01; //!< Icons have a 3D effect
+constexpr auto XPS_DISABLEDSEL = 0x02; //!< Disabled Items have a selectionbox
+constexpr auto XPS_ICON3DSHADOW = 0x04; //!< Icons have a 3D effect with undershadow
 
 using VectorOfXPopupMenu = std::vector<XPopupMenu *>; //!< Vector of XPopupMenu Objects
 
@@ -35,8 +35,8 @@ using VectorOfXPopupMenu = std::vector<XPopupMenu *>; //!< Vector of XPopupMenu 
 #pragma warning( disable : 2292 ) //warning #2292: destructor is declared but copy constructor and assignment operator are not
 #endif
 
-class XPopupMenu {
-
+class XPopupMenu final
+{
 public:
 
 	/*!
@@ -44,7 +44,7 @@ public:
 	*
 	* Availbale XPopupMenu Styles
 	*/
-	enum MenuStyle : UINT {
+	enum class MenuStyle : UINT {
 		XPMS_OFFICE2003,
 		XPMS_OFFICE2003_REV,
 		XPMS_OFFICEXP,
@@ -87,7 +87,7 @@ public:
 	//static const int XPMC_TEXT = 10;
 	//static const int XPMC_SELECTEDTEXT = 11;
 
-	enum MenuColours : UINT {
+	enum class MenuColours : UINT {
 		XPMC_MIN = 1,
 		XPMC_BACKGROUND = 1,
 		XPMC_ICONBOX,
@@ -111,7 +111,7 @@ public:
 
 	XPopupMenu(const TString &tsName, HMENU hMenu);
 	XPopupMenu(const TString & tsMenuName, MenuStyle mStyle);
-	virtual ~XPopupMenu();
+	~XPopupMenu();
 
 	void parseXPopCommand(const TString & input);
 	//void parseXPopIdentifier( const TString & input, TCHAR * szReturnValue ) const;
@@ -140,7 +140,7 @@ public:
 		this->m_MenuItemStyles = iExStyles;
 	}
 
-	void deleteMenuItemData(const XPopupMenuItem *const p_Item, LPMENUITEMINFO mii = nullptr);
+	void deleteMenuItemData(const XPopupMenuItem *const p_Item, LPMENUITEMINFO mii = nullptr) noexcept;
 	void deleteAllItemData(HMENU hMenu);
 
 	const TString &getName() const noexcept
@@ -157,57 +157,57 @@ public:
 	}
 	void setColor(const MenuColours nColor, const COLORREF clrColor) noexcept;
 	COLORREF getColor(const MenuColours nColor) const noexcept;
-	constexpr void setDefaultColor(const MenuColours nColor) noexcept
+	GSL_SUPPRESS(type.4) constexpr void setDefaultColor(const MenuColours nColor) noexcept
 	{
 		switch (nColor)
 		{
-		case XPMC_BACKGROUND:
+		case MenuColours::XPMC_BACKGROUND:
 			this->m_MenuColors.m_clrBack = RGB(255, 255, 255);
 			break;
 
-		case XPMC_ICONBOX:
+		case MenuColours::XPMC_ICONBOX:
 			m_MenuColors.m_clrBox = RGB(184, 199, 146);
 			//m_MenuColors.m_clrLightBox = XPopupMenuItem::LightenColor(200, m_MenuColors.m_clrBox); // == XPopupMenuItem::LightenColor(200, RGB(184, 199, 146)) == RGB(240, 243, 231)
 			m_MenuColors.m_clrLightBox = RGB(240, 243, 231);
 			break;
 
-		case XPMC_CHECKBOX:
+		case MenuColours::XPMC_CHECKBOX:
 			this->m_MenuColors.m_clrCheckBox = RGB(255, 128, 0);
 			break;
 
-		case XPMC_CHECKBOX_DISABLED:
+		case MenuColours::XPMC_CHECKBOX_DISABLED:
 			this->m_MenuColors.m_clrDisabledCheckBox = RGB(200, 200, 200);
 			break;
 
-		case XPMC_SELECTIONBOX_DISABLED:
+		case MenuColours::XPMC_SELECTIONBOX_DISABLED:
 			this->m_MenuColors.m_clrDisabledSelection = RGB(255, 255, 255);
 			break;
 
-		case XPMC_TEXT_DISABLED:
+		case MenuColours::XPMC_TEXT_DISABLED:
 			this->m_MenuColors.m_clrDisabledText = RGB(128, 128, 128);
 			break;
 
-		case XPMC_SELECTIONBOX:
+		case MenuColours::XPMC_SELECTIONBOX:
 			this->m_MenuColors.m_clrSelection = RGB(255, 229, 179);
 			break;
 
-		case XPMC_SELECTIONBOX_BORDER:
+		case MenuColours::XPMC_SELECTIONBOX_BORDER:
 			this->m_MenuColors.m_clrSelectionBorder = RGB(0, 0, 0);
 			break;
 
-		case XPMC_SEPARATOR:
+		case MenuColours::XPMC_SEPARATOR:
 			this->m_MenuColors.m_clrSeparatorLine = RGB(128, 128, 128);
 			break;
 
-		case XPMC_TEXT:
+		case MenuColours::XPMC_TEXT:
 			this->m_MenuColors.m_clrText = RGB(0, 0, 0);
 			break;
 
-		case XPMC_SELECTEDTEXT:
+		case MenuColours::XPMC_SELECTEDTEXT:
 			this->m_MenuColors.m_clrSelectedText = RGB(0, 0, 0);
 			break;
 
-		case XPMC_MAX:
+		case MenuColours::XPMC_MAX:
 		default:
 			break;
 		}
@@ -235,7 +235,7 @@ public:
 
 	// Methods to attach and detach from mIRC menu.
 	bool attachToMenuBar(HMENU menubar, const TString &label);
-	void detachFromMenuBar(HMENU menubar);
+	void detachFromMenuBar(HMENU menubar) noexcept;
 
 	// Methods to access marked text.
 	void setMarkedText(const TString &text)
@@ -253,13 +253,13 @@ public:
 
 protected:
 
-	HMENU m_hMenu;						//!< Menu Handle
+	HMENU m_hMenu{ nullptr };			//!< Menu Handle
 	HIMAGELIST m_hImageList{ nullptr };	//!< Menu ImageList
-	MenuStyle m_MenuStyle{ XPMS_OFFICE2003 };//!< Menu Style
+	MenuStyle m_MenuStyle{ MenuStyle::XPMS_OFFICE2003 };//!< Menu Style
 	TString m_tsMenuName;				//!< Menu Name
 	TString m_tsMarkedText;				//!< Extra field to store custom information
 	UINT m_MenuItemStyles{};			//!< Menu Item Styles
-	size_t m_menuNameHash;				//!< Hash of tsMenuName
+	size_t m_menuNameHash{};			//!< Hash of tsMenuName
 
 	HBITMAP m_hBitmap{ nullptr };		//!< Menu Item Background Image in Custom Style
 
@@ -271,6 +271,41 @@ protected:
 	bool m_bAttachedToMenuBar{ false }; //!< Is the menu attached to the mIRC window menubar?
 	bool m_bReserved[2]{};				//!< Reserved for future use.
 };
+
+//template <typename T>
+//constexpr XPopupMenu::MenuStyle& operator |=(XPopupMenu::MenuStyle& eStyle, const T& dStyle) noexcept
+//{
+//	return eStyle = static_cast<XPopupMenu::MenuStyle>(static_cast<DWORD>(eStyle) | static_cast<DWORD>(dStyle));
+//}
+//
+//template <typename T>
+//constexpr XPopupMenu::MenuStyle& operator &=(XPopupMenu::MenuStyle& eStyle, const T& dStyle) noexcept
+//{
+//	return eStyle = static_cast<XPopupMenu::MenuStyle>(static_cast<DWORD>(eStyle)& static_cast<DWORD>(dStyle));
+//}
+//
+//template <typename T>
+//constexpr XPopupMenu::MenuStyle operator &(const XPopupMenu::MenuStyle& eStyle, const T& dStyle) noexcept
+//{
+//	return static_cast<XPopupMenu::MenuStyle>(static_cast<DWORD>(eStyle)& static_cast<DWORD>(dStyle));
+//}
+//
+//template <typename T>
+//constexpr XPopupMenu::MenuStyle operator |(const XPopupMenu::MenuStyle& eStyle, const T& dStyle) noexcept
+//{
+//	return static_cast<XPopupMenu::MenuStyle>(static_cast<DWORD>(eStyle) | static_cast<DWORD>(dStyle));
+//}
+//template <typename T>
+//constexpr XPopupMenu::MenuStyle operator |(const T& dStyle, const XPopupMenu::MenuStyle& eStyle) noexcept
+//{
+//	return static_cast<XPopupMenu::MenuStyle>(static_cast<DWORD>(dStyle) | static_cast<DWORD>(eStyle));
+//}
+//template <typename T>
+//constexpr bool operator <(const T& dStyle, const XPopupMenu::MenuStyle& eStyle) noexcept
+//{
+//	return dStyle < static_cast<DWORD>(eStyle);
+//}
+
 #ifdef __INTEL_COMPILER // Defined when using Intel C++ Compiler.
 #pragma warning( pop )
 #endif

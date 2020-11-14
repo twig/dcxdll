@@ -17,13 +17,13 @@
 
 #include "defines.h"
 
-#define XPMI_HEIGHT   22	//!< Menu Item Height
-#define XPMI_BOXLPAD  0		//!< Padding space between menu left bordure and box left bordure
-#define XPMI_BOXWIDTH 22	//!< Box Width (should be no less than 16)
-#define XPMI_BOXRPAD  5		//!< Padding space between box right border and text/line
-#define XPMI_ICONSIZE 16	//!< Icon Size
-#define XPMI_MINSTRING 20	//!< Min space reserved for string
-#define XPMI_SEPHEIGHT 3	//!< Seperator item height.
+constexpr auto XPMI_HEIGHT = 22;	//!< Menu Item Height
+constexpr auto XPMI_BOXLPAD = 0;	//!< Padding space between menu left bordure and box left bordure
+constexpr auto XPMI_BOXWIDTH = 22;	//!< Box Width (should be no less than 16)
+constexpr auto XPMI_BOXRPAD = 5;	//!< Padding space between box right border and text/line
+constexpr auto XPMI_ICONSIZE = 16;	//!< Icon Size
+constexpr auto XPMI_MINSTRING = 20;	//!< Min space reserved for string
+constexpr auto XPMI_SEPHEIGHT = 3;	//!< Seperator item height.
 
 // dummy class, resolved at runtime
 class XPopupMenu;
@@ -34,34 +34,35 @@ class XPopupMenu;
 * Structure containing the menu item colors
 */
 
-struct XPMENUCOLORS {
-	COLORREF m_clrBack;					//!< Menu Item BackGround Color
-	COLORREF m_clrBox;					//!< Menu Item Box Color
-	COLORREF m_clrLightBox;				//!< Menu Item Box Color (lighter by 200)
-	COLORREF m_clrSelection;			//!< Menu Item Selection Box Color
-	COLORREF m_clrDisabledSelection;	//!< Menu Item Disabled Selection Box Color
-	COLORREF m_clrText;					//!< Menu Item Text Color
-	COLORREF m_clrDisabledText;			//!< Menu Item Disabled Text Color
-	COLORREF m_clrCheckBox;				//!< Menu Item CheckBox Color
-	COLORREF m_clrDisabledCheckBox;		//!< Menu Item Disabled CheckBox Color
-	COLORREF m_clrSeparatorLine;		//!< Menu Item Separator Line Color
-	COLORREF m_clrSelectionBorder;		//!< Menu Item Selection Box Border Color
-	COLORREF m_clrSelectedText;			//!< Menu Item Selected Text Colour
+struct XPMENUCOLORS final
+{
+	COLORREF m_clrBack{ RGB(255, 255, 255) };					//!< Menu Item BackGround Color
+	COLORREF m_clrBox{ RGB(184, 199, 146) };					//!< Menu Item Box Color
+	COLORREF m_clrLightBox{ RGB(240,243,231) };				//!< Menu Item Box Color (lighter by 200)
+	COLORREF m_clrSelection{ RGB(255, 229, 179) };			//!< Menu Item Selection Box Color
+	COLORREF m_clrDisabledSelection{ RGB(255, 255, 255) };	//!< Menu Item Disabled Selection Box Color
+	COLORREF m_clrText{ RGB(0, 0, 0) };					//!< Menu Item Text Color
+	COLORREF m_clrDisabledText{ RGB(128, 128, 128) };			//!< Menu Item Disabled Text Color
+	COLORREF m_clrCheckBox{ RGB(255, 128, 0) };				//!< Menu Item CheckBox Color
+	COLORREF m_clrDisabledCheckBox{ RGB(200, 200, 200) };		//!< Menu Item Disabled CheckBox Color
+	COLORREF m_clrSeparatorLine{ RGB(128, 128, 128) };		//!< Menu Item Separator Line Color
+	COLORREF m_clrSelectionBorder{ RGB(0, 0, 0) };		//!< Menu Item Selection Box Border Color
+	COLORREF m_clrSelectedText{ RGB(0, 0, 0) };			//!< Menu Item Selected Text Colour
 
-	XPMENUCOLORS() noexcept
-		: m_clrBack(RGB(255, 255, 255))
-		, m_clrBox(RGB(184, 199, 146))
-		, m_clrLightBox(RGB(240,243,231))
-		, m_clrSelection(RGB(255, 229, 179))
-		, m_clrDisabledSelection(RGB(255, 255, 255))
-		, m_clrText(RGB(0, 0, 0))
-		, m_clrDisabledText(RGB(128, 128, 128))
-		, m_clrCheckBox(RGB(255, 128, 0))
-		, m_clrDisabledCheckBox(RGB(200, 200, 200))
-		, m_clrSeparatorLine(RGB(128, 128, 128))
-		, m_clrSelectionBorder(RGB(0, 0, 0))
-		, m_clrSelectedText(RGB(0, 0, 0))
-	{}
+	//XPMENUCOLORS() noexcept
+	//	: m_clrBack(RGB(255, 255, 255))
+	//	, m_clrBox(RGB(184, 199, 146))
+	//	, m_clrLightBox(RGB(240,243,231))
+	//	, m_clrSelection(RGB(255, 229, 179))
+	//	, m_clrDisabledSelection(RGB(255, 255, 255))
+	//	, m_clrText(RGB(0, 0, 0))
+	//	, m_clrDisabledText(RGB(128, 128, 128))
+	//	, m_clrCheckBox(RGB(255, 128, 0))
+	//	, m_clrDisabledCheckBox(RGB(200, 200, 200))
+	//	, m_clrSeparatorLine(RGB(128, 128, 128))
+	//	, m_clrSelectionBorder(RGB(0, 0, 0))
+	//	, m_clrSelectedText(RGB(0, 0, 0))
+	//{}
 };
 using LPXPMENUCOLORS = XPMENUCOLORS *;
 
@@ -75,8 +76,8 @@ using LPXPMENUCOLORS = XPMENUCOLORS *;
 #pragma warning( disable : 2292 ) //warning #2292: destructor is declared but copy constructor and assignment operator are not
 #endif
 
-class XPopupMenuItem {
-
+class XPopupMenuItem final
+{
 public:
 	XPopupMenuItem() = delete;
 	XPopupMenuItem(const XPopupMenuItem &) = delete;
@@ -86,7 +87,7 @@ public:
 
 	XPopupMenuItem( XPopupMenu * Parent, const bool bSep, ULONG_PTR dwDataBackup = NULL ) noexcept;
 	XPopupMenuItem( XPopupMenu * Parent, const TString &tsItemText, const int nIcon, const bool bSubMenu, ULONG_PTR dwDataBackup = NULL );
-	virtual ~XPopupMenuItem( ) noexcept;
+	~XPopupMenuItem( ) noexcept = default;
 
 	void DrawItem(const LPDRAWITEMSTRUCT lpdis);
 	void DrawItemBackground( const LPDRAWITEMSTRUCT lpdis, const XPMENUCOLORS *const lpcol );
@@ -138,14 +139,14 @@ public:
 
 protected:
 
-	TString m_tsItemText;			//!< Menu Item Text
-	TString m_tsItemCommand;		//!< Menu Item Command
-	int m_nIcon;					//!< Menu Item Icon Index
-	XPopupMenu * m_pXParentMenu;	//!< Parent XPopupMenu
-	ULONG_PTR m_dwItemDataBackup;
+	TString m_tsItemText;					//!< Menu Item Text
+	TString m_tsItemCommand;				//!< Menu Item Command
+	int m_nIcon{ -1 };						//!< Menu Item Icon Index
+	XPopupMenu* m_pXParentMenu{ nullptr };	//!< Parent XPopupMenu
+	ULONG_PTR m_dwItemDataBackup{};
 	bool m_bBigBitmap{ false };				//!< Single large bitmap image used for whole menu?
-	bool m_bSep;					//!< Is Separator ?
-	bool m_bSubMenu;				//!< Has A SubMenu ?
+	bool m_bSep{ false };					//!< Is Separator ?
+	bool m_bSubMenu{ false };				//!< Has A SubMenu ?
 	bool m_bReserved{ false };				//!< Reserved for future use.
 };
 

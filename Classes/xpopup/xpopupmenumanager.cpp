@@ -73,7 +73,7 @@ void XPopupMenuManager::load(void)
 	}
 #endif
 
-	DCX_DEBUG(mIRCLinker::debug, TEXT("LoadDLL"), TEXT("Registering XPopup..."));
+	DCX_DEBUG(mIRCLinker::debug, __FUNCTIONW__, TEXT("Registering XPopup..."));
 
 	wc.cbSize = sizeof(WNDCLASSEX);
 	wc.style = 0;
@@ -83,14 +83,15 @@ void XPopupMenuManager::load(void)
 	wc.hInstance = GetModuleHandle(nullptr);
 	wc.hIcon = nullptr;
 	wc.hCursor = nullptr;
-	wc.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
+	//wc.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
+	wc.hbrBackground = GetStockBrush(COLOR_WINDOWFRAME);
 	wc.lpszMenuName = nullptr;
 	wc.lpszClassName = XPOPUPMENUCLASS;
 	wc.hIconSm = nullptr;
 	RegisterClassEx(&wc);
 
-	DCX_DEBUG(mIRCLinker::debug, TEXT("LoadDLL"), TEXT("Creating menu owner..."));
-	m_hMenuOwner = CreateWindow(XPOPUPMENUCLASS, nullptr, 0, 0, 0, 0, 0, HWND_MESSAGE, 0, GetModuleHandle(nullptr), 0);
+	DCX_DEBUG(mIRCLinker::debug, __FUNCTIONW__, TEXT("Creating menu owner..."));
+	m_hMenuOwner = CreateWindow(XPOPUPMENUCLASS, nullptr, 0, 0, 0, 0, 0, HWND_MESSAGE, nullptr, GetModuleHandle(nullptr), nullptr);
 
 	//m_mIRCPopupMenu = new XPopupMenu(TEXT("mirc"),(HMENU)nullptr);
 	//m_mIRCMenuBar = new XPopupMenu(TEXT("mircbar"),GetMenu(mIRCLinker::getHWND()));
@@ -194,7 +195,7 @@ LRESULT XPopupMenuManager::OnInitMenuPopup(HWND mHwnd, WPARAM wParam, LPARAM lPa
 				if (isCustomMenu && (m_hMenuCustom == nullptr))
 					m_hMenuCustom = menu;
 
-				if (const auto hActive = (HWND)SendMessage(mIRCLinker::getMDIClient(), WM_MDIGETACTIVE, 0L, 0L); ((!IsZoomed(hActive) || GetSystemMenu(hActive, FALSE) != menu)) && (!isCustomMenu) && (m_hMenuCustom == nullptr)) // This checks for custom submenus.
+				if (const auto hActive = reinterpret_cast<HWND>(SendMessage(mIRCLinker::getMDIClient(), WM_MDIGETACTIVE, 0L, 0L)); ((!IsZoomed(hActive) || GetSystemMenu(hActive, FALSE) != menu)) && (!isCustomMenu) && (m_hMenuCustom == nullptr)) // This checks for custom submenus.
 					m_mIRCMenuBar->convertMenu(menu, TRUE);
 			}
 		}
@@ -292,7 +293,7 @@ LRESULT XPopupMenuManager::OnCommand(HWND mHwnd, WPARAM wParam, LPARAM lParam)
  * blah
  */
 
-void XPopupMenuManager::parseCommand(const TString & input)
+void XPopupMenuManager::parseCommand(const TString& input)
 {
 	//const auto p_Menu = getMenuByName(input.getfirsttok(1), true);	// tok 1
 	//const XSwitchFlags flags(input.getnexttok());	// tok 2
@@ -306,7 +307,7 @@ void XPopupMenuManager::parseCommand(const TString & input)
 	parseCommand(input, getMenuByName(input.getfirsttok(1), true));
 }
 
-void XPopupMenuManager::parseCommand(const TString & input, XPopupMenu *const p_Menu)
+void XPopupMenuManager::parseCommand(const TString& input, XPopupMenu* const p_Menu)
 {
 	const auto tsMenuName(input.getfirsttok(1));
 	const XSwitchFlags flags(input.getnexttok());	// tok 2
@@ -432,7 +433,7 @@ void XPopupMenuManager::parseCommand(const TString & input, XPopupMenu *const p_
 		const auto colors(input.getlasttoks());	// tok 3, -1
 
 		auto i = 1U;
-		for (const auto &tmp : colors)
+		for (const auto& tmp : colors)
 		{
 			if (tmp == TEXT("default"))
 				p_Menu->setDefaultColor(gsl::narrow_cast<XPopupMenu::MenuColours>(i));
@@ -454,7 +455,7 @@ void XPopupMenuManager::parseCommand(const TString & input, XPopupMenu *const p_
 		/*
 		Add offsetting for multiple monitor based on supplied hwnd this menu is to be associated with
 		*/
-		if (const auto hTrack = (HWND)input.getnexttok().to_<ULONG_PTR>(); (hTrack != nullptr && IsWindow(hTrack)))
+		if (const auto hTrack = reinterpret_cast<HWND>(input.getnexttok().to_<ULONG_PTR>()); (hTrack && IsWindow(hTrack)))
 		{
 			// map window relative pos ($mouse.x/y) to screen pos for TrackPopupMenuEx()
 			POINT pt{ x, y };
@@ -574,43 +575,43 @@ void XPopupMenuManager::parseCommand(const TString & input, XPopupMenu *const p_
  //
  //		switch (p_Menu->getStyle())
  //		{
- //		case XPopupMenu::XPMS_OFFICE2003:
+ //		case XPopupMenu::MenuStyle::XPMS_OFFICE2003:
  //			szReturnValue = TEXT("office2003");
  //			break;
- //		case XPopupMenu::XPMS_OFFICE2003_REV:
+ //		case XPopupMenu::MenuStyle::XPMS_OFFICE2003_REV:
  //			szReturnValue = TEXT("office2003rev");
  //			break;
- //		case XPopupMenu::XPMS_OFFICEXP:
+ //		case XPopupMenu::MenuStyle::XPMS_OFFICEXP:
  //			szReturnValue = TEXT("officeXP");
  //			break;
- //		case XPopupMenu::XPMS_ICY:
+ //		case XPopupMenu::MenuStyle::XPMS_ICY:
  //			szReturnValue = TEXT("icy");
  //			break;
- //		case XPopupMenu::XPMS_ICY_REV:
+ //		case XPopupMenu::MenuStyle::XPMS_ICY_REV:
  //			szReturnValue = TEXT("icyrev");
  //			break;
- //		case XPopupMenu::XPMS_GRADE:
+ //		case XPopupMenu::MenuStyle::XPMS_GRADE:
  //			szReturnValue = TEXT("grade");
  //			break;
- //		case XPopupMenu::XPMS_GRADE_REV:
+ //		case XPopupMenu::MenuStyle::XPMS_GRADE_REV:
  //			szReturnValue = TEXT("graderev");
  //			break;
- //		case XPopupMenu::XPMS_VERTICAL:
+ //		case XPopupMenu::MenuStyle::XPMS_VERTICAL:
  //			szReturnValue = TEXT("vertical");
  //			break;
- //		case XPopupMenu::XPMS_VERTICAL_REV:
+ //		case XPopupMenu::MenuStyle::XPMS_VERTICAL_REV:
  //			szReturnValue = TEXT("verticalrev");
  //			break;
- //		case XPopupMenu::XPMS_NORMAL:
+ //		case XPopupMenu::MenuStyle::XPMS_NORMAL:
  //			szReturnValue = TEXT("normal");
  //			break;
- //		case XPopupMenu::XPMS_CUSTOM:
+ //		case XPopupMenu::MenuStyle::XPMS_CUSTOM:
  //			szReturnValue = TEXT("custom");
  //			break;
- //		case XPopupMenu::XPMS_BUTTON:
+ //		case XPopupMenu::MenuStyle::XPMS_BUTTON:
  //			szReturnValue = TEXT("button");
  //			break;
- //		case XPopupMenu::XPMS_CUSTOMBIG:
+ //		case XPopupMenu::MenuStyle::XPMS_CUSTOMBIG:
  //			szReturnValue = TEXT("custombig");
  //			break;
  //		default:
@@ -692,13 +693,13 @@ void XPopupMenuManager::parseCommand(const TString & input, XPopupMenu *const p_
  //	}
  //}
 
-TString XPopupMenuManager::parseIdentifier(const TString & input) const
+TString XPopupMenuManager::parseIdentifier(const TString& input) const
 {
 	const auto numtok = input.numtok();
 	const auto tsMenuName(input.getfirsttok(1));
 	const auto prop(input.getnexttok());	// tok 2
 
-	switch (const auto *const p_Menu = getMenuByName(tsMenuName, true); std::hash<TString>{}(prop))
+	switch (const auto* const p_Menu = getMenuByName(tsMenuName, true); std::hash<TString>{}(prop))
 	{
 	case TEXT("ismenu"_hash):
 	{
@@ -722,7 +723,7 @@ TString XPopupMenuManager::parseIdentifier(const TString & input) const
 		}
 		// Return name of specified menu.
 		else
-			return m_vpXPMenu[i - 1]->getName();
+			return gsl::at(m_vpXPMenu, i - 1)->getName();
 	}
 	break;
 	case TEXT("menubar"_hash):
@@ -734,31 +735,31 @@ TString XPopupMenuManager::parseIdentifier(const TString & input) const
 
 		switch (p_Menu->getStyle())
 		{
-		case XPopupMenu::XPMS_OFFICE2003:
+		case XPopupMenu::MenuStyle::XPMS_OFFICE2003:
 			return TEXT("office2003");
-		case XPopupMenu::XPMS_OFFICE2003_REV:
+		case XPopupMenu::MenuStyle::XPMS_OFFICE2003_REV:
 			return TEXT("office2003rev");
-		case XPopupMenu::XPMS_OFFICEXP:
+		case XPopupMenu::MenuStyle::XPMS_OFFICEXP:
 			return TEXT("officeXP");
-		case XPopupMenu::XPMS_ICY:
+		case XPopupMenu::MenuStyle::XPMS_ICY:
 			return TEXT("icy");
-		case XPopupMenu::XPMS_ICY_REV:
+		case XPopupMenu::MenuStyle::XPMS_ICY_REV:
 			return TEXT("icyrev");
-		case XPopupMenu::XPMS_GRADE:
+		case XPopupMenu::MenuStyle::XPMS_GRADE:
 			return TEXT("grade");
-		case XPopupMenu::XPMS_GRADE_REV:
+		case XPopupMenu::MenuStyle::XPMS_GRADE_REV:
 			return TEXT("graderev");
-		case XPopupMenu::XPMS_VERTICAL:
+		case XPopupMenu::MenuStyle::XPMS_VERTICAL:
 			return TEXT("vertical");
-		case XPopupMenu::XPMS_VERTICAL_REV:
+		case XPopupMenu::MenuStyle::XPMS_VERTICAL_REV:
 			return TEXT("verticalrev");
-		case XPopupMenu::XPMS_NORMAL:
+		case XPopupMenu::MenuStyle::XPMS_NORMAL:
 			return TEXT("normal");
-		case XPopupMenu::XPMS_CUSTOM:
+		case XPopupMenu::MenuStyle::XPMS_CUSTOM:
 			return TEXT("custom");
-		case XPopupMenu::XPMS_BUTTON:
+		case XPopupMenu::MenuStyle::XPMS_BUTTON:
 			return TEXT("button");
-		case XPopupMenu::XPMS_CUSTOMBIG:
+		case XPopupMenu::MenuStyle::XPMS_CUSTOMBIG:
 			return TEXT("custombig");
 		default:
 			return TEXT("unknown");
@@ -803,12 +804,12 @@ TString XPopupMenuManager::parseIdentifier(const TString & input) const
 		if (numtok != 3)
 			throw Dcx::dcxException(TEXT("Invalid number of arguments"));
 
-		const auto nColor = input.getnexttok().to_<UINT>();	// tok 3
+		const auto nColor = gsl::narrow_cast<XPopupMenu::MenuColours>(input.getnexttok().to_<UINT>());	// tok 3
 		if (nColor < XPopupMenu::MenuColours::XPMC_MIN || nColor > XPopupMenu::MenuColours::XPMC_MAX)
-			throw Dcx::dcxException(TEXT("Invalid colour index used: %"), nColor);
+			throw Dcx::dcxException(TEXT("Invalid colour index used: %"), gsl::narrow_cast<UINT>(nColor));
 
 		TString tsRes;
-		tsRes += p_Menu->getColor(gsl::narrow_cast<XPopupMenu::MenuColours>(nColor));
+		tsRes += p_Menu->getColor(nColor);
 		return tsRes;
 	}
 	break;
@@ -885,37 +886,37 @@ TString XPopupMenuManager::parseIdentifier(const TString & input) const
 //	case 4: // style
 //		{
 //			switch (p_Menu->getStyle( )) {
-//				case XPopupMenu::XPMS_OFFICE2003:
+//				case XPopupMenu::MenuStyle::XPMS_OFFICE2003:
 //					dcx_strcpyn( szReturnValue, TEXT("office2003"), MIRC_BUFFER_SIZE_CCH );
 //					break;
-//				case XPopupMenu::XPMS_OFFICE2003_REV:
+//				case XPopupMenu::MenuStyle::XPMS_OFFICE2003_REV:
 //					dcx_strcpyn(szReturnValue, TEXT("office2003rev"), MIRC_BUFFER_SIZE_CCH);
 //					break;
-//				case XPopupMenu::XPMS_OFFICEXP:
+//				case XPopupMenu::MenuStyle::XPMS_OFFICEXP:
 //					dcx_strcpyn(szReturnValue, TEXT("officeXP"), MIRC_BUFFER_SIZE_CCH);
 //					break;
-//				case XPopupMenu::XPMS_ICY:
+//				case XPopupMenu::MenuStyle::XPMS_ICY:
 //					dcx_strcpyn(szReturnValue, TEXT("icy"), MIRC_BUFFER_SIZE_CCH);
 //					break;
-//				case XPopupMenu::XPMS_ICY_REV:
+//				case XPopupMenu::MenuStyle::XPMS_ICY_REV:
 //					dcx_strcpyn(szReturnValue, TEXT("icyrev"), MIRC_BUFFER_SIZE_CCH);
 //					break;
-//				case XPopupMenu::XPMS_GRADE:
+//				case XPopupMenu::MenuStyle::XPMS_GRADE:
 //					dcx_strcpyn(szReturnValue, TEXT("grade"), MIRC_BUFFER_SIZE_CCH);
 //					break;
-//				case XPopupMenu::XPMS_GRADE_REV:
+//				case XPopupMenu::MenuStyle::XPMS_GRADE_REV:
 //					dcx_strcpyn(szReturnValue, TEXT("graderev"), MIRC_BUFFER_SIZE_CCH);
 //					break;
-//				case XPopupMenu::XPMS_VERTICAL:
+//				case XPopupMenu::MenuStyle::XPMS_VERTICAL:
 //					dcx_strcpyn(szReturnValue, TEXT("vertical"), MIRC_BUFFER_SIZE_CCH);
 //					break;
-//				case XPopupMenu::XPMS_VERTICAL_REV:
+//				case XPopupMenu::MenuStyle::XPMS_VERTICAL_REV:
 //					dcx_strcpyn(szReturnValue, TEXT("verticalrev"), MIRC_BUFFER_SIZE_CCH);
 //					break;
-//				case XPopupMenu::XPMS_NORMAL:
+//				case XPopupMenu::MenuStyle::XPMS_NORMAL:
 //					dcx_strcpyn(szReturnValue, TEXT("normal"), MIRC_BUFFER_SIZE_CCH);
 //					break;
-//				case XPopupMenu::XPMS_CUSTOM:
+//				case XPopupMenu::MenuStyle::XPMS_CUSTOM:
 //					dcx_strcpyn(szReturnValue, TEXT("custom"), MIRC_BUFFER_SIZE_CCH);
 //					break;
 //				default:
@@ -1017,37 +1018,37 @@ TString XPopupMenuManager::parseIdentifier(const TString & input) const
 //	//else if ( prop == TEXT("style") ) {
 //	//
 //	//	switch (p_Menu->getStyle( )) {
-//	//		case XPopupMenu::XPMS_OFFICE2003:
+//	//		case XPopupMenu::MenuStyle::XPMS_OFFICE2003:
 //	//			lstrcpyn( szReturnValue, TEXT("office2003"), MIRC_BUFFER_SIZE_CCH );
 //	//			break;
-//	//		case XPopupMenu::XPMS_OFFICE2003_REV:
+//	//		case XPopupMenu::MenuStyle::XPMS_OFFICE2003_REV:
 //	//			lstrcpyn( szReturnValue, TEXT("office2003rev"), MIRC_BUFFER_SIZE_CCH );
 //	//			break;
-//	//		case XPopupMenu::XPMS_OFFICEXP:
+//	//		case XPopupMenu::MenuStyle::XPMS_OFFICEXP:
 //	//			lstrcpyn( szReturnValue, TEXT("officeXP"), MIRC_BUFFER_SIZE_CCH );
 //	//			break;
-//	//		case XPopupMenu::XPMS_ICY:
+//	//		case XPopupMenu::MenuStyle::XPMS_ICY:
 //	//			lstrcpyn( szReturnValue, TEXT("icy"), MIRC_BUFFER_SIZE_CCH );
 //	//			break;
-//	//		case XPopupMenu::XPMS_ICY_REV:
+//	//		case XPopupMenu::MenuStyle::XPMS_ICY_REV:
 //	//			lstrcpyn( szReturnValue, TEXT("icyrev"), MIRC_BUFFER_SIZE_CCH );
 //	//			break;
-//	//		case XPopupMenu::XPMS_GRADE:
+//	//		case XPopupMenu::MenuStyle::XPMS_GRADE:
 //	//			lstrcpyn( szReturnValue, TEXT("grade"), MIRC_BUFFER_SIZE_CCH );
 //	//			break;
-//	//		case XPopupMenu::XPMS_GRADE_REV:
+//	//		case XPopupMenu::MenuStyle::XPMS_GRADE_REV:
 //	//			lstrcpyn( szReturnValue, TEXT("graderev"), MIRC_BUFFER_SIZE_CCH );
 //	//			break;
-//	//		case XPopupMenu::XPMS_VERTICAL:
+//	//		case XPopupMenu::MenuStyle::XPMS_VERTICAL:
 //	//			lstrcpyn( szReturnValue, TEXT("vertical"), MIRC_BUFFER_SIZE_CCH );
 //	//			break;
-//	//		case XPopupMenu::XPMS_VERTICAL_REV:
+//	//		case XPopupMenu::MenuStyle::XPMS_VERTICAL_REV:
 //	//			lstrcpyn( szReturnValue, TEXT("verticalrev"), MIRC_BUFFER_SIZE_CCH );
 //	//			break;
-//	//		case XPopupMenu::XPMS_NORMAL:
+//	//		case XPopupMenu::MenuStyle::XPMS_NORMAL:
 //	//			lstrcpyn( szReturnValue, TEXT("normal"), MIRC_BUFFER_SIZE_CCH );
 //	//			break;
-//	//		case XPopupMenu::XPMS_CUSTOM:
+//	//		case XPopupMenu::MenuStyle::XPMS_CUSTOM:
 //	//			lstrcpyn( szReturnValue, TEXT("custom"), MIRC_BUFFER_SIZE_CCH );
 //	//			break;
 //	//		default:
@@ -1103,7 +1104,7 @@ TString XPopupMenuManager::parseIdentifier(const TString & input) const
 //	//szReturnValue[0] = 0;
 //}
 
-const int XPopupMenuManager::parseMPopup(const TString & input)
+const int XPopupMenuManager::parseMPopup(const TString& input)
 {
 	if (input.numtok() < 2)
 		throw Dcx::dcxException("Invalid Arguments");
@@ -1131,7 +1132,7 @@ const int XPopupMenuManager::parseMPopup(const TString & input)
  * blah
  */
 
-void XPopupMenuManager::addMenu(XPopupMenu *const p_Menu)
+void XPopupMenuManager::addMenu(XPopupMenu* const p_Menu)
 {
 	if (p_Menu != nullptr)
 		this->m_vpXPMenu.push_back(p_Menu);
@@ -1143,7 +1144,7 @@ void XPopupMenuManager::addMenu(XPopupMenu *const p_Menu)
  * blah
  */
 
-void XPopupMenuManager::deleteMenu(const XPopupMenu *const p_Menu)
+void XPopupMenuManager::deleteMenu(const XPopupMenu* const p_Menu) noexcept
 {
 	if (this->m_vpXPMenu.empty())
 		return;
@@ -1183,7 +1184,7 @@ void XPopupMenuManager::deleteMenu(const XPopupMenu *const p_Menu)
 
 void XPopupMenuManager::clearMenus() noexcept
 {
-	for (const auto &a : this->m_vpXPMenu)
+	for (const auto& a : this->m_vpXPMenu)
 		delete a;
 
 	this->m_vpXPMenu.clear();
@@ -1195,7 +1196,7 @@ void XPopupMenuManager::clearMenus() noexcept
  * blah
  */
 
-XPopupMenu * XPopupMenuManager::getMenuByHash(const std::size_t uHash, const bool bCheckSpecial) const noexcept
+XPopupMenu* XPopupMenuManager::getMenuByHash(const std::size_t uHash, const bool bCheckSpecial) const noexcept
 {
 	if (bCheckSpecial)
 	{
@@ -1207,7 +1208,7 @@ XPopupMenu * XPopupMenuManager::getMenuByHash(const std::size_t uHash, const boo
 			return m_mIRCScriptMenu.get();
 	}
 
-	for (const auto &x : m_vpXPMenu)
+	for (const auto& x : m_vpXPMenu)
 	{
 		if (x != nullptr)
 		{
@@ -1218,7 +1219,7 @@ XPopupMenu * XPopupMenuManager::getMenuByHash(const std::size_t uHash, const boo
 	return nullptr;
 }
 
-XPopupMenu * XPopupMenuManager::getMenuByName(const TString &tsName, const bool bCheckSpecial) const noexcept
+XPopupMenu* XPopupMenuManager::getMenuByName(const TString& tsName, const bool bCheckSpecial) const noexcept
 {
 	return getMenuByHash(std::hash<TString>{}(tsName), bCheckSpecial);
 }
@@ -1236,7 +1237,7 @@ XPopupMenu* XPopupMenuManager::getMenuByHandle(const HMENU hMenu) const noexcept
 	else if (hMenu == m_mIRCScriptMenu->getMenuHandle())
 		return m_mIRCScriptMenu.get();
 
-	for (const auto &x : this->m_vpXPMenu)
+	for (const auto& x : this->m_vpXPMenu)
 	{
 		if (x != nullptr)
 		{
@@ -1252,7 +1253,7 @@ XPopupMenu* XPopupMenuManager::getMenuByHandle(const HMENU hMenu) const noexcept
  */
 const bool XPopupMenuManager::isCustomMenu(const HMENU hMenu) const noexcept
 {
-	for (const auto &x : this->m_vpXPMenu)
+	for (const auto& x : this->m_vpXPMenu)
 	{
 		if (x != nullptr)
 		{
@@ -1288,7 +1289,7 @@ const bool XPopupMenuManager::isMenuBarMenu(const HMENU hMenu, const HMENU hMatc
  * blah
  */
 
-const UINT XPopupMenuManager::parseTrackFlags(const TString & flags) noexcept
+const UINT XPopupMenuManager::parseTrackFlags(const TString& flags) noexcept
 {
 	UINT iFlags = 0;
 	const XSwitchFlags xflags(flags);
@@ -1319,10 +1320,10 @@ const UINT XPopupMenuManager::parseTrackFlags(const TString & flags) noexcept
 /*
  * Parses the menu information and returns a valid XPopupMenu.
  */
-void XPopupMenuManager::LoadPopupsFromXML(const TiXmlElement *const popups, const TiXmlElement *popup, const TString &popupName, const TString &popupDataset)
+void XPopupMenuManager::LoadPopupsFromXML(const TiXmlElement* const popups, const TiXmlElement* popup, const TString& popupName, const TString& popupDataset)
 {
 	// Find the dataset with the name we want.
-	for (auto element = popups->FirstChildElement("popup"); element != nullptr; element = element->NextSiblingElement("popup"))
+	for (auto element = popups->FirstChildElement("popup"); element; element = element->NextSiblingElement("popup"))
 	{
 		const TString name(element->Attribute("name"));
 
@@ -1334,45 +1335,42 @@ void XPopupMenuManager::LoadPopupsFromXML(const TiXmlElement *const popups, cons
 	}
 
 	// Dataset not found.
-	if (popup == nullptr)
+	if (!popup)
 		throw Dcx::dcxException(TEXT("No Popup Dataset %"), popupDataset);
 
-
-
 	// Destroy a menu which already exists
-	if (const auto *const menu = Dcx::XPopups.getMenuByName(popupName, false); menu != nullptr)
+	if (const auto* const menu = Dcx::XPopups.getMenuByName(popupName, false); menu)
 		Dcx::XPopups.deleteMenu(menu);
 
 	// Find global styles branch
 	auto globalStyles = popups->FirstChildElement("styles");
 
 	// Move to "all" branch
-	if (globalStyles != nullptr)
+	if (globalStyles)
 		globalStyles = globalStyles->FirstChildElement("all");
 	else
 		globalStyles = nullptr;
 
 	// Create menu with style (from specific or global)
 	const auto style = XPopupMenu::parseStyle(GetMenuAttributeFromXML("style", popup, globalStyles));
-	// Ook: this needs looke dat, should be protected....
+	// Ook: this needs looked at, should be protected....
 	const auto menu = new XPopupMenu(popupName, style);
 
 	const static TString colors(TEXT("bgcolour iconcolour cbcolour discbcolour disselcolour distextcolour selcolour selbordercolour seperatorcolour textcolour seltextcolour"));
 
 	UINT i = 1;
-	for (const auto &tmp : colors)
+	for (const auto& tmp : colors)
 	{
 		if (auto tsAttr = GetMenuAttributeFromXML(tmp.c_str(), popup, globalStyles); !tsAttr.empty())
 		{
-			//mIRCLinker::tsEval(tsAttr, tsAttr.to_chr());
 			mIRCLinker::eval(tsAttr, tsAttr);
-			menu->setColor(XPopupMenu::MenuColours(i), tsAttr.to_<COLORREF>());
+			menu->setColor(gsl::narrow_cast<XPopupMenu::MenuColours>(i), tsAttr.to_<COLORREF>());
 		}
 		++i;
 	}
 
 	// Set background image if CUSTOM style used
-	if (style == XPopupMenu::XPMS_CUSTOM)
+	if (style == XPopupMenu::MenuStyle::XPMS_CUSTOM)
 	{
 		const TString tsBkg(popup->Attribute("background"));
 
@@ -1380,10 +1378,9 @@ void XPopupMenuManager::LoadPopupsFromXML(const TiXmlElement *const popups, cons
 		{
 			TString filename;
 
-			//mIRCLinker::tsEval(filename, tsBkg.to_chr());
 			mIRCLinker::eval(filename, tsBkg);
 
-			if (const auto hBitmap = dcxLoadBitmap(nullptr, filename); hBitmap != nullptr)
+			if (const auto hBitmap = dcxLoadBitmap(nullptr, filename); hBitmap)
 				menu->setBackBitmap(hBitmap);
 		}
 	}
@@ -1392,9 +1389,9 @@ void XPopupMenuManager::LoadPopupsFromXML(const TiXmlElement *const popups, cons
 	Dcx::XPopups.addMenu(menu);
 
 	// Parse icons
-	if (const auto *element = popup->FirstChildElement("icons"); element != nullptr)
+	if (const auto* element = popup->FirstChildElement("icons"); element)
 	{
-		for (element = element->FirstChildElement("icon"); element != nullptr; element = element->NextSiblingElement("icon"))
+		for (element = element->FirstChildElement("icon"); element; element = element->NextSiblingElement("icon"))
 		{
 			// Flags
 			const TString flags(queryAttribute(element, "flags", "+"));
@@ -1405,13 +1402,13 @@ void XPopupMenuManager::LoadPopupsFromXML(const TiXmlElement *const popups, cons
 			if (!tsSrc.empty())
 			{
 				TString tsFilename;
-				//mIRCLinker::tsEval(tsFilename, tsSrc.to_chr());
 				mIRCLinker::eval(tsFilename, tsSrc);
 
 				if (!tsFilename.empty())
 				{
 					TString command;
-					for (auto itStart = indexes.begin(TSCOMMACHAR), itEnd = indexes.end(); itStart != itEnd; ++itStart)
+					const auto itEnd = indexes.end();
+					for (auto itStart = indexes.begin(TSCOMMACHAR); itStart != itEnd; ++itStart)
 					{
 						// does (*itStart) NEED to be converted to an int?
 						//command.tsprintf(TEXT("%s -i %s %d %s"), popupName.to_chr(), flags.to_chr(), (*itStart).to_int(), tsFilename.to_chr());
@@ -1432,13 +1429,13 @@ void XPopupMenuManager::LoadPopupsFromXML(const TiXmlElement *const popups, cons
  * Function to append submenu items into a menu.
  * This method is recursive in order to parse submenus correctly.
  */
-const bool XPopupMenuManager::LoadPopupItemsFromXML(XPopupMenu *menu, HMENU hMenu, const TiXmlElement *const items)
+const bool XPopupMenuManager::LoadPopupItemsFromXML(XPopupMenu* menu, HMENU hMenu, const TiXmlElement* const items)
 {
 	if ((menu == nullptr) || (hMenu == nullptr) || (items == nullptr))
 		return false;
 
 	// Iterate through each child m_pElement.
-	for (const auto *element = items->FirstChildElement("item"); element != nullptr; element = element->NextSiblingElement("item"))
+	for (const auto* element = items->FirstChildElement("item"); element; element = element->NextSiblingElement("item"))
 	{
 		MENUITEMINFO mii{};
 		const auto nPos = gsl::narrow_cast<UINT>(GetMenuItemCount(hMenu)) + 1U;
@@ -1475,9 +1472,9 @@ const bool XPopupMenuManager::LoadPopupItemsFromXML(XPopupMenu *menu, HMENU hMen
 				mii.fState |= MFS_GRAYED;
 
 			// Submenu
-			if (element->FirstChildElement("item") != nullptr)
+			if (element->FirstChildElement("item"))
 			{
-				if (mii.hSubMenu != nullptr)
+				if (mii.hSubMenu)
 					DestroyMenu(mii.hSubMenu);
 
 				mii.fMask |= MIIM_SUBMENU;
@@ -1492,7 +1489,7 @@ const bool XPopupMenuManager::LoadPopupItemsFromXML(XPopupMenu *menu, HMENU hMen
 		}
 
 		// item never nullptr here
-		mii.dwItemData = (ULONG_PTR)item.get();
+		mii.dwItemData = reinterpret_cast<ULONG_PTR>(item.get());
 		menu->m_vpMenuItem.push_back(item.release());
 		InsertMenuItem(hMenu, nPos, TRUE, &mii);
 	}
@@ -1500,7 +1497,7 @@ const bool XPopupMenuManager::LoadPopupItemsFromXML(XPopupMenu *menu, HMENU hMen
 	return true;
 }
 
-const TString XPopupMenuManager::GetMenuAttributeFromXML(const char *const attrib, const TiXmlElement *const popup, const TiXmlElement *const global)
+const TString XPopupMenuManager::GetMenuAttributeFromXML(const char* const attrib, const TiXmlElement* const popup, const TiXmlElement* const global)
 {
 	const TString tmp(popup->Attribute(attrib));
 
@@ -1526,7 +1523,7 @@ LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPAR
 	{
 	case WM_NCCREATE:
 	{
-		CREATESTRUCT *cs = (CREATESTRUCT *)lParam;
+		CREATESTRUCT* cs = (CREATESTRUCT*)lParam;
 		cs->dwExStyle |= WS_EX_LAYERED;
 		//return TRUE;
 		//return CallWindowProc(XPopupMenuManager::g_OldmIRCMenusWindowProc, mHwnd, uMsg, wParam, lParam);

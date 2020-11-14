@@ -23,7 +23,8 @@
   * blah
   */
 
-class XMenuBar {
+class XMenuBar final
+{
 public:
 	XMenuBar() noexcept = default;
 	XMenuBar(const XMenuBar &other) = delete;	// no copy constructor
@@ -34,7 +35,7 @@ public:
 	void parseXMenuBarInfo(const TString &input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const;
 
 	const bool addToMenuBar(HMENU menubar, XPopupMenu *const p_Menu, const TString &label);
-	void removeFromMenuBar(HMENU menubar, const XPopupMenu *const p_Menu);
+	void removeFromMenuBar(HMENU menubar, const XPopupMenu *const p_Menu) noexcept;
 	void setMenuBar(HMENU oldMenuBar, HMENU newMenuBar);
 
 	void resetMenuBar();
