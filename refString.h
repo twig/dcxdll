@@ -21,7 +21,7 @@ namespace refStringConcepts
 //  size = the size of the buffer already allocated.
 //
 // NB: NO buffer is allocated, all data MUST be preallocated.
-template <refStringConcepts::IsPODText T, size_t N>
+template <refStringConcepts::IsPODText T, size_t N = UINT_MAX>
 class refString final
 {
 	static_assert(N > 1, "N Must be > 1");
