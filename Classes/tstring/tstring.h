@@ -86,13 +86,13 @@ class TString;
 
 namespace TStringConcepts {
 	template <class T>
-	concept IsCharText = std::is_same_v<std::remove_cv_t<std::remove_all_extents_t<T>>, char>;
+	concept IsCharText = std::is_same_v<std::remove_cvref_t<std::remove_all_extents_t<T>>, char>;
 
 	template <class T>
-	concept IsWCharText = std::is_same_v<std::remove_cv_t<std::remove_all_extents_t<T>>, wchar_t>;
+	concept IsWCharText = std::is_same_v<std::remove_cvref_t<std::remove_all_extents_t<T>>, wchar_t>;
 
 	template <class T>
-	concept IsTString = std::is_same_v<std::remove_cv_t<std::remove_all_extents_t<T>>, TString>;
+	concept IsTString = std::is_same_v<std::remove_cvref_t<std::remove_all_extents_t<T>>, TString>;
 
 	template <class T>
 	concept IsPODText = IsCharText<T> || IsWCharText<T>;
@@ -132,7 +132,7 @@ namespace TStringConcepts {
 	concept IsContainer = ImplementsBeginFunction<T> && ImplementsEndFunction<T> /*&& ImplementsEraseFunction<T>*/;
 
 	template <class T>
-	concept IsSupportedCompareType = IsPODText<T> || IsPODTextPointer<T> || IsTString<T> || std::is_convertible_v<T, wchar_t> || std::is_convertible_v<T, char> || std::is_convertible_v<T, wchar_t*> || std::is_convertible_v<T, char*>;
+	concept IsSupportedCompareType = IsPODText<T> || IsPODTextPointer<T> || IsTString<T> || std::is_convertible_v<std::remove_cvref_t<T>, wchar_t> || std::is_convertible_v<std::remove_cvref_t<T>, char> || std::is_convertible_v<std::remove_cv_t<T>, wchar_t*> || std::is_convertible_v<std::remove_cv_t<T>, char*>;
 
 	template <class T>
 	concept IsSupportedAddType = IsNumeric<T> || IsSupportedCompareType<T>;
@@ -145,10 +145,10 @@ namespace TStringConcepts {
 }
 
 template<TStringConcepts::IsNumeric T>
-constexpr auto TS_getmemsize(T x) { return gsl::narrow_cast<size_t>(((x)-1U) + (16U - (((x)-1U) % 16U))); }
+constexpr auto TS_getmemsize(T x) noexcept { return gsl::narrow_cast<size_t>(((x)-1U) + (16U - (((x)-1U) % 16U))); }
 //#define TS_wgetmemsize(x) (unsigned long)(((((x) - 1)*sizeof(WCHAR)) + (16 - ((((x) - 1)*sizeof(WCHAR)) % 16)))/sizeof(WCHAR))
 template<TStringConcepts::IsNumeric T>
-constexpr auto TS_wgetmemsize(T x) { return (TS_getmemsize((x) * sizeof(WCHAR)) / sizeof(WCHAR)); }
+constexpr auto TS_wgetmemsize(T x) noexcept { return (TS_getmemsize((x) * sizeof(WCHAR)) / sizeof(WCHAR)); }
 
 // enable this define if you wish to use the mIRC extra functions
 #define INCLUDE_MIRC_EXTRAS 0
@@ -252,78 +252,6 @@ private:
 		const_pointer m_pEnd{ nullptr };
 		size_type	m_count{};
 	};
-
-#if !TSTRING_TESTCODE
-	UINT i_replace(const_pointer_const subString, const_pointer_const rString);
-	static UINT match(const_pointer m, const_pointer n, const bool cs /* case sensitive */);
-#endif
-
-	//const size_t set_buffersize(const size_t size) { m_buffersize = TS_getmemsize(size); return m_buffersize; };	// make buffersize a multiple of 16
-	//allocate a buffer thats sized to multiples of 16 bytes, (%byte + (16 - (%byte % 16)))
-	//TCHAR *allocstr_bytes(const size_t size) { return (TCHAR *)(new BYTE[set_buffersize(size)]); };
-
-	/// <summary>
-	/// Allocate a buffer thats sized to multiples of 16 bytes, (%byte + (16 - (%byte % 16)))
-	/// </summary>
-	/// <param name="size">- The desired buffer size in bytes</param>
-	/// <returns>A pointer to the buffer (can be an internal non-allocated buffer)</returns>
-	//auto allocstr_bytes(const size_type size)
-	//{
-	//	m_InternalBuffer[0] = TEXT('\0');
-	//	if (size <= TSTRING_INTERNALBUFFERSIZE_BYTES)
-	//	{
-	//		m_bUsingInternal = true;
-	//		//m_iLen = 0;
-	//		//m_bDirty = true;
-	//		m_buffersize = TSTRING_INTERNALBUFFERSIZE_BYTES;
-	//		return &m_InternalBuffer[0];
-	//	}
-	//	else
-	//		m_bUsingInternal = false;
-	//
-	//	return allocstr_bytes(size, m_buffersize);
-	//};
-	/// <summary>
-	/// Allocate a buffer thats sized to multiples of 16 bytes, (%byte + (16 - (%byte % 16)))
-	/// </summary>
-	/// <param name="size">- The desired buffer size in bytes</param>
-	/// <param name="iActual">- After calling, contains the actual buffer size in bytes</param>
-	/// <returns>A pointer to the buffer</returns>
-	//GSL_SUPPRESS(r.11) static pointer allocstr_bytes(const size_type size, size_type& iActual)
-	//{
-	//	iActual = TS_getmemsize(size);
-	//	return reinterpret_cast<pointer>(new BYTE[iActual]);
-	//};
-	/// <summary>
-	/// Allocate a buffer thats size characters long and its a multiple of 16bytes.
-	/// </summary>
-	/// <param name="size">- The desired buffer size in characters</param>
-	/// <returns>A pointer to the buffer (can be an internal non-allocated buffer)</returns>
-	//auto allocstr_cch(const size_type size) { return allocstr_bytes(size * sizeof(value_type)); };
-	//
-	//TCHAR *allocstr_cch(const size_t size) { return allocstr_bytes(size*sizeof(TCHAR), m_buffersize); };
-	//
-	/// <summary>
-	/// Allocate a buffer thats size characters long and its a multiple of 16bytes.
-	/// </summary>
-	/// <param name="size">- The desired size in characters</param>
-	/// <param name="iActual">- After calling, contains the actual buffer size in bytes</param>
-	/// <returns>A pointer to the buffer</returns>
-	//static auto allocstr_cch(const size_type size, size_type& iActual) { return allocstr_bytes(size * sizeof(value_type), iActual); };
-	/// <summary>
-	/// Convert a char string to a wchar string.
-	/// </summary>
-	/// <param name="cString">- The char string to convert.</param>
-	/// <param name="buffer_size">- Contains the buffer size of the returned string. (can be nullptr)</param>
-	/// <returns>The sting converted to wchar or nullptr on failure.</returns>
-	//static WCHAR* charToWchar(const char* const cString, size_t* const buffer_size);
-	/// <summary>
-	/// Convert a wchar string to a char string.
-	/// </summary>
-	/// <param name="wString">- The wchar string to convert.</param>
-	/// <param name="buffer_size">- Contains the buffer size of the returned string in bytes. (can be nullptr)</param>
-	/// <returns>The sting converted to char or nullptr on failure.</returns>
-	//static char* WcharTochar(const WCHAR* const wString, size_t* const buffer_size);
 
 	std::unique_ptr<TCHAR[]> m_buffer{};
 
@@ -607,7 +535,11 @@ public:
 	/// <returns></returns>
 	TString& operator =(TString&& tString) noexcept;
 
-	// single + operator that handles all supported types (type checking handled by += operator)
+	/// <summary>
+	/// Single + operator that handles all supported types
+	/// </summary>
+	/// <param name="other">- The item to add to the string.</param>
+	/// <returns>Previous string + new string.</returns>
 	template <TStringConcepts::IsSupportedAddType T>
 	TString operator +(const T& other)
 	{
@@ -616,8 +548,12 @@ public:
 		return newTString;
 	}
 
-	// single + operator that handles all supported types
-	// type checking handled by += operator
+	/// <summary>
+	/// Single + operator that handles all supported types
+	/// </summary>
+	/// <param name="other">- The item to add to the string.</param>
+	/// <param name="tString">- The string to add the new item to.</param>
+	/// <returns>Previous string + new string.</returns>
 	template <TStringConcepts::IsSupportedAddType T>
 	friend TString operator +(const T& other, const TString& tString)
 	{
@@ -632,30 +568,11 @@ public:
 	TString& operator =(const char* const cString);
 	TString& operator =(const char chr) noexcept;
 
-	// code below is broken & causes crashes, reason unknown at this time
-	//template <typename T>
-	//TString &operator =(const T &other) {
-	//	static_assert(!is_Numeric_v<T>, "Must be a TString, WCHAR, CHAR, WCHAR * or CHAR *");
-	//	TString tmp(other);
-	//	this->swap(tmp);
-	//	return *this;
-	//	//this->copy(other);
-	//	//return *this;
-	//}
-	//template <>
-	//TString &operator =(const WCHAR &other) {
-	//	TString tmp(other);
-	//	this->swap(tmp);
-	//	return *this;
-	//}
-	//template <>
-	//TString &operator =(const char &other) {
-	//	TString tmp(other);
-	//	this->swap(tmp);
-	//	return *this;
-	//}
-
-	// final version of the += operator, properly handles numeric types (char, wchar classified as non-numeric here)
+	/// <summary>
+	/// Final version of the += operator, properly handles numeric types (char, wchar classified as non-numeric here)
+	/// </summary>
+	/// <param name="other">- The item to add to the string.</param>
+	/// <returns>Previous string + new string.</returns>
 	template <TStringConcepts::IsSupportedAddType T>
 	GSL_SUPPRESS(lifetime.4)
 		TString& operator +=(const T& other)
@@ -668,33 +585,13 @@ public:
 			return append(other);
 	}
 
-	// code below is the same as above but without the is_Numeric() macro (kept as reference only)
-	//template <class T>
-	//std::enable_if_t<!std::is_arithmetic<T>::value || std::is_same<T, WCHAR>::value || std::is_same<T, CHAR>::value, TString> & operator +=(const T &other) { return append(other); }
-	//template <class T>
-	//std::enable_if_t<std::is_arithmetic<T>::value && !std::is_same<T, WCHAR>::value && !std::is_same<T, CHAR>::value, TString> & operator +=(const T &num) { return append_number(num); }
-
-	// template below works great, but has limited type support for numbers (kept as reference only)
-	//template <class T>
-	//TString & operator +=(const T &other) { return append(other); }
-	//template <>
-	//TString & operator +=(const int &num) { return append_number(num); }
-	//template <>
-	//TString & operator +=(const float &num) { return append_number(num); }
-	//template <>
-	//TString & operator +=(const double &num) { return append_number(num); }
-	//template <>
-	//TString & operator +=(const unsigned long &num) { return append_number(num); }
-	//template <>
-	//TString & operator +=(const __int64 &num) { return append_number(num); }
-
 	template <TStringConcepts::IsSupportedCompareType T>
 	bool operator <=(const T& other) const noexcept { return !(*this > other); }
 
 	template <TStringConcepts::IsSupportedCompareType T>
 	bool operator >=(const T& other) const noexcept { return !(*this < other); }
 
-	template <class T>
+	template <TStringConcepts::IsSupportedCompareType T>
 	bool operator ==(const T& other) const noexcept
 	{
 		if constexpr (std::is_array_v<T>)
@@ -704,8 +601,8 @@ public:
 		else
 			return (compare(other) == 0);
 	}
-	template <>
-	bool operator ==(const int& iNull) const noexcept { return (!m_pString && !iNull); }
+	//template <>
+	//bool operator ==(const nullptr_t& iNull) const noexcept { return (!m_pString && !iNull); }
 
 	template <TStringConcepts::IsSupportedCompareType T>
 	bool operator !=(const T& other) const noexcept { return !(*this == other); }
@@ -1268,7 +1165,7 @@ public:
 		*this += tToken;
 	}
 
-	template <TStringConcepts::IsSupportedCompareType T, class R = size_t, TStringConcepts::IsSupportedSeperatorType TSepChars = const_reference>
+	template <TStringConcepts::IsSupportedCompareType T, TStringConcepts::IsNumeric R = size_t, TStringConcepts::IsSupportedSeperatorType TSepChars = const_reference>
 	R findtok(const T& cToken, const UINT N, TSepChars sepChars = SPACECHAR) const
 	{
 		const auto itEnd = end();
