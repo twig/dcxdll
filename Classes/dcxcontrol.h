@@ -15,6 +15,9 @@
 #ifndef _DCXCONTROL_H_
 #define _DCXCONTROL_H_
 
+#include "defines.h"
+#include "dcxwindow.h"
+
  //constexpr auto DCC_TEXTCOLOR = 0x01;	//!< Control Text Color;
  //constexpr auto DCC_TEXTBKGCOLOR = 0x02;	//!< Control Text Background Color;
  //constexpr auto DCC_BKGCOLOR = 0x04;	//!< Control Background Color;
@@ -42,37 +45,34 @@ enum class DcxColourFlags
 //{
 //	return eStyle = static_cast<DcxColourFlags>(static_cast<UINT>(eStyle) | static_cast<UINT>(dStyle));
 //}
-template <typename T>
-constexpr DcxColourFlags& operator |=(T& eStyle, const DcxColourFlags& dStyle) noexcept
-{
-	return eStyle = static_cast<DcxColourFlags>(static_cast<UINT>(eStyle) | static_cast<UINT>(dStyle));
-}
-
-template <typename T>
-constexpr DcxColourFlags& operator &=(DcxColourFlags& eStyle, const T& dStyle) noexcept
-{
-	return eStyle = static_cast<DcxColourFlags>(static_cast<UINT>(eStyle) & static_cast<UINT>(dStyle));
-}
-
-template <typename T>
-constexpr DcxColourFlags operator &(const DcxColourFlags& eStyle, const T& dStyle) noexcept
-{
-	return static_cast<DcxColourFlags>(static_cast<UINT>(eStyle) & static_cast<UINT>(dStyle));
-}
-
-template <typename T>
-constexpr DcxColourFlags operator |(const DcxColourFlags& eStyle, const T& dStyle) noexcept
-{
-	return static_cast<DcxColourFlags>(static_cast<UINT>(eStyle) | static_cast<UINT>(dStyle));
-}
-
-constexpr DcxColourFlags operator ~(const DcxColourFlags& eStyle) noexcept
-{
-	return static_cast<DcxColourFlags>(~static_cast<UINT>(eStyle));
-}
-
-#include "defines.h"
-#include "dcxwindow.h"
+//template <typename T>
+//constexpr DcxColourFlags& operator |=(T& eStyle, const DcxColourFlags& dStyle) noexcept
+//{
+//	return eStyle = static_cast<DcxColourFlags>(static_cast<UINT>(eStyle) | static_cast<UINT>(dStyle));
+//}
+//
+//template <typename T>
+//constexpr DcxColourFlags& operator &=(DcxColourFlags& eStyle, const T& dStyle) noexcept
+//{
+//	return eStyle = static_cast<DcxColourFlags>(static_cast<UINT>(eStyle) & static_cast<UINT>(dStyle));
+//}
+//
+//template <typename T>
+//constexpr DcxColourFlags operator &(const DcxColourFlags& eStyle, const T& dStyle) noexcept
+//{
+//	return static_cast<DcxColourFlags>(static_cast<UINT>(eStyle) & static_cast<UINT>(dStyle));
+//}
+//
+//template <typename T>
+//constexpr DcxColourFlags operator |(const DcxColourFlags& eStyle, const T& dStyle) noexcept
+//{
+//	return static_cast<DcxColourFlags>(static_cast<UINT>(eStyle) | static_cast<UINT>(dStyle));
+//}
+//
+//constexpr DcxColourFlags operator ~(const DcxColourFlags& eStyle) noexcept
+//{
+//	return static_cast<DcxColourFlags>(~static_cast<UINT>(eStyle));
+//}
 
 #define CTLF_ALLOW_PBAR				0x0000000000000001ULL
 #define CTLF_ALLOW_TRACKBAR			0x0000000000000002ULL
@@ -467,7 +467,13 @@ protected:
 	static const DcxColourFlags parseColorFlags(const TString& flags) noexcept;
 };
 
-template <class pClassObj>
+template <class T>
+concept HasWinProc = requires(T t)
+{
+	T::m_hDefaultClassProc;
+};
+
+template <HasWinProc pClassObj>
 void dcxRegisterClassEx(const TCHAR* const szClass, const TCHAR* const szDcxClass) noexcept
 {
 	WNDCLASSEX wc{};
@@ -483,7 +489,7 @@ void dcxRegisterClassEx(const TCHAR* const szClass, const TCHAR* const szDcxClas
 		RegisterClassEx(&wc);
 	}
 }
-template <class pClassObj>
+template <HasWinProc pClassObj>
 void dcxRegisterClass(const TCHAR* const szClass, const TCHAR* const szDcxClass) noexcept
 {
 	WNDCLASSEX wc{};

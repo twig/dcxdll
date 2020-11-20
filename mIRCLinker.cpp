@@ -57,7 +57,7 @@ namespace mIRCLinker {
 			{
 				//4128775 = 7.63
 				// bytes added in 7.63.416 Beta
-				m_dwBytes = lInfo->dBytes;
+				m_dwBytes = lInfo->mBytes;
 				m_dwCharacters = m_dwBytes / sizeof(TCHAR);
 			}
 		}

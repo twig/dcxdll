@@ -1,8 +1,6 @@
 #pragma once
-//#ifdef __INTEL_COMPILER // Defined when using Intel C++ Compiler.
-//#pragma warning( push );
-//#pragma warning( disable : 2292 ); //warning #2292: destructor is declared but copy constructor and assignment operator are not
-//#endif
+
+#include "DcxConcepts.h"
 
 namespace mIRCLinker
 {
@@ -26,7 +24,6 @@ namespace mIRCLinker
 	extern HWND			m_hTreeview;	//!< The TreeView control child of the Treebar.
 	extern HFONT		m_hTreeFont;	//!< The Treebars original font.
 	extern HIMAGELIST	m_hTreeImages;	//!< The Treebars original image list.
-	//extern TString		m_sLastError;
 	extern WNDPROC		m_wpmIRCDefaultWndProc;
 	extern bool			m_bUnicodemIRC;
 	extern bool			m_bSendMessageDisabled;
@@ -39,7 +36,7 @@ namespace mIRCLinker
 		BOOL   mKeep;    //!< mIRC variable stating to keep DLL in memory
 		BOOL   mUnicode; //!< mIRC V7+ unicode enabled dll.
 		DWORD  mBeta;    //!< mIRC V7.49.363+ Beta version
-		DWORD  dBytes;	 //!< mIRC V7.63.416+ maximum number of bytes allowed when writing to the data and parms strings.
+		DWORD  mBytes;	 //!< mIRC V7.63.416+ maximum number of bytes allowed when writing to the data and parms strings.
 	};
 	using LPLOADINFO = LOADINFO *;
 
@@ -129,7 +126,8 @@ namespace mIRCLinker
 	//}
 
 	template <typename Output, typename Input>
-	GSL_SUPPRESS(f.6) bool eval(Output& res, const Input& data)
+	GSL_SUPPRESS(f.6)
+	bool eval(Output& res, const Input& data)
 	{
 		if constexpr (std::is_array_v<Input> && Dcx::is_pod_v<Input>)
 			m_pData = &data[0];
@@ -159,13 +157,13 @@ namespace mIRCLinker
 		m_pData.clear();
 		return false;
 	}
-	template <typename Output, typename Input, typename Value, typename... Arguments>
+	template <typename Output, typename Input, TStringConcepts::IsSupportedAddType Value, typename... Arguments>
 	bool eval(Output& res, const Input& fmt, const Value& val, Arguments&& ... args)
 	{
 		TString line;
 		return eval(res, _ts_sprintf(line, fmt, val, args...));
 	}
-	template <typename Input, typename Value, typename... Arguments>
+	template <typename Input, TStringConcepts::IsSupportedAddType Value, typename... Arguments>
 	bool eval(nullptr_t res, const Input& fmt, const Value& val, Arguments&& ... args)
 	{
 		TString line;
@@ -186,13 +184,13 @@ namespace mIRCLinker
 		m_pData.clear();
 		return {};
 	}
-	template <typename Output, typename Input, typename Value, typename... Arguments>
+	template <typename Output, typename Input, TStringConcepts::IsSupportedAddType Value, typename... Arguments>
 	std::optional<Output> o_eval(const Input& fmt, const Value& val, Arguments&& ... args)
 	{
 		TString line;
 		return o_eval<Output>(_ts_sprintf(line, fmt, val, args...));
 	}
-	template <typename Output, typename Input, typename Value>
+	template <typename Output, typename Input, TStringConcepts::IsSupportedAddType Value>
 	std::optional<Output> o_eval(const Input& fmt, const Value& val)
 	{
 		TString line;
@@ -225,10 +223,10 @@ namespace mIRCLinker
 	//	return uEval<Output>(_ts_sprintf(line, fmt, val, args...));
 	//}
 
-	template <class T, class Value>
-	std::optional<T> uEval(const Value& data) noexcept
+	template <DcxConcepts::IsNumeric Output, class Value>
+	std::optional<Output> uEval(const Value& data) noexcept
 	{
-		static_assert(is_Numeric_v<T>, "Only Numeric types allowed");
+		static_assert(is_Numeric_v<Output>, "Only Numeric types allowed");
 
 		if constexpr (std::is_array_v<Value> && Dcx::is_pod_v<Value>)
 			m_pData = &data[0];
@@ -237,14 +235,16 @@ namespace mIRCLinker
 
 		{
 			if (mIRC_SndMsg(WM_MEVALUATE))
-				return{ gsl::narrow_cast<T>(_ts_atoi64(m_pData.data())) };
+				return{ gsl::narrow_cast<Output>(_ts_atoi64(m_pData.data())) };
 		}
 		m_pData.clear();
 		return { };
 	}
-	template <typename Output, typename Input, typename Value, typename... Arguments>
+	template <DcxConcepts::IsNumeric Output, typename Input, TStringConcepts::IsSupportedAddType Value, typename... Arguments>
 	std::optional<Output> uEval(const Input& fmt, const Value& val, Arguments&& ... args)
 	{
+		static_assert(is_Numeric_v<Output>, "Only Numeric types allowed");
+
 		TString line;
 		return uEval<Output>(_ts_sprintf(line, fmt, val, args...));
 	}
@@ -265,7 +265,7 @@ namespace mIRCLinker
 		return false;
 	}
 
-	template <typename Input, typename Value, typename... Arguments>
+	template <typename Input, TStringConcepts::IsSupportedAddType Value, typename... Arguments>
 	bool exec(const Input& fmt, const Value& val, Arguments&& ... args)
 	{
 		TString line;
@@ -283,7 +283,7 @@ namespace mIRCLinker
 		mIRC_SndMsg(WM_MCOMMAND);
 	}
 
-	template <typename Input, typename Value, typename... Arguments>
+	template <typename Input, TStringConcepts::IsSupportedAddType Value, TStringConcepts::IsSupportedAddType... Arguments>
 	void signal(const Input& fmt, const Value& val, Arguments&& ... args)
 	{
 		TString line;
@@ -301,14 +301,14 @@ namespace mIRCLinker
 		mIRC_SndMsg(WM_MCOMMAND);
 	}
 
-	template <typename Input, typename Value, typename... Arguments>
+	template <typename Input, TStringConcepts::IsSupportedAddType Value, TStringConcepts::IsSupportedAddType... Arguments>
 	void echo(const Input& fmt, const Value& val, Arguments&& ... args)
 	{
 		TString line;
 		return echo(_ts_sprintf(line, fmt, val, args...));
 	}
 #if DCX_DEBUG_OUTPUT
-	template <typename Command, typename Message>
+	template <TStringConcepts::IsSupportedAddType Command, TStringConcepts::IsSupportedAddType Message>
 	void debug(const Command& cmd, const Message& msg)
 	{
 		if (!isDebug()) return;

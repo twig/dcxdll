@@ -432,7 +432,7 @@ void DcxControl::parseGlobalCommandRequest(const TString& input, const XSwitchFl
 		if (numtok > 4)
 			AnimateWindow(m_Hwnd,
 				input.gettok(5).to_dword(),
-				static_cast<DWORD>((AW_HIDE | DcxDialog::getAnimateStyles(input.gettok(4))) & ~AW_ACTIVATE));
+				static_cast<DWORD>((DcxDialog::getAnimateStyles(input.gettok(4)) | AW_HIDE) & ~AW_ACTIVATE));
 		else
 			ShowWindow(m_Hwnd, SW_HIDE);
 
@@ -451,7 +451,7 @@ void DcxControl::parseGlobalCommandRequest(const TString& input, const XSwitchFl
 		{
 			AnimateWindow(m_Hwnd,
 				input.gettok(5).to_dword(),
-				static_cast<DWORD>((AW_ACTIVATE | DcxDialog::getAnimateStyles(input.gettok(4))) & ~AW_HIDE));
+				static_cast<DWORD>((DcxDialog::getAnimateStyles(input.gettok(4)) | AW_ACTIVATE) & ~AW_HIDE));
 		}
 		else
 			ShowWindow(m_Hwnd, SW_SHOW);
