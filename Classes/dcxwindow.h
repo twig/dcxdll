@@ -17,6 +17,7 @@
 
 #include <map>
 #include "Classes/tinyxml/tinyxml.h"
+#include "EnumConcepts.h"
 
 enum class DcxResourceFlags
 	: UINT
@@ -90,16 +91,16 @@ enum class SizingTypes
 	Panel = 4,
 	Toolbar = 8
 };
-template <typename T>
-constexpr SizingTypes operator |(const SizingTypes& eStyle, const T& dStyle) noexcept
-{
-	return static_cast<SizingTypes>(static_cast<UINT>(eStyle) | static_cast<UINT>(dStyle));
-}
-template <typename T>
-constexpr SizingTypes operator &(const SizingTypes& eStyle, const T& dStyle) noexcept
-{
-	return static_cast<SizingTypes>(static_cast<UINT>(eStyle) & static_cast<UINT>(dStyle));
-}
+//template <typename T>
+//constexpr SizingTypes operator |(const SizingTypes& eStyle, const T& dStyle) noexcept
+//{
+//	return static_cast<SizingTypes>(static_cast<UINT>(eStyle) | static_cast<UINT>(dStyle));
+//}
+//template <typename T>
+//constexpr SizingTypes operator &(const SizingTypes& eStyle, const T& dStyle) noexcept
+//{
+//	return static_cast<SizingTypes>(static_cast<UINT>(eStyle) & static_cast<UINT>(dStyle));
+//}
 
 /*!
  * \brief blah
