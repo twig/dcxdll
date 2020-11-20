@@ -20,7 +20,7 @@
 template<class _Ty>
 struct is_Numeric
 	: std::integral_constant<bool,
-	(std::is_arithmetic_v<_Ty> || std::is_same_v<_Ty, std::byte>)
+	(std::is_arithmetic_v<_Ty> || std::is_same_v<_Ty, std::byte> || std::is_enum_v<_Ty>)
 	&& !std::is_same_v<_Ty, wchar_t>
 	&& !std::is_same_v<_Ty, char>
 	&& !std::is_pointer_v<_Ty>
@@ -742,7 +742,7 @@ constexpr bool isInBounds(const T* const sDest, const T* const sSrc, const std::
 }
 
 template <typename Result, typename Format, typename Value, typename... Arguments>
-Result& _ts_sprintf(Result& res, __format_string const Format& fmt, const Value& val, Arguments&&... args)
+Result& _ts_sprintf(Result& res, const Format& fmt, const Value& val, Arguments&&... args)
 {
 	static_assert(details::IsPODText<Format>, "Format string must be char or wchar_t");
 	res.clear();
@@ -897,7 +897,7 @@ int _ts_stricmp(const T* const sDest, const T* const sSrc) noexcept
 }
 
 template <details::IsPODText T>
-int _ts_vscprintf(const T* const _Format, va_list _ArgList) noexcept
+int _ts_vscprintf(__format_string const T* const _Format, va_list _ArgList) noexcept
 {
 	static_assert(details::IsPODText<T>, "Only char & wchar_t supported...");
 
@@ -905,7 +905,7 @@ int _ts_vscprintf(const T* const _Format, va_list _ArgList) noexcept
 }
 
 template <details::IsPODText T>
-int _ts_vsprintf(T* const buf, size_t nCount, const T* const fmt, const va_list args) noexcept
+int _ts_vsprintf(T* const buf, size_t nCount, __format_string const T* const fmt, const va_list args) noexcept
 {
 	static_assert(details::IsPODText<T>, "Only char & wchar_t supported...");
 
