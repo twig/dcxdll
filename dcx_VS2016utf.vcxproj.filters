@@ -578,6 +578,12 @@
     <ClInclude Include="dxerr_nov2015\dxerr.h">
       <Filter>Header Files\DirectX</Filter>
     </ClInclude>
+    <ClInclude Include="EnumConcepts.h">
+      <Filter>Header Files\General</Filter>
+    </ClInclude>
+    <ClInclude Include="DcxConcepts.h">
+      <Filter>Header Files\General</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="dcx_zip\dcx.mrc">

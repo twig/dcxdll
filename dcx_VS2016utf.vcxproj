@@ -692,9 +692,11 @@
     <ClInclude Include="Classes\WindowStyles.h" />
     <ClInclude Include="ColourString.h" />
     <ClInclude Include="Dcx.h" />
+    <ClInclude Include="DcxConcepts.h" />
     <ClInclude Include="dcxExceptions.h" />
     <ClInclude Include="defines.h" />
     <ClInclude Include="dxerr_nov2015\dxerr.h" />
+    <ClInclude Include="EnumConcepts.h" />
     <ClInclude Include="mIRCLinker.h" />
     <ClInclude Include="refString.h" />
     <ClInclude Include="resource.h" />
