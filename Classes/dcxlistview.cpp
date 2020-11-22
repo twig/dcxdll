@@ -3857,12 +3857,12 @@ DcxControl* DcxListView::CreatePbar(LPLVITEM lvi, const TString& styles)
 		const TString tsType(styles.getnexttok());	// tok 2
 		//ctrl_args.tsprintf(TEXT("%s %s %d %d %d %d %s"), tsID.to_chr(), tsType.to_chr(), rItem.left, rItem.top, (rItem.right - rItem.left), (rItem.bottom - rItem.top), styles.getlasttoks().to_chr());	// tok 3-
 		_ts_sprintf(ctrl_args, TEXT("% % % % % % %"), tsID, tsType, rItem.left, rItem.top, (rItem.right - rItem.left), (rItem.bottom - rItem.top), styles.getlasttoks());	// tok 3-
-		lpdcxlvi->pbar = getParentDialog()->addControl(ctrl_args, 1, CTLF_ALLOW_PBAR | CTLF_ALLOW_IPADDRESS | CTLF_ALLOW_BUTTON | CTLF_ALLOW_IMAGE | CTLF_ALLOW_PANEL, m_Hwnd);
+		lpdcxlvi->pbar = getParentDialog()->addControl(ctrl_args, 1, DcxAllowControls::ALLOW_PBAR | DcxAllowControls::ALLOW_IPADDRESS | DcxAllowControls::ALLOW_BUTTON | DcxAllowControls::ALLOW_IMAGE | DcxAllowControls::ALLOW_PANEL, m_Hwnd);
 
 		//// pbar only version
 		////<id> pbar <x y w h> <styles>
 		//ctrl_args.tsprintf(TEXT("%s pbar %d %d %d %d %s"), tsID.to_chr(), rItem.left, rItem.top, (rItem.right - rItem.left), (rItem.bottom - rItem.top), styles.getlasttoks().to_chr());
-		//lpdcxlvi->pbar = this->getParentDialog()->addControl(ctrl_args,1,CTLF_ALLOW_PBAR,m_Hwnd);
+		//lpdcxlvi->pbar = this->getParentDialog()->addControl(ctrl_args,1,DcxAllowControls::ALLOW_PBAR,m_Hwnd);
 
 		////lpdcxlvi->pbar = new DcxProgressBar(this->getID(), this->m_pParentDialog, m_Hwnd, &rItem, styles);
 		//lpdcxlvi->pbar = new DcxProgressBar(ID, this->m_pParentDialog, m_Hwnd, &rItem, styles.getlasttoks());

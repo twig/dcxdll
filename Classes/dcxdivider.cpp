@@ -175,7 +175,7 @@ void DcxDivider::parseCommandRequest(const TString & input)
 			throw Dcx::dcxException(TEXT("Control with ID %(%) already exists"), tsID, ID - mIRC_ID_OFFSET);
 
 		try {
-			dvpi.hChild = getParentDialog()->addControl(control_data, 1, CTLF_ALLOW_ALLBUTDOCK, m_Hwnd)->getHwnd();
+			dvpi.hChild = getParentDialog()->addControl(control_data, 1, DcxAllowControls::ALLOW_ALLBUTDOCK, m_Hwnd)->getHwnd();
 
 			if (flags[TEXT('l')])
 				setPane(DVF_PANELEFT, &dvpi);

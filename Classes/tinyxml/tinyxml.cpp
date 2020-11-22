@@ -57,12 +57,13 @@ void TiXmlBase::EncodeString(const TIXML_STRING& str, TIXML_STRING* outString)
 
 	while (i < str.length())
 	{
-		const unsigned char c = gsl::narrow_cast<unsigned char>(gsl::at(str,i));
+		const unsigned char c = gsl::narrow_cast<unsigned char>(gsl::at(str, i));
+		//const unsigned char c = gsl::narrow_cast<unsigned char>(str[i]);
 
 		if (c == '&'
 			&& i < (str.length() - 2)
-			&& gsl::at(str,i + 1) == '#'
-			&& gsl::at(str,i + 2) == 'x')
+			&& gsl::at(str, i + 1) == '#'
+			&& gsl::at(str, i + 2) == 'x')
 		{
 			// Hexadecimal character reference.
 			// Pass through unchanged.
@@ -113,13 +114,16 @@ void TiXmlBase::EncodeString(const TIXML_STRING& str, TIXML_STRING* outString)
 			// Below 32 is symbolic.
 			char buf[32]{};
 
-#if defined(TIXML_SNPRINTF)		
-			TIXML_SNPRINTF(buf, sizeof(buf), "&#x%02X;", gsl::narrow_cast<unsigned int>(c & 0xff));
-			buf[31] = 0;	// Ook: make sure string is zero terminated. snprintf() can leave it non zero terminated...
+			{
+#if defined(TIXML_SNPRINTF)
+				const auto tmp = gsl::narrow_cast<unsigned int>(c & 0xff);
+				TIXML_SNPRINTF(buf, sizeof(buf), "&#x%02X;", tmp);
+				buf[31] = 0;	// Ook: make sure string is zero terminated. snprintf() can leave it non zero terminated...
 #else
-			sprintf(buf, "&#x%02X;", gsl::narrow_cast<unsigned int>(c & 0xff));
+				const auto tmp = gsl::narrow_cast<unsigned int>(c & 0xff);
+				sprintf(&buf[0], "&#x%02X;", tmp);
 #endif		
-
+			}
 			//*ME:	warning C4267: convert 'size_t' to 'int'
 			//*ME:	Int-Cast to make compiler happy ...
 			outString->append(&buf[0], strlen(&buf[0]));
@@ -130,6 +134,7 @@ void TiXmlBase::EncodeString(const TIXML_STRING& str, TIXML_STRING* outString)
 			//char realc = (char) c;
 			//outString->append( &realc, 1 );
 			*outString += gsl::narrow_cast<char>(c);	// somewhat more efficient function call.
+			//*outString += static_cast<char>(c);	// somewhat more efficient function call.
 			++i;
 		}
 	}
@@ -550,7 +555,7 @@ void TiXmlElement::ClearThis() noexcept
 
 const char* TiXmlElement::Attribute(const char* name) const noexcept
 {
-	if (const TiXmlAttribute * const node = attributeSet.Find(name); node)
+	if (const TiXmlAttribute* const node = attributeSet.Find(name); node)
 		return node->Value();
 	return nullptr;
 }
@@ -559,7 +564,7 @@ const char* TiXmlElement::Attribute(const char* name) const noexcept
 #ifdef TIXML_USE_STL
 const std::string* TiXmlElement::Attribute(const std::string& name) const
 {
-	if (const TiXmlAttribute * const attrib = attributeSet.Find(name); attrib)
+	if (const TiXmlAttribute* const attrib = attributeSet.Find(name); attrib)
 		return &attrib->ValueStr();
 	return nullptr;
 }
@@ -570,7 +575,7 @@ const char* TiXmlElement::Attribute(const char* name, int* i) const noexcept
 {
 	const char* result{ nullptr };
 
-	if (const TiXmlAttribute * const attrib = attributeSet.Find(name); attrib)
+	if (const TiXmlAttribute* const attrib = attributeSet.Find(name); attrib)
 	{
 		result = attrib->Value();
 		if (i)
@@ -585,7 +590,7 @@ const std::string* TiXmlElement::Attribute(const std::string& name, int* i) cons
 {
 	const std::string* result{ nullptr };
 
-	if (const TiXmlAttribute * const attrib = attributeSet.Find(name); attrib != nullptr)
+	if (const TiXmlAttribute* const attrib = attributeSet.Find(name); attrib != nullptr)
 	{
 		result = &attrib->ValueStr();
 		if (i)
@@ -600,7 +605,7 @@ const char* TiXmlElement::Attribute(const char* name, double* d) const noexcept
 {
 	const char* result{ nullptr };
 
-	if (const TiXmlAttribute * const attrib = attributeSet.Find(name); attrib)
+	if (const TiXmlAttribute* const attrib = attributeSet.Find(name); attrib)
 	{
 		result = attrib->Value();
 		if (d)
@@ -615,7 +620,7 @@ const std::string* TiXmlElement::Attribute(const std::string& name, double* d) c
 {
 	const std::string* result{ nullptr };
 
-	if (const TiXmlAttribute * const attrib = attributeSet.Find(name); attrib)
+	if (const TiXmlAttribute* const attrib = attributeSet.Find(name); attrib)
 	{
 		result = &attrib->ValueStr();
 		if (d)
@@ -628,7 +633,7 @@ const std::string* TiXmlElement::Attribute(const std::string& name, double* d) c
 
 TiXmlReturns TiXmlElement::QueryIntAttribute(const char* name, int* const ival) const noexcept
 {
-	if (const TiXmlAttribute * const attrib = attributeSet.Find(name); attrib)
+	if (const TiXmlAttribute* const attrib = attributeSet.Find(name); attrib)
 		return attrib->QueryIntValue(ival);
 	return TiXmlReturns::TIXML_NO_ATTRIBUTE;
 }
@@ -644,7 +649,7 @@ std::pair<TiXmlReturns, int> TiXmlElement::QueryIntAttribute(const char* name) c
 #ifdef TIXML_USE_STL
 TiXmlReturns TiXmlElement::QueryIntAttribute(const std::string& name, int* const ival) const
 {
-	if (const TiXmlAttribute * const attrib = attributeSet.Find(name); attrib)
+	if (const TiXmlAttribute* const attrib = attributeSet.Find(name); attrib)
 		return attrib->QueryIntValue(ival);
 	return TiXmlReturns::TIXML_NO_ATTRIBUTE;
 }
@@ -653,7 +658,7 @@ TiXmlReturns TiXmlElement::QueryIntAttribute(const std::string& name, int* const
 
 TiXmlReturns TiXmlElement::QueryDoubleAttribute(const char* name, double* const dval) const noexcept
 {
-	if (const TiXmlAttribute * const attrib = attributeSet.Find(name); attrib)
+	if (const TiXmlAttribute* const attrib = attributeSet.Find(name); attrib)
 		return attrib->QueryDoubleValue(dval);
 	return TiXmlReturns::TIXML_NO_ATTRIBUTE;
 }
@@ -662,7 +667,7 @@ TiXmlReturns TiXmlElement::QueryDoubleAttribute(const char* name, double* const 
 #ifdef TIXML_USE_STL
 TiXmlReturns TiXmlElement::QueryDoubleAttribute(const std::string& name, double* const dval) const
 {
-	if (const TiXmlAttribute * const attrib = attributeSet.Find(name); attrib)
+	if (const TiXmlAttribute* const attrib = attributeSet.Find(name); attrib)
 		return attrib->QueryDoubleValue(dval);
 	return TIXML_NO_ATTRIBUTE;
 }
@@ -822,9 +827,9 @@ TiXmlNode* TiXmlElement::Clone() const
 
 const char* TiXmlElement::GetText() const noexcept
 {
-	if (const TiXmlNode * const child = this->FirstChild(); child)
+	if (const TiXmlNode* const child = this->FirstChild(); child)
 	{
-		if (const TiXmlText * const childText = child->ToText(); childText)
+		if (const TiXmlText* const childText = child->ToText(); childText)
 			return childText->Value();
 	}
 	return nullptr;

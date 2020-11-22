@@ -356,18 +356,17 @@ void DcxTab::parseCommandRequest(const TString& input)
 		if (control_data.numtok() > 5)
 		{
 			const DcxControl* const p_Control = this->getParentDialog()->addControl(control_data, 1,
-				CTLF_ALLOW_TREEVIEW |
-				CTLF_ALLOW_LISTVIEW |
-				CTLF_ALLOW_RICHEDIT |
-				CTLF_ALLOW_DIVIDER |
-				CTLF_ALLOW_PANEL |
-				CTLF_ALLOW_TAB |
-				CTLF_ALLOW_REBAR |
-				CTLF_ALLOW_WEBCTRL |
-				CTLF_ALLOW_EDIT |
-				CTLF_ALLOW_IMAGE |
-				CTLF_ALLOW_LIST
-				, m_Hwnd);
+				DcxAllowControls::ALLOW_TREEVIEW |
+				DcxAllowControls::ALLOW_LISTVIEW |
+				DcxAllowControls::ALLOW_RICHEDIT |
+				DcxAllowControls::ALLOW_DIVIDER |
+				DcxAllowControls::ALLOW_PANEL |
+				DcxAllowControls::ALLOW_TAB |
+				DcxAllowControls::ALLOW_REBAR |
+				DcxAllowControls::ALLOW_WEBCTRL |
+				DcxAllowControls::ALLOW_EDIT |
+				DcxAllowControls::ALLOW_IMAGE |
+				DcxAllowControls::ALLOW_LIST, m_Hwnd);
 
 			lpdtci->mChildHwnd = p_Control->getHwnd();
 		}
@@ -594,7 +593,7 @@ void DcxTab::parseCommandRequest(const TString& input)
 	}
 	else
 		this->parseGlobalCommandRequest(input, xflags);
-}
+	}
 
 /*!
  * \brief blah

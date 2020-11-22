@@ -406,20 +406,19 @@ void DcxReBar::parseCommandRequest(const TString& input)
 		if (control_data.numtok() > 5)
 		{
 			p_Control = this->getParentDialog()->addControl(control_data, 1,
-				CTLF_ALLOW_TRACKBAR |
-				CTLF_ALLOW_PBAR |
-				CTLF_ALLOW_COMBOEX |
-				CTLF_ALLOW_TOOLBAR |
-				CTLF_ALLOW_STATUSBAR |
-				CTLF_ALLOW_TREEVIEW |
-				CTLF_ALLOW_LISTVIEW |
-				CTLF_ALLOW_COLORCOMBO |
-				CTLF_ALLOW_BUTTON |
-				CTLF_ALLOW_RICHEDIT |
-				CTLF_ALLOW_DIVIDER |
-				CTLF_ALLOW_PANEL |
-				CTLF_ALLOW_TAB
-				, m_Hwnd);
+				DcxAllowControls::ALLOW_TRACKBAR |
+				DcxAllowControls::ALLOW_PBAR |
+				DcxAllowControls::ALLOW_COMBOEX |
+				DcxAllowControls::ALLOW_TOOLBAR |
+				DcxAllowControls::ALLOW_STATUSBAR |
+				DcxAllowControls::ALLOW_TREEVIEW |
+				DcxAllowControls::ALLOW_LISTVIEW |
+				DcxAllowControls::ALLOW_COLORCOMBO |
+				DcxAllowControls::ALLOW_BUTTON |
+				DcxAllowControls::ALLOW_RICHEDIT |
+				DcxAllowControls::ALLOW_DIVIDER |
+				DcxAllowControls::ALLOW_PANEL |
+				DcxAllowControls::ALLOW_TAB, m_Hwnd);
 
 			if (const auto dct = p_Control->getControlType(); ((dct == DcxControlTypes::STATUSBAR) || (dct == DcxControlTypes::TOOLBAR)))
 				p_Control->addStyle(WindowStyle::CCS_NoParentAlign | CCS_NORESIZE);
@@ -688,9 +687,9 @@ void DcxReBar::parseCommandRequest(const TString& input)
 		{
 			ImageList_AddIcon(himl, icon);
 			DestroyIcon(icon);
-	}
+		}
 #endif
-}
+	}
 	// xdid -y [NAME] [ID] [SWITCH] [+FLAGS]
 	else if (flags[TEXT('y')])
 	{

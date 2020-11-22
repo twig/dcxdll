@@ -142,7 +142,7 @@ public:
 	DcxControl* getControlByHWND(const HWND mHwnd) const noexcept;
 
 	//void addControl(DcxControl* const p_Control);
-	DcxControl* addControl(const TString& input, const UINT offset, const UINT64 mask, HWND hParent);
+	DcxControl* addControl(const TString& input, const UINT offset, const DcxAllowControls mask, HWND hParent);
 	void deleteControl(const DcxControl* const p_Control) noexcept;
 
 	void deleteAllControls() noexcept;

@@ -164,15 +164,15 @@ void DcxPager::parseCommandRequest(const TString& input)
 			throw Dcx::dcxException("Child Control already exists");
 
 		const auto p_Control = this->getParentDialog()->addControl(input, 4,
-			CTLF_ALLOW_TOOLBAR |
-			CTLF_ALLOW_REBAR |
-			CTLF_ALLOW_PANEL |
-			CTLF_ALLOW_TAB |
-			CTLF_ALLOW_BOX |
-			CTLF_ALLOW_IMAGE |
-			CTLF_ALLOW_PAGER |
-			CTLF_ALLOW_DOCK
-			, m_Hwnd);
+			DcxAllowControls::ALLOW_TOOLBAR |
+			DcxAllowControls::ALLOW_REBAR |
+			DcxAllowControls::ALLOW_PANEL |
+			DcxAllowControls::ALLOW_TAB |
+			DcxAllowControls::ALLOW_BOX |
+			DcxAllowControls::ALLOW_IMAGE |
+			DcxAllowControls::ALLOW_PAGER |
+			DcxAllowControls::ALLOW_DOCK,
+			m_Hwnd);
 
 		p_Control->addStyle(WindowStyle::CCS_NoResize);
 		this->setChild(p_Control->getHwnd());

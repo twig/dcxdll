@@ -115,7 +115,7 @@ void DcxPanel::parseCommandRequest(const TString& input)
 		if (numtok < 9)
 			throw Dcx::dcxException("Insufficient parameters");
 
-		getParentDialog()->addControl(input, 4, CTLF_ALLOW_ALL, m_Hwnd);
+		getParentDialog()->addControl(input, 4, DcxAllowControls::ALLOW_ALL, m_Hwnd);
 		redrawWindow();
 	}
 	// xdid -d [NAME] [ID] [SWITCH] [ID]

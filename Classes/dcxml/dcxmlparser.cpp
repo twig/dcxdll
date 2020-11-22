@@ -387,6 +387,12 @@ void DcxmlParser::xml_xdialog(const TCHAR* const sSwitch, const TString& sArgs)
 	//	else getDialog()->parseCommandRequestEX(TEXT("%s %s %s"), getDialogMark().to_chr(), sSwitch, sArgs);
 
 #if DCX_DEBUG_OUTPUT
+	//static_assert(TStringConcepts::IsTString<decltype(sArgs)>, "hfhg");
+	//const char& txt{};
+	//static_assert(TStringConcepts::IsCharText<decltype(txt)>, "hfhg");
+	//const char*const txt{};
+	//static_assert(TStringConcepts::IsPODTextPointer<decltype(txt)>, "hfhg");
+
 	if (isVerbose())
 		mIRCLinker::echo(TEXT("dcxml debug: /xdialog % % %"), sSwitch, getDialogMark(), sArgs);
 #endif
@@ -857,7 +863,7 @@ void DcxmlParser::parseTemplate(const UINT dialogDepth, const char* const claPat
 	//	}
 	//}
 
-	const refString<const char, -1> sTmp(m_pElement->Attribute("name"));
+	const refString<const char> sTmp(m_pElement->Attribute("name"));
 
 	for (auto Template = lookIn->FirstChildElement("template"); Template; Template = Template->NextSiblingElement())
 	{
@@ -893,7 +899,7 @@ void DcxmlParser::parseDialog(const UINT depth, const char* claPath, const UINT 
 		//dont itterate over unneccessary items
 		if (sElemHash == "calltemplate"_hash)
 		{
-			if (const refString<const char, -1> refParentVal(m_pElement->Parent()->ToElement()->Value()); refParentVal != "template")
+			if (const refString<const char> refParentVal(m_pElement->Parent()->ToElement()->Value()); refParentVal != "template")
 			{
 				++cCla;
 				m_pTemplateRef = m_pElement;
@@ -927,7 +933,7 @@ void DcxmlParser::parseDialog(const UINT depth, const char* claPath, const UINT 
 
 				for (const auto& attribute : *m_pElement->FirstAttribute())
 				{
-					const refString<const char, -1> refName(attribute->Name());
+					const refString<const char> refName(attribute->Name());
 					if (refName == "name")
 						continue;
 					m_mTemplate_vars[refName] = attribute->Value();

@@ -5,34 +5,29 @@
 #include "Classes/custom/DcxTrayIcon.h"
 
 namespace Dcx {
-	//TString m_sLastError;
 	static TCHAR szLastError[MIRC_BUFFER_SIZE_CCH]{};
-	IClassFactory * m_pClassFactory;
+	IClassFactory* m_pClassFactory{};
 	DcxGDIModule GDIModule;
 	DcxUXModule UXModule;
 	DcxDWMModule VistaModule;
 	DcxDialogCollection Dialogs;
 	XPopupMenuManager XPopups;
 	XMenuBar XMenubar;
-	std::byte m_iGhostDrag;
-	bool m_bDX9Installed;
-	//HMODULE m_hRichEditLib;
-	bool m_bErrorTriggered;
-	bool setting_bStaticColours;
+	std::byte m_iGhostDrag{ 255 };
+	bool m_bDX9Installed{ false };
+	bool m_bErrorTriggered{ false };
+	bool setting_bStaticColours{ false };
 	MapOfCursors	m_vMapOfCursors;
 	MapOfAreas		m_vMapOfAreas;
 	PFNSETCURSOR SetCursorUx = nullptr;
 	TString dcxException::tsErr;
 
 
-	void load(mIRCLinker::LOADINFO *const lInfo)
+	void load(mIRCLinker::LOADINFO* const lInfo)
 	{
-		//Expects(lInfo != nullptr);
-
 		m_iGhostDrag = std::byte{ 255 };
 		m_bDX9Installed = false;
 		m_pClassFactory = nullptr;
-		//m_hRichEditLib = nullptr;
 		m_bErrorTriggered = false;
 		setting_bStaticColours = true;
 
@@ -131,8 +126,6 @@ namespace Dcx {
 
 
 		/***** TrayIcon Stuff *****/
-		//delete trayIcons;
-		//trayIcons = nullptr;
 		trayIcons.reset(nullptr);
 
 		// reset the treebars font if it's been changed.
@@ -148,18 +141,15 @@ namespace Dcx {
 		/***** XMenuBar Stuff *****/
 		XMenubar.resetMenuBar();
 
-		//if (m_hRichEditLib)
-		//	FreeLibrary(m_hRichEditLib);
-
 		XPopups.unload();
 
 		// free up custom cursors data.
-		for (const auto &cd : m_vMapOfCursors)
+		for (const auto& cd : m_vMapOfCursors)
 			DestroyCursor(cd.second);
 
 		m_vMapOfCursors.clear();
 
-		for (const auto &cd : m_vMapOfAreas)
+		for (const auto& cd : m_vMapOfAreas)
 			DestroyCursor(cd.second);
 
 		m_vMapOfAreas.clear();
@@ -201,17 +191,17 @@ namespace Dcx {
 	//{
 	//	return m_sLastError;
 	//}
-	const TCHAR *getLastError() noexcept
+	const TCHAR* getLastError() noexcept
 	{
 		return &szLastError[0];
 	}
 
-	IClassFactory *const getClassFactory() noexcept
+	IClassFactory* const getClassFactory() noexcept
 	{
 		return m_pClassFactory;
 	}
 
-	const std::byte &getGhostDrag() noexcept
+	const std::byte& getGhostDrag() noexcept
 	{
 		return m_iGhostDrag;
 	}
@@ -222,7 +212,7 @@ namespace Dcx {
 		return true;
 	}
 
-	const bool &isDX9Installed() noexcept
+	const bool& isDX9Installed() noexcept
 	{
 		return m_bDX9Installed;
 	}
@@ -232,12 +222,12 @@ namespace Dcx {
 		return Dialogs.safeToCloseAll();
 	}
 
-	const bool &initDirectX()
+	const bool& initDirectX()
 	{
 		return initDirectX(nullptr, 0);
 	}
 
-	const bool &initDirectX(TCHAR *dxResult, int dxSize)
+	const bool& initDirectX(TCHAR* dxResult, int dxSize)
 	{
 #ifdef DCX_USE_DXSDK
 		DCX_DEBUG(mIRCLinker::debug, __FUNCTIONW__, TEXT("Checking DirectX Version..."));
@@ -261,32 +251,9 @@ namespace Dcx {
 		return m_bDX9Installed;
 	}
 
-	/*!
-	 * \brief Sends an error message to mIRC.
-	 */
-	//void error(const TCHAR *const cmd, const TCHAR *const msg)
-	//{
-	//	if (m_bErrorTriggered)
-	//		return;
-	//
-	//	_ts_sprintf(m_sLastError, TEXT("D_ERROR % (%)"), cmd, msg);
-	//
-	//	m_bErrorTriggered = true;
-	//
-	//	if (mIRCLinker::m_bSendMessageDisabled)
-	//	{
-	//		m_sLastError.addtok(TEXT("SendMessage() disabled, re-enable this in mIRC's Lock Options"), TEXT("\r\n"));
-	//		MessageBox(mIRCLinker::m_mIRCHWND, m_sLastError.to_chr(), nullptr, MB_OK);
-	//	}
-	//	else
-	//		mIRCLinker::echo(m_sLastError);
-	//
-	//	m_bErrorTriggered = false;
-	//}
-
-	/*!
-	 * \brief Sends an error message to mIRC.
-	 */
+	 /*!
+	  * \brief Sends an error message to mIRC.
+	  */
 	void error(const TCHAR* const cmd, const TCHAR* const msg) noexcept
 	{
 		if (m_bErrorTriggered)
@@ -307,22 +274,7 @@ namespace Dcx {
 		m_bErrorTriggered = false;
 	}
 
-	/*
-	 * Variable argument error message.
-	 */
-	 //void errorex(const TCHAR *const cmd, const TCHAR *const szFormat, ...)
-	 //{
-	 //	TString temp;
-	 //	va_list args(nullptr);
-	 //
-	 //	va_start(args, szFormat);
-	 //	temp.tvprintf(szFormat, args);
-	 //	va_end(args);
-	 //
-	 //	error(cmd, temp.to_chr());
-	 //}
-
-	void mark(const TString & tsDName, const TString & tsCallbackName)
+	void mark(const TString& tsDName, const TString& tsCallbackName)
 	{
 		// check if the alias exists
 		if (!mIRCLinker::isAlias(tsCallbackName))
@@ -391,14 +343,14 @@ namespace Dcx {
 
 			if (lpmis->CtlType == ODT_MENU)
 			{
-				if (const auto p_Item = reinterpret_cast<XPopupMenuItem *>(lpmis->itemData); p_Item)
+				if (const auto p_Item = reinterpret_cast<XPopupMenuItem*>(lpmis->itemData); p_Item)
 				{
 					//const auto size = p_Item->getItemSize(mHwnd);
 					//
 					//lpmis->itemWidth = gsl::narrow_cast<UINT>(size.cx);
 					//lpmis->itemHeight = gsl::narrow_cast<UINT>(size.cy);
 
-					const auto [x,y] = p_Item->getItemSize(mHwnd);
+					const auto [x, y] = p_Item->getItemSize(mHwnd);
 					lpmis->itemWidth = gsl::narrow_cast<UINT>(x);
 					lpmis->itemHeight = gsl::narrow_cast<UINT>(y);
 
@@ -417,7 +369,7 @@ namespace Dcx {
 
 			if (lpdis->CtlType == ODT_MENU)
 			{
-				if (const auto p_Item = reinterpret_cast<XPopupMenuItem *>(lpdis->itemData); p_Item)
+				if (const auto p_Item = reinterpret_cast<XPopupMenuItem*>(lpdis->itemData); p_Item)
 				{
 					p_Item->DrawItem(lpdis);
 					return TRUE;
@@ -524,32 +476,18 @@ namespace Dcx {
 		return mIRCLinker::callDefaultWindowProc(mHwnd, uMsg, wParam, lParam);
 	}
 
-	//// test if a file exists
-	//bool isFile(const WCHAR *const file) {
-	//	struct _stat64i32 stFileInfo;
-	//	return (_wstat(file, &stFileInfo) == 0);
-	//		// We were able to get the file attributes
-	//		// so the file obviously exists.
-	//}
-
-	//// test if a file exists
-	//bool isFile(LPCSTR const file) {
-	//	struct stat stFileInfo;
-	//	return (stat(file, &stFileInfo) == 0);
-	//		// We were able to get the file attributes
-	//		// so the file obviously exists.
-	//}
-
 	// convert a cursor name into a resource number.
-	GSL_SUPPRESS(lifetimes.1) const TCHAR *const parseCursorType(const TString & cursor)
+	GSL_SUPPRESS(lifetimes.1)
+	const TCHAR* const parseCursorType(const TString& cursor)
 	{
 		return parseCursorType(std::hash<TString>{}(cursor));
 	}
 
 	// convert a cursor name (hashed) into a resource number.
-	GSL_SUPPRESS(lifetimes.1) const TCHAR *const parseCursorType(const std::hash<TString>::result_type & cursor)
+	GSL_SUPPRESS(lifetimes.1)
+	const TCHAR* const parseCursorType(const std::hash<TString>::result_type& cursor)
 	{
-		const static std::map<std::hash<TString>::result_type, const TCHAR *> IDC_map{
+		const static std::map<std::hash<TString>::result_type, const TCHAR*> IDC_map{
 			{ TEXT("appstarting"_hash), IDC_APPSTARTING },
 			{ TEXT("arrow"_hash), IDC_ARROW },
 			{ TEXT("cross"_hash), IDC_CROSS },
@@ -573,13 +511,13 @@ namespace Dcx {
 	}
 
 	// convert a cursor name into a system resource number.
-	const DWORD parseSystemCursorType(const TString & cursor)
+	const DWORD parseSystemCursorType(const TString& cursor)
 	{
 		return parseSystemCursorType(std::hash<TString>{}(cursor));
 	}
 
 	// convert a cursor name (hashed) into a system resource number.
-	const DWORD parseSystemCursorType(const std::hash<TString>::result_type & cursor)
+	const DWORD parseSystemCursorType(const std::hash<TString>::result_type& cursor)
 	{
 		const static std::map<const std::hash<TString>::result_type, DWORD> IDC_SystemMap{
 			{ TEXT("appstarting"_hash), OCR_APPSTARTING },
@@ -604,13 +542,13 @@ namespace Dcx {
 	}
 
 	// convert an area name into a hit zone
-	const DWORD parseAreaType(const TString &tsArea)
+	const DWORD parseAreaType(const TString& tsArea)
 	{
 		return parseAreaType(std::hash<TString>{}(tsArea));
 	}
 
 	// convert an area name (hashed) into a hit zone
-	const DWORD parseAreaType(const std::hash<TString>::result_type &tsArea)
+	const DWORD parseAreaType(const std::hash<TString>::result_type& tsArea)
 	{
 		const static std::map<const std::hash<TString>::result_type, DWORD> mIRC_AreaMap{
 			{ TEXT("client"_hash), HTCLIENT },
@@ -644,7 +582,7 @@ namespace Dcx {
 
 	// load a cursor from a file
 	// throws a dcxException on fail.
-	HCURSOR dcxLoadCursorFromFile(const TString &filename)
+	HCURSOR dcxLoadCursorFromFile(const TString& filename)
 	{
 		const auto hCursor = static_cast<HCURSOR>(LoadImage(nullptr, filename.to_chr(), IMAGE_CURSOR, 0, 0, LR_DEFAULTSIZE | LR_LOADFROMFILE));
 		if (!hCursor)
@@ -654,7 +592,7 @@ namespace Dcx {
 
 	// load a cursor from a resource
 	// throws a dcxException on fail.
-	HCURSOR dcxLoadCursorFromResource(const TCHAR *CursorType)
+	HCURSOR dcxLoadCursorFromResource(const TCHAR* CursorType)
 	{
 		const auto hCursor = static_cast<HCURSOR>(LoadImage(nullptr, CursorType, IMAGE_CURSOR, 0, 0, LR_DEFAULTSIZE | LR_SHARED));
 		if (!hCursor)
@@ -664,7 +602,7 @@ namespace Dcx {
 
 	// load a cursor from a file or resource, depending on flags
 	// throws a dcxException on fail.
-	HCURSOR dcxLoadCursor(const DcxResourceFlags iFlags, const TCHAR *CursorType, bool &bCursorFromFile, const HCURSOR oldCursor, TString &filename)
+	HCURSOR dcxLoadCursor(const DcxResourceFlags iFlags, const TCHAR* CursorType, bool& bCursorFromFile, const HCURSOR oldCursor, TString& filename)
 	{
 		HCURSOR hCursor = nullptr;
 		HCURSOR newCursor = nullptr;
@@ -748,7 +686,8 @@ namespace Dcx {
 	}
 
 	// patch a dll function using detours
-	[[gsl::suppress(lifetimes)]] PVOID PatchAPI(const char *const c_szDllName, const char *const c_szApiName, PVOID newfPtr) noexcept
+	GSL_SUPPRESS(lifetimes)
+	PVOID PatchAPI(const char* const c_szDllName, const char* const c_szApiName, PVOID newfPtr) noexcept
 	{
 		DetourTransactionBegin();
 		DetourUpdateThread(GetCurrentThread());
@@ -777,7 +716,8 @@ namespace Dcx {
 	}
 
 	// patch function for use in custom cursors
-	[[gsl::suppress(lifetimes)]] HCURSOR WINAPI XSetCursor(HCURSOR hCursor)
+	GSL_SUPPRESS(lifetimes)
+	HCURSOR WINAPI XSetCursor(HCURSOR hCursor)
 	{
 		if (!hCursor)
 			return SetCursorUx(hCursor);

@@ -241,7 +241,7 @@ void DcxStacker::parseCommandRequest(const TString& input)
 
 		if (!ctrl.empty())
 		{
-			const auto p_Control = this->getParentDialog()->addControl(ctrl, 1, CTLF_ALLOW_ALL, m_Hwnd);
+			const auto p_Control = this->getParentDialog()->addControl(ctrl, 1, DcxAllowControls::ALLOW_ALL, m_Hwnd);
 			sitem->pChild = p_Control;
 			ShowWindow(p_Control->getHwnd(), SW_HIDE);
 			this->redrawWindow();
@@ -252,7 +252,7 @@ void DcxStacker::parseCommandRequest(const TString& input)
 			//	throw Dcx::dcxException(TEXT("Control with ID \"%\" already exists"), ID - mIRC_ID_OFFSET);
 			//
 			//try {
-			//	auto p_Control = DcxControl::controlFactory(this->m_pParentDialog, ID, ctrl, 2, CTLF_ALLOW_ALL, m_Hwnd);
+			//	auto p_Control = DcxControl::controlFactory(this->m_pParentDialog, ID, ctrl, 2, DcxAllowControls::ALLOW_ALL, m_Hwnd);
 			//
 			//	this->getParentDialog()->addControl( p_Control );
 			//	sitem->pChild = p_Control;

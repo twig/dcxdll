@@ -1090,7 +1090,7 @@ LRESULT CALLBACK DcxControl::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LP
  * Input [NAME] [SWITCH] [ID] [CONTROL] [X] [Y] [W] [H] (OPTIONS)
  */
 
-DcxControl* DcxControl::controlFactory(DcxDialog* const p_Dialog, const UINT mID, const TString& tsInput, const UINT offset, const UINT64 mask, HWND hParent)
+DcxControl* DcxControl::controlFactory(DcxDialog* const p_Dialog, const UINT mID, const TString& tsInput, const UINT offset, const DcxAllowControls mask = DcxAllowControls::ALLOW_ALL, HWND hParent)
 {
 	if (!m_bInitialized)
 		throw Dcx::dcxException("DCX Controls NOT Initialized!");
@@ -1111,76 +1111,76 @@ DcxControl* DcxControl::controlFactory(DcxDialog* const p_Dialog, const UINT mID
 
 	//	const auto dct = DcxControl::TSTypeToControlType(type);
 	//
-	//	if ((dct == DcxControlTypes::PROGRESSBAR) && (dcx_testflag(mask, CTLF_ALLOW_PBAR)))
+	//	if ((dct == DcxControlTypes::PROGRESSBAR) && (dcx_testflag(mask, DcxAllowControls::ALLOW_PBAR)))
 	//		return new DcxProgressBar(mID, p_Dialog, hParent, &rc, styles);
-	//	else if ((dct == DcxControlTypes::TRACKBAR) && (dcx_testflag(mask, CTLF_ALLOW_TRACKBAR)))
+	//	else if ((dct == DcxControlTypes::TRACKBAR) && (dcx_testflag(mask, DcxAllowControls::ALLOW_TRACKBAR)))
 	//		return new DcxTrackBar(mID, p_Dialog, hParent, &rc, styles);
-	//	else if ((dct == DcxControlTypes::COMBOEX) && (dcx_testflag(mask, CTLF_ALLOW_COMBOEX)))
+	//	else if ((dct == DcxControlTypes::COMBOEX) && (dcx_testflag(mask, DcxAllowControls::ALLOW_COMBOEX)))
 	//		return new DcxComboEx(mID, p_Dialog, hParent, &rc, styles);
-	//	else if ((dct == DcxControlTypes::COLORCOMBO) && (dcx_testflag(mask, CTLF_ALLOW_COLORCOMBO)))
+	//	else if ((dct == DcxControlTypes::COLORCOMBO) && (dcx_testflag(mask, DcxAllowControls::ALLOW_COLORCOMBO)))
 	//		return new DcxColorCombo(mID, p_Dialog, hParent, &rc, styles);
-	//	else if ((dct == DcxControlTypes::STATUSBAR) && (dcx_testflag(mask, CTLF_ALLOW_STATUSBAR)))
+	//	else if ((dct == DcxControlTypes::STATUSBAR) && (dcx_testflag(mask, DcxAllowControls::ALLOW_STATUSBAR)))
 	//		return new DcxStatusBar(mID, p_Dialog, hParent, &rc, styles);
-	//	else if ((dct == DcxControlTypes::TOOLBAR) && (dcx_testflag(mask, CTLF_ALLOW_TOOLBAR)))
+	//	else if ((dct == DcxControlTypes::TOOLBAR) && (dcx_testflag(mask, DcxAllowControls::ALLOW_TOOLBAR)))
 	//		return new DcxToolBar(mID, p_Dialog, hParent, &rc, styles);
-	//	else if ((dct == DcxControlTypes::TREEVIEW) && (dcx_testflag(mask, CTLF_ALLOW_TREEVIEW)))
+	//	else if ((dct == DcxControlTypes::TREEVIEW) && (dcx_testflag(mask, DcxAllowControls::ALLOW_TREEVIEW)))
 	//		return new DcxTreeView(mID, p_Dialog, hParent, &rc, styles);
-	//	else if ((dct == DcxControlTypes::LISTVIEW) && (dcx_testflag(mask, CTLF_ALLOW_LISTVIEW)))
+	//	else if ((dct == DcxControlTypes::LISTVIEW) && (dcx_testflag(mask, DcxAllowControls::ALLOW_LISTVIEW)))
 	//		return new DcxListView(mID, p_Dialog, hParent, &rc, styles);
-	//	else if ((dct == DcxControlTypes::REBAR) && (dcx_testflag(mask, CTLF_ALLOW_REBAR)))
+	//	else if ((dct == DcxControlTypes::REBAR) && (dcx_testflag(mask, DcxAllowControls::ALLOW_REBAR)))
 	//		return new DcxReBar(mID, p_Dialog, hParent, &rc, styles);
-	//	else if ((dct == DcxControlTypes::BUTTON) && (dcx_testflag(mask, CTLF_ALLOW_BUTTON)))
+	//	else if ((dct == DcxControlTypes::BUTTON) && (dcx_testflag(mask, DcxAllowControls::ALLOW_BUTTON)))
 	//		return new DcxButton(mID, p_Dialog, hParent, &rc, styles);
-	//	else if ((dct == DcxControlTypes::RICHEDIT) && (dcx_testflag(mask, CTLF_ALLOW_RICHEDIT)))
+	//	else if ((dct == DcxControlTypes::RICHEDIT) && (dcx_testflag(mask, DcxAllowControls::ALLOW_RICHEDIT)))
 	//		return new DcxRichEdit(mID, p_Dialog, hParent, &rc, styles);
-	//	else if ((dct == DcxControlTypes::UPDOWN) && (dcx_testflag(mask, CTLF_ALLOW_UPDOWN)))
+	//	else if ((dct == DcxControlTypes::UPDOWN) && (dcx_testflag(mask, DcxAllowControls::ALLOW_UPDOWN)))
 	//		return new DcxUpDown(mID, p_Dialog, hParent, &rc, styles);
-	//	else if ((dct == DcxControlTypes::IPADDRESS) && (dcx_testflag(mask, CTLF_ALLOW_IPADDRESS)))
+	//	else if ((dct == DcxControlTypes::IPADDRESS) && (dcx_testflag(mask, DcxAllowControls::ALLOW_IPADDRESS)))
 	//		return new DcxIpAddress(mID, p_Dialog, hParent, &rc, styles);
-	//	else if ((dct == DcxControlTypes::WEBCTRL) && (dcx_testflag(mask, CTLF_ALLOW_WEBCTRL)))
+	//	else if ((dct == DcxControlTypes::WEBCTRL) && (dcx_testflag(mask, DcxAllowControls::ALLOW_WEBCTRL)))
 	//		return new DcxWebControl(mID, p_Dialog, hParent, &rc, styles);
-	//	else if ((dct == DcxControlTypes::CALENDAR) && (dcx_testflag(mask, CTLF_ALLOW_CALANDER)))
+	//	else if ((dct == DcxControlTypes::CALENDAR) && (dcx_testflag(mask, DcxAllowControls::ALLOW_CALANDER)))
 	//		return new DcxCalendar(mID, p_Dialog, hParent, &rc, styles);
-	//	else if ((dct == DcxControlTypes::DATETIME) && (dcx_testflag(mask, CTLF_ALLOW_CALANDER)))
+	//	else if ((dct == DcxControlTypes::DATETIME) && (dcx_testflag(mask, DcxAllowControls::ALLOW_CALANDER)))
 	//		return new DcxDateTime(mID, p_Dialog, hParent, &rc, styles);
-	//	else if ((dct == DcxControlTypes::DIVIDER) && (dcx_testflag(mask, CTLF_ALLOW_DIVIDER)))
+	//	else if ((dct == DcxControlTypes::DIVIDER) && (dcx_testflag(mask, DcxAllowControls::ALLOW_DIVIDER)))
 	//		return new DcxDivider(mID, p_Dialog, hParent, &rc, styles);
-	//	else if ((dct == DcxControlTypes::PANEL) && (dcx_testflag(mask, CTLF_ALLOW_PANEL)))
+	//	else if ((dct == DcxControlTypes::PANEL) && (dcx_testflag(mask, DcxAllowControls::ALLOW_PANEL)))
 	//		return new DcxPanel(mID, p_Dialog, hParent, &rc, styles);
-	//	else if ((dct == DcxControlTypes::TABB) && (dcx_testflag(mask, CTLF_ALLOW_TAB)))
+	//	else if ((dct == DcxControlTypes::TABB) && (dcx_testflag(mask, DcxAllowControls::ALLOW_TAB)))
 	//		return new DcxTab(mID, p_Dialog, hParent, &rc, styles);
-	//	else if ((dct == DcxControlTypes::LINE) && (dcx_testflag(mask, CTLF_ALLOW_LINE)))
+	//	else if ((dct == DcxControlTypes::LINE) && (dcx_testflag(mask, DcxAllowControls::ALLOW_LINE)))
 	//		return new DcxLine(mID, p_Dialog, hParent, &rc, styles);
-	//	else if ((dct == DcxControlTypes::BOX) && (dcx_testflag(mask, CTLF_ALLOW_BOX)))
+	//	else if ((dct == DcxControlTypes::BOX) && (dcx_testflag(mask, DcxAllowControls::ALLOW_BOX)))
 	//		return new DcxBox(mID, p_Dialog, hParent, &rc, styles);
-	//	else if ((dct == DcxControlTypes::RADIO) && (dcx_testflag(mask, CTLF_ALLOW_RADIO)))
+	//	else if ((dct == DcxControlTypes::RADIO) && (dcx_testflag(mask, DcxAllowControls::ALLOW_RADIO)))
 	//		return new DcxRadio(mID, p_Dialog, hParent, &rc, styles);
-	//	else if ((dct == DcxControlTypes::CHECK) && (dcx_testflag(mask, CTLF_ALLOW_CHECK)))
+	//	else if ((dct == DcxControlTypes::CHECK) && (dcx_testflag(mask, DcxAllowControls::ALLOW_CHECK)))
 	//		return new DcxCheck(mID, p_Dialog, hParent, &rc, styles);
-	//	else if ((dct == DcxControlTypes::TEXT) && (dcx_testflag(mask, CTLF_ALLOW_TEXT)))
+	//	else if ((dct == DcxControlTypes::TEXT) && (dcx_testflag(mask, DcxAllowControls::ALLOW_TEXT)))
 	//		return new DcxText(mID, p_Dialog, hParent, &rc, styles);
-	//	else if ((dct == DcxControlTypes::EDIT) && (dcx_testflag(mask, CTLF_ALLOW_EDIT)))
+	//	else if ((dct == DcxControlTypes::EDIT) && (dcx_testflag(mask, DcxAllowControls::ALLOW_EDIT)))
 	//		return new DcxEdit(mID, p_Dialog, hParent, &rc, styles);
-	//	else if ((dct == DcxControlTypes::SCROLL) && (dcx_testflag(mask, CTLF_ALLOW_SCROLL)))
+	//	else if ((dct == DcxControlTypes::SCROLL) && (dcx_testflag(mask, DcxAllowControls::ALLOW_SCROLL)))
 	//		return new DcxScroll(mID, p_Dialog, hParent, &rc, styles);
-	//	else if ((dct == DcxControlTypes::LIST) && (dcx_testflag(mask, CTLF_ALLOW_LIST)))
+	//	else if ((dct == DcxControlTypes::LIST) && (dcx_testflag(mask, DcxAllowControls::ALLOW_LIST)))
 	//		return new DcxList(mID, p_Dialog, hParent, &rc, styles);
-	//	else if ((dct == DcxControlTypes::LINK) && (dcx_testflag(mask, CTLF_ALLOW_LINK)))
+	//	else if ((dct == DcxControlTypes::LINK) && (dcx_testflag(mask, DcxAllowControls::ALLOW_LINK)))
 	//		return new DcxLink(mID, p_Dialog, hParent, &rc, styles);
-	//	else if ((dct == DcxControlTypes::IMAGE) && (dcx_testflag(mask, CTLF_ALLOW_IMAGE)))
+	//	else if ((dct == DcxControlTypes::IMAGE) && (dcx_testflag(mask, DcxAllowControls::ALLOW_IMAGE)))
 	//		return new DcxImage(mID, p_Dialog, hParent, &rc, styles);
-	//	else if ((dct == DcxControlTypes::PAGER) && (dcx_testflag(mask, CTLF_ALLOW_PAGER)))
+	//	else if ((dct == DcxControlTypes::PAGER) && (dcx_testflag(mask, DcxAllowControls::ALLOW_PAGER)))
 	//		return new DcxPager(mID, p_Dialog, hParent, &rc, styles);
-	//	else if ((dct == DcxControlTypes::STACKER) && (dcx_testflag(mask, CTLF_ALLOW_STACKER)))
+	//	else if ((dct == DcxControlTypes::STACKER) && (dcx_testflag(mask, DcxAllowControls::ALLOW_STACKER)))
 	//		return new DcxStacker(mID, p_Dialog, hParent, &rc, styles);
 	//#ifdef DCX_USE_DXSDK
 	//
-	//	else if ((dct == DcxControlTypes::DIRECTSHOW) && (dcx_testflag(mask, CTLF_ALLOW_DIRECTSHOW)))
+	//	else if ((dct == DcxControlTypes::DIRECTSHOW) && (dcx_testflag(mask, DcxAllowControls::ALLOW_DIRECTSHOW)))
 	//		return new DcxDirectshow(mID, p_Dialog, hParent, &rc, styles);
 	//
 	//#endif // DCX_USE_DXSDK
 	//
-	//	else if ((dct == DcxControlTypes::WINDOW) && (dcx_testflag(mask, CTLF_ALLOW_DOCK))) {
+	//	else if ((dct == DcxControlTypes::WINDOW) && (dcx_testflag(mask, DcxAllowControls::ALLOW_DOCK))) {
 	//		if (styles.empty())
 	//			throw Dcx::dcxException("No window name");
 	//
@@ -1207,7 +1207,7 @@ DcxControl* DcxControl::controlFactory(DcxDialog* const p_Dialog, const UINT mID
 	//
 	//		return new DcxMWindow(winHwnd, hParent, mID, p_Dialog, &rc, styles);
 	//	}
-	//	else if ((dct == DcxControlTypes::DIALOG) && (dcx_testflag(mask, CTLF_ALLOW_DOCK))) {
+	//	else if ((dct == DcxControlTypes::DIALOG) && (dcx_testflag(mask, DcxAllowControls::ALLOW_DOCK))) {
 	//		if (styles.empty())
 	//			throw Dcx::dcxException("No dialog name");
 	//
@@ -1233,62 +1233,62 @@ DcxControl* DcxControl::controlFactory(DcxDialog* const p_Dialog, const UINT mID
 	switch (DcxControl::TSTypeToControlType(type))
 	{
 	case DcxControlTypes::PROGRESSBAR:
-		if (dcx_testflag(mask, CTLF_ALLOW_PBAR))
+		if (dcx_testflag(mask, DcxAllowControls::ALLOW_PBAR))
 			return new DcxProgressBar(mID, p_Dialog, hParent, &rc, styles);
 		break;
 	case DcxControlTypes::TRACKBAR:
-		if (dcx_testflag(mask, CTLF_ALLOW_TRACKBAR))
+		if (dcx_testflag(mask, DcxAllowControls::ALLOW_TRACKBAR))
 			return new DcxTrackBar(mID, p_Dialog, hParent, &rc, styles);
 		break;
 	case DcxControlTypes::COMBOEX:
-		if (dcx_testflag(mask, CTLF_ALLOW_COMBOEX))
+		if (dcx_testflag(mask, DcxAllowControls::ALLOW_COMBOEX))
 			return new DcxComboEx(mID, p_Dialog, hParent, &rc, styles);
 		break;
 	case DcxControlTypes::COLORCOMBO:
-		if (dcx_testflag(mask, CTLF_ALLOW_COLORCOMBO))
+		if (dcx_testflag(mask, DcxAllowControls::ALLOW_COLORCOMBO))
 			return new DcxColorCombo(mID, p_Dialog, hParent, &rc, styles);
 		break;
 	case DcxControlTypes::STATUSBAR:
-		if (dcx_testflag(mask, CTLF_ALLOW_STATUSBAR))
+		if (dcx_testflag(mask, DcxAllowControls::ALLOW_STATUSBAR))
 			return new DcxStatusBar(mID, p_Dialog, hParent, &rc, styles);
 		break;
 	case DcxControlTypes::TOOLBAR:
-		if (dcx_testflag(mask, CTLF_ALLOW_TOOLBAR))
+		if (dcx_testflag(mask, DcxAllowControls::ALLOW_TOOLBAR))
 			return new DcxToolBar(mID, p_Dialog, hParent, &rc, styles);
 		break;
 	case DcxControlTypes::TREEVIEW:
-		if (dcx_testflag(mask, CTLF_ALLOW_TREEVIEW))
+		if (dcx_testflag(mask, DcxAllowControls::ALLOW_TREEVIEW))
 			return new DcxTreeView(mID, p_Dialog, hParent, &rc, styles);
 		break;
 	case DcxControlTypes::LISTVIEW:
-		if (dcx_testflag(mask, CTLF_ALLOW_LISTVIEW))
+		if (dcx_testflag(mask, DcxAllowControls::ALLOW_LISTVIEW))
 			return new DcxListView(mID, p_Dialog, hParent, &rc, styles);
 		break;
 	case DcxControlTypes::REBAR:
-		if (dcx_testflag(mask, CTLF_ALLOW_REBAR))
+		if (dcx_testflag(mask, DcxAllowControls::ALLOW_REBAR))
 			return new DcxReBar(mID, p_Dialog, hParent, &rc, styles);
 		break;
 	case DcxControlTypes::BUTTON:
-		if (dcx_testflag(mask, CTLF_ALLOW_BUTTON))
+		if (dcx_testflag(mask, DcxAllowControls::ALLOW_BUTTON))
 			return new DcxButton(mID, p_Dialog, hParent, &rc, styles);
 		break;
 	case DcxControlTypes::RICHEDIT:
-		if (dcx_testflag(mask, CTLF_ALLOW_RICHEDIT))
+		if (dcx_testflag(mask, DcxAllowControls::ALLOW_RICHEDIT))
 			return new DcxRichEdit(mID, p_Dialog, hParent, &rc, styles);
 		break;
 	case DcxControlTypes::UPDOWN:
-		if (dcx_testflag(mask, CTLF_ALLOW_UPDOWN))
+		if (dcx_testflag(mask, DcxAllowControls::ALLOW_UPDOWN))
 			return new DcxUpDown(mID, p_Dialog, hParent, &rc, styles);
 		break;
 	case DcxControlTypes::IPADDRESS:
-		if (dcx_testflag(mask, CTLF_ALLOW_IPADDRESS))
+		if (dcx_testflag(mask, DcxAllowControls::ALLOW_IPADDRESS))
 			return new DcxIpAddress(mID, p_Dialog, hParent, &rc, styles);
 		break;
 	case DcxControlTypes::WEBCTRL:
-		//if (dcx_testflag(mask, CTLF_ALLOW_WEBCTRL))
+		//if (dcx_testflag(mask, DcxAllowControls::ALLOW_WEBCTRL))
 		//	return new DcxWebControl(mID, p_Dialog, hParent, &rc, styles);
 	{
-		if (dcx_testflag(mask, CTLF_ALLOW_WEBCTRL))
+		if (dcx_testflag(mask, DcxAllowControls::ALLOW_WEBCTRL))
 		{
 			auto ctrl_p = new DcxWebControl(mID, p_Dialog, hParent, &rc, styles);
 
@@ -1306,84 +1306,84 @@ DcxControl* DcxControl::controlFactory(DcxDialog* const p_Dialog, const UINT mID
 	}
 	break;
 	case DcxControlTypes::CALENDAR:
-		if (dcx_testflag(mask, CTLF_ALLOW_CALANDER))
+		if (dcx_testflag(mask, DcxAllowControls::ALLOW_CALANDER))
 			return new DcxCalendar(mID, p_Dialog, hParent, &rc, styles);
 		break;
 	case DcxControlTypes::DATETIME:
-		if (dcx_testflag(mask, CTLF_ALLOW_CALANDER))
+		if (dcx_testflag(mask, DcxAllowControls::ALLOW_CALANDER))
 			return new DcxDateTime(mID, p_Dialog, hParent, &rc, styles);
 		break;
 	case DcxControlTypes::DIVIDER:
-		if (dcx_testflag(mask, CTLF_ALLOW_DIVIDER))
+		if (dcx_testflag(mask, DcxAllowControls::ALLOW_DIVIDER))
 			return new DcxDivider(mID, p_Dialog, hParent, &rc, styles);
 		break;
 	case DcxControlTypes::PANEL:
-		if (dcx_testflag(mask, CTLF_ALLOW_PANEL))
+		if (dcx_testflag(mask, DcxAllowControls::ALLOW_PANEL))
 			return new DcxPanel(mID, p_Dialog, hParent, &rc, styles);
 		break;
 	case DcxControlTypes::TABB:
-		if (dcx_testflag(mask, CTLF_ALLOW_TAB))
+		if (dcx_testflag(mask, DcxAllowControls::ALLOW_TAB))
 			return new DcxTab(mID, p_Dialog, hParent, &rc, styles);
 		break;
 	case DcxControlTypes::LINE:
-		if (dcx_testflag(mask, CTLF_ALLOW_LINE))
+		if (dcx_testflag(mask, DcxAllowControls::ALLOW_LINE))
 			return new DcxLine(mID, p_Dialog, hParent, &rc, styles);
 		break;
 	case DcxControlTypes::BOX:
-		if (dcx_testflag(mask, CTLF_ALLOW_BOX))
+		if (dcx_testflag(mask, DcxAllowControls::ALLOW_BOX))
 			return new DcxBox(mID, p_Dialog, hParent, &rc, styles);
 		break;
 	case DcxControlTypes::RADIO:
-		if (dcx_testflag(mask, CTLF_ALLOW_RADIO))
+		if (dcx_testflag(mask, DcxAllowControls::ALLOW_RADIO))
 			return new DcxRadio(mID, p_Dialog, hParent, &rc, styles);
 		break;
 	case DcxControlTypes::CHECK:
-		if (dcx_testflag(mask, CTLF_ALLOW_CHECK))
+		if (dcx_testflag(mask, DcxAllowControls::ALLOW_CHECK))
 			return new DcxCheck(mID, p_Dialog, hParent, &rc, styles);
 		break;
 	case DcxControlTypes::TEXT:
-		if (dcx_testflag(mask, CTLF_ALLOW_TEXT))
+		if (dcx_testflag(mask, DcxAllowControls::ALLOW_TEXT))
 			return new DcxText(mID, p_Dialog, hParent, &rc, styles);
 		break;
 	case DcxControlTypes::EDIT:
-		if (dcx_testflag(mask, CTLF_ALLOW_EDIT))
+		if (dcx_testflag(mask, DcxAllowControls::ALLOW_EDIT))
 			return new DcxEdit(mID, p_Dialog, hParent, &rc, styles);
 		break;
 	case DcxControlTypes::SCROLL:
-		if (dcx_testflag(mask, CTLF_ALLOW_SCROLL))
+		if (dcx_testflag(mask, DcxAllowControls::ALLOW_SCROLL))
 			return new DcxScroll(mID, p_Dialog, hParent, &rc, styles);
 		break;
 	case DcxControlTypes::LIST:
-		if (dcx_testflag(mask, CTLF_ALLOW_LIST))
+		if (dcx_testflag(mask, DcxAllowControls::ALLOW_LIST))
 			return new DcxList(mID, p_Dialog, hParent, &rc, styles);
 		break;
 	case DcxControlTypes::LINK:
-		if (dcx_testflag(mask, CTLF_ALLOW_LINK))
+		if (dcx_testflag(mask, DcxAllowControls::ALLOW_LINK))
 			return new DcxLink(mID, p_Dialog, hParent, &rc, styles);
 		break;
 	case DcxControlTypes::IMAGE:
-		if (dcx_testflag(mask, CTLF_ALLOW_IMAGE))
+		if (dcx_testflag(mask, DcxAllowControls::ALLOW_IMAGE))
 			return new DcxImage(mID, p_Dialog, hParent, &rc, styles);
 		break;
 	case DcxControlTypes::PAGER:
-		if (dcx_testflag(mask, CTLF_ALLOW_PAGER))
+		if (dcx_testflag(mask, DcxAllowControls::ALLOW_PAGER))
 			return new DcxPager(mID, p_Dialog, hParent, &rc, styles);
 		break;
 	case DcxControlTypes::STACKER:
-		if (dcx_testflag(mask, CTLF_ALLOW_STACKER))
+		if (dcx_testflag(mask, DcxAllowControls::ALLOW_STACKER))
 			return new DcxStacker(mID, p_Dialog, hParent, &rc, styles);
 		break;
 #ifdef DCX_USE_DXSDK
 
 	case DcxControlTypes::DIRECTSHOW:
-		if (dcx_testflag(mask, CTLF_ALLOW_DIRECTSHOW))
+		if (dcx_testflag(mask, DcxAllowControls::ALLOW_DIRECTSHOW))
 			return new DcxDirectshow(mID, p_Dialog, hParent, &rc, styles);
 		break;
 
 #endif // DCX_USE_DXSDK
 
 	case DcxControlTypes::WINDOW:
-		if (dcx_testflag(mask, CTLF_ALLOW_DOCK))
+		if (dcx_testflag(mask, DcxAllowControls::ALLOW_DOCK))
 		{
 			if (styles.empty())
 				throw Dcx::dcxException("No window name");
@@ -1420,7 +1420,7 @@ DcxControl* DcxControl::controlFactory(DcxDialog* const p_Dialog, const UINT mID
 		}
 		break;
 	case DcxControlTypes::DIALOG:
-		if (dcx_testflag(mask, CTLF_ALLOW_DOCK))
+		if (dcx_testflag(mask, DcxAllowControls::ALLOW_DOCK))
 		{
 			if (styles.empty())
 				throw Dcx::dcxException("No dialog name");
@@ -1470,7 +1470,8 @@ LRESULT DcxControl::setFont(const HFONT hFont, const BOOL fRedraw) noexcept
  * blah
  */
 
-[[gsl::suppress(lifetime)]] HFONT DcxControl::getFont() const noexcept
+GSL_SUPPRESS(lifetime)
+HFONT DcxControl::getFont() const noexcept
 {
 	return (m_Hwnd ? GetWindowFont(m_Hwnd) : nullptr);
 }

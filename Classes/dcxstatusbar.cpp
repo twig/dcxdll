@@ -322,23 +322,36 @@ void DcxStatusBar::parseCommandRequest(const TString& input)
 
 			pPart->m_xChild = nullptr;
 			pPart->m_xiIcon = icon;
-			if (flag.find(TEXT('f'), 0)) { // mIRC formatted text
+			if (flag.find(TEXT('f'), 0))
+			{ // mIRC formatted text
 				pPart->m_xText = itemtext;
 				setTipText(nPos, tooltip.to_chr());
 			}
 			else { // child control
+				// this is split like this to avoid a compiler bug that caused the compiler to use >30GB ram & still fail.
+				const auto eAllowedControls1 = DcxAllowControls::ALLOW_PBAR | DcxAllowControls::ALLOW_TRACKBAR | DcxAllowControls::ALLOW_COMBOEX | DcxAllowControls::ALLOW_STATUSBAR | DcxAllowControls::ALLOW_TOOLBAR;
+				const auto eAllowedControls2 = DcxAllowControls::ALLOW_TREEVIEW | DcxAllowControls::ALLOW_LISTVIEW | DcxAllowControls::ALLOW_REBAR | DcxAllowControls::ALLOW_BUTTON | DcxAllowControls::ALLOW_EDIT;
+				const auto eAllowedControls3 = DcxAllowControls::ALLOW_UPDOWN | DcxAllowControls::ALLOW_IPADDRESS | DcxAllowControls::ALLOW_WEBCTRL | DcxAllowControls::ALLOW_CALANDER | DcxAllowControls::ALLOW_DIVIDER | DcxAllowControls::ALLOW_PANEL;
+				const auto eAllowedControls4 = DcxAllowControls::ALLOW_TAB | DcxAllowControls::ALLOW_LINE | DcxAllowControls::ALLOW_BOX | DcxAllowControls::ALLOW_RADIO | DcxAllowControls::ALLOW_CHECK | DcxAllowControls::ALLOW_TEXT | DcxAllowControls::ALLOW_SCROLL | DcxAllowControls::ALLOW_LIST;
+				const auto eAllowedControls5 = DcxAllowControls::ALLOW_LINK | DcxAllowControls::ALLOW_IMAGE | DcxAllowControls::ALLOW_PAGER | DcxAllowControls::ALLOW_DATETIME | DcxAllowControls::ALLOW_STACKER | DcxAllowControls::ALLOW_DIRECTSHOW;
+				const auto eAllowedControls = eAllowedControls1 | eAllowedControls2 | eAllowedControls3 | eAllowedControls4 | eAllowedControls5;
+
 				auto p_Control = getParentDialog()->addControl(itemtext, 1,
-					CTLF_ALLOW_PBAR | CTLF_ALLOW_TRACKBAR | CTLF_ALLOW_COMBOEX |/*CTLF_ALLOW_COLORCOMBO|*/
-					CTLF_ALLOW_STATUSBAR | CTLF_ALLOW_TOOLBAR |
-					CTLF_ALLOW_TREEVIEW | CTLF_ALLOW_LISTVIEW | CTLF_ALLOW_REBAR |
-					CTLF_ALLOW_BUTTON |/*CTLF_ALLOW_RICHEDIT|*/CTLF_ALLOW_EDIT |
-					CTLF_ALLOW_UPDOWN | CTLF_ALLOW_IPADDRESS | CTLF_ALLOW_WEBCTRL |
-					CTLF_ALLOW_CALANDER | CTLF_ALLOW_DIVIDER | CTLF_ALLOW_PANEL |
-					CTLF_ALLOW_TAB | CTLF_ALLOW_LINE | CTLF_ALLOW_BOX | CTLF_ALLOW_RADIO |
-					CTLF_ALLOW_CHECK | CTLF_ALLOW_TEXT | CTLF_ALLOW_SCROLL | CTLF_ALLOW_LIST |
-					CTLF_ALLOW_LINK | CTLF_ALLOW_IMAGE | CTLF_ALLOW_PAGER | CTLF_ALLOW_DATETIME |
-					CTLF_ALLOW_STACKER | CTLF_ALLOW_DIRECTSHOW,
+					//DcxAllowControls::ALLOW_PBAR | DcxAllowControls::ALLOW_TRACKBAR | DcxAllowControls::ALLOW_COMBOEX |
+					//DcxAllowControls::ALLOW_STATUSBAR | DcxAllowControls::ALLOW_TOOLBAR |
+					//DcxAllowControls::ALLOW_TREEVIEW | DcxAllowControls::ALLOW_LISTVIEW | DcxAllowControls::ALLOW_REBAR |
+					//DcxAllowControls::ALLOW_BUTTON | DcxAllowControls::ALLOW_EDIT |
+					//DcxAllowControls::ALLOW_UPDOWN | DcxAllowControls::ALLOW_IPADDRESS | DcxAllowControls::ALLOW_WEBCTRL |
+					//DcxAllowControls::ALLOW_CALANDER | DcxAllowControls::ALLOW_DIVIDER | DcxAllowControls::ALLOW_PANEL |
+					//DcxAllowControls::ALLOW_TAB | DcxAllowControls::ALLOW_LINE | DcxAllowControls::ALLOW_BOX | DcxAllowControls::ALLOW_RADIO |
+					//DcxAllowControls::ALLOW_CHECK | DcxAllowControls::ALLOW_TEXT | DcxAllowControls::ALLOW_SCROLL | DcxAllowControls::ALLOW_LIST |
+					//DcxAllowControls::ALLOW_LINK | DcxAllowControls::ALLOW_IMAGE | DcxAllowControls::ALLOW_PAGER | DcxAllowControls::ALLOW_DATETIME |
+					//DcxAllowControls::ALLOW_STACKER | DcxAllowControls::ALLOW_DIRECTSHOW,
+					eAllowedControls,
 					m_Hwnd);
+
+				/*DcxAllowControls::ALLOW_COLORCOMBO|*/
+				/*DcxAllowControls::ALLOW_RICHEDIT|*/
 
 				pPart->m_xChild = p_Control;
 				ShowWindow(p_Control->getHwnd(), SW_HIDE); // hide control untill a WM_DRAWITEM is recieved.
@@ -351,16 +364,16 @@ void DcxStatusBar::parseCommandRequest(const TString& input)
 				//
 				//try {
 				//	auto p_Control = DcxControl::controlFactory(this->m_pParentDialog, ID, itemtext, 2,
-				//					CTLF_ALLOW_PBAR|CTLF_ALLOW_TRACKBAR|CTLF_ALLOW_COMBOEX|/*CTLF_ALLOW_COLORCOMBO|*/
-				//						CTLF_ALLOW_STATUSBAR|CTLF_ALLOW_TOOLBAR|
-				//						CTLF_ALLOW_TREEVIEW|CTLF_ALLOW_LISTVIEW|CTLF_ALLOW_REBAR|
-				//						CTLF_ALLOW_BUTTON|/*CTLF_ALLOW_RICHEDIT|*/CTLF_ALLOW_EDIT|
-				//						CTLF_ALLOW_UPDOWN|CTLF_ALLOW_IPADDRESS|CTLF_ALLOW_WEBCTRL|
-				//						CTLF_ALLOW_CALANDER|CTLF_ALLOW_DIVIDER|CTLF_ALLOW_PANEL|
-				//						CTLF_ALLOW_TAB|CTLF_ALLOW_LINE|CTLF_ALLOW_BOX|CTLF_ALLOW_RADIO|
-				//						CTLF_ALLOW_CHECK|CTLF_ALLOW_TEXT|CTLF_ALLOW_SCROLL|CTLF_ALLOW_LIST|
-				//						CTLF_ALLOW_LINK|CTLF_ALLOW_IMAGE|CTLF_ALLOW_PAGER|CTLF_ALLOW_DATETIME|
-				//						CTLF_ALLOW_STACKER|CTLF_ALLOW_DIRECTSHOW,m_Hwnd);
+				//					DcxAllowControls::ALLOW_PBAR|DcxAllowControls::ALLOW_TRACKBAR|DcxAllowControls::ALLOW_COMBOEX|/*DcxAllowControls::ALLOW_COLORCOMBO|*/
+				//						DcxAllowControls::ALLOW_STATUSBAR|DcxAllowControls::ALLOW_TOOLBAR|
+				//						DcxAllowControls::ALLOW_TREEVIEW|DcxAllowControls::ALLOW_LISTVIEW|DcxAllowControls::ALLOW_REBAR|
+				//						DcxAllowControls::ALLOW_BUTTON|/*DcxAllowControls::ALLOW_RICHEDIT|*/DcxAllowControls::ALLOW_EDIT|
+				//						DcxAllowControls::ALLOW_UPDOWN|DcxAllowControls::ALLOW_IPADDRESS|DcxAllowControls::ALLOW_WEBCTRL|
+				//						DcxAllowControls::ALLOW_CALANDER|DcxAllowControls::ALLOW_DIVIDER|DcxAllowControls::ALLOW_PANEL|
+				//						DcxAllowControls::ALLOW_TAB|DcxAllowControls::ALLOW_LINE|DcxAllowControls::ALLOW_BOX|DcxAllowControls::ALLOW_RADIO|
+				//						DcxAllowControls::ALLOW_CHECK|DcxAllowControls::ALLOW_TEXT|DcxAllowControls::ALLOW_SCROLL|DcxAllowControls::ALLOW_LIST|
+				//						DcxAllowControls::ALLOW_LINK|DcxAllowControls::ALLOW_IMAGE|DcxAllowControls::ALLOW_PAGER|DcxAllowControls::ALLOW_DATETIME|
+				//						DcxAllowControls::ALLOW_STACKER|DcxAllowControls::ALLOW_DIRECTSHOW,m_Hwnd);
 				//
 				//	// problems with colorcombo/richedit, causes odd gfx glitches & dialog slow down.
 				//	this->getParentDialog()->addControl( p_Control );
@@ -457,7 +470,7 @@ void DcxStatusBar::parseCommandRequest(const TString& input)
 	}
 	else
 		parseGlobalCommandRequest(input, flags);
-}
+	}
 
 /*!
  * \brief blah
@@ -779,7 +792,7 @@ LRESULT DcxStatusBar::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 #endif
 			}
 			bParsed = TRUE;
-		}
+			}
 		break;
 
 		case NM_RCLICK:
@@ -801,7 +814,7 @@ LRESULT DcxStatusBar::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 #endif
 			}
 			bParsed = TRUE;
-		}
+			}
 		break;
 
 		case NM_DBLCLK:
@@ -823,12 +836,12 @@ LRESULT DcxStatusBar::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 #endif
 			}
 			bParsed = TRUE;
-		}
+			}
 		break;
 		default:
 			break;
 		} // switch
-	}
+		}
 	break;
 	case WM_DRAWITEM: // support for ownerdraw statusbar. NB: NO Delete Item msg.
 	{
@@ -860,9 +873,9 @@ LRESULT DcxStatusBar::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 	break;
 	default:
 		break;
-	}
+		}
 	return 0L;
-}
+		}
 
 LRESULT DcxStatusBar::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed)
 {

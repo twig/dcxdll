@@ -103,7 +103,7 @@ DcxDialog::~DcxDialog() noexcept
  //	p_Control->redrawWindow();
  //}
 
-DcxControl* DcxDialog::addControl(const TString& input, const UINT offset, const UINT64 mask, HWND hParent)
+DcxControl* DcxDialog::addControl(const TString& input, const UINT offset, const DcxAllowControls mask, HWND hParent)
 {
 	const auto tsID(input.getfirsttok(gsl::narrow_cast<int>(offset)));
 	auto ID = 0U;
@@ -327,7 +327,7 @@ void DcxDialog::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('c')] && numtok > 7)
 	{
 		try {
-			addControl(input, 3, CTLF_ALLOW_ALL, nullptr);
+			addControl(input, 3, DcxAllowControls::ALLOW_ALL, nullptr);
 		}
 		catch (const std::exception& e)
 		{
@@ -526,6 +526,12 @@ void DcxDialog::parseCommandRequest(const TString& input)
 				SendMessage(m_Hwnd, WM_CLOSE, NULL, NULL); // this allows the dialogs WndProc to EndDialog() if needed.
 			else // Modeless Dialog
 				DestroyWindow(m_Hwnd);
+
+			//GetLastActivePopup(GetParent(m_Hwnd));
+			//if (!IsWindowEnabled(GetParent(m_Hwnd)))	// detect if dialog is modal, better than doing an eval?
+			//	SendMessage(m_Hwnd, WM_CLOSE, NULL, NULL); // this allows the dialogs WndProc to EndDialog() if needed.
+			//else // Modeless Dialog
+			//	DestroyWindow(m_Hwnd);
 		}
 		else
 			//mIRCLinker::execex(TEXT("/.timer -m 1 0 xdialog -x %s"), this->getName().to_chr());
