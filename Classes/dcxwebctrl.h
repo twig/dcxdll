@@ -23,6 +23,12 @@
 #include <objbase.h>
 #include <mshtml.h>
 
+// WebView2 replace iexplorer embeded control with msft edge one.
+//https://go.microsoft.com/fwlink/p/?LinkId=2124703
+// https://www.codeproject.com/Tips/5287858/WebView2-Edge-Browser-in-MFC-Cplusplus-Application
+//Microsoft.Windows.ImplementationLibrary
+//https://github.com/Microsoft/wil
+
 class DcxDialog;
 
 /*!
