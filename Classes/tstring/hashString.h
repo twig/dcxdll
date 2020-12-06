@@ -37,6 +37,20 @@
 #define HASH_USE_FNV 1
 #define HASH_USE_ZOB 0
 
+namespace HashConcepts {
+	template <class T>
+	concept IsCharText = std::is_same_v<std::remove_cvref_t<std::remove_all_extents_t<T>>, char>;
+
+	template <class T>
+	concept IsWCharText = std::is_same_v<std::remove_cvref_t<std::remove_all_extents_t<T>>, wchar_t>;
+
+	template <class T>
+	concept IsPODText = IsCharText<T> || IsWCharText<T>;
+
+	template <class T>
+	concept IsPODTextPointer = std::is_pointer_v<T> && (IsCharText<std::remove_pointer_t<T>> || IsWCharText<std::remove_pointer_t<T>>);
+}
+
 // mostly taken from https://stackoverflow.com/questions/2111667/compile-time-string-hashing or based on this.
 
 namespace CRC32 {
@@ -482,17 +496,28 @@ constexpr FNV1a::hash_t operator""_fnv1a(const wchar_t* p, size_t N)
 	return FNV1a::fnv1a_hash(p);
 }
 
-// create a compile time hash of a const string. (no overflow bug, but causes dll size increase)
-template <typename T>
-constexpr size_t const_hash(const T *const input) noexcept
+/// <summary>
+/// Create a compile time hash of a const string. (no overflow bug, but causes dll size increase) 
+/// </summary>
+/// <param name="input">- String to hash</param>
+/// <returns>The hash value for the given string.</returns>
+template <HashConcepts::IsPODText T>
+_NODISCARD constexpr size_t const_hash(const T *const input) noexcept
 {
 	return *input ?
 		(static_cast<size_t>(*input) + 33U) + CRC32::detail::crc_table[((const_hash(input + 1) ^ static_cast<size_t>(*input)) & 0xFF)] :
 		5381U;
 }
 
-template <typename T>
-size_t dcx_hash(const T *const input, const size_t &N) noexcept
+/// <summary>
+/// Get compile time hash of string
+/// </summary>
+/// <typeparam name="T">HashConcepts::IsPODText</typeparam>
+/// <param name="input">- String to hash</param>
+/// <param name="N">- String length in characters</param>
+/// <returns>The hash value for the given string.</returns>
+template <HashConcepts::IsPODText T>
+_NODISCARD size_t dcx_hash(const T *const input, const size_t &N) noexcept
 {
 	static_assert(std::is_same_v<char, std::remove_cv_t<T>> || std::is_same_v<wchar_t, std::remove_cv_t<T>>, "Type must be char or wchar_t");
 #if defined(HASH_USE_CRC32) && HASH_USE_CRC32
@@ -511,8 +536,15 @@ size_t dcx_hash(const T *const input, const size_t &N) noexcept
 #endif
 #endif
 }
-template <typename T>
-size_t dcx_hash(const T *const input) noexcept
+
+/// <summary>
+/// Get compile time hash of string
+/// </summary>
+/// <typeparam name="T">HashConcepts::IsPODText</typeparam>
+/// <param name="input">- String to hash</param>
+/// <returns>The hash value for the given string.</returns>
+template <HashConcepts::IsPODText T>
+_NODISCARD size_t dcx_hash(const T *const input) noexcept
 {
 	static_assert(std::is_same_v<char, std::remove_cv_t<T>> || std::is_same_v<wchar_t, std::remove_cv_t<T>>, "Type must be char or wchar_t");
 #if defined(HASH_USE_CRC32) && HASH_USE_CRC32
@@ -590,7 +622,6 @@ namespace std {
 	//
 	//	_NODISCARD result_type operator()(argument_type const& s) const noexcept
 	//	{
-	//		//return _Hash_array_representation(s.GetString(), s.GetLength());
 	//		return dcx_hash(s.GetString(), s.GetLength());
 	//	}
 	//};
@@ -603,7 +634,6 @@ namespace std {
 
 		_NODISCARD result_type operator()(argument_type const& s) const noexcept
 		{
-			//return _Hash_array_representation(s, _ts_strlen(s));
 			return operator()(s, _ts_strlen(s));
 		}
 		_NODISCARD result_type operator()(argument_type const& s, std::size_t N) const noexcept
@@ -627,27 +657,6 @@ namespace std {
 			return dcx_hash(s, N);
 		}
 	};
-
-	//template<> struct hash<const char *>
-	//{
-	//	typedef const char * argument_type;
-	//	typedef std::size_t result_type;
-	//	result_type operator()(argument_type const& s) const noexcept
-	//	{
-	//		//return dcx_hash(s);
-	//		return FNV1a::fnv1a_hash(_ts_strlen(s),s);
-	//	}
-	//};
-	//template<> struct hash<const wchar_t *>
-	//{
-	//	typedef const wchar_t * argument_type;
-	//	typedef std::size_t result_type;
-	//	result_type operator()(argument_type const& s) const noexcept
-	//	{
-	//		//return dcx_hash(s);
-	//		return FNV1a::fnv1a_hash(_ts_strlen(s), s);
-	//	}
-	//};
 }
 
 //
