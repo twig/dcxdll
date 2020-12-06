@@ -87,12 +87,15 @@ private:
 	void DrawClientArea(HDC hdc);
 	void DrawBorder(HDC hdc, RECT &rc) noexcept;
 
+	void DrawCheckButton(HDC hdc, LPRECT rcCheck) noexcept;
+
 	LONG m_iBoxStyles{}; //!< Custom Box Styles
 
 	std::unique_ptr<LayoutManager> m_pLayoutManager; //!< Layout Manager Object
 
 	//HWND m_TitleButton{ nullptr }; //!< enable/disable button.
-	bool m_bTitleChecked{ false };
+	RECT m_rcCheck{};
+	bool m_bTitleChecked{ true };
 	HTHEME _hTheme{ nullptr };
 
 };
