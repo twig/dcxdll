@@ -897,7 +897,7 @@ int _ts_stricmp(const T* const sDest, const T* const sSrc) noexcept
 }
 
 template <details::IsPODText T>
-int _ts_vscprintf(__format_string const T* const _Format, va_list _ArgList) noexcept
+int _ts_vscprintf(_Printf_format_string_ const T* const _Format, va_list _ArgList) noexcept
 {
 	static_assert(details::IsPODText<T>, "Only char & wchar_t supported...");
 
@@ -905,7 +905,7 @@ int _ts_vscprintf(__format_string const T* const _Format, va_list _ArgList) noex
 }
 
 template <details::IsPODText T>
-int _ts_vsprintf(T* const buf, size_t nCount, __format_string const T* const fmt, const va_list args) noexcept
+int _ts_vsprintf(T* const buf, size_t nCount, _Printf_format_string_ const T* const fmt, const va_list args) noexcept
 {
 	static_assert(details::IsPODText<T>, "Only char & wchar_t supported...");
 
@@ -913,7 +913,7 @@ int _ts_vsprintf(T* const buf, size_t nCount, __format_string const T* const fmt
 }
 
 template <details::IsPODText T, typename Format, typename... Arguments>
-int _ts_snprintf(T* const buf, const size_t nCount, __format_string const Format* const fmt, Arguments&&... args) noexcept
+int _ts_snprintf(T* const buf, const size_t nCount, _Printf_format_string_ const Format* const fmt, Arguments&&... args) noexcept
 {
 	static_assert(details::IsPODText<T>, "Only char & wchar_t supported...");
 	static_assert(std::is_same_v<std::remove_cv_t<T>, std::remove_cv_t<Format>>, "Buffer & format must have same type.");
@@ -922,7 +922,7 @@ int _ts_snprintf(T* const buf, const size_t nCount, __format_string const Format
 }
 
 template <typename T, details::IsPODText Format, typename... Arguments>
-int _ts_snprintf(T& buf, __format_string const Format* const fmt, Arguments&&... args) noexcept
+int _ts_snprintf(T& buf, _Printf_format_string_ const Format* const fmt, Arguments&&... args) noexcept
 {
 	static_assert(details::IsPODText<Format>, "Only char & wchar_t supported...");
 
