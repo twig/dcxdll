@@ -3,6 +3,9 @@
 #include "refString.h"
 #include "simpleString.h"
 
+#include <string>
+#include <xhash>
+
 // Change string into a hash/number at compile time to allow easy switch()/case usage.
 //
 // for string literals this is all done at compile time...
@@ -29,6 +32,10 @@
 //}
 // NB: you cannot mix char & wchar_t hashes, they WILL be different.
 //
+
+#define HASH_USE_CRC32 0
+#define HASH_USE_FNV 1
+#define HASH_USE_ZOB 0
 
 // mostly taken from https://stackoverflow.com/questions/2111667/compile-time-string-hashing or based on this.
 
@@ -109,7 +116,7 @@ namespace CRC32 {
 }
 
 // turns a literal string into a hash number at compile time.
-constexpr unsigned int operator "" _crc32(const char* v, unsigned int c)
+constexpr unsigned int operator "" _crc32(const char* v, size_t c)
 {
 	return CRC32::crc32_helper(v, c, 0xFFFFFFFF);
 }
@@ -410,7 +417,7 @@ namespace ZobHash {
 }	// namespace ZobHash
 
 // turns a literal string into a hash number at compile time.
-constexpr unsigned int operator "" _zob(const char* v, unsigned int c)
+constexpr unsigned int operator "" _zob(const char* v, size_t c)
 {
 	return ZobHash::ZobHash(v, c);
 }
@@ -418,45 +425,61 @@ constexpr unsigned int operator "" _zob(const char* v, unsigned int c)
 namespace FNV1a {
 	// From https://github.com/foonathan/string_id. As usually, thanks Jonathan.
 
+#if defined(_WIN64)
+	// FNV-1a 64 bit hash
 	using hash_t = std::uint64_t;
 
 	// See http://www.isthe.com/chongo/tech/comp/fnv/#FNV-param
 	constexpr hash_t fnv_basis = 14695981039346656037ull;
 	constexpr hash_t fnv_prime = 1099511628211ull;
-
-	// FNV-1a 64 bit hash
-	constexpr hash_t fnv1a_hash(std::size_t n, const char* str, hash_t hash = fnv_basis)
+#else
+	// FNV-1a 32 bit hash
+	using hash_t = std::size_t;
+	constexpr hash_t fnv_basis = 2166136261U;
+	constexpr hash_t fnv_prime = 16777619U;
+#endif
+	constexpr hash_t fnv1a_hash(const char* str, hash_t hash = fnv_basis)
 	{
-		return n > 0 ? fnv1a_hash(n - 1, str + 1, (hash ^ *str) * fnv_prime) : hash;
+		return *str ? fnv1a_hash(str + 1, (hash ^ *str) * fnv_prime) : hash;
 	}
 
-	template<std::size_t N>
-	constexpr hash_t fnv1a_hash(const char(&array)[N])
-	{
-		return fnv1a_hash(N - 1, &array[0]);
-	}
+	//constexpr hash_t fnv1a_hash(std::size_t n, const char* str, hash_t hash = fnv_basis)
+	//{
+	//	return n > 0 ? fnv1a_hash(n - 1, str + 1, (hash ^ *str) * fnv_prime) : hash;
+	//}
+	//template<std::size_t N>
+	//constexpr hash_t fnv1a_hash(const char(&array)[N])
+	//{
+	//	return fnv1a_hash(N - 1, &array[0]);
+	//}
+	//constexpr hash_t fnv1a_hash(std::size_t n, const wchar_t* str, hash_t hash = fnv_basis)
+	//{
+	//	return n > 0 ? fnv1a_hash(n - 1, str + 1, (hash ^ *str) * fnv_prime) : hash;
+	//}
+	//template<std::size_t N>
+	//constexpr hash_t fnv1a_hash(const wchar_t(&array)[N])
+	//{
+	//	return fnv1a_hash(N - 1, &array[0]);
+	//}
 
-	constexpr hash_t fnv1a_hash(std::size_t n, const wchar_t* str, hash_t hash = fnv_basis)
+	constexpr hash_t fnv1a_hash(const wchar_t* str, hash_t hash = fnv_basis)
 	{
-		return n > 0 ? fnv1a_hash(n - 1, str + 1, (hash ^ *str) * fnv_prime) : hash;
-	}
-
-	template<std::size_t N>
-	constexpr hash_t fnv1a_hash(const wchar_t(&array)[N])
-	{
-		return fnv1a_hash(N - 1, &array[0]);
+		//return *str ? fnv1a_hash(str + 1, (hash ^ *str) * fnv_prime) : hash;
+		return *str ? fnv1a_hash(str + 1, (((hash ^ (*str & 0xFF)) * fnv_prime) ^ ((*str >> 8) & 0xFF)) * fnv_prime) : hash;
 	}
 }
 // turns a literal string into a hash number at compile time.
 constexpr FNV1a::hash_t operator""_fnv1a(const char* p, size_t N)
 {
-	return FNV1a::fnv1a_hash(N - 1, p);
+	//return FNV1a::fnv1a_hash(N - 1, p);
+	return FNV1a::fnv1a_hash(p);
 }
 
 // turns a literal string into a hash number at compile time.
 constexpr FNV1a::hash_t operator""_fnv1a(const wchar_t* p, size_t N)
 {
-	return FNV1a::fnv1a_hash(N - 1, p);
+	//return FNV1a::fnv1a_hash(N - 1, p);
+	return FNV1a::fnv1a_hash(p);
 }
 
 // create a compile time hash of a const string. (no overflow bug, but causes dll size increase)
@@ -471,60 +494,160 @@ constexpr size_t const_hash(const T *const input) noexcept
 template <typename T>
 size_t dcx_hash(const T *const input, const size_t &N) noexcept
 {
-	static_assert(std::is_same<char, std::remove_cv_t<T>>::value || std::is_same<wchar_t, std::remove_cv_t<T>>::value, "Type must be char or wchar_t");
+	static_assert(std::is_same_v<char, std::remove_cv_t<T>> || std::is_same_v<wchar_t, std::remove_cv_t<T>>, "Type must be char or wchar_t");
+#if defined(HASH_USE_CRC32) && HASH_USE_CRC32
 	return CRC32::crc32_1byte(input, N * sizeof(T));
+#else
+#if defined(HASH_USE_FNV) && HASH_USE_FNV
+	//return _Hash_array_representation(input, N);
+	//return FNV1a::fnv1a_hash(N, input);
+	return FNV1a::fnv1a_hash(input);
+#else
+#if defined(HASH_USE_ZOB) && HASH_USE_ZOB
+	return ZobHash::ZobHash(input, N);
+#else
+#error "No Hash functions selected!"
+#endif
+#endif
+#endif
 }
 template <typename T>
 size_t dcx_hash(const T *const input) noexcept
 {
-	static_assert(std::is_same<char, std::remove_cv_t<T>>::value || std::is_same<wchar_t, std::remove_cv_t<T>>::value, "Type must be char or wchar_t");
+	static_assert(std::is_same_v<char, std::remove_cv_t<T>> || std::is_same_v<wchar_t, std::remove_cv_t<T>>, "Type must be char or wchar_t");
+#if defined(HASH_USE_CRC32) && HASH_USE_CRC32
 	return dcx_hash(input, _ts_strlen(input));
+#else
+#if defined(HASH_USE_FNV) && HASH_USE_FNV
+	//return _Hash_array_representation(input, _ts_strlen(input));
+	//return FNV1a::fnv1a_hash(_ts_strlen(input), input);
+	return FNV1a::fnv1a_hash(input);
+#else
+#if defined(HASH_USE_ZOB) && HASH_USE_ZOB
+	return dcx_hash(input, _ts_strlen(input));
+#else
+#error "No Hash functions selected!"
+#endif
+#endif
+#endif
 }
 
 // turns a literal string into a hash number at compile time.
 constexpr size_t operator""_hash(const char * p, size_t N)
 {
+#if defined(HASH_USE_CRC32) && HASH_USE_CRC32
 	return CRC32::crc32_helper(p, N, 0xFFFFFFFF);
+#else
+#if defined(HASH_USE_FNV) && HASH_USE_FNV
+	return FNV1a::fnv1a_hash(p);
+#else
+#if defined(HASH_USE_ZOB) && HASH_USE_ZOB
+	return ZobHash::ZobHash(p, N);
+#else
+#error "No Hash functions selected!"
+#endif
+#endif
+#endif
 }
 
 // turns a literal string into a hash number at compile time.
 constexpr size_t operator""_hash(const wchar_t * p, size_t N)
 {
+#if defined(HASH_USE_CRC32) && HASH_USE_CRC32
 	return CRC32::crc32_helper(p, N, 0xFFFFFFFF);
+#else
+#if defined(HASH_USE_FNV) && HASH_USE_FNV
+	return FNV1a::fnv1a_hash(p);
+#else
+#if defined(HASH_USE_ZOB) && HASH_USE_ZOB
+	return ZobHash::ZobHash(p, N);
+#else
+#error "No Hash functions selected!"
+#endif
+#endif
+#endif
 }
 
 // This gives us runtime hashing...
+
 namespace std {
+	// STRUCT TEMPLATE SPECIALIZATION hash for TString
 	template<> struct hash<TString>
 	{
 		typedef TString argument_type;
 		typedef std::size_t result_type;
-		result_type operator()(argument_type const& s) const noexcept
+		_NODISCARD result_type operator()(argument_type const& s) const noexcept
 		{
 			return dcx_hash(s.to_chr(), s.len());
-			//return FNV1a::fnv1a_hash(s.len(), s.to_chr());
 		}
 	};
-	template<> struct hash<const char *>
+
+	// STRUCT TEMPLATE SPECIALIZATION hash for CString
+	//template<> struct hash<CString>
+	//{
+	//	typedef CString argument_type;
+	//	typedef size_t result_type;
+	//
+	//	_NODISCARD result_type operator()(argument_type const& s) const noexcept
+	//	{
+	//		//return _Hash_array_representation(s.GetString(), s.GetLength());
+	//		return dcx_hash(s.GetString(), s.GetLength());
+	//	}
+	//};
+
+	// STRUCT TEMPLATE SPECIALIZATION hash for const char*
+	template<> struct hash<const char*>
 	{
-		typedef const char * argument_type;
+		typedef const char* argument_type;
 		typedef std::size_t result_type;
-		result_type operator()(argument_type const& s) const noexcept
+
+		_NODISCARD result_type operator()(argument_type const& s) const noexcept
 		{
-			return dcx_hash(s);
-			//return FNV1a::fnv1a_hash(_ts_strlen(s),s);
+			//return _Hash_array_representation(s, _ts_strlen(s));
+			return operator()(s, _ts_strlen(s));
+		}
+		_NODISCARD result_type operator()(argument_type const& s, std::size_t N) const noexcept
+		{
+			return dcx_hash(s, N);
 		}
 	};
-	template<> struct hash<const wchar_t *>
+
+	// STRUCT TEMPLATE SPECIALIZATION hash for const wchar_t*
+	template<> struct hash<const wchar_t*>
 	{
-		typedef const wchar_t * argument_type;
+		typedef const wchar_t* argument_type;
 		typedef std::size_t result_type;
-		result_type operator()(argument_type const& s) const noexcept
+
+		_NODISCARD result_type operator()(argument_type const& s) const noexcept
 		{
-			return dcx_hash(s);
-			//return FNV1a::fnv1a_hash(_ts_strlen(s), s);
+			return operator()(s, _ts_strlen(s));
+		}
+		_NODISCARD result_type operator()(argument_type const& s, std::size_t N) const noexcept
+		{
+			return dcx_hash(s, N);
 		}
 	};
+
+	//template<> struct hash<const char *>
+	//{
+	//	typedef const char * argument_type;
+	//	typedef std::size_t result_type;
+	//	result_type operator()(argument_type const& s) const noexcept
+	//	{
+	//		//return dcx_hash(s);
+	//		return FNV1a::fnv1a_hash(_ts_strlen(s),s);
+	//	}
+	//};
+	//template<> struct hash<const wchar_t *>
+	//{
+	//	typedef const wchar_t * argument_type;
+	//	typedef std::size_t result_type;
+	//	result_type operator()(argument_type const& s) const noexcept
+	//	{
+	//		//return dcx_hash(s);
+	//		return FNV1a::fnv1a_hash(_ts_strlen(s), s);
+	//	}
+	//};
 }
 
 //
