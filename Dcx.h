@@ -1011,7 +1011,7 @@ namespace Dcx
 	void error(const TCHAR* const cmd, const TCHAR* const msg) noexcept;
 	//void errorex(const TCHAR *const cmd, const TCHAR *const szFormat, ...);
 	template <typename Format, typename Value, typename... Arguments>
-	void error(const TCHAR* const cmd, __format_string const Format& fmt, const Value& val, Arguments&&... args)
+	void error(const TCHAR* const cmd, _Printf_format_string_ const Format& fmt, const Value& val, Arguments&&... args)
 	{
 		TString tsErr;
 		error(cmd, _ts_sprintf(tsErr, fmt, val, args...).to_chr());

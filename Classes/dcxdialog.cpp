@@ -253,7 +253,7 @@ void DcxDialog::PreloadData() noexcept
  */
 GSL_SUPPRESS(es.47)
 GSL_SUPPRESS(type.3)
-void DcxDialog::parseCommandRequestEX(const TCHAR* const szFormat, ...)
+void DcxDialog::parseCommandRequestEX(_Printf_format_string_ const TCHAR* const szFormat, ...)
 {
 	TString msg;
 
@@ -267,7 +267,7 @@ void DcxDialog::parseCommandRequestEX(const TCHAR* const szFormat, ...)
 
 GSL_SUPPRESS(es.47)
 GSL_SUPPRESS(type.3)
-void DcxDialog::parseComControlRequestEX(const UINT id, const TCHAR* const szFormat, ...)
+void DcxDialog::parseComControlRequestEX(_In_ const UINT id, _Printf_format_string_ const TCHAR* const szFormat, ...)
 {
 	auto p_Control = getControlByID(id + mIRC_ID_OFFSET);
 	if (!p_Control)
@@ -283,7 +283,18 @@ void DcxDialog::parseComControlRequestEX(const UINT id, const TCHAR* const szFor
 	p_Control->parseCommandRequest(msg);
 }
 
-void DcxDialog::parseCommandRequest(const TString& input)
+//void teststringview(std::wstring_view &sv) noexcept
+//{
+//	TCHAR tmp[23]{};
+//	TCHAR tmp2[23]{};
+//	std::wstring_view gah(tmp);
+//	std::wstring_view gah2(tmp2);
+//
+//	sv.copy(&tmp[0], std::size(tmp));
+//	gah.copy(gah2.data(),10);
+//}
+
+void DcxDialog::parseCommandRequest(_In_ const TString& input)
 {
 	const XSwitchFlags flags(input.getfirsttok(2));		// tok 2
 	const auto numtok = input.numtok();
@@ -1702,7 +1713,7 @@ void DcxDialog::parseInfoRequest(const TString& input, const refString<TCHAR, MI
 
 GSL_SUPPRESS(es.47)
 GSL_SUPPRESS(type.3)
-bool DcxDialog::evalAliasEx(const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>& szReturn, const int maxlen, const TCHAR* const szFormat, ...) const
+bool DcxDialog::evalAliasEx(const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>& szReturn, _In_ const int maxlen, _Printf_format_string_ const TCHAR* const szFormat, ...) const
 {
 	TString line;
 	va_list args = nullptr;
@@ -1714,7 +1725,7 @@ bool DcxDialog::evalAliasEx(const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>& szRetu
 	return evalAlias(szReturn, maxlen, line.to_chr());
 }
 
-bool DcxDialog::evalAlias(const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>& szReturn, const int maxlen, const TCHAR* const szArgs) const
+bool DcxDialog::evalAlias(const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>& szReturn, _In_ const int maxlen, _In_z_ const TCHAR* const szArgs) const
 {
 	incRef();
 	Auto(decRef());
@@ -1725,7 +1736,7 @@ bool DcxDialog::evalAlias(const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>& szReturn
 
 GSL_SUPPRESS(es.47)
 GSL_SUPPRESS(type.3)
-bool DcxDialog::execAliasEx(const TCHAR* const szFormat, ...) const
+bool DcxDialog::execAliasEx(_Printf_format_string_ const TCHAR* const szFormat, ...) const
 {
 	TString line;
 	va_list args = nullptr;
@@ -3000,7 +3011,9 @@ void DcxDialog::showError(const TCHAR* const prop, const TCHAR* const cmd, const
 	i_showError(TEXT("xdialog"), prop, cmd, err);
 }
 
-[[gsl::suppress(es.47)]] [[gsl::suppress(type.3)]] void DcxDialog::showErrorEx(const TCHAR* const prop, const TCHAR* const cmd, const TCHAR* const fmt, ...) const
+GSL_SUPPRESS(es.47)
+GSL_SUPPRESS(type.3)
+void DcxDialog::showErrorEx(const TCHAR* const prop, const TCHAR* const cmd, _Printf_format_string_ const TCHAR* const fmt, ...) const
 {
 	TString err;
 	va_list args;
@@ -3020,7 +3033,9 @@ void DcxDialog::showControlError(const TCHAR* const prop, const TCHAR* const cmd
 	i_showError(TEXT("xdid"), prop, cmd, err);
 }
 
-[[gsl::suppress(es.47)]] [[gsl::suppress(type.3)]] void DcxDialog::showControlErrorEx(const TCHAR* const prop, const TCHAR* const cmd, const TCHAR* const fmt, ...) const
+GSL_SUPPRESS(es.47)
+GSL_SUPPRESS(type.3)
+void DcxDialog::showControlErrorEx(__in_z const TCHAR* const prop, __in_z const TCHAR* const cmd, _Printf_format_string_ const TCHAR* const fmt, ...) const
 {
 	TString err;
 	va_list args;
@@ -3586,30 +3601,6 @@ TiXmlElement* DcxDialog::toXml(const TString& name) const
 	toXml(result.get(), name);
 	return result.release();
 }
-
-//#ifdef DCX_USE_GDIPLUS
-//bool DcxDialog::LoadGDIPlusImage(TString &filename) {
-//	if (!IsFile(filename)) {
-//		this->showError(nullptr,TEXT("LoadGDIPlusImage"), TEXT("Unable to open file"));
-//		return false;
-//	}
-//	this->m_pImage = new Image(filename.to_wchr(),TRUE);
-//
-//	// couldnt allocate image object.
-//	if (this->m_pImage == nullptr) {
-//		this->showError(nullptr,TEXT("LoadGDIPlusImage"), TEXT("Couldn't allocate image object."));
-//		return false;
-//	}
-//	// for some reason this returns `OutOfMemory` when the file doesnt exist instead of `FileNotFound`
-//	Status status = this->m_pImage->GetLastStatus();
-//	if (status != Ok) {
-//		this->showError(nullptr,TEXT("LoadGDIPlusImage"), GetLastStatusStr(status));
-//		PreloadData();
-//		return false;
-//	}
-//	return true;
-//}
-//#endif
 
 const bool DcxDialog::isIDValid(_In_ const UINT ID, _In_ const bool bUnused) const noexcept
 {

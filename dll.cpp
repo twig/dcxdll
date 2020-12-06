@@ -763,27 +763,61 @@ mIRC(Version)
 		// hashes should be the same...
 		{	// test string hashes
 			constexpr const auto hash1 = const_hash("123");
+
 			const auto hash2 = dcx_hash("123");
-			constexpr const auto hash3 = "123"_crc32;
+			const auto hash3 = dcx_hash(L"123");
+
 			constexpr const auto hash4 = "123"_hash;
 			constexpr const auto hash5 = L"123"_hash;
-			const auto hash6 = dcx_hash(L"123");
 
-			static_assert(hash3 == hash4, "hash 3, & 4 failed");
-			Ensures(hash2 == hash3);
-			Ensures(hash2 == 0x884863D2);
+			constexpr const auto crc1 = "123"_crc32;
+			constexpr const auto crc2 = L"123"_crc32;
 
-			Ensures(hash6 == hash5);
-			Ensures(hash6 == 0xD0AD20B1);
+			constexpr const auto fnv1 = "123"_fnv1a;
+			constexpr const auto fnv2 = L"123"_fnv1a;
+			//Ensures(hash6 == 0xD0AD20B1);
 
-			static_assert(hash1 == 0xAF0A1B9E, "hash 1 failed");
+			constexpr const auto fnv3 = "x"_fnv1a;
+			constexpr const auto fnv4 = "y"_fnv1a;
+
+			const auto hash6 = std::hash<std::string>{}(std::string("123"));
+			const auto hash7 = std::hash<std::wstring>{}(std::wstring(L"123"));
+
+			static_assert(hash1 == 0xAF0A1B9E, "hash 1 failed");	// should be the same
+			static_assert(hash4 != hash5, "\"123\"_hash != L\"123\"_hash"); // these should be different
+			static_assert(crc1 != crc2, "\"123\"_crc32 == L\"123\"_crc32"); // these should be different
+			static_assert(fnv3 != fnv4, "\"x\"_fnv1a == \"y\"_fnv1a"); // these should be the different
+
+#if defined(HASH_USE_CRC32) && HASH_USE_CRC32
+			static_assert(crc1 == hash4, "\"123\"_crc32 != \"123\"_hash"); // these should be same
+			static_assert(crc2 == hash5, "L\"123\"_crc32 != L\"123\"_hash"); // these should be same
+			static_assert(fnv1 != hash4, "\"123\"_fnv1a == \"123\"_hash"); // these should be the different
+			static_assert(fnv2 != hash5, "L\"123\"_fnv1a == L\"123\"_hash"); // these should be the different
+
+			Ensures(hash2 == crc1); // should be same
+			Ensures(hash2 == hash4); // should be the same
+			Ensures(hash2 == 0x884863D2); // should == 0x884863D2
+#else
+#if defined(HASH_USE_FNV) && HASH_USE_FNV
+			static_assert(crc1 != hash4, "\"123\"_crc32 == \"123\"_hash"); // these should be different
+			static_assert(crc2 != hash5, "L\"123\"_crc32 == L\"123\"_hash"); // these should be different
+			static_assert(fnv1 == hash4, "\"123\"_fnv1a != \"123\"_hash"); // these should be the same
+			static_assert(fnv2 == hash5, "L\"123\"_fnv1a != L\"123\"_hash"); // these should be the same
+
+			Ensures(hash2 == fnv1); // should be same
+			Ensures(hash2 == hash4); // should be the same
+			Ensures(hash2 == 0x7238631b); // should == 0x884863D2
+#endif
+#endif
+			// check fnv1a results match std::strings hash
+			Ensures(fnv1 == hash6);
+			Ensures(fnv2 == hash7);
 
 			mIRCLinker::echo(TEXT("Success: string hashing - all tests passed"));
 		}
 		mIRCLinker::echo(TEXT("Success: RGB % lightens to %"), RGB(184, 199, 146), XPopupMenuItem::LightenColor(200, RGB(184, 199, 146)));
 
 		throw Dcx::dcxException(TEXT("No such Exception"));
-		//throw Dcx::dcxException("No such Exception: % :: %", iTest, tok);
 	}
 	catch (const std::exception & e)
 	{

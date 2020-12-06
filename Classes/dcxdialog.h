@@ -81,18 +81,18 @@ public:
 	DcxDialog(const HWND mHwnd, const TString& tsName, const TString& tsAliasName);
 	~DcxDialog() noexcept;
 
-	void parseCommandRequest(const TString& input) final;
-	void parseCommandRequestEX(const TCHAR* const szFormat, ...);
-	void parseComControlRequestEX(const UINT id, const TCHAR* const szFormat, ...);
+	void parseCommandRequest(_In_ const TString& input) final;
+	void parseCommandRequestEX(_Printf_format_string_ const TCHAR* const szFormat, ...);
+	void parseComControlRequestEX(_In_ const UINT id, _Printf_format_string_ const TCHAR* const szFormat, ...);
 	//void parseInfoRequest( const TString & input, TCHAR * szReturnValue ) const;
 	void parseInfoRequest(const TString& input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>& szReturnValue) const override;
 
 	//bool evalAliasEx( TCHAR *const szReturn, const int maxlen, const TCHAR *const szFormat, ... );
 	//bool evalAlias( TCHAR *const szReturn, const int maxlen, const TCHAR *const szArgs);
-	bool evalAliasEx(const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>& szReturn, const int maxlen, const TCHAR* const szFormat, ...) const;
-	bool evalAlias(const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>& szReturn, const int maxlen, const TCHAR* const szArgs) const;
-	bool execAliasEx(const TCHAR* const szFormat, ...) const;
-	bool execAlias(const TCHAR* const szArgs) const;
+	bool evalAliasEx(const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>& szReturn, _In_ const int maxlen, _Printf_format_string_ const TCHAR* const szFormat, ...) const;
+	bool evalAlias(const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>& szReturn, _In_ const int maxlen, _In_z_ const TCHAR* const szArgs) const;
+	bool execAliasEx(_Printf_format_string_ const TCHAR* const szFormat, ...) const;
+	bool execAlias(_In_z_ const TCHAR* const szArgs) const;
 
 	template <typename Format, typename Value, typename... Arguments>
 	auto evalAliasT(const Format& fmt, const Value& val, Arguments&& ... args)
@@ -221,9 +221,9 @@ public:
 	inline const IntegerHash& getNamedIds(void) const noexcept { return m_NamedIds; };
 
 	void showError(const TCHAR* const prop, const TCHAR* const cmd, const TCHAR* const err) const;
-	void showErrorEx(const TCHAR* const prop, const TCHAR* const cmd, const TCHAR* const fmt, ...) const;
+	void showErrorEx(const TCHAR* const prop, const TCHAR* const cmd, _Printf_format_string_ const TCHAR* const fmt, ...) const;
 	void showControlError(const TCHAR* const prop, const TCHAR* const cmd, const TCHAR* const err) const;
-	void showControlErrorEx(const TCHAR* const prop, const TCHAR* const cmd, const TCHAR* const fmt, ...) const;
+	void showControlErrorEx(__in_z const TCHAR* const prop, __in_z const TCHAR* const cmd, _Printf_format_string_ const TCHAR* const fmt, ...) const;
 #ifdef DCX_USE_GDIPLUS
 	void DrawCaret(Gdiplus::Graphics& graph);
 	void DrawCtrl(Gdiplus::Graphics& graphics, HDC hDC, HWND hWnd);
