@@ -1,7 +1,28 @@
+//
+// By Ook
+// v2.1
+//
+
 #pragma once
+
+#define HASH_USE_CRC32 0
+#define HASH_USE_FNV 1
+#define HASH_USE_ZOB 0
+#define HASH_ENABLE_STRING 1
+#define HASH_ENABLE_CSTRING 0
+
+#if __has_include("tstring.h")
+#define HASH_ENABLE_TSTRING 1
 #include "tstring.h"
+#else
+#define HASH_ENABLE_TSTRING 0
+#endif
+#if __has_include("refString.h")
 #include "refString.h"
+#endif
+#if __has_include("simpleString.h")
 #include "simpleString.h"
+#endif
 
 #include <string>
 #include <xhash>
@@ -33,9 +54,9 @@
 // NB: you cannot mix char & wchar_t hashes, they WILL be different.
 //
 
-#define HASH_USE_CRC32 0
-#define HASH_USE_FNV 1
-#define HASH_USE_ZOB 0
+#if defined(HASH_ENABLE_CSTRING) && HASH_ENABLE_CSTRING
+#include <afxstr.h>
+#endif
 
 namespace HashConcepts {
 	template <class T>
@@ -526,6 +547,7 @@ _NODISCARD size_t dcx_hash(const T *const input, const size_t &N) noexcept
 #if defined(HASH_USE_FNV) && HASH_USE_FNV
 	//return _Hash_array_representation(input, N);
 	//return FNV1a::fnv1a_hash(N, input);
+	UNREFERENCED_PARAMETER(N);
 	return FNV1a::fnv1a_hash(input);
 #else
 #if defined(HASH_USE_ZOB) && HASH_USE_ZOB
@@ -603,29 +625,39 @@ constexpr size_t operator""_hash(const wchar_t * p, size_t N)
 // This gives us runtime hashing...
 
 namespace std {
+#if defined(HASH_ENABLE_TSTRING) && HASH_ENABLE_TSTRING
 	// STRUCT TEMPLATE SPECIALIZATION hash for TString
 	template<> struct hash<TString>
 	{
 		typedef TString argument_type;
 		typedef std::size_t result_type;
+
+		GSL_SUPPRESS(r.30)
+		GSL_SUPPRESS(r.36)
 		_NODISCARD result_type operator()(argument_type const& s) const noexcept
 		{
 			return dcx_hash(s.to_chr(), s.len());
 		}
 	};
+#endif
 
+#if defined(HASH_ENABLE_CSTRING) && HASH_ENABLE_CSTRING
 	// STRUCT TEMPLATE SPECIALIZATION hash for CString
-	//template<> struct hash<CString>
-	//{
-	//	typedef CString argument_type;
-	//	typedef size_t result_type;
-	//
-	//	_NODISCARD result_type operator()(argument_type const& s) const noexcept
-	//	{
-	//		return dcx_hash(s.GetString(), s.GetLength());
-	//	}
-	//};
+	template<> struct hash<CString>
+	{
+		typedef CString argument_type;
+		typedef size_t result_type;
+	
+		GSL_SUPPRESS(r.30)
+		GSL_SUPPRESS(r.36)
+		_NODISCARD result_type operator()(argument_type const& s) const noexcept
+		{
+			return dcx_hash(s.GetString(), s.GetLength());
+		}
+	};
+#endif
 
+#if defined(HASH_ENABLE_STRING) && HASH_ENABLE_STRING
 	// STRUCT TEMPLATE SPECIALIZATION hash for const char*
 	template<> struct hash<const char*>
 	{
@@ -657,6 +689,7 @@ namespace std {
 			return dcx_hash(s, N);
 		}
 	};
+#endif
 }
 
 //

@@ -1,3 +1,8 @@
+//
+// By Ook
+// v2.1
+//
+
 #include "defines.h"
 
 namespace CRC32 {
