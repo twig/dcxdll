@@ -1,9 +1,9 @@
 #pragma once
 // support functions for TString & c-string handling...
-// v1.12
+// v1.13
 
 #include <tchar.h>
-#include <stdlib.h>
+#include <cstdlib>
 
 #ifdef max
 #undef max

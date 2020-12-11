@@ -55,6 +55,9 @@
  *  1.16
  *		Added concepts
  *
+ *  1.17
+ *      Changed to use cstdio & cstdlib
+ * 
  * © ScriptsDB.org - 2005-2017
  */
 
@@ -64,13 +67,13 @@
 #define _TSTRING_H_
 
  // VS2019+ only
-#if !defined(_MSC_FULL_VER) || _MSC_FULL_VER < 192829333
-#error "This version of TString needs Visual Studio 2019 16.8.0 or newer"
+#if !defined(_MSC_FULL_VER) || _MSC_FULL_VER < 192829335
+#error "This version of TString needs Visual Studio 2019 16.8.3 or newer"
 #endif
 
-#include <tchar.h>
-#include <stdio.h>
-#include <stdlib.h>
+//#include <tchar.h>
+#include <cstdio>
+#include <cstdlib>
 #include <stdexcept>
 #include <memory>
 #include <algorithm>
