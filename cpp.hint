@@ -10,3 +10,8 @@
 #define TRUE
 #define Auto(Destructor) Auto_INTERNAL(Destructor, __COUNTER__)
 #define TSTRING_INTERNALBUFFERSIZE_CCH TS_getmemsize(64)
+// Hint files help the Visual Studio IDE interpret Visual C++ identifiers
+// such as names of functions and macros.
+// For more information see https://go.microsoft.com/fwlink/?linkid=865984
+#define _NODISCARD [[nodiscard]]
+#define _NODISCARD

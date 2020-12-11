@@ -2,11 +2,17 @@
 
 #include "Classes\tstring\tstring.h"
 
+namespace simpleStringConcepts
+{
+	template <class T>
+	concept IsPODText = std::is_same_v<char, std::remove_cv_t<T>> || std::is_same_v<wchar_t, std::remove_cv_t<T>>;
+};
+
 // simpleString<type, size>
 //  type = char or wchar_t
 //  size = the size of the buffer to allocate.
 //
-template <typename T, size_t N>
+template <simpleStringConcepts::IsPODText T, size_t N>
 struct simpleString
 {
 	static_assert(N > 1, "N Must be > 1");

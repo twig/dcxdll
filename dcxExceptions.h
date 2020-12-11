@@ -80,6 +80,14 @@ namespace DcxExceptions
 			: exception("Invalid Command")
 		{}
 	};
+	class dcxInvalidItem final
+		: public std::exception
+	{
+	public:
+		dcxInvalidItem() noexcept
+			: exception("Invalid Item")
+		{}
+	};
 }
 
 //

@@ -31,8 +31,8 @@
 #define _DEFINES_H_
 
  // VS2019+ only
-#if !defined(_MSC_FULL_VER) || _MSC_FULL_VER < 192829333
-#error "This version of DCX needs Visual Studio 2019 16.8.0 or newer"
+#if !defined(_MSC_FULL_VER) || _MSC_FULL_VER < 192829335
+#error "This version of DCX needs Visual Studio 2019 16.8.3 or newer"
 #endif
 
 #ifdef __INTEL_COMPILER // Defined when using Intel C++ Compiler.
@@ -238,6 +238,7 @@ constexpr auto DCX_MAX_GDI_ERRORS = 21;
 #define NOHELP
 #define NOMCX
 #define OEMRESOURCE
+// Don't use NOMINMAX as this causes gdiplus issues.
 //#define NOMINMAX
 
 #pragma warning(push)
