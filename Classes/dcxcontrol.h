@@ -250,7 +250,7 @@ public:
 	dcxWindowStyles parseGeneralControlStyles(const TString& styles, dcxWindowStyles& ws);
 	dcxWindowStyles parseGeneralControlStyles(const TString& styles);
 
-	bool evalAliasEx(TCHAR* const szReturn, const int maxlen, const TCHAR* const szFormat, ...) const;
+	bool evalAliasEx(_Outptr_opt_result_buffer_(maxlen) TCHAR* const szReturn, const int maxlen, const TCHAR* const szFormat, ...) const;
 
 	//template <typename Format, typename Value, typename... Arguments>
 	//bool evalAliasEx(TCHAR *const szReturn, const int maxlen, const Format &fmt, const Value val, Arguments&&... args) const

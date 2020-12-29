@@ -236,7 +236,7 @@ dcxWindowStyles DcxControl::parseGeneralControlStyles(const TString& styles)
 
 GSL_SUPPRESS(type.3)
 GSL_SUPPRESS(es.47)
-bool DcxControl::evalAliasEx(TCHAR* const szReturn, const int maxlen, const TCHAR* const szFormat, ...) const
+bool DcxControl::evalAliasEx(_Outptr_opt_result_buffer_(maxlen) TCHAR* const szReturn, const int maxlen, const TCHAR* const szFormat, ...) const
 {
 	TString parms;
 	va_list args = nullptr;
@@ -269,7 +269,8 @@ bool DcxControl::execAliasEx(const TCHAR* const szFormat, ...) const
  * blah
  */
 
-void DcxControl::parseGlobalCommandRequest(const TString& input, const XSwitchFlags& flags) {
+void DcxControl::parseGlobalCommandRequest(const TString& input, const XSwitchFlags& flags)
+{
 	const auto numtok = input.numtok();
 
 	// xdid -f [NAME] [ID] [SWITCH] [+FLAGS] [CHARSET] [SIZE] [FONTNAME]

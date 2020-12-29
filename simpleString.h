@@ -8,15 +8,17 @@ namespace simpleStringConcepts
 	concept IsPODText = std::is_same_v<char, std::remove_cv_t<T>> || std::is_same_v<wchar_t, std::remove_cv_t<T>>;
 };
 
-// simpleString<type, size>
-//  type = char or wchar_t
-//  size = the size of the buffer to allocate.
-//
+
+/// <summary>
+/// <para>- T = char or wchar_t</para>
+/// <para>- N = the size of the buffer to allocate.</para>
+/// <para>This is a simple pre-allocated fixed size string buffer.</para>
+/// </summary>
 template <simpleStringConcepts::IsPODText T, size_t N>
 struct simpleString
 {
 	static_assert(N > 1, "N Must be > 1");
-	static_assert(std::is_same_v<char, std::remove_cv_t<T>> || std::is_same_v<wchar_t, std::remove_cv_t<T>>, "Type must be char or wchar_t");
+	static_assert(simpleStringConcepts::IsPODText<T>, "Type must be char or wchar_t");
 
 	using value_type = typename std::remove_cv_t<T>;
 	using pointer = std::add_pointer_t<value_type>;
@@ -107,22 +109,62 @@ struct simpleString
 	//constexpr operator pointer() const noexcept { return const_cast<pointer>(&m_data[0]); }
 	constexpr operator const_pointer() const noexcept { return m_pData; }
 	constexpr reference operator [](const size_type &iOffSet) const noexcept { return m_data[iOffSet]; }
+
+	/// <summary>
+	/// Get the length of the string in characters.
+	/// </summary>
+	/// <returns>The string length in characters.</returns>
 	constexpr size_type length() const { return _ts_strnlen(m_pData, N); }
-	// size of buffer in characters
+
+	/// <summary>
+	/// Get the size of the buffer in characters.
+	/// </summary>
+	/// <returns>The size of the buffer in characters.</returns>
 	constexpr const size_type size() const noexcept { return N; }
-	// size of buffer in bytes
+
+	/// <summary>
+	/// Get the size of the buffer in bytes.
+	/// </summary>
+	/// <returns>The size of the buffer in bytes.</returns>
 	constexpr const size_type bytes() const noexcept { return N * sizeof(value_type); }
-	// size of buffer in bytes
+
+	/// <summary>
+	/// Get the size of the buffer in bytes.
+	/// </summary>
+	/// <returns>The size of the buffer in bytes.</returns>
 	constexpr const size_type capacity() const noexcept { return bytes(); }
-	// size of buffer in characters
+
+	/// <summary>
+	/// Get the size of the buffer in characters.
+	/// </summary>
+	/// <returns>The size of the buffer in characters.</returns>
 	constexpr const size_type capacity_cch() const noexcept { return size(); }
 	//constexpr pointer data() const noexcept { return const_cast<pointer>(&m_data[0]); }
+
+	/// <summary>
+	/// Get the raw string pointer.
+	/// </summary>
+	/// <returns>The string pointer for the contents.</returns>
 	constexpr const_pointer data() const noexcept { return m_pData; }
+	
+	/// <summary>
+	/// Test if the buffer is empty.
+	/// </summary>
+	/// <returns>true/false</returns>
 	constexpr bool empty() const noexcept { return (m_data[0] == value_type()); }
+
+	/// <summary>
+	/// <para>Clear the buffer.</para>
+	/// Simply marks the buffer as empty be setting byte zero to zero.
+	/// </summary>
+	/// <returns></returns>
 	void clear() noexcept { m_data[0] = value_type(); }
 
 private:
+	// The raw data buffer.
 	value_type	m_data[N]{};
+
+	// Pointer to the raw data.
 	pointer		m_pData{ &m_data[0] };
 };
 

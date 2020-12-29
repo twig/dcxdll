@@ -19,9 +19,9 @@
 #include <type_traits>
 #include <ranges>
 
-#if __has_include(<codecvt>)
-#include <codecvt>
-#endif
+//#if __has_include(<codecvt>)
+//#include <codecvt>
+//#endif
 
 #include "DcxConcepts.h"
 
@@ -34,50 +34,50 @@
 #pragma message ("### DCX OPTION: Use Wrappers - Disabled")
 #endif
 
-namespace std
-{
-	inline string to_string(const wstring& wstr)
-	{
-		//string str;
-		//str.assign(wstr.begin(), wstr.end());
-		//return str;
-
-		using convert_type = std::codecvt_utf8<wchar_t>;
-		std::wstring_convert<convert_type, wchar_t> converter;
-
-		//use converter (.to_bytes: wstr->str, .from_bytes: str->wstr)
-		return converter.to_bytes(wstr);
-	}
-
-	inline wstring to_wstring(const string& str)
-	{
-		wstring wstr;
-		wstr.assign(str.begin(), str.end());
-		return wstr;
-	}
-
-	inline string to_string(const TString& wstr)
-	{
-		string str(wstr.c_str());
-		return str;
-	}
-
-	inline wstring to_wstring(const TString& str)
-	{
-		wstring wstr(str.to_wchr());
-		return wstr;
-	}
-
-	inline string to_string(const std::byte& num)
-	{
-		return to_string(gsl::narrow_cast<uint8_t>(num));
-	}
-
-	inline wstring to_wstring(const std::byte& num)
-	{
-		return to_wstring(gsl::narrow_cast<uint8_t>(num));
-	}
-}
+//namespace std
+//{
+//	inline string to_string(const wstring& wstr)
+//	{
+//		//string str;
+//		//str.assign(wstr.begin(), wstr.end());
+//		//return str;
+//
+//		using convert_type = std::codecvt_utf8<wchar_t>;
+//		std::wstring_convert<convert_type, wchar_t> converter;
+//
+//		//use converter (.to_bytes: wstr->str, .from_bytes: str->wstr)
+//		return converter.to_bytes(wstr);
+//	}
+//
+//	inline wstring to_wstring(const string& str)
+//	{
+//		wstring wstr;
+//		wstr.assign(str.begin(), str.end());
+//		return wstr;
+//	}
+//
+//	inline string to_string(const TString& wstr)
+//	{
+//		string str(wstr.c_str());
+//		return str;
+//	}
+//
+//	inline wstring to_wstring(const TString& str)
+//	{
+//		wstring wstr(str.to_wchr());
+//		return wstr;
+//	}
+//
+//	inline string to_string(const std::byte& num)
+//	{
+//		return to_string(gsl::narrow_cast<uint8_t>(num));
+//	}
+//
+//	inline wstring to_wstring(const std::byte& num)
+//	{
+//		return to_wstring(gsl::narrow_cast<uint8_t>(num));
+//	}
+//}
 
 namespace Dcx
 {
@@ -145,7 +145,7 @@ namespace Dcx
 	//template<class _Ty>
 	//struct is_Numeric
 	//	: std::integral_constant<bool,
-	//		std::is_arithmetic_v<_Ty>
+	//		(std::is_arithmetic_v<_Ty> || std::is_same_v<_Ty, std::byte> || std::is_enum_v<_Ty>)
 	//		&& !std::is_same_v<_Ty, wchar_t>
 	//		&& !std::is_same_v<_Ty, char>
 	//		&& !std::is_pointer_v<_Ty>
@@ -943,9 +943,11 @@ namespace Dcx
 
 		iter begin() const noexcept { return{ b }; }
 		iter end() const noexcept { return{ e }; }
+		T length() const noexcept { return e - b; }
+
 		T b, e;
 	};
-	template< typename T > range_t<T>  make_range(T b, T e) noexcept { return{ b, e }; }
+	template< DcxConcepts::IsNumeric T > range_t<T>  make_range(T b, T e) noexcept { return{ b, e }; }
 	template< DcxConcepts::IsNumeric T > range_t<T>  make_range(const TString& tsItems, T nItemCnt)
 	{
 		T iStart{}, iEnd{};
@@ -958,7 +960,7 @@ namespace Dcx
 				iEnd = nItemCnt - 1;
 		}
 		else {
-			iEnd = tsItems.to_int() - 1;
+			iEnd = tsItems.to_<T>() - 1;
 
 			if (iEnd == -1)	// special case
 				iStart = iEnd = nItemCnt - 1;
@@ -995,21 +997,17 @@ namespace Dcx
 	void freeOSCompatibility(void) noexcept;
 
 	IClassFactory* const getClassFactory() noexcept;
-	//const TString &getLastError() noexcept;
 	const TCHAR* getLastError() noexcept;
 	const std::byte& getGhostDrag() noexcept;
 	bool setGhostDrag(const std::byte newAlpha) noexcept;
 	const bool& isDX9Installed() noexcept;
 	bool isUnloadSafe() noexcept;
-	//bool isFile(const WCHAR *const file);
-	//bool isFile(LPCSTR const file);
 
 	void load(mIRCLinker::LOADINFO* const lInfo);
 	void unload(void);
 	const bool& initDirectX();
 	const bool& initDirectX(TCHAR* dxResult, int dxSize);
 	void error(const TCHAR* const cmd, const TCHAR* const msg) noexcept;
-	//void errorex(const TCHAR *const cmd, const TCHAR *const szFormat, ...);
 	template <typename Format, typename Value, typename... Arguments>
 	void error(const TCHAR* const cmd, _Printf_format_string_ const Format& fmt, const Value& val, Arguments&&... args)
 	{

@@ -42,6 +42,7 @@ DcxListView::DcxListView(const UINT ID, DcxDialog* const p_Dialog, const HWND mP
 		ws.m_ExStyles,
 		DCX_LISTVIEWCLASS,
 		(ws.m_Styles & ~WS_CLIPCHILDREN) | WS_CHILD, // can't be ws_clipchildren as this causes render bug when progressbar items are selected.
+		//ws.m_Styles | WS_CHILD, // can't be ws_clipchildren as this causes render bug when progressbar items are selected.
 		rc,
 		mParentHwnd,
 		ID,
@@ -369,7 +370,8 @@ void DcxListView::parseInfoRequest(const TString& input, const refString<TCHAR, 
 	case L"text"_hash:
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Invalid number of arguments");
+			//throw Dcx::dcxException("Invalid number of arguments");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto nItem = input++.to_int() - 1;		// tok 4
 		auto nSubItem = 0;
@@ -386,7 +388,8 @@ void DcxListView::parseInfoRequest(const TString& input, const refString<TCHAR, 
 	case L"icon"_hash:
 	{
 		if (numtok < 5)
-			throw Dcx::dcxException("Invalid number of arguments");
+			//throw Dcx::dcxException("Invalid number of arguments");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto nItem = input++.to_int() - 1;	// tok 4
 		const auto nSubItem = input++.to_int() - 1;	// tok 5
@@ -407,7 +410,8 @@ void DcxListView::parseInfoRequest(const TString& input, const refString<TCHAR, 
 	case L"selected"_hash:
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Invalid number of arguments");
+			//throw Dcx::dcxException("Invalid number of arguments");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto nItem = input++.to_int() - 1;	// tok 4
 													// In range
@@ -488,7 +492,8 @@ void DcxListView::parseInfoRequest(const TString& input, const refString<TCHAR, 
 	case L"state"_hash:
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Invalid number of arguments");
+			//throw Dcx::dcxException("Invalid number of arguments");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto nItem = input++.to_int() - 1;	// tok 4
 		if ((nItem < 0) || (nItem >= ListView_GetItemCount(m_Hwnd)))
@@ -703,21 +708,20 @@ void DcxListView::parseInfoRequest(const TString& input, const refString<TCHAR, 
 		if (numtok != 4)
 			throw Dcx::dcxException("Invalid number of arguments");
 
-		const auto h = ListView_GetHeader(m_Hwnd);
-		if (!IsWindow(h))
-			throw Dcx::dcxException("Unable to get Header Window");
-
 		const auto nCol = (input.getnexttok().to_int() - 1);	// tok 4
 
 		if (nCol < 0 || nCol >= this->getColumnCount())
 			throw Dcx::dcxException("Column Out Of Range");
 
-		TString tsRes;
 		HDITEM hdr{};
 		hdr.mask = HDI_FORMAT;
 
-		if (!Header_GetItem(h, nCol, &hdr))
+		if (const auto h = ListView_GetHeader(m_Hwnd); !IsWindow(h))
+			throw Dcx::dcxException("Unable to get Header Window");
+		else if (!Header_GetItem(h, nCol, &hdr))
 			throw Dcx::dcxException("Unable to get Header Info");
+
+		TString tsRes;
 
 		if (dcx_testflag(hdr.fmt, HDF_SORTDOWN))
 			tsRes.addtok(TEXT("sortdown"));
@@ -952,7 +956,8 @@ void DcxListView::parseCommandRequest(const TString& input)
 	if (flags[TEXT('a')])
 	{
 		if (numtok < 13)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		LVITEM lvi{};
 
@@ -1001,7 +1006,8 @@ void DcxListView::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('A')])
 	{
 		if (numtok < 7)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		auto nRow = input++.to_int();	// tok 4
 		auto nCol = input++.to_int();	// tok 5
@@ -1052,7 +1058,8 @@ void DcxListView::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('B')])
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		auto nItem = input.getnexttok().to_int() - 1;	// tok 4
 
@@ -1064,7 +1071,8 @@ void DcxListView::parseCommandRequest(const TString& input)
 				throw Dcx::dcxException("Invalid Item: No Items in list");
 		}
 		if (nItem < 0)
-			throw Dcx::dcxException("Invalid Item");
+			//throw Dcx::dcxException("Invalid Item");
+			throw DcxExceptions::dcxInvalidItem();
 
 		if (GetFocus() != m_Hwnd)
 			SetFocus(m_Hwnd);
@@ -1076,7 +1084,8 @@ void DcxListView::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('c')])
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto nItemCnt = ListView_GetItemCount(m_Hwnd);
 		if (nItemCnt < 1)
@@ -1117,7 +1126,8 @@ void DcxListView::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('d')])
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto Ns(input.getnexttok());	// tok 4
 		const XSwitchFlags xFlags(input.getnexttok());	// tok 5
@@ -1157,7 +1167,8 @@ void DcxListView::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('g')])
 	{
 		if (numtok < 6)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		LVBKIMAGE lvbki{};
 		TString filename;
@@ -1196,7 +1207,8 @@ void DcxListView::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('i')])
 	{
 		if (numtok < 5)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		//const auto iColorFlags = this->parseColorFlags(input++);	// tok 4
 		//const auto tsClr(input++);	// tok 5
@@ -1249,7 +1261,8 @@ void DcxListView::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('j')])
 	{
 		if (numtok < 6)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		auto nItem = input++.to_int() - 1;						// tok 4
 		const auto nCol = input++.to_int() - 1;					// tok 5
@@ -1267,7 +1280,8 @@ void DcxListView::parseCommandRequest(const TString& input)
 
 		// invalid info
 		if ((nItem < 0) || (nCol < 0) || (nCol >= this->getColumnCount()))
-			throw Dcx::dcxException("Invalid Item");
+			//throw Dcx::dcxException("Invalid Item");
+			throw DcxExceptions::dcxInvalidItem();
 
 		//LVITEM lvi{};
 		//
@@ -1309,7 +1323,8 @@ void DcxListView::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('k')])
 	{
 		if (numtok < 5)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto state = input.getnexttok().to_int();	// tok 4
 		const auto Ns(input.getnexttok());	// tok 5
@@ -1352,7 +1367,8 @@ void DcxListView::parseCommandRequest(const TString& input)
 
 		// invalid item
 		if ((nItem < 0) || (nSubItem < 0) || (nSubItem >= this->getColumnCount()))
-			throw Dcx::dcxException("Invalid Item");
+			//throw Dcx::dcxException("Invalid Item");
+			throw DcxExceptions::dcxInvalidItem();
 
 		/*
 			nIcon = 0 (use no icon)
@@ -1389,7 +1405,8 @@ void DcxListView::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('m')])
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		ListView_EnableGroupView(m_Hwnd, (input.getnexttok() == TEXT('1')));	// tok 4
 	}
@@ -1397,7 +1414,8 @@ void DcxListView::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('n')])
 	{
 		if (numtok < 5)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		auto nColumn = (input.getnexttok().to_int() - 1);	// tok 4
 		const XSwitchFlags xflags(input.getnexttok());		// tok 5
@@ -1467,7 +1485,8 @@ void DcxListView::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('o')])
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto ids(input.getlasttoks().trim());	// tok 4, -1
 		const UINT count = gsl::narrow_cast<UINT>(this->getColumnCount());
@@ -1497,7 +1516,8 @@ void DcxListView::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('q')])
 	{
 		if (numtok < 7)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto index = input++.to_int() - 1;						// tok 4
 		const auto tsflags(input++);									// tok 5
@@ -1505,7 +1525,8 @@ void DcxListView::parseCommandRequest(const TString& input)
 		const auto iFlags = this->parseGroupFlags(tsflags);
 
 		if (index < 0 || gid <= 0)
-			throw Dcx::dcxException("Invalid Arguments");
+			//throw Dcx::dcxException("Invalid Arguments");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		if (ListView_HasGroup(m_Hwnd, gsl::narrow_cast<WPARAM>(gid)))
 			throw Dcx::dcxException(TEXT("Group already exists: %"), gid);
@@ -1533,7 +1554,8 @@ void DcxListView::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('Q')])
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto tsCmd(input++);										// tok 4
 
@@ -1542,7 +1564,8 @@ void DcxListView::parseCommandRequest(const TString& input)
 		case TEXT("Add"_hash):
 		{
 			if (numtok < 8)
-				throw Dcx::dcxException("Insufficient parameters");
+				//throw Dcx::dcxException("Insufficient parameters");
+				throw DcxExceptions::dcxInvalidArguments();
 
 			const auto index = input++.to_int() - 1;						// tok 5
 			const auto tsflags(input++);									// tok 6
@@ -1550,7 +1573,8 @@ void DcxListView::parseCommandRequest(const TString& input)
 			const auto iFlags = this->parseGroupFlags(tsflags);
 
 			if (index < 0 || gid <= 0)
-				throw Dcx::dcxException("Invalid Arguments");
+				//throw Dcx::dcxException("Invalid Arguments");
+				throw DcxExceptions::dcxInvalidArguments();
 
 			if (ListView_HasGroup(m_Hwnd, gsl::narrow_cast<WPARAM>(gid)))
 				throw Dcx::dcxException(TEXT("Group already exists: %"), gid);
@@ -1575,7 +1599,8 @@ void DcxListView::parseCommandRequest(const TString& input)
 		case TEXT("Move"_hash):
 		{
 			if (numtok < 6)
-				throw Dcx::dcxException("Insufficient parameters");
+				//throw Dcx::dcxException("Insufficient parameters");
+				throw DcxExceptions::dcxInvalidArguments();
 
 			const auto gid = input++.to_int();								// tok 5
 			const auto index = input++.to_int() - 1;						// tok 6
@@ -1589,7 +1614,8 @@ void DcxListView::parseCommandRequest(const TString& input)
 		case TEXT("Del"_hash):
 		{
 			if (numtok < 5)
-				throw Dcx::dcxException("Insufficient parameters");
+				//throw Dcx::dcxException("Insufficient parameters");
+				throw DcxExceptions::dcxInvalidArguments();
 
 			const auto gid = input++.to_int();								// tok 5
 
@@ -1604,7 +1630,8 @@ void DcxListView::parseCommandRequest(const TString& input)
 			break;
 		}
 		default:
-			throw Dcx::dcxException("Unknown Command");
+			//throw Dcx::dcxException("Unknown Command");
+			throw DcxExceptions::dcxInvalidCommand();
 			break;
 		}
 	}
@@ -1618,7 +1645,8 @@ void DcxListView::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('t')])
 	{
 		if (numtok < 6)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		this->DeleteColumns(-1);
 
@@ -1706,7 +1734,8 @@ void DcxListView::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('v')])
 	{
 		if (numtok < 5)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		auto nItem = input.getnexttok().to_int() - 1;			// tok 4
 		const auto nSubItem = input.getnexttok().to_int() - 1;	// tok 5
@@ -1726,7 +1755,8 @@ void DcxListView::parseCommandRequest(const TString& input)
 			return;
 		}
 		if (nItem < 0)
-			throw Dcx::dcxException("Invalid Item");
+			//throw Dcx::dcxException("Invalid Item");
+			throw DcxExceptions::dcxInvalidItem();
 
 		auto itemtext(input.getlasttoks().trim());	// tok 6, -1
 
@@ -1760,7 +1790,8 @@ void DcxListView::parseCommandRequest(const TString& input)
 			}
 			else {
 				if ((nItem < 0) || (nSubItem < 0) || (nSubItem >= this->getColumnCount()))
-					throw Dcx::dcxException("Invalid Item");
+					//throw Dcx::dcxException("Invalid Item");
+					throw DcxExceptions::dcxInvalidItem();
 
 				ListView_SetItemText(m_Hwnd, nItem, nSubItem, itemtext.to_chr());
 			}
@@ -1770,7 +1801,8 @@ void DcxListView::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('w')])
 	{
 		if (numtok < 6)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto tflags(input.getnexttok());				// tok 4
 		const auto index = input.getnexttok().to_int();		// tok 5
@@ -1870,7 +1902,8 @@ void DcxListView::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('W')])
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		auto mode = LV_VIEW_DETAILS;
 
@@ -1901,7 +1934,8 @@ void DcxListView::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('y')])
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto iFlags = this->parseIconFlagOptions(input.getnexttok());	// tok 4
 
@@ -1933,7 +1967,8 @@ void DcxListView::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('z')])
 	{
 		if (numtok < 5)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto lvsort = std::make_unique<DCXLVSORT>();	// too big for stack, use heap.
 
@@ -1944,7 +1979,8 @@ void DcxListView::parseCommandRequest(const TString& input)
 		lvsort->nColumn = nColumn;
 
 		if (nColumn < 0 || nColumn >= this->getColumnCount())
-			throw Dcx::dcxException("Invalid Arguments");
+			//throw Dcx::dcxException("Invalid Arguments");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		if (dcx_testflag(lvsort->iSortFlags, LVSS_CUSTOM) && numtok < 6)
 			throw Dcx::dcxException("Invalid Arguments for Flags");
@@ -1958,7 +1994,8 @@ void DcxListView::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('T')])
 	{
 		if (numtok < 5)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		//LVITEM lvi{};
 		//
@@ -2005,7 +2042,8 @@ void DcxListView::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('Z')])
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		// only works for this one so far
 		//if (!this->isStyle(LVS_REPORT))
@@ -2038,7 +2076,8 @@ void DcxListView::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('V')])
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		if (const auto nItem = input.getnexttok().to_int() - 1; nItem > -1)
 			ListView_EnsureVisible(m_Hwnd, nItem, FALSE);
@@ -2047,7 +2086,8 @@ void DcxListView::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('S')])
 	{
 		if (numtok < 6)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		// [N1] [N2] are the item range to save.
 		//   0 < [N1] <= total items in listview.
@@ -2120,7 +2160,8 @@ void DcxListView::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('H')])
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto tsCols(input.getnexttok());			// tok 4
 		const XSwitchFlags xflag(input.getnexttok());		// tok 5
@@ -2159,7 +2200,8 @@ void DcxListView::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('G')])
 	{
 		if (numtok != 6)
-			throw Dcx::dcxException("Invalid parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto gid = input.getnexttok().to_int();
 
@@ -2680,10 +2722,10 @@ GSL_SUPPRESS(r.5)
 bool DcxListView::matchItemText(const int nItem, const int nSubItem, const TString& search, const DcxSearchTypes& SearchType) const
 {
 	auto itemtext = std::make_unique<TCHAR[]>(MIRC_BUFFER_SIZE_CCH);
-	gsl::at(itemtext,0) = TEXT('\0');
-	
+	gsl::at(itemtext, 0) = TEXT('\0');
+
 	ListView_GetItemText(m_Hwnd, nItem, nSubItem, itemtext.get(), MIRC_BUFFER_SIZE_CCH);
-	
+
 	return DcxListHelper::matchItemText(itemtext.get(), search, SearchType);
 
 	//auto itemtext = std::make_unique<TCHAR[]>(MIRC_BUFFER_SIZE_CCH);
@@ -3925,13 +3967,18 @@ void DcxListView::ScrollPbars(const int row, const int nCols, const int iTop, co
 
 		// hide it if its scrolled off visible range
 		//if (!ListView_IsItemVisible(m_Hwnd, lvi->iItem)) {
-		if ((lvi->iItem < iTop) || (lvi->iItem > iBottom))
+		//if ((lvi->iItem < iTop) || (lvi->iItem > iBottom))
+		//{
+		//	ShowWindow(lpdcxlvi->pbar->getHwnd(), SW_HIDE);
+		//	break;
+		//}
+		//else
+		//	ShowWindow(lpdcxlvi->pbar->getHwnd(), SW_SHOW);
+
+		if (ListView_IsItemVisible(m_Hwnd, lvi->iItem))
 		{
-			ShowWindow(lpdcxlvi->pbar->getHwnd(), SW_HIDE);
-			break;
-		}
-		else
 			ShowWindow(lpdcxlvi->pbar->getHwnd(), SW_SHOW);
+		}
 
 		RECT rItem{};
 
@@ -4803,7 +4850,6 @@ bool DcxListView::xSaveListview(const int nStartPos, const int nEndPos, const TS
 
 	TString res;
 	// check store exists
-	//mIRCLinker::tsEvalex(res, sTestCommand, tsData.to_chr());
 	mIRCLinker::eval(res, sTestCommand, tsData);
 
 	// if not exit
@@ -4814,13 +4860,11 @@ bool DcxListView::xSaveListview(const int nStartPos, const int nEndPos, const TS
 		return false;
 
 	const auto iColumns = getColumnCount();
-	//auto sTextBuffer = std::make_unique<TCHAR[]>(MIRC_BUFFER_SIZE_CCH);
 
 	for (auto nItem = nStartPos; nItem <= nEndPos; ++nItem)
 	{
 		res = ItemToString(nItem, iColumns);
-		//if (!res.empty())
-		//	mIRCLinker::execex(sStoreCommand, tsData.to_chr(), res.to_chr());
+
 		if (!res.empty())
 			mIRCLinker::exec(sStoreCommand, tsData, res);
 	}
@@ -4839,6 +4883,14 @@ TiXmlElement* DcxListView::toXml() const
 	auto xml = std::make_unique<TiXmlElement>("control");
 	toXml(xml.get());
 	return xml.release();
+}
+
+std::unique_ptr<TiXmlElement> DcxListView::toXml(int blah) const
+{
+	UNREFERENCED_PARAMETER(blah);
+	auto xml = std::make_unique<TiXmlElement>("control");
+	toXml(xml.get());
+	return xml;
 }
 
 LRESULT DcxListView::CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept

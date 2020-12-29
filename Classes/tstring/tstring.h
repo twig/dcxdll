@@ -239,6 +239,7 @@ class TString final
 {
 public:
 	using value_type = wchar_t;
+	using convert_type = char;
 	using size_type = std::size_t;
 	using const_value_type = std::add_const_t<value_type>;
 	using pointer = std::add_pointer_t<value_type>;
@@ -256,7 +257,7 @@ private:
 		size_type	m_count{};
 	};
 
-	std::unique_ptr<TCHAR[]> m_buffer{};
+	std::unique_ptr<value_type[]> m_buffer{};
 
 	/// <summary>
 	/// Allocate a buffer thats sized to multiples of 16 bytes, (%byte + (16 - (%byte % 16)))
@@ -348,7 +349,7 @@ private:
 	pointer m_pString{ &m_InternalBuffer[0] }; //!< String buffer
 	// Temp string buffer used for string conversion to/from wchar/char or vice versa depending on what TCHAR is.
 	// changes made to m_pTempString are NOT reflected in m_pString!
-	mutable std::unique_ptr<char[]> m_pTempString{ nullptr };
+	mutable std::unique_ptr<convert_type[]> m_pTempString{ nullptr };
 
 public:
 
@@ -809,40 +810,115 @@ public:
 	/// Shrink string buffer to min size required for string (while still being a multiple of 16)
 	/// </summary>
 	void shrink_to_fit();
-	// append a single wide char
+
+	/// <summary>
+	/// Append a single wide char
+	/// </summary>
+	/// <param name="chr">- wide character to append</param>
+	/// <returns></returns>
 	TString& append(const WCHAR& chr);
-	// append a single char
+	/// <summary>
+	/// Append a single ascii char
+	/// </summary>
+	/// <param name="chr">- ascii character to append</param>
+	/// <returns></returns>
 	TString& append(const char& chr);
-	// append a wide char string.
+	/// <summary>
+	/// Append a wide char string.
+	/// </summary>
+	/// <param name="cString">- wide string to append</param>
+	/// <returns></returns>
 	TString& append(const WCHAR* const cString);
-	// append a char string.
+	/// <summary>
+	/// Append a ascii char string.
+	/// </summary>
+	/// <param name="cString">- ascii string to append</param>
+	/// <returns></returns>
 	TString& append(const char* const cString);
-	// append another TString object
+	/// <summary>
+	/// Append a TString object.
+	/// </summary>
+	/// <param name="tString">- TString to append</param>
+	/// <returns></returns>
 	TString& append(const TString& tString);
 	// append a string thats limited to iChars characters.
+
+	/// <summary>
+	/// Append a character limited string.
+	/// </summary>
+	/// <param name="cString">- The start of the string to append.</param>
+	/// <param name="iChars">- The number of characters to append.</param>
+	/// <returns></returns>
 	TString& append(const_pointer_const cString, const size_t iChars);
-	// is string empty?
+
+	/// <summary>
+	/// Test if the string is empty.
+	/// </summary>
+	/// <returns>true/false</returns>
 	const bool empty() const noexcept { return (!m_pString || m_pString[0] == TEXT('\0')); };
-	// refrence to char at N
+
+	/// <summary>
+	/// Get a reference to the character at N.
+	/// <para>This function range checks N.</para>
+	/// </summary>
+	/// <param name="N">- The character offset.</param>
+	/// <returns>A reference to the character.</returns>
 	reference at(const size_type N)
 	{
 		CheckRange(N);
 		return m_pString[N];
 	}
-	// copy of char at N
+	/// <summary>
+	/// Get a copy of the character at N.
+	/// <para>This function range checks N.</para>
+	/// </summary>
+	/// <param name="N">- The character offset.</param>
+	/// <returns>A copy of the character.</returns>
 	value_type at(const size_type N) const
 	{
 		CheckRange(N);
 		return m_pString[N];
 	}
 	// allocate memory for string, preserves contents...
+
+	/// <summary>
+	/// Reserve a buffer of X characters.
+	/// </summary>
+	/// <param name="tsSize">Characters to reserve.</param>
 	void reserve(const size_t tsSize);
 	// copy string...
+
+	/// <summary>
+	/// Copy another TString to this one.
+	/// </summary>
+	/// <param name="other">- TString to copy</param>
+	/// <returns></returns>
 	void copy(TString other) noexcept;
-	// compare strings...
+
+	/// <summary>
+	/// Compare this object to a TString.
+	/// </summary>
+	/// <param name="other"></param>
+	/// <returns>-1 if less, 0 if equal, 1 if greater</returns>
 	int compare(const TString& other) const noexcept;
+	/// <summary>
+	/// Compare this object to a character.
+	/// </summary>
+	/// <param name="other">- Character to compare against.</param>
+	/// <returns>-1 if less, 0 if equal, 1 if greater</returns>
 	int compare(const_reference other) const noexcept;
+	/// <summary>
+	/// Compare this object to a pod string.
+	/// </summary>
+	/// <param name="other">- String to compare against.</param>
+	/// <returns>-1 if less, 0 if equal, 1 if greater</returns>
 	int compare(const_pointer_const other) const noexcept;
+	/// <summary>
+	/// Compare this object to a pod string of limited length.
+	/// </summary>
+	/// <param name="other">- String to compare against.</param>
+	/// <param name="iLength">- Number of characters to compare.</param>
+	/// <returns>-1 if less, 0 if equal, 1 if greater</returns>
 	int compare(const_pointer_const other, const size_t iLength) const noexcept;
 	/// <summary>
 	/// Compare 'this' to an array.
@@ -870,16 +946,12 @@ public:
 	}
 
 #if TSTRING_TESTCODE
-	/*! \fn int find( const T &substring, int N )
-	\brief Function to find position or number of occurences of a substring in the string
-
-	\param substring - Substring to search
-	\param N - Nth substring to search (N = 0 > Total number of matches)
-
-	\return > Number of occurrences (N = 0)
-	> Starting position of substring
-	> -1 if function fails or no substring was found
-	*/
+	/// <summary>
+	/// Function to find position or number of occurences of a substring in the string.
+	/// </summary>
+	/// <param name="substring">- Substring to search</param>
+	/// <param name="N">- Nth substring to search (N = 0 > Total number of matches)</param>
+	/// <returns><para>Number of occurrences (N = 0),</para><para>Starting position of substring,</para><para>-1 if function fails or no substring was found</para></returns>
 	template <TStringConcepts::IsSupportedCompareType T>
 	int find(const T& substring, const int N) const noexcept
 	{
@@ -907,12 +979,24 @@ public:
 	int find(const_pointer_const substring, const int N) const noexcept;	// find Nth matching subString
 	int find(const_value_type chr, const int N) const noexcept;			// find Nth matching chr
 #endif
-
+	/// <summary>
+	/// Get a sub string.
+	/// </summary>
+	/// <param name="N">- The character offset to start from.</param>
+	/// <param name="M">- The character offset to finish at.</param>
+	/// <returns>A new object containing the substring</returns>
 	TString sub(int N, int M) const;
 
-	TString& trim();	// removes spaces at start & end of text.
-	TString& strip();	// removes spaces at start & end of text & all ctrl codes in text.
-	//void Normalize();
+	/// <summary>
+	/// Remove extra spaces at the start and end of the string.
+	/// </summary>
+	/// <returns>A reference to this object after its trimmed.</returns>
+	TString& trim();
+	/// <summary>
+	/// Remove extra spaces at the start and end of the string, and all ctrl codes in text.
+	/// </summary>
+	/// <returns>A reference to this object after its stripped.</returns>
+	TString& strip();
 
 #if TSTRING_TESTCODE
 	//	Replace

@@ -131,6 +131,33 @@ struct DCXLVITEM
 };
 using LPDCXLVITEM = DCXLVITEM *;
 
+namespace Dcx
+{
+	inline void dcxListView_SetItem(HWND hwnd, const LV_ITEM *plvi) noexcept
+	{
+		ListView_SetItem(hwnd, plvi);
+	}
+	inline void dcxListView_InsertItem(HWND hwnd, const LV_ITEM* plvi) noexcept
+	{
+		ListView_InsertItem(hwnd, plvi);
+	}
+	inline void dcxListView_HasGroup(HWND hwnd, int group) noexcept
+	{
+		ListView_HasGroup(hwnd, group);
+	}
+	inline void dcxListView_DeleteColumn(HWND hwnd, int column) noexcept
+	{
+		ListView_DeleteColumn(hwnd, column);
+	}
+	inline void dcxListView_GetItem(HWND hwnd, LV_ITEM*const plvi) noexcept
+	{
+		ListView_GetItem(hwnd, plvi);
+	}
+	inline void dcxListView_SetItemState(HWND hwnd, int item, UINT state, UINT statemask) noexcept
+	{
+		ListView_SetItemState(hwnd, item, state, statemask);
+	}
+}
 /*!
  * \brief blah
  *
@@ -174,6 +201,7 @@ public:
 
 	void toXml(TiXmlElement *const xml) const final;
 	TiXmlElement * toXml(void) const final;
+	std::unique_ptr<TiXmlElement> toXml(int blah) const;
 
 	const TString getStyles(void) const final;
 

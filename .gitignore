@@ -14,3 +14,51 @@ Development
 Release
 Release Dll
 /gitBuild.h
+/Classes/tstring/tstring - 14-12-2015.cpp
+/Classes/tstring/tstring - 14-12-2015.h
+/Classes/tstring/tstring - 23-10-2015.cpp
+/Classes/tstring/tstring - 23-10-2015.h
+/Classes/tstring/tstring_orig.h
+/Classes/tstring/tstring_orig.cpp
+/Classes/tstring/tstring_old_02.h
+/Classes/tstring/tstring_old_02.cpp
+/Classes/tstring/tstring_old_01.h
+/Classes/tstring/tstring_old_01.cpp
+/.vs/dcx_VS2015utf/v14/.suo
+/Cache
+/GSL/tests
+/GSL/README.md
+/GSL/LICENSE
+/GSL/CONTRIBUTING.md
+/GSL/CMakeLists.txt
+/GSL/.travis.yml
+/GSL/.gitmodules
+/GSL/.gitignore
+/GSL/.clang-format
+/packages
+/Classes/tstring/old
+/.vs/dcx_VS2016utf/v15
+/Release SSE42 AVX2/obj/dcx
+/Release SSE42 AVX2
+/SourceControl/Release SSE42 AVX2
+/UnitTest1
+/C++14-22122014.rar
+*.aps
+*.diagsession
+*.cppcheck
+*.cfg
+/dcx_VS2016utf - Copy.vcxproj
+/dcx_zip
+/GIT-VS-VERSION-GEN-orig.bat
+/DcxResources.h
+/DcxResources.cpp
+/dcxHDC.h
+/dcxHDC.cpp
+/ColourString.h
+/ColourString.cpp
+/.vs/dcx_VS2016utf/v16
+/.vs/dcx_VS2016utf/config
+/gsl_16042020
+/GSL_old
+/stderr.txt
+/gsl_17042020
