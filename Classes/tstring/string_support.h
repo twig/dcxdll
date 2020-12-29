@@ -1,9 +1,10 @@
 #pragma once
 // support functions for TString & c-string handling...
-// v1.13
+// v1.14
 
 #include <tchar.h>
 #include <cstdlib>
+#include <codecvt>
 
 #ifdef max
 #undef max
@@ -32,6 +33,116 @@ struct is_Numeric
 template <typename T>
 constexpr bool is_Numeric_v = is_Numeric<T>::value;
 
+namespace std
+{
+	inline string to_string(const wstring& wstr)
+	{
+		//string str;
+		//str.assign(wstr.begin(), wstr.end());
+		//return str;
+
+		using convert_type = std::codecvt_utf8<wchar_t>;
+		std::wstring_convert<convert_type, wchar_t> converter;
+
+		//use converter (.to_bytes: wstr->str, .from_bytes: str->wstr)
+		return converter.to_bytes(wstr);
+	}
+
+	inline wstring to_wstring(const string& str)
+	{
+		wstring wstr;
+		wstr.assign(str.begin(), str.end());
+		return wstr;
+	}
+
+	inline string to_string(const std::byte& num)
+	{
+		return to_string(gsl::narrow_cast<uint8_t>(num));
+	}
+
+	inline wstring to_wstring(const std::byte& num)
+	{
+		return to_wstring(gsl::narrow_cast<uint8_t>(num));
+	}
+}
+
+struct ci_char_traits
+	: public std::char_traits<char>
+{
+	static char to_upper(char ch) noexcept
+	{
+		if (ch >= 'a' && ch <= 'z') return _toupper(ch);
+		return ch;
+	}
+	static bool eq(char c1, char c2) noexcept
+	{
+		return to_upper(c1) == to_upper(c2);
+	}
+	static bool lt(char c1, char c2) noexcept
+	{
+		return to_upper(c1) < to_upper(c2);
+	}
+	static int compare(const char* s1, const char* s2, size_t n) noexcept
+	{
+		while (n-- != 0)
+		{
+			if (to_upper(*s1) < to_upper(*s2)) return -1;
+			if (to_upper(*s1) > to_upper(*s2)) return 1;
+			++s1; ++s2;
+		}
+		return 0;
+	}
+	static const char* find(const char* s, int n, char a) noexcept
+	{
+		if (s)
+			for (auto const ua(to_upper(a)); (n != 0); ++s, --n)
+			{
+				if (to_upper(*s) == ua)
+					return s;
+			}
+		return nullptr;
+	}
+};
+struct ci_wchar_traits
+	: public std::char_traits<wchar_t>
+{
+	static wchar_t to_upper(wchar_t ch) noexcept
+	{
+		if (ch >= L'a' && ch <= L'z') return _toupper(ch);
+		return ch;
+	}
+	static bool eq(wchar_t c1, wchar_t c2) noexcept
+	{
+		return to_upper(c1) == to_upper(c2);
+	}
+	static bool lt(wchar_t c1, wchar_t c2) noexcept
+	{
+		return to_upper(c1) < to_upper(c2);
+	}
+	static int compare(const wchar_t* s1, const wchar_t* s2, size_t n) noexcept
+	{
+		while (n-- != 0)
+		{
+			if (to_upper(*s1) < to_upper(*s2)) return -1;
+			if (to_upper(*s1) > to_upper(*s2)) return 1;
+			++s1; ++s2;
+		}
+		return 0;
+	}
+	static const wchar_t* find(const wchar_t* s, int n, wchar_t a) noexcept
+	{
+		if (s)
+			for (auto const ua(to_upper(a)); (n-- != 0); ++s)
+			{
+				if (to_upper(*s) == ua)
+					return s;
+			}
+		return nullptr;
+	}
+};
+using ci_stringview = std::basic_string_view<char, ci_char_traits>;
+using ci_wstringview = std::basic_string_view<wchar_t, ci_wchar_traits>;
+
 namespace details {
 	template<class _Ty>
 	struct is_pod
@@ -44,6 +155,9 @@ namespace details {
 
 	template<typename T>
 	concept IsPODText = std::is_same_v<std::remove_all_extents_t<std::remove_cv_t<std::remove_pointer_t<T>>>, char> || std::is_same_v<std::remove_all_extents_t<std::remove_cv_t<std::remove_pointer_t<T>>>, wchar_t>;
+
+	template <class T>
+	concept IsNumeric = is_Numeric_v<std::remove_cvref_t<T>>;
 
 	constexpr WCHAR make_upper(const WCHAR c) noexcept
 	{
@@ -271,7 +385,7 @@ namespace details {
 	//}
 
 	// Get String length
-	template <typename T, typename size_type = std::size_t>
+	template <typename T, IsNumeric size_type = std::size_t>
 	constexpr size_type _ts_strlen(const T& str) noexcept
 	{
 		if constexpr (std::is_pointer_v<T>)
@@ -305,7 +419,7 @@ namespace details {
 	//	return (N == 0U ? 0U : N - 1);
 	//}
 
-	template <IsPODText T, typename size_type = std::size_t, std::size_t N>
+	template <IsPODText T, IsNumeric size_type = std::size_t, std::size_t N>
 	constexpr inline size_type _ts_strlen(T const (&)[N]) noexcept
 	{
 		// T is a fixed array
@@ -613,7 +727,7 @@ namespace details {
 	};
 	template <typename T, typename... Arguments>
 	struct _impl_snprintf<T, typename T::value_type, Arguments...> {
-		const std::enable_if_t<std::is_member_function_pointer_v<decltype(&T::data)> && std::is_member_function_pointer_v<decltype(&T::size)>, int> operator()(T& buf, const typename T::value_type* const fmt, const Arguments&&... args) noexcept
+		const std::enable_if_t<std::is_member_function_pointer_v<decltype(&T::data)>&& std::is_member_function_pointer_v<decltype(&T::size)>, int> operator()(T& buf, const typename T::value_type* const fmt, const Arguments&&... args) noexcept
 		{
 			//return _ts_snprintf(buf.data(), buf.size(), fmt, args...);
 			//return _impl_snprintf<T::value_type, T::value_type, Arguments...>()(buf.data(), buf.size(), fmt, std::forward<Arguments>(args)...);
@@ -715,6 +829,10 @@ namespace details {
 		}
 	};
 
+	/// <summary>
+	/// Convert a string representation of a binary number to an unsigned long
+	/// </summary>
+	/// <typeparam name="T">- char or wchar_t</typeparam>
 	template <typename T>
 	struct _impl_bstrtoul {
 	};
@@ -969,8 +1087,11 @@ auto _ts_strtoul(const T* const buf, T** endptr, int base) noexcept
 	return details::_impl_strtoul<T>()(buf, endptr, base);
 }
 
-// _ts_bstrtoul()
-// Binary string to unsigned long
+/// <summary>
+/// Convert a string representation of a binary number to an unsigned long
+/// </summary>
+/// <param name="buf">- String representing a binary number.</param>
+/// <returns>Binary number</returns>
 template <details::IsPODText T>
 auto _ts_bstrtoul(const T* const buf) noexcept
 {
@@ -979,7 +1100,13 @@ auto _ts_bstrtoul(const T* const buf) noexcept
 	return details::_impl_bstrtoul<T>()(buf);
 }
 
-template <class T, class Result>
+/// <summary>
+/// Converts a number into a binary string representing that number (whole integers only)
+/// </summary>
+/// <typeparam name="Result">A string type object</typeparam>
+/// <param name="a">- The number to convert.</param>
+/// <returns>The string representation of the number.</returns>
+template <details::IsNumeric T, class Result>
 Result DecimalToBinaryString(const T& a)
 {
 	Result binary;
@@ -994,12 +1121,18 @@ Result DecimalToBinaryString(const T& a)
 		mask <<= 1;
 	}
 	return binary;
-
-	//std::set<T> tmp(a);
-	//return tmp.ToString();
 }
 
-// replace all instances of 'rep' in 'str' with 'with'
+/// <summary>
+/// Replace all instances of 'rep' in 'str' with 'with'
+/// </summary>
+/// <typeparam name="T"></typeparam>
+/// <typeparam name="RepThis"></typeparam>
+/// <typeparam name="WithThis"></typeparam>
+/// <param name="str">- string to search</param>
+/// <param name="rep">- string to search for</param>
+/// <param name="with">- replacement string</param>
+/// <returns>The string it was passed with the changes made.</returns>
 template <class T, class RepThis, class WithThis>
 T& _ts_replace(T& str, RepThis rep, WithThis with)
 {
@@ -1017,8 +1150,6 @@ T& _ts_replace(T& str, RepThis rep, WithThis with)
 		{
 			str.replace(pos, rlen, with);
 		}
-		//str.erase(pos, rlen);
-		//str.insert(pos, with);
 	}
 	return str;
 }
@@ -1033,7 +1164,16 @@ T& _ts_replace(T& str, RepThis rep, WithThis with)
 //	}
 //}
 
-// replace all instances of each character in 'rep' in 'str' with 'with'
+/// <summary>
+/// Replace all instances of each character in 'rep' in 'str' with 'with'
+/// </summary>
+/// <typeparam name="T"></typeparam>
+/// <typeparam name="RepThis"></typeparam>
+/// <typeparam name="WithThis"></typeparam>
+/// <param name="str">- string to search</param>
+/// <param name="rep">- string of characters to search for</param>
+/// <param name="with">- replacement string</param>
+/// <returns>The string it was passed with the changes made.</returns>
 template <class T, class RepThis, class WithThis>
 T& _ts_mreplace(T& str, RepThis rep, WithThis with)
 {
@@ -1042,6 +1182,14 @@ T& _ts_mreplace(T& str, RepThis rep, WithThis with)
 	return str;
 }
 
+/// <summary>
+/// Remove all instances of 'rep' within 'str'
+/// </summary>
+/// <typeparam name="T"></typeparam>
+/// <typeparam name="RemThis"></typeparam>
+/// <param name="str">- string to search.</param>
+/// <param name="rep">- string to remove.</param>
+/// <returns>The string it was passed with the changes made.</returns>
 template <class T, class RemThis>
 T& _ts_remove(T& str, RemThis rep)
 {
@@ -1050,6 +1198,12 @@ T& _ts_remove(T& str, RemThis rep)
 	return str;
 }
 
+/// <summary>
+/// Remove spaces from the front and back of the string.
+/// </summary>
+/// <typeparam name="T">A string type object</typeparam>
+/// <param name="str">- The string to trim.</param>
+/// <returns>A reference to the same string object it was passed.</returns>
 template <class T>
 T& _ts_trim(T& str)
 {
@@ -1062,6 +1216,12 @@ T& _ts_trim(T& str)
 	return str;
 }
 
+/// <summary>
+/// Trim the string and remove double spaces.
+/// </summary>
+/// <typeparam name="T"></typeparam>
+/// <param name="str">- string to modify.</param>
+/// <returns>The string it was passed with the changes made.</returns>
 template <class T>
 T& _ts_strip(T& str)
 {
@@ -1074,6 +1234,12 @@ T& _ts_strip(T& str)
 	return _ts_trim(str);
 }
 
+/// <summary>
+/// Change a string to uppercase.
+/// </summary>
+/// <typeparam name="T"></typeparam>
+/// <param name="str">- string to modify.</param>
+/// <returns>The string it was passed with the changes made.</returns>
 template <class T>
 T& _ts_toupper(T& str)
 {
@@ -1082,6 +1248,13 @@ T& _ts_toupper(T& str)
 	return str;
 }
 
+/// <summary>
+/// Convert a string to a number.
+/// </summary>
+/// <typeparam name="T"></typeparam>
+/// <typeparam name="Input"></typeparam>
+/// <param name="str">- string to convert.</param>
+/// <returns>The number contained in the string.</returns>
 template <class T, class Input>
 T _ts_to_(Input& str)
 {
@@ -1201,6 +1374,16 @@ T _ts_to_(Input& str)
 //	return !pszMatch[iWildOffset];
 //}
 
+/// <summary>
+/// Internal wildcard match function.
+/// </summary>
+/// <typeparam name="_Wild"></typeparam>
+/// <typeparam name="TameString"></typeparam>
+/// <typeparam name="WildString"></typeparam>
+/// <param name="pszString"></param>
+/// <param name="pszMatch"></param>
+/// <param name="bCase"></param>
+/// <returns></returns>
 template <class _Wild, typename TameString, typename WildString>
 GSL_SUPPRESS(bounds.4) bool _ts_InnerWildcardMatch(const TameString& pszString, const WildString& pszMatch, const bool bCase) noexcept(std::is_nothrow_move_assignable_v<WildString>)
 {
@@ -1245,7 +1428,7 @@ GSL_SUPPRESS(bounds.4) bool _ts_InnerWildcardMatch(const TameString& pszString, 
 			if (details::CompareChar(pszMatch[iWildOffset], pszString[iTameOffset], bCase))
 				++iTameOffset;
 			++iWildOffset;
-		}
+	}
 #endif
 #if TSTRING_WILDE
 		else if (pszMatch[iWildOffset] == _slash)
@@ -1255,7 +1438,7 @@ GSL_SUPPRESS(bounds.4) bool _ts_InnerWildcardMatch(const TameString& pszString, 
 			if (!details::CompareChar(pszMatch[iWildOffset], pszString[iTameOffset], bCase))
 				return false;
 			++iTameOffset;
-		}
+}
 #endif
 #if TSTRING_WILDW
 		else if (pszMatch[iWildOffset] == _hash)
@@ -1286,6 +1469,15 @@ GSL_SUPPRESS(bounds.4) bool _ts_InnerWildcardMatch(const TameString& pszString, 
 	return !pszMatch[iWildOffset];
 }
 
+/// <summary>
+/// Wildcard match
+/// </summary>
+/// <typeparam name="TameString"></typeparam>
+/// <typeparam name="WildString"></typeparam>
+/// <param name="pszString">- string to search</param>
+/// <param name="pszMatch">- the wildcard string to search for.</param>
+/// <param name="bCase">- does case matter</param>
+/// <returns>did match succeed true/false</returns>
 template <typename TameString, typename WildString>
 GSL_SUPPRESS(bounds) bool _ts_WildcardMatch(const TameString& pszString, const WildString& pszMatch, const bool bCase = false) noexcept(std::is_nothrow_move_assignable_v<WildString>)
 {
@@ -1307,22 +1499,18 @@ template <typename T> T* _ts_AddMem(std::vector<std::shared_ptr<std::vector<char
 	return d;
 }
 
-//template <class T>
-//struct TokenIterator
-//{
-//	std::basic_string_view<T>	Data{};
-//
-//	struct iter
-//	{
-//		T operator * () const noexcept { return n; }
-//		iter& operator ++() noexcept { ++n; return *this; }
-//		friend
-//			bool operator != (iter const& lhs, iter const& rhs) noexcept
-//		{
-//			return lhs.n != rhs.n;
-//		}
-//		ptrdiff_t n;
-//	}
-//	iter begin() const noexcept { return{ 1 }; }
-//	iter end() const noexcept { return { 0 }; }
-//};
+/// <summary>
+/// Sort a vector
+/// </summary>
+/// <typeparam name="T"></typeparam>
+/// <param name="str">- The vector to sort.</param>
+/// <returns>A sorted copy of the input.</returns>
+template <class T>
+std::vector<T> _ts_SortString(const std::vector<T>& str)
+{
+	std::vector<T> out(str);
+
+	std::sort(out.begin(), out.end(), std::less<T>);
+
+	return out;
+}
