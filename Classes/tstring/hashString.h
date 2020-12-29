@@ -1,6 +1,6 @@
 //
 // By Ook
-// v2.1
+// v2.2
 //
 
 #pragma once
@@ -57,7 +57,7 @@
 #if defined(HASH_ENABLE_CSTRING) && HASH_ENABLE_CSTRING
 #include <afxstr.h>
 #endif
-
+#ifdef __cpp_lib_concepts
 namespace HashConcepts {
 	template <class T>
 	concept IsCharText = std::is_same_v<std::remove_cvref_t<std::remove_all_extents_t<T>>, char>;
@@ -71,6 +71,7 @@ namespace HashConcepts {
 	template <class T>
 	concept IsPODTextPointer = std::is_pointer_v<T> && (IsCharText<std::remove_pointer_t<T>> || IsWCharText<std::remove_pointer_t<T>>);
 }
+#endif
 
 // mostly taken from https://stackoverflow.com/questions/2111667/compile-time-string-hashing or based on this.
 
@@ -522,7 +523,11 @@ constexpr FNV1a::hash_t operator""_fnv1a(const wchar_t* p, size_t N)
 /// </summary>
 /// <param name="input">- String to hash</param>
 /// <returns>The hash value for the given string.</returns>
+#ifdef __cpp_lib_concepts
 template <HashConcepts::IsPODText T>
+#else
+template <class T>
+#endif
 _NODISCARD constexpr size_t const_hash(const T *const input) noexcept
 {
 	return *input ?
@@ -537,7 +542,11 @@ _NODISCARD constexpr size_t const_hash(const T *const input) noexcept
 /// <param name="input">- String to hash</param>
 /// <param name="N">- String length in characters</param>
 /// <returns>The hash value for the given string.</returns>
+#ifdef __cpp_lib_concepts
 template <HashConcepts::IsPODText T>
+#else
+template <class T>
+#endif
 _NODISCARD size_t dcx_hash(const T *const input, const size_t &N) noexcept
 {
 	static_assert(std::is_same_v<char, std::remove_cv_t<T>> || std::is_same_v<wchar_t, std::remove_cv_t<T>>, "Type must be char or wchar_t");
@@ -565,7 +574,11 @@ _NODISCARD size_t dcx_hash(const T *const input, const size_t &N) noexcept
 /// <typeparam name="T">HashConcepts::IsPODText</typeparam>
 /// <param name="input">- String to hash</param>
 /// <returns>The hash value for the given string.</returns>
+#ifdef __cpp_lib_concepts
 template <HashConcepts::IsPODText T>
+#else
+template <class T>
+#endif
 _NODISCARD size_t dcx_hash(const T *const input) noexcept
 {
 	static_assert(std::is_same_v<char, std::remove_cv_t<T>> || std::is_same_v<wchar_t, std::remove_cv_t<T>>, "Type must be char or wchar_t");
