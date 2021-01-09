@@ -79,7 +79,6 @@ bool DcxListHelper::matchItemText(const TCHAR* sItemText, const TString& search,
 	case DcxSearchTypes::SEARCH_R:	// regex match
 		return isRegexMatch(sItemText, search.to_chr());
 	case DcxSearchTypes::SEARCH_W:	// wildcard match
-		//return TString(sItemText.data()).iswm(search);	// makes copy of string...
 		return _ts_WildcardMatch(sItemText, search);		// avoids copy
 	case DcxSearchTypes::SEARCH_E:   // exact match
 		return search == sItemText;
