@@ -1709,6 +1709,7 @@ void DcxListView::parseCommandRequest(const TString& input)
 				this->autoSize(nColumn, tsflags);
 			}
 		}
+		//redrawWindow();
 	}
 	// xdid -u [NAME] [ID] [SWITCH]
 	else if (flags[TEXT('u')])
@@ -1738,6 +1739,9 @@ void DcxListView::parseCommandRequest(const TString& input)
 		{
 			// special case -1  (now -2) supplied as item number, sets text for empty listview
 			Dcx::dcxListView_SetEmptyText(m_Hwnd, input.getlasttoks().trim().to_chr());	// tok 6, -1
+			// if subitem set, redraw
+			if (nSubItem)
+				redrawWindow();
 			return;
 		}
 		if (nItem < 0)
@@ -1785,7 +1789,6 @@ void DcxListView::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('w')])
 	{
 		if (numtok < 6)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto tflags(input.getnexttok());				// tok 4
@@ -1886,7 +1889,6 @@ void DcxListView::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('W')])
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		auto mode = LV_VIEW_DETAILS;
@@ -1918,7 +1920,6 @@ void DcxListView::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('y')])
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto iFlags = this->parseIconFlagOptions(input.getnexttok());	// tok 4
@@ -1951,7 +1952,6 @@ void DcxListView::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('z')])
 	{
 		if (numtok < 5)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto lvsort = std::make_unique<DCXLVSORT>();	// too big for stack, use heap.
@@ -1963,7 +1963,6 @@ void DcxListView::parseCommandRequest(const TString& input)
 		lvsort->nColumn = nColumn;
 
 		if (nColumn < 0 || nColumn >= this->getColumnCount())
-			//throw Dcx::dcxException("Invalid Arguments");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		if (dcx_testflag(lvsort->iSortFlags, LVSS_CUSTOM) && numtok < 6)
@@ -1978,7 +1977,6 @@ void DcxListView::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('T')])
 	{
 		if (numtok < 5)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		//LVITEM lvi{};
