@@ -429,7 +429,11 @@ function get_xdid_listview(&$XDID) {
 				'NSUB' => 'Column index.',
 				'TEXT' => 'Item Text, or command to send to ProgressBar.',
 			),
-			'__notes' => 'Use [p]TEXT[/p] as [v]-v 80[/v] to set the value of a progress bar.'
+			'__notes' => array(
+				'Use [p]TEXT[/p] as [v]-v 80[/v] to set the value of a progress bar.',
+				'If N == -1 then sets the empty listview text which is displayed when the listview contains no items.',
+				'If NSUB == 1 when N == -1 then redraw after setting empty text.'
+			),
 		),
 		'V' => array(
 	        '__desc' => 'This command lets you scroll to the item specified.',
