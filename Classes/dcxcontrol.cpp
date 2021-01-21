@@ -236,7 +236,7 @@ dcxWindowStyles DcxControl::parseGeneralControlStyles(const TString& styles)
 
 GSL_SUPPRESS(type.3)
 GSL_SUPPRESS(es.47)
-bool DcxControl::evalAliasEx(_Outptr_opt_result_buffer_(maxlen) TCHAR* const szReturn, const int maxlen, const TCHAR* const szFormat, ...) const
+bool DcxControl::evalAliasEx(TCHAR* const szReturn, const int maxlen, const TCHAR* const szFormat, ...) const
 {
 	TString parms;
 	va_list args = nullptr;
@@ -1521,7 +1521,7 @@ void DcxControl::setControlFont(const HFONT hFont, const BOOL fRedraw) noexcept
 * blah
 */
 
-const RECT DcxControl::getWindowPosition() const
+const RECT DcxControl::getWindowPosition() const noexcept
 {
 #if DCX_USE_WRAPPERS
 	const Dcx::dcxWindowRect rc(m_Hwnd, GetParent(m_Hwnd));
@@ -1882,7 +1882,7 @@ LPALPHAINFO DcxControl::SetupAlphaBlend(HDC* hdc, const bool DoubleBuffer)
 	if (Dcx::UXModule.IsBufferedPaintSupported())
 	{
 		BP_PAINTPARAMS paintParams{ sizeof(BP_PAINTPARAMS),BPPF_ERASE, nullptr, nullptr };
-		ai->ai_bf.AlphaFormat = AC_SRC_OVER;
+		//ai->ai_bf.AlphaFormat = AC_SRC_OVER;
 		ai->ai_bf.SourceConstantAlpha = this->m_iAlphaLevel; // 0x7f half of 0xff = 50% transparency
 		if (this->IsAlphaBlend())
 			paintParams.pBlendFunction = &ai->ai_bf;
@@ -1955,8 +1955,8 @@ LPALPHAINFO DcxControl::SetupAlphaBlend(HDC* hdc, const bool DoubleBuffer)
 				ai->ai_bkg = CreateCompatibleBitmap(*hdc, ai->ai_rcWin.right - ai->ai_rcWin.left, ai->ai_rcWin.bottom - ai->ai_rcWin.top);
 				if (ai->ai_bkg)
 				{
-					auto oldBM = SelectBitmap(hdcbkg, ai->ai_bkg);
-					Auto(SelectBitmap(hdcbkg, oldBM));
+					auto oldBM = Dcx::dcxSelectObject<HBITMAP>(hdcbkg, ai->ai_bkg);
+					Auto(Dcx::dcxSelectObject<HBITMAP>(hdcbkg, oldBM));
 
 					BitBlt(hdcbkg, ai->ai_rcClient.left, ai->ai_rcClient.top, ai->ai_rcClient.right - ai->ai_rcClient.left, ai->ai_rcClient.bottom - ai->ai_rcClient.top, ai->ai_hdc, ai->ai_rcClient.left, ai->ai_rcClient.top, SRCCOPY);
 				}
@@ -2413,7 +2413,7 @@ void DcxControl::HandleChildControlSize()
 }
 
 // Invalidate controls area in parent.
-void DcxControl::InvalidateParentRect(HWND hwnd)
+void DcxControl::InvalidateParentRect(HWND hwnd) noexcept
 {
 #if DCX_USE_WRAPPERS
 	const auto parent = GetParent(hwnd);

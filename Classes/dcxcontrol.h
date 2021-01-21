@@ -190,7 +190,7 @@ struct ALPHAINFO
 	HBITMAP ai_oldBM{ nullptr };
 	RECT ai_rcClient{ 0,0,0,0 };
 	RECT ai_rcWin{ 0,0,0,0 };
-	BLENDFUNCTION ai_bf{ AC_SRC_OVER, 255 };
+	BLENDFUNCTION ai_bf{ AC_SRC_OVER,0, 255, 0 };
 	HPAINTBUFFER ai_Buffer{ nullptr };
 
 	ALPHAINFO(HWND hwnd)
@@ -250,7 +250,7 @@ public:
 	dcxWindowStyles parseGeneralControlStyles(const TString& styles, dcxWindowStyles& ws);
 	dcxWindowStyles parseGeneralControlStyles(const TString& styles);
 
-	bool evalAliasEx(_Outptr_opt_result_buffer_(maxlen) TCHAR* const szReturn, const int maxlen, const TCHAR* const szFormat, ...) const;
+	bool evalAliasEx(TCHAR* const szReturn, const int maxlen, const TCHAR* const szFormat, ...) const;
 
 	//template <typename Format, typename Value, typename... Arguments>
 	//bool evalAliasEx(TCHAR *const szReturn, const int maxlen, const Format &fmt, const Value val, Arguments&&... args) const
@@ -327,7 +327,7 @@ public:
 	{
 		return m_clrEndGradient;
 	};
-	const RECT getWindowPosition() const;
+	const RECT getWindowPosition() const noexcept;
 	DcxDialog* const getParentDialog() const noexcept
 	{
 		return m_pParentDialog;
@@ -463,7 +463,7 @@ protected:
 	void calcTextRect(HDC hdc, const TString& txt, LPRECT rc, const UINT style);
 
 	//static std::pair<WindowStyle, WindowExStyle> parseBorderStyles(const TString & flags) noexcept;
-	static void InvalidateParentRect(HWND hwnd);
+	static void InvalidateParentRect(HWND hwnd) noexcept;
 	static const DcxColourFlags parseColorFlags(const TString& flags) noexcept;
 };
 
