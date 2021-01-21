@@ -1069,8 +1069,14 @@ void DcxDialog::parseCommandRequest(_In_ const TString& input)
 
 		if (Dcx::VistaModule.isUseable())
 		{
-			const MARGINS margins{ m_GlassOffsets.left, m_GlassOffsets.right, m_GlassOffsets.top, m_GlassOffsets.bottom };
-			Dcx::VistaModule.dcxDwmExtendFrameIntoClientArea(m_Hwnd, &margins);
+			//DWMNCRENDERINGPOLICY ncrp = DWMNCRP_ENABLED;
+
+			////enable non-client area rendering on window
+			//if (SUCCEEDED(Dcx::VistaModule.dcxDwmSetWindowAttribute(m_Hwnd, DWMWA_NCRENDERING_POLICY, &ncrp, sizeof(ncrp))))
+			//{
+				const MARGINS margins{ m_GlassOffsets.left, m_GlassOffsets.right, m_GlassOffsets.top, m_GlassOffsets.bottom };
+				Dcx::VistaModule.dcxDwmExtendFrameIntoClientArea(m_Hwnd, &margins);
+			//}
 		}
 		redrawWindow();
 	}
@@ -1679,7 +1685,7 @@ void DcxDialog::parseInfoRequest(const TString& input, const refString<TCHAR, MI
 	default:
 		throw Dcx::dcxException("Invalid property or parameters");
 		break;
-	}
+}
 }
 
 /*!
@@ -1815,7 +1821,8 @@ void DcxDialog::setFocusControl(const UINT mUID)
 
 LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-	auto p_this = static_cast<DcxDialog*>(GetProp(mHwnd, TEXT("dcx_this")));
+	//auto p_this = static_cast<DcxDialog*>(GetProp(mHwnd, TEXT("dcx_this")));
+	auto p_this = Dcx::dcxGetProp<DcxDialog*>(mHwnd, TEXT("dcx_this"));
 
 	//// sanity check for prop existing.
 	//if ((p_this == nullptr) || (p_this->m_hOldWindowProc == nullptr))
@@ -1954,7 +1961,10 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 
 		if (IsWindow(idata->hwndItem))
 		{
-			if (auto c_this = static_cast<DcxControl*>(GetProp(idata->hwndItem, TEXT("dcx_cthis"))); c_this)
+			//if (auto c_this = static_cast<DcxControl*>(GetProp(idata->hwndItem, TEXT("dcx_cthis"))); c_this)
+			//	lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
+
+			if (auto c_this = Dcx::dcxGetProp<DcxControl*>(idata->hwndItem, TEXT("dcx_cthis")); c_this)
 				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 		}
 		else if (p_this->m_popup && idata->CtlType == ODT_MENU)
@@ -3047,7 +3057,7 @@ void DcxDialog::showControlErrorEx(__in_z const TCHAR* const prop, __in_z const 
 	showControlError(prop, cmd, err.to_chr());
 }
 
-void DcxDialog::CreateVistaStyle(void)
+void DcxDialog::CreateVistaStyle(void) noexcept
 {
 	if (Dcx::VistaModule.refreshComposite())
 	{
@@ -3111,7 +3121,7 @@ void DcxDialog::CreateVistaStyle(void)
 			else
 				DestroyWindow(this->m_hFakeHwnd);
 		}
-	}
+}
 #endif
 }
 

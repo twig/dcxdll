@@ -229,7 +229,7 @@ public:
 	void DrawCtrl(Gdiplus::Graphics& graphics, HDC hDC, HWND hWnd);
 	void DrawDialog(Gdiplus::Graphics& graphics, HDC hDC);
 #endif
-	void CreateVistaStyle(void);
+	void CreateVistaStyle(void) noexcept;
 	const bool CreateVistaStyleBitmap(const SIZE& szWin) noexcept;
 	void RemoveVistaStyle(void) noexcept;
 	void UpdateVistaStyle(const RECT* const rcUpdate = nullptr);
