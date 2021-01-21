@@ -5,7 +5,20 @@
 #include "Classes/UltraDock/dcxDock.h"
 #include "Dcx.h"
 
+namespace {
+	TString xstatus_GetText(const int iPart)
+	{
+		TString tsText(DcxDock::status_getTextLength(iPart));
+		DcxDock::status_getText(iPart, tsText.to_chr());
 
+		return tsText;
+	}
+
+	LPSB_PARTINFOD xstatus_GetPart(const int iPart) noexcept
+	{
+		return reinterpret_cast<LPSB_PARTINFOD>(DcxDock::status_getText(iPart, nullptr));
+	}
+}
 
 // [SWITCH] [OPTIONS]
 mIRC(xstatusbar)
@@ -20,7 +33,6 @@ mIRC(xstatusbar)
 		const auto numtok = input.numtok();
 
 		if (numtok < 1)
-			//throw Dcx::dcxException("Invalid Parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		switch (const auto switches(input.getfirsttok(1)); switches[1])
@@ -29,7 +41,6 @@ mIRC(xstatusbar)
 		{
 			// check syntax
 			if (numtok < 2)
-				//throw Dcx::dcxException("Invalid Parameters");
 				throw DcxExceptions::dcxInvalidArguments();
 
 			// Enable/Disable the Statusbar.
@@ -49,7 +60,6 @@ mIRC(xstatusbar)
 		{
 			// check syntax
 			if (numtok < 5)
-				//throw Dcx::dcxException("Invalid Parameters");
 				throw DcxExceptions::dcxInvalidArguments();
 
 			if (LOGFONT lf{}; ParseCommandToLogfont(input.getlasttoks(), &lf))	// tok 2, -1
@@ -60,7 +70,6 @@ mIRC(xstatusbar)
 		{
 			// check syntax
 			if (numtok != 2)
-				//throw Dcx::dcxException("Invalid Parameters");
 				throw DcxExceptions::dcxInvalidArguments();
 
 			if (const auto col = input.getnexttok().to_<COLORREF>(); col == CLR_INVALID)
@@ -73,7 +82,6 @@ mIRC(xstatusbar)
 		{
 			// check syntax
 			if (numtok < 2)
-				//throw Dcx::dcxException("Invalid Parameters");
 				throw DcxExceptions::dcxInvalidArguments();
 
 			const auto nParts = numtok - 1;
@@ -108,7 +116,6 @@ mIRC(xstatusbar)
 		{
 			// check syntax (text can be blank)
 			if (numtok < 6)
-				//throw Dcx::dcxException("Invalid Parameters");
 				throw DcxExceptions::dcxInvalidArguments();
 
 			const auto tsTabOne(input.getfirsttok(1, TSTABCHAR));	// tok 1, TSTAB
@@ -122,7 +129,8 @@ mIRC(xstatusbar)
 			const auto txtClr = tsTabOne.getnexttok().to_<COLORREF>();			// tok 6
 
 			if (flags[0] != TEXT('+'))
-				throw Dcx::dcxException("Invalid Flags");
+				//throw Dcx::dcxException("Invalid Flags");
+				throw DcxExceptions::dcxInvalidFlag();
 
 			const auto iFlags = DcxDock::status_parseItemFlags(flags);
 
@@ -164,7 +172,6 @@ mIRC(xstatusbar)
 		{
 			// check syntax (text can be blank)
 			if (numtok < 4)
-				//throw Dcx::dcxException("Invalid Parameters");
 				throw DcxExceptions::dcxInvalidArguments();
 
 			if (const auto nPos = (input.getnexttok().to_int() - 1); (nPos > -1 && gsl::narrow_cast<UINT>(nPos) < DcxDock::status_getParts(SB_MAX_PARTSD, 0)))
@@ -178,7 +185,8 @@ mIRC(xstatusbar)
 
 				if (const auto iFlags = DcxDock::status_getPartFlags(nPos); dcx_testflag(iFlags, SBT_OWNERDRAW))
 				{
-					if (const auto pPart = reinterpret_cast<LPSB_PARTINFOD>(DcxDock::status_getText(nPos, nullptr)); pPart)
+					//if (const auto pPart = reinterpret_cast<LPSB_PARTINFOD>(DcxDock::status_getText(nPos, nullptr)); pPart)
+					if (const auto pPart = xstatus_GetPart(nPos); pPart)
 					{
 						if (pPart->m_BkgCol)
 							DeleteObject(pPart->m_BkgCol);
@@ -204,7 +212,6 @@ mIRC(xstatusbar)
 		{
 			// check syntax
 			if (numtok < 4)
-				//throw Dcx::dcxException("Invalid Parameters");
 				throw DcxExceptions::dcxInvalidArguments();
 
 			auto himl = DcxDock::status_getImageList();
@@ -288,15 +295,20 @@ mIRC(_xstatusbar)
 			{
 				if (const auto iFlags = DcxDock::status_getPartFlags(iPart); dcx_testflag(iFlags, SBT_OWNERDRAW))
 				{
-					if (const auto *const pPart = reinterpret_cast<LPSB_PARTINFOD>(DcxDock::status_getText(iPart, nullptr)); pPart)
+					//if (const auto *const pPart = reinterpret_cast<LPSB_PARTINFOD>(DcxDock::status_getText(iPart, nullptr)); pPart)
+					//	refData = pPart->m_Text;
+
+					if (const auto* const pPart = xstatus_GetPart(iPart); pPart)
 						refData = pPart->m_Text;
 				}
 				else {
-					const auto len = DcxDock::status_getTextLength(iPart);
-					auto text = std::make_unique<WCHAR[]>(len + 1);
+					//const auto len = DcxDock::status_getTextLength(iPart);
+					//auto text = std::make_unique<WCHAR[]>(len + 1);
+					//
+					//DcxDock::status_getText(iPart, text.get());
+					//refData = text.get();
 
-					DcxDock::status_getText(iPart, text.get());
-					refData = text.get();
+					refData = xstatus_GetText(iPart);
 				}
 			}
 		}
