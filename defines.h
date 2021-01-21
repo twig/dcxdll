@@ -228,6 +228,9 @@ constexpr auto DCX_MAX_GDI_ERRORS = 21;
 #endif
 #endif
 
+// enable this to enable custom menus
+#define DCX_CUSTOM_MENUS 1
+
 // --------------------------------------------------
 // Include files
 // --------------------------------------------------
@@ -512,40 +515,6 @@ enum class CLATypes
 	LAYOUTVERT = 0x20,  //!< Layout Cell Vertical Style (LayoutCellPane and LayoutCellFixed)
 	LAYOUTHORZ = 0x40  //!< Layout Cell Horizontal Style (LayoutCellPane and LayoutCellFixed)
 };
-template <typename T>
-constexpr CLATypes& operator |=(CLATypes& eStyle, const T& dStyle) noexcept
-{
-	return eStyle = static_cast<CLATypes>(static_cast<UINT>(eStyle) | static_cast<UINT>(dStyle));
-}
-
-template <typename T>
-constexpr CLATypes& operator &=(CLATypes& eStyle, const T& dStyle) noexcept
-{
-	return eStyle = static_cast<CLATypes>(static_cast<UINT>(eStyle) & static_cast<UINT>(dStyle));
-}
-
-template <typename T>
-constexpr CLATypes operator &(const CLATypes& eStyle, const T& dStyle) noexcept
-{
-	return static_cast<CLATypes>(static_cast<UINT>(eStyle) & static_cast<UINT>(dStyle));
-}
-
-template <typename T>
-constexpr CLATypes operator |(const CLATypes& eStyle, const T& dStyle) noexcept
-{
-	return static_cast<CLATypes>(static_cast<UINT>(eStyle) | static_cast<UINT>(dStyle));
-}
-
-template <typename T>
-constexpr CLATypes operator ^(const CLATypes& eStyle, const T& dStyle) noexcept
-{
-	return static_cast<CLATypes>(static_cast<UINT>(eStyle) ^ static_cast<UINT>(dStyle));
-}
-
-constexpr CLATypes operator ~(const CLATypes& eStyle) noexcept
-{
-	return static_cast<CLATypes>(~static_cast<UINT>(eStyle));
-}
 
 
 // --------------------------------------------------
@@ -561,40 +530,6 @@ enum class dcxFontFlags
 	DCF_UNDERLINE = 0x10, //!< Control Font Underline Style
 	DCF_DEFAULT = 0x20	//!< Control Font Default Style
 };
-template <typename T>
-constexpr dcxFontFlags& operator |=(dcxFontFlags& eStyle, const T& dStyle) noexcept
-{
-	return eStyle = static_cast<dcxFontFlags>(static_cast<UINT>(eStyle) | static_cast<UINT>(dStyle));
-}
-
-template <typename T>
-constexpr dcxFontFlags& operator &=(dcxFontFlags& eStyle, const T& dStyle) noexcept
-{
-	return eStyle = static_cast<dcxFontFlags>(static_cast<UINT>(eStyle) & static_cast<UINT>(dStyle));
-}
-
-template <typename T>
-constexpr dcxFontFlags operator &(const dcxFontFlags& eStyle, const T& dStyle) noexcept
-{
-	return static_cast<dcxFontFlags>(static_cast<UINT>(eStyle) & static_cast<UINT>(dStyle));
-}
-
-template <typename T>
-constexpr dcxFontFlags operator |(const dcxFontFlags& eStyle, const T& dStyle) noexcept
-{
-	return static_cast<dcxFontFlags>(static_cast<UINT>(eStyle) | static_cast<UINT>(dStyle));
-}
-
-template <typename T>
-constexpr dcxFontFlags operator ^(const dcxFontFlags& eStyle, const T& dStyle) noexcept
-{
-	return static_cast<dcxFontFlags>(static_cast<UINT>(eStyle) ^ static_cast<UINT>(dStyle));
-}
-
-constexpr dcxFontFlags operator ~(const dcxFontFlags& eStyle) noexcept
-{
-	return static_cast<dcxFontFlags>(~static_cast<UINT>(eStyle));
-}
 
 // --------------------------------------------------
 // XPopup stuff

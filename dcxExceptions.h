@@ -88,6 +88,14 @@ namespace DcxExceptions
 			: exception("Invalid Item")
 		{}
 	};
+	class dcxOutOfRange final
+		: public std::exception
+	{
+	public:
+		dcxOutOfRange() noexcept
+			: exception("Out Of Range")
+		{}
+	};
 }
 
 //
