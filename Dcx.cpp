@@ -16,7 +16,10 @@ namespace Dcx {
 	std::byte m_iGhostDrag{ 255 };
 	bool m_bDX9Installed{ false };
 	bool m_bErrorTriggered{ false };
-	bool setting_bStaticColours{ false };
+	// static colours enabled by default.
+	bool setting_bStaticColours{ true };
+	// custom menus disabled by default.
+	bool setting_bCustomMenus{ false };
 	MapOfCursors	m_vMapOfCursors;
 	MapOfAreas		m_vMapOfAreas;
 	PFNSETCURSOR SetCursorUx = nullptr;
@@ -29,7 +32,6 @@ namespace Dcx {
 		m_bDX9Installed = false;
 		m_pClassFactory = nullptr;
 		m_bErrorTriggered = false;
-		setting_bStaticColours = true;
 
 		// Initialize mIRCLinker
 		mIRCLinker::load(lInfo);
@@ -448,25 +450,32 @@ namespace Dcx {
 			if (!SetCursorUx)
 				break;
 
-			const auto iType = gsl::narrow_cast<UINT>(Dcx::dcxLOWORD(lParam));
-
-			if (const auto hCursor = AreaToCustomCursor(iType); hCursor)
 			{
-				SetCursorUx(hCursor);
-				return TRUE;
+				const auto iType = gsl::narrow_cast<UINT>(Dcx::dcxLOWORD(lParam));
+
+				if (const auto hCursor = AreaToCustomCursor(iType); hCursor)
+				{
+					SetCursorUx(hCursor);
+					return TRUE;
+				}
 			}
 
-			ShowCursor(FALSE);
-			Auto(ShowCursor(TRUE));
-
-			const auto lRes = mIRCLinker::callDefaultWindowProc(mHwnd, uMsg, wParam, lParam);
-
-			if (const auto hCursor = SystemToCustomCursor(GetCursor()); hCursor)
+			if (!m_vMapOfCursors.empty())
 			{
-				SetCursorUx(hCursor);
-				return TRUE;
+				// this stops the default cursor showing, before we change it.
+				ShowCursor(FALSE);
+				Auto(ShowCursor(TRUE));
+
+				const auto lRes = mIRCLinker::callDefaultWindowProc(mHwnd, uMsg, wParam, lParam);
+
+				if (const auto hCursor = SystemToCustomCursor(GetCursor()); hCursor)
+				{
+					SetCursorUx(hCursor);
+					return TRUE;
+				}
+				return lRes;
 			}
-			return lRes;
+			break;
 		}
 
 		default:
@@ -655,16 +664,22 @@ namespace Dcx {
 	// get custom cursor to use in place of specific system cursor.
 	HCURSOR SystemToCustomCursor(const HCURSOR hCursor)
 	{
-		if (const auto it = m_vMapOfCursors.find(hCursor); it != m_vMapOfCursors.end())
-			return it->second;
+		if (hCursor && !m_vMapOfCursors.empty())
+		{
+			if (const auto it = m_vMapOfCursors.find(hCursor); it != m_vMapOfCursors.end())
+				return it->second;
+		}
 		return nullptr;
 	}
 
 	// get the custom cursor to use with a specific area
 	HCURSOR AreaToCustomCursor(const UINT iType)
 	{
-		if (const auto it = m_vMapOfAreas.find(iType); it != m_vMapOfAreas.end())
-			return it->second;
+		if (!m_vMapOfAreas.empty())
+		{
+			if (const auto it = m_vMapOfAreas.find(iType); it != m_vMapOfAreas.end())
+				return it->second;
+		}
 		return nullptr;
 	}
 
@@ -719,12 +734,28 @@ namespace Dcx {
 	GSL_SUPPRESS(lifetimes)
 	HCURSOR WINAPI XSetCursor(HCURSOR hCursor)
 	{
-		if (!hCursor)
-			return SetCursorUx(hCursor);
+		//if (!hCursor)
+		//	return SetCursorUx(hCursor);
+		//
+		//auto hTemp = SystemToCustomCursor(hCursor);
+		//if (!hTemp)
+		//	hTemp = hCursor;
+		//return SetCursorUx(hTemp);
 
-		auto hTemp = SystemToCustomCursor(hCursor);
-		if (!hTemp)
-			hTemp = hCursor;
-		return SetCursorUx(hTemp);
+		if (hCursor)
+		{
+			if (auto hTemp = SystemToCustomCursor(hCursor); hTemp)
+				return SetCursorUx(hTemp);
+		}
+		return SetCursorUx(hCursor);
+	}
+
+	void FillRectColour(HDC hdc, LPCRECT prc, COLORREF clr) noexcept
+	{
+		if (const auto br = CreateSolidBrush(clr); br)
+		{
+			FillRect(hdc, prc, br);
+			DeleteBrush(br);
+		}
 	}
 }

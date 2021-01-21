@@ -2196,6 +2196,11 @@ mIRC(SetDCXSettings)
 			Dcx::setting_bStaticColours = btmp;
 			break;
 		}
+		case L"CustomMenus"_hash:
+		{
+			Dcx::setting_bCustomMenus = (d.getnexttok().to_int() > 0);
+			break;
+		}
 		default:
 			throw DcxExceptions::dcxInvalidArguments();
 		}
@@ -2211,7 +2216,52 @@ mIRC(SetDCXSettings)
 	}
 
 	mIRCLinker::echo(TEXT("/dcx SetDCXSettings [option] (option args)"));
-	mIRCLinker::echo(TEXT("[option] = StaticColours,UpdateColours"));
+	mIRCLinker::echo(TEXT("[option] = StaticColours,UpdateColours,CustomMenus"));
 	mIRCLinker::echo(TEXT("(option args) = optional, args contents depends on the option used."));
+	return 0;
+}
+
+mIRC(GetDCXSettings)
+{
+	TString d(data);
+
+	data[0] = 0;
+
+	try {
+		d.trim();
+
+		if (d.empty())
+			throw DcxExceptions::dcxInvalidArguments();
+
+		const auto tsOpt(d.getfirsttok(1));
+
+		switch (std::hash<TString>{}(tsOpt))
+		{
+		case L"StaticColours"_hash:
+		{
+			_ts_snprintf(data, mIRCLinker::c_mIRC_Buffer_Size_cch, TEXT("%d"),	Dcx::setting_bStaticColours);
+			break;
+		}
+		case L"CustomMenus"_hash:
+		{
+			_ts_snprintf(data, mIRCLinker::c_mIRC_Buffer_Size_cch, TEXT("%d"), Dcx::setting_bCustomMenus);
+			break;
+		}
+		default:
+			throw DcxExceptions::dcxInvalidArguments();
+		}
+		return 3;
+	}
+	catch (const std::exception& e)
+	{
+		Dcx::error(TEXT("$!dcx(GetDCXSettings,[option])"), TEXT("\"%\" error: %"), d, e.what());
+	}
+	catch (...) {
+		// stop any left over exceptions...
+		Dcx::error(TEXT("$!dcx(GetDCXSettings,[option])"), TEXT("\"%\" error: Unknown Exception"), d);
+	}
+
+	mIRCLinker::echo(TEXT("$!dcx(GetDCXSettings,[option])"));
+	mIRCLinker::echo(TEXT("[option] = StaticColours,CustomMenus"));
 	return 0;
 }

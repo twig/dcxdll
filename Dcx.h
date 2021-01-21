@@ -100,6 +100,7 @@ namespace Dcx
 	extern bool m_bErrorTriggered;
 
 	extern bool setting_bStaticColours;
+	extern bool setting_bCustomMenus;
 
 	/// <summary>
 	/// Converts a Range to a std::vector.
@@ -803,20 +804,28 @@ namespace Dcx
 	{
 		dcxWindowRect() = delete;
 		// Gets the window rect for hwnd
-		explicit dcxWindowRect(HWND hwnd)
+		explicit dcxWindowRect(HWND hwnd) noexcept
 		{
-			if (GetWindowRect(hwnd, this) == FALSE)
-				throw Dcx::dcxException(TEXT("Unable to get Window Rect"));
+			m_ok = (GetWindowRect(hwnd, this) != FALSE);
+			//if (GetWindowRect(hwnd, this) == FALSE)
+			//	throw Dcx::dcxException(TEXT("Unable to get Window Rect"));
 		}
 
 		// Gets the window rect for hwnd & maps it to hMap
-		dcxWindowRect(HWND hwnd, HWND hMap)
+		dcxWindowRect(HWND hwnd, HWND hMap) noexcept
 			: dcxWindowRect(hwnd)
 		{
-			SetLastError(0U);
-			MapWindowRect(nullptr, hMap, this);
-			if (GetLastError() != 0U)
-				throw Dcx::dcxException(TEXT("Unable to Map Window Rect"));
+			if (m_ok)
+			{
+				SetLastError(0U);
+				MapWindowRect(nullptr, hMap, this);
+				m_ok = (GetLastError() == 0U);
+			}
+
+			//SetLastError(0U);
+			//MapWindowRect(nullptr, hMap, this);
+			//if (GetLastError() != 0U)
+			//	throw Dcx::dcxException(TEXT("Unable to Map Window Rect"));
 		}
 		~dcxWindowRect() noexcept = default;
 
@@ -825,6 +834,9 @@ namespace Dcx
 		// get the rect's height
 		long Height() const noexcept { return (bottom - top); }
 		RECT CopyRect() const noexcept { return { left, top, right, bottom }; }
+
+		explicit operator bool() noexcept { return m_ok; }
+		bool	m_ok{ false };
 	};
 
 	struct dcxClassName final
@@ -1033,6 +1045,7 @@ namespace Dcx
 	HCURSOR WINAPI XSetCursor(HCURSOR hCursor);
 	PVOID PatchAPI(const char* const c_szDllName, const char* const c_szApiName, PVOID newfPtr) noexcept;
 	void RemovePatch(PVOID fPtr, PVOID newfPtr) noexcept;
+	void FillRectColour(HDC hdc, LPCRECT prc, COLORREF clr) noexcept;
 
 	//typedef HCURSOR(WINAPI *PFNSETCURSOR)(HCURSOR hCursor);
 	using PFNSETCURSOR = HCURSOR(WINAPI*)(HCURSOR hCursor);

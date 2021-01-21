@@ -27,6 +27,7 @@ GhostDrag
 SetSystemCursors
 SetmIRCCursors
 SetDCXSettings
+GetDCXSettings
 
 xdid
 _xdid
