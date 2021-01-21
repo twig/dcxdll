@@ -29,16 +29,9 @@ namespace EnumConcepts
 template <EnumConcepts::IsNumeric T, EnumConcepts::IsEnum E>
 constexpr E& operator |=(E& eStyle, const T& dStyle) noexcept
 {
-	//return eStyle = static_cast<E>(static_cast<size_t>(eStyle) | static_cast<size_t>(dStyle));
 	eStyle = static_cast<E>(static_cast<size_t>(eStyle) | static_cast<size_t>(dStyle));
 	return eStyle;
 }
-
-//template <EnumConcepts::IsNumeric T, EnumConcepts::IsEnum E>
-//constexpr E operator |(const T &dStyle, const E &eStyle) noexcept
-//{
-//	return static_cast<E>(static_cast<size_t>(dStyle) | static_cast<size_t>(eStyle));
-//}
 
 template <EnumConcepts::IsNumeric T, EnumConcepts::IsEnum E>
 constexpr E operator |(const E& eStyle, const T& dStyle) noexcept
@@ -49,7 +42,6 @@ constexpr E operator |(const E& eStyle, const T& dStyle) noexcept
 template <EnumConcepts::IsNumeric T, EnumConcepts::IsEnum E>
 constexpr E& operator &=(E& eStyle, const T& dStyle) noexcept
 {
-	//return eStyle = static_cast<E>(static_cast<size_t>(eStyle) & static_cast<size_t>(dStyle));
 	eStyle = static_cast<E>(static_cast<size_t>(eStyle) & static_cast<size_t>(dStyle));
 	return eStyle;
 }
