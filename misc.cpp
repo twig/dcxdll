@@ -687,26 +687,24 @@ HICON dcxLoadIcon(const int index, TString& filename, const bool large, const TS
 		if (!Dcx::GDIModule.isUseable())
 			throw Dcx::dcxException("dcxLoadIcon: Invalid +P without GDI+.");
 
-		const auto p_Img = std::make_unique<Gdiplus::Bitmap>(filename.to_chr());
+		//const auto p_Img = std::make_unique<Gdiplus::Bitmap>(filename.to_chr());
+		//
+		//// for some reason this returns `OutOfMemory` when the file doesnt exist instead of `FileNotFound`
+		//if (const auto status = p_Img->GetLastStatus(); status != Gdiplus::Ok)
+		//	throw Dcx::dcxException(TEXT("dcxLoadIcon: %"), GetLastStatusStr(status));
+		//
+		//// for reasons unknown this causes a `first chance exception` to show in debug log.
+		//if (const auto status = p_Img->GetHICON(&icon); status != Gdiplus::Ok)
+		//	throw Dcx::dcxException(TEXT("dcxLoadIcon: %"), GetLastStatusStr(status));
+
+		Gdiplus::Bitmap img(filename.to_chr());
 
 		// for some reason this returns `OutOfMemory` when the file doesnt exist instead of `FileNotFound`
-		if (const auto status = p_Img->GetLastStatus(); status != Gdiplus::Ok)
+		if (const auto status = img.GetLastStatus(); status != Gdiplus::Ok)
 			throw Dcx::dcxException(TEXT("dcxLoadIcon: %"), GetLastStatusStr(status));
 
-		//int w = 0, h = 0;
-		//if (large) {
-		//	w = GetSystemMetrics(SM_CXICON);
-		//	h = GetSystemMetrics(SM_CYICON);
-		//}
-		//else {
-		//	w = GetSystemMetrics(SM_CXSMICON);
-		//	h = GetSystemMetrics(SM_CYSMICON);
-		//}
-		//const auto p_Thumb = std::make_unique<Image>(p_Img->GetThumbnailImage(w,h));
-		//p_Thumb->GetHICON(&icon);
-
 		// for reasons unknown this causes a `first chance exception` to show in debug log.
-		if (const auto status = p_Img->GetHICON(&icon); status != Gdiplus::Ok)
+		if (const auto status = img.GetHICON(&icon); status != Gdiplus::Ok)
 			throw Dcx::dcxException(TEXT("dcxLoadIcon: %"), GetLastStatusStr(status));
 
 		GdiFlush();
@@ -749,13 +747,29 @@ HBITMAP dcxLoadBitmap(HBITMAP dest, TString& filename)
 #ifdef DCX_USE_GDIPLUS
 	if (Dcx::GDIModule.isUseable())
 	{
-		const auto p_Img = std::make_unique<Gdiplus::Bitmap>(filename.to_wchr());
+		//const auto p_Img = std::make_unique<Gdiplus::Bitmap>(filename.to_wchr());
+		//
+		//// for some reason this returns `OutOfMemory` when the file doesnt exist instead of `FileNotFound`
+		//if (auto status = p_Img->GetLastStatus(); status != Gdiplus::Status::Ok)
+		//	Dcx::error(TEXT("dcxLoadBitmap"), GetLastStatusStr(status));
+		//else {
+		//	status = p_Img->GetHBITMAP(Gdiplus::Color(), &dest);
+		//	if (status != Gdiplus::Status::Ok)
+		//	{
+		//		Dcx::error(TEXT("dcxLoadBitmap"), TEXT("Unable to Get GDI+ Bitmap Info"));
+		//		Dcx::error(TEXT("dcxLoadBitmap"), GetLastStatusStr(status));
+		//		dest = nullptr;
+		//	}
+		//	GdiFlush();
+		//}
+
+		Gdiplus::Bitmap img(filename.to_wchr());
 
 		// for some reason this returns `OutOfMemory` when the file doesnt exist instead of `FileNotFound`
-		if (auto status = p_Img->GetLastStatus(); status != Gdiplus::Status::Ok)
+		if (auto status = img.GetLastStatus(); status != Gdiplus::Status::Ok)
 			Dcx::error(TEXT("dcxLoadBitmap"), GetLastStatusStr(status));
 		else {
-			status = p_Img->GetHBITMAP(Gdiplus::Color(), &dest);
+			status = img.GetHBITMAP(Gdiplus::Color(), &dest);
 			if (status != Gdiplus::Status::Ok)
 			{
 				Dcx::error(TEXT("dcxLoadBitmap"), TEXT("Unable to Get GDI+ Bitmap Info"));
@@ -1461,6 +1475,14 @@ void mIRC_OutText(HDC hdc, TString& txt, LPRECT rcOut, const LPLOGFONT lf, const
 	txt.clear();	// txt = TEXT("");
 }
 
+/// <summary>
+/// Draw text using mIRC's control codes (including colours)
+/// </summary>
+/// <param name="hdc">- The HDC to draw to.</param>
+/// <param name="txt">- The text to draw.</param>
+/// <param name="rc">- A RECT defining the draw area.</param>
+/// <param name="style">- The DrawText() styles to use.</param>
+/// <param name="shadow">- Give the text a shadow?</param>
 void mIRC_DrawText(HDC hdc, const TString& txt, LPRECT rc, const UINT style, const bool shadow)
 {
 	if (txt.empty()) // if no text just exit.
