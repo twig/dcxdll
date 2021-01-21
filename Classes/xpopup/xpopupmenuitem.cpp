@@ -148,6 +148,10 @@ SIZE XPopupMenuItem::getItemSize(const HWND mHwnd)
 		DrawText(hdc, tsStripped.to_chr(), gsl::narrow_cast<int>(tsStripped.len()), &rc, DT_CALCRECT | DT_LEFT | DT_SINGLELINE | DT_VCENTER);
 		size.cx += std::max<long>((rc.right - rc.left), XPMI_MINSTRING);
 
+		//size.cx = XPMI_BOXLPAD + XPMI_BOXRPAD + std::max<long>((rc.right - rc.left), XPMI_MINSTRING);
+		//if (m_bSubMenu)
+		//	size.cx += XPMI_SUBARROW_WIDTH + XPMI_SUBARROW_XPAD;
+
 		//// Odd error in size returned by GetTextExtentPoint32() when dealing with utf text, length is cut short for some reason...
 		//TString tsStripped(m_tsItemText);
 		//tsStripped.strip();
@@ -177,18 +181,22 @@ void XPopupMenuItem::DrawItem(const LPDRAWITEMSTRUCT lpdis)
 	const auto bChecked = dcx_testflag(lpdis->itemState, ODS_CHECKED);
 
 	//// playing around with menu transparency
-	//const BYTE alpha = this->m_pXParentMenu->IsAlpha();
+	//const auto alpha = this->m_pXParentMenu->IsAlpha();
 	//
 	//// If alpha == 255 then menu is fully opaque so no need to change to layered.
-	//if (alpha < 255) {
+	//if (alpha < std::byte{ 255 })
+	//{
 	//	HWND hMenuWnd = WindowFromDC(lpdis->hDC);
 	//
-	//	if (IsWindow(hMenuWnd)) {
-	//		DWORD dwStyle = GetWindowExStyle(hMenuWnd);
+	//	if (IsWindow(hMenuWnd))
+	//	{
+	//		const auto dwStyle = dcxGetWindowExStyle(hMenuWnd);
 	//
-	//		if (!(dwStyle & WS_EX_LAYERED)) {
-	//			SetWindowLong(hMenuWnd, GWL_EXSTYLE, dwStyle | WS_EX_LAYERED);
-	//			SetLayeredWindowAttributes(hMenuWnd, 0, (BYTE)alpha, LWA_ALPHA); // 0xCC = 80% Opaque
+	//		if (!dcx_testflag(dwStyle,WS_EX_LAYERED))
+	//		{
+	//			dcxSetWindowExStyle(hMenuWnd, dwStyle | WS_EX_LAYERED);
+	//			SetLayeredWindowAttributes(hMenuWnd, 0, gsl::narrow_cast<BYTE>(alpha), LWA_ALPHA); // 0xCC = 80% Opaque
+	//
 	//			//RedrawWindow(hMenuWnd, nullptr, nullptr, RDW_INTERNALPAINT|RDW_ALLCHILDREN|RDW_UPDATENOW|RDW_INVALIDATE);
 	//			// NB: Menus on XP will not show as transparent straight away when a transition effect is used when displaying the menu.
 	//			// This can't be fixed at this time, live with it.
@@ -197,34 +205,24 @@ void XPopupMenuItem::DrawItem(const LPDRAWITEMSTRUCT lpdis)
 	//	}
 	//}
 
-//#if DCX_DEBUG_OUTPUT && 0
-//	{
-//		// test code to draw transparent background but have the text be opaque
-//		auto hScreenHDC = GetDC(nullptr);
-//		Auto(ReleaseDC(nullptr, hScreenHDC));
-//		
-//		HWND hMenuWnd = WindowFromDC(lpdis->hDC);
-//
-//		RECT rc = lpdis->rcItem;
-//
-//		MapWindowRect(hMenuWnd, nullptr, &rc);
-//		BitBlt(lpdis->hDC, lpdis->rcItem.left, lpdis->rcItem.top, lpdis->rcItem.right, lpdis->rcItem.bottom, nullptr, rc.left, rc.top, SRCCOPY);
-//	}
-//#endif
+	//// If alpha == 255 then menu is fully opaque so no need to change to layered.
+	//if (const auto alpha = this->m_pXParentMenu->IsAlpha(); alpha < std::byte{ 255 })
+	//{
+	//	if (HWND hMenuWnd = WindowFromDC(lpdis->hDC); hMenuWnd)
+	//	{
+	//		BYTE current_alpha{};
+	//		GetLayeredWindowAttributes(hMenuWnd, nullptr, &current_alpha, nullptr);
+	//		if (current_alpha != std::to_integer<BYTE>(alpha))
+	//		{
+	//			SetLayeredWindowAttributes(hMenuWnd, 0, gsl::narrow_cast<BYTE>(alpha), LWA_ALPHA); // 0xCC = 80% Opaque
+	//			RedrawWindow(hMenuWnd, nullptr, nullptr, RDW_INTERNALPAINT | RDW_ALLCHILDREN | RDW_UPDATENOW | RDW_INVALIDATE);
+	//		}
+	//	}
+	//}
 
 	// All Items
 	this->DrawItemBackground(lpdis, lpcol);
 	this->DrawItemBox(lpdis, lpcol);
-
-	// alrdy done in getsize
-	//if (const auto &typeHash(m_pXParentMenu->getNameHash()); ((typeHash == TEXT("mircbar"_hash)) || (typeHash == TEXT("dialog"_hash))))
-	//{
-	//	if (m_tsItemText.numtok(TEXT('\v')) > 1)
-	//	{
-	//		m_nIcon = m_tsItemText.getfirsttok(1, TEXT('\v')).to_int() - 1;
-	//		m_tsItemText = m_tsItemText.getnexttok(TEXT('\v')).trim();
-	//	}
-	//}
 
 	// Item is selected
 	if (this->m_pXParentMenu->getStyle() != XPopupMenu::MenuStyle::XPMS_BUTTON)
@@ -305,12 +303,13 @@ void XPopupMenuItem::DrawItemBackground(const LPDRAWITEMSTRUCT lpdis, const XPME
 	case XPopupMenu::MenuStyle::XPMS_VERTICAL_REV:
 	default:
 	{
-		if (const auto hBrush = CreateSolidBrush(lpcol->m_clrBack); hBrush)
-		{
-			FillRect(lpdis->hDC, &lpdis->rcItem, hBrush);
-			DeleteObject(hBrush);
-			// NB: atm we simply silently fail when we can't make a brush. (so drawing errors will occur when create fails)
-		}
+		//if (const auto hBrush = CreateSolidBrush(lpcol->m_clrBack); hBrush)
+		//{
+		//	FillRect(lpdis->hDC, &lpdis->rcItem, hBrush);
+		//	DeleteObject(hBrush);
+		//	// NB: atm we simply silently fail when we can't make a brush. (so drawing errors will occur when create fails)
+		//}
+		Dcx::FillRectColour(lpdis->hDC, &lpdis->rcItem, lpcol->m_clrBack);
 	}
 	break;
 	}
@@ -340,11 +339,12 @@ void XPopupMenuItem::DrawItemBox(const LPDRAWITEMSTRUCT lpdis, const XPMENUCOLOR
 	{
 		const RECT rc{ XPMI_BOXLPAD, lpdis->rcItem.top, XPMI_BOXLPAD + XPMI_BOXWIDTH, lpdis->rcItem.bottom };
 
-		if (const auto hBrush = CreateSolidBrush(lpcol->m_clrBox); hBrush)
-		{
-			FillRect(lpdis->hDC, &rc, hBrush);
-			DeleteObject(hBrush);
-		}
+		//if (const auto hBrush = CreateSolidBrush(lpcol->m_clrBox); hBrush)
+		//{
+		//	FillRect(lpdis->hDC, &rc, hBrush);
+		//	DeleteObject(hBrush);
+		//}
+		Dcx::FillRectColour(lpdis->hDC, &rc, lpcol->m_clrBox);
 		break;
 	}
 
@@ -415,29 +415,71 @@ void XPopupMenuItem::DrawItemSelection(const LPDRAWITEMSTRUCT lpdis, const XPMEN
 	//	return;
 	//}
 
+	//const auto hPen = CreatePen(PS_SOLID, 1, lpcol->m_clrSelectionBorder);
+	//
+	//if (!hPen)
+	//	return;
+	//Auto(DeleteObject(hPen));
+	//
+	//const auto hOldPen = SelectObject(lpdis->hDC, hPen);
+	//Auto(SelectObject(lpdis->hDC, hOldPen));
+	//
+	//if (const auto hBrush = CreateSolidBrush(bDis ? lpcol->m_clrDisabledSelection : lpcol->m_clrSelection); hBrush)
+	//{
+	//	Auto(DeleteObject(hBrush));
+	//
+	//	const auto hOldBrush = SelectObject(lpdis->hDC, hBrush);
+	//	Auto(SelectObject(lpdis->hDC, hOldBrush));
+	//
+	//	const RECT rc = lpdis->rcItem;
+	//
+	//	if (bRounded)
+	//		RoundRect(lpdis->hDC, rc.left, rc.top, rc.right, rc.bottom, 10, 10);
+	//	else
+	//		Rectangle(lpdis->hDC, rc.left, rc.top, rc.right, rc.bottom);
+	//}
+
 	const auto hPen = CreatePen(PS_SOLID, 1, lpcol->m_clrSelectionBorder);
 
 	if (!hPen)
 		return;
 	Auto(DeleteObject(hPen));
 
-	const auto hOldPen = SelectObject(lpdis->hDC, hPen);
-	Auto(SelectObject(lpdis->hDC, hOldPen));
+	HDC hdc = lpdis->hDC;
 
-	if (const auto hBrush = CreateSolidBrush(bDis ? lpcol->m_clrDisabledSelection : lpcol->m_clrSelection); hBrush)
+	HPAINTBUFFER ai_Buffer{ nullptr };
+	if (Dcx::UXModule.IsBufferedPaintSupported())
 	{
-		Auto(DeleteObject(hBrush));
+		// 0x7f half of 0xff = 50% transparency
+		// 0xCC = 80% Opaque
+		BLENDFUNCTION ai_bf{ AC_SRC_OVER, 0, 0xC0, 0 };
+		BP_PAINTPARAMS paintParams{ sizeof(BP_PAINTPARAMS),BPPF_ERASE, nullptr, &ai_bf };
 
-		const auto hOldBrush = SelectObject(lpdis->hDC, hBrush);
-		Auto(SelectObject(lpdis->hDC, hOldBrush));
-
-		const RECT rc = lpdis->rcItem;
-
-		if (bRounded)
-			RoundRect(lpdis->hDC, rc.left, rc.top, rc.right, rc.bottom, 10, 10);
-		else
-			Rectangle(lpdis->hDC, rc.left, rc.top, rc.right, rc.bottom);
+		ai_Buffer = Dcx::UXModule.dcxBeginBufferedPaint(lpdis->hDC, &lpdis->rcItem, BPBF_COMPATIBLEBITMAP, &paintParams, &hdc);
 	}
+
+	{
+		const auto hOldPen = SelectObject(hdc, hPen);
+		Auto(SelectObject(hdc, hOldPen));
+
+		if (const auto hBrush = CreateSolidBrush(bDis ? lpcol->m_clrDisabledSelection : lpcol->m_clrSelection); hBrush)
+		{
+			Auto(DeleteObject(hBrush));
+
+			const auto hOldBrush = SelectObject(hdc, hBrush);
+			Auto(SelectObject(hdc, hOldBrush));
+
+			const RECT rc = lpdis->rcItem;
+
+			if (bRounded)
+				RoundRect(hdc, rc.left, rc.top, rc.right, rc.bottom, 10, 10);
+			else
+				Rectangle(hdc, rc.left, rc.top, rc.right, rc.bottom);
+		}
+	}
+
+	if (ai_Buffer)
+		Dcx::UXModule.dcxEndBufferedPaint(ai_Buffer, TRUE);
 }
 
 /*!
@@ -690,8 +732,8 @@ void XPopupMenuItem::DrawItemSubArrow(const LPDRAWITEMSTRUCT lpdis, const XPMENU
 	const auto hOldPen = SelectObject(lpdis->hDC, hPen);
 	Auto(SelectObject(lpdis->hDC, hOldPen));
 
-	const auto x = lpdis->rcItem.right - 9;
-	const auto y = (lpdis->rcItem.bottom + lpdis->rcItem.top) / 2 - 5;
+	const auto x = lpdis->rcItem.right - XPMI_SUBARROW_WIDTH;
+	const auto y = ((lpdis->rcItem.bottom + lpdis->rcItem.top) / 2) - (XPMI_SUBARROW_HEIGHT / 2);
 
 	MoveToEx(lpdis->hDC, x, y, nullptr);
 	LineTo(lpdis->hDC, x + 1, y);
@@ -712,7 +754,7 @@ void XPopupMenuItem::DrawItemSubArrow(const LPDRAWITEMSTRUCT lpdis, const XPMENU
 	MoveToEx(lpdis->hDC, x, y + 8, nullptr);
 	LineTo(lpdis->hDC, x + 1, y + 8);
 
-	ExcludeClipRect(lpdis->hDC, lpdis->rcItem.right - 11, lpdis->rcItem.top, lpdis->rcItem.right, lpdis->rcItem.bottom);
+	ExcludeClipRect(lpdis->hDC, lpdis->rcItem.right - (XPMI_SUBARROW_WIDTH + XPMI_SUBARROW_XPAD), lpdis->rcItem.top, lpdis->rcItem.right, lpdis->rcItem.bottom);
 	//#endif
 }
 
@@ -847,11 +889,12 @@ void XPopupMenuItem::DrawGradient(const HDC hdc, const RECT* const lprc, const C
 			else
 				SetRect(&rc, lprc->left + dn, lprc->top, lprc->left + dn + dy, lprc->bottom);
 
-			if (const auto hBrush = CreateSolidBrush(RGB(Red, Green, Blue)); hBrush)
-			{
-				FillRect(hdc, &rc, hBrush);
-				DeleteObject(hBrush);
-			}
+			//if (const auto hBrush = CreateSolidBrush(RGB(Red, Green, Blue)); hBrush)
+			//{
+			//	FillRect(hdc, &rc, hBrush);
+			//	DeleteObject(hBrush);
+			//}
+			Dcx::FillRectColour(hdc, &rc, RGB(Red, Green, Blue));
 		}
 	}
 }
@@ -935,7 +978,7 @@ void XPopupMenuItem::DrawVerticalBar(const LPDRAWITEMSTRUCT lpdis, const XPMENUC
 			XPopupMenuItem::DrawGradient(lpdis->hDC, &rcIntersect, lpcol->m_clrBox, lpcol->m_clrLightBox, TRUE);
 		else
 			XPopupMenuItem::DrawGradient(lpdis->hDC, &rcIntersect, lpcol->m_clrLightBox, lpcol->m_clrBox, TRUE);
-	}
+}
 #endif
 }
 
@@ -1128,8 +1171,8 @@ bool XPopupMenuItem::DrawMenuBitmap(const LPDRAWITEMSTRUCT lpdis, const bool bBi
 
 			// copy the box we want from the whole gradient bar
 			BitBlt(lpdis->hDC, rcIntersect.left, rcIntersect.top, rcIntersect.right - rcIntersect.left, rcIntersect.bottom - rcIntersect.top, *hdcBuffer, rcIntersect.left, rcIntersect.top, SRCCOPY);
-		}
 	}
+}
 	return true;
 #endif
 }

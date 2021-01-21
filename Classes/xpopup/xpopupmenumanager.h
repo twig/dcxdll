@@ -101,14 +101,13 @@ protected:
 
 	VectorOfXPopupMenu m_vpXPMenu; //!< Vector of XPopupMenu Objects
 
-#if DCX_DEBUG_OUTPUT && 0
+#if DCX_CUSTOM_MENUS
 	static WNDPROC g_OldmIRCMenusWindowProc;
 	static LRESULT CALLBACK mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 #endif
 };
 
 extern HMENU g_OriginalMenuBar;
-//extern XPopupMenu *g_mIRCScriptMenu;
 
 #ifdef __INTEL_COMPILER // Defined when using Intel C++ Compiler.
 #pragma warning( pop )

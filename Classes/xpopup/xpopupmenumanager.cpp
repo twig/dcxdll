@@ -15,7 +15,7 @@
 #include "Classes/xpopup/xpopupmenumanager.h"
 #include "Dcx.h"
 
-#if DCX_DEBUG_OUTPUT && 0
+#if DCX_CUSTOM_MENUS
 WNDPROC XPopupMenuManager::g_OldmIRCMenusWindowProc = nullptr;
 #endif
 
@@ -57,7 +57,7 @@ void XPopupMenuManager::load(void)
 	/***** XPopup Stuff *****/
 	WNDCLASSEX wc{};
 
-#if DCX_DEBUG_OUTPUT && 0
+#if DCX_CUSTOM_MENUS
 	//wc.cbSize = sizeof(WNDCLASSEX);
 	//GetClassInfoEx(nullptr,TEXT("#32768"),&wc); // menu
 	//g_OldmIRCMenusWindowProc = wc.lpfnWndProc;
@@ -65,9 +65,9 @@ void XPopupMenuManager::load(void)
 	//RegisterClassEx(&wc);
 	//DCX_DEBUG(mIRCLinker::debug,TEXT("LoadDLL"), TEXT("Subclassed Menu Class"));
 
-	HWND tmp_hwnd = CreateWindowEx(0, TEXT("#32768"), nullptr, WS_POPUP, 0, 0, 1, 1, nullptr, nullptr, GetModuleHandle(nullptr), nullptr);
-	if (tmp_hwnd != nullptr) {
-		g_OldmIRCMenusWindowProc = (WNDPROC)SetClassLongPtr(tmp_hwnd, GCLP_WNDPROC, (LONG_PTR)XPopupMenuManager::mIRCMenusWinProc);
+	if (HWND tmp_hwnd = CreateWindowEx(0, TEXT("#32768"), nullptr, WS_POPUP, 0, 0, 1, 1, nullptr, nullptr, GetModuleHandle(nullptr), nullptr); tmp_hwnd)
+	{
+		g_OldmIRCMenusWindowProc = (WNDPROC)SetClassLongPtr(tmp_hwnd, GCLP_WNDPROC, (ULONG_PTR)XPopupMenuManager::mIRCMenusWinProc);
 		DestroyWindow(tmp_hwnd);
 		DCX_DEBUG(mIRCLinker::debug, TEXT("LoadDLL"), TEXT("Subclassed Menu Class"));
 	}
@@ -1442,7 +1442,6 @@ const bool XPopupMenuManager::LoadPopupItemsFromXML(XPopupMenu* menu, HMENU hMen
 
 		mii.cbSize = sizeof(MENUITEMINFO);
 
-		//XPopupMenuItem *item = nullptr;
 		std::unique_ptr<XPopupMenuItem> item;
 		const TString caption(element->Attribute("caption"));
 
@@ -1451,7 +1450,6 @@ const bool XPopupMenuManager::LoadPopupItemsFromXML(XPopupMenu* menu, HMENU hMen
 			mii.fMask = MIIM_DATA | MIIM_FTYPE | MIIM_STATE;
 			mii.fType = MFT_OWNERDRAW | MFT_SEPARATOR;
 
-			//item = new XPopupMenuItem(menu, true);
 			item = std::make_unique<XPopupMenuItem>(menu, true);
 		}
 		else {
@@ -1484,7 +1482,6 @@ const bool XPopupMenuManager::LoadPopupItemsFromXML(XPopupMenu* menu, HMENU hMen
 			}
 
 			// TODO: command
-			//item = new XPopupMenuItem(menu, caption, mIcon, (mii.hSubMenu != nullptr));
 			item = std::make_unique<XPopupMenuItem>(menu, caption, mIcon, (mii.hSubMenu != nullptr));
 		}
 
@@ -1512,7 +1509,9 @@ const TString XPopupMenuManager::GetMenuAttributeFromXML(const char* const attri
 	return TString(global->Attribute(attrib));
 }
 
-#if DCX_DEBUG_OUTPUT && 0
+#if DCX_CUSTOM_MENUS
+std::list<HWND> winlist;
+
 LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	// Incase execution somehow ends up here without this pointer being set.
@@ -1521,45 +1520,71 @@ LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPAR
 
 	switch (uMsg)
 	{
-	case WM_NCCREATE:
-	{
-		CREATESTRUCT* cs = (CREATESTRUCT*)lParam;
-		cs->dwExStyle |= WS_EX_LAYERED;
-		//return TRUE;
-		//return CallWindowProc(XPopupMenuManager::g_OldmIRCMenusWindowProc, mHwnd, uMsg, wParam, lParam);
-	}
-	break;
+	//case WM_NCCREATE:
+	//{
+	//	CREATESTRUCT* cs = (CREATESTRUCT*)lParam;
+	//	cs->dwExStyle |= WS_EX_LAYERED;
+	//	//return TRUE;
+	//	//return CallWindowProc(XPopupMenuManager::g_OldmIRCMenusWindowProc, mHwnd, uMsg, wParam, lParam);
+	//}
+	//break;
+
 	case WM_CREATE:
 	{
-		//CREATESTRUCT *cs = (CREATESTRUCT *)lParam;
-		AddStyles(mHwnd, GWL_EXSTYLE, WS_EX_LAYERED);
-		SetLayeredWindowAttributes(mHwnd, 0, (BYTE)0xCC, LWA_ALPHA); // 0xCC = 80% Opaque
+		//CREATESTRUCT* cs = (CREATESTRUCT*)lParam;
+		//cs->dwExStyle |= WS_EX_LAYERED;
+		//AddStyles(mHwnd, GWL_EXSTYLE, WS_EX_LAYERED);
+		//SetLayeredWindowAttributes(mHwnd, 0, (BYTE)0xCC, LWA_ALPHA); // 0xCC = 80% Opaque
+
+		// only if custom menus enabled.
+		if (!Dcx::setting_bCustomMenus)
+			break;
+
+		// check for previous menu...
+		if (!winlist.empty())
+		{
+			// change previous window.
+			auto parent = winlist.back();
+			const auto dwStyle = dcxGetWindowExStyle(parent);
+			const auto isLayered = dcx_testflag(dwStyle, WS_EX_LAYERED);
+
+			// make sure previous menu is layered.
+			if (!isLayered)
+				dcxSetWindowExStyle(parent, dwStyle | WS_EX_LAYERED);
+
+			// set alpha for previous menu.
+			SetLayeredWindowAttributes(parent, 0, (BYTE)0x7fU, LWA_ALPHA); // 0xCC = 80% Opaque
+		}
+		// add this window to list.
+		winlist.push_back(mHwnd);
 	}
 	break;
-	case WM_MOUSELEAVE:
-	{
-		// auto close menu on mouse leave??
-	}
-	break;
+
 	//case WM_PAINT:
 	//{
-	//	BOOL bEnabled = FALSE;
-	//	Dcx::VistaModule.dcxDwmIsCompositionEnabled(&bEnabled);
-	//	if (bEnabled) {
-	//		DWM_BLURBEHIND blur{DWM_BB_ENABLE, TRUE, nullptr, FALSE};
-	//		Dcx::VistaModule.dcxDwmEnableBlurBehindWindow(mHwnd, &blur);
-	//	}
-
+	//	//if (!Dcx::dcxGetProp<BOOL>(mHwnd, TEXT("dcx_test_menu")))
+	//	//	break;
+	//
+	//	const auto dwStyle = dcxGetWindowExStyle(mHwnd);
+	//
+	//	//BOOL bEnabled = FALSE;
+	//	//Dcx::VistaModule.dcxDwmIsCompositionEnabled(&bEnabled);
+	//	//if (bEnabled)
+	//	//{
+	//	//	DWM_BLURBEHIND blur{DWM_BB_ENABLE, TRUE, nullptr, FALSE};
+	//	//	Dcx::VistaModule.dcxDwmEnableBlurBehindWindow(mHwnd, &blur);
+	//	//}
+	//
 	//	//// playing around with menu transparency
 	//	//const BYTE alpha = 0x7F;
-
+	//
 	//	// If alpha == 255 then menu is fully opaque so no need to change to layered.
 	//	//if (alpha < 255) {
 	//	//	HWND hMenuWnd = mHwnd;
-
+	//
 	//	//	if (IsWindow(hMenuWnd)) {
 	//	//		DWORD dwStyle = GetWindowExStyle(hMenuWnd);
-
+	//
 	//	//		if (!dcx_testflag(dwStyle, WS_EX_LAYERED))
 	//	//		{
 	//	//			SetWindowLong(hMenuWnd, GWL_EXSTYLE, dwStyle | WS_EX_LAYERED);
@@ -1571,30 +1596,70 @@ LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPAR
 	//break;
 
 	//case WM_ERASEBKGND:
+	//{
+	//	const auto dwStyle = dcxGetWindowExStyle(mHwnd);
+	//	const auto isLayered = dcx_testflag(dwStyle, WS_EX_LAYERED);
+	//
+	//	if (!isLayered)
 	//	{
-	//		if (GetProp(mHwnd, TEXT("dcx_ghosted")) == nullptr) {
-	//			SetProp(mHwnd, TEXT("dcx_ghosted"), (HANDLE)1);
-	//			LRESULT lRes = CallWindowProc(XPopupMenuManager::g_OldmIRCMenusWindowProc, mHwnd, uMsg, wParam, lParam);
-	//			AddStyles(mHwnd, GWL_EXSTYLE, WS_EX_LAYERED);
-	//			SetLayeredWindowAttributes(mHwnd, 0, (BYTE)0xCC, LWA_ALPHA); // 0xCC = 80% Opaque
-	//			RedrawWindow(mHwnd, nullptr, nullptr, RDW_INTERNALPAINT|RDW_ALLCHILDREN|RDW_UPDATENOW|RDW_INVALIDATE|RDW_ERASE|RDW_FRAME);
-	//			return lRes;
-	//		}
+	//		dcxSetWindowExStyle(mHwnd, dwStyle | WS_EX_LAYERED);
+	//		SetLayeredWindowAttributes(mHwnd, 0, (BYTE)0xCC, LWA_ALPHA); // 0xCC = 80% Opaque
 	//	}
-	//	break;
-	//case WM_DESTROY:
+	//	else
 	//	{
-	//		if (GetProp(mHwnd, TEXT("dcx_ghosted")) != nullptr) {
-	//			RemoveProp(mHwnd, TEXT("dcx_ghosted"));
-	//		}
+	//		//dcxSetWindowExStyle(mHwnd, dwStyle | WS_EX_LAYERED);
+	//		SetLayeredWindowAttributes(mHwnd, 0, (BYTE)0xFF, LWA_ALPHA); // 0xCC = 80% Opaque
 	//	}
-	//	break;
+	//
+	//	//HDC hdc = (HDC)wParam;
+	//	//BLENDFUNCTION stBlend = { AC_SRC_OVER, 0, 0xC0, AC_SRC_OVER };
+	//	//UpdateLayeredWindow(mHwnd, hdc, nullptr, nullptr, src, nullptr, 0, &stBlend, 0);
+	//
+	//	//BOOL bEnabled = FALSE;
+	//	//Dcx::VistaModule.dcxDwmIsCompositionEnabled(&bEnabled);
+	//	//if (bEnabled)
+	//	//{
+	//	//	DWM_BLURBEHIND blur{ DWM_BB_ENABLE, TRUE, nullptr, FALSE };
+	//	//	Dcx::VistaModule.dcxDwmEnableBlurBehindWindow(mHwnd, &blur);
+	//	//}
+	//
+	//	//if (GetProp(mHwnd, TEXT("dcx_ghosted")) == nullptr)
+	//	//{
+	//	//	SetProp(mHwnd, TEXT("dcx_ghosted"), (HANDLE)1);
+	//	//	LRESULT lRes = CallWindowProc(XPopupMenuManager::g_OldmIRCMenusWindowProc, mHwnd, uMsg, wParam, lParam);
+	//	//	AddStyles(mHwnd, GWL_EXSTYLE, WS_EX_LAYERED);
+	//	//	SetLayeredWindowAttributes(mHwnd, 0, (BYTE)0xCC, LWA_ALPHA); // 0xCC = 80% Opaque
+	//	//	RedrawWindow(mHwnd, nullptr, nullptr, RDW_INTERNALPAINT | RDW_ALLCHILDREN | RDW_UPDATENOW | RDW_INVALIDATE | RDW_ERASE | RDW_FRAME);
+	//	//	return lRes;
+	//	//}
+	//}
+	//break;
 
-	//case WM_ERASEBKGND:
-	//	{
-	//		return TRUE;
-	//	}
-	//	break;
+	case WM_DESTROY:
+	{
+		if (winlist.empty())
+			break;
+
+		// remove ourselfs.
+		winlist.pop_back();
+
+		if (!winlist.empty())
+		{
+			// get previous menu window.
+			auto parent = winlist.back();
+			const auto dwStyle = dcxGetWindowExStyle(parent);
+			const auto isLayered = dcx_testflag(dwStyle, WS_EX_LAYERED);
+
+			if (!isLayered)
+				break;
+
+			SetLayeredWindowAttributes(parent, 0, (BYTE)0xFFU, LWA_ALPHA); // 0xCC = 80% Opaque
+		}
+	}
+	break;
+
+	default:
+		break;
 	}
 
 	return CallWindowProc(XPopupMenuManager::g_OldmIRCMenusWindowProc, mHwnd, uMsg, wParam, lParam);
