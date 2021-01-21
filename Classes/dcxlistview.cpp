@@ -340,7 +340,8 @@ void DcxListView::parseInfoRequest(const TString& input, const refString<TCHAR, 
 
 																	// invalid column
 		if ((col < -1) || (col >= count) || (count <= 0))
-			throw Dcx::dcxException("Out of Range");
+			//throw Dcx::dcxException("Out of Range");
+			throw DcxExceptions::dcxOutOfRange();
 
 		auto val = std::make_unique<int[]>(gsl::narrow_cast<UINT>(count));
 
@@ -379,7 +380,8 @@ void DcxListView::parseInfoRequest(const TString& input, const refString<TCHAR, 
 		if (numtok > 4)
 			nSubItem = input++.to_int() - 1;			// tok 5
 		if ((nItem < 0) || (nSubItem < 0) || (nItem >= Dcx::dcxListView_GetItemCount(m_Hwnd)))
-			throw Dcx::dcxException("Out of Range");
+			//throw Dcx::dcxException("Out of Range");
+			throw DcxExceptions::dcxOutOfRange();
 
 		Dcx::dcxListView_GetItemText(m_Hwnd, nItem, nSubItem, szReturnValue, MIRC_BUFFER_SIZE_CCH);
 	}
@@ -395,7 +397,8 @@ void DcxListView::parseInfoRequest(const TString& input, const refString<TCHAR, 
 		const auto nSubItem = input++.to_int() - 1;	// tok 5
 
 		if ((nItem < 0) || (nSubItem < 0) || (nItem >= Dcx::dcxListView_GetItemCount(m_Hwnd)) || (nSubItem >= this->getColumnCount()))
-			throw Dcx::dcxException("Out of Range");
+			//throw Dcx::dcxException("Out of Range");
+			throw DcxExceptions::dcxOutOfRange();
 
 		LVITEM lvi{};
 		lvi.mask = LVIF_IMAGE;
@@ -416,7 +419,8 @@ void DcxListView::parseInfoRequest(const TString& input, const refString<TCHAR, 
 		const auto nItem = input++.to_int() - 1;	// tok 4
 													// In range
 		if ((nItem < 0) || (nItem >= Dcx::dcxListView_GetItemCount(m_Hwnd)))
-			throw Dcx::dcxException("Out of Range");
+			//throw Dcx::dcxException("Out of Range");
+			throw DcxExceptions::dcxOutOfRange();
 
 		szReturnValue = dcx_truefalse(dcx_testflag(Dcx::dcxListView_GetItemState(m_Hwnd, nItem, LVIS_SELECTED), LVIS_SELECTED));
 	}
@@ -441,7 +445,6 @@ void DcxListView::parseInfoRequest(const TString& input, const refString<TCHAR, 
 			const auto nItem = Dcx::dcxListView_GetNextItem(m_Hwnd, -1, LVIS_SELECTED);
 
 			if (nItem > -1)
-				//wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), nItem + 1);
 				_ts_snprintf(szReturnValue, TEXT("%d"), nItem + 1);
 		}
 		// multi select
@@ -497,7 +500,8 @@ void DcxListView::parseInfoRequest(const TString& input, const refString<TCHAR, 
 
 		const auto nItem = input++.to_int() - 1;	// tok 4
 		if ((nItem < 0) || (nItem >= Dcx::dcxListView_GetItemCount(m_Hwnd)))
-			throw Dcx::dcxException("Out of Range");
+			//throw Dcx::dcxException("Out of Range");
+			throw DcxExceptions::dcxOutOfRange();
 
 		if (this->isListViewStyle(to_WindowStyle(LVS_REPORT)))
 		{
@@ -525,14 +529,16 @@ void DcxListView::parseInfoRequest(const TString& input, const refString<TCHAR, 
 	case L"find"_hash:
 	{
 		if (numtok < 7)
-			throw Dcx::dcxException("Invalid number of arguments");
+			//throw Dcx::dcxException("Invalid number of arguments");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		if (const auto matchtext(input.getfirsttok(2, TSTABCHAR).trim()); !matchtext.empty())
 		{
 			const auto params(input.getnexttok(TSTABCHAR).trim());			// tok 3
 
 			if (params.numtok() != 3)
-				throw Dcx::dcxException("Invalid number of arguments");
+				//throw Dcx::dcxException("Invalid number of arguments");
+				throw DcxExceptions::dcxInvalidArguments();
 
 			const auto SearchType = CharToSearchType(params++[0]);
 			const auto nColumn = params++.to_int() - 1;	// tok 2
@@ -559,7 +565,8 @@ void DcxListView::parseInfoRequest(const TString& input, const refString<TCHAR, 
 				// Particular Column
 				else {
 					if (nColumn < -1 || nColumn >= nColumns)
-						throw Dcx::dcxException("Out of Range");
+						//throw Dcx::dcxException("Out of Range");
+						throw DcxExceptions::dcxOutOfRange();
 
 					for (auto i = decltype(nItems){0}; i < nItems; ++i)
 					{
@@ -595,7 +602,8 @@ void DcxListView::parseInfoRequest(const TString& input, const refString<TCHAR, 
 				else {
 
 					if (nColumn < -1 || nColumn >= nColumns)
-						throw Dcx::dcxException("Out of Range");
+						//throw Dcx::dcxException("Out of Range");
+						throw DcxExceptions::dcxOutOfRange();
 
 					for (auto i = decltype(nItems){0}; i < nItems; ++i)
 					{
@@ -659,7 +667,8 @@ void DcxListView::parseInfoRequest(const TString& input, const refString<TCHAR, 
 		}
 		else {
 			if (nColumn < 0 || nColumn >= count)
-				throw Dcx::dcxException("Column Out Of Range");
+				//throw Dcx::dcxException("Out of Range");
+				throw DcxExceptions::dcxOutOfRange();
 
 			_ts_snprintf(szReturnValue, TEXT("%d"), Dcx::dcxListView_GetColumnWidth(m_Hwnd, nColumn));
 		}
@@ -669,12 +678,14 @@ void DcxListView::parseInfoRequest(const TString& input, const refString<TCHAR, 
 	case L"htext"_hash:
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Invalid number of arguments");
+			//throw Dcx::dcxException("Invalid number of arguments");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto nColumn = input.getnexttok().to_int() - 1;	// tok 4
 
 		if (nColumn < 0 || nColumn >= this->getColumnCount())
-			throw Dcx::dcxException("Column Out Of Range");
+			//throw Dcx::dcxException("Out of Range");
+			throw DcxExceptions::dcxOutOfRange();
 
 		LVCOLUMN lvc{};
 		lvc.mask = LVCF_TEXT;
@@ -688,12 +699,14 @@ void DcxListView::parseInfoRequest(const TString& input, const refString<TCHAR, 
 	case L"hicon"_hash:
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Invalid number of arguments");
+			//throw Dcx::dcxException("Invalid number of arguments");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto nColumn = input.getnexttok().to_int() - 1;	// tok 4
 
 		if (nColumn < 0 || nColumn >= this->getColumnCount())
-			throw Dcx::dcxException("Column Out Of Range");
+			//throw Dcx::dcxException("Out of Range");
+			throw DcxExceptions::dcxOutOfRange();
 
 		LVCOLUMN lvc{};
 		lvc.mask = LVCF_IMAGE;
@@ -706,12 +719,14 @@ void DcxListView::parseInfoRequest(const TString& input, const refString<TCHAR, 
 	case L"hstate"_hash:
 	{
 		if (numtok != 4)
-			throw Dcx::dcxException("Invalid number of arguments");
+			//throw Dcx::dcxException("Invalid number of arguments");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto nCol = (input.getnexttok().to_int() - 1);	// tok 4
 
 		if (nCol < 0 || nCol >= this->getColumnCount())
-			throw Dcx::dcxException("Column Out Of Range");
+			//throw Dcx::dcxException("Out of Range");
+			throw DcxExceptions::dcxOutOfRange();
 
 		HDITEM hdr{};
 		hdr.mask = HDI_FORMAT;
@@ -741,7 +756,8 @@ void DcxListView::parseInfoRequest(const TString& input, const refString<TCHAR, 
 	case L"gtext"_hash:
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Invalid number of arguments");
+			//throw Dcx::dcxException("Invalid number of arguments");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto GID = input.getnexttok().to_<UINT>();	// tok 4
 
@@ -760,13 +776,15 @@ void DcxListView::parseInfoRequest(const TString& input, const refString<TCHAR, 
 	case L"pbar"_hash:
 	{
 		if (numtok < 6)
-			throw Dcx::dcxException("Invalid number of arguments");
+			//throw Dcx::dcxException("Invalid number of arguments");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto nItem = input.getnexttok().to_int() - 1;	// tok 4
 		const auto nSubItem = input.getnexttok().to_int() - 1;	// tok 5
 
 		if (nItem < 0 || nSubItem < 0 || nItem >= Dcx::dcxListView_GetItemCount(m_Hwnd))
-			throw Dcx::dcxException("Out of Range");
+			//throw Dcx::dcxException("Out of Range");
+			throw DcxExceptions::dcxOutOfRange();
 
 		LVITEM lvi{ LVIF_PARAM, nItem };
 
@@ -850,15 +868,18 @@ void DcxListView::parseInfoRequest(const TString& input, const refString<TCHAR, 
 	// [NAME] [ID] [PROP]
 	case L"emptytext"_hash:
 	{
-		if (Dcx::VistaModule.isUseable())
-			Dcx::dcxListView_GetEmptyText(m_Hwnd, szReturnValue.data(), MIRC_BUFFER_SIZE_CCH);
+		//if (Dcx::VistaModule.isUseable())
+		//	Dcx::dcxListView_GetEmptyText(m_Hwnd, szReturnValue.data(), MIRC_BUFFER_SIZE_CCH);
+
+		szReturnValue = TGetWindowText(m_Hwnd);
 	}
 	break;
 	// [NAME] [ID] [PROP] [GID]
 	case L"gstate"_hash:
 	{
 		if (numtok != 4)
-			throw Dcx::dcxException("Invalid number of arguments");
+			//throw Dcx::dcxException("Invalid number of arguments");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		TString tsFlags('+');
 
@@ -887,7 +908,8 @@ void DcxListView::parseInfoRequest(const TString& input, const refString<TCHAR, 
 	case L"icons"_hash:
 	{
 		if (numtok != 4)
-			throw Dcx::dcxException("Invalid number of arguments");
+			//throw Dcx::dcxException("Invalid number of arguments");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto iFlags = parseIconFlagOptions(input.getnexttok());	// tok 4
 
@@ -1046,7 +1068,8 @@ void DcxListView::parseCommandRequest(const TString& input)
 		const auto info(input++);		// tok 7, -1
 
 		if (!xflag[TEXT('+')])
-			throw Dcx::dcxException("Missing '+' in flags");
+			//throw Dcx::dcxException("Missing '+' in flags");
+			throw DcxExceptions::dcxInvalidFlag();
 
 		if (!xflag[TEXT('M')])	// mark info
 			throw Dcx::dcxException(TEXT("Unknown flags %"), input.gettok(6));
@@ -1403,7 +1426,7 @@ void DcxListView::parseCommandRequest(const TString& input)
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		ListView_EnableGroupView(m_Hwnd, (input.getnexttok() == TEXT('1')));	// tok 4
+		Dcx::dcxListView_EnableGroupView(m_Hwnd, (input.getnexttok() == TEXT('1')));	// tok 4
 	}
 	// xdid -n [NAME] [ID] [SWITCH] [N] [+FLAGS] (WIDTH) ...
 	else if (flags[TEXT('n')])
@@ -1427,7 +1450,7 @@ void DcxListView::parseCommandRequest(const TString& input)
 				throw Dcx::dcxException("Insufficient number of widths specified for +m flag");
 
 			for (auto i = decltype(iTotal){1}; i <= iTotal; ++i)
-				ListView_SetColumnWidth(m_Hwnd, i - 1, input.getnexttok().to_int());	// tok 6+
+				Dcx::dcxListView_SetColumnWidth(m_Hwnd, i - 1, input.getnexttok().to_int());	// tok 6+
 		}
 		else if (xflags[TEXT('d')])
 		{
@@ -1500,10 +1523,12 @@ void DcxListView::parseCommandRequest(const TString& input)
 				(gsl::narrow_cast<UINT>(tmp) > count)) // out of array bounds
 				throw Dcx::dcxException(TEXT("Invalid index %."), tmp);
 
+			//std::clamp(gsl::narrow_cast<UINT>(tmp), 0U, count);
+
 			gsl::at(indexes, i++) = tmp - 1;
 		}
 
-		ListView_SetColumnOrderArray(m_Hwnd, count, indexes.get());
+		Dcx::dcxListView_SetColumnOrderArray(m_Hwnd, count, indexes.get());
 	}
 	// xdid -q [NAME] [ID] [SWITCH] [N] [+FLAGS] [GID] [Group Text]
 	else if (flags[TEXT('q')])
@@ -1582,7 +1607,7 @@ void DcxListView::parseCommandRequest(const TString& input)
 			lvg.state = iState;
 			lvg.uAlign = iFlags;
 
-			ListView_InsertGroup(m_Hwnd, index, std::addressof(lvg));
+			Dcx::dcxListView_InsertGroup(m_Hwnd, index, std::addressof(lvg));
 			break;
 		}
 		case TEXT("Move"_hash):
@@ -1596,7 +1621,7 @@ void DcxListView::parseCommandRequest(const TString& input)
 			if (!Dcx::dcxListView_HasGroup(m_Hwnd, gsl::narrow_cast<WPARAM>(gid)))
 				throw Dcx::dcxException(TEXT("Group doesn't exist: %"), gid);
 
-			ListView_MoveGroup(m_Hwnd, gid, index);
+			Dcx::dcxListView_MoveGroup(m_Hwnd, gid, index);
 			break;
 		}
 		case TEXT("Del"_hash):
@@ -1607,12 +1632,12 @@ void DcxListView::parseCommandRequest(const TString& input)
 			const auto gid = input++.to_int();								// tok 5
 
 			if (gid == -1)
-				ListView_RemoveAllGroups(m_Hwnd);
+				Dcx::dcxListView_RemoveAllGroups(m_Hwnd);
 			else {
 				if (!Dcx::dcxListView_HasGroup(m_Hwnd, gsl::narrow_cast<WPARAM>(gid)))
 					throw Dcx::dcxException(TEXT("Group doesn't exist: %"), gid);
 
-				ListView_RemoveGroup(m_Hwnd, gid);
+				Dcx::dcxListView_RemoveGroup(m_Hwnd, gid);
 			}
 			break;
 		}
@@ -1914,7 +1939,7 @@ void DcxListView::parseCommandRequest(const TString& input)
 			break;
 		}
 
-		ListView_SetView(m_Hwnd, mode);
+		Dcx::dcxListView_SetView(m_Hwnd, mode);
 	}
 	// xdid -y [NAME] [ID] [SWITCH] [+FLAGS]
 	else if (flags[TEXT('y')])
@@ -1966,11 +1991,12 @@ void DcxListView::parseCommandRequest(const TString& input)
 			throw DcxExceptions::dcxInvalidArguments();
 
 		if (dcx_testflag(lvsort->iSortFlags, LVSS_CUSTOM) && numtok < 6)
-			throw Dcx::dcxException("Invalid Arguments for Flags");
+			//throw Dcx::dcxException("Invalid Arguments for Flags");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		lvsort->tsCustomAlias = input.getnexttok();		// tok 6
 
-		ListView_SortItemsEx(m_Hwnd, DcxListView::sortItemsEx, lvsort.get());
+		Dcx::dcxListView_SortItemsEx(m_Hwnd, DcxListView::sortItemsEx, lvsort.get());
 	}
 	// xdid -T [NAME] [ID] [SWITCH] [nItem] [nSubItem] (ToolTipText)
 	// atm this only seems works for subitem 0. Mainly due to the callback LVN_GETINFOTIP only being sent for sub 0.
@@ -2024,7 +2050,6 @@ void DcxListView::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('Z')])
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		// only works for this one so far
@@ -2040,35 +2065,33 @@ void DcxListView::parseCommandRequest(const TString& input)
 			return;	// no error, just do nothing.
 
 		// subtract the number of visible items
-		count -= ListView_GetCountPerPage(m_Hwnd);
+		count -= Dcx::dcxListView_GetCountPerPage(m_Hwnd);
 
 		RECT rc{};
 		// get height of a single item
-		ListView_GetItemRect(m_Hwnd, 0, &rc, LVIR_BOUNDS);
+		Dcx::dcxListView_GetItemRect(m_Hwnd, 0, &rc, LVIR_BOUNDS);
 		const auto height = count * (rc.bottom - rc.top);
 
 		//pos = std::lroundf(gsl::narrow_cast<float>(height) * gsl::narrow_cast<float>(pos) / gsl::narrow_cast<float>(100.0));
 		pos = dcx_round(gsl::narrow_cast<float>(height) * gsl::narrow_cast<float>(pos) / gsl::narrow_cast<float>(100.0));
 		//pos = Dcx::dcxRound<int>(height * pos / 100.0);
 
-		ListView_EnsureVisible(m_Hwnd, 0, FALSE);
-		ListView_Scroll(m_Hwnd, 0, pos);
+		Dcx::dcxListView_EnsureVisible(m_Hwnd, 0, FALSE);
+		Dcx::dcxListView_Scroll(m_Hwnd, 0, pos);
 	}
 	// xdid -V [NAME] [ID] [SWITCH] [nItem]
 	else if (flags[TEXT('V')])
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		if (const auto nItem = input.getnexttok().to_int() - 1; nItem > -1)
-			ListView_EnsureVisible(m_Hwnd, nItem, FALSE);
+			Dcx::dcxListView_EnsureVisible(m_Hwnd, nItem, FALSE);
 	}
 	// xdid -S [NAME] [ID] [+FLAGS] [N1] [N2] [ARGS]
 	else if (flags[TEXT('S')])
 	{
 		if (numtok < 6)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		// [N1] [N2] are the item range to save.
@@ -2089,7 +2112,8 @@ void DcxListView::parseCommandRequest(const TString& input)
 
 		if ((tsFlags[0] != TEXT('+')) || (tsFlags.len() < 2))
 			// no flags specified.
-			throw Dcx::dcxException("Invalid Flags: No Flags Specified.");
+			//throw Dcx::dcxException("Invalid Flags: No Flags Specified.");
+			throw DcxExceptions::dcxInvalidFlag();
 
 		// make sure N1-N2 are within the range of items in listview.
 		// adjust iN2 if its < 0, so its an offset from the last item.
@@ -2142,7 +2166,6 @@ void DcxListView::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('H')])
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto tsCols(input.getnexttok());			// tok 4
@@ -2150,9 +2173,10 @@ void DcxListView::parseCommandRequest(const TString& input)
 		const auto info(input.getlasttoks());			// tok 6, -1
 
 		if (!xflag[TEXT('+')])
-			throw Dcx::dcxException("Missing '+' in flags");
+			//throw Dcx::dcxException("Missing '+' in flags");
+			throw DcxExceptions::dcxInvalidFlag();
 
-		auto h = ListView_GetHeader(m_Hwnd);
+		auto h = Dcx::dcxListView_GetHeader(m_Hwnd);
 		if (!IsWindow(h))
 			throw Dcx::dcxException("Unable to get Header Window");
 
@@ -2163,7 +2187,7 @@ void DcxListView::parseCommandRequest(const TString& input)
 			{
 				const auto col(*itStart);
 
-				const auto [col_start, col_end] = getItemRange(col, col_count);
+				const auto [col_start, col_end] = getItemRange2(col, col_count);
 
 				if ((col_start < 0) || (col_end < 0) || (col_start >= col_count) || (col_end >= col_count))
 					throw Dcx::dcxException(TEXT("Invalid column index %."), col);
@@ -2182,12 +2206,11 @@ void DcxListView::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('G')])
 	{
 		if (numtok != 6)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto gid = input.getnexttok().to_int();
 
-		if (!ListView_HasGroup(m_Hwnd, gsl::narrow_cast<WPARAM>(gid)))
+		if (!Dcx::dcxListView_HasGroup(m_Hwnd, gsl::narrow_cast<WPARAM>(gid)))
 			throw Dcx::dcxException(TEXT("Group doesn't exist: %"), gid);
 
 		if (!Dcx::VistaModule.isVista())
@@ -2196,7 +2219,7 @@ void DcxListView::parseCommandRequest(const TString& input)
 		const auto iMask = this->parseGroupState(input.getnexttok());	// tok 5
 		const auto iState = this->parseGroupState(input.getnexttok());	// tok 6
 
-		ListView_SetGroupState(m_Hwnd, gid, iMask, iState);
+		Dcx::dcxListView_SetGroupState(m_Hwnd, gid, iMask, iState);
 	}
 	else
 		this->parseGlobalCommandRequest(input, flags);
@@ -2207,7 +2230,7 @@ void DcxListView::setHeaderStyle(HWND h, const int nCol, const TString& info)
 	HDITEM hdr{};
 	hdr.mask = HDI_FORMAT;
 
-	if (!Header_GetItem(h, nCol, &hdr))
+	if (!Dcx::dcxHeader_GetItem(h, nCol, &hdr))
 		throw Dcx::dcxException(TEXT("Unable to get item: %"), nCol + 1);
 
 	for (const auto& tmp : info)
@@ -2257,7 +2280,7 @@ void DcxListView::setHeaderStyle(HWND h, const int nCol, const TString& info)
 		}
 	}
 
-	Header_SetItem(h, nCol, &hdr);
+	Dcx::dcxHeader_SetItem(h, nCol, &hdr);
 }
 
 /*
@@ -2336,7 +2359,8 @@ UINT DcxListView::parseIconFlagOptions(const TString& flags)
 	//if (!xflags[TEXT('+')])
 	//	return iFlags;
 	if (!xflags[TEXT('+')])
-		throw Dcx::dcxException("Invalid Icon flags used, + missing!");
+		//throw Dcx::dcxException("Invalid Icon flags used, + missing!");
+		throw DcxExceptions::dcxInvalidFlag();
 
 	if (xflags[TEXT('n')])
 		iFlags |= LVSIL_SMALL;
@@ -2361,7 +2385,8 @@ UINT DcxListView::parseItemFlags(const TString& flags)
 	//if (!xflags[TEXT('+')])
 	//	return iFlags;
 	if (!xflags[TEXT('+')])
-		throw Dcx::dcxException("Invalid Item flags used, + missing!");
+		//throw Dcx::dcxException("Invalid Item flags used, + missing!");
+		throw DcxExceptions::dcxInvalidFlag();
 
 	if (xflags[TEXT('b')])
 		iFlags |= LVIS_BOLD;
@@ -2416,7 +2441,8 @@ UINT DcxListView::parseMassItemFlags(const TString& flags)
 	//if (!xflags[TEXT('+')])
 	//	return iFlags;
 	if (!xflags[TEXT('+')])
-		throw Dcx::dcxException("Invalid Mass Item flags used, + missing!");
+		//throw Dcx::dcxException("Invalid Mass Item flags used, + missing!");
+		throw DcxExceptions::dcxInvalidFlag();
 
 	if (xflags[TEXT('a')])
 		iFlags |= LVIMF_ALLINFO;
@@ -2444,7 +2470,8 @@ UINT DcxListView::parseHeaderFlags(const TString& flags)
 	//if (!xflags[TEXT('+')])
 	//	return 0;
 	if (!xflags[TEXT('+')])
-		throw Dcx::dcxException("Invalid Header flags used, + missing!");
+		//throw Dcx::dcxException("Invalid Header flags used, + missing!");
+		throw DcxExceptions::dcxInvalidFlag();
 
 	// 'a' use by flags2
 	if (xflags[TEXT('b')])
@@ -2492,7 +2519,8 @@ INT DcxListView::parseHeaderFlags2(const XSwitchFlags& xflags)
 	//if (!xflags[TEXT('+')])
 	//	return 0;
 	if (!xflags[TEXT('+')])
-		throw Dcx::dcxException("Invalid Header flags used, + missing!");
+		//throw Dcx::dcxException("Invalid Header flags used, + missing!");
+		throw DcxExceptions::dcxInvalidFlag();
 
 	if (xflags[TEXT('a')]) // auto size
 		iFlags |= DCX_LV_COLUMNF_AUTO;
@@ -2532,7 +2560,8 @@ UINT DcxListView::parseSortFlags(const TString& flags)
 	//if (!xflags[TEXT('+')])
 	//	return iFlags;
 	if (!xflags[TEXT('+')])
-		throw Dcx::dcxException("Invalid Sort flags used, + missing!");
+		//throw Dcx::dcxException("Invalid Sort flags used, + missing!");
+		throw DcxExceptions::dcxInvalidFlag();
 
 	if (xflags[TEXT('a')])
 		iFlags |= LVSS_ASC;
@@ -2567,7 +2596,8 @@ UINT DcxListView::parseGroupFlags(const TString& flags)
 	//if (!xflags[TEXT('+')])
 	//	return iFlags;
 	if (!xflags[TEXT('+')])
-		throw Dcx::dcxException("Invalid Group flags used, + missing!");
+		//throw Dcx::dcxException("Invalid Group flags used, + missing!");
+		throw DcxExceptions::dcxInvalidFlag();
 
 	if (xflags[TEXT('c')])
 		iFlags |= LVGA_HEADER_CENTER;
@@ -2588,7 +2618,8 @@ UINT DcxListView::parseGroupState(const TString& flags)
 	//if (!xflags[TEXT('+')])
 	//	return iFlags;
 	if (!xflags[TEXT('+')])
-		throw Dcx::dcxException("Invalid Group State used, + missing!");
+		//throw Dcx::dcxException("Invalid Group State used, + missing!");
+		throw DcxExceptions::dcxInvalidFlag();
 
 	if (xflags[TEXT('C')])
 		iFlags |= LVGS_COLLAPSIBLE;
@@ -2619,7 +2650,8 @@ UINT DcxListView::parseColorFlags(const TString& flags)
 	//if (!xflags[TEXT('+')])
 	//	return iFlags;
 	if (!xflags[TEXT('+')])
-		throw Dcx::dcxException("Invalid Color flags used, + missing!");
+		//throw Dcx::dcxException("Invalid Color flags used, + missing!");
+		throw DcxExceptions::dcxInvalidFlag();
 
 	if (xflags[TEXT('b')])
 		iFlags |= LVCS_BKG;
@@ -2648,7 +2680,8 @@ UINT DcxListView::parseImageFlags(const TString& flags)
 	//if (!xflags[TEXT('+')])
 	//	return iFlags;
 	if (!xflags[TEXT('+')])
-		throw Dcx::dcxException("Invalid Image flags used, + missing!");
+		//throw Dcx::dcxException("Invalid Image flags used, + missing!");
+		throw DcxExceptions::dcxInvalidFlag();
 
 	if (xflags[TEXT('n')])
 		iFlags |= LVBKIF_STYLE_NORMAL;
@@ -2730,9 +2763,23 @@ bool DcxListView::matchItemText(const int nItem, const int nSubItem, const TStri
 
 const int& DcxListView::getColumnCount() const noexcept
 {
-	if (m_iColumnCount >= 0)
-		return m_iColumnCount;
-	else {
+	//if (m_iColumnCount >= 0)
+	//	return m_iColumnCount;
+	//else {
+	//	LVCOLUMN lvc{};
+	//	lvc.mask = LVCF_WIDTH;
+	//
+	//	auto i = 0;
+	//	while (Dcx::dcxListView_GetColumn(m_Hwnd, i, &lvc) != FALSE)
+	//		++i;
+	//
+	//	m_iColumnCount = i;
+	//
+	//	return m_iColumnCount;
+	//}
+
+	if (m_iColumnCount < 0)
+	{
 		LVCOLUMN lvc{};
 		lvc.mask = LVCF_WIDTH;
 
@@ -2741,9 +2788,8 @@ const int& DcxListView::getColumnCount() const noexcept
 			++i;
 
 		m_iColumnCount = i;
-
-		return m_iColumnCount;
 	}
+	return m_iColumnCount;
 }
 
 /*!
@@ -2755,7 +2801,7 @@ const int& DcxListView::getColumnCount() const noexcept
 int DcxListView::getTopIndex() const noexcept
 {
 	if (Dcx::dcxListView_GetItemCount(m_Hwnd) > 0)
-		return ListView_GetTopIndex(m_Hwnd);
+		return Dcx::dcxListView_GetTopIndex(m_Hwnd);
 
 	return -1;
 }
@@ -2768,7 +2814,7 @@ int DcxListView::getTopIndex() const noexcept
 
 int DcxListView::getBottomIndex() const noexcept
 {
-	auto nBottomIndex = (ListView_GetTopIndex(m_Hwnd) + ListView_GetCountPerPage(m_Hwnd));
+	auto nBottomIndex = (Dcx::dcxListView_GetTopIndex(m_Hwnd) + Dcx::dcxListView_GetCountPerPage(m_Hwnd));
 
 	if (const auto nCount = Dcx::dcxListView_GetItemCount(m_Hwnd); (nBottomIndex > nCount))
 		nBottomIndex = nCount;
@@ -2930,7 +2976,7 @@ LRESULT DcxListView::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 
 			Dcx::dcxListView_SubItemHitTest(m_Hwnd, &lvh);
 
-			const auto lvexstyles = ListView_GetExtendedListViewStyle(m_Hwnd);
+			const auto lvexstyles = Dcx::dcxListView_GetExtendedListViewStyle(m_Hwnd);
 
 			if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
 			{
@@ -3046,7 +3092,7 @@ LRESULT DcxListView::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 
 			Dcx::dcxListView_SetItemState(m_Hwnd, lplvdi->item.iItem, LVIS_SELECTED, LVIS_SELECTED);
 
-			auto edit_hwnd = ListView_GetEditControl(m_Hwnd);
+			auto edit_hwnd = Dcx::dcxListView_GetEditControl(m_Hwnd);
 
 			m_OrigEditProc = SubclassWindow(edit_hwnd, DcxListView::EditLabelProc);
 			SetProp(edit_hwnd, TEXT("dcx_pthis"), this);
@@ -3195,7 +3241,7 @@ LRESULT DcxListView::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 
 									if (dcx_testflag(lvi.state, LVIS_SELECTED))
 									{
-										const auto exStyles = ListView_GetExtendedListViewStyle(m_Hwnd);
+										const auto exStyles = Dcx::dcxListView_GetExtendedListViewStyle(m_Hwnd);
 
 										if (!dcx_testflag(exStyles, LVS_EX_BORDERSELECT))
 										{
@@ -3221,11 +3267,12 @@ LRESULT DcxListView::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 									else {
 										if (ri->m_cBg != CLR_INVALID)
 										{
-											if (auto hBrush = CreateSolidBrush(ri->m_cBg); hBrush)
-											{
-												FillRect(lplvcd->nmcd.hdc, &rcBounds, hBrush);
-												DeleteObject(hBrush);
-											}
+											//if (auto hBrush = CreateSolidBrush(ri->m_cBg); hBrush)
+											//{
+											//	FillRect(lplvcd->nmcd.hdc, &rcBounds, hBrush);
+											//	DeleteObject(hBrush);
+											//}
+											Dcx::FillRectColour(lplvcd->nmcd.hdc, &rcBounds, ri->m_cBg);
 										}
 									}
 									if (int iSizeX = 0, iSizeY = 0; ImageList_GetIconSize(himl, &iSizeX, &iSizeY))
@@ -3810,11 +3857,73 @@ LRESULT DcxListView::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& b
 		if (Dcx::dcxListView_GetItemCount(m_Hwnd) <= 0)
 		{
 			// listview is empty, display the empty text if set.
-			if (const auto nLen = GetWindowTextLength(m_Hwnd); nLen > 0 && nLen < mIRCLinker::c_mIRC_Buffer_Size_cch)
-			{
-				TCHAR szBuf[mIRCLinker::c_mIRC_Buffer_Size_cch]{};
+			//if (const auto nLen = GetWindowTextLength(m_Hwnd); nLen > 0 && nLen < mIRCLinker::c_mIRC_Buffer_Size_cch)
+			//{
+			//	TCHAR szBuf[mIRCLinker::c_mIRC_Buffer_Size_cch]{};
+			//
+			//	if (GetWindowText(m_Hwnd, &szBuf[0], mIRCLinker::c_mIRC_Buffer_Size_cch - 1))
+			//	{
+			//		bParsed = TRUE;
+			//
+			//		PAINTSTRUCT ps{};
+			//		auto hdc = BeginPaint(m_Hwnd, &ps);
+			//		Auto(EndPaint(m_Hwnd, &ps));
+			//
+			//		// Setup alpha blend if any.
+			//		auto ai = SetupAlphaBlend(&hdc);
+			//		Auto(FinishAlphaBlend(ai));
+			//
+			//		if (RECT rc{}; GetClientRect(m_Hwnd, &rc))
+			//		{
+			//
+			//			if (auto hdr_hwnd = Dcx::dcxListView_GetHeader(m_Hwnd); hdr_hwnd)
+			//			{
+			//				if (RECT rcH{};	GetWindowRect(hdr_hwnd, &rcH))
+			//				{
+			//					MapWindowRect(nullptr, m_Hwnd, &rcH);
+			//					rc.top += rcH.bottom;
+			//				}
+			//			}
+			//
+			//			{
+			//				//const COLORREF clrText = ListView_GetTextColor(m_Hwnd);
+			//				//const COLORREF clrTextBk = ListView_GetTextBkColor(m_Hwnd);
+			//				const COLORREF clrText = (m_clrText == CLR_INVALID) ? GetSysColor(COLOR_WINDOWTEXT) : m_clrText;
+			//				const COLORREF clrTextBk = (m_clrBackText == CLR_INVALID) ? GetSysColor(COLOR_WINDOW) : m_clrBackText;
+			//
+			//				SetTextColor(hdc, clrText);
+			//				SetBkColor(hdc, clrTextBk);
+			//
+			//				//{
+			//				//	LPLVBKIMAGE bki{};
+			//				//	ListView_GetBkImage(m_Hwnd, &bki);
+			//				//}
+			//
+			//				{
+			//					const COLORREF clrBk = (m_clrBackground == CLR_INVALID) ? Dcx::dcxListView_GetBkColor(m_Hwnd) : m_clrBackground;
+			//					Dcx::FillRectColour(hdc, &rc, clrBk);
+			//				}
+			//			}
+			//
+			//			rc.top += 10;
+			//
+			//			if (m_hFont)
+			//				SelectObject(hdc, m_hFont);
+			//
+			//			if (m_bCtrlCodeText)
+			//			{
+			//				const TString txt(&szBuf[0]);
+			//				mIRC_DrawText(hdc, txt, &rc, DT_CENTER | DT_WORDBREAK | DT_NOPREFIX | DT_NOCLIP, false);
+			//			}
+			//			else
+			//				DrawText(hdc, &szBuf[0], -1, &rc, DT_CENTER | DT_WORDBREAK | DT_NOPREFIX | DT_NOCLIP);
+			//		}
+			//	}
+			//}
 
-				if (GetWindowText(m_Hwnd, &szBuf[0], mIRCLinker::c_mIRC_Buffer_Size_cch - 1))
+			if (GetWindowTextLength(m_Hwnd) > 0)
+			{
+				if (const TString tsBuf(TGetWindowText(m_Hwnd)); !tsBuf.empty())
 				{
 					bParsed = TRUE;
 
@@ -3836,6 +3945,9 @@ LRESULT DcxListView::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& b
 								MapWindowRect(nullptr, m_Hwnd, &rcH);
 								rc.top += rcH.bottom;
 							}
+
+							//const Dcx::dcxWindowRect rcH(hdr_hwnd, m_Hwnd);
+							//rc.top += rcH.bottom;
 						}
 
 						{
@@ -3847,30 +3959,25 @@ LRESULT DcxListView::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& b
 							SetTextColor(hdc, clrText);
 							SetBkColor(hdc, clrTextBk);
 
-							//{
-							//	LPLVBKIMAGE bki{};
-							//	ListView_GetBkImage(m_Hwnd, &bki);
-							//}
-
 							{
-								const COLORREF clrBk = (m_clrBackground == CLR_INVALID) ? ListView_GetBkColor(m_Hwnd) : m_clrBackground;
-								if (const auto br = CreateSolidBrush(clrBk); br)
-								{
-									FillRect(hdc, &rc, br);
-									DeleteBrush(br);
-								}
+								const COLORREF clrBk = (m_clrBackground == CLR_INVALID) ? Dcx::dcxListView_GetBkColor(m_Hwnd) : m_clrBackground;
+								Dcx::FillRectColour(hdc, &rc, clrBk);
 							}
 						}
 
 						rc.top += 10;
 
 						if (m_hFont)
-							SelectObject(hdc, m_hFont);
+							Dcx::dcxSelectObject(hdc, m_hFont);
 
-						DrawText(hdc, &szBuf[0], -1, &rc, DT_CENTER | DT_WORDBREAK | DT_NOPREFIX | DT_NOCLIP);
+						if (IsControlCodeTextEnabled())
+							mIRC_DrawText(hdc, tsBuf, &rc, DT_CENTER | DT_WORDBREAK | DT_NOPREFIX | DT_NOCLIP, false);
+						else
+							DrawText(hdc, tsBuf.to_chr(), -1, &rc, DT_CENTER | DT_WORDBREAK | DT_NOPREFIX | DT_NOCLIP);
 					}
 				}
 			}
+
 		}
 		else if (IsAlphaBlend())
 		{

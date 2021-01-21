@@ -278,6 +278,10 @@ namespace Dcx
 	{
 		return ListView_GetToolTips(hwnd);
 	}
+	inline int dcxListView_GetTopIndex(HWND hwnd) noexcept
+	{
+		return ListView_GetTopIndex(hwnd);
+	}
 	inline LRESULT dcxListView_GetGroupInfo(HWND hwnd, const unsigned int gid, PLVGROUP pgrp) noexcept
 	{
 		return ListView_GetGroupInfo(hwnd, gid, pgrp);
@@ -302,6 +306,14 @@ namespace Dcx
 	{
 		return ListView_SetColumnWidth(hwnd, iCol, cx);
 	}
+	inline BOOL dcxListView_SetColumnOrderArray(HWND hwnd, const int iCount, const int *pi) noexcept
+	{
+		return ListView_SetColumnOrderArray(hwnd, iCount, pi);
+	}
+	inline DWORD dcxListView_SetView(HWND hwnd, DWORD mode) noexcept
+	{
+		return ListView_SetView(hwnd, mode);
+	}
 	inline LRESULT dcxListView_HasGroup(HWND hwnd, const int group) noexcept
 	{
 		return ListView_HasGroup(hwnd, group);
@@ -309,6 +321,30 @@ namespace Dcx
 	inline BOOL dcxListView_IsGroupViewEnabled(HWND hwnd) noexcept
 	{
 		return ListView_IsGroupViewEnabled(hwnd);
+	}
+	inline BOOL dcxListView_EnableGroupView(HWND hwnd, bool fEnable) noexcept
+	{
+		return ListView_EnableGroupView(hwnd, fEnable);
+	}
+	inline void dcxListView_SetGroupState(HWND hwnd, const int gid, const unsigned int mask, const unsigned int state) noexcept
+	{
+		ListView_SetGroupState(hwnd, gid, mask, state);
+	}
+	inline void dcxListView_InsertGroup(HWND hwnd, const int index, PLVGROUP pgrp) noexcept
+	{
+		ListView_InsertGroup(hwnd, index, pgrp);
+	}
+	inline void dcxListView_MoveGroup(HWND hwnd, const int gid, const int index) noexcept
+	{
+		ListView_MoveGroup(hwnd, gid, index);
+	}
+	inline void dcxListView_RemoveGroup(HWND hwnd, const int gid) noexcept
+	{
+		ListView_RemoveGroup(hwnd, gid);
+	}
+	inline void dcxListView_RemoveAllGroups(HWND hwnd) noexcept
+	{
+		ListView_RemoveAllGroups(hwnd);
 	}
 	inline BOOL dcxListView_DeleteColumn(HWND hwnd, const int column) noexcept
 	{
@@ -321,6 +357,30 @@ namespace Dcx
 	inline BOOL dcxListView_DeleteItem(HWND hwnd, const int i) noexcept
 	{
 		return ListView_DeleteItem(hwnd, i);
+	}
+	inline BOOL dcxListView_SortItemsEx(HWND hwnd, PFNLVCOMPARE pFn, void *data) noexcept
+	{
+		return ListView_SortItemsEx(hwnd, pFn, data);
+	}
+	inline BOOL dcxListView_EnsureVisible(HWND hwnd, const int i, BOOL partialOK) noexcept
+	{
+		return ListView_EnsureVisible(hwnd, i, partialOK);
+	}
+	inline BOOL dcxListView_Scroll(HWND hwnd, const int dx, const int dy) noexcept
+	{
+		return ListView_Scroll(hwnd, dx, dy);
+	}
+	inline int dcxListView_GetCountPerPage(HWND hwnd) noexcept
+	{
+		return ListView_GetCountPerPage(hwnd);
+	}
+	inline HWND dcxListView_GetEditControl(HWND hwnd) noexcept
+	{
+		return ListView_GetEditControl(hwnd);
+	}
+	inline COLORREF dcxListView_GetBkColor(HWND hwnd) noexcept
+	{
+		return ListView_GetBkColor(hwnd);
 	}
 	inline LRESULT dcxHeader_HitTest(HWND hwnd, LPHDHITTESTINFO hdti) noexcept
 	{
