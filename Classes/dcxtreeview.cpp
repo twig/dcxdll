@@ -2462,17 +2462,22 @@ void DcxTreeView::DrawGDIPlusImage(HDC hdc)
 			DrawParentsBackground(hdc, &rc);
 	}
 	else {
-		if (auto hBrush = getBackClrBrush(); !hBrush)
-		{
-			hBrush = CreateSolidBrush(GetBkColor(hdc));
-			if (hBrush)
-			{
-				FillRect(hdc, &rc, hBrush);
-				DeleteObject(hBrush);
-			}
-		}
-		else
+		//if (auto hBrush = getBackClrBrush(); !hBrush)
+		//{
+		//	hBrush = CreateSolidBrush(GetBkColor(hdc));
+		//	if (hBrush)
+		//	{
+		//		FillRect(hdc, &rc, hBrush);
+		//		DeleteObject(hBrush);
+		//	}
+		//}
+		//else
+		//	FillRect(hdc, &rc, hBrush);
+
+		if (auto hBrush = getBackClrBrush(); hBrush)
 			FillRect(hdc, &rc, hBrush);
+		else
+			Dcx::FillRectColour(hdc, &rc, GetBkColor(hdc));
 	}
 	Gdiplus::Graphics grphx(hdc);
 
