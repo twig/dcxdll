@@ -78,9 +78,16 @@ enum class WindowExStyle
 	: DWORD
 {
 	None,
+	DialogModalFrame = WS_EX_DLGMODALFRAME,
+	ParentNotify = WS_EX_NOPARENTNOTIFY,
+	TopMost = WS_EX_TOPMOST,
+	AcceptFiles = WS_EX_ACCEPTFILES,
+	Transparent = WS_EX_TRANSPARENT,
+	MDIChild = WS_EX_MDICHILD,
+	ToolWindow = WS_EX_TOOLWINDOW,
+	WindowEdge = WS_EX_WINDOWEDGE,
 	ControlParent = WS_EX_CONTROLPARENT,
 	ClientEdge = WS_EX_CLIENTEDGE,
-	Transparent = WS_EX_TRANSPARENT,
 	Composited = WS_EX_COMPOSITED,
 	Layered = WS_EX_LAYERED
 };
