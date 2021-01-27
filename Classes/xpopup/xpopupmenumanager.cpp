@@ -165,7 +165,7 @@ void XPopupMenuManager::unload(void) noexcept
 
 LRESULT XPopupMenuManager::OnInitMenuPopup(HWND mHwnd, WPARAM wParam, LPARAM lParam)
 {
-	if (const auto isWinMenu = (HIWORD(lParam) != FALSE); !isWinMenu)
+	if (const auto isWinMenu = (Dcx::dcxHIWORD(lParam) != FALSE); !isWinMenu)
 	{
 		const auto menu = reinterpret_cast<HMENU>(wParam);
 		const auto currentMenubar = GetMenu(mIRCLinker::getHWND());
@@ -348,7 +348,8 @@ void XPopupMenuManager::parseCommand(const TString& input, XPopupMenu* const p_M
 	else if (flags[TEXT('c')])
 	{
 		if (numtok < 3)
-			throw Dcx::dcxException(TEXT("Invalid Arguments"));
+			//throw Dcx::dcxException(TEXT("Invalid Arguments"));
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto uMenuHash = std::hash<TString>{}(tsMenuName);
 
@@ -375,7 +376,8 @@ void XPopupMenuManager::parseCommand(const TString& input, XPopupMenu* const p_M
 	else if (flags[TEXT('i')])
 	{
 		if (numtok < 5)
-			throw Dcx::dcxException(TEXT("Invalid Arguments"));
+			//throw Dcx::dcxException(TEXT("Invalid Arguments"));
+			throw DcxExceptions::dcxInvalidArguments();
 
 		auto himl = p_Menu->getImageList();
 		const auto tsFlags(input.getnexttok());			// tok 3
@@ -404,7 +406,8 @@ void XPopupMenuManager::parseCommand(const TString& input, XPopupMenu* const p_M
 	else if (flags[TEXT('l')])
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException(TEXT("Invalid Arguments"));
+			//throw Dcx::dcxException(TEXT("Invalid Arguments"));
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto nColor = gsl::narrow_cast<XPopupMenu::MenuColours>(input.getnexttok().to_<UINT>());	// tok 3
 		const auto clr(input.getnexttok());				// tok 4
@@ -428,7 +431,8 @@ void XPopupMenuManager::parseCommand(const TString& input, XPopupMenu* const p_M
 	else if (flags[TEXT('p')])
 	{
 		if (numtok < 3)
-			throw Dcx::dcxException(TEXT("Invalid Arguments"));
+			//throw Dcx::dcxException(TEXT("Invalid Arguments"));
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto colors(input.getlasttoks());	// tok 3, -1
 
@@ -446,7 +450,8 @@ void XPopupMenuManager::parseCommand(const TString& input, XPopupMenu* const p_M
 	else if (flags[TEXT('s')])
 	{
 		if ((numtok < 5) || (!p_Menu))
-			throw Dcx::dcxException(TEXT("Invalid Arguments"));
+			//throw Dcx::dcxException(TEXT("Invalid Arguments"));
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto mflags = this->parseTrackFlags(input.getnexttok());	// tok 3
 		auto x = input.getnexttok().to_int();								// tok 4
@@ -483,7 +488,8 @@ void XPopupMenuManager::parseCommand(const TString& input, XPopupMenu* const p_M
 	else if (flags[TEXT('t')])
 	{
 		if (numtok < 3)
-			throw Dcx::dcxException(TEXT("Invalid Arguments"));
+			//throw Dcx::dcxException(TEXT("Invalid Arguments"));
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto style = XPopupMenu::parseStyle(input.getnexttok());	// tok 3
 
@@ -493,12 +499,14 @@ void XPopupMenuManager::parseCommand(const TString& input, XPopupMenu* const p_M
 	else if (flags[TEXT('x')])
 	{
 		if (numtok < 3)
-			throw Dcx::dcxException(TEXT("Invalid Arguments"));
+			//throw Dcx::dcxException(TEXT("Invalid Arguments"));
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const XSwitchFlags xflags(input.getnexttok());	// tok 3
 
 		if (!xflags[TEXT('+')])
-			throw Dcx::dcxException("Missing '+' in front of flags");
+			//throw Dcx::dcxException("Missing '+' in front of flags");
+			throw DcxExceptions::dcxInvalidFlag();
 
 		UINT iStyles = 0;
 		if (xflags[TEXT('i')])
@@ -514,12 +522,14 @@ void XPopupMenuManager::parseCommand(const TString& input, XPopupMenu* const p_M
 	else if (flags[TEXT('R')])
 	{
 		if (numtok < 3)
-			throw Dcx::dcxException(TEXT("Invalid Arguments"));
+			//throw Dcx::dcxException(TEXT("Invalid Arguments"));
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const XSwitchFlags xflags(input.getnexttok());	// tok 3
 
 		if (!xflags[TEXT('+')])
-			throw Dcx::dcxException("Missing '+' in front of flags");
+			//throw Dcx::dcxException("Missing '+' in front of flags");
+			throw DcxExceptions::dcxInvalidFlag();
 
 		if (xflags[TEXT('r')]) // Set Rounded Selector on/off
 			p_Menu->SetRounded((input.getnexttok().to_int() > 0));	// tok 4
@@ -802,7 +812,8 @@ TString XPopupMenuManager::parseIdentifier(const TString& input) const
 			throw Dcx::dcxException(TEXT("\"%\" doesn't exist, see /xpopup -c"), tsMenuName);
 
 		if (numtok != 3)
-			throw Dcx::dcxException(TEXT("Invalid number of arguments"));
+			//throw Dcx::dcxException(TEXT("Invalid Arguments"));
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto nColor = gsl::narrow_cast<XPopupMenu::MenuColours>(input.getnexttok().to_<UINT>());	// tok 3
 		if (nColor < XPopupMenu::MenuColours::XPMC_MIN || nColor > XPopupMenu::MenuColours::XPMC_MAX)
@@ -1107,7 +1118,7 @@ TString XPopupMenuManager::parseIdentifier(const TString& input) const
 const int XPopupMenuManager::parseMPopup(const TString& input)
 {
 	if (input.numtok() < 2)
-		throw Dcx::dcxException("Invalid Arguments");
+		throw DcxExceptions::dcxInvalidArguments();
 
 	const auto uMenuHash = std::hash<TString>{}(input.getfirsttok(1));
 	const auto iEnable = input.getnexttok().to_int();	// tok 2
@@ -1134,7 +1145,7 @@ const int XPopupMenuManager::parseMPopup(const TString& input)
 
 void XPopupMenuManager::addMenu(XPopupMenu* const p_Menu)
 {
-	if (p_Menu != nullptr)
+	if (p_Menu)
 		this->m_vpXPMenu.push_back(p_Menu);
 }
 
@@ -1431,7 +1442,7 @@ void XPopupMenuManager::LoadPopupsFromXML(const TiXmlElement* const popups, cons
  */
 const bool XPopupMenuManager::LoadPopupItemsFromXML(XPopupMenu* menu, HMENU hMenu, const TiXmlElement* const items)
 {
-	if ((menu == nullptr) || (hMenu == nullptr) || (items == nullptr))
+	if ((!menu) || (!hMenu) || (!items))
 		return false;
 
 	// Iterate through each child m_pElement.
@@ -1503,7 +1514,7 @@ const TString XPopupMenuManager::GetMenuAttributeFromXML(const char* const attri
 		return tmp;
 
 	// Try to find global style.
-	if (global == nullptr)
+	if (!global)
 		return tmp;
 
 	return TString(global->Attribute(attrib));
@@ -1515,45 +1526,39 @@ std::list<HWND> winlist;
 LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	// Incase execution somehow ends up here without this pointer being set.
-	if (XPopupMenuManager::g_OldmIRCMenusWindowProc == nullptr)
+	if (!XPopupMenuManager::g_OldmIRCMenusWindowProc)
 		return DefWindowProc(mHwnd, uMsg, wParam, lParam);
+
+	// only if custom menus enabled.
+	if (!Dcx::setting_bCustomMenus)
+		return CallWindowProc(XPopupMenuManager::g_OldmIRCMenusWindowProc, mHwnd, uMsg, wParam, lParam);
 
 	switch (uMsg)
 	{
-	//case WM_NCCREATE:
-	//{
-	//	CREATESTRUCT* cs = (CREATESTRUCT*)lParam;
-	//	cs->dwExStyle |= WS_EX_LAYERED;
-	//	//return TRUE;
-	//	//return CallWindowProc(XPopupMenuManager::g_OldmIRCMenusWindowProc, mHwnd, uMsg, wParam, lParam);
-	//}
-	//break;
+	case WM_NCCREATE:
+	{
+		dcxlParam(LPCREATESTRUCT,cs);
+		cs->dwExStyle |= WS_EX_LAYERED | WS_EX_COMPOSITED;
+	}
+	break;
 
 	case WM_CREATE:
 	{
-		//CREATESTRUCT* cs = (CREATESTRUCT*)lParam;
-		//cs->dwExStyle |= WS_EX_LAYERED;
-		//AddStyles(mHwnd, GWL_EXSTYLE, WS_EX_LAYERED);
-		//SetLayeredWindowAttributes(mHwnd, 0, (BYTE)0xCC, LWA_ALPHA); // 0xCC = 80% Opaque
-
-		// only if custom menus enabled.
-		if (!Dcx::setting_bCustomMenus)
-			break;
+		dcxlParam(LPCREATESTRUCT, cs);
+		cs->dwExStyle |= WS_EX_LAYERED | WS_EX_COMPOSITED;
 
 		// check for previous menu...
 		if (!winlist.empty())
 		{
 			// change previous window.
 			auto parent = winlist.back();
-			const auto dwStyle = dcxGetWindowExStyle(parent);
-			const auto isLayered = dcx_testflag(dwStyle, WS_EX_LAYERED);
-
+			
 			// make sure previous menu is layered.
-			if (!isLayered)
+			if (const auto dwStyle = dcxGetWindowExStyle(parent); !dcx_testflag(dwStyle, WS_EX_LAYERED))
 				dcxSetWindowExStyle(parent, dwStyle | WS_EX_LAYERED);
 
 			// set alpha for previous menu.
-			SetLayeredWindowAttributes(parent, 0, (BYTE)0x7fU, LWA_ALPHA); // 0xCC = 80% Opaque
+			SetLayeredWindowAttributes(parent, 0, 0xC0U, LWA_ALPHA); // 0xCC = 80% Opaque
 		}
 		// add this window to list.
 		winlist.push_back(mHwnd);
@@ -1647,13 +1652,11 @@ LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPAR
 		{
 			// get previous menu window.
 			auto parent = winlist.back();
-			const auto dwStyle = dcxGetWindowExStyle(parent);
-			const auto isLayered = dcx_testflag(dwStyle, WS_EX_LAYERED);
 
-			if (!isLayered)
+			if (const auto dwStyle = dcxGetWindowExStyle(parent); !dcx_testflag(dwStyle, WS_EX_LAYERED))
 				break;
 
-			SetLayeredWindowAttributes(parent, 0, (BYTE)0xFFU, LWA_ALPHA); // 0xCC = 80% Opaque
+			SetLayeredWindowAttributes(parent, 0, 0xFFU, LWA_ALPHA); // 0xCC = 80% Opaque
 		}
 	}
 	break;

@@ -779,7 +779,7 @@ LRESULT CALLBACK XPopupMenu::XPopupWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam,
 		//		}
 		//		break;
 		//#endif
-
+		//
 			//case WM_PAINT:
 			//{
 			//	//BOOL bEnabled = FALSE;

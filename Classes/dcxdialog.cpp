@@ -1675,7 +1675,6 @@ void DcxDialog::parseInfoRequest(const TString& input, const refString<TCHAR, MI
 		RGBQUAD clr{};
 		auto bOpaque = FALSE;
 		if (SUCCEEDED(Dcx::VistaModule.dcxDwmGetColorizationColor((DWORD*)&clr, &bOpaque)))
-			//wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), RGB(clr.rgbRed, clr.rgbGreen, clr.rgbBlue));
 			_ts_snprintf(szReturnValue, TEXT("%u"), RGB(clr.rgbRed, clr.rgbGreen, clr.rgbBlue));
 		else
 			szReturnValue = TEXT("-FAIL Unable to get Glass colour.");

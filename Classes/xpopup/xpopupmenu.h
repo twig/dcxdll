@@ -272,40 +272,6 @@ protected:
 	bool m_bReserved[2]{};				//!< Reserved for future use.
 };
 
-//template <typename T>
-//constexpr XPopupMenu::MenuStyle& operator |=(XPopupMenu::MenuStyle& eStyle, const T& dStyle) noexcept
-//{
-//	return eStyle = static_cast<XPopupMenu::MenuStyle>(static_cast<DWORD>(eStyle) | static_cast<DWORD>(dStyle));
-//}
-//
-//template <typename T>
-//constexpr XPopupMenu::MenuStyle& operator &=(XPopupMenu::MenuStyle& eStyle, const T& dStyle) noexcept
-//{
-//	return eStyle = static_cast<XPopupMenu::MenuStyle>(static_cast<DWORD>(eStyle)& static_cast<DWORD>(dStyle));
-//}
-//
-//template <typename T>
-//constexpr XPopupMenu::MenuStyle operator &(const XPopupMenu::MenuStyle& eStyle, const T& dStyle) noexcept
-//{
-//	return static_cast<XPopupMenu::MenuStyle>(static_cast<DWORD>(eStyle)& static_cast<DWORD>(dStyle));
-//}
-//
-//template <typename T>
-//constexpr XPopupMenu::MenuStyle operator |(const XPopupMenu::MenuStyle& eStyle, const T& dStyle) noexcept
-//{
-//	return static_cast<XPopupMenu::MenuStyle>(static_cast<DWORD>(eStyle) | static_cast<DWORD>(dStyle));
-//}
-//template <typename T>
-//constexpr XPopupMenu::MenuStyle operator |(const T& dStyle, const XPopupMenu::MenuStyle& eStyle) noexcept
-//{
-//	return static_cast<XPopupMenu::MenuStyle>(static_cast<DWORD>(dStyle) | static_cast<DWORD>(eStyle));
-//}
-//template <typename T>
-//constexpr bool operator <(const T& dStyle, const XPopupMenu::MenuStyle& eStyle) noexcept
-//{
-//	return dStyle < static_cast<DWORD>(eStyle);
-//}
-
 #ifdef __INTEL_COMPILER // Defined when using Intel C++ Compiler.
 #pragma warning( pop )
 #endif
