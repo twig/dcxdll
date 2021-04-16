@@ -186,7 +186,7 @@ public:
 	/// Get the current cursor.
 	/// </summary>
 	/// <returns>HCURSOR - Current cursor</returns>
-	inline const HCURSOR& getCursor() const noexcept { return m_hCursor; };
+	inline const HCURSOR& getCursor() const noexcept { return m_hCursor.cursor; };
 	/// <summary>
 	/// Get the current cursor for a specific zone
 	/// </summary>
@@ -194,14 +194,8 @@ public:
 	/// <returns>HCURSOR - Current cursor for specified zone. Returns nullptr on failure.</returns>
 	inline const HCURSOR& getCursor(const WORD wHitCode) const noexcept
 	{
-		//if (wHitCode < std::size(m_hCursorList)) return m_hCursorList[wHitCode].first;
-		//return m_hCursor;
-
 		GSL_SUPPRESS(bounds) if (wHitCode < std::size(m_hCursorList)) return gsl::at(m_hCursorList,wHitCode).cursor;
-		return m_hCursor;
-
-		//GSL_SUPPRESS(bounds) if (wHitCode < std::size(m_hCursorList)) return gsl::at(m_hCursorList, wHitCode).value;
-		//return m_hCursor;
+		return m_hCursor.cursor;
 	};
 	inline const HWND& getToolTip(void) const noexcept { return m_ToolTipHWND; };
 	inline void incRef() const noexcept { ++m_iRefCount; };
@@ -425,20 +419,11 @@ private:
 
 	std::unique_ptr<LayoutManager> m_pLayoutManager; //!< Layout Manager Object
 
-	HCURSOR m_hCursor{ nullptr };  //!< Cursor Handle
-	//using CursorPair = Dcx::CodeValue<HCURSOR, bool>;
-	struct CursorPair
-	{
-		HCURSOR	cursor{ nullptr };
-		bool	enabled{ false };
+	//HCURSOR m_hCursor{ nullptr };  //!< Cursor Handle
+	//bool m_bCursorFromFile{ false }; //!< Cursor comes from a file?
 
-		explicit operator bool() const noexcept
-		{
-			return enabled && cursor;
-		}
-	};
+	CursorPair m_hCursor{};
 	CursorPair m_hCursorList[22]{};
-	//std::vector<CursorPair> m_hCursorList2;
 
 	HBITMAP m_bitmapBg{ nullptr };
 	HBITMAP m_hVistaBitmap{ nullptr };
@@ -457,7 +442,6 @@ private:
 
 	bool m_bInSizing{ false }; //!< In Moving Motion
 	bool m_bInMoving{ false }; //!< In Sizing Motion
-	bool m_bCursorFromFile{ false }; //!< Cursor comes from a file?
 	bool m_bDoDrag{ false };
 	bool m_bDrag{ false };
 	bool m_bGhosted{ false };
@@ -480,6 +464,9 @@ private:
 
 	void i_showError(const TCHAR* const cType, const TCHAR* const prop, const TCHAR* const cmd, const TCHAR* const err) const;
 	void PreloadData(void) noexcept;
+	
+	WNDPROC m_hDefaultDialogProc{ nullptr }; //!< Old Window Procedure
+	LRESULT CallDefaultProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept;
 
 	static std::pair<WindowStyle, WindowExStyle> parseBorderStyles(const TString& flags) noexcept;
 	static const UINT parseBkgFlags(const TString& flags) noexcept;

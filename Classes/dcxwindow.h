@@ -91,16 +91,17 @@ enum class SizingTypes
 	Panel = 4,
 	Toolbar = 8
 };
-//template <typename T>
-//constexpr SizingTypes operator |(const SizingTypes& eStyle, const T& dStyle) noexcept
-//{
-//	return static_cast<SizingTypes>(static_cast<UINT>(eStyle) | static_cast<UINT>(dStyle));
-//}
-//template <typename T>
-//constexpr SizingTypes operator &(const SizingTypes& eStyle, const T& dStyle) noexcept
-//{
-//	return static_cast<SizingTypes>(static_cast<UINT>(eStyle) & static_cast<UINT>(dStyle));
-//}
+
+struct CursorPair
+{
+	HCURSOR	cursor{ nullptr };
+	bool	enabled{ false };
+
+	explicit operator bool() const noexcept
+	{
+		return enabled && cursor;
+	}
+};
 
 /*!
  * \brief blah
@@ -166,10 +167,10 @@ public:
 	[[nodiscard("Memory Leak")]] static HIMAGELIST createImageList(bool bBigIcons = false) noexcept;
 	static dcxWindowStyles parseBorderStyles(const TString& tsFlags) noexcept;
 
-	LRESULT CallDefaultProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept;
+	//LRESULT CallDefaultProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept;
 
 protected:
-	WNDPROC m_hDefaultWindowProc{ nullptr }; //!< Old Window Procedure
+	//WNDPROC m_hDefaultWindowProc{ nullptr }; //!< Old Window Procedure
 	HWND m_Hwnd{ nullptr };
 	UINT m_ID{};
 

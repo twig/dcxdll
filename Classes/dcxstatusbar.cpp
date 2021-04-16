@@ -143,7 +143,8 @@ void DcxStatusBar::parseInfoRequest(const TString& input, const refString<TCHAR,
 	case L"text"_hash:
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Invalid number of arguments");
+			//throw Dcx::dcxException("Invalid number of arguments");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const int iPart = input.getnexttok().to_int() - 1, nParts = getParts(DCX_STATUSBAR_MAX_PARTS, nullptr);	// tok 4
 
@@ -184,7 +185,8 @@ void DcxStatusBar::parseInfoRequest(const TString& input, const refString<TCHAR,
 	case L"tooltip"_hash:
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Invalid number of arguments");
+			//throw Dcx::dcxException("Invalid number of arguments");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const int iPart = input.getnexttok().to_int(), nParts = getParts(DCX_STATUSBAR_MAX_PARTS, nullptr);	// tok 4
 
@@ -244,7 +246,8 @@ void DcxStatusBar::parseCommandRequest(const TString& input)
 	if (flags[TEXT('k')])
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto col = input.getnexttok().to_<COLORREF>();	// tok 4
 		if (col == CLR_INVALID)
@@ -256,7 +259,8 @@ void DcxStatusBar::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('l')])
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto nParts = numtok - 3;
 		auto parts = std::make_unique<INT[]>(DCX_STATUSBAR_MAX_PARTS);
@@ -290,7 +294,8 @@ void DcxStatusBar::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('t')])
 	{
 		if (numtok < 6)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto nPos = input.getnexttok().to_int() - 1;	// tok 4
 		const auto flag(input.getnexttok());			// tok 5
@@ -329,12 +334,12 @@ void DcxStatusBar::parseCommandRequest(const TString& input)
 			}
 			else { // child control
 				// this is split like this to avoid a compiler bug that caused the compiler to use >30GB ram & still fail.
-				const auto eAllowedControls1 = DcxAllowControls::ALLOW_PBAR | DcxAllowControls::ALLOW_TRACKBAR | DcxAllowControls::ALLOW_COMBOEX | DcxAllowControls::ALLOW_STATUSBAR | DcxAllowControls::ALLOW_TOOLBAR;
-				const auto eAllowedControls2 = DcxAllowControls::ALLOW_TREEVIEW | DcxAllowControls::ALLOW_LISTVIEW | DcxAllowControls::ALLOW_REBAR | DcxAllowControls::ALLOW_BUTTON | DcxAllowControls::ALLOW_EDIT;
-				const auto eAllowedControls3 = DcxAllowControls::ALLOW_UPDOWN | DcxAllowControls::ALLOW_IPADDRESS | DcxAllowControls::ALLOW_WEBCTRL | DcxAllowControls::ALLOW_CALANDER | DcxAllowControls::ALLOW_DIVIDER | DcxAllowControls::ALLOW_PANEL;
-				const auto eAllowedControls4 = DcxAllowControls::ALLOW_TAB | DcxAllowControls::ALLOW_LINE | DcxAllowControls::ALLOW_BOX | DcxAllowControls::ALLOW_RADIO | DcxAllowControls::ALLOW_CHECK | DcxAllowControls::ALLOW_TEXT | DcxAllowControls::ALLOW_SCROLL | DcxAllowControls::ALLOW_LIST;
-				const auto eAllowedControls5 = DcxAllowControls::ALLOW_LINK | DcxAllowControls::ALLOW_IMAGE | DcxAllowControls::ALLOW_PAGER | DcxAllowControls::ALLOW_DATETIME | DcxAllowControls::ALLOW_STACKER | DcxAllowControls::ALLOW_DIRECTSHOW;
-				const auto eAllowedControls = eAllowedControls1 | eAllowedControls2 | eAllowedControls3 | eAllowedControls4 | eAllowedControls5;
+				constexpr auto eAllowedControls1 = DcxAllowControls::ALLOW_PBAR | DcxAllowControls::ALLOW_TRACKBAR | DcxAllowControls::ALLOW_COMBOEX | DcxAllowControls::ALLOW_STATUSBAR | DcxAllowControls::ALLOW_TOOLBAR;
+				constexpr auto eAllowedControls2 = DcxAllowControls::ALLOW_TREEVIEW | DcxAllowControls::ALLOW_LISTVIEW | DcxAllowControls::ALLOW_REBAR | DcxAllowControls::ALLOW_BUTTON | DcxAllowControls::ALLOW_EDIT;
+				constexpr auto eAllowedControls3 = DcxAllowControls::ALLOW_UPDOWN | DcxAllowControls::ALLOW_IPADDRESS | DcxAllowControls::ALLOW_WEBCTRL | DcxAllowControls::ALLOW_CALANDER | DcxAllowControls::ALLOW_DIVIDER | DcxAllowControls::ALLOW_PANEL;
+				constexpr auto eAllowedControls4 = DcxAllowControls::ALLOW_TAB | DcxAllowControls::ALLOW_LINE | DcxAllowControls::ALLOW_BOX | DcxAllowControls::ALLOW_RADIO | DcxAllowControls::ALLOW_CHECK | DcxAllowControls::ALLOW_TEXT | DcxAllowControls::ALLOW_SCROLL | DcxAllowControls::ALLOW_LIST;
+				constexpr auto eAllowedControls5 = DcxAllowControls::ALLOW_LINK | DcxAllowControls::ALLOW_IMAGE | DcxAllowControls::ALLOW_PAGER | DcxAllowControls::ALLOW_DATETIME | DcxAllowControls::ALLOW_STACKER | DcxAllowControls::ALLOW_DIRECTSHOW;
+				constexpr auto eAllowedControls = eAllowedControls1 | eAllowedControls2 | eAllowedControls3 | eAllowedControls4 | eAllowedControls5;
 
 				auto p_Control = getParentDialog()->addControl(itemtext, 1,
 					//DcxAllowControls::ALLOW_PBAR | DcxAllowControls::ALLOW_TRACKBAR | DcxAllowControls::ALLOW_COMBOEX |
@@ -401,7 +406,8 @@ void DcxStatusBar::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('v')])
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto nPos = input.getnexttok().to_int() - 1;	// tok 4
 
@@ -429,7 +435,8 @@ void DcxStatusBar::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('w')])
 	{
 		if (numtok < 6)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto flag(input.getnexttok());			// tok 4
 		const auto index = input.getnexttok().to_int();		// tok 5
@@ -470,7 +477,7 @@ void DcxStatusBar::parseCommandRequest(const TString& input)
 	}
 	else
 		parseGlobalCommandRequest(input, flags);
-	}
+}
 
 /*!
  * \brief blah
@@ -612,6 +619,13 @@ LRESULT DcxStatusBar::getParts(const int nParts, LPINT aWidths) const noexcept
 LRESULT DcxStatusBar::getBorders(LPINT aWidths) const noexcept
 {
 	return SendMessage(m_Hwnd, SB_GETBORDERS, 0U, reinterpret_cast<LPARAM>(aWidths));
+}
+
+_NODISCARD DcxStatusBar::sbBorders DcxStatusBar::getBorders() const noexcept
+{
+	sbBorders aWidths{};
+	SendMessage(m_Hwnd, SB_GETBORDERS, 0U, reinterpret_cast<LPARAM>(&aWidths));
+	return aWidths;
 }
 
 /*!
@@ -792,7 +806,7 @@ LRESULT DcxStatusBar::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 #endif
 			}
 			bParsed = TRUE;
-			}
+		}
 		break;
 
 		case NM_RCLICK:
@@ -814,7 +828,7 @@ LRESULT DcxStatusBar::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 #endif
 			}
 			bParsed = TRUE;
-			}
+		}
 		break;
 
 		case NM_DBLCLK:
@@ -836,12 +850,12 @@ LRESULT DcxStatusBar::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 #endif
 			}
 			bParsed = TRUE;
-			}
+		}
 		break;
 		default:
 			break;
 		} // switch
-		}
+	}
 	break;
 	case WM_DRAWITEM: // support for ownerdraw statusbar. NB: NO Delete Item msg.
 	{
@@ -873,9 +887,9 @@ LRESULT DcxStatusBar::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 	break;
 	default:
 		break;
-		}
+	}
 	return 0L;
-		}
+}
 
 LRESULT DcxStatusBar::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed)
 {
@@ -893,7 +907,7 @@ LRESULT DcxStatusBar::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& 
 	{
 		if (IsWindow(reinterpret_cast<HWND>(lParam)))
 		{
-			if (const auto c_this = static_cast<DcxControl*>(GetProp(reinterpret_cast<HWND>(lParam), TEXT("dcx_cthis"))); c_this)
+			if (const auto c_this = Dcx::dcxGetProp<DcxControl*>(reinterpret_cast<HWND>(lParam), TEXT("dcx_cthis")); c_this)
 				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 		}
 	}
@@ -913,7 +927,7 @@ LRESULT DcxStatusBar::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& 
 	{
 		if (dcxlParam(LPDELETEITEMSTRUCT, idata); (idata) && (IsWindow(idata->hwndItem)))
 		{
-			if (const auto c_this = static_cast<DcxControl*>(GetProp(idata->hwndItem, TEXT("dcx_cthis"))); c_this)
+			if (const auto c_this = Dcx::dcxGetProp<DcxControl*>(idata->hwndItem, TEXT("dcx_cthis")); c_this)
 				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 		}
 	}
@@ -923,7 +937,7 @@ LRESULT DcxStatusBar::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& 
 	{
 		if (const auto cHwnd = GetDlgItem(m_Hwnd, wParam); IsWindow(cHwnd))
 		{
-			if (const auto c_this = static_cast<DcxControl*>(GetProp(cHwnd, TEXT("dcx_cthis"))); c_this)
+			if (const auto c_this = Dcx::dcxGetProp<DcxControl*>(cHwnd, TEXT("dcx_cthis")); c_this)
 				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 		}
 	}
@@ -933,7 +947,7 @@ LRESULT DcxStatusBar::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& 
 	{
 		if (dcxlParam(LPDRAWITEMSTRUCT, idata); (idata) && (IsWindow(idata->hwndItem)))
 		{
-			if (const auto c_this = static_cast<DcxControl*>(GetProp(idata->hwndItem, TEXT("dcx_cthis"))); c_this)
+			if (const auto c_this = Dcx::dcxGetProp<DcxControl*>(idata->hwndItem, TEXT("dcx_cthis")); c_this)
 				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 		}
 	}
@@ -950,7 +964,7 @@ LRESULT DcxStatusBar::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& 
 		{
 			if (IsWindow(hdr->hwndFrom))
 			{
-				if (const auto c_this = static_cast<DcxControl*>(GetProp(hdr->hwndFrom, TEXT("dcx_cthis"))); c_this)
+				if (const auto c_this = Dcx::dcxGetProp<DcxControl*>(hdr->hwndFrom, TEXT("dcx_cthis")); c_this)
 					lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 			}
 		}

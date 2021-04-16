@@ -1,6 +1,6 @@
 #pragma once
 // support functions for TString & c-string handling...
-// v1.14
+// v1.15
 
 #include <tchar.h>
 #include <cstdlib>
@@ -1207,6 +1207,9 @@ T& _ts_remove(T& str, RemThis rep)
 template <class T>
 T& _ts_trim(T& str)
 {
+	if (str.empty())
+		return str;
+
 	while (str.front() == _T(' '))
 		str.erase(0, 1);
 
@@ -1214,6 +1217,28 @@ T& _ts_trim(T& str)
 		str.pop_back();
 
 	return str;
+}
+
+/// <summary>
+/// Copies the string then remove spaces from the front and back of the string.
+/// </summary>
+/// <typeparam name="T">A string type object</typeparam>
+/// <param name="str">- The string to trim.</param>
+/// <returns>A copy of the string object it was passed.</returns>
+template <class T>
+T _ts_trim_and_copy(const T& str)
+{
+	if (str.empty())
+		return str;
+
+	T res(str);
+	while (res.front() == _T(' '))
+		res.erase(0, 1);
+
+	while (res.back() == _T(' '))
+		res.pop_back();
+
+	return res;
 }
 
 /// <summary>
@@ -1428,7 +1453,7 @@ GSL_SUPPRESS(bounds.4) bool _ts_InnerWildcardMatch(const TameString& pszString, 
 			if (details::CompareChar(pszMatch[iWildOffset], pszString[iTameOffset], bCase))
 				++iTameOffset;
 			++iWildOffset;
-	}
+		}
 #endif
 #if TSTRING_WILDE
 		else if (pszMatch[iWildOffset] == _slash)
@@ -1438,7 +1463,7 @@ GSL_SUPPRESS(bounds.4) bool _ts_InnerWildcardMatch(const TameString& pszString, 
 			if (!details::CompareChar(pszMatch[iWildOffset], pszString[iTameOffset], bCase))
 				return false;
 			++iTameOffset;
-}
+		}
 #endif
 #if TSTRING_WILDW
 		else if (pszMatch[iWildOffset] == _hash)

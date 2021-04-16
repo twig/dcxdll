@@ -75,7 +75,7 @@ DcxComboEx::DcxComboEx(const UINT ID, DcxDialog* const  p_Dialog, const HWND mPa
 			throw Dcx::dcxException("Unable to get Combo Box Info");
 
 		if (styles.istok(TEXT("sort")))
-		{ // doesnt work atm.
+		{ // doesnt work atm. CBS_SORT
 			if (IsWindow(cbi.hwndList))
 				AddStyles(cbi.hwndList, GWL_STYLE, LBS_SORT);
 		}

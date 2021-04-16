@@ -386,10 +386,10 @@ HIMAGELIST DcxWindow::createImageList(const bool bBigIcons) noexcept
 	return himl;
 }
 
-LRESULT DcxWindow::CallDefaultProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept
-{
-	if (!m_hDefaultWindowProc)
-		return DefWindowProc(mHwnd, uMsg, wParam, lParam);
-
-	return CallWindowProc(m_hDefaultWindowProc, mHwnd, uMsg, wParam, lParam);
-}
+//LRESULT DcxWindow::CallDefaultProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept
+//{
+//	if (!m_hDefaultWindowProc)
+//		return DefWindowProc(mHwnd, uMsg, wParam, lParam);
+//
+//	return CallWindowProc(m_hDefaultWindowProc, mHwnd, uMsg, wParam, lParam);
+//}

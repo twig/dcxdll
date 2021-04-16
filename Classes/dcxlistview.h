@@ -21,6 +21,12 @@
 #include "Classes/tinyxml/tinyxml.h"
 #include "Classes\custom\ListHelper.h"
 
+#ifndef LVM_RESETEMPTYTEXT
+// Needed to reset the empty listview text.
+// forces the listview to send LVN_GETEMPTYMARKUP notification. (no args)
+#define LVM_RESETEMPTYTEXT (LVM_FIRST + 84)
+#endif
+
 class DcxDialog;
 
 #define LVIS_BOLD       0x00000100	//!< ListView Caption Bold Style
@@ -187,7 +193,7 @@ namespace Dcx
 	{
 		return ListView_SetItem(hwnd, plvi);
 	}
-	inline void dcxListView_SetItemText(HWND hwnd, const int i, const int iSub, PTCHAR str) noexcept
+	inline void dcxListView_SetItemText(HWND hwnd, const int i, const int iSub, _In_z_ PTCHAR str) noexcept
 	{
 		ListView_SetItemText(hwnd, i, iSub, str);
 	}
@@ -207,10 +213,12 @@ namespace Dcx
 	{
 		return ListView_SetExtendedListViewStyleEx(hwnd, mask, dw);
 	}
-	inline BOOL dcxListView_SetEmptyText(HWND hwnd, PTCHAR pszText) noexcept
+	inline BOOL dcxListView_SetEmptyText(HWND hwnd, _In_z_ PTCHAR pszText) noexcept
 	{
-		//return ListView_SetEmptyText(hwnd, pszText, cchText);
-		return SetWindowText(hwnd, pszText);
+		//const auto res = ListView_SetEmptyText(hwnd, pszText, cchText);
+		const auto res = SetWindowText(hwnd, pszText);
+		SendMessage(hwnd, LVM_RESETEMPTYTEXT, 0, 0);
+		return res;
 	}
 	inline int dcxListView_InsertItem(HWND hwnd, const LPLVITEM plvi) noexcept
 	{

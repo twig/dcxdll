@@ -73,6 +73,13 @@ public:
 	LRESULT setParts( const int nParts, const LPINT aWidths ) noexcept;
 	LRESULT getParts( const int nParts, LPINT aWidths ) const noexcept;
 	LRESULT getBorders( LPINT aWidths ) const noexcept;
+
+	struct sbBorders
+	{
+		int horizontal, vertical, seperator;
+	};
+	_NODISCARD sbBorders getBorders() const noexcept;
+
 	LRESULT setBkColor( const COLORREF clrBk ) noexcept;
 	LRESULT setText( const int iPart, const int Style, const PTCHAR lpstr ) noexcept;
 	LRESULT setPartInfo( const int iPart, const int Style, gsl::owner<const LPSB_PARTINFOX> pPart ) noexcept;

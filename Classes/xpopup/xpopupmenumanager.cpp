@@ -16,6 +16,7 @@
 #include "Dcx.h"
 
 #if DCX_CUSTOM_MENUS
+std::vector<HWND> XPopupMenuManager::g_winlist;
 WNDPROC XPopupMenuManager::g_OldmIRCMenusWindowProc = nullptr;
 #endif
 
@@ -183,10 +184,31 @@ LRESULT XPopupMenuManager::OnInitMenuPopup(HWND mHwnd, WPARAM wParam, LPARAM lPa
 		if (switchMenu)
 			SetMenu(mIRCLinker::getHWND(), currentMenubar);
 
-		if (isMenuBarMenu(GetMenu(mHwnd), menu))
-		{
-			m_bIsMenuBar = true;
+		//if (isMenuBarMenu(GetMenu(mHwnd), menu))
+		//{
+		//	m_bIsMenuBar = true;
+		//
+		//	if (m_bIsActiveMircMenubarPopup)
+		//	{
+		//		const bool isCustomMenu = Dcx::XPopups.isCustomMenu(menu);
+		//
+		//		// Store the handle of the menu being displayed.
+		//		if (isCustomMenu && (m_hMenuCustom == nullptr))
+		//			m_hMenuCustom = menu;
+		//
+		//		if (const auto hActive = reinterpret_cast<HWND>(SendMessage(mIRCLinker::getMDIClient(), WM_MDIGETACTIVE, 0L, 0L)); ((!IsZoomed(hActive) || GetSystemMenu(hActive, FALSE) != menu)) && (!isCustomMenu) && (m_hMenuCustom == nullptr)) // This checks for custom submenus.
+		//			m_mIRCMenuBar->convertMenu(menu, TRUE);
+		//	}
+		//}
+		//else {
+		//	m_bIsMenuBar = false;
+		//
+		//	if (m_bIsActiveMircPopup)
+		//		m_mIRCPopupMenu->convertMenu(menu, FALSE);
+		//}
 
+		if (m_bIsMenuBar = isMenuBarMenu(GetMenu(mHwnd), menu); m_bIsMenuBar)
+		{
 			if (m_bIsActiveMircMenubarPopup)
 			{
 				const bool isCustomMenu = Dcx::XPopups.isCustomMenu(menu);
@@ -195,13 +217,11 @@ LRESULT XPopupMenuManager::OnInitMenuPopup(HWND mHwnd, WPARAM wParam, LPARAM lPa
 				if (isCustomMenu && (m_hMenuCustom == nullptr))
 					m_hMenuCustom = menu;
 
-				if (const auto hActive = reinterpret_cast<HWND>(SendMessage(mIRCLinker::getMDIClient(), WM_MDIGETACTIVE, 0L, 0L)); ((!IsZoomed(hActive) || GetSystemMenu(hActive, FALSE) != menu)) && (!isCustomMenu) && (m_hMenuCustom == nullptr)) // This checks for custom submenus.
+				if (const auto hActive = mIRCLinker::getActiveMDIWindow(); ((!IsZoomed(hActive) || GetSystemMenu(hActive, FALSE) != menu)) && (!isCustomMenu) && (m_hMenuCustom == nullptr)) // This checks for custom submenus.
 					m_mIRCMenuBar->convertMenu(menu, TRUE);
 			}
 		}
 		else {
-			m_bIsMenuBar = false;
-
 			if (m_bIsActiveMircPopup)
 				m_mIRCPopupMenu->convertMenu(menu, FALSE);
 		}
@@ -348,7 +368,6 @@ void XPopupMenuManager::parseCommand(const TString& input, XPopupMenu* const p_M
 	else if (flags[TEXT('c')])
 	{
 		if (numtok < 3)
-			//throw Dcx::dcxException(TEXT("Invalid Arguments"));
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto uMenuHash = std::hash<TString>{}(tsMenuName);
@@ -356,7 +375,7 @@ void XPopupMenuManager::parseCommand(const TString& input, XPopupMenu* const p_M
 		if (uMenuHash == TEXT("mirc"_hash) || uMenuHash == TEXT("mircbar"_hash))
 			throw Dcx::dcxException(TEXT("Command not supported with mirc or mircbar menus"));
 
-		if (p_Menu != nullptr)
+		if (p_Menu)
 			throw Dcx::dcxException(TEXT("\"%\" already exists"), tsMenuName);
 
 		const auto style = XPopupMenu::parseStyle(input.getnexttok());	// tok 3
@@ -376,7 +395,6 @@ void XPopupMenuManager::parseCommand(const TString& input, XPopupMenu* const p_M
 	else if (flags[TEXT('i')])
 	{
 		if (numtok < 5)
-			//throw Dcx::dcxException(TEXT("Invalid Arguments"));
 			throw DcxExceptions::dcxInvalidArguments();
 
 		auto himl = p_Menu->getImageList();
@@ -406,7 +424,6 @@ void XPopupMenuManager::parseCommand(const TString& input, XPopupMenu* const p_M
 	else if (flags[TEXT('l')])
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException(TEXT("Invalid Arguments"));
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto nColor = gsl::narrow_cast<XPopupMenu::MenuColours>(input.getnexttok().to_<UINT>());	// tok 3
@@ -431,7 +448,6 @@ void XPopupMenuManager::parseCommand(const TString& input, XPopupMenu* const p_M
 	else if (flags[TEXT('p')])
 	{
 		if (numtok < 3)
-			//throw Dcx::dcxException(TEXT("Invalid Arguments"));
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto colors(input.getlasttoks());	// tok 3, -1
@@ -450,7 +466,6 @@ void XPopupMenuManager::parseCommand(const TString& input, XPopupMenu* const p_M
 	else if (flags[TEXT('s')])
 	{
 		if ((numtok < 5) || (!p_Menu))
-			//throw Dcx::dcxException(TEXT("Invalid Arguments"));
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto mflags = this->parseTrackFlags(input.getnexttok());	// tok 3
@@ -488,7 +503,6 @@ void XPopupMenuManager::parseCommand(const TString& input, XPopupMenu* const p_M
 	else if (flags[TEXT('t')])
 	{
 		if (numtok < 3)
-			//throw Dcx::dcxException(TEXT("Invalid Arguments"));
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto style = XPopupMenu::parseStyle(input.getnexttok());	// tok 3
@@ -499,13 +513,11 @@ void XPopupMenuManager::parseCommand(const TString& input, XPopupMenu* const p_M
 	else if (flags[TEXT('x')])
 	{
 		if (numtok < 3)
-			//throw Dcx::dcxException(TEXT("Invalid Arguments"));
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const XSwitchFlags xflags(input.getnexttok());	// tok 3
 
 		if (!xflags[TEXT('+')])
-			//throw Dcx::dcxException("Missing '+' in front of flags");
 			throw DcxExceptions::dcxInvalidFlag();
 
 		UINT iStyles = 0;
@@ -522,13 +534,11 @@ void XPopupMenuManager::parseCommand(const TString& input, XPopupMenu* const p_M
 	else if (flags[TEXT('R')])
 	{
 		if (numtok < 3)
-			//throw Dcx::dcxException(TEXT("Invalid Arguments"));
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const XSwitchFlags xflags(input.getnexttok());	// tok 3
 
 		if (!xflags[TEXT('+')])
-			//throw Dcx::dcxException("Missing '+' in front of flags");
 			throw DcxExceptions::dcxInvalidFlag();
 
 		if (xflags[TEXT('r')]) // Set Rounded Selector on/off
@@ -812,7 +822,6 @@ TString XPopupMenuManager::parseIdentifier(const TString& input) const
 			throw Dcx::dcxException(TEXT("\"%\" doesn't exist, see /xpopup -c"), tsMenuName);
 
 		if (numtok != 3)
-			//throw Dcx::dcxException(TEXT("Invalid Arguments"));
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto nColor = gsl::narrow_cast<XPopupMenu::MenuColours>(input.getnexttok().to_<UINT>());	// tok 3
@@ -1521,8 +1530,6 @@ const TString XPopupMenuManager::GetMenuAttributeFromXML(const char* const attri
 }
 
 #if DCX_CUSTOM_MENUS
-std::list<HWND> winlist;
-
 LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	// Incase execution somehow ends up here without this pointer being set.
@@ -1530,38 +1537,42 @@ LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPAR
 		return DefWindowProc(mHwnd, uMsg, wParam, lParam);
 
 	// only if custom menus enabled.
-	if (!Dcx::setting_bCustomMenus)
+	if (Dcx::setting_CustomMenusAlpha == 255)
 		return CallWindowProc(XPopupMenuManager::g_OldmIRCMenusWindowProc, mHwnd, uMsg, wParam, lParam);
 
-	switch (uMsg)
+	//Dcx::XPopups.
+	const MenuMessages mm = static_cast<MenuMessages>(uMsg);
+
+	switch (mm)
 	{
-	case WM_NCCREATE:
+	case MenuMessages::WMN_NCCREATE:
 	{
-		dcxlParam(LPCREATESTRUCT,cs);
+		dcxlParam(LPCREATESTRUCT, cs);
 		cs->dwExStyle |= WS_EX_LAYERED | WS_EX_COMPOSITED;
 	}
 	break;
 
-	case WM_CREATE:
+	case MenuMessages::WMN_CREATE:
 	{
 		dcxlParam(LPCREATESTRUCT, cs);
 		cs->dwExStyle |= WS_EX_LAYERED | WS_EX_COMPOSITED;
 
 		// check for previous menu...
-		if (!winlist.empty())
+		if (!g_winlist.empty())
 		{
 			// change previous window.
-			auto parent = winlist.back();
-			
+			auto parent = g_winlist.back();
+
 			// make sure previous menu is layered.
 			if (const auto dwStyle = dcxGetWindowExStyle(parent); !dcx_testflag(dwStyle, WS_EX_LAYERED))
 				dcxSetWindowExStyle(parent, dwStyle | WS_EX_LAYERED);
 
 			// set alpha for previous menu.
-			SetLayeredWindowAttributes(parent, 0, 0xC0U, LWA_ALPHA); // 0xCC = 80% Opaque
+			//SetLayeredWindowAttributes(parent, 0, Dcx::setting_CustomMenusAlpha, LWA_ALPHA); // 0xCC = 80% Opaque, 0xC0
 		}
 		// add this window to list.
-		winlist.push_back(mHwnd);
+		g_winlist.push_back(mHwnd);
+
 	}
 	break;
 
@@ -1640,24 +1651,163 @@ LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPAR
 	//}
 	//break;
 
-	case WM_DESTROY:
+	case MenuMessages::WMN_DESTROY:
 	{
-		if (winlist.empty())
+		if (g_winlist.empty())
 			break;
 
 		// remove ourselfs.
-		winlist.pop_back();
+		g_winlist.pop_back();
 
-		if (!winlist.empty())
+		if (!g_winlist.empty())
 		{
 			// get previous menu window.
-			auto parent = winlist.back();
+			auto parent = g_winlist.back();
 
 			if (const auto dwStyle = dcxGetWindowExStyle(parent); !dcx_testflag(dwStyle, WS_EX_LAYERED))
 				break;
 
 			SetLayeredWindowAttributes(parent, 0, 0xFFU, LWA_ALPHA); // 0xCC = 80% Opaque
 		}
+	}
+	break;
+
+	// code for rounded windows etc..
+	case MenuMessages::WMN_SIZE:
+	{
+		if (!Dcx::setting_CustomMenusRounded)
+			break;
+
+		// message is sent AFTER the window is resized.
+		// this is client area size, we need window rect
+		//const UINT width = Dcx::dcxLOWORD(lParam);
+		//const UINT height = Dcx::dcxHIWORD(lParam);
+	
+		if (RECT rc{}; GetWindowRect(mHwnd, &rc))
+		{
+	
+			const UINT width = rc.right - rc.left;
+			const UINT height = rc.bottom - rc.top;
+	
+			constexpr int radius = 10;
+			
+			if (auto m_Region = CreateRoundRectRgn(0, 0, width, height, radius, radius); m_Region)
+			{
+				SetWindowRgn(mHwnd, m_Region, TRUE);
+	
+				//if (auto hdc = GetWindowDC(mHwnd); hdc)
+				//{
+				//	FrameRgn(hdc, m_Region, GetStockBrush(BLACK_BRUSH), 1, 1);
+				//	ReleaseDC(mHwnd, hdc);
+				//}
+			}
+		}
+	}
+	break;
+	//case MenuMessages::WMN_ERASEBKGND:
+	//{
+	//	if (!Dcx::setting_CustomMenusRounded)
+	//		break;
+	//
+	//	const auto lRes = CallWindowProc(XPopupMenuManager::g_OldmIRCMenusWindowProc, mHwnd, uMsg, wParam, lParam);
+	//	if (auto m_Region = CreateRectRgn(0, 0, 0, 0); m_Region)
+	//	{
+	//		const auto err = GetWindowRgn(mHwnd, m_Region);
+	//
+	//		//OffsetRgn(m_Region, -1, -1);
+	//		//if ((err != NULLREGION) && (err != ERROR))
+	//		//	FrameRgn((HDC)wParam, m_Region, GetStockBrush(BLACK_BRUSH), 2, 2);
+	//
+	//		RECT rc{};
+	//		GetRgnBox(m_Region, &rc);
+	//		rc.left += 2;
+	//		rc.right -= 2;
+	//		rc.top += 2;
+	//		rc.bottom -= 2;
+	//
+	//		DeleteRgn(m_Region);
+	//
+	//		//DrawEdge((HDC)wParam, &rc, 0, 0);
+	//		//FrameRect((HDC)wParam, &rc, GetStockBrush(BLACK_BRUSH));
+	//
+	//		if (auto tmp = CreateRoundRectRgn(rc.left, rc.top, rc.right, rc.bottom, 10, 10); tmp)
+	//		{
+	//			FrameRgn((HDC)wParam, m_Region, GetStockBrush(BLACK_BRUSH), 2, 2);
+	//			DeleteRgn(tmp);
+	//		}
+	//	}
+	//	return lRes;
+	//}
+	//break;
+
+//#if DCX_DEBUG_OUTPUT
+//	//case WM_MOUSEMOVE:
+//	//{  // never called.
+//	//	TString msg;
+//	//	msg.tsprintf(TEXT("called: %d"), mHwnd);
+//	//	mIRCLinker::debug(TEXT("WM_MOUSEMOVE"), msg);
+//	//}
+//	//break;
+//	//case WM_MOUSELEAVE:
+//	//{  // never called.
+//	//	TString msg;
+//	//	msg.tsprintf(TEXT("called: %d"), mHwnd);
+//	//	mIRCLinker::debug(TEXT("WM_MOUSELEAVE"), msg);
+//	//}
+//	//break;
+//#endif
+
+	case MenuMessages::MN_SELECTITEM:
+	{
+		if (wParam == UINT_MAX)
+		{
+			for (auto itGet = g_winlist.begin(); itGet != g_winlist.end(); ++itGet)
+			{
+				auto win = *itGet;
+				if (const auto dwStyle = dcxGetWindowExStyle(win); dcx_testflag(dwStyle, WS_EX_LAYERED))
+				{
+					BYTE current_alpha{ 255 };
+					DWORD dFlags{ LWA_ALPHA };
+					if (GetLayeredWindowAttributes(win, nullptr, &current_alpha, &dFlags))
+					{
+						if (current_alpha != 0xFFU)
+							SetLayeredWindowAttributes(win, 0, 0xFFU, LWA_ALPHA); // make window solid
+					}
+				}
+			}
+		}
+	}
+	break;
+
+	case MenuMessages::MN_FINDMENUWINDOWFROMPOINT:
+	{
+		const auto lRes = CallWindowProc(XPopupMenuManager::g_OldmIRCMenusWindowProc, mHwnd, uMsg, wParam, lParam);
+		auto menu_hwnd = reinterpret_cast<HWND>(lRes);
+	
+		bool bAfter = false;
+		for (auto itGet = g_winlist.begin(); itGet != g_winlist.end(); ++itGet)
+		{
+			auto win = *itGet;
+	
+			if ((win == menu_hwnd) || (!menu_hwnd))
+				bAfter = true;
+	
+			if (const auto dwStyle = dcxGetWindowExStyle(win); dcx_testflag(dwStyle, WS_EX_LAYERED))
+			{
+				BYTE current_alpha{ 255 };
+				DWORD dFlags{ LWA_ALPHA };
+				if (GetLayeredWindowAttributes(win, nullptr, &current_alpha, &dFlags))
+				{
+					const BYTE alpha = (bAfter ? 0xFFU : Dcx::setting_CustomMenusAlpha);
+					if (current_alpha != alpha)
+						SetLayeredWindowAttributes(win, 0, alpha, LWA_ALPHA); // make window solid
+				}
+	
+				//SetLayeredWindowAttributes(win, 0, (bAfter ? 0xFFU : Dcx::setting_CustomMenusAlpha), LWA_ALPHA);
+			}
+		}
+	
+		return lRes;
 	}
 	break;
 

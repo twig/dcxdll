@@ -25,6 +25,8 @@
 
 #include "DcxConcepts.h"
 
+//#include "DcxTextRender.h"
+
 // should DCX use the resource wrapper classes below? set to zero to disable
 #define DCX_USE_WRAPPERS 1
 
@@ -100,7 +102,8 @@ namespace Dcx
 	extern bool m_bErrorTriggered;
 
 	extern bool setting_bStaticColours;
-	extern bool setting_bCustomMenus;
+	extern BYTE setting_CustomMenusAlpha;
+	extern bool setting_CustomMenusRounded;
 
 	/// <summary>
 	/// Converts a Range to a std::vector.
@@ -792,7 +795,9 @@ namespace Dcx
 		explicit dcxCursorPos(HWND hwnd) noexcept
 			: dcxCursorPos()
 		{
-			MapWindowPoints(nullptr, hwnd, this, 1);
+			SetLastError(0);
+			if ((MapWindowPoints(nullptr, hwnd, this, 1) == 0) && (GetLastError() != 0))
+				x = y = -1;
 		}
 		~dcxCursorPos() noexcept = default;
 

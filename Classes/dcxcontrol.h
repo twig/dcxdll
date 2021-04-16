@@ -18,6 +18,8 @@
 #include "defines.h"
 #include "dcxwindow.h"
 
+//#include "DcxTextRender.h"
+
  //constexpr auto DCC_TEXTCOLOR = 0x01;	//!< Control Text Color;
  //constexpr auto DCC_TEXTBKGCOLOR = 0x02;	//!< Control Text Background Color;
  //constexpr auto DCC_BKGCOLOR = 0x04;	//!< Control Background Color;
@@ -298,7 +300,7 @@ public:
 	void setToolTipHWND(const HWND hwnd) noexcept { m_ToolTipHWND = hwnd; }
 	void setNoThemed(const bool b) noexcept { m_bThemed = b; }
 	void setAlphaBlended(const bool b) noexcept { m_bAlphaBlend = b; }
-	void setControlCursor(const HCURSOR c) noexcept { m_hCursor = c; }
+	void setControlCursor(const HCURSOR c) noexcept { m_hCursor.cursor = c; }
 	void setShadowTextState(const bool b) noexcept { m_bShadowText = b; }
 	void setControlCodeTextState(const bool b) noexcept { m_bCtrlCodeText = b; }
 
@@ -342,7 +344,7 @@ public:
 	}
 	const HCURSOR& getControlCursor() const noexcept
 	{
-		return m_hCursor;
+		return m_hCursor.cursor;
 	}
 
 	const inline bool& IsAlphaBlend() const noexcept
@@ -417,6 +419,8 @@ protected:
 	TString m_tsMark;				//!< Mark Information (see /xdid -M)
 	TString m_tsToolTip;			//!< This controls tooltip text (if any).
 
+	//DcxTextRender m_Render;
+
 	COLORREF m_clrText{ CLR_INVALID };				//!< Font color
 	COLORREF m_clrBackText{ CLR_INVALID };			//!< Font Back Color (not supported)
 	COLORREF m_colTransparentBg{ CLR_INVALID };
@@ -429,7 +433,10 @@ protected:
 
 	HBITMAP m_bitmapBg{ nullptr };			//!< Background bitmap
 
-	HCURSOR m_hCursor{ nullptr };			//!< Cursor Handle
+	//HCURSOR m_hCursor{ nullptr };			//!< Cursor Handle
+	//bool m_bCursorFromFile{ false };		//!< Cursor comes from a file?
+
+	CursorPair m_hCursor{};
 
 	HWND m_ToolTipHWND{ nullptr };			//!< Tooltip window (if any)
 	HWND m_pParentHWND{ nullptr };
@@ -441,7 +448,6 @@ protected:
 
 	BYTE m_iAlphaLevel{ 0x7f };				//!< The amount the control is alpha blended.
 
-	bool m_bCursorFromFile{ false };		//!< Cursor comes from a file?
 	bool m_bAlphaBlend{ false };			//!< Control is alpha blended.
 	bool m_bGradientFill{ false };			//!< Gradient fill the background.
 	bool m_bGradientVertical{ false };		//!< Draw gradient vertically.

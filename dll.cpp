@@ -2198,7 +2198,8 @@ mIRC(SetDCXSettings)
 		}
 		case L"CustomMenus"_hash:
 		{
-			Dcx::setting_bCustomMenus = (d.getnexttok().to_int() > 0);
+			Dcx::setting_CustomMenusAlpha = (d.getnexttok().to_<UINT>() & 0xFF);
+			Dcx::setting_CustomMenusRounded = (d.getnexttok().to_<UINT>() != 0);
 			break;
 		}
 		default:
@@ -2244,7 +2245,7 @@ mIRC(GetDCXSettings)
 		}
 		case L"CustomMenus"_hash:
 		{
-			_ts_snprintf(data, mIRCLinker::c_mIRC_Buffer_Size_cch, TEXT("%d"), Dcx::setting_bCustomMenus);
+			_ts_snprintf(data, mIRCLinker::c_mIRC_Buffer_Size_cch, TEXT("%u"), Dcx::setting_CustomMenusAlpha);
 			break;
 		}
 		default:

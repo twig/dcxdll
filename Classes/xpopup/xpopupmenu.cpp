@@ -749,65 +749,83 @@ void XPopupMenu::deleteAllItemData(HMENU hMenu)
 /*!
  * \brief blah
  *
- * blah
+ * Only called for custom xpopup menus, NOT mIRC menus.
  */
 
 LRESULT CALLBACK XPopupMenu::XPopupWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
+	//const MenuMessages mm = static_cast<MenuMessages>(uMsg);
+
 	switch (uMsg)
 	{
-		//#if DCX_DEBUG_OUTPUT
-		//	case WM_INITMENU:
-		//		{
-		//			TString msg;
-		//			msg.tsprintf(TEXT("called: %d"), mHwnd);
-		//			mIRCLinker::debug(TEXT("WM_INITMENU"),msg.to_chr());
-		//		}
-		//		break;
-		//	case WM_INITMENUPOPUP:
-		//		{
-		//			TString msg;
-		//			msg.tsprintf(TEXT("called: %d"), mHwnd);
-		//			mIRCLinker::debug(TEXT("WM_INITMENUPOPUP"),msg.to_chr());
-		//		}
-		//		break;
-		//	case WM_PARENTNOTIFY:
-		//		{
-		//			TString msg;
-		//			msg.tsprintf(TEXT("called: %d"), mHwnd);
-		//			mIRCLinker::debug(TEXT("WM_PARENTNOTIFY"),msg.to_chr());
-		//		}
-		//		break;
-		//#endif
-		//
-			//case WM_PAINT:
-			//{
-			//	//BOOL bEnabled = FALSE;
-			//	//Dcx::VistaModule.dcxDwmIsCompositionEnabled(&bEnabled);
-			//	//if (bEnabled) {
-			//	//	DWM_BLURBEHIND blur{DWM_BB_ENABLE, TRUE, nullptr, FALSE};
-			//	//	Dcx::VistaModule.dcxDwmEnableBlurBehindWindow(mHwnd, &blur);
-			//	//}
-		//
-			//	// playing around with menu transparency
-			//	const BYTE alpha = 0x7F;
-			//	
-			//	// If alpha == 255 then menu is fully opaque so no need to change to layered.
-			//	if (alpha < 255) {
-			//		HWND hMenuWnd = mHwnd;
-			//	
-			//		if (IsWindow(hMenuWnd)) {
-			//			DWORD dwStyle = GetWindowExStyle(hMenuWnd);
-			//	
-			//			if (!dcx_testflag(dwStyle, WS_EX_LAYERED))
-			//			{
-			//				SetWindowLong(hMenuWnd, GWL_EXSTYLE, dwStyle | WS_EX_LAYERED);
-			//				SetLayeredWindowAttributes(hMenuWnd, 0, (BYTE)alpha, LWA_ALPHA); // 0xCC = 80% Opaque
-			//			}
-			//		}
-			//	}
-			//}
-			//break;
+//#if DCX_DEBUG_OUTPUT
+//		//	case WM_INITMENU:
+//		//		{ // never called
+//		//			TString msg;
+//		//			msg.tsprintf(TEXT("called: %d"), mHwnd);
+//		//			mIRCLinker::debug(TEXT("WM_INITMENU"),msg);
+//		//		}
+//		//		break;
+//		//	case WM_INITMENUPOPUP:
+//		//		{ // never called
+//		//			TString msg;
+//		//			msg.tsprintf(TEXT("called: %d"), mHwnd);
+//		//			mIRCLinker::debug(TEXT("WM_INITMENUPOPUP"),msg);
+//		//		}
+//		//		break;
+//		//	case WM_PARENTNOTIFY:
+//		//		{ // never called
+//		//			TString msg;
+//		//			msg.tsprintf(TEXT("called: %d"), mHwnd);
+//		//			mIRCLinker::debug(TEXT("WM_PARENTNOTIFY"),msg);
+//		//		}
+//		//		break;
+//		//
+//		//
+//		//case WM_PAINT:
+//		//{
+//		//	//BOOL bEnabled = FALSE;
+//		//	//Dcx::VistaModule.dcxDwmIsCompositionEnabled(&bEnabled);
+//		//	//if (bEnabled) {
+//		//	//	DWM_BLURBEHIND blur{DWM_BB_ENABLE, TRUE, nullptr, FALSE};
+//		//	//	Dcx::VistaModule.dcxDwmEnableBlurBehindWindow(mHwnd, &blur);
+//		//	//}
+//		//
+//		//	// playing around with menu transparency
+//		//	const BYTE alpha = 0x7F;
+//		//	
+//		//	// If alpha == 255 then menu is fully opaque so no need to change to layered.
+//		//	if (alpha < 255) {
+//		//		HWND hMenuWnd = mHwnd;
+//		//	
+//		//		if (IsWindow(hMenuWnd)) {
+//		//			DWORD dwStyle = GetWindowExStyle(hMenuWnd);
+//		//	
+//		//			if (!dcx_testflag(dwStyle, WS_EX_LAYERED))
+//		//			{
+//		//				SetWindowLong(hMenuWnd, GWL_EXSTYLE, dwStyle | WS_EX_LAYERED);
+//		//				SetLayeredWindowAttributes(hMenuWnd, 0, (BYTE)alpha, LWA_ALPHA); // 0xCC = 80% Opaque
+//		//			}
+//		//		}
+//		//	}
+//		//}
+//		//break;
+//		//
+//	//case WM_MOUSEMOVE:
+//	//{
+//	//	TString msg;
+//	//	msg.tsprintf(TEXT("called: %d"), mHwnd);
+//	//	mIRCLinker::debug(TEXT("WM_MOUSEMOVE"), msg);
+//	//}
+//	//break;
+//	//case WM_MOUSELEAVE:
+//	//{
+//	//	TString msg;
+//	//	msg.tsprintf(TEXT("called: %d"), mHwnd);
+//	//	mIRCLinker::debug(TEXT("WM_MOUSELEAVE"), msg);
+//	//}
+//	//break;
+//#endif
 
 	case WM_MEASUREITEM:
 	{

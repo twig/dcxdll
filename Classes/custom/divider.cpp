@@ -199,7 +199,7 @@ LRESULT CALLBACK DividerWndProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 			return FALSE;
 
 		const UINT iPos = gsl::narrow_cast<UINT>(lParam);
-		const UINT width = (dcx_testflag(GetWindowStyle(mHwnd), DVS_VERT) ? gsl::narrow_cast<UINT>(rc.right - rc.left) : gsl::narrow_cast<UINT>(rc.bottom - rc.top));
+		const UINT width = (dcx_testflag(dcxGetWindowStyle(mHwnd), DVS_VERT) ? gsl::narrow_cast<UINT>(rc.right - rc.left) : gsl::narrow_cast<UINT>(rc.bottom - rc.top));
 
 		if ((iPos >= lpdvdata->m_LeftTopPane.cxMin) && (iPos <= (width - lpdvdata->m_RightBottomPane.cxMin)))
 		{

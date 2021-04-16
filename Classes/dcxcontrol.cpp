@@ -103,11 +103,17 @@ DcxControl::~DcxControl() noexcept
 		m_hBorderBrush = nullptr;
 	}
 
+	//// check if we need to destroy the cursor (do not destroy if same cursor as parent dialog, parent will destroy this for us)
+	//if (m_bCursorFromFile && m_hCursor && m_hCursor != getParentDialog()->getCursor())
+	//{
+	//	DestroyCursor(m_hCursor);
+	//	m_hCursor = nullptr;
+	//}
+
 	// check if we need to destroy the cursor (do not destroy if same cursor as parent dialog, parent will destroy this for us)
-	if (m_bCursorFromFile && m_hCursor && m_hCursor != getParentDialog()->getCursor())
+	if (m_hCursor && m_hCursor.cursor != getParentDialog()->getCursor())
 	{
-		DestroyCursor(m_hCursor);
-		m_hCursor = nullptr;
+		DestroyCursor(m_hCursor.cursor);
 	}
 
 	if (const auto pd = getParentDialog(); pd)
@@ -372,10 +378,10 @@ void DcxControl::parseGlobalCommandRequest(const TString& input, const XSwitchFl
 		const auto* const CursorType = this->parseCursorType(filename);
 
 		// if previous cursor was the dialogs cursor, just set as blank
-		if (m_hCursor == getParentDialog()->getCursor())
-			m_hCursor = nullptr;
+		if (m_hCursor.cursor == getParentDialog()->getCursor())
+			m_hCursor.cursor = nullptr;
 
-		this->m_hCursor = Dcx::dcxLoadCursor(iFlags, CursorType, this->m_bCursorFromFile, this->m_hCursor, filename);
+		m_hCursor.cursor = Dcx::dcxLoadCursor(iFlags, CursorType, m_hCursor.enabled, m_hCursor.cursor, filename);
 	}
 	// xdid -M [NAME] [ID] [SWITCH] [MARK INFO]
 	else if (flags[TEXT('M')])
@@ -2091,10 +2097,10 @@ LRESULT DcxControl::CommonMessage(const UINT uMsg, WPARAM wParam, LPARAM lParam,
 
 	case WM_SETCURSOR:
 	{
-		if ((LOWORD(lParam) == HTCLIENT) && (reinterpret_cast<HWND>(wParam) == m_Hwnd) && (m_hCursor))
+		if ((LOWORD(lParam) == HTCLIENT) && (reinterpret_cast<HWND>(wParam) == m_Hwnd) && (m_hCursor.cursor))
 		{
-			if (GetCursor() != m_hCursor)
-				SetCursor(m_hCursor);
+			if (GetCursor() != m_hCursor.cursor)
+				SetCursor(m_hCursor.cursor);
 			bParsed = TRUE;
 			return TRUE;
 		}
@@ -2451,7 +2457,7 @@ void DcxControl::ctrlDrawText(HDC hdc, const TString& txt, const LPRECT rc, cons
 	{
 		const auto oldBkgMode = SetBkMode(hdc, TRANSPARENT);
 		Auto(SetBkMode(hdc, oldBkgMode));
-
+	
 		if (this->IsShadowTextEnabled())
 			dcxDrawShadowText(hdc, txt.to_chr(), txt.len(), rc, style, this->m_clrText, 0, 5, 5);
 		else
@@ -2459,6 +2465,17 @@ void DcxControl::ctrlDrawText(HDC hdc, const TString& txt, const LPRECT rc, cons
 	}
 	else
 		mIRC_DrawText(hdc, txt, rc, style, this->IsShadowTextEnabled());
+
+	//m_Render.Initialize();
+	//m_Render.setHwnd(m_Hwnd);
+
+	//auto [code, lf] = Dcx::dcxGetObject<LOGFONT>(Dcx::dcxGetCurrentObject<HFONT>(hdc, OBJ_FONT));
+	//if (code == 0)
+	//	return;
+
+	//m_Render.setFont(lf.lfFaceName, gsl::narrow_cast<float>(lf.lfWidth));
+	//m_Render.setText(txt.to_chr());
+	//m_Render.DrawD2DContent();
 }
 
 const TString DcxControl::getStyles(void) const
@@ -2497,7 +2514,7 @@ const TString DcxControl::getStyles(void) const
 
 	//const dcxWindowStyles Styles{ m_Hwnd };
 	//TString result(Styles.ToString());
-
+	//
 	//if (this->IsAlphaBlend())
 	//	result.addtok(TEXT("alpha"));
 	//if (this->IsShadowTextEnabled())

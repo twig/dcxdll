@@ -18,6 +18,137 @@
 #include "Classes/xpopup/xpopupmenu.h"
 #include "Classes/tinyxml/tinyxml.h"
 
+/*
+; MN_SETHMENU: = 0x1E0
+; MN_GETHMENU: = 0x1E1
+; MN_SIZEWINDOW: = 0x1E2
+; MN_OPENHIERARCHY: = 0x1E3
+; MN_CLOSEHIERARCHY: = 0x1E4
+; MN_SELECTITEM: = 0x1E5
+; MN_CANCELMENUS: = 0x1E6
+; MN_SELECTFIRSTVALIDITEM: = 0x1E7
+; MN_GETPPOPUPMENU: = 0x1EA
+; MN_FINDMENUWINDOWFROMPOINT: = 0x1EB
+; MN_SHOWPOPUPWINDOW: = 0x1EC
+; MN_BUTTONDOWN: = 0x1ED
+; MN_MOUSEMOVE: = 0x1EE
+; MN_BUTTONUP: = 0x1EF
+; MN_SETTIMERTOOPENHIERARCHY: = 0x1F0
+; MN_DBLCLK: = 0x1F1
+#define WM_UAHDESTROYWINDOW 0x0090
+#define WM_UAHDRAWMENU 0x0091
+#define WM_UAHDRAWMENUITEM 0x0092
+#define WM_UAHINITMENU 0x0093
+#define WM_UAHMEASUREMENUITEM 0x0094
+#define WM_UAHNCPAINTMENUPOPUP 0x0095
+
+q:: ;menus - focus the nth item
+vIndex := 3
+PostMessage, 0x1E5, % vIndex-1, 0,, ahk_class #32768 ;MN_SELECTITEM := 0x1E5
+return
+
+w:: ;menus - invoke the nth item
+vIndex := 3
+PostMessage, 0x1F1, % vIndex-1, 0,, ahk_class #32768 ;MN_DBLCLK := 0x1F1
+return
+
+e:: ;menus - cancel menu and any visible submenus
+PostMessage, 0x1E6,,,, ahk_class #32768 ;MN_CANCELMENUS := 0x1E6
+return
+
+r:: ;menus - focus the first valid item
+PostMessage, 0x1E7,,,, ahk_class #32768 ;MN_SELECTFIRSTVALIDITEM := 0x1E7
+return
+
+t:: ;menus - get menu handle
+SendMessage, 0x1E1,,,, ahk_class #32768 ;MN_GETHMENU := 0x1E1
+hMenu := ErrorLevel
+MsgBox, % hMenu
+return
+
+*/
+
+// this enum is here to simplify debugging
+enum class MenuMessages: UINT
+{
+	WMN_CREATE					= 0x0001,	// lParam = LPCREATESTRUCT
+	WMN_DESTROY					= 0x0002,
+	WMN_MOVE					= 0x0003,
+	WMN_SIZE					= 0x0005,	// lParam = width/height
+	WMN_ERASEBKGND				= 0x0014,	// wParam = HDC
+
+	WMN_GETMINMAXINFO			= 0x0024,
+
+	WMN_DRAWITEM				= 0x002B,
+	WMN_MEASUREITEM				= 0x002C,
+
+	WMN_WINDOWPOSCHANGING		= 0x0046,
+	WMN_WINDOWPOSCHANGED		= 0x0047,
+
+	WMN_NCCREATE				= 0x0081,	// lParam = LPCREATESTRUCT
+	WMN_NCDESTROY				= 0x0082,
+	WMN_NCCALCSIZE				= 0x0083,
+	WMN_NCHITTEST				= 0x0084,
+
+	WM_UAHDESTROYWINDOW			= 0x0090,
+	WM_UAHDRAWMENU				= 0x0091,
+	WM_UAHDRAWMENUITEM			= 0x0092,
+	WM_UAHINITMENU				= 0x0093,
+	WM_UAHMEASUREMENUITEM		= 0x0094,
+	WM_UAHNCPAINTMENUPOPUP		= 0x0095,
+	WM_UAHUPDATE				= 0x0096,
+	undefined_44				= 0x0097,
+	undefined_45				= 0x0098,
+	undefined_46				= 0x0099,
+	undefined_47				= 0x009a,
+	undefined_48				= 0x009b,
+	undefined_49				= 0x009c,
+	undefined_50				= 0x009d,
+	undefined_51				= 0x009e,
+	undefined_52				= 0x009f,
+	WMN_NCMOUSEMOVE				= 0x00a0,
+	WMN_NCLBUTTONDOWN			= 0x00a1,
+	WMN_NCLBUTTONUP				= 0x00a2,
+	WMN_NCLBUTTONDBLCLK			= 0x00a3,
+	WMN_NCRBUTTONDOWN			= 0x00a4,
+	WMN_NCRBUTTONUP				= 0x00a5,
+	WMN_NCRBUTTONDBLCLK			= 0x00a6,
+	WMN_NCMBUTTONDOWN			= 0x00a7,
+	WMN_NCMBUTTONUP				= 0x00a8,
+	WMN_NCMBUTTONDBLCLK			= 0x00a9,
+	undefined_53				= 0x00aa,
+	WMN_NCXBUTTONDOWN			= 0x00ab,
+	WMN_NCXBUTTONUP				= 0x00ac,
+	WMN_NCXBUTTONDBLCLK			= 0x00ad,
+	WM_NCUAHDRAWCAPTION			= 0x00AE,
+	WM_NCUAHDRAWFRAME			= 0x00AF,	// wParam = HDC
+
+	WMN_STYLECHANGING			= 0x007C,
+	WMN_STYLECHANGED			= 0x007D,
+
+	WMN_TIMER					= 0x0113,
+
+	MN_SETHMENU					= 0x01E0,
+	MNN_GETHMENU				= 0x01E1,
+	MN_SIZEWINDOW				= 0x01E2,
+	MN_OPENHIERARCHY			= 0x01E3,
+	MN_CLOSEHIERARCHY			= 0x01E4,
+	MN_SELECTITEM				= 0x01E5,
+	MN_CANCELMENUS				= 0x01E6,
+	MN_SELECTFIRSTVALIDITEM		= 0x01E7,
+	MN_GETPPOPUPMENU			= 0x01EA,
+	MN_FINDMENUWINDOWFROMPOINT	= 0x01EB,	// returns HWND or zero
+	MN_SHOWPOPUPWINDOW			= 0x01EC,
+	MN_BUTTONDOWN				= 0x01ED,
+	MN_MOUSEMOVE				= 0x01EE,
+	MN_BUTTONUP					= 0x01EF,
+	MN_SETTIMERTOOPENHIERARCHY	= 0x01F0,
+	MN_DBLCLK					= 0x01F1,
+
+	WMN_PRINT					= 0x0317,
+	WMN_PRINTCLIENT				= 0x0318
+};
+
 /*!
  * \brief blah
  *
@@ -102,6 +233,7 @@ protected:
 	VectorOfXPopupMenu m_vpXPMenu; //!< Vector of XPopupMenu Objects
 
 #if DCX_CUSTOM_MENUS
+	static std::vector<HWND> g_winlist;
 	static WNDPROC g_OldmIRCMenusWindowProc;
 	static LRESULT CALLBACK mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 #endif

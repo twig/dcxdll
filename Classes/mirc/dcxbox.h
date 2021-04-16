@@ -81,11 +81,11 @@ public:
 	static inline WNDPROC m_hDefaultClassProc{ nullptr };	//!< Default window procedure
 
 private:
-	//static const UINT parseLayoutFlags( const TString & flags );
 	static BOOL CALLBACK EnumBoxChildren(HWND hwnd,const DCXENUM *const de) noexcept;
 	void EraseBackground(HDC hdc);
 	void DrawClientArea(HDC hdc);
-	void DrawBorder(HDC hdc, RECT &rc) noexcept;
+	void DrawBorder(HDC hdc, RECT &rc, const LPRECT rcClip = nullptr) noexcept;
+	HRGN CreateClipRegion(LPCRECT rcClip) noexcept;
 
 	void DrawCheckButton(HDC hdc, LPRECT rcCheck) noexcept;
 
@@ -93,7 +93,6 @@ private:
 
 	std::unique_ptr<LayoutManager> m_pLayoutManager; //!< Layout Manager Object
 
-	//HWND m_TitleButton{ nullptr }; //!< enable/disable button.
 	RECT m_rcCheck{};
 	bool m_bTitleChecked{ true };
 	HTHEME _hTheme{ nullptr };

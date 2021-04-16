@@ -16,10 +16,13 @@ namespace Dcx {
 	std::byte m_iGhostDrag{ 255 };
 	bool m_bDX9Installed{ false };
 	bool m_bErrorTriggered{ false };
+
 	// static colours enabled by default.
 	bool setting_bStaticColours{ true };
 	// custom menus disabled by default.
-	bool setting_bCustomMenus{ false };
+	BYTE setting_CustomMenusAlpha{ 255 };
+	bool setting_CustomMenusRounded{ false };
+
 	MapOfCursors	m_vMapOfCursors;
 	MapOfAreas		m_vMapOfAreas;
 	PFNSETCURSOR SetCursorUx = nullptr;
@@ -338,6 +341,9 @@ namespace Dcx {
 
 		case WM_MEASUREITEM:
 		{
+			if (wParam != 0)	// wParam == 0 means sent by menu.
+				break;
+
 			dcxlParam(LPMEASUREITEMSTRUCT, lpmis);
 
 			if (!lpmis)

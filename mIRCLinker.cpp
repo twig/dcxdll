@@ -207,6 +207,10 @@ namespace mIRCLinker {
 		return m_hMDI;
 	}
 
+	HWND getActiveMDIWindow() noexcept
+	{
+		return reinterpret_cast<HWND>(SendMessage(mIRCLinker::getMDIClient(), WM_MDIGETACTIVE, 0L, 0L));
+	}
 
 	HWND& getHWND() noexcept
 	{

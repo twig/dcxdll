@@ -243,72 +243,76 @@ const WindowExStyle DcxListView::parseListviewExStyles(const TString& styles) no
 
 	ExStyles |= LVS_EX_DOUBLEBUFFER;
 
-	for (const auto& tsStyle : styles)
-	{
-		switch (std::hash<TString>{}(tsStyle))
+	try {
+		for (const auto& tsStyle : styles)
 		{
-		case L"grid"_hash:
-			ExStyles |= LVS_EX_GRIDLINES;
-			break;
-		case L"borderselect"_hash:
-			ExStyles |= LVS_EX_BORDERSELECT;
-			break;
-		case L"flatsb"_hash:
-			ExStyles |= LVS_EX_FLATSB;
-			break;
-		case L"fullrow"_hash:
-			ExStyles |= LVS_EX_FULLROWSELECT;
-			break;
-		case L"checkbox"_hash:
-			ExStyles |= LVS_EX_CHECKBOXES;
-			break;
-		case L"headerdrag"_hash:
-			ExStyles |= LVS_EX_HEADERDRAGDROP;
-			break;
-		case L"hottrack"_hash:
-			ExStyles |= LVS_EX_TRACKSELECT;
-			break;
-		case L"oneclick"_hash:
-			ExStyles |= LVS_EX_ONECLICKACTIVATE;
-			break;
-		case L"twoclick"_hash:
-			ExStyles |= LVS_EX_TWOCLICKACTIVATE;
-			break;
-		case L"underlinehot"_hash:
-			ExStyles |= LVS_EX_UNDERLINEHOT;
-			break;
-		case L"underlinecold"_hash:
-			ExStyles |= LVS_EX_UNDERLINECOLD;
-			break;
-		case L"subitemimage"_hash:
-			ExStyles |= LVS_EX_SUBITEMIMAGES;
-			break;
-		case L"tooltip"_hash:
-			ExStyles |= LVS_EX_LABELTIP | LVS_EX_INFOTIP;
-			break;
-		case L"transparentbkg"_hash:
-			ExStyles |= LVS_EX_TRANSPARENTBKGND;
-			break;
-		case L"shadowtext"_hash:
-			ExStyles |= LVS_EX_TRANSPARENTSHADOWTEXT;
-			break;
-		case L"autosize"_hash:
-			ExStyles |= LVS_EX_AUTOSIZECOLUMNS;
-			break;
-		case L"headeralways"_hash:
-			ExStyles |= LVS_EX_HEADERINALLVIEWS;
-			break;
-		case L"hidelabels"_hash:
-			ExStyles |= LVS_EX_HIDELABELS;
-			break;
-		case L"autocheck"_hash:
-			ExStyles |= LVS_EX_AUTOCHECKSELECT;
-			break;
-		default:
-			break;
+			switch (std::hash<TString>{}(tsStyle))
+			{
+			case L"grid"_hash:
+				ExStyles |= LVS_EX_GRIDLINES;
+				break;
+			case L"borderselect"_hash:
+				ExStyles |= LVS_EX_BORDERSELECT;
+				break;
+			case L"flatsb"_hash:
+				ExStyles |= LVS_EX_FLATSB;
+				break;
+			case L"fullrow"_hash:
+				ExStyles |= LVS_EX_FULLROWSELECT;
+				break;
+			case L"checkbox"_hash:
+				ExStyles |= LVS_EX_CHECKBOXES;
+				break;
+			case L"headerdrag"_hash:
+				ExStyles |= LVS_EX_HEADERDRAGDROP;
+				break;
+			case L"hottrack"_hash:
+				ExStyles |= LVS_EX_TRACKSELECT;
+				break;
+			case L"oneclick"_hash:
+				ExStyles |= LVS_EX_ONECLICKACTIVATE;
+				break;
+			case L"twoclick"_hash:
+				ExStyles |= LVS_EX_TWOCLICKACTIVATE;
+				break;
+			case L"underlinehot"_hash:
+				ExStyles |= LVS_EX_UNDERLINEHOT;
+				break;
+			case L"underlinecold"_hash:
+				ExStyles |= LVS_EX_UNDERLINECOLD;
+				break;
+			case L"subitemimage"_hash:
+				ExStyles |= LVS_EX_SUBITEMIMAGES;
+				break;
+			case L"tooltip"_hash:
+				ExStyles |= LVS_EX_LABELTIP | LVS_EX_INFOTIP;
+				break;
+			case L"transparentbkg"_hash:
+				ExStyles |= LVS_EX_TRANSPARENTBKGND;
+				break;
+			case L"shadowtext"_hash:
+				ExStyles |= LVS_EX_TRANSPARENTSHADOWTEXT;
+				break;
+			case L"autosize"_hash:
+				ExStyles |= LVS_EX_AUTOSIZECOLUMNS;
+				break;
+			case L"headeralways"_hash:
+				ExStyles |= LVS_EX_HEADERINALLVIEWS;
+				break;
+			case L"hidelabels"_hash:
+				ExStyles |= LVS_EX_HIDELABELS;
+				break;
+			case L"autocheck"_hash:
+				ExStyles |= LVS_EX_AUTOCHECKSELECT;
+				break;
+			default:
+				break;
+			}
+			// LVS_EX_COLUMNSNAPPOINTS LVS_EX_JUSTIFYCOLUMNS LVS_EX_SNAPTOGRID LVS_EX_AUTOAUTOARRANGE
 		}
-		// LVS_EX_COLUMNSNAPPOINTS LVS_EX_JUSTIFYCOLUMNS LVS_EX_SNAPTOGRID LVS_EX_AUTOAUTOARRANGE
 	}
+	catch (...) {}
+
 	return ExStyles;
 }
 
@@ -978,7 +982,6 @@ void DcxListView::parseCommandRequest(const TString& input)
 	if (flags[TEXT('a')])
 	{
 		if (numtok < 13)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		LVITEM lvi{};
@@ -1028,7 +1031,6 @@ void DcxListView::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('A')])
 	{
 		if (numtok < 7)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		auto nRow = input++.to_int();	// tok 4
@@ -1082,17 +1084,6 @@ void DcxListView::parseCommandRequest(const TString& input)
 	{
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
-
-		//auto nItem = input.getnexttok().to_int() - 1;	// tok 4
-		//
-		//// check if item supplied was 0 (now -1), last item in list
-		//if (nItem == -1)
-		//{
-		//	nItem = Dcx::dcxListView_GetItemCount(m_Hwnd) - 1;
-		//
-		//	if (nItem < 0)
-		//		throw Dcx::dcxException("Invalid Item: No Items in list");
-		//}
 
 		const auto nItem = StringToItemNumber(input.getnexttok());	// tok 4
 
@@ -1230,34 +1221,6 @@ void DcxListView::parseCommandRequest(const TString& input)
 	{
 		if (numtok < 5)
 			throw DcxExceptions::dcxInvalidArguments();
-
-		//const auto iColorFlags = this->parseColorFlags(input++);	// tok 4
-		//const auto tsClr(input++);	// tok 5
-		//const auto clrColor = tsClr.to_<COLORREF>();
-		//
-		//if (dcx_testflag(iColorFlags, LVCS_TEXT))
-		//	ListView_SetTextColor(m_Hwnd, clrColor);
-		//
-		//if (dcx_testflag(iColorFlags, LVCS_BKG))
-		//{
-		//	if (tsClr == TEXT("none"))
-		//		ListView_SetBkColor(m_Hwnd, CLR_NONE);
-		//	else
-		//		ListView_SetBkColor(m_Hwnd, clrColor);
-		//}
-		//
-		//if (dcx_testflag(iColorFlags, LVCS_BKGTEXT))
-		//{
-		//	if (tsClr == TEXT("none"))
-		//		ListView_SetTextBkColor(m_Hwnd, CLR_NONE);
-		//	else
-		//		ListView_SetTextBkColor(m_Hwnd, clrColor);
-		//}
-		//
-		//if (dcx_testflag(iColorFlags, LVCS_OUTLINE))
-		//	ListView_SetOutlineColor(m_Hwnd, clrColor);
-		//
-		//this->redrawWindow();
 
 		const auto iColorFlags = this->parseColorFlags(input++);	// tok 4
 		const auto tsClr(input++);	// tok 5
@@ -1579,7 +1542,6 @@ void DcxListView::parseCommandRequest(const TString& input)
 		case TEXT("Add"_hash):
 		{
 			if (numtok < 8)
-				//throw Dcx::dcxException("Insufficient parameters");
 				throw DcxExceptions::dcxInvalidArguments();
 
 			const auto index = input++.to_int() - 1;						// tok 5
@@ -1748,15 +1710,6 @@ void DcxListView::parseCommandRequest(const TString& input)
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto nItem = StringToItemNumber(input.getnexttok());
-		//auto nItem = input.getnexttok().to_int() - 1;			// tok 4
-		//// check if item supplied was 0 (now -1), last item in list.
-		//if (nItem == -1)
-		//{
-		//	nItem = Dcx::dcxListView_GetItemCount(m_Hwnd) - 1;
-		//
-		//	if (nItem < 0)
-		//		throw Dcx::dcxException("Invalid Item: No Items in list");
-		//}
 
 		const auto nSubItem = input.getnexttok().to_int() - 1;	// tok 5
 
@@ -1991,7 +1944,6 @@ void DcxListView::parseCommandRequest(const TString& input)
 			throw DcxExceptions::dcxInvalidArguments();
 
 		if (dcx_testflag(lvsort->iSortFlags, LVSS_CUSTOM) && numtok < 6)
-			//throw Dcx::dcxException("Invalid Arguments for Flags");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		lvsort->tsCustomAlias = input.getnexttok();		// tok 6
@@ -2112,7 +2064,6 @@ void DcxListView::parseCommandRequest(const TString& input)
 
 		if ((tsFlags[0] != TEXT('+')) || (tsFlags.len() < 2))
 			// no flags specified.
-			//throw Dcx::dcxException("Invalid Flags: No Flags Specified.");
 			throw DcxExceptions::dcxInvalidFlag();
 
 		// make sure N1-N2 are within the range of items in listview.
@@ -2158,7 +2109,8 @@ void DcxListView::parseCommandRequest(const TString& input)
 			//xSaveListview(iN1, iN2, tsArgs, TEXT("$window(%)"), TEXT("echo % %"));
 			break;
 		default:
-			throw Dcx::dcxException(TEXT("Invalid Flags: %"), tsFlags);
+			//throw Dcx::dcxException(TEXT("Invalid Flags: %"), tsFlags);
+			throw DcxExceptions::dcxInvalidFlag();
 		}
 	}
 	// xdid -H [NAME] [ID] [COL] [+FLAGS] [ARGS]
@@ -2307,6 +2259,7 @@ HIMAGELIST DcxListView::initImageList(const int iImageList)
 * blah
 */
 
+GSL_SUPPRESS(lifetime.4)
 HIMAGELIST DcxListView::getImageList(const int iImageList) const noexcept
 {
 	return ListView_GetImageList(m_Hwnd, iImageList);
@@ -3538,6 +3491,24 @@ LRESULT DcxListView::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 			}
 		}
 		break;
+
+		case LVN_GETEMPTYMARKUP:
+		{
+			const auto pnmMarkup = reinterpret_cast<NMLVEMPTYMARKUP*>(lParam);
+			if (!pnmMarkup)
+				break;
+
+			if (const TString szBuf(TGetWindowText(m_Hwnd)); !szBuf.empty())
+			{
+				pnmMarkup->dwFlags = EMF_CENTERED;
+
+				_ts_strcpyn(&pnmMarkup->szMarkup[0], szBuf.to_chr(), std::size(pnmMarkup->szMarkup));
+
+				bParsed = TRUE;
+				return TRUE;
+			}
+		}
+		break;
 		default:
 			break;
 		} // switch
@@ -3854,132 +3825,74 @@ LRESULT DcxListView::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& b
 		//
 		//lRes = CallDefaultClassProc(uMsg, reinterpret_cast<WPARAM>(hdc), lParam);
 
-		if (Dcx::dcxListView_GetItemCount(m_Hwnd) <= 0)
+		if (IsControlCodeTextEnabled())
 		{
-			// listview is empty, display the empty text if set.
-			//if (const auto nLen = GetWindowTextLength(m_Hwnd); nLen > 0 && nLen < mIRCLinker::c_mIRC_Buffer_Size_cch)
-			//{
-			//	TCHAR szBuf[mIRCLinker::c_mIRC_Buffer_Size_cch]{};
-			//
-			//	if (GetWindowText(m_Hwnd, &szBuf[0], mIRCLinker::c_mIRC_Buffer_Size_cch - 1))
-			//	{
-			//		bParsed = TRUE;
-			//
-			//		PAINTSTRUCT ps{};
-			//		auto hdc = BeginPaint(m_Hwnd, &ps);
-			//		Auto(EndPaint(m_Hwnd, &ps));
-			//
-			//		// Setup alpha blend if any.
-			//		auto ai = SetupAlphaBlend(&hdc);
-			//		Auto(FinishAlphaBlend(ai));
-			//
-			//		if (RECT rc{}; GetClientRect(m_Hwnd, &rc))
-			//		{
-			//
-			//			if (auto hdr_hwnd = Dcx::dcxListView_GetHeader(m_Hwnd); hdr_hwnd)
-			//			{
-			//				if (RECT rcH{};	GetWindowRect(hdr_hwnd, &rcH))
-			//				{
-			//					MapWindowRect(nullptr, m_Hwnd, &rcH);
-			//					rc.top += rcH.bottom;
-			//				}
-			//			}
-			//
-			//			{
-			//				//const COLORREF clrText = ListView_GetTextColor(m_Hwnd);
-			//				//const COLORREF clrTextBk = ListView_GetTextBkColor(m_Hwnd);
-			//				const COLORREF clrText = (m_clrText == CLR_INVALID) ? GetSysColor(COLOR_WINDOWTEXT) : m_clrText;
-			//				const COLORREF clrTextBk = (m_clrBackText == CLR_INVALID) ? GetSysColor(COLOR_WINDOW) : m_clrBackText;
-			//
-			//				SetTextColor(hdc, clrText);
-			//				SetBkColor(hdc, clrTextBk);
-			//
-			//				//{
-			//				//	LPLVBKIMAGE bki{};
-			//				//	ListView_GetBkImage(m_Hwnd, &bki);
-			//				//}
-			//
-			//				{
-			//					const COLORREF clrBk = (m_clrBackground == CLR_INVALID) ? Dcx::dcxListView_GetBkColor(m_Hwnd) : m_clrBackground;
-			//					Dcx::FillRectColour(hdc, &rc, clrBk);
-			//				}
-			//			}
-			//
-			//			rc.top += 10;
-			//
-			//			if (m_hFont)
-			//				SelectObject(hdc, m_hFont);
-			//
-			//			if (m_bCtrlCodeText)
-			//			{
-			//				const TString txt(&szBuf[0]);
-			//				mIRC_DrawText(hdc, txt, &rc, DT_CENTER | DT_WORDBREAK | DT_NOPREFIX | DT_NOCLIP, false);
-			//			}
-			//			else
-			//				DrawText(hdc, &szBuf[0], -1, &rc, DT_CENTER | DT_WORDBREAK | DT_NOPREFIX | DT_NOCLIP);
-			//		}
-			//	}
-			//}
-
-			if (GetWindowTextLength(m_Hwnd) > 0)
+			// only allow this rendering if control code text is enabled atm (may change)
+			if (Dcx::dcxListView_GetItemCount(m_Hwnd) <= 0)
 			{
-				if (const TString tsBuf(TGetWindowText(m_Hwnd)); !tsBuf.empty())
+				if (GetWindowTextLength(m_Hwnd) > 0)
 				{
-					bParsed = TRUE;
-
-					PAINTSTRUCT ps{};
-					auto hdc = BeginPaint(m_Hwnd, &ps);
-					Auto(EndPaint(m_Hwnd, &ps));
-
-					// Setup alpha blend if any.
-					auto ai = SetupAlphaBlend(&hdc);
-					Auto(FinishAlphaBlend(ai));
-
-					if (RECT rc{}; GetClientRect(m_Hwnd, &rc))
+					if (const TString tsBuf(TGetWindowText(m_Hwnd)); !tsBuf.empty())
 					{
+						bParsed = TRUE;
 
-						if (auto hdr_hwnd = Dcx::dcxListView_GetHeader(m_Hwnd); hdr_hwnd)
+						PAINTSTRUCT ps{};
+						auto hdc = BeginPaint(m_Hwnd, &ps);
+						Auto(EndPaint(m_Hwnd, &ps));
+
+						// Setup alpha blend if any.
+						auto ai = SetupAlphaBlend(&hdc);
+						Auto(FinishAlphaBlend(ai));
+
+						//lRes = CallDefaultClassProc(uMsg, reinterpret_cast<WPARAM>(hdc), lParam);
+
+						if (RECT rc{}; GetClientRect(m_Hwnd, &rc))
 						{
-							if (RECT rcH{};	GetWindowRect(hdr_hwnd, &rcH))
+
+							if (auto hdr_hwnd = Dcx::dcxListView_GetHeader(m_Hwnd); hdr_hwnd)
 							{
-								MapWindowRect(nullptr, m_Hwnd, &rcH);
-								rc.top += rcH.bottom;
+								if (RECT rcH{};	GetWindowRect(hdr_hwnd, &rcH))
+								{
+									MapWindowRect(nullptr, m_Hwnd, &rcH);
+									rc.top += rcH.bottom;
+								}
+
+								//const Dcx::dcxWindowRect rcH(hdr_hwnd, m_Hwnd);
+								//rc.top += rcH.bottom;
 							}
 
-							//const Dcx::dcxWindowRect rcH(hdr_hwnd, m_Hwnd);
-							//rc.top += rcH.bottom;
-						}
-
-						{
-							//const COLORREF clrText = ListView_GetTextColor(m_Hwnd);
-							//const COLORREF clrTextBk = ListView_GetTextBkColor(m_Hwnd);
-							const COLORREF clrText = (m_clrText == CLR_INVALID) ? GetSysColor(COLOR_WINDOWTEXT) : m_clrText;
-							const COLORREF clrTextBk = (m_clrBackText == CLR_INVALID) ? GetSysColor(COLOR_WINDOW) : m_clrBackText;
-
-							SetTextColor(hdc, clrText);
-							SetBkColor(hdc, clrTextBk);
-
 							{
-								const COLORREF clrBk = (m_clrBackground == CLR_INVALID) ? Dcx::dcxListView_GetBkColor(m_Hwnd) : m_clrBackground;
-								Dcx::FillRectColour(hdc, &rc, clrBk);
+								//const COLORREF clrText = ListView_GetTextColor(m_Hwnd);
+								//const COLORREF clrTextBk = ListView_GetTextBkColor(m_Hwnd);
+								const COLORREF clrText = (m_clrText == CLR_INVALID) ? GetSysColor(COLOR_WINDOWTEXT) : m_clrText;
+								const COLORREF clrTextBk = (m_clrBackText == CLR_INVALID) ? GetSysColor(COLOR_WINDOW) : m_clrBackText;
+
+								SetTextColor(hdc, clrText);
+								SetBkColor(hdc, clrTextBk);
+
+								{
+									const COLORREF clrBk = (m_clrBackground == CLR_INVALID) ? Dcx::dcxListView_GetBkColor(m_Hwnd) : m_clrBackground;
+									Dcx::FillRectColour(hdc, &rc, clrBk);
+								}
 							}
+
+							rc.top += 10;
+
+							if (m_hFont)
+								Dcx::dcxSelectObject(hdc, m_hFont);
+
+							if (IsControlCodeTextEnabled())
+								mIRC_DrawText(hdc, tsBuf, &rc, DT_CENTER | DT_VCENTER | DT_WORDBREAK | DT_NOPREFIX | DT_NOCLIP, false);
+							else
+								DrawText(hdc, tsBuf.to_chr(), -1, &rc, DT_CENTER | DT_VCENTER | DT_WORDBREAK | DT_NOPREFIX | DT_NOCLIP);
 						}
-
-						rc.top += 10;
-
-						if (m_hFont)
-							Dcx::dcxSelectObject(hdc, m_hFont);
-
-						if (IsControlCodeTextEnabled())
-							mIRC_DrawText(hdc, tsBuf, &rc, DT_CENTER | DT_WORDBREAK | DT_NOPREFIX | DT_NOCLIP, false);
-						else
-							DrawText(hdc, tsBuf.to_chr(), -1, &rc, DT_CENTER | DT_WORDBREAK | DT_NOPREFIX | DT_NOCLIP);
 					}
 				}
-			}
 
+			}
 		}
-		else if (IsAlphaBlend())
+
+		if (!bParsed && IsAlphaBlend())
 		{
 			PAINTSTRUCT ps{};
 			auto hdc = BeginPaint(m_Hwnd, &ps);
@@ -4633,6 +4546,9 @@ void DcxListView::massSetItem(const int nPos, const TString& input)
 	//auto clrBack = data.getnexttok().to_<COLORREF>();			// tok 9
 	auto clrText = data++.to_<COLORREF>();						// tok 8
 	auto clrBack = data++.to_<COLORREF>();						// tok 9
+
+	if (Dcx::dcxListView_GetItemCount(m_Hwnd) <= 0)
+		InvalidateRect(m_Hwnd, nullptr, TRUE);
 
 	auto lpmylvi = std::make_unique<DCXLVITEM>();
 	{

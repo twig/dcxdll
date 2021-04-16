@@ -75,18 +75,6 @@ public:
 	11 	Selected text color
 	*/
 
-	//static const int XPMC_BACKGROUND = 1;
-	//static const int XPMC_ICONBOX = 2;
-	//static const int XPMC_CHECKBOX = 3;
-	//static const int XPMC_CHECKBOX_DISABLED= 4;
-	//static const int XPMC_SELECTIONBOX_DISABLED = 5;
-	//static const int XPMC_TEXT_DISABLED = 6;
-	//static const int XPMC_SELECTIONBOX = 7;
-	//static const int XPMC_SELECTIONBOX_BORDER = 8;
-	//static const int XPMC_SEPARATOR = 9;
-	//static const int XPMC_TEXT = 10;
-	//static const int XPMC_SELECTEDTEXT = 11;
-
 	enum class MenuColours : UINT {
 		XPMC_MIN = 1,
 		XPMC_BACKGROUND = 1,

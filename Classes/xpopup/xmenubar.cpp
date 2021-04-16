@@ -58,7 +58,6 @@ void XMenuBar::parseXMenuBarCommand(const TString& input)
 	if (auto menuBar = GetMenu(mIRCLinker::getHWND()); flags[TEXT('a')])
 	{
 		if (numtok < 3)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto p_Menu = Dcx::XPopups.getMenuByName(menuName, true);
@@ -77,7 +76,6 @@ void XMenuBar::parseXMenuBarCommand(const TString& input)
 	else if (flags[TEXT('d')])
 	{
 		if (numtok < 2)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto p_Menu = Dcx::XPopups.getMenuByName(menuName, true);
@@ -103,7 +101,6 @@ void XMenuBar::parseXMenuBarCommand(const TString& input)
 	else if (flags[TEXT('l')])
 	{
 		if (numtok < 3)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto* const p_Menu = Dcx::XPopups.getMenuByName(menuName, true);
@@ -128,7 +125,6 @@ void XMenuBar::parseXMenuBarCommand(const TString& input)
 	else if (flags[TEXT('s')])
 	{
 		if (numtok < 2)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto mID = menuName.to_<UINT>();

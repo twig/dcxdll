@@ -49,6 +49,7 @@ namespace mIRCLinker
 	HIMAGELIST& getTreeImages() noexcept;
 	HFONT& getTreeFont() noexcept;
 	HWND& getMDIClient() noexcept;
+	HWND getActiveMDIWindow() noexcept;
 	HWND& getHWND() noexcept;
 	DWORD& getVersion() noexcept;
 	WORD getMainVersion() noexcept;

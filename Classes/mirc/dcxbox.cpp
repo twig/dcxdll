@@ -58,35 +58,6 @@ DcxBox::DcxBox(const UINT ID, DcxDialog* const p_Dialog, const HWND mParentHwnd,
 
 	setControlFont(Dcx::dcxGetStockObject<HFONT>(DEFAULT_GUI_FONT), FALSE);
 
-	//if (dcx_testflag(m_iBoxStyles, BOXS_CHECK) || dcx_testflag(m_iBoxStyles, BOXS_RADIO))
-	//{
-	//	WindowStyle ButtonStyles(WindowStyle::Child | WS_VISIBLE | WS_CLIPSIBLINGS);
-	//	
-	//	if (dcx_testflag(m_iBoxStyles, BOXS_CHECK))
-	//		ButtonStyles |= BS_AUTOCHECKBOX;
-	//	else if (dcx_testflag(m_iBoxStyles, BOXS_RADIO))
-	//		ButtonStyles |= BS_AUTORADIOBUTTON;
-	//	
-	//	m_TitleButton = CreateWindowEx(
-	//		gsl::narrow_cast<DWORD>(ExStyles),
-	//		WC_BUTTON,
-	//		nullptr,
-	//		gsl::narrow_cast<DWORD>(ButtonStyles),
-	//		CW_USEDEFAULT, CW_USEDEFAULT, 11, 10,
-	//		m_Hwnd,
-	//		(HMENU)ID,
-	//		GetModuleHandle(nullptr),
-	//		nullptr);
-	//	
-	//	if (!IsWindow(m_TitleButton))
-	//		throw Dcx::dcxException("Unable To Create Check Window");
-	//	
-	//	if (bNoTheme)
-	//		Dcx::UXModule.dcxSetWindowTheme(m_TitleButton, L" ", L" ");
-	//	if (!dcx_testflag(Styles, WS_DISABLED))
-	//		SendMessage(m_TitleButton, BM_SETCHECK, BST_CHECKED, 0L);
-	//}
-
 	if (Dcx::UXModule.isUseable())
 		_hTheme = Dcx::UXModule.dcxOpenThemeData(m_Hwnd, VSCLASS_BUTTON);
 }
@@ -103,55 +74,11 @@ DcxBox::~DcxBox()
 		Dcx::UXModule.dcxCloseThemeData(_hTheme);
 }
 
-/*!
-* \brief blah
-*
-* blah
-*/
-
-//void DcxBox::parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme )
-//{
-//	m_iBoxStyles = 0;
-//
-//	for (const auto &tsStyle : styles)
-//	{
-//		switch (std::hash<TString>{}(tsStyle))
-//		{
-//			case L"right"_hash:
-//				m_iBoxStyles |= BOXS_RIGHT;
-//				break;
-//			case L"center"_hash:
-//				m_iBoxStyles |= BOXS_CENTER;
-//				break;
-//			case L"bottom"_hash:
-//				m_iBoxStyles |= BOXS_BOTTOM;
-//				break;
-//			case L"none"_hash:
-//				m_iBoxStyles |= BOXS_NONE;
-//				break;
-//			case L"rounded"_hash:
-//				m_iBoxStyles |= BOXS_ROUNDED;
-//				break;
-//			case L"check"_hash: {
-//					m_iBoxStyles &= ~BOXS_RADIO;
-//					m_iBoxStyles |= BOXS_CHECK;
-//				}
-//				break;
-//			case L"radio"_hash: {
-//					m_iBoxStyles &= ~BOXS_CHECK;
-//					m_iBoxStyles |= BOXS_RADIO;
-//				}
-//				break;
-//			case L"transparent"_hash:
-//				*ExStyles |= WS_EX_TRANSPARENT;
-//			default:
-//				break;
-//		}
-//	}
-//
-//	parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
-//}
-
+/// <summary>
+/// Parse a string into the controls styles.
+/// </summary>
+/// <param name="tsStyles"></param>
+/// <returns></returns>
 dcxWindowStyles DcxBox::parseControlStyles(const TString& tsStyles)
 {
 	m_iBoxStyles = 0;
@@ -205,7 +132,6 @@ dcxWindowStyles DcxBox::parseControlStyles(const TString& tsStyles)
  *
  * \return > void
  */
-
 void DcxBox::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>& szReturnValue) const
 {
 	switch (std::hash<TString>{}(input.getfirsttok(3)))
@@ -336,11 +262,8 @@ void DcxBox::parseCommandRequest(const TString& input)
 		break;
 		case L"clear"_hash:
 		{
-			//delete m_pLayoutManager;
-			//m_pLayoutManager = new LayoutManager(m_Hwnd);
-			////redrawWindow(); // dont redraw here, leave that for an `update` cmd
+			// dont redraw here, leave that for an `update` cmd
 
-			//m_pLayoutManager.reset(new LayoutManager(m_Hwnd));
 			m_pLayoutManager = std::make_unique<LayoutManager>(m_Hwnd);
 		}
 		break;
@@ -451,60 +374,6 @@ LRESULT DcxBox::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParse
 	}
 	break;
 
-	//	case WM_COMMAND:
-	//	{
-	//		HWND cmdHwnd = (HWND)lParam;
-	//
-	//		if (IsWindow(cmdHwnd))
-	//		{
-	//			if (cmdHwnd == m_TitleButton)
-	//			{
-	//				switch (HIWORD(wParam))
-	//				{
-	//				case BN_CLICKED:
-	//				{
-	//					const auto state = (SendMessage(m_TitleButton, BM_GETCHECK, 0, 0) == BST_CHECKED);
-	//					if (dcx_testflag(getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
-	//					{
-	//						stString<10> sRet;
-	//
-	//						evalAliasEx(sRet, gsl::narrow_cast<int>(sRet.size()), TEXT("checkchange,%u,%d"), getUserID(), state);
-	//
-	//						if (sRet == TEXT("nochange"))
-	//							return 0L;
-	//					}
-	//
-	//					const DCXENUM de{ m_TitleButton,m_Hwnd,state };
-	//
-	//#pragma warning(push)
-	//#pragma warning(disable: 4191)
-	//
-	//					EnumChildWindows(m_Hwnd, (WNDENUMPROC)DcxBox::EnumBoxChildren, (LPARAM)&de);
-	//
-	//#pragma warning(pop)
-	//					break;
-	//				}
-	//				} // end switch
-	//				break;
-	//			}
-	//			else {
-	//				if (auto c_this = reinterpret_cast<DcxControl *>(GetProp(cmdHwnd, TEXT("dcx_cthis"))); c_this != nullptr)
-	//					lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
-	//			}
-	//		}
-	//	}
-	//	break;
-
-		//case WM_LBUTTONUP:
-		//{
-		//	if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
-		//	{
-		//		execAliasEx(TEXT("lbup,%u"), getUserID());
-		//		execAliasEx(TEXT("sclick,%u"), getUserID());
-		//	}
-		//}
-		//break;
-
 	case WM_HSCROLL:
 	case WM_VSCROLL:
 	case WM_COMMAND:
@@ -572,6 +441,7 @@ LRESULT DcxBox::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParse
 		//}
 	}
 	break;
+
 	case WM_WINDOWPOSCHANGING:
 	{
 		if (lParam == 0L)
@@ -634,6 +504,7 @@ LRESULT DcxBox::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParse
 		}
 	}
 	break;
+
 	case WM_DESTROY:
 	{
 		delete this;
@@ -643,43 +514,78 @@ LRESULT DcxBox::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParse
 
 	case WM_LBUTTONUP:
 	{
-		if (dcx_testflag(m_iBoxStyles, BOXS_CHECK))
+		if (dcx_testflag(m_iBoxStyles, BOXS_CHECK) || dcx_testflag(m_iBoxStyles, BOXS_RADIO))
 		{
-			if (POINT pt{}; GetCursorPos(&pt))
+//			if (POINT pt{}; GetCursorPos(&pt))
+//			{
+//				if (MapWindowPoints(nullptr, m_Hwnd, &pt, 1))
+//				{
+//					if (PtInRect(&m_rcCheck, pt))
+//					{
+//						// clicked inside button rect
+//						m_bTitleChecked = m_bTitleChecked ? false : true;
+//						if (HDC hdc = GetWindowDC(m_Hwnd); hdc)
+//						{
+//							DrawCheckButton(hdc, &m_rcCheck);
+//
+//							ReleaseDC(m_Hwnd, hdc);
+//						}
+//						if (dcx_testflag(getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
+//						{
+//							const stString<10> sRet;
+//
+//							evalAliasEx(sRet, gsl::narrow_cast<int>(sRet.size()), TEXT("checkchange,%u,%d"), getUserID(), m_bTitleChecked);
+//
+//							if (sRet == TEXT("nochange"))
+//								return 0L;
+//						}
+//
+//						const DCXENUM de{ nullptr,m_Hwnd,m_bTitleChecked };
+//
+//#pragma warning(push)
+//#pragma warning(disable: 4191)
+//
+//						EnumChildWindows(m_Hwnd, (WNDENUMPROC)DcxBox::EnumBoxChildren, (LPARAM)&de);
+//
+//#pragma warning(pop)
+//						// stop further proccessing of message.
+//						return 0L;
+//					}
+//				}
+//			}
+
+			if (const Dcx::dcxCursorPos pt(m_Hwnd); pt)
 			{
-				if (MapWindowPoints(nullptr, m_Hwnd, &pt, 1))
+				if (PtInRect(&m_rcCheck, pt))
 				{
-					if (PtInRect(&m_rcCheck, pt))
+					// clicked inside button rect
+					m_bTitleChecked = m_bTitleChecked ? false : true;
+					if (HDC hdc = GetWindowDC(m_Hwnd); hdc)
 					{
-						// clicked inside button rect
-						m_bTitleChecked = m_bTitleChecked ? false : true;
-						if (HDC hdc = GetWindowDC(m_Hwnd); hdc)
-						{
-							DrawCheckButton(hdc, &m_rcCheck);
+						DrawCheckButton(hdc, &m_rcCheck);
 
-							ReleaseDC(m_Hwnd, hdc);
-						}
-						if (dcx_testflag(getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
-						{
-							stString<10> sRet;
+						ReleaseDC(m_Hwnd, hdc);
+					}
+					if (dcx_testflag(getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
+					{
+						const stString<10> sRet;
 
-							evalAliasEx(sRet, gsl::narrow_cast<int>(sRet.size()), TEXT("checkchange,%u,%d"), getUserID(), m_bTitleChecked);
+						evalAliasEx(sRet, gsl::narrow_cast<int>(sRet.size()), TEXT("checkchange,%u,%d"), getUserID(), m_bTitleChecked);
 
-							if (sRet == TEXT("nochange"))
-								return 0L;
-						}
+						if (sRet == TEXT("nochange"))
+							return 0L;
+					}
 
-						const DCXENUM de{ nullptr,m_Hwnd,m_bTitleChecked };
+					const DCXENUM de{ nullptr,m_Hwnd,m_bTitleChecked };
 
 #pragma warning(push)
 #pragma warning(disable: 4191)
 
-						EnumChildWindows(m_Hwnd, (WNDENUMPROC)DcxBox::EnumBoxChildren, (LPARAM)&de);
+					EnumChildWindows(m_Hwnd, (WNDENUMPROC)DcxBox::EnumBoxChildren, (LPARAM)&de);
 
 #pragma warning(pop)
-						// stop further proccessing of message.
-						return 0L;
-					}
+					// stop further proccessing of message.
+					return 0L;
 				}
 			}
 		}
@@ -693,6 +599,10 @@ LRESULT DcxBox::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParse
 	return lRes;
 }
 
+/// <summary>
+/// Draw controls background.
+/// </summary>
+/// <param name="hdc"></param>
 void DcxBox::EraseBackground(HDC hdc)
 {
 	if (RECT rc{}; GetClientRect(m_Hwnd, &rc))
@@ -708,6 +618,10 @@ void DcxBox::EraseBackground(HDC hdc)
 	}
 }
 
+/// <summary>
+/// Draw control.
+/// </summary>
+/// <param name="hdc"></param>
 void DcxBox::DrawClientArea(HDC hdc)
 {
 	RECT rc{}, rc2{}, rcText{}, rcText2{};
@@ -734,9 +648,6 @@ void DcxBox::DrawClientArea(HDC hdc)
 	if (const TString wtext(TGetWindowText(m_Hwnd)); wtext.empty())
 	{
 		DrawBorder(hdc, rc2);
-
-		//if (IsWindow(m_TitleButton))
-		//	SetWindowPos(m_TitleButton,nullptr,rc2.left,rc2.top,0,0,SWP_NOSIZE|SWP_NOZORDER|SWP_NOACTIVATE);
 	}
 	// draw text
 	else {
@@ -798,44 +709,43 @@ void DcxBox::DrawClientArea(HDC hdc)
 		CopyRect(&rcText2, &rcText);
 		InflateRect(&rcText2, 3, 0);
 
-		//if (IsWindow(this->m_TitleButton))
-		//{
-		//	if (RECT bSZ{}; GetWindowRect(this->m_TitleButton, &bSZ))
-		//	{
-		//		bSZ.bottom = (bSZ.right - bSZ.left);
-		//		SetWindowPos(this->m_TitleButton, nullptr, rcText2.left, rcText2.top, bSZ.bottom, (rcText2.bottom - rcText2.top), SWP_NOZORDER | SWP_NOACTIVATE);
-		//		rcText.left += bSZ.bottom;
-		//		rcText.right += bSZ.bottom;
-		//		rcText2.left += bSZ.bottom;
-		//		rcText2.right += bSZ.bottom;
-		//	}
-		//}
+		RECT rcClip = rcText2;
 
-		// draw the border
-		DrawBorder(hdc, rc2);
-
-		if (dcx_testflag(m_iBoxStyles, BOXS_CHECK))
+		if (dcx_testflag(m_iBoxStyles, BOXS_CHECK) || dcx_testflag(m_iBoxStyles, BOXS_RADIO))
 		{
 			const int halfheight = ((rcText2.bottom - rcText2.top) / 2);
 			const int dy = halfheight / 2;
 			const int iSize = std::max<int>(18, halfheight);
-			RECT rcCheck{ rcText2.left, rcText2.top + dy, rcText2.left + iSize, rcText2.top + iSize };
+			const RECT rcCheck{ rcText2.left, rcText2.top + dy, rcText2.left + iSize, rcText2.top + iSize };
 
-			DrawCheckButton(hdc, &rcCheck);
-
-			rcText.left += rcCheck.bottom;
-			rcText.right += rcCheck.bottom;
+			OffsetRect(&rcText, (rcCheck.right - rcCheck.left), 0);
 
 			m_rcCheck = rcCheck;
-		}
 
-		SelectClipRgn(hdc, nullptr);
+			rcClip.right += (rcCheck.right - rcCheck.left);
+
+			// draw the border
+			DrawBorder(hdc, rc2, &rcClip);
+
+			// draw check/radio box
+			DrawCheckButton(hdc, &m_rcCheck);
+		}
+		else
+			// draw the border
+			DrawBorder(hdc, rc2, &rcClip);
 
 		// draw the text
 		this->ctrlDrawText(hdc, wtext, &rcText, DT_LEFT | DT_END_ELLIPSIS | DT_SINGLELINE);
 	}
 }
 
+/// <summary>
+/// The class defaulty WindowProc
+/// </summary>
+/// <param name="uMsg"></param>
+/// <param name="wParam"></param>
+/// <param name="lParam"></param>
+/// <returns></returns>
 LRESULT DcxBox::CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept
 {
 	if (m_hDefaultClassProc)
@@ -844,7 +754,14 @@ LRESULT DcxBox::CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lPar
 	return DefWindowProc(this->m_Hwnd, uMsg, wParam, lParam);
 }
 
-void DcxBox::DrawBorder(HDC hdc, RECT& rc) noexcept
+/// <summary>
+/// Draw the control border.
+/// </summary>
+/// <param name="hdc"></param>
+/// <param name="rc"></param>
+/// <param name="rcClip"></param>
+/// <returns></returns>
+void DcxBox::DrawBorder(HDC hdc, RECT& rc, const LPRECT rcClip) noexcept
 {
 	if (dcx_testflag(m_iBoxStyles, BOXS_ROUNDED))
 	{
@@ -854,24 +771,90 @@ void DcxBox::DrawBorder(HDC hdc, RECT& rc) noexcept
 
 			SelectClipRgn(hdc, m_Region);
 			DcxControl::DrawCtrlBackground(hdc, this, &rc);
-			SelectClipRgn(hdc, nullptr);
 
-			const auto hBorderBrush = (m_hBorderBrush) ? m_hBorderBrush : Dcx::dcxGetStockObject<HBRUSH>(BLACK_BRUSH);
+			if (HRGN hClipRgn = CreateClipRegion(rcClip); hClipRgn)
+			{
+				Auto(DeleteRgn(hClipRgn));
 
-			FrameRgn(hdc, m_Region, hBorderBrush, 1, 1);
+				CombineRgn(hClipRgn, hClipRgn, m_Region, RGN_AND);
+
+				SelectClipRgn(hdc, hClipRgn);
+
+				const auto hBorderBrush = (m_hBorderBrush) ? m_hBorderBrush : Dcx::dcxGetStockObject<HBRUSH>(BLACK_BRUSH);
+
+				FrameRgn(hdc, m_Region, hBorderBrush, 1, 1);
+
+				SelectClipRgn(hdc, nullptr);
+			}
+			else {
+				SelectClipRgn(hdc, nullptr);
+
+				const auto hBorderBrush = (m_hBorderBrush) ? m_hBorderBrush : Dcx::dcxGetStockObject<HBRUSH>(BLACK_BRUSH);
+
+				FrameRgn(hdc, m_Region, hBorderBrush, 1, 1);
+			}
 		}
 	}
 	else {
 		DcxControl::DrawCtrlBackground(hdc, this, &rc);
-		DrawEdge(hdc, &rc, EDGE_ETCHED, BF_RECT);
+
+		if (HRGN hClipRgn = CreateClipRegion(rcClip); hClipRgn)
+		{
+			Auto(DeleteRgn(hClipRgn));
+
+			SelectClipRgn(hdc, hClipRgn);
+
+			DrawEdge(hdc, &rc, EDGE_ETCHED, BF_RECT);
+
+			SelectClipRgn(hdc, nullptr);
+		}
+		else
+			DrawEdge(hdc, &rc, EDGE_ETCHED, BF_RECT);
 	}
 }
 
+/// <summary>
+/// Create a clip region for the control.
+/// </summary>
+/// <param name="rcClip"></param>
+/// <returns></returns>
+HRGN DcxBox::CreateClipRegion(LPCRECT rcClip) noexcept
+{
+	if (!rcClip)
+		return nullptr;
+
+	if (HRGN hClipRgn = CreateRectRgn(rcClip->left, rcClip->top, rcClip->right, rcClip->bottom); hClipRgn)
+	{
+		if (RECT rcWin{}; GetClientRect(m_Hwnd, &rcWin))
+		{
+			if (auto hWinRgn = CreateRectRgn(rcWin.left, rcWin.top, rcWin.right, rcWin.bottom); hWinRgn)
+			{
+				Auto(DeleteRgn(hWinRgn));
+
+				CombineRgn(hClipRgn, hClipRgn, hWinRgn, RGN_XOR);
+			}
+		}
+		return hClipRgn;
+	}
+	return nullptr;
+}
+
+/// <summary>
+/// Draw the controls check/radio box.
+/// </summary>
+/// <param name="hdc"></param>
+/// <param name="rcCheck"></param>
+/// <returns></returns>
 void DcxBox::DrawCheckButton(HDC hdc, LPRECT rcCheck) noexcept
 {
 	const auto bEnabled = IsWindowEnabled(m_Hwnd);
 
-	UINT uStyles = DFCS_BUTTONCHECK | DFCS_TRANSPARENT;
+	UINT uStyles = DFCS_TRANSPARENT;
+
+	if (dcx_testflag(m_iBoxStyles, BOXS_RADIO))
+		uStyles |= DFCS_BUTTONRADIO;
+	else
+		uStyles |= DFCS_BUTTONCHECK;
 
 	if (m_bTitleChecked)
 		uStyles |= DFCS_CHECKED;
