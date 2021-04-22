@@ -486,12 +486,14 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 			'__eg' => array(
 				'UpdateColours',
 				'StaticColours 1',
+				'CustomMenus 1 0',
 			),
 			'__params' => array(
 				'OPTION' => array(
 					'__values' => array(
 						'StaticColours' => 'Enable or disable static colours.',
 						'UpdateColours' => 'Force colours to update to match current mIRC theme.',
+						'CustomMenus' => 'Enable/Disable custom menu drawing. (not the same as XPopupMenus)',
 					),
 				),
 				'ARGS' => 'Either [v]0[/v] or [v]1[/v], stating on or off respectively.',
@@ -499,7 +501,8 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 			),
 			'__notes' => array(
 				'When StaticColours is enabled dcx will no longer update the colours used to match mIRC on each draw, this leads to much faster drawing.',
-				'If mIRC changes it\'s theme/colours dcx will not auto update & you will need to either disable StaticColours or call UpdateColours.'
+				'If mIRC changes it\'s theme/colours dcx will not auto update & you will need to either disable StaticColours or call UpdateColours.',
+				'CustomMenus is likely to be merged with XPopupMenus in the future'
 			),
 		),
 		'CountIcons' => array(
