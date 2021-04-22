@@ -606,8 +606,13 @@ if ((x)) (y)[0] = TEXT('1'); \
 	(y)[1] = 0; \
 }
 //#define dcx_testflag(x,y) (((x) & (y)) == (y))
+//template <typename T, typename M>
+//constexpr bool dcx_testflag(T x, M y) noexcept { return ((x & gsl::narrow_cast<T>(y)) == gsl::narrow_cast<T>(y)); }
 template <typename T, typename M>
-constexpr bool dcx_testflag(T x, M y) noexcept { return ((x & gsl::narrow_cast<T>(y)) == gsl::narrow_cast<T>(y)); }
+constexpr bool dcx_testflag(T x, M y) noexcept {
+	if constexpr (sizeof(T) >= sizeof(M))	return ((x & gsl::narrow_cast<T>(y)) == gsl::narrow_cast<T>(y));
+	else return ((gsl::narrow_cast<T>(x) & y) == y);
+}
 
 #define dcxlParam(x,y) const auto y = reinterpret_cast<x>(lParam)
 #define dcxwParam(x,y) auto y = reinterpret_cast<x>(wParam)

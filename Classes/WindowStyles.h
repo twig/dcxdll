@@ -1,5 +1,8 @@
 #pragma once
 
+// v1.4 By Ook
+//
+
 #include "EnumConcepts.h"
 
 // Window Styles Helper enums.

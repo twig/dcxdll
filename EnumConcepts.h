@@ -1,5 +1,8 @@
 #pragma once
 
+// v1.1 By Ook
+//
+
 #include <concepts>
 
 namespace EnumConcepts
@@ -29,39 +32,57 @@ namespace EnumConcepts
 template <EnumConcepts::IsNumeric T, EnumConcepts::IsEnum E>
 constexpr E& operator |=(E& eStyle, const T& dStyle) noexcept
 {
-	eStyle = static_cast<E>(static_cast<size_t>(eStyle) | static_cast<size_t>(dStyle));
+	if constexpr(sizeof(E) <= sizeof(size_t) && sizeof(T) <= sizeof(size_t))
+		eStyle = static_cast<E>(static_cast<size_t>(eStyle) | static_cast<size_t>(dStyle));
+	else
+		eStyle = static_cast<E>(static_cast<uint64_t>(eStyle) | static_cast<uint64_t>(dStyle));
 	return eStyle;
 }
 
 template <EnumConcepts::IsNumeric T, EnumConcepts::IsEnum E>
 constexpr E operator |(const E& eStyle, const T& dStyle) noexcept
 {
-	return static_cast<E>(static_cast<size_t>(eStyle) | static_cast<size_t>(dStyle));
+	if constexpr (sizeof(E) <= sizeof(size_t) && sizeof(T) <= sizeof(size_t))
+		return static_cast<E>(static_cast<size_t>(eStyle) | static_cast<size_t>(dStyle));
+	else
+		return static_cast<E>(static_cast<uint64_t>(eStyle) | static_cast<uint64_t>(dStyle));
 }
 
 template <EnumConcepts::IsNumeric T, EnumConcepts::IsEnum E>
 constexpr E& operator &=(E& eStyle, const T& dStyle) noexcept
 {
-	eStyle = static_cast<E>(static_cast<size_t>(eStyle) & static_cast<size_t>(dStyle));
+	if constexpr (sizeof(E) <= sizeof(size_t) && sizeof(T) <= sizeof(size_t))
+		eStyle = static_cast<E>(static_cast<size_t>(eStyle) & static_cast<size_t>(dStyle));
+	else
+		eStyle = static_cast<E>(static_cast<uint64_t>(eStyle) & static_cast<uint64_t>(dStyle));
 	return eStyle;
 }
 
 template <EnumConcepts::IsNumeric T, EnumConcepts::IsEnum E>
 constexpr E operator &(const E& eStyle, const T& dStyle) noexcept
 {
-	return static_cast<E>(static_cast<size_t>(eStyle) & static_cast<size_t>(dStyle));
+	if constexpr (sizeof(E) <= sizeof(size_t) && sizeof(T) <= sizeof(size_t))
+		return static_cast<E>(static_cast<size_t>(eStyle) & static_cast<size_t>(dStyle));
+	else
+		return static_cast<E>(static_cast<uint64_t>(eStyle) & static_cast<uint64_t>(dStyle));
 }
 
 template <EnumConcepts::IsNumeric T, EnumConcepts::IsEnum E>
 constexpr E operator ^(const E& eStyle, const T& dStyle) noexcept
 {
-	return static_cast<E>(static_cast<size_t>(eStyle) ^ static_cast<size_t>(dStyle));
+	if constexpr (sizeof(E) <= sizeof(size_t) && sizeof(T) <= sizeof(size_t))
+		return static_cast<E>(static_cast<size_t>(eStyle) ^ static_cast<size_t>(dStyle));
+	else
+		return static_cast<E>(static_cast<uint64_t>(eStyle) ^ static_cast<uint64_t>(dStyle));
 }
 
 template <EnumConcepts::IsEnum E>
 constexpr E operator ~(const E& eStyle) noexcept
 {
-	return static_cast<E>(~static_cast<size_t>(eStyle));
+	if constexpr (sizeof(E) <= sizeof(size_t))
+		return static_cast<E>(~static_cast<size_t>(eStyle));
+	else
+		return static_cast<E>(~static_cast<uint64_t>(eStyle));
 }
 
 template <EnumConcepts::IsNumeric T, EnumConcepts::IsEnum E>
