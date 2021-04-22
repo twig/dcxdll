@@ -15,75 +15,57 @@
 #include "Classes/dcxbutton.h"
 #include "Classes/dcxdialog.h"
 
-/*!
- * \brief Constructor
- *
- * \param ID Control ID
- * \param p_Dialog Parent DcxDialog Object
- * \param mParentHwnd Parent Window Handle
- * \param rc Window Rectangle
- * \param styles Window Style Tokenized List
- */
+ /*!
+  * \brief Constructor
+  *
+  * \param ID Control ID
+  * \param p_Dialog Parent DcxDialog Object
+  * \param mParentHwnd Parent Window Handle
+  * \param rc Window Rectangle
+  * \param styles Window Style Tokenized List
+  */
 
-DcxButton::DcxButton( const UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, const TString & styles ) 
-: DcxControl( ID, p_Dialog )
-, m_bBitmapText(FALSE)
-, m_bHasIcons(FALSE)
-, m_bHover(FALSE)
-, m_bTouched(FALSE)
-, m_bSelected(FALSE)
-, m_bTracking(FALSE)
-, m_iIconSize(16)
-, m_ImageList(NULL)
+DcxButton::DcxButton(const UINT ID, DcxDialog* const p_Dialog, const HWND mParentHwnd, const RECT* const rc, const TString& styles)
+	: DcxControl(ID, p_Dialog)
 {
-	LONG Styles = 0, ExStyles = 0;
-	BOOL bNoTheme = FALSE;
-	this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
+	const auto ws = parseControlStyles(styles);
 
-	this->m_Hwnd = CreateWindowEx(	
-		ExStyles,
+	m_Hwnd = dcxCreateWindow(
+		ws.m_ExStyles,
 		DCX_BUTTONCLASS,
-		NULL,
-		WS_CHILD | BS_PUSHBUTTON | Styles,
-		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
+		ws.m_Styles | WindowStyle::Child | BS_PUSHBUTTON,
+		rc,
 		mParentHwnd,
-		(HMENU) ID,
-		GetModuleHandle(NULL),
-		NULL);
+		ID,
+		this);
 
-	if (!IsWindow(this->m_Hwnd))
-		throw TEXT("Unable To Create Window");
+	if (!IsWindow(m_Hwnd))
+		throw Dcx::dcxException("Unable To Create Window");
 
-	if ( bNoTheme )
-		Dcx::UXModule.dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
+	if (ws.m_NoTheme)
+		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
 
-	this->m_bNoTheme = (bNoTheme ? true : false);
+	setNoThemed((ws.m_NoTheme != false));
 
-	ZeroMemory( &this->m_aBitmaps, 4*sizeof(HBITMAP) );
-	ZeroMemory( &this->m_aColors, 4*sizeof(COLORREF) );
-	ZeroMemory( &this->m_aTransp, 4*sizeof(COLORREF) );
+	m_aColors[0] = GetSysColor(COLOR_BTNTEXT); // normal
+	m_aColors[1] = m_aColors[0]; // hover
+	m_aColors[2] = m_aColors[0]; // pushed
+	m_aColors[3] = GetSysColor(COLOR_GRAYTEXT); // disabled
 
-	this->m_aColors[0] = GetSysColor(COLOR_BTNTEXT); // normal
-	this->m_aColors[1] = GetSysColor(COLOR_BTNTEXT); // hover
-	this->m_aColors[2] = GetSysColor(COLOR_BTNTEXT); // pushed
-	this->m_aColors[3] = GetSysColor(COLOR_GRAYTEXT); // disabled
+	setControlFont(Dcx::dcxGetStockObject<HFONT>(DEFAULT_GUI_FONT), FALSE);
 
-	this->setControlFont( GetStockFont( DEFAULT_GUI_FONT ), FALSE );
-	this->registreDefaultWindowProc( );
-	SetProp( this->m_Hwnd, TEXT("dcx_cthis"), (HANDLE) this );
+	if (styles.istok(TEXT("tooltips")))
+	{
+		if (!IsWindow(p_Dialog->getToolTip()))
+			throw Dcx::dcxException("Unable to Initialize Tooltips");
 
-	if (styles.istok(TEXT("tooltips"))) {
-		if (IsWindow(p_Dialog->getToolTip())) {
-			this->m_ToolTipHWND = p_Dialog->getToolTip();
-			AddToolTipToolInfo(this->m_ToolTipHWND, this->m_Hwnd);
-		}
-		else
-			this->showError(NULL,TEXT("-c"),TEXT("Unable to Initialize Tooltips"));
+		setToolTipHWND(p_Dialog->getToolTip());
+		AddToolTipToolInfo(getToolTipHWND(), m_Hwnd);
 	}
 
 	// fix to allow pressing enter to work.
-	if (Styles & BS_DEFPUSHBUTTON)
-		SetFocus(this->m_Hwnd);
+	if (dcx_testflag(ws.m_Styles, BS_DEFPUSHBUTTON))
+		SetFocus(m_Hwnd);
 }
 
 /*!
@@ -92,45 +74,79 @@ DcxButton::DcxButton( const UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, REC
  * blah
  */
 
-DcxButton::~DcxButton( ) {
-
-	ImageList_Destroy( this->getImageList( ) );
-
-	for ( int i = 0; i < 4; i++ ) {
-		if ( this->m_aBitmaps[i] != NULL )
-			DeleteBitmap( this->m_aBitmaps[i] );
-	}
-
-	this->unregistreDefaultWindowProc( );
-}
-
-/*!
- * \brief blah
- *
- * blah
- */
-
-void DcxButton::parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme )
+DcxButton::~DcxButton()
 {
-	*Styles |= BS_NOTIFY;
-	//const UINT numtok = styles.numtok( );
+	ImageList_Destroy(getImageList());
 
-	//for (UINT i = 1; i <= numtok; i++ )
-	//{
-	//	if ( styles.gettok( i ) == TEXT("bitmap") )
-	//		*Styles |= BS_BITMAP;
-	//	else if ( styles.gettok( i ) == TEXT("default") )
-	//		*Styles |= BS_DEFPUSHBUTTON;
-	//}
-	for (TString tsStyle(styles.getfirsttok( 1 )); tsStyle != TEXT(""); tsStyle = styles.getnexttok( ))
+	for (const auto& x : m_aBitmaps)
 	{
-		if ( tsStyle == TEXT("bitmap") )
-			*Styles |= BS_BITMAP;
-		else if ( tsStyle == TEXT("default") )
-			*Styles |= BS_DEFPUSHBUTTON;
+		if (x)
+			DeleteObject(x);
+	}
+}
+
+/*!
+ * \brief blah
+ *
+ * blah
+ */
+
+ //void DcxButton::parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme )
+ //{
+ //	*Styles |= BS_NOTIFY;
+ //
+ //	for (const auto &tsStyle: styles)
+ //	{
+ //#if DCX_USE_HASHING
+ //		switch (std::hash<TString>{}(tsStyle))
+ //		{
+ //			case L"bitmap"_hash:
+ //				*Styles |= BS_BITMAP;
+ //				break;
+ //			case L"default"_hash:
+ //				*Styles |= BS_DEFPUSHBUTTON;
+ //			default:
+ //				break;
+ //		}
+ //#else
+ //		if ( tsStyle == TEXT("bitmap") )
+ //			*Styles |= BS_BITMAP;
+ //		else if ( tsStyle == TEXT("default") )
+ //			*Styles |= BS_DEFPUSHBUTTON;
+ //#endif
+ //	}
+ //
+ //	parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
+ //}
+
+dcxWindowStyles DcxButton::parseControlStyles(const TString& tsStyles)
+{
+	dcxWindowStyles ws;
+
+	ws.m_Styles |= BS_NOTIFY;
+
+	for (const auto& tsStyle : tsStyles)
+	{
+		switch (std::hash<TString>{}(tsStyle))
+		{
+		case L"bitmap"_hash:
+			ws.m_Styles |= BS_BITMAP;
+			break;
+		case L"default"_hash:
+			ws.m_Styles |= BS_DEFPUSHBUTTON;
+			break;
+		case L"split"_hash:
+			ws.m_Styles |= BS_SPLITBUTTON;
+			break;
+		case L"commandlink"_hash:
+			ws.m_Styles |= BS_COMMANDLINK;
+			break;
+		default:
+			break;
+		}
 	}
 
-	this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
+	return parseGeneralControlStyles(tsStyles, ws);
 }
 
 /*!
@@ -142,18 +158,16 @@ void DcxButton::parseControlStyles( const TString & styles, LONG * Styles, LONG 
  * \return > void
  */
 
-void DcxButton::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) const
+void DcxButton::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>& szReturnValue) const
 {
 	// [NAME] [ID] [PROP]
-	if ( input.gettok( 3 ) == TEXT("text") ) {
-
-		lstrcpyn( szReturnValue, this->m_tsCaption.to_chr( ), MIRC_BUFFER_SIZE_CCH );
-		return;
+	if (input.gettok(3) == TEXT("text"))
+	{
+		// if copy fails drop through
+		szReturnValue = m_tsCaption.to_chr();
 	}
-	else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
-		return;
-
-	szReturnValue[0] = 0;
+	else
+		parseGlobalInfoRequest(input, szReturnValue);
 }
 
 /*!
@@ -162,130 +176,184 @@ void DcxButton::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) 
  * blah
  */
 
-void DcxButton::parseCommandRequest( const TString & input ) {
-	const XSwitchFlags flags(input.getfirsttok( 3 ));
-	const UINT numtok = input.numtok();
+void DcxButton::parseCommandRequest(const TString& input)
+{
+	const XSwitchFlags flags(input.getfirsttok(3));
+	const auto numtok = input.numtok();
 
 	// xdid -c [NAME] [ID] [SWITCH] [+FLAGS] [COLOR]
-	if (flags[TEXT('c')] && numtok > 4) {
-		const UINT iColorStyles = this->parseColorFlags(input.getnexttok( ));	// tok 4
-		const COLORREF clrColor = (COLORREF)input.getnexttok( ).to_num();		// tok 5
+	if (flags[TEXT('c')])
+	{
+		if (numtok < 5)
+			throw Dcx::dcxException("Insufficient parameters");
 
-		if (iColorStyles & BTNCS_NORMAL)
-			this->m_aColors[0] = clrColor;
-		if (iColorStyles & BTNCS_HOVER)
-			this->m_aColors[1] = clrColor;
-		if (iColorStyles & BTNCS_SELECTED)
-			this->m_aColors[2] = clrColor;
-		if (iColorStyles & BTNCS_DISABLED)
-			this->m_aColors[3] = clrColor;
+		const auto iColorStyles = parseColorFlags(input.getnexttok());	// tok 4
+		const auto clrColor = input.getnexttok().to_<COLORREF>();		// tok 5
 
-		this->redrawWindow();
+		if (dcx_testflag(iColorStyles, BTNCS_NORMAL))
+			m_aColors[0] = clrColor;
+		if (dcx_testflag(iColorStyles, BTNCS_HOVER))
+			m_aColors[1] = clrColor;
+		if (dcx_testflag(iColorStyles, BTNCS_SELECTED))
+			m_aColors[2] = clrColor;
+		if (dcx_testflag(iColorStyles, BTNCS_DISABLED))
+			m_aColors[3] = clrColor;
+
+		redrawWindow();
 	}
 	// xdid -k [NAME] [ID] [SWITCH] [+FLAGS] [COLOR] [FILENAME]
-	else if (flags[TEXT('k')] && (numtok > 5) && (this->isStyle(BS_BITMAP) || this->isStyle(BS_OWNERDRAW))) {
-		const UINT iColorStyles = this->parseColorFlags(input.getnexttok( ));	// tok 4
-		const COLORREF clrColor = (COLORREF)input.getnexttok( ).to_num();	// tok 5
+	else if (flags[TEXT('k')])
+	{
+		if (numtok < 6)
+			throw Dcx::dcxException("Insufficient parameters");
 
-		TString filename(input.gettok(6, -1).trim());
+		if (!isStyle(WindowStyle::BS_Bitmap) && !isStyle(WindowStyle::BS_OwnerDraw))
+			throw Dcx::dcxException("Command not supported by this button style.");
 
-		if (iColorStyles & BTNCS_NORMAL) {
-			this->m_aBitmaps[0] = dcxLoadBitmap(this->m_aBitmaps[0], filename);
-			this->m_aTransp[0] = clrColor;
+		const auto iColorStyles = parseColorFlags(input.getnexttok());	// tok 4
+		const auto clrColor = input.getnexttok().to_<COLORREF>();		// tok 5
+
+		auto filename(input.getlasttoks().trim());	// tok 6, -1
+
+		if (dcx_testflag(iColorStyles, BTNCS_NORMAL))
+		{
+			m_aBitmaps[0] = dcxLoadBitmap(m_aBitmaps[0], filename);
+			m_aTransp[0] = clrColor;
 		}
-		if (iColorStyles & BTNCS_HOVER) {
-			this->m_aBitmaps[1] = dcxLoadBitmap(this->m_aBitmaps[1], filename);
-			this->m_aTransp[1] = clrColor;
+		if (dcx_testflag(iColorStyles, BTNCS_HOVER))
+		{
+			m_aBitmaps[1] = dcxLoadBitmap(m_aBitmaps[1], filename);
+			m_aTransp[1] = clrColor;
 		}
-		if (iColorStyles & BTNCS_SELECTED) {
-			this->m_aBitmaps[2] = dcxLoadBitmap(this->m_aBitmaps[2], filename);
-			this->m_aTransp[2] = clrColor;
+		if (dcx_testflag(iColorStyles, BTNCS_SELECTED))
+		{
+			m_aBitmaps[2] = dcxLoadBitmap(m_aBitmaps[2], filename);
+			m_aTransp[2] = clrColor;
 		}
-		if (iColorStyles & BTNCS_DISABLED) {
-			this->m_aBitmaps[3] = dcxLoadBitmap(this->m_aBitmaps[3], filename);
-			this->m_aTransp[3] = clrColor;
+		if (dcx_testflag(iColorStyles, BTNCS_DISABLED))
+		{
+			m_aBitmaps[3] = dcxLoadBitmap(m_aBitmaps[3], filename);
+			m_aTransp[3] = clrColor;
 		}
 
-		this->redrawWindow( );
+		redrawWindow();
 	}
 	// xdid -l [NAME] [ID] [SWITCH] [SIZE]
-	else if (flags[TEXT('l')] && numtok > 3) {
-		const int size = input.getnexttok( ).to_int();	// tok 4
+	else if (flags[TEXT('l')])
+	{
+		if (numtok < 4)
+			throw Dcx::dcxException("Insufficient parameters");
 
-		if (size == 32 || size == 24)
-			this->m_iIconSize = size;
-		else
-			this->m_iIconSize = 16;
+		m_iIconSize = NumToIconSize(input.getnexttok().to_<int>());	// tok 4
 
-		if (this->getImageList() != NULL) {
-			ImageList_Destroy(this->getImageList());
-			this->setImageList(NULL);
-			this->m_bHasIcons = FALSE;
+		if (getImageList())
+		{
+			ImageList_Destroy(getImageList());
+			setImageList(nullptr);
+			m_bHasIcons = false;
 		}
 	}
 	// xdid -t [NAME] [ID] [SWITCH] ItemText
-	else if ( flags[TEXT('t')] && numtok > 2 ) {
-		this->m_tsCaption = (numtok > 3 ? input.gettok(4, -1).trim() : TEXT(""));
-		this->redrawWindow();
+	else if (flags[TEXT('t')])
+	{
+		if (numtok < 3)
+			throw Dcx::dcxException("Insufficient parameters");
+
+		m_tsCaption = (numtok > 3 ? input.getlasttoks().trim() : TEXT(""));	// tok 4, -1
+		redrawWindow();
 	}
 	// xdid -w [NAME] [ID] [SWITCH] [FLAGS] [INDEX] [FILENAME]
-	else if (flags[TEXT('w')] && numtok > 5) {
-		HIMAGELIST himl;
-		HICON icon = NULL;
-		const TString tflags(input.getnexttok( ));		// tok 4
-		const int index = input.getnexttok( ).to_int();	// tok 5
-		const UINT flag = parseColorFlags(tflags);
-		TString filename(input.gettok(6, -1));
+	else if (flags[TEXT('w')])
+	{
+		if (numtok < 6)
+			throw Dcx::dcxException("Insufficient parameters");
+
+		const auto tflags(input.getnexttok());		// tok 4
+		const auto index = input.getnexttok().to_int();	// tok 5
+		const auto flag = parseColorFlags(tflags);
+		auto filename(input.getlasttoks());			// tok 6, -1
 
 		// load the icon
-		if (this->m_iIconSize > 16)
-			icon = dcxLoadIcon(index, filename, true, tflags);
-		else
-			icon = dcxLoadIcon(index, filename, false, tflags);
 
-		// convert to greyscale
-		//if (flag & BTNIS_GREY)
-		//	icon = CreateGrayscaleIcon(icon);
+#if DCX_USE_WRAPPERS
+		const Dcx::dcxIconResource icon(index, filename, (m_iIconSize != DcxIconSizes::SmallIcon), tflags);
+#else
+		const auto icon = dcxLoadIcon(index, filename, (m_iIconSize != DcxIconSizes::SmallIcon), tflags);
+
+		if (!icon)
+			throw Dcx::dcxException("Unable to load icon");
+
+		Auto(DestroyIcon(icon));
+#endif
 
 		// prepare the image list
-		himl = this->getImageList();
-		if (himl == NULL) {
-			himl = this->createImageList();
+		if (auto himl = getImageList(); !himl)
+		{
+			himl = createImageList();
 
-			if (himl != NULL) {
-				this->setImageList(himl);
+			if (himl)
+			{
+				setImageList(himl);
 
 				ImageList_AddIcon(himl, icon);
 				ImageList_AddIcon(himl, icon);
 				ImageList_AddIcon(himl, icon);
 				ImageList_AddIcon(himl, icon);
 
-				this->m_bHasIcons = TRUE;
+				m_bHasIcons = true;
 			}
 		}
 		else {
-			if (flag & BTNCS_DISABLED)
+			if (dcx_testflag(flag, BTNCS_DISABLED))
 				ImageList_ReplaceIcon(himl, 3, icon);
-			if (flag & BTNCS_SELECTED)
+			if (dcx_testflag(flag, BTNCS_SELECTED))
 				ImageList_ReplaceIcon(himl, 2, icon);
-			if (flag & BTNCS_HOVER)
+			if (dcx_testflag(flag, BTNCS_HOVER))
 				ImageList_ReplaceIcon(himl, 1, icon);
-			if (flag & BTNCS_NORMAL)
+			if (dcx_testflag(flag, BTNCS_NORMAL))
 				ImageList_ReplaceIcon(himl, 0, icon);
 		}
-		DestroyIcon(icon);
 
-		this->redrawWindow();
+		redrawWindow();
 	}
 	// xdid -m [NAME] [ID] [SWITCH] [ENABLED]
-	else if (flags[TEXT('m')] && numtok > 3) {
-		const int b = input.getnexttok( ).to_int();	// tok 4
+	else if (flags[TEXT('m')])
+	{
+		if (numtok < 4)
+			throw Dcx::dcxException("Insufficient parameters");
 
-		this->m_bBitmapText = (b ? TRUE : FALSE);
-		this->redrawWindow();
+		const auto b = input.getnexttok().to_int();	// tok 4
+
+		m_bBitmapText = (b > 0);	// any value > 0 taken as being true
+		redrawWindow();
+	}
+	// xdid -n [NAME] [ID] [SWITCH] +(FLAGS) Text
+	else if (flags[TEXT('n')])
+	{
+		if (numtok < 4)
+			throw Dcx::dcxException("Insufficient parameters");
+
+		const XSwitchFlags xFlags(input.getnexttok());	// tok 4
+		const auto tsText(input.getlasttoks().trim());	// tok 5, -1
+
+		if (!xFlags[TEXT('+')])
+			throw Dcx::dcxException("Invalid flags, missing +");
+
+		m_tsCaption.clear();
+
+		if (xFlags[TEXT('n')])
+		{	// note (for command link style)
+			Button_SetNote(m_Hwnd, tsText.to_chr());
+		}
+		else
+		{
+			Button_SetText(m_Hwnd, tsText.to_chr());
+		}
+
+		redrawWindow();
 	}
 	else
-		this->parseGlobalCommandRequest( input, flags );
+		parseGlobalCommandRequest(input, flags);
 }
 
 /*!
@@ -294,13 +362,13 @@ void DcxButton::parseCommandRequest( const TString & input ) {
  * blah
  */
 
-UINT DcxButton::parseColorFlags(const TString & flags) {
-
+const UINT DcxButton::parseColorFlags(const TString& flags) noexcept
+{
 	const XSwitchFlags xflags(flags);
 	UINT iFlags = 0;
 
 	// no +sign, missing params
-	if (!xflags[TEXT('+')]) 
+	if (!xflags[TEXT('+')])
 		return iFlags;
 
 	if (xflags[TEXT('d')])
@@ -325,49 +393,61 @@ UINT DcxButton::parseColorFlags(const TString & flags) {
  * blah
  */
 
-HIMAGELIST DcxButton::getImageList(  ) const {
-
-	return this->m_ImageList;
-}
-
-/*!
- * \brief blah
- *
- * blah
- */
-
-void DcxButton::setImageList( const HIMAGELIST himl ) {
-
-	this->m_ImageList = himl;
-}
-
-/*!
- * \brief blah
- *
- * blah
- */
-
-HIMAGELIST DcxButton::createImageList() {
-	return ImageList_Create(this->m_iIconSize, this->m_iIconSize, ILC_COLOR32 | ILC_MASK, 1, 0);
-}
-
-TString DcxButton::getStyles(void) const
+const HIMAGELIST& DcxButton::getImageList() const noexcept
 {
-	TString styles(__super::getStyles());
-	const DWORD Styles = GetWindowStyle(this->m_Hwnd);
-
-	if (Styles & BS_BITMAP)
-		styles.addtok(TEXT("bitmap"));
-	if (Styles & BS_DEFPUSHBUTTON) 
-		styles.addtok(TEXT("default"));
-
-	return styles;
+	return m_ImageList;
 }
-	
-void DcxButton::toXml(TiXmlElement * xml) const
+
+/*!
+ * \brief blah
+ *
+ * blah
+ */
+
+void DcxButton::setImageList(const HIMAGELIST himl) noexcept
+{
+	m_ImageList = himl;
+}
+
+/*!
+ * \brief blah
+ *
+ * blah
+ */
+
+GSL_SUPPRESS(bounds.3)
+HIMAGELIST DcxButton::createImageList() noexcept
+{
+	// set initial size of image list to countof(m_aBitmaps) = normal/hover/push/disabled
+	return ImageList_Create(gsl::narrow_cast<int>(m_iIconSize), gsl::narrow_cast<int>(m_iIconSize), ILC_COLOR32 | ILC_MASK, gsl::narrow_cast<int>(std::size(m_aBitmaps)), 0);
+}
+
+const TString DcxButton::getStyles(void) const
+{
+	auto tsStyles(__super::getStyles());
+	const auto Styles = dcxGetWindowStyle(m_Hwnd);
+
+	if (dcx_testflag(Styles, BS_BITMAP))
+		tsStyles.addtok(TEXT("bitmap"));
+	if (dcx_testflag(Styles, BS_DEFPUSHBUTTON))
+		tsStyles.addtok(TEXT("default"));
+
+	return tsStyles;
+}
+
+void DcxButton::toXml(TiXmlElement* const xml) const
 {
 	__super::toXml(xml);
-	xml->SetAttribute("caption", this->m_tsCaption.c_str());
+
+	xml->SetAttribute("caption", m_tsCaption.c_str());
+	xml->SetAttribute("styles", getStyles().c_str());
+}
+
+TiXmlElement* DcxButton::toXml(void) const
+{
+	auto xml = std::make_unique<TiXmlElement>("control");
+	toXml(xml.get());
+	return xml.release();
 }
 
 /*!
@@ -375,191 +455,214 @@ void DcxButton::toXml(TiXmlElement * xml) const
  *
  * blah
  */
-LRESULT DcxButton::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
-	switch( uMsg )
+LRESULT DcxButton::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed)
+{
+	switch (uMsg)
 	{
-		case WM_COMMAND:
+	case WM_COMMAND:
+	{
+		switch (Dcx::dcxHIWORD(wParam))
 		{
-			switch ( HIWORD( wParam ) )
+		case BN_CLICKED:
+		{
+			if (dcx_testflag(getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
+				execAliasEx(TEXT("sclick,%u"), getUserID());
+		}
+		break;
+		case BN_DBLCLK:
+		{
+			if (dcx_testflag(getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
+				execAliasEx(TEXT("dclick,%u"), getUserID());
+		}
+		break;
+		default:
+			break;
+		}
+	}
+	break;
+	case WM_NOTIFY:
+	{
+		dcxlParam(LPNMHDR, pnmh);
+
+		if (!pnmh)
+			break;
+
+		switch (pnmh->code)
+		{
+		case BCN_HOTITEMCHANGE:
+		{
+			if (dcxlParam(LPNMBCHOTITEM, item); dcx_testflag(getParentDialog()->getEventMask(), DCX_EVENT_FOCUS))
 			{
-			case BN_CLICKED:
-				{
-					if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-						this->execAliasEx(TEXT("%s,%d"), TEXT("sclick"), this->getUserID( ) );
-				}
-				break;
-			case BN_DBLCLK:
-				{
-					if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-						this->execAliasEx(TEXT("%s,%d"), TEXT("dclick"), this->getUserID( ) );
-				}
-				break;
+				if (dcx_testflag(item->dwFlags, HICF_ENTERING))
+					execAliasEx(TEXT("hotchange,%u,entering"), getUserID());
+				else
+					execAliasEx(TEXT("hotchange,%u,leaving"), getUserID());
 			}
 		}
 		break;
-		//case WM_NOTIFY:
-		//	{
-		//		LPNMHDR pnmh = (LPNMHDR)lParam;
-		//		switch (pnmh->code) {
-		//			case BCN_HOTITEMCHANGE:
-		//				{
-		//					LPNMBCHOTITEM item = (LPNMBCHOTITEM)lParam;
-		//					if (item->dwFlags & HICF_ENTERING)
-		//						mIRCError(TEXT("Entering Button"));
-		//					else
-		//						mIRCError(TEXT("Leaving Button"));
-		//				}
-		//				break;
-		//			default:
-		//				break;
-		//		}
-		//	}
-		//	break;
+		case BCN_DROPDOWN:
+		{
+			if (dcxlParam(LPNMBCDROPDOWN, item); dcx_testflag(getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
+			{
+				execAliasEx(TEXT("dropdown,%u,%d,%d,%d,%d"), getUserID(), item->rcButton.top, item->rcButton.left, item->rcButton.bottom, item->rcButton.right);
+			}
+		}
+		break;
+		default:
+			break;
+		}
+	}
+	break;
+	default:
+		break;
 	}
 	return 0L;
 }
 
-LRESULT DcxButton::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
-
-  switch( uMsg ) {
-
+LRESULT DcxButton::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed)
+{
+	switch (uMsg)
+	{
 	case WM_MOUSEMOVE:
+	{
+		getParentDialog()->setMouseControl(getUserID());
+
+		if (m_bTracking == FALSE)
 		{
-			this->m_pParentDialog->setMouseControl( this->getUserID( ) );
+			TRACKMOUSEEVENT tme{ sizeof(TRACKMOUSEEVENT),(TME_LEAVE | TME_HOVER),m_Hwnd,HOVER_DEFAULT };
 
-			if ( this->m_bTracking == FALSE ) {
-				TRACKMOUSEEVENT tme;
-				tme.cbSize = sizeof(TRACKMOUSEEVENT);
-				tme.hwndTrack = this->m_Hwnd;
-				tme.dwFlags = TME_LEAVE | TME_HOVER;
-				tme.dwHoverTime = HOVER_DEFAULT; //1;
-				this->m_bTracking = (BOOL) _TrackMouseEvent( &tme );		
-			}
-
-			if (this->m_bTouched == FALSE) {
-				this->m_bTouched = TRUE;
-				InvalidateRect( this->m_Hwnd, NULL, FALSE );
-			}
+			m_bTracking = _TrackMouseEvent(&tme);
 		}
-		break;
+
+		if (!m_bTouched)
+		{
+			m_bTouched = true;
+			InvalidateRect(m_Hwnd, nullptr, FALSE);
+		}
+	}
+	break;
 
 	case WM_MOUSEHOVER:
-		{
-			if ( this->m_bHover == FALSE && this->m_bTracking ) {
-				this->m_bHover = TRUE;
-			}
-		}
-		break;
+	{
+		if (!m_bHover && m_bTracking)
+			m_bHover = true;
+	}
+	break;
 
 	case WM_MOUSELEAVE:
+	{
+		if (m_bTracking != FALSE)
 		{
-			if ( this->m_bTracking ) {
-				this->m_bHover = FALSE;
-				this->m_bTracking = FALSE;
-				this->m_bTouched = FALSE;
-				this->m_bSelected = FALSE;
-				InvalidateRect( this->m_Hwnd, NULL, FALSE );
-			}
+			m_bHover = false;
+			m_bTracking = FALSE;
+			m_bTouched = false;
+			m_bSelected = false;
+			InvalidateRect(m_Hwnd, nullptr, FALSE);
 		}
-		break;
+	}
+	break;
 
 	case WM_LBUTTONDOWN:
+	{
+		if (!m_bSelected)
 		{
-			if ( this->m_bSelected == FALSE ) {
-				this->m_bSelected = TRUE;
-				InvalidateRect( this->m_Hwnd, NULL, FALSE );
-			}
-			if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-				this->execAliasEx(TEXT("%s,%d"), TEXT("lbdown"), this->getUserID());
+			m_bSelected = true;
+			InvalidateRect(m_Hwnd, nullptr, FALSE);
 		}
-		break;
+		if (dcx_testflag(getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
+			execAliasEx(TEXT("lbdown,%u"), getUserID());
+	}
+	break;
 
 	case WM_LBUTTONUP:
-		{
-			this->m_bSelected = FALSE;
-			if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-				this->execAliasEx(TEXT("%s,%d"), TEXT("lbup"), this->getUserID());
-		}
-		break;
+	{
+		m_bSelected = false;
+		if (dcx_testflag(getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
+			execAliasEx(TEXT("lbup,%u"), getUserID());
+	}
+	break;
 
 	case WM_ENABLE:
-		{
-			InvalidateRect( this->m_Hwnd, NULL, TRUE );
-		}
-		break;
+	{
+		InvalidateRect(m_Hwnd, nullptr, TRUE);
+	}
+	break;
 
 	case WM_UPDATEUISTATE:
-		{
-			InvalidateRect( this->m_Hwnd, NULL, TRUE );
-		}
-		break;
+	{
+		InvalidateRect(m_Hwnd, nullptr, TRUE);
+	}
+	break;
 
 	case WM_ERASEBKGND:
-		{
-			bParsed = TRUE;
-			return TRUE;
-		}
-		break;
+	{
+		bParsed = TRUE;
+		return TRUE;
+	}
+	break;
 	case WM_PRINTCLIENT:
-		{
-			this->DrawClientArea((HDC)wParam, uMsg, lParam);
-			bParsed = TRUE;
-		}
-		break;
+	{
+		DrawClientArea(reinterpret_cast<HDC>(wParam), uMsg, lParam);
+		bParsed = TRUE;
+	}
+	break;
 	case WM_PAINT:
-		{
-			bParsed = TRUE;
-			PAINTSTRUCT ps;
-			HDC hdc = BeginPaint( this->m_Hwnd, &ps );
+	{
+		bParsed = TRUE;
+		PAINTSTRUCT ps{};
 
-			this->DrawClientArea(hdc, uMsg, lParam);
+		auto hdc = BeginPaint(m_Hwnd, &ps);
+		Auto(EndPaint(m_Hwnd, &ps));
 
-			EndPaint( this->m_Hwnd, &ps );
-		}
-		break;
+		DrawClientArea(hdc, uMsg, lParam);
+	}
+	break;
 
 	case WM_DESTROY:
-		{
-			delete this;
-			bParsed = TRUE;
-		}
-		break;
+	{
+		delete this;
+		bParsed = TRUE;
+	}
+	break;
 
 	default:
-		return this->CommonMessage( uMsg, wParam, lParam, bParsed);
+		return CommonMessage(uMsg, wParam, lParam, bParsed);
 		break;
-  }
+	}
 
-  return 0L;
+	return 0L;
 }
 
+GSL_SUPPRESS(bounds.3)
 void DcxButton::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 {
-	BOOL isBitmap = this->isStyle(BS_BITMAP);
-	int nState; // get buttons state.
-	RECT rcClient;
+	RECT rcClient{};
 
 	// get controls client area
-	GetClientRect( this->m_Hwnd, &rcClient );
-	// get controls width & height.
-	const int w = (rcClient.right - rcClient.left), h = (rcClient.bottom - rcClient.top);
+	if (!GetClientRect(m_Hwnd, &rcClient))
+		return;
 
-	if ( IsWindowEnabled( this->m_Hwnd ) == FALSE )
+	// get controls width & height.
+	const auto w = (rcClient.right - rcClient.left), h = (rcClient.bottom - rcClient.top);
+
+	int nState{}; // get buttons state.
+
+	if (IsWindowEnabled(m_Hwnd) == FALSE)
 		nState = 3;
-	else if ( this->m_bSelected )
+	else if (m_bSelected)
 		nState = 2;
-	else if ( this->m_bTouched )
+	else if (m_bTouched)
 		nState = 1;
-	else
-		nState = 0;
 
 	// Setup alpha blend if any.
-	LPALPHAINFO ai = this->SetupAlphaBlend(&hdc);
+	const auto ai = SetupAlphaBlend(&hdc);
+	Auto(FinishAlphaBlend(ai));
 
-	HTHEME hTheme = NULL;
-	int iStateId = 0;
-	if (!this->m_bNoTheme && Dcx::UXModule.dcxIsThemeActive()) {
-		hTheme = Dcx::UXModule.dcxOpenThemeData(this->m_Hwnd, L"BUTTON");
+	gsl::owner<HTHEME> hTheme{ nullptr };
+	int iStateId{};
+	if (!IsThemed() && Dcx::UXModule.dcxIsThemeActive())
+	{
+		hTheme = Dcx::UXModule.dcxOpenThemeData(m_Hwnd, VSCLASS_BUTTON);
 
 		// this allows the theme buttons to have a transparent background like the normal ones
 		switch (nState)
@@ -580,73 +683,83 @@ void DcxButton::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 	}
 
 	// fill background.
-	if (this->isExStyle(WS_EX_TRANSPARENT))
+	if (isExStyle(WindowExStyle::Transparent))
 	{ // fill with parent image
-		if (!this->m_bAlphaBlend)
-			this->DrawParentsBackground(hdc,&rcClient);
+		if (!IsAlphaBlend())
+			DrawParentsBackground(hdc, &rcClient);
 	}
 	else // normal bkg
-		DcxControl::DrawCtrlBackground(hdc,this,&rcClient, hTheme, BP_PUSHBUTTON, iStateId);
+		DcxControl::DrawCtrlBackground(hdc, this, &rcClient, hTheme, BP_PUSHBUTTON, iStateId);
+
+	const bool isBitmap = isStyle(WindowStyle::BS_Bitmap);
 
 	// Bitmapped button
-	if (isBitmap) {
+	if (isBitmap)
+	{
 		// create a new HDC for background rendering
-		HDC hdcbmp = CreateCompatibleDC( hdc );
-		if (hdcbmp != NULL) {
-			BITMAP bmp;
+#if DCX_USE_WRAPPERS
+		const Dcx::dcxHDCBitmapResource hdcbmp(hdc, gsl::at(m_aBitmaps, nState));
+
+		// get bitmaps info.
+		if (auto [code, bmp] = Dcx::dcxGetObject<BITMAP>(gsl::at(m_aBitmaps, nState)); code != 0)
+			TransparentBlt(hdc, rcClient.left, rcClient.top, w, h, hdcbmp.get(), 0, 0, bmp.bmWidth, bmp.bmHeight, gsl::at(m_aTransp, nState));
+
+#else
+		if (auto hdcbmp = CreateCompatibleDC(hdc); hdcbmp)
+		{
+			Auto(DeleteDC(hdcbmp));
 
 			// get bitmaps info.
-			GetObject( this->m_aBitmaps[nState], sizeof(BITMAP), &bmp );
-			// associate bitmap with HDC
-			const HBITMAP oldbm = SelectBitmap( hdcbmp, this->m_aBitmaps[nState] );
-			TransparentBlt( hdc, rcClient.left, rcClient.top, w, h, hdcbmp, 0, 0, bmp.bmWidth, bmp.bmHeight, this->m_aTransp[nState] );
-			SelectBitmap( hdcbmp, oldbm ); // got to put the old bm back.
-			DeleteDC( hdcbmp );
+			if (BITMAP bmp{}; GetObject(m_aBitmaps[nState], sizeof(BITMAP), &bmp) != 0)
+			{
+				// associate bitmap with HDC
+				const auto oldbm = SelectBitmap(hdcbmp, m_aBitmaps[nState]);
+				Auto(SelectBitmap(hdcbmp, oldbm)); // got to put the old bm back.
+
+				TransparentBlt(hdc, rcClient.left, rcClient.top, w, h, hdcbmp, 0, 0, bmp.bmWidth, bmp.bmHeight, m_aTransp[nState]);
+			}
 		}
+
+		//auto hdcbmp = CreateCompatibleDC(hdc);
+		//if (hdcbmp != nullptr) {
+		//	BITMAP bmp;
+		//
+		//	// get bitmaps info.
+		//	if (GetObject(m_aBitmaps[nState], sizeof(BITMAP), &bmp) != 0)
+		//	{
+		//		// associate bitmap with HDC
+		//		const auto oldbm = SelectBitmap(hdcbmp, m_aBitmaps[nState]);
+		//		TransparentBlt(hdc, rcClient.left, rcClient.top, w, h, hdcbmp, 0, 0, bmp.bmWidth, bmp.bmHeight, m_aTransp[nState]);
+		//		SelectBitmap(hdcbmp, oldbm); // got to put the old bm back.
+		//	}
+		//	DeleteDC( hdcbmp );
+		//}
+#endif
 	}
 
 	// Regular button
-	if ((!isBitmap) || (this->m_bBitmapText)) {          
+	if ((!isBitmap) || (m_bBitmapText))
+	{
 		// draw default window bg
-		if (!isBitmap) {
-			if (hTheme != NULL) {
-				// This method causes the button to valis when the dialog is resized using the redrawBuffered() function.
-				//HRGN hRgn = NULL;
-				//if (GetThemeBackgroundRegionUx(hTheme, hdc, BP_PUSHBUTTON, iStateId, &rcClient, &hRgn) == S_OK)
-				//	SelectClipRgn(hdc, hRgn);
-
-				//CallWindowProc(this->m_DefaultWindowProc, this->m_Hwnd, uMsg, (WPARAM)hdc, lParam);
-				//if (hRgn != NULL)
-				//	DeleteRgn(hRgn);
+		if (!isBitmap)
+		{
+			if (hTheme)
+			{
 				// This method causes the theme bkg to re-appear during resize, but button is otherwise drawn correctly.
-				if (uMsg != WM_PRINTCLIENT) {
-					HRGN hRgn = NULL;
-					if (Dcx::UXModule.dcxGetThemeBackgroundRegion(hTheme, hdc, BP_PUSHBUTTON, iStateId, &rcClient, &hRgn) == S_OK)
+				if (uMsg != WM_PRINTCLIENT)
+				{
+					if (HRGN hRgn{ nullptr }; Dcx::UXModule.dcxGetThemeBackgroundRegion(hTheme, hdc, BP_PUSHBUTTON, iStateId, &rcClient, &hRgn) == S_OK)
 					{
-						HRGN hZeroRgn = CreateRectRgn(0,0,0,0);
-						if ((hRgn != NULL) && (!EqualRgn(hRgn, hZeroRgn)))
+						if ((hRgn) && (!EqualRgn(hRgn, m_hZeroRgn)))
 							SelectClipRgn(hdc, hRgn);
-						DeleteRgn(hZeroRgn);
-						DeleteRgn(hRgn);
+						DeleteObject(hRgn);
 					}
 				}
-				CallWindowProc(this->m_DefaultWindowProc, this->m_Hwnd, uMsg, (WPARAM)hdc, lParam);
-				// This method causes the button to valis when the dialog is resized using the redrawBuffered() function.
-				//HDC *buf = CreateHDCBuffer(hdc, &rcClient);
-				//if (buf != NULL) {
-				//	COLORREF bkgClr = RGB(0,0,0);
-				//	GetThemeColorUx(hTheme, BP_PUSHBUTTON, iStateId, TMT_FILLCOLOR, &bkgClr);
-				//	//bkgClr = GetPixel(*buf, 0,0);
-				//	CallWindowProc(this->m_DefaultWindowProc, this->m_Hwnd, uMsg, (WPARAM)*buf, lParam);
-				//	TransparentBlt( hdc, rcClient.left, rcClient.top, w, h, *buf, 0, 0, w, h, bkgClr );
-				//	DeleteHDCBuffer(buf);
-				//}
-				//else
-				//	CallWindowProc(this->m_DefaultWindowProc, this->m_Hwnd, uMsg, (WPARAM)hdc, lParam);
+				CallDefaultClassProc(uMsg, reinterpret_cast<WPARAM>(hdc), lParam);
 			}
 			else {
-				RECT rc = rcClient;
-				UINT iState = DFCS_BUTTONPUSH|DFCS_ADJUSTRECT;
+				auto rc = rcClient;
+				UINT iState = DFCS_BUTTONPUSH | DFCS_ADJUSTRECT;
 				switch (nState)
 				{
 				case 1:
@@ -662,116 +775,46 @@ void DcxButton::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 					break;
 				}
 				DrawFrameControl(hdc, &rc, DFC_BUTTON, iState);
-				if (this->m_bGradientFill) {
-					COLORREF clrStart = this->m_clrStartGradient;
-					COLORREF clrEnd = this->m_clrEndGradient;
+				if (IsGradientFillEnabled())
+				{
+					const auto clrStart = (getStartGradientColor() != CLR_INVALID) ? getStartGradientColor() : GetSysColor(COLOR_3DFACE);
+					const auto clrEnd = (getEndGradientColor() != CLR_INVALID) ? getEndGradientColor() : GetSysColor(COLOR_GRADIENTACTIVECAPTION);
 
-					if (clrStart == CLR_INVALID)
-						clrStart = GetSysColor(COLOR_3DFACE);
-					if (clrEnd == CLR_INVALID)
-						clrEnd = GetSysColor(COLOR_GRADIENTACTIVECAPTION);
-
-					XPopupMenuItem::DrawGradient( hdc, &rc, clrStart, clrEnd, this->m_bGradientVertical);
+					XPopupMenuItem::DrawGradient(hdc, &rc, clrStart, clrEnd, IsGradientFillVertical());
 				}
 			}
 		}
 
-		//HFONT hFontOld = SelectFont( hdc, this->m_hFont );
+		const auto hFontOld = Dcx::dcxSelectObject<HFONT>(hdc, getControlFont());
+		Auto(Dcx::dcxSelectObject<HFONT>(hdc, hFontOld));
 
-		//RECT rcTxt;
-		//SetRectEmpty( &rcTxt );
+		const auto oldbkg = SetBkMode(hdc, TRANSPARENT);
+		Auto(SetBkMode(hdc, oldbkg));
 
-		//SetBkMode( hdc, TRANSPARENT );
+		RECT rcTxt{ BUTTON_XPAD,BUTTON_YPAD,(rcClient.right - BUTTON_XPAD),(rcClient.bottom - BUTTON_YPAD) };
 
-		//HIMAGELIST himl = this->getImageList( );
-
-		//SetTextColor(hdc, this->m_aColors[nState]);
-
-		////if ( this->m_tsCaption.len( ) > 0 )
-		////	DrawTextW(hdc, this->m_tsCaption.to_chr(), -1, &rcTxt, DT_CALCRECT | DT_SINGLELINE);
-		//if ( this->m_tsCaption.len( ) > 0 )
-		//	this->calcTextRect(hdc, this->m_tsCaption, &rcTxt, /*DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP |*/ DT_SINGLELINE);
-
-		//int iCenter = w / 2;
-		//int iVCenter = h / 2;
-		//int iTextW = ( rcTxt.right - rcTxt.left );
-		//int iTextH = ( rcTxt.bottom - rcTxt.top );
-
-		//// If there is an icon
-		//if (himl != NULL && this->m_bHasIcons) {
-		//	int iIconLeft = iCenter - (this->m_iIconSize + ICON_XPAD + iTextW) / 2;
-		//	int iIconTop = iVCenter - this->m_iIconSize / 2;
-
-		//	if (iIconLeft < BUTTON_XPAD)
-		//		iIconLeft = BUTTON_XPAD;
-
-		//	if (iIconTop < BUTTON_YPAD)
-		//		iIconTop = BUTTON_YPAD;
-
-		//	rcTxt.left = iIconLeft + this->m_iIconSize + ICON_XPAD;
-
-		//	if (nState == 3) // disabled
-		//		ImageList_Draw(himl, nState, hdc, iIconLeft, iIconTop, ILD_TRANSPARENT | ILD_BLEND50);
-		//	else
-		//		ImageList_Draw(himl, nState, hdc, iIconLeft, iIconTop, ILD_TRANSPARENT);
-		//}
-		//else {
-		//	rcTxt.left = iCenter - iTextW / 2;
-		//	if ( rcTxt.left < BUTTON_XPAD )
-		//		rcTxt.left = BUTTON_XPAD;
-		//}
-
-		//if ( iTextW > 0 ) {
-		//	rcTxt.top = iVCenter - iTextH / 2;
-
-		//	if ( rcTxt.top < BUTTON_YPAD )
-		//		rcTxt.top = BUTTON_YPAD;
-
-		//	rcTxt.right = rcClient.right - BUTTON_XPAD;
-		//	rcTxt.bottom = rcClient.bottom - BUTTON_YPAD;
-		//	//this->ctrlDrawText(hdc,this->m_tsCaption, &rcTxt, DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP | DT_SINGLELINE);
-		//	if (!this->m_bCtrlCodeText) {
-		//		if (!this->m_bSelected && this->m_bShadowText)
-		//			dcxDrawShadowText(hdc,this->m_tsCaption.to_chr(), (UINT)this->m_tsCaption.len(),&rcTxt, DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP | DT_SINGLELINE, this->m_aColors[nState], 0, 5, 5);
-		//		else
-		//			DrawTextW( hdc, this->m_tsCaption.to_chr(), (int)this->m_tsCaption.len( ), &rcTxt, DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP | DT_SINGLELINE );
-		//	}
-		//	else
-		//		mIRC_DrawText(hdc, this->m_tsCaption, &rcTxt, DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP | DT_SINGLELINE, ((!this->m_bSelected && this->m_bShadowText) ? true : false));
-		//}
-		HFONT hFontOld = SelectFont( hdc, this->m_hFont );
-
-		const int oldbkg = SetBkMode( hdc, TRANSPARENT );
-
-		HIMAGELIST himl = this->getImageList( );
-
-		RECT rcTxt;
-
-		rcTxt.top = BUTTON_YPAD;
-		rcTxt.right = (rcClient.right - BUTTON_XPAD);
-		rcTxt.bottom = (rcClient.bottom - BUTTON_YPAD);
-		rcTxt.left = BUTTON_XPAD;
-
-		if ( this->m_tsCaption.len( ) > 0 ) {
-			//this->calcTextRect(hdc, this->m_tsCaption, &rcTxt, DT_WORD_ELLIPSIS | DT_SINGLELINE);
-			TString t(this->m_tsCaption);
-			if (this->m_bCtrlCodeText)
+		if (!m_tsCaption.empty())
+		{
+			//calcTextRect(hdc, this->m_tsCaption, &rcTxt, DT_WORD_ELLIPSIS | DT_SINGLELINE);
+			auto t(m_tsCaption);
+			if (IsControlCodeTextEnabled())
 				t.strip();
-			if (!this->m_bSelected && this->m_bShadowText)
-				dcxDrawShadowText(hdc, t.to_chr(), t.len(), &rcTxt, DT_WORD_ELLIPSIS | DT_SINGLELINE | DT_CALCRECT, this->m_aColors[nState], 0,5,5);
+			if (!m_bSelected && IsShadowTextEnabled())
+				dcxDrawShadowText(hdc, t.to_wchr(), t.len(), &rcTxt, DT_WORD_ELLIPSIS | DT_SINGLELINE | DT_CALCRECT, gsl::at(m_aColors, nState), 0, 5, 5);
 			else
-				DrawText(hdc, t.to_chr(), t.len(), &rcTxt, DT_WORD_ELLIPSIS | DT_SINGLELINE | DT_CALCRECT);
+				DrawText(hdc, t.to_chr(), gsl::narrow_cast<int>(t.len()), &rcTxt, DT_WORD_ELLIPSIS | DT_SINGLELINE | DT_CALCRECT);
 		}
 
-		const int iCenter = w / 2;
-		const int iVCenter = h / 2;
-		const int iTextW = ( rcTxt.right - rcTxt.left );
-		const int iTextH = ( rcTxt.bottom - rcTxt.top );
+		const auto iCenter = w / 2;
+		const auto iVCenter = h / 2;
+		const auto iTextW = (rcTxt.right - rcTxt.left);
+		const auto iTextH = (rcTxt.bottom - rcTxt.top);
 
 		// If there is an icon
-		if (himl != NULL && this->m_bHasIcons) {
-			int iIconLeft = (iCenter - ((this->m_iIconSize + ICON_XPAD + iTextW) / 2));
-			int iIconTop = (iVCenter - (this->m_iIconSize / 2));
+		if (auto himl = getImageList(); himl && m_bHasIcons)
+		{
+			auto iIconLeft = (iCenter - ((gsl::narrow_cast<int>(m_iIconSize) + ICON_XPAD + iTextW) / 2));
+			auto iIconTop = (iVCenter - (gsl::narrow_cast<int>(m_iIconSize) / 2));
 
 			if (iIconLeft < BUTTON_XPAD)
 				iIconLeft = BUTTON_XPAD;
@@ -779,7 +822,7 @@ void DcxButton::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 			if (iIconTop < BUTTON_YPAD)
 				iIconTop = BUTTON_YPAD;
 
-			rcTxt.left = iIconLeft + this->m_iIconSize + ICON_XPAD;
+			rcTxt.left = iIconLeft + gsl::narrow_cast<int>(m_iIconSize) + ICON_XPAD;
 
 			if (nState == 3) // disabled
 				ImageList_Draw(himl, nState, hdc, iIconLeft, iIconTop, ILD_TRANSPARENT | ILD_BLEND50);
@@ -788,41 +831,44 @@ void DcxButton::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 		}
 		else {
 			rcTxt.left = (iCenter - (iTextW / 2));
-			if ( rcTxt.left < BUTTON_XPAD )
+			if (rcTxt.left < BUTTON_XPAD)
 				rcTxt.left = BUTTON_XPAD;
 		}
 
-		if ( iTextW > 0 ) {
+		if (iTextW > 0)
+		{
 			rcTxt.top = iVCenter - iTextH / 2;
 
-			if ( rcTxt.top < BUTTON_YPAD )
+			if (rcTxt.top < BUTTON_YPAD)
 				rcTxt.top = BUTTON_YPAD;
 
 			rcTxt.right = (rcClient.right - BUTTON_XPAD);
 			rcTxt.bottom = (rcClient.bottom - BUTTON_YPAD);
 
-			const COLORREF oldClr = SetTextColor(hdc, this->m_aColors[nState]);
+			const auto oldClr = SetTextColor(hdc, gsl::at(m_aColors, nState));
+			Auto(SetTextColor(hdc, oldClr));
 
-			//this->ctrlDrawText(hdc,this->m_tsCaption, &rcTxt, DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP | DT_SINGLELINE);
-			if (!this->m_bCtrlCodeText) {
-				if (!this->m_bSelected && this->m_bShadowText)
-					dcxDrawShadowText(hdc,this->m_tsCaption.to_chr(), (UINT)this->m_tsCaption.len(),&rcTxt, DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP | DT_SINGLELINE, this->m_aColors[nState], 0, 5, 5);
+			//ctrlDrawText(hdc,m_tsCaption, &rcTxt, DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP | DT_SINGLELINE);
+			if (!IsControlCodeTextEnabled())
+			{
+				if (!m_bSelected && IsShadowTextEnabled())
+					dcxDrawShadowText(hdc, m_tsCaption.to_wchr(), m_tsCaption.len(), &rcTxt, DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP | DT_SINGLELINE, gsl::at(m_aColors, nState), 0, 5, 5);
 				else
-					DrawTextW( hdc, this->m_tsCaption.to_chr(), (int)this->m_tsCaption.len( ), &rcTxt, DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP | DT_SINGLELINE );
+					DrawText(hdc, m_tsCaption.to_chr(), gsl::narrow_cast<int>(m_tsCaption.len()), &rcTxt, DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP | DT_SINGLELINE);
 			}
 			else
-				mIRC_DrawText(hdc, this->m_tsCaption, &rcTxt, DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP | DT_SINGLELINE, ((!this->m_bSelected && this->m_bShadowText) ? true : false));
-
-			SetTextColor(hdc, oldClr);
+				mIRC_DrawText(hdc, m_tsCaption, &rcTxt, DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP | DT_SINGLELINE, (!m_bSelected && IsShadowTextEnabled()));
 		}
-
-		SetBkMode( hdc, oldbkg );
-
-		SelectFont( hdc, hFontOld );
 	}
 
-	if (hTheme != NULL)
+	if (hTheme)
 		Dcx::UXModule.dcxCloseThemeData(hTheme);
+}
 
-	this->FinishAlphaBlend(ai);
+LRESULT DcxButton::CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept
+{
+	if (m_hDefaultClassProc)
+		return CallWindowProc(m_hDefaultClassProc, this->m_Hwnd, uMsg, wParam, lParam);
+
+	return DefWindowProc(this->m_Hwnd, uMsg, wParam, lParam);
 }

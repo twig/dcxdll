@@ -15,58 +15,51 @@
 #include "Classes/mirc/dcxtext.h"
 #include "Classes/dcxdialog.h"
 
-/*!
- * \brief Constructor
- *
- * \param ID Control ID
- * \param p_Dialog Parent DcxDialog Object
- * \param mParentHwnd Parent Window Handle
- * \param rc Window Rectangle
- * \param styles Window Style Tokenized List
- */
+ /*!
+  * \brief Constructor
+  *
+  * \param ID Control ID
+  * \param p_Dialog Parent DcxDialog Object
+  * \param mParentHwnd Parent Window Handle
+  * \param rc Window Rectangle
+  * \param styles Window Style Tokenized List
+  */
 
-DcxText::DcxText( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, const TString & styles ) 
-: DcxControl( ID, p_Dialog )
+DcxText::DcxText(const UINT ID, DcxDialog* const p_Dialog, const HWND mParentHwnd, const RECT* const rc, const TString& styles)
+	: DcxControl(ID, p_Dialog)
 {
-	LONG Styles = 0, ExStyles = 0;
-	BOOL bNoTheme = FALSE;
-	this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
+	const auto [Styles, ExStyles, bNoTheme] = parseControlStyles(styles);
 
-	this->m_Hwnd = CreateWindowEx(
+	m_Hwnd = dcxCreateWindow(
 		ExStyles,
-		TEXT("STATIC"),
-		NULL,
-		WS_CHILD | Styles,
-		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
+		DCX_TEXTCLASS,
+		Styles | WindowStyle::Child,
+		rc,
 		mParentHwnd,
-		(HMENU) ID,
-		GetModuleHandle(NULL),
-		NULL);
+		ID,
+		this);
 
-	if (!IsWindow(this->m_Hwnd))
-		throw TEXT("Unable To Create Window");
+	if (!IsWindow(m_Hwnd))
+		throw Dcx::dcxException("Unable To Create Window");
 
 	// remove all borders
-	this->removeStyle( WS_BORDER|WS_DLGFRAME );
-	this->removeExStyle( WS_EX_CLIENTEDGE|WS_EX_DLGMODALFRAME|WS_EX_STATICEDGE|WS_EX_WINDOWEDGE );
+	removeStyle(WindowStyle::Border | WS_DLGFRAME);
+	removeExStyle(WindowExStyle::ClientEdge | WS_EX_DLGMODALFRAME | WS_EX_STATICEDGE | WS_EX_WINDOWEDGE);
 
-	if ( bNoTheme )
-		Dcx::UXModule.dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
+	if (bNoTheme)
+		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
 
-	//this->m_tsText = TEXT(""); // pointless, alrdy is "".
-	this->m_clrText = GetSysColor(COLOR_WINDOWTEXT);
+	setTextColor(GetSysColor(COLOR_WINDOWTEXT));
 
-	this->setControlFont( GetStockFont( DEFAULT_GUI_FONT ), FALSE );
-	this->registreDefaultWindowProc( );
-	SetProp( this->m_Hwnd, TEXT("dcx_cthis"), (HANDLE) this );
+	setControlFont(Dcx::dcxGetStockObject<HFONT>(DEFAULT_GUI_FONT), FALSE);
 
-	if (styles.istok(TEXT("tooltips"))) {
-		if (IsWindow(p_Dialog->getToolTip())) {
-			this->m_ToolTipHWND = p_Dialog->getToolTip();
-			AddToolTipToolInfo(this->m_ToolTipHWND, this->m_Hwnd);
-		}
-		else
-			this->showError(NULL,TEXT("-c"),TEXT("Unable to Initialize Tooltips"));
+	if (styles.istok(TEXT("tooltips")))
+	{
+		if (!IsWindow(p_Dialog->getToolTip()))
+			throw Dcx::dcxException("Unable to Initialize Tooltips");
+
+		setToolTipHWND(p_Dialog->getToolTip());
+		AddToolTipToolInfo(getToolTipHWND(), m_Hwnd);
 	}
 }
 
@@ -76,9 +69,8 @@ DcxText::DcxText( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, co
  * blah
  */
 
-DcxText::~DcxText( ) {
-
-	this->unregistreDefaultWindowProc( );
+DcxText::~DcxText() noexcept
+{
 }
 
 /*!
@@ -87,44 +79,96 @@ DcxText::~DcxText( ) {
  * blah
  */
 
-void DcxText::parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme)
+ //void DcxText::parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme)
+ //{
+ //	*Styles |= SS_NOTIFY;
+ //	this->m_uiStyle = DT_LEFT;
+ //
+ //	for (const auto &tsStyle: styles)
+ //	{
+ //#if DCX_USE_HASHING
+ //		switch (std::hash<TString>{}(tsStyle))
+ //		{
+ //			case L"nowrap"_hash:
+ //				m_uiStyle |= DT_SINGLELINE;
+ //				break;
+ //			case L"center"_hash:
+ //				m_uiStyle |= DT_CENTER;
+ //				break;
+ //			case L"right"_hash:
+ //				m_uiStyle |= DT_RIGHT;
+ //				break;
+ //			case L"noprefix"_hash:
+ //				m_uiStyle |= DT_NOPREFIX;
+ //				break;
+ //			case L"endellipsis"_hash:
+ //				m_uiStyle |= DT_END_ELLIPSIS;
+ //				break;
+ //			case L"pathellipsis"_hash:
+ //				m_uiStyle |= DT_PATH_ELLIPSIS;
+ //			default:
+ //				break;
+ //		}
+ //#else
+ //		if (tsStyle == TEXT("nowrap"))
+ //			this->m_uiStyle |= DT_SINGLELINE;
+ //		else if (tsStyle == TEXT("center"))
+ //			this->m_uiStyle |= DT_CENTER;
+ //		else if (tsStyle == TEXT("right"))
+ //			this->m_uiStyle |= DT_RIGHT;
+ //		else if (tsStyle == TEXT("noprefix"))
+ //			this->m_uiStyle |= DT_NOPREFIX;
+ //		else if (tsStyle == TEXT("endellipsis"))
+ //			this->m_uiStyle |= DT_END_ELLIPSIS;
+ //		else if (tsStyle == TEXT("pathellipsis"))
+ //			this->m_uiStyle |= DT_PATH_ELLIPSIS;
+ //#endif
+ //	}
+ //
+ //	if (!dcx_testflag(this->m_uiStyle, DT_SINGLELINE))
+ //		this->m_uiStyle |= DT_WORDBREAK;
+ //
+ //	this->parseGeneralControlStyles(styles, Styles, ExStyles, bNoTheme);
+ //}
+
+dcxWindowStyles DcxText::parseControlStyles(const TString& tsStyles)
 {
-	*Styles |= SS_NOTIFY;
-	//for (TString tsStyle(styles.getfirsttok( 1 )); tsStyle != ""; tsStyle = styles.getnexttok( ))
-	//{
-	//	if (tsStyle == TEXT("nowrap"))
-	//		*Styles |= SS_LEFTNOWORDWRAP;
-	//	else if (tsStyle == TEXT("center"))
-	//		*Styles |= SS_CENTER;
-	//	else if (tsStyle == TEXT("right"))
-	//		*Styles |= SS_RIGHT;
-	//	else if (tsStyle == TEXT("noprefix"))
-	//		*Styles |= SS_NOPREFIX;
-	//	else if (tsStyle == TEXT("endellipsis"))
-	//		*Styles |= SS_ENDELLIPSIS;
-	//	else if (tsStyle == TEXT("pathellipsis"))
-	//		*Styles |= SS_PATHELLIPSIS;
-	//}
+	dcxWindowStyles ws;
+
+	ws.m_Styles |= SS_NOTIFY;
 	this->m_uiStyle = DT_LEFT;
 
-	for (TString tsStyle(styles.getfirsttok( 1 )); tsStyle != TEXT(""); tsStyle = styles.getnexttok( ))
+	for (const auto& tsStyle : tsStyles)
 	{
-		if (tsStyle == TEXT("nowrap"))
-			this->m_uiStyle |= DT_SINGLELINE;
-		else if (tsStyle == TEXT("center"))
-			this->m_uiStyle |= DT_CENTER;
-		else if (tsStyle == TEXT("right"))
-			this->m_uiStyle |= DT_RIGHT;
-		else if (tsStyle == TEXT("noprefix"))
-			this->m_uiStyle |= DT_NOPREFIX;
-		else if (tsStyle == TEXT("endellipsis"))
-			this->m_uiStyle |= DT_END_ELLIPSIS;
-		else if (tsStyle == TEXT("pathellipsis"))
-			this->m_uiStyle |= DT_PATH_ELLIPSIS;
+		switch (std::hash<TString>{}(tsStyle))
+		{
+		case L"nowrap"_hash:
+			m_uiStyle |= DT_SINGLELINE;
+			break;
+		case L"center"_hash:
+			m_uiStyle |= DT_CENTER;
+			break;
+		case L"right"_hash:
+			m_uiStyle |= DT_RIGHT;
+			break;
+		case L"noprefix"_hash:
+			m_uiStyle |= DT_NOPREFIX;
+			break;
+		case L"endellipsis"_hash:
+			m_uiStyle |= DT_END_ELLIPSIS;
+			break;
+		case L"pathellipsis"_hash:
+			m_uiStyle |= DT_PATH_ELLIPSIS;
+			break;
+		default:
+			break;
+		}
 	}
-	if ((this->m_uiStyle & DT_SINGLELINE) != DT_SINGLELINE) this->m_uiStyle |= DT_WORDBREAK;
 
-	this->parseGeneralControlStyles(styles, Styles, ExStyles, bNoTheme);
+	if (!dcx_testflag(this->m_uiStyle, DT_SINGLELINE))
+		this->m_uiStyle |= DT_WORDBREAK;
+
+	return parseGeneralControlStyles(tsStyles, ws);
 }
 
 /*!
@@ -136,18 +180,15 @@ void DcxText::parseControlStyles( const TString & styles, LONG * Styles, LONG * 
  * \return > void
  */
 
-void DcxText::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) const
+void DcxText::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>& szReturnValue) const
 {
 	// [NAME] [ID] [PROP]
-	if ( input.gettok( 3 ) == TEXT("text") ) {
-
-		GetWindowText( this->m_Hwnd, szReturnValue, MIRC_BUFFER_SIZE_CCH );
-		return;
+	if (input.gettok(3) == TEXT("text"))
+	{
+		GetWindowText(m_Hwnd, szReturnValue, MIRC_BUFFER_SIZE_CCH);
 	}
-	else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
-		return;
-
-	szReturnValue[0] = 0;
+	else
+		this->parseGlobalInfoRequest(input, szReturnValue);
 }
 
 /*!
@@ -156,45 +197,53 @@ void DcxText::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) co
  * blah
  */
 
-void DcxText::parseCommandRequest(const TString &input) {
-	const XSwitchFlags flags(input.getfirsttok( 3 ));
-	const UINT numtok = input.numtok( );
+void DcxText::parseCommandRequest(const TString& input)
+{
+	const XSwitchFlags flags(input.getfirsttok(3));
+	const auto numtok = input.numtok();
 
 	// xdid -r [NAME] [ID] [SWITCH]
-	if (flags[TEXT('r')]) {
-		this->m_tsText = TEXT("");
-		SetWindowText(this->m_Hwnd, TEXT(""));
+	if (flags[TEXT('r')])
+	{
+		this->m_tsText.clear();	// = TEXT("");
+		SetWindowText(m_Hwnd, TEXT(""));
 	}
 
 	// xdid -a [NAME] [ID] [SPACE 0|1] [TEXT]
-	if (flags[TEXT('a')] && numtok > 2) {
-		if (input.getnexttok( ).to_int() == 1)	// tok 4
-			this->m_tsText += TEXT(" ");
+	if (flags[TEXT('a')])
+	{
+		if (numtok < 3)
+			throw Dcx::dcxException("Insufficient parameters");
 
-		this->m_tsText += input.gettok(5, -1);
-		SetWindowText(this->m_Hwnd, this->m_tsText.to_chr());
+		if (input.getnexttok().to_int() == 1)	// tok 4
+			this->m_tsText += TEXT(' ');
+
+		this->m_tsText += input.getlasttoks();	// tok 5, -1
+		SetWindowText(m_Hwnd, this->m_tsText.to_chr());
 
 		// redraw if transparent
-		if (this->isExStyle(WS_EX_TRANSPARENT))
-			this->InvalidateParentRect(this->m_Hwnd);
+		if (this->isExStyle(WindowExStyle::Transparent))
+			this->InvalidateParentRect(m_Hwnd);
 		this->redrawWindow();
 	}
 	// This is to avoid invalid flag message.
 	// xdid -r [NAME] [ID] [SWITCH]
-	else if (flags[TEXT('r')]) {
+	else if (flags[TEXT('r')])
+	{
 	}
 	//xdid -t [NAME] [ID] [SWITCH] [TEXT]
-	else if (flags[TEXT('t')]) {
-		this->m_tsText = input.gettok(4, -1);
-		SetWindowText(this->m_Hwnd, this->m_tsText.to_chr());
+	else if (flags[TEXT('t')])
+	{
+		this->m_tsText = input.getlasttoks();	// tok 4, -1
+		SetWindowText(m_Hwnd, this->m_tsText.to_chr());
 
 		// redraw if transparent
-		if (this->isExStyle(WS_EX_TRANSPARENT))
-			this->InvalidateParentRect(this->m_Hwnd);
+		if (this->isExStyle(WindowExStyle::Transparent))
+			this->InvalidateParentRect(m_Hwnd);
 		this->redrawWindow();
 	}
 	else
-		this->parseGlobalCommandRequest( input, flags );
+		this->parseGlobalCommandRequest(input, flags);
 }
 
 /*!
@@ -202,60 +251,60 @@ void DcxText::parseCommandRequest(const TString &input) {
  *
  * blah
  */
-LRESULT DcxText::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
+LRESULT DcxText::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed) noexcept
+{
 	return 0L;
 }
 
-LRESULT DcxText::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
+LRESULT DcxText::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed)
+{
+	switch (uMsg)
+	{
+	case WM_ERASEBKGND:
+	{
+		if (this->isExStyle(WindowExStyle::Transparent))
+		{
+			bParsed = TRUE;
+			return TRUE;
+		}
+		break;
+	}
 
-	switch( uMsg ) {
+	case WM_PRINTCLIENT:
+	{
+		this->DrawClientArea(reinterpret_cast<HDC>(wParam));
+		bParsed = TRUE;
+	}
+	break;
+	case WM_PAINT:
+	{
+		bParsed = TRUE;
+		PAINTSTRUCT ps{};
 
-		case WM_ERASEBKGND:
-			{
-				if (this->isExStyle(WS_EX_TRANSPARENT)) {
-					bParsed = TRUE;
-					return TRUE;
-				}
-				break;
-			}
+		auto hdc = BeginPaint(m_Hwnd, &ps);
+		Auto(EndPaint(m_Hwnd, &ps));
 
-		case WM_PRINTCLIENT:
-			{
-				this->DrawClientArea((HDC)wParam);
-				bParsed = TRUE;
-			}
-			break;
-		case WM_PAINT:
-			{
-				bParsed = TRUE;
-				PAINTSTRUCT ps;
-				HDC hdc;
+		this->DrawClientArea(hdc);
+	}
+	break;
 
-				hdc = BeginPaint( this->m_Hwnd, &ps );
+	case WM_ENABLE:
+	{ // fixes bug with redraw when text control is enabled/disabled & formatted text is being used.
+		bParsed = TRUE;
+		InvalidateRect(m_Hwnd, nullptr, FALSE);
+	}
+	break;
 
-				this->DrawClientArea(hdc);
+	case WM_DESTROY:
+	{
+		delete this;
+		bParsed = TRUE;
+	}
+	break;
 
-				EndPaint( this->m_Hwnd, &ps );
-			}
-			break;
-
-		case WM_ENABLE:
-			{ // fixes bug with redraw when text control is enabled/disabled & formatted text is being used.
-				bParsed = TRUE;
-				InvalidateRect(this->m_Hwnd, NULL, FALSE);
-			}
-			break;
-
-		case WM_DESTROY:
-			{
-				delete this;
-				bParsed = TRUE;
-			}
-			break;
-
-		default:
-			return this->CommonMessage( uMsg, wParam, lParam, bParsed);
-			break;
+	default:
+		return this->CommonMessage(uMsg, wParam, lParam, bParsed);
+		break;
 	}
 
 	return 0L;
@@ -263,62 +312,118 @@ LRESULT DcxText::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bP
 
 void DcxText::DrawClientArea(HDC hdc)
 {
-	RECT r;
+	if (!hdc)
+		return;
+
+	RECT r{};
+
+	if (!GetClientRect(m_Hwnd, &r))
+		return;
+
 	// Setup alpha blend if any.
-	LPALPHAINFO ai = this->SetupAlphaBlend(&hdc);
+	auto ai = SetupAlphaBlend(&hdc);
+	Auto(FinishAlphaBlend(ai));
 
-	TString wtext;
-	TGetWindowText(this->m_Hwnd, wtext);
+	if (!hdc)
+		return;
 
-	GetClientRect(this->m_Hwnd, &r);
+	DcxControl::DrawCtrlBackground(hdc, this, &r);
 
-	DcxControl::DrawCtrlBackground(hdc,this,&r);
-
-	HFONT oldFont = NULL;
+	HFONT oldFont = nullptr;
 	COLORREF oldClr = CLR_INVALID;
 	COLORREF oldBkgClr = CLR_INVALID;
 
 	// check if font is valid & set it.
-	if (this->m_hFont != NULL)
-		oldFont = SelectFont(hdc, this->m_hFont);
+	if (const auto hFont = this->getControlFont(); hFont)
+		oldFont = Dcx::dcxSelectObject<HFONT>(hdc, hFont);
+
 	// check if control is enabled.
-	if (IsWindowEnabled(this->m_Hwnd)) {
-		if (this->m_clrText != CLR_INVALID)
-			oldClr = SetTextColor(hdc, this->m_clrText);
-		if (this->m_clrBackText != CLR_INVALID)
-			oldBkgClr = SetBkColor(hdc, this->m_clrBackText);
+	if (IsWindowEnabled(m_Hwnd))
+	{
+		if (const auto clr = this->getTextColor(); clr != CLR_INVALID)
+			oldClr = SetTextColor(hdc, clr);
+		if (const auto clr = this->getBackColor(); clr != CLR_INVALID)
+			oldBkgClr = SetBkColor(hdc, clr);
 	}
 	else { // disabled controls colouring
 		oldClr = SetTextColor(hdc, GetSysColor(COLOR_GRAYTEXT));
 		oldBkgClr = SetBkColor(hdc, GetSysColor(COLOR_3DFACE));
 	}
 
-	//UINT style = DT_LEFT;
-	//if (this->isStyle(SS_CENTER))
-	//	style = DT_CENTER;
-	//if (this->isStyle(SS_RIGHT))
-	//	style = DT_RIGHT;
-	//if (this->isStyle(SS_ENDELLIPSIS))
-	//	style |= DT_END_ELLIPSIS;
-	//if (this->isStyle(SS_PATHELLIPSIS))
-	//	style |= DT_PATH_ELLIPSIS;
-	//if (this->isStyle(SS_NOPREFIX))
-	//	style |= DT_NOPREFIX;
-	//if (this->isStyle(SS_LEFTNOWORDWRAP))
-	//	style |= DT_SINGLELINE;
-	//else
-	//	style |= DT_WORDBREAK; // changed for autowrap between words
+	//#if DCX_DEBUG_OUTPUT
+	//	ColourString<TCHAR> tmp(wtext.to_chr());
+	//
+	//	ColourString<TCHAR>::RenderInfo ri;
+	//	ri.ri_dwFlags = this->m_uiStyle;
+	//	ri.ri_bEnableAngleChar = false;
+	//	ri.ri_bEnableAngleLine = true;
+	//	ri.ri_bEnableShadow = this->m_bShadowText;
+	//	ri.ri_iLineAngle = -20;
+	//	ri.ri_iCharAngle = 10;
+	//	ri.ri_crShadow = RGB(0, 0, 0);
+	//	ri.ri_crText = m_clrText;
+	//	ri.ri_ixOffset = 0;
+	//	ri.ri_iyOffset = 0;
+	//
+	//	getmIRCPalette(ri.ri_cPalette, Dcx::countof(ri.ri_cPalette)); // get mIRC palette
+	//
+	//	tmp.Render(hdc, &r, ri);
+	//
+	//#else
 
-	//this->ctrlDrawText(hdc, wtext, &r, style);
-
+	const TString wtext(TGetWindowText(m_Hwnd));
 	this->ctrlDrawText(hdc, wtext, &r, this->m_uiStyle);
+	//#endif
 
 	if (oldBkgClr != CLR_INVALID)
 		SetBkColor(hdc, oldBkgClr);
 	if (oldClr != CLR_INVALID)
 		SetTextColor(hdc, oldClr);
-	if (oldFont != NULL)
-		SelectFont(hdc, oldFont);
+	if (oldFont)
+		Dcx::dcxSelectObject<HFONT>(hdc, oldFont);
+}
 
-	this->FinishAlphaBlend(ai);
+const TString DcxText::getStyles(void) const
+{
+	auto tsStyles(__super::getStyles());
+	const auto Styles = dcxGetWindowStyle(m_Hwnd);
+
+	if (dcx_testflag(Styles, DT_SINGLELINE))
+		tsStyles.addtok(TEXT("nowrap"));
+	if (dcx_testflag(Styles, DT_CENTER))
+		tsStyles.addtok(TEXT("center"));
+	if (dcx_testflag(Styles, DT_RIGHT))
+		tsStyles.addtok(TEXT("right"));
+	if (dcx_testflag(Styles, DT_NOPREFIX))
+		tsStyles.addtok(TEXT("noprefix"));
+	if (dcx_testflag(Styles, DT_END_ELLIPSIS))
+		tsStyles.addtok(TEXT("endellipsis"));
+	if (dcx_testflag(Styles, DT_PATH_ELLIPSIS))
+		tsStyles.addtok(TEXT("pathellipsis"));
+
+	return tsStyles;
+}
+
+void DcxText::toXml(TiXmlElement* const xml) const
+{
+	__super::toXml(xml);
+
+	const TString wtext(TGetWindowText(m_Hwnd));
+	xml->SetAttribute("caption", wtext.c_str());
+	xml->SetAttribute("styles", getStyles().c_str());
+}
+
+TiXmlElement* DcxText::toXml(void) const
+{
+	auto xml = std::make_unique<TiXmlElement>("control");
+	toXml(xml.get());
+	return xml.release();
+}
+
+LRESULT DcxText::CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept
+{
+	if (m_hDefaultClassProc)
+		return CallWindowProc(m_hDefaultClassProc, this->m_Hwnd, uMsg, wParam, lParam);
+
+	return DefWindowProc(this->m_Hwnd, uMsg, wParam, lParam);
 }

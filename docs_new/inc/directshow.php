@@ -7,7 +7,7 @@ function get_intro_directshow() {
 function get_styles_directshow(&$STYLES) {
 	$STYLES = array(
 		'fixratio' => 'The content maintains its aspect ratio. By default, the content fills the control.',
-                'hgradient' => 'Draws a horizontal gradient with the colors specified.',
+        'hgradient' => 'Draws a horizontal gradient with the colors specified.',
 		'vgradient' => 'Draws a vertical gradient with the colors specified.',
 	);
 }
@@ -35,9 +35,9 @@ function get_xdid_directshow(&$XDID) {
 			'__desc' => "This lets you control playback of the file.",
 			'__cmd' => '[COMMAND] [ARGS]',
 			'__eg' => array(
-                                'play',
-                                'seek 3500'
-                        ),
+                'play',
+                'seek 3500'
+            ),
 			'__params' => array(
 				'COMMAND' => array(
 					'__desc' => "DirectShow commands.",
@@ -49,31 +49,47 @@ function get_xdid_directshow(&$XDID) {
                                                 'seek' => 'Seeks to the millisecond of the clip specified.',
 					),
 				),
-                                '__args' => array(
-                                        'play' => '[FILENAME]',
-                                        'seek' => array(
-                                                '__cmd' => '[TIME]',
-                                                '__params' => array(
-                                                        'TIME' => 'The time to seek to, specified in milliseconds.',
-                                                ),
-                                        ),
-                                ),
+                '__args' => array(
+                    'play' => '[FILENAME]',
+                    'seek' => array(
+                        '__cmd' => '[TIME]',
+                        '__params' => array(
+                                'TIME' => 'The time to seek to, specified in milliseconds.',
+                        ),
+                    ),
+                ),
 			),
 		),
-                'V' => array(
-                        '__desc' => "This command sets the volume or speakerbalance",
-                        '__cmd' => '[+FLAG] [VALUE] ',
-                        '__eg' => '+v 80.00',
-                        '__params' => array(
-                                '+FLAG' => array(
-                                        '__desc' => "Command switches.",
-                                        '__values' => array(
-                                                'v' => "Sets the volume level as a percentage between [v]0.00[/v] & [v]100.00[/v] (fractions are valid values).",
-            // TODO: not functional                        'b' => "Sets speaker balance between [v]-10000[/v] & [v]10000[/v] (non functional atm)",
-                                        ),
-                                ),
-                        ),
+        'v' => array(
+            '__desc' => "This command sets the brightness, contrast, hue, & saturation",
+            '__cmd' => '[+FLAGS] [BRIGHTNESS] [CONTRAST] [HUE] [SATURATION] ',
+            '__eg' => '+b 80.00 0 0 0',
+            '__params' => array(
+                '+FLAGS' => array(
+                    '__desc' => "Command switches.",
+                    '__values' => array(
+		                'b' => "Sets the brightness level as a percentage between [v]0.00[/v] & [v]100.00[/v] (fractions are valid values).",
+		                'c' => "Sets the contrast level as a percentage between [v]0.00[/v] & [v]100.00[/v] (fractions are valid values).",
+		                'h' => "Sets the hue level as a percentage between [v]0.00[/v] & [v]100.00[/v] (fractions are valid values).",
+		                's' => "Sets the saturation level as a percentage between [v]0.00[/v] & [v]100.00[/v] (fractions are valid values).",
+                    ),
                 ),
+            ),
+        ),
+        'V' => array(
+            '__desc' => "This command sets the volume or speakerbalance",
+            '__cmd' => '[+FLAG] [VALUE] ',
+            '__eg' => '+v 80.00',
+            '__params' => array(
+                '+FLAG' => array(
+                    '__desc' => "Command switches.",
+                    '__values' => array(
+		                'v' => "Sets the volume level as a percentage between [v]0.00[/v] & [v]100.00[/v] (fractions are valid values).",
+// TODO: not functional                        'b' => "Sets speaker balance between [v]-10000[/v] & [v]10000[/v] (non functional atm)",
+                    ),
+                ),
+            ),
+        ),
 	);
 }
 
@@ -143,15 +159,15 @@ function get_xdidprops_directshow(&$XDIDPROPS) {
             '__notes' => 'This returns the media size, not the control size.',
 		),
         'state' => array(
-                '__desc' => 'This property returns the state of the media file, if any.',
-                '__return' => array(
-                        'nofile' => 'No file has been specified.',
-                        'stopped' => 'Stopped state.',
-                        'paused' => 'Paused state.',
-                        'playing' => 'Currently playing state.',
-                        'unknown' => 'Unknown media state.',
-                        'D_ERROR Message' => 'Error in determining state of control.',
-                ),
+            '__desc' => 'This property returns the state of the media file, if any.',
+            '__return' => array(
+                    'nofile' => 'No file has been specified.',
+                    'stopped' => 'Stopped state.',
+                    'paused' => 'Paused state.',
+                    'playing' => 'Currently playing state.',
+                    'unknown' => 'Unknown media state.',
+                    'D_ERROR Message' => 'Error in determining state of control.',
+            ),
         ),
         'video' => array(
             '__desc' => 'This property returns properties on the video media which can be altered.',
@@ -167,6 +183,20 @@ function get_xdidprops_directshow(&$XDIDPROPS) {
                 ),
             ),
         ),
+        'author' => array(
+            '__desc' => 'This property returns the author of the media. Not all media types support this.',
+            '__return' => array(
+                    'authors name' => 'Name of the author.',
+                    'D_ERROR Message' => 'Error in determining state of control.',
+            ),
+        ),
+        'title' => array(
+            '__desc' => 'This property returns the title of the media. Not all media types support this.',
+            '__return' => array(
+                    'title' => 'Title of the media.',
+                    'D_ERROR Message' => 'Error in determining state of control.',
+            ),
+        ),
 	);
 }
 
@@ -179,6 +209,14 @@ function get_events_directshow(&$EVENTS) {
 		'rclick' => 'When the right mouse button is clicked.',
 		'rbdown' => 'When the right mouse button is pressed.',
 		'rbup' => 'When the right mouse button is released.',
+		'dshow' => array(
+			'__desc' => 'When the media has triggered an event, usually finished playing.',
+			'__cmd' => 'EVENT',
+			'__eg' => 'completed',
+			'__params' => array(
+				'EVENT' => 'Media event that triggered.',
+			),
+		),
 	);
 }
 ?>

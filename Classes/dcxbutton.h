@@ -38,48 +38,60 @@ class DcxDialog;
  * blah
  */
 
-class DcxButton : public DcxControl {
-
+class DcxButton final
+	: public DcxControl
+{
 public:
+	DcxButton() = delete;
+	DcxButton(const DcxButton &) = delete;
+	DcxButton &operator =(const DcxButton &) = delete;	// No assignments!
+	DcxButton(DcxButton &&) = delete;
+	DcxButton &operator =(DcxButton &&) = delete;
 
-	DcxButton( const UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, const TString & styles );
-	virtual ~DcxButton( );
+	DcxButton( const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles );
+	~DcxButton( );
 
-	LRESULT PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
-	LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
+	LRESULT OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) final;
+	LRESULT ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) final;
 
-	void parseInfoRequest( const TString & input, TCHAR * szReturnValue ) const;
-	void parseCommandRequest( const TString & input );
-	void parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
+	//void parseInfoRequest(const TString & input, PTCHAR szReturnValue) const final;
+	void parseInfoRequest(const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const final;
+	void parseCommandRequest(const TString & input) final;
+	dcxWindowStyles parseControlStyles(const TString & tsStyles) final;
 
-	HIMAGELIST getImageList( ) const;
-	void setImageList( const HIMAGELIST himl );
-	HIMAGELIST createImageList( );
+	const HIMAGELIST &getImageList( ) const noexcept;
+	void setImageList( const HIMAGELIST himl ) noexcept;
+	HIMAGELIST createImageList( ) noexcept;
 
-	inline TString getType( ) const { return TString( TEXT("button") ); };
-	void toXml(TiXmlElement * xml) const;
-	TString getStyles(void) const;
+	inline const TString getType() const final { return TEXT("button"); };
+	inline const DcxControlTypes getControlType() const noexcept final { return DcxControlTypes::BUTTON; }
 
-protected:
+	void toXml(TiXmlElement *const xml) const final;
+	TiXmlElement * toXml(void) const final;
+	const TString getStyles(void) const final;
 
-	HIMAGELIST m_ImageList; //!< Button Image List (normal, hover, pushed, disabled)
-	COLORREF m_aColors[4];  //!< Button Colors (normal, hover, pushed, disabled)
-	COLORREF m_aTransp[4];  //!< Transparent Colors (normal, hover, pushed, disabled)
+	static inline WNDPROC m_hDefaultClassProc{ nullptr };	//!< Default window procedure
+	LRESULT CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept final;
 
-	HBITMAP m_aBitmaps[4];  //!< Button Bitmaps (normal, hover, pushed, disabled)
+private:
+	HIMAGELIST m_ImageList{ nullptr }; //!< Button Image List (normal, hover, pushed, disabled)
+	COLORREF m_aColors[4]{ CLR_INVALID };  //!< Button Colors (normal, hover, pushed, disabled)
+	COLORREF m_aTransp[4]{ CLR_INVALID };  //!< Transparent Colors (normal, hover, pushed, disabled)
+
+	HBITMAP m_aBitmaps[4]{ nullptr };  //!< Button Bitmaps (normal, hover, pushed, disabled)
 
 	TString m_tsCaption; //!< Button Caption Text
 
-	BOOL m_bTracking; //!< Button Tracking Mouse Event State
-	BOOL m_bHover;    //!< Button Hovering State
-	BOOL m_bTouched;  //!< Button Touched by Mouse State
-	BOOL m_bSelected; //!< Button Selected State
+	BOOL m_bTracking{ FALSE }; //!< Button Tracking Mouse Event State
+	bool m_bHover{ false };    //!< Button Hovering State
+	bool m_bTouched{ false };  //!< Button Touched by Mouse State
+	bool m_bSelected{ false }; //!< Button Selected State
+	bool m_bBitmapText{ false };
+	bool m_bHasIcons{ false };
 
-	UINT m_iIconSize; //!< Button Icon Size 16,24,32
+	DcxIconSizes m_iIconSize{ DcxIconSizes::SmallIcon }; //!< Button Icon Size 16,24,32
 
-	static UINT parseColorFlags(const TString & flags );
-	BOOL m_bBitmapText;
-	BOOL m_bHasIcons;
+	static const UINT parseColorFlags(const TString & flags ) noexcept;
 	void DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam);
 };
 

@@ -26,21 +26,36 @@ class DcxDialog;
  * blah
  */
 
-class DcxDateTime : public DcxControl {
+class DcxDateTime final
+	: public DcxControl
+{
 public:
-	DcxDateTime(UINT ID, DcxDialog *p_Dialog, HWND mParentHwnd, RECT *rc, const TString &styles);
-	virtual ~DcxDateTime();
+	DcxDateTime() = delete;
+	DcxDateTime(const DcxDateTime &) = delete;
+	DcxDateTime &operator =(const DcxDateTime &) = delete;	// No assignments!
+	DcxDateTime(DcxDateTime &&) = delete;
+	DcxDateTime &operator =(DcxDateTime &&) = delete;
 
-	LRESULT PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bParsed);
-	LRESULT ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bParsed);
+	DcxDateTime(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString &styles);
+	~DcxDateTime() noexcept;
 
-	void parseInfoRequest( const TString & input, TCHAR * szReturnValue ) const;
-	void parseCommandRequest( const TString & input );
-	void parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
+	LRESULT OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bParsed) final;
+	LRESULT ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bParsed) final;
 
-	inline TString getType() const { return TString(TEXT("datetime")); };
-	void toXml(TiXmlElement * xml) const;
-	TString getStyles(void) const;
+	//void parseInfoRequest(const TString & input, PTCHAR szReturnValue) const final;
+	void parseInfoRequest(const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const final;
+	void parseCommandRequest(const TString & input) final;
+	dcxWindowStyles parseControlStyles(const TString & tsStyles) final;
+
+	inline const TString getType() const final { return TEXT("datetime"); };
+	inline const DcxControlTypes getControlType() const noexcept final { return DcxControlTypes::DATETIME; }
+
+	void toXml(TiXmlElement *const xml) const final;
+	TiXmlElement * toXml(void) const final;
+	const TString getStyles(void) const final;
+
+	static inline WNDPROC m_hDefaultClassProc{ nullptr };	//!< Default window procedure
+	LRESULT CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept final;
 };
 
 #endif // _DCXDATETIME_H_

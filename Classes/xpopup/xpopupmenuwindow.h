@@ -25,8 +25,11 @@ class XPopupMenuWindow {
 
 public:
 
-  XPopupMenuWindow( );
-  virtual ~XPopupMenuWindow( );
+	XPopupMenuWindow() = default;
+	XPopupMenuWindow(const XPopupMenuWindow &) = delete;
+	virtual ~XPopupMenuWindow() = default;
+
+	XPopupMenuWindow &operator = (const XPopupMenuWindow &) = delete;
 
 protected:
 

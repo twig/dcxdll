@@ -26,28 +26,39 @@ class DcxDialog;
  * blah
  */
 
-class DcxMWindow : public DcxControl {
-
+class DcxMWindow final
+	: public DcxControl
+{
 public:
+	DcxMWindow() = delete;
+	DcxMWindow(const DcxMWindow &) = delete;
+	DcxMWindow &operator =(const DcxMWindow &) = delete;	// No assignments!
+	DcxMWindow(DcxMWindow &&) = delete;
+	DcxMWindow &operator =(DcxMWindow &&) = delete;
 
-	DcxMWindow( const HWND cHwnd, const HWND pHwnd, const UINT ID, DcxDialog * p_Dialog, RECT * rc, const TString & styles );
-	virtual ~DcxMWindow( );
+	DcxMWindow( const HWND cHwnd, const HWND pHwnd, const UINT ID, DcxDialog *const p_Dialog, const RECT *const rc, const TString & styles );
+	~DcxMWindow( ) noexcept;
 
-	LRESULT PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
-	LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
+	LRESULT OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) final;
+	LRESULT ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) noexcept final;
 
-	void parseInfoRequest( const TString & input, TCHAR * szReturnValue ) const;
-	void parseCommandRequest( const TString & input );
-	void parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
+	//void parseInfoRequest(const TString & input, PTCHAR szReturnValue) const final;
+	void parseInfoRequest(const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const final;
+	void parseCommandRequest(const TString & input) final;
+	dcxWindowStyles parseControlStyles(const TString & tsStyles) final;
 
-	inline TString getType( ) const { return TString( TEXT("window") ); };
+	inline const TString getType() const final { return TEXT("window"); };
+	inline const DcxControlTypes getControlType() const noexcept final { return DcxControlTypes::WINDOW; }
+
+	static inline WNDPROC m_hDefaultClassProc{ nullptr };	//!< Default window procedure
+	LRESULT CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept final;
 
 protected:
 
-	LONG m_OrigStyles;      //!< Window Original Styles
-	LONG m_OrigExStyles;    //!< Window Original Extended Styles
-	HWND m_OrigParentHwnd;  //!< Window Original Parent Handle
-	UINT m_OrigID;          //!< Window Original Control ID
+	WindowStyle m_OrigStyles{};      //!< Window Original Styles
+	WindowExStyle m_OrigExStyles{};    //!< Window Original Extended Styles
+	HWND m_OrigParentHwnd{ nullptr };  //!< Window Original Parent Handle
+	UINT m_OrigID{};          //!< Window Original Control ID
 	TString m_OrigName;     //!< Dialog Original Name
 };
 

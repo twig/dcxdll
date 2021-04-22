@@ -27,31 +27,41 @@ class DcxDialog;
  * blah
  */
 
-class DcxMDialog : public DcxControl {
-
+class DcxMDialog final
+	: public DcxControl
+{
 public:
+	DcxMDialog() = delete;
+	DcxMDialog(const DcxMDialog &) = delete;
+	DcxMDialog &operator =(const DcxMDialog &) = delete;	// No assignments!
+	DcxMDialog(DcxMDialog &&) = delete;
+	DcxMDialog &operator =(DcxMDialog &&) = delete;
 
-	DcxMDialog( HWND cHwnd, HWND pHwnd, UINT ID, DcxDialog * p_Dialog, RECT * rc, const TString & styles );
-	virtual ~DcxMDialog( );
+	DcxMDialog(const HWND cHwnd, const HWND pHwnd, const UINT ID, DcxDialog *const p_Dialog, const RECT *const rc, const TString & styles );
+	~DcxMDialog( ) noexcept;
 
-	LRESULT PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
-	LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
+	LRESULT OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) final;
+	LRESULT ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) noexcept final;
 
-	void parseInfoRequest( const TString & input, TCHAR * szReturnValue ) const;
-	void parseCommandRequest( const TString & input );
-	void parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
+	//void parseInfoRequest(const TString & input, PTCHAR szReturnValue) const final;
+	void parseInfoRequest(const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const final;
+	void parseCommandRequest(const TString & input) final;
+	dcxWindowStyles parseControlStyles(const TString & tsStyles) final;
 
-	inline TString getType( ) const { return TString( TEXT("dialog") ); };
+	inline const TString getType() const final { return TEXT("dialog"); };
+	inline const DcxControlTypes getControlType() const noexcept final { return DcxControlTypes::DIALOG; }
+
+	static inline WNDPROC m_hDefaultClassProc{ nullptr };	//!< Default window procedure
+	LRESULT CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept final;
 
 protected:
 
-	LONG m_OrigStyles;      //!< Dialog Original Styles
-	LONG m_OrigExStyles;    //!< Dialog Original Extended Styles
-	HWND m_OrigParentHwnd;  //!< Dialog Original Parent Handle
-	UINT m_OrigID;          //!< Dialog Original Control ID
+	WindowStyle m_OrigStyles{};      //!< Dialog Original Styles
+	WindowExStyle m_OrigExStyles{};    //!< Dialog Original Extended Styles
+	HWND m_OrigParentHwnd{ nullptr };  //!< Dialog Original Parent Handle
+	UINT m_OrigID{};          //!< Dialog Original Control ID
 	TString m_OrigName;     //!< Dialog Original Name
-	BOOL m_DeleteByDestroy; //!< is true if control is deleted because docked dialog is destroyed (won't repaint dialog on delete)
-
+	bool m_DeleteByDestroy{ false }; //!< is true if control is deleted because docked dialog is destroyed (won't repaint dialog on delete)
 };
 
 #endif // _DCXMDIALOG_H_

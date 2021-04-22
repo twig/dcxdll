@@ -15,11 +15,11 @@
 #ifndef _DCXDIALOGCOLLECTION_H_
 #define _DCXDIALOGCOLLECTION_H_
 
-// dummy runtime classe definition
+ // dummy runtime class definition
 class DcxDialog;
-class Dcx;
 
-typedef std::vector<DcxDialog *> VectorOfDialogPtrs; //!< blah
+using VectorOfDialogPtrs = std::vector<DcxDialog *>; //!< blah
+//using VectorOfDialogPtrs = std::vector<std::unique_ptr<DcxDialog>>; //!< blah
 
 /*!
  * \brief blah
@@ -27,28 +27,30 @@ typedef std::vector<DcxDialog *> VectorOfDialogPtrs; //!< blah
  * blah
  */
 
-class DcxDialogCollection {
-
+class DcxDialogCollection
+{
 public:
 
-	DcxDialogCollection( );
-	virtual ~DcxDialogCollection( );
+	DcxDialogCollection(const DcxDialogCollection&) = delete;
+	DcxDialogCollection& operator =(const DcxDialogCollection&) = delete;
+	DcxDialogCollection(DcxDialogCollection&&) = delete;
+	DcxDialogCollection& operator =(DcxDialogCollection&&) = delete;
 
-	void markDialog( const HWND mHwnd, const TString & tsName, const TString & tsAliasName );
-	void deleteDialog( DcxDialog * p_Dialog );
-	DcxDialog * getDialogByHandle( const HWND mHwnd );
-	DcxDialog * getDialogByChildHandle( const HWND mHwnd );
-	DcxDialog * getDialogByName( const TString & tsName );
+	DcxDialogCollection() noexcept = default;
+	~DcxDialogCollection() noexcept = default;
 
-	bool closeDialogs( );
-	bool safeToCloseAll(void) const;
+	void markDialog(const HWND mHwnd, const TString& tsName, const TString& tsAliasName);
+	void deleteDialog(const DcxDialog* const p_Dialog);
+	DcxDialog* getDialogByHandle(const HWND mHwnd) const noexcept;
+	DcxDialog* getDialogByChildHandle(const HWND mHwnd) const noexcept;
+	DcxDialog* getDialogByName(const TString& tsName) const noexcept;
 
-protected:
+	const bool closeDialogs() noexcept;
+	const bool safeToCloseAll(void) const noexcept;
 
 private:
-	bool m_closeall; // protects against freeing of vector objects when looping through them.
 	VectorOfDialogPtrs m_vpDialog;
-
+	bool m_closeall{ false }; // protects against freeing of vector objects when looping through them.
 };
 
 #endif // _DCXDIALOGCOLLECTION_H_

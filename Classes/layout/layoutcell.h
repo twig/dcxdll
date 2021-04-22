@@ -17,7 +17,7 @@
 
 #include "defines.h"
 #include "Classes/dcxcontrol.h"
-//#include "defines.h"
+ //#include "defines.h"
 
 #include <vector>
 
@@ -27,10 +27,10 @@
  * blah
  */
 
-typedef struct CellMinMaxInfo {
-
-  POINT m_MinSize; //!< Minimum Cell Size
-  POINT m_MaxSize; //!< Maximum Cell Size
+typedef struct CellMinMaxInfo
+{
+	POINT m_MinSize; //!< Minimum Cell Size
+	POINT m_MaxSize; //!< Maximum Cell Size
 
 } CellMinMaxInfo;
 
@@ -44,8 +44,8 @@ typedef struct CellMinMaxInfo {
 #pragma warning( disable : 2292 ) //warning #2292: destructor is declared but copy constructor and assignment operator are not
 #endif
 
-class LayoutCell {
-
+class LayoutCell
+{
 public:
 
 	/*!
@@ -53,55 +53,66 @@ public:
 	*
 	* blah
 	*/
-	enum CellType {
-
+	enum class CellType
+		: UINT
+	{
 		FIXED,
 		FILL,
 		PANE
 	};
 
-	LayoutCell( );
-	explicit LayoutCell( const HWND mHwnd );
-	LayoutCell( const HWND mHwnd, const RECT & rc );
-	explicit LayoutCell( DcxControl * dcxc );
-	virtual ~LayoutCell( );
+	LayoutCell(const LayoutCell&) = delete;
+	LayoutCell& operator =(const LayoutCell&) = delete;	// No assignments!
+	LayoutCell(LayoutCell&&) = delete;
+	LayoutCell& operator =(LayoutCell&&) = delete;
 
-	void setRect( RECT & rc );
-	void getRect( RECT & rc ) const;
-	void getClientRect( RECT & rc ) const;
-	void setBorder( const RECT & rc );
-	void setBorder( const unsigned int nBorder );
-	void getBorder( RECT & rc ) const;
+	LayoutCell() noexcept;
+	explicit LayoutCell(const HWND mHwnd) noexcept;
+	LayoutCell(const HWND mHwnd, const RECT& rc) noexcept;
+	explicit LayoutCell(DcxControl* dcxc) noexcept;
 
-	virtual void LayoutChild( ) = 0;
-	virtual HDWP ExecuteLayout( HDWP hdwp ) = 0;
-	virtual void getMinMaxInfo( CellMinMaxInfo * pCMMI ) = 0;
-	virtual void toXml(TiXmlElement * xml) = 0;
-	virtual TiXmlElement * toXml(void) = 0;
+	virtual ~LayoutCell() noexcept {};
 
-	void setSibling( LayoutCell * p_Cell );
-	void setParent( LayoutCell * p_Cell );
+	void setRect(RECT& rc) noexcept;
+	void getRect(RECT& rc) const noexcept;
+	void getClientRect(RECT& rc) const noexcept;
+	void setBorder(const RECT& rc) noexcept;
+	void setBorder(const int& nBorder) noexcept;
+	void getBorder(RECT& rc) const noexcept;
 
-	virtual CellType getType( ) const = 0;
+	virtual void LayoutChild() = 0;
+	virtual HDWP ExecuteLayout(const HDWP hdwp) = 0;
+	virtual void getMinMaxInfo(CellMinMaxInfo* const pCMMI) const noexcept = 0;
+	virtual void toXml(TiXmlElement* const xml) = 0;
+	virtual TiXmlElement* toXml(void) = 0;
 
-	LayoutCell * getFirstChild( ) const;
-	LayoutCell * getParent( ) const;
-	LayoutCell * getNextSibling( ) const;
+	void setSibling(LayoutCell* const p_Cell) noexcept;
+	void setParent(LayoutCell* const p_Cell) noexcept;
 
-	BOOL isVisible( ) const;
+	virtual const CellType getType() const noexcept = 0;
+
+	LayoutCell* getFirstChild() const noexcept;
+	LayoutCell* getParent() const noexcept;
+	LayoutCell* getNextSibling() const noexcept;
+
+	const bool isVisible() const noexcept;
+
+	const size_t& size(void) const noexcept { return m_iCount; }
+	const bool		empty(void) const noexcept { return (m_iCount == 0); }
 
 protected:
 
-	HWND m_Hwnd; //!< Cell Control Window Handle (NULL if Container Cell)
+	HWND m_Hwnd; //!< Cell Control Window Handle (nullptr if Container Cell)
 
 	RECT m_rcBorders; //!< Border defining rectangle
 	RECT m_rcWindow;  //!< Available Window defining rectangle including Borders
-	DcxControl * m_BaseControl;
+	DcxControl* m_BaseControl{ nullptr };
 
-	LayoutCell * m_Parent; //!< Used for navigation
-	LayoutCell * m_FirstChild; //!< Used for navigation
-	LayoutCell * m_NextSibling; //!< Used for navigation
+	LayoutCell* m_Parent{ nullptr }; //!< Used for navigation
+	LayoutCell* m_FirstChild{ nullptr }; //!< Used for navigation
+	LayoutCell* m_NextSibling{ nullptr }; //!< Used for navigation
 
+	size_t		m_iCount{};
 };
 #ifdef __INTEL_COMPILER // Defined when using Intel C++ Compiler.
 #pragma warning( pop )

@@ -15,44 +15,39 @@
 #include "Classes/dcxmdialog.h"
 #include "Classes/dcxdialog.h"
 
-/*!
- * \brief Constructor
- *
- * \param cHwnd Attached dialog Handle
- * \param pHwnd Parent Window
- * \param ID Control ID
- * \param p_Dialog Parent DcxDialog Object
- * \param rc Window Rectangle
- * \param styles Window Style Tokenized List
- */
+ /*!
+  * \brief Constructor
+  *
+  * \param cHwnd Attached dialog Handle
+  * \param pHwnd Parent Window
+  * \param ID Control ID
+  * \param p_Dialog Parent DcxDialog Object
+  * \param rc Window Rectangle
+  * \param styles Window Style Tokenized List
+  */
 
-DcxMDialog::DcxMDialog( HWND cHwnd, HWND pHwnd, UINT ID, DcxDialog * p_Dialog, RECT * rc, const TString & styles )
-: DcxControl( ID, p_Dialog )
+DcxMDialog::DcxMDialog(const HWND cHwnd, const HWND pHwnd, const UINT ID, DcxDialog* const p_Dialog, const RECT* const rc, const TString& styles)
+	: DcxControl(ID, p_Dialog)
 {
-	LONG Styles = 0, ExStyles = 0;
-	BOOL bNoTheme = FALSE;
-	this->m_DeleteByDestroy = FALSE;
-	this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
+	parseControlStyles(styles);
 
-	this->m_Hwnd = cHwnd;
-	this->m_OrigParentHwnd = GetParent( this->m_Hwnd );
+	m_Hwnd = cHwnd;
+	this->m_OrigParentHwnd = GetParent(m_Hwnd);
 
-	this->m_OrigStyles = this->removeStyle( WS_CAPTION|DS_FIXEDSYS|DS_SETFONT|DS_3DLOOK|DS_MODALFRAME|
-		WS_POPUP|WS_SYSMENU|WS_MINIMIZEBOX|WS_MAXIMIZEBOX|WS_THICKFRAME );
+	this->m_OrigStyles = this->removeStyle(WindowStyle::Caption | DS_FIXEDSYS | DS_SETFONT | DS_3DLOOK | DS_MODALFRAME | WS_POPUP | WS_SYSMENU | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_THICKFRAME);
 
-	this->m_OrigExStyles = this->setExStyle( WS_EX_CONTROLPARENT );
+	this->m_OrigExStyles = this->setExStyle(WindowExStyle::ControlParent);
 
-	this->addStyle( WS_CHILD );
+	this->addStyle(WindowStyle::Child);
 
-	SetParent( this->m_Hwnd, pHwnd );
-	SetWindowPos( this->m_Hwnd, NULL, rc->left, rc->top, rc->right-rc->left, rc->bottom-rc->top, NULL );
-	ShowWindow( this->m_Hwnd, SW_SHOWNOACTIVATE );
-	UpdateWindow( this->m_Hwnd );
+	SetParent(m_Hwnd, pHwnd);
+	SetWindowPos(m_Hwnd, nullptr, rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top, 0);
+	ShowWindow(m_Hwnd, SW_SHOWNOACTIVATE);
+	UpdateWindow(m_Hwnd);
 
-	this->m_OrigID = SetWindowLong( this->m_Hwnd, GWL_ID, ID );
+	this->m_OrigID = dcxSetWindowID(m_Hwnd, ID);
 
-	this->registreDefaultWindowProc( );
-	SetProp( this->m_Hwnd, TEXT("dcx_cthis"), (HANDLE) this );
+	SetProp(this->m_Hwnd, TEXT("dcx_cthis"), this);
 }
 
 /*!
@@ -61,37 +56,39 @@ DcxMDialog::DcxMDialog( HWND cHwnd, HWND pHwnd, UINT ID, DcxDialog * p_Dialog, R
  * blah
  */
 
-DcxMDialog::~DcxMDialog( ) {
-	HWND parent = GetParent( this->m_Hwnd );
-	if ( parent == this->m_OrigParentHwnd && this->m_OrigParentHwnd != this->m_pParentDialog->getHwnd())
+DcxMDialog::~DcxMDialog() noexcept
+{
+	auto parent = GetParent(m_Hwnd);
+	if ((parent == this->m_OrigParentHwnd) && (this->m_OrigParentHwnd != this->getParentDialog()->getHwnd()))
 		return;
 
-	this->unregistreDefaultWindowProc( );
-	if (!this->m_DeleteByDestroy) { // all this isn't needed if control is deleted because of closing the dialog
+	if (!m_DeleteByDestroy)
+	{ // all this isn't needed if control is deleted because of closing the dialog
+		const auto bHide = (IsWindowVisible(m_Hwnd) != FALSE);
+		if (!bHide)
+			ShowWindow(m_Hwnd, SW_HIDE);
 
-		BOOL bHide = IsWindowVisible( this->m_Hwnd );
-		if ( !bHide )
-			ShowWindow( this->m_Hwnd, SW_HIDE );
+		dcxSetWindowID(m_Hwnd, m_OrigID);
 
-		SetWindowLong( this->m_Hwnd, GWL_ID, this->m_OrigID );
 		//this->removeStyle(WS_CHILD);
 		//this->addStyle(WS_POPUP);
-		//SetParent( this->m_Hwnd, NULL );
+		//SetParent( m_Hwnd, nullptr );
+
 		if (parent == this->m_OrigParentHwnd) // handles oddness where orig parent == current when it shouldnt, maybe due to init event docking.
 			parent = GetParent(parent);
 		else
 			parent = this->m_OrigParentHwnd;
 
-		SetParent( this->m_Hwnd, parent );
-		//SetParent( this->m_Hwnd, this->m_OrigParentHwnd);
-		this->setStyle( this->m_OrigStyles);
-		this->setExStyle( this->m_OrigExStyles );
+		SetParent(m_Hwnd, parent);
+		//SetParent( m_Hwnd, this->m_OrigParentHwnd);
+		this->setStyle(this->m_OrigStyles);
+		this->setExStyle(this->m_OrigExStyles);
 
-		SetWindowPos( this->m_Hwnd, NULL, 30, 30, 0, 0, SWP_NOSIZE | SWP_FRAMECHANGED);
-		this->redrawWindow( );
+		SetWindowPos(m_Hwnd, nullptr, 30, 30, 0, 0, SWP_NOSIZE | SWP_FRAMECHANGED);
+		this->redrawWindow();
 
-		if ( !bHide )
-			ShowWindow( this->m_Hwnd, SW_SHOW );
+		if (!bHide)
+			ShowWindow(m_Hwnd, SW_SHOW);
 	}
 }
 
@@ -104,17 +101,13 @@ DcxMDialog::~DcxMDialog( ) {
  * \return > void
  */
 
-void DcxMDialog::parseInfoRequest( const TString &input, PTCHAR szReturnValue) const
+void DcxMDialog::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>& szReturnValue) const
 {
 	// [NAME] [ID] [PROP]
-	if (input.gettok( 3 ) == TEXT("dname")) {
-		lstrcpyn(szReturnValue, this->m_OrigName.to_chr(), MIRC_BUFFER_SIZE_CCH);
-		return;
-	}
-	else if (this->parseGlobalInfoRequest(input, szReturnValue))
-		return;
-
-	szReturnValue[0] = 0;
+	if (input.gettok(3) == TEXT("dname"))
+		szReturnValue = m_OrigName.to_chr();
+	else
+		parseGlobalInfoRequest(input, szReturnValue);
 }
 
 /*!
@@ -123,8 +116,9 @@ void DcxMDialog::parseInfoRequest( const TString &input, PTCHAR szReturnValue) c
  * blah
  */
 
-void DcxMDialog::parseCommandRequest( const TString & input ) {
-	const XSwitchFlags flags(input.getfirsttok( 3 ));
+void DcxMDialog::parseCommandRequest(const TString& input)
+{
+	const XSwitchFlags flags(input.getfirsttok(3));
 
 	this->parseGlobalCommandRequest(input, flags);
 }
@@ -135,9 +129,16 @@ void DcxMDialog::parseCommandRequest( const TString & input ) {
  * blah
  */
 
-void DcxMDialog::parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme)
+ //void DcxMDialog::parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme)
+ //{
+ //	this->m_OrigName = styles;
+ //}
+
+dcxWindowStyles DcxMDialog::parseControlStyles(const TString& tsStyles)
 {
-	this->m_OrigName = styles;
+	m_OrigName = tsStyles;
+
+	return{ };
 }
 
 /*!
@@ -148,29 +149,39 @@ void DcxMDialog::parseControlStyles( const TString & styles, LONG * Styles, LONG
  * \param lParam Window Procedure LPARAM
  * \param bParsed Indicates if subclassed procedure parsed the message
  */
-LRESULT DcxMDialog::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
+LRESULT DcxMDialog::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed) noexcept
+{
 	return 0L;
 }
 
-LRESULT DcxMDialog::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
+LRESULT DcxMDialog::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed)
+{
 
-	switch( uMsg ) {
-
+	switch (uMsg)
+	{
 	case WM_DESTROY:
-		{
-			WNDPROC wnd = this->m_DefaultWindowProc;
-			HWND mHwnd = this->m_Hwnd;
-			this->m_DeleteByDestroy = TRUE;
-			delete this;
-			ShowWindow(mHwnd, SW_HIDE);
-			CallWindowProc(wnd, mHwnd, uMsg, wParam, lParam);
-			bParsed = TRUE;
-		}
-		break;
+	{
+		auto wnd = this->m_hDefaultClassProc;
+		auto mHwnd = m_Hwnd;
+		m_DeleteByDestroy = true;
+		delete this;
+		ShowWindow(mHwnd, SW_HIDE);
+		CallWindowProc(wnd, mHwnd, uMsg, wParam, lParam);
+		bParsed = TRUE;
+	}
+	break;
 
 	default:
-		return this->CommonMessage( uMsg, wParam, lParam, bParsed);
+		return this->CommonMessage(uMsg, wParam, lParam, bParsed);
 		break;
 	}
 	return 0L;
+}
+
+LRESULT DcxMDialog::CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept
+{
+	if (m_hDefaultClassProc)
+		return CallWindowProc(m_hDefaultClassProc, this->m_Hwnd, uMsg, wParam, lParam);
+
+	return DefWindowProc(this->m_Hwnd, uMsg, wParam, lParam);
 }

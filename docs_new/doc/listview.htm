@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="iso-8859-1"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
 
-<title>DCX Listview - Dialog Control Xtension DLL v1.4.1 by ClickHeRe, twig* &amp; Ook</title>
+<title>DCX Listview - Dialog Control Xtension DLL v3.1 by ClickHeRe, twig* &amp; Ook</title>
 
 <link href="dcx.css" rel="stylesheet" type="text/css" />
 </head>
@@ -14,10 +15,10 @@
 		<td width="1%"><a href="index.htm"><img src="images/dcx.jpg" alt="DCX - Dialog Control Xtension" /></a></td>
 		<td width="99%" class="sitenav" style="vertical-align: middle; text-align: right; font-size:10pt;background:url(images/top_bg.jpg) left no-repeat;">
 			<a style="color:#000000;" href='index.htm'>Home</a> |
-			<a style="color:#000000;" href="archive.htm">Download</a> |
+			<a style="color:#000000;" href="https://github.com/twig/dcxdll/releases">Download</a> |
 			<a style="color:#000000;" href="http://dcx.scriptsdb.org/forum/">Forum</a> |
-			<a style="color:#000000;" href="http://dcx.scriptsdb.org/bug/">Bug Tracker</a><br />
-                        <div class="version">v1.4.1</div>
+			<a style="color:#000000;" href="https://github.com/twig/dcxdll/issues">Bug Tracker</a><br />
+                        <div class="version">v3.1</div>
 		</td>
 	</tr>
 </table>
@@ -226,6 +227,10 @@
 		<td>The item has a text color defined by the <a class="param">COLOR</a> parameter (use <a class="value">-1</a> for no color).</td>
 	</tr>
 	<tr>
+		<td class="value">C</td>
+		<td>The item has no text so the icon should be centered</td>
+	</tr>
+	<tr>
 		<td class="value">d</td>
 		<td>The item appears selected like a drop target.</td>
 	</tr>
@@ -263,7 +268,7 @@
 	</tr>
 	<tr>
 		<td class="value">p</td>
-		<td>The item is a DCX ProgressBar control.</td>
+		<td>The item is a DCX ProgressBar control. (This flag is changing its args etc... expect errors)</td>
 	</tr>
 	<tr>
 		<td class="value">t</td>
@@ -272,6 +277,18 @@
 	<tr>
 		<td class="value">u</td>
 		<td>The item is underlined.</td>
+	</tr>
+	<tr>
+		<td class="value">w</td>
+		<td>(TEXT) is [+IFLAGS] [TABLE NAME] [N|N1-N2|name]</td>
+	</tr>
+	<tr>
+		<td class="value">y</td>
+		<td>(TEXT) is [+IFLAGS] [@windowname] [N|N1-N2]</td>
+	</tr>
+	<tr>
+		<td class="value">z</td>
+		<td>(TEXT) is [+IFLAGS] [DIALOG] [ID] (N|N1-N2)</td>
 	</tr>
 	<tr>
 		<td class="param">ICON</td>
@@ -311,11 +328,9 @@
 	</tr>
 	<tr>
 		<td class="param">TEXT</td>
-		<td>The text to display in the cell.<br />
-				        If used with <a class="value">+p</a> <a class="param">+FLAGS</a>, then this is the DCX ProgressBar <a class="style">style</a>.<br />
-					If used with <a class="value">+H</a> or <a class="value">+n</a> <a class="param">+FLAGS</a>, then this is either <a class="value">HASHTABLE</a> <a class="value">ITEM</a> or <a class="value">HASHTABLE</a> <a class="value">INDEX</a> respectively.</td>
+		<td>The text to display in the cell.<br />If used with <a class="value">+p</a> <a class="param">+FLAGS</a>, then this is the DCX ProgressBar <a class="style">style</a>.<br />If used with <a class="value">+H</a> or <a class="value">+n</a> <a class="param">+FLAGS</a>, then this is either <a class="value">HASHTABLE</a> <a class="value">ITEM</a> or <a class="value">HASHTABLE</a> <a class="value">INDEX</a> respectively.</td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>Icons must be added prior to be used in the listview using <a class="value">/xdid -w</a></li><li>The <a class="param">INDENT</a> parameter only works if you are using normal icons in the listview.</li><li>Even if there are icons in the icon lists and <a class="value">0</a> is used for no icon, there will be the an icon indent space in front of the item text. (normal and state icon lists)</li><li>You can use <a class="value">0</a> for the <a class="param">#ICON</a>, and <a class="param">#OVERLAY</a> values if you wish to use no icon.</li><li>You need to use <a class="style">checkbox</a> style in order to use checkboxes in the listview.</li></ul></td></tr></table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>Icons must be added prior to be used in the listview using <a class="value">/xdid -w</a></li><li>The <a class="param">INDENT</a> parameter only works if you are using normal icons in the listview.</li><li>Even if there are icons in the icon lists and <a class="value">0</a> is used for no icon, there will be the an icon indent space in front of the item text. (normal and state icon lists)</li><li>You can use <a class="value">0</a> for the <a class="param">#ICON</a>, and <a class="param">#OVERLAY</a> values if you wish to use no icon.</li><li>You need to use <a class="style">checkbox</a> style in order to use checkboxes in the listview.</li><li>[+IFLAGS] is a combination of</li><li> +   No Flags specified. [N] provided, add a single item as text only.</li><li> +a  item(s) contain all the flags & icon info etc.. for the item(s) to be added from [INDENT] onwards.</li><li> +A  add all items starting at N</li><li> +n  [N1-N2] numeric range supplied. Add all items in range. (can't be used with +A)</li><li>- N1 must be > 0</li><li>- N2 can't be 0, but can be a negative.</li><li> +i  [name] single named item to be added. (can't be used with +n or +A)</li></ul></td></tr></table>
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
@@ -323,11 +338,11 @@
 	<tr><td colspan="2">This command lets you select listview items.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xdid -c [DNAME] [ID] [N(,N,...)]</div></td>
+		<td><div class="syntax">/xdid -c [DNAME] [ID] [N(,N,N-N,...)]</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -c dcx 4 1,3,5</div></td>
+		<td><div class="example">/xdid -c dcx 4 1,3,5,10-30</div></td>
 	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> In a <a class="style">singlesel</a> listview, there is only one value for <a class="param">N</a>.</td></tr></table>
 <br />
@@ -337,11 +352,40 @@
 	<tr><td colspan="2">This command lets you delete the Nth listview item.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xdid -d [DNAME] [ID] [N]</div></td>
+		<td><div class="syntax">/xdid -d [DNAME] [ID] [N(,N,N-N,...)] ([+FLAGS] [SUBITEM] [MATCH])</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -d dcx 4 6</div></td>
+		<td><div class="example">/xdid -d dcx 4 1,3,5,10-30</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">N(,N,N-N,...)</td>
+		<td>If <a class="value">+FLAGS</a> is not specified, this is the item(s) to delete. If <a class="value">+FLAGS</a> is specified this is the item to start searching from.</td>
+	</tr>
+	<tr>
+		<td class="param">+FLAGS</td>
+		<td>Search flags.</td>
+	</tr>
+	<tr>
+		<td class="value">w</td>
+		<td>Wildcard search.</td>
+	</tr>
+	<tr>
+		<td class="value">r</td>
+		<td>Regex search.</td>
+	</tr>
+	<tr>
+		<td class="value">t</td>
+		<td>Exact match plain text search. (default if no flag specified)</td>
+	</tr>
+	<tr>
+		<td class="param">SUBITEM</td>
+		<td>The subitem to search.</td>
+	</tr>
+	<tr>
+		<td class="param">MATCH</td>
+		<td>The search pattern.</td>
 	</tr>
 </table>
 <br />
@@ -480,7 +524,7 @@
 		<td class="value">u</td>
 		<td>The item is underlined.</td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> Changing the color of column <a class="param">NSUB</a> with subsequently change the color of following columns.</td></tr></table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> Changing the color of column <a class="param">NSUB</a> will subsequently change the color of following columns.</td></tr></table>
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
@@ -679,7 +723,7 @@
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
 			<a name="xdid.t"></a>/xdid -t	</td></tr>
-	<tr><td colspan="2">This command lets you set the different column header text, width and alignment. (<a class="style">report</a> style only)</td></tr>
+	<tr><td colspan="2">This command lets you set the different column header text, width and alignment.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
 		<td><div class="syntax">/xdid -t [DNAME] [ID] [+FLAGS] [#ICON] [WIDTH] (TEXT) [TAB] [+FLAGS] [#ICON] [WIDTH] (TEXT) [TAB] ...</div></td>
@@ -708,6 +752,26 @@
 	<tr>
 		<td class="value">r</td>
 		<td>Header text is right justified.</td>
+	</tr>
+	<tr>
+		<td class="value">f</td>
+		<td>Header is a fixed width. (Column can't be resized)</td>
+	</tr>
+	<tr>
+		<td class="value">q</td>
+		<td>Header is a fixed ratio.</td>
+	</tr>
+	<tr>
+		<td class="value">d</td>
+		<td>Header is a split button.</td>
+	</tr>
+	<tr>
+		<td class="value">e</td>
+		<td>Header has a sort down arrow.</td>
+	</tr>
+	<tr>
+		<td class="value">g</td>
+		<td>Header has a sort up arrow.</td>
 	</tr>
 	<tr>
 		<td class="param">ICON</td>
@@ -758,7 +822,7 @@
 		<td class="param">TEXT</td>
 		<td>Item Text, or command to send to ProgressBar.</td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> Use <a class="param">TEXT</a> as <a class="value">-v 80</a> to set the value of a progress bar.</td></tr></table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>Use <a class="param">TEXT</a> as <a class="value">-v 80</a> to set the value of a progress bar.</li><li>If N == -1 then sets the empty listview text which is displayed when the listview contains no items.</li><li>If NSUB == 1 when N == -1 then redraw after setting empty text.</li></ul></td></tr></table>
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
@@ -939,6 +1003,238 @@
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xdid.big.G"></a>/xdid -G	</td></tr>
+	<tr><td colspan="2">This command lets you change a groups state.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -G [DNAME] [ID] [GID] [+MASK] [+STATES]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -G dcx 4 1 +O +O</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">GID</td>
+		<td>ID of the group to change</td>
+	</tr>
+	<tr>
+		<td class="param">+MASK</td>
+		<td>The mask of group states to affect</td>
+	</tr>
+	<tr>
+		<td class="value">C</td>
+		<td>Collapsible</td>
+	</tr>
+	<tr>
+		<td class="value">H</td>
+		<td>Hidden</td>
+	</tr>
+	<tr>
+		<td class="value">N</td>
+		<td>No header</td>
+	</tr>
+	<tr>
+		<td class="value">O</td>
+		<td>Collapsed</td>
+	</tr>
+	<tr>
+		<td class="value">S</td>
+		<td>Selected</td>
+	</tr>
+	<tr>
+		<td class="param">+STATES</td>
+		<td>The group states to enable</td>
+	</tr>
+	<tr>
+		<td class="value">C</td>
+		<td>Collapsible</td>
+	</tr>
+	<tr>
+		<td class="value">H</td>
+		<td>Hidden</td>
+	</tr>
+	<tr>
+		<td class="value">N</td>
+		<td>No header</td>
+	</tr>
+	<tr>
+		<td class="value">O</td>
+		<td>Collapsed</td>
+	</tr>
+	<tr>
+		<td class="value">S</td>
+		<td>Selected</td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> Only states included in +MASK will be changed. If a state is included in +MASK but not in +STATES then it will be removed.</td></tr></table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xdid.big.H"></a>/xdid -H	</td></tr>
+	<tr><td colspan="2">This command lets you set the header settings.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -H [DNAME] [ID] [COL|COL1-COL2|COL1,COL2|COL1,COL2-COL3 etc..] [+FLAGS] [ARGS]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -H dcx 4 1 +s sortdown unchecked</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">COL|COL1-COL2|COL1,COL2|COL1,COL2-COL3</td>
+		<td>The column number(s) to change the header for.</td>
+	</tr>
+	<tr>
+		<td class="param">+FLAGS</td>
+		<td>The action to take.</td>
+	</tr>
+	<tr>
+		<td class="value">s</td>
+		<td>Change header style</td>
+	</tr>
+	<tr>
+		<td class="param">ARGS</td>
+		<td>The arguments for the given +FLAGS</td>
+	</tr>
+	<tr>
+		<td class="value">sortdown</td>
+		<td>Change the header to show a sort down arrow. (can't be used with sortup or nosort)</td>
+	</tr>
+	<tr>
+		<td class="value">sortup</td>
+		<td>Change the header to show a sort up arrow. (can't be used with sortdown or nosort)</td>
+	</tr>
+	<tr>
+		<td class="value">nosort</td>
+		<td>Change the header to not show any sort arrow. (can't be used with sortup or sortdown)</td>
+	</tr>
+	<tr>
+		<td class="value">checkbox</td>
+		<td>Change the header to show a checkbox. (can't be used with nocheckbox)</td>
+	</tr>
+	<tr>
+		<td class="value">nocheckbox</td>
+		<td>Change the header to not show a checkbox. (can't be used with checkbox)</td>
+	</tr>
+	<tr>
+		<td class="value">checked</td>
+		<td>Change the header to show a selected checkbox. (can't be used with nocheckbox or unchecked)</td>
+	</tr>
+	<tr>
+		<td class="value">unchecked</td>
+		<td>Change the header to show a unselected checkbox. (can't be used with nocheckbox or checked)</td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> Only +s flag is supported atm, so only styles can be changed.</td></tr></table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xdid.big.Q"></a>/xdid -Q	</td></tr>
+	<tr><td colspan="2">This command lets you add, move, & delete groups.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -Q [DNAME] [ID] Add [N] [+FLAGS] [GID] [GROUPTEXT]|Move [GID] [N]|Del [GID]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -Q dcx 4 Add 1 +l 101 Group 101!<br />/xdid -Q dcx 4 Move 101 4<br />/xdid -Q dcx 4 Del 101<br /></div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">N</td>
+		<td>Group index order.</td>
+	</tr>
+	<tr>
+		<td class="param">+FLAGS</td>
+		<td>Group flags.</td>
+	</tr>
+	<tr>
+		<td class="value">c</td>
+		<td>Group text is centered.</td>
+	</tr>
+	<tr>
+		<td class="value">l</td>
+		<td>Group text is left aligned.</td>
+	</tr>
+	<tr>
+		<td class="value">r</td>
+		<td>Group text is right aligned.</td>
+	</tr>
+	<tr>
+		<td class="param">GID</td>
+		<td>ID that identifies the group when adding items in <a>/xdid -a</a>.</td>
+	</tr>
+	<tr>
+		<td class="param">GROUPTEXT</td>
+		<td>Label for the group.</td>
+	</tr>
+</table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xdid.big.S"></a>/xdid -S	</td></tr>
+	<tr><td colspan="2">This command lets you save the items in a listview to file/@window/hashtable/xml</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -S [DNAME] [ID] [+FLAGS] [N1] [N2] [ARGS]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -S dcx 4 +f 1 20 listview.txt</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">+FLAGS</td>
+		<td>Type of save to do...</td>
+	</tr>
+	<tr>
+		<td class="value">c</td>
+		<td>Save to a custom window.</td>
+	</tr>
+	<tr>
+		<td class="value">f</td>
+		<td>Save to a file. (Data is appended to an existing file or a new file is created)</td>
+	</tr>
+	<tr>
+		<td class="value">h</td>
+		<td>Save to a hashtable. (Table must exist)</td>
+	</tr>
+	<tr>
+		<td class="value">x</td>
+		<td>Save to an xml file. (Data is appended to the bottom of the window, window must exist)</td>
+	</tr>
+	<tr>
+		<td class="param">N1</td>
+		<td>Start of the item range to save.</td>
+	</tr>
+	<tr>
+		<td class="param">N2</td>
+		<td>End of the item range to save.</td>
+	</tr>
+	<tr>
+		<td class="param">ARGS</td>
+		<td>Arguments dependant on +FLAGS</td>
+	</tr>
+	<tr>
+		<td class="value">c</td>
+		<td>@window</td>
+	</tr>
+	<tr>
+		<td class="value">f</td>
+		<td>filename</td>
+	</tr>
+	<tr>
+		<td class="value">h</td>
+		<td>hashtable</td>
+	</tr>
+	<tr>
+		<td class="value">x</td>
+		<td>dataset_name filename</td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> This command is incomplete. Only +c & +h work at this time.</td></tr></table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
 			<a name="xdid.big.T"></a>/xdid -T	</td></tr>
 	<tr><td colspan="2">This command lets you set a tooltip for a specific item.</td></tr>
 	<tr>
@@ -1096,6 +1392,20 @@
 <br />
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
+			<a name="xdidprop.gnum"></a>$xdid().gnum	</td></tr>
+	<tr><td colspan="2">This property retreives the number of groups.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID).gnum</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4).gnum</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
 			<a name="xdidprop.hicon"></a>$xdid().hicon	</td></tr>
 	<tr><td colspan="2">This property lets you retreive the Nth listview header icon index.</td></tr>
 	<tr>
@@ -1107,6 +1417,20 @@
 		<td><div class="example">$xdid(dcx, 4, 2).hicon</div></td>
 	</tr>
 </table>
+<br />
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
+			<a name="xdidprop.hstate"></a>$xdid().hstate	</td></tr>
+	<tr><td colspan="2">This property lets you retreive the state of the Nth listview header.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID, N).hstate</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4, 2).hstate</div></td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> If you are not using headers an error 'Unable to get Header Window' is returned. Otherwise, returns a combination of <a class="value">sortdown</a> (sortdown arrow shown), <a class="value">sortup</a> (sort up arrow shown), or <a class="value">dropdown</a> (split button shown) or <a class="value">checkbox</a> (checkbox shown) or <a class="value">checked</a> (checkbox shown & checked).</td></tr></table>
 <br />
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
@@ -1693,6 +2017,10 @@
 		<a class='flag' href="#xdid.z"><div>-z</div></a>
 		<a class='flag' href="#xdid.big.A"><div>-A</div></a>
 		<a class='flag' href="#xdid.big.B"><div>-B</div></a>
+		<a class='flag' href="#xdid.big.G"><div>-G</div></a>
+		<a class='flag' href="#xdid.big.H"><div>-H</div></a>
+		<a class='flag' href="#xdid.big.Q"><div>-Q</div></a>
+		<a class='flag' href="#xdid.big.S"><div>-S</div></a>
 		<a class='flag' href="#xdid.big.T"><div>-T</div></a>
 		<a class='flag' href="#xdid.big.V"><div>-V</div></a>
 		<a class='flag' href="#xdid.big.W"><div>-W</div></a>
@@ -1703,7 +2031,9 @@
 		<a class='flag' href="#xdidprop.columns"><div>columns</div></a>
 		<a class='flag' href="#xdidprop.find"><div>find</div></a>
 		<a class='flag' href="#xdidprop.genabled"><div>genabled</div></a>
+		<a class='flag' href="#xdidprop.gnum"><div>gnum</div></a>
 		<a class='flag' href="#xdidprop.hicon"><div>hicon</div></a>
+		<a class='flag' href="#xdidprop.hstate"><div>hstate</div></a>
 		<a class='flag' href="#xdidprop.htext"><div>htext</div></a>
 		<a class='flag' href="#xdidprop.hwidth"><div>hwidth</div></a>
 		<a class='flag' href="#xdidprop.icon"><div>icon</div></a>
@@ -1746,8 +2076,8 @@
 <table class="bar">
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
-		<td style="text-align: center;">© 2005-2009</td>
-		<td style="text-align: right;">Last Updated: 12th July, 09</td>
+		<td style="text-align: center;">© 2005-2021</td>
+		<td style="text-align: right;">Last Updated: 22nd April, 21</td>
 	</tr>
 </table>
 <div style="text-align: center;">

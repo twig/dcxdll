@@ -26,33 +26,42 @@ class DcxDialog;
  * blah
  */
 
-class DcxUpDown : public DcxControl {
-
+class DcxUpDown final
+	: public DcxControl
+{
 public:
+	DcxUpDown() = delete;
+	DcxUpDown(const DcxUpDown &) = delete;
+	DcxUpDown &operator =(const DcxUpDown &) = delete;
+	DcxUpDown(DcxUpDown &&) = delete;
+	DcxUpDown &operator =(DcxUpDown &&) = delete;
 
-	DcxUpDown( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, TString & styles );
-	virtual ~DcxUpDown( );
+	DcxUpDown(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles );
+	~DcxUpDown( ) noexcept;
 
-	LRESULT PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
-	LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
+	LRESULT OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) final;
+	LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) final;
 
-	void parseInfoRequest( const TString & input, TCHAR * szReturnValue ) const;
-	void parseCommandRequest( const TString & input );
-	void parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
+	//void parseInfoRequest(const TString & input, PTCHAR szReturnValue) const final;
+	void parseInfoRequest(const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const final;
+	void parseCommandRequest( const TString & input ) final;
+	dcxWindowStyles parseControlStyles(const TString & tsStyles) final;
 
-	LRESULT setBuddy( HWND mHwnd );
-	LRESULT setRange32( const int iLow, const int iHigh );
-	LRESULT getRange32( LPINT iLow, LPINT iHigh ) const;
-	LRESULT setBase( const int iBase );
-	LRESULT getBase( ) const;
-	LRESULT setPos32( const INT nPos );
-	LRESULT getPos32( LPBOOL pfError ) const;
-	TString getStyles(void) const;
+	LRESULT setBuddy( const HWND mHwnd ) noexcept;
+	LRESULT setRange32( const int iLow, const int iHigh ) noexcept;
+	std::pair<int,int> getRange32() const noexcept;
+	LRESULT setBase( const int iBase ) noexcept;
+	LRESULT getBase( ) const noexcept;
+	LRESULT setPos32( const INT nPos ) noexcept;
+	LRESULT getPos32( const LPBOOL pfError ) const noexcept;
 
-	inline TString getType( ) const { return TString( TEXT("updown") ); };
+	const TString getStyles(void) const final;
 
-protected:
+	inline const TString getType() const final { return TEXT("updown"); };
+	inline const DcxControlTypes getControlType() const noexcept final { return DcxControlTypes::UPDOWN; }
 
+	static inline WNDPROC m_hDefaultClassProc{ nullptr };	//!< Default window procedure
+	LRESULT CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept final;
 };
 
 #endif // _DCXUPDOWN_H_

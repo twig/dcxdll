@@ -86,8 +86,7 @@ function get_general_dcx(&$GENERAL) {
 			'__notes' => array(
 				'Returns [v]$null[/v] when cancelled.',
 				'When using [s]computers[/s], this will return a computer name. (eg. [v]//localhost[/v])',
-                                'By default, the main mIRC window is the parent. Dialog name OR a hWnd MUST follow after the [s]owner[/s] style.<br />
-To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hwnd, $get().hwnd, $query().hwnd, $send().hwnd, and $timer().hwnd',
+                'By default, the main mIRC window is the parent. Dialog name OR a hWnd MUST follow after the [s]owner[/s] style.<br />To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hwnd, $get().hwnd, $query().hwnd, $send().hwnd, and $timer().hwnd',
 			),
 		),
 		"Mark" => array(
@@ -150,6 +149,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 						'COLOR_WINDOW' => "Window background.",
 						'COLOR_WINDOWFRAME' => "Window frame.",
 						'COLOR_WINDOWTEXT' => "Text in windows.",
+						'COLOR_GLASS' => "Color used for glass effect.",
 					),
 				),
 			),
@@ -213,8 +213,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 				'Returns [v]$null[/v] when cancelled.',
 				"[v]filemustexist[/v] automatically applies [v]pathmustexist[/v] when style used.",
 				"[v]multisel[/v] returns files in this format [PATH]|[FILE1]|[FILE2]|..., where the first token will be the path, and the files are seperated by the | (pipe) character.",
-                                'By default, the main mIRC window is the parent. Dialog name OR a hWnd MUST follow after the [s]owner[/s] style.<br />
-To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hwnd, $get().hwnd, $query().hwnd, $send().hwnd, and $timer().hwnd',
+                'By default, the main mIRC window is the parent. Dialog name OR a hWnd MUST follow after the [s]owner[/s] style.<br />To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hwnd, $get().hwnd, $query().hwnd, $send().hwnd, and $timer().hwnd',
 			),
 		),
 		'GetTaskbarPos' => array(
@@ -226,14 +225,14 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 			),
 		),
                 
-                'GhostDrag' => array(
-                        '__desc' => 'This command allows for ghosted dragging for the main mIRC window.',
-                        '__cmd' => '[VALUE]',
-                        '__eg' => '150',
-                        '__params' => array(
-                            'VALUE' => 'The opacity of the main mIRC window when dragged. [p]VALUE[/p] has a range of [v]0[/v]-[v]255[/v].',
-                        ),
+        'GhostDrag' => array(
+                '__desc' => 'This command allows for ghosted dragging for the main mIRC window.',
+                '__cmd' => '[VALUE]',
+                '__eg' => '150',
+                '__params' => array(
+                    'VALUE' => 'The opacity of the main mIRC window when dragged. [p]VALUE[/p] has a range of [v]0[/v]-[v]255[/v].',
                 ),
+        ),
         'IsUnloadSafe' => array(
             '__desc' => 'This is used by /udcx to determine if /dll -u can be used or not.',
             '__isid' => true,
@@ -408,9 +407,9 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 			'__desc' => 'This command enables or disables signals from DCX whenever docked windows/dialogs/mIRC windows are resized, or when [link page="xstatusbar"]XStatusBar[/link]/[link page="xtray"]XTray[/link] icons are clicked.',
 			'__cmd' => '[BOOL] (+FLAGS)',
 			'__eg' => array(
-                                '1',
-                                '0 +st',
-                        ),
+				'1',
+				'0 +st',
+			),
 			'__params' => array(
 				'BOOL' => 'Either [v]0[/v] or [v]1[/v], stating on or off respectively.',
 				'+FLAGS' => array(
@@ -452,7 +451,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 					),
 				),
 				'__args' => array(
-                                        'r' => array(
+                    'r' => array(
 						'__cmd' => '[X] [Y]',
 					),
 					't' => array(
@@ -468,9 +467,53 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 							'FILENAME' => 'Icon archive filename',
 						),
 					),
+					'v' => array(
+						'__cmd' => '[TOP] [LEFT] [BOTTOM] [RIGHT]',
+						'__params' => array(
+				            'TOP' => 'Glass offset from top of dialog',
+							'LEFT' => 'Glass offset from left of dialog',
+							'BOTTOM' => 'Glass offset from bottom of dialog',
+							'RIGHT' => 'Glass offset from right of dialog',
+						),
+					),
 				),
 			),
 			'__notes' => "Use [v]0[/v] for [p]INDEX[/p] if the file is a single icon file.",
+		),
+		"SetDCXSettings" => array(
+			'__desc' => 'This command enables or disables various DCX settings.',
+			'__cmd' => '[OPTION] (ARGS)',
+			'__eg' => array(
+				'UpdateColours',
+				'StaticColours 1',
+				'CustomMenus 1 0',
+			),
+			'__params' => array(
+				'OPTION' => array(
+					'__values' => array(
+						'StaticColours' => 'Enable or disable static colours.',
+						'UpdateColours' => 'Force colours to update to match current mIRC theme.',
+						'CustomMenus' => 'Enable/Disable custom menu drawing. (not the same as XPopupMenus)',
+					),
+				),
+				'ARGS' => 'Either [v]0[/v] or [v]1[/v], stating on or off respectively.',
+                                
+			),
+			'__notes' => array(
+				'When StaticColours is enabled dcx will no longer update the colours used to match mIRC on each draw, this leads to much faster drawing.',
+				'If mIRC changes it\'s theme/colours dcx will not auto update & you will need to either disable StaticColours or call UpdateColours.',
+				'CustomMenus is likely to be merged with XPopupMenus in the future'
+			),
+		),
+		'CountIcons' => array(
+			'__desc' => "Counts the icons within a file.",
+			'__cmd' => '[FILENAME]',
+			'__eg' => '$mircdir $+ mirc.exe',
+			'__isid' => true,
+			'__params' => array(
+					'FILENAME' => 'File to count icons in.',
+				),
+			'__return' => "[v]D_OK COUNT FILENAME[/v].",
 		),
 	);
 }

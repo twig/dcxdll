@@ -23,8 +23,9 @@
  * blah
  */
 
-class LayoutCellFixed : public LayoutCell {
-
+class LayoutCellFixed final
+	: public LayoutCell
+{
 public:
 
 	/*!
@@ -32,26 +33,38 @@ public:
 	*
 	* blah
 	*/
-	enum FixedType
+	enum class FixedType
+		: UINT
 	{
 		HEIGHT=1,         //!< Fixed Size in Height
 		WIDTH=HEIGHT<<1,  //!< Fixed Size in Width
 		BOTH=HEIGHT|WIDTH //!< Fixed Size in Both
 	};
+	template <typename T>
+	friend constexpr FixedType operator &(const FixedType& eStyle, const T& dStyle) noexcept
+	{
+		return static_cast<FixedType>(static_cast<DWORD>(eStyle)& static_cast<DWORD>(dStyle));
+	}
 
-	explicit LayoutCellFixed( DcxControl * dcxc, const FixedType nType = BOTH );
-	explicit LayoutCellFixed( const HWND mHwnd, const FixedType nType = BOTH );
-	LayoutCellFixed( const HWND mHwnd, const RECT & rc, const FixedType nType = BOTH );
-	explicit LayoutCellFixed( const RECT & rc, const FixedType nType = BOTH );
-	virtual ~LayoutCellFixed( );
+	LayoutCellFixed() = delete;
+	LayoutCellFixed(const LayoutCellFixed &) = delete;
+	LayoutCellFixed &operator =(const LayoutCellFixed &) = delete;	// No assignments!
+	LayoutCellFixed(LayoutCellFixed &&) = delete;
+	LayoutCellFixed &operator =(LayoutCellFixed &&) = delete;
 
-	virtual void LayoutChild( );
-	virtual HDWP ExecuteLayout( HDWP hdwp );
-	virtual void getMinMaxInfo( CellMinMaxInfo * pCMMI );
-	virtual void toXml(TiXmlElement * xml);
-	virtual TiXmlElement * toXml(void);
+	explicit LayoutCellFixed(DcxControl * dcxc, const FixedType nType = FixedType::BOTH) noexcept;
+	explicit LayoutCellFixed( const HWND mHwnd, const FixedType nType = FixedType::BOTH ) noexcept;
+	explicit LayoutCellFixed(const RECT & rc, const FixedType nType = FixedType::BOTH) noexcept;
+	LayoutCellFixed(const HWND mHwnd, const RECT & rc, const FixedType nType = FixedType::BOTH) noexcept;
+	~LayoutCellFixed() noexcept {};
 
-	CellType getType( ) const;
+	void LayoutChild() noexcept final {};
+	HDWP ExecuteLayout( const HDWP hdwp ) noexcept final;
+	void getMinMaxInfo( CellMinMaxInfo *const pCMMI ) const noexcept final;
+	void toXml(TiXmlElement *const xml) final;
+	TiXmlElement * toXml(void) final;
+
+	const CellType getType( ) const noexcept final;
 
 protected:
 

@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="iso-8859-1"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
 
-<title>DCX Directshow - Dialog Control Xtension DLL v1.4.1 by ClickHeRe, twig* &amp; Ook</title>
+<title>DCX Directshow - Dialog Control Xtension DLL v3.1 by ClickHeRe, twig* &amp; Ook</title>
 
 <link href="dcx.css" rel="stylesheet" type="text/css" />
 </head>
@@ -14,10 +15,10 @@
 		<td width="1%"><a href="index.htm"><img src="images/dcx.jpg" alt="DCX - Dialog Control Xtension" /></a></td>
 		<td width="99%" class="sitenav" style="vertical-align: middle; text-align: right; font-size:10pt;background:url(images/top_bg.jpg) left no-repeat;">
 			<a style="color:#000000;" href='index.htm'>Home</a> |
-			<a style="color:#000000;" href="archive.htm">Download</a> |
+			<a style="color:#000000;" href="https://github.com/twig/dcxdll/releases">Download</a> |
 			<a style="color:#000000;" href="http://dcx.scriptsdb.org/forum/">Forum</a> |
-			<a style="color:#000000;" href="http://dcx.scriptsdb.org/bug/">Bug Tracker</a><br />
-                        <div class="version">v1.4.1</div>
+			<a style="color:#000000;" href="https://github.com/twig/dcxdll/issues">Bug Tracker</a><br />
+                        <div class="version">v3.1</div>
 		</td>
 	</tr>
 </table>
@@ -181,6 +182,41 @@
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xdid.v"></a>/xdid -v	</td></tr>
+	<tr><td colspan="2">This command sets the brightness, contrast, hue, & saturation</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -v [DNAME] [ID] [+FLAGS] [BRIGHTNESS] [CONTRAST] [HUE] [SATURATION] </div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -v dcx 4 +b 80.00 0 0 0</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">+FLAGS</td>
+		<td>Command switches.</td>
+	</tr>
+	<tr>
+		<td class="value">b</td>
+		<td>Sets the brightness level as a percentage between <a class="value">0.00</a> & <a class="value">100.00</a> (fractions are valid values).</td>
+	</tr>
+	<tr>
+		<td class="value">c</td>
+		<td>Sets the contrast level as a percentage between <a class="value">0.00</a> & <a class="value">100.00</a> (fractions are valid values).</td>
+	</tr>
+	<tr>
+		<td class="value">h</td>
+		<td>Sets the hue level as a percentage between <a class="value">0.00</a> & <a class="value">100.00</a> (fractions are valid values).</td>
+	</tr>
+	<tr>
+		<td class="value">s</td>
+		<td>Sets the saturation level as a percentage between <a class="value">0.00</a> & <a class="value">100.00</a> (fractions are valid values).</td>
+	</tr>
+</table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
 			<a name="xdid.big.V"></a>/xdid -V	</td></tr>
 	<tr><td colspan="2">This command sets the volume or speakerbalance</td></tr>
 	<tr>
@@ -206,6 +242,20 @@
 	<tr><td class="heading" style="border-color: #A8B2D1; color: #A8B2D1;"><a name="xdidprop"></a>$xdid() Properties</td></tr>
 	<tr><td>The $xdid identifier is a given mIRC alias that communicates with the DCX DLL to extract information in DCX controls.</td></tr>
 </table>
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
+			<a name="xdidprop.author"></a>$xdid().author	</td></tr>
+	<tr><td colspan="2">This property returns the author of the media. Not all media types support this.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID).author</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4).author</div></td>
+	</tr>
+<tr><td class="syntax">Return</td><td><a class="returnevent">authors name</a> Name of the author.<br /><a class="returnevent">D_ERROR Message</a> Error in determining state of control.</td></tr></table>
+<br />
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
 			<a name="xdidprop.brange"></a>$xdid().brange	</td></tr>
@@ -451,6 +501,20 @@
 <br />
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
+			<a name="xdidprop.title"></a>$xdid().title	</td></tr>
+	<tr><td colspan="2">This property returns the title of the media. Not all media types support this.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID).title</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4).title</div></td>
+	</tr>
+<tr><td class="syntax">Return</td><td><a class="returnevent">title</a> Title of the media.<br /><a class="returnevent">D_ERROR Message</a> Error in determining state of control.</td></tr></table>
+<br />
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
 			<a name="xdidprop.video"></a>$xdid().video	</td></tr>
 	<tr><td colspan="2">This property returns properties on the video media which can be altered.</td></tr>
 	<tr>
@@ -502,6 +566,25 @@
 	<tr><td class="heading" style="border-color: #74C043; color: #74C043;"><a name="events"></a>Directshow Events</td></tr>
 	<tr><td>These events are fired when activity occurs in the Directshow control.</td></tr>
 </table>
+<table class="event">
+	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
+			<a name="events.dshow"></a>dshow	</td></tr>
+	<tr><td colspan="2">When the media has triggered an event, usually finished playing.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/cb_alias DNAME dshow ID EVENT</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/cb_alias dcx dshow 4 completed</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">EVENT</td>
+		<td>Media event that triggered.</td>
+	</tr>
+</table>
+<br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
 			<a name="events.help"></a>help	</td></tr>
@@ -569,10 +652,12 @@
 	<a class='header' href="#xdid"><div style='background:#6A7CB0;'>/xdid Flags</div></a>
 		<a class='flag' href="#xdid.a"><div>-a</div></a>
 		<a class='flag' href="#xdid.c"><div>-c</div></a>
+		<a class='flag' href="#xdid.v"><div>-v</div></a>
 		<a class='flag' href="#xdid.big.V"><div>-V</div></a>
 	</div>
 <div class='rightmenu' style='border:1px solid #A8B2D1'>
 	<a class='header' href="#xdidprop"><div style='background:#A8B2D1;'>$xdid() Properties</div></a>
+		<a class='flag' href="#xdidprop.author"><div>author</div></a>
 		<a class='flag' href="#xdidprop.brange"><div>brange</div></a>
 		<a class='flag' href="#xdidprop.crange"><div>crange</div></a>
 		<a class='flag' href="#xdidprop.currentpos"><div>currentpos</div></a>
@@ -583,11 +668,13 @@
 		<a class='flag' href="#xdidprop.size"><div>size</div></a>
 		<a class='flag' href="#xdidprop.srange"><div>srange</div></a>
 		<a class='flag' href="#xdidprop.state"><div>state</div></a>
+		<a class='flag' href="#xdidprop.title"><div>title</div></a>
 		<a class='flag' href="#xdidprop.video"><div>video</div></a>
 		<a class='flag' href="#xdidprop.volume"><div>volume</div></a>
 	</div>
 <div class='rightmenu' style='border:1px solid #74C043'>
 	<a class='header' href="#events"><div style='background:#74C043;'>Events</div></a>
+		<a class='flag' href="#events.dshow"><div>dshow</div></a>
 		<a class='flag' href="#events.help"><div>help</div></a>
 		<a class='flag' href="#events.rbdown"><div>rbdown</div></a>
 		<a class='flag' href="#events.rbup"><div>rbup</div></a>
@@ -600,8 +687,8 @@
 <table class="bar">
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
-		<td style="text-align: center;">© 2005-2009</td>
-		<td style="text-align: right;">Last Updated: 12th July, 09</td>
+		<td style="text-align: center;">© 2005-2021</td>
+		<td style="text-align: right;">Last Updated: 22nd April, 21</td>
 	</tr>
 </table>
 <div style="text-align: center;">

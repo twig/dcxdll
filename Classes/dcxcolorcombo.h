@@ -26,12 +26,17 @@ class DcxDialog;
  * blah
  */
 
-typedef struct tagDCXCCOMBOITEM {
+struct DCXCCOMBOITEM
+{
+	COLORREF clrItem{ CLR_INVALID };     //!< Item Color
+	TString tsItemText;   //!< Item Text
 
-  COLORREF clrItem;     //!< Item Color
-  TString tsItemText;   //!< Item Text
+	explicit DCXCCOMBOITEM(const COLORREF& clr) noexcept : clrItem(clr) {}
+};
+using LPDCXCCOMBOITEM = DCXCCOMBOITEM *;
 
-} DCXCCOMBOITEM,*LPDCXCCOMBOITEM;
+// the height for each item
+constexpr auto DCX_COLORCOMBO_ITEM_HEIGHT = 16;
 
 /*!
  * \brief blah
@@ -39,34 +44,45 @@ typedef struct tagDCXCCOMBOITEM {
  * blah
  */
 
-class DcxColorCombo : public DcxControl {
-
+class DcxColorCombo final
+	: public DcxControl
+{
 public:
+	DcxColorCombo() = delete;
+	DcxColorCombo(const DcxColorCombo&) = delete;
+	DcxColorCombo& operator =(const DcxColorCombo&) = delete;	// No assignments!
+	DcxColorCombo(DcxColorCombo&&) = delete;
+	DcxColorCombo& operator =(DcxColorCombo&&) = delete;
 
-	DcxColorCombo( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, const TString & styles );
-	virtual ~DcxColorCombo( );
+	DcxColorCombo(const UINT ID, DcxDialog* const p_Dialog, const HWND mParentHwnd, const RECT* const rc, const TString& styles);
+	~DcxColorCombo() noexcept;
 
-	LRESULT PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
-	LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
+	LRESULT OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed) final;
+	LRESULT ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed) final;
 
-	void parseInfoRequest( const TString & input, TCHAR * szReturnValue ) const;
-	void parseCommandRequest( const TString & input );
-	void parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
+	//void parseInfoRequest(const TString & input, PTCHAR szReturnValue) const final;
+	void parseInfoRequest(const TString& input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>& szReturnValue) const final;
+	void parseCommandRequest(const TString& input) final;
+	dcxWindowStyles parseControlStyles(const TString& tsStyles) final;
 
-	void setmIRCPalette( );
+	void setmIRCPalette();
 
-	LRESULT insertItem( const int nPos, const LPARAM lParam );
-	LRESULT getCount( ) const;
-	LRESULT setCurSel( const int nPos );
-	LRESULT getItemData( const int nItem ) const;
-	LRESULT getCurSel( ) const;
-	LRESULT deleteItem( const int nItem );
-	LRESULT resetContent( );
+	int insertItem(const int nPos, const DCXCCOMBOITEM* dci) noexcept;
+	int getCount() const noexcept;
+	int setCurSel(const int nPos) noexcept;
+	LPDCXCCOMBOITEM getItemData(const int nItem) const noexcept;
+	int getCurSel() const noexcept;
+	int deleteItem(const int nItem) noexcept;
+	int resetContent() noexcept;
 
-	inline TString getType( ) const { return TString( TEXT("colorcombo") ); };
+	inline const TString getType() const final { return TEXT("colorcombo"); };
+	inline const DcxControlTypes getControlType() const noexcept final { return DcxControlTypes::COLORCOMBO; }
 
-protected:
+	using DcxControl::toXml;
+	using DcxControl::getStyles;
 
+	static inline WNDPROC m_hDefaultClassProc{ nullptr };	//!< Default window procedure
+	LRESULT CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept final;
 };
 
 #endif // _DCXCOLORCOMBO_H_

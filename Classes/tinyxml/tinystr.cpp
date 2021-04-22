@@ -35,7 +35,7 @@ distribution.
 
 
 // Error value for find primitive
-const TiXmlString::size_type TiXmlString::npos = static_cast< TiXmlString::size_type >(-1);
+//const TiXmlString::size_type TiXmlString::npos = static_cast< TiXmlString::size_type >(-1);
 
 
 // Null rep.
@@ -56,7 +56,7 @@ void TiXmlString::reserve (size_type cap)
 
 TiXmlString& TiXmlString::assign(const char* str, size_type len)
 {
-	size_type cap = capacity();
+	const size_type cap = capacity();
 	if (len > cap || cap > 3*(len + 8))
 	{
 		TiXmlString tmp;
@@ -75,7 +75,7 @@ TiXmlString& TiXmlString::assign(const char* str, size_type len)
 
 TiXmlString& TiXmlString::append(const char* str, size_type len)
 {
-	size_type newsize = length() + len;
+	const size_type newsize = length() + len;
 	if (newsize > capacity())
 	{
 		reserve (newsize + capacity());
@@ -98,7 +98,7 @@ TiXmlString operator + (const TiXmlString & a, const TiXmlString & b)
 TiXmlString operator + (const TiXmlString & a, const char* b)
 {
 	TiXmlString tmp;
-	TiXmlString::size_type b_len = static_cast<TiXmlString::size_type>( strlen(b) );
+	const TiXmlString::size_type b_len = static_cast<TiXmlString::size_type>( strlen(b) );
 	tmp.reserve(a.length() + b_len);
 	tmp += a;
 	tmp.append(b, b_len);
@@ -108,7 +108,7 @@ TiXmlString operator + (const TiXmlString & a, const char* b)
 TiXmlString operator + (const char* a, const TiXmlString & b)
 {
 	TiXmlString tmp;
-	TiXmlString::size_type a_len = static_cast<TiXmlString::size_type>( strlen(a) );
+	const TiXmlString::size_type a_len = static_cast<TiXmlString::size_type>( strlen(a) );
 	tmp.reserve(a_len + b.length());
 	tmp.append(a, a_len);
 	tmp += b;

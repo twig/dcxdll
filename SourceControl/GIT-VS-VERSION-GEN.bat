@@ -6,8 +6,8 @@ REM Entry Point
 REM ===================
 :START
 ECHO.
-SET CACHE_FILE=%~s1\GIT_VERSION
-SET HEADER_OUT_FILE=%2
+SET CACHE_FILE=%~s1GIT_VERSION
+SET HEADER_OUT_FILE="%2"
 
 CALL :INIT_VARS
 CALL :GET_GIT_DATA
@@ -30,11 +30,13 @@ GOTO :EOF
 :: --------------------
 :CHECK_CACHE
 :: --------------------
-IF EXIST "%CACHE_FILE%" (
-  FOR /F %%A IN (%CACHE_FILE%) DO (
-    IF "%%A" == "%strFILE_DESCRIBE%" (
-      ECHO Build version is assumed unchanged from: %strFILE_DESCRIBE%.
-      SET fLEAVE_NOW=1
+IF EXIST %HEADER_OUT_FILE% (
+  IF EXIST "%CACHE_FILE%" (
+    FOR /F %%A IN (%CACHE_FILE%) DO (
+      IF "%%A" == "%strFILE_DESCRIBE%" (
+        ECHO Build version is assumed unchanged from: %strFILE_DESCRIBE%.
+        SET fLEAVE_NOW=1
+      )
     )
   )
 )
@@ -58,6 +60,12 @@ ECHO #pragma once >> "%HEADER_OUT_FILE%"
 ECHO #define GIT_DATE TEXT("%strFILE_DATE%") >> "%HEADER_OUT_FILE%"
 ECHO #define GIT_HASH TEXT("%strFILE_HASH%") >> "%HEADER_OUT_FILE%"
 ECHO #define GIT_DESCRIBE TEXT("%strFILE_DESCRIBE%") >> "%HEADER_OUT_FILE%"
+ECHO #define GIT_DATEA "%strFILE_DATE%" >> "%HEADER_OUT_FILE%"
+ECHO #define GIT_HASHA "%strFILE_HASH%" >> "%HEADER_OUT_FILE%"
+ECHO #define GIT_DESCRIBEA "%strFILE_DESCRIBE%" >> "%HEADER_OUT_FILE%"
+ECHO #define GIT_DATEW L"%strFILE_DATE%" >> "%HEADER_OUT_FILE%"
+ECHO #define GIT_HASHW L"%strFILE_HASH%" >> "%HEADER_OUT_FILE%"
+ECHO #define GIT_DESCRIBEW L"%strFILE_DESCRIBE%" >> "%HEADER_OUT_FILE%"
 GOTO :EOF
 
 :: --------------------

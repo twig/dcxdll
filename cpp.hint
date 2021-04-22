@@ -1,0 +1,17 @@
+#define RGB(r,g,b) ((COLORREF)(((BYTE)(r)|((WORD)((BYTE)(g))<<8))|(((DWORD)(BYTE)(b))<<16)))
+#define MIRC_BUFFER_SIZE_CCH 4100
+#define ListView_GetCountPerPage(hwndLV) (int)SNDMSG((hwndLV), LVM_GETCOUNTPERPAGE, 0, 0)
+#define TreeView_GetCount(hwnd) (UINT)SNDMSG((hwnd), TVM_GETCOUNT, 0, 0)
+#define _INTEL_DLL_ __declspec(dllexport)
+#define GSL_SUPPRESS(x)
+#define GSL_SUPPRESS(x) [[gsl::suppress("x")]]
+#define GSL_SUPPRESS(x) [[gsl::suppress(x)]]
+#define DCX_USE_GDIPLUS
+#define TRUE
+#define Auto(Destructor) Auto_INTERNAL(Destructor, __COUNTER__)
+#define TSTRING_INTERNALBUFFERSIZE_CCH TS_getmemsize(64)
+// Hint files help the Visual Studio IDE interpret Visual C++ identifiers
+// such as names of functions and macros.
+// For more information see https://go.microsoft.com/fwlink/?linkid=865984
+#define _NODISCARD [[nodiscard]]
+#define _NODISCARD

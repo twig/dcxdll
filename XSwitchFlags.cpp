@@ -1,55 +1,45 @@
 #include "defines.h"
 
 // Constructor
-XSwitchFlags::XSwitchFlags(const TString &switches) {
-	ZeroMemory(flags, sizeof(bool) * 28);
-	ZeroMemory(flags_cap, sizeof(bool) * 26);
-
+XSwitchFlags::XSwitchFlags(const TString &switches) noexcept
+	: m_dFlagMask(0ULL)
+{
 	// no - sign, & no + sign, invalid syntax
 	if (switches[0] == TEXT('-'))
-		flags[26] = true;
+		m_dFlagMask |= (1ULL << 60);
 	else if (switches[0] == TEXT('+'))
-		flags[27] = true;
+		m_dFlagMask |= (1ULL << 61);
 	else
-		return;
+		return;	// just return with no flags set.
 
-	const unsigned int len = (UINT)switches.len();
-	TCHAR c;
+	const auto len = switches.len();
 
 	// Parse the switches
-	for (UINT i = 1; i < len; i++)
+	for (auto i = decltype(len){1}; i < len; ++i)
 	{
-		c = switches[i];
+		const auto c = switches[i];
 
 		// Check if its in the right range
-		if (c >= TEXT('a') && c <= TEXT('z'))
-			flags[(int) (c - TEXT('a'))] = true;
-		else if (c >= TEXT('A') && (c <= TEXT('Z')))
-			flags_cap[(int) (c - TEXT('A'))] = true;
+		if ((c >= TEXT('A')) && (c <= TEXT('z'))) // this gives us 57bits in use + 2 special cases
+		{
+			const auto bitn = c - TEXT('A');
+			m_dFlagMask |= (1ULL << bitn);
+		}
 	}
 }
 
-// Destructor
-XSwitchFlags::~XSwitchFlags(void) {
-}
-
 // Checks if flags are set.
-bool XSwitchFlags::isSet(const TCHAR c) const {
-	// Lower-case
-	if ((c >= TEXT('a')) && (c <= TEXT('z')))
-		return flags[(int) (c - TEXT('a'))];
-	// Upper-case
-	else if ((c >= TEXT('A')) && (c <= TEXT('Z')))
-		return flags_cap[(int) (c - TEXT('A'))];
+const bool XSwitchFlags::isSet(const TCHAR c) const noexcept
+{
+	// Lower-case & Upper-case
+	if ((c >= TEXT('A')) && (c <= TEXT('z'))) // this gives us 57bits in use + 2 special cases
+	{
+		const auto bitn = c - TEXT('A');
+		return (m_dFlagMask & (1ULL << bitn)) != 0;
+	}
 	else if (c == TEXT('-'))	// check if - flag identifier used.
-		return flags[26];
+		return (m_dFlagMask & (1ULL << 60)) != 0;
 	else if (c == TEXT('+'))	// check if + flag identifier used.
-		return flags[27];
-
-	return false;
-}
-
-// Wrapper for isSet()
-bool XSwitchFlags::operator[](const TCHAR c) const {
-	return this->isSet(c);
+		return (m_dFlagMask & (1ULL << 61)) != 0;
+	return m_bFalse;
 }

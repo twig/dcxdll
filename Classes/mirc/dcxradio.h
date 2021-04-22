@@ -26,25 +26,38 @@ class DcxDialog;
  * blah
  */
 
-class DcxRadio : public DcxControl {
-
+class DcxRadio final
+	: public DcxControl
+{
 public:
+	DcxRadio() = delete;
+	DcxRadio(const DcxRadio &) = delete;
+	DcxRadio &operator =(const DcxRadio &) = delete;
+	DcxRadio(DcxRadio &&) = delete;
+	DcxRadio &operator =(DcxRadio &&) = delete;
 
-	DcxRadio( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, const TString & styles );
-	virtual ~DcxRadio( );
+	DcxRadio(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles );
+	~DcxRadio( ) noexcept;
 
-	LRESULT PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
-	LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
+	LRESULT OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) final;
+	LRESULT ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) noexcept final;
 
-	void parseInfoRequest( const TString & input, TCHAR * szReturnValue ) const;
-	void parseCommandRequest( const TString & input );
-	void parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
+	//void parseInfoRequest(const TString & input, PTCHAR szReturnValue) const final;
+	void parseInfoRequest(const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const final;
+	void parseCommandRequest(const TString & input) final;
+	dcxWindowStyles parseControlStyles(const TString & tsStyles) final;
 
-	inline TString getType( ) const { return TString( TEXT("radio") ); };
-	TString getStyles(void) const;
+	inline const TString getType() const final { return TEXT("radio"); };
+	inline const DcxControlTypes getControlType() const noexcept final { return DcxControlTypes::RADIO; }
 
-protected:
+	void toXml(TiXmlElement *const xml) const final;
+	TiXmlElement * toXml(void) const final;
+	const TString getStyles(void) const final;
 
+	static inline WNDPROC m_hDefaultClassProc{ nullptr };	//!< Default window procedure
+	LRESULT CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept final;
+
+private:
 	void DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam);
 
 };

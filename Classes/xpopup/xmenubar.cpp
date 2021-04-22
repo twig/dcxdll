@@ -16,250 +16,248 @@
 #include "Classes/xpopup/xpopupmenumanager.h"
 #include "Dcx.h"
 
-
-
-//extern HMENU g_OriginalMenuBar;
-//extern XPopupMenu *g_mIRCScriptMenu;
-
-/*
- *
- */
-XMenuBar::XMenuBar() {
-}
-
-/*
- *
- */
-XMenuBar::~XMenuBar() {
-}
-
-/*
- *
- */
-void XMenuBar::parseXMenuBarCommand(const TString &input) {
-	const XSwitchFlags flags(input.getfirsttok( 1 ));
-	const UINT numtok = input.numtok();
-	XPopupMenu *p_Menu;
-	HMENU menuBar;
-	const TString menuName(input.getnexttok( ));	// tok 2
+ /*
+  *
+  */
+void XMenuBar::parseXMenuBarCommand(const TString& input)
+{
+	const XSwitchFlags flags(input.getfirsttok(1));
+	const auto numtok = input.numtok();
+	const auto menuName(input.getnexttok());	// tok 2
 
 	// Check if a callback alias has been marked
 	if (!this->hasCallback() && !flags[TEXT('M')])
-	{
-		Dcx::error(TEXT("/xmenubar"), TEXT("No callback alias initialised. See /xmenubar -M"));
-		return;
-	}
+		throw Dcx::dcxException("No callback alias initialised. See /xmenubar -M");
 
 	// Initialise callback.
 	// xmenubar [-M] (ALIAS)
-	if (flags[TEXT('M')]) {
+	if (flags[TEXT('M')])
+	{
 		// Set alias.
-		if (numtok > 1) {
-			const TString alias(menuName);
+		if (numtok > 1)
+		{
+			// menuName == alias
 
 			// Check if alias is valid.
-			if (!Dcx::mIRC.isAlias(alias.to_chr()))
-			{
-				Dcx::error(TEXT("-M"), TEXT("Invalid callback alias specified"));
-				return;
-			}
+			if (!mIRCLinker::isAlias(menuName))
+				throw Dcx::dcxException("Invalid callback alias specified");
 
-			this->m_callback = alias;
+			this->m_callback = menuName;
 		}
 		// Reset alias and xmenubar.
 		else {
-			this->m_callback = TEXT("");
+			this->m_callback.clear();	// = TEXT("");
 			this->resetMenuBar();
 		}
 
 		return;
 	}
 
-	menuBar = GetMenu(Dcx::mIRC.getHWND());
-
 	// Add menu
 	// xmenubar [-a] [MENU] [LABEL]
-	if (flags[TEXT('a')]) {
-		if (numtok < 3) {
-			Dcx::error(TEXT("-a"), TEXT("Insufficient parameters"));
-			return;
-		}
+	if (auto menuBar = GetMenu(mIRCLinker::getHWND()); flags[TEXT('a')])
+	{
+		if (numtok < 3)
+			throw DcxExceptions::dcxInvalidArguments();
 
-		p_Menu = Dcx::XPopups.getMenuByName(menuName, TRUE);
+		const auto p_Menu = Dcx::XPopups.getMenuByName(menuName, true);
 
-		if (!validateMenu(p_Menu, TEXT("-a"), menuName))
-			return;
+		validateMenu(p_Menu, menuName);
 
 		// Test if menu is already added.
-		for (int i = 0; i < (int) m_vpXMenuBar.size(); i++) {
-			if (m_vpXMenuBar[i] == p_Menu) {
-				Dcx::error(TEXT("-a"), TEXT("Menu has already been added to XmenuBar."));
-				return;
-			}
+		{
+			if (Dcx::find(m_vpXMenuBar, p_Menu))
+				throw Dcx::dcxException("Menu has already been added to XmenuBar.");
 		}
-
-		p_Menu->attachToMenuBar(menuBar, input.gettok(3, -1));
+		p_Menu->attachToMenuBar(menuBar, input.getlasttoks());	// tok 3, -1
 	}
 	// Removes menu
 	// xmenubar [-d] [MENU]
-	else if (flags[TEXT('d')]) {
-		if (numtok < 2) {
-			Dcx::error(TEXT("-d"), TEXT("Insufficient parameters"));
-			return;
-		}
+	else if (flags[TEXT('d')])
+	{
+		if (numtok < 2)
+			throw DcxExceptions::dcxInvalidArguments();
 
-		p_Menu = Dcx::XPopups.getMenuByName(menuName, TRUE);
+		const auto p_Menu = Dcx::XPopups.getMenuByName(menuName, true);
 
-		if (!validateMenu(p_Menu, TEXT("-d"), menuName))
-			return;
+		validateMenu(p_Menu, menuName);
 
 		p_Menu->detachFromMenuBar(menuBar);
 	}
 	// Replace mIRC's menubar and generate our own
 	// xmenubar [-g]
 	// TODO: add support for styles if I can think of how.
-	else if (flags[TEXT('g')]) {
-		HMENU newMenu = CreateMenu();
+	else if (flags[TEXT('g')])
+	{
+		auto newMenu = CreateMenu();
 
 		this->setMenuBar(menuBar, newMenu);
 
 		// Redraws to include the system icons from MDI child.
-		Dcx::mIRC.exec(TEXT("//window -a $qt($active)"));
+		mIRCLinker::exec(TEXT("//window -a $qt($active)"));
 	}
 	// Change the label on the menu
 	// xmenubar [-l] [MENU] [LABEL]
-	else if (flags[TEXT('l')]) {
-		if (numtok < 3) {
-			Dcx::error(TEXT("-l"), TEXT("Insufficient parameters"));
-			return;
-		}
+	else if (flags[TEXT('l')])
+	{
+		if (numtok < 3)
+			throw DcxExceptions::dcxInvalidArguments();
 
-		p_Menu = Dcx::XPopups.getMenuByName(menuName, TRUE);
+		const auto* const p_Menu = Dcx::XPopups.getMenuByName(menuName, true);
 
-		if (!validateMenu(p_Menu, TEXT("-l"), menuName))
-			return;
+		validateMenu(p_Menu, menuName);
 
-		const int offset = this->findMenuOffset(menuBar, p_Menu);
+		const auto offset = this->findMenuOffset(menuBar, p_Menu);
 
-		if (offset < 0) {
-			Dcx::errorex(TEXT("-l"), TEXT("\"%s\" menu not found in XMenuBar."), p_Menu->getName().to_chr());
-			return;
-		}
+		if (offset < 0)
+			throw Dcx::dcxException(TEXT("\"%\" menu not found in XMenuBar."), p_Menu->getName());
 
-		ModifyMenu(menuBar, offset, MF_BYPOSITION, MF_STRING, input.gettok(3, -1).to_chr());
+		ModifyMenu(menuBar, gsl::narrow_cast<UINT>(offset), MF_BYPOSITION, MF_STRING, input.getlasttoks().to_chr());	// tok 3, -1
 	}
 	// Resets to original mIRC menubar
 	// xmenubar [-r]
-	else if (flags[TEXT('r')]) {
+	else if (flags[TEXT('r')])
+	{
 		this->resetMenuBar();
 	}
 	// Trigger command for a specific mIRC menu item.
 	// xmenubar [-s] [ID]
-	else if (flags[TEXT('s')]) {
-		if (numtok < 2) {
-			Dcx::error(TEXT("-s"), TEXT("Insufficient parameters"));
-			return;
-		}
+	else if (flags[TEXT('s')])
+	{
+		if (numtok < 2)
+			throw DcxExceptions::dcxInvalidArguments();
 
-		const int mID = menuName.to_int();
+		const auto mID = menuName.to_<UINT>();
 
 		// MAKEWPARAM((# = Menu ID), (0 = Menu command));
-		SendMessage(Dcx::mIRC.getHWND(), WM_COMMAND, MAKEWPARAM(mID, 0) , NULL);
+		SendMessage(mIRCLinker::getHWND(), WM_COMMAND, MAKEWPARAM(mID, 0), NULL);
 		return;
 	}
 
 	// Force redraw so the updates are shown.
-	DrawMenuBar(Dcx::mIRC.getHWND());
+	DrawMenuBar(mIRCLinker::getHWND());
 }
 
 /*
  *
  */
-void XMenuBar::parseXMenuBarInfo(const TString &input, TCHAR *szReturnValue) const
+ //void XMenuBar::parseXMenuBarInfo(const TString &input, TCHAR *const szReturnValue) const
+ //{
+ //	const auto prop(input.getfirsttok(1));
+ //
+ //	// Iterate through the names of menus added to XMenuBar.
+ //	// N = 0 returns total number of menus
+ //	// $xmenubar() [menu] [N]
+ //	if (prop == TEXT("menu")) {
+ //		const auto iSize = m_vpXMenuBar.size();
+ //		const auto i = input.getnexttok().to_<VectorOfXPopupMenu::size_type>();	// tok 2
+ //
+ //		if (i > iSize)
+ //			throw Dcx::dcxException(TEXT("Invalid index: %"), i);
+ //
+ //		// Return number of menus in menubar.
+ //		if (i == 0)
+ //			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), iSize);
+ //		// Return name of specified menu.
+ //		else
+ //			dcx_strcpyn(szReturnValue, m_vpXMenuBar[i -1]->getName().to_chr(), MIRC_BUFFER_SIZE_CCH);
+ //	}
+ //}
+
+void XMenuBar::parseXMenuBarInfo(const TString& input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>& szReturnValue) const
 {
-	const TString prop(input.getfirsttok( 1 ));
+	const auto prop(input.getfirsttok(1));
 
 	// Iterate through the names of menus added to XMenuBar.
 	// N = 0 returns total number of menus
 	// $xmenubar() [menu] [N]
-	if (prop == TEXT("menu")) {
-		const int i = input.getnexttok( ).to_int();	// tok 2
+	if (prop == TEXT("menu"))
+	{
+		const auto iSize = m_vpXMenuBar.size();
+		const auto i = input.getnexttok().to_<VectorOfXPopupMenu::size_type>();	// tok 2
 
-		if ((i < 0) || (i > (int) this->m_vpXMenuBar.size())) {
-			Dcx::errorex(TEXT("$!xpopup().menubar"), TEXT("Invalid index: %d"), i);
-			return;
-		}
+		if (i > iSize)
+			throw Dcx::dcxException(TEXT("Invalid index: %"), i);
 
 		// Return number of menus in menubar.
 		if (i == 0)
-			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), (int) this->m_vpXMenuBar.size());
+			_ts_snprintf(szReturnValue, TEXT("%u"), iSize);
 		// Return name of specified menu.
 		else
-			lstrcpyn(szReturnValue, this->m_vpXMenuBar[i -1]->getName().to_chr(), MIRC_BUFFER_SIZE_CCH);
-
-		return;
+			szReturnValue = gsl::at(m_vpXMenuBar, i - 1)->getName().to_chr();
 	}
-
-	szReturnValue[0] = 0;
+	else
+		throw Dcx::dcxException(TEXT("Unknown prop \"%\""), prop);
 }
 
 /*
  * Adds the menu to the current menubar.
  */
-bool XMenuBar::addToMenuBar(HMENU menubar, XPopupMenu *p_Menu, const TString &label) {
+const bool XMenuBar::addToMenuBar(HMENU menubar, XPopupMenu* const p_Menu, const TString& label)
+{
 	m_vpXMenuBar.push_back(p_Menu);
-	return (AppendMenu(menubar, MF_POPUP, (UINT_PTR) p_Menu->getMenuHandle(), label.to_chr()) != 0);
+	return (AppendMenu(menubar, MF_POPUP, (UINT_PTR)p_Menu->getMenuHandle(), label.to_chr()) != 0);
 }
 
 /*
  *
  */
-void XMenuBar::removeFromMenuBar(HMENU menubar, XPopupMenu *p_Menu) {
-	if ((int) m_vpXMenuBar.size() == 0)
+void XMenuBar::removeFromMenuBar(HMENU menubar, const XPopupMenu* const p_Menu) noexcept
+{
+	if (m_vpXMenuBar.empty())
 		return;
 
 	// If no menubar is specified, get current menubar.
-	if (menubar == NULL) {
-		menubar = GetMenu(Dcx::mIRC.getHWND());
+	if (!menubar)
+	{
+		menubar = GetMenu(mIRCLinker::getHWND());
 
 		if (!IsMenu(menubar))
 			return;
 	}
 
 	// Remove the menu from the vector list.
-	VectorOfXPopupMenu::iterator itStart = this->m_vpXMenuBar.begin();
-	VectorOfXPopupMenu::iterator itEnd = this->m_vpXMenuBar.end();
+	{
+		//auto itStart = this->m_vpXMenuBar.begin();
+		//auto itEnd = this->m_vpXMenuBar.end();
+		//
+		//while (itStart != itEnd) {
+		//	if (*itStart == p_Menu) {
+		//		this->m_vpXMenuBar.erase(itStart);
+		//		break;
+		//	}
+		//
+		//	++itStart;
+		//}
 
-	while (itStart != itEnd) {
-		if (*itStart == p_Menu) {
-			this->m_vpXMenuBar.erase(itStart);
-			break;
-		}
+		//const auto itEnd = m_vpXMenuBar.end();
+		//const auto itGot = std::find(m_vpXMenuBar.begin(), itEnd, p_Menu);
+		//if (itGot != itEnd)
+		//	m_vpXMenuBar.erase(itGot);
 
-		++itStart;
+		Dcx::eraseIfFound(m_vpXMenuBar, p_Menu);
 	}
 
-	const int offset = findMenuOffset(menubar, p_Menu);
+	if (const auto offset = findMenuOffset(menubar, p_Menu); offset > 0)
+		RemoveMenu(menubar, gsl::narrow_cast<UINT>(offset), MF_BYPOSITION);
 
-	if (offset > 0)
-		RemoveMenu(menubar, offset, MF_BYPOSITION);
-
-	DrawMenuBar(Dcx::mIRC.getHWND());
+	DrawMenuBar(mIRCLinker::getHWND());
 }
 
 /*
  * Searches for the given menu in the menubar, and returns the zero-based index position.
  */
-int XMenuBar::findMenuOffset(HMENU menubar, const XPopupMenu *p_Menu) const {
-	MENUITEMINFO mii;
+const int XMenuBar::findMenuOffset(HMENU menubar, const XPopupMenu* const p_Menu) const noexcept
+{
+	MENUITEMINFO mii{};
 	int offset = 0;					// Use 1 because 0 = the menubar itself when using GetMenuBarInfo()
 									// Changed to 0 to allow pre-increment within while()
-	ZeroMemory(&mii, sizeof(MENUITEMINFO));
 	mii.cbSize = sizeof(MENUITEMINFO);
 	mii.fMask = MIIM_SUBMENU;
 
 	// Whilst we can retrieve more menu items ...
-	while (GetMenuItemInfo(menubar, ++offset, TRUE, &mii)) {
+	while (GetMenuItemInfo(menubar, gsl::narrow_cast<UINT>(++offset), TRUE, &mii))
+	{
 		// Continue if this isnt the menu we're after
 		if (p_Menu->getMenuHandle() == mii.hSubMenu)
 			return offset;
@@ -273,111 +271,90 @@ int XMenuBar::findMenuOffset(HMENU menubar, const XPopupMenu *p_Menu) const {
  * Sets the menubar into the mIRC window, and automatically destroys the old menubar
  * if it isnt the original mIRC menubar.
  */
-void XMenuBar::setMenuBar(HMENU oldMenuBar, HMENU newMenuBar) {
-	if (newMenuBar != g_OriginalMenuBar) {
-		MENUINFO mi;
+void XMenuBar::setMenuBar(HMENU oldMenuBar, HMENU newMenuBar)
+{
+	if (newMenuBar != g_OriginalMenuBar)
+	{
+		MENUINFO mi{ sizeof(MENUINFO),(MIM_BACKGROUND | MIM_HELPID | MIM_MAXHEIGHT | MIM_MENUDATA | MIM_STYLE),0,0,nullptr,0,0 };
 
-		ZeroMemory(&mi, sizeof(MENUINFO));
-		mi.cbSize = sizeof(MENUINFO);
-		mi.fMask = MIM_BACKGROUND | MIM_HELPID | MIM_MAXHEIGHT | MIM_MENUDATA | MIM_STYLE;
+		//ZeroMemory(&mi, sizeof(MENUINFO));
+		//mi.cbSize = sizeof(MENUINFO);
+		//mi.fMask = MIM_BACKGROUND | MIM_HELPID | MIM_MAXHEIGHT | MIM_MENUDATA | MIM_STYLE;
 
 		GetMenuInfo(oldMenuBar, &mi);
 		SetMenuInfo(newMenuBar, &mi);
 	}
 
-	SetMenu(Dcx::mIRC.getHWND(), newMenuBar);
+	SetMenu(mIRCLinker::getHWND(), newMenuBar);
 
 	// Go through old menubar items and detach them
-	//VectorOfXPopupMenu temp;
-	//VectorOfXPopupMenu::iterator itStart = this->m_vpXMenuBar.begin();
-	//VectorOfXPopupMenu::iterator itEnd = this->m_vpXMenuBar.end();
-
-	//// Add menus to a temporary list to prevent errors in looping
-	//while (itStart != itEnd) {
-	//	temp.push_back(*itStart);
-	//	++itStart;
-	//}
-
-	//itStart = temp.begin();
-	//itEnd = temp.end();
 
 	// Add menus to a temporary list to prevent errors in looping
-	VectorOfXPopupMenu temp(this->m_vpXMenuBar);
-#if DCX_USE_C11
-	for (const auto &x: temp) {
-		x->detachFromMenuBar(oldMenuBar);
-	}
-#else
-	VectorOfXPopupMenu::iterator itStart = temp.begin();
-	VectorOfXPopupMenu::iterator itEnd = temp.end();
+	{
+		// scope used to make sure temp isnt used again.
+		auto temp(this->m_vpXMenuBar);
 
-	// Begin detaching ...
-	while (itStart != itEnd) {
-		(*itStart)->detachFromMenuBar(oldMenuBar);
-		++itStart;
+		for (const auto& x : temp)
+			x->detachFromMenuBar(oldMenuBar);
 	}
-#endif
 	// Destroy the menu if it isnt the original mIRC menubar.
-	if (g_OriginalMenuBar == NULL)
+	if (!g_OriginalMenuBar)
 		g_OriginalMenuBar = oldMenuBar;
 	else
 		DestroyMenu(oldMenuBar);
 
-	DrawMenuBar(Dcx::mIRC.getHWND());
+	DrawMenuBar(mIRCLinker::getHWND());
 }
 
 /*
  *
  */
-bool XMenuBar::validateMenu(const XPopupMenu *menu, const TString &flag, const TString &name) const {
-	if (menu == NULL) {
-		Dcx::errorex(flag.to_chr(), TEXT("Cannot find menu \"%s\"."), name.to_chr());
-		return false;
-	}
+void XMenuBar::validateMenu(const XPopupMenu* const menu, const TString& name)
+{
+	if (!menu)
+		throw Dcx::dcxException(TEXT("Cannot find menu \"%\"."), name);
+
 	// Prevent users from adding special menus.
-	else if ((menu == Dcx::XPopups.getmIRCPopup()) || (menu == Dcx::XPopups.getmIRCMenuBar())) {
-		Dcx::error(flag.to_chr(), TEXT("Cannot add \"mirc\" or \"mircbar\" menus."));
-		return false;
-	}
-
-	return true;
+	if ((menu == Dcx::XPopups.getmIRCPopup()) || (menu == Dcx::XPopups.getmIRCMenuBar()))
+		throw Dcx::dcxException("Cannot add \"mirc\" or \"mircbar\" menus.");
 }
 
 /*
  *
  */
-void XMenuBar::resetMenuBar() {
-	if (g_OriginalMenuBar != NULL) {
-		HMENU menubar = GetMenu(Dcx::mIRC.getHWND());
+void XMenuBar::resetMenuBar()
+{
+	if (g_OriginalMenuBar)
+	{
+		auto menubar = GetMenu(mIRCLinker::getHWND());
 
 		this->setMenuBar(menubar, g_OriginalMenuBar);
-		g_OriginalMenuBar = NULL;
+		g_OriginalMenuBar = nullptr;
 	}
 }
 
 /*
  *
  */
-bool XMenuBar::hasCallback() const {
-	if (this->m_callback.len() == 0)
-		return false;
-
-	return true;
+const bool XMenuBar::hasCallback() const noexcept
+{
+	return (!this->m_callback.empty());
 }
 
 /*
  * Passes the clicked information back to the callback.
- * Returns TEXT('true') it should halt default processing.
+ * Returns '$true' it should halt default processing.
  *
- * User should return TEXT('$true') from the callback to prevent default processing.
+ * User should return '$true' from the callback to prevent default processing.
  */
-bool XMenuBar::parseCallback(const UINT menuID) {
+const bool XMenuBar::parseCallback(const UINT menuID)
+{
 	TString result;
 
-	Dcx::mIRC.tsEvalex(result, TEXT("$%s(%d)"), this->m_callback.to_chr(), menuID);
+	//mIRCLinker::tsEvalex(result, TEXT("$%s(%d)"), this->m_callback.to_chr(), menuID);
+	mIRCLinker::eval(result, TEXT("$%(%)"), m_callback, menuID);
 
-	if (result == TEXT("$true"))
-		return true;
+	return (result == TEXT("$true"));
 
-	return false;
+	//return mIRCLinker::evalex(nullptr, 0, TEXT("$%s(%d)"), m_callback.to_chr(), menuID);
 }

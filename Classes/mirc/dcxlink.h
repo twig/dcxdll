@@ -26,34 +26,47 @@ class DcxDialog;
  * blah
  */
 
-class DcxLink : public DcxControl {
-
+class DcxLink final
+	: public DcxControl
+{
 public:
+	DcxLink() = delete;
+	DcxLink(const DcxLink &) = delete;
+	DcxLink &operator =(const DcxLink &) = delete;	// No assignments!
+	DcxLink(DcxLink &&) = delete;
+	DcxLink &operator =(DcxLink &&) = delete;
 
-	DcxLink( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd, const RECT * rc, const TString & styles );
-	virtual ~DcxLink( );
+	DcxLink( const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles );
+	~DcxLink( ) noexcept;
 
-	LRESULT PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
-	LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
+	LRESULT OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) final;
+	LRESULT ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) noexcept final;
 
-	void parseInfoRequest( const TString & input, TCHAR * szReturnValue ) const;
-	void parseCommandRequest( const TString & input );
-	void parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
+	//void parseInfoRequest(const TString & input, PTCHAR szReturnValue) const final;
+	void parseInfoRequest(const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const final;
+	void parseCommandRequest(const TString & input) final;
+	dcxWindowStyles parseControlStyles(const TString & tsStyles) final;
 
-	inline TString getType( ) const { return TString( TEXT("link") ); };
-	void toXml(TiXmlElement * xml) const;
+	inline const TString getType() const final { return TEXT("link"); };
+	inline const DcxControlTypes getControlType() const noexcept final { return DcxControlTypes::LINK; }
 
-	static void registerClass(void);
+	void toXml(TiXmlElement *const xml) const final;
+	TiXmlElement * toXml(void) const final;
 
-protected:
+	LRESULT CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept final;
 
-	HICON m_hIcon; //!< Link Icon
+	static inline WNDPROC m_hDefaultClassProc{ nullptr };	//!< Default window procedure
 
-	COLORREF m_aColors[4]; //!< Link Colors 0 = normal, 1 = hot, 2 = visited, 3 = disabled
+private:
 
-	BOOL m_bHover; //!< Hover State
-	BOOL m_bVisited; //!< Visited State
-	BOOL m_bTracking; //!< Mouse Tracking Var
+	HICON m_hIcon{ nullptr }; //!< Link Icon
+
+	COLORREF m_aColors[4]{ RGB(0, 0, 255),RGB(255, 0, 0),RGB(0, 0, 255),RGB(128, 128, 128) }; //!< Link Colors 0 = normal, 1 = hot, 2 = visited, 3 = disabled
+
+	bool m_bHover{ false }; //!< Hover State
+	bool m_bVisited{ false }; //!< Visited State
+	bool m_bReserved[2]{ false };
+	BOOL m_bTracking{ FALSE }; //!< Mouse Tracking Var
 
 	//static TString UriEncode(const TString &sSrc);
 	//static TString UriDecode(const TString &sSrc);

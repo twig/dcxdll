@@ -1,43 +1,41 @@
 #include "defines.h"
 #include "DcxDWMModule.h"
+#include <VersionHelpers.h>
 
-PFNDWMISCOMPOSITIONENABLED DcxDWMModule::DwmIsCompositionEnabledUx = NULL;
-PFNDWMGETWINDOWATTRIBUTE DcxDWMModule::DwmGetWindowAttributeUx = NULL;
-PFNDWMSETWINDOWATTRIBUTE DcxDWMModule::DwmSetWindowAttributeUx = NULL;
-PFNDWMEXTENDFRAMEINTOCLIENTAREA DcxDWMModule::DwmExtendFrameIntoClientAreaUx = NULL;
-PFNDWMENABLEBLURBEHINDWINDOW DcxDWMModule::DwmEnableBlurBehindWindowUx = NULL;
-PFNDWMGETCOLORIZATIONCOLOR DcxDWMModule::DwmGetColorizationColorUx = NULL;
+#pragma warning(push)
+#pragma warning(disable: 26425)	//warning C26425 : Assigning 'nullptr' to a static variable.
 
-DcxDWMModule::DcxDWMModule(void) :
-m_bAero(false),
-m_bVista(false),
-m_bWin7(false),
-m_bWin8(false)
+PFNDWMISCOMPOSITIONENABLED DcxDWMModule::DwmIsCompositionEnabledUx = nullptr;
+PFNDWMGETWINDOWATTRIBUTE DcxDWMModule::DwmGetWindowAttributeUx = nullptr;
+PFNDWMSETWINDOWATTRIBUTE DcxDWMModule::DwmSetWindowAttributeUx = nullptr;
+PFNDWMEXTENDFRAMEINTOCLIENTAREA DcxDWMModule::DwmExtendFrameIntoClientAreaUx = nullptr;
+PFNDWMENABLEBLURBEHINDWINDOW DcxDWMModule::DwmEnableBlurBehindWindowUx = nullptr;
+PFNDWMGETCOLORIZATIONCOLOR DcxDWMModule::DwmGetColorizationColorUx = nullptr;
+
+DcxDWMModule::~DcxDWMModule(void) noexcept
 {
+	unload();
 }
 
-DcxDWMModule::~DcxDWMModule(void)
-{
-	if (isUseable()) unload();
-}
-
-bool DcxDWMModule::load(mIRCLinker &mIRCLink)
+bool DcxDWMModule::load(void)
 {
 	if (isUseable())
 		return false;
 
-	DWORD winMajor = 0;
-	if (!GetWindowVersion(&winMajor, NULL))
-		return false;
+	m_bVista = IsWindowsVistaOrGreater();	// OS is Vista+
+	m_bWin7 = IsWindows7OrGreater();		// OS is Windows7+
+	m_bWin8 = IsWindows8OrGreater();		// OS is Windows8+
+	m_bWin10 = IsWindows10OrGreater();	// OS is Windows10+
 
-	this->m_bVista = (winMajor >= 6);	// OS is Vista+
-	this->m_bWin7 = (winMajor > 6);		// OS is Windows7+
-	this->m_bWin8 = (winMajor > 7);		// OS is Windows8+
-
-	DCX_DEBUG(mIRCLink.debug,TEXT("LoadDLL"), TEXT("Loading DWMAPI.DLL..."));
+	DCX_DEBUG(mIRCLinker::debug, __FUNCTIONW__, TEXT("Loading DWMAPI.DLL..."));
 	m_hModule = LoadLibrary(TEXT("dwmapi.dll"));
-	if (m_hModule != NULL) {
-		DCX_DEBUG(mIRCLink.debug,TEXT("LoadDLL"), TEXT("DWMAPI.DLL Loaded, Vista+ OS Assumed"));
+	if (m_hModule)
+	{
+		DCX_DEBUG(mIRCLinker::debug, __FUNCTIONW__, TEXT("DWMAPI.DLL Loaded, Vista+ OS Assumed"));
+
+#pragma warning(push)
+#pragma warning(disable: 4191)
+#pragma warning(disable: 26493)	//warning C26493 : Don't use C-style casts that would perform a static_cast downcast, const_cast, or reinterpret_cast. (type.4: http://go.microsoft.com/fwlink/p/?LinkID=620420)
 
 		DwmIsCompositionEnabledUx = (PFNDWMISCOMPOSITIONENABLED) GetProcAddress(m_hModule, "DwmIsCompositionEnabled"); // Vista ONLY!
 		DwmGetWindowAttributeUx = (PFNDWMGETWINDOWATTRIBUTE) GetProcAddress(m_hModule, "DwmGetWindowAttribute"); // Vista ONLY!
@@ -46,9 +44,11 @@ bool DcxDWMModule::load(mIRCLinker &mIRCLink)
 		DwmEnableBlurBehindWindowUx = (PFNDWMENABLEBLURBEHINDWINDOW) GetProcAddress(m_hModule, "DwmEnableBlurBehindWindow"); // Vista ONLY!
 		DwmGetColorizationColorUx = (PFNDWMGETCOLORIZATIONCOLOR) GetProcAddress(m_hModule, "DwmGetColorizationColor"); // Vista ONLY!
 
+#pragma warning(pop)
+
 #if DCX_DEBUG_OUTPUT
-		if (DwmIsCompositionEnabledUx != NULL)
-			mIRCLink.debug(TEXT("LoadDLL"), TEXT("Found Vista DWM Functions"));
+		if (DwmIsCompositionEnabledUx)
+			mIRCLinker::debug(__FUNCTIONW__, TEXT("Found Vista DWM Functions"));
 #endif
 
 		refreshComposite();
@@ -56,66 +56,72 @@ bool DcxDWMModule::load(mIRCLinker &mIRCLink)
 	return isUseable();
 }
 
-bool DcxDWMModule::unload(void) 
+bool DcxDWMModule::unload(void) noexcept
 {
-	if (m_hModule != NULL) {
+	if (isUseable())
+	{
 		FreeLibrary(m_hModule);
-		m_hModule = NULL;
-		return true;
+		m_hModule = nullptr;
+		DwmIsCompositionEnabledUx = nullptr;
+		DwmGetWindowAttributeUx = nullptr;
+		DwmSetWindowAttributeUx = nullptr;
+		DwmExtendFrameIntoClientAreaUx = nullptr;
+		DwmEnableBlurBehindWindowUx = nullptr;
+		DwmGetColorizationColorUx = nullptr;
 	}
-	return false;
+	return isUseable();
 }
+#pragma warning(pop)
 
-bool DcxDWMModule::refreshComposite() {
-	BOOL bAero = FALSE;
-	dcxDwmIsCompositionEnabled(&bAero);
+const bool &DcxDWMModule::refreshComposite() noexcept
+{
+	BOOL bAero;
+	if (FAILED(dcxDwmIsCompositionEnabled(&bAero)))
+		bAero = FALSE;
 
-	if (bAero)
-		m_bAero = true;
-	else
-		m_bAero = false;
+	m_bAero = (bAero != FALSE);
 	return m_bAero;
 }
 
-HRESULT DcxDWMModule::dcxDwmSetWindowAttribute(HWND hwnd, DWORD dwAttribute, LPCVOID pvAttribute, DWORD cbAttribute)
+HRESULT DcxDWMModule::dcxDwmSetWindowAttribute(HWND hwnd, DWORD dwAttribute, LPCVOID pvAttribute, DWORD cbAttribute) noexcept
 {
-	if (DwmSetWindowAttributeUx != NULL)
+	if (DwmSetWindowAttributeUx != nullptr)
 		return DwmSetWindowAttributeUx(hwnd, dwAttribute, pvAttribute, cbAttribute);
 	return DWM_E_COMPOSITIONDISABLED;
 }
 
-HRESULT DcxDWMModule::dcxDwmGetWindowAttribute(HWND hwnd, DWORD dwAttribute, PVOID pvAttribute, DWORD cbAttribute)
+HRESULT DcxDWMModule::dcxDwmGetWindowAttribute(HWND hwnd, DWORD dwAttribute, PVOID pvAttribute, DWORD cbAttribute) noexcept
 {
-	if (DwmGetWindowAttributeUx != NULL)
+	if (DwmGetWindowAttributeUx != nullptr)
 		return DwmGetWindowAttributeUx(hwnd, dwAttribute, pvAttribute, cbAttribute);
 	return DWM_E_COMPOSITIONDISABLED;
 }
 
-HRESULT DcxDWMModule::dcxDwmIsCompositionEnabled(BOOL *pfEnabled)
+HRESULT DcxDWMModule::dcxDwmIsCompositionEnabled(BOOL *pfEnabled) noexcept
 {
-	if (DwmIsCompositionEnabledUx != NULL)
+	if (DwmIsCompositionEnabledUx != nullptr)
 		return DwmIsCompositionEnabledUx(pfEnabled);
 	*pfEnabled = FALSE;
 	return DWM_E_COMPOSITIONDISABLED;
 }
 
-HRESULT DcxDWMModule::dcxDwmExtendFrameIntoClientArea(HWND hwnd, const MARGINS *pMarInset)
+HRESULT DcxDWMModule::dcxDwmExtendFrameIntoClientArea(HWND hwnd, const MARGINS *pMarInset) noexcept
 {
-	if (DwmExtendFrameIntoClientAreaUx != NULL)
+	if (DwmExtendFrameIntoClientAreaUx != nullptr)
 		return DwmExtendFrameIntoClientAreaUx(hwnd, pMarInset);
 	return DWM_E_COMPOSITIONDISABLED;
 }
 
-HRESULT DcxDWMModule::dcxDwmEnableBlurBehindWindow(HWND hwnd, __in const DWM_BLURBEHIND *pBlurBehind)
+HRESULT DcxDWMModule::dcxDwmEnableBlurBehindWindow(HWND hwnd, __in const DWM_BLURBEHIND *pBlurBehind) noexcept
 {
-	if (DwmEnableBlurBehindWindowUx != NULL)
+	if (DwmEnableBlurBehindWindowUx != nullptr)
 		return DwmEnableBlurBehindWindowUx(hwnd, pBlurBehind);
 	return DWM_E_COMPOSITIONDISABLED;
 }
 
-HRESULT DcxDWMModule::dcxDwmGetColorizationColor( __out  DWORD *pcrColorization, __out  BOOL *pfOpaqueBlend)
+HRESULT DcxDWMModule::dcxDwmGetColorizationColor( __out  DWORD *pcrColorization, __out  BOOL *pfOpaqueBlend) noexcept
 {
-	if (DwmGetColorizationColorUx != NULL)
+	if (DwmGetColorizationColorUx != nullptr)
 		return DwmGetColorizationColorUx(pcrColorization, pfOpaqueBlend);
 	return DWM_E_COMPOSITIONDISABLED;
 }

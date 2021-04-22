@@ -15,7 +15,9 @@
 #ifndef _LAYOUTMANAGER_H_
 #define _LAYOUTMANAGER_H_
 
-#include "Classes/layout/layoutcell.h"
+#include "Classes/layout/layoutcellfill.h"
+#include "Classes/layout/layoutcellfixed.h"
+#include "Classes/layout/layoutcellpane.h"
 #include "Classes/tstring/tstring.h"
 
 /*!
@@ -28,29 +30,56 @@
 #pragma warning( disable : 2292 ) //warning #2292: destructor is declared but copy constructor and assignment operator are not
 #endif
 
-class LayoutManager {
-
+class LayoutManager final
+{
 public:
 
-	LayoutManager( );
-	explicit LayoutManager( HWND mHwnd );
-	virtual ~LayoutManager( );
+	LayoutManager() = default;
+	~LayoutManager() = default;
 
-	BOOL updateLayout( RECT & rc );
+	explicit LayoutManager( HWND mHwnd ) noexcept;
 
-	void setRoot( LayoutCell * p_Root );
-	LayoutCell * getRoot( ) const;
+	LayoutManager(const LayoutManager &) = delete;
+	LayoutManager &operator =(const LayoutManager &) = delete;	// No assignments!
+	LayoutManager(LayoutManager &&) = delete;
+	LayoutManager &operator =(LayoutManager &&) = delete;
+
+	const bool updateLayout(RECT & rc);
+
+	//void setRoot( gsl::owner<LayoutCell *> p_Root );
+	//constexpr LayoutCell * getRoot() const noexcept { return m_pRoot.get(); }
+
+	void setRoot(std::unique_ptr<LayoutCell> p_Root) noexcept;
+	LayoutCell * getRoot() const noexcept { return m_pRoot.get(); }
 
 	LayoutCell * getCell( const TString & path ) const;
 
-	static LayoutCell * parsePath( const TString & path, LayoutCell * hParent, const int depth );
+	void AddCell(const TString &input, const UINT iOffset = 3, DcxDialog *dialog = nullptr);
+
+	inline constexpr const size_t &size(void) const noexcept { return m_iCount; }
+	//inline constexpr bool empty(void) const noexcept { return (m_pRoot == nullptr); }
+	inline bool empty(void) const noexcept { return (m_pRoot == nullptr); }
+
+	static LayoutCell * parsePath(const TString & path, const LayoutCell *const hParent, const UINT depth);
+	static const CLATypes parseLayoutFlags(const TString & flags) noexcept;
+
+	// this is here for reference only
+	//typedef class std::vector<LayoutCell *>::iterator iterator;
+	//typedef class std::vector<LayoutCell *>::const_iterator const_iterator;
+	//
+	//iterator begin() { return m_data.begin(); }
+	//const_iterator begin() const { return m_data.begin(); }
+	//const_iterator cbegin() const { return m_data.cbegin(); }
+	//iterator end() { return m_data.end(); }
+	//const_iterator end() const { return m_data.end(); }
+	//const_iterator cend() const { return m_data.cend(); }
 
 protected:
 
-	HWND m_Hwnd; //!< Dialog Window Handle
+	HWND m_Hwnd{ nullptr }; //!< Dialog Window Handle
 
-	LayoutCell * m_pRoot; //!< Root LayoutCell Element
-
+	std::unique_ptr<LayoutCell> m_pRoot{ nullptr }; //!< Root LayoutCell Element
+	size_t		m_iCount{};
 };
 #ifdef __INTEL_COMPILER // Defined when using Intel C++ Compiler.
 #pragma warning( pop )

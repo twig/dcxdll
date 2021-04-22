@@ -17,37 +17,37 @@
 
 #include "Classes/xpopup/xpopupmenu.h"
 
-/*!
- * \brief blah
- *
- * blah
- */
+ /*!
+  * \brief blah
+  *
+  * blah
+  */
 
-class XMenuBar {
-	public:
-		XMenuBar( );
-		virtual ~XMenuBar( );
+class XMenuBar final
+{
+public:
+	XMenuBar() noexcept = default;
+	XMenuBar(const XMenuBar &other) = delete;	// no copy constructor
+	XMenuBar &operator = (const XMenuBar &) = delete;
 
-		void parseXMenuBarCommand(const TString &input);
-		void parseXMenuBarInfo(const TString &input, TCHAR *szReturnValue) const;
+	void parseXMenuBarCommand(const TString &input);
+	//void parseXMenuBarInfo(const TString &input, TCHAR *const szReturnValue) const;
+	void parseXMenuBarInfo(const TString &input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const;
 
-		bool addToMenuBar(HMENU menubar, XPopupMenu *p_Menu, const TString &label);
-		void removeFromMenuBar(HMENU menubar, XPopupMenu *p_Menu);
-		void setMenuBar(HMENU oldMenuBar, HMENU newMenuBar);
+	const bool addToMenuBar(HMENU menubar, XPopupMenu *const p_Menu, const TString &label);
+	void removeFromMenuBar(HMENU menubar, const XPopupMenu *const p_Menu) noexcept;
+	void setMenuBar(HMENU oldMenuBar, HMENU newMenuBar);
 
-		void resetMenuBar();
+	void resetMenuBar();
 
-		bool hasCallback() const;
-		bool parseCallback(const UINT menuID);
+	const bool hasCallback() const noexcept;
+	const bool parseCallback(const UINT menuID);
 
-	protected:
-		VectorOfXPopupMenu m_vpXMenuBar; //!< Vector of XPopupMenu objects added to the menubar.
+protected:
+	VectorOfXPopupMenu m_vpXMenuBar; //!< Vector of XPopupMenu objects added to the menubar.
+	TString m_callback;
 
-		//static UINT parseTrackFlags(const TString &flags);
-
-		int findMenuOffset(HMENU menubar, const XPopupMenu *p_menu) const;
-		bool validateMenu(const XPopupMenu *menu, const TString &flag, const TString &name) const;
-
-		TString m_callback;
+	const int findMenuOffset(HMENU menubar, const XPopupMenu *const p_menu) const noexcept;
+	static void validateMenu(const XPopupMenu *const menu, const TString &name);
 };
 #endif // _XMENUBAR_H_

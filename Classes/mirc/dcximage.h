@@ -26,51 +26,65 @@ class DcxDialog;
  * blah
  */
 
-class DcxImage : public DcxControl {
-
+class DcxImage final
+	: public DcxControl
+{
 public:
+	DcxImage() = delete;
+	DcxImage(const DcxImage &) = delete;
+	DcxImage &operator =(const DcxImage &) = delete;
+	DcxImage(DcxImage &&) = delete;
+	DcxImage &operator =(DcxImage &&) = delete;
 
-	DcxImage( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd, const RECT * rc, const TString & styles );
-	virtual ~DcxImage( );
+	DcxImage( const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles );
+	~DcxImage( ) noexcept;
 
-	LRESULT PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
-	LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
+	LRESULT OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) final;
+	LRESULT ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) noexcept final;
 
-	void parseInfoRequest( const TString & input, TCHAR * szReturnValue ) const;
-	void parseCommandRequest( const TString & input );
-	void parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
+	//void parseInfoRequest(const TString & input, PTCHAR szReturnValue) const final;
+	void parseInfoRequest(const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const final;
+	void parseCommandRequest(const TString & input) final;
+	dcxWindowStyles parseControlStyles(const TString & tsStyles) final;
 
-	inline TString getType( ) const { return TString( TEXT("image") ); };
-	void toXml(TiXmlElement * xml) const;
+	inline const TString getType() const final { return TEXT("image"); };
+	inline const DcxControlTypes getControlType() const noexcept final { return DcxControlTypes::IMAGE; }
 
-	static void registerClass(void);
+	void toXml(TiXmlElement *const xml) const final;
+	TiXmlElement *toXml() const final;
 
-protected:
+	LRESULT CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept final;
+	static inline WNDPROC m_hDefaultClassProc{ nullptr };	//!< Default window procedure
 
+private:
 #ifdef DCX_USE_GDIPLUS
-	Image * m_pImage; //!< GDI+ Image Object
-	CompositingMode m_CMode; // Compositing Mode
-	CompositingQuality m_CQuality; // Compositing Quality
-	InterpolationMode m_IMode; // Interpolation Mode
-	SmoothingMode m_SMode; // Smoothing Mode
+	std::unique_ptr<Gdiplus::Image> m_pImage{ nullptr }; //!< GDI+ Image Object
+	Gdiplus::CompositingMode m_CMode{ Gdiplus::CompositingModeSourceCopy }; // Compositing Mode
+	Gdiplus::CompositingQuality m_CQuality{ Gdiplus::CompositingQualityDefault }; // Compositing Quality
+	Gdiplus::InterpolationMode m_IMode{ Gdiplus::InterpolationModeDefault }; // Interpolation Mode
+	Gdiplus::SmoothingMode m_SMode{ Gdiplus::SmoothingModeDefault }; // Smoothing Mode
+
 	bool LoadGDIPlusImage(const TString &flags, TString &filename);
 	void DrawGDIImage(HDC hdc, int x, int y, int w, int h);
 #endif
 	void DrawBMPImage(HDC hdc, const int x, const int y, const int w, const int h);
 	void DrawClientArea(HDC hdc);
-	HBITMAP m_hBitmap; //!< Bitmap
-	HICON m_hIcon; // !< icon
 
-	COLORREF m_clrTransColor; //!< Transparent color
-	BOOL m_bIsIcon;
 	// clears existing image and icon data and sets pointers to null
-	void PreloadData(void);
-	int m_iIconSize;
-	bool m_bResizeImage; //!< Resize Image
-	bool m_bTileImage; //!< Tile Image
-	bool m_bBuffer; //!< Double Buffer Rendering, needed for GDI+ when WS_EX_COMPOSITED
-	int m_iXOffset, m_iYOffset; //!< X & Y image offsets.
-	TString m_tsFilename;	//!< The loaded images filename.
+	void PreloadData(void) noexcept;
+
+	HBITMAP m_hBitmap{ nullptr }; //!< Bitmap
+	HICON m_hIcon{ nullptr }; // !< icon
+
+	COLORREF m_clrTransColor{ CLR_INVALID }; //!< Transparent color
+
+	DcxIconSizes m_iIconSize{ DcxIconSizes::SmallIcon };
+	bool m_bResizeImage{ true };	//!< Resize Image
+	bool m_bTileImage{ false };		//!< Tile Image
+	bool m_bBuffer{ false };		//!< Double Buffer Rendering, needed for GDI+ when WS_EX_COMPOSITED
+	bool m_bIsIcon{ false };		//!< Is this an icon?
+	int m_iXOffset{}, m_iYOffset{};	//!< X & Y image offsets.
+	TString m_tsFilename;			//!< The loaded images filename.
 };
 
 #endif // _DCXIMAGE_H_

@@ -17,11 +17,12 @@
 
 #include "defines.h"
 #include "Classes/dcxcontrol.h"
+#include "Classes\custom\ListHelper.h"
 
 class DcxDialog;
 
-#define CBEXSEARCH_W 0x01 //!< ComboEx WildCard Search
-#define CBEXSEARCH_R 0x02 //!< ComboEx Regex Search
+//#define CBEXSEARCH_W 0x01 //!< ComboEx WildCard Search
+//#define CBEXSEARCH_R 0x02 //!< ComboEx Regex Search
 
 /*!
  * \brief blah
@@ -29,18 +30,19 @@ class DcxDialog;
  * blah
  */
 
-typedef struct tagDCXCOMBOEXEDIT {
+struct DCXCOMBOEXEDIT
+{
+	WNDPROC OldProc{ nullptr }; //!< Subclassed Window Procedure of Combo
+	HWND cHwnd{ nullptr };      //!< Parent ComboEx Handle
+	HWND pHwnd{ nullptr };      //!< Dialog Handle
+};
+using LPDCXCOMBOEXEDIT = DCXCOMBOEXEDIT * ;
 
-  WNDPROC OldProc; //!< Subclassed Window Procedure of Combo
-  HWND cHwnd;      //!< Parent ComboEx Handle
-  HWND pHwnd;      //!< Dialog Handle
-
-} DCXCOMBOEXEDIT, *LPDCXCOMBOEXEDIT;
-
-
-typedef struct tagDCXCBITEM {
+struct DCXCBITEM
+{
 	TString tsMark;		// Marked text
-} DCXCBITEM,*LPDCXCBITEM;
+};
+using LPDCXCBITEM = DCXCBITEM *;
 
 /*!
  * \brief blah
@@ -48,45 +50,66 @@ typedef struct tagDCXCBITEM {
  * blah
  */
 
-class DcxComboEx : public DcxControl {
-
+class DcxComboEx final
+	: public DcxControl
+	, public DcxListHelper
+{
 public:
+	DcxComboEx() = delete;
+	DcxComboEx(const DcxComboEx &) = delete;
+	DcxComboEx &operator =(const DcxComboEx &) = delete;	// No assignments!
+	DcxComboEx(DcxComboEx &&) = delete;
+	DcxComboEx &operator =(DcxComboEx &&) = delete;
 
-	DcxComboEx( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, const TString & styles );
-	virtual ~DcxComboEx( );
+	DcxComboEx(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles );
+	~DcxComboEx( ) noexcept;
 
-	LRESULT PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
-	LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
+	LRESULT OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) final;
+	LRESULT ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) final;
 
-	void parseInfoRequest( const TString & input, TCHAR * szReturnValue ) const;
-	void parseCommandRequest( const TString & input );
-	void parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
+	//void parseInfoRequest(const TString & input, PTCHAR szReturnValue) const final;
+	void parseInfoRequest(const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const final;
+	void parseCommandRequest(const TString & input) final;
+	dcxWindowStyles parseControlStyles(const TString & tsStyles) final;
 
-	HIMAGELIST getImageList( );
-	void setImageList( HIMAGELIST himl );
-	static HIMAGELIST createImageList( );
+	HIMAGELIST getImageList( ) const noexcept;
+	void setImageList( const HIMAGELIST himl ) noexcept;
+	//static HIMAGELIST createImageList( );
 
-	BOOL matchItemText( const int nItem, const TString * search, const UINT SearchType ) const;
+	bool matchItemText( const int nItem, const TString &search, const DcxSearchTypes &SearchType ) const;
 
-	LRESULT insertItem( const PCOMBOBOXEXITEM lpcCBItem );
-	LRESULT getItem( PCOMBOBOXEXITEM lpcCBItem ) const;
-	LRESULT getEditControl( ) const;
-	LRESULT deleteItem( const int iIndex );
-	LRESULT setCurSel( const int iIndex );
-	LRESULT getCurSel( ) const;
-	LRESULT getLBText( const int iIndex, LPSTR lps );
-	LRESULT resetContent( );
-	LRESULT getCount( ) const;
-	LRESULT limitText( const int iLimit );
+	LRESULT insertItem( const PCOMBOBOXEXITEM lpcCBItem ) noexcept;
+	LRESULT getItem( const PCOMBOBOXEXITEM lpcCBItem ) const noexcept;
+	HWND getEditControl( ) const noexcept;
+	LRESULT deleteItem( const int iIndex ) noexcept;
+	LRESULT setCurSel( const int iIndex )  noexcept;
+	LRESULT getCurSel( ) const noexcept;
+	LRESULT getLBText( const int iIndex, LPSTR lps ) noexcept;
+	LRESULT resetContent( ) noexcept;
+	LRESULT getCount( ) const noexcept;
+	LRESULT limitText( const int iLimit ) noexcept;
 
-	static LRESULT CALLBACK ComboExEditProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
+	//static void getItemRange(const TString &tsItems, const int nItemCnt, int *iStart, int *iEnd);
+	//static std::pair<int, int> getItemRange(const TString &tsItems, const int nItemCnt);
+	static LRESULT CALLBACK ComboExEditProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam ) noexcept;
 
-	inline TString getType( ) const { return TString( TEXT("comboex") ); };
-	TString getStyles(void) const;
+	inline const TString getType() const final { return TEXT("comboex"); };
+	inline const DcxControlTypes getControlType() const noexcept final { return DcxControlTypes::COMBOEX; }
+
+	void toXml(TiXmlElement *const xml) const final;
+	TiXmlElement * toXml(void) const final;
+	const TString getStyles(void) const final;
+
+	static inline WNDPROC m_hDefaultClassProc{ nullptr };	//!< Default window procedure
+	LRESULT CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept final;
 
 protected:
 
-	HWND m_EditHwnd;  //!< Combo's Edit Control Handle
+	HWND				m_EditHwnd{ nullptr };	//!< Combo's Edit Control Handle
+	HWND				m_hComboHwnd{ nullptr };	//!< Combo's handle
+private:
+	DCXCOMBOEXEDIT		m_exEdit{};
+
 };
 
 #endif // _DCXCOMBOEX_H_

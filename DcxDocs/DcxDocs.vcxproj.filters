@@ -1,0 +1,187 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Source Files\inc">
+      <UniqueIdentifier>{85a05c9b-71bb-4dd6-a403-22a95ead39b5}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="readme.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\docs_new\dcx_changes.php">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="..\docs_new\dcx_gen.php">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="..\docs_new\dcx_inc.php">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="..\docs_new\dcx_wiki.php">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="..\docs_new\download.php">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="..\docs_new\inc\archive.php">
+      <Filter>Source Files\inc</Filter>
+    </None>
+    <None Include="..\docs_new\inc\box.php">
+      <Filter>Source Files\inc</Filter>
+    </None>
+    <None Include="..\docs_new\inc\button.php">
+      <Filter>Source Files\inc</Filter>
+    </None>
+    <None Include="..\docs_new\inc\calendar.php">
+      <Filter>Source Files\inc</Filter>
+    </None>
+    <None Include="..\docs_new\inc\check.php">
+      <Filter>Source Files\inc</Filter>
+    </None>
+    <None Include="..\docs_new\inc\cla.php">
+      <Filter>Source Files\inc</Filter>
+    </None>
+    <None Include="..\docs_new\inc\colorcombo.php">
+      <Filter>Source Files\inc</Filter>
+    </None>
+    <None Include="..\docs_new\inc\comboex.php">
+      <Filter>Source Files\inc</Filter>
+    </None>
+    <None Include="..\docs_new\inc\datetime.php">
+      <Filter>Source Files\inc</Filter>
+    </None>
+    <None Include="..\docs_new\inc\dcx.php">
+      <Filter>Source Files\inc</Filter>
+    </None>
+    <None Include="..\docs_new\inc\dcxml.php">
+      <Filter>Source Files\inc</Filter>
+    </None>
+    <None Include="..\docs_new\inc\dcxvsmdx.php">
+      <Filter>Source Files\inc</Filter>
+    </None>
+    <None Include="..\docs_new\inc\dialog.php">
+      <Filter>Source Files\inc</Filter>
+    </None>
+    <None Include="..\docs_new\inc\directshow.php">
+      <Filter>Source Files\inc</Filter>
+    </None>
+    <None Include="..\docs_new\inc\divider.php">
+      <Filter>Source Files\inc</Filter>
+    </None>
+    <None Include="..\docs_new\inc\edit.php">
+      <Filter>Source Files\inc</Filter>
+    </None>
+    <None Include="..\docs_new\inc\image.php">
+      <Filter>Source Files\inc</Filter>
+    </None>
+    <None Include="..\docs_new\inc\index.php">
+      <Filter>Source Files\inc</Filter>
+    </None>
+    <None Include="..\docs_new\inc\ipaddress.php">
+      <Filter>Source Files\inc</Filter>
+    </None>
+    <None Include="..\docs_new\inc\line.php">
+      <Filter>Source Files\inc</Filter>
+    </None>
+    <None Include="..\docs_new\inc\link.php">
+      <Filter>Source Files\inc</Filter>
+    </None>
+    <None Include="..\docs_new\inc\list.php">
+      <Filter>Source Files\inc</Filter>
+    </None>
+    <None Include="..\docs_new\inc\listview.php">
+      <Filter>Source Files\inc</Filter>
+    </None>
+    <None Include="..\docs_new\inc\pager.php">
+      <Filter>Source Files\inc</Filter>
+    </None>
+    <None Include="..\docs_new\inc\panel.php">
+      <Filter>Source Files\inc</Filter>
+    </None>
+    <None Include="..\docs_new\inc\pbar.php">
+      <Filter>Source Files\inc</Filter>
+    </None>
+    <None Include="..\docs_new\inc\radio.php">
+      <Filter>Source Files\inc</Filter>
+    </None>
+    <None Include="..\docs_new\inc\rebar.php">
+      <Filter>Source Files\inc</Filter>
+    </None>
+    <None Include="..\docs_new\inc\richedit.php">
+      <Filter>Source Files\inc</Filter>
+    </None>
+    <None Include="..\docs_new\inc\scroll.php">
+      <Filter>Source Files\inc</Filter>
+    </None>
+    <None Include="..\docs_new\inc\stacker.php">
+      <Filter>Source Files\inc</Filter>
+    </None>
+    <None Include="..\docs_new\inc\statusbar.php">
+      <Filter>Source Files\inc</Filter>
+    </None>
+    <None Include="..\docs_new\inc\tab.php">
+      <Filter>Source Files\inc</Filter>
+    </None>
+    <None Include="..\docs_new\inc\text.php">
+      <Filter>Source Files\inc</Filter>
+    </None>
+    <None Include="..\docs_new\inc\toolbar.php">
+      <Filter>Source Files\inc</Filter>
+    </None>
+    <None Include="..\docs_new\inc\trackbar.php">
+      <Filter>Source Files\inc</Filter>
+    </None>
+    <None Include="..\docs_new\inc\treeview.php">
+      <Filter>Source Files\inc</Filter>
+    </None>
+    <None Include="..\docs_new\inc\tutorials.php">
+      <Filter>Source Files\inc</Filter>
+    </None>
+    <None Include="..\docs_new\inc\updown.php">
+      <Filter>Source Files\inc</Filter>
+    </None>
+    <None Include="..\docs_new\inc\webctrl.php">
+      <Filter>Source Files\inc</Filter>
+    </None>
+    <None Include="..\docs_new\inc\window.php">
+      <Filter>Source Files\inc</Filter>
+    </None>
+    <None Include="..\docs_new\inc\xdialog.php">
+      <Filter>Source Files\inc</Filter>
+    </None>
+    <None Include="..\docs_new\inc\xdid.php">
+      <Filter>Source Files\inc</Filter>
+    </None>
+    <None Include="..\docs_new\inc\xdock.php">
+      <Filter>Source Files\inc</Filter>
+    </None>
+    <None Include="..\docs_new\inc\xmenubar.php">
+      <Filter>Source Files\inc</Filter>
+    </None>
+    <None Include="..\docs_new\inc\xpopup.php">
+      <Filter>Source Files\inc</Filter>
+    </None>
+    <None Include="..\docs_new\inc\xstatusbar.php">
+      <Filter>Source Files\inc</Filter>
+    </None>
+    <None Include="..\docs_new\inc\xtray.php">
+      <Filter>Source Files\inc</Filter>
+    </None>
+    <None Include="..\docs_new\inc\xtreebar.php">
+      <Filter>Source Files\inc</Filter>
+    </None>
+  </ItemGroup>
+</Project>

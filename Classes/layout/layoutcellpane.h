@@ -23,8 +23,9 @@
  * blah
  */
 
-class LayoutCellPane : public LayoutCell {
-
+class LayoutCellPane final
+	: public LayoutCell
+{
 public:
 
 	/*!
@@ -32,38 +33,45 @@ public:
 	*
 	* blah
 	*/
-	enum PaneType
+	enum class PaneType
+		: UINT
 	{
 		HORZ=1,         //!< Horizontal Stacked LayoutCells
 		VERT=HORZ<<1   //!< Vertical Stacked LayoutCells
 	};
 
-	explicit LayoutCellPane( const PaneType nType = HORZ );
-	virtual ~LayoutCellPane( );
+	//LayoutCellPane() = delete;
+	LayoutCellPane(const LayoutCellPane &) = delete;
+	LayoutCellPane &operator =(const LayoutCellPane &) = delete;	// No assignments!
+	LayoutCellPane(LayoutCellPane &&) = delete;
+	LayoutCellPane &operator =(LayoutCellPane &&) = delete;
 
-	virtual void LayoutChild( );
-	virtual HDWP ExecuteLayout( HDWP hdwp );
-	virtual void getMinMaxInfo( CellMinMaxInfo * pCMMI );
+	explicit LayoutCellPane(const PaneType nType = PaneType::HORZ) noexcept;
+	~LayoutCellPane( ) noexcept;
 
+	void LayoutChild() final;
+	HDWP ExecuteLayout( const HDWP hdwp ) final;
+	void getMinMaxInfo( CellMinMaxInfo *const pCMMI ) const noexcept final;
 
-	LayoutCell * addChild( LayoutCell * p_Cell, const int nWeight );
-	void toXml(TiXmlElement *xml);
-	TiXmlElement * toXml(void);
+	void toXml(TiXmlElement *const xml) final;
+	TiXmlElement * toXml(void) final;
 
-	CellType getType( ) const;
+	const CellType getType( ) const noexcept final;
+
+	LayoutCell * addChild(gsl::owner<LayoutCell *> p_Cell, const UINT nWeight);
 
 protected:
 
 	PaneType m_nType; //!< Fixed Cell Type
 
-	typedef std::pair<LayoutCell *, int> CellNode;  //!< Child LayoutCell + Weight Pair
-	typedef std::vector<CellNode> VectorOfNodePtrs; //!< Vector of Node pointers
+	using CellNode = std::pair<LayoutCell *, UINT>;  //!< Child LayoutCell + Weight Pair
+	using VectorOfNodePtrs = std::vector<CellNode>; //!< Vector of Node pointers
 
 	VectorOfNodePtrs m_vpCells; //!< Vector Of Stacked LayoutCell
 
-	void AdjustMinSize( int & nSizeLeft, int & nTotalWeight );
-	void AdjustSize( int & nSizeLeft, int & nTotalWeight );
-	void AdjustPos( );
+	void AdjustMinSize( UINT & nSizeLeft, UINT & nTotalWeight ) noexcept;
+	void AdjustSize( UINT & nSizeLeft, UINT & nTotalWeight ) noexcept;
+	void AdjustPos( ) noexcept;
 
 };
 

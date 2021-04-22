@@ -32,7 +32,7 @@ foreach ($PAGES as $page => $pagelabel) {
 	    $hfile = fopen($DOCPATH . "$page.htm", "w");
     
     // couldnt open file for writing
-    if (!$hfile) {
+  if (!$hfile) {
 		error_log("Could not open file for writing. Terminating batch.");
 		exit();
 	}

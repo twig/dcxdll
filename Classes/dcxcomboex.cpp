@@ -25,131 +25,164 @@
 * \param styles Window Style Tokenized List
 */
 
-DcxComboEx::DcxComboEx( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, const TString & styles ) 
-: DcxControl( ID, p_Dialog )
+DcxComboEx::DcxComboEx(const UINT ID, DcxDialog* const  p_Dialog, const HWND mParentHwnd, const RECT* const rc, const TString& styles)
+	: DcxControl(ID, p_Dialog)
 {
-	LONG Styles = 0, ExStyles = 0;
-	BOOL bNoTheme = FALSE;
-	this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
+	const auto ws = parseControlStyles(styles);
 
-	this->m_Hwnd = CreateWindowEx(
-		ExStyles,
+	m_Hwnd = dcxCreateWindow(
+		ws.m_ExStyles,
 		DCX_COMBOEXCLASS,
-		NULL,
-		WS_CHILD | CBS_AUTOHSCROLL | Styles,
-		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
+		ws.m_Styles | WindowStyle::Child | CBS_AUTOHSCROLL,
+		rc,
 		mParentHwnd,
-		(HMENU) ID,
-		GetModuleHandle(NULL),
-		NULL);
+		ID,
+		this);
 
-	if (!IsWindow(this->m_Hwnd))
-		throw TEXT("Unable To Create Window");
+	if (!IsWindow(m_Hwnd))
+		throw Dcx::dcxException("Unable To Create Window");
 
-	if ( bNoTheme ) {
-		Dcx::UXModule.dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
-		//SendMessage( this->m_Hwnd, CBEM_SETWINDOWTHEME, NULL, (LPARAM)(LPCWSTR)L" "); // do this instead?
+	if (ws.m_NoTheme)
+	{
+		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
+		//SendMessage( m_Hwnd, CBEM_SETWINDOWTHEME, NULL, (LPARAM)(LPCWSTR)L" "); // do this instead?
 	}
 
-	this->m_EditHwnd = (HWND) this->getEditControl( );
+	this->m_EditHwnd = getEditControl();
 
-	if ( IsWindow( this->m_EditHwnd ) ) {
-		if ( bNoTheme )
-			Dcx::UXModule.dcxSetWindowTheme( this->m_EditHwnd , L" ", L" " );
+	if (IsWindow(this->m_EditHwnd))
+	{
+		if (ws.m_NoTheme)
+			Dcx::UXModule.dcxSetWindowTheme(this->m_EditHwnd, L" ", L" ");
 
-		try {
-			LPDCXCOMBOEXEDIT lpce = new DCXCOMBOEXEDIT;
+		this->m_exEdit.cHwnd = m_Hwnd;
+		this->m_exEdit.pHwnd = mParentHwnd;
 
-			lpce->cHwnd = this->m_Hwnd;
-			lpce->pHwnd = mParentHwnd;
-
-			//SetWindowLong( this->m_EditHwnd, GWL_STYLE, GetWindowLong( this->m_EditHwnd, GWL_STYLE ));// | ES_AUTOHSCROLL );
-			lpce->OldProc = SubclassWindow( this->m_EditHwnd, DcxComboEx::ComboExEditProc );
-			SetWindowLongPtr( this->m_EditHwnd, GWLP_USERDATA, (LONG) lpce );
-		}
-		catch ( std::bad_alloc ) {
-			DestroyWindow(this->m_Hwnd);
-			throw TEXT("Unable to Allocate Memory");
-		}
+		//SetWindowLong( this->m_EditHwnd, GWL_STYLE, GetWindowLong( this->m_EditHwnd, GWL_STYLE ));// | ES_AUTOHSCROLL );
+		this->m_exEdit.OldProc = SubclassWindow(this->m_EditHwnd, DcxComboEx::ComboExEditProc);
+		SetWindowLongPtr(this->m_EditHwnd, GWLP_USERDATA, reinterpret_cast<LONG>(&this->m_exEdit));
 	}
 
-	HWND combo = (HWND)SendMessage(this->m_Hwnd,CBEM_GETCOMBOCONTROL,0,0);
-	if (IsWindow(combo)) {
-		if (bNoTheme)
-			Dcx::UXModule.dcxSetWindowTheme( combo , L" ", L" " );
+	this->m_hComboHwnd = reinterpret_cast<HWND>(SendMessage(m_Hwnd, CBEM_GETCOMBOCONTROL, 0, 0));
+	if (IsWindow(this->m_hComboHwnd))
+	{
+		if (ws.m_NoTheme)
+			Dcx::UXModule.dcxSetWindowTheme(this->m_hComboHwnd, L" ", L" ");
 
-		COMBOBOXINFO cbi = { 0 };
+		COMBOBOXINFO cbi{};
 		cbi.cbSize = sizeof(cbi);
-		GetComboBoxInfo(combo, &cbi);
+		if (!GetComboBoxInfo(this->m_hComboHwnd, &cbi))
+			throw Dcx::dcxException("Unable to get Combo Box Info");
 
-		if (styles.istok(TEXT("sort"))) { // doesnt work atm.
-			if (IsWindow(cbi.hwndList)) {
+		if (styles.istok(TEXT("sort")))
+		{ // doesnt work atm. CBS_SORT
+			if (IsWindow(cbi.hwndList))
 				AddStyles(cbi.hwndList, GWL_STYLE, LBS_SORT);
-			}
 		}
-		if (styles.istok(TEXT("hscroll"))) {
+		if (styles.istok(TEXT("hscroll")))
+		{
 			//if (IsWindow(cbi.hwndCombo))
 			//AddStyles(cbi.hwndCombo, GWL_STYLE, WS_HSCROLL);
 			if (IsWindow(cbi.hwndList))
 				AddStyles(cbi.hwndList, GWL_STYLE, WS_HSCROLL);
 		}
 	}
-	//if (p_Dialog->getToolTip() != NULL) {
+	//if (p_Dialog->getToolTip() != nullptr) {
 	//	if (styles.istok(TEXT("tooltips"))) {
 	//		this->m_ToolTipHWND = p_Dialog->getToolTip();
-	//		AddToolTipToolInfo(this->m_ToolTipHWND, this->m_Hwnd);
+	//		AddToolTipToolInfo(this->m_ToolTipHWND, m_Hwnd);
 	//		AddToolTipToolInfo(this->m_ToolTipHWND, this->m_EditHwnd);
 	//	}
 	//}
 
-	this->setControlFont( GetStockFont( DEFAULT_GUI_FONT ), FALSE );
-	this->registreDefaultWindowProc( );
-	SetProp( this->m_Hwnd, TEXT("dcx_cthis"), (HANDLE) this );
+	this->setControlFont(Dcx::dcxGetStockObject<HFONT>(DEFAULT_GUI_FONT), FALSE);
 
-	DragAcceptFiles(this->m_Hwnd, TRUE);
+	DragAcceptFiles(m_Hwnd, TRUE);
 
 	// fix bug with disabled creation
 	// todo: fix this properly
-	if (Styles & WS_DISABLED) {
-		EnableWindow(this->m_Hwnd, TRUE);
-		EnableWindow(this->m_Hwnd, FALSE);
-	}
-}
-
-/*!
-* \brief blah
-*
-* blah
-*/
-
-DcxComboEx::~DcxComboEx( ) {
-
-	ImageList_Destroy( this->getImageList( ) );
-
-	this->unregistreDefaultWindowProc( );
-}
-
-/*!
-* \brief blah
-*
-* blah
-*/
-
-void DcxComboEx::parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme )
-{
-	//*ExStyles |= CBES_EX_NOSIZELIMIT;
-
-	for (TString tsStyle(styles.getfirsttok( 1 )); tsStyle != TEXT(""); tsStyle = styles.getnexttok( ))
+	if (dcx_testflag(ws.m_Styles, WS_DISABLED))
 	{
-		if ( tsStyle == TEXT("simple") )
-			*Styles |= CBS_SIMPLE;
-		else if ( tsStyle == TEXT("dropdown") )
-			*Styles |= CBS_DROPDOWNLIST;
-		else if ( tsStyle == TEXT("dropedit") )
-			*Styles |= CBS_DROPDOWN;
+		EnableWindow(m_Hwnd, TRUE);
+		EnableWindow(m_Hwnd, FALSE);
+	}
+}
+
+/*!
+* \brief blah
+*
+* blah
+*/
+
+DcxComboEx::~DcxComboEx() noexcept
+{
+	ImageList_Destroy(this->getImageList());
+}
+
+/*!
+* \brief blah
+*
+* blah
+*/
+
+//void DcxComboEx::parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme )
+//{
+//	//*ExStyles |= CBES_EX_NOSIZELIMIT;
+//
+//	for (const auto &tsStyle: styles)
+//	{
+//#if DCX_USE_HASHING
+//		switch (std::hash<TString>{}(tsStyle))
+//		{
+//			case L"simple"_hash:
+//				*Styles |= CBS_SIMPLE;
+//				break;
+//			case L"dropdown"_hash:
+//				*Styles |= CBS_DROPDOWNLIST;
+//				break;
+//			case L"dropedit"_hash:
+//				*Styles |= CBS_DROPDOWN;
+//			default:
+//				break;
+//		}
+//#else
+//		if ( tsStyle == TEXT("simple") )
+//			*Styles |= CBS_SIMPLE;
+//		else if ( tsStyle == TEXT("dropdown") )
+//			*Styles |= CBS_DROPDOWNLIST;
+//		else if ( tsStyle == TEXT("dropedit") )
+//			*Styles |= CBS_DROPDOWN;
+//#endif
+//	}
+//
+//	this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
+//}
+
+dcxWindowStyles DcxComboEx::parseControlStyles(const TString& tsStyles)
+{
+	dcxWindowStyles ws;
+
+	//ws.m_ExStyles |= CBES_EX_NOSIZELIMIT;
+
+	for (const auto& tsStyle : tsStyles)
+	{
+		switch (std::hash<TString>{}(tsStyle))
+		{
+		case L"simple"_hash:
+			ws.m_Styles |= CBS_SIMPLE;
+			break;
+		case L"dropdown"_hash:
+			ws.m_Styles |= CBS_DROPDOWNLIST;
+			break;
+		case L"dropedit"_hash:
+			ws.m_Styles |= CBS_DROPDOWN;
+			break;
+		default:
+			break;
+		}
 	}
 
-	this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
+	return parseGeneralControlStyles(tsStyles, ws);
 }
 
 /*!
@@ -161,145 +194,130 @@ void DcxComboEx::parseControlStyles( const TString & styles, LONG * Styles, LONG
 * \return > void
 */
 
-void DcxComboEx::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) const
+void DcxComboEx::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>& szReturnValue) const
 {
-	const UINT numtok = input.numtok( );
+	const auto numtok = input.numtok();
 
-	const TString prop(input.getfirsttok( 3 ));
+	switch (std::hash<TString>{}(input.getfirsttok(3)))
+	{
+		// [NAME] [ID] [PROP] [N]
+	case L"text"_hash:
+	{
+		if (numtok < 4)
+			throw Dcx::dcxException("Invalid number of argumnets");
 
-	// [NAME] [ID] [PROP] [N]
-	if ( prop == TEXT("text") && numtok > 3 ) {
+		if (const auto nItem = input.getnexttok().to_int() - 1; nItem > -1)
+		{
+			COMBOBOXEXITEM cbi{ CBEIF_TEXT, nItem, szReturnValue, MIRC_BUFFER_SIZE_CCH };
 
-		const int nItem = input.getnexttok( ).to_int( ) - 1;	// tok 4
-
-		if ( nItem > -1 ) {
-
-			COMBOBOXEXITEM cbi;
-			ZeroMemory( &cbi, sizeof( COMBOBOXEXITEM ) );
-
-			cbi.mask = CBEIF_TEXT;
-			cbi.iItem = nItem;
-			cbi.pszText = szReturnValue;
-			cbi.cchTextMax = MIRC_BUFFER_SIZE_CCH;
-
-			this->getItem( &cbi );
-			return;
+			getItem(&cbi);
 		}
-		else if ( nItem == -1 && ( this->isStyle( CBS_DROPDOWN ) || this->isStyle( CBS_SIMPLE ) ) ) {
+		else {
+			if (nItem != -1 || (!this->isStyle(WindowStyle::CBS_DropDown) && !this->isStyle(WindowStyle::CBS_Simple)))
+				throw Dcx::dcxException("Invalid Item");
 
-			GetWindowText( (HWND) this->getEditControl( ), szReturnValue, MIRC_BUFFER_SIZE_CCH );
-			return;
+			//szReturnValue = m_tsSelected;
+
+			if (IsWindow(m_EditHwnd))
+				GetWindowText(m_EditHwnd, szReturnValue, MIRC_BUFFER_SIZE_CCH);
 		}
 	}
+	break;
 	// [NAME] [ID] [PROP]
-	else if ( prop == TEXT("seltext") ) {
+	case L"seltext"_hash:
+	{
+		const auto nItem = getCurSel();
 
-		const int nItem = this->getCurSel( );
+		if (nItem < 0)
+			throw Dcx::dcxException("Invalid Item");
 
-		if ( nItem > -1 ) {
+		COMBOBOXEXITEM cbi{ CBEIF_TEXT,nItem,szReturnValue,MIRC_BUFFER_SIZE_CCH,0,0,0,0,0 };
 
-			COMBOBOXEXITEM cbi;
-			ZeroMemory( &cbi, sizeof( COMBOBOXEXITEM ) );
-
-			cbi.mask = CBEIF_TEXT;
-			cbi.iItem = nItem;
-			cbi.pszText = szReturnValue;
-			cbi.cchTextMax = MIRC_BUFFER_SIZE_CCH;
-
-			this->getItem( &cbi );
-			return;
-		}
+		getItem(&cbi);
 	}
+	break;
 	// [NAME] [ID] [PROP]
-	else if ( prop == TEXT("sel") ) {
+	case L"sel"_hash:
+	{
+		const auto nItem = getCurSel();
 
-		const int nItem = this->getCurSel( );
+		if (nItem < 0)
+			throw Dcx::dcxException("Invalid Item");
 
-		if ( nItem > -1 ) {
-
-			wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), nItem + 1 );
-			return;
-		}
+		_ts_snprintf(szReturnValue, TEXT("%d"), nItem + 1);
 	}
+	break;
 	// [NAME] [ID] [PROP]
-	else if ( prop == TEXT("num") ) {
+	case L"num"_hash:
+		_ts_snprintf(szReturnValue, TEXT("%d"), getCount());
+		break;
+		// [NAME] [ID] [PROP] {TAB}[MATCHTEXT]{TAB} [T] [N]
+	case L"find"_hash:
+	{
+		if (numtok < 6)
+			throw Dcx::dcxException("Invalid number of argumnets");
 
-		wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), this->getCount( ) );
-		return;
-	}
-	// [NAME] [ID] [PROP] {TAB}[MATCHTEXT]{TAB} [T] [N]
-	else if ( prop == TEXT("find") && numtok > 5 ) {
+		if (const auto matchtext(input.getfirsttok(2, TSTABCHAR).trim()); !matchtext.empty())
+		{
+			const auto params(input.getnexttok(TSTABCHAR).trim());	// tok 3
+			auto SearchType = CharToSearchType(params++[0]);
 
-		const TString matchtext(input.getfirsttok(2, TSTAB).trim());
-		const TString params(input.getnexttok( TSTAB).trim());	// tok 3
+			const auto N = params++.to_<UINT>();	// tok 2
 
-		if ( matchtext.len( ) > 0 ) {
-
-			UINT SearchType;
-
-			if ( params.getfirsttok( 1 ) == TEXT("R") )
-				SearchType = CBEXSEARCH_R;
-			else
-				SearchType = CBEXSEARCH_W;
-
-			const int N = params.getnexttok( ).to_int( );	// tok 2
-
-			const int nItems = this->getCount( );
-			int count = 0;
+			const auto nItems = this->getCount();
 
 			// count total
-			if ( N == 0 ) {
-				for (int i = 0; i < nItems; i++ )
+			if (auto count = decltype(N){0}; N == 0)
+			{
+				for (auto i = decltype(nItems){0}; i < nItems; ++i)
 				{
-					if ( this->matchItemText( i, &matchtext, SearchType ) )
-						count++;
+					if (this->matchItemText(i, matchtext, SearchType))
+						++count;
 				}
 
-				wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), count );
-				return;
+				_ts_snprintf(szReturnValue, TEXT("%u"), count);
 			}
 			// find Nth matching
 			else {
-				for (int i = 0; i < nItems; i++ )
+				for (auto i = decltype(nItems){0}; i < nItems; ++i)
 				{
-					if ( this->matchItemText( i, &matchtext, SearchType ) )
-						count++;
+					if (this->matchItemText(i, matchtext, SearchType))
+						++count;
 
-					if ( count == N ) {
-
-						wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), i + 1 );
+					if (count == N)
+					{
+						_ts_snprintf(szReturnValue, TEXT("%d"), i + 1);
 						return;
 					}
 				}
 			} // else
 		}
-		return;
 	}
+	break;
 	// [NAME] [ID] [PROP] [ROW]
-	else if ( prop == TEXT("markeditem") && numtok == 4 ) {
+	case L"markeditem"_hash:
+	{
+		if (numtok != 4)
+			throw Dcx::dcxException("Invalid number of argumnets");
 
-		const int nItem = input.getnexttok( ).to_int( ) - 1;	// tok 4
+		const auto nItem = input.getnexttok().to_int() - 1;	// tok 4
 
-		COMBOBOXEXITEM cbi;
-		ZeroMemory( &cbi, sizeof( COMBOBOXEXITEM ) );
+		COMBOBOXEXITEM cbi{ CBEIF_LPARAM, nItem };
 
-		cbi.mask = CBEIF_LPARAM;
-		cbi.iItem = nItem;
+		getItem(&cbi);
 
-		this->getItem( &cbi );
+		auto mycbi = reinterpret_cast<LPDCXCBITEM>(cbi.lParam);
 
-		LPDCXCBITEM mycbi = (LPDCXCBITEM)cbi.lParam;
+		if (!mycbi)
+			throw Dcx::dcxException("Unable to get DCX Item");
 
-		if (mycbi != NULL) {
-			lstrcpyn(szReturnValue, mycbi->tsMark.to_chr(), MIRC_BUFFER_SIZE_CCH);
-			return;
-		}
-
+		szReturnValue = mycbi->tsMark.to_chr();
 	}
-	else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
-		return;
-
-	szReturnValue[0] = 0;
+	break;
+	default:
+		parseGlobalInfoRequest(input, szReturnValue);
+		break;
+	}
 }
 
 /*!
@@ -308,177 +326,241 @@ void DcxComboEx::parseInfoRequest( const TString & input, PTCHAR szReturnValue )
 * blah
 */
 
-void DcxComboEx::parseCommandRequest( const TString &input) {
-	const XSwitchFlags flags(input.getfirsttok( 3 ));
+void DcxComboEx::parseCommandRequest(const TString& input)
+{
+	const XSwitchFlags flags(input.getfirsttok(3));
 
-	const UINT numtok = input.numtok( );
+	const auto numtok = input.numtok();
 
 	// xdid -r [NAME] [ID] [SWITCH]
-	if (flags[TEXT('r')]) {
+	if (flags[TEXT('r')])
 		this->resetContent();
-	}
 
 	// xdid -a [NAME] [ID] [SWITCH] [N] [INDENT] [ICON] [STATE] [OVERLAY] Item Text
 	// [NAME] [ID] -a [N] [INDENT] [ICON] [STATE] [OVERLAY] Item Text
-	if (flags[TEXT('a')] && numtok > 8) {
-		int nPos			= input.getnexttok( ).to_int() -1;	// tok 4
-		const int indent	= input.getnexttok( ).to_int();		// tok 5
-		const int icon		= input.getnexttok( ).to_int() -1;	// tok 6
-		const int state		= input.getnexttok( ).to_int() -1;	// tok 7
-		//int overlay = input.getnexttok( ).to_int() - 1;		// tok 8
-		const TString itemtext(input.gettok( 9, -1));
+	if (flags[TEXT('a')])
+	{
+		if (numtok < 9)
+			throw Dcx::dcxException("Insufficient parameters");
 
-		if (nPos == -2) {
+#if TSTRING_TESTCODE
+		const auto nPos = input.getnexttokas<int>() - 1;			// tok 4
+		const auto indent = input.getnexttokas<int>();		// tok 5
+		const auto icon = input.getnexttokas<int>() - 1;	// tok 6
+		const auto state = input.getnexttokas<int>() - 1;	// tok 7
+		const auto overlay = input.getnexttokas<int>();		// tok 8		(never used, here for spacing only atm)
+#else
+		const auto nPos = input.getnexttok().to_int() - 1;		// tok 4
+		const auto indent = input.getnexttok().to_int();	// tok 5
+		const auto icon = input.getnexttok().to_int() - 1;	// tok 6
+		const auto state = input.getnexttok().to_int() - 1;	// tok 7
+		const auto overlay = input.getnexttok().to_int();	// tok 8		(never used, here for spacing only atm)
+#endif
+		const auto itemtext(input.getlasttoks());			// tok 9, -1
+
+		if (nPos < -1)
+		{
 			if (IsWindow(this->m_EditHwnd))
 				SetWindowText(this->m_EditHwnd, itemtext.to_chr());
-
-			//SendMessage(this->m_EditHwnd, WM_SETTEXT,0, (LPARAM)itemtext.to_chr());
 		}
 		else {
-			COMBOBOXEXITEM cbi;
-
-			ZeroMemory(&cbi, sizeof(COMBOBOXEXITEM));
-
-			cbi.mask = CBEIF_TEXT | CBEIF_INDENT | CBEIF_IMAGE | CBEIF_SELECTEDIMAGE | CBEIF_LPARAM;
-			cbi.iIndent = indent;
-			cbi.iImage = icon;
-			cbi.iSelectedImage = state;
-			//cbi.iOverlay = overlay;
-			cbi.pszText = itemtext.to_chr();
-			cbi.iItem = nPos;
-			cbi.lParam = (LPARAM)new DCXCBITEM;
-
-			nPos = this->insertItem(&cbi);
-
+			if (COMBOBOXEXITEM cbi{ (CBEIF_TEXT | CBEIF_INDENT | CBEIF_IMAGE | CBEIF_SELECTEDIMAGE | CBEIF_LPARAM),nPos,const_cast<TCHAR*>(itemtext.to_chr()),0,icon,state,overlay,indent, reinterpret_cast<LPARAM>(new DCXCBITEM) }; this->insertItem(&cbi) < 0)
+			{
+				delete reinterpret_cast<DCXCBITEM*>(cbi.lParam);
+				throw Dcx::dcxException("Unable to add item.");
+			}
 			// Now update the horizontal scroller
-			HWND combo = (HWND)SendMessage(this->m_Hwnd, CBEM_GETCOMBOCONTROL, NULL, NULL);
-
-			if (IsWindow(combo)) {
+			if (const auto combo = reinterpret_cast<HWND>(SendMessage(m_Hwnd, CBEM_GETCOMBOCONTROL, NULL, NULL)); IsWindow(combo))
+			{
 				// Get Font sizes (best way i can find atm, if you know something better then please let me know)
-				int nMaxStrlen = itemtext.len();
-				const int nHorizExtent = (int)SendMessage( combo, CB_GETHORIZONTALEXTENT, NULL, NULL );
-				HDC hdc = GetDC( this->m_Hwnd );
-				TEXTMETRIC tm;
-				HFONT hFont = this->getFont();
 
-				HFONT hOldFont = SelectFont(hdc, hFont);
+				//int nMaxStrlen = itemtext.len();
+				//const int nHorizExtent = (int)SendMessage( combo, CB_GETHORIZONTALEXTENT, NULL, NULL );
+				//
+				//HDC hdc = GetDC( m_Hwnd );
+				//TEXTMETRIC tm;
+				//HFONT hFont = this->getFont();
+				//
+				//HFONT hOldFont = SelectFont(hdc, hFont);
+				//
+				//GetTextMetrics(hdc, &tm);
+				//
+				//SelectFont(hdc, hOldFont);
+				//
+				//ReleaseDC( m_Hwnd, hdc);
+				//
+				//// Multiply max str len by font average width + 1
+				//nMaxStrlen *= (tm.tmAveCharWidth + tm.tmOverhang);
+				//// Add 2 * chars as spacer.
+				//nMaxStrlen += (tm.tmAveCharWidth * 2);
+				//
+				//if (nMaxStrlen > nHorizExtent)
+				//	SendMessage(combo, CB_SETHORIZONTALEXTENT, nMaxStrlen, NULL);
 
-				GetTextMetrics(hdc, &tm);
 
-				SelectFont(hdc, hOldFont);
+				if (const auto hdc = GetDC(m_Hwnd); hdc)
+				{
+					Auto(ReleaseDC(m_Hwnd, hdc));
 
-				ReleaseDC( this->m_Hwnd, hdc);
+					const HFONT hFont = this->getFont();
+					HFONT hOldFont = nullptr;
 
-				// Multiply max str len by font average width + 1
-				nMaxStrlen *= (tm.tmAveCharWidth + tm.tmOverhang);
-				// Add 2 * chars as spacer.
-				nMaxStrlen += (tm.tmAveCharWidth * 2);
+					if (hFont)
+						hOldFont = Dcx::dcxSelectObject<HFONT>(hdc, hFont);
 
-				if (nMaxStrlen > nHorizExtent)
-					SendMessage( combo, CB_SETHORIZONTALEXTENT, nMaxStrlen, NULL);
+					if (SIZE sz{}; GetTextExtentPoint32(hdc, itemtext.to_chr(), gsl::narrow_cast<int>(itemtext.len()), &sz))
+					{
+						if (sz.cx > gsl::narrow_cast<long>(SendMessage(combo, CB_GETHORIZONTALEXTENT, NULL, NULL)))
+							SendMessage(combo, CB_SETHORIZONTALEXTENT, gsl::narrow_cast<WPARAM>(sz.cx), NULL);
+					}
+
+					if (hFont)
+						Dcx::dcxSelectObject<HFONT>(hdc, hOldFont);
+				}
 			}
 		}
 	}
 	// xdid -A [NAME] [ID] [ROW] [+FLAGS] [INFO]
 	// [NAME] [ID] -A [ROW] [+FLAGS] [INFO]
-	else if (flags[TEXT('A')]) {
-		if (numtok < 5) {
-			this->showErrorEx(NULL, TEXT("-A"), TEXT("Insufficient parameters"));
-			return;
-		}
+	else if (flags[TEXT('A')])
+	{
+		if (numtok < 5)
+			throw Dcx::dcxException("Insufficient parameters");
 
-		int nRow = input.getnexttok( ).to_int();	// tok 4
+		auto nRow = input.getnexttok().to_int();	// tok 4
 
 		// We're currently checking 1-based indexes.
-		if ((nRow < 1) || (nRow > this->getCount())) {
-			this->showErrorEx(NULL, TEXT("-A"), TEXT("Invalid row index %d."), nRow);
-			return;
-		}
+		if ((nRow < 1) || (nRow > this->getCount()))
+			throw Dcx::dcxException(TEXT("Invalid row index %."), nRow);
 
 		// Convert to 0-based index.
 		nRow--;
 
-		COMBOBOXEXITEM cbei;
-		ZeroMemory(&cbei, sizeof(COMBOBOXEXITEM));
+		COMBOBOXEXITEM cbei{ CBEIF_LPARAM, nRow };
 
-		cbei.mask = CBEIF_LPARAM;
-		cbei.iItem = nRow;
+		// Couldn't retrieve info
+		if (!this->getItem(&cbei))
+			throw Dcx::dcxException("Unable to get item.");
 
-		// Couldnt retrieve info
-		if (!this->getItem(&cbei)) {
-			this->showError(NULL, TEXT("-A"), TEXT("Unable to get item."));
-			return;
-		}
+		auto cbiDcx = reinterpret_cast<LPDCXCBITEM>(cbei.lParam);
 
-		LPDCXCBITEM cbiDcx = (LPDCXCBITEM) cbei.lParam;
+		if (!cbiDcx)
+			throw Dcx::dcxException("Unable to get Item Info");
 
-		if (cbiDcx != NULL) {
-			const XSwitchFlags xflags(input.getnexttok( ));	// tok 5
-			const TString info(input.gettok(6, -1));
+		const XSwitchFlags xflags(input.getnexttok());	// tok 5
+		const auto info(input.getlasttoks());		// tok 6, -1
 
-			if (xflags[TEXT('M')])
-				cbiDcx->tsMark = info;
-			else
-				this->showErrorEx(NULL, TEXT("-A"), TEXT("Unknown flags %s"), input.gettok( 5 ).to_chr());
-		}
-		else
-			this->showError(NULL, TEXT("-A"), TEXT("Unable to get Item Info"));
-		return;
+		if (!xflags[TEXT('M')])
+			throw Dcx::dcxException(TEXT("Unknown flags %"), input.gettok(5));
+
+		cbiDcx->tsMark = info;
 	}
 	// xdid -c [NAME] [ID] [SWITCH] [N]
-	else if (flags[TEXT('c')] && numtok > 3) {
-		const int nItem = input.getnexttok( ).to_int() -1;	// tok 4
+	else if (flags[TEXT('c')])
+	{
+		if (numtok < 4)
+			throw Dcx::dcxException("Insufficient parameters");
+
+		const auto nItem = input.getnexttok().to_int() - 1;	// tok 4
 
 		if (nItem > -1)
 			this->setCurSel(nItem);
 	}
 	// xdid -d [NAME] [ID] [SWITCH] [N]
-	else if (flags[TEXT('d')] && numtok > 3) {
-		const int nItem = input.getnexttok( ).to_int() -1;	// tok 4
+	//xdid -d -> [NAME] [ID] -d [N](,[N],[N1]-N2],...)
+	//xdid -d -> [NAME] [ID] -d [N] [+flags] [match text]
+	else if (flags[TEXT('d')])
+	{
+		if (numtok < 4)
+			throw Dcx::dcxException("Insufficient parameters");
 
-		if (nItem > -1 && nItem < this->getCount())
-			this->deleteItem(nItem);
+		const auto Ns(input.getnexttok());			// tok 4
+		const XSwitchFlags xFlags(input.getnexttok());	// tok 5
+		const auto nItems = this->getCount();
+
+		if (xFlags[TEXT('+')])
+		{
+			// have flags, so its a match text delete
+			const auto tsMatchText(input.getnexttok());
+			const auto SearchType = FlagsToSearchType(xFlags);
+
+			for (auto nPos = Ns.to_int(); nPos < nItems; ++nPos)
+			{
+				if (this->matchItemText(nPos, tsMatchText, SearchType))
+					this->deleteItem(nPos--);		// NB: we do nPos-- here as a lines just been removed so we have to check the same nPos again
+			}
+		}
+		else {
+			{
+				const auto itEnd = Ns.end();
+				for (auto itStart = Ns.begin(TSCOMMACHAR); itStart != itEnd; ++itStart)
+				{
+					const TString tsLine(*itStart);
+
+					const auto [iStart, iEnd] = getItemRange(tsLine, nItems);
+
+					if ((iStart < 0) || (iEnd < 0) || (iStart >= nItems) || (iEnd >= nItems))
+						throw Dcx::dcxException(TEXT("Invalid index %."), tsLine);
+
+					for (auto nPos = iStart; nPos <= iEnd; ++nPos)
+						this->deleteItem(nPos);
+				}
+			}
+		}
 
 		if (!this->getCount())
 			this->redrawWindow();
 	}
 	// This is to avoid invalid flag message.
 	// xdid -r [NAME] [ID] [SWITCH]
-	else if (flags[TEXT('r')]) {
+	else if (flags[TEXT('r')])
+	{
 		//this->resetContent();
 	}
 	// xdid -u [NAME] [ID] [SWITCH]
-	else if (flags[TEXT('u')]) {
+	else if (flags[TEXT('u')])
+	{
 		this->setCurSel(-1);
 	}
 	// xdid -w [NAME] [ID] [SWITCH] [+FLAGS] [INDEX] [FILENAME]
-	else if (flags[TEXT('w')] && numtok > 5) {
-		const TString flag(input.getnexttok( ));			// tok 4
-		const int index = input.getnexttok( ).to_int();;	// tok 5
-		TString filename(input.gettok(6, -1));
+	else if (flags[TEXT('w')])
+	{
+		if (numtok < 6)
+			throw Dcx::dcxException("Insufficient parameters");
 
-		HIMAGELIST himl = this->getImageList();
+		auto himl = this->getImageList();
 
-		if (himl == NULL) {
+		if (!himl)
+		{
 			himl = this->createImageList();
 
-			if (himl != NULL)
+			if (himl)
 				this->setImageList(himl);
 		}
 
-		if (himl != NULL) {
-			HICON icon = dcxLoadIcon(index, filename, false, flag);
+		if (himl)
+		{
+			const auto flag(input++);				// tok 4
+			const auto index = input++.to_<int>();	// tok 5
+			auto filename(input++);					// tok 6, -1
+#if DCX_USE_WRAPPERS
+			const Dcx::dcxIconResource icon(index, filename, false, flag);
 
-			if (icon != NULL) {
+			ImageList_AddIcon(himl, icon.get());
+#else
+			if (auto icon = dcxLoadIcon(index, filename, false, flag); icon)
+			{
 				ImageList_AddIcon(himl, icon);
 				DestroyIcon(icon);
 			}
+#endif
 		}
 	}
 	// xdid -y [NAME] [ID] [SWITCH] [+FLAGS]
-	else if (flags[TEXT('y')]) {
+	else if (flags[TEXT('y')])
+	{
 		ImageList_Destroy(this->getImageList());
-		this->setImageList(NULL);
+		this->setImageList(nullptr);
 	}
 	else
 		this->parseGlobalCommandRequest(input, flags);
@@ -490,57 +572,9 @@ void DcxComboEx::parseCommandRequest( const TString &input) {
 * blah
 */
 
-HIMAGELIST DcxComboEx::getImageList(  ) {
-
-	return (HIMAGELIST) SendMessage( this->m_Hwnd, CBEM_GETIMAGELIST, (WPARAM) 0, (LPARAM) 0 );
-}
-
-/*!
-* \brief blah
-*
-* blah
-*/
-
-void DcxComboEx::setImageList( HIMAGELIST himl ) {
-
-	SendMessage( this->m_Hwnd, CBEM_SETIMAGELIST, (WPARAM) 0, (LPARAM) himl );
-}
-
-/*!
-* \brief blah
-*
-* blah
-*/
-
-HIMAGELIST DcxComboEx::createImageList( ) {
-
-	return ImageList_Create( 16, 16, ILC_COLOR32|ILC_MASK, 1, 0 );
-}
-
-/*!
-* \brief blah
-*
-* blah
-*/
-
-BOOL DcxComboEx::matchItemText( const int nItem, const TString * search, const UINT SearchType ) const
+HIMAGELIST DcxComboEx::getImageList() const noexcept
 {
-	TCHAR itemtext[MIRC_BUFFER_SIZE_CCH];
-
-	COMBOBOXEXITEM cbi;
-	ZeroMemory( &cbi, sizeof( COMBOBOXEXITEM ) );
-
-	cbi.mask = CBEIF_TEXT;
-	cbi.iItem = nItem;
-	cbi.pszText = itemtext;
-	cbi.cchTextMax = MIRC_BUFFER_SIZE_CCH;
-
-	this->getItem( &cbi );
-
-	if ( SearchType == CBEXSEARCH_R )
-		return isRegexMatch(itemtext, search->to_chr());
-
-	return TString(itemtext).iswm(search->to_chr());
+	return reinterpret_cast<HIMAGELIST>(SendMessage(m_Hwnd, CBEM_GETIMAGELIST, 0U, 0));
 }
 
 /*!
@@ -549,110 +583,240 @@ BOOL DcxComboEx::matchItemText( const int nItem, const TString * search, const U
 * blah
 */
 
-LRESULT DcxComboEx::insertItem( const PCOMBOBOXEXITEM lpcCBItem ) {
-	return SendMessage( this->m_Hwnd, CBEM_INSERTITEM, (WPARAM) 0, (LPARAM) lpcCBItem );
-}
-
-/*!
-* \brief blah
-*
-* blah
-*/
-
-LRESULT DcxComboEx::getItem( PCOMBOBOXEXITEM lpcCBItem ) const {
-	return SendMessage( this->m_Hwnd, CBEM_GETITEM, (WPARAM) 0, (LPARAM) lpcCBItem );
-}
-
-/*!
-* \brief blah
-*
-* blah
-*/
-
-LRESULT DcxComboEx::getEditControl( ) const {
-	return SendMessage( this->m_Hwnd, CBEM_GETEDITCONTROL, (WPARAM) 0, (LPARAM) 0 );
-}
-
-/*!
-* \brief blah
-*
-* blah
-*/
-
-LRESULT DcxComboEx::deleteItem( const int iIndex ) {
-	return SendMessage( this->m_Hwnd, CBEM_DELETEITEM, (WPARAM) iIndex, (LPARAM) 0 );
-}
-
-/*!
-* \brief blah
-*
-* blah
-*/
-
-LRESULT DcxComboEx::setCurSel( const int iIndex ) {
-	return SendMessage( this->m_Hwnd, CB_SETCURSEL, (WPARAM) iIndex, (LPARAM) 0 );
-}
-
-/*!
-* \brief blah
-*
-* blah
-*/
-
-LRESULT DcxComboEx::getCurSel( ) const {
-	return SendMessage( this->m_Hwnd, CB_GETCURSEL, (WPARAM) 0, (LPARAM) 0 );
-}
-
-/*!
-* \brief blah
-*
-* blah
-*/
-
-LRESULT DcxComboEx::getLBText( const int iIndex, LPSTR lps ) {
-	return SendMessage( this->m_Hwnd, CB_GETLBTEXT, (WPARAM) iIndex, (LPARAM) lps );
-}
-
-/*!
-* \brief blah
-*
-* blah
-*/
-
-LRESULT DcxComboEx::resetContent( ) {
-	return SendMessage( this->m_Hwnd, CB_RESETCONTENT, (WPARAM) 0, (LPARAM) 0 );
-}
-
-/*!
-* \brief blah
-*
-* blah
-*/
-
-LRESULT DcxComboEx::getCount( ) const {
-	return SendMessage( this->m_Hwnd, CB_GETCOUNT, (WPARAM) 0, (LPARAM) 0 );
-}
-
-/*!
-* \brief blah
-*
-* blah
-*/
-
-LRESULT DcxComboEx::limitText( const int iLimit ) {
-	return SendMessage( this->m_Hwnd, CB_LIMITTEXT, (WPARAM) iLimit, (LPARAM) 0 );
-}
-
-TString DcxComboEx::getStyles(void) const
+void DcxComboEx::setImageList(const HIMAGELIST himl) noexcept
 {
-	TString styles(__super::getStyles());
-	const DWORD Styles = GetWindowStyle(this->m_Hwnd);
+	SendMessage(m_Hwnd, CBEM_SETIMAGELIST, 0U, reinterpret_cast<LPARAM>(himl));
+}
 
-	if (Styles & CBS_SIMPLE)
+/*!
+* \brief blah
+*
+* blah
+*/
+
+//HIMAGELIST DcxComboEx::createImageList( ) {
+//
+//	return ImageList_Create( 16, 16, ILC_COLOR32|ILC_MASK, 1, 0 );
+//}
+
+/*!
+* \brief blah
+*
+* blah
+*/
+
+//bool DcxComboEx::matchItemText(const int nItem, const TString &search, const DcxSearchTypes &SearchType) const
+//{
+//	auto itemtext = std::make_unique<TCHAR[]>(MIRC_BUFFER_SIZE_CCH);
+//
+//	COMBOBOXEXITEM cbi;
+//	ZeroMemory( &cbi, sizeof( COMBOBOXEXITEM ) );
+//
+//	cbi.mask = CBEIF_TEXT;
+//	cbi.iItem = nItem;
+//	cbi.pszText = itemtext.get();
+//	cbi.cchTextMax = MIRC_BUFFER_SIZE_CCH;
+//
+//	this->getItem( &cbi );
+//
+//	switch (SearchType)
+//	{
+//	case DcxSearchTypes::SEARCH_R:
+//		return isRegexMatch(itemtext.get(), search.to_chr());
+//	case DcxSearchTypes::SEARCH_W:
+//		return TString(itemtext).iswm(search);
+//	case DcxSearchTypes::SEARCH_E:
+//		return (lstrcmp(search.to_chr(), itemtext.get()) == 0); // must be a zero check not a !
+//	}
+//	return false;
+//}
+
+bool DcxComboEx::matchItemText(const int nItem, const TString& search, const DcxSearchTypes& SearchType) const
+{
+	//auto itemtext = std::make_unique<TCHAR[]>(MIRC_BUFFER_SIZE_CCH);
+	//
+	//COMBOBOXEXITEM cbi{ CBEIF_TEXT, nItem, itemtext.get(), MIRC_BUFFER_SIZE_CCH };
+	//
+	//getItem(&cbi);
+	//
+	//return DcxListHelper::matchItemText(cbi.pszText, search, SearchType);
+
+	auto itemtext = std::make_unique<TCHAR[]>(MIRC_BUFFER_SIZE_CCH);
+	const auto refText = refString<TCHAR, MIRC_BUFFER_SIZE_CCH>(itemtext.get());
+
+	COMBOBOXEXITEM cbi{ CBEIF_TEXT, nItem, refText, MIRC_BUFFER_SIZE_CCH };
+
+	getItem(&cbi);
+
+	refText = cbi.pszText;
+	return DcxListHelper::matchItemText(refText, search, SearchType);
+}
+
+/*!
+* \brief blah
+*
+* blah
+*/
+
+LRESULT DcxComboEx::insertItem(const PCOMBOBOXEXITEM lpcCBItem) noexcept
+{
+	return SendMessage(m_Hwnd, CBEM_INSERTITEM, 0U, reinterpret_cast<LPARAM>(lpcCBItem));
+}
+
+/*!
+* \brief blah
+*
+* blah
+*/
+
+LRESULT DcxComboEx::getItem(const PCOMBOBOXEXITEM lpcCBItem) const noexcept
+{
+	return SendMessage(m_Hwnd, CBEM_GETITEM, 0U, reinterpret_cast<LPARAM>(lpcCBItem));
+}
+
+/*!
+* \brief blah
+*
+* blah
+*/
+
+HWND DcxComboEx::getEditControl() const noexcept
+{
+	return reinterpret_cast<HWND>(SendMessage(m_Hwnd, CBEM_GETEDITCONTROL, 0U, 0));
+}
+
+/*!
+* \brief blah
+*
+* blah
+*/
+
+LRESULT DcxComboEx::deleteItem(const int iIndex) noexcept
+{
+	return SendMessage(m_Hwnd, CBEM_DELETEITEM, gsl::narrow_cast<WPARAM>(iIndex), 0);
+}
+
+/*!
+* \brief blah
+*
+* blah
+*/
+
+LRESULT DcxComboEx::setCurSel(const int iIndex) noexcept
+{
+	return SendMessage(m_Hwnd, CB_SETCURSEL, gsl::narrow_cast<WPARAM>(iIndex), 0);
+}
+
+/*!
+* \brief blah
+*
+* blah
+*/
+
+LRESULT DcxComboEx::getCurSel() const noexcept
+{
+	return SendMessage(m_Hwnd, CB_GETCURSEL, 0U, 0);
+}
+
+/*!
+* \brief blah
+*
+* blah
+*/
+
+LRESULT DcxComboEx::getLBText(const int iIndex, LPSTR lps) noexcept
+{
+	return SendMessage(m_Hwnd, CB_GETLBTEXT, gsl::narrow_cast<WPARAM>(iIndex), reinterpret_cast<LPARAM>(lps));
+}
+
+/*!
+* \brief blah
+*
+* blah
+*/
+
+LRESULT DcxComboEx::resetContent() noexcept
+{
+	return SendMessage(m_Hwnd, CB_RESETCONTENT, 0U, 0);
+}
+
+/*!
+* \brief blah
+*
+* blah
+*/
+
+LRESULT DcxComboEx::getCount() const noexcept
+{
+	return SendMessage(m_Hwnd, CB_GETCOUNT, 0U, 0);
+}
+
+/*!
+* \brief blah
+*
+* blah
+*/
+
+LRESULT DcxComboEx::limitText(const int iLimit) noexcept
+{
+	return SendMessage(m_Hwnd, CB_LIMITTEXT, gsl::narrow_cast<WPARAM>(iLimit), 0);
+}
+
+//void DcxComboEx::getItemRange(const TString &tsItems, const int nItemCnt, int *iStart_range, int *iEnd_range)
+//{
+//	//int iStart, iEnd;
+//	//if (tsItems.numtok(TEXT('-')) == 2) {
+//	//	iStart = tsItems.getfirsttok(1, TEXT('-')).to_int() - 1;
+//	//	iEnd = tsItems.getnexttok(TEXT('-')).to_int() - 1;
+//	//
+//	//	if (iEnd == -1)	// special case
+//	//		iEnd = nItemCnt - 1;
+//	//}
+//	//else {
+//	//	iEnd = tsItems.to_int() - 1;
+//	//
+//	//	if (iEnd == -1)	// special case
+//	//		iStart = iEnd = nItemCnt - 1;
+//	//	else
+//	//		iStart = iEnd;
+//	//}
+//	//*iStart_range = iStart;
+//	//*iEnd_range = iEnd;
+//
+//	std::tie(*iStart_range, *iEnd_range) = getItemRange(tsItems, nItemCnt);
+//}
+//
+//std::pair<int, int> DcxComboEx::getItemRange(const TString &tsItems, const int nItemCnt)
+//{
+//	int iStart, iEnd;
+//	if (tsItems.numtok(TEXT('-')) == 2) {
+//		iStart = tsItems.getfirsttok(1, TEXT('-')).to_int() - 1;
+//		iEnd = tsItems.getnexttok(TEXT('-')).to_int() - 1;
+//
+//		if (iEnd == -1)	// special case
+//			iEnd = nItemCnt - 1;
+//	}
+//	else {
+//		iEnd = tsItems.to_int() - 1;
+//
+//		if (iEnd == -1)	// special case
+//			iStart = iEnd = nItemCnt - 1;
+//		else
+//			iStart = iEnd;
+//	}
+//	return std::make_pair(iStart, iEnd);
+//}
+
+const TString DcxComboEx::getStyles(void) const
+{
+	auto styles(__super::getStyles());
+	const auto Styles = dcxGetWindowStyle(m_Hwnd);
+
+	if (dcx_testflag(Styles, CBS_SIMPLE))
 		styles.addtok(TEXT("simple"));
-	if (Styles & CBS_DROPDOWNLIST) 
+	if (dcx_testflag(Styles, CBS_DROPDOWNLIST))
 		styles.addtok(TEXT("dropdown"));
-	if (Styles & CBS_DROPDOWN) 
+	if (dcx_testflag(Styles, CBS_DROPDOWN))
 		styles.addtok(TEXT("dropedit"));
 
 	return styles;
@@ -663,117 +827,142 @@ TString DcxComboEx::getStyles(void) const
 *
 * blah
 */
-LRESULT DcxComboEx::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
-	switch ( uMsg )
+LRESULT DcxComboEx::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed)
+{
+	switch (uMsg)
 	{
-	case WM_COMMAND: 
-		switch ( HIWORD( wParam ) )
+	case WM_COMMAND:
+		switch (Dcx::dcxHIWORD(wParam))
 		{
 		case CBN_DBLCLK:
-			if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-				this->execAliasEx(TEXT("%s,%d,%d"), TEXT("dclick"), this->getUserID( ), this->getCurSel( ) + 1 );
+			if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
+				execAliasEx(TEXT("dclick,%u,%d"), getUserID(), getCurSel() + 1);
 			bParsed = TRUE;
 			return TRUE;
 			break;
-
 		case CBN_SELENDOK:
-			if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-				this->execAliasEx(TEXT("%s,%d,%d"), TEXT("sclick"), this->getUserID( ), this->getCurSel( ) + 1 );
-			TCHAR itemtext[MIRC_BUFFER_SIZE_CCH];
-			itemtext[0] = TEXT('\0');
-			COMBOBOXEXITEM cbex;
-			ZeroMemory( &cbex, sizeof( COMBOBOXEXITEM ) );
-			cbex.mask = CBEIF_TEXT;
-			cbex.pszText = itemtext;
-			cbex.cchTextMax = MIRC_BUFFER_SIZE_CCH;
-			cbex.iItem = this->getCurSel( );
-			this->getItem( &cbex );
-			SetWindowText( this->m_EditHwnd, itemtext );
+		{
+			if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
+				execAliasEx(TEXT("sclick,%u,%d"), getUserID(), getCurSel() + 1);
+
+			// Ook: This code seems completely unneeded.
+			//auto itemtext = std::make_unique<TCHAR[]>(MIRC_BUFFER_SIZE_CCH);
+			//
+			//itemtext[0] = TEXT('\0');
+			//
+			//COMBOBOXEXITEM cbex{ CBEIF_TEXT, getCurSel(), itemtext.get(), MIRC_BUFFER_SIZE_CCH };
+			//
+			//getItem(&cbex);
+			//
+			//if (IsWindow(m_EditHwnd))
+			//	SetWindowText(m_EditHwnd, itemtext.get());
+			//m_tsSelected = itemtext;
+
 			bParsed = TRUE;
 			return TRUE;
-			break;
+		}
+		break;
 		case CBN_EDITCHANGE:
-			if (this->m_pParentDialog->getEventMask() & DCX_EVENT_EDIT)
-				this->execAliasEx(TEXT("%s,%d"), TEXT("edit"), this->getUserID( ) );
+		{
+			if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_EDIT))
+				execAliasEx(TEXT("edit,%u"), getUserID());
+
 			bParsed = TRUE;
 			return TRUE;
+		}
+		break;
+		default:
 			break;
 		} // switch
 		bParsed = TRUE;
 		break;
 	case WM_NOTIFY:
-		NMHDR * nhmdr;
-		nhmdr = (LPNMHDR)lParam;
-		switch (nhmdr->code) 
+		switch (dcxlParam(LPNMHDR, nhmdr); nhmdr->code)
 		{
 		case CBEN_ENDEDIT:
-			{
-				LPNMCBEENDEDIT endedit = (LPNMCBEENDEDIT) lParam;
+		{
+			dcxlParam(LPNMCBEENDEDIT, endedit);
 
-				if (endedit->iWhy == CBENF_RETURN) {
-					if (this->m_pParentDialog->getEventMask() & DCX_EVENT_EDIT)
-						this->execAliasEx(TEXT("%s,%d"), TEXT("return"), this->getUserID( ) );
-					bParsed = TRUE;
-				}
+			if (!endedit)
+				break;
+
+			if (endedit->iWhy == CBENF_RETURN)
+			{
+				if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_EDIT))
+					execAliasEx(TEXT("return,%u"), getUserID());
+				bParsed = TRUE;
 			}
-			break;
+		}
+		break;
 		case CBEN_DELETEITEM:
-			{
-				PNMCOMBOBOXEX lpcb = (PNMCOMBOBOXEX ) lParam;
-				LPDCXCBITEM lpdcxcbi = (LPDCXCBITEM) lpcb->ceItem.lParam;
+		{
+			dcxlParam(PNMCOMBOBOXEX, lpcb);
 
-				if (lpdcxcbi != NULL)
-					delete lpdcxcbi;
+			if (!lpcb)
+				break;
 
-				bParsed = TRUE; // message has been handled
-			}
+			auto lpdcxcbi = reinterpret_cast<LPDCXCBITEM>(lpcb->ceItem.lParam);
+			lpcb->ceItem.lParam = NULL;
+
+			delete lpdcxcbi;
+
+			bParsed = TRUE; // message has been handled
+		}
+		break;
+		default:
 			break;
 		}
+		break;
+	default:
 		break;
 	}
 	return 0L;
 }
 
-LRESULT DcxComboEx::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
-
-	switch( uMsg ) {
+LRESULT DcxComboEx::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed)
+{
+	switch (uMsg)
+	{
 	case WM_LBUTTONUP:
-		{
-			if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-				this->execAliasEx(TEXT("%s,%d"), TEXT("lbup"), this->getUserID( ) );
-		}
-		break;
+	{
+		if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
+			execAliasEx(TEXT("lbup,%u"), getUserID());
+	}
+	break;
 	case WM_LBUTTONDBLCLK:
+		[[fallthrough]];
 	case WM_CONTEXTMENU:
 		break;
 
 	case WM_MOUSEACTIVATE:
+	{
+		switch (Dcx::dcxHIWORD(lParam))
 		{
-			switch (HIWORD(lParam))
-			{
-			case WM_RBUTTONDOWN:
-				{
-					// NB: rclick doesnt change selection!
-					if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-						this->execAliasEx(TEXT("%s,%d,%d"), TEXT("rclick"), this->getUserID( ), this->getCurSel( ) + 1 );
-				}
-				break;
-			}
-			//TODO: Add `ownmenu` setting or similar to stop default edit menu & replace with own.
-			// this could be done with most if not all controls.
-			//bParsed = TRUE;
-			//return MA_ACTIVATE;
+		case WM_RBUTTONDOWN:
+		{
+			// NB: rclick doesnt change selection!
+			if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
+				execAliasEx(TEXT("rclick,%u,%d"), getUserID(), getCurSel() + 1);
 		}
 		break;
+		default:
+			break;
+		}
+		//TODO: Add `ownmenu` setting or similar to stop default edit menu & replace with own.
+		// this could be done with most if not all controls.
+		//bParsed = TRUE;
+		//return MA_ACTIVATE;
+	}
+	break;
 
 	case WM_NCDESTROY:
-		{
-			delete this;
-			bParsed = TRUE;
-		}
-		break;
+	{
+		delete this;
+		bParsed = TRUE;
+	}
+	break;
 	default:
-		return this->CommonMessage( uMsg, wParam, lParam, bParsed);
+		return this->CommonMessage(uMsg, wParam, lParam, bParsed);
 		break;
 	}
 
@@ -786,81 +975,96 @@ LRESULT DcxComboEx::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &
 * blah
 */
 
-LRESULT CALLBACK DcxComboEx::ComboExEditProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam ) {
+LRESULT CALLBACK DcxComboEx::ComboExEditProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept
+{
+	const auto lpce = reinterpret_cast<LPDCXCOMBOEXEDIT>(GetWindowLongPtr(mHwnd, GWLP_USERDATA));
+	if (!lpce)
+		return DefWindowProc(mHwnd, uMsg, wParam, lParam);
 
-	LPDCXCOMBOEXEDIT lpce = (LPDCXCOMBOEXEDIT) GetWindowLongPtr( mHwnd, GWLP_USERDATA );
-	if (lpce == NULL)
-		return DefWindowProc( mHwnd, uMsg, wParam, lParam );
-
-	switch( uMsg ) {
-
+	switch (uMsg)
+	{
 		// This message added to allow the control to return a msg when 'return' is pressed.
-		case WM_GETDLGCODE:
-			return DLGC_WANTALLKEYS | CallWindowProc( lpce->OldProc, mHwnd, uMsg, wParam, lParam );
-			break;
-/*
-		case WM_KEYDOWN:
-		{
-		if ( wParam == VK_RETURN ) {
-
-		DcxControl * pthis = (DcxControl *) GetProp( lpce->cHwnd, TEXT("dcx_cthis") );
-
-		if ( pthis != NULL ) {
-		pthis->callAliasEx( NULL, TEXT("%s,%d"), TEXT("return"), pthis->getUserID( ) );
-		}
-		}
-		}
+	case WM_GETDLGCODE:
+		return DLGC_WANTALLKEYS | CallWindowProc(lpce->OldProc, mHwnd, uMsg, wParam, lParam);
 		break;
-		//case WM_NOTIFY:
-		//	{
-		//      LPNMHDR hdr = (LPNMHDR) lParam;
-		//      if (!hdr)
-		//        break;
+		/*
+				case WM_KEYDOWN:
+				{
+				if ( wParam == VK_RETURN ) {
 
-		//      switch( hdr->code ) {
-		//		case TTN_GETDISPINFO:
-		//			{
-		//         DcxControl * pthis = (DcxControl *) GetProp( lpce->cHwnd, TEXT("dcx_cthis") );
-		//         if ( pthis != NULL ) {
-		//					LPNMTTDISPINFO di = (LPNMTTDISPINFO)lParam;
-		//					di->lpszText = TEXT("test");
-		//					di->hinst = NULL;
-		//				}
-		//				return 0L;
-		//			}
-		//			break;
-		//		case TTN_LINKCLICK:
-		//			{
-		//         DcxControl * pthis = (DcxControl *) GetProp( lpce->cHwnd, TEXT("dcx_cthis") );
-		//         if ( pthis != NULL ) {
-		//					pthis->callAliasEx( NULL, TEXT("%s,%d"), TEXT("tooltiplink"), pthis->getUserID( ) );
-		//				}
-		//				return 0L;
-		//			}
-		//			break;
-		//		}
-		//	}
-		//	break;*/
-		case LB_GETITEMRECT:
-		{
-			// This fixes the lockup on clicking the comboex editbox. (why?)
-			// this is not a real fix, but a workaround.
-			// NB: when we dont replace the editbox wndproc this crash doesnt happen.
-			// mIRC sends this message to it's child windows, no idea why
-			return LB_ERR;
-		}
-		break;
+				DcxControl * pthis = (DcxControl *) GetProp( lpce->cHwnd, TEXT("dcx_cthis") );
 
-	case WM_NCDESTROY:
-		{
+				if ( pthis != nullptr ) {
+				pthis->callAliasEx( nullptr, TEXT("%s,%d"), TEXT("return"), pthis->getUserID( ) );
+				}
+				}
+				}
+				break;
+				//case WM_NOTIFY:
+				//	{
+				//      LPNMHDR hdr = (LPNMHDR) lParam;
+				//      if (!hdr)
+				//        break;
 
-			WNDPROC OldProc = lpce->OldProc;
-			if ( lpce )
-				delete lpce;
-
-			return CallWindowProc( OldProc, mHwnd, uMsg, wParam, lParam );
-		}
+				//      switch( hdr->code ) {
+				//		case TTN_GETDISPINFO:
+				//			{
+				//         DcxControl * pthis = (DcxControl *) GetProp( lpce->cHwnd, TEXT("dcx_cthis") );
+				//         if ( pthis != nullptr ) {
+				//					LPNMTTDISPINFO di = (LPNMTTDISPINFO)lParam;
+				//					di->lpszText = TEXT("test");
+				//					di->hinst = nullptr;
+				//				}
+				//				return 0L;
+				//			}
+				//			break;
+				//		case TTN_LINKCLICK:
+				//			{
+				//         DcxControl * pthis = (DcxControl *) GetProp( lpce->cHwnd, TEXT("dcx_cthis") );
+				//         if ( pthis != nullptr ) {
+				//					pthis->callAliasEx( nullptr, TEXT("%s,%d"), TEXT("tooltiplink"), pthis->getUserID( ) );
+				//				}
+				//				return 0L;
+				//			}
+				//			break;
+				//		}
+				//	}
+				//	break;*/
+	case LB_GETITEMRECT:
+	{
+		// This fixes the lockup on clicking the comboex editbox. (why?)
+		// this is not a real fix, but a workaround.
+		// NB: when we dont replace the editbox wndproc this crash doesnt happen.
+		// mIRC sends this message to it's child windows, no idea why
+		return LB_ERR;
+	}
+	break;
+	default:
 		break;
 	}
-	return CallWindowProc( lpce->OldProc, mHwnd, uMsg, wParam, lParam );
+	return CallWindowProc(lpce->OldProc, mHwnd, uMsg, wParam, lParam);
+}
+
+void DcxComboEx::toXml(TiXmlElement* const xml) const
+{
+	__super::toXml(xml);
+
+	//const TString wtext(TGetWindowText(m_Hwnd));
+	//xml->SetAttribute("caption", wtext.c_str());
+	xml->SetAttribute("styles", getStyles().c_str());
+}
+
+TiXmlElement* DcxComboEx::toXml(void) const
+{
+	auto xml = std::make_unique<TiXmlElement>("control");
+	toXml(xml.get());
+	return xml.release();
+}
+
+LRESULT DcxComboEx::CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept
+{
+	if (m_hDefaultClassProc)
+		return CallWindowProc(m_hDefaultClassProc, this->m_Hwnd, uMsg, wParam, lParam);
+
+	return DefWindowProc(this->m_Hwnd, uMsg, wParam, lParam);
 }

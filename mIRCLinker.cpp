@@ -1,371 +1,511 @@
 #include "defines.h"
 #include "Dcx.h"
 
-mIRCLinker::mIRCLinker(void) :
-m_hFileMap(NULL),
-m_pData(NULL),
-m_mIRCHWND(NULL),
-m_dwVersion(0x0),
-m_iMapCnt(0),
-m_hSwitchbar(NULL),
-m_hToolbar(NULL),
-m_hTreebar(NULL),
-m_hMDI(NULL),
-m_hTreeview(NULL),
-m_hTreeFont(NULL),
-m_hTreeImages(NULL),
-//m_sLastError(""),
-m_wpmIRCDefaultWndProc(NULL),
-m_bDebug(false),
-m_bUnicodemIRC(false)
-{
-}
+namespace mIRCLinker {
+	HANDLE		m_hFileMap = nullptr;	//!< Handle to the mIRC DLL File Map
+	const refString<TCHAR, c_mIRC_Buffer_Size_cch> m_pData;	//!< Pointer to a character buffer of size MIRC_BUFFER_SIZE_CCH to send mIRC custom commands
+	HWND		m_mIRCHWND = nullptr;	//!< mIRC Window Handle
+	DWORD		m_dwVersion = 0;		//!< mIRC Version info.
+	DWORD		m_dwBeta = 0;		//!< mIRC Beta Version info.
+	DWORD		m_dwBytes = 900;		//!< Max bytes to be writen to data & parm args
+	DWORD		m_dwCharacters = 900 / sizeof(TCHAR);		//!< Max characters to be writen to data & parm args
+	int			m_iMapCnt = 0;		//!< MapFile counter.
+	bool		m_bDebug = false;	//!< is mIRC is using /debug upon DCX LoadDLL().
+	HWND		m_hSwitchbar = nullptr;	//!< The Switchbars HWND
+	HWND		m_hToolbar = nullptr;	//!< The Toolbars HWND
+	HWND		m_hMDI = nullptr;	//!< The MDIClients HWND
+	HWND		m_hTreebar = nullptr;	//!< The Treebars HWND
+	HWND		m_hTreeview = nullptr;	//!< The TreeView control child of the Treebar.
+	HFONT		m_hTreeFont = nullptr;	//!< The Treebars original font.
+	HIMAGELIST  m_hTreeImages = nullptr;	//!< The Treebars original image list.
+	WNDPROC		m_wpmIRCDefaultWndProc = nullptr;
+	bool		m_bUnicodemIRC = false;
+	bool		m_bSendMessageDisabled = false;
 
-mIRCLinker::~mIRCLinker(void)
-{
-}
-
-bool mIRCLinker::isDebug() const
-{
-	return m_bDebug;
-}
-
-bool mIRCLinker::isVersion(const WORD main, const WORD sub) const {
-	return getMainVersion() == main && getSubVersion() == sub;
-}
-
-bool mIRCLinker::isOrNewerVersion(const WORD main, const WORD sub) const {
-	return getMainVersion() > main || (getMainVersion() == main && getSubVersion() >= sub);
-}
-
-bool mIRCLinker::isAlias(const TCHAR * aliasName)
-{
-	// check if the alias exists
-	return evalex(NULL, 0, TEXT("$isalias(%s)"), aliasName);
-}
-
-void mIRCLinker::load(LOADINFO * lInfo) {
-	m_mIRCHWND = lInfo->mHwnd;
-	m_dwVersion = lInfo->mVersion;
-	if (HIWORD(m_dwVersion) == 2) {	//Fix the problem that mIRC v6.20 reports itself as 6.2
-		m_dwVersion -= 2;
-		m_dwVersion += 20; // err how exactly does this fix it?
+	const bool& isDebug() noexcept
+	{
+		return m_bDebug;
 	}
-	lInfo->mKeep = TRUE;
-	if (this->getMainVersion() >= 7) {
+
+	bool isVersion(const WORD main, const WORD sub) noexcept
+	{
+		return getMainVersion() == main && getSubVersion() == sub;
+	}
+
+	bool isOrNewerVersion(const WORD main, const WORD sub) noexcept
+	{
+		return getMainVersion() > main || (getMainVersion() == main && getSubVersion() >= sub);
+	}
+
+	bool isAlias(const TString& aliasName)
+	{
+		// check if the alias exists
+		return eval(nullptr, TEXT("$isalias(%)"), aliasName) && !aliasName.empty();
+	}
+
+	GSL_SUPPRESS(type.4)
+		void load(LOADINFO* const lInfo)
+	{
+		m_mIRCHWND = lInfo->mHwnd;
+		m_dwVersion = lInfo->mVersion;
+		if (m_dwVersion >= 3211271)
+		{
+			//3211271 = 7.49
+			// beta added in 7.49.363 Beta
+			m_dwBeta = lInfo->mBeta;
+			if ((m_dwVersion > 4128775) || ((m_dwVersion == 4128775) && (m_dwBeta >= 416)))
+			{
+				//4128775 = 7.63
+				// bytes added in 7.63.416 Beta
+				m_dwBytes = lInfo->mBytes;
+				m_dwCharacters = m_dwBytes / sizeof(TCHAR);
+			}
+		}
+
+		lInfo->mKeep = TRUE;
 		lInfo->mUnicode = TRUE;
-		this->m_bUnicodemIRC = true;
-	}
-	initMapFile();
+		m_bUnicodemIRC = true;
 
-	// Check if we're in debug mode
-	TString isDebug;
-	tsEval(isDebug, TEXT("$debug"));
+		initMapFile();
 
-	m_bDebug = (isDebug.trim().len() > 0);
-	if (m_bDebug) {
-		DCX_DEBUG(debug,TEXT("LoadmIRCLink"), TEXT("Debug mode detected..."));
-	}
+		// Check if we're in debug mode
+		TString isDebug;
+		eval(isDebug, TEXT("$debug"));
 
-	if (this->getMainVersion() == 7) {
-		DCX_DEBUG(debug,TEXT("LoadmIRCLink"), TEXT("mIRC V7 detected..."));
-	}
+		m_bDebug = (!isDebug.trim().empty());
+#ifdef DCX_DEBUG_OUTPUT
+		if (m_bDebug)
+		{
+			DCX_DEBUG(debug, __FUNCTIONW__, TEXT("Debug mode detected..."));
+		}
+		if (getMainVersion() >= 7)
+		{
+			DCX_DEBUG(debug, __FUNCTIONW__, TEXT("mIRC V7+ detected..."));
+		}
+#endif
 
-	DCX_DEBUG(debug,TEXT("LoadmIRCLink"), TEXT("Finding mIRC_Toolbar..."));
-	m_hToolbar = FindWindowEx(m_mIRCHWND,NULL,TEXT("mIRC_Toolbar"),NULL);
+		DCX_DEBUG(debug, __FUNCTIONW__, TEXT("Finding mIRC_Toolbar..."));
+		m_hToolbar = FindWindowEx(m_mIRCHWND, nullptr, TEXT("mIRC_Toolbar"), nullptr);
 
-	DCX_DEBUG(debug,TEXT("LoadmIRCLink"), TEXT("Finding MDIClient..."));
-	m_hMDI = FindWindowEx(m_mIRCHWND,NULL,TEXT("MDIClient"),NULL);
+		DCX_DEBUG(debug, __FUNCTIONW__, TEXT("Finding MDIClient..."));
+		m_hMDI = FindWindowEx(m_mIRCHWND, nullptr, TEXT("MDIClient"), nullptr);
 
-	DCX_DEBUG(debug,TEXT("LoadmIRCLink"), TEXT("Finding mIRC_SwitchBar..."));
-	m_hSwitchbar = FindWindowEx(m_mIRCHWND,NULL,TEXT("mIRC_SwitchBar"),NULL);
+		DCX_DEBUG(debug, __FUNCTIONW__, TEXT("Finding mIRC_SwitchBar..."));
+		m_hSwitchbar = FindWindowEx(m_mIRCHWND, nullptr, TEXT("mIRC_SwitchBar"), nullptr);
 
-	// v2 dll for mirc V7+ anyway.
-	//if (isOrNewerVersion(6,30)) { // class renamed for 6.30+
-		DCX_DEBUG(debug,TEXT("LoadmIRCLink"), TEXT("Finding mIRC_TreeBar..."));
-		m_hTreebar = FindWindowEx(m_mIRCHWND,NULL,TEXT("mIRC_TreeBar"),NULL);
-	//}
-	//else {
-	//	DCX_DEBUG(debug,TEXT("LoadmIRCLink"), TEXT("Finding mIRC_TreeList..."));
-	//	m_hTreebar = FindWindowEx(m_mIRCHWND,NULL,TEXT("mIRC_TreeList"),NULL);
-	//}
+		DCX_DEBUG(debug, __FUNCTIONW__, TEXT("Finding mIRC_TreeBar..."));
+		m_hTreebar = FindWindowEx(m_mIRCHWND, nullptr, TEXT("mIRC_TreeBar"), nullptr);
 
-	if (IsWindow(m_hTreebar)) {
-		//m_hTreeview = GetWindow(mIRCLink.m_hTreebar,GW_CHILD);
-		m_hTreeview = FindWindowEx(m_hTreebar,NULL,WC_TREEVIEW,NULL);
-		if (IsWindow(m_hTreeview))
-			m_hTreeImages = TreeView_GetImageList(m_hTreeview,TVSIL_NORMAL);
-	}
-}
-
-void mIRCLinker::unload() {
-	// Reset mIRC's WndProc if changed
-	resetWindowProc();
-	UnmapViewOfFile(m_pData);
-	CloseHandle(m_hFileMap);
-		
-	// reset the treebars font if it's been changed.
-	if (Dcx::mIRC.getTreeFont() != NULL) {
-		HFONT hfont = GetWindowFont(m_hTreeview);
-		if (hfont != m_hTreeFont) {
-			SetWindowFont( m_hTreeview, m_hTreeFont, TRUE);
-			DeleteFont(hfont);
+		if (IsWindow(m_hTreebar))
+		{
+			m_hTreeview = FindWindowEx(m_hTreebar, nullptr, WC_TREEVIEW, nullptr);
+			if (IsWindow(m_hTreeview))
+				m_hTreeImages = TreeView_GetImageList(m_hTreeview, TVSIL_NORMAL);
 		}
 	}
-}
 
-void mIRCLinker::initMapFile() {
-	int cnt = 0;
-	if (isOrNewerVersion(6,20)) {
+	GSL_SUPPRESS(type.4)
+		void unload() noexcept
+	{
+		// Reset mIRC's WndProc if changed
+		resetWindowProc();
+
+		UnmapViewOfFile(m_pData);
+		CloseHandle(m_hFileMap);
+
+		// reset the treebars font if it's been changed.
+		if (mIRCLinker::getTreeFont())
+		{
+			if (const auto hfont = GetWindowFont(m_hTreeview); hfont != m_hTreeFont)
+			{
+				SetWindowFont(m_hTreeview, m_hTreeFont, TRUE);
+				DeleteObject(hfont);
+			}
+		}
+	}
+
+	GSL_SUPPRESS(type.4)
+		void initMapFile()
+	{
+		int cnt = 1;
 		TString map_name;
-		cnt = 1;
-		m_hFileMap = NULL;
+		m_hFileMap = nullptr;
 
-		while ((m_hFileMap == NULL) && (cnt < 256)) {
+		while ((!m_hFileMap) && (cnt < 256))
+		{
 			// create mapfile name.
-			map_name.tsprintf(TEXT("mIRC%d"),cnt);
+			_ts_sprintf(map_name, TEXT("mIRC%"), cnt);
 			// create mapfile.
-			m_hFileMap = CreateFileMapping(INVALID_HANDLE_VALUE,0,PAGE_READWRITE,0,MIRC_MAP_SIZE,map_name.to_chr());
+			m_hFileMap = CreateFileMapping(INVALID_HANDLE_VALUE, nullptr, PAGE_READWRITE, 0, MIRC_MAP_SIZE, map_name.to_chr());
 
 			// if create failed, fall back on old method.
-			if ((m_hFileMap == NULL) || (m_hFileMap == INVALID_HANDLE_VALUE)) {
+			if ((!m_hFileMap) || (m_hFileMap == INVALID_HANDLE_VALUE))
+			{
 				cnt = 0;
 				break;
 			}
 
 			// if mapfile already exists then close & try another name.
-			if (GetLastError() == ERROR_ALREADY_EXISTS) {
-				CloseHandle(m_hFileMap);
-				m_hFileMap = NULL;
-			}
-			else
+			if (GetLastError() != ERROR_ALREADY_EXISTS)
 				break;
 
-			cnt++;
+			CloseHandle(m_hFileMap);
+			m_hFileMap = nullptr;
+
+			++cnt;
 		}
 
 		if (cnt == 256)
 			cnt = 0;
+
+		m_iMapCnt = cnt; // set mapfile counter for SendMessage()'s
+
+		// use old method for < mirc 6.2 or when new method fails.
+		if (cnt == 0)
+			m_hFileMap = CreateFileMapping(INVALID_HANDLE_VALUE, nullptr, PAGE_READWRITE, 0, MIRC_MAP_SIZE, TEXT("mIRC"));
+
+		//if (m_hFileMap)
+		//	m_pData = static_cast<PTCHAR>(MapViewOfFile(m_hFileMap, FILE_MAP_ALL_ACCESS, 0, 0, 0));
+
+		if (m_hFileMap)
+			m_pData.assign(refString<TCHAR, MIRC_BUFFER_SIZE_CCH>(static_cast<PTCHAR>(MapViewOfFile(m_hFileMap, FILE_MAP_ALL_ACCESS, 0, 0, 0))));
 	}
 
-	m_iMapCnt = cnt; // set mapfile counter for SendMessage()'s
-
-	// use old method for < mirc 6.2 or when new method fails.
-	if (cnt == 0) {
-		m_hFileMap = CreateFileMapping(INVALID_HANDLE_VALUE, 0, PAGE_READWRITE, 0, MIRC_MAP_SIZE, TEXT("mIRC"));
-	}
-
-	if (m_hFileMap != NULL)
-		m_pData = (PTCHAR) MapViewOfFile(m_hFileMap, FILE_MAP_ALL_ACCESS, 0, 0, 0);
-}
-
-HWND mIRCLinker::getSwitchbar() const
-{
-	return m_hSwitchbar;
-}
-
-HWND mIRCLinker::getToolbar() const
-{
-	return m_hToolbar;
-}
-
-HWND mIRCLinker::getTreebar() const
-{
-	return m_hTreebar;
-}
-
-HWND mIRCLinker::getTreeview() const
-{
-	return m_hTreeview;
-}
-
-HIMAGELIST mIRCLinker::getTreeImages() const
-{
-	return m_hTreeImages;
-}
-
-HFONT mIRCLinker::getTreeFont() const
-{
-	return m_hTreeFont;
-}
-
-
-HWND mIRCLinker::getMDIClient() const
-{
-	return m_hMDI;
-}
-
-
-HWND mIRCLinker::getHWND() const
-{
-	return this->m_mIRCHWND;
-}
-DWORD mIRCLinker::getVersion() const {
-	return m_dwVersion;
-}
-
-WORD mIRCLinker::getMainVersion() const {
-	return LOWORD(m_dwVersion);
-}
-
-WORD mIRCLinker::getSubVersion() const {
-	return HIWORD(m_dwVersion);
-}
-
-bool mIRCLinker::setTreeFont(HFONT newFont)
-{
-	HFONT f = GetWindowFont(m_hTreeview);
-	if (m_hTreeFont == NULL)
-		m_hTreeFont = f;
-	SetWindowFont( m_hTreeview, newFont, TRUE);
-	if (f != m_hTreeFont)
-		DeleteFont(f);
-	return true;
-}
-
-void mIRCLinker::hookWindowProc(WNDPROC newProc)
-{
-	m_wpmIRCDefaultWndProc = SubclassWindow(m_mIRCHWND, newProc);
-}
-
-void mIRCLinker::resetWindowProc(void) {
-	if (m_wpmIRCDefaultWndProc != NULL)
-		SubclassWindow(m_mIRCHWND, m_wpmIRCDefaultWndProc);
-}
-
-LRESULT mIRCLinker::callDefaultWindowProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
-{
-	return CallWindowProc(m_wpmIRCDefaultWndProc, hWnd, Msg, wParam, lParam);
-}
-
-/*!
- * \brief Requests mIRC $identifiers to be evaluated.
- *
- * Allow sufficient characters to be returned.
- */
-bool mIRCLinker::eval(TCHAR *res, const int maxlen, const TCHAR *data) {
-	if (lstrcpyn(m_pData, data, MIRC_BUFFER_SIZE_CCH) != NULL)
+	HWND& getSwitchbar() noexcept
 	{
-		SendMessage(m_mIRCHWND, WM_MEVALUATE, MIRCF_UNICODE, m_iMapCnt);
-		if (res != NULL) lstrcpyn(res, m_pData, maxlen);
-		if (lstrcmp(m_pData, TEXT("$false")) == 0) return false;
+		return m_hSwitchbar;
+	}
+
+	HWND& getToolbar() noexcept
+	{
+		return m_hToolbar;
+	}
+
+	HWND& getTreebar() noexcept
+	{
+		return m_hTreebar;
+	}
+
+	HWND& getTreeview() noexcept
+	{
+		return m_hTreeview;
+	}
+
+	HIMAGELIST& getTreeImages() noexcept
+	{
+		return m_hTreeImages;
+	}
+
+	HFONT& getTreeFont() noexcept
+	{
+		return m_hTreeFont;
+	}
+
+
+	HWND& getMDIClient() noexcept
+	{
+		return m_hMDI;
+	}
+
+	HWND getActiveMDIWindow() noexcept
+	{
+		return reinterpret_cast<HWND>(SendMessage(mIRCLinker::getMDIClient(), WM_MDIGETACTIVE, 0L, 0L));
+	}
+
+	HWND& getHWND() noexcept
+	{
+		return m_mIRCHWND;
+	}
+
+	DWORD& getVersion() noexcept
+	{
+		return m_dwVersion;
+	}
+
+	WORD getMainVersion() noexcept
+	{
+		return Dcx::dcxLOWORD(m_dwVersion);
+	}
+
+	WORD getSubVersion() noexcept
+	{
+		return Dcx::dcxHIWORD(m_dwVersion);
+	}
+
+	GSL_SUPPRESS(type.4)
+		bool setTreeFont(const HFONT newFont) noexcept
+	{
+		const auto f = GetWindowFont(m_hTreeview);
+		if (!m_hTreeFont)
+			m_hTreeFont = f;
+		SetWindowFont(m_hTreeview, newFont, TRUE);
+		if (f != m_hTreeFont)
+			DeleteObject(f);
 		return true;
 	}
-	return false;
-}
 
-bool mIRCLinker::tsEval(TString &res, const TCHAR *data) {
-	lstrcpyn(m_pData, data, MIRC_BUFFER_SIZE_CCH);
-	SendMessage(m_mIRCHWND, WM_MEVALUATE, MIRCF_UNICODE, m_iMapCnt);
-	res = m_pData;
-	if (res == TEXT("$false")) return false;
-	return true;
-}
-
-bool mIRCLinker::iEval(__int64  *res, const TCHAR *data) {
-	if (lstrcpyn(m_pData, data, MIRC_BUFFER_SIZE_CCH) != NULL)
+	GSL_SUPPRESS(type.4)
+		void hookWindowProc(WNDPROC newProc) noexcept
 	{
-		SendMessage(m_mIRCHWND, WM_MEVALUATE, MIRCF_UNICODE, m_iMapCnt);
-		*res = dcx_atoi64(m_pData);
-		if (*res == 0) return false;
+		m_wpmIRCDefaultWndProc = SubclassWindow(m_mIRCHWND, newProc);
+	}
+
+	GSL_SUPPRESS(type.4)
+		void resetWindowProc() noexcept
+	{
+		if (!m_wpmIRCDefaultWndProc)
+			return;
+
+		if (IsWindow(m_mIRCHWND))
+		{
+			if (Dcx::dcxGetWindowProc(m_mIRCHWND) == Dcx::mIRCSubClassWinProc)
+				SubclassWindow(m_mIRCHWND, m_wpmIRCDefaultWndProc);
+		}
+		m_wpmIRCDefaultWndProc = nullptr;
+	}
+
+	LRESULT callDefaultWindowProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam) noexcept
+	{
+		if (m_wpmIRCDefaultWndProc)
+			return CallWindowProc(m_wpmIRCDefaultWndProc, hWnd, Msg, wParam, lParam);
+		return DefWindowProc(hWnd, Msg, wParam, lParam);
+	}
+
+	GSL_SUPPRESS(type.4)
+		bool mIRC_SndMsg(const UINT uMsg) noexcept
+	{
+		if (isOrNewerVersion(7, 34))
+		{
+			m_bSendMessageDisabled = false;
+			if (const auto err = SendMessage(m_mIRCHWND, uMsg, MAKEWPARAM(MIRCF_UNICODE | MIRCF_ENHANCEDERRORS, 0), m_iMapCnt); dcx_testflag(err, MIRCF_ERR_FAILED))
+			{
+				// failed
+				if (dcx_testflag(err, MIRCF_ERR_DISABLED))
+				{
+					m_bSendMessageDisabled = true;
+					Dcx::error(TEXT("mIRCLinker::mIRC_SndMsg()"), TEXT("SendMessage() - failed: Disabled"));
+				}
+				if (dcx_testflag(err, MIRCF_ERR_MAP_NAME))
+					Dcx::error(TEXT("mIRCLinker::mIRC_SndMsg()"), TEXT("SendMessage() - failed: Invalid mapfile name"));
+				else if (dcx_testflag(err, MIRCF_ERR_MAP_SIZE))
+					Dcx::error(TEXT("mIRCLinker::mIRC_SndMsg()"), TEXT("SendMessage() - failed: Invalid mapfile size"));
+				else if (dcx_testflag(err, MIRCF_ERR_EVENTID))
+					Dcx::error(TEXT("mIRCLinker::mIRC_SndMsg()"), TEXT("SendMessage() - failed: Invalid eventid"));
+				else if (dcx_testflag(err, MIRCF_ERR_SERVER))
+					Dcx::error(TEXT("mIRCLinker::mIRC_SndMsg()"), TEXT("SendMessage() - failed: Bad Server"));
+				else if (dcx_testflag(err, MIRCF_ERR_SCRIPT))
+					Dcx::error(TEXT("mIRCLinker::mIRC_SndMsg()"), TEXT("SendMessage() - failed: Bad Script"));
+				else
+					Dcx::error(TEXT("mIRCLinker::mIRC_SndMsg()"), TEXT("SendMessage() - failed"));
+				return false;
+			}
+		}
+		else {
+			if (SendMessage(m_mIRCHWND, uMsg, MIRCF_UNICODE, m_iMapCnt) == 0)
+				return false;
+		}
 		return true;
 	}
-	return false;
-}
 
-/*!
- * \brief Requests mIRC $identifiers to be evaluated.
- *
- * Allow sufficient characters to be returned.
- * Requests mIRC to perform command using vsprintf.
-*/
-bool mIRCLinker::evalex(TCHAR *res, const int maxlen, const TCHAR *szFormat, ...)
-{
-	TString line;
-	va_list args;
+	/*!
+	 * \brief Requests mIRC $identifiers to be evaluated.
+	 *
+	 * Allow sufficient characters to be returned.
+	 */
+	 //bool eval(TCHAR *const res, const int maxlen, const TCHAR *const data) {
+	 //	//if (ts_strcpyn(m_pData, data, MIRC_BUFFER_SIZE_CCH) != nullptr)
+	 //	//{
+	 //	//	if (mIRC_SndMsg(WM_MEVALUATE)) {
+	 //	//		if (res != nullptr)
+	 //	//			dcx_strcpyn(res, m_pData, maxlen);
+	 //	//
+	 //	//		return (ts_strcmp(m_pData, TEXT("$false")) != 0);
+	 //	//	}
+	 //	//}
+	 //	//m_pData[0] = 0;
+	 //	//return false;
+	 //
+	 //	m_pData = data;
+	 //	{
+	 //		if (mIRC_SndMsg(WM_MEVALUATE)) {
+	 //			if (res != nullptr)
+	 //				dcx_strcpyn(res, m_pData, maxlen);
+	 //
+	 //			return m_pData != TEXT("$false");
+	 //		}
+	 //	}
+	 //	m_pData.clear();
+	 //	return false;
+	 //}
 
-	va_start(args, szFormat);
-	line.tvprintf(szFormat, &args);
-	va_end( args );
+	 //bool tsEval(TString &res, const TCHAR *const data) {
+	 //	//if (ts_strcpyn(m_pData, data, MIRC_BUFFER_SIZE_CCH) != nullptr)
+	 //	//{
+	 //	//	if (mIRC_SndMsg(WM_MEVALUATE)) {
+	 //	//		res = m_pData;
+	 //	//		return (res != TEXT("$false"));
+	 //	//	}
+	 //	//}
+	 //	//m_pData[0] = 0;
+	 //	//return false;
+	 //
+	 //	m_pData = data;
+	 //	{
+	 //		if (mIRC_SndMsg(WM_MEVALUATE)) {
+	 //			res = m_pData;
+	 //			return (res != TEXT("$false"));
+	 //		}
+	 //	}
+	 //	m_pData.clear();
+	 //	return false;
+	 //}
 
-	return eval(res, maxlen, line.to_chr());
-}
-bool mIRCLinker::tsEvalex(TString &res, const TCHAR *szFormat, ...)
-{
-	TString line;
-	va_list args;
-
-	va_start(args, szFormat);
-	line.tvprintf(szFormat, &args);
-	va_end( args );
-
-	return tsEval(res, line.to_chr());
-}
-
-bool mIRCLinker::exec(const TCHAR *data)
-{
-	if (lstrcpyn(m_pData, data, MIRC_BUFFER_SIZE_CCH) != NULL)
+	bool iEval(int64_t* const res, const TCHAR* const data) noexcept
 	{
-		SendMessage(m_mIRCHWND, WM_MCOMMAND, MIRCF_UNICODE, m_iMapCnt);
-		if (lstrlen(m_pData) == 0) return true;
+		//if (ts_strcpyn(m_pData, data, MIRC_BUFFER_SIZE_CCH) != nullptr)
+		//{
+		//	if (mIRC_SndMsg(WM_MEVALUATE)) {
+		//		*res = dcx_atoi64(m_pData);
+		//		return (*res != 0);
+		//	}
+		//}
+		//m_pData[0] = 0;
+		//return false;
+
+		m_pData = data;
+		{
+			if (mIRC_SndMsg(WM_MEVALUATE))
+			{
+				*res = dcx_atoi64(m_pData.data());
+				return (*res != 0);
+			}
+		}
+		m_pData.clear();
+		return false;
 	}
-	return false;
-}
 
-bool mIRCLinker::execex(const TCHAR *szFormat, ...)
-{
-	TString line;
-	va_list args;
+	/*!
+	 * \brief Requests mIRC $identifiers to be evaluated.
+	 *
+	 * Allow sufficient characters to be returned.
+	 * Requests mIRC to perform command using vsprintf.
+	 */
+	 //bool evalex(TCHAR *const res, const int maxlen, const TCHAR *const szFormat, ...)
+	 //{
+	 //	TString line;
+	 //	va_list args = nullptr;
+	 //
+	 //	va_start(args, szFormat);
+	 //	line.tvprintf(szFormat, args);
+	 //	va_end(args);
+	 //
+	 //	return eval(res, maxlen, line.to_chr());
+	 //}
 
-	va_start(args, szFormat);
-	line.tvprintf(szFormat, &args);
-	va_end( args );
+	 //bool tsEvalex(TString &res, const TCHAR *const szFormat, ...)
+	 //{
+	 //	TString line;
+	 //	va_list args = nullptr;
+	 //
+	 //	va_start(args, szFormat);
+	 //	line.tvprintf(szFormat, args);
+	 //	va_end(args);
+	 //
+	 //	//return tsEval(res, line.to_chr());
+	 //
+	 //	return eval(res, line);
+	 //}
 
-	return exec(line.to_chr());
-}
+	 //bool exec(const TCHAR *const data)
+	 //{
+	 //	//if (ts_strcpyn(m_pData, data, MIRC_BUFFER_SIZE_CCH) != nullptr)
+	 //	//{
+	 //	//	// SendMessage(mHwnd, WM_MCOMMAND, MAKEWPARAM(cMethod, cEventId), cIndex)
+	 //	//	if (mIRC_SndMsg(WM_MCOMMAND))
+	 //	//		return (m_pData[0] == TEXT('\0'));
+	 //	//}
+	 //	//return false;
+	 //
+	 //	m_pData = data;
+	 //	{
+	 //		// SendMessage(mHwnd, WM_MCOMMAND, MAKEWPARAM(cMethod, cEventId), cIndex)
+	 //		if (mIRC_SndMsg(WM_MCOMMAND))
+	 //			return m_pData.empty();
+	 //	}
+	 //	return false;
+	 //}
 
-void mIRCLinker::signal(const TCHAR *msg) {
-	wnsprintf(m_pData, MIRC_BUFFER_SIZE_CCH, TEXT("//.signal -n DCX %s"), msg);
-	SendMessage(m_mIRCHWND, WM_MCOMMAND, MIRCF_UNICODE, m_iMapCnt);
-}
+	 //bool execex(const TCHAR *const szFormat, ...)
+	 //{
+	 //	//TString line;
+	 //	//va_list args = nullptr;
+	 //	//
+	 //	//va_start(args, szFormat);
+	 //	//line.tvprintf(szFormat, args);
+	 //	//va_end(args);
+	 //	//
+	 //	//return exec(line.to_chr());
+	 //
+	 //	TString line;
+	 //	va_list args = nullptr;
+	 //
+	 //	va_start(args, szFormat);
+	 //	line.tvprintf(szFormat, args);
+	 //	va_end(args);
+	 //
+	 //	return exec(line);
+	 //}
 
-/*!
-* \brief Sends a signal to mIRC.
-*
-* This method allows for multiple parameters.
-*/
-void mIRCLinker::signalex(const bool allow, const TCHAR *szFormat, ...) {
-	if (!allow)
-		return;
+	 //void signal(const TCHAR *const msg) {
+	 //	//wnsprintf(m_pData, MIRC_BUFFER_SIZE_CCH, TEXT("//.signal -n DCX %s"), msg);
+	 //	//mIRC_SndMsg(WM_MCOMMAND);
+	 //
+	 //	_ts_sprintf(m_pData, TEXT("//.signal -n DCX %"), msg);
+	 //	mIRC_SndMsg(WM_MCOMMAND);
+	 //}
 
-	TString msg;
-	va_list args;
+	 /*!
+	 * \brief Sends a signal to mIRC.
+	 *
+	 * This method allows for multiple parameters.
+	 */
+	 //void signalex(const bool allow, const TCHAR *const szFormat, ...) {
+	 //	if (!allow)
+	 //		return;
+	 //
+	 //	TString msg;
+	 //	va_list args = nullptr;
+	 //
+	 //	va_start(args, szFormat);
+	 //	msg.tvprintf(szFormat, args);
+	 //	va_end(args);
+	 //
+	 //	signal(msg.to_chr());
+	 //}
 
-	va_start(args, szFormat);
-	msg.tvprintf(szFormat, &args);
-	va_end(args);
+	 /*!
+	  * \brief Sends a debug message to mIRC (with formatting).
+	  *
+	  * This method allows for multiple parameters.
+	  */
+	  //#if DCX_DEBUG_OUTPUT
+	  //	void debug(const TCHAR *const cmd, const TCHAR *const msg) {
+	  //		if (!isDebug()) return;
+	  //		TString err;
+	  //		echo(_ts_sprintf(err, TEXT("D_DEBUG % (%)"), cmd, msg).to_chr());
+	  //	}
+	  //#endif
 
-	signal(msg.to_chr());
-}
-
-/*!
- * \brief Sends a debug message to mIRC (with formatting).
- *
- * This method allows for multiple parameters.
- */
-#if DCX_DEBUG_OUTPUT
-void mIRCLinker::debug(const TCHAR *cmd, const TCHAR *msg) {
-	if (!isDebug()) return;
-	TString err;
-	err.tsprintf(TEXT("D_DEBUG %s (%s)"), cmd, msg);
-	echo(err.to_chr());
-}
-#endif
-
-/*!
-* \brief Displays output text to the mIRC status window.
-*/
-void mIRCLinker::echo(const TCHAR *data) {
-	wnsprintf(m_pData, MIRC_BUFFER_SIZE_CCH, TEXT("//echo -s %s"), data);
-	SendMessage(m_mIRCHWND, WM_MCOMMAND, MIRCF_UNICODE, m_iMapCnt);
+		  /*!
+		  * \brief Displays output text to the mIRC status window.
+		  */
+		  //void echo(const TCHAR *const data) {
+		  //	//wnsprintf(m_pData, MIRC_BUFFER_SIZE_CCH, TEXT("//echo -s %s"), data);
+		  //	//mIRC_SndMsg(WM_MCOMMAND);
+		  //	//// cant send error msg here, as msg needs this function to display
+		  //
+		  //	_ts_sprintf(m_pData, TEXT("//echo -s %"), data);
+		  //	mIRC_SndMsg(WM_MCOMMAND);
+		  //	// cant send error msg here, as msg needs this function to display
+		  //}
 }

@@ -130,6 +130,7 @@ function get_xdidprops_list(&$XDIDPROPS) {
                                         '__values' => array(
                                                 'W' => 'Matchtext is a wildcard string.',
                                                 'R' => 'Matchtext is a regex patern.',
+												'E' => 'Matchtext is an exact match',
                                         ),
                                 ),
                                 'N' => 'Parameter indicating to return the Nth match.'

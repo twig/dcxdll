@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="iso-8859-1"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
 
-<title>DCX Commands - Dialog Control Xtension DLL v1.4.1 by ClickHeRe, twig* &amp; Ook</title>
+<title>DCX Commands - Dialog Control Xtension DLL v3.1 by ClickHeRe, twig* &amp; Ook</title>
 
 <link href="dcx.css" rel="stylesheet" type="text/css" />
 </head>
@@ -14,10 +15,10 @@
 		<td width="1%"><a href="index.htm"><img src="images/dcx.jpg" alt="DCX - Dialog Control Xtension" /></a></td>
 		<td width="99%" class="sitenav" style="vertical-align: middle; text-align: right; font-size:10pt;background:url(images/top_bg.jpg) left no-repeat;">
 			<a style="color:#000000;" href='index.htm'>Home</a> |
-			<a style="color:#000000;" href="archive.htm">Download</a> |
+			<a style="color:#000000;" href="https://github.com/twig/dcxdll/releases">Download</a> |
 			<a style="color:#000000;" href="http://dcx.scriptsdb.org/forum/">Forum</a> |
-			<a style="color:#000000;" href="http://dcx.scriptsdb.org/bug/">Bug Tracker</a><br />
-                        <div class="version">v1.4.1</div>
+			<a style="color:#000000;" href="https://github.com/twig/dcxdll/issues">Bug Tracker</a><br />
+                        <div class="version">v3.1</div>
 		</td>
 	</tr>
 </table>
@@ -173,8 +174,7 @@
 		<td class="param">TITLE_TEXT</td>
 		<td>If you specify this parameter and <a class="style">title</a>, this will set the title text for the dialog.</td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>Returns <a class="value">$null</a> when cancelled.</li><li>When using <a class="style">computers</a>, this will return a computer name. (eg. <a class="value">//localhost</a>)</li><li>By default, the main mIRC window is the parent. Dialog name OR a hWnd MUST follow after the <a class="style">owner</a> style.<br />
-To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hwnd, $get().hwnd, $query().hwnd, $send().hwnd, and $timer().hwnd</li></ul></td></tr></table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>Returns <a class="value">$null</a> when cancelled.</li><li>When using <a class="style">computers</a>, this will return a computer name. (eg. <a class="value">//localhost</a>)</li><li>By default, the main mIRC window is the parent. Dialog name OR a hWnd MUST follow after the <a class="style">owner</a> style.<br />To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hwnd, $get().hwnd, $query().hwnd, $send().hwnd, and $timer().hwnd</li></ul></td></tr></table>
 <br />
 <table class="general">
 	<tr><td colspan="2" class="flag" style="color: #979AB3; border-color: #979AB3;">
@@ -222,6 +222,25 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 		<td>Allows you to specify the parent dialog/window. (Must also specify <a class="value">DNAME</a> or <a class="value">HWND</a>)</td>
 	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> By default, the main mIRC window is the parent. Dialog name OR a hwnd MUST follow after the <a class="style">owner</a> style<br />To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hwnd, $get().hwnd, $query().hwnd, $send().hwnd, and $timer().hwnd</td></tr></table>
+<br />
+<table class="general">
+	<tr><td colspan="2" class="flag" style="color: #979AB3; border-color: #979AB3;">
+			<a name="general.CountIcons"></a>$dcx(CountIcons)	</td></tr>
+	<tr><td colspan="2">Counts the icons within a file.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$dcx(CountIcons, [FILENAME])</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$dcx(CountIcons, $mircdir $+ mirc.exe)</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">FILENAME</td>
+		<td>File to count icons in.</td>
+	</tr>
+<tr><td class="syntax">Return</td><td><a class="value">D_OK COUNT FILENAME</a>.</td></tr></table>
 <br />
 <table class="general">
 	<tr><td colspan="2" class="flag" style="color: #979AB3; border-color: #979AB3;">
@@ -540,6 +559,10 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 	<tr>
 		<td class="value">COLOR_WINDOWTEXT</td>
 		<td>Text in windows.</td>
+	</tr>
+	<tr>
+		<td class="value">COLOR_GLASS</td>
+		<td>Color used for glass effect.</td>
 	</tr>
 </table>
 <br />
@@ -860,8 +883,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 		<td class="param">FILTER</td>
 		<td>The FILTER parameter is the type of files the user can select, it should be formatted like "Description|Type|Description|Type"</td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>Returns <a class="value">$null</a> when cancelled.</li><li><a class="value">filemustexist</a> automatically applies <a class="value">pathmustexist</a> when style used.</li><li><a class="value">multisel</a> returns files in this format [PATH]|[FILE1]|[FILE2]|..., where the first token will be the path, and the files are seperated by the | (pipe) character.</li><li>By default, the main mIRC window is the parent. Dialog name OR a hWnd MUST follow after the <a class="style">owner</a> style.<br />
-To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hwnd, $get().hwnd, $query().hwnd, $send().hwnd, and $timer().hwnd</li></ul></td></tr></table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>Returns <a class="value">$null</a> when cancelled.</li><li><a class="value">filemustexist</a> automatically applies <a class="value">pathmustexist</a> when style used.</li><li><a class="value">multisel</a> returns files in this format [PATH]|[FILE1]|[FILE2]|..., where the first token will be the path, and the files are seperated by the | (pipe) character.</li><li>By default, the main mIRC window is the parent. Dialog name OR a hWnd MUST follow after the <a class="style">owner</a> style.<br />To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hwnd, $get().hwnd, $query().hwnd, $send().hwnd, and $timer().hwnd</li></ul></td></tr></table>
 <br />
 <table class="general">
 	<tr><td colspan="2" class="flag" style="color: #979AB3; border-color: #979AB3;">
@@ -886,6 +908,41 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 	</tr>
 <tr><td class="syntax">Return</td><td><a class="value">D_OK SELECTED_INDEX SELECTED_FILENAME</a> if user clicked OK.<br />
 <a class="value">D_ERROR DEFAULT_INDEX DEFAULT_FILENAME</a> if user cancelled.</td></tr><tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li><a class="param">DEFAULT_INDEX</a> is the pre-selected icon index and <a class="param">SELECTED_INDEX</a> is the index selected by the user.</li><li><a class="param">FILENAME</a> and <a class="param">SELECTED_FILENAME</a> may be different as the user is able to browse.</li></ul></td></tr></table>
+<br />
+<table class="general">
+	<tr><td colspan="2" class="flag" style="color: #979AB3; border-color: #979AB3;">
+			<a name="general.SetDCXSettings"></a>/dcx SetDCXSettings	</td></tr>
+	<tr><td colspan="2">This command enables or disables various DCX settings.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/dcx SetDCXSettings [OPTION] (ARGS)</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/dcx SetDCXSettings UpdateColours<br />/dcx SetDCXSettings StaticColours 1<br />/dcx SetDCXSettings CustomMenus 1 0<br /></div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">OPTION</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td class="value">StaticColours</td>
+		<td>Enable or disable static colours.</td>
+	</tr>
+	<tr>
+		<td class="value">UpdateColours</td>
+		<td>Force colours to update to match current mIRC theme.</td>
+	</tr>
+	<tr>
+		<td class="value">CustomMenus</td>
+		<td>Enable/Disable custom menu drawing. (not the same as XPopupMenus)</td>
+	</tr>
+	<tr>
+		<td class="param">ARGS</td>
+		<td>Either <a class="value">0</a> or <a class="value">1</a>, stating on or off respectively.</td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>When StaticColours is enabled dcx will no longer update the colours used to match mIRC on each draw, this leads to much faster drawing.</li><li>If mIRC changes it's theme/colours dcx will not auto update & you will need to either disable StaticColours or call UpdateColours.</li><li>CustomMenus is likely to be merged with XPopupMenus in the future</li></ul></td></tr></table>
 <br />
 <table class="general">
 	<tr><td colspan="2" class="flag" style="color: #979AB3; border-color: #979AB3;">
@@ -967,6 +1024,26 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 		<td class="value">FILENAME</td>
 		<td>Icon archive filename</td>
 	</tr>
+	<tr>
+		<td class="param">v</td>
+		<td><div class="syntax">[TOP] [LEFT] [BOTTOM] [RIGHT]</div></td>
+	</tr>
+	<tr>
+		<td class="value">TOP</td>
+		<td>Glass offset from top of dialog</td>
+	</tr>
+	<tr>
+		<td class="value">LEFT</td>
+		<td>Glass offset from left of dialog</td>
+	</tr>
+	<tr>
+		<td class="value">BOTTOM</td>
+		<td>Glass offset from bottom of dialog</td>
+	</tr>
+	<tr>
+		<td class="value">RIGHT</td>
+		<td>Glass offset from right of dialog</td>
+	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> Use <a class="value">0</a> for <a class="param">INDEX</a> if the file is a single icon file.</td></tr></table>
 <br />
 <table class="general">
@@ -1010,6 +1087,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 		<a class='flag' href="#general.ActiveWindow"><div>ActiveWindow</div></a>
 		<a class='flag' href="#general.BrowseDialog"><div>BrowseDialog</div></a>
 		<a class='flag' href="#general.ColorDialog"><div>ColorDialog</div></a>
+		<a class='flag' href="#general.CountIcons"><div>CountIcons</div></a>
 		<a class='flag' href="#general.FontDialog"><div>FontDialog</div></a>
 		<a class='flag' href="#general.GetSystemColor"><div>GetSystemColor</div></a>
 		<a class='flag' href="#general.GetTaskbarPos"><div>GetTaskbarPos</div></a>
@@ -1022,6 +1100,7 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 		<a class='flag' href="#general.MsgBox"><div>MsgBox</div></a>
 		<a class='flag' href="#general.OpenDialog/SaveDialog"><div>OpenDialog/SaveDialog</div></a>
 		<a class='flag' href="#general.PickIcon"><div>PickIcon</div></a>
+		<a class='flag' href="#general.SetDCXSettings"><div>SetDCXSettings</div></a>
 		<a class='flag' href="#general.Version"><div>Version</div></a>
 		<a class='flag' href="#general.WindowProps"><div>WindowProps</div></a>
 		<a class='flag' href="#general.xSignal"><div>xSignal</div></a>
@@ -1033,8 +1112,8 @@ To get hWnd values, use $window().hwnd, $dialog().hwnd, $chan().hwnd, $chat().hw
 <table class="bar">
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
-		<td style="text-align: center;">© 2005-2009</td>
-		<td style="text-align: right;">Last Updated: 12th July, 09</td>
+		<td style="text-align: center;">© 2005-2021</td>
+		<td style="text-align: right;">Last Updated: 22nd April, 21</td>
 	</tr>
 </table>
 <div style="text-align: center;">

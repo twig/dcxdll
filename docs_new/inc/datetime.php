@@ -21,7 +21,7 @@ function get_styles_datetime(&$STYLES) {
 
 function get_xdid_datetime(&$XDID) {
 	$XDID = array(
-		'f' => array(
+		'o' => array(
 			'__desc' => 'This command lets you set format of the DateTime Picker text.',
 			'__cmd' => '[FORMAT]',
 			'__eg' => "'Right now it is: 'hh':'m':'s ddddMMMdd', 'yyy",
@@ -103,6 +103,31 @@ function get_xdid_datetime(&$XDID) {
 			'__cmd' => '[TIMESTAMP]',
 			'__eg' => '$ctime(3rd July 3006)',
             '__notes' => 'You can use [v]reset[/v] for [p]TIMESTEMP[/p] to set it back to the current date/time, but this only applies to the [s]shownone[/s] style.',
+		),
+		'D' => array(
+			'__desc' => "This command lets you change controls dropdown font.",
+			'__cmd' => "[+FLAGS] [CHARSET] [SIZE] [FONTNAME]",
+			'__eg' => "+abs ansi 10 Tahoma",
+			'__params' => array(
+			    '+FLAGS' => array(
+			        '__desc' => "Font style flags.",
+                    '__values' => array(
+                        'a' => "Font is anti-aliased.",
+						'b' => "Font is bold.",
+						'd' => "Default font.",
+						'i' => "Font is italic.",
+						's' => "Font is strikedout.",
+						'u' => "Font is underlined.",
+					),
+				),
+				'CHARSET' => "Can be any of the following: [v]ansi[/v], [v]baltic[/v], [v]chinesebig[/v], [v]default[/v], [v]easteurope[/v], [v]gb2312[/v], [v]greek[/v], [v]hangul[/v], [v]mac[/v], [v]oem[/v], [v]russian[/v], [v]shiftjis[/v], [v]symbol[/v], [v]turkish[/v], or [v]vietnamese[/v].",
+				'SIZE' => "Font size in points.",
+				'FONTNAME' => "Font name. Ex: Tahoma, Courier New, Arial, ...",
+			),
+			'__notes' => array(
+				"Font names are limited to 31 chars (system definition).",
+				'When using [v]+d[/v], [p]CHARSET[/p] [p]SIZE[/p] and [p]FONTNAME[/p] can be omitted.'
+			),
 		),
 	);
 }

@@ -15,34 +15,16 @@
 #include "defines.h"
 #include "dcxwindow.h"
 
-/*!
- * \brief Constructor
- *
- * \param mHwnd Window Handle
- * \param mID Window ID
- */
+ /*!
+  * \brief Constructor
+  *
+  * \param mHwnd Window Handle
+  * \param mID Window ID
+  */
 
-#if DCX_USE_C11
-DcxWindow::DcxWindow( const HWND mHwnd, const UINT mID )
-	: m_Hwnd( mHwnd )
-	, m_ID( mID )
+DcxWindow::DcxWindow(const HWND mHwnd, const UINT mID) noexcept
+	: m_Hwnd(mHwnd), m_ID(mID), m_hZeroRgn(CreateRectRgn(0, 0, 0, 0))
 {
-	if (IDC_map.size() == 0) {
-		IDC_map[TEXT("appstarting")] = IDC_APPSTARTING;
-		IDC_map[TEXT("arrow")] = IDC_ARROW;
-		IDC_map[TEXT("cross")] = IDC_CROSS;
-		IDC_map[TEXT("hand")] = IDC_HAND;
-		IDC_map[TEXT("help")] = IDC_HELP;
-		IDC_map[TEXT("ibeam")] = IDC_IBEAM;
-		IDC_map[TEXT("no")] = IDC_NO;
-		IDC_map[TEXT("sizeall")] = IDC_SIZEALL;
-		IDC_map[TEXT("sizenesw")] = IDC_SIZENESW;
-		IDC_map[TEXT("sizens")] = IDC_SIZENS;
-		IDC_map[TEXT("sizenwse")] = IDC_SIZENWSE;
-		IDC_map[TEXT("sizewe")] = IDC_SIZEWE;
-		IDC_map[TEXT("uparrow")] = IDC_UPARROW;
-		IDC_map[TEXT("wait")] = IDC_WAIT;
-	}
 }
 
 /*!
@@ -51,39 +33,10 @@ DcxWindow::DcxWindow( const HWND mHwnd, const UINT mID )
  * \param mID Window ID
  */
 
-DcxWindow::DcxWindow( const UINT mID )
-	: m_ID( mID )
+DcxWindow::DcxWindow(const UINT mID) noexcept
+	: DcxWindow(nullptr, mID)
 {
-	if (IDC_map.size() == 0) {
-		IDC_map[TEXT("appstarting")] = IDC_APPSTARTING;
-		IDC_map[TEXT("arrow")] = IDC_ARROW;
-		IDC_map[TEXT("cross")] = IDC_CROSS;
-		IDC_map[TEXT("hand")] = IDC_HAND;
-		IDC_map[TEXT("help")] = IDC_HELP;
-		IDC_map[TEXT("ibeam")] = IDC_IBEAM;
-		IDC_map[TEXT("no")] = IDC_NO;
-		IDC_map[TEXT("sizeall")] = IDC_SIZEALL;
-		IDC_map[TEXT("sizenesw")] = IDC_SIZENESW;
-		IDC_map[TEXT("sizens")] = IDC_SIZENS;
-		IDC_map[TEXT("sizenwse")] = IDC_SIZENWSE;
-		IDC_map[TEXT("sizewe")] = IDC_SIZEWE;
-		IDC_map[TEXT("uparrow")] = IDC_UPARROW;
-		IDC_map[TEXT("wait")] = IDC_WAIT;
-	}
 }
-#else
-DcxWindow::DcxWindow( const HWND mHwnd, const UINT mID ) : m_Hwnd( mHwnd ), m_ID( mID ) {
-}
-
-/*!
- * \brief Constructor
- *
- * \param mID Window ID
- */
-
-DcxWindow::DcxWindow( const UINT mID ) : m_ID( mID ) {
-}
-#endif
 
 /*!
  * \brief Destructor
@@ -91,9 +44,10 @@ DcxWindow::DcxWindow( const UINT mID ) : m_ID( mID ) {
  * Destructor
  */
 
-DcxWindow::~DcxWindow( ) {
-
-
+DcxWindow::~DcxWindow() noexcept
+{
+	if (m_hZeroRgn)
+		DeleteRgn(m_hZeroRgn);
 }
 
 /*!
@@ -102,12 +56,9 @@ DcxWindow::~DcxWindow( ) {
  * blah
  */
 
-BOOL DcxWindow::isStyle( const LONG Styles ) const {
-
-	if ( GetWindowStyle( this->m_Hwnd ) & Styles )
-		return TRUE;
-
-	return FALSE;
+bool DcxWindow::isStyle(const WindowStyle Styles) const noexcept
+{
+	return dcx_testflag(dcxGetWindowStyle(m_Hwnd), Styles);	// this makes sure ALL flags match not just some.
 }
 
 /*!
@@ -116,10 +67,10 @@ BOOL DcxWindow::isStyle( const LONG Styles ) const {
  * blah
  */
 
-LONG DcxWindow::removeStyle( const LONG Styles ) {
-
-	LONG winStyles = GetWindowStyle( this->m_Hwnd );
-	return SetWindowLong( this->m_Hwnd, GWL_STYLE, winStyles &= ~Styles );
+WindowStyle DcxWindow::removeStyle(const WindowStyle Styles) noexcept
+{
+	const auto winStyles = dcxGetWindowStyle(m_Hwnd);
+	return dcxSetWindowStyle(m_Hwnd, winStyles & ~Styles);
 }
 
 /*!
@@ -128,10 +79,10 @@ LONG DcxWindow::removeStyle( const LONG Styles ) {
  * blah
  */
 
-LONG DcxWindow::addStyle( const LONG Styles ) {
-
-	LONG winStyles = GetWindowStyle( this->m_Hwnd );
-	return SetWindowLong( this->m_Hwnd, GWL_STYLE, winStyles |= Styles );
+WindowStyle DcxWindow::addStyle(const WindowStyle Styles) noexcept
+{
+	const auto winStyles = dcxGetWindowStyle(m_Hwnd);
+	return dcxSetWindowStyle(m_Hwnd, winStyles | Styles);
 }
 
 /*!
@@ -140,9 +91,9 @@ LONG DcxWindow::addStyle( const LONG Styles ) {
  * blah
  */
 
-LONG DcxWindow::setStyle( const LONG Styles ) {
-
-	return SetWindowLong( this->m_Hwnd, GWL_STYLE, Styles );
+WindowStyle DcxWindow::setStyle(const WindowStyle Styles) noexcept
+{
+	return dcxSetWindowStyle(m_Hwnd, Styles);
 }
 
 /*!
@@ -151,12 +102,9 @@ LONG DcxWindow::setStyle( const LONG Styles ) {
  * blah
  */
 
-BOOL DcxWindow::isExStyle( const LONG Styles ) const {
-
-	if ( GetWindowExStyle( this->m_Hwnd ) & Styles )
-		return TRUE;
-
-	return FALSE;
+bool DcxWindow::isExStyle(const WindowExStyle Styles) const noexcept
+{
+	return dcx_testflag(dcxGetWindowExStyle(m_Hwnd), Styles);
 }
 
 /*!
@@ -165,10 +113,10 @@ BOOL DcxWindow::isExStyle( const LONG Styles ) const {
  * blah
  */
 
-LONG DcxWindow::removeExStyle( const LONG Styles ) {
-
-	LONG winStyles = GetWindowExStyle( this->m_Hwnd );
-	return SetWindowLong( this->m_Hwnd, GWL_EXSTYLE, winStyles &= ~Styles );
+WindowExStyle DcxWindow::removeExStyle(const WindowExStyle Styles) noexcept
+{
+	const auto winStyles = dcxGetWindowExStyle(m_Hwnd);
+	return dcxSetWindowExStyle(m_Hwnd, winStyles & ~Styles);
 }
 
 /*!
@@ -177,10 +125,10 @@ LONG DcxWindow::removeExStyle( const LONG Styles ) {
  * blah
  */
 
-LONG DcxWindow::addExStyle( const LONG Styles ) {
-
-	LONG winStyles = GetWindowExStyle( this->m_Hwnd );
-	return SetWindowLong( this->m_Hwnd, GWL_EXSTYLE, winStyles |= Styles );
+WindowExStyle DcxWindow::addExStyle(const WindowExStyle Styles) noexcept
+{
+	const auto winStyles = dcxGetWindowExStyle(m_Hwnd);
+	return dcxSetWindowExStyle(m_Hwnd, winStyles | Styles);
 }
 
 /*!
@@ -189,9 +137,35 @@ LONG DcxWindow::addExStyle( const LONG Styles ) {
  * blah
  */
 
-LONG DcxWindow::setExStyle( const LONG Styles ) {
+WindowExStyle DcxWindow::setExStyle(const WindowExStyle Styles) noexcept
+{
+	return dcxSetWindowExStyle(m_Hwnd, Styles);
+}
 
-	return SetWindowLong( this->m_Hwnd, GWL_EXSTYLE, Styles );
+dcxWindowStyles DcxWindow::parseBorderStyles(const TString& tsFlags) noexcept
+{
+	const XSwitchFlags xflags(tsFlags);
+	WindowStyle Styles(WindowStyle::None);
+	WindowExStyle ExStyles(WindowExStyle::None);
+
+	// no +sign, missing params
+	if (!xflags[TEXT('+')])
+		return { Styles, ExStyles };
+
+	if (xflags[TEXT('b')])
+		Styles |= WS_BORDER;
+	if (xflags[TEXT('c')])
+		ExStyles |= WS_EX_CLIENTEDGE;
+	if (xflags[TEXT('d')])
+		Styles |= WS_DLGFRAME;
+	if (xflags[TEXT('f')])
+		ExStyles |= WS_EX_DLGMODALFRAME;
+	if (xflags[TEXT('s')])
+		ExStyles |= WS_EX_STATICEDGE;
+	if (xflags[TEXT('w')])
+		ExStyles |= WS_EX_WINDOWEDGE;
+
+	return { Styles, ExStyles };
 }
 
 /*!
@@ -200,9 +174,9 @@ LONG DcxWindow::setExStyle( const LONG Styles ) {
  * blah
  */
 
-UINT DcxWindow::getID( ) const {
-
-	return this->m_ID;
+const UINT& DcxWindow::getID() const noexcept
+{
+	return m_ID;
 }
 
 /*!
@@ -211,9 +185,9 @@ UINT DcxWindow::getID( ) const {
  * blah
  */
 
-HWND DcxWindow::getHwnd( ) const {
-
-	return this->m_Hwnd;
+const HWND& DcxWindow::getHwnd() const noexcept
+{
+	return m_Hwnd;
 }
 
 /*!
@@ -222,9 +196,9 @@ HWND DcxWindow::getHwnd( ) const {
  * blah
  */
 
-void DcxWindow::redrawWindow( ) {
-
-	RedrawWindow( this->m_Hwnd, NULL, NULL, RDW_INTERNALPAINT|RDW_ALLCHILDREN|RDW_INVALIDATE|RDW_ERASE/*|RDW_FRAME|RDW_UPDATENOW*/ );
+void DcxWindow::redrawWindow() const noexcept
+{
+	RedrawWindow(m_Hwnd, nullptr, nullptr, RDW_INTERNALPAINT | RDW_ALLCHILDREN | RDW_INVALIDATE | RDW_ERASE/*|RDW_FRAME|RDW_UPDATENOW*/);
 }
 
 /*
@@ -233,84 +207,62 @@ void DcxWindow::redrawWindow( ) {
  * Composited windows already have buffered draw.
 */
 // TODO: this changes the border style of children upon resize of dialog.
-void DcxWindow::redrawBufferedWindow( ) {
-
-	if (this->isExStyle(WS_EX_COMPOSITED)) {
+void DcxWindow::redrawBufferedWindow()
+{
+	if (this->isExStyle(WindowExStyle::Composited))
+	{
 		this->redrawWindow();
 		return;
 	}
 
-	HDC hdc = GetWindowDC(this->m_Hwnd);
+	const auto hdc = GetWindowDC(m_Hwnd);
 
-	if (hdc != NULL) {
-		RECT rc;
-		GetWindowRect(this->m_Hwnd, &rc);
+	if (!hdc)
+		return;
+	Auto(ReleaseDC(m_Hwnd, hdc));
 
-		HDC *hBuffer = CreateHDCBuffer(hdc, &rc);
+#if DCX_USE_WRAPPERS
+	const Dcx::dcxWindowRect rc(m_Hwnd);
 
-		if (hBuffer != NULL) {
-			SendMessage(this->m_Hwnd, WM_PRINT, (WPARAM)*hBuffer, PRF_NONCLIENT | PRF_CLIENT | PRF_CHILDREN | PRF_CHECKVISIBLE | PRF_ERASEBKGND);
+	const Dcx::dcxHDCBuffer hBuffer(hdc, rc);
 
-			BitBlt(hdc, 0, 0, (rc.right - rc.left), (rc.bottom - rc.top), *hBuffer, 0,0, SRCCOPY);
+	SendMessage(m_Hwnd, WM_PRINT, reinterpret_cast<WPARAM>(hBuffer.get()), PRF_NONCLIENT | PRF_CLIENT | PRF_CHILDREN | PRF_CHECKVISIBLE | PRF_ERASEBKGND);
 
-			DeleteHDCBuffer(hBuffer);
-		}
-		ReleaseDC(this->m_Hwnd, hdc);
-		ValidateRect(this->m_Hwnd, NULL);
-	}
-}
-
-/*!
- * \brief blah
- *
- * blah
- */
-#if DCX_USE_C11
-std::map<TString, PTCHAR> DcxWindow::IDC_map;
-
-PTCHAR DcxWindow::parseCursorType( const TString & cursor )
-{
-	std::map<TString, PTCHAR>::iterator got = IDC_map.find(cursor);
-
-	if (got != IDC_map.end())
-		return got->second;
-	return NULL;
-}
+	BitBlt(hdc, 0, 0, (rc.right - rc.left), (rc.bottom - rc.top), hBuffer.get(), 0, 0, SRCCOPY);
 #else
-PTCHAR DcxWindow::parseCursorType( const TString & cursor )
-{
-	if ( cursor == TEXT("appstarting") )
-		return IDC_APPSTARTING;
-	else if ( cursor == TEXT("arrow") )
-		return IDC_ARROW;
-	else if ( cursor == TEXT("cross") )
-		return IDC_CROSS;
-	else if ( cursor == TEXT("hand") )
-		return IDC_HAND;
-	else if ( cursor == TEXT("help") )
-		return IDC_HELP;
-	else if ( cursor == TEXT("ibeam") )
-		return IDC_IBEAM;
-	else if ( cursor == TEXT("no") )
-		return IDC_NO;
-	else if ( cursor == TEXT("sizeall") )
-		return IDC_SIZEALL;
-	else if ( cursor == TEXT("sizenesw") )
-		return IDC_SIZENESW;
-	else if ( cursor == TEXT("sizens") )
-		return IDC_SIZENS;
-	else if ( cursor == TEXT("sizenwse") )
-		return IDC_SIZENWSE;
-	else if ( cursor == TEXT("sizewe") )
-		return IDC_SIZEWE;
-	else if ( cursor == TEXT("uparrow") )
-		return IDC_UPARROW;
-	else if ( cursor == TEXT("wait") )
-		return IDC_WAIT;
+	if (RECT rc{}; GetWindowRect(m_Hwnd, &rc))
+	{
+		if (const auto hBuffer = CreateHDCBuffer(hdc, &rc); hBuffer)
+		{
+			Auto(DeleteHDCBuffer(hBuffer));
 
-	return NULL;
-}
+			SendMessage(m_Hwnd, WM_PRINT, (WPARAM)* hBuffer, PRF_NONCLIENT | PRF_CLIENT | PRF_CHILDREN | PRF_CHECKVISIBLE | PRF_ERASEBKGND);
+
+			BitBlt(hdc, 0, 0, (rc.right - rc.left), (rc.bottom - rc.top), *hBuffer, 0, 0, SRCCOPY);
+		}
+	}
 #endif
+	ValidateRect(m_Hwnd, nullptr);
+}
+
+void DcxWindow::HandleChildSizing(SizingTypes sz) const noexcept
+{
+	if (dcx_testflag(sz, SizingTypes::ReBar))
+		for (auto bars = FindWindowEx(m_Hwnd, nullptr, DCX_REBARCTRLCLASS, nullptr); bars; bars = FindWindowEx(m_Hwnd, bars, DCX_REBARCTRLCLASS, nullptr))
+			SendMessage(bars, WM_SIZE, 0U, 0);
+
+	if (dcx_testflag(sz, SizingTypes::Status))
+		for (auto bars = FindWindowEx(m_Hwnd, nullptr, DCX_STATUSBARCLASS, nullptr); bars; bars = FindWindowEx(m_Hwnd, bars, DCX_STATUSBARCLASS, nullptr))
+			SendMessage(bars, WM_SIZE, 0U, 0);
+
+	if (dcx_testflag(sz, SizingTypes::Panel))
+		for (auto bars = FindWindowEx(m_Hwnd, nullptr, DCX_PANELCLASS, nullptr); bars; bars = FindWindowEx(m_Hwnd, bars, DCX_STATUSBARCLASS, nullptr))
+			SendMessage(bars, WM_SIZE, 0U, 0);
+
+	if (dcx_testflag(sz, SizingTypes::Toolbar))
+		for (auto bars = FindWindowEx(m_Hwnd, nullptr, DCX_TOOLBARCLASS, nullptr); bars; bars = FindWindowEx(m_Hwnd, bars, DCX_TOOLBARCLASS, nullptr))
+			SendMessage(bars, WM_SIZE, 0U, 0);
+}
 
 /*!
  * \brief blah
@@ -318,7 +270,55 @@ PTCHAR DcxWindow::parseCursorType( const TString & cursor )
  * blah
  */
 
-UINT DcxWindow::parseCursorFlags(const TString &flags) {
+PTCHAR DcxWindow::parseCursorType(const TString& cursor)
+{
+	const static std::map<std::hash<TString>::result_type, PTCHAR> IDC_map{
+		{ TEXT("appstarting"_hash), IDC_APPSTARTING },
+		{ TEXT("arrow"_hash), IDC_ARROW },
+		{ TEXT("cross"_hash), IDC_CROSS },
+		{ TEXT("hand"_hash), IDC_HAND },
+		{ TEXT("help"_hash), IDC_HELP },
+		{ TEXT("ibeam"_hash), IDC_IBEAM },
+		{ TEXT("no"_hash), IDC_NO },
+		{ TEXT("sizeall"_hash), IDC_SIZEALL },
+		{ TEXT("sizenesw"_hash), IDC_SIZENESW },
+		{ TEXT("sizens"_hash), IDC_SIZENS },
+		{ TEXT("sizenwse"_hash), IDC_SIZENWSE },
+		{ TEXT("sizewe"_hash), IDC_SIZEWE },
+		{ TEXT("uparrow"_hash), IDC_UPARROW },
+		{ TEXT("wait"_hash), IDC_WAIT }
+	};
+
+	if (const auto got = IDC_map.find(std::hash<TString>{}(cursor)); got != IDC_map.end())
+		return got->second;
+	return nullptr;
+}
+
+/*!
+ * \brief blah
+ *
+ * blah
+ */
+
+DcxResourceFlags DcxWindow::parseCursorFlags(const TString& flags) noexcept
+{
+	DcxResourceFlags iFlags{ DcxResourceFlags::None };
+	const XSwitchFlags xflags(flags);
+
+	// no +sign, missing params
+	if (!xflags[TEXT('+')])
+		return iFlags;
+
+	if (xflags[TEXT('f')])	// load file
+		iFlags = DcxResourceFlags::FROMFILE;
+	else if (xflags[TEXT('r')])	// load resource
+		iFlags = DcxResourceFlags::FROMRESSOURCE;
+
+	return iFlags;
+}
+
+UINT DcxWindow::parseCursorArea(const TString& flags) noexcept
+{
 	UINT iFlags = 0;
 	const XSwitchFlags xflags(flags);
 
@@ -326,10 +326,70 @@ UINT DcxWindow::parseCursorFlags(const TString &flags) {
 	if (!xflags[TEXT('+')])
 		return iFlags;
 
-	if (xflags[TEXT('f')])
-		iFlags |= DCCS_FROMFILE;
-	if (xflags[TEXT('r')])
-		iFlags |= DCCS_FROMRESSOURCE;
+	// can't use +f or +r
+	if (xflags[TEXT('c')])	// client area
+		iFlags = HTCLIENT;
+	if (xflags[TEXT('m')])	// menu area
+		iFlags = HTMENU;
+	if (xflags[TEXT('s')])	// sysmenu area
+		iFlags = HTSYSMENU;
+	if (xflags[TEXT('a')])	// caption area
+		iFlags = HTCAPTION;
+	if (xflags[TEXT('S')])	// size button area
+		iFlags = HTSIZE;
+	if (xflags[TEXT('h')])	// horiz scroll area
+		iFlags = HTHSCROLL;
+	if (xflags[TEXT('v')])	// vert scroll area
+		iFlags = HTVSCROLL;
+	if (xflags[TEXT('M')])	// min button area
+		iFlags = HTMINBUTTON;
+	if (xflags[TEXT('x')])	// max button area
+		iFlags = HTMAXBUTTON;
+	if (xflags[TEXT('C')])	// close button area
+		iFlags = HTCLOSE;
+	if (xflags[TEXT('n')])	// nowhere area
+		iFlags = HTNOWHERE;
+	if (xflags[TEXT('H')])	// help button area
+		iFlags = HTHELP;
+	if (xflags[TEXT('l')])	// left area
+		iFlags = HTLEFT;
+	if (xflags[TEXT('R')])	// right area
+		iFlags = HTRIGHT;
+	if (xflags[TEXT('t')])	// top area
+		iFlags = HTTOP;
+	if (xflags[TEXT('b')])	// bottom area
+		iFlags = HTBOTTOM;
+
+	if (xflags[TEXT('L')])	// topleft area
+		iFlags = HTTOPLEFT;
+	if (xflags[TEXT('Q')])	// topright area
+		iFlags = HTTOPRIGHT;
+	if (xflags[TEXT('T')])	// bottomleft area
+		iFlags = HTBOTTOMLEFT;
+	if (xflags[TEXT('B')])	// bottomright area
+		iFlags = HTBOTTOMRIGHT;
+	if (xflags[TEXT('X')])	// border area
+		iFlags = HTBORDER;
 
 	return iFlags;
 }
+
+HIMAGELIST DcxWindow::createImageList(const bool bBigIcons) noexcept
+{
+	const auto sz = (bBigIcons ? DcxIconSizes::LargeIcon : DcxIconSizes::SmallIcon);
+
+	auto himl = ImageList_Create(gsl::narrow_cast<int>(sz), gsl::narrow_cast<int>(sz), ILC_COLOR32 | ILC_MASK, 1, 0);
+
+	if (himl)
+		ImageList_SetBkColor(himl, RGB(255, 255, 255));
+
+	return himl;
+}
+
+//LRESULT DcxWindow::CallDefaultProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept
+//{
+//	if (!m_hDefaultWindowProc)
+//		return DefWindowProc(mHwnd, uMsg, wParam, lParam);
+//
+//	return CallWindowProc(m_hDefaultWindowProc, mHwnd, uMsg, wParam, lParam);
+//}

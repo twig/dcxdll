@@ -15,58 +15,46 @@
 #include "Classes/dcxprogressbar.h"
 #include "Classes/dcxdialog.h"
 
-/*!
- * \brief Constructor
- *
- * \param ID Control ID
- * \param p_Dialog Parent DcxDialog Object
- * \param mParentHwnd Parent Window Handle
- * \param rc Window Rectangle
- * \param styles Window Style Tokenized List
- */
+ /*!
+  * \brief Constructor
+  *
+  * \param ID Control ID
+  * \param p_Dialog Parent DcxDialog Object
+  * \param mParentHwnd Parent Window Handle
+  * \param rc Window Rectangle
+  * \param styles Window Style Tokenized List
+  */
 
-DcxProgressBar::DcxProgressBar( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, const TString & styles )
-: DcxControl( ID, p_Dialog ) 
-, m_clrText(0)
-, m_bIsAbsoluteValue(FALSE)
-, m_hfontVertical(NULL)
-, m_bIsGrad(FALSE)
-//, m_clrGrad(0)
+DcxProgressBar::DcxProgressBar(_In_ const UINT ID, _In_ DcxDialog* const p_Dialog, _In_ const HWND mParentHwnd, _In_ const RECT* const rc, _In_ const TString& styles)
+	: DcxControl(ID, p_Dialog)
+	, m_tsText(TEXT("%d %%"))
 {
-	LONG Styles = 0, ExStyles = 0;
-	BOOL bNoTheme = FALSE;
-	this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
+	const auto ws = parseControlStyles(styles);
 
-	this->m_Hwnd = CreateWindowEx(
-		ExStyles | WS_EX_CLIENTEDGE,
+	m_Hwnd = dcxCreateWindow(
+		ws.m_ExStyles | WS_EX_CLIENTEDGE,
 		DCX_PROGRESSBARCLASS,
-		NULL,
-		WS_CHILD | Styles,
-		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
+		ws.m_Styles | WS_CHILD,
+		rc,
 		mParentHwnd,
-		(HMENU) ID,
-		GetModuleHandle(NULL),
-		NULL);
+		ID,
+		this);
 
-	if (!IsWindow(this->m_Hwnd))
-		throw TEXT("Unable To Create Window");
+	if (!IsWindow(m_Hwnd))
+		throw Dcx::dcxException("Unable To Create Window");
 
-	if ( bNoTheme )
-		Dcx::UXModule.dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
+	if (ws.m_NoTheme)
+		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
 
-	this->m_tsText = TEXT("%d %%");
+	if (styles.istok(TEXT("tooltips")))
+	{
+		if (!IsWindow(p_Dialog->getToolTip()))
+			throw Dcx::dcxException("Unable to Initialize Tooltips");
 
-	if (styles.istok(TEXT("tooltips"))) {
-		if (IsWindow(p_Dialog->getToolTip())) {
-			this->m_ToolTipHWND = p_Dialog->getToolTip();
-			AddToolTipToolInfo(this->m_ToolTipHWND, this->m_Hwnd);
-		}
-		else
-			this->showError(NULL,TEXT("-c"),TEXT("Unable to Initialize Tooltips"));
+		setToolTipHWND(p_Dialog->getToolTip());
+		AddToolTipToolInfo(getToolTipHWND(), m_Hwnd);
 	}
-	this->setControlFont( GetStockFont( DEFAULT_GUI_FONT ), FALSE );
-	this->registreDefaultWindowProc( );
-	SetProp( this->m_Hwnd, TEXT("dcx_cthis"), (HANDLE) this );
+	this->setControlFont(Dcx::dcxGetStockObject<HFONT>(DEFAULT_GUI_FONT), FALSE);
 }
 
 /*!
@@ -75,20 +63,20 @@ DcxProgressBar::DcxProgressBar( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd,
  * blah
  */
 
-DcxProgressBar::~DcxProgressBar( ) {
-
-  this->unregistreDefaultWindowProc( );
+DcxProgressBar::~DcxProgressBar() noexcept
+{
 }
 
-TString DcxProgressBar::getStyles(void) const
+const TString DcxProgressBar::getStyles(void) const
 {
-	TString styles(__super::getStyles());
-	const DWORD Styles = GetWindowStyle(this->m_Hwnd);
-	if (Styles & PBS_SMOOTH)
+	auto styles(__super::getStyles());
+	const auto Styles = dcxGetWindowStyle(m_Hwnd);
+
+	if (dcx_testflag(Styles, PBS_SMOOTH))
 		styles.addtok(TEXT("smooth"));
-	if (Styles & PBS_VERTICAL)
+	if (dcx_testflag(Styles, PBS_VERTICAL))
 		styles.addtok(TEXT("vertical"));
-	if (Styles & PBS_MARQUEE)
+	if (dcx_testflag(Styles, PBS_MARQUEE))
 		styles.addtok(TEXT("marquee"));
 	if (this->m_bIsGrad)
 		styles.addtok(TEXT("gradient"));
@@ -101,24 +89,36 @@ TString DcxProgressBar::getStyles(void) const
  * blah
  */
 
-void DcxProgressBar::parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme )
+dcxWindowStyles DcxProgressBar::parseControlStyles(const TString& tsStyles)
 {
-	this->m_bIsGrad = FALSE;
+	auto ws = parseGeneralControlStyles(tsStyles);
 
-	for (TString tsStyle(styles.getfirsttok( 1 )); tsStyle != TEXT(""); tsStyle = styles.getnexttok( ))
+	m_bIsGrad = false;
+
+	for (const auto& tsStyle : tsStyles)
 	{
-		if ( tsStyle == TEXT("smooth") ) 
-			*Styles |= PBS_SMOOTH;
-		else if ( tsStyle == TEXT("vertical") ) 
-			*Styles |= PBS_VERTICAL;
-		else if ( tsStyle == TEXT("marquee") ) 
-			*Styles |= PBS_MARQUEE;
-		else if ( tsStyle == TEXT("gradient") ) {
-			*Styles |= PBS_SMOOTH;
-			this->m_bIsGrad = TRUE;
+		switch (std::hash<TString>{}(tsStyle))
+		{
+		case L"smooth"_hash:
+			ws.m_Styles |= PBS_SMOOTH;
+			break;
+		case L"vertical"_hash:
+			ws.m_Styles |= PBS_VERTICAL;
+			break;
+		case L"marquee"_hash:
+			ws.m_Styles |= PBS_MARQUEE;
+			break;
+		case L"gradient"_hash:
+		{
+			ws.m_Styles |= PBS_SMOOTH;
+			m_bIsGrad = true;
+		}
+		break;
+		default:
+			break;
 		}
 	}
-	this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
+	return ws;
 }
 
 /*!
@@ -130,28 +130,26 @@ void DcxProgressBar::parseControlStyles( const TString & styles, LONG * Styles, 
  * \return > void
  */
 
-void DcxProgressBar::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) const
+void DcxProgressBar::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>& szReturnValue) const
 {
-	const TString prop(input.getfirsttok( 3 ));
-
-	if ( prop == TEXT("value") ) {
-		wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), this->getPosition( ) );
-		return;
+	switch (std::hash<TString>{}(input.getfirsttok(3)))
+	{
+	case L"value"_hash:
+		_ts_snprintf(szReturnValue, TEXT("%d"), this->getPosition());
+		break;
+	case L"range"_hash:
+	{
+		PBRANGE pbr{};
+		this->getRange(FALSE, &pbr);
+		_ts_snprintf(szReturnValue, TEXT("%d %d"), pbr.iLow, pbr.iHigh);
 	}
-	else if ( prop == TEXT("range") ) {
-		PBRANGE pbr;
-		this->getRange( FALSE, &pbr );
-		wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d"), pbr.iLow, pbr.iHigh );
-		return;
+	break;
+	case L"text"_hash:
+		_ts_snprintf(szReturnValue, this->m_tsText.to_chr(), this->CalculatePosition());
+		break;
+	default:
+		parseGlobalInfoRequest(input, szReturnValue);
 	}
-	else if (prop == TEXT("text")) {
-		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, this->m_tsText.to_chr(), this->CalculatePosition());
-		return;
-	}
-	else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
-		return;
-
-	szReturnValue[0] = 0;
 }
 /*!
  * \brief blah
@@ -159,108 +157,144 @@ void DcxProgressBar::parseInfoRequest( const TString & input, PTCHAR szReturnVal
  * \param input [NAME] [SWITCH] [ID] (OPTIONS)
  */
 
-void DcxProgressBar::parseCommandRequest( const TString &input) {
-	const XSwitchFlags flags(input.getfirsttok( 3 ));
-	const UINT numtok = input.numtok();
+void DcxProgressBar::parseCommandRequest(const TString& input)
+{
+	const XSwitchFlags flags(input.getfirsttok(3));
+	const auto numtok = input.numtok();
 
 	// xdid -c name ID $rgb(color)
-	if (flags[TEXT('c')]) {
-		this->setBarColor((COLORREF) input.getnexttok( ).to_num());	// tok 4
+	if (flags[TEXT('c')])
+	{
+		if (numtok < 4)
+			throw Dcx::dcxException("Insufficient parameters");
+
+		setBarColor(input.getnexttok().to_<COLORREF>());	// tok 4
 	}
 	//// xdid -g name ID [1|0]
 	//else if ( flags[TEXT('g')] ) {
-	//this->m_bIsGrad = (BOOL) input.gettok( 4 ).to_num( );
+	//this->m_bIsGrad = input.gettok( 4 ).to_<bool>( );
 	//}
 	// xdid -i name ID (TEXT)
-	else if (flags[TEXT('i')]) {
+	else if (flags[TEXT('i')])
+	{
 		if (numtok > 3)
-			this->m_tsText = input.gettok(4, -1);
+			m_tsText = input.getlasttoks();	// tok 4, -1
 		else
-			this->m_tsText = TEXT("");
+			m_tsText.clear();	// = TEXT("");
 
-		this->redrawWindow();
+		redrawWindow();
 	}
 	// xdid -j name ID [a|p]
-	else if (flags[TEXT('j')]) {
-		if (input.getnexttok( ) == TEXT('a'))	// tok 4
-			this->m_bIsAbsoluteValue = TRUE;
-		else
-			this->m_bIsAbsoluteValue = FALSE;
+	else if (flags[TEXT('j')])
+	{
+		if (numtok < 4)
+			throw Dcx::dcxException("Insufficient parameters");
 
-		this->redrawWindow();
+		m_bIsAbsoluteValue = (input.getnexttok() == TEXT('a'));
+
+		redrawWindow();
 	}
 	// xdid -k name ID $rgb(color)
-	else if (flags[TEXT('k')]) {
-		this->setBKColor((COLORREF) input.getnexttok( ).to_num());	// tok 4
+	else if (flags[TEXT('k')])
+	{
+		if (numtok < 4)
+			throw Dcx::dcxException("Insufficient parameters");
+
+		setBKColor(input.getnexttok().to_<COLORREF>());	// tok 4
 	}
 	// xdid -m(o|g) name ID N
-	else if (flags[TEXT('m')]) {
+	else if (flags[TEXT('m')])
+	{
 		// -mo
 		if (flags[TEXT('o')])
-			this->setMarquee(TRUE, input.getnexttok( ).to_int());	// tok 4
+		{
+			if (numtok < 4)
+				throw Dcx::dcxException("Insufficient parameters");
+
+			setMarquee(TRUE, input.getnexttok().to_int());	// tok 4
+		}
 		// -mg
 		else if (flags[TEXT('g')])
-			this->setMarquee(FALSE, 0);
+			setMarquee(FALSE, 0);
 	}
 	// xdid -q name ID [COLOR]
-	else if ( flags[TEXT('q')] ) {
-		this->m_clrText = (COLORREF) input.getnexttok( ).to_num();	// tok 4
-		this->redrawWindow();
+	else if (flags[TEXT('q')])
+	{
+		if (numtok < 4)
+			throw Dcx::dcxException("Insufficient parameters");
+
+		setTextColor(input.getnexttok().to_<COLORREF>());	// tok 4
+		redrawWindow();
 	}
 	// xdid -r name ID RLow RHigh
-	else if (flags[TEXT('r')]) {
-		if (numtok > 4)
-			this->setRange(input.gettok( 4 ).to_int(), input.gettok( 5 ).to_int());
+	else if (flags[TEXT('r')])
+	{
+		if (numtok < 5)
+			throw Dcx::dcxException("Insufficient parameters");
+
+		const auto iLow = input.getnexttok().to_int();
+		const auto iHigh = input.getnexttok().to_int();
+
+		setRange(iLow, iHigh);
 	}
 	// xdid -t name ID
-	else if (flags[TEXT('t')]) {
-		this->stepIt();
+	else if (flags[TEXT('t')])
+	{
+		stepIt();
 	}
 	// xdid -u name ID N
-	else if (flags[TEXT('u')]) {
-		this->setStep(input.getnexttok( ).to_int());	// tok 4
+	else if (flags[TEXT('u')])
+	{
+		if (numtok < 4)
+			throw Dcx::dcxException("Insufficient parameters");
+
+		setStep(input.getnexttok().to_int());	// tok 4
 	}
 	// xdid -v name ID N
-	else if (flags[TEXT('v')]) {
-		if (numtok > 3)
-			this->setPosition(input.getnexttok( ).to_int());	// tok 4
+	else if (flags[TEXT('v')])
+	{
+		if (numtok < 4)
+			throw Dcx::dcxException("Insufficient parameters");
+
+		setPosition(input.getnexttok().to_int());	// tok 4
 	}
 	// xdid [-o] [NAME] [ID] [ENABLED]
 	// vertical fonts [1|0]
-	else if (flags[TEXT('o')]) {
+	else if (flags[TEXT('o')])
+	{
 		if (numtok < 4)
-			return;
+			throw Dcx::dcxException("Insufficient parameters");
 
-		LOGFONT lfCurrent;
-		ZeroMemory(&lfCurrent, sizeof(LOGFONT));
-
-		GetObject(this->m_hFont, sizeof(LOGFONT), &lfCurrent);
-		const int angle = input.getnexttok( ).to_int();	// tok 4
+		const auto angle = input.getnexttok().to_int();	// tok 4
 
 		//TODO: let user specify angle of text?
-		if (angle) {
+		if (angle > 0)
+		{
+			auto [code, lfCurrent] = Dcx::dcxGetObject<LOGFONT>(getControlFont());
+			if (code == 0)
+				throw Dcx::dcxException("Unable to get LOGFONT");
+
 			// input is angle based, expected angle = *10
 			//lfCurrent.lfEscapement = angle * 10;
 			//lfCurrent.lfOrientation = angle * 10;
 			lfCurrent.lfEscapement = 900;
 			lfCurrent.lfOrientation = 900;
+
+			if (m_hfontVertical)
+				DeleteObject(m_hfontVertical);
+
+			m_hfontVertical = CreateFontIndirect(&lfCurrent);
 		}
-		else {
-			DeleteFont(this->m_hfontVertical);
-			this->m_hfontVertical = NULL;
-			this->redrawWindow();
-			return;
+		else if (m_hfontVertical)
+		{
+			DeleteObject(m_hfontVertical);
+			m_hfontVertical = nullptr;
 		}
 
-		if (this->m_hfontVertical)
-			DeleteFont(this->m_hfontVertical);
-
-		this->m_hfontVertical = CreateFontIndirect(&lfCurrent);
-		//this->setControlFont(hfNew, FALSE);
-		this->redrawWindow();
+		redrawWindow();
 	}
 	else
-		this->parseGlobalCommandRequest(input, flags);
+		parseGlobalCommandRequest(input, flags);
 }
 
 /*!
@@ -269,8 +303,9 @@ void DcxProgressBar::parseCommandRequest( const TString &input) {
  * blah
  */
 
-LRESULT DcxProgressBar::setPosition( const int nNewPos ) {
-  return SendMessage( this->m_Hwnd, PBM_SETPOS, (WPARAM) nNewPos, (LPARAM) 0 );
+LRESULT DcxProgressBar::setPosition(const int nNewPos) noexcept
+{
+	return SendMessage(m_Hwnd, PBM_SETPOS, gsl::narrow_cast<WPARAM>(nNewPos), 0);
 }
 
 /*!
@@ -279,8 +314,9 @@ LRESULT DcxProgressBar::setPosition( const int nNewPos ) {
  * blah
  */
 
-LRESULT DcxProgressBar::setRange( const int iLowLim, const int iHighLim ) {
-  return SendMessage(this->m_Hwnd, PBM_SETRANGE32, (WPARAM) iLowLim, (LPARAM) iHighLim );
+LRESULT DcxProgressBar::setRange(const int iLowLim, const int iHighLim) noexcept
+{
+	return SendMessage(m_Hwnd, PBM_SETRANGE32, gsl::narrow_cast<WPARAM>(iLowLim), gsl::narrow_cast<LPARAM>(iHighLim));
 }
 
 /*!
@@ -289,8 +325,9 @@ LRESULT DcxProgressBar::setRange( const int iLowLim, const int iHighLim ) {
  * blah
  */
 
-LRESULT DcxProgressBar::getPosition( ) const {
-  return SendMessage( this->m_Hwnd, PBM_GETPOS, (WPARAM) 0, (LPARAM) 0 );
+LRESULT DcxProgressBar::getPosition() const noexcept
+{
+	return SendMessage(m_Hwnd, PBM_GETPOS, gsl::narrow_cast<WPARAM>(0), 0);
 }
 
 /*!
@@ -299,8 +336,9 @@ LRESULT DcxProgressBar::getPosition( ) const {
  * blah
  */
 
-LRESULT DcxProgressBar::getRange( const BOOL fWhichLimit, PPBRANGE ppBRange ) const {
-  return SendMessage( this->m_Hwnd, PBM_GETRANGE, (WPARAM) fWhichLimit, (LPARAM) ppBRange );
+LRESULT DcxProgressBar::getRange(const BOOL fWhichLimit, const PPBRANGE ppBRange) const noexcept
+{
+	return SendMessage(m_Hwnd, PBM_GETRANGE, gsl::narrow_cast<WPARAM>(fWhichLimit), reinterpret_cast<LPARAM>(ppBRange));
 }
 
 /*!
@@ -309,8 +347,9 @@ LRESULT DcxProgressBar::getRange( const BOOL fWhichLimit, PPBRANGE ppBRange ) co
  * blah
  */
 
-LRESULT DcxProgressBar::setMarquee( const BOOL fStart, const int fTime ) {
-  return SendMessage( this->m_Hwnd, PBM_SETMARQUEE, (WPARAM) fStart, (LPARAM) fTime );
+LRESULT DcxProgressBar::setMarquee(const BOOL fStart, const int fTime) noexcept
+{
+	return SendMessage(m_Hwnd, PBM_SETMARQUEE, gsl::narrow_cast<WPARAM>(fStart), gsl::narrow_cast<LPARAM>(fTime));
 }
 
 /*!
@@ -319,8 +358,9 @@ LRESULT DcxProgressBar::setMarquee( const BOOL fStart, const int fTime ) {
  * blah
  */
 
-LRESULT DcxProgressBar::stepIt( ) {
-  return SendMessage( this->m_Hwnd, PBM_STEPIT, (WPARAM) 0, (LPARAM) 0 );
+LRESULT DcxProgressBar::stepIt() noexcept
+{
+	return SendMessage(m_Hwnd, PBM_STEPIT, gsl::narrow_cast<WPARAM>(0), 0);
 }
 
 /*!
@@ -329,8 +369,9 @@ LRESULT DcxProgressBar::stepIt( ) {
  * blah
  */
 
-LRESULT DcxProgressBar::setStep( const int nStepInc ) {
-  return SendMessage( this->m_Hwnd, PBM_SETSTEP, (WPARAM) nStepInc, (LPARAM) 0 );
+LRESULT DcxProgressBar::setStep(const int nStepInc) noexcept
+{
+	return SendMessage(m_Hwnd, PBM_SETSTEP, gsl::narrow_cast<WPARAM>(nStepInc), 0);
 }
 
 /*!
@@ -339,9 +380,10 @@ LRESULT DcxProgressBar::setStep( const int nStepInc ) {
  * blah
  */
 
-LRESULT DcxProgressBar::setBarColor( const COLORREF clrBar ) {
-  this->m_clrStartGradient = clrBar;
-  return SendMessage( this->m_Hwnd, PBM_SETBARCOLOR, (WPARAM) 0, (LPARAM) clrBar );
+LRESULT DcxProgressBar::setBarColor(const COLORREF clrBar) noexcept
+{
+	setStartGradientColor(clrBar);
+	return SendMessage(m_Hwnd, PBM_SETBARCOLOR, 0U, gsl::narrow_cast<LPARAM>(clrBar));
 }
 /*!
  * \brief blah
@@ -349,14 +391,24 @@ LRESULT DcxProgressBar::setBarColor( const COLORREF clrBar ) {
  * blah
  */
 
-LRESULT DcxProgressBar::setBKColor( const COLORREF clrBk ) {
-	this->m_clrEndGradient = clrBk;
-	return SendMessage( this->m_Hwnd, PBM_SETBKCOLOR, (WPARAM) 0, (LPARAM) clrBk ); 
+LRESULT DcxProgressBar::setBKColor(const COLORREF clrBk) noexcept
+{
+	setEndGradientColor(clrBk);
+	return SendMessage(m_Hwnd, PBM_SETBKCOLOR, 0U, gsl::narrow_cast<LPARAM>(clrBk));
 }
 
-void DcxProgressBar::toXml(TiXmlElement * xml) const {
-	xml->SetAttribute("type", "pbar");
+void DcxProgressBar::toXml(TiXmlElement* const xml) const
+{
 	__super::toXml(xml);
+
+	xml->SetAttribute("styles", getStyles().c_str());
+}
+
+TiXmlElement* DcxProgressBar::toXml(void) const
+{
+	auto xml = std::make_unique<TiXmlElement>("control");
+	toXml(xml.get());
+	return xml.release();
 }
 
 /*!
@@ -364,222 +416,230 @@ void DcxProgressBar::toXml(TiXmlElement * xml) const {
  *
  * blah
  */
-LRESULT DcxProgressBar::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
+LRESULT DcxProgressBar::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed) noexcept
+{
 	return 0L;
 }
 
-LRESULT DcxProgressBar::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
+LRESULT DcxProgressBar::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed)
+{
+	switch (uMsg)
+	{
+	case WM_ERASEBKGND:
+	{
+		if (isExStyle(WindowExStyle::Transparent))
+		{
+			DrawParentsBackground(reinterpret_cast<HDC>(wParam));
+			bParsed = TRUE;
+			return TRUE;
+		}
+	}
+	break;
 
-	switch( uMsg ) {
+	case WM_PRINTCLIENT:
+	{
+		DrawClientArea(reinterpret_cast<HDC>(wParam), uMsg, lParam);
+		bParsed = TRUE;
+	}
+	break;
+	case WM_PAINT:
+	{
+		bParsed = TRUE;
+		PAINTSTRUCT ps{};
 
-		case WM_ERASEBKGND:
+		auto hdc = BeginPaint(m_Hwnd, &ps);
+		Auto(EndPaint(m_Hwnd, &ps));
+
+		DrawClientArea(hdc, uMsg, lParam);
+	}
+	break;
+
+	case WM_LBUTTONUP:
+	{
+		if (dcx_testflag(getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
+		{
+			const auto iLower = getRange(TRUE, nullptr);
+			const auto iHigher = getRange(FALSE, nullptr);
+
+			execAliasEx(TEXT("sclick,%u,%d,%d,%d,%d"), getUserID(), getPredictedPos(lParam, iLower, iHigher), iLower, iHigher, getPosition());
+		}
+	}
+	break;
+
+	//case WM_RBUTTONUP:
+	//{
+	//	if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
+	//	{
+	//		const auto iLower = getRange(TRUE, nullptr);
+	//		const auto iHigher = getRange(FALSE, nullptr);
+
+	//		execAliasEx(TEXT("rclick,%u,%d,%d,%d,%d"), getUserID(), getPredictedPos(lParam, iLower, iHigher), iLower, iHigher, getPosition());
+	//	}
+	//}
+	//break;
+	//case WM_CONTEXTMENU:	// stops second rclick event
+	//	break;
+
+	case WM_CONTEXTMENU:
+	{
+		if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
+		{
+			const auto iLower = getRange(TRUE, nullptr);
+			const auto iHigher = getRange(FALSE, nullptr);
+
+			execAliasEx(TEXT("rclick,%u,%d,%d,%d,%d"), getUserID(), getPredictedPos(lParam, iLower, iHigher), iLower, iHigher, getPosition());
+		}
+	}
+	break;
+
+	case WM_MOUSEMOVE:
+	{
+		this->getParentDialog()->setMouseControl(this->getUserID());
+
+		if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
+		{
+			if (wParam == MK_LBUTTON)
 			{
-				if (this->isExStyle(WS_EX_TRANSPARENT)) {
-					this->DrawParentsBackground((HDC) wParam);
-					bParsed = TRUE;
-					return TRUE;
-				}
+				const auto iLower = this->getRange(TRUE, nullptr);
+				const auto iHigher = this->getRange(FALSE, nullptr);
+
+				this->execAliasEx(TEXT("mousebar,%u,%d,%d,%d, %d"), getUserID(), getPredictedPos(lParam, iLower, iHigher), iLower, iHigher, getPosition());
 			}
-			break;
+		}
+	}
+	break;
 
-		case WM_PRINTCLIENT:
-			{
-				this->DrawClientArea((HDC)wParam, uMsg, lParam);
-				bParsed = TRUE;
-			}
-			break;
-		case WM_PAINT:
-			{
-				bParsed = TRUE;
-				PAINTSTRUCT ps;
-				HDC hdc;
+	case WM_DESTROY:
+	{
+		delete this;
+		bParsed = TRUE;
+	}
+	break;
 
-				hdc = BeginPaint( this->m_Hwnd, &ps );
-
-				this->DrawClientArea(hdc, uMsg, lParam);
-
-				EndPaint( this->m_Hwnd, &ps );
-			}
-			break;
-
-		case WM_LBUTTONUP:
-			{
-				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
-					const int nXPos = LOWORD(lParam);
-					const int iLower = this->getRange( TRUE, NULL );
-					const int iHigher = this->getRange( FALSE, NULL );
-
-					RECT rc;
-					GetClientRect( this->m_Hwnd, &rc );
-
-					const int nPos = iLower + dcx_round( (float)( nXPos * iHigher ) / ( rc.right - rc.left - 1 ) );
-
-					this->execAliasEx(TEXT("%s,%d,%d,%d,%d,%d"), TEXT("sclick"), this->getUserID(), nPos, iLower, iHigher, this->getPosition());
-				}
-			}
-			break;
-
-		case WM_RBUTTONUP:
-			{
-				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
-					const int nXPos = LOWORD(lParam);
-					const int iLower = this->getRange( TRUE, NULL );
-					const int iHigher = this->getRange( FALSE, NULL );
-
-					RECT rc;
-					GetClientRect( this->m_Hwnd, &rc );
-
-					const int nPos = iLower + dcx_round( (float)( nXPos * iHigher ) / ( rc.right - rc.left - 1 ) );
-
-					this->execAliasEx(TEXT("%s,%d,%d,%d,%d,%d"), TEXT("rclick"), this->getUserID(), nPos, iLower, iHigher, this->getPosition());
-				}
-			}
-			break;
-
-		case WM_MOUSEMOVE:
-			{
-				this->m_pParentDialog->setMouseControl( this->getUserID( ) );
-
-				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
-					if ( wParam == MK_LBUTTON ) {
-
-						const int nXPos = LOWORD(lParam);
-						const int iLower = this->getRange( TRUE, NULL );
-						const int iHigher = this->getRange( FALSE, NULL );
-
-						RECT rc;
-						GetClientRect( this->m_Hwnd, &rc );
-
-						const int nPos = iLower + (int)( (float)( nXPos * iHigher ) / ( rc.right - rc.left - 1 ) );
-
-						this->execAliasEx(TEXT("%s,%d,%d,%d,%d, %d"), TEXT("mousebar"), this->getUserID(), nPos, iLower, iHigher, this->getPosition());
-					}
-				}
-			}
-			break;
-
-		case WM_DESTROY:
-			{
-				delete this;
-				bParsed = TRUE;
-			}
-			break;
-
-		default:
-			return this->CommonMessage( uMsg, wParam, lParam, bParsed);
-			break;
+	default:
+		return CommonMessage(uMsg, wParam, lParam, bParsed);
+		break;
 	}
 
 	return 0L;
 }
 
 
-int DcxProgressBar::CalculatePosition() const {
-	const int iPos = this->getPosition();
+int DcxProgressBar::CalculatePosition() const noexcept
+{
+	const auto iPos = getPosition();
 
-	if ( this->m_bIsAbsoluteValue )
+	if (m_bIsAbsoluteValue)
 		return iPos;
-	else {
-		const int iLower = this->getRange( TRUE, NULL );
-		const int iHigher = this->getRange( FALSE, NULL );
 
-		return (int) ((float) (iPos - iLower) * 100 / (iHigher - iLower ));
-	}
+	const auto iLower = getRange(TRUE, nullptr);
+	const auto iHigher = getRange(FALSE, nullptr);
+
+	return dcx_round(gsl::narrow_cast<float>((iPos - iLower) * 100) / (iHigher - iLower));
 }
 
 void DcxProgressBar::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 {
-	RECT rc;
+	RECT rc{};
 	// A window may receive internal paint messages as a result of calling RedrawWindow with the RDW_INTERNALPAINT flag set.
 	// In this case, the window may not have an update region.
 	// An application should call the GetUpdateRect function to determine whether the window has an update region.
 	// If GetUpdateRect returns zero, the application should not call the BeginPaint and EndPaint functions.
-	//if (GetUpdateRect(this->m_Hwnd,&rc,FALSE) == 0) return;
+	//if (GetUpdateRect(m_Hwnd,&rc,FALSE) == 0) return;
+
+	if (!GetClientRect(m_Hwnd, &rc))
+		return;
 
 	// Setup alpha blend if any.
-	LPALPHAINFO ai = this->SetupAlphaBlend(&hdc);
+	auto ai = SetupAlphaBlend(&hdc);
+	Auto(FinishAlphaBlend(ai));
 
-	if (this->m_bIsGrad) {
-		GetClientRect(this->m_Hwnd, &rc);
-
+	if (m_bIsGrad)
+	{
 		DcxControl::DrawCtrlBackground(hdc, this, &rc);
 
-		COLORREF clrStart = this->m_clrStartGradient;
-		COLORREF clrEnd = this->m_clrEndGradient;
+		auto clrStart = getStartGradientColor();
+		auto clrEnd = getEndGradientColor();
 
 		if (clrEnd == CLR_INVALID)
 			clrEnd = GetSysColor(COLOR_GRADIENTACTIVECAPTION);
 		if (clrStart == CLR_INVALID)
-			clrStart = XPopupMenuItem::DarkenColor(100,clrEnd);
+			clrStart = XPopupMenuItem::DarkenColor(100, clrEnd);
 
-		if (this->isStyle(PBS_VERTICAL)) {
-			rc.top += (rc.bottom - rc.top) - (this->CalculatePosition() * (rc.bottom - rc.top)) / 100;
-			//XPopupMenuItem::DrawGradient(hdc,&rc,XPopupMenuItem::DarkenColor(100,this->m_clrGrad),this->m_clrGrad,TRUE);
-			XPopupMenuItem::DrawGradient( hdc, &rc, clrStart, clrEnd, TRUE);
+		auto rcGrad = rc;
+
+		if (isStyle(WindowStyle::PBS_Vertical))
+		{
+			rcGrad.top += (rc.bottom - rc.top) - (CalculatePosition() * (rc.bottom - rc.top)) / 100;
+			XPopupMenuItem::DrawGradient(hdc, &rcGrad, clrStart, clrEnd, TRUE);
 		}
 		else {
-			rc.right = (this->CalculatePosition() * rc.right) / 100;
-			//XPopupMenuItem::DrawGradient(hdc,&rc,this->m_clrGrad,XPopupMenuItem::DarkenColor(100,this->m_clrGrad),FALSE);
-			XPopupMenuItem::DrawGradient( hdc, &rc, clrStart , clrEnd , FALSE);
+			rcGrad.right = (CalculatePosition() * rc.right) / 100;
+			XPopupMenuItem::DrawGradient(hdc, &rcGrad, clrStart, clrEnd, FALSE);
 		}
 	}
 	else
-		CallWindowProc(this->m_DefaultWindowProc, this->m_Hwnd, uMsg, (WPARAM) hdc, lParam);
+		CallDefaultClassProc(uMsg, reinterpret_cast<WPARAM>(hdc), lParam);
 
-	if (this->m_tsText.len() > 0) {
-		int oldMode = SetBkMode(hdc, TRANSPARENT);
-		COLORREF oldColour = SetTextColor(hdc, this->m_clrText);
+	if (!m_tsText.empty())
+	{
+		const auto oldMode = SetBkMode(hdc, TRANSPARENT);
+		Auto(SetBkMode(hdc, oldMode));
 
-		// rect for control
-		//RECT rc;
-		GetClientRect(this->m_Hwnd, &rc);
+		COLORREF oldColour{ CLR_INVALID };
+
+		if (const auto clr = getTextColor(); clr != CLR_INVALID)
+			oldColour = SetTextColor(hdc, clr);
 
 		// used to calc text value on pbar
 		TString text;
-		const int iPos = this->CalculatePosition();
+		const auto iPos = CalculatePosition();
 
-		text.tsprintf(this->m_tsText.to_chr(), iPos);
+		text.tsprintf(m_tsText.to_chr(), iPos);
 
-		HFONT oldfont = NULL;
-// NEEDS FIXED: font selection needs looked at
-		if (this->m_hFont != NULL)
-			oldfont = SelectFont(hdc, this->m_hFont);
+		HFONT oldfont{ nullptr };
+		// NEEDS FIXED: font selection needs looked at
+		if (const auto f = getControlFont(); f)
+			oldfont = Dcx::dcxSelectObject(hdc, f);
 
 		// rect for text
-		RECT rcText = rc;
+		auto rcText = rc;
 		//DrawText(hdc, text.to_chr(), text.len(), &rcText, DT_SINGLELINE | DT_NOPREFIX | DT_NOCLIP | DT_CALCRECT);
-		this->calcTextRect(hdc, text, &rcText, DT_SINGLELINE | DT_NOPREFIX | DT_NOCLIP);
+		calcTextRect(hdc, text, &rcText, DT_SINGLELINE | DT_NOPREFIX | DT_NOCLIP);
 
-		const int w = rcText.right - rcText.left;
-		const int h = rcText.bottom - rcText.top;
+		const auto w = rcText.right - rcText.left;
+		const auto h = rcText.bottom - rcText.top;
 
 		// reposition the new text area to be at the center
-		if (this->m_hfontVertical != NULL) {
-			rc.left = ((rc.right - rc.left) - h) /2;
+		if (m_hfontVertical)
+		{
+			rc.left = ((rc.right - rc.left) - h) / 2;
 			// added a +w +h as well to as text is drawn ABOVE the damn rect
-			rc.top = ((rc.bottom - rc.top) + w + h) /2;
+			rc.top = ((rc.bottom - rc.top) + w + h) / 2;
 			rc.right = rc.left + h;
 			rc.bottom = rc.top + w;
-			SelectFont(hdc, this->m_hfontVertical);
+			Dcx::dcxSelectObject(hdc, m_hfontVertical);
 		}
 		else {
-			rc.left = ((rc.right - rc.left) - w) /2;
-			rc.top = ((rc.bottom - rc.top) - h) /2;
+			rc.left = ((rc.right - rc.left) - w) / 2;
+			rc.top = ((rc.bottom - rc.top) - h) / 2;
 			rc.right = rc.left + w;
 			rc.bottom = rc.top + h;
 		}
 
-		//if (!this->m_bCtrlCodeText)
-		//	DrawTextW(hdc, text.to_wchr(this->m_bUseUTF8), text.wlen(), &rc, DT_SINGLELINE | DT_NOPREFIX | DT_NOCLIP);
-		//else
-		//	mIRC_DrawText(hdc, text, &rc, DT_SINGLELINE | DT_NOPREFIX | DT_NOCLIP, this->m_bShadowText, this->m_bUseUTF8);
-		this->ctrlDrawText(hdc, text, &rc, DT_SINGLELINE | DT_NOPREFIX | DT_NOCLIP);
+		ctrlDrawText(hdc, text, &rc, DT_SINGLELINE | DT_NOPREFIX | DT_NOCLIP);
 
-		if (oldfont != NULL)
-			SelectFont(hdc, oldfont);
-		SetTextColor(hdc, oldColour);
-		SetBkMode(hdc, oldMode);
+		if (oldfont)
+			Dcx::dcxSelectObject(hdc, oldfont);
+		if (oldColour != CLR_INVALID)
+			SetTextColor(hdc, oldColour);
 	}
+}
 
-	this->FinishAlphaBlend(ai);
+LRESULT DcxProgressBar::CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept
+{
+	if (m_hDefaultClassProc)
+		return CallWindowProc(m_hDefaultClassProc, this->m_Hwnd, uMsg, wParam, lParam);
+
+	return DefWindowProc(this->m_Hwnd, uMsg, wParam, lParam);
 }

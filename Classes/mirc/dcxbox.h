@@ -21,22 +21,22 @@
 
 #define DCX_BOXTEXTSPACING 10
 
-#define BOXS_LEFT    0x00 //!< Box Left Style
-#define BOXS_CENTER  0x01 //!< Box Center Style
-#define BOXS_RIGHT   0x02 //!< Box Right Style
-#define BOXS_BOTTOM  0x04 //!< Box Bottom Style
+#define BOXS_LEFT		0x00 //!< Box Left Style
+#define BOXS_CENTER		0x01 //!< Box Center Style
+#define BOXS_RIGHT		0x02 //!< Box Right Style
+#define BOXS_BOTTOM		0x04 //!< Box Bottom Style
 #define BOXS_NONE		0x08 //!< Box No Border Style
-#define BOXS_ROUNDED 0x10 //!< Box has rounded corners.
-#define BOXS_CHECK	0x20 //!< Box has check button in title to enable/disable contents.
-#define BOXS_RADIO	0x40 //!< Box has radio button in title to enable/disable contents.
+#define BOXS_ROUNDED	0x10 //!< Box has rounded corners.
+#define BOXS_CHECK		0x20 //!< Box has check button in title to enable/disable contents.
+#define BOXS_RADIO		0x40 //!< Box has radio button in title to enable/disable contents.
 
-typedef struct tagDCXENUM {
-
-	HWND mChildHwnd;    //!< Hwnd to child window
-	HWND mBox;					//!< The Box control itself
-	BOOL mState;				//!< Enable/Disable state
-
-} DCXENUM, * LPDCXENUM;
+struct DCXENUM
+{
+	HWND mChildHwnd{ nullptr };	//!< Hwnd to child window
+	HWND mBox{ nullptr };			//!< The Box control itself
+	BOOL mState{ FALSE };		//!< Enable/Disable state
+};
+using LPDCXENUM = DCXENUM *;
 
 class DcxDialog;
 
@@ -46,39 +46,57 @@ class DcxDialog;
  * blah
  */
 
-class DcxBox : public DcxControl {
-
+class DcxBox final
+	: public DcxControl
+{
 public:
+	DcxBox() = delete;
+	DcxBox(const DcxBox &) = delete;
+	DcxBox &operator =(const DcxBox &) = delete;
+	DcxBox(DcxBox &&) = delete;
+	DcxBox &operator =(DcxBox &&) = delete;
 
-	DcxBox( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd, const RECT * rc, const TString & styles );
-	virtual ~DcxBox( );
+	//DCX_DELETE_CONTROL_METHODS(DcxBox);
 
-	LRESULT PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
-	LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
+	DcxBox( const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles );
+	~DcxBox( );
 
-	void parseInfoRequest( const TString & input, PTCHAR szReturnValue ) const;
-	void parseCommandRequest( const TString & input );
-	void parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
+	LRESULT OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) final;
+	LRESULT ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) noexcept final;
+	
+	//void parseInfoRequest( const TString & input, PTCHAR szReturnValue ) const final;
+	void parseInfoRequest(const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const final;
+	void parseCommandRequest(const TString & input) final;
+	dcxWindowStyles parseControlStyles(const TString & tsStyles) final;
 
-	inline TString getType( ) const { return TString( TEXT("box") ); };
-	void toXml(TiXmlElement * xml) const;
-	TString getStyles(void) const;
+	inline const TString getType() const final { return TEXT("box"); };
+	inline const DcxControlTypes getControlType() const noexcept final { return DcxControlTypes::BOX; }
 
-	static void registerClass(void);
+	void toXml(TiXmlElement *const xml) const final;
+	TiXmlElement * toXml() const final;
+	std::unique_ptr<TiXmlElement> toXml(int blah) const;
+	const TString getStyles(void) const final;
 
-protected:
+	LRESULT CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept final;
+	static inline WNDPROC m_hDefaultClassProc{ nullptr };	//!< Default window procedure
 
-	static UINT parseLayoutFlags( const TString & flags );
-	static BOOL CALLBACK EnumBoxChildren(HWND hwnd,LPDCXENUM de);
+private:
+	static BOOL CALLBACK EnumBoxChildren(HWND hwnd,const DCXENUM *const de) noexcept;
 	void EraseBackground(HDC hdc);
 	void DrawClientArea(HDC hdc);
+	void DrawBorder(HDC hdc, RECT &rc, const LPRECT rcClip = nullptr) noexcept;
+	HRGN CreateClipRegion(LPCRECT rcClip) noexcept;
 
-	LONG m_iBoxStyles; //!< Custom Box Styles
+	void DrawCheckButton(HDC hdc, LPRECT rcCheck) noexcept;
 
-	LayoutManager * m_pLayoutManager; //!< Layout Manager Object
+	LONG m_iBoxStyles{}; //!< Custom Box Styles
 
-	HWND m_TitleButton; //!< enable/disable button.
-	HTHEME _hTheme;
+	std::unique_ptr<LayoutManager> m_pLayoutManager; //!< Layout Manager Object
+
+	RECT m_rcCheck{};
+	bool m_bTitleChecked{ true };
+	HTHEME _hTheme{ nullptr };
+
 };
 
 #endif // _DCXBOX_H_

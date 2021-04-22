@@ -47,15 +47,26 @@
  * \brief Divider Notification Structure
  */
 
-typedef struct tagNMDIVIDER {
+#pragma warning(push)
+#pragma warning( disable : 26472 ) //  warning C26472 : Don't use a static_cast for arithmetic conversions. Use brace initialization, gsl::narrow_cast or gsl::narow (type.1: http://go.microsoft.com/fwlink/p/?LinkID=620417).
+struct NMDIVIDER
+{
+	NMHDR hdr{};      //!< Notification NMHDR structure, must be first always
+	UINT fMask{};     //!< Valid Member Mask Flags
+	UINT iPaneId{};   //!< Pane ID -> DVF_PANELEFT or DVF_PANERIGHT
+	UINT fStyle{};    //!< Pane Style Flags
+	LPARAM lParam{};  //!< Extra Storage Value
 
-    NMHDR hdr;      //!< Notification NMHDR structure, must be first always
-    UINT fMask;     //!< Valid Member Mask Flags
-    UINT iPaneId;   //!< Pane ID -> DVF_PANELEFT or DVF_PANERIGHT
-    UINT fStyle;    //!< Pane Style Flags
-    LPARAM lParam;  //!< Extra Storage Value
-
-} NMDIVIDER, *LPNMDIVIDER;
+	NMDIVIDER(const HWND hHwnd, const UINT uCode, const UINT uMask, const UINT uPaneId, const UINT uStyle, const LPARAM uExt) noexcept
+		: hdr{hHwnd, static_cast<UINT>(GetWindowLong(hHwnd, GWL_ID)), uCode}
+		, fMask(uMask)
+		, iPaneId(uPaneId)
+		, fStyle(uStyle)
+		, lParam(uExt)
+	{}
+};
+using LPNMDIVIDER = NMDIVIDER *;
+#pragma warning(pop)
 
 #define DVNM_LPARAM   0x01  //!< NMDIVIDER lParam Value is Valid
 #define DVNM_STYLE    0x02  //!< NMDIVIDER fStyle Value is Valid
@@ -69,40 +80,41 @@ typedef struct tagNMDIVIDER {
  * \brief Divider Pane Info Structure
  */
 
-typedef struct tagDVPANEINFO {
-
-  UINT cbSize;    //!< DVPANEINFO Structure Size
-  UINT fMask;     //!< Valid Member Mask Flags
-  UINT fStyle;    //!< Divider Pane Style Flags
-  UINT cxMin;     //!< Divider Pane Minimum Width/Height
-  UINT cxIdeal;   //!< Divider Pane Ideal Width/Height
-  HWND hChild;    //!< Pane Child Window Handle
-  LPARAM lParam;  //!< Extra Storage For Each Pane
-
-} DVPANEINFO, * LPDVPANEINFO;
+struct DVPANEINFO
+{
+	UINT cbSize{ sizeof(DVPANEINFO) };    //!< DVPANEINFO Structure Size
+	UINT fMask{};     //!< Valid Member Mask Flags
+	UINT fStyle{};    //!< Divider Pane Style Flags
+	UINT cxMin{};     //!< Divider Pane Minimum Width/Height
+	UINT cxIdeal{};   //!< Divider Pane Ideal Width/Height
+	HWND hChild{ nullptr };    //!< Pane Child Window Handle
+	LPARAM lParam{};  //!< Extra Storage For Each Pane
+};
+using LPDVPANEINFO = DVPANEINFO *;
 
 /*!
  * \brief Divider Control Data Structure
  */
 
-typedef struct tagDVCONTROLDATA {
-
-  DVPANEINFO m_Panes[2];  //!< Divider Panes
-  UINT m_iLineWidth;      //!< Divider Line Width
-  BOOL m_bDragging;       //!< Are We Dragging The Bar?
-  UINT m_iBarPos;         //!< Position of the bar
-  int m_iOldPos;          //!< Moving Old Position
-
-} DVCONTROLDATA, * LPDVCONTROLDATA;
+struct DVCONTROLDATA
+{
+	DVPANEINFO m_LeftTopPane;		//!< Divider Panes
+	DVPANEINFO m_RightBottomPane;	//!< Divider Panes
+	UINT m_iLineWidth{ 2 };			//!< Divider Line Width
+	UINT m_iBarPos{ 100 };			//!< Position of the bar
+	int m_iOldPos{};				//!< Moving Old Position
+	bool m_bDragging{ false };		//!< Are We Dragging The Bar?
+};
+using LPDVCONTROLDATA = DVCONTROLDATA *;
 
 LRESULT CALLBACK DividerWndProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
 
-void Divider_SizeWindowContents( HWND mHwnd, int nWidth, int nHeight );
-LRESULT Divider_OnLButtonDown( HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
-void DrawXorBar(HDC hdc, int x1, int y1, int width, int height );
-LRESULT Divider_OnLButtonUp( HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
-LRESULT Divider_OnMouseMove( HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
-void Divider_CalcBarPos( HWND mHwnd, POINT * pt, RECT * rect );
-void Divider_GetChildControl( HWND mHwnd, UINT pane, LPDVPANEINFO result);
+void Divider_SizeWindowContents(HWND mHwnd, const int nWidth, const int nHeight) noexcept;
+LRESULT Divider_OnLButtonDown(HWND mHwnd, const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept;
+void DrawXorBar(HDC hdc, const int x1, const int y1, const int width, const int height) noexcept;
+LRESULT Divider_OnLButtonUp(HWND mHwnd, const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept;
+LRESULT Divider_OnMouseMove(HWND mHwnd, const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept;
+void Divider_CalcBarPos( HWND mHwnd, POINT * pt, RECT * rect ) noexcept;
+void Divider_GetChildControl(HWND mHwnd, const UINT pane, const LPDVPANEINFO result) noexcept;
 
 #endif // _DIVIDER_H_

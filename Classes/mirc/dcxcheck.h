@@ -26,27 +26,40 @@ class DcxDialog;
  * blah
  */
 
-class DcxCheck : public DcxControl {
-
+class DcxCheck final
+	: public DcxControl
+{
 public:
+	DcxCheck() = delete;
+	DcxCheck(const DcxCheck &) = delete;
+	DcxCheck &operator =(const DcxCheck &) = delete;	// No assignments!
+	DcxCheck(DcxCheck &&) = delete;
+	DcxCheck &operator =(DcxCheck &&) = delete;
 
-	DcxCheck( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd, const RECT * rc, const TString & styles );
-	virtual ~DcxCheck( );
+	DcxCheck(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles);
+	~DcxCheck( );
 
-	LRESULT PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
-	LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
+	LRESULT OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) final;
+	LRESULT ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) final;
 
-	void parseInfoRequest( const TString & input, TCHAR * szReturnValue ) const;
-	void parseCommandRequest( const TString & input );
-	void parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
+	//void parseInfoRequest(const TString & input, PTCHAR szReturnValue) const final;
+	void parseInfoRequest(const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const final;
+	void parseCommandRequest(const TString & input) final;
+	dcxWindowStyles parseControlStyles(const TString & tsStyles) final;
 
-	inline TString getType( ) const { return TString( TEXT("check") ); };
-	void toXml(TiXmlElement * xml) const;
-	TString getStyles(void) const;
+	inline const TString getType() const final { return TEXT("check"); };
+	inline const DcxControlTypes getControlType() const noexcept final { return DcxControlTypes::CHECK; }
 
-	static void registerClass(void);
+	void toXml(TiXmlElement *const xml) const final;
+	TiXmlElement * toXml(void) const final;
+	std::unique_ptr<TiXmlElement> toXml(int blah) const;
 
-protected:
+	const TString getStyles(void) const final;
+
+	LRESULT CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept final;
+	static inline WNDPROC m_hDefaultClassProc{ nullptr };	//!< Default window procedure
+
+private:
 	void DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam);
 };
 

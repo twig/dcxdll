@@ -17,8 +17,6 @@
 #include "Dcx.h"
 #include "Classes/Custom/RichEditThemed.h"
 
-
-
 /*!
 * \brief Constructor
 *
@@ -28,60 +26,47 @@
 * \param rc Window Rectangle
 * \param styles Window Style Tokenized List
 */
-DcxRichEdit::DcxRichEdit(UINT ID, DcxDialog *p_Dialog, HWND mParentHwnd, RECT *rc, const TString &styles)
-: DcxControl(ID, p_Dialog)
-, m_iFontSize(10 * 20)
-, m_bFontBold(FALSE)
-, m_bFontItalic(FALSE)
-, m_bFontUnderline(FALSE)
-, m_bFontStrikeout(FALSE)
-, m_byteCharset(DEFAULT_CHARSET)
-//, m_tsFontFaceName("")
-//, m_tsText("")
+DcxRichEdit::DcxRichEdit(const UINT ID, DcxDialog* const p_Dialog, const HWND mParentHwnd, const RECT* const rc, const TString& styles)
+	: DcxControl(ID, p_Dialog)
 {
-	LONG Styles = 0, ExStyles = 0;
-	BOOL bNoTheme = FALSE;
-	this->parseControlStyles(styles, &Styles, &ExStyles, &bNoTheme);
+	const auto ws = parseControlStyles(styles);
 
-	this->m_Hwnd = CreateWindowEx(
-		ExStyles | WS_EX_CLIENTEDGE,
+	m_Hwnd = dcxCreateWindow(
+		ws.m_ExStyles | WS_EX_CLIENTEDGE,
 		DCX_RICHEDITCLASS,
-		NULL,
-		WS_CHILD | Styles,
-		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
+		ws.m_Styles | WS_CHILD,
+		rc,
 		mParentHwnd,
-		(HMENU) ID,
-		GetModuleHandle(NULL),
-		NULL);
+		ID,
+		this);
 
-	if (!IsWindow(this->m_Hwnd))
-		throw TEXT("Unable To Create Window");
+	if (!IsWindow(m_Hwnd))
+		throw Dcx::dcxException("Unable To Create Window");
 
-	if (bNoTheme)
-		Dcx::UXModule.dcxSetWindowTheme(this->m_Hwnd , L" ", L" ");
+	if (ws.m_NoTheme)
+		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
 	else
-		CRichEditThemed::Attach(this->m_Hwnd);
+		CRichEditThemed::Attach(m_Hwnd);
 
 	this->m_clrBackText = GetSysColor(COLOR_WINDOW);
 	this->m_clrText = GetSysColor(COLOR_WINDOWTEXT);
 
-	this->loadmIRCPalette();
+	//getmIRCPalette(&m_aColorPalette[0], std::extent_v<decltype(m_aColorPalette)>);
+	getmIRCPalette(m_aColorPalette);
+
 	this->setContentsFont();
 
-	SendMessage(this->m_Hwnd, EM_SETEVENTMASK, NULL, (LPARAM) (ENM_SELCHANGE | ENM_CHANGE | ENM_LINK));
-	//SendMessage(this->m_Hwnd, CCM_SETUNICODEFORMAT, TRUE, NULL);
+	SendMessage(m_Hwnd, EM_SETEVENTMASK, NULL, (ENM_SELCHANGE | ENM_CHANGE | ENM_LINK));
+	//SendMessage(m_Hwnd, CCM_SETUNICODEFORMAT, TRUE, NULL);
 
-	if (p_Dialog->getToolTip() != NULL) {
-		if (styles.istok(TEXT("tooltips"))) {
-			this->m_ToolTipHWND = p_Dialog->getToolTip();
-			AddToolTipToolInfo(this->m_ToolTipHWND, this->m_Hwnd);
-		}
+	if (styles.istok(TEXT("tooltips")))
+	{
+		if (!IsWindow(p_Dialog->getToolTip()))
+			throw Dcx::dcxException("Unable to Initialize Tooltips");
+
+		setToolTipHWND(p_Dialog->getToolTip());
+		AddToolTipToolInfo(getToolTipHWND(), m_Hwnd);
 	}
-
-	this->m_bIgnoreRepeat = TRUE;
-
-	this->registreDefaultWindowProc();
-	SetProp(this->m_Hwnd, TEXT("dcx_cthis"), (HANDLE) this);
 }
 
 /*!
@@ -89,45 +74,122 @@ DcxRichEdit::DcxRichEdit(UINT ID, DcxDialog *p_Dialog, HWND mParentHwnd, RECT *r
 *
 * blah
 */
-DcxRichEdit::~DcxRichEdit() {
-	this->unregistreDefaultWindowProc();
-}
+//DcxRichEdit::~DcxRichEdit() noexcept
+//{
+//}
 
 /*!
 * \brief blah
 *
 * blah
 */
-void DcxRichEdit::parseControlStyles( const TString &styles, LONG *Styles, LONG *ExStyles, BOOL *bNoTheme)
+//void DcxRichEdit::parseControlStyles( const TString &styles, LONG *Styles, LONG *ExStyles, BOOL *bNoTheme)
+//{
+//	//*Styles |= ES_READONLY;
+//	//ES_NOHIDESEL
+//	for (const auto &tsStyle: styles)
+//	{
+//#if DCX_USE_HASHING
+//		switch (std::hash<TString>{}(tsStyle))
+//		{
+//			case L"multi"_hash:
+//				*Styles |= ES_MULTILINE | ES_WANTRETURN;
+//				break;
+//			case L"readonly"_hash:
+//				*Styles |= ES_READONLY;
+//				break;
+//			case L"center"_hash:
+//				*Styles |= ES_CENTER;
+//				break;
+//			case L"right"_hash:
+//				*Styles |= ES_RIGHT;
+//				break;
+//			case L"autohs"_hash:
+//				*Styles |= ES_AUTOHSCROLL;
+//				break;
+//			case L"autovs"_hash:
+//				*Styles |= ES_AUTOVSCROLL;
+//				break;
+//			case L"vsbar"_hash:
+//				*Styles |= WS_VSCROLL;
+//				break;
+//			case L"hsbar"_hash:
+//				*Styles |= WS_HSCROLL;
+//				break;
+//			case L"disablescroll"_hash:
+//				*Styles |= ES_DISABLENOSCROLL;
+//			default:
+//				break;
+//		}
+//#else
+//		if (tsStyle == TEXT("multi"))
+//			*Styles |= ES_MULTILINE | ES_WANTRETURN;
+//		else if (tsStyle == TEXT("readonly"))
+//			*Styles |= ES_READONLY;
+//		else if (tsStyle == TEXT("center"))
+//			*Styles |= ES_CENTER;
+//		else if (tsStyle == TEXT("right"))
+//			*Styles |= ES_RIGHT;
+//		else if (tsStyle == TEXT("autohs"))
+//			*Styles |= ES_AUTOHSCROLL;
+//		else if (tsStyle == TEXT("autovs"))
+//			*Styles |= ES_AUTOVSCROLL;
+//		else if (tsStyle == TEXT("vsbar"))
+//			*Styles |= WS_VSCROLL;
+//		else if (tsStyle == TEXT("hsbar"))
+//			*Styles |= WS_HSCROLL;
+//		else if (tsStyle == TEXT("disablescroll"))
+//			*Styles |= ES_DISABLENOSCROLL;
+//#endif
+//	}
+//
+//	this->parseGeneralControlStyles(styles, Styles, ExStyles, bNoTheme);
+//}
+
+dcxWindowStyles DcxRichEdit::parseControlStyles(const TString& tsStyles)
 {
-	//*Styles |= ES_READONLY;
+	auto ws = parseGeneralControlStyles(tsStyles);
+
+	//Styles |= ES_READONLY;
 	//ES_NOHIDESEL
 
-	for (TString tsStyle(styles.getfirsttok( 1 )); tsStyle != TEXT(""); tsStyle = styles.getnexttok( ))
+	for (const auto& tsStyle : tsStyles)
 	{
-		if (tsStyle == TEXT("multi"))
-			*Styles |= ES_MULTILINE | ES_WANTRETURN;
-		else if (tsStyle == TEXT("readonly"))
-			*Styles |= ES_READONLY;
-		else if (tsStyle == TEXT("center"))
-			*Styles |= ES_CENTER;
-		else if (tsStyle == TEXT("right"))
-			*Styles |= ES_RIGHT;
-		else if (tsStyle == TEXT("autohs"))
-			*Styles |= ES_AUTOHSCROLL;
-		else if (tsStyle == TEXT("autovs"))
-			*Styles |= ES_AUTOVSCROLL;
-		else if (tsStyle == TEXT("vsbar"))
-			*Styles |= WS_VSCROLL;
-		else if (tsStyle == TEXT("hsbar"))
-			*Styles |= WS_HSCROLL;
-		else if (tsStyle == TEXT("disablescroll"))
-			*Styles |= ES_DISABLENOSCROLL;
+		switch (std::hash<TString>{}(tsStyle))
+		{
+		case L"multi"_hash:
+			ws.m_Styles |= ES_MULTILINE | ES_WANTRETURN;
+			break;
+		case L"readonly"_hash:
+			ws.m_Styles |= ES_READONLY;
+			break;
+		case L"center"_hash:
+			ws.m_Styles |= ES_CENTER;
+			break;
+		case L"right"_hash:
+			ws.m_Styles |= ES_RIGHT;
+			break;
+		case L"autohs"_hash:
+			ws.m_Styles |= ES_AUTOHSCROLL;
+			break;
+		case L"autovs"_hash:
+			ws.m_Styles |= ES_AUTOVSCROLL;
+			break;
+		case L"vsbar"_hash:
+			ws.m_Styles |= WS_VSCROLL;
+			break;
+		case L"hsbar"_hash:
+			ws.m_Styles |= WS_HSCROLL;
+			break;
+		case L"disablescroll"_hash:
+			ws.m_Styles |= ES_DISABLENOSCROLL;
+			break;
+		default:
+			break;
+		}
 	}
-
-	this->parseGeneralControlStyles(styles, Styles, ExStyles, bNoTheme);
+	return ws;
 }
-
 /*!
 * \brief $xdid Parsing Function
 *
@@ -136,108 +198,233 @@ void DcxRichEdit::parseControlStyles( const TString &styles, LONG *Styles, LONG 
 *
 * \return > void
 */
-void DcxRichEdit::parseInfoRequest( const TString &input, TCHAR *szReturnValue) const
+void DcxRichEdit::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>& szReturnValue) const
 {
-	const UINT numtok = input.numtok( );
-	const TString prop(input.getfirsttok( 3 ));
+	const auto numtok = input.numtok();
 
-	// [NAME] [ID] [PROP] [N]
-	if (prop == TEXT("text")) {
+	switch (std::hash<TString>{}(input.getfirsttok(3)))
+	{
+		// [NAME] [ID] [PROP] [N]
+	case L"text"_hash:
+	{
 		// determine the line number
 		int line = 0;
 
 		if (numtok > 3)
-			line = input.getnexttok( ).to_int() -1;		// tok 4
+			line = input.getnexttok().to_int() - 1;		// tok 4
 
-		if ((line < 0) || (line >= Edit_GetLineCount(this->m_Hwnd))) {
-			Dcx::error(TEXT("text"), TEXT("Invalid line number."));
-			return;
-		}
+		if ((line < 0) || (line >= Edit_GetLineCount(m_Hwnd)))
+			throw Dcx::dcxException("Invalid line number.");
 
 		// get index of first character in line
-		const int offset = SendMessage(this->m_Hwnd, EM_LINEINDEX, (WPARAM) line, NULL);
+		const auto offset = SendMessage(m_Hwnd, EM_LINEINDEX, gsl::narrow_cast<WPARAM>(line), NULL);
 		// get length of the line we want to copy
-		const int len = SendMessage(this->m_Hwnd, EM_LINELENGTH, (WPARAM) offset, NULL) +1;
+		const auto len = SendMessage(m_Hwnd, EM_LINELENGTH, gsl::narrow_cast<WPARAM>(offset), NULL) + 1;
 		// create and fill the buffer
-		TCHAR *p = new TCHAR[len];
-		*(LPWORD) p = (WORD)len;
-		SendMessage(this->m_Hwnd, EM_GETLINE, (WPARAM) line, (LPARAM) p);
+		auto p = std::make_unique<TCHAR[]>(len);
+		*(reinterpret_cast<LPWORD>(p.get())) = gsl::narrow_cast<WORD>(len);
+		SendMessage(m_Hwnd, EM_GETLINE, gsl::narrow_cast<WPARAM>(line), reinterpret_cast<LPARAM>(p.get()));
 
 		// terminate the string at the right position
-		p[len -1] = TEXT('\0');
+		gsl::at(p, len - 1) = TEXT('\0');
 
 		// copy to result
-		lstrcpyn(szReturnValue, p, MIRC_BUFFER_SIZE_CCH);
-		delete [] p;
-		return;
+		szReturnValue = p.get();
 	}
+	break;
 	// [NAME] [ID] [PROP]
-	else if (prop == TEXT("num")) {
-		if (this->isStyle(ES_MULTILINE))
-			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), (int)SendMessage(this->m_Hwnd, EM_GETLINECOUNT, 0, 0L));
-			//wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), this->m_tsText.numtok(TEXT("\r\n")));
-		else
-			lstrcpyn(szReturnValue,TEXT("1"), MIRC_BUFFER_SIZE_CCH);	// single line control so always 1 line.
-		return;
+	case L"num"_hash:
+	{
+		if (this->isStyle(WindowStyle::ES_MultiLine))
+			_ts_snprintf(szReturnValue, TEXT("%d"), gsl::narrow_cast<int>(SendMessage(m_Hwnd, EM_GETLINECOUNT, 0U, 0L)));
+		else {
+			// single line control so always 1 line.
+			szReturnValue = TEXT('1');
+		}
 	}
+	break;
 	// [NAME] [ID] [PROP]
-	else if (prop == TEXT("caretpos")) {
-		DWORD dwAbsoluteStartSelPos = 0;
+	case L"caretpos"_hash:
+	{
+		DWORD dwAbsoluteStartSelPos{};
 
 		// caret startsel position
-		SendMessage(this->m_Hwnd, EM_GETSEL, (WPARAM) &dwAbsoluteStartSelPos, NULL);
+		SendMessage(m_Hwnd, EM_GETSEL, reinterpret_cast<WPARAM>(&dwAbsoluteStartSelPos), NULL);
 
-		if (this->isStyle(ES_MULTILINE)) {
+		if (this->isStyle(WindowStyle::ES_MultiLine))
+		{
 			// current line
-			const int iLinePos = SendMessage(this->m_Hwnd, EM_LINEFROMCHAR, (WPARAM)-1, NULL);
+			const auto iLinePos = SendMessage(m_Hwnd, EM_LINEFROMCHAR, gsl::narrow_cast<WPARAM>(-1), NULL);
 			// line offset
-			const int iAbsoluteCharPos = (int) SendMessage(this->m_Hwnd, EM_LINEINDEX, (WPARAM)-1, NULL);
+			const auto iAbsoluteCharPos = gsl::narrow_cast<int>(SendMessage(m_Hwnd, EM_LINEINDEX, gsl::narrow_cast<WPARAM>(-1), NULL));
 
-			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d"), iLinePos +1, dwAbsoluteStartSelPos - iAbsoluteCharPos);
+			_ts_snprintf(szReturnValue, TEXT("%d %u"), iLinePos + 1, dwAbsoluteStartSelPos - iAbsoluteCharPos);
 		}
 		else {
 			// return selstart
-			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d"), 1, dwAbsoluteStartSelPos);
+			_ts_snprintf(szReturnValue, TEXT("1 %u"), dwAbsoluteStartSelPos);
 		}
-
-		return;
 	}
-	else if (prop == TEXT("selstart")) {
-		CHARRANGE c;
+	break;
+	// [NAME] [ID] [PROP]
+	case L"selstart"_hash:
+	{
+		CHARRANGE c{};
 
-		SendMessage(this->m_Hwnd, EM_EXGETSEL, NULL, (LPARAM) &c);
-		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), c.cpMin);
-		return;
+		SendMessage(m_Hwnd, EM_EXGETSEL, NULL, reinterpret_cast<LPARAM>(&c));
+		_ts_snprintf(szReturnValue, TEXT("%d"), c.cpMin);
 	}
-	else if (prop == TEXT("selend")) {
-		CHARRANGE c;
+	break;
+	// [NAME] [ID] [PROP]
+	case L"selend"_hash:
+	{
+		CHARRANGE c{};
 
-		SendMessage(this->m_Hwnd, EM_EXGETSEL, NULL, (LPARAM) &c);
-		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), c.cpMax);
-		return;
+		SendMessage(m_Hwnd, EM_EXGETSEL, NULL, reinterpret_cast<LPARAM>(&c));
+		_ts_snprintf(szReturnValue, TEXT("%d"), c.cpMax);
 	}
-	else if (prop == TEXT("sel")) {
-		CHARRANGE c;
+	break;
+	// [NAME] [ID] [PROP]
+	case L"sel"_hash:
+	{
+		CHARRANGE c{};
 
-		SendMessage(this->m_Hwnd, EM_EXGETSEL, NULL, (LPARAM) &c);
-		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d"), c.cpMin, c.cpMax);
-		return;
+		SendMessage(m_Hwnd, EM_EXGETSEL, NULL, reinterpret_cast<LPARAM>(&c));
+		_ts_snprintf(szReturnValue, TEXT("%d %d"), c.cpMin, c.cpMax);
 	}
-	else if (prop == TEXT("seltext")) {
-		CHARRANGE c;
+	break;
+	// [NAME] [ID] [PROP]
+	case L"seltext"_hash:
+	{
+		CHARRANGE c{};
 
-		SendMessage(this->m_Hwnd, EM_EXGETSEL, NULL, (LPARAM) &c);
-		TCHAR *buffer = new TCHAR[c.cpMax - c.cpMin];
+		SendMessage(m_Hwnd, EM_EXGETSEL, NULL, reinterpret_cast<LPARAM>(&c));
+		auto buffer = std::make_unique<TCHAR[]>(c.cpMax - c.cpMin);
 
-		SendMessage(this->m_Hwnd, EM_GETSELTEXT, NULL, (LPARAM) buffer);
-		lstrcpyn(szReturnValue, buffer, MIRC_BUFFER_SIZE_CCH);
-		delete [] buffer;
-		return;
+		SendMessage(m_Hwnd, EM_GETSELTEXT, NULL, reinterpret_cast<LPARAM>(buffer.get()));
+		szReturnValue = buffer.get();
 	}
-	else if (this->parseGlobalInfoRequest(input, szReturnValue))
-		return;
+	break;
+	// [NAME] [ID] [PROP] [utf8|...]
+	case L"rtftext"_hash:
+	{
+		UINT iFlags = SF_RTF;
+		const auto tsFlags(input.getnexttok());
 
-	szReturnValue[0] = 0;
+		stringstream_type rtf;
+
+		EDITSTREAM es{};
+		es.dwCookie = reinterpret_cast<DWORD_PTR>(&rtf);
+		es.pfnCallback = &StreamOutToVarCallback;
+
+		if (tsFlags == TEXT("utf8"))
+			iFlags = gsl::narrow_cast<UINT>((CP_UTF8 << 16) | SF_USECODEPAGE | SF_RTF);
+
+		SendMessage(m_Hwnd, EM_STREAMOUT, gsl::narrow_cast<UINT>(iFlags), reinterpret_cast<LPARAM>(&es));
+
+		const TString tsOut(rtf.str().c_str());	// handles any char convertions needed.
+		szReturnValue = tsOut.to_chr();
+
+		//TString rtf;
+		//
+		//EDITSTREAM es = { 0 };
+		//es.dwCookie = (DWORD_PTR)&rtf;
+		//es.pfnCallback = &EditStreamOutCallback;
+		//
+		//if (tsFlags == TEXT("utf8"))
+		//	iFlags = (UINT)((CP_UTF8 << 16) | SF_USECODEPAGE | SF_RTF);
+		//
+		//SendMessage(m_Hwnd, EM_STREAMOUT, (WPARAM)iFlags, (LPARAM)&es);
+		//
+		//dcx_strcpyn(szReturnValue, rtf.to_chr(), MIRC_BUFFER_SIZE_CCH);
+	}
+	break;
+	default:
+		parseGlobalInfoRequest(input, szReturnValue);
+	}
+}
+
+bool DcxRichEdit::SaveRichTextToFile(HWND hWnd, const TString& tsFilename) noexcept
+{
+	const auto hFile = CreateFile(tsFilename.to_chr(), GENERIC_WRITE, 0, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
+	Auto(CloseHandle(hFile));
+
+	if (hFile == INVALID_HANDLE_VALUE)
+		return false;
+
+	//EDITSTREAM es{};
+	//es.dwCookie = reinterpret_cast<DWORD>(hFile);
+	//es.pfnCallback = StreamOutToFileCallback;
+
+	EDITSTREAM es{ reinterpret_cast<DWORD>(hFile), 0U, StreamOutToFileCallback };
+
+	SendMessage(hWnd, EM_STREAMOUT, SF_RTF, reinterpret_cast<LPARAM>(&es));
+	return (es.dwError == 0);
+}
+
+bool DcxRichEdit::LoadRichTextFromFile(HWND hWnd, const TString& tsFilename) noexcept
+{
+	const auto hFile = CreateFile(tsFilename.to_chr(), GENERIC_READ, 0, nullptr, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
+	Auto(CloseHandle(hFile));
+
+	if (hFile == INVALID_HANDLE_VALUE)
+		return false;
+
+	//EDITSTREAM es{};
+	//es.dwCookie = reinterpret_cast<DWORD>(hFile);
+	//es.pfnCallback = StreamInFromFileCallback;
+
+	EDITSTREAM es{ reinterpret_cast<DWORD>(hFile), 0U,StreamInFromFileCallback };
+
+	SendMessage(hWnd, EM_STREAMIN, SF_RTF, reinterpret_cast<LPARAM>(&es));
+	return (es.dwError == 0);
+}
+
+DWORD CALLBACK DcxRichEdit::StreamOutToVarCallback(DWORD_PTR dwCookie, const LPBYTE pbBuff, const LONG cb, LONG* pcb)
+{
+	const auto rtf = reinterpret_cast<stringstream_type*>(dwCookie);
+
+	rtf->write(reinterpret_cast<stringstream_type::char_type*>(pbBuff), cb);
+
+	*pcb = cb;
+	return 0;
+
+	//TString *rtf = reinterpret_cast<TString *>(dwCookie);
+	//
+	//rtf->append((char *)pbBuff, cb);
+	//
+	//*pcb = cb;
+	//return 0;
+}
+
+DWORD CALLBACK DcxRichEdit::StreamOutToFileCallback(DWORD_PTR dwCookie, const LPBYTE pbBuff, const LONG cb, LONG* pcb) noexcept
+{
+	const auto hFile = reinterpret_cast<HANDLE>(dwCookie);
+	DWORD NumberOfBytesWritten{};
+
+	if (!WriteFile(hFile, pbBuff, cb, &NumberOfBytesWritten, nullptr))
+	{
+		//handle errors
+		return 1;
+		// or perhaps return GetLastError();
+	}
+	*pcb = NumberOfBytesWritten;
+	return 0;
+}
+
+DWORD CALLBACK DcxRichEdit::StreamInFromFileCallback(DWORD_PTR dwCookie, LPBYTE pbBuff, const LONG cb, LONG* pcb) noexcept
+{
+	const auto hFile = reinterpret_cast<HANDLE>(dwCookie);
+	DWORD NumberOfBytesRead = 0;
+
+	if (!ReadFile(hFile, pbBuff, cb, &NumberOfBytesRead, nullptr))
+	{
+		//handle errors
+		return 1;
+		// or perhaps return GetLastError();
+	}
+	*pcb = NumberOfBytesRead;
+	return 0;
 }
 
 /*!
@@ -245,33 +432,49 @@ void DcxRichEdit::parseInfoRequest( const TString &input, TCHAR *szReturnValue) 
 *
 * blah
 */
-void DcxRichEdit::parseCommandRequest(const TString &input) {
-	const XSwitchFlags flags(input.getfirsttok( 3 ));
-	const UINT numtok = input.numtok();
+[[gsl::suppress(bounds.3)]] void DcxRichEdit::parseCommandRequest(const TString& input)
+{
+	const XSwitchFlags flags(input.getfirsttok(3));
+	const auto numtok = input.numtok();
 
 	// xdid -r [NAME] [ID] [SWITCH]
-	if (flags[TEXT('r')]) {
-		this->m_tsText = TEXT("");
+	if (flags[TEXT('r')])
+	{
+		this->m_tsText.clear();	// = TEXT("");
 		this->clearContents();
 	}
 
 	// xdid -a [NAME] [ID] [SWITCH] [TEXT]
-	if (flags[TEXT('a')] && numtok > 3) {
-		this->m_tsText += input.gettok(4, -1);
-		this->parseContents(TRUE);
-		//DCXSTREAM ds;
-		//EDITSTREAM es = {0};
-		//es.dwCookie = (DWORD_PTR)&ds;
-		//SendMessage(this->m_Hwnd,EM_STREAMIN
+	if (flags[TEXT('a')])
+	{
+		if (numtok < 4)
+			throw Dcx::dcxException("Insufficient parameters");
+
+		//this->m_tsText += input.gettok(4, -1);
+		//this->parseContents(TRUE);
+
+		const auto tmp(input.getlasttoks());	// tok 4, -1
+
+		this->m_tsText += tmp;
+		this->parseStringContents(tmp, TRUE);
 	}
 	// xdid -c [NAME] [ID] [SWITCH]
-	else if (flags[TEXT('c')] && numtok > 2) {
-		CopyToClipboard(this->m_Hwnd, this->m_tsText);
+	else if (flags[TEXT('c')])
+	{
+		if (numtok < 3)
+			throw Dcx::dcxException("Insufficient parameters");
+
+		CopyToClipboard(m_Hwnd, this->m_tsText);
 	}
 	// xdid -d [NAME] [ID] [SWITCH] [N]
-	else if (flags[TEXT('d')] && numtok > 3) {
-		if (this->isStyle(ES_MULTILINE)) {
-			const int nLine = input.getnexttok( ).to_int();	// tok 4
+	else if (flags[TEXT('d')])
+	{
+		if (numtok < 4)
+			throw Dcx::dcxException("Insufficient parameters");
+
+		if (this->isStyle(WindowStyle::ES_MultiLine))
+		{
+			const auto nLine = input.getnexttok().to_<UINT>();	// tok 4
 			this->m_tsText.deltok(nLine, TEXT("\r\n"));
 		}
 
@@ -279,196 +482,309 @@ void DcxRichEdit::parseCommandRequest(const TString &input) {
 	}
 	// special richedit interception for font change
 	// xdid -f [NAME] [ID] [SWITCH] [+FLAGS] [CHARSET] [SIZE] [FONTNAME]
-	else if (flags[TEXT('f')] && numtok > 3) {
-		const UINT iFontFlags = parseFontFlags(input.getnexttok( ));	// tok 4
+	else if (flags[TEXT('f')])
+	{
+		if (numtok < 4)
+			throw Dcx::dcxException("Insufficient parameters");
 
-		if (iFontFlags & DCF_DEFAULT) {
+		const auto iFontFlags = parseFontFlags(input.getnexttok());	// tok 4
+
+		if (dcx_testflag(iFontFlags, dcxFontFlags::DCF_DEFAULT))
+		{
 			this->m_clrBackText = GetSysColor(COLOR_WINDOW);
 			this->m_clrText = GetSysColor(COLOR_WINDOWTEXT);
 			this->m_iFontSize = 10 * 20;
-			this->m_bFontBold = FALSE;
-			this->m_bFontItalic = FALSE;
-			this->m_bFontUnderline = FALSE;
-			this->m_bFontStrikeout = FALSE;
+			this->m_bFontBold = false;
+			this->m_bFontItalic = false;
+			this->m_bFontUnderline = false;
+			this->m_bFontStrikeout = false;
 			this->m_byteCharset = DEFAULT_CHARSET;
 			this->setContentsFont();
 		}
-		else if (numtok > 5) {
+		else if (numtok > 5)
+		{
 			this->setRedraw(FALSE);
 
-			this->m_byteCharset = (BYTE)parseFontCharSet(input.getnexttok( ));	// tok 5
-			this->m_iFontSize = 20 * input.getnexttok( ).to_int();				// tok 6
-			this->m_tsFontFaceName = input.gettok(7, -1).trim();
+			this->m_byteCharset = gsl::narrow_cast<BYTE>(parseFontCharSet(input.getnexttok()));	// tok 5
+			this->m_iFontSize = 20U * input.getnexttok().to_<UINT>();			// tok 6
+			this->m_tsFontFaceName = input.getlasttoks().trim();				// tok 7, -1
 
-			//HDC hdc = GetDC( NULL );
-			//chrf.yHeight = 20 * -MulDiv( fSize, GetDeviceCaps( hdc, LOGPIXELSY ), 72 );
-			//ReleaseDC( NULL, hdc );
+			m_bFontBold = dcx_testflag(iFontFlags, dcxFontFlags::DCF_BOLD);
 
-			if (iFontFlags & DCF_BOLD)
-				this->m_bFontBold = TRUE;
-			else
-				this->m_bFontBold = FALSE;
+			m_bFontItalic = dcx_testflag(iFontFlags, dcxFontFlags::DCF_ITALIC);
 
-			if (iFontFlags & DCF_ITALIC)
-				this->m_bFontItalic = TRUE;
-			else
-				this->m_bFontItalic = FALSE;
+			m_bFontStrikeout = dcx_testflag(iFontFlags, dcxFontFlags::DCF_STRIKEOUT);
 
-			if (iFontFlags & DCF_STRIKEOUT)
-				this->m_bFontStrikeout = TRUE;
-			else
-				this->m_bFontStrikeout = FALSE;
-
-			if (iFontFlags & DCF_UNDERLINE)
-				this->m_bFontUnderline = TRUE;
-			else
-				this->m_bFontUnderline = FALSE;
-
-			//this->setContentsFont();
+			m_bFontUnderline = dcx_testflag(iFontFlags, dcxFontFlags::DCF_UNDERLINE);
 
 			this->parseContents(TRUE);
 		}
 	}
 	// xdid -i [NAME] [ID] [SWITCH] [N] [TEXT]
-	else if (flags[TEXT('i')] && numtok > 4) {
-		if (this->isStyle(ES_MULTILINE)) {
-			const int nLine = input.getnexttok( ).to_int();	// tok 4
-			this->m_tsText.instok(input.gettok(5, -1).to_chr(), nLine, TEXT("\r\n"));
+	else if (flags[TEXT('i')])
+	{
+		if (numtok < 5)
+			throw Dcx::dcxException("Insufficient parameters");
+
+		if (this->isStyle(WindowStyle::ES_MultiLine))
+		{
+			const auto nLine = input.getnexttok().to_<UINT>();								// tok 4
+			this->m_tsText.instok(input.getlasttoks(), nLine, TEXT("\r\n"));	// tok 5, -1
 		}
-		else {
-			this->m_tsText = input.gettok(4, -1);
-		}
+		else
+			this->m_tsText = input.getlasttoks();										// tok 4, -1
 
 		this->parseContents(TRUE);
 	}
 	// xdid -k [NAME] [ID] [SWITCH] [COLOR]
-	else if (flags[TEXT('k')] && numtok > 3) {
-		const COLORREF clrColor = (COLORREF)input.getnexttok( ).to_num();	// tok 4
+	else if (flags[TEXT('k')])
+	{
+		if (numtok < 4)
+			throw Dcx::dcxException("Insufficient parameters");
 
-		if (clrColor == -1)
-			SendMessage(this->m_Hwnd, EM_SETBKGNDCOLOR, (WPARAM) 1, (LPARAM) GetSysColor(COLOR_WINDOWTEXT));
+		const auto clrColor = input.getnexttok().to_<COLORREF>();	// tok 4
+
+		if (clrColor == CLR_INVALID)
+			SendMessage(m_Hwnd, EM_SETBKGNDCOLOR, 1, gsl::narrow_cast<LPARAM>(GetSysColor(COLOR_WINDOWTEXT)));
 		else
-			SendMessage(this->m_Hwnd, EM_SETBKGNDCOLOR, (WPARAM) 0, (LPARAM) clrColor);
+			SendMessage(m_Hwnd, EM_SETBKGNDCOLOR, 0, gsl::narrow_cast<LPARAM>(clrColor));
 
 		this->m_clrBackText = clrColor;
 		this->redrawWindow();
 	}
 	// xdid -l [NAME] [ID] [SWITCH] [N] [COLOR]
-	else if (flags[TEXT('l')] && numtok > 4) {
-		const int nColor = input.getnexttok( ).to_int() -1;	// tok 4
+	else if (flags[TEXT('l')])
+	{
+		if (numtok < 5)
+			throw Dcx::dcxException("Insufficient parameters");
 
-		if (nColor > -1 && nColor < 16) {
-			this->m_aColorPalette[nColor] = (COLORREF)input.getnexttok( ).to_num();	// tok 5
-			this->parseContents(TRUE);
-		}
+		const auto nColor = input.getnexttok().to_int() - 1;	// tok 4
+
+		if (nColor < 0 || nColor > gsl::narrow_cast<int>(std::size(m_aColorPalette) - 1))
+			throw Dcx::dcxException("Invalid Colour");
+
+		gsl::at(this->m_aColorPalette, nColor) = input.getnexttok().to_<COLORREF>();	// tok 5
+		this->parseContents(TRUE);
 	}
 	// xdid -m [NAME] [ID] [SWITCH]
-	else if (flags[TEXT('m')]) {
-		this->loadmIRCPalette();
+	else if (flags[TEXT('m')])
+	{
+		//getmIRCPalette(&m_aColorPalette[0], std::extent_v<decltype(m_aColorPalette)>);
+		getmIRCPalette(m_aColorPalette);
+
 		this->parseContents(TRUE);
 	}
 	// xdid -n [NAME] [ID] [SWITCH] [BOOL]
-	else if (flags[TEXT('n')] && numtok > 3) {
-		const int b = input.getnexttok( ).to_int();	// tok 4
+	else if (flags[TEXT('n')])
+	{
+		if (numtok < 4)
+			throw Dcx::dcxException("Insufficient parameters");
+
+		const auto b = (input.getnexttok().to_int() > 0);	// tok 4
 
 		this->setAutoUrlDetect(b ? TRUE : FALSE);
 	}
 	// xdid -o [NAME] [ID] [SWITCH] [N] [TEXT]
-	else if (flags[TEXT('o')] && numtok > 4) {
-		if (this->isStyle(ES_MULTILINE)) {
-			const int nLine = input.getnexttok( ).to_int();	// tok 4
-			this->m_tsText.puttok(input.gettok(5, -1).to_chr(), nLine, TEXT("\r\n"));
-		}
+	else if (flags[TEXT('o')])
+	{
+		if (numtok < 5)
+			throw Dcx::dcxException("Insufficient parameters");
+
+		const auto nLine = input.getnexttok().to_<UINT>();	// tok 4
+
+		if (this->isStyle(WindowStyle::ES_MultiLine))
+			this->m_tsText.puttok(input.getlasttoks(), nLine, TEXT("\r\n"));	// tok 5, -1
 		else
-			this->m_tsText = input.gettok(4, -1);
+			this->m_tsText = input.getlasttoks();	// tok 5, -1
 
 		this->parseContents(TRUE);
 	}
 	// xdid -P [NAME] [ID]
-	else if (flags[TEXT('P')] && numtok > 1) {
-		SendMessage(this->getHwnd(),WM_PASTE,NULL,NULL);
+	else if (flags[TEXT('P')])
+	{
+		SendMessage(this->getHwnd(), WM_PASTE, NULL, NULL);
 	}
 	// xdid -q -> [NAME] [ID] -q [COLOR1] ... [COLOR16]
-	else if (flags[TEXT('q')] && numtok > 3) {
-		const int len = numtok - 3;
+	else if (flags[TEXT('q')])
+	{
+		if (numtok < 4)
+			throw Dcx::dcxException("Insufficient parameters");
 
-		for (int i = 0; (i < len && i < 16); i++)
-			this->m_aColorPalette[i] = (COLORREF)input.getnexttok( ).to_num();	// tok 4 + i
+		const auto nColor = numtok - 3;
+
+		if (nColor >= std::min(std::size(m_aColorPalette), 16U))
+			throw Dcx::dcxException("Invalid Colour Count");
+
+		for (auto i = decltype(nColor){0}; i < nColor; ++i)
+			gsl::at(m_aColorPalette, i) = input.getnexttok().to_<COLORREF>();	// tok 4 + i
 
 		this->parseContents(TRUE);
 	}
 	// This is to avoid an invalid flag message.
 	// xdid -r [NAME] [ID] [SWITCH]
-	else if (flags[TEXT('r')]) {
+	else if (flags[TEXT('r')])
+	{
 	}
 	// xdid -t [NAME] [ID] [SWITCH] [FILENAME]
-	else if (flags[TEXT('t')] && numtok > 3) { // TODO: replace all this with an EM_STREAMIN message & callback
-		PTCHAR contents = (PTCHAR)readFile(input.gettok(4, -1).to_chr());
+	// xdid -t [NAME] [ID] [SWITCH] [+FLAGS] [FILENAME]
+	else if (flags[TEXT('t')])
+	{
+		if (numtok < 4)
+			throw Dcx::dcxException("Insufficient parameters");
 
-		if (contents != NULL) {
-			this->m_tsText = contents;
-			delete [] contents;
-			const DWORD mask = this->m_dEventMask;
+		const XSwitchFlags xflags(input.getnexttok().trim());	// tok 4
+		bool bOldMethod = false;
+		TString tsArgs;
+
+		if (!xflags[TEXT('+')])
+		{
+			bOldMethod = true;
+			tsArgs = input.gettok(4, -1).trim();	// 4, -1
+		}
+		else
+			tsArgs = input.getlasttoks().trim();	// 5, -1
+
+		if (xflags[TEXT('o')])
+			bOldMethod = true;
+
+		if (bOldMethod)
+		{
+			// xdid -t [NAME] [ID] [FILENAME]
+			// xdid -t [NAME] [ID] +o [FILENAME]
+
+			if (!IsFile(tsArgs))
+				throw Dcx::dcxException(TEXT("Unable to open: %"), tsArgs);
+
+			this->m_tsText = readTextFile(tsArgs);
+
+			const auto mask = this->m_dEventMask;
 			this->m_dEventMask = 0;
 			this->parseContents(TRUE);
 			this->m_dEventMask = mask;
 		}
-	}
-	// xdid -u [NAME] [ID] [SWITCH] [FILENAME]
-	else if (flags[TEXT('u')] && numtok > 3) {
-		FILE *file = dcx_fopen(input.gettok(4, -1).to_chr(), TEXT("wb"));
+		else {
+			// new methods... load rtf...
+			if (xflags[TEXT('x')])
+			{
+				// load from xml
+				// xdid -t [NAME] [ID] +x [FILENAME] [data_set]
+				if (tsArgs.numtok() < 2)
+					throw Dcx::dcxException(TEXT("No dataset specified"));
 
-		if (file != NULL) {
-			fwrite(this->m_tsText.to_chr(), sizeof(TCHAR), this->m_tsText.len(), file);
-			fflush(file);
-			fclose(file);
+				TString tsFile(tsArgs.gettok(1, gsl::narrow_cast<int>(tsArgs.numtok()) - 1));
+				const TString tsDataSet(tsArgs.gettok(tsArgs.numtok()));
+
+				if (!LoadRichTextFromXml(m_Hwnd, tsFile, tsDataSet))	// default load rtf text
+					throw Dcx::dcxException(TEXT("Unable to load: % Dataset: %"), tsFile, tsDataSet);
+			}
+			else {
+				if (!IsFile(tsArgs))
+					throw Dcx::dcxException(TEXT("Unable to open: %"), tsArgs);
+
+				if (!LoadRichTextFromFile(m_Hwnd, tsArgs))	// default load rtf text
+					throw Dcx::dcxException(TEXT("Unable to load: %"), tsArgs);
+			}
 		}
 	}
-	// xdid -S [NAME] [ID] [SWITCH] [START] [END]
-	else if (flags[TEXT('S')] && numtok > 3) {
-		CHARRANGE c;
+	// xdid -u [NAME] [ID] [SWITCH] [FILENAME]
+	// xdid -u [NAME] [ID] [SWITCH] [+FLAGS] [FILENAME]
+	else if (flags[TEXT('u')])
+	{
+		if (numtok < 4)
+			throw Dcx::dcxException("Insufficient parameters");
 
-		c.cpMin = input.getnexttok( ).to_int();	// tok 4
+		const XSwitchFlags xflags(input.getnexttok().trim());	// tok 4
+		bool bOldMethod = false, bRes = false;
+		TString tsFile;
 
-		if (numtok > 4)
-			c.cpMax = input.getnexttok( ).to_int();	// tok 5
+		if (!xflags[TEXT('+')])
+		{
+			bOldMethod = true;
+			tsFile = input.gettok(4, -1).trim();	// 4, -1
+		}
 		else
-			c.cpMax = c.cpMin;
+			tsFile = input.getlasttoks().trim();	// 5, -1
 
-		SendMessage(this->m_Hwnd, EM_EXSETSEL, NULL, (LPARAM) &c);
-		SendMessage(this->m_Hwnd, EM_SCROLLCARET, NULL, NULL);
+		if (xflags[TEXT('o')])
+			bOldMethod = true;
+
+		if (bOldMethod)
+		{
+			// xdid -u [NAME] [ID] [FILENAME]
+			// xdid -u [NAME] [ID] +o [FILENAME]
+			// old way if no flags provided or old method selected.
+			bRes = SaveDataToFile(tsFile, this->m_tsText);
+		}
+		else {
+			// new method's...
+			if (xflags[TEXT('x')])
+			{
+				// save to xml
+				// xdid -u [NAME] [ID] +x [FILENAME] [data_set]
+			}
+			else
+			{
+				//	default, save as rtf text
+				// xdid -u [NAME] [ID] + [FILENAME]
+				bRes = SaveRichTextToFile(m_Hwnd, tsFile);
+			}
+		}
+		if (!bRes)
+			throw Dcx::dcxException(TEXT("Unable to save: %"), tsFile);
+	}
+	// xdid -S [NAME] [ID] [SWITCH] [START] [END]
+	else if (flags[TEXT('S')])
+	{
+		if (numtok < 4)
+			throw Dcx::dcxException("Insufficient parameters");
+
+		CHARRANGE c{};
+		c.cpMin = input.getnexttok().to_int();	// tok 4
+		c.cpMax = (numtok > 4) ? input.getnexttok().to_int() : c.cpMin;	// tok 5
+
+		//CHARRANGE c{ input.getnexttok().to_int(), (numtok > 4) ? input.getnexttok().to_int() : c.cpMin };
+
+		SendMessage(m_Hwnd, EM_EXSETSEL, NULL, reinterpret_cast<LPARAM>(&c));
+		SendMessage(m_Hwnd, EM_SCROLLCARET, NULL, NULL);
 
 		//DWORD dwAbsoluteStartSelPos = 0;
 		//// caret startsel position
-		//SendMessage(this->m_Hwnd, EM_GETSEL, (WPARAM) &dwAbsoluteStartSelPos, NULL);
-
+		//SendMessage(m_Hwnd, EM_GETSEL, (WPARAM) &dwAbsoluteStartSelPos, NULL);
+		//
 		//if (this->isStyle(ES_MULTILINE)) {
 		//	int iLinePos = 0;
-
+		//
 		//	// current line
-		//	iLinePos = SendMessage(this->m_Hwnd, EM_LINEFROMCHAR, -1, NULL);
+		//	iLinePos = SendMessage(m_Hwnd, EM_LINEFROMCHAR, -1, NULL);
 		//	POINT pt = {0};
 		//	pt.y = this->m_iFontSize * iLinePos;
-		//	SendMessage(this->m_Hwnd, EM_SETSCROLLPOS,NULL,(LPARAM)&pt);
+		//	SendMessage(m_Hwnd, EM_SETSCROLLPOS,NULL,(LPARAM)&pt);
 		//}
 	}
 	// xdid -V [NAME] [ID]
-	else if (flags[TEXT('V')]) {
-		SendMessage(this->m_Hwnd, EM_SCROLLCARET, NULL, NULL);
+	else if (flags[TEXT('V')])
+	{
+		SendMessage(m_Hwnd, EM_SCROLLCARET, NULL, NULL);
 	}
 	// xdid -y [NAME] [ID] [SWITCH] [0|1]
-	else if (flags[TEXT('y')] && numtok > 3) {
-		const int state = input.getnexttok( ).to_int();	// tok 4
+	else if (flags[TEXT('y')])
+	{
+		if (numtok < 4)
+			throw Dcx::dcxException("Insufficient parameters");
 
-		this->m_bIgnoreRepeat = (state > 0 ? TRUE : FALSE);
+		m_bIgnoreRepeat = (input.getnexttok().to_int() > 0);	// tok 4
 	}
-	// xdid -Z [NAME] [ID] [SWITCH] [NUMERATOR] [DENOMINATOR]
-	else if (flags[TEXT('Z')] && numtok > 4) {
-		const int num = input.getnexttok( ).to_int();	// tok 4
-		const int den = input.getnexttok( ).to_int();	// tok 5
+	// xdid -z [NAME] [ID] [SWITCH] [NUMERATOR] [DENOMINATOR]
+	else if (flags[TEXT('z')])
+	{
+		if (numtok < 5)
+			throw Dcx::dcxException("Insufficient parameters");
 
-		if (!SendMessage(this->m_Hwnd, EM_SETZOOM, (WPARAM) num, (LPARAM) den))
-			this->showError(NULL, TEXT("-Z"), TEXT("Richedit zooming error"));
+		const auto num = input.getnexttok().to_int();	// tok 4
+		const auto den = input.getnexttok().to_int();	// tok 5
+
+		if (!SendMessage(m_Hwnd, EM_SETZOOM, gsl::narrow_cast<WPARAM>(num), gsl::narrow_cast<LPARAM>(den)))
+			throw Dcx::dcxException("Richedit zooming error");
 	}
 	else
 		this->parseGlobalCommandRequest(input, flags);
@@ -479,31 +795,32 @@ void DcxRichEdit::parseCommandRequest(const TString &input) {
 *
 * blah
 */
-void DcxRichEdit::loadmIRCPalette() {
-	TString colors;
-	static const TCHAR com[] = TEXT("$color(0) $color(1) $color(2) $color(3) $color(4) $color(5) $color(6) $color(7) $color(8) $color(9) $color(10) $color(11) $color(12) $color(13) $color(14) $color(15)");
-	Dcx::mIRC.tsEval(colors, com);
-
-	const UINT len = colors.numtok( );
-
-	colors.getfirsttok( 0 );
-
-	for (UINT i = 0; i < len; i++)
-		this->m_aColorPalette[i] = (COLORREF)colors.getnexttok( ).to_num();	// tok i + 1
-}
+//void DcxRichEdit::loadmIRCPalette() {
+//	TString colors;
+//	static const TCHAR com[] = TEXT("$color(0) $color(1) $color(2) $color(3) $color(4) $color(5) $color(6) $color(7) $color(8) $color(9) $color(10) $color(11) $color(12) $color(13) $color(14) $color(15)");
+//	mIRCLinker::tsEval(colors, com);
+//
+//	const auto len = colors.numtok();
+//	if (len > Dcx::countof(m_aColorPalette))
+//		return;	// something went very wrong...
+//
+//	UINT i = 0;
+//	for (const auto &tmp: colors)
+//		m_aColorPalette[i++] = tmp.to_<COLORREF>();	// tok i + 1
+//}
 
 /*!
 * \brief blah
 *
 * blah
 */
-void DcxRichEdit::setContentsFont() {
-	CHARFORMAT2 chrf;
-	ZeroMemory(&chrf, sizeof(CHARFORMAT2));
+void DcxRichEdit::setContentsFont() noexcept
+{
+	CHARFORMAT2 chrf{};
 
 	chrf.cbSize = sizeof(CHARFORMAT2);
 	chrf.dwMask = CFM_BACKCOLOR | CFM_BOLD | CFM_COLOR | CFM_FACE | CFM_SIZE | CFM_ITALIC | CFM_UNDERLINE | CFM_STRIKEOUT | CFM_CHARSET;
-	chrf.yHeight = this->m_iFontSize;
+	chrf.yHeight = gsl::narrow_cast<LONG>(this->m_iFontSize);
 	chrf.crTextColor = this->m_clrText;
 	chrf.crBackColor = this->m_clrBackText;
 	chrf.bCharSet = this->m_byteCharset;
@@ -520,9 +837,10 @@ void DcxRichEdit::setContentsFont() {
 	if (this->m_bFontUnderline)
 		chrf.dwEffects |= CFE_UNDERLINE;
 
-	if (this->m_tsFontFaceName != TEXT("")) {
-		lstrcpyn(chrf.szFaceName, this->m_tsFontFaceName.to_chr(), 31);
-		chrf.szFaceName[31] = 0;
+	if (!this->m_tsFontFaceName.empty())
+	{
+		dcx_strcpyn(&chrf.szFaceName[0], this->m_tsFontFaceName.to_chr(), std::extent_v<decltype(chrf.szFaceName)>);
+		chrf.szFaceName[std::extent_v<decltype(chrf.szFaceName)> -1] = 0;
 	}
 
 	this->hideSelection(TRUE);
@@ -537,7 +855,8 @@ void DcxRichEdit::setContentsFont() {
 *
 * blah
 */
-void DcxRichEdit::clearContents() {
+void DcxRichEdit::clearContents() noexcept
+{
 	this->hideSelection(TRUE);
 	this->setSel(0, -1);
 	this->replaceSel(FALSE, TEXT(""));
@@ -551,119 +870,380 @@ void DcxRichEdit::clearContents() {
 *
 * blah
 */
-void DcxRichEdit::parseContents(const BOOL fNewLine) { // old function
-	this->m_bIgnoreInput = TRUE;
+void DcxRichEdit::parseContents(const BOOL fNewLine) noexcept
+{ // old function
+	this->m_bIgnoreInput = false;
 	this->setRedraw(FALSE);
 	this->clearContents();
 
-	TCHAR *text = this->m_tsText.to_chr();
+	//TCHAR *text = this->m_tsText.to_chr();
+	//
+	//bool uline = false;
+	//bool bline = false;
+	//COLORREF mcolor = 0;
+	//COLORREF bkgcolor = 0;
+	//
+	//bool bmcolor = true;
+	//bool bbkgcolor = false;
+	//
+	//TCHAR cbuf[2];
+	//TCHAR colbuf[3];
+	//cbuf[1] = TEXT('\0');
+	//colbuf[2] = TEXT('\0');
+	//
+	//for (int i = 0; text[i] != TEXT('\0'); i++)
+	//{
+	//	cbuf[0] = text[i];
+	//
+	//	//// if current TCHAR is a control code
+	//	//if (text[i] == 2 || text[i] == 3 || text[i] == 15 || text[i] == 22 || text[i] == 31) {
+	//	//	// CTRL+B Parsing
+	//	//	if (text[i] == 2)
+	//	//		bline = !(bline);
+	//	//
+	//	//	// CTRL+K Parsing
+	//	//	else if (text[i] == 3) {
+	//	//		if (text[i +1] >= TEXT('0') && text[i +1] <= TEXT('9')) {
+	//	//			colbuf[0] = text[i +1];
+	//	//			colbuf[1] = TEXT('\0');
+	//	//			++i;
+	//	//
+	//	//			if (text[i +1] >= TEXT('0') && text[i +1] <= TEXT('9')) {
+	//	//				colbuf[1] = text[i +1];
+	//	//				i++;
+	//	//			}
+	//	//
+	//	//			// color code number
+	//	//			bmcolor = true;
+	//	//			mcolor = this->m_aColorPalette[this->unfoldColor(colbuf)];
+	//	//
+	//	//			// maybe a background color
+	//	//			if (text[i+1] == TEXT(',')) {
+	//	//				++i;
+	//	//
+	//	//				if (text[i +1] >= TEXT('0') && text[i +1] <= TEXT('9')) {
+	//	//					colbuf[0] = text[i +1];
+	//	//					colbuf[1] = TEXT('\0');
+	//	//					i++;
+	//	//
+	//	//					if (text[i +1] >= TEXT('0') && text[i +1] <= TEXT('9')) {
+	//	//						colbuf[1] = text[i +1];
+	//	//						++i;
+	//	//					}
+	//	//
+	//	//					// color code number
+	//	//					bbkgcolor = true;
+	//	//					bkgcolor = this->m_aColorPalette[this->unfoldColor(colbuf)];
+	//	//				}
+	//	//			}
+	//	//		}
+	//	//		else {
+	//	//			bmcolor = false;
+	//	//			bbkgcolor = false;
+	//	//		}
+	//	//	}
+	//	//	// CTRL+O Parsing
+	//	//	else if (text[i] == 15) {
+	//	//		bline = false;
+	//	//		uline = false;
+	//	//		mcolor = CLR_INVALID;
+	//	//		bkgcolor = CLR_INVALID;
+	//	//	}
+	//	//	// CTRL+R Parsing
+	//	//	else if (text[i] == 22) {
+	//	//		bline = false;
+	//	//		uline = false;
+	//	//	}
+	//	//	// CTRL+U Parsing
+	//	//	else if (text[i] == 31) {
+	//	//		uline = !(uline);
+	//	//	}
+	//	//}
+	//	//// regular TCHAR
+	//	//else if (fNewLine && text[i] == TEXT('\r') && text[i +1] == TEXT('\n')) {
+	//	//	bline = false;
+	//	//	uline = false;
+	//	//	mcolor = CLR_INVALID;
+	//	//	bkgcolor = CLR_INVALID;
+	//	//
+	//	//	//cbuf[0] = text[i];
+	//	//	//this->insertText( cbuf, bline, uline, bmcolor, mcolor, bbkgcolor, bkgcolor, 0 );
+	//	//	++i;
+	//	//	cbuf[0] = text[i];
+	//	//	this->insertText(cbuf, bline, uline, bmcolor, mcolor, bbkgcolor, bkgcolor, 0);
+	//	//}
+	//	//else {
+	//	//	this->insertText(cbuf, bline, uline, bmcolor, mcolor, bbkgcolor, bkgcolor, 0);
+	//	//}
+//
+	//	switch (text[i])
+	//	{
+	//		// CTRL+B Parsing
+	//	case 2:
+	//		bline = !(bline);
+	//		break;
+	//		// CTRL+K Parsing
+	//	case 3:
+	//	{
+	//			  if (text[i + 1] >= TEXT('0') && text[i + 1] <= TEXT('9')) {
+	//				  colbuf[0] = text[i + 1];
+	//				  colbuf[1] = TEXT('\0');
+	//				  ++i;
+//
+	//				  if (text[i + 1] >= TEXT('0') && text[i + 1] <= TEXT('9')) {
+	//					  colbuf[1] = text[i + 1];
+	//					  i++;
+	//				  }
+//
+	//				  // color code number
+	//				  bmcolor = true;
+	//				  mcolor = this->m_aColorPalette[this->unfoldColor(colbuf)];
+//
+	//				  // maybe a background color
+	//				  if (text[i + 1] == TEXT(',')) {
+	//					  ++i;
+//
+	//					  if (text[i + 1] >= TEXT('0') && text[i + 1] <= TEXT('9')) {
+	//						  colbuf[0] = text[i + 1];
+	//						  colbuf[1] = TEXT('\0');
+	//						  i++;
+//
+	//						  if (text[i + 1] >= TEXT('0') && text[i + 1] <= TEXT('9')) {
+	//							  colbuf[1] = text[i + 1];
+	//							  ++i;
+	//						  }
+//
+	//						  // color code number
+	//						  bbkgcolor = true;
+	//						  bkgcolor = this->m_aColorPalette[this->unfoldColor(colbuf)];
+	//					  }
+	//				  }
+	//			  }
+	//			  else {
+	//				  bmcolor = false;
+	//				  bbkgcolor = false;
+	//			  }
+	//	}
+	//		break;
+	//		// CTRL+O Parsing
+	//	case 15:
+	//	{
+	//			   bline = false;
+	//			   uline = false;
+	//			   mcolor = CLR_INVALID;
+	//			   bkgcolor = CLR_INVALID;
+	//	}
+	//		break;
+	//		// CTRL+R Parsing
+	//	case 22:
+	//	{
+	//			   bline = false;
+	//			   uline = false;
+	//	}
+	//		break;
+	//		// CTRL+U Parsing
+	//	case 31:
+	//		uline = !(uline);
+	//		break;
+	//		// regular TCHAR
+	//	default:
+	//	{
+	//			   if (fNewLine && text[i] == TEXT('\r') && text[i + 1] == TEXT('\n'))
+	//			   {
+	//				   bline = false;
+	//				   uline = false;
+	//				   mcolor = CLR_INVALID;
+	//				   bkgcolor = CLR_INVALID;
+//
+	//				   ++i;
+	//				   cbuf[0] = TEXT('\n');
+	//			   }
+	//			   this->insertText(cbuf, bline, uline, bmcolor, mcolor, bbkgcolor, bkgcolor, 0);
+	//	}
+	//	}
+	//}
+	//this->setSel(0, 0);
+	//this->setRedraw(TRUE);
+	//this->redrawWindow();
+//
+	//this->m_bIgnoreInput = false;
+
+	this->parseStringContents(this->m_tsText, fNewLine);
+}
+
+[[gsl::suppress(bounds.3)]] void DcxRichEdit::parseStringContents(const TString& tsStr, const BOOL fNewLine) noexcept
+{
+	this->m_bIgnoreInput = true;
+	this->setRedraw(FALSE);
+
+	const auto text = tsStr.to_chr();
 
 	bool uline = false;
 	bool bline = false;
-	//int mcolor = -1;
-	//int bkgcolor = -1;
+	bool iline = false;
 	COLORREF mcolor = 0;
 	COLORREF bkgcolor = 0;
 
 	bool bmcolor = true;
 	bool bbkgcolor = false;
 
-	TCHAR cbuf[2];
-	TCHAR colbuf[3];
-	cbuf[1] = TEXT('\0');
-	colbuf[2] = TEXT('\0');
+	TCHAR cbuf[2] = { 0 };
 
-	for (int i = 0; text[i] != TEXT('\0'); i++)
+	for (auto i = 0U; text[i] != TEXT('\0'); ++i)
 	{
-		cbuf[0] = text[i];
-
-		// if current TCHAR is a control code
-		if (text[i] == 2 || text[i] == 3 || text[i] == 15 || text[i] == 22 || text[i] == 31) {
+		switch (text[i])
+		{
 			// CTRL+B Parsing
-			if (text[i] == 2)
-				bline = !(bline);
-
+		case 2:
+			bline = !(bline);
+			break;
 			// CTRL+K Parsing
-			else if (text[i] == 3) {
-				if (text[i +1] >= TEXT('0') && text[i +1] <= TEXT('9')) {
-					colbuf[0] = text[i +1];
-					colbuf[1] = TEXT('\0');
+		case 3:
+		{
+			//TCHAR colbuf[3] = { 0 };
+			//if (text[i + 1] >= TEXT('0') && text[i + 1] <= TEXT('9'))
+			//{
+			//	colbuf[0] = text[i + 1];
+			//	colbuf[1] = TEXT('\0');
+			//	++i;
+			//
+			//	if (text[i + 1] >= TEXT('0') && text[i + 1] <= TEXT('9'))
+			//	{
+			//		colbuf[1] = text[i + 1];
+			//		++i;
+			//	}
+			//
+			//	// color code number
+			//	bmcolor = true;
+			//	mcolor = this->m_aColorPalette[unfoldColor(&colbuf[0])];
+			//
+			//	// maybe a background color
+			//	if (text[i + 1] == TEXT(','))
+			//	{
+			//		++i;
+			//
+			//		if (text[i + 1] >= TEXT('0') && text[i + 1] <= TEXT('9'))
+			//		{
+			//			colbuf[0] = text[i + 1];
+			//			colbuf[1] = TEXT('\0');
+			//			++i;
+			//
+			//			if (text[i + 1] >= TEXT('0') && text[i + 1] <= TEXT('9'))
+			//			{
+			//				colbuf[1] = text[i + 1];
+			//				++i;
+			//			}
+			//
+			//			// color code number
+			//			bbkgcolor = true;
+			//			bkgcolor = this->m_aColorPalette[unfoldColor(&colbuf[0])];
+			//		}
+			//	}
+			//}
+			//else {
+			//	bmcolor = false;
+			//	bbkgcolor = false;
+			//}
+
+			if (text[i + 1] >= TEXT('0') && text[i + 1] <= TEXT('9'))
+			{
+				{
+					UINT umIRCColour = (text[i + 1] - L'0'); // must be => 0 <= 9
 					++i;
 
-					if (text[i +1] >= TEXT('0') && text[i +1] <= TEXT('9')) {
-						colbuf[1] = text[i +1];
-						i++;
+					if (text[i + 1] >= TEXT('0') && text[i + 1] <= TEXT('9'))
+					{
+						umIRCColour *= 10;	// becomes a max of 90
+						umIRCColour += (text[i + 1] - L'0');	// becomes a max of 99
+
+						++i;
 					}
 
 					// color code number
 					bmcolor = true;
-					mcolor = this->m_aColorPalette[this->unfoldColor(colbuf)];
+					mcolor = gsl::at(m_aColorPalette, umIRCColour);
+				}
 
-					// maybe a background color
-					if (text[i+1] == TEXT(',')) {
+				// maybe a background color
+				if (text[i + 1] == TEXT(','))
+				{
+					++i;
+
+					if (text[i + 1] >= TEXT('0') && text[i + 1] <= TEXT('9'))
+					{
+						UINT umIRCColour = (text[i + 1] - L'0'); // must be => 0 <= 9
 						++i;
 
-						if (text[i +1] >= TEXT('0') && text[i +1] <= TEXT('9')) {
-							colbuf[0] = text[i +1];
-							colbuf[1] = TEXT('\0');
-							i++;
-
-							if (text[i +1] >= TEXT('0') && text[i +1] <= TEXT('9')) {
-								colbuf[1] = text[i +1];
-								++i;
-							}
-
-							// color code number
-							bbkgcolor = true;
-							bkgcolor = this->m_aColorPalette[this->unfoldColor(colbuf)];
+						if (text[i + 1] >= TEXT('0') && text[i + 1] <= TEXT('9'))
+						{
+							umIRCColour *= 10;	// becomes a max of 90
+							umIRCColour += (text[i + 1] - L'0');	// becomes a max of 99
+							++i;
 						}
+
+						// color code number
+						bbkgcolor = true;
+						bkgcolor = gsl::at(m_aColorPalette, umIRCColour);
 					}
 				}
-				else {
-					bmcolor = false;
-					bbkgcolor = false;
-				}
 			}
-			// CTRL+O Parsing
-			else if (text[i] == 15) {
+			else {
+				bmcolor = false;
+				bbkgcolor = false;
+			}
+		}
+		break;
+		// CTRL+O Parsing
+		case 15:
+		{
+			bline = false;
+			uline = false;
+			iline = false;
+			mcolor = CLR_INVALID;
+			bkgcolor = CLR_INVALID;
+		}
+		break;
+		// CTRL+R Parsing
+		case 22:
+		{
+			bline = false;
+			uline = false;
+			iline = false;
+		}
+		break;
+		// CTRL+I Parsing
+		case 29:
+			iline = !(iline);
+			break;
+			// CTRL+U Parsing
+		case 31:
+			uline = !(uline);
+			break;
+			// regular TCHAR
+		default:
+		{
+			if (fNewLine && text[i] == TEXT('\r') && text[i + 1] == TEXT('\n'))
+			{
 				bline = false;
 				uline = false;
 				mcolor = CLR_INVALID;
 				bkgcolor = CLR_INVALID;
-			}
-			// CTRL+R Parsing
-			else if (text[i] == 22) {
-				bline = false;
-				uline = false;
-			}
-			// CTRL+U Parsing
-			else if (text[i] == 31) {
-				uline = !(uline);
-			}
-		}
-		// regular TCHAR
-		else if (fNewLine && text[i] == TEXT('\r') && text[i +1] == TEXT('\n')) {
-			bline = false;
-			uline = false;
-			mcolor = CLR_INVALID;
-			bkgcolor = CLR_INVALID;
 
-			//cbuf[0] = text[i];
-			//this->insertText( cbuf, bline, uline, bmcolor, mcolor, bbkgcolor, bkgcolor, 0 );
-			++i;
-			cbuf[0] = text[i];
-			this->insertText(cbuf, bline, uline, bmcolor, mcolor, bbkgcolor, bkgcolor, 0);
+				++i;
+				cbuf[0] = TEXT('\n');
+			}
+			else
+				cbuf[0] = text[i];
+
+			this->insertText(&cbuf[0], bline, uline, iline, bmcolor, mcolor, bbkgcolor, bkgcolor, 0);
 		}
-		else {
-			this->insertText(cbuf, bline, uline, bmcolor, mcolor, bbkgcolor, bkgcolor, 0);
 		}
 	}
-
 	this->setSel(0, 0);
 	this->setRedraw(TRUE);
 	this->redrawWindow();
 
-	this->m_bIgnoreInput = FALSE;
+	this->m_bIgnoreInput = false;
 }
 
 /*!
@@ -671,42 +1251,44 @@ void DcxRichEdit::parseContents(const BOOL fNewLine) { // old function
 *
 * blah
 */
-int DcxRichEdit::unfoldColor(const TCHAR *color) {
-	int nColor = dcx_atoi(color);
-
-	while (nColor > 15) {
-		nColor -=16;
-	}
-
-	return nColor;
-}
+//int DcxRichEdit::unfoldColor(const TCHAR *color) {
+//	auto nColor = dcx_atoi(color);
+//
+//	while (nColor > 15) {
+//		nColor -=16;
+//	}
+//
+//	return nColor;
+//}
 
 /*!
 * \brief blah
 *
 * blah
 */
-void DcxRichEdit::insertText(TCHAR *text, bool bline, bool uline, bool bcolor, COLORREF color, bool bbkgcolor, COLORREF bkgcolor, int reverse) {
+void DcxRichEdit::insertText(const TCHAR* const text, bool bline, bool uline, bool iline, bool bcolor, COLORREF color, bool bbkgcolor, COLORREF bkgcolor, int reverse) noexcept
+{
 	// get total length
-	int len = GetWindowTextLength(this->m_Hwnd);
+	auto len = GetWindowTextLength(m_Hwnd);
 	// get line TCHAR number from end TCHAR pos
-	const int line = Edit_LineIndex(this->m_Hwnd, Edit_LineFromChar(this->m_Hwnd, len -1));
+	const auto line = Edit_LineIndex(m_Hwnd, Edit_LineFromChar(m_Hwnd, len - 1));
 	// get line length
-	const int linelen = Edit_LineLength(this->m_Hwnd, line);
+	const auto linelen = Edit_LineLength(m_Hwnd, line);
 	// total length of insert point
 	len = line + linelen;
+
 	this->hideSelection(TRUE);
 	this->setSel(len, -1);
 	this->replaceSel(FALSE, text);
 	this->setSel(-1, 0);
 	this->hideSelection(FALSE);
-	CHARFORMAT2 chrf;
-	ZeroMemory(&chrf, sizeof(CHARFORMAT2));
+
+	CHARFORMAT2 chrf{};
 	chrf.cbSize = sizeof(CHARFORMAT2);
 	chrf.dwMask = CFM_BACKCOLOR | CFM_BOLD | CFM_COLOR | CFM_FACE | CFM_SIZE | CFM_ITALIC | CFM_UNDERLINE | CFM_STRIKEOUT | CFM_CHARSET;
-	chrf.yHeight = this->m_iFontSize;
-	chrf.crTextColor = this->m_clrText;
-	chrf.crBackColor = this->m_clrBackText;
+	chrf.yHeight = gsl::narrow_cast<LONG>(this->m_iFontSize);
+	chrf.crTextColor = this->getTextColor();
+	chrf.crBackColor = this->getBackColor();
 	chrf.bCharSet = this->m_byteCharset;
 
 	if (this->m_bFontBold)
@@ -721,17 +1303,19 @@ void DcxRichEdit::insertText(TCHAR *text, bool bline, bool uline, bool bcolor, C
 	if (this->m_bFontUnderline)
 		chrf.dwEffects |= CFE_UNDERLINE;
 
-	if (this->m_tsFontFaceName != TEXT(""))
-		lstrcpyn(chrf.szFaceName, this->m_tsFontFaceName.to_chr(), 32);
+	if (!this->m_tsFontFaceName.empty())
+		dcx_strcpyn(&chrf.szFaceName[0], this->m_tsFontFaceName.to_chr(), std::extent_v<decltype(chrf.szFaceName)>);
 
-	if (bcolor == true)
+	if (bcolor)
 		chrf.crTextColor = color;
-	if (bbkgcolor == true)
+	if (bbkgcolor)
 		chrf.crBackColor = bkgcolor;
-	if (bline == true)
+	if (bline)
 		chrf.dwEffects |= CFE_BOLD;
-	if (uline == true)
+	if (uline)
 		chrf.dwEffects |= CFE_UNDERLINE;
+	if (iline)
+		chrf.dwEffects |= CFE_ITALIC;
 
 	this->hideSelection(TRUE);
 	this->setSel(len, -1);
@@ -745,8 +1329,9 @@ void DcxRichEdit::insertText(TCHAR *text, bool bline, bool uline, bool bcolor, C
 *
 * blah
 */
-LRESULT DcxRichEdit::setAutoUrlDetect(const BOOL iEnable) {
-	return SendMessage(this->m_Hwnd, EM_AUTOURLDETECT, (WPARAM) iEnable, (LPARAM) 0);
+LRESULT DcxRichEdit::setAutoUrlDetect(const BOOL iEnable) noexcept
+{
+	return SendMessage(m_Hwnd, EM_AUTOURLDETECT, gsl::narrow_cast<WPARAM>(iEnable), gsl::narrow_cast<LPARAM>(0));
 }
 
 /*!
@@ -754,8 +1339,9 @@ LRESULT DcxRichEdit::setAutoUrlDetect(const BOOL iEnable) {
 *
 * blah
 */
-LRESULT DcxRichEdit::hideSelection(const BOOL iHide) {
-	return SendMessage(this->m_Hwnd, EM_HIDESELECTION, (WPARAM) iHide, (LPARAM) 0);
+LRESULT DcxRichEdit::hideSelection(const BOOL iHide) noexcept
+{
+	return SendMessage(m_Hwnd, EM_HIDESELECTION, gsl::narrow_cast<WPARAM>(iHide), gsl::narrow_cast<LPARAM>(0));
 }
 
 /*!
@@ -763,8 +1349,9 @@ LRESULT DcxRichEdit::hideSelection(const BOOL iHide) {
 *
 * blah
 */
-LRESULT DcxRichEdit::setSel(const int iStart, const int iEnd) {
-	return SendMessage(this->m_Hwnd, EM_SETSEL, (WPARAM) iStart, (LPARAM) iEnd);
+LRESULT DcxRichEdit::setSel(const int iStart, const int iEnd) noexcept
+{
+	return SendMessage(m_Hwnd, EM_SETSEL, gsl::narrow_cast<WPARAM>(iStart), gsl::narrow_cast<LPARAM>(iEnd));
 }
 
 /*!
@@ -772,8 +1359,9 @@ LRESULT DcxRichEdit::setSel(const int iStart, const int iEnd) {
 *
 * blah
 */
-LRESULT DcxRichEdit::replaceSel(const BOOL bUndo, LPCTSTR lpstr) {
-	return SendMessage(this->m_Hwnd, EM_REPLACESEL, (WPARAM) bUndo, (LPARAM) lpstr);
+LRESULT DcxRichEdit::replaceSel(const BOOL bUndo, LPCTSTR lpstr) noexcept
+{
+	return SendMessage(m_Hwnd, EM_REPLACESEL, gsl::narrow_cast<WPARAM>(bUndo), reinterpret_cast<LPARAM>(lpstr));
 }
 
 /*!
@@ -781,8 +1369,9 @@ LRESULT DcxRichEdit::replaceSel(const BOOL bUndo, LPCTSTR lpstr) {
 *
 * blah
 */
-LRESULT DcxRichEdit::getCharFormat(const UINT iType, CHARFORMAT2 *cfm) const {
-	return SendMessage(this->m_Hwnd, EM_GETCHARFORMAT, (WPARAM) iType, (LPARAM) cfm);
+LRESULT DcxRichEdit::getCharFormat(const UINT iType, const CHARFORMAT2* cfm) const noexcept
+{
+	return SendMessage(m_Hwnd, EM_GETCHARFORMAT, gsl::narrow_cast<WPARAM>(iType), reinterpret_cast<LPARAM>(cfm));
 }
 
 /*!
@@ -791,35 +1380,47 @@ LRESULT DcxRichEdit::getCharFormat(const UINT iType, CHARFORMAT2 *cfm) const {
 * blah
 */
 
-LRESULT DcxRichEdit::setCharFormat(const UINT iType, CHARFORMAT2 *cfm) {
-	return SendMessage(this->m_Hwnd, EM_SETCHARFORMAT, (WPARAM) iType, (LPARAM) cfm);
+LRESULT DcxRichEdit::setCharFormat(const UINT iType, const CHARFORMAT2* cfm) noexcept
+{
+	return SendMessage(m_Hwnd, EM_SETCHARFORMAT, gsl::narrow_cast<WPARAM>(iType), reinterpret_cast<LPARAM>(cfm));
 }
 
-void DcxRichEdit::toXml(TiXmlElement * xml) const {
+void DcxRichEdit::toXml(TiXmlElement* const xml) const
+{
 	__super::toXml(xml);
-	TiXmlText * text = new TiXmlText(this->m_tsText.c_str());
-	xml->LinkEndChild(text);
+
+	xml->SetAttribute("styles", getStyles().c_str());
+
+	xml->LinkEndChild(new TiXmlText(this->m_tsText.c_str()));
 }
 
-TString DcxRichEdit::getStyles(void) const {
-	TString styles(__super::getStyles());
-	const DWORD Styles = GetWindowStyle(this->m_Hwnd);
+TiXmlElement* DcxRichEdit::toXml(void) const
+{
+	auto xml = std::make_unique<TiXmlElement>("control");
+	toXml(xml.get());
+	return xml.release();
+}
 
-	if ((Styles & ES_MULTILINE) && (Styles & ES_WANTRETURN))
+const TString DcxRichEdit::getStyles(void) const
+{
+	auto styles(__super::getStyles());
+	const auto Styles = dcxGetWindowStyle(m_Hwnd);
+
+	if (dcx_testflag(Styles, ES_MULTILINE) && dcx_testflag(Styles, ES_WANTRETURN))
 		styles.addtok(TEXT("multi"));
-	if (Styles & ES_READONLY)
+	if (dcx_testflag(Styles, ES_READONLY))
 		styles.addtok(TEXT("readonly"));
-	if (Styles & ES_CENTER)
+	if (dcx_testflag(Styles, ES_CENTER))
 		styles.addtok(TEXT("center"));
-	if (Styles & ES_RIGHT)
+	if (dcx_testflag(Styles, ES_RIGHT))
 		styles.addtok(TEXT("right"));
-	if (Styles & ES_AUTOHSCROLL)
+	if (dcx_testflag(Styles, ES_AUTOHSCROLL))
 		styles.addtok(TEXT("autohs"));
-	if (Styles & WS_VSCROLL)
+	if (dcx_testflag(Styles, WS_VSCROLL))
 		styles.addtok(TEXT("vsbar"));
-	if (Styles & WS_HSCROLL)
+	if (dcx_testflag(Styles, WS_HSCROLL))
 		styles.addtok(TEXT("hsbar"));
-	if (Styles & ES_DISABLENOSCROLL)
+	if (dcx_testflag(Styles, ES_DISABLENOSCROLL))
 		styles.addtok(TEXT("disablescroll"));
 	return styles;
 }
@@ -829,175 +1430,217 @@ TString DcxRichEdit::getStyles(void) const {
 *
 * blah
 */
-LRESULT DcxRichEdit::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bParsed) {
-	switch (uMsg) {
-		case WM_NOTIFY:
-		{
-			LPNMHDR hdr = (LPNMHDR) lParam;
+LRESULT DcxRichEdit::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed)
+{
+	switch (uMsg)
+	{
+	case WM_NOTIFY:
+	{
+		dcxlParam(LPNMHDR, hdr);
 
-			if (!hdr)
+		if (!hdr)
+			break;
+
+		switch (hdr->code)
+		{
+		case EN_LINK:
+		{
+			if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
+			{
+				if (dcxlParam(ENLINK*, enl); (enl) && ((enl->msg == WM_LBUTTONDOWN) || (enl->msg == WM_LBUTTONDBLCLK) || (enl->msg == WM_RBUTTONDOWN)))
+				{
+					TEXTRANGE tr{};
+
+					// get information about link text
+					tr.chrg = enl->chrg;
+					const auto strlen = (enl->chrg.cpMax - enl->chrg.cpMin) + 1U;
+
+					auto str = std::make_unique<TCHAR[]>(strlen);
+
+					tr.lpstrText = str.get();
+					SendMessage(m_Hwnd, EM_GETTEXTRANGE, NULL, reinterpret_cast<LPARAM>(&tr));
+
+					TString tsEvent;
+					if (enl->msg == WM_LBUTTONDOWN)
+						tsEvent = TEXT("sclick");
+					else if (enl->msg == WM_LBUTTONDBLCLK)
+						tsEvent = TEXT("dclick");
+					else if (enl->msg == WM_RBUTTONDOWN)
+						tsEvent = TEXT("rclick");
+
+					this->execAliasEx(TEXT("link,%u,%s,%s"), getUserID(), tsEvent.to_chr(), tr.lpstrText);
+				}
+			}
+			break;
+		} // EN_LINK
+		//http://msdn.microsoft.com/library/default.asp?url=/library/en-us/shellcc/platform/commctls/richedit/richeditcontrols/richeditcontrolreference/richeditmessages/em_gettextrange.asp
+		case EN_SELCHANGE:
+		{
+			if (this->m_bIgnoreInput)
 				break;
 
-			switch(hdr->code) {
-				case EN_LINK:
+			if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_EDIT))
+			{
+				if (const auto* const sel = reinterpret_cast<SELCHANGE*>(lParam); (sel) && (sel->seltyp != SEL_EMPTY))
 				{
-					if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK) {
-						ENLINK* enl = (ENLINK*) lParam;
+					auto str = std::make_unique<TCHAR[]>((sel->chrg.cpMax - sel->chrg.cpMin) + 1U);
 
-						if ((enl->msg == WM_LBUTTONDOWN) ||
-							(enl->msg == WM_LBUTTONDBLCLK) ||
-							(enl->msg == WM_RBUTTONDOWN))
-						{
-							TEXTRANGE tr;
-							TString tsEvent;
+					TEXTRANGE tr{};
 
-							// get information about link text
-							ZeroMemory(&tr, sizeof(TEXTRANGE));
-							tr.chrg = enl->chrg;
-							const int strlen = enl->chrg.cpMax - enl->chrg.cpMin +1;
-							TCHAR *str = new TCHAR[strlen];
+					// get information about selected text
+					tr.chrg = sel->chrg;
+					tr.lpstrText = str.get();
+					SendMessage(m_Hwnd, EM_GETTEXTRANGE, NULL, reinterpret_cast<LPARAM>(&tr));
 
-							tr.lpstrText = str;
-							SendMessage(this->m_Hwnd, EM_GETTEXTRANGE, NULL, (LPARAM) &tr);
-
-							if (enl->msg == WM_LBUTTONDOWN)
-								tsEvent = TEXT("sclick");
-							else if (enl->msg == WM_LBUTTONDBLCLK)
-								tsEvent = TEXT("dclick");
-							else if (enl->msg == WM_RBUTTONDOWN)
-								tsEvent = TEXT("rclick");
-
-							this->execAliasEx(TEXT("%s,%d,%s,%s"), TEXT("link"), this->getUserID(), tsEvent.to_chr(), tr.lpstrText);
-							delete [] str;
-						}
-					}
-					break;
-				} // EN_LINK
-				//http://msdn.microsoft.com/library/default.asp?url=/library/en-us/shellcc/platform/commctls/richedit/richeditcontrols/richeditcontrolreference/richeditmessages/em_gettextrange.asp
-				case EN_SELCHANGE:
-				{
-					if (this->m_bIgnoreInput)
-						break;
-
-					if (this->m_pParentDialog->getEventMask() & DCX_EVENT_EDIT) {
-						SELCHANGE* sel = (SELCHANGE*) lParam;
-
-						if (sel->seltyp != SEL_EMPTY) {
-							TEXTRANGE tr;
-
-							// get information about selected text
-							ZeroMemory(&tr, sizeof(TEXTRANGE));
-							tr.chrg = sel->chrg;
-							TCHAR *str = new TCHAR[sel->chrg.cpMax - sel->chrg.cpMin +1];
-							tr.lpstrText = str;
-							SendMessage(this->m_Hwnd, EM_GETTEXTRANGE, NULL, (LPARAM) &tr);
-
-							this->execAliasEx(TEXT("%s,%d,%d,%d,%s"), TEXT("selchange"), this->getUserID(), sel->chrg.cpMin, sel->chrg.cpMax, tr.lpstrText);
-							delete [] str;
-						}
-					}
-					break;
-				} // EN_SELCHANGE
-			} // SWITCH 
-
+					this->execAliasEx(TEXT("selchange,%u,%d,%d,%s"), getUserID(), sel->chrg.cpMin, sel->chrg.cpMax, tr.lpstrText);
+				}
+			}
 			break;
-		} // WM_NOTIFY
+		} // EN_SELCHANGE
+		default:
+			break;
+		} // switch(hdr->code)
+
+		break;
+	} // WM_NOTIFY
+	default:
+		break;
+	}	// switch (uMsg)
+
+	return 0L;
+}
+
+LRESULT DcxRichEdit::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed)
+{
+	switch (uMsg)
+	{
+	case WM_KEYDOWN:
+	{
+		if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_EDIT))
+		{
+			if (wParam == VK_RETURN)
+				this->execAliasEx(TEXT("return,%u"), getUserID());
+
+			if ((this->m_bIgnoreRepeat) && (lParam & 0x40000000)) // ignore repeats
+				break;
+
+			this->execAliasEx(TEXT("keydown,%u,%d"), getUserID(), wParam);
+		}
+		break;
+	}
+	case WM_KEYUP:
+	{
+		if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_EDIT))
+			this->execAliasEx(TEXT("keyup,%u,%d"), getUserID(), wParam);
+		break;
+	}
+	//case WM_PAINT:
+	//	{
+	//		if (!this->IsAlphaBlend())
+	//			break;
+	//		PAINTSTRUCT ps;
+	//		HDC hdc;
+	//
+	//		hdc = BeginPaint( m_Hwnd, &ps );
+	//
+	//		LRESULT res = 0L;
+	//		bParsed = TRUE;
+	//
+	//		// Setup alpha blend if any.
+	//		LPALPHAINFO ai = this->SetupAlphaBlend(&hdc);
+	//
+	//		// fill background.
+	//		//DcxControl::DrawCtrlBackground(hdc,this,&ps.rcPaint);
+	//
+	//		res = CallWindowProc( this->m_DefaultWindowProc, m_Hwnd, uMsg, (WPARAM) hdc, lParam );
+	//		//res = CallWindowProc( this->m_DefaultWindowProc, m_Hwnd, WM_PRINT, (WPARAM) hdc, (LPARAM) (PRF_CLIENT|PRF_NONCLIENT|PRF_CHILDREN|PRF_OWNED) );
+	//
+	//		this->FinishAlphaBlend(ai);
+	//
+	//		EndPaint( m_Hwnd, &ps );
+	//		return res;
+	//	}
+	//	break;
+	//case WM_PRINT:
+	//	{
+	//		HDC hdc = (HDC)wParam;
+	//		bParsed = TRUE;
+	//
+	//		if (lParam & PRF_ERASEBKGND)
+	//			SendMessage(m_Hwnd, WM_ERASEBKGND, wParam, 0L);
+	//
+	//		if (lParam & PRF_CLIENT)
+	//			SendMessage(m_Hwnd, WM_PRINTCLIENT, wParam, 0L);
+	//
+	//	}
+	//	break;
+	//
+	//case WM_PRINTCLIENT:
+	//	{
+	//		HDC hdc = (HDC)wParam;
+	//		bParsed = TRUE;
+	//
+	//		HDC tHDC = GetDC(m_Hwnd);
+	//		BITMAP bm;
+	//		HBITMAP cBmp = (HBITMAP)GetCurrentObject(hdc, OBJ_BITMAP);
+	//
+	//		GetObject(cBmp, sizeof(BITMAP), &bm);
+	//
+	//		BitBlt(hdc,0,0,bm.bmWidth, bm.bmHeight, tHDC,0,0, SRCCOPY);
+	//
+	//		ReleaseDC(m_Hwnd, tHDC);
+	//	}
+	//	break;
+
+	case WM_DESTROY:
+	{
+		delete this;
+		bParsed = TRUE;
+		break;
+	}
+	default:
+		return this->CommonMessage(uMsg, wParam, lParam, bParsed);
+		break;
 	}
 
 	return 0L;
 }
 
-LRESULT DcxRichEdit::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bParsed) {
-	switch(uMsg) {
+bool DcxRichEdit::LoadRichTextFromXml(HWND hWnd, TString& tsFilename, const TString& tsDataSet)
+{
+	if (!IsFile(tsFilename))
+		throw Dcx::dcxException(TEXT("Unable To Access File: %"), tsFilename);
 
-		case WM_KEYDOWN:
-		{
-			if (this->m_pParentDialog->getEventMask() & DCX_EVENT_EDIT) {
-				if (wParam == VK_RETURN) {
-					this->execAliasEx(TEXT("%s,%d"), TEXT("return"), this->getUserID());
-				}
+	TiXmlDocument doc(tsFilename.c_str());
+	doc.SetCondenseWhiteSpace(false);
+	TString tsBuf;
 
-				if ((this->m_bIgnoreRepeat) && (lParam & 0x40000000)) // ignore repeats
-					break;
+	if (!doc.LoadFile())
+		throw Dcx::dcxException(TEXT("Not an XML File: %"), tsFilename);
 
-				this->execAliasEx(TEXT("%s,%d,%d:"), TEXT("keydown"), this->getUserID(), wParam);
-			}
-			break;
-		}
-		case WM_KEYUP:
-		{
-			if (this->m_pParentDialog->getEventMask() & DCX_EVENT_EDIT)
-				this->execAliasEx(TEXT("%s,%d,%d"), TEXT("keyup"), this->getUserID(), wParam);
-			break;
-		}
-		//case WM_PAINT:
-		//	{
-		//		if (!this->m_bAlphaBlend)
-		//			break;
-		//		PAINTSTRUCT ps;
-		//		HDC hdc;
+	const auto* const xRoot = doc.FirstChildElement("dcxml");
+	if (!xRoot)
+		throw Dcx::dcxException("Unable Find 'dcxml' root");
 
-		//		hdc = BeginPaint( this->m_Hwnd, &ps );
+	const auto* xElm = xRoot->FirstChildElement("richedit_data");
+	if (!xElm)
+		throw Dcx::dcxException("Unable To Find 'richedit_data' element");
 
-		//		LRESULT res = 0L;
-		//		bParsed = TRUE;
+	xElm = xElm->FirstChildElement(tsDataSet.c_str());
+	if (!xElm)
+		throw Dcx::dcxException(TEXT("Unable To Find Dataset: %"), tsDataSet);
 
-		//		// Setup alpha blend if any.
-		//		LPALPHAINFO ai = this->SetupAlphaBlend(&hdc);
+	//xElm->Value();
 
-		//		// fill background.
-		//		//DcxControl::DrawCtrlBackground(hdc,this,&ps.rcPaint);
+	// incomplete....
 
-		//		res = CallWindowProc( this->m_DefaultWindowProc, this->m_Hwnd, uMsg, (WPARAM) hdc, lParam );
-		//		//res = CallWindowProc( this->m_DefaultWindowProc, this->m_Hwnd, WM_PRINT, (WPARAM) hdc, (LPARAM) (PRF_CLIENT|PRF_NONCLIENT|PRF_CHILDREN|PRF_OWNED) );
+	return false;
+}
 
-		//		this->FinishAlphaBlend(ai);
+LRESULT DcxRichEdit::CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept
+{
+	if (m_hDefaultClassProc)
+		return CallWindowProc(m_hDefaultClassProc, this->m_Hwnd, uMsg, wParam, lParam);
 
-		//		EndPaint( this->m_Hwnd, &ps );
-		//		return res;
-		//	}
-		//	break;
-		//case WM_PRINT:
-		//	{
-		//		HDC hdc = (HDC)wParam;
-		//		bParsed = TRUE;
-
-		//		if (lParam & PRF_ERASEBKGND)
-		//			SendMessage(this->m_Hwnd, WM_ERASEBKGND, wParam, 0L);
-
-		//		if (lParam & PRF_CLIENT)
-		//			SendMessage(this->m_Hwnd, WM_PRINTCLIENT, wParam, 0L);
-
-		//	}
-		//	break;
-
-		//case WM_PRINTCLIENT:
-		//	{
-		//		HDC hdc = (HDC)wParam;
-		//		bParsed = TRUE;
-
-		//		HDC tHDC = GetDC(this->m_Hwnd);
-		//		BITMAP bm;
-		//		HBITMAP cBmp = (HBITMAP)GetCurrentObject(hdc, OBJ_BITMAP);
-
-		//		GetObject(cBmp, sizeof(BITMAP), &bm);
-
-		//		BitBlt(hdc,0,0,bm.bmWidth, bm.bmHeight, tHDC,0,0, SRCCOPY);
-
-		//		ReleaseDC(this->m_Hwnd, tHDC);
-		//	}
-		//	break;
-
-		case WM_DESTROY:
-		{
-			delete this;
-			bParsed = TRUE;
-			break;
-		}
-		default:
-			return this->CommonMessage( uMsg, wParam, lParam, bParsed);
-			break;
-	}
-
-	return 0L;
+	return DefWindowProc(this->m_Hwnd, uMsg, wParam, lParam);
 }

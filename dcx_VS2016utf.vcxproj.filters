@@ -82,6 +82,12 @@
     <Filter Include="Scripts">
       <UniqueIdentifier>{ada752be-a6f2-4db4-bfed-85022327a9a8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\GSL">
+      <UniqueIdentifier>{5707c8b1-8877-43e0-89bd-e0d398a37c19}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\DirectX">
+      <UniqueIdentifier>{d32befc0-4bc4-4e3c-b38e-0c1d5a7e05d0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Dcx.cpp">
@@ -267,9 +273,6 @@
     <ClCompile Include="Classes\xpopup\xpopupmenumanager.cpp">
       <Filter>Source Files\XPopup</Filter>
     </ClCompile>
-    <ClCompile Include="Classes\xpopup\xpopupmenuwindow.cpp">
-      <Filter>Source Files\XPopup</Filter>
-    </ClCompile>
     <ClCompile Include="Classes\UltraDock\dcxDock.cpp">
       <Filter>Source Files\UltraDock</Filter>
     </ClCompile>
@@ -309,20 +312,17 @@
     <ClCompile Include="DcxGDIModule.cpp">
       <Filter>Source Files\Modules</Filter>
     </ClCompile>
-    <ClCompile Include="DcxModule.cpp">
-      <Filter>Source Files\Modules</Filter>
-    </ClCompile>
     <ClCompile Include="DcxUXModule.cpp">
       <Filter>Source Files\Modules</Filter>
     </ClCompile>
-    <ClCompile Include="DcxXPPlusModule.cpp">
-      <Filter>Source Files\Modules</Filter>
+    <ClCompile Include="Classes\custom\ListHelper.cpp">
+      <Filter>Source Files\Controls\Custom</Filter>
+    </ClCompile>
+    <ClCompile Include="Classes\tstring\hashString.cpp">
+      <Filter>Source Files\TString</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="AggressiveOptimize.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Dcx.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -476,9 +476,6 @@
     <ClInclude Include="Classes\dcxwindow.h">
       <Filter>Header Files\General</Filter>
     </ClInclude>
-    <ClInclude Include="svnBuild.h">
-      <Filter>Header Files\General</Filter>
-    </ClInclude>
     <ClInclude Include="Classes\xpopup\xmenubar.h">
       <Filter>Header Files\XPopup</Filter>
     </ClInclude>
@@ -489,9 +486,6 @@
       <Filter>Header Files\XPopup</Filter>
     </ClInclude>
     <ClInclude Include="Classes\xpopup\xpopupmenumanager.h">
-      <Filter>Header Files\XPopup</Filter>
-    </ClInclude>
-    <ClInclude Include="Classes\xpopup\xpopupmenuwindow.h">
       <Filter>Header Files\XPopup</Filter>
     </ClInclude>
     <ClInclude Include="Classes\tinyxml\tinystr.h">
@@ -521,6 +515,75 @@
     <ClInclude Include="DcxUXModule.h">
       <Filter>Header Files\Modules</Filter>
     </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ColourString.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="AutoRelease.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SwitchObjects.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dcxExceptions.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Classes\custom\ListHelper.h">
+      <Filter>Header Files\Controls\Custom</Filter>
+    </ClInclude>
+    <ClInclude Include="simpleString.h">
+      <Filter>Header Files\TString</Filter>
+    </ClInclude>
+    <ClInclude Include="refString.h">
+      <Filter>Header Files\TString</Filter>
+    </ClInclude>
+    <ClInclude Include="Classes\tstring\hashString.h">
+      <Filter>Header Files\TString</Filter>
+    </ClInclude>
+    <ClInclude Include="Classes\tstring\string_support.h">
+      <Filter>Header Files\TString</Filter>
+    </ClInclude>
+    <ClInclude Include="GSL\multi_span">
+      <Filter>Header Files\GSL</Filter>
+    </ClInclude>
+    <ClInclude Include="GSL\gsl">
+      <Filter>Header Files\GSL</Filter>
+    </ClInclude>
+    <ClInclude Include="GSL\gsl_algorithm">
+      <Filter>Header Files\GSL</Filter>
+    </ClInclude>
+    <ClInclude Include="GSL\gsl_assert">
+      <Filter>Header Files\GSL</Filter>
+    </ClInclude>
+    <ClInclude Include="GSL\gsl_byte">
+      <Filter>Header Files\GSL</Filter>
+    </ClInclude>
+    <ClInclude Include="GSL\gsl_util">
+      <Filter>Header Files\GSL</Filter>
+    </ClInclude>
+    <ClInclude Include="GSL\span">
+      <Filter>Header Files\GSL</Filter>
+    </ClInclude>
+    <ClInclude Include="GSL\string_span">
+      <Filter>Header Files\GSL</Filter>
+    </ClInclude>
+    <ClInclude Include="Classes\WindowStyles.h">
+      <Filter>Header Files\General</Filter>
+    </ClInclude>
+    <ClInclude Include="GSL\pointers">
+      <Filter>Header Files\GSL</Filter>
+    </ClInclude>
+    <ClInclude Include="dxerr_nov2015\dxerr.h">
+      <Filter>Header Files\DirectX</Filter>
+    </ClInclude>
+    <ClInclude Include="EnumConcepts.h">
+      <Filter>Header Files\General</Filter>
+    </ClInclude>
+    <ClInclude Include="DcxConcepts.h">
+      <Filter>Header Files\General</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="dcx_zip\dcx.mrc">
@@ -535,14 +598,12 @@
     <None Include="dll.def">
       <Filter>Resource Files</Filter>
     </None>
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="svnTemplate.txt">
+    <None Include="cpp.hint">
       <Filter>Resource Files</Filter>
-    </Text>
-    <Text Include="TODO.txt">
-      <Filter>Resource Files</Filter>
-    </Text>
+    </None>
+    <None Include="gsl\span_ext">
+      <Filter>Header Files\GSL</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Xml Include="dcx_zip\dc.xml">
@@ -550,8 +611,21 @@
     </Xml>
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="DcxXPPlusModule.h">
-      <Filter>Header Files\Modules</Filter>
-    </CustomBuild>
+    <ResourceCompile Include="dcx.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="TODO.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="dcx_zip\license.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="GSL.natvis">
+      <Filter>Resource Files</Filter>
+    </Natvis>
   </ItemGroup>
 </Project>

@@ -26,12 +26,12 @@ class DcxDialog;
  * blah
  */
 
-typedef struct tagDCXTCITEM {
-
-  TString tsTipText;  //!< Tooltip Text
-  HWND mChildHwnd;    //!< Hwnd to child window
-
-} DCXTCITEM, * LPDCXTCITEM;
+struct DCXTCITEM
+{
+	TString		tsTipText;	//!< Tooltip Text
+	HWND		mChildHwnd{ nullptr };	//!< Hwnd to child window
+};
+using LPDCXTCITEM = DCXTCITEM *;
 
 /*!
  * \brief blah
@@ -39,39 +39,58 @@ typedef struct tagDCXTCITEM {
  * blah
  */
 
-class DcxTab : public DcxControl {
-
+class DcxTab final
+	: public DcxControl
+{
 public:
+	DcxTab() = delete;
+	DcxTab(const DcxTab &) = delete;
+	DcxTab &operator =(const DcxTab &) = delete;
+	DcxTab(DcxTab &&) = delete;
+	DcxTab &operator =(DcxTab &&) = delete;
 
-	DcxTab( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, const TString & styles );
-	virtual ~DcxTab( );
+	DcxTab(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles );
+	~DcxTab( ) noexcept;
 
-	LRESULT PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
-	LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
+	LRESULT OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) final;
+	LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) final;
 
-	void parseInfoRequest( const TString & input, TCHAR * szReturnValue ) const;
-	void parseCommandRequest( const TString & input );
-	void parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
+	//void parseInfoRequest(const TString & input, PTCHAR szReturnValue) const final;
+	void parseInfoRequest(const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const final;
+	void parseCommandRequest( const TString & input ) final;
+	dcxWindowStyles parseControlStyles(const TString & tsStyles) final;
 
-	HIMAGELIST getImageList( );
-	void setImageList( HIMAGELIST himl );
-	static HIMAGELIST createImageList( );
+	inline const TString getType() const final { return TEXT("tab"); };
+	inline const DcxControlTypes getControlType() const noexcept final { return DcxControlTypes::TABB; };
 
-	void deleteLParamInfo( const int nItem );
+	const TString getStyles(void) const final;
+	void toXml(TiXmlElement *const xml) const final;
+	TiXmlElement * toXml(void) const final;
+
+	static inline WNDPROC m_hDefaultClassProc{ nullptr };	//!< Default window procedure
+	LRESULT CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept final;
+
+	HIMAGELIST getImageList( ) const noexcept;
+	void setImageList( const HIMAGELIST himl ) noexcept;
+	//static HIMAGELIST createImageList( );
+
+	void deleteLParamInfo( const int nItem ) noexcept;
 	void activateSelectedTab( );
-	void getTab(const int index, LPTCITEM tcItem) const;
-	int getTabCount() const;
+	void getTab(const int index, const LPTCITEM tcItem) const noexcept;
+	int getTabCount() const noexcept;
 
-	inline TString getType( ) const { return TString( TEXT("tab") ); };
-	TString getStyles(void) const;
-	void toXml(TiXmlElement * xml) const;
-
+#if DCX_USE_GDIPLUS
+	void DrawGlow(const int32_t nTabIndex, HDC hDC, const RECT &rect) const;
+#endif
 
 protected:
-	static void GetCloseButtonRect(const RECT& rcItem, RECT& rcCloseButton);
+	//static void GetCloseButtonRect(const RECT& rcItem, RECT& rcCloseButton);
+	static RECT GetCloseButtonRect(const RECT& rcItem) noexcept;
+	int HitTestOnItem() const noexcept;
+	bool CloseButtonHitTest(const int iTab) const noexcept;
 
-	bool m_bClosable;	//!< Does tab have a close button.
-	bool m_bGradient;	//!< Does tab have a gradient fill. (only closeable)
+	bool m_bClosable{ false };	//!< Does tab have a close button.
+	bool m_bGradient{ false };	//!< Does tab have a gradient fill. (only closeable)
 };
 
 #endif // _DCXTAB_H_

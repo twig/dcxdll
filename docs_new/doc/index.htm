@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="iso-8859-1"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
 
-<title>DCX - Dialog Control Xtension DLL v1.4.1 by ClickHeRe, twig* &amp; Ook</title>
+<title>DCX - Dialog Control Xtension DLL v3.1 by ClickHeRe, twig* &amp; Ook</title>
 
 <link href="dcx.css" rel="stylesheet" type="text/css" />
 </head>
@@ -14,10 +15,10 @@
 		<td width="1%"><a href="index.htm"><img src="images/dcx.jpg" alt="DCX - Dialog Control Xtension" /></a></td>
 		<td width="99%" class="sitenav" style="vertical-align: middle; text-align: right; font-size:10pt;background:url(images/top_bg.jpg) left no-repeat;">
 			<a style="color:#000000;" href='index.htm'>Home</a> |
-			<a style="color:#000000;" href="archive.htm">Download</a> |
+			<a style="color:#000000;" href="https://github.com/twig/dcxdll/releases">Download</a> |
 			<a style="color:#000000;" href="http://dcx.scriptsdb.org/forum/">Forum</a> |
-			<a style="color:#000000;" href="http://dcx.scriptsdb.org/bug/">Bug Tracker</a><br />
-                        <div class="version">v1.4.1</div>
+			<a style="color:#000000;" href="https://github.com/twig/dcxdll/issues">Bug Tracker</a><br />
+                        <div class="version">v3.1</div>
 		</td>
 	</tr>
 </table>
@@ -65,9 +66,9 @@
 	<tr><td class="heading" style="border-color: #000000; color: #000000;"><a name="intro"></a>DCX</td></tr>
 	<tr><td>This DLL lets you add new controls to mIRC dialogs as well as change other features like the visual style, position etc...<br />
 
-<div class="divpink">DCX does not support mIRC controls (NOT EVEN mIRC TABS), nor anything related to mIRC normal dialogs except it's menus. DCX does not work like MDX so please read the manual and see dcx.mrc and dcx_tools.mrc for examples.</div>
+<div class="divpink">DCX does not support mIRC controls (NOT EVEN mIRC TABS), nor anything related to mIRC normal dialogs except it's menus. DCX does not work like MDX so please read the manual and see dcx_demo.mrc and dcx_tools.mrc for examples.</div>
 
-<div class="divpink" style="color: #0000ff; padding-top: 0px;">XPopup (special mIRC menus) need to be patched to work on mIRC v6.2! Custom menus still work normally.</div>
+<div class="divpink" style="color: #0000ff; padding-top: 0px;">DCX v3.1+ only works on mIRC v7+, Try & use the latest mIRC if possible (v7.57 at the time of writing)</div>
 
 The DLL creates the controls directly on the mIRC dialog and you use clone functions defined by /xdid and $xdid which behave like the regular /did
 and $did to interact with the controls.<br />
@@ -119,8 +120,617 @@ Well for one thing, mIRC events are linear and static in the way that you cannot
 	<tr><td class="heading" style="border-color: #979AB3; color: #979AB3;"><a name="general"></a>Latest Changes</td></tr>
 	<tr><td>If you notice any inconsistancies or errors with the documentation, please put a post on the forum on this <a href="http://dcx.scriptsdb.org/forum/showthread.php?tid=394">thread</a>!<br />
 <br />
-<a name="v1.4.1"></a><b>v1.4.1</b>
-<ol></ol>
+<a></a><b>v3.1</b>
+<ul><li><strong>New features</strong><ol>
+<li>general - changed /xdid &amp; $xdid() to support named id's</li>
+<li>comboex - $xdid(dname,id,0).text now works with dropdown style controls as well as dropedit ones.</li>
+<li>dialog - changed /xdialog -d to accept named id's</li>
+<li>box/pager - changed /xdid -d to support named id's</li>
+<li>dialog - changed /xdialog -j to handle named id's</li>
+<li>- changed /xdialog -q to allow setting different cursors for different parts of the dialog, border etc.. added support code for these new cursors.</li>
+<li>general - added /dcx SetDCXSettings command, atm this only has two options &quot;StaticColours&quot; &amp; &quot;UpdateColours&quot;</li>
+<li>- - StaticColours = /dcx SetDCXSettings StaticColours [1/0]</li>
+<li>- - - Enable/Disable static colours (faster drawing but doesn't update its self to changes in mIRC's colour scheme)</li>
+<li>- - UpdateColours = /dcx SetDCXSettings UpdateColours</li>
+<li>- - - Force dcx to update it' colour scheme even if using static colours.</li>
+<li>updown - changed /xdid -c to handle named id's</li>
+<li>webctrl - added $xdid().script to allow calling a script that returns a result.</li>
+<li>- var %result = $xdid(dname,id,scriptcommand).script</li>
+</ol></li>
+<li><strong>Syntax changes</strong><ol>
+</ol></li>
+<li><strong>Fixes and changes</strong><ol>
+<li>general - added help text to /xdid/$xdid/$dcx(GetTaskbarPos)/xdialog/$xdialog/xpop/$xpop/xpopup/$xpopup/$xmenubar</li>
+<li>- changed $dcx(Version) to show the compiled date/time too</li>
+<li>general - fixed bug in /xdid -Z where the SCROLLINFO mask wasn't set, causing GetScrollInfo() to always fail.</li>
+<li>divider - fixed bug in /xdid -l where controls were not being added correctly.</li>
+<li>dcxml - fixed bugs, should all work again</li>
+<li>dcxml - changed code to add richedit controls contents, so it now changes \c into ctrl-c &amp; \b into ctrl-b &amp; \r into ctrl-r, \u to ctrl-u, \i to ctrl-i, &amp; \o to ctrl-o, this should really be replaced with better utf loading.</li>
+</ol></li>
+<li><strong>DCX Project</strong><ol>
+<li>dcxml - changed richedit code to convert \c to ctrl-k, \b to ctrl-b, \r to ctrl-r, \u to ctrl-u, \i to ctrl-i, &amp; \o to ctrl-o</li>
+<li>general - changed some XXX::value's to be XXX_v instead.</li>
+<li>scripts - updated dc.xml, changed url's etc...</li>
+<li>- updated dcx_demo.mrc &amp; fixed some issues i had with it.</li>
+<li>panel - added check to /xdid -l to not enough args.</li>
+<li>dcxml - added DCXML_ID_OFFSET to use instead of just using 2000U</li>
+<li>- changed code to add richedit controls contents, so it now changes \c into ctrl-c &amp; \b into ctrl-b &amp; \r into ctrl-r, this should really be replaced with better utf loading.</li>
+<li>- fixed bug in registerId() where mIRC_ID_OFFSET wasn't being added.</li>
+<li>- fixed bug in parseId() where wrong id value was returned.</li>
+<li>general - fixed bug in /xdid -Z where the SCROLLINFO mask wasn't set, causing GetScrollInfo() to always fail.</li>
+<li>dialog - changed parseComControlRequestEX() to return the control id in the error message when a control can't be found.</li>
+<li>divider - fixed bug in /xdid -l where controls were not being added correctly.</li>
+<li>project - added build all command to source control.</li>
+<li>dcxml - fixed bug in parseControl() where m_sParenttype was used instead of m_sType.</li>
+<li>- fixed bug in parseControl() where m_iParentID was used when it should have been m_iID.</li>
+<li>- fixed bug in parseStyle()/parseIcons() where the results of Attribute() calls were not checked for nullptr.</li>
+<li>project - added $(PHPDir) macro, defaults to c:\php</li>
+<li>gsl - updated to latest version on git</li>
+<li>dcxdocs - added more details to change list.</li>
+<li>- added /xdid -a +wyz info to listview.</li>
+<li>directshow - changed getProperty() to take a refString object.</li>
+<li>- changed /xdid -v handling to use const vars.</li>
+<li>- changed /xdid -a handling to only check the InitWindowlessVMR() result when it was actually called.</li>
+<li>string_support - changed _ts_strcpyn() to only check bounds in debug build.</li>
+<li>xpopup - changed parseMPopup() to use hashing if enabled.</li>
+<li>- changed getMenuByHash()/getMenuByName()/getMenuByHandle() to be noexcept.</li>
+<li>dcxdocs - changed the renderer to the latest via the X-UA-Compatible meta.</li>
+<li>- changed some links to point at github</li>
+<li>- added directshow's author &amp; title properties.</li>
+<li>- added directshow's dshow event.</li>
+<li>- added note to treeview's /xdid -w command about -1 index.</li>
+<li>- added changes upto svn960</li>
+<li>- added directshow -v command</li>
+<li>- dded some files that were missing after transfer from svn</li>
+<li>- started work on updating the docs :)</li>
+<li>general - changed usage text for SetDCXSettings command.</li>
+<li>xpopup - fixed bug in /xpopup -c &amp; -d where faulty logic was used (oops)</li>
+<li>general - added some extra addtok() tests for debug build.</li>
+<li>- updated dev rel to 48</li>
+<li>- updated todo list.</li>
+<li>- removed some commented code.</li>
+<li>- changed updateParentCtrl()/getWindowPosition() to be noexcept</li>
+<li>- fixed some small errors in controlFactory()-&gt;DcxControlTypes::WINDOW code.</li>
+<li>calendar - changed where trim() is called in MCN_GETDAYSTATE code.</li>
+<li>listview - misc style changes.</li>
+<li>dcxml - changed where some vars are initialized.</li>
+<li>webctrl - changed CallScript() to initialize ready_state &amp; dispid vars</li>
+<li>general - updated version info.</li>
+<li>- misc style changes.</li>
+<li>- changed $dcx(Version) to show the compiled date/time too</li>
+<li>- changed eval()/tsEval()/iEval()/exec() to use the ts_XXX functions.</li>
+<li>- changed CopyToClipboard() to return a bool.</li>
+<li>- changed ParseLogfontToCommand() to use _ts_sprintf()</li>
+<li>- changed CreateGrayscaleIcon() to use Dcx::countof()</li>
+<li>- changed unfoldColor() to use _ts_atoi()</li>
+<li>- changed AddFileIcons() to only use wrappers when enabled.</li>
+<li>modules - disabled a compiler warning.</li>
+<li>- changed some constructors to clear vars for us.</li>
+<li>string support - reworked isInBounds()</li>
+<li>xpopups - changed /xmenubar -s to take an unsigned id.</li>
+<li>- added XPMC_MIN/XPMC_MAX to colour selection enum.</li>
+<li>- explicitly added XPMS_VERTICAL &amp; XPMS_VERTICAL_REV to DrawItemBackground()</li>
+<li>- changed DrawItemSelection()/DrawItemCheckBox()/DrawItemText()/DrawItemIcon()/DrawItemSubArrow()/DrawGradient()/DrawVerticalBar() to take bool arguments instead of BOOL</li>
+<li>- explicitly added XPMS_GRADE/XPMS_GRADE_REV/XPMS_CUSTOM/XPMS_CUSTOMBIG/XPMS_VERTICAL/XPMS_VERTICAL_REV to DrawItemSeparator()</li>
+<li>- changed parseIdentifier() to use hashing if enabled.</li>
+<li>- added support for XPMS_BUTTON &amp; XPMS_CUSTOMBIG to $xpop().style</li>
+<li>- added getMenuByHash() to lookup a menu based on the names hash.</li>
+<li>- changed getMenuByName() to call getMenuByHash() if hashing enabled.</li>
+<li>- changed XPopupMenuManager() default constructor to clear everything for us again.</li>
+<li>cla - changed LayoutCell::setBorder(const UINT nBorder) -&gt; LayoutCell::setBorder(const int &amp;nBorder)</li>
+<li>- changed LayoutCell::setBorder(const int &amp;nBorder) to just call LayoutCell::setBorder(const RECT &amp;rc)</li>
+<li>- misc style changes.</li>
+<li>xdock - changed signals formatted string to use %u instead of %d</li>
+<li>- improved the statusbar drawing code a little.</li>
+<li>dcxml - changed /dcxml to use hashing if enabled.</li>
+<li>- changed /dcxml to properly check the results of FirstChildElement() for a nullptr result.</li>
+<li>trayicon - changed signals to use %u in the formatting string instead of %d</li>
+<li>general - updated the dates</li>
+<li>- changed $dcx(GetSystemColor)/$dcx(ActiveWindow)/$xpop/xpop to use hashing if enabled.</li>
+<li>- fixed bug in /xSignal where trim() was used in the wrong place.</li>
+<li>- fixed bug in $dcx(ActiveWindow) where cbSize wasn't being set.</li>
+<li>- changed mIRCSubClassWinProc()-&gt;WM_SIZE to return unsigned numbers.</li>
+<li>gsl - updated to latest.</li>
+<li>general - removed is_Numeric struct as this is now in the string_support header.</li>
+<li>- added deleted functions to structs</li>
+<li>- added dcxNumber struct for testing. (dont use)</li>
+<li>trayicon - changed modifyIcon() to use Dcx::countof() instead of a fixed size</li>
+<li>listhelper - changed matchItemText() to avoid needing a static_cast</li>
+<li>richedit - got rid of some warnings.</li>
+<li>divider - added some casts.</li>
+<li>dialogcollection - changed the default constructor as = default wasn't initializing things.</li>
+<li>xdock - changed $xdock to use string hashing.</li>
+<li>- added some static_cast's</li>
+<li>tstring - moved all string support functions to a new header string_support.h</li>
+<li>- updated macros to use support functions where possible.</li>
+<li>- fixed small bug in puttok()</li>
+<li>gsl - updated again...</li>
+<li>box - improved how the enable/disable button is added.</li>
+<li>treeview - changed insertItem() to take a reference instead of a pointer.</li>
+<li>- changed matchItemText() to use DcxListHelper::matchItemText()</li>
+<li>- changed parsePath() to take a reference TString object instead of a pointer.</li>
+<li>general - added some static_cast's</li>
+<li>- added TiXmlElement *toXml()</li>
+<li>- changed toXml() to properly save the control styles too.</li>
+<li>- added DcxIconSizes enum to set standard easy to read icon sizes.</li>
+<li>- added NumToIconSize() helper function to allow easy conversion of any number to the enum DcxIconSizes</li>
+<li>refString - added __assume() usage to most operators to tell the compiler that m_data will never be null</li>
+<li>- misc style changes</li>
+<li>simpleString - misc style changes.</li>
+<li>gsl - updated to latest version.</li>
+<li>hashString - corrected comments.</li>
+<li>tinyxml - changed TiXmlDocument::LoadFile() to use unique_ptr.</li>
+<li>xdock - changed how InitUltraDock() initializes g_clrTreebarColours</li>
+<li>- changed $xdock().dockSide to only use one strcpy call.</li>
+<li>misc - changed isRegexMatch() to use a static_cast()</li>
+<li>- changed ParseCommandToLogfont() to use countof(lf-&gt;lfFaceName)</li>
+<li>- changed SystemTimeToMircTime() to correctly pass unsigned args to evalex()</li>
+<li>gsl - more updates...</li>
+<li>general - improved the testing a little in the debug Version command</li>
+<li>xstatusbar - changed $xstatusbar() to use string hashing if enabled.</li>
+<li>xtreebar - changed $xtreebar() to use string hashing if enabled.</li>
+<li>listview - changed xmlSetItem() to use make_unique()</li>
+<li>dcxml - changed parseItems() to avoid some errors in static checking.</li>
+<li>tinyxml - fixed some warnings in static checking.</li>
+<li>gsl - defined GSL_THROW_ON_CONTRACT_VIOLATION</li>
+<li>general - improved the testing done in the debug $dcx(Version) command.</li>
+<li>- changed $xdid(BrowseDialog) to use string hashing when enabled.</li>
+<li>- changed $xdid(FontDialog) to throw an error when GetObject() fails.</li>
+<li>- changed $xdid(Version) to have a debug &amp; non-debug version.</li>
+<li>- changed readFile()/SaveDataToFile() to only use wrappers when enabled.</li>
+<li>xpopup - added m_clrLightBox to menu colours, this is simply the result of LightenColor(200, m_clrBox) to save us doing the calculation all the time.</li>
+<li>- improved the flow of DrawItem() a little.</li>
+<li>- changed DrawItemCheckBox() to reset pen after drawing.</li>
+<li>- improved the image draw quality for bitmaps in the menus.</li>
+<li>- changed /xpopup -c/-d/-i/-l/-p/-s/-t/-x/-R to throw an error if the number of args is wrong or an invalid menu name is used.</li>
+<li>general - changed is_Numeric to use std::integral_constant</li>
+<li>- added is_Numeric_v shortcut for is_Numeric::value</li>
+<li>- deleted older GSL files &amp; changed to new ones without .h</li>
+<li>[controls][dialog] - changed all controls to use one CallDefaultProc() function defined in DcxWindow class.</li>
+<li>dialog - changed /xdialog -l/-t to use string hashing if enabled.</li>
+<li>- improved image quality when drawing a bitmapped dialog background.</li>
+<li>directshow - changed /xdid -c to use string hashing if enabled.</li>
+<li>listview - changed constructor to use AddStyles()</li>
+<li>- changed /xdid -W to use string hashing if enabled.</li>
+<li>- changed setHeaderStyle() to use string hashing if enabled.</li>
+<li>- changed isListViewStyle() to be noexcept</li>
+<li>- changed sortItemsEx() to use ts_strcmp()</li>
+<li>[panel][box] - changed /xdid -l to use string hashing if enabled.</li>
+<li>tab - changed /xdid -w to only use wrappers if DCX_USE_WRAPPERS is defined.</li>
+<li>webctrl - added SafeReleaseCom() function to help release com pointers.</li>
+<li>general - changed dcxLoadIcon() to throw an exception if the -P flag is used when the dll has been compiled without GDI+</li>
+<li>- added hashing versions of various functions.</li>
+<li>xpopup - changed menu constructor to hash the menu name allowing this hash to be used for all compares (big speed up :)</li>
+<li>general - added quotes to source control to allow it to work with paths containing spaces.</li>
+<li>- changed all dcx_hash(TString.to_chr()) calls to be std:hash&lt;TString&gt;{}(TString) calls as the std::hash overload uses the TString objects built in strlen function.</li>
+<li>xswitchflags - +1 not needed</li>
+<li>general - changed dcxHDCBitmap2Resource.getBitMap() to return a HBITMAP instead of HBITMAP &amp;</li>
+<li>- changed SystemTimeToMircTime() to use a stString</li>
+<li>webctrl - changed /xdid -m to use the dcxVariant wrapper when enabled.</li>
+<li>xswitchflags - changed to use a 64bit bitmask where each bit maps to a char.</li>
+<li>general - added include cguid.h for webctrl</li>
+<li>webctrl - added CallScript() function to handle all calls to scripts in the html.</li>
+<li>- changed the script calling method to use eval() instead of execScript</li>
+<li>- added $xdid().script to allow calling a script that returns a result.</li>
+<li>general - added dcxVariant wrapper for VARIANT that calls VariantInit()/VariantClear() for us.</li>
+<li>- updated README.md</li>
+<li>- bumped dev build to 46.</li>
+<li>dcxml - changed the _ts_strncmp(...,16) calls to be _ts_strcmp()</li>
+<li>- changed all lstrcmpA() calls to be _ts_strcmp()</li>
+<li>- added string hash versions of most repetitive string compares.</li>
+<li>- fixed bug in parseItems() which incorrectly handled list controls &amp; caused all following controls to not be handled correctly.</li>
+<li>- changed parseTemplate() to get attribute &quot;name&quot; before the loop.</li>
+<li>controls - changed parseInfoRequest() to take a refString szReturnValue.</li>
+<li>- added string hash versions of most repetitive string compares.</li>
+<li>general - changed mark command to use a refString for the return value.</li>
+<li>- disabled switch objects</li>
+<li>refString - changed [] operator to use ptrdiff_t</li>
+<li>general - changed /dcx setDCXSettings to use std::hash overload for TString.</li>
+<li>- changed $dcx(ColorDialog) to use a bool for retDefault, &amp; to use std::hash overload for TString.</li>
+<li>- updated VisualCppTools beta in use.</li>
+<li>- updated sourcecontrol project files...</li>
+<li>tstring - added _ts_strcmp() function</li>
+<li>xtreebar - changed /xtreebar -w to only use wrappers when enabled via DCX_USE_WRAPPERS define.</li>
+<li>- changed $xtreebar().item to use stString</li>
+<li>mirclinker - changed isAlias() to take a TString arg, changed the code which calls this to reflect the change.</li>
+<li>general - added solution files for VS2015</li>
+<li>- added TODO.txt</li>
+<li>general - changed all const_hash() calls to dcx_hash()</li>
+<li>hashString - added std::hash for TString, const char *, &amp; const wchar_t *</li>
+<li>- added crc32_helper() constexpr function, this function handles all compile time crc32 generation</li>
+<li>- added a wchar_t version of crc32_helper()</li>
+<li>- removed a lot of unused commented code.</li>
+<li>- added crc32_1byte() to handle all non-compile time crc32 generation.</li>
+<li>- added dcx_hash() function templates that simply call crc32_1byte()</li>
+<li>dcxml - changed parseCLA() to use string hashing when enabled.</li>
+<li>general - changed code to use std::max() &amp; std::min() instead of the macros, macros are undefined now.</li>
+<li>dcxml - changed parseAttributes() to use _ts_strncmp()</li>
+<li>refstring - changed empty() to check for a nullptr too</li>
+<li>- changed clear() to check if string is empty() before clearing.</li>
+<li>stacker/statusbar/tab/toolbar/trackbar/updown - changed parseControlStyles() to use string hashing if enabled.</li>
+<li>dcxml - changed /dcxml -p/parseControl()/parseDialog() to use string hashing if enabled.</li>
+<li>- renamed g_resetcla to g_bResetCLA &amp; made it a bool.</li>
+<li>- fixed bug in parseDialog() handling box type twice.</li>
+<li>refstring/simplestring - changed static_assert for type to remove const'ness first.</li>
+<li>pager/progressbar/richedit - changed parseControlStyles() to use string hashing if enabled.</li>
+<li>mwindow/pager/panel/progressbar/rebar/richedit/statusbar/tab/toolbar/trackbar - misc style changes</li>
+<li>progressbar - changed DrawClientArea() to use Auto()</li>
+<li>rebar - changed to use the DcxWindow::createImageList()</li>
+<li>richedit - changed constructor to initialize m_bIgnore... vars</li>
+<li>- changed the m_bIgnore... vars to be bool</li>
+<li>stacker - changed how m_vImageList is initialized.</li>
+<li>- changed $xdid().haschild/childid to only need a single string copy.</li>
+<li>- changed to use Gdiplus::</li>
+<li>statusbar - changed the constructor to initialize m_vParts.</li>
+<li>- changed deletePartInfo() to use eraseIfFound()</li>
+<li>- changed /xdid -w to use dcxIconResource if enabled.</li>
+<li>- changed to use DcxWindow::createImageList()</li>
+<li>- changed setPartInfo() to use gsl::owner.</li>
+<li>- changed getRect() to use gsl::not_null</li>
+<li>- changed getIcon() to return HICON</li>
+<li>tab - changed to use DcxWindow::createImageList()</li>
+<li>toolbar - changed /xdid -a to use TSTABCHAR</li>
+<li>- changed to use dcxException's</li>
+<li>- changed /xdid -w to use dcxIconResource if enabled.</li>
+<li>trackbar - changed DrawTrackBarPart() to use dcxHDCBitmapResource if enabled.</li>
+<li>button/calendar/comboex/datetime - change parseControlStyles() to use string hashing if enabled.</li>
+<li>calender - changed how m_MonthDayStates() is initialized.</li>
+<li>- changed /xdid -r to use to_&lt;long&gt;() instead of to_num()</li>
+<li>- changed MCN_GETDAYSTATE to use evalAliasT() &amp; TSCOMMACHAR</li>
+<li>colorcombo/divider/ipaddress - misc style changes.</li>
+<li>comboex - changed how m_tsSelected is initialized.</li>
+<li>- changed class to use DcxListHelper.</li>
+<li>directshow - changed /xdid -a to set m_bLoop directly instead of using an if/else</li>
+<li>- changed how /xdid -v set stores the values.</li>
+<li>- changed getProperty() to use %ws with _snwprintf() instead of %lS</li>
+<li>listview - changed parseListviewExStyles() to use string hashing when enabled.</li>
+<li>dialog - misc style changes</li>
+<li>- added parseInfoRequest2() as a temp measure till everythings fixed to take the refString arg (parseInfoRequest() now just calls this)</li>
+<li>- added evalAliasT() as future replacements for evalAlias() &amp; evalAliasEx() (work in progress)</li>
+<li>- changed to use Gdiplus::</li>
+<li>- changed var namedIds to m_NamedIds</li>
+<li>- changed var m_bDoGhostDrag to m_uGhostDragAlpha</li>
+<li>- added i_showError() to show error msg's, this may be removed/changed soon</li>
+<li>- changed parseBorderStyles()/parseBkgFlags()/parseFlashFlags()/parseTooltipFlags()/PreMultiply() to be noexcept</li>
+<li>- changed deleteControl() to use eraseIfFound()</li>
+<li>- changed /xdialog -x to not need a string any more.</li>
+<li>- changed /xdialog -z to use Dcx::find()</li>
+<li>- fixed bug in /xdialog -R where m_Region was checked for != nullptr when it should have been == nullptr</li>
+<li>- changed a lot of execAliasEx() calls to execAlias()</li>
+<li>- changed WM_DROPFILES/DrawCaret() to use stString</li>
+<li>- changed DrawDialog()/DrawCtrl() to use dcxHDCBitmap2Resource when enabled.</li>
+<li>- changed UnregisterDragList() to use eraseIfFound()</li>
+<li>- changed toXml() to do some nullptr checks.</li>
+<li>webctrl - changed SafeRelease() to be noexcept</li>
+<li>- changed constructor to make sure everything is initialized correctly.</li>
+<li>- changed constructor to use Auto()</li>
+<li>- changed constructor to use dcxBSTRResource when enabled.</li>
+<li>- commented out call to SafeRelease() in destructor as this was causing a double release exception &amp; crash when some versions of IE were used. (this still needs investigated further)</li>
+<li>- changed all BSTR allocations to use dcxBSTRResource instead, when enabled.</li>
+<li>- changed Invoke() to use Auto()</li>
+<li>- changed DISPID_BEFORENAVIGATE2/DISPID_NEWWINDOW2 to use stString</li>
+<li>treeview - changed to use Gdiplus::</li>
+<li>- changed /xdid -Q/insertItem() to use dcx_testflag() to directly set the stored value.</li>
+<li>- changed sortItemEx() to use stString</li>
+<li>- fixed bug in NM_CLICK caused by the inappropriate use of dcx_testflag()</li>
+<li>- changed CDDS_ITEMPAINT to use CLR_INVALID instead of -1</li>
+<li>window - added createImageList() for use by all controls, should be used to replace control specific versions where possible.</li>
+<li>cla - misc style changes.</li>
+<li>- changed LayoutManager class to use = default constructor/destructor.</li>
+<li>- changed LayoutManager::setRoot() to use gsl::owner</li>
+<li>- changed LayoutManager::getRoot() to be noexcept</li>
+<li>- changed LayoutManager::AddCell() to use unique_ptr.</li>
+<li>- reworked some of the logic in AddCell() to be a bit simpler.</li>
+<li>- changed LayoutCellPane::addChild() to LayoutCell * addChild(gsl::owner&lt;gsl::not_null&lt;LayoutCell *&gt;&gt; p_Cell, const UINT nWeight)</li>
+<li>- changed LayoutCell::getType()/getClientRect()/getBorder()/getFirstChild()/getParent()/getNextSibling() to be noexcept</li>
+<li>simpleString - changed default constructor as static analysis complains about uninitialized memory.</li>
+<li>hashString - trying various different hashing methods...</li>
+<li>general - changed ColorDialog()/MsgBox() to use string hashing when enabled.</li>
+<li>[text][radio][list][line][edit][check][box] - changed parseControlStyles() to use string hashing when enabled.</li>
+<li>general - misc style changes.</li>
+<li>check - changed DrawClientArea() to use Auto()</li>
+<li>box - changed $xdid().inbox to use Auto()</li>
+<li>- added a check to toXml() for m_pLayoutManager being nullptr</li>
+<li>- changed some TCHAR buffers to be stString's</li>
+<li>general - misc style changes.</li>
+<li>link - changed /xdid -l a little.</li>
+<li>- changed how the constructor initializes the vars.</li>
+<li>line - changed DrawClientArea() to use Auto()</li>
+<li>image - changed to use Gdiplus::</li>
+<li>- changed DrawBMPImage() to use Auto()</li>
+<li>- changed DrawBMPImage() to use resource wrappers when enabled.</li>
+<li>- changed DrawClientArea() to use Auto()</li>
+<li>edit - changed /xdid -S to initialise iend to istart.</li>
+<li>- changed some TCHAR buffers to be stString's</li>
+<li>listhelper - changed matchItemText() to take a refString arg.</li>
+<li>list - changed matchItemText() to make sure the buffer was at least MIRC_BUFFER_SIZE_CCH in size.</li>
+<li>listview - misc style changes.</li>
+<li>- changed to use ListHelper.</li>
+<li>- changed parseControlStyles() to use hashing when enabled.</li>
+<li>- changed $xdid().sel to use TSCOMMACHAR</li>
+<li>- fixed a bug in $xdid().mouseitem where dcx_testflag() was used inappropriately.</li>
+<li>- changed /xdid -a to use TSTABCHAR</li>
+<li>- changed /xdid -k to use TSCOMMACHAR</li>
+<li>- added a check to /xdid -W for index being &gt; 0</li>
+<li>- changed how NM_HOVER is reported.</li>
+<li>- changed some TCHAR buffers to be stString instead.</li>
+<li>- changed how LVN_ITEMCHANGED is reported. (still testing)</li>
+<li>- changed NM_RCLICK to be a little simpler.</li>
+<li>- changed CreatePbar() to use _ts_sprintf()</li>
+<li>[scroll][radio][list] - misc style changes.</li>
+<li>radio - changed DrawClientArea() to use Auto()</li>
+<li>list - changed class to use ListHelper</li>
+<li>- changed /xdid -c/-m to use TSCOMMACHAR</li>
+<li>- changed ParentMessage() for drag &amp; drop to use stString</li>
+<li>- changed UpdateHorizExtent() to use Auto()</li>
+<li>text - changed DrawClientArea() to use Auto()</li>
+<li>- changed protected class data to private</li>
+<li>tinyxml - misc changes.</li>
+<li>xpopup - changed XPopupMenuWindow/XPopupMenuManager class to use default constructor/destructor.</li>
+<li>- changed parseIdentifier()/parseXPopIdentifier()/parseXMenuBarInfo() to take a const &amp;refString&lt;TCHAR, MIRC_BUFFER_SIZE_CCH&gt; arg.</li>
+<li>- changed isPatched() to be a constexpr</li>
+<li>- changed parseTrackFlags() to be noexcept.</li>
+<li>- changed parseIdentifier() case 5 to use stString&lt;MIRC_BUFFER_SIZE_CCH&gt; instead of a TString.</li>
+<li>- changed deleteMenu()/deleteMenuItemData()/removeFromMenuBar() to use eraseIfFound()</li>
+<li>- changed LightenColor()/DarkenColor() to be noexcept.</li>
+<li>dcx - added make_bstr()/dcxBSTR_t/dcxBSTRResource to handle BSTR resources.</li>
+<li>- added make_filehandle()/dcxHandle_t/dcxFileHandleResource to handle HANDLE resources for files.</li>
+<li>- changed DcxResource to be constexpr</li>
+<li>- added dcxStringResource for testing, don't expect to use it.</li>
+<li>- added dcxHDCBitmap2Resource which handles an HDC &amp; Bitmap resource pair.</li>
+<li>- changed dcxHDCBuffer to use dcxHDCBitmap2Resource instead of dcxHDCResource.</li>
+<li>- removed isFile()</li>
+<li>- changed mark() to take a const &amp;refString&lt;TCHAR, MIRC_BUFFER_SIZE_CCH&gt; arg instead of a TCHAR *const.</li>
+<li>- added Dcx::setting_bStaticColours</li>
+<li>- changed Dcx::error() to use _ts_sprintf()</li>
+<li>- changed mark() to directly call SetVerbose() with the result of evalAliasEx()</li>
+<li>modules - changed DcxModule::load() to be a pure virtual.</li>
+<li>- changed the DcxModule, DcxGDIModule, DcxUXModule constructors to be = default</li>
+<li>shelldialogs - changed dcxPickIconDlg() to take a const reference</li>
+<li>- changed $dcx(PickIcon) to use stString&lt;MAX_PATH +1&gt; sIconPath.</li>
+<li>- changed FileDialog() to use an allocated make_unique() buffer.</li>
+<li>- changed FileDialog() to use string hashing when enabled.</li>
+<li>- changed FileDialog() to use _ts_strlen() instead of lstrlen()</li>
+<li>- changed BrowseDialog() to use TSTABCHAR</li>
+<li>controls - removed showErrorEx() &amp; replaced it with a showError() template</li>
+<li>- added m_UserID var to contain ID - mIRC_ID_OFFSET</li>
+<li>- changed getUserID() to return m_UserID as a const reference.</li>
+<li>- changed /xdid -R +r to initialize radius to 20.</li>
+<li>- changed parseGlobalInfoRequest() to return a bool &amp; take a const &amp;refString&lt;TCHAR, MIRC_BUFFER_SIZE_CCH&gt; arg instead of TCHAR *const</li>
+<li>- changed $xdid().pid to use stString&lt;257&gt; when getting the class name.</li>
+<li>- changed controlFactory() for DcxControlTypes::WINDOW to use Dcx::countof()</li>
+<li>- changed showError() to use _ts_sprintf()</li>
+<li>- changed CommonMessage() for WM_DROPFILES to use stString&lt;500&gt; sFilename &amp; stString&lt;20&gt; sRet.</li>
+<li>general - changed IsUsingGDI()/IsUnloadSafe()/IsThemedXP() to use dcx_truefalse()</li>
+<li>- changed /xdid to use TSCOMMACHAR</li>
+<li>- changed /xdid to return 1 on success instead of 3</li>
+<li>- added help text to /xdid/$xdid/$dcx(GetTaskbarPos)/xdialog/$xdialog/xpop/$xpop/xpopup/$xpopup/$xmenubar</li>
+<li>- changed /dcx WindowProps +t to use TSTABCHAR</li>
+<li>- changed /dcx SetmIRCCursors to use TSCOMMACHAR</li>
+<li>- added /dcx SetDCXSettings command, atm this only has two options &quot;StaticColours&quot; &amp; &quot;UpdateColours&quot;</li>
+<li>- - StaticColours = /dcx SetDCXSettings StaticColours [1/0]</li>
+<li>- - - Enable/Disable static colours (faster drawing but doesn't update its self to changes in mIRC's colour scheme)</li>
+<li>- - UpdateColours = /dcx SetDCXSettings UpdateColours</li>
+<li>- - - Force dcx to update it' colour scheme even if using static colours.</li>
+<li>general - changed GetDirectXVersionViaFileVersions() to initialize all vars &amp; to use Dcx::countof()</li>
+<li>- changed defines.h to include the new string stuff</li>
+<li>- added DCX_USE_HASHING define to enable the use of string hashes.</li>
+<li>- added the mIRC_PALETTE_SIZE define.</li>
+<li>- changed LOADINFO to use using instead of typedef.</li>
+<li>- changed dcx_strcpyn() to take a const reference.</li>
+<li>- changed dcx_ConRetState() to return a bool.</li>
+<li>hashString - added some comments</li>
+<li>simpleString - added some comments</li>
+<li>refString - added some comments</li>
+<li>- added two static_assert's</li>
+<li>mdialog - changed m_DeleteByDestroy to be bool.</li>
+<li>dcxml - changed alot of var names to avoid confusion. This also allowed me to clean up some functions &amp; make them clearer.</li>
+<li>- changed the constructor &amp; destructors to be = default.</li>
+<li>tstring - added a waring about needing VS 2015 or better to compile.</li>
+<li>- changed pair &amp; tuple constructors to use references.</li>
+<li>- added some comments to constructors.</li>
+<li>- added templated version of find()/replace()/mreplace()</li>
+<li>- improved _ts_strlen()</li>
+<li>- added _ts_strnlen(), _ts_find(), _ts_strcpyn(), _ts_strncat(), _ts_strncmp()</li>
+<li>- replaced calls to strstr() with _ts_find()</li>
+<li>- added comments for numtok()</li>
+<li>- moved some code around to make it clearer.</li>
+<li>GSL - updated to the latest on git</li>
+<li>general - updated license.txt date to 2016</li>
+<li>- changed SystemTimeToMircTime() var ret to be sRet</li>
+<li>- changed dcx_round() a little.</li>
+<li>- changed ParseCommandToLogfont() to return a bool.</li>
+<li>- changed ParseCommandToLogfont() to use Auto().</li>
+<li>- changed dcxLoadIcon()/dcxLoadBitmap()/GetLastStatusStr() to specify the Gdiplus namespace where used.</li>
+<li>- changed CreateGrayscaleIcon() to initialize the var sz all in one line.</li>
+<li>- changed IsFile() to use dcxStringResource</li>
+<li>- added getmIRCPalette() overload with no args, this only fills the palette when its empty.</li>
+<li>- changed getmIRCPalette() (with args) to only fill the palette if its empty or static colours aren't being used.</li>
+<li>- changed DrawRotatedText() to use Auto()</li>
+<li>mirclinker - removed mIRCLinker:: from the start of functions.</li>
+<li>dialogcollection - changed the constructor/destructor to be = default.</li>
+<li>- changed deleteDialog() to use eraseIfFound()</li>
+<li>general - added refString.h, simpleString.h, hashString.h/cpp, switchObjects.h, ListHelper.h/cpp</li>
+<li>- refString.h -&gt; refString class allows encapsulating a C-String to enforce length rules etc.. without making any additional allocations.</li>
+<li>- simpleString.h -&gt; simpleString class wraps &amp; allocates a C-String to enforce length rules etc..</li>
+<li>- hashString.h -&gt; Includes various functions to change a C-String into a hash value.</li>
+<li>- switchObjects.h -&gt; allows using objects in a special Switch() command.</li>
+<li>- ListHelper.h/cpp -&gt; DcxListHelper class includes various common helper functions for DcxList.... controls.</li>
+<li>updown - changed /xdid -c to handle named id's</li>
+<li>- changed /xdid -c to check DcxControlTypes instead of getting the class name.</li>
+<li>Changed everything to require C++14 when compiling</li>
+<li>Dropped all support for &lt; Windows7</li>
+<li>listview - added xSaveListview() function &amp; started work on /xdid -S to allow saving a listviews contents.</li>
+<li>general - removed usage of AggressiveOptimize.h as it was breaking VS2015 code.</li>
+<li>- removed some commented code</li>
+<li>tstring - removed alternate code to TSTRING_PARTS &amp; TSTRING_ITERATOR &amp; TSTRING_TEMPLATES</li>
+<li>- removed code for &lt; vs2015</li>
+<li>- removed some commented code.</li>
+<li>- changed _ts_sprintf() to always clear() the result first.</li>
+<li>xdock - changed to use dcxException.</li>
+<li>- changed to use SwitchBarPos::... where appropriate.</li>
+<li>- removed some old code.</li>
+<li>general - changed to use dcxException</li>
+<li>- removed some old code.</li>
+<li>- changed all CTRL_XXX defines to be UINT64's</li>
+<li>- added enum DcxAllowControls to maybe replace defines in future.</li>
+<li>- changed enum DcxControlTypes to be enum class DcxControlTypes</li>
+<li>- added dcxExtractIcon object to wrap calls to ExtractIconEx()</li>
+<li>- added dcxHDCBuffer as a possible replacement for CreateHDCBuffer()</li>
+<li>- changed enum SwitchBarPos to be a class</li>
+<li>- changed dcx_strncmp() to use a static_cast</li>
+<li>- rewrote GetHwndFromString(TString...) to do all the stuff the TCHAR version used to do...</li>
+<li>- commented out GetHwndFromString(TCHAR *..) as its not needed any more.</li>
+<li>- changed dcx_strcpyn() to be an inline function.</li>
+<li>- changed TGetWindowText() to only add 2 to the strlen at the start</li>
+<li>- added nullptr checks to isRegexMatch()/AddFileIcons()/MakeTextmIRCSafe()</li>
+<li>- rewrote AddFileIcons() to use dcxExtractIcon</li>
+<li>- changed FindOwner() to check if data is empty at the start.</li>
+<li>gsl - updated to latest files.</li>
+<li>- testing some gsl usage owner&lt;&gt; &amp; not_null&lt;&gt;</li>
+<li>dialog - added NameToUserID() to convert a name into a UserID if it exists (returns zero on fail)</li>
+<li>colorcombo - changed setmIRCPalette() to use unique_ptr.</li>
+<li>comboex - added TString m_tsSelected to store currently selected item.</li>
+<li>- changed $xdid(dname,id,0).text to use m_tsSelected.</li>
+<li>- changed CBN_SELENDOK handling to set m_tsSelected.</li>
+<li>-- this allows $xdid(dname,id,0).text to work with dropdown style controls as well as dropedit ones.</li>
+<li>listview - added ItemToString() function to help with saving data.</li>
+<li>box - fixed bug in /xdid -c command where the correct addControl() call wasn't being used this caused subsequent calls to fail when using named id's</li>
+<li>xtreebar - changed the setitem callback to be for release build too now</li>
+<li>- changed setitem callback to have these args: $xtree_callback(&lt;item type&gt;,&lt;wid&gt;,&lt;status&gt;)</li>
+<li>xstatusbar - changed status_getImageList() to be noexcept.</li>
+<li>- removed some commented code</li>
+<li>tstring - changed zero size constructor to always allocate a minimal string anyway.</li>
+<li>dialog - changed iNamedId()/NameToID()/NameToUserID() to allow finding an id based on the name or the numerical id.</li>
+<li>- added deleteNamedID() which deletes the named id based on either the name or the numerical id.</li>
+<li>- changed deleteControl() to call deleteNamedID() as well</li>
+<li>general - changed some code to use the new dcxResource stuff (Testing this method out, may not keep)</li>
+<li>tstring - fixed bug in compare() routines where length limit was used when it shouldn't have been, this led to &quot;5&quot; == &quot;50&quot;</li>
+<li>general - added DCX_USE_WRAPPERS define to enable/disable using the resource wrapper classes.</li>
+<li>- added Dcx::dcxResource::pointer type.</li>
+<li>- added Dcx::dcxResource::element_type type.</li>
+<li>- added Dcx::dcxResource::return_type type.</li>
+<li>- changed controlFactory() to use a switch() statement.</li>
+<li>dialog - removed some commented code.</li>
+<li>- changed /xdialog -q to use getnexttok()</li>
+<li>- changed /xdialog -S to not use a POINT structure.</li>
+<li>- changed WM_SETCURSOR handling to allow setting the cursor for the whole dialog, not just the client area.</li>
+<li>general - changed dcx_strcpyn() to take a const reference for the size arg.</li>
+<li>bumped dev build to 43</li>
+<li>removed commented exceptions code.</li>
+<li>comboex/list/listview/treeview - changed controls to use a general DcxSearchTypes enum instead of repeating the same thing for each control.</li>
+<li>- changed matchItemText() to takes a TString ref object instead of a pointer.</li>
+<li>list - fixed bug in matchItemText() that caused all the match functions to be called.</li>
+<li>general - removed some commented code.</li>
+<li>box - changed DrawClientArea() to use the Auto() macro.</li>
+<li>list/treeview - changed $xdid().find to do a TCHAR compare instead of a string compare.</li>
+<li>tstring - added test code getnexttokas&lt;type&gt;() template to allow TStringObj.getnexttokas&lt;int&gt;() instead of TStringObj.getnexttok().to_&lt;int&gt;()</li>
+<li>dialog - removed some commented code.</li>
+<li>tstring - added literal operator for WCHAR strings L&quot;&quot;_ts</li>
+<li>- removed try/catch from charToWchar(), function now throws an exception of allocation failure.</li>
+<li>- fixed memleak in constructors.</li>
+<li>- added ts_strlenA()/ts_strlenW() macros</li>
+<li>- added TString(const WCHAR *const cString, const size_t iLen) constructor &amp; a char * equivalent.</li>
+<li>- changed WCHAR * &amp; char * &amp; TString &amp; constructors to simply call the TString(const WCHAR/char *const cString, const size_t iLen) constructor.</li>
+<li>- added TString(const T (&amp;cString)[N]) constructor.</li>
+<li>- changed TString(const TCHAR *const pStart, const TCHAR *const pEnd) constructor to be a template that just calls the appropriate TString(const WCHAR/char *const cString, const size_t iLen) constructor.</li>
+<li>- moved most constructors to the tstring.h file.</li>
+<li>- changed the operator[] code to have a debug version that has some extra checks &amp; throws an exception &amp; a release version that doesn't.</li>
+<li>- changed the iswm() template to be const noexcept</li>
+<li>- commented out the non-const version of c_str()</li>
+<li>- changed _ts_WildcardMatch() to be noexcept</li>
+<li>xpopupmenu - changed GetMenuAttributeFromXML() to return a TString. This allows us to get rid of some extra TString objects later.</li>
+<li>- changed convertMenu() so it doesn't call tsEval() on a seperator.</li>
+<li>tstring - added ts_strchr() macro</li>
+<li>- added numtok(TCHAR sepChar) to handle all single char separators.</li>
+<li>- made both numtok()'s noexcept.</li>
+<li>dcxml - changed mIRCEvalToUnsignedInt() to take a TString arg.</li>
+<li>tinyxml - changed some code to do nullptr checks</li>
+<li>toolbar - changed /xdid -a/-c to use the to_&lt;&gt;() template directly</li>
+<li>- changed /xdid -a to use a unique_ptr for DCXBUTTON.</li>
+<li>comboex - changed getItemRange() to use the single char version of numtok()</li>
+<li>tstring - changed all comparison operators &amp; functions to be noexcept</li>
+<li>- changed the move assignment operator to be noexcept</li>
+<li>- changed find() to be noexcept</li>
+<li>- changed iterator typedef's to use using instead</li>
+<li>- changed isin()/isincs()/iswm()/countchar()/ishostmask() to be noexcept</li>
+<li>general - changed some typedef's to be using instead.</li>
+<li>xdock - changed some typedefs to be using</li>
+<li>- changed DockWindow() to allocate &amp; set &amp; push_back() the DCXULTRADOCK structure all in one go (planning on changing how this structure is allocated &amp; stored soon)</li>
+<li>xpopup - made XPopupMenu() constructor a bit neater.</li>
+<li>- changed parseStyle()/setStyle()/setItemStyle()/setColor()/setDefaultColor()/setSubMenu()/setItemIcon()/getItemText()/getItemIcon()getItemDataBackup()/getmIRCPopup()/getmIRCMenuBar()/isPatched() be be noexcept.</li>
+<li>- changed some typedefs to be using instead.</li>
+<li>general - changed dcx_truefalse()/dcx_testflag() to be noexcept</li>
+<li>gsl - updated to latest</li>
+<li>general - changed modules to use VersionHelpers.h</li>
+<li>tinyxml - updated to use noexcept &amp; deleted operators...</li>
+<li>tstring - added last() function which returns a pointer to the end of the string.</li>
+<li>- changed len()/length()/size() to return a reference.</li>
+<li>- added SPACECHAR/COMMACHAR/TABCHAR defines as single character versions of SPACE/COMMA/TAB</li>
+<li>- changed is_Numeric to check type isn't a pointer.</li>
+<li>- fixed bug in static string constructor where string length used was one character to long.</li>
+<li>- changed operator *() to use strchr() instead of strstr()</li>
+<li>- changed addtok() template to use SPACECHAR</li>
+<li>- added test code detailed below...</li>
+<li>- added constructors for pair_type &amp; tuple_type.</li>
+<li>- added gettokenrange() which returns the start, end, &amp; numtoks in a tuple_type.</li>
+<li>- added replacements for gettok()/getfirsttok() that use gettokenrange()</li>
+<li>- end test code</li>
+<li>- added _ts_isEmpty() function template to test if a string/container is empty (supports C Strings &amp; any object with a empty() member function)</li>
+<li>tstring - changed new test versions of gettok() &amp; getfirsttok() to be templates.</li>
+<li>dialog - changed SetVerbose()/getFocusControl() to be noexcept</li>
+<li>- changed some typedef's to be using's instead.</li>
+<li>- changed xdialog -R +p to use the single character versions of getfirsttok()/getnexttok()</li>
+<li>general - changed gettok()/getfirsttok()/getnexttok()/numtok() to be single character versions where possible.</li>
+<li>xdock - added specific deleted operators</li>
+<li>general - added some std::to_string() &amp; std::to_wstring() overloads</li>
+<li>- added is_Numeric to Dcx namespace</li>
+<li>- changed some typedef's to be using's instead.</li>
+<li>- added numeric_cast() to Dcx namespace to handle casting anything to a number (if possible) can cast integrals, strings &amp; objects that support implicit conversion to that type.</li>
+<li>cla - changed layoutcell to be a little neater.</li>
+<li>- changed layoutcellfill to use the layoutcell constructors.</li>
+<li>- changed layoutcellpane to use emplace_back() instead of push_back() in addChild()</li>
+<li>xmenu - added a deleted default constructor &amp; copy constructor to XMenuBar</li>
+<li>- changed isPatched() to be a static function.</li>
+<li>general - added eraseIfFound() template function which removes an item from a container if its found, returns true on success.</li>
+<li>xdock - added UnDockWindowPtr() function to handle all the removal &amp; deleting work for UnDockAll() &amp; UnDockWindow()</li>
+<li>- changed status_deletePartInfo() to use eraseIfFound()</li>
+<li>xdock - made sure some vars were properly initialized.</li>
+<li>- changed SwitchBarPos() to handle MDI type.</li>
+<li>general - made sure some vars were properly initialized.</li>
+<li>xTrayIcon - changed GetHwnd() to be noexcept &amp; to return a const reference.</li>
+<li>- changed AddIconId() to use emplace_back()</li>
+<li>- changed DeleteIconId() to use eraseIfFound()</li>
+<li>xdock - changed UnDockWindowPtr()/UnDockAll()/IsStatusbar()/UpdateLayout()/UpdatemIRC() to be noexcept.</li>
+<li>- changed FindDock()/GetDock()/isDocked() to be const functions.</li>
+<li>- changed DcxDock() constructor to initialize m_VectorDock.</li>
+<li>richedit - changed OnNCPaint() to use the Auto() macro.</li>
+<li>button - changed most BOOL vars to be bool.</li>
+<li>- changed constructor to not need ZeroMemory()</li>
+<li>- changed parseColorFlags()/getImageList()/setImageList() to be noexcept</li>
+<li>- changed createImageList() to set initial image list size to be countof(m_aBitmaps)</li>
+<li>divider - changed some flag checks to use dcx_testflag()</li>
+<li>- changed DrawXorBar()/Divider_OnLButtonDown/Up()/Divider_OnMouseMove() to use Auto()</li>
+<li>XSwitchFlags - changed member var flags to m_bFlags</li>
+<li>- changed member var flags_cap to m_bFlags_cap</li>
+<li>- changed constructor to initialize m_bFlags &amp; m_bFlags_cap to false.</li>
+<li>- moved operator[] to include file.</li>
+<li>- changed m_bFlags &amp; m_bFlags_cap to be private instead of protected.</li>
+<li>- added m_bFalse static var for isSet()'s use on failure.</li>
+<li>- changed de-constructor to be = default.</li>
+</ol></li>
+<li><strong>Documentation</strong><ol>
+<li>added /xdid -a +wyz info to listview.</li>
+<li>added /dcx SetDCXSettings docs.</li>
+<li>updated /xdialog -q docs to show all new flags for cursors.</li>
+<li>updated support links</li>
+<li>added $dcx(CountIcons,[filename])</li>
+<li>added listview /xdid -G</li>
+<li>added listview /xdid -H</li>
+<li>added webctrl $xdid().statusbar/statustext/script</li>
+<li>added note to updown /xdid -c to the effect that named id's can be used.</li>
+</ol></li>
+</ul>
 </td></tr>
 </table>
 <table class="description">
@@ -268,8 +878,7 @@ Well for one thing, mIRC events are linear and static in the way that you cannot
 	<tr>
 		<td><a>Support</a></td>
 		<td>
-			<a href="irc://irc.Undernet.org/scriptsdb.org">#scriptsdb.org @ Undernet</a><br />
-			<a href="irc://irc.Undernet.org/genscripts">#genscripts @ AmeriChat</a>
+			<a href="irc://irc.genscripts.net/genscripts">#genscripts @ Genscripts</a>
 		</td>
 	</tr>
 
@@ -282,8 +891,8 @@ Well for one thing, mIRC events are linear and static in the way that you cannot
 <table class="bar">
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
-		<td style="text-align: center;">© 2005-2009</td>
-		<td style="text-align: right;">Last Updated: 12th July, 09</td>
+		<td style="text-align: center;">© 2005-2021</td>
+		<td style="text-align: right;">Last Updated: 22nd April, 21</td>
 	</tr>
 </table>
 <div style="text-align: center;">

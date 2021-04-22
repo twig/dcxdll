@@ -16,46 +16,43 @@
 #include "Dcx.h"
 #include "mIRCLinker.h"
 
-
-
-/*!
-* \brief Displays an error message for the control when using $xdid().prop
-*/
-//void dcxInfoError(const TCHAR *ctrl, const TCHAR *functn, const TCHAR* dlg, const int ctrlid, const TCHAR *msg) {
-//	TString err;
-//
-//	err.sprintf(TEXT("D_ERROR %s(%s, %d).%s: %s"), ctrl, dlg, ctrlid, functn, msg);
-//	mIRCError(err.to_chr());
-//}
-
 /*!
 * \brief Converts mIRC long time to C++ SYSTEMTIME object.
 */
-SYSTEMTIME MircTimeToSystemTime(const long mircTime) {
+SYSTEMTIME MircTimeToSystemTime(const long mircTime)
+{
+	//TString str;
+	//SYSTEMTIME st = { 0 };
+	//
+	////mIRCLinker::tsEvalex(str, TEXT("$asctime(%ld, d m yyyy hh nn ss)"), mircTime);
+	//mIRCLinker::eval(str, TEXT("$asctime(%,d m yyyy hh nn ss)"), mircTime);
+	//
+	//st.wDay = str.getfirsttok(1).to_<WORD>();
+	//st.wMonth = str.getnexttok().to_<WORD>();
+	//st.wYear = str.getnexttok().to_<WORD>();
+	//st.wHour = str.getnexttok().to_<WORD>();
+	//st.wMinute = str.getnexttok().to_<WORD>();
+	//st.wSecond = str.getnexttok().to_<WORD>();
+	//
+	//return st;
+
 	TString str;
-	SYSTEMTIME st;
 
-	ZeroMemory(&st, sizeof(SYSTEMTIME));
+	mIRCLinker::eval(str, TEXT("$asctime(%,yyyy m d hh nn ss)"), mircTime);
 
-	Dcx::mIRC.tsEvalex( str, TEXT("$asctime(%ld, d m yyyy hh nn ss)"), mircTime);
-
-	st.wDay = (WORD)str.getfirsttok(1).to_int();
-	st.wMonth = (WORD)str.getnexttok().to_int();
-	st.wYear = (WORD)str.getnexttok().to_int();
-	st.wHour = (WORD)str.getnexttok().to_int();
-	st.wMinute = (WORD)str.getnexttok().to_int();
-	st.wSecond = (WORD)str.getnexttok().to_int();
-
-	return st;
+	return { str.getfirsttok(1).to_<WORD>(), str.getnexttok().to_<WORD>(), 0, str.getnexttok().to_<WORD>(), str.getnexttok().to_<WORD>(), str.getnexttok().to_<WORD>(), str.getnexttok().to_<WORD>(), 0 };
 }
 
-long SystemTimeToMircTime(const LPSYSTEMTIME pst) {
-	if (pst->wMonth == 0) {
+long SystemTimeToMircTime(const LPSYSTEMTIME pst)
+{
+	if ((!pst) || (pst->wMonth == 0))
+	{
 		Dcx::error(TEXT("SystemTimeToMircTime"), TEXT("invalid SYSTEMTIME parameter."));
 		return 0;
 	}
 
-	TCHAR ret[100];
+	//TCHAR sRet[100];
+	//stString<100U> sRet;
 
 	static const TCHAR *months[12] = {
 		TEXT("January"),
@@ -72,13 +69,44 @@ long SystemTimeToMircTime(const LPSYSTEMTIME pst) {
 		TEXT("December")
 	};
 
-	Dcx::mIRC.evalex(ret, 100, TEXT("$ctime(%d:%d:%d %d %s %d)"),
+	//mIRCLinker::evalex(sRet, static_cast<int>(Dcx::countof(sRet)), TEXT("$ctime(%u:%u:%u %u %s %u)"),
+	//	pst->wHour,
+	//	pst->wMinute,
+	//	pst->wSecond,
+	//	pst->wDay,
+	//	months[pst->wMonth -1],
+	//	pst->wYear);
+
+	//mIRCLinker::eval(sRet, TEXT("$ctime(%:%:% % % %)"),
+	//	pst->wHour,
+	//	pst->wMinute,
+	//	pst->wSecond,
+	//	pst->wDay,
+	//	months[pst->wMonth - 1],
+	//	pst->wYear);
+	//
+	//return dcx_atoi(sRet.data());
+
+	
+
+	//if (const auto[bOk, iNum] = mIRCLinker::uEval<long>(TEXT("$ctime(%:%:% % % %)"),
+	//	pst->wHour,
+	//	pst->wMinute,
+	//	pst->wSecond,
+	//	pst->wDay,
+	//	months[pst->wMonth - 1],
+	//	pst->wYear); bOk)
+	//	return iNum;
+
+	if (const auto iNum = mIRCLinker::uEval<long>(TEXT("$ctime(%:%:% % % %)"),
 		pst->wHour,
 		pst->wMinute,
 		pst->wSecond,
 		pst->wDay,
-		months[pst->wMonth -1],
-		pst->wYear);
+		gsl::at(months,pst->wMonth - 1),
+		pst->wYear); iNum.has_value())
+		return *iNum;
 
-	return _wtol(ret);
+	Dcx::error(TEXT("SystemTimeToMircTime"), TEXT("Unable to get time."));
+	return 0;
 }

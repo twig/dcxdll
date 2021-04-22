@@ -4,6 +4,9 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros">
     <mIRCDir>C:\mIRC_Basic</mIRCDir>
+    <PHPDir>C:\php</PHPDir>
+    <DetoursDir>$(SolutionDir)..\..\Detours\</DetoursDir>
+    <GSLDir>F:\CSource\GSL-Master\GSL\include</GSLDir>
   </PropertyGroup>
   <PropertyGroup>
     <_ProjectFileVersion>11.0.50727.1</_ProjectFileVersion>
@@ -29,6 +32,12 @@
   <ItemGroup>
     <BuildMacro Include="mIRCDir">
       <Value>$(mIRCDir)</Value>
+    </BuildMacro>
+    <BuildMacro Include="PHPDir">
+      <Value>$(PHPDir)</Value>
+    </BuildMacro>
+    <BuildMacro Include="DetoursDir">
+      <Value>$(DetoursDir)</Value>
     </BuildMacro>
   </ItemGroup>
 </Project>

@@ -3,9 +3,9 @@ TODO: monthchange event
 http://msdn.microsoft.com/library/default.asp?url=/library/en-us/shellcc/platform/commctls/monthcal/structures/nmdaystate.asp
 
 MCHT_TITLEBTNNEXT
-    The given point was over the button at the top right corner of the control. If the user clicks here, the month calendar will scroll its display to the next month or set of months.
+	The given point was over the button at the top right corner of the control. If the user clicks here, the month calendar will scroll its display to the next month or set of months.
 MCHT_TITLEBTNPREV
-    The given point was over the button at the top left corner of the control. If the user clicks here, the month calendar will scroll its display to the previous month or set of months.
+	The given point was over the button at the top left corner of the control. If the user clicks here, the month calendar will scroll its display to the previous month or set of months.
 
  * \file dcxcalendar.cpp
  * \brief blah
@@ -23,43 +23,38 @@ MCHT_TITLEBTNPREV
 #include "Classes/dcxcalendar.h"
 #include "Classes/dcxdialog.h"
 
-/*!
- * \brief Constructor
- *
- * \param ID Control ID
- * \param p_Dialog Parent DcxDialog Object
- * \param mParentHwnd Parent Window Handle
- * \param rc Window Rectangle
- * \param styles Window Style Tokenized List
- */
+ /*!
+  * \brief Constructor
+  *
+  * \param ID Control ID
+  * \param p_Dialog Parent DcxDialog Object
+  * \param mParentHwnd Parent Window Handle
+  * \param rc Window Rectangle
+  * \param styles Window Style Tokenized List
+  */
 
-DcxCalendar::DcxCalendar( const UINT ID, DcxDialog * p_Dialog, const HWND mParentHwnd, const RECT * rc, const TString & styles ) 
-: DcxControl( ID, p_Dialog )
+DcxCalendar::DcxCalendar(const UINT ID, DcxDialog* const p_Dialog, const HWND mParentHwnd, const RECT* const rc, const TString& styles)
+	: DcxControl(ID, p_Dialog)
+	, m_MonthDayStates()
 {
-	LONG Styles = 0, ExStyles = 0;
-	BOOL bNoTheme = FALSE;
-	this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
+	const auto ws = parseControlStyles(styles);
 
-	this->m_Hwnd = CreateWindowEx(	
-		ExStyles | WS_EX_CLIENTEDGE, 
-		DCX_CALENDARCLASS, 
-		NULL,
-		WS_CHILD | Styles, 
-		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
+	m_Hwnd = dcxCreateWindow(
+		ws.m_ExStyles | WindowExStyle::ClientEdge,
+		DCX_CALENDARCLASS,
+		ws.m_Styles | WindowStyle::Child,
+		rc,
 		mParentHwnd,
-		(HMENU) ID,
-		GetModuleHandle(NULL), 
-		NULL);
+		ID,
+		this);
 
-	if (!IsWindow(this->m_Hwnd))
-		throw TEXT("Unable To Create Window");
+	if (!IsWindow(m_Hwnd))
+		throw Dcx::dcxException("Unable To Create Window");
 
-	if ( bNoTheme )
-		Dcx::UXModule.dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
+	if (ws.m_NoTheme)
+		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
 
-	this->setControlFont( GetStockFont( DEFAULT_GUI_FONT ), FALSE );
-	this->registreDefaultWindowProc( );
-	SetProp( this->m_Hwnd, TEXT("dcx_cthis"), (HANDLE) this );
+	this->setControlFont(Dcx::dcxGetStockObject<HFONT>(DEFAULT_GUI_FONT), FALSE);
 }
 
 /*!
@@ -68,54 +63,61 @@ DcxCalendar::DcxCalendar( const UINT ID, DcxDialog * p_Dialog, const HWND mParen
  * blah
  */
 
-DcxCalendar::~DcxCalendar( ) {
-
-  this->unregistreDefaultWindowProc( );
+DcxCalendar::~DcxCalendar() noexcept
+{
 }
 
-void DcxCalendar::toXml(TiXmlElement * xml) const
+void DcxCalendar::toXml(TiXmlElement* const xml) const
 {
 	__super::toXml(xml);
+
 	xml->SetAttribute("caption", getValue().c_str());
+	xml->SetAttribute("styles", getStyles().c_str());
 }
 
-TString DcxCalendar::getStyles(void) const
+TiXmlElement* DcxCalendar::toXml(void) const
 {
-	TString styles(__super::getStyles());
-	const DWORD Styles = GetWindowStyle(this->m_Hwnd);
+	auto xml = std::make_unique<TiXmlElement>("control");
+	toXml(xml.get());
+	return xml.release();
+}
 
-	if (Styles & MCS_MULTISELECT)
+const TString DcxCalendar::getStyles(void) const
+{
+	auto styles(__super::getStyles());
+	const auto Styles = dcxGetWindowStyle(m_Hwnd);
+
+	if (dcx_testflag(Styles, MCS_MULTISELECT))
 		styles.addtok(TEXT("multi"));
-	if (Styles & MCS_NOTODAY)
+	if (dcx_testflag(Styles, MCS_NOTODAY))
 		styles.addtok(TEXT("notoday"));
-	if (Styles & MCS_NOTODAYCIRCLE)
+	if (dcx_testflag(Styles, MCS_NOTODAYCIRCLE))
 		styles.addtok(TEXT("notodaycircle"));
-	if (Styles & MCS_WEEKNUMBERS)
+	if (dcx_testflag(Styles, MCS_WEEKNUMBERS))
 		styles.addtok(TEXT("weeknum"));
-	if (Styles & MCS_DAYSTATE)
+	if (dcx_testflag(Styles, MCS_DAYSTATE))
 		styles.addtok(TEXT("daystate"));
 
 	return styles;
 }
 
-TString DcxCalendar::getValue(void) const
+const TString DcxCalendar::getValue(void) const
 {
-	long start, end;
-	TCHAR buf[128];
+	long start{}, end{};
 
-	if (isStyle(MCS_MULTISELECT)) {
-		SYSTEMTIME st[2];
-		ZeroMemory(st, sizeof(SYSTEMTIME) *2);
-		MonthCal_GetSelRange(this->m_Hwnd, st);
+	if (isStyle(WindowStyle::MCS_MultiSelect))
+	{
+		SYSTEMTIME st[2]{};
+
+		MonthCal_GetSelRange(m_Hwnd, st);
 
 		start = SystemTimeToMircTime(&(st[0]));
 		end = SystemTimeToMircTime(&(st[1]));
 	}
 	else {
-		SYSTEMTIME st;
+		SYSTEMTIME st{};
 
-		ZeroMemory(&st, sizeof(SYSTEMTIME));
-		MonthCal_GetCurSel(this->m_Hwnd, &st);
+		MonthCal_GetCurSel(m_Hwnd, &st);
 
 		st.wHour = 0;
 		st.wMinute = 0;
@@ -126,8 +128,10 @@ TString DcxCalendar::getValue(void) const
 		end = start;
 	}
 
-	wnsprintf(buf, 128, TEXT("%ld %ld"), start, end);
-	return buf;
+	stString<128> buf;
+
+	_ts_snprintf(buf, TEXT("%ld %ld"), start, end);
+	return buf.data();
 }
 
 /*!
@@ -136,38 +140,76 @@ TString DcxCalendar::getValue(void) const
  * blah
  */
 
-void DcxCalendar::parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme)
-{
-	//const UINT numtok = styles.numtok();
+ //void DcxCalendar::parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme)
+ //{
+ //	for (const auto &tsStyle: styles)
+ //	{
+ //#if DCX_USE_HASHING
+ //		switch (std::hash<TString>{}(tsStyle))
+ //		{
+ //			case L"multi"_hash:
+ //				*Styles |= MCS_MULTISELECT;
+ //				break;
+ //			case L"notoday"_hash:
+ //				*Styles |= MCS_NOTODAY;
+ //				break;
+ //			case L"notodaycircle"_hash:
+ //				*Styles |= MCS_NOTODAYCIRCLE;
+ //				break;
+ //			case L"weeknum"_hash:
+ //				*Styles |= MCS_WEEKNUMBERS;
+ //				break;
+ //			case L"daystate"_hash:
+ //				*Styles |= MCS_DAYSTATE;
+ //			default:
+ //				break;
+ //		}
+ //#else
+ //		if (tsStyle == TEXT("multi"))
+ //			*Styles |= MCS_MULTISELECT;
+ //		else if (tsStyle == TEXT("notoday"))
+ //			*Styles |= MCS_NOTODAY;
+ //		else if (tsStyle == TEXT("notodaycircle"))
+ //			*Styles |= MCS_NOTODAYCIRCLE;
+ //		else if (tsStyle == TEXT("weeknum"))
+ //			*Styles |= MCS_WEEKNUMBERS;
+ //		else if (tsStyle == TEXT("daystate"))
+ //			*Styles |= MCS_DAYSTATE;
+ //#endif
+ //	}
+ //
+ //	this->parseGeneralControlStyles(styles, Styles, ExStyles, bNoTheme);
+ //}
 
-	//for (UINT i = 1; i <= numtok; i++)
-	//{
-	//	if (styles.gettok(i) == TEXT("multi"))
-	//		*Styles |= MCS_MULTISELECT;
-	//	else if (styles.gettok(i) == TEXT("notoday"))
-	//		*Styles |= MCS_NOTODAY;
-	//	else if (styles.gettok(i) == TEXT("notodaycircle"))
-	//		*Styles |= MCS_NOTODAYCIRCLE;
-	//	else if (styles.gettok(i) == TEXT("weeknum"))
-	//		*Styles |= MCS_WEEKNUMBERS;
-	//	else if (styles.gettok(i) == TEXT("daystate"))
-	//		*Styles |= MCS_DAYSTATE;
-	//}
-	for (TString tsStyle(styles.getfirsttok( 1 )); tsStyle != TEXT(""); tsStyle = styles.getnexttok( ))
+dcxWindowStyles DcxCalendar::parseControlStyles(const TString& tsStyles)
+{
+	dcxWindowStyles ws;
+
+	for (const auto& tsStyle : tsStyles)
 	{
-		if (tsStyle == TEXT("multi"))
-			*Styles |= MCS_MULTISELECT;
-		else if (tsStyle == TEXT("notoday"))
-			*Styles |= MCS_NOTODAY;
-		else if (tsStyle == TEXT("notodaycircle"))
-			*Styles |= MCS_NOTODAYCIRCLE;
-		else if (tsStyle == TEXT("weeknum"))
-			*Styles |= MCS_WEEKNUMBERS;
-		else if (tsStyle == TEXT("daystate"))
-			*Styles |= MCS_DAYSTATE;
+		switch (std::hash<TString>{}(tsStyle))
+		{
+		case L"multi"_hash:
+			ws.m_Styles |= MCS_MULTISELECT;
+			break;
+		case L"notoday"_hash:
+			ws.m_Styles |= MCS_NOTODAY;
+			break;
+		case L"notodaycircle"_hash:
+			ws.m_Styles |= MCS_NOTODAYCIRCLE;
+			break;
+		case L"weeknum"_hash:
+			ws.m_Styles |= MCS_WEEKNUMBERS;
+			break;
+		case L"daystate"_hash:
+			ws.m_Styles |= MCS_DAYSTATE;
+			break;
+		default:
+			break;
+		}
 	}
 
-	this->parseGeneralControlStyles(styles, Styles, ExStyles, bNoTheme);
+	return parseGeneralControlStyles(tsStyles, ws);
 }
 
 /*!
@@ -179,50 +221,46 @@ void DcxCalendar::parseControlStyles( const TString & styles, LONG * Styles, LON
  * \return > void
  */
 
-void DcxCalendar::parseInfoRequest(const TString &input, PTCHAR szReturnValue) const
+void DcxCalendar::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>& szReturnValue) const
 {
-	const TString prop(input.getfirsttok( 3 ));
-
-	// [NAME] [ID] [PROP]
-	if (prop == TEXT("value")) {
-		lstrcpyn(szReturnValue,this->getValue().to_chr(), MIRC_BUFFER_SIZE_CCH);
-		return;
-	}
-	else if (prop == TEXT("range")) {
-		SYSTEMTIME st[2];
+	switch (std::hash<TString>{}(input.getfirsttok(3)))
+	{
+		// [NAME] [ID] [PROP]
+	case L"value"_hash:
+		szReturnValue = getValue().to_chr();
+		break;
+	case L"range"_hash:
+	{
+		SYSTEMTIME st[2]{};
 		TString dmin(TEXT("nolimit"));
 		TString dmax(TEXT("nolimit"));
 
-		ZeroMemory(st, sizeof(SYSTEMTIME) *2);
+		const auto val = MonthCal_GetRange(m_Hwnd, st);
 
-		const DWORD val = MonthCal_GetRange(this->m_Hwnd, st);
-
-		if (val & GDTR_MIN)
+		if (dcx_testflag(val, GDTR_MIN))
 			dmin.tsprintf(TEXT("%ld"), SystemTimeToMircTime(&(st[0])));
 
-		if (val & GDTR_MAX)
+		if (dcx_testflag(val, GDTR_MAX))
 			dmax.tsprintf(TEXT("%ld"), SystemTimeToMircTime(&(st[1])));
 
-		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%s %s"), dmin.to_chr(), dmax.to_chr()); // going to be within 900 limit anyway.
-		return;
+		_ts_snprintf(szReturnValue, TEXT("%s %s"), dmin.to_chr(), dmax.to_chr()); // going to be within 900 limit anyway.
 	}
-	else if (prop == TEXT("today")) {
-		SYSTEMTIME st;
+	break;
+	case L"today"_hash:
+	{
+		SYSTEMTIME st{};
 
-		ZeroMemory(&st, sizeof(SYSTEMTIME));
-
-		MonthCal_GetToday(this->m_Hwnd, &st);
-		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%ld"), SystemTimeToMircTime(&st));
-		return;
+		MonthCal_GetToday(m_Hwnd, &st);
+		_ts_snprintf(szReturnValue, TEXT("%ld"), SystemTimeToMircTime(&st));
 	}
-	else if (prop == TEXT("selcount")) {
-		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), MonthCal_GetMaxSelCount(this->m_Hwnd));
-		return;
+	break;
+	case L"selcount"_hash:
+		_ts_snprintf(szReturnValue, TEXT("%u"), MonthCal_GetMaxSelCount(m_Hwnd));
+		break;
+	default:
+		parseGlobalInfoRequest(input, szReturnValue);
+		break;
 	}
-	else if (this->parseGlobalInfoRequest(input, szReturnValue))
-		return;
-
-	szReturnValue[0] = 0;
 }
 
 /*!
@@ -230,103 +268,122 @@ void DcxCalendar::parseInfoRequest(const TString &input, PTCHAR szReturnValue) c
  *
  * blah
  */
-void DcxCalendar::parseCommandRequest( const TString &input) {
-	const XSwitchFlags flags(input.getfirsttok( 3 ));
+void DcxCalendar::parseCommandRequest(const TString& input)
+{
+	const XSwitchFlags flags(input.getfirsttok(3));
 
-//SetDayState
+	//SetDayState
 
-	const UINT numtok = input.numtok();
+	const auto numtok = input.numtok();
 
 	// xdid -k [NAME] [ID] [SWITCH] [+FLAGS] [$RGB]
-	if (flags[TEXT('k')] && numtok > 4) {
-		const XSwitchFlags xflags(input.getnexttok( ));	// tok 4
-		const COLORREF col = (COLORREF) input.getnexttok( ).to_int();	// tok 5
+	if (flags[TEXT('k')])
+	{
+		if (numtok < 5)
+			throw Dcx::dcxException("Insufficient parameters");
+
+		const XSwitchFlags xflags(input.getnexttok());	// tok 4
+		const auto col = input.getnexttok().to_<COLORREF>();	// tok 5
 
 		// Set the background color displayed between months.
 		if (xflags[TEXT('b')])
-			MonthCal_SetColor(this->m_Hwnd, MCSC_BACKGROUND, col);
+			MonthCal_SetColor(m_Hwnd, MCSC_BACKGROUND, gsl::narrow_cast<LPARAM>(col));
 
 		// Set the background color displayed within the month.
 		if (xflags[TEXT('g')])
-			MonthCal_SetColor(this->m_Hwnd, MCSC_MONTHBK, col);
+			MonthCal_SetColor(m_Hwnd, MCSC_MONTHBK, gsl::narrow_cast<LPARAM>(col));
 
 		// Set the color used to display text within a month.
 		if (xflags[TEXT('t')])
-			MonthCal_SetColor(this->m_Hwnd, MCSC_TEXT, col);
+			MonthCal_SetColor(m_Hwnd, MCSC_TEXT, gsl::narrow_cast<LPARAM>(col));
 
 		// Set the background color displayed in the calendar's title and selection color.
 		if (xflags[TEXT('i')])
-			MonthCal_SetColor(this->m_Hwnd, MCSC_TITLEBK, col);
+			MonthCal_SetColor(m_Hwnd, MCSC_TITLEBK, gsl::narrow_cast<LPARAM>(col));
 
 		// Set the color used to display text within the calendar's title.
 		if (xflags[TEXT('a')])
-			MonthCal_SetColor(this->m_Hwnd, MCSC_TITLETEXT, col);
+			MonthCal_SetColor(m_Hwnd, MCSC_TITLETEXT, gsl::narrow_cast<LPARAM>(col));
 
 		// Set the color used to display header day and trailing day text. Header and trailing days are the days from the previous and following months that appear on the current month calendar.
 		if (xflags[TEXT('r')])
-			MonthCal_SetColor(this->m_Hwnd, MCSC_TRAILINGTEXT, col);
+			MonthCal_SetColor(m_Hwnd, MCSC_TRAILINGTEXT, gsl::narrow_cast<LPARAM>(col));
 	}
 	//xdid -m [NAME] [ID] [SWITCH] [MAX]
-	else if (flags[TEXT('m')] && numtok > 3) {
-		const int max = input.getnexttok( ).to_int();	// tok 4
+	else if (flags[TEXT('m')])
+	{
+		if (numtok < 4)
+			throw Dcx::dcxException("Insufficient parameters");
 
-		MonthCal_SetMaxSelCount(this->m_Hwnd, max);
+		const auto max = input.getnexttok().to_int();	// tok 4
+
+		MonthCal_SetMaxSelCount(m_Hwnd, max);
 	}
 	//xdid -r [NAME] [ID] [SWITCH] [MIN] [MAX]
-	else if (flags[TEXT('r')] && numtok > 4) {
-		DWORD dflags = 0;
-		SYSTEMTIME range[2];
+	else if (flags[TEXT('r')])
+	{
+		if (numtok < 5)
+			throw Dcx::dcxException("Insufficient parameters");
 
-		ZeroMemory(range, sizeof(SYSTEMTIME) *2);
+		DWORD dflags{};
+		SYSTEMTIME range[2]{};
 
-		const TString tsMin(input.getnexttok( ));	// tok 4
-		const TString tsMax(input.getnexttok( ));	// tok 5
+		//ZeroMemory(&range[0], sizeof(SYSTEMTIME) *2);
 
-		if (tsMin != TEXT("nolimit")) {
-			range[0] = MircTimeToSystemTime((long) tsMin.to_num());
+		if (const auto tsMin(input.getnexttok()); tsMin != TEXT("nolimit"))
+		{
+			range[0] = MircTimeToSystemTime(tsMin.to_<long>());
 			dflags |= GDTR_MIN;
 		}
 
-		if (tsMax != TEXT("nolimit")) {
-			range[1] = MircTimeToSystemTime((long) tsMax.to_num());
+		if (const auto tsMax(input.getnexttok()); tsMax != TEXT("nolimit"))
+		{
+			range[1] = MircTimeToSystemTime(tsMax.to_<long>());
 			dflags |= GDTR_MAX;
 		}
 
-		MonthCal_SetRange(this->m_Hwnd, dflags, range);
+		MonthCal_SetRange(m_Hwnd, dflags, range);
 	}
 	//xdid -s [NAME] [ID] [SWITCH] [MIN] (MAX)
-	else if (flags[TEXT('s')] && numtok > 3) {
-		const long min = (long) input.getnexttok( ).to_num();	// tok 4
-		long max = 0;
-		SYSTEMTIME range[2];
+	else if (flags[TEXT('s')])
+	{
+		if (numtok < 4)
+			throw Dcx::dcxException("Insufficient parameters");
 
-		ZeroMemory(range, sizeof(SYSTEMTIME) *2);
+		const auto min = input.getnexttok().to_<long>();	// tok 4
+		SYSTEMTIME range[2]{};
+
+		//ZeroMemory(&range[0], sizeof(SYSTEMTIME) * 2);
 		range[0] = MircTimeToSystemTime(min);
 
-		if (isStyle(MCS_MULTISELECT)) {
+		if (isStyle(WindowStyle::MCS_MultiSelect))
+		{
 			// if only one date specified, select the same date
 			if (numtok < 5)
 				range[1] = range[0];
 			else {
-				max = (long) input.getnexttok( ).to_num();	// tok 5
+				const auto max = input.getnexttok().to_<long>();	// tok 5
 				range[1] = MircTimeToSystemTime(max);
 			}
 
-			MonthCal_SetSelRange(this->m_Hwnd, range);
+			MonthCal_SetSelRange(m_Hwnd, range);
 		}
-		else {
-			MonthCal_SetCurSel(this->m_Hwnd, &(range[0]));
-		}
+		else
+			MonthCal_SetCurSel(m_Hwnd, &(range[0]));
 	}
 	//xdid -t [NAME] [ID] [SWITCH] [TIMESTAMP]
-	else if (flags[TEXT('t')] && numtok > 3) {
-		const long mircTime = (long) input.getnexttok( ).to_num();	// tok 4
-		const SYSTEMTIME sysTime = MircTimeToSystemTime(mircTime);
+	else if (flags[TEXT('t')])
+	{
+		if (numtok < 4)
+			throw Dcx::dcxException("Insufficient parameters");
 
-		MonthCal_SetToday(this->m_Hwnd, &sysTime);
+		const auto mircTime = input.getnexttok().to_<long>();	// tok 4
+		const auto sysTime = MircTimeToSystemTime(mircTime);
+
+		MonthCal_SetToday(m_Hwnd, &sysTime);
 	}
 	else
-		this->parseGlobalCommandRequest( input, flags );
+		this->parseGlobalCommandRequest(input, flags);
 }
 
 /*!
@@ -334,125 +391,166 @@ void DcxCalendar::parseCommandRequest( const TString &input) {
  *
  * blah
  */
-LRESULT DcxCalendar::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) {
-	switch (uMsg) {
-		case WM_NOTIFY: {
-			LPNMHDR hdr = (LPNMHDR) lParam;
+LRESULT DcxCalendar::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed)
+{
+	switch (uMsg)
+	{
+	case WM_NOTIFY:
+	{
+		dcxlParam(LPNMHDR, hdr);
 
-			if (!hdr)
-				break;
+		if (!hdr)
+			break;
 
-			switch(hdr->code) {
-				case MCN_GETDAYSTATE: {
-					LPNMDAYSTATE lpNMDayState = (LPNMDAYSTATE) lParam;
-					MONTHDAYSTATE mds[12];
+		switch (hdr->code)
+		{
+		case MCN_GETDAYSTATE:
+		{
+			dcxlParam(LPNMDAYSTATE, lpNMDayState);
 
-					const int iMax = lpNMDayState->cDayState;
-					TCHAR eval[100];
+			const auto iMax = lpNMDayState->cDayState;
+			//TCHAR eval[100] = { 0 };
+			//
+			//for (auto i = decltype(iMax){0}; i < iMax; i++) {
+			//	// daystate ctrlid startdate
+			//	evalAliasEx(&eval[0], Dcx::countof(eval), TEXT("daystate,%u,%d"), getUserID(), SystemTimeToMircTime(&(lpNMDayState->stStart)));
+			//	m_MonthDayStates[i] = (MONTHDAYSTATE) 0;
+			//	// Ook: this needs looked at, see if we can remove eval or strDays, cant need both...
+			//	TString strDays(eval);
+			//
+			//	strDays.trim();
+			//
+			//	for (auto itStart = strDays.begin(TSCOMMACHAR), itEnd = strDays.end(); itStart != itEnd; ++itStart)
+			//		BOLDDAY(m_MonthDayStates[i], (*itStart).to_int());
+			//
+			//	// increment the month so we get a proper offset
+			//	lpNMDayState->stStart.wMonth++;
+			//
+			//	if (lpNMDayState->stStart.wMonth > 12) {
+			//		lpNMDayState->stStart.wMonth = 1;
+			//		lpNMDayState->stStart.wYear++;
+			//	}
+			//}
 
-					for (int i = 0; i < iMax; i++) {
-						// daystate ctrlid startdate
-						this->evalAliasEx(eval, 100, TEXT("%s,%d,%d"), TEXT("daystate"), this->getUserID(), SystemTimeToMircTime(&(lpNMDayState->stStart)));
-						mds[i] = (MONTHDAYSTATE) 0;
+			GSL_SUPPRESS(bounds.3)
+				for (auto i = decltype(iMax){0}; i < iMax; ++i)
+			{
+				// daystate ctrlid startdate
+				const TString strDays(getParentDialog()->evalAliasT(TEXT("daystate,%,%"), getUserID(), SystemTimeToMircTime(&(lpNMDayState->stStart))).second.trim());
+				gsl::at(m_MonthDayStates, i) = 0;
 
-						TString strDays(eval);
-
-						const UINT nTok = strDays.trim().numtok(TSCOMMA);
-
-						strDays.getfirsttok( 0, TSCOMMA);
-
-						for (UINT x = 1; x <= nTok; x++)
-							BOLDDAY(mds[i], strDays.getnexttok( TSCOMMA ).trim().to_int());
-
-						// increment the month so we get a proper offset
-						lpNMDayState->stStart.wMonth++;
-
-						if (lpNMDayState->stStart.wMonth > 12) {
-							lpNMDayState->stStart.wMonth = 1;
-							lpNMDayState->stStart.wYear++;
-						}
-					}
-
-					lpNMDayState->prgDayState = mds;
-					bParsed = TRUE;
-					return FALSE;
+				{
+					const auto itEnd = strDays.end();
+					for (auto itStart = strDays.begin(TSCOMMACHAR); itStart != itEnd; ++itStart)
+						BOLDDAY(gsl::at(m_MonthDayStates, i), (*itStart).to_int());
 				}
 
-				case MCN_SELCHANGE: {
-					this->execAliasEx(TEXT("%s,%d"), TEXT("selchange"), this->getUserID());
-					break;
+				// increment the month so we get a proper offset
+				++lpNMDayState->stStart.wMonth;
+
+				if (lpNMDayState->stStart.wMonth > 12)
+				{
+					lpNMDayState->stStart.wMonth = 1;
+					++lpNMDayState->stStart.wYear;
 				}
-				case MCN_SELECT: {
-					// specific code to handle multiselect dates
-					if (this->isStyle(MCS_MULTISELECT)) {
-						// get the selected range
-						SYSTEMTIME selrange[2];
+			}
 
-						MonthCal_GetSelRange(this->m_Hwnd, selrange);
-
-						// send event to callback
-						this->execAliasEx(TEXT("%s,%d,%d,%d"), TEXT("select"), this->getUserID(),
-							SystemTimeToMircTime(&(selrange[0])),
-							SystemTimeToMircTime(&(selrange[1])));
-					}
-					// code to handle single selected dates
-					else {
-						SYSTEMTIME st;
-
-						ZeroMemory(&st, sizeof(SYSTEMTIME));
-						MonthCal_GetCurSel(this->m_Hwnd, &st);
-
-						st.wHour = 0;
-						st.wMinute = 0;
-						st.wSecond = 0;
-						st.wMilliseconds = 0;
-
-						// send event to callback
-						this->execAliasEx(TEXT("%s,%d,%d"), TEXT("select"), this->getUserID(), SystemTimeToMircTime(&st));
-					}
-
-					break;
-				}
-				case NM_RELEASEDCAPTURE: {
-					if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-						this->execAliasEx(TEXT("%s,%d"), TEXT("sclick"), this->getUserID());
-					break;
-				}
-				default:
-					break;
-			} // end switch
+			lpNMDayState->prgDayState = &m_MonthDayStates[0];
+			bParsed = TRUE;
+			return FALSE;
 		}
+
+		case MCN_SELCHANGE:
+		{
+			execAliasEx(TEXT("selchange,%u"), getUserID());
+			break;
+		}
+		case MCN_SELECT:
+		{
+			// specific code to handle multiselect dates
+			if (isStyle(WindowStyle::MCS_MultiSelect))
+			{
+				// get the selected range
+				SYSTEMTIME selrange[2]{};
+
+				MonthCal_GetSelRange(m_Hwnd, selrange);
+
+				// send event to callback
+				execAliasEx(TEXT("select,%u,%d,%d"), getUserID(),
+					SystemTimeToMircTime(&(selrange[0])),
+					SystemTimeToMircTime(&(selrange[1])));
+			}
+			// code to handle single selected dates
+			else {
+				SYSTEMTIME st{};
+
+				//ZeroMemory(&st, sizeof(SYSTEMTIME));
+				MonthCal_GetCurSel(m_Hwnd, &st);
+
+				st.wHour = 0;
+				st.wMinute = 0;
+				st.wSecond = 0;
+				st.wMilliseconds = 0;
+
+				// send event to callback
+				execAliasEx(TEXT("select,%u,%d"), getUserID(), SystemTimeToMircTime(&st));
+			}
+
+			break;
+		}
+		case NM_RELEASEDCAPTURE:
+		{
+			if (dcx_testflag(getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
+				execAliasEx(TEXT("sclick,%u"), getUserID());
+			break;
+		}
+		default:
+			break;
+		} // end switch
+	}
+	break;
+	default:
+		break;
 	}
 	return 0L;
 }
 
-LRESULT DcxCalendar::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) {
-	switch (uMsg) {
-
+LRESULT DcxCalendar::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed)
+{
+	switch (uMsg)
+	{
 	case WM_LBUTTONUP:
-		{
-			if (this->m_pParentDialog->getEventMask() & DCX_EVENT_CLICK)
-				this->execAliasEx(TEXT("%s,%d"), TEXT("lbup"), this->getUserID( ) );
-		}
-		break;
+	{
+		if (dcx_testflag(getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
+			execAliasEx(TEXT("lbup,%u"), getUserID());
+	}
+	break;
 
-		//case WM_GETDLGCODE:
-		//{
-		//	return DLGC_WANTARROWS;
-		//	break;
-		//}
+	//case WM_GETDLGCODE:
+	//{
+	//	return DLGC_WANTARROWS;
+	//	break;
+	//}
 
 	case WM_DESTROY:
-		{
-			delete this;
-			bParsed = TRUE;
-			break;
-		}
+	{
+		delete this;
+		bParsed = TRUE;
+		break;
+	}
 
 	default:
-		return this->CommonMessage( uMsg, wParam, lParam, bParsed);
+		return CommonMessage(uMsg, wParam, lParam, bParsed);
 		break;
 	}
 
 	return 0L;
+}
+
+LRESULT DcxCalendar::CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept
+{
+	if (m_hDefaultClassProc)
+		return CallWindowProc(m_hDefaultClassProc, this->m_Hwnd, uMsg, wParam, lParam);
+
+	return DefWindowProc(this->m_Hwnd, uMsg, wParam, lParam);
 }

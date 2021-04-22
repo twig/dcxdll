@@ -22,6 +22,31 @@ function get_xdid_webctrl(&$XDID) {
 		'k' => array(
 	        '__desc' => 'This command is like hitting the Back button in IE.',
 		),
+		'm' => array(
+	        '__desc' => 'This does the same as /xdid -n but allows setting some flags too.',
+	        '__cmd' => '[+FLAGS] [+MASK] (URL)',
+	        '__eg' => "+bf +b http://dcx.scriptsdb.org",
+			'__params' => array(
+				'+FLAGS' => array(
+					'__desc' => 'Can be any combination of',
+					'__values' => array(
+						'h' => 'Disable adding url to history',
+						'r' => 'Disables reading url from cache.',
+						'w' => 'Disables adding this url to cache.',
+						'a' => 'Enabled Auto Search when url fails.',
+						'e' => 'Forces url to be opened in the Restricted Zone.',
+						'm' => 'Enabled Popup Manager.',
+						'u' => 'Disabled downloads.',
+						'x' => 'Enable ActiveX Installing (You will still be prompted for allow/disallow)',
+						'b' => 'toggle address bar on/off',
+						'f' => 'toggle fullscreen on/off',
+						's' => 'toggle statusbar on/off',
+					),
+				),
+				'+MASK' => 'is used to set the flags on or off /xdid -m dialog +bf +b will turn the address bar on, & disable fullscreen.',
+				'URL' => 'is optional, if not supplied then you can use the command to just set flags.',
+			),
+		),
 		'n' => array(
 	        '__desc' => 'This command lets you navigate to an url.',
 	        '__cmd' => '[URL]',
@@ -39,10 +64,21 @@ function get_xdid_webctrl(&$XDID) {
 function get_xdidprops_webctrl(&$XDIDPROPS) {
 	$XDIDPROPS = array(
 		"url" => array(
-		    '__desc' => "This property lets you retreive the current loaded url.",
+		    '__desc' => "This property lets you retrieve the current loaded url.",
 		),
 		"ready" => array(
-		    '__desc' => 'This property lets you retreive the ready state. If it is [v]$true[/v] the control is ready for another command, else you should wait.',
+		    '__desc' => 'This property lets you retrieve the ready state. If it is [v]$true[/v] the control is ready for another command, else you should wait.',
+		),
+		"statusbar" => array(
+		    '__desc' => 'This property lets you retrieve the enabled state of the statusbar. If it is [v]$true[/v] the statusbar is displayed, otherwise it\'s hidden.',
+		),
+		"statustext" => array(
+		    '__desc' => 'This property lets you retrieve the text displayed in the statusbar.',
+		),
+		"script" => array(
+		    '__desc' => 'This property lets you call a script that returns a result.',
+			'__cmd' => 'scriptcommand',
+			'__eg' => 'document.title',
 		),
 	);
 }

@@ -25,42 +25,29 @@
  * \param styles Window Style Tokenized List
  */
 
-DcxScroll::DcxScroll( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, const TString & styles ) 
-: DcxControl( ID, p_Dialog )
-, m_nPage(5)
-, m_nLine(1)
+DcxScroll::DcxScroll(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles)
+	: DcxControl(ID, p_Dialog)
 {
-	LONG Styles = 0, ExStyles = 0;
-	BOOL bNoTheme = FALSE;
-	this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
+	const auto ws = parseControlStyles(styles);
 
-	this->m_Hwnd = CreateWindowEx(	
-		ExStyles, 
-		TEXT("SCROLLBAR"), 
-		NULL,
-		WS_CHILD | Styles, 
-		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
+	m_Hwnd = dcxCreateWindow(
+		ws.m_ExStyles,
+		DCX_SCROLLBARCLASS,
+		ws.m_Styles | WindowStyle::Child,
+		rc,
 		mParentHwnd,
-		(HMENU) ID,
-		GetModuleHandle(NULL), 
-		NULL);
+		ID,
+		this);
 
-	if (!IsWindow(this->m_Hwnd))
-		throw TEXT("Unable To Create Window");
+	if (!IsWindow(m_Hwnd))
+		throw Dcx::dcxException("Unable To Create Window");
 
-	if ( bNoTheme )
-		Dcx::UXModule.dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
+	if (ws.m_NoTheme)
+		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
 
-	SCROLLINFO si;
-	si.cbSize = sizeof( SCROLLINFO );
-	si.fMask = SIF_POS | SIF_RANGE;
-	si.nPos = 0;
-	si.nMin = 0;
-	si.nMax = 100;
-	SetScrollInfo( this->m_Hwnd, SB_CTL, &si, TRUE );
+	const SCROLLINFO si{ sizeof(SCROLLINFO), SIF_POS | SIF_RANGE, 0, 100, 0U, 0, 0 };
 
-	this->registreDefaultWindowProc( );
-	SetProp( this->m_Hwnd, TEXT("dcx_cthis"), (HANDLE) this );
+	SetScrollInfo(m_Hwnd, SB_CTL, &si, TRUE);
 }
 
 /*!
@@ -69,26 +56,32 @@ DcxScroll::DcxScroll( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc
  * blah
  */
 
-DcxScroll::~DcxScroll( ) {
-
-	this->unregistreDefaultWindowProc( );
-}
-
-/*!
- * \brief blah
- *
- * blah
- */
-
-void DcxScroll::parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme )
+DcxScroll::~DcxScroll( ) noexcept
 {
-	for (TString tsStyle(styles.getfirsttok( 1 )); tsStyle != TEXT(""); tsStyle = styles.getnexttok( ))
-	{
-		if ( tsStyle == TEXT("vertical") )
-			*Styles |= SBS_VERT;
-	}
+}
 
-	this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
+/*!
+ * \brief blah
+ *
+ * blah
+ */
+
+//void DcxScroll::parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme )
+//{
+//	if (styles.istok(TEXT("vertical")))
+//		*Styles |= SBS_VERT;
+//
+//	this->parseGeneralControlStyles(styles, Styles, ExStyles, bNoTheme);
+//}
+
+dcxWindowStyles DcxScroll::parseControlStyles(const TString & tsStyles)
+{
+	dcxWindowStyles ws;
+
+	if (tsStyles.istok(TEXT("vertical")))
+		ws.m_Styles |= SBS_VERT;
+
+	return parseGeneralControlStyles(tsStyles, ws);
 }
 
 /*!
@@ -100,47 +93,44 @@ void DcxScroll::parseControlStyles( const TString & styles, LONG * Styles, LONG 
  * \return > void
  */
 
-void DcxScroll::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) const
+void DcxScroll::parseInfoRequest( const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const
 {
-	const TString prop(input.getfirsttok( 3 ));
+	switch (std::hash<TString>{}(input.getfirsttok(3)))
+	{
+		// [NAME] [ID] [PROP]
+	case L"value"_hash:
+	{
+		SCROLLINFO si{ sizeof(SCROLLINFO), SIF_POS, 0, 0, 0U, 0, 0 };
 
-	// [NAME] [ID] [PROP]
-	if ( prop == TEXT("value") ) {
+		if (!GetScrollInfo(m_Hwnd, SB_CTL, &si))
+			throw Dcx::dcxException("Unable to get scroll info");
 
-		SCROLLINFO si;
-		si.cbSize = sizeof( SCROLLINFO );
-		si.fMask = SIF_POS;
-		GetScrollInfo( this->m_Hwnd, SB_CTL, &si );
-
-		wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), si.nPos );
-		return;
+		_ts_snprintf(szReturnValue, TEXT("%d"), si.nPos);
 	}
+	break;
 	// [NAME] [ID] [PROP]
-	else if ( prop == TEXT("range") ) {
+	case L"range"_hash:
+	{
+		SCROLLINFO si{ sizeof(SCROLLINFO), SIF_RANGE, 0, 0, 0U, 0, 0 };
 
-		SCROLLINFO si;
-		si.cbSize = sizeof( SCROLLINFO );
-		si.fMask = SIF_RANGE;
-		GetScrollInfo( this->m_Hwnd, SB_CTL, &si );
-		wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d"), si.nMin, si.nMax );
-		return;
+		if (!GetScrollInfo(m_Hwnd, SB_CTL, &si))
+			throw Dcx::dcxException("Unable to get scroll info");
+
+		_ts_snprintf(szReturnValue, TEXT("%d %d"), si.nMin, si.nMax);
 	}
+	break;
 	// [NAME] [ID] [PROP]
-	else if ( prop == TEXT("line") ) {
-
-		wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), this->m_nLine );
-		return;
+	case L"line"_hash:
+		_ts_snprintf(szReturnValue, TEXT("%d"), this->m_nLine);
+		break;
+		// [NAME] [ID] [PROP]
+	case L"page"_hash:
+		_ts_snprintf(szReturnValue, TEXT("%d"), this->m_nPage);
+		break;
+	default:
+		this->parseGlobalInfoRequest(input, szReturnValue);
+		break;
 	}
-	// [NAME] [ID] [PROP]
-	else if ( prop == TEXT("page") ) {
-
-		wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), this->m_nPage );
-		return;
-	}
-	else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
-		return;
-
-	szReturnValue[0] = 0;
 }
 
 /*!
@@ -149,61 +139,70 @@ void DcxScroll::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) 
  * blah
  */
 
-void DcxScroll::parseCommandRequest( const TString & input ) {
+void DcxScroll::parseCommandRequest( const TString & input )
+{
 	const XSwitchFlags flags(input.getfirsttok( 3 ));
-	const int numtok = input.numtok( );
+	const auto numtok = input.numtok();
 
 	//xdid -l [NAME] [ID] [SWITCH] [N]
-	if ( flags[TEXT('l')] && numtok > 3 ) {
+	if ( flags[TEXT('l')] )
+	{
+		if (numtok < 4)
+			throw Dcx::dcxException("Insufficient parameters");
 
-		const int nLine = input.getnexttok( ).to_int( );	// tok 4
+		const auto nLine = input.getnexttok().to_int();	// tok 4
 
 		if ( nLine > 0 )
 			this->m_nLine = nLine;
 	}
 	//xdid -m [NAME] [ID] [SWITCH] [N]
-	else if ( flags[TEXT('m')] && numtok > 3 ) {
+	else if ( flags[TEXT('m')] )
+	{
+		if (numtok < 4)
+			throw Dcx::dcxException("Insufficient parameters");
 
-		const int nPage = input.getnexttok( ).to_int( );	// tok 4
+		const auto nPage = input.getnexttok().to_int();	// tok 4
 
 		if ( nPage > 0 )
 			this->m_nPage = nPage;
 	}
 	//xdid -r [NAME] [ID] [SWITCH] [L] [R]
-	else if ( flags[TEXT('r')] && numtok > 4 ) {
+	else if ( flags[TEXT('r')] )
+	{
+		if (numtok < 5)
+			throw Dcx::dcxException("Insufficient parameters");
 
-		const INT L = input.getnexttok( ).to_int( );	// tok 4
-		const INT R = input.getnexttok( ).to_int( );	// tok 5
+		const auto L = input.getnexttok().to_int();	// tok 4
+		const auto R = input.getnexttok().to_int();	// tok 5
 
-		SCROLLINFO si;
-		si.cbSize = sizeof( SCROLLINFO );
-		si.fMask = SIF_RANGE;
-		si.nMin = L;
-		si.nMax = R;
-		SetScrollInfo( this->m_Hwnd, SB_CTL, &si, TRUE );
+		const SCROLLINFO si{ sizeof(SCROLLINFO),SIF_RANGE,L,R,0U,0,0 };
+
+		SetScrollInfo( m_Hwnd, SB_CTL, &si, TRUE );
 	}
 	//xdid -v [NAME] [ID] [SWITCH] [VALUE]
-	else if ( flags[TEXT('v')] && numtok > 3 ) {
+	else if ( flags[TEXT('v')] )
+	{
+		if (numtok < 4)
+			throw Dcx::dcxException("Insufficient parameters");
 
-		const int pos = input.getnexttok( ).to_int( );	// tok 4
+		const auto pos = input.getnexttok().to_int();	// tok 4
 
-		SCROLLINFO si;
-		si.cbSize = sizeof( SCROLLINFO );
-		si.fMask = SIF_POS;
-		si.nPos = pos;
-		SetScrollInfo( this->m_Hwnd, SB_CTL, &si, TRUE );
+		const SCROLLINFO si{ sizeof(SCROLLINFO),SIF_POS,0,0,0U,pos,0 };
+
+		SetScrollInfo( m_Hwnd, SB_CTL, &si, TRUE );
 	}
 	else
 		this->parseGlobalCommandRequest( input, flags );
 }
 
-TString DcxScroll::getStyles(void) const
+const TString DcxScroll::getStyles(void) const
 {
-	TString styles(__super::getStyles());
-	const DWORD Styles = GetWindowStyle(this->m_Hwnd);
-	if (Styles & SBS_VERT)
-		styles.addtok(TEXT("vertical"));
-	return styles;
+	auto tsStyles(__super::getStyles());
+
+	if (const auto Styles = dcxGetWindowStyle(m_Hwnd); dcx_testflag(Styles, SBS_VERT))
+		tsStyles.addtok(TEXT("vertical"));
+
+	return tsStyles;
 }
 
 /*!
@@ -211,232 +210,360 @@ TString DcxScroll::getStyles(void) const
  *
  * blah
  */
-LRESULT DcxScroll::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bParsed) {
-	switch (uMsg) {
-		case WM_HSCROLL: 
+LRESULT DcxScroll::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bParsed)
+{
+	//switch (uMsg)
+	//{
+	//case WM_HSCROLL:
+	//{
+	//	SCROLLINFO si{};
+	//	si.cbSize = sizeof(SCROLLINFO);
+	//	si.fMask = SIF_PAGE | SIF_POS | SIF_RANGE | SIF_TRACKPOS;
+	//	if (!GetScrollInfo(m_Hwnd, SB_CTL, &si))
+	//		break;
+	//
+	//	switch (LOWORD(wParam))
+	//	{
+	//	case SB_TOP:
+	//	{
+	//		si.nPos = si.nMin;
+	//		this->execAliasEx(TEXT("top,%u,%d"), getUserID(), si.nPos);
+	//		break;
+	//	}
+	//
+	//	case SB_BOTTOM:
+	//	{
+	//		si.nPos = si.nMax;
+	//		this->execAliasEx(TEXT("bottom,%u,%d"), getUserID(), si.nPos);
+	//		break;
+	//	}
+	//
+	//	//case SB_ENDTRACK:
+	//	//  CallAliasEx( p_Dialog, ret, TEXT("%s,%d,%d"), TEXT("sclick"), 
+	//	//               this->getUserID( ), p_DcxTrackBar->getPos( ) );
+	//	//  break;
+	//
+	//	case SB_PAGEUP:
+	//	{
+	//		if ((si.nPos - this->m_nPage) >= si.nMin)
+	//			si.nPos -= this->m_nPage;
+	//		else
+	//			si.nPos = si.nMin;
+	//
+	//		this->execAliasEx(TEXT("pageup,%u,%d"), getUserID(), si.nPos);
+	//		break;
+	//	}
+	//
+	//	case SB_PAGEDOWN:
+	//	{
+	//		if (si.nPos + this->m_nPage <= si.nMax)
+	//			si.nPos += this->m_nPage;
+	//		else
+	//			si.nPos = si.nMax;
+	//
+	//		this->execAliasEx(TEXT("pagedown,%u,%d"), getUserID(), si.nPos);
+	//		break;
+	//	}
+	//
+	//	case SB_LINEUP:
+	//	{
+	//		if (si.nPos - this->m_nLine >= si.nMin)
+	//			si.nPos -= this->m_nLine;
+	//		else
+	//			si.nPos = si.nMin;
+	//
+	//		this->execAliasEx(TEXT("lineup,%u,%d"), getUserID(), si.nPos);
+	//		break;
+	//	}
+	//
+	//	case SB_LINEDOWN:
+	//	{
+	//		if (si.nPos + this->m_nLine <= si.nMax)
+	//			si.nPos += this->m_nLine;
+	//		else
+	//			si.nPos = si.nMax;
+	//
+	//		this->execAliasEx(TEXT("linedown,%u,%d"), getUserID(), si.nPos);
+	//		break;
+	//	}
+	//
+	//	case SB_THUMBPOSITION:
+	//	{
+	//		this->execAliasEx(TEXT("trackend,%u,%d"), getUserID(), si.nPos);
+	//		break;
+	//	}
+	//
+	//	case SB_THUMBTRACK:
+	//	{
+	//		si.nPos = si.nTrackPos;
+	//		this->execAliasEx(TEXT("tracking,%u,%d"), getUserID(), si.nTrackPos);
+	//		break;
+	//	}
+	//	}
+	//
+	//	bParsed = TRUE;
+	//	si.fMask = SIF_POS;
+	//	SetScrollInfo(m_Hwnd, SB_CTL, &si, TRUE);
+	//	break;
+	//}
+	//
+	//case WM_VSCROLL:
+	//{
+	//	SCROLLINFO si;
+	//	si.cbSize = sizeof(SCROLLINFO);
+	//	si.fMask = SIF_PAGE | SIF_POS | SIF_RANGE | SIF_TRACKPOS;
+	//	if (!GetScrollInfo(m_Hwnd, SB_CTL, &si))
+	//		break;
+//
+	//	switch (LOWORD(wParam))
+	//	{
+	//	case SB_TOP:
+	//	{
+	//		si.nPos = si.nMin;
+	//		this->execAliasEx(TEXT("top,%u,%d"), getUserID(), si.nPos);
+	//		break;
+	//	}
+//
+	//	case SB_BOTTOM:
+	//	{
+	//		si.nPos = si.nMax;
+	//		this->execAliasEx(TEXT("bottom,%u,%d"), getUserID(), si.nPos);
+	//		break;
+	//	}
+//
+	//	//case SB_ENDTRACK:
+	//	//  CallAliasEx( p_Dialog, ret, TEXT("%s,%d,%d"), TEXT("sclick"), 
+	//	//               this->getUserID( ), p_DcxTrackBar->getPos( ) );
+	//	//  break;
+//
+	//	case SB_PAGEUP:
+	//	{
+	//		if (si.nPos - this->m_nPage >= si.nMin)
+	//			si.nPos -= this->m_nPage;
+	//		else
+	//			si.nPos = si.nMin;
+//
+	//		this->execAliasEx(TEXT("pageup,%u,%d"), getUserID(), si.nPos);
+	//		break;
+	//	}
+//
+	//	case SB_PAGEDOWN:
+	//	{
+	//		if (si.nPos + this->m_nPage <= si.nMax)
+	//			si.nPos += this->m_nPage;
+	//		else
+	//			si.nPos = si.nMax;
+//
+	//		this->execAliasEx(TEXT("pagedown,%u,%d"), getUserID(), si.nPos);
+	//		break;
+	//	}
+//
+	//	case SB_LINEUP:
+	//	{
+	//		if (si.nPos - this->m_nLine >= si.nMin)
+	//			si.nPos -= this->m_nLine;
+	//		else
+	//			si.nPos = si.nMin;
+//
+	//		this->execAliasEx(TEXT("lineup,%u,%d"), getUserID(), si.nPos);
+	//		break;
+	//	}
+//
+	//	case SB_LINEDOWN:
+	//	{
+	//		if (si.nPos + this->m_nLine <= si.nMax)
+	//			si.nPos += this->m_nLine;
+	//		else
+	//			si.nPos = si.nMax;
+//
+	//		this->execAliasEx(TEXT("linedown,%u,%d"), getUserID(), si.nPos);
+	//		break;
+	//	}
+//
+	//	case SB_THUMBPOSITION:
+	//	{
+	//		this->execAliasEx(TEXT("trackend,%u,%d"), getUserID(), si.nPos);
+	//		break;
+	//	}
+//
+	//	case SB_THUMBTRACK:
+	//	{
+	//		si.nPos = si.nTrackPos;
+	//		this->execAliasEx(TEXT("tracking,%u,%d"), getUserID(), si.nTrackPos);
+	//		break;
+	//	}
+	//	}
+//
+	//	bParsed = TRUE;
+	//	si.fMask = SIF_POS;
+	//	SetScrollInfo(m_Hwnd, SB_CTL, &si, TRUE);
+	//	break;
+	//}
+	//}
+
+	switch (const auto HandleScroll = [=]() {
+		SCROLLINFO si{};
+		si.cbSize = sizeof(SCROLLINFO);
+		si.fMask = SIF_PAGE | SIF_POS | SIF_RANGE | SIF_TRACKPOS;
+		if (!GetScrollInfo(m_Hwnd, SB_CTL, &si))
+			return FALSE;
+
+		switch (Dcx::dcxLOWORD(wParam))
 		{
-			SCROLLINFO si;
-			si.cbSize = sizeof(SCROLLINFO);
-			si.fMask = SIF_PAGE | SIF_POS | SIF_RANGE | SIF_TRACKPOS;
-			GetScrollInfo(this->m_Hwnd, SB_CTL, &si);
-
-			switch (LOWORD(wParam)) {
-				case SB_TOP:
-				{
-					si.nPos = si.nMin;
-					this->execAliasEx(TEXT("%s,%d,%d"), TEXT("top"), this->getUserID( ), si.nPos );
-					break;
-				}
-
-				case SB_BOTTOM:
-				{
-					si.nPos = si.nMax;
-					this->execAliasEx(TEXT("%s,%d,%d"), TEXT("bottom"), this->getUserID( ), si.nPos );
-					break;
-				}
-
-				//case SB_ENDTRACK:
-				//  CallAliasEx( p_Dialog, ret, TEXT("%s,%d,%d"), TEXT("sclick"), 
-				//               this->getUserID( ), p_DcxTrackBar->getPos( ) );
-				//  break;
-
-				case SB_PAGEUP:
-				{
-					if ((si.nPos - this->m_nPage) >= si.nMin)
-						si.nPos -= this->m_nPage;
-					else
-						si.nPos = si.nMin;
-
-					this->execAliasEx(TEXT("%s,%d,%d"), TEXT("pageup"), this->getUserID(), si.nPos);
-					break;
-				}
-
-				case SB_PAGEDOWN:
-				{
-					if (si.nPos + this->m_nPage <= si.nMax)
-						si.nPos += this->m_nPage;
-					else
-						si.nPos = si.nMax;
-
-					this->execAliasEx(TEXT("%s,%d,%d"), TEXT("pagedown"), this->getUserID(), si.nPos);
-					break;
-				}
-
-				case SB_LINEUP:
-				{
-					if (si.nPos - this->m_nLine >= si.nMin)
-						si.nPos -= this->m_nLine;
-					else
-						si.nPos = si.nMin;
-
-					this->execAliasEx(TEXT("%s,%d,%d"), TEXT("lineup"), this->getUserID( ), si.nPos );
-					break;
-				}
-
-				case SB_LINEDOWN:
-				{
-					if (si.nPos + this->m_nLine <= si.nMax)
-						si.nPos += this->m_nLine;
-					else
-						si.nPos = si.nMax;
-
-					this->execAliasEx(TEXT("%s,%d,%d"), TEXT("linedown"), this->getUserID(), si.nPos);
-					break;
-				}
-
-				case SB_THUMBPOSITION:
-				{
-					this->execAliasEx(TEXT("%s,%d,%d"), TEXT("trackend"), this->getUserID(), si.nPos);
-					break;
-				}
-
-				case SB_THUMBTRACK:
-				{
-					si.nPos = si.nTrackPos;
-					this->execAliasEx(TEXT("%s,%d,%d"), TEXT("tracking"), this->getUserID(), si.nTrackPos);
-					break;
-				}
-			}
-
-			bParsed = TRUE;
-			si.fMask = SIF_POS;
-			SetScrollInfo(this->m_Hwnd, SB_CTL, &si, TRUE);
+		case SB_TOP:
+		{
+			si.nPos = si.nMin;
+			this->execAliasEx(TEXT("top,%u,%d"), getUserID(), si.nPos);
 			break;
 		}
 
-		case WM_VSCROLL:
+		case SB_BOTTOM:
 		{
-			SCROLLINFO si;
-			si.cbSize = sizeof(SCROLLINFO);
-			si.fMask = SIF_PAGE | SIF_POS | SIF_RANGE | SIF_TRACKPOS;
-			GetScrollInfo(this->m_Hwnd, SB_CTL, &si);
-
-			switch (LOWORD(wParam)) {
-				case SB_TOP:
-				{
-					si.nPos = si.nMin;
-					this->execAliasEx(TEXT("%s,%d,%d"), TEXT("top"), this->getUserID(), si.nPos);
-					break;
-				}
-
-				case SB_BOTTOM:
-				{
-					si.nPos = si.nMax;
-					this->execAliasEx(TEXT("%s,%d,%d"), TEXT("bottom"), this->getUserID(), si.nPos);
-					break;
-				}
-
-				//case SB_ENDTRACK:
-				//  CallAliasEx( p_Dialog, ret, TEXT("%s,%d,%d"), TEXT("sclick"), 
-				//               this->getUserID( ), p_DcxTrackBar->getPos( ) );
-				//  break;
-
-				case SB_PAGEUP:
-				{
-					if (si.nPos - this->m_nPage >= si.nMin)
-						si.nPos -= this->m_nPage;
-					else
-						si.nPos = si.nMin;
-
-					this->execAliasEx(TEXT("%s,%d,%d"), TEXT("pageup"), this->getUserID(), si.nPos);
-					break;
-				}
-				
-				case SB_PAGEDOWN:
-				{
-					if (si.nPos + this->m_nPage <= si.nMax)
-						si.nPos += this->m_nPage;
-					else
-						si.nPos = si.nMax;
-
-					this->execAliasEx(TEXT("%s,%d,%d"), TEXT("pagedown"), this->getUserID(), si.nPos);
-					break;
-				}
-				
-				case SB_LINEUP:
-				{
-					if (si.nPos - this->m_nLine >= si.nMin)
-						si.nPos -= this->m_nLine;
-					else
-						si.nPos = si.nMin;
-
-					this->execAliasEx(TEXT("%s,%d,%d"), TEXT("lineup"), this->getUserID(), si.nPos);
-					break;
-				}
-
-				case SB_LINEDOWN:
-				{
-					if ( si.nPos + this->m_nLine <= si.nMax )
-						si.nPos += this->m_nLine;
-					else
-						si.nPos = si.nMax;
-
-					this->execAliasEx(TEXT("%s,%d,%d"), TEXT("linedown"), this->getUserID( ), si.nPos );
-					break;
-				}
-
-				case SB_THUMBPOSITION:
-				{
-					this->execAliasEx(TEXT("%s,%d,%d"), TEXT("trackend"), this->getUserID(), si.nPos);
-					break;
-				}
-
-				case SB_THUMBTRACK:
-				{
-					si.nPos = si.nTrackPos;
-					this->execAliasEx(TEXT("%s,%d,%d"), TEXT("tracking"), this->getUserID(), si.nTrackPos);
-					break;
-				}
-			}
-
-			bParsed = TRUE;
-			si.fMask = SIF_POS;
-			SetScrollInfo(this->m_Hwnd, SB_CTL, &si, TRUE);
+			si.nPos = si.nMax;
+			this->execAliasEx(TEXT("bottom,%u,%d"), getUserID(), si.nPos);
 			break;
 		}
+
+		//case SB_ENDTRACK:
+		//  CallAliasEx( p_Dialog, ret, TEXT("%s,%d,%d"), TEXT("sclick"), 
+		//               this->getUserID( ), p_DcxTrackBar->getPos( ) );
+		//  break;
+
+		case SB_PAGEUP:
+		{
+			if ((si.nPos - this->m_nPage) >= si.nMin)
+				si.nPos -= this->m_nPage;
+			else
+				si.nPos = si.nMin;
+
+			this->execAliasEx(TEXT("pageup,%u,%d"), getUserID(), si.nPos);
+			break;
+		}
+
+		case SB_PAGEDOWN:
+		{
+			if (si.nPos + this->m_nPage <= si.nMax)
+				si.nPos += this->m_nPage;
+			else
+				si.nPos = si.nMax;
+
+			this->execAliasEx(TEXT("pagedown,%u,%d"), getUserID(), si.nPos);
+			break;
+		}
+
+		case SB_LINEUP:
+		{
+			if (si.nPos - this->m_nLine >= si.nMin)
+				si.nPos -= this->m_nLine;
+			else
+				si.nPos = si.nMin;
+
+			this->execAliasEx(TEXT("lineup,%u,%d"), getUserID(), si.nPos);
+			break;
+		}
+
+		case SB_LINEDOWN:
+		{
+			if (si.nPos + this->m_nLine <= si.nMax)
+				si.nPos += this->m_nLine;
+			else
+				si.nPos = si.nMax;
+
+			this->execAliasEx(TEXT("linedown,%u,%d"), getUserID(), si.nPos);
+			break;
+		}
+
+		case SB_THUMBPOSITION:
+		{
+			this->execAliasEx(TEXT("trackend,%u,%d"), getUserID(), si.nPos);
+			break;
+		}
+
+		case SB_THUMBTRACK:
+		{
+			si.nPos = si.nTrackPos;
+			this->execAliasEx(TEXT("tracking,%u,%d"), getUserID(), si.nTrackPos);
+			break;
+		}
+		default:
+			break;
+		}
+
+		si.fMask = SIF_POS;
+		SetScrollInfo(m_Hwnd, SB_CTL, &si, TRUE);
+		return TRUE;
+	}; uMsg)
+	{
+	case WM_HSCROLL:
+	case WM_VSCROLL:
+		bParsed = HandleScroll();
+		break;
+	default:
+		break;
 	}
 
 	return 0L;
 }
 
-LRESULT DcxScroll::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
-
-	switch( uMsg ) {
-
-		case WM_PAINT:
-			{
-				if (!this->m_bAlphaBlend)
-					break;
-				PAINTSTRUCT ps;
-				HDC hdc;
-
-				hdc = BeginPaint( this->m_Hwnd, &ps );
-
-				bParsed = TRUE;
-
-				// Setup alpha blend if any.
-				LPALPHAINFO ai = this->SetupAlphaBlend(&hdc);
-
-				LRESULT res = CallWindowProc( this->m_DefaultWindowProc, this->m_Hwnd, uMsg, (WPARAM) hdc, lParam );
-
-				this->FinishAlphaBlend(ai);
-
-				EndPaint( this->m_Hwnd, &ps );
-				return res;
-			}
+LRESULT DcxScroll::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed)
+{
+	switch (uMsg)
+	{
+	case WM_PAINT:
+	{
+		if (!this->IsAlphaBlend())
 			break;
 
-		case WM_DESTROY:
-			{
-				delete this;
-				bParsed = TRUE;
-			}
-			break;
+		PAINTSTRUCT ps{};
 
-		default:
-			return this->CommonMessage( uMsg, wParam, lParam, bParsed);
-			break;
+		auto hdc = BeginPaint(m_Hwnd, &ps);
+		Auto(EndPaint(m_Hwnd, &ps));
+
+		bParsed = TRUE;
+
+		// Setup alpha blend if any.
+		const auto ai = this->SetupAlphaBlend(&hdc);
+		Auto(this->FinishAlphaBlend(ai));
+
+		return CallDefaultClassProc(uMsg, reinterpret_cast<WPARAM>(hdc), lParam);
+	}
+	break;
+
+	case WM_DESTROY:
+	{
+		delete this;
+		bParsed = TRUE;
+	}
+	break;
+
+	default:
+		return this->CommonMessage(uMsg, wParam, lParam, bParsed);
+		break;
 	}
 
 	return 0L;
+}
+
+void DcxScroll::toXml(TiXmlElement *const xml) const
+{
+	__super::toXml(xml);
+
+	const TString wtext(TGetWindowText(m_Hwnd));
+	xml->SetAttribute("caption", wtext.c_str());
+	xml->SetAttribute("styles", getStyles().c_str());
+}
+
+TiXmlElement * DcxScroll::toXml(void) const
+{
+	auto xml = std::make_unique<TiXmlElement>("control");
+	toXml(xml.get());
+	return xml.release();
+}
+
+LRESULT DcxScroll::CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept
+{
+	if (m_hDefaultClassProc)
+		return CallWindowProc(m_hDefaultClassProc, this->m_Hwnd, uMsg, wParam, lParam);
+
+	return DefWindowProc(this->m_Hwnd, uMsg, wParam, lParam);
 }

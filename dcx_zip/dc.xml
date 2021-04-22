@@ -138,7 +138,7 @@
         <control type="panel" margin="5 0 0 0">
           <control type="text" id="40" caption="The Progressbar Control" height="30" weight="0" />
           <control type="divider" weight="1">
-            <control type="panel">
+            <control id="mainpanel" type="panel" weight="2">
               <control type="panel" caption="ProgressBar Preview">
                 <pane />
                 <control id="1" eval="1" height="25" type="pbar" styles="smooth" caption="$(%d%%,0) Completed" />
@@ -146,14 +146,14 @@
               </control>
               <control type="panel" caption="TreeView Preview">
                 <control id="2" type="treeview" styles="hasbuttons haslines linesatroot">
-                  <item caption="hello!">
-                    <item caption="there are">
-                      <item caption="items hidden here!" />
+                  <item caption="hello!" icon="1">
+                    <item caption="there are" icon="2">
+                      <item caption="items hidden here!" icon="3" />
                     </item>
                   </item>
-                  <item caption="but!">
-                    <item caption="also">
-                      <item caption="here!" />
+                  <item caption="but!" icon="4">
+                    <item caption="also" icon="5">
+                      <item caption="here!" icon="6" />
                     </item>
                   </item>
                 </control>
@@ -218,8 +218,9 @@
                 <control id="10" type="richedit" styles="multi readonly hsbar">
                   \bHello!\b
                   \c12Whats happening pirate ?\c
-                  \c12,2Arrr arrrr:D\c
-                  Yeah OK!
+                  \c12,04Arrr arrrr:D\c
+                  \uYeah OK!\u
+                  \iLove Ya!\i
                 </control>
               </control>
               <control type="panel" caption="IPAddress Preview">
@@ -236,7 +237,7 @@
                 <pane />
               </control>
               <control type="panel" caption="Web Control Preview">
-                <control id="13" type="webctrl" styles="" src="http://dcx.scriptsdb.org/forum"/>
+                <control id="13" type="webctrl" styles="" src="http://www.google.com/"/>
               </control>
               <control type="panel" caption="Line Preview">
                 <control id="14" type="line" styles="" />
@@ -252,13 +253,13 @@
               </control>
               <control type="panel" caption="Edit Prview">
                 <control id="18" type="edit" styles="multi vsbar return">
-                  Post emensos insuperabilis expeditionis eventus languentibus partium animis, quas periculorum varietas fregerat
-                  et laborum, nondum tubarum cessante clangore vel milite locato per stationes hibernas, fortunae saevientis
-                  procellae tempestates alias rebus infudere communibus per multa illa et dira facinora Caesaris Galli,
-                  qui ex squalore imo miseriarum in aetatis adultae primitiis ad principale culmen insperato saltu provectus
-                  ultra terminos potestatis delatae procurrens asperitate nimia cuncta foedabat. propinquitate enim regiae
-                  stirpis gentilitateque etiam tum Constantini nominis efferebatur in fastus, si plus valuisset, ausurus hostilia
-                  in auctorem suae felicitatis, ut videbatur.
+Post emensos insuperabilis expeditionis eventus languentibus partium animis, quas periculorum varietas fregerat
+et laborum, nondum tubarum cessante clangore vel milite locato per stationes hibernas, fortunae saevientis
+procellae tempestates alias rebus infudere communibus per multa illa et dira facinora Caesaris Galli,
+qui ex squalore imo miseriarum in aetatis adultae primitiis ad principale culmen insperato saltu provectus
+ultra terminos potestatis delatae procurrens asperitate nimia cuncta foedabat. propinquitate enim regiae
+stirpis gentilitateque etiam tum Constantini nominis efferebatur in fastus, si plus valuisset, ausurus hostilia
+in auctorem suae felicitatis, ut videbatur.
                 </control>
               </control>
               <control type="panel" caption="Scroll Preview">
@@ -278,7 +279,7 @@
                 </control>
               </control>
               <control type="panel" caption="Link Preview">
-                <control id="22" type="link" styles="" caption="http://dcx.scriptsdb.org"/>
+                <control id="22" type="link" styles="" caption="https://github.com/twig/dcxdll/releases"/>
               </control>
               <control type="panel" caption="Text Preview">
                 <control  id="23" type="text" styles="" caption="This is a text control"/>

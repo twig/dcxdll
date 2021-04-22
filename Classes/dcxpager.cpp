@@ -15,36 +15,28 @@
  * \param styles Window Style Tokenized List
  */
 
-DcxPager::DcxPager( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, const TString & styles ) 
-: DcxControl( ID, p_Dialog )
-, m_ChildHWND(NULL)
+DcxPager::DcxPager(const UINT ID, DcxDialog* const p_Dialog, const HWND mParentHwnd, const RECT* const rc, const TString& styles)
+	: DcxControl(ID, p_Dialog)
 {
-	LONG Styles = 0, ExStyles = 0;
-	BOOL bNoTheme = FALSE;
-	this->parseControlStyles( styles, &Styles, &ExStyles, &bNoTheme );
+	const auto ws = parseControlStyles(styles);
 
-	this->m_Hwnd = CreateWindowEx(
-		ExStyles | WS_EX_CONTROLPARENT,
+	m_Hwnd = dcxCreateWindow(
+		ws.m_ExStyles | WS_EX_CONTROLPARENT,
 		DCX_PAGERCLASS,
-		NULL,
-		WS_CHILD | Styles,
-		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
+		ws.m_Styles | WS_CHILD,
+		rc,
 		mParentHwnd,
-		(HMENU) ID,
-		GetModuleHandle(NULL),
-		NULL);
+		ID,
+		this);
 
-	if (!IsWindow(this->m_Hwnd))
-		throw TEXT("Unable To Create Window");
+	if (!IsWindow(m_Hwnd))
+		throw Dcx::dcxException("Unable To Create Window");
 
-	if ( bNoTheme )
-		Dcx::UXModule.dcxSetWindowTheme( this->m_Hwnd , L" ", L" " );
+	if (ws.m_NoTheme)
+		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
 
-	//Pager_SetButtonSize(this->m_Hwnd,15);
-	//Pager_SetBkColor(this->m_Hwnd,0);
-
-	this->registreDefaultWindowProc( );
-	SetProp( this->m_Hwnd, TEXT("dcx_cthis"), (HANDLE) this );
+	//Pager_SetButtonSize(m_Hwnd,15);
+	//Pager_SetBkColor(m_Hwnd,0);
 }
 
 /*!
@@ -53,48 +45,67 @@ DcxPager::DcxPager( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, 
  * blah
  */
 
-DcxPager::~DcxPager( ) {
-
-  this->unregistreDefaultWindowProc( );
-}
-
-TString DcxPager::getStyles(void) const
+DcxPager::~DcxPager() noexcept
 {
-	TString styles(__super::getStyles());
-	const DWORD Styles = GetWindowStyle(this->m_Hwnd);
-	if (Styles & PGS_HORZ)
-		styles.addtok(TEXT("horizontal"));
-	if (Styles & PGS_AUTOSCROLL)
-		styles.addtok(TEXT("autoscroll"));
-	return styles;
-
 }
 
-void DcxPager::toXml(TiXmlElement * xml) const
+const TString DcxPager::getStyles(void) const
+{
+	auto styles(__super::getStyles());
+	const auto Styles = dcxGetWindowStyle(m_Hwnd);
+
+	if (dcx_testflag(Styles, PGS_HORZ))
+		styles.addtok(TEXT("horizontal"));
+	if (dcx_testflag(Styles, PGS_AUTOSCROLL))
+		styles.addtok(TEXT("autoscroll"));
+
+	return styles;
+}
+
+void DcxPager::toXml(TiXmlElement* const xml) const
 {
 	__super::toXml(xml);
-	const DcxControl * child = this->m_pParentDialog->getControlByHWND(this->m_ChildHWND);
-	if (child != NULL)
+
+	xml->SetAttribute("styles", getStyles().c_str());
+
+	const auto* const child = this->getParentDialog()->getControlByHWND(this->m_ChildHWND);
+	if (child != nullptr)
 		xml->LinkEndChild(child->toXml());
 }
 
+TiXmlElement* DcxPager::toXml(void) const
+{
+	auto xml = std::make_unique<TiXmlElement>("control");
+	toXml(xml.get());
+	return xml.release();
+}
+
 /*!
  * \brief blah
  *
  * blah
  */
 
-void DcxPager::parseControlStyles( const TString &styles, LONG *Styles, LONG *ExStyles, BOOL *bNoTheme)
+dcxWindowStyles DcxPager::parseControlStyles(const TString& tsStyles)
 {
-	for (TString tsStyle(styles.getfirsttok( 1 )); tsStyle != TEXT(""); tsStyle = styles.getnexttok( ))
+	auto ws = parseGeneralControlStyles(tsStyles);
+
+	for (const auto& tsStyle : tsStyles)
 	{
-		if (tsStyle == TEXT("horizontal"))
-			*Styles |= PGS_HORZ;
-		else if (tsStyle == TEXT("autoscroll"))
-			*Styles |= PGS_AUTOSCROLL;
+		switch (std::hash<TString>{}(tsStyle))
+		{
+		case L"horizontal"_hash:
+			ws.m_Styles |= PGS_HORZ;
+			break;
+		case L"autoscroll"_hash:
+			ws.m_Styles |= PGS_AUTOSCROLL;
+			break;
+		default:
+			break;
+		}
 	}
 
-	this->parseGeneralControlStyles(styles, Styles, ExStyles, bNoTheme);
+	return ws;
 }
 
 /*!
@@ -106,27 +117,22 @@ void DcxPager::parseControlStyles( const TString &styles, LONG *Styles, LONG *Ex
  * \return > void
  */
 
-void DcxPager::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) const
+void DcxPager::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>& szReturnValue) const
 {
-	//  int numtok = input.numtok( );
-	const TString prop(input.gettok( 3 ));
-
-	if ( prop == TEXT("color")) {
-		wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), Pager_GetBkColor(this->m_Hwnd) );
-		return;
+	switch (std::hash<TString>{}(input.getfirsttok(3)))
+	{
+	case L"color"_hash:
+		_ts_snprintf(szReturnValue, TEXT("%u"), Pager_GetBkColor(m_Hwnd));
+		break;
+	case L"bsize"_hash:
+		_ts_snprintf(szReturnValue, TEXT("%d"), Pager_GetButtonSize(m_Hwnd));
+		break;
+	case L"border"_hash:
+		_ts_snprintf(szReturnValue, TEXT("%d"), Pager_GetBorder(m_Hwnd));
+		break;
+	default:
+		parseGlobalInfoRequest(input, szReturnValue);
 	}
-	else if ( prop == TEXT("bsize")) {
-		wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), Pager_GetButtonSize(this->m_Hwnd) );
-		return;
-	}
-	else if ( prop == TEXT("border")) {
-		wnsprintf( szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), Pager_GetBorder(this->m_Hwnd) );
-		return;
-	}
-	else if ( this->parseGlobalInfoRequest( input, szReturnValue ) )
-		return;
-
-	szReturnValue[0] = 0;
 }
 
 /*!
@@ -135,291 +141,300 @@ void DcxPager::parseInfoRequest( const TString & input, PTCHAR szReturnValue ) c
  * blah
  */
 
-void DcxPager::parseCommandRequest( const TString & input ) {
-	const XSwitchFlags flags(input.getfirsttok( 3 ));
-	const UINT numtok = input.numtok();
+void DcxPager::parseCommandRequest(const TString& input)
+{
+	const XSwitchFlags flags(input.getfirsttok(3));
+	const auto numtok = input.numtok();
 
 	// xdid -b [NAME] [ID] [SWITCH] [W]
-	if ( flags[TEXT('b')] && numtok > 3 ) {
-		this->setBorderSize(input.getnexttok( ).to_int());	// tok 4
+	if (flags[TEXT('b')])
+	{
+		if (numtok < 4)
+			throw Dcx::dcxException("Insufficient parameters");
+
+		this->setBorderSize(input.getnexttok().to_int());	// tok 4
 	}
 	// xdid -c [NAME] [ID] [SWITCH] [ID] [CONTROL] [X] [Y] [W] [H] (OPTIONS)
-	else if ( flags[TEXT('c')] && numtok > 8 ) {
+	else if (flags[TEXT('c')])
+	{
+		if (numtok < 9)
+			throw Dcx::dcxException("Insufficient parameters");
 
-		if (IsWindow(this->m_ChildHWND)) {
-			this->showError(NULL, TEXT("-c"), TEXT("Child Control already exists"));
-			//DCXError( TEXT("/xdid -c"),TEXT("Child Control already exists") );
-			return;
-		}
-		const UINT ID = mIRC_ID_OFFSET + (UINT)input.getnexttok( ).to_int( );	// tok 4
+		if (IsWindow(this->m_ChildHWND))
+			throw Dcx::dcxException("Child Control already exists");
 
-		if ( (ID > mIRC_ID_OFFSET - 1) && 
-			!IsWindow( GetDlgItem( this->m_pParentDialog->getHwnd( ), ID ) ) && 
-			this->m_pParentDialog->getControlByID( ID ) == NULL ) 
-		{
-			try {
-				DcxControl * p_Control = DcxControl::controlFactory(this->m_pParentDialog,ID,input,5,
-					CTLF_ALLOW_TOOLBAR |
-					CTLF_ALLOW_REBAR |
-					CTLF_ALLOW_PANEL |
-					CTLF_ALLOW_TAB |
-					CTLF_ALLOW_BOX |
-					CTLF_ALLOW_IMAGE |
-					CTLF_ALLOW_PAGER |
-					CTLF_ALLOW_DOCK
-					,this->m_Hwnd);
+		const auto p_Control = this->getParentDialog()->addControl(input, 4,
+			DcxAllowControls::ALLOW_TOOLBAR |
+			DcxAllowControls::ALLOW_REBAR |
+			DcxAllowControls::ALLOW_PANEL |
+			DcxAllowControls::ALLOW_TAB |
+			DcxAllowControls::ALLOW_BOX |
+			DcxAllowControls::ALLOW_IMAGE |
+			DcxAllowControls::ALLOW_PAGER |
+			DcxAllowControls::ALLOW_DOCK,
+			m_Hwnd);
 
-				if ( p_Control != NULL ) {
-					this->m_pParentDialog->addControl( p_Control );
-					p_Control->addStyle(CCS_NORESIZE);
-					this->setChild(p_Control->getHwnd());
-
-					this->redrawWindow( );
-				}
-			}
-			catch ( TCHAR *err ) {
-				this->showErrorEx(NULL, TEXT("-c"), TEXT("Unable To Create Control %d (%s)"), ID - mIRC_ID_OFFSET, err);
-			}
-		}
-		else
-			this->showErrorEx(NULL, TEXT("-c"), TEXT("Control with ID \"%d\" already exists"), ID - mIRC_ID_OFFSET );
+		p_Control->addStyle(WindowStyle::CCS_NoResize);
+		this->setChild(p_Control->getHwnd());
 	}
 	// xdid -d [NAME] [ID] [SWITCH] [ID]
-	else if ( flags[TEXT('d')] && numtok > 3 ) {
+	else if (flags[TEXT('d')])
+	{
+		if (numtok < 4)
+			throw Dcx::dcxException("Insufficient parameters");
 
-		const UINT ID = mIRC_ID_OFFSET + input.getnexttok( ).to_int( );		// tok 4
-		DcxControl * p_Control;
+		const auto tsID(input.getnexttok());		// tok 4
+		const auto ID = this->getParentDialog()->NameToID(tsID);
 
-		if ( IsWindow( GetDlgItem( this->m_Hwnd, ID ) ) && (ID > mIRC_ID_OFFSET - 1) && ( p_Control = this->m_pParentDialog->getControlByID( ID ) ) != NULL ) 
-		{
-			HWND cHwnd = p_Control->getHwnd( );
-			if ( p_Control->getType( ) == TEXT("dialog") || p_Control->getType( ) == TEXT("window") ) {
-				delete p_Control;
-				this->m_ChildHWND = NULL;
-			}
-			else if ( p_Control->getRefCount( ) == 0 ) {
-				this->m_pParentDialog->deleteControl( p_Control ); // remove from internal list!
-				DestroyWindow( cHwnd );
-				this->m_ChildHWND = NULL;
-			}
-			else
-				this->showErrorEx(NULL, TEXT("-d"), TEXT("Can't delete control with ID \"%d\" when it is inside it's own event (dialog %s)"), p_Control->getUserID( ), this->m_pParentDialog->getName( ).to_chr( ) );
+		if (!this->getParentDialog()->isIDValid(ID))
+			throw Dcx::dcxException(TEXT("Unknown control with ID %(%) (dialog %)"), tsID, ID - mIRC_ID_OFFSET, this->getParentDialog()->getName());
+
+		const auto p_Control = this->getParentDialog()->getControlByID(ID);
+		// Ook: no ref count check for dialog or window? needs checked
+
+		if (!p_Control)
+			throw Dcx::dcxException(TEXT("Unable to get control with ID %(%) (dialog %)"), tsID, ID - mIRC_ID_OFFSET, this->getParentDialog()->getName());
+
+		if (const auto dct = p_Control->getControlType(); (dct == DcxControlTypes::DIALOG || dct == DcxControlTypes::WINDOW))
+			delete p_Control;
+		else {
+			if (p_Control->getRefCount() != 0)
+				throw Dcx::dcxException(TEXT("Can't delete control with ID \"%\" when it is inside it's own event (dialog %)"), p_Control->getUserID(), this->getParentDialog()->getName());
+
+			auto cHwnd = p_Control->getHwnd();
+			this->getParentDialog()->deleteControl(p_Control); // remove from internal list!
+			DestroyWindow(cHwnd);
 		}
-		else
-			this->showErrorEx(NULL, TEXT("-d"), TEXT("Unknown control with ID \"%d\" (dialog %s)"), ID - mIRC_ID_OFFSET, this->m_pParentDialog->getName( ).to_chr( ) );
+
+		this->m_ChildHWND = nullptr;
 	}
 	// xdid -s [NAME] [ID] [SWITCH] [SIZE]
-	else if (flags[TEXT('s')] && numtok > 3) {
-		this->setButtonSize((LONG)input.gettok(4, -1).to_num());
+	else if (flags[TEXT('s')])
+	{
+		if (numtok < 4)
+			throw Dcx::dcxException("Insufficient parameters");
+
+		this->setButtonSize(input.getlasttoks().to_<LONG>());	// tok 4, -1
 	}
 	// xdid -t [NAME] [ID] [SWITCH] [COLOR]
-	else if (flags[TEXT('t')] && numtok > 3) {
-		this->setBkColor((COLORREF)input.gettok(4, -1).to_num());
+	else if (flags[TEXT('t')])
+	{
+		if (numtok < 4)
+			throw Dcx::dcxException("Insufficient parameters");
+
+		this->setBkColor(input.getlasttoks().to_<COLORREF>());	// tok 4, -1
 	}
 	// xdid -z [NAME] [ID] [SWITCH]
-	else if (flags[TEXT('z')] && numtok > 2) {
+	else if (flags[TEXT('z')])
+	{
+		if (numtok < 3)
+			throw Dcx::dcxException("Insufficient parameters");
+
 		this->reCalcSize();
 	}
 	else
-		this->parseGlobalCommandRequest( input, flags );
+		this->parseGlobalCommandRequest(input, flags);
 }
-void DcxPager::setChild(const HWND child)
+
+void DcxPager::setChild(const HWND child) noexcept
 {
 	this->m_ChildHWND = child;
-	Pager_SetChild(this->m_Hwnd,child);
+	Pager_SetChild(m_Hwnd, child);
 }
-void DcxPager::setBkColor(const COLORREF c)
+
+void DcxPager::setBkColor(const COLORREF c) noexcept
 {
-	Pager_SetBkColor(this->m_Hwnd,c);
+	Pager_SetBkColor(m_Hwnd, c);
 }
-void DcxPager::setBorderSize(const int bSize)
+
+void DcxPager::setBorderSize(const int bSize) noexcept
 {
-	Pager_SetBorder(this->m_Hwnd,bSize);
+	Pager_SetBorder(m_Hwnd, bSize);
 }
-void DcxPager::setButtonSize(const int bSize)
+
+void DcxPager::setButtonSize(const int bSize) noexcept
 {
-	Pager_SetButtonSize(this->m_Hwnd,bSize);
+	Pager_SetButtonSize(m_Hwnd, bSize);
 }
-void DcxPager::reCalcSize(void) const
+
+void DcxPager::reCalcSize(void) const noexcept
 {
-	Pager_RecalcSize(this->m_Hwnd);
+	Pager_RecalcSize(m_Hwnd);
 }
+
 /*!
  * \brief blah
  *
  * blah
  */
-LRESULT DcxPager::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
-	switch( uMsg ) {
-    case WM_NOTIFY : 
-      {
+LRESULT DcxPager::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed) noexcept
+{
+	switch (uMsg)
+	{
+	case WM_NOTIFY:
+	{
 
-        LPNMHDR hdr = (LPNMHDR) lParam;
+		dcxlParam(LPNMHDR, hdr);
 
-        if (!hdr)
-          break;
+		if (!hdr)
+			break;
 
-				switch( hdr->code ) {
-				case PGN_CALCSIZE:
-					{
-						bParsed = TRUE;
-						LPNMPGCALCSIZE lpnmcs = (LPNMPGCALCSIZE) lParam;
-						RECT rc;
-						ZeroMemory(&rc,sizeof(RECT));
-						//GetWindowRect(this->m_ChildHWND,&rc);
-						//if (lpnmcs->dwFlag == PGF_CALCHEIGHT)
-						//	lpnmcs->iHeight = (rc.bottom - rc.top);
-						//else
-						//	lpnmcs->iWidth = (rc.right - rc.left);
-						DcxControl *cthis = (DcxControl *)GetProp(this->m_ChildHWND,TEXT("dcx_cthis"));
-						if (cthis != NULL) {
-							const int bSize = Pager_GetButtonSize(this->m_Hwnd);
-							if (cthis->getType() == TEXT("toolbar")) {
-								SIZE sz;
-								SendMessage(this->m_ChildHWND, TB_GETMAXSIZE, 0, (LPARAM)&sz);
-								if (lpnmcs->dwFlag == PGF_CALCHEIGHT)
-									lpnmcs->iHeight = sz.cy+bSize;
-								else
-									lpnmcs->iWidth = sz.cx+bSize;
-							}
-							else {
-								GetWindowRect(this->m_ChildHWND,&rc);
-								if (lpnmcs->dwFlag == PGF_CALCHEIGHT)
-									lpnmcs->iHeight = (rc.bottom - rc.top)+bSize;
-								else
-									lpnmcs->iWidth = (rc.right - rc.left)+bSize;
-							}
-						}
-					}
-					break;
-				}
-      }
-      break;
+		switch (hdr->code)
+		{
+		case PGN_CALCSIZE:
+		{
+			bParsed = TRUE;
+			dcxlParam(LPNMPGCALCSIZE, lpnmcs);
+
+			//GetWindowRect(this->m_ChildHWND,&rc);
+			//if (lpnmcs->dwFlag == PGF_CALCHEIGHT)
+			//	lpnmcs->iHeight = (rc.bottom - rc.top);
+			//else
+			//	lpnmcs->iWidth = (rc.right - rc.left);
+
+			const auto* const cthis = static_cast<DcxControl*>(GetProp(this->m_ChildHWND, TEXT("dcx_cthis")));
+			if (!cthis)
+				break;
+
+			if (const auto bSize = Pager_GetButtonSize(m_Hwnd); (cthis->getControlType() == DcxControlTypes::TOOLBAR))
+			{
+				SIZE sz{};
+				SendMessage(m_ChildHWND, TB_GETMAXSIZE, 0, reinterpret_cast<LPARAM>(&sz));
+				if (lpnmcs->dwFlag == PGF_CALCHEIGHT)
+					lpnmcs->iHeight = sz.cy + bSize;
+				else
+					lpnmcs->iWidth = sz.cx + bSize;
+			}
+			else if (RECT rc{}; GetWindowRect(m_ChildHWND, &rc))
+			{
+				if (lpnmcs->dwFlag == PGF_CALCHEIGHT)
+					lpnmcs->iHeight = (rc.bottom - rc.top) + bSize;
+				else
+					lpnmcs->iWidth = (rc.right - rc.left) + bSize;
+			}
+		}
+		break;
+		default:
+			break;
+		}
+	}
+	break;
+	default:
+		break;
 	}
 	return 0L;
 }
 
-LRESULT DcxPager::PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) {
-
+LRESULT DcxPager::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed)
+{
 	LRESULT lRes = 0L;
-	switch( uMsg ) {
+	switch (uMsg)
+	{
+	case WM_NOTIFY:
+	{
+		dcxlParam(LPNMHDR, hdr);
 
-	case WM_NOTIFY : 
+		if (!hdr)
+			break;
+
+		if (IsWindow(hdr->hwndFrom))
 		{
-
-			LPNMHDR hdr = (LPNMHDR) lParam;
-
-			if (!hdr)
-				break;
-			if (IsWindow(hdr->hwndFrom)) {
-				DcxControl *c_this = (DcxControl *) GetProp(hdr->hwndFrom,TEXT("dcx_cthis"));
-				if (c_this != NULL) {
-					lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
+			if (const auto c_this = static_cast<DcxControl*>(GetProp(hdr->hwndFrom, TEXT("dcx_cthis"))); c_this)
+			{
+				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
+#pragma warning(push)
+#pragma warning(disable: 26454)	//: warning C26454 : Arithmetic overflow : '-' operation produces a negative unsigned result at compile time(io.5).
+				if ((c_this->getControlType() == DcxControlTypes::TOOLBAR) && (hdr->code == TBN_DELETINGBUTTON))
+				{
+					// handle toolbar button delete.
+					reCalcSize();
 				}
-			}
-			switch( hdr->code ) {
-			case TBN_DELETINGBUTTON:
-				{ // handle toolbar button delete.
-					this->reCalcSize();
-				}
-				break;
+#pragma warning(pop)
 			}
 		}
-		break;
+	}
+	break;
 
 	case WM_HSCROLL:
 	case WM_VSCROLL:
 	case WM_COMMAND:
+	{
+		if (IsWindow(reinterpret_cast<HWND>(lParam)))
 		{
-			if (IsWindow((HWND) lParam)) {
-				DcxControl *c_this = (DcxControl *) GetProp((HWND) lParam,TEXT("dcx_cthis"));
-				if (c_this != NULL) {
-					lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
-				}
-			}
+			if (const auto c_this = static_cast<DcxControl*>(GetProp(reinterpret_cast<HWND>(lParam), TEXT("dcx_cthis"))); c_this)
+				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 		}
-		break;
+	}
+	break;
 
 	case WM_DELETEITEM:
+	{
+		dcxlParam(LPDELETEITEMSTRUCT, idata);
+		if ((idata) && (IsWindow(idata->hwndItem)))
 		{
-			DELETEITEMSTRUCT *idata = (DELETEITEMSTRUCT *)lParam;
-			if ((idata != NULL) && (IsWindow(idata->hwndItem))) {
-				DcxControl *c_this = (DcxControl *) GetProp(idata->hwndItem,TEXT("dcx_cthis"));
-				if (c_this != NULL) {
-					lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
-				}
-			}
+			if (const auto c_this = static_cast<DcxControl*>(GetProp(idata->hwndItem, TEXT("dcx_cthis"))); c_this)
+				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 		}
-		break;
+	}
+	break;
 
 	case WM_MEASUREITEM:
+	{
+		if (const auto cHwnd = GetDlgItem(m_Hwnd, gsl::narrow_cast<int>(wParam)); IsWindow(cHwnd))
 		{
-			HWND cHwnd = GetDlgItem(this->m_Hwnd, wParam);
-			if (IsWindow(cHwnd)) {
-				DcxControl *c_this = (DcxControl *) GetProp(cHwnd,TEXT("dcx_cthis"));
-				if (c_this != NULL) {
-					lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
-				}
-			}
+			if (const auto c_this = static_cast<DcxControl*>(GetProp(cHwnd, TEXT("dcx_cthis"))); c_this)
+				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 		}
-		break;
+	}
+	break;
 
 	case WM_DRAWITEM:
+	{
+		dcxlParam(LPDRAWITEMSTRUCT, idata);
+
+		if ((idata) && (IsWindow(idata->hwndItem)))
 		{
-			DRAWITEMSTRUCT *idata = (DRAWITEMSTRUCT *)lParam;
-			if ((idata != NULL) && (IsWindow(idata->hwndItem))) {
-				DcxControl *c_this = (DcxControl *) GetProp(idata->hwndItem,TEXT("dcx_cthis"));
-				if (c_this != NULL) {
-					lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
-				}
-			}
+			if (const auto c_this = static_cast<DcxControl*>(GetProp(idata->hwndItem, TEXT("dcx_cthis"))); c_this)
+				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 		}
-		break;
+	}
+	break;
 
 	case WM_SIZE:
-		{
-			HWND bars = NULL;
+	{
+		HandleChildControlSize();
 
-			while ( ( bars = FindWindowEx( this->m_Hwnd, bars, DCX_REBARCTRLCLASS, NULL ) ) != NULL ) {
-
-				SendMessage( bars, WM_SIZE, (WPARAM) 0, (LPARAM) 0 );
-			}
-
-			while ( ( bars = FindWindowEx( this->m_Hwnd, bars, DCX_STATUSBARCLASS, NULL ) ) != NULL ) {
-
-				SendMessage( bars, WM_SIZE, (WPARAM) 0, (LPARAM) 0 );
-			}
-
-			while ( ( bars = FindWindowEx( this->m_Hwnd, bars, DCX_TOOLBARCLASS, NULL ) ) != NULL ) {
-
-				SendMessage( bars, WM_SIZE, (WPARAM) 0, (LPARAM) 0 );
-			}
-
-			if (this->m_pParentDialog->getEventMask() & DCX_EVENT_SIZE)
-				this->execAliasEx(TEXT("%s,%d"), TEXT("sizing"), this->getUserID( ) );
-			this->reCalcSize();
-			this->redrawWindow( );
-		}
-		break;
+		reCalcSize();
+		redrawWindow();
+	}
+	break;
 
 	case WM_SETFOCUS:
-		{
-			this->m_pParentDialog->setFocusControl( this->getUserID( ) );
-			this->reCalcSize();
-		}
-		break;
+	{
+		this->getParentDialog()->setFocusControl(this->getUserID());
+		this->reCalcSize();
+	}
+	break;
 
 	case WM_DESTROY:
-		{
-			delete this;
-			bParsed = TRUE;
-		}
-		break;
+	{
+		delete this;
+		bParsed = TRUE;
+	}
+	break;
 
 	default:
-		lRes = this->CommonMessage( uMsg, wParam, lParam, bParsed);
+		lRes = this->CommonMessage(uMsg, wParam, lParam, bParsed);
 		break;
 	}
 
 	return lRes;
+}
+
+LRESULT DcxPager::CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept
+{
+	if (m_hDefaultClassProc)
+		return CallWindowProc(m_hDefaultClassProc, this->m_Hwnd, uMsg, wParam, lParam);
+
+	return DefWindowProc(this->m_Hwnd, uMsg, wParam, lParam);
 }

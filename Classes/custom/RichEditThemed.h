@@ -27,14 +27,14 @@
 #include <tchar.h>		//Used for ANSI/Unicode compatibility
 #include <map>			//Used internally by the class
 #include <uxtheme.h>	//Used to access the UxTheme library
-//#if _MSC_VER >= 1500 // Visual C++ 2008 (WRONG not for VS2008, for Windows SDK when compiled for Vista+)
-#if DCX_USE_WINSDK && WINVER >= 0x600
+
+#if WINVER >= 0x600
 #include <vssym32.h>
 #else
 #include <tmschema.h>	//Definitions used by some of the UxTheme library functions
 #endif
 
-class CRichEditThemed
+class CRichEditThemed final
 {
 public:
 	//This function must be called during the creation of your window, like in WM_INITDIALOG or WM_CREATE
@@ -45,23 +45,29 @@ private:
 	explicit CRichEditThemed(HWND hRichEdit);
 	~CRichEditThemed();
 
-	void VerifyThemedBorderState();
-	bool OnNCPaint();
-	bool OnNCCalcSize(NCCALCSIZE_PARAMS *csparam);
+	CRichEditThemed() = delete;
+	CRichEditThemed(const CRichEditThemed &) = delete;
+	CRichEditThemed(CRichEditThemed &&) = delete;
+	CRichEditThemed &operator =(const CRichEditThemed &) = delete;
+	CRichEditThemed &operator =(CRichEditThemed &&) = delete;
 
-	static bool InitLibrary();
+	void VerifyThemedBorderState() noexcept;
+	bool OnNCPaint() noexcept;
+	bool OnNCCalcSize(NCCALCSIZE_PARAMS *csparam) noexcept;
+
+	static bool InitLibrary() noexcept;
 	static LRESULT CALLBACK RichEditStyledProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 private:
-	static std::map<HWND,CRichEditThemed*> m_aInstances;
+	static inline std::map<HWND,CRichEditThemed*> m_aInstances;
 
-	HWND m_hRichEdit;
-	WNDPROC m_pOriginalWndProc;
-	bool m_bThemedBorder;
-	RECT m_rcClientPos;
+	HWND m_hRichEdit{ nullptr };
+	WNDPROC m_pOriginalWndProc{ nullptr };
+	bool m_bThemedBorder{ false };
+	RECT m_rcClientPos{ 0,0,0,0 };
 
 	//Function pointers from the UxTheme library
-	static HMODULE m_hUxTheme;
+	static inline HMODULE m_hUxTheme{ nullptr };
 	static HTHEME (WINAPI *pOpenThemeData)(HWND, LPCWSTR);
 	static HRESULT (WINAPI *pCloseThemeData)(HTHEME);
 	static HRESULT (WINAPI *pDrawThemeBackground)(HTHEME, HDC, int, int, const RECT*, const RECT *);

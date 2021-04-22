@@ -41,18 +41,33 @@
 
 #include "Classes/TString/tstring.h"
 
-class XSwitchFlags {
-	public:
-		explicit XSwitchFlags(const TString &switches);
-		~XSwitchFlags();
+struct XSwitchFlags final
+{
+	XSwitchFlags() = delete;
+	XSwitchFlags(const XSwitchFlags &) = delete;
+	XSwitchFlags &operator =(const XSwitchFlags &) = delete;
+	XSwitchFlags(XSwitchFlags &&) = delete;
+	XSwitchFlags &operator =(XSwitchFlags &&) = delete;
 
-		// Function checks if flag is set
-		bool isSet(const TCHAR c) const;
-		bool operator[](const TCHAR c) const;
+	explicit XSwitchFlags(const TString &switches) noexcept;
+	//~XSwitchFlags() = default;
 
-	protected:
-		bool flags[28];     //!< Lowercase switches a-z
-		bool flags_cap[26]; //!< Uppercase switches A-Z
+	// Function checks if flag is set
+	const bool isSet(const TCHAR c) const noexcept;
+	const bool operator[](const TCHAR c) const noexcept { return isSet(c); }
+	explicit operator ULONGLONG() const noexcept { return m_dFlagMask; }
+
+private:
+	ULONGLONG	m_dFlagMask{};		//!< a bitmask of all selected letters...
+
+	static constexpr bool m_bFalse{ false };
 };
+
+#if DCX_SWITCH_OBJ
+#if !__has_include("SwitchObjects.h")
+#error "Switch Objects enabled: "SwitchObjects.h" Required!"
+#endif
+#include "SwitchObjects.h"
+#endif
 
 #endif // _XSWITCHFLAGS_H_

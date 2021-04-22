@@ -8,18 +8,14 @@ typedef HRESULT (WINAPI *PFNDWMEXTENDFRAMEINTOCLIENTAREA)(HWND hWnd, const MARGI
 typedef HRESULT (WINAPI *PFNDWMENABLEBLURBEHINDWINDOW)(HWND hWnd, __in const DWM_BLURBEHIND *pBlurBehind);
 typedef HRESULT (WINAPI *PFNDWMGETCOLORIZATIONCOLOR)( __out  DWORD *pcrColorization, __out  BOOL *pfOpaqueBlend);
 
-// Missing defines, since the new module way of doing things doesnt work well with missing libraries
-#ifndef DCX_USE_WINSDK
-#define DWM_E_COMPOSITIONDISABLED 0x80263001
-#endif
-
-class DcxDWMModule :
-	public DcxModule
+class DcxDWMModule final
+	: public DcxModule
 {
-	bool m_bAero;
-	bool m_bVista;
-	bool m_bWin7;
-	bool m_bWin8;
+	bool m_bAero{ false };
+	bool m_bVista{ false };
+	bool m_bWin7{ false };
+	bool m_bWin8{ false };
+	bool m_bWin10{ false };
 	static PFNDWMISCOMPOSITIONENABLED DwmIsCompositionEnabledUx;
 	static PFNDWMGETWINDOWATTRIBUTE DwmGetWindowAttributeUx;
 	static PFNDWMSETWINDOWATTRIBUTE DwmSetWindowAttributeUx;
@@ -28,21 +24,30 @@ class DcxDWMModule :
 	static PFNDWMGETCOLORIZATIONCOLOR DwmGetColorizationColorUx;
 
 public:
-	DcxDWMModule(void);
-	~DcxDWMModule(void);
+	constexpr DcxDWMModule(void) noexcept
+		: DcxModule()
+	{
+	}
+	~DcxDWMModule(void) noexcept;
 
-	bool load(mIRCLinker &mIRCLink);
-	bool unload(void);
-	bool refreshComposite();
-	HRESULT dcxDwmSetWindowAttribute(HWND hwnd, DWORD dwAttribute, LPCVOID pvAttribute, DWORD cbAttribute);
-	HRESULT dcxDwmGetWindowAttribute(HWND hwnd, DWORD dwAttribute, PVOID pvAttribute, DWORD cbAttribute);
-	HRESULT dcxDwmIsCompositionEnabled(BOOL *pfEnabled);
-	HRESULT dcxDwmExtendFrameIntoClientArea(HWND hwnd, const MARGINS *pMarInset);
-	HRESULT dcxDwmEnableBlurBehindWindow(HWND hwnd, __in const DWM_BLURBEHIND *pBlurBehind);
-	HRESULT dcxDwmGetColorizationColor( __out  DWORD *pcrColorization, __out  BOOL *pfOpaqueBlend);
+	DcxDWMModule(const DcxDWMModule &other) = delete;	// no copy constructor
+	DcxDWMModule(const DcxDWMModule &&other) = delete;	// no move constructor
+	DcxDWMModule &operator =(const DcxDWMModule &) = delete;	// No assignments!
+	DcxDWMModule &operator =(const DcxDWMModule &&) = delete;	// No move assignments!
 
-	bool isAero(void) const { return this->m_bAero; };
-	bool isVista(void) const { return this->m_bVista; };
-	bool isWin7(void) const { return this->m_bWin7; };
-	bool isWin8(void) const { return this->m_bWin8; };
+	bool load(void) final;
+	bool unload(void) noexcept final;
+	const bool &refreshComposite() noexcept;
+	HRESULT dcxDwmSetWindowAttribute(HWND hwnd, DWORD dwAttribute, LPCVOID pvAttribute, DWORD cbAttribute) noexcept;
+	HRESULT dcxDwmGetWindowAttribute(HWND hwnd, DWORD dwAttribute, PVOID pvAttribute, DWORD cbAttribute) noexcept;
+	HRESULT dcxDwmIsCompositionEnabled(BOOL *pfEnabled) noexcept;
+	HRESULT dcxDwmExtendFrameIntoClientArea(HWND hwnd, const MARGINS *pMarInset) noexcept;
+	HRESULT dcxDwmEnableBlurBehindWindow(HWND hwnd, __in const DWM_BLURBEHIND *pBlurBehind) noexcept;
+	HRESULT dcxDwmGetColorizationColor( __out  DWORD *pcrColorization, __out  BOOL *pfOpaqueBlend) noexcept;
+
+	const bool &isAero(void) const noexcept { return m_bAero; };
+	const bool &isVista(void) const noexcept { return m_bVista; };
+	const bool &isWin7(void) const noexcept { return m_bWin7; };
+	const bool &isWin8(void) const noexcept { return m_bWin8; };
+	const bool &isWin10(void) const noexcept { return m_bWin10; };
 };

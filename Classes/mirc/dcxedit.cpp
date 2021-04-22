@@ -1,4 +1,4 @@
-/*!
+ï»¿/*!
 * \file dcxedit.cpp
 * \brief blah
 *
@@ -9,7 +9,7 @@
 *
 * \b Revisions
 *
-* © ScriptsDB.org - 2006
+* Â© ScriptsDB.org - 2006
 */
 #include "defines.h"
 #include "Classes/mirc/dcxedit.h"
@@ -25,47 +25,42 @@
 * \param styles Window Style Tokenized List
 */
 
-DcxEdit::DcxEdit(const UINT ID, DcxDialog *p_Dialog, const HWND mParentHwnd, const RECT *rc, const TString &styles)
-: DcxControl(ID, p_Dialog)
+DcxEdit::DcxEdit(const UINT ID, DcxDialog* const p_Dialog, const HWND mParentHwnd, const RECT* const rc, const TString& styles)
+	: DcxControl(ID, p_Dialog)
 {
-	LONG Styles = 0, ExStyles = 0;
-	BOOL bNoTheme = FALSE;
-	this->parseControlStyles(styles, &Styles, &ExStyles, &bNoTheme);
+	const auto ws = parseControlStyles(styles);
 
-	this->m_Hwnd = CreateWindowExW(
-		ExStyles | WS_EX_CLIENTEDGE, 
-		L"EDIT",
-		NULL,
-		WS_CHILD | Styles,
-		rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top,
+	m_Hwnd = dcxCreateWindow(
+		ws.m_ExStyles | WindowExStyle::ClientEdge,
+		DCX_EDITCLASS,
+		ws.m_Styles | WindowStyle::Child,
+		rc,
 		mParentHwnd,
-		(HMENU) ID,
-		GetModuleHandle(NULL), 
-		NULL);
+		ID,
+		this);
 
-	if (!IsWindow(this->m_Hwnd))
-		throw TEXT("Unable To Create Window");
+	if (!IsWindow(m_Hwnd))
+		throw Dcx::dcxException("Unable To Create Window");
 
-	if (bNoTheme)
-		Dcx::UXModule.dcxSetWindowTheme(this->m_Hwnd , L" ", L" ");
+	if (ws.m_NoTheme)
+		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
 
-	Edit_LimitText(this->m_Hwnd, 0);
-	//this->m_tsText = TEXT("");
+	Edit_LimitText(m_Hwnd, 0);
 
-	//SendMessage(this->m_Hwnd, CCM_SETUNICODEFORMAT, TRUE, NULL);
+	//SendMessage(m_Hwnd, CCM_SETUNICODEFORMAT, TRUE, NULL);
 
-	if (p_Dialog->getToolTip() != NULL) {
-		if (styles.istok(TEXT("tooltips"))) {
-			this->m_ToolTipHWND = p_Dialog->getToolTip();
-			AddToolTipToolInfo(this->m_ToolTipHWND, this->m_Hwnd);
-		}
+	if (styles.istok(TEXT("tooltips")))
+	{
+		if (!IsWindow(p_Dialog->getToolTip()))
+			throw Dcx::dcxException("Unable to Initialize Tooltips");
+
+		setToolTipHWND(p_Dialog->getToolTip());
+		AddToolTipToolInfo(getToolTipHWND(), m_Hwnd);
 	}
 
-	this->m_bIgnoreRepeat = TRUE;
-	this->setControlFont(GetStockFont(DEFAULT_GUI_FONT), FALSE);
-	this->registreDefaultWindowProc();
-	SetProp(this->m_Hwnd, TEXT("dcx_cthis"), (HANDLE) this);
-	DragAcceptFiles(this->m_Hwnd, TRUE);
+	this->m_bIgnoreRepeat = true;
+	this->setControlFont(Dcx::dcxGetStockObject<HFONT>(DEFAULT_GUI_FONT), FALSE);
+	DragAcceptFiles(m_Hwnd, TRUE);
 }
 
 /*!
@@ -73,49 +68,60 @@ DcxEdit::DcxEdit(const UINT ID, DcxDialog *p_Dialog, const HWND mParentHwnd, con
 *
 * blah
 */
-DcxEdit::~DcxEdit() {
-	this->unregistreDefaultWindowProc();
+DcxEdit::~DcxEdit() noexcept
+{
 }
 
 
-TString DcxEdit::getStyles(void) const {
-	TString styles(__super::getStyles());
-	const DWORD Styles = GetWindowStyle(this->m_Hwnd);
-	if (Styles & ES_MULTILINE)
+const TString DcxEdit::getStyles(void) const
+{
+	auto styles(__super::getStyles());
+	const auto Styles = dcxGetWindowStyle(m_Hwnd);
+
+	if (dcx_testflag(Styles, ES_MULTILINE))
 		styles.addtok(TEXT("multi"));
-	if (Styles & ES_CENTER)
+	if (dcx_testflag(Styles, ES_CENTER))
 		styles.addtok(TEXT("center"));
-	if (Styles & ES_RIGHT)
+	if (dcx_testflag(Styles, ES_RIGHT))
 		styles.addtok(TEXT("right"));
-	if (Styles & ES_AUTOHSCROLL)
+	if (dcx_testflag(Styles, ES_AUTOHSCROLL))
 		styles.addtok(TEXT("autohs"));
-	if (Styles & ES_AUTOVSCROLL)
+	if (dcx_testflag(Styles, ES_AUTOVSCROLL))
 		styles.addtok(TEXT("autovs"));
-	if (Styles & WS_VSCROLL)
+	if (dcx_testflag(Styles, WS_VSCROLL))
 		styles.addtok(TEXT("vsbar"));
-	if (Styles & WS_HSCROLL)
+	if (dcx_testflag(Styles, WS_HSCROLL))
 		styles.addtok(TEXT("hsbar"));
-	if (Styles & ES_LOWERCASE)
+	if (dcx_testflag(Styles, ES_LOWERCASE))
 		styles.addtok(TEXT("lowercase"));
-	if (Styles & ES_NUMBER)
+	if (dcx_testflag(Styles, ES_NUMBER))
 		styles.addtok(TEXT("number"));
-	if (Styles & ES_PASSWORD)
+	if (dcx_testflag(Styles, ES_PASSWORD))
 		styles.addtok(TEXT("password"));
-	if (Styles & ES_UPPERCASE)
+	if (dcx_testflag(Styles, ES_UPPERCASE))
 		styles.addtok(TEXT("uppercase"));
-	if (Styles & ES_WANTRETURN)
+	if (dcx_testflag(Styles, ES_WANTRETURN))
 		styles.addtok(TEXT("return"));
-	if (Styles & ES_READONLY)
+	if (dcx_testflag(Styles, ES_READONLY))
 		styles.addtok(TEXT("readonly"));
-	if (Styles & ES_NOHIDESEL)
+	if (dcx_testflag(Styles, ES_NOHIDESEL))
 		styles.addtok(TEXT("showsel"));
 	return styles;
 }
 
-void DcxEdit::toXml(TiXmlElement * xml) const
+void DcxEdit::toXml(TiXmlElement* const xml) const
 {
 	__super::toXml(xml);
-	xml->SetAttribute("caption", this->m_tsText.c_str());
+
+	xml->SetAttribute("caption", m_tsText.c_str());
+	xml->SetAttribute("styles", getStyles().c_str());
+}
+
+TiXmlElement* DcxEdit::toXml(void) const
+{
+	auto xml = std::make_unique<TiXmlElement>("control");
+	toXml(xml.get());
+	return xml.release();
 }
 
 /*!
@@ -123,78 +129,63 @@ void DcxEdit::toXml(TiXmlElement * xml) const
 *
 * blah
 */
-void DcxEdit::parseControlStyles( const TString &styles, LONG *Styles, LONG *ExStyles, BOOL *bNoTheme)
+
+dcxWindowStyles DcxEdit::parseControlStyles(const TString& tsStyles)
 {
-	//const UINT numtok = styles.numtok( );
+	dcxWindowStyles ws;
 
-	//styles.getfirsttok( 0 );
-
-	//for (UINT i = 1; i <= numtok; i++)
-	//{
-	//	const TString tsStyle(styles.getnexttok( ));	// tok i
-
-	//	if (tsStyle == TEXT("multi")) 
-	//		*Styles |= ES_MULTILINE;
-	//	else if (tsStyle == TEXT("center"))
-	//		*Styles |= ES_CENTER;
-	//	else if (tsStyle == TEXT("right"))
-	//		*Styles |= ES_RIGHT;
-	//	else if (tsStyle == TEXT("autohs"))
-	//		*Styles |= ES_AUTOHSCROLL;
-	//	else if (tsStyle == TEXT("autovs"))
-	//		*Styles |= ES_AUTOVSCROLL;
-	//	else if (tsStyle == TEXT("vsbar"))
-	//		*Styles |= WS_VSCROLL;
-	//	else if (tsStyle == TEXT("hsbar"))
-	//		*Styles |= WS_HSCROLL;
-	//	else if (tsStyle == TEXT("lowercase"))
-	//		*Styles |= ES_LOWERCASE;
-	//	else if (tsStyle == TEXT("number"))
-	//		*Styles |= ES_NUMBER;
-	//	else if (tsStyle == TEXT("password"))
-	//		*Styles |= ES_PASSWORD;
-	//	else if (tsStyle == TEXT("uppercase"))
-	//		*Styles |= ES_UPPERCASE;
-	//	else if (tsStyle == TEXT("return"))
-	//		*Styles |= ES_WANTRETURN;
-	//	else if (tsStyle == TEXT("readonly"))
-	//		*Styles |= ES_READONLY;
-	//	else if (tsStyle == TEXT("showsel"))
-	//		*Styles |= ES_NOHIDESEL;
-	//}
-	for (TString tsStyle(styles.getfirsttok( 1 )); tsStyle != TEXT(""); tsStyle = styles.getnexttok( ))
+	for (const auto& tsStyle : tsStyles)
 	{
-		if (tsStyle == TEXT("multi")) 
-			*Styles |= ES_MULTILINE;
-		else if (tsStyle == TEXT("center"))
-			*Styles |= ES_CENTER;
-		else if (tsStyle == TEXT("right"))
-			*Styles |= ES_RIGHT;
-		else if (tsStyle == TEXT("autohs"))
-			*Styles |= ES_AUTOHSCROLL;
-		else if (tsStyle == TEXT("autovs"))
-			*Styles |= ES_AUTOVSCROLL;
-		else if (tsStyle == TEXT("vsbar"))
-			*Styles |= WS_VSCROLL;
-		else if (tsStyle == TEXT("hsbar"))
-			*Styles |= WS_HSCROLL;
-		else if (tsStyle == TEXT("lowercase"))
-			*Styles |= ES_LOWERCASE;
-		else if (tsStyle == TEXT("number"))
-			*Styles |= ES_NUMBER;
-		else if (tsStyle == TEXT("password"))
-			*Styles |= ES_PASSWORD;
-		else if (tsStyle == TEXT("uppercase"))
-			*Styles |= ES_UPPERCASE;
-		else if (tsStyle == TEXT("return"))
-			*Styles |= ES_WANTRETURN;
-		else if (tsStyle == TEXT("readonly"))
-			*Styles |= ES_READONLY;
-		else if (tsStyle == TEXT("showsel"))
-			*Styles |= ES_NOHIDESEL;
+		switch (std::hash<TString>{}(tsStyle))
+		{
+		case L"multi"_hash:
+			ws.m_Styles |= ES_MULTILINE;
+			break;
+		case L"center"_hash:
+			ws.m_Styles |= ES_CENTER;
+			break;
+		case L"right"_hash:
+			ws.m_Styles |= ES_RIGHT;
+			break;
+		case L"autohs"_hash:
+			ws.m_Styles |= ES_AUTOHSCROLL;
+			break;
+		case L"autovs"_hash:
+			ws.m_Styles |= ES_AUTOVSCROLL;
+			break;
+		case L"vsbar"_hash:
+			ws.m_Styles |= WS_VSCROLL;
+			break;
+		case L"hsbar"_hash:
+			ws.m_Styles |= WS_HSCROLL;
+			break;
+		case L"lowercase"_hash:
+			ws.m_Styles |= ES_LOWERCASE;
+			break;
+		case L"number"_hash:
+			ws.m_Styles |= ES_NUMBER;
+			break;
+		case L"password"_hash:
+			ws.m_Styles |= ES_PASSWORD;
+			break;
+		case L"uppercase"_hash:
+			ws.m_Styles |= ES_UPPERCASE;
+			break;
+		case L"return"_hash:
+			ws.m_Styles |= ES_WANTRETURN;
+			break;
+		case L"readonly"_hash:
+			ws.m_Styles |= ES_READONLY;
+			break;
+		case L"showsel"_hash:
+			ws.m_Styles |= ES_NOHIDESEL;
+			break;
+		default:
+			break;
+		}
 	}
 
-	this->parseGeneralControlStyles(styles, Styles, ExStyles, bNoTheme);
+	return parseGeneralControlStyles(tsStyles, ws);
 }
 
 /*!
@@ -205,116 +196,115 @@ void DcxEdit::parseControlStyles( const TString &styles, LONG *Styles, LONG *ExS
 *
 * \return > void
 */
-void DcxEdit::parseInfoRequest( const TString &input, PTCHAR szReturnValue) const
+void DcxEdit::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>& szReturnValue) const
 {
-	const unsigned int numtok = input.numtok( );
-
-	const TString prop(input.getfirsttok( 3 ));
-
-	// [NAME] [ID] [PROP] [N]
-	if (prop == TEXT("text")) {
-		if (this->isStyle(ES_MULTILINE)) {
-			if (numtok > 3) {
-				const int nLine = input.getnexttok( ).to_int();	// tok 4
-
-				if (nLine > 0 && nLine <= (int)this->m_tsText.numtok(TEXT("\r\n"))) {
-					lstrcpyn(szReturnValue, this->m_tsText.gettok(nLine, TEXT("\r\n")).to_chr(), MIRC_BUFFER_SIZE_CCH);
-					return;
-				}
+	switch (std::hash<TString>{}(input.getfirsttok(3)))
+	{
+		// [NAME] [ID] [PROP] [N]
+	case L"text"_hash:
+	{
+		if (this->isStyle(WindowStyle::ES_MultiLine))
+		{
+			if (input.numtok() > 3)
+			{
+				if (const auto nLine = input.getnexttok().to_int(); (nLine > 0 && nLine <= gsl::narrow_cast<int>(m_tsText.numtok(TEXT("\r\n")))))
+					szReturnValue = m_tsText.gettok(nLine, TEXT("\r\n")).to_chr();
 			}
 		}
+		else
+			szReturnValue = m_tsText.to_chr();
+	}
+	break;
+	// [NAME] [ID] [PROP]
+	case L"num"_hash:
+	{
+		if (this->isStyle(WindowStyle::ES_MultiLine))
+		{
+			const auto i = this->m_tsText.numtok(TEXT("\r\n"));
+			_ts_snprintf(szReturnValue, TEXT("%u"), i);
+		}
 		else {
-			lstrcpyn(szReturnValue, this->m_tsText.to_chr(), MIRC_BUFFER_SIZE_CCH);
-			return;
+			// single line control so always 1 line.
+			szReturnValue[0] = TEXT('1');
+			szReturnValue[1] = 0;
 		}
 	}
+	break;
 	// [NAME] [ID] [PROP]
-	else if (prop == TEXT("num")) {
-		if (this->isStyle(ES_MULTILINE))
-			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), this->m_tsText.numtok(TEXT("\r\n")));
-		else
-			lstrcpyn(szReturnValue,TEXT("1"), MIRC_BUFFER_SIZE_CCH);	// single line control so always 1 line.
-		return;
-	}
-	// [NAME] [ID] [PROP]
-	else if (prop == TEXT("ispass")) {
-		if (this->isStyle(ES_PASSWORD))
-			lstrcpyn(szReturnValue, TEXT("$true"), MIRC_BUFFER_SIZE_CCH);
-		else
-			lstrcpyn(szReturnValue, TEXT("$false"), MIRC_BUFFER_SIZE_CCH);
-
-		return;
-	}
-   // [NAME] [ID] [PROP]
-	else if (prop == TEXT("isreadonly")) {
-      if (this->isStyle(ES_READONLY))
-			lstrcpyn(szReturnValue, TEXT("$true"), MIRC_BUFFER_SIZE_CCH);
-		else
-			lstrcpyn(szReturnValue, TEXT("$false"), MIRC_BUFFER_SIZE_CCH);
-
-		return;
-	}
-	// [NAME] [ID] [PROP]
-	else if (prop == TEXT("caretpos")) {
-		DWORD dwAbsoluteStartSelPos = 0;
+	case L"ispass"_hash:
+		szReturnValue = dcx_truefalse(isStyle(WindowStyle::ES_Password));
+		break;
+		// [NAME] [ID] [PROP]
+	case L"isreadonly"_hash:
+		szReturnValue = dcx_truefalse(isStyle(WindowStyle::ES_ReadOnly));
+		break;
+		// [NAME] [ID] [PROP]
+	case L"caretpos"_hash:
+	{
+		DWORD dwAbsoluteStartSelPos{};
 
 		// caret startsel position
-		SendMessage(this->m_Hwnd, EM_GETSEL, (WPARAM) &dwAbsoluteStartSelPos, NULL);
+		SendMessage(m_Hwnd, EM_GETSEL, reinterpret_cast<WPARAM>(&dwAbsoluteStartSelPos), NULL);
 
-		if (this->isStyle(ES_MULTILINE)) {
+		if (this->isStyle(WindowStyle::ES_MultiLine))
+		{
 			// current line
-			const int iLinePos = SendMessage(this->m_Hwnd, EM_LINEFROMCHAR, (WPARAM)-1, NULL);
+			const auto iLinePos = SendMessage(m_Hwnd, EM_LINEFROMCHAR, gsl::narrow_cast<WPARAM>(-1), NULL) + 1;
 			// line offset
-			const int iAbsoluteCharPos = (int) SendMessage(this->m_Hwnd, EM_LINEINDEX, (WPARAM)-1, NULL);
+			const auto CharPos = (dwAbsoluteStartSelPos - gsl::narrow_cast<int>(SendMessage(m_Hwnd, EM_LINEINDEX, gsl::narrow_cast<WPARAM>(-1), NULL)));
 
-			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d"), iLinePos +1, dwAbsoluteStartSelPos - iAbsoluteCharPos);
+			_ts_snprintf(szReturnValue, TEXT("%d %u"), iLinePos, CharPos);
 		}
 		else {
 			// return selstart
-			wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d"), 1, dwAbsoluteStartSelPos);
+			_ts_snprintf(szReturnValue, TEXT("1 %u"), dwAbsoluteStartSelPos);
 		}
-
-		return;
 	}
-	else if (prop == TEXT("selstart")) {
-		DWORD dwSelStart = 0; // selection range starting position
+	break;
+	case L"selstart"_hash:
+	{
+		DWORD dwSelStart{}; // selection range starting position
 
-		SendMessage(this->m_Hwnd, EM_GETSEL, (WPARAM) &dwSelStart, NULL);
-		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), dwSelStart);
-		return;
+		SendMessage(m_Hwnd, EM_GETSEL, reinterpret_cast<WPARAM>(&dwSelStart), NULL);
+		_ts_snprintf(szReturnValue, TEXT("%u"), dwSelStart);
 	}
-	else if (prop == TEXT("selend")) {
-		DWORD dwSelEnd = 0;   // selection range ending position
+	break;
+	case L"selend"_hash:
+	{
+		DWORD dwSelEnd{};   // selection range ending position
 
-		SendMessage(this->m_Hwnd, EM_GETSEL, NULL, (LPARAM) &dwSelEnd);
-		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), dwSelEnd);
-		return;
+		SendMessage(m_Hwnd, EM_GETSEL, NULL, reinterpret_cast<LPARAM>(&dwSelEnd));
+		_ts_snprintf(szReturnValue, TEXT("%u"), dwSelEnd);
 	}
-	else if (prop == TEXT("sel")) {
-		DWORD dwSelStart = 0; // selection range starting position
-		DWORD dwSelEnd = 0;   // selection range ending position
+	break;
+	case L"sel"_hash:
+	{
+		DWORD dwSelStart{}; // selection range starting position
+		DWORD dwSelEnd{};   // selection range ending position
 
-		SendMessage(this->m_Hwnd, EM_GETSEL, (WPARAM) &dwSelStart, (LPARAM) &dwSelEnd);
-		wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d"), dwSelStart, dwSelEnd);
-		return;
+		SendMessage(m_Hwnd, EM_GETSEL, reinterpret_cast<WPARAM>(&dwSelStart), reinterpret_cast<LPARAM>(&dwSelEnd));
+		_ts_snprintf(szReturnValue, TEXT("%u %u"), dwSelStart, dwSelEnd);
 	}
-	else if (prop == TEXT("seltext")) {
-		DWORD dwSelStart = 0; // selection range starting position
-		DWORD dwSelEnd = 0;   // selection range ending position
+	break;
+	case L"seltext"_hash:
+	{
+		DWORD dwSelStart{}; // selection range starting position
+		DWORD dwSelEnd{};   // selection range ending position
 
-		SendMessage(this->m_Hwnd, EM_GETSEL, (WPARAM) &dwSelStart, (LPARAM) &dwSelEnd);
-		lstrcpyn(szReturnValue, this->m_tsText.mid(dwSelStart, dwSelEnd - dwSelStart).to_chr(), MIRC_BUFFER_SIZE_CCH);
-		return;
+		SendMessage(m_Hwnd, EM_GETSEL, reinterpret_cast<WPARAM>(&dwSelStart), reinterpret_cast<LPARAM>(&dwSelEnd));
+		szReturnValue = m_tsText.mid(gsl::narrow_cast<int>(dwSelStart), gsl::narrow_cast<int>(dwSelEnd - dwSelStart)).to_chr();
 	}
-	else if (prop == TEXT("cue")) {
-		if (this->m_tsCue.len())
-			lstrcpyn(szReturnValue, this->m_tsCue.to_chr(), MIRC_BUFFER_SIZE_CCH);
-		return;
+	break;
+	case L"cue"_hash:
+	{
+		if (!this->m_tsCue.empty())
+			szReturnValue = m_tsCue.to_chr();
 	}
-	else if (this->parseGlobalInfoRequest(input, szReturnValue))
-		return;
-
-	szReturnValue[0] = 0;
+	break;
+	default:
+		parseGlobalInfoRequest(input, szReturnValue);
+		break;
+	}
 }
 
 /*!
@@ -322,139 +312,205 @@ void DcxEdit::parseInfoRequest( const TString &input, PTCHAR szReturnValue) cons
 *
 * blah
 */
-void DcxEdit::parseCommandRequest( const TString &input) {
-	const XSwitchFlags flags(input.getfirsttok( 3 ));
-	const unsigned int numtok = input.numtok( );
+void DcxEdit::parseCommandRequest(const TString& input)
+{
+	const XSwitchFlags flags(input.getfirsttok(3));
+	const auto numtok = input.numtok();
 
 	// xdid -r [NAME] [ID] [SWITCH]
-	if (flags[TEXT('r')]) {
-		this->m_tsText = TEXT("");
-		SetWindowTextW(this->m_Hwnd, L"");
+	if (flags[TEXT('r')])
+	{
+		this->m_tsText.clear();	// = TEXT("");
+		SetWindowTextW(m_Hwnd, L"");
 	}
 
 	// xdid -a [NAME] [ID] [SWITCH] [TEXT]
-	if (flags[TEXT('a')] && numtok > 3) {
-		this->m_tsText += input.gettok(4, -1);
-		SetWindowTextW(this->m_Hwnd, this->m_tsText.to_chr());
+	if (flags[TEXT('a')])
+	{
+		if (numtok < 4)
+			throw Dcx::dcxException("Insufficient parameters");
+
+		this->m_tsText += input.getlasttoks();	// tok 4, -1
+		SetWindowTextW(m_Hwnd, this->m_tsText.to_wchr());
 	}
 	// xdid -c [NAME] [ID] [SWITCH]
-	else if (flags[TEXT('c')] && numtok > 2) {
-		CopyToClipboard(this->m_Hwnd, this->m_tsText);
+	else if (flags[TEXT('c')])
+	{
+		if (numtok < 3)
+			throw Dcx::dcxException("Insufficient parameters");
+
+		CopyToClipboard(m_Hwnd, this->m_tsText);
 	}
 	// xdid -d [NAME] [ID] [SWITCH] [N]
-	else if (flags[TEXT('d')] && numtok > 3) {
-		if (this->isStyle(ES_MULTILINE)) {
-			const int nLine = input.getnexttok( ).to_int();	// tok 4
+	else if (flags[TEXT('d')])
+	{
+		if (numtok < 4)
+			throw Dcx::dcxException("Insufficient parameters");
+
+		if (this->isStyle(WindowStyle::ES_MultiLine))
+		{
+			const auto nLine = input.getnexttok().to_<UINT>();	// tok 4
 			this->m_tsText.deltok(nLine, TEXT("\r\n"));
-			SetWindowTextW(this->m_Hwnd, this->m_tsText.to_chr());
+			SetWindowTextW(m_Hwnd, this->m_tsText.to_wchr());
 		}
 	}
 	// xdid -i [NAME] [ID] [SWITCH] [N] [TEXT]
-	else if (flags[TEXT('i')] && numtok > 4) {
-		if (this->isStyle(ES_MULTILINE)) {
-			const int nLine = input.getnexttok( ).to_int();	// tok 4
-			this->m_tsText.instok(input.gettok(5, -1).to_chr(), nLine, TEXT("\r\n"));
+	else if (flags[TEXT('i')])
+	{
+		if (numtok < 5)
+			throw Dcx::dcxException("Insufficient parameters");
+
+		if (this->isStyle(WindowStyle::ES_MultiLine))
+		{
+			const auto nLine = input.getnexttok().to_<UINT>();	// tok 4
+			this->m_tsText.instok(input.getlasttoks(), nLine, TEXT("\r\n"));	// tok 5, -1
 		}
 		else
-			this->m_tsText = input.gettok(5, -1);
-		SetWindowTextW(this->m_Hwnd, this->m_tsText.to_chr());
+			this->m_tsText = input.getlasttoks();	// tok 5, -1
+		SetWindowTextW(m_Hwnd, this->m_tsText.to_wchr());
 	}
 	// xdid -j [NAME] [ID] [SWITCH] [0|1]
-	else if (flags[TEXT('j')] && numtok > 3) {
-		const int i = input.getnexttok( ).to_int();	// tok 4
+	else if (flags[TEXT('j')])
+	{
+		if (numtok < 4)
+			throw Dcx::dcxException("Insufficient parameters");
 
-		if (i) {
-			this->addStyle(ES_PASSWORD);
-			TCHAR c = Edit_GetPasswordChar(this->m_Hwnd);
-			// XP actually uses the unicode `Black Circle` char U+25CF (9679)
-			// The problem is getting the char set to a unicode (2-byte) one, so far it always sets to CF (207)
-			if (c == 0)
-				c = TEXT('•'); //(Dcx::XPPlusModule.isUseable()() ? TEXT('•') : TEXT('*'));
-				//c = TEXT('*'); //(Dcx::XPPlusModule.isUseable()() ? TEXT('•') : TEXT('*'));
+		const auto i = input.getnexttok().to_<UINT>();	// tok 4
 
-			Edit_SetPasswordChar(this->m_Hwnd, c);
+		auto c = Edit_GetPasswordChar(m_Hwnd);
+		if (c == 0)
+			c = this->m_PassChar;
+		// XP actually uses the unicode `Black Circle` char U+25CF (9679)
+		// The problem is getting the char set to a unicode (2-byte) one, so far it always sets to CF (207)
+		if (c == 0)
+		{
+			if (Dcx::VistaModule.isVista())
+			{
+				if (Dcx::VistaModule.isWin7())
+				{
+					c = TEXT('\u25CF');	// Win7 char
+				}
+				else
+					c = TEXT('â€¢'); // Vista char (unsure if this is the right char)
+			}
+			else
+				c = TEXT('â€¢'); // XP char
+			//c = TEXT('*'); // before win xp
+		}
+		if (i)
+		{
+			this->addStyle(WindowStyle::ES_Password);
+
+			Edit_SetPasswordChar(m_Hwnd, c);
 		}
 		else {
-			this->removeStyle(ES_PASSWORD);
-			Edit_SetPasswordChar(this->m_Hwnd, 0);
+			this->removeStyle(WindowStyle::ES_Password);
+			Edit_SetPasswordChar(m_Hwnd, 0);
+			this->m_PassChar = c;	// save pass char used for later
 		}
 
 		this->redrawWindow();
 	}
-   // xdid -l [NAME] [ID] [SWITCH] [ON|OFF]
-   else if (flags[TEXT('l')] && numtok > 3) {
-      const BOOL enabled = (input.getnexttok( ).to_int() > 0 ? TRUE : FALSE);	// tok 4
+	// xdid -l [NAME] [ID] [SWITCH] [ON|OFF]
+	else if (flags[TEXT('l')])
+	{
+		if (numtok < 4)
+			throw Dcx::dcxException("Insufficient parameters");
 
-      SendMessage(this->m_Hwnd, EM_SETREADONLY, enabled, NULL);
-   }
+		const BOOL enabled = (input.getnexttok().to_int() > 0);	// tok 4
+
+		SendMessage(m_Hwnd, EM_SETREADONLY, gsl::narrow_cast<WPARAM>(enabled), NULL);
+	}
 	// xdid -o [NAME] [ID] [SWITCH] [N] [TEXT]
-	else if (flags[TEXT('o')] && numtok > 3) {
-		if (this->isStyle(ES_MULTILINE)) {
-			const int nLine = input.getnexttok( ).to_int();	// tok 4
-			this->m_tsText.puttok(input.gettok(5, -1).to_chr(), nLine, TEXT("\r\n"));
+	else if (flags[TEXT('o')])
+	{
+		if (numtok < 4)
+			throw Dcx::dcxException("Insufficient parameters");
+
+		if (this->isStyle(WindowStyle::ES_MultiLine))
+		{
+			const auto nLine = input.getnexttok().to_<UINT>();	// tok 4
+			this->m_tsText.puttok(input.getlasttoks(), nLine, TEXT("\r\n"));	// tok 5, -1
 		}
 		else
-			this->m_tsText = input.gettok(4, -1);
-		SetWindowTextW(this->m_Hwnd, this->m_tsText.to_chr());
+			this->m_tsText = input.getlasttoks();	// tok 4, -1
+		SetWindowTextW(m_Hwnd, this->m_tsText.to_wchr());
 	}
 	// xdid -P [NAME] [ID]
-	else if (flags[TEXT('P')] && numtok > 1) {
-		SendMessage(this->getHwnd(),WM_PASTE,NULL,NULL);
+	else if (flags[TEXT('P')])
+	{
+		SendMessage(this->getHwnd(), WM_PASTE, NULL, NULL);
 	}
 	// xdid -q [NAME] [ID] [SWITCH] [SIZE]
-	else if (flags[TEXT('q')] && numtok > 3) {
-		const int N = input.getnexttok( ).to_int();	// tok 4
+	else if (flags[TEXT('q')])
+	{
+		if (numtok < 4)
+			throw Dcx::dcxException("Insufficient parameters");
 
-		if (N > -1)
-			Edit_LimitText(this->m_Hwnd, N);
+		if (const auto N = input.getnexttok().to_int(); N > -1)
+			Edit_LimitText(m_Hwnd, N);
 	}
 	// Used to prevent invalid flag message.
 	// xdid -r [NAME] [ID] [SWITCH]
-	else if (flags[TEXT('r')]) {
+	else if (flags[TEXT('r')])
+	{
 	}
 	// xdid -t [NAME] [ID] [SWITCH] [FILENAME]
-	else if (flags[TEXT('t')] && numtok > 3) {
-		const BYTE * contents = readFile(input.gettok(4, -1).to_chr());
+	else if (flags[TEXT('t')])
+	{
+		if (numtok < 4)
+			throw Dcx::dcxException("Insufficient parameters");
 
-		if (contents != NULL) {
-			this->m_tsText = (PTCHAR)contents;
-			SetWindowTextW(this->m_Hwnd, this->m_tsText.to_chr());
-			delete [] contents;
-		}
+		auto tsFile(input.getlasttoks().trim());	// tok 4, -1
+
+		if (!IsFile(tsFile))
+			throw Dcx::dcxException(TEXT("Unable to open: %"), tsFile);
+
+		m_tsText = readTextFile(tsFile);
+		SetWindowTextW(m_Hwnd, m_tsText.to_wchr());
 	}
 	// xdid -u [NAME] [ID] [SWITCH] [FILENAME]
-	else if (flags[TEXT('u')] && numtok > 3) {
-		FILE *file = dcx_fopen(input.gettok(4, -1).to_chr(), TEXT("wb"));
+	else if (flags[TEXT('u')])
+	{
+		if (numtok < 4)
+			throw Dcx::dcxException("Insufficient parameters");
 
-		if (file != NULL) {
-			fwrite(this->m_tsText.to_chr(), sizeof(TCHAR), this->m_tsText.len(), file);
-			fflush(file);
-			fclose(file);
-		}
+		if (const auto tsFile(input.getlasttoks().trim()); !SaveDataToFile(tsFile, this->m_tsText))
+			throw Dcx::dcxException(TEXT("Unable to save: %"), tsFile);
 	}
-	// xdid -S [NAME] [ID] [SWITCH] [START] [END]
-	else if (flags[TEXT('S')] && numtok > 3) {
-		const int istart = input.getnexttok( ).to_int();	// tok 4
-		int iend;
-		
-		if (numtok > 4)
-			iend = input.getnexttok( ).to_int();	// tok 5
-		else
-			iend = istart;
+	// xdid -V [NAME] [ID]
+	else if (flags[TEXT('V')])
+	{
+		SendMessage(m_Hwnd, EM_SCROLLCARET, NULL, NULL);
+	}
+	// xdid -S [NAME] [ID] [SWITCH] [START] (END)
+	else if (flags[TEXT('S')])
+	{
+		if (numtok < 4)
+			throw Dcx::dcxException("Insufficient parameters");
 
-		SendMessage(this->m_Hwnd, EM_SETSEL, istart, iend);
-		SendMessage(this->m_Hwnd, EM_SCROLLCARET, NULL, NULL);
+		const auto istart = input.getnexttok().to_int();	// tok 4
+		const auto iend = (numtok > 4) ? input.getnexttok().to_int() : istart;
+
+		SendMessage(m_Hwnd, EM_SETSEL, gsl::narrow_cast<WPARAM>(istart), gsl::narrow_cast<LPARAM>(iend));
+		SendMessage(m_Hwnd, EM_SCROLLCARET, NULL, NULL);
 	}
 	// xdid -E [NAME] [ID] [SWITCH] [CUE TEXT]
-	else if (flags[TEXT('E')] && numtok > 3) {
-		this->m_tsCue = input.gettok(4, -1);
-		Edit_SetCueBannerText(this->m_Hwnd,this->m_tsCue.to_chr());
+	else if (flags[TEXT('E')])
+	{
+		if (numtok < 4)
+			throw Dcx::dcxException("Insufficient parameters");
+
+		this->m_tsCue = input.getlasttoks();	// tok 4, -1
+		Edit_SetCueBannerText(m_Hwnd, this->m_tsCue.to_wchr());
 	}
 	// xdid -y [NAME] [ID] [SWITCH] [0|1]
-	else if (flags[TEXT('y')] && numtok > 3) {
-		const int state = input.getnexttok( ).to_int();	// tok 4
+	else if (flags[TEXT('y')])
+	{
+		if (numtok < 4)
+			throw Dcx::dcxException("Insufficient parameters");
 
-		this->m_bIgnoreRepeat = (state > 0 ? TRUE : FALSE);
+		this->m_bIgnoreRepeat = (input.getnexttok().to_int() > 0);	// tok 4
 	}
 	else
 		this->parseGlobalCommandRequest(input, flags);
@@ -465,31 +521,39 @@ void DcxEdit::parseCommandRequest( const TString &input) {
  *
  * blah
  */
-LRESULT DcxEdit::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bParsed) {
-	switch (uMsg) {
-		case WM_COMMAND:
+LRESULT DcxEdit::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed)
+{
+	switch (uMsg)
+	{
+	case WM_COMMAND:
+	{
+		switch (HIWORD(wParam))
 		{
-			switch ( HIWORD( wParam ) ) {
-				case EN_CHANGE:
-				{
-					TGetWindowText(this->m_Hwnd, this->m_tsText);
-					if (this->m_pParentDialog->getEventMask() & DCX_EVENT_EDIT)
-						this->execAliasEx(TEXT("%s,%d"), TEXT("edit"), this->getUserID());
-				}
+		case EN_CHANGE:
+		{
+			TGetWindowText(m_Hwnd, this->m_tsText);
+			if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_EDIT))
+				this->execAliasEx(TEXT("edit,%u"), getUserID());
+		}
 
-				break;
-			}
-
+		break;
+		default:
 			break;
-		} // WM_COMMAND
+		}
+
+		break;
+	} // WM_COMMAND
+	default:
+		break;
 	}
 
 	return 0L;
 }
 
-LRESULT DcxEdit::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bParsed) {
-	switch (uMsg) {
-
+LRESULT DcxEdit::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed)
+{
+	switch (uMsg)
+	{
 		// disabled this to fix the tabbing problem
 		//case WM_GETDLGCODE:
 		//    {
@@ -500,171 +564,124 @@ LRESULT DcxEdit::PostMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bPar
 		//    }
 		//    break;
 
-		case WM_KEYDOWN:
-			{
-				//if (wParam == VK_ESCAPE)
-				//	bParsed = TRUE; // prevents parent window closing.
-				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_EDIT) {
-					if (wParam == VK_RETURN)
-						this->execAliasEx(TEXT("%s,%d"), TEXT("return"), this->getUserID());
+	case WM_KEYDOWN:
+	{
+		//if (wParam == VK_ESCAPE)
+		//	bParsed = TRUE; // prevents m_pParent window closing.
+		if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_EDIT))
+		{
+			if (wParam == VK_RETURN)
+				this->execAliasEx(TEXT("return,%u"), getUserID());
 
-					if ((this->m_bIgnoreRepeat) && (lParam & 0x40000000)) // ignore repeats
-						break;
-
-					this->execAliasEx(TEXT("%s,%d,%d"), TEXT("keydown"), this->getUserID(), wParam);
-				}
-				/*
-				// CTRL+A, select text and return so control doesnt beep
-				if ((wParam == 65) &&
-				(GetKeyState(VK_CONTROL) & 0x8000))
-				{
-				this->callAliasEx(ret, TEXT("%s,%d"), TEXT("select"), this->getUserID());
-				//			bParsed = TRUE;
-				//			return TRUE;
-				}
-				*/
-
+			if ((this->m_bIgnoreRepeat) && (lParam & 0x40000000)) // ignore repeats
 				break;
-			}
-		case WM_COPY:
+
+			this->execAliasEx(TEXT("keydown,%u,%u"), getUserID(), wParam);
+		}
+		/*
+		// CTRL+A, select text and return so control doesnt beep
+		if ((wParam == 65) &&
+		(GetKeyState(VK_CONTROL) & 0x8000))
+		{
+		this->callAliasEx(ret, TEXT("%s,%d"), TEXT("select"), this->getUserID());
+		//			bParsed = TRUE;
+		//			return TRUE;
+		}
+		*/
+
+		break;
+	}
+	case WM_COPY:
+	{
+		if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_EDIT))
+		{
+			const stString<256> szRet;
+
+			evalAliasEx(szRet, gsl::narrow_cast<int>(szRet.size()), TEXT("copy,%u"), getUserID());
+
+			if (szRet == TEXT("nocopy"))
 			{
-				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_EDIT) {
-					TCHAR ret[256];
-
-					this->evalAliasEx(ret, 255, TEXT("%s,%d"), TEXT("copy"), this->getUserID());
-
-					if (lstrcmp(TEXT("nocopy"), ret) == 0) {
-						bParsed = TRUE;
-						return 0L;
-					}
-				}
-				break;
-			}
-		case WM_CUT:
-			{
-				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_EDIT) {
-					TCHAR ret[256];
-
-					this->evalAliasEx(ret, 255, TEXT("%s,%d"), TEXT("cut"), this->getUserID());
-
-					if (lstrcmp(TEXT("nocut"), ret) == 0) {
-						bParsed = TRUE;
-						return 0L;
-					}
-				}
-				break;
-			}
-		case WM_PASTE:
-			{
-				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_EDIT) {
-					TCHAR ret[256];
-
-					this->evalAliasEx(ret, 255, TEXT("%s,%d"), TEXT("paste"), this->getUserID());
-
-					if (lstrcmp(TEXT("nopaste"), ret) == 0) {
-						bParsed = TRUE;
-						return 0L;
-					}
-				}
-				break;
-			}
-		case WM_KEYUP:
-			{
-				if (this->m_pParentDialog->getEventMask() & DCX_EVENT_EDIT)
-					this->execAliasEx(TEXT("%s,%d,%d"), TEXT("keyup"), this->getUserID(), wParam);
-				break;
-			}
-		case WM_PAINT:
-			{
-				if (!this->m_bAlphaBlend)
-					break;
-				PAINTSTRUCT ps;
-				HDC hdc;
-
-				hdc = BeginPaint( this->m_Hwnd, &ps );
-
-				//LRESULT res = 0L;
 				bParsed = TRUE;
-
-				// Setup alpha blend if any.
-				LPALPHAINFO ai = this->SetupAlphaBlend(&hdc);
-
-				//RECT rcTxt;
-				//GetClientRect(this->m_Hwnd, &rcTxt);
-
-				//// fill background.
-				//if (this->isExStyle(WS_EX_TRANSPARENT))
-				//{
-				//	if (!this->m_bAlphaBlend)
-				//		this->DrawParentsBackground(hdc,&rcTxt);
-				//}
-				//else
-				//	DcxControl::DrawCtrlBackground(hdc,this,&rcTxt);
-
-				//HFONT oldFont = NULL;
-				//COLORREF oldClr = CLR_INVALID;
-				//COLORREF oldBkgClr = CLR_INVALID;
-
-				//// check if font is valid & set it.
-				//if (this->m_hFont != NULL)
-				//	oldFont = SelectFont(hdc, this->m_hFont);
-				//// check if control is enabled.
-				//if (IsWindowEnabled(this->m_Hwnd)) {
-				//	if (this->m_clrText != CLR_INVALID)
-				//		oldClr = SetTextColor(hdc, this->m_clrText);
-				//	if (this->m_clrBackText != CLR_INVALID)
-				//		oldBkgClr = SetBkColor(hdc, this->m_clrBackText);
-				//}
-				//else { // disabled controls colouring
-				//	oldClr = SetTextColor(hdc, GetSysColor(COLOR_GRAYTEXT));
-				//	oldBkgClr = SetBkColor(hdc, GetSysColor(COLOR_3DFACE));
-				//}
-
-				//UINT style = DT_LEFT|DT_NOPREFIX|DT_VCENTER;
-				//if (this->isStyle(ES_CENTER))
-				//	style = DT_CENTER|DT_NOPREFIX|DT_VCENTER;
-				//else if (this->isStyle(ES_RIGHT))
-				//	style = DT_RIGHT|DT_NOPREFIX|DT_VCENTER;
-				//if (!this->isStyle(ES_MULTILINE))
-				//	style |= DT_SINGLELINE;
-
-				//if (!this->m_bCtrlCodeText) {
-				//	int oldBkgMode = SetBkMode(hdc, TRANSPARENT);
-				//	if (this->m_bShadowText)
-				//		dcxDrawShadowText(hdc, this->m_tsText.to_wchr(this->m_bUseUTF8), this->m_tsText.wlen(), &rcTxt, style, this->m_clrText, 0, 5, 5);
-				//	else
-				//		DrawTextW(hdc, this->m_tsText.to_wchr(this->m_bUseUTF8), this->m_tsText.wlen(), &rcTxt, style);
-				//	SetBkMode(hdc, oldBkgMode);
-				//}
-				//else
-				//	mIRC_DrawText(hdc, this->m_tsText, &rcTxt, style, this->m_bShadowText);
-
-				//if (oldBkgClr != CLR_INVALID)
-				//	SetBkColor(hdc, oldBkgClr);
-				//if (oldClr != CLR_INVALID)
-				//	SetTextColor(hdc, oldClr);
-				//if (oldFont != NULL)
-				//	SelectFont( hdc, oldFont );
-
-				LRESULT res = CallWindowProc( this->m_DefaultWindowProc, this->m_Hwnd, uMsg, (WPARAM) hdc, lParam );
-
-				this->FinishAlphaBlend(ai);
-
-				EndPaint( this->m_Hwnd, &ps );
-				return res;
+				return 0L;
 			}
-			break;
+		}
+		break;
+	}
+	case WM_CUT:
+	{
+		if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_EDIT))
+		{
+			const stString<256> szRet;
 
-		case WM_DESTROY:
+			evalAliasEx(szRet, gsl::narrow_cast<int>(szRet.size()), TEXT("cut,%u"), getUserID());
+
+			if (szRet == TEXT("nocut"))
 			{
-				delete this;
 				bParsed = TRUE;
-				break;
+				return 0L;
 			}
-		default:
-			return this->CommonMessage( uMsg, wParam, lParam, bParsed);
+		}
+		break;
+	}
+	case WM_PASTE:
+	{
+		if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_EDIT))
+		{
+			const stString<256> szRet;
+
+			evalAliasEx(szRet, gsl::narrow_cast<int>(szRet.size()), TEXT("paste,%u"), getUserID());
+
+			if (szRet == TEXT("nopaste"))
+			{
+				bParsed = TRUE;
+				return 0L;
+			}
+		}
+		break;
+	}
+	case WM_KEYUP:
+	{
+		if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_EDIT))
+			execAliasEx(TEXT("keyup,%u,%u"), getUserID(), wParam);
+		break;
+	}
+	case WM_PAINT:
+	{
+		if (!this->IsAlphaBlend())
 			break;
+		PAINTSTRUCT ps{};
+
+		auto hdc = BeginPaint(m_Hwnd, &ps);
+		Auto(EndPaint(m_Hwnd, &ps));
+
+		bParsed = TRUE;
+
+		// Setup alpha blend if any.
+		const auto ai = this->SetupAlphaBlend(&hdc);
+		Auto(this->FinishAlphaBlend(ai));
+
+		return CallDefaultClassProc(uMsg, reinterpret_cast<WPARAM>(hdc), lParam);
+	}
+	break;
+
+	case WM_DESTROY:
+	{
+		delete this;
+		bParsed = TRUE;
+		break;
+	}
+	default:
+		return this->CommonMessage(uMsg, wParam, lParam, bParsed);
+		break;
 	}
 
 	return 0L;
+}
+
+LRESULT DcxEdit::CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept
+{
+	if (m_hDefaultClassProc)
+		return CallWindowProc(m_hDefaultClassProc, this->m_Hwnd, uMsg, wParam, lParam);
+
+	return DefWindowProc(this->m_Hwnd, uMsg, wParam, lParam);
 }

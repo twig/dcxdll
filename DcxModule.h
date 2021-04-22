@@ -1,6 +1,4 @@
-#if _MSC_VER > 1000
 #pragma once
-#endif
 #ifndef _DCXMODULES_H_
 #define _DCXMODULES_H_
 
@@ -8,7 +6,7 @@
 #include <shlwapi.h>
 #include "mIRCLinker.h"
 
-class Dcx;
+//class Dcx;
 
 #ifdef __INTEL_COMPILER // Defined when using Intel C++ Compiler.
 #pragma warning( push )
@@ -17,20 +15,23 @@ class Dcx;
 
 class DcxModule
 {
-	mIRCLinker * m_mIRCLink;
-	
-protected:
-	HMODULE m_hModule;
-
 public:
-	DcxModule(void);
-	virtual ~DcxModule(void);
+	constexpr DcxModule(void) noexcept {}
+	virtual ~DcxModule(void) noexcept {};
 
-	bool isUseable() const;
-	static bool GetWindowVersion(DWORD *dMajor, DWORD *dMinor);
+	DcxModule(const DcxModule &other) = delete;	// no copy constructor
+	DcxModule(const DcxModule &&other) = delete;	// no move constructor
+	DcxModule &operator =(const DcxModule &) = delete;	// No assignments!
+	DcxModule &operator =(const DcxModule &&) = delete;	// No move assignments!
 
-	virtual bool load(mIRCLinker &mIRCLink);
+	bool isUseable() const noexcept	{ return !(m_hModule == nullptr); }
+
+	virtual bool load() = 0;
 	virtual bool unload() = 0;
+
+protected:
+	HMODULE m_hModule{ nullptr };
+
 };
 
 #ifdef __INTEL_COMPILER // Defined when using Intel C++ Compiler.

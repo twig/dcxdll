@@ -14,27 +14,26 @@
 #include "defines.h"
 #include "layoutmanager.h"
 
-/*!
- * \brief Constructor
- *
- * blah
- */
+ /*!
+  * \brief Constructor
+  *
+  * blah
+  */
 
-LayoutManager::LayoutManager( ) {
+  //LayoutManager::LayoutManager()
+  //: LayoutManager(nullptr)
+  //{
+  //}
 
-  this->m_pRoot = NULL;
-  this->m_Hwnd = NULL;
-}
+  /*!
+   * \brief Constructor
+   *
+   * blah
+   */
 
-/*!
- * \brief Constructor
- *
- * blah
- */
-
-LayoutManager::LayoutManager( HWND mHwnd ) : m_Hwnd( mHwnd ) {
-
-  this->m_pRoot = NULL;
+LayoutManager::LayoutManager(HWND mHwnd) noexcept
+	: m_Hwnd(mHwnd)
+{
 }
 
 /*!
@@ -43,8 +42,46 @@ LayoutManager::LayoutManager( HWND mHwnd ) : m_Hwnd( mHwnd ) {
  * blah
  */
 
-LayoutManager::~LayoutManager( ) {
+ //LayoutManager::~LayoutManager() {
+ //
+ //}
 
+ /*!
+  * \brief blah
+  *
+  * blah
+  */
+
+const bool LayoutManager::updateLayout(RECT& rc)
+{
+	//if (empty())
+	//	return false;
+	//
+	//auto hdwp = BeginDeferWindowPos(gsl::narrow_cast<int>(m_iCount));
+	//
+	//if (hdwp == nullptr)
+	//{
+	//	DCX_DEBUG(mIRCLinker::debug, TEXT("updateLayout()"), TEXT("BeginDeferWindowPos() failed"));
+	//	return false;
+	//}
+	//
+	//m_pRoot->setRect(rc);
+	//m_pRoot->LayoutChild();
+	//hdwp = m_pRoot->ExecuteLayout(hdwp);
+	//
+	//if (hdwp == nullptr)
+	//{
+	//	DCX_DEBUG(mIRCLinker::debug, TEXT("updateLayout()"), TEXT("DeferWindowPos() failed"));
+	//	return false;
+	//}
+	//return (EndDeferWindowPos(hdwp) != FALSE);
+
+	if (empty())
+		return false;
+
+	m_pRoot->setRect(rc);
+	m_pRoot->LayoutChild();
+	return (EndDeferWindowPos(m_pRoot->ExecuteLayout(BeginDeferWindowPos(gsl::narrow_cast<int>(m_iCount)))) != FALSE);
 }
 
 /*!
@@ -53,24 +90,13 @@ LayoutManager::~LayoutManager( ) {
  * blah
  */
 
-BOOL LayoutManager::updateLayout( RECT & rc ) {
+void LayoutManager::setRoot(std::unique_ptr<LayoutCell> p_Root) noexcept
+{
+	// clean memory in case we use more than once
+	//delete m_pRoot;
+	//m_pRoot = p_Root;
 
-	if ( this->m_pRoot == NULL )
-		return FALSE;
-
-	HDWP hdwp = BeginDeferWindowPos( 1 );
-
-	this->m_pRoot->setRect( rc );
-	this->m_pRoot->LayoutChild( );
-	hdwp = this->m_pRoot->ExecuteLayout( hdwp );
-
-#if DCX_DEBUG_OUTPUT
-	if (hdwp == NULL) {
-		Dcx::debug(TEXT("updateLayout()"),TEXT("DeferWindowPos() failed"));
-		return FALSE;
-	}
-#endif
-	return EndDeferWindowPos( hdwp );
+	m_pRoot = std::move(p_Root);
 }
 
 /*!
@@ -79,13 +105,20 @@ BOOL LayoutManager::updateLayout( RECT & rc ) {
  * blah
  */
 
-void LayoutManager::setRoot( LayoutCell * p_Root ) {
+ //LayoutCell * LayoutManager::getRoot() const noexcept {
+ //
+ //	return m_pRoot;
+ //}
 
-  // clean memory in case we use more than once
-  if ( this->m_pRoot != NULL )
-    delete this->m_pRoot;
+ /*!
+  * \brief blah
+  *
+  * blah
+  */
 
-  this->m_pRoot = p_Root;
+LayoutCell* LayoutManager::getCell(const TString& path) const
+{
+	return parsePath(path, m_pRoot.get(), 1);
 }
 
 /*!
@@ -94,56 +127,205 @@ void LayoutManager::setRoot( LayoutCell * p_Root ) {
  * blah
  */
 
-LayoutCell * LayoutManager::getRoot( ) const {
+LayoutCell* LayoutManager::parsePath(const TString& path, const LayoutCell* const hParent, const UINT depth)
+{
+	if (!hParent)
+		return nullptr;
 
-  return this->m_pRoot;
+	const auto k = path.gettok(gsl::narrow_cast<int>(depth)).to_<UINT>();
+
+	if (k < 1)
+		return nullptr;
+
+	auto hCurrentCell = hParent->getFirstChild();
+
+	if (!hCurrentCell)
+		return nullptr;
+
+	UINT i = 1;
+	const auto n = path.numtok();
+
+	do {
+		if (i == k)
+		{
+			// finished tree search and found
+			if (depth == n)
+				return hCurrentCell;
+
+			return LayoutManager::parsePath(path, hCurrentCell, depth + 1);
+		}
+
+		++i;
+
+	} while ((hCurrentCell = hCurrentCell->getNextSibling()) != nullptr);
+
+	return nullptr;
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
+void LayoutManager::AddCell(const TString& input, const UINT iOffset, DcxDialog* dialog)
+{
+	const auto tsInput(input.getfirsttok(1, TSTABCHAR));
+	const auto p2(input.getnexttok(TSTABCHAR).trim());
 
-LayoutCell * LayoutManager::getCell( const TString & path ) const {
+	const auto com = std::hash<TString>{}(tsInput.getfirsttok(gsl::narrow_cast<int>(iOffset)).trim());		// 3
+	const auto path(tsInput.getlasttoks().trim());	// 4
 
-  return this->parsePath( path, this->m_pRoot, 1 );
+	const auto iflags = parseLayoutFlags(p2.getfirsttok(1));
+	//const auto ID = p2.getnexttok().to_<UINT>();	// tok 2
+
+	const TString tsID(p2.getnexttok());
+	const auto ID = (dialog) ? dialog->NameToUserID(tsID) : tsID.to_<UINT>();
+
+	const auto WGT = p2.getnexttok().to_<UINT>();	// tok 3
+	const auto W = p2.getnexttok().to_<INT>();	// tok 4
+	const auto H = p2.getnexttok().to_<INT>();	// tok 5
+
+	const auto bPathRoot = (path == TEXT("root"));
+
+	if ((com == TEXT("root"_hash)) || com == TEXT("cell"_hash))
+	{
+		const auto cHwnd = GetDlgItem(m_Hwnd, gsl::narrow_cast<int>(mIRC_ID_OFFSET + ID));
+
+		std::unique_ptr<LayoutCell> p_Cell = nullptr;
+
+		// LayoutCellPane
+		if (dcx_testflag(iflags, CLATypes::LAYOUTPANE))
+		{
+			if (dcx_testflag(iflags, CLATypes::LAYOUTHORZ))
+				p_Cell = std::make_unique<LayoutCellPane>(LayoutCellPane::PaneType::HORZ);
+			else
+				p_Cell = std::make_unique<LayoutCellPane>(LayoutCellPane::PaneType::VERT);
+		} // if (dcx_testflag(flags, CLATypes::LAYOUTPANE))
+		  // LayoutFill Cell
+		else if (dcx_testflag(iflags, CLATypes::LAYOUTFILL))
+		{
+			if (dcx_testflag(iflags, CLATypes::LAYOUTID))
+			{
+				if (!cHwnd || !IsWindow(cHwnd))
+					throw Dcx::dcxException("Cell Fill -> Invalid ID");
+
+				p_Cell = std::make_unique<LayoutCellFill>(cHwnd);
+			}
+			else
+				p_Cell = std::make_unique<LayoutCellFill>();
+		} // else if (dcx_testflag(flags, LAYOUTFILL))
+		  // LayoutCellFixed
+		else if (dcx_testflag(iflags, CLATypes::LAYOUTFIXED))
+		{
+			auto type = LayoutCellFixed::FixedType::WIDTH;
+
+			if (dcx_testflag(iflags, CLATypes::LAYOUTVERT))
+			{
+				if (dcx_testflag(iflags, CLATypes::LAYOUTHORZ))
+					type = LayoutCellFixed::FixedType::BOTH;
+				else
+					type = LayoutCellFixed::FixedType::HEIGHT;
+			}
+
+			// Defined Rectangle
+			if (dcx_testflag(iflags, CLATypes::LAYOUTDIM))
+			{
+				const RECT rc{ 0,0,W,H };
+
+				if (dcx_testflag(iflags, CLATypes::LAYOUTID))
+				{
+					if (!cHwnd || !IsWindow(cHwnd))
+						throw Dcx::dcxException("Cell Fixed -> Invalid ID");
+
+					p_Cell = std::make_unique<LayoutCellFixed>(cHwnd, rc, type);
+				}
+				else
+					p_Cell = std::make_unique<LayoutCellFixed>(rc, type);
+
+			}
+			// No defined Rectangle
+			else {
+				if (dcx_testflag(iflags, CLATypes::LAYOUTID))
+				{
+					if (!cHwnd || !IsWindow(cHwnd))
+						throw Dcx::dcxException("Cell Fixed -> Invalid ID");
+
+					p_Cell = std::make_unique<LayoutCellFixed>(cHwnd, type);
+				}
+				else
+					throw Dcx::dcxException("Missing control ID flag, can't create cell");
+			} //else
+		} // else if (dcx_testflag(flags, LAYOUTFIXED))
+		else
+			throw Dcx::dcxException("Unknown Cell Type");
+
+		if (!p_Cell)
+			throw Dcx::dcxException("Unable to Create Cell");
+
+		//if (com == TEXT("root"_hash))
+		//	setRoot(p_Cell.release());
+		if (com == TEXT("root"_hash))
+			setRoot(std::move(p_Cell));
+		// if ( com == TEXT("root") )
+		else if (com == TEXT("cell"_hash))
+		{
+			auto p_GetCell = getRoot();
+
+			if (!bPathRoot)
+				p_GetCell = getCell(path);
+
+			if (!p_GetCell)
+				//throw Dcx::dcxException("Invalid item path");
+				throw DcxExceptions::dcxInvalidPath();
+
+			if (p_GetCell->getType() != LayoutCell::CellType::PANE)
+				throw Dcx::dcxException("Invalid parent Cell");
+
+			//const auto p_PaneCell = (LayoutCellPane *)p_GetCell;
+			const auto p_PaneCell = reinterpret_cast<LayoutCellPane*>(p_GetCell);
+			p_PaneCell->addChild(p_Cell.release(), WGT);
+		} // else if ( com == TEXT("cell") )
+
+		++m_iCount;
+
+	} // if ( com ==  TEXT("root") || com == TEXT("cell") )
+	else if (com == TEXT("space"_hash))
+	{
+		auto p_GetCell = getRoot();
+
+		if (!bPathRoot)
+			p_GetCell = getCell(path);
+
+		if (!p_GetCell)
+			//throw Dcx::dcxException("Invalid item path");
+			throw DcxExceptions::dcxInvalidPath();
+
+		const RECT rc{ gsl::narrow_cast<int>(ID), gsl::narrow_cast<int>(WGT), W, H };
+		p_GetCell->setBorder(rc);
+	} // else if ( com == TEXT("space") )
+	else
+		//throw Dcx::dcxException("Invalid command");
+		throw DcxExceptions::dcxInvalidCommand();
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
+const CLATypes LayoutManager::parseLayoutFlags(const TString& flags) noexcept
+{
+	const XSwitchFlags xflags(flags);
+	CLATypes iFlags{};
 
-LayoutCell * LayoutManager::parsePath( const TString & path, LayoutCell * hParent, const int depth ) {
+	// no +sign, missing params
+	if (!xflags[TEXT('+')])
+		return iFlags;
 
-  if ( hParent == NULL )
-    return NULL;
+	if (xflags[TEXT('f')])
+		iFlags |= CLATypes::LAYOUTFIXED;
+	if (xflags[TEXT('h')])
+		iFlags |= CLATypes::LAYOUTHORZ;
+	if (xflags[TEXT('i')])
+		iFlags |= CLATypes::LAYOUTID;
+	if (xflags[TEXT('l')])
+		iFlags |= CLATypes::LAYOUTFILL;
+	if (xflags[TEXT('p')])
+		iFlags |= CLATypes::LAYOUTPANE;
+	if (xflags[TEXT('v')])
+		iFlags |= CLATypes::LAYOUTVERT;
+	if (xflags[TEXT('w')])
+		iFlags |= CLATypes::LAYOUTDIM;
 
-  int n = path.numtok( ), i = 1;
-  int k = path.gettok( depth ).to_int( );
-  LayoutCell * hCurrentCell;
-
-  hCurrentCell = hParent->getFirstChild( );
-
-  if ( hCurrentCell == NULL )
-    return NULL;
- 
-  do {
-
-    if ( i == k ) {
-
-      // finished tree search and found
-      if ( depth == n )
-       return hCurrentCell;
-
-      return LayoutManager::parsePath( path, hCurrentCell, depth + 1 );
-    }
-
-    i++;
-
-  } while ( ( hCurrentCell = hCurrentCell->getNextSibling( ) ) != NULL );
-
-  return NULL;
+	return iFlags;
 }

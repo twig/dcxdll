@@ -5,7 +5,7 @@ alias dcx {
 }
 
 alias udcx {
-  if ($dcx(IsUnloadSafe)) $iif($menu, .timer 1 0) dll -u dcx.dll
+  if ($dcx(IsUnloadSafe)) $iif($menu, .timer -o 1 0 editbox -ns) dll -u dcx.dll
   else echo 4 -qmlbfti2 [DCX] Unable to Unload Dll.
 }
 
@@ -85,7 +85,7 @@ on *:start: {
   if ($dll(dcx.dll) != $null) {
     if ($v1 != $scriptdirdcx\dcx.dll) {
       set %dcx_conflict 1
-      echo 4 -s [DCX ERROR] Dll Conflict: Trying to load multiple copies of DCX: $+(04,$qt($v1),) and $+(03,$qt($scriptdirdcx\dcx.dll),)
+      echo 4 -s [DCX ERROR] Dll Conflict: Trying to load multiple copies of DCX: $+(04,$qt($v1),) and $+(03,$qt($v2),)
     }
   }
 }

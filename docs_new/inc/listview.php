@@ -49,7 +49,7 @@ function get_styles_listview(&$STYLES) {
 function get_xdid_listview(&$XDID) {
 	$XDID = array(
 		'a' => array(
-		        '__desc' => 'This command lets you add an item to the listview.',
+	        '__desc' => 'This command lets you add an item to the listview.',
 			'__cmd' => '[N] [INDENT] [+FLAGS] [ICON] [STATE] [OVERLAY] [GROUPID] [COLOR] [BGCOLOR] (TEXT) [TAB] [+FLAGS] [ICON] [OVERLAY] [COLOR] [BGCOLOR] (TEXT) [TAB] ...',
 			'__eg' => '1 0 +cbku 1 0 0 0 $rgb(170,213,255) $rgb(0,255,255) text $chr(9) + 0 -1 $rgb(10,210,250) $rgb(255,0,255) text2 $chr(9) + 0 -1 $rgb(120,255,210) $rgb(255,255,0) text3',
 			'__params' => array(
@@ -61,6 +61,7 @@ function get_xdid_listview(&$XDID) {
 						'a' => 'Autosize.',
 						'b' => 'The item is bold.',
 						'c' => 'The item has a text color defined by the [p]COLOR[/p] parameter (use [v]-1[/v] for no color).',
+						'C' => 'The item has no text so the icon should be centered',
 						'd' => 'The item appears selected like a drop target.',
 						'f' => 'The item has focus thus having a dotted box around it.',
 						'h' => 'Autosize according to header text width.',
@@ -70,9 +71,12 @@ function get_xdid_listview(&$XDID) {
 						'm' => 'Autosize the column to fit header or content.',
 						'n' => 'Allows you to load an item from a hash table by index. Cannot be used with [v]+H[/v]',
 						's' => 'The item is selected.',
-						'p' => 'The item is a DCX ProgressBar control.',
+						'p' => 'The item is a DCX ProgressBar control. (This flag is changing its args etc... expect errors)',
 						't' => 'The item icon appears as 50% opaque, looks like it has a "ghost" effect.',
 						'u' => 'The item is underlined.',
+						'w' => '(TEXT) is [+IFLAGS] [TABLE NAME] [N|N1-N2|name]',
+						'y' => '(TEXT) is [+IFLAGS] [@windowname] [N|N1-N2]',
+						'z' => '(TEXT) is [+IFLAGS] [DIALOG] [ID] (N|N1-N2)',
 					),
 				),
 				'ICON' => "Icon index number from the normal icon list.",
@@ -88,9 +92,7 @@ function get_xdid_listview(&$XDID) {
 				'GROUPID' => 'Group ID. (Use [v]0[/v] for no value) [o]XP+[/o]',
 				'COLOR' => 'Item text color.',
 				'BGCOLOR' => 'Item background color.',
-				'TEXT' => 'The text to display in the cell.<br />
-				        If used with [v]+p[/v] [p]+FLAGS[/p], then this is the DCX ProgressBar [s]style[/s].<br />
-					If used with [v]+H[/v] or [v]+n[/v] [p]+FLAGS[/p], then this is either [v]HASHTABLE[/v] [v]ITEM[/v] or [v]HASHTABLE[/v] [v]INDEX[/v] respectively.',
+				'TEXT' => 'The text to display in the cell.<br />If used with [v]+p[/v] [p]+FLAGS[/p], then this is the DCX ProgressBar [s]style[/s].<br />If used with [v]+H[/v] or [v]+n[/v] [p]+FLAGS[/p], then this is either [v]HASHTABLE[/v] [v]ITEM[/v] or [v]HASHTABLE[/v] [v]INDEX[/v] respectively.',
 			),
 			'__notes' => array(
 				'Icons must be added prior to be used in the listview using [f]/xdid -w[/f]',
@@ -98,6 +100,14 @@ function get_xdid_listview(&$XDID) {
 				'Even if there are icons in the icon lists and [v]0[/v] is used for no icon, there will be the an icon indent space in front of the item text. (normal and state icon lists)',
 				"You can use [v]0[/v] for the [p]#ICON[/p], and [p]#OVERLAY[/p] values if you wish to use no icon.",
 				"You need to use [s]checkbox[/s] style in order to use checkboxes in the listview.",
+				'[+IFLAGS] is a combination of',
+				' +   No Flags specified. [N] provided, add a single item as text only.',
+				' +a  item(s) contain all the flags & icon info etc.. for the item(s) to be added from [INDENT] onwards.',
+				' +A  add all items starting at N',
+				' +n  [N1-N2] numeric range supplied. Add all items in range. (can\'t be used with +A)',
+				'- N1 must be > 0',
+				'- N2 can\'t be 0, but can be a negative.',
+				' +i  [name] single named item to be added. (can\'t be used with +n or +A)',
 			),
 		),
 		'A' => array(
@@ -121,14 +131,27 @@ function get_xdid_listview(&$XDID) {
 		),
 		'c' => array(
 	        '__desc' => 'This command lets you select listview items.',
-	        '__cmd' => '[N(,N,...)]',
-	        '__eg' => '1,3,5',
+	        '__cmd' => '[N(,N,N-N,...)]',
+	        '__eg' => '1,3,5,10-30',
 	        '__notes' => 'In a [s]singlesel[/s] listview, there is only one value for [p]N[/p].'
 		),
 		'd' => array(
 	        '__desc' => "This command lets you delete the Nth listview item.",
-	        '__cmd' => '[N]',
-	        '__eg' => '6',
+	        '__cmd' => '[N(,N,N-N,...)] ([+FLAGS] [SUBITEM] [MATCH])',
+	        '__eg' => '1,3,5,10-30',
+            '__params' => array(
+				'N(,N,N-N,...)' => 'If [v]+FLAGS[/v] is not specified, this is the item(s) to delete. If [v]+FLAGS[/v] is specified this is the item to start searching from.',
+                '+FLAGS' => array(
+                    '__desc' => "Search flags.",
+                    '__values' => array(
+						'w' => 'Wildcard search.',
+						'r' => 'Regex search.',
+						't' => 'Exact match plain text search. (default if no flag specified)',
+					),
+				),
+                'SUBITEM' => 'The subitem to search.',
+                'MATCH' => 'The search pattern.',
+			),
 		),
 		'g' => array(
 	        '__desc' => 'This command lets you set a background image to the listview control.',
@@ -148,6 +171,62 @@ function get_xdid_listview(&$XDID) {
                 'FILENAME' => 'Filename of the image including the path.',
 			),
 	        '__notes' => 'For [p]X[/p] and [p]Y[/p], 0 = left aligned, 50 = centred, 100 = right aligned.'
+		),
+		'G' => array(
+	        '__desc' => 'This command lets you change a groups state.',
+	        '__cmd' => '[GID] [+MASK] [+STATES]',
+	        '__eg' => '1 +O +O',
+            '__params' => array(
+                'GID' => 'ID of the group to change',
+                '+MASK' => array(
+                    '__desc' => "The mask of group states to affect",
+                    '__values' => array(
+						'C' => 'Collapsible',
+						'H' => 'Hidden',
+						'N' => 'No header',
+						'O' => 'Collapsed',
+						'S' => 'Selected',
+					),
+				),
+                '+STATES' => array(
+                    '__desc' => "The group states to enable",
+                    '__values' => array(
+						'C' => 'Collapsible',
+						'H' => 'Hidden',
+						'N' => 'No header',
+						'O' => 'Collapsed',
+						'S' => 'Selected',
+					),
+				),
+			),
+	        '__notes' => 'Only states included in +MASK will be changed. If a state is included in +MASK but not in +STATES then it will be removed.'
+		),
+		'H' => array(
+	        '__desc' => 'This command lets you set the header settings.',
+	        '__cmd' => '[COL|COL1-COL2|COL1,COL2|COL1,COL2-COL3 etc..] [+FLAGS] [ARGS]',
+	        '__eg' => '1 +s sortdown unchecked',
+            '__params' => array(
+                'COL|COL1-COL2|COL1,COL2|COL1,COL2-COL3' => 'The column number(s) to change the header for.',
+                '+FLAGS' => array(
+                    '__desc' => "The action to take.",
+                    '__values' => array(
+						's' => 'Change header style',
+					),
+				),
+                'ARGS' => array(
+                    '__desc' => "The arguments for the given +FLAGS",
+                    '__values' => array(
+						'sortdown' => 'Change the header to show a sort down arrow. (can\'t be used with sortup or nosort)',
+						'sortup' => 'Change the header to show a sort up arrow. (can\'t be used with sortdown or nosort)',
+						'nosort' => 'Change the header to not show any sort arrow. (can\'t be used with sortup or sortdown)',
+						'checkbox' => 'Change the header to show a checkbox. (can\'t be used with nocheckbox)',
+						'nocheckbox' => 'Change the header to not show a checkbox. (can\'t be used with checkbox)',
+						'checked' => 'Change the header to show a selected checkbox. (can\'t be used with nocheckbox or unchecked)',
+						'unchecked' => 'Change the header to show a unselected checkbox. (can\'t be used with nocheckbox or checked)',
+					),
+				),
+			),
+	        '__notes' => 'Only +s flag is supported atm, so only styles can be changed.'
 		),
 		'i' => array(
 	        '__desc' => 'This command lets you change the listview control colors.',
@@ -193,7 +272,7 @@ function get_xdid_listview(&$XDID) {
 					),
 				),
 			),
-			'__notes' => 'Changing the color of column [p]NSUB[/p] with subsequently change the color of following columns.',
+			'__notes' => 'Changing the color of column [p]NSUB[/p] will subsequently change the color of following columns.',
 		),
 		'k' => array(
 	        '__desc' => 'This command lets you change the check state on the Nth listview item.',
@@ -284,9 +363,31 @@ function get_xdid_listview(&$XDID) {
                 'GROUPTEXT' => 'Label for the group.'
 			),
 		),
+		'Q' => array(
+	        '__desc' => 'This command lets you add, move, & delete groups.',
+	        '__cmd' => 'Add [N] [+FLAGS] [GID] [GROUPTEXT]|Move [GID] [N]|Del [GID]',
+	        '__eg' => array(
+                'Add 1 +l 101 Group 101!',
+                'Move 101 4',
+                'Del 101'
+            ),
+	        '__params' => array(
+	            'N' => 'Group index order.',
+                '+FLAGS' => array(
+                    '__desc' => "Group flags.",
+                    '__values' => array(
+						'c' => 'Group text is centered.',
+						'l' => 'Group text is left aligned.',
+						'r' => 'Group text is right aligned.',
+					),
+				),
+                'GID' => 'ID that identifies the group when adding items in <a>/xdid -a</a>.',
+                'GROUPTEXT' => 'Label for the group.'
+			),
+		),
 		'r' => 'This command lets you clear all the listview items.',
 		't' => array(
-			'__desc' => 'This command lets you set the different column header text, width and alignment. ([s]report[/s] style only)',
+			'__desc' => 'This command lets you set the different column header text, width and alignment.',
 			'__cmd' => '[+FLAGS] [#ICON] [WIDTH] (TEXT) [TAB] [+FLAGS] [#ICON] [WIDTH] (TEXT) [TAB] ...',
 			'__eg' => '+l 2 130 column 1 $chr(9) +c 1 130 column 2 $chr(9) +rb 2 130 column 3',
 			'__params' => array(
@@ -297,6 +398,11 @@ function get_xdid_listview(&$XDID) {
 						'c' => 'Header text is centered.',
 						'l' => 'Header text is left justified.',
 						'r' => 'Header text is right justified.',
+						'f' => 'Header is a fixed width. (Column can\'t be resized)',
+						'q' => 'Header is a fixed ratio.',
+						'd' => 'Header is a split button.',
+						'e' => 'Header has a sort down arrow.',
+						'g' => 'Header has a sort up arrow.',
 					),
 				),
 				'ICON' => 'Icon index number from the icon list ([v]0[/v] for no icon).',
@@ -323,7 +429,11 @@ function get_xdid_listview(&$XDID) {
 				'NSUB' => 'Column index.',
 				'TEXT' => 'Item Text, or command to send to ProgressBar.',
 			),
-			'__notes' => 'Use [p]TEXT[/p] as [v]-v 80[/v] to set the value of a progress bar.'
+			'__notes' => array(
+				'Use [p]TEXT[/p] as [v]-v 80[/v] to set the value of a progress bar.',
+				'If N == -1 then sets the empty listview text which is displayed when the listview contains no items.',
+				'If NSUB == 1 when N == -1 then redraw after setting empty text.'
+			),
 		),
 		'V' => array(
 	        '__desc' => 'This command lets you scroll to the item specified.',
@@ -373,6 +483,36 @@ function get_xdid_listview(&$XDID) {
 						'smallicon' => 'Changes the listview to smallicon view.',
 					),
 				),
+			),
+		),
+		'S' => array(
+			'__desc' => 'This command lets you save the items in a listview to file/@window/hashtable/xml',
+			'__cmd' => '[+FLAGS] [N1] [N2] [ARGS]',
+			'__eg' => '+f 1 20 listview.txt',
+			'__params' => array(
+				'+FLAGS' => array(
+					'__desc' => "Type of save to do...",
+					'__values' => array(
+						'c' => 'Save to a custom window.',
+						'f' => 'Save to a file. (Data is appended to an existing file or a new file is created)',
+						'h' => 'Save to a hashtable. (Table must exist)',
+						'x' => 'Save to an xml file. (Data is appended to the bottom of the window, window must exist)',
+					),
+				),
+				'N1' => 'Start of the item range to save.',
+				'N2' => 'End of the item range to save.',
+				'ARGS' => array(
+					'__desc' => 'Arguments dependant on +FLAGS',
+					'__values' => array(
+						'c' => '@window',
+						'f' => 'filename',
+						'h' => 'hashtable',
+						'x' => 'dataset_name filename',
+					),
+				),
+			),
+			'__notes' => array(
+				'This command is incomplete. Only +c & +h work at this time.',
 			),
 		),
 		'y' => array(
@@ -499,6 +639,12 @@ function get_xdidprops_listview(&$XDIDPROPS) {
 	        '__eg' => '2',
 	        '__notes' => 'If you are not using the [s]checkbox[/s] style, the value returned is the state icon value. Otherwise, returns [v]2[/v] (checked), [v]1[/v] (unchecked), or [v]0[/v] (no check).'
 		),
+		"hstate" => array(
+		    '__desc' => "This property lets you retreive the state of the Nth listview header.",
+			'__cmd' => 'N',
+	        '__eg' => '2',
+	        '__notes' => 'If you are not using headers an error \'Unable to get Header Window\' is returned. Otherwise, returns a combination of [v]sortdown[/v] (sortdown arrow shown), [v]sortup[/v] (sort up arrow shown), or [v]dropdown[/v] (split button shown) or [v]checkbox[/v] (checkbox shown) or [v]checked[/v] (checkbox shown & checked).'
+		),
 		'icon' => array(
 			'__desc' => 'This property lets you retreive a Nth listview item icon number.',
 			'__cmd' => 'N, NSUB',
@@ -529,6 +675,7 @@ function get_xdidprops_listview(&$XDIDPROPS) {
 	        '__eg' => '2',
 		),
 		'genabled' => 'This property lets you retreive whether groups are enabled or not.',
+		'gnum' => 'This property retreives the number of groups.',
 		'pbar' => array(
 			'__desc' => "This property lets you retreive ProgressBar properties from a specific cell.",
 			'__cmd' => 'N, NSUB, PBARPROP',

@@ -8,6 +8,11 @@
 */
 
 alias dcx_demo dialog -m mydialog mydialog
+menu status,menubar {
+  DCX
+  .Scripts
+  ..dcx_demo: dcx_demo
+}
 dialog mydialog {
   size 0 0 0 0
 }
@@ -49,6 +54,8 @@ alias events {
         set %monitor $4
         xdid -r $1 51
         .xdid -l $1 $xdid(mydialog,$xdid(mydialog, $4).pid).pid update
+		; 24 == divider control, set divider to half width here (can't be done sooner as control can have zero size before first display)
+        if ($4 == 24) xdid -v mydialog $4 $int($calc($gettok($xdid($1,$4).pos,3,32) /2))
       }
     }
     if (($3 == %monitor) && (($2 != mouse) && ($2 != zlayershow))) { 
@@ -60,14 +67,17 @@ alias events {
       unset %monitor
     }
     if ($2 == ready) {
-      demo_postinit $1
+      .timer 1 0 demo_postinit $1
     }
   }
 }
 alias -l demo_postinit {
   xdialog -l $1 update
   xdialog -j $1
-  xdid -l $1 $xdid($1,$xdid($1, 1).pid).pid update
+  xdid -l $1 mainpanel update
+
+  var %id = $xdid($1,mainpanel).pid
+  xdid -v $1 %id $int($calc($gettok($xdid($1,%id).pos,4,32) /2))
 }
 alias _scriptdir return $scriptdir
 

@@ -17,6 +17,7 @@
 
 #include "defines.h"
 #include "Classes/dcxcontrol.h"
+//#include <ColourString.h>
 
 class DcxDialog;
 
@@ -26,25 +27,40 @@ class DcxDialog;
  * blah
  */
 
-class DcxText : public DcxControl {
-
+class DcxText final
+	: public DcxControl
+{
 public:
+	DcxText() = delete;
+	DcxText(const DcxText &) = delete;
+	DcxText &operator =(const DcxText &) = delete;	// No assignments!
+	DcxText(DcxText &&) = delete;
+	DcxText &operator =(DcxText &&) = delete;
 
-	DcxText( UINT ID, DcxDialog * p_Dialog, HWND mParentHwnd, RECT * rc, const TString & styles );
-	virtual ~DcxText( );
+	DcxText(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles );
+	~DcxText( ) noexcept;
 
-	LRESULT PostMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
-	LRESULT ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed );
+	LRESULT OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) final;
+	LRESULT ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) noexcept final;
 
-	void parseInfoRequest( const TString & input, TCHAR * szReturnValue ) const;
-	void parseCommandRequest( const TString & input );
-	void parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme );
+	//void parseInfoRequest(const TString & input, PTCHAR szReturnValue) const final;
+	void parseInfoRequest(const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const final;
+	void parseCommandRequest(const TString & input) final;
+	dcxWindowStyles parseControlStyles(const TString & tsStyles) final;
 
-	inline TString getType( ) const { return TString( TEXT("text") ); };
+	inline const TString getType() const final { return TEXT("text"); };
+	inline const DcxControlTypes getControlType() const noexcept final { return DcxControlTypes::TEXT; }
 
-protected:
+	void toXml(TiXmlElement *const xml) const final;
+	TiXmlElement * toXml(void) const final;
+	const TString getStyles(void) const final;
+
+	static inline WNDPROC m_hDefaultClassProc{ nullptr };	//!< Default window procedure
+	LRESULT CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept final;
+	
+private:
 	TString m_tsText;	// Edit Text
-	UINT m_uiStyle;		// text style
+	UINT m_uiStyle{};		// text style
 	void DrawClientArea(HDC hdc);
 };
 

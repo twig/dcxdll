@@ -23,24 +23,28 @@
  * blah
  */
 
-class LayoutCellFill : public LayoutCell {
-
+class LayoutCellFill final
+	: public LayoutCell
+{
 public:
 
-	LayoutCellFill( );
-	explicit LayoutCellFill( const HWND mHwnd );
-	explicit LayoutCellFill( DcxControl * dcxc );
-	virtual ~LayoutCellFill( );
+	using LayoutCell::LayoutCell;
 
-	virtual void LayoutChild( );
-	virtual HDWP ExecuteLayout( HDWP hdwp );
-	virtual void getMinMaxInfo( CellMinMaxInfo * pCMMI );
-	virtual void toXml(TiXmlElement * xml);
-	virtual TiXmlElement * toXml(void);
+	//LayoutCellFill( );
+	//LayoutCellFill(const LayoutCellFill &) = delete;
+	//explicit LayoutCellFill( const HWND mHwnd );
+	//explicit LayoutCellFill( DcxControl * dcxc );
+	//virtual ~LayoutCellFill( );
 
-	CellType getType( ) const;
+	LayoutCellFill &operator =(const LayoutCellFill &) = delete;	// No assignments!
 
-protected:
+	void LayoutChild() noexcept final {};
+	HDWP ExecuteLayout( const HDWP hdwp ) noexcept final;
+	void getMinMaxInfo( CellMinMaxInfo *const pCMMI ) const noexcept final;
+	void toXml(TiXmlElement *const xml) final;
+	TiXmlElement * toXml(void) final;
+
+	const CellType getType() const noexcept final;
 
 };
 

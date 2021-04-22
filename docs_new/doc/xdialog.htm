@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="iso-8859-1"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
 
-<title>DCX Marked Dialog - Dialog Control Xtension DLL v1.4.1 by ClickHeRe, twig* &amp; Ook</title>
+<title>DCX Marked Dialog - Dialog Control Xtension DLL v3.1 by ClickHeRe, twig* &amp; Ook</title>
 
 <link href="dcx.css" rel="stylesheet" type="text/css" />
 </head>
@@ -14,10 +15,10 @@
 		<td width="1%"><a href="index.htm"><img src="images/dcx.jpg" alt="DCX - Dialog Control Xtension" /></a></td>
 		<td width="99%" class="sitenav" style="vertical-align: middle; text-align: right; font-size:10pt;background:url(images/top_bg.jpg) left no-repeat;">
 			<a style="color:#000000;" href='index.htm'>Home</a> |
-			<a style="color:#000000;" href="archive.htm">Download</a> |
+			<a style="color:#000000;" href="https://github.com/twig/dcxdll/releases">Download</a> |
 			<a style="color:#000000;" href="http://dcx.scriptsdb.org/forum/">Forum</a> |
-			<a style="color:#000000;" href="http://dcx.scriptsdb.org/bug/">Bug Tracker</a><br />
-                        <div class="version">v1.4.1</div>
+			<a style="color:#000000;" href="https://github.com/twig/dcxdll/issues">Bug Tracker</a><br />
+                        <div class="version">v3.1</div>
 		</td>
 	</tr>
 </table>
@@ -709,6 +710,90 @@
 		<td>Cursor is a system cursor name in the list below.</td>
 	</tr>
 	<tr>
+		<td class="value">a</td>
+		<td>Cursor is limited to <a class="value">Caption</a> Area</td>
+	</tr>
+	<tr>
+		<td class="value">b</td>
+		<td>Cursor is limited to <a class="value">Bottom</a> Area</td>
+	</tr>
+	<tr>
+		<td class="value">B</td>
+		<td>Cursor is limited to <a class="value">Bottom Right</a> Area</td>
+	</tr>
+	<tr>
+		<td class="value">c</td>
+		<td>Cursor is limited to <a class="value">Client</a> Area</td>
+	</tr>
+	<tr>
+		<td class="value">C</td>
+		<td>Cursor is limited to <a class="value">Close Button</a> Area</td>
+	</tr>
+	<tr>
+		<td class="value">h</td>
+		<td>Cursor is limited to <a class="value">Horizontal Scroll</a> Area</td>
+	</tr>
+	<tr>
+		<td class="value">H</td>
+		<td>Cursor is limited to <a class="value">Help Button</a> Area</td>
+	</tr>
+	<tr>
+		<td class="value">l</td>
+		<td>Cursor is limited to <a class="value">Left</a> Area</td>
+	</tr>
+	<tr>
+		<td class="value">L</td>
+		<td>Cursor is limited to <a class="value">Top Left</a> Area</td>
+	</tr>
+	<tr>
+		<td class="value">m</td>
+		<td>Cursor is limited to <a class="value">Menu</a> Area</td>
+	</tr>
+	<tr>
+		<td class="value">M</td>
+		<td>Cursor is limited to <a class="value">Min Button</a> Area</td>
+	</tr>
+	<tr>
+		<td class="value">n</td>
+		<td>Cursor is limited to <a class="value">Nowhere</a> Area</td>
+	</tr>
+	<tr>
+		<td class="value">Q</td>
+		<td>Cursor is limited to <a class="value">Top Right</a> Area</td>
+	</tr>
+	<tr>
+		<td class="value">R</td>
+		<td>Cursor is limited to <a class="value">Right</a> Area</td>
+	</tr>
+	<tr>
+		<td class="value">s</td>
+		<td>Cursor is limited to <a class="value">Sysmenu</a> Area</td>
+	</tr>
+	<tr>
+		<td class="value">S</td>
+		<td>Cursor is limited to <a class="value">Size Button</a> Area</td>
+	</tr>
+	<tr>
+		<td class="value">t</td>
+		<td>Cursor is limited to <a class="value">Top</a> Area</td>
+	</tr>
+	<tr>
+		<td class="value">T</td>
+		<td>Cursor is limited to <a class="value">Bottom Left</a> Area</td>
+	</tr>
+	<tr>
+		<td class="value">v</td>
+		<td>Cursor is limited to <a class="value">Vertical Scroll</a> Area</td>
+	</tr>
+	<tr>
+		<td class="value">x</td>
+		<td>Cursor is limited to <a class="value">Max Button</a> Button Area</td>
+	</tr>
+	<tr>
+		<td class="value">X</td>
+		<td>Cursor is limited to <a class="value">Border</a> Button Area</td>
+	</tr>
+	<tr>
 		<td class="param">CURSOR</td>
 		<td>Cursor system names</td>
 	</tr>
@@ -1252,6 +1337,20 @@
 	<tr>
 		<td class="example">Example:</td>
 		<td><div class="example">$xdialog(dcx).focusid</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdialogprop">
+	<tr><td colspan="2" class="flag" style="color: #CCACC7; border-color: #CCACC7;">
+			<a name="xdialogprop.glasscolor"></a>$xdialog().glasscolor	</td></tr>
+	<tr><td colspan="2">Returns the colour used by the system for glass effect.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdialog(dialog).glasscolor</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdialog(dcx).glasscolor</div></td>
 	</tr>
 </table>
 <br />
@@ -2151,6 +2250,7 @@
 	<a class='header' href="#xdialogprop"><div style='background:#CCACC7;'>$xdialog() Properties</div></a>
 		<a class='flag' href="#xdialogprop.alias"><div>alias</div></a>
 		<a class='flag' href="#xdialogprop.focusid"><div>focusid</div></a>
+		<a class='flag' href="#xdialogprop.glasscolor"><div>glasscolor</div></a>
 		<a class='flag' href="#xdialogprop.id"><div>id</div></a>
 		<a class='flag' href="#xdialogprop.isid"><div>isid</div></a>
 		<a class='flag' href="#xdialogprop.ismarked"><div>ismarked</div></a>
@@ -2214,8 +2314,8 @@
 <table class="bar">
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
-		<td style="text-align: center;">© 2005-2009</td>
-		<td style="text-align: right;">Last Updated: 12th July, 09</td>
+		<td style="text-align: center;">© 2005-2021</td>
+		<td style="text-align: right;">Last Updated: 22nd April, 21</td>
 	</tr>
 </table>
 <div style="text-align: center;">
