@@ -196,7 +196,7 @@ constexpr auto DCX_MAX_GDI_ERRORS = 21;
 // --------------------------------------------------
 #define DLL_VERSION    GIT_DESCRIBE
 #define DLL_BUILD      GIT_HASH
-#define DLL_DEV_BUILD  "56"
+#define DLL_DEV_BUILD  "57"
 
 #ifdef NDEBUG
 #ifdef DCX_DEV_BUILD
