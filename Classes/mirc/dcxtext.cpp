@@ -160,6 +160,9 @@ dcxWindowStyles DcxText::parseControlStyles(const TString& tsStyles)
 		case L"pathellipsis"_hash:
 			m_uiStyle |= DT_PATH_ELLIPSIS;
 			break;
+		case L"doublebuffer"_hash:
+			m_bDoubleBuffer = true;
+			break;
 		default:
 			break;
 		}
@@ -179,7 +182,6 @@ dcxWindowStyles DcxText::parseControlStyles(const TString& tsStyles)
  *
  * \return > void
  */
-
 void DcxText::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>& szReturnValue) const
 {
 	// [NAME] [ID] [PROP]
@@ -321,66 +323,69 @@ void DcxText::DrawClientArea(HDC hdc)
 		return;
 
 	// Setup alpha blend if any.
-	auto ai = SetupAlphaBlend(&hdc);
+	auto ai = SetupAlphaBlend(&hdc, m_bDoubleBuffer);
 	Auto(FinishAlphaBlend(ai));
 
 	if (!hdc)
 		return;
 
-	DcxControl::DrawCtrlBackground(hdc, this, &r);
+	//DcxControl::DrawCtrlBackground(hdc, this, &r);
+	//
+	//HFONT oldFont = nullptr;
+	//COLORREF oldClr = CLR_INVALID;
+	//COLORREF oldBkgClr = CLR_INVALID;
+	//
+	//// check if font is valid & set it.
+	//if (const auto hFont = this->getControlFont(); hFont)
+	//	oldFont = Dcx::dcxSelectObject<HFONT>(hdc, hFont);
+	//
+	//// check if control is enabled.
+	//if (IsWindowEnabled(m_Hwnd))
+	//{
+	//	if (const auto clr = this->getTextColor(); clr != CLR_INVALID)
+	//		oldClr = SetTextColor(hdc, clr);
+	//	if (const auto clr = this->getBackColor(); clr != CLR_INVALID)
+	//		oldBkgClr = SetBkColor(hdc, clr);
+	//}
+	//else { // disabled controls colouring
+	//	oldClr = SetTextColor(hdc, GetSysColor(COLOR_GRAYTEXT));
+	//	oldBkgClr = SetBkColor(hdc, GetSysColor(COLOR_3DFACE));
+	//}
+	//
+	//const TString wtext(TGetWindowText(m_Hwnd));
+	//this->ctrlDrawText(hdc, wtext, &r, this->m_uiStyle);
+	//
+	//if (oldBkgClr != CLR_INVALID)
+	//	SetBkColor(hdc, oldBkgClr);
+	//if (oldClr != CLR_INVALID)
+	//	SetTextColor(hdc, oldClr);
+	//if (oldFont)
+	//	Dcx::dcxSelectObject<HFONT>(hdc, oldFont);
 
-	HFONT oldFont = nullptr;
-	COLORREF oldClr = CLR_INVALID;
-	COLORREF oldBkgClr = CLR_INVALID;
+	const auto saved = SaveDC(hdc);
+	Auto(RestoreDC(hdc, saved));
+
+	DcxControl::DrawCtrlBackground(hdc, this, &r);
 
 	// check if font is valid & set it.
 	if (const auto hFont = this->getControlFont(); hFont)
-		oldFont = Dcx::dcxSelectObject<HFONT>(hdc, hFont);
+		Dcx::dcxSelectObject<HFONT>(hdc, hFont);
 
 	// check if control is enabled.
 	if (IsWindowEnabled(m_Hwnd))
 	{
 		if (const auto clr = this->getTextColor(); clr != CLR_INVALID)
-			oldClr = SetTextColor(hdc, clr);
+			SetTextColor(hdc, clr);
 		if (const auto clr = this->getBackColor(); clr != CLR_INVALID)
-			oldBkgClr = SetBkColor(hdc, clr);
+			SetBkColor(hdc, clr);
 	}
 	else { // disabled controls colouring
-		oldClr = SetTextColor(hdc, GetSysColor(COLOR_GRAYTEXT));
-		oldBkgClr = SetBkColor(hdc, GetSysColor(COLOR_3DFACE));
+		SetTextColor(hdc, GetSysColor(COLOR_GRAYTEXT));
+		SetBkColor(hdc, GetSysColor(COLOR_3DFACE));
 	}
-
-	//#if DCX_DEBUG_OUTPUT
-	//	ColourString<TCHAR> tmp(wtext.to_chr());
-	//
-	//	ColourString<TCHAR>::RenderInfo ri;
-	//	ri.ri_dwFlags = this->m_uiStyle;
-	//	ri.ri_bEnableAngleChar = false;
-	//	ri.ri_bEnableAngleLine = true;
-	//	ri.ri_bEnableShadow = this->m_bShadowText;
-	//	ri.ri_iLineAngle = -20;
-	//	ri.ri_iCharAngle = 10;
-	//	ri.ri_crShadow = RGB(0, 0, 0);
-	//	ri.ri_crText = m_clrText;
-	//	ri.ri_ixOffset = 0;
-	//	ri.ri_iyOffset = 0;
-	//
-	//	getmIRCPalette(ri.ri_cPalette, Dcx::countof(ri.ri_cPalette)); // get mIRC palette
-	//
-	//	tmp.Render(hdc, &r, ri);
-	//
-	//#else
 
 	const TString wtext(TGetWindowText(m_Hwnd));
 	this->ctrlDrawText(hdc, wtext, &r, this->m_uiStyle);
-	//#endif
-
-	if (oldBkgClr != CLR_INVALID)
-		SetBkColor(hdc, oldBkgClr);
-	if (oldClr != CLR_INVALID)
-		SetTextColor(hdc, oldClr);
-	if (oldFont)
-		Dcx::dcxSelectObject<HFONT>(hdc, oldFont);
 }
 
 const TString DcxText::getStyles(void) const
@@ -400,6 +405,8 @@ const TString DcxText::getStyles(void) const
 		tsStyles.addtok(TEXT("endellipsis"));
 	if (dcx_testflag(Styles, DT_PATH_ELLIPSIS))
 		tsStyles.addtok(TEXT("pathellipsis"));
+	if (m_bDoubleBuffer)
+		tsStyles.addtok(TEXT("doublebuffer"));
 
 	return tsStyles;
 }

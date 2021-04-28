@@ -876,10 +876,6 @@ void XPopupMenuItem::DrawGradient(const HDC hdc, const RECT* const lprc, const C
 
 		for (auto dn = decltype(n){0}; dn <= n; dn += dy)
 		{
-			//const auto Red = gsl::narrow_cast<BYTE>(MulDiv(gsl::narrow_cast<int>(EndRed) - StartRed, dn, n) + StartRed);
-			//const auto Green = gsl::narrow_cast<BYTE>(MulDiv(gsl::narrow_cast<int>(EndGreen) - StartGreen, dn, n) + StartGreen);
-			//const auto Blue = gsl::narrow_cast<BYTE>(MulDiv(gsl::narrow_cast<int>(EndBlue) - StartBlue, dn, n) + StartBlue);
-
 			const auto Red = gsl::narrow_cast<BYTE>(Dcx::dcxMulDiv32(gsl::narrow_cast<int>(EndRed) - StartRed, dn, n) + StartRed);
 			const auto Green = gsl::narrow_cast<BYTE>(Dcx::dcxMulDiv32(gsl::narrow_cast<int>(EndGreen) - StartGreen, dn, n) + StartGreen);
 			const auto Blue = gsl::narrow_cast<BYTE>(Dcx::dcxMulDiv32(gsl::narrow_cast<int>(EndBlue) - StartBlue, dn, n) + StartBlue);
@@ -889,11 +885,6 @@ void XPopupMenuItem::DrawGradient(const HDC hdc, const RECT* const lprc, const C
 			else
 				SetRect(&rc, lprc->left + dn, lprc->top, lprc->left + dn + dy, lprc->bottom);
 
-			//if (const auto hBrush = CreateSolidBrush(RGB(Red, Green, Blue)); hBrush)
-			//{
-			//	FillRect(hdc, &rc, hBrush);
-			//	DeleteObject(hBrush);
-			//}
 			Dcx::FillRectColour(hdc, &rc, RGB(Red, Green, Blue));
 		}
 	}

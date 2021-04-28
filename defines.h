@@ -66,13 +66,15 @@
 #pragma warning( disable : 26429 ) //  warning C26429 : Symbol '...' is never tested for nullness, it can be marked as not_null(f.23: http://go.microsoft.com/fwlink/?linkid=853921).
 #pragma warning( disable : 26461 ) //  Warning C26461 : The pointer argument '...' for function '...' can be marked as a pointer to const (con.3).
 #pragma warning( disable : 26462 ) //  Warning C26462 : The value pointed to by 'lpnmtb' is assigned only once, mark it as a pointer to const (con.4).
-#pragma warning( disable : 26472 ) //  warning C26472 : Don't use a static_cast for arithmetic conversions. Use brace initialization, gsl::narrow_cast or gsl::narow (type.1: http://go.microsoft.com/fwlink/p/?LinkID=620417).
+//#pragma warning( disable : 26472 ) //  warning C26472 : Don't use a static_cast for arithmetic conversions. Use brace initialization, gsl::narrow_cast or gsl::narow (type.1: http://go.microsoft.com/fwlink/p/?LinkID=620417).
 #pragma warning( disable : 26481 ) //  warning C26481 : Don't use pointer arithmetic. Use span instead. (bounds.1: http://go.microsoft.com/fwlink/p/?LinkID=620413)
 #pragma warning( disable : 26482 ) //  warning C26482 : Only index into arrays using constant expressions. (bounds.2: http://go.microsoft.com/fwlink/p/?LinkID=620414)
 #pragma warning( disable : 26486 ) //  Warning C26486 : Don't pass a pointer that may be invalid to a function. Parameter 0 '(*hdc)' in call to 'DcxUXModule::dcxBeginBufferedPaint' may be invalid (lifetime.3).
 #pragma warning( disable : 26489 ) //  Warning C26489 : Don't dereference a pointer that may be invalid: '....'. '....' may have been invalidated at line ... (lifetime.1).
 #pragma warning( disable : 26490 ) //  warning C26490 : Don't use reinterpret_cast (type.1: http://go.microsoft.com/fwlink/p/?LinkID=620417).
 #pragma warning( disable : 26499 ) //  warning C26499 : Could not find any lifetime tracking information for '........'
+
+#pragma warning( disable : 5105) // warning C5105: macro expansion producing 'defined' has undefined behavior
 
 // --------------------------------------------------
 // Optional build libraries for DCX
@@ -605,12 +607,13 @@ if ((x)) (y)[0] = TEXT('1'); \
 	else (y)[0] = TEXT('0'); \
 	(y)[1] = 0; \
 }
+
 //#define dcx_testflag(x,y) (((x) & (y)) == (y))
 //template <typename T, typename M>
 //constexpr bool dcx_testflag(T x, M y) noexcept { return ((x & gsl::narrow_cast<T>(y)) == gsl::narrow_cast<T>(y)); }
 template <typename T, typename M>
 constexpr bool dcx_testflag(T x, M y) noexcept {
-	if constexpr (sizeof(T) >= sizeof(M))	return ((x & gsl::narrow_cast<T>(y)) == gsl::narrow_cast<T>(y));
+	if constexpr (sizeof(T) >= sizeof(M)) return ((x & gsl::narrow_cast<T>(y)) == gsl::narrow_cast<T>(y));
 	else return ((gsl::narrow_cast<T>(x) & y) == y);
 }
 

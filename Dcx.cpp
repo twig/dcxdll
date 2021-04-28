@@ -94,13 +94,6 @@ namespace Dcx {
 		DCX_DEBUG(mIRCLinker::debug, __FUNCTIONW__, TEXT("Initializing Popups..."));
 		XPopups.load();
 
-
-		//// Initialise signals of diff types (Ook: set in constructor)
-		//dcxSignal.xdock = false;
-		//dcxSignal.xstatusbar = true;
-		//dcxSignal.xtray = true;
-		//ReportLiveObjects();
-
 		// Patch SetCursor() function for custom cursors
 		DCX_DEBUG(mIRCLinker::debug, __FUNCTIONW__, TEXT("Patch SetCursor..."));
 		SetCursorUx = static_cast<PFNSETCURSOR>(PatchAPI("User32.dll", "SetCursor", Dcx::XSetCursor));

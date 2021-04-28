@@ -38,7 +38,8 @@ SYSTEMTIME MircTimeToSystemTime(const long mircTime)
 
 	TString str;
 
-	mIRCLinker::eval(str, TEXT("$asctime(%,yyyy m d hh nn ss)"), mircTime);
+	//mIRCLinker::eval(str, TEXT("$asctime(%,yyyy m d hh nn ss)"), mircTime);
+	mIRCLinker::eval(str, TEXT("$asctime(%,yyyy m d HH nn ss)"), mircTime); // fixes 24hr times showing wrong.
 
 	return { str.getfirsttok(1).to_<WORD>(), str.getnexttok().to_<WORD>(), 0, str.getnexttok().to_<WORD>(), str.getnexttok().to_<WORD>(), str.getnexttok().to_<WORD>(), str.getnexttok().to_<WORD>(), 0 };
 }

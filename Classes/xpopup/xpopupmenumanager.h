@@ -191,8 +191,6 @@ public:
 
 	void parseCommand( const TString & input );
 	void parseCommand( const TString & input, XPopupMenu *const p_Menu );
-	//void parseIdentifier( const TString & input, TCHAR *const szReturnValue ) const;
-	//void parseIdentifier(const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const;
 	TString parseIdentifier(const TString & input) const;
 	const int parseMPopup(const TString & input);
 

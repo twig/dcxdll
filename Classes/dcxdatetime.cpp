@@ -106,62 +106,6 @@ const TString DcxDateTime::getStyles(void) const
 	return styles;
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
-//void DcxDateTime::parseControlStyles( const TString &styles, LONG *Styles, LONG *ExStyles, BOOL *bNoTheme)
-//{
-//	for (const auto &tsStyle: styles)
-//	{
-//#if DCX_USE_HASHING
-//		switch (std::hash<TString>{}(tsStyle))
-//		{
-//			case L"longdateformat"_hash:
-//				*Styles |= DTS_LONGDATEFORMAT;
-//				break;
-//			case L"shortdateformat"_hash:
-//				*Styles |= DTS_SHORTDATEFORMAT;
-//				break;
-//			case L"shortdatecenturyformat"_hash:
-//				*Styles |= DTS_SHORTDATECENTURYFORMAT;
-//				break;
-//			case L"timeformat"_hash:
-//				*Styles |= DTS_TIMEFORMAT;
-//				break;
-//			case L"right"_hash:
-//				*Styles |= DTS_RIGHTALIGN;
-//				break;
-//			case L"shownone"_hash:
-//				*Styles |= DTS_SHOWNONE;
-//				break;
-//			case L"updown"_hash:
-//				*Styles |= DTS_UPDOWN;
-//			default:
-//				break;
-//		}
-//#else
-//		if (tsStyle == TEXT("longdateformat"))
-//			*Styles |= DTS_LONGDATEFORMAT;
-//		else if (tsStyle == TEXT("shortdateformat"))
-//			*Styles |= DTS_SHORTDATEFORMAT;
-//		else if (tsStyle == TEXT("shortdatecenturyformat"))
-//			*Styles |= DTS_SHORTDATECENTURYFORMAT;
-//		else if (tsStyle == TEXT("timeformat"))
-//			*Styles |= DTS_TIMEFORMAT;
-//		else if (tsStyle == TEXT("right"))
-//			*Styles |= DTS_RIGHTALIGN;
-//		else if (tsStyle == TEXT("shownone"))
-//			*Styles |= DTS_SHOWNONE;
-//		else if (tsStyle == TEXT("updown"))
-//			*Styles |= DTS_UPDOWN;
-//#endif
-//	}
-//
-//	this->parseGeneralControlStyles(styles, Styles, ExStyles, bNoTheme);
-//}
-
 dcxWindowStyles DcxDateTime::parseControlStyles(const TString & tsStyles)
 {
 	dcxWindowStyles ws;

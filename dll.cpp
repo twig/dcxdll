@@ -130,7 +130,7 @@ _INTEL_DLL_ void WINAPI LoadDll(mIRCLinker::LOADINFO* load)
 		DCX_DEBUG(mIRCLinker::debug, __FUNCTIONW__, TEXT("Initialising UltraDock..."));
 		InitUltraDock();
 	}
-	catch (const std::exception & e)
+	catch (const std::exception& e)
 	{
 		Dcx::error(TEXT("LoadDLL"), TEXT("error: %"), e.what());
 	}
@@ -819,7 +819,7 @@ mIRC(Version)
 
 		throw Dcx::dcxException(TEXT("No such Exception"));
 	}
-	catch (const std::exception & e)
+	catch (const std::exception& e)
 	{
 		Dcx::error(TEXT("Version"), TEXT("error: %"), e.what());
 	}
@@ -950,7 +950,7 @@ mIRC(Mark)
 
 		ret(TEXT("D_OK Mark: Dialog Marked"));
 	}
-	catch (const std::exception & e)
+	catch (const std::exception& e)
 	{
 		Dcx::error(TEXT("/dcx Mark"), TEXT("\"%\" error: %"), d, e.what());
 	}
@@ -1112,7 +1112,7 @@ mIRC(GetSystemColor)
 		}
 		return 3;
 	}
-	catch (const std::exception & e)
+	catch (const std::exception& e)
 	{
 		Dcx::error(TEXT("$!dcx(GetSystemColor)"), TEXT("\"%\" error: %"), d, e.what());
 	}
@@ -1259,7 +1259,7 @@ mIRC(xdid)
 		}
 		return 1;
 	}
-	catch (const std::exception & e)
+	catch (const std::exception& e)
 	{
 		Dcx::error(TEXT("/xdid"), TEXT("\"%\" error: %"), d, e.what());
 	}
@@ -1313,7 +1313,7 @@ mIRC(_xdid)
 		p_Control->parseInfoRequest(d, mIRCResultString(data));
 		return 3;
 	}
-	catch (const std::exception & e)
+	catch (const std::exception& e)
 	{
 		Dcx::error(TEXT("$!xdid"), TEXT("\"%\" error: %"), d, e.what());
 	}
@@ -1359,7 +1359,7 @@ mIRC(GetTaskbarPos)
 #endif
 		return 3;
 	}
-	catch (const std::exception & e)
+	catch (const std::exception& e)
 	{
 		Dcx::error(TEXT("$!dcx(GetTaskbarPos)"), TEXT("error: %"), e.what());
 	}
@@ -1401,7 +1401,7 @@ mIRC(xdialog)
 		p_Dialog->parseCommandRequest(d);
 		return 1;
 	}
-	catch (const std::exception & e)
+	catch (const std::exception& e)
 	{
 		Dcx::error(TEXT("/xdialog"), TEXT("\"%\" error: %"), d, e.what());
 	}
@@ -1451,7 +1451,7 @@ mIRC(_xdialog)
 		p_Dialog->parseInfoRequest(d, mIRCResultString(data));
 		return 3;
 	}
-	catch (const std::exception & e)
+	catch (const std::exception& e)
 	{
 		Dcx::error(TEXT("$!xdialog"), TEXT("\"%\" error: %"), d, e.what());
 	}
@@ -1501,7 +1501,7 @@ mIRC(xpop)
 		p_Menu->parseXPopCommand(d);
 		return 1;
 	}
-	catch (const std::exception & e)
+	catch (const std::exception& e)
 	{
 		Dcx::error(TEXT("/xpop"), TEXT("\"%\" error: %"), d, e.what());
 	}
@@ -1550,7 +1550,7 @@ mIRC(_xpop)
 		p_Menu->parseXPopIdentifier(d, mIRCResultString(data));
 		return 3;
 	}
-	catch (const std::exception & e)
+	catch (const std::exception& e)
 	{
 		Dcx::error(TEXT("$!xpop"), TEXT("\"%\" error: %"), d, e.what());
 	}
@@ -1588,7 +1588,7 @@ mIRC(xpopup)
 		Dcx::XPopups.parseCommand(d);
 		return 1;
 	}
-	catch (const std::exception & e)
+	catch (const std::exception& e)
 	{
 		Dcx::error(TEXT("/xpopup"), TEXT("\"%\" error: %"), d, e.what());
 	}
@@ -1617,14 +1617,6 @@ mIRC(_xpopup)
 	data[0] = 0;
 
 	try {
-		//d.trim();
-		//
-		//if (d.numtok() < 2)
-		//	throw Dcx::dcxException("Invalid Arguments");
-		//
-		//Dcx::XPopups.parseIdentifier(d, mIRCResultString(data));
-		//return 3;
-
 		d.trim();
 
 		if (d.numtok() < 2)
@@ -1636,7 +1628,7 @@ mIRC(_xpopup)
 
 		return 3;
 	}
-	catch (const std::exception & e)
+	catch (const std::exception& e)
 	{
 		Dcx::error(TEXT("$!xpopup"), TEXT("\"%\" error: %"), d, e.what());
 	}
@@ -1666,7 +1658,7 @@ mIRC(xmenubar)
 		Dcx::XMenubar.parseXMenuBarCommand(d.trim());
 		return 1;
 	}
-	catch (const std::exception & e)
+	catch (const std::exception& e)
 	{
 		Dcx::error(TEXT("/xmenubar"), TEXT("\"%\" error: %"), d, e.what());
 	}
@@ -1695,7 +1687,7 @@ mIRC(_xmenubar)
 		Dcx::XMenubar.parseXMenuBarInfo(d.trim(), mIRCResultString(data));
 		return 3;
 	}
-	catch (const std::exception & e)
+	catch (const std::exception& e)
 	{
 		Dcx::error(TEXT("$!xmenubar"), TEXT("\"%\" error: %"), d, e.what());
 	}
@@ -1725,7 +1717,7 @@ mIRC(mpopup)
 	try {
 		return Dcx::XPopups.parseMPopup(d.trim());
 	}
-	catch (const std::exception & e)
+	catch (const std::exception& e)
 	{
 		Dcx::error(TEXT("/mpopup"), TEXT("\"%\" error: %"), d, e.what());
 	}
@@ -1771,7 +1763,7 @@ mIRC(xSignal)
 
 		return 1;
 	}
-	catch (const std::exception & e)
+	catch (const std::exception& e)
 	{
 		Dcx::error(TEXT("/dcx xSignal"), TEXT("\"%\" error: %"), d, e.what());
 	}
@@ -1888,7 +1880,7 @@ mIRC(WindowProps)
 		}
 		return 1;
 	}
-	catch (const std::exception & e)
+	catch (const std::exception& e)
 	{
 		Dcx::error(TEXT("/dcx WindowProps"), TEXT("\"%\" error: %"), input, e.what());
 	}
@@ -1962,7 +1954,7 @@ mIRC(ActiveWindow)
 		}
 		return 3;
 	}
-	catch (const std::exception & e)
+	catch (const std::exception& e)
 	{
 		Dcx::error(TEXT("$!dcx(ActiveWindow)"), TEXT("\"%\" error: %"), input, e.what());
 	}
@@ -1998,7 +1990,7 @@ mIRC(GhostDrag)
 
 		return 1;
 	}
-	catch (const std::exception & e)
+	catch (const std::exception& e)
 	{
 		Dcx::error(TEXT("/dcx GhostDrag"), TEXT("\"%\" error: %"), input, e.what());
 	}
@@ -2050,7 +2042,7 @@ mIRC(SetSystemCursors)
 
 		return 1;
 	}
-	catch (const std::exception & e)
+	catch (const std::exception& e)
 	{
 		Dcx::error(TEXT("/dcx SetSystemCursors"), TEXT("\"%\" error: %"), d, e.what());
 	}
@@ -2142,7 +2134,7 @@ mIRC(SetmIRCCursors)
 		//}
 		//return 1;
 	}
-	catch (const std::exception & e)
+	catch (const std::exception& e)
 	{
 		Dcx::error(TEXT("/dcx SetmIRCCursors"), TEXT("\"%\" error: %"), d, e.what());
 	}
@@ -2207,7 +2199,7 @@ mIRC(SetDCXSettings)
 		}
 		return 1;
 	}
-	catch (const std::exception & e)
+	catch (const std::exception& e)
 	{
 		Dcx::error(TEXT("/dcx SetDCXSettings"), TEXT("\"%\" error: %"), d, e.what());
 	}
@@ -2240,7 +2232,7 @@ mIRC(GetDCXSettings)
 		{
 		case L"StaticColours"_hash:
 		{
-			_ts_snprintf(data, mIRCLinker::c_mIRC_Buffer_Size_cch, TEXT("%d"),	Dcx::setting_bStaticColours);
+			_ts_snprintf(data, mIRCLinker::c_mIRC_Buffer_Size_cch, TEXT("%d"), Dcx::setting_bStaticColours);
 			break;
 		}
 		case L"CustomMenus"_hash:

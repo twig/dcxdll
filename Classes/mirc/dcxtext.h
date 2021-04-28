@@ -61,6 +61,7 @@ public:
 private:
 	TString m_tsText;	// Edit Text
 	UINT m_uiStyle{};		// text style
+	bool m_bDoubleBuffer{ false };
 	void DrawClientArea(HDC hdc);
 };
 

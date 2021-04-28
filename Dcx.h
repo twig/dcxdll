@@ -83,12 +83,9 @@
 
 namespace Dcx
 {
-	//extern TString m_sLastError;
-	//static TCHAR szLastError[MIRC_BUFFER_SIZE_CCH]{};
 	extern std::byte m_iGhostDrag;
 	extern IClassFactory* m_pClassFactory;
 	extern bool m_bDX9Installed;
-	//extern HMODULE m_hRichEditLib;
 
 	extern DcxDialogCollection Dialogs;
 	extern DcxGDIModule GDIModule;
@@ -101,6 +98,7 @@ namespace Dcx
 
 	extern bool m_bErrorTriggered;
 
+	// settings
 	extern bool setting_bStaticColours;
 	extern BYTE setting_CustomMenusAlpha;
 	extern bool setting_CustomMenusRounded;
@@ -192,25 +190,78 @@ namespace Dcx
 	using dcxBitmap_t = std::unique_ptr<HBITMAP__, void(*)(HBITMAP)>;
 	using dcxBSTR_t = std::unique_ptr<OLECHAR, void(*)(BSTR)>;
 
+	/// <summary>
+	/// Make a cursor resource
+	/// </summary>
+	/// <param name="tsFilename"></param>
+	/// <returns></returns>
 	inline dcxCursor_t make_cursor(const TString& tsFilename) {
 		return make_resource(dcxLoadCursorFromFile, [](HCURSOR hCursor) noexcept { if (hCursor != nullptr) DestroyCursor(hCursor); }, tsFilename);
 	}
+
+	/// <summary>
+	/// Make an icon resource
+	/// </summary>
+	/// <param name="index"></param>
+	/// <param name="filename"></param>
+	/// <param name="large"></param>
+	/// <param name="flags"></param>
+	/// <returns></returns>
 	inline dcxIcon_t make_icon(const int index, TString& filename, const bool large, const TString& flags) {
 		return make_resource(dcxLoadIcon, [](HICON hIcon) noexcept { if (hIcon != nullptr) DestroyIcon(hIcon); }, index, filename, large, flags);
 	}
+
+	/// <summary>
+	/// Make a file resource
+	/// </summary>
+	/// <param name="file"></param>
+	/// <param name="modes"></param>
+	/// <returns></returns>
 	inline dcxFile_t make_file(const WCHAR* file, const WCHAR* modes) { return make_resource(_wfopen, [](FILE* file) noexcept { fclose(file); }, file, modes); }
+
+	/// <summary>
+	/// Make an HDC resource
+	/// </summary>
+	/// <param name="hdc"></param>
+	/// <returns></returns>
 	inline dcxHDC_t make_hdc(HDC hdc) { return make_resource(CreateCompatibleDC, [](HDC obj) noexcept { DeleteDC(obj); }, hdc); }
+
+	/// <summary>
+	/// Make a Bitmap resource
+	/// </summary>
+	/// <param name="hdc"></param>
+	/// <param name="x"></param>
+	/// <param name="y"></param>
+	/// <returns></returns>
 	inline dcxBitmap_t make_bitmap(HDC hdc, int x, int y) { return make_resource(CreateCompatibleBitmap, [](HBITMAP obj) noexcept { DeleteBitmap(obj); }, hdc, x, y); }
 
 	//inline ULONG_PTR *dcxCreateFile(const TCHAR *file, DWORD dAccess, DWORD dShareMode, LPSECURITY_ATTRIBUTES lpSecurity, DWORD dCreation, DWORD dflags, HANDLE templateFile) {
 	//	return (ULONG_PTR *)CreateFile(file, dAccess, dShareMode, lpSecurity, dCreation, dflags, templateFile);
 	//}
+
+	/// <summary>
+	/// Make a file handle resource
+	/// </summary>
+	/// <param name="file"></param>
+	/// <param name="dAccess"></param>
+	/// <param name="dShareMode"></param>
+	/// <param name="lpSecurity"></param>
+	/// <param name="dCreation"></param>
+	/// <param name="dflags"></param>
+	/// <param name="templateFile"></param>
+	/// <returns></returns>
 	inline dcxHandle_t make_filehandle(const TCHAR* file, DWORD dAccess, DWORD dShareMode, LPSECURITY_ATTRIBUTES lpSecurity, DWORD dCreation, DWORD dflags, HANDLE templateFile) {
 		//return make_resource(dcxCreateFile, [](ULONG_PTR *file){ CloseHandle((HANDLE)file); }, file, dAccess, dShareMode, lpSecurity, dCreation, dflags, templateFile);
 		return make_resource(
 			[](const TCHAR* file, DWORD dAccess, DWORD dShareMode, LPSECURITY_ATTRIBUTES lpSecurity, DWORD dCreation, DWORD dflags, HANDLE templateFile) noexcept { return static_cast<ULONG_PTR*>(CreateFile(file, dAccess, dShareMode, lpSecurity, dCreation, dflags, templateFile)); },
 			[](ULONG_PTR* file) noexcept { CloseHandle(file); }, file, dAccess, dShareMode, lpSecurity, dCreation, dflags, templateFile);
 	}
+
+	/// <summary>
+	/// Make a BSTR resource
+	/// </summary>
+	/// <param name="wstr"></param>
+	/// <returns></returns>
 	inline dcxBSTR_t make_bstr(const WCHAR* const wstr) { return make_resource(SysAllocString, [](BSTR obj) noexcept { if (obj) SysFreeString(obj); }, wstr); }
 
 	// NB: BaseType can be defined as some other pointer type
@@ -242,11 +293,11 @@ namespace Dcx
 	struct dcxFileResource final
 		: dcxResource < dcxFile_t >
 	{
-		dcxFileResource() = delete;										// no default!
+		dcxFileResource() = delete;										// no default constructor!
 		dcxFileResource(const dcxFileResource&) = delete;				// no copy!
 		dcxFileResource& operator =(const dcxFileResource&) = delete;	// No assignments!
-		dcxFileResource(dcxFileResource&&) = delete;				// no copy!
-		dcxFileResource& operator =(dcxFileResource&&) = delete;	// No assignments!
+		dcxFileResource(dcxFileResource&&) = delete;					// no move constructor!
+		dcxFileResource& operator =(dcxFileResource&&) = delete;		// No move assignments!
 
 		// calls _wfopen()
 		dcxFileResource(const WCHAR* tsFilename, const WCHAR* tsMode)
@@ -260,6 +311,10 @@ namespace Dcx
 		{
 		}
 
+		/// <summary>
+		/// Get the file size (32bit)
+		/// </summary>
+		/// <returns></returns>
 		const uint32_t Size() const noexcept
 		{
 			// Seek End of file
@@ -276,6 +331,10 @@ namespace Dcx
 			return size;
 		}
 
+		/// <summary>
+		/// Get the file size (64bit)
+		/// </summary>
+		/// <returns></returns>
 		const uint64_t SizeEx() const noexcept
 		{
 			// Seek End of file
@@ -308,11 +367,19 @@ namespace Dcx
 		{
 		}
 
+		/// <summary>
+		/// Get the file size (32bit)
+		/// </summary>
+		/// <returns></returns>
 		const auto Size() const noexcept
 		{
 			return GetFileSize(this->get(), nullptr);
 		}
 
+		/// <summary>
+		/// Get the file size (64bit)
+		/// </summary>
+		/// <returns></returns>
 		const LARGE_INTEGER SizeEx() const noexcept
 		{
 			LARGE_INTEGER sz{};
@@ -362,6 +429,7 @@ namespace Dcx
 			: dcxResource(make_cursor(tsFilename))
 		{
 		}
+
 		// calls dcxLoadCursorFromResource()
 		explicit dcxCursorResource(const PTCHAR CursorType)
 			: dcxResource(make_resource(dcxLoadCursorFromResource, [](HCURSOR hCursor) noexcept { if (hCursor != nullptr) DestroyCursor(hCursor); }, CursorType))
@@ -412,11 +480,13 @@ namespace Dcx
 			: dcxResource(make_hdc(hdc))
 		{
 		}
+
 		// calls CreateDC()
 		dcxHDCResource(HDC hdc, LPCTSTR lpszDriver, LPCTSTR lpszDevice, LPCTSTR lpszOutput, const DEVMODE* lpInitData)
 			: dcxResource(make_resource(CreateDC, [](HDC obj) noexcept { DeleteDC(obj); }, lpszDriver, lpszDevice, lpszOutput, lpInitData))
 		{
 		}
+
 		//// calls GetDC() - broken
 		//explicit dcxHDCResource(HWND hWnd)
 		//	: dcxResource(make_resource(GetDC, [hWnd](HDC obj) { ReleaseDC(hWnd, obj); }, hWnd))
@@ -453,6 +523,7 @@ namespace Dcx
 			if (hBitmap)
 				m_hOldBitmap = SelectBitmap(this->get(), hBitmap);
 		}
+
 		~dcxHDCBitmapResource()
 		{
 			if (m_hOldBitmap)
@@ -508,13 +579,29 @@ namespace Dcx
 		{
 			m_hOldBitmap = SelectBitmap(this->get(), m_hBitmap.get());
 		}
+
 		~dcxHDCBitmap2Resource()
 		{
 			if (m_hOldBitmap)
 				SelectBitmap(this->get(), m_hOldBitmap);
 		}
+
+		/// <summary>
+		/// Get the bitmaps width.
+		/// </summary>
+		/// <returns></returns>
 		const int& getWidth() const noexcept { return m_Width; }
+
+		/// <summary>
+		/// Get the bitmaps height.
+		/// </summary>
+		/// <returns></returns>
 		const int& getHeight() const noexcept { return m_Height; }
+
+		/// <summary>
+		/// Get a pointer to the bitmap.
+		/// </summary>
+		/// <returns></returns>
 		const HBITMAP getBitMap() const noexcept { return m_hBitmap.get(); }
 	private:
 		HBITMAP	m_hOldBitmap;
@@ -746,6 +833,7 @@ namespace Dcx
 
 			// buffer is an exact duplicate of the hdc within the area specified.
 		}
+
 		~dcxHDCBuffer()
 		{
 			GdiFlush();
@@ -764,20 +852,24 @@ namespace Dcx
 		{
 			VariantInit(this);
 		}
+
 		explicit dcxVariant(const BSTR bStr) noexcept
 			: dcxVariant()
 		{
 			vt = VT_BSTR;
 			bstrVal = bStr;
 		}
+
 		explicit dcxVariant(const WCHAR* cStr) noexcept
 			: dcxVariant(SysAllocString(cStr))
 		{
 		}
+
 		~dcxVariant() noexcept
 		{
 			VariantClear(this);	// this does SysFreeString() for us.
 		}
+
 		dcxVariant(const dcxVariant&) noexcept = default;
 		dcxVariant& operator = (const dcxVariant&) noexcept = default;
 		dcxVariant(dcxVariant&&) noexcept = default;
@@ -787,11 +879,23 @@ namespace Dcx
 	struct dcxCursorPos final
 		: POINT
 	{
+		/// <summary>
+		/// Get cursor position on screen.
+		/// sets cursor position to -1,-1 on error.
+		/// </summary>
+		/// <returns></returns>
 		dcxCursorPos() noexcept
 		{
 			if (GetCursorPos(this) == FALSE)
 				x = y = -1;
 		}
+
+		/// <summary>
+		/// Get cursor position mapped to this window.
+		/// sets cursor position to -1,-1 on error. (check GetLastError() for more info)
+		/// </summary>
+		/// <param name="hwnd">- Window to map cusrsor position too.</param>
+		/// <returns></returns>
 		explicit dcxCursorPos(HWND hwnd) noexcept
 			: dcxCursorPos()
 		{
@@ -799,6 +903,7 @@ namespace Dcx
 			if ((MapWindowPoints(nullptr, hwnd, this, 1) == 0) && (GetLastError() != 0))
 				x = y = -1;
 		}
+
 		~dcxCursorPos() noexcept = default;
 
 		explicit operator bool() const noexcept { return ((x != -1) && (y != -1)); };
@@ -808,12 +913,11 @@ namespace Dcx
 		: RECT
 	{
 		dcxWindowRect() = delete;
+
 		// Gets the window rect for hwnd
 		explicit dcxWindowRect(HWND hwnd) noexcept
 		{
 			m_ok = (GetWindowRect(hwnd, this) != FALSE);
-			//if (GetWindowRect(hwnd, this) == FALSE)
-			//	throw Dcx::dcxException(TEXT("Unable to get Window Rect"));
 		}
 
 		// Gets the window rect for hwnd & maps it to hMap
@@ -826,18 +930,26 @@ namespace Dcx
 				MapWindowRect(nullptr, hMap, this);
 				m_ok = (GetLastError() == 0U);
 			}
-
-			//SetLastError(0U);
-			//MapWindowRect(nullptr, hMap, this);
-			//if (GetLastError() != 0U)
-			//	throw Dcx::dcxException(TEXT("Unable to Map Window Rect"));
 		}
+
 		~dcxWindowRect() noexcept = default;
 
-		// get the rect's width
+		/// <summary>
+		/// Get the rects width.
+		/// </summary>
+		/// <returns></returns>
 		long Width() const noexcept { return (right - left); }
-		// get the rect's height
+
+		/// <summary>
+		/// Get the rects height.
+		/// </summary>
+		/// <returns></returns>
 		long Height() const noexcept { return (bottom - top); }
+
+		/// <summary>
+		/// Get a copy of the rect.
+		/// </summary>
+		/// <returns></returns>
 		RECT CopyRect() const noexcept { return { left, top, right, bottom }; }
 
 		explicit operator bool() noexcept { return m_ok; }
@@ -848,11 +960,13 @@ namespace Dcx
 		: stString<257>
 	{
 		dcxClassName() = delete;
+
 		// Gets the class name for hwnd
 		explicit dcxClassName(HWND hwnd) noexcept
 		{
 			GetClassName(hwnd, this->data(), gsl::narrow_cast<int32_t>(this->size()));
 		}
+
 		~dcxClassName() = default;
 	};
 
@@ -868,10 +982,20 @@ namespace Dcx
 			{
 			}
 		}
+
+		/// <summary>
+		/// Get a pointer to the palette.
+		/// </summary>
+		/// <returns></returns>
 		explicit operator COLORREF* () noexcept
 		{
 			return &m_Palette[0];
 		}
+
+		/// <summary>
+		/// Get the size of the palette.
+		/// </summary>
+		/// <returns></returns>
 		constexpr const size_t& size() const noexcept { return m_size; }
 
 		struct iter
@@ -941,7 +1065,6 @@ namespace Dcx
 	using MapOfCursors = std::map<HCURSOR, HCURSOR>;
 	using MapOfAreas = std::map<UINT, HCURSOR>;
 
-	// example code to get a range (purely for testing)
 	template< typename T >
 	struct range_t
 	{
@@ -987,10 +1110,10 @@ namespace Dcx
 		return{ iStart, iEnd };
 	}
 
+	// not for use in code, just for testing
 	template <DcxConcepts::IsNumeric T>
 	struct dcxNumber final
 	{
-
 		constexpr operator std::make_unsigned_t<T>() const noexcept { return gsl::narrow_cast<std::make_unsigned_t<T>>(m_nValue); }
 		constexpr operator std::make_signed_t<T>() const noexcept { return gsl::narrow_cast<std::make_signed_t<T>>(m_nValue); }
 		constexpr explicit operator bool() const noexcept { return (m_nValue != T()); }
@@ -1223,7 +1346,7 @@ namespace Dcx
 	}
 
 	// find() - takes an array object, & something to compare against. (same as std::find(begin(),end(),val) )
-	template <DcxConcepts::IsContainer Res, typename obj, typename _Val>
+	template <typename Res, DcxConcepts::IsContainer obj, typename _Val>
 	Res find(obj& SourceObject, _Val& val)
 	{
 		return std::find(SourceObject.begin(), SourceObject.end(), val);
@@ -1271,6 +1394,12 @@ namespace Dcx
 		//return (con.erase(std::find(con.begin(), itEnd, v)) != itEnd);
 	}
 
+	/// <summary>
+	/// Test if a file exists.
+	/// </summary>
+	/// <typeparam name="T"></typeparam>
+	/// <param name="filename"></param>
+	/// <returns></returns>
 	template <class T>
 	bool IsFileEx(const T& filename) noexcept
 	{
@@ -1323,7 +1452,6 @@ namespace Dcx
 	template <class T>
 	inline T dcxSelectObject(HDC hdc, T obj) noexcept
 	{
-		//return static_cast<T>(SelectObject(hdc, static_cast<HGDIOBJ>(obj)));
 		return static_cast<T>(SelectObject(hdc, obj));
 	}
 
@@ -1357,6 +1485,7 @@ namespace Dcx
 		else
 			return static_cast<T>(GetProp(hwnd, str));
 	}
+
 	template <class T, class Window>
 	GSL_SUPPRESS(lifetime)
 		inline auto dcxGetProp(Window hwnd, const TCHAR* const str) noexcept
@@ -1368,6 +1497,7 @@ namespace Dcx
 		else
 			return static_cast<T>(GetProp(reinterpret_cast<HWND>(hwnd), str));
 	}
+
 	//template <class T, std::size_t N>
 	//inline T dcxGetProp(HWND hwnd, const TCHAR(&str)[N])
 	//{
