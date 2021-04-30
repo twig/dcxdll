@@ -54,7 +54,7 @@ constexpr inline long PercentageToRange(long perc) noexcept
 // find the percentage of 0 to -10000 range
 constexpr inline long RangeToPercentage(long range) noexcept
 {
-	return ((-(range) / 10000) * 100);
+	return gsl::narrow_cast<long>((-(range) / 10000.0) * 100.0);
 }
 
 //template <class T>

@@ -78,16 +78,6 @@ const TString DcxDirectshow::getStyles(void) const
 	return styles;
 }
 
-//void DcxDirectshow::parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme )
-//{
-//	*Styles |= SS_NOTIFY;
-//
-//	if (styles.istok(TEXT("fixratio")))
-//		m_bKeepRatio = true;
-//
-//	parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
-//}
-
 dcxWindowStyles DcxDirectshow::parseControlStyles(const TString& tsStyles)
 {
 	dcxWindowStyles ws;
@@ -336,7 +326,8 @@ void DcxDirectshow::parseCommandRequest(const TString& input)
 	if (flags[TEXT('a')])
 	{
 		if (numtok < 5)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const XSwitchFlags xflags(input.getnexttok().trim());	// tok 4
 		auto filename(input.getlasttoks().trim());			// tok 5, -1
@@ -412,7 +403,8 @@ void DcxDirectshow::parseCommandRequest(const TString& input)
 				if (this->IsAlphaBlend())
 					this->setAlpha(0.5);
 			}
-			else { // if VMR == nullptr then disable video.
+			else {
+				// if VMR == nullptr then disable video.
 				//IVideoWindow* p_Video{};
 				//hr = this->m_pGraph->QueryInterface(IID_IVideoWindow, reinterpret_cast<void**>(&p_Video));
 				//if (FAILED(hr))
@@ -461,7 +453,8 @@ void DcxDirectshow::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('c')])
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		if (!this->m_pControl)
 			throw Dcx::dcxException("No File Loaded");
@@ -503,7 +496,8 @@ void DcxDirectshow::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('v')])
 	{
 		if (numtok < 8)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		if (!m_pControl)
 			throw Dcx::dcxException("No File Loaded");
@@ -523,13 +517,15 @@ void DcxDirectshow::parseCommandRequest(const TString& input)
 	// xdid -V [NAME] [ID] [SWITCH] [+FLAGS] [ARGS]
 	else if (flags[TEXT('V')])
 	{
-		if (numtok < 5)
-			throw Dcx::dcxException("Insufficient parameters");
+	if (numtok < 5)
+		//throw Dcx::dcxException("Insufficient parameters");
+		throw DcxExceptions::dcxInvalidArguments();
 
 		const auto flag(input.getnexttok());	// tok 4
 
 		if (flag[0] != TEXT('+'))
-			throw Dcx::dcxException("Invalid Flags Identifier");
+			//throw Dcx::dcxException("Invalid Flags Identifier");
+			throw DcxExceptions::dcxInvalidFlag();
 
 		if (!this->m_pControl)
 			throw Dcx::dcxException("No File Loaded");
@@ -1322,7 +1318,7 @@ long DcxDirectshow::getVolume() const
 #pragma warning(push,3)
 #pragma warning(disable:4244)
 		if (long t{}; SUCCEEDED(myCom.mData->get_Volume(&t)))
-			vol = RangeToPercentage(abs(t));
+			vol = RangeToPercentage(t);
 #pragma warning(pop)
 	}
 	return vol;
@@ -1383,7 +1379,7 @@ long DcxDirectshow::getBalance(void) const
 #pragma warning(push,3)
 #pragma warning(disable:4244)
 		if (long t{}; SUCCEEDED(myCom.mData->get_Balance(&t)))
-			vol = RangeToPercentage(abs(t));
+			vol = RangeToPercentage(t);
 #pragma warning(pop)
 	}
 	return vol;
