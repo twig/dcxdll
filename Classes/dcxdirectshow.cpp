@@ -256,7 +256,7 @@ void DcxDirectshow::parseInfoRequest(const TString& input, const refString<TCHAR
 		break;
 		// [NAME] [ID] [PROP]
 		case L"volume"_hash:
-			_ts_snprintf(szReturnValue, TEXT("D_OK %ld"), getVolume());
+			_ts_snprintf(szReturnValue, TEXT("D_OK %lf"), getVolume());
 			break;
 			// [NAME] [ID] [PROP]
 		case L"balance"_hash:
@@ -517,9 +517,9 @@ void DcxDirectshow::parseCommandRequest(const TString& input)
 	// xdid -V [NAME] [ID] [SWITCH] [+FLAGS] [ARGS]
 	else if (flags[TEXT('V')])
 	{
-	if (numtok < 5)
-		//throw Dcx::dcxException("Insufficient parameters");
-		throw DcxExceptions::dcxInvalidArguments();
+		if (numtok < 5)
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto flag(input.getnexttok());	// tok 4
 
@@ -534,7 +534,7 @@ void DcxDirectshow::parseCommandRequest(const TString& input)
 		{
 		case TEXT('v'): // Volume
 		{
-			if (const auto hr = this->setVolume(input.getnexttok().to_<long>()); FAILED(hr))
+			if (const auto hr = this->setVolume(input.getnexttok().to_<float>()); FAILED(hr))
 			{
 				DX_ERR(nullptr, TEXT("-V +v"), hr);
 				throw Dcx::dcxException("Unable to Set Volume");
@@ -1263,9 +1263,9 @@ DWORD DcxDirectshow::CheckSeekCapabilities(DWORD dwCaps) const
 }
 
 GSL_SUPPRESS(type.4)
-HRESULT DcxDirectshow::setVolume(const long vol)
+HRESULT DcxDirectshow::setVolume(const float vol)
 {
-	if ((vol < 0) || (vol > 100))
+	if ((vol < 0.0) || (vol > 100.0))
 		return E_FAIL;
 
 	//	IBasicAudio* pAudio{};
@@ -1292,7 +1292,7 @@ HRESULT DcxDirectshow::setVolume(const long vol)
 }
 
 GSL_SUPPRESS(type.4)
-long DcxDirectshow::getVolume() const
+float DcxDirectshow::getVolume() const
 {
 	//	long vol{};
 	//
@@ -1311,7 +1311,7 @@ long DcxDirectshow::getVolume() const
 	//	}
 	//	return vol;
 
-	long vol{};
+	float vol{};
 
 	if (MyCOMClass<IBasicAudio> myCom(this->m_pGraph); myCom)
 	{
@@ -1327,7 +1327,7 @@ long DcxDirectshow::getVolume() const
 GSL_SUPPRESS(type.4)
 HRESULT DcxDirectshow::setBalance(const long vol)
 {
-	if ((vol < 0) || (vol > 100))
+	if ((vol < -10000) || (vol > 10000))
 		return E_FAIL;
 
 	//	IBasicAudio * pAudio{};
@@ -1347,7 +1347,7 @@ HRESULT DcxDirectshow::setBalance(const long vol)
 	//	return hr;
 
 	if (MyCOMClass<IBasicAudio> myCom(this->m_pGraph); myCom)
-		return myCom.mData->put_Balance(PercentageToRange(vol));
+		return myCom.mData->put_Balance(vol);
 
 	return E_FAIL;
 }
@@ -1379,7 +1379,7 @@ long DcxDirectshow::getBalance(void) const
 #pragma warning(push,3)
 #pragma warning(disable:4244)
 		if (long t{}; SUCCEEDED(myCom.mData->get_Balance(&t)))
-			vol = RangeToPercentage(t);
+			vol = t;
 #pragma warning(pop)
 	}
 	return vol;
