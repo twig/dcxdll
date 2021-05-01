@@ -17,6 +17,7 @@ function get_styles_text(&$STYLES) {
 		'noformat' => 'Disables support for mIRC codes in control (faster).',
 		'hgradient' => 'Draws a horizontal gradient with the colors specified.',
 		'vgradient' => 'Draws a vertical gradient with the colors specified.',
+		'doublebuffer' => 'Buffers the drawing. May help with flicker in some cases.',
 		'__notes' => array(
 			'[s]shadow[/s] will only work if the text color is not black or the same as the default text color on the current windows theme (ie. $rgb(0, 0, 0) or $dcx(GetSystemColor, COLOR_WINDOWTEXT) respectively). Change it by using [f]xdid -C[/f]',
 			'mIRC control codes are only supported when transparent style is set.'

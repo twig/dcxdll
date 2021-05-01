@@ -85,7 +85,7 @@ function get_xdid_directshow(&$XDID) {
                     '__desc' => "Command switches.",
                     '__values' => array(
 		                'v' => "Sets the volume level as a percentage between [v]0.00[/v] & [v]100.00[/v] (fractions are valid values).",
-// TODO: not functional                        'b' => "Sets speaker balance between [v]-10000[/v] & [v]10000[/v] (non functional atm)",
+                        'b' => "Sets speaker balance between [v]-10000[/v] & [v]10000[/v]",
                     ),
                 ),
             ),
