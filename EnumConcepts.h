@@ -4,6 +4,7 @@
 //
 
 #include <concepts>
+#include <gsl/gsl>
 
 namespace EnumConcepts
 {

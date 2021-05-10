@@ -58,7 +58,7 @@ namespace DcxConcepts
 	concept IsPODText = IsCharText<T> || IsWCharText<T>;
 
 	template <class T>
-	concept IsPODTextPointer = std::is_pointer_v<T> && (IsCharText<std::remove_pointer_t<T>> || IsWCharText<std::remove_pointer_t<T>>);
+	concept IsPODTextPointer = std::is_pointer_v<T> && IsPODText<std::remove_pointer_t<T>>;
 
 	template <class T>
 	concept IsNumeric = is_Numeric_v<std::remove_cvref_t<T>>;

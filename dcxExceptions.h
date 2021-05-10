@@ -40,6 +40,14 @@ namespace Dcx {
 
 namespace DcxExceptions
 {
+	class dcxUnableToCreateWindow final
+		: public std::exception
+	{
+	public:
+		dcxUnableToCreateWindow() noexcept
+			: exception("Unable To Create Window")
+		{}
+	};
 	class dcxInvalidArguments final
 		: public std::exception
 	{

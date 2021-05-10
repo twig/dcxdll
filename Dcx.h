@@ -286,6 +286,7 @@ namespace Dcx
 		constexpr explicit operator bool() const noexcept { return (m_uni != nullptr); }
 		[[nodiscard("Memory Leak")]] constexpr BaseType release() const noexcept { return static_cast<BaseType>(m_uni.release()); }
 		constexpr BaseType get() const noexcept { return (m_uni.get()); }
+		void reset(BaseType u) noexcept { m_uni.reset(u); }
 	private:
 		Unique		m_uni;
 	};
