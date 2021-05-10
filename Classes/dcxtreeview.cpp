@@ -43,7 +43,8 @@ DcxTreeView::DcxTreeView(const UINT ID, DcxDialog* const p_Dialog, const HWND mP
 		this);
 
 	if (!IsWindow(m_Hwnd))
-		throw Dcx::dcxException("Unable To Create Window");
+		//throw Dcx::dcxException("Unable To Create Window");
+		throw DcxExceptions::dcxUnableToCreateWindow();
 
 	if (ws.m_NoTheme)
 		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
@@ -197,7 +198,6 @@ WindowExStyle DcxTreeView::parseTreeViewExStyles(const TString& styles) const
  *
  * \return > void
  */
-
 void DcxTreeView::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>& szReturnValue) const
 {
 	const auto numtok = input.numtok();
@@ -207,7 +207,8 @@ void DcxTreeView::parseInfoRequest(const TString& input, const refString<TCHAR, 
 	case L"text"_hash:
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Invalid number of arguments");
+			//throw Dcx::dcxException("Invalid number of arguments");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto path(input.getlasttoks());	// tok 4, -1
 		auto item = this->parsePath(path);
@@ -222,21 +223,14 @@ void DcxTreeView::parseInfoRequest(const TString& input, const refString<TCHAR, 
 	case L"icon"_hash:
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Invalid number of arguments");
+			//throw Dcx::dcxException("Invalid number of arguments");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto path(input.getlasttoks());	// tok 4, -1
 		auto item = this->parsePath(path);
 
 		if (!item)
 			throw Dcx::dcxException(TEXT("Unable to parse path: %"), path);
-
-		//TVITEMEX tvi{};
-		//tvi.hItem = item;
-		//tvi.mask = TVIF_IMAGE | TVIF_HANDLE;
-		//
-		//TreeView_GetItem(m_Hwnd, &tvi);
-		//
-		//_ts_snprintf(szReturnValue, TEXT("%d"), (tvi.iImage > 10000 ? -2 : tvi.iImage) + 1);
 
 		const auto ImageID = getItemImageID(item);
 		_ts_snprintf(szReturnValue, TEXT("%d"), (ImageID > 10000 ? -2 : ImageID) + 1);
@@ -246,22 +240,14 @@ void DcxTreeView::parseInfoRequest(const TString& input, const refString<TCHAR, 
 	case L"tooltip"_hash:
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Invalid number of arguments");
+			//throw Dcx::dcxException("Invalid number of arguments");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto path(input.getlasttoks());	// tok 4, -1
 		auto item = this->parsePath(path);
 
 		if (!item)
 			throw Dcx::dcxException(TEXT("Unable to parse path: %"), path);
-
-		//TVITEMEX tvi{};
-		//tvi.hItem = item;
-		//tvi.mask = TVIF_HANDLE | TVIF_PARAM;
-		//
-		//TreeView_GetItem(m_Hwnd, &tvi);
-		//
-		//if (auto lpdcxtvi = reinterpret_cast<LPDCXTVITEM>(tvi.lParam); lpdcxtvi)
-		//	szReturnValue = lpdcxtvi->tsTipText.to_chr();
 
 		if (auto lpdcxtvi = getItemParam(item); lpdcxtvi)
 			szReturnValue = lpdcxtvi->tsTipText.to_chr();
@@ -285,7 +271,8 @@ void DcxTreeView::parseInfoRequest(const TString& input, const refString<TCHAR, 
 	case L"find"_hash:
 	{
 		if (numtok < 6)
-			throw Dcx::dcxException("Invalid number of arguments");
+			//throw Dcx::dcxException("Invalid number of arguments");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto matchtext(input.getfirsttok(2, TSTABCHAR).trim());
 		const auto params(input.getnexttok(TSTABCHAR).trim());		// tok 3
@@ -325,7 +312,8 @@ void DcxTreeView::parseInfoRequest(const TString& input, const refString<TCHAR, 
 	case L"state"_hash:
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Invalid number of arguments");
+			//throw Dcx::dcxException("Invalid number of arguments");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto path(input.getlasttoks());	// tok 4, -1
 		const auto* const item = this->parsePath(path);
@@ -355,27 +343,9 @@ void DcxTreeView::parseInfoRequest(const TString& input, const refString<TCHAR, 
 	// [NAME] [ID] [PROP] [PATH]
 	case L"num"_hash:
 	{
-		//if (numtok < 4)
-		//	throw Dcx::dcxException("Invalid number of arguments");
-		//
-		//const auto path(input.getlasttoks().trim());	// tok 4, -1
-		//HTREEITEM item = TVI_ROOT;
-		//
-		//if (path == TEXT("root"))
-		//{
-		//	_ts_snprintf(szReturnValue, TEXT("%d"), getChildCount(item));
-		//	return;
-		//}
-		//
-		//item = parsePath(path);
-		//
-		//if (!item)
-		//	throw Dcx::dcxException(TEXT("Unable to parse path: %"), path);
-		//
-		//_ts_snprintf(szReturnValue, TEXT("%d"), this->getChildCount(item));
-
 		if (numtok < 4)
-			throw Dcx::dcxException("Invalid number of arguments");
+			//throw Dcx::dcxException("Invalid number of arguments");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto path(input.getlasttoks().trim());	// tok 4, -1
 		HTREEITEM item = TVI_ROOT;
@@ -394,7 +364,8 @@ void DcxTreeView::parseInfoRequest(const TString& input, const refString<TCHAR, 
 	case L"expand"_hash:
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Invalid number of arguments");
+			//throw Dcx::dcxException("Invalid number of arguments");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto path(input.getlasttoks());	// tok 4, -1
 		const auto* const item = this->parsePath(path);
@@ -427,25 +398,14 @@ void DcxTreeView::parseInfoRequest(const TString& input, const refString<TCHAR, 
 	case L"markeditem"_hash:
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Invalid number of arguments");
+			//throw Dcx::dcxException("Invalid number of arguments");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto path(input.getlasttoks().trim());	// tok 4, -1
 		auto item = this->parsePath(path);
 
 		if (!item)
 			throw Dcx::dcxException(TEXT("Unable to parse path: %"), path);
-
-		//TVITEMEX tvi{};
-		//
-		//tvi.hItem = item;
-		//tvi.mask = TVIF_HANDLE | TVIF_PARAM;
-		//
-		//if (!TreeView_GetItem(m_Hwnd, &tvi))
-		//	throw Dcx::dcxException(TEXT("Unable to retrieve item: %"), path);
-		//
-		//if (const auto lpdcxtvitem = reinterpret_cast<LPDCXTVITEM>(tvi.lParam); lpdcxtvitem)
-		//	szReturnValue = lpdcxtvitem->tsMark.to_chr();
-
 
 		if (const auto lpdcxtvitem = getItemParam(item); lpdcxtvitem)
 			szReturnValue = lpdcxtvitem->tsMark.to_chr();
@@ -488,7 +448,8 @@ void DcxTreeView::parseCommandRequest(const TString& input)
 		const auto nTabs = input.numtok(TSTABCHAR);
 
 		if ((numtok < 4) || (nTabs < 2))
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto path(input.getfirsttok(1, TSTABCHAR).gettok(4, -1).trim());	// tok 1
 		const auto data(input.getnexttok(TSTABCHAR).trim());	// tok 2
@@ -504,7 +465,8 @@ void DcxTreeView::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('A')])
 	{
 		if ((numtok < 4) || (input.numtok(TSTABCHAR) < 2))
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		auto path(input.getfirsttok(1, TSTABCHAR).trim());		// tok 1
 		const auto data(input.getnexttok(TSTABCHAR).trim());	// tok 2
@@ -526,20 +488,8 @@ void DcxTreeView::parseCommandRequest(const TString& input)
 		const auto info(data.getlasttoks());		// tok 2, -1
 
 		if (!xflag[TEXT('M')])
-			throw Dcx::dcxException("Unknown flags");
-
-		//TVITEMEX tvi{};
-		//
-		//tvi.hItem = item;
-		//tvi.mask = TVIF_HANDLE | TVIF_PARAM;
-		//
-		//if (!TreeView_GetItem(m_Hwnd, &tvi))
-		//	throw Dcx::dcxException(TEXT("Unable to retrieve item: %"), path);
-		//
-		//if (const auto lpdcxtvitem = reinterpret_cast<LPDCXTVITEM>(tvi.lParam); lpdcxtvitem)
-		//	lpdcxtvitem->tsMark = info;
-	//
-		//TreeView_SetItem(m_Hwnd, &tvi);
+			//throw Dcx::dcxException("Unknown flags");
+			throw DcxExceptions::dcxInvalidFlag();
 
 		if (const auto lpdcxtvitem = getItemParam(item); lpdcxtvitem)
 			lpdcxtvitem->tsMark = info;
@@ -550,7 +500,8 @@ void DcxTreeView::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('B')])
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto path(input.getlasttoks());	// tok 4, -1
 		const auto* const item = this->parsePath(path);
@@ -565,7 +516,8 @@ void DcxTreeView::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('c')])
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto path(input.getlasttoks());	// tok 4, -1
 		const auto* const item = this->parsePath(path);
@@ -580,7 +532,8 @@ void DcxTreeView::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('d')])
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto path(input.getlasttoks());	// tok 4, -1
 		const auto* const item = this->parsePath(path);
@@ -594,7 +547,8 @@ void DcxTreeView::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('g')])
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		if (const auto iHeight = input.getnexttok().to_int(); iHeight > -2)
 			TreeView_SetItemHeight(m_Hwnd, iHeight);
@@ -603,7 +557,8 @@ void DcxTreeView::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('i')])
 	{
 		if (numtok < 5)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto iFlags = this->parseColorFlags(input.getnexttok());	// tok 4
 
@@ -626,18 +581,21 @@ void DcxTreeView::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('j')])
 	{
 		if (numtok < 6)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		// Invalid parameters, missing icons segment.
 		if (input.numtok(TSTABCHAR) < 2)
-			throw Dcx::dcxException("Invalid parameters.");
+			//throw Dcx::dcxException("Invalid parameters.");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto path(input.getfirsttok(1, TSTABCHAR).gettok(4, -1).trim());
 		const auto icons(input.getnexttok(TSTABCHAR).trim());	// tok 2
 
 		// Invalid parameters, missing icon args.
 		if (icons.numtok() < 2)
-			throw Dcx::dcxException("Invalid parameters.");
+			//throw Dcx::dcxException("Invalid parameters.");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto item = this->parsePath(path);
 
@@ -702,7 +660,8 @@ void DcxTreeView::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('k')])
 	{
 		if (numtok < 5)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto state = input.getnexttok().to_<UINT>();	// tok 4
 		const auto path(input.getlasttoks());		// tok 5, -1
@@ -717,7 +676,8 @@ void DcxTreeView::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('l')])
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		m_iIconSize = NumToIconSize(input.getnexttok().to_<int>());	// tok 4
 	}
@@ -725,7 +685,8 @@ void DcxTreeView::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('m')])
 	{
 		if ((numtok < 4) || (input.numtok(TSTABCHAR) < 2))
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto pathFrom(input.getfirsttok(1, TSTABCHAR).gettok(4, -1).trim());
 		const auto pathTo(input.getnexttok(TSTABCHAR).trim());	// tok 2
@@ -738,7 +699,8 @@ void DcxTreeView::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('n')])
 	{
 		if ((numtok < 4) || (input.numtok(TSTABCHAR) < 2))
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto pathFrom(input.getfirsttok(1, TSTABCHAR).gettok(4, -1).trim());
 		const auto pathTo(input.getnexttok(TSTABCHAR).trim());	// tok 2
@@ -749,7 +711,8 @@ void DcxTreeView::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('o')])
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto path(input.getfirsttok(1, TSTABCHAR).gettok(4, -1).trim());
 		TString tiptext;
@@ -762,17 +725,6 @@ void DcxTreeView::parseCommandRequest(const TString& input)
 		if (!item)
 			throw Dcx::dcxException(TEXT("Unable to parse path: %"), path);
 
-		//TVITEMEX tvi{};
-		//
-		//tvi.hItem = item;
-		//tvi.mask = TVIF_HANDLE | TVIF_PARAM;
-		//
-		//if (TreeView_GetItem(m_Hwnd, &tvi))
-		//{
-		//	if (const auto lpdcxtvitem = reinterpret_cast<LPDCXTVITEM>(tvi.lParam); lpdcxtvitem)
-		//		lpdcxtvitem->tsTipText = tiptext;
-		//}
-
 		if (const auto lpdcxtvitem = getItemParam(item); lpdcxtvitem)
 			lpdcxtvitem->tsTipText = tiptext;
 	}
@@ -780,7 +732,8 @@ void DcxTreeView::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('Q')])
 	{
 		if (numtok < 6)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto iFlags = this->parseItemFlags(input.getnexttok());		// tok 4
 		const auto clrText = input.getnexttok().to_<COLORREF>();	// tok 5
@@ -789,30 +742,6 @@ void DcxTreeView::parseCommandRequest(const TString& input)
 
 		if (!item)
 			throw Dcx::dcxException(TEXT("Invalid Path: %"), path);
-
-		//TVITEMEX tvi{};
-		//
-		//tvi.hItem = item;
-		//tvi.mask = TVIF_HANDLE | TVIF_PARAM;
-		//
-		//if (!TreeView_GetItem(m_Hwnd, &tvi))
-		//	throw Dcx::dcxException(TEXT("Unable to retrieve item: %"), path);
-		//
-		//const auto lpdcxtvitem = reinterpret_cast<LPDCXTVITEM>(tvi.lParam);
-		//
-		//if (!lpdcxtvitem)
-		//	throw Dcx::dcxException(TEXT("Unable to retrieve tag: %"), path);
-		//
-		//lpdcxtvitem->bUline = dcx_testflag(iFlags, TVIS_UNDERLINE);
-		//
-		//lpdcxtvitem->bBold = dcx_testflag(iFlags, TVIS_BOLD);
-		//
-		//lpdcxtvitem->bItalic = dcx_testflag(iFlags, TVIS_ITALIC);
-		//
-		//if (dcx_testflag(iFlags, TVIS_COLOR))
-		//	lpdcxtvitem->clrText = clrText;
-		//else
-		//	lpdcxtvitem->clrText = CLR_INVALID;
 
 		if (const auto lpdcxtvitem = getItemParam(item); lpdcxtvitem)
 		{
@@ -841,7 +770,8 @@ void DcxTreeView::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('t')])
 	{
 		if (numtok < 5)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto iFlags = this->parseToggleFlags(input.getnexttok());	// tok 4
 		const auto path(input.getlasttoks());							// tok 5, -1
@@ -883,7 +813,8 @@ void DcxTreeView::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('v')])
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto path(input.getfirsttok(1, TSTABCHAR).gettok(4, -1).trim());
 		TString itemtext;
@@ -908,7 +839,8 @@ void DcxTreeView::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('w')])
 	{
 		if (numtok < 6)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto tsFlags(input.getnexttok());	// tok 4
 		const auto iFlags = this->parseIconFlagOptions(tsFlags);
@@ -978,7 +910,8 @@ void DcxTreeView::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('y')])
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto iFlags = this->parseIconFlagOptions(input.getnexttok());	// tok 4
 
@@ -1004,7 +937,8 @@ void DcxTreeView::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('z')])
 	{
 		if (numtok < 5)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		auto dtvs = std::make_unique<DCXTVSORT>();
 		TVSORTCB tvs{};
@@ -1040,7 +974,8 @@ void DcxTreeView::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('G')])
 	{
 		if (numtok < 7)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto flag(input.getnexttok());			// tok 4
 		this->m_iXOffset = input.getnexttok().to_int();	// tok 5
@@ -1066,7 +1001,8 @@ void DcxTreeView::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('S')])
 	{
 		if (numtok < 6)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		if (input.numtok(TSTABCHAR) != 2)
 			throw Dcx::dcxException("Invalid Command Syntax.");
@@ -1103,7 +1039,8 @@ void DcxTreeView::parseCommandRequest(const TString& input)
  * blah
  */
 
-[[gsl::suppress(lifetime)]] HIMAGELIST DcxTreeView::getImageList(const int type) const noexcept
+GSL_SUPPRESS(lifetime)
+HIMAGELIST DcxTreeView::getImageList(const int type) const noexcept
 {
 	return TreeView_GetImageList(m_Hwnd, gsl::narrow_cast<WPARAM>(type));
 }
@@ -1434,8 +1371,9 @@ int CALLBACK DcxTreeView::sortItemsEx(LPARAM lParam1, LPARAM lParam2, LPARAM lPa
 			return 0;
 
 		//TCHAR sRes[20];
-		stString<20> sRes;
 		//mIRCLinker::evalex( sRes, static_cast<int>(sRes.size()), TEXT("$%s(%s,%s)"), ptvsort->tsCustomAlias.to_chr( ), &ptvsort->itemtext1[0], &ptvsort->itemtext2[0] );
+
+		stString<20> sRes;
 		mIRCLinker::eval(sRes, TEXT("$%(%,%)"), ptvsort->tsCustomAlias, &ptvsort->itemtext1[0], &ptvsort->itemtext2[0]);
 
 		auto ires = dcx_atoi(sRes.data());
@@ -1571,16 +1509,19 @@ void DcxTreeView::getItemText(const HTREEITEM hItem, TCHAR* szBuffer, const int 
  */
 TString DcxTreeView::getItemText(const HTREEITEM hItem) const
 {
-	TVITEMEX tvi{};
+	//TVITEMEX tvi{};
+	//TCHAR sBuf[MIRC_BUFFER_SIZE_CCH]{};
+	//tvi.hItem = hItem;
+	//tvi.mask = TVIF_TEXT | TVIF_HANDLE;
+	//tvi.cchTextMax = std::size(sBuf);
+	//tvi.pszText = &sBuf[0];
+	//if (!TreeView_GetItem(m_Hwnd, &tvi))
+	//	sBuf[0] = 0;
+	//return &sBuf[0];
+
 	TCHAR sBuf[MIRC_BUFFER_SIZE_CCH]{};
 
-	tvi.hItem = hItem;
-	tvi.mask = TVIF_TEXT | TVIF_HANDLE;
-	tvi.cchTextMax = std::size(sBuf);
-	tvi.pszText = &sBuf[0];
-
-	if (!TreeView_GetItem(m_Hwnd, &tvi))
-		sBuf[0] = 0;
+	getItemText(hItem, &sBuf[0], std::size(sBuf));
 
 	return &sBuf[0];
 }
@@ -1612,7 +1553,8 @@ int DcxTreeView::getChildCount(const HTREEITEM hParent) const noexcept
 	return i;
 }
 
-[[gsl::suppress(lifetime)]] LPDCXTVITEM DcxTreeView::getItemParam(const HTREEITEM hItem) const noexcept
+GSL_SUPPRESS(lifetime)
+LPDCXTVITEM DcxTreeView::getItemParam(const HTREEITEM hItem) const noexcept
 {
 	TVITEMEX tvi{};
 	tvi.hItem = hItem;
@@ -1642,7 +1584,10 @@ int DcxTreeView::getItemImageID(const HTREEITEM hItem) const noexcept
  * blah
  */
 
-[[gsl::suppress(bounds.4, con.4, r.5)]] bool DcxTreeView::matchItemText(const HTREEITEM hItem, const TString& search, const DcxSearchTypes& SearchType) const
+GSL_SUPPRESS(bounds.4)
+GSL_SUPPRESS(con.4)
+GSL_SUPPRESS(r.5)
+bool DcxTreeView::matchItemText(const HTREEITEM hItem, const TString& search, const DcxSearchTypes& SearchType) const
 {
 	auto itemtext = std::make_unique<TCHAR[]>(MIRC_BUFFER_SIZE_CCH);
 	gsl::at(itemtext, 0) = TEXT('\0');
@@ -1653,41 +1598,13 @@ int DcxTreeView::getItemImageID(const HTREEITEM hItem) const noexcept
 
 	//auto itemtext = std::make_unique<TCHAR[]>(MIRC_BUFFER_SIZE_CCH);
 	//gsl::at(itemtext, 0) = TEXT('\0');
-
+	//
 	//auto refText = mIRCResultString(itemtext.get());
-
+	//
 	//getItemText(hItem, refText, MIRC_BUFFER_SIZE_CCH);
-
+	//
 	//return DcxListHelper::matchItemText(refText, search, SearchType);
 }
-
-/*!
- * \brief blah
- *
- * blah
- */
- //std::pair<bool, HTREEITEM> DcxTreeView::findItemText(const HTREEITEM hStart, const TString &queryText, const int n, int &matchCount, const DcxSearchTypes &searchType) const
- //{
- //	HTREEITEM item = TreeView_GetChild(m_Hwnd, hStart);
- //
- //	// Check if it should search child nodes
- //	if (item == nullptr)
- //		return { false, nullptr };
- //
- //	do {
- //		if (this->matchItemText(item, queryText, searchType))
- //			++matchCount;
- //
- //		if (n != 0 && matchCount == n)
- //			return { true, item };
- //
- //		if (const auto[bSucceded, result] = findItemText(item, queryText, n, matchCount, searchType); bSucceded)
- //			return { true,result };
- //
- //	} while ((item = TreeView_GetNextSibling(m_Hwnd, item)) != nullptr);
- //
- //	return { false, nullptr };
- //}
 
 std::optional<HTREEITEM> DcxTreeView::findItemText(const HTREEITEM hStart, const TString& queryText, const int n, int& matchCount, const DcxSearchTypes& searchType) const
 {
@@ -1783,23 +1700,6 @@ HTREEITEM DcxTreeView::cloneItem(const HTREEITEM hItem, const HTREEITEM hParentT
 
 	if (!lpdcxtvitem)
 		return nullptr;
-
-	////const auto lpdcxtvitem2 = new DCXTVITEM;
-	////*lpdcxtvitem2 = *lpdcxtvitem;
-	//
-	//const auto lpdcxtvitem2 = new DCXTVITEM(*lpdcxtvitem);
-	//
-	//tvi.hItem = nullptr;
-	//tvi.mask = TVIF_TEXT | TVIF_IMAGE | TVIF_SELECTEDIMAGE | TVIF_EXPANDEDIMAGE | TVIF_STATE | TVIF_INTEGRAL | TVIF_PARAM;
-	//tvi.lParam = reinterpret_cast<LPARAM>(lpdcxtvitem2);
-	//
-	//TVINSERTSTRUCT tvin{ hParentTo, hAfterTo, tvi };
-	//
-	//const auto item = TreeView_InsertItem(m_Hwnd, &tvin);
-	//if (!item)
-	//	delete lpdcxtvitem2;
-	//
-	//return item;
 
 	auto lpdcxtvitem2 = std::make_unique<DCXTVITEM>(*lpdcxtvitem);
 
@@ -1973,23 +1873,6 @@ LRESULT DcxTreeView::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 
 		case NM_DBLCLK:
 		{
-			//TVHITTESTINFO tvh;
-			//
-			//if (!GetCursorPos(&tvh.pt))
-			//	break;
-			//
-			//MapWindowPoints(nullptr, m_Hwnd, &tvh.pt, 1);
-			//TreeView_HitTest(m_Hwnd, &tvh);
-			//
-			////|| ( (dcx_testflag(tvh.flags, TVHT_ONITEMRIGHT)) && this->isStyle( TVS_FULLROWSELECT ) ) )
-			//if ((tvh.flags & TVHT_ONITEM) != 0) // dont use dcx_testflag() here as TVHT_ONITEM is a combination of several hit types.
-			//{
-			//	//TreeView_SelectItem(m_Hwnd, tvh.hItem);
-			//
-			//	if (dcx_testflag(getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
-			//		execAliasEx(TEXT("dclick,%u,%s"), getUserID(), getPathFromItem(&tvh.hItem).to_chr());
-			//}
-
 			if (!dcx_testflag(getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
 				break;
 
@@ -2011,25 +1894,6 @@ LRESULT DcxTreeView::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 
 		case NM_RCLICK:
 		{
-			//TVHITTESTINFO tvh;
-			//
-			//if (!GetCursorPos(&tvh.pt))
-			//	break;
-			//
-			//MapWindowPoints(nullptr, m_Hwnd, &tvh.pt, 1);
-			//TreeView_HitTest(m_Hwnd, &tvh);
-			//
-			////|| ( (dcx_testflag(tvh.flags, TVHT_ONITEMRIGHT)) && this->isStyle( TVS_FULLROWSELECT ) ) )
-			//if ((tvh.flags & TVHT_ONITEM) != 0) // dont use dcx_testflag() here as TVHT_ONITEM is a combination of several hit types.
-			//{
-			//	//TreeView_SelectItem(m_Hwnd, tvh.hItem);
-			//
-			//	if (dcx_testflag(getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
-			//		execAliasEx(TEXT("rclick,%u,%s"), getUserID(), getPathFromItem(&tvh.hItem).to_chr());
-			//}
-			//else if (dcx_testflag(getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
-			//	execAliasEx(TEXT("rclick,%u"), getUserID());
-
 			if (!dcx_testflag(getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
 				break;
 
@@ -2123,16 +1987,6 @@ LRESULT DcxTreeView::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 				}
 			}
 
-			//TCHAR ret[256];
-			//evalAliasEx( ret, Dcx::countof(ret), TEXT("labelbegin,%u"), getUserID( ) );
-			//
-			//return (ts_strcmp(TEXT("noedit"), ret) == 0);
-
-			//stString<256> sRet;
-			//evalAliasEx( sRet, Dcx::countof(sRet), TEXT("labelbegin,%u"), getUserID( ) );
-			//
-			//return (sRet == TEXT("noedit"));
-
 			return (getParentDialog()->evalAliasT(TEXT("labelbegin,%"), getUserID()).second == TEXT("noedit"));
 		}
 		break;
@@ -2142,19 +1996,9 @@ LRESULT DcxTreeView::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 
 			if (dcxlParam(LPNMTVDISPINFO, lptvdi); !lptvdi->item.pszText)
 				execAliasEx(TEXT("labelcancel,%u"), getUserID());
-			else {
-				//TCHAR ret[256];
-				//evalAliasEx( ret, Dcx::countof(ret), TEXT("labelend,%u,%s"), getUserID( ), lptvdi->item.pszText );
-				//
-				//return (ts_strcmp(TEXT("noedit"), ret) == 0);
-
-				//stString<256> sRet;
-				//evalAliasEx( sRet, Dcx::countof(sRet), TEXT("labelend,%u,%s"), getUserID( ), lptvdi->item.pszText );
-				//
-				//return (sRet == TEXT("noedit"));
-
+			else
 				return (getParentDialog()->evalAliasT(TEXT("labelend,%,%"), getUserID(), lptvdi->item.pszText).second == TEXT("noedit"));
-			}
+
 			return TRUE;
 		}
 		break;
@@ -2363,7 +2207,7 @@ LRESULT DcxTreeView::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& b
 
 LRESULT CALLBACK DcxTreeView::EditLabelProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept
 {
-	const auto* const pthis = static_cast<DcxTreeView*>(GetProp(mHwnd, TEXT("dcx_pthis")));
+	const auto* const pthis = Dcx::dcxGetProp<DcxTreeView*>(mHwnd, TEXT("dcx_pthis"));
 
 	switch (uMsg)
 	{
@@ -2462,18 +2306,6 @@ void DcxTreeView::DrawGDIPlusImage(HDC hdc)
 			DrawParentsBackground(hdc, &rc);
 	}
 	else {
-		//if (auto hBrush = getBackClrBrush(); !hBrush)
-		//{
-		//	hBrush = CreateSolidBrush(GetBkColor(hdc));
-		//	if (hBrush)
-		//	{
-		//		FillRect(hdc, &rc, hBrush);
-		//		DeleteObject(hBrush);
-		//	}
-		//}
-		//else
-		//	FillRect(hdc, &rc, hBrush);
-
 		if (auto hBrush = getBackClrBrush(); hBrush)
 			FillRect(hdc, &rc, hBrush);
 		else

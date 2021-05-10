@@ -40,13 +40,14 @@ DcxStatusBar::DcxStatusBar(const UINT ID, DcxDialog* const p_Dialog, const HWND 
 		this);
 
 	if (!IsWindow(m_Hwnd))
-		throw Dcx::dcxException("Unable To Create Window");
+		//throw Dcx::dcxException("Unable To Create Window");
+		throw DcxExceptions::dcxUnableToCreateWindow();
 
 	if (ws.m_NoTheme)
 		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
 
-	ZeroMemory(&m_iDynamicParts[0], sizeof(m_iDynamicParts));
-	ZeroMemory(&m_iFixedParts[0], sizeof(m_iFixedParts));
+	//ZeroMemory(&m_iDynamicParts[0], sizeof(m_iDynamicParts));
+	//ZeroMemory(&m_iFixedParts[0], sizeof(m_iFixedParts));
 
 	if (const auto h = rc->bottom - rc->top; h > 0)
 		SendMessage(m_Hwnd, SB_SETMINHEIGHT, gsl::narrow_cast<WPARAM>(h), 0);
@@ -501,17 +502,6 @@ void DcxStatusBar::setImageList(const HIMAGELIST himl) noexcept
 	m_hImageList = himl;
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
-
- //HIMAGELIST DcxStatusBar::createImageList( )
- //{
- //  return ImageList_Create( 16, 16, ILC_COLOR32|ILC_MASK, 1, 0 );
- //}
-
  /*!
   * \brief blah
   *
@@ -917,7 +907,7 @@ LRESULT DcxStatusBar::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& 
 	{
 		if (dcxlParam(LPCOMPAREITEMSTRUCT, idata); (idata) && (IsWindow(idata->hwndItem)))
 		{
-			if (const auto c_this = static_cast<DcxControl*>(GetProp(idata->hwndItem, TEXT("dcx_cthis"))); c_this)
+			if (const auto c_this = Dcx::dcxGetProp<DcxControl*>(idata->hwndItem, TEXT("dcx_cthis")); c_this)
 				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 		}
 	}

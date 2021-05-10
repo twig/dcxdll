@@ -47,7 +47,8 @@ DcxToolBar::DcxToolBar(const UINT ID, DcxDialog* const p_Dialog, const HWND mPar
 		this);
 
 	if (!IsWindow(m_Hwnd))
-		throw Dcx::dcxException("Unable To Create Window");
+		//throw Dcx::dcxException("Unable To Create Window");
+		throw DcxExceptions::dcxUnableToCreateWindow();
 
 	if (ws.m_NoTheme)
 		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
@@ -84,119 +85,6 @@ DcxToolBar::~DcxToolBar() noexcept
 	ImageList_Destroy(this->getImageList(dcxToolBar_ImageLists::TB_IML_DISABLE));
 	ImageList_Destroy(this->getImageList(dcxToolBar_ImageLists::TB_IML_HOT));
 }
-
-///*!
-// * \brief blah
-// *
-// * blah
-// */
-//void DcxToolBar::parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme )
-//{
-//	LONG ExStylesTb = 0;
-//	parseControlStyles(styles, Styles, ExStyles, &ExStylesTb, bNoTheme);
-//}
-//
-///*!
-// * \brief blah
-// *
-// * blah
-// */
-//void DcxToolBar::parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, LONG * ExStylesTb, BOOL * bNoTheme )
-//{
-//	//*Styles |= CCS_ADJUSTABLE;
-//	for (const auto &tsStyle: styles)
-//	{
-//#if DCX_USE_HASHING
-//		switch (std::hash<TString>{}(tsStyle))
-//		{
-//			case L"flat"_hash:
-//				*Styles |= TBSTYLE_FLAT;
-//				break;
-//			case L"tooltips"_hash:
-//				*Styles |= TBSTYLE_TOOLTIPS;
-//				break;
-//			case L"transparent"_hash:
-//				*Styles |= TBSTYLE_TRANSPARENT;
-//				break;
-//			case L"nodivider"_hash:
-//				*Styles |= CCS_NODIVIDER;
-//				break;
-//			case L"top"_hash:
-//				*Styles |= CCS_TOP;
-//				break;
-//			case L"bottom"_hash:
-//				*Styles |= CCS_BOTTOM;
-//				break;
-//			case L"left"_hash:
-//				*Styles |= CCS_LEFT;
-//				break;
-//			case L"right"_hash:
-//				*Styles |= CCS_RIGHT;
-//				break;
-//			//case L"noresize"_hash: 
-//			//  *Styles |= CCS_NORESIZE;
-//			//	break;
-//			//case L"noparentalign"_hash: 
-//			//  *Styles |= CCS_NOPARENTALIGN ;
-//			//	break;
-//			case L"noauto"_hash:
-//				*Styles |= CCS_NOPARENTALIGN | CCS_NORESIZE;
-//				break;
-//			case L"adjustable"_hash:
-//				*Styles |= CCS_ADJUSTABLE;
-//				break;
-//			case L"list"_hash:
-//				*Styles |= TBSTYLE_LIST;
-//				break;
-//			case L"wrap"_hash:
-//				*Styles |= TBSTYLE_WRAPABLE;
-//				break;
-//			case L"arrows"_hash:
-//				*ExStylesTb |= TBSTYLE_EX_DRAWDDARROWS;
-//				break;
-//			case L"final"_hash:
-//				m_bOverrideTheme = true;
-//			default:
-//				break;
-//		}
-//#else
-//		if (tsStyle == TEXT("flat"))
-//			*Styles |= TBSTYLE_FLAT;
-//		else if ( tsStyle == TEXT("tooltips") )
-//			*Styles |= TBSTYLE_TOOLTIPS;
-//		else if ( tsStyle == TEXT("transparent") )
-//			*Styles |= TBSTYLE_TRANSPARENT;
-//		else if ( tsStyle == TEXT("nodivider") )
-//			*Styles |= CCS_NODIVIDER;
-//		else if ( tsStyle == TEXT("top") )
-//			*Styles |= CCS_TOP;
-//		else if ( tsStyle == TEXT("bottom") )
-//			*Styles |= CCS_BOTTOM;
-//		else if ( tsStyle == TEXT("left") )
-//			*Styles |= CCS_LEFT;
-//		else if ( tsStyle == TEXT("right") )
-//			*Styles |= CCS_RIGHT;
-//		//else if ( tsStyle == TEXT("noresize") ) 
-//		//  *Styles |= CCS_NORESIZE;
-//		//else if ( tsStyle == TEXT("noparentalign") ) 
-//		//  *Styles |= CCS_NOPARENTALIGN ;
-//		else if ( tsStyle == TEXT("noauto") )
-//			*Styles |= CCS_NOPARENTALIGN | CCS_NORESIZE;
-//		else if ( tsStyle == TEXT("adjustable") )
-//			*Styles |= CCS_ADJUSTABLE;
-//		else if ( tsStyle == TEXT("list") )
-//			*Styles |= TBSTYLE_LIST;
-//		else if ( tsStyle == TEXT("wrap") )
-//			*Styles |= TBSTYLE_WRAPABLE;
-//		else if ( tsStyle == TEXT("arrows") )
-//			*ExStylesTb |= TBSTYLE_EX_DRAWDDARROWS;
-//		else if ( tsStyle == TEXT("final") )
-//			this->m_bOverrideTheme = true;
-//#endif
-//	}
-//
-//	this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
-//}
 
 /*!
 * \brief blah
@@ -324,6 +212,7 @@ dcxWindowStyles DcxToolBar::parseControlStyles(const TString& tsStyles)
 
 	return ws;
 }
+
 /*!
  * \brief $xdid Parsing Function
  *
@@ -332,7 +221,6 @@ dcxWindowStyles DcxToolBar::parseControlStyles(const TString& tsStyles)
  *
  * \return > void
  */
-
 void DcxToolBar::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>& szReturnValue) const
 {
 	const auto numtok = input.numtok();
@@ -350,12 +238,14 @@ void DcxToolBar::parseInfoRequest(const TString& input, const refString<TCHAR, M
 	case L"text"_hash:
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Invalid number of arguments");
+			//throw Dcx::dcxException("Invalid number of arguments");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto iButton = input.getnexttok().to_int() - 1;	// tok 4
 
 		if (iButton < 0 && iButton >= this->getButtonCount())
-			throw Dcx::dcxException("Out of Range");
+			//throw Dcx::dcxException("Out of Range");
+			throw DcxExceptions::dcxOutOfRange();
 
 		if (auto lpdcxtbb = getButtonData(iButton); lpdcxtbb)
 			szReturnValue = lpdcxtbb->bText.to_chr();
@@ -365,12 +255,14 @@ void DcxToolBar::parseInfoRequest(const TString& input, const refString<TCHAR, M
 	case L"icon"_hash:
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Invalid number of arguments");
+			//throw Dcx::dcxException("Invalid number of arguments");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto iButton = input.getnexttok().to_int() - 1;	// tok 4
 
 		if (iButton < 0 && iButton >= this->getButtonCount())
-			throw Dcx::dcxException("Out of Range");
+			//throw Dcx::dcxException("Out of Range");
+			throw DcxExceptions::dcxOutOfRange();
 
 		TBBUTTONINFO tbbi{ sizeof(TBBUTTONINFO),TBIF_IMAGE | TBIF_BYINDEX };
 
@@ -383,12 +275,14 @@ void DcxToolBar::parseInfoRequest(const TString& input, const refString<TCHAR, M
 	case L"state"_hash:
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Invalid number of arguments");
+			//throw Dcx::dcxException("Invalid number of arguments");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto iButton = input.getnexttok().to_int() - 1;	// tok 4
 
 		if (iButton < 0 && iButton >= this->getButtonCount())
-			throw Dcx::dcxException("Out of Range");
+			//throw Dcx::dcxException("Out of Range");
+			throw DcxExceptions::dcxOutOfRange();
 
 		TBBUTTONINFO tbbi{ sizeof(TBBUTTONINFO),TBIF_STATE | TBIF_BYINDEX };
 
@@ -419,12 +313,14 @@ void DcxToolBar::parseInfoRequest(const TString& input, const refString<TCHAR, M
 	case L"tooltip"_hash:
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Invalid number of arguments");
+			//throw Dcx::dcxException("Invalid number of arguments");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto iButton = input.getnexttok().to_int() - 1;	// tok 4
 
 		if (iButton < 0 && iButton >= this->getButtonCount())
-			throw Dcx::dcxException("Out of Range");
+			//throw Dcx::dcxException("Out of Range");
+			throw DcxExceptions::dcxOutOfRange();
 
 		if (auto lpdcxtbb = getButtonData(iButton); lpdcxtbb)
 			szReturnValue = lpdcxtbb->tsTipText.to_chr();
@@ -434,12 +330,14 @@ void DcxToolBar::parseInfoRequest(const TString& input, const refString<TCHAR, M
 	case L"dropdownpoint"_hash:
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Invalid number of arguments");
+			//throw Dcx::dcxException("Invalid number of arguments");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto iButton = input.getnexttok().to_int() - 1;	// tok 4
 
 		if (iButton < 0 && iButton >= this->getButtonCount())
-			throw Dcx::dcxException("Out of Range");
+			//throw Dcx::dcxException("Out of Range");
+			throw DcxExceptions::dcxOutOfRange();
 
 		RECT rc{};
 
@@ -474,7 +372,8 @@ void DcxToolBar::parseCommandRequest(const TString& input)
 	if (flags[TEXT('a')])
 	{
 		if (numtok < 5)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		auto nPos = input.getnexttok().to_int() - 1;	// tok 4
 
@@ -521,7 +420,6 @@ void DcxToolBar::parseCommandRequest(const TString& input)
 		}
 
 		// Tooltip Handling
-		//auto lpdcxtbb = new DCXTBBUTTON;
 		auto lpdcxtbb = std::make_unique<DCXTBBUTTON>();
 
 		if (input.numtok(TSTABCHAR) > 1)
@@ -572,7 +470,8 @@ void DcxToolBar::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('c')])
 	{
 		if (numtok < 7)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto iButton = input.getnexttok().to_int() - 1;						// tok 4
 		const auto buttonStyles = parseButtonStyleFlags(input.getnexttok());		// tok 5
@@ -589,7 +488,8 @@ void DcxToolBar::parseCommandRequest(const TString& input)
 		else {
 
 			if (iButton < 0 && iButton >= this->getButtonCount())
-				throw Dcx::dcxException("Out of Range");
+				//throw Dcx::dcxException("Insufficient parameters");
+				throw DcxExceptions::dcxInvalidArguments();
 
 			if (auto lpdcxtbb = getButtonData(iButton); lpdcxtbb)
 			{
@@ -648,7 +548,8 @@ void DcxToolBar::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('d')])
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto nButton = input.getnexttok().to_int() - 1;	// tok 4
 
@@ -659,7 +560,8 @@ void DcxToolBar::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('i')])
 	{
 		if (numtok < 5)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto nButton = input.getnexttok().to_int() - 1;	// tok 4
 		auto iImage = input.getnexttok().to_int() - 1;			// tok 5
@@ -678,7 +580,8 @@ void DcxToolBar::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('j')])
 	{
 		if (numtok < 5)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto nMin = input.getnexttok().to_int();	// tok 4
 		const auto nMax = input.getnexttok().to_int();	// tok 5	// was tok 4 should be 5
@@ -689,7 +592,8 @@ void DcxToolBar::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('l')])
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto size = NumToIconSize(input.getnexttok().to_<UINT>());	// tok 4
 
@@ -710,7 +614,8 @@ void DcxToolBar::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('m')])
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		m_bAutoStretch = (input.getnexttok() == TEXT('1'));	// tok 4
 
@@ -721,12 +626,14 @@ void DcxToolBar::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('q')])
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto nButton = input.getnexttok().to_int() - 1;	// tok 4
 
 		if (nButton < 0 && nButton >= this->getButtonCount())
-			throw Dcx::dcxException("Out of Range");
+			//throw Dcx::dcxException("Out of Range");
+			throw DcxExceptions::dcxOutOfRange();
 
 		if (auto lpdcxtbb = getButtonData(nButton); lpdcxtbb)
 		{
@@ -745,7 +652,8 @@ void DcxToolBar::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('t')])
 	{
 		if (numtok < 5)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto nButton = input.getnexttok().to_int() - 1;				// tok 4
 		const auto fStates = parseButtonStateFlags(input.getnexttok());	// tok 5
@@ -759,7 +667,8 @@ void DcxToolBar::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('u')])
 	{
 		if (numtok < 5)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto dxButton = input.getnexttok().to_int();		// tok 4
 		const auto dyButton = input.getnexttok().to_int();		// tok 5
@@ -770,12 +679,14 @@ void DcxToolBar::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('v')])
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto nButton = input.getnexttok().to_int() - 1;		// tok 4
 
 		if (nButton < 0 && nButton >= this->getButtonCount())
-			throw Dcx::dcxException("Out of Range");
+			//throw Dcx::dcxException("Out of Range");
+			throw DcxExceptions::dcxOutOfRange();
 
 		const auto nIndex = this->getIndexToCommand(nButton);
 		TBBUTTONINFO tbbi{};
@@ -804,13 +715,15 @@ void DcxToolBar::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('w')])
 	{
 		if (numtok < 6)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto tsFlags(input.getnexttok());	// tok 4
 		const auto iFlags = this->parseImageListFlags(tsFlags);
 
 		if (tsFlags[0] != TEXT('+'))
-			throw Dcx::dcxException("Invalid Flags");
+			//throw Dcx::dcxException("Invalid Flags");
+			throw DcxExceptions::dcxInvalidFlag();
 
 		const auto index = input.getnexttok().to_int();	// tok 5
 		auto filename(input.getlasttoks());			// tok 6, -1

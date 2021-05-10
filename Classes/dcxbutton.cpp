@@ -40,7 +40,8 @@ DcxButton::DcxButton(const UINT ID, DcxDialog* const p_Dialog, const HWND mParen
 		this);
 
 	if (!IsWindow(m_Hwnd))
-		throw Dcx::dcxException("Unable To Create Window");
+		//throw Dcx::dcxException("Unable To Create Window");
+		throw DcxExceptions::dcxUnableToCreateWindow();
 
 	if (ws.m_NoTheme)
 		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
@@ -85,40 +86,6 @@ DcxButton::~DcxButton()
 	}
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
-
- //void DcxButton::parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme )
- //{
- //	*Styles |= BS_NOTIFY;
- //
- //	for (const auto &tsStyle: styles)
- //	{
- //#if DCX_USE_HASHING
- //		switch (std::hash<TString>{}(tsStyle))
- //		{
- //			case L"bitmap"_hash:
- //				*Styles |= BS_BITMAP;
- //				break;
- //			case L"default"_hash:
- //				*Styles |= BS_DEFPUSHBUTTON;
- //			default:
- //				break;
- //		}
- //#else
- //		if ( tsStyle == TEXT("bitmap") )
- //			*Styles |= BS_BITMAP;
- //		else if ( tsStyle == TEXT("default") )
- //			*Styles |= BS_DEFPUSHBUTTON;
- //#endif
- //	}
- //
- //	parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
- //}
-
 dcxWindowStyles DcxButton::parseControlStyles(const TString& tsStyles)
 {
 	dcxWindowStyles ws;
@@ -157,7 +124,6 @@ dcxWindowStyles DcxButton::parseControlStyles(const TString& tsStyles)
  *
  * \return > void
  */
-
 void DcxButton::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>& szReturnValue) const
 {
 	// [NAME] [ID] [PROP]
@@ -185,7 +151,8 @@ void DcxButton::parseCommandRequest(const TString& input)
 	if (flags[TEXT('c')])
 	{
 		if (numtok < 5)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto iColorStyles = parseColorFlags(input.getnexttok());	// tok 4
 		const auto clrColor = input.getnexttok().to_<COLORREF>();		// tok 5
@@ -205,7 +172,8 @@ void DcxButton::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('k')])
 	{
 		if (numtok < 6)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		if (!isStyle(WindowStyle::BS_Bitmap) && !isStyle(WindowStyle::BS_OwnerDraw))
 			throw Dcx::dcxException("Command not supported by this button style.");
@@ -242,7 +210,8 @@ void DcxButton::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('l')])
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		m_iIconSize = NumToIconSize(input.getnexttok().to_<int>());	// tok 4
 
@@ -257,16 +226,18 @@ void DcxButton::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('t')])
 	{
 		if (numtok < 3)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
-		m_tsCaption = (numtok > 3 ? input.getlasttoks().trim() : TEXT(""));	// tok 4, -1
+		m_tsCaption = (numtok > 3 ? input.getlasttoks().trim() : TString());	// tok 4, -1
 		redrawWindow();
 	}
 	// xdid -w [NAME] [ID] [SWITCH] [FLAGS] [INDEX] [FILENAME]
 	else if (flags[TEXT('w')])
 	{
 		if (numtok < 6)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto tflags(input.getnexttok());		// tok 4
 		const auto index = input.getnexttok().to_int();	// tok 5
@@ -320,7 +291,8 @@ void DcxButton::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('m')])
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto b = input.getnexttok().to_int();	// tok 4
 
@@ -331,13 +303,15 @@ void DcxButton::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('n')])
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const XSwitchFlags xFlags(input.getnexttok());	// tok 4
 		const auto tsText(input.getlasttoks().trim());	// tok 5, -1
 
 		if (!xFlags[TEXT('+')])
-			throw Dcx::dcxException("Invalid flags, missing +");
+			//throw Dcx::dcxException("Invalid flags, missing +");
+			throw DcxExceptions::dcxInvalidFlag();
 
 		m_tsCaption.clear();
 
@@ -351,6 +325,46 @@ void DcxButton::parseCommandRequest(const TString& input)
 		}
 
 		redrawWindow();
+	}
+	// xdid -S [NAME] [ID] [SWITCH] +FLAGS
+	else if (flags[TEXT('S')])
+	{
+		if (numtok < 4)
+			throw DcxExceptions::dcxInvalidArguments();
+
+		const XSwitchFlags xFlags(input.getnexttok());	// tok 4
+
+		if (!xFlags[TEXT('+')])
+			throw DcxExceptions::dcxInvalidFlag();
+
+		DWORD dStyle = (Dcx::dcxLOWORD(GetWindowStyle(m_Hwnd)) & ~(BS_CHECKBOX | BS_RADIOBUTTON | BS_COMMANDLINK | BS_GROUPBOX));
+
+		// button/check/radio/commandlink/group
+		if (xFlags[TEXT('b')])
+		{
+			// standard button
+		}
+		else if (xFlags[TEXT('c')])
+		{
+			// check button
+			dStyle |= BS_CHECKBOX;
+		}
+		else if (xFlags[TEXT('r')])
+		{
+			// radio button
+			dStyle |= BS_RADIOBUTTON;
+		}
+		else if (xFlags[TEXT('C')])
+		{
+			// commandlink button
+			dStyle |= BS_COMMANDLINK;
+		}
+		else if (xFlags[TEXT('g')])
+		{
+			// group button
+			dStyle |= BS_GROUPBOX;
+		}
+		Button_SetStyle(m_Hwnd, dStyle, TRUE);
 	}
 	else
 		parseGlobalCommandRequest(input, flags);
@@ -719,21 +733,6 @@ void DcxButton::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 				TransparentBlt(hdc, rcClient.left, rcClient.top, w, h, hdcbmp, 0, 0, bmp.bmWidth, bmp.bmHeight, m_aTransp[nState]);
 			}
 		}
-
-		//auto hdcbmp = CreateCompatibleDC(hdc);
-		//if (hdcbmp != nullptr) {
-		//	BITMAP bmp;
-		//
-		//	// get bitmaps info.
-		//	if (GetObject(m_aBitmaps[nState], sizeof(BITMAP), &bmp) != 0)
-		//	{
-		//		// associate bitmap with HDC
-		//		const auto oldbm = SelectBitmap(hdcbmp, m_aBitmaps[nState]);
-		//		TransparentBlt(hdc, rcClient.left, rcClient.top, w, h, hdcbmp, 0, 0, bmp.bmWidth, bmp.bmHeight, m_aTransp[nState]);
-		//		SelectBitmap(hdcbmp, oldbm); // got to put the old bm back.
-		//	}
-		//	DeleteDC( hdcbmp );
-		//}
 #endif
 	}
 
@@ -863,7 +862,7 @@ void DcxButton::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 
 	if (hTheme)
 		Dcx::UXModule.dcxCloseThemeData(hTheme);
-}
+		}
 
 LRESULT DcxButton::CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept
 {

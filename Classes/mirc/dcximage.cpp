@@ -43,7 +43,8 @@ DcxImage::DcxImage(const UINT ID, DcxDialog* const p_Dialog, const HWND mParentH
 		this);
 
 	if (!IsWindow(m_Hwnd))
-		throw Dcx::dcxException("Unable To Create Window");
+		//throw Dcx::dcxException("Unable To Create Window");
+		throw DcxExceptions::dcxUnableToCreateWindow();
 
 	if (ws.m_NoTheme)
 		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
@@ -223,7 +224,8 @@ void DcxImage::parseCommandRequest(const TString& input)
 		PreloadData();
 
 		if (flag[0] != TEXT('+'))
-			throw Dcx::dcxException("Invalid Flags");
+			//throw Dcx::dcxException("Invalid Flags");
+			throw DcxExceptions::dcxInvalidFlag();
 
 #ifdef DCX_USE_GDIPLUS
 		// using this method allows you to render BMP, ICON, GIF, JPEG, Exif, PNG, TIFF, WMF, and EMF (no animation)

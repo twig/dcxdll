@@ -121,11 +121,6 @@ void DcxMWindow::parseCommandRequest(const TString& input)
 	this->parseGlobalCommandRequest(input, flags);
 }
 
-//void DcxMWindow::parseControlStyles( const TString &styles, LONG *Styles, LONG *ExStyles, BOOL *bNoTheme)
-//{
-//	this->m_OrigName = styles;
-//}
-
 dcxWindowStyles DcxMWindow::parseControlStyles(const TString& tsStyles)
 {
 	m_OrigName = tsStyles;

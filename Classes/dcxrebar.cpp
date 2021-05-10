@@ -41,7 +41,8 @@ DcxReBar::DcxReBar(const UINT ID, DcxDialog* const p_Dialog, const HWND mParentH
 		this);
 
 	if (!IsWindow(m_Hwnd))
-		throw Dcx::dcxException("Unable To Create Window");
+		//throw Dcx::dcxException("Unable To Create Window");
+		throw DcxExceptions::dcxUnableToCreateWindow();
 
 	if (ws.m_NoTheme)
 	{
@@ -104,7 +105,6 @@ const TString DcxReBar::getStyles(void) const
 
 	return styles;
 }
-
 
 void DcxReBar::toXml(TiXmlElement* const xml) const
 {
@@ -235,16 +235,6 @@ void DcxReBar::setImageList(HIMAGELIST himl) noexcept
 	setBarInfo(&ri);
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
-
- //HIMAGELIST DcxReBar::createImageList() {
- //	return ImageList_Create(16, 16, ILC_COLOR32 | ILC_MASK, 1, 0);
- //}
-
  /*!
   * \brief $xdid Parsing Function
   *
@@ -267,7 +257,8 @@ void DcxReBar::parseInfoRequest(const TString& input, const refString<TCHAR, MIR
 	case L"text"_hash:
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Invalid number of arguments");
+			//throw Dcx::dcxException("Invalid number of arguments");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto nIndex = input.getnexttok().to_int() - 1;	// tok 4
 
@@ -286,7 +277,8 @@ void DcxReBar::parseInfoRequest(const TString& input, const refString<TCHAR, MIR
 	case L"childid"_hash:
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Invalid number of arguments");
+			//throw Dcx::dcxException("Invalid number of arguments");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto n = input.getnexttok().to_int() - 1; // tok 4
 
@@ -335,7 +327,8 @@ void DcxReBar::parseCommandRequest(const TString& input)
 	if (flags[TEXT('a')])
 	{
 		if (numtok < 10)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		REBARBANDINFO rbBand{};
 		if (Dcx::VistaModule.isUseable()) // NB: when rbBand.cbSize is set to the Vista size on XP the insertband will FAIL!! fucking MS!
@@ -442,7 +435,8 @@ void DcxReBar::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('A')])
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto n = input.getnexttok().to_int() - 1;	// tok 4
 
@@ -461,7 +455,8 @@ void DcxReBar::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('d')])
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto nIndex = input.getnexttok().to_int() - 1;	// tok 4
 
@@ -474,7 +469,8 @@ void DcxReBar::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('i')])
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto nIndex = input.getnexttok().to_int() - 1;	// tok 4
 
@@ -487,7 +483,8 @@ void DcxReBar::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('j')])
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto nIndex = input.getnexttok().to_int() - 1;	// tok 4
 
@@ -500,7 +497,8 @@ void DcxReBar::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('k')])
 	{
 		if (numtok < 5)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		REBARBANDINFO rbBand{};
 		rbBand.cbSize = sizeof(REBARBANDINFO);
@@ -520,7 +518,8 @@ void DcxReBar::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('l')])
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		REBARBANDINFO rbBand{};
 		rbBand.cbSize = sizeof(REBARBANDINFO);
@@ -554,7 +553,8 @@ void DcxReBar::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('m')])
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto nIndex = input.getnexttok().to_int() - 1;	// tok 4
 
@@ -567,7 +567,8 @@ void DcxReBar::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('n')])
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto nIndex = input.getnexttok().to_int() - 1;	// tok 4
 
@@ -580,7 +581,8 @@ void DcxReBar::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('q')])
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto nRows = input.getnexttok().to_int();	// tok 4
 
@@ -591,7 +593,8 @@ void DcxReBar::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('t')])
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		REBARBANDINFO rbBand{};
 		rbBand.cbSize = sizeof(REBARBANDINFO);
@@ -612,7 +615,8 @@ void DcxReBar::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('u')])
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		REBARBANDINFO rbBand{};
 		rbBand.cbSize = sizeof(REBARBANDINFO);
@@ -646,7 +650,8 @@ void DcxReBar::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('v')])
 	{
 		if (numtok < 5)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto nIndexFrom = input.getnexttok().to_int() - 1;	// tok 4
 		const auto nIndexTo = input.getnexttok().to_int() - 1;		// tok 4
@@ -661,7 +666,8 @@ void DcxReBar::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('w')])
 	{
 		if (numtok < 6)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto flag(input.getnexttok());		// tok 4
 		const auto index = input.getnexttok().to_int();	// tok 5
@@ -1056,7 +1062,7 @@ LRESULT DcxReBar::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPar
 	{
 		if (dcxlParam(LPNMHDR, hdr); (hdr) && IsWindow(hdr->hwndFrom))
 		{
-			if (const auto c_this = static_cast<DcxControl*>(GetProp(hdr->hwndFrom, TEXT("dcx_cthis"))); c_this)
+			if (const auto c_this = Dcx::dcxGetProp<DcxControl*>(hdr->hwndFrom, TEXT("dcx_cthis")); c_this)
 				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 		}
 	}
@@ -1068,7 +1074,7 @@ LRESULT DcxReBar::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPar
 	{
 		if (IsWindow(reinterpret_cast<HWND>(lParam)))
 		{
-			if (const auto c_this = static_cast<DcxControl*>(GetProp(reinterpret_cast<HWND>(lParam), TEXT("dcx_cthis"))); c_this)
+			if (const auto c_this = Dcx::dcxGetProp<DcxControl*>(reinterpret_cast<HWND>(lParam), TEXT("dcx_cthis")); c_this)
 				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 		}
 	}
@@ -1078,7 +1084,7 @@ LRESULT DcxReBar::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPar
 	{
 		if (dcxlParam(LPDELETEITEMSTRUCT, idata); (idata) && (IsWindow(idata->hwndItem)))
 		{
-			if (const auto c_this = static_cast<DcxControl*>(GetProp(idata->hwndItem, TEXT("dcx_cthis"))); c_this)
+			if (const auto c_this = Dcx::dcxGetProp<DcxControl*>(idata->hwndItem, TEXT("dcx_cthis")); c_this)
 				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 		}
 	}
@@ -1088,7 +1094,7 @@ LRESULT DcxReBar::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPar
 	{
 		if (const auto cHwnd = GetDlgItem(m_Hwnd, gsl::narrow_cast<int>(wParam)); IsWindow(cHwnd))
 		{
-			if (const auto c_this = static_cast<DcxControl*>(GetProp(cHwnd, TEXT("dcx_cthis"))); c_this)
+			if (const auto c_this = Dcx::dcxGetProp<DcxControl*>(cHwnd, TEXT("dcx_cthis")); c_this)
 				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 		}
 	}
@@ -1098,7 +1104,7 @@ LRESULT DcxReBar::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPar
 	{
 		if (dcxlParam(LPDRAWITEMSTRUCT, idata); (idata) && (IsWindow(idata->hwndItem)))
 		{
-			if (const auto c_this = static_cast<DcxControl*>(GetProp(idata->hwndItem, TEXT("dcx_cthis"))); c_this)
+			if (const auto c_this = Dcx::dcxGetProp<DcxControl*>(idata->hwndItem, TEXT("dcx_cthis")); c_this)
 				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 		}
 	}

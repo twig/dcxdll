@@ -63,7 +63,6 @@
   * \param mID Control ID
   * \param p_Dialog Parent DcxDialog Object
   */
-
 DcxControl::DcxControl(const UINT mID, DcxDialog* const p_Dialog) noexcept
 	: DcxWindow(mID)
 	, m_pParentDialog(p_Dialog)
@@ -82,7 +81,6 @@ DcxControl::DcxControl(const UINT mID, DcxDialog* const p_Dialog) noexcept
  *
  * Frees global control resources.
  */
-
 DcxControl::~DcxControl() noexcept
 {
 	RemoveProp(m_Hwnd, TEXT("dcx_cthis"));
@@ -179,56 +177,6 @@ dcxWindowStyles DcxControl::parseGeneralControlStyles(const TString& styles, dcx
 
 dcxWindowStyles DcxControl::parseGeneralControlStyles(const TString& styles)
 {
-	//dcxWindowStyles ws;
-	//
-	//ws.m_Styles |= WS_CLIPCHILDREN | WS_VISIBLE;
-	//
-	//for (const auto &tsStyle : styles)
-	//{
-	//	switch (std::hash<TString>{}(tsStyle))
-	//	{
-	//	case L"notheme"_hash:
-	//		ws.m_NoTheme = true;
-	//		break;
-	//	case L"tabstop"_hash:
-	//		ws.m_Styles |= WS_TABSTOP;
-	//		break;
-	//	case L"group"_hash:
-	//		ws.m_Styles |= WS_GROUP;
-	//		break;
-	//	case L"disabled"_hash:
-	//		ws.m_Styles |= WS_DISABLED;
-	//		break;
-	//	case L"transparent"_hash:
-	//		ws.m_ExStyles |= WS_EX_TRANSPARENT;
-	//		break;
-	//	case L"hidden"_hash:
-	//		ws.m_Styles &= static_cast<DWORD>(~WS_VISIBLE);
-	//		break;
-	//	case L"alpha"_hash:
-	//		m_bAlphaBlend = true;
-	//		break;
-	//	case L"shadow"_hash:
-	//		m_bShadowText = true;
-	//		break;
-	//	case L"noformat"_hash:
-	//		m_bCtrlCodeText = false;
-	//		break;
-	//	case L"hgradient"_hash:
-	//		m_bGradientFill = true;
-	//		break;
-	//	case L"vgradient"_hash:
-	//	{
-	//		m_bGradientFill = true;
-	//		m_bGradientVertical = true;
-	//	}
-	//	break;
-	//	default:
-	//		break;
-	//	}
-	//}
-	//return ws;
-
 	dcxWindowStyles ws;
 
 	return parseGeneralControlStyles(styles, ws);
@@ -269,12 +217,11 @@ bool DcxControl::execAliasEx(const TCHAR* const szFormat, ...) const
 	return getParentDialog()->execAlias(parms.to_chr());
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
-
+/// <summary>
+/// General commands
+/// </summary>
+/// <param name="input"> - The input for the specified command.</param>
+/// <param name="flags"> - a supported command - b/e/h/s/U/T/R/f/F/p/x/C/J/M/Z</param>
 void DcxControl::parseGlobalCommandRequest(const TString& input, const XSwitchFlags& flags)
 {
 	const auto numtok = input.numtok();
@@ -426,7 +373,6 @@ void DcxControl::parseGlobalCommandRequest(const TString& input, const XSwitchFl
 			SendMessage(m_Hwnd, WM_VSCROLL, MAKEWPARAM(SB_THUMBPOSITION, si.nPos), NULL);
 		}
 	}
-
 	// xdid -b [NAME] [ID]
 	else if (flags[TEXT('b')])
 		EnableWindow(m_Hwnd, FALSE);
@@ -439,7 +385,7 @@ void DcxControl::parseGlobalCommandRequest(const TString& input, const XSwitchFl
 		if (numtok > 4)
 			AnimateWindow(m_Hwnd,
 				input.gettok(5).to_dword(),
-				static_cast<DWORD>((DcxDialog::getAnimateStyles(input.gettok(4)) | AW_HIDE) & ~AW_ACTIVATE));
+				gsl::narrow_cast<DWORD>((DcxDialog::getAnimateStyles(input.gettok(4)) | AW_HIDE) & ~AW_ACTIVATE));
 		else
 			ShowWindow(m_Hwnd, SW_HIDE);
 
@@ -458,7 +404,7 @@ void DcxControl::parseGlobalCommandRequest(const TString& input, const XSwitchFl
 		{
 			AnimateWindow(m_Hwnd,
 				input.gettok(5).to_dword(),
-				static_cast<DWORD>((DcxDialog::getAnimateStyles(input.gettok(4)) | AW_ACTIVATE) & ~AW_HIDE));
+				gsl::narrow_cast<DWORD>((DcxDialog::getAnimateStyles(input.gettok(4)) | AW_ACTIVATE) & ~AW_HIDE));
 		}
 		else
 			ShowWindow(m_Hwnd, SW_SHOW);
@@ -2450,32 +2396,34 @@ void DcxControl::calcTextRect(HDC hdc, const TString& txt, LPRECT rc, const UINT
 
 void DcxControl::ctrlDrawText(HDC hdc, const TString& txt, const LPRECT rc, const UINT style)
 {
-	const auto oldClr = SetTextColor(hdc, m_clrText);
-	Auto(SetTextColor(hdc, oldClr));
+	//Ook: This version causes issues when control is disabled, text isnt drawn disabled.
+	//const auto oldClr = SetTextColor(hdc, m_clrText);
+	//Auto(SetTextColor(hdc, oldClr));
+	//if (!this->IsControlCodeTextEnabled())
+	//{
+	//	const auto oldBkgMode = SetBkMode(hdc, TRANSPARENT);
+	//	Auto(SetBkMode(hdc, oldBkgMode));
+	//
+	//	if (this->IsShadowTextEnabled())
+	//		dcxDrawShadowText(hdc, txt.to_chr(), txt.len(), rc, style, this->m_clrText, 0, 5, 5);
+	//	else
+	//		DrawText(hdc, txt.to_chr(), gsl::narrow_cast<int>(txt.len()), rc, style);
+	//}
+	//else
+	//	mIRC_DrawText(hdc, txt, rc, style, this->IsShadowTextEnabled());
 
 	if (!this->IsControlCodeTextEnabled())
 	{
 		const auto oldBkgMode = SetBkMode(hdc, TRANSPARENT);
 		Auto(SetBkMode(hdc, oldBkgMode));
-	
+
 		if (this->IsShadowTextEnabled())
-			dcxDrawShadowText(hdc, txt.to_chr(), txt.len(), rc, style, this->m_clrText, 0, 5, 5);
+			dcxDrawShadowText(hdc, txt.to_chr(), txt.len(), rc, style, GetTextColor(hdc), 0, 5, 5);
 		else
 			DrawText(hdc, txt.to_chr(), gsl::narrow_cast<int>(txt.len()), rc, style);
 	}
 	else
 		mIRC_DrawText(hdc, txt, rc, style, this->IsShadowTextEnabled());
-
-	//m_Render.Initialize();
-	//m_Render.setHwnd(m_Hwnd);
-
-	//auto [code, lf] = Dcx::dcxGetObject<LOGFONT>(Dcx::dcxGetCurrentObject<HFONT>(hdc, OBJ_FONT));
-	//if (code == 0)
-	//	return;
-
-	//m_Render.setFont(lf.lfFaceName, gsl::narrow_cast<float>(lf.lfWidth));
-	//m_Render.setText(txt.to_chr());
-	//m_Render.DrawD2DContent();
 }
 
 const TString DcxControl::getStyles(void) const

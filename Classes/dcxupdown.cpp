@@ -40,7 +40,8 @@ DcxUpDown::DcxUpDown(const UINT ID, DcxDialog* const p_Dialog, const HWND mParen
 		this);
 
 	if (!IsWindow(m_Hwnd))
-		throw Dcx::dcxException("Unable To Create Window");
+		//throw Dcx::dcxException("Unable To Create Window");
+		throw DcxExceptions::dcxUnableToCreateWindow();
 
 	if (ws.m_NoTheme)
 		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
@@ -122,7 +123,6 @@ dcxWindowStyles DcxUpDown::parseControlStyles(const TString& tsStyles)
  *
  * \return > void
  */
-
 void DcxUpDown::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>& szReturnValue) const
 {
 	switch (std::hash<TString>{}(input.getfirsttok(3)))
@@ -163,7 +163,8 @@ void DcxUpDown::parseCommandRequest(const TString& input)
 	if (flags[TEXT('c')])
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto tsID(input.getnexttok());
 		const auto ID = getParentDialog()->NameToID(tsID);
@@ -176,37 +177,13 @@ void DcxUpDown::parseCommandRequest(const TString& input)
 		// Text notifications
 		if (const auto & cType(p_Control->getControlType()); cType == DcxControlTypes::TEXT || cType == DcxControlTypes::EDIT)
 			setBuddy(p_Control->getHwnd());
-
-		//auto p_Control = getParentDialog()->getControlByID(input.getnexttok().to_<UINT>() + mIRC_ID_OFFSET);	// tok 4
-		//
-		//if (p_Control == nullptr)
-		//	throw Dcx::dcxException("Unable to get control");
-		//
-		////TCHAR ClassName[256];
-		////GetClassName( p_Control->getHwnd( ), ClassName, Dcx::countof(ClassName) );
-		////
-		////// Text notifications
-		////if ( lstrcmpi( TEXT("STATIC"), ClassName ) == 0 || lstrcmpi( TEXT("EDIT"), ClassName ) == 0 )
-		////	this->setBuddy( p_Control->getHwnd( ) );
-		//
-		////stString<256> sClassName;
-		////GetClassName(p_Control->getHwnd(), sClassName, sClassName.size());
-		////
-		////// Text notifications
-		////if (sClassName == TEXT("STATIC") || sClassName == TEXT("EDIT"))
-		////	setBuddy(p_Control->getHwnd());
-		//
-		//const auto &cType(p_Control->getControlType());
-		//// Text notifications
-		//if (cType == DcxControlTypes::TEXT || cType == DcxControlTypes::EDIT)
-		//	setBuddy(p_Control->getHwnd());
-
 	}
 	// xdid -r [NAME] [ID] [SWITCH] [MIN] [MAX]
 	else if (flags[TEXT('r')])
 	{
 		if (numtok < 5)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto iMin = input.getnexttok().to_int();	// tok 4
 		const auto iMax = input.getnexttok().to_int();	// tok 5
@@ -217,7 +194,8 @@ void DcxUpDown::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('t')])
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto nBase = input.getnexttok().to_int();	// tok 4
 
@@ -227,7 +205,8 @@ void DcxUpDown::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('v')])
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto nPos = input.getnexttok().to_int();	// tok 4
 

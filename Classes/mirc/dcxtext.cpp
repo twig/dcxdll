@@ -40,7 +40,8 @@ DcxText::DcxText(const UINT ID, DcxDialog* const p_Dialog, const HWND mParentHwn
 		this);
 
 	if (!IsWindow(m_Hwnd))
-		throw Dcx::dcxException("Unable To Create Window");
+		//throw Dcx::dcxException("Unable To Create Window");
+		throw DcxExceptions::dcxUnableToCreateWindow();
 
 	// remove all borders
 	removeStyle(WindowStyle::Border | WS_DLGFRAME);
@@ -72,64 +73,6 @@ DcxText::DcxText(const UINT ID, DcxDialog* const p_Dialog, const HWND mParentHwn
 DcxText::~DcxText() noexcept
 {
 }
-
-/*!
- * \brief blah
- *
- * blah
- */
-
- //void DcxText::parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme)
- //{
- //	*Styles |= SS_NOTIFY;
- //	this->m_uiStyle = DT_LEFT;
- //
- //	for (const auto &tsStyle: styles)
- //	{
- //#if DCX_USE_HASHING
- //		switch (std::hash<TString>{}(tsStyle))
- //		{
- //			case L"nowrap"_hash:
- //				m_uiStyle |= DT_SINGLELINE;
- //				break;
- //			case L"center"_hash:
- //				m_uiStyle |= DT_CENTER;
- //				break;
- //			case L"right"_hash:
- //				m_uiStyle |= DT_RIGHT;
- //				break;
- //			case L"noprefix"_hash:
- //				m_uiStyle |= DT_NOPREFIX;
- //				break;
- //			case L"endellipsis"_hash:
- //				m_uiStyle |= DT_END_ELLIPSIS;
- //				break;
- //			case L"pathellipsis"_hash:
- //				m_uiStyle |= DT_PATH_ELLIPSIS;
- //			default:
- //				break;
- //		}
- //#else
- //		if (tsStyle == TEXT("nowrap"))
- //			this->m_uiStyle |= DT_SINGLELINE;
- //		else if (tsStyle == TEXT("center"))
- //			this->m_uiStyle |= DT_CENTER;
- //		else if (tsStyle == TEXT("right"))
- //			this->m_uiStyle |= DT_RIGHT;
- //		else if (tsStyle == TEXT("noprefix"))
- //			this->m_uiStyle |= DT_NOPREFIX;
- //		else if (tsStyle == TEXT("endellipsis"))
- //			this->m_uiStyle |= DT_END_ELLIPSIS;
- //		else if (tsStyle == TEXT("pathellipsis"))
- //			this->m_uiStyle |= DT_PATH_ELLIPSIS;
- //#endif
- //	}
- //
- //	if (!dcx_testflag(this->m_uiStyle, DT_SINGLELINE))
- //		this->m_uiStyle |= DT_WORDBREAK;
- //
- //	this->parseGeneralControlStyles(styles, Styles, ExStyles, bNoTheme);
- //}
 
 dcxWindowStyles DcxText::parseControlStyles(const TString& tsStyles)
 {
@@ -215,7 +158,8 @@ void DcxText::parseCommandRequest(const TString& input)
 	if (flags[TEXT('a')])
 	{
 		if (numtok < 3)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		if (input.getnexttok().to_int() == 1)	// tok 4
 			this->m_tsText += TEXT(' ');

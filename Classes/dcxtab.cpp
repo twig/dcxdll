@@ -40,7 +40,8 @@ DcxTab::DcxTab(const UINT ID, DcxDialog* const p_Dialog, const HWND mParentHwnd,
 		this);
 
 	if (!IsWindow(m_Hwnd))
-		throw Dcx::dcxException("Unable To Create Window");
+		//throw Dcx::dcxException("Unable To Create Window");
+		throw DcxExceptions::dcxUnableToCreateWindow();
 
 	if (ws.m_NoTheme)
 		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
@@ -162,12 +163,14 @@ void DcxTab::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC_
 	case L"text"_hash:
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Invalid number of arguments");
+			//throw Dcx::dcxException("Invalid number of arguments");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto nItem = input.getnexttok().to_int() - 1;	// tok 4
 
 		if (nItem < 0 && nItem >= TabCtrl_GetItemCount(m_Hwnd))
-			throw Dcx::dcxException("Invalid Item");
+			//throw Dcx::dcxException("Invalid Item");
+			throw DcxExceptions::dcxInvalidItem();
 
 		TCITEM tci{ TCIF_TEXT,0,0, szReturnValue, MIRC_BUFFER_SIZE_CCH,0,0 };
 
@@ -181,12 +184,14 @@ void DcxTab::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC_
 	case L"icon"_hash:
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Invalid number of arguments");
+			//throw Dcx::dcxException("Invalid number of arguments");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto iTab = input.getnexttok().to_int() - 1;		// tok 4
 
 		if (iTab < 0 && iTab >= TabCtrl_GetItemCount(m_Hwnd))
-			throw Dcx::dcxException("Invalid Item");
+			//throw Dcx::dcxException("Invalid Item");
+			throw DcxExceptions::dcxInvalidItem();
 
 		TCITEM tci{ TCIF_IMAGE,0U,0U, nullptr, 0, 0, 0 };
 
@@ -200,7 +205,8 @@ void DcxTab::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC_
 		const auto nItem = TabCtrl_GetCurSel(m_Hwnd);
 
 		if (nItem < 0 && nItem >= TabCtrl_GetItemCount(m_Hwnd))
-			throw Dcx::dcxException("Invalid Item");
+			//throw Dcx::dcxException("Invalid Item");
+			throw DcxExceptions::dcxInvalidItem();
 
 		_ts_snprintf(szReturnValue, TEXT("%d"), nItem + 1);
 	}
@@ -210,7 +216,8 @@ void DcxTab::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC_
 		const auto nItem = TabCtrl_GetCurSel(m_Hwnd);
 
 		if (nItem < 0 && nItem >= TabCtrl_GetItemCount(m_Hwnd))
-			throw Dcx::dcxException("Invalid Item");
+			//throw Dcx::dcxException("Invalid Item");
+			throw DcxExceptions::dcxInvalidItem();
 
 		TCITEM tci{ TCIF_TEXT,0U,0U, szReturnValue, MIRC_BUFFER_SIZE_CCH, 0, 0 };
 
@@ -220,12 +227,14 @@ void DcxTab::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC_
 	case L"childid"_hash:
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Invalid number of arguments");
+			//throw Dcx::dcxException("Invalid number of arguments");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto nItem = input.getnexttok().to_int() - 1;	// tok 4
 
 		if (nItem < 0 && nItem >= TabCtrl_GetItemCount(m_Hwnd))
-			throw Dcx::dcxException("Invalid Item");
+			//throw Dcx::dcxException("Invalid Item");
+			throw DcxExceptions::dcxInvalidItem();
 
 		TCITEM tci{ TCIF_PARAM,0U,0U, nullptr, 0, 0, 0 };
 
@@ -240,19 +249,6 @@ void DcxTab::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC_
 	// [NAME] [ID] [PROP]
 	case L"mouseitem"_hash:
 	{
-		//TCHITTESTINFO tchi{};
-		//
-		//tchi.flags = TCHT_ONITEM;
-		//if (!GetCursorPos(&tchi.pt))
-		//	throw Dcx::dcxException("Unable to get cursor position");
-		//
-		//MapWindowPoints(nullptr, m_Hwnd, &tchi.pt, 1);
-		//
-		//const auto tab = TabCtrl_HitTest(m_Hwnd, &tchi);
-		//
-		////wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d"), tab + 1);
-		//_ts_snprintf(szReturnValue, TEXT("%d"), tab + 1);
-
 		if (const auto tab = HitTestOnItem(); tab != -1)
 			_ts_snprintf(szReturnValue, TEXT("%d"), tab + 1);
 		else
@@ -304,7 +300,8 @@ void DcxTab::parseCommandRequest(const TString& input)
 	if (xflags[TEXT('a')])
 	{
 		if (numtok < 5)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		TCITEM tci{};
 		tci.mask = TCIF_IMAGE | TCIF_PARAM;
@@ -379,12 +376,14 @@ void DcxTab::parseCommandRequest(const TString& input)
 	else if (xflags[TEXT('c')])
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto nItem = input.getnexttok().to_int() - 1;	// tok 4
 
 		if (nItem < 0 && nItem >= TabCtrl_GetItemCount(m_Hwnd))
-			throw Dcx::dcxException("Invalid Item");
+			//throw Dcx::dcxException("Invalid Item");
+			throw DcxExceptions::dcxInvalidItem();
 
 		TabCtrl_SetCurSel(m_Hwnd, nItem);
 		this->activateSelectedTab();
@@ -393,13 +392,15 @@ void DcxTab::parseCommandRequest(const TString& input)
 	else if (xflags[TEXT('d')])
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto nItem = input.getnexttok().to_int() - 1;	// tok 4
 
 		// if a valid item to delete
 		if (nItem < 0 && nItem >= TabCtrl_GetItemCount(m_Hwnd))
-			throw Dcx::dcxException("Invalid Item");
+			//throw Dcx::dcxException("Invalid Item");
+			throw DcxExceptions::dcxInvalidItem();
 
 		const auto curSel = TabCtrl_GetCurSel(m_Hwnd);
 		TCITEM tci{};
@@ -432,13 +433,15 @@ void DcxTab::parseCommandRequest(const TString& input)
 	else if (xflags[TEXT('l')])
 	{
 		if (numtok < 5)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto nItem = input.getnexttok().to_int() - 1;	// tok 4
 		const auto nIcon = input.getnexttok().to_int() - 1;	// tok 5
 
 		if (nItem < 0 && nItem >= TabCtrl_GetItemCount(m_Hwnd))
-			throw Dcx::dcxException("Invalid Item");
+			//throw Dcx::dcxException("Invalid Item");
+			throw DcxExceptions::dcxInvalidItem();
 
 		TCITEM tci{};
 		tci.mask = TCIF_IMAGE;
@@ -450,7 +453,8 @@ void DcxTab::parseCommandRequest(const TString& input)
 	else if (xflags[TEXT('m')])
 	{
 		if (numtok < 5)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto X = input.getnexttok().to_int();	// tok 4
 		const auto Y = input.getnexttok().to_int();	// tok 5
@@ -466,12 +470,14 @@ void DcxTab::parseCommandRequest(const TString& input)
 	else if (xflags[TEXT('t')])
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto nItem = input.getnexttok().to_int() - 1;	// tok 4
 
 		if (nItem < 0 && nItem >= TabCtrl_GetItemCount(m_Hwnd))
-			throw Dcx::dcxException("Invalid Item");
+			//throw Dcx::dcxException("Invalid Item");
+			throw DcxExceptions::dcxInvalidItem();
 
 		TString itemtext;
 
@@ -488,17 +494,20 @@ void DcxTab::parseCommandRequest(const TString& input)
 	else if (xflags[TEXT('v')])
 	{
 		if (numtok < 5)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto nItem = input.getnexttok().to_int() - 1;		// tok 4
 		const auto pos = input.getnexttok().to_int() - 1;	// tok 5
 		bool adjustDelete = false;
 
 		if (nItem < 0 && nItem >= TabCtrl_GetItemCount(m_Hwnd))
-			throw Dcx::dcxException("Invalid Item");
+			//throw Dcx::dcxException("Invalid Item");
+			throw DcxExceptions::dcxInvalidItem();
 
 		if (pos < 0 && pos >= TabCtrl_GetItemCount(m_Hwnd))
-			throw Dcx::dcxException("Invalid Item");
+			//throw Dcx::dcxException("Invalid Item");
+			throw DcxExceptions::dcxInvalidItem();
 
 		if (nItem == pos)
 			return;
@@ -514,7 +523,6 @@ void DcxTab::parseCommandRequest(const TString& input)
 			curSel--;
 
 		// get the item we're moving
-		//TCHAR* text = new TCHAR[MIRC_BUFFER_SIZE_CCH];
 		auto text = std::make_unique<TCHAR[]>(MIRC_BUFFER_SIZE_CCH);
 
 		TCITEM tci{ (TCIF_IMAGE | TCIF_PARAM | TCIF_TEXT | TCIF_STATE), 0,0,text.get(), MIRC_BUFFER_SIZE_CCH, 0, 0 };
@@ -539,7 +547,8 @@ void DcxTab::parseCommandRequest(const TString& input)
 	else if (xflags[TEXT('w')])
 	{
 		if (numtok < 6)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto flag(input.getnexttok());		// tok 4
 		const auto index = input.getnexttok().to_int();	// tok 5
@@ -579,7 +588,8 @@ void DcxTab::parseCommandRequest(const TString& input)
 	else if (xflags[TEXT('m')])
 	{
 		if (numtok < 5)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const XSwitchFlags xFlags(input.getnexttok());	// tok 4
 		auto iWidth = input.getnexttok().to_int();		// tok 5
@@ -616,17 +626,6 @@ void DcxTab::setImageList(const HIMAGELIST himl) noexcept
 {
 	TabCtrl_SetImageList(m_Hwnd, himl);
 }
-
-/*!
- * \brief blah
- *
- * blah
- */
-
- //HIMAGELIST DcxTab::createImageList( ) {
- //
- //  return ImageList_Create( 16, 16, ILC_COLOR32|ILC_MASK, 1, 0 );
- //}
 
  /*!
   * \brief blah
@@ -678,47 +677,6 @@ void DcxTab::activateSelectedTab()
 
 	if (!hdwp)
 		throw Dcx::dcxException("activateSelectedTab() - Unable to size tabs");
-
-	//HWND hSelChild = nullptr;
-	//
-	//while (nTab-- > 0) {
-	//
-	//	TabCtrl_GetItem(m_Hwnd, nTab, &tci);
-	//	LPDCXTCITEM lpdtci = (LPDCXTCITEM)tci.lParam;
-	//
-	//	if (lpdtci->mChildHwnd != nullptr && IsWindow(lpdtci->mChildHwnd)) {
-	//
-	//		if (nTab == nSel) {
-	//			hSelChild = lpdtci->mChildHwnd;
-	//
-	//			//hdwp = DeferWindowPos( hdwp, lpdtci->mChildHwnd, nullptr, 
-	//			//	tabrect.left, tabrect.top, tabrect.right-tabrect.left, tabrect.bottom-tabrect.top, 
-	//			//	SWP_SHOWWINDOW | SWP_NOZORDER | SWP_NOOWNERZORDER |SWP_DRAWFRAME|SWP_FRAMECHANGED);
-	//			//hdwp = DeferWindowPos(hdwp, lpdtci->mChildHwnd, nullptr, 0, 0, 0, 0,
-	//			//	SWP_SHOWWINDOW | SWP_NOSIZE | SWP_NOMOVE | SWP_NOZORDER | SWP_NOREDRAW | SWP_NOACTIVATE | SWP_NOOWNERZORDER);
-	//			hdwp = DeferWindowPos(hdwp, hSelChild, nullptr,
-	//				tabrect.left, tabrect.top, tabrect.right - tabrect.left, tabrect.bottom - tabrect.top,
-	//				SWP_SHOWWINDOW | SWP_NOZORDER | SWP_NOOWNERZORDER);
-	//			hdwp = DeferWindowPos(hdwp, hSelChild, nullptr,
-	//				tabrect.left, tabrect.top, tabrect.right - tabrect.left, tabrect.bottom - tabrect.top,
-	//				SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_DRAWFRAME | SWP_FRAMECHANGED);
-	//		}
-	//		else {
-	//			hdwp = DeferWindowPos(hdwp, lpdtci->mChildHwnd, nullptr, 0, 0, 0, 0,
-	//				SWP_HIDEWINDOW | SWP_NOSIZE | SWP_NOMOVE | SWP_NOZORDER | SWP_NOREDRAW | SWP_NOACTIVATE | SWP_NOOWNERZORDER);
-	//		}
-	//		if (hdwp == nullptr)
-	//			break;
-	//	}
-	//}
-	//if (hdwp != nullptr)
-	//	EndDeferWindowPos(hdwp);
-	//
-	////if (hSelChild != nullptr) {
-	////	InvalidateRect(hSelChild, nullptr, TRUE);
-	////	SetWindowPos(hSelChild, nullptr, tabrect.left, tabrect.top, tabrect.right - tabrect.left, tabrect.bottom - tabrect.top, SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_DRAWFRAME | SWP_FRAMECHANGED);
-	////	//UpdateWindow(hSelChild);
-	////}
 
 	auto hTemp = hdwp;
 
@@ -896,20 +854,6 @@ LRESULT DcxTab::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPa
 		{
 			if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
 			{
-				//TCHITTESTINFO tchi;
-				//
-				//tchi.flags = TCHT_ONITEM;
-				//if (GetCursorPos(&tchi.pt))
-				//{
-				//	MapWindowPoints(nullptr, m_Hwnd, &tchi.pt, 1);
-				//
-				//	const auto tab = TabCtrl_HitTest(m_Hwnd, &tchi);
-				//	//TabCtrl_GetCurSel(m_Hwnd);
-				//
-				//	if (tab != -1)
-				//		this->execAliasEx(TEXT("%s,%d,%d"), TEXT("rclick"), this->getUserID(), tab + 1);
-				//}
-
 				if (const auto tab = HitTestOnItem(); tab != -1)
 					this->execAliasEx(TEXT("rclick,%u,%d"), getUserID(), tab + 1);
 			}
@@ -924,30 +868,6 @@ LRESULT DcxTab::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPa
 			{
 				if (const auto tab = TabCtrl_GetCurFocus(m_Hwnd); tab != -1)
 				{
-					//if (this->m_bClosable)
-					//{
-					//	if (POINT pt{}; GetCursorPos(&pt))
-					//	{
-					//		RECT rc{};
-					//
-					//		MapWindowPoints(nullptr, m_Hwnd, &pt, 1);
-					//		if (TabCtrl_GetItemRect(m_Hwnd, tab, &rc))
-					//		{
-					//			//RECT rcCloseButton{};
-					//			//GetCloseButtonRect(rc, rcCloseButton);
-					//
-					//			const RECT rcCloseButton(GetCloseButtonRect(rc));
-					//
-					//			if (PtInRect(&rcCloseButton, pt))
-					//			{
-					//				this->execAliasEx(TEXT("%s,%u,%d"), TEXT("closetab"), this->getUserID(), tab + 1);
-					//				break;
-					//			}
-					//		}
-					//	}
-					//}
-					//this->execAliasEx(TEXT("%s,%u,%d"), TEXT("sclick"), this->getUserID(), tab + 1);
-
 					if (CloseButtonHitTest(tab))
 						execAliasEx(TEXT("closetab,%u,%d"), getUserID(), tab + 1);
 					else
@@ -981,15 +901,15 @@ LRESULT DcxTab::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPa
 			break;
 
 		RECT rect{};
-		const auto nTabIndex = idata->itemID;
+		const auto nTabIndex = gsl::narrow_cast<int>(idata->itemID);
 
 		CopyRect(&rect, &idata->rcItem);
 
-		// if themes are active use them.
-		// call default WndProc(), DrawThemeParentBackgroundUx() is only temporary
-		DcxControl::DrawCtrlBackground(idata->hDC, this, &rect);
-		//DrawThemeParentBackgroundUx(m_Hwnd, idata->hDC, &rect);
-		//CopyRect(&rect, &idata->rcItem);
+		const auto savedDC = SaveDC(idata->hDC);
+		Auto(RestoreDC(idata->hDC, savedDC));
+
+		//DcxControl::DrawCtrlBackground(idata->hDC, this, &rect);
+
 		if (this->m_bGradient)
 		{
 			if (this->m_clrBackText == CLR_INVALID)
@@ -998,6 +918,9 @@ LRESULT DcxTab::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPa
 			else
 				XPopupMenuItem::DrawGradient(idata->hDC, &rect, GetSysColor(COLOR_BTNHIGHLIGHT), this->m_clrBackText, TRUE);
 		}
+		else
+			DcxControl::DrawCtrlBackground(idata->hDC, this, &rect);
+
 		rect.left += 1 + GetSystemMetrics(SM_CXEDGE); // move in past border.
 		rect.top += 1 + GetSystemMetrics(SM_CYEDGE); //4;
 
@@ -1013,22 +936,14 @@ LRESULT DcxTab::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPa
 
 		const TString label(tci.pszText);	// copy buffer, this may not be the same buffer as provided by us.
 
-		// fill the rect so it appears to "merge" with the tab page content
-		//if (!dcxIsThemeActive())
-		//FillRect(idata->hDC, &rect, GetSysColorBrush(COLOR_BTNFACE));
-
 		// set transparent so text background isnt annoying
-		const auto iOldBkMode = SetBkMode(idata->hDC, TRANSPARENT);
-		Auto(SetBkMode(idata->hDC, iOldBkMode));
+		SetBkMode(idata->hDC, TRANSPARENT);
 
 		// Draw icon on left side if the item has an icon
 		if (tci.iImage != -1)
 		{
 			if (ImageList_DrawEx(getImageList(), tci.iImage, idata->hDC, rect.left, rect.top, 0, 0, CLR_NONE, CLR_NONE, ILD_TRANSPARENT))
 			{
-				//IMAGEINFO ii;
-				//if (ImageList_GetImageInfo(this->getImageList(), tci.iImage, &ii))
-				//	rect.left += (ii.rcImage.right - ii.rcImage.left);
 				int iSizeX = 0, iSizeY = 0;
 				if (ImageList_GetIconSize(getImageList(), &iSizeX, &iSizeY))
 					rect.left += iSizeX;
@@ -1037,42 +952,18 @@ LRESULT DcxTab::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPa
 		// Draw 'Close button' at right side
 		if (m_bClosable)
 		{
-			//RECT rcCloseButton{};
-			//GetCloseButtonRect(rect, rcCloseButton);
-
 			RECT rcCloseButton(GetCloseButtonRect(rect));
 
 			// Draw systems close button ? or do you want a custom close button?
 			DrawFrameControl(idata->hDC, &rcCloseButton, DFC_CAPTION, DFCS_CAPTIONCLOSE | DFCS_FLAT | DFCS_TRANSPARENT);
-
-			//MoveToEx( idata->hDC, rcCloseButton.left, rcCloseButton.top, nullptr );
-			//LineTo( idata->hDC, rcCloseButton.right, rcCloseButton.bottom );
-			//MoveToEx( idata->hDC, rcCloseButton.right, rcCloseButton.top, nullptr );
-			//LineTo( idata->hDC, rcCloseButton.left, rcCloseButton.bottom );
 
 			rect.right = rcCloseButton.left - 2;
 		}
 
 		//DrawGlow(nTabIndex, idata->hDC, rect);
 
-		COLORREF crOldColor = CLR_INVALID;
-
 		if (dcx_testflag(tci.dwState, TCIS_HIGHLIGHTED))
-			crOldColor = SetTextColor(idata->hDC, GetSysColor(COLOR_HIGHLIGHTTEXT));
-
-		//rect.top += 1+ GetSystemMetrics(SM_CYEDGE); //4;
-		//
-		//DrawText(idata->hDC, label.to_chr(), label.len(), &rect, DT_SINGLELINE | DT_TOP | DT_NOPREFIX);
-		// allow mirc formatted text.
-		//mIRC_DrawText(idata->hDC, label, &rect, DT_SINGLELINE | DT_TOP | DT_NOPREFIX, false, this->m_bUseUTF8);
-		//if (!this->m_bCtrlCodeText) {
-		//	if (this->m_bShadowText)
-		//		dcxDrawShadowText(idata->hDC, label.to_wchr(this->m_bUseUTF8), label.wlen(),&rect, DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP | DT_SINGLELINE, GetTextColor(idata->hDC), 0, 5, 5);
-		//	else
-		//		DrawTextW( idata->hDC, label.to_wchr(this->m_bUseUTF8), label.wlen( ), &rect, DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP | DT_SINGLELINE );
-		//}
-		//else
-		//	mIRC_DrawText( idata->hDC, label, &rect, DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP | DT_SINGLELINE, this->m_bShadowText, this->m_bUseUTF8);
+			SetTextColor(idata->hDC, GetSysColor(COLOR_HIGHLIGHTTEXT));
 
 		uint32_t uDrawFlags = DT_WORD_ELLIPSIS | DT_SINGLELINE;
 
@@ -1086,20 +977,21 @@ LRESULT DcxTab::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPa
 			uDrawFlags |= DT_CENTER;
 		}
 		this->ctrlDrawText(idata->hDC, label, &rect, uDrawFlags);
-
-		if (dcx_testflag(tci.dwState, TCIS_HIGHLIGHTED))
-			SetTextColor(idata->hDC, crOldColor);
 		break;
 	}
-	// NB: WM_MEASUREITEM is never called here as its called before we subclass the control, so we miss it.
-	//		This needs fixed, must change how we subclass the controls...
-	//case WM_MEASUREITEM:
-	//{
-	//	//if (!m_bClosable)
-	//	   // break;
-	//	auto mis = (LPMEASUREITEMSTRUCT)lParam;
-	//	mis->itemHeight = mis->itemHeight;
-	//}
+
+#if DCX_DEBUG_OUTPUT
+	// NB: WM_MEASUREITEM is only called for ownerdrawn fixed width tabs (& only called once)
+	case WM_MEASUREITEM:
+	{
+		//if (!m_bClosable)
+		   // break;
+		auto mis = (LPMEASUREITEMSTRUCT)lParam;
+		mis->itemHeight = mis->itemHeight;
+	}
+	break;
+#endif
+
 	default:
 		break;
 	}
@@ -1146,7 +1038,7 @@ LRESULT DcxTab::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParse
 
 		if (IsWindow(hdr->hwndFrom))
 		{
-			if (const auto c_this = static_cast<DcxControl*>(GetProp(hdr->hwndFrom, TEXT("dcx_cthis"))); c_this)
+			if (const auto c_this = Dcx::dcxGetProp<DcxControl*>(hdr->hwndFrom, TEXT("dcx_cthis")); c_this)
 				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 		}
 	}
@@ -1158,7 +1050,7 @@ LRESULT DcxTab::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParse
 	{
 		if (IsWindow(reinterpret_cast<HWND>(lParam)))
 		{
-			if (const auto c_this = static_cast<DcxControl*>(GetProp(reinterpret_cast<HWND>(lParam), TEXT("dcx_cthis"))); c_this)
+			if (const auto c_this = Dcx::dcxGetProp<DcxControl*>(reinterpret_cast<HWND>(lParam), TEXT("dcx_cthis")); c_this)
 				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 		}
 	}
@@ -1168,7 +1060,7 @@ LRESULT DcxTab::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParse
 	{
 		if (dcxlParam(LPDELETEITEMSTRUCT, idata); (idata) && (IsWindow(idata->hwndItem)))
 		{
-			if (const auto c_this = static_cast<DcxControl*>(GetProp(idata->hwndItem, TEXT("dcx_cthis"))); c_this)
+			if (const auto c_this = Dcx::dcxGetProp<DcxControl*>(idata->hwndItem, TEXT("dcx_cthis")); c_this)
 				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 		}
 	}
@@ -1178,7 +1070,7 @@ LRESULT DcxTab::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParse
 	{
 		if (const auto cHwnd = GetDlgItem(m_Hwnd, gsl::narrow_cast<int>(wParam)); IsWindow(cHwnd))
 		{
-			if (const auto c_this = static_cast<DcxControl*>(GetProp(cHwnd, TEXT("dcx_cthis"))); c_this)
+			if (const auto c_this = Dcx::dcxGetProp<DcxControl*>(cHwnd, TEXT("dcx_cthis")); c_this)
 				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 		}
 	}
@@ -1228,6 +1120,7 @@ LRESULT DcxTab::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParse
 	//			bParsed = TRUE;
 	//	}
 	//	break;
+
 	case WM_DESTROY:
 	{
 		delete this;
@@ -1244,19 +1137,16 @@ LRESULT DcxTab::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParse
 }
 
 #if DCX_USE_GDIPLUS
-void DcxTab::DrawGlow(const int32_t nTabIndex, HDC hDC, const RECT& rect) const
+void DcxTab::DrawGlow(const int nTabIndex, HDC hDC, const RECT& rect) const
 {
-	const Dcx::dcxCursorPos cPos(m_Hwnd);
+	//const Dcx::dcxCursorPos cPos(m_Hwnd);
+	//TCHITTESTINFO hInfo{ {cPos.x, cPos.y}, TCHT_ONITEM };
 
-	//TCHITTESTINFO hInfo{};
-	//
-	//hInfo.pt.x = cPos.x;
-	//hInfo.pt.y = cPos.y;
-	//hInfo.flags = TCHT_ONITEM;
+	//if ((TabCtrl_HitTest(m_Hwnd, &hInfo) == nTabIndex) /*&& isStyle(TCS_HOTTRACK) &&*/ && (TabCtrl_GetCurSel(m_Hwnd) != nTabIndex))
 
-	TCHITTESTINFO hInfo{ {cPos.x, cPos.y}, TCHT_ONITEM };
+	//if ((HitTestOnItem() == nTabIndex) /*&& isStyle(TCS_HOTTRACK) &&*/ && (TabCtrl_GetCurSel(m_Hwnd) != nTabIndex))
 
-	if ((TabCtrl_HitTest(m_Hwnd, &hInfo) == gsl::narrow_cast<int>(nTabIndex)) /*&& isStyle(TCS_HOTTRACK) &&*/ && (TabCtrl_GetCurSel(m_Hwnd) != gsl::narrow_cast<int>(nTabIndex)))
+	if ((HitTestOnItem() == nTabIndex))
 	{
 		Gdiplus::Graphics graphics(hDC);
 		Gdiplus::GraphicsPath graphicsPath;
@@ -1283,7 +1173,7 @@ void DcxTab::DrawGlow(const int32_t nTabIndex, HDC hDC, const RECT& rect) const
 		const Gdiplus::REAL blendFactors[] = { 0.0f, 0.1f, 0.3f, 1.0f };
 		const Gdiplus::REAL blendPos[] = { 0.0f, 0.4f, 0.6f, 1.0f };
 		//sets how transition toward the center is shaped
-		brush.SetBlend(&blendFactors[0], &blendPos[0], Dcx::countof(blendFactors));
+		brush.SetBlend(&blendFactors[0], &blendPos[0], std::size(blendFactors));
 		//sets the scaling on the center. you may want to have it elongated in the x-direction
 		brush.SetFocusScales(0.2f, 0.2f);
 
@@ -1318,6 +1208,21 @@ LRESULT DcxTab::CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lPar
 
 bool DcxTab::CloseButtonHitTest(const int iTab) const noexcept
 {
+#if DCX_USE_WRAPPERS
+	if (m_bClosable)
+	{
+		if (const Dcx::dcxCursorPos pt(m_Hwnd); pt)
+		{
+			if (RECT rc{}; TabCtrl_GetItemRect(m_Hwnd, iTab, &rc))
+			{
+				const RECT rcCloseButton(GetCloseButtonRect(rc));
+
+				return (PtInRect(&rcCloseButton, pt) != FALSE);
+			}
+		}
+	}
+	return false;
+#else
 	if (m_bClosable)
 	{
 		if (POINT pt{}; GetCursorPos(&pt))
@@ -1333,4 +1238,5 @@ bool DcxTab::CloseButtonHitTest(const int iTab) const noexcept
 		}
 	}
 	return false;
+#endif
 }

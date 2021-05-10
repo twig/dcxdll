@@ -15,8 +15,6 @@
 #include "Classes/dcxwebctrl.h"
 #include "Classes/dcxdialog.h"
 
- //extern IClassFactory * g_pClassFactory;
-
  /*!
   * \brief Constructor
   *
@@ -26,7 +24,6 @@
   * \param rc Window Rectangle
   * \param styles Window Style Tokenized List
   */
-
 DcxWebControl::DcxWebControl(const UINT ID, DcxDialog* const p_Dialog, const HWND mParentHwnd, const RECT* const rc, const TString& styles)
 	: DcxControl(ID, p_Dialog)
 {
@@ -42,7 +39,8 @@ DcxWebControl::DcxWebControl(const UINT ID, DcxDialog* const p_Dialog, const HWN
 		this);
 
 	if (!IsWindow(m_Hwnd))
-		throw Dcx::dcxException("Unable To Create Window");
+		//throw Dcx::dcxException("Unable To Create Window");
+		throw DcxExceptions::dcxUnableToCreateWindow();
 
 	if (ws.m_NoTheme)
 		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
@@ -250,7 +248,6 @@ bool DcxWebControl::InitializeInterface() noexcept
  *
  * \return > void
  */
-
 void DcxWebControl::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>& szReturnValue) const
 {
 	switch (std::hash<TString>{}(input.getfirsttok(3)))
@@ -337,160 +334,12 @@ void DcxWebControl::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('j')])
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto CMD(input.getlasttoks().trim());		// tok 4, -1
 
 		const auto _d = CallScript(CMD);
-
-		//		READYSTATE ready_state;
-		//
-		//		if ( FAILED( m_pWebBrowser2->get_ReadyState( &ready_state ) ) || ready_state != READYSTATE_COMPLETE )
-		//			throw Dcx::dcxException("Browser NOT in Ready State");
-		//
-		//		IDispatch  * htmlDisp = nullptr;
-		//
-		//		if ( SUCCEEDED(m_pWebBrowser2->get_Document( &htmlDisp )))
-		//		{
-		//			Auto(htmlDisp->Release());
-		//
-		//			IHTMLDocument2 * doc = nullptr;
-		//			if ( SUCCEEDED(htmlDisp->QueryInterface( IID_IHTMLDocument2, (void**) &doc )))
-		//			{
-		//				Auto(doc->Release());
-		//
-		//				IHTMLWindow2 * window = nullptr;
-		//
-		//				if (SUCCEEDED(doc->get_parentWindow(&window)))
-		//				{
-		//					Auto(window->Release());
-		//
-		//					const auto CMD(input.getlasttoks().trim());		// tok 4, -1
-		//
-		//					//VARIANT v;
-		//					//VariantInit(&v);
-		//					//Auto(VariantClear(&v));
-		//
-		//					Dcx::dcxVariant v;
-		//
-		//#if DCX_USE_WRAPPERS
-		//					const Dcx::dcxBSTRResource strCMD(CMD.to_wchr());
-		//
-		//					//window->execScript(strCMD, nullptr, &v);	// this works well, but is deprecated in latest IE's?
-		//
-		//					IDispatch * idisp = nullptr;
-		//
-		//					if (SUCCEEDED(doc->get_Script(&idisp)))
-		//					{
-		//						Auto(idisp->Release());
-		//
-		//						DISPID dispid = -1;
-		//						DISPPARAMS params{};
-		//
-		//						VARIANT vArg;
-		//						VariantInit(&vArg);
-		//						Auto(VariantClear(&vArg));
-		//
-		//						//Dcx::dcxVariant vArg;
-		//
-		//						vArg.vt = VT_BSTR;
-		//						vArg.bstrVal = strCMD;
-		//						params.cArgs = 1;
-		//						params.rgvarg = &vArg;
-		//
-		//						const Dcx::dcxBSTRResource strEval(L"eval");
-		//						//LPOLESTR blah;
-		//						BSTR hm = strEval.get();
-		//						if (FAILED(idisp->GetIDsOfNames(IID_NULL, &hm, 1, LOCALE_SYSTEM_DEFAULT, &dispid)))
-		//							throw Dcx::dcxException("GetIDsOfNames: failed.");
-		//
-		//						if (dispid == DISPID_UNKNOWN)
-		//							throw Dcx::dcxException("GetIDsOfNames: Unable to find eval()");
-		//
-		//						if (FAILED(idisp->Invoke(dispid, IID_NULL, 0, DISPATCH_METHOD, &params, &v, NULL, NULL)))
-		//							throw Dcx::dcxException("Invoke: failed.");
-		//
-		//						//switch (v.vt)
-		//						//{
-		//						//case VT_BSTR:
-		//						//	wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%ws"), v.bstrVal); // possible overflow, needs fixing at some point.
-		//						//	break;
-		//						//default:
-		//						//	break;
-		//						//}
-		//					}
-		//
-		//					// this version doesnt throw an error, but fails to work either....
-		//					//IDispatchEx * idisp = nullptr;
-		//					//
-		//					//if (SUCCEEDED(window->QueryInterface(IID_IDispatchEx, (void **)&idisp)))
-		//					//{
-		//					//	Auto(idisp->Release());
-		//					//
-		//					//	DISPID dispid = -1;
-		//					//	DISPPARAMS params{};
-		//					//
-		//					//	VARIANT vArg;
-		//					//	VariantInit(&vArg);
-		//					//	Auto(VariantClear(&vArg));
-		//					//
-		//					//	//Dcx::dcxVariant vArg;
-		//					//
-		//					//	vArg.vt = VT_BSTR;
-		//					//	vArg.bstrVal = strCMD;
-		//					//	params.cArgs = 1;
-		//					//	params.rgvarg = &vArg;
-		//					//
-		//					//	const Dcx::dcxBSTRResource strEval(L"alert");
-		//					//	LPOLESTR blah;
-		//					//	BSTR hm = strEval.get();
-		//					//	if (FAILED(idisp->GetIDsOfNames(IID_NULL, &hm, 1, LOCALE_SYSTEM_DEFAULT, &dispid)))
-		//					//		throw Dcx::dcxException("GetIDsOfNames: failed.");
-		//					//
-		//					//	if (dispid == DISPID_UNKNOWN)
-		//					//		throw Dcx::dcxException("GetIDsOfNames: Unable to find eval()");
-		//					//
-		//					//	if (FAILED(window->Invoke(dispid, IID_NULL, 0, DISPATCH_METHOD, &params, &v, NULL, NULL)))
-		//					//		throw Dcx::dcxException("Invoke: failed.");
-		//					//}
-		//
-		//					//DISPID dispid = -1;
-		//					//DISPPARAMS params{};
-		//					//
-		//					//VARIANT vArg;
-		//					//VariantInit(&vArg);
-		//					////Auto(VariantClear(&vArg));
-		//					//
-		//					////Dcx::dcxVariant vArg;
-		//					//
-		//					//vArg.vt = VT_BSTR;
-		//					//vArg.bstrVal = strCMD;
-		//					//params.cArgs = 1;
-		//					//params.rgvarg = &vArg;
-		//					//
-		//					//const Dcx::dcxBSTRResource strEval(L"eval");
-		//					////LPOLESTR blah;
-		//					//BSTR hm = strEval.get();
-		//					//if (FAILED(window->GetIDsOfNames(IID_NULL, &hm, 1, LOCALE_SYSTEM_DEFAULT, &dispid)))
-		//					//	throw Dcx::dcxException("GetIDsOfNames: failed.");
-		//					//
-		//					//if (dispid == DISPID_UNKNOWN)
-		//					//	throw Dcx::dcxException("GetIDsOfNames: Unable to find eval()");
-		//					//
-		//					//if (FAILED(window->Invoke(dispid, IID_NULL, 0, DISPATCH_METHOD, &params, &v, NULL, NULL)))
-		//					//	throw Dcx::dcxException("Invoke: failed.");
-		//#else
-		//					auto strCMD = SysAllocString(CMD.to_chr());
-		//					if (strCMD != nullptr)
-		//					{
-		//						Auto(SysFreeString(strCMD));
-		//
-		//						window->execScript(strCMD, nullptr, &v);
-		//					}
-		//#endif
-		//				}
-		//			}
-		//		}
 	}
 	// xdid -k [NAME] [ID] [SWITCH]
 	else if (flags[TEXT('k')])
@@ -500,7 +349,8 @@ void DcxWebControl::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('m')])
 	{
 		if (numtok < 5)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const XSwitchFlags xflags(input.getnexttok());		// tok 4 flags to change
 		const XSwitchFlags xmask(input.getnexttok());		// tok 5 state mask, flags here are enabled, otherwise they are disabled.
@@ -581,7 +431,8 @@ void DcxWebControl::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('n')])
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto URL(input.getlasttoks().trim());	// tok 4, -1
 

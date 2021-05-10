@@ -30,7 +30,8 @@ DcxPager::DcxPager(const UINT ID, DcxDialog* const p_Dialog, const HWND mParentH
 		this);
 
 	if (!IsWindow(m_Hwnd))
-		throw Dcx::dcxException("Unable To Create Window");
+		//throw Dcx::dcxException("Unable To Create Window");
+		throw DcxExceptions::dcxUnableToCreateWindow();
 
 	if (ws.m_NoTheme)
 		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
@@ -68,8 +69,7 @@ void DcxPager::toXml(TiXmlElement* const xml) const
 
 	xml->SetAttribute("styles", getStyles().c_str());
 
-	const auto* const child = this->getParentDialog()->getControlByHWND(this->m_ChildHWND);
-	if (child != nullptr)
+	if (const auto* const child = this->getParentDialog()->getControlByHWND(this->m_ChildHWND); child)
 		xml->LinkEndChild(child->toXml());
 }
 
@@ -150,7 +150,8 @@ void DcxPager::parseCommandRequest(const TString& input)
 	if (flags[TEXT('b')])
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		this->setBorderSize(input.getnexttok().to_int());	// tok 4
 	}
@@ -158,7 +159,8 @@ void DcxPager::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('c')])
 	{
 		if (numtok < 9)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		if (IsWindow(this->m_ChildHWND))
 			throw Dcx::dcxException("Child Control already exists");
@@ -181,7 +183,8 @@ void DcxPager::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('d')])
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto tsID(input.getnexttok());		// tok 4
 		const auto ID = this->getParentDialog()->NameToID(tsID);
@@ -212,7 +215,8 @@ void DcxPager::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('s')])
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		this->setButtonSize(input.getlasttoks().to_<LONG>());	// tok 4, -1
 	}
@@ -220,7 +224,8 @@ void DcxPager::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('t')])
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		this->setBkColor(input.getlasttoks().to_<COLORREF>());	// tok 4, -1
 	}
@@ -228,7 +233,8 @@ void DcxPager::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('z')])
 	{
 		if (numtok < 3)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		this->reCalcSize();
 	}
@@ -292,7 +298,7 @@ LRESULT DcxPager::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& b
 			//else
 			//	lpnmcs->iWidth = (rc.right - rc.left);
 
-			const auto* const cthis = static_cast<DcxControl*>(GetProp(this->m_ChildHWND, TEXT("dcx_cthis")));
+			const auto* const cthis = Dcx::dcxGetProp<DcxControl*>(this->m_ChildHWND, TEXT("dcx_cthis"));
 			if (!cthis)
 				break;
 
@@ -339,7 +345,7 @@ LRESULT DcxPager::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPar
 
 		if (IsWindow(hdr->hwndFrom))
 		{
-			if (const auto c_this = static_cast<DcxControl*>(GetProp(hdr->hwndFrom, TEXT("dcx_cthis"))); c_this)
+			if (const auto c_this = Dcx::dcxGetProp<DcxControl*>(hdr->hwndFrom, TEXT("dcx_cthis")); c_this)
 			{
 				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 #pragma warning(push)
@@ -361,7 +367,7 @@ LRESULT DcxPager::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPar
 	{
 		if (IsWindow(reinterpret_cast<HWND>(lParam)))
 		{
-			if (const auto c_this = static_cast<DcxControl*>(GetProp(reinterpret_cast<HWND>(lParam), TEXT("dcx_cthis"))); c_this)
+			if (const auto c_this = Dcx::dcxGetProp<DcxControl*>(reinterpret_cast<HWND>(lParam), TEXT("dcx_cthis")); c_this)
 				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 		}
 	}
@@ -372,7 +378,7 @@ LRESULT DcxPager::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPar
 		dcxlParam(LPDELETEITEMSTRUCT, idata);
 		if ((idata) && (IsWindow(idata->hwndItem)))
 		{
-			if (const auto c_this = static_cast<DcxControl*>(GetProp(idata->hwndItem, TEXT("dcx_cthis"))); c_this)
+			if (const auto c_this = Dcx::dcxGetProp<DcxControl*>(idata->hwndItem, TEXT("dcx_cthis")); c_this)
 				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 		}
 	}
@@ -382,7 +388,7 @@ LRESULT DcxPager::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPar
 	{
 		if (const auto cHwnd = GetDlgItem(m_Hwnd, gsl::narrow_cast<int>(wParam)); IsWindow(cHwnd))
 		{
-			if (const auto c_this = static_cast<DcxControl*>(GetProp(cHwnd, TEXT("dcx_cthis"))); c_this)
+			if (const auto c_this = Dcx::dcxGetProp<DcxControl*>(cHwnd, TEXT("dcx_cthis")); c_this)
 				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 		}
 	}
@@ -394,7 +400,7 @@ LRESULT DcxPager::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPar
 
 		if ((idata) && (IsWindow(idata->hwndItem)))
 		{
-			if (const auto c_this = static_cast<DcxControl*>(GetProp(idata->hwndItem, TEXT("dcx_cthis"))); c_this)
+			if (const auto c_this = Dcx::dcxGetProp<DcxControl*>(idata->hwndItem, TEXT("dcx_cthis")); c_this)
 				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 		}
 	}

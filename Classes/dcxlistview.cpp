@@ -32,7 +32,6 @@
 * \param rc Window Rectangle
 * \param styles Window Style Tokenized List
 */
-
 DcxListView::DcxListView(const UINT ID, DcxDialog* const p_Dialog, const HWND mParentHwnd, const RECT* const rc, const TString& styles)
 	: DcxControl(ID, p_Dialog)
 {
@@ -49,7 +48,8 @@ DcxListView::DcxListView(const UINT ID, DcxDialog* const p_Dialog, const HWND mP
 		this);
 
 	if (!IsWindow(m_Hwnd))
-		throw Dcx::dcxException("Unable To Create Window");
+		//throw Dcx::dcxException("Unable To Create Window");
+		throw DcxExceptions::dcxUnableToCreateWindow();
 
 	if (ws.m_NoTheme)
 		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
@@ -324,7 +324,6 @@ const WindowExStyle DcxListView::parseListviewExStyles(const TString& styles) no
 *
 * \return > void
 */
-
 void DcxListView::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>& szReturnValue) const
 {
 	const auto numtok = input.numtok();
@@ -1248,6 +1247,7 @@ void DcxListView::parseCommandRequest(const TString& input)
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto nItem = StringToItemNumber(input++);	// tok 4
+
 		//auto nItem = input++.to_int() - 1;						// tok 4
 		//if (nItem == -1)
 		//{
@@ -1334,6 +1334,7 @@ void DcxListView::parseCommandRequest(const TString& input)
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto nItem = StringToItemNumber(input.getnexttok());	// tok 4
+
 		//auto nItem = input.getnexttok().to_int() - 1;							// tok 4
 		//// check if item supplied was 0 (now -1), last item in list.
 		//if (nItem == -1)
@@ -2283,25 +2284,6 @@ void DcxListView::setImageList(const HIMAGELIST himl, const int iImageList) noex
 * blah
 */
 
-//HIMAGELIST DcxListView::createImageList( const bool bIcons ) {
-//
-//	HIMAGELIST himl;
-//	// Big Image List
-//	if ( bIcons )
-//		himl = ImageList_Create( 32, 32, ILC_COLOR32|ILC_MASK, 1, 0 );
-//	else
-//		himl = ImageList_Create( 16, 16, ILC_COLOR32|ILC_MASK, 1, 0 );
-//
-//	ImageList_SetBkColor( himl, RGB(255,255,255) );
-//	return himl;
-//}
-
-/*!
-* \brief blah
-*
-* blah
-*/
-
 UINT DcxListView::parseIconFlagOptions(const TString& flags)
 {
 	UINT iFlags = 0;
@@ -2661,31 +2643,6 @@ bool DcxListView::isListViewStyle(const WindowStyle dwView) const noexcept
 	return ((dcxGetWindowStyle(m_Hwnd) & LVS_TYPEMASK) == dwView);
 }
 
-/*!
-* \brief blah
-*
-* blah
-*/
-
-//bool DcxListView::matchItemText(const int nItem, const int nSubItem, const TString &search, const DcxSearchTypes &SearchType) const
-//{
-//	auto itemtext = std::make_unique<TCHAR[]>(MIRC_BUFFER_SIZE_CCH);
-//	itemtext[0] = TEXT('\0');
-//
-//	ListView_GetItemText( m_Hwnd, nItem, nSubItem, itemtext.get(), MIRC_BUFFER_SIZE_CCH );
-//
-//	switch (SearchType) {
-//		case DcxSearchTypes::SEARCH_R:
-//			return isRegexMatch(itemtext.get(), search.to_chr());
-//		case DcxSearchTypes::SEARCH_W:
-//			return TString(itemtext).iswm(search);
-//		case DcxSearchTypes::SEARCH_E:
-//			return (lstrcmp(search.to_chr(), itemtext.get()) == 0); // must be a zero check not a !
-//	}
-//
-//	return false;
-//}
-
 GSL_SUPPRESS(bounds.4)
 GSL_SUPPRESS(con.4)
 GSL_SUPPRESS(r.5)
@@ -2697,15 +2654,6 @@ bool DcxListView::matchItemText(const int nItem, const int nSubItem, const TStri
 	Dcx::dcxListView_GetItemText(m_Hwnd, nItem, nSubItem, itemtext.get(), MIRC_BUFFER_SIZE_CCH);
 
 	return DcxListHelper::matchItemText(itemtext.get(), search, SearchType);
-
-	//auto itemtext = std::make_unique<TCHAR[]>(MIRC_BUFFER_SIZE_CCH);
-	//itemtext[0] = TEXT('\0');
-	//
-	//auto refText = refString<TCHAR, MIRC_BUFFER_SIZE_CCH>(itemtext.get());
-	//
-	//ListView_GetItemText(m_Hwnd, nItem, nSubItem, refText, MIRC_BUFFER_SIZE_CCH);
-	//
-	//return DcxListHelper::matchItemText(refText, search, SearchType);
 }
 
 /*!
@@ -2716,21 +2664,6 @@ bool DcxListView::matchItemText(const int nItem, const int nSubItem, const TStri
 
 const int& DcxListView::getColumnCount() const noexcept
 {
-	//if (m_iColumnCount >= 0)
-	//	return m_iColumnCount;
-	//else {
-	//	LVCOLUMN lvc{};
-	//	lvc.mask = LVCF_WIDTH;
-	//
-	//	auto i = 0;
-	//	while (Dcx::dcxListView_GetColumn(m_Hwnd, i, &lvc) != FALSE)
-	//		++i;
-	//
-	//	m_iColumnCount = i;
-	//
-	//	return m_iColumnCount;
-	//}
-
 	if (m_iColumnCount < 0)
 	{
 		LVCOLUMN lvc{};
@@ -3219,14 +3152,7 @@ LRESULT DcxListView::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 									}
 									else {
 										if (ri->m_cBg != CLR_INVALID)
-										{
-											//if (auto hBrush = CreateSolidBrush(ri->m_cBg); hBrush)
-											//{
-											//	FillRect(lplvcd->nmcd.hdc, &rcBounds, hBrush);
-											//	DeleteObject(hBrush);
-											//}
 											Dcx::FillRectColour(lplvcd->nmcd.hdc, &rcBounds, ri->m_cBg);
-										}
 									}
 									if (int iSizeX = 0, iSizeY = 0; ImageList_GetIconSize(himl, &iSizeX, &iSizeY))
 									{

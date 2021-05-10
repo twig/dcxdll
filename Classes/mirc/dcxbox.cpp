@@ -45,7 +45,8 @@ DcxBox::DcxBox(const UINT ID, DcxDialog* const p_Dialog, const HWND mParentHwnd,
 		this);
 
 	if (!IsWindow(m_Hwnd))
-		throw Dcx::dcxException("Unable To Create Window");
+		//throw Dcx::dcxException("Unable To Create Window");
+		throw DcxExceptions::dcxUnableToCreateWindow();
 
 	// remove all borders
 	removeStyle(WindowStyle::Border | WS_DLGFRAME);
@@ -197,7 +198,8 @@ void DcxBox::parseCommandRequest(const TString& input)
 	if (flags[TEXT('c')])
 	{
 		if (numtok < 9)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		getParentDialog()->addControl(input, 4, DcxAllowControls::ALLOW_ALL, m_Hwnd);
 		redrawWindow();
@@ -206,7 +208,8 @@ void DcxBox::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('d')])
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto tsID(input.getnexttok());	// tok 4
 		const auto ID = getParentDialog()->NameToID(tsID);
@@ -242,7 +245,8 @@ void DcxBox::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('l')])
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		if (m_pLayoutManager == nullptr)
 			throw Dcx::dcxException("No LayoutManager available");

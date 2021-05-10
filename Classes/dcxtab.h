@@ -80,7 +80,7 @@ public:
 	int getTabCount() const noexcept;
 
 #if DCX_USE_GDIPLUS
-	void DrawGlow(const int32_t nTabIndex, HDC hDC, const RECT &rect) const;
+	void DrawGlow(const int nTabIndex, HDC hDC, const RECT &rect) const;
 #endif
 
 protected:

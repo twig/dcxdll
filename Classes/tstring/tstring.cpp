@@ -52,6 +52,12 @@
  *		Added iterator
  *		Added template versions of most functions
  *
+ *  1.16
+ *		Added concepts
+ *
+ *  1.17
+ *      Changed to use cstdio & cstdlib
+
  * © ScriptsDB.org - 2005-2016
  */
 #include "defines.h"

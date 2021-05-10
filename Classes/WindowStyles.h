@@ -3,6 +3,8 @@
 // v1.4 By Ook
 //
 
+#include <gsl/gsl>
+
 #include "EnumConcepts.h"
 
 // Window Styles Helper enums.
@@ -174,12 +176,12 @@ enum class WindowAnimStyle
 template <EnumConcepts::IsNumeric T>
 constexpr WindowStyle to_WindowStyle(T other) noexcept
 {
-	return static_cast<WindowStyle>(other);
+	return gsl::narrow_cast<WindowStyle>(other);
 }
 template <EnumConcepts::IsNumeric T>
 constexpr WindowExStyle to_WindowExStyle(T other) noexcept
 {
-	return static_cast<WindowExStyle>(other);
+	return gsl::narrow_cast<WindowExStyle>(other);
 }
 
 inline WindowStyle dcxGetWindowStyle(HWND Hwnd) noexcept
@@ -194,12 +196,12 @@ inline WindowExStyle dcxGetWindowExStyle(HWND Hwnd) noexcept
 
 inline WindowStyle dcxSetWindowStyle(HWND Hwnd, WindowStyle style) noexcept
 {
-	return to_WindowStyle(SetWindowLongPtr(Hwnd, GWL_STYLE, static_cast<LONG>(style)));
+	return to_WindowStyle(SetWindowLongPtr(Hwnd, GWL_STYLE, gsl::narrow_cast<LONG>(style)));
 }
 
 inline WindowExStyle dcxSetWindowExStyle(HWND Hwnd, WindowExStyle style) noexcept
 {
-	return to_WindowExStyle(SetWindowLongPtr(Hwnd, GWL_EXSTYLE, static_cast<LONG>(style)));
+	return to_WindowExStyle(SetWindowLongPtr(Hwnd, GWL_EXSTYLE, gsl::narrow_cast<LONG>(style)));
 }
 
 inline HWND dcxCreateWindow(const WindowExStyle ExStyles, const TCHAR *const szClass, const WindowStyle Styles, const RECT *const rc, HWND hParent, const UINT uID, const void *const pthis = nullptr) noexcept
@@ -218,5 +220,5 @@ inline HWND dcxCreateWindow(const WindowExStyle ExStyles, const TCHAR *const szC
 
 inline UINT dcxSetWindowID(HWND Hwnd, const UINT uID) noexcept
 {
-	return static_cast<UINT>(SetWindowLongPtr(Hwnd, GWLP_ID, static_cast<LONG>(uID)));
+	return gsl::narrow_cast<UINT>(SetWindowLongPtr(Hwnd, GWLP_ID, gsl::narrow_cast<LONG>(uID)));
 }

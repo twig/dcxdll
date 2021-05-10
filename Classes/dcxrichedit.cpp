@@ -41,17 +41,19 @@ DcxRichEdit::DcxRichEdit(const UINT ID, DcxDialog* const p_Dialog, const HWND mP
 		this);
 
 	if (!IsWindow(m_Hwnd))
-		throw Dcx::dcxException("Unable To Create Window");
+		//throw Dcx::dcxException("Unable To Create Window");
+		throw DcxExceptions::dcxUnableToCreateWindow();
 
 	if (ws.m_NoTheme)
 		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
 	else
-		CRichEditThemed::Attach(m_Hwnd);
+		if (!CRichEditThemed::Attach(m_Hwnd))
+			throw DcxExceptions::dcxUnableToCreateWindow();
 
 	this->m_clrBackText = GetSysColor(COLOR_WINDOW);
 	this->m_clrText = GetSysColor(COLOR_WINDOWTEXT);
 
-	//getmIRCPalette(&m_aColorPalette[0], std::extent_v<decltype(m_aColorPalette)>);
+	//getmIRCPalette(&m_aColorPalette[0], std::size(m_aColorPalette));
 	getmIRCPalette(m_aColorPalette);
 
 	this->setContentsFont();
@@ -68,83 +70,6 @@ DcxRichEdit::DcxRichEdit(const UINT ID, DcxDialog* const p_Dialog, const HWND mP
 		AddToolTipToolInfo(getToolTipHWND(), m_Hwnd);
 	}
 }
-
-/*!
-* \brief blah
-*
-* blah
-*/
-//DcxRichEdit::~DcxRichEdit() noexcept
-//{
-//}
-
-/*!
-* \brief blah
-*
-* blah
-*/
-//void DcxRichEdit::parseControlStyles( const TString &styles, LONG *Styles, LONG *ExStyles, BOOL *bNoTheme)
-//{
-//	//*Styles |= ES_READONLY;
-//	//ES_NOHIDESEL
-//	for (const auto &tsStyle: styles)
-//	{
-//#if DCX_USE_HASHING
-//		switch (std::hash<TString>{}(tsStyle))
-//		{
-//			case L"multi"_hash:
-//				*Styles |= ES_MULTILINE | ES_WANTRETURN;
-//				break;
-//			case L"readonly"_hash:
-//				*Styles |= ES_READONLY;
-//				break;
-//			case L"center"_hash:
-//				*Styles |= ES_CENTER;
-//				break;
-//			case L"right"_hash:
-//				*Styles |= ES_RIGHT;
-//				break;
-//			case L"autohs"_hash:
-//				*Styles |= ES_AUTOHSCROLL;
-//				break;
-//			case L"autovs"_hash:
-//				*Styles |= ES_AUTOVSCROLL;
-//				break;
-//			case L"vsbar"_hash:
-//				*Styles |= WS_VSCROLL;
-//				break;
-//			case L"hsbar"_hash:
-//				*Styles |= WS_HSCROLL;
-//				break;
-//			case L"disablescroll"_hash:
-//				*Styles |= ES_DISABLENOSCROLL;
-//			default:
-//				break;
-//		}
-//#else
-//		if (tsStyle == TEXT("multi"))
-//			*Styles |= ES_MULTILINE | ES_WANTRETURN;
-//		else if (tsStyle == TEXT("readonly"))
-//			*Styles |= ES_READONLY;
-//		else if (tsStyle == TEXT("center"))
-//			*Styles |= ES_CENTER;
-//		else if (tsStyle == TEXT("right"))
-//			*Styles |= ES_RIGHT;
-//		else if (tsStyle == TEXT("autohs"))
-//			*Styles |= ES_AUTOHSCROLL;
-//		else if (tsStyle == TEXT("autovs"))
-//			*Styles |= ES_AUTOVSCROLL;
-//		else if (tsStyle == TEXT("vsbar"))
-//			*Styles |= WS_VSCROLL;
-//		else if (tsStyle == TEXT("hsbar"))
-//			*Styles |= WS_HSCROLL;
-//		else if (tsStyle == TEXT("disablescroll"))
-//			*Styles |= ES_DISABLENOSCROLL;
-//#endif
-//	}
-//
-//	this->parseGeneralControlStyles(styles, Styles, ExStyles, bNoTheme);
-//}
 
 dcxWindowStyles DcxRichEdit::parseControlStyles(const TString& tsStyles)
 {
@@ -190,6 +115,7 @@ dcxWindowStyles DcxRichEdit::parseControlStyles(const TString& tsStyles)
 	}
 	return ws;
 }
+
 /*!
 * \brief $xdid Parsing Function
 *
@@ -432,7 +358,8 @@ DWORD CALLBACK DcxRichEdit::StreamInFromFileCallback(DWORD_PTR dwCookie, LPBYTE 
 *
 * blah
 */
-[[gsl::suppress(bounds.3)]] void DcxRichEdit::parseCommandRequest(const TString& input)
+GSL_SUPPRESS(bounds.3)
+void DcxRichEdit::parseCommandRequest(const TString& input)
 {
 	const XSwitchFlags flags(input.getfirsttok(3));
 	const auto numtok = input.numtok();
@@ -448,7 +375,8 @@ DWORD CALLBACK DcxRichEdit::StreamInFromFileCallback(DWORD_PTR dwCookie, LPBYTE 
 	if (flags[TEXT('a')])
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		//this->m_tsText += input.gettok(4, -1);
 		//this->parseContents(TRUE);
@@ -462,7 +390,8 @@ DWORD CALLBACK DcxRichEdit::StreamInFromFileCallback(DWORD_PTR dwCookie, LPBYTE 
 	else if (flags[TEXT('c')])
 	{
 		if (numtok < 3)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		CopyToClipboard(m_Hwnd, this->m_tsText);
 	}
@@ -470,7 +399,8 @@ DWORD CALLBACK DcxRichEdit::StreamInFromFileCallback(DWORD_PTR dwCookie, LPBYTE 
 	else if (flags[TEXT('d')])
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		if (this->isStyle(WindowStyle::ES_MultiLine))
 		{
@@ -485,7 +415,8 @@ DWORD CALLBACK DcxRichEdit::StreamInFromFileCallback(DWORD_PTR dwCookie, LPBYTE 
 	else if (flags[TEXT('f')])
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto iFontFlags = parseFontFlags(input.getnexttok());	// tok 4
 
@@ -524,7 +455,8 @@ DWORD CALLBACK DcxRichEdit::StreamInFromFileCallback(DWORD_PTR dwCookie, LPBYTE 
 	else if (flags[TEXT('i')])
 	{
 		if (numtok < 5)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		if (this->isStyle(WindowStyle::ES_MultiLine))
 		{
@@ -540,7 +472,8 @@ DWORD CALLBACK DcxRichEdit::StreamInFromFileCallback(DWORD_PTR dwCookie, LPBYTE 
 	else if (flags[TEXT('k')])
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto clrColor = input.getnexttok().to_<COLORREF>();	// tok 4
 
@@ -556,7 +489,8 @@ DWORD CALLBACK DcxRichEdit::StreamInFromFileCallback(DWORD_PTR dwCookie, LPBYTE 
 	else if (flags[TEXT('l')])
 	{
 		if (numtok < 5)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto nColor = input.getnexttok().to_int() - 1;	// tok 4
 
@@ -569,7 +503,7 @@ DWORD CALLBACK DcxRichEdit::StreamInFromFileCallback(DWORD_PTR dwCookie, LPBYTE 
 	// xdid -m [NAME] [ID] [SWITCH]
 	else if (flags[TEXT('m')])
 	{
-		//getmIRCPalette(&m_aColorPalette[0], std::extent_v<decltype(m_aColorPalette)>);
+		//getmIRCPalette(&m_aColorPalette[0], std::size(m_aColorPalette));
 		getmIRCPalette(m_aColorPalette);
 
 		this->parseContents(TRUE);
@@ -578,7 +512,8 @@ DWORD CALLBACK DcxRichEdit::StreamInFromFileCallback(DWORD_PTR dwCookie, LPBYTE 
 	else if (flags[TEXT('n')])
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto b = (input.getnexttok().to_int() > 0);	// tok 4
 
@@ -588,7 +523,8 @@ DWORD CALLBACK DcxRichEdit::StreamInFromFileCallback(DWORD_PTR dwCookie, LPBYTE 
 	else if (flags[TEXT('o')])
 	{
 		if (numtok < 5)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto nLine = input.getnexttok().to_<UINT>();	// tok 4
 
@@ -608,7 +544,8 @@ DWORD CALLBACK DcxRichEdit::StreamInFromFileCallback(DWORD_PTR dwCookie, LPBYTE 
 	else if (flags[TEXT('q')])
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto nColor = numtok - 3;
 
@@ -630,7 +567,8 @@ DWORD CALLBACK DcxRichEdit::StreamInFromFileCallback(DWORD_PTR dwCookie, LPBYTE 
 	else if (flags[TEXT('t')])
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const XSwitchFlags xflags(input.getnexttok().trim());	// tok 4
 		bool bOldMethod = false;
@@ -691,7 +629,8 @@ DWORD CALLBACK DcxRichEdit::StreamInFromFileCallback(DWORD_PTR dwCookie, LPBYTE 
 	else if (flags[TEXT('u')])
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const XSwitchFlags xflags(input.getnexttok().trim());	// tok 4
 		bool bOldMethod = false, bRes = false;
@@ -736,7 +675,8 @@ DWORD CALLBACK DcxRichEdit::StreamInFromFileCallback(DWORD_PTR dwCookie, LPBYTE 
 	else if (flags[TEXT('S')])
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		CHARRANGE c{};
 		c.cpMin = input.getnexttok().to_int();	// tok 4
@@ -770,7 +710,8 @@ DWORD CALLBACK DcxRichEdit::StreamInFromFileCallback(DWORD_PTR dwCookie, LPBYTE 
 	else if (flags[TEXT('y')])
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		m_bIgnoreRepeat = (input.getnexttok().to_int() > 0);	// tok 4
 	}
@@ -778,7 +719,8 @@ DWORD CALLBACK DcxRichEdit::StreamInFromFileCallback(DWORD_PTR dwCookie, LPBYTE 
 	else if (flags[TEXT('z')])
 	{
 		if (numtok < 5)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto num = input.getnexttok().to_int();	// tok 4
 		const auto den = input.getnexttok().to_int();	// tok 5
@@ -789,25 +731,6 @@ DWORD CALLBACK DcxRichEdit::StreamInFromFileCallback(DWORD_PTR dwCookie, LPBYTE 
 	else
 		this->parseGlobalCommandRequest(input, flags);
 }
-
-/*!
-* \brief blah
-*
-* blah
-*/
-//void DcxRichEdit::loadmIRCPalette() {
-//	TString colors;
-//	static const TCHAR com[] = TEXT("$color(0) $color(1) $color(2) $color(3) $color(4) $color(5) $color(6) $color(7) $color(8) $color(9) $color(10) $color(11) $color(12) $color(13) $color(14) $color(15)");
-//	mIRCLinker::tsEval(colors, com);
-//
-//	const auto len = colors.numtok();
-//	if (len > Dcx::countof(m_aColorPalette))
-//		return;	// something went very wrong...
-//
-//	UINT i = 0;
-//	for (const auto &tmp: colors)
-//		m_aColorPalette[i++] = tmp.to_<COLORREF>();	// tok i + 1
-//}
 
 /*!
 * \brief blah
@@ -865,6 +788,7 @@ void DcxRichEdit::clearContents() noexcept
 
 	//this->setContentsFont( );
 }
+
 /*!
 * \brief blah
 *
@@ -1071,7 +995,8 @@ void DcxRichEdit::parseContents(const BOOL fNewLine) noexcept
 	this->parseStringContents(this->m_tsText, fNewLine);
 }
 
-[[gsl::suppress(bounds.3)]] void DcxRichEdit::parseStringContents(const TString& tsStr, const BOOL fNewLine) noexcept
+GSL_SUPPRESS(bounds.3)
+void DcxRichEdit::parseStringContents(const TString& tsStr, const BOOL fNewLine) noexcept
 {
 	this->m_bIgnoreInput = true;
 	this->setRedraw(FALSE);
@@ -1245,21 +1170,6 @@ void DcxRichEdit::parseContents(const BOOL fNewLine) noexcept
 
 	this->m_bIgnoreInput = false;
 }
-
-/*!
-* \brief blah
-*
-* blah
-*/
-//int DcxRichEdit::unfoldColor(const TCHAR *color) {
-//	auto nColor = dcx_atoi(color);
-//
-//	while (nColor > 15) {
-//		nColor -=16;
-//	}
-//
-//	return nColor;
-//}
 
 /*!
 * \brief blah
@@ -1606,6 +1516,7 @@ LRESULT DcxRichEdit::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& b
 	return 0L;
 }
 
+// Incomplete
 bool DcxRichEdit::LoadRichTextFromXml(HWND hWnd, TString& tsFilename, const TString& tsDataSet)
 {
 	if (!IsFile(tsFilename))

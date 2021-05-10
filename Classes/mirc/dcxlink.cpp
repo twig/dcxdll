@@ -40,7 +40,8 @@ DcxLink::DcxLink(const UINT ID, DcxDialog* const p_Dialog, const HWND mParentHwn
 		this);
 
 	if (!IsWindow(m_Hwnd))
-		throw Dcx::dcxException("Unable To Create Window");
+		//throw Dcx::dcxException("Unable To Create Window");
+		throw DcxExceptions::dcxUnableToCreateWindow();
 
 	if (ws.m_NoTheme)
 		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
@@ -144,7 +145,8 @@ void DcxLink::parseCommandRequest(const TString& input)
 	if (flags[TEXT('l')])
 	{
 		if (numtok < 5)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto nColor = (input.getnexttok().to_<size_t>() - 1);	// tok 4
 
@@ -157,7 +159,8 @@ void DcxLink::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('q')])
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto tsArgs(input.getlasttoks());			// tok 4, -1
 
@@ -179,7 +182,8 @@ void DcxLink::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('w')])
 	{
 		if (numtok < 6)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto flag(input.getnexttok());		// tok 4
 		const auto index = input.getnexttok().to_int();	// tok 5

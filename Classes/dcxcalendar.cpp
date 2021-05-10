@@ -49,7 +49,8 @@ DcxCalendar::DcxCalendar(const UINT ID, DcxDialog* const p_Dialog, const HWND mP
 		this);
 
 	if (!IsWindow(m_Hwnd))
-		throw Dcx::dcxException("Unable To Create Window");
+		//throw Dcx::dcxException("Unable To Create Window");
+		throw DcxExceptions::dcxUnableToCreateWindow();
 
 	if (ws.m_NoTheme)
 		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
@@ -131,55 +132,8 @@ const TString DcxCalendar::getValue(void) const
 	stString<128> buf;
 
 	_ts_snprintf(buf, TEXT("%ld %ld"), start, end);
-	return buf.data();
+	return TString(buf.data());
 }
-
-/*!
- * \brief blah
- *
- * blah
- */
-
- //void DcxCalendar::parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme)
- //{
- //	for (const auto &tsStyle: styles)
- //	{
- //#if DCX_USE_HASHING
- //		switch (std::hash<TString>{}(tsStyle))
- //		{
- //			case L"multi"_hash:
- //				*Styles |= MCS_MULTISELECT;
- //				break;
- //			case L"notoday"_hash:
- //				*Styles |= MCS_NOTODAY;
- //				break;
- //			case L"notodaycircle"_hash:
- //				*Styles |= MCS_NOTODAYCIRCLE;
- //				break;
- //			case L"weeknum"_hash:
- //				*Styles |= MCS_WEEKNUMBERS;
- //				break;
- //			case L"daystate"_hash:
- //				*Styles |= MCS_DAYSTATE;
- //			default:
- //				break;
- //		}
- //#else
- //		if (tsStyle == TEXT("multi"))
- //			*Styles |= MCS_MULTISELECT;
- //		else if (tsStyle == TEXT("notoday"))
- //			*Styles |= MCS_NOTODAY;
- //		else if (tsStyle == TEXT("notodaycircle"))
- //			*Styles |= MCS_NOTODAYCIRCLE;
- //		else if (tsStyle == TEXT("weeknum"))
- //			*Styles |= MCS_WEEKNUMBERS;
- //		else if (tsStyle == TEXT("daystate"))
- //			*Styles |= MCS_DAYSTATE;
- //#endif
- //	}
- //
- //	this->parseGeneralControlStyles(styles, Styles, ExStyles, bNoTheme);
- //}
 
 dcxWindowStyles DcxCalendar::parseControlStyles(const TString& tsStyles)
 {
@@ -232,8 +186,8 @@ void DcxCalendar::parseInfoRequest(const TString& input, const refString<TCHAR, 
 	case L"range"_hash:
 	{
 		SYSTEMTIME st[2]{};
-		TString dmin(TEXT("nolimit"));
-		TString dmax(TEXT("nolimit"));
+		TString dmin(TEXT("nolimit"_ts));
+		TString dmax(TEXT("nolimit"_ts));
 
 		const auto val = MonthCal_GetRange(m_Hwnd, st);
 
@@ -280,7 +234,8 @@ void DcxCalendar::parseCommandRequest(const TString& input)
 	if (flags[TEXT('k')])
 	{
 		if (numtok < 5)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const XSwitchFlags xflags(input.getnexttok());	// tok 4
 		const auto col = input.getnexttok().to_<COLORREF>();	// tok 5
@@ -313,7 +268,8 @@ void DcxCalendar::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('m')])
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto max = input.getnexttok().to_int();	// tok 4
 
@@ -323,12 +279,11 @@ void DcxCalendar::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('r')])
 	{
 		if (numtok < 5)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		DWORD dflags{};
 		SYSTEMTIME range[2]{};
-
-		//ZeroMemory(&range[0], sizeof(SYSTEMTIME) *2);
 
 		if (const auto tsMin(input.getnexttok()); tsMin != TEXT("nolimit"))
 		{
@@ -348,7 +303,8 @@ void DcxCalendar::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('s')])
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto min = input.getnexttok().to_<long>();	// tok 4
 		SYSTEMTIME range[2]{};
@@ -375,7 +331,8 @@ void DcxCalendar::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('t')])
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto mircTime = input.getnexttok().to_<long>();	// tok 4
 		const auto sysTime = MircTimeToSystemTime(mircTime);

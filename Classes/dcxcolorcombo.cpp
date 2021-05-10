@@ -44,7 +44,8 @@ DcxColorCombo::DcxColorCombo(const UINT ID, DcxDialog *const p_Dialog, const HWN
 		this);
 
 	if (!IsWindow(m_Hwnd))
-		throw Dcx::dcxException("Unable To Create Window");
+		//throw Dcx::dcxException("Unable To Create Window");
+		throw DcxExceptions::dcxUnableToCreateWindow();
 
 	if (ws.m_NoTheme)
 		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
@@ -97,12 +98,14 @@ void DcxColorCombo::parseInfoRequest( const TString & input, const refString<TCH
 	case L"color"_hash:
 	{
 		if (input.numtok() < 4)
-			throw Dcx::dcxException("Invalid number of arguments");
+			//throw Dcx::dcxException("Invalid number of arguments");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto nItem = input.getnexttok().to_int() - 1;	// tok 4
 
 		if (nItem < 0 || nItem >= getCount())
-			throw Dcx::dcxException("Invalid Item");
+			//throw Dcx::dcxException("Invalid Item");
+			throw DcxExceptions::dcxInvalidItem();
 
 		const auto lpdcxcci = getItemData(nItem);
 
@@ -140,7 +143,8 @@ void DcxColorCombo::parseCommandRequest( const TString &input)
 	if (flags[TEXT('a')])
 	{
 		if (numtok < 5)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		auto nItem = input.getnexttok().to_int() - 1;	// tok 4
 
@@ -157,26 +161,30 @@ void DcxColorCombo::parseCommandRequest( const TString &input)
 	else if (flags[TEXT('c')])
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto nItem = input.getnexttok().to_int() - 1;	// tok 4
 
 		if ((nItem < -1) || (nItem >= this->getCount()))
-			throw Dcx::dcxException("Item out of range");
-	
+			//throw Dcx::dcxException("Item out of range");
+			throw DcxExceptions::dcxInvalidItem();
+
 		this->setCurSel(nItem);
 	}
 	// xdid -d [NAME] [ID] [SWITCH] [N]
 	else if (flags[TEXT('d')])
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto nItem = input.getnexttok().to_int() - 1;	// tok 4
 
 		if ((nItem < -1) || (nItem >= this->getCount()))
-			throw Dcx::dcxException("Item out of range");
-		
+			//throw Dcx::dcxException("Item out of range");
+			throw DcxExceptions::dcxInvalidItem();
+
 		this->deleteItem(nItem);
 	}
 	// xdid -m [NAME] [ID] [SWITCH]
@@ -188,12 +196,14 @@ void DcxColorCombo::parseCommandRequest( const TString &input)
 	else if (flags[TEXT('o')])
 	{
 		if (numtok < 5)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto nItem = input.getnexttok().to_int() - 1;	// tok 4
 
 		if ((nItem < -1) || (nItem >= this->getCount()))
-			throw Dcx::dcxException("Item out of range");
+			//throw Dcx::dcxException("Item out of range");
+			throw DcxExceptions::dcxInvalidItem();
 
 		if (const auto lpdcxcci = this->getItemData(nItem); lpdcxcci)
 			lpdcxcci->clrItem = input.getnexttok().to_<COLORREF>();	// tok 5
@@ -265,7 +275,7 @@ void DcxColorCombo::setmIRCPalette( )
 int DcxColorCombo::insertItem(const int nPos, const DCXCCOMBOITEM *dci) noexcept
 {
 	return ComboBox_InsertString(m_Hwnd, nPos, dci);
-	//return SendMessage(m_Hwnd, CB_INSERTSTRING, gsl::narrow_cast<WPARAM>(nPos), lParam);
+	//return SendMessage(m_Hwnd, CB_INSERTSTRING, gsl::narrow_cast<WPARAM>(nPos), (LPARAM)dci);
 }
 
 /*!

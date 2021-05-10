@@ -49,7 +49,8 @@ DcxDirectshow::DcxDirectshow(const UINT ID, DcxDialog* const p_Dialog, const HWN
 		this);
 
 	if (!IsWindow(m_Hwnd))
-		throw Dcx::dcxException("Unable To Create Window");
+		//throw Dcx::dcxException("Unable To Create Window");
+		throw DcxExceptions::dcxUnableToCreateWindow();
 
 	if (ws.m_NoTheme)
 		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
@@ -98,7 +99,6 @@ dcxWindowStyles DcxDirectshow::parseControlStyles(const TString& tsStyles)
  *
  * \return > void
  */
-
 GSL_SUPPRESS(type.4)
 void DcxDirectshow::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>& szReturnValue) const
 {
@@ -341,7 +341,8 @@ void DcxDirectshow::parseCommandRequest(const TString& input)
 			throw Dcx::dcxException("Needs DirectX 9+");
 
 		if (!xflags[TEXT('+')])
-			throw Dcx::dcxException("Invalid Flags");
+			//throw Dcx::dcxException("Invalid Flags");
+			throw DcxExceptions::dcxInvalidFlag();
 
 		if (!IsFile(filename))
 			throw Dcx::dcxException(TEXT("Unable to Access File: %"), filename);
@@ -489,7 +490,8 @@ void DcxDirectshow::parseCommandRequest(const TString& input)
 		break;
 		// error
 		default:
-			throw Dcx::dcxException("Invalid Command");
+			//throw Dcx::dcxException("Invalid Command");
+			throw DcxExceptions::dcxInvalidCommand();
 		}
 	}
 	// xdid -v [NAME] [ID] [SWITCH] [+FLAGS] [BRIGHTNESS] [CONTRAST] [HUE] [SATURATION]
@@ -551,7 +553,8 @@ void DcxDirectshow::parseCommandRequest(const TString& input)
 		}
 		break;
 		default:
-			throw Dcx::dcxException("Unknown Flag");
+			//throw Dcx::dcxException("Unknown Flag");
+			throw DcxExceptions::dcxInvalidFlag();
 		}
 	}
 	else

@@ -27,7 +27,7 @@
 
 DcxProgressBar::DcxProgressBar(_In_ const UINT ID, _In_ DcxDialog* const p_Dialog, _In_ const HWND mParentHwnd, _In_ const RECT* const rc, _In_ const TString& styles)
 	: DcxControl(ID, p_Dialog)
-	, m_tsText(TEXT("%d %%"))
+	, m_tsText(TEXT("%d %%"_ts))
 {
 	const auto ws = parseControlStyles(styles);
 
@@ -41,7 +41,8 @@ DcxProgressBar::DcxProgressBar(_In_ const UINT ID, _In_ DcxDialog* const p_Dialo
 		this);
 
 	if (!IsWindow(m_Hwnd))
-		throw Dcx::dcxException("Unable To Create Window");
+		//throw Dcx::dcxException("Unable To Create Window");
+		throw DcxExceptions::dcxUnableToCreateWindow();
 
 	if (ws.m_NoTheme)
 		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
@@ -166,7 +167,8 @@ void DcxProgressBar::parseCommandRequest(const TString& input)
 	if (flags[TEXT('c')])
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		setBarColor(input.getnexttok().to_<COLORREF>());	// tok 4
 	}
@@ -188,7 +190,8 @@ void DcxProgressBar::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('j')])
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		m_bIsAbsoluteValue = (input.getnexttok() == TEXT('a'));
 
@@ -198,7 +201,8 @@ void DcxProgressBar::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('k')])
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		setBKColor(input.getnexttok().to_<COLORREF>());	// tok 4
 	}
@@ -209,7 +213,8 @@ void DcxProgressBar::parseCommandRequest(const TString& input)
 		if (flags[TEXT('o')])
 		{
 			if (numtok < 4)
-				throw Dcx::dcxException("Insufficient parameters");
+				//throw Dcx::dcxException("Insufficient parameters");
+				throw DcxExceptions::dcxInvalidArguments();
 
 			setMarquee(TRUE, input.getnexttok().to_int());	// tok 4
 		}
@@ -221,7 +226,8 @@ void DcxProgressBar::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('q')])
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		setTextColor(input.getnexttok().to_<COLORREF>());	// tok 4
 		redrawWindow();
@@ -230,7 +236,8 @@ void DcxProgressBar::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('r')])
 	{
 		if (numtok < 5)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto iLow = input.getnexttok().to_int();
 		const auto iHigh = input.getnexttok().to_int();
@@ -246,7 +253,8 @@ void DcxProgressBar::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('u')])
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		setStep(input.getnexttok().to_int());	// tok 4
 	}
@@ -254,7 +262,8 @@ void DcxProgressBar::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('v')])
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		setPosition(input.getnexttok().to_int());	// tok 4
 	}
@@ -263,7 +272,8 @@ void DcxProgressBar::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('o')])
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto angle = input.getnexttok().to_int();	// tok 4
 
@@ -472,7 +482,7 @@ LRESULT DcxProgressBar::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 	//	{
 	//		const auto iLower = getRange(TRUE, nullptr);
 	//		const auto iHigher = getRange(FALSE, nullptr);
-
+	//
 	//		execAliasEx(TEXT("rclick,%u,%d,%d,%d,%d"), getUserID(), getPredictedPos(lParam, iLower, iHigher), iLower, iHigher, getPosition());
 	//	}
 	//}

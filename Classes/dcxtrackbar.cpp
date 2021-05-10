@@ -41,7 +41,8 @@ DcxTrackBar::DcxTrackBar(const UINT ID, DcxDialog* const p_Dialog, const HWND mP
 		this);
 
 	if (!IsWindow(m_Hwnd))
-		throw Dcx::dcxException("Unable To Create Window");
+		//throw Dcx::dcxException("Unable To Create Window");
+		throw DcxExceptions::dcxUnableToCreateWindow();
 
 	if (ws.m_NoTheme)
 		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
@@ -184,7 +185,8 @@ void DcxTrackBar::parseCommandRequest(const TString& input)
 	if (flags[TEXT('c')])
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto lPosition = input.getnexttok().to_<long>();	// tok 4
 		this->setTic(lPosition);
@@ -193,7 +195,8 @@ void DcxTrackBar::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('g')])
 	{
 		if (numtok < 5)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto tflags = parseImageFlags(input.getnexttok());	// tok 4
 		auto filename(input.getlasttoks().trim());				// tok 5, -1
@@ -219,7 +222,8 @@ void DcxTrackBar::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('j')])
 	{
 		if (numtok < 5)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto iMin = input.getnexttok().to_<long>();	// tok 4
 		const auto iMax = input.getnexttok().to_<long>();	// tok 5
@@ -229,7 +233,8 @@ void DcxTrackBar::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('l')])
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto lLineSize = input.getnexttok().to_<long>();	// tok 4
 		this->setLineSize(lLineSize);
@@ -238,7 +243,8 @@ void DcxTrackBar::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('m')])
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto lPageSize = input.getnexttok().to_<long>();	// tok 4
 		this->setPageSize(lPageSize);
@@ -247,7 +253,8 @@ void DcxTrackBar::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('n')])
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto iTicFreq = input.getnexttok().to_<long>();	// tok 4
 		this->setTicFreq(iTicFreq);
@@ -261,7 +268,8 @@ void DcxTrackBar::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('r')])
 	{
 		if (numtok < 5)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto lMinRange = input.getnexttok().to_<long>();	// tok 4
 		const auto lMaxRange = input.getnexttok().to_<long>();	// tok 5
@@ -273,7 +281,8 @@ void DcxTrackBar::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('o')])
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		m_colTransparent = input.getnexttok().to_<COLORREF>();	// tok 4
 		this->redrawWindow();
@@ -282,7 +291,8 @@ void DcxTrackBar::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('t')])
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		switch (std::hash<TString>{}(input.getnexttok()))
 		{
@@ -304,7 +314,8 @@ void DcxTrackBar::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('u')])
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto lLength = input.getnexttok().to_<UINT>();	// tok 4
 
@@ -314,7 +325,8 @@ void DcxTrackBar::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('v')])
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto lPosition = input.getnexttok().to_<long>();	// tok 4
 

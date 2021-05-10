@@ -15,46 +15,23 @@
 #include "Classes/dcxdialogcollection.h"
 #include "Classes/dcxdialog.h"
 
- /*!
-  * \brief Constructor
-  *
-  * Dialog Collection Constructor.
-  */
-
-  //DcxDialogCollection::DcxDialogCollection( )
-  //: m_closeall(false)
-  //, m_vpDialog()
-  //{
-  //}
-
-  /*!
-   * \brief Destructor
-   *
-   * Dialog Collection Destructor.
-   */
-
-   //DcxDialogCollection::~DcxDialogCollection( )
-   //{
-   //}
-
-   /*!
-	* \brief blah
-	*
-	* blah
-	*/
-
+/// <summary>
+/// Mark a dialog for use by DCX
+/// </summary>
+/// <param name="mHwnd"></param>
+/// <param name="tsName"></param>
+/// <param name="tsAliasName"></param>
 void DcxDialogCollection::markDialog(const HWND mHwnd, const TString& tsName, const TString& tsAliasName)
 {
 	m_vpDialog.push_back(new DcxDialog(mHwnd, tsName, tsAliasName));
 	//m_vpDialog.push_back(std::make_unique<DcxDialog>(mHwnd, tsName, tsAliasName));
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
-
+/// <summary>
+/// Get a DcxDialog object from its HWND
+/// </summary>
+/// <param name="mHwnd"></param>
+/// <returns></returns>
 DcxDialog* DcxDialogCollection::getDialogByHandle(const HWND mHwnd) const noexcept
 {
 	if ((!mHwnd) || (m_vpDialog.empty()))
@@ -79,12 +56,11 @@ DcxDialog* DcxDialogCollection::getDialogByHandle(const HWND mHwnd) const noexce
 	//return nullptr;
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
-
+/// <summary>
+/// Get a DcxDialog object from a child controls HWND
+/// </summary>
+/// <param name="mHwnd"></param>
+/// <returns></returns>
 DcxDialog* DcxDialogCollection::getDialogByChildHandle(const HWND mHwnd) const noexcept
 {
 	if ((!mHwnd) || (m_vpDialog.empty()))
@@ -109,12 +85,11 @@ DcxDialog* DcxDialogCollection::getDialogByChildHandle(const HWND mHwnd) const n
 	//return nullptr;
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
-
+/// <summary>
+/// Get a DcxDialog object from its name.
+/// </summary>
+/// <param name="tsName"></param>
+/// <returns></returns>
 DcxDialog* DcxDialogCollection::getDialogByName(const TString& tsName) const noexcept
 {
 	if ((tsName.empty()) || (m_vpDialog.empty()))
@@ -135,11 +110,10 @@ DcxDialog* DcxDialogCollection::getDialogByName(const TString& tsName) const noe
 	//return nullptr;
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
+/// <summary>
+/// Delete a DcxDialog object.
+/// </summary>
+/// <param name="p_Dialog"></param>
 void DcxDialogCollection::deleteDialog(const DcxDialog* const p_Dialog)
 {
 	if ((!p_Dialog) || (m_closeall) || (m_vpDialog.empty()))
@@ -153,12 +127,11 @@ void DcxDialogCollection::deleteDialog(const DcxDialog* const p_Dialog)
 	//	m_vpDialog.erase(itGot);	// NB: This deletes dialog object !
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
-
+/// <summary>
+/// Check if its safe to close all dialogs.
+/// </summary>
+/// <param name=""></param>
+/// <returns></returns>
 const bool DcxDialogCollection::safeToCloseAll(void) const noexcept
 {
 	if (m_vpDialog.empty())
@@ -172,12 +145,10 @@ const bool DcxDialogCollection::safeToCloseAll(void) const noexcept
 	return true;
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
-
+/// <summary>
+/// Close all dialogs
+/// </summary>
+/// <returns></returns>
 const bool DcxDialogCollection::closeDialogs() noexcept
 {
 	if (!safeToCloseAll())

@@ -302,17 +302,21 @@ public:
 	{
 		static const TString tsEmpty;
 
-		//const auto itEnd = namedIds.end();
-		//const auto itGot = std::find_if(namedIds.begin(), itEnd, [local_id](const auto &arg) { return (arg.second == local_id); });
-		//if (itGot != itEnd)
-		//	return itGot->first;
-
 		for (const auto& [tsStoredName, uStoredID] : m_NamedIds)
 		{
 			if (uStoredID == local_id)
 				return tsStoredName;
 		}
 		return tsEmpty;
+	}
+	/// <summary>
+	/// Convert a User ID number to its name.
+	/// </summary>
+	/// <param name="local_id">- The UserID number</param>
+	/// <returns>TString - The name associated with that ID number. Returns an empty string on failure.</returns>
+	const TString& UserIDToName(const UINT local_id) const noexcept
+	{
+		return IDToName(local_id + mIRC_ID_OFFSET);
 	}
 	/// <summary>
 	/// Get a unique ID

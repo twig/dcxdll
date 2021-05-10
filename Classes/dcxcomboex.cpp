@@ -40,7 +40,8 @@ DcxComboEx::DcxComboEx(const UINT ID, DcxDialog* const  p_Dialog, const HWND mPa
 		this);
 
 	if (!IsWindow(m_Hwnd))
-		throw Dcx::dcxException("Unable To Create Window");
+		//throw Dcx::dcxException("Unable To Create Window");
+		throw DcxExceptions::dcxUnableToCreateWindow();
 
 	if (ws.m_NoTheme)
 	{
@@ -87,6 +88,7 @@ DcxComboEx::DcxComboEx(const UINT ID, DcxDialog* const  p_Dialog, const HWND mPa
 				AddStyles(cbi.hwndList, GWL_STYLE, WS_HSCROLL);
 		}
 	}
+
 	//if (p_Dialog->getToolTip() != nullptr) {
 	//	if (styles.istok(TEXT("tooltips"))) {
 	//		this->m_ToolTipHWND = p_Dialog->getToolTip();
@@ -118,45 +120,6 @@ DcxComboEx::~DcxComboEx() noexcept
 {
 	ImageList_Destroy(this->getImageList());
 }
-
-/*!
-* \brief blah
-*
-* blah
-*/
-
-//void DcxComboEx::parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme )
-//{
-//	//*ExStyles |= CBES_EX_NOSIZELIMIT;
-//
-//	for (const auto &tsStyle: styles)
-//	{
-//#if DCX_USE_HASHING
-//		switch (std::hash<TString>{}(tsStyle))
-//		{
-//			case L"simple"_hash:
-//				*Styles |= CBS_SIMPLE;
-//				break;
-//			case L"dropdown"_hash:
-//				*Styles |= CBS_DROPDOWNLIST;
-//				break;
-//			case L"dropedit"_hash:
-//				*Styles |= CBS_DROPDOWN;
-//			default:
-//				break;
-//		}
-//#else
-//		if ( tsStyle == TEXT("simple") )
-//			*Styles |= CBS_SIMPLE;
-//		else if ( tsStyle == TEXT("dropdown") )
-//			*Styles |= CBS_DROPDOWNLIST;
-//		else if ( tsStyle == TEXT("dropedit") )
-//			*Styles |= CBS_DROPDOWN;
-//#endif
-//	}
-//
-//	this->parseGeneralControlStyles( styles, Styles, ExStyles, bNoTheme );
-//}
 
 dcxWindowStyles DcxComboEx::parseControlStyles(const TString& tsStyles)
 {
@@ -204,7 +167,8 @@ void DcxComboEx::parseInfoRequest(const TString& input, const refString<TCHAR, M
 	case L"text"_hash:
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Invalid number of argumnets");
+			//throw Dcx::dcxException("Invalid number of arguments");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		if (const auto nItem = input.getnexttok().to_int() - 1; nItem > -1)
 		{
@@ -214,7 +178,8 @@ void DcxComboEx::parseInfoRequest(const TString& input, const refString<TCHAR, M
 		}
 		else {
 			if (nItem != -1 || (!this->isStyle(WindowStyle::CBS_DropDown) && !this->isStyle(WindowStyle::CBS_Simple)))
-				throw Dcx::dcxException("Invalid Item");
+				//throw Dcx::dcxException("Invalid Item");
+				throw DcxExceptions::dcxInvalidItem();
 
 			//szReturnValue = m_tsSelected;
 
@@ -229,7 +194,8 @@ void DcxComboEx::parseInfoRequest(const TString& input, const refString<TCHAR, M
 		const auto nItem = getCurSel();
 
 		if (nItem < 0)
-			throw Dcx::dcxException("Invalid Item");
+			//throw Dcx::dcxException("Invalid Item");
+			throw DcxExceptions::dcxInvalidItem();
 
 		COMBOBOXEXITEM cbi{ CBEIF_TEXT,nItem,szReturnValue,MIRC_BUFFER_SIZE_CCH,0,0,0,0,0 };
 
@@ -242,7 +208,8 @@ void DcxComboEx::parseInfoRequest(const TString& input, const refString<TCHAR, M
 		const auto nItem = getCurSel();
 
 		if (nItem < 0)
-			throw Dcx::dcxException("Invalid Item");
+			//throw Dcx::dcxException("Invalid Item");
+			throw DcxExceptions::dcxInvalidItem();
 
 		_ts_snprintf(szReturnValue, TEXT("%d"), nItem + 1);
 	}
@@ -255,7 +222,8 @@ void DcxComboEx::parseInfoRequest(const TString& input, const refString<TCHAR, M
 	case L"find"_hash:
 	{
 		if (numtok < 6)
-			throw Dcx::dcxException("Invalid number of argumnets");
+			//throw Dcx::dcxException("Invalid number of arguments");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		if (const auto matchtext(input.getfirsttok(2, TSTABCHAR).trim()); !matchtext.empty())
 		{
@@ -298,7 +266,8 @@ void DcxComboEx::parseInfoRequest(const TString& input, const refString<TCHAR, M
 	case L"markeditem"_hash:
 	{
 		if (numtok != 4)
-			throw Dcx::dcxException("Invalid number of argumnets");
+			//throw Dcx::dcxException("Invalid number of arguments");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto nItem = input.getnexttok().to_int() - 1;	// tok 4
 
@@ -341,7 +310,8 @@ void DcxComboEx::parseCommandRequest(const TString& input)
 	if (flags[TEXT('a')])
 	{
 		if (numtok < 9)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 #if TSTRING_TESTCODE
 		const auto nPos = input.getnexttokas<int>() - 1;			// tok 4
@@ -397,7 +367,6 @@ void DcxComboEx::parseCommandRequest(const TString& input)
 				//if (nMaxStrlen > nHorizExtent)
 				//	SendMessage(combo, CB_SETHORIZONTALEXTENT, nMaxStrlen, NULL);
 
-
 				if (const auto hdc = GetDC(m_Hwnd); hdc)
 				{
 					Auto(ReleaseDC(m_Hwnd, hdc));
@@ -425,7 +394,8 @@ void DcxComboEx::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('A')])
 	{
 		if (numtok < 5)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		auto nRow = input.getnexttok().to_int();	// tok 4
 
@@ -459,7 +429,8 @@ void DcxComboEx::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('c')])
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto nItem = input.getnexttok().to_int() - 1;	// tok 4
 
@@ -472,7 +443,8 @@ void DcxComboEx::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('d')])
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto Ns(input.getnexttok());			// tok 4
 		const XSwitchFlags xFlags(input.getnexttok());	// tok 5
@@ -526,7 +498,8 @@ void DcxComboEx::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('w')])
 	{
 		if (numtok < 6)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		auto himl = this->getImageList();
 
@@ -588,68 +561,22 @@ void DcxComboEx::setImageList(const HIMAGELIST himl) noexcept
 	SendMessage(m_Hwnd, CBEM_SETIMAGELIST, 0U, reinterpret_cast<LPARAM>(himl));
 }
 
-/*!
-* \brief blah
-*
-* blah
-*/
-
-//HIMAGELIST DcxComboEx::createImageList( ) {
-//
-//	return ImageList_Create( 16, 16, ILC_COLOR32|ILC_MASK, 1, 0 );
-//}
-
-/*!
-* \brief blah
-*
-* blah
-*/
-
-//bool DcxComboEx::matchItemText(const int nItem, const TString &search, const DcxSearchTypes &SearchType) const
-//{
-//	auto itemtext = std::make_unique<TCHAR[]>(MIRC_BUFFER_SIZE_CCH);
-//
-//	COMBOBOXEXITEM cbi;
-//	ZeroMemory( &cbi, sizeof( COMBOBOXEXITEM ) );
-//
-//	cbi.mask = CBEIF_TEXT;
-//	cbi.iItem = nItem;
-//	cbi.pszText = itemtext.get();
-//	cbi.cchTextMax = MIRC_BUFFER_SIZE_CCH;
-//
-//	this->getItem( &cbi );
-//
-//	switch (SearchType)
-//	{
-//	case DcxSearchTypes::SEARCH_R:
-//		return isRegexMatch(itemtext.get(), search.to_chr());
-//	case DcxSearchTypes::SEARCH_W:
-//		return TString(itemtext).iswm(search);
-//	case DcxSearchTypes::SEARCH_E:
-//		return (lstrcmp(search.to_chr(), itemtext.get()) == 0); // must be a zero check not a !
-//	}
-//	return false;
-//}
-
 bool DcxComboEx::matchItemText(const int nItem, const TString& search, const DcxSearchTypes& SearchType) const
 {
-	//auto itemtext = std::make_unique<TCHAR[]>(MIRC_BUFFER_SIZE_CCH);
-	//
-	//COMBOBOXEXITEM cbi{ CBEIF_TEXT, nItem, itemtext.get(), MIRC_BUFFER_SIZE_CCH };
-	//
-	//getItem(&cbi);
-	//
-	//return DcxListHelper::matchItemText(cbi.pszText, search, SearchType);
-
 	auto itemtext = std::make_unique<TCHAR[]>(MIRC_BUFFER_SIZE_CCH);
-	const auto refText = refString<TCHAR, MIRC_BUFFER_SIZE_CCH>(itemtext.get());
-
-	COMBOBOXEXITEM cbi{ CBEIF_TEXT, nItem, refText, MIRC_BUFFER_SIZE_CCH };
-
+	
+	COMBOBOXEXITEM cbi{ CBEIF_TEXT, nItem, itemtext.get(), MIRC_BUFFER_SIZE_CCH };
+	
 	getItem(&cbi);
+	
+	return DcxListHelper::matchItemText(cbi.pszText, search, SearchType);
 
-	refText = cbi.pszText;
-	return DcxListHelper::matchItemText(refText, search, SearchType);
+	//auto itemtext = std::make_unique<TCHAR[]>(MIRC_BUFFER_SIZE_CCH);
+	//const auto refText = refString<TCHAR, MIRC_BUFFER_SIZE_CCH>(itemtext.get());
+	//COMBOBOXEXITEM cbi{ CBEIF_TEXT, nItem, refText, MIRC_BUFFER_SIZE_CCH };
+	//getItem(&cbi);
+	//refText = cbi.pszText;
+	//return DcxListHelper::matchItemText(refText, search, SearchType);
 }
 
 /*!
@@ -761,51 +688,6 @@ LRESULT DcxComboEx::limitText(const int iLimit) noexcept
 {
 	return SendMessage(m_Hwnd, CB_LIMITTEXT, gsl::narrow_cast<WPARAM>(iLimit), 0);
 }
-
-//void DcxComboEx::getItemRange(const TString &tsItems, const int nItemCnt, int *iStart_range, int *iEnd_range)
-//{
-//	//int iStart, iEnd;
-//	//if (tsItems.numtok(TEXT('-')) == 2) {
-//	//	iStart = tsItems.getfirsttok(1, TEXT('-')).to_int() - 1;
-//	//	iEnd = tsItems.getnexttok(TEXT('-')).to_int() - 1;
-//	//
-//	//	if (iEnd == -1)	// special case
-//	//		iEnd = nItemCnt - 1;
-//	//}
-//	//else {
-//	//	iEnd = tsItems.to_int() - 1;
-//	//
-//	//	if (iEnd == -1)	// special case
-//	//		iStart = iEnd = nItemCnt - 1;
-//	//	else
-//	//		iStart = iEnd;
-//	//}
-//	//*iStart_range = iStart;
-//	//*iEnd_range = iEnd;
-//
-//	std::tie(*iStart_range, *iEnd_range) = getItemRange(tsItems, nItemCnt);
-//}
-//
-//std::pair<int, int> DcxComboEx::getItemRange(const TString &tsItems, const int nItemCnt)
-//{
-//	int iStart, iEnd;
-//	if (tsItems.numtok(TEXT('-')) == 2) {
-//		iStart = tsItems.getfirsttok(1, TEXT('-')).to_int() - 1;
-//		iEnd = tsItems.getnexttok(TEXT('-')).to_int() - 1;
-//
-//		if (iEnd == -1)	// special case
-//			iEnd = nItemCnt - 1;
-//	}
-//	else {
-//		iEnd = tsItems.to_int() - 1;
-//
-//		if (iEnd == -1)	// special case
-//			iStart = iEnd = nItemCnt - 1;
-//		else
-//			iStart = iEnd;
-//	}
-//	return std::make_pair(iStart, iEnd);
-//}
 
 const TString DcxComboEx::getStyles(void) const
 {

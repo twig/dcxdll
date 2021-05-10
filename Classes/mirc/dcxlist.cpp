@@ -43,7 +43,8 @@ DcxList::DcxList(const UINT ID, DcxDialog* const p_Dialog, const HWND mParentHwn
 		this);
 
 	if (!IsWindow(m_Hwnd))
-		throw Dcx::dcxException("Unable To Create Window");
+		//throw Dcx::dcxException("Unable To Create Window");
+		throw DcxExceptions::dcxUnableToCreateWindow();
 
 	if (ws.m_NoTheme)
 		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
@@ -191,12 +192,14 @@ void DcxList::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC
 	case L"text"_hash:
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Invalid number of arguments");
+			//throw Dcx::dcxException("Invalid number of arguments");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto nSel = input.getnexttok().to_int() - 1;	// tok 4
 
 		if (nSel < 0 || nSel >= ListBox_GetCount(m_Hwnd))
-			throw Dcx::dcxException("Item out of range");
+			//throw Dcx::dcxException("Item out of range");
+			throw DcxExceptions::dcxOutOfRange();
 
 		if (const auto l = ListBox_GetTextLen(m_Hwnd, nSel); (l == LB_ERR || l >= MIRC_BUFFER_SIZE_CCH))
 			throw Dcx::dcxException("String Too Long (Greater than Max chars)");
@@ -221,7 +224,8 @@ void DcxList::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC
 					const auto i = (input.getnexttok().to_int() - 1);	// tok 4
 
 					if ((i < 0) || (i >= n))
-						throw Dcx::dcxException("Requested Item Out Of Selection Range");
+						//throw Dcx::dcxException("Requested Item Out Of Selection Range");
+						throw DcxExceptions::dcxOutOfRange();
 
 					nSel = gsl::at(p, gsl::narrow_cast<size_t>(i));
 				}
@@ -314,7 +318,8 @@ void DcxList::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC
 	case L"find"_hash:
 	{
 		if (numtok < 6)
-			throw Dcx::dcxException("Invalid number of arguments");
+			//throw Dcx::dcxException("Invalid number of arguments");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto matchtext(input.getfirsttok(2, TSTABCHAR).trim());
 		const auto params(input.getnexttok(TSTABCHAR).trim());	// tok 3
@@ -386,7 +391,8 @@ void DcxList::parseCommandRequest(const TString& input)
 	if (flags[TEXT('a')])
 	{
 		if (numtok < 5)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		auto nPos = input.getnexttok().to_int() - 1;	// tok 4
 		const auto tsItem(input.getlasttoks());			// tok 5, -1
@@ -411,7 +417,8 @@ void DcxList::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('A')])
 	{
 		if (numtok < 6)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		auto nPos = input.getnexttok().to_int() - 1;	// tok 4
 
@@ -424,7 +431,8 @@ void DcxList::parseCommandRequest(const TString& input)
 		const auto iItemToks = itemtext.numtok();
 
 		if (!xOpts[TEXT('+')])
-			throw Dcx::dcxException("Invalid Flags");
+			//throw Dcx::dcxException("Invalid Flags");
+			throw DcxExceptions::dcxInvalidFlag();
 
 		if (xOpts[TEXT('H')]) // [TEXT] == [table] [item]
 		{
@@ -604,7 +612,8 @@ void DcxList::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('c')])
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto nItems = ListBox_GetCount(m_Hwnd);
 
@@ -644,7 +653,8 @@ void DcxList::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('d')])
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto Ns(input.getnexttok());			// tok 4
 
@@ -699,7 +709,8 @@ void DcxList::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('m')])
 	{
 		if (numtok < 5)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const XSwitchFlags xflags(input.getnexttok());	// tok 4
 
@@ -733,7 +744,8 @@ void DcxList::parseCommandRequest(const TString& input)
 			}
 		}
 		else
-			throw Dcx::dcxException("Invalid Flags");
+			//throw Dcx::dcxException("Invalid Flags");
+			throw DcxExceptions::dcxInvalidFlag();
 	}
 	//xdid -o [NAME] [ID] [N] [TEXT]
 	//xdid -o -> [NAME] [ID] -o [N] [TEXT]
@@ -745,7 +757,8 @@ void DcxList::parseCommandRequest(const TString& input)
 			nPos = ListBox_GetCount(m_Hwnd) - 1;
 
 		if (nPos < 0 && nPos >= ListBox_GetCount(m_Hwnd))
-			throw Dcx::dcxException("Item out of range");
+			//throw Dcx::dcxException("Item out of range");
+			throw DcxExceptions::dcxOutOfRange();
 
 		ListBox_DeleteString(m_Hwnd, nPos);
 		ListBox_InsertString(m_Hwnd, nPos, input.getlasttoks().to_chr());	// tok 5, -1
@@ -857,7 +870,7 @@ LRESULT DcxList::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bP
 		case DL_BEGINDRAG:
 		{
 			// callback DIALOG itemdragbegin THIS_ID DRAGGEDITEM
-			evalAliasEx(szRet, static_cast<int>(szRet.size()), TEXT("itemdragbegin,%u,%d"), getUserID(), sel);
+			evalAliasEx(szRet, gsl::narrow_cast<int>(szRet.size()), TEXT("itemdragbegin,%u,%d"), getUserID(), sel);
 
 			// cancel drag event
 			return (szRet != TEXT("nodrag"));
@@ -866,7 +879,7 @@ LRESULT DcxList::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bP
 		case DL_CANCELDRAG:
 		{
 			// callback DIALOG itemdragcancel THIS_ID DRAGGEDITEM
-			evalAliasEx(szRet, static_cast<int>(szRet.size()), TEXT("itemdragcancel,%u,%d"), getUserID(), sel);
+			evalAliasEx(szRet, gsl::narrow_cast<int>(szRet.size()), TEXT("itemdragcancel,%u,%d"), getUserID(), sel);
 
 			if (m_bUseDrawInsert)
 				getParentDialog()->redrawWindow();
@@ -928,7 +941,7 @@ LRESULT DcxList::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bP
 	{
 		if (dcx_testflag(getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
 		{
-			switch (HIWORD(wParam))
+			switch (Dcx::dcxHIWORD(wParam))
 			{
 			case LBN_SELCHANGE:
 			{

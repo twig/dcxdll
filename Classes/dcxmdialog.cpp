@@ -123,17 +123,6 @@ void DcxMDialog::parseCommandRequest(const TString& input)
 	this->parseGlobalCommandRequest(input, flags);
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
-
- //void DcxMDialog::parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme)
- //{
- //	this->m_OrigName = styles;
- //}
-
 dcxWindowStyles DcxMDialog::parseControlStyles(const TString& tsStyles)
 {
 	m_OrigName = tsStyles;

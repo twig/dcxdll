@@ -27,7 +27,6 @@ http://msdn2.microsoft.com/en-us/library/bb761727.aspx
  * \param rc Window Rectangle
  * \param styles Window Style Tokenized List
  */
-
 DcxDateTime::DcxDateTime(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString &styles)
 	: DcxControl(ID, p_Dialog)
 {
@@ -43,7 +42,8 @@ DcxDateTime::DcxDateTime(const UINT ID, DcxDialog *const p_Dialog, const HWND mP
 		this);
 
 	if (!IsWindow(m_Hwnd))
-		throw Dcx::dcxException("Unable To Create Window");
+		//throw Dcx::dcxException("Unable To Create Window");
+		throw DcxExceptions::dcxUnableToCreateWindow();
 
 	if (ws.m_NoTheme)
 		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
@@ -159,8 +159,8 @@ void DcxDateTime::parseInfoRequest( const TString &input, const refString<TCHAR,
 	case TEXT("range"_hash):
 	{
 		SYSTEMTIME st[2]{};
-		TString dmin(TEXT("nolimit"));
-		TString dmax(TEXT("nolimit"));
+		TString dmin(TEXT("nolimit"_ts));
+		TString dmax(TEXT("nolimit"_ts));
 
 		const auto val = DateTime_GetRange(m_Hwnd, st);
 
@@ -217,7 +217,8 @@ void DcxDateTime::parseCommandRequest( const TString &input)
 	else if (flags[TEXT('D')])
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		if (LOGFONT lf{}; ParseCommandToLogfont(input.gettok(4, -1), &lf))
 		{
@@ -231,7 +232,8 @@ void DcxDateTime::parseCommandRequest( const TString &input)
 	else if (flags[TEXT('r')])
 	{
 		if (numtok < 5)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		DWORD dflags{};
 		SYSTEMTIME range[2]{};
@@ -256,7 +258,8 @@ void DcxDateTime::parseCommandRequest( const TString &input)
 	else if (flags[TEXT('t')])
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto ts(input++);	// tok 4
 

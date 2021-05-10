@@ -40,7 +40,8 @@ DcxIpAddress::DcxIpAddress(const UINT ID, DcxDialog* const p_Dialog, const HWND 
 		this);
 
 	if (!IsWindow(m_Hwnd))
-		throw Dcx::dcxException("Unable To Create Window");
+		//throw Dcx::dcxException("Unable To Create Window");
+		throw DcxExceptions::dcxUnableToCreateWindow();
 
 	if (ws.m_NoTheme)
 		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
@@ -77,12 +78,16 @@ DcxIpAddress::~DcxIpAddress() noexcept
 
 void DcxIpAddress::toXml(TiXmlElement* const xml) const
 {
-	char buf[128];
-	this->AddressToString(&buf[0], Dcx::countof(buf));
+	//char buf[128]{};
+	//this->AddressToString(&buf[0], Dcx::countof(buf));
+	//__super::toXml(xml);
+	//xml->SetAttribute("caption", &buf[0]);
+
+	const TString buf(AddressToString<TString>());
 
 	__super::toXml(xml);
 
-	xml->SetAttribute("caption", &buf[0]);
+	xml->SetAttribute("caption", buf.c_str());
 }
 
 TiXmlElement* DcxIpAddress::toXml(void) const
@@ -122,15 +127,8 @@ void DcxIpAddress::parseInfoRequest(const TString& input, const refString<TCHAR,
 	// [NAME] [ID] [PROP]
 	if (input.gettok(3) == TEXT("ip"))
 	{
-		//DWORD ip;
-		//this->getAddress(&ip);
-		//
-		//wnsprintf(szReturnValue, MIRC_BUFFER_SIZE_CCH, TEXT("%d.%d.%d.%d"), FIRST_IPADDRESS(ip),
-		//	SECOND_IPADDRESS(ip),
-		//	THIRD_IPADDRESS(ip),
-		//	FOURTH_IPADDRESS(ip));
-
-		this->AddressToString(szReturnValue.data(), szReturnValue.size());
+		//this->AddressToString(szReturnValue.data(), szReturnValue.size());
+		szReturnValue = AddressToString<TString>();
 	}
 	else
 		this->parseGlobalInfoRequest(input, szReturnValue);
@@ -156,7 +154,8 @@ void DcxIpAddress::parseCommandRequest(const TString& input)
 	if (flags[TEXT('a')])
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto IP(input.getnexttok().strip());	// tok 4
 
@@ -169,14 +168,16 @@ void DcxIpAddress::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('g')])
 	{
 		if (numtok < 6)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto nField = input.getnexttok().to_int() - 1;				// tok 4
 		const auto min = gsl::narrow_cast<BYTE>(input.getnexttok().to_int() & 0xFF);	// tok 5
 		const auto max = gsl::narrow_cast<BYTE>(input.getnexttok().to_int() & 0xFF);	// tok 6
 
 		if (nField < 0 || nField > 3)
-			throw Dcx::dcxException("Out of Range");
+			//throw Dcx::dcxException("Out of Range");
+			throw DcxExceptions::dcxOutOfRange();
 
 		this->setRange(nField, min, max);
 	}
@@ -184,12 +185,14 @@ void DcxIpAddress::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('j')])
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto nField = input.getnexttok().to_int() - 1;	// tok 4
 
 		if (nField < 0 || nField > 3)
-			throw Dcx::dcxException("Out of Range");
+			//throw Dcx::dcxException("Out of Range");
+			throw DcxExceptions::dcxOutOfRange();
 
 		this->setFocus(nField);
 	}

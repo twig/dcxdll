@@ -40,7 +40,8 @@ DcxScroll::DcxScroll(const UINT ID, DcxDialog *const p_Dialog, const HWND mParen
 		this);
 
 	if (!IsWindow(m_Hwnd))
-		throw Dcx::dcxException("Unable To Create Window");
+		//throw Dcx::dcxException("Unable To Create Window");
+		throw DcxExceptions::dcxUnableToCreateWindow();
 
 	if (ws.m_NoTheme)
 		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
@@ -59,20 +60,6 @@ DcxScroll::DcxScroll(const UINT ID, DcxDialog *const p_Dialog, const HWND mParen
 DcxScroll::~DcxScroll( ) noexcept
 {
 }
-
-/*!
- * \brief blah
- *
- * blah
- */
-
-//void DcxScroll::parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme )
-//{
-//	if (styles.istok(TEXT("vertical")))
-//		*Styles |= SBS_VERT;
-//
-//	this->parseGeneralControlStyles(styles, Styles, ExStyles, bNoTheme);
-//}
 
 dcxWindowStyles DcxScroll::parseControlStyles(const TString & tsStyles)
 {
@@ -148,7 +135,8 @@ void DcxScroll::parseCommandRequest( const TString & input )
 	if ( flags[TEXT('l')] )
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto nLine = input.getnexttok().to_int();	// tok 4
 
@@ -159,7 +147,8 @@ void DcxScroll::parseCommandRequest( const TString & input )
 	else if ( flags[TEXT('m')] )
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto nPage = input.getnexttok().to_int();	// tok 4
 
@@ -170,7 +159,8 @@ void DcxScroll::parseCommandRequest( const TString & input )
 	else if ( flags[TEXT('r')] )
 	{
 		if (numtok < 5)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto L = input.getnexttok().to_int();	// tok 4
 		const auto R = input.getnexttok().to_int();	// tok 5
@@ -183,7 +173,8 @@ void DcxScroll::parseCommandRequest( const TString & input )
 	else if ( flags[TEXT('v')] )
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto pos = input.getnexttok().to_int();	// tok 4
 

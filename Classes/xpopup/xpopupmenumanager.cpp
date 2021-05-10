@@ -542,7 +542,7 @@ TString XPopupMenuManager::parseIdentifier(const TString& input) const
 		break;
 	case TEXT("style"_hash):
 	{
-		if (p_Menu == nullptr)
+		if (!p_Menu)
 			throw Dcx::dcxException(TEXT("\"%\" doesn't exist, see /xpopup -c"), tsMenuName);
 
 		switch (p_Menu->getStyle())
@@ -1123,7 +1123,7 @@ LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPAR
 		return CallWindowProc(XPopupMenuManager::g_OldmIRCMenusWindowProc, mHwnd, uMsg, wParam, lParam);
 
 	//Dcx::XPopups.
-	const MenuMessages mm = static_cast<MenuMessages>(uMsg);
+	const MenuMessages mm = gsl::narrow_cast<MenuMessages>(uMsg);
 
 	switch (mm)
 	{
@@ -1344,9 +1344,23 @@ LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPAR
 	{
 		if (wParam == UINT_MAX)
 		{
-			for (auto itGet = g_winlist.begin(); itGet != g_winlist.end(); ++itGet)
+			//for (auto itGet = g_winlist.begin(); itGet != g_winlist.end(); ++itGet)
+			//{
+			//	auto win = *itGet;
+			//	if (const auto dwStyle = dcxGetWindowExStyle(win); dcx_testflag(dwStyle, WS_EX_LAYERED))
+			//	{
+			//		BYTE current_alpha{ 255 };
+			//		DWORD dFlags{ LWA_ALPHA };
+			//		if (GetLayeredWindowAttributes(win, nullptr, &current_alpha, &dFlags))
+			//		{
+			//			if (current_alpha != 0xFFU)
+			//				SetLayeredWindowAttributes(win, 0, 0xFFU, LWA_ALPHA); // make window solid
+			//		}
+			//	}
+			//}
+
+			for (const auto &win: g_winlist)
 			{
-				auto win = *itGet;
 				if (const auto dwStyle = dcxGetWindowExStyle(win); dcx_testflag(dwStyle, WS_EX_LAYERED))
 				{
 					BYTE current_alpha{ 255 };
@@ -1368,10 +1382,31 @@ LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPAR
 		auto menu_hwnd = reinterpret_cast<HWND>(lRes);
 
 		bool bAfter = false;
-		for (auto itGet = g_winlist.begin(); itGet != g_winlist.end(); ++itGet)
-		{
-			auto win = *itGet;
 
+		//for (auto itGet = g_winlist.begin(); itGet != g_winlist.end(); ++itGet)
+		//{
+		//	auto win = *itGet;
+		//
+		//	if ((win == menu_hwnd) || (!menu_hwnd))
+		//		bAfter = true;
+		//
+		//	if (const auto dwStyle = dcxGetWindowExStyle(win); dcx_testflag(dwStyle, WS_EX_LAYERED))
+		//	{
+		//		BYTE current_alpha{ 255 };
+		//		DWORD dFlags{ LWA_ALPHA };
+		//		if (GetLayeredWindowAttributes(win, nullptr, &current_alpha, &dFlags))
+		//		{
+		//			const BYTE alpha = (bAfter ? 0xFFU : Dcx::setting_CustomMenusAlpha);
+		//			if (current_alpha != alpha)
+		//				SetLayeredWindowAttributes(win, 0, alpha, LWA_ALPHA); // make window solid
+		//		}
+		//
+		//		//SetLayeredWindowAttributes(win, 0, (bAfter ? 0xFFU : Dcx::setting_CustomMenusAlpha), LWA_ALPHA);
+		//	}
+		//}
+
+		for (const auto &win: g_winlist)
+		{
 			if ((win == menu_hwnd) || (!menu_hwnd))
 				bAfter = true;
 
@@ -1383,10 +1418,8 @@ LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPAR
 				{
 					const BYTE alpha = (bAfter ? 0xFFU : Dcx::setting_CustomMenusAlpha);
 					if (current_alpha != alpha)
-						SetLayeredWindowAttributes(win, 0, alpha, LWA_ALPHA); // make window solid
+						SetLayeredWindowAttributes(win, 0, alpha, LWA_ALPHA);
 				}
-
-				//SetLayeredWindowAttributes(win, 0, (bAfter ? 0xFFU : Dcx::setting_CustomMenusAlpha), LWA_ALPHA);
 			}
 		}
 

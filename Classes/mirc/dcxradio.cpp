@@ -40,7 +40,8 @@ DcxRadio::DcxRadio(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentH
 		this);
 
 	if (!IsWindow(m_Hwnd))
-		throw Dcx::dcxException("Unable To Create Window");
+		//throw Dcx::dcxException("Unable To Create Window");
+		throw DcxExceptions::dcxUnableToCreateWindow();
 
 	if (ws.m_NoTheme)
 		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
@@ -177,7 +178,8 @@ void DcxRadio::parseCommandRequest(const TString & input)
 	else if (flags[TEXT('t')])
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		SetWindowText(m_Hwnd, input.getlasttoks().trim().to_chr());	// tok 4, -1
 	}

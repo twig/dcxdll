@@ -72,7 +72,7 @@ bool CRichEditThemed::Attach(HWND hRichEdit)
 //////////////////////////////////////////////////////////////////////////////
 GSL_SUPPRESS(type.4)
 CRichEditThemed::CRichEditThemed(HWND hRichEdit)
-	: m_hRichEdit(hRichEdit)
+	: m_hRichEdit{ hRichEdit }
 {
 	//Subclass the richedit control, this way, the caller doesn't have to relay the messages by itself
 	m_aInstances[hRichEdit] = this;

@@ -40,7 +40,8 @@ DcxEdit::DcxEdit(const UINT ID, DcxDialog* const p_Dialog, const HWND mParentHwn
 		this);
 
 	if (!IsWindow(m_Hwnd))
-		throw Dcx::dcxException("Unable To Create Window");
+		//throw Dcx::dcxException("Unable To Create Window");
+		throw DcxExceptions::dcxUnableToCreateWindow();
 
 	if (ws.m_NoTheme)
 		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
@@ -328,7 +329,8 @@ void DcxEdit::parseCommandRequest(const TString& input)
 	if (flags[TEXT('a')])
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		this->m_tsText += input.getlasttoks();	// tok 4, -1
 		SetWindowTextW(m_Hwnd, this->m_tsText.to_wchr());
@@ -337,7 +339,8 @@ void DcxEdit::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('c')])
 	{
 		if (numtok < 3)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		CopyToClipboard(m_Hwnd, this->m_tsText);
 	}
@@ -345,7 +348,8 @@ void DcxEdit::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('d')])
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		if (this->isStyle(WindowStyle::ES_MultiLine))
 		{
@@ -358,7 +362,8 @@ void DcxEdit::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('i')])
 	{
 		if (numtok < 5)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		if (this->isStyle(WindowStyle::ES_MultiLine))
 		{
@@ -373,7 +378,8 @@ void DcxEdit::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('j')])
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto i = input.getnexttok().to_<UINT>();	// tok 4
 
@@ -415,7 +421,8 @@ void DcxEdit::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('l')])
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const BOOL enabled = (input.getnexttok().to_int() > 0);	// tok 4
 
@@ -425,7 +432,8 @@ void DcxEdit::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('o')])
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		if (this->isStyle(WindowStyle::ES_MultiLine))
 		{
@@ -445,7 +453,8 @@ void DcxEdit::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('q')])
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		if (const auto N = input.getnexttok().to_int(); N > -1)
 			Edit_LimitText(m_Hwnd, N);
@@ -459,7 +468,8 @@ void DcxEdit::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('t')])
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		auto tsFile(input.getlasttoks().trim());	// tok 4, -1
 
@@ -473,7 +483,8 @@ void DcxEdit::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('u')])
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		if (const auto tsFile(input.getlasttoks().trim()); !SaveDataToFile(tsFile, this->m_tsText))
 			throw Dcx::dcxException(TEXT("Unable to save: %"), tsFile);
@@ -487,7 +498,8 @@ void DcxEdit::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('S')])
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto istart = input.getnexttok().to_int();	// tok 4
 		const auto iend = (numtok > 4) ? input.getnexttok().to_int() : istart;
@@ -499,7 +511,8 @@ void DcxEdit::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('E')])
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		this->m_tsCue = input.getlasttoks();	// tok 4, -1
 		Edit_SetCueBannerText(m_Hwnd, this->m_tsCue.to_wchr());
@@ -508,7 +521,8 @@ void DcxEdit::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('y')])
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		this->m_bIgnoreRepeat = (input.getnexttok().to_int() > 0);	// tok 4
 	}
@@ -527,7 +541,7 @@ LRESULT DcxEdit::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bP
 	{
 	case WM_COMMAND:
 	{
-		switch (HIWORD(wParam))
+		switch (Dcx::dcxHIWORD(wParam))
 		{
 		case EN_CHANGE:
 		{

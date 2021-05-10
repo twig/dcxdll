@@ -43,7 +43,8 @@ DcxPanel::DcxPanel(const UINT ID, DcxDialog* const p_Dialog, const HWND mParentH
 		this);
 
 	if (!IsWindow(m_Hwnd))
-		throw Dcx::dcxException("Unable To Create Window");
+		//throw Dcx::dcxException("Unable To Create Window");
+		throw DcxExceptions::dcxUnableToCreateWindow();
 
 	if (ws.m_NoTheme)
 		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
@@ -113,7 +114,8 @@ void DcxPanel::parseCommandRequest(const TString& input)
 	if (flags[TEXT('c')])
 	{
 		if (numtok < 9)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		getParentDialog()->addControl(input, 4, DcxAllowControls::ALLOW_ALL, m_Hwnd);
 		redrawWindow();
@@ -122,7 +124,8 @@ void DcxPanel::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('d')])
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const TString tsID(input.getnexttok());
 		const auto ID = getParentDialog()->NameToID(tsID);
@@ -157,7 +160,8 @@ void DcxPanel::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('l')])
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		if (!m_pLayoutManager)
 			throw Dcx::dcxException("No LayoutManager available");
@@ -184,7 +188,8 @@ void DcxPanel::parseCommandRequest(const TString& input)
 		default:
 		{
 			if (numtok < 9)
-				throw Dcx::dcxException("Insufficient parameters");
+				//throw Dcx::dcxException("Insufficient parameters");
+				throw DcxExceptions::dcxInvalidArguments();
 
 			m_pLayoutManager->AddCell(input, 4, this->getParentDialog());
 		}
@@ -195,7 +200,8 @@ void DcxPanel::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('t')])
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		SetWindowText(m_Hwnd, input.getlasttoks().to_chr());	// tok 4, -1
 	}
@@ -227,7 +233,7 @@ LRESULT DcxPanel::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPar
 
 		if (IsWindow(hdr->hwndFrom))
 		{
-			if (const auto c_this = static_cast<DcxControl*>(GetProp(hdr->hwndFrom, TEXT("dcx_cthis"))); c_this)
+			if (const auto c_this = Dcx::dcxGetProp<DcxControl*>(hdr->hwndFrom, TEXT("dcx_cthis")); c_this)
 				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 		}
 	}
@@ -239,7 +245,7 @@ LRESULT DcxPanel::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPar
 	{
 		if (IsWindow(reinterpret_cast<HWND>(lParam)))
 		{
-			if (const auto c_this = static_cast<DcxControl*>(GetProp(reinterpret_cast<HWND>(lParam), TEXT("dcx_cthis"))); c_this)
+			if (const auto c_this = Dcx::dcxGetProp<DcxControl*>(reinterpret_cast<HWND>(lParam), TEXT("dcx_cthis")); c_this)
 				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 		}
 	}
@@ -251,7 +257,7 @@ LRESULT DcxPanel::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPar
 
 		if ((idata) && (IsWindow(idata->hwndItem)))
 		{
-			if (const auto c_this = static_cast<DcxControl*>(GetProp(idata->hwndItem, TEXT("dcx_cthis"))); c_this)
+			if (const auto c_this = Dcx::dcxGetProp<DcxControl*>(idata->hwndItem, TEXT("dcx_cthis")); c_this)
 				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 		}
 	}
@@ -263,7 +269,7 @@ LRESULT DcxPanel::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPar
 
 		if ((idata) && (IsWindow(idata->hwndItem)))
 		{
-			if (const auto c_this = static_cast<DcxControl*>(GetProp(idata->hwndItem, TEXT("dcx_cthis"))); c_this)
+			if (const auto c_this = Dcx::dcxGetProp<DcxControl*>(idata->hwndItem, TEXT("dcx_cthis")); c_this)
 				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 		}
 	}
@@ -271,9 +277,9 @@ LRESULT DcxPanel::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPar
 
 	case WM_MEASUREITEM:
 	{
-		if (const auto cHwnd = GetDlgItem(m_Hwnd, static_cast<int>(wParam)); IsWindow(cHwnd))
+		if (const auto cHwnd = GetDlgItem(m_Hwnd, gsl::narrow_cast<int>(wParam)); IsWindow(cHwnd))
 		{
-			if (const auto c_this = static_cast<DcxControl*>(GetProp(cHwnd, TEXT("dcx_cthis"))); c_this)
+			if (const auto c_this = Dcx::dcxGetProp<DcxControl*>(cHwnd, TEXT("dcx_cthis")); c_this)
 				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 		}
 	}
@@ -285,7 +291,7 @@ LRESULT DcxPanel::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPar
 
 		if ((idata) && (IsWindow(idata->hwndItem)))
 		{
-			if (const auto c_this = static_cast<DcxControl*>(GetProp(idata->hwndItem, TEXT("dcx_cthis"))); c_this)
+			if (const auto c_this = Dcx::dcxGetProp<DcxControl*>(idata->hwndItem, TEXT("dcx_cthis")); c_this)
 				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 		}
 	}

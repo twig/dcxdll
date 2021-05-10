@@ -1,6 +1,6 @@
 #pragma once
 // support functions for TString & c-string handling...
-// v1.15
+// v1.17
 
 #include <tchar.h>
 #include <cstdlib>
@@ -158,6 +158,30 @@ namespace details {
 
 	template <class T>
 	concept IsNumeric = is_Numeric_v<std::remove_cvref_t<T>>;
+
+	template <class T>
+	concept HasDataFunction = requires(T t)
+	{
+		t.data();
+	};
+
+	template <class T>
+	concept HasChrFunction = requires(T t)
+	{
+		t.to_chr();
+	};
+
+	template <class T>
+	concept HasSizeFunction = requires(T t)
+	{
+		static_cast<std::size_t>(t.size());
+	};
+
+	template <class T>
+	concept HasDataSizeNoChr = HasDataFunction<T> && HasSizeFunction<T> && !HasChrFunction<T>;
+
+	template <class T>
+	concept HasDataSizeChr = HasDataFunction<T> && HasSizeFunction<T> && HasChrFunction<T>;
 
 	constexpr WCHAR make_upper(const WCHAR c) noexcept
 	{
@@ -541,6 +565,24 @@ namespace details {
 	};
 
 	template <typename T>
+	struct _impl_strchr {
+	};
+	template <>
+	struct _impl_strchr<char> {
+		char* operator()(char* const pString, const char ch)
+		{
+			return strchr(pString, ch);
+		}
+	};
+	template <>
+	struct _impl_strchr<wchar_t> {
+		wchar_t* operator()(wchar_t* const pString, const wchar_t ch)
+		{
+			return wcschr(pString, ch);
+		}
+	};
+
+	template <typename T>
 	struct _impl_strncmp {
 	};
 	template <>
@@ -725,17 +767,36 @@ namespace details {
 			return _snwprintf(buf, nCount, fmt, args...);
 		}
 	};
-	template <typename T, typename... Arguments>
-	struct _impl_snprintf<T, typename T::value_type, Arguments...> {
-		const std::enable_if_t<std::is_member_function_pointer_v<decltype(&T::data)>&& std::is_member_function_pointer_v<decltype(&T::size)>, int> operator()(T& buf, const typename T::value_type* const fmt, const Arguments&&... args) noexcept
-		{
-			//return _ts_snprintf(buf.data(), buf.size(), fmt, args...);
-			//return _impl_snprintf<T::value_type, T::value_type, Arguments...>()(buf.data(), buf.size(), fmt, std::forward<Arguments>(args)...);
 
+	//template <typename T, typename... Arguments>
+	//struct _impl_snprintf<T, typename T::value_type, Arguments...> {
+	//	const std::enable_if_t<std::is_member_function_pointer_v<decltype(&T::data)> && std::is_member_function_pointer_v<decltype(&T::size)>, int> operator()(T& buf, const typename T::value_type* const fmt, const Arguments&&... args) noexcept
+	//	{
+	//		if constexpr (std::is_same_v<char, T::value_type>)
+	//			return snprintf(buf.data(), buf.size(), fmt, args...);
+	//		else
+	//			return _snwprintf(buf.data(), buf.size(), fmt, args...);
+	//	}
+	//};
+
+	template <HasDataSizeNoChr T, typename... Arguments>
+	struct _impl_snprintf<T, typename T::value_type, Arguments...> {
+		const int operator()(T& buf, const typename T::value_type* const fmt, const Arguments&&... args) noexcept
+		{
 			if constexpr (std::is_same_v<char, T::value_type>)
 				return snprintf(buf.data(), buf.size(), fmt, args...);
 			else
 				return _snwprintf(buf.data(), buf.size(), fmt, args...);
+		}
+	};
+	template <HasDataSizeChr T, typename... Arguments>
+	struct _impl_snprintf<T, typename T::value_type, Arguments...> {
+		const int operator()(T& buf, const typename T::value_type* const fmt, const Arguments&&... args) noexcept
+		{
+			if constexpr (std::is_same_v<char, T::value_type>)
+				return snprintf(buf.to_chr(), buf.size(), fmt, args...);
+			else
+				return _snwprintf(buf.to_chr(), buf.size(), fmt, args...);
 		}
 	};
 
@@ -848,6 +909,24 @@ namespace details {
 		auto operator()(const wchar_t* const buf) noexcept
 		{
 			return wcstoul(buf, nullptr, 2);
+		}
+	};
+	template <typename T>
+	struct _impl_strtok {
+	};
+	template <>
+	struct _impl_strtok<char> {
+		auto operator()(char* const buf, const char* delim, char** contex) noexcept
+		{
+			return strtok_s(buf, delim, contex);
+		}
+	};
+
+	template <>
+	struct _impl_strtok<wchar_t> {
+		auto operator()(wchar_t* const buf, const wchar_t* delim, wchar_t** contex) noexcept
+		{
+			return wcstok_s(buf, delim, contex);
 		}
 	};
 }
@@ -983,6 +1062,14 @@ T* _ts_strcat(T* const sDest, const T* const sSrc) noexcept
 }
 
 template <details::IsPODText T>
+T* _ts_strchr(T* const sDest, const T ch)
+{
+	static_assert(details::IsPODText<T>, "Only char & wchar_t supported...");
+
+	return details::_impl_strchr<T>()(sDest, ch);
+}
+
+template <details::IsPODText T>
 int _ts_strncmp(const T* const sDest, const T* const sSrc, const size_t iChars) noexcept
 {
 	static_assert(details::IsPODText<T>, "Only char & wchar_t supported...");
@@ -1098,6 +1185,21 @@ auto _ts_bstrtoul(const T* const buf) noexcept
 	static_assert(details::IsPODText<T>, "Only char & wchar_t supported...");
 
 	return details::_impl_bstrtoul<T>()(buf);
+}
+
+/// <summary>
+/// same as strtok_s()
+/// </summary>
+/// <param name="buf"></param>
+/// <param name="delim"></param>
+/// <param name="contex"></param>
+/// <returns></returns>
+template <details::IsPODText T>
+auto _ts_strtok(T* const buf, const T* delim, T** contex) noexcept
+{
+	static_assert(details::IsPODText<T>, "Only char & wchar_t supported...");
+
+	return details::_impl_strtok<T>()(buf, delim, contex);
 }
 
 /// <summary>
@@ -1273,6 +1375,21 @@ T& _ts_toupper(T& str)
 	return str;
 }
 
+template <details::IsPODText T>
+T _ts_toupper_c(const T& c) noexcept
+{
+	return details::make_upper(c);
+}
+
+template <details::IsPODText T>
+bool _ts_isupper(const T& c) noexcept
+{
+	if constexpr (std::is_same_v<wchar_t, T>)
+		return (iswupper(c) != 0);
+	else
+		return (isupper(c) != 0);
+}
+
 /// <summary>
 /// Convert a string to a number.
 /// </summary>
@@ -1281,7 +1398,7 @@ T& _ts_toupper(T& str)
 /// <param name="str">- string to convert.</param>
 /// <returns>The number contained in the string.</returns>
 template <class T, class Input>
-T _ts_to_(Input& str)
+T _ts_to_(const Input& str)
 {
 	static_assert(is_Numeric_v<T>, "Type T must be (int, long, float, double, ....)");
 

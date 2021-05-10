@@ -1,6 +1,6 @@
 //
 // By Ook
-// v2.2
+// v2.3
 //
 
 #pragma once
@@ -69,7 +69,7 @@ namespace HashConcepts {
 	concept IsPODText = IsCharText<T> || IsWCharText<T>;
 
 	template <class T>
-	concept IsPODTextPointer = std::is_pointer_v<T> && (IsCharText<std::remove_pointer_t<T>> || IsWCharText<std::remove_pointer_t<T>>);
+	concept IsPODTextPointer = std::is_pointer_v<T> && IsPODText<std::remove_pointer_t<T>>;
 }
 #endif
 
@@ -479,29 +479,19 @@ namespace FNV1a {
 		return *str ? fnv1a_hash(str + 1, (hash ^ *str) * fnv_prime) : hash;
 	}
 
-	//constexpr hash_t fnv1a_hash(std::size_t n, const char* str, hash_t hash = fnv_basis)
-	//{
-	//	return n > 0 ? fnv1a_hash(n - 1, str + 1, (hash ^ *str) * fnv_prime) : hash;
-	//}
-	//template<std::size_t N>
-	//constexpr hash_t fnv1a_hash(const char(&array)[N])
-	//{
-	//	return fnv1a_hash(N - 1, &array[0]);
-	//}
-	//constexpr hash_t fnv1a_hash(std::size_t n, const wchar_t* str, hash_t hash = fnv_basis)
-	//{
-	//	return n > 0 ? fnv1a_hash(n - 1, str + 1, (hash ^ *str) * fnv_prime) : hash;
-	//}
-	//template<std::size_t N>
-	//constexpr hash_t fnv1a_hash(const wchar_t(&array)[N])
-	//{
-	//	return fnv1a_hash(N - 1, &array[0]);
-	//}
+	consteval hash_t cfnv1a_hash(const char* str, hash_t hash = fnv_basis)
+	{
+		return *str ? cfnv1a_hash(str + 1, (hash ^ *str) * fnv_prime) : hash;
+	}
 
 	constexpr hash_t fnv1a_hash(const wchar_t* str, hash_t hash = fnv_basis)
 	{
-		//return *str ? fnv1a_hash(str + 1, (hash ^ *str) * fnv_prime) : hash;
 		return *str ? fnv1a_hash(str + 1, (((hash ^ (*str & 0xFF)) * fnv_prime) ^ ((*str >> 8) & 0xFF)) * fnv_prime) : hash;
+	}
+
+	consteval hash_t cfnv1a_hash(const wchar_t* str, hash_t hash = fnv_basis)
+	{
+		return *str ? cfnv1a_hash(str + 1, (((hash ^ (*str & 0xFF)) * fnv_prime) ^ ((*str >> 8) & 0xFF)) * fnv_prime) : hash;
 	}
 }
 // turns a literal string into a hash number at compile time.

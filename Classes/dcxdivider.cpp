@@ -40,7 +40,8 @@ DcxDivider::DcxDivider(const UINT ID, DcxDialog *const p_Dialog, const HWND mPar
 		this);
 
 	if (!IsWindow(m_Hwnd))
-		throw Dcx::dcxException("Unable To Create Window");
+		//throw Dcx::dcxException("Unable To Create Window");
+		throw DcxExceptions::dcxUnableToCreateWindow();
 
 	if (ws.m_NoTheme)
 		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
@@ -73,22 +74,6 @@ const TString DcxDivider::getStyles(void) const
 	return styles;
 }
 
-//void DcxDivider::parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme )
-//{
-//	*Styles |= DVS_HORZ;
-//
-//	//for (auto tsStyle(styles.getfirsttok(1)); !tsStyle.empty(); tsStyle = styles.getnexttok())
-//	//{
-//	//	if ( tsStyle == TEXT("vertical") )
-//	//		*Styles |= DVS_VERT;
-//	//}
-//
-//	if (styles.istok(TEXT("vertical")))
-//		*Styles |= DVS_VERT;
-//
-//	this->parseGeneralControlStyles(styles, Styles, ExStyles, bNoTheme);
-//}
-
 dcxWindowStyles DcxDivider::parseControlStyles(const TString & tsStyles)
 {
 	dcxWindowStyles ws;
@@ -109,7 +94,6 @@ dcxWindowStyles DcxDivider::parseControlStyles(const TString & tsStyles)
  *
  * \return > void
  */
-
 void DcxDivider::parseInfoRequest(const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const
 {
 	switch (std::hash<TString>{}(input.getfirsttok(3)))
@@ -150,7 +134,8 @@ void DcxDivider::parseCommandRequest(const TString & input)
 	if (flags[TEXT('l')] || flags[TEXT('r')])
 	{
 		if (numtok < 10)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		DVPANEINFO dvpi;
 
@@ -165,7 +150,8 @@ void DcxDivider::parseCommandRequest(const TString & input)
 		dvpi.cxIdeal = data.getnexttok().to_<UINT>();	// tok 5
 
 		if (control_data.numtok() < 6)
-			throw Dcx::dcxException("Insufficient Parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		//const auto ID = mIRC_ID_OFFSET + control_data.gettok(1).to_<UINT>();
 		const TString tsID(control_data.gettok(1));
@@ -194,7 +180,8 @@ void DcxDivider::parseCommandRequest(const TString & input)
 	else if (flags[TEXT('v')])
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		if (!setDivPos(input.getnexttok().to_<UINT>()))	// tok 4
 			throw Dcx::dcxException("Divider position must be between bounds.");
@@ -286,7 +273,7 @@ LRESULT DcxDivider::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 
 		if (IsWindow(hdr->hwndFrom))
 		{
-			if (const auto c_this = static_cast<DcxControl *>(GetProp(hdr->hwndFrom, TEXT("dcx_cthis"))); c_this)
+			if (const auto c_this = Dcx::dcxGetProp<DcxControl *>(hdr->hwndFrom, TEXT("dcx_cthis")); c_this)
 				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 		}
 	}
@@ -298,7 +285,7 @@ LRESULT DcxDivider::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 	{
 		if (IsWindow(reinterpret_cast<HWND>(lParam)))
 		{
-			if (const auto c_this = static_cast<DcxControl *>(GetProp(reinterpret_cast<HWND>(lParam), TEXT("dcx_cthis"))); c_this)
+			if (const auto c_this = Dcx::dcxGetProp<DcxControl*>(reinterpret_cast<HWND>(lParam), TEXT("dcx_cthis")); c_this)
 				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 		}
 	}
@@ -309,7 +296,7 @@ LRESULT DcxDivider::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 
 		if ((idata) && (IsWindow(idata->hwndItem)))
 		{
-			if (const auto c_this = static_cast<DcxControl *>(GetProp(idata->hwndItem, TEXT("dcx_cthis"))); c_this)
+			if (const auto c_this = Dcx::dcxGetProp<DcxControl*>(idata->hwndItem, TEXT("dcx_cthis")); c_this)
 				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 		}
 	}
@@ -321,7 +308,7 @@ LRESULT DcxDivider::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 
 		if ((idata) && (IsWindow(idata->hwndItem)))
 		{
-			if (const auto c_this = static_cast<DcxControl *>(GetProp(idata->hwndItem, TEXT("dcx_cthis"))); c_this)
+			if (const auto c_this = Dcx::dcxGetProp<DcxControl*>(idata->hwndItem, TEXT("dcx_cthis")); c_this)
 				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 		}
 	}
@@ -331,7 +318,7 @@ LRESULT DcxDivider::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 	{
 		if (auto cHwnd = GetDlgItem(m_Hwnd, gsl::narrow_cast<int>(wParam)); IsWindow(cHwnd))
 		{
-			if (const auto c_this = static_cast<DcxControl *>(GetProp(cHwnd, TEXT("dcx_cthis"))); c_this)
+			if (const auto c_this = Dcx::dcxGetProp<DcxControl*>(cHwnd, TEXT("dcx_cthis")); c_this)
 				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 		}
 	}
@@ -343,7 +330,7 @@ LRESULT DcxDivider::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 
 		if ((idata) && (IsWindow(idata->hwndItem)))
 		{
-			if (const auto c_this = static_cast<DcxControl *>(GetProp(idata->hwndItem, TEXT("dcx_cthis"))); c_this)
+			if (const auto c_this = Dcx::dcxGetProp<DcxControl*>(idata->hwndItem, TEXT("dcx_cthis")); c_this)
 				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 		}
 	}

@@ -42,7 +42,8 @@ DcxStacker::DcxStacker(const UINT ID, DcxDialog* const p_Dialog, const HWND mPar
 		this);
 
 	if (!IsWindow(m_Hwnd))
-		throw Dcx::dcxException("Unable To Create Window");
+		//throw Dcx::dcxException("Unable To Create Window");
+		throw DcxExceptions::dcxUnableToCreateWindow();
 
 	if (ws.m_NoTheme)
 		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
@@ -130,12 +131,14 @@ void DcxStacker::parseInfoRequest(const TString& input, const refString<TCHAR, M
 	case L"text"_hash:
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Invalid number of arguments");
+			//throw Dcx::dcxException("Invalid number of arguments");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto nSel = input.getnexttok().to_int() - 1;	// tok 4
 
 		if (nSel < 0 && nSel >= ListBox_GetCount(m_Hwnd))
-			throw Dcx::dcxException("Invalid Item");
+			//throw Dcx::dcxException("Invalid Item");
+			throw DcxExceptions::dcxInvalidItem();
 
 		auto sitem = this->getItem(nSel);
 		if (!sitem || sitem == reinterpret_cast<LPDCXSITEM>(LB_ERR))
@@ -156,12 +159,14 @@ void DcxStacker::parseInfoRequest(const TString& input, const refString<TCHAR, M
 	case L"haschild"_hash:
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Invalid number of arguments");
+			//throw Dcx::dcxException("Invalid number of arguments");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto nSel = input.getnexttok().to_int() - 1;	// tok 4
 
 		if (nSel < 0 && nSel >= ListBox_GetCount(m_Hwnd))
-			throw Dcx::dcxException("Invalid Item");
+			//throw Dcx::dcxException("Invalid Item");
+			throw DcxExceptions::dcxInvalidItem();
 
 		const auto* const sitem = this->getItem(nSel);
 		if (!sitem || sitem == reinterpret_cast<LPDCXSITEM>(LB_ERR))
@@ -174,12 +179,14 @@ void DcxStacker::parseInfoRequest(const TString& input, const refString<TCHAR, M
 	case L"childid"_hash:
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Invalid number of arguments");
+			//throw Dcx::dcxException("Invalid number of arguments");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto nSel = input.getnexttok().to_int() - 1;	// tok 4
 
 		if (nSel < 0 && nSel >= ListBox_GetCount(m_Hwnd))
-			throw Dcx::dcxException("Invalid Item");
+			//throw Dcx::dcxException("Invalid Item");
+			throw DcxExceptions::dcxInvalidItem();
 
 		const auto* const sitem = this->getItem(nSel);
 		if (!sitem || sitem == reinterpret_cast<LPDCXSITEM>(LB_ERR))
@@ -216,7 +223,8 @@ void DcxStacker::parseCommandRequest(const TString& input)
 	if (flags[TEXT('a')])
 	{
 		if (numtok < 10)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		auto sitem = std::make_unique<DCXSITEM>();
 
@@ -276,12 +284,14 @@ void DcxStacker::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('c')])
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto nPos = input.getnexttok().to_int() - 1;		// tok 4
 
 		if (nPos < 0 && nPos >= ListBox_GetCount(m_Hwnd))
-			throw Dcx::dcxException("Invalid Item");
+			//throw Dcx::dcxException("Invalid Item");
+			throw DcxExceptions::dcxInvalidItem();
 
 		ListBox_SetCurSel(m_Hwnd, nPos);
 	}
@@ -289,12 +299,14 @@ void DcxStacker::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('d')])
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto nPos = input.getnexttok().to_int() - 1;	// tok 4
 
 		if (nPos < 0 && nPos >= ListBox_GetCount(m_Hwnd))
-			throw Dcx::dcxException("Invalid Item");
+			//throw Dcx::dcxException("Invalid Item");
+			throw DcxExceptions::dcxInvalidItem();
 
 		ListBox_DeleteString(m_Hwnd, nPos);
 	}
@@ -312,12 +324,14 @@ void DcxStacker::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('T')])
 	{
 		if (numtok < 4)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto nPos = input.getnexttok().to_int() - 1;	// tok 4
 
 		if (nPos < 0 && nPos >= ListBox_GetCount(m_Hwnd))
-			throw Dcx::dcxException("Invalid Item");
+			//throw Dcx::dcxException("Invalid Item");
+			throw DcxExceptions::dcxInvalidItem();
 
 		const auto sitem = this->getItem(nPos);
 		if (!sitem || sitem == reinterpret_cast<LPDCXSITEM>(LB_ERR))
@@ -329,7 +343,8 @@ void DcxStacker::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('w')])
 	{
 		if (numtok < 5)
-			throw Dcx::dcxException("Insufficient parameters");
+			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
 
 #ifdef DCX_USE_GDIPLUS
 
@@ -385,7 +400,7 @@ LPDCXSITEM DcxStacker::getItem(const int nPos) const noexcept
 
 LPDCXSITEM DcxStacker::getHotItem(void) const noexcept
 {
-	return reinterpret_cast<LPDCXSITEM>(ListBox_GetItemData(m_Hwnd, this->getItemID() - 1));
+	return getItem(this->getItemID() - 1);
 }
 
 void DcxStacker::getItemRect(const int nPos, LPCRECT rc) const noexcept
@@ -836,7 +851,7 @@ LRESULT DcxStacker::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bP
 	{
 		if (IsWindow(reinterpret_cast<HWND>(lParam)))
 		{
-			if (const auto c_this = static_cast<DcxControl*>(GetProp(reinterpret_cast<HWND>(lParam), TEXT("dcx_cthis"))); c_this)
+			if (const auto c_this = Dcx::dcxGetProp<DcxControl*>(reinterpret_cast<HWND>(lParam), TEXT("dcx_cthis")); c_this)
 				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 		}
 	}
@@ -846,7 +861,7 @@ LRESULT DcxStacker::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bP
 	{
 		if (dcxlParam(LPCOMPAREITEMSTRUCT, idata); (idata) && (IsWindow(idata->hwndItem)))
 		{
-			if (const auto c_this = static_cast<DcxControl*>(GetProp(idata->hwndItem, TEXT("dcx_cthis"))); c_this)
+			if (const auto c_this = Dcx::dcxGetProp<DcxControl*>(idata->hwndItem, TEXT("dcx_cthis")); c_this)
 				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 		}
 	}
@@ -856,7 +871,7 @@ LRESULT DcxStacker::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bP
 	{
 		if (dcxlParam(LPDELETEITEMSTRUCT, idata); (idata) && (IsWindow(idata->hwndItem)))
 		{
-			if (const auto c_this = static_cast<DcxControl*>(GetProp(idata->hwndItem, TEXT("dcx_cthis"))); c_this)
+			if (const auto c_this = Dcx::dcxGetProp<DcxControl*>(idata->hwndItem, TEXT("dcx_cthis")); c_this)
 				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 		}
 	}
@@ -866,7 +881,7 @@ LRESULT DcxStacker::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bP
 	{
 		if (const auto cHwnd = GetDlgItem(m_Hwnd, wParam); IsWindow(cHwnd))
 		{
-			if (const auto c_this = static_cast<DcxControl*>(GetProp(cHwnd, TEXT("dcx_cthis"))); c_this)
+			if (const auto c_this = Dcx::dcxGetProp<DcxControl*>(cHwnd, TEXT("dcx_cthis")); c_this)
 				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 		}
 	}
@@ -876,7 +891,7 @@ LRESULT DcxStacker::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bP
 	{
 		if (dcxlParam(LPDRAWITEMSTRUCT, idata); (idata) && (IsWindow(idata->hwndItem)))
 		{
-			if (const auto c_this = static_cast<DcxControl*>(GetProp(idata->hwndItem, TEXT("dcx_cthis"))); c_this)
+			if (const auto c_this = Dcx::dcxGetProp<DcxControl*>(idata->hwndItem, TEXT("dcx_cthis")); c_this)
 				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 		}
 	}
@@ -922,7 +937,7 @@ LRESULT DcxStacker::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bP
 		{
 			if (IsWindow(hdr->hwndFrom))
 			{
-				if (const auto c_this = static_cast<DcxControl*>(GetProp(hdr->hwndFrom, TEXT("dcx_cthis"))); c_this)
+				if (const auto c_this = Dcx::dcxGetProp<DcxControl*>(hdr->hwndFrom, TEXT("dcx_cthis")); c_this)
 					lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 			}
 		}

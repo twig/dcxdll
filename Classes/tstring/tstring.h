@@ -67,11 +67,10 @@
 #define _TSTRING_H_
 
  // VS2019+ only
-#if !defined(_MSC_FULL_VER) || _MSC_FULL_VER < 192829335
-#error "This version of TString needs Visual Studio 2019 16.8.3 or newer"
+#if !defined(_MSC_FULL_VER) || _MSC_FULL_VER < 192829914
+#error "This version of TString needs Visual Studio 2019 16.9.4 or newer"
 #endif
 
-//#include <tchar.h>
 #include <cstdio>
 #include <cstdlib>
 #include <stdexcept>
@@ -101,7 +100,10 @@ namespace TStringConcepts {
 	concept IsPODText = IsCharText<T> || IsWCharText<T>;
 
 	template <class T>
-	concept IsPODTextPointer = std::is_pointer_v<T> && (IsCharText<std::remove_pointer_t<T>> || IsWCharText<std::remove_pointer_t<T>>);
+	concept IsPODTextArray = IsPODText<T> && std::is_bounded_array_v<T>;
+
+	template <class T>
+	concept IsPODTextPointer = std::is_pointer_v<T> && IsPODText<std::remove_pointer_t<T>> && !IsPODTextArray<T>;
 
 	template <class T>
 	concept IsNumeric = is_Numeric_v<T>;
@@ -771,6 +773,7 @@ public:
 	/// </summary>
 	/// <returns>The actual string data.</returns>
 	const_pointer_const data() const noexcept { return m_pString; }
+	//pointer data() const noexcept { return m_pString; }
 
 	/// <summary>
 	/// Get length of string in characters.
