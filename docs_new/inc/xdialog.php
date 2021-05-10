@@ -548,6 +548,11 @@ function get_xdialogprops_xdialog(&$XDIALOGPROPS) {
 			'__cmd' => "N",
 			'__eg' => "5",
 		),
+		"namedid" => array(
+			'__desc' => "This property retrieves the named id associated with the given ID.",
+			'__cmd' => "N",
+			'__eg' => "5",
+		),
 		"ismenu" => "This property retrieves if the dialog displays a menu or not.",
 		"mouseid" => "This property retrieves which control the mouse currently hovers.",
 		"focusid" => "This property retrieves which control currently has the focus.",
