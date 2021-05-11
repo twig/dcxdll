@@ -45,7 +45,8 @@ class DcxDialog;
 // find the percentage of 0 to -10000 range
 constexpr inline long PercentageToRange(float perc) noexcept
 {
-	return (long)-(10000.0 - (100.0 * perc));
+	return gsl::narrow_cast<long>(-(10000.0 - (100.0 * perc)));
+
 	//if ((perc < 0.0) || (perc > 100.0))
 	//	return RangeTable[0];
 	//return gsl::at(RangeTable, perc);

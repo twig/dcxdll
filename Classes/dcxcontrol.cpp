@@ -1576,7 +1576,7 @@ void DcxControl::DrawControl(HDC hDC, HWND hwnd)
 	const Dcx::dcxHDCBitmapResource hdcMemory(hDC, hBitmap.get());
 
 	::SendMessage(hwnd, WM_ERASEBKGND, reinterpret_cast<WPARAM>(hdcMemory.get()), 1L); // HACK: using 1L instead of NULL as a workaround for stacker.
-	::SendMessage(hwnd, WM_PRINT, reinterpret_cast<WPARAM>(hdcMemory.get()), static_cast<LPARAM>(PRF_NONCLIENT | PRF_CLIENT | PRF_CHILDREN | PRF_CHECKVISIBLE /*| PRF_ERASEBKGND*/));
+	::SendMessage(hwnd, WM_PRINT, reinterpret_cast<WPARAM>(hdcMemory.get()), gsl::narrow_cast<LPARAM>(PRF_NONCLIENT | PRF_CLIENT | PRF_CHILDREN | PRF_CHECKVISIBLE /*| PRF_ERASEBKGND*/));
 
 	BitBlt(hDC, rc.left, rc.top, w, h, hdcMemory.get(), 0, 0, SRCCOPY);
 #else
@@ -1626,7 +1626,7 @@ void DcxControl::DrawControl(HDC hDC, HWND hwnd)
 	Auto(Dcx::dcxSelectObject<HBITMAP>(hdcMemory, hbmpOld));
 
 	::SendMessage(hwnd, WM_ERASEBKGND, reinterpret_cast<WPARAM>(hdcMemory), 1L); // HACK: using 1L instead of NULL as a workaround for stacker.
-	::SendMessage(hwnd, WM_PRINT, reinterpret_cast<WPARAM>(hdcMemory), static_cast<LPARAM>(PRF_NONCLIENT | PRF_CLIENT | PRF_CHILDREN | PRF_CHECKVISIBLE /*| PRF_ERASEBKGND*/));
+	::SendMessage(hwnd, WM_PRINT, reinterpret_cast<WPARAM>(hdcMemory), gsl::narrow_cast<LPARAM>(PRF_NONCLIENT | PRF_CLIENT | PRF_CHILDREN | PRF_CHECKVISIBLE /*| PRF_ERASEBKGND*/));
 
 	BitBlt(hDC, rc.left, rc.top, w, h, hdcMemory, 0, 0, SRCCOPY);
 #endif
