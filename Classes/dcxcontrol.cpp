@@ -571,10 +571,17 @@ void DcxControl::parseGlobalCommandRequest(const TString& input, const XSwitchFl
 	}
 	// invalid command
 	else
-		throw Dcx::dcxException("Invalid Command");
+		throw DcxExceptions::dcxInvalidCommand();
 }
 
-[[gsl::suppress(lifetime.4)]] HBITMAP DcxControl::resizeBitmap(HBITMAP srcBM, const RECT* const rc) noexcept
+/// <summary>
+/// Resizes bitmap, creating a copy & deleting the old one.
+/// </summary>
+/// <param name="srcBM"></param>
+/// <param name="rc"></param>
+/// <returns></returns>
+GSL_SUPPRESS(lifetime.4)
+HBITMAP DcxControl::resizeBitmap(HBITMAP srcBM, const RECT* const rc) noexcept
 {
 #if DCX_USE_WRAPPERS && 0
 
@@ -666,6 +673,11 @@ void DcxControl::parseGlobalCommandRequest(const TString& input, const XSwitchFl
 #endif
 }
 
+/// <summary>
+/// Converts a string to a control type.
+/// </summary>
+/// <param name="t"></param>
+/// <returns></returns>
 DcxControlTypes DcxControl::TSTypeToControlType(const TString& t)
 {
 	const static std::map<std::hash<TString>::result_type, DcxControlTypes> dcxTypesMap{
@@ -741,38 +753,6 @@ const DcxColourFlags DcxControl::parseColorFlags(const TString& flags) noexcept
 	return iFlags;
 }
 
-/*!
- * \brief blah
- *
- * blah
- */
-
- //std::pair<WindowStyle,WindowExStyle> DcxControl::parseBorderStyles(const TString & flags) noexcept
- //{
- //	const XSwitchFlags xflags(flags);
- //	WindowStyle Styles(WindowStyle::None);
- //	WindowExStyle ExStyles(WindowExStyle::None);
- //
- //	// no +sign, missing params
- //	if ( !xflags[TEXT('+')] )
- //		return { Styles, ExStyles };
- //
- //	if ( xflags[TEXT('b')] )
- //		Styles |= WS_BORDER;
- //	if ( xflags[TEXT('c')] )
- //		ExStyles |= WS_EX_CLIENTEDGE;
- //	if ( xflags[TEXT('d')] )
- //		Styles |= WS_DLGFRAME ;
- //	if ( xflags[TEXT('f')] )
- //		ExStyles |= WS_EX_DLGMODALFRAME;
- //	if ( xflags[TEXT('s')] )
- //		ExStyles |= WS_EX_STATICEDGE;
- //	if ( xflags[TEXT('w')] )
- //		ExStyles |= WS_EX_WINDOWEDGE;
- //
- //	return { Styles, ExStyles };
- //}
-
  /*!
   * \brief Get Information about a control.
   *
@@ -829,7 +809,7 @@ bool DcxControl::parseGlobalInfoRequest(const TString& input, const refString<TC
 	{
 		szReturnValue = m_tsMark.to_chr();
 		return true;
-		}
+	}
 	break;
 	case L"mouse"_hash:
 	{
@@ -963,9 +943,9 @@ bool DcxControl::parseGlobalInfoRequest(const TString& input, const refString<TC
 	default:
 		throw Dcx::dcxException("Invalid property or number of arguments");
 		break;
-		}
-	return false;
 	}
+	return false;
+}
 
 /*!
  * \brief blah
@@ -1478,8 +1458,6 @@ const RECT DcxControl::getWindowPosition() const noexcept
 #if DCX_USE_WRAPPERS
 	const Dcx::dcxWindowRect rc(m_Hwnd, GetParent(m_Hwnd));
 	return rc.CopyRect();
-	//return{ rc.left, rc.top, rc.right, rc.bottom };
-	//return rc;
 #else
 	RECT rc{};
 	GetWindowRectParent(m_Hwnd, &rc);
@@ -1546,7 +1524,7 @@ void DcxControl::DrawCtrlBackground(const HDC hdc, const DcxControl* const p_thi
 				FillRect(hdc, &rc, hBrush);
 		}
 	}
-	}
+}
 
 void DcxControl::DrawControl(HDC hDC, HWND hwnd)
 {
@@ -1921,7 +1899,7 @@ LPALPHAINFO DcxControl::SetupAlphaBlend(HDC* hdc, const bool DoubleBuffer)
 		*hdc = ai->ai_hdc;
 	}
 	return ai.release();
-	}
+}
 
 GSL_SUPPRESS(type.4)
 GSL_SUPPRESS(i.11)

@@ -663,20 +663,140 @@ void DcxDialog::parseCommandRequest(_In_ const TString& input)
 	// xdialog -z [NAME] [SWITCH] [+FLAGS] [N]
 	else if (flags[TEXT('z')] && numtok > 3)
 	{
-		// Ook: TODO change to support named id's
 		const XSwitchFlags xflag(input.getnexttok());	// tok 3
-		auto n = input.getnexttok().to_int();		// tok 4
+		const auto tsID(input.getnexttok());
+
+		//auto n = tsID.to_int();
+		//// invalid input for [N]
+		//if ((n <= 0) || (!xflag[TEXT('+')]))
+		//	throw DcxExceptions::dcxInvalidArguments();
+		// adding control ID to list
+//		if (xflag[TEXT('a')])
+//		{
+//			// add mIRC offset since getControlByID() needs it
+//			n += mIRC_ID_OFFSET;
+//
+//			// check if the ID is already in the list
+//			if (Dcx::find(m_vZLayers, n))
+//				throw Dcx::dcxException(TEXT("control % already in list"), n);
+//
+//			// if the specified control exists on the dialog, hide it
+//			if (const auto* const ctrl = getControlByID(gsl::narrow_cast<UINT>(n)); ctrl)
+//			{
+//				ShowWindow(ctrl->getHwnd(), SW_HIDE);
+//
+//				RECT rc{};
+//				if (!GetClientRect(getHwnd(), &rc))
+//					throw Dcx::dcxException("Unable to get client rect!");
+//
+//				if (updateLayout(rc))
+//					redrawWindow();
+//			}
+//
+//			// append the item to the end of the list
+//			m_vZLayers.push_back(n);
+//		}
+//		// position to match CID [CID]
+//		else if (xflag[TEXT('p')])
+//		{
+//			// add mIRC offset since getControlByID() needs it
+//			n += mIRC_ID_OFFSET;
+//
+//			// get the control which will be used to retrieve the target position
+//			auto ctrl = getControlByID(gsl::narrow_cast<UINT>(n));
+//
+//			// target control not found
+//			if (ctrl == nullptr)
+//				throw Dcx::dcxException("No such control");
+//
+//#if DCX_USE_WRAPPERS
+//			// variables used to move control
+//			const Dcx::dcxWindowRect r(ctrl->getHwnd(), GetParent(ctrl->getHwnd()));
+//
+//			// for each control in the internal list
+//			for (const auto& x : m_vZLayers)
+//			{
+//				// ignore target control
+//				if (x != n)
+//				{
+//					// get control to be moved
+//					ctrl = getControlByID(gsl::narrow_cast<UINT>(x));
+//
+//					// if it exists, move it
+//					if (ctrl)
+//						MoveWindow(ctrl->getHwnd(), r.left, r.top, r.Width(), r.Height(), FALSE);
+//				}
+//			}
+//#else
+//			// variables used to move control
+//			RECT r{};
+//
+//			// figure out coordinates of control
+//			if (!GetWindowRectParent(ctrl->getHwnd(), &r))
+//				throw Dcx::dcxException("Unable to get window rect!");
+//
+//			// for each control in the internal list
+//			for (const auto& x : m_vZLayers)
+//			{
+//				// ignore target control
+//				if (x != n)
+//				{
+//					// get control to be moved
+//					ctrl = getControlByID(static_cast<UINT>(x));
+//
+//					// if it exists, move it
+//					if (ctrl)
+//						MoveWindow(ctrl->getHwnd(), r.left, r.top, r.right - r.left, r.bottom - r.top, FALSE);
+//				}
+//			}
+//#endif
+//		}
+//		// show index [N]
+//		else if (xflag[TEXT('s')])
+//		{
+//			// minus since indexes are zero-based
+//			n--;
+//
+//			// if the index is out of bounds
+//			if (n >= gsl::narrow_cast<int>(m_vZLayers.size()))
+//				throw Dcx::dcxException("Index array out of bounds");
+//
+//			execAliasEx(TEXT("zlayershow,%d,%d"), n + 1, gsl::at(m_vZLayers, gsl::narrow_cast<UINT>(n)) - mIRC_ID_OFFSET);
+//
+//			// hide the previous control
+//			auto ctrl = getControlByID(gsl::narrow_cast<UINT>(gsl::at(m_vZLayers, m_zLayerCurrent)));
+//
+//			if (ctrl)
+//				ShowWindow(ctrl->getHwnd(), SW_HIDE);
+//
+//			// set the new index to the currently selected index
+//			m_zLayerCurrent = gsl::narrow_cast<UINT>(n);
+//			ctrl = getControlByID(gsl::narrow_cast<UINT>(gsl::at(m_vZLayers, gsl::narrow_cast<UINT>(n))));
+//
+//			// if the selected control exists, show control
+//			if (!ctrl)
+//				throw Dcx::dcxException("Invalid Control ID");
+//
+//			ShowWindow(ctrl->getHwnd(), SW_SHOW);
+//
+//			RECT rc{};
+//			if (!GetClientRect(getHwnd(), &rc))
+//				throw Dcx::dcxException("Unable to get client rect!");
+//
+//			if (updateLayout(rc))
+//				redrawWindow();
+//		}
 
 		// invalid input for [N]
-		if ((n <= 0) || (!xflag[TEXT('+')]))
-			//throw Dcx::dcxException("Invalid Parameters");
-			throw DcxExceptions::dcxInvalidArguments();
+		if (!xflag[TEXT('+')])
+			throw DcxExceptions::dcxInvalidFlag();
 
 		// adding control ID to list
 		if (xflag[TEXT('a')])
 		{
-			// add mIRC offset since getControlByID() needs it
-			n += mIRC_ID_OFFSET;
+			const int n = this->NameToID(tsID);
+			if (n <= 0)
+				throw DcxExceptions::dcxInvalidArguments();
 
 			// check if the ID is already in the list
 			if (Dcx::find(m_vZLayers, n))
@@ -701,14 +821,15 @@ void DcxDialog::parseCommandRequest(_In_ const TString& input)
 		// position to match CID [CID]
 		else if (xflag[TEXT('p')])
 		{
-			// add mIRC offset since getControlByID() needs it
-			n += mIRC_ID_OFFSET;
+			const int n = this->NameToID(tsID);
+			if (n <= 0)
+				throw DcxExceptions::dcxInvalidArguments();
 
 			// get the control which will be used to retrieve the target position
 			auto ctrl = getControlByID(gsl::narrow_cast<UINT>(n));
 
 			// target control not found
-			if (ctrl == nullptr)
+			if (!ctrl)
 				throw Dcx::dcxException("No such control");
 
 #if DCX_USE_WRAPPERS
@@ -756,19 +877,22 @@ void DcxDialog::parseCommandRequest(_In_ const TString& input)
 		// show index [N]
 		else if (xflag[TEXT('s')])
 		{
+			// NB: This uses an index NOT a control id.
+			// 
 			// minus since indexes are zero-based
-			n--;
+			auto n = tsID.to_int() - 1;
 
 			// if the index is out of bounds
-			if (n >= gsl::narrow_cast<int>(m_vZLayers.size()))
-				throw Dcx::dcxException("Index array out of bounds");
+			if ((n < 0) || (n >= gsl::narrow_cast<int>(m_vZLayers.size())))
+				//throw Dcx::dcxException("Index array out of bounds");
+				throw DcxExceptions::dcxOutOfRange();
 
 			execAliasEx(TEXT("zlayershow,%d,%d"), n + 1, gsl::at(m_vZLayers, gsl::narrow_cast<UINT>(n)) - mIRC_ID_OFFSET);
 
 			// hide the previous control
 			auto ctrl = getControlByID(gsl::narrow_cast<UINT>(gsl::at(m_vZLayers, m_zLayerCurrent)));
 
-			if (ctrl != nullptr)
+			if (ctrl)
 				ShowWindow(ctrl->getHwnd(), SW_HIDE);
 
 			// set the new index to the currently selected index
@@ -776,7 +900,7 @@ void DcxDialog::parseCommandRequest(_In_ const TString& input)
 			ctrl = getControlByID(gsl::narrow_cast<UINT>(gsl::at(m_vZLayers, gsl::narrow_cast<UINT>(n))));
 
 			// if the selected control exists, show control
-			if (ctrl == nullptr)
+			if (!ctrl)
 				throw Dcx::dcxException("Invalid Control ID");
 
 			ShowWindow(ctrl->getHwnd(), SW_SHOW);
@@ -788,6 +912,8 @@ void DcxDialog::parseCommandRequest(_In_ const TString& input)
 			if (updateLayout(rc))
 				redrawWindow();
 		}
+		else
+			throw DcxExceptions::dcxInvalidFlag();
 
 		return;
 	}
@@ -1453,7 +1579,7 @@ void DcxDialog::parseInfoRequest(const TString& input, const refString<TCHAR, MI
 	default:
 		throw Dcx::dcxException("Invalid property or parameters");
 		break;
-	}
+}
 	}
 
 GSL_SUPPRESS(es.47)

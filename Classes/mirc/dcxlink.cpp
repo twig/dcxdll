@@ -465,11 +465,12 @@ void DcxLink::DrawClientArea(HDC hdc)
 		{
 			Auto(DeleteObject(hNewFont));
 
-			const auto hOldFont = Dcx::dcxSelectObject<HFONT>(hdc, hNewFont);
-			Auto(Dcx::dcxSelectObject<HFONT>(hdc, hOldFont));
+			const auto savedDC = SaveDC(hdc);
+			Auto(RestoreDC(hdc, savedDC));
 
-			const auto oldMode = SetBkMode(hdc, TRANSPARENT);
-			Auto(SetBkMode(hdc, oldMode));
+			Dcx::dcxSelectObject<HFONT>(hdc, hNewFont);
+
+			SetBkMode(hdc, TRANSPARENT);
 
 			if (this->m_hIcon)
 			{
@@ -487,6 +488,9 @@ void DcxLink::DrawClientArea(HDC hdc)
 				setTextColor(this->m_aColors[2]);
 			else
 				setTextColor(this->m_aColors[0]);
+
+			if (m_clrText != CLR_INVALID)
+				SetTextColor(hdc, m_clrText);
 
 			const TString wtext(TGetWindowText(m_Hwnd));
 			this->ctrlDrawText(hdc, wtext, &rect, DT_LEFT | DT_NOPREFIX | DT_SINGLELINE | DT_VCENTER);
