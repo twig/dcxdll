@@ -564,11 +564,11 @@ void DcxComboEx::setImageList(const HIMAGELIST himl) noexcept
 bool DcxComboEx::matchItemText(const int nItem, const TString& search, const DcxSearchTypes& SearchType) const
 {
 	auto itemtext = std::make_unique<TCHAR[]>(MIRC_BUFFER_SIZE_CCH);
-	
+
 	COMBOBOXEXITEM cbi{ CBEIF_TEXT, nItem, itemtext.get(), MIRC_BUFFER_SIZE_CCH };
-	
+
 	getItem(&cbi);
-	
+
 	return DcxListHelper::matchItemText(cbi.pszText, search, SearchType);
 
 	//auto itemtext = std::make_unique<TCHAR[]>(MIRC_BUFFER_SIZE_CCH);
@@ -867,51 +867,79 @@ LRESULT CALLBACK DcxComboEx::ComboExEditProc(HWND mHwnd, UINT uMsg, WPARAM wPara
 	{
 		// This message added to allow the control to return a msg when 'return' is pressed.
 	case WM_GETDLGCODE:
-		return DLGC_WANTALLKEYS | CallWindowProc(lpce->OldProc, mHwnd, uMsg, wParam, lParam);
-		break;
-		/*
-				case WM_KEYDOWN:
-				{
-				if ( wParam == VK_RETURN ) {
+		//return DLGC_WANTALLKEYS | CallWindowProc(lpce->OldProc, mHwnd, uMsg, wParam, lParam);
+		if (wParam == VK_RETURN)
+			return DLGC_WANTALLKEYS | CallWindowProc(lpce->OldProc, mHwnd, uMsg, wParam, lParam);
+	break;
 
-				DcxControl * pthis = (DcxControl *) GetProp( lpce->cHwnd, TEXT("dcx_cthis") );
+	//case WM_CHAR:
+	//{
+	//	if (wParam == VK_TAB)
+	//		return DefWindowProc(mHwnd, uMsg, wParam, lParam);
+		//
+	//	if (wParam == VK_RETURN)
+	//	{
+	//		DcxControl* pthis = Dcx::dcxGetProp<DcxControl*>(lpce->cHwnd, TEXT("dcx_cthis"));
+//
+	//		if (pthis)
+	//		{
+	//			if (dcx_testflag(pthis->getParentDialog()->getEventMask(), DCX_EVENT_EDIT))
+	//				pthis->execAliasEx(TEXT("return,%u"), pthis->getUserID());
+	//			return 0;
+	//		}
+	//	}
+	//}
+	//break;
+	//case WM_KEYDOWN:
+	//{
+	//	if (wParam == VK_TAB)
+	//		return DefWindowProc(mHwnd, uMsg, wParam, lParam);
+//
+	//	if (wParam == VK_RETURN)
+	//	{
+	//		DcxControl* pthis = Dcx::dcxGetProp<DcxControl*>(lpce->cHwnd, TEXT("dcx_cthis"));
+//
+	//		if (pthis)
+	//		{
+	//			if (dcx_testflag(pthis->getParentDialog()->getEventMask(), DCX_EVENT_EDIT))
+	//				pthis->execAliasEx(TEXT("return,%u"), pthis->getUserID());
+	//			return 0;
+	//		}
+	//	}
+	//}
+	//break;
 
-				if ( pthis != nullptr ) {
-				pthis->callAliasEx( nullptr, TEXT("%s,%d"), TEXT("return"), pthis->getUserID( ) );
-				}
-				}
-				}
-				break;
-				//case WM_NOTIFY:
-				//	{
-				//      LPNMHDR hdr = (LPNMHDR) lParam;
-				//      if (!hdr)
-				//        break;
+	//case WM_NOTIFY:
+	//	{
+	//      LPNMHDR hdr = (LPNMHDR) lParam;
+	//      if (!hdr)
+	//        break;
+//
+	//      switch( hdr->code ) {
+	//		case TTN_GETDISPINFO:
+	//			{
+	//         DcxControl * pthis = (DcxControl *) GetProp( lpce->cHwnd, TEXT("dcx_cthis") );
+	//         if ( pthis != nullptr ) {
+	//					LPNMTTDISPINFO di = (LPNMTTDISPINFO)lParam;
+	//					di->lpszText = TEXT("test");
+	//					di->hinst = nullptr;
+	//				}
+	//				return 0L;
+	//			}
+	//			break;
+	//		case TTN_LINKCLICK:
+	//			{
+	//         DcxControl * pthis = (DcxControl *) GetProp( lpce->cHwnd, TEXT("dcx_cthis") );
+	//         if ( pthis != nullptr ) {
+	//					pthis->callAliasEx( nullptr, TEXT("%s,%d"), TEXT("tooltiplink"), pthis->getUserID( ) );
+	//				}
+	//				return 0L;
+	//			}
+	//			break;
+	//		}
+	//	}
+	//	break;
 
-				//      switch( hdr->code ) {
-				//		case TTN_GETDISPINFO:
-				//			{
-				//         DcxControl * pthis = (DcxControl *) GetProp( lpce->cHwnd, TEXT("dcx_cthis") );
-				//         if ( pthis != nullptr ) {
-				//					LPNMTTDISPINFO di = (LPNMTTDISPINFO)lParam;
-				//					di->lpszText = TEXT("test");
-				//					di->hinst = nullptr;
-				//				}
-				//				return 0L;
-				//			}
-				//			break;
-				//		case TTN_LINKCLICK:
-				//			{
-				//         DcxControl * pthis = (DcxControl *) GetProp( lpce->cHwnd, TEXT("dcx_cthis") );
-				//         if ( pthis != nullptr ) {
-				//					pthis->callAliasEx( nullptr, TEXT("%s,%d"), TEXT("tooltiplink"), pthis->getUserID( ) );
-				//				}
-				//				return 0L;
-				//			}
-				//			break;
-				//		}
-				//	}
-				//	break;*/
 	case LB_GETITEMRECT:
 	{
 		// This fixes the lockup on clicking the comboex editbox. (why?)
