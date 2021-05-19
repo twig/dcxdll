@@ -133,6 +133,14 @@ function get_xdid_richedit(&$XDID) {
 			'__eg' => '200 100',
 			'__notes' => 'The percentage of zooming is calculated by dividing the numerator by denominator ([p]NUMERATOR[/p] / [p]DENOMINATOR[/p] * 100)',
 		),
+		'g' => array(
+			'__desc' => 'This command lets you set the colours to use for line numbers',
+			'__cmd' => '[Selected line Background Colour|-] (Background Colour|-) (Selected Line Text Colour|-) (Text Colour|-)',
+			'__eg' => '255 16245 - 1234',
+			'__notes' => array(
+				'A value of [v]-[/v] will cause an option to be ignored.',
+			),
+		),
 	);
 }
 
@@ -164,6 +172,8 @@ function get_xdidprops_richedit(&$XDIDPROPS) {
 		    '__cmd' => 'LINE COLUMN',
 		    '__eg' => '14 3',
 		),
+		"linenumbers" => 'This returns if line numbers are enabled.',
+		"guttercolours" => 'This returns the colours used to draw line numbers.',
 	);
 }
 

@@ -163,6 +163,20 @@ The <a>Color Palette</a> is the richedit's internal color list of 16 values used
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xdid.g"></a>/xdid -g	</td></tr>
+	<tr><td colspan="2">This command lets you set the colours to use for line numbers</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -g [DNAME] [ID] [Selected line Background Colour|-] (Background Colour|-) (Selected Line Text Colour|-) (Text Colour|-)</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -g dcx 4 255 16245 - 1234</div></td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> A value of <a class="value">-</a> will cause an option to be ignored.</td></tr></table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
 			<a name="xdid.i"></a>/xdid -i	</td></tr>
 	<tr><td colspan="2">This command lets you insert a line at the Nth position in the richedit.</td></tr>
 	<tr>
@@ -377,6 +391,34 @@ The <a>Color Palette</a> is the richedit's internal color list of 16 values used
 	<tr>
 		<td class="example">Example:</td>
 		<td><div class="example">$xdid(dcx, 4, 14 3).caretpos</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
+			<a name="xdidprop.guttercolours"></a>$xdid().guttercolours	</td></tr>
+	<tr><td colspan="2">This returns the colours used to draw line numbers.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID).guttercolours</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4).guttercolours</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
+			<a name="xdidprop.linenumbers"></a>$xdid().linenumbers	</td></tr>
+	<tr><td colspan="2">This returns if line numbers are enabled.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID).linenumbers</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4).linenumbers</div></td>
 	</tr>
 </table>
 <br />
@@ -646,6 +688,7 @@ The <a>Color Palette</a> is the richedit's internal color list of 16 values used
 		<a class='flag' href="#xdid.a"><div>-a</div></a>
 		<a class='flag' href="#xdid.c"><div>-c</div></a>
 		<a class='flag' href="#xdid.d"><div>-d</div></a>
+		<a class='flag' href="#xdid.g"><div>-g</div></a>
 		<a class='flag' href="#xdid.i"><div>-i</div></a>
 		<a class='flag' href="#xdid.k"><div>-k</div></a>
 		<a class='flag' href="#xdid.l"><div>-l</div></a>
@@ -664,6 +707,8 @@ The <a>Color Palette</a> is the richedit's internal color list of 16 values used
 <div class='rightmenu' style='border:1px solid #A8B2D1'>
 	<a class='header' href="#xdidprop"><div style='background:#A8B2D1;'>$xdid() Properties</div></a>
 		<a class='flag' href="#xdidprop.caretpos"><div>caretpos</div></a>
+		<a class='flag' href="#xdidprop.guttercolours"><div>guttercolours</div></a>
+		<a class='flag' href="#xdidprop.linenumbers"><div>linenumbers</div></a>
 		<a class='flag' href="#xdidprop.num"><div>num</div></a>
 		<a class='flag' href="#xdidprop.sel"><div>sel</div></a>
 		<a class='flag' href="#xdidprop.selend"><div>selend</div></a>
@@ -691,7 +736,7 @@ The <a>Color Palette</a> is the richedit's internal color list of 16 values used
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2021</td>
-		<td style="text-align: right;">Last Updated: 10th May, 21</td>
+		<td style="text-align: right;">Last Updated: 19th May, 21</td>
 	</tr>
 </table>
 <div style="text-align: center;">

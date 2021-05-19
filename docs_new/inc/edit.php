@@ -22,6 +22,7 @@ function get_styles_edit(&$STYLES) {
 		'tooltips' => 'The edit will have a tooltip.',
 		'showsel' => 'When the control loses focus, the selection is still displayed.',
 		'alpha' => 'Control is alpha blended.',
+		'showlinenumbers' => 'Show line numbers in a multi line control',
 		'__notes' => array(
 			'Even with [s]number[/s] style, it is still possible to paste non-digits into the edit control.',
 			'[s]password[/s] does not work with [s]multi[/s] style.',
@@ -102,12 +103,20 @@ function get_xdid_edit(&$XDID) {
 		        '__notes' => 'When the [p]END[/p] parameter is not specified, then this command will set the caret position to [p]START[/p].',
 		),
 		'y' => array(
-			'__desc' => 'This command lets you ignore callbacks for repeated keydown events when the user holds a button.',
-			'__cmd' => '[1|0]',
+			'__desc' => 'This command lets you ignore callbacks for repeated keydown events when the user holds a button. This command also allows you to enable/disable line numbers',
+			'__cmd' => '[1|0|-] (0|1)',
 			'__eg' => '1',
 			'__notes' => array(
 				'Repeated keys are ignored by default.',
 				'A value of [v]1[/v] will prevent callbacks from being generated for repeated keydown events.',
+			),
+		),
+		'g' => array(
+			'__desc' => 'This command lets you set the colours to use for line numbers',
+			'__cmd' => '[Selected line Background Colour|-] (Background Colour|-) (Selected Line Text Colour|-) (Text Colour|-)',
+			'__eg' => '255 16245 - 1234',
+			'__notes' => array(
+				'A value of [v]-[/v] will cause an option to be ignored.',
 			),
 		),
 	);
@@ -133,6 +142,8 @@ function get_xdidprops_edit(&$XDIDPROPS) {
 		    '__desc' => "This property lets you retreive the position of the cursor.",
 		    '__notes' => 'The return value is [p]LINE[/p] [p]COLUMN[/p]',
 		),
+		"linenumbers" => 'This returns if line numbers are enabled.',
+		"guttercolours" => 'This returns the colours used to draw line numbers.',
 	);
 }
 
