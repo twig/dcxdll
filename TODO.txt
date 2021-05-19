@@ -17,5 +17,6 @@ DCX V3.1 TODO List
 	Maybe use WebView2 for msft Edge.
 13: Find a better way of integrating CustomMenus into mpopup instead of a seperate global setting.
 14: Add glow effect to tab controls with hottrack.
-15: Add named id support to /xdialog -z
-16: Add trackbar buddy control.
+  15: Add named id support to /xdialog -z (done)
+  16: Add trackbar buddy control. (done)
+17: fix richedit controls font setting.

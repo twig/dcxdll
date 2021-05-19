@@ -1085,6 +1085,10 @@ namespace Dcx
 		iter begin() const noexcept { return{ b }; }
 		iter end() const noexcept { return{ e }; }
 		T length() const noexcept { return e - b; }
+		bool inRange(T f) noexcept
+		{
+			return ((b <= f) && (e > f));
+		}
 
 		T b, e;
 	};

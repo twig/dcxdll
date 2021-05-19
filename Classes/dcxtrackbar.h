@@ -86,6 +86,7 @@ public:
 	LRESULT setSel(const LONG iLowLim, const LONG iHighLim) noexcept;
 	LRESULT getSelStart() const noexcept;
 	LRESULT getSelEnd() const noexcept;
+	HWND setBuddy(const HWND mHwnd, bool bLeft) noexcept;
 
 	inline const TString getType() const final { return TEXT("trackbar"); };
 	inline const DcxControlTypes getControlType() const noexcept final { return DcxControlTypes::TRACKBAR; }

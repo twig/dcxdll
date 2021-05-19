@@ -162,6 +162,8 @@ void DcxUpDown::parseCommandRequest(const TString& input)
 	// xdid -c [NAME] [ID] [SWITCH] [BUDDYID]
 	if (flags[TEXT('c')])
 	{
+		static_assert(CheckFreeCommand(TEXT('c')), "Command in use!");
+
 		if (numtok < 4)
 			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
@@ -181,6 +183,8 @@ void DcxUpDown::parseCommandRequest(const TString& input)
 	// xdid -r [NAME] [ID] [SWITCH] [MIN] [MAX]
 	else if (flags[TEXT('r')])
 	{
+		static_assert(CheckFreeCommand(TEXT('r')), "Command in use!");
+
 		if (numtok < 5)
 			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
@@ -193,6 +197,8 @@ void DcxUpDown::parseCommandRequest(const TString& input)
 	// xdid -t [NAME] [ID] [SWITCH] [BASE]
 	else if (flags[TEXT('t')])
 	{
+		static_assert(CheckFreeCommand(TEXT('t')), "Command in use!");
+
 		if (numtok < 4)
 			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
@@ -204,6 +210,8 @@ void DcxUpDown::parseCommandRequest(const TString& input)
 	// xdid -v [NAME] [ID] [SWITCH] [POS]
 	else if (flags[TEXT('v')])
 	{
+		static_assert(CheckFreeCommand(TEXT('v')), "Command in use!");
+
 		if (numtok < 4)
 			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();

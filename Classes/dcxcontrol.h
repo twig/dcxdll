@@ -42,40 +42,6 @@ enum class DcxColourFlags
 	GRADENDCOLOR = 0x20		//!< Colour At the end of the gradient;
 };
 
-//template <typename T>
-//constexpr DcxColourFlags &operator |=(DcxColourFlags &eStyle, const T &dStyle) noexcept
-//{
-//	return eStyle = static_cast<DcxColourFlags>(static_cast<UINT>(eStyle) | static_cast<UINT>(dStyle));
-//}
-//template <typename T>
-//constexpr DcxColourFlags& operator |=(T& eStyle, const DcxColourFlags& dStyle) noexcept
-//{
-//	return eStyle = static_cast<DcxColourFlags>(static_cast<UINT>(eStyle) | static_cast<UINT>(dStyle));
-//}
-//
-//template <typename T>
-//constexpr DcxColourFlags& operator &=(DcxColourFlags& eStyle, const T& dStyle) noexcept
-//{
-//	return eStyle = static_cast<DcxColourFlags>(static_cast<UINT>(eStyle) & static_cast<UINT>(dStyle));
-//}
-//
-//template <typename T>
-//constexpr DcxColourFlags operator &(const DcxColourFlags& eStyle, const T& dStyle) noexcept
-//{
-//	return static_cast<DcxColourFlags>(static_cast<UINT>(eStyle) & static_cast<UINT>(dStyle));
-//}
-//
-//template <typename T>
-//constexpr DcxColourFlags operator |(const DcxColourFlags& eStyle, const T& dStyle) noexcept
-//{
-//	return static_cast<DcxColourFlags>(static_cast<UINT>(eStyle) | static_cast<UINT>(dStyle));
-//}
-//
-//constexpr DcxColourFlags operator ~(const DcxColourFlags& eStyle) noexcept
-//{
-//	return static_cast<DcxColourFlags>(~static_cast<UINT>(eStyle));
-//}
-
 //#define CTLF_ALLOW_PBAR				0x0000000000000001ULL
 //#define CTLF_ALLOW_TRACKBAR			0x0000000000000002ULL
 //#define CTLF_ALLOW_COMBOEX			0x0000000000000004ULL
@@ -216,6 +182,21 @@ xclass(const xclass &other) = delete; \
 xclass &operator =(const xclass &) = delete; \
 xclass(xclass &&other) = delete; \
 xclass &operator =(xclass &&) = delete;
+
+template <class T, std::size_t N>
+consteval bool CheckFreeCommand(T cmd, const T (&global_cmds)[N], std::size_t offset)
+{
+	if (offset < N)
+		return cmd == global_cmds[offset] ? false : CheckFreeCommand(cmd, global_cmds, offset + 1);
+
+	return true;
+}
+consteval bool CheckFreeCommand(TCHAR cmd)
+{
+	// list of command chars in use by parseGlobalCommandRequest()
+	const TCHAR global_cmds[] = TEXT("bCefFhJMpxURsTz");
+	return CheckFreeCommand(cmd, global_cmds, 0);
+}
 
 /*!
  * \brief blah

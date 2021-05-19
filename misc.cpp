@@ -444,7 +444,7 @@ UINT parseFontCharSet(const TString& charset)
 
 TString ParseLogfontToCommand(const LPLOGFONT lf)
 {
-	TString flags(TEXT('+')), charset(TEXT("default")), tmp;
+	TString flags(TEXT('+')), charset(TEXT("default"_ts)), tmp;
 
 	// get charset
 	switch (lf->lfCharSet)

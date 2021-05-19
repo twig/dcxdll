@@ -862,7 +862,7 @@ void DcxButton::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 
 	if (hTheme)
 		Dcx::UXModule.dcxCloseThemeData(hTheme);
-		}
+}
 
 LRESULT DcxButton::CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept
 {

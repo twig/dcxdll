@@ -221,7 +221,7 @@ bool DcxControl::execAliasEx(const TCHAR* const szFormat, ...) const
 /// General commands
 /// </summary>
 /// <param name="input"> - The input for the specified command.</param>
-/// <param name="flags"> - a supported command - b/e/h/s/U/T/R/f/F/p/x/C/J/M/Z</param>
+/// <param name="flags"> - a supported command - b/C/e/f/F/h/J/M/p/x/U/R/s/T/z</param>
 void DcxControl::parseGlobalCommandRequest(const TString& input, const XSwitchFlags& flags)
 {
 	const auto numtok = input.numtok();

@@ -17,6 +17,7 @@ enum class WindowStyle
 	Border = WS_BORDER,
 	Caption = WS_CAPTION,
 	ClipChildren = WS_CLIPCHILDREN,
+	TabStop = WS_TABSTOP,
 	LBS_MultiSel = LBS_MULTIPLESEL,
 	LBS_ExtendedSel = LBS_EXTENDEDSEL,
 	LBS_UseTabStops = LBS_USETABSTOPS,
@@ -44,41 +45,6 @@ enum class WindowStyle
 	DTS_ShowNone = DTS_SHOWNONE
 };
 
-//template <typename T>
-//constexpr WindowStyle &operator |=(WindowStyle &eStyle, const T &dStyle) noexcept
-//{
-//	return eStyle = static_cast<WindowStyle>(static_cast<DWORD>(eStyle) | static_cast<DWORD>(dStyle));
-//}
-//
-//template <typename T>
-//constexpr WindowStyle &operator &=(WindowStyle &eStyle, const T &dStyle) noexcept
-//{
-//	return eStyle = static_cast<WindowStyle>(static_cast<DWORD>(eStyle) & static_cast<DWORD>(dStyle));
-//}
-//
-//template <typename T>
-//constexpr WindowStyle operator &(const WindowStyle &eStyle, const T &dStyle) noexcept
-//{
-//	return static_cast<WindowStyle>(static_cast<DWORD>(eStyle) & static_cast<DWORD>(dStyle));
-//}
-//
-//template <typename T>
-//constexpr WindowStyle operator |(const WindowStyle &eStyle, const T &dStyle) noexcept
-//{
-//	return static_cast<WindowStyle>(static_cast<DWORD>(eStyle) | static_cast<DWORD>(dStyle));
-//}
-//
-//template <typename T>
-//constexpr WindowStyle operator ^(const WindowStyle& eStyle, const T& dStyle) noexcept
-//{
-//	return static_cast<WindowStyle>(static_cast<DWORD>(eStyle) ^ static_cast<DWORD>(dStyle));
-//}
-//
-//constexpr WindowStyle operator ~(const WindowStyle &eStyle) noexcept
-//{
-//	return static_cast<WindowStyle>(~static_cast<DWORD>(eStyle));
-//}
-
 enum class WindowExStyle
 	: DWORD
 {
@@ -97,81 +63,11 @@ enum class WindowExStyle
 	Layered = WS_EX_LAYERED
 };
 
-//template <typename T>
-//constexpr WindowExStyle &operator |=(WindowExStyle &eStyle, const T &dStyle) noexcept
-//{
-//	return eStyle = static_cast<WindowExStyle>(static_cast<DWORD>(eStyle) | static_cast<DWORD>(dStyle));
-//}
-//
-//template <typename T>
-//constexpr WindowExStyle &operator &=(WindowExStyle &eStyle, const T &dStyle) noexcept
-//{
-//	return eStyle = static_cast<WindowExStyle>(static_cast<DWORD>(eStyle) & static_cast<DWORD>(dStyle));
-//}
-//
-//template <typename T>
-//constexpr WindowExStyle operator &(const WindowExStyle &eStyle, const T &dStyle) noexcept
-//{
-//	return static_cast<WindowExStyle>(static_cast<DWORD>(eStyle) & static_cast<DWORD>(dStyle));
-//}
-//
-//template <typename T>
-//constexpr WindowExStyle operator |(const WindowExStyle &eStyle, const T &dStyle) noexcept
-//{
-//	return static_cast<WindowExStyle>(static_cast<DWORD>(eStyle) | static_cast<DWORD>(dStyle));
-//}
-//
-//template <typename T>
-//constexpr WindowExStyle operator ^(const WindowExStyle& eStyle, const T& dStyle) noexcept
-//{
-//	return static_cast<WindowExStyle>(static_cast<DWORD>(eStyle) ^ static_cast<DWORD>(dStyle));
-//}
-//
-//constexpr WindowExStyle operator ~(const WindowExStyle &eStyle) noexcept
-//{
-//	return static_cast<WindowExStyle>(~static_cast<DWORD>(eStyle));
-//}
-
 enum class WindowAnimStyle
 	: DWORD
 {
 	None
 };
-
-//template <typename T>
-//constexpr WindowAnimStyle &operator |=(WindowAnimStyle &eStyle, const T &dStyle) noexcept
-//{
-//	return eStyle = static_cast<WindowAnimStyle>(static_cast<DWORD>(eStyle) | static_cast<DWORD>(dStyle));
-//}
-//
-//template <typename T>
-//constexpr WindowAnimStyle &operator &=(WindowAnimStyle &eStyle, const T &dStyle) noexcept
-//{
-//	return eStyle = static_cast<WindowAnimStyle>(static_cast<DWORD>(eStyle) & static_cast<DWORD>(dStyle));
-//}
-//
-//template <typename T>
-//constexpr WindowAnimStyle operator &(const WindowAnimStyle &eStyle, const T &dStyle) noexcept
-//{
-//	return static_cast<WindowAnimStyle>(static_cast<DWORD>(eStyle) & static_cast<DWORD>(dStyle));
-//}
-//
-//template <typename T>
-//constexpr WindowAnimStyle operator |(const WindowAnimStyle &eStyle, const T &dStyle) noexcept
-//{
-//	return static_cast<WindowAnimStyle>(static_cast<DWORD>(eStyle) | static_cast<DWORD>(dStyle));
-//}
-//template <typename T>
-//constexpr WindowAnimStyle operator |(const T &dStyle, const WindowAnimStyle &eStyle) noexcept
-//{
-//	return static_cast<WindowAnimStyle>(static_cast<DWORD>(dStyle) | static_cast<DWORD>(eStyle));
-//}
-//
-//template <typename T>
-//constexpr WindowAnimStyle operator ^(const WindowAnimStyle& eStyle, const T& dStyle) noexcept
-//{
-//	return static_cast<WindowAnimStyle>(static_cast<DWORD>(eStyle) ^ static_cast<DWORD>(dStyle));
-//}
 
 template <EnumConcepts::IsNumeric T>
 constexpr WindowStyle to_WindowStyle(T other) noexcept

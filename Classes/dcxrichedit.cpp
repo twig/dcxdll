@@ -109,6 +109,9 @@ dcxWindowStyles DcxRichEdit::parseControlStyles(const TString& tsStyles)
 		case L"disablescroll"_hash:
 			ws.m_Styles |= ES_DISABLENOSCROLL;
 			break;
+		case L"showlinenumbers"_hash:
+			m_bShowLineNumbers = true;
+			break;
 		default:
 			break;
 		}
@@ -263,6 +266,16 @@ void DcxRichEdit::parseInfoRequest(const TString& input, const refString<TCHAR, 
 		//SendMessage(m_Hwnd, EM_STREAMOUT, (WPARAM)iFlags, (LPARAM)&es);
 		//
 		//dcx_strcpyn(szReturnValue, rtf.to_chr(), MIRC_BUFFER_SIZE_CCH);
+	}
+	break;
+	case L"linenumbers"_hash:
+	{
+		szReturnValue = dcx_truefalse(m_bShowLineNumbers);
+	}
+	break;
+	case L"guttercolours"_hash:
+	{
+		_ts_snprintf(szReturnValue, TEXT("%u %u %u %u"), m_clrGutter_selbkg, m_clrGutter_bkg, m_clrGutter_seltxt, m_clrGutter_txt);
 	}
 	break;
 	default:
@@ -449,6 +462,39 @@ void DcxRichEdit::parseCommandRequest(const TString& input)
 			m_bFontUnderline = dcx_testflag(iFontFlags, dcxFontFlags::DCF_UNDERLINE);
 
 			this->parseContents(TRUE);
+		}
+	}
+	// xdid -g [NAME] [ID] [SWITCH] [Selected line Background Colour|-] (Background Colour|-) (Selected Line Text Colour|-) (Text Colour|-)
+	else if (flags[TEXT('g')])
+	{
+		static_assert(CheckFreeCommand(TEXT('g')), "Command in use!");
+
+		if (numtok < 4)
+			throw DcxExceptions::dcxInvalidArguments();
+
+		auto tsClr(input.getnexttok());
+		if (tsClr != TEXT('-'))
+			this->m_clrGutter_selbkg = tsClr.to_<COLORREF>();
+
+		if (numtok > 4)
+		{
+			tsClr = input.getnexttok();
+			if (tsClr != TEXT('-'))
+				this->m_clrGutter_bkg = tsClr.to_<COLORREF>();
+
+			if (numtok > 5)
+			{
+				tsClr = input.getnexttok();
+				if (tsClr != TEXT('-'))
+					this->m_clrGutter_seltxt = tsClr.to_<COLORREF>();
+
+				if (numtok > 6)
+				{
+					tsClr = input.getnexttok();
+					if (tsClr != TEXT('-'))
+						this->m_clrGutter_txt = tsClr.to_<COLORREF>();
+				}
+			}
 		}
 	}
 	// xdid -i [NAME] [ID] [SWITCH] [N] [TEXT]
@@ -706,14 +752,23 @@ void DcxRichEdit::parseCommandRequest(const TString& input)
 	{
 		SendMessage(m_Hwnd, EM_SCROLLCARET, NULL, NULL);
 	}
-	// xdid -y [NAME] [ID] [SWITCH] [0|1]
+	// xdid -y [NAME] [ID] [SWITCH] [0|1|-] [0|1]
 	else if (flags[TEXT('y')])
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
-
-		m_bIgnoreRepeat = (input.getnexttok().to_int() > 0);	// tok 4
+		auto tsRep(input.getnexttok());
+		if (tsRep != TEXT('-'))
+			this->m_bIgnoreRepeat = (tsRep.to_int() > 0);	// tok 4
+		if (numtok > 4)
+		{
+			if (this->isStyle(WindowStyle::ES_MultiLine))
+			{
+				this->m_bShowLineNumbers = (input.getnexttok().to_int() > 0);	// tok 5
+				setFmtRect(!m_bShowLineNumbers);
+				InvalidateRect(m_Hwnd, nullptr, TRUE);
+			}
+		}
 	}
 	// xdid -z [NAME] [ID] [SWITCH] [NUMERATOR] [DENOMINATOR]
 	else if (flags[TEXT('z')])
@@ -1171,6 +1226,121 @@ void DcxRichEdit::parseStringContents(const TString& tsStr, const BOOL fNewLine)
 	this->m_bIgnoreInput = false;
 }
 
+void DcxRichEdit::DrawGutter() noexcept
+{
+	if (HDC hdc = GetDC(m_Hwnd); hdc)
+	{
+		Auto(ReleaseDC(m_Hwnd, hdc));
+
+		auto hFont = GetWindowFont(m_Hwnd);
+		const auto oldFont = Dcx::dcxSelectObject<HFONT>(hdc, hFont);
+		Auto(Dcx::dcxSelectObject<HFONT>(hdc, oldFont));
+
+		TEXTMETRICW lptm{};
+		GetTextMetrics(hdc, &lptm);
+		const auto letter_height = lptm.tmHeight;
+
+		RECT rcClient{};
+		RECT m_FRGutter{};
+		const RECT rcFmt = getFmtRect();
+
+		GetClientRect(m_Hwnd, &rcClient);
+
+		m_FRGutter = rcClient;
+		m_FRGutter.right = rcFmt.left - 3;
+
+		if (auto hdcbuf = CreateHDCBuffer(hdc, &m_FRGutter); hdcbuf)
+		{
+			Auto(DeleteHDCBuffer(hdcbuf));
+
+			Dcx::FillRectColour(*hdcbuf, &m_FRGutter, m_clrGutter_bkg);
+
+			DrawEdge(*hdcbuf, &m_FRGutter, EDGE_BUMP, BF_RIGHT);
+
+			RECT RNumber = m_FRGutter;
+			InflateRect(&RNumber, -5, 0);
+
+			// get visible lines
+			const auto rng = GetVisibleRange();
+			// get current caret pos
+			const auto pos = GetCaretLine();
+
+			TCHAR buf[49]{};
+
+			{
+				// top line, could be a partial line
+				const auto iLineChar = SNDMSG(m_Hwnd, EM_LINEINDEX, rng.b, 0);
+				POINTL pl{};
+				SNDMSG(m_Hwnd, EM_POSFROMCHAR, reinterpret_cast<WPARAM>(&pl), gsl::narrow_cast<LPARAM>(iLineChar));
+				// NB: if a partial line pl.y will be a negative (ie off screen)
+				RNumber.top = pl.y;
+				RNumber.bottom = RNumber.top + letter_height;
+			}
+
+			//SetGraphicsMode(hdc, GM_ADVANCED);
+			const auto oldMode = SetBkMode(*hdcbuf, TRANSPARENT);
+			Auto(SetBkMode(*hdcbuf, oldMode));
+			const auto oldTextColor = GetTextColor(*hdcbuf);
+			Auto(SetTextColor(*hdcbuf, oldTextColor));
+
+			// render the line numbers
+			for (const auto& index : rng)
+			{
+				if (index == pos)
+				{
+					if (m_clrGutter_selbkg != m_clrGutter_bkg)
+						Dcx::FillRectColour(*hdcbuf, &RNumber, m_clrGutter_selbkg);
+					SetTextColor(*hdcbuf, m_clrGutter_seltxt);
+				}
+				else
+					SetTextColor(*hdcbuf, m_clrGutter_txt);
+
+				if (const auto l = _ts_snprintf(&buf[0], std::size(buf), _T("%u"), index + 1); l != -1)
+					DrawText(*hdcbuf, &buf[0], l, &RNumber, DT_RIGHT | DT_VCENTER | DT_SINGLELINE | DT_NOPREFIX);
+
+				RNumber.top += letter_height;
+				RNumber.bottom = RNumber.top + letter_height;
+			}
+			BitBlt(hdc, 0, 0, rcClient.right, rcClient.bottom, *hdcbuf, 0, 0, SRCCOPY);
+		}
+	}
+}
+
+Dcx::range_t<DWORD> DcxRichEdit::GetVisibleRange() noexcept
+{
+	// find the index of the top visible line
+
+	const auto start_line = static_cast<DWORD>(SNDMSG(m_Hwnd, EM_GETFIRSTVISIBLELINE, 0, 0));
+
+	const RECT rc = getFmtRect();
+
+	// find the index of the last visible line
+	POINTL PEnd{ 0,  rc.bottom };
+	const auto char_index = SNDMSG(m_Hwnd, EM_CHARFROMPOS, 0, reinterpret_cast<LPARAM>(&PEnd));
+	const auto stop_line = gsl::narrow_cast<DWORD>(SNDMSG(m_Hwnd, EM_EXLINEFROMCHAR, 0, gsl::narrow_cast<LPARAM>(char_index)));
+
+	// +1 to make range inclusive
+	return { start_line, stop_line + 1 };
+}
+
+DWORD DcxRichEdit::GetCaretPos() noexcept
+{
+	DWORD hiPos{}, loPos{};
+	SNDMSG(m_Hwnd, EM_GETSEL, reinterpret_cast<LPARAM>(&loPos), reinterpret_cast<LPARAM>(&hiPos));
+	if (loPos != hiPos)
+		--hiPos;
+	return hiPos;
+
+	//// windows 10 only :/
+	//return Edit_GetCaretIndex(m_Hwnd);
+}
+
+DWORD DcxRichEdit::GetCaretLine() noexcept
+{
+	const auto pos = GetCaretPos();
+	return gsl::narrow_cast<DWORD>(SNDMSG(m_Hwnd, EM_EXLINEFROMCHAR, 0, gsl::narrow_cast<LPARAM>(pos)));
+}
+
 /*!
 * \brief blah
 *
@@ -1381,13 +1551,17 @@ LRESULT DcxRichEdit::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 					this->execAliasEx(TEXT("link,%u,%s,%s"), getUserID(), tsEvent.to_chr(), tr.lpstrText);
 				}
 			}
-			break;
 		} // EN_LINK
+		break;
+
 		//http://msdn.microsoft.com/library/default.asp?url=/library/en-us/shellcc/platform/commctls/richedit/richeditcontrols/richeditcontrolreference/richeditmessages/em_gettextrange.asp
 		case EN_SELCHANGE:
 		{
 			if (this->m_bIgnoreInput)
 				break;
+
+			if (const auto pSelChange = reinterpret_cast<SELCHANGE*>(lParam); pSelChange && pSelChange->seltyp == SEL_EMPTY && m_bShowLineNumbers)
+				PostMessage(m_Hwnd, WM_DRAW_NUMBERS, 0, 0);
 
 			if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_EDIT))
 			{
@@ -1405,14 +1579,43 @@ LRESULT DcxRichEdit::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 					this->execAliasEx(TEXT("selchange,%u,%d,%d,%s"), getUserID(), sel->chrg.cpMin, sel->chrg.cpMax, tr.lpstrText);
 				}
 			}
-			break;
 		} // EN_SELCHANGE
+		break;
+
+		case EN_UPDATE:
+		{
+			if (m_bShowLineNumbers)
+				PostMessage(m_Hwnd, WM_DRAW_NUMBERS, 0, 0);
+		}
+		break;
+
 		default:
 			break;
 		} // switch(hdr->code)
-
-		break;
 	} // WM_NOTIFY
+	break;
+
+	case WM_COMMAND:
+	{
+		if (!m_bShowLineNumbers)
+			break;
+
+		switch (Dcx::dcxHIWORD(wParam))
+		{
+		case EN_HSCROLL:
+			[[fallthrough]];
+		case EN_CHANGE:
+		{
+			PostMessage(m_Hwnd, WM_DRAW_NUMBERS, 0, 0);
+		}
+		break;
+
+		default:
+			break;
+		}
+	} // WM_COMMAND
+	break;
+
 	default:
 		break;
 	}	// switch (uMsg)
@@ -1426,6 +1629,9 @@ LRESULT DcxRichEdit::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& b
 	{
 	case WM_KEYDOWN:
 	{
+		if (m_bShowLineNumbers)
+			PostMessage(m_Hwnd, WM_DRAW_NUMBERS, 0, 0);
+
 		if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_EDIT))
 		{
 			if (wParam == VK_RETURN)
@@ -1436,41 +1642,53 @@ LRESULT DcxRichEdit::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& b
 
 			this->execAliasEx(TEXT("keydown,%u,%d"), getUserID(), wParam);
 		}
-		break;
 	}
+	break;
+
 	case WM_KEYUP:
 	{
 		if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_EDIT))
 			this->execAliasEx(TEXT("keyup,%u,%d"), getUserID(), wParam);
-		break;
+
+		if (m_bShowLineNumbers)
+			PostMessage(m_Hwnd, WM_DRAW_NUMBERS, 0, 0);
 	}
-	//case WM_PAINT:
-	//	{
-	//		if (!this->IsAlphaBlend())
-	//			break;
-	//		PAINTSTRUCT ps;
-	//		HDC hdc;
-	//
-	//		hdc = BeginPaint( m_Hwnd, &ps );
-	//
-	//		LRESULT res = 0L;
-	//		bParsed = TRUE;
-	//
-	//		// Setup alpha blend if any.
-	//		LPALPHAINFO ai = this->SetupAlphaBlend(&hdc);
-	//
-	//		// fill background.
-	//		//DcxControl::DrawCtrlBackground(hdc,this,&ps.rcPaint);
-	//
-	//		res = CallWindowProc( this->m_DefaultWindowProc, m_Hwnd, uMsg, (WPARAM) hdc, lParam );
-	//		//res = CallWindowProc( this->m_DefaultWindowProc, m_Hwnd, WM_PRINT, (WPARAM) hdc, (LPARAM) (PRF_CLIENT|PRF_NONCLIENT|PRF_CHILDREN|PRF_OWNED) );
-	//
-	//		this->FinishAlphaBlend(ai);
-	//
-	//		EndPaint( m_Hwnd, &ps );
-	//		return res;
-	//	}
-	//	break;
+	break;
+
+	case WM_PAINT:
+	{
+		if (this->IsAlphaBlend())
+		{
+			PAINTSTRUCT ps{};
+
+			auto hdc = BeginPaint(m_Hwnd, &ps);
+			Auto(EndPaint(m_Hwnd, &ps));
+
+			bParsed = TRUE;
+
+			// Setup alpha blend if any.
+			const auto ai = this->SetupAlphaBlend(&hdc);
+			Auto(this->FinishAlphaBlend(ai));
+
+			const auto lRes = CallDefaultClassProc(uMsg, reinterpret_cast<WPARAM>(hdc), lParam);
+
+			if (m_bShowLineNumbers)
+				PostMessage(m_Hwnd, WM_DRAW_NUMBERS, 0, 0);
+
+			return lRes;
+		}
+		else if (m_bShowLineNumbers)
+		{
+			bParsed = TRUE;
+			const auto lRes = CallDefaultClassProc(uMsg, wParam, lParam);
+
+			PostMessage(m_Hwnd, WM_DRAW_NUMBERS, 0, 0);
+
+			return lRes;
+		}
+	}
+	break;
+
 	//case WM_PRINT:
 	//	{
 	//		HDC hdc = (HDC)wParam;
@@ -1502,12 +1720,38 @@ LRESULT DcxRichEdit::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& b
 	//	}
 	//	break;
 
+	case WM_SIZE:
+	{
+		bParsed = TRUE;
+		const auto lRes = CallDefaultClassProc(uMsg, wParam, lParam);
+
+		if (m_bShowLineNumbers)
+			setFmtRect();
+
+		return lRes;
+	}
+	break;
+
+	case WM_DRAW_NUMBERS:
+	{
+		if (m_bShowLineNumbers)
+		{
+			bParsed = TRUE;
+
+			setFmtRect();
+			DrawGutter();
+		}
+		return 0;
+	}
+	break;
+
 	case WM_DESTROY:
 	{
 		delete this;
 		bParsed = TRUE;
-		break;
 	}
+	break;
+
 	default:
 		return this->CommonMessage(uMsg, wParam, lParam, bParsed);
 		break;

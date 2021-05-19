@@ -114,6 +114,49 @@ protected:
 
 	void insertText(const TCHAR *const text, bool bline, bool uline, bool iline, bool bcolor, COLORREF color, bool bbkgcolor, COLORREF bkgcolor, int reverse) noexcept;
 	void parseStringContents(const TString &tsStr, const BOOL fNewLine) noexcept;
+
+	bool m_bShowLineNumbers{ false };
+	COLORREF m_clrGutter_selbkg{ RGB(0xFF, 0xf0, 0xff) };
+	COLORREF m_clrGutter_bkg{ RGB(0xFF, 0xf0, 0xff) };
+	COLORREF m_clrGutter_txt{ RGB(0xAF, 0xAF, 0xAF) };
+	COLORREF m_clrGutter_seltxt{ RGB(0x0F, 0x0F, 0x0F) };
+
+#define WM_DRAW_NUMBERS (WM_USER + 1000)
+#define DCX_EDIT_GUTTER_WIDTH 35
+
+	void DrawGutter() noexcept;
+	RECT getFmtRect() const noexcept
+	{
+		RECT rc{};
+		Edit_GetRect(m_Hwnd, &rc);
+		return rc;
+	}
+	void setFmtRect(bool bReset = false) noexcept
+	{
+		//if (!m_bShowLineNumbers)
+		//	return;
+
+		RECT rcClient{};
+		GetClientRect(m_Hwnd, &rcClient);
+		if (bReset)
+		{
+			Edit_SetRect(m_Hwnd, &rcClient);
+		}
+		else {
+			rcClient.left += DCX_EDIT_GUTTER_WIDTH;
+			RECT rcFmt = getFmtRect();
+			//if (!EqualRect(&rcClient, &rcFmt))
+			if (rcFmt.left < 5)
+			{
+				rcFmt = rcClient;
+				Edit_SetRect(m_Hwnd, &rcFmt);
+			}
+		}
+	}
+	Dcx::range_t<DWORD> GetVisibleRange() noexcept;
+	DWORD GetCaretPos() noexcept;
+	DWORD GetCaretLine() noexcept;
+
 };
 
 #endif // _DCXRICHEDIT_H_

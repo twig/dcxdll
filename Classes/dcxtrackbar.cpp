@@ -184,6 +184,8 @@ void DcxTrackBar::parseCommandRequest(const TString& input)
 	// xdid -c [NAME] [ID] [SWITCH] [VALUE]
 	if (flags[TEXT('c')])
 	{
+		static_assert(CheckFreeCommand(TEXT('c')), "Command in use!");
+
 		if (numtok < 4)
 			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
@@ -194,6 +196,8 @@ void DcxTrackBar::parseCommandRequest(const TString& input)
 	// xdid -g [NAME] [ID] [SWITCH] [FLAGS] [FILE]
 	else if (flags[TEXT('g')])
 	{
+		static_assert(CheckFreeCommand(TEXT('g')), "Command in use!");
+
 		if (numtok < 5)
 			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
@@ -221,6 +225,8 @@ void DcxTrackBar::parseCommandRequest(const TString& input)
 	// xdid -j [NAME] [ID] [SWITCH] [MIN] [MAX]
 	else if (flags[TEXT('j')])
 	{
+		static_assert(CheckFreeCommand(TEXT('j')), "Command in use!");
+
 		if (numtok < 5)
 			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
@@ -232,6 +238,8 @@ void DcxTrackBar::parseCommandRequest(const TString& input)
 	// xdid -l [NAME] [ID] [SWITCH] [VALUE]
 	else if (flags[TEXT('l')])
 	{
+		static_assert(CheckFreeCommand(TEXT('l')), "Command in use!");
+
 		if (numtok < 4)
 			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
@@ -242,6 +250,8 @@ void DcxTrackBar::parseCommandRequest(const TString& input)
 	// xdid -m [NAME] [ID] [SWITCH] [VALUE]
 	else if (flags[TEXT('m')])
 	{
+		static_assert(CheckFreeCommand(TEXT('m')), "Command in use!");
+
 		if (numtok < 4)
 			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
@@ -252,6 +262,8 @@ void DcxTrackBar::parseCommandRequest(const TString& input)
 	// xdid -n [NAME] [ID] [SWITCH] [VALUE]
 	else if (flags[TEXT('n')])
 	{
+		static_assert(CheckFreeCommand(TEXT('n')), "Command in use!");
+
 		if (numtok < 4)
 			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
@@ -262,11 +274,15 @@ void DcxTrackBar::parseCommandRequest(const TString& input)
 	// xdid -q [NAME] [ID] [SWITCH]
 	else if (flags[TEXT('q')])
 	{
+		static_assert(CheckFreeCommand(TEXT('q')), "Command in use!");
+
 		this->clearTics();
 	}
 	// xdid -r [NAME] [ID] [SWITCH] [MIN] [MAX]
 	else if (flags[TEXT('r')])
 	{
+		static_assert(CheckFreeCommand(TEXT('r')), "Command in use!");
+
 		if (numtok < 5)
 			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
@@ -280,6 +296,8 @@ void DcxTrackBar::parseCommandRequest(const TString& input)
 	// xdid -o [NAME] [ID] [SWITCH] [VALUE]
 	else if (flags[TEXT('o')])
 	{
+		static_assert(CheckFreeCommand(TEXT('o')), "Command in use!");
+
 		if (numtok < 4)
 			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
@@ -290,6 +308,8 @@ void DcxTrackBar::parseCommandRequest(const TString& input)
 	// xdid -t [NAME] [ID] [SWITCH] [VALUE]
 	else if (flags[TEXT('t')])
 	{
+		static_assert(CheckFreeCommand(TEXT('t')), "Command in use!");
+
 		if (numtok < 4)
 			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
@@ -313,6 +333,8 @@ void DcxTrackBar::parseCommandRequest(const TString& input)
 	// xdid -u [NAME] [ID] [SWITCH] [VALUE]
 	else if (flags[TEXT('u')])
 	{
+		static_assert(CheckFreeCommand(TEXT('u')), "Command in use!");
+
 		if (numtok < 4)
 			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
@@ -324,6 +346,8 @@ void DcxTrackBar::parseCommandRequest(const TString& input)
 	// xdid -v [NAME] [ID] [SWITCH] [VALUE]
 	else if (flags[TEXT('v')])
 	{
+		static_assert(CheckFreeCommand(TEXT('v')), "Command in use!");
+
 		if (numtok < 4)
 			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
@@ -332,8 +356,35 @@ void DcxTrackBar::parseCommandRequest(const TString& input)
 
 		this->setPos(lPosition);
 	}
+	// xdid -B [NAME] [ID] [SWITCH] [BUDDYID] [LEFT/RIGHT]
+	else if (flags[TEXT('B')])
+	{
+		static_assert(CheckFreeCommand(TEXT('B')), "Command in use!");
+
+		if (numtok < 4)
+			throw DcxExceptions::dcxInvalidArguments();
+
+		const auto tsID(input.getnexttok());
+		const auto tsSide(input.getnexttok());
+
+		const auto ID = getParentDialog()->NameToID(tsID);
+
+		const auto* const p_Control = getParentDialog()->getControlByID(ID);	// tok 4
+
+		if (!p_Control)
+			throw Dcx::dcxException("Unable to get control");
+
+		// Text notifications
+		if (const auto & cType(p_Control->getControlType()); cType == DcxControlTypes::TEXT || cType == DcxControlTypes::EDIT)
+			setBuddy(p_Control->getHwnd(), (tsSide == TEXT("left")));
+	}
 	else
 		this->parseGlobalCommandRequest(input, flags);
+}
+
+HWND DcxTrackBar::setBuddy(const HWND mHwnd, bool bLeft) noexcept
+{
+	return reinterpret_cast<HWND>(SendMessage(m_Hwnd, TBM_SETBUDDY, bLeft, reinterpret_cast<WPARAM>(mHwnd)));
 }
 
 /*!

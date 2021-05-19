@@ -181,6 +181,9 @@ dcxWindowStyles DcxEdit::parseControlStyles(const TString& tsStyles)
 		case L"showsel"_hash:
 			ws.m_Styles |= ES_NOHIDESEL;
 			break;
+		case L"showlinenumbers"_hash:
+			m_bShowLineNumbers = true;
+			break;
 		default:
 			break;
 		}
@@ -300,6 +303,16 @@ void DcxEdit::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC
 	{
 		if (!this->m_tsCue.empty())
 			szReturnValue = m_tsCue.to_chr();
+	}
+	break;
+	case L"linenumbers"_hash:
+	{
+		szReturnValue = dcx_truefalse(m_bShowLineNumbers);
+	}
+	break;
+	case L"guttercolours"_hash:
+	{
+		_ts_snprintf(szReturnValue, TEXT("%u %u %u %u"), m_clrGutter_selbkg, m_clrGutter_bkg, m_clrGutter_seltxt, m_clrGutter_txt);
 	}
 	break;
 	default:
@@ -517,14 +530,56 @@ void DcxEdit::parseCommandRequest(const TString& input)
 		this->m_tsCue = input.getlasttoks();	// tok 4, -1
 		Edit_SetCueBannerText(m_Hwnd, this->m_tsCue.to_wchr());
 	}
-	// xdid -y [NAME] [ID] [SWITCH] [0|1]
+	// xdid -y [NAME] [ID] [SWITCH] [0|1|-] (0|1)
 	else if (flags[TEXT('y')])
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Insufficient parameters");
+			throw DcxExceptions::dcxInvalidArguments();
+		auto tsRep(input.getnexttok());
+		if (tsRep != TEXT('-'))
+			this->m_bIgnoreRepeat = (tsRep.to_int() > 0);	// tok 4
+		if (numtok > 4)
+		{
+			if (this->isStyle(WindowStyle::ES_MultiLine))
+			{
+				this->m_bShowLineNumbers = (input.getnexttok().to_int() > 0);	// tok 5
+				setFmtRect(!m_bShowLineNumbers);
+				InvalidateRect(m_Hwnd, nullptr, TRUE);
+			}
+		}
+	}
+	// xdid -g [NAME] [ID] [SWITCH] [Selected line Background Colour|-] (Background Colour|-) (Selected Line Text Colour|-) (Text Colour|-)
+	else if (flags[TEXT('g')])
+	{
+		static_assert(CheckFreeCommand(TEXT('g')), "Command in use!");
+
+		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		this->m_bIgnoreRepeat = (input.getnexttok().to_int() > 0);	// tok 4
+		auto tsClr(input.getnexttok());
+		if (tsClr != TEXT('-'))
+			this->m_clrGutter_selbkg = tsClr.to_<COLORREF>();
+
+		if (numtok > 4)
+		{
+			tsClr = input.getnexttok();
+			if (tsClr != TEXT('-'))
+				this->m_clrGutter_bkg = tsClr.to_<COLORREF>();
+
+			if (numtok > 5)
+			{
+				tsClr = input.getnexttok();
+				if (tsClr != TEXT('-'))
+					this->m_clrGutter_seltxt = tsClr.to_<COLORREF>();
+
+				if (numtok > 6)
+				{
+					tsClr = input.getnexttok();
+					if (tsClr != TEXT('-'))
+						this->m_clrGutter_txt = tsClr.to_<COLORREF>();
+				}
+			}
+		}
 	}
 	else
 		this->parseGlobalCommandRequest(input, flags);
@@ -548,15 +603,49 @@ LRESULT DcxEdit::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bP
 			TGetWindowText(m_Hwnd, this->m_tsText);
 			if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_EDIT))
 				this->execAliasEx(TEXT("edit,%u"), getUserID());
-		}
 
+			if (m_bShowLineNumbers)
+				PostMessage(m_Hwnd, WM_DRAW_NUMBERS, 0, 0);
+		}
 		break;
+		case EN_HSCROLL:
+			if (m_bShowLineNumbers)
+				PostMessage(m_Hwnd, WM_DRAW_NUMBERS, 0, 0);
+			break;
 		default:
 			break;
 		}
-
-		break;
 	} // WM_COMMAND
+	break;
+
+	case WM_NOTIFY:
+	{
+		if (!m_bShowLineNumbers)
+			break;
+
+		if (const auto hdr = reinterpret_cast<NMHDR*>(lParam); hdr->hwndFrom == m_Hwnd)
+		{
+			// msg from richedit
+			switch (hdr->code)
+			{
+			case EN_SELCHANGE:
+			{
+				if (const auto pSelChange = reinterpret_cast<SELCHANGE*>(lParam); pSelChange->seltyp == SEL_EMPTY)
+					PostMessage(m_Hwnd, WM_DRAW_NUMBERS, 0, 0);
+			}
+			break;
+			case EN_UPDATE:
+			{
+				PostMessage(m_Hwnd, WM_DRAW_NUMBERS, 0, 0);
+			}
+			break;
+			default:
+				break;
+			}
+		}
+	}
+	break;
+
 	default:
 		break;
 	}
@@ -568,20 +657,30 @@ LRESULT DcxEdit::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPars
 {
 	switch (uMsg)
 	{
-		// disabled this to fix the tabbing problem
-		//case WM_GETDLGCODE:
-		//    {
-		//		if (!this->isStyle(WS_TABSTOP)) {
-		//			bParsed = TRUE;
-		//			return DLGC_WANTALLKEYS;
-		//		}
-		//    }
-		//    break;
+	// This code enables tabstop out of edit controls if tabstop styles used. BUT you cant use tab keys in the edit control when tabstop used.
+	case WM_GETDLGCODE:
+	{
+		if (wParam != VK_TAB)
+		{
+			bParsed = TRUE;
+			return DLGC_WANTALLKEYS;
+		}
+		else if (!this->isStyle(WindowStyle::TabStop))
+		{
+			bParsed = TRUE;
+			return DLGC_WANTALLKEYS;
+		}
+	}
+	break;
 
 	case WM_KEYDOWN:
 	{
 		//if (wParam == VK_ESCAPE)
 		//	bParsed = TRUE; // prevents m_pParent window closing.
+
+		if (m_bShowLineNumbers)
+			PostMessage(m_Hwnd, WM_DRAW_NUMBERS, 0, 0);
+
 		if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_EDIT))
 		{
 			if (wParam == VK_RETURN)
@@ -592,19 +691,9 @@ LRESULT DcxEdit::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPars
 
 			this->execAliasEx(TEXT("keydown,%u,%u"), getUserID(), wParam);
 		}
-		/*
-		// CTRL+A, select text and return so control doesnt beep
-		if ((wParam == 65) &&
-		(GetKeyState(VK_CONTROL) & 0x8000))
-		{
-		this->callAliasEx(ret, TEXT("%s,%d"), TEXT("select"), this->getUserID());
-		//			bParsed = TRUE;
-		//			return TRUE;
-		}
-		*/
-
-		break;
 	}
+	break;
+
 	case WM_COPY:
 	{
 		if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_EDIT))
@@ -619,8 +708,9 @@ LRESULT DcxEdit::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPars
 				return 0L;
 			}
 		}
-		break;
 	}
+	break;
+
 	case WM_CUT:
 	{
 		if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_EDIT))
@@ -635,8 +725,9 @@ LRESULT DcxEdit::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPars
 				return 0L;
 			}
 		}
-		break;
 	}
+	break;
+
 	case WM_PASTE:
 	{
 		if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_EDIT))
@@ -651,30 +742,97 @@ LRESULT DcxEdit::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPars
 				return 0L;
 			}
 		}
-		break;
 	}
+	break;
+
 	case WM_KEYUP:
 	{
 		if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_EDIT))
 			execAliasEx(TEXT("keyup,%u,%u"), getUserID(), wParam);
-		break;
+
+		if (m_bShowLineNumbers)
+			PostMessage(m_Hwnd, WM_DRAW_NUMBERS, 0, 0);
 	}
+	break;
+
+	//case WM_PRINTCLIENT:
+	//{
+	//	DrawClientArea(reinterpret_cast<HDC>(wParam), uMsg, lParam);
+	//	bParsed = TRUE;
+	//}
+	//break;
+
 	case WM_PAINT:
 	{
-		if (!this->IsAlphaBlend())
-			break;
-		PAINTSTRUCT ps{};
+		//if (!this->IsAlphaBlend())
+		//	break;
+		//PAINTSTRUCT ps{};
+		//
+		//auto hdc = BeginPaint(m_Hwnd, &ps);
+		//Auto(EndPaint(m_Hwnd, &ps));
+		//
+		//bParsed = TRUE;
+		//
+		//// Setup alpha blend if any.
+		//const auto ai = this->SetupAlphaBlend(&hdc);
+		//Auto(this->FinishAlphaBlend(ai));
+		//
+		//return CallDefaultClassProc(uMsg, reinterpret_cast<WPARAM>(hdc), lParam);
 
-		auto hdc = BeginPaint(m_Hwnd, &ps);
-		Auto(EndPaint(m_Hwnd, &ps));
+		if (this->IsAlphaBlend())
+		{
+			PAINTSTRUCT ps{};
 
+			auto hdc = BeginPaint(m_Hwnd, &ps);
+			Auto(EndPaint(m_Hwnd, &ps));
+
+			bParsed = TRUE;
+
+			// Setup alpha blend if any.
+			const auto ai = this->SetupAlphaBlend(&hdc);
+			Auto(this->FinishAlphaBlend(ai));
+
+			const auto lRes = CallDefaultClassProc(uMsg, reinterpret_cast<WPARAM>(hdc), lParam);
+
+			if (m_bShowLineNumbers)
+				PostMessage(m_Hwnd, WM_DRAW_NUMBERS, 0, 0);
+
+			return lRes;
+		}
+		else if (m_bShowLineNumbers)
+		{
+			bParsed = TRUE;
+			const auto lRes = CallDefaultClassProc(uMsg, wParam, lParam);
+
+			PostMessage(m_Hwnd, WM_DRAW_NUMBERS, 0, 0);
+
+			return lRes;
+		}
+	}
+	break;
+
+	case WM_SIZE:
+	{
 		bParsed = TRUE;
+		const auto lRes = CallDefaultClassProc(uMsg, wParam, lParam);
 
-		// Setup alpha blend if any.
-		const auto ai = this->SetupAlphaBlend(&hdc);
-		Auto(this->FinishAlphaBlend(ai));
+		if (m_bShowLineNumbers)
+			setFmtRect();
 
-		return CallDefaultClassProc(uMsg, reinterpret_cast<WPARAM>(hdc), lParam);
+		return lRes;
+	}
+	break;
+
+	case WM_DRAW_NUMBERS:
+	{
+		if (m_bShowLineNumbers)
+		{
+			bParsed = TRUE;
+
+			setFmtRect();
+			DrawGutter();
+		}
+		return 0;
 	}
 	break;
 
@@ -684,6 +842,7 @@ LRESULT DcxEdit::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPars
 		bParsed = TRUE;
 		break;
 	}
+
 	default:
 		return this->CommonMessage(uMsg, wParam, lParam, bParsed);
 		break;
@@ -698,4 +857,118 @@ LRESULT DcxEdit::CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lPa
 		return CallWindowProc(m_hDefaultClassProc, this->m_Hwnd, uMsg, wParam, lParam);
 
 	return DefWindowProc(this->m_Hwnd, uMsg, wParam, lParam);
+}
+
+Dcx::range_t<DWORD> DcxEdit::GetVisibleRange() noexcept
+{
+	// find the index of the top visible line
+
+	const auto start_line = gsl::narrow_cast<DWORD>(SNDMSG(m_Hwnd, EM_GETFIRSTVISIBLELINE, 0, 0));
+
+	const RECT rc = getFmtRect();
+
+	// find the index of the last visible line
+	const auto char_index = SNDMSG(m_Hwnd, EM_CHARFROMPOS, 0, MAKELPARAM(0, rc.bottom));
+	const auto stop_line = gsl::narrow_cast<DWORD>(SNDMSG(m_Hwnd, EM_LINEFROMCHAR, gsl::narrow_cast<LPARAM>(char_index), 0));
+
+	// +1 to make range inclusive
+	return { start_line, stop_line + 1 };
+}
+
+DWORD DcxEdit::GetCaretPos() noexcept
+{
+	DWORD hiPos{}, loPos{};
+	SNDMSG(m_Hwnd, EM_GETSEL, reinterpret_cast<LPARAM>(&loPos), reinterpret_cast<LPARAM>(&hiPos));
+	if (loPos != hiPos)
+		--hiPos;
+	return hiPos;
+
+	//// windows 10 only :/
+	//return Edit_GetCaretIndex(m_Hwnd);
+}
+
+DWORD DcxEdit::GetCaretLine() noexcept
+{
+	const auto pos = GetCaretPos();
+	return gsl::narrow_cast<DWORD>(SNDMSG(m_Hwnd, EM_LINEFROMCHAR, gsl::narrow_cast<LPARAM>(pos), 0));
+}
+
+void DcxEdit::DrawGutter() noexcept
+{
+	if (HDC hdc = GetDC(m_Hwnd); hdc)
+	{
+		Auto(ReleaseDC(m_Hwnd, hdc));
+
+		auto hFont = GetWindowFont(m_Hwnd);
+		const auto oldFont = Dcx::dcxSelectObject<HFONT>(hdc, hFont);
+		Auto(Dcx::dcxSelectObject<HFONT>(hdc, oldFont));
+
+		TEXTMETRICW lptm{};
+		GetTextMetrics(hdc, &lptm);
+		const auto letter_height = lptm.tmHeight;
+
+		RECT rcClient{};
+		RECT m_FRGutter{};
+		const RECT rcFmt = getFmtRect();
+
+		GetClientRect(m_Hwnd, &rcClient);
+
+		m_FRGutter = rcClient;
+		m_FRGutter.right = rcFmt.left - 3;
+
+		if (auto hdcbuf = CreateHDCBuffer(hdc, &m_FRGutter); hdcbuf)
+		{
+			Auto(DeleteHDCBuffer(hdcbuf));
+
+			Dcx::FillRectColour(*hdcbuf, &m_FRGutter, m_clrGutter_bkg);
+
+			DrawEdge(*hdcbuf, &m_FRGutter, EDGE_BUMP, BF_RIGHT);
+
+			RECT RNumber = m_FRGutter;
+			InflateRect(&RNumber, -5, 0);
+
+			// get visible lines
+			const auto rng = GetVisibleRange();
+			// get current caret pos
+			const auto pos = GetCaretLine();
+
+			TCHAR buf[49]{};
+
+			{
+				// top line, could be a partial line
+				const auto iLineChar = SNDMSG(m_Hwnd, EM_LINEINDEX, rng.b, 0);
+				POINTL pl{};
+				SNDMSG(m_Hwnd, EM_POSFROMCHAR, reinterpret_cast<WPARAM>(&pl), gsl::narrow_cast<LPARAM>(iLineChar));
+				// NB: if a partial line pl.y will be a negative (ie off screen)
+				RNumber.top = pl.y;
+				RNumber.bottom = RNumber.top + letter_height;
+			}
+
+			//SetGraphicsMode(hdc, GM_ADVANCED);
+			const auto oldMode = SetBkMode(*hdcbuf, TRANSPARENT);
+			Auto(SetBkMode(*hdcbuf, oldMode));
+			const auto oldTextColor = GetTextColor(*hdcbuf);
+			Auto(SetTextColor(*hdcbuf, oldTextColor));
+
+			// render the line numbers
+			for (const auto& index : rng)
+			{
+				if (index == pos)
+				{
+					if (m_clrGutter_selbkg != m_clrGutter_bkg)
+						Dcx::FillRectColour(*hdcbuf, &RNumber, m_clrGutter_selbkg);
+					SetTextColor(*hdcbuf, m_clrGutter_seltxt);
+				}
+				else
+					SetTextColor(*hdcbuf, m_clrGutter_txt);
+
+				if (const auto l = _ts_snprintf(&buf[0], std::size(buf), _T("%u"), index + 1); l != -1)
+					DrawText(*hdcbuf, &buf[0], l, &RNumber, DT_RIGHT | DT_VCENTER | DT_SINGLELINE | DT_NOPREFIX);
+
+				RNumber.top += letter_height;
+				RNumber.bottom = RNumber.top + letter_height;
+			}
+			BitBlt(hdc, 0, 0, rcClient.right, rcClient.bottom, *hdcbuf, 0, 0, SRCCOPY);
+		}
+	}
 }
