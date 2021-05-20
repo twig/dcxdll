@@ -431,38 +431,47 @@ void DcxRichEdit::parseCommandRequest(const TString& input)
 			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto iFontFlags = parseFontFlags(input.getnexttok());	// tok 4
-
-		if (dcx_testflag(iFontFlags, dcxFontFlags::DCF_DEFAULT))
-		{
-			this->m_clrBackText = GetSysColor(COLOR_WINDOW);
-			this->m_clrText = GetSysColor(COLOR_WINDOWTEXT);
-			this->m_iFontSize = 10 * 20;
-			this->m_bFontBold = false;
-			this->m_bFontItalic = false;
-			this->m_bFontUnderline = false;
-			this->m_bFontStrikeout = false;
-			this->m_byteCharset = DEFAULT_CHARSET;
-			this->setContentsFont();
-		}
-		else if (numtok > 5)
+		this->m_bIgnoreInput = true;
 		{
 			this->setRedraw(FALSE);
+			Auto(this->setRedraw(TRUE));
 
-			this->m_byteCharset = gsl::narrow_cast<BYTE>(parseFontCharSet(input.getnexttok()));	// tok 5
-			this->m_iFontSize = 20U * input.getnexttok().to_<UINT>();			// tok 6
-			this->m_tsFontFaceName = input.getlasttoks().trim();				// tok 7, -1
+			this->parseGlobalCommandRequest(input, flags);
 
-			m_bFontBold = dcx_testflag(iFontFlags, dcxFontFlags::DCF_BOLD);
+			const auto iFontFlags = parseFontFlags(input.getnexttok());	// tok 4
 
-			m_bFontItalic = dcx_testflag(iFontFlags, dcxFontFlags::DCF_ITALIC);
+			if (dcx_testflag(iFontFlags, dcxFontFlags::DCF_DEFAULT))
+			{
+				this->m_clrBackText = GetSysColor(COLOR_WINDOW);
+				this->m_clrText = GetSysColor(COLOR_WINDOWTEXT);
+				this->m_iFontSize = 10 * 20;
+				this->m_bFontBold = false;
+				this->m_bFontItalic = false;
+				this->m_bFontUnderline = false;
+				this->m_bFontStrikeout = false;
+				this->m_byteCharset = DEFAULT_CHARSET;
+				this->setContentsFont();
+			}
+			else if (numtok > 5)
+			{
+				this->m_byteCharset = gsl::narrow_cast<BYTE>(parseFontCharSet(input.getnexttok()));	// tok 5
+				this->m_iFontSize = 20U * input.getnexttok().to_<UINT>();			// tok 6
+				this->m_tsFontFaceName = input.getlasttoks().trim();				// tok 7, -1
 
-			m_bFontStrikeout = dcx_testflag(iFontFlags, dcxFontFlags::DCF_STRIKEOUT);
+				m_bFontBold = dcx_testflag(iFontFlags, dcxFontFlags::DCF_BOLD);
 
-			m_bFontUnderline = dcx_testflag(iFontFlags, dcxFontFlags::DCF_UNDERLINE);
+				m_bFontItalic = dcx_testflag(iFontFlags, dcxFontFlags::DCF_ITALIC);
 
-			this->parseContents(TRUE);
+				m_bFontStrikeout = dcx_testflag(iFontFlags, dcxFontFlags::DCF_STRIKEOUT);
+
+				m_bFontUnderline = dcx_testflag(iFontFlags, dcxFontFlags::DCF_UNDERLINE);
+
+				//this->parseContents(TRUE);
+				this->setContentsFont();
+			}
 		}
+		this->m_bIgnoreInput = false;
+		this->redrawWindow();
 	}
 	// xdid -g [NAME] [ID] [SWITCH] [Selected line Background Colour|-] (Background Colour|-) (Selected Line Text Colour|-) (Text Colour|-)
 	else if (flags[TEXT('g')])
@@ -817,8 +826,8 @@ void DcxRichEdit::setContentsFont() noexcept
 
 	if (!this->m_tsFontFaceName.empty())
 	{
-		dcx_strcpyn(&chrf.szFaceName[0], this->m_tsFontFaceName.to_chr(), std::extent_v<decltype(chrf.szFaceName)>);
-		chrf.szFaceName[std::extent_v<decltype(chrf.szFaceName)> -1] = 0;
+		dcx_strcpyn(&chrf.szFaceName[0], this->m_tsFontFaceName.to_chr(), std::size(chrf.szFaceName));
+		chrf.szFaceName[std::size(chrf.szFaceName) -1] = 0;
 	}
 
 	this->hideSelection(TRUE);
@@ -1232,7 +1241,7 @@ void DcxRichEdit::DrawGutter() noexcept
 	{
 		Auto(ReleaseDC(m_Hwnd, hdc));
 
-		auto hFont = GetWindowFont(m_Hwnd);
+		auto hFont = (this->m_hFont) ? this->m_hFont : GetWindowFont(m_Hwnd);
 		const auto oldFont = Dcx::dcxSelectObject<HFONT>(hdc, hFont);
 		Auto(Dcx::dcxSelectObject<HFONT>(hdc, oldFont));
 
