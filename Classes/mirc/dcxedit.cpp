@@ -200,6 +200,7 @@ dcxWindowStyles DcxEdit::parseControlStyles(const TString& tsStyles)
 *
 * \return > void
 */
+GSL_SUPPRESS(con.4)
 void DcxEdit::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>& szReturnValue) const
 {
 	switch (std::hash<TString>{}(input.getfirsttok(3)))
@@ -875,6 +876,7 @@ Dcx::range_t<DWORD> DcxEdit::GetVisibleRange() noexcept
 	return { start_line, stop_line + 1 };
 }
 
+GSL_SUPPRESS(con.4)
 DWORD DcxEdit::GetCaretPos() noexcept
 {
 	DWORD hiPos{}, loPos{};
@@ -893,7 +895,7 @@ DWORD DcxEdit::GetCaretLine() noexcept
 	return gsl::narrow_cast<DWORD>(SNDMSG(m_Hwnd, EM_LINEFROMCHAR, gsl::narrow_cast<LPARAM>(pos), 0));
 }
 
-void DcxEdit::DrawGutter() noexcept
+void DcxEdit::DrawGutter()
 {
 	if (HDC hdc = GetDC(m_Hwnd); hdc)
 	{

@@ -801,6 +801,7 @@ void DcxRichEdit::parseCommandRequest(const TString& input)
 *
 * blah
 */
+GSL_SUPPRESS(bounds.3)
 void DcxRichEdit::setContentsFont() noexcept
 {
 	CHARFORMAT2 chrf{};
@@ -827,7 +828,8 @@ void DcxRichEdit::setContentsFont() noexcept
 	if (!this->m_tsFontFaceName.empty())
 	{
 		dcx_strcpyn(&chrf.szFaceName[0], this->m_tsFontFaceName.to_chr(), std::size(chrf.szFaceName));
-		chrf.szFaceName[std::size(chrf.szFaceName) -1] = 0;
+		//chrf.szFaceName[std::size(chrf.szFaceName) -1] = 0;
+		gsl::at(chrf.szFaceName, std::size(chrf.szFaceName) - 1) = 0;
 	}
 
 	this->hideSelection(TRUE);
@@ -1235,7 +1237,7 @@ void DcxRichEdit::parseStringContents(const TString& tsStr, const BOOL fNewLine)
 	this->m_bIgnoreInput = false;
 }
 
-void DcxRichEdit::DrawGutter() noexcept
+void DcxRichEdit::DrawGutter()
 {
 	if (HDC hdc = GetDC(m_Hwnd); hdc)
 	{
@@ -1319,7 +1321,7 @@ Dcx::range_t<DWORD> DcxRichEdit::GetVisibleRange() noexcept
 {
 	// find the index of the top visible line
 
-	const auto start_line = static_cast<DWORD>(SNDMSG(m_Hwnd, EM_GETFIRSTVISIBLELINE, 0, 0));
+	const auto start_line = gsl::narrow_cast<DWORD>(SNDMSG(m_Hwnd, EM_GETFIRSTVISIBLELINE, 0, 0));
 
 	const RECT rc = getFmtRect();
 
@@ -1332,6 +1334,7 @@ Dcx::range_t<DWORD> DcxRichEdit::GetVisibleRange() noexcept
 	return { start_line, stop_line + 1 };
 }
 
+GSL_SUPPRESS(con.4)
 DWORD DcxRichEdit::GetCaretPos() noexcept
 {
 	DWORD hiPos{}, loPos{};

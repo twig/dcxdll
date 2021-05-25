@@ -4,7 +4,7 @@ DCX V3.1 TODO List
 1: Find better way of updating progressbar's positions upon scroll etc...
 	1b: Possibly do away with child controls for listview & instead simply custom draw the item/subitem
 2: Add support for more control types in listview items (partially done, needs testing)
-3: Change How we subclass the controls so we instead handle it all when the class is registered & no subclassing is then needed. (mostly done)
+  3: Change How we subclass the controls so we instead handle it all when the class is registered & no subclassing is then needed. (done)
 4: WebCtrl has an odd crash, when the object is destroyed & the browser is set as IE11, but not when its set as IE7 (the default). Doesnt crash every time tho, sometimes only on the third try.
 5: add more options to settings command...
 6: update the docs!!! @svn991 so far, becomes 2.0 at 1020 when changed to utf, becomes 3.0 at ???, 3.1 changes added.
@@ -19,4 +19,4 @@ DCX V3.1 TODO List
 14: Add glow effect to tab controls with hottrack.
   15: Add named id support to /xdialog -z (done)
   16: Add trackbar buddy control. (done)
-17: fix richedit controls font setting.
+  17: fix richedit controls font setting. (done)

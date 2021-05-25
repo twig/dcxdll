@@ -73,7 +73,7 @@ private:
 #define WM_DRAW_NUMBERS (WM_USER + 1000)
 #define DCX_EDIT_GUTTER_WIDTH 35
 
-	void DrawGutter() noexcept;
+	void DrawGutter();
 	RECT getFmtRect() const noexcept
 	{
 		RECT rc{};
