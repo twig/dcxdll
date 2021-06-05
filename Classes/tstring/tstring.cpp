@@ -57,7 +57,10 @@
  *
  *  1.17
  *      Changed to use cstdio & cstdlib
-
+ *
+ *  1.18
+ *		Fixed constructor bug.
+ *
  * © ScriptsDB.org - 2005-2016
  */
 #include "defines.h"

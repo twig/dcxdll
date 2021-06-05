@@ -58,6 +58,9 @@
  *  1.17
  *      Changed to use cstdio & cstdlib
  * 
+ *  1.18
+ *		Fixed constructor bug.
+ * 
  * © ScriptsDB.org - 2005-2017
  */
 
@@ -483,8 +486,10 @@ public:
 				m_pString = &m_InternalBuffer[0];
 				GSL_SUPPRESS(bounds.3) m_buffersize = std::size(m_InternalBuffer);
 			}
-			else
+			else {
 				m_iLen = iLen;
+				m_bUsingInternal = false;
+			}
 		}
 		m_bDirty = false;
 	}
