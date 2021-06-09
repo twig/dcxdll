@@ -398,6 +398,7 @@ void DcxRichEdit::parseCommandRequest(const TString& input)
 
 		this->m_tsText += tmp;
 		this->parseStringContents(tmp, TRUE);
+		//this->parseContents(TRUE);
 	}
 	// xdid -c [NAME] [ID] [SWITCH]
 	else if (flags[TEXT('c')])
@@ -451,6 +452,7 @@ void DcxRichEdit::parseCommandRequest(const TString& input)
 				this->m_bFontStrikeout = false;
 				this->m_byteCharset = DEFAULT_CHARSET;
 				this->setContentsFont();
+				this->parseContents(TRUE);
 			}
 			else if (numtok > 5)
 			{
@@ -466,8 +468,8 @@ void DcxRichEdit::parseCommandRequest(const TString& input)
 
 				m_bFontUnderline = dcx_testflag(iFontFlags, dcxFontFlags::DCF_UNDERLINE);
 
-				//this->parseContents(TRUE);
 				this->setContentsFont();
+				this->parseContents(TRUE);
 			}
 		}
 		this->m_bIgnoreInput = false;
@@ -533,7 +535,8 @@ void DcxRichEdit::parseCommandRequest(const TString& input)
 		const auto clrColor = input.getnexttok().to_<COLORREF>();	// tok 4
 
 		if (clrColor == CLR_INVALID)
-			SendMessage(m_Hwnd, EM_SETBKGNDCOLOR, 1, gsl::narrow_cast<LPARAM>(GetSysColor(COLOR_WINDOWTEXT)));
+			//SendMessage(m_Hwnd, EM_SETBKGNDCOLOR, 1, gsl::narrow_cast<LPARAM>(GetSysColor(COLOR_WINDOWTEXT)));
+			SendMessage(m_Hwnd, EM_SETBKGNDCOLOR, 1, 0);
 		else
 			SendMessage(m_Hwnd, EM_SETBKGNDCOLOR, 0, gsl::narrow_cast<LPARAM>(clrColor));
 
@@ -862,7 +865,7 @@ void DcxRichEdit::clearContents() noexcept
 */
 void DcxRichEdit::parseContents(const BOOL fNewLine) noexcept
 { // old function
-	this->m_bIgnoreInput = false;
+	this->m_bIgnoreInput = true;
 	this->setRedraw(FALSE);
 	this->clearContents();
 
@@ -1396,7 +1399,7 @@ void DcxRichEdit::insertText(const TCHAR* const text, bool bline, bool uline, bo
 		chrf.dwEffects |= CFE_UNDERLINE;
 
 	if (!this->m_tsFontFaceName.empty())
-		dcx_strcpyn(&chrf.szFaceName[0], this->m_tsFontFaceName.to_chr(), std::extent_v<decltype(chrf.szFaceName)>);
+		dcx_strcpyn(&chrf.szFaceName[0], this->m_tsFontFaceName.to_chr(), std::size(chrf.szFaceName));
 
 	if (bcolor)
 		chrf.crTextColor = color;

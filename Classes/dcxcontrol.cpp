@@ -876,12 +876,6 @@ bool DcxControl::parseGlobalInfoRequest(const TString& input, const refString<TC
 
 		if (hFontControl)
 		{
-			//if (LOGFONT lfCurrent{}; GetObject(hFontControl, sizeof(LOGFONT), &lfCurrent) != 0)
-			//{
-			//	szReturnValue = ParseLogfontToCommand(&lfCurrent).to_chr();
-			//	return true;
-			//}
-
 			if (auto [code, lfCurrent] = Dcx::dcxGetObject<LOGFONT>(hFontControl); code != 0)
 			{
 				szReturnValue = ParseLogfontToCommand(&lfCurrent).to_chr();

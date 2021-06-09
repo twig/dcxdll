@@ -536,7 +536,7 @@ void DcxEdit::parseCommandRequest(const TString& input)
 	{
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
-		auto tsRep(input.getnexttok());
+		const auto tsRep(input.getnexttok());
 		if (tsRep != TEXT('-'))
 			this->m_bIgnoreRepeat = (tsRep.to_int() > 0);	// tok 4
 		if (numtok > 4)

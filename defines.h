@@ -31,8 +31,8 @@
 #define _DEFINES_H_
 
  // VS2019+ only
-#if !defined(_MSC_FULL_VER) || _MSC_FULL_VER < 192829335
-#error "This version of DCX needs Visual Studio 2019 16.8.3 or newer"
+#if !defined(_MSC_FULL_VER) || _MSC_FULL_VER < 192930037
+#error "This version of DCX needs Visual Studio 2019 16.10 or newer"
 #endif
 
 #ifdef __INTEL_COMPILER // Defined when using Intel C++ Compiler.
@@ -196,7 +196,7 @@ constexpr auto DCX_MAX_GDI_ERRORS = 21;
 // --------------------------------------------------
 #define DLL_VERSION    GIT_DESCRIBE
 #define DLL_BUILD      GIT_HASH
-#define DLL_DEV_BUILD  "57"
+#define DLL_DEV_BUILD  "58"
 
 #ifdef NDEBUG
 #ifdef DCX_DEV_BUILD

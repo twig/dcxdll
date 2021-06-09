@@ -235,7 +235,7 @@ TString readTextFile(const TString& tFile)
 	//
 	//return Normalise(data.get());
 
-	const auto data = readFile(tFile);
+	const auto data(readFile(tFile));
 
 	return Normalise(data.get());
 }
@@ -1191,10 +1191,10 @@ constexpr const TCHAR* GetLastStatusStr(Gdiplus::Status status) noexcept
 
 bool IsFile(TString& filename)
 {
+	PathUnquoteSpaces(filename.to_chr()); // Removes any "" around the path.
+
 	if (filename.empty())
 		return false;
-
-	PathUnquoteSpaces(filename.to_chr()); // Removes any "" around the path.
 
 	// try & access the filename as is first.
 	auto hFile = CreateFile(filename.to_chr(), GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
