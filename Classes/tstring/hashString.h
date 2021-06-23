@@ -1,6 +1,6 @@
 //
 // By Ook
-// v2.3
+// v2.4
 //
 
 #pragma once
@@ -57,6 +57,13 @@
 #if defined(HASH_ENABLE_CSTRING) && HASH_ENABLE_CSTRING
 #include <afxstr.h>
 #endif
+
+#ifdef __cpp_consteval
+#define _CONSTEVAL consteval
+#else
+#define _CONSTEVAL constexpr
+#endif
+
 #ifdef __cpp_lib_concepts
 namespace HashConcepts {
 	template <class T>
@@ -479,7 +486,7 @@ namespace FNV1a {
 		return *str ? fnv1a_hash(str + 1, (hash ^ *str) * fnv_prime) : hash;
 	}
 
-	consteval hash_t cfnv1a_hash(const char* str, hash_t hash = fnv_basis)
+	_CONSTEVAL hash_t cfnv1a_hash(const char* str, hash_t hash = fnv_basis)
 	{
 		return *str ? cfnv1a_hash(str + 1, (hash ^ *str) * fnv_prime) : hash;
 	}
@@ -489,23 +496,23 @@ namespace FNV1a {
 		return *str ? fnv1a_hash(str + 1, (((hash ^ (*str & 0xFF)) * fnv_prime) ^ ((*str >> 8) & 0xFF)) * fnv_prime) : hash;
 	}
 
-	consteval hash_t cfnv1a_hash(const wchar_t* str, hash_t hash = fnv_basis)
+	_CONSTEVAL hash_t cfnv1a_hash(const wchar_t* str, hash_t hash = fnv_basis)
 	{
 		return *str ? cfnv1a_hash(str + 1, (((hash ^ (*str & 0xFF)) * fnv_prime) ^ ((*str >> 8) & 0xFF)) * fnv_prime) : hash;
 	}
 }
 // turns a literal string into a hash number at compile time.
-constexpr FNV1a::hash_t operator""_fnv1a(const char* p, size_t N)
+_CONSTEVAL FNV1a::hash_t operator""_fnv1a(const char* p, size_t N)
 {
 	//return FNV1a::fnv1a_hash(N - 1, p);
-	return FNV1a::fnv1a_hash(p);
+	return FNV1a::cfnv1a_hash(p);
 }
 
 // turns a literal string into a hash number at compile time.
-constexpr FNV1a::hash_t operator""_fnv1a(const wchar_t* p, size_t N)
+_CONSTEVAL FNV1a::hash_t operator""_fnv1a(const wchar_t* p, size_t N)
 {
 	//return FNV1a::fnv1a_hash(N - 1, p);
-	return FNV1a::fnv1a_hash(p);
+	return FNV1a::cfnv1a_hash(p);
 }
 
 /// <summary>
@@ -590,13 +597,13 @@ _NODISCARD size_t dcx_hash(const T *const input) noexcept
 }
 
 // turns a literal string into a hash number at compile time.
-constexpr size_t operator""_hash(const char * p, size_t N)
+_CONSTEVAL size_t operator""_hash(const char * p, size_t N)
 {
 #if defined(HASH_USE_CRC32) && HASH_USE_CRC32
 	return CRC32::crc32_helper(p, N, 0xFFFFFFFF);
 #else
 #if defined(HASH_USE_FNV) && HASH_USE_FNV
-	return FNV1a::fnv1a_hash(p);
+	return FNV1a::cfnv1a_hash(p);
 #else
 #if defined(HASH_USE_ZOB) && HASH_USE_ZOB
 	return ZobHash::ZobHash(p, N);
@@ -608,13 +615,13 @@ constexpr size_t operator""_hash(const char * p, size_t N)
 }
 
 // turns a literal string into a hash number at compile time.
-constexpr size_t operator""_hash(const wchar_t * p, size_t N)
+_CONSTEVAL size_t operator""_hash(const wchar_t * p, size_t N)
 {
 #if defined(HASH_USE_CRC32) && HASH_USE_CRC32
 	return CRC32::crc32_helper(p, N, 0xFFFFFFFF);
 #else
 #if defined(HASH_USE_FNV) && HASH_USE_FNV
-	return FNV1a::fnv1a_hash(p);
+	return FNV1a::cfnv1a_hash(p);
 #else
 #if defined(HASH_USE_ZOB) && HASH_USE_ZOB
 	return ZobHash::ZobHash(p, N);

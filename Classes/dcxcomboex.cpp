@@ -309,7 +309,7 @@ void DcxComboEx::parseCommandRequest(const TString& input)
 	// [NAME] [ID] -a [N] [INDENT] [ICON] [STATE] [OVERLAY] Item Text
 	if (flags[TEXT('a')])
 	{
-		if (numtok < 9)
+		if (numtok < 8)
 			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
