@@ -2815,7 +2815,7 @@ void DcxControl::InitializeDcxControls()
 	dcxRegisterClass<DcxList>(WC_LISTBOX, DCX_LISTCLASS);
 
 	DCX_DEBUG(mIRCLinker::debug, __FUNCTIONW__, TEXT("Registering Scroll..."));
-	dcxRegisterClass<DcxScroll>(WC_SCROLLBAR, DCX_SCROLLCLASS);
+	dcxRegisterClass<DcxScroll>(WC_SCROLLBAR, DCX_SCROLLBARCLASS);
 
 	DCX_DEBUG(mIRCLinker::debug, __FUNCTIONW__, TEXT("Registering Text..."));
 	dcxRegisterClass<DcxText>(WC_STATIC, DCX_TEXTCLASS);
@@ -2863,7 +2863,7 @@ void DcxControl::UnInitializeDcxControls() noexcept
 	UnregisterClass(DCX_LINECLASS, GetModuleHandle(nullptr));
 	UnregisterClass(DCX_LINKCLASS, GetModuleHandle(nullptr));
 	UnregisterClass(DCX_LISTCLASS, GetModuleHandle(nullptr));
-	UnregisterClass(DCX_SCROLLCLASS, GetModuleHandle(nullptr));
+	UnregisterClass(DCX_SCROLLBARCLASS, GetModuleHandle(nullptr));
 	UnregisterClass(DCX_TEXTCLASS, GetModuleHandle(nullptr));
 	UnregisterClass(DCX_DIRECTSHOWCLASS, GetModuleHandle(nullptr));
 	UnregisterClass(DCX_STACKERCLASS, GetModuleHandle(nullptr));

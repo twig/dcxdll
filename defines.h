@@ -497,7 +497,7 @@ constexpr auto mIRC_PALETTE_SIZE = 100U;	// Number of colours in mIRC's palette 
 #define DCX_LINECLASS			TEXT("DCXLineClass")      //!< DCX Line Class Name
 #define DCX_LINKCLASS			TEXT("DCXLinkClass")      //!< DCX Link Class Name
 #define DCX_LISTCLASS			TEXT("DCXListClass")      //!< DCX List Class Name
-#define DCX_SCROLLCLASS			TEXT("DCXScrollClass")    //!< DCX Text Class Name
+//#define DCX_SCROLLCLASS			TEXT("DCXScrollClass")    //!< DCX Text Class Name
 #define DCX_TEXTCLASS			TEXT("DCXTextClass")      //!< DCX Text Class Name
 #define DCX_DIRECTSHOWCLASS		TEXT("DCXDirectShowClass") //!< DCX Text Class Name
 
