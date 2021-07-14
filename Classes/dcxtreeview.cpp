@@ -2710,7 +2710,9 @@ HTREEITEM DcxTreeView::parsePath(const TString& path, HTREEITEM* hParent, HTREEI
 		// else if (dir == -1)
 		else if (dir < 0)
 		{
-			current = TV_GetLastSibling(current);
+			// if we cant find any siblings for this item, then last item IS this item.
+			if (auto tmp = TV_GetLastSibling(current); tmp)
+				current = tmp;
 
 			if (bFillLocation)
 				*hInsertAt = TVI_LAST;
