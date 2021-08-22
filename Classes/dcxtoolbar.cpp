@@ -47,7 +47,6 @@ DcxToolBar::DcxToolBar(const UINT ID, DcxDialog* const p_Dialog, const HWND mPar
 		this);
 
 	if (!IsWindow(m_Hwnd))
-		//throw Dcx::dcxException("Unable To Create Window");
 		throw DcxExceptions::dcxUnableToCreateWindow();
 
 	if (ws.m_NoTheme)
@@ -238,13 +237,11 @@ void DcxToolBar::parseInfoRequest(const TString& input, const refString<TCHAR, M
 	case L"text"_hash:
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Invalid number of arguments");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto iButton = input.getnexttok().to_int() - 1;	// tok 4
 
 		if (iButton < 0 && iButton >= this->getButtonCount())
-			//throw Dcx::dcxException("Out of Range");
 			throw DcxExceptions::dcxOutOfRange();
 
 		if (auto lpdcxtbb = getButtonData(iButton); lpdcxtbb)
@@ -330,13 +327,11 @@ void DcxToolBar::parseInfoRequest(const TString& input, const refString<TCHAR, M
 	case L"dropdownpoint"_hash:
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Invalid number of arguments");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto iButton = input.getnexttok().to_int() - 1;	// tok 4
 
 		if (iButton < 0 && iButton >= this->getButtonCount())
-			//throw Dcx::dcxException("Out of Range");
 			throw DcxExceptions::dcxOutOfRange();
 
 		RECT rc{};
@@ -1320,24 +1315,11 @@ LRESULT DcxToolBar::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL&
 			{
 				dcxlParam(LPNMCLICK, lpnm);
 
-				//auto pt = lpnm->pt;
-				//if (const auto iButton = this->hitTest(&pt); iButton > -1)
-				//{
-				//	RECT rc{};
-				//	this->getItemRect(iButton, &rc);
-				//	MapWindowRect(m_Hwnd, nullptr, &rc);
-				//	this->execAliasEx(TEXT("rclick,%u,%d,%d,%d,%d,%d"), getUserID(), iButton + 1, rc.left, rc.bottom, rc.right, rc.top);
-				//}
-
-				//RECT rc{};
-				//this->getItemRect(lpnm->dwItemSpec, &rc);
-				//MapWindowRect(m_Hwnd, nullptr, &rc);
-				//this->execAliasEx(TEXT("rclick,%u,%u,%d,%d,%d,%d"), getUserID(), lpnm->dwItemSpec, rc.left, rc.bottom, rc.right, rc.top);
-
-				if (auto [code, rc] = this->getItemRect(lpnm->dwItemSpec); code)
+				const auto iIndex = this->getCommandToIndex(lpnm->dwItemSpec);
+				if (auto [code, rc] = this->getItemRect(iIndex); code)
 				{
 					MapWindowRect(m_Hwnd, nullptr, &rc);
-					this->execAliasEx(TEXT("rclick,%u,%u,%d,%d,%d,%d"), getUserID(), lpnm->dwItemSpec, rc.left, rc.bottom, rc.right, rc.top);
+					this->execAliasEx(TEXT("rclick,%u,%u,%d,%d,%d,%d"), getUserID(), iIndex + 1, rc.left, rc.bottom, rc.right, rc.top);
 				}
 			}
 			bParsed = TRUE;
@@ -1347,26 +1329,26 @@ LRESULT DcxToolBar::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL&
 
 		case TBN_DROPDOWN:
 		{
+			LRESULT lRes = TBDDRET_DEFAULT;
 			if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
 			{
 				dcxlParam(LPNMTOOLBAR, lpnmtb);
 
-				if (const auto iButton = lpnmtb->iItem - 1; iButton > -1)
-				{
-					//RECT rc{};
-					//this->getItemRect(iButton, &rc);
-					//MapWindowRect(m_Hwnd, nullptr, &rc);
-					//this->execAliasEx(TEXT("dropdown,%u,%d,%d,%d,%d,%d"), getUserID(), iButton + 1, rc.left, rc.bottom, rc.right, rc.top);
+				const auto iIndex = this->getCommandToIndex(lpnmtb->iItem);
 
-					if (auto [code, rc] = this->getItemRect(iButton); code)
-					{
-						MapWindowRect(m_Hwnd, nullptr, &rc);
-						this->execAliasEx(TEXT("dropdown,%u,%d,%d,%d,%d,%d"), getUserID(), iButton + 1, rc.left, rc.bottom, rc.right, rc.top);
-					}
+				if (auto [code, rc] = this->getItemRect(iIndex); code)
+				{
+					MapWindowRect(m_Hwnd, nullptr, &rc);
+
+					// return false to have it treat the dropdown as a normal button press.
+					if (!this->execAliasEx(TEXT("dropdown,%u,%d,%d,%d,%d,%d"), getUserID(), iIndex + 1, rc.left, rc.bottom, rc.right, rc.top))
+						lRes = TBDDRET_TREATPRESSED;
+					//else
+					//	lRes = TBDDRET_NODEFAULT;
 				}
 			}
 			bParsed = TRUE;
-			return TBDDRET_DEFAULT;
+			return lRes;
 		}
 		break;
 
