@@ -844,6 +844,12 @@ LRESULT DcxEdit::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPars
 		break;
 	}
 
+	case WM_LBUTTONUP:
+	{
+		if (m_bShowLineNumbers)
+			PostMessage(m_Hwnd, WM_DRAW_NUMBERS, 0, 0);
+	}
+	[[fallthrough]];
 	default:
 		return this->CommonMessage(uMsg, wParam, lParam, bParsed);
 		break;
