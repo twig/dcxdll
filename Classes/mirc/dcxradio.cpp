@@ -178,10 +178,9 @@ void DcxRadio::parseCommandRequest(const TString & input)
 	else if (flags[TEXT('t')])
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
-		SetWindowText(m_Hwnd, input.getlasttoks().trim().to_chr());	// tok 4, -1
+		Button_SetText(m_Hwnd, input.getlasttoks().trim().to_chr());	// tok 4, -1
 	}
 	//xdid -u [NAME] [ID] [SWITCH]
 	else if (flags[TEXT('u')])
@@ -212,12 +211,14 @@ LRESULT DcxRadio::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 		return TRUE;
 	}
 	break;
+
 	case WM_PRINTCLIENT:
 	{
 		this->DrawClientArea(reinterpret_cast<HDC>(wParam), uMsg, lParam);
 		bParsed = TRUE;
 	}
 	break;
+
 	case WM_PAINT:
 	{
 		bParsed = TRUE;

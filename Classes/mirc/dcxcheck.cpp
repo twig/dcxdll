@@ -177,7 +177,7 @@ void DcxCheck::parseInfoRequest(const TString& input, const refString<TCHAR, MIR
 	{
 		// [NAME] [ID] [PROP]
 	case L"text"_hash:
-		GetWindowText(m_Hwnd, szReturnValue, MIRC_BUFFER_SIZE_CCH);
+		Button_GetText(m_Hwnd, szReturnValue, MIRC_BUFFER_SIZE_CCH);
 		break;
 		// [NAME] [ID] [PROP]
 	case L"state"_hash:
@@ -219,7 +219,7 @@ void DcxCheck::parseCommandRequest(const TString& input)
 	//xdid -t [NAME] [ID] [SWITCH] ItemText
 	else if (flags[TEXT('t')])
 	{
-		SetWindowText(m_Hwnd, input.getlasttoks().trim().to_chr());	// tok 4, -1
+		Button_SetText(m_Hwnd, input.getlasttoks().trim().to_chr());	// tok 4, -1
 	}
 	//xdid -u [NAME] [ID] [SWITCH]
 	else if (flags[TEXT('u')])
@@ -300,6 +300,7 @@ LRESULT DcxCheck::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPar
 		bParsed = TRUE;
 	}
 	break;
+
 	case WM_PAINT:
 	{
 		bParsed = TRUE;
