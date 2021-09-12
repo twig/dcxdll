@@ -174,7 +174,6 @@ void LayoutManager::AddCell(const TString& input, const UINT iOffset, DcxDialog*
 	//const auto ID = p2.getnexttok().to_<UINT>();	// tok 2
 
 	const TString tsID(p2.getnexttok());
-	const auto ID = (dialog) ? dialog->NameToUserID(tsID) : tsID.to_<UINT>();
 
 	const auto WGT = p2.getnexttok().to_<UINT>();	// tok 3
 	const auto W = p2.getnexttok().to_<INT>();	// tok 4
@@ -184,6 +183,7 @@ void LayoutManager::AddCell(const TString& input, const UINT iOffset, DcxDialog*
 
 	if ((com == TEXT("root"_hash)) || com == TEXT("cell"_hash))
 	{
+		const auto ID = (dialog) ? dialog->NameToUserID(tsID) : tsID.to_<UINT>();
 		const auto cHwnd = GetDlgItem(m_Hwnd, gsl::narrow_cast<int>(mIRC_ID_OFFSET + ID));
 
 		std::unique_ptr<LayoutCell> p_Cell = nullptr;
@@ -292,14 +292,13 @@ void LayoutManager::AddCell(const TString& input, const UINT iOffset, DcxDialog*
 			p_GetCell = getCell(path);
 
 		if (!p_GetCell)
-			//throw Dcx::dcxException("Invalid item path");
 			throw DcxExceptions::dcxInvalidPath();
 
-		const RECT rc{ gsl::narrow_cast<int>(ID), gsl::narrow_cast<int>(WGT), W, H };
+		const auto _left = tsID.to_<int>();
+		const RECT rc{ _left, gsl::narrow_cast<int>(WGT), W, H };
 		p_GetCell->setBorder(rc);
 	} // else if ( com == TEXT("space") )
 	else
-		//throw Dcx::dcxException("Invalid command");
 		throw DcxExceptions::dcxInvalidCommand();
 }
 
