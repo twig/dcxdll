@@ -15,17 +15,17 @@
 #include "Classes/mirc/dcxline.h"
 #include "Classes/dcxdialog.h"
 
-/*!
- * \brief Constructor
- *
- * \param ID Control ID
- * \param p_Dialog Parent DcxDialog Object
- * \param mParentHwnd Parent Window Handle
- * \param rc Window Rectangle
- * \param styles Window Style Tokenized List
- */
+ /*!
+  * \brief Constructor
+  *
+  * \param ID Control ID
+  * \param p_Dialog Parent DcxDialog Object
+  * \param mParentHwnd Parent Window Handle
+  * \param rc Window Rectangle
+  * \param styles Window Style Tokenized List
+  */
 
-DcxLine::DcxLine(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles)
+DcxLine::DcxLine(const UINT ID, DcxDialog* const p_Dialog, const HWND mParentHwnd, const RECT* const rc, const TString& styles)
 	: DcxControl(ID, p_Dialog)
 {
 	const auto ws = parseControlStyles(styles);
@@ -81,7 +81,7 @@ const TString DcxLine::getStyles(void) const
 
 }
 
-void DcxLine::toXml(TiXmlElement *const xml) const
+void DcxLine::toXml(TiXmlElement* const xml) const
 {
 	__super::toXml(xml);
 
@@ -95,7 +95,7 @@ void DcxLine::toXml(TiXmlElement *const xml) const
 		xml->SetAttribute("caption", this->m_sText.c_str());
 }
 
-TiXmlElement * DcxLine::toXml(void) const
+TiXmlElement* DcxLine::toXml(void) const
 {
 	auto xml = std::make_unique<TiXmlElement>("control");
 	toXml(xml.get());
@@ -108,11 +108,11 @@ TiXmlElement * DcxLine::toXml(void) const
  * blah
  */
 
-dcxWindowStyles DcxLine::parseControlStyles(const TString & tsStyles)
+dcxWindowStyles DcxLine::parseControlStyles(const TString& tsStyles)
 {
 	dcxWindowStyles ws;
 
-	for (const auto &tsStyle : tsStyles)
+	for (const auto& tsStyle : tsStyles)
 	{
 		switch (std::hash<TString>{}(tsStyle))
 		{
@@ -154,7 +154,7 @@ dcxWindowStyles DcxLine::parseControlStyles(const TString & tsStyles)
  * \return > void
  */
 
-void DcxLine::parseInfoRequest( const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const
+void DcxLine::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>& szReturnValue) const
 {
 	if (input.gettok(3) == TEXT("text"))
 		szReturnValue = m_sText.to_chr();
@@ -168,7 +168,7 @@ void DcxLine::parseInfoRequest( const TString & input, const refString<TCHAR, MI
  * blah
  */
 
-void DcxLine::parseCommandRequest( const TString & input )
+void DcxLine::parseCommandRequest(const TString& input)
 {
 	//xdid -t [NAME] [ID] [SWITCH] [TEXT]
 	if (const XSwitchFlags flags(input.getfirsttok(3)); flags[TEXT('t')])
@@ -184,7 +184,7 @@ void DcxLine::parseCommandRequest( const TString & input )
 		}
 	}
 	else
-		this->parseGlobalCommandRequest( input, flags );
+		this->parseGlobalCommandRequest(input, flags);
 }
 
 /*!
@@ -192,12 +192,12 @@ void DcxLine::parseCommandRequest( const TString & input )
  *
  * blah
  */
-LRESULT DcxLine::ParentMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed ) noexcept
+LRESULT DcxLine::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed) noexcept
 {
 	return 0L;
 }
 
-LRESULT DcxLine::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed)
+LRESULT DcxLine::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed)
 {
 	switch (uMsg)
 	{
@@ -289,15 +289,15 @@ void DcxLine::DrawClientArea(HDC hdc)
 			const auto oMode = SetBkMode(hdc, TRANSPARENT);
 			Auto(SetBkMode(hdc, oMode));
 
-			GetTextExtentPoint32(hdc,this->m_sText.to_chr(), gsl::narrow_cast<int>(this->m_sText.len()), &sz);
+			GetTextExtentPoint32(hdc, this->m_sText.to_chr(), gsl::narrow_cast<int>(this->m_sText.len()), &sz);
 
 			rcText.bottom = rcText.top + sz.cx;
 			rcText.right = rcText.left + sz.cy;
 
 			if (this->isStyle(WindowStyle::SS_Center))
-				OffsetRect(&rcText,((rcClient.right - rcClient.left)/2) - ((rcText.right - rcText.left)/2),((rcClient.bottom - rcClient.top)/2) - ((rcText.bottom - rcText.top)/2));
+				OffsetRect(&rcText, ((rcClient.right - rcClient.left) / 2) - ((rcText.right - rcText.left) / 2), ((rcClient.bottom - rcClient.top) / 2) - ((rcText.bottom - rcText.top) / 2));
 			else if (this->isStyle(WindowStyle::SS_Right))
-				OffsetRect(&rcText,((rcClient.right - rcClient.left)/2) - ((rcText.right - rcText.left)/2),rcClient.bottom - (rcText.bottom - rcText.top));
+				OffsetRect(&rcText, ((rcClient.right - rcClient.left) / 2) - ((rcText.right - rcText.left) / 2), rcClient.bottom - (rcText.bottom - rcText.top));
 
 			DrawRotatedText(this->m_sText, &rcText, hdc, 90, true, 90);
 
@@ -313,13 +313,13 @@ void DcxLine::DrawClientArea(HDC hdc)
 			//SetBkMode(hdc, oMode);
 		}
 		else {
-			style |= DT_LEFT|DT_VCENTER;
+			style |= DT_LEFT | DT_VCENTER;
 
 			this->calcTextRect(hdc, this->m_sText, &rcText, style);
 			if (this->isStyle(WindowStyle::SS_Center))
-				OffsetRect(&rcText,((rcClient.right - rcClient.left)/2) - ((rcText.right - rcText.left)/2),0);
+				OffsetRect(&rcText, ((rcClient.right - rcClient.left) / 2) - ((rcText.right - rcText.left) / 2), 0);
 			else if (this->isStyle(WindowStyle::SS_Right))
-				OffsetRect(&rcText,rcClient.right - (rcText.right - rcText.left),0);
+				OffsetRect(&rcText, rcClient.right - (rcText.right - rcText.left), 0);
 
 			// draw the text
 			this->ctrlDrawText(hdc, this->m_sText, &rcText, style);
@@ -327,15 +327,18 @@ void DcxLine::DrawClientArea(HDC hdc)
 		if (oldhFont)
 			Dcx::dcxSelectObject<HFONT>(hdc, oldhFont);
 
-		ExcludeClipRect(hdc,rcText.left, rcText.top, rcText.right, rcText.bottom);
+		ExcludeClipRect(hdc, rcText.left, rcText.top, rcText.right, rcText.bottom);
 	}
 	if (this->m_bVertical)
 	{
-		rcLine.left = rcLine.left + ((rcLine.right - rcLine.left) / 2);
+		//rcLine.left = rcLine.left + ((rcLine.right - rcLine.left) / 2);
+		rcLine.left = (rcLine.right / 2);
+		//rcLine.left = rcLine.left + std::max(1, gsl::narrow_cast<int>((rcLine.right - rcLine.left) / 2));
 		DrawEdge(hdc, &rcLine, EDGE_ETCHED, BF_LEFT);
 	}
 	else {
-		rcLine.bottom = rcLine.bottom / 2;
+		// max() needed to fix 1px high lines not being shown
+		rcLine.bottom = std::max(1, gsl::narrow_cast<int>(rcLine.bottom / 2));
 		DrawEdge(hdc, &rcLine, EDGE_ETCHED, BF_BOTTOM);
 	}
 }
