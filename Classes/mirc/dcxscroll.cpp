@@ -46,6 +46,8 @@ DcxScroll::DcxScroll(const UINT ID, DcxDialog *const p_Dialog, const HWND mParen
 	if (ws.m_NoTheme)
 		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
 
+	setNoThemed(ws.m_NoTheme);
+
 	const SCROLLINFO si{ sizeof(SCROLLINFO), SIF_POS | SIF_RANGE, 0, 100, 0U, 0, 0 };
 
 	SetScrollInfo(m_Hwnd, SB_CTL, &si, TRUE);

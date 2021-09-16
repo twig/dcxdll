@@ -36,6 +36,8 @@ DcxPager::DcxPager(const UINT ID, DcxDialog* const p_Dialog, const HWND mParentH
 	if (ws.m_NoTheme)
 		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
 
+	setNoThemed(ws.m_NoTheme);
+
 	//Pager_SetButtonSize(m_Hwnd,15);
 	//Pager_SetBkColor(m_Hwnd,0);
 }

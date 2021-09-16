@@ -46,7 +46,8 @@ DcxButton::DcxButton(const UINT ID, DcxDialog* const p_Dialog, const HWND mParen
 	if (ws.m_NoTheme)
 		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
 
-	setNoThemed((ws.m_NoTheme != false));
+	//setNoThemed((ws.m_NoTheme != false));
+	setNoThemed(ws.m_NoTheme);
 
 	m_aColors[0] = GetSysColor(COLOR_BTNTEXT); // normal
 	m_aColors[1] = m_aColors[0]; // hover
@@ -230,6 +231,9 @@ void DcxButton::parseCommandRequest(const TString& input)
 			throw DcxExceptions::dcxInvalidArguments();
 
 		m_tsCaption = (numtok > 3 ? input.getlasttoks().trim() : TString());	// tok 4, -1
+
+		//Button_SetText(m_Hwnd, m_tsCaption.to_chr());
+
 		redrawWindow();
 	}
 	// xdid -w [NAME] [ID] [SWITCH] [FLAGS] [INDEX] [FILENAME]
@@ -322,6 +326,9 @@ void DcxButton::parseCommandRequest(const TString& input)
 		else
 		{
 			Button_SetText(m_Hwnd, tsText.to_chr());
+
+			//m_tsCaption = tsText;
+			//Button_SetText(m_Hwnd, m_tsCaption.to_chr());
 		}
 
 		redrawWindow();
@@ -614,12 +621,14 @@ LRESULT DcxButton::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPa
 		return TRUE;
 	}
 	break;
+
 	case WM_PRINTCLIENT:
 	{
 		DrawClientArea(reinterpret_cast<HDC>(wParam), uMsg, lParam);
 		bParsed = TRUE;
 	}
 	break;
+
 	case WM_PAINT:
 	{
 		bParsed = TRUE;
@@ -674,7 +683,7 @@ void DcxButton::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 
 	gsl::owner<HTHEME> hTheme{ nullptr };
 	int iStateId{};
-	if (!IsThemed() && Dcx::UXModule.dcxIsThemeActive())
+	if (IsThemed() && Dcx::UXModule.dcxIsThemeActive())
 	{
 		hTheme = Dcx::UXModule.dcxOpenThemeData(m_Hwnd, VSCLASS_BUTTON);
 

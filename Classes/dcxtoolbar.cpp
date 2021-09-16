@@ -52,6 +52,8 @@ DcxToolBar::DcxToolBar(const UINT ID, DcxDialog* const p_Dialog, const HWND mPar
 	if (ws.m_NoTheme)
 		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
 
+	setNoThemed(ws.m_NoTheme);
+
 	if (ExStylesTb != WindowExStyle::None)
 		SendMessage(m_Hwnd, TB_SETEXTENDEDSTYLE, 0U, gsl::narrow_cast<LPARAM>(ExStylesTb));
 

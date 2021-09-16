@@ -55,6 +55,9 @@ DcxBox::DcxBox(const UINT ID, DcxDialog* const p_Dialog, const HWND mParentHwnd,
 	if (ws.m_NoTheme)
 		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
 
+	//setNoThemed((ws.m_NoTheme != false));
+	setNoThemed(ws.m_NoTheme);
+
 	m_pLayoutManager = std::make_unique<LayoutManager>(m_Hwnd);
 
 	setControlFont(Dcx::dcxGetStockObject<HFONT>(DEFAULT_GUI_FONT), FALSE);

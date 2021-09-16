@@ -62,6 +62,7 @@ private:
 
 	TString m_sText;
 	bool m_bVertical{ false };
+	bool m_bSimple{ false };
 };
 
 #endif // _DCXLINE_H_

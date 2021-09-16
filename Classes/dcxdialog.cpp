@@ -2269,7 +2269,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 		if (const auto* const p_Control = p_this->getControlByHWND(reinterpret_cast<HWND>(lParam)); p_Control)
 		{
 			const auto clrText = p_Control->getTextColor();
-			const auto clrBackText = p_Control->getBackColor();
+			const auto clrBackText = p_Control->getBackTextColor();
 			auto hBackBrush = p_Control->getBackClrBrush();
 
 			// let static controls shine through

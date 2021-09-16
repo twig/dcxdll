@@ -49,6 +49,8 @@ DcxTreeView::DcxTreeView(const UINT ID, DcxDialog* const p_Dialog, const HWND mP
 	if (ws.m_NoTheme)
 		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
 
+	setNoThemed(ws.m_NoTheme);
+
 	SendMessage(m_Hwnd, CCM_SETVERSION, 6U, 0);
 
 	// Ook: ExStyle or Style needs checked...
@@ -621,7 +623,8 @@ void DcxTreeView::parseCommandRequest(const TString& input)
 		{
 			// overlay is 1-based index
 			if (const auto oIcon = icons.getnexttok().to_int(); oIcon > -1)
-				TreeView_SetItemState(m_Hwnd, tvi.hItem, INDEXTOOVERLAYMASK(gsl::narrow_cast<UINT>(oIcon)), TVIS_OVERLAYMASK);
+				//TreeView_SetItemState(m_Hwnd, tvi.hItem, INDEXTOOVERLAYMASK(gsl::narrow_cast<UINT>(oIcon)), TVIS_OVERLAYMASK);
+				TV_SetItemState(tvi.hItem, INDEXTOOVERLAYMASK(gsl::narrow_cast<UINT>(oIcon)), TVIS_OVERLAYMASK);
 		}
 
 		// if ignoring both nIcon and sIcon (if its -2 or less)
@@ -670,7 +673,8 @@ void DcxTreeView::parseCommandRequest(const TString& input)
 		if (!item)
 			throw Dcx::dcxException(TEXT("Invalid Path: %"), path);
 
-		TreeView_SetItemState(m_Hwnd, item, INDEXTOSTATEIMAGEMASK(state), TVIS_STATEIMAGEMASK);
+		//TreeView_SetItemState(m_Hwnd, item, INDEXTOSTATEIMAGEMASK(state), TVIS_STATEIMAGEMASK);
+		TV_SetItemState(item, INDEXTOSTATEIMAGEMASK(state), TVIS_STATEIMAGEMASK);
 	}
 	// xdid -l [NAME] [ID] [SWITCH] [SIZE]
 	else if (flags[TEXT('l')])
@@ -1180,11 +1184,13 @@ void DcxTreeView::insertItem(const TString& tsPath, const TString& tsData, const
 	lpmytvi.release();
 
 	if (state > -1 && state < 5) // zero is no state image.
-		TreeView_SetItemState(m_Hwnd, hItem, INDEXTOSTATEIMAGEMASK(gsl::narrow_cast<UINT>(state)), TVIS_STATEIMAGEMASK);
+		//TreeView_SetItemState(m_Hwnd, hItem, INDEXTOSTATEIMAGEMASK(gsl::narrow_cast<UINT>(state)), TVIS_STATEIMAGEMASK);
+		TV_SetItemState(hItem, INDEXTOSTATEIMAGEMASK(gsl::narrow_cast<UINT>(state)), TVIS_STATEIMAGEMASK);
 
 	// overlay is 1-based index
 	if (overlay > 0 && overlay < 16)
-		TreeView_SetItemState(m_Hwnd, hItem, INDEXTOOVERLAYMASK(gsl::narrow_cast<UINT>(overlay)), TVIS_OVERLAYMASK);
+		//TreeView_SetItemState(m_Hwnd, hItem, INDEXTOOVERLAYMASK(gsl::narrow_cast<UINT>(overlay)), TVIS_OVERLAYMASK);
+		TV_SetItemState(hItem, INDEXTOOVERLAYMASK(gsl::narrow_cast<UINT>(overlay)), TVIS_OVERLAYMASK);
 
 	return;
 }
@@ -2599,12 +2605,14 @@ const TiXmlElement* DcxTreeView::xmlInsertItems(HTREEITEM hParent, HTREEITEM& hI
 		}
 		// Items state icon.
 		if (auto i = queryIntAttribute(xNode, "state"); i < 5) // zero means no state icon anyway.
-			TreeView_SetItemState(m_Hwnd, hInsertAfter, INDEXTOSTATEIMAGEMASK(gsl::narrow_cast<UINT>(i)), TVIS_STATEIMAGEMASK);
+			//TreeView_SetItemState(m_Hwnd, hInsertAfter, INDEXTOSTATEIMAGEMASK(gsl::narrow_cast<UINT>(i)), TVIS_STATEIMAGEMASK);
+			TV_SetItemState(hInsertAfter, INDEXTOSTATEIMAGEMASK(gsl::narrow_cast<UINT>(i)), TVIS_STATEIMAGEMASK);
 
 		// Items overlay icon.
 		// overlay is 1-based index
 		if (auto i = queryIntAttribute(xNode, "overlay"); (i > 0 && i < 16))
-			TreeView_SetItemState(m_Hwnd, hInsertAfter, INDEXTOOVERLAYMASK(gsl::narrow_cast<UINT>(i)), TVIS_OVERLAYMASK);
+			//TreeView_SetItemState(m_Hwnd, hInsertAfter, INDEXTOOVERLAYMASK(gsl::narrow_cast<UINT>(i)), TVIS_OVERLAYMASK);
+			TV_SetItemState(hInsertAfter, INDEXTOOVERLAYMASK(gsl::narrow_cast<UINT>(i)), TVIS_OVERLAYMASK);
 
 		if (xNode->FirstChild("tvitem"))
 		{

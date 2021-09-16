@@ -45,6 +45,8 @@ DcxWebControl::DcxWebControl(const UINT ID, DcxDialog* const p_Dialog, const HWN
 	if (ws.m_NoTheme)
 		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
 
+	setNoThemed(ws.m_NoTheme);
+
 //	/* Web Control Stuff */
 //
 //	if (const auto cFact = Dcx::getClassFactory(); cFact &&

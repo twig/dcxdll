@@ -46,6 +46,8 @@ DcxLink::DcxLink(const UINT ID, DcxDialog* const p_Dialog, const HWND mParentHwn
 	if (ws.m_NoTheme)
 		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
 
+	setNoThemed(ws.m_NoTheme);
+
 	//this->m_aColors[0] = RGB(0, 0, 255);
 	//this->m_aColors[1] = RGB(255, 0, 0);
 	//this->m_aColors[2] = RGB(0, 0, 255);

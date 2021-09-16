@@ -46,6 +46,8 @@ DcxStatusBar::DcxStatusBar(const UINT ID, DcxDialog* const p_Dialog, const HWND 
 	if (ws.m_NoTheme)
 		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
 
+	setNoThemed(ws.m_NoTheme);
+
 	//ZeroMemory(&m_iDynamicParts[0], sizeof(m_iDynamicParts));
 	//ZeroMemory(&m_iFixedParts[0], sizeof(m_iFixedParts));
 

@@ -49,6 +49,8 @@ DcxList::DcxList(const UINT ID, DcxDialog* const p_Dialog, const HWND mParentHwn
 	if (ws.m_NoTheme)
 		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
 
+	setNoThemed(ws.m_NoTheme);
+
 	this->setControlFont(Dcx::dcxGetStockObject<HFONT>(DEFAULT_GUI_FONT), FALSE);
 
 	// Check for "draglist" style

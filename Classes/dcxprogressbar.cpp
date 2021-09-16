@@ -47,6 +47,8 @@ DcxProgressBar::DcxProgressBar(_In_ const UINT ID, _In_ DcxDialog* const p_Dialo
 	if (ws.m_NoTheme)
 		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
 
+	setNoThemed(ws.m_NoTheme);
+
 	if (styles.istok(TEXT("tooltips")))
 	{
 		if (!IsWindow(p_Dialog->getToolTip()))

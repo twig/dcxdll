@@ -46,6 +46,8 @@ DcxEdit::DcxEdit(const UINT ID, DcxDialog* const p_Dialog, const HWND mParentHwn
 	if (ws.m_NoTheme)
 		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
 
+	setNoThemed(ws.m_NoTheme);
+
 	Edit_LimitText(m_Hwnd, 0);
 
 	//SendMessage(m_Hwnd, CCM_SETUNICODEFORMAT, TRUE, NULL);

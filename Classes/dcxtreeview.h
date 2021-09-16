@@ -78,7 +78,7 @@ struct DCXTVSORT
 	TCHAR		itemtext1[MIRC_BUFFER_SIZE_CCH]{};	// Item text buffer One
 	TCHAR		itemtext2[MIRC_BUFFER_SIZE_CCH]{};	// Item Text Buffer Two
 };
-using LPDCXTVSORT = DCXTVSORT *;
+using LPDCXTVSORT = DCXTVSORT*;
 
 /*!
  * \brief blah
@@ -97,7 +97,7 @@ struct DCXTVITEM
 	bool		bUline{ false };		//!< Is Item Caption Underlined
 	bool		bItalic{ false };	//!< Is Item Caption Italicised
 };
-using LPDCXTVITEM = DCXTVITEM *;
+using LPDCXTVITEM = DCXTVITEM*;
 
 /*!
  * \brief blah
@@ -178,7 +178,6 @@ protected:
 	static UINT parseColorFlags(const TString& flags) noexcept;
 	static UINT parseToggleFlags(const TString& flags) noexcept;
 	static int CALLBACK sortItemsEx(LPARAM lParam1, LPARAM lParam2, LPARAM lParamSort);
-	//static void parseTreeViewExStyles(const TString & styles, LONG * ExStyles);
 	WindowExStyle parseTreeViewExStyles(const TString& styles) const;
 	static LRESULT CALLBACK EditLabelProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept;
 
@@ -215,6 +214,16 @@ protected:
 		return TreeView_GetCount(m_Hwnd);
 	}
 	HTREEITEM TV_GetLastSibling(HTREEITEM child) const noexcept;
+	void TV_SetItemState(HTREEITEM hItem, UINT data, UINT mask) noexcept
+	{
+		//TreeView_SetItemState(m_Hwnd, hItem, data, mask);
+		TVITEM _ms_TVi{};
+		_ms_TVi.mask = TVIF_STATE;
+		_ms_TVi.hItem = hItem;
+		_ms_TVi.state = data;
+		_ms_TVi.stateMask = mask;
+		SNDMSG(m_Hwnd, TVM_SETITEM, 0, (LPARAM)(TV_ITEM*)&_ms_TVi);
+	}
 };
 
 #endif // _DCXTREEVIEW_H_

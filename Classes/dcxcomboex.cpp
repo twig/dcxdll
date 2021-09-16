@@ -49,6 +49,8 @@ DcxComboEx::DcxComboEx(const UINT ID, DcxDialog* const  p_Dialog, const HWND mPa
 		//SendMessage( m_Hwnd, CBEM_SETWINDOWTHEME, NULL, (LPARAM)(LPCWSTR)L" "); // do this instead?
 	}
 
+	setNoThemed(ws.m_NoTheme);
+
 	this->m_EditHwnd = getEditControl();
 
 	if (IsWindow(this->m_EditHwnd))

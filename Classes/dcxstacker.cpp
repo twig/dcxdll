@@ -48,6 +48,8 @@ DcxStacker::DcxStacker(const UINT ID, DcxDialog* const p_Dialog, const HWND mPar
 	if (ws.m_NoTheme)
 		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
 
+	setNoThemed(ws.m_NoTheme);
+
 	SendMessage(m_Hwnd, CCM_SETVERSION, gsl::narrow_cast<WPARAM>(6), gsl::narrow_cast<LPARAM>(0));
 
 	//this->m_hBackBrush = GetSysColorBrush(COLOR_3DFACE);

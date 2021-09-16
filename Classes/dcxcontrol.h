@@ -279,7 +279,7 @@ public:
 	void setEndGradientColor(const COLORREF c) noexcept { m_clrEndGradient = c; }
 
 	void setToolTipHWND(const HWND hwnd) noexcept { m_ToolTipHWND = hwnd; }
-	void setNoThemed(const bool b) noexcept { m_bThemed = b; }
+	void setNoThemed(const bool b) noexcept { m_bNoThemed = b; }
 	void setAlphaBlended(const bool b) noexcept { m_bAlphaBlend = b; }
 	void setControlCursor(const HCURSOR c) noexcept { m_hCursor.cursor = c; }
 	void setShadowTextState(const bool b) noexcept { m_bShadowText = b; }
@@ -295,6 +295,10 @@ public:
 		return this->m_hBackBrush;
 	}
 	const COLORREF& getBackColor() const noexcept
+	{
+		return this->m_clrBackground;
+	}
+	const COLORREF& getBackTextColor() const noexcept
 	{
 		return this->m_clrBackText;
 	}
@@ -332,9 +336,9 @@ public:
 	{
 		return m_bAlphaBlend;
 	}
-	const inline bool& IsThemed() const noexcept
+	const inline bool IsThemed() const noexcept
 	{
-		return m_bThemed;
+		return !m_bNoThemed;
 	}
 	const inline bool& IsShadowTextEnabled() const noexcept
 	{
@@ -435,7 +439,7 @@ protected:
 	bool m_bInPrint{ false };				//!< Are we in the middle of a WM_PRINTCLIENT ?
 	bool m_bShadowText{ false };			//!< Text is drawn with a shadow.
 	bool m_bCtrlCodeText{ true };			//!< mIRC's ctrl codes are used to change the text's appearance.
-	bool m_bThemed{ true };					//!< Is Control themed.
+	bool m_bNoThemed{ true };					//!< Is Control themed.
 
 	/* ***** */
 //protected:

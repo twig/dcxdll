@@ -49,6 +49,9 @@ DcxReBar::DcxReBar(const UINT ID, DcxDialog* const p_Dialog, const HWND mParentH
 		//SendMessage( m_Hwnd, RB_SETWINDOWTHEME, NULL, L" ");
 		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
 	}
+
+	setNoThemed(ws.m_NoTheme);
+
 	{
 		this->setImageList(this->createImageList());
 		//REBARINFO rbi;

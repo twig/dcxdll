@@ -2053,7 +2053,7 @@ LRESULT DcxControl::CommonMessage(const UINT uMsg, WPARAM wParam, LPARAM lParam,
 		if (const auto* const p_Control = this->getParentDialog()->getControlByHWND(reinterpret_cast<HWND>(lParam)); p_Control)
 		{
 			const auto clrText = p_Control->getTextColor();
-			const auto clrBackText = p_Control->getBackColor();
+			const auto clrBackText = p_Control->getBackTextColor();
 			auto hBackBrush = p_Control->getBackClrBrush();
 
 			bParsed = TRUE;

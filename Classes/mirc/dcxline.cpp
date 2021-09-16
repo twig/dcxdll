@@ -46,6 +46,8 @@ DcxLine::DcxLine(const UINT ID, DcxDialog* const p_Dialog, const HWND mParentHwn
 	if (ws.m_NoTheme)
 		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
 
+	setNoThemed(ws.m_NoTheme);
+
 	this->setControlFont(Dcx::dcxGetStockObject<HFONT>(DEFAULT_GUI_FONT), FALSE);
 }
 
@@ -116,6 +118,9 @@ dcxWindowStyles DcxLine::parseControlStyles(const TString& tsStyles)
 	{
 		switch (std::hash<TString>{}(tsStyle))
 		{
+		case L"simple"_hash:
+			m_bSimple = true;
+			break;
 		case L"vertical"_hash:
 			m_bVertical = true;
 			break;
@@ -243,7 +248,7 @@ LRESULT DcxLine::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPars
 
 void DcxLine::DrawClientArea(HDC hdc)
 {
-	RECT rcClient{}, rcLine{}, rcText{};
+	RECT rcClient{};
 
 	// get controls client area
 	if (!GetClientRect(m_Hwnd, &rcClient))
@@ -257,8 +262,36 @@ void DcxLine::DrawClientArea(HDC hdc)
 	//DcxControl::DrawCtrlBackground(hdc,this,&rcClient);
 
 	//res = CallWindowProc( this->m_DefaultWindowProc, m_Hwnd, uMsg, (WPARAM) hdc, lParam );
-	rcLine = rcClient;
-	rcText = rcClient;
+
+	if (this->m_bSimple)
+	{
+		// make sure colours are set.
+		COLORREF clr = getBackColor();
+		if (clr == CLR_INVALID)
+			clr = GetSysColor(COLOR_BTNFACE);
+
+		auto hbr = getBackClrBrush();
+		if (hbr == nullptr)
+		{
+			setBackColor(clr);
+			setBackClrBrush(CreateSolidBrush(clr));
+			hbr = getBackClrBrush();
+		}
+
+		const auto hPen = CreatePen(PS_SOLID, 1, clr);
+		Auto(DeleteObject(hPen));
+
+		const auto oldObj = Dcx::dcxSelectObject(hdc, hbr);
+		Auto(Dcx::dcxSelectObject(hdc, oldObj));
+		const auto oldPen = Dcx::dcxSelectObject(hdc, hPen);
+		Auto(Dcx::dcxSelectObject(hdc, oldPen));
+
+		// draw simple line.
+		Rectangle(hdc, rcClient.left, rcClient.top, rcClient.right, rcClient.bottom);
+		return;
+	}
+
+	RECT rcLine = rcClient, rcText = rcClient;
 
 	// draw text if any.
 	if (!m_sText.empty())
@@ -329,6 +362,7 @@ void DcxLine::DrawClientArea(HDC hdc)
 
 		ExcludeClipRect(hdc, rcText.left, rcText.top, rcText.right, rcText.bottom);
 	}
+
 	if (this->m_bVertical)
 	{
 		//rcLine.left = rcLine.left + ((rcLine.right - rcLine.left) / 2);

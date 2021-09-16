@@ -28,12 +28,12 @@
 DcxText::DcxText(const UINT ID, DcxDialog* const p_Dialog, const HWND mParentHwnd, const RECT* const rc, const TString& styles)
 	: DcxControl(ID, p_Dialog)
 {
-	const auto [Styles, ExStyles, bNoTheme] = parseControlStyles(styles);
+	const auto ws = parseControlStyles(styles);
 
 	m_Hwnd = dcxCreateWindow(
-		ExStyles,
+		ws.m_ExStyles,
 		DCX_TEXTCLASS,
-		Styles | WindowStyle::Child,
+		ws.m_Styles | WindowStyle::Child,
 		rc,
 		mParentHwnd,
 		ID,
@@ -47,8 +47,10 @@ DcxText::DcxText(const UINT ID, DcxDialog* const p_Dialog, const HWND mParentHwn
 	removeStyle(WindowStyle::Border | WS_DLGFRAME);
 	removeExStyle(WindowExStyle::ClientEdge | WS_EX_DLGMODALFRAME | WS_EX_STATICEDGE | WS_EX_WINDOWEDGE);
 
-	if (bNoTheme)
+	if (ws.m_NoTheme)
 		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
+
+	setNoThemed(ws.m_NoTheme);
 
 	setTextColor(GetSysColor(COLOR_WINDOWTEXT));
 
