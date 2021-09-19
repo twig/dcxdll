@@ -270,25 +270,7 @@ void DcxLine::DrawClientArea(HDC hdc)
 		if (clr == CLR_INVALID)
 			clr = GetSysColor(COLOR_BTNFACE);
 
-		auto hbr = getBackClrBrush();
-		if (hbr == nullptr)
-		{
-			setBackColor(clr);
-			setBackClrBrush(CreateSolidBrush(clr));
-			hbr = getBackClrBrush();
-		}
-
-		const auto hPen = CreatePen(PS_SOLID, 1, clr);
-		Auto(DeleteObject(hPen));
-
-		const auto oldObj = Dcx::dcxSelectObject(hdc, hbr);
-		Auto(Dcx::dcxSelectObject(hdc, oldObj));
-		const auto oldPen = Dcx::dcxSelectObject(hdc, hPen);
-		Auto(Dcx::dcxSelectObject(hdc, oldPen));
-
-		// draw simple line.
-		Rectangle(hdc, rcClient.left, rcClient.top, rcClient.right, rcClient.bottom);
-		return;
+		Dcx::FillRectColour(hdc, &rcClient, clr);
 	}
 
 	RECT rcLine = rcClient, rcText = rcClient;
