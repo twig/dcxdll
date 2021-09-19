@@ -159,7 +159,7 @@ void DcxDivider::parseCommandRequest(const TString & input)
 		const TString tsID(control_data.gettok(1));
 		const auto ID = getParentDialog()->NameToID(tsID);
 
-		if (!getParentDialog()->isIDValid(ID, true) || ID)
+		if (getParentDialog()->isIDValid(ID) || ID)
 			throw Dcx::dcxException(TEXT("Control with ID %(%) already exists"), tsID, ID - mIRC_ID_OFFSET);
 
 		try {
