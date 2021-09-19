@@ -500,6 +500,7 @@ constexpr auto mIRC_PALETTE_SIZE = 100U;	// Number of colours in mIRC's palette 
 //#define DCX_SCROLLCLASS			TEXT("DCXScrollClass")    //!< DCX Text Class Name
 #define DCX_TEXTCLASS			TEXT("DCXTextClass")      //!< DCX Text Class Name
 #define DCX_DIRECTSHOWCLASS		TEXT("DCXDirectShowClass") //!< DCX Text Class Name
+#define DCX_MULTIBUTTONCLASS      TEXT("DCXMultiButtonClass")       //!< DCX Button Class Name
 
 using mIRCResultString = refString<TCHAR, MIRC_BUFFER_SIZE_CCH>;
 
@@ -584,6 +585,15 @@ using LPSIGNALSWITCH = SIGNALSWITCH*;
 
 using VectorOfInts = std::vector<int>; //<! Vector of int
 
+struct clrCheckBox {
+	COLORREF m_clrBackground{ RGB(255, 128, 0) };
+	COLORREF m_clrFrame{};
+	COLORREF m_clrTick{};
+	COLORREF m_clrDisabledBackground{ RGB(200, 200, 200) };
+	COLORREF m_clrDisabledFrame{ RGB(200, 200, 200) };
+	COLORREF m_clrDisabledTick{ RGB(128, 128, 128) };
+};
+
 // UNICODE/ANSI wrappers
 #define dcx_atoi(x) ts_atoi(x)
 #define dcx_atoi64(x) ts_atoi64(x)
@@ -655,7 +665,7 @@ void AddFileIcons(HIMAGELIST himl, TString& filename, const bool bLarge, const i
 int dcxPickIconDlg(const HWND hwnd, LPWSTR pszIconPath, const UINT& cchIconPath, int* piIconIndex) noexcept;
 
 BOOL dcxGetWindowRect(const HWND hWnd, const LPRECT lpRect) noexcept;
-bool GetWindowRectParent(const HWND hwnd, RECT* rcWin);
+bool GetWindowRectParent(const HWND hwnd, RECT* rcWin) noexcept;
 
 SYSTEMTIME MircTimeToSystemTime(const long mircTime);
 long SystemTimeToMircTime(const LPSYSTEMTIME pst);
@@ -703,6 +713,9 @@ HRESULT GetDXVersion(DWORD* pdwDirectXVersion, TCHAR* strDirectXVersion, int cch
 TString MakeTextmIRCSafe(const TString& tsStr);
 TString MakeTextmIRCSafe(const TCHAR* const tString);
 TString MakeTextmIRCSafe(const TCHAR* const tString, const std::size_t len);
+
+void dcxDrawCheckBox(HDC hDC, const LPRECT rcBox, const clrCheckBox* lpcol, const bool bTicked, const bool bDis, const bool bRounded) noexcept;
+COLORREF GetContrastColour(COLORREF sRGB) noexcept;
 
 extern SIGNALSWITCH dcxSignal;
 extern COLORREF staticPalette[mIRC_PALETTE_SIZE];

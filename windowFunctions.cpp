@@ -21,7 +21,7 @@
 *
 * Returns the owner HWND
 */
-HWND FindOwner(const TString & data, const gsl::not_null<HWND> &defaultWnd)
+HWND FindOwner(const TString& data, const gsl::not_null<HWND>& defaultWnd)
 {
 	if (data.empty())
 		return defaultWnd;
@@ -33,7 +33,7 @@ HWND FindOwner(const TString & data, const gsl::not_null<HWND> &defaultWnd)
 		return defaultWnd;
 
 	// if there is a token after 'owner'
-	if (i < data.numtok( ))
+	if (i < data.numtok())
 	{
 		const auto tsHwnd(data.gettok(gsl::narrow_cast<int>(i) + 1));
 
@@ -49,7 +49,7 @@ HWND FindOwner(const TString & data, const gsl::not_null<HWND> &defaultWnd)
 	return defaultWnd;
 }
 
-std::optional<HWND> FindOwner(const TString & data)
+std::optional<HWND> FindOwner(const TString& data)
 {
 	if (data.empty())
 		return {};
@@ -84,7 +84,7 @@ std::optional<HWND> FindOwner(const TString & data)
 /*!
 * \brief Retrieves a HWND from the string.
 */
-HWND GetHwndFromString(const TString &str)
+HWND GetHwndFromString(const TString& str)
 {
 	if (str.empty())
 		return nullptr;
@@ -147,7 +147,7 @@ void AddStyles(const HWND hwnd, const int parm, const long AddStyles) noexcept
 /*                                                 */
 /*  The code in this book is based on an original  */
 /*       code by Jean-Edouard Lachand-Robert       */
-/***************************************************/ 
+/***************************************************/
 
 //HRGN BitmapRegion(HBITMAP hBitmap,COLORREF cTransparentColor,BOOL bIsTransparent)
 //{
@@ -415,11 +415,11 @@ HRGN BitmapRegion(HBITMAP hBitmap, const COLORREF cTransparentColor, const bool 
 	};
 
 	// Here is the pointer to the bitmap data
-	VOID		*pBits = nullptr;
+	VOID* pBits = nullptr;
 
 	// With the previous information, we create the new bitmap!
 
-	const Dcx::dcxBitmapResource hNewBitmap(hMemDC, (BITMAPINFO *)&RGB32BITSBITMAPINFO, DIB_RGB_COLORS, &pBits, nullptr, 0);
+	const Dcx::dcxBitmapResource hNewBitmap(hMemDC, (BITMAPINFO*)&RGB32BITSBITMAPINFO, DIB_RGB_COLORS, &pBits, nullptr, 0);
 
 	GdiFlush();
 	// We select the bitmap onto the created memory context
@@ -487,11 +487,11 @@ HRGN BitmapRegion(HBITMAP hBitmap, const COLORREF cTransparentColor, const bool 
 	};
 
 	// Here is the pointer to the bitmap data
-	VOID		*pBits;
+	VOID* pBits;
 
 	// With the previous information, we create the new bitmap!
 
-	const auto		hNewBitmap = CreateDIBSection(hMemDC, (BITMAPINFO *)&RGB32BITSBITMAPINFO, DIB_RGB_COLORS, &pBits, nullptr, 0);
+	const auto		hNewBitmap = CreateDIBSection(hMemDC, (BITMAPINFO*)&RGB32BITSBITMAPINFO, DIB_RGB_COLORS, &pBits, nullptr, 0);
 
 	// If the creation process succeded...
 	if (!hNewBitmap)
@@ -512,7 +512,7 @@ HRGN BitmapRegion(HBITMAP hBitmap, const COLORREF cTransparentColor, const bool 
 
 	// If success...
 	if (hDC == nullptr)
-	throw Dcx::dcxException("BitmapRegion() - Unable to create DC");
+		throw Dcx::dcxException("BitmapRegion() - Unable to create DC");
 
 	Auto(DeleteDC(hDC));
 
@@ -548,7 +548,7 @@ HRGN BitmapRegion(HBITMAP hBitmap, const COLORREF cTransparentColor, const bool 
 	DWORD maxRect = NUMRECT;
 
 	// We create the memory data
-	auto hData = GlobalAlloc(GMEM_MOVEABLE, sizeof(RGNDATAHEADER) + (sizeof(RECT)*maxRect));
+	auto hData = GlobalAlloc(GMEM_MOVEABLE, sizeof(RGNDATAHEADER) + (sizeof(RECT) * maxRect));
 
 	if (!hData)
 		throw Dcx::dcxException("BitmapRegion() - GlobalAlloc() failed");
@@ -565,7 +565,7 @@ HRGN BitmapRegion(HBITMAP hBitmap, const COLORREF cTransparentColor, const bool 
 	SetRect(&pData->rdh.rcBound, MAXLONG, MAXLONG, 0, 0);
 
 	// We study each pixel on the bitmap...
-	auto Pixeles = (BYTE*)bmNewBitmap.bmBits + (bmNewBitmap.bmHeight - 1)*bmNewBitmap.bmWidthBytes;
+	auto Pixeles = (BYTE*)bmNewBitmap.bmBits + (bmNewBitmap.bmHeight - 1) * bmNewBitmap.bmWidthBytes;
 
 	// Main loop
 	for (auto Row = 0; Row < bmBitmap.bmHeight; ++Row)
@@ -575,7 +575,7 @@ HRGN BitmapRegion(HBITMAP hBitmap, const COLORREF cTransparentColor, const bool 
 		{
 			// We optimized searching for adjacent transparent pixels!
 			const int Xo = Column;
-			const auto *Pixel = (RGBQUAD*)Pixeles + Column;
+			const auto* Pixel = (RGBQUAD*)Pixeles + Column;
 
 			while (Column < bmBitmap.bmWidth)
 			{
@@ -607,23 +607,23 @@ HRGN BitmapRegion(HBITMAP hBitmap, const COLORREF cTransparentColor, const bool 
 				{
 					GlobalUnlock(hData);
 					maxRect += NUMRECT;
-					hData = GlobalReAlloc(hData, sizeof(RGNDATAHEADER) + (sizeof(RECT)*maxRect), GMEM_MOVEABLE);
-					pData = (RGNDATA *)GlobalLock(hData);
+					hData = GlobalReAlloc(hData, sizeof(RGNDATAHEADER) + (sizeof(RECT) * maxRect), GMEM_MOVEABLE);
+					pData = (RGNDATA*)GlobalLock(hData);
 				}	// if (pData->rdh.nCount>=maxRect)
 
 				const auto pRect = (RECT*)&pData->Buffer[0];
 				SetRect(&pRect[pData->rdh.nCount], Xo, Row, Column, Row + 1);
 
-				if (Xo<pData->rdh.rcBound.left)
+				if (Xo < pData->rdh.rcBound.left)
 					pData->rdh.rcBound.left = Xo;
 
-				if (Row<pData->rdh.rcBound.top)
+				if (Row < pData->rdh.rcBound.top)
 					pData->rdh.rcBound.top = Row;
 
-				if (Column>pData->rdh.rcBound.right)
+				if (Column > pData->rdh.rcBound.right)
 					pData->rdh.rcBound.right = Column;
 
-				if (Row + 1>pData->rdh.rcBound.bottom)
+				if (Row + 1 > pData->rdh.rcBound.bottom)
 					pData->rdh.rcBound.bottom = Row + 1;
 
 				++pData->rdh.nCount;
@@ -669,7 +669,7 @@ HRGN BitmapRegion(HBITMAP hBitmap, const COLORREF cTransparentColor, const bool 
 	{
 		// Una vez finalizado el proceso,procedemos a la fusión de la
 		// región remanente desde la última fusión hasta el final			
-		if (auto hNewRegion = ExtCreateRegion(nullptr, sizeof(RGNDATAHEADER) + (sizeof(RECT)*maxRect), pData); hNewRegion)
+		if (auto hNewRegion = ExtCreateRegion(nullptr, sizeof(RGNDATAHEADER) + (sizeof(RECT) * maxRect), pData); hNewRegion)
 		{
 			// If the main region does already exist, we add the new one,
 			if (hRegion)
@@ -691,7 +691,7 @@ HRGN BitmapRegion(HBITMAP hBitmap, const COLORREF cTransparentColor, const bool 
 *
 * throws dcxException on error.
 */
-void ChangeHwndIcon(const HWND hwnd, const TString &flags, const int index, TString &filename)
+void ChangeHwndIcon(const HWND hwnd, const TString& flags, const int index, TString& filename)
 {
 	const XSwitchFlags xflags(flags);
 
@@ -720,9 +720,9 @@ void ChangeHwndIcon(const HWND hwnd, const TString &flags, const int index, TStr
 
 	// set the new icons, get back the current icon
 	if (iconSmall)
-		iconSmall = (HICON) SendMessage(hwnd, WM_SETICON, ICON_SMALL, (LPARAM) iconSmall);
+		iconSmall = (HICON)SendMessage(hwnd, WM_SETICON, ICON_SMALL, (LPARAM)iconSmall);
 	if (iconLarge)
-		iconLarge = (HICON) SendMessage(hwnd, WM_SETICON, ICON_BIG, (LPARAM) iconLarge);
+		iconLarge = (HICON)SendMessage(hwnd, WM_SETICON, ICON_BIG, (LPARAM)iconLarge);
 
 	// delete the old icons
 	if (iconSmall)
@@ -731,7 +731,7 @@ void ChangeHwndIcon(const HWND hwnd, const TString &flags, const int index, TStr
 		DestroyIcon(iconLarge);
 }
 
-bool GetWindowRectParent(const HWND hwnd, RECT *rcWin)
+bool GetWindowRectParent(const HWND hwnd, RECT* rcWin) noexcept
 {
 #if DCX_USE_WRAPPERS
 	const Dcx::dcxWindowRect rc(hwnd, GetParent(hwnd));
@@ -745,4 +745,71 @@ bool GetWindowRectParent(const HWND hwnd, RECT *rcWin)
 	}
 	return false;
 #endif
+}
+
+void dcxDrawCheckBox(HDC hDC, const LPRECT rcBox, const clrCheckBox* lpcol, const bool bTicked, const bool bDis, const bool bRounded) noexcept
+{
+	if (!hDC || !lpcol || !rcBox)
+		return;
+
+	// create background brush
+	const auto hBrush = CreateSolidBrush(bDis ? lpcol->m_clrDisabledBackground : lpcol->m_clrBackground);
+	Auto(DeleteObject(hBrush));
+
+	// create border pen
+	const auto hPenBorder = CreatePen(PS_SOLID, 1, bDis ? lpcol->m_clrDisabledFrame : lpcol->m_clrFrame);
+	Auto(DeleteObject(hPenBorder));
+
+	// create tick pen
+	const auto hPenTick = CreatePen(PS_SOLID, 1, bDis ? lpcol->m_clrDisabledTick : lpcol->m_clrTick);
+	Auto(DeleteObject(hPenTick));
+
+	if ((!hBrush) || (!hPenBorder) || (!hPenTick))
+		return;
+
+	// set background brush
+	const auto hOldBrush = SelectObject(hDC, hBrush);
+	Auto(SelectObject(hDC, hOldBrush));
+
+	RECT rc = *rcBox;
+
+	{
+		// draw tick box
+		/*const auto hOldPenBorder =*/ SelectObject(hDC, hPenBorder);
+		//Auto(SelectObject(hDC, hOldPenBorder));
+
+		InflateRect(&rc, 0, -1);
+		rc.left += 1;
+		rc.right = rc.left + rc.bottom - rc.top;
+
+		if (bRounded)
+			RoundRect(hDC, rc.left, rc.top, rc.right, rc.bottom, 5, 5);
+		else
+			Rectangle(hDC, rc.left, rc.top, rc.right, rc.bottom);
+	}
+
+	if (bTicked)
+	{
+		// draw tick
+		const auto hOldPenTick = SelectObject(hDC, hPenTick);
+		Auto(SelectObject(hDC, hOldPenTick));
+
+		const auto x = (rc.right + rc.left) / 2 - 3;
+		const auto y = (rc.bottom + rc.top) / 2 - 3;
+
+		MoveToEx(hDC, x, y + 2, nullptr);
+		LineTo(hDC, x, y + 5);
+		MoveToEx(hDC, x + 1, y + 3, nullptr);
+		LineTo(hDC, x + 1, y + 6);
+		MoveToEx(hDC, x + 2, y + 4, nullptr);
+		LineTo(hDC, x + 2, y + 7);
+		MoveToEx(hDC, x + 3, y + 3, nullptr);
+		LineTo(hDC, x + 3, y + 6);
+		MoveToEx(hDC, x + 4, y + 2, nullptr);
+		LineTo(hDC, x + 4, y + 5);
+		MoveToEx(hDC, x + 5, y + 1, nullptr);
+		LineTo(hDC, x + 5, y + 4);
+		MoveToEx(hDC, x + 6, y, nullptr);
+		LineTo(hDC, x + 6, y + 3);
+	}
 }

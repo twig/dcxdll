@@ -2302,3 +2302,58 @@ TString MakeTextmIRCSafe(const TCHAR* const tString, const std::size_t len)
 	}
 	return tsRes;
 }
+
+double sRGBtoLin(double colorChannel) noexcept
+{
+	// Send this function a decimal sRGB gamma encoded color value
+	// between 0.0 and 1.0, and it returns a linearized value.
+
+	if (colorChannel <= 0.04045)
+		return colorChannel / 12.92;
+
+	return pow(((colorChannel + 0.055) / 1.055), 2.4);
+}
+
+double YtoLstar(double Y) noexcept
+{
+	// Send this function a luminance value between 0.0 and 1.0,
+	// and it returns L* which is "perceptual lightness"
+
+	if (Y <= (216 / 24389)) {       // The CIE standard states 0.008856 but 216/24389 is the intent for 0.008856451679036
+		return Y * (24389 / 27);  // The CIE standard states 903.3, but 24389/27 is the intent, making 903.296296296296296
+	}
+	else {
+		return pow(Y, (1.0 / 3.0)) * 116 - 16;
+	}
+}
+
+COLORREF GetContrastColour(COLORREF sRGB) noexcept
+{
+	// (0.21 × R) + (0.72 × G) + (0.07 × B)
+	// (0.2126*R + 0.7152*G + 0.0722*B)
+	// (0.299*R + 0.587*G + 0.114*B)
+	// sqrt( 0.299*R^2 + 0.587*G^2 + 0.114*B^2 )
+	// 
+	// vR = sR / 255;
+	// vG = sG / 255;
+	// vB = sB / 255;
+	// Y = (0.2126 * sRGBtoLin(vR) + 0.7152 * sRGBtoLin(vG) + 0.0722 * sRGBtoLin(vB))
+
+	const double vR = GetRValue(sRGB) / 255.0;
+	const double vG = GetGValue(sRGB) / 255.0;
+	const double vB = GetBValue(sRGB) / 255.0;
+
+	const auto Y = (0.2126 * sRGBtoLin(vR) + 0.7152 * sRGBtoLin(vG) + 0.0722 * sRGBtoLin(vB));
+
+	const auto Lstar = YtoLstar(Y);
+
+	// white
+	if (Lstar < 50)
+		//return XPopupMenuItem::LightenColor(100, sRGB);
+		return RGB(255, 255, 255);
+
+	// black
+	return 0;
+}
+
+
