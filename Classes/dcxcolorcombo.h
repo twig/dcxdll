@@ -47,6 +47,8 @@ constexpr auto DCX_COLORCOMBO_ITEM_HEIGHT = 16;
 class DcxColorCombo final
 	: public DcxControl
 {
+	bool m_bGridLayout{ false };
+	bool m_bShowNumbers{ false };
 public:
 	DcxColorCombo() = delete;
 	DcxColorCombo(const DcxColorCombo&) = delete;

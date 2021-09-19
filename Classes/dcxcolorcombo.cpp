@@ -44,11 +44,25 @@ DcxColorCombo::DcxColorCombo(const UINT ID, DcxDialog *const p_Dialog, const HWN
 		this);
 
 	if (!IsWindow(m_Hwnd))
-		//throw Dcx::dcxException("Unable To Create Window");
 		throw DcxExceptions::dcxUnableToCreateWindow();
 
 	if (ws.m_NoTheme)
 		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
+
+#ifdef DEBUG
+	if (m_bGridLayout)
+	{
+		COMBOBOXINFO cbi{};
+		cbi.cbSize = sizeof(COMBOBOXINFO);
+		SendMessage(m_Hwnd, CB_GETCOMBOBOXINFO, 0, (LPARAM)&cbi);
+		if (cbi.hwndList)
+		{
+			AddStyles(cbi.hwndList, GWL_STYLE, LBS_MULTICOLUMN);
+
+			SendMessage(cbi.hwndList, LB_SETCOLUMNWIDTH, DCX_COLORCOMBO_ITEM_HEIGHT, 0);
+		}
+	}
+#endif
 
 	setNoThemed(ws.m_NoTheme);
 }
@@ -74,7 +88,26 @@ dcxWindowStyles DcxColorCombo::parseControlStyles(const TString & tsStyles)
 {
 	dcxWindowStyles ws;
 
-	ws.m_Styles |= CBS_DROPDOWNLIST | CBS_OWNERDRAWFIXED;
+	ws.m_Styles |= CBS_DROPDOWNLIST | /*CBS_OWNERDRAWVARIABLE;*/ CBS_OWNERDRAWFIXED;
+
+	for (const auto& tsStyle : tsStyles)
+	{
+		switch (std::hash<TString>{}(tsStyle))
+		{
+		case L"grid"_hash:
+			m_bGridLayout = true;
+			//ws.m_Styles |= LBS_MULTICOLUMN;
+			//ws.m_Styles &= ~(CBS_OWNERDRAWFIXED);
+			//ws.m_Styles |= CBS_OWNERDRAWVARIABLE;
+			break;
+		case L"shownumbers"_hash:
+			m_bShowNumbers = true;
+			break;
+
+		default:
+			break;
+		}
+	}
 
 	return parseGeneralControlStyles(tsStyles, ws);
 }
@@ -401,6 +434,9 @@ LRESULT DcxColorCombo::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 		if (!lpdcxcci)
 			break;
 
+		const auto savedDC = SaveDC(lpdis->hDC);
+		Auto(RestoreDC(lpdis->hDC, savedDC));
+
 		const auto hPen = CreatePen(PS_SOLID, 1, RGB(0, 0, 0));
 		Auto(DeleteObject(hPen));
 
@@ -423,6 +459,17 @@ LRESULT DcxColorCombo::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 		SetBkColor(lpdis->hDC, lpdcxcci->clrItem);
 
 		ExtTextOut(lpdis->hDC, rcItem.left, rcItem.top, ETO_CLIPPED | ETO_OPAQUE, &rcItem, TEXT(""), NULL, nullptr);
+
+		if (m_bShowNumbers)
+		{
+			TString txt;
+			txt.append_number(lpdis->itemID);
+
+			// set text colour so it will contrast nicely with the item colour.
+			SetTextColor(lpdis->hDC, GetContrastColour(lpdcxcci->clrItem));
+
+			ctrlDrawText(lpdis->hDC, txt, &rcItem, DT_SINGLELINE | DT_CENTER | DT_VCENTER);
+		}
 
 		MoveToEx(lpdis->hDC, rcItem.left, rcItem.top, nullptr);
 		LineTo(lpdis->hDC, rcItem.right, rcItem.top);
@@ -447,8 +494,18 @@ LRESULT DcxColorCombo::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 		if (!lpmis)
 			break;
 
+#ifdef DEBUG
+		if (m_bGridLayout)
+		{
+			lpmis->itemHeight = DCX_COLORCOMBO_ITEM_HEIGHT;
+			//if (lpmis->itemID != 1)
+				lpmis->itemWidth = DCX_COLORCOMBO_ITEM_HEIGHT;
+		}
+		else
+			lpmis->itemHeight = DCX_COLORCOMBO_ITEM_HEIGHT;
+#else
 		lpmis->itemHeight = DCX_COLORCOMBO_ITEM_HEIGHT;
-
+#endif
 		bParsed = TRUE;
 		return TRUE;
 	}
