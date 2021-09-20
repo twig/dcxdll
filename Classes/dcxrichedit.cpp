@@ -41,7 +41,6 @@ DcxRichEdit::DcxRichEdit(const UINT ID, DcxDialog* const p_Dialog, const HWND mP
 		this);
 
 	if (!IsWindow(m_Hwnd))
-		//throw Dcx::dcxException("Unable To Create Window");
 		throw DcxExceptions::dcxUnableToCreateWindow();
 
 	if (ws.m_NoTheme)
@@ -49,6 +48,8 @@ DcxRichEdit::DcxRichEdit(const UINT ID, DcxDialog* const p_Dialog, const HWND mP
 	else
 		if (!CRichEditThemed::Attach(m_Hwnd))
 			throw DcxExceptions::dcxUnableToCreateWindow();
+
+	setNoThemed(ws.m_NoTheme);
 
 	this->m_clrBackText = GetSysColor(COLOR_WINDOW);
 	this->m_clrText = GetSysColor(COLOR_WINDOWTEXT);
@@ -835,11 +836,13 @@ void DcxRichEdit::setContentsFont() noexcept
 		gsl::at(chrf.szFaceName, std::size(chrf.szFaceName) - 1) = 0;
 	}
 
-	this->hideSelection(TRUE);
-	this->setSel(0, -1);
-	this->setCharFormat(SCF_SELECTION, &chrf);
-	this->setSel(0, 0);
-	this->hideSelection(FALSE);
+	//this->hideSelection(TRUE);
+	//this->setSel(0, -1);
+	//this->setCharFormat(SCF_SELECTION, &chrf);
+	//this->setSel(0, 0);
+	//this->hideSelection(FALSE);
+
+	this->setCharFormat(SCF_ALL, &chrf);
 }
 
 /*!
@@ -1238,6 +1241,14 @@ void DcxRichEdit::parseStringContents(const TString& tsStr, const BOOL fNewLine)
 	this->redrawWindow();
 
 	this->m_bIgnoreInput = false;
+
+	// add all data to a buffer, & add buffer in a oner?
+	//SETTEXTEX TextInfo = { 0 };
+
+	//TextInfo.flags = ST_SELECTION;
+	//TextInfo.codepage = CP_UTF8;
+
+	//SendMessage(hRichText, EM_SETTEXTEX, (WPARAM)&TextInfo, (LPARAM)Utf8); 
 }
 
 void DcxRichEdit::DrawGutter()
@@ -1383,7 +1394,7 @@ void DcxRichEdit::insertText(const TCHAR* const text, bool bline, bool uline, bo
 	chrf.dwMask = CFM_BACKCOLOR | CFM_BOLD | CFM_COLOR | CFM_FACE | CFM_SIZE | CFM_ITALIC | CFM_UNDERLINE | CFM_STRIKEOUT | CFM_CHARSET;
 	chrf.yHeight = gsl::narrow_cast<LONG>(this->m_iFontSize);
 	chrf.crTextColor = this->getTextColor();
-	chrf.crBackColor = this->getBackColor();
+	chrf.crBackColor = this->getBackTextColor();
 	chrf.bCharSet = this->m_byteCharset;
 
 	if (this->m_bFontBold)
@@ -1642,6 +1653,31 @@ LRESULT DcxRichEdit::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& b
 {
 	switch (uMsg)
 	{
+		// This code enables tabstop out of richedit controls if tabstop styles used. BUT you cant use tab keys in the richedit control when tabstop used.
+	case WM_GETDLGCODE:
+	{
+		//if (wParam != VK_TAB)
+		//{
+		//	bParsed = TRUE;
+		//	return DLGC_WANTALLKEYS;
+		//}
+		//else if (!this->isStyle(WindowStyle::TabStop))
+		//{
+		//	bParsed = TRUE;
+		//	return DLGC_WANTALLKEYS;
+		//}
+
+		if (wParam == VK_TAB)
+		{
+			if (this->isStyle(WindowStyle::TabStop))
+			{
+				bParsed = TRUE;
+				return DefWindowProc(m_Hwnd, uMsg, wParam, lParam);
+			}
+		}
+	}
+	break;
+
 	case WM_KEYDOWN:
 	{
 		if (m_bShowLineNumbers)
