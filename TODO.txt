@@ -20,3 +20,6 @@ DCX V3.1 TODO List
   15: Add named id support to /xdialog -z (done)
   16: Add trackbar buddy control. (done)
   17: fix richedit controls font setting. (done)
+18: fix flicker of controls.
+19: add ability to dock a dialog between editbox & static text control in channels/queries/custom
+20: add grid control, maybe...
