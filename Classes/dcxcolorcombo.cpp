@@ -174,11 +174,10 @@ void DcxColorCombo::parseCommandRequest( const TString &input)
 	if (flags[TEXT('r')])
 		this->resetContent();
 
-	// xdid -a [NAME] [ID] [SWITCH] [N] [RGB]
+	// xdid -a [NAME] [ID] [SWITCH] [N] [RGB] (Text)
 	if (flags[TEXT('a')])
 	{
 		if (numtok < 5)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		auto nItem = input.getnexttok().to_int() - 1;	// tok 4
@@ -188,7 +187,16 @@ void DcxColorCombo::parseCommandRequest( const TString &input)
 
 		if (const auto clrItem = input.getnexttok().to_<COLORREF>(); nItem > -2)
 		{
-			if (const auto item = new DCXCCOMBOITEM(clrItem); this->insertItem(nItem, item) < 0)
+			//if (const auto item = new DCXCCOMBOITEM(clrItem); this->insertItem(nItem, item) < 0)
+			//	delete item;
+
+			const auto item = new DCXCCOMBOITEM(clrItem);
+
+			// if optional text supplied, set it.
+			if (TString txt(input.getlasttoks()); !txt.trim().empty())
+				item->tsItemText = txt;
+
+			if (this->insertItem(nItem, item) < 0)
 				delete item;
 		}
 	}
@@ -196,13 +204,11 @@ void DcxColorCombo::parseCommandRequest( const TString &input)
 	else if (flags[TEXT('c')])
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto nItem = input.getnexttok().to_int() - 1;	// tok 4
 
 		if ((nItem < -1) || (nItem >= this->getCount()))
-			//throw Dcx::dcxException("Item out of range");
 			throw DcxExceptions::dcxInvalidItem();
 
 		this->setCurSel(nItem);
@@ -211,13 +217,11 @@ void DcxColorCombo::parseCommandRequest( const TString &input)
 	else if (flags[TEXT('d')])
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto nItem = input.getnexttok().to_int() - 1;	// tok 4
 
 		if ((nItem < -1) || (nItem >= this->getCount()))
-			//throw Dcx::dcxException("Item out of range");
 			throw DcxExceptions::dcxInvalidItem();
 
 		this->deleteItem(nItem);
@@ -231,17 +235,30 @@ void DcxColorCombo::parseCommandRequest( const TString &input)
 	else if (flags[TEXT('o')])
 	{
 		if (numtok < 5)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto nItem = input.getnexttok().to_int() - 1;	// tok 4
 
 		if ((nItem < -1) || (nItem >= this->getCount()))
-			//throw Dcx::dcxException("Item out of range");
 			throw DcxExceptions::dcxInvalidItem();
 
 		if (const auto lpdcxcci = this->getItemData(nItem); lpdcxcci)
 			lpdcxcci->clrItem = input.getnexttok().to_<COLORREF>();	// tok 5
+	}
+	// xdid -t [NAME] [ID] [SWITCH] [N] [Text]
+	else if (flags[TEXT('t')])
+	{
+		// set an items text (text can be blank to clear it)
+		if (numtok < 4)
+			throw DcxExceptions::dcxInvalidArguments();
+
+		const auto nItem = input.getnexttok().to_int() - 1;	// tok 4
+
+		if ((nItem < -1) || (nItem >= this->getCount()))
+			throw DcxExceptions::dcxInvalidItem();
+
+		if (const auto lpdcxcci = this->getItemData(nItem); lpdcxcci)
+			lpdcxcci->tsItemText = input.getlasttoks().trim();	// tok 5
 	}
 	// This is to avoid invalid flag message.
 	// xdid -r [NAME] [ID] [SWITCH]
@@ -460,17 +477,20 @@ LRESULT DcxColorCombo::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 
 		ExtTextOut(lpdis->hDC, rcItem.left, rcItem.top, ETO_CLIPPED | ETO_OPAQUE, &rcItem, TEXT(""), NULL, nullptr);
 
+		TString txt(lpdcxcci->tsItemText);
+
 		if (m_bShowNumbers)
+			txt.addtok(lpdis->itemID);
+		
+		if (!txt.empty())
 		{
-			TString txt;
-			txt.append_number(lpdis->itemID);
-
 			// set text colour so it will contrast nicely with the item colour.
-			SetTextColor(lpdis->hDC, GetContrastColour(lpdcxcci->clrItem));
+			if (lpdcxcci->clrText == CLR_INVALID)
+				lpdcxcci->clrText = GetContrastColour(lpdcxcci->clrItem);
+			SetTextColor(lpdis->hDC, lpdcxcci->clrText);
 
-			ctrlDrawText(lpdis->hDC, txt, &rcItem, DT_SINGLELINE | DT_CENTER | DT_VCENTER);
+			ctrlDrawText(lpdis->hDC, lpdcxcci->tsItemText, &rcItem, DT_SINGLELINE | DT_CENTER | DT_VCENTER);
 		}
-
 		MoveToEx(lpdis->hDC, rcItem.left, rcItem.top, nullptr);
 		LineTo(lpdis->hDC, rcItem.right, rcItem.top);
 

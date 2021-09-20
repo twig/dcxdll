@@ -29,6 +29,7 @@ class DcxDialog;
 struct DCXCCOMBOITEM
 {
 	COLORREF clrItem{ CLR_INVALID };     //!< Item Color
+	COLORREF clrText{ CLR_INVALID };     //!< Item Text Color
 	TString tsItemText;   //!< Item Text
 
 	explicit DCXCCOMBOITEM(const COLORREF& clr) noexcept : clrItem(clr) {}
