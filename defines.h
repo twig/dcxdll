@@ -31,8 +31,8 @@
 #define _DEFINES_H_
 
  // VS2019+ only
-#if !defined(_MSC_FULL_VER) || _MSC_FULL_VER < 192930037
-#error "This version of DCX needs Visual Studio 2019 16.10 or newer"
+#if !defined(_MSC_FULL_VER) || _MSC_FULL_VER < 192930133
+#error "This version of DCX needs Visual Studio 2019 16.11.3 or newer"
 #endif
 
 #ifdef __INTEL_COMPILER // Defined when using Intel C++ Compiler.

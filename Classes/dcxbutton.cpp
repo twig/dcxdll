@@ -40,13 +40,11 @@ DcxButton::DcxButton(const UINT ID, DcxDialog* const p_Dialog, const HWND mParen
 		this);
 
 	if (!IsWindow(m_Hwnd))
-		//throw Dcx::dcxException("Unable To Create Window");
 		throw DcxExceptions::dcxUnableToCreateWindow();
 
 	if (ws.m_NoTheme)
 		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
 
-	//setNoThemed((ws.m_NoTheme != false));
 	setNoThemed(ws.m_NoTheme);
 
 	m_aColors[0] = GetSysColor(COLOR_BTNTEXT); // normal

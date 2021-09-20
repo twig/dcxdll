@@ -28,11 +28,11 @@ enum class dcxToolBar_ImageLists
 	TB_IML_HOT = 0x04,	//!< Toolbar HotTrack ImageList
 	TB_ICO_GREY = 0x08	//!< ???
 };
-template <typename T>
-constexpr dcxToolBar_ImageLists& operator |=(dcxToolBar_ImageLists& eStyle, const T& dStyle) noexcept
-{
-	return eStyle = static_cast<dcxToolBar_ImageLists>(static_cast<DWORD>(eStyle) | static_cast<DWORD>(dStyle));
-}
+//template <typename T>
+//constexpr dcxToolBar_ImageLists& operator |=(dcxToolBar_ImageLists& eStyle, const T& dStyle) noexcept
+//{
+//	return eStyle = static_cast<dcxToolBar_ImageLists>(static_cast<DWORD>(eStyle) | static_cast<DWORD>(dStyle));
+//}
 template <typename T>
 constexpr T& operator |=(T& eStyle, const dcxToolBar_ImageLists& dStyle) noexcept
 {
@@ -54,11 +54,11 @@ enum class dcxToolBar_Styles
 	BTNS_HIGHLIGHT_BTNCOLOR = 0x00200000,	//!< Toolbar Buttons colour when highlighted.
 	BTNS_HOTTRACK_BTNCOLOR = 0x00400000	//!< Toolbar Buttons colour when hot.
 };
-template <typename T>
-constexpr dcxToolBar_Styles& operator |=(dcxToolBar_Styles& eStyle, const T& dStyle) noexcept
-{
-	return eStyle = static_cast<dcxToolBar_Styles>(static_cast<DWORD>(eStyle) | static_cast<DWORD>(dStyle));
-}
+//template <typename T>
+//constexpr dcxToolBar_Styles& operator |=(dcxToolBar_Styles& eStyle, const T& dStyle) noexcept
+//{
+//	return eStyle = static_cast<dcxToolBar_Styles>(static_cast<DWORD>(eStyle) | static_cast<DWORD>(dStyle));
+//}
 template <typename T>
 constexpr T& operator |=(T& eStyle, const dcxToolBar_Styles& dStyle) noexcept
 {

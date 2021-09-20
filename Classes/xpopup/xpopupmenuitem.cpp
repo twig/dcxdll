@@ -505,41 +505,45 @@ void XPopupMenuItem::DrawItemCheckBox(const LPDRAWITEMSTRUCT lpdis, const XPMENU
 	if ((!hBrush) || (!hPenBorder) || (!hPenText))
 		return;
 
+	RECT rc = lpdis->rcItem;
+
 	const auto hOldBrush = SelectObject(lpdis->hDC, hBrush);
 	Auto(SelectObject(lpdis->hDC, hOldBrush));
 
-	const auto hOldPen = SelectObject(lpdis->hDC, hPenBorder);
-	Auto(SelectObject(lpdis->hDC, hOldPen));
+	{
+		/*const auto hOldPen =*/ SelectObject(lpdis->hDC, hPenBorder);
+		//Auto(SelectObject(lpdis->hDC, hOldPen));
 
-	RECT rc = lpdis->rcItem;
+		InflateRect(&rc, 0, -1);
+		rc.left += 1;
+		rc.right = rc.left + rc.bottom - rc.top;
 
-	InflateRect(&rc, 0, -1);
-	rc.left += 1;
-	rc.right = rc.left + rc.bottom - rc.top;
+		//RoundRect( lpdis->hDC, rc.left, rc.top, rc.right, rc.bottom, 5, 5 );
+		Rectangle(lpdis->hDC, rc.left, rc.top, rc.right, rc.bottom);
+	}
 
-	//RoundRect( lpdis->hDC, rc.left, rc.top, rc.right, rc.bottom, 5, 5 );
-	Rectangle(lpdis->hDC, rc.left, rc.top, rc.right, rc.bottom);
+	{
+		const auto hOldPenTxt = SelectObject(lpdis->hDC, hPenText);
+		Auto(SelectObject(lpdis->hDC, hOldPenTxt));
 
-	const auto hOldPenTxt = SelectObject(lpdis->hDC, hPenText);
-	Auto(SelectObject(lpdis->hDC, hOldPenTxt));
+		const auto x = (rc.right + rc.left) / 2 - 3;
+		const auto y = (rc.bottom + rc.top) / 2 - 3;
 
-	const auto x = (rc.right + rc.left) / 2 - 3;
-	const auto y = (rc.bottom + rc.top) / 2 - 3;
-
-	MoveToEx(lpdis->hDC, x, y + 2, nullptr);
-	LineTo(lpdis->hDC, x, y + 5);
-	MoveToEx(lpdis->hDC, x + 1, y + 3, nullptr);
-	LineTo(lpdis->hDC, x + 1, y + 6);
-	MoveToEx(lpdis->hDC, x + 2, y + 4, nullptr);
-	LineTo(lpdis->hDC, x + 2, y + 7);
-	MoveToEx(lpdis->hDC, x + 3, y + 3, nullptr);
-	LineTo(lpdis->hDC, x + 3, y + 6);
-	MoveToEx(lpdis->hDC, x + 4, y + 2, nullptr);
-	LineTo(lpdis->hDC, x + 4, y + 5);
-	MoveToEx(lpdis->hDC, x + 5, y + 1, nullptr);
-	LineTo(lpdis->hDC, x + 5, y + 4);
-	MoveToEx(lpdis->hDC, x + 6, y, nullptr);
-	LineTo(lpdis->hDC, x + 6, y + 3);
+		MoveToEx(lpdis->hDC, x, y + 2, nullptr);
+		LineTo(lpdis->hDC, x, y + 5);
+		MoveToEx(lpdis->hDC, x + 1, y + 3, nullptr);
+		LineTo(lpdis->hDC, x + 1, y + 6);
+		MoveToEx(lpdis->hDC, x + 2, y + 4, nullptr);
+		LineTo(lpdis->hDC, x + 2, y + 7);
+		MoveToEx(lpdis->hDC, x + 3, y + 3, nullptr);
+		LineTo(lpdis->hDC, x + 3, y + 6);
+		MoveToEx(lpdis->hDC, x + 4, y + 2, nullptr);
+		LineTo(lpdis->hDC, x + 4, y + 5);
+		MoveToEx(lpdis->hDC, x + 5, y + 1, nullptr);
+		LineTo(lpdis->hDC, x + 5, y + 4);
+		MoveToEx(lpdis->hDC, x + 6, y, nullptr);
+		LineTo(lpdis->hDC, x + 6, y + 3);
+	}
 }
 
 /*!

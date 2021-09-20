@@ -750,6 +750,14 @@ const DcxColourFlags DcxControl::parseColorFlags(const TString& flags) noexcept
 	if (xflags[TEXT('G')])
 		iFlags |= DcxColourFlags::GRADENDCOLOR;
 
+	// for checkboxes
+	if (xflags[TEXT('c')])
+		iFlags |= DcxColourFlags::CHECKBOXBGCOLOR;
+	if (xflags[TEXT('f')])
+		iFlags |= DcxColourFlags::CHECKBOXFRAMECOLOR;
+	if (xflags[TEXT('C')])
+		iFlags |= DcxColourFlags::CHECKBOXTICKCOLOR;
+
 	return iFlags;
 }
 
@@ -2724,7 +2732,7 @@ void DcxControl::InitializeDcxControls()
 	dcxRegisterClass<DcxReBar>(REBARCLASSNAME, DCX_REBARCTRLCLASS);
 
 	// Custom Color Combo
-	DCX_DEBUG(mIRCLinker::debug, __FUNCTIONW__, TEXT("Registering ComboBox..."));
+	DCX_DEBUG(mIRCLinker::debug, __FUNCTIONW__, TEXT("Registering ColorCombo..."));
 	dcxRegisterClass<DcxColorCombo>(WC_COMBOBOX, DCX_COLORCOMBOCLASS);
 
 	// Custom TabCtrl

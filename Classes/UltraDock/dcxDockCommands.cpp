@@ -332,7 +332,8 @@ mIRC(xdock)
 
 		// check if at least 2 parameters
 		if (numtok < 2)
-			throw Dcx::dcxException("Invalid Flag");
+			//throw Dcx::dcxException("Invalid Flag");
+			throw DcxExceptions::dcxInvalidFlag();
 
 		const auto dockHwnd = reinterpret_cast<HWND>(input.getnexttok().to_<DWORD>()); // tok 2
 
@@ -396,7 +397,8 @@ mIRC(xdock)
 		const auto flags(input.getnexttok()); // tok 3
 
 		if ((numtok > 2) && (flags[0] != TEXT('+')))
-			throw Dcx::dcxException("Invalid flag format");
+			//throw Dcx::dcxException("Invalid flag format");
+			throw DcxExceptions::dcxInvalidFlag();
 
 		// dock to toolbar
 		// [-t] [hwnd to dock] [+options]
@@ -417,7 +419,8 @@ mIRC(xdock)
 			mWnd = reinterpret_cast<HWND>(input.getnexttok().to_<DWORD>()); // tok 4
 
 			if (!IsWindow(mWnd))
-				throw Dcx::dcxException("Invalid window");
+				//throw Dcx::dcxException("Invalid window");
+				throw DcxExceptions::dcxInvalidArguments();
 
 			DockWindow(mWnd, dockHwnd, TEXT("ListBox"), flags);
 		}
@@ -428,8 +431,9 @@ mIRC(xdock)
 			mWnd = reinterpret_cast<HWND>(input.getnexttok().to_<DWORD>()); // tok 4
 
 			if (!IsWindow(mWnd))
-				throw Dcx::dcxException("Invalid window");
-			
+				//throw Dcx::dcxException("Invalid window");
+				throw DcxExceptions::dcxInvalidArguments();
+
 			DockWindow(mWnd, dockHwnd, nullptr, flags);
 		}
 		// dock to treelist
@@ -477,7 +481,9 @@ mIRC(xdock)
 				dflags = Dcx::dcxGetProp<DockFlags>(dockHwnd, TEXT("dcx_docked"));
 
 			if (dflags == DockFlags::DOCKF_NONE) // not any dock.
-				throw Dcx::dcxException("Unable to find flags information.");
+				//throw Dcx::dcxException("Unable to find flags information.");
+				throw DcxExceptions::dcxInvalidFlag();
+
 #if DCX_USE_WRAPPERS
 			Dcx::dcxWindowRect rc(dockHwnd);
 #else
@@ -512,7 +518,8 @@ mIRC(xdock)
 				throw Dcx::dcxException("Can't resize an auto width & height dialog");
 
 			default:
-				throw Dcx::dcxException("Unknown dock flag");
+				//throw Dcx::dcxException("Unknown dock flag");
+				throw DcxExceptions::dcxInvalidFlag();
 			}
 
 			// x & y handled by mIRC update, only change width & height.

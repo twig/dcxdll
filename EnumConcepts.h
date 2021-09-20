@@ -1,6 +1,6 @@
 #pragma once
 
-// v1.1 By Ook
+// v1.2 By Ook
 //
 
 #include <concepts>
@@ -8,6 +8,9 @@
 
 namespace EnumConcepts
 {
+	template <class T>
+	concept IsEnum = std::is_enum_v<T>;
+
 	template<class _Ty>
 	struct is_Numeric
 		: std::integral_constant<bool,
@@ -15,6 +18,7 @@ namespace EnumConcepts
 		&& !std::is_same_v<_Ty, wchar_t>
 		&& !std::is_same_v<_Ty, char>
 		&& !std::is_pointer_v<_Ty>
+		//&& !std::is_enum_v<_Ty>
 		>
 	{
 	};
@@ -24,11 +28,18 @@ namespace EnumConcepts
 	constexpr bool is_Numeric_v = is_Numeric<T>::value;
 
 	template <class T>
-	concept IsEnum = std::is_enum_v<T>;
-
-	template <class T>
 	concept IsNumeric = is_Numeric_v<T>;
 }
+
+//template <EnumConcepts::IsEnum E>
+//constexpr E& operator |=(E& eStyle, const E& dStyle) noexcept
+//{
+//	if constexpr (sizeof(E) <= sizeof(size_t))
+//		eStyle = static_cast<E>(static_cast<size_t>(eStyle) | static_cast<size_t>(dStyle));
+//	else
+//		eStyle = static_cast<E>(static_cast<uint64_t>(eStyle) | static_cast<uint64_t>(dStyle));
+//	return eStyle;
+//}
 
 template <EnumConcepts::IsNumeric T, EnumConcepts::IsEnum E>
 constexpr E& operator |=(E& eStyle, const T& dStyle) noexcept
@@ -39,6 +50,20 @@ constexpr E& operator |=(E& eStyle, const T& dStyle) noexcept
 		eStyle = static_cast<E>(static_cast<uint64_t>(eStyle) | static_cast<uint64_t>(dStyle));
 	return eStyle;
 }
+
+//template <EnumConcepts::IsNumeric T, EnumConcepts::IsEnum E>
+//constexpr T& operator |=(T& dStyle, const E& eStyle) noexcept
+//{
+//	//if constexpr (sizeof(E) <= sizeof(size_t) && sizeof(T) <= sizeof(size_t))
+//	//	dStyle = static_cast<T>(static_cast<size_t>(eStyle) | static_cast<size_t>(dStyle));
+//	//else
+//	//	dStyle = static_cast<T>(static_cast<uint64_t>(eStyle) | static_cast<uint64_t>(dStyle));
+//	//return dStyle;
+//
+//	dStyle |= static_cast<T>(eStyle);
+//
+//	return dStyle;
+//}
 
 template <EnumConcepts::IsNumeric T, EnumConcepts::IsEnum E>
 constexpr E operator |(const E& eStyle, const T& dStyle) noexcept

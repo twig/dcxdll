@@ -33,13 +33,16 @@
 enum class DcxColourFlags
 	: UINT
 {
-	None,
-	TEXTCOLOR,				//!< Control Text Color;
-	TEXTBKGCOLOR,			//!< Control Text Background Color;
-	BKGCOLOR = 0x04,		//!< Control Background Color;
-	BORDERCOLOR = 0x08,		//!< Control Border Color;
-	GRADSTARTCOLOR = 0x10,	//!< Colour At the start of the gradient;
-	GRADENDCOLOR = 0x20		//!< Colour At the end of the gradient;
+	None,							// No styles
+	TEXTCOLOR,						//!< Control Text Color;
+	TEXTBKGCOLOR,					//!< Control Text Background Color;
+	BKGCOLOR = 0x0004,				//!< Control Background Color;
+	BORDERCOLOR = 0x0008,			//!< Control Border Color;
+	GRADSTARTCOLOR = 0x0010,		//!< Colour At the start of the gradient;
+	GRADENDCOLOR = 0x0020,			//!< Colour At the end of the gradient;
+	CHECKBOXFRAMECOLOR = 0x0040,	// Checkbox frame colour
+	CHECKBOXBGCOLOR = 0x0080,		// CheckBox Background colour
+	CHECKBOXTICKCOLOR = 0x0100		// CheckBox Tick colour
 };
 
 //#define CTLF_ALLOW_PBAR				0x0000000000000001ULL
