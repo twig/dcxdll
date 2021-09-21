@@ -40,13 +40,11 @@ DcxRadio::DcxRadio(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentH
 		this);
 
 	if (!IsWindow(m_Hwnd))
-		//throw Dcx::dcxException("Unable To Create Window");
 		throw DcxExceptions::dcxUnableToCreateWindow();
 
 	if (ws.m_NoTheme)
 		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
 
-	//setNoThemed((ws.m_NoTheme != false));
 	setNoThemed(ws.m_NoTheme);
 
 	if (p_Dialog->getToolTip())
@@ -236,6 +234,20 @@ LRESULT DcxRadio::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bPa
 	{
 		delete this;
 		bParsed = TRUE;
+	}
+	break;
+
+	case WM_LBUTTONUP:
+	{
+		if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
+		{
+			const auto lRes = CallDefaultClassProc(uMsg, wParam, lParam);
+			bParsed = TRUE;
+
+			execAliasEx(TEXT("lbup,%u"), getUserID());
+			execAliasEx(TEXT("sclick,%u"), getUserID());
+			return lRes;
+		}
 	}
 	break;
 
