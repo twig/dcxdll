@@ -96,7 +96,7 @@ private:
 			rcClient.left += DCX_EDIT_GUTTER_WIDTH;
 			RECT rcFmt = getFmtRect();
 			//if (!EqualRect(&rcClient, &rcFmt))
-			if (rcFmt.left < 5)
+			if (rcFmt.left <= 5)
 			{
 				rcFmt = rcClient;
 				Edit_SetRect(m_Hwnd, &rcFmt);
