@@ -813,3 +813,19 @@ void dcxDrawCheckBox(HDC hDC, const LPRECT rcBox, const clrCheckBox* lpcol, cons
 		LineTo(hDC, x + 6, y + 3);
 	}
 }
+
+void dcxDrawEdge(HDC hdc, const LPRECT rc, COLORREF clr) noexcept
+{
+	if (auto hPen = CreatePen(PS_SOLID, 5, clr); hPen)
+	{
+		Auto(DeleteObject(hPen));
+
+		const auto oldPen = Dcx::dcxSelectObject<HPEN>(hdc, hPen);
+		Auto(Dcx::dcxSelectObject<HPEN>(hdc, oldPen));
+
+		MoveToEx(hdc, rc->right, rc->top, nullptr);
+		LineTo(hdc, rc->right, rc->bottom);
+	}
+	else
+		DrawEdge(hdc, rc, EDGE_BUMP, BF_RIGHT);
+}

@@ -69,6 +69,7 @@ private:
 	COLORREF m_clrGutter_bkg{ RGB(0xFF, 0xf0, 0xff) };
 	COLORREF m_clrGutter_txt{ RGB(0xAF, 0xAF, 0xAF) };
 	COLORREF m_clrGutter_seltxt{ RGB(0x0F, 0x0F, 0x0F) };
+	COLORREF m_clrGutter_border{ RGB(0xFF, 0xFF, 0xFF) };
 
 #define WM_DRAW_NUMBERS (WM_USER + 1000)
 #define DCX_EDIT_GUTTER_WIDTH 35

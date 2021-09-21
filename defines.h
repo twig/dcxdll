@@ -196,7 +196,7 @@ constexpr auto DCX_MAX_GDI_ERRORS = 21;
 // --------------------------------------------------
 #define DLL_VERSION    GIT_DESCRIBE
 #define DLL_BUILD      GIT_HASH
-#define DLL_DEV_BUILD  "58"
+#define DLL_DEV_BUILD  "59"
 
 #ifdef NDEBUG
 #ifdef DCX_DEV_BUILD
@@ -715,6 +715,7 @@ TString MakeTextmIRCSafe(const TCHAR* const tString);
 TString MakeTextmIRCSafe(const TCHAR* const tString, const std::size_t len);
 
 void dcxDrawCheckBox(HDC hDC, const LPRECT rcBox, const clrCheckBox* lpcol, const bool bTicked, const bool bDis, const bool bRounded) noexcept;
+void dcxDrawEdge(HDC hdc, const LPRECT rc, COLORREF clr) noexcept;
 COLORREF GetContrastColour(COLORREF sRGB) noexcept;
 
 extern SIGNALSWITCH dcxSignal;

@@ -551,7 +551,7 @@ void DcxEdit::parseCommandRequest(const TString& input)
 			}
 		}
 	}
-	// xdid -g [NAME] [ID] [SWITCH] [Selected line Background Colour|-] (Background Colour|-) (Selected Line Text Colour|-) (Text Colour|-)
+	// xdid -g [NAME] [ID] [SWITCH] [Selected line Background Colour|-] (Background Colour|-) (Selected Line Text Colour|-) (Text Colour|-) (Border Colour|-)
 	else if (flags[TEXT('g')])
 	{
 		static_assert(CheckFreeCommand(TEXT('g')), "Command in use!");
@@ -580,6 +580,13 @@ void DcxEdit::parseCommandRequest(const TString& input)
 					tsClr = input.getnexttok();
 					if (tsClr != TEXT('-'))
 						this->m_clrGutter_txt = tsClr.to_<COLORREF>();
+
+					if (numtok > 7)
+					{
+						tsClr = input.getnexttok();
+						if (tsClr != TEXT('-'))
+							this->m_clrGutter_border = tsClr.to_<COLORREF>();
+					}
 				}
 			}
 		}
@@ -932,7 +939,19 @@ void DcxEdit::DrawGutter()
 
 			Dcx::FillRectColour(*hdcbuf, &m_FRGutter, m_clrGutter_bkg);
 
-			DrawEdge(*hdcbuf, &m_FRGutter, EDGE_BUMP, BF_RIGHT);
+			//if (auto hPen = CreatePen(PS_SOLID, 5, RGB(0, 0, 255)); hPen)
+			//{
+			//	Auto(DeleteObject(hPen));
+			//	const auto oldPen = Dcx::dcxSelectObject<HPEN>(*hdcbuf, hPen);
+			//	Auto(Dcx::dcxSelectObject<HPEN>(*hdcbuf, oldPen));
+			//	//DrawEdge(*hdcbuf, &m_FRGutter, EDGE_BUMP, BF_RIGHT);
+			//	MoveToEx(*hdcbuf, m_FRGutter.right, m_FRGutter.top, nullptr);
+			//	LineTo(*hdcbuf, m_FRGutter.right, m_FRGutter.bottom);
+			//}
+			//else
+			//	DrawEdge(*hdcbuf, &m_FRGutter, EDGE_BUMP, BF_RIGHT);
+
+			dcxDrawEdge(*hdcbuf, &m_FRGutter, m_clrGutter_border);
 
 			RECT RNumber = m_FRGutter;
 			InflateRect(&RNumber, -5, 0);
