@@ -274,9 +274,10 @@ void DcxRichEdit::parseInfoRequest(const TString& input, const refString<TCHAR, 
 		szReturnValue = dcx_truefalse(m_bShowLineNumbers);
 	}
 	break;
+	case L"guttercolors"_hash:
 	case L"guttercolours"_hash:
 	{
-		_ts_snprintf(szReturnValue, TEXT("%u %u %u %u"), m_clrGutter_selbkg, m_clrGutter_bkg, m_clrGutter_seltxt, m_clrGutter_txt);
+		_ts_snprintf(szReturnValue, TEXT("%u %u %u %u %u"), m_clrGutter_selbkg, m_clrGutter_bkg, m_clrGutter_seltxt, m_clrGutter_txt, m_clrGutter_border);
 	}
 	break;
 	default:
@@ -389,7 +390,6 @@ void DcxRichEdit::parseCommandRequest(const TString& input)
 	if (flags[TEXT('a')])
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		//this->m_tsText += input.gettok(4, -1);
@@ -405,7 +405,6 @@ void DcxRichEdit::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('c')])
 	{
 		if (numtok < 3)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		CopyToClipboard(m_Hwnd, this->m_tsText);
@@ -414,7 +413,6 @@ void DcxRichEdit::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('d')])
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		if (this->isStyle(WindowStyle::ES_MultiLine))
@@ -430,7 +428,6 @@ void DcxRichEdit::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('f')])
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		this->m_bIgnoreInput = true;
@@ -520,7 +517,6 @@ void DcxRichEdit::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('i')])
 	{
 		if (numtok < 5)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		if (this->isStyle(WindowStyle::ES_MultiLine))
@@ -537,7 +533,6 @@ void DcxRichEdit::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('k')])
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto clrColor = input.getnexttok().to_<COLORREF>();	// tok 4
@@ -555,7 +550,6 @@ void DcxRichEdit::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('l')])
 	{
 		if (numtok < 5)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto nColor = input.getnexttok().to_int() - 1;	// tok 4
@@ -578,7 +572,6 @@ void DcxRichEdit::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('n')])
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto b = (input.getnexttok().to_int() > 0);	// tok 4
@@ -589,7 +582,6 @@ void DcxRichEdit::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('o')])
 	{
 		if (numtok < 5)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto nLine = input.getnexttok().to_<UINT>();	// tok 4
@@ -610,7 +602,6 @@ void DcxRichEdit::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('q')])
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto nColor = numtok - 3;
@@ -633,7 +624,6 @@ void DcxRichEdit::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('t')])
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const XSwitchFlags xflags(input.getnexttok().trim());	// tok 4
@@ -695,7 +685,6 @@ void DcxRichEdit::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('u')])
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const XSwitchFlags xflags(input.getnexttok().trim());	// tok 4
@@ -741,7 +730,6 @@ void DcxRichEdit::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('S')])
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		CHARRANGE c{};
@@ -794,7 +782,6 @@ void DcxRichEdit::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('z')])
 	{
 		if (numtok < 5)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto num = input.getnexttok().to_int();	// tok 4

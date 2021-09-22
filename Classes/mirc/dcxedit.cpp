@@ -313,9 +313,10 @@ void DcxEdit::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC
 		szReturnValue = dcx_truefalse(m_bShowLineNumbers);
 	}
 	break;
+	case L"guttercolors"_hash:
 	case L"guttercolours"_hash:
 	{
-		_ts_snprintf(szReturnValue, TEXT("%u %u %u %u"), m_clrGutter_selbkg, m_clrGutter_bkg, m_clrGutter_seltxt, m_clrGutter_txt);
+		_ts_snprintf(szReturnValue, TEXT("%u %u %u %u %u"), m_clrGutter_selbkg, m_clrGutter_bkg, m_clrGutter_seltxt, m_clrGutter_txt, m_clrGutter_border);
 	}
 	break;
 	default:
