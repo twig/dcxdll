@@ -40,7 +40,6 @@ DcxTab::DcxTab(const UINT ID, DcxDialog* const p_Dialog, const HWND mParentHwnd,
 		this);
 
 	if (!IsWindow(m_Hwnd))
-		//throw Dcx::dcxException("Unable To Create Window");
 		throw DcxExceptions::dcxUnableToCreateWindow();
 
 	if (ws.m_NoTheme)
@@ -165,13 +164,11 @@ void DcxTab::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC_
 	case L"text"_hash:
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Invalid number of arguments");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto nItem = input.getnexttok().to_int() - 1;	// tok 4
 
-		if (nItem < 0 && nItem >= TabCtrl_GetItemCount(m_Hwnd))
-			//throw Dcx::dcxException("Invalid Item");
+		if (nItem < 0 || nItem >= TabCtrl_GetItemCount(m_Hwnd))
 			throw DcxExceptions::dcxInvalidItem();
 
 		TCITEM tci{ TCIF_TEXT,0,0, szReturnValue, MIRC_BUFFER_SIZE_CCH,0,0 };
@@ -186,13 +183,11 @@ void DcxTab::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC_
 	case L"icon"_hash:
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Invalid number of arguments");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto iTab = input.getnexttok().to_int() - 1;		// tok 4
 
-		if (iTab < 0 && iTab >= TabCtrl_GetItemCount(m_Hwnd))
-			//throw Dcx::dcxException("Invalid Item");
+		if (iTab < 0 || iTab >= TabCtrl_GetItemCount(m_Hwnd))
 			throw DcxExceptions::dcxInvalidItem();
 
 		TCITEM tci{ TCIF_IMAGE,0U,0U, nullptr, 0, 0, 0 };
@@ -206,8 +201,7 @@ void DcxTab::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC_
 	{
 		const auto nItem = TabCtrl_GetCurSel(m_Hwnd);
 
-		if (nItem < 0 && nItem >= TabCtrl_GetItemCount(m_Hwnd))
-			//throw Dcx::dcxException("Invalid Item");
+		if (nItem < 0 || nItem >= TabCtrl_GetItemCount(m_Hwnd))
 			throw DcxExceptions::dcxInvalidItem();
 
 		_ts_snprintf(szReturnValue, TEXT("%d"), nItem + 1);
@@ -217,8 +211,7 @@ void DcxTab::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC_
 	{
 		const auto nItem = TabCtrl_GetCurSel(m_Hwnd);
 
-		if (nItem < 0 && nItem >= TabCtrl_GetItemCount(m_Hwnd))
-			//throw Dcx::dcxException("Invalid Item");
+		if (nItem < 0 || nItem >= TabCtrl_GetItemCount(m_Hwnd))
 			throw DcxExceptions::dcxInvalidItem();
 
 		TCITEM tci{ TCIF_TEXT,0U,0U, szReturnValue, MIRC_BUFFER_SIZE_CCH, 0, 0 };
@@ -229,23 +222,23 @@ void DcxTab::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC_
 	case L"childid"_hash:
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Invalid number of arguments");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto nItem = input.getnexttok().to_int() - 1;	// tok 4
 
-		if (nItem < 0 && nItem >= TabCtrl_GetItemCount(m_Hwnd))
-			//throw Dcx::dcxException("Invalid Item");
+		if (nItem < 0 || nItem >= TabCtrl_GetItemCount(m_Hwnd))
 			throw DcxExceptions::dcxInvalidItem();
 
 		TCITEM tci{ TCIF_PARAM,0U,0U, nullptr, 0, 0, 0 };
 
-		TabCtrl_GetItem(m_Hwnd, nItem, &tci);
-
-		const auto lpdtci = reinterpret_cast<LPDCXTCITEM>(tci.lParam);
-
-		if (const auto* const c = this->getParentDialog()->getControlByHWND(lpdtci->mChildHwnd); c)
-			_ts_snprintf(szReturnValue, TEXT("%u"), c->getUserID());
+		if (TabCtrl_GetItem(m_Hwnd, nItem, &tci))
+		{
+			if (const auto lpdtci = reinterpret_cast<LPDCXTCITEM>(tci.lParam); lpdtci)
+			{
+				if (const auto* const c = this->getParentDialog()->getControlByHWND(lpdtci->mChildHwnd); c)
+					_ts_snprintf(szReturnValue, TEXT("%u"), c->getUserID());
+			}
+		}
 	}
 	break;
 	// [NAME] [ID] [PROP]
