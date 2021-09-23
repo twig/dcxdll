@@ -22,13 +22,12 @@
 /*!
  * \brief Constructor
  *
- * \param ID Control ID
- * \param p_Dialog Parent DcxDialog Object
- * \param mParentHwnd Parent Window Handle
- * \param rc Window Rectangle
- * \param styles Window Style Tokenized List
+ * \param ID - Control ID
+ * \param p_Dialog - Parent DcxDialog Object
+ * \param mParentHwnd - Parent Window Handle
+ * \param rc - Window Rectangle
+ * \param styles - Window Style Tokenized List
  */
-
 DcxColorCombo::DcxColorCombo(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles)
 	: DcxControl(ID, p_Dialog)
 {
@@ -60,6 +59,7 @@ DcxColorCombo::DcxColorCombo(const UINT ID, DcxDialog *const p_Dialog, const HWN
 			AddStyles(cbi.hwndList, GWL_STYLE, LBS_MULTICOLUMN);
 
 			SendMessage(cbi.hwndList, LB_SETCOLUMNWIDTH, DCX_COLORCOMBO_ITEM_HEIGHT, 0);
+			MoveWindow(cbi.hwndList, 0, 0, 200, (rc->bottom - rc->top), FALSE);
 		}
 	}
 #endif
@@ -489,7 +489,7 @@ LRESULT DcxColorCombo::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 				lpdcxcci->clrText = GetContrastColour(lpdcxcci->clrItem);
 			SetTextColor(lpdis->hDC, lpdcxcci->clrText);
 
-			ctrlDrawText(lpdis->hDC, lpdcxcci->tsItemText, &rcItem, DT_SINGLELINE | DT_CENTER | DT_VCENTER);
+			ctrlDrawText(lpdis->hDC, txt, &rcItem, DT_SINGLELINE | DT_CENTER | DT_VCENTER);
 		}
 		MoveToEx(lpdis->hDC, rcItem.left, rcItem.top, nullptr);
 		LineTo(lpdis->hDC, rcItem.right, rcItem.top);
