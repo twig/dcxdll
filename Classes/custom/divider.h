@@ -18,7 +18,7 @@
 #include <windows.h>
 #include <windowsx.h>
 
-// Divider Window Style
+ // Divider Window Style
 #define DVS_HORZ 0x0000 //!< Horizontal Divider (Default)
 #define DVS_VERT 0x0001 //!< Vertical Divider 
 
@@ -28,6 +28,10 @@
 #define DV_SETDIVPOS  (WM_USER + 3) //!< Divder Set Divider Position Message
 #define DV_GETDIVPOS  (WM_USER + 4) //!< Divder Get Divider Position Message
 #define DV_CHANGEPOS  (WM_USER + 5) //!< Divder Position Changing Message
+#define DV_SETBARCOLOR   (WM_USER + 6) //!< Divder Colour of position bar
+#define DV_SETBARWIDTH   (WM_USER + 7) //!< Divder Set position bar width
+#define DV_GETBARCOLOR   (WM_USER + 8) //!< Divder Colour of position bar
+#define DV_GETBARWIDTH   (WM_USER + 9) //!< Divder Set position bar width
 
 // Divider Pane IDs
 #define DVF_PANELEFT  0x01  //!< Left/Top Pane Identifier
@@ -58,14 +62,14 @@ struct NMDIVIDER
 	LPARAM lParam{};  //!< Extra Storage Value
 
 	NMDIVIDER(const HWND hHwnd, const UINT uCode, const UINT uMask, const UINT uPaneId, const UINT uStyle, const LPARAM uExt) noexcept
-		: hdr{hHwnd, static_cast<UINT>(GetWindowLong(hHwnd, GWL_ID)), uCode}
+		: hdr{ hHwnd, static_cast<UINT>(GetWindowLong(hHwnd, GWL_ID)), uCode }
 		, fMask(uMask)
 		, iPaneId(uPaneId)
 		, fStyle(uStyle)
 		, lParam(uExt)
 	{}
 };
-using LPNMDIVIDER = NMDIVIDER *;
+using LPNMDIVIDER = NMDIVIDER*;
 #pragma warning(pop)
 
 #define DVNM_LPARAM   0x01  //!< NMDIVIDER lParam Value is Valid
@@ -90,7 +94,17 @@ struct DVPANEINFO
 	HWND hChild{ nullptr };    //!< Pane Child Window Handle
 	LPARAM lParam{};  //!< Extra Storage For Each Pane
 };
-using LPDVPANEINFO = DVPANEINFO *;
+using LPDVPANEINFO = DVPANEINFO*;
+
+/// <summary>
+/// Colours used in drawing the seperator bar.
+/// </summary>
+struct DVBARCOLORS
+{
+	COLORREF clrBar{ CLR_INVALID };			// bars normal colour
+	COLORREF clrSelBarFg{ CLR_INVALID };	// bars foreground colour when selected.
+	COLORREF clrSelBarBg{ CLR_INVALID };	// bars background colour when selected.
+};
 
 /*!
  * \brief Divider Control Data Structure
@@ -104,17 +118,18 @@ struct DVCONTROLDATA
 	UINT m_iBarPos{ 100 };			//!< Position of the bar
 	int m_iOldPos{};				//!< Moving Old Position
 	bool m_bDragging{ false };		//!< Are We Dragging The Bar?
+	DVBARCOLORS clrBar;
 };
-using LPDVCONTROLDATA = DVCONTROLDATA *;
+using LPDVCONTROLDATA = DVCONTROLDATA*;
 
-LRESULT CALLBACK DividerWndProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
+LRESULT CALLBACK DividerWndProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 void Divider_SizeWindowContents(HWND mHwnd, const int nWidth, const int nHeight) noexcept;
 LRESULT Divider_OnLButtonDown(HWND mHwnd, const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept;
-void DrawXorBar(HDC hdc, const int x1, const int y1, const int width, const int height) noexcept;
+void DrawXorBar(HDC hdc, const int x1, const int y1, const int width, const int height, COLORREF clrFg, COLORREF clrBg) noexcept;
 LRESULT Divider_OnLButtonUp(HWND mHwnd, const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept;
 LRESULT Divider_OnMouseMove(HWND mHwnd, const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept;
-void Divider_CalcBarPos( HWND mHwnd, POINT * pt, RECT * rect ) noexcept;
+void Divider_CalcBarPos(HWND mHwnd, POINT* pt, RECT* rect) noexcept;
 void Divider_GetChildControl(HWND mHwnd, const UINT pane, const LPDVPANEINFO result) noexcept;
 
 #endif // _DIVIDER_H_

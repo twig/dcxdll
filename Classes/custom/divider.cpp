@@ -70,7 +70,7 @@ LRESULT CALLBACK DividerWndProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 		{
 			HCURSOR hCursor{ nullptr };
 
-			if (dcx_testflag(GetWindowStyle(mHwnd), DVS_VERT))
+			if (dcx_testflag(dcxGetWindowStyle(mHwnd), DVS_VERT))
 				hCursor = LoadCursor(nullptr, IDC_SIZEWE);
 			else
 				hCursor = LoadCursor(nullptr, IDC_SIZENS);
@@ -87,7 +87,6 @@ LRESULT CALLBACK DividerWndProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 		if ((wParam != DVF_PANELEFT) && (wParam != DVF_PANERIGHT))
 			return FALSE;
 
-		//const auto lpdvdata = static_cast<LPDVCONTROLDATA>(GetProp(mHwnd, TEXT("dvc_data")));
 		const auto lpdvdata = Dcx::dcxGetProp<LPDVCONTROLDATA>(mHwnd, TEXT("dvc_data"));
 
 		if (!lpdvdata)
@@ -172,7 +171,6 @@ LRESULT CALLBACK DividerWndProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 
 	case DV_GETPANE:
 	{
-		//switch (auto lpdvdata = static_cast<LPDVCONTROLDATA>(GetProp(mHwnd, TEXT("dvc_data"))); wParam)
 		switch (auto lpdvdata = Dcx::dcxGetProp<LPDVCONTROLDATA>(mHwnd, TEXT("dvc_data")); wParam)
 		{
 		default:
@@ -191,8 +189,9 @@ LRESULT CALLBACK DividerWndProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 	// wParam == nullptr, lParam == POSITION VALUE
 	case DV_SETDIVPOS:
 	{
-		//const auto lpdvdata = static_cast<LPDVCONTROLDATA>(GetProp(mHwnd, TEXT("dvc_data")));
 		const auto lpdvdata = Dcx::dcxGetProp<LPDVCONTROLDATA>(mHwnd, TEXT("dvc_data"));
+		if (!lpdvdata)
+			return FALSE;
 
 		RECT rc{};
 		if (!GetClientRect(mHwnd, &rc))
@@ -214,13 +213,78 @@ LRESULT CALLBACK DividerWndProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 	// wParam == (OUT) BOOL isVertical?, lParam == (OUT) integer bar_position
 	case DV_GETDIVPOS:
 	{
-		//const auto lpdvdata = static_cast<LPDVCONTROLDATA>(GetProp(mHwnd, TEXT("dvc_data")));
-		const auto lpdvdata = Dcx::dcxGetProp<LPDVCONTROLDATA>(mHwnd, TEXT("dvc_data"));
-
-		*(reinterpret_cast<LPINT>(lParam)) = (lpdvdata->m_bDragging ? lpdvdata->m_iOldPos : gsl::narrow_cast<int>(lpdvdata->m_iBarPos));
+		if (const auto lpdvdata = Dcx::dcxGetProp<LPDVCONTROLDATA>(mHwnd, TEXT("dvc_data")); lpdvdata)
+			*(reinterpret_cast<LPINT>(lParam)) = (lpdvdata->m_bDragging ? lpdvdata->m_iOldPos : gsl::narrow_cast<int>(lpdvdata->m_iBarPos));
 		return 0L;
-		//break;
 	}
+
+	// wParam == clr unselected, lParam == clr selected.
+	case DV_SETBARCOLOR:
+	{
+		if (const auto lpdvdata = Dcx::dcxGetProp<LPDVCONTROLDATA>(mHwnd, TEXT("dvc_data")); lpdvdata)
+		{
+			lpdvdata->clrBar.clrBar = gsl::narrow_cast<COLORREF>(wParam);
+			lpdvdata->clrBar.clrSelBarFg = gsl::narrow_cast<COLORREF>(lParam);
+			return TRUE;
+		}
+		return FALSE;
+	}
+	break;
+
+	// wParam == 0, lParam == (OUT) clr selected.
+	case DV_GETBARCOLOR:
+	{
+		if (const auto lpdvdata = Dcx::dcxGetProp<LPDVCONTROLDATA>(mHwnd, TEXT("dvc_data")); lpdvdata)
+		{
+			*(reinterpret_cast<COLORREF*>(wParam)) = lpdvdata->clrBar.clrBar;
+			*(reinterpret_cast<COLORREF*>(lParam)) = lpdvdata->clrBar.clrSelBarFg;
+			return TRUE;
+		}
+		return FALSE;
+	}
+	break;
+
+	// wParam == 0, lParam == width in pixels
+	case DV_SETBARWIDTH:
+	{
+		if (const auto lpdvdata = Dcx::dcxGetProp<LPDVCONTROLDATA>(mHwnd, TEXT("dvc_data")); lpdvdata)
+		{
+			lpdvdata->m_iLineWidth = gsl::narrow_cast<UINT>(lParam);
+			return TRUE;
+		}
+		return FALSE;
+	}
+	break;
+
+	// wParam == 0, lParam == (OUT) width in pixels
+	case DV_GETBARWIDTH:
+	{
+		if (const auto lpdvdata = Dcx::dcxGetProp<LPDVCONTROLDATA>(mHwnd, TEXT("dvc_data")); lpdvdata)
+		{
+			*(reinterpret_cast<UINT*>(lParam)) = lpdvdata->m_iLineWidth;
+			return TRUE;
+		}
+		return FALSE;
+	}
+	break;
+
+	case WM_ERASEBKGND:
+	{
+		// wParam == HDC
+		if (const auto lpdvdata = Dcx::dcxGetProp<LPDVCONTROLDATA>(mHwnd, TEXT("dvc_data")); lpdvdata)
+		{
+			if (lpdvdata->clrBar.clrBar != CLR_INVALID)
+			{
+				// this allows drawing a custom coloured positioning bar.
+				RECT rc{};
+				if (GetClientRect(mHwnd, &rc))
+					Dcx::FillRectColour((HDC)wParam, &rc, lpdvdata->clrBar.clrBar);
+
+				return TRUE;
+			}
+		}
+	}
+	break;
 
 	case WM_DESTROY:
 	{
@@ -272,7 +336,7 @@ LRESULT CALLBACK DividerWndProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 
 void Divider_SizeWindowContents(HWND mHwnd, const int nWidth, const int nHeight) noexcept
 {
-	if (const auto lpdvdata = Dcx::dcxGetProp<LPDVCONTROLDATA>(mHwnd, TEXT("dvc_data")); dcx_testflag(GetWindowStyle(mHwnd), DVS_VERT))
+	if (const auto lpdvdata = Dcx::dcxGetProp<LPDVCONTROLDATA>(mHwnd, TEXT("dvc_data")); dcx_testflag(dcxGetWindowStyle(mHwnd), DVS_VERT))
 	{
 		MoveWindow(lpdvdata->m_LeftTopPane.hChild, 0, 0, gsl::narrow_cast<int>(lpdvdata->m_iBarPos), nHeight, TRUE);
 		MoveWindow(lpdvdata->m_RightBottomPane.hChild, gsl::narrow_cast<int>(lpdvdata->m_iBarPos + lpdvdata->m_iLineWidth), 0,
@@ -293,7 +357,7 @@ void Divider_SizeWindowContents(HWND mHwnd, const int nWidth, const int nHeight)
  */
 
 GSL_SUPPRESS(type.4)
-void DrawXorBar(HDC hdc, const int x1, const int y1, const int width, const int height) noexcept
+void DrawXorBar(HDC hdc, const int x1, const int y1, const int width, const int height, COLORREF clrFg, COLORREF clrBg) noexcept
 {
 	// Ook: Possibly pre-allocate these...
 	constexpr static const WORD _dotPatternBmp[8] =
@@ -314,6 +378,12 @@ void DrawXorBar(HDC hdc, const int x1, const int y1, const int width, const int 
 			const auto hbrushOld = Dcx::dcxSelectObject<HBRUSH>(hdc, hbr);
 			Auto(Dcx::dcxSelectObject<HBRUSH>(hdc, hbrushOld));
 
+			// sets colours of bar
+			if (clrFg != CLR_INVALID)
+				SetTextColor(hdc, clrFg);
+			if (clrBg != CLR_INVALID)
+				SetBkColor(hdc, clrBg);
+
 			PatBlt(hdc, x1, y1, width, height, PATINVERT);
 		}
 	}
@@ -332,7 +402,6 @@ void Divider_GetChildControl(HWND mHwnd, const UINT pane, const LPDVPANEINFO res
 
 void Divider_CalcBarPos(HWND mHwnd, POINT* pt, RECT* rect) noexcept
 {
-	//const auto lpdvdata = static_cast<LPDVCONTROLDATA>(GetProp(mHwnd, TEXT("dvc_data")));
 	const auto lpdvdata = Dcx::dcxGetProp<LPDVCONTROLDATA>(mHwnd, TEXT("dvc_data"));
 
 	if (!GetWindowRect(mHwnd, rect))
@@ -379,7 +448,6 @@ void Divider_CalcBarPos(HWND mHwnd, POINT* pt, RECT* rect) noexcept
 
 LRESULT Divider_OnLButtonDown(HWND mHwnd, const UINT iMsg, WPARAM wParam, LPARAM lParam) noexcept
 {
-	//const auto lpdvdata = static_cast<LPDVCONTROLDATA>(GetProp(mHwnd, TEXT("dvc_data")));
 	const auto lpdvdata = Dcx::dcxGetProp<LPDVCONTROLDATA>(mHwnd, TEXT("dvc_data"));
 
 	//POINT pt;
@@ -402,11 +470,11 @@ LRESULT Divider_OnLButtonDown(HWND mHwnd, const UINT iMsg, WPARAM wParam, LPARAM
 
 		if (dcx_testflag(dcxGetWindowStyle(mHwnd), DVS_VERT))
 		{
-			DrawXorBar(hdc, pt.x - 2, 1, 4, rect.bottom - 2);
+			DrawXorBar(hdc, pt.x - 2, 1, 4, rect.bottom - 2, lpdvdata->clrBar.clrSelBarFg, lpdvdata->clrBar.clrSelBarBg);
 			lpdvdata->m_iOldPos = pt.x;
 		}
 		else {
-			DrawXorBar(hdc, 1, pt.y - 2, rect.right - 2, 4);
+			DrawXorBar(hdc, 1, pt.y - 2, rect.right - 2, 4, lpdvdata->clrBar.clrSelBarFg, lpdvdata->clrBar.clrSelBarBg);
 			lpdvdata->m_iOldPos = pt.y;
 		}
 	}
@@ -423,7 +491,6 @@ LRESULT Divider_OnLButtonDown(HWND mHwnd, const UINT iMsg, WPARAM wParam, LPARAM
 
 LRESULT Divider_OnLButtonUp(HWND mHwnd, const UINT iMsg, WPARAM wParam, LPARAM lParam) noexcept
 {
-	//const auto lpdvdata = static_cast<LPDVCONTROLDATA>(GetProp(mHwnd, TEXT("dvc_data")));
 	const auto lpdvdata = Dcx::dcxGetProp<LPDVCONTROLDATA>(mHwnd, TEXT("dvc_data"));
 
 	//POINT pt;
@@ -445,11 +512,11 @@ LRESULT Divider_OnLButtonUp(HWND mHwnd, const UINT iMsg, WPARAM wParam, LPARAM l
 
 		if (dcx_testflag(dcxGetWindowStyle(mHwnd), DVS_VERT))
 		{
-			DrawXorBar(hdc, lpdvdata->m_iOldPos - 2, 1, 4, rect.bottom - 2);
+			DrawXorBar(hdc, lpdvdata->m_iOldPos - 2, 1, 4, rect.bottom - 2, lpdvdata->clrBar.clrSelBarFg, lpdvdata->clrBar.clrSelBarBg);
 			lpdvdata->m_iOldPos = pt.x;
 		}
 		else {
-			DrawXorBar(hdc, 1, lpdvdata->m_iOldPos - 2, rect.right - 2, 4);
+			DrawXorBar(hdc, 1, lpdvdata->m_iOldPos - 2, rect.right - 2, 4, lpdvdata->clrBar.clrSelBarFg, lpdvdata->clrBar.clrSelBarBg);
 			lpdvdata->m_iOldPos = pt.y;
 		}
 
@@ -488,7 +555,6 @@ LRESULT Divider_OnLButtonUp(HWND mHwnd, const UINT iMsg, WPARAM wParam, LPARAM l
 
 LRESULT Divider_OnMouseMove(HWND mHwnd, const UINT iMsg, WPARAM wParam, LPARAM lParam) noexcept
 {
-	//const auto lpdvdata = static_cast<LPDVCONTROLDATA>(GetProp(mHwnd, TEXT("dvc_data")));
 	const auto lpdvdata = Dcx::dcxGetProp<LPDVCONTROLDATA>(mHwnd, TEXT("dvc_data"));
 
 	if (!lpdvdata->m_bDragging)
@@ -555,8 +621,8 @@ LRESULT Divider_OnMouseMove(HWND mHwnd, const UINT iMsg, WPARAM wParam, LPARAM l
 				{
 					Auto(ReleaseDC(mHwnd, hdc));
 
-					DrawXorBar(hdc, lpdvdata->m_iOldPos - 2, 1, 4, rect.bottom - 2);
-					DrawXorBar(hdc, pt.x - 2, 1, 4, rect.bottom - 2);
+					DrawXorBar(hdc, lpdvdata->m_iOldPos - 2, 1, 4, rect.bottom - 2, lpdvdata->clrBar.clrSelBarFg, lpdvdata->clrBar.clrSelBarBg);
+					DrawXorBar(hdc, pt.x - 2, 1, 4, rect.bottom - 2, lpdvdata->clrBar.clrSelBarFg, lpdvdata->clrBar.clrSelBarBg);
 					lpdvdata->m_iOldPos = pt.x;
 
 				}
@@ -570,8 +636,8 @@ LRESULT Divider_OnMouseMove(HWND mHwnd, const UINT iMsg, WPARAM wParam, LPARAM l
 				{
 					Auto(ReleaseDC(mHwnd, hdc));
 
-					DrawXorBar(hdc, 1, lpdvdata->m_iOldPos - 2, rect.right - 2, 4);
-					DrawXorBar(hdc, 1, pt.y - 2, rect.right - 2, 4);
+					DrawXorBar(hdc, 1, lpdvdata->m_iOldPos - 2, rect.right - 2, 4, lpdvdata->clrBar.clrSelBarFg, lpdvdata->clrBar.clrSelBarBg);
+					DrawXorBar(hdc, 1, pt.y - 2, rect.right - 2, 4, lpdvdata->clrBar.clrSelBarFg, lpdvdata->clrBar.clrSelBarBg);
 					lpdvdata->m_iOldPos = pt.y;
 				}
 			}

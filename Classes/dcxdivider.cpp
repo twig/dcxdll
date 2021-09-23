@@ -40,7 +40,6 @@ DcxDivider::DcxDivider(const UINT ID, DcxDialog *const p_Dialog, const HWND mPar
 		this);
 
 	if (!IsWindow(m_Hwnd))
-		//throw Dcx::dcxException("Unable To Create Window");
 		throw DcxExceptions::dcxUnableToCreateWindow();
 
 	if (ws.m_NoTheme)
@@ -114,6 +113,26 @@ void DcxDivider::parseInfoRequest(const TString & input, const refString<TCHAR, 
 		_ts_snprintf(szReturnValue, TEXT("%u"), (dcxGetWindowStyle(m_Hwnd) & DVS_VERT));
 		break;
 
+	case TEXT("barcolours"_hash):
+	case TEXT("barcolors"_hash):
+	{
+		COLORREF clr{};
+		COLORREF clrSel{};
+
+		SendMessage(m_Hwnd, DV_GETBARCOLOR, reinterpret_cast<LPARAM>(&clr), reinterpret_cast<LPARAM>(&clrSel));
+		_ts_snprintf(szReturnValue, TEXT("%u %u"), clr, clrSel);
+	}
+	break;
+
+	case TEXT("barwidth"_hash):
+	{
+		UINT nWidth{};
+
+		SendMessage(m_Hwnd, DV_GETBARWIDTH, 0U, reinterpret_cast<LPARAM>(&nWidth));
+		_ts_snprintf(szReturnValue, TEXT("%u"), nWidth);
+	}
+	break;
+
 	default:
 		this->parseGlobalInfoRequest(input, szReturnValue);
 		break;
@@ -136,7 +155,6 @@ void DcxDivider::parseCommandRequest(const TString & input)
 	if (flags[TEXT('l')] || flags[TEXT('r')])
 	{
 		if (numtok < 10)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		DVPANEINFO dvpi;
@@ -152,7 +170,6 @@ void DcxDivider::parseCommandRequest(const TString & input)
 		dvpi.cxIdeal = data.getnexttok().to_<UINT>();	// tok 5
 
 		if (control_data.numtok() < 6)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		//const auto ID = mIRC_ID_OFFSET + control_data.gettok(1).to_<UINT>();
@@ -174,7 +191,7 @@ void DcxDivider::parseCommandRequest(const TString & input)
 		}
 		catch (const std::exception &e)
 		{
-			showError(nullptr, TEXT("-c"), TEXT("Unable To Create Control %(%) (%)"), tsID, ID - mIRC_ID_OFFSET, e.what());
+			showError(nullptr, TEXT("-l|r"), TEXT("Unable To Create Control %(%) (%)"), tsID, ID - mIRC_ID_OFFSET, e.what());
 			throw;
 		}
 	}
@@ -182,11 +199,31 @@ void DcxDivider::parseCommandRequest(const TString & input)
 	else if (flags[TEXT('v')])
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		if (!setDivPos(input.getnexttok().to_<UINT>()))	// tok 4
 			throw Dcx::dcxException("Divider position must be between bounds.");
+	}
+	// xdid -W [NAME] [ID] [SWITCH] [WIDTH]
+	else if (flags[TEXT('W')])
+	{
+		if (numtok < 4)
+			throw DcxExceptions::dcxInvalidArguments();
+
+		if (!setBarWidth(input.getnexttok().to_<UINT>()))	// tok 4
+			throw DcxExceptions::dcxInvalidArguments();
+	}
+	// xdid -Q [NAME] [ID] [SWITCH] [COLOUR] [SELECTED COLOUR]
+	else if (flags[TEXT('Q')])
+	{
+		if (numtok < 4)
+			throw DcxExceptions::dcxInvalidArguments();
+
+		const auto clrFg = input.getnexttok().to_<COLORREF>();
+		const auto clrBg = input.getnexttok().to_<COLORREF>();
+
+		if (!setBarColor(clrFg, clrBg))
+			throw DcxExceptions::dcxInvalidArguments();
 	}
 	else
 		parseGlobalCommandRequest(input, flags);
@@ -212,6 +249,16 @@ LRESULT DcxDivider::setPane(const UINT iPaneId, const LPDVPANEINFO lpdvpi) noexc
 LRESULT DcxDivider::setDivPos(const UINT iDivPos) noexcept
 {
 	return SendMessage(m_Hwnd, DV_SETDIVPOS, 0U, gsl::narrow_cast<LPARAM>(iDivPos));
+}
+
+BOOL DcxDivider::setBarColor(COLORREF clrUnselected, COLORREF clrSelected) noexcept
+{
+	return gsl::narrow_cast<BOOL>(SendMessage(m_Hwnd, DV_SETBARCOLOR, gsl::narrow_cast<WPARAM>(clrUnselected), gsl::narrow_cast<LPARAM>(clrSelected)));
+}
+
+BOOL DcxDivider::setBarWidth(UINT nWidth) noexcept
+{
+	return SendMessage(m_Hwnd, DV_SETBARWIDTH, 0U, gsl::narrow_cast<LPARAM>(nWidth));
 }
 
 void DcxDivider::toXml(TiXmlElement *const xml) const
@@ -344,6 +391,21 @@ LRESULT DcxDivider::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 		bParsed = TRUE;
 	}
 	break;
+
+	//case WM_ERASEBKGND:
+	//{
+	//	// wParam == HDC
+	//	if (this->m_clrBackground != CLR_INVALID)
+	//	{
+	//		// this allows drawing a custom coloured positioning bar.
+	//		RECT rc{};
+	//		if (GetClientRect(m_Hwnd, &rc))
+	//			Dcx::FillRectColour((HDC)wParam, &rc, this->m_clrBackground);
+	//		bParsed = TRUE;
+	//		lRes = TRUE;
+	//	}
+	//}
+	//break;
 
 	case DV_CHANGEPOS:
 	{

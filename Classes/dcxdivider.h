@@ -51,6 +51,9 @@ public:
 	LRESULT setPane( const UINT iPaneId, const LPDVPANEINFO lpdvpi ) noexcept;
 	LRESULT setDivPos( const UINT iDivPos ) noexcept;
 
+	BOOL setBarColor(COLORREF clrUnselected, COLORREF clrSelected) noexcept;
+	BOOL setBarWidth(UINT nWidth) noexcept;
+
 	inline const TString getType() const final { return TEXT("divider"); };
 	inline const DcxControlTypes getControlType() const noexcept final { return DcxControlTypes::DIVIDER; }
 
