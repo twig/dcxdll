@@ -94,6 +94,7 @@ private:
 	bool m_bTileImage{ false };		//!< Tile Image
 	bool m_bBuffer{ false };		//!< Double Buffer Rendering, needed for GDI+ when WS_EX_COMPOSITED
 	bool m_bIsIcon{ false };		//!< Is this an icon?
+	bool m_bKeepAspect{ false };
 
 	int m_iXOffset{}, m_iYOffset{};	//!< X & Y image offsets.
 	TString m_tsFilename;			//!< The loaded images filename.

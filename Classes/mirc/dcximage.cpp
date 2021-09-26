@@ -200,6 +200,7 @@ bool DcxImage::LoadGDIPlusImage(const TString& flags, TString& filename)
 
 	this->m_bTileImage = xflags[TEXT('t')]; // Tile
 	const bool bNoAnimation = xflags[TEXT('A')]; // No Animation even if image format supports it.
+	this->m_bKeepAspect = xflags[TEXT('k')]; // keep aspect
 
 	//std::filesystem::path f = filename.to_chr();
 	//if (f.extension() == TEXT(".gif"))
@@ -361,11 +362,36 @@ void DcxImage::DrawGDIImage(HDC hdc, const int x, const int y, const int w, cons
 			Gdiplus::UnitPixel,
 			&imAtt);
 	}
-	else if (this->m_bResizeImage)
-		grphx.DrawImage(this->m_pImage.get(), this->m_iXOffset, this->m_iYOffset, w, h);
-	else
-		grphx.DrawImage(this->m_pImage.get(), this->m_iXOffset, this->m_iYOffset);
+	else {
+
+			if (this->m_bResizeImage)
+			{
+				if (m_bKeepAspect)
+				{
+					// This code calculates the aspect ratio in which I have to draw the image
+					const float percentWidth = (float)w / (float)m_pImage->GetWidth();
+					const float percentHeight = (float)h / (float)m_pImage->GetHeight();
+
+					const float percent = percentHeight < percentWidth ? percentHeight : percentWidth;
+
+					const int newImageWidth = (int)(m_pImage->GetWidth() * percent);
+					const int newImageHeight = (int)(m_pImage->GetHeight() * percent);
+
+					grphx.DrawImage(this->m_pImage.get(), this->m_iXOffset, this->m_iYOffset, newImageWidth, newImageHeight);
+				}
+				else
+					grphx.DrawImage(this->m_pImage.get(), this->m_iXOffset, this->m_iYOffset, w, h);
+			}
+			else
+				grphx.DrawImage(this->m_pImage.get(), this->m_iXOffset, this->m_iYOffset);
+
+		//if (this->m_bResizeImage)
+		//	grphx.DrawImage(this->m_pImage.get(), this->m_iXOffset, this->m_iYOffset, w, h);
+		//else
+		//	grphx.DrawImage(this->m_pImage.get(), this->m_iXOffset, this->m_iYOffset);
+	}
 }
+
 void DcxImage::AnimateThread(DcxImage* const img)
 {
 	if (!img)
@@ -405,10 +431,28 @@ void DcxImage::DrawBMPImage(HDC hdc, const int x, const int y, const int w, cons
 
 	if (auto [code, bmp] = Dcx::dcxGetObject<BITMAP>(m_hBitmap); code != 0)
 	{
-		if (m_clrTransColor != CLR_INVALID)
-			TransparentBlt(hdc, x, y, w, h, hdcbmp.get(), 0, 0, bmp.bmWidth, bmp.bmHeight, m_clrTransColor);
-		else
-			StretchBlt(hdc, x, y, w, h, hdcbmp.get(), 0, 0, bmp.bmWidth, bmp.bmHeight, SRCCOPY);
+		if (m_bKeepAspect)
+		{
+			// This code calculates the aspect ratio in which I have to draw the image
+			const float percentWidth = (float)w / (float)bmp.bmWidth;
+			const float percentHeight = (float)h / (float)bmp.bmHeight;
+
+			const float percent = percentHeight < percentWidth ? percentHeight : percentWidth;
+
+			const int newImageWidth = (int)(bmp.bmWidth * percent);
+			const int newImageHeight = (int)(bmp.bmHeight * percent);
+
+			if (m_clrTransColor != CLR_INVALID)
+				TransparentBlt(hdc, x, y, w, h, hdcbmp.get(), 0, 0, newImageWidth, newImageHeight, m_clrTransColor);
+			else
+				StretchBlt(hdc, x, y, w, h, hdcbmp.get(), 0, 0, newImageWidth, newImageHeight, SRCCOPY);
+		}
+		else {
+			if (m_clrTransColor != CLR_INVALID)
+				TransparentBlt(hdc, x, y, w, h, hdcbmp.get(), 0, 0, bmp.bmWidth, bmp.bmHeight, m_clrTransColor);
+			else
+				StretchBlt(hdc, x, y, w, h, hdcbmp.get(), 0, 0, bmp.bmWidth, bmp.bmHeight, SRCCOPY);
+		}
 	}
 #else
 	auto hdcbmp = CreateCompatibleDC(hdc);
