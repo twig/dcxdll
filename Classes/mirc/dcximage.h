@@ -18,6 +18,10 @@
 #include "defines.h"
 #include "Classes/dcxcontrol.h"
 
+#ifdef DCX_USE_GDIPLUS
+#include <thread>
+#endif
+
 class DcxDialog;
 
 /*!
@@ -42,7 +46,6 @@ public:
 	LRESULT OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) final;
 	LRESULT ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) noexcept final;
 
-	//void parseInfoRequest(const TString & input, PTCHAR szReturnValue) const final;
 	void parseInfoRequest(const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const final;
 	void parseCommandRequest(const TString & input) final;
 	dcxWindowStyles parseControlStyles(const TString & tsStyles) final;
@@ -64,8 +67,16 @@ private:
 	Gdiplus::InterpolationMode m_IMode{ Gdiplus::InterpolationModeDefault }; // Interpolation Mode
 	Gdiplus::SmoothingMode m_SMode{ Gdiplus::SmoothingModeDefault }; // Smoothing Mode
 
+	bool m_bIsAnimated{ false };
+	//std::unique_ptr<GUID[]> m_DimensionIDs{ nullptr };
+	std::atomic_bool m_bRunThread{ false };
+	UINT m_FrameCount{};
+	std::unique_ptr<BYTE[]> m_PropertyItem{ nullptr };
+	std::unique_ptr<std::thread> m_AnimThread{ nullptr };
+
 	bool LoadGDIPlusImage(const TString &flags, TString &filename);
 	void DrawGDIImage(HDC hdc, int x, int y, int w, int h);
+	static void AnimateThread(DcxImage *img);
 #endif
 	void DrawBMPImage(HDC hdc, const int x, const int y, const int w, const int h);
 	void DrawClientArea(HDC hdc);
@@ -83,6 +94,7 @@ private:
 	bool m_bTileImage{ false };		//!< Tile Image
 	bool m_bBuffer{ false };		//!< Double Buffer Rendering, needed for GDI+ when WS_EX_COMPOSITED
 	bool m_bIsIcon{ false };		//!< Is this an icon?
+	
 	int m_iXOffset{}, m_iYOffset{};	//!< X & Y image offsets.
 	TString m_tsFilename;			//!< The loaded images filename.
 };

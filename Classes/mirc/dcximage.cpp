@@ -43,7 +43,6 @@ DcxImage::DcxImage(const UINT ID, DcxDialog* const p_Dialog, const HWND mParentH
 		this);
 
 	if (!IsWindow(m_Hwnd))
-		//throw Dcx::dcxException("Unable To Create Window");
 		throw DcxExceptions::dcxUnableToCreateWindow();
 
 	if (ws.m_NoTheme)
@@ -107,11 +106,27 @@ dcxWindowStyles DcxImage::parseControlStyles(const TString& tsStyles)
 
 void DcxImage::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>& szReturnValue) const
 {
-	// [NAME] [ID] [PROP]
-	if (const auto prop(input.getfirsttok(3)); prop == TEXT("fname"))
+	switch (std::hash<TString>{}(input.getfirsttok(3)))
+	{
+	case L"fname"_hash:
 		szReturnValue = m_tsFilename.to_chr();
-	else
+		break;
+	case L"frames"_hash:
+		_ts_snprintf(szReturnValue, TEXT("%u"), m_FrameCount);
+		break;
+	case L"isanimated"_hash:
+		szReturnValue = dcx_truefalse(m_bIsAnimated);
+		break;
+	default:
 		parseGlobalInfoRequest(input, szReturnValue);
+		break;
+	}
+
+	//// [NAME] [ID] [PROP]
+	//if (const auto prop(input.getfirsttok(3)); prop == TEXT("fname"))
+	//	szReturnValue = m_tsFilename.to_chr();
+	//else
+	//	parseGlobalInfoRequest(input, szReturnValue);
 }
 
 // clears existing image and icon data and sets pointers to null
@@ -130,7 +145,16 @@ void DcxImage::PreloadData() noexcept
 	}
 
 #ifdef DCX_USE_GDIPLUS
+	this->m_bRunThread = false;
+	this->m_bIsAnimated = false;
+	this->m_PropertyItem.reset(nullptr);
+	//this->m_DimensionIDs.reset(nullptr);
+	if (this->m_AnimThread)
+		this->m_AnimThread->join();
+	this->m_AnimThread.reset(nullptr);
+
 	this->m_pImage.reset(nullptr);
+
 #endif
 	this->m_tsFilename.clear();	// = TEXT("");
 }
@@ -174,6 +198,31 @@ bool DcxImage::LoadGDIPlusImage(const TString& flags, TString& filename)
 		this->m_SMode = Gdiplus::SmoothingModeDefault;
 
 	this->m_bTileImage = xflags[TEXT('t')]; // Tile
+
+	std::filesystem::path f = filename.to_chr();
+	if (f.extension() == TEXT(".gif"))
+	{
+		const auto count = m_pImage->GetFrameDimensionsCount();
+		auto m_DimensionIDs = std::make_unique<GUID[]>(count);
+		m_pImage->GetFrameDimensionsList(m_DimensionIDs.get(), count);
+		m_FrameCount = m_pImage->GetFrameCount(&m_DimensionIDs[0]);
+		const auto sz = m_pImage->GetPropertyItemSize(PropertyTagFrameDelay);
+
+		m_PropertyItem = std::make_unique<BYTE[]>(sz);
+
+		m_pImage->GetPropertyItem(PropertyTagFrameDelay, sz, (Gdiplus::PropertyItem*)m_PropertyItem.get());
+
+		m_bIsAnimated = (m_FrameCount > 1);
+
+		//m_DimensionIDs.reset();
+
+		if (m_bIsAnimated)
+		{
+			m_bRunThread = true;
+			// start play thread.
+			m_AnimThread = std::make_unique<std::thread>(DcxImage::AnimateThread, this);
+		}
+	}
 
 	return true;
 }
@@ -315,6 +364,34 @@ void DcxImage::DrawGDIImage(HDC hdc, const int x, const int y, const int w, cons
 	else
 		grphx.DrawImage(this->m_pImage.get(), this->m_iXOffset, this->m_iYOffset);
 }
+void DcxImage::AnimateThread(DcxImage* img)
+{
+	if (!img)
+		return;
+
+	GUID pageGuid = Gdiplus::FrameDimensionTime;
+	UINT m_nFramePosition{};
+
+	for (; img->m_bRunThread;)
+	{
+		HDC hDC = GetDC(img->m_Hwnd);
+		if (hDC)
+		{
+			img->DrawClientArea(hDC);
+			ReleaseDC(img->m_Hwnd, hDC);
+		}
+
+		img->m_pImage->SelectActiveFrame(&pageGuid, m_nFramePosition++);
+
+		if (m_nFramePosition == img->m_FrameCount)
+			m_nFramePosition = 0;
+
+		const long lPause = ((long*)((Gdiplus::PropertyItem*)(img->m_PropertyItem.get()))->value)[m_nFramePosition] * 10;
+		const std::chrono::milliseconds tm(lPause);
+		if (img->m_bRunThread)
+			std::this_thread::sleep_for(tm);
+	}
+}
 #endif
 
 void DcxImage::DrawBMPImage(HDC hdc, const int x, const int y, const int w, const int h)
@@ -328,7 +405,7 @@ void DcxImage::DrawBMPImage(HDC hdc, const int x, const int y, const int w, cons
 			TransparentBlt(hdc, x, y, w, h, hdcbmp.get(), 0, 0, bmp.bmWidth, bmp.bmHeight, m_clrTransColor);
 		else
 			StretchBlt(hdc, x, y, w, h, hdcbmp.get(), 0, 0, bmp.bmWidth, bmp.bmHeight, SRCCOPY);
-	}
+}
 #else
 	auto hdcbmp = CreateCompatibleDC(hdc);
 
@@ -468,7 +545,7 @@ void DcxImage::DrawClientArea(HDC hdc)
 	else if ((m_pImage) && (Dcx::GDIModule.isUseable()))
 		DrawGDIImage(hdc, x, y, w, h);
 #endif
-}
+	}
 
 LRESULT DcxImage::CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept
 {
