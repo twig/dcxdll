@@ -35,26 +35,26 @@ class DcxImage final
 {
 public:
 	DcxImage() = delete;
-	DcxImage(const DcxImage &) = delete;
-	DcxImage &operator =(const DcxImage &) = delete;
-	DcxImage(DcxImage &&) = delete;
-	DcxImage &operator =(DcxImage &&) = delete;
+	DcxImage(const DcxImage&) = delete;
+	DcxImage& operator =(const DcxImage&) = delete;
+	DcxImage(DcxImage&&) = delete;
+	DcxImage& operator =(DcxImage&&) = delete;
 
-	DcxImage( const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles );
-	~DcxImage( ) noexcept;
+	DcxImage(const UINT ID, DcxDialog* const p_Dialog, const HWND mParentHwnd, const RECT* const rc, const TString& styles);
+	~DcxImage() noexcept;
 
-	LRESULT OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) final;
-	LRESULT ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) noexcept final;
+	LRESULT OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed) final;
+	LRESULT ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed) noexcept final;
 
-	void parseInfoRequest(const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const final;
-	void parseCommandRequest(const TString & input) final;
-	dcxWindowStyles parseControlStyles(const TString & tsStyles) final;
+	void parseInfoRequest(const TString& input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>& szReturnValue) const final;
+	void parseCommandRequest(const TString& input) final;
+	dcxWindowStyles parseControlStyles(const TString& tsStyles) final;
 
 	inline const TString getType() const final { return TEXT("image"); };
 	inline const DcxControlTypes getControlType() const noexcept final { return DcxControlTypes::IMAGE; }
 
-	void toXml(TiXmlElement *const xml) const final;
-	TiXmlElement *toXml() const final;
+	void toXml(TiXmlElement* const xml) const final;
+	TiXmlElement* toXml() const final;
 
 	LRESULT CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept final;
 	static inline WNDPROC m_hDefaultClassProc{ nullptr };	//!< Default window procedure
@@ -74,9 +74,9 @@ private:
 	std::unique_ptr<BYTE[]> m_PropertyItem{ nullptr };
 	std::unique_ptr<std::thread> m_AnimThread{ nullptr };
 
-	bool LoadGDIPlusImage(const TString &flags, TString &filename);
+	bool LoadGDIPlusImage(const TString& flags, TString& filename);
 	void DrawGDIImage(HDC hdc, int x, int y, int w, int h);
-	static void AnimateThread(DcxImage *img);
+	static void AnimateThread(DcxImage* const img);
 #endif
 	void DrawBMPImage(HDC hdc, const int x, const int y, const int w, const int h);
 	void DrawClientArea(HDC hdc);
@@ -94,7 +94,7 @@ private:
 	bool m_bTileImage{ false };		//!< Tile Image
 	bool m_bBuffer{ false };		//!< Double Buffer Rendering, needed for GDI+ when WS_EX_COMPOSITED
 	bool m_bIsIcon{ false };		//!< Is this an icon?
-	
+
 	int m_iXOffset{}, m_iYOffset{};	//!< X & Y image offsets.
 	TString m_tsFilename;			//!< The loaded images filename.
 };

@@ -199,9 +199,11 @@ bool DcxImage::LoadGDIPlusImage(const TString& flags, TString& filename)
 		this->m_SMode = Gdiplus::SmoothingModeDefault;
 
 	this->m_bTileImage = xflags[TEXT('t')]; // Tile
+	const bool bNoAnimation = xflags[TEXT('A')]; // No Animation even if image format supports it.
 
-	std::filesystem::path f = filename.to_chr();
-	if (f.extension() == TEXT(".gif"))
+	//std::filesystem::path f = filename.to_chr();
+	//if (f.extension() == TEXT(".gif"))
+	if (!bNoAnimation)
 	{
 		const auto count = m_pImage->GetFrameDimensionsCount();
 		auto m_DimensionIDs = std::make_unique<GUID[]>(count);
@@ -279,7 +281,7 @@ void DcxImage::parseCommandRequest(const TString& input)
 			throw DcxExceptions::dcxInvalidFlag();
 
 #ifdef DCX_USE_GDIPLUS
-		// using this method allows you to render BMP, ICON, GIF, JPEG, Exif, PNG, TIFF, WMF, and EMF (no animation)
+		// using this method allows you to render BMP, ICON, GIF, JPEG, Exif, PNG, TIFF, WMF, and EMF (only gif animation supported atm)
 		//if (Dcx::GDIModule.isUseable() && flag.find(TEXT('g'),0)) { // makes GDI+ the default method, bitmap is only used when GDI+ isn't supported.
 		if (Dcx::GDIModule.isUseable())
 		{
