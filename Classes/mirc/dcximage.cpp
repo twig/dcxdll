@@ -147,11 +147,12 @@ void DcxImage::PreloadData() noexcept
 #ifdef DCX_USE_GDIPLUS
 	this->m_bRunThread = false;
 	this->m_bIsAnimated = false;
-	this->m_PropertyItem.reset(nullptr);
-	//this->m_DimensionIDs.reset(nullptr);
 	if (this->m_AnimThread)
 		this->m_AnimThread->join();
 	this->m_AnimThread.reset(nullptr);
+
+	this->m_PropertyItem.reset(nullptr);
+	//this->m_DimensionIDs.reset(nullptr);
 
 	this->m_pImage.reset(nullptr);
 
@@ -275,7 +276,6 @@ void DcxImage::parseCommandRequest(const TString& input)
 		PreloadData();
 
 		if (flag[0] != TEXT('+'))
-			//throw Dcx::dcxException("Invalid Flags");
 			throw DcxExceptions::dcxInvalidFlag();
 
 #ifdef DCX_USE_GDIPLUS
@@ -364,18 +364,20 @@ void DcxImage::DrawGDIImage(HDC hdc, const int x, const int y, const int w, cons
 	else
 		grphx.DrawImage(this->m_pImage.get(), this->m_iXOffset, this->m_iYOffset);
 }
-void DcxImage::AnimateThread(DcxImage* img)
+void DcxImage::AnimateThread(DcxImage* const img)
 {
 	if (!img)
 		return;
 
-	GUID pageGuid = Gdiplus::FrameDimensionTime;
+	const GUID pageGuid = Gdiplus::FrameDimensionTime;
 	UINT m_nFramePosition{};
 
 	for (; img->m_bRunThread;)
 	{
-		HDC hDC = GetDC(img->m_Hwnd);
-		if (hDC)
+		if (!img->m_pImage || !img->m_PropertyItem)
+			return;
+
+		if (HDC hDC = GetDC(img->m_Hwnd); hDC)
 		{
 			img->DrawClientArea(hDC);
 			ReleaseDC(img->m_Hwnd, hDC);
@@ -405,7 +407,7 @@ void DcxImage::DrawBMPImage(HDC hdc, const int x, const int y, const int w, cons
 			TransparentBlt(hdc, x, y, w, h, hdcbmp.get(), 0, 0, bmp.bmWidth, bmp.bmHeight, m_clrTransColor);
 		else
 			StretchBlt(hdc, x, y, w, h, hdcbmp.get(), 0, 0, bmp.bmWidth, bmp.bmHeight, SRCCOPY);
-}
+	}
 #else
 	auto hdcbmp = CreateCompatibleDC(hdc);
 
@@ -545,7 +547,7 @@ void DcxImage::DrawClientArea(HDC hdc)
 	else if ((m_pImage) && (Dcx::GDIModule.isUseable()))
 		DrawGDIImage(hdc, x, y, w, h);
 #endif
-	}
+}
 
 LRESULT DcxImage::CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept
 {
