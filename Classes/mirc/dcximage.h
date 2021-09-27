@@ -71,6 +71,7 @@ private:
 	//std::unique_ptr<GUID[]> m_DimensionIDs{ nullptr };
 	std::atomic_bool m_bRunThread{ false };
 	UINT m_FrameCount{};
+	UINT m_FrameDelay{};
 	std::unique_ptr<BYTE[]> m_PropertyItem{ nullptr };
 	std::unique_ptr<std::thread> m_AnimThread{ nullptr };
 

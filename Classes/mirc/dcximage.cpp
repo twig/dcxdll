@@ -328,6 +328,43 @@ void DcxImage::parseCommandRequest(const TString& input)
 		//UpdateWindow(m_Hwnd);
 		//this->redrawWindow();
 	}
+	// xdid -F [NAME] [ID] [SWITCH] [+FLAGS] [ARGS]
+	else if (flags[TEXT('F')] && numtok > 3)
+	{
+		const auto flag(input.getnexttok().trim());	// tok 4
+		const XSwitchFlags xflags(flag);
+
+		if (xflags[TEXT('f')])
+		{
+			// sets active frame
+			const auto nFrame = input.getnexttok().to_int();
+			if ((nFrame < 0) || (gsl::narrow_cast<UINT>(nFrame) > m_FrameCount))
+				throw DcxExceptions::dcxInvalidArguments();
+
+			if (m_pImage)
+			{
+				const GUID pageGuid = Gdiplus::FrameDimensionTime;
+				m_bIsAnimated = false;
+				m_bRunThread = false;
+				if (m_AnimThread)
+					m_AnimThread->join();
+				m_AnimThread.reset(nullptr);
+
+				m_pImage->SelectActiveFrame(&pageGuid, gsl::narrow_cast<UINT>(nFrame));
+				InvalidateRect(m_Hwnd, nullptr, TRUE);
+			}
+		}
+		else if (xflags[TEXT('d')])
+		{
+			// manually sets a delay between frames for broken gifs etc...
+			const auto nFrame = input.getnexttok().to_int();
+			if (nFrame < 0)
+				throw DcxExceptions::dcxInvalidArguments();
+
+			m_FrameDelay = gsl::narrow_cast<UINT>(nFrame);
+		}
+		this->redrawWindow();
+	}
 	else
 		this->parseGlobalCommandRequest(input, flags);
 }
@@ -369,13 +406,13 @@ void DcxImage::DrawGDIImage(HDC hdc, const int x, const int y, const int w, cons
 				if (m_bKeepAspect)
 				{
 					// This code calculates the aspect ratio in which I have to draw the image
-					const float percentWidth = (float)w / (float)m_pImage->GetWidth();
-					const float percentHeight = (float)h / (float)m_pImage->GetHeight();
+					const float percentWidth = gsl::narrow_cast<float>(w) / gsl::narrow_cast<float>(m_pImage->GetWidth());
+					const float percentHeight = gsl::narrow_cast<float>(h) / gsl::narrow_cast<float>(m_pImage->GetHeight());
 
 					const float percent = percentHeight < percentWidth ? percentHeight : percentWidth;
 
-					const int newImageWidth = (int)(m_pImage->GetWidth() * percent);
-					const int newImageHeight = (int)(m_pImage->GetHeight() * percent);
+					const int newImageWidth = gsl::narrow_cast<int>(m_pImage->GetWidth() * percent);
+					const int newImageHeight = gsl::narrow_cast<int>(m_pImage->GetHeight() * percent);
 
 					grphx.DrawImage(this->m_pImage.get(), this->m_iXOffset, this->m_iYOffset, newImageWidth, newImageHeight);
 				}
@@ -416,8 +453,12 @@ void DcxImage::AnimateThread(DcxImage* const img)
 		if (m_nFramePosition == img->m_FrameCount)
 			m_nFramePosition = 0;
 
-		const long lPause = ((long*)((Gdiplus::PropertyItem*)(img->m_PropertyItem.get()))->value)[m_nFramePosition] * 10;
+		long lPause = std::max(((long*)((Gdiplus::PropertyItem*)(img->m_PropertyItem.get()))->value)[m_nFramePosition] * 10, 0L);
+		if (img->m_FrameDelay)
+			lPause = img->m_FrameDelay;
+
 		const std::chrono::milliseconds tm(lPause);
+
 		if (img->m_bRunThread)
 			std::this_thread::sleep_for(tm);
 	}
@@ -434,13 +475,13 @@ void DcxImage::DrawBMPImage(HDC hdc, const int x, const int y, const int w, cons
 		if (m_bKeepAspect)
 		{
 			// This code calculates the aspect ratio in which I have to draw the image
-			const float percentWidth = (float)w / (float)bmp.bmWidth;
-			const float percentHeight = (float)h / (float)bmp.bmHeight;
+			const float percentWidth = gsl::narrow_cast<float>(w) / gsl::narrow_cast<float>(bmp.bmWidth);
+			const float percentHeight = gsl::narrow_cast<float>(h) / gsl::narrow_cast<float>(bmp.bmHeight);
 
 			const float percent = percentHeight < percentWidth ? percentHeight : percentWidth;
 
-			const int newImageWidth = (int)(bmp.bmWidth * percent);
-			const int newImageHeight = (int)(bmp.bmHeight * percent);
+			const int newImageWidth = gsl::narrow_cast<int>(bmp.bmWidth * percent);
+			const int newImageHeight = gsl::narrow_cast<int>(bmp.bmHeight * percent);
 
 			if (m_clrTransColor != CLR_INVALID)
 				TransparentBlt(hdc, x, y, w, h, hdcbmp.get(), 0, 0, newImageWidth, newImageHeight, m_clrTransColor);
@@ -579,19 +620,18 @@ void DcxImage::DrawClientArea(HDC hdc)
 	// draw bitmap
 #ifdef DCX_USE_GDIPLUS
 	if ((m_hBitmap) && (!m_bIsIcon) && (!m_pImage))
-	{
-#else
-	if ((m_hBitmap) && (!m_bIsIcon))
-	{
-#endif
 		DrawBMPImage(hdc, x, y, w, h);
-	}
 	// draw icon
 	else if ((m_hIcon) && (m_bIsIcon))
 		DrawIconEx(hdc, 0, 0, m_hIcon, gsl::narrow_cast<int>(m_iIconSize), gsl::narrow_cast<int>(m_iIconSize), 0, m_hBackBrush, DI_NORMAL | DI_COMPAT);
-#ifdef DCX_USE_GDIPLUS
 	else if ((m_pImage) && (Dcx::GDIModule.isUseable()))
 		DrawGDIImage(hdc, x, y, w, h);
+#else
+	if ((m_hBitmap) && (!m_bIsIcon))
+		DrawBMPImage(hdc, x, y, w, h);
+	// draw icon
+	else if ((m_hIcon) && (m_bIsIcon))
+		DrawIconEx(hdc, 0, 0, m_hIcon, gsl::narrow_cast<int>(m_iIconSize), gsl::narrow_cast<int>(m_iIconSize), 0, m_hBackBrush, DI_NORMAL | DI_COMPAT);
 #endif
 }
 
