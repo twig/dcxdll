@@ -145,14 +145,9 @@ void DcxImage::PreloadData() noexcept
 	}
 
 #ifdef DCX_USE_GDIPLUS
-	this->m_bRunThread = false;
-	this->m_bIsAnimated = false;
-	if (this->m_AnimThread)
-		this->m_AnimThread->join();
-	this->m_AnimThread.reset(nullptr);
+	FreeAnimThread();
 
-	this->m_PropertyItem.reset(nullptr);
-	//this->m_DimensionIDs.reset(nullptr);
+	m_FrameImage = 0;
 
 	this->m_pImage.reset(nullptr);
 
@@ -202,30 +197,12 @@ bool DcxImage::LoadGDIPlusImage(const TString& flags, TString& filename)
 	const bool bNoAnimation = xflags[TEXT('A')]; // No Animation even if image format supports it.
 	this->m_bKeepAspect = xflags[TEXT('k')]; // keep aspect
 
-	//std::filesystem::path f = filename.to_chr();
-	//if (f.extension() == TEXT(".gif"))
 	if (!bNoAnimation)
 	{
-		const auto count = m_pImage->GetFrameDimensionsCount();
-		auto m_DimensionIDs = std::make_unique<GUID[]>(count);
-		m_pImage->GetFrameDimensionsList(m_DimensionIDs.get(), count);
-		m_FrameCount = m_pImage->GetFrameCount(&m_DimensionIDs[0]);
-		const auto sz = m_pImage->GetPropertyItemSize(PropertyTagFrameDelay);
-
-		m_PropertyItem = std::make_unique<BYTE[]>(sz);
-
-		m_pImage->GetPropertyItem(PropertyTagFrameDelay, sz, (Gdiplus::PropertyItem*)m_PropertyItem.get());
-
-		m_bIsAnimated = (m_FrameCount > 1);
-
-		//m_DimensionIDs.reset();
+		SetupAnimThread();
 
 		if (m_bIsAnimated)
-		{
-			m_bRunThread = true;
-			// start play thread.
-			m_AnimThread = std::make_unique<std::thread>(DcxImage::AnimateThread, this);
-		}
+			StartAnimThread();
 	}
 
 	return true;
@@ -334,7 +311,21 @@ void DcxImage::parseCommandRequest(const TString& input)
 		const auto flag(input.getnexttok().trim());	// tok 4
 		const XSwitchFlags xflags(flag);
 
-		if (xflags[TEXT('f')])
+		if (xflags[TEXT('a')])
+		{
+			// enable/disable animation.
+			bool bStart = (input.getnexttok().to_int() > 0);	// tok 4
+
+			if (bStart)
+			{
+				if (m_bIsAnimated)
+					StartAnimThread();
+			}
+			else {
+				StopAnimThread();
+			}
+		}
+		else if (xflags[TEXT('f')])
 		{
 			// sets active frame
 			const auto nFrame = input.getnexttok().to_int();
@@ -343,12 +334,9 @@ void DcxImage::parseCommandRequest(const TString& input)
 
 			if (m_pImage)
 			{
+				StopAnimThread();
+
 				const GUID pageGuid = Gdiplus::FrameDimensionTime;
-				m_bIsAnimated = false;
-				m_bRunThread = false;
-				if (m_AnimThread)
-					m_AnimThread->join();
-				m_AnimThread.reset(nullptr);
 
 				m_pImage->SelectActiveFrame(&pageGuid, gsl::narrow_cast<UINT>(nFrame));
 				InvalidateRect(m_Hwnd, nullptr, TRUE);
@@ -435,7 +423,7 @@ void DcxImage::AnimateThread(DcxImage* const img)
 		return;
 
 	const GUID pageGuid = Gdiplus::FrameDimensionTime;
-	UINT m_nFramePosition{};
+	UINT m_nFramePosition{ img->m_FrameImage };
 
 	for (; img->m_bRunThread;)
 	{
@@ -462,6 +450,7 @@ void DcxImage::AnimateThread(DcxImage* const img)
 		if (img->m_bRunThread)
 			std::this_thread::sleep_for(tm);
 	}
+	img->m_FrameImage = m_nFramePosition;
 }
 #endif
 

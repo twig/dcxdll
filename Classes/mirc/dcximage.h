@@ -68,15 +68,56 @@ private:
 	Gdiplus::SmoothingMode m_SMode{ Gdiplus::SmoothingModeDefault }; // Smoothing Mode
 
 	bool m_bIsAnimated{ false };
-	//std::unique_ptr<GUID[]> m_DimensionIDs{ nullptr };
 	std::atomic_bool m_bRunThread{ false };
 	UINT m_FrameCount{};
 	UINT m_FrameDelay{};
+	UINT m_FrameImage{};
 	std::unique_ptr<BYTE[]> m_PropertyItem{ nullptr };
 	std::unique_ptr<std::thread> m_AnimThread{ nullptr };
 
 	bool LoadGDIPlusImage(const TString& flags, TString& filename);
 	void DrawGDIImage(HDC hdc, int x, int y, int w, int h);
+	void SetupAnimThread()
+	{
+		if (!m_pImage)
+			return;
+
+		m_FrameImage = 0;
+
+		const auto count = m_pImage->GetFrameDimensionsCount();
+		auto m_DimensionIDs = std::make_unique<GUID[]>(count);
+		m_pImage->GetFrameDimensionsList(m_DimensionIDs.get(), count);
+		m_FrameCount = m_pImage->GetFrameCount(&m_DimensionIDs[0]);
+		const auto sz = m_pImage->GetPropertyItemSize(PropertyTagFrameDelay);
+
+		m_PropertyItem = std::make_unique<BYTE[]>(sz);
+
+		m_pImage->GetPropertyItem(PropertyTagFrameDelay, sz, (Gdiplus::PropertyItem*)m_PropertyItem.get());
+
+		m_bIsAnimated = (m_FrameCount > 1);
+	}
+	void FreeAnimThread()
+	{
+		StopAnimThread();
+
+		m_PropertyItem.reset(nullptr);
+	}
+	void StartAnimThread()
+	{
+		if (!m_PropertyItem)
+			return;
+
+		m_bRunThread = true;
+		// start play thread.
+		m_AnimThread = std::make_unique<std::thread>(DcxImage::AnimateThread, this);
+	}
+	void StopAnimThread()
+	{
+		m_bRunThread = false;
+		if (m_AnimThread)
+			m_AnimThread->join();
+		m_AnimThread.reset(nullptr);
+	}
 	static void AnimateThread(DcxImage* const img);
 #endif
 	void DrawBMPImage(HDC hdc, const int x, const int y, const int w, const int h);
