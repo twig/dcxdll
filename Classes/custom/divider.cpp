@@ -293,15 +293,6 @@ LRESULT CALLBACK DividerWndProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 			// Clear Panes and delete child windows
 			// Send Notifications to Parent Window About deletion of child windows
 
-			//NMDIVIDER nmdv;
-			////ZeroMemory(&nmdv, sizeof(NMDIVIDER));
-			//nmdv.hdr.hwndFrom = mHwnd;
-			//nmdv.hdr.idFrom = static_cast<UINT>(GetWindowLong(mHwnd, GWL_ID)); //GetWindowID()
-			//nmdv.hdr.code = DVN_DELETEDPANE;
-			//nmdv.fMask = DVNM_LPARAM | DVNM_PANEID;
-			//nmdv.iPaneId = DVF_PANELEFT;
-			//nmdv.lParam = lpdvdata->m_LeftTopPane.lParam;
-
 			NMDIVIDER nmdv(mHwnd, DVN_DELETEDPANE, DVNM_LPARAM | DVNM_PANEID, DVF_PANELEFT, 0, lpdvdata->m_LeftTopPane.lParam);
 
 			SendMessage(GetParent(mHwnd), WM_NOTIFY, nmdv.hdr.idFrom, reinterpret_cast<LPARAM>(&nmdv));

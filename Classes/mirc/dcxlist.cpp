@@ -43,7 +43,6 @@ DcxList::DcxList(const UINT ID, DcxDialog* const p_Dialog, const HWND mParentHwn
 		this);
 
 	if (!IsWindow(m_Hwnd))
-		//throw Dcx::dcxException("Unable To Create Window");
 		throw DcxExceptions::dcxUnableToCreateWindow();
 
 	if (ws.m_NoTheme)
@@ -57,7 +56,7 @@ DcxList::DcxList(const UINT ID, DcxDialog* const p_Dialog, const HWND mParentHwn
 	if (styles.istok(TEXT("draglist")))
 	{
 		// if its multiple select, cant use
-		if (!this->isStyle(static_cast<WindowStyle>(LBS_MULTIPLESEL)))
+		if (this->isStyle(static_cast<WindowStyle>(LBS_MULTIPLESEL)))
 			throw Dcx::dcxException("Cannot apply draglist style with multi style");
 
 		if (!MakeDragList(m_Hwnd))
@@ -185,6 +184,11 @@ dcxWindowStyles DcxList::parseControlStyles(const TString& tsStyles)
  *
  * \return > void
  */
+
+//TString DcxList::parseInfoRequest(const TString& input) const
+//{
+//	return TString();
+//}
 
 void DcxList::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>& szReturnValue) const
 {
