@@ -747,6 +747,89 @@ bool GetWindowRectParent(const HWND hwnd, RECT* rcWin) noexcept
 #endif
 }
 
+/// <summary>
+/// draws a line using a pre set pen/colour.
+/// </summary>
+/// <param name="hdc">- The HDC to draw on.</param>
+/// <param name="x1">- The x start of the line.</param>
+/// <param name="y1">- The y start of the line.</param>
+/// <param name="x2">- The x end of the line.</param>
+/// <param name="y2">- The y end of the line.</param>
+/// <returns></returns>
+void dcxDrawLine(HDC hdc, LONG x1, LONG y1, LONG x2, LONG y2) noexcept
+{
+	MoveToEx(hdc, x1, y1, nullptr);
+	LineTo(hdc, x2, y2);
+}
+
+/// <summary>
+/// draws a edge using a specified colour.
+/// falls back on DrawEdge() if it fails to allocate a pen or an invalid colour is supplied.
+/// </summary>
+/// <param name="hdc">- The HDC to draw on.</param>
+/// <param name="rc">- The bounding rect for the edge. (atm only drawing on the right side of the rect is supported)</param>
+/// <param name="clr">- The colour to use for the edge.</param>
+/// <returns></returns>
+void dcxDrawEdge(HDC hdc, const LPRECT rc, COLORREF clr) noexcept
+{
+	if (clr != CLR_INVALID)
+	{
+		if (auto hPen = CreatePen(PS_SOLID, 5, clr); hPen)
+		{
+			Auto(DeleteObject(hPen));
+
+			const auto oldPen = Dcx::dcxSelectObject<HPEN>(hdc, hPen);
+			Auto(Dcx::dcxSelectObject<HPEN>(hdc, oldPen));
+
+			dcxDrawLine(hdc, rc->right, rc->top, rc->right, rc->bottom);
+			return;
+		}
+	}
+
+	DrawEdge(hdc, rc, EDGE_BUMP, BF_RIGHT);
+}
+
+/// <summary>
+/// draws a border using a specified colour.
+/// </summary>
+/// <param name="hdc">- The HDC to draw on.</param>
+/// <param name="lprc">- The bounding rect for the border.</param>
+/// <param name="dwBorder">- The type of border to draw, (BF_LEFT BF_RIGHT BF_TOP BF_BOTTOM)</param>
+/// <param name="clr">- The colour to use.</param>
+/// <returns></returns>
+void dcxDrawBorder(HDC hdc, LPCRECT lprc, DWORD dwBorder, COLORREF clr) noexcept
+{
+	LOGPEN oLogPen{};
+
+	auto hOld = SelectObject(hdc, GetStockObject(BLACK_PEN));
+	GetObject(hOld, sizeof(oLogPen), &oLogPen);
+	oLogPen.lopnColor = clr;
+
+	//Don't attempt to delete stock object
+	SelectObject(hdc, CreatePenIndirect(&oLogPen));
+
+	if (dwBorder & BF_LEFT)
+		dcxDrawLine(hdc, lprc->left, lprc->top, lprc->left, lprc->bottom);
+	if (dwBorder & BF_TOP)
+		dcxDrawLine(hdc, lprc->left, lprc->top, lprc->right, lprc->top);
+	if (dwBorder & BF_RIGHT)
+		dcxDrawLine(hdc, lprc->right, lprc->top, lprc->right, lprc->bottom);
+	if (dwBorder & BF_BOTTOM)
+		dcxDrawLine(hdc, lprc->left, lprc->bottom, lprc->right, lprc->bottom);
+
+	DeleteObject(SelectObject(hdc, hOld));
+}
+
+/// <summary>
+/// draws a checkbox.
+/// </summary>
+/// <param name="hDC"></param>
+/// <param name="rcBox"></param>
+/// <param name="lpcol"></param>
+/// <param name="bTicked"></param>
+/// <param name="bDis"></param>
+/// <param name="bRounded"></param>
+/// <returns></returns>
 void dcxDrawCheckBox(HDC hDC, const LPRECT rcBox, const clrCheckBox* lpcol, const bool bTicked, const bool bDis, const bool bRounded) noexcept
 {
 	if (!hDC || !lpcol || !rcBox)
@@ -775,8 +858,8 @@ void dcxDrawCheckBox(HDC hDC, const LPRECT rcBox, const clrCheckBox* lpcol, cons
 
 	{
 		// draw tick box
-		/*const auto hOldPenBorder =*/ SelectObject(hDC, hPenBorder);
-		//Auto(SelectObject(hDC, hOldPenBorder));
+		const auto hOldPenBorder = SelectObject(hDC, hPenBorder);
+		Auto(SelectObject(hDC, hOldPenBorder));
 
 		InflateRect(&rc, 0, -1);
 		rc.left += 1;
@@ -797,35 +880,25 @@ void dcxDrawCheckBox(HDC hDC, const LPRECT rcBox, const clrCheckBox* lpcol, cons
 		const auto x = (rc.right + rc.left) / 2 - 3;
 		const auto y = (rc.bottom + rc.top) / 2 - 3;
 
-		MoveToEx(hDC, x, y + 2, nullptr);
-		LineTo(hDC, x, y + 5);
-		MoveToEx(hDC, x + 1, y + 3, nullptr);
-		LineTo(hDC, x + 1, y + 6);
-		MoveToEx(hDC, x + 2, y + 4, nullptr);
-		LineTo(hDC, x + 2, y + 7);
-		MoveToEx(hDC, x + 3, y + 3, nullptr);
-		LineTo(hDC, x + 3, y + 6);
-		MoveToEx(hDC, x + 4, y + 2, nullptr);
-		LineTo(hDC, x + 4, y + 5);
-		MoveToEx(hDC, x + 5, y + 1, nullptr);
-		LineTo(hDC, x + 5, y + 4);
-		MoveToEx(hDC, x + 6, y, nullptr);
-		LineTo(hDC, x + 6, y + 3);
+		dcxDrawLine(hDC, x, y + 2, x, y + 5);
+		dcxDrawLine(hDC, x + 1, y + 3, x + 1, y + 6);
+		dcxDrawLine(hDC, x + 2, y + 4, x + 2, y + 7);
+		dcxDrawLine(hDC, x + 3, y + 3, x + 3, y + 6);
+		dcxDrawLine(hDC, x + 4, y + 2, x + 4, y + 5);
+		dcxDrawLine(hDC, x + 5, y + 1, x + 5, y + 4);
+		dcxDrawLine(hDC, x + 6, y, x + 6, y + 3);
 	}
 }
 
-void dcxDrawEdge(HDC hdc, const LPRECT rc, COLORREF clr) noexcept
+HWND dcxGetRealParent(HWND hWnd) noexcept
 {
-	if (auto hPen = CreatePen(PS_SOLID, 5, clr); hPen)
-	{
-		Auto(DeleteObject(hPen));
+	// To obtain a window's owner window, instead of using GetParent,
+	// use GetWindow with the GW_OWNER flag.
 
-		const auto oldPen = Dcx::dcxSelectObject<HPEN>(hdc, hPen);
-		Auto(Dcx::dcxSelectObject<HPEN>(hdc, oldPen));
+	if (HWND hWndOwner = GetWindow(hWnd, GW_OWNER); hWndOwner)
+		return hWndOwner;
 
-		MoveToEx(hdc, rc->right, rc->top, nullptr);
-		LineTo(hdc, rc->right, rc->bottom);
-	}
-	else
-		DrawEdge(hdc, rc, EDGE_BUMP, BF_RIGHT);
+	// Obtain the parent window and not the owner
+	return GetAncestor(hWnd, GA_PARENT);
 }
+

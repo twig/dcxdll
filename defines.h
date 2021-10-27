@@ -335,9 +335,9 @@ constexpr auto DCX_MAX_GDI_ERRORS = 21;
 namespace gsl {
 	template <class Cont>
 	GSL_SUPPRESS(type.1)
-	GSL_SUPPRESS(bounds.4)
-	GSL_SUPPRESS(r.32)
-	constexpr auto at(const std::unique_ptr<Cont[]>& cont, const index i) -> decltype(cont[0])
+		GSL_SUPPRESS(bounds.4)
+		GSL_SUPPRESS(r.32)
+		constexpr auto at(const std::unique_ptr<Cont[]>& cont, const index i) -> decltype(cont[0])
 	{
 		//Expects(i >= 0 && i < narrow_cast<index>(cont.size()));
 		//using size_type = decltype(cont.size());
@@ -482,12 +482,12 @@ constexpr auto mIRC_PALETTE_SIZE = 100U;	// Number of colours in mIRC's palette 
 #define DCX_DIVIDERCLASS     TEXT("DCXDividerClass")      //!< DCX Divider Class Name
 #define DCX_PANELCLASS       TEXT("DCXPanelClass")        //!< DCX Panel Class Name
 #define DCX_CALENDARCLASS    TEXT("DCXCalendarClass")     //!< DCX Panel Class Name
-#define DCX_DATETIMECLASS    TEXT("DCXDateTimeClass")     //!< DCX DateTime Class Name
-#define DCX_PAGERCLASS       TEXT("DCXPagerClass")        //!< DCX Panel Class Name
-#define DCX_BOXCLASS         TEXT("DCXBoxClass")          //!< DCX Box Class Name
-#define DCX_RADIOCLASS       TEXT("DCXRadioClass")        //!< DCX Radio Class Name
-#define DCX_CHECKCLASS       TEXT("DCXCheckClass")        //!< DCX Check Class Name
-#define DCX_SCROLLBARCLASS   TEXT("DCXScrollBarClass")    //!< DCX ScrollBar Class Name
+#define DCX_DATETIMECLASS		TEXT("DCXDateTimeClass")     //!< DCX DateTime Class Name
+#define DCX_PAGERCLASS			TEXT("DCXPagerClass")        //!< DCX Panel Class Name
+#define DCX_BOXCLASS			TEXT("DCXBoxClass")          //!< DCX Box Class Name
+#define DCX_RADIOCLASS			TEXT("DCXRadioClass")        //!< DCX Radio Class Name
+#define DCX_CHECKCLASS			TEXT("DCXCheckClass")        //!< DCX Check Class Name
+#define DCX_SCROLLBARCLASS		TEXT("DCXScrollBarClass")    //!< DCX ScrollBar Class Name
 //#define DCX_SHADOWCLASS				TEXT("DCXShadowClass")			//!< DCX Shadow Class Name
 #define DCX_VISTACLASS			TEXT("DCXVistaClass")     //!< DCX Vista Dialog Class Name
 #define DCX_STACKERCLASS		TEXT("DCXStackerClass")   //!< DCX Stacker Class Name
@@ -500,7 +500,9 @@ constexpr auto mIRC_PALETTE_SIZE = 100U;	// Number of colours in mIRC's palette 
 //#define DCX_SCROLLCLASS			TEXT("DCXScrollClass")    //!< DCX Text Class Name
 #define DCX_TEXTCLASS			TEXT("DCXTextClass")      //!< DCX Text Class Name
 #define DCX_DIRECTSHOWCLASS		TEXT("DCXDirectShowClass") //!< DCX Text Class Name
-#define DCX_MULTIBUTTONCLASS      TEXT("DCXMultiButtonClass")       //!< DCX Button Class Name
+#define DCX_MULTIBUTTONCLASS    TEXT("DCXMultiButtonClass")       //!< DCX MultiButton Class Name
+#define DCX_MULTICOMBOCLASS    TEXT("DCXMultiComboClass")       //!< DCX MultiCombo Class Name
+#define DCX_GRIDCLASS			TEXT("DCXGridClass")       //!< DCX Grid Class Name
 
 using mIRCResultString = refString<TCHAR, MIRC_BUFFER_SIZE_CCH>;
 
@@ -714,8 +716,12 @@ TString MakeTextmIRCSafe(const TString& tsStr);
 TString MakeTextmIRCSafe(const TCHAR* const tString);
 TString MakeTextmIRCSafe(const TCHAR* const tString, const std::size_t len);
 
+void dcxDrawLine(HDC hdc, LONG x1, LONG y1, LONG x2, LONG y2) noexcept;
 void dcxDrawCheckBox(HDC hDC, const LPRECT rcBox, const clrCheckBox* lpcol, const bool bTicked, const bool bDis, const bool bRounded) noexcept;
 void dcxDrawEdge(HDC hdc, const LPRECT rc, COLORREF clr) noexcept;
+void dcxDrawBorder(HDC hdc, LPCRECT lprc, DWORD dwBorder, COLORREF clr) noexcept;
+HWND dcxGetRealParent(HWND hWnd) noexcept;
+
 COLORREF GetContrastColour(COLORREF sRGB) noexcept;
 
 extern SIGNALSWITCH dcxSignal;
