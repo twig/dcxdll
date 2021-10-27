@@ -42,7 +42,7 @@ public:
 	LRESULT OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed) final;
 	LRESULT ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed) final;
 
-	//void parseInfoRequest(const TString & input, PTCHAR szReturnValue) const final;
+	//TString parseInfoRequest(const TString& input) const final;
 	void parseInfoRequest(const TString& input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>& szReturnValue) const final;
 	void parseCommandRequest(const TString& input) final;
 	dcxWindowStyles parseControlStyles(const TString& tsStyles) final;
@@ -103,6 +103,14 @@ private:
 			}
 		}
 	}
+	RECT getGutterRect() const noexcept
+	{
+		const RECT rcFmt{ getFmtRect() };
+		//RECT rcClient{};
+		//GetClientRect(m_Hwnd, &rcClient);
+		return { 0,0,rcFmt.left,rcFmt.bottom };
+	}
+
 	Dcx::range_t<DWORD> GetVisibleRange() noexcept;
 	DWORD GetCaretPos() noexcept;
 	DWORD GetCaretLine() noexcept;

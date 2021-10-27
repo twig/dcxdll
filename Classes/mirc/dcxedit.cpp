@@ -40,7 +40,6 @@ DcxEdit::DcxEdit(const UINT ID, DcxDialog* const p_Dialog, const HWND mParentHwn
 		this);
 
 	if (!IsWindow(m_Hwnd))
-		//throw Dcx::dcxException("Unable To Create Window");
 		throw DcxExceptions::dcxUnableToCreateWindow();
 
 	if (ws.m_NoTheme)
@@ -193,6 +192,11 @@ dcxWindowStyles DcxEdit::parseControlStyles(const TString& tsStyles)
 
 	return parseGeneralControlStyles(tsStyles, ws);
 }
+
+//TString DcxEdit::parseInfoRequest(const TString& input) const
+//{
+//	return TString();
+//}
 
 /*!
 * \brief $xdid Parsing Function
@@ -793,9 +797,12 @@ LRESULT DcxEdit::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPars
 		if (this->IsAlphaBlend())
 		{
 			PAINTSTRUCT ps{};
+			//auto hdc = BeginPaint(m_Hwnd, &ps);
+			//Auto(EndPaint(m_Hwnd, &ps));
 
-			auto hdc = BeginPaint(m_Hwnd, &ps);
-			Auto(EndPaint(m_Hwnd, &ps));
+			HDC hdc = (HDC)wParam;
+			if (!wParam)
+				hdc = BeginPaint(m_Hwnd, &ps);
 
 			bParsed = TRUE;
 
@@ -808,6 +815,8 @@ LRESULT DcxEdit::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPars
 			if (m_bShowLineNumbers)
 				PostMessage(m_Hwnd, WM_DRAW_NUMBERS, 0, 0);
 
+			if (!wParam)
+				EndPaint(m_Hwnd, &ps);
 			return lRes;
 		}
 		else if (m_bShowLineNumbers)
@@ -818,6 +827,26 @@ LRESULT DcxEdit::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPars
 			PostMessage(m_Hwnd, WM_DRAW_NUMBERS, 0, 0);
 
 			return lRes;
+		}
+	}
+	break;
+
+	case WM_SETCURSOR:
+	{
+		if ((Dcx::dcxLOWORD(lParam) != HTCLIENT) || (reinterpret_cast<HWND>(wParam) != m_Hwnd) || (!m_bShowLineNumbers))
+			break;
+
+		if (POINT pt{}; GetCursorPos(&pt))
+		{
+			MapWindowPoints(nullptr, m_Hwnd, &pt, 1);
+			if (const RECT rc{ getGutterRect() }; PtInRect(&rc, pt))
+			{
+				if (const HCURSOR hCursor = LoadCursor(nullptr, IDC_ARROW); GetCursor() != hCursor)
+					SetCursor(hCursor);
+
+				bParsed = TRUE;
+				return TRUE;
+			}
 		}
 	}
 	break;
