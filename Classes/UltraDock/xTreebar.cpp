@@ -343,10 +343,12 @@ mIRC(xtreebar)
 					tvexstylef |= TVS_EX_NOINDENTSTATE;
 					tvexstylemask |= TVS_EX_NOINDENTSTATE;
 					break;
+				case L"doublebuffer"_hash: // buffer
 				case L"buffer"_hash: // buffer
 					tvexstylef |= TVS_EX_DOUBLEBUFFER;
 					tvexstylemask |= TVS_EX_DOUBLEBUFFER;
 					break;
+				case L"nodoublebuffer"_hash: // nobuffer
 				case L"nobuffer"_hash: // nobuffer
 					tvexstylef &= ~TVS_EX_DOUBLEBUFFER;
 					tvexstylemask |= TVS_EX_DOUBLEBUFFER;
