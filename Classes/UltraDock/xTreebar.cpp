@@ -306,7 +306,7 @@ mIRC(xtreebar)
 				case L"singleexpand"_hash: // singleexpand (off by default)
 					stylef |= TVS_SINGLEEXPAND;
 					break;
-				case L"nosingleexpend"_hash: // nosingleexpand
+				case L"nosingleexpand"_hash: // nosingleexpand
 					stylef &= ~TVS_SINGLEEXPAND;
 					break;
 				case L"scroll"_hash: // scroll (off by default)
