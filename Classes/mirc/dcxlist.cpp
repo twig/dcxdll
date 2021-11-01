@@ -1031,7 +1031,7 @@ LRESULT DcxList::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bP
 			const UINT style = (isStyle(WindowStyle::LBS_UseTabStops)) ? DT_LEFT | DT_VCENTER | DT_SINGLELINE | DT_EXPANDTABS : DT_LEFT | DT_VCENTER | DT_SINGLELINE;
 
 			//calcStrippedRect(lpDrawItem->hDC, txt, style, &rc, false);
-			this->calcTextRect(lpDrawItem->hDC, txt, &rc, style);
+			//this->calcTextRect(lpDrawItem->hDC, txt, &rc, style); // causes drawing issues with multi column listboxes.
 
 			this->ctrlDrawText(lpDrawItem->hDC, txt, &rc, style);
 		}
