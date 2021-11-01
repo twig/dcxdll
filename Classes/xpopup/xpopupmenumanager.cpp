@@ -1122,19 +1122,18 @@ LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPAR
 	if (Dcx::setting_CustomMenusAlpha == 255)
 		return CallWindowProc(XPopupMenuManager::g_OldmIRCMenusWindowProc, mHwnd, uMsg, wParam, lParam);
 
-	//Dcx::XPopups.
-	const MenuMessages mm = gsl::narrow_cast<MenuMessages>(uMsg);
+	const WindowMessages mm = gsl::narrow_cast<WindowMessages>(uMsg);
 
 	switch (mm)
 	{
-	case MenuMessages::WMN_NCCREATE:
+	case WindowMessages::eWM_NCCREATE:
 	{
 		dcxlParam(LPCREATESTRUCT, cs);
 		cs->dwExStyle |= WS_EX_LAYERED | WS_EX_COMPOSITED;
 	}
 	break;
 
-	case MenuMessages::WMN_CREATE:
+	case WindowMessages::eWM_CREATE:
 	{
 		dcxlParam(LPCREATESTRUCT, cs);
 		cs->dwExStyle |= WS_EX_LAYERED | WS_EX_COMPOSITED;
@@ -1233,7 +1232,7 @@ LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPAR
 	//}
 	//break;
 
-	case MenuMessages::WMN_DESTROY:
+	case WindowMessages::eWM_DESTROY:
 	{
 		if (g_winlist.empty())
 			break;
@@ -1255,7 +1254,7 @@ LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPAR
 	break;
 
 	// code for rounded windows etc..
-	case MenuMessages::WMN_SIZE:
+	case WindowMessages::eWM_SIZE:
 	{
 		if (!Dcx::setting_CustomMenusRounded)
 			break;
@@ -1340,7 +1339,7 @@ LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPAR
 //	//break;
 //#endif
 
-	case MenuMessages::MN_SELECTITEM:
+	case WindowMessages::eMN_SELECTITEM:
 	{
 		if (wParam == UINT_MAX)
 		{
@@ -1376,7 +1375,7 @@ LRESULT CALLBACK XPopupMenuManager::mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPAR
 	}
 	break;
 
-	case MenuMessages::MN_FINDMENUWINDOWFROMPOINT:
+	case WindowMessages::eMN_FINDMENUWINDOWFROMPOINT:
 	{
 		const auto lRes = CallWindowProc(XPopupMenuManager::g_OldmIRCMenusWindowProc, mHwnd, uMsg, wParam, lParam);
 		auto menu_hwnd = reinterpret_cast<HWND>(lRes);

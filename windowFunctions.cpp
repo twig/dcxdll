@@ -820,6 +820,39 @@ void dcxDrawBorder(HDC hdc, LPCRECT lprc, DWORD dwBorder, COLORREF clr) noexcept
 	DeleteObject(SelectObject(hdc, hOld));
 }
 
+COLORREF getCheckBoxBkgColour(const clrCheckBox* lpcol, DWORD dState) noexcept
+{
+	if (dcx_testflag(dState, CDIS_DISABLED))
+		return lpcol->m_clrDisabledBackground;
+
+	if (dcx_testflag(dState, CDIS_HOT))
+		return lpcol->m_clrHotBackground;
+
+	return lpcol->m_clrBackground;
+}
+
+COLORREF getCheckBoxFrameColour(const clrCheckBox* lpcol, DWORD dState) noexcept
+{
+	if (dcx_testflag(dState, CDIS_DISABLED))
+		return lpcol->m_clrDisabledFrame;
+
+	if (dcx_testflag(dState, CDIS_HOT))
+		return lpcol->m_clrHotFrame;
+
+	return lpcol->m_clrFrame;
+}
+
+COLORREF getCheckBoxTickColour(const clrCheckBox* lpcol, DWORD dState) noexcept
+{
+	if (dcx_testflag(dState, CDIS_DISABLED))
+		return lpcol->m_clrDisabledTick;
+
+	if (dcx_testflag(dState, CDIS_HOT))
+		return lpcol->m_clrHotTick;
+
+	return lpcol->m_clrTick;
+}
+
 /// <summary>
 /// draws a checkbox.
 /// </summary>
@@ -830,21 +863,25 @@ void dcxDrawBorder(HDC hdc, LPCRECT lprc, DWORD dwBorder, COLORREF clr) noexcept
 /// <param name="bDis"></param>
 /// <param name="bRounded"></param>
 /// <returns></returns>
-void dcxDrawCheckBox(HDC hDC, const LPRECT rcBox, const clrCheckBox* lpcol, const bool bTicked, const bool bDis, const bool bRounded) noexcept
+void dcxDrawCheckBox(HDC hDC, const LPCRECT rcBox, const clrCheckBox* lpcol, const DWORD dState, const bool bTicked, const bool bRounded) noexcept
 {
 	if (!hDC || !lpcol || !rcBox)
 		return;
 
 	// create background brush
-	const auto hBrush = CreateSolidBrush(bDis ? lpcol->m_clrDisabledBackground : lpcol->m_clrBackground);
+	const auto hBrush = CreateSolidBrush(getCheckBoxBkgColour(lpcol, dState));
 	Auto(DeleteObject(hBrush));
 
 	// create border pen
-	const auto hPenBorder = CreatePen(PS_SOLID, 1, bDis ? lpcol->m_clrDisabledFrame : lpcol->m_clrFrame);
+	const auto hPenBorder = CreatePen(PS_SOLID, 1, getCheckBoxFrameColour(lpcol, dState));
 	Auto(DeleteObject(hPenBorder));
 
+	// create border highlite pen
+	const auto hPenHighBorder = CreatePen(PS_SOLID, 1, GetSysColor(COLOR_3DHIGHLIGHT));
+	Auto(DeleteObject(hPenHighBorder));
+
 	// create tick pen
-	const auto hPenTick = CreatePen(PS_SOLID, 1, bDis ? lpcol->m_clrDisabledTick : lpcol->m_clrTick);
+	const auto hPenTick = CreatePen(PS_SOLID, 1, getCheckBoxTickColour(lpcol, dState));
 	Auto(DeleteObject(hPenTick));
 
 	if ((!hBrush) || (!hPenBorder) || (!hPenTick))
@@ -866,9 +903,26 @@ void dcxDrawCheckBox(HDC hDC, const LPRECT rcBox, const clrCheckBox* lpcol, cons
 		rc.right = rc.left + rc.bottom - rc.top;
 
 		if (bRounded)
+		{
 			RoundRect(hDC, rc.left, rc.top, rc.right, rc.bottom, 5, 5);
-		else
+
+			InflateRect(&rc, -1, -1);
+
+			const auto hOldHighPenBorder = SelectObject(hDC, hPenHighBorder);
+			Auto(SelectObject(hDC, hOldHighPenBorder));
+
+			RoundRect(hDC, rc.left, rc.top, rc.right, rc.bottom, 5, 5);
+		}
+		else {
 			Rectangle(hDC, rc.left, rc.top, rc.right, rc.bottom);
+
+			InflateRect(&rc, -1, -1);
+
+			const auto hOldHighPenBorder = SelectObject(hDC, hPenHighBorder);
+			Auto(SelectObject(hDC, hOldHighPenBorder));
+
+			Rectangle(hDC, rc.left, rc.top, rc.right, rc.bottom);
+		}
 	}
 
 	if (bTicked)

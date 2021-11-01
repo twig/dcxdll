@@ -87,7 +87,7 @@ public:
 	SIZE getItemSize( const HWND mHwnd );
 
 	static void DrawItemSelection(const LPDRAWITEMSTRUCT lpdis, const XPMENUCOLORS *const lpcol, const bool bDis = false, const bool bRounded = false) noexcept;
-	static void DrawItemCheckBox(const LPDRAWITEMSTRUCT lpdis, const XPMENUCOLORS *const lpcol, const bool bDis = false) noexcept;
+	static void DrawItemCheckBox(const LPDRAWITEMSTRUCT lpdis, const XPMENUCOLORS *const lpcol, const bool bDis = false, const bool bRounded = false) noexcept;
 	static void DrawItemSubArrow(const LPDRAWITEMSTRUCT lpdis, const XPMENUCOLORS *const lpcol, const bool bDis = false) noexcept;
 	static bool DrawMenuBitmap(const LPDRAWITEMSTRUCT lpdis, const bool bBigImage, const HBITMAP bmImage);
 	static void DrawGradient(const HDC hdc, const RECT *const lprc, const COLORREF clrStart, const COLORREF clrEnd, const bool bHorz = false) noexcept;

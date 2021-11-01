@@ -246,7 +246,7 @@ void XPopupMenuItem::DrawItem(const LPDRAWITEMSTRUCT lpdis)
 	// Regular Item
 	else {
 		if (bChecked)
-			this->DrawItemCheckBox(lpdis, lpcol, bGrayed);
+			this->DrawItemCheckBox(lpdis, lpcol, bGrayed, this->m_pXParentMenu->IsRounded());
 
 		this->DrawItemText(lpdis, lpcol, bGrayed);
 
@@ -488,62 +488,73 @@ void XPopupMenuItem::DrawItemSelection(const LPDRAWITEMSTRUCT lpdis, const XPMEN
  * blah
  */
 
-void XPopupMenuItem::DrawItemCheckBox(const LPDRAWITEMSTRUCT lpdis, const XPMENUCOLORS* const lpcol, const bool bDis) noexcept
+void XPopupMenuItem::DrawItemCheckBox(const LPDRAWITEMSTRUCT lpdis, const XPMENUCOLORS* const lpcol, const bool bDis, const bool bRounded) noexcept
 {
-	if (!lpdis || !lpcol || !lpdis->hDC)
-		return;
+	//if (!lpdis || !lpcol || !lpdis->hDC)
+	//	return;
+	//
+	//const auto hBrush = CreateSolidBrush(bDis ? lpcol->m_clrDisabledCheckBox : lpcol->m_clrCheckBox);
+	//Auto(DeleteObject(hBrush));
+	//
+	//const auto hPenBorder = CreatePen(PS_SOLID, 1, lpcol->m_clrSelectionBorder);
+	//Auto(DeleteObject(hPenBorder));
+	//
+	//const auto hPenText = CreatePen(PS_SOLID, 1, bDis ? lpcol->m_clrDisabledText : lpcol->m_clrText);
+	//Auto(DeleteObject(hPenText));
+	//
+	//if ((!hBrush) || (!hPenBorder) || (!hPenText))
+	//	return;
+	//
+	//RECT rc = lpdis->rcItem;
+	//
+	//const auto hOldBrush = SelectObject(lpdis->hDC, hBrush);
+	//Auto(SelectObject(lpdis->hDC, hOldBrush));
+	//
+	//{
+	//	/*const auto hOldPen =*/ SelectObject(lpdis->hDC, hPenBorder);
+	//	//Auto(SelectObject(lpdis->hDC, hOldPen));
+	//
+	//	InflateRect(&rc, 0, -1);
+	//	rc.left += 1;
+	//	rc.right = rc.left + rc.bottom - rc.top;
+	//
+	//	//RoundRect( lpdis->hDC, rc.left, rc.top, rc.right, rc.bottom, 5, 5 );
+	//	Rectangle(lpdis->hDC, rc.left, rc.top, rc.right, rc.bottom);
+	//}
+	//
+	//{
+	//	const auto hOldPenTxt = SelectObject(lpdis->hDC, hPenText);
+	//	Auto(SelectObject(lpdis->hDC, hOldPenTxt));
+	//
+	//	const auto x = (rc.right + rc.left) / 2 - 3;
+	//	const auto y = (rc.bottom + rc.top) / 2 - 3;
+	//
+	//	MoveToEx(lpdis->hDC, x, y + 2, nullptr);
+	//	LineTo(lpdis->hDC, x, y + 5);
+	//	MoveToEx(lpdis->hDC, x + 1, y + 3, nullptr);
+	//	LineTo(lpdis->hDC, x + 1, y + 6);
+	//	MoveToEx(lpdis->hDC, x + 2, y + 4, nullptr);
+	//	LineTo(lpdis->hDC, x + 2, y + 7);
+	//	MoveToEx(lpdis->hDC, x + 3, y + 3, nullptr);
+	//	LineTo(lpdis->hDC, x + 3, y + 6);
+	//	MoveToEx(lpdis->hDC, x + 4, y + 2, nullptr);
+	//	LineTo(lpdis->hDC, x + 4, y + 5);
+	//	MoveToEx(lpdis->hDC, x + 5, y + 1, nullptr);
+	//	LineTo(lpdis->hDC, x + 5, y + 4);
+	//	MoveToEx(lpdis->hDC, x + 6, y, nullptr);
+	//	LineTo(lpdis->hDC, x + 6, y + 3);
+	//}
 
-	const auto hBrush = CreateSolidBrush(bDis ? lpcol->m_clrDisabledCheckBox : lpcol->m_clrCheckBox);
-	Auto(DeleteObject(hBrush));
+	clrCheckBox cols;
+	cols.m_clrBackground = lpcol->m_clrCheckBox;
+	cols.m_clrDisabledBackground = lpcol->m_clrDisabledCheckBox;
+	cols.m_clrDisabledFrame = lpcol->m_clrSelectionBorder;
+	cols.m_clrFrame = lpcol->m_clrSelectionBorder;
+	cols.m_clrTick = lpcol->m_clrText;
+	cols.m_clrHotTick = lpcol->m_clrSelectedText;
+	cols.m_clrDisabledTick = lpcol->m_clrDisabledText;
 
-	const auto hPenBorder = CreatePen(PS_SOLID, 1, lpcol->m_clrSelectionBorder);
-	Auto(DeleteObject(hPenBorder));
-
-	const auto hPenText = CreatePen(PS_SOLID, 1, bDis ? lpcol->m_clrDisabledText : lpcol->m_clrText);
-	Auto(DeleteObject(hPenText));
-
-	if ((!hBrush) || (!hPenBorder) || (!hPenText))
-		return;
-
-	RECT rc = lpdis->rcItem;
-
-	const auto hOldBrush = SelectObject(lpdis->hDC, hBrush);
-	Auto(SelectObject(lpdis->hDC, hOldBrush));
-
-	{
-		/*const auto hOldPen =*/ SelectObject(lpdis->hDC, hPenBorder);
-		//Auto(SelectObject(lpdis->hDC, hOldPen));
-
-		InflateRect(&rc, 0, -1);
-		rc.left += 1;
-		rc.right = rc.left + rc.bottom - rc.top;
-
-		//RoundRect( lpdis->hDC, rc.left, rc.top, rc.right, rc.bottom, 5, 5 );
-		Rectangle(lpdis->hDC, rc.left, rc.top, rc.right, rc.bottom);
-	}
-
-	{
-		const auto hOldPenTxt = SelectObject(lpdis->hDC, hPenText);
-		Auto(SelectObject(lpdis->hDC, hOldPenTxt));
-
-		const auto x = (rc.right + rc.left) / 2 - 3;
-		const auto y = (rc.bottom + rc.top) / 2 - 3;
-
-		MoveToEx(lpdis->hDC, x, y + 2, nullptr);
-		LineTo(lpdis->hDC, x, y + 5);
-		MoveToEx(lpdis->hDC, x + 1, y + 3, nullptr);
-		LineTo(lpdis->hDC, x + 1, y + 6);
-		MoveToEx(lpdis->hDC, x + 2, y + 4, nullptr);
-		LineTo(lpdis->hDC, x + 2, y + 7);
-		MoveToEx(lpdis->hDC, x + 3, y + 3, nullptr);
-		LineTo(lpdis->hDC, x + 3, y + 6);
-		MoveToEx(lpdis->hDC, x + 4, y + 2, nullptr);
-		LineTo(lpdis->hDC, x + 4, y + 5);
-		MoveToEx(lpdis->hDC, x + 5, y + 1, nullptr);
-		LineTo(lpdis->hDC, x + 5, y + 4);
-		MoveToEx(lpdis->hDC, x + 6, y, nullptr);
-		LineTo(lpdis->hDC, x + 6, y + 3);
-	}
+	dcxDrawCheckBox(lpdis->hDC, &lpdis->rcItem, std::addressof(cols), lpdis->itemState, true, bRounded);
 }
 
 /*!

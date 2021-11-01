@@ -594,6 +594,9 @@ struct clrCheckBox {
 	COLORREF m_clrDisabledBackground{ RGB(200, 200, 200) };
 	COLORREF m_clrDisabledFrame{ RGB(200, 200, 200) };
 	COLORREF m_clrDisabledTick{ RGB(128, 128, 128) };
+	COLORREF m_clrHotBackground{ RGB(255, 128, 123) };
+	COLORREF m_clrHotFrame{ RGB(0,0,255) };
+	COLORREF m_clrHotTick{ RGB(0,0,255) };
 };
 
 // UNICODE/ANSI wrappers
@@ -717,7 +720,8 @@ TString MakeTextmIRCSafe(const TCHAR* const tString);
 TString MakeTextmIRCSafe(const TCHAR* const tString, const std::size_t len);
 
 void dcxDrawLine(HDC hdc, LONG x1, LONG y1, LONG x2, LONG y2) noexcept;
-void dcxDrawCheckBox(HDC hDC, const LPRECT rcBox, const clrCheckBox* lpcol, const bool bTicked, const bool bDis, const bool bRounded) noexcept;
+//void dcxDrawCheckBox(HDC hDC, const LPCRECT rcBox, const clrCheckBox* lpcol, const DWORD dState, const bool bDis, const bool bRounded) noexcept;
+void dcxDrawCheckBox(HDC hDC, const LPCRECT rcBox, const clrCheckBox* lpcol, const DWORD dState, const bool bTicked, const bool bRounded) noexcept;
 void dcxDrawEdge(HDC hdc, const LPRECT rc, COLORREF clr) noexcept;
 void dcxDrawBorder(HDC hdc, LPCRECT lprc, DWORD dwBorder, COLORREF clr) noexcept;
 HWND dcxGetRealParent(HWND hWnd) noexcept;
