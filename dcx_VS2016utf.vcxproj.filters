@@ -321,6 +321,12 @@
     <ClCompile Include="Classes\tstring\hashString.cpp">
       <Filter>Source Files\TString</Filter>
     </ClCompile>
+    <ClCompile Include="Classes\custom\multicombo.cpp">
+      <Filter>Source Files\Controls\Custom</Filter>
+    </ClCompile>
+    <ClCompile Include="Classes\DcxMultiCombo.cpp">
+      <Filter>Source Files\Controls</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Dcx.h">
@@ -583,6 +589,12 @@
     </ClInclude>
     <ClInclude Include="DcxConcepts.h">
       <Filter>Header Files\General</Filter>
+    </ClInclude>
+    <ClInclude Include="Classes\custom\multicombo.h">
+      <Filter>Header Files\Controls\Custom</Filter>
+    </ClInclude>
+    <ClInclude Include="Classes\DcxMultiCombo.h">
+      <Filter>Header Files\Controls</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

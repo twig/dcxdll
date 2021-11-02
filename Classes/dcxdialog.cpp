@@ -34,6 +34,8 @@
 
 #include "Classes/xpopup\xpopupmenumanager.h"
 
+#include "custom/multicombo.h"
+
  /*!
   * \brief Constructor
   *
@@ -1725,7 +1727,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 
 		if (IsWindow(hdr->hwndFrom))
 		{
-			if (const auto c_this = static_cast<DcxControl*>(GetProp(hdr->hwndFrom, TEXT("dcx_cthis"))); c_this)
+			if (const auto c_this = Dcx::dcxGetProp<DcxControl*>(hdr->hwndFrom, TEXT("dcx_cthis")); c_this)
 				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 		}
 		break;
@@ -1757,7 +1759,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 	{
 		if (IsWindow(reinterpret_cast<HWND>(lParam)))
 		{
-			if (const auto c_this = static_cast<DcxControl*>(GetProp(reinterpret_cast<HWND>(lParam), TEXT("dcx_cthis"))); c_this)
+			if (const auto c_this = Dcx::dcxGetProp<DcxControl*>(reinterpret_cast<HWND>(lParam), TEXT("dcx_cthis")); c_this)
 				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 		}
 		break;
@@ -2080,6 +2082,9 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 	{
 		if (dcx_testflag(p_this->m_dEventMask, DCX_EVENT_MOVE))
 			p_this->execAlias(TEXT("moving,0"));
+
+		for (auto bars = FindWindowEx(mHwnd, nullptr, DCX_MULTICOMBOCLASS, nullptr); bars; bars = FindWindowEx(mHwnd, bars, DCX_MULTICOMBOCLASS, nullptr))
+			SendMessage(bars, MC_WM_UPDATEDROPRECT, 0U, 0);
 		break;
 	}
 
@@ -2094,7 +2099,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 		//DeleteObject(hRGN);
 
 		if (dcx_testflag(p_this->m_dEventMask, DCX_EVENT_SIZE))
-			p_this->execAliasEx(TEXT("sizing,0,%d,%d"), LOWORD(lParam), HIWORD(lParam));
+			p_this->execAliasEx(TEXT("sizing,0,%d,%d"), Dcx::dcxLOWORD(lParam), Dcx::dcxHIWORD(lParam));
 
 		//HWND bars = nullptr;
 		//
@@ -2116,15 +2121,15 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 		//		t->autoPosition(LOWORD(lParam), HIWORD(lParam));
 		//}
 
-		p_this->HandleChildSizing(SizingTypes::ReBar | SizingTypes::Status | SizingTypes::Panel);
+		p_this->HandleChildSizing(SizingTypes::ReBar | SizingTypes::Status | SizingTypes::Panel /*| SizingTypes::MultiCombo*/);
 
 		for (HWND bars = FindWindowEx(mHwnd, nullptr, DCX_TOOLBARCLASS, nullptr); bars; bars = FindWindowEx(mHwnd, bars, DCX_TOOLBARCLASS, nullptr))
 		{
 			if (const auto t = dynamic_cast<DcxToolBar*>(p_this->getControlByHWND(bars)); t)
-				t->autoPosition(LOWORD(lParam), HIWORD(lParam));
+				t->autoPosition(Dcx::dcxLOWORD(lParam), Dcx::dcxHIWORD(lParam));
 		}
 
-		RECT rc{ 0, 0, LOWORD(lParam), HIWORD(lParam) };
+		RECT rc{ 0, 0, Dcx::dcxLOWORD(lParam), Dcx::dcxHIWORD(lParam) };
 
 		p_this->SetVistaStyleSize();
 		p_this->updateLayout(rc);

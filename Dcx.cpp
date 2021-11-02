@@ -751,6 +751,9 @@ namespace Dcx {
 
 	void FillRectColour(HDC hdc, LPCRECT prc, COLORREF clr) noexcept
 	{
+		if (!hdc || !prc)
+			return;
+
 		if (const auto br = CreateSolidBrush(clr); br)
 		{
 			FillRect(hdc, prc, br);

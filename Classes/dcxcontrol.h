@@ -113,10 +113,13 @@ enum class DcxAllowControls
 	ALLOW_LINK = 0x0000000004000000ULL,
 	ALLOW_IMAGE = 0x0000000008000000ULL,
 	ALLOW_PAGER = 0x0000000010000000ULL,
-	ALLOW_DOCK = 0x0000000020000000ULL, // allows @Window and Dialog docking
+	ALLOW_DOCK =  0x0000000020000000ULL, // allows @Window and Dialog docking
 	ALLOW_DATETIME = 0x0000000040000000ULL,
 	ALLOW_STACKER = 0x0000000080000000ULL,
 	ALLOW_DIRECTSHOW = 0x0000000100000000ULL,
+	ALLOW_GRID = 0x0000000200000000ULL,
+	ALLOW_MULTIBUTTON = 0x0000000400000000ULL,
+	ALLOW_MULTICOMBO = 0x0000000800000000ULL,
 	ALLOW_ALL = 0xFFFFFFFFFFFFFFFFULL,
 	ALLOW_ALLBUTDOCK = (UINT64)(ALLOW_ALL & ~ALLOW_DOCK)
 };
@@ -129,7 +132,7 @@ enum class DcxControlTypes
 	CHECK, EDIT, IMAGE, LINE, LINK, LIST, RADIO, SCROLL, TEXT, BUTTON, CALENDAR,
 	COLORCOMBO, COMBOEX, DATETIME, DIRECTSHOW, DIVIDER, IPADDRESS, LISTVIEW, DIALOG,
 	WINDOW, PAGER, PANEL, PROGRESSBAR, REBAR, RICHEDIT, STACKER, STATUSBAR, TABB, TOOLBAR,
-	TRACKBAR, TREEVIEW, UPDOWN, WEBCTRL
+	TRACKBAR, TREEVIEW, UPDOWN, WEBCTRL, MULTIBUTTON, MULTICOMBO, GRID
 };
 
 // Search types...
@@ -225,11 +228,6 @@ public:
 
 	DcxControl(const UINT mID, DcxDialog* const p_Dialog) noexcept;
 	~DcxControl() noexcept;
-
-	//virtual void parseInfoRequest( const TString & input, PTCHAR szReturnValue ) const = 0;
-	//virtual void parseInfoRequest(const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const = 0;
-	//virtual void parseCommandRequest( const TString & input ) = 0;
-	//virtual void parseControlStyles( const TString & styles, LONG * Styles, LONG * ExStyles, BOOL * bNoTheme ) = 0;
 
 	virtual dcxWindowStyles parseControlStyles(const TString& tsStyles) = 0;
 
@@ -421,10 +419,8 @@ protected:
 
 	HBITMAP m_bitmapBg{ nullptr };			//!< Background bitmap
 
-	//HCURSOR m_hCursor{ nullptr };			//!< Cursor Handle
-	//bool m_bCursorFromFile{ false };		//!< Cursor comes from a file?
-
-	CursorPair m_hCursor{};
+	//CursorPair m_hCursor{};
+	CursorPair m_hCursor;
 
 	HWND m_ToolTipHWND{ nullptr };			//!< Tooltip window (if any)
 	HWND m_pParentHWND{ nullptr };
@@ -461,6 +457,8 @@ protected:
 	/// <param name="szReturnValue"></param>
 	/// <returns></returns>
 	bool parseGlobalInfoRequest(const TString& input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>& szReturnValue) const;
+
+	TString parseGlobalInfoRequest(const TString& input) const;
 
 	LRESULT CommonMessage(const UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed);
 	void HandleChildControlSize();

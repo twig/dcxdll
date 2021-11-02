@@ -305,6 +305,8 @@
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <ConformanceMode>true</ConformanceMode>
       <UseStandardPreprocessor>true</UseStandardPreprocessor>
+      <TreatAngleIncludeAsExternal>true</TreatAngleIncludeAsExternal>
+      <DisableAnalyzeExternal>true</DisableAnalyzeExternal>
     </ClCompile>
     <Link>
       <AdditionalDependencies>comctl32.lib;Msimg32.lib;Version.lib;shlwapi.lib;detours.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -360,6 +362,8 @@
       <AdditionalOptions> /Qspectre</AdditionalOptions>
       <UseStandardPreprocessor>true</UseStandardPreprocessor>
       <ControlFlowGuard>Guard</ControlFlowGuard>
+      <TreatAngleIncludeAsExternal>true</TreatAngleIncludeAsExternal>
+      <DisableAnalyzeExternal>true</DisableAnalyzeExternal>
     </ClCompile>
     <Link>
       <AdditionalOptions>/LTCG:NOSTATUS /ignore:4254 %(AdditionalOptions)</AdditionalOptions>
@@ -410,6 +414,8 @@
       <AdditionalOptions> /Qspectre</AdditionalOptions>
       <UseStandardPreprocessor>true</UseStandardPreprocessor>
       <ControlFlowGuard>Guard</ControlFlowGuard>
+      <TreatAngleIncludeAsExternal>true</TreatAngleIncludeAsExternal>
+      <DisableAnalyzeExternal>true</DisableAnalyzeExternal>
     </ClCompile>
     <Link>
       <AdditionalOptions>/LTCG:NOSTATUS /ignore:4254 %(AdditionalOptions)</AdditionalOptions>
@@ -462,6 +468,8 @@
       <ConformanceMode>true</ConformanceMode>
       <UseStandardPreprocessor>true</UseStandardPreprocessor>
       <ControlFlowGuard>Guard</ControlFlowGuard>
+      <TreatAngleIncludeAsExternal>true</TreatAngleIncludeAsExternal>
+      <DisableAnalyzeExternal>true</DisableAnalyzeExternal>
     </ClCompile>
     <Link>
       <AdditionalOptions>/LTCG:NOSTATUS /ignore:4254 %(AdditionalOptions)</AdditionalOptions>
@@ -515,6 +523,8 @@
       <ConformanceMode>true</ConformanceMode>
       <UseStandardPreprocessor>true</UseStandardPreprocessor>
       <ControlFlowGuard>Guard</ControlFlowGuard>
+      <TreatAngleIncludeAsExternal>true</TreatAngleIncludeAsExternal>
+      <DisableAnalyzeExternal>true</DisableAnalyzeExternal>
     </ClCompile>
     <Link>
       <AdditionalOptions>/LTCG:NOSTATUS /ignore:4254 %(AdditionalOptions)</AdditionalOptions>
@@ -565,6 +575,8 @@
       <ConformanceMode>true</ConformanceMode>
       <AdditionalOptions> /Qspectre</AdditionalOptions>
       <UseStandardPreprocessor>true</UseStandardPreprocessor>
+      <TreatAngleIncludeAsExternal>true</TreatAngleIncludeAsExternal>
+      <DisableAnalyzeExternal>true</DisableAnalyzeExternal>
     </ClCompile>
     <Link>
       <AdditionalOptions>/LTCG:NOSTATUS /ignore:4254 %(AdditionalOptions)</AdditionalOptions>
@@ -596,6 +608,8 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <UseStandardPreprocessor>true</UseStandardPreprocessor>
       <ControlFlowGuard>Guard</ControlFlowGuard>
+      <TreatAngleIncludeAsExternal>true</TreatAngleIncludeAsExternal>
+      <DisableAnalyzeExternal>true</DisableAnalyzeExternal>
     </ClCompile>
     <Link>
       <Version>3.1</Version>
@@ -613,6 +627,8 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <UseStandardPreprocessor>true</UseStandardPreprocessor>
       <ControlFlowGuard>Guard</ControlFlowGuard>
+      <TreatAngleIncludeAsExternal>true</TreatAngleIncludeAsExternal>
+      <DisableAnalyzeExternal>true</DisableAnalyzeExternal>
     </ClCompile>
     <Link>
       <Version>3.1</Version>
@@ -636,6 +652,8 @@
       <UseStandardPreprocessor>true</UseStandardPreprocessor>
       <ControlFlowGuard>Guard</ControlFlowGuard>
       <StringPooling>true</StringPooling>
+      <TreatAngleIncludeAsExternal>true</TreatAngleIncludeAsExternal>
+      <DisableAnalyzeExternal>true</DisableAnalyzeExternal>
     </ClCompile>
     <Link>
       <Version>3.1</Version>
@@ -660,6 +678,8 @@
       <UseStandardPreprocessor>true</UseStandardPreprocessor>
       <ControlFlowGuard>Guard</ControlFlowGuard>
       <StringPooling>true</StringPooling>
+      <TreatAngleIncludeAsExternal>true</TreatAngleIncludeAsExternal>
+      <DisableAnalyzeExternal>true</DisableAnalyzeExternal>
     </ClCompile>
     <Link>
       <Version>3.1</Version>
@@ -685,6 +705,8 @@
       <UseStandardPreprocessor>true</UseStandardPreprocessor>
       <ControlFlowGuard>Guard</ControlFlowGuard>
       <StringPooling>true</StringPooling>
+      <TreatAngleIncludeAsExternal>true</TreatAngleIncludeAsExternal>
+      <DisableAnalyzeExternal>true</DisableAnalyzeExternal>
     </ClCompile>
     <Link>
       <Version>3.1</Version>
@@ -709,6 +731,8 @@
       <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
       <UseStandardPreprocessor>true</UseStandardPreprocessor>
       <ControlFlowGuard>Guard</ControlFlowGuard>
+      <TreatAngleIncludeAsExternal>true</TreatAngleIncludeAsExternal>
+      <DisableAnalyzeExternal>true</DisableAnalyzeExternal>
     </ClCompile>
     <Link>
       <Version>3.1</Version>
@@ -717,6 +741,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Classes\custom\ListHelper.cpp" />
+    <ClCompile Include="Classes\custom\multicombo.cpp" />
+    <ClCompile Include="Classes\DcxMultiCombo.cpp" />
     <ClCompile Include="Classes\tstring\hashString.cpp" />
     <ClCompile Include="Dcx.cpp" />
     <ClCompile Include="Defines.cpp">
@@ -804,6 +830,8 @@
   <ItemGroup>
     <ClInclude Include="AutoRelease.h" />
     <ClInclude Include="Classes\custom\ListHelper.h" />
+    <ClInclude Include="Classes\custom\multicombo.h" />
+    <ClInclude Include="Classes\DcxMultiCombo.h" />
     <ClInclude Include="Classes\tstring\hashString.h" />
     <ClInclude Include="Classes\tstring\string_support.h" />
     <ClInclude Include="Classes\WindowStyles.h" />

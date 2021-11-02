@@ -426,8 +426,10 @@ private:
 	//HCURSOR m_hCursor{ nullptr };  //!< Cursor Handle
 	//bool m_bCursorFromFile{ false }; //!< Cursor comes from a file?
 
-	CursorPair m_hCursor{};
-	CursorPair m_hCursorList[22]{};
+	//CursorPair m_hCursor{};
+	//CursorPair m_hCursorList[22]{};
+	CursorPair m_hCursor;
+	CursorPair m_hCursorList[22];
 
 	HBITMAP m_bitmapBg{ nullptr };
 	HBITMAP m_hVistaBitmap{ nullptr };

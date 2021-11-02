@@ -52,6 +52,9 @@
 #include "Classes/dcxmwindow.h"
 #include "Classes/dcxmdialog.h"
 #include "Classes/dcxstacker.h"
+ //#include "Classes/DcxGrid.h"
+ //#include "Classes/DcxMultiButton.h"
+#include "Classes/DcxMultiCombo.h"
 
 #ifdef DCX_USE_DXSDK
 #include "Classes/dcxdirectshow.h"
@@ -714,7 +717,10 @@ DcxControlTypes DcxControl::TSTypeToControlType(const TString& t)
 		{TEXT("trackbar"_hash), DcxControlTypes::TRACKBAR},
 		{TEXT("treeview"_hash), DcxControlTypes::TREEVIEW},
 		{TEXT("updown"_hash), DcxControlTypes::UPDOWN},
-		{TEXT("webctrl"_hash), DcxControlTypes::WEBCTRL}
+		{TEXT("webctrl"_hash), DcxControlTypes::WEBCTRL},
+		{TEXT("multibutton"_hash), DcxControlTypes::MULTIBUTTON},
+		{TEXT("multicombo"_hash), DcxControlTypes::MULTICOMBO},
+		{TEXT("grid"_hash), DcxControlTypes::GRID}
 	};
 
 	if (const auto got = dcxTypesMap.find(std::hash<TString>()(t)); got != dcxTypesMap.end())
@@ -761,11 +767,11 @@ const DcxColourFlags DcxControl::parseColorFlags(const TString& flags) noexcept
 	return iFlags;
 }
 
- /*!
-  * \brief Get Information about a control.
-  *
-  * blah
-  */
+/*!
+ * \brief Get Information about a control.
+ *
+ * blah
+ */
 bool DcxControl::parseGlobalInfoRequest(const TString& input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>& szReturnValue) const
 {
 	switch (std::hash<TString>{}(input.getfirsttok(3)))
@@ -947,6 +953,11 @@ bool DcxControl::parseGlobalInfoRequest(const TString& input, const refString<TC
 		break;
 	}
 	return false;
+}
+
+TString DcxControl::parseGlobalInfoRequest(const TString& input) const
+{
+	return TString();
 }
 
 /*!
@@ -1251,6 +1262,10 @@ DcxControl* DcxControl::controlFactory(DcxDialog* const p_Dialog, const UINT mID
 	case DcxControlTypes::DIVIDER:
 		if (dcx_testflag(mask, DcxAllowControls::ALLOW_DIVIDER))
 			return new DcxDivider(mID, p_Dialog, hParent, &rc, styles);
+		break;
+	case DcxControlTypes::MULTICOMBO:
+		if (dcx_testflag(mask, DcxAllowControls::ALLOW_MULTICOMBO))
+			return new DcxMultiCombo(mID, p_Dialog, hParent, &rc, styles);
 		break;
 	case DcxControlTypes::PANEL:
 		if (dcx_testflag(mask, DcxAllowControls::ALLOW_PANEL))
@@ -2092,6 +2107,7 @@ LRESULT DcxControl::CommonMessage(const UINT uMsg, WPARAM wParam, LPARAM lParam,
 		}
 	}
 	break;
+
 	case WM_LBUTTONDOWN:
 	{
 		if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
@@ -2786,8 +2802,17 @@ void DcxControl::InitializeDcxControls()
 		DCX_DEBUG(mIRCLinker::debug, __FUNCTIONW__, TEXT("Registering Divider..."));
 
 		{
-			const WNDCLASSEX wc{ sizeof(WNDCLASSEX),0, DcxControl::WindowProc, 0,0,hHandle,nullptr,nullptr,reinterpret_cast<HBRUSH>(COLOR_3DFACE + 1),nullptr,DCX_DIVIDERCLASS,nullptr };
+			const WNDCLASSEX wc{ sizeof(WNDCLASSEX),0, DcxControl::WindowProc, 0, 0, hHandle, nullptr, nullptr, reinterpret_cast<HBRUSH>(COLOR_3DFACE + 1), nullptr, DCX_DIVIDERCLASS, nullptr };
 			DcxDivider::m_hDefaultClassProc = DividerWndProc;
+			RegisterClassEx(&wc);
+		}
+
+		// Custom MultiCombo
+		DCX_DEBUG(mIRCLinker::debug, __FUNCTIONW__, TEXT("Registering MultiCombo..."));
+
+		{
+			const WNDCLASSEX wc{ sizeof(WNDCLASSEX), CS_PARENTDC | CS_DBLCLKS | CS_HREDRAW | CS_VREDRAW, DcxControl::WindowProc, 0, 0, hHandle, nullptr, LoadCursor(hHandle, IDC_ARROW), nullptr, nullptr, DCX_MULTICOMBOCLASS, nullptr };
+			DcxMultiCombo::m_hDefaultClassProc = MultiComboWndProc;
 			RegisterClassEx(&wc);
 		}
 
@@ -2865,6 +2890,8 @@ void DcxControl::UnInitializeDcxControls() noexcept
 	UnregisterClass(DCX_IMAGECLASS, GetModuleHandle(nullptr));
 	UnregisterClass(DCX_EDITCLASS, GetModuleHandle(nullptr));
 	UnregisterClass(DCX_DIVIDERCLASS, GetModuleHandle(nullptr));
+	UnregisterClass(MCOMBO_DROPCLASS, GetModuleHandle(nullptr));
+	UnregisterClass(DCX_MULTICOMBOCLASS, GetModuleHandle(nullptr));
 	UnregisterClass(DCX_PANELCLASS, GetModuleHandle(nullptr));
 	UnregisterClass(DCX_BOXCLASS, GetModuleHandle(nullptr));
 	UnregisterClass(DCX_WEBCLASS, GetModuleHandle(nullptr));
@@ -2875,4 +2902,6 @@ void DcxControl::UnInitializeDcxControls() noexcept
 	UnregisterClass(DCX_TEXTCLASS, GetModuleHandle(nullptr));
 	UnregisterClass(DCX_DIRECTSHOWCLASS, GetModuleHandle(nullptr));
 	UnregisterClass(DCX_STACKERCLASS, GetModuleHandle(nullptr));
+	//UnregisterClass(DCX_GRIDCLASS, GetModuleHandle(nullptr));
+	//UnregisterClass(DCX_MULTIBUTTONCLASS, GetModuleHandle(nullptr));
 }
