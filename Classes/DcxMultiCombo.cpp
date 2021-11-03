@@ -273,9 +273,6 @@ void DcxMultiCombo::parseInfoRequest(const TString& input, const refString<TCHAR
 		// [NAME] [ID] [PROP]
 	case L"seltext"_hash:
 	{
-		if (input.numtok() < 4)
-			throw DcxExceptions::dcxInvalidArguments();
-
 		switch (const auto dStyle = getCurStyle(); dStyle)
 		{
 		default:
