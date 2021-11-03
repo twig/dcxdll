@@ -615,7 +615,7 @@ LRESULT DcxEdit::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bP
 		{
 		case EN_CHANGE:
 		{
-			TGetWindowText(m_Hwnd, this->m_tsText);
+			this->m_tsText = TGetWindowText(m_Hwnd);
 			if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_EDIT))
 				this->execAliasEx(TEXT("edit,%u"), getUserID());
 
@@ -672,7 +672,7 @@ LRESULT DcxEdit::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPars
 {
 	switch (uMsg)
 	{
-	// This code enables tabstop out of edit controls if tabstop styles used. BUT you cant use tab keys in the edit control when tabstop used.
+		// This code enables tabstop out of edit controls if tabstop styles used. BUT you cant use tab keys in the edit control when tabstop used.
 	case WM_GETDLGCODE:
 	{
 		if (wParam != VK_TAB)
@@ -770,12 +770,17 @@ LRESULT DcxEdit::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPars
 	}
 	break;
 
-	//case WM_PRINTCLIENT:
-	//{
-	//	DrawClientArea(reinterpret_cast<HDC>(wParam), uMsg, lParam);
-	//	bParsed = TRUE;
-	//}
-	//break;
+	case WM_PRINTCLIENT:
+	{
+		const auto lRes = CallDefaultClassProc(uMsg, wParam, lParam);
+
+		if (m_bShowLineNumbers)
+			DrawGutter((HDC)wParam);
+
+		bParsed = TRUE;
+		return lRes;
+	}
+	break;
 
 	case WM_PAINT:
 	{
@@ -813,7 +818,8 @@ LRESULT DcxEdit::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPars
 			const auto lRes = CallDefaultClassProc(uMsg, reinterpret_cast<WPARAM>(hdc), lParam);
 
 			if (m_bShowLineNumbers)
-				PostMessage(m_Hwnd, WM_DRAW_NUMBERS, 0, 0);
+				//PostMessage(m_Hwnd, WM_DRAW_NUMBERS, reinterpret_cast<WPARAM>(hdc), 0);
+				DrawGutter(hdc);
 
 			if (!wParam)
 				EndPaint(m_Hwnd, &ps);
@@ -824,8 +830,23 @@ LRESULT DcxEdit::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPars
 			bParsed = TRUE;
 			const auto lRes = CallDefaultClassProc(uMsg, wParam, lParam);
 
-			PostMessage(m_Hwnd, WM_DRAW_NUMBERS, 0, 0);
+			PostMessage(m_Hwnd, WM_DRAW_NUMBERS, wParam, 0);
 
+			return lRes;
+		}
+	}
+	break;
+
+	case WM_ERASEBKGND:
+	{
+		if (m_bShowLineNumbers)
+		{
+			const auto lRes = CallDefaultClassProc(uMsg, wParam, lParam);
+
+			// must call DrawGutter() directly to avoid flicker.
+			DrawGutter((HDC)wParam);
+
+			bParsed = TRUE;
 			return lRes;
 		}
 	}
@@ -870,7 +891,10 @@ LRESULT DcxEdit::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPars
 			bParsed = TRUE;
 
 			setFmtRect();
-			DrawGutter();
+			if (wParam)
+				DrawGutter((HDC)wParam);
+			else
+				DrawGutter();
 		}
 		return 0;
 	}
@@ -939,95 +963,102 @@ DWORD DcxEdit::GetCaretLine() noexcept
 	const auto pos = GetCaretPos();
 	return gsl::narrow_cast<DWORD>(SNDMSG(m_Hwnd, EM_LINEFROMCHAR, gsl::narrow_cast<LPARAM>(pos), 0));
 }
-
 void DcxEdit::DrawGutter()
 {
 	if (HDC hdc = GetDC(m_Hwnd); hdc)
 	{
 		Auto(ReleaseDC(m_Hwnd, hdc));
-
-		auto hFont = GetWindowFont(m_Hwnd);
-		const auto oldFont = Dcx::dcxSelectObject<HFONT>(hdc, hFont);
-		Auto(Dcx::dcxSelectObject<HFONT>(hdc, oldFont));
-
-		TEXTMETRICW lptm{};
-		GetTextMetrics(hdc, &lptm);
-		const auto letter_height = lptm.tmHeight;
-
-		RECT rcClient{};
-		RECT m_FRGutter{};
-		const RECT rcFmt = getFmtRect();
-
-		GetClientRect(m_Hwnd, &rcClient);
-
-		m_FRGutter = rcClient;
-		m_FRGutter.right = rcFmt.left - 3;
-
-		if (auto hdcbuf = CreateHDCBuffer(hdc, &m_FRGutter); hdcbuf)
-		{
-			Auto(DeleteHDCBuffer(hdcbuf));
-
-			Dcx::FillRectColour(*hdcbuf, &m_FRGutter, m_clrGutter_bkg);
-
-			//if (auto hPen = CreatePen(PS_SOLID, 5, RGB(0, 0, 255)); hPen)
-			//{
-			//	Auto(DeleteObject(hPen));
-			//	const auto oldPen = Dcx::dcxSelectObject<HPEN>(*hdcbuf, hPen);
-			//	Auto(Dcx::dcxSelectObject<HPEN>(*hdcbuf, oldPen));
-			//	//DrawEdge(*hdcbuf, &m_FRGutter, EDGE_BUMP, BF_RIGHT);
-			//	MoveToEx(*hdcbuf, m_FRGutter.right, m_FRGutter.top, nullptr);
-			//	LineTo(*hdcbuf, m_FRGutter.right, m_FRGutter.bottom);
-			//}
-			//else
-			//	DrawEdge(*hdcbuf, &m_FRGutter, EDGE_BUMP, BF_RIGHT);
-
-			dcxDrawEdge(*hdcbuf, &m_FRGutter, m_clrGutter_border);
-
-			RECT RNumber = m_FRGutter;
-			InflateRect(&RNumber, -5, 0);
-
-			// get visible lines
-			const auto rng = GetVisibleRange();
-			// get current caret pos
-			const auto pos = GetCaretLine();
-
-			TCHAR buf[49]{};
-
-			{
-				// top line, could be a partial line
-				const auto iLineChar = SNDMSG(m_Hwnd, EM_LINEINDEX, rng.b, 0);
-				POINTL pl{};
-				SNDMSG(m_Hwnd, EM_POSFROMCHAR, reinterpret_cast<WPARAM>(&pl), gsl::narrow_cast<LPARAM>(iLineChar));
-				// NB: if a partial line pl.y will be a negative (ie off screen)
-				RNumber.top = pl.y;
-				RNumber.bottom = RNumber.top + letter_height;
-			}
-
-			//SetGraphicsMode(hdc, GM_ADVANCED);
-			const auto oldMode = SetBkMode(*hdcbuf, TRANSPARENT);
-			Auto(SetBkMode(*hdcbuf, oldMode));
-			const auto oldTextColor = GetTextColor(*hdcbuf);
-			Auto(SetTextColor(*hdcbuf, oldTextColor));
-
-			// render the line numbers
-			for (const auto& index : rng)
-			{
-				if (index == pos)
-				{
-					if (m_clrGutter_selbkg != m_clrGutter_bkg)
-						Dcx::FillRectColour(*hdcbuf, &RNumber, m_clrGutter_selbkg);
-					SetTextColor(*hdcbuf, m_clrGutter_seltxt);
-				}
-				else
-					SetTextColor(*hdcbuf, m_clrGutter_txt);
-
-				if (const auto l = _ts_snprintf(&buf[0], std::size(buf), _T("%u"), index + 1); l != -1)
-					DrawText(*hdcbuf, &buf[0], l, &RNumber, DT_RIGHT | DT_VCENTER | DT_SINGLELINE | DT_NOPREFIX);
-
-				RNumber.top += letter_height;
-				RNumber.bottom = RNumber.top + letter_height;
-			}
-			BitBlt(hdc, 0, 0, rcClient.right, rcClient.bottom, *hdcbuf, 0, 0, SRCCOPY);
-		}
+		DrawGutter(hdc);
 	}
 }
+
+void DcxEdit::DrawGutter(HDC hdc)
+{
+	if (!hdc)
+		return;
+
+	auto hFont = GetWindowFont(m_Hwnd);
+	const auto oldFont = Dcx::dcxSelectObject<HFONT>(hdc, hFont);
+	Auto(Dcx::dcxSelectObject<HFONT>(hdc, oldFont));
+
+	TEXTMETRICW lptm{};
+	GetTextMetrics(hdc, &lptm);
+	const auto letter_height = lptm.tmHeight;
+
+	RECT rcClient{};
+	RECT m_FRGutter{};
+	const RECT rcFmt = getFmtRect();
+
+	GetClientRect(m_Hwnd, &rcClient);
+
+	m_FRGutter = rcClient;
+	m_FRGutter.right = rcFmt.left - 3;
+
+	if (auto hdcbuf = CreateHDCBuffer(hdc, &m_FRGutter); hdcbuf)
+	{
+		Auto(DeleteHDCBuffer(hdcbuf));
+
+		Dcx::FillRectColour(*hdcbuf, &m_FRGutter, m_clrGutter_bkg);
+
+		//if (auto hPen = CreatePen(PS_SOLID, 5, RGB(0, 0, 255)); hPen)
+		//{
+		//	Auto(DeleteObject(hPen));
+		//	const auto oldPen = Dcx::dcxSelectObject<HPEN>(*hdcbuf, hPen);
+		//	Auto(Dcx::dcxSelectObject<HPEN>(*hdcbuf, oldPen));
+		//	//DrawEdge(*hdcbuf, &m_FRGutter, EDGE_BUMP, BF_RIGHT);
+		//	MoveToEx(*hdcbuf, m_FRGutter.right, m_FRGutter.top, nullptr);
+		//	LineTo(*hdcbuf, m_FRGutter.right, m_FRGutter.bottom);
+		//}
+		//else
+		//	DrawEdge(*hdcbuf, &m_FRGutter, EDGE_BUMP, BF_RIGHT);
+
+		dcxDrawEdge(*hdcbuf, &m_FRGutter, m_clrGutter_border);
+
+		RECT RNumber = m_FRGutter;
+		InflateRect(&RNumber, -5, 0);
+
+		// get visible lines
+		const auto rng = GetVisibleRange();
+		// get current caret pos
+		const auto pos = GetCaretLine();
+
+		TCHAR buf[49]{};
+
+		{
+			// top line, could be a partial line
+			const auto iLineChar = SNDMSG(m_Hwnd, EM_LINEINDEX, rng.b, 0);
+			POINTL pl{};
+			SNDMSG(m_Hwnd, EM_POSFROMCHAR, reinterpret_cast<WPARAM>(&pl), gsl::narrow_cast<LPARAM>(iLineChar));
+			// NB: if a partial line pl.y will be a negative (ie off screen)
+			RNumber.top = pl.y;
+			RNumber.bottom = RNumber.top + letter_height;
+		}
+
+		//SetGraphicsMode(hdc, GM_ADVANCED);
+		const auto oldMode = SetBkMode(*hdcbuf, TRANSPARENT);
+		Auto(SetBkMode(*hdcbuf, oldMode));
+		const auto oldTextColor = GetTextColor(*hdcbuf);
+		Auto(SetTextColor(*hdcbuf, oldTextColor));
+
+		// render the line numbers
+		for (const auto& index : rng)
+		{
+			if (index == pos)
+			{
+				if (m_clrGutter_selbkg != m_clrGutter_bkg)
+					Dcx::FillRectColour(*hdcbuf, &RNumber, m_clrGutter_selbkg);
+				SetTextColor(*hdcbuf, m_clrGutter_seltxt);
+			}
+			else
+				SetTextColor(*hdcbuf, m_clrGutter_txt);
+
+			if (const auto l = _ts_snprintf(&buf[0], std::size(buf), _T("%u"), index + 1); l != -1)
+				DrawText(*hdcbuf, &buf[0], l, &RNumber, DT_RIGHT | DT_VCENTER | DT_SINGLELINE | DT_NOPREFIX);
+
+			RNumber.top += letter_height;
+			RNumber.bottom = RNumber.top + letter_height;
+		}
+		BitBlt(hdc, 0, 0, rcClient.right, rcClient.bottom, *hdcbuf, 0, 0, SRCCOPY);
+	}
+}
+

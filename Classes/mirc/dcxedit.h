@@ -75,6 +75,7 @@ private:
 #define DCX_EDIT_GUTTER_WIDTH 35
 
 	void DrawGutter();
+	void DrawGutter(HDC hdc);
 	RECT getFmtRect() const noexcept
 	{
 		RECT rc{};
