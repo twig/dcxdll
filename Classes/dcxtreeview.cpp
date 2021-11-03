@@ -43,7 +43,6 @@ DcxTreeView::DcxTreeView(const UINT ID, DcxDialog* const p_Dialog, const HWND mP
 		this);
 
 	if (!IsWindow(m_Hwnd))
-		//throw Dcx::dcxException("Unable To Create Window");
 		throw DcxExceptions::dcxUnableToCreateWindow();
 
 	if (ws.m_NoTheme)
@@ -978,7 +977,6 @@ void DcxTreeView::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('G')])
 	{
 		if (numtok < 7)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto flag(input.getnexttok());			// tok 4
@@ -1005,7 +1003,6 @@ void DcxTreeView::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('S')])
 	{
 		if (numtok < 6)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		if (input.numtok(TSTABCHAR) != 2)
@@ -2158,6 +2155,19 @@ LRESULT DcxTreeView::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 		} // switch
 	}
 	break;
+
+//	case WM_ERASEBKGND:
+//	{
+//#ifdef DCX_USE_GDIPLUS
+//		if (Dcx::GDIModule.isUseable() && m_pImage)
+//		{
+//			DrawGDIPlusImage((HDC)wParam);
+//			return 1L;
+//		}
+//#endif
+//	}
+//	break;
+
 	default:
 		break;
 	}
@@ -2190,6 +2200,7 @@ LRESULT DcxTreeView::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& b
 		DrawClientArea(hdc, uMsg, lParam);
 	}
 	break;
+
 	case WM_DESTROY:
 	{
 		delete this;

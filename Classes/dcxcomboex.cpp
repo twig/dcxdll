@@ -40,7 +40,6 @@ DcxComboEx::DcxComboEx(const UINT ID, DcxDialog* const  p_Dialog, const HWND mPa
 		this);
 
 	if (!IsWindow(m_Hwnd))
-		//throw Dcx::dcxException("Unable To Create Window");
 		throw DcxExceptions::dcxUnableToCreateWindow();
 
 	if (ws.m_NoTheme)
@@ -84,8 +83,6 @@ DcxComboEx::DcxComboEx(const UINT ID, DcxDialog* const  p_Dialog, const HWND mPa
 		}
 		if (styles.istok(TEXT("hscroll")))
 		{
-			//if (IsWindow(cbi.hwndCombo))
-			//AddStyles(cbi.hwndCombo, GWL_STYLE, WS_HSCROLL);
 			if (IsWindow(cbi.hwndList))
 				AddStyles(cbi.hwndList, GWL_STYLE, WS_HSCROLL);
 		}
@@ -142,6 +139,9 @@ dcxWindowStyles DcxComboEx::parseControlStyles(const TString& tsStyles)
 		case L"dropedit"_hash:
 			ws.m_Styles |= CBS_DROPDOWN;
 			break;
+		case L"sort"_hash:
+			ws.m_Styles |= CBS_SORT;
+			break;
 		default:
 			break;
 		}
@@ -180,7 +180,6 @@ void DcxComboEx::parseInfoRequest(const TString& input, const refString<TCHAR, M
 		}
 		else {
 			if (nItem != -1 || (!this->isStyle(WindowStyle::CBS_DropDown) && !this->isStyle(WindowStyle::CBS_Simple)))
-				//throw Dcx::dcxException("Invalid Item");
 				throw DcxExceptions::dcxInvalidItem();
 
 			//szReturnValue = m_tsSelected;
@@ -196,7 +195,6 @@ void DcxComboEx::parseInfoRequest(const TString& input, const refString<TCHAR, M
 		const auto nItem = getCurSel();
 
 		if (nItem < 0)
-			//throw Dcx::dcxException("Invalid Item");
 			throw DcxExceptions::dcxInvalidItem();
 
 		COMBOBOXEXITEM cbi{ CBEIF_TEXT,nItem,szReturnValue,MIRC_BUFFER_SIZE_CCH,0,0,0,0,0 };
@@ -210,7 +208,6 @@ void DcxComboEx::parseInfoRequest(const TString& input, const refString<TCHAR, M
 		const auto nItem = getCurSel();
 
 		if (nItem < 0)
-			//throw Dcx::dcxException("Invalid Item");
 			throw DcxExceptions::dcxInvalidItem();
 
 		_ts_snprintf(szReturnValue, TEXT("%d"), nItem + 1);

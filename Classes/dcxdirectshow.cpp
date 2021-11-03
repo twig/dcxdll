@@ -328,7 +328,6 @@ void DcxDirectshow::parseCommandRequest(const TString& input)
 	if (flags[TEXT('a')])
 	{
 		if (numtok < 5)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const XSwitchFlags xflags(input.getnexttok().trim());	// tok 4
@@ -343,7 +342,6 @@ void DcxDirectshow::parseCommandRequest(const TString& input)
 			throw Dcx::dcxException("Needs DirectX 9+");
 
 		if (!xflags[TEXT('+')])
-			//throw Dcx::dcxException("Invalid Flags");
 			throw DcxExceptions::dcxInvalidFlag();
 
 		if (!IsFile(filename))
@@ -456,7 +454,6 @@ void DcxDirectshow::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('c')])
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		if (!this->m_pControl)
@@ -492,7 +489,6 @@ void DcxDirectshow::parseCommandRequest(const TString& input)
 		break;
 		// error
 		default:
-			//throw Dcx::dcxException("Invalid Command");
 			throw DcxExceptions::dcxInvalidCommand();
 		}
 	}
@@ -500,7 +496,6 @@ void DcxDirectshow::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('v')])
 	{
 		if (numtok < 8)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		if (!m_pControl)
@@ -522,13 +517,11 @@ void DcxDirectshow::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('V')])
 	{
 		if (numtok < 5)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto flag(input.getnexttok());	// tok 4
 
 		if (flag[0] != TEXT('+'))
-			//throw Dcx::dcxException("Invalid Flags Identifier");
 			throw DcxExceptions::dcxInvalidFlag();
 
 		if (!this->m_pControl)
@@ -555,7 +548,6 @@ void DcxDirectshow::parseCommandRequest(const TString& input)
 		}
 		break;
 		default:
-			//throw Dcx::dcxException("Unknown Flag");
 			throw DcxExceptions::dcxInvalidFlag();
 		}
 	}

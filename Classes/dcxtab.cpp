@@ -598,7 +598,7 @@ void DcxTab::parseCommandRequest(const TString& input)
 	}
 	else
 		this->parseGlobalCommandRequest(input, xflags);
-	}
+}
 
 /*!
  * \brief blah
@@ -622,11 +622,11 @@ void DcxTab::setImageList(const HIMAGELIST himl) noexcept
 	TabCtrl_SetImageList(m_Hwnd, himl);
 }
 
- /*!
-  * \brief blah
-  *
-  * blah
-  */
+/*!
+ * \brief blah
+ *
+ * blah
+ */
 
 void DcxTab::deleteLParamInfo(const int nItem) noexcept
 {
@@ -1092,20 +1092,37 @@ LRESULT DcxTab::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParse
 
 	case WM_PAINT:
 	{
+		//if (!this->IsAlphaBlend())
+		//	break;
+		//
+		//PAINTSTRUCT ps{};
+		//auto hdc = BeginPaint(m_Hwnd, &ps);
+		//Auto(EndPaint(m_Hwnd, &ps));
+		//
+		//bParsed = TRUE;
+		//
+		//// Setup alpha blend if any.
+		//const auto ai = this->SetupAlphaBlend(&hdc);
+		//Auto(this->FinishAlphaBlend(ai));
+		//
+		//lRes = CallDefaultClassProc(uMsg, reinterpret_cast<WPARAM>(hdc), lParam);
+
 		if (!this->IsAlphaBlend())
 			break;
 
-		PAINTSTRUCT ps{};
-		auto hdc = BeginPaint(m_Hwnd, &ps);
-		Auto(EndPaint(m_Hwnd, &ps));
-
 		bParsed = TRUE;
 
-		// Setup alpha blend if any.
-		const auto ai = this->SetupAlphaBlend(&hdc);
-		Auto(this->FinishAlphaBlend(ai));
+		if (!wParam)
+		{
+			PAINTSTRUCT ps{};
 
-		lRes = CallDefaultClassProc(uMsg, reinterpret_cast<WPARAM>(hdc), lParam);
+			auto hdc = BeginPaint(m_Hwnd, &ps);
+			Auto(EndPaint(m_Hwnd, &ps));
+
+			return DrawClientArea(hdc, uMsg, lParam);
+		}
+		else
+			return DrawClientArea(reinterpret_cast<HDC>(wParam), uMsg, lParam);
 	}
 	break;
 
@@ -1234,4 +1251,16 @@ bool DcxTab::CloseButtonHitTest(const int iTab) const noexcept
 	}
 	return false;
 #endif
+}
+
+LRESULT DcxTab::DrawClientArea(HDC hdc, UINT uMsg, LPARAM lParam)
+{
+	if (!hdc)
+		return 0L;
+
+	// Setup alpha blend if any.
+	const auto ai = this->SetupAlphaBlend(&hdc);
+	Auto(this->FinishAlphaBlend(ai));
+
+	return CallDefaultClassProc(uMsg, reinterpret_cast<WPARAM>(hdc), lParam);
 }

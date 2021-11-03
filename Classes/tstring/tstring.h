@@ -463,6 +463,7 @@ public:
 		if ((cString) && (cString[0] != TEXT('\0')) && iLen > 0)
 		{
 			ts_strcpyn_throw(m_pString, cString, iLen + 1);
+			//_ts_strcpyn(m_pString, cString, iLen + 1);
 			m_iLen = iLen;
 		}
 		m_bDirty = false;

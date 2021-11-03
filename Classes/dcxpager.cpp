@@ -30,7 +30,6 @@ DcxPager::DcxPager(const UINT ID, DcxDialog* const p_Dialog, const HWND mParentH
 		this);
 
 	if (!IsWindow(m_Hwnd))
-		//throw Dcx::dcxException("Unable To Create Window");
 		throw DcxExceptions::dcxUnableToCreateWindow();
 
 	if (ws.m_NoTheme)
@@ -152,7 +151,6 @@ void DcxPager::parseCommandRequest(const TString& input)
 	if (flags[TEXT('b')])
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		this->setBorderSize(input.getnexttok().to_int());	// tok 4
@@ -161,7 +159,6 @@ void DcxPager::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('c')])
 	{
 		if (numtok < 9)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		if (IsWindow(this->m_ChildHWND))
@@ -185,7 +182,6 @@ void DcxPager::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('d')])
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto tsID(input.getnexttok());		// tok 4
