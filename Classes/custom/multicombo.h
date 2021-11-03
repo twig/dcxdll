@@ -48,30 +48,31 @@
 #define MCON_DBLCLK		(0x0001)
 #define MCON_EDITCHANGE	(0x0002)
 
-#define MCS_LISTBOX		(0x0000)
-#define MCS_COLOUR		(0x0001)
-//#define MCS_TREEVIEW	(0x0002)
-//#define MCS_LISTVIEW	(0x0004)
+#define MCS_CUSTOM		(0x0000)
+#define MCS_LISTBOX		(0x0001)
+#define MCS_COLOUR		(0x0002)
+//#define MCS_TREEVIEW	(0x0004)
+//#define MCS_LISTVIEW	(0x0008)
 //#define MCS_STYLEMASK	(MCS_LISTBOX|MCS_COLOUR|MCS_TREEVIEW|MCS_LISTVIEW)
 #define MCS_STYLEMASK	(MCS_LISTBOX|MCS_COLOUR)
 
 // item structure for colourcombo style
-struct MCOMBO_COLOURITEM {
-	size_t		m_Size{ sizeof(MCOMBO_COLOURITEM) };
+struct MCOMBO_ITEM {
+	size_t		m_Size{ sizeof(MCOMBO_ITEM) };
 	UINT		m_Type{ MCS_COLOUR };
 	TString		m_tsItemText;
 	COLORREF	m_clrItem{ CLR_INVALID };
 	COLORREF	m_clrText{ CLR_INVALID };
 };
-using LPMCOMBO_COLOURITEM = MCOMBO_COLOURITEM*;
+using LPMCOMBO_ITEM = MCOMBO_ITEM*;
 
-// item structure for listbox style
-struct MCOMBO_LISTBOXITEM {
-	size_t		m_Size{ sizeof(MCOMBO_LISTBOXITEM) };
-	UINT		m_Type{ MCS_LISTBOX };
-	TString		m_tsItemText;
-};
-using LPMCOMBO_LISTBOXITEM = MCOMBO_LISTBOXITEM*;
+//// item structure for listbox style
+//struct MCOMBO_LISTBOXITEM {
+//	size_t		m_Size{ sizeof(MCOMBO_LISTBOXITEM) };
+//	UINT		m_Type{ MCS_LISTBOX };
+//	TString		m_tsItemText;
+//};
+//using LPMCOMBO_LISTBOXITEM = MCOMBO_LISTBOXITEM*;
 
 //// item structure for listview style
 //struct MCOMBO_LISTVIEWITEM {

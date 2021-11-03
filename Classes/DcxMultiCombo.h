@@ -43,7 +43,7 @@ public:
 		return SendMessage(m_Hwnd, MC_WM_GETSEL, 0, 0);
 	}
 
-	void setCurSel(UINT iSel) const noexcept
+	void setCurSel(int iSel) const noexcept
 	{
 		SendMessage(m_Hwnd, MC_WM_SETSEL, TRUE, iSel);
 	}
@@ -58,18 +58,18 @@ public:
 		return gsl::narrow_cast<int>(SendMessage(m_Hwnd, MC_WM_GETDROPSTATE, 0, 0));
 	}
 
-	MCOMBO_COLOURITEM getColourItem(int iItem) const noexcept
+	MCOMBO_ITEM getColourItem(int iItem) const noexcept
 	{
-		MCOMBO_COLOURITEM res;
+		MCOMBO_ITEM res;
 
 		SendMessage(m_Hwnd, MC_WM_GETITEM, iItem, (LPARAM)&res);
 
 		return res;
 	}
 
-	MCOMBO_LISTBOXITEM getListBoxItem(int iItem) const noexcept
+	MCOMBO_ITEM getListBoxItem(int iItem) const noexcept
 	{
-		MCOMBO_LISTBOXITEM res;
+		MCOMBO_ITEM res;
 
 		SendMessage(m_Hwnd, MC_WM_GETITEM, iItem, (LPARAM)&res);
 

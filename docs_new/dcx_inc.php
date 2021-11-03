@@ -107,6 +107,7 @@ $PAGES = array(
     'pager' => 'Pager',
     'stacker' => 'Stacker',
     'directshow' => 'Directshow',
+	'multicombo' => 'MultiCombo',
 );
 
 // information to be displayed in the CLA details (for dialog, panel, box, etc)

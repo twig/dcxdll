@@ -183,5 +183,8 @@
     <None Include="..\docs_new\inc\xtreebar.php">
       <Filter>Source Files\inc</Filter>
     </None>
+    <None Include="..\docs_new\inc\multicombo.php">
+      <Filter>Source Files\inc</Filter>
+    </None>
   </ItemGroup>
 </Project>

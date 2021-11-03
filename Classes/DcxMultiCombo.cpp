@@ -264,6 +264,7 @@ void DcxMultiCombo::parseInfoRequest(const TString& input, const refString<TCHAR
 		_ts_snprintf(szReturnValue, TEXT("%d"), getCount());
 		break;
 		// [NAME] [ID] [PROP] [N]
+	case L"colour"_hash:
 	case L"color"_hash:
 	{
 		if (input.numtok() < 4)
@@ -343,11 +344,14 @@ void DcxMultiCombo::parseCommandRequest(const TString& input)
 	if (flags[TEXT('r')])
 		this->resetContent();
 
-	// xdid -a [NAME] [ID] [SWITCH] (OPTIONS)
+	// xdid -a [NAME] [ID] [SWITCH] [RGB] (text)
 	if (flags[TEXT('a')])
 	{
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
+
+		auto clr = input.getnexttok().to_<COLORREF>();
+		auto tsItemText(input.getlasttoks());
 
 		// add item to colour/listbox/listview/treeview dropdown
 		switch (const auto dStyle = getCurStyle(); dStyle)
@@ -355,22 +359,13 @@ void DcxMultiCombo::parseCommandRequest(const TString& input)
 		default:
 			break;
 
+		case MCS_LISTBOX:
 		case MCS_COLOUR:
 		{
-			// (OPTIONS) == [RGB] (text)
-			MCOMBO_COLOURITEM item;
-			item.m_clrItem = input.getnexttok().to_<COLORREF>();
-			item.m_tsItemText = input.getlasttoks();
+			MCOMBO_ITEM item;
+			item.m_clrItem = clr;
+			item.m_tsItemText = tsItemText;
 
-			SendMessage(m_Hwnd, MC_WM_ADDITEM, 0, (LPARAM)&item);
-		}
-		break;
-
-		case MCS_LISTBOX:
-		{
-			// (OPTIONS) == [text]
-			MCOMBO_LISTBOXITEM item;
-			item.m_tsItemText = input.getlasttoks();
 			SendMessage(m_Hwnd, MC_WM_ADDITEM, 0, (LPARAM)&item);
 		}
 		break;
@@ -455,6 +450,11 @@ void DcxMultiCombo::parseCommandRequest(const TString& input)
 		else
 			SendMessage(m_Hwnd, MC_WM_SHOWDROP, 0, 0); // hide drop window
 	}
+	// xdid -u [NAME] [ID] [SWITCH]
+	else if (flags[TEXT('u')])
+	{
+		this->setCurSel(-1);
+	}
 	// xdid -t [NAME] [ID] [SWITCH] (TEXT)
 	else if (flags[TEXT('t')])
 	{
@@ -486,9 +486,11 @@ void DcxMultiCombo::parseCommandRequest(const TString& input)
 		{
 		default:
 			break;
+
+		case MCS_LISTBOX:
 		case MCS_COLOUR:
 		{
-			MCOMBO_COLOURITEM data;
+			MCOMBO_ITEM data;
 			data.m_clrItem = clr;
 			data.m_tsItemText = tsText;
 
@@ -496,14 +498,39 @@ void DcxMultiCombo::parseCommandRequest(const TString& input)
 		}
 		break;
 
-		case MCS_LISTBOX:
+		}
+	}
+	// xdid -i [NAME] [ID] [SWITCH] [N] [RGB] (TEXT)
+	else if (flags[TEXT('i')])
+	{
+		if (numtok < 5)
+			throw DcxExceptions::dcxInvalidArguments();
+
+		const auto nItem = input.getnexttok().to_int() - 1;	// tok 4
+
+		// nItem == -1, means add to the end.
+		if ((nItem < -1) || (nItem >= this->getCount()))
+			throw DcxExceptions::dcxInvalidItem();
+
+		const auto clr = input.getnexttok().to_<COLORREF>();	// tok 5
+		const auto tsText(input.getlasttoks());	// tok 5
+
+		switch (const auto dStyle = getCurStyle(); dStyle)
 		{
-			MCOMBO_LISTBOXITEM data;
+		default:
+			break;
+
+		case MCS_LISTBOX:
+		case MCS_COLOUR:
+		{
+			MCOMBO_ITEM data;
+			data.m_clrItem = clr;
 			data.m_tsItemText = tsText;
 
-			SendMessage(m_Hwnd, MC_WM_SETITEM, nItem, (LPARAM)&data);
+			SendMessage(m_Hwnd, MC_WM_INSERTITEM, nItem, (LPARAM)&data);
 		}
 		break;
+
 		}
 	}
 	// This is to avoid invalid flag message.

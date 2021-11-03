@@ -212,7 +212,7 @@ LRESULT CALLBACK MultiComboDropWndProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPA
 		if (!delis)
 			break;
 
-		auto lpdcxcci = reinterpret_cast<LPMCOMBO_COLOURITEM>(delis->itemData);
+		auto lpdcxcci = reinterpret_cast<LPMCOMBO_ITEM>(delis->itemData);
 
 		delete lpdcxcci;
 
@@ -1144,7 +1144,7 @@ BOOL MultiCombo_DrawItem(HWND mHwnd, LPDRAWITEMSTRUCT lpdis)
 	if (!lpmcdata)
 		return FALSE;
 
-	const auto lpdcxcci = reinterpret_cast<LPMCOMBO_COLOURITEM>(lpdis->itemData);
+	const auto lpdcxcci = reinterpret_cast<LPMCOMBO_ITEM>(lpdis->itemData);
 
 	if (!lpdcxcci)
 		return FALSE;
@@ -1253,7 +1253,7 @@ BOOL MultiCombo_FillColours(HWND mHwnd, WPARAM wParam, LPARAM lParam)
 	const auto clrs = reinterpret_cast<COLORREF*>(lParam);
 	for (UINT i{}; i < wParam; i++)
 	{
-		LPMCOMBO_COLOURITEM lpdata = new MCOMBO_COLOURITEM;
+		LPMCOMBO_ITEM lpdata = new MCOMBO_ITEM;
 
 		lpdata->m_clrItem = clrs[i];
 		lpdata->m_tsItemText.addtok(i);
@@ -1335,9 +1335,9 @@ BOOL MultiCombo_GetItem(HWND mHwnd, WPARAM wParam, LPARAM lParam)
 
 		case MCS_COLOUR:
 		{
-			// lParam = LPMCOMBO_COLOURITEM
-			auto lpresult = reinterpret_cast<LPMCOMBO_COLOURITEM>(lParam);
-			if ((lpresult->m_Size != sizeof(MCOMBO_COLOURITEM)) || (lpresult->m_Type != MCS_COLOUR))
+			// lParam = LPMCOMBO_ITEM
+			auto lpresult = reinterpret_cast<LPMCOMBO_ITEM>(lParam);
+			if ((lpresult->m_Size != sizeof(MCOMBO_ITEM)) || (lpresult->m_Type != MCS_COLOUR))
 				return FALSE;
 
 			if (wParam == -1) // get edit control contents...
@@ -1348,7 +1348,7 @@ BOOL MultiCombo_GetItem(HWND mHwnd, WPARAM wParam, LPARAM lParam)
 				if (IsWindow(lpmcdata->m_hEdit))
 					lpresult->m_tsItemText = TGetWindowText(lpmcdata->m_hEdit);
 			}
-			else if (auto lpdata = reinterpret_cast<LPMCOMBO_COLOURITEM>(ListBox_GetItemData(lpmcdata->m_hDropChild, wParam)); lpdata)
+			else if (auto lpdata = reinterpret_cast<LPMCOMBO_ITEM>(ListBox_GetItemData(lpmcdata->m_hDropChild, wParam)); lpdata)
 			{
 				*lpresult = *lpdata;
 			}
@@ -1358,9 +1358,9 @@ BOOL MultiCombo_GetItem(HWND mHwnd, WPARAM wParam, LPARAM lParam)
 
 		case MCS_LISTBOX:
 		{
-			// lParam = LPMCOMBO_LISTBOXITEM
-			auto lpresult = reinterpret_cast<LPMCOMBO_LISTBOXITEM>(lParam);
-			if ((lpresult->m_Size != sizeof(MCOMBO_LISTBOXITEM)) || (lpresult->m_Type != MCS_LISTBOX))
+			// lParam = LPMCOMBO_ITEM
+			auto lpresult = reinterpret_cast<LPMCOMBO_ITEM>(lParam);
+			if ((lpresult->m_Size != sizeof(MCOMBO_ITEM)) || (lpresult->m_Type != MCS_COLOUR))
 				return FALSE;
 
 			lpresult->m_tsItemText.clear();
@@ -1427,11 +1427,11 @@ BOOL MultiCombo_AddItem(HWND mHwnd, WPARAM wParam, LPARAM lParam)
 	case MCS_COLOUR:
 	{
 		// lParam = LPMCOMBO_COLOURITEM
-		const auto lpinput = reinterpret_cast<LPMCOMBO_COLOURITEM>(lParam);
-		if ((lpinput->m_Size != sizeof(MCOMBO_COLOURITEM)) || (lpinput->m_Type != MCS_COLOUR))
+		const auto lpinput = reinterpret_cast<LPMCOMBO_ITEM>(lParam);
+		if ((lpinput->m_Size != sizeof(MCOMBO_ITEM)) || (lpinput->m_Type != MCS_COLOUR))
 			return FALSE;
 
-		LPMCOMBO_COLOURITEM lpdata = new MCOMBO_COLOURITEM;
+		LPMCOMBO_ITEM lpdata = new MCOMBO_ITEM;
 
 		lpdata->m_clrItem = lpinput->m_clrItem;
 		lpdata->m_clrText = lpinput->m_clrText;
@@ -1446,8 +1446,8 @@ BOOL MultiCombo_AddItem(HWND mHwnd, WPARAM wParam, LPARAM lParam)
 	case MCS_LISTBOX:
 	{
 		// lParam = LPMCOMBO_LISTBOXITEM
-		const auto lpinput = reinterpret_cast<LPMCOMBO_LISTBOXITEM>(lParam);
-		if ((lpinput->m_Size != sizeof(MCOMBO_LISTBOXITEM)) || (lpinput->m_Type != MCS_LISTBOX))
+		const auto lpinput = reinterpret_cast<LPMCOMBO_ITEM>(lParam);
+		if ((lpinput->m_Size != sizeof(MCOMBO_ITEM)) || (lpinput->m_Type != MCS_COLOUR))
 			return FALSE;
 
 		ListBox_AddString(lpmcdata->m_hDropChild, lpinput->m_tsItemText.to_chr());
@@ -1489,10 +1489,58 @@ BOOL MultiCombo_AddItem(HWND mHwnd, WPARAM wParam, LPARAM lParam)
 
 BOOL MultiCombo_InsertItem(HWND mHwnd, WPARAM wParam, LPARAM lParam)
 {
+	if (lParam == 0)
+		return FALSE;
+
+	const auto lpmcdata = Dcx::dcxGetProp<LPMCOMBO_DATA>(mHwnd, TEXT("mc_data"));
+	if (!lpmcdata)
+		return FALSE;
+
+	if (!IsWindow(lpmcdata->m_hDropChild))
+		return FALSE;
+
+	// wParam = 0
+
+	switch (lpmcdata->m_Styles)
+	{
+	default:
+		break;
+	case MCS_COLOUR:
+	{
+		// lParam = LPMCOMBO_COLOURITEM
+		const auto lpinput = reinterpret_cast<LPMCOMBO_ITEM>(lParam);
+		if ((lpinput->m_Size != sizeof(MCOMBO_ITEM)) || (lpinput->m_Type != MCS_COLOUR))
+			return FALSE;
+
+		LPMCOMBO_ITEM lpdata = new MCOMBO_ITEM;
+
+		lpdata->m_clrItem = lpinput->m_clrItem;
+		lpdata->m_clrText = lpinput->m_clrText;
+		lpdata->m_tsItemText = lpinput->m_tsItemText;
+
+		ListBox_InsertItemData(lpmcdata->m_hDropChild, wParam, lpdata);
+
+		return TRUE;
+	}
+	break;
+
+	case MCS_LISTBOX:
+	{
+		// lParam = LPMCOMBO_LISTBOXITEM
+		const auto lpinput = reinterpret_cast<LPMCOMBO_ITEM>(lParam);
+		if ((lpinput->m_Size != sizeof(MCOMBO_ITEM)) || (lpinput->m_Type != MCS_COLOUR))
+			return FALSE;
+
+		ListBox_InsertString(lpmcdata->m_hDropChild, wParam, lpinput->m_tsItemText.to_chr());
+
+		return TRUE;
+	}
+	break;
+	}
 	return FALSE;
 }
 
-void MultiCombo_SetEditToCurSel(HWND mHwnd)
+void MultiCombo_SetEditToCurSel(HWND mHwnd) noexcept
 {
 	const auto lpmcdata = Dcx::dcxGetProp<LPMCOMBO_DATA>(mHwnd, TEXT("mc_data"));
 	if (!lpmcdata)
@@ -1512,7 +1560,7 @@ void MultiCombo_SetEditToCurSel(HWND mHwnd)
 
 		if (const auto iSel = ListBox_GetCurSel(lpmcdata->m_hDropChild); iSel != LB_ERR)
 		{
-			if (auto lpdata = reinterpret_cast<LPMCOMBO_COLOURITEM>(ListBox_GetItemData(lpmcdata->m_hDropChild, iSel)); lpdata)
+			if (auto lpdata = reinterpret_cast<LPMCOMBO_ITEM>(ListBox_GetItemData(lpmcdata->m_hDropChild, iSel)); lpdata)
 			{
 				lpmcdata->m_CurrentEditColour = CreateSolidBrush(lpdata->m_clrItem);
 				lpmcdata->m_CurrentEditTextColour = lpdata->m_clrText;
@@ -1716,9 +1764,9 @@ void MultiCombo_SetItem(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept
 		break;
 	case MCS_COLOUR:
 	{
-		if (auto lpdata = reinterpret_cast<LPMCOMBO_COLOURITEM>(ListBox_GetItemData(lpmcdata->m_hDropChild, wParam)); lpdata)
+		if (auto lpdata = reinterpret_cast<LPMCOMBO_ITEM>(ListBox_GetItemData(lpmcdata->m_hDropChild, wParam)); lpdata)
 		{
-			dcxlParam(LPMCOMBO_COLOURITEM, lpinput);
+			dcxlParam(LPMCOMBO_ITEM, lpinput);
 			lpdata->m_clrItem = lpinput->m_clrItem;
 			lpdata->m_clrText = lpinput->m_clrText;
 			lpdata->m_tsItemText = lpinput->m_tsItemText;
@@ -1730,7 +1778,7 @@ void MultiCombo_SetItem(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept
 	break;
 	case MCS_LISTBOX:
 	{
-		dcxlParam(LPMCOMBO_LISTBOXITEM, lpinput);
+		dcxlParam(LPMCOMBO_ITEM, lpinput);
 
 		ListBox_SetItemData(lpmcdata->m_hDropChild, wParam, lpinput->m_tsItemText.to_chr());
 

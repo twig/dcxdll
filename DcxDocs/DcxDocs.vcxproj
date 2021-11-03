@@ -131,6 +131,7 @@ $(PHPDir)\php -q dcx_gen.php
     <None Include="..\docs_new\inc\link.php" />
     <None Include="..\docs_new\inc\list.php" />
     <None Include="..\docs_new\inc\listview.php" />
+    <None Include="..\docs_new\inc\multicombo.php" />
     <None Include="..\docs_new\inc\pager.php" />
     <None Include="..\docs_new\inc\panel.php" />
     <None Include="..\docs_new\inc\pbar.php" />
