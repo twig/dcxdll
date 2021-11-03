@@ -77,13 +77,13 @@
 <table class="styles">
 	<tr>
 		<td class="style"><a name="style.colourgrid" class="style">colourgrid</a></td>
-		<td>Simple dropdown combo.</td>
+		<td>dropdown colour grid.</td>
 	</tr>
 	<tr>
 		<td class="style"><a name="style.listbox" class="style">listbox</a></td>
 		<td>Combo that is a list with an edit box</td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>When creating a MultiCombo control, it is important to remember that the size of the dropdown portion is set by a measureitem callback.</li><li>When no stytle is supplied then the dropdown portion is assumed to be supplied by you via the /xdid -C command.</li></ul></td></tr></table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>When creating a MultiCombo control, it is important to remember that the size of the dropdown portion is set by a measureitem callback.</li><li>When no style is supplied then the dropdown portion is assumed to be supplied by you via the /xdid -C command.</li><li>NB: Styles can't be combined.</li></ul></td></tr></table>
 <br />
 <table class="description">
 	<tr><td class="heading" style="border-color: #6A7CB0; color: #6A7CB0;"><a name="xdid"></a>/xdid flags</td></tr>
@@ -393,6 +393,20 @@
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
+			<a name="events.measureitem"></a>measureitem	</td></tr>
+	<tr><td colspan="2">When the size of the dropdown needs renewed.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/cb_alias DNAME measureitem ID </div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/cb_alias dcx measureitem 4</div></td>
+	</tr>
+<tr><td class="syntax">Return</td><td><a class="returnevent">WIDTH HEIGHT</a> The desired width and height of the dropdown.</td></tr></table>
+<br />
+<table class="event">
+	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
 			<a name="events.return"></a>return	</td></tr>
 	<tr><td colspan="2">When the <b>Enter</b> key is pressed in the editbox.</td></tr>
 	<tr>
@@ -458,6 +472,7 @@
 		<a class='flag' href="#events.dclick"><div>dclick</div></a>
 		<a class='flag' href="#events.edit"><div>edit</div></a>
 		<a class='flag' href="#events.help"><div>help</div></a>
+		<a class='flag' href="#events.measureitem"><div>measureitem</div></a>
 		<a class='flag' href="#events.return"><div>return</div></a>
 		<a class='flag' href="#events.sclick"><div>sclick</div></a>
 	</div>

@@ -121,12 +121,12 @@ using LPMCOMBO_DATA = MCOMBO_DATA*;
 LRESULT CALLBACK MultiComboWndProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 void MultiCombo_SizeBaseWindowContents(HWND mHwnd, WORD cx, WORD cy) noexcept;
-void MultiCombo_OnLButtonDown(HWND mHwnd, WPARAM wParam, LPARAM lParam);
-void MultiCombo_OnLButtonUp(HWND mHwnd, WPARAM wParam, LPARAM lParam);
-void MultiCombo_OnMouseMove(HWND mHwnd, WPARAM wParam, LPARAM lParam);
-void MultiCombo_OnMouseLeave(HWND mHwnd, WPARAM wParam, LPARAM lParam);
-void MultiCombo_SetFocus(HWND mHwnd, WPARAM wParam, LPARAM lParam);
-void MultiCombo_OnThemeChange(HWND mHwnd, WPARAM wParam, LPARAM lParam);
+void MultiCombo_OnLButtonDown(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept;
+void MultiCombo_OnLButtonUp(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept;
+void MultiCombo_OnMouseMove(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept;
+void MultiCombo_OnMouseLeave(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept;
+void MultiCombo_SetFocus(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept;
+void MultiCombo_OnThemeChange(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept;
 RECT MultiCombo_GetEditRect(LPCRECT rcBase) noexcept;
 RECT MultiCombo_GetButtonRect(LPCRECT rcBase) noexcept;
 RECT MultiCombo_GetDropRect(HWND mHwnd, UINT mID) noexcept;
@@ -141,11 +141,11 @@ void MultiCombo_ParentNotify(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept;
 void MultiCombo_AdjustDropRectPos(HWND mHwnd, LPMCOMBO_DATA lpmcdata) noexcept;
 void MultiCombo_AdjustDropRectPos(HWND mHwnd) noexcept;
 
-void MultiCombo_OnMove(HWND mHwnd, WPARAM wParam, LPARAM lParam);
+void MultiCombo_OnMove(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept;
 
-void MultiCombo_ShowWindow(HWND mHwnd, WPARAM wParam, LPARAM lParam);
+void MultiCombo_ShowWindow(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept;
 
-void MultiCombo_Drop_ShowWindow(HWND mHwnd, WPARAM wParam, LPARAM lParam);
+void MultiCombo_Drop_ShowWindow(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept;
 
 void MultiCombo_RemoveChild(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept;
 
@@ -157,7 +157,7 @@ BOOL MultiCombo_FillColours(HWND mHwnd, WPARAM wParam, LPARAM lParam);
 
 int MultiCombo_GetItemCount(HWND mHwnd) noexcept;
 
-int MultiCombo_GetSelected(HWND mHwnd);
+int MultiCombo_GetSelected(HWND mHwnd) noexcept;
 
 BOOL MultiCombo_GetItem(HWND mHwnd, WPARAM wParam, LPARAM lParam);
 
@@ -165,9 +165,9 @@ BOOL MultiCombo_AddItem(HWND mHwnd, WPARAM wParam, LPARAM lParam);
 
 BOOL MultiCombo_InsertItem(HWND mHwnd, WPARAM wParam, LPARAM lParam);
 
-LRESULT MultiCombo_Drop_Command(HWND mHwnd, WPARAM wParam, LPARAM lParam);
+LRESULT MultiCombo_Drop_Command(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept;
 
-LRESULT MultiCombo_Command(HWND mHwnd, WPARAM wParam, LPARAM lParam);
+LRESULT MultiCombo_Command(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept;
 
 void MultiCombo_ResetContent(HWND mHwnd) noexcept;
 

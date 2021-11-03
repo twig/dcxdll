@@ -133,7 +133,8 @@ LRESULT DcxMultiCombo::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 			case MCON_EDITCHANGE:
 			{
 				bParsed = TRUE;
-				this->execAliasEx(TEXT("edit,%u"), getUserID());
+				if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_EDIT))
+					this->execAliasEx(TEXT("edit,%u"), getUserID());
 			}
 			break;
 
@@ -141,9 +142,12 @@ LRESULT DcxMultiCombo::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 			{
 				bParsed = TRUE;
 
-				const auto nItem = getCurSel();
+				if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
+				{
+					const auto nItem = getCurSel();
 
-				this->execAliasEx(TEXT("sclick,%u,%d"), getUserID(), nItem + 1);
+					this->execAliasEx(TEXT("sclick,%u,%d"), getUserID(), nItem + 1);
+				}
 			}
 			break;
 
@@ -151,9 +155,12 @@ LRESULT DcxMultiCombo::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 			{
 				bParsed = TRUE;
 
-				const auto nItem = getCurSel();
+				if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
+				{
+					const auto nItem = getCurSel();
 
-				this->execAliasEx(TEXT("dclick,%u,%d"), getUserID(), nItem + 1);
+					this->execAliasEx(TEXT("dclick,%u,%d"), getUserID(), nItem + 1);
+				}
 			}
 			break;
 			default:
@@ -162,67 +169,6 @@ LRESULT DcxMultiCombo::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 		}
 	}
 	break;
-
-	//case WM_DRAWITEM:
-	//{
-	//	dcxlParam(LPDRAWITEMSTRUCT, lpDrawItem);
-//
-	//	if (!lpDrawItem)
-	//		break;
-//
-	//	const auto len = ListBox_GetTextLen(lpDrawItem->hwndItem, lpDrawItem->itemID);
-	//	if (len == LB_ERR)
-	//		break;
-		//
-	//	bParsed = TRUE;
-//
-	//	RECT rc{};
-	//	COLORREF clrText = CLR_INVALID;
-//
-	//	CopyRect(&rc, &lpDrawItem->rcItem);
-//
-	//	if (!getBackClrBrush())
-	//		FillRect(lpDrawItem->hDC, &rc, Dcx::dcxGetStockObject<HBRUSH>(WHITE_BRUSH));
-	//	else
-	//		DcxControl::DrawCtrlBackground(lpDrawItem->hDC, this, &rc);
-//
-	//	if (dcx_testflag(lpDrawItem->itemState, ODS_SELECTED))
-	//	{
-	//		// fill background with selected colour.
-	//		FillRect(lpDrawItem->hDC, &rc, GetSysColorBrush(COLOR_HIGHLIGHT));
-	//		// draw focus rect around selected item.
-	//		DrawFocusRect(lpDrawItem->hDC, &rc);
-	//		// set selected text colour.
-	//		clrText = SetTextColor(lpDrawItem->hDC, GetSysColor(COLOR_HIGHLIGHTTEXT));
-	//	}
-	//	else {
-	//		// set text colour.
-	//		if (const auto clr = getTextColor(); clr != CLR_INVALID)
-	//			clrText = SetTextColor(lpDrawItem->hDC, clr);
-	//	}
-//
-	//	if (len > 0)
-	//	{ // Only do all this if theres any text to draw.
-	//		TString txt(gsl::narrow_cast<UINT>(len + 1));
-//
-	//		ListBox_GetText(lpDrawItem->hwndItem, lpDrawItem->itemID, txt.to_chr());
-//
-	//		rc.left += 2;
-//
-	//		const UINT style = (isStyle(WindowStyle::LBS_UseTabStops)) ? DT_LEFT | DT_VCENTER | DT_SINGLELINE | DT_EXPANDTABS : DT_LEFT | DT_VCENTER | DT_SINGLELINE;
-//
-	//		//calcStrippedRect(lpDrawItem->hDC, txt, style, &rc, false);
-	//		this->calcTextRect(lpDrawItem->hDC, txt, &rc, style);
-//
-	//		this->ctrlDrawText(lpDrawItem->hDC, txt, &rc, style);
-	//	}
-//
-	//	if (clrText != CLR_INVALID)
-	//		SetTextColor(lpDrawItem->hDC, clrText);
-//
-	//	return TRUE;
-	//}
-	//break;
 
 	case WM_MEASUREITEM:
 	{
@@ -233,17 +179,19 @@ LRESULT DcxMultiCombo::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 			//lpMeasureItem->itemHeight = 160;
 			//lpMeasureItem->itemWidth = 200;
 
-			TString tsBuf(128u);
-			evalAliasEx(tsBuf.to_chr(), tsBuf.capacity_cch(), TEXT("measureitem,%u,%u,%u"), getUserID(), lpmis->itemWidth, lpmis->itemHeight);
-
+			if (dcx_testflag(this->getParentDialog()->getEventMask(), DCX_EVENT_SIZE))
 			{
-				const UINT width = tsBuf.getfirsttok(1).to_<UINT>();
-				const UINT height = tsBuf.getlasttoks().to_<UINT>();
+				TString tsBuf(128u);
+				evalAliasEx(tsBuf.to_chr(), tsBuf.capacity_cch(), TEXT("measureitem,%u,%u,%u"), getUserID(), lpmis->itemWidth, lpmis->itemHeight);
 
-				lpmis->itemHeight = std::max(height, 20u);
-				lpmis->itemWidth = std::max(width, 20u);
+				{
+					const UINT width = tsBuf.getfirsttok(1).to_<UINT>();
+					const UINT height = tsBuf.getlasttoks().to_<UINT>();
+
+					lpmis->itemHeight = std::max(height, 20u);
+					lpmis->itemWidth = std::max(width, 20u);
+				}
 			}
-
 			bParsed = TRUE;
 			return TRUE;
 		}
@@ -316,15 +264,49 @@ void DcxMultiCombo::parseInfoRequest(const TString& input, const refString<TCHAR
 		}
 	}
 	break;
+
 	// [NAME] [ID] [PROP]
 	case L"sel"_hash:
 		_ts_snprintf(szReturnValue, TEXT("%d"), getCurSel() + 1);
 		break;
 
+		// [NAME] [ID] [PROP]
+	case L"seltext"_hash:
+	{
+		if (input.numtok() < 4)
+			throw DcxExceptions::dcxInvalidArguments();
+
+		switch (const auto dStyle = getCurStyle(); dStyle)
+		{
+		default:
+			break;
+		case MCS_COLOUR:
+		{
+			const auto nItem = getCurSel();
+			const auto lpdcxcci = getColourItem(nItem);
+
+			szReturnValue = lpdcxcci.m_tsItemText.to_chr();
+		}
+		break;
+
+		case MCS_LISTBOX:
+		{
+			const auto nItem = getCurSel();
+			const auto lpdcxcci = getListBoxItem(nItem);
+
+			szReturnValue = lpdcxcci.m_tsItemText.to_chr();
+		}
+		break;
+		}
+	}
+	break;
+
+	// [NAME] [ID] [PROP]
 	case L"style"_hash:
 		_ts_snprintf(szReturnValue, TEXT("%u"), getCurStyle());
 		break;
 
+		// [NAME] [ID] [PROP]
 	case L"dropstate"_hash:
 		_ts_snprintf(szReturnValue, TEXT("%d"), getDropState());
 		break;

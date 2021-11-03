@@ -7,11 +7,12 @@ function get_intro_multicombo() {
 function get_styles_multicombo(&$STYLES) {
 	$STYLES = array(
 		"listbox" => "Combo that is a list with an edit box",
-		"colourgrid" => "Simple dropdown combo.",
+		"colourgrid" => "dropdown colour grid.",
 		
 		'__notes' => array(
 			"When creating a MultiCombo control, it is important to remember that the size of the dropdown portion is set by a measureitem callback.",
-			"When no stytle is supplied then the dropdown portion is assumed to be supplied by you via the /xdid -C command.",
+			"When no style is supplied then the dropdown portion is assumed to be supplied by you via the /xdid -C command.",
+			"NB: Styles can't be combined.",
 		),
 	);
 }
@@ -168,6 +169,12 @@ function get_events_multicombo(&$EVENTS) {
 			'__eg' => '6',
 			'__params' => array(
 				'ITEM' => 'Item number where the event was triggered.',
+			),
+		),
+		"measureitem" => array(
+			'__desc' => "When the size of the dropdown needs renewed.",
+			'__return' => array(
+				'WIDTH HEIGHT' => 'The desired width and height of the dropdown.',
 			),
 		),
 	    "edit" => "When the text is edited in the editbox.",
