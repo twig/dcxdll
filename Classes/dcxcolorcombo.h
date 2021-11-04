@@ -48,7 +48,9 @@ constexpr auto DCX_COLORCOMBO_ITEM_HEIGHT = 16;
 class DcxColorCombo final
 	: public DcxControl
 {
-	bool m_bGridLayout{ false };
+//#ifdef DEBUG
+//	bool m_bGridLayout{ false };
+//#endif
 	bool m_bShowNumbers{ false };
 public:
 	DcxColorCombo() = delete;
@@ -63,7 +65,6 @@ public:
 	LRESULT OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed) final;
 	LRESULT ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed) final;
 
-	//void parseInfoRequest(const TString & input, PTCHAR szReturnValue) const final;
 	void parseInfoRequest(const TString& input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>& szReturnValue) const final;
 	void parseCommandRequest(const TString& input) final;
 	dcxWindowStyles parseControlStyles(const TString& tsStyles) final;
@@ -78,11 +79,19 @@ public:
 	int deleteItem(const int nItem) noexcept;
 	int resetContent() noexcept;
 
+	BOOL DrawItem(LPDRAWITEMSTRUCT lpdis);
+
 	inline const TString getType() const final { return TEXT("colorcombo"); };
 	inline const DcxControlTypes getControlType() const noexcept final { return DcxControlTypes::COLORCOMBO; }
 
 	using DcxControl::toXml;
 	using DcxControl::getStyles;
+
+//#ifdef DEBUG
+//	WNDPROC m_hListProc{ nullptr };
+//	HWND m_hGrid{};
+//	static LRESULT CALLBACK ListProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+//#endif
 
 	static inline WNDPROC m_hDefaultClassProc{ nullptr };	//!< Default window procedure
 	LRESULT CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept final;
