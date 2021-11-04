@@ -1332,7 +1332,7 @@ BOOL MultiCombo_GetItem(HWND mHwnd, WPARAM wParam, LPARAM lParam)
 		case MCS_COLOUR:
 		{
 			// lParam = LPMCOMBO_ITEM
-			auto lpresult = reinterpret_cast<LPMCOMBO_ITEM>(lParam);
+			dcxlParam(LPMCOMBO_ITEM, lpresult);
 			if ((lpresult->m_Size != sizeof(MCOMBO_ITEM)) || (lpresult->m_Type != MCS_COLOUR))
 				return FALSE;
 
@@ -1355,7 +1355,7 @@ BOOL MultiCombo_GetItem(HWND mHwnd, WPARAM wParam, LPARAM lParam)
 		case MCS_LISTBOX:
 		{
 			// lParam = LPMCOMBO_ITEM
-			auto lpresult = reinterpret_cast<LPMCOMBO_ITEM>(lParam);
+			dcxlParam(LPMCOMBO_ITEM, lpresult);
 			if ((lpresult->m_Size != sizeof(MCOMBO_ITEM)) || (lpresult->m_Type != MCS_COLOUR))
 				return FALSE;
 
@@ -1552,12 +1552,14 @@ void MultiCombo_SetEditToCurSel(HWND mHwnd) noexcept
 			DeleteBrush(lpmcdata->m_CurrentEditColour);
 			lpmcdata->m_CurrentEditColour = nullptr;
 			lpmcdata->m_CurrentEditTextColour = CLR_INVALID;
+			lpmcdata->m_CurrentEditBkgColour = CLR_INVALID;
 		}
 
 		if (const auto iSel = ListBox_GetCurSel(lpmcdata->m_hDropChild); iSel != LB_ERR)
 		{
 			if (auto lpdata = reinterpret_cast<LPMCOMBO_ITEM>(ListBox_GetItemData(lpmcdata->m_hDropChild, iSel)); lpdata)
 			{
+				lpmcdata->m_CurrentEditBkgColour = lpdata->m_clrItem;
 				lpmcdata->m_CurrentEditColour = CreateSolidBrush(lpdata->m_clrItem);
 				lpmcdata->m_CurrentEditTextColour = lpdata->m_clrText;
 				SetWindowText(lpmcdata->m_hEdit, lpdata->m_tsItemText.to_chr());
@@ -1574,6 +1576,7 @@ void MultiCombo_SetEditToCurSel(HWND mHwnd) noexcept
 			DeleteBrush(lpmcdata->m_CurrentEditColour);
 			lpmcdata->m_CurrentEditColour = nullptr;
 			lpmcdata->m_CurrentEditTextColour = CLR_INVALID;
+			lpmcdata->m_CurrentEditBkgColour = CLR_INVALID;
 		}
 
 		if (const auto iSel = ListBox_GetCurSel(lpmcdata->m_hDropChild); iSel != LB_ERR)
