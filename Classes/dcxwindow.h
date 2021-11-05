@@ -92,6 +92,8 @@ enum class SizingTypes
 	Toolbar = 8
 };
 
+//using CursorValue = Dcx::CodeValue<HCURSOR, bool >;
+
 struct CursorPair
 {
 	HCURSOR	cursor{ nullptr };
@@ -113,19 +115,19 @@ struct CursorPair
 #pragma warning( disable : 2292 ) //warning #2292: destructor is declared but copy constructor and assignment operator are not
 #endif
 
-class DcxBase
-{
-	DcxBase() = delete;
-	DcxBase(const DcxBase& other) = delete;
-	DcxBase& operator =(const DcxBase&) = delete;
-	DcxBase(DcxBase&& other) = delete;
-	DcxBase& operator =(DcxBase&&) = delete;
-
-	virtual void toXml(TiXmlElement* const xml) const = 0;
-	virtual void parseCommandRequest(const TString& input) = 0;
-	virtual void parseInfoRequest(const TString& input, const mIRCResultString& szReturnValue) const = 0;
-
-};
+//class DcxBase
+//{
+//	DcxBase() = delete;
+//	DcxBase(const DcxBase& other) = delete;
+//	DcxBase& operator =(const DcxBase&) = delete;
+//	DcxBase(DcxBase&& other) = delete;
+//	DcxBase& operator =(DcxBase&&) = delete;
+//
+//	virtual void toXml(TiXmlElement* const xml) const = 0;
+//	virtual void parseCommandRequest(const TString& input) = 0;
+//	virtual TString parseInfoRequest(const TString& input) const = 0;
+//
+//};
 
 class DcxWindow
 {
@@ -160,6 +162,10 @@ public:
 	virtual void toXml(TiXmlElement* const xml) const = 0;
 	virtual void parseCommandRequest(const TString& input) = 0;
 	virtual void parseInfoRequest(const TString& input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>& szReturnValue) const = 0;
+	virtual TString parseInfoRequest(const TString& input) const
+	{
+		return TString();
+	}
 
 	static PTCHAR parseCursorType(const TString& cursor);
 	static DcxResourceFlags parseCursorFlags(const TString& flags) noexcept;
@@ -167,10 +173,7 @@ public:
 	[[nodiscard("Memory Leak")]] static HIMAGELIST createImageList(bool bBigIcons = false) noexcept;
 	static dcxWindowStyles parseBorderStyles(const TString& tsFlags) noexcept;
 
-	//LRESULT CallDefaultProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept;
-
 protected:
-	//WNDPROC m_hDefaultWindowProc{ nullptr }; //!< Old Window Procedure
 	HWND m_Hwnd{ nullptr };
 	UINT m_ID{};
 

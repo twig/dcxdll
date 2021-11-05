@@ -256,7 +256,7 @@ void DcxWindow::HandleChildSizing(SizingTypes sz) const noexcept
 			SendMessage(bars, WM_SIZE, 0U, 0);
 
 	if (dcx_testflag(sz, SizingTypes::Panel))
-		for (auto bars = FindWindowEx(m_Hwnd, nullptr, DCX_PANELCLASS, nullptr); bars; bars = FindWindowEx(m_Hwnd, bars, DCX_STATUSBARCLASS, nullptr))
+		for (auto bars = FindWindowEx(m_Hwnd, nullptr, DCX_PANELCLASS, nullptr); bars; bars = FindWindowEx(m_Hwnd, bars, DCX_PANELCLASS, nullptr))
 			SendMessage(bars, WM_SIZE, 0U, 0);
 
 	if (dcx_testflag(sz, SizingTypes::Toolbar))
