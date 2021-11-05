@@ -43,13 +43,11 @@ DcxCheck::DcxCheck(const UINT ID, DcxDialog* const p_Dialog, const HWND mParentH
 		this);
 
 	if (!IsWindow(m_Hwnd))
-		//throw Dcx::dcxException("Unable To Create Window");
 		throw DcxExceptions::dcxUnableToCreateWindow();
 
 	if (ws.m_NoTheme)
 		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
 
-	//setNoThemed((ws.m_NoTheme != false));
 	setNoThemed(ws.m_NoTheme);
 
 	if (styles.istok(TEXT("tooltips")))
@@ -140,6 +138,9 @@ dcxWindowStyles DcxCheck::parseControlStyles(const TString& tsStyles)
 		case L"center"_hash:
 			ws.m_Styles |= BS_CENTER;
 			break;
+		case L"vcenter"_hash:
+			ws.m_Styles |= BS_VCENTER;
+			break;
 		case L"ljustify"_hash:
 			ws.m_Styles |= BS_LEFT;
 			break;
@@ -155,6 +156,9 @@ dcxWindowStyles DcxCheck::parseControlStyles(const TString& tsStyles)
 			ws.m_Styles |= BS_AUTO3STATE;
 		}
 		break;
+		case L"custom"_hash:
+			m_bCustom = true;
+			break;
 		default:
 			break;
 		}
@@ -172,32 +176,35 @@ dcxWindowStyles DcxCheck::parseControlStyles(const TString& tsStyles)
  * \return > void
  */
 
-void DcxCheck::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>& szReturnValue) const
+TString DcxCheck::parseInfoRequest(const TString& input) const
 {
 	switch (std::hash<TString>{}(input.getfirsttok(3)))
 	{
 		// [NAME] [ID] [PROP]
 	case L"text"_hash:
-		Button_GetText(m_Hwnd, szReturnValue, MIRC_BUFFER_SIZE_CCH);
-		break;
+		return TGetWindowText(m_Hwnd);
 		// [NAME] [ID] [PROP]
 	case L"state"_hash:
 	{
-		TCHAR p = TEXT('0');
+		TString tsRes(TEXT("0"));
 
 		if (const auto iCheck = Button_GetCheck(m_Hwnd); dcx_testflag(iCheck, BST_INDETERMINATE))
-			p = TEXT('2');
+			tsRes[0] = TEXT('2');
 		else if (dcx_testflag(iCheck, BST_CHECKED))
-			p = TEXT('1');
+			tsRes[0] = TEXT('1');
 
-		szReturnValue[0] = p;
-		szReturnValue[1] = 0;
+		return tsRes;
 	}
 	break;
 	default:
-		parseGlobalInfoRequest(input, szReturnValue);
+		return parseGlobalInfoRequest(input);
 		break;
 	}
+}
+
+void DcxCheck::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>& szReturnValue) const
+{
+	szReturnValue = parseInfoRequest(input).to_chr();
 }
 
 /*!
@@ -242,7 +249,7 @@ LRESULT DcxCheck::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& b
 	{
 	case WM_COMMAND:
 	{
-		switch (HIWORD(wParam))
+		switch (Dcx::dcxHIWORD(wParam))
 		{
 			// catch this so we can use $xdid(checkbox).state in sclick callback
 		case BN_CLICKED:
@@ -270,6 +277,83 @@ LRESULT DcxCheck::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& b
 
 		break;
 	}
+
+	case WM_NOTIFY:
+	{
+		dcxlParam(LPNMHDR, hdr);
+
+		if (!hdr)
+			break;
+
+		switch (hdr->code)
+		{
+		default:
+			break;
+		case NM_CUSTOMDRAW:
+		{
+			dcxlParam(LPNMCUSTOMDRAW, lpcd);
+			bParsed = TRUE;
+
+			if ((!lpcd) || (!m_bCustom))
+				return CDRF_DODEFAULT;
+
+			switch (lpcd->dwDrawStage)
+			{
+			case CDDS_PREERASE:
+				//{
+				//	return (CDRF_SKIPDEFAULT);
+				//}
+				//break;
+				//case CDDS_POSTERASE:
+				//{
+				//	return CDRF_DODEFAULT;
+				//}
+				//break;
+			case CDDS_PREPAINT:
+			{
+				// do all drawing here
+				clrCheckBox cols;
+				cols.m_clrHotFrame = GetSysColor(COLOR_HOTLIGHT);
+				cols.m_clrHotTick = GetSysColor(COLOR_HOTLIGHT);
+
+				RECT rc{ lpcd->rc };
+				RECT rcCheck{};
+				// square
+				constexpr int iCheckSize = 16;
+
+				rcCheck.left = rc.left + 1;
+				rcCheck.right = rcCheck.left + iCheckSize;
+				// center checkbox vertically in control
+				rcCheck.top = ((rc.bottom - rc.top) / 2) - (iCheckSize / 2);
+				rcCheck.bottom = rcCheck.top + iCheckSize;
+
+				DcxControl::DrawCtrlBackground(lpcd->hdc, this, std::addressof(rc));
+
+				dcxDrawCheckBox(lpcd->hdc, std::addressof(rcCheck), std::addressof(cols), lpcd->uItemState, (Button_GetCheck(m_Hwnd) == BST_CHECKED), false);
+
+				// move left edge of rect past the checkbox
+				rc.left = rcCheck.right + 1;
+
+				// check theres still room for the text.
+				if (rc.right > rc.left)
+				{
+					if (const auto tsText(TGetWindowText(m_Hwnd)); !tsText.empty())
+						ctrlDrawText(lpcd->hdc, tsText, std::addressof(rc), DT_LEFT | DT_SINGLELINE | DT_VCENTER);
+				}
+				return CDRF_SKIPDEFAULT;
+			}
+			break;
+
+			default:
+				return CDRF_DODEFAULT;
+			}
+		}
+		break;
+
+		}
+	}
+	break;
+
 	default:
 		break;
 	}
