@@ -19,7 +19,14 @@
 #include "Classes/dcxcontrol.h"
 #include "Classes\custom\ListHelper.h"
 
+// Test fix for drawing when transparent.
+#define USE_FIX_01 1
+
 class DcxDialog;
+
+namespace Dcx {
+	TString dcxListBox_GetText(HWND hwnd, int i);
+}
 
 /*!
  * \brief blah

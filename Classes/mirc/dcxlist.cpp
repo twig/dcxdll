@@ -18,6 +18,23 @@
 #include "Classes/dcxdialog.h"
 #include "Dcx.h"
 
+namespace Dcx {
+	TString dcxListBox_GetText(HWND hwnd, int i)
+	{
+		TString tsBuf;
+
+		const auto len = ListBox_GetTextLen(hwnd, i);
+		if (len == LB_ERR)
+			return tsBuf;
+
+		tsBuf.reserve(len + 1U);
+
+		ListBox_GetText(hwnd, i, tsBuf.to_chr());
+
+		return tsBuf;
+	}
+}
+
  /*!
   * \brief Constructor
   *
@@ -951,6 +968,11 @@ LRESULT DcxList::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bP
 			{
 			case LBN_SELCHANGE:
 			{
+#ifdef USE_FIX_01
+				if (isExStyle(WindowExStyle::Transparent) && !isExStyle(WindowExStyle::Composited))
+					redrawBufferedWindow();
+#endif
+
 				const auto nItem = ListBox_GetCurSel(m_Hwnd);
 
 				if (this->isStyle(WindowStyle::LBS_MultiSel) || this->isStyle(WindowStyle::LBS_ExtendedSel))
@@ -999,12 +1021,19 @@ LRESULT DcxList::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bP
 		COLORREF clrText = CLR_INVALID;
 
 		CopyRect(&rc, &lpDrawItem->rcItem);
-
+#ifdef USE_FIX_01
+		if (isExStyle(WindowExStyle::Transparent) && !isExStyle(WindowExStyle::Composited))
+			DrawParentsBackground(lpDrawItem->hDC, &rc);
+		else if (!getBackClrBrush())
+			FillRect(lpDrawItem->hDC, &rc, Dcx::dcxGetStockObject<HBRUSH>(WHITE_BRUSH));
+		else
+			DcxControl::DrawCtrlBackground(lpDrawItem->hDC, this, &rc);
+#else
 		if (!getBackClrBrush())
 			FillRect(lpDrawItem->hDC, &rc, Dcx::dcxGetStockObject<HBRUSH>(WHITE_BRUSH));
 		else
 			DcxControl::DrawCtrlBackground(lpDrawItem->hDC, this, &rc);
-
+#endif
 		if (dcx_testflag(lpDrawItem->itemState, ODS_SELECTED))
 		{
 			// fill background with selected colour.
@@ -1042,6 +1071,7 @@ LRESULT DcxList::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bP
 		return TRUE;
 	}
 	break;
+
 	//case WM_MEASUREITEM:
 	//	{
 	//		LPMEASUREITEMSTRUCT lpMeasureItem = (LPMEASUREITEMSTRUCT) lParam;
@@ -1049,6 +1079,12 @@ LRESULT DcxList::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bP
 	//		//return TRUE;
 	//	}
 	//	break;
+
+	//case WM_CTLCOLORLISTBOX:
+	//{
+	//}
+	//break;
+
 	default:
 		break;
 	}
@@ -1066,7 +1102,36 @@ LRESULT DcxList::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPars
 	case WM_VSCROLL:
 		if (Dcx::dcxLOWORD(wParam) == SB_ENDSCROLL)
 			this->execAliasEx(TEXT("scrollend,%u"), getUserID());
+#ifdef USE_FIX_01
+		if (isExStyle(WindowExStyle::Transparent) && !isExStyle(WindowExStyle::Composited))
+		{
+			bParsed = TRUE;
+
+			const auto lRes = CallDefaultClassProc(uMsg, wParam, lParam);
+
+			redrawBufferedWindow();
+
+			return lRes;
+		}
+#endif
 		break;
+
+#ifdef USE_FIX_01
+	case WM_HSCROLL:
+	{
+		if (isExStyle(WindowExStyle::Transparent) && !isExStyle(WindowExStyle::Composited))
+		{
+			bParsed = TRUE;
+
+			const auto lRes = CallDefaultClassProc(uMsg, wParam, lParam);
+
+			redrawBufferedWindow();
+
+			return lRes;
+		}
+	}
+	break;
+#endif
 
 	case WM_MOUSEWHEEL:
 		SendMessage(getParentDialog()->getHwnd(), uMsg, wParam, lParam);
@@ -1077,20 +1142,53 @@ LRESULT DcxList::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPars
 		if (!IsAlphaBlend())
 			break;
 
-		PAINTSTRUCT ps{};
+		if (!wParam)
+		{
+			PAINTSTRUCT ps{};
 
-		auto hdc = BeginPaint(m_Hwnd, &ps);
-		Auto(EndPaint(m_Hwnd, &ps));
+			auto hdc = BeginPaint(m_Hwnd, &ps);
+			Auto(EndPaint(m_Hwnd, &ps));
 
-		bParsed = TRUE;
+			bParsed = TRUE;
 
-		// Setup alpha blend if any.
-		auto ai = this->SetupAlphaBlend(&hdc);
-		Auto(this->FinishAlphaBlend(ai));
+			// Setup alpha blend if any.
+			auto ai = this->SetupAlphaBlend(&hdc);
+			Auto(this->FinishAlphaBlend(ai));
 
-		return CallDefaultClassProc(uMsg, reinterpret_cast<WPARAM>(hdc), lParam);
+			return CallDefaultClassProc(uMsg, reinterpret_cast<WPARAM>(hdc), lParam);
+		}
+		else {
+			bParsed = TRUE;
+
+			auto hdc = reinterpret_cast<HDC>(wParam);
+
+			// Setup alpha blend if any.
+			auto ai = this->SetupAlphaBlend(&hdc);
+			Auto(this->FinishAlphaBlend(ai));
+
+			return CallDefaultClassProc(uMsg, reinterpret_cast<WPARAM>(hdc), lParam);
+		}
 	}
 	break;
+
+#ifdef USE_FIX_01
+	// needed for odd bits at bottom/top of control where no item is shown.
+	case WM_ERASEBKGND:
+	{
+		if (isExStyle(WindowExStyle::Transparent) && !isExStyle(WindowExStyle::Composited))
+		{
+			//auto hdc = reinterpret_cast<HDC>(wParam);
+
+			////DcxControl::DrawCtrlBackground();
+
+			//DrawParentsBackground(hdc);
+
+			bParsed = TRUE;
+			return TRUE;
+		}
+	}
+	break;
+#endif
 
 	case WM_DESTROY:
 	{
@@ -1155,52 +1253,6 @@ void DcxList::DrawDragLine(const int location) noexcept
 		MoveToEx(hDC, lWidth - 2, rc.top - 2, 0);
 		LineTo(hDC, lWidth - 2, rc.top + 2);
 	}
-
-	//RECT rc;
-	//
-	//if (ListBox_GetItemRect(m_Hwnd, location, &rc) == LB_ERR)
-	//	return;
-	//
-	//if (location != m_iLastDrawnLine)
-	//{
-	//	this->redrawWindow();
-	//	m_iLastDrawnLine = location;
-	//}
-	//
-	//auto hDC = GetDC(m_Hwnd);
-	//
-	//if (hDC == nullptr)
-	//	return;
-	//
-	//auto hPen = CreatePen(PS_SOLID, 1, GetSysColor(COLOR_WINDOWTEXT));
-	//
-	//if (hPen != nullptr) {
-	//	auto hOldPen = SelectPen(hDC, hPen);
-	//
-	//	// get width
-	//	const auto lWidth = (rc.right - rc.left);
-	//
-	//	MoveToEx(hDC, 0, rc.top, 0);
-	//	LineTo(hDC, lWidth, rc.top);
-	//	MoveToEx(hDC, 0, rc.top -1, 0);
-	//	LineTo(hDC, lWidth, rc.top -1);
-	//
-	//	// Spitze links:
-	//	MoveToEx(hDC, 0, rc.top -3, 0);
-	//	LineTo(hDC, 0, rc.top +3);
-	//	MoveToEx(hDC, 1, rc.top -2, 0);
-	//	LineTo(hDC, 1, rc.top +2);
-	//
-	//	// Spitze rechts:
-	//	MoveToEx(hDC, lWidth -1, rc.top -3, 0);
-	//	LineTo(hDC, lWidth -1, rc.top +3);
-	//	MoveToEx(hDC, lWidth -2, rc.top -2, 0);
-	//	LineTo(hDC, lWidth -2, rc.top +2);
-	//
-	//	SelectPen(hDC,hOldPen);
-	//	DeletePen(hPen);
-	//}
-	//ReleaseDC(m_Hwnd, hDC);
 }
 
 //bool DcxList::matchItemText(const int nItem, const TString &search, const DcxSearchTypes &SearchType) const
@@ -1277,22 +1329,23 @@ GSL_SUPPRESS(con.4)
 GSL_SUPPRESS(r.5)
 bool DcxList::matchItemText(const int nItem, const TString& search, const DcxSearchTypes& SearchType) const
 {
-	if (const auto len = ListBox_GetTextLen(m_Hwnd, nItem); len > 0)
-	{
-		auto itemtext = std::make_unique<TCHAR[]>(gsl::narrow_cast<size_t>(std::max(len + 1, MIRC_BUFFER_SIZE_CCH)));
-		
-		ListBox_GetText(m_Hwnd, nItem, itemtext.get());
-		
-		return DcxListHelper::matchItemText(itemtext.get(), search, SearchType);
+	//if (const auto len = ListBox_GetTextLen(m_Hwnd, nItem); len > 0)
+	//{
+	//	auto itemtext = std::make_unique<TCHAR[]>(gsl::narrow_cast<size_t>(std::max(len + 1, MIRC_BUFFER_SIZE_CCH)));
+	//	
+	//	ListBox_GetText(m_Hwnd, nItem, itemtext.get());
+	//	
+	//	return DcxListHelper::matchItemText(itemtext.get(), search, SearchType);
+	//
+	//	//auto itemtext = std::make_unique<TCHAR[]>(gsl::narrow_cast<size_t>(std::max(len + 1, MIRC_BUFFER_SIZE_CCH)));
+	//	//auto refText = mIRCResultString(itemtext.get());
+	//	//ListBox_GetText(m_Hwnd, nItem, refText);
+	//	//return DcxListHelper::matchItemText(refText, search, SearchType);
+	//}
 
-		//auto itemtext = std::make_unique<TCHAR[]>(gsl::narrow_cast<size_t>(std::max(len + 1, MIRC_BUFFER_SIZE_CCH)));
-		//auto refText = mIRCResultString(itemtext.get());
+	const auto itemtext(Dcx::dcxListBox_GetText(m_Hwnd, nItem));
 
-		//ListBox_GetText(m_Hwnd, nItem, refText);
-
-		//return DcxListHelper::matchItemText(refText, search, SearchType);
-	}
-	return false;
+	return DcxListHelper::matchItemText(itemtext.to_chr(), search, SearchType);
 }
 
 //void DcxList::StrLenToExtent(int *nLineExtent)
@@ -1342,11 +1395,20 @@ void DcxList::UpdateHorizExtent(const int nPos)
 		if (hFont)
 			hOldFont = Dcx::dcxSelectObject<HFONT>(hdc, hFont);
 
-		const auto iLen = ListBox_GetTextLen(m_Hwnd, nPos);
+		//const auto iLen = ListBox_GetTextLen(m_Hwnd, nPos);
+		//
+		//TString itemtext(gsl::narrow_cast<UINT>(iLen + 1));
+		//
+		//if (ListBox_GetText(m_Hwnd, nPos, itemtext.to_chr()) != LB_ERR)
+		//{
+		//	if (GetTextExtentPoint32(hdc, itemtext.to_chr(), gsl::narrow_cast<int>(itemtext.len()), &sz))
+		//	{
+		//		if (sz.cx > nHorizExtent)
+		//			ListBox_SetHorizontalExtent(m_Hwnd, sz.cx);
+		//	}
+		//}
 
-		TString itemtext(gsl::narrow_cast<UINT>(iLen + 1));
-
-		if (ListBox_GetText(m_Hwnd, nPos, itemtext.to_chr()) != LB_ERR)
+		if (const auto itemtext(Dcx::dcxListBox_GetText(m_Hwnd, nPos)); !itemtext.empty())
 		{
 			if (GetTextExtentPoint32(hdc, itemtext.to_chr(), gsl::narrow_cast<int>(itemtext.len()), &sz))
 			{
