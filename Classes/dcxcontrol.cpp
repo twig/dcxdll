@@ -246,6 +246,8 @@ void DcxControl::parseGlobalCommandRequest(const TString& input, const XSwitchFl
 		const auto h = input.getnexttok().to_int();	// tok 7
 
 		MoveWindow(m_Hwnd, x, y, w, h, TRUE);
+		redrawBufferedWindow();
+
 		//this->InvalidateParentRect( m_Hwnd);
 		//InvalidateRect( GetParent( m_Hwnd ), nullptr, TRUE );
 		//this->redrawWindow( );
@@ -349,7 +351,8 @@ void DcxControl::parseGlobalCommandRequest(const TString& input, const XSwitchFl
 		const auto perc = gsl::narrow_cast<BYTE>(input.getfirsttok(4).to_int() & 0xFF);
 
 		if (perc > 100)
-			throw Dcx::dcxException("Invalid Percentage");
+			//throw Dcx::dcxException("Invalid Percentage");
+			throw DcxExceptions::dcxInvalidArguments();
 
 		int min = 0, max = 0;
 		if (!GetScrollRange(m_Hwnd, SB_VERT, &min, &max))
