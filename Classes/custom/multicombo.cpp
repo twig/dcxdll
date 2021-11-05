@@ -1173,13 +1173,6 @@ BOOL MultiCombo_DrawItem(HWND mHwnd, LPDRAWITEMSTRUCT lpdis)
 			SetBkColor(lpdis->hDC, clr);
 		}
 
-		//if (POINT pt{}; GetCursorPos(&pt))
-		//{
-		//	MapWindowPoints(nullptr, mHwnd, &pt, 1);
-		//	if (PtInRect(&lpdis->rcItem, pt))
-		//		SetBkColor(lpdis->hDC, GetSysColor(COLOR_HOTLIGHT));
-		//}
-
 		ExtTextOut(lpdis->hDC, rcItem.left, rcItem.top, ETO_CLIPPED | ETO_OPAQUE, &rcItem, TEXT(""), NULL, nullptr);
 
 		InflateRect(&rcItem, -4, -2);
@@ -1190,9 +1183,6 @@ BOOL MultiCombo_DrawItem(HWND mHwnd, LPDRAWITEMSTRUCT lpdis)
 
 		TString txt(lpdcxcci->m_tsItemText);
 
-		//if (this->m_bShowNumbers)
-		//	txt.addtok(lpdis->itemID);
-
 		if (!txt.empty())
 		{
 			// set text colour so it will contrast nicely with the item colour.
@@ -1201,7 +1191,7 @@ BOOL MultiCombo_DrawItem(HWND mHwnd, LPDRAWITEMSTRUCT lpdis)
 			SetTextColor(lpdis->hDC, lpdcxcci->m_clrText);
 
 			//this->ctrlDrawText(lpdis->hDC, txt, &rcItem, DT_SINGLELINE | DT_CENTER | DT_VCENTER);
-			DrawText(lpdis->hDC, txt.to_chr(), txt.len(), &rcItem, DT_SINGLELINE | DT_CENTER | DT_VCENTER);
+			DrawText(lpdis->hDC, txt.to_chr(), txt.len(), &rcItem, DT_SINGLELINE | DT_CENTER | DT_VCENTER | DT_NOPREFIX);
 		}
 
 		MoveToEx(lpdis->hDC, rcItem.left, rcItem.top, nullptr);
@@ -1361,7 +1351,10 @@ BOOL MultiCombo_GetItem(HWND mHwnd, WPARAM wParam, LPARAM lParam)
 
 			lpresult->m_tsItemText.clear();
 			if (wParam == -1) // get edit control contents...
-				lpresult->m_tsItemText = TGetWindowText(lpmcdata->m_hEdit);
+			{
+				if (IsWindow(lpmcdata->m_hEdit))
+					lpresult->m_tsItemText = TGetWindowText(lpmcdata->m_hEdit);
+			}
 			else {
 				if (const auto len = ListBox_GetTextLen(lpmcdata->m_hDropChild, wParam); len > 0)
 				{
