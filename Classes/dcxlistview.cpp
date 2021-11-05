@@ -486,7 +486,7 @@ void DcxListView::parseInfoRequest(const TString& input, const refString<TCHAR, 
 				while ((nItem = Dcx::dcxListView_GetNextItem(m_Hwnd, nItem, LVIS_SELECTED)) != -1)
 					list.addtok((nItem + 1), TSCOMMACHAR);
 
-				szReturnValue = list;
+				szReturnValue = list.to_chr();
 			}
 		}
 	}
@@ -667,11 +667,10 @@ void DcxListView::parseInfoRequest(const TString& input, const refString<TCHAR, 
 			for (auto i = decltype(count){0}; i < count; i++)
 				buff.addtok(Dcx::dcxListView_GetColumnWidth(m_Hwnd, i));
 
-			szReturnValue = buff.trim();
+			szReturnValue = buff.trim().to_chr();
 		}
 		else {
 			if (nColumn < 0 || nColumn >= count)
-				//throw Dcx::dcxException("Out of Range");
 				throw DcxExceptions::dcxOutOfRange();
 
 			_ts_snprintf(szReturnValue, TEXT("%d"), Dcx::dcxListView_GetColumnWidth(m_Hwnd, nColumn));
@@ -682,13 +681,11 @@ void DcxListView::parseInfoRequest(const TString& input, const refString<TCHAR, 
 	case L"htext"_hash:
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Invalid number of arguments");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto nColumn = input.getnexttok().to_int() - 1;	// tok 4
 
 		if (nColumn < 0 || nColumn >= this->getColumnCount())
-			//throw Dcx::dcxException("Out of Range");
 			throw DcxExceptions::dcxOutOfRange();
 
 		LVCOLUMN lvc{};
@@ -703,13 +700,11 @@ void DcxListView::parseInfoRequest(const TString& input, const refString<TCHAR, 
 	case L"hicon"_hash:
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Invalid number of arguments");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto nColumn = input.getnexttok().to_int() - 1;	// tok 4
 
 		if (nColumn < 0 || nColumn >= this->getColumnCount())
-			//throw Dcx::dcxException("Out of Range");
 			throw DcxExceptions::dcxOutOfRange();
 
 		LVCOLUMN lvc{};
@@ -723,13 +718,11 @@ void DcxListView::parseInfoRequest(const TString& input, const refString<TCHAR, 
 	case L"hstate"_hash:
 	{
 		if (numtok != 4)
-			//throw Dcx::dcxException("Invalid number of arguments");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto nCol = (input.getnexttok().to_int() - 1);	// tok 4
 
 		if (nCol < 0 || nCol >= this->getColumnCount())
-			//throw Dcx::dcxException("Out of Range");
 			throw DcxExceptions::dcxOutOfRange();
 
 		HDITEM hdr{};
@@ -753,7 +746,7 @@ void DcxListView::parseInfoRequest(const TString& input, const refString<TCHAR, 
 		if (dcx_testflag(hdr.fmt, HDF_SPLITBUTTON))
 			tsRes.addtok(TEXT("dropdown"));
 
-		szReturnValue = tsRes;
+		szReturnValue = tsRes.to_chr();
 	}
 	break;
 	// [NAME] [ID] [PROP] [GID]
@@ -866,7 +859,7 @@ void DcxListView::parseInfoRequest(const TString& input, const refString<TCHAR, 
 		if (!Dcx::dcxListView_GetItem(m_Hwnd, &lvi))
 			throw Dcx::dcxException(TEXT("Unable to get item: % %"), nRow, nCol);
 
-		szReturnValue = (reinterpret_cast<LPDCXLVITEM>(lvi.lParam))->tsMark;
+		szReturnValue = (reinterpret_cast<LPDCXLVITEM>(lvi.lParam))->tsMark.to_chr();
 	}
 	break;
 	// [NAME] [ID] [PROP]
@@ -875,14 +868,13 @@ void DcxListView::parseInfoRequest(const TString& input, const refString<TCHAR, 
 		//if (Dcx::VistaModule.isUseable())
 		//	Dcx::dcxListView_GetEmptyText(m_Hwnd, szReturnValue.data(), MIRC_BUFFER_SIZE_CCH);
 
-		szReturnValue = TGetWindowText(m_Hwnd);
+		szReturnValue = TGetWindowText(m_Hwnd).to_chr();
 	}
 	break;
 	// [NAME] [ID] [PROP] [GID]
 	case L"gstate"_hash:
 	{
 		if (numtok != 4)
-			//throw Dcx::dcxException("Invalid number of arguments");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		TString tsFlags('+');
@@ -905,14 +897,13 @@ void DcxListView::parseInfoRequest(const TString& input, const refString<TCHAR, 
 			if (dcx_testflag(iState, LVGS_SELECTED))
 				tsFlags += TEXT('S');
 		}
-		szReturnValue = tsFlags;
+		szReturnValue = tsFlags.to_chr();
 	}
 	break;
 	// [NAME] [ID] [PROP] [flags]
 	case L"icons"_hash:
 	{
 		if (numtok != 4)
-			//throw Dcx::dcxException("Invalid number of arguments");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto iFlags = parseIconFlagOptions(input.getnexttok());	// tok 4
@@ -3702,7 +3693,6 @@ LRESULT DcxListView::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& b
 	{
 		if (IsWindow(reinterpret_cast<HWND>(lParam)))
 		{
-			//if (const auto c_this = static_cast<DcxControl*>(GetProp(reinterpret_cast<HWND>(lParam), TEXT("dcx_cthis"))); c_this)
 			if (const auto c_this = Dcx::dcxGetProp<DcxControl*>(lParam, TEXT("dcx_cthis")); c_this)
 				lRes = c_this->ParentMessage(uMsg, wParam, lParam, bParsed);
 			else {
@@ -3763,55 +3753,16 @@ LRESULT DcxListView::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& b
 					{
 						bParsed = TRUE;
 
-						PAINTSTRUCT ps{};
-						auto hdc = BeginPaint(m_Hwnd, &ps);
-						Auto(EndPaint(m_Hwnd, &ps));
-
-						// Setup alpha blend if any.
-						auto ai = SetupAlphaBlend(&hdc);
-						Auto(FinishAlphaBlend(ai));
-
-						//lRes = CallDefaultClassProc(uMsg, reinterpret_cast<WPARAM>(hdc), lParam);
-
-						if (RECT rc{}; GetClientRect(m_Hwnd, &rc))
+						if (!wParam)
 						{
+							PAINTSTRUCT ps{};
+							auto hdc = BeginPaint(m_Hwnd, &ps);
+							Auto(EndPaint(m_Hwnd, &ps));
 
-							if (auto hdr_hwnd = Dcx::dcxListView_GetHeader(m_Hwnd); hdr_hwnd)
-							{
-								if (RECT rcH{};	GetWindowRect(hdr_hwnd, &rcH))
-								{
-									MapWindowRect(nullptr, m_Hwnd, &rcH);
-									rc.top += rcH.bottom;
-								}
-
-								//const Dcx::dcxWindowRect rcH(hdr_hwnd, m_Hwnd);
-								//rc.top += rcH.bottom;
-							}
-
-							{
-								//const COLORREF clrText = ListView_GetTextColor(m_Hwnd);
-								//const COLORREF clrTextBk = ListView_GetTextBkColor(m_Hwnd);
-								const COLORREF clrText = (m_clrText == CLR_INVALID) ? GetSysColor(COLOR_WINDOWTEXT) : m_clrText;
-								const COLORREF clrTextBk = (m_clrBackText == CLR_INVALID) ? GetSysColor(COLOR_WINDOW) : m_clrBackText;
-
-								SetTextColor(hdc, clrText);
-								SetBkColor(hdc, clrTextBk);
-
-								{
-									const COLORREF clrBk = (m_clrBackground == CLR_INVALID) ? Dcx::dcxListView_GetBkColor(m_Hwnd) : m_clrBackground;
-									Dcx::FillRectColour(hdc, &rc, clrBk);
-								}
-							}
-
-							rc.top += 10;
-
-							if (m_hFont)
-								Dcx::dcxSelectObject(hdc, m_hFont);
-
-							if (IsControlCodeTextEnabled())
-								mIRC_DrawText(hdc, tsBuf, &rc, DT_CENTER | DT_VCENTER | DT_WORDBREAK | DT_NOPREFIX | DT_NOCLIP, false);
-							else
-								DrawText(hdc, tsBuf.to_chr(), -1, &rc, DT_CENTER | DT_VCENTER | DT_WORDBREAK | DT_NOPREFIX | DT_NOCLIP);
+							DrawEmpty(hdc, tsBuf);
+						}
+						else {
+							DrawEmpty(reinterpret_cast<HDC>(wParam), tsBuf);
 						}
 					}
 				}
@@ -3821,17 +3772,29 @@ LRESULT DcxListView::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& b
 
 		if (!bParsed && IsAlphaBlend())
 		{
-			PAINTSTRUCT ps{};
-			auto hdc = BeginPaint(m_Hwnd, &ps);
-			Auto(EndPaint(m_Hwnd, &ps));
-
 			bParsed = TRUE;
 
-			// Setup alpha blend if any.
-			auto ai = SetupAlphaBlend(&hdc);
-			Auto(FinishAlphaBlend(ai));
+			if (!wParam)
+			{
+				PAINTSTRUCT ps{};
+				auto hdc = BeginPaint(m_Hwnd, &ps);
+				Auto(EndPaint(m_Hwnd, &ps));
 
-			lRes = CallDefaultClassProc(uMsg, reinterpret_cast<WPARAM>(hdc), lParam);
+				// Setup alpha blend if any.
+				auto ai = SetupAlphaBlend(&hdc);
+				Auto(FinishAlphaBlend(ai));
+
+				lRes = CallDefaultClassProc(uMsg, reinterpret_cast<WPARAM>(hdc), lParam);
+			}
+			else {
+				auto hdc = reinterpret_cast<HDC>(wParam);
+
+				// Setup alpha blend if any.
+				auto ai = SetupAlphaBlend(&hdc);
+				Auto(FinishAlphaBlend(ai));
+
+				lRes = CallDefaultClassProc(uMsg, reinterpret_cast<WPARAM>(hdc), lParam);
+			}
 		}
 
 	}
@@ -4894,6 +4857,51 @@ bool DcxListView::xSaveListview(const int nStartPos, const int nEndPos, const TS
 			mIRCLinker::exec(sStoreCommand, tsData, res);
 	}
 	return true;
+}
+
+void DcxListView::DrawEmpty(HDC hdc, const TString &tsBuf)
+{
+	// Setup alpha blend if any.
+	auto ai = SetupAlphaBlend(&hdc);
+	Auto(FinishAlphaBlend(ai));
+
+	if (RECT rc{}; GetClientRect(m_Hwnd, &rc))
+	{
+
+		if (auto hdr_hwnd = Dcx::dcxListView_GetHeader(m_Hwnd); hdr_hwnd)
+		{
+			if (RECT rcH{};	GetWindowRect(hdr_hwnd, &rcH))
+			{
+				MapWindowRect(nullptr, m_Hwnd, &rcH);
+				rc.top += rcH.bottom;
+			}
+		}
+
+		{
+			//const COLORREF clrText = ListView_GetTextColor(m_Hwnd);
+			//const COLORREF clrTextBk = ListView_GetTextBkColor(m_Hwnd);
+			const COLORREF clrText = (m_clrText == CLR_INVALID) ? GetSysColor(COLOR_WINDOWTEXT) : m_clrText;
+			const COLORREF clrTextBk = (m_clrBackText == CLR_INVALID) ? GetSysColor(COLOR_WINDOW) : m_clrBackText;
+
+			SetTextColor(hdc, clrText);
+			SetBkColor(hdc, clrTextBk);
+
+			{
+				const COLORREF clrBk = (m_clrBackground == CLR_INVALID) ? Dcx::dcxListView_GetBkColor(m_Hwnd) : m_clrBackground;
+				Dcx::FillRectColour(hdc, &rc, clrBk);
+			}
+		}
+
+		rc.top += 10;
+
+		if (m_hFont)
+			Dcx::dcxSelectObject(hdc, m_hFont);
+
+		if (IsControlCodeTextEnabled())
+			mIRC_DrawText(hdc, tsBuf, &rc, DT_CENTER | DT_VCENTER | DT_WORDBREAK | DT_NOPREFIX | DT_NOCLIP, false);
+		else
+			DrawText(hdc, tsBuf.to_chr(), -1, &rc, DT_CENTER | DT_VCENTER | DT_WORDBREAK | DT_NOPREFIX | DT_NOCLIP);
+	}
 }
 
 void DcxListView::toXml(TiXmlElement* const xml) const

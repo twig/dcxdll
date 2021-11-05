@@ -495,6 +495,8 @@ private:
 	TString ItemToString(int nItem, int iColumns);
 	bool xSaveListview(const int nStartPos, const int nEndPos, const TString& tsData, const TCHAR* sTestCommand, const TCHAR* sStoreCommand);
 
+	void DrawEmpty(HDC hdc, const TString &tsBuf);
+
 	// static functions.
 	//static void getItemRange(const TString &tsItems, const int nItemCnt, int *iStart_range, int *iEnd_range);
 	//static std::pair<int, int> getItemRange(const TString &tsItems, const int nItemCnt);
