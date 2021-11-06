@@ -1624,7 +1624,7 @@ mIRC(_xpopup)
 
 		const mIRCResultString refData(data);
 
-		refData = Dcx::XPopups.parseIdentifier(d);
+		refData = Dcx::XPopups.parseIdentifier(d).to_chr();
 
 		return 3;
 	}

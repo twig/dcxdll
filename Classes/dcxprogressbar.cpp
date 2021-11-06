@@ -32,16 +32,15 @@ DcxProgressBar::DcxProgressBar(_In_ const UINT ID, _In_ DcxDialog* const p_Dialo
 	const auto ws = parseControlStyles(styles);
 
 	m_Hwnd = dcxCreateWindow(
-		ws.m_ExStyles | WS_EX_CLIENTEDGE,
+		ws.m_ExStyles | WindowExStyle::ClientEdge,
 		DCX_PROGRESSBARCLASS,
-		ws.m_Styles | WS_CHILD,
+		ws.m_Styles | WindowStyle::Child,
 		rc,
 		mParentHwnd,
 		ID,
 		this);
 
 	if (!IsWindow(m_Hwnd))
-		//throw Dcx::dcxException("Unable To Create Window");
 		throw DcxExceptions::dcxUnableToCreateWindow();
 
 	if (ws.m_NoTheme)

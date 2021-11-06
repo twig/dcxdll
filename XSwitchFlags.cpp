@@ -1,7 +1,7 @@
 #include "defines.h"
 
 // Constructor
-XSwitchFlags::XSwitchFlags(const TString &switches) noexcept
+XSwitchFlags::XSwitchFlags(const TString& switches) noexcept
 	: m_dFlagMask(0ULL)
 {
 	// no - sign, & no + sign, invalid syntax

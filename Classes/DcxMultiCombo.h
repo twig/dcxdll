@@ -30,6 +30,12 @@ public:
 	inline const TString getType() const final { return TEXT("multicombo"); };
 	inline const DcxControlTypes getControlType() const noexcept final { return DcxControlTypes::MULTICOMBO; }
 
+	void toXml(TiXmlElement* const xml) const final;
+	TiXmlElement* toXml(void) const final;
+	std::unique_ptr<TiXmlElement> toXml(int blah) const;
+
+	const TString getStyles(void) const final;
+
 	static inline WNDPROC m_hDefaultClassProc{ nullptr };	//!< Default window procedure
 	LRESULT CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept final;
 

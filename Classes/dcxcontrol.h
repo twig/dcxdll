@@ -409,17 +409,16 @@ protected:
 
 	COLORREF m_clrText{ CLR_INVALID };				//!< Font color
 	COLORREF m_clrBackText{ CLR_INVALID };			//!< Font Back Color (not supported)
-	COLORREF m_colTransparentBg{ CLR_INVALID };
+	COLORREF m_colTransparentBg{ CLR_INVALID };		//!< Colour thats transparent when doing colour key.
 	COLORREF m_clrBackground{ CLR_INVALID };		//!< Background Colour. (used to make m_hBackBrush)
-	COLORREF m_clrStartGradient{ CLR_INVALID };
-	COLORREF m_clrEndGradient{ CLR_INVALID };
+	COLORREF m_clrStartGradient{ CLR_INVALID };		//!< Start colour for gradient fill background.
+	COLORREF m_clrEndGradient{ CLR_INVALID };		//!< End colour for gradient fill background.
 
 	HBRUSH m_hBackBrush{ nullptr };			//!< Background control color
 	HBRUSH m_hBorderBrush{ nullptr };		//!< Controls Border Colour.
 
 	HBITMAP m_bitmapBg{ nullptr };			//!< Background bitmap
 
-	//CursorPair m_hCursor{};
 	CursorPair m_hCursor;
 
 	HWND m_ToolTipHWND{ nullptr };			//!< Tooltip window (if any)
@@ -438,7 +437,7 @@ protected:
 	bool m_bInPrint{ false };				//!< Are we in the middle of a WM_PRINTCLIENT ?
 	bool m_bShadowText{ false };			//!< Text is drawn with a shadow.
 	bool m_bCtrlCodeText{ true };			//!< mIRC's ctrl codes are used to change the text's appearance.
-	bool m_bNoThemed{ true };					//!< Is Control themed.
+	bool m_bNoThemed{ true };				//!< Is Control themed.
 
 	/* ***** */
 //protected:
@@ -467,7 +466,6 @@ protected:
 	void ctrlDrawText(HDC hdc, const TString& txt, const LPRECT rc, const UINT style);
 	void calcTextRect(HDC hdc, const TString& txt, LPRECT rc, const UINT style);
 
-	//static std::pair<WindowStyle, WindowExStyle> parseBorderStyles(const TString & flags) noexcept;
 	static void InvalidateParentRect(HWND hwnd) noexcept;
 	static const DcxColourFlags parseColorFlags(const TString& flags) noexcept;
 };

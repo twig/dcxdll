@@ -4909,6 +4909,7 @@ void DcxListView::toXml(TiXmlElement* const xml) const
 	__super::toXml(xml);
 
 	xml->SetAttribute("styles", getStyles().c_str());
+	//TODO: add saving of listview items
 }
 
 TiXmlElement* DcxListView::toXml() const

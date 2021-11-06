@@ -961,6 +961,8 @@ void DcxComboEx::toXml(TiXmlElement* const xml) const
 	//const TString wtext(TGetWindowText(m_Hwnd));
 	//xml->SetAttribute("caption", wtext.c_str());
 	xml->SetAttribute("styles", getStyles().c_str());
+
+	//TODO: add saving of comboex items
 }
 
 TiXmlElement* DcxComboEx::toXml(void) const

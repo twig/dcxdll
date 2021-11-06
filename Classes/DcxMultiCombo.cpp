@@ -522,6 +522,41 @@ void DcxMultiCombo::parseCommandRequest(const TString& input)
 		parseGlobalCommandRequest(input, flags);
 }
 
+void DcxMultiCombo::toXml(TiXmlElement* const xml) const
+{
+	__super::toXml(xml);
+
+	const TString wtext(TGetWindowText(m_Hwnd));
+	xml->SetAttribute("caption", wtext.c_str());
+	xml->SetAttribute("styles", getStyles().c_str());
+}
+
+TiXmlElement* DcxMultiCombo::toXml(void) const
+{
+	auto xml = std::make_unique<TiXmlElement>("control");
+	toXml(xml.get());
+	return xml.release();
+}
+
+std::unique_ptr<TiXmlElement> DcxMultiCombo::toXml(int blah) const
+{
+	auto xml = std::make_unique<TiXmlElement>("control");
+	toXml(xml.get());
+	return xml;
+}
+
+const TString DcxMultiCombo::getStyles(void) const
+{
+	auto styles(__super::getStyles());
+	const auto style = this->getCurStyle();
+
+	if (style == MCS_COLOUR)
+		styles.addtok(TEXT("colourgrid"));
+	else if (style == MCS_LISTBOX)
+		styles.addtok(TEXT("listbox"));
+	return styles;
+}
+
 dcxWindowStyles DcxMultiCombo::parseControlStyles(const TString& tsStyles)
 {
 	dcxWindowStyles ws;

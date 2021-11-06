@@ -1329,20 +1329,6 @@ GSL_SUPPRESS(con.4)
 GSL_SUPPRESS(r.5)
 bool DcxList::matchItemText(const int nItem, const TString& search, const DcxSearchTypes& SearchType) const
 {
-	//if (const auto len = ListBox_GetTextLen(m_Hwnd, nItem); len > 0)
-	//{
-	//	auto itemtext = std::make_unique<TCHAR[]>(gsl::narrow_cast<size_t>(std::max(len + 1, MIRC_BUFFER_SIZE_CCH)));
-	//	
-	//	ListBox_GetText(m_Hwnd, nItem, itemtext.get());
-	//	
-	//	return DcxListHelper::matchItemText(itemtext.get(), search, SearchType);
-	//
-	//	//auto itemtext = std::make_unique<TCHAR[]>(gsl::narrow_cast<size_t>(std::max(len + 1, MIRC_BUFFER_SIZE_CCH)));
-	//	//auto refText = mIRCResultString(itemtext.get());
-	//	//ListBox_GetText(m_Hwnd, nItem, refText);
-	//	//return DcxListHelper::matchItemText(refText, search, SearchType);
-	//}
-
 	const auto itemtext(Dcx::dcxListBox_GetText(m_Hwnd, nItem));
 
 	return DcxListHelper::matchItemText(itemtext.to_chr(), search, SearchType);
@@ -1395,19 +1381,6 @@ void DcxList::UpdateHorizExtent(const int nPos)
 		if (hFont)
 			hOldFont = Dcx::dcxSelectObject<HFONT>(hdc, hFont);
 
-		//const auto iLen = ListBox_GetTextLen(m_Hwnd, nPos);
-		//
-		//TString itemtext(gsl::narrow_cast<UINT>(iLen + 1));
-		//
-		//if (ListBox_GetText(m_Hwnd, nPos, itemtext.to_chr()) != LB_ERR)
-		//{
-		//	if (GetTextExtentPoint32(hdc, itemtext.to_chr(), gsl::narrow_cast<int>(itemtext.len()), &sz))
-		//	{
-		//		if (sz.cx > nHorizExtent)
-		//			ListBox_SetHorizontalExtent(m_Hwnd, sz.cx);
-		//	}
-		//}
-
 		if (const auto itemtext(Dcx::dcxListBox_GetText(m_Hwnd, nPos)); !itemtext.empty())
 		{
 			if (GetTextExtentPoint32(hdc, itemtext.to_chr(), gsl::narrow_cast<int>(itemtext.len()), &sz))
@@ -1445,6 +1418,8 @@ void DcxList::toXml(TiXmlElement* const xml) const
 	__super::toXml(xml);
 
 	xml->SetAttribute("styles", getStyles().c_str());
+
+	//TODO: add saving of list items
 }
 
 TiXmlElement* DcxList::toXml(void) const
