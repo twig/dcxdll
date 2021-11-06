@@ -113,6 +113,10 @@ const TString DcxCheck::getStyles(void) const
 		styles.addtok(TEXT("pushlike"));
 	if (dcx_testflag(Styles, BS_AUTO3STATE))
 		styles.addtok(TEXT("3state"));
+	if (dcx_testflag(Styles, BS_VCENTER))
+		styles.addtok(TEXT("vcenter"));
+	if (m_bCustom)
+		styles.addtok(TEXT("custom"));
 	return styles;
 }
 
@@ -338,7 +342,22 @@ LRESULT DcxCheck::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& b
 				if (rc.right > rc.left)
 				{
 					if (const auto tsText(TGetWindowText(m_Hwnd)); !tsText.empty())
-						ctrlDrawText(lpcd->hdc, tsText, std::addressof(rc), DT_LEFT | DT_SINGLELINE | DT_VCENTER);
+					{
+						//ctrlDrawText(lpcd->hdc, tsText, std::addressof(rc), DT_LEFT | DT_SINGLELINE | DT_VCENTER);
+
+						// get height of text. NB: DT_VCENTER messes things up for some reason...
+						RECT rcText{};
+						calcTextRect(lpcd->hdc, tsText, std::addressof(rcText), DT_LEFT | DT_SINGLELINE /*| DT_VCENTER*/);
+
+						// set right hand limit to the size of the control.
+						rcText.right = rc.right;
+
+						// offset text to right of checkbox, & vertically centered.
+						OffsetRect(&rcText, rc.left, ((rc.bottom - rc.top)/2) - ((rcText.bottom - rcText.top)/2));
+
+						// finally draw text.
+						ctrlDrawText(lpcd->hdc, tsText, std::addressof(rcText), DT_LEFT | DT_SINGLELINE /*| DT_VCENTER*/);
+					}
 				}
 				return CDRF_SKIPDEFAULT;
 			}
