@@ -63,6 +63,7 @@ public:
 private:
 	void DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam);
 	bool m_bCustom{};
+	clrCheckBox m_Colours;
 };
 
 #endif // _DCXCHECK_H_

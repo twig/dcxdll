@@ -219,6 +219,8 @@ void DcxCheck::parseInfoRequest(const TString& input, const refString<TCHAR, MIR
 
 void DcxCheck::parseCommandRequest(const TString& input)
 {
+	const auto numtok = input.numtok();
+
 	//xdid -c [NAME] [ID] [SWITCH]
 	if (const XSwitchFlags flags(input.getfirsttok(3)); flags[TEXT('c')])
 	{
@@ -237,6 +239,59 @@ void DcxCheck::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('u')])
 	{
 		Button_SetCheck(m_Hwnd, BST_UNCHECKED);
+	}
+	// xdid -C [NAME] [ID] [SWITCH] [+FLAGS] [COLOR]
+	else if (flags[TEXT('C')])
+	{
+		if (numtok < 4)
+			throw DcxExceptions::dcxInvalidArguments();
+
+		// first do standard colours
+		this->parseGlobalCommandRequest(input, flags);
+
+		// now do checkbox specific ones.
+		const auto iFlags = this->parseColorFlags(input.getfirsttok(4));
+		const auto clrColor = input.getnexttok().to_<COLORREF>();	// tok 5
+
+		if (dcx_testflag(iFlags, DcxColourFlags::CHECKBOXDISABLED))
+		{
+			// checkbox is disabled...
+			if (dcx_testflag(iFlags, DcxColourFlags::CHECKBOXBGCOLOR))
+				m_Colours.m_clrDisabledBackground = clrColor;
+
+			if (dcx_testflag(iFlags, DcxColourFlags::CHECKBOXFRAMECOLOR))
+				m_Colours.m_clrDisabledFrame = clrColor;
+
+			if (dcx_testflag(iFlags, DcxColourFlags::CHECKBOXTICKCOLOR))
+				m_Colours.m_clrDisabledTick = clrColor;
+		}
+		else if (dcx_testflag(iFlags, DcxColourFlags::CHECKBOXHOT))
+		{
+			// checkbox is NOT disabled & is hot
+			if (dcx_testflag(iFlags, DcxColourFlags::CHECKBOXBGCOLOR))
+				m_Colours.m_clrHotBackground = clrColor;
+
+			if (dcx_testflag(iFlags, DcxColourFlags::CHECKBOXFRAMECOLOR))
+				m_Colours.m_clrHotFrame = clrColor;
+
+			if (dcx_testflag(iFlags, DcxColourFlags::CHECKBOXTICKCOLOR))
+				m_Colours.m_clrTick = clrColor;
+		}
+		else {
+			// checkbox is NOT disabled & is NOT hot
+			if (dcx_testflag(iFlags, DcxColourFlags::CHECKBOXBGCOLOR))
+				m_Colours.m_clrBackground = clrColor;
+
+			if (dcx_testflag(iFlags, DcxColourFlags::CHECKBOXFRAMECOLOR))
+				m_Colours.m_clrFrame = clrColor;
+
+			if (dcx_testflag(iFlags, DcxColourFlags::CHECKBOXTICKCOLOR))
+				m_Colours.m_clrTick = clrColor;
+		}
+		if (m_Colours.m_clrHotFrame == CLR_INVALID)
+			m_Colours.m_clrHotFrame = GetSysColor(COLOR_HOTLIGHT);
+		if (m_Colours.m_clrHotTick == CLR_INVALID)
+			m_Colours.m_clrHotTick = GetSysColor(COLOR_HOTLIGHT);
 	}
 	else
 		this->parseGlobalCommandRequest(input, flags);
@@ -316,9 +371,9 @@ LRESULT DcxCheck::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& b
 			case CDDS_PREPAINT:
 			{
 				// do all drawing here
-				clrCheckBox cols;
-				cols.m_clrHotFrame = GetSysColor(COLOR_HOTLIGHT);
-				cols.m_clrHotTick = GetSysColor(COLOR_HOTLIGHT);
+				clrCheckBox cols = m_Colours;
+				//cols.m_clrHotFrame = GetSysColor(COLOR_HOTLIGHT);
+				//cols.m_clrHotTick = GetSysColor(COLOR_HOTLIGHT);
 
 				RECT rc{ lpcd->rc };
 				RECT rcCheck{};
@@ -353,7 +408,7 @@ LRESULT DcxCheck::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& b
 						rcText.right = rc.right;
 
 						// offset text to right of checkbox, & vertically centered.
-						OffsetRect(&rcText, rc.left, ((rc.bottom - rc.top)/2) - ((rcText.bottom - rcText.top)/2));
+						OffsetRect(&rcText, rc.left, ((rc.bottom - rc.top) / 2) - ((rcText.bottom - rcText.top) / 2));
 
 						// finally draw text.
 						ctrlDrawText(lpcd->hdc, tsText, std::addressof(rcText), DT_LEFT | DT_SINGLELINE /*| DT_VCENTER*/);

@@ -2319,11 +2319,11 @@ double YtoLstar(double Y) noexcept
 	// Send this function a luminance value between 0.0 and 1.0,
 	// and it returns L* which is "perceptual lightness"
 
-	if (Y <= (216 / 24389)) {       // The CIE standard states 0.008856 but 216/24389 is the intent for 0.008856451679036
-		return Y * (24389 / 27);  // The CIE standard states 903.3, but 24389/27 is the intent, making 903.296296296296296
+	if (Y <= (216.0 / 24389.0)) {       // The CIE standard states 0.008856 but 216/24389 is the intent for 0.008856451679036
+		return Y * (24389.0 / 27.0);  // The CIE standard states 903.3, but 24389/27 is the intent, making 903.296296296296296
 	}
 	else {
-		return pow(Y, (1.0 / 3.0)) * 116 - 16;
+		return pow(Y, (1.0 / 3.0)) * 116.0 - 16.0;
 	}
 }
 
@@ -2348,12 +2348,11 @@ COLORREF GetContrastColour(COLORREF sRGB) noexcept
 	const auto Lstar = YtoLstar(Y);
 
 	// white
-	if (Lstar < 50)
-		//return XPopupMenuItem::LightenColor(100, sRGB);
+	if (Lstar < 50.0)
 		return RGB(255, 255, 255);
 
 	// black
-	return 0;
+	return RGB(0, 0, 0);
 }
 
 

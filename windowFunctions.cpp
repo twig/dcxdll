@@ -877,7 +877,8 @@ void dcxDrawCheckBox(HDC hDC, const LPCRECT rcBox, const clrCheckBox* lpcol, con
 	Auto(DeleteObject(hPenBorder));
 
 	// create border highlite pen
-	const auto hPenHighBorder = CreatePen(PS_SOLID, 1, GetSysColor(COLOR_3DHIGHLIGHT));
+	//const auto hPenHighBorder = CreatePen(PS_SOLID, 1, GetSysColor(COLOR_3DHIGHLIGHT));
+	const auto hPenHighBorder = CreatePen(PS_SOLID, 1, GetContrastColour(getCheckBoxFrameColour(lpcol, dState)));
 	Auto(DeleteObject(hPenHighBorder));
 
 	// create tick pen
@@ -914,6 +915,8 @@ void dcxDrawCheckBox(HDC hDC, const LPCRECT rcBox, const clrCheckBox* lpcol, con
 			RoundRect(hDC, rc.left, rc.top, rc.right, rc.bottom, 5, 5);
 		}
 		else {
+			//dcxDrawBorder(hDC, &rc, BF_RECT, getCheckBoxFrameColour(lpcol, dState));
+
 			Rectangle(hDC, rc.left, rc.top, rc.right, rc.bottom);
 
 			InflateRect(&rc, -1, -1);
