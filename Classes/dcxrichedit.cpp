@@ -1673,13 +1673,27 @@ LRESULT DcxRichEdit::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& b
 		//	return DLGC_WANTALLKEYS;
 		//}
 
+		//if (wParam == VK_TAB)
+		//{
+		//	if (this->isStyle(WindowStyle::TabStop))
+		//	{
+		//		bParsed = TRUE;
+		//		return DefWindowProc(m_Hwnd, uMsg, wParam, lParam);
+		//	}
+		//}
+
 		if (wParam == VK_TAB)
 		{
+			bParsed = TRUE;
 			if (this->isStyle(WindowStyle::TabStop))
-			{
-				bParsed = TRUE;
 				return DefWindowProc(m_Hwnd, uMsg, wParam, lParam);
-			}
+
+			return DLGC_WANTALLKEYS;
+		}
+		else if (wParam != VK_RETURN)
+		{
+			bParsed = TRUE;
+			return DLGC_WANTALLKEYS;
 		}
 	}
 	break;

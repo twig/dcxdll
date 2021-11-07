@@ -675,12 +675,26 @@ LRESULT DcxEdit::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPars
 		// This code enables tabstop out of edit controls if tabstop styles used. BUT you cant use tab keys in the edit control when tabstop used.
 	case WM_GETDLGCODE:
 	{
-		if (wParam != VK_TAB)
+		//if (wParam != VK_TAB)
+		//{
+		//	bParsed = TRUE;
+		//	return DLGC_WANTALLKEYS;
+		//}
+		//else if (!this->isStyle(WindowStyle::TabStop))
+		//{
+		//	bParsed = TRUE;
+		//	return DLGC_WANTALLKEYS;
+		//}
+
+		if (wParam == VK_TAB)
 		{
 			bParsed = TRUE;
+			if (this->isStyle(WindowStyle::TabStop))
+				return DefWindowProc(m_Hwnd, uMsg, wParam, lParam);
+
 			return DLGC_WANTALLKEYS;
 		}
-		else if (!this->isStyle(WindowStyle::TabStop))
+		else if (wParam != VK_RETURN)
 		{
 			bParsed = TRUE;
 			return DLGC_WANTALLKEYS;
