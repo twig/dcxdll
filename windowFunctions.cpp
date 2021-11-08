@@ -842,6 +842,12 @@ COLORREF getCheckBoxFrameColour(const clrCheckBox* lpcol, DWORD dState) noexcept
 	return lpcol->m_clrFrame;
 }
 
+COLORREF getCheckBoxHighliteFrameColour(const clrCheckBox* lpcol, DWORD dState) noexcept
+{
+	//return GetSysColor(COLOR_3DHIGHLIGHT);
+	return GetContrastColour(getCheckBoxFrameColour(lpcol, dState));
+}
+
 COLORREF getCheckBoxTickColour(const clrCheckBox* lpcol, DWORD dState) noexcept
 {
 	if (dcx_testflag(dState, CDIS_DISABLED))
@@ -877,8 +883,7 @@ void dcxDrawCheckBox(HDC hDC, const LPCRECT rcBox, const clrCheckBox* lpcol, con
 	Auto(DeleteObject(hPenBorder));
 
 	// create border highlite pen
-	//const auto hPenHighBorder = CreatePen(PS_SOLID, 1, GetSysColor(COLOR_3DHIGHLIGHT));
-	const auto hPenHighBorder = CreatePen(PS_SOLID, 1, GetContrastColour(getCheckBoxFrameColour(lpcol, dState)));
+	const auto hPenHighBorder = CreatePen(PS_SOLID, 1, getCheckBoxHighliteFrameColour(lpcol, dState));
 	Auto(DeleteObject(hPenHighBorder));
 
 	// create tick pen

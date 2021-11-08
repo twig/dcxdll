@@ -33,16 +33,18 @@
 enum class DcxColourFlags
 	: UINT
 {
-	None,							// No styles
-	TEXTCOLOR,						//!< Control Text Color;
-	TEXTBKGCOLOR,					//!< Control Text Background Color;
-	BKGCOLOR = 0x0004,				//!< Control Background Color;
-	BORDERCOLOR = 0x0008,			//!< Control Border Color;
-	GRADSTARTCOLOR = 0x0010,		//!< Colour At the start of the gradient;
-	GRADENDCOLOR = 0x0020,			//!< Colour At the end of the gradient;
-	CHECKBOXFRAMECOLOR = 0x0040,	// Checkbox frame colour
-	CHECKBOXBGCOLOR = 0x0080,		// CheckBox Background colour
-	CHECKBOXTICKCOLOR = 0x0100		// CheckBox Tick colour
+	None,								// No styles
+	TEXTCOLOR,							//!< Control Text Color;
+	TEXTBKGCOLOR,						//!< Control Text Background Color;
+	BKGCOLOR			= 0x0004,		//!< Control Background Color;
+	BORDERCOLOR			= 0x0008,		//!< Control Border Color;
+	GRADSTARTCOLOR		= 0x0010,		//!< Colour At the start of the gradient;
+	GRADENDCOLOR		= 0x0020,		//!< Colour At the end of the gradient;
+	CHECKBOXFRAMECOLOR	= 0x0040,		// Checkbox frame colour
+	CHECKBOXBGCOLOR		= 0x0080,		// CheckBox Background colour
+	CHECKBOXTICKCOLOR	= 0x0100,		// CheckBox Tick colour
+	CHECKBOXHOT			= 0x0200,		// CheckBox Background colour
+	CHECKBOXDISABLED	= 0x0400		// CheckBox Background colour
 };
 
 //#define CTLF_ALLOW_PBAR				0x0000000000000001ULL
@@ -190,6 +192,7 @@ xclass(xclass &&other) = delete; \
 xclass &operator =(xclass &&) = delete;
 
 template <class T, std::size_t N>
+GSL_SUPPRESS(bounds)
 consteval bool CheckFreeCommand(T cmd, const T (&global_cmds)[N], std::size_t offset)
 {
 	if (offset < N)
@@ -197,11 +200,21 @@ consteval bool CheckFreeCommand(T cmd, const T (&global_cmds)[N], std::size_t of
 
 	return true;
 }
+// check if cmd is in a list of already used global commands.
 consteval bool CheckFreeCommand(TCHAR cmd)
 {
 	// list of command chars in use by parseGlobalCommandRequest()
 	const TCHAR global_cmds[] = TEXT("bCefFhJMpxURsTz");
 	return CheckFreeCommand(cmd, global_cmds, 0);
+}
+// check if this command is valid & not in use globally.
+template <TCHAR c>
+GSL_SUPPRESS(bounds)
+bool IsThisCommand(const XSwitchFlags& xflags) noexcept
+{
+	static_assert(CheckFreeCommand(c), "Command in use!");
+
+	return xflags[c];
 }
 
 /*!

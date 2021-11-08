@@ -230,16 +230,22 @@ void DcxControl::parseGlobalCommandRequest(const TString& input, const XSwitchFl
 	const auto numtok = input.numtok();
 
 	// xdid -f [NAME] [ID] [SWITCH] [+FLAGS] [CHARSET] [SIZE] [FONTNAME]
-	if (flags[TEXT('f')] && numtok > 3)
+	if (flags[TEXT('f')])
 	{
+		if (numtok < 7)
+			throw DcxExceptions::dcxInvalidArguments();
+
 		if (LOGFONT lf{ }; ParseCommandToLogfont(input.gettok(4, -1), &lf))
 			setControlFont(CreateFontIndirect(&lf), FALSE);
 
 		redrawWindow();
 	}
 	// xdid -p [NAME] [ID] [SWITCH] [X] [Y] [W] [H]
-	else if (flags[TEXT('p')] && numtok > 6)
+	else if (flags[TEXT('p')])
 	{
+		if (numtok < 7)
+			throw DcxExceptions::dcxInvalidArguments();
+
 		const auto x = input.getfirsttok(4).to_int();
 		const auto y = input.getnexttok().to_int();	// tok 5
 		const auto w = input.getnexttok().to_int();	// tok 6
@@ -255,8 +261,11 @@ void DcxControl::parseGlobalCommandRequest(const TString& input, const XSwitchFl
 		//SendMessage( m_Hwnd, WM_NCPAINT, (WPARAM) 1, (LPARAM) 0 );
 	}
 	// xdid -x [NAME] [ID] [SWITCH] [+FLAGS]
-	else if (flags[TEXT('x')] && numtok > 3)
+	else if (flags[TEXT('x')])
 	{
+		if (numtok < 4)
+			throw DcxExceptions::dcxInvalidArguments();
+
 		this->removeStyle(WindowStyle::Border | WS_DLGFRAME);
 		this->removeExStyle(WindowExStyle::ClientEdge | WS_EX_DLGMODALFRAME | WS_EX_STATICEDGE | WS_EX_WINDOWEDGE);
 
@@ -270,8 +279,11 @@ void DcxControl::parseGlobalCommandRequest(const TString& input, const XSwitchFl
 		SendMessage(m_Hwnd, WM_NCPAINT, 1U, 0);
 	}
 	// xdid -C [NAME] [ID] [SWITCH] [+FLAGS] [COLOR]
-	else if (flags[TEXT('C')] && numtok > 4)
+	else if (flags[TEXT('C')])
 	{
+		if (numtok < 5)
+			throw DcxExceptions::dcxInvalidArguments();
+
 		const auto iFlags = this->parseColorFlags(input.getfirsttok(4));
 		const auto clrColor = input.getnexttok().to_<COLORREF>();	// tok 5
 
@@ -323,8 +335,11 @@ void DcxControl::parseGlobalCommandRequest(const TString& input, const XSwitchFl
 		SetFocus(m_Hwnd);
 	// xdid -J [NAME] [ID] [SWITCH] [+FLAGS] [CURSOR|FILENAME]
 	// xdid -J DNAME ID [+FLAGS] [CURSOR|FILENAME]
-	else if (flags[TEXT('J')] && numtok > 4)
+	else if (flags[TEXT('J')])
 	{
+		if (numtok < 5)
+			throw DcxExceptions::dcxInvalidArguments();
+
 		const auto iFlags = this->parseCursorFlags(input.getfirsttok(4));
 		auto filename(input.getlasttoks());
 		const auto* const CursorType = this->parseCursorType(filename);
@@ -346,8 +361,11 @@ void DcxControl::parseGlobalCommandRequest(const TString& input, const XSwitchFl
 		this->m_tsMark = info;
 	}
 	// xdid -Z [NAME] [ID] [SWITCH] [%]
-	else if (flags[TEXT('Z')] && numtok > 3)
+	else if (flags[TEXT('Z')])
 	{
+		if (numtok < 4)
+			throw DcxExceptions::dcxInvalidArguments();
+
 		const auto perc = gsl::narrow_cast<BYTE>(input.getfirsttok(4).to_int() & 0xFF);
 
 		if (perc > 100)
@@ -442,11 +460,16 @@ void DcxControl::parseGlobalCommandRequest(const TString& input, const XSwitchFl
 		SetFocus(nullptr);
 	}
 	// xdid -T [NAME] [ID] [SWITCH] (ToolTipText)
-	else if (flags[TEXT('T')] && numtok > 2)
-		this->m_tsToolTip = (numtok > 3 ? input.gettok(4, -1).trim() : TEXT(""));
-	// xdid -R [NAME] [ID] [SWITCH] [FLAG] [ARGS]
-	else if (flags[TEXT('R')] && numtok > 3)
+	else if (flags[TEXT('T')])
 	{
+		this->m_tsToolTip = (numtok > 3 ? input.gettok(4, -1).trim() : TEXT(""));
+	}
+	// xdid -R [NAME] [ID] [SWITCH] [+FLAG] [ARGS]
+	else if (flags[TEXT('R')])
+	{
+		if (numtok < 4)
+			throw DcxExceptions::dcxInvalidArguments();
+
 		const XSwitchFlags xflags(input.getfirsttok(4));
 
 		if (!xflags[TEXT('+')])
@@ -677,7 +700,7 @@ HBITMAP DcxControl::resizeBitmap(HBITMAP srcBM, const RECT* const rc) noexcept
 	}
 	return hRes;
 #endif
-}
+		}
 
 /// <summary>
 /// Converts a string to a control type.
@@ -760,6 +783,11 @@ const DcxColourFlags DcxControl::parseColorFlags(const TString& flags) noexcept
 		iFlags |= DcxColourFlags::GRADENDCOLOR;
 
 	// for checkboxes
+	if (xflags[TEXT('h')])
+		iFlags |= DcxColourFlags::CHECKBOXHOT;	// when control is hot.
+	if (xflags[TEXT('d')])
+		iFlags |= DcxColourFlags::CHECKBOXDISABLED;	// when control is disabled.
+
 	if (xflags[TEXT('c')])
 		iFlags |= DcxColourFlags::CHECKBOXBGCOLOR;
 	if (xflags[TEXT('f')])
@@ -817,7 +845,7 @@ bool DcxControl::parseGlobalInfoRequest(const TString& input, const refString<TC
 
 			_ts_snprintf(szReturnValue, TEXT("%d %d %d %d"), rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top);
 			return true;
-		}
+	}
 #endif
 		return true;
 	}
@@ -954,9 +982,9 @@ bool DcxControl::parseGlobalInfoRequest(const TString& input, const refString<TC
 	default:
 		throw Dcx::dcxException("Invalid property or number of arguments");
 		break;
-	}
-	return false;
 }
+	return false;
+	}
 
 TString DcxControl::parseGlobalInfoRequest(const TString& input) const
 {
