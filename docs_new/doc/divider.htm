@@ -154,14 +154,70 @@
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> The value must be between the left pane minimum width/height and the width/height of the control minus the right pane minimum width/height.<br />
 			<a class="value">Left W/H</a> <= <a class="param">POS</a> <= <a class="value">Right W/H</a>.</td></tr></table>
 <br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xdid.big.Q"></a>/xdid -Q	</td></tr>
+	<tr><td colspan="2">This command lets you set the colour of the positioning bar.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -Q [DNAME] [ID] [COLOUR] [SELECTED COLOUR]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -Q dcx 4 $rgb(255,0,0) $rgb(0,123,32)</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xdid.big.W"></a>/xdid -W	</td></tr>
+	<tr><td colspan="2">This command lets you set the width positioning bar.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -W [DNAME] [ID] [WIDTH]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -W dcx 4 5</div></td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> The value is in pixels.</td></tr></table>
+<br />
 <table class="description">
 	<tr><td class="heading" style="border-color: #A8B2D1; color: #A8B2D1;"><a name="xdidprop"></a>$xdid() Properties</td></tr>
 	<tr><td>The $xdid identifier is a given mIRC alias that communicates with the DCX DLL to extract information in DCX controls.</td></tr>
 </table>
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
+			<a name="xdidprop.barcolours"></a>$xdid().barcolours	</td></tr>
+	<tr><td colspan="2">This property lets you retrieve the positioning bars colours.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID).barcolours</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4).barcolours</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
+			<a name="xdidprop.barwidth"></a>$xdid().barwidth	</td></tr>
+	<tr><td colspan="2">This property lets you retrieve the positioning bars width.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID).barwidth</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4).barwidth</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
 			<a name="xdidprop.isvertical"></a>$xdid().isvertical	</td></tr>
-	<tr><td colspan="2">This property lets you retreive the alignment of the divider.</td></tr>
+	<tr><td colspan="2">This property lets you retrieve the alignment of the divider.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
 		<td><div class="syntax">$xdid(dialog, ID).isvertical</div></td>
@@ -175,7 +231,7 @@
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
 			<a name="xdidprop.position"></a>$xdid().position	</td></tr>
-	<tr><td colspan="2">This property lets you retreive the position of the divider in pixels.</td></tr>
+	<tr><td colspan="2">This property lets you retrieve the position of the divider in pixels.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
 		<td><div class="syntax">$xdid(dialog, ID).position</div></td>
@@ -255,9 +311,13 @@
 	<a class='header' href="#xdid"><div style='background:#6A7CB0;'>/xdid Flags</div></a>
 		<a class='flag' href="#xdid.l|-r"><div>-l|-r</div></a>
 		<a class='flag' href="#xdid.v"><div>-v</div></a>
+		<a class='flag' href="#xdid.big.Q"><div>-Q</div></a>
+		<a class='flag' href="#xdid.big.W"><div>-W</div></a>
 	</div>
 <div class='rightmenu' style='border:1px solid #A8B2D1'>
 	<a class='header' href="#xdidprop"><div style='background:#A8B2D1;'>$xdid() Properties</div></a>
+		<a class='flag' href="#xdidprop.barcolours"><div>barcolours</div></a>
+		<a class='flag' href="#xdidprop.barwidth"><div>barwidth</div></a>
 		<a class='flag' href="#xdidprop.isvertical"><div>isvertical</div></a>
 		<a class='flag' href="#xdidprop.position"><div>position</div></a>
 	</div>
@@ -276,7 +336,7 @@
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2021</td>
-		<td style="text-align: right;">Last Updated: 3rd November, 21</td>
+		<td style="text-align: right;">Last Updated: 8th November, 21</td>
 	</tr>
 </table>
 <div style="text-align: center;">

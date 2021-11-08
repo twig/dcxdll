@@ -39,13 +39,26 @@ function get_xdid_divider(&$XDID) {
 	        '__notes' => 'The value must be between the left pane minimum width/height and the width/height of the control minus the right pane minimum width/height.<br />
 			[v]Left W/H[/v] <= [p]POS[/p] <= [v]Right W/H[/v].'
 		),
+		'W' => array(
+	        '__desc' => "This command lets you set the width positioning bar.",
+	        '__cmd' => '[WIDTH]',
+	        '__eg' => '5',
+	        '__notes' => 'The value is in pixels.'
+		),
+		'Q' => array(
+	        '__desc' => "This command lets you set the colour of the positioning bar.",
+	        '__cmd' => '[COLOUR] [SELECTED COLOUR]',
+	        '__eg' => '$rgb(255,0,0) $rgb(0,123,32)',
+		),
 	);
 }
 
 function get_xdidprops_divider(&$XDIDPROPS) {
 	$XDIDPROPS = array(
-		"position" => 'This property lets you retreive the position of the divider in pixels.',
-		"isvertical" => 'This property lets you retreive the alignment of the divider.',
+		"position" => 'This property lets you retrieve the position of the divider in pixels.',
+		"isvertical" => 'This property lets you retrieve the alignment of the divider.',
+		"barcolours" => 'This property lets you retrieve the positioning bars colours.',
+		"barwidth" => 'This property lets you retrieve the positioning bars width.',
 	);
 }
 

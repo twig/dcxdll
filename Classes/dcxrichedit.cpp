@@ -1528,12 +1528,16 @@ const TString DcxRichEdit::getStyles(void) const
 		styles.addtok(TEXT("right"));
 	if (dcx_testflag(Styles, ES_AUTOHSCROLL))
 		styles.addtok(TEXT("autohs"));
+	if (dcx_testflag(Styles, ES_AUTOVSCROLL))
+		styles.addtok(TEXT("autovs"));
 	if (dcx_testflag(Styles, WS_VSCROLL))
 		styles.addtok(TEXT("vsbar"));
 	if (dcx_testflag(Styles, WS_HSCROLL))
 		styles.addtok(TEXT("hsbar"));
 	if (dcx_testflag(Styles, ES_DISABLENOSCROLL))
 		styles.addtok(TEXT("disablescroll"));
+	if (m_bShowLineNumbers)
+		styles.addtok(TEXT("shownumbers"));
 	return styles;
 }
 

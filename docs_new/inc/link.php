@@ -9,8 +9,9 @@ function get_styles_link(&$STYLES) {
 		'alpha' => 'Control is alpha blended.',
 		'shadow' => 'Display text with a shadow.',
 		'noformat' => 'Disables support for mIRC codes in control (faster).',
-                'hgradient' => 'Draws a horizontal gradient with the colors specified.',
+		'hgradient' => 'Draws a horizontal gradient with the colors specified.',
 		'vgradient' => 'Draws a vertical gradient with the colors specified.',
+		'nounderline' => 'Link text is not underlined.',
 		'__notes' => '[s]shadow[/s] will only work if the text color is not black or the same as the default text color on the current windows theme (ie. $rgb(0, 0, 0) or $dcx(GetSystemColor, COLOR_WINDOWTEXT) respectively). Change it by using [f]xdid -C[/f]',
 	);
 }

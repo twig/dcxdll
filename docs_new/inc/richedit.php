@@ -18,6 +18,7 @@ function get_styles_richedit(&$STYLES) {
 		'hsbar' => 'Displays a horizontal scrollbar.',
 		'vsbar' => 'Displays a vertical scrollbar.',
 		'tooltips' => 'The richedit will have a tooltip.',
+		'showlinenumbers' => 'Show line numbers in a multi line control',
 	);
 }
 
@@ -135,8 +136,8 @@ function get_xdid_richedit(&$XDID) {
 		),
 		'g' => array(
 			'__desc' => 'This command lets you set the colours to use for line numbers',
-			'__cmd' => '[Selected line Background Colour|-] (Background Colour|-) (Selected Line Text Colour|-) (Text Colour|-)',
-			'__eg' => '255 16245 - 1234',
+			'__cmd' => '[Selected line Background Colour|-] (Background Colour|-) (Selected Line Text Colour|-) (Text Colour|-) (Border Colour|-)',
+			'__eg' => '$rgb(255,0,0) $rgb(16,24,5) - $rgb(12,34,0)',
 			'__notes' => array(
 				'A value of [v]-[/v] will cause an option to be ignored.',
 			),

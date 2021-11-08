@@ -66,13 +66,30 @@ function get_xdid_image(&$XDID) {
 				'XOFFSET' => 'The horizontal offset for the image.',
 				'YOFFSET' => 'The vertical offset for the image.',
 			),
-                        '__notes' => 'Negative offsets are valid.',
+		'__notes' => 'Negative offsets are valid.',
 		),
 		'S' => array(
-                        '__desc' => 'This command lets you enable or disable automatic resizing of the image.',
-                        '__cmd' => '[1|0]',
-                        '__eg' => '1',
-                        '__notes' => "Automatic resizing is enabled by default.",
+			'__desc' => 'This command lets you enable or disable automatic resizing of the image.',
+			'__cmd' => '[1|0]',
+			'__eg' => '1',
+			'__notes' => "Automatic resizing is enabled by default.",
+		),
+		'F' => array(
+			'__desc' => 'This command lets you enable or disable automatic resizing of the image.',
+			'__cmd' => '[+FLAG] [ARGS]',
+			'__eg' => '+a 1',
+			'__params' => array(
+				'+FLAGS' => array(
+					'__desc' => 'Animation flags.',
+					'__values' => array(
+						'a' => 'Start/Pause an animation.<br/>[ARGS] is [1|0].',
+						'd' => 'Set the delay between frames.<br/>[ARGS] is [DELAY].<br/>A delay of zero causes the images built in delay to be used.',
+						'f' => 'Set the current frame.<br/>[ARGS] is [FRAME].<br/>[FRAME] must be >=0 & <= $xdid(dname,id).frames',
+					),
+				),
+				'ARGS' => 'This is dependent on which flag is used.',
+			),
+			'__notes' => ".",
 		),
 	);
 	
@@ -82,6 +99,8 @@ function get_xdid_image(&$XDID) {
 function get_xdidprops_image(&$XDIDPROPS) {
 	$XDIDPROPS = array(
         'fname' => 'This property returns loaded filename (if any).',
+        'frames' => 'This property returns the number of frames in an animation (if any).',
+        'isanimated' => 'This property returns if a loaded image is an animation.',
 	);
 }
 

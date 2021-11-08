@@ -9,7 +9,8 @@ function get_styles_comboex(&$STYLES) {
 		"simple" => "Combo that is a list with an edit box",
 		"dropdown" => "Simple dropdown combo.",
 		"dropedit" => "Dropdown combo with an editbox.",
-                'hscroll' => 'Enables the horizontal scroll bar in the listbox part.',
+		'hscroll' => 'Enables the horizontal scroll bar in the listbox part.',
+		'sort' => 'Sort the contents of the listbox part. (untested)',
 
 		
 		'__notes' => 'When creating a ComboEx control, it is important to remember that the height of the control <strong>includes</strong> the dropdown list portion.',

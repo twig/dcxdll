@@ -14,6 +14,7 @@ function get_styles_line(&$STYLES) {
 		'alpha' => 'Control is alpha blended.',
 		'shadow' => 'Display text with a shadow.',
 		'noformat' => 'Disables support for mIRC codes in control (faster).',
+		'simple' => 'Display a simple line. (no text or shading)',
 	);
 }
 

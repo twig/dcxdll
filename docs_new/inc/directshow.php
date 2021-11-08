@@ -96,6 +96,7 @@ function get_xdid_directshow(&$XDID) {
 function get_xdidprops_directshow(&$XDIDPROPS) {
 	$XDIDPROPS = array(
         'volume' => 'This property returns volume percentage as a value between [v]0.00[/v] and [v]100.00[/v].',
+        'balance' => 'This property returns audio balance as a value between [v]-10000[/v] and [v]10000[/v].',
         'fname' => 'This property returns the filename of the loaded media (if any).',
         'isloaded' => 'This property returns if a file is loaded or not.',
 	    'brange' => array(

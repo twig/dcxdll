@@ -3,18 +3,21 @@ function get_intro_colorcombo() {
 	echo "This control enables you to create a colorcombo.";
 }
 
-
-
-
+function get_styles_colorcombo(&$STYLES) {
+	$STYLES = array(
+                'shownumbers' => 'Show the mIRC colour number.',
+	);
+}
 
 function get_xdid_colorcombo(&$XDID) {
 	$XDID = array(
 	    'a' => array(
 	        '__desc' => 'This command lets you add a color to the colorcombo at the specified position.',
-	        '__cmd' => '[N] [RGB]',
-	        '__eg' => '2 $rgb(0,0,255)',
+	        '__cmd' => '[N] [RGB] (TEXT)',
+	        '__eg' => '2 $rgb(0,0,255) Blue',
 	        '__notes' => array(
-	            "If N is 0, inserts color at the end of the list."
+	            "If N is 0, inserts color at the end of the list.<br/>Text supports mirc ctrl codes but will have a start colour auto set to contrast with
+the item's colour (black or white)"
 			),
 		),
 		'c' => array(
@@ -38,6 +41,15 @@ function get_xdid_colorcombo(&$XDID) {
 		),
 		'r' => array(
 	        '__desc' => 'This command lets you clear the contents of the colorcombo.',
+		),
+	    't' => array(
+	        '__desc' => 'This command lets you change the text of a specific item.',
+	        '__cmd' => '[N] (TEXT)',
+	        '__eg' => '2 Aqua',
+	        '__notes' => array(
+	            "If N is 0, inserts color at the end of the list. No text supplied means clear the items text.<br/>Text supports mirc ctrl codes but will have a start colour auto set to contrast with
+the item's colour (black or white)"
+			),
 		),
 	);
 }
