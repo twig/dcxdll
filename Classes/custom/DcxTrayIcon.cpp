@@ -27,12 +27,13 @@ mIRC(TrayIcon)
 			trayIcons = std::make_unique<DcxTrayIcon>();
 
 		if (!*trayIcons)
+		{
+			trayIcons.reset();
 			throw Dcx::dcxException("Could not start trayicon manager");
-
+		}
 		const auto numtok = d.trim().numtok();
 
 		if (numtok < 2)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const XSwitchFlags xflags(d.getfirsttok(1));
@@ -126,14 +127,29 @@ mIRC(TrayIcon)
 
 DcxTrayIcon::DcxTrayIcon(void) noexcept
 {
-	// create a "dialog" and dont bother showing it
-	this->m_hwnd = CreateWindow(TEXT("#32770"), TEXT(""), 0, 0, 0, 48, 48, nullptr, nullptr, GetModuleHandle(nullptr), nullptr);
+	WNDCLASSEX wc{};
+	wc.cbSize = sizeof(WNDCLASSEX);
 
-	//if (!IsWindow(m_hwnd))
-	//	throw Dcx::dcxException("Problem initialising trayicons");
+	const auto hInst = GetModuleHandle(nullptr);
 
-	if (IsWindow(m_hwnd))
-		m_wndProc = SubclassWindow(m_hwnd, DcxTrayIcon::TrayWndProc);
+	if (!GetClassInfoEx(hInst, DCXTRAYCLASS, &wc))
+	{
+		wc.cbSize = sizeof(WNDCLASSEX);
+		wc.style = 0;
+		wc.lpfnWndProc = DcxTrayIcon::TrayWndProc;
+		wc.cbClsExtra = 0;
+		wc.cbWndExtra = 0;
+		wc.hInstance = hInst;
+		wc.hIcon = nullptr;
+		wc.hCursor = nullptr;
+		wc.hbrBackground = GetStockBrush(COLOR_WINDOWFRAME);
+		wc.lpszMenuName = nullptr;
+		wc.lpszClassName = DCXTRAYCLASS;
+		wc.hIconSm = nullptr;
+		RegisterClassEx(&wc);
+	}
+
+	this->m_hwnd = CreateWindowEx(0, DCXTRAYCLASS, nullptr, 0, 0, 0, 0, 0, HWND_MESSAGE, nullptr, hInst, nullptr);
 }
 
 DcxTrayIcon::~DcxTrayIcon(void) noexcept
@@ -155,12 +171,10 @@ DcxTrayIcon::~DcxTrayIcon(void) noexcept
 		}
 		trayIconIDs.clear();
 
-		SubclassWindow(m_hwnd, m_wndProc);
-
 		m_hwndTooltip = nullptr;
-		m_wndProc = nullptr;
 
 		DestroyWindow(m_hwnd);
+		UnregisterClass(DCXTRAYCLASS, GetModuleHandle(nullptr));
 	}
 }
 

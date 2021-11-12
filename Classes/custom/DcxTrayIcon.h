@@ -5,6 +5,8 @@
 
 #include "defines.h"
 
+#define DCXTRAYCLASS TEXT("DcxTrayClass")
+
 #define DCXM_TRAYICON 12345
 
 #ifdef __INTEL_COMPILER // Defined when using Intel C++ Compiler.
@@ -23,7 +25,7 @@ public:
 	DcxTrayIcon(DcxTrayIcon&&) = delete;
 	DcxTrayIcon& operator=(DcxTrayIcon&&) = delete;
 
-	explicit operator bool() const noexcept { return (m_hwnd && m_wndProc); }
+	explicit operator bool() const noexcept { return (m_hwnd); }
 
 	const inline HWND &GetHwnd() const noexcept
 	{
@@ -35,7 +37,6 @@ public:
 private:
 	VectorOfInts trayIconIDs;
 	HWND m_hwnd{ nullptr };
-	WNDPROC m_wndProc{ nullptr };
 
 	HWND m_hwndTooltip{ nullptr }; //!< Balloon tooltip control
 
