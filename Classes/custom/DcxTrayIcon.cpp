@@ -31,6 +31,7 @@ mIRC(TrayIcon)
 			trayIcons.reset();
 			throw Dcx::dcxException("Could not start trayicon manager");
 		}
+
 		const auto numtok = d.trim().numtok();
 
 		if (numtok < 2)
@@ -40,8 +41,12 @@ mIRC(TrayIcon)
 		const auto id = d.getnexttok().to_int();	// tok 2
 
 		// create and edit can use the same function
-		if ((xflags[TEXT('c')] || xflags[TEXT('e')]) && numtok > 3)
+		// Create/Edit   : xTray +c [id] [+flags] [icon index] [icon file] ([TAB] Tooltip text)
+		if (xflags[TEXT('c')] || xflags[TEXT('e')])
 		{
+			if (numtok < 4)
+				throw DcxExceptions::dcxInvalidArguments();
+
 			// find icon id in vector
 			const bool bExists = trayIcons->idExists(id);
 			DWORD msg = NIM_ADD;
@@ -54,7 +59,7 @@ mIRC(TrayIcon)
 			if (xflags[TEXT('e')])
 			{
 				if (!bExists)
-					throw Dcx::dcxException(TEXT("Cannot edit trayicon: id % does not exists"), id);
+					throw Dcx::dcxException(TEXT("Cannot edit trayicon: id % does not exist"), id);
 
 				msg = NIM_MODIFY;
 			}
@@ -76,6 +81,7 @@ mIRC(TrayIcon)
 				throw Dcx::dcxException("Modify trayicon failed");
 		}
 		// delete trayicon
+		// Delete   : xTray +d [id]
 		else if (xflags[TEXT('d')])
 		{
 			if (!trayIcons->modifyIcon(id, NIM_DELETE))
@@ -83,8 +89,11 @@ mIRC(TrayIcon)
 		}
 		// change icon
 		// Icon   : xTray +i [id] [+flags] [icon index] [icon file]
-		else if (xflags[TEXT('i')] && (numtok > 4))
+		else if (xflags[TEXT('i')])
 		{
+			if (numtok < 5)
+				throw DcxExceptions::dcxInvalidArguments();
+
 			// set up info
 			const auto iconFlags(d.getnexttok());	// tok 3
 			const auto index = d.getnexttok().to_int();	// tok 4
@@ -99,6 +108,7 @@ mIRC(TrayIcon)
 				throw Dcx::dcxException("Error changing trayicon icon");
 		}
 		// change tooltip
+		// Tooltip   : xTray +T [id] (tooltip)
 		else if (xflags[TEXT('T')])
 		{
 			TString tip;
@@ -110,7 +120,8 @@ mIRC(TrayIcon)
 				throw Dcx::dcxException("Error changing trayicon tooltip");
 		}
 		else
-			throw Dcx::dcxException("Unknown flag or insufficient parameters");
+			//throw Dcx::dcxException("Unknown flag or insufficient parameters");
+			throw DcxExceptions::dcxInvalidFlag();
 
 		return 1;
 	}
