@@ -189,6 +189,9 @@ void DcxLink::parseCommandRequest(const TString& input)
 
 		const auto tsArgs(input.getlasttoks());			// tok 4, -1
 
+		if (tsArgs.numtok() > std::size(m_aColors))
+			throw DcxExceptions::dcxInvalidArguments();
+
 		UINT i = 0U;
 		for (const auto& arg : tsArgs)
 		{
