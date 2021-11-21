@@ -317,7 +317,6 @@ const WindowExStyle DcxListView::parseListviewExStyles(const TString& styles) no
 				break;
 			case L"headeralways"_hash:
 				ExStyles |= LVS_EX_HEADERINALLVIEWS;
-				//LVN_COLUMNOVERFLOWCLICK
 				break;
 			case L"hidelabels"_hash:
 				ExStyles |= LVS_EX_HIDELABELS;
@@ -333,6 +332,7 @@ const WindowExStyle DcxListView::parseListviewExStyles(const TString& styles) no
 				break;
 			case L"columnoverflow"_hash:
 				ExStyles |= LVS_EX_COLUMNOVERFLOW;
+				//LVN_COLUMNOVERFLOWCLICK
 				break;
 			case L"snaptogrid"_hash:
 				ExStyles |= LVS_EX_SNAPTOGRID;
@@ -3055,9 +3055,23 @@ LRESULT DcxListView::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 		}
 		break;
 
+		case LVN_COLUMNOVERFLOWCLICK:
+		{
+			dcxlParam(LPNMLISTVIEW, lpml);
+
+			bParsed = TRUE;
+
+			if (!lpml)
+				break;
+
+			execAliasEx(TEXT("columnoverflow,%u,%d,%d"), getUserID(), lpml->iItem, lpml->iSubItem);
+		}
+		break;
+
 		case NM_CUSTOMDRAW:
 		{
-			const auto lplvcd = reinterpret_cast<const LPNMLVCUSTOMDRAW>(lParam);
+			dcxlParam(LPNMLVCUSTOMDRAW, lplvcd);
+
 			bParsed = TRUE;
 
 			if (!lplvcd)

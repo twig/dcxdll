@@ -108,6 +108,18 @@
 		<td>Items are rearranged automaticly when inserted. (<a class="style">icon</a> & <a class="style">smallicon</a> views)</td>
 	</tr>
 	<tr>
+		<td class="style"><a name="style.autoautoarrange" class="style">autoautoarrange</a></td>
+		<td>Automatically arrange icons if no icon positions have been set (Similar to <a class="style">autoarrange</a>) (<a class="style">icon</a> & <a class="style">smallicon</a> view).</td>
+	</tr>
+	<tr>
+		<td class="style"><a name="style.autocheck" class="style">autocheck</a></td>
+		<td>Automatically select check boxes on single click. (<a class="style">checkbox</a> needed)</td>
+	</tr>
+	<tr>
+		<td class="style"><a name="style.autosize" class="style">autosize</a></td>
+		<td>Automatically size listview columns. (<a class="style">report</a> view)</td>
+	</tr>
+	<tr>
 		<td class="style"><a name="style.balloon" class="style">balloon</a></td>
 		<td>The listview and listview items tooltip will use the balloon style.</td>
 	</tr>
@@ -118,6 +130,18 @@
 	<tr>
 		<td class="style"><a name="style.checkbox" class="style">checkbox</a></td>
 		<td>Enables checkbox support in the list view. (<a class="style">report</a> view)</td>
+	</tr>
+	<tr>
+		<td class="style"><a name="style.columnjustify" class="style">columnjustify</a></td>
+		<td>Icons are lined up in columns that use up the whole view. (<a class="style">icon</a> & <a class="style">smallicon</a> view)</td>
+	</tr>
+	<tr>
+		<td class="style"><a name="style.columnoverflow" class="style">columnoverflow</a></td>
+		<td>Indicates that an overflow button should be displayed in icon/tile view if there is not enough client width to display the complete set of header items. (<a class="style">headeralways</a> needed)</td>
+	</tr>
+	<tr>
+		<td class="style"><a name="style.columnsnap" class="style">columnsnap</a></td>
+		<td>Snap to minimum column width when the user resizes a column.</td>
 	</tr>
 	<tr>
 		<td class="style"><a name="style.editlabel" class="style">editlabel</a></td>
@@ -136,8 +160,16 @@
 		<td>Displays grid lines between item cells. (<a class="style">report</a> view)</td>
 	</tr>
 	<tr>
+		<td class="style"><a name="style.headeralways" class="style">headeralways</a></td>
+		<td>Show column headers in all view modes.</td>
+	</tr>
+	<tr>
 		<td class="style"><a name="style.headerdrag" class="style">headerdrag</a></td>
 		<td>Enables the possibility to drag listview headers to another position. (<a class="style">report</a> view)</td>
+	</tr>
+	<tr>
+		<td class="style"><a name="style.hidelabels" class="style">hidelabels</a></td>
+		<td>Hides the labels in icon and small icon view. (<a class="style">icon</a> & <a class="style">smallicon</a> view)</td>
 	</tr>
 	<tr>
 		<td class="style"><a name="style.hottrack" class="style">hottrack</a></td>
@@ -145,7 +177,7 @@
 	</tr>
 	<tr>
 		<td class="style"><a name="style.noheader" class="style">noheader</a></td>
-		<td>Does not display the header on the listview. (<a class="style">report</a> view)</td>
+		<td>Does not display the header on the listview. (<a class="style">report</a> view unless <a class="style">headeralways</a> is used)</td>
 	</tr>
 	<tr>
 		<td class="style"><a name="style.noheadersort" class="style">noheadersort</a></td>
@@ -160,12 +192,24 @@
 		<td>Scrolling is disabled. All items must be within the client area. (<a class="style">icon</a> & <a class="style">smallicon</a> views)</td>
 	</tr>
 	<tr>
+		<td class="style"><a name="style.oneclick" class="style">oneclick</a></td>
+		<td>Activates an item on single click. This style also enables hot tracking in the list-view control. Hot tracking means that when the cursor moves over an item, it is highlighted but not selected. (Not to be used with <a class="style">twoclick</a>)</td>
+	</tr>
+	<tr>
+		<td class="style"><a name="style.shadowtext" class="style">shadowtext</a></td>
+		<td>Enable shadow text on transparent backgrounds only. (<a class="style">transparentbkg</a> needed)</td>
+	</tr>
+	<tr>
 		<td class="style"><a name="style.showsel" class="style">showsel</a></td>
 		<td>When the control loses focus, the selection is still displayed.</td>
 	</tr>
 	<tr>
 		<td class="style"><a name="style.singlesel" class="style">singlesel</a></td>
 		<td>Allows only one item at a time to be selected. By default, multiple items can be selected.</td>
+	</tr>
+	<tr>
+		<td class="style"><a name="style.snaptogrid" class="style">snaptogrid</a></td>
+		<td>In icon view, icons automatically snap into a grid. (<a class="style">icon</a> & <a class="style">smallicon</a> view)</td>
 	</tr>
 	<tr>
 		<td class="style"><a name="style.sortasc" class="style">sortasc</a></td>
@@ -182,6 +226,22 @@
 	<tr>
 		<td class="style"><a name="style.tooltip" class="style">tooltip</a></td>
 		<td>If a partially hidden label in any view lacks tooltip text, the control will unfold the label. If this style is not set, the control will unfold partly hidden labels only for the <a class="style">icon</a> view.</td>
+	</tr>
+	<tr>
+		<td class="style"><a name="style.transparentbkg" class="style">transparentbkg</a></td>
+		<td>Background is painted by the parent.</td>
+	</tr>
+	<tr>
+		<td class="style"><a name="style.twoclick" class="style">twoclick</a></td>
+		<td>Activates an item on double click. This style also enables hot tracking in the list-view control. Hot tracking means that when the cursor moves over an item, it is highlighted but not selected. (Not to be used with <a class="style">oneclick</a>)</td>
+	</tr>
+	<tr>
+		<td class="style"><a name="style.underlinecold" class="style">underlinecold</a></td>
+		<td>Causes those non-hot items that may be activated to be displayed with underlined text. (<a class="style">twoclick</a> needed)</td>
+	</tr>
+	<tr>
+		<td class="style"><a name="style.underlinehot" class="style">underlinehot</a></td>
+		<td>Causes those hot items that may be activated to be displayed with underlined text. (<a class="style">oneclick</a> or <a class="style">twoclick</a> needed)</td>
 	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li><a class="style">grid</a> does not work with groups. See <a>/xdid -q</a>.</li><li><a class="style">sortasc</a> and <a class="style">sortdesc</a> only work with <a class="style">report</a> or <a class="style">list</a> views.</li></ul></td></tr></table>
 <br />
@@ -636,8 +696,16 @@
 		<td>Autosize according to header text width.</td>
 	</tr>
 	<tr>
-		<td class="value">s</td>
+		<td class="value">F</td>
+		<td>Autosize the column to a fixed width.</td>
+	</tr>
+	<tr>
+		<td class="value">S</td>
 		<td>Autosize the column to fit header or content. Cannot be used with <a class="value">+a</a>.</td>
+	</tr>
+	<tr>
+		<td class="value">P</td>
+		<td>Autosize the column to a percentage of the total width.</td>
 	</tr>
 	<tr>
 		<td class="value">m</td>
@@ -647,7 +715,7 @@
 		<td class="param">WIDTH</td>
 		<td>Header width (Ignored if you use flags <a class="value">+a</a>, <a class="value">+h</a> or <a class="value">+s</a>).</td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>If the flag <a class="value">+h</a> is used for the last column, the column will be resized to the width of the control.</li><li><a class="value">+m</a> flag cannot be used with the <a class="value">+a</a>, <a class="value">+h</a> or <a class="value">+s</a> flags.</li></ul></td></tr></table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>If the flag <a class="value">+h</a> is used for the last column, the column will be resized to the width of the control.</li><li><a class="value">+m</a> flag cannot be used with the <a class="value">+a</a>, <a class="value">+h</a> or <a class="value">+S</a> flags.</li></ul></td></tr></table>
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
@@ -1970,14 +2038,22 @@
 		<a class='flag' href="#style.aligntop"><div>aligntop</div></a>
 		<a class='flag' href="#style.alpha"><div>alpha</div></a>
 		<a class='flag' href="#style.autoarrange"><div>autoarrange</div></a>
+		<a class='flag' href="#style.autoautoarrange"><div>autoautoarrange</div></a>
+		<a class='flag' href="#style.autocheck"><div>autocheck</div></a>
+		<a class='flag' href="#style.autosize"><div>autosize</div></a>
 		<a class='flag' href="#style.balloon"><div>balloon</div></a>
 		<a class='flag' href="#style.borderselect"><div>borderselect</div></a>
 		<a class='flag' href="#style.checkbox"><div>checkbox</div></a>
+		<a class='flag' href="#style.columnjustify"><div>columnjustify</div></a>
+		<a class='flag' href="#style.columnoverflow"><div>columnoverflow</div></a>
+		<a class='flag' href="#style.columnsnap"><div>columnsnap</div></a>
 		<a class='flag' href="#style.editlabel"><div>editlabel</div></a>
 		<a class='flag' href="#style.flatsb"><div>flatsb</div></a>
 		<a class='flag' href="#style.fullrow"><div>fullrow</div></a>
 		<a class='flag' href="#style.grid"><div>grid</div></a>
+		<a class='flag' href="#style.headeralways"><div>headeralways</div></a>
 		<a class='flag' href="#style.headerdrag"><div>headerdrag</div></a>
+		<a class='flag' href="#style.hidelabels"><div>hidelabels</div></a>
 		<a class='flag' href="#style.hottrack"><div>hottrack</div></a>
 		<a class='flag' href="#style.icon"><div>icon</div></a>
 		<a class='flag' href="#style.list"><div>list</div></a>
@@ -1985,14 +2061,21 @@
 		<a class='flag' href="#style.noheadersort"><div>noheadersort</div></a>
 		<a class='flag' href="#style.nolabelwrap"><div>nolabelwrap</div></a>
 		<a class='flag' href="#style.noscroll"><div>noscroll</div></a>
+		<a class='flag' href="#style.oneclick"><div>oneclick</div></a>
 		<a class='flag' href="#style.report"><div>report</div></a>
+		<a class='flag' href="#style.shadowtext"><div>shadowtext</div></a>
 		<a class='flag' href="#style.showsel"><div>showsel</div></a>
 		<a class='flag' href="#style.singlesel"><div>singlesel</div></a>
 		<a class='flag' href="#style.smallicon"><div>smallicon</div></a>
+		<a class='flag' href="#style.snaptogrid"><div>snaptogrid</div></a>
 		<a class='flag' href="#style.sortasc"><div>sortasc</div></a>
 		<a class='flag' href="#style.sortdesc"><div>sortdesc</div></a>
 		<a class='flag' href="#style.subitemimage"><div>subitemimage</div></a>
 		<a class='flag' href="#style.tooltip"><div>tooltip</div></a>
+		<a class='flag' href="#style.transparentbkg"><div>transparentbkg</div></a>
+		<a class='flag' href="#style.twoclick"><div>twoclick</div></a>
+		<a class='flag' href="#style.underlinecold"><div>underlinecold</div></a>
+		<a class='flag' href="#style.underlinehot"><div>underlinehot</div></a>
 	</div>
 <div class='rightmenu' style='border:1px solid #6A7CB0'>
 	<a class='header' href="#xdid"><div style='background:#6A7CB0;'>/xdid Flags</div></a>
@@ -2077,7 +2160,7 @@
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2021</td>
-		<td style="text-align: right;">Last Updated: 8th November, 21</td>
+		<td style="text-align: right;">Last Updated: 21st November, 21</td>
 	</tr>
 </table>
 <div style="text-align: center;">
