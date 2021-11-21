@@ -162,6 +162,24 @@ const TString DcxListView::getStyles(void) const
 		styles.addtok(TEXT("transparentbkg"));
 	if (dcx_testflag(ExStyles, LVS_EX_TRANSPARENTSHADOWTEXT))
 		styles.addtok(TEXT("shadowtext"));
+	if (dcx_testflag(ExStyles, LVS_EX_AUTOSIZECOLUMNS))
+		styles.addtok(TEXT("autosize"));
+	if (dcx_testflag(ExStyles, LVS_EX_HEADERINALLVIEWS))
+		styles.addtok(TEXT("headeralways"));
+	if (dcx_testflag(ExStyles, LVS_EX_HIDELABELS))
+		styles.addtok(TEXT("hidelabels"));
+	if (dcx_testflag(ExStyles, LVS_EX_AUTOCHECKSELECT))
+		styles.addtok(TEXT("autocheck"));
+	if (dcx_testflag(ExStyles, LVS_EX_COLUMNSNAPPOINTS))
+		styles.addtok(TEXT("columnsnap"));
+	if (dcx_testflag(ExStyles, LVS_EX_JUSTIFYCOLUMNS))
+		styles.addtok(TEXT("columnjustify"));
+	if (dcx_testflag(ExStyles, LVS_EX_COLUMNOVERFLOW))
+		styles.addtok(TEXT("columnoverflow"));
+	if (dcx_testflag(ExStyles, LVS_EX_SNAPTOGRID))
+		styles.addtok(TEXT("snaptogrid"));
+	if (dcx_testflag(ExStyles, LVS_EX_AUTOAUTOARRANGE))
+		styles.addtok(TEXT("autoautoarrange"));
 
 	return styles;
 }
@@ -299,6 +317,7 @@ const WindowExStyle DcxListView::parseListviewExStyles(const TString& styles) no
 				break;
 			case L"headeralways"_hash:
 				ExStyles |= LVS_EX_HEADERINALLVIEWS;
+				//LVN_COLUMNOVERFLOWCLICK
 				break;
 			case L"hidelabels"_hash:
 				ExStyles |= LVS_EX_HIDELABELS;
@@ -306,10 +325,24 @@ const WindowExStyle DcxListView::parseListviewExStyles(const TString& styles) no
 			case L"autocheck"_hash:
 				ExStyles |= LVS_EX_AUTOCHECKSELECT;
 				break;
+			case L"columnsnap"_hash:
+				ExStyles |= LVS_EX_COLUMNSNAPPOINTS;
+				break;
+			case L"columnjustify"_hash:
+				ExStyles |= LVS_EX_JUSTIFYCOLUMNS;
+				break;
+			case L"columnoverflow"_hash:
+				ExStyles |= LVS_EX_COLUMNOVERFLOW;
+				break;
+			case L"snaptogrid"_hash:
+				ExStyles |= LVS_EX_SNAPTOGRID;
+				break;
+			case L"autoautoarrange"_hash:
+				ExStyles |= LVS_EX_AUTOAUTOARRANGE;
+				break;
 			default:
 				break;
 			}
-			// LVS_EX_COLUMNSNAPPOINTS LVS_EX_JUSTIFYCOLUMNS LVS_EX_SNAPTOGRID LVS_EX_AUTOAUTOARRANGE
 		}
 	}
 	catch (...) {}
