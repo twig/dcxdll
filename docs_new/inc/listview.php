@@ -64,6 +64,7 @@ function get_xdid_listview(&$XDID) {
 						'C' => 'The item has no text so the icon should be centered',
 						'd' => 'The item appears selected like a drop target.',
 						'f' => 'The item has focus thus having a dotted box around it.',
+						//'F' => "The item's column is a fixed width.",
 						'h' => 'Autosize according to header text width.',
 						'H' => 'Allows you to load an item from a hash table by name. Cannot be used with [v]+n[/v]',
 						'i' => 'The item is italic.',
@@ -71,7 +72,9 @@ function get_xdid_listview(&$XDID) {
 						'm' => 'Autosize the column to fit header or content.',
 						'n' => 'Allows you to load an item from a hash table by index. Cannot be used with [v]+H[/v]',
 						's' => 'The item is selected.',
+						//'S' => "The item's column is auto sized to max width allowed.",
 						'p' => 'The item is a DCX ProgressBar control. (This flag is changing its args etc... expect errors)',
+						//'P' => "The item's column is auto sized to a percentage of the total width.",
 						't' => 'The item icon appears as 50% opaque, looks like it has a "ghost" effect.',
 						'u' => 'The item is underlined.',
 						'w' => '(TEXT) is [+IFLAGS] [TABLE NAME] [N|N1-N2|name]',
@@ -325,7 +328,9 @@ function get_xdid_listview(&$XDID) {
 					'__values' => array(
 						'a' => 'Autosize.',
 						'h' => 'Autosize according to header text width.',
-						's' => 'Autosize the column to fit header or content. Cannot be used with [f]+a[/f].',
+						'F' => 'Autosize the column to a fixed width.',
+						'S' => 'Autosize the column to fit header or content. Cannot be used with [f]+a[/f].',
+						'P' => 'Autosize the column to a percentage of the total width.',
 						'm' => 'Allows you to set the widths manually. [p]COL[/p] is ignored.',
 					),
 				),
@@ -333,7 +338,7 @@ function get_xdid_listview(&$XDID) {
 			),
 			'__notes' => array(
 				'If the flag [f]+h[/f] is used for the last column, the column will be resized to the width of the control.',
-				'[f]+m[/f] flag cannot be used with the [f]+a[/f], [f]+h[/f] or [f]+s[/f] flags.',
+				'[f]+m[/f] flag cannot be used with the [f]+a[/f], [f]+h[/f] or [f]+S[/f] flags.',
 			),
 		),
 		'o' => array(

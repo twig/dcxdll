@@ -1294,8 +1294,8 @@ void DcxListView::parseCommandRequest(const TString& input)
 
 		Dcx::dcxListView_SetItemState(m_Hwnd, nItem, lviflags, LVIS_DROPHILITED | LVIS_FOCUSED | LVIS_SELECTED | LVIS_CUT);
 	}
-	// xdid -k [NAME] [ID] [SWITCH] [STATE] [N]
-	// xdid -k -> [NAME] [ID] -k [STATE] [N]
+	// xdid -k [NAME] [ID] [SWITCH] [STATE] [N,N2,N3-N4...]
+	// xdid -k -> [NAME] [ID] -k [STATE] [N,N2,N3-N4...]
 	else if (flags[TEXT('k')])
 	{
 		if (numtok < 5)
@@ -2462,11 +2462,13 @@ INT DcxListView::parseHeaderFlags2(const XSwitchFlags& xflags)
 	if (xflags[TEXT('h')]) // header size
 		iFlags |= DCX_LV_COLUMNF_AUTOHEADER;
 	// 'l' use by flags
-	if (xflags[TEXT('p')]) // percentage
+	// 'p' use by flags
+	if (xflags[TEXT('P')]) // percentage
 		iFlags |= DCX_LV_COLUMNF_PERCENT;
 	// 'q' use by flags
 	// 'r' use by flags
-	if (xflags[TEXT('s')]) // max size (max of auto & header)
+	// 's' use by flags
+	if (xflags[TEXT('S')]) // max size (max of auto & header)
 		iFlags |= DCX_LV_COLUMNF_AUTOMAX;
 
 	return iFlags;
