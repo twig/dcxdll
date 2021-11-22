@@ -611,9 +611,16 @@ void DcxImage::DrawClientArea(HDC hdc)
 	const auto w = (rect.right - rect.left), h = (rect.bottom - rect.top), x = rect.left, y = rect.top;
 
 	// Setup alpha blend if any.
+	const bool bAnimAlpha = (m_bIsAnimated && m_bAlphaBlend);
+	if (bAnimAlpha)
+		m_bAlphaBlend = false;
+
 	// Double Buffer required for GDI+ to look right in WS_EX_COMPOSITED
-	const auto ai = SetupAlphaBlend(&hdc, m_bBuffer);
+	const auto ai = SetupAlphaBlend(&hdc, m_bBuffer && !m_bIsAnimated);
 	Auto(FinishAlphaBlend(ai));
+
+	if (bAnimAlpha)
+		m_bAlphaBlend = true;
 
 	//DcxControl::DrawCtrlBackground(hdc, this, &rect);
 
