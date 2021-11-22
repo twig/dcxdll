@@ -9,6 +9,8 @@ function get_styles_image(&$STYLES) {
 		'tooltips' => 'The image will have a tooltip.',
         'hgradient' => 'Draws a horizontal gradient with the colors specified.',
 		'vgradient' => 'Draws a vertical gradient with the colors specified.',
+		'vcenter' => 'Draws the image centered vertically in the control. (only affects images loaded with [s]+k[/s])',
+		'hcenter' => 'Draws the image centered horizontally in the control. (only affects images loaded with [s]+k[/s])',
 	);
 }
 

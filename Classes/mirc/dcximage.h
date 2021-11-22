@@ -118,6 +118,17 @@ private:
 			m_AnimThread->join();
 		m_AnimThread.reset(nullptr);
 	}
+
+	long getFrameDelay(UINT nFrame) const noexcept
+	{
+		if (m_FrameDelay)
+			return m_FrameDelay;
+
+		if (m_PropertyItem && nFrame <= m_FrameCount)
+			return std::max(((long*)((Gdiplus::PropertyItem*)(m_PropertyItem.get()))->value)[nFrame] * 10, 0L);
+
+		return 0L;
+	}
 	static void AnimateThread(DcxImage* const img);
 #endif
 	void DrawBMPImage(HDC hdc, const int x, const int y, const int w, const int h);
@@ -137,6 +148,8 @@ private:
 	bool m_bBuffer{ false };		//!< Double Buffer Rendering, needed for GDI+ when WS_EX_COMPOSITED
 	bool m_bIsIcon{ false };		//!< Is this an icon?
 	bool m_bKeepAspect{ false };
+	bool m_bVCenterImage{ false };
+	bool m_bHCenterImage{ false };
 
 	int m_iXOffset{}, m_iYOffset{};	//!< X & Y image offsets.
 	TString m_tsFilename;			//!< The loaded images filename.

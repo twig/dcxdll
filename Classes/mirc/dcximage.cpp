@@ -88,11 +88,30 @@ DcxImage::~DcxImage() noexcept
 
 dcxWindowStyles DcxImage::parseControlStyles(const TString& tsStyles)
 {
-	auto ws = parseGeneralControlStyles(tsStyles);
+	//auto ws = parseGeneralControlStyles(tsStyles);
+	//ws.m_Styles |= SS_NOTIFY;
+	//return ws;
 
+	dcxWindowStyles ws;
+	
 	ws.m_Styles |= SS_NOTIFY;
 
-	return ws;
+	for (const auto& tsStyle : tsStyles)
+	{
+		switch (std::hash<TString>{}(tsStyle))
+		{
+		case L"hcenter"_hash:
+			m_bHCenterImage = true;
+			break;
+		case L"vcenter"_hash:
+			m_bVCenterImage = true;
+			break;
+		default:
+			break;
+		}
+	}
+
+	return parseGeneralControlStyles(tsStyles, ws);
 }
 
 /*!
@@ -314,7 +333,7 @@ void DcxImage::parseCommandRequest(const TString& input)
 		if (xflags[TEXT('a')])
 		{
 			// enable/disable animation.
-			
+
 			if (bool bStart = (input.getnexttok().to_int() > 0); bStart)
 			{
 				if (m_bIsAnimated)
@@ -390,32 +409,44 @@ void DcxImage::DrawGDIImage(HDC hdc, const int x, const int y, const int w, cons
 			&imAtt);
 	}
 	else {
-
-			if (this->m_bResizeImage)
+		if (this->m_bResizeImage)
+		{
+			if (m_bKeepAspect)
 			{
-				if (m_bKeepAspect)
+				// This code calculates the aspect ratio in which I have to draw the image
+				const float percentWidth = gsl::narrow_cast<float>(w) / gsl::narrow_cast<float>(m_pImage->GetWidth());
+				const float percentHeight = gsl::narrow_cast<float>(h) / gsl::narrow_cast<float>(m_pImage->GetHeight());
+
+				const float percent = percentHeight < percentWidth ? percentHeight : percentWidth;
+
+				const int newImageWidth = gsl::narrow_cast<int>(m_pImage->GetWidth() * percent);
+				const int newImageHeight = gsl::narrow_cast<int>(m_pImage->GetHeight() * percent);
+
+				//grphx.DrawImage(this->m_pImage.get(), this->m_iXOffset, this->m_iYOffset, newImageWidth, newImageHeight);
+
+				int newX{ x };
+				int newY{ y };
+				if (m_bVCenterImage)
 				{
-					// This code calculates the aspect ratio in which I have to draw the image
-					const float percentWidth = gsl::narrow_cast<float>(w) / gsl::narrow_cast<float>(m_pImage->GetWidth());
-					const float percentHeight = gsl::narrow_cast<float>(h) / gsl::narrow_cast<float>(m_pImage->GetHeight());
-
-					const float percent = percentHeight < percentWidth ? percentHeight : percentWidth;
-
-					const int newImageWidth = gsl::narrow_cast<int>(m_pImage->GetWidth() * percent);
-					const int newImageHeight = gsl::narrow_cast<int>(m_pImage->GetHeight() * percent);
-
-					grphx.DrawImage(this->m_pImage.get(), this->m_iXOffset, this->m_iYOffset, newImageWidth, newImageHeight);
+					// vertically center it.
+					const int diff = (h - newImageHeight) / 2;
+					newY += diff;
+					newY += m_iYOffset;
 				}
-				else
-					grphx.DrawImage(this->m_pImage.get(), this->m_iXOffset, this->m_iYOffset, w, h);
+				if (m_bHCenterImage)
+				{
+					// Horizontally center it.
+					const int diff = (w - newImageWidth) / 2;
+					newX += diff;
+					newX += m_iXOffset;
+				}
+				grphx.DrawImage(this->m_pImage.get(), newX, newY, newImageWidth, newImageHeight);
 			}
 			else
-				grphx.DrawImage(this->m_pImage.get(), this->m_iXOffset, this->m_iYOffset);
-
-		//if (this->m_bResizeImage)
-		//	grphx.DrawImage(this->m_pImage.get(), this->m_iXOffset, this->m_iYOffset, w, h);
-		//else
-		//	grphx.DrawImage(this->m_pImage.get(), this->m_iXOffset, this->m_iYOffset);
+				grphx.DrawImage(this->m_pImage.get(), this->m_iXOffset, this->m_iYOffset, w, h);
+		}
+		else
+			grphx.DrawImage(this->m_pImage.get(), this->m_iXOffset, this->m_iYOffset);
 	}
 }
 
@@ -443,9 +474,7 @@ void DcxImage::AnimateThread(DcxImage* const img)
 		if (m_nFramePosition == img->m_FrameCount)
 			m_nFramePosition = 0;
 
-		long lPause = std::max(((long*)((Gdiplus::PropertyItem*)(img->m_PropertyItem.get()))->value)[m_nFramePosition] * 10, 0L);
-		if (img->m_FrameDelay)
-			lPause = img->m_FrameDelay;
+		const long lPause = img->getFrameDelay(m_nFramePosition);
 
 		const std::chrono::milliseconds tm(lPause);
 
@@ -504,9 +533,9 @@ void DcxImage::DrawBMPImage(HDC hdc, const int x, const int y, const int w, cons
 			TransparentBlt(hdc, x, y, w, h, hdcbmp, 0, 0, bmp.bmWidth, bmp.bmHeight, m_clrTransColor);
 		else
 			StretchBlt(hdc, x, y, w, h, hdcbmp, 0, 0, bmp.bmWidth, bmp.bmHeight, SRCCOPY);
-	}
+		}
 #endif
-}
+	}
 
 void DcxImage::toXml(TiXmlElement* const xml) const
 {
@@ -544,7 +573,7 @@ LRESULT DcxImage::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPar
 		if (this->isExStyle(WindowExStyle::Transparent))
 			this->DrawParentsBackground(reinterpret_cast<HDC>(wParam));
 		else
-			DcxControl::DrawCtrlBackground(reinterpret_cast<HDC>(wParam),this);
+			DcxControl::DrawCtrlBackground(reinterpret_cast<HDC>(wParam), this);
 
 		//if (this->isExStyle(WS_EX_TRANSPARENT))
 		//	this->DrawParentsBackground(reinterpret_cast<HDC>(wParam));
@@ -622,7 +651,7 @@ void DcxImage::DrawClientArea(HDC hdc)
 	if (bAnimAlpha)
 		m_bAlphaBlend = true;
 
-	//DcxControl::DrawCtrlBackground(hdc, this, &rect);
+	//DcxControl::DrawCtrlBackground(hdc, this, &rect); // this causes flicker when playing animations...
 
 	// draw bitmap
 #ifdef DCX_USE_GDIPLUS
