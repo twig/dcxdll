@@ -31,6 +31,8 @@ void XPopupMenuManager::load(void)
 	/***** XPopup Stuff *****/
 	WNDCLASSEX wc{};
 
+	const auto hInst = GetModuleHandle(nullptr);
+
 #if DCX_CUSTOM_MENUS
 	//wc.cbSize = sizeof(WNDCLASSEX);
 	//GetClassInfoEx(nullptr,TEXT("#32768"),&wc); // menu
@@ -39,7 +41,7 @@ void XPopupMenuManager::load(void)
 	//RegisterClassEx(&wc);
 	//DCX_DEBUG(mIRCLinker::debug,TEXT("LoadDLL"), TEXT("Subclassed Menu Class"));
 
-	if (HWND tmp_hwnd = CreateWindowEx(0, TEXT("#32768"), nullptr, WS_POPUP, 0, 0, 1, 1, nullptr, nullptr, GetModuleHandle(nullptr), nullptr); tmp_hwnd)
+	if (HWND tmp_hwnd = CreateWindowEx(0, TEXT("#32768"), nullptr, WS_POPUP, 0, 0, 1, 1, nullptr, nullptr, hInst, nullptr); tmp_hwnd)
 	{
 		g_OldmIRCMenusWindowProc = (WNDPROC)SetClassLongPtr(tmp_hwnd, GCLP_WNDPROC, (ULONG_PTR)XPopupMenuManager::mIRCMenusWinProc);
 		DestroyWindow(tmp_hwnd);
@@ -54,7 +56,7 @@ void XPopupMenuManager::load(void)
 	wc.lpfnWndProc = XPopupMenu::XPopupWinProc;
 	wc.cbClsExtra = 0;
 	wc.cbWndExtra = 0;
-	wc.hInstance = GetModuleHandle(nullptr);
+	wc.hInstance = hInst;
 	wc.hIcon = nullptr;
 	wc.hCursor = nullptr;
 	//wc.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
@@ -65,7 +67,7 @@ void XPopupMenuManager::load(void)
 	RegisterClassEx(&wc);
 
 	DCX_DEBUG(mIRCLinker::debug, __FUNCTIONW__, TEXT("Creating menu owner..."));
-	m_hMenuOwner = CreateWindow(XPOPUPMENUCLASS, nullptr, 0, 0, 0, 0, 0, HWND_MESSAGE, nullptr, GetModuleHandle(nullptr), nullptr);
+	m_hMenuOwner = CreateWindow(XPOPUPMENUCLASS, nullptr, 0, 0, 0, 0, 0, HWND_MESSAGE, nullptr, hInst, nullptr);
 
 	m_mIRCPopupMenu = std::make_unique<XPopupMenu>(TEXT("mirc"), (HMENU)nullptr);
 	m_mIRCMenuBar = std::make_unique<XPopupMenu>(TEXT("mircbar"), GetMenu(mIRCLinker::getHWND()));
