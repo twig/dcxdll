@@ -317,7 +317,6 @@ mIRC(xdock)
 		const auto numtok = input.numtok();
 
 		if (numtok < 1)
-			//throw Dcx::dcxException("Invalid Parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto switches(input.getfirsttok(1));
@@ -332,7 +331,6 @@ mIRC(xdock)
 
 		// check if at least 2 parameters
 		if (numtok < 2)
-			//throw Dcx::dcxException("Invalid Flag");
 			throw DcxExceptions::dcxInvalidFlag();
 
 		const auto dockHwnd = reinterpret_cast<HWND>(input.getnexttok().to_<DWORD>()); // tok 2
@@ -341,10 +339,20 @@ mIRC(xdock)
 		// [-S] [1|0]
 		if ((switches[1] == TEXT('S')) && (numtok == 2))
 		{
-			if ((dockHwnd > 0) && !IsWindowVisible(mIRCLinker::getSwitchbar()))
-				SendMessage(mIRCWnd, WM_COMMAND, MAKEWPARAM(112, 0), 0);
-			else if ((dockHwnd == 0) && IsWindowVisible(mIRCLinker::getSwitchbar()))
-				SendMessage(mIRCWnd, WM_COMMAND, MAKEWPARAM(112, 0), 0);
+			//if ((dockHwnd) && !IsWindowVisible(mIRCLinker::getSwitchbar()))
+			//	SendMessage(mIRCWnd, WM_COMMAND, MAKEWPARAM(112, 0), 0);
+			//else if ((!dockHwnd) && IsWindowVisible(mIRCLinker::getSwitchbar()))
+			//	SendMessage(mIRCWnd, WM_COMMAND, MAKEWPARAM(112, 0), 0);
+
+			if (dockHwnd)
+			{
+				if (!IsWindowVisible(mIRCLinker::getSwitchbar()))
+					SendMessage(mIRCWnd, WM_COMMAND, MAKEWPARAM(112, 0), 0);
+			}
+			else {
+				if (IsWindowVisible(mIRCLinker::getSwitchbar()))
+					SendMessage(mIRCWnd, WM_COMMAND, MAKEWPARAM(112, 0), 0);
+			}
 
 			return 1;
 		}
@@ -352,10 +360,20 @@ mIRC(xdock)
 		// [-T] [1|0]
 		else if ((switches[1] == TEXT('T')) && (numtok == 2))
 		{
-			if ((dockHwnd > 0) && (!IsWindowVisible(mIRCLinker::getToolbar())))
-				SendMessage(mIRCWnd, WM_COMMAND, MAKEWPARAM(111, 0), 0);
-			else if ((dockHwnd == 0) && (IsWindowVisible(mIRCLinker::getToolbar())))
-				SendMessage(mIRCWnd, WM_COMMAND, MAKEWPARAM(111, 0), 0);
+			//if ((dockHwnd > 0) && (!IsWindowVisible(mIRCLinker::getToolbar())))
+			//	SendMessage(mIRCWnd, WM_COMMAND, MAKEWPARAM(111, 0), 0);
+			//else if ((dockHwnd == 0) && (IsWindowVisible(mIRCLinker::getToolbar())))
+			//	SendMessage(mIRCWnd, WM_COMMAND, MAKEWPARAM(111, 0), 0);
+
+			if (dockHwnd)
+			{
+				if (!IsWindowVisible(mIRCLinker::getToolbar()))
+					SendMessage(mIRCWnd, WM_COMMAND, MAKEWPARAM(111, 0), 0);
+			}
+			else {
+				if (IsWindowVisible(mIRCLinker::getToolbar()))
+					SendMessage(mIRCWnd, WM_COMMAND, MAKEWPARAM(111, 0), 0);
+			}
 
 			return 1;
 		}
@@ -363,10 +381,20 @@ mIRC(xdock)
 		// [-R] [1|0]
 		else if ((switches[1] == TEXT('R')) && (numtok == 2))
 		{
-			if ((dockHwnd > 0) && (!IsWindowVisible(mIRCLinker::getTreebar())))
-				SendMessage(mIRCWnd, WM_COMMAND, MAKEWPARAM(210, 0), 0);
-			else if ((dockHwnd == 0) && (IsWindowVisible(mIRCLinker::getTreebar())))
-				SendMessage(mIRCWnd, WM_COMMAND, MAKEWPARAM(210, 0), 0);
+			//if ((dockHwnd > 0) && (!IsWindowVisible(mIRCLinker::getTreebar())))
+			//	SendMessage(mIRCWnd, WM_COMMAND, MAKEWPARAM(210, 0), 0);
+			//else if ((dockHwnd == 0) && (IsWindowVisible(mIRCLinker::getTreebar())))
+			//	SendMessage(mIRCWnd, WM_COMMAND, MAKEWPARAM(210, 0), 0);
+
+			if (dockHwnd)
+			{
+				if (!IsWindowVisible(mIRCLinker::getTreebar()))
+					SendMessage(mIRCWnd, WM_COMMAND, MAKEWPARAM(210, 0), 0);
+			}
+			else {
+				if (IsWindowVisible(mIRCLinker::getTreebar()))
+					SendMessage(mIRCWnd, WM_COMMAND, MAKEWPARAM(210, 0), 0);
+			}
 
 			return 1;
 		}
@@ -374,10 +402,20 @@ mIRC(xdock)
 		// [-M] [1|0]
 		else if ((switches[1] == TEXT('M')) && (numtok == 2))
 		{
-			if ((dockHwnd > 0) && (!GetMenu(mIRCWnd)))
-				SendMessage(mIRCWnd, WM_COMMAND, MAKEWPARAM(110, 0), 0);
-			else if ((dockHwnd == 0) && (GetMenu(mIRCWnd)))
-				SendMessage(mIRCWnd, WM_COMMAND, MAKEWPARAM(110, 0), 0);
+			//if ((dockHwnd > 0) && (!GetMenu(mIRCWnd)))
+			//	SendMessage(mIRCWnd, WM_COMMAND, MAKEWPARAM(110, 0), 0);
+			//else if ((dockHwnd == 0) && (GetMenu(mIRCWnd)))
+			//	SendMessage(mIRCWnd, WM_COMMAND, MAKEWPARAM(110, 0), 0);
+
+			if (dockHwnd)
+			{
+				if (!GetMenu(mIRCWnd))
+					SendMessage(mIRCWnd, WM_COMMAND, MAKEWPARAM(110, 0), 0);
+			}
+			else {
+				if (GetMenu(mIRCWnd))
+					SendMessage(mIRCWnd, WM_COMMAND, MAKEWPARAM(110, 0), 0);
+			}
 
 			return 1;
 		}
@@ -397,7 +435,6 @@ mIRC(xdock)
 		const auto flags(input.getnexttok()); // tok 3
 
 		if ((numtok > 2) && (flags[0] != TEXT('+')))
-			//throw Dcx::dcxException("Invalid flag format");
 			throw DcxExceptions::dcxInvalidFlag();
 
 		// dock to toolbar
@@ -419,7 +456,6 @@ mIRC(xdock)
 			mWnd = reinterpret_cast<HWND>(input.getnexttok().to_<DWORD>()); // tok 4
 
 			if (!IsWindow(mWnd))
-				//throw Dcx::dcxException("Invalid window");
 				throw DcxExceptions::dcxInvalidArguments();
 
 			DockWindow(mWnd, dockHwnd, TEXT("ListBox"), flags);
@@ -431,7 +467,6 @@ mIRC(xdock)
 			mWnd = reinterpret_cast<HWND>(input.getnexttok().to_<DWORD>()); // tok 4
 
 			if (!IsWindow(mWnd))
-				//throw Dcx::dcxException("Invalid window");
 				throw DcxExceptions::dcxInvalidArguments();
 
 			DockWindow(mWnd, dockHwnd, nullptr, flags);
@@ -470,7 +505,7 @@ mIRC(xdock)
 			const auto h = input.getnexttok().to_int(); // tok 5
 
 			auto ud = GetUltraDock(dockHwnd);
-			DockFlags dflags = DockFlags::DOCKF_NONE;
+			DockFlags dflags{ DockFlags::DOCKF_NONE };
 
 			if (!ud) // not an UltraDock, try TreebarDock
 				ud = GetTreebarDock(dockHwnd);
@@ -481,7 +516,6 @@ mIRC(xdock)
 				dflags = Dcx::dcxGetProp<DockFlags>(dockHwnd, TEXT("dcx_docked"));
 
 			if (dflags == DockFlags::DOCKF_NONE) // not any dock.
-				//throw Dcx::dcxException("Unable to find flags information.");
 				throw DcxExceptions::dcxInvalidFlag();
 
 #if DCX_USE_WRAPPERS
@@ -518,7 +552,6 @@ mIRC(xdock)
 				throw Dcx::dcxException("Can't resize an auto width & height dialog");
 
 			default:
-				//throw Dcx::dcxException("Unknown dock flag");
 				throw DcxExceptions::dcxInvalidFlag();
 			}
 
