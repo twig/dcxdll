@@ -314,16 +314,14 @@ void DcxImage::parseCommandRequest(const TString& input)
 		if (xflags[TEXT('a')])
 		{
 			// enable/disable animation.
-			bool bStart = (input.getnexttok().to_int() > 0);	// tok 4
-
-			if (bStart)
+			
+			if (bool bStart = (input.getnexttok().to_int() > 0); bStart)
 			{
 				if (m_bIsAnimated)
 					StartAnimThread();
 			}
-			else {
+			else
 				StopAnimThread();
-			}
 		}
 		else if (xflags[TEXT('f')])
 		{

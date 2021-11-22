@@ -104,7 +104,7 @@ private:
 	}
 	void StartAnimThread()
 	{
-		if (!m_PropertyItem)
+		if ((!m_PropertyItem) || (m_AnimThread))
 			return;
 
 		m_bRunThread = true;
