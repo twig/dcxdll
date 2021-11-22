@@ -364,6 +364,10 @@ void DcxImage::DrawGDIImage(HDC hdc, const int x, const int y, const int w, cons
 	grphx.SetCompositingMode(this->m_CMode);
 	grphx.SetSmoothingMode(this->m_SMode);
 
+	//DcxControl::DrawCtrlBackground(grphx.GetHDC(), this);
+
+	//grphx.Clear(Gdiplus::Color(m_clrBackground));
+
 	if (((this->m_pImage->GetWidth() == 1) || (this->m_pImage->GetHeight() == 1)) && this->m_bResizeImage)
 	{
 		// This fixes a GDI+ bug when resizing 1 px images
@@ -539,11 +543,15 @@ LRESULT DcxImage::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPar
 		//<#IF USER == 'hkr' COMMENT OUT, UNLESS ITS THE TIME WHEN HE WANTS THIS>
 		if (this->isExStyle(WindowExStyle::Transparent))
 			this->DrawParentsBackground(reinterpret_cast<HDC>(wParam));
+		else
+			DcxControl::DrawCtrlBackground(reinterpret_cast<HDC>(wParam),this);
+
 		//if (this->isExStyle(WS_EX_TRANSPARENT))
-		//	this->DrawParentsBackground((HDC)wParam);
+		//	this->DrawParentsBackground(reinterpret_cast<HDC>(wParam));
 		//else
-		//	DcxControl::DrawCtrlBackground((HDC) wParam,this);
+		//	DcxControl::DrawCtrlBackground(reinterpret_cast<HDC>(wParam),this);
 		//<END>
+
 		bParsed = TRUE;
 		return TRUE;
 	}
@@ -559,11 +567,16 @@ LRESULT DcxImage::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPar
 	case WM_PAINT:
 	{
 		bParsed = TRUE;
-		PAINTSTRUCT ps{};
-		auto hdc = BeginPaint(m_Hwnd, &ps);
-		Auto(EndPaint(m_Hwnd, &ps));
+		if (!wParam)
+		{
+			PAINTSTRUCT ps{};
+			auto hdc = BeginPaint(m_Hwnd, &ps);
+			Auto(EndPaint(m_Hwnd, &ps));
 
-		this->DrawClientArea(hdc);
+			this->DrawClientArea(hdc);
+		}
+		else
+			this->DrawClientArea(reinterpret_cast<HDC>(wParam));
 	}
 	break;
 
@@ -602,7 +615,7 @@ void DcxImage::DrawClientArea(HDC hdc)
 	const auto ai = SetupAlphaBlend(&hdc, m_bBuffer);
 	Auto(FinishAlphaBlend(ai));
 
-	DcxControl::DrawCtrlBackground(hdc, this, &rect);
+	//DcxControl::DrawCtrlBackground(hdc, this, &rect);
 
 	// draw bitmap
 #ifdef DCX_USE_GDIPLUS

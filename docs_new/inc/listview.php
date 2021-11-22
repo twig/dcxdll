@@ -47,7 +47,7 @@ function get_styles_listview(&$STYLES) {
 		'autocheck' => 'Automatically select check boxes on single click. ([s]checkbox[/s] needed)',
 		'columnsnap' => 'Snap to minimum column width when the user resizes a column.',
 		'columnjustify' => 'Icons are lined up in columns that use up the whole view. ([s]icon[/s] & [s]smallicon[/s] view)',
-		'columnoverflow' => 'Indicates that an overflow button should be displayed in icon/tile view if there is not enough client width to display the complete set of header items. ([s]headeralways[/s] needed)',
+		'columnoverflow' => 'Indicates that an overflow button should be displayed in icon/tile view if there is not enough client width to display the complete set of header items. ([s]headeralways[/s] needed) ([s]icon[/s] & [s]smallicon[/s] view)',
 		'autosize' => 'Automatically size listview columns. ([s]report[/s] view)',
 		'snaptogrid' => 'In icon view, icons automatically snap into a grid. ([s]icon[/s] & [s]smallicon[/s] view)',
 		'autoautoarrange' => 'Automatically arrange icons if no icon positions have been set (Similar to [s]autoarrange[/s]) ([s]icon[/s] & [s]smallicon[/s] view).',

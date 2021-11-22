@@ -7,7 +7,7 @@ function get_styles_image(&$STYLES) {
 	$STYLES = array(
         'alpha' => 'Control is alpha blended.',
 		'tooltips' => 'The image will have a tooltip.',
-                'hgradient' => 'Draws a horizontal gradient with the colors specified.',
+        'hgradient' => 'Draws a horizontal gradient with the colors specified.',
 		'vgradient' => 'Draws a vertical gradient with the colors specified.',
 	);
 }
@@ -26,6 +26,8 @@ function get_xdid_image(&$XDID) {
                         'b' => "Enable support for PNG per-pixel-alpha channels.",
                         'h' => "High quality mode (Slower).",
                         't' => "Tiled image.",
+                        'A' => "No animation even if the format supports it.",
+                        'k' => "Keep images aspect ratio.",
                     ),
                 ),
                 'FILENAME' => 'Image filename.',
