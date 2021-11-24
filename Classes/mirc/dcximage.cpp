@@ -93,7 +93,7 @@ dcxWindowStyles DcxImage::parseControlStyles(const TString& tsStyles)
 	//return ws;
 
 	dcxWindowStyles ws;
-	
+
 	ws.m_Styles |= SS_NOTIFY;
 
 	for (const auto& tsStyle : tsStyles)
@@ -136,6 +136,14 @@ void DcxImage::parseInfoRequest(const TString& input, const refString<TCHAR, MIR
 	case L"isanimated"_hash:
 		szReturnValue = dcx_truefalse(m_bIsAnimated);
 		break;
+		// $xdid(dname,id,frame).delay
+	case L"delay"_hash:
+	{
+		const UINT nFrame = input.getnexttok().to_<UINT>();
+		const long nDelay = getFrameDelay((nFrame == 0 ? m_FrameImage : nFrame));
+		_ts_snprintf(szReturnValue, TEXT("%u"), nDelay);
+	}
+	break;
 	default:
 		parseGlobalInfoRequest(input, szReturnValue);
 		break;
@@ -334,13 +342,15 @@ void DcxImage::parseCommandRequest(const TString& input)
 		{
 			// enable/disable animation.
 
-			if (bool bStart = (input.getnexttok().to_int() > 0); bStart)
+			if (const bool bStart = (input.getnexttok().to_int() > 0); bStart)
 			{
 				if (m_bIsAnimated)
 					StartAnimThread();
 			}
 			else
 				StopAnimThread();
+
+			this->redrawWindow();
 		}
 		else if (xflags[TEXT('f')])
 		{
@@ -358,6 +368,7 @@ void DcxImage::parseCommandRequest(const TString& input)
 				m_pImage->SelectActiveFrame(&pageGuid, gsl::narrow_cast<UINT>(nFrame));
 				InvalidateRect(m_Hwnd, nullptr, TRUE);
 			}
+			this->redrawWindow();
 		}
 		else if (xflags[TEXT('d')])
 		{
@@ -368,7 +379,6 @@ void DcxImage::parseCommandRequest(const TString& input)
 
 			m_FrameDelay = gsl::narrow_cast<UINT>(nFrame);
 		}
-		this->redrawWindow();
 	}
 	else
 		this->parseGlobalCommandRequest(input, flags);

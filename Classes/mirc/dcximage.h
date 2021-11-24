@@ -87,16 +87,19 @@ private:
 		const auto count = m_pImage->GetFrameDimensionsCount();
 		auto m_DimensionIDs = std::make_unique<GUID[]>(count);
 		m_pImage->GetFrameDimensionsList(m_DimensionIDs.get(), count);
-		m_FrameCount = m_pImage->GetFrameCount(&m_DimensionIDs[0]);
-		const auto sz = m_pImage->GetPropertyItemSize(PropertyTagFrameDelay);
+		//m_FrameCount = m_pImage->GetFrameCount(&m_DimensionIDs[0]);
+		m_FrameCount = m_pImage->GetFrameCount(m_DimensionIDs.get());
 
-		m_PropertyItem = std::make_unique<BYTE[]>(sz);
+		if (const auto sz = m_pImage->GetPropertyItemSize(PropertyTagFrameDelay); sz)
+		{
+			m_PropertyItem = std::make_unique<BYTE[]>(sz);
 
-		m_pImage->GetPropertyItem(PropertyTagFrameDelay, sz, (Gdiplus::PropertyItem*)m_PropertyItem.get());
+			m_pImage->GetPropertyItem(PropertyTagFrameDelay, sz, (Gdiplus::PropertyItem*)m_PropertyItem.get());
+		}
 
 		m_bIsAnimated = (m_FrameCount > 1);
 	}
-	void FreeAnimThread()
+	void FreeAnimThread() noexcept
 	{
 		StopAnimThread();
 
@@ -111,22 +114,29 @@ private:
 		// start play thread.
 		m_AnimThread = std::make_unique<std::thread>(DcxImage::AnimateThread, this);
 	}
-	void StopAnimThread()
+	void StopAnimThread() noexcept
 	{
 		m_bRunThread = false;
 		if (m_AnimThread)
-			m_AnimThread->join();
+		{
+			try {
+				m_AnimThread->join();
+			}
+			catch (...) {}
+		}
 		m_AnimThread.reset(nullptr);
 	}
 
 	long getFrameDelay(UINT nFrame) const noexcept
 	{
-		if (m_FrameDelay)
-			return m_FrameDelay;
+		if (m_bIsAnimated)
+		{
+			if (m_FrameDelay)
+				return m_FrameDelay;
 
-		if (m_PropertyItem && nFrame <= m_FrameCount)
-			return std::max(((long*)((Gdiplus::PropertyItem*)(m_PropertyItem.get()))->value)[nFrame] * 10, 0L);
-
+			if (m_PropertyItem && nFrame <= m_FrameCount)
+				return std::max(((long*)((Gdiplus::PropertyItem*)(m_PropertyItem.get()))->value)[nFrame] * 10, 0L);
+		}
 		return 0L;
 	}
 	static void AnimateThread(DcxImage* const img);

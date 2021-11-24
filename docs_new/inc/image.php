@@ -105,6 +105,12 @@ function get_xdidprops_image(&$XDIDPROPS) {
         'fname' => 'This property returns loaded filename (if any).',
         'frames' => 'This property returns the number of frames in an animation (if any).',
         'isanimated' => 'This property returns if a loaded image is an animation.',
+		"delay" => array(
+		    '__desc' => "This property returns the frame delay for the specified frame.",
+		    '__cmd' => '[N]',
+		    '__eg' => '2',
+		    '__notes' => 'If [p]N[/p] is zero returns the delay for the current frame.'
+		),
 	);
 }
 
