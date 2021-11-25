@@ -28,6 +28,9 @@
 DcxEdit::DcxEdit(const UINT ID, DcxDialog* const p_Dialog, const HWND mParentHwnd, const RECT* const rc, const TString& styles)
 	: DcxControl(ID, p_Dialog)
 {
+	if (!p_Dialog)
+		throw Dcx::dcxException("Unable to get controls parent dialog");
+
 	const auto ws = parseControlStyles(styles);
 
 	m_Hwnd = dcxCreateWindow(
@@ -108,6 +111,8 @@ const TString DcxEdit::getStyles(void) const
 		styles.addtok(TEXT("readonly"));
 	if (dcx_testflag(Styles, ES_NOHIDESEL))
 		styles.addtok(TEXT("showsel"));
+	if (m_bShowLineNumbers)
+		styles.addtok(TEXT("showlinenumbers"));
 	return styles;
 }
 
@@ -350,7 +355,6 @@ void DcxEdit::parseCommandRequest(const TString& input)
 	if (flags[TEXT('a')])
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		this->m_tsText += input.getlasttoks();	// tok 4, -1
@@ -360,7 +364,6 @@ void DcxEdit::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('c')])
 	{
 		if (numtok < 3)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		CopyToClipboard(m_Hwnd, this->m_tsText);
@@ -369,7 +372,6 @@ void DcxEdit::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('d')])
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		if (this->isStyle(WindowStyle::ES_MultiLine))
@@ -383,7 +385,6 @@ void DcxEdit::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('i')])
 	{
 		if (numtok < 5)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		if (this->isStyle(WindowStyle::ES_MultiLine))
@@ -399,7 +400,6 @@ void DcxEdit::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('j')])
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto i = input.getnexttok().to_<UINT>();	// tok 4
@@ -442,7 +442,6 @@ void DcxEdit::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('l')])
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const BOOL enabled = (input.getnexttok().to_int() > 0);	// tok 4
@@ -453,7 +452,6 @@ void DcxEdit::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('o')])
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		if (this->isStyle(WindowStyle::ES_MultiLine))
@@ -474,7 +472,6 @@ void DcxEdit::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('q')])
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		if (const auto N = input.getnexttok().to_int(); N > -1)
@@ -489,7 +486,6 @@ void DcxEdit::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('t')])
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		auto tsFile(input.getlasttoks().trim());	// tok 4, -1
@@ -504,7 +500,6 @@ void DcxEdit::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('u')])
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		if (const auto tsFile(input.getlasttoks().trim()); !SaveDataToFile(tsFile, this->m_tsText))
@@ -519,7 +514,6 @@ void DcxEdit::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('S')])
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto istart = input.getnexttok().to_int();	// tok 4
@@ -532,7 +526,6 @@ void DcxEdit::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('E')])
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		this->m_tsCue = input.getlasttoks();	// tok 4, -1
@@ -543,6 +536,7 @@ void DcxEdit::parseCommandRequest(const TString& input)
 	{
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
+
 		const auto tsRep(input.getnexttok());
 		if (tsRep != TEXT('-'))
 			this->m_bIgnoreRepeat = (tsRep.to_int() > 0);	// tok 4
@@ -815,6 +809,8 @@ LRESULT DcxEdit::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPars
 
 		if (this->IsAlphaBlend())
 		{
+			bParsed = TRUE;
+
 			PAINTSTRUCT ps{};
 			//auto hdc = BeginPaint(m_Hwnd, &ps);
 			//Auto(EndPaint(m_Hwnd, &ps));
@@ -823,21 +819,24 @@ LRESULT DcxEdit::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPars
 			if (!wParam)
 				hdc = BeginPaint(m_Hwnd, &ps);
 
-			bParsed = TRUE;
-
 			// Setup alpha blend if any.
 			const auto ai = this->SetupAlphaBlend(&hdc);
 			Auto(this->FinishAlphaBlend(ai));
 
-			const auto lRes = CallDefaultClassProc(uMsg, reinterpret_cast<WPARAM>(hdc), lParam);
+			CallDefaultClassProc(uMsg, reinterpret_cast<WPARAM>(hdc), lParam);
+			//CallDefaultClassProc(WM_PRINTCLIENT, reinterpret_cast<WPARAM>(hdc), PRF_CLIENT | PRF_CHILDREN /*| PRF_CHECKVISIBLE*/ | PRF_ERASEBKGND);
+			//CallDefaultClassProc(WM_PRINT, reinterpret_cast<WPARAM>(hdc), PRF_CLIENT | PRF_CHILDREN | PRF_CHECKVISIBLE);
 
 			if (m_bShowLineNumbers)
-				//PostMessage(m_Hwnd, WM_DRAW_NUMBERS, reinterpret_cast<WPARAM>(hdc), 0);
+			{
+				setFmtRect();
 				DrawGutter(hdc);
+			}
 
 			if (!wParam)
 				EndPaint(m_Hwnd, &ps);
-			return lRes;
+
+			return 0L;
 		}
 		else if (m_bShowLineNumbers)
 		{
@@ -853,15 +852,29 @@ LRESULT DcxEdit::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPars
 
 	case WM_ERASEBKGND:
 	{
+		//if (isExStyle(WindowExStyle::Transparent))
+		//	SetBkMode((HDC)wParam, TRANSPARENT);
+
 		if (m_bShowLineNumbers)
 		{
+			//if (isExStyle(WindowExStyle::Transparent))
+			//{
+			//	// must call DrawGutter() directly to avoid flicker.
+			//	DrawGutter((HDC)wParam);
+
+			//	bParsed = TRUE;
+			//	return TRUE;
+			//}
+			//else {
 			const auto lRes = CallDefaultClassProc(uMsg, wParam, lParam);
 
 			// must call DrawGutter() directly to avoid flicker.
+			setFmtRect();
 			DrawGutter((HDC)wParam);
 
 			bParsed = TRUE;
 			return lRes;
+			//}
 		}
 	}
 	break;
@@ -991,6 +1004,18 @@ void DcxEdit::DrawGutter(HDC hdc)
 	if (!hdc)
 		return;
 
+	RECT rcClient{};
+	const RECT rcFmt = getFmtRect();
+
+	GetClientRect(m_Hwnd, &rcClient);
+
+	RECT m_FRGutter = rcClient;
+	m_FRGutter.right = std::max(rcFmt.left - 3, 0L);
+
+	// gutter doesnt exist...
+	if (m_FRGutter.right == 0)
+		return;
+
 	auto hFont = GetWindowFont(m_Hwnd);
 	const auto oldFont = Dcx::dcxSelectObject<HFONT>(hdc, hFont);
 	Auto(Dcx::dcxSelectObject<HFONT>(hdc, oldFont));
@@ -998,15 +1023,6 @@ void DcxEdit::DrawGutter(HDC hdc)
 	TEXTMETRICW lptm{};
 	GetTextMetrics(hdc, &lptm);
 	const auto letter_height = lptm.tmHeight;
-
-	RECT rcClient{};
-	RECT m_FRGutter{};
-	const RECT rcFmt = getFmtRect();
-
-	GetClientRect(m_Hwnd, &rcClient);
-
-	m_FRGutter = rcClient;
-	m_FRGutter.right = rcFmt.left - 3;
 
 	if (auto hdcbuf = CreateHDCBuffer(hdc, &m_FRGutter); hdcbuf)
 	{
