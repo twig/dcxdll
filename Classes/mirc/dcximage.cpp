@@ -287,7 +287,7 @@ void DcxImage::parseCommandRequest(const TString& input)
 
 #ifdef DCX_USE_GDIPLUS
 		// using this method allows you to render BMP, ICON, GIF, JPEG, Exif, PNG, TIFF, WMF, and EMF (only gif animation supported atm)
-		//if (Dcx::GDIModule.isUseable() && flag.find(TEXT('g'),0)) { // makes GDI+ the default method, bitmap is only used when GDI+ isn't supported.
+		//if (Dcx::GDIModule.isUseable() && flag.find(TEXT('g'),0)) // makes GDI+ the default method, bitmap is only used when GDI+ isn't supported.
 		if (Dcx::GDIModule.isUseable())
 		{
 			if (!LoadGDIPlusImage(flag, filename))
@@ -302,7 +302,7 @@ void DcxImage::parseCommandRequest(const TString& input)
 		this->m_tsFilename = filename;
 #else
 		this->m_hBitmap = dcxLoadBitmap(this->m_hBitmap, filename);
-		if (this->m_hBitmap != nullptr)
+		if (this->m_hBitmap)
 			this->m_tsFilename = filename;
 #endif
 		this->m_bIsIcon = false;
@@ -387,6 +387,9 @@ void DcxImage::parseCommandRequest(const TString& input)
 #ifdef DCX_USE_GDIPLUS
 void DcxImage::DrawGDIImage(HDC hdc, const int x, const int y, const int w, const int h)
 {
+	if (!hdc || !this->m_pImage)
+		return;
+
 	Gdiplus::Graphics grphx(hdc);
 
 	grphx.SetCompositingQuality(this->m_CQuality);
@@ -434,21 +437,19 @@ void DcxImage::DrawGDIImage(HDC hdc, const int x, const int y, const int w, cons
 
 				//grphx.DrawImage(this->m_pImage.get(), this->m_iXOffset, this->m_iYOffset, newImageWidth, newImageHeight);
 
-				int newX{ x };
-				int newY{ y };
+				int newX{ x + m_iXOffset };
+				int newY{ y + m_iYOffset };
 				if (m_bVCenterImage)
 				{
 					// vertically center it.
 					const int diff = (h - newImageHeight) / 2;
 					newY += diff;
-					newY += m_iYOffset;
 				}
 				if (m_bHCenterImage)
 				{
 					// Horizontally center it.
 					const int diff = (w - newImageWidth) / 2;
 					newX += diff;
-					newX += m_iXOffset;
 				}
 				grphx.DrawImage(this->m_pImage.get(), newX, newY, newImageWidth, newImageHeight);
 			}
@@ -497,11 +498,17 @@ void DcxImage::AnimateThread(DcxImage* const img)
 
 void DcxImage::DrawBMPImage(HDC hdc, const int x, const int y, const int w, const int h)
 {
+	if (!hdc)
+		return;
+
 #if DCX_USE_WRAPPERS
 	Dcx::dcxHDCBitmapResource hdcbmp(hdc, m_hBitmap);
 
 	if (auto [code, bmp] = Dcx::dcxGetObject<BITMAP>(m_hBitmap); code != 0)
 	{
+		int newX{ x + m_iXOffset };
+		int newY{ y + m_iYOffset };
+
 		if (m_bKeepAspect)
 		{
 			// This code calculates the aspect ratio in which I have to draw the image
@@ -513,16 +520,33 @@ void DcxImage::DrawBMPImage(HDC hdc, const int x, const int y, const int w, cons
 			const int newImageWidth = gsl::narrow_cast<int>(bmp.bmWidth * percent);
 			const int newImageHeight = gsl::narrow_cast<int>(bmp.bmHeight * percent);
 
+			//if (m_clrTransColor != CLR_INVALID)
+			//	TransparentBlt(hdc, x, y, w, h, hdcbmp.get(), 0, 0, newImageWidth, newImageHeight, m_clrTransColor);
+			//else
+			//	StretchBlt(hdc, x, y, w, h, hdcbmp.get(), 0, 0, newImageWidth, newImageHeight, SRCCOPY);
+
+			if (m_bVCenterImage)
+			{
+				// vertically center it.
+				const int diff = (h - newImageHeight) / 2;
+				newY += diff;
+			}
+			if (m_bHCenterImage)
+			{
+				// Horizontally center it.
+				const int diff = (w - newImageWidth) / 2;
+				newX += diff;
+			}
 			if (m_clrTransColor != CLR_INVALID)
-				TransparentBlt(hdc, x, y, w, h, hdcbmp.get(), 0, 0, newImageWidth, newImageHeight, m_clrTransColor);
+				TransparentBlt(hdc, newX, newY, w, h, hdcbmp.get(), 0, 0, newImageWidth, newImageHeight, m_clrTransColor);
 			else
-				StretchBlt(hdc, x, y, w, h, hdcbmp.get(), 0, 0, newImageWidth, newImageHeight, SRCCOPY);
+				StretchBlt(hdc, newX, newY, w, h, hdcbmp.get(), 0, 0, newImageWidth, newImageHeight, SRCCOPY);
 		}
 		else {
 			if (m_clrTransColor != CLR_INVALID)
-				TransparentBlt(hdc, x, y, w, h, hdcbmp.get(), 0, 0, bmp.bmWidth, bmp.bmHeight, m_clrTransColor);
+				TransparentBlt(hdc, newX, newY, w, h, hdcbmp.get(), 0, 0, bmp.bmWidth, bmp.bmHeight, m_clrTransColor);
 			else
-				StretchBlt(hdc, x, y, w, h, hdcbmp.get(), 0, 0, bmp.bmWidth, bmp.bmHeight, SRCCOPY);
+				StretchBlt(hdc, newX, newY, w, h, hdcbmp.get(), 0, 0, bmp.bmWidth, bmp.bmHeight, SRCCOPY);
 		}
 	}
 #else
@@ -543,12 +567,59 @@ void DcxImage::DrawBMPImage(HDC hdc, const int x, const int y, const int w, cons
 			TransparentBlt(hdc, x, y, w, h, hdcbmp, 0, 0, bmp.bmWidth, bmp.bmHeight, m_clrTransColor);
 		else
 			StretchBlt(hdc, x, y, w, h, hdcbmp, 0, 0, bmp.bmWidth, bmp.bmHeight, SRCCOPY);
-		}
-#endif
 	}
+	if (auto [code, bmp] = Dcx::dcxGetObject<BITMAP>(m_hBitmap); code != 0)
+	{
+		auto oldBitmap = Dcx::dcxSelectObject<HBITMAP>(hdcbmp, m_hBitmap);
+
+		Auto(Dcx::dcxSelectObject<HBITMAP>(hdcbmp, oldBitmap));
+
+		int newX{ x + m_iXOffset };
+		int newY{ y + m_iYOffset };
+
+		if (m_bKeepAspect)
+		{
+			// This code calculates the aspect ratio in which I have to draw the image
+			const float percentWidth = gsl::narrow_cast<float>(w) / gsl::narrow_cast<float>(bmp.bmWidth);
+			const float percentHeight = gsl::narrow_cast<float>(h) / gsl::narrow_cast<float>(bmp.bmHeight);
+
+			const float percent = percentHeight < percentWidth ? percentHeight : percentWidth;
+
+			const int newImageWidth = gsl::narrow_cast<int>(bmp.bmWidth * percent);
+			const int newImageHeight = gsl::narrow_cast<int>(bmp.bmHeight * percent);
+
+			if (m_bVCenterImage)
+			{
+				// vertically center it.
+				const int diff = (h - newImageHeight) / 2;
+				newY += diff;
+			}
+			if (m_bHCenterImage)
+			{
+				// Horizontally center it.
+				const int diff = (w - newImageWidth) / 2;
+				newX += diff;
+			}
+			if (m_clrTransColor != CLR_INVALID)
+				TransparentBlt(hdc, newX, newY, w, h, hdcbmp, 0, 0, newImageWidth, newImageHeight, m_clrTransColor);
+			else
+				StretchBlt(hdc, newX, newY, w, h, hdcbmp, 0, 0, newImageWidth, newImageHeight, SRCCOPY);
+		}
+		else {
+			if (m_clrTransColor != CLR_INVALID)
+				TransparentBlt(hdc, newX, newY, w, h, hdcbmp, 0, 0, bmp.bmWidth, bmp.bmHeight, m_clrTransColor);
+			else
+				StretchBlt(hdc, newX, newY, w, h, hdcbmp, 0, 0, bmp.bmWidth, bmp.bmHeight, SRCCOPY);
+		}
+	}
+#endif
+}
 
 void DcxImage::toXml(TiXmlElement* const xml) const
 {
+	if (!xml)
+		return;
+
 	__super::toXml(xml);
 
 	if (!this->m_tsFilename.empty())
