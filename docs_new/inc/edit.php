@@ -41,8 +41,8 @@ function get_xdid_edit(&$XDID) {
 		'c' => "This command will copy the text in the edit to the clipboard.",
 		'd' => array(
 			'__desc' => 'This command lets you delete the Nth line of text in the edit.',
-			'__cmd' => '[N]',
-			'__eg' => '2',
+			'__cmd' => '[N,N2,N3-N4]',
+			'__eg' => '2,40-55',
 			'__notes' => "Only works with [s]multi[/s]."
 		),
 		'l' => array(
@@ -64,9 +64,9 @@ function get_xdid_edit(&$XDID) {
 		),
 		'j' => array(
 		        '__desc' => 'This command lets you trigger the password style of the edit control on the fly.',
-		        '__cmd' => '[1|0]',
-		        '__eg' => "1",
-		        '__notes' => 'If anyone could find me the ascii value of the big DOT used for the default password character on XP, please leave a message.'
+		        '__cmd' => '[1|0] (CHAR)',
+		        '__eg' => "1 *",
+		        '__notes' => 'Sets the password obscuring char to (CHAR) if supplied, or the default for your system.'
 		),
 		'o' => array(
 			'__desc' => 'This command lets you overwrite the Nth line in the edit.',

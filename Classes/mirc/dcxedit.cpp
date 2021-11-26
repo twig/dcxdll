@@ -420,16 +420,43 @@ void DcxEdit::parseCommandRequest(const TString& input)
 
 		CopyToClipboard(m_Hwnd, this->m_tsText);
 	}
-	// xdid -d [NAME] [ID] [SWITCH] [N]
+	// xdid -d [NAME] [ID] [SWITCH] [N,N2,N3-N4...]
 	else if (flags[TEXT('d')])
 	{
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
+		//if (this->isStyle(WindowStyle::ES_MultiLine))
+		//{
+		//	const auto nLine = input.getnexttok().to_<UINT>();	// tok 4
+		//	this->m_tsText.deltok(nLine, TEXT("\r\n"));
+		//	SetWindowTextW(m_Hwnd, this->m_tsText.to_wchr());
+		//}
+
 		if (this->isStyle(WindowStyle::ES_MultiLine))
 		{
-			const auto nLine = input.getnexttok().to_<UINT>();	// tok 4
-			this->m_tsText.deltok(nLine, TEXT("\r\n"));
+			auto tsLines(input.getnexttok());
+
+			// reverse numeric sort line numbers
+			tsLines.sorttok(TEXT("nr"), TSCOMMA);
+
+			const auto itEnd = tsLines.end();
+			for (auto itStart = tsLines.begin(TSCOMMACHAR); itStart != itEnd; ++itStart)
+			{
+				const TString tsLineRange(*itStart);
+				UINT nStartLine{}, nEndLine{};
+				if (tsLineRange.numtok(TEXT('-')) == 2)
+				{
+					nStartLine = tsLineRange.getfirsttok(1,TEXT('-')).to_<UINT>();
+					nEndLine = tsLineRange.getnexttok(TEXT('-')).to_<UINT>();
+				}
+				else {
+					nStartLine = nEndLine = tsLineRange.to_<UINT>();
+				}
+				// delete lines from the back of the text so it doesnt change the position of other lines.
+				for (auto nLine = nEndLine; nLine >= nStartLine; --nLine)
+					this->m_tsText.deltok(nLine, TEXT("\r\n"));
+			}
 			SetWindowTextW(m_Hwnd, this->m_tsText.to_wchr());
 		}
 	}
@@ -464,44 +491,46 @@ void DcxEdit::parseCommandRequest(const TString& input)
 
 		SetWindowTextW(m_Hwnd, this->m_tsText.to_wchr());
 	}
-	// xdid -j [NAME] [ID] [SWITCH] [0|1]
+	// xdid -j [NAME] [ID] [SWITCH] [0|1] (CHAR)
 	else if (flags[TEXT('j')])
 	{
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto i = input.getnexttok().to_<UINT>();	// tok 4
+		TCHAR cPassChar = input.getnexttok().at(0);	// tok 5
 
-		auto c = Edit_GetPasswordChar(m_Hwnd);
-		if (c == 0)
-			c = this->m_PassChar;
+		if (cPassChar == 0)
+			cPassChar = Edit_GetPasswordChar(m_Hwnd);
+		if (cPassChar == 0)
+			cPassChar = this->m_PassChar;
 		// XP actually uses the unicode `Black Circle` char U+25CF (9679)
 		// The problem is getting the char set to a unicode (2-byte) one, so far it always sets to CF (207)
-		if (c == 0)
+		if (cPassChar == 0)
 		{
 			if (Dcx::VistaModule.isVista())
 			{
 				if (Dcx::VistaModule.isWin7())
 				{
-					c = TEXT('\u25CF');	// Win7 char
+					cPassChar = TEXT('\u25CF');	// Win7 char
 				}
 				else
-					c = TEXT('•'); // Vista char (unsure if this is the right char)
+					cPassChar = TEXT('•'); // Vista char (unsure if this is the right char)
 			}
 			else
-				c = TEXT('•'); // XP char
+				cPassChar = TEXT('•'); // XP char
 			//c = TEXT('*'); // before win xp
 		}
 		if (i)
 		{
 			this->addStyle(WindowStyle::ES_Password);
 
-			Edit_SetPasswordChar(m_Hwnd, c);
+			Edit_SetPasswordChar(m_Hwnd, cPassChar);
 		}
 		else {
 			this->removeStyle(WindowStyle::ES_Password);
 			Edit_SetPasswordChar(m_Hwnd, 0);
-			this->m_PassChar = c;	// save pass char used for later
+			this->m_PassChar = cPassChar;	// save pass char used for later
 		}
 
 		this->redrawWindow();

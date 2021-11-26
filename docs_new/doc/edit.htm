@@ -183,11 +183,11 @@
 	<tr><td colspan="2">This command lets you delete the Nth line of text in the edit.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xdid -d [DNAME] [ID] [N]</div></td>
+		<td><div class="syntax">/xdid -d [DNAME] [ID] [N,N2,N3-N4]</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -d dcx 4 2</div></td>
+		<td><div class="example">/xdid -d dcx 4 2,40-55</div></td>
 	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> Only works with <a class="style">multi</a>.</td></tr></table>
 <br />
@@ -225,13 +225,13 @@
 	<tr><td colspan="2">This command lets you trigger the password style of the edit control on the fly.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xdid -j [DNAME] [ID] [1|0]</div></td>
+		<td><div class="syntax">/xdid -j [DNAME] [ID] [1|0] (CHAR)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -j dcx 4 1</div></td>
+		<td><div class="example">/xdid -j dcx 4 1 *</div></td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> If anyone could find me the ascii value of the big DOT used for the default password character on XP, please leave a message.</td></tr></table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> Sets the password obscuring char to (CHAR) if supplied, or the default for your system.</td></tr></table>
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
