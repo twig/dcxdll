@@ -347,6 +347,20 @@
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xdid.big.I"></a>/xdid -I	</td></tr>
+	<tr><td colspan="2">This command lets you insert a line at the Nth position in the edit.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -I [DNAME] [ID] [N] [TEXT]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -I dcx 4 5 Inserted Text</div></td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> The text is inserted at the <a class="style">Nth</a> character no matter what mode the control is in. If the control has less that N characters the text is added to the end.</td></tr></table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
 			<a name="xdid.big.P"></a>/xdid -P	</td></tr>
 	<tr><td colspan="2">This command lets you paste the contents of the clipboard into the edit control.</td></tr>
 	<tr>
@@ -389,7 +403,7 @@
 		<td class="example">Example:</td>
 		<td><div class="example">$xdid(dcx, 4).caretpos</div></td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> The return value is <a class="param">LINE</a> <a class="param">COLUMN</a></td></tr></table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> The return value is <a class="param">LINE</a> <a class="param">COLUMN</a> <a class="param">CHAR</a></td></tr></table>
 <br />
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
@@ -745,6 +759,7 @@
 		<a class='flag' href="#xdid.u"><div>-u</div></a>
 		<a class='flag' href="#xdid.y"><div>-y</div></a>
 		<a class='flag' href="#xdid.big.E"><div>-E</div></a>
+		<a class='flag' href="#xdid.big.I"><div>-I</div></a>
 		<a class='flag' href="#xdid.big.P"><div>-P</div></a>
 		<a class='flag' href="#xdid.big.S"><div>-S</div></a>
 	</div>
@@ -785,7 +800,7 @@
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2021</td>
-		<td style="text-align: right;">Last Updated: 24th November, 21</td>
+		<td style="text-align: right;">Last Updated: 26th November, 21</td>
 	</tr>
 </table>
 <div style="text-align: center;">

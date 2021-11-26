@@ -56,6 +56,12 @@ function get_xdid_edit(&$XDID) {
 		        '__eg' => "5 New Text",
 		        '__notes' => "If the [s]multi[/s] style is not used, will overwrite the whole text."
 		),
+		'I' => array(
+			'__desc' => 'This command lets you insert a line at the Nth position in the edit.',
+		        '__cmd' => '[N] [TEXT]',
+		        '__eg' => "5 Inserted Text",
+		        '__notes' => "The text is inserted at the [s]Nth[/s] character no matter what mode the control is in. If the control has less that N characters the text is added to the end."
+		),
 		'j' => array(
 		        '__desc' => 'This command lets you trigger the password style of the edit control on the fly.',
 		        '__cmd' => '[1|0]',
@@ -140,7 +146,7 @@ function get_xdidprops_edit(&$XDIDPROPS) {
 		"cue" => 'This returns the cue banner text in the control.',
 		"caretpos" => array(
 		    '__desc' => "This property lets you retreive the position of the cursor.",
-		    '__notes' => 'The return value is [p]LINE[/p] [p]COLUMN[/p]',
+		    '__notes' => 'The return value is [p]LINE[/p] [p]COLUMN[/p] [p]CHAR[/p]',
 		),
 		"linenumbers" => 'This returns if line numbers are enabled.',
 		"guttercolours" => 'This returns the colours used to draw line numbers.',

@@ -210,7 +210,7 @@ The <a>Color Palette</a> is the richedit's internal color list of 16 values used
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
 			<a name="xdid.l"></a>/xdid -l	</td></tr>
-	<tr><td colspan="2">This command lets you change a color in the richedit palette.</td></tr>
+	<tr><td colspan="2">This command lets you change a color in the richedit palette. (cmd is lowercase L)</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
 		<td><div class="syntax">/xdid -l [DNAME] [ID] [N] [RGB]</div></td>
@@ -337,6 +337,20 @@ The <a>Color Palette</a> is the richedit's internal color list of 16 values used
 		<td><div class="example">/xdid -y dcx 4 1</div></td>
 	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>Repeated keys are ignored by default.</li><li>A value of <a class="value">1</a> will prevent callbacks from being generated for repeated keydown events.</li></ul></td></tr></table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xdid.big.I"></a>/xdid -I	</td></tr>
+	<tr><td colspan="2">This command lets you insert a line at the Nth position in the richedit. (cmd is uppercase i)</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -I [DNAME] [ID] [N] [TEXT]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -I dcx 4 5 Inserted Text</div></td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>The text is inserted at the <a class="style">Nth</a> character no matter what mode the control is in.</li><li> If the control has less that N characters the text is added to the end.</li></ul></td></tr></table>
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
@@ -705,6 +719,7 @@ The <a>Color Palette</a> is the richedit's internal color list of 16 values used
 		<a class='flag' href="#xdid.t"><div>-t</div></a>
 		<a class='flag' href="#xdid.u"><div>-u</div></a>
 		<a class='flag' href="#xdid.y"><div>-y</div></a>
+		<a class='flag' href="#xdid.big.I"><div>-I</div></a>
 		<a class='flag' href="#xdid.big.P"><div>-P</div></a>
 		<a class='flag' href="#xdid.big.S"><div>-S</div></a>
 		<a class='flag' href="#xdid.big.Z"><div>-Z</div></a>
@@ -741,7 +756,7 @@ The <a>Color Palette</a> is the richedit's internal color list of 16 values used
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2021</td>
-		<td style="text-align: right;">Last Updated: 24th November, 21</td>
+		<td style="text-align: right;">Last Updated: 26th November, 21</td>
 	</tr>
 </table>
 <div style="text-align: center;">

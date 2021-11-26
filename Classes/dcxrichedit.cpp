@@ -184,15 +184,15 @@ void DcxRichEdit::parseInfoRequest(const TString& input, const refString<TCHAR, 
 		if (this->isStyle(WindowStyle::ES_MultiLine))
 		{
 			// current line
-			const auto iLinePos = SendMessage(m_Hwnd, EM_LINEFROMCHAR, gsl::narrow_cast<WPARAM>(-1), NULL);
+			const auto iLinePos = SendMessage(m_Hwnd, EM_LINEFROMCHAR, gsl::narrow_cast<WPARAM>(-1), NULL) + 1;
 			// line offset
-			const auto iAbsoluteCharPos = gsl::narrow_cast<int>(SendMessage(m_Hwnd, EM_LINEINDEX, gsl::narrow_cast<WPARAM>(-1), NULL));
+			const auto CharPos = (dwAbsoluteStartSelPos - gsl::narrow_cast<int>(SendMessage(m_Hwnd, EM_LINEINDEX, gsl::narrow_cast<WPARAM>(-1), NULL)));
 
-			_ts_snprintf(szReturnValue, TEXT("%d %u"), iLinePos + 1, dwAbsoluteStartSelPos - iAbsoluteCharPos);
+			_ts_snprintf(szReturnValue, TEXT("%d %u %u"), iLinePos, CharPos, dwAbsoluteStartSelPos);
 		}
 		else {
 			// return selstart
-			_ts_snprintf(szReturnValue, TEXT("1 %u"), dwAbsoluteStartSelPos);
+			_ts_snprintf(szReturnValue, TEXT("1 %u %u"), dwAbsoluteStartSelPos, dwAbsoluteStartSelPos);
 		}
 	}
 	break;
@@ -526,6 +526,21 @@ void DcxRichEdit::parseCommandRequest(const TString& input)
 		}
 		else
 			this->m_tsText = input.getlasttoks();										// tok 4, -1
+
+		this->parseContents(TRUE);
+	}
+	// xdid -I [NAME] [ID] [SWITCH] [N] [TEXT]
+	else if (flags[TEXT('I')])
+	{
+		if (numtok < 5)
+			throw DcxExceptions::dcxInvalidArguments();
+
+		const auto nChar = input.getnexttok().to_<UINT>();	// tok 4
+		TString tsInsert(input.getlasttoks());
+		TString tsLeft(this->m_tsText.sub(0, nChar));
+		const TString tsRight(this->m_tsText.sub(nChar, this->m_tsText.len()));
+
+		this->m_tsText = tsLeft + tsInsert + tsRight;
 
 		this->parseContents(TRUE);
 	}

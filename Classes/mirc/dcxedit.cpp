@@ -231,6 +231,7 @@ void DcxEdit::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC
 			szReturnValue = m_tsText.to_chr();
 	}
 	break;
+
 	// [NAME] [ID] [PROP]
 	case L"num"_hash:
 	{
@@ -246,14 +247,17 @@ void DcxEdit::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC
 		}
 	}
 	break;
+
 	// [NAME] [ID] [PROP]
 	case L"ispass"_hash:
 		szReturnValue = dcx_truefalse(isStyle(WindowStyle::ES_Password));
 		break;
+
 		// [NAME] [ID] [PROP]
 	case L"isreadonly"_hash:
 		szReturnValue = dcx_truefalse(isStyle(WindowStyle::ES_ReadOnly));
 		break;
+
 		// [NAME] [ID] [PROP]
 	case L"caretpos"_hash:
 	{
@@ -269,14 +273,15 @@ void DcxEdit::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC
 			// line offset
 			const auto CharPos = (dwAbsoluteStartSelPos - gsl::narrow_cast<int>(SendMessage(m_Hwnd, EM_LINEINDEX, gsl::narrow_cast<WPARAM>(-1), NULL)));
 
-			_ts_snprintf(szReturnValue, TEXT("%d %u"), iLinePos, CharPos);
+			_ts_snprintf(szReturnValue, TEXT("%d %u %u"), iLinePos, CharPos, dwAbsoluteStartSelPos);
 		}
 		else {
 			// return selstart
-			_ts_snprintf(szReturnValue, TEXT("1 %u"), dwAbsoluteStartSelPos);
+			_ts_snprintf(szReturnValue, TEXT("1 %u %u"), dwAbsoluteStartSelPos, dwAbsoluteStartSelPos);
 		}
 	}
 	break;
+
 	case L"selstart"_hash:
 	{
 		DWORD dwSelStart{}; // selection range starting position
@@ -285,6 +290,7 @@ void DcxEdit::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC
 		_ts_snprintf(szReturnValue, TEXT("%u"), dwSelStart);
 	}
 	break;
+
 	case L"selend"_hash:
 	{
 		DWORD dwSelEnd{};   // selection range ending position
@@ -293,6 +299,7 @@ void DcxEdit::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC
 		_ts_snprintf(szReturnValue, TEXT("%u"), dwSelEnd);
 	}
 	break;
+
 	case L"sel"_hash:
 	{
 		DWORD dwSelStart{}; // selection range starting position
@@ -302,6 +309,7 @@ void DcxEdit::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC
 		_ts_snprintf(szReturnValue, TEXT("%u %u"), dwSelStart, dwSelEnd);
 	}
 	break;
+
 	case L"seltext"_hash:
 	{
 		DWORD dwSelStart{}; // selection range starting position
@@ -311,17 +319,61 @@ void DcxEdit::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC
 		szReturnValue = m_tsText.mid(gsl::narrow_cast<int>(dwSelStart), gsl::narrow_cast<int>(dwSelEnd - dwSelStart)).to_chr();
 	}
 	break;
+
+	// [NAME] [ID] [PROP] {TAB}[MATCHTEXT]{TAB} [T] [N]
+	//case L"find"_hash:
+	//{
+	//	if (input.numtok() < 6)
+	//		throw DcxExceptions::dcxInvalidArguments();
+	//
+	//	const auto matchtext(input.getfirsttok(2, TSTABCHAR).trim());
+	//	const auto params(input.getnexttok(TSTABCHAR).trim());	// tok 3
+	//
+	//	if (matchtext.empty())
+	//		throw Dcx::dcxException("No Match text supplied");
+	//
+	//	auto SearchType = DcxListHelper::CharToSearchType(params++[0]);
+	//
+	//	const auto N = params++.to_<UINT>();	// tok 2
+	//
+	//	// count total
+	//	if (N == 0)
+	//	{
+	//		auto count = matchItemText(0, matchtext, SearchType);
+	//
+	//		_ts_snprintf(szReturnValue, TEXT("%d"), count);
+	//	}
+	//	// find Nth matching
+	//	else {
+	//		auto count = decltype(N){0};
+	//
+	//		if (DcxListHelper::matchItemText(N, matchtext, SearchType))
+	//			++count;
+	//
+	//		// found Nth matching
+	//		if (count == N)
+	//		{
+	//			++i;
+	//			_ts_snprintf(szReturnValue, TEXT("%d"), i);
+	//			return;
+	//		}
+	//	} // else
+	//}
+	//break;
+
 	case L"cue"_hash:
 	{
 		if (!this->m_tsCue.empty())
 			szReturnValue = m_tsCue.to_chr();
 	}
 	break;
+
 	case L"linenumbers"_hash:
 	{
 		szReturnValue = dcx_truefalse(m_bShowLineNumbers);
 	}
 	break;
+
 	case L"guttercolors"_hash:
 	case L"guttercolours"_hash:
 	{
@@ -394,6 +446,22 @@ void DcxEdit::parseCommandRequest(const TString& input)
 		}
 		else
 			this->m_tsText = input.getlasttoks();	// tok 5, -1
+		SetWindowTextW(m_Hwnd, this->m_tsText.to_wchr());
+	}
+	// xdid -I [NAME] [ID] [SWITCH] [N] [TEXT]
+	else if (flags[TEXT('I')])
+	{
+		// inserts supplied [TEXT] at char pos [N]
+		if (numtok < 5)
+			throw DcxExceptions::dcxInvalidArguments();
+
+		const auto nChar = input.getnexttok().to_<UINT>();	// tok 4
+		TString tsInsert(input.getlasttoks());
+		TString tsLeft(this->m_tsText.sub(0, nChar));
+		const TString tsRight(this->m_tsText.sub(nChar, this->m_tsText.len()));
+
+		this->m_tsText = tsLeft + tsInsert + tsRight;
+
 		SetWindowTextW(m_Hwnd, this->m_tsText.to_wchr());
 	}
 	// xdid -j [NAME] [ID] [SWITCH] [0|1]
@@ -973,6 +1041,7 @@ Dcx::range_t<DWORD> DcxEdit::GetVisibleRange() noexcept
 }
 
 GSL_SUPPRESS(con.4)
+GSL_SUPPRESS(lifetime.1)
 DWORD DcxEdit::GetCaretPos() noexcept
 {
 	DWORD hiPos{}, loPos{};

@@ -49,6 +49,15 @@ function get_xdid_richedit(&$XDID) {
 	            "If the [s]multi[/s] style is not used, overwrites all text."
 			),
 		),
+		'I' => array(
+			'__desc' => 'This command lets you insert a line at the Nth position in the richedit. (cmd is uppercase i)',
+		        '__cmd' => '[N] [TEXT]',
+		        '__eg' => "5 Inserted Text",
+			    '__notes' => array(
+					"The text is inserted at the [s]Nth[/s] character no matter what mode the control is in.",
+					" If the control has less that N characters the text is added to the end."
+				),
+		),
 		'k' => array(
 	        '__desc' => 'This command lets you change the richedit background color.',
 	        '__cmd' => '[RGB]',
@@ -58,7 +67,7 @@ function get_xdid_richedit(&$XDID) {
 			),
 		),
 		'l' => array(
-	        '__desc' => 'This command lets you change a color in the richedit palette.',
+	        '__desc' => 'This command lets you change a color in the richedit palette. (cmd is lowercase L)',
 	        '__cmd' => '[N] [RGB]',
 	        '__eg' => '5 $rgb(255,0,0)',
 	        '__params' => array(
