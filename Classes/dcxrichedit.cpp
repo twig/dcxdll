@@ -392,6 +392,8 @@ void DcxRichEdit::parseCommandRequest(const TString& input)
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
+		const auto pos = this->GetCaretPos();
+
 		//this->m_tsText += input.gettok(4, -1);
 		//this->parseContents(TRUE);
 
@@ -400,6 +402,8 @@ void DcxRichEdit::parseCommandRequest(const TString& input)
 		this->m_tsText += tmp;
 		this->parseStringContents(tmp, TRUE);
 		//this->parseContents(TRUE);
+
+		this->setCaretPos(pos);
 	}
 	// xdid -c [NAME] [ID] [SWITCH]
 	else if (flags[TEXT('c')])
@@ -409,11 +413,29 @@ void DcxRichEdit::parseCommandRequest(const TString& input)
 
 		CopyToClipboard(m_Hwnd, this->m_tsText);
 	}
+	// xdid -C [NAME] [ID] [SWITCH] [POS]
+	else if (flags[TEXT('C')])
+	{
+		if (numtok < 4)
+			throw DcxExceptions::dcxInvalidArguments();
+
+		auto pos = input.getnexttok().to_<long long>();
+		if (pos < 0)
+		{
+			const auto oldPos = this->GetCaretPos();
+			pos += oldPos;
+			if (pos < 0)
+				pos = 0;
+		}
+		this->setCaretPos(gsl::narrow_cast<DWORD>(pos));
+	}
 	// xdid -d [NAME] [ID] [SWITCH] [N,N2,N3-N4...]
 	else if (flags[TEXT('d')])
 	{
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
+
+		const auto pos = this->GetCaretPos();
 
 		//if (this->isStyle(WindowStyle::ES_MultiLine))
 		//{
@@ -448,6 +470,8 @@ void DcxRichEdit::parseCommandRequest(const TString& input)
 		}
 
 		this->parseContents(TRUE);
+
+		this->setCaretPos(pos);
 	}
 	// special richedit interception for font change
 	// xdid -f [NAME] [ID] [SWITCH] [+FLAGS] [CHARSET] [SIZE] [FONTNAME]
@@ -545,6 +569,8 @@ void DcxRichEdit::parseCommandRequest(const TString& input)
 		if (numtok < 5)
 			throw DcxExceptions::dcxInvalidArguments();
 
+		const auto pos = this->GetCaretPos();
+
 		if (this->isStyle(WindowStyle::ES_MultiLine))
 		{
 			const auto nLine = input.getnexttok().to_<UINT>();								// tok 4
@@ -554,6 +580,8 @@ void DcxRichEdit::parseCommandRequest(const TString& input)
 			this->m_tsText = input.getlasttoks();										// tok 4, -1
 
 		this->parseContents(TRUE);
+
+		this->setCaretPos(pos);
 	}
 	// xdid -I [NAME] [ID] [SWITCH] [N] [TEXT]
 	else if (flags[TEXT('I')])
@@ -566,9 +594,13 @@ void DcxRichEdit::parseCommandRequest(const TString& input)
 		TString tsLeft(this->m_tsText.sub(0, nChar));
 		const TString tsRight(this->m_tsText.sub(nChar, this->m_tsText.len()));
 
+		const auto pos = this->GetCaretPos();
+
 		this->m_tsText = tsLeft + tsInsert + tsRight;
 
 		this->parseContents(TRUE);
+
+		this->setCaretPos(pos);
 	}
 	// xdid -k [NAME] [ID] [SWITCH] [COLOR]
 	else if (flags[TEXT('k')])
@@ -1412,6 +1444,11 @@ DWORD DcxRichEdit::GetCaretLine() noexcept
 {
 	const auto pos = GetCaretPos();
 	return gsl::narrow_cast<DWORD>(SNDMSG(m_Hwnd, EM_EXLINEFROMCHAR, 0, gsl::narrow_cast<LPARAM>(pos)));
+}
+
+void DcxRichEdit::setCaretPos(DWORD pos) noexcept
+{
+	SendMessage(m_Hwnd, EM_SETSEL, pos, pos);
 }
 
 /*!
