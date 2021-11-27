@@ -115,7 +115,7 @@ private:
 	Dcx::range_t<DWORD> GetVisibleRange() noexcept;
 	DWORD GetCaretPos() noexcept;
 	DWORD GetCaretLine() noexcept;
-
+	void setCaretPos(DWORD pos) noexcept;
 };
 
 #endif // _DCXEDIT_H_

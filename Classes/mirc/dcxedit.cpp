@@ -409,8 +409,12 @@ void DcxEdit::parseCommandRequest(const TString& input)
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
+		const auto pos = this->GetCaretPos();
+
 		this->m_tsText += input.getlasttoks();	// tok 4, -1
 		SetWindowTextW(m_Hwnd, this->m_tsText.to_wchr());
+
+		this->setCaretPos(pos);
 	}
 	// xdid -c [NAME] [ID] [SWITCH]
 	else if (flags[TEXT('c')])
@@ -419,6 +423,22 @@ void DcxEdit::parseCommandRequest(const TString& input)
 			throw DcxExceptions::dcxInvalidArguments();
 
 		CopyToClipboard(m_Hwnd, this->m_tsText);
+	}
+	// xdid -C [NAME] [ID] [SWITCH] [POS]
+	else if (flags[TEXT('C')])
+	{
+		if (numtok < 4)
+			throw DcxExceptions::dcxInvalidArguments();
+
+		auto pos = input.getnexttok().to_<long long>();
+		if (pos < 0)
+		{
+			const auto oldPos = this->GetCaretPos();
+			pos += oldPos;
+			if (pos < 0)
+				pos = 0;
+		}
+		this->setCaretPos(gsl::narrow_cast<DWORD>(pos));
 	}
 	// xdid -d [NAME] [ID] [SWITCH] [N,N2,N3-N4...]
 	else if (flags[TEXT('d')])
@@ -440,6 +460,8 @@ void DcxEdit::parseCommandRequest(const TString& input)
 			// reverse numeric sort line numbers
 			tsLines.sorttok(TEXT("nr"), TSCOMMA);
 
+			const auto pos = this->GetCaretPos();
+
 			const auto itEnd = tsLines.end();
 			for (auto itStart = tsLines.begin(TSCOMMACHAR); itStart != itEnd; ++itStart)
 			{
@@ -458,6 +480,8 @@ void DcxEdit::parseCommandRequest(const TString& input)
 					this->m_tsText.deltok(nLine, TEXT("\r\n"));
 			}
 			SetWindowTextW(m_Hwnd, this->m_tsText.to_wchr());
+
+			this->setCaretPos(pos);
 		}
 	}
 	// xdid -i [NAME] [ID] [SWITCH] [N] [TEXT]
@@ -465,6 +489,8 @@ void DcxEdit::parseCommandRequest(const TString& input)
 	{
 		if (numtok < 5)
 			throw DcxExceptions::dcxInvalidArguments();
+
+		const auto pos = this->GetCaretPos();
 
 		if (this->isStyle(WindowStyle::ES_MultiLine))
 		{
@@ -474,6 +500,8 @@ void DcxEdit::parseCommandRequest(const TString& input)
 		else
 			this->m_tsText = input.getlasttoks();	// tok 5, -1
 		SetWindowTextW(m_Hwnd, this->m_tsText.to_wchr());
+
+		this->setCaretPos(pos);
 	}
 	// xdid -I [NAME] [ID] [SWITCH] [N] [TEXT]
 	else if (flags[TEXT('I')])
@@ -482,14 +510,27 @@ void DcxEdit::parseCommandRequest(const TString& input)
 		if (numtok < 5)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto nChar = input.getnexttok().to_<UINT>();	// tok 4
-		TString tsInsert(input.getlasttoks());
-		TString tsLeft(this->m_tsText.sub(0, nChar));
-		const TString tsRight(this->m_tsText.sub(nChar, this->m_tsText.len()));
+		//const auto nChar = input.getnexttok().to_<UINT>();	// tok 4
+		//TString tsLeft(this->m_tsText.sub(0, nChar));
+		//tsLeft += input.getlasttoks();
+		//tsLeft += this->m_tsText.sub(nChar, this->m_tsText.len());
 
-		this->m_tsText = tsLeft + tsInsert + tsRight;
+		const auto nChar = input.getnexttok().to_<UINT>();	// tok 4
+		const TString tsInsert(input.getlasttoks());
+
+		TString tsLeft(this->m_tsText.len() + tsInsert.len());
+
+		tsLeft = this->m_tsText.sub(0, nChar);
+		tsLeft += tsInsert;
+		tsLeft += this->m_tsText.sub(nChar, this->m_tsText.len());
+
+		const auto pos = this->GetCaretPos();
+
+		this->m_tsText = tsLeft;
 
 		SetWindowTextW(m_Hwnd, this->m_tsText.to_wchr());
+
+		this->setCaretPos(pos);
 	}
 	// xdid -j [NAME] [ID] [SWITCH] [0|1] (CHAR)
 	else if (flags[TEXT('j')])
@@ -1088,6 +1129,12 @@ DWORD DcxEdit::GetCaretLine() noexcept
 	const auto pos = GetCaretPos();
 	return gsl::narrow_cast<DWORD>(SNDMSG(m_Hwnd, EM_LINEFROMCHAR, gsl::narrow_cast<LPARAM>(pos), 0));
 }
+
+void DcxEdit::setCaretPos(DWORD pos) noexcept
+{
+	SendMessage(m_Hwnd, EM_SETSEL, pos, pos);
+}
+
 void DcxEdit::DrawGutter()
 {
 	if (HDC hdc = GetDC(m_Hwnd); hdc)
