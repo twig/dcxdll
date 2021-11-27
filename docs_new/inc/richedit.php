@@ -34,12 +34,10 @@ function get_xdid_richedit(&$XDID) {
 	        '__desc' => 'This command will copy the text in the edit to the clipboard.',
 		),
 		'd' => array(
-	        '__desc' => 'This command lets you delete the Nth line of text in the richedit.',
-	        '__cmd' => '[N]',
-	        '__eg' => "2",
-	        '__notes' => array(
-	            "Only works with [s]multi[/s]",
-			),
+			'__desc' => 'This command lets you delete the Nth line of text in the richedit.',
+			'__cmd' => '[N,N2,N3-N4]',
+			'__eg' => '2,40-55',
+			'__notes' => "Only works with [s]multi[/s].",
 		),
 		'i' => array(
 	        '__desc' => 'This command lets you insert a line at the Nth position in the richedit.',

@@ -409,16 +409,42 @@ void DcxRichEdit::parseCommandRequest(const TString& input)
 
 		CopyToClipboard(m_Hwnd, this->m_tsText);
 	}
-	// xdid -d [NAME] [ID] [SWITCH] [N]
+	// xdid -d [NAME] [ID] [SWITCH] [N,N2,N3-N4...]
 	else if (flags[TEXT('d')])
 	{
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
+		//if (this->isStyle(WindowStyle::ES_MultiLine))
+		//{
+		//	const auto nLine = input.getnexttok().to_<UINT>();	// tok 4
+		//	this->m_tsText.deltok(nLine, TEXT("\r\n"));
+		//}
+
 		if (this->isStyle(WindowStyle::ES_MultiLine))
 		{
-			const auto nLine = input.getnexttok().to_<UINT>();	// tok 4
-			this->m_tsText.deltok(nLine, TEXT("\r\n"));
+			auto tsLines(input.getnexttok());
+
+			// reverse numeric sort line numbers
+			tsLines.sorttok(TEXT("nr"), TSCOMMA);
+
+			const auto itEnd = tsLines.end();
+			for (auto itStart = tsLines.begin(TSCOMMACHAR); itStart != itEnd; ++itStart)
+			{
+				const TString tsLineRange(*itStart);
+				UINT nStartLine{}, nEndLine{};
+				if (tsLineRange.numtok(TEXT('-')) == 2)
+				{
+					nStartLine = tsLineRange.getfirsttok(1, TEXT('-')).to_<UINT>();
+					nEndLine = tsLineRange.getnexttok(TEXT('-')).to_<UINT>();
+				}
+				else {
+					nStartLine = nEndLine = tsLineRange.to_<UINT>();
+				}
+				// delete lines from the back of the text so it doesnt change the position of other lines.
+				for (auto nLine = nEndLine; nLine >= nStartLine; --nLine)
+					this->m_tsText.deltok(nLine, TEXT("\r\n"));
+			}
 		}
 
 		this->parseContents(TRUE);

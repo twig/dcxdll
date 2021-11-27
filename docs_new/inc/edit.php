@@ -43,7 +43,7 @@ function get_xdid_edit(&$XDID) {
 			'__desc' => 'This command lets you delete the Nth line of text in the edit.',
 			'__cmd' => '[N,N2,N3-N4]',
 			'__eg' => '2,40-55',
-			'__notes' => "Only works with [s]multi[/s]."
+			'__notes' => "Only works with [s]multi[/s].",
 		),
 		'l' => array(
 			'__desc' => 'This command lets you change the [s]readonly[/s] style.',
