@@ -261,10 +261,8 @@ void DcxEdit::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC
 		// [NAME] [ID] [PROP]
 	case L"caretpos"_hash:
 	{
-		DWORD dwAbsoluteStartSelPos{};
-
 		// caret startsel position
-		SendMessage(m_Hwnd, EM_GETSEL, reinterpret_cast<WPARAM>(&dwAbsoluteStartSelPos), NULL);
+		const DWORD dwAbsoluteStartSelPos = GetCaretPos();
 
 		if (this->isStyle(WindowStyle::ES_MultiLine))
 		{
@@ -424,22 +422,22 @@ void DcxEdit::parseCommandRequest(const TString& input)
 
 		CopyToClipboard(m_Hwnd, this->m_tsText);
 	}
-	// xdid -C [NAME] [ID] [SWITCH] [POS]
-	else if (flags[TEXT('C')])
-	{
-		if (numtok < 4)
-			throw DcxExceptions::dcxInvalidArguments();
-
-		auto pos = input.getnexttok().to_<long long>();
-		if (pos < 0)
-		{
-			const auto oldPos = this->GetCaretPos();
-			pos += oldPos;
-			if (pos < 0)
-				pos = 0;
-		}
-		this->setCaretPos(gsl::narrow_cast<DWORD>(pos));
-	}
+	//// xdid -C [NAME] [ID] [SWITCH] [POS]
+	//else if (flags[TEXT('C')])
+	//{
+	//	if (numtok < 4)
+	//		throw DcxExceptions::dcxInvalidArguments();
+	//
+	//	auto pos = input.getnexttok().to_<long long>();
+	//	if (pos < 0)
+	//	{
+	//		const auto oldPos = this->GetCaretPos();
+	//		pos += oldPos;
+	//		if (pos < 0)
+	//			pos = 0;
+	//	}
+	//	this->setCaretPos(gsl::narrow_cast<DWORD>(pos));
+	//}
 	// xdid -d [NAME] [ID] [SWITCH] [N,N2,N3-N4...]
 	else if (flags[TEXT('d')])
 	{
@@ -1094,7 +1092,7 @@ LRESULT DcxEdit::CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lPa
 	return DefWindowProc(this->m_Hwnd, uMsg, wParam, lParam);
 }
 
-Dcx::range_t<DWORD> DcxEdit::GetVisibleRange() noexcept
+Dcx::range_t<DWORD> DcxEdit::GetVisibleRange() const noexcept
 {
 	// find the index of the top visible line
 
@@ -1112,7 +1110,7 @@ Dcx::range_t<DWORD> DcxEdit::GetVisibleRange() noexcept
 
 GSL_SUPPRESS(con.4)
 GSL_SUPPRESS(lifetime.1)
-DWORD DcxEdit::GetCaretPos() noexcept
+DWORD DcxEdit::GetCaretPos() const noexcept
 {
 	DWORD hiPos{}, loPos{};
 	SNDMSG(m_Hwnd, EM_GETSEL, reinterpret_cast<LPARAM>(&loPos), reinterpret_cast<LPARAM>(&hiPos));
@@ -1124,7 +1122,7 @@ DWORD DcxEdit::GetCaretPos() noexcept
 	//return Edit_GetCaretIndex(m_Hwnd);
 }
 
-DWORD DcxEdit::GetCaretLine() noexcept
+DWORD DcxEdit::GetCaretLine() const noexcept
 {
 	const auto pos = GetCaretPos();
 	return gsl::narrow_cast<DWORD>(SNDMSG(m_Hwnd, EM_LINEFROMCHAR, gsl::narrow_cast<LPARAM>(pos), 0));

@@ -154,9 +154,9 @@ protected:
 			}
 		}
 	}
-	Dcx::range_t<DWORD> GetVisibleRange() noexcept;
-	DWORD GetCaretPos() noexcept;
-	DWORD GetCaretLine() noexcept;
+	Dcx::range_t<DWORD> GetVisibleRange() const noexcept;
+	DWORD GetCaretPos() const noexcept;
+	DWORD GetCaretLine() const noexcept;
 	void setCaretPos(DWORD pos) noexcept;
 };
 

@@ -39,12 +39,12 @@ function get_xdid_edit(&$XDID) {
 		        '__eg' => 'New Text',
 		),
 		'c' => "This command will copy the text in the edit to the clipboard.",
-		'C' => array(
-			'__desc' => 'This command sets the caret position to the Nth character.',
-			'__cmd' => '[N]',
-			'__eg' => '2',
-			'__notes' => "If [s]N[/s] is a negative, the position is moved to current position + [s]N[/s].",
-		),
+		//'C' => array(
+		//	'__desc' => 'This command sets the caret position to the Nth character.',
+		//	'__cmd' => '[N]',
+		//	'__eg' => '2',
+		//	'__notes' => "If [s]N[/s] is a negative, the position is moved to current position + [s]N[/s].",
+		//),
 		'd' => array(
 			'__desc' => 'This command lets you delete the Nth line of text in the edit.',
 			'__cmd' => '[N,N2,N3-N4]',

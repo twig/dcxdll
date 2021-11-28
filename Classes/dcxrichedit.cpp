@@ -176,10 +176,8 @@ void DcxRichEdit::parseInfoRequest(const TString& input, const refString<TCHAR, 
 	// [NAME] [ID] [PROP]
 	case L"caretpos"_hash:
 	{
-		DWORD dwAbsoluteStartSelPos{};
-
 		// caret startsel position
-		SendMessage(m_Hwnd, EM_GETSEL, reinterpret_cast<WPARAM>(&dwAbsoluteStartSelPos), NULL);
+		const DWORD dwAbsoluteStartSelPos = GetCaretPos();
 
 		if (this->isStyle(WindowStyle::ES_MultiLine))
 		{
@@ -413,22 +411,22 @@ void DcxRichEdit::parseCommandRequest(const TString& input)
 
 		CopyToClipboard(m_Hwnd, this->m_tsText);
 	}
-	// xdid -C [NAME] [ID] [SWITCH] [POS]
-	else if (flags[TEXT('C')])
-	{
-		if (numtok < 4)
-			throw DcxExceptions::dcxInvalidArguments();
-
-		auto pos = input.getnexttok().to_<long long>();
-		if (pos < 0)
-		{
-			const auto oldPos = this->GetCaretPos();
-			pos += oldPos;
-			if (pos < 0)
-				pos = 0;
-		}
-		this->setCaretPos(gsl::narrow_cast<DWORD>(pos));
-	}
+	//// xdid -C [NAME] [ID] [SWITCH] [POS]
+	//else if (flags[TEXT('C')])
+	//{
+	//	if (numtok < 4)
+	//		throw DcxExceptions::dcxInvalidArguments();
+	//
+	//	auto pos = input.getnexttok().to_<long long>();
+	//	if (pos < 0)
+	//	{
+	//		const auto oldPos = this->GetCaretPos();
+	//		pos += oldPos;
+	//		if (pos < 0)
+	//			pos = 0;
+	//	}
+	//	this->setCaretPos(gsl::narrow_cast<DWORD>(pos));
+	//}
 	// xdid -d [NAME] [ID] [SWITCH] [N,N2,N3-N4...]
 	else if (flags[TEXT('d')])
 	{
@@ -799,7 +797,7 @@ void DcxRichEdit::parseCommandRequest(const TString& input)
 		if (!bRes)
 			throw Dcx::dcxException(TEXT("Unable to save: %"), tsFile);
 	}
-	// xdid -S [NAME] [ID] [SWITCH] [START] [END]
+	// xdid -S [NAME] [ID] [SWITCH] [START] (END)
 	else if (flags[TEXT('S')])
 	{
 		if (numtok < 4)
@@ -809,24 +807,8 @@ void DcxRichEdit::parseCommandRequest(const TString& input)
 		c.cpMin = input.getnexttok().to_int();	// tok 4
 		c.cpMax = (numtok > 4) ? input.getnexttok().to_int() : c.cpMin;	// tok 5
 
-		//CHARRANGE c{ input.getnexttok().to_int(), (numtok > 4) ? input.getnexttok().to_int() : c.cpMin };
-
 		SendMessage(m_Hwnd, EM_EXSETSEL, NULL, reinterpret_cast<LPARAM>(&c));
 		SendMessage(m_Hwnd, EM_SCROLLCARET, NULL, NULL);
-
-		//DWORD dwAbsoluteStartSelPos = 0;
-		//// caret startsel position
-		//SendMessage(m_Hwnd, EM_GETSEL, (WPARAM) &dwAbsoluteStartSelPos, NULL);
-		//
-		//if (this->isStyle(ES_MULTILINE)) {
-		//	int iLinePos = 0;
-		//
-		//	// current line
-		//	iLinePos = SendMessage(m_Hwnd, EM_LINEFROMCHAR, -1, NULL);
-		//	POINT pt = {0};
-		//	pt.y = this->m_iFontSize * iLinePos;
-		//	SendMessage(m_Hwnd, EM_SETSCROLLPOS,NULL,(LPARAM)&pt);
-		//}
 	}
 	// xdid -V [NAME] [ID]
 	else if (flags[TEXT('V')])
@@ -1410,7 +1392,7 @@ void DcxRichEdit::DrawGutter()
 	}
 }
 
-Dcx::range_t<DWORD> DcxRichEdit::GetVisibleRange() noexcept
+Dcx::range_t<DWORD> DcxRichEdit::GetVisibleRange() const noexcept
 {
 	// find the index of the top visible line
 
@@ -1428,7 +1410,7 @@ Dcx::range_t<DWORD> DcxRichEdit::GetVisibleRange() noexcept
 }
 
 GSL_SUPPRESS(con.4)
-DWORD DcxRichEdit::GetCaretPos() noexcept
+DWORD DcxRichEdit::GetCaretPos() const noexcept
 {
 	DWORD hiPos{}, loPos{};
 	SNDMSG(m_Hwnd, EM_GETSEL, reinterpret_cast<LPARAM>(&loPos), reinterpret_cast<LPARAM>(&hiPos));
@@ -1440,7 +1422,7 @@ DWORD DcxRichEdit::GetCaretPos() noexcept
 	//return Edit_GetCaretIndex(m_Hwnd);
 }
 
-DWORD DcxRichEdit::GetCaretLine() noexcept
+DWORD DcxRichEdit::GetCaretLine() const noexcept
 {
 	const auto pos = GetCaretPos();
 	return gsl::narrow_cast<DWORD>(SNDMSG(m_Hwnd, EM_EXLINEFROMCHAR, 0, gsl::narrow_cast<LPARAM>(pos)));
@@ -1448,7 +1430,11 @@ DWORD DcxRichEdit::GetCaretLine() noexcept
 
 void DcxRichEdit::setCaretPos(DWORD pos) noexcept
 {
-	SendMessage(m_Hwnd, EM_SETSEL, pos, pos);
+	//SendMessage(m_Hwnd, EM_SETSEL, pos, pos);
+
+	CHARRANGE c{ gsl::narrow_cast<long>(pos), gsl::narrow_cast<long>(pos) };
+
+	SendMessage(m_Hwnd, EM_EXSETSEL, NULL, reinterpret_cast<LPARAM>(&c));
 }
 
 /*!
