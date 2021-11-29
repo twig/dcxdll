@@ -29,13 +29,13 @@ function get_styles_text(&$STYLES) {
 function get_xdid_text(&$XDID) {
 	$XDID = array(
 		'a' => array(
-	        '__desc' => 'This command allows you to append text to the control (to bypass the 900 mIRC character limitation).',
+	        '__desc' => 'This command allows you to append text to the control (to bypass the mIRC character limitation).',
 	        '__cmd' => '[SPACE] (Text)',
-	        '__eg' => 'Appended text',
+	        '__eg' => '1 Appended text',
 	        '__params' => array(
 			    'SPACE' => 'A space will automatically be appended between the previous text and the new appended text.',
 		    ),
-	        '__note' => 'Valid values for [p]SPACE[/p] are [v]1[/v] or [v]0[/v].',
+	        '__notes' => 'Valid values for [p]SPACE[/p] are [v]1[/v] or [v]0[/v].',
 		),
 	    't' => array(
 	        '__desc' => 'This command lets you set the text.',
