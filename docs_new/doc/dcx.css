@@ -173,11 +173,12 @@ td.flag {
 
 .xdock td.value,
 .xdockprops td.value,
+.xdockevents td.value,
 
 .xtray,
 */
 
-.xdid td.value, .xdialog td.value, .xdidprop td.value, .xdialogprop td.value, .general td.value, .styles td.style, .xpopup td.value, .xpopupprop td.value, .xpop td.value, .xpopprops td.value, .event td.value, .xdock td.value, .xdockprops td.value, .xtray td.value, .xstatusbar td.value, .xstatusbarprops td.value, .xtreebar td.value, .xtreebarprops td.value {
+.xdid td.value, .xdialog td.value, .xdidprop td.value, .xdialogprop td.value, .general td.value, .styles td.style, .xpopup td.value, .xpopupprop td.value, .xpop td.value, .xpopprops td.value, .event td.value, .xdock td.value, .xdockprops td.value, .xdockevents td.value, .xtray td.value, .xstatusbar td.value, .xstatusbarprops td.value, .xtreebar td.value, .xtreebarprops td.value {
 	font-weight: bold;
 	color: #D60000;
 	padding-left: 25px;

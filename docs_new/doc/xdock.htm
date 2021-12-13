@@ -846,22 +846,22 @@
 </table>
 <br />
 <table class="description">
-	<tr><td class="heading" style="border-color: #74C043; color: #74C043;"><a name="events"></a>XDock Signals</td></tr>
-	<tr><td><table class="event">
-	<tr><td colspan="2">Signals are sent to mIRC containing information about components which have resized. To activate signal messages for docked windows, refer to <a class="value">/dcx xSignal</a></td></tr>
+	<tr><td class="heading" style="border-color: #74C043; color: #74C043;"><a name="xdockevent"></a>XDock Signals</td></tr>
+	<tr><td>XDock uses the DCX signal to handle events. To activate signal messages for docked windows, refer to <a class="value">/dcx xSignal</a></td></tr>
+</table>
+<table class="xdockevents">
+	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
+			<a name="xdockevent.size"></a>size	</td></tr>
+	<tr><td colspan="2">Triggered when a docked window is resized.</td></tr>
 	<tr>
-		<td class="syntax">Signal:</td>
-		<td><div class="syntax">DCX size WINDOW_TYPE HWND W H</div></td>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/signal DCX size [WINDOW_TYPE] [HWND] [WIDTH] [HEIGHT]</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">DCX size mIRC_Toolbar 345564 1024 32</div></td>
+		<td><div class="example">/signal DCX size mIRC_Toolbar 345564 1024 32</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
-	<tr>
-		<td class="param">size</td>
-		<td>The event signal identifier.</td>
-	</tr>
 	<tr>
 		<td class="param">WINDOW_TYPE</td>
 		<td>Information about which window type this information is describing.</td>
@@ -892,19 +892,77 @@
 	</tr>
 	<tr>
 		<td class="param">HWND</td>
-		<td>The hwnd of the window which resized.</td>
+		<td>The HWND of the window being sized.</td>
 	</tr>
 	<tr>
-		<td class="param">W</td>
+		<td class="param">WIDTH</td>
 		<td>The new width of the window.</td>
 	</tr>
 	<tr>
-		<td class="param">H</td>
+		<td class="param">HEIGHT</td>
 		<td>The new height of the window.</td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> For <a class="value">ListBox</a> and <a class="value">Custom</a>, the <a class="param">HWND</a> will be the HWND of the window which triggered the event. For the other events, the HWND will be for the main mIRC window.</td></tr></table>
-</td></tr>
 </table>
+<br />
+<table class="xdockevents">
+	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
+			<a name="xdockevent.sizemove"></a>sizemove	</td></tr>
+	<tr><td colspan="2">Triggered when a docked window starts & stops being resized or moved.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/signal DCX sizemove [WINDOW_TYPE] [STATE] [HWND]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/signal DCX sizemove mIRC start 123456</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">WINDOW_TYPE</td>
+		<td>Information about which window type this information is describing.</td>
+	</tr>
+	<tr>
+		<td class="value">mIRC</td>
+		<td>The mIRC window has resized.</td>
+	</tr>
+	<tr>
+		<td class="value">mIRC_Switchbar</td>
+		<td>The mIRC SwitchBar has resized.</td>
+	</tr>
+	<tr>
+		<td class="value">mIRC_Toolbar</td>
+		<td>The mIRC ToolBar has resized.</td>
+	</tr>
+	<tr>
+		<td class="value">mIRC_TreeList</td>
+		<td>The mIRC TreeList has resized.</td>
+	</tr>
+	<tr>
+		<td class="value">ListBox</td>
+		<td>The channel ListBox has been resized.</td>
+	</tr>
+	<tr>
+		<td class="value">Custom</td>
+		<td>A custom window has been resized.</td>
+	</tr>
+	<tr>
+		<td class="param">STATE</td>
+		<td>Either starting or ending the resize/move action</td>
+	</tr>
+	<tr>
+		<td class="value">start</td>
+		<td>The window is being modified.</td>
+	</tr>
+	<tr>
+		<td class="value">end</td>
+		<td>The window is has finished being modified.</td>
+	</tr>
+	<tr>
+		<td class="param">HWND</td>
+		<td>The HWND of the window being changed.</td>
+	</tr>
+</table>
+<br />
 </td><td width="80%" valign="top" class="menuright">
 <div class='rightmenu' style='border:1px solid #6A7CB0'>
 	<a class='header' href="#xdock"><div style='background:#6A7CB0;'>/xdock Commands</div></a>
@@ -942,6 +1000,11 @@
 		<a class='flag' href="#xdockprop.treeBarPos"><div>treeBarPos</div></a>
 		<a class='flag' href="#xdockprop.treeBarSize"><div>treeBarSize</div></a>
 	</div>
+<div class='rightmenu' style='border:1px solid #74C043'>
+	<a class='header' href="#xdockevent"><div style='background:#74C043;'>xdock Events</div></a>
+		<a class='flag' href="#xdockevent.size"><div>size</div></a>
+		<a class='flag' href="#xdockevent.sizemove"><div>sizemove</div></a>
+	</div>
 </td>
   </tr>
 </table>
@@ -950,7 +1013,7 @@
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2021</td>
-		<td style="text-align: right;">Last Updated: 26th November, 21</td>
+		<td style="text-align: right;">Last Updated: 13th December, 21</td>
 	</tr>
 </table>
 <div style="text-align: center;">

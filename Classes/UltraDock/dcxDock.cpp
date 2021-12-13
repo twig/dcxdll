@@ -136,78 +136,15 @@ bool DcxDock::DockWindow(HWND hwnd, const TString& flag)
 
 void DcxDock::UnDockWindow(const HWND hwnd)
 {
-	//for (const auto &ud : this->m_VectorDocks)
-	//{
-	//	if (ud) {
-	//		if (ud->hwnd == hwnd) {
-	//			this->m_VectorDocks.erase(itStart);
-	//			SetWindowLongPtr(ud->hwnd, GWL_STYLE, (LONG)ud->old_styles);
-	//			SetWindowLongPtr(ud->hwnd, GWL_EXSTYLE, (LONG)ud->old_exstyles);
-	//			RemStyles(ud->hwnd, GWL_STYLE, WS_CHILDWINDOW);
-	//			SetParent(ud->hwnd, nullptr);
-	//			SetWindowPos(ud->hwnd, HWND_TOP, ud->rc.left, ud->rc.top, ud->rc.right - ud->rc.left, ud->rc.bottom - ud->rc.top, SWP_NOZORDER | SWP_FRAMECHANGED);
-	//			delete ud;
-	//			this->UpdateLayout();
-	//			return;
-	//		}
-	//	}
-	//}
-
 	if (const auto itEnd = m_VectorDocks.end(), itGot = std::find_if(m_VectorDocks.begin(), itEnd, [hwnd](const DCXULTRADOCK* const ud) noexcept { return (ud) ? (ud->hwnd == hwnd) : false; }); itGot != itEnd)
 	{
 		const auto ud = *itGot;
 		m_VectorDocks.erase(itGot);
 
-		//SetWindowLongPtr(ud->hwnd, GWL_STYLE, static_cast<LONG>(ud->old_styles));
-		//SetWindowLongPtr(ud->hwnd, GWL_EXSTYLE, static_cast<LONG>(ud->old_exstyles));
-		//RemStyles(ud->hwnd, GWL_STYLE, WS_CHILDWINDOW);
-		//SetParent(ud->hwnd, nullptr);
-		//SetWindowPos(ud->hwnd, HWND_TOP, ud->rc.left, ud->rc.top, ud->rc.right - ud->rc.left, ud->rc.bottom - ud->rc.top, SWP_NOZORDER | SWP_FRAMECHANGED);
-		//delete ud;
-
 		UnDockWindowPtr(ud);
 
 		UpdateLayout();
 	}
-
-	//for (auto itStart = this->m_VectorDocks.begin(), itEnd = this->m_VectorDocks.end(); itStart != itEnd; ++itStart)
-	//{
-	//	if (*itStart != nullptr) {
-	//		auto ud = *itStart;
-	//		if (ud->hwnd == hwnd) {
-	//			this->m_VectorDocks.erase(itStart);
-	//			SetWindowLongPtr(ud->hwnd, GWL_STYLE, (LONG)ud->old_styles);
-	//			SetWindowLongPtr(ud->hwnd, GWL_EXSTYLE, (LONG)ud->old_exstyles);
-	//			RemStyles(ud->hwnd, GWL_STYLE, WS_CHILDWINDOW);
-	//			SetParent(ud->hwnd, nullptr);
-	//			SetWindowPos(ud->hwnd, HWND_TOP, ud->rc.left, ud->rc.top, ud->rc.right - ud->rc.left, ud->rc.bottom - ud->rc.top, SWP_NOZORDER | SWP_FRAMECHANGED);
-	//			delete ud;
-	//			this->UpdateLayout();
-	//			return;
-	//		}
-	//	}
-	//}
-
-	//auto itStart = this->m_VectorDocks.begin();
-	//auto itEnd = this->m_VectorDocks.end();
-	//
-	//while (itStart != itEnd) {
-	//	if (*itStart != nullptr) {
-	//		auto ud = *itStart;
-	//		if (ud->hwnd == hwnd) {
-	//			this->m_VectorDocks.erase(itStart);
-	//			SetWindowLongPtr(ud->hwnd,GWL_STYLE, (LONG)ud->old_styles);
-	//			SetWindowLongPtr(ud->hwnd,GWL_EXSTYLE, (LONG)ud->old_exstyles);
-	//			RemStyles(ud->hwnd,GWL_STYLE,WS_CHILDWINDOW);
-	//			SetParent(ud->hwnd, nullptr);
-	//			SetWindowPos(ud->hwnd, HWND_TOP, ud->rc.left, ud->rc.top, ud->rc.right - ud->rc.left, ud->rc.bottom - ud->rc.top, SWP_NOZORDER|SWP_FRAMECHANGED);
-	//			delete ud;
-	//			this->UpdateLayout();
-	//			return;
-	//		}
-	//	}
-	//	++itStart;
-	//}
 }
 
 GSL_SUPPRESS(r.11)
@@ -233,45 +170,20 @@ void DcxDock::UnDockAll() noexcept
 	// UnDock all windows.
 	for (const auto& ud : m_VectorDocks)
 	{
-		//if (ud)
-		//{
-		//	SetWindowLongPtr(ud->hwnd, GWL_STYLE, static_cast<LONG>(ud->old_styles));
-		//	SetWindowLongPtr(ud->hwnd, GWL_EXSTYLE, static_cast<LONG>(ud->old_exstyles));
-		//	RemStyles(ud->hwnd, GWL_STYLE, WS_CHILDWINDOW);
-		//	SetParent(ud->hwnd, nullptr);
-		//	SetWindowPos(ud->hwnd, HWND_TOP, ud->rc.left, ud->rc.top, ud->rc.right - ud->rc.left, ud->rc.bottom - ud->rc.top, SWP_NOZORDER | SWP_FRAMECHANGED | SWP_NOACTIVATE);
-		//	delete ud;
-		//}
-
-		UnDockWindowPtr(ud);
+		if (ud)
+			UnDockWindowPtr(ud);
 	}
 	m_VectorDocks.clear();
 }
 
 bool DcxDock::FindDock(const HWND hwnd) const
 {
-	//for (const auto &x: this->m_VectorDocks) {
-	//	if (x != nullptr) {
-	//		if (x->hwnd == hwnd)
-	//			return true;
-	//	}
-	//}
-	//return false;
-
 	const auto itEnd = m_VectorDocks.end();
 	return (std::find_if(m_VectorDocks.begin(), itEnd, [hwnd](const DCXULTRADOCK* const ud) noexcept { return (ud) ? (ud->hwnd == hwnd) : false; }) != itEnd);
 }
 
 LPDCXULTRADOCK DcxDock::GetDock(const HWND hwnd) const
 {
-	//for (const auto &x: this->m_VectorDocks) {
-	//	if (x != nullptr) {
-	//		if (x->hwnd == hwnd)
-	//			return x;
-	//	}
-	//}
-	//return nullptr;
-
 	if (const auto itEnd = m_VectorDocks.end(), itGot = std::find_if(m_VectorDocks.begin(), itEnd, [hwnd](const DCXULTRADOCK* const ud) { return (ud) ? (ud->hwnd == hwnd) : false; }); itGot != itEnd)
 		return *itGot;
 	return nullptr;
@@ -284,6 +196,9 @@ bool DcxDock::isDocked(const HWND hwnd) const
 
 void DcxDock::AdjustRect(WINDOWPOS* wp) noexcept
 {
+	if (!wp)
+		return;
+
 	if (dcx_testflag(wp->flags, SWP_NOSIZE) && dcx_testflag(wp->flags, SWP_NOMOVE)) // handle min/max case;
 		return;
 
@@ -386,6 +301,13 @@ LRESULT CALLBACK DcxDock::mIRCRefWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, L
 
 	switch (uMsg)
 	{
+	//case WM_SIZE:
+	//{
+	//	if (dcxSignal.xdock)
+	//		mIRCLinker::signal(TEXT("size ref % % %"), reinterpret_cast<DWORD>(mHwnd), Dcx::dcxLOWORD(lParam), Dcx::dcxHIWORD(lParam));
+	//}
+	//break;
+
 	case WM_WINDOWPOSCHANGING:
 	{
 		dcxlParam(LPWINDOWPOS, wp);
@@ -601,7 +523,6 @@ LRESULT CALLBACK DcxDock::mIRCRefWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, L
 
 LRESULT CALLBACK DcxDock::mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-	//const auto pthis = static_cast<DcxDock*>(GetProp(mHwnd, TEXT("DcxDock")));
 	const auto pthis = Dcx::dcxGetProp<DcxDock*>(mHwnd, TEXT("DcxDock"));
 	if (!pthis)
 		return DefWindowProc(mHwnd, uMsg, wParam, lParam);
@@ -616,6 +537,8 @@ LRESULT CALLBACK DcxDock::mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 			SendMessage(DcxDock::g_StatusBar, WM_SIZE, 0U, 0);
 			DcxDock::status_updateParts();
 		}
+		//if (dcxSignal.xdock)
+		//	mIRCLinker::signal(TEXT("size docked % % %"), reinterpret_cast<DWORD>(mHwnd), Dcx::dcxLOWORD(lParam), Dcx::dcxHIWORD(lParam));
 	}
 	break;
 

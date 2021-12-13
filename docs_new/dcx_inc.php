@@ -14,6 +14,7 @@ define('SECTION_XPOP'         , 'xpop');
 define('SECTION_XPOPPROPS'    , 'xpopprop');
 define('SECTION_XDOCK'        , 'xdock');
 define('SECTION_XDOCKPROPS'   , 'xdockprop');
+define('SECTION_XDOCKEVENTS'  , 'xdockevent');
 define('SECTION_XTRAY'        , 'xtray');
 define('SECTION_XSTATUSBAR'   , 'xstatusbar');
 define('SECTION_XSTATUSBARPROPS', 'xstatusbarprop');
@@ -35,6 +36,7 @@ $XDIALOG = array();
 $XDIALOGPROPS = array();
 $XDOCK = array();
 $XDOCKPROPS = array();
+$XDOCKEVENTS = array();
 $EVENTS = array();
 $GENERAL = array();
 $STYLES = array();
@@ -390,7 +392,7 @@ function dcxdoc_menu_left() {
 
 function dcxdoc_menu_right($page) {
 	global $SECTION, $XDID, $XDIALOG, $XDIDPROPS, $XDIALOGPROPS, $EVENTS, $GENERAL,
-	$STYLES, $XPOPUP, $XPOPUPPROPS, $XPOP, $XPOPPROPS, $XDOCK, $XDOCKPROPS, $XTRAY,
+	$STYLES, $XPOPUP, $XPOPUPPROPS, $XPOP, $XPOPPROPS, $XDOCK, $XDOCKPROPS, $XDOCKEVENTS, $XTRAY,
         $XSTATUSBAR, $XSTATUSBARPROPS, $XTREEBAR, $XTREEBARPROPS, $XMENUBAR, $XMENUBARPROPS;
 
 ?><td width="80%" valign="top" class="menuright">
@@ -411,6 +413,7 @@ function dcxdoc_menu_right($page) {
 
     print_menu_items($XDOCK, SECTION_XDOCK, "/xdock Commands");
     print_menu_items($XDOCKPROPS, SECTION_XDOCKPROPS, "\$xdock() Properties");
+    print_menu_items($XDOCKEVENTS, SECTION_XDOCKEVENTS, "xdock Events");
 
     print_menu_items($XSTATUSBAR, SECTION_XSTATUSBAR, "/xstatusbar");
     print_menu_items($XSTATUSBARPROPS, SECTION_XSTATUSBARPROPS, "\$xstatusbar()");
@@ -418,8 +421,8 @@ function dcxdoc_menu_right($page) {
     print_menu_items($XTREEBAR, SECTION_XTREEBAR, "/xtreebar");
     print_menu_items($XTREEBARPROPS, SECTION_XTREEBARPROPS, "\$xtreebar()");
 
-        print_menu_items($XMENUBAR, SECTION_XMENUBAR, "/xmenubar");
-        print_menu_items($XMENUBARPROPS, SECTION_XMENUBARPROPS, "\$xmenubar()");
+    print_menu_items($XMENUBAR, SECTION_XMENUBAR, "/xmenubar");
+    print_menu_items($XMENUBARPROPS, SECTION_XMENUBARPROPS, "\$xmenubar()");
 
     print_menu_items($EVENTS, SECTION_EVENTS, "Events");
 	//echo "<a href=\"#\">$page Notes</a><br />";
@@ -610,6 +613,9 @@ function dcxdoc_format_xdock($event, $data) {
 function dcxdoc_format_xdockprops($event, $data) {
 	format_xcmd(SECTION_XDOCKPROPS, $event, $data);
 }
+function dcxdoc_format_xdockevents($event, $data) {
+	format_xcmd(SECTION_XDOCKEVENTS, $event, $data);
+}
 
 function dcxdoc_format_xstatusbar($event, $data) {
 	format_xcmd(SECTION_XSTATUSBAR, $event, $data);
@@ -649,14 +655,14 @@ function format_xcmd($section, $flag, $data) {
 	// error_log("ERROR: __cmd not set for $flag");
 	if (!isset($data['__cmd']))
 		$data['__cmd'] = '';
-        // if command is set but no example provided...
-        else if (!isset($data['__eg'])) {
-                $dbg = debug_backtrace();
+    // if command is set but no example provided...
+    else if (!isset($data['__eg'])) {
+        $dbg = debug_backtrace();
 
-                error_log("*** No example for {$dbg[2]['args'][0]} $section $flag"
-                          //. print_r($dbg[0], true)
-                          );
-        }
+        error_log("*** No example for {$dbg[2]['args'][0]} $section $flag"
+                    //. print_r($dbg[0], true)
+                    );
+    }
 
 	// error_log("ERROR: __eg not set for $flag");
 	if (!isset($data['__eg']))
@@ -682,11 +688,11 @@ function format_xcmd($section, $flag, $data) {
 	    exit();
 	}
 
-        // if an uppercase flag
-        $case = '';
+    // if an uppercase flag
+    $case = '';
 
-        if (ctype_upper($flag))
-            $case = 'big';
+    if (ctype_upper($flag))
+        $case = 'big';
 ?>
 <table class="<?php echo get_section_name($section); ?>">
 	<tr><td colspan="2" class="flag" style="<?php echo "color: $color; border-color: $color;";?>">
@@ -813,7 +819,6 @@ function format_xcmd_header($section, &$heading, &$syntax, &$example, $flag, &$d
 				$examplefmt[$ARGS]   = "\$xpopup(mymenu, [-EXAMPLE]).$flag";
 				$examplefmt[$NOARGS] = "\$xpopup(mymenu).$flag";
         	}
-
 		    break;
 
 		case SECTION_XPOP:
@@ -839,58 +844,65 @@ function format_xcmd_header($section, &$heading, &$syntax, &$example, $flag, &$d
 			$examplefmt[$NOARGS] = "/xdock -$flag";
 			break;
 
-                case SECTION_XDOCKPROPS:
-                        $mircParam = (isset($data['__mircParam']) ? $data['__mircParam'] : false);
-                        $paramExample = ($mircParam ? 'mIRC' : '$dialog(dcx).hwnd');
-                        $mircParam = ($mircParam ? 'mIRC' : 'HWND');
+        case SECTION_XDOCKPROPS:
+            $mircParam = (isset($data['__mircParam']) ? $data['__mircParam'] : false);
+            $paramExample = ($mircParam ? 'mIRC' : '$dialog(dcx).hwnd');
+            $mircParam = ($mircParam ? 'mIRC' : 'HWND');
 
 			$heading = "\$xdock().$flag";
 			$syntax = "\$xdock($mircParam" . ($data['__cmd'] ? ", {$data['__cmd']}" : '') . ").$flag";
 			$examplefmt[$ARGS]   = "\$xdock($paramExample, [-EXAMPLE]).$flag";
 			$examplefmt[$NOARGS] = "\$xdock($paramExample).$flag";
-                        break;
+            break;
 
-                case SECTION_XSTATUSBAR:
+        case SECTION_XDOCKEVENTS:
+			$heading = "$flag";
+			$syntax = "/signal DCX $flag {$data['__cmd']}";
+			$examplefmt[$ARGS]   = "/signal DCX $flag [-EXAMPLE]";
+			$examplefmt[$NOARGS] = "/signal DCX $flag";
+            break;
+
+        case SECTION_XSTATUSBAR:
 			$heading = "/xstatusbar -$flag";
 			$syntax = "/xstatusbar -$flag {$data['__cmd']}";
 			$examplefmt[$ARGS]   = "/xstatusbar -$flag [-EXAMPLE]";
 			$examplefmt[$NOARGS] = "/xstatusbar -$flag";
 			break;
 
-                case SECTION_XSTATUSBARPROPS:
+        case SECTION_XSTATUSBARPROPS:
 			$heading = "\$xstatusbar().$flag";
 			$syntax = "\$xstatusbar({$data['__cmd']}).$flag";
 			$examplefmt[$ARGS]   = "\$xstatusbar([-EXAMPLE]).$flag";
 			$examplefmt[$NOARGS] = "\$xstatusbar().$flag";
-                        break;
+            break;
 
-                case SECTION_XTREEBAR:
+        case SECTION_XTREEBAR:
 			$heading = "/xtreebar -$flag";
 			$syntax = "/xtreebar -$flag {$data['__cmd']}";
 			$examplefmt[$ARGS]   = "/xtreebar -$flag [-EXAMPLE]";
 			$examplefmt[$NOARGS] = "/xtreebar -$flag";
 			break;
 
-                case SECTION_XTREEBARPROPS:
+        case SECTION_XTREEBARPROPS:
 			$heading = "\$xtreebar().$flag";
 			$syntax = "\$xtreebar({$data['__cmd']}).$flag";
 			$examplefmt[$ARGS]   = "\$xtreebar([-EXAMPLE]).$flag";
 			$examplefmt[$NOARGS] = "\$xtreebar().$flag";
-                        break;
+            break;
 
-                case SECTION_XMENUBAR:
+        case SECTION_XMENUBAR:
 			$heading = "/xmenubar -$flag";
 			$syntax = "/xmenubar -$flag {$data['__cmd']}";
 			$examplefmt[$ARGS]   = "/xmenubar -$flag [-EXAMPLE]";
 			$examplefmt[$NOARGS] = "/xmenubar -$flag";
 			break;
 
-                case SECTION_XMENUBARPROPS:
+        case SECTION_XMENUBARPROPS:
 			$heading = "\$xmenubar().$flag";
 			$syntax = "\$xmenubar({$data['__cmd']}).$flag";
 			$examplefmt[$ARGS]   = "\$xmenubar([-EXAMPLE]).$flag";
 			$examplefmt[$NOARGS] = "\$xmenubar().$flag";
-                        break;
+            break;
 
 	    case SECTION_XTRAY:
 			$heading = "/xtray -$flag";
@@ -1067,37 +1079,38 @@ function get_section_color($section = 0) {
 	}
 
 	switch ($section) {
-                case SECTION_GENERAL		        : return '#979AB3'; // grey purple
-                case SECTION_XDIALOG		        : return '#A9729F'; // purple
-                case SECTION_XDIALOGPROPS	        : return '#CCACC7'; // light purple
+        case SECTION_GENERAL		: return '#979AB3'; // grey purple
+        case SECTION_XDIALOG		: return '#A9729F'; // purple
+        case SECTION_XDIALOGPROPS	: return '#CCACC7'; // light purple
 
 		case SECTION_STYLES			: return '#B49696'; // brown
 		case SECTION_XDID			: return '#6A7CB0'; // light navy-blue
-		case SECTION_XDIDPROPS		        : return '#A8B2D1'; // grey blue
+		case SECTION_XDIDPROPS		: return '#A8B2D1'; // grey blue
 		case SECTION_EVENTS			: return '#74C043'; // green
 
 		case SECTION_XPOPUP			: return '#A9729F'; // purple
-		case SECTION_XPOPUPPROPS	        : return '#CCACC7'; // light purple
-                case SECTION_XPOP			: return '#6A7CB0'; // blue
-		case SECTION_XPOPPROPS		        : return '#A8B2D1'; // light blue
+		case SECTION_XPOPUPPROPS	: return '#CCACC7'; // light purple
+        case SECTION_XPOP			: return '#6A7CB0'; // blue
+		case SECTION_XPOPPROPS		: return '#A8B2D1'; // light blue
 
 		case SECTION_XDOCK			: return '#6A7CB0'; // blue
-		case SECTION_XDOCKPROPS		        : return '#A8B2D1'; // light blue
+		case SECTION_XDOCKPROPS		: return '#A8B2D1'; // light blue
+		case SECTION_XDOCKEVENTS	: return '#74C043'; // green
 
-                case SECTION_XSTATUSBAR			: return '#6A7CB0'; // blue
+        case SECTION_XSTATUSBAR		: return '#6A7CB0'; // blue
 		case SECTION_XSTATUSBARPROPS		: return '#A8B2D1'; // light blue
 
-                case SECTION_XTREEBAR			: return '#6A7CB0'; // blue
-		case SECTION_XTREEBARPROPS		: return '#A8B2D1'; // light blue
+        case SECTION_XTREEBAR		: return '#6A7CB0'; // blue
+		case SECTION_XTREEBARPROPS	: return '#A8B2D1'; // light blue
 
-                // TODO: pick a new color for xmenubar
-                case SECTION_XMENUBAR			: return '#6A7CB0'; // blue
-		case SECTION_XMENUBARPROPS		: return '#A8B2D1'; // light blue
+        // TODO: pick a new color for xmenubar
+        case SECTION_XMENUBAR		: return '#6A7CB0'; // blue
+		case SECTION_XMENUBARPROPS	: return '#A8B2D1'; // light blue
 
 		case SECTION_XTRAY			: return '#6A7CB0'; // blue
 
 		case SECTION_INTRO:
-		default                                 : return '#000000';
+		default                     : return '#000000';
 	}
 }
 
@@ -1109,33 +1122,34 @@ function get_section_name($section = 0) {
 	}
 
 	switch ($section) {
-        case SECTION_GENERAL		: return 'general'; // grey
-        case SECTION_XDIALOG		: return 'xdialog'; // purple
-	    case SECTION_XDIALOGPROPS	: return 'xdialogprop'; // light purple
+        case SECTION_GENERAL			: return 'general'; // grey
+        case SECTION_XDIALOG			: return 'xdialog'; // purple
+	    case SECTION_XDIALOGPROPS		: return 'xdialogprop'; // light purple
 
-		case SECTION_STYLES			: return 'styles'; // brown
-		case SECTION_XDID			: return 'xdid'; // blue
-		case SECTION_XDIDPROPS		: return 'xdidprop'; // light blue
-		case SECTION_EVENTS			: return 'event'; // green
+		case SECTION_STYLES				: return 'styles'; // brown
+		case SECTION_XDID				: return 'xdid'; // blue
+		case SECTION_XDIDPROPS			: return 'xdidprop'; // light blue
+		case SECTION_EVENTS				: return 'event'; // green
 
-		case SECTION_XPOPUP			: return 'xpopup'; // purple
-		case SECTION_XPOPUPPROPS	: return 'xpopupprop'; // light purple
-        case SECTION_XPOP			: return 'xpop'; // blue
-		case SECTION_XPOPPROPS		: return 'xpopprops'; // light blue
+		case SECTION_XPOPUP				: return 'xpopup'; // purple
+		case SECTION_XPOPUPPROPS		: return 'xpopupprop'; // light purple
+        case SECTION_XPOP				: return 'xpop'; // blue
+		case SECTION_XPOPPROPS			: return 'xpopprops'; // light blue
 
-		case SECTION_XDOCK			: return 'xdock'; // blue
-		case SECTION_XDOCKPROPS		: return 'xdockprops'; // light blue
+		case SECTION_XDOCK				: return 'xdock'; // blue
+		case SECTION_XDOCKPROPS			: return 'xdockprops'; // light blue
+		case SECTION_XDOCKEVENTS		: return 'xdockevents'; // green
 
-                case SECTION_XSTATUSBAR			: return 'xstatusbar'; // blue
-		case SECTION_XSTATUSBARPROPS		: return 'xstatusbarprops'; // light blue
+        case SECTION_XSTATUSBAR			: return 'xstatusbar'; // blue
+		case SECTION_XSTATUSBARPROPS	: return 'xstatusbarprops'; // light blue
 
-                case SECTION_XTREEBAR			: return 'xtreebar'; // blue
+        case SECTION_XTREEBAR			: return 'xtreebar'; // blue
 		case SECTION_XTREEBARPROPS		: return 'xtreebarprops'; // light blue
 
-                case SECTION_XMENUBAR			: return 'xmenubar'; // blue
+        case SECTION_XMENUBAR			: return 'xmenubar'; // blue
 		case SECTION_XMENUBARPROPS		: return 'xmenubarprops'; // light blue
 
-		case SECTION_XTRAY			: return 'xtray'; // blue
+		case SECTION_XTRAY				: return 'xtray'; // blue
 
 		case SECTION_INTRO:
 		default:
@@ -1312,7 +1326,7 @@ function writeDcxLoadIcon(&$FLAGS, $switch, $param, $cmdPosition)
 
 	// Add dcxLoadIcon flags
 	$FLAGS[$switch]['__params'][$param]['__values']['a'] = 'Uses the icon associated with the given file (as shown in Windows Explorer).<br />[n]File must exist.[/n]';
-        $FLAGS[$switch]['__params'][$param]['__values']['f'] = 'Uses the icon associated with the given filetype.<br />[n]Filename is the extension (eg. BMP, PNG, AVI, etc).[/n]';
+    $FLAGS[$switch]['__params'][$param]['__values']['f'] = 'Uses the icon associated with the given filetype.<br />[n]Filename is the extension (eg. BMP, PNG, AVI, etc).[/n]';
 	$FLAGS[$switch]['__params'][$param]['__values']['g'] = 'Convert to grayscale icon.';
 	$FLAGS[$switch]['__params'][$param]['__values']['P'] = 'If GDI+ is enabled, this will use GDI+ to extract the icon.';
 }

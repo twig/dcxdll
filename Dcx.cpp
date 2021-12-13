@@ -401,6 +401,8 @@ namespace Dcx {
 				SetLayeredWindowAttributes(mIRCLinker::getHWND(), 0, std::to_integer<BYTE>(getGhostDrag()), LWA_ALPHA);
 				SetProp(mIRCLinker::getHWND(), TEXT("dcx_ghosted"), reinterpret_cast<HANDLE>(1U));
 			}
+			if (dcxSignal.xdock)
+				mIRCLinker::signal(TEXT("sizemove mIRC start %"), reinterpret_cast<DWORD>(mHwnd));
 		}
 		break;
 
@@ -413,6 +415,8 @@ namespace Dcx {
 				SetLayeredWindowAttributes(mIRCLinker::getHWND(), 0, 255, LWA_ALPHA);
 				RemoveProp(mIRCLinker::getHWND(), TEXT("dcx_ghosted"));
 			}
+			if (dcxSignal.xdock)
+				mIRCLinker::signal(TEXT("sizemove mIRC end %"), reinterpret_cast<DWORD>(mHwnd));
 			break;
 		}
 

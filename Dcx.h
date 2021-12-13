@@ -267,7 +267,8 @@ namespace Dcx
 	// NB: BaseType can be defined as some other pointer type
 	// so we static_cast it later on
 	template <typename Unique, typename BaseType = typename Unique::pointer>
-	struct dcxResource {
+	struct dcxResource
+	{
 		dcxResource() = delete;																		// no default!
 		dcxResource(const dcxResource<Unique, BaseType>&) = delete;									// no copy!
 		dcxResource<Unique, BaseType>& operator =(const dcxResource<Unique, BaseType>&) = delete;	// No assignments!
@@ -455,13 +456,14 @@ namespace Dcx
 
 		// calls ExtractIconEx()
 		dcxIconResource(const TString& filename, const int fIndex, const bool bLarge)
-			: dcxResource(make_resource([](const TString& filename, const int fIndex, const bool bLarge) noexcept {
-			HICON m_hIcon = nullptr;
-			if (bLarge)
-				ExtractIconEx(filename.to_chr(), fIndex, &m_hIcon, nullptr, 1);
-			else
-				ExtractIconEx(filename.to_chr(), fIndex, nullptr, &m_hIcon, 1);
-			return m_hIcon;
+			: dcxResource(make_resource([](const TString& filename, const int fIndex, const bool bLarge) noexcept
+				{
+					HICON m_hIcon = nullptr;
+					if (bLarge)
+						ExtractIconEx(filename.to_chr(), fIndex, &m_hIcon, nullptr, 1);
+					else
+						ExtractIconEx(filename.to_chr(), fIndex, nullptr, &m_hIcon, 1);
+					return m_hIcon;
 				}, [](HICON hIcon) noexcept { if (hIcon != nullptr) DestroyIcon(hIcon); }, filename, fIndex, bLarge))
 		{
 		}
@@ -829,6 +831,11 @@ namespace Dcx
 			SetStretchBltMode(this->get(), GetStretchBltMode(hdc));
 			SetGraphicsMode(this->get(), GetGraphicsMode(hdc));
 
+			//SetBrushOrgEx(this->get(), );
+			//GetBrushOrgEx
+			//SetWindowOrgEx
+			//GetWindowOrgEx
+			
 			// copy contents of hdc within area to buffer.
 			GSL_SUPPRESS(type.4) BitBlt(this->get(), 0, 0, getWidth(), getHeight(), hdc, rc.left, rc.top, SRCCOPY);
 
@@ -1509,6 +1516,24 @@ namespace Dcx
 	//	return dcxGetProp<T>(hwnd, &str[0]);
 	//}
 
+	//template <DcxConcepts::ImplementsDataFunction T>
+	//GSL_SUPPRESS(lifetime)
+	//	inline auto dcxGetWindowText(HWND hwnd)
+	//{
+	//	T txt;
+	//
+	//	if (!hwnd)
+	//		return txt;
+	//
+	//	// NB: needs to include space for end 0
+	//	if (const auto nText = GetWindowTextLength(hwnd) + 2; nText > 2)
+	//	{
+	//		txt.reserve(gsl::narrow_cast<UINT>(nText));
+	//		GetWindowText(hwnd, txt.to_chr(), nText);
+	//	}
+	//	return txt;
+	//}
+
 #if DCX_USE_CREGEX
 	template <class Input>
 	std::basic_regex<TCHAR> make_mirc_regex(const Input& str)
@@ -1522,7 +1547,7 @@ namespace Dcx
 		_ts_strcpyn(tmp.get(), pattern + 1, patlen - 2);
 		return std::basic_regex<TCHAR>(tmp.get(), rType);
 
-	}
+}
 #endif
 
 }

@@ -1,17 +1,19 @@
 <?php
 
 function xdock_load($page) {
-	global $XDOCK, $XDOCKPROPS;
+	global $XDOCK, $XDOCKPROPS, $XDOCKEVENTS;
 
 	loadSection($XDOCK, "get_xdock");
 	loadSection($XDOCKPROPS, "get_xdockprops");
+	loadSection($XDOCKEVENTS, "get_xdockevents");
 }
 
 function xdock_unload() {
-	global $XDOCK, $XDOCKPROPS;
+	global $XDOCK, $XDOCKPROPS, $XDOCKEVENTS;
 	
 	$XDOCK = array();
 	$XDOCKPROPS = array();
+	$XDOCKEVENTS = array();
 }
 
 function get_intro_xdock() {
@@ -19,7 +21,7 @@ function get_intro_xdock() {
 }
 
 function xdock_layout($page, $pagelabel) {
-	global $SECTION, $XDOCK, $XDOCKPROPS;
+	global $SECTION, $XDOCK, $XDOCKPROPS, $XDOCKEVENTS;
 	
 	dcxdoc_print_intro($page);
 	
@@ -50,8 +52,20 @@ function xdock_layout($page, $pagelabel) {
 	}
 	
 	// xdock signals
-	$SECTION = SECTION_EVENTS;
-	dcxdoc_print_description('XDock Signals', xdock_events());
+	//$SECTION = SECTION_EVENTS;
+	//dcxdoc_print_description('XDock Signals', xdock_events());
+
+	if ($XDOCKEVENTS) {
+        $SECTION = SECTION_XDOCKEVENTS;
+        $count = 1;
+
+        dcxdoc_print_description('XDock Signals', 'XDock uses the DCX signal to handle events. To activate signal messages for docked windows, refer to [f]/dcx xSignal[/f]');
+
+        foreach ($XDOCKEVENTS as $cmd => $data) {
+       		dcxdoc_format_xdockevents($cmd, $data, $count);
+      		$count++;
+		}
+	}
 }
 
 function get_xdock(&$XDOCK) {
@@ -264,7 +278,7 @@ function get_xdockprops(&$XDIDPROPS) {
 			),
 		),
 		'switchBarPos' => array(
-		        '__desc' => 'Returns the mIRC SwitchBar dock position.',
+		    '__desc' => 'Returns the mIRC SwitchBar dock position.',
 			'__params' => array(
 				'POSITION' => array(
 					'__desc' => 'Return values.',
@@ -292,7 +306,7 @@ function get_xdockprops(&$XDIDPROPS) {
 				),
 			),
 		),
-	    	'toolBarPos' => array(
+	    'toolBarPos' => array(
 			'__desc' => 'Returns the mIRC ToolBar position.',
 			'__params' => array(
 				'POSITION' => array(
@@ -308,7 +322,7 @@ function get_xdockprops(&$XDIDPROPS) {
 			),
 		),
 		'treeBarSize' => array(
-		        '__desc' => 'Returns the mIRC TreeBar size.',
+		    '__desc' => 'Returns the mIRC TreeBar size.',
 			'__params' => array(
 				'DIMENSIONS' => array(
 					'__desc' => 'Return values.',
@@ -322,7 +336,7 @@ function get_xdockprops(&$XDIDPROPS) {
 			),
 		),
 		'treeBarPos' => array(
-		        '__desc' => 'Returns the mIRC TreeBar position.',
+		    '__desc' => 'Returns the mIRC TreeBar position.',
 			'__params' => array(
 				'POSITION' => array(
 					'__desc' => 'Return values.',
@@ -337,6 +351,58 @@ function get_xdockprops(&$XDIDPROPS) {
 			),
 		),
 		'text' => 'Returns the title text for the given HWND.',
+	);
+}
+
+function get_xdockevents(&$XDOCKEVENTS) {
+	$XDOCKEVENTS = array(
+		'size' => array(
+	        '__desc' => 'Triggered when a docked window is resized.',
+			'__cmd' => '[WINDOW_TYPE] [HWND] [WIDTH] [HEIGHT]',
+			'__eg' => 'mIRC_Toolbar 345564 1024 32',
+			'__params' => array(
+				'WINDOW_TYPE' => array(
+					'__desc' => 'Information about which window type this information is describing.',
+					'__values' => array(
+						'mIRC' => 'The mIRC window has resized.',
+						'mIRC_Switchbar' => 'The mIRC SwitchBar has resized.',
+						'mIRC_Toolbar' => 'The mIRC ToolBar has resized.',
+						'mIRC_TreeList' => 'The mIRC TreeList has resized.',
+						'ListBox' => 'The channel ListBox has been resized.',
+						'Custom' => 'A custom window has been resized.',
+					),
+				),
+				'HWND' => 'The HWND of the window being sized.',
+				'WIDTH' => 'The new width of the window.',
+				'HEIGHT' => 'The new height of the window.',
+			),
+		),
+		'sizemove' => array(
+	        '__desc' => 'Triggered when a docked window starts & stops being resized or moved.',
+			'__cmd' => '[WINDOW_TYPE] [STATE] [HWND]',
+			'__eg' => 'mIRC start 123456',
+			'__params' => array(
+				'WINDOW_TYPE' => array(
+					'__desc' => 'Information about which window type this information is describing.',
+					'__values' => array(
+						'mIRC' => 'The mIRC window has resized.',
+						'mIRC_Switchbar' => 'The mIRC SwitchBar has resized.',
+						'mIRC_Toolbar' => 'The mIRC ToolBar has resized.',
+						'mIRC_TreeList' => 'The mIRC TreeList has resized.',
+						'ListBox' => 'The channel ListBox has been resized.',
+						'Custom' => 'A custom window has been resized.',
+					),
+				),
+				'STATE' => array(
+					'__desc' => 'Either starting or ending the resize/move action',
+					'__values' => array(
+						'start' => 'The window is being modified.',
+						'end' => 'The window is has finished being modified.',
+					),
+				),
+				'HWND' => 'The HWND of the window being changed.',
+			),
+		),
 	);
 }
 
