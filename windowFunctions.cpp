@@ -876,22 +876,27 @@ void dcxDrawCheckBox(HDC hDC, const LPCRECT rcBox, const clrCheckBox* lpcol, con
 
 	// create background brush
 	const auto hBrush = CreateSolidBrush(getCheckBoxBkgColour(lpcol, dState));
+	if (!hBrush)
+		return;
 	Auto(DeleteObject(hBrush));
 
 	// create border pen
 	const auto hPenBorder = CreatePen(PS_SOLID, 1, getCheckBoxFrameColour(lpcol, dState));
+	if (!hPenBorder)
+		return;
 	Auto(DeleteObject(hPenBorder));
 
 	// create border highlite pen
 	const auto hPenHighBorder = CreatePen(PS_SOLID, 1, getCheckBoxHighliteFrameColour(lpcol, dState));
+	if (!hPenHighBorder)
+		return;
 	Auto(DeleteObject(hPenHighBorder));
 
 	// create tick pen
 	const auto hPenTick = CreatePen(PS_SOLID, 1, getCheckBoxTickColour(lpcol, dState));
-	Auto(DeleteObject(hPenTick));
-
-	if ((!hBrush) || (!hPenBorder) || (!hPenTick))
+	if (!hPenTick)
 		return;
+	Auto(DeleteObject(hPenTick));
 
 	// set background brush
 	const auto hOldBrush = SelectObject(hDC, hBrush);
@@ -964,3 +969,58 @@ HWND dcxGetRealParent(HWND hWnd) noexcept
 	return GetAncestor(hWnd, GA_PARENT);
 }
 
+GSL_SUPPRESS(lifetime)
+bool dcxDrawRect(HDC hDC, LPCRECT rc, COLORREF clr, COLORREF clrBorder, bool bRounded) noexcept
+{
+	if (!hDC || !rc)
+		return false;
+
+	const auto hPen = CreatePen(PS_SOLID, 1, clrBorder);
+
+	if (!hPen)
+		return false;
+	Auto(DeleteObject(hPen));
+
+	const auto hOldPen = SelectObject(hDC, hPen);
+	Auto(SelectObject(hDC, hOldPen));
+
+	const auto hBrush = CreateSolidBrush(clr);
+	if (!hBrush)
+		return false;
+
+	Auto(DeleteObject(hBrush));
+
+	const auto hOldBrush = SelectObject(hDC, hBrush);
+	Auto(SelectObject(hDC, hOldBrush));
+
+	if (bRounded)
+		RoundRect(hDC, rc->left, rc->top, rc->right, rc->bottom, 10, 10);
+	else
+		Rectangle(hDC, rc->left, rc->top, rc->right, rc->bottom);
+
+	return true;
+}
+
+GSL_SUPPRESS(r.3)
+bool dcxDrawTranslucentRect(HDC hDC, LPCRECT rc, COLORREF clr, COLORREF clrBorder, bool bRounded) noexcept
+{
+	if (!hDC || !rc)
+		return false;
+
+	if (!Dcx::UXModule.IsBufferedPaintSupported())
+		return false;
+
+	// 0x7f half of 0xff = 50% transparency
+	// 0xCC = 80% Opaque
+	BLENDFUNCTION ai_bf{ AC_SRC_OVER, 0, 0xC0, 0 };
+	BP_PAINTPARAMS paintParams{ sizeof(BP_PAINTPARAMS),BPPF_ERASE, nullptr, &ai_bf };
+	HDC hdc{};
+
+	auto ai_Buffer = Dcx::UXModule.dcxBeginBufferedPaint(hDC, rc, BPBF_COMPATIBLEBITMAP, &paintParams, &hdc);
+	if (!ai_Buffer)
+		return false;
+
+	Auto(Dcx::UXModule.dcxEndBufferedPaint(ai_Buffer, TRUE));
+
+	return dcxDrawRect(hdc, rc, clr, clrBorder, bRounded);
+}

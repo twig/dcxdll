@@ -1485,7 +1485,7 @@ void mIRC_OutText(HDC hdc, TString& txt, LPRECT rcOut, const LPLOGFONT lf, const
 /// <param name="shadow">- Give the text a shadow?</param>
 void mIRC_DrawText(HDC hdc, const TString& txt, LPRECT rc, const UINT style, const bool shadow)
 {
-	if (txt.empty()) // if no text just exit.
+	if (!hdc || !rc || (txt.empty()))
 		return;
 
 	// create an hdc buffer to avoid flicker during drawing.
@@ -1508,13 +1508,7 @@ void mIRC_DrawText(HDC hdc, const TString& txt, LPRECT rc, const UINT style, con
 	COLORREF clrFG = origFG, clrBG = origBG;
 	COLORREF cPalette[mIRC_PALETTE_SIZE] = { CLR_INVALID }; // mIRC palette
 
-	//getmIRCPalette(&cPalette[0], std::extent_v<decltype(cPalette)>); // get mIRC palette
 	getmIRCPalette(cPalette); // get mIRC palette
-
-	//const auto hFont = Dcx::dcxGetCurrentObject<HFONT>(hdc, OBJ_FONT);
-	//LOGFONT lf{};
-	//if (GetObject(hFont, sizeof(LOGFONT), &lf) == 0)
-	//	return;
 
 	auto [code, lf] = Dcx::dcxGetObject<LOGFONT>(Dcx::dcxGetCurrentObject<HFONT>(hdc, OBJ_FONT));
 	if (code == 0)
@@ -1821,8 +1815,8 @@ using LPHDCBuffer = HDCBuffer*;
 
 gsl::owner<HDC*> CreateHDCBuffer(HDC hdc, const LPRECT rc)
 {
-	//if ((hdc == nullptr) /*|| (rc == NULL)*/)
-	//	return nullptr;
+	if (!hdc)
+		return nullptr;
 
 	// alloc buffer data
 	auto buf = std::make_unique<HDCBuffer>();
@@ -1863,7 +1857,7 @@ gsl::owner<HDC*> CreateHDCBuffer(HDC hdc, const LPRECT rc)
 		if (LPTSTR errBuf{ nullptr }; FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_IGNORE_INSERTS, nullptr, err, 0U, reinterpret_cast<LPTSTR>(&errBuf), errBufSize, nullptr) != 0)
 		{
 			Auto(LocalFree(errBuf));
-			mIRCLinker::debug(TEXT("CreateHDCBuffer"), errBuf);
+			mIRCLinker::debug(TEXT("CreateHDCBuffer->CreateBitmap"), errBuf);
 		}
 #endif
 		DeleteDC(buf->m_hHDC);
@@ -1903,27 +1897,36 @@ void DeleteHDCBuffer(gsl::owner<HDC*> hBuffer) noexcept
 	auto buf = gsl::owner<LPHDCBuffer>(reinterpret_cast<LPHDCBuffer>(hBuffer));
 
 	GdiFlush();
-	SelectObject(buf->m_hHDC, buf->m_hOldFont);
-	SelectObject(buf->m_hHDC, buf->m_hOldBitmap);
-	DeleteObject(buf->m_hBitmap);
-	DeleteDC(buf->m_hHDC);
+	if (buf->m_hHDC)
+	{
+		if (buf->m_hOldFont)
+			SelectObject(buf->m_hHDC, buf->m_hOldFont);
+		if (buf->m_hOldBitmap)
+			SelectObject(buf->m_hHDC, buf->m_hOldBitmap);
+		if (buf->m_hBitmap)
+			DeleteObject(buf->m_hBitmap);
+		DeleteDC(buf->m_hHDC);
+	}
 	delete buf;
 }
 
 int TGetWindowText(HWND hwnd, TString& txt)
 {
-	if (!hwnd)
-		return 0;
+	//if (!hwnd)
+	//	return 0;
+	//
+	//// NB: needs to include space for end 0
+	//if (const auto nText = GetWindowTextLength(hwnd) + 2; nText > 2)
+	//{
+	//	txt.reserve(gsl::narrow_cast<UINT>(nText));
+	//	if (GetWindowText(hwnd, txt.to_chr(), nText) != 0)
+	//		return nText;
+	//}
+	//txt.clear();	// txt = TEXT("");
+	//return 0;
 
-	// NB: needs to include space for end 0
-	if (const auto nText = GetWindowTextLength(hwnd) + 2; nText > 2)
-	{
-		txt.reserve(gsl::narrow_cast<UINT>(nText));
-		if (GetWindowText(hwnd, txt.to_chr(), nText) != 0)
-			return nText;
-	}
-	txt.clear();	// txt = TEXT("");
-	return 0;
+	txt = TGetWindowText(hwnd);
+	return txt.len();
 }
 
 TString TGetWindowText(HWND hwnd)

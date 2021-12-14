@@ -13,7 +13,8 @@
  Some useful values for _MSC_VER if you need to target to a specific compiler.
  http://symbiancorner.blogspot.com/2007/05/how-to-detect-version-of-ms-visual.html
 
- #if _MSC_VER >= 1911 // Visual C++ 2017.3
+ #if _MSC_VER >= 1930 // Visual C++ 2022
+ #elif _MSC_VER >= 1911 // Visual C++ 2017.3
  #elif _MSC_VER >= 1910 // Visual C++ 2017
  #elif _MSC_VER >= 1900 // Visual C++ 2015
  #elif _MSC_VER >= 1800 // Visual C++ 2013
@@ -222,6 +223,8 @@ constexpr auto DCX_MAX_GDI_ERRORS = 21;
 #define DCX_DX_ERR	1
 // Use Object switch code (testing only)
 #define DCX_SWITCH_OBJ 0
+// use test code?
+#define DCX_USE_TESTCODE 1
 #endif
 
 #if DCX_SWITCH_OBJ
@@ -720,11 +723,12 @@ TString MakeTextmIRCSafe(const TCHAR* const tString);
 TString MakeTextmIRCSafe(const TCHAR* const tString, const std::size_t len);
 
 void dcxDrawLine(HDC hdc, LONG x1, LONG y1, LONG x2, LONG y2) noexcept;
-//void dcxDrawCheckBox(HDC hDC, const LPCRECT rcBox, const clrCheckBox* lpcol, const DWORD dState, const bool bDis, const bool bRounded) noexcept;
 void dcxDrawCheckBox(HDC hDC, const LPCRECT rcBox, const clrCheckBox* lpcol, const DWORD dState, const bool bTicked, const bool bRounded) noexcept;
 void dcxDrawEdge(HDC hdc, const LPRECT rc, COLORREF clr) noexcept;
 void dcxDrawBorder(HDC hdc, LPCRECT lprc, DWORD dwBorder, COLORREF clr) noexcept;
 HWND dcxGetRealParent(HWND hWnd) noexcept;
+bool dcxDrawRect(HDC hDC, LPCRECT rc, COLORREF clr, COLORREF clrBorder, bool bRounded) noexcept;
+bool dcxDrawTranslucentRect(HDC hDC, LPCRECT rc, COLORREF clr, COLORREF clrBorder, bool bRounded) noexcept;
 
 COLORREF GetContrastColour(COLORREF sRGB) noexcept;
 

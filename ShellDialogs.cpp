@@ -118,7 +118,6 @@ mIRC(OpenDialog)
 
 		// count number of tab tokens
 		if (d.numtok(TSTABCHAR) != 3)
-			//throw Dcx::dcxException("Invalid Arguments");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		ret(FileDialog(d, TEXT("OPEN"), mWnd).to_chr());
@@ -146,7 +145,6 @@ mIRC(SaveDialog)
 
 		// count number of tab tokens
 		if (d.numtok(TSTABCHAR) != 3)
-			//throw Dcx::dcxException("Invalid Arguments");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		ret(FileDialog(d, TEXT("SAVE"), mWnd).to_chr());
