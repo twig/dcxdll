@@ -171,6 +171,9 @@ struct ALPHAINFO
 
 	ALPHAINFO(HWND hwnd)
 	{
+		if (!hwnd)
+			throw Dcx::dcxException("Invalid HWND");
+
 		if (!GetClientRect(hwnd, &ai_rcClient))
 			throw Dcx::dcxException("Unable to get Client Rect");
 		if (!GetWindowRect(hwnd, &ai_rcWin))
@@ -239,7 +242,7 @@ public:
 	DcxControl(DcxControl&& other) = delete;	// no move constructor
 	DcxControl& operator =(DcxControl&&) = delete;	// No move assignments!
 
-	DcxControl(const UINT mID, DcxDialog* const p_Dialog) noexcept;
+	DcxControl(const UINT mID, gsl::strict_not_null<DcxDialog* const> p_Dialog) noexcept;
 	~DcxControl() noexcept;
 
 	virtual dcxWindowStyles parseControlStyles(const TString& tsStyles) = 0;
@@ -329,7 +332,11 @@ public:
 		return m_clrEndGradient;
 	};
 	const RECT getWindowPosition() const noexcept;
-	DcxDialog* const getParentDialog() const noexcept
+	//DcxDialog* const getParentDialog() const noexcept
+	//{
+	//	return m_pParentDialog;
+	//}
+	gsl::strict_not_null<DcxDialog* const> getParentDialog() const noexcept
 	{
 		return m_pParentDialog;
 	}
@@ -396,8 +403,10 @@ public:
 		showError(prop, cmd, _ts_sprintf(tsErr, fmt, val, args...).to_chr());
 	}
 
+	virtual void HandleDragDrop(int x, int y) noexcept;
+
 	static LRESULT CALLBACK WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-	[[nodiscard("Memory Leak")]] static DcxControl* controlFactory(DcxDialog* const p_Dialog, const UINT mID, const TString& input, const UINT offset, const DcxAllowControls mask, HWND hParent = nullptr);
+	[[nodiscard("Memory Leak")]] static DcxControl* controlFactory(gsl::strict_not_null<DcxDialog* const> p_Dialog, const UINT mID, const TString& input, const UINT offset, const DcxAllowControls mask, HWND hParent = nullptr);
 	static void DrawCtrlBackground(const HDC hdc, const DcxControl* const p_this, const RECT* const rwnd = nullptr, HTHEME hTheme = nullptr, const int iPartId = 0, const int iStateId = 0) noexcept;
 	static HBITMAP resizeBitmap(HBITMAP srcBM, const RECT* const rc) noexcept;
 	static DcxControlTypes TSTypeToControlType(const TString& t);
@@ -411,7 +420,8 @@ protected:
 	//private:
 	static inline bool m_bInitialized{ false };
 
-	DcxDialog* m_pParentDialog{ nullptr };	//!< Parent DcxDialog object
+	//DcxDialog* m_pParentDialog{ nullptr };	//!< Parent DcxDialog object
+	gsl::strict_not_null<DcxDialog*> m_pParentDialog;	//!< Parent DcxDialog object
 
 	HFONT m_hFont{ nullptr };					//!< Control Font
 
@@ -490,20 +500,11 @@ concept HasWinProc = requires(T t)
 };
 
 template <HasWinProc pClassObj>
-void dcxRegisterClassEx(const TCHAR* const szClass, const TCHAR* const szDcxClass) noexcept
+void dcxRegisterNewClass(const TCHAR* const szDcxClass, WNDPROC pDefProc) noexcept
 {
-	WNDCLASSEX wc{};
-	wc.cbSize = sizeof(WNDCLASSEX);
-
-	if (GetClassInfoEx(nullptr, szClass, &wc) != 0)
-	{
-		wc.lpszClassName = szDcxClass;
-		pClassObj::m_hDefaultClassProc = wc.lpfnWndProc;
-		wc.lpfnWndProc = DcxControl::WindowProc;
-		wc.hInstance = GetModuleHandle(nullptr);
-		wc.style &= ~CS_GLOBALCLASS;
-		RegisterClassEx(&wc);
-	}
+	const WNDCLASSEX wc{ sizeof(WNDCLASSEX),0, DcxControl::WindowProc, 0, 0, GetModuleHandle(nullptr), nullptr, nullptr, reinterpret_cast<HBRUSH>(COLOR_3DFACE + 1), nullptr, szDcxClass, nullptr };
+	pClassObj::m_hDefaultClassProc = pDefProc;
+	RegisterClassEx(&wc);
 }
 template <HasWinProc pClassObj>
 void dcxRegisterClass(const TCHAR* const szClass, const TCHAR* const szDcxClass) noexcept

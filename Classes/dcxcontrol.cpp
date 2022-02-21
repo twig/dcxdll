@@ -66,7 +66,7 @@
   * \param mID Control ID
   * \param p_Dialog Parent DcxDialog Object
   */
-DcxControl::DcxControl(const UINT mID, DcxDialog* const p_Dialog) noexcept
+DcxControl::DcxControl(const UINT mID, gsl::strict_not_null<DcxDialog* const> p_Dialog) noexcept
 	: DcxWindow(mID)
 	, m_pParentDialog(p_Dialog)
 	, m_UserID(mID - mIRC_ID_OFFSET)
@@ -700,7 +700,7 @@ HBITMAP DcxControl::resizeBitmap(HBITMAP srcBM, const RECT* const rc) noexcept
 	}
 	return hRes;
 #endif
-		}
+}
 
 /// <summary>
 /// Converts a string to a control type.
@@ -845,7 +845,7 @@ bool DcxControl::parseGlobalInfoRequest(const TString& input, const refString<TC
 
 			_ts_snprintf(szReturnValue, TEXT("%d %d %d %d"), rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top);
 			return true;
-	}
+		}
 #endif
 		return true;
 	}
@@ -982,13 +982,27 @@ bool DcxControl::parseGlobalInfoRequest(const TString& input, const refString<TC
 	default:
 		throw Dcx::dcxException("Invalid property or number of arguments");
 		break;
-}
-	return false;
 	}
+	return false;
+}
 
 TString DcxControl::parseGlobalInfoRequest(const TString& input) const
 {
 	return TString();
+}
+
+void DcxControl::HandleDragDrop(int x, int y) noexcept
+{
+	switch (getControlType())
+	{
+	case DcxControlTypes::LISTVIEW:
+	{
+		((DcxListView*)this)->HandleDragDrop(x, y);
+	}
+	break;
+	default:
+		break;
+	}
 }
 
 /*!
@@ -996,7 +1010,6 @@ TString DcxControl::parseGlobalInfoRequest(const TString& input) const
  *
  * blah
  */
-
 LRESULT CALLBACK DcxControl::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	//auto pthis = static_cast<DcxControl*>(GetProp(mHwnd, TEXT("dcx_cthis")));
@@ -1027,14 +1040,14 @@ LRESULT CALLBACK DcxControl::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LP
 	if (!pthis)
 		return DefWindowProc(mHwnd, uMsg, wParam, lParam);
 
-	if (pthis->getParentDialog())
+	if (const auto pDialog = pthis->getParentDialog(); pDialog)
 	{
-		if (uMsg == WM_PAINT && pthis->getParentDialog()->IsVistaStyle())
+		if (uMsg == WM_PAINT && pDialog->IsVistaStyle())
 		{
 			ValidateRect(mHwnd, nullptr);
 
 			if (RECT rcUpdate{}; GetWindowRect(mHwnd, &rcUpdate))
-				pthis->getParentDialog()->UpdateVistaStyle(&rcUpdate);
+				pDialog->UpdateVistaStyle(&rcUpdate);
 
 			return 0L;
 		}
@@ -1067,7 +1080,7 @@ LRESULT CALLBACK DcxControl::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LP
  * Input [NAME] [SWITCH] [ID] [CONTROL] [X] [Y] [W] [H] (OPTIONS)
  */
 
-DcxControl* DcxControl::controlFactory(DcxDialog* const p_Dialog, const UINT mID, const TString& tsInput, const UINT offset, const DcxAllowControls mask = DcxAllowControls::ALLOW_ALL, HWND hParent)
+DcxControl* DcxControl::controlFactory(gsl::strict_not_null<DcxDialog* const> p_Dialog, const UINT mID, const TString& tsInput, const UINT offset, const DcxAllowControls mask = DcxAllowControls::ALLOW_ALL, HWND hParent)
 {
 	if (!m_bInitialized)
 		throw Dcx::dcxException("DCX Controls NOT Initialized!");
@@ -1085,6 +1098,9 @@ DcxControl* DcxControl::controlFactory(DcxDialog* const p_Dialog, const UINT mID
 
 	if (!hParent)
 		hParent = p_Dialog->getHwnd();
+
+	if (!hParent)
+		throw Dcx::dcxException("Unable to get Parent");
 
 	//	const auto dct = DcxControl::TSTypeToControlType(type);
 	//
@@ -1379,16 +1395,21 @@ DcxControl* DcxControl::controlFactory(DcxDialog* const p_Dialog, const UINT mID
 			if (!IsWindow(winHwnd))
 			{
 				//stString<30> windowHwnd;
-				//
 				//mIRCLinker::evalex(windowHwnd, static_cast<const int>(windowHwnd.size()), TEXT("$window(%s).hwnd"), tsWin.to_chr());
-				//
 				//winHwnd = (HWND)dcx_atoi(windowHwnd.data());
+				//
+				//stString<30> windowHwnd;
+				//mIRCLinker::eval(windowHwnd, TEXT("$window(%).hwnd"), tsWin);
+				//winHwnd = reinterpret_cast<HWND>(dcx_atoi(windowHwnd.data()));
 
-				stString<30> windowHwnd;
+				TString tsRes;
+				mIRCLinker::eval(tsRes, TEXT("$window(%).hwnd"), tsWin);
+				winHwnd = reinterpret_cast<HWND>(tsRes.to_<size_t>());
 
-				mIRCLinker::eval(windowHwnd, TEXT("$window(%).hwnd"), tsWin);
-
-				winHwnd = reinterpret_cast<HWND>(dcx_atoi(windowHwnd.data()));
+				//TString tsRes;
+				//if (auto o = mIRCLinker::o_eval<TString>(TEXT("$window(%).hwnd"), tsWin); o.has_value())
+				//	tsRes = o.value();
+				//winHwnd = reinterpret_cast<HWND>(tsRes.to_<size_t>());
 			}
 
 			if (!IsWindow(winHwnd))
@@ -1661,6 +1682,9 @@ void DcxControl::DrawControl(HDC hDC, HWND hwnd)
 
 void DcxControl::DrawParentsBackground(const HDC hdc, const RECT* const rcBounds, const HWND dHwnd)
 {
+	if (!hdc || !IsValidWindow())
+		return;
+
 	// fill in parent bg
 	RECT rcClient{};
 	auto hwnd = m_Hwnd;
@@ -1693,26 +1717,30 @@ void DcxControl::DrawParentsBackground(const HDC hdc, const RECT* const rcBounds
 	*/
 	updateParentCtrl(); // find the host control, if any.
 
+	const auto pDialog = getParentDialog();
+	if (!pDialog)
+		return;
+
 	//If in Vista mode
-	if (getParentDialog()->IsVistaStyle())
+	if (pDialog->IsVistaStyle())
 	{
 		// Check if the hdc to render too is the main hdc, if so bkg is already drawn so just return
-		if (hdc == getParentDialog()->GetVistaHDC())
+		if (hdc == pDialog->GetVistaHDC())
 			return;
 		// Check if parent is dialog.
-		if (m_pParentHWND == getParentDialog()->getHwnd())
+		if (m_pParentHWND == pDialog->getHwnd())
 		{
 			// When in vista mode dialog has already been drawn
 			// So just grab image from windows DC.
-			auto hdcParent = getParentDialog()->GetVistaHDC();
+			auto hdcParent = pDialog->GetVistaHDC();
 			auto rcWin = rcClient;
-			getParentDialog()->MapVistaRect(hwnd, &rcWin);
+			pDialog->MapVistaRect(hwnd, &rcWin);
 			BitBlt(hdc, rcClient.left, rcClient.top, (rcClient.right - rcClient.left), (rcClient.bottom - rcClient.top),
 				hdcParent, rcWin.left, rcWin.top, SRCCOPY);
 			return;
 		}
 	}
-	if (getParentDialog()->isExStyle(WindowExStyle::Composited))
+	if (pDialog->isExStyle(WindowExStyle::Composited))
 	{
 		// When in composited mode underling controls have already been drawn
 		// So just grab image from windows DC.
@@ -1869,7 +1897,8 @@ LPALPHAINFO DcxControl::SetupAlphaBlend(HDC* hdc, const bool DoubleBuffer)
 		if (ai->ai_Buffer)
 		{
 			this->DrawParentsBackground(ai->ai_hdc, &ai->ai_rcClient);
-			BitBlt(*hdc, ai->ai_rcClient.left, ai->ai_rcClient.top, ai->ai_rcClient.right - ai->ai_rcClient.left, ai->ai_rcClient.bottom - ai->ai_rcClient.top, ai->ai_hdc, ai->ai_rcClient.left, ai->ai_rcClient.top, SRCCOPY);
+			//BitBlt(*hdc, ai->ai_rcClient.left, ai->ai_rcClient.top, ai->ai_rcClient.right - ai->ai_rcClient.left, ai->ai_rcClient.bottom - ai->ai_rcClient.top, ai->ai_hdc, ai->ai_rcClient.left, ai->ai_rcClient.top, SRCCOPY);
+			ai->ai_Oldhdc = *hdc;
 			*hdc = ai->ai_hdc;
 			return ai.release();
 		}
@@ -2530,6 +2559,9 @@ const TString DcxControl::getBorderStyles(void) const
 
 void DcxControl::toXml(TiXmlElement* const xml) const
 {
+	if (!xml)
+		return;
+
 	const auto styles(getStyles());
 
 	xml->SetAttribute("id", gsl::narrow_cast<int>(getUserID()));
