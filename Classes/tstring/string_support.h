@@ -370,6 +370,11 @@ namespace details {
 			return str.empty();
 		}
 	}
+	template <typename T>
+	bool _ts_isEmpty(const gsl::strict_not_null<T>& str) noexcept
+	{
+		return _ts_isEmpty(str.get());
+	}
 
 	//// Get String length
 	//template <typename T, typename size_type = std::size_t>
@@ -1537,14 +1542,24 @@ GSL_SUPPRESS(bounds.4) bool _ts_InnerWildcardMatch(const TameString& pszString, 
 	constexpr _Wild _zero{};
 	constexpr _Wild _star = static_cast<_Wild>('*');
 	constexpr _Wild _question = static_cast<_Wild>('?');
-	constexpr _Wild _tilda = static_cast<_Wild>('~');
+#if TSTRING_WILDT || TSTRING_WILDW
 	constexpr _Wild _space = static_cast<_Wild>(' ');
-	constexpr _Wild _power = static_cast<_Wild>('^');
-	constexpr _Wild _hash = static_cast<_Wild>('#');
+#endif
+#if TSTRING_WILDT
+	constexpr _Wild _tilda = static_cast<_Wild>('~');
+#endif
+#if TSTRING_WILDE
 	constexpr _Wild _slash = static_cast<_Wild>('\\');
+#endif
+#if TSTRING_WILDA
+	constexpr _Wild _power = static_cast<_Wild>('^');
+#endif
+#if TSTRING_WILDW
+	constexpr _Wild _hash = static_cast<_Wild>('#');
 	constexpr _Wild _tab = static_cast<_Wild>('\t');
 	constexpr _Wild _n = static_cast<_Wild>('\n');
 	constexpr _Wild _r = static_cast<_Wild>('\r');
+#endif
 
 	while (pszString[iTameOffset])
 	{
