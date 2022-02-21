@@ -28,6 +28,10 @@ namespace Dcx {
 	PFNSETCURSOR SetCursorUx = nullptr;
 	TString dcxException::tsErr;
 
+	// dragging
+	bool m_bShowingDragImage{ false };	// true if currently showing a drag image.
+	HIMAGELIST m_hDragImage{};			// currently showing drag images if any.
+	DcxControl* m_pDragSourceCtrl{};	// source conmtrol for current drag image.
 
 	void load(mIRCLinker::LOADINFO* const lInfo)
 	{
@@ -296,7 +300,7 @@ namespace Dcx {
 	}
 
 	/*!
-	* \brief blah
+	* \brief Subproc of the main mIRC window
 	*
 	* blah
 	*/
@@ -447,6 +451,39 @@ namespace Dcx {
 	//
 	//	return lRes;
 	//}
+
+		// handle moving drag images.
+		case WM_MOUSEMOVE:
+		{
+			if (!m_bShowingDragImage)
+				break;
+
+			POINT p{};
+			p.x = LOWORD(lParam);
+			p.y = HIWORD(lParam);
+
+			MapWindowPoints(mHwnd, nullptr, &p, 1); // ClientToScreen(hWndMain, &p);
+			ImageList_DragMove(p.x, p.y);
+		}
+		break;
+
+		// handle end of dragging.
+		case WM_LBUTTONUP:
+		{
+			if (!m_bShowingDragImage || !m_pDragSourceCtrl)
+				break;
+
+			// End the drag-and-drop process
+			m_bShowingDragImage = false;
+			ImageList_DragLeave(m_pDragSourceCtrl->getHwnd());
+			ImageList_EndDrag();
+			ImageList_Destroy(m_hDragImage);
+
+			ReleaseCapture();
+
+			m_pDragSourceCtrl->HandleDragDrop(Dcx::dcxLOWORD(lParam), Dcx::dcxHIWORD(lParam));
+		}
+		break;
 
 		case WM_SETCURSOR:
 		{

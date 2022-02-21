@@ -98,6 +98,11 @@ namespace Dcx
 
 	extern bool m_bErrorTriggered;
 
+	// dragging
+	extern bool m_bShowingDragImage;
+	extern HIMAGELIST m_hDragImage;
+	extern DcxControl* m_pDragSourceCtrl;
+
 	// settings
 	extern bool setting_bStaticColours;
 	extern BYTE setting_CustomMenusAlpha;

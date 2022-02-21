@@ -1,25 +1,46 @@
 
 DCX V3.1 TODO List
 
-1: Find better way of updating progressbar's positions upon scroll etc...
-	1b: Possibly do away with child controls for listview & instead simply custom draw the item/subitem
-2: Add support for more control types in listview items (partially done, needs testing)
-  3: Change How we subclass the controls so we instead handle it all when the class is registered & no subclassing is then needed. (done)
-4: WebCtrl has an odd crash, when the object is destroyed & the browser is set as IE11, but not when its set as IE7 (the default). Doesnt crash every time tho, sometimes only on the third try.
-5: add more options to settings command...
-6: update the docs!!! @svn991 so far, becomes 2.0 at 1020 when changed to utf, becomes 3.0 at ???, 3.1 changes added.
-7: change how RichEdit control loads text to allow loading from xml.
-8: change how RichEdit control saves text to allow saving to xml.
-9: rewrite button/check/radio controls to be a single button control that supports diff styles.
-  10: fix box controls group disable button (done)
-11: change Link control to use WC_LINK instead of WC_STATIC
-12: webctrl fails with msft edge installed.
-	Maybe use WebView2 for msft Edge.
-13: Find a better way of integrating CustomMenus into mpopup instead of a seperate global setting.
-14: Add glow effect to tab controls with hottrack.
-  15: Add named id support to /xdialog -z (done)
-  16: Add trackbar buddy control. (done)
-  17: fix richedit controls font setting. (done)
-18: fix flicker of controls.
-19: add ability to dock a dialog between editbox & static text control in channels/queries/custom
-20: add grid control, maybe...
+General
+	1: add more options to settings command...
+	2: update the docs!!! @svn991 so far, becomes 2.0 at 1020 when changed to utf, becomes 3.0 at ???, 3.1 changes added.
+	3: add ability to dock a dialog between editbox & static text control in channels/queries/custom
+	4: add grid control, maybe...
+	5: fix flicker of controls.
+
+Progressbar
+	1: Find better way of updating progressbar's positions upon scroll etc...
+
+WebCtrl
+	1: WebCtrl has an odd crash, when the object is destroyed & the browser is set as IE11, but not when its set as IE7 (the default). Doesnt crash every time tho, sometimes only on the third try.
+	2: webctrl fails with msft edge installed.
+		Maybe use WebView2 for msft Edge.
+
+RichEdit
+	1: change how control loads text to allow loading from xml.
+	2: change how control saves text to allow saving to xml.
+
+Button
+	1: rewrite button/check/radio controls to be a single button control that supports diff styles.
+	2: make check controls more versitile. (allow changing colours, styles etc..)
+
+Link
+	1: change control to use WC_LINK instead of WC_STATIC
+
+Menus
+	1: Find a better way of integrating CustomMenus into mpopup instead of a seperate global setting.
+
+Tab
+	14: Add glow effect to tab controls with hottrack.
+
+Image
+	1: add animated png support maybe...
+	2: fix image controls drawing when animated, has flickering, & crashes when using alpha style or when composited.
+	  Partial fix for flickering involved not drawing the background before the image (GDI+ issue?)
+	  alpha & composited drawing still broken in animations for some reason...
+
+Listview
+	1: Add support for more control types in listview items (partially done, needs testing)
+		1b: Possibly do away with child controls for listview & instead simply custom draw the item/subitem
+	2: add command to move items.
+	3: add drag & drop support.
