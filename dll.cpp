@@ -765,7 +765,7 @@ mIRC(Version)
 			constexpr const auto hash1 = const_hash("123");
 
 			const auto hash2 = dcx_hash("123");
-			const auto hash3 = dcx_hash(L"123");
+			//const auto hash3 = dcx_hash(L"123");
 
 			constexpr const auto hash4 = "123"_hash;
 			constexpr const auto hash5 = L"123"_hash;

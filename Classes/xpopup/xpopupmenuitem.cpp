@@ -409,77 +409,8 @@ void XPopupMenuItem::DrawItemSelection(const LPDRAWITEMSTRUCT lpdis, const XPMEN
 	if (!lpdis || !lpcol || !lpdis->hDC)
 		return;
 
-	//if (dcx_testflag(lpdis->itemState, ODS_HOTLIGHT))
-	//{
-	//	DrawFrameControl(lpdis->hDC,&lpdis->rcItem,DFC_BUTTON,(bDis)?(DFCS_BUTTONPUSH|DFCS_INACTIVE):(DFCS_BUTTONPUSH|DFCS_HOT));
-	//	return;
-	//}
-
-	//const auto hPen = CreatePen(PS_SOLID, 1, lpcol->m_clrSelectionBorder);
-	//
-	//if (!hPen)
-	//	return;
-	//Auto(DeleteObject(hPen));
-	//
-	//const auto hOldPen = SelectObject(lpdis->hDC, hPen);
-	//Auto(SelectObject(lpdis->hDC, hOldPen));
-	//
-	//if (const auto hBrush = CreateSolidBrush(bDis ? lpcol->m_clrDisabledSelection : lpcol->m_clrSelection); hBrush)
-	//{
-	//	Auto(DeleteObject(hBrush));
-	//
-	//	const auto hOldBrush = SelectObject(lpdis->hDC, hBrush);
-	//	Auto(SelectObject(lpdis->hDC, hOldBrush));
-	//
-	//	const RECT rc = lpdis->rcItem;
-	//
-	//	if (bRounded)
-	//		RoundRect(lpdis->hDC, rc.left, rc.top, rc.right, rc.bottom, 10, 10);
-	//	else
-	//		Rectangle(lpdis->hDC, rc.left, rc.top, rc.right, rc.bottom);
-	//}
-
-	const auto hPen = CreatePen(PS_SOLID, 1, lpcol->m_clrSelectionBorder);
-
-	if (!hPen)
-		return;
-	Auto(DeleteObject(hPen));
-
-	HDC hdc = lpdis->hDC;
-
-	HPAINTBUFFER ai_Buffer{ nullptr };
-	if (Dcx::UXModule.IsBufferedPaintSupported())
-	{
-		// 0x7f half of 0xff = 50% transparency
-		// 0xCC = 80% Opaque
-		BLENDFUNCTION ai_bf{ AC_SRC_OVER, 0, 0xC0, 0 };
-		BP_PAINTPARAMS paintParams{ sizeof(BP_PAINTPARAMS),BPPF_ERASE, nullptr, &ai_bf };
-
-		ai_Buffer = Dcx::UXModule.dcxBeginBufferedPaint(lpdis->hDC, &lpdis->rcItem, BPBF_COMPATIBLEBITMAP, &paintParams, &hdc);
-	}
-
-	{
-		const auto hOldPen = SelectObject(hdc, hPen);
-		Auto(SelectObject(hdc, hOldPen));
-
-		if (const auto hBrush = CreateSolidBrush(bDis ? lpcol->m_clrDisabledSelection : lpcol->m_clrSelection); hBrush)
-		{
-			Auto(DeleteObject(hBrush));
-
-			const auto hOldBrush = SelectObject(hdc, hBrush);
-			Auto(SelectObject(hdc, hOldBrush));
-
-			const RECT rc = lpdis->rcItem;
-
-			if (bRounded)
-				RoundRect(hdc, rc.left, rc.top, rc.right, rc.bottom, 10, 10);
-			else
-				Rectangle(hdc, rc.left, rc.top, rc.right, rc.bottom);
-		}
-	}
-
-	if (ai_Buffer)
-		Dcx::UXModule.dcxEndBufferedPaint(ai_Buffer, TRUE);
+	if (!dcxDrawTranslucentRect(lpdis->hDC, std::addressof(lpdis->rcItem), bDis ? lpcol->m_clrDisabledSelection : lpcol->m_clrSelection, lpcol->m_clrSelectionBorder, bRounded))
+		dcxDrawRect(lpdis->hDC, std::addressof(lpdis->rcItem), bDis ? lpcol->m_clrDisabledSelection : lpcol->m_clrSelection, lpcol->m_clrSelectionBorder, bRounded);
 }
 
 /*!
@@ -545,6 +476,9 @@ void XPopupMenuItem::DrawItemCheckBox(const LPDRAWITEMSTRUCT lpdis, const XPMENU
 	//	LineTo(lpdis->hDC, x + 6, y + 3);
 	//}
 
+	if (!lpdis || !lpcol || !lpdis->hDC)
+		return;
+
 	clrCheckBox cols;
 	cols.m_clrBackground = lpcol->m_clrCheckBox;
 	cols.m_clrDisabledBackground = lpcol->m_clrDisabledCheckBox;
@@ -554,7 +488,7 @@ void XPopupMenuItem::DrawItemCheckBox(const LPDRAWITEMSTRUCT lpdis, const XPMENU
 	cols.m_clrHotTick = lpcol->m_clrSelectedText;
 	cols.m_clrDisabledTick = lpcol->m_clrDisabledText;
 
-	dcxDrawCheckBox(lpdis->hDC, &lpdis->rcItem, std::addressof(cols), lpdis->itemState, true, bRounded);
+	dcxDrawCheckBox(lpdis->hDC, std::addressof(lpdis->rcItem), std::addressof(cols), lpdis->itemState, true, bRounded);
 }
 
 /*!

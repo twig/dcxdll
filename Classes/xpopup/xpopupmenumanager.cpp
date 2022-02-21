@@ -329,6 +329,10 @@ void XPopupMenuManager::parseCommand(const TString& input, XPopupMenu* const p_M
 
 		const auto style = XPopupMenu::parseStyle(input.getnexttok());	// tok 3
 		this->m_vpXPMenu.push_back(new XPopupMenu(tsMenuName, style));
+
+		// Ook: maybe change to something like this instead? need to check how this affects alloc/free
+		//std::vector<XPopupMenu> testv;
+		//testv.emplace_back(tsMenuName, style);
 	}
 	// xpopup -d -> [MENU] [SWITCH]
 	else if (flags[TEXT('d')])
