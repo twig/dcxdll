@@ -74,6 +74,9 @@ GSL_SUPPRESS(type.4)
 CRichEditThemed::CRichEditThemed(HWND hRichEdit)
 	: m_hRichEdit{ hRichEdit }
 {
+	if (!hRichEdit)
+		return;
+
 	//Subclass the richedit control, this way, the caller doesn't have to relay the messages by itself
 	m_aInstances[hRichEdit] = this;
 	m_pOriginalWndProc = SubclassWindow(hRichEdit, &RichEditStyledProc);
@@ -99,7 +102,8 @@ CRichEditThemed::~CRichEditThemed()
 		pDrawThemeParentBackground = nullptr;
 		pIsThemeBackgroundPartiallyTransparent = nullptr;
 
-		FreeLibrary(m_hUxTheme);
+		if (m_hUxTheme)
+			FreeLibrary(m_hUxTheme);
 		m_hUxTheme = nullptr;
 	}
 }
@@ -145,11 +149,20 @@ LRESULT CALLBACK CRichEditThemed::RichEditStyledProc(HWND hwnd, UINT uMsg, WPARA
 	//This function is the subclassed winproc of the richedit control
 	//It is used to monitor the actions of the control, in a nice and transparent manner
 
+	if (!hwnd)
+		return 0L;
+
 	if (const auto& itCurInstance = m_aInstances.find(hwnd); itCurInstance != m_aInstances.end())
 	{
 		//A winproc is always static, this one is common to all the richedit controls managed by this class
 		//We need to get a pointer to the object controlling the richedit which is receiving this message
 		const auto pObj = itCurInstance->second;
+
+		// check to make sure pObj & pObj->m_pOriginalWndProc are set.
+		if (!pObj)
+			return DefWindowProc(hwnd, uMsg, wParam, lParam);
+		if (!pObj->m_pOriginalWndProc)
+			return DefWindowProc(hwnd, uMsg, wParam, lParam);
 
 		//If you get a compilation error here, it is probably because _WIN32_WINNT is not defined to at least 0x0501
 		if (uMsg == WM_THEMECHANGED || uMsg == WM_STYLECHANGED)
@@ -312,6 +325,9 @@ bool CRichEditThemed::OnNCPaint() noexcept
 //////////////////////////////////////////////////////////////////////////////
 bool CRichEditThemed::OnNCCalcSize(NCCALCSIZE_PARAMS* csparam) noexcept
 {
+	if ((!csparam) || (!m_hRichEdit))
+		return false;
+
 	try
 	{
 		//Here, we indicate to Windows that the non-client area of the richedit control is not what it thinks it should be

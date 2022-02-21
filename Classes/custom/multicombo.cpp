@@ -227,7 +227,7 @@ LRESULT CALLBACK MultiComboDropWndProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPA
 		if (!lpmcdata)
 			break;
 
-		if ((HWND)lParam != lpmcdata->m_hDropChild)
+		if (reinterpret_cast<HWND>(lParam) != lpmcdata->m_hDropChild)
 			break;
 
 		switch (const auto vkChar = Dcx::dcxLOWORD(wParam); vkChar)
@@ -400,13 +400,15 @@ LRESULT CALLBACK MultiComboWndProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM 
 
 		if (lpmcdata->m_Styles == MCS_COLOUR)
 		{
-			SetBkMode((HDC)wParam, TRANSPARENT);
+			dcxwParam(HDC, hdc);
+
+			SetBkMode(hdc, TRANSPARENT);
 
 			if (lpmcdata->m_CurrentEditTextColour != CLR_INVALID)
-				SetTextColor((HDC)wParam, lpmcdata->m_CurrentEditTextColour);
+				SetTextColor(hdc, lpmcdata->m_CurrentEditTextColour);
 
 			if (lpmcdata->m_CurrentEditBkgColour != CLR_INVALID)
-				SetBkColor((HDC)wParam, lpmcdata->m_CurrentEditBkgColour);
+				SetBkColor(hdc, lpmcdata->m_CurrentEditBkgColour);
 
 			if (lpmcdata->m_CurrentEditColour)
 				return (LRESULT)lpmcdata->m_CurrentEditColour;
@@ -456,7 +458,7 @@ LRESULT CALLBACK MultiComboWndProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM 
 		// lParam = HWND of child
 		MultiCombo_RemoveChild(mHwnd, wParam, lParam);
 
-		if (HWND hChild = (HWND)lParam; IsWindow(hChild))
+		if (dcxlParam(HWND,hChild); IsWindow(hChild))
 		{
 			const auto lpmcdata = Dcx::dcxGetProp<LPMCOMBO_DATA>(mHwnd, TEXT("mc_data"));
 			if (!lpmcdata)
@@ -619,7 +621,7 @@ LRESULT CALLBACK MultiComboWndProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM 
 		// wParam = zero
 		// lParam = zero
 		const auto lpmcdata = Dcx::dcxGetProp<LPMCOMBO_DATA>(mHwnd, TEXT("mc_data"));
-		return (LRESULT)lpmcdata;
+		return reinterpret_cast<LRESULT>(lpmcdata);
 	}
 	break;
 
@@ -818,10 +820,10 @@ RECT MultiCombo_GetDropRect(HWND mHwnd, UINT mID) noexcept
 	mis.CtlID = mID;
 	mis.itemID = MC_ID_DROP;
 
-	SendMessage(mHwnd, WM_MEASUREITEM, mis.CtlID, (LPARAM)&mis);
+	SendMessage(mHwnd, WM_MEASUREITEM, mis.CtlID, reinterpret_cast<LPARAM>(&mis));
 
-	rc.right = std::max<UINT>(mis.itemWidth, 20);
-	rc.bottom = std::max<UINT>(mis.itemHeight, 20);
+	rc.right = std::max<UINT>(mis.itemWidth, 20U);
+	rc.bottom = std::max<UINT>(mis.itemHeight, 20U);
 
 	MapWindowRect(mHwnd, nullptr, &rc);
 
@@ -839,7 +841,7 @@ LRESULT MultiCombo_OnCreate(HWND mHwnd, WPARAM wParam, LPARAM lParam)
 
 		lpmcdata->m_BaseID = reinterpret_cast<UINT>(cs->hMenu);
 
-		RECT rcEdit = MultiCombo_GetEditRect(&rc);
+		const RECT rcEdit = MultiCombo_GetEditRect(&rc);
 		lpmcdata->m_rcButton = MultiCombo_GetButtonRect(&rc);
 		lpmcdata->m_rcDrop = MultiCombo_GetDropRect(cs->hwndParent, lpmcdata->m_BaseID);
 
@@ -925,10 +927,10 @@ LRESULT MultiCombo_OnCreate(HWND mHwnd, WPARAM wParam, LPARAM lParam)
 	return 0L;
 }
 
-void MultiCombo_OnPaint(HWND mHwnd, WPARAM wParam, LPARAM lParam)
+void MultiCombo_OnPaint(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept
 {
 	const auto lpmcdata = Dcx::dcxGetProp<LPMCOMBO_DATA>(mHwnd, TEXT("mc_data"));
-	if (!lpmcdata)
+	if (!lpmcdata || !mHwnd)
 		return;
 
 	// maybe add support for HDC being supplied in wParam
@@ -964,12 +966,15 @@ void MultiCombo_OnPaint(HWND mHwnd, WPARAM wParam, LPARAM lParam)
 	//}
 	//EndPaint(mHwnd, &ps);
 
-	HDC hdc = (HDC)wParam;
+	dcxwParam(HDC,hdc);
 
 	PAINTSTRUCT ps{};
 
 	if (!wParam)
 		hdc = BeginPaint(mHwnd, &ps);
+
+	if (!hdc)
+		return;
 
 	if (lpmcdata->m_hTheme)
 	{
@@ -1025,11 +1030,11 @@ void MultiCombo_ParentNotify(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept
 
 	if (Dcx::dcxLOWORD(wParam) == WM_DESTROY)
 	{
-		if ((HWND)lParam == lpmcdata->m_hEdit)
+		if (dcxlParam(HWND, hwnd); hwnd == lpmcdata->m_hEdit)
 		{
 			lpmcdata->m_hEdit = nullptr;
 		}
-		else if ((HWND)lParam == lpmcdata->m_hDropCtrl)
+		else if (hwnd == lpmcdata->m_hDropCtrl)
 		{
 			lpmcdata->m_hDropCtrl = nullptr;
 			lpmcdata->m_hDropChild = nullptr;
@@ -1589,7 +1594,7 @@ LRESULT MultiCombo_Drop_Command(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexce
 	if (!lpmcdata)
 		return DefWindowProc(mHwnd, WM_COMMAND, wParam, lParam);
 
-	if ((lpmcdata->m_hDropChild == (HWND)lParam) && (Dcx::dcxLOWORD(wParam) == MC_ID_DROPCHILD))
+	if ((lpmcdata->m_hDropChild == reinterpret_cast<HWND>(lParam)) && (Dcx::dcxLOWORD(wParam) == MC_ID_DROPCHILD))
 	{
 		switch (lpmcdata->m_Styles)
 		{
@@ -1605,14 +1610,14 @@ LRESULT MultiCombo_Drop_Command(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexce
 			{
 				MultiCombo_SetEditToCurSel(mHwnd);
 
-				return SendMessage(GetParent(lpmcdata->m_hBase), WM_COMMAND, MAKEWPARAM(lpmcdata->m_BaseID, MCON_SELCHANGE), (LPARAM)lpmcdata->m_hBase);
+				return SendMessage(GetParent(lpmcdata->m_hBase), WM_COMMAND, MAKEWPARAM(lpmcdata->m_BaseID, MCON_SELCHANGE), reinterpret_cast<LPARAM>(lpmcdata->m_hBase));
 			}
 			break;
 
 			case LBN_DBLCLK:
 			{
 				ShowWindow(lpmcdata->m_hDropCtrl, SW_HIDE);
-				return SendMessage(GetParent(lpmcdata->m_hBase), WM_COMMAND, MAKEWPARAM(lpmcdata->m_BaseID, MCON_DBLCLK), (LPARAM)lpmcdata->m_hBase);
+				return SendMessage(GetParent(lpmcdata->m_hBase), WM_COMMAND, MAKEWPARAM(lpmcdata->m_BaseID, MCON_DBLCLK), reinterpret_cast<LPARAM>(lpmcdata->m_hBase));
 			}
 			break;
 			}
@@ -1629,14 +1634,15 @@ LRESULT MultiCombo_Drop_Command(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexce
 			{
 				MultiCombo_SetEditToCurSel(mHwnd);
 
-				return SendMessage(GetParent(lpmcdata->m_hBase), WM_COMMAND, MAKEWPARAM(lpmcdata->m_BaseID, MCON_SELCHANGE), (LPARAM)lpmcdata->m_hBase);
+				return SendMessage(GetParent(lpmcdata->m_hBase), WM_COMMAND, MAKEWPARAM(lpmcdata->m_BaseID, MCON_SELCHANGE), reinterpret_cast<LPARAM>(lpmcdata->m_hBase));
 			}
 			break;
 
 			case LBN_DBLCLK:
 			{
-				ShowWindow(lpmcdata->m_hDropCtrl, SW_HIDE);
-				return SendMessage(GetParent(lpmcdata->m_hBase), WM_COMMAND, MAKEWPARAM(lpmcdata->m_BaseID, MCON_DBLCLK), (LPARAM)lpmcdata->m_hBase);
+				if (IsWindow(lpmcdata->m_hDropCtrl))
+					ShowWindow(lpmcdata->m_hDropCtrl, SW_HIDE);
+				return SendMessage(GetParent(lpmcdata->m_hBase), WM_COMMAND, MAKEWPARAM(lpmcdata->m_BaseID, MCON_DBLCLK), reinterpret_cast<LPARAM>(lpmcdata->m_hBase));
 			}
 			break;
 			}
@@ -1657,7 +1663,7 @@ LRESULT MultiCombo_Command(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept
 	if (!lpmcdata)
 		return DefWindowProc(mHwnd, WM_COMMAND, wParam, lParam);
 
-	if ((lpmcdata->m_hEdit == (HWND)lParam) && (Dcx::dcxLOWORD(wParam) == MC_ID_EDIT))
+	if ((lpmcdata->m_hEdit == reinterpret_cast<HWND>(lParam)) && (Dcx::dcxLOWORD(wParam) == MC_ID_EDIT))
 	{
 		switch (Dcx::dcxHIWORD(wParam))
 		{
@@ -1665,7 +1671,7 @@ LRESULT MultiCombo_Command(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept
 			break;
 		case EN_CHANGE:
 		{
-			return SendMessage(GetParent(lpmcdata->m_hBase), WM_COMMAND, MAKEWPARAM(lpmcdata->m_BaseID, MCON_EDITCHANGE), (LPARAM)lpmcdata->m_hBase);
+			return SendMessage(GetParent(lpmcdata->m_hBase), WM_COMMAND, MAKEWPARAM(lpmcdata->m_BaseID, MCON_EDITCHANGE), reinterpret_cast<LPARAM>(lpmcdata->m_hBase));
 		}
 		break;
 
@@ -1738,7 +1744,7 @@ void MultiCombo_DeleteItem(HWND mHwnd, WPARAM wParam) noexcept
 	}
 }
 
-void MultiCombo_SetItem(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept
+void MultiCombo_SetItem(HWND mHwnd, WPARAM wParam, LPARAM lParam)
 {
 	if (!mHwnd || !lParam)
 		return;

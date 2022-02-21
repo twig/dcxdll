@@ -132,7 +132,7 @@ RECT MultiCombo_GetButtonRect(LPCRECT rcBase) noexcept;
 RECT MultiCombo_GetDropRect(HWND mHwnd, UINT mID) noexcept;
 LRESULT MultiCombo_OnCreate(HWND mHwnd, WPARAM wParam, LPARAM lParam);
 
-void MultiCombo_OnPaint(HWND mHwnd, WPARAM wParam, LPARAM lParam);
+void MultiCombo_OnPaint(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept;
 
 void MultiCombo_SetFont(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept;
 
@@ -175,7 +175,7 @@ void MultiCombo_SetSel(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept;
 
 void MultiCombo_DeleteItem(HWND mHwnd, WPARAM wParam) noexcept;
 
-void MultiCombo_SetItem(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept;
+void MultiCombo_SetItem(HWND mHwnd, WPARAM wParam, LPARAM lParam);
 
 
 //#endif

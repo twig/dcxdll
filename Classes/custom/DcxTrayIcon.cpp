@@ -120,9 +120,98 @@ mIRC(TrayIcon)
 				throw Dcx::dcxException("Error changing trayicon tooltip");
 		}
 		else
-			//throw Dcx::dcxException("Unknown flag or insufficient parameters");
 			throw DcxExceptions::dcxInvalidFlag();
 
+		//const XSwitchValues dMask = to_Enum<XSwitchValues>(xflags.getMask());
+		////auto tmp = from_Enum(dMask);
+		////sizeof(dMask) == 8
+		////sizeof(size_t) == 4
+		////std::underlying_type_t<XSwitchValues> tmp{}; == ULONGLONG
+		////sizeof(std::underlying_type_t<XSwitchValues>) == 8
+
+		//switch (dMask)
+		//{
+		//default:
+		//	throw DcxExceptions::dcxInvalidFlag();
+		//	break;
+		////case (XSwitchValues::xMinus | XSwitchValues::xc):
+		//case static_cast<XSwitchValues>((static_cast<ULONGLONG>(XSwitchValues::xMinus) | static_cast<ULONGLONG>(XSwitchValues::xc))):
+		//case (XSwitchValues::xMinus | XSwitchValues::xe):
+		//{
+		//	if (numtok < 4)
+		//		throw DcxExceptions::dcxInvalidArguments();
+
+		//	// find icon id in vector
+		//	const bool bExists = trayIcons->idExists(id);
+		//	DWORD msg = NIM_ADD;
+
+		//	// if create and it already exists
+		//	if (xflags[TEXT('c')] && (bExists))
+		//		throw Dcx::dcxException(TEXT("Cannot create trayicon: id % already exists"), id);
+
+		//	// if edit and it doesnt exist
+		//	if (xflags[TEXT('e')])
+		//	{
+		//		if (!bExists)
+		//			throw Dcx::dcxException(TEXT("Cannot edit trayicon: id % does not exist"), id);
+
+		//		msg = NIM_MODIFY;
+		//	}
+
+		//	// set up info
+		//	const auto tsTabOne(d.getfirsttok(1, TSTABCHAR).trim());
+		//	const auto tooltip(d.getlasttoks().trim());
+
+		//	//NIF_INFO
+		//	//Use a balloon ToolTip instead of a standard ToolTip. The szInfo, uTimeout, szInfoTitle, and dwInfoFlags members are valid.
+
+		//	// load the icon
+		//	const auto iconFlags(tsTabOne.getfirsttok(3));	// tok 3
+		//	const auto index = tsTabOne.getnexttok().to_int();	// tok 4
+		//	auto filename(tsTabOne.getlasttoks());			// tok 5, -1
+
+		//	// add/edit the icon
+		//	if (auto icon = dcxLoadIcon(index, filename, false, iconFlags); !trayIcons->modifyIcon(id, msg, icon, &tooltip))
+		//		throw Dcx::dcxException("Modify trayicon failed");
+		//}
+		//break;
+		//case (XSwitchValues::xMinus | XSwitchValues::xd):
+		//{
+		//	if (!trayIcons->modifyIcon(id, NIM_DELETE))
+		//		throw Dcx::dcxException("Error deleting trayicon");
+		//}
+		//break;
+		//case (XSwitchValues::xMinus | XSwitchValues::xi):
+		//{
+		//	if (numtok < 5)
+		//		throw DcxExceptions::dcxInvalidArguments();
+
+		//	// set up info
+		//	const auto iconFlags(d.getnexttok());	// tok 3
+		//	const auto index = d.getnexttok().to_int();	// tok 4
+		//	auto filename(d.getlasttoks().trim());	// tok 5, -1
+
+		//	// TODO: twig
+		//	//NIF_INFO
+		//	//Use a balloon ToolTip instead of a standard ToolTip. The szInfo, uTimeout, szInfoTitle, and dwInfoFlags members are valid.
+
+		//	// load the icon
+		//	if (auto icon = dcxLoadIcon(index, filename, false, iconFlags); !trayIcons->modifyIcon(id, NIM_MODIFY, icon))
+		//		throw Dcx::dcxException("Error changing trayicon icon");
+		//}
+		//break;
+		//case (XSwitchValues::xMinus | XSwitchValues::xT):
+		//{
+		//	TString tip;
+
+		//	if (numtok > 2)
+		//		tip = d.getlasttoks();	// tok 3, -1
+
+		//	if (!trayIcons->modifyIcon(id, NIM_MODIFY, nullptr, &tip))
+		//		throw Dcx::dcxException("Error changing trayicon tooltip");
+		//}
+		//break;
+		//}
 		return 1;
 	}
 	catch (const std::exception& e)

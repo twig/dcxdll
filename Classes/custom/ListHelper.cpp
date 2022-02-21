@@ -117,6 +117,21 @@ const DcxSearchTypes DcxListHelper::FlagsToSearchType(const XSwitchFlags& xFlags
 		SearchType = DcxSearchTypes::SEARCH_W;	// wildcard
 	else if (xFlags[TEXT('r')] || xFlags[TEXT('R')])
 		SearchType = DcxSearchTypes::SEARCH_R;	// regex
-
 	return SearchType;
+
+	//auto SearchType = DcxSearchTypes::SEARCH_E;	// plain text exact match
+	//switch (to_Enum<XSwitchValues>(xFlags.getMask()))
+	//{
+	//case XSwitchValues::xW:
+	//case XSwitchValues::xw:
+	//	SearchType = DcxSearchTypes::SEARCH_W;	// wildcard
+	//	break;
+	//case XSwitchValues::xR:
+	//case XSwitchValues::xr:
+	//	SearchType = DcxSearchTypes::SEARCH_R;	// regex
+	//	break;
+	//default:
+	//	break;
+	//}
+	//return SearchType;
 }
