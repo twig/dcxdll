@@ -6,7 +6,7 @@
  * comparisons and token manipulations as done in the mIRC scripting language.
  *
  * \author David Legault ( clickhere at scriptsdb dot org )
- * \version 1.15
+ * \version 1.19
  *
  * \b Revisions
  *	1.1
@@ -61,7 +61,10 @@
  *  1.18
  *		Fixed constructor bug.
  * 
- * © ScriptsDB.org - 2005-2017
+ *  1.19
+ *		Fixed issue with getnexttok() when changing tokens used.
+ * 
+ * © ScriptsDB.org - 2005-2021
  */
 
 #pragma once
@@ -778,7 +781,8 @@ public:
 	/// Get the raw data.
 	/// </summary>
 	/// <returns>The actual string data.</returns>
-	const_pointer_const data() const noexcept { return m_pString; }
+	[[nodiscard]] const_pointer_const data() const noexcept { return m_pString; }
+	//gsl::strict_not_null<const_pointer_const> data() const noexcept { return gsl::make_strict_not_null(m_pString); }
 	//pointer data() const noexcept { return m_pString; }
 
 	/// <summary>
@@ -790,12 +794,12 @@ public:
 	/// Alias for len()
 	/// </summary>
 	/// <returns>The size of the string in characters.</returns>
-	const size_t& length() const noexcept { return len(); };
+	inline const size_t& length() const noexcept { return len(); };
 	/// <summary>
 	/// Alias for len()
 	/// </summary>
 	/// <returns>The size of the string in characters.</returns>
-	const size_t& size() const noexcept { return len(); };
+	inline const size_t& size() const noexcept { return len(); };
 	/// <summary>
 	/// Get the capacity of buffer in bytes.
 	/// </summary>
@@ -810,13 +814,13 @@ public:
 	/// Get a pointer to the end of the buffer.
 	/// </summary>
 	/// <returns>Pointer to the end of the buffer.</returns>
-	const_pointer_const last() const noexcept { return m_pString + len(); }
+	[[nodiscard]] const_pointer_const last() const noexcept { return m_pString + len(); }
 	/// <summary>
 	/// Clear string buffer and reset all vars and pointers (frees buffer)
 	/// </summary>
 	void clear() noexcept;
 	/// <summary>
-	/// Shrink string buffer to min size required for string (while still being a multiple of 16)
+	/// Shrink string buffer to min size required for string (while still being a multiple of 16, & a min of 64)
 	/// </summary>
 	void shrink_to_fit();
 
@@ -1659,11 +1663,14 @@ public:
 	*				If NULL returns zero.
 	*/
 	template <TStringConcepts::IsNumeric T, TStringConcepts::IsSupportedSeperatorType TSepChar = const_reference>
-	T getnexttokas(TSepChar sepChars = SPACECHAR) const
+	T getnexttokas(TSepChar sepChars = SPACECHAR/*, bool bReCount = false*/) const
 	{
 		//return getnexttok(sepChars).to_<T>();
 
 		++m_savedcurrenttok;
+
+		//if (bReCount)
+		//	m_savedtotaltoks = numtok(sepChars);
 
 		if (_ts_isEmpty(sepChars) || !m_pString || !m_savedpos || m_savedcurrenttok > m_savedtotaltoks)
 			return T();
@@ -1690,12 +1697,15 @@ public:
 	*				If NULL returns the whole current string.
 	*/
 	template <TStringConcepts::IsSupportedSeperatorType TSepChar = const_reference>
-	TString getnexttok(TSepChar sepChars = SPACECHAR) const
+	TString getnexttok(TSepChar sepChars = SPACECHAR/*, bool bReCount = false*/) const
 	{
 		++m_savedcurrenttok;
 
 		if (_ts_isEmpty(sepChars) || !m_pString)
 			return *this;
+
+		//if (bReCount)
+		//	m_savedtotaltoks = numtok(sepChars);
 
 		if (!m_savedpos || m_savedcurrenttok > m_savedtotaltoks)
 			return TString();
@@ -1954,16 +1964,17 @@ public:
 	int tsprintf(const_pointer_const fmt, ...);
 	int tvprintf(const_pointer_const fmt, va_list args);
 
-	pointer to_chr() noexcept { m_bDirty = true;  return m_pString; };	// returns the string in the projects current format. (string can be altered)
-	const_pointer to_chr() const noexcept { return m_pString; };		// returns the string in the projects current format. (string can't be altered)
-	WCHAR* to_wchr() noexcept { m_bDirty = true;  return m_pString; };	// returns the string in wide format (string can be altered)
-	const WCHAR* const to_wchr() const noexcept { return m_pString; };	// returns the string in wide format (string can't be altered)
+	[[nodiscard]] pointer to_chr() noexcept { m_bDirty = true;  return m_pString; };	// returns the string in the projects current format. (string can be altered)
+	//gsl::strict_not_null<pointer> to_chr() noexcept { m_bDirty = true;  return gsl::make_strict_not_null(m_pString); };	// returns the string in the projects current format. (string can be altered)
+	[[nodiscard]] const_pointer to_chr() const noexcept { return m_pString; };		// returns the string in the projects current format. (string can't be altered)
+	[[nodiscard]] WCHAR* to_wchr() noexcept { m_bDirty = true;  return m_pString; };	// returns the string in wide format (string can be altered)
+	[[nodiscard]] const WCHAR* const to_wchr() const noexcept { return m_pString; };	// returns the string in wide format (string can't be altered)
 	//char * c_str(void)														// returns the string as a char * (string can be altered)
 	//{
 	//	MakeTemp();
 	//	return m_pTempString;
 	//}
-	const char* const c_str(void) const									// returns the string as a const char * (string can't be altered)
+	[[nodiscard]] const char* const c_str(void) const									// returns the string as a const char * (string can't be altered)
 	{
 		MakeTemp();
 		return m_pTempString.get();
