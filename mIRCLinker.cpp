@@ -21,6 +21,7 @@ namespace mIRCLinker {
 	WNDPROC		m_wpmIRCDefaultWndProc = nullptr;
 	bool		m_bUnicodemIRC = false;
 	bool		m_bSendMessageDisabled = false;
+	//dcxMapView	m_MapView;
 
 	const bool& isDebug() noexcept
 	{
@@ -110,11 +111,13 @@ namespace mIRCLinker {
 		// Reset mIRC's WndProc if changed
 		resetWindowProc();
 
-		UnmapViewOfFile(m_pData);
-		CloseHandle(m_hFileMap);
+		if (m_pData)
+			UnmapViewOfFile(m_pData);
+		if (m_hFileMap)
+			CloseHandle(m_hFileMap);
 
 		// reset the treebars font if it's been changed.
-		if (mIRCLinker::getTreeFont())
+		if ((m_hTreeview) && mIRCLinker::getTreeFont())
 		{
 			if (const auto hfont = GetWindowFont(m_hTreeview); hfont != m_hTreeFont)
 			{
@@ -168,7 +171,13 @@ namespace mIRCLinker {
 		//	m_pData = static_cast<PTCHAR>(MapViewOfFile(m_hFileMap, FILE_MAP_ALL_ACCESS, 0, 0, 0));
 
 		if (m_hFileMap)
-			m_pData.assign(refString<TCHAR, MIRC_BUFFER_SIZE_CCH>(static_cast<PTCHAR>(MapViewOfFile(m_hFileMap, FILE_MAP_ALL_ACCESS, 0, 0, 0))));
+			m_pData.assign(mIRCResultString(static_cast<PTCHAR>(MapViewOfFile(m_hFileMap, FILE_MAP_ALL_ACCESS, 0, 0, 0))));
+
+		//if (m_hFileMap)
+		//	m_MapView.m_pData = static_cast<PTCHAR>(MapViewOfFile(m_hFileMap, FILE_MAP_ALL_ACCESS, 0, 0, 0));
+
+		//if (m_hFileMap)
+		//	m_MapView = dcxMapView(m_hFileMap);
 	}
 
 	HWND& getSwitchbar() noexcept
