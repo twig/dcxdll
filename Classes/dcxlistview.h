@@ -181,7 +181,6 @@ struct DCXLVITEM
 	TString tsTipText;	//!< Tooltip text
 	TString tsMark;		// Marked text
 	DcxControl* pbar{ nullptr };
-	//DcxProgressBar *pbar{ nullptr };
 	int iPbarCol{};
 	VectorOfRenderInfo	vInfo;	//!< Render Info for each column
 };
@@ -189,222 +188,234 @@ using LPDCXLVITEM = DCXLVITEM*;
 
 namespace Dcx
 {
-	inline BOOL dcxListView_SetItem(HWND hwnd, const LPLVITEM plvi) noexcept
+	inline BOOL dcxListView_SetItem(_In_ HWND hwnd, _In_ const LPLVITEM plvi) noexcept
 	{
 		return ListView_SetItem(hwnd, plvi);
 	}
-	inline void dcxListView_SetItemText(HWND hwnd, const int i, const int iSub, _In_z_ PTCHAR str) noexcept
+	inline void dcxListView_SetItemText(_In_ HWND hwnd, const int i, const int iSub, _In_z_ PTCHAR str) noexcept
 	{
 		ListView_SetItemText(hwnd, i, iSub, str);
 	}
-	inline void dcxListView_SetItemState(HWND hwnd, const int item, const unsigned int state, const unsigned int statemask) noexcept
+	inline void dcxListView_SetItemState(_In_ HWND hwnd, const int item, const unsigned int state, const unsigned int statemask) noexcept
 	{
 		ListView_SetItemState(hwnd, item, state, statemask);
 	}
-	inline BOOL dcxListView_SetInfoTip(HWND hwnd, PLVSETINFOTIP lvit) noexcept
+	inline BOOL dcxListView_SetInfoTip(_In_ HWND hwnd, _In_ PLVSETINFOTIP lvit) noexcept
 	{
 		return ListView_SetInfoTip(hwnd, lvit);
 	}
-	inline void dcxListView_SetCheckState(HWND hwnd, const int i, const int fCheck) noexcept
+	inline void dcxListView_SetCheckState(_In_ HWND hwnd, const int i, const int fCheck) noexcept
 	{
 		ListView_SetCheckState(hwnd, i, fCheck);
 	}
-	inline DWORD dcxListView_SetExtendedListViewStyleEx(HWND hwnd, const WPARAM mask, const LPARAM dw) noexcept
+	inline DWORD dcxListView_SetExtendedListViewStyleEx(_In_ HWND hwnd, const WPARAM mask, const LPARAM dw) noexcept
 	{
 		return ListView_SetExtendedListViewStyleEx(hwnd, mask, dw);
 	}
-	inline BOOL dcxListView_SetEmptyText(HWND hwnd, _In_z_ PTCHAR pszText) noexcept
+	inline BOOL dcxListView_SetEmptyText(_In_ HWND hwnd, _In_z_ PTCHAR pszText) noexcept
 	{
 		//const auto res = ListView_SetEmptyText(hwnd, pszText, cchText);
 		const auto res = SetWindowText(hwnd, pszText);
 		SendMessage(hwnd, LVM_RESETEMPTYTEXT, 0, 0);
 		return res;
 	}
-	inline int dcxListView_InsertItem(HWND hwnd, const LPLVITEM plvi) noexcept
+	inline int dcxListView_InsertItem(_In_ HWND hwnd, _In_ const LPLVITEM plvi) noexcept
 	{
 		return ListView_InsertItem(hwnd, plvi);
 	}
-	inline BOOL dcxListView_GetItem(HWND hwnd, LPLVITEM const plvi) noexcept
+	inline BOOL dcxListView_GetItem(_In_ HWND hwnd, _Inout_ LPLVITEM const plvi) noexcept
 	{
 		return ListView_GetItem(hwnd, plvi);
 	}
-	inline void dcxListView_GetItemText(HWND hwnd, const int nItem, const int nSubItem, TCHAR* const Buf, const size_t nBufSize) noexcept
+	inline void dcxListView_GetItemText(_In_ HWND hwnd, const int nItem, const int nSubItem, _Inout_z_ PTCHAR const Buf, const size_t nBufSize) noexcept
 	{
 		ListView_GetItemText(hwnd, nItem, nSubItem, Buf, nBufSize);
 	}
-	inline int dcxListView_GetNextItem(HWND hwnd, int i, unsigned int flags) noexcept
+	inline int dcxListView_GetNextItem(_In_ HWND hwnd, int i, unsigned int flags) noexcept
 	{
 		return ListView_GetNextItem(hwnd, i, flags);
 	}
-	inline BOOL dcxListView_GetColumnOrderArray(HWND hwnd, const int nCnt, int* const p) noexcept
+	inline BOOL dcxListView_GetColumnOrderArray(_In_ HWND hwnd, const int nCnt, _Inout_ int* const p) noexcept
 	{
 		return ListView_GetColumnOrderArray(hwnd, nCnt, p);
 	}
-	inline int dcxListView_GetColumnWidth(HWND hwnd, const int iCol) noexcept
+	inline int dcxListView_GetColumnWidth(_In_ HWND hwnd, const int iCol) noexcept
 	{
 		return ListView_GetColumnWidth(hwnd, iCol);
 	}
-	inline int dcxListView_GetItemCount(HWND hwnd) noexcept
+	inline int dcxListView_GetItemCount(_In_ HWND hwnd) noexcept
 	{
 		return ListView_GetItemCount(hwnd);
 	}
-	inline unsigned int dcxListView_GetSelectedCount(HWND hwnd) noexcept
+	inline unsigned int dcxListView_GetSelectedCount(_In_ HWND hwnd) noexcept
 	{
 		return ListView_GetSelectedCount(hwnd);
 	}
-	inline unsigned int dcxListView_GetItemState(HWND hwnd, const int i, const unsigned int mask) noexcept
+	inline unsigned int dcxListView_GetItemState(_In_ HWND hwnd, const int i, const unsigned int mask) noexcept
 	{
 		return ListView_GetItemState(hwnd, i, mask);
 	}
-	inline DWORD dcxListView_GetExtendedListViewStyle(HWND hwnd) noexcept
+	inline DWORD dcxListView_GetExtendedListViewStyle(_In_ HWND hwnd) noexcept
 	{
 		return ListView_GetExtendedListViewStyle(hwnd);
 	}
-	inline BOOL dcxListView_GetItemRect(HWND hwnd, const int i, LPRECT prc, const int code) noexcept
+	inline BOOL dcxListView_GetItemRect(_In_ HWND hwnd, const int i, _Inout_ LPRECT prc, const int code) noexcept
 	{
 		return ListView_GetItemRect(hwnd, i, prc, code);
 	}
-	inline BOOL dcxListView_GetSubItemRect(HWND hwnd, const int i, const int iSub, const int code, LPRECT prc) noexcept
+	inline BOOL dcxListView_GetSubItemRect(_In_ HWND hwnd, const int i, const int iSub, const int code, _Inout_ LPRECT prc) noexcept
 	{
 		return ListView_GetSubItemRect(hwnd, i, iSub, code, prc);
 	}
-	inline BOOL dcxListView_GetColumn(HWND hwnd, const int iCol, LPLVCOLUMN lc) noexcept
+	inline BOOL dcxListView_GetColumn(_In_ HWND hwnd, const int iCol, _Inout_ LPLVCOLUMN lc) noexcept
 	{
 		return ListView_GetColumn(hwnd, iCol, lc);
 	}
-	inline int dcxListView_InsertColumn(HWND hwnd, const int iCol, LPLVCOLUMN pCol) noexcept
+	inline int dcxListView_InsertColumn(_In_ HWND hwnd, const int iCol, _In_ LPLVCOLUMN pCol) noexcept
 	{
 		return ListView_InsertColumn(hwnd, iCol, pCol);
 	}
 	GSL_SUPPRESS(lifetime.4)
-	inline HWND dcxListView_GetHeader(HWND hwnd) noexcept
+	inline HWND dcxListView_GetHeader(_In_ HWND hwnd) noexcept
 	{
 		return ListView_GetHeader(hwnd);
 	}
 	GSL_SUPPRESS(lifetime.4)
-	inline HWND dcxListView_GetToolTips(HWND hwnd) noexcept
+	inline HWND dcxListView_GetToolTips(_In_ HWND hwnd) noexcept
 	{
 		return ListView_GetToolTips(hwnd);
 	}
-	inline int dcxListView_GetTopIndex(HWND hwnd) noexcept
+	inline int dcxListView_GetTopIndex(_In_ HWND hwnd) noexcept
 	{
 		return ListView_GetTopIndex(hwnd);
 	}
-	inline LRESULT dcxListView_GetGroupInfo(HWND hwnd, const unsigned int gid, PLVGROUP pgrp) noexcept
+	inline LRESULT dcxListView_GetGroupInfo(_In_ HWND hwnd, const unsigned int gid, _Inout_ PLVGROUP pgrp) noexcept
 	{
 		return ListView_GetGroupInfo(hwnd, gid, pgrp);
 	}
-	inline LRESULT dcxListView_GetGroupCount(HWND hwnd) noexcept
+	inline LRESULT dcxListView_GetGroupCount(_In_ HWND hwnd) noexcept
 	{
 		return ListView_GetGroupCount(hwnd);
 	}
-	inline unsigned int dcxListView_GetGroupState(HWND hwnd, const int gid, const DWORD mask) noexcept
+	inline unsigned int dcxListView_GetGroupState(_In_ HWND hwnd, const int gid, const DWORD mask) noexcept
 	{
 		return ListView_GetGroupState(hwnd, gid, mask);
 	}
-	inline BOOL dcxListView_GetEmptyText(HWND hwnd, PTCHAR str, const int sz) noexcept
+	inline BOOL dcxListView_GetEmptyText(_In_ HWND hwnd, _Inout_z_ PTCHAR str, const int sz) noexcept
 	{
 		return ListView_GetEmptyText(hwnd, str, sz);
 	}
-	inline int dcxListView_SubItemHitTest(HWND hwnd, LPLVHITTESTINFO lvht) noexcept
+	inline int dcxListView_SubItemHitTest(_In_ HWND hwnd, _Inout_ LPLVHITTESTINFO lvht) noexcept
 	{
 		return ListView_SubItemHitTest(hwnd, lvht);
 	}
-	inline BOOL dcxListView_SetColumnWidth(HWND hwnd, const int iCol, const int cx) noexcept
+	inline BOOL dcxListView_SetColumnWidth(_In_ HWND hwnd, const int iCol, const int cx) noexcept
 	{
 		return ListView_SetColumnWidth(hwnd, iCol, cx);
 	}
-	inline BOOL dcxListView_SetColumnOrderArray(HWND hwnd, const int iCount, const int *pi) noexcept
+	inline BOOL dcxListView_SetColumnOrderArray(_In_ HWND hwnd, const int iCount, const int *pi) noexcept
 	{
 		return ListView_SetColumnOrderArray(hwnd, iCount, pi);
 	}
-	inline DWORD dcxListView_SetView(HWND hwnd, DWORD mode) noexcept
+	inline DWORD dcxListView_SetView(_In_ HWND hwnd, DWORD mode) noexcept
 	{
 		return ListView_SetView(hwnd, mode);
 	}
-	inline LRESULT dcxListView_HasGroup(HWND hwnd, const int group) noexcept
+	inline LRESULT dcxListView_HasGroup(_In_ HWND hwnd, const int group) noexcept
 	{
 		return ListView_HasGroup(hwnd, group);
 	}
-	inline BOOL dcxListView_IsGroupViewEnabled(HWND hwnd) noexcept
+	inline BOOL dcxListView_IsGroupViewEnabled(_In_ HWND hwnd) noexcept
 	{
 		return ListView_IsGroupViewEnabled(hwnd);
 	}
-	inline BOOL dcxListView_EnableGroupView(HWND hwnd, bool fEnable) noexcept
+	inline BOOL dcxListView_EnableGroupView(_In_ HWND hwnd, bool fEnable) noexcept
 	{
 		return ListView_EnableGroupView(hwnd, fEnable);
 	}
-	inline void dcxListView_SetGroupState(HWND hwnd, const int gid, const unsigned int mask, const unsigned int state) noexcept
+	inline void dcxListView_SetGroupState(_In_ HWND hwnd, const int gid, const unsigned int mask, const unsigned int state) noexcept
 	{
 		ListView_SetGroupState(hwnd, gid, mask, state);
 	}
-	inline void dcxListView_InsertGroup(HWND hwnd, const int index, PLVGROUP pgrp) noexcept
+	inline void dcxListView_InsertGroup(_In_ HWND hwnd, const int index, _In_ PLVGROUP pgrp) noexcept
 	{
 		ListView_InsertGroup(hwnd, index, pgrp);
 	}
-	inline void dcxListView_MoveGroup(HWND hwnd, const int gid, const int index) noexcept
+	inline void dcxListView_MoveGroup(_In_ HWND hwnd, const int gid, const int index) noexcept
 	{
 		ListView_MoveGroup(hwnd, gid, index);
 	}
-	inline void dcxListView_RemoveGroup(HWND hwnd, const int gid) noexcept
+	inline void dcxListView_RemoveGroup(_In_ HWND hwnd, const int gid) noexcept
 	{
 		ListView_RemoveGroup(hwnd, gid);
 	}
-	inline void dcxListView_RemoveAllGroups(HWND hwnd) noexcept
+	inline void dcxListView_RemoveAllGroups(_In_ HWND hwnd) noexcept
 	{
 		ListView_RemoveAllGroups(hwnd);
 	}
-	inline BOOL dcxListView_DeleteColumn(HWND hwnd, const int column) noexcept
+	inline BOOL dcxListView_DeleteColumn(_In_ HWND hwnd, const int column) noexcept
 	{
 		return ListView_DeleteColumn(hwnd, column);
 	}
-	inline BOOL dcxListView_DeleteAllItems(HWND hwnd) noexcept
+	inline BOOL dcxListView_DeleteAllItems(_In_ HWND hwnd) noexcept
 	{
 		return ListView_DeleteAllItems(hwnd);
 	}
-	inline BOOL dcxListView_DeleteItem(HWND hwnd, const int i) noexcept
+	inline BOOL dcxListView_DeleteItem(_In_ HWND hwnd, const int i) noexcept
 	{
 		return ListView_DeleteItem(hwnd, i);
 	}
-	inline BOOL dcxListView_SortItemsEx(HWND hwnd, PFNLVCOMPARE pFn, void *data) noexcept
+	inline BOOL dcxListView_SortItemsEx(_In_ HWND hwnd, _In_ PFNLVCOMPARE pFn, _Inout_ void *data) noexcept
 	{
 		return ListView_SortItemsEx(hwnd, pFn, data);
 	}
-	inline BOOL dcxListView_EnsureVisible(HWND hwnd, const int i, BOOL partialOK) noexcept
+	inline BOOL dcxListView_EnsureVisible(_In_ HWND hwnd, const int i, BOOL partialOK) noexcept
 	{
 		return ListView_EnsureVisible(hwnd, i, partialOK);
 	}
-	inline BOOL dcxListView_Scroll(HWND hwnd, const int dx, const int dy) noexcept
+	inline BOOL dcxListView_Scroll(_In_ HWND hwnd, const int dx, const int dy) noexcept
 	{
 		return ListView_Scroll(hwnd, dx, dy);
 	}
-	inline int dcxListView_GetCountPerPage(HWND hwnd) noexcept
+	inline int dcxListView_GetCountPerPage(_In_ HWND hwnd) noexcept
 	{
 		return ListView_GetCountPerPage(hwnd);
 	}
-	inline HWND dcxListView_GetEditControl(HWND hwnd) noexcept
+	inline HWND dcxListView_GetEditControl(_In_ HWND hwnd) noexcept
 	{
 		return ListView_GetEditControl(hwnd);
 	}
-	inline COLORREF dcxListView_GetBkColor(HWND hwnd) noexcept
+	inline COLORREF dcxListView_GetBkColor(_In_ HWND hwnd) noexcept
 	{
 		return ListView_GetBkColor(hwnd);
 	}
-	inline LRESULT dcxHeader_HitTest(HWND hwnd, LPHDHITTESTINFO hdti) noexcept
+	inline LRESULT dcxHeader_HitTest(_In_ HWND hwnd, _Inout_ LPHDHITTESTINFO hdti) noexcept
 	{
 		return SendMessage(hwnd, HDM_HITTEST, 0U, reinterpret_cast<LPARAM>(hdti));
 	}
-	inline HWND dcxListView_EditLabel(HWND hwnd, const int i) noexcept
+	inline HWND dcxListView_EditLabel(_In_ HWND hwnd, const int i) noexcept
 	{
 		return ListView_EditLabel(hwnd, i);
 	}
-	inline BOOL dcxHeader_GetItem(HWND hwnd, const int i, LPHDITEM phi) noexcept
+	inline BOOL dcxHeader_GetItem(_In_ HWND hwnd, const int i, _Inout_ LPHDITEM phi) noexcept
 	{
 		return Header_GetItem(hwnd, i, phi);
 	}
-	inline BOOL dcxHeader_SetItem(HWND hwnd, const int i, const LPHDITEM phi) noexcept
+	inline BOOL dcxHeader_SetItem(_In_ HWND hwnd, const int i, _In_ const LPHDITEM phi) noexcept
 	{
 		return Header_SetItem(hwnd, i, phi);
+	}
+	inline int dcxListView_HitTest(_In_ HWND hwnd, _Inout_ LPLVHITTESTINFO lvhti) noexcept
+	{
+		return ListView_HitTest(hwnd, lvhti);
+	}
+	[[nodiscard("Memory leak")]] inline HIMAGELIST dcxListView_CreateDragImage(_In_ HWND hwnd, int i, _Inout_ LPPOINT pt) noexcept
+	{
+		return ListView_CreateDragImage(hwnd, i, pt);
+	}
+	inline BOOL dcxListView_IsItemVisible(_In_ HWND hwnd, int i) noexcept
+	{
+		return ListView_IsItemVisible(hwnd, i);
 	}
 }
 
@@ -425,7 +436,7 @@ public:
 	DcxListView(DcxListView&&) = delete;
 	DcxListView& operator =(DcxListView&&) = delete;
 
-	DcxListView(const UINT ID, DcxDialog* const p_Dialog, const HWND mParentHwnd, const RECT* const rc, const TString& styles);
+	DcxListView(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialog, const HWND mParentHwnd, const RECT* const rc, const TString& styles);
 	~DcxListView() noexcept;
 
 	LRESULT OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed) final;
@@ -455,6 +466,8 @@ public:
 
 	const TString getStyles(void) const final;
 
+	void HandleDragDrop(int x, int y) noexcept override;
+
 	static inline WNDPROC m_hDefaultClassProc{ nullptr };	//!< Default window procedure
 	LRESULT CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept final;
 
@@ -478,11 +491,11 @@ protected:
 	void autoSize(const int nColumn, const TString& flags);
 	void autoSize(const int nColumn, const int iFlags, const int iWidth = 0) noexcept;
 
-	//bool m_bDrag{ false }; //!< Dragging Items ?
+	bool m_bAllowDrag{ false }; //!< Dragging Items ?
 
 private:
 	DcxControl* CreatePbar(LPLVITEM lvi, const TString& style);
-	void ScrollPbars(const int row, const int nCols, const int iTop, const int iBottom, LPLVITEM lvi);
+	void ScrollPbars(const int row, const int nCols, const int iTop, const int iBottom, LPLVITEM lvi) noexcept;
 	void UpdateScrollPbars(void);
 	HIMAGELIST initImageList(const int iImageList);
 	bool xmlLoadListview(const int nPos, const TString& dataset, TString& filename);
@@ -496,6 +509,9 @@ private:
 	bool xSaveListview(const int nStartPos, const int nEndPos, const TString& tsData, const TCHAR* sTestCommand, const TCHAR* sStoreCommand);
 
 	void DrawEmpty(HDC hdc, const TString &tsBuf);
+
+	void CopyItem(int iSrc, int iDest);
+	void MoveItem(int iSrc, int iDest) noexcept;
 
 	// static functions.
 	//static void getItemRange(const TString &tsItems, const int nItemCnt, int *iStart_range, int *iEnd_range);

@@ -32,7 +32,7 @@
 * \param rc Window Rectangle
 * \param styles Window Style Tokenized List
 */
-DcxListView::DcxListView(const UINT ID, DcxDialog* const p_Dialog, const HWND mParentHwnd, const RECT* const rc, const TString& styles)
+DcxListView::DcxListView(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialog, const HWND mParentHwnd, const RECT* const rc, const TString& styles)
 	: DcxControl(ID, p_Dialog)
 {
 	const auto ws = parseControlStyles(styles);
@@ -248,6 +248,9 @@ dcxWindowStyles DcxListView::parseControlStyles(const TString& tsStyles)
 		case L"noheadersort"_hash:
 			ws.m_Styles |= LVS_NOSORTHEADER;
 			break;
+		case L"drag"_hash:
+			m_bAllowDrag = true;
+			break;
 		default:
 			break;
 		}
@@ -333,6 +336,7 @@ const WindowExStyle DcxListView::parseListviewExStyles(const TString& styles) no
 			case L"columnoverflow"_hash:
 				ExStyles |= LVS_EX_COLUMNOVERFLOW;
 				//LVN_COLUMNOVERFLOWCLICK
+				// needs LVS_EX_HEADERINALLVIEWS
 				break;
 			case L"snaptogrid"_hash:
 				ExStyles |= LVS_EX_SNAPTOGRID;
@@ -967,6 +971,9 @@ void DcxListView::autoSize(const int nColumn, const TString& flags)
 
 void DcxListView::autoSize(const int nColumn, const int iFlags, const int iWidth) noexcept
 {
+	if (!m_Hwnd)
+		return;
+
 	if (dcx_testflag(iFlags, DCX_LV_COLUMNF_FIXED))
 		Dcx::dcxListView_SetColumnWidth(m_Hwnd, nColumn, iWidth);
 	else if (dcx_testflag(iFlags, DCX_LV_COLUMNF_AUTOMAX))
@@ -983,6 +990,40 @@ void DcxListView::autoSize(const int nColumn, const int iFlags, const int iWidth
 		Dcx::dcxListView_SetColumnWidth(m_Hwnd, nColumn, LVSCW_AUTOSIZE_USEHEADER);
 	//else if (dcx_testflag(iFlags, DCX_LV_COLUMNF_PERCENT))
 	//	Dcx::dcxListView_SetColumnWidth(m_Hwnd, nColumn, 0);
+}
+
+void DcxListView::HandleDragDrop(int x, int y) noexcept
+{
+	if (!m_Hwnd)
+		return;
+
+	// Determine the dropped item
+	LVHITTESTINFO lvhti{};
+	lvhti.pt.x = x;
+	lvhti.pt.y = y;
+
+	//ClientToScreen(hWndMain, &lvhti.pt);
+	//ScreenToClient(hListView, &lvhti.pt);
+	MapWindowPoints(mIRCLinker::m_mIRCHWND, m_Hwnd, &lvhti.pt, 1);
+	Dcx::dcxListView_HitTest(m_Hwnd, &lvhti);
+
+	// Out of the ListView?
+	if (lvhti.iItem == -1)
+		return;
+	// Not in an item?
+	if (!dcx_testflag(lvhti.flags, LVHT_ONITEMICON) && !dcx_testflag(lvhti.flags, LVHT_ONITEMLABEL) && !dcx_testflag(lvhti.flags, LVHT_ONITEMSTATEICON))
+		return;
+
+	// Dropped item is selected?
+	if (Dcx::dcxListView_GetItemState(m_Hwnd, lvhti.iItem, LVIS_SELECTED) == LVIS_SELECTED)
+		return;
+
+	// Rearrange the items
+	for (int iPos = Dcx::dcxListView_GetNextItem(m_Hwnd, -1, LVNI_SELECTED); (iPos != -1); iPos = Dcx::dcxListView_GetNextItem(m_Hwnd, -1, LVNI_SELECTED))
+	{
+		// First, copy one item
+		this->MoveItem(iPos, lvhti.iItem);
+	}
 }
 
 /*!
@@ -1978,6 +2019,7 @@ void DcxListView::parseCommandRequest(const TString& input)
 	}
 	// xdid -T [NAME] [ID] [SWITCH] [nItem] [nSubItem] (ToolTipText)
 	// atm this only seems works for subitem 0. Mainly due to the callback LVN_GETINFOTIP only being sent for sub 0.
+	// This overrides the Global T command for tooltips
 	else if (flags[TEXT('T')])
 	{
 		if (numtok < 5)
@@ -2151,7 +2193,6 @@ void DcxListView::parseCommandRequest(const TString& input)
 		const auto info(input.getlasttoks());			// tok 6, -1
 
 		if (!xflag[TEXT('+')])
-			//throw Dcx::dcxException("Missing '+' in flags");
 			throw DcxExceptions::dcxInvalidFlag();
 
 		auto h = Dcx::dcxListView_GetHeader(m_Hwnd);
@@ -2200,7 +2241,7 @@ void DcxListView::parseCommandRequest(const TString& input)
 		Dcx::dcxListView_SetGroupState(m_Hwnd, gid, iMask, iState);
 	}
 	else
-		this->parseGlobalCommandRequest(input, flags);
+		this->parseGlobalCommandRequest(input, flags); // bCefFhJMpURsTxz
 }
 
 void DcxListView::setHeaderStyle(HWND h, const int nCol, const TString& info)
@@ -3313,11 +3354,72 @@ LRESULT DcxListView::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 		}
 		break;
 
-		// TODO: twig: erm? unfinished? its undocumented
+		// handle dragging items...
 		case LVN_BEGINDRAG:
 		{
+			if (!m_bAllowDrag)
+				break;
+
 			if (dcx_testflag(getParentDialog()->getEventMask(), DCX_EVENT_DRAG))
-				execAliasEx(TEXT("begindrag,%u"), getUserID());
+				execAliasEx(TEXT("begindrag,%u"), getUserID()); // allow blocking the drag?
+
+			// You can set your customized cursor here
+
+			POINT p{ 8,8 };
+			IMAGEINFO imf{};
+			LONG iHeight{};
+
+			// Ok, now we create a drag-image for all selected items
+			bool bFirst = true;
+			int iPos = Dcx::dcxListView_GetNextItem(m_Hwnd, -1, LVNI_SELECTED);
+			while (iPos != -1)
+			{
+				if (bFirst)
+				{
+					// For the first selected item,
+					// we simply create a single-line drag image
+					Dcx::m_hDragImage = Dcx::dcxListView_CreateDragImage(m_Hwnd, iPos, &p);
+					if (!Dcx::m_hDragImage)
+						break;
+
+					ImageList_GetImageInfo(Dcx::m_hDragImage, 0, &imf);
+					iHeight = imf.rcImage.bottom;
+					bFirst = false;
+				}
+				else {
+					// For the rest selected items,
+					// we create a single-line drag image, then
+					// append it to the bottom of the complete drag image
+					if (auto hOneImageList = Dcx::dcxListView_CreateDragImage(m_Hwnd, iPos, &p); hOneImageList)
+					{
+						if (auto hTempImageList = ImageList_Merge(Dcx::m_hDragImage, 0, hOneImageList, 0, 0, iHeight); hTempImageList)
+						{
+							ImageList_Destroy(Dcx::m_hDragImage);
+							Dcx::m_hDragImage = hTempImageList;
+							if (!Dcx::m_hDragImage)
+								break;
+						}
+						ImageList_Destroy(hOneImageList);
+					}
+					ImageList_GetImageInfo(Dcx::m_hDragImage, 0, &imf);
+					iHeight = imf.rcImage.bottom;
+				}
+				iPos = Dcx::dcxListView_GetNextItem(m_Hwnd, iPos, LVNI_SELECTED);
+			}
+
+			// Now we can initialize then start the drag action
+			ImageList_BeginDrag(Dcx::m_hDragImage, 0, 0, 0);
+
+			POINT pt = ((NM_LISTVIEW*)((LPNMHDR)lParam))->ptAction;
+			MapWindowPoints(m_Hwnd, nullptr, &pt, 1); // ClientToScreen(hListView, &pt);
+
+			ImageList_DragEnter(GetDesktopWindow(), pt.x, pt.y);
+
+			Dcx::m_bShowingDragImage = true;
+			Dcx::m_pDragSourceCtrl = this;
+
+			// Don't forget to capture the mouse
+			SetCapture(mIRCLinker::m_mIRCHWND);
 		}
 		break;
 
@@ -3829,11 +3931,13 @@ LRESULT DcxListView::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& b
 				auto hdc = BeginPaint(m_Hwnd, &ps);
 				Auto(EndPaint(m_Hwnd, &ps));
 
-				// Setup alpha blend if any.
-				auto ai = SetupAlphaBlend(&hdc);
-				Auto(FinishAlphaBlend(ai));
+				{
+					// Setup alpha blend if any.
+					auto ai = SetupAlphaBlend(&hdc);
+					Auto(FinishAlphaBlend(ai));
 
-				lRes = CallDefaultClassProc(uMsg, reinterpret_cast<WPARAM>(hdc), lParam);
+					lRes = CallDefaultClassProc(uMsg, reinterpret_cast<WPARAM>(hdc), lParam);
+				}
 			}
 			else {
 				auto hdc = reinterpret_cast<HDC>(wParam);
@@ -3872,7 +3976,6 @@ LRESULT DcxListView::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& b
 
 LRESULT CALLBACK DcxListView::EditLabelProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept
 {
-	//const auto* const pthis = static_cast<DcxListView*>(GetProp(mHwnd, TEXT("dcx_pthis")));
 	const auto* const pthis = Dcx::dcxGetProp<DcxListView*>(mHwnd, TEXT("dcx_pthis"));
 
 	if (!pthis)
@@ -3958,7 +4061,7 @@ DcxControl* DcxListView::CreatePbar(LPLVITEM lvi, const TString& styles)
 
 void DcxListView::UpdateScrollPbars()
 {
-	if (!m_bHasPBars)
+	if (!m_bHasPBars || !m_Hwnd)
 		return;
 
 	const auto nCount = Dcx::dcxListView_GetItemCount(m_Hwnd);
@@ -3976,7 +4079,7 @@ void DcxListView::UpdateScrollPbars()
 
 // BUG: when listview has horiz scrollbars pbar will be moved oddly when listview is scrolled horiz.
 //			pbars are positioned relative to visible area of control & as such arn't scrolled.
-void DcxListView::ScrollPbars(const int row, const int nCols, const int iTop, const int iBottom, LPLVITEM lvi)
+void DcxListView::ScrollPbars(const int row, const int nCols, const int iTop, const int iBottom, LPLVITEM lvi) noexcept
 {
 	for (auto col = decltype(nCols){0}; col < nCols; ++col)
 	{
@@ -4009,10 +4112,8 @@ void DcxListView::ScrollPbars(const int row, const int nCols, const int iTop, co
 		//else
 		//	ShowWindow(lpdcxlvi->pbar->getHwnd(), SW_SHOW);
 
-		if (ListView_IsItemVisible(m_Hwnd, lvi->iItem))
-		{
+		if (Dcx::dcxListView_IsItemVisible(m_Hwnd, lvi->iItem))
 			ShowWindow(lpdcxlvi->pbar->getHwnd(), SW_SHOW);
-		}
 
 		RECT rItem{};
 
@@ -4950,6 +5051,90 @@ void DcxListView::DrawEmpty(HDC hdc, const TString &tsBuf)
 			mIRC_DrawText(hdc, tsBuf, &rc, DT_CENTER | DT_VCENTER | DT_WORDBREAK | DT_NOPREFIX | DT_NOCLIP, false);
 		else
 			DrawText(hdc, tsBuf.to_chr(), -1, &rc, DT_CENTER | DT_VCENTER | DT_WORDBREAK | DT_NOPREFIX | DT_NOCLIP);
+	}
+}
+
+void DcxListView::CopyItem(int iSrc, int iDest)
+{
+	// check for same item.
+	if (iSrc == iDest)
+		return;
+
+	TCHAR szBuf[MIRC_BUFFER_SIZE_CCH]{};
+	LVITEM lvi{};
+	lvi.iItem = iSrc;
+	lvi.iSubItem = 0;
+	lvi.cchTextMax = MIRC_BUFFER_SIZE_CCH;
+	lvi.pszText = &szBuf[0];
+	lvi.stateMask = ~gsl::narrow_cast<UINT>(LVIS_SELECTED); // dont want selected state
+	lvi.mask = LVIF_STATE | LVIF_IMAGE | LVIF_INDENT | LVIF_PARAM | LVIF_TEXT | LVIF_GROUPID | LVIF_COLUMNS;
+
+	// Rearrange the items
+	if (Dcx::dcxListView_GetItem(m_Hwnd, &lvi))
+	{
+		// First, copy one item
+		lvi.iItem = iDest;
+
+		// copy item data too (needs subctrl fixed)
+		auto item_data = new DCXLVITEM(*((LPDCXLVITEM)lvi.lParam));
+		item_data->pbar = nullptr;
+		lvi.lParam = (LPARAM)item_data;
+
+		// Insert the main item
+		const int iRet = Dcx::dcxListView_InsertItem(m_Hwnd, &lvi);
+		if (iRet <= iSrc)
+			iSrc++;
+
+		// Set the subitem text
+		for (int i = 1; i < this->getColumnCount(); i++)
+		{
+			Dcx::dcxListView_GetItemText(m_Hwnd, iSrc, i, &szBuf[0], std::size(szBuf));
+			Dcx::dcxListView_SetItemText(m_Hwnd, iRet, i, &szBuf[0]);
+		}
+	}
+}
+
+void DcxListView::MoveItem(int iSrc, int iDest) noexcept
+{
+	// check for same item.
+	if (iSrc == iDest)
+		return;
+
+	TCHAR szBuf[MIRC_BUFFER_SIZE_CCH]{};
+	LVITEM lvi{};
+	lvi.iItem = iSrc;
+	lvi.iSubItem = 0;
+	lvi.cchTextMax = MIRC_BUFFER_SIZE_CCH;
+	lvi.pszText = &szBuf[0];
+	lvi.stateMask = ~gsl::narrow_cast<UINT>(LVIS_SELECTED); // dont want selected state
+	lvi.mask = LVIF_STATE | LVIF_IMAGE | LVIF_INDENT | LVIF_PARAM | LVIF_TEXT | LVIF_GROUPID | LVIF_COLUMNS;
+
+	// Get source item details
+	if (Dcx::dcxListView_GetItem(m_Hwnd, &lvi))
+	{
+		// change to dest pos
+		lvi.iItem = iDest;
+		// Insert the main item
+		const int iRet = Dcx::dcxListView_InsertItem(m_Hwnd, &lvi);
+		if (iRet <= iSrc)
+			iSrc++;
+
+		// Set the subitem text
+		for (int i = 1; i < this->getColumnCount(); i++)
+		{
+			Dcx::dcxListView_GetItemText(m_Hwnd, iSrc, i, &szBuf[0], std::size(szBuf));
+			Dcx::dcxListView_SetItemText(m_Hwnd, iRet, i, &szBuf[0]);
+		}
+
+		// need to remove PARAM before doing delete (as we are still using this data in the new moved item)
+		lvi.iItem = iSrc;
+		lvi.iSubItem = 0;
+		lvi.mask = LVIF_PARAM;
+		lvi.lParam = 0;
+		Dcx::dcxListView_SetItem(m_Hwnd, &lvi);
+
+		// Delete from original position
+		Dcx::dcxListView_DeleteItem(m_Hwnd, iSrc);
 	}
 }
 
