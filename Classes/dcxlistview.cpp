@@ -1020,10 +1020,10 @@ void DcxListView::HandleDragDrop(int x, int y) noexcept
 
 	// Rearrange the items
 	for (int iPos = Dcx::dcxListView_GetNextItem(m_Hwnd, -1, LVNI_SELECTED); (iPos != -1); iPos = Dcx::dcxListView_GetNextItem(m_Hwnd, -1, LVNI_SELECTED))
-	{
-		// First, copy one item
 		this->MoveItem(iPos, lvhti.iItem);
-	}
+
+	//if (dcx_testflag(getParentDialog()->getEventMask(), DCX_EVENT_DRAG))
+	//	execAliasEx(TEXT("enddrag,%u"), getUserID()); // allow blocking the drag?
 }
 
 /*!

@@ -61,7 +61,7 @@ public:
 	DcxComboEx(DcxComboEx &&) = delete;
 	DcxComboEx &operator =(DcxComboEx &&) = delete;
 
-	DcxComboEx(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles );
+	DcxComboEx(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles );
 	~DcxComboEx( ) noexcept;
 
 	LRESULT OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) final;

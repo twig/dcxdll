@@ -482,6 +482,9 @@ namespace Dcx {
 			ReleaseCapture();
 
 			m_pDragSourceCtrl->HandleDragDrop(Dcx::dcxLOWORD(lParam), Dcx::dcxHIWORD(lParam));
+
+			if (dcx_testflag(m_pDragSourceCtrl->getParentDialog()->getEventMask(), DCX_EVENT_DRAG))
+				m_pDragSourceCtrl->execAliasEx(TEXT("enddrag,%u"), m_pDragSourceCtrl->getUserID());
 		}
 		break;
 

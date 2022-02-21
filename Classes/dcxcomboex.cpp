@@ -25,7 +25,7 @@
 * \param styles Window Style Tokenized List
 */
 
-DcxComboEx::DcxComboEx(const UINT ID, DcxDialog* const  p_Dialog, const HWND mParentHwnd, const RECT* const rc, const TString& styles)
+DcxComboEx::DcxComboEx(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialog, const HWND mParentHwnd, const RECT* const rc, const TString& styles)
 	: DcxControl(ID, p_Dialog)
 {
 	const auto ws = parseControlStyles(styles);
@@ -309,7 +309,6 @@ void DcxComboEx::parseCommandRequest(const TString& input)
 	if (flags[TEXT('a')])
 	{
 		if (numtok < 8)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 #if TSTRING_TESTCODE
@@ -393,7 +392,6 @@ void DcxComboEx::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('A')])
 	{
 		if (numtok < 5)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		auto nRow = input.getnexttok().to_int();	// tok 4
@@ -428,7 +426,6 @@ void DcxComboEx::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('c')])
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto nItem = input.getnexttok().to_int() - 1;	// tok 4
@@ -442,7 +439,6 @@ void DcxComboEx::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('d')])
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto Ns(input.getnexttok());			// tok 4
@@ -482,6 +478,16 @@ void DcxComboEx::parseCommandRequest(const TString& input)
 		if (!this->getCount())
 			this->redrawWindow();
 	}
+	// xdid -l [NAME] [ID] [SWITCH] [ON|OFF]
+	else if (flags[TEXT('l')])
+	{
+		if (numtok < 4)
+			throw DcxExceptions::dcxInvalidArguments();
+
+		const BOOL enabled = (input.getnexttok().to_int() > 0);	// tok 4
+		if (auto hEdit = this->getEditControl(); hEdit)
+			SendMessage(hEdit, EM_SETREADONLY, gsl::narrow_cast<WPARAM>(enabled), NULL);
+	}
 	// This is to avoid invalid flag message.
 	// xdid -r [NAME] [ID] [SWITCH]
 	else if (flags[TEXT('r')])
@@ -497,7 +503,6 @@ void DcxComboEx::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('w')])
 	{
 		if (numtok < 6)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		auto himl = this->getImageList();
@@ -526,8 +531,8 @@ void DcxComboEx::parseCommandRequest(const TString& input)
 				DestroyIcon(icon);
 			}
 #endif
-		}
 	}
+}
 	// xdid -y [NAME] [ID] [SWITCH] [+FLAGS]
 	else if (flags[TEXT('y')])
 	{
@@ -869,75 +874,75 @@ LRESULT CALLBACK DcxComboEx::ComboExEditProc(HWND mHwnd, UINT uMsg, WPARAM wPara
 		//return DLGC_WANTALLKEYS | CallWindowProc(lpce->OldProc, mHwnd, uMsg, wParam, lParam);
 		if (wParam == VK_RETURN)
 			return DLGC_WANTALLKEYS | CallWindowProc(lpce->OldProc, mHwnd, uMsg, wParam, lParam);
-	break;
+		break;
 
-	//case WM_CHAR:
-	//{
-	//	if (wParam == VK_TAB)
-	//		return DefWindowProc(mHwnd, uMsg, wParam, lParam);
-		//
-	//	if (wParam == VK_RETURN)
-	//	{
-	//		DcxControl* pthis = Dcx::dcxGetProp<DcxControl*>(lpce->cHwnd, TEXT("dcx_cthis"));
-//
-	//		if (pthis)
-	//		{
-	//			if (dcx_testflag(pthis->getParentDialog()->getEventMask(), DCX_EVENT_EDIT))
-	//				pthis->execAliasEx(TEXT("return,%u"), pthis->getUserID());
-	//			return 0;
-	//		}
-	//	}
-	//}
-	//break;
-	//case WM_KEYDOWN:
-	//{
-	//	if (wParam == VK_TAB)
-	//		return DefWindowProc(mHwnd, uMsg, wParam, lParam);
-//
-	//	if (wParam == VK_RETURN)
-	//	{
-	//		DcxControl* pthis = Dcx::dcxGetProp<DcxControl*>(lpce->cHwnd, TEXT("dcx_cthis"));
-//
-	//		if (pthis)
-	//		{
-	//			if (dcx_testflag(pthis->getParentDialog()->getEventMask(), DCX_EVENT_EDIT))
-	//				pthis->execAliasEx(TEXT("return,%u"), pthis->getUserID());
-	//			return 0;
-	//		}
-	//	}
-	//}
-	//break;
+		//case WM_CHAR:
+		//{
+		//	if (wParam == VK_TAB)
+		//		return DefWindowProc(mHwnd, uMsg, wParam, lParam);
+			//
+		//	if (wParam == VK_RETURN)
+		//	{
+		//		DcxControl* pthis = Dcx::dcxGetProp<DcxControl*>(lpce->cHwnd, TEXT("dcx_cthis"));
+	//
+		//		if (pthis)
+		//		{
+		//			if (dcx_testflag(pthis->getParentDialog()->getEventMask(), DCX_EVENT_EDIT))
+		//				pthis->execAliasEx(TEXT("return,%u"), pthis->getUserID());
+		//			return 0;
+		//		}
+		//	}
+		//}
+		//break;
+		//case WM_KEYDOWN:
+		//{
+		//	if (wParam == VK_TAB)
+		//		return DefWindowProc(mHwnd, uMsg, wParam, lParam);
+	//
+		//	if (wParam == VK_RETURN)
+		//	{
+		//		DcxControl* pthis = Dcx::dcxGetProp<DcxControl*>(lpce->cHwnd, TEXT("dcx_cthis"));
+	//
+		//		if (pthis)
+		//		{
+		//			if (dcx_testflag(pthis->getParentDialog()->getEventMask(), DCX_EVENT_EDIT))
+		//				pthis->execAliasEx(TEXT("return,%u"), pthis->getUserID());
+		//			return 0;
+		//		}
+		//	}
+		//}
+		//break;
 
-	//case WM_NOTIFY:
-	//	{
-	//      LPNMHDR hdr = (LPNMHDR) lParam;
-	//      if (!hdr)
-	//        break;
-//
-	//      switch( hdr->code ) {
-	//		case TTN_GETDISPINFO:
-	//			{
-	//         DcxControl * pthis = (DcxControl *) GetProp( lpce->cHwnd, TEXT("dcx_cthis") );
-	//         if ( pthis != nullptr ) {
-	//					LPNMTTDISPINFO di = (LPNMTTDISPINFO)lParam;
-	//					di->lpszText = TEXT("test");
-	//					di->hinst = nullptr;
-	//				}
-	//				return 0L;
-	//			}
-	//			break;
-	//		case TTN_LINKCLICK:
-	//			{
-	//         DcxControl * pthis = (DcxControl *) GetProp( lpce->cHwnd, TEXT("dcx_cthis") );
-	//         if ( pthis != nullptr ) {
-	//					pthis->callAliasEx( nullptr, TEXT("%s,%d"), TEXT("tooltiplink"), pthis->getUserID( ) );
-	//				}
-	//				return 0L;
-	//			}
-	//			break;
-	//		}
-	//	}
-	//	break;
+		//case WM_NOTIFY:
+		//	{
+		//      LPNMHDR hdr = (LPNMHDR) lParam;
+		//      if (!hdr)
+		//        break;
+	//
+		//      switch( hdr->code ) {
+		//		case TTN_GETDISPINFO:
+		//			{
+		//         DcxControl * pthis = (DcxControl *) GetProp( lpce->cHwnd, TEXT("dcx_cthis") );
+		//         if ( pthis != nullptr ) {
+		//					LPNMTTDISPINFO di = (LPNMTTDISPINFO)lParam;
+		//					di->lpszText = TEXT("test");
+		//					di->hinst = nullptr;
+		//				}
+		//				return 0L;
+		//			}
+		//			break;
+		//		case TTN_LINKCLICK:
+		//			{
+		//         DcxControl * pthis = (DcxControl *) GetProp( lpce->cHwnd, TEXT("dcx_cthis") );
+		//         if ( pthis != nullptr ) {
+		//					pthis->callAliasEx( nullptr, TEXT("%s,%d"), TEXT("tooltiplink"), pthis->getUserID( ) );
+		//				}
+		//				return 0L;
+		//			}
+		//			break;
+		//		}
+		//	}
+		//	break;
 
 	case LB_GETITEMRECT:
 	{

@@ -114,7 +114,7 @@ DcxControl* DcxDialog::addControl(const TString& input, const UINT offset, const
 	if (!this->isIDValid(ID, true))
 		throw Dcx::dcxException(TEXT("Control with ID \"%\" already exists"), ID - mIRC_ID_OFFSET);
 
-	auto p_ctrl = DcxControl::controlFactory(this, ID, input, offset + 1, mask, hParent);
+	auto p_ctrl = DcxControl::controlFactory(gsl::make_strict_not_null(this), ID, input, offset + 1, mask, hParent);
 
 	//addControl(p_ctrl);
 	m_vpControls.push_back(p_ctrl);
@@ -180,6 +180,9 @@ DcxControl* DcxDialog::getControlByHWND(const HWND mHwnd) const noexcept
 			return x;
 	}
 	return nullptr;
+
+	// Ook: this instead?
+	//return Dcx::dcxGetProp<DcxControl*>(mHwnd, TEXT("dcx_cthis"));
 }
 
 /// <summary>
@@ -1452,7 +1455,7 @@ void DcxDialog::parseInfoRequest(const TString& input, const refString<TCHAR, MI
 		{
 			const auto tsID(input.getnexttok());	// tok 3
 
-			szReturnValue = this->UserIDToName(tsID.to_<int>());
+			szReturnValue = this->UserIDToName(tsID.to_<int>()).to_chr();
 		}
 		break;
 		// [NAME] [PROP]

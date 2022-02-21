@@ -111,8 +111,28 @@ constexpr E operator ~(const E& eStyle) noexcept
 		return static_cast<E>(~static_cast<uint64_t>(eStyle));
 }
 
-template <EnumConcepts::IsNumeric T, EnumConcepts::IsEnum E>
+////template <EnumConcepts::IsEnum E, EnumConcepts::IsNumeric T = std::underlying_type_t<E> >
+//template <class E, class T = std::underlying_type_t<E> >
+//constexpr E to_Enum(T &&t) noexcept
+//{
+//	return static_cast<E>(std::forward<T>(t));
+//}
+//
+////template <EnumConcepts::IsEnum T, EnumConcepts::IsNumeric E = std::underlying_type_t<T> >
+//template <class T, class E = std::underlying_type_t<T> >
+//constexpr E from_Enum(T &&t) noexcept
+//{
+//	return static_cast<E>(std::forward<T>(t));
+//}
+
+template <EnumConcepts::IsEnum E, EnumConcepts::IsNumeric T = std::underlying_type_t<E> >
 constexpr E to_Enum(T t) noexcept
+{
+	return static_cast<E>(t);
+}
+
+template <EnumConcepts::IsEnum T, EnumConcepts::IsNumeric E = std::underlying_type_t<T> >
+constexpr E from_Enum(T t) noexcept
 {
 	return static_cast<E>(t);
 }
