@@ -153,6 +153,7 @@ public:
 
 	const HWND& getHwnd() const noexcept;
 	const UINT& getID() const noexcept;
+	const bool IsValidWindow() const noexcept { return (m_Hwnd && IsWindow(m_Hwnd)); }
 
 	void redrawWindow() const noexcept;
 	void redrawBufferedWindow();
