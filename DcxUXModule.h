@@ -69,8 +69,8 @@ public:
 
 	static BOOL dcxIsThemeActive(void) noexcept;
 	static HRESULT dcxSetWindowTheme(const HWND hwnd, const LPCWSTR pszSubAppName, const LPCWSTR pszSubIdList) noexcept;
-	[[gsl::suppress(lifetimes)]] static HTHEME dcxGetWindowTheme(HWND hWnd) noexcept;
-	[[gsl::suppress(lifetimes)]] static gsl::owner<HTHEME> dcxOpenThemeData(HWND hwnd, LPCWSTR pszClassList) noexcept;
+	[[gsl::suppress(lifetime)]] static HTHEME dcxGetWindowTheme(HWND hWnd) noexcept;
+	[[gsl::suppress(lifetime)]] [[nodiscard("Memory Leak")]] static gsl::owner<HTHEME> dcxOpenThemeData(HWND hwnd, LPCWSTR pszClassList) noexcept;
 	static HRESULT dcxCloseThemeData(gsl::owner<HTHEME> hTheme) noexcept;
 	static BOOL dcxIsThemeBackgroundPartiallyTransparent(HTHEME hTheme, int iPartId, int iStateId) noexcept;
 	static HRESULT dcxDrawThemeBackground(HTHEME hTheme, HDC hdc, int iPartId, int iStateId, LPCRECT pRect, LPCRECT pClipRect) noexcept;
@@ -84,7 +84,7 @@ public:
 	static inline const bool &IsBufferedPaintSupported(void) noexcept { return m_bBufferedPaintEnabled; }
 	static HRESULT dcxBufferedPaintInit(void) noexcept;
 	static HRESULT dcxBufferedPaintUnInit(void) noexcept;
-	[[gsl::suppress(lifetimes)]] static gsl::owner<HPAINTBUFFER> dcxBeginBufferedPaint(HDC hdcTarget, const RECT *prcTarget, BP_BUFFERFORMAT dwFormat, BP_PAINTPARAMS *pPaintParams, HDC *phdc) noexcept;
+	[[gsl::suppress(lifetime,Enum.3)]] [[nodiscard("Memory Leak")]] static gsl::owner<HPAINTBUFFER> dcxBeginBufferedPaint(HDC hdcTarget, const RECT *prcTarget, BP_BUFFERFORMAT dwFormat, BP_PAINTPARAMS *pPaintParams, HDC *phdc) noexcept;
 	static HRESULT dcxEndBufferedPaint(gsl::owner<HPAINTBUFFER> hBufferedPaint, BOOL fUpdateTarget) noexcept;
 	static HRESULT dcxBufferedPaintSetAlpha(HPAINTBUFFER hBufferedPaint, _In_ const RECT *prc, BYTE alpha) noexcept;
 };

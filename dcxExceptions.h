@@ -104,6 +104,14 @@ namespace DcxExceptions
 			: exception("Out Of Range")
 		{}
 	};
+	class dcxIDAlreadyExists final
+		: public std::exception
+	{
+	public:
+		dcxIDAlreadyExists() noexcept
+			: exception("Invalid ID, already exists")
+		{}
+	};
 }
 
 //
