@@ -286,7 +286,7 @@ private:
 			// that are overly picky about structure alignment.
 			const size_type bytesNeeded = sizeof(Rep) + cap;
 			const size_type intsNeeded = (bytesNeeded + sizeof(int) - 1) / sizeof(int);
-			rep_ = reinterpret_cast<Rep*>(new int[intsNeeded]);
+			GSL_SUPPRESS(r.11)	rep_ = reinterpret_cast<Rep*>(new int[intsNeeded]);
 
 			rep_->size = sz;
 			rep_->str[sz] = '\0';
@@ -304,7 +304,7 @@ private:
 		{
 			// The rep_ is really an array of ints. (see the allocator, above).
 			// Cast it back before delete, so the compiler won't incorrectly call destructors.
-			delete[](reinterpret_cast<int*>(rep_));
+			GSL_SUPPRESS(r.11) delete[](reinterpret_cast<int*>(rep_));
 		}
 	}
 
