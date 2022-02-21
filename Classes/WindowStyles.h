@@ -1132,6 +1132,9 @@ inline WindowExStyle dcxSetWindowExStyle(HWND Hwnd, WindowExStyle style) noexcep
 
 inline HWND dcxCreateWindow(const WindowExStyle ExStyles, const TCHAR* const szClass, const WindowStyle Styles, const RECT* const rc, HWND hParent, const UINT uID, const void* const pthis = nullptr) noexcept
 {
+	if (!rc)
+		return nullptr;
+
 	return CreateWindowEx(
 		gsl::narrow_cast<DWORD>(ExStyles),
 		szClass,
