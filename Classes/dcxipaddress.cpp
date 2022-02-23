@@ -25,7 +25,7 @@
   * \param styles Window Style Tokenized List
   */
 
-DcxIpAddress::DcxIpAddress(const UINT ID, DcxDialog* const p_Dialog, const HWND mParentHwnd, const RECT* const rc, const TString& styles)
+DcxIpAddress::DcxIpAddress(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialog, const HWND mParentHwnd, const RECT* const rc, const TString& styles)
 	: DcxControl(ID, p_Dialog)
 {
 	const auto ws = parseControlStyles(styles);

@@ -25,7 +25,7 @@
   * \param styles Window Style Tokenized List
   */
 
-DcxButton::DcxButton(const UINT ID, DcxDialog* const p_Dialog, const HWND mParentHwnd, const RECT* const rc, const TString& styles)
+DcxButton::DcxButton(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialog, const HWND mParentHwnd, const RECT* const rc, const TString& styles)
 	: DcxControl(ID, p_Dialog)
 {
 	const auto ws = parseControlStyles(styles);
@@ -115,6 +115,11 @@ dcxWindowStyles DcxButton::parseControlStyles(const TString& tsStyles)
 	return parseGeneralControlStyles(tsStyles, ws);
 }
 
+TString DcxButton::parseInfoRequest(const TString& input) const
+{
+	return TString();
+}
+
 /*!
  * \brief $xdid Parsing Function
  *
@@ -150,7 +155,6 @@ void DcxButton::parseCommandRequest(const TString& input)
 	if (flags[TEXT('c')])
 	{
 		if (numtok < 5)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto iColorStyles = parseColorFlags(input.getnexttok());	// tok 4
@@ -171,7 +175,6 @@ void DcxButton::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('k')])
 	{
 		if (numtok < 6)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		if (!isStyle(WindowStyle::BS_Bitmap) && !isStyle(WindowStyle::BS_OwnerDraw))
@@ -209,7 +212,6 @@ void DcxButton::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('l')])
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		m_iIconSize = NumToIconSize(input.getnexttok().to_<int>());	// tok 4
@@ -225,7 +227,6 @@ void DcxButton::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('t')])
 	{
 		if (numtok < 3)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		m_tsCaption = (numtok > 3 ? input.getlasttoks().trim() : TString());	// tok 4, -1
@@ -456,6 +457,9 @@ const TString DcxButton::getStyles(void) const
 
 void DcxButton::toXml(TiXmlElement* const xml) const
 {
+	if (!xml)
+		return;
+
 	__super::toXml(xml);
 
 	xml->SetAttribute("caption", m_tsCaption.c_str());
@@ -476,6 +480,10 @@ TiXmlElement* DcxButton::toXml(void) const
  */
 LRESULT DcxButton::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed)
 {
+	const auto pDialog = getParentDialog();
+	if (!pDialog)
+		return 0L;	// something went very wrong...
+
 	switch (uMsg)
 	{
 	case WM_COMMAND:
@@ -484,13 +492,13 @@ LRESULT DcxButton::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& 
 		{
 		case BN_CLICKED:
 		{
-			if (dcx_testflag(getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
+			if (dcx_testflag(pDialog->getEventMask(), DCX_EVENT_CLICK))
 				execAliasEx(TEXT("sclick,%u"), getUserID());
 		}
 		break;
 		case BN_DBLCLK:
 		{
-			if (dcx_testflag(getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
+			if (dcx_testflag(pDialog->getEventMask(), DCX_EVENT_CLICK))
 				execAliasEx(TEXT("dclick,%u"), getUserID());
 		}
 		break;
@@ -510,7 +518,7 @@ LRESULT DcxButton::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& 
 		{
 		case BCN_HOTITEMCHANGE:
 		{
-			if (dcxlParam(LPNMBCHOTITEM, item); dcx_testflag(getParentDialog()->getEventMask(), DCX_EVENT_FOCUS))
+			if (dcxlParam(LPNMBCHOTITEM, item); dcx_testflag(pDialog->getEventMask(), DCX_EVENT_FOCUS))
 			{
 				if (dcx_testflag(item->dwFlags, HICF_ENTERING))
 					execAliasEx(TEXT("hotchange,%u,entering"), getUserID());
@@ -521,7 +529,7 @@ LRESULT DcxButton::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& 
 		break;
 		case BCN_DROPDOWN:
 		{
-			if (dcxlParam(LPNMBCDROPDOWN, item); dcx_testflag(getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
+			if (dcxlParam(LPNMBCDROPDOWN, item); dcx_testflag(pDialog->getEventMask(), DCX_EVENT_CLICK))
 			{
 				execAliasEx(TEXT("dropdown,%u,%d,%d,%d,%d"), getUserID(), item->rcButton.top, item->rcButton.left, item->rcButton.bottom, item->rcButton.right);
 			}
@@ -540,11 +548,15 @@ LRESULT DcxButton::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& 
 
 LRESULT DcxButton::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed)
 {
+	const auto pDialog = getParentDialog();
+	if (!pDialog)
+		return 0L;	// something went very wrong...
+
 	switch (uMsg)
 	{
 	case WM_MOUSEMOVE:
 	{
-		getParentDialog()->setMouseControl(getUserID());
+		pDialog->setMouseControl(getUserID());
 
 		if (m_bTracking == FALSE)
 		{
@@ -588,7 +600,7 @@ LRESULT DcxButton::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPa
 			m_bSelected = true;
 			InvalidateRect(m_Hwnd, nullptr, FALSE);
 		}
-		if (dcx_testflag(getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
+		if (dcx_testflag(pDialog->getEventMask(), DCX_EVENT_CLICK))
 			execAliasEx(TEXT("lbdown,%u"), getUserID());
 	}
 	break;
@@ -596,7 +608,7 @@ LRESULT DcxButton::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPa
 	case WM_LBUTTONUP:
 	{
 		m_bSelected = false;
-		if (dcx_testflag(getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
+		if (dcx_testflag(pDialog->getEventMask(), DCX_EVENT_CLICK))
 			execAliasEx(TEXT("lbup,%u"), getUserID());
 	}
 	break;
@@ -657,6 +669,9 @@ LRESULT DcxButton::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPa
 GSL_SUPPRESS(bounds.3)
 void DcxButton::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 {
+	if (!hdc)
+		return;
+
 	RECT rcClient{};
 
 	// get controls client area
@@ -679,7 +694,10 @@ void DcxButton::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 	const auto ai = SetupAlphaBlend(&hdc);
 	Auto(FinishAlphaBlend(ai));
 
-	gsl::owner<HTHEME> hTheme{ nullptr };
+	if (!hdc)
+		return;
+
+	HTHEME hTheme{ nullptr };
 	int iStateId{};
 	if (IsThemed() && Dcx::UXModule.dcxIsThemeActive())
 	{
@@ -756,9 +774,12 @@ void DcxButton::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 				{
 					if (HRGN hRgn{ nullptr }; Dcx::UXModule.dcxGetThemeBackgroundRegion(hTheme, hdc, BP_PUSHBUTTON, iStateId, &rcClient, &hRgn) == S_OK)
 					{
-						if ((hRgn) && (!EqualRgn(hRgn, m_hZeroRgn)))
-							SelectClipRgn(hdc, hRgn);
-						DeleteObject(hRgn);
+						if (hRgn)
+						{
+							if ((m_hZeroRgn) && (!EqualRgn(hRgn, m_hZeroRgn)))
+								SelectClipRgn(hdc, hRgn);
+							DeleteObject(hRgn);
+						}
 					}
 				}
 				CallDefaultClassProc(uMsg, reinterpret_cast<WPARAM>(hdc), lParam);

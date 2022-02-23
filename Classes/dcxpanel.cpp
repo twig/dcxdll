@@ -28,7 +28,7 @@
   * \param styles Window Style Tokenized List
   */
 
-DcxPanel::DcxPanel(const UINT ID, DcxDialog* const p_Dialog, const HWND mParentHwnd, const RECT* const rc, const TString& styles)
+DcxPanel::DcxPanel(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialog, const HWND mParentHwnd, const RECT* const rc, const TString& styles)
 	: DcxControl(ID, p_Dialog)
 {
 	const auto ws = parseControlStyles(styles);
@@ -125,7 +125,6 @@ void DcxPanel::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('d')])
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const TString tsID(input.getnexttok());
@@ -161,7 +160,6 @@ void DcxPanel::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('l')])
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		if (!m_pLayoutManager)
@@ -182,14 +180,12 @@ void DcxPanel::parseCommandRequest(const TString& input)
 		break;
 		case L"clear"_hash:
 		{
-			//m_pLayoutManager.reset(new LayoutManager(m_Hwnd));
 			m_pLayoutManager = std::make_unique<LayoutManager>(m_Hwnd);
 		}
 		break;
 		default:
 		{
 			if (numtok < 9)
-				//throw Dcx::dcxException("Insufficient parameters");
 				throw DcxExceptions::dcxInvalidArguments();
 
 			m_pLayoutManager->AddCell(input, 4, this->getParentDialog());
@@ -201,7 +197,6 @@ void DcxPanel::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('t')])
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		SetWindowText(m_Hwnd, input.getlasttoks().to_chr());	// tok 4, -1
@@ -377,18 +372,20 @@ LRESULT DcxPanel::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPar
 
 		bParsed = TRUE;
 
-		// Setup alpha blend if any.
-		auto ai = this->SetupAlphaBlend(&hdc);
-		Auto(this->FinishAlphaBlend(ai));
+		{
+			// Setup alpha blend if any.
+			auto ai = this->SetupAlphaBlend(&hdc);
+			Auto(this->FinishAlphaBlend(ai));
 
-		{ // simply fill with bkg
-			if (this->isExStyle(WindowExStyle::Transparent))
-			{
-				if (!this->IsAlphaBlend())
-					this->DrawParentsBackground(hdc);
+			{ // simply fill with bkg
+				if (this->isExStyle(WindowExStyle::Transparent))
+				{
+					if (!this->IsAlphaBlend())
+						this->DrawParentsBackground(hdc);
+				}
+				else
+					DcxControl::DrawCtrlBackground(hdc, this);
 			}
-			else
-				DcxControl::DrawCtrlBackground(hdc, this);
 		}
 	}
 	break;

@@ -37,7 +37,7 @@ public:
 	DcxProgressBar(DcxProgressBar &&) = delete;
 	DcxProgressBar &operator =(DcxProgressBar &&) = delete;
 
-	DcxProgressBar(_In_ const UINT ID, _In_ DcxDialog *const p_Dialog, _In_ const HWND mParentHwnd, _In_ const RECT *const rc, _In_ const TString & styles);
+	DcxProgressBar(_In_ const UINT ID, _In_ gsl::strict_not_null<DcxDialog* const> p_Dialog, _In_ const HWND mParentHwnd, _In_ const RECT *const rc, _In_ const TString & styles);
 	~DcxProgressBar( ) noexcept;
 
 	LRESULT OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) final;

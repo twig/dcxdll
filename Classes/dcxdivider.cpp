@@ -25,7 +25,7 @@
   * \param styles Window Style Tokenized List
   */
 
-DcxDivider::DcxDivider(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles)
+DcxDivider::DcxDivider(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles)
 	: DcxControl(ID, p_Dialog)
 {
 	const auto ws = parseControlStyles(styles);
@@ -97,6 +97,9 @@ dcxWindowStyles DcxDivider::parseControlStyles(const TString & tsStyles)
  */
 void DcxDivider::parseInfoRequest(const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const
 {
+	if (!m_Hwnd)
+		return;
+
 	switch (std::hash<TString>{}(input.getfirsttok(3)))
 	{
 		// [NAME] [ID] [PROP]
@@ -174,13 +177,17 @@ void DcxDivider::parseCommandRequest(const TString & input)
 
 		//const auto ID = mIRC_ID_OFFSET + control_data.gettok(1).to_<UINT>();
 		const TString tsID(control_data.gettok(1));
-		const auto ID = getParentDialog()->NameToID(tsID);
+		const auto pParent = getParentDialog();
+		if (!pParent)
+			throw Dcx::dcxException(TEXT("Unable to get controls parent dialog"));
 
-		if (getParentDialog()->isIDValid(ID) || ID)
+		const auto ID = pParent->NameToID(tsID);
+
+		if (pParent->isIDValid(ID) || ID)
 			throw Dcx::dcxException(TEXT("Control with ID %(%) already exists"), tsID, ID - mIRC_ID_OFFSET);
 
 		try {
-			dvpi.hChild = getParentDialog()->addControl(control_data, 1, DcxAllowControls::ALLOW_ALLBUTDOCK, m_Hwnd)->getHwnd();
+			dvpi.hChild = pParent->addControl(control_data, 1, DcxAllowControls::ALLOW_ALLBUTDOCK, m_Hwnd)->getHwnd();
 
 			if (flags[TEXT('l')])
 				setPane(DVF_PANELEFT, &dvpi);
@@ -263,6 +270,13 @@ BOOL DcxDivider::setBarWidth(UINT nWidth) noexcept
 
 void DcxDivider::toXml(TiXmlElement *const xml) const
 {
+	if (!xml)
+		return;
+
+	const auto pParent = this->getParentDialog();
+	if (!pParent)
+		return;
+
 	__super::toXml(xml);
 
 	xml->SetAttribute("styles", getStyles().c_str());
@@ -273,7 +287,7 @@ void DcxDivider::toXml(TiXmlElement *const xml) const
 	Divider_GetChildControl(m_Hwnd, DVF_PANERIGHT, &right);
 	if (left.hChild)
 	{
-		if (const auto *const dcxcleft = this->getParentDialog()->getControlByHWND(left.hChild); dcxcleft)
+		if (const auto *const dcxcleft = pParent->getControlByHWND(left.hChild); dcxcleft)
 			xml->LinkEndChild(dcxcleft->toXml());
 		else
 			xml->LinkEndChild(new TiXmlElement("control"));
@@ -282,7 +296,7 @@ void DcxDivider::toXml(TiXmlElement *const xml) const
 		xml->LinkEndChild(new TiXmlElement("control"));
 	if (right.hChild)
 	{
-		if (const auto *const dcxcright = this->getParentDialog()->getControlByHWND(right.hChild); dcxcright)
+		if (const auto *const dcxcright = pParent->getControlByHWND(right.hChild); dcxcright)
 			xml->LinkEndChild(dcxcright->toXml());
 		else
 			xml->LinkEndChild(new TiXmlElement("control"));
@@ -409,8 +423,11 @@ LRESULT DcxDivider::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & b
 
 	case DV_CHANGEPOS:
 	{
+		//dcxwParam(int, phase);
+		dcxlParam(LPPOINT, pt);
+
 		const auto phase = gsl::narrow_cast<int>(wParam);
-		const auto pt = reinterpret_cast<LPPOINT>(lParam);
+		//const auto pt = reinterpret_cast<LPPOINT>(lParam);
 
 		constexpr TCHAR szdrag_begin[] = TEXT("dragbegin");
 		constexpr TCHAR szdrag[] = TEXT("drag");

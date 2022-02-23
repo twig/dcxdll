@@ -37,7 +37,7 @@ public:
 	DcxMDialog(DcxMDialog &&) = delete;
 	DcxMDialog &operator =(DcxMDialog &&) = delete;
 
-	DcxMDialog(const HWND cHwnd, const HWND pHwnd, const UINT ID, DcxDialog *const p_Dialog, const RECT *const rc, const TString & styles );
+	DcxMDialog(const HWND cHwnd, const HWND pHwnd, const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialog, const RECT *const rc, const TString & styles );
 	~DcxMDialog( ) noexcept;
 
 	LRESULT OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) final;

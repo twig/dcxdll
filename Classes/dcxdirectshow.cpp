@@ -30,7 +30,7 @@
   * \param styles Window Style Tokenized List
   */
 
-DcxDirectshow::DcxDirectshow(const UINT ID, DcxDialog* const p_Dialog, const HWND mParentHwnd, const RECT* const rc, const TString& styles)
+DcxDirectshow::DcxDirectshow(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialog, const HWND mParentHwnd, const RECT* const rc, const TString& styles)
 	: DcxControl(ID, p_Dialog)
 {
 	//assert(_DXSDK_BUILD_MAJOR == 1962);  //this checks that the DirectX SDK (June 2010) build is installed. (directx sdk is now included in windows sdk 8.0+)
@@ -49,7 +49,6 @@ DcxDirectshow::DcxDirectshow(const UINT ID, DcxDialog* const p_Dialog, const HWN
 		this);
 
 	if (!IsWindow(m_Hwnd))
-		//throw Dcx::dcxException("Unable To Create Window");
 		throw DcxExceptions::dcxUnableToCreateWindow();
 
 	if (ws.m_NoTheme)

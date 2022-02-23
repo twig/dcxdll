@@ -37,13 +37,13 @@ public:
 	DcxText(DcxText &&) = delete;
 	DcxText &operator =(DcxText &&) = delete;
 
-	DcxText(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles );
+	DcxText(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles );
 	~DcxText( ) noexcept;
 
 	LRESULT OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) final;
 	LRESULT ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) noexcept final;
 
-	//void parseInfoRequest(const TString & input, PTCHAR szReturnValue) const final;
+	TString parseInfoRequest(const TString& input) const final;
 	void parseInfoRequest(const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const final;
 	void parseCommandRequest(const TString & input) final;
 	dcxWindowStyles parseControlStyles(const TString & tsStyles) final;

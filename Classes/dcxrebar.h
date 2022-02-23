@@ -55,7 +55,7 @@ public:
 	DcxReBar(DcxReBar&&) = delete;
 	DcxReBar& operator =(DcxReBar&&) = delete;
 
-	DcxReBar(const UINT ID, DcxDialog* p_Dialog, const HWND mParentHwnd, const RECT* rc, const TString& styles);
+	DcxReBar(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialog, const HWND mParentHwnd, const RECT* rc, const TString& styles);
 	~DcxReBar() noexcept;
 
 	LRESULT OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed) final;

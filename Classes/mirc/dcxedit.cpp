@@ -25,7 +25,7 @@
 * \param styles Window Style Tokenized List
 */
 
-DcxEdit::DcxEdit(const UINT ID, DcxDialog* const p_Dialog, const HWND mParentHwnd, const RECT* const rc, const TString& styles)
+DcxEdit::DcxEdit(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialog, const HWND mParentHwnd, const RECT* const rc, const TString& styles)
 	: DcxControl(ID, p_Dialog)
 {
 	if (!p_Dialog)
@@ -42,7 +42,7 @@ DcxEdit::DcxEdit(const UINT ID, DcxDialog* const p_Dialog, const HWND mParentHwn
 		ID,
 		this);
 
-	if (!IsWindow(m_Hwnd))
+	if (!IsValidWindow())
 		throw DcxExceptions::dcxUnableToCreateWindow();
 
 	if (ws.m_NoTheme)
@@ -314,7 +314,8 @@ void DcxEdit::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC
 		DWORD dwSelEnd{};   // selection range ending position
 
 		SendMessage(m_Hwnd, EM_GETSEL, reinterpret_cast<WPARAM>(&dwSelStart), reinterpret_cast<LPARAM>(&dwSelEnd));
-		szReturnValue = m_tsText.mid(gsl::narrow_cast<int>(dwSelStart), gsl::narrow_cast<int>(dwSelEnd - dwSelStart)).to_chr();
+		const auto tmp = (dwSelEnd - dwSelStart);
+		szReturnValue = m_tsText.mid(gsl::narrow_cast<int>(dwSelStart), gsl::narrow_cast<int>(tmp)).to_chr();
 	}
 	break;
 
@@ -467,7 +468,7 @@ void DcxEdit::parseCommandRequest(const TString& input)
 				UINT nStartLine{}, nEndLine{};
 				if (tsLineRange.numtok(TEXT('-')) == 2)
 				{
-					nStartLine = tsLineRange.getfirsttok(1,TEXT('-')).to_<UINT>();
+					nStartLine = tsLineRange.getfirsttok(1, TEXT('-')).to_<UINT>();
 					nEndLine = tsLineRange.getnexttok(TEXT('-')).to_<UINT>();
 				}
 				else {
@@ -753,6 +754,7 @@ LRESULT DcxEdit::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bP
 				PostMessage(m_Hwnd, WM_DRAW_NUMBERS, 0, 0);
 		}
 		break;
+		//case EN_VSCROLL:
 		case EN_HSCROLL:
 			if (m_bShowLineNumbers)
 				PostMessage(m_Hwnd, WM_DRAW_NUMBERS, 0, 0);
@@ -916,13 +918,14 @@ LRESULT DcxEdit::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPars
 
 	case WM_PRINTCLIENT:
 	{
-		const auto lRes = CallDefaultClassProc(uMsg, wParam, lParam);
-
-		if (m_bShowLineNumbers)
-			DrawGutter((HDC)wParam);
+		//const auto lRes = CallDefaultClassProc(uMsg, wParam, lParam);
+		//if (m_bShowLineNumbers)
+		//	DrawGutter(reinterpret_cast<HDC>(wParam));
+		//bParsed = TRUE;
+		//return lRes;
 
 		bParsed = TRUE;
-		return lRes;
+		DrawClientRect(reinterpret_cast<HDC>(wParam), uMsg, lParam);
 	}
 	break;
 
@@ -943,60 +946,73 @@ LRESULT DcxEdit::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPars
 		//
 		//return CallDefaultClassProc(uMsg, reinterpret_cast<WPARAM>(hdc), lParam);
 
-		if (this->IsAlphaBlend())
-		{
-			bParsed = TRUE;
+		//if (this->IsAlphaBlend())
+		//{
+		//	bParsed = TRUE;
+		//
+		//	PAINTSTRUCT ps{};
+		//	//auto hdc = BeginPaint(m_Hwnd, &ps);
+		//	//Auto(EndPaint(m_Hwnd, &ps));
+		//
+		//	HDC hdc = reinterpret_cast<HDC>(wParam);
+		//	if (!wParam)
+		//		hdc = BeginPaint(m_Hwnd, &ps);
+		//
+		//	// Setup alpha blend if any.
+		//	const auto ai = this->SetupAlphaBlend(&hdc);
+		//	Auto(this->FinishAlphaBlend(ai));
+		//
+		//	CallDefaultClassProc(uMsg, reinterpret_cast<WPARAM>(hdc), lParam);
+		//	//CallDefaultClassProc(WM_PRINTCLIENT, reinterpret_cast<WPARAM>(hdc), PRF_CLIENT | PRF_CHILDREN /*| PRF_CHECKVISIBLE*/ | PRF_ERASEBKGND);
+		//	//CallDefaultClassProc(WM_PRINT, reinterpret_cast<WPARAM>(hdc), PRF_CLIENT | PRF_CHILDREN | PRF_CHECKVISIBLE);
+		//
+		//	if (m_bShowLineNumbers)
+		//	{
+		//		setFmtRect();
+		//		DrawGutter(hdc);
+		//
+		//	if (!wParam)
+		//		EndPaint(m_Hwnd, &ps);
+		//
+		//	return 0L;
+		//}
+		//else if (m_bShowLineNumbers)
+		//{
+		//	bParsed = TRUE;
+		//	const auto lRes = CallDefaultClassProc(uMsg, wParam, lParam);
+		//	PostMessage(m_Hwnd, WM_DRAW_NUMBERS, wParam, 0);
+		//	return lRes;
+		//}
 
+		bParsed = TRUE;
+
+		if (!wParam)
+		{
 			PAINTSTRUCT ps{};
-			//auto hdc = BeginPaint(m_Hwnd, &ps);
-			//Auto(EndPaint(m_Hwnd, &ps));
 
-			HDC hdc = (HDC)wParam;
-			if (!wParam)
-				hdc = BeginPaint(m_Hwnd, &ps);
+			HDC hdc = BeginPaint(m_Hwnd, &ps);
+			Auto(EndPaint(m_Hwnd, &ps));
 
-			// Setup alpha blend if any.
-			const auto ai = this->SetupAlphaBlend(&hdc);
-			Auto(this->FinishAlphaBlend(ai));
-
-			CallDefaultClassProc(uMsg, reinterpret_cast<WPARAM>(hdc), lParam);
-			//CallDefaultClassProc(WM_PRINTCLIENT, reinterpret_cast<WPARAM>(hdc), PRF_CLIENT | PRF_CHILDREN /*| PRF_CHECKVISIBLE*/ | PRF_ERASEBKGND);
-			//CallDefaultClassProc(WM_PRINT, reinterpret_cast<WPARAM>(hdc), PRF_CLIENT | PRF_CHILDREN | PRF_CHECKVISIBLE);
-
-			if (m_bShowLineNumbers)
-			{
-				setFmtRect();
-				DrawGutter(hdc);
-			}
-
-			if (!wParam)
-				EndPaint(m_Hwnd, &ps);
-
-			return 0L;
+			DrawClientRect(hdc, uMsg, lParam);
 		}
-		else if (m_bShowLineNumbers)
-		{
-			bParsed = TRUE;
-			const auto lRes = CallDefaultClassProc(uMsg, wParam, lParam);
+		else
+			DrawClientRect(reinterpret_cast<HDC>(wParam), uMsg, lParam);
 
-			PostMessage(m_Hwnd, WM_DRAW_NUMBERS, wParam, 0);
-
-			return lRes;
-		}
+		return 0L;
 	}
 	break;
 
 	case WM_ERASEBKGND:
 	{
 		//if (isExStyle(WindowExStyle::Transparent))
-		//	SetBkMode((HDC)wParam, TRANSPARENT);
+		//	SetBkMode(reinterpret_cast<HDC>(wParam), TRANSPARENT);
 
 		if (m_bShowLineNumbers)
 		{
 			//if (isExStyle(WindowExStyle::Transparent))
 			//{
 			//	// must call DrawGutter() directly to avoid flicker.
-			//	DrawGutter((HDC)wParam);
+			//	DrawGutter(reinterpret_cast<HDC>(wParam));
 
 			//	bParsed = TRUE;
 			//	return TRUE;
@@ -1006,12 +1022,32 @@ LRESULT DcxEdit::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPars
 
 			// must call DrawGutter() directly to avoid flicker.
 			setFmtRect();
-			DrawGutter((HDC)wParam);
+			DrawGutter(reinterpret_cast<HDC>(wParam));
 
 			bParsed = TRUE;
 			return lRes;
 			//}
 		}
+		//else {
+		//	const auto lRes = CallDefaultClassProc(uMsg, wParam, lParam);
+		//
+		//	HDC hdc = reinterpret_cast<HDC>(wParam);
+		//
+		//	const RECT rcBkg = getFmtRect();
+		//	if (isExStyle(WindowExStyle::Transparent))
+		//	{ // fill with parent image
+		//
+		//		if (!IsAlphaBlend())
+		//			DrawParentsBackground(hdc, &rcBkg);
+		//
+		//		//SetBkMode(hdc, TRANSPARENT);
+		//	}
+		//	else // normal bkg
+		//		DcxControl::DrawCtrlBackground(hdc, this, &rcBkg);
+		//
+		//	bParsed = TRUE;
+		//	return lRes;
+		//}
 	}
 	break;
 
@@ -1055,7 +1091,7 @@ LRESULT DcxEdit::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPars
 
 			setFmtRect();
 			if (wParam)
-				DrawGutter((HDC)wParam);
+				DrawGutter(reinterpret_cast<HDC>(wParam));
 			else
 				DrawGutter();
 		}
@@ -1070,6 +1106,7 @@ LRESULT DcxEdit::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPars
 		break;
 	}
 
+	case WM_VSCROLL:
 	case WM_LBUTTONUP:
 	{
 		if (m_bShowLineNumbers)
@@ -1130,7 +1167,75 @@ DWORD DcxEdit::GetCaretLine() const noexcept
 
 void DcxEdit::setCaretPos(DWORD pos) noexcept
 {
-	SendMessage(m_Hwnd, EM_SETSEL, pos, pos);
+	if (IsValidWindow())
+		SendMessage(m_Hwnd, EM_SETSEL, pos, pos);
+}
+
+void DcxEdit::DrawClientRect(HDC hdc, unsigned int uMsg, LPARAM lParam)
+{
+
+	//// Setup alpha blend if any.
+	//const auto ai = this->SetupAlphaBlend(&hdc);
+	//Auto(this->FinishAlphaBlend(ai));
+	//
+	//CallDefaultClassProc(uMsg, reinterpret_cast<WPARAM>(hdc), lParam);
+	//
+	//if (m_bShowLineNumbers)
+	//{
+	//	setFmtRect();
+	//	DrawGutter(hdc);
+	//}
+
+	// Setup alpha blend if any.
+	const auto ai = SetupAlphaBlend(&hdc);
+	Auto(FinishAlphaBlend(ai));
+
+	if (!hdc)
+		return;
+
+	// fill background.
+	//const RECT rcBkg = getFmtRect();
+	//if (isExStyle(WindowExStyle::Transparent))
+	//{ // fill with parent image
+	//	if (!IsAlphaBlend())
+	//		DrawParentsBackground(hdc, &rcBkg);
+	//}
+	//else // normal bkg
+	//	DcxControl::DrawCtrlBackground(hdc, this, &rcBkg);
+
+	//CallDefaultClassProc(uMsg, reinterpret_cast<WPARAM>(hdc), lParam);
+	//CallDefaultClassProc(WM_PRINTCLIENT, reinterpret_cast<WPARAM>(hdc), PRF_CLIENT | PRF_CHILDREN);
+
+	if (m_bShowLineNumbers)
+	{
+		CallDefaultClassProc(uMsg, reinterpret_cast<WPARAM>(hdc), lParam);
+		setFmtRect();
+		DrawGutter(hdc);
+	}
+	else {
+		const auto savedc = SaveDC(hdc);
+		Auto(RestoreDC(hdc, savedc));
+
+		RECT rcBkg = getFmtRect();
+		if ((m_pParentHWND) && (m_Hwnd))
+			if (auto hBrush = reinterpret_cast<HBRUSH>(SendMessage(m_pParentHWND, WM_CTLCOLOREDIT, reinterpret_cast<WPARAM>(hdc), reinterpret_cast<LPARAM>(m_Hwnd))); hBrush)
+				FillRect(hdc, &rcBkg, hBrush);
+
+		if (isExStyle(WindowExStyle::Transparent))
+		{ // fill with parent image
+			if (!IsAlphaBlend())
+				DrawParentsBackground(hdc, &rcBkg);
+		}
+		else // normal bkg
+			DcxControl::DrawCtrlBackground(hdc, this, &rcBkg);
+
+
+		//SetTextColor(hdc,this->getTextColor());
+		Dcx::dcxSelectObject(hdc, this->getFont());
+
+		ctrlDrawText(hdc, m_tsText, &rcBkg, DT_SINGLELINE | DT_VCENTER);
+	}
+
 }
 
 void DcxEdit::DrawGutter()
@@ -1144,7 +1249,7 @@ void DcxEdit::DrawGutter()
 
 void DcxEdit::DrawGutter(HDC hdc)
 {
-	if (!hdc)
+	if (!hdc || !m_Hwnd)
 		return;
 
 	RECT rcClient{};
@@ -1159,9 +1264,9 @@ void DcxEdit::DrawGutter(HDC hdc)
 	if (m_FRGutter.right == 0)
 		return;
 
-	auto hFont = GetWindowFont(m_Hwnd);
-	const auto oldFont = Dcx::dcxSelectObject<HFONT>(hdc, hFont);
-	Auto(Dcx::dcxSelectObject<HFONT>(hdc, oldFont));
+	const auto hFont = GetWindowFont(m_Hwnd);
+	const auto oldFont = Dcx::dcxSelectObject(hdc, hFont);
+	Auto(Dcx::dcxSelectObject(hdc, oldFont));
 
 	TEXTMETRICW lptm{};
 	GetTextMetrics(hdc, &lptm);
@@ -1172,18 +1277,6 @@ void DcxEdit::DrawGutter(HDC hdc)
 		Auto(DeleteHDCBuffer(hdcbuf));
 
 		Dcx::FillRectColour(*hdcbuf, &m_FRGutter, m_clrGutter_bkg);
-
-		//if (auto hPen = CreatePen(PS_SOLID, 5, RGB(0, 0, 255)); hPen)
-		//{
-		//	Auto(DeleteObject(hPen));
-		//	const auto oldPen = Dcx::dcxSelectObject<HPEN>(*hdcbuf, hPen);
-		//	Auto(Dcx::dcxSelectObject<HPEN>(*hdcbuf, oldPen));
-		//	//DrawEdge(*hdcbuf, &m_FRGutter, EDGE_BUMP, BF_RIGHT);
-		//	MoveToEx(*hdcbuf, m_FRGutter.right, m_FRGutter.top, nullptr);
-		//	LineTo(*hdcbuf, m_FRGutter.right, m_FRGutter.bottom);
-		//}
-		//else
-		//	DrawEdge(*hdcbuf, &m_FRGutter, EDGE_BUMP, BF_RIGHT);
 
 		dcxDrawEdge(*hdcbuf, &m_FRGutter, m_clrGutter_border);
 
@@ -1199,9 +1292,8 @@ void DcxEdit::DrawGutter(HDC hdc)
 
 		{
 			// top line, could be a partial line
-			const auto iLineChar = SNDMSG(m_Hwnd, EM_LINEINDEX, rng.b, 0);
-			POINTL pl{};
-			SNDMSG(m_Hwnd, EM_POSFROMCHAR, reinterpret_cast<WPARAM>(&pl), gsl::narrow_cast<LPARAM>(iLineChar));
+			const POINTL pl = GetPosFromChar(GetLineIndex(rng.b));
+
 			// NB: if a partial line pl.y will be a negative (ie off screen)
 			RNumber.top = pl.y;
 			RNumber.bottom = RNumber.top + letter_height;

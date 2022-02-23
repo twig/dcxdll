@@ -25,7 +25,7 @@
   * \param styles Window Style Tokenized List
   */
 
-DcxRadio::DcxRadio(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles)
+DcxRadio::DcxRadio(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles)
 	: DcxControl(ID, p_Dialog)
 {
 	const auto ws = parseControlStyles(styles);
@@ -139,22 +139,43 @@ dcxWindowStyles DcxRadio::parseControlStyles(const TString & tsStyles)
  * \return > void
  */
 
-void DcxRadio::parseInfoRequest(const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const
+TString DcxRadio::parseInfoRequest(const TString& input) const
 {
 	const auto prop(input.getfirsttok(3));
 
 	// [NAME] [ID] [PROP]
 	if (prop == TEXT("text"))
-	{
-		GetWindowText(m_Hwnd, szReturnValue, MIRC_BUFFER_SIZE_CCH);
-	}
+		return TGetWindowText(m_Hwnd);
 	// [NAME] [ID] [PROP]
 	else if (prop == TEXT("state"))
 	{
-		dcx_ConChar(dcx_testflag(Button_GetCheck(m_Hwnd), BST_CHECKED), szReturnValue);
+		if (dcx_testflag(Button_GetCheck(m_Hwnd), BST_CHECKED))
+			return TEXT("1");
+
+		return TEXT("0");
 	}
-	else
-		this->parseGlobalInfoRequest(input, szReturnValue);
+
+	return parseGlobalInfoRequest(input);
+}
+
+void DcxRadio::parseInfoRequest(const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const
+{
+	//const auto prop(input.getfirsttok(3));
+
+	//// [NAME] [ID] [PROP]
+	//if (prop == TEXT("text"))
+	//{
+	//	GetWindowText(m_Hwnd, szReturnValue, MIRC_BUFFER_SIZE_CCH);
+	//}
+	//// [NAME] [ID] [PROP]
+	//else if (prop == TEXT("state"))
+	//{
+	//	dcx_ConChar(dcx_testflag(Button_GetCheck(m_Hwnd), BST_CHECKED), szReturnValue);
+	//}
+	//else
+	//	this->parseGlobalInfoRequest(input, szReturnValue);
+
+	szReturnValue = parseInfoRequest(input).to_chr();
 }
 
 /*!

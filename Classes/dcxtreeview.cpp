@@ -28,7 +28,7 @@
   * \param styles Window Style Tokenized List
   */
 
-DcxTreeView::DcxTreeView(const UINT ID, DcxDialog* const p_Dialog, const HWND mParentHwnd, const RECT* const rc, const TString& styles)
+DcxTreeView::DcxTreeView(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialog, const HWND mParentHwnd, const RECT* const rc, const TString& styles)
 	: DcxControl(ID, p_Dialog)
 {
 	const auto ws = parseControlStyles(styles);
@@ -169,9 +169,6 @@ WindowExStyle DcxTreeView::parseTreeViewExStyles(const TString& styles) const
 		case L"doublebuffer"_hash:
 			ExStyles |= TVS_EX_DOUBLEBUFFER;
 			break;
-			//case L"multi"_hash:
-			//  ExStyles |= TVS_EX_MULTISELECT; // Style NOT to be used (unsupported by commctrl)
-			//	break;
 		case L"noident"_hash:
 			ExStyles |= TVS_EX_NOINDENTSTATE;
 			break;
@@ -208,7 +205,6 @@ void DcxTreeView::parseInfoRequest(const TString& input, const refString<TCHAR, 
 	case L"text"_hash:
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Invalid number of arguments");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto path(input.getlasttoks());	// tok 4, -1
@@ -224,7 +220,6 @@ void DcxTreeView::parseInfoRequest(const TString& input, const refString<TCHAR, 
 	case L"icon"_hash:
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Invalid number of arguments");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto path(input.getlasttoks());	// tok 4, -1
@@ -241,7 +236,6 @@ void DcxTreeView::parseInfoRequest(const TString& input, const refString<TCHAR, 
 	case L"tooltip"_hash:
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Invalid number of arguments");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto path(input.getlasttoks());	// tok 4, -1
@@ -265,14 +259,13 @@ void DcxTreeView::parseInfoRequest(const TString& input, const refString<TCHAR, 
 	case L"selpath"_hash:
 	{
 		if (auto hItem = TreeView_GetSelection(m_Hwnd); hItem)
-			szReturnValue = getPathFromItem(hItem); // .to_chr();
+			szReturnValue = getPathFromItem(hItem).to_chr();
 	}
 	break;
 	// [NAME] [ID] [PROP] {TAB}[MATCHTEXT]{TAB} [T] [N] [SUBPATH]
 	case L"find"_hash:
 	{
 		if (numtok < 6)
-			//throw Dcx::dcxException("Invalid number of arguments");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto matchtext(input.getfirsttok(2, TSTABCHAR).trim());
@@ -304,7 +297,7 @@ void DcxTreeView::parseInfoRequest(const TString& input, const refString<TCHAR, 
 		//	_ts_snprintf(szReturnValue, TEXT("%d"), matchCount);
 
 		if (const auto result = findItemText(startingPoint, matchtext, n, matchCount, SearchType); result.has_value())
-			szReturnValue = getPathFromItem(*result);
+			szReturnValue = getPathFromItem(*result).to_chr();
 		else if (n == 0)
 			_ts_snprintf(szReturnValue, TEXT("%d"), matchCount);
 	}
@@ -313,7 +306,6 @@ void DcxTreeView::parseInfoRequest(const TString& input, const refString<TCHAR, 
 	case L"state"_hash:
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Invalid number of arguments");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto path(input.getlasttoks());	// tok 4, -1
@@ -345,7 +337,6 @@ void DcxTreeView::parseInfoRequest(const TString& input, const refString<TCHAR, 
 	case L"num"_hash:
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Invalid number of arguments");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto path(input.getlasttoks().trim());	// tok 4, -1
@@ -365,7 +356,6 @@ void DcxTreeView::parseInfoRequest(const TString& input, const refString<TCHAR, 
 	case L"expand"_hash:
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Invalid number of arguments");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto path(input.getlasttoks());	// tok 4, -1
@@ -390,7 +380,7 @@ void DcxTreeView::parseInfoRequest(const TString& input, const refString<TCHAR, 
 		TreeView_HitTest(m_Hwnd, &tvh);
 
 		if (dcx_testflag(tvh.flags, TVHT_ONITEM))
-			szReturnValue = getPathFromItem(tvh.hItem); // .to_chr();
+			szReturnValue = getPathFromItem(tvh.hItem).to_chr();
 		else
 			szReturnValue = TEXT('0');
 	}
@@ -399,7 +389,6 @@ void DcxTreeView::parseInfoRequest(const TString& input, const refString<TCHAR, 
 	case L"markeditem"_hash:
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Invalid number of arguments");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto path(input.getlasttoks().trim());	// tok 4, -1
@@ -449,7 +438,6 @@ void DcxTreeView::parseCommandRequest(const TString& input)
 		const auto nTabs = input.numtok(TSTABCHAR);
 
 		if ((numtok < 4) || (nTabs < 2))
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto path(input.getfirsttok(1, TSTABCHAR).gettok(4, -1).trim());	// tok 1
@@ -466,7 +454,6 @@ void DcxTreeView::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('A')])
 	{
 		if ((numtok < 4) || (input.numtok(TSTABCHAR) < 2))
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		auto path(input.getfirsttok(1, TSTABCHAR).trim());		// tok 1
@@ -489,7 +476,6 @@ void DcxTreeView::parseCommandRequest(const TString& input)
 		const auto info(data.getlasttoks());		// tok 2, -1
 
 		if (!xflag[TEXT('M')])
-			//throw Dcx::dcxException("Unknown flags");
 			throw DcxExceptions::dcxInvalidFlag();
 
 		if (const auto lpdcxtvitem = getItemParam(item); lpdcxtvitem)
@@ -501,7 +487,6 @@ void DcxTreeView::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('B')])
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto path(input.getlasttoks());	// tok 4, -1
@@ -517,7 +502,6 @@ void DcxTreeView::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('c')])
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto path(input.getlasttoks());	// tok 4, -1
@@ -533,7 +517,6 @@ void DcxTreeView::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('d')])
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto path(input.getlasttoks());	// tok 4, -1
@@ -548,7 +531,6 @@ void DcxTreeView::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('g')])
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		if (const auto iHeight = input.getnexttok().to_int(); iHeight > -2)
@@ -558,7 +540,6 @@ void DcxTreeView::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('i')])
 	{
 		if (numtok < 5)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto iFlags = this->parseColorFlags(input.getnexttok());	// tok 4
@@ -582,12 +563,10 @@ void DcxTreeView::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('j')])
 	{
 		if (numtok < 6)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		// Invalid parameters, missing icons segment.
 		if (input.numtok(TSTABCHAR) < 2)
-			//throw Dcx::dcxException("Invalid parameters.");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto path(input.getfirsttok(1, TSTABCHAR).gettok(4, -1).trim());
@@ -595,7 +574,6 @@ void DcxTreeView::parseCommandRequest(const TString& input)
 
 		// Invalid parameters, missing icon args.
 		if (icons.numtok() < 2)
-			//throw Dcx::dcxException("Invalid parameters.");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto item = this->parsePath(path);
@@ -662,7 +640,6 @@ void DcxTreeView::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('k')])
 	{
 		if (numtok < 5)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto state = input.getnexttok().to_<UINT>();	// tok 4
@@ -679,7 +656,6 @@ void DcxTreeView::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('l')])
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		m_iIconSize = NumToIconSize(input.getnexttok().to_<int>());	// tok 4
@@ -688,7 +664,6 @@ void DcxTreeView::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('m')])
 	{
 		if ((numtok < 4) || (input.numtok(TSTABCHAR) < 2))
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto pathFrom(input.getfirsttok(1, TSTABCHAR).gettok(4, -1).trim());
@@ -702,7 +677,6 @@ void DcxTreeView::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('n')])
 	{
 		if ((numtok < 4) || (input.numtok(TSTABCHAR) < 2))
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto pathFrom(input.getfirsttok(1, TSTABCHAR).gettok(4, -1).trim());
@@ -714,7 +688,6 @@ void DcxTreeView::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('o')])
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto path(input.getfirsttok(1, TSTABCHAR).gettok(4, -1).trim());
@@ -735,7 +708,6 @@ void DcxTreeView::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('Q')])
 	{
 		if (numtok < 6)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto iFlags = this->parseItemFlags(input.getnexttok());		// tok 4
@@ -773,7 +745,6 @@ void DcxTreeView::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('t')])
 	{
 		if (numtok < 5)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto iFlags = this->parseToggleFlags(input.getnexttok());	// tok 4
@@ -816,7 +787,6 @@ void DcxTreeView::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('v')])
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto path(input.getfirsttok(1, TSTABCHAR).gettok(4, -1).trim());
@@ -842,7 +812,6 @@ void DcxTreeView::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('w')])
 	{
 		if (numtok < 6)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto tsFlags(input.getnexttok());	// tok 4
@@ -913,7 +882,6 @@ void DcxTreeView::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('y')])
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto iFlags = this->parseIconFlagOptions(input.getnexttok());	// tok 4
@@ -940,7 +908,6 @@ void DcxTreeView::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('z')])
 	{
 		if (numtok < 5)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		auto dtvs = std::make_unique<DCXTVSORT>();
@@ -1155,11 +1122,22 @@ void DcxTreeView::insertItem(const TString& tsPath, const TString& tsData, const
 	if (sicon > -1)
 		tvi.iSelectedImage = sicon;
 
+	// test code for expanded image...
+	tvi.iExpandedImage = I_IMAGENONE;
+	if (icon > -1)
+	{
+		tvi.mask |= TVIF_EXPANDEDIMAGE;
+		tvi.iExpandedImage = icon;
+	}
+
 	if (integral > 1)
 	{
 		tvi.iIntegral = integral;
 		tvi.mask |= TVIF_INTEGRAL;
 	}
+	else
+		tvi.iIntegral = 1;
+	
 	// TODO: Add Expanded Image support (TVIF_EXPANDEDIMAGE)
 
 	iFlags &= ~TVIS_DCXMASK; // exclude DCX flags, they were messing up state & overlay icon settings, found when saved data didnt match what was set.
@@ -2020,6 +1998,19 @@ LRESULT DcxTreeView::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 			case CDDS_PREPAINT:
 				return (CDRF_NOTIFYPOSTPAINT | CDRF_NOTIFYITEMDRAW);
 
+			//case CDDS_ITEMPREERASE:
+			//{
+			//	const auto lpdcxtvi = reinterpret_cast<LPDCXTVITEM>(lpntvcd->nmcd.lItemlParam);
+			//	return CDRF_DODEFAULT;
+			//}
+			//break;
+			//case CDDS_ITEMPOSTERASE:
+			//{
+			//	const auto lpdcxtvi = reinterpret_cast<LPDCXTVITEM>(lpntvcd->nmcd.lItemlParam);
+			//	return CDRF_DODEFAULT;
+			//}
+			//break;
+
 			case CDDS_ITEMPREPAINT:
 			{
 				const auto lpdcxtvi = reinterpret_cast<LPDCXTVITEM>(lpntvcd->nmcd.lItemlParam);
@@ -2029,6 +2020,8 @@ LRESULT DcxTreeView::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 
 				if (lpdcxtvi->clrText != CLR_INVALID)
 					lpntvcd->clrText = lpdcxtvi->clrText;
+
+				//m_OldMode = SetBkMode(lpntvcd->nmcd.hdc, TRANSPARENT);
 
 				const auto bSelected = (dcx_testflag(lpntvcd->nmcd.uItemState, CDIS_SELECTED));
 
@@ -2077,30 +2070,102 @@ LRESULT DcxTreeView::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 					}
 				}
 
-				//TVITEMEX tvitem;
-				//TCHAR buf[MIRC_BUFFER_SIZE_CCH];
-				//ZeroMemory(&tvitem,sizeof(tvitem));
-				//tvitem.hItem = (HTREEITEM)lpntvcd->nmcd.dwItemSpec;
+				//TVITEMEX tvitem{};
+				//TCHAR buf[MIRC_BUFFER_SIZE_CCH]{};
+				//auto hItem = (HTREEITEM)lpntvcd->nmcd.dwItemSpec;
+				//tvitem.hItem = hItem;
 				//tvitem.mask = TVIF_TEXT;
 				//tvitem.pszText = buf;
 				//tvitem.cchTextMax = MIRC_BUFFER_SIZE_CCH;
-				//TreeView_GetItem(m_Hwnd, &tvitem);
-				//TString tsItem(buf);
-				//RECT rcTxt = lpntvcd->nmcd.rc;
-				//if (!this->m_bCtrlCodeText) {
-				//	if (bSelected && this->m_bShadowText) // could cause problems with pre-XP as this is commctrl v6+
-				//		dcxDrawShadowText(lpntvcd->nmcd.hdc,tsItem.to_wchr(this->m_bUseUTF8), tsItem.wlen(),&rcTxt, DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP | DT_SINGLELINE, lpntvcd->clrText, 0, 5, 5);
+				//if (TreeView_GetItem(m_Hwnd, &tvitem))
+				//{
+				//	TString tsItem(buf);
+				//	//RECT rcTxt = lpntvcd->nmcd.rc;
+				//	RECT rcItem = lpntvcd->nmcd.rc;
+				//	RECT rcTxt{};
+				//	TreeView_GetItemRect(m_Hwnd, hItem, &rcTxt, TRUE);
+				//
+				//	//dcxDrawBorder
+				//	const int LineY = rcItem.top + ((rcItem.bottom - rcItem.top) / 2);
+				//	dcxDrawLine(lpntvcd->nmcd.hdc, rcItem.left, LineY, rcTxt.left, LineY);
+				//
+				//	if (!this->m_bCtrlCodeText)
+				//	{
+				//		if (bSelected && this->m_bShadowText)
+				//			dcxDrawShadowText(lpntvcd->nmcd.hdc, tsItem.to_wchr(), tsItem.len(), &rcTxt, DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP | DT_SINGLELINE, lpntvcd->clrText, 0, 5, 5);
+				//		else
+				//			DrawTextW(lpntvcd->nmcd.hdc, tsItem.to_wchr(), tsItem.len(), &rcTxt, DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP | DT_SINGLELINE);
+				//	}
 				//	else
-				//		DrawTextW( lpntvcd->nmcd.hdc, tsItem.to_wchr( ), tsItem.wlen( ), &rcTxt, DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP | DT_SINGLELINE );
+				//		mIRC_DrawText(lpntvcd->nmcd.hdc, tsItem, &rcTxt, DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP | DT_SINGLELINE, ((bSelected && this->m_bShadowText) ? true : false));
 				//}
-				//else
-				//	mIRC_DrawText(lpntvcd->nmcd.hdc, tsItem, &rcTxt, DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP | DT_SINGLELINE, ((bSelected && this->m_bShadowText) ? true : false));
 			}
 			//return ( CDRF_NOTIFYPOSTPAINT | CDRF_SKIPDEFAULT );
 			return (CDRF_NOTIFYPOSTPAINT | CDRF_NEWFONT);
 
 			case CDDS_ITEMPOSTPAINT:
 			{
+#ifdef DCX_USE_TESTCODE
+				// this is drawn here to allow the treeview control to draw everything else first.
+				if (!lpntvcd->nmcd.hdc)
+					return CDRF_DODEFAULT;
+
+				const auto bSelected = (dcx_testflag(lpntvcd->nmcd.uItemState, CDIS_SELECTED));
+				TVITEMEX tvitem{};
+				TCHAR buf[MIRC_BUFFER_SIZE_CCH]{};
+				auto hItem = (HTREEITEM)lpntvcd->nmcd.dwItemSpec;
+				tvitem.hItem = hItem;
+				tvitem.mask = TVIF_TEXT;
+				tvitem.pszText = &buf[0];
+				tvitem.cchTextMax = std::size(buf);
+				if (TreeView_GetItem(m_Hwnd, &tvitem))
+				{
+					TString tsItem(buf);
+					RECT rcTxt{};
+					RECT rcItem{};
+					TreeView_GetItemRect(m_Hwnd, hItem, &rcTxt, TRUE);
+					TreeView_GetItemRect(m_Hwnd, hItem, &rcItem, FALSE);
+					RECT rcClear = rcTxt;
+
+#ifdef DCX_USE_GDIPLUS
+					rcClear.right = rcItem.right;
+					if (Dcx::GDIModule.isUseable() && m_pImage)
+					{
+						if (auto hdc = CreateHDCBuffer(lpntvcd->nmcd.hdc, nullptr); hdc)
+						{
+							Auto(DeleteHDCBuffer(hdc));
+
+							DrawGDIPlusImage(*hdc);
+
+							BitBlt(lpntvcd->nmcd.hdc, rcClear.left, rcClear.top, (rcClear.right - rcClear.left), (rcClear.bottom - rcClear.top), *hdc, rcClear.left, rcClear.top, SRCCOPY);
+						}
+					}
+					else
+						Dcx::FillRectColour(lpntvcd->nmcd.hdc, std::addressof(rcClear), GetSysColor(COLOR_WINDOW));
+#else
+					Dcx::FillRectColour(lpntvcd->nmcd.hdc, std::addressof(rcClear), GetSysColor(COLOR_WINDOW));
+#endif
+
+					calcTextRect(lpntvcd->nmcd.hdc, tsItem, std::addressof(rcTxt), DT_LEFT | DT_SINGLELINE | DT_VCENTER);
+
+					if (bSelected)
+					{
+						if (!dcxDrawTranslucentRect(lpntvcd->nmcd.hdc, std::addressof(rcTxt), lpntvcd->clrTextBk, GetSysColor(COLOR_3DHIGHLIGHT), false))
+							dcxDrawRect(lpntvcd->nmcd.hdc, std::addressof(rcTxt), lpntvcd->clrTextBk, GetSysColor(COLOR_3DHIGHLIGHT), false);
+					}
+
+					if (!this->m_bCtrlCodeText)
+					{
+						if (bSelected && this->m_bShadowText)
+							dcxDrawShadowText(lpntvcd->nmcd.hdc, tsItem.to_wchr(), tsItem.len(), std::addressof(rcTxt), /*DT_WORD_ELLIPSIS |*/ DT_LEFT | DT_SINGLELINE | DT_VCENTER, lpntvcd->clrText, 0, 5, 5);
+						else
+							DrawTextW(lpntvcd->nmcd.hdc, tsItem.to_wchr(), tsItem.len(), std::addressof(rcTxt), /*DT_WORD_ELLIPSIS |*/ DT_LEFT | DT_SINGLELINE | DT_VCENTER);
+					}
+					else
+						mIRC_DrawText(lpntvcd->nmcd.hdc, tsItem, std::addressof(rcTxt), /*DT_WORD_ELLIPSIS |*/ DT_LEFT | DT_SINGLELINE | DT_VCENTER, ((bSelected && this->m_bShadowText) ? true : false));
+				}
+#endif
+
 				if (m_hOldItemFont)
 				{
 					Dcx::dcxSelectObject(lpntvcd->nmcd.hdc, m_hOldItemFont);
@@ -2111,6 +2176,9 @@ LRESULT DcxTreeView::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 					DeleteObject(m_hItemFont);
 					m_hItemFont = nullptr;
 				}
+				//if (m_OldMode)
+				//	SetBkMode(lpntvcd->nmcd.hdc, m_OldMode);
+
 				return CDRF_DODEFAULT;
 			}
 
@@ -2156,18 +2224,6 @@ LRESULT DcxTreeView::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 	}
 	break;
 
-//	case WM_ERASEBKGND:
-//	{
-//#ifdef DCX_USE_GDIPLUS
-//		if (Dcx::GDIModule.isUseable() && m_pImage)
-//		{
-//			DrawGDIPlusImage((HDC)wParam);
-//			return 1L;
-//		}
-//#endif
-//	}
-//	break;
-
 	default:
 		break;
 	}
@@ -2189,15 +2245,34 @@ LRESULT DcxTreeView::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& b
 		bParsed = TRUE;
 	}
 	break;
+
+//#ifdef DCX_USE_GDIPLUS
+//	case WM_ERASEBKGND:
+//	{
+//		if (Dcx::GDIModule.isUseable() && m_pImage)
+//		{
+//			DrawGDIPlusImage(reinterpret_cast<HDC>(wParam));
+//			bParsed = TRUE;
+//			return TRUE;
+//		}
+//	}
+//	break;
+//#endif
+
 	case WM_PAINT:
 	{
 		bParsed = TRUE;
-		PAINTSTRUCT ps{};
+		if (!wParam)
+		{
+			PAINTSTRUCT ps{};
 
-		auto hdc = BeginPaint(m_Hwnd, &ps);
-		Auto(EndPaint(m_Hwnd, &ps));
+			auto hdc = BeginPaint(m_Hwnd, &ps);
+			Auto(EndPaint(m_Hwnd, &ps));
 
-		DrawClientArea(hdc, uMsg, lParam);
+			DrawClientArea(hdc, uMsg, lParam);
+		}
+		else
+			this->DrawClientArea(reinterpret_cast<HDC>(wParam), uMsg, lParam);
 	}
 	break;
 
@@ -2226,6 +2301,9 @@ LRESULT CALLBACK DcxTreeView::EditLabelProc(HWND mHwnd, UINT uMsg, WPARAM wParam
 {
 	const auto* const pthis = Dcx::dcxGetProp<DcxTreeView*>(mHwnd, TEXT("dcx_pthis"));
 
+	if (!pthis)
+		return DefWindowProc(mHwnd, uMsg, wParam, lParam);
+
 	switch (uMsg)
 	{
 	case WM_GETDLGCODE:
@@ -2246,25 +2324,29 @@ LRESULT CALLBACK DcxTreeView::EditLabelProc(HWND mHwnd, UINT uMsg, WPARAM wParam
 
 void DcxTreeView::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 {
-	// Setup alpha blend if any. Double Buffer is needed to stop flicker when a bkg image is used.
-	const auto ai = SetupAlphaBlend(&hdc, true);
-	Auto(FinishAlphaBlend(ai));
-
 #ifdef DCX_USE_GDIPLUS
 	if (Dcx::GDIModule.isUseable() && m_pImage)
+	{
+		// Setup alpha blend if any. Double Buffer is needed to stop flicker when a bkg image is used.
+		const auto ai = SetupAlphaBlend(&hdc, true);
+		Auto(FinishAlphaBlend(ai));
+
 		DrawGDIPlusImage(hdc);
+
+		CallDefaultClassProc(uMsg, reinterpret_cast<WPARAM>(hdc), lParam);
+		return;
+	}
 #endif
 
 	CallDefaultClassProc(uMsg, reinterpret_cast<WPARAM>(hdc), lParam);
+
+	//CallDefaultClassProc(WM_PRINTCLIENT, reinterpret_cast<WPARAM>(hdc), PRF_CLIENT | PRF_CHILDREN);
 }
 
 // clears existing image and icon data and sets pointers to null
 void DcxTreeView::PreloadData() noexcept
 {
 #ifdef DCX_USE_GDIPLUS
-	//delete m_pImage;
-	//m_pImage = nullptr;
-
 	m_pImage.reset(nullptr);
 #endif
 }
@@ -2312,6 +2394,9 @@ void DcxTreeView::LoadGDIPlusImage(const TString& flags, TString& filename)
 
 void DcxTreeView::DrawGDIPlusImage(HDC hdc)
 {
+	if (!hdc || !m_Hwnd)
+		return;
+
 	RECT rc{};
 	if (!GetClientRect(m_Hwnd, &rc))
 		return;
@@ -2328,6 +2413,8 @@ void DcxTreeView::DrawGDIPlusImage(HDC hdc)
 		else
 			Dcx::FillRectColour(hdc, &rc, GetBkColor(hdc));
 	}
+	//GdiFlush();
+
 	Gdiplus::Graphics grphx(hdc);
 
 	grphx.SetCompositingQuality(m_CQuality);
@@ -2638,6 +2725,9 @@ const TiXmlElement* DcxTreeView::xmlInsertItems(HTREEITEM hParent, HTREEITEM& hI
 GSL_SUPPRESS(type.4)
 HTREEITEM DcxTreeView::TV_GetLastSibling(HTREEITEM child) const noexcept
 {
+	if (!child || !m_Hwnd)
+		return nullptr;
+
 	HTREEITEM current{};
 	for (HTREEITEM tmp = TreeView_GetNextSibling(m_Hwnd, child); tmp; tmp = TreeView_GetNextSibling(m_Hwnd, current))
 		current = tmp;
@@ -2647,27 +2737,52 @@ HTREEITEM DcxTreeView::TV_GetLastSibling(HTREEITEM child) const noexcept
 const TString DcxTreeView::getStyles() const
 {
 	auto styles(__super::getStyles());
-	const auto Styles = dcxGetWindowStyle(m_Hwnd);
-	const auto ExStyles = dcxGetWindowExStyle(m_Hwnd);
 
-	if (dcx_testflag(Styles, TVS_HASLINES))
-		styles.addtok(TEXT("haslines"));
-	if (dcx_testflag(Styles, TVS_HASBUTTONS))
-		styles.addtok(TEXT("hasbuttons"));
-	if (dcx_testflag(Styles, TVS_LINESATROOT))
-		styles.addtok(TEXT("linesatroot"));
-	if (dcx_testflag(Styles, TVS_SHOWSELALWAYS))
-		styles.addtok(TEXT("showsel"));
-	if (dcx_testflag(Styles, TVS_EDITLABELS))
-		styles.addtok(TEXT("editlabel"));
-	if (dcx_testflag(Styles, TVS_NOHSCROLL))
-		styles.addtok(TEXT("nohscroll"));
-	if (dcx_testflag(Styles, TVS_FULLROWSELECT))
-		styles.addtok(TEXT("fullrow"));
-	if (dcx_testflag(Styles, TVS_SINGLEEXPAND))
-		styles.addtok(TEXT("singleexpand"));
-	if (dcx_testflag(ExStyles, TVS_CHECKBOXES))
-		styles.addtok(TEXT("checkbox"));
+	{
+		const auto Styles = dcxGetWindowStyle(m_Hwnd);
+
+		if (dcx_testflag(Styles, TVS_HASLINES))
+			styles.addtok(TEXT("haslines"));
+		if (dcx_testflag(Styles, TVS_HASBUTTONS))
+			styles.addtok(TEXT("hasbuttons"));
+		if (dcx_testflag(Styles, TVS_LINESATROOT))
+			styles.addtok(TEXT("linesatroot"));
+		if (dcx_testflag(Styles, TVS_SHOWSELALWAYS))
+			styles.addtok(TEXT("showsel"));
+		if (dcx_testflag(Styles, TVS_EDITLABELS))
+			styles.addtok(TEXT("editlabel"));
+		if (dcx_testflag(Styles, TVS_NOHSCROLL))
+			styles.addtok(TEXT("nohscroll"));
+		if (dcx_testflag(Styles, TVS_FULLROWSELECT))
+			styles.addtok(TEXT("fullrow"));
+		if (dcx_testflag(Styles, TVS_SINGLEEXPAND))
+			styles.addtok(TEXT("singleexpand"));
+		if (dcx_testflag(Styles, TVS_CHECKBOXES))
+			styles.addtok(TEXT("checkbox"));
+		if (dcx_testflag(Styles, TVS_NOTOOLTIPS))
+			styles.addtok(TEXT("notooltips"));
+		if (dcx_testflag(Styles, TVS_NOSCROLL))
+			styles.addtok(TEXT("noscroll"));
+	}
+
+	//const auto ExStyles = dcxGetWindowExStyle(m_Hwnd);
+
+	{
+		const auto Styles = TreeView_GetExtendedStyle(m_Hwnd);
+
+		if (dcx_testflag(Styles, TVS_EX_FADEINOUTEXPANDOS))
+			styles.addtok(TEXT("fadebuttons"));
+		if (dcx_testflag(Styles, TVS_EX_DOUBLEBUFFER))
+			styles.addtok(TEXT("doublebuffer"));
+		if (dcx_testflag(Styles, TVS_EX_NOINDENTSTATE))
+			styles.addtok(TEXT("noident"));
+		if (dcx_testflag(Styles, TVS_EX_RICHTOOLTIP))
+			styles.addtok(TEXT("richtooltips"));
+		if (dcx_testflag(Styles, TVS_EX_AUTOHSCROLL))
+			styles.addtok(TEXT("autohscroll"));
+		if (dcx_testflag(Styles, TVS_EX_DIMMEDCHECKBOXES))
+			styles.addtok(TEXT("dimmedchecks"));
+	}
 
 	return styles;
 }

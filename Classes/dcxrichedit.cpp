@@ -26,7 +26,7 @@
 * \param rc Window Rectangle
 * \param styles Window Style Tokenized List
 */
-DcxRichEdit::DcxRichEdit(const UINT ID, DcxDialog* const p_Dialog, const HWND mParentHwnd, const RECT* const rc, const TString& styles)
+DcxRichEdit::DcxRichEdit(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialog, const HWND mParentHwnd, const RECT* const rc, const TString& styles)
 	: DcxControl(ID, p_Dialog)
 {
 	const auto ws = parseControlStyles(styles);
@@ -40,7 +40,7 @@ DcxRichEdit::DcxRichEdit(const UINT ID, DcxDialog* const p_Dialog, const HWND mP
 		ID,
 		this);
 
-	if (!IsWindow(m_Hwnd))
+	if (!IsValidWindow())
 		throw DcxExceptions::dcxUnableToCreateWindow();
 
 	if (ws.m_NoTheme)
@@ -237,6 +237,8 @@ void DcxRichEdit::parseInfoRequest(const TString& input, const refString<TCHAR, 
 	case L"rtftext"_hash:
 	{
 		UINT iFlags = SF_RTF;
+		constexpr auto UTF8Flags = ((CP_UTF8 << 16) | SF_USECODEPAGE | SF_RTF);
+
 		const auto tsFlags(input.getnexttok());
 
 		stringstream_type rtf;
@@ -246,7 +248,7 @@ void DcxRichEdit::parseInfoRequest(const TString& input, const refString<TCHAR, 
 		es.pfnCallback = &StreamOutToVarCallback;
 
 		if (tsFlags == TEXT("utf8"))
-			iFlags = gsl::narrow_cast<UINT>((CP_UTF8 << 16) | SF_USECODEPAGE | SF_RTF);
+			iFlags = gsl::narrow_cast<UINT>(UTF8Flags);
 
 		SendMessage(m_Hwnd, EM_STREAMOUT, gsl::narrow_cast<UINT>(iFlags), reinterpret_cast<LPARAM>(&es));
 
@@ -1302,93 +1304,94 @@ void DcxRichEdit::parseStringContents(const TString& tsStr, const BOOL fNewLine)
 
 void DcxRichEdit::DrawGutter()
 {
+	if (!m_Hwnd)
+		return;
+
 	if (HDC hdc = GetDC(m_Hwnd); hdc)
 	{
 		Auto(ReleaseDC(m_Hwnd, hdc));
+		DrawGutter(hdc);
+	}
+}
 
-		auto hFont = (this->m_hFont) ? this->m_hFont : GetWindowFont(m_Hwnd);
-		const auto oldFont = Dcx::dcxSelectObject<HFONT>(hdc, hFont);
-		Auto(Dcx::dcxSelectObject<HFONT>(hdc, oldFont));
+void DcxRichEdit::DrawGutter(HDC hdc)
+{
+	if (!hdc || !m_Hwnd)
+		return;
 
-		TEXTMETRICW lptm{};
-		GetTextMetrics(hdc, &lptm);
-		const auto letter_height = lptm.tmHeight;
+	RECT rcClient{};
+	const RECT rcFmt = getFmtRect();
 
-		RECT rcClient{};
-		RECT m_FRGutter{};
-		const RECT rcFmt = getFmtRect();
+	GetClientRect(m_Hwnd, &rcClient);
 
-		GetClientRect(m_Hwnd, &rcClient);
+	RECT m_FRGutter = rcClient;
+	m_FRGutter.right = std::max(rcFmt.left - 3, 0L);
 
-		m_FRGutter = rcClient;
-		m_FRGutter.right = rcFmt.left - 3;
+	// gutter doesnt exist...
+	if (m_FRGutter.right == 0)
+		return;
 
-		if (auto hdcbuf = CreateHDCBuffer(hdc, &m_FRGutter); hdcbuf)
+	auto hFont = GetWindowFont(m_Hwnd);
+	const auto oldFont = Dcx::dcxSelectObject<HFONT>(hdc, hFont);
+	Auto(Dcx::dcxSelectObject<HFONT>(hdc, oldFont));
+
+	TEXTMETRICW lptm{};
+	GetTextMetrics(hdc, &lptm);
+	const auto letter_height = lptm.tmHeight;
+
+	if (auto hdcbuf = CreateHDCBuffer(hdc, &m_FRGutter); hdcbuf)
+	{
+		Auto(DeleteHDCBuffer(hdcbuf));
+
+		Dcx::FillRectColour(*hdcbuf, &m_FRGutter, m_clrGutter_bkg);
+
+		dcxDrawEdge(*hdcbuf, &m_FRGutter, m_clrGutter_border);
+
+		RECT RNumber = m_FRGutter;
+		InflateRect(&RNumber, -5, 0);
+
+		// get visible lines
+		const auto rng = GetVisibleRange();
+		// get current caret pos
+		const auto pos = GetCaretLine();
+
+		TCHAR buf[49]{};
+
 		{
-			Auto(DeleteHDCBuffer(hdcbuf));
-
-			Dcx::FillRectColour(*hdcbuf, &m_FRGutter, m_clrGutter_bkg);
-
-			//if (auto hPen = CreatePen(PS_SOLID, 5, RGB(0, 0, 255)); hPen)
-			//{
-			//	Auto(DeleteObject(hPen));
-			//	const auto oldPen = Dcx::dcxSelectObject<HPEN>(*hdcbuf, hPen);
-			//	Auto(Dcx::dcxSelectObject<HPEN>(*hdcbuf, oldPen));
-			//	//DrawEdge(*hdcbuf, &m_FRGutter, EDGE_BUMP, BF_RIGHT);
-			//	MoveToEx(*hdcbuf, m_FRGutter.right, m_FRGutter.top, nullptr);
-			//	LineTo(*hdcbuf, m_FRGutter.right, m_FRGutter.bottom);
-			//}
-			//else
-			//	DrawEdge(*hdcbuf, &m_FRGutter, EDGE_BUMP, BF_RIGHT);
-
-			dcxDrawEdge(*hdcbuf, &m_FRGutter, m_clrGutter_border);
-
-			RECT RNumber = m_FRGutter;
-			InflateRect(&RNumber, -5, 0);
-
-			// get visible lines
-			const auto rng = GetVisibleRange();
-			// get current caret pos
-			const auto pos = GetCaretLine();
-
-			TCHAR buf[49]{};
-
-			{
-				// top line, could be a partial line
-				const auto iLineChar = SNDMSG(m_Hwnd, EM_LINEINDEX, rng.b, 0);
-				POINTL pl{};
-				SNDMSG(m_Hwnd, EM_POSFROMCHAR, reinterpret_cast<WPARAM>(&pl), gsl::narrow_cast<LPARAM>(iLineChar));
-				// NB: if a partial line pl.y will be a negative (ie off screen)
-				RNumber.top = pl.y;
-				RNumber.bottom = RNumber.top + letter_height;
-			}
-
-			//SetGraphicsMode(hdc, GM_ADVANCED);
-			const auto oldMode = SetBkMode(*hdcbuf, TRANSPARENT);
-			Auto(SetBkMode(*hdcbuf, oldMode));
-			const auto oldTextColor = GetTextColor(*hdcbuf);
-			Auto(SetTextColor(*hdcbuf, oldTextColor));
-
-			// render the line numbers
-			for (const auto& index : rng)
-			{
-				if (index == pos)
-				{
-					if (m_clrGutter_selbkg != m_clrGutter_bkg)
-						Dcx::FillRectColour(*hdcbuf, &RNumber, m_clrGutter_selbkg);
-					SetTextColor(*hdcbuf, m_clrGutter_seltxt);
-				}
-				else
-					SetTextColor(*hdcbuf, m_clrGutter_txt);
-
-				if (const auto l = _ts_snprintf(&buf[0], std::size(buf), _T("%u"), index + 1); l != -1)
-					DrawText(*hdcbuf, &buf[0], l, &RNumber, DT_RIGHT | DT_VCENTER | DT_SINGLELINE | DT_NOPREFIX);
-
-				RNumber.top += letter_height;
-				RNumber.bottom = RNumber.top + letter_height;
-			}
-			BitBlt(hdc, 0, 0, rcClient.right, rcClient.bottom, *hdcbuf, 0, 0, SRCCOPY);
+			// top line, could be a partial line
+			const auto iLineChar = SNDMSG(m_Hwnd, EM_LINEINDEX, rng.b, 0);
+			POINTL pl{};
+			SNDMSG(m_Hwnd, EM_POSFROMCHAR, reinterpret_cast<WPARAM>(&pl), gsl::narrow_cast<LPARAM>(iLineChar));
+			// NB: if a partial line pl.y will be a negative (ie off screen)
+			RNumber.top = pl.y;
+			RNumber.bottom = RNumber.top + letter_height;
 		}
+
+		//SetGraphicsMode(hdc, GM_ADVANCED);
+		const auto oldMode = SetBkMode(*hdcbuf, TRANSPARENT);
+		Auto(SetBkMode(*hdcbuf, oldMode));
+		const auto oldTextColor = GetTextColor(*hdcbuf);
+		Auto(SetTextColor(*hdcbuf, oldTextColor));
+
+		// render the line numbers
+		for (const auto& index : rng)
+		{
+			if (index == pos)
+			{
+				if (m_clrGutter_selbkg != m_clrGutter_bkg)
+					Dcx::FillRectColour(*hdcbuf, &RNumber, m_clrGutter_selbkg);
+				SetTextColor(*hdcbuf, m_clrGutter_seltxt);
+			}
+			else
+				SetTextColor(*hdcbuf, m_clrGutter_txt);
+
+			if (const auto l = _ts_snprintf(&buf[0], std::size(buf), _T("%u"), index + 1); l != -1)
+				DrawText(*hdcbuf, &buf[0], l, &RNumber, DT_RIGHT | DT_VCENTER | DT_SINGLELINE | DT_NOPREFIX);
+
+			RNumber.top += letter_height;
+			RNumber.bottom = RNumber.top + letter_height;
+		}
+		BitBlt(hdc, 0, 0, rcClient.right, rcClient.bottom, *hdcbuf, 0, 0, SRCCOPY);
 	}
 }
 
@@ -1812,7 +1815,8 @@ LRESULT DcxRichEdit::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& b
 			const auto lRes = CallDefaultClassProc(uMsg, reinterpret_cast<WPARAM>(hdc), lParam);
 
 			if (m_bShowLineNumbers)
-				PostMessage(m_Hwnd, WM_DRAW_NUMBERS, 0, 0);
+				//PostMessage(m_Hwnd, WM_DRAW_NUMBERS, 0, 0);
+				DrawGutter(hdc);
 
 			return lRes;
 		}
@@ -1821,7 +1825,8 @@ LRESULT DcxRichEdit::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& b
 			bParsed = TRUE;
 			const auto lRes = CallDefaultClassProc(uMsg, wParam, lParam);
 
-			PostMessage(m_Hwnd, WM_DRAW_NUMBERS, 0, 0);
+			//PostMessage(m_Hwnd, WM_DRAW_NUMBERS, 0, 0);
+			DrawGutter(reinterpret_cast<HDC>(wParam));
 
 			return lRes;
 		}
@@ -1878,7 +1883,10 @@ LRESULT DcxRichEdit::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& b
 			bParsed = TRUE;
 
 			setFmtRect();
-			DrawGutter();
+			if (wParam)
+				DrawGutter(reinterpret_cast<HDC>(wParam));
+			else
+				DrawGutter();
 		}
 		return 0;
 	}

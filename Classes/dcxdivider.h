@@ -37,7 +37,7 @@ public:
 	DcxDivider(DcxDivider &&) = delete;
 	DcxDivider &operator =(DcxDivider &&) = delete;
 
-	DcxDivider(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles );
+	DcxDivider(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles );
 	~DcxDivider( ) noexcept;
 
 	LRESULT OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) final;

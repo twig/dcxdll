@@ -25,7 +25,7 @@
   * \param styles Window Style Tokenized List
   */
 
-DcxText::DcxText(const UINT ID, DcxDialog* const p_Dialog, const HWND mParentHwnd, const RECT* const rc, const TString& styles)
+DcxText::DcxText(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialog, const HWND mParentHwnd, const RECT* const rc, const TString& styles)
 	: DcxControl(ID, p_Dialog)
 {
 	const auto ws = parseControlStyles(styles);
@@ -40,7 +40,6 @@ DcxText::DcxText(const UINT ID, DcxDialog* const p_Dialog, const HWND mParentHwn
 		this);
 
 	if (!IsWindow(m_Hwnd))
-		//throw Dcx::dcxException("Unable To Create Window");
 		throw DcxExceptions::dcxUnableToCreateWindow();
 
 	// remove all borders
@@ -127,6 +126,10 @@ dcxWindowStyles DcxText::parseControlStyles(const TString& tsStyles)
  *
  * \return > void
  */
+TString DcxText::parseInfoRequest(const TString& input) const
+{
+	return TString();
+}
 void DcxText::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>& szReturnValue) const
 {
 	// [NAME] [ID] [PROP]
@@ -160,7 +163,6 @@ void DcxText::parseCommandRequest(const TString& input)
 	if (flags[TEXT('a')])
 	{
 		if (numtok < 3)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		if (input.getnexttok().to_int() == 1)	// tok 4

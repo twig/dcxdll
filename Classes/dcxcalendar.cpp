@@ -33,7 +33,7 @@ MCHT_TITLEBTNPREV
   * \param styles Window Style Tokenized List
   */
 
-DcxCalendar::DcxCalendar(const UINT ID, DcxDialog* const p_Dialog, const HWND mParentHwnd, const RECT* const rc, const TString& styles)
+DcxCalendar::DcxCalendar(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialog, const HWND mParentHwnd, const RECT* const rc, const TString& styles)
 	: DcxControl(ID, p_Dialog)
 	, m_MonthDayStates()
 {
@@ -71,6 +71,9 @@ DcxCalendar::~DcxCalendar() noexcept
 
 void DcxCalendar::toXml(TiXmlElement* const xml) const
 {
+	if (!xml)
+		return;
+
 	__super::toXml(xml);
 
 	xml->SetAttribute("caption", getValue().c_str());
@@ -351,6 +354,10 @@ void DcxCalendar::parseCommandRequest(const TString& input)
  */
 LRESULT DcxCalendar::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed)
 {
+	const auto pDialog = getParentDialog();
+	if (!pDialog)
+		return 0L;	// something went very wrong...
+
 	switch (uMsg)
 	{
 	case WM_NOTIFY:
@@ -394,7 +401,7 @@ LRESULT DcxCalendar::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 				for (auto i = decltype(iMax){0}; i < iMax; ++i)
 			{
 				// daystate ctrlid startdate
-				const TString strDays(getParentDialog()->evalAliasT(TEXT("daystate,%,%"), getUserID(), SystemTimeToMircTime(&(lpNMDayState->stStart))).second.trim());
+				const TString strDays(pDialog->evalAliasT(TEXT("daystate,%,%"), getUserID(), SystemTimeToMircTime(&(lpNMDayState->stStart))).second.trim());
 				gsl::at(m_MonthDayStates, i) = 0;
 
 				{
@@ -458,7 +465,7 @@ LRESULT DcxCalendar::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 		}
 		case NM_RELEASEDCAPTURE:
 		{
-			if (dcx_testflag(getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
+			if (dcx_testflag(pDialog->getEventMask(), DCX_EVENT_CLICK))
 				execAliasEx(TEXT("sclick,%u"), getUserID());
 			break;
 		}
@@ -475,11 +482,15 @@ LRESULT DcxCalendar::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 
 LRESULT DcxCalendar::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed)
 {
+	const auto pDialog = getParentDialog();
+	if (!pDialog)
+		return 0L;	// something went very wrong...
+
 	switch (uMsg)
 	{
 	case WM_LBUTTONUP:
 	{
-		if (dcx_testflag(getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
+		if (dcx_testflag(pDialog->getEventMask(), DCX_EVENT_CLICK))
 			execAliasEx(TEXT("lbup,%u"), getUserID());
 	}
 	break;

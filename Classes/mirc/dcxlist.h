@@ -21,6 +21,8 @@
 
 // Test fix for drawing when transparent.
 #define USE_FIX_01 1
+// this enables a fix for listboxes with >64k items
+#define USE_FIX_SCROLL 1
 
 class DcxDialog;
 
@@ -46,7 +48,7 @@ public:
 	DcxList(DcxList &&) = delete;
 	DcxList &operator =(DcxList &&) = delete;
 
-	DcxList(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles );
+	DcxList(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles );
 	~DcxList( );
 
 	LRESULT OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) final;

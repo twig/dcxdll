@@ -45,7 +45,7 @@ namespace Dcx {
   * \param styles Window Style Tokenized List
   */
 
-DcxList::DcxList(const UINT ID, DcxDialog* const p_Dialog, const HWND mParentHwnd, const RECT* const rc, const TString& styles)
+DcxList::DcxList(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialog, const HWND mParentHwnd, const RECT* const rc, const TString& styles)
 	: DcxControl(ID, p_Dialog)
 {
 	const auto ws = parseControlStyles(styles);
@@ -215,13 +215,11 @@ void DcxList::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC
 	case L"text"_hash:
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Invalid number of arguments");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto nSel = input.getnexttok().to_int() - 1;	// tok 4
 
 		if (nSel < 0 || nSel >= ListBox_GetCount(m_Hwnd))
-			//throw Dcx::dcxException("Item out of range");
 			throw DcxExceptions::dcxOutOfRange();
 
 		if (const auto l = ListBox_GetTextLen(m_Hwnd, nSel); (l == LB_ERR || l >= MIRC_BUFFER_SIZE_CCH))
@@ -247,7 +245,6 @@ void DcxList::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC
 					const auto i = (input.getnexttok().to_int() - 1);	// tok 4
 
 					if ((i < 0) || (i >= n))
-						//throw Dcx::dcxException("Requested Item Out Of Selection Range");
 						throw DcxExceptions::dcxOutOfRange();
 
 					nSel = gsl::at(p, gsl::narrow_cast<size_t>(i));
@@ -341,7 +338,6 @@ void DcxList::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC
 	case L"find"_hash:
 	{
 		if (numtok < 6)
-			//throw Dcx::dcxException("Invalid number of arguments");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto matchtext(input.getfirsttok(2, TSTABCHAR).trim());
@@ -414,7 +410,6 @@ void DcxList::parseCommandRequest(const TString& input)
 	if (flags[TEXT('a')])
 	{
 		if (numtok < 5)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		auto nPos = input.getnexttok().to_int() - 1;	// tok 4
@@ -1102,6 +1097,28 @@ LRESULT DcxList::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPars
 	case WM_VSCROLL:
 		if (Dcx::dcxLOWORD(wParam) == SB_ENDSCROLL)
 			this->execAliasEx(TEXT("scrollend,%u"), getUserID());
+#ifdef USE_FIX_SCROLL
+		// Taken & adapted from: https://forum.powerbasic.com/forum/user-to-user-discussions/source-code/782926-listbox-with-2-147-483-647-items
+		// 
+		//wParam	The HIWORD specifies the current position of the scroll box if the LOWORD is SB_THUMBPOSITION or SB_THUMBTRACK; otherwise, this word is not used.
+		//			The LOWORD specifies a scroll bar value that indicates the user's scrolling request.This parameter can be one of the following values.
+		//lParam	If the message is sent by a scroll bar control, this parameter is the handle to the scroll bar control.
+		//			If the message is sent by a standard scroll bar, this parameter is NULL.
+		//if ((Dcx::dcxLOWORD(wParam) == SB_THUMBPOSITION) || (Dcx::dcxLOWORD(wParam) == SB_THUMBTRACK))
+		if ((wParam & 0x0000fffe) == SB_THUMBPOSITION)
+		{
+			//'wParam AND ... is a quick way to test for SB_THUMBPOSITION(4) or SB_THUMBTRACK(5)
+			SCROLLINFO si{};
+			si.cbSize = sizeof(SCROLLINFO);
+			si.fMask = SIF_ALL | SIF_DISABLENOSCROLL;
+			GetScrollInfo(m_Hwnd, SB_VERT, &si); // 'Get valid 32bit position
+			si.nPos = si.nTrackPos;
+			SetScrollInfo(m_Hwnd, SB_VERT, &si, TRUE); // 'Fix scrollbar thumb position avoiding the Lisbox 16 bit engine.
+			SendMessage(m_Hwnd, LB_SETTOPINDEX, si.nTrackPos, 0); // 'Scroll listbox
+			bParsed = TRUE;
+		}
+#endif
+
 #ifdef USE_FIX_01
 		if (isExStyle(WindowExStyle::Transparent) && !isExStyle(WindowExStyle::Composited))
 		{
@@ -1126,6 +1143,35 @@ LRESULT DcxList::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPars
 			const auto lRes = CallDefaultClassProc(uMsg, wParam, lParam);
 
 			redrawBufferedWindow();
+
+			return lRes;
+		}
+	}
+	break;
+#endif
+
+#ifdef USE_FIX_SCROLL
+	case WM_KEYDOWN:
+	{
+		// Taken & adapted from: https://forum.powerbasic.com/forum/user-to-user-discussions/source-code/782926-listbox-with-2-147-483-647-items
+		// 
+		//'HOME and END travel only half the way with 2,147,483,646 items without the following
+		if ((wParam == VK_HOME) || (wParam == VK_END))
+		{
+			const auto lRes = CallDefaultClassProc(uMsg, wParam, lParam);
+
+			SCROLLINFO si{};
+
+			if (wParam == VK_HOME)
+				si.nPos = 0;
+			else
+				si.nPos = ListBox_GetCount(m_Hwnd) - 1;
+
+			si.cbSize = sizeof(SCROLLINFO);
+			si.fMask = SIF_POS;
+			SetScrollInfo(m_Hwnd, SB_VERT, &si, TRUE); // 'Fix scrollbar thumb position avoiding the Lisbox 16 bit engine.
+			SendMessage(m_Hwnd, LB_SETTOPINDEX, si.nPos, 0); // 'Scroll listbox
+			bParsed = TRUE;
 
 			return lRes;
 		}

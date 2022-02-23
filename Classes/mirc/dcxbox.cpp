@@ -30,7 +30,7 @@
   * \param styles Window Style Tokenized List
   */
 
-DcxBox::DcxBox(const UINT ID, DcxDialog* const p_Dialog, const HWND mParentHwnd, const RECT* const rc, const TString& styles)
+DcxBox::DcxBox(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialog, const HWND mParentHwnd, const RECT* const rc, const TString& styles)
 	: DcxControl(ID, p_Dialog)
 {
 	const auto ws = parseControlStyles(styles);
@@ -45,7 +45,6 @@ DcxBox::DcxBox(const UINT ID, DcxDialog* const p_Dialog, const HWND mParentHwnd,
 		this);
 
 	if (!IsWindow(m_Hwnd))
-		//throw Dcx::dcxException("Unable To Create Window");
 		throw DcxExceptions::dcxUnableToCreateWindow();
 
 	// remove all borders
@@ -55,7 +54,6 @@ DcxBox::DcxBox(const UINT ID, DcxDialog* const p_Dialog, const HWND mParentHwnd,
 	if (ws.m_NoTheme)
 		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
 
-	//setNoThemed((ws.m_NoTheme != false));
 	setNoThemed(ws.m_NoTheme);
 
 	m_pLayoutManager = std::make_unique<LayoutManager>(m_Hwnd);
@@ -128,22 +126,13 @@ dcxWindowStyles DcxBox::parseControlStyles(const TString& tsStyles)
 	return ws;
 }
 
-/*!
- * \brief $xdid Parsing Function
- *
- * \param input [NAME] [ID] [PROP] (OPTIONS)
- * \param szReturnValue mIRC Data Container
- *
- * \return > void
- */
-void DcxBox::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>& szReturnValue) const
+TString DcxBox::parseInfoRequest(const TString& input) const
 {
 	switch (std::hash<TString>{}(input.getfirsttok(3)))
 	{
 		// [NAME] [ID] [PROP]
 	case L"text"_hash:
-		GetWindowText(m_Hwnd, szReturnValue, MIRC_BUFFER_SIZE_CCH);
-		break;
+		return TGetWindowText(m_Hwnd);
 	case L"inbox"_hash:
 	{
 		RECT rc{};
@@ -177,13 +166,28 @@ void DcxBox::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC_
 				rc.top += (h - 2);
 		}
 
-		_ts_snprintf(szReturnValue, TEXT("%d %d %d %d"), rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top);
+		TString tsRes;
+		tsRes.tsprintf(TEXT("%d %d %d %d"), rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top);
+		return tsRes;
 	}
 	break;
 	default:
-		parseGlobalInfoRequest(input, szReturnValue);
+		return parseGlobalInfoRequest(input);
 		break;
 	}
+}
+
+/*!
+ * \brief $xdid Parsing Function
+ *
+ * \param input [NAME] [ID] [PROP] (OPTIONS)
+ * \param szReturnValue mIRC Data Container
+ *
+ * \return > void
+ */
+void DcxBox::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>& szReturnValue) const
+{
+	szReturnValue = parseInfoRequest(input).to_chr();
 }
 
 /*!

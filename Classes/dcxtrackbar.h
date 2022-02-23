@@ -54,7 +54,7 @@ public:
 	DcxTrackBar(DcxTrackBar&&) = delete;
 	DcxTrackBar& operator =(DcxTrackBar&&) = delete;
 
-	DcxTrackBar(const UINT ID, DcxDialog* const p_Dialog, const HWND mParentHwnd, const RECT* const rc, const TString& styles);
+	DcxTrackBar(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialog, const HWND mParentHwnd, const RECT* const rc, const TString& styles);
 	~DcxTrackBar() noexcept;
 
 	LRESULT OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed) final;

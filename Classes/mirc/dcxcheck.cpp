@@ -28,7 +28,7 @@
   * \param styles Window Style Tokenized List
   */
 
-DcxCheck::DcxCheck(const UINT ID, DcxDialog* const p_Dialog, const HWND mParentHwnd, const RECT* const rc, const TString& styles)
+DcxCheck::DcxCheck(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialog, const HWND mParentHwnd, const RECT* const rc, const TString& styles)
 	: DcxControl(ID, p_Dialog)
 {
 	const auto ws = parseControlStyles(styles);
@@ -224,6 +224,8 @@ void DcxCheck::parseCommandRequest(const TString& input)
 	//xdid -c [NAME] [ID] [SWITCH]
 	if (const XSwitchFlags flags(input.getfirsttok(3)); flags[TEXT('c')])
 	{
+		static_assert(CheckFreeCommand(TEXT('c')), "Command in use!");
+
 		// xdid -cu
 		if (flags[TEXT('u')])
 			Button_SetCheck(m_Hwnd, BST_INDETERMINATE);
@@ -231,19 +233,23 @@ void DcxCheck::parseCommandRequest(const TString& input)
 			Button_SetCheck(m_Hwnd, BST_CHECKED);
 	}
 	//xdid -t [NAME] [ID] [SWITCH] ItemText
-	else if (flags[TEXT('t')])
+	//else if (flags[TEXT('t')])
+	else if (IsThisCommand<TEXT('t')>(flags))
 	{
 		Button_SetText(m_Hwnd, input.getlasttoks().trim().to_chr());	// tok 4, -1
 	}
 	//xdid -u [NAME] [ID] [SWITCH]
 	else if (flags[TEXT('u')])
 	{
+		static_assert(CheckFreeCommand(TEXT('u')), "Command in use!");
+
 		Button_SetCheck(m_Hwnd, BST_UNCHECKED);
 	}
 	// xdid -C [NAME] [ID] [SWITCH] [+FLAGS] [COLOR]
 	else if (flags[TEXT('C')])
 	{
-		if (numtok < 4)
+		// this is an overload of the global command.
+		if (numtok < 5)
 			throw DcxExceptions::dcxInvalidArguments();
 
 		// first do standard colours

@@ -24,7 +24,7 @@ class DcxDialog;
 
 #define BUTTON_YPAD 3 //!< Button Top/Bottom Padding
 #define BUTTON_XPAD 4 //!< Button Left/Right Padding
-  
+
 #define BTNCS_NORMAL    0x01 //!< Button Normal Color Style
 #define BTNCS_SELECTED  0x02 //!< Button Selected Color Style
 #define BTNCS_HOVER     0x04 //!< Button Hover Color Style
@@ -43,31 +43,31 @@ class DcxButton final
 {
 public:
 	DcxButton() = delete;
-	DcxButton(const DcxButton &) = delete;
-	DcxButton &operator =(const DcxButton &) = delete;	// No assignments!
-	DcxButton(DcxButton &&) = delete;
-	DcxButton &operator =(DcxButton &&) = delete;
+	DcxButton(const DcxButton&) = delete;
+	DcxButton& operator =(const DcxButton&) = delete;	// No assignments!
+	DcxButton(DcxButton&&) = delete;
+	DcxButton& operator =(DcxButton&&) = delete;
 
-	DcxButton( const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles );
-	~DcxButton( );
+	DcxButton(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialog, const HWND mParentHwnd, const RECT* const rc, const TString& styles);
+	~DcxButton();
 
-	LRESULT OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) final;
-	LRESULT ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) final;
+	LRESULT OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed) final;
+	LRESULT ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed) final;
 
-	//void parseInfoRequest(const TString & input, PTCHAR szReturnValue) const final;
-	void parseInfoRequest(const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const final;
-	void parseCommandRequest(const TString & input) final;
-	dcxWindowStyles parseControlStyles(const TString & tsStyles) final;
+	TString parseInfoRequest(const TString& input) const final;
+	void parseInfoRequest(const TString& input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>& szReturnValue) const final;
+	void parseCommandRequest(const TString& input) final;
+	dcxWindowStyles parseControlStyles(const TString& tsStyles) final;
 
-	const HIMAGELIST &getImageList( ) const noexcept;
-	void setImageList( const HIMAGELIST himl ) noexcept;
-	HIMAGELIST createImageList( ) noexcept;
+	const HIMAGELIST& getImageList() const noexcept;
+	void setImageList(const HIMAGELIST himl) noexcept;
+	HIMAGELIST createImageList() noexcept;
 
 	inline const TString getType() const final { return TEXT("button"); };
 	inline const DcxControlTypes getControlType() const noexcept final { return DcxControlTypes::BUTTON; }
 
-	void toXml(TiXmlElement *const xml) const final;
-	TiXmlElement * toXml(void) const final;
+	void toXml(TiXmlElement* const xml) const final;
+	TiXmlElement* toXml(void) const final;
 	const TString getStyles(void) const final;
 
 	static inline WNDPROC m_hDefaultClassProc{ nullptr };	//!< Default window procedure
@@ -91,7 +91,7 @@ private:
 
 	DcxIconSizes m_iIconSize{ DcxIconSizes::SmallIcon }; //!< Button Icon Size 16,24,32
 
-	static const UINT parseColorFlags(const TString & flags ) noexcept;
+	static const UINT parseColorFlags(const TString& flags) noexcept;
 	void DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam);
 };
 

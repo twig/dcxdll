@@ -25,7 +25,7 @@
  * \param styles Window Style Tokenized List
  */
 
-DcxScroll::DcxScroll(const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles)
+DcxScroll::DcxScroll(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles)
 	: DcxControl(ID, p_Dialog)
 {
 	const auto ws = parseControlStyles(styles);
@@ -81,6 +81,11 @@ dcxWindowStyles DcxScroll::parseControlStyles(const TString & tsStyles)
  *
  * \return > void
  */
+
+TString DcxScroll::parseInfoRequest(const TString& input) const
+{
+	return TString();
+}
 
 void DcxScroll::parseInfoRequest( const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const
 {

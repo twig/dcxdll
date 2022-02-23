@@ -116,7 +116,7 @@ public:
 	DcxTreeView(DcxTreeView&&) = delete;
 	DcxTreeView& operator =(DcxTreeView&&) = delete;
 
-	DcxTreeView(const UINT ID, DcxDialog* const p_Dialog, const HWND mParentHwnd, const RECT* const rc, const TString& styles);
+	DcxTreeView(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialog, const HWND mParentHwnd, const RECT* const rc, const TString& styles);
 	~DcxTreeView() noexcept;
 
 	LRESULT OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed) final;
@@ -183,6 +183,7 @@ protected:
 
 	HFONT m_hItemFont{ nullptr }; // Font used for specific item changes.
 	HFONT m_hOldItemFont{ nullptr }; // Font used for specific item changes.
+	//int m_OldMode{};
 
 	void DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam);
 	void PreloadData() noexcept;
@@ -210,19 +211,25 @@ protected:
 
 	const size_t size() const noexcept
 	{
+		if (!m_Hwnd)
+			return 0;
+
 		// NB: This macro returns values 0 - 32767 ok, but 32768 - 65536 are returned as negatives, & anything > 65536 returns as zero & the treeview fails to display.
 		return TreeView_GetCount(m_Hwnd);
 	}
 	HTREEITEM TV_GetLastSibling(HTREEITEM child) const noexcept;
 	void TV_SetItemState(HTREEITEM hItem, UINT data, UINT mask) noexcept
 	{
+		if (!m_Hwnd)
+			return;
+
 		//TreeView_SetItemState(m_Hwnd, hItem, data, mask);
 		TVITEM _ms_TVi{};
 		_ms_TVi.mask = TVIF_STATE;
 		_ms_TVi.hItem = hItem;
 		_ms_TVi.state = data;
 		_ms_TVi.stateMask = mask;
-		SNDMSG(m_Hwnd, TVM_SETITEM, 0, (LPARAM)(TV_ITEM*)&_ms_TVi);
+		SNDMSG(m_Hwnd, TVM_SETITEM, 0, reinterpret_cast<LPARAM>(std::addressof(_ms_TVi)));
 	}
 };
 

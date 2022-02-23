@@ -26,7 +26,7 @@
   * \param styles Window Style Tokenized List
   */
 
-DcxMDialog::DcxMDialog(const HWND cHwnd, const HWND pHwnd, const UINT ID, DcxDialog* const p_Dialog, const RECT* const rc, const TString& styles)
+DcxMDialog::DcxMDialog(const HWND cHwnd, const HWND pHwnd, const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialog, const RECT* const rc, const TString& styles)
 	: DcxControl(ID, p_Dialog)
 {
 	parseControlStyles(styles);

@@ -36,7 +36,7 @@ public:
 	DcxEdit(DcxEdit&&) = delete;
 	DcxEdit& operator =(DcxEdit&&) = delete;
 
-	DcxEdit(const UINT ID, DcxDialog* const p_Dialog, const HWND mParentHwnd, const RECT* const rc, const TString& styles);
+	DcxEdit(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialog, const HWND mParentHwnd, const RECT* const rc, const TString& styles);
 	~DcxEdit() noexcept;
 
 	LRESULT OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed) final;
@@ -74,6 +74,7 @@ private:
 #define WM_DRAW_NUMBERS (WM_USER + 1000)
 #define DCX_EDIT_GUTTER_WIDTH 35
 
+	void DrawClientRect(HDC hdc, unsigned int uMsg, LPARAM lParam);
 	void DrawGutter();
 	void DrawGutter(HDC hdc);
 	RECT getFmtRect() const noexcept
@@ -116,6 +117,21 @@ private:
 	DWORD GetCaretPos() const noexcept;
 	DWORD GetCaretLine() const noexcept;
 	void setCaretPos(DWORD pos) noexcept;
+
+	DWORD GetLineIndex(DWORD iLine) const noexcept
+	{
+		if (!m_Hwnd)
+			return 0;
+
+		return SendMessage(m_Hwnd, EM_LINEINDEX, iLine, 0);
+	}
+	POINTL GetPosFromChar(DWORD iLineChar) const noexcept
+	{
+		POINTL pl{};
+		if (m_Hwnd)
+			SendMessage(m_Hwnd, EM_POSFROMCHAR, reinterpret_cast<WPARAM>(&pl), gsl::narrow_cast<LPARAM>(iLineChar));
+		return pl;
+	}
 };
 
 #endif // _DCXEDIT_H_

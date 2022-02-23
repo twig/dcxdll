@@ -25,7 +25,7 @@
   * \param styles Window Style Tokenized List
   */
 
-DcxProgressBar::DcxProgressBar(_In_ const UINT ID, _In_ DcxDialog* const p_Dialog, _In_ const HWND mParentHwnd, _In_ const RECT* const rc, _In_ const TString& styles)
+DcxProgressBar::DcxProgressBar(_In_ const UINT ID, _In_ gsl::strict_not_null<DcxDialog* const> p_Dialog, _In_ const HWND mParentHwnd, _In_ const RECT* const rc, _In_ const TString& styles)
 	: DcxControl(ID, p_Dialog)
 	, m_tsText(TEXT("%d %%"_ts))
 {
@@ -456,12 +456,17 @@ LRESULT DcxProgressBar::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 	case WM_PAINT:
 	{
 		bParsed = TRUE;
-		PAINTSTRUCT ps{};
+		if (!wParam)
+		{
+			PAINTSTRUCT ps{};
 
-		auto hdc = BeginPaint(m_Hwnd, &ps);
-		Auto(EndPaint(m_Hwnd, &ps));
+			auto hdc = BeginPaint(m_Hwnd, &ps);
+			Auto(EndPaint(m_Hwnd, &ps));
 
-		DrawClientArea(hdc, uMsg, lParam);
+			DrawClientArea(hdc, uMsg, lParam);
+		}
+		else
+			DrawClientArea(reinterpret_cast<HDC>(wParam), uMsg, lParam);
 	}
 	break;
 

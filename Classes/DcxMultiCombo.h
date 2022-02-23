@@ -17,7 +17,7 @@ public:
 	DcxMultiCombo(DcxMultiCombo&&) = delete;
 	DcxMultiCombo& operator =(DcxMultiCombo&&) = delete;
 
-	DcxMultiCombo(const UINT ID, DcxDialog* const p_Dialog, const HWND mParentHwnd, const RECT* const rc, const TString& styles);
+	DcxMultiCombo(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialog, const HWND mParentHwnd, const RECT* const rc, const TString& styles);
 	~DcxMultiCombo() noexcept;
 
 	LRESULT OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed) final;
@@ -68,7 +68,7 @@ public:
 	{
 		MCOMBO_ITEM res;
 
-		SendMessage(m_Hwnd, MC_WM_GETITEM, iItem, (LPARAM)&res);
+		SendMessage(m_Hwnd, MC_WM_GETITEM, iItem, reinterpret_cast<LPARAM>(std::addressof(res)));
 
 		return res;
 	}
@@ -77,7 +77,7 @@ public:
 	{
 		MCOMBO_ITEM res;
 
-		SendMessage(m_Hwnd, MC_WM_GETITEM, iItem, (LPARAM)&res);
+		SendMessage(m_Hwnd, MC_WM_GETITEM, iItem, reinterpret_cast<LPARAM>(std::addressof(res)));
 
 		return res;
 	}

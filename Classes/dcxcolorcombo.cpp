@@ -28,7 +28,7 @@
   * \param rc - Window Rectangle
   * \param styles - Window Style Tokenized List
   */
-DcxColorCombo::DcxColorCombo(const UINT ID, DcxDialog* const p_Dialog, const HWND mParentHwnd, const RECT* const rc, const TString& styles)
+DcxColorCombo::DcxColorCombo(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialog, const HWND mParentHwnd, const RECT* const rc, const TString& styles)
 	: DcxControl(ID, p_Dialog)
 {
 	const auto ws = parseControlStyles(styles);
@@ -607,7 +607,7 @@ LRESULT DcxColorCombo::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 
 LRESULT DcxColorCombo::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed)
 {
-	const WindowMessages emsg = gsl::narrow_cast<WindowMessages>(uMsg);
+	//const WindowMessages emsg = gsl::narrow_cast<WindowMessages>(uMsg);
 
 	switch (uMsg)
 	{

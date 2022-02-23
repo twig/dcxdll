@@ -36,7 +36,7 @@ struct DCXENUM
 	HWND mBox{ nullptr };			//!< The Box control itself
 	BOOL mState{ FALSE };		//!< Enable/Disable state
 };
-using LPDCXENUM = DCXENUM *;
+using LPDCXENUM = DCXENUM*;
 
 class DcxDialog;
 
@@ -51,29 +51,29 @@ class DcxBox final
 {
 public:
 	DcxBox() = delete;
-	DcxBox(const DcxBox &) = delete;
-	DcxBox &operator =(const DcxBox &) = delete;
-	DcxBox(DcxBox &&) = delete;
-	DcxBox &operator =(DcxBox &&) = delete;
+	DcxBox(const DcxBox&) = delete;
+	DcxBox& operator =(const DcxBox&) = delete;
+	DcxBox(DcxBox&&) = delete;
+	DcxBox& operator =(DcxBox&&) = delete;
 
 	//DCX_DELETE_CONTROL_METHODS(DcxBox);
 
-	DcxBox( const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles );
-	~DcxBox( );
+	DcxBox(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialog, const HWND mParentHwnd, const RECT* const rc, const TString& styles);
+	~DcxBox();
 
-	LRESULT OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) final;
-	LRESULT ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) noexcept final;
-	
-	//void parseInfoRequest( const TString & input, PTCHAR szReturnValue ) const final;
-	void parseInfoRequest(const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const final;
-	void parseCommandRequest(const TString & input) final;
-	dcxWindowStyles parseControlStyles(const TString & tsStyles) final;
+	LRESULT OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed) final;
+	LRESULT ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed) noexcept final;
+
+	TString parseInfoRequest(const TString& input) const final;
+	void parseInfoRequest(const TString& input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>& szReturnValue) const final;
+	void parseCommandRequest(const TString& input) final;
+	dcxWindowStyles parseControlStyles(const TString& tsStyles) final;
 
 	inline const TString getType() const final { return TEXT("box"); };
 	inline const DcxControlTypes getControlType() const noexcept final { return DcxControlTypes::BOX; }
 
-	void toXml(TiXmlElement *const xml) const final;
-	TiXmlElement * toXml() const final;
+	void toXml(TiXmlElement* const xml) const final;
+	TiXmlElement* toXml() const final;
 	std::unique_ptr<TiXmlElement> toXml(int blah) const;
 	const TString getStyles(void) const final;
 
@@ -81,10 +81,10 @@ public:
 	static inline WNDPROC m_hDefaultClassProc{ nullptr };	//!< Default window procedure
 
 private:
-	static BOOL CALLBACK EnumBoxChildren(HWND hwnd,const DCXENUM *const de) noexcept;
+	static BOOL CALLBACK EnumBoxChildren(HWND hwnd, const DCXENUM* const de) noexcept;
 	void EraseBackground(HDC hdc);
 	void DrawClientArea(HDC hdc);
-	void DrawBorder(HDC hdc, RECT &rc, const LPRECT rcClip = nullptr) noexcept;
+	void DrawBorder(HDC hdc, RECT& rc, const LPRECT rcClip = nullptr) noexcept;
 	HRGN CreateClipRegion(LPCRECT rcClip) noexcept;
 
 	void DrawCheckButton(HDC hdc, LPRECT rcCheck) noexcept;

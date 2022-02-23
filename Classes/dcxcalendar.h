@@ -38,7 +38,7 @@ public:
 	DcxCalendar(DcxCalendar &&) = delete;
 	DcxCalendar &operator =(DcxCalendar &&) = delete;
 
-	DcxCalendar( const UINT ID, DcxDialog *const p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles );
+	DcxCalendar( const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialog, const HWND mParentHwnd, const RECT *const rc, const TString & styles );
 	~DcxCalendar( ) noexcept;
 
 	LRESULT OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bParsed) final;

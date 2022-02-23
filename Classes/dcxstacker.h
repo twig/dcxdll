@@ -64,7 +64,7 @@ public:
 	DcxStacker(DcxStacker&&) = delete;
 	DcxStacker& operator =(DcxStacker&&) = delete;
 
-	DcxStacker(const UINT ID, DcxDialog* const p_Dialog, const HWND mParentHwnd, const RECT* const rc, const TString& styles);
+	DcxStacker(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialog, const HWND mParentHwnd, const RECT* const rc, const TString& styles);
 	~DcxStacker() noexcept;
 
 	LRESULT OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed) final;
