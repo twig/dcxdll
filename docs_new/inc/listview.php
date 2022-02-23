@@ -51,6 +51,8 @@ function get_styles_listview(&$STYLES) {
 		'autosize' => 'Automatically size listview columns. ([s]report[/s] view)',
 		'snaptogrid' => 'In icon view, icons automatically snap into a grid. ([s]icon[/s] & [s]smallicon[/s] view)',
 		'autoautoarrange' => 'Automatically arrange icons if no icon positions have been set (Similar to [s]autoarrange[/s]) ([s]icon[/s] & [s]smallicon[/s] view).',
+
+		'drag' => 'Enables item dragging.',
 		
 		'__notes' => array(
 		     '[s]grid[/s] does not work with groups. See <a>/xdid -q</a>.',
