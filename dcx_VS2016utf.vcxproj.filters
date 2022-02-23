@@ -82,9 +82,6 @@
     <Filter Include="Scripts">
       <UniqueIdentifier>{ada752be-a6f2-4db4-bfed-85022327a9a8}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\GSL">
-      <UniqueIdentifier>{5707c8b1-8877-43e0-89bd-e0d398a37c19}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\DirectX">
       <UniqueIdentifier>{d32befc0-4bc4-4e3c-b38e-0c1d5a7e05d0}</UniqueIdentifier>
     </Filter>
@@ -551,35 +548,8 @@
     <ClInclude Include="Classes\tstring\string_support.h">
       <Filter>Header Files\TString</Filter>
     </ClInclude>
-    <ClInclude Include="GSL\multi_span">
-      <Filter>Header Files\GSL</Filter>
-    </ClInclude>
-    <ClInclude Include="GSL\gsl">
-      <Filter>Header Files\GSL</Filter>
-    </ClInclude>
-    <ClInclude Include="GSL\gsl_algorithm">
-      <Filter>Header Files\GSL</Filter>
-    </ClInclude>
-    <ClInclude Include="GSL\gsl_assert">
-      <Filter>Header Files\GSL</Filter>
-    </ClInclude>
-    <ClInclude Include="GSL\gsl_byte">
-      <Filter>Header Files\GSL</Filter>
-    </ClInclude>
-    <ClInclude Include="GSL\gsl_util">
-      <Filter>Header Files\GSL</Filter>
-    </ClInclude>
-    <ClInclude Include="GSL\span">
-      <Filter>Header Files\GSL</Filter>
-    </ClInclude>
-    <ClInclude Include="GSL\string_span">
-      <Filter>Header Files\GSL</Filter>
-    </ClInclude>
     <ClInclude Include="Classes\WindowStyles.h">
       <Filter>Header Files\General</Filter>
-    </ClInclude>
-    <ClInclude Include="GSL\pointers">
-      <Filter>Header Files\GSL</Filter>
     </ClInclude>
     <ClInclude Include="dxerr_nov2015\dxerr.h">
       <Filter>Header Files\DirectX</Filter>
@@ -612,9 +582,6 @@
     </None>
     <None Include="cpp.hint">
       <Filter>Resource Files</Filter>
-    </None>
-    <None Include="gsl\span_ext">
-      <Filter>Header Files\GSL</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
