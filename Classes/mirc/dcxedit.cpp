@@ -1213,27 +1213,29 @@ void DcxEdit::DrawClientRect(HDC hdc, unsigned int uMsg, LPARAM lParam)
 		DrawGutter(hdc);
 	}
 	else {
-		const auto savedc = SaveDC(hdc);
-		Auto(RestoreDC(hdc, savedc));
+		CallDefaultClassProc(uMsg, reinterpret_cast<WPARAM>(hdc), lParam);
 
-		RECT rcBkg = getFmtRect();
-		if ((m_pParentHWND) && (m_Hwnd))
-			if (auto hBrush = reinterpret_cast<HBRUSH>(SendMessage(m_pParentHWND, WM_CTLCOLOREDIT, reinterpret_cast<WPARAM>(hdc), reinterpret_cast<LPARAM>(m_Hwnd))); hBrush)
-				FillRect(hdc, &rcBkg, hBrush);
-
-		if (isExStyle(WindowExStyle::Transparent))
-		{ // fill with parent image
-			if (!IsAlphaBlend())
-				DrawParentsBackground(hdc, &rcBkg);
-		}
-		else // normal bkg
-			DcxControl::DrawCtrlBackground(hdc, this, &rcBkg);
-
-
-		//SetTextColor(hdc,this->getTextColor());
-		Dcx::dcxSelectObject(hdc, this->getFont());
-
-		ctrlDrawText(hdc, m_tsText, &rcBkg, DT_SINGLELINE | DT_VCENTER);
+		//const auto savedc = SaveDC(hdc);
+		//Auto(RestoreDC(hdc, savedc));
+		//
+		//RECT rcBkg = getFmtRect();
+		//if ((m_pParentHWND) && (m_Hwnd))
+		//	if (auto hBrush = reinterpret_cast<HBRUSH>(SendMessage(m_pParentHWND, WM_CTLCOLOREDIT, reinterpret_cast<WPARAM>(hdc), reinterpret_cast<LPARAM>(m_Hwnd))); hBrush)
+		//		FillRect(hdc, &rcBkg, hBrush);
+		//
+		//if (isExStyle(WindowExStyle::Transparent))
+		//{ // fill with parent image
+		//	if (!IsAlphaBlend())
+		//		DrawParentsBackground(hdc, &rcBkg);
+		//}
+		//else // normal bkg
+		//	DcxControl::DrawCtrlBackground(hdc, this, &rcBkg);
+		//
+		//
+		////SetTextColor(hdc,this->getTextColor());
+		//Dcx::dcxSelectObject(hdc, this->getFont());
+		//
+		//ctrlDrawText(hdc, m_tsText, &rcBkg, DT_SINGLELINE | DT_VCENTER);
 	}
 
 }

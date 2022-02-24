@@ -1331,7 +1331,7 @@ void DcxRichEdit::DrawGutter(HDC hdc)
 	if (m_FRGutter.right == 0)
 		return;
 
-	auto hFont = GetWindowFont(m_Hwnd);
+	const auto hFont = GetWindowFont(m_Hwnd);
 	const auto oldFont = Dcx::dcxSelectObject<HFONT>(hdc, hFont);
 	Auto(Dcx::dcxSelectObject<HFONT>(hdc, oldFont));
 
@@ -1826,7 +1826,10 @@ LRESULT DcxRichEdit::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& b
 			const auto lRes = CallDefaultClassProc(uMsg, wParam, lParam);
 
 			//PostMessage(m_Hwnd, WM_DRAW_NUMBERS, 0, 0);
-			DrawGutter(reinterpret_cast<HDC>(wParam));
+			if (wParam)
+				DrawGutter(reinterpret_cast<HDC>(wParam));
+			else
+				DrawGutter();
 
 			return lRes;
 		}
