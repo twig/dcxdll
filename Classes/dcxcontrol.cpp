@@ -2283,7 +2283,7 @@ LRESULT DcxControl::CommonMessage(const UINT uMsg, WPARAM wParam, LPARAM lParam,
 				for (auto i = decltype(count){0}; i < count; ++i)
 				{
 					if (DragQueryFile(files, i, sFilename, std::size(sFilename)))
-						execAliasEx(TEXT("dragfile,%u,%s"), getUserID(), sFilename);
+						execAliasEx(TEXT("dragfile,%u,%s"), getUserID(), sFilename.data());
 				}
 
 				execAliasEx(TEXT("dragfinish,%u"), getUserID());
