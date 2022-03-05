@@ -23,6 +23,11 @@
 
 #include "Classes/tinyxml/tinyxml.h"
 
+#ifdef DCX_USE_TESTCODE
+// enables custom drawing for treeview
+#define USE_CUSTOM_TREE_DRAWING 1
+#endif
+
 class DcxDialog;
 class DcxTreeView;
 
@@ -155,6 +160,7 @@ protected:
 	DcxIconSizes m_iIconSize{ DcxIconSizes::SmallIcon }; //!< Icon size
 
 	bool m_bDestroying{ false }; //!< this flag is set when the listview is about to get destroyed to avoid senseless events
+	bool m_bCustomDraw{ false };
 
 	COLORREF m_colSelection{ CLR_INVALID };
 
@@ -230,6 +236,47 @@ protected:
 		_ms_TVi.state = data;
 		_ms_TVi.stateMask = mask;
 		SNDMSG(m_Hwnd, TVM_SETITEM, 0, reinterpret_cast<LPARAM>(std::addressof(_ms_TVi)));
+	}
+
+	HIMAGELIST TV_GetNormalImageList() noexcept
+	{
+		auto himl = this->getImageList(TVSIL_NORMAL);
+		if (!himl)
+		{
+			himl = createImageList();
+
+			if (himl)
+				this->setImageList(himl, TVSIL_NORMAL);
+		}
+		return himl;
+	}
+	HIMAGELIST TV_GetStateImageList() noexcept
+	{
+		auto himl = this->getImageList(TVSIL_STATE);
+		if (!himl)
+		{
+			himl = this->createImageList();
+
+			if (himl)
+				this->setImageList(himl, TVSIL_STATE);
+		}
+		return himl;
+	}
+	void TV_RemoveNormalImageList() noexcept
+	{
+		if (const auto himl = this->getImageList(TVSIL_NORMAL); himl)
+		{
+			ImageList_Destroy(himl);
+			this->setImageList(nullptr, TVSIL_NORMAL);
+		}
+	}
+	void TV_RemoveStateImageList() noexcept
+	{
+		if (const auto himl = this->getImageList(TVSIL_STATE); himl)
+		{
+			ImageList_Destroy(himl);
+			this->setImageList(nullptr, TVSIL_STATE);
+		}
 	}
 };
 

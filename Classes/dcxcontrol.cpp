@@ -2098,7 +2098,7 @@ LRESULT DcxControl::CommonMessage(const UINT uMsg, WPARAM wParam, LPARAM lParam,
 
 	case WM_SETCURSOR:
 	{
-		if ((LOWORD(lParam) == HTCLIENT) && (reinterpret_cast<HWND>(wParam) == m_Hwnd) && (m_hCursor.cursor))
+		if ((Dcx::dcxLOWORD(lParam) == HTCLIENT) && (reinterpret_cast<HWND>(wParam) == m_Hwnd) && (m_hCursor.cursor))
 		{
 			if (GetCursor() != m_hCursor.cursor)
 				SetCursor(m_hCursor.cursor);

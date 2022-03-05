@@ -724,6 +724,7 @@ namespace details {
 	};
 	template <>
 	struct _impl_vscprintf<char> {
+		GSL_SUPPRESS(f.55)
 		const int operator()(const char* const fmt, const va_list args) noexcept
 		{
 			return _vscprintf(fmt, args);
@@ -731,6 +732,7 @@ namespace details {
 	};
 	template <>
 	struct _impl_vscprintf<wchar_t> {
+		GSL_SUPPRESS(f.55)
 		const int operator()(const wchar_t* const fmt, const va_list args) noexcept
 		{
 			return _vscwprintf(fmt, args);
@@ -742,14 +744,16 @@ namespace details {
 	};
 	template <>
 	struct _impl_vsprintf<char> {
-		const int operator()(char* const buf, size_t nCount, const char* const fmt, const va_list args) noexcept
+		GSL_SUPPRESS(f.55)
+			const int operator()(char* const buf, size_t nCount, const char* const fmt, const va_list args) noexcept
 		{
 			return vsnprintf(buf, nCount, fmt, args);
 		}
 	};
 	template <>
 	struct _impl_vsprintf<wchar_t> {
-		const int operator()(wchar_t* const buf, size_t nCount, const wchar_t* const fmt, const va_list args) noexcept
+		GSL_SUPPRESS(f.55)
+			const int operator()(wchar_t* const buf, size_t nCount, const wchar_t* const fmt, const va_list args) noexcept
 		{
 			return vswprintf(buf, nCount, fmt, args);
 		}

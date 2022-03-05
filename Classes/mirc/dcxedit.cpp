@@ -1056,9 +1056,9 @@ LRESULT DcxEdit::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPars
 		if ((Dcx::dcxLOWORD(lParam) != HTCLIENT) || (reinterpret_cast<HWND>(wParam) != m_Hwnd) || (!m_bShowLineNumbers))
 			break;
 
-		if (POINT pt{}; GetCursorPos(&pt))
+#if DCX_USE_WRAPPERS
+		if (const Dcx::dcxCursorPos pt(m_Hwnd); pt)
 		{
-			MapWindowPoints(nullptr, m_Hwnd, &pt, 1);
 			if (const RECT rc{ getGutterRect() }; PtInRect(&rc, pt))
 			{
 				if (const HCURSOR hCursor = LoadCursor(nullptr, IDC_ARROW); GetCursor() != hCursor)
@@ -1068,6 +1068,22 @@ LRESULT DcxEdit::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPars
 				return TRUE;
 			}
 		}
+#else
+		if (POINT pt{}; GetCursorPos(&pt))
+		{
+			if (MapWindowPoints(nullptr, m_Hwnd, &pt, 1))
+			{
+				if (const RECT rc{ getGutterRect() }; PtInRect(&rc, pt))
+				{
+					if (const HCURSOR hCursor = LoadCursor(nullptr, IDC_ARROW); GetCursor() != hCursor)
+						SetCursor(hCursor);
+
+					bParsed = TRUE;
+					return TRUE;
+				}
+			}
+		}
+#endif
 	}
 	break;
 

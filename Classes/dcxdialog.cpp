@@ -2315,9 +2315,15 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 		p_this->setMouseControl(0);
 		if (p_this->m_bDrag)
 		{
-			if (POINT pt{}; GetCursorPos(&pt))
-				PostMessage(p_this->m_Hwnd, WM_NCLBUTTONDOWN, HTCAPTION, MAKELPARAM(pt.x, pt.y));
+#if DCX_USE_WRAPPERS
+			if (const Dcx::dcxCursorPos pt; pt)
+				PostMessage(p_this->m_Hwnd, WM_NCLBUTTONDOWN, HTCAPTION, Dcx::dcxMAKELPARAM(pt.x, pt.y));
 			p_this->m_bDrag = false;
+#else
+			if (POINT pt{}; GetCursorPos(&pt))
+				PostMessage(p_this->m_Hwnd, WM_NCLBUTTONDOWN, HTCAPTION, Dcx::dcxMAKELPARAM(pt.x, pt.y));
+			p_this->m_bDrag = false;
+#endif
 		}
 		if (p_this->m_bTracking == FALSE)
 		{
@@ -2489,9 +2495,9 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 
 	case WM_SETCURSOR:
 	{
-		//if ((LOWORD(lParam) == HTCLIENT) && ((HWND) wParam == p_this->getHwnd()) && (p_this->getCursor() != nullptr))
+		//if ((Dcx::dcxLOWORD(lParam) == HTCLIENT) && ((HWND) wParam == p_this->getHwnd()) && (p_this->getCursor() != nullptr))
 		// removing the above checks allows the cursor to be customized for the whole dialog including menus...
-		//if ((LOWORD(lParam) != HTERROR) && (p_this->getCursor() != nullptr))
+		//if ((Dcx::dcxLOWORD(lParam) != HTERROR) && (p_this->getCursor() != nullptr))
 		//{
 		//	if (GetCursor() != p_this->getCursor())
 		//		SetCursor(p_this->getCursor());
@@ -2500,7 +2506,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 		//	lRes = TRUE;
 		//}
 
-		if (const auto wHitCode = LOWORD(lParam); reinterpret_cast<HWND>(wParam) == p_this->getHwnd())
+		if (const auto wHitCode = Dcx::dcxLOWORD(lParam); reinterpret_cast<HWND>(wParam) == p_this->getHwnd())
 		{
 			auto hCursor = p_this->getCursor(wHitCode);
 			if (!hCursor)

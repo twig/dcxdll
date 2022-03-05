@@ -146,6 +146,9 @@ dcxWindowStyles DcxTreeView::parseControlStyles(const TString& tsStyles)
 		case L"checkbox"_hash:
 			ws.m_Styles |= TVS_CHECKBOXES;
 			break;
+		case L"custom"_hash:
+			m_bCustomDraw = true;
+			break;
 		default:
 			break;
 		}
@@ -828,16 +831,7 @@ void DcxTreeView::parseCommandRequest(const TString& input)
 
 		if (dcx_testflag(iFlags, TVIT_NORMAL))
 		{
-			auto himl = this->getImageList(TVSIL_NORMAL);
-			if (!himl)
-			{
-				himl = createImageList();
-
-				if (himl)
-					this->setImageList(himl, TVSIL_NORMAL);
-			}
-
-			if (himl)
+			if (auto himl = TV_GetNormalImageList(); himl)
 			{
 				if (index < 0)
 					AddFileIcons(himl, filename, bLarge, -1);
@@ -858,16 +852,7 @@ void DcxTreeView::parseCommandRequest(const TString& input)
 
 		if (dcx_testflag(iFlags, TVIT_STATE))
 		{
-			auto himl = this->getImageList(TVSIL_STATE);
-			if (!himl)
-			{
-				himl = this->createImageList();
-
-				if (himl)
-					this->setImageList(himl, TVSIL_STATE);
-			}
-
-			if (himl)
+			if (auto himl = TV_GetStateImageList(); himl)
 			{
 				if (index < 0)
 					AddFileIcons(himl, filename, bLarge, -1);
@@ -887,22 +872,10 @@ void DcxTreeView::parseCommandRequest(const TString& input)
 		const auto iFlags = this->parseIconFlagOptions(input.getnexttok());	// tok 4
 
 		if (dcx_testflag(iFlags, TVIT_NORMAL))
-		{
-			if (const auto himl = this->getImageList(TVSIL_NORMAL); himl)
-			{
-				ImageList_Destroy(himl);
-				this->setImageList(nullptr, TVSIL_NORMAL);
-			}
-		}
+			TV_RemoveNormalImageList();
 
 		if (dcx_testflag(iFlags, TVIT_STATE))
-		{
-			if (const auto himl = this->getImageList(TVSIL_STATE); himl)
-			{
-				ImageList_Destroy(himl);
-				this->setImageList(nullptr, TVSIL_STATE);
-			}
-		}
+			TV_RemoveStateImageList();
 	}
 	// xdid -z [NAME] [ID] [SWITCH] [+FLAGS] N N N [TAB] [ALIAS]
 	else if (flags[TEXT('z')])
@@ -1949,9 +1922,34 @@ LRESULT DcxTreeView::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 				//	redrawBufferedWindow();
 			}
 
+//#ifdef USE_CUSTOM_TREE_DRAWING
+//			if (Dcx::GDIModule.isUseable() && m_pImage && m_Hwnd)
+//			{
+//				if (HDC hdc = GetDC(m_Hwnd); hdc)
+//				{
+//					Auto(ReleaseDC(m_Hwnd, hdc));
+//
+//					DrawClientArea(hdc, WM_PRINTCLIENT, PRF_CLIENT);
+//				}
+//			}
+//#endif
+
 			bParsed = TRUE;
 		}
 		break;
+
+//#ifdef USE_CUSTOM_TREE_DRAWING
+//		case WM_CTLCOLORSCROLLBAR:
+//		{
+//			if (m_bCustomDraw)
+//			{
+//				const auto lRes = CallDefaultClassProc(uMsg, wParam, lParam);
+//				bParsed = TRUE;
+//				return (LRESULT)GetStockBrush(BLACK_BRUSH);
+//			}
+//		}
+//		break;
+//#endif
 
 		case TVN_BEGINLABELEDIT:
 		{
@@ -2021,16 +2019,8 @@ LRESULT DcxTreeView::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 				if (lpdcxtvi->clrText != CLR_INVALID)
 					lpntvcd->clrText = lpdcxtvi->clrText;
 
-				//m_OldMode = SetBkMode(lpntvcd->nmcd.hdc, TRANSPARENT);
-
 				const auto bSelected = (dcx_testflag(lpntvcd->nmcd.uItemState, CDIS_SELECTED));
 
-				// draw unselected background color
-				//if (this->isExStyle(WS_EX_TRANSPARENT) && !bSelected){
-				//	lpntvcd->clrTextBk = CLR_NONE;
-				//	SetBkMode(lpntvcd->nmcd.hdc, TRANSPARENT);
-				//}
-				//else if ((lpdcxtvi->clrBkg != -1) && !bSelected)
 				if ((lpdcxtvi->clrBkg != CLR_INVALID) && !bSelected)
 					lpntvcd->clrTextBk = lpdcxtvi->clrBkg;
 				else if ((m_colSelection != CLR_INVALID) && bSelected)
@@ -2040,20 +2030,6 @@ LRESULT DcxTreeView::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 				{
 					if (const auto hFont = GetWindowFont(m_Hwnd); hFont)
 					{
-						//if (LOGFONT lf{}; GetObject(hFont, sizeof(LOGFONT), &lf) != 0)
-						//{
-						//	if (lpdcxtvi->bBold)
-						//		lf.lfWeight |= FW_BOLD;
-						//	if (lpdcxtvi->bUline)
-						//		lf.lfUnderline = TRUE;
-						//	if (lpdcxtvi->bItalic)
-						//		lf.lfItalic = TRUE;
-						//
-						//	m_hItemFont = CreateFontIndirect(&lf);
-						//	if (m_hItemFont)
-						//		m_hOldItemFont = SelectFont(lpntvcd->nmcd.hdc, m_hItemFont);
-						//}
-
 						if (auto [code, lf] = Dcx::dcxGetObject<LOGFONT>(hFont); code != 0)
 						{
 							if (lpdcxtvi->bBold)
@@ -2069,100 +2045,101 @@ LRESULT DcxTreeView::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 						}
 					}
 				}
-
-				//TVITEMEX tvitem{};
-				//TCHAR buf[MIRC_BUFFER_SIZE_CCH]{};
-				//auto hItem = (HTREEITEM)lpntvcd->nmcd.dwItemSpec;
-				//tvitem.hItem = hItem;
-				//tvitem.mask = TVIF_TEXT;
-				//tvitem.pszText = buf;
-				//tvitem.cchTextMax = MIRC_BUFFER_SIZE_CCH;
-				//if (TreeView_GetItem(m_Hwnd, &tvitem))
-				//{
-				//	TString tsItem(buf);
-				//	//RECT rcTxt = lpntvcd->nmcd.rc;
-				//	RECT rcItem = lpntvcd->nmcd.rc;
-				//	RECT rcTxt{};
-				//	TreeView_GetItemRect(m_Hwnd, hItem, &rcTxt, TRUE);
-				//
-				//	//dcxDrawBorder
-				//	const int LineY = rcItem.top + ((rcItem.bottom - rcItem.top) / 2);
-				//	dcxDrawLine(lpntvcd->nmcd.hdc, rcItem.left, LineY, rcTxt.left, LineY);
-				//
-				//	if (!this->m_bCtrlCodeText)
-				//	{
-				//		if (bSelected && this->m_bShadowText)
-				//			dcxDrawShadowText(lpntvcd->nmcd.hdc, tsItem.to_wchr(), tsItem.len(), &rcTxt, DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP | DT_SINGLELINE, lpntvcd->clrText, 0, 5, 5);
-				//		else
-				//			DrawTextW(lpntvcd->nmcd.hdc, tsItem.to_wchr(), tsItem.len(), &rcTxt, DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP | DT_SINGLELINE);
-				//	}
-				//	else
-				//		mIRC_DrawText(lpntvcd->nmcd.hdc, tsItem, &rcTxt, DT_WORD_ELLIPSIS | DT_LEFT | DT_TOP | DT_SINGLELINE, ((bSelected && this->m_bShadowText) ? true : false));
-				//}
 			}
 			//return ( CDRF_NOTIFYPOSTPAINT | CDRF_SKIPDEFAULT );
 			return (CDRF_NOTIFYPOSTPAINT | CDRF_NEWFONT);
 
 			case CDDS_ITEMPOSTPAINT:
 			{
-#ifdef DCX_USE_TESTCODE
+#ifdef USE_CUSTOM_TREE_DRAWING
 				// this is drawn here to allow the treeview control to draw everything else first.
 				if (!lpntvcd->nmcd.hdc)
 					return CDRF_DODEFAULT;
 
-				const auto bSelected = (dcx_testflag(lpntvcd->nmcd.uItemState, CDIS_SELECTED));
-				TVITEMEX tvitem{};
-				TCHAR buf[MIRC_BUFFER_SIZE_CCH]{};
-				auto hItem = (HTREEITEM)lpntvcd->nmcd.dwItemSpec;
-				tvitem.hItem = hItem;
-				tvitem.mask = TVIF_TEXT;
-				tvitem.pszText = &buf[0];
-				tvitem.cchTextMax = std::size(buf);
-				if (TreeView_GetItem(m_Hwnd, &tvitem))
+				if (m_bCustomDraw)
 				{
-					TString tsItem(buf);
-					RECT rcTxt{};
-					RECT rcItem{};
-					TreeView_GetItemRect(m_Hwnd, hItem, &rcTxt, TRUE);
-					TreeView_GetItemRect(m_Hwnd, hItem, &rcItem, FALSE);
-					RECT rcClear = rcTxt;
+					// save HDC's context
+					const auto savedDC = SaveDC(lpntvcd->nmcd.hdc);
+
+					// make sure font is correct first (this is in an unknown state when we get here)
+					if (m_hItemFont)
+						Dcx::dcxSelectObject(lpntvcd->nmcd.hdc, m_hItemFont);	// set to item font if it exists.
+					else if (m_hFont)
+						Dcx::dcxSelectObject(lpntvcd->nmcd.hdc, m_hFont); // if no item font, set to controls font if it exists.
+
+					const auto bSelected = (dcx_testflag(lpntvcd->nmcd.uItemState, CDIS_SELECTED));
+					TVITEMEX tvitem{};
+					TCHAR buf[MIRC_BUFFER_SIZE_CCH]{};
+					auto hItem = reinterpret_cast<HTREEITEM>(lpntvcd->nmcd.dwItemSpec);
+					tvitem.hItem = hItem;
+					tvitem.mask = TVIF_TEXT;
+					tvitem.pszText = &buf[0];
+					tvitem.cchTextMax = std::size(buf);
+					if (TreeView_GetItem(m_Hwnd, &tvitem))
+					{
+						TString tsItem(buf);
+						RECT rcTxt{};
+						RECT rcItem{};
+						TreeView_GetItemRect(m_Hwnd, hItem, &rcTxt, TRUE);
+						TreeView_GetItemRect(m_Hwnd, hItem, &rcItem, FALSE);
+						RECT rcClear = rcItem;
+
+						rcClear.left = rcTxt.left;
+
+						const auto bgClr = (this->getBackColor() != CLR_INVALID) ? this->getBackColor() : GetSysColor(COLOR_WINDOW);
 
 #ifdef DCX_USE_GDIPLUS
-					rcClear.right = rcItem.right;
-					if (Dcx::GDIModule.isUseable() && m_pImage)
-					{
-						if (auto hdc = CreateHDCBuffer(lpntvcd->nmcd.hdc, nullptr); hdc)
+						// Ook: if image supplied the control isnt drawn correctly, no borders or scrollbars etc.. needs looked at
+						if (Dcx::GDIModule.isUseable() && m_pImage)
 						{
-							Auto(DeleteHDCBuffer(hdc));
+							if (auto hdc = CreateHDCBuffer(lpntvcd->nmcd.hdc, nullptr); hdc)
+							{
+								Auto(DeleteHDCBuffer(hdc));
 
-							DrawGDIPlusImage(*hdc);
+								DrawGDIPlusImage(*hdc);
 
-							BitBlt(lpntvcd->nmcd.hdc, rcClear.left, rcClear.top, (rcClear.right - rcClear.left), (rcClear.bottom - rcClear.top), *hdc, rcClear.left, rcClear.top, SRCCOPY);
+								BitBlt(lpntvcd->nmcd.hdc, rcClear.left, rcClear.top, (rcClear.right - rcClear.left), (rcClear.bottom - rcClear.top), *hdc, rcClear.left, rcClear.top, SRCCOPY);
+							}
 						}
-					}
-					else
-						Dcx::FillRectColour(lpntvcd->nmcd.hdc, std::addressof(rcClear), GetSysColor(COLOR_WINDOW));
+						else
+							Dcx::FillRectColour(lpntvcd->nmcd.hdc, std::addressof(rcClear), bgClr);
 #else
-					Dcx::FillRectColour(lpntvcd->nmcd.hdc, std::addressof(rcClear), GetSysColor(COLOR_WINDOW));
+						Dcx::FillRectColour(lpntvcd->nmcd.hdc, std::addressof(rcClear), bgClr);
 #endif
 
-					calcTextRect(lpntvcd->nmcd.hdc, tsItem, std::addressof(rcTxt), DT_LEFT | DT_SINGLELINE | DT_VCENTER);
+						constexpr UINT TextSyles = /*DT_WORD_ELLIPSIS |*/ DT_LEFT | DT_SINGLELINE | DT_VCENTER;
 
-					if (bSelected)
-					{
-						if (!dcxDrawTranslucentRect(lpntvcd->nmcd.hdc, std::addressof(rcTxt), lpntvcd->clrTextBk, GetSysColor(COLOR_3DHIGHLIGHT), false))
-							dcxDrawRect(lpntvcd->nmcd.hdc, std::addressof(rcTxt), lpntvcd->clrTextBk, GetSysColor(COLOR_3DHIGHLIGHT), false);
-					}
+						if (!this->IsControlCodeTextEnabled())
+							tsItem.strip();
 
-					if (!this->m_bCtrlCodeText)
-					{
-						if (bSelected && this->m_bShadowText)
-							dcxDrawShadowText(lpntvcd->nmcd.hdc, tsItem.to_wchr(), tsItem.len(), std::addressof(rcTxt), /*DT_WORD_ELLIPSIS |*/ DT_LEFT | DT_SINGLELINE | DT_VCENTER, lpntvcd->clrText, 0, 5, 5);
+						calcTextRect(lpntvcd->nmcd.hdc, tsItem, std::addressof(rcTxt), TextSyles);
+
+						if (bSelected)
+						{
+							RECT rcSelected = rcTxt;
+							rcSelected.left = std::max(rcSelected.left - 2, rcItem.left);
+							rcSelected.right = std::min(rcSelected.right + 5, rcItem.right);
+
+							if (!dcxDrawTranslucentRect(lpntvcd->nmcd.hdc, std::addressof(rcSelected), lpntvcd->clrTextBk, GetSysColor(COLOR_3DHIGHLIGHT), false))
+								dcxDrawRect(lpntvcd->nmcd.hdc, std::addressof(rcSelected), lpntvcd->clrTextBk, GetSysColor(COLOR_3DHIGHLIGHT), false);
+						}
+
+						SetTextColor(lpntvcd->nmcd.hdc, lpntvcd->clrText);
+
+						if (!this->IsControlCodeTextEnabled())
+						{
+							SetBkMode(lpntvcd->nmcd.hdc, TRANSPARENT);
+							if (bSelected && this->IsShadowTextEnabled())
+								dcxDrawShadowText(lpntvcd->nmcd.hdc, tsItem.to_wchr(), tsItem.len(), std::addressof(rcTxt), TextSyles, lpntvcd->clrText, 0, 5, 5);
+							else
+								DrawTextW(lpntvcd->nmcd.hdc, tsItem.to_wchr(), tsItem.len(), std::addressof(rcTxt), TextSyles);
+						}
 						else
-							DrawTextW(lpntvcd->nmcd.hdc, tsItem.to_wchr(), tsItem.len(), std::addressof(rcTxt), /*DT_WORD_ELLIPSIS |*/ DT_LEFT | DT_SINGLELINE | DT_VCENTER);
+							mIRC_DrawText(lpntvcd->nmcd.hdc, tsItem, std::addressof(rcTxt), TextSyles, ((bSelected && this->IsShadowTextEnabled()) ? true : false));
 					}
-					else
-						mIRC_DrawText(lpntvcd->nmcd.hdc, tsItem, std::addressof(rcTxt), /*DT_WORD_ELLIPSIS |*/ DT_LEFT | DT_SINGLELINE | DT_VCENTER, ((bSelected && this->m_bShadowText) ? true : false));
+
+					// restore HDC's context
+					RestoreDC(lpntvcd->nmcd.hdc, savedDC);
 				}
 #endif
 
@@ -2176,8 +2153,6 @@ LRESULT DcxTreeView::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 					DeleteObject(m_hItemFont);
 					m_hItemFont = nullptr;
 				}
-				//if (m_OldMode)
-				//	SetBkMode(lpntvcd->nmcd.hdc, m_OldMode);
 
 				return CDRF_DODEFAULT;
 			}
@@ -2246,6 +2221,7 @@ LRESULT DcxTreeView::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& b
 	}
 	break;
 
+#ifdef USE_CUSTOM_TREE_DRAWING
 //#ifdef DCX_USE_GDIPLUS
 //	case WM_ERASEBKGND:
 //	{
@@ -2258,6 +2234,36 @@ LRESULT DcxTreeView::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& b
 //	}
 //	break;
 //#endif
+
+	case WM_HSCROLL:
+	{
+		if (Dcx::GDIModule.isUseable() && m_pImage && m_Hwnd && m_bCustomDraw)
+		{
+			const auto lRes = CallDefaultClassProc(uMsg, wParam, lParam);
+			bParsed = TRUE;
+			if (HDC hdc = GetDC(m_Hwnd); hdc)
+			{
+				Auto(ReleaseDC(m_Hwnd, hdc));
+
+				DrawClientArea(hdc, WM_PRINTCLIENT, PRF_CLIENT);
+			}
+			return lRes;
+		}
+	}
+	break;
+
+	//case WM_CTLCOLORSCROLLBAR:
+	//{
+	//	if (m_bCustomDraw)
+	//	{
+	//		const auto lRes = CallDefaultClassProc(uMsg, wParam, lParam);
+	//		bParsed = TRUE;
+	//		return (LRESULT)GetStockBrush(BLACK_BRUSH);
+	//	}
+	//}
+	//break;
+
+#endif
 
 	case WM_PAINT:
 	{

@@ -2517,10 +2517,7 @@ INT DcxListView::parseHeaderFlags2(const XSwitchFlags& xflags)
 {
 	int iFlags{};
 
-	//if (!xflags[TEXT('+')])
-	//	return 0;
 	if (!xflags[TEXT('+')])
-		//throw Dcx::dcxException("Invalid Header flags used, + missing!");
 		throw DcxExceptions::dcxInvalidFlag();
 
 	if (xflags[TEXT('a')]) // auto size

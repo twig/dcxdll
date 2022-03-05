@@ -527,51 +527,14 @@ LRESULT DcxBox::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParse
 	{
 		if (dcx_testflag(m_iBoxStyles, BOXS_CHECK) || dcx_testflag(m_iBoxStyles, BOXS_RADIO))
 		{
-//			if (POINT pt{}; GetCursorPos(&pt))
-//			{
-//				if (MapWindowPoints(nullptr, m_Hwnd, &pt, 1))
-//				{
-//					if (PtInRect(&m_rcCheck, pt))
-//					{
-//						// clicked inside button rect
-//						m_bTitleChecked = m_bTitleChecked ? false : true;
-//						if (HDC hdc = GetWindowDC(m_Hwnd); hdc)
-//						{
-//							DrawCheckButton(hdc, &m_rcCheck);
-//
-//							ReleaseDC(m_Hwnd, hdc);
-//						}
-//						if (dcx_testflag(getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
-//						{
-//							const stString<10> sRet;
-//
-//							evalAliasEx(sRet, gsl::narrow_cast<int>(sRet.size()), TEXT("checkchange,%u,%d"), getUserID(), m_bTitleChecked);
-//
-//							if (sRet == TEXT("nochange"))
-//								return 0L;
-//						}
-//
-//						const DCXENUM de{ nullptr,m_Hwnd,m_bTitleChecked };
-//
-//#pragma warning(push)
-//#pragma warning(disable: 4191)
-//
-//						EnumChildWindows(m_Hwnd, (WNDENUMPROC)DcxBox::EnumBoxChildren, (LPARAM)&de);
-//
-//#pragma warning(pop)
-//						// stop further proccessing of message.
-//						return 0L;
-//					}
-//				}
-//			}
-
+#if DCX_USE_WRAPPERS
 			if (const Dcx::dcxCursorPos pt(m_Hwnd); pt)
 			{
 				if (PtInRect(&m_rcCheck, pt))
 				{
 					// clicked inside button rect
 					m_bTitleChecked = m_bTitleChecked ? false : true;
-					if (HDC hdc = GetWindowDC(m_Hwnd); hdc)
+					if (HDC hdc = GetDC(m_Hwnd); hdc)
 					{
 						DrawCheckButton(hdc, &m_rcCheck);
 
@@ -599,6 +562,45 @@ LRESULT DcxBox::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParse
 					return 0L;
 				}
 			}
+#else
+			if (POINT pt{}; GetCursorPos(&pt))
+			{
+				if (MapWindowPoints(nullptr, m_Hwnd, &pt, 1))
+				{
+					if (PtInRect(&m_rcCheck, pt))
+					{
+						// clicked inside button rect
+						m_bTitleChecked = m_bTitleChecked ? false : true;
+						if (HDC hdc = GetDC(m_Hwnd); hdc)
+						{
+							DrawCheckButton(hdc, &m_rcCheck);
+
+							ReleaseDC(m_Hwnd, hdc);
+						}
+						if (dcx_testflag(getParentDialog()->getEventMask(), DCX_EVENT_CLICK))
+						{
+							const stString<10> sRet;
+
+							evalAliasEx(sRet, gsl::narrow_cast<int>(sRet.size()), TEXT("checkchange,%u,%d"), getUserID(), m_bTitleChecked);
+
+							if (sRet == TEXT("nochange"))
+								return 0L;
+						}
+
+						const DCXENUM de{ nullptr,m_Hwnd,m_bTitleChecked };
+
+#pragma warning(push)
+#pragma warning(disable: 4191)
+
+						EnumChildWindows(m_Hwnd, (WNDENUMPROC)DcxBox::EnumBoxChildren, (LPARAM)&de);
+
+#pragma warning(pop)
+						// stop further proccessing of message.
+						return 0L;
+					}
+				}
+			}
+#endif
 		}
 	}
 	[[fallthrough]];
