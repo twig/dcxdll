@@ -157,6 +157,7 @@ public:
 
 	void redrawWindow() const noexcept;
 	void redrawBufferedWindow();
+	void redrawBufferedWindowClient();
 
 	void HandleChildSizing(SizingTypes sz) const noexcept;
 

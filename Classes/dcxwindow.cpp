@@ -245,6 +245,44 @@ void DcxWindow::redrawBufferedWindow()
 	ValidateRect(m_Hwnd, nullptr);
 }
 
+void DcxWindow::redrawBufferedWindowClient()
+{
+	if (this->isExStyle(WindowExStyle::Composited))
+	{
+		this->redrawWindow();
+		return;
+	}
+
+	const auto hdc = GetDC(m_Hwnd);
+
+	if (!hdc)
+		return;
+	Auto(ReleaseDC(m_Hwnd, hdc));
+
+#if DCX_USE_WRAPPERS
+	const Dcx::dcxClientRect rc(m_Hwnd);
+
+	const Dcx::dcxHDCBuffer hBuffer(hdc, rc);
+
+	SendMessage(m_Hwnd, WM_PRINTCLIENT, reinterpret_cast<WPARAM>(hBuffer.get()), PRF_CLIENT | PRF_CHILDREN | PRF_CHECKVISIBLE | PRF_ERASEBKGND);
+
+	BitBlt(hdc, 0, 0, (rc.right - rc.left), (rc.bottom - rc.top), hBuffer.get(), 0, 0, SRCCOPY);
+#else
+	if (RECT rc{}; GetClientRect(m_Hwnd, &rc))
+	{
+		if (const auto hBuffer = CreateHDCBuffer(hdc, &rc); hBuffer)
+		{
+			Auto(DeleteHDCBuffer(hBuffer));
+
+			SendMessage(m_Hwnd, WM_PRINTCLIENT, (WPARAM)*hBuffer, PRF_CLIENT | PRF_CHILDREN | PRF_CHECKVISIBLE | PRF_ERASEBKGND);
+
+			BitBlt(hdc, 0, 0, (rc.right - rc.left), (rc.bottom - rc.top), *hBuffer, 0, 0, SRCCOPY);
+		}
+	}
+#endif
+	ValidateRect(m_Hwnd, nullptr);
+}
+
 void DcxWindow::HandleChildSizing(SizingTypes sz) const noexcept
 {
 	if (dcx_testflag(sz, SizingTypes::ReBar))

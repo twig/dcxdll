@@ -969,6 +969,53 @@ namespace Dcx
 		bool	m_ok{ false };
 	};
 
+	struct dcxClientRect final
+		: RECT
+	{
+		dcxClientRect() = delete;
+
+		// Gets the window rect for hwnd
+		explicit dcxClientRect(HWND hwnd) noexcept
+		{
+			m_ok = (GetClientRect(hwnd, this) != FALSE);
+		}
+
+		// Gets the window client rect for hwnd & maps it to hMap
+		dcxClientRect(HWND hwnd, HWND hMap) noexcept
+			: dcxClientRect(hwnd)
+		{
+			if (m_ok)
+			{
+				SetLastError(0U);
+				MapWindowRect(hwnd, hMap, this);
+				m_ok = (GetLastError() == 0U);
+			}
+		}
+
+		~dcxClientRect() noexcept = default;
+
+		/// <summary>
+		/// Get the rects width.
+		/// </summary>
+		/// <returns></returns>
+		long Width() const noexcept { return (right - left); }
+
+		/// <summary>
+		/// Get the rects height.
+		/// </summary>
+		/// <returns></returns>
+		long Height() const noexcept { return (bottom - top); }
+
+		/// <summary>
+		/// Get a copy of the rect.
+		/// </summary>
+		/// <returns></returns>
+		RECT CopyRect() const noexcept { return { left, top, right, bottom }; }
+
+		explicit operator bool() noexcept { return m_ok; }
+		bool	m_ok{ false };
+	};
+
 	struct dcxClassName final
 		: stString<257>
 	{

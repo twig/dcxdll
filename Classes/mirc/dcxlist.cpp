@@ -964,8 +964,8 @@ LRESULT DcxList::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bP
 			case LBN_SELCHANGE:
 			{
 #ifdef USE_FIX_01
-				if (isExStyle(WindowExStyle::Transparent) && !isExStyle(WindowExStyle::Composited))
-					redrawBufferedWindow();
+				if (isExStyle(WindowExStyle::Transparent) && !getParentDialog()->isExStyle(WindowExStyle::Composited))
+					redrawBufferedWindowClient();
 #endif
 
 				const auto nItem = ListBox_GetCurSel(m_Hwnd);
@@ -1017,7 +1017,7 @@ LRESULT DcxList::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bP
 
 		CopyRect(&rc, &lpDrawItem->rcItem);
 #ifdef USE_FIX_01
-		if (isExStyle(WindowExStyle::Transparent) && !isExStyle(WindowExStyle::Composited))
+		if (isExStyle(WindowExStyle::Transparent) && !getParentDialog()->isExStyle(WindowExStyle::Composited))
 			DrawParentsBackground(lpDrawItem->hDC, &rc);
 		else if (!getBackClrBrush())
 			FillRect(lpDrawItem->hDC, &rc, Dcx::dcxGetStockObject<HBRUSH>(WHITE_BRUSH));
@@ -1120,34 +1120,34 @@ LRESULT DcxList::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPars
 #endif
 
 #ifdef USE_FIX_01
-		if (isExStyle(WindowExStyle::Transparent) && !isExStyle(WindowExStyle::Composited))
-		{
-			bParsed = TRUE;
+		//if ((Dcx::dcxLOWORD(wParam) == SB_ENDSCROLL) && isExStyle(WindowExStyle::Transparent) && !getParentDialog()->isExStyle(WindowExStyle::Composited))
+		//{
+		//	bParsed = TRUE;
 
-			const auto lRes = CallDefaultClassProc(uMsg, wParam, lParam);
+		//	const auto lRes = CallDefaultClassProc(uMsg, wParam, lParam);
 
-			redrawBufferedWindow();
+		//	redrawBufferedWindowClient();
 
-			return lRes;
-		}
+		//	return lRes;
+		//}
 #endif
 		break;
 
 #ifdef USE_FIX_01
-	case WM_HSCROLL:
-	{
-		if (isExStyle(WindowExStyle::Transparent) && !isExStyle(WindowExStyle::Composited))
-		{
-			bParsed = TRUE;
+	//case WM_HSCROLL:
+	//{
+	//	if (isExStyle(WindowExStyle::Transparent) && !getParentDialog()->isExStyle(WindowExStyle::Composited))
+	//	{
+	//		bParsed = TRUE;
 
-			const auto lRes = CallDefaultClassProc(uMsg, wParam, lParam);
+	//		const auto lRes = CallDefaultClassProc(uMsg, wParam, lParam);
 
-			redrawBufferedWindow();
+	//		redrawBufferedWindowClient();
 
-			return lRes;
-		}
-	}
-	break;
+	//		return lRes;
+	//	}
+	//}
+	//break;
 #endif
 
 #ifdef USE_FIX_SCROLL
@@ -1221,13 +1221,13 @@ LRESULT DcxList::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPars
 	// needed for odd bits at bottom/top of control where no item is shown.
 	case WM_ERASEBKGND:
 	{
-		if (isExStyle(WindowExStyle::Transparent) && !isExStyle(WindowExStyle::Composited))
+		if (isExStyle(WindowExStyle::Transparent) && !getParentDialog()->isExStyle(WindowExStyle::Composited))
 		{
-			//auto hdc = reinterpret_cast<HDC>(wParam);
+			auto hdc = reinterpret_cast<HDC>(wParam);
 
 			////DcxControl::DrawCtrlBackground();
 
-			//DrawParentsBackground(hdc);
+			DrawParentsBackground(hdc);
 
 			bParsed = TRUE;
 			return TRUE;
