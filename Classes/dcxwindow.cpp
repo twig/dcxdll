@@ -228,7 +228,7 @@ void DcxWindow::redrawBufferedWindow()
 
 	SendMessage(m_Hwnd, WM_PRINT, reinterpret_cast<WPARAM>(hBuffer.get()), PRF_NONCLIENT | PRF_CLIENT | PRF_CHILDREN | PRF_CHECKVISIBLE | PRF_ERASEBKGND);
 
-	BitBlt(hdc, 0, 0, (rc.right - rc.left), (rc.bottom - rc.top), hBuffer.get(), 0, 0, SRCCOPY);
+	BitBlt(hdc, 0, 0, rc.Width(), rc.Height(), hBuffer.get(), 0, 0, SRCCOPY);
 #else
 	if (RECT rc{}; GetWindowRect(m_Hwnd, &rc))
 	{
@@ -266,7 +266,7 @@ void DcxWindow::redrawBufferedWindowClient()
 
 	SendMessage(m_Hwnd, WM_PRINTCLIENT, reinterpret_cast<WPARAM>(hBuffer.get()), PRF_CLIENT | PRF_CHILDREN | PRF_CHECKVISIBLE | PRF_ERASEBKGND);
 
-	BitBlt(hdc, 0, 0, (rc.right - rc.left), (rc.bottom - rc.top), hBuffer.get(), 0, 0, SRCCOPY);
+	BitBlt(hdc, 0, 0, rc.Width(), rc.Height(), hBuffer.get(), 0, 0, SRCCOPY);
 #else
 	if (RECT rc{}; GetClientRect(m_Hwnd, &rc))
 	{

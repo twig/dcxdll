@@ -1282,7 +1282,7 @@ void DcxEdit::DrawGutter(HDC hdc)
 	if (m_FRGutter.right == 0)
 		return;
 
-	const auto hFont = GetWindowFont(m_Hwnd);
+	const auto hFont = (m_hFont != nullptr) ? m_hFont : this->getFont();
 	const auto oldFont = Dcx::dcxSelectObject(hdc, hFont);
 	Auto(Dcx::dcxSelectObject(hdc, oldFont));
 
