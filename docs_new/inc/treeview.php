@@ -48,6 +48,8 @@ function get_styles_treeview(&$STYLES) {
 		'noident' => 'Does not indent the tree view for the expand buttons. [o]Vista[/o]',
 		'richtooltip' => 'Allow rich tooltips in the tree view (custom drawn with icon and text). [o]Vista[/o]',
 
+		'custom' => 'Enable custom drawing code. (this allows mirc ctrl codes in text)',
+
 //TVS_EX_DIMMEDCHECKBOXES 
 //Include dimmed checkbox state if the control has the TVS_CHECKBOXES style. [o]Vista[/o]
 //
