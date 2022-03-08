@@ -1220,7 +1220,7 @@ void DcxEdit::DrawClientRect(HDC hdc, unsigned int uMsg, LPARAM lParam)
 	//	DcxControl::DrawCtrlBackground(hdc, this, &rcBkg);
 
 	//CallDefaultClassProc(uMsg, reinterpret_cast<WPARAM>(hdc), lParam);
-	//CallDefaultClassProc(WM_PRINTCLIENT, reinterpret_cast<WPARAM>(hdc), PRF_CLIENT | PRF_CHILDREN);
+	//CallDefaultClassProc(WM_PRINTCLIENT, reinterpret_cast<WPARAM>(hdc), PRF_CLIENT | PRF_CHILDREN | PRF_ERASEBKGND);
 
 	if (m_bShowLineNumbers)
 	{
@@ -1229,7 +1229,8 @@ void DcxEdit::DrawClientRect(HDC hdc, unsigned int uMsg, LPARAM lParam)
 		DrawGutter(hdc);
 	}
 	else {
-		CallDefaultClassProc(uMsg, reinterpret_cast<WPARAM>(hdc), lParam);
+		// produces strange ghosted text from other edit control. Only affects transparent single line edit controls?
+		//CallDefaultClassProc(uMsg, reinterpret_cast<WPARAM>(hdc), lParam);
 
 		//const auto savedc = SaveDC(hdc);
 		//Auto(RestoreDC(hdc, savedc));
@@ -1248,10 +1249,48 @@ void DcxEdit::DrawClientRect(HDC hdc, unsigned int uMsg, LPARAM lParam)
 		//	DcxControl::DrawCtrlBackground(hdc, this, &rcBkg);
 		//
 		//
-		////SetTextColor(hdc,this->getTextColor());
+		//SetTextColor(hdc,this->getTextColor());
 		//Dcx::dcxSelectObject(hdc, this->getFont());
 		//
 		//ctrlDrawText(hdc, m_tsText, &rcBkg, DT_SINGLELINE | DT_VCENTER);
+
+		if (isExStyle(WindowExStyle::Transparent))
+		{
+			RECT rcBkg = getFmtRect();
+
+			if (!IsAlphaBlend())
+				DrawParentsBackground(hdc, &rcBkg);
+
+			if (auto hdcbuf = CreateHDCBuffer(hdc, &rcBkg); hdcbuf)
+			{
+				Auto(DeleteHDCBuffer(hdcbuf));
+
+				// this method still produces the strange ghosting on text
+				//CallDefaultClassProc(uMsg, reinterpret_cast<WPARAM>(*hdcbuf), lParam);
+				//TransparentBlt(hdc, 0, 0, (rcBkg.right - rcBkg.left), (rcBkg.bottom - rcBkg.top), *hdcbuf, 0, 0, (rcBkg.right - rcBkg.left), (rcBkg.bottom - rcBkg.top), GetPixel(*hdcbuf, 0, 0));
+
+				// fixes ghost text issue.
+				removeExStyle(WindowExStyle::Transparent);
+				CallDefaultClassProc(uMsg, reinterpret_cast<WPARAM>(*hdcbuf), lParam);
+				addExStyle(WindowExStyle::Transparent);
+				TransparentBlt(hdc, 0, 0, (rcBkg.right - rcBkg.left), (rcBkg.bottom - rcBkg.top), *hdcbuf, 0, 0, (rcBkg.right - rcBkg.left), (rcBkg.bottom - rcBkg.top), GetPixel(*hdcbuf,0,0));
+
+				// fails to show any text
+				//BeginPath(*hdcbuf);
+				//CallDefaultClassProc(uMsg, reinterpret_cast<WPARAM>(*hdcbuf), lParam);
+				//EndPath(*hdcbuf);
+				//
+				//if (auto hRgn = PathToRegion(*hdcbuf); hRgn)
+				//{
+				//	const auto clr = getTextColor();
+				//	auto hBrush = CreateSolidBrush(clr);
+				//	FillRgn(hdc, hRgn, hBrush);
+				//	DeleteBrush(hBrush);
+				//	DeleteRgn(hRgn);
+				//}
+			}
+		}
+		else CallDefaultClassProc(uMsg, reinterpret_cast<WPARAM>(hdc), lParam);
 	}
 
 }
