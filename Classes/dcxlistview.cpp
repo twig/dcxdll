@@ -5063,8 +5063,8 @@ void DcxListView::CopyItem(int iSrc, int iDest)
 	lvi.iSubItem = 0;
 	lvi.cchTextMax = MIRC_BUFFER_SIZE_CCH;
 	lvi.pszText = &szBuf[0];
-	lvi.stateMask = ~gsl::narrow_cast<UINT>(LVIS_SELECTED); // dont want selected state
-	lvi.mask = LVIF_STATE | LVIF_IMAGE | LVIF_INDENT | LVIF_PARAM | LVIF_TEXT | LVIF_GROUPID | LVIF_COLUMNS;
+	lvi.stateMask = 0; // ~gsl::narrow_cast<UINT>(LVIS_SELECTED); // dont want selected state
+	lvi.mask = /*LVIF_STATE |*/ LVIF_IMAGE | LVIF_INDENT | LVIF_PARAM | LVIF_TEXT | LVIF_GROUPID | LVIF_COLUMNS;
 
 	// Rearrange the items
 	if (Dcx::dcxListView_GetItem(m_Hwnd, &lvi))
@@ -5085,8 +5085,19 @@ void DcxListView::CopyItem(int iSrc, int iDest)
 		// Set the subitem text
 		for (int i = 1; i < this->getColumnCount(); i++)
 		{
-			Dcx::dcxListView_GetItemText(m_Hwnd, iSrc, i, &szBuf[0], std::size(szBuf));
-			Dcx::dcxListView_SetItemText(m_Hwnd, iRet, i, &szBuf[0]);
+			//Dcx::dcxListView_GetItemText(m_Hwnd, iSrc, i, &szBuf[0], std::size(szBuf));
+			//Dcx::dcxListView_SetItemText(m_Hwnd, iRet, i, &szBuf[0]);
+
+			lvi.mask = LVIF_TEXT | LVIF_IMAGE;
+			lvi.iItem = iSrc;
+			lvi.iSubItem = i;
+			lvi.pszText = &szBuf[0];
+			lvi.cchTextMax = std::size(szBuf);
+
+			Dcx::dcxListView_GetItem(m_Hwnd, &lvi);
+
+			lvi.iItem = iRet;
+			Dcx::dcxListView_SetItem(m_Hwnd, &lvi);
 		}
 	}
 }
@@ -5103,8 +5114,8 @@ void DcxListView::MoveItem(int iSrc, int iDest) noexcept
 	lvi.iSubItem = 0;
 	lvi.cchTextMax = MIRC_BUFFER_SIZE_CCH;
 	lvi.pszText = &szBuf[0];
-	lvi.stateMask = ~gsl::narrow_cast<UINT>(LVIS_SELECTED); // dont want selected state
-	lvi.mask = LVIF_STATE | LVIF_IMAGE | LVIF_INDENT | LVIF_PARAM | LVIF_TEXT | LVIF_GROUPID | LVIF_COLUMNS;
+	lvi.stateMask = 0; //~gsl::narrow_cast<UINT>(LVIS_SELECTED); // dont want selected state
+	lvi.mask = /*LVIF_STATE |*/ LVIF_IMAGE | LVIF_INDENT | LVIF_PARAM | LVIF_TEXT | LVIF_GROUPID | LVIF_COLUMNS;
 
 	// Get source item details
 	if (Dcx::dcxListView_GetItem(m_Hwnd, &lvi))
@@ -5116,11 +5127,22 @@ void DcxListView::MoveItem(int iSrc, int iDest) noexcept
 		if (iRet <= iSrc)
 			iSrc++;
 
-		// Set the subitem text
+		// Set the subitem text & image
 		for (int i = 1; i < this->getColumnCount(); i++)
 		{
-			Dcx::dcxListView_GetItemText(m_Hwnd, iSrc, i, &szBuf[0], std::size(szBuf));
-			Dcx::dcxListView_SetItemText(m_Hwnd, iRet, i, &szBuf[0]);
+			//Dcx::dcxListView_GetItemText(m_Hwnd, iSrc, i, &szBuf[0], std::size(szBuf));
+			//Dcx::dcxListView_SetItemText(m_Hwnd, iRet, i, &szBuf[0]);
+
+			lvi.mask = LVIF_TEXT | LVIF_IMAGE;
+			lvi.iItem = iSrc;
+			lvi.iSubItem = i;
+			lvi.pszText = &szBuf[0];
+			lvi.cchTextMax = std::size(szBuf);
+
+			Dcx::dcxListView_GetItem(m_Hwnd, &lvi);
+
+			lvi.iItem = iRet;
+			Dcx::dcxListView_SetItem(m_Hwnd, &lvi);
 		}
 
 		// need to remove PARAM before doing delete (as we are still using this data in the new moved item)
@@ -5137,6 +5159,9 @@ void DcxListView::MoveItem(int iSrc, int iDest) noexcept
 
 void DcxListView::toXml(TiXmlElement* const xml) const
 {
+	if (!xml)
+		return;
+
 	__super::toXml(xml);
 
 	xml->SetAttribute("styles", getStyles().c_str());

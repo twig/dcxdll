@@ -1735,8 +1735,7 @@ void DcxControl::DrawParentsBackground(const HDC hdc, const RECT* const rcBounds
 			auto hdcParent = pDialog->GetVistaHDC();
 			auto rcWin = rcClient;
 			pDialog->MapVistaRect(hwnd, &rcWin);
-			BitBlt(hdc, rcClient.left, rcClient.top, (rcClient.right - rcClient.left), (rcClient.bottom - rcClient.top),
-				hdcParent, rcWin.left, rcWin.top, SRCCOPY);
+			BitBlt(hdc, rcClient.left, rcClient.top, (rcClient.right - rcClient.left), (rcClient.bottom - rcClient.top), hdcParent, rcWin.left, rcWin.top, SRCCOPY);
 			return;
 		}
 	}
