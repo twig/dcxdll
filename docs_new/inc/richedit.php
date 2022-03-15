@@ -187,7 +187,10 @@ function get_xdidprops_richedit(&$XDIDPROPS) {
 		    '__eg' => '14 3',
 		),
 		"linenumbers" => 'This returns if line numbers are enabled.',
-		"guttercolours" => 'This returns the colours used to draw line numbers.',
+		"guttercolours" => array(
+		    '__desc' => 'This returns the colours used to draw line numbers.',
+		    '__notes' => 'The return value is [p]Selected line Background Colour[/p] [p]Background Colour[/p] [p]Selected Line Text Colour[/p] [p]Text Colour[/p] [p]Border Colour[/p]',
+		),
 	);
 }
 

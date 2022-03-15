@@ -155,7 +155,10 @@ function get_xdidprops_edit(&$XDIDPROPS) {
 		    '__notes' => 'The return value is [p]LINE[/p] [p]COLUMN[/p] [p]CHAR[/p]',
 		),
 		"linenumbers" => 'This returns if line numbers are enabled.',
-		"guttercolours" => 'This returns the colours used to draw line numbers.',
+		"guttercolours" => array(
+		    '__desc' => 'This returns the colours used to draw line numbers.',
+		    '__notes' => 'The return value is [p]Selected line Background Colour[/p] [p]Background Colour[/p] [p]Selected Line Text Colour[/p] [p]Text Colour[/p] [p]Border Colour[/p]',
+		),
 	);
 }
 
