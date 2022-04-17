@@ -198,8 +198,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(GSLDir);$(DetoursDir)include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(DetoursDir)lib.X86;$(LibraryPath);$(OutDir)</LibraryPath>
+    <IncludePath>$(DirectXTKDir)Inc;$(GSLDir);$(DetoursDir)include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(PCRE2Dir)x32;$(DirectXTKDir)Bin\Desktop_2022\Win32\Debug;$(DetoursDir)lib.X86;$(LibraryPath);$(OutDir)</LibraryPath>
     <CustomBuildAfterTargets>Build</CustomBuildAfterTargets>
     <EnableCppCoreCheck>true</EnableCppCoreCheck>
     <EnableExperimentalCppCoreCheck>true</EnableExperimentalCppCoreCheck>
@@ -209,45 +209,45 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
     <CodeAnalysisRuleSet>dcxrules.ruleset</CodeAnalysisRuleSet>
-    <LibraryPath>$(DetoursDir)lib.X64;$(LibraryPath);$(OutDir)</LibraryPath>
-    <IncludePath>$(GSLDir);$(DetoursDir)include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(PCRE2Dir)x64;$(DetoursDir)lib.X64;$(LibraryPath);$(OutDir)</LibraryPath>
+    <IncludePath>$(DirectXTKDir)Inc;$(GSLDir);$(DetoursDir)include;$(IncludePath)</IncludePath>
     <IntDir>$(OutDir)obj\$(ProjectName)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(GSLDir);$(DetoursDir)include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(DetoursDir)lib.X86;$(LibraryPath);$(OutDir)</LibraryPath>
+    <IncludePath>$(DirectXTKDir)Inc;$(GSLDir);$(DetoursDir)include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(PCRE2Dir)x32;$(DirectXTKDir)Bin\Desktop_2022\Win32\Release;$(DetoursDir)lib.X86;$(LibraryPath);$(OutDir)</LibraryPath>
     <PostBuildEventUseInBuild>false</PostBuildEventUseInBuild>
     <CodeAnalysisRuleSet>dcxrules.ruleset</CodeAnalysisRuleSet>
     <IntDir>$(OutDir)obj\$(ProjectName)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release Dll|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(GSLDir);$(DetoursDir)include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(DetoursDir)lib.X86;$(LibraryPath);$(OutDir)</LibraryPath>
+    <IncludePath>$(DirectXTKDir)Inc;$(GSLDir);$(DetoursDir)include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(PCRE2Dir)x32;$(DirectXTKDir)Bin\Desktop_2022\Win32\Release;$(DetoursDir)lib.X86;$(LibraryPath);$(OutDir)</LibraryPath>
     <PostBuildEventUseInBuild>false</PostBuildEventUseInBuild>
     <CodeAnalysisRuleSet>dcxrules.ruleset</CodeAnalysisRuleSet>
     <IntDir>$(OutDir)obj\$(ProjectName)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release Optimal|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(GSLDir);$(DetoursDir)include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(DetoursDir)lib.X86;$(LibraryPath);$(OutDir)</LibraryPath>
+    <IncludePath>$(DirectXTKDir)Inc;$(GSLDir);$(DetoursDir)include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(PCRE2Dir)x32;$(DirectXTKDir)Bin\Desktop_2022\Win32\Release;$(DetoursDir)lib.X86;$(LibraryPath);$(OutDir)</LibraryPath>
     <PostBuildEventUseInBuild>false</PostBuildEventUseInBuild>
     <CodeAnalysisRuleSet>dcxrules.ruleset</CodeAnalysisRuleSet>
     <IntDir>$(OutDir)obj\$(ProjectName)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release SSE42 AVX2|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(GSLDir);$(DetoursDir)include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(DetoursDir)lib.X86;$(LibraryPath);$(OutDir)</LibraryPath>
+    <IncludePath>$(DirectXTKDir)Inc;$(GSLDir);$(DetoursDir)include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(PCRE2Dir)x32;$(DirectXTKDir)Bin\Desktop_2022\Win32\Release;$(DetoursDir)lib.X86;$(LibraryPath);$(OutDir)</LibraryPath>
     <PostBuildEventUseInBuild>false</PostBuildEventUseInBuild>
     <CodeAnalysisRuleSet>dcxrules.ruleset</CodeAnalysisRuleSet>
     <IntDir>$(OutDir)obj\$(ProjectName)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Development|Win32'">
-    <IncludePath>$(GSLDir);$(DetoursDir)include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(DetoursDir)lib.X86;$(LibraryPath);$(OutDir)</LibraryPath>
+    <IncludePath>$(DirectXTKDir)Inc;$(GSLDir);$(DetoursDir)include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(PCRE2Dir)x32;$(DirectXTKDir)Bin\Desktop_2022\Win32\Release;$(DetoursDir)lib.X86;$(LibraryPath);$(OutDir)</LibraryPath>
     <PostBuildEventUseInBuild>false</PostBuildEventUseInBuild>
     <LinkIncremental>false</LinkIncremental>
     <CodeAnalysisRuleSet>dcxrules.ruleset</CodeAnalysisRuleSet>
@@ -255,37 +255,37 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Development|x64'">
     <CodeAnalysisRuleSet>dcxrules.ruleset</CodeAnalysisRuleSet>
-    <LibraryPath>$(DetoursDir)lib.X64;$(LibraryPath);$(OutDir)</LibraryPath>
-    <IncludePath>$(GSLDir);$(DetoursDir)include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(PCRE2Dir)x64;$(DetoursDir)lib.X64;$(LibraryPath);$(OutDir)</LibraryPath>
+    <IncludePath>$(DirectXTKDir)Inc;$(GSLDir);$(DetoursDir)include;$(IncludePath)</IncludePath>
     <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(OutDir)obj\$(ProjectName)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <CodeAnalysisRuleSet>dcxrules.ruleset</CodeAnalysisRuleSet>
-    <LibraryPath>$(DetoursDir)lib.X64;$(LibraryPath);$(OutDir)</LibraryPath>
-    <IncludePath>$(GSLDir);$(DetoursDir)include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(PCRE2Dir)x64;$(DetoursDir)lib.X64;$(LibraryPath);$(OutDir)</LibraryPath>
+    <IncludePath>$(DirectXTKDir)Inc;$(GSLDir);$(DetoursDir)include;$(IncludePath)</IncludePath>
     <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(OutDir)obj\$(ProjectName)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release Dll|x64'">
     <CodeAnalysisRuleSet>dcxrules.ruleset</CodeAnalysisRuleSet>
-    <LibraryPath>$(DetoursDir)lib.X64;$(LibraryPath);$(OutDir)</LibraryPath>
-    <IncludePath>$(GSLDir);$(DetoursDir)include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(PCRE2Dir)x64;$(DetoursDir)lib.X64;$(LibraryPath);$(OutDir)</LibraryPath>
+    <IncludePath>$(DirectXTKDir)Inc;$(GSLDir);$(DetoursDir)include;$(IncludePath)</IncludePath>
     <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(OutDir)obj\$(ProjectName)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release Optimal|x64'">
     <CodeAnalysisRuleSet>dcxrules.ruleset</CodeAnalysisRuleSet>
     <LinkIncremental>false</LinkIncremental>
-    <LibraryPath>$(DetoursDir)lib.X64;$(LibraryPath);$(OutDir)</LibraryPath>
-    <IncludePath>$(GSLDir);$(DetoursDir)include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(PCRE2Dir)x64;$(DetoursDir)lib.X64;$(LibraryPath);$(OutDir)</LibraryPath>
+    <IncludePath>$(DirectXTKDir)Inc;$(GSLDir);$(DetoursDir)include;$(IncludePath)</IncludePath>
     <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(OutDir)obj\$(ProjectName)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release SSE42 AVX2|x64'">
     <CodeAnalysisRuleSet>dcxrules.ruleset</CodeAnalysisRuleSet>
-    <LibraryPath>$(DetoursDir)lib.X64;$(LibraryPath);$(OutDir)</LibraryPath>
-    <IncludePath>$(GSLDir);$(DetoursDir)include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(PCRE2Dir)x64;$(DetoursDir)lib.X64;$(LibraryPath);$(OutDir)</LibraryPath>
+    <IncludePath>$(DirectXTKDir)Inc;$(GSLDir);$(DetoursDir)include;$(IncludePath)</IncludePath>
     <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(OutDir)obj\$(ProjectName)\</IntDir>
   </PropertyGroup>
@@ -469,7 +469,6 @@
       <PrecompiledHeaderFile>defines.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat />
-      <CallingConvention>FastCall</CallingConvention>
       <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
       <AdditionalOptions>/Qpar-report:1 %(AdditionalOptions) /Qspectre /Qvec-report:1</AdditionalOptions>
       <SDLCheck>true</SDLCheck>
@@ -524,7 +523,6 @@
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>
       </DebugInformationFormat>
-      <CallingConvention>FastCall</CallingConvention>
       <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
       <AdditionalOptions>/Qpar-report:1 %(AdditionalOptions) /Qspectre</AdditionalOptions>
       <SDLCheck>true</SDLCheck>
@@ -767,6 +765,7 @@
     <ClCompile Include="Classes\DcxMultiCombo.cpp" />
     <ClCompile Include="Classes\tstring\hashString.cpp" />
     <ClCompile Include="Dcx.cpp" />
+    <ClCompile Include="DcxDPIModule.cpp" />
     <ClCompile Include="Defines.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Development|Win32'">Create</PrecompiledHeader>
@@ -860,11 +859,13 @@
     <ClInclude Include="ColourString.h" />
     <ClInclude Include="Dcx.h" />
     <ClInclude Include="DcxConcepts.h" />
+    <ClInclude Include="DcxDPIModule.h" />
     <ClInclude Include="dcxExceptions.h" />
     <ClInclude Include="defines.h" />
     <ClInclude Include="dxerr_nov2015\dxerr.h" />
     <ClInclude Include="EnumConcepts.h" />
     <ClInclude Include="mIRCLinker.h" />
+    <ClInclude Include="pcre2\pcre2.h" />
     <ClInclude Include="refString.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="simpleString.h" />

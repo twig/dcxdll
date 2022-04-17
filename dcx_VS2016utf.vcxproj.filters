@@ -85,6 +85,9 @@
     <Filter Include="Header Files\DirectX">
       <UniqueIdentifier>{d32befc0-4bc4-4e3c-b38e-0c1d5a7e05d0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\pcre2">
+      <UniqueIdentifier>{d365003a-cb1c-4a32-8b17-957807c1acf7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Dcx.cpp">
@@ -323,6 +326,9 @@
     </ClCompile>
     <ClCompile Include="Classes\DcxMultiCombo.cpp">
       <Filter>Source Files\Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="DcxDPIModule.cpp">
+      <Filter>Source Files\Modules</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -565,6 +571,12 @@
     </ClInclude>
     <ClInclude Include="Classes\DcxMultiCombo.h">
       <Filter>Header Files\Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="DcxDPIModule.h">
+      <Filter>Header Files\Modules</Filter>
+    </ClInclude>
+    <ClInclude Include="pcre2\pcre2.h">
+      <Filter>Header Files\pcre2</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

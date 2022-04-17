@@ -7,6 +7,8 @@
     <PHPDir>C:\php</PHPDir>
     <DetoursDir>$(SolutionDir)..\..\Detours\</DetoursDir>
     <GSLDir>F:\CSource\GSL-Master\GSL\include</GSLDir>
+    <PCRE2Dir>$(SolutionDir)pcre2\</PCRE2Dir>
+    <DirectXTKDir>F:\CSource\DirectXTK\</DirectXTKDir>
   </PropertyGroup>
   <PropertyGroup>
     <_ProjectFileVersion>11.0.50727.1</_ProjectFileVersion>
@@ -38,6 +40,12 @@
     </BuildMacro>
     <BuildMacro Include="DetoursDir">
       <Value>$(DetoursDir)</Value>
+    </BuildMacro>
+    <BuildMacro Include="PCRE2Dir">
+      <Value>$(PCRE2Dir)</Value>
+    </BuildMacro>
+    <BuildMacro Include="DirectXTKDir">
+      <Value>$(DirectXTKDir)</Value>
     </BuildMacro>
   </ItemGroup>
 </Project>
