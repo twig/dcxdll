@@ -402,6 +402,12 @@ void DcxDirectshow::parseCommandRequest(const TString& input)
 
 				if (this->IsAlphaBlend())
 					this->setAlpha(0.5);
+
+				//if (this->IsAlphaBlend())
+				//{
+				//	const float fAlpha = m_iAlphaLevel / 255.0;
+				//	this->setAlpha(fAlpha);
+				//}
 			}
 			else {
 				// if VMR == nullptr then disable video.

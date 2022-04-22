@@ -4,6 +4,7 @@
 #include "DcxUXModule.h"
 #include "DcxGDIModule.h"
 #include "DcxDWMModule.h"
+#include "DcxDPIModule.h"
 #include "Classes/xpopup/XPopupMenuManager.h"
 #include "Classes/xpopup/xmenubar.h"
 #include "Classes/DcxDialog.h"
@@ -91,6 +92,7 @@ namespace Dcx
 	extern DcxGDIModule GDIModule;
 	extern DcxUXModule UXModule;
 	extern DcxDWMModule VistaModule;
+	extern DcxDPIModule DpiModule;
 
 	/* additions */
 	extern XPopupMenuManager XPopups;
@@ -922,15 +924,38 @@ namespace Dcx
 		explicit operator bool() const noexcept { return ((x != -1) && (y != -1)); };
 	};
 
-	struct dcxWindowRect final
+	struct dcxRect
 		: RECT
+	{
+		/// <summary>
+		/// Get the rects width.
+		/// </summary>
+		/// <returns></returns>
+		long Width() const noexcept { return (right - left); }
+
+		/// <summary>
+		/// Get the rects height.
+		/// </summary>
+		/// <returns></returns>
+		long Height() const noexcept { return (bottom - top); }
+
+		/// <summary>
+		/// Get a copy of the rect.
+		/// </summary>
+		/// <returns></returns>
+		RECT CopyRect() const noexcept { return { left, top, right, bottom }; }
+	};
+
+	struct dcxWindowRect final
+		: dcxRect
 	{
 		dcxWindowRect() = delete;
 
 		// Gets the window rect for hwnd
 		explicit dcxWindowRect(HWND hwnd) noexcept
 		{
-			m_ok = (GetWindowRect(hwnd, this) != FALSE);
+			if (!hwnd) m_ok = false;
+			else m_ok = (GetWindowRect(hwnd, this) != FALSE);
 		}
 
 		// Gets the window rect for hwnd & maps it to hMap
@@ -947,37 +972,20 @@ namespace Dcx
 
 		~dcxWindowRect() noexcept = default;
 
-		/// <summary>
-		/// Get the rects width.
-		/// </summary>
-		/// <returns></returns>
-		long Width() const noexcept { return (right - left); }
-
-		/// <summary>
-		/// Get the rects height.
-		/// </summary>
-		/// <returns></returns>
-		long Height() const noexcept { return (bottom - top); }
-
-		/// <summary>
-		/// Get a copy of the rect.
-		/// </summary>
-		/// <returns></returns>
-		RECT CopyRect() const noexcept { return { left, top, right, bottom }; }
-
 		explicit operator bool() noexcept { return m_ok; }
 		bool	m_ok{ false };
 	};
 
 	struct dcxClientRect final
-		: RECT
+		: dcxRect
 	{
 		dcxClientRect() = delete;
 
 		// Gets the window rect for hwnd
 		explicit dcxClientRect(HWND hwnd) noexcept
 		{
-			m_ok = (GetClientRect(hwnd, this) != FALSE);
+			if (!hwnd) m_ok = false;
+			else m_ok = (GetClientRect(hwnd, this) != FALSE);
 		}
 
 		// Gets the window client rect for hwnd & maps it to hMap
@@ -993,24 +1001,6 @@ namespace Dcx
 		}
 
 		~dcxClientRect() noexcept = default;
-
-		/// <summary>
-		/// Get the rects width.
-		/// </summary>
-		/// <returns></returns>
-		long Width() const noexcept { return (right - left); }
-
-		/// <summary>
-		/// Get the rects height.
-		/// </summary>
-		/// <returns></returns>
-		long Height() const noexcept { return (bottom - top); }
-
-		/// <summary>
-		/// Get a copy of the rect.
-		/// </summary>
-		/// <returns></returns>
-		RECT CopyRect() const noexcept { return { left, top, right, bottom }; }
 
 		explicit operator bool() noexcept { return m_ok; }
 		bool	m_ok{ false };
@@ -1488,7 +1478,7 @@ namespace Dcx
 	using BoolValue = CodeValue<T, bool >;
 
 	template <class T>
-	auto dcxGetObject(HANDLE h) noexcept
+	auto dcxGetObject(_In_ HANDLE h) noexcept
 	{
 		CodeValue<T> v;
 		v.code = GetObject(h, sizeof(T), &v.value);
@@ -1496,25 +1486,25 @@ namespace Dcx
 	}
 
 	template <class T>
-	inline T dcxGetStockObject(int i) noexcept
+	inline T dcxGetStockObject(_In_ int i) noexcept
 	{
 		return static_cast<T>(GetStockObject(i));
 	}
 
 	template <class T>
-	inline T dcxGetCurrentObject(HDC hdc, UINT type) noexcept
+	inline T dcxGetCurrentObject(_In_ HDC hdc, _In_ UINT type) noexcept
 	{
 		return static_cast<T>(GetCurrentObject(hdc, type));
 	}
 
 	GSL_SUPPRESS(lifetime)
-		inline WNDPROC dcxGetWindowProc(HWND hwnd) noexcept
+		inline WNDPROC dcxGetWindowProc(_In_ HWND hwnd) noexcept
 	{
 		return reinterpret_cast<WNDPROC>(GetWindowLongPtr(hwnd, GWLP_WNDPROC));
 	}
 
 	template <class T>
-	inline T dcxSelectObject(HDC hdc, T obj) noexcept
+	inline T dcxSelectObject(_In_ HDC hdc, _In_ T obj) noexcept
 	{
 		return static_cast<T>(SelectObject(hdc, obj));
 	}
@@ -1540,7 +1530,7 @@ namespace Dcx
 
 	template <class T>
 	GSL_SUPPRESS(lifetime)
-		inline auto dcxGetProp(HWND hwnd, const TCHAR* const str) noexcept
+		inline auto dcxGetProp(_In_ HWND hwnd, _In_ const TCHAR* const str) noexcept
 	{
 		if constexpr (std::is_integral_v<T>)
 			return reinterpret_cast<T>(GetProp(hwnd, str));
@@ -1552,7 +1542,7 @@ namespace Dcx
 
 	template <class T, class Window>
 	GSL_SUPPRESS(lifetime)
-		inline auto dcxGetProp(Window hwnd, const TCHAR* const str) noexcept
+		inline auto dcxGetProp(_In_ Window hwnd, _In_ const TCHAR* const str) noexcept
 	{
 		if constexpr (std::is_integral_v<T>)
 			return reinterpret_cast<T>(GetProp(reinterpret_cast<HWND>(hwnd), str));

@@ -10,6 +10,7 @@ namespace Dcx {
 	DcxGDIModule GDIModule;
 	DcxUXModule UXModule;
 	DcxDWMModule VistaModule;
+	DcxDPIModule DpiModule;
 	DcxDialogCollection Dialogs;
 	XPopupMenuManager XPopups;
 	XMenuBar XMenubar;
@@ -61,6 +62,8 @@ namespace Dcx {
 		UXModule.load();
 
 		VistaModule.load();
+
+		DpiModule.load();
 
 		// Load Control definitions
 		DCX_DEBUG(mIRCLinker::debug, __FUNCTIONW__, TEXT("Loading control classes"));
@@ -184,6 +187,7 @@ namespace Dcx {
 
 	void freeOSCompatibility(void) noexcept
 	{
+		DpiModule.unload();
 		VistaModule.unload();
 		UXModule.unload();
 		GDIModule.unload();
