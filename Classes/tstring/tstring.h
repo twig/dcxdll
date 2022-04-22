@@ -6,7 +6,7 @@
  * comparisons and token manipulations as done in the mIRC scripting language.
  *
  * \author David Legault ( clickhere at scriptsdb dot org )
- * \version 1.19
+ * \version 1.20
  *
  * \b Revisions
  *	1.1
@@ -63,6 +63,9 @@
  * 
  *  1.19
  *		Fixed issue with getnexttok() when changing tokens used.
+ *	1.20
+ *		Added IsPointer concept
+ *		Added to_<T>() for changing the data to other pointer types.
  * 
  * © ScriptsDB.org - 2005-2021
  */
@@ -103,13 +106,16 @@ namespace TStringConcepts {
 	concept IsTString = std::is_same_v<std::remove_cvref_t<std::remove_all_extents_t<T>>, TString>;
 
 	template <class T>
+	concept IsPointer = std::is_pointer_v<T>;
+
+	template <class T>
 	concept IsPODText = IsCharText<T> || IsWCharText<T>;
 
 	template <class T>
 	concept IsPODTextArray = IsPODText<T> && std::is_bounded_array_v<T>;
 
 	template <class T>
-	concept IsPODTextPointer = std::is_pointer_v<T> && IsPODText<std::remove_pointer_t<T>> && !IsPODTextArray<T>;
+	concept IsPODTextPointer = IsPointer<T> && IsPODText<std::remove_pointer_t<T>> && !IsPODTextArray<T>;
 
 	template <class T>
 	concept IsNumeric = is_Numeric_v<T>;
@@ -1981,6 +1987,13 @@ public:
 	}
 	ULONG to_addr() const;
 
+	template <TStringConcepts::IsPointer T>
+	T to_() const noexcept
+	{
+		static_assert(std::is_pointer_v<T>, "Type T must be a pointer.");
+
+		return reinterpret_cast<T>(m_pString);
+	}
 	template <TStringConcepts::IsNumeric T>
 	T to_() const
 	{
