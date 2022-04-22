@@ -1949,6 +1949,9 @@ mIRC(ActiveWindow)
 		case TEXT("caption"_hash):	// title text
 			GetWindowText(hwnd, data, mIRCLinker::m_dwCharacters);
 			break;
+		case TEXT("dpi"_hash):		// dpi
+			_ts_snprintf(data, mIRCLinker::m_dwCharacters, TEXT("%u"), Dcx::DpiModule.dcxGetDpiForWindow(hwnd));
+			break;
 		default:					// otherwise
 			throw DcxExceptions::dcxInvalidArguments();
 		}
@@ -2238,6 +2241,11 @@ mIRC(GetDCXSettings)
 		case L"CustomMenus"_hash:
 		{
 			_ts_snprintf(data, mIRCLinker::c_mIRC_Buffer_Size_cch, TEXT("%u"), Dcx::setting_CustomMenusAlpha);
+			break;
+		}
+		case L"dpi"_hash:
+		{
+			_ts_snprintf(data, mIRCLinker::c_mIRC_Buffer_Size_cch, TEXT("%u"), Dcx::DpiModule.dcxGetDpiForSystem());
 			break;
 		}
 		default:
