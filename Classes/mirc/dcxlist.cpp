@@ -24,7 +24,7 @@ namespace Dcx {
 		TString tsBuf;
 
 		const auto len = ListBox_GetTextLen(hwnd, i);
-		if (len == LB_ERR)
+		if (len < 1)
 			return tsBuf;
 
 		tsBuf.reserve(len + 1U);
@@ -351,6 +351,8 @@ void DcxList::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC
 		const auto N = params++.to_<UINT>();	// tok 2
 		const auto nItems = ListBox_GetCount(m_Hwnd);
 
+		dcxSearchData srch_data(matchtext, SearchType);
+
 		// count total
 		if (N == 0)
 		{
@@ -358,7 +360,7 @@ void DcxList::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC
 
 			for (auto i = decltype(nItems){0}; i < nItems; ++i)
 			{
-				if (matchItemText(i, matchtext, SearchType))
+				if (matchItemText(i, srch_data))
 					++count;
 			}
 
@@ -370,7 +372,7 @@ void DcxList::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC
 
 			for (auto i = decltype(nItems){0}; i < nItems; ++i)
 			{
-				if (matchItemText(i, matchtext, SearchType))
+				if (matchItemText(i, srch_data))
 					++count;
 
 				// found Nth matching
@@ -435,7 +437,6 @@ void DcxList::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('A')])
 	{
 		if (numtok < 6)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		auto nPos = input.getnexttok().to_int() - 1;	// tok 4
@@ -449,13 +450,12 @@ void DcxList::parseCommandRequest(const TString& input)
 		const auto iItemToks = itemtext.numtok();
 
 		if (!xOpts[TEXT('+')])
-			//throw Dcx::dcxException("Invalid Flags");
 			throw DcxExceptions::dcxInvalidFlag();
 
 		if (xOpts[TEXT('H')]) // [TEXT] == [table] [item]
 		{
 			if (iItemToks != 2) // load single item from hash table by item name
-				throw Dcx::dcxException("Invalid Syntax");
+				throw DcxExceptions::dcxInvalidArguments();
 
 			//mIRCLinker::tsEvalex(tsRes, TEXT("$hget(%s,%s)"), itemtext.getfirsttok(1).to_chr(), itemtext.getnexttok().to_chr());	// tok 1 then 2
 			mIRCLinker::eval(tsRes, TEXT("$hget(%,%)"), itemtext.getfirsttok(1), itemtext.getnexttok());	// tok 1 then 2
@@ -466,7 +466,7 @@ void DcxList::parseCommandRequest(const TString& input)
 		else if (xOpts[TEXT('n')]) // [TEXT] == [table] [N]
 		{
 			if (iItemToks != 2) // load single item from hash table by index
-				throw Dcx::dcxException("Invalid Syntax");
+				throw DcxExceptions::dcxInvalidArguments();
 
 			//mIRCLinker::tsEvalex(tsRes, TEXT("$hget(%s,%s).data"), itemtext.getfirsttok(1).to_chr(), itemtext.getnexttok().to_chr());	// tok 1 then 2
 			mIRCLinker::eval(tsRes, TEXT("$hget(%,%).data"), itemtext.getfirsttok(1), itemtext.getnexttok());	// tok 1 then 2
@@ -477,7 +477,7 @@ void DcxList::parseCommandRequest(const TString& input)
 		else if (xOpts[TEXT('t')]) // [TEXT] == [table] [startN] [endN]
 		{
 			if (iItemToks != 3) // add contents of a hash table to list
-				throw Dcx::dcxException("Invalid Syntax");
+				throw DcxExceptions::dcxInvalidArguments();
 
 			const auto htable(itemtext.getfirsttok(1));
 			auto startN = itemtext.getnexttok().to_int();	// tok 2
@@ -513,7 +513,7 @@ void DcxList::parseCommandRequest(const TString& input)
 
 			// check endN comes after startN
 			if (endN < startN)
-				throw Dcx::dcxException("Invalid Range");
+				throw DcxExceptions::dcxOutOfRange();
 
 			this->setRedraw(FALSE);
 			Auto({ this->setRedraw(TRUE); this->redrawWindow(); });
@@ -530,7 +530,7 @@ void DcxList::parseCommandRequest(const TString& input)
 		else if (xOpts[TEXT('f')]) // [TEXT] == [startN] [endN] [filename]
 		{
 			if (iItemToks < 3) // add contents of a file to list
-				throw Dcx::dcxException("Invalid Syntax");
+				throw DcxExceptions::dcxInvalidArguments();
 
 			auto startN = itemtext.getfirsttok(1).to_int();
 			auto endN = itemtext.getnexttok().to_int();	// tok 2
@@ -577,7 +577,7 @@ void DcxList::parseCommandRequest(const TString& input)
 
 			// check endN comes after startN
 			if (endN < startN)
-				throw Dcx::dcxException("Invalid Range");
+				throw DcxExceptions::dcxOutOfRange();
 
 			this->setRedraw(FALSE);
 			Auto({ this->setRedraw(TRUE); this->redrawWindow(); });
@@ -596,7 +596,7 @@ void DcxList::parseCommandRequest(const TString& input)
 		else if (xOpts[TEXT('T')]) // [TEXT] == [C] [text][c][text]......
 		{
 			if (iItemToks < 2) // add tokens to list
-				throw Dcx::dcxException("Invalid Syntax");
+				throw DcxExceptions::dcxInvalidArguments();
 
 			TCHAR tok[2]{};
 			tok[0] = gsl::narrow_cast<TCHAR>(itemtext.getfirsttok(1).to_int());
@@ -630,7 +630,6 @@ void DcxList::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('c')])
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto nItems = ListBox_GetCount(m_Hwnd);
@@ -671,7 +670,6 @@ void DcxList::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('d')])
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto Ns(input.getnexttok());			// tok 4
@@ -683,11 +681,18 @@ void DcxList::parseCommandRequest(const TString& input)
 			// have flags, so its a match text delete
 			const auto tsMatchText(input.getnexttok());
 
-			const auto SearchType = FlagsToSearchType(xFlags);
+			//const auto SearchType = FlagsToSearchType(xFlags);
+			//for (auto nPos = Ns.to_int(); nPos < nItems; ++nPos)
+			//{
+			//	if (this->matchItemText(nPos, tsMatchText, SearchType))
+			//		ListBox_DeleteString(m_Hwnd, nPos--);		// NB: we do nPos-- here as a lines just been removed so we have to check the same nPos again
+			//}
+
+			dcxSearchData srch_data(tsMatchText, FlagsToSearchType(xFlags));
 
 			for (auto nPos = Ns.to_int(); nPos < nItems; ++nPos)
 			{
-				if (this->matchItemText(nPos, tsMatchText, SearchType))
+				if (this->matchItemText(nPos, srch_data))
 					ListBox_DeleteString(m_Hwnd, nPos--);		// NB: we do nPos-- here as a lines just been removed so we have to check the same nPos again
 			}
 		}
@@ -727,7 +732,6 @@ void DcxList::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('m')])
 	{
 		if (numtok < 5)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const XSwitchFlags xflags(input.getnexttok());	// tok 4
@@ -762,7 +766,6 @@ void DcxList::parseCommandRequest(const TString& input)
 			}
 		}
 		else
-			//throw Dcx::dcxException("Invalid Flags");
 			throw DcxExceptions::dcxInvalidFlag();
 	}
 	//xdid -o [NAME] [ID] [N] [TEXT]
@@ -775,7 +778,6 @@ void DcxList::parseCommandRequest(const TString& input)
 			nPos = ListBox_GetCount(m_Hwnd) - 1;
 
 		if (nPos < 0 && nPos >= ListBox_GetCount(m_Hwnd))
-			//throw Dcx::dcxException("Item out of range");
 			throw DcxExceptions::dcxOutOfRange();
 
 		ListBox_DeleteString(m_Hwnd, nPos);
@@ -1378,6 +1380,13 @@ bool DcxList::matchItemText(const int nItem, const TString& search, const DcxSea
 	const auto itemtext(Dcx::dcxListBox_GetText(m_Hwnd, nItem));
 
 	return DcxListHelper::matchItemText(itemtext.to_chr(), search, SearchType);
+}
+
+bool DcxList::matchItemText(const int nItem, const dcxSearchData& srch_data) const
+{
+	const auto itemtext(Dcx::dcxListBox_GetText(m_Hwnd, nItem));
+
+	return DcxListHelper::matchItemText(itemtext.to_chr(), srch_data);
 }
 
 //void DcxList::StrLenToExtent(int *nLineExtent)

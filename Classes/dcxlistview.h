@@ -487,6 +487,7 @@ protected:
 	static UINT parseGroupState(const TString& flags);
 
 	bool matchItemText(const int nItem, const int nSubItem, const TString& search, const DcxSearchTypes& SearchType) const;
+	bool matchItemText(const int nItem, const int nSubItem, const dcxSearchData &srch_data) const;
 
 	void autoSize(const int nColumn, const TString& flags);
 	void autoSize(const int nColumn, const int iFlags, const int iWidth = 0) noexcept;

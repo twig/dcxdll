@@ -74,11 +74,7 @@ public:
 private:
 	void DrawDragLine(const int location) noexcept;
 	bool matchItemText(const int nItem, const TString &search, const DcxSearchTypes &SearchType) const;
-
-	//static void getItemRange(const TString &tsItems, const int nItemCnt, int *iStart, int *iEnd);
-	//static std::pair<int, int> getItemRange(const TString &tsItems, const int nItemCnt);
-
-	//void StrLenToExtent(int *nLineExtent);
+	bool matchItemText(const int nItem, const dcxSearchData &srch_data) const;
 
 	void UpdateHorizExtent();
 	void UpdateHorizExtent(const int nPos);

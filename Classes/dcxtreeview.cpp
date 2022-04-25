@@ -294,12 +294,8 @@ void DcxTreeView::parseInfoRequest(const TString& input, const refString<TCHAR, 
 
 		auto matchCount = 0;
 
-		//if (const auto[bSucceded, result] = findItemText(startingPoint, matchtext, n, matchCount, SearchType); bSucceded)
-		//	szReturnValue = getPathFromItem(result); // .to_chr();
-		//else if (n == 0)
-		//	_ts_snprintf(szReturnValue, TEXT("%d"), matchCount);
-
-		if (const auto result = findItemText(startingPoint, matchtext, n, matchCount, SearchType); result.has_value())
+		const dcxSearchData srch_data(matchtext, SearchType);
+		if (const auto result = findItemText(startingPoint, n, matchCount, srch_data); result.has_value())
 			szReturnValue = getPathFromItem(*result).to_chr();
 		else if (n == 0)
 			_ts_snprintf(szReturnValue, TEXT("%d"), matchCount);
@@ -1597,6 +1593,33 @@ std::optional<HTREEITEM> DcxTreeView::findItemText(const HTREEITEM hStart, const
 	return {};
 }
 
+bool DcxTreeView::matchItemText(const HTREEITEM hItem, const dcxSearchData& srch_data) const
+{
+	auto itemtext = std::make_unique<TCHAR[]>(MIRC_BUFFER_SIZE_CCH);
+	gsl::at(itemtext, 0) = TEXT('\0');
+
+	getItemText(hItem, itemtext.get(), MIRC_BUFFER_SIZE_CCH);
+
+	return DcxListHelper::matchItemText(itemtext.get(), srch_data);
+}
+
+std::optional<HTREEITEM> DcxTreeView::findItemText(const HTREEITEM hStart, const int n, int& matchCount, const dcxSearchData& srch_data) const
+{
+	for (HTREEITEM item = TreeView_GetChild(m_Hwnd, hStart); item; item = TreeView_GetNextSibling(m_Hwnd, item))
+	{
+		if (this->matchItemText(item, srch_data))
+			++matchCount;
+
+		if (n != 0 && matchCount == n)
+			return { item };
+
+		if (const auto result_item = findItemText(item, n, matchCount, srch_data); result_item.has_value())
+			return result_item;
+	}
+
+	return {};
+}
+
 /*!
  * \brief blah
  *
@@ -2403,11 +2426,16 @@ void DcxTreeView::DrawGDIPlusImage(HDC hdc)
 	if (!hdc || !m_Hwnd)
 		return;
 
-	RECT rc{};
-	if (!GetClientRect(m_Hwnd, &rc))
+	//RECT rc{};
+	//if (!GetClientRect(m_Hwnd, &rc))
+	//	return;
+	//const auto w = (rc.right - rc.left), h = (rc.bottom - rc.top), x = rc.left, y = rc.top;
+
+	Dcx::dcxClientRect rc(m_Hwnd);
+	if (!rc)
 		return;
 
-	const auto w = (rc.right - rc.left), h = (rc.bottom - rc.top), x = rc.left, y = rc.top;
+	const auto w = rc.Width(), h = rc.Height(), x = rc.left, y = rc.top;
 	if (m_bTransparent)
 	{
 		if (!IsAlphaBlend())

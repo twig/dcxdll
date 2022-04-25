@@ -1985,49 +1985,159 @@ bool isRegexMatch(const TCHAR* matchtext, const TCHAR* pattern)
 	if ((!matchtext) || (!pattern))
 		return false;
 
+	const dcxSearchData srch_data(pattern, DcxSearchTypes::SEARCH_R);
+	return isRegexMatch(matchtext, srch_data);
+}
+
+bool isRegexMatch(const TCHAR* matchtext, const dcxSearchData &srch_data)
+{
+	if (!matchtext)
+		return false;
+
 	// NB: CREGEX version is incomplete
 #if DCX_USE_CREGEX
 	try {
-		const auto patlen = _ts_strlen(pattern);
-		if ((pattern[0] == TEXT('/')) && (pattern[patlen - 1] == TEXT('/')))
+		if (srch_data.m_regexOpts.m_Option_S)
 		{
-			// need to remove the // from the pattern so /^blah$/ becomes ^blah$
-			// also need to handle m/^blah$/i etc..
+			TString tsMatchText(matchtext);
 
-			//auto tmp = std::make_unique<TCHAR[]>(patlen);
-			//_ts_strcpyn(tmp.get(), pattern +1, patlen -2);
-			//std::basic_regex<TCHAR> r(tmp.get(), std::regex_constants::ECMAScript);
-			std::basic_regex<TCHAR> r(pattern, std::regex_constants::awk);
-			return std::regex_search(matchtext, r);
+			std::basic_regex<TCHAR> r(srch_data.m_Opts.m_tsPattern.to_chr(), std::regex_constants::awk);
+			return std::regex_search(tsMatchText.strip().to_chr(), r);
 		}
 		else {
-			std::basic_regex<TCHAR> r(pattern, std::regex_constants::awk);
-			return std::regex_search(matchtext, r);
+			std::basic_regex<TCHAR> r(srch_data.m_Opts.m_tsPattern.to_chr(), std::regex_constants::awk);
+			return std::regex_search(tsMatchText.to_chr(), r);
 		}
 	}
 	catch (const std::regex_error) {
 	}
 	return false;
 #else
-	//stString<10> res;
-	//mIRCLinker::execex(TEXT("/set -nu1 %%dcx_text %s"), matchtext);
-	//mIRCLinker::execex(TEXT("/set -nu1 %%dcx_regex %s"), pattern);
-	//mIRCLinker::eval(res, static_cast<int>(res.size()), TEXT("$regex(%dcx_text,%dcx_regex)"));
-	//return (dcx_atoi(res.data()) > 0);
+#if DCX_USE_PCRE2
+	if (srch_data.m_regexOpts.m_UsePCRE2)
+	{
+		int res{};
 
+		if (srch_data.m_regexOpts.m_Option_S)
+		{
+			TString tsMatchText(matchtext);
+
+			res = pcre2_match(srch_data.m_regexOpts.m_re, tsMatchText.strip().to_<PCRE2_SPTR>(), PCRE2_ZERO_TERMINATED, 0, 0, srch_data.m_regexOpts.m_Match_data, nullptr);
+		}
+		else {
+			res = pcre2_match(srch_data.m_regexOpts.m_re, reinterpret_cast<PCRE2_SPTR>(matchtext), PCRE2_ZERO_TERMINATED, 0, 0, srch_data.m_regexOpts.m_Match_data, nullptr);
+		}
+		return (res > 0);
+	}
+	else {
+		stString<10> res;
+		mIRCLinker::exec(TEXT("/set -nu1 \\%dcx_text %"), matchtext);
+		mIRCLinker::exec(TEXT("/set -nu1 \\%dcx_regex %"), srch_data.m_tsSearch);
+		mIRCLinker::eval(res, TEXT("$regex(%dcx_text,%dcx_regex)"));
+
+		return (dcx_atoi(res.data()) > 0);
+	}
+#else
 	stString<10> res;
 	mIRCLinker::exec(TEXT("/set -nu1 \\%dcx_text %"), matchtext);
-	mIRCLinker::exec(TEXT("/set -nu1 \\%dcx_regex %"), pattern);
+	mIRCLinker::exec(TEXT("/set -nu1 \\%dcx_regex %"), srch_data.m_tsSearch);
 	mIRCLinker::eval(res, TEXT("$regex(%dcx_text,%dcx_regex)"));
 
 	return (dcx_atoi(res.data()) > 0);
+#endif
 #endif // DCX_USE_CREGEX
 }
+
+//regexOptions parseRegexOptions(const TString& tsPattern)
+//{
+//	regexOptions rOpts;
+//
+//	if (tsPattern[0] != TEXT('/'))
+//	{
+//		rOpts.m_tsPattern = tsPattern;
+//		return rOpts;
+//	}
+//	rOpts.m_tsPattern = tsPattern.gettok(2, tsPattern.numtok(TEXT('/')) - 1, TEXT('/'));
+//
+//#if DCX_USE_PCRE2
+//	UINT res{};
+//	const TString opts(tsPattern.gettok(tsPattern.numtok(TEXT('/')), TEXT('/')));
+//	for (UINT i = 0; i < opts.len(); ++i)
+//	{
+//		//	g - continue after first match
+//		//	i - case insensitive match
+//		//	m - multiple lines match
+//		//	s - dot matches newlines
+//		//	x - ignore white spaces
+//
+//		//	A - anchored - match start of string
+//		//	E / D - $ dollar matches only at end
+//		//	U - ungreedy - reverses * and*?
+//		//	u - enables UTF - 8 and UCP
+//		//	X - strict escape parsing
+//
+//		//And the following mIRC - specific modifiers :
+//		//	S - strip bold, underline, reverse, and color control codes
+//		//	F - make back - references refer to () capture groups, which is how standard regex works.
+//
+//		switch (opts[i])
+//		{
+//		case TEXT('g'):
+//			rOpts.m_Option_g = true;	// not a pcre flag, need a match loop
+//			break;
+//		case TEXT('i'):
+//			res |= PCRE2_CASELESS;
+//			break;
+//		case TEXT('m'):
+//			res |= PCRE2_MULTILINE;
+//			break;
+//		case TEXT('s'):
+//			res |= PCRE2_DOTALL;
+//			break;
+//		case TEXT('x'):
+//			res |= PCRE2_EXTENDED;
+//			break;
+//		case TEXT('A'):
+//			res |= PCRE2_ANCHORED;
+//			break;
+//		case TEXT('E'):
+//			res |= PCRE2_ENDANCHORED;
+//			break;
+//		case TEXT('D'):
+//			res |= PCRE2_DOLLAR_ENDONLY;
+//			break;
+//		case TEXT('U'):
+//			res |= PCRE2_UNGREEDY;
+//			break;
+//		case TEXT('u'):
+//			res |= PCRE2_UTF | PCRE2_UCP;
+//			break;
+//		case TEXT('S'):
+//			rOpts.m_Option_S = true;	// not a pcre flag
+//			break;
+//		case TEXT('F'):
+//			res |= 0; // ??
+//			break;
+//		case TEXT('X'):
+//			res |= 0; // ??
+//			break;
+//		case TEXT('P'):
+//			rOpts.m_UsePCRE2 = true;	// not a pcre flag
+//			break;
+//
+//		default:
+//			break;
+//		}
+//	}
+//	rOpts.m_Opts = res;
+//#endif
+//
+//	return rOpts;
+//}
 
 void AddFileIcons(HIMAGELIST himl, TString& filename, const bool bLarge, const int iIndex, const int iStart, const int iEnd)
 {
 	if ((!himl) || (iStart < 0) || (iEnd != -1 && iStart > iEnd))
-		//throw Dcx::dcxException(TEXT("Invalid Args"));
 		throw DcxExceptions::dcxInvalidArguments();
 
 	if (!IsFile(filename))

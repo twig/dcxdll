@@ -227,18 +227,20 @@ void DcxComboEx::parseInfoRequest(const TString& input, const refString<TCHAR, M
 		if (const auto matchtext(input.getfirsttok(2, TSTABCHAR).trim()); !matchtext.empty())
 		{
 			const auto params(input.getnexttok(TSTABCHAR).trim());	// tok 3
-			auto SearchType = CharToSearchType(params++[0]);
+			const auto SearchType = CharToSearchType(params++[0]);
 
 			const auto N = params++.to_<UINT>();	// tok 2
 
 			const auto nItems = this->getCount();
+
+			const dcxSearchData srch_data(matchtext, SearchType);
 
 			// count total
 			if (auto count = decltype(N){0}; N == 0)
 			{
 				for (auto i = decltype(nItems){0}; i < nItems; ++i)
 				{
-					if (this->matchItemText(i, matchtext, SearchType))
+					if (this->matchItemText(i, srch_data))
 						++count;
 				}
 
@@ -248,7 +250,7 @@ void DcxComboEx::parseInfoRequest(const TString& input, const refString<TCHAR, M
 			else {
 				for (auto i = decltype(nItems){0}; i < nItems; ++i)
 				{
-					if (this->matchItemText(i, matchtext, SearchType))
+					if (this->matchItemText(i, srch_data))
 						++count;
 
 					if (count == N)
@@ -449,11 +451,18 @@ void DcxComboEx::parseCommandRequest(const TString& input)
 		{
 			// have flags, so its a match text delete
 			const auto tsMatchText(input.getnexttok());
-			const auto SearchType = FlagsToSearchType(xFlags);
 
+			//const auto SearchType = FlagsToSearchType(xFlags);
+			//for (auto nPos = Ns.to_int(); nPos < nItems; ++nPos)
+			//{
+			//	if (this->matchItemText(nPos, tsMatchText, SearchType))
+			//		this->deleteItem(nPos--);		// NB: we do nPos-- here as a lines just been removed so we have to check the same nPos again
+			//}
+
+			const dcxSearchData srch_data(tsMatchText, FlagsToSearchType(xFlags));
 			for (auto nPos = Ns.to_int(); nPos < nItems; ++nPos)
 			{
-				if (this->matchItemText(nPos, tsMatchText, SearchType))
+				if (this->matchItemText(nPos, srch_data))
 					this->deleteItem(nPos--);		// NB: we do nPos-- here as a lines just been removed so we have to check the same nPos again
 			}
 		}
@@ -574,13 +583,17 @@ bool DcxComboEx::matchItemText(const int nItem, const TString& search, const Dcx
 	getItem(&cbi);
 
 	return DcxListHelper::matchItemText(cbi.pszText, search, SearchType);
+}
 
-	//auto itemtext = std::make_unique<TCHAR[]>(MIRC_BUFFER_SIZE_CCH);
-	//const auto refText = refString<TCHAR, MIRC_BUFFER_SIZE_CCH>(itemtext.get());
-	//COMBOBOXEXITEM cbi{ CBEIF_TEXT, nItem, refText, MIRC_BUFFER_SIZE_CCH };
-	//getItem(&cbi);
-	//refText = cbi.pszText;
-	//return DcxListHelper::matchItemText(refText, search, SearchType);
+bool DcxComboEx::matchItemText(const int nItem, const dcxSearchData &srch_data) const
+{
+	auto itemtext = std::make_unique<TCHAR[]>(MIRC_BUFFER_SIZE_CCH);
+
+	COMBOBOXEXITEM cbi{ CBEIF_TEXT, nItem, itemtext.get(), MIRC_BUFFER_SIZE_CCH };
+
+	getItem(&cbi);
+
+	return DcxListHelper::matchItemText(cbi.pszText, srch_data);
 }
 
 /*!

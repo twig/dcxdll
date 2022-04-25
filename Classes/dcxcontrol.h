@@ -137,15 +137,6 @@ enum class DcxControlTypes
 	TRACKBAR, TREEVIEW, UPDOWN, WEBCTRL, MULTIBUTTON, MULTICOMBO, GRID
 };
 
-// Search types...
-enum class DcxSearchTypes
-	: UINT
-{
-	SEARCH_W = 0x01,	//!< WildCard Search
-	SEARCH_R,			//!< Regex Search
-	SEARCH_E			//!< Exact Match
-};
-
 // icon sizes...
 enum class DcxIconSizes
 	: int

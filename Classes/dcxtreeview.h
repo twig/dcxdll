@@ -170,8 +170,11 @@ protected:
 	TString getPathFromItem(const HTREEITEM item) const;
 
 	bool matchItemText(const HTREEITEM hItem, const TString& search, const DcxSearchTypes& SearchType) const;
-	//std::pair<bool, HTREEITEM> findItemText( const HTREEITEM hStart, const TString &queryText, const int n, int &matchCount, const DcxSearchTypes &SearchType ) const;
 	std::optional<HTREEITEM> findItemText(const HTREEITEM hStart, const TString& queryText, const int n, int& matchCount, const DcxSearchTypes& SearchType) const;
+
+	bool matchItemText(const HTREEITEM hItem, const dcxSearchData &srch_data) const;
+	std::optional<HTREEITEM> findItemText(const HTREEITEM hStart, const int n, int& matchCount, const dcxSearchData& srch_data) const;
+
 	void expandAllItems(const HTREEITEM hStart, const UINT expandOption) noexcept;
 
 	HTREEITEM cloneItem(const HTREEITEM hItem, const HTREEITEM hParentTo, const HTREEITEM hAfterTo);

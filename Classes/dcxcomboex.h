@@ -77,6 +77,7 @@ public:
 	//static HIMAGELIST createImageList( );
 
 	bool matchItemText( const int nItem, const TString &search, const DcxSearchTypes &SearchType ) const;
+	bool matchItemText(const int nItem, const dcxSearchData &srch_data) const;
 
 	LRESULT insertItem( const PCOMBOBOXEXITEM lpcCBItem ) noexcept;
 	LRESULT getItem( const PCOMBOBOXEXITEM lpcCBItem ) const noexcept;
@@ -89,8 +90,6 @@ public:
 	LRESULT getCount( ) const noexcept;
 	LRESULT limitText( const int iLimit ) noexcept;
 
-	//static void getItemRange(const TString &tsItems, const int nItemCnt, int *iStart, int *iEnd);
-	//static std::pair<int, int> getItemRange(const TString &tsItems, const int nItemCnt);
 	static LRESULT CALLBACK ComboExEditProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam ) noexcept;
 
 	inline const TString getType() const final { return TEXT("comboex"); };

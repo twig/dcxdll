@@ -570,7 +570,6 @@ void DcxListView::parseInfoRequest(const TString& input, const refString<TCHAR, 
 	case L"find"_hash:
 	{
 		if (numtok < 7)
-			//throw Dcx::dcxException("Invalid number of arguments");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		if (const auto matchtext(input.getfirsttok(2, TSTABCHAR).trim()); !matchtext.empty())
@@ -578,15 +577,18 @@ void DcxListView::parseInfoRequest(const TString& input, const refString<TCHAR, 
 			const auto params(input.getnexttok(TSTABCHAR).trim());			// tok 3
 
 			if (params.numtok() != 3)
-				//throw Dcx::dcxException("Invalid number of arguments");
 				throw DcxExceptions::dcxInvalidArguments();
 
 			const auto SearchType = CharToSearchType(params++[0]);
 			const auto nColumn = params++.to_int() - 1;	// tok 2
 			const auto N = params++.to_int();			// tok 3
+			//const auto bCallback = (params++.to_int() > 0);
+
 			const auto nItems = Dcx::dcxListView_GetItemCount(m_Hwnd);
 			const auto nColumns = this->getColumnCount();
 			auto count = decltype(N){0};
+
+			const dcxSearchData srch_data(matchtext, SearchType);
 
 			// count total
 			if (N == 0)
@@ -598,7 +600,7 @@ void DcxListView::parseInfoRequest(const TString& input, const refString<TCHAR, 
 					{
 						for (auto k = decltype(nColumns){0}; k < nColumns; ++k)
 						{
-							if (this->matchItemText(i, k, matchtext, SearchType))
+							if (this->matchItemText(i, k, srch_data))
 								++count;
 						}
 					}
@@ -606,12 +608,11 @@ void DcxListView::parseInfoRequest(const TString& input, const refString<TCHAR, 
 				// Particular Column
 				else {
 					if (nColumn < -1 || nColumn >= nColumns)
-						//throw Dcx::dcxException("Out of Range");
 						throw DcxExceptions::dcxOutOfRange();
 
 					for (auto i = decltype(nItems){0}; i < nItems; ++i)
 					{
-						if (this->matchItemText(i, nColumn, matchtext, SearchType))
+						if (this->matchItemText(i, nColumn, srch_data))
 							++count;
 					}
 				}
@@ -627,7 +628,7 @@ void DcxListView::parseInfoRequest(const TString& input, const refString<TCHAR, 
 					{
 						for (auto k = decltype(nColumns){0}; k < nColumns; ++k)
 						{
-							if (this->matchItemText(i, k, matchtext, SearchType))
+							if (this->matchItemText(i, k, srch_data))
 								++count;
 
 							// found Nth matching
@@ -643,12 +644,11 @@ void DcxListView::parseInfoRequest(const TString& input, const refString<TCHAR, 
 				else {
 
 					if (nColumn < -1 || nColumn >= nColumns)
-						//throw Dcx::dcxException("Out of Range");
 						throw DcxExceptions::dcxOutOfRange();
 
 					for (auto i = decltype(nItems){0}; i < nItems; ++i)
 					{
-						if (this->matchItemText(i, nColumn, matchtext, SearchType))
+						if (this->matchItemText(i, nColumn, srch_data))
 							++count;
 
 						// found Nth matching
@@ -1215,13 +1215,13 @@ void DcxListView::parseCommandRequest(const TString& input)
 		{
 			// have flags, so its a match text delete
 			const auto nSubItem = input.getnexttok().to_int();
-			const auto tsMatchText(input.getnexttok());
-			const auto SearchType = FlagsToSearchType(xFlags);
+
+			const dcxSearchData srch_data(input.getnexttok(), FlagsToSearchType(xFlags));
 
 			// NB: item count changes on every delete.
 			for (auto nPos = Ns.to_int(); nPos < Dcx::dcxListView_GetItemCount(m_Hwnd); ++nPos)
 			{
-				if (this->matchItemText(nPos, nSubItem, tsMatchText, SearchType))
+				if (this->matchItemText(nPos, nSubItem, srch_data))
 					Dcx::dcxListView_DeleteItem(m_Hwnd, nPos--);		// NB: we do nPos-- here as a lines just been removed so we have to check the same nPos again
 			}
 		}
@@ -2713,12 +2713,19 @@ GSL_SUPPRESS(con.4)
 GSL_SUPPRESS(r.5)
 bool DcxListView::matchItemText(const int nItem, const int nSubItem, const TString& search, const DcxSearchTypes& SearchType) const
 {
+	const dcxSearchData srch_data(search, SearchType);
+
+	return matchItemText(nItem, nSubItem, srch_data);
+}
+
+bool DcxListView::matchItemText(const int nItem, const int nSubItem, const dcxSearchData& srch_data) const
+{
 	auto itemtext = std::make_unique<TCHAR[]>(MIRC_BUFFER_SIZE_CCH);
 	gsl::at(itemtext, 0) = TEXT('\0');
 
 	Dcx::dcxListView_GetItemText(m_Hwnd, nItem, nSubItem, itemtext.get(), MIRC_BUFFER_SIZE_CCH);
 
-	return DcxListHelper::matchItemText(itemtext.get(), search, SearchType);
+	return DcxListHelper::matchItemText(itemtext.get(), srch_data);
 }
 
 /*!
