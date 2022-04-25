@@ -2095,6 +2095,37 @@ LRESULT DcxControl::CommonMessage(const UINT uMsg, WPARAM wParam, LPARAM lParam,
 	}
 	break;
 
+	case WM_DPICHANGED_AFTERPARENT:
+	{
+		// win10+ only
+		if (dcx_testflag(getParentDialog()->getEventMask(), DCX_EVENT_THEME))
+			execAliasEx(TEXT("dpichanged,%u,afterparent"), getUserID());
+	}
+	break;
+
+	case WM_DPICHANGED:
+	{
+		// win8.1+ only
+		dcxlParam(LPCRECT, pRc);
+
+		if (dcx_testflag(getParentDialog()->getEventMask(), DCX_EVENT_THEME))
+			execAliasEx(TEXT("dpichanged,%u,%d,%d,%d,%d,%d"), getUserID(), Dcx::dcxLOWORD(wParam), pRc->top, pRc->bottom, pRc->left, pRc->right);
+
+		if (!IsValidWindow())
+			break;
+
+		bParsed = TRUE;
+
+		SetWindowPos(m_Hwnd,
+			nullptr,
+			pRc->left,
+			pRc->top,
+			pRc->right - pRc->left,
+			pRc->bottom - pRc->top,
+			SWP_NOZORDER | SWP_NOACTIVATE);
+		break;
+	}
+
 	case WM_SETCURSOR:
 	{
 		if ((Dcx::dcxLOWORD(lParam) == HTCLIENT) && (reinterpret_cast<HWND>(wParam) == m_Hwnd) && (m_hCursor.cursor))

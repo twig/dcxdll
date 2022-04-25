@@ -1721,6 +1721,29 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 			p_this->execAlias(TEXT("themechanged,0"));
 		break;
 	}
+
+	case WM_DPICHANGED:
+	{
+		dcxlParam(LPCRECT, pRc);
+
+		if (dcx_testflag(p_this->m_dEventMask, DCX_EVENT_THEME))
+			p_this->execAliasEx(TEXT("dpichanged,0,%d,%d,%d,%d,%d"), Dcx::dcxLOWORD(wParam), pRc->top, pRc->bottom, pRc->left, pRc->right);
+
+		if (!p_this->m_Hwnd)
+			break;
+
+		bParsed = TRUE;
+
+		SetWindowPos(p_this->m_Hwnd,
+			nullptr,
+			pRc->left,
+			pRc->top,
+			pRc->right - pRc->left,
+			pRc->bottom - pRc->top,
+			SWP_NOZORDER | SWP_NOACTIVATE);
+		break;
+	}
+
 	case WM_NOTIFY:
 	{
 		dcxlParam(LPNMHDR, hdr);
@@ -3167,7 +3190,7 @@ void DcxDialog::DrawCtrl(Gdiplus::Graphics& graphics, HDC hDC, HWND hWnd)
 void DcxDialog::UpdateVistaStyle(const RECT* const rcUpdate)
 {
 #ifdef DCX_USE_GDIPLUS
-	if (!IsWindow(m_hFakeHwnd) || !IsWindowVisible(m_Hwnd) || IsIconic(m_Hwnd) || !m_hVistaBitmap)
+	if (!this->IsValidWindow() || !m_hFakeHwnd || !IsWindow(m_hFakeHwnd) || !IsWindowVisible(m_Hwnd) || IsIconic(m_Hwnd) || !m_hVistaBitmap)
 		return;
 
 	{ // maintain a matching region.

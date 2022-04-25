@@ -53,7 +53,8 @@ DcxTab::DcxTab(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialog, c
 		//GetCloseButtonRect(*rc, rcClose);
 		//TabCtrl_SetPadding(m_Hwnd, (rcClose.right - rcClose.left), GetSystemMetrics(SM_CXFIXEDFRAME));
 
-		TabCtrl_SetPadding(m_Hwnd, GetSystemMetrics(SM_CXSMICON), GetSystemMetrics(SM_CYFIXEDFRAME));
+		//TabCtrl_SetPadding(m_Hwnd, GetSystemMetrics(SM_CXSMICON), GetSystemMetrics(SM_CYFIXEDFRAME));
+		TabCtrl_SetPadding(m_Hwnd, Dcx::DpiModule.dcxGetWindowMetrics(m_Hwnd, SM_CXSMICON), Dcx::DpiModule.dcxGetWindowMetrics(m_Hwnd, SM_CYFIXEDFRAME));
 	}
 	this->setControlFont(Dcx::dcxGetStockObject<HFONT>(DEFAULT_GUI_FONT), FALSE);
 }
@@ -916,8 +917,10 @@ LRESULT DcxTab::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPa
 		else
 			DcxControl::DrawCtrlBackground(idata->hDC, this, &rect);
 
-		rect.left += 1 + GetSystemMetrics(SM_CXEDGE); // move in past border.
-		rect.top += 1 + GetSystemMetrics(SM_CYEDGE); //4;
+		//rect.left += 1 + GetSystemMetrics(SM_CXEDGE); // move in past border.
+		//rect.top += 1 + GetSystemMetrics(SM_CYEDGE); //4;
+		rect.left += 1 + Dcx::DpiModule.dcxGetWindowMetrics(m_Hwnd, SM_CXEDGE); // move in past border.
+		rect.top += 1 + Dcx::DpiModule.dcxGetWindowMetrics(m_Hwnd, SM_CYEDGE); //4;
 
 		TCHAR szLabel[MIRC_BUFFER_SIZE_CCH]{};
 
@@ -965,7 +968,8 @@ LRESULT DcxTab::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPa
 		if (isStyle(WindowStyle::TCS_ForceLeftAlign))
 		{
 			// force text to be left aligned
-			rect.left += GetSystemMetrics(SM_CXEDGE);	//5 add padding for left of text, make this a settable option for text alignment.
+			//rect.left += GetSystemMetrics(SM_CXEDGE);	//5 add padding for left of text, make this a settable option for text alignment.
+			rect.left += Dcx::DpiModule.dcxGetWindowMetrics(m_Hwnd, SM_CXEDGE);	//5 add padding for left of text, make this a settable option for text alignment.
 		}
 		else {
 			// center text on control (default)
@@ -1207,7 +1211,12 @@ int DcxTab::HitTestOnItem() const noexcept
 
 RECT DcxTab::GetCloseButtonRect(const RECT& rcItem) noexcept
 {
-	return { ((rcItem.right - GetSystemMetrics(SM_CXEDGE)) - GetSystemMetrics(SM_CXSMICON)), rcItem.top, (rcItem.right - GetSystemMetrics(SM_CXEDGE)), rcItem.top + GetSystemMetrics(SM_CYSMICON) };
+	//return { ((rcItem.right - GetSystemMetrics(SM_CXEDGE)) - GetSystemMetrics(SM_CXSMICON)), rcItem.top, (rcItem.right - GetSystemMetrics(SM_CXEDGE)), rcItem.top + GetSystemMetrics(SM_CYSMICON) };
+	const auto dpi = Dcx::DpiModule.dcxGetDpiForSystem();
+	const auto xEdge = gsl::narrow_cast<long>(Dcx::DpiModule.dcxGetSystemMetricsForDpi(SM_CXEDGE, dpi));
+	const auto szXIcon = gsl::narrow_cast<long>(Dcx::DpiModule.dcxGetSystemMetricsForDpi(SM_CXSMICON, dpi));
+	const auto szYIcon = gsl::narrow_cast<long>(Dcx::DpiModule.dcxGetSystemMetricsForDpi(SM_CYSMICON, dpi));
+	return { ((rcItem.right - xEdge) - szXIcon), rcItem.top, (rcItem.right - xEdge), rcItem.top + szYIcon };
 }
 
 LRESULT DcxTab::CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept
