@@ -39,7 +39,6 @@ DcxWebControl::DcxWebControl(const UINT ID, gsl::strict_not_null<DcxDialog* cons
 		this);
 
 	if (!IsWindow(m_Hwnd))
-		//throw Dcx::dcxException("Unable To Create Window");
 		throw DcxExceptions::dcxUnableToCreateWindow();
 
 	if (ws.m_NoTheme)
@@ -194,16 +193,45 @@ bool DcxWebControl::InitializeInterface() noexcept
 		const RECT rc = this->getWindowPosition();
 
 		if (const auto cFact = Dcx::getClassFactory(); cFact &&
-			SUCCEEDED(cFact->CreateInstance(0, IID_IWebBrowser2, (void**)&m_pWebBrowser2)) &&
+			SUCCEEDED(cFact->CreateInstance(nullptr, IID_IWebBrowser2, (void**)&m_pWebBrowser2)) &&
 			SUCCEEDED(m_pWebBrowser2->QueryInterface(IID_IOleObject, (LPVOID*)&m_pOleObject)) &&
 			SUCCEEDED(m_pWebBrowser2->QueryInterface(IID_IOleInPlaceObject, (LPVOID*)&m_pOleInPlaceObject)) &&
 			SUCCEEDED(m_pWebBrowser2->QueryInterface(IID_IConnectionPointContainer, (LPVOID*)&m_pCPC)) &&
 			SUCCEEDED(m_pOleObject->SetClientSite((IOleClientSite*)this)) &&
 			SUCCEEDED(m_pCPC->FindConnectionPoint(DIID_DWebBrowserEvents2, &m_pCP)) &&
 			SUCCEEDED(m_pCP->Advise((IUnknown*)(IOleClientSite*)this, &m_dwCookie)) &&
-			//SUCCEEDED( m_pOleObject->DoVerb( OLEIVERB_UIACTIVATE, 0, (IOleClientSite*) this, 0, m_Hwnd, &rc ) )
-			SUCCEEDED(m_pOleObject->DoVerb(OLEIVERB_INPLACEACTIVATE, 0, (IOleClientSite*)this, 0, m_Hwnd, &rc))
+			//SUCCEEDED( m_pOleObject->DoVerb( OLEIVERB_UIACTIVATE, nullptr, (IOleClientSite*) this, 0, m_Hwnd, &rc ) )
+			SUCCEEDED(m_pOleObject->DoVerb(OLEIVERB_INPLACEACTIVATE, nullptr, (IOleClientSite*)this, 0, m_Hwnd, &rc))
 			)
+		//const auto cFact = Dcx::getClassFactory();
+		//if (!cFact)
+		//	throw "fail: ClassFactory";
+
+		//if (!SUCCEEDED(cFact->CreateInstance(nullptr, IID_IWebBrowser2, (void**)&m_pWebBrowser2)) || !m_pWebBrowser2)
+		//	throw "fail: WebBrowser2";
+
+		//if (!SUCCEEDED(m_pWebBrowser2->QueryInterface(IID_IOleObject, (LPVOID*)&m_pOleObject)) || !m_pOleObject)
+		//	throw "fail: OleObject";
+
+		//if (!SUCCEEDED(m_pWebBrowser2->QueryInterface(IID_IOleInPlaceObject, (LPVOID*)&m_pOleInPlaceObject)) || !m_pOleInPlaceObject)
+		//	throw "fail: OleObject";
+
+		//if (!SUCCEEDED(m_pWebBrowser2->QueryInterface(IID_IConnectionPointContainer, (LPVOID*)&m_pCPC)) || !m_pCPC)
+		//	throw "fail: OleObject";
+
+		//if (!SUCCEEDED(m_pOleObject->SetClientSite((IOleClientSite*)this)))
+		//	throw "fail: OleObject";
+
+		//if (!SUCCEEDED(m_pCPC->FindConnectionPoint(DIID_DWebBrowserEvents2, &m_pCP)) || !m_pCP)
+		//	throw "fail: OleObject";
+
+		//if (!SUCCEEDED(m_pCP->Advise((IUnknown*)(IOleClientSite*)this, &m_dwCookie)))
+		//	throw "fail: OleObject";
+
+		//if (!SUCCEEDED(m_pOleObject->DoVerb(OLEIVERB_INPLACEACTIVATE, nullptr, (IOleClientSite*)this, 0, m_Hwnd, &rc)))
+		//	throw "fail: OleObject";
+
+		//if (m_pWebBrowser2 && m_pOleObject && m_pOleInPlaceObject && m_pCPC && m_pCP)
 		{
 #if DCX_USE_WRAPPERS
 			const Dcx::dcxBSTRResource url(TEXT("about:blank"));
@@ -336,7 +364,6 @@ void DcxWebControl::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('j')])
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto CMD(input.getlasttoks().trim());		// tok 4, -1
@@ -351,7 +378,6 @@ void DcxWebControl::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('m')])
 	{
 		if (numtok < 5)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const XSwitchFlags xflags(input.getnexttok());		// tok 4 flags to change
@@ -433,7 +459,6 @@ void DcxWebControl::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('n')])
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto URL(input.getlasttoks().trim());	// tok 4, -1
@@ -775,11 +800,11 @@ HRESULT STDMETHODCALLTYPE DcxWebControl::QueryInterface(REFIID riid, void __RPC_
 	*ppvObject = nullptr;
 
 	if (IID_IUnknown == riid)
-		*ppvObject = /*(IUnknown*)(IOleClientSite*)*/this;
+		*ppvObject = (IUnknown*)(IOleClientSite*)this;
 	else if (IID_IOleInPlaceSite == riid)
-		*ppvObject = /*(IOleInPlaceSite*)*/this;
+		*ppvObject = (IOleInPlaceSite*)this;
 	else if (DIID_DWebBrowserEvents2 == riid)
-		*ppvObject = /*(DWebBrowserEvents2*)*/this;
+		*ppvObject = (DWebBrowserEvents2*)this;
 
 	return *ppvObject ? S_OK : E_NOINTERFACE;
 }
@@ -790,11 +815,7 @@ HRESULT STDMETHODCALLTYPE DcxWebControl::QueryInterface(REFIID riid, void __RPC_
  * blah
  */
 
-HRESULT STDMETHODCALLTYPE DcxWebControl::GetWindowContext(IOleInPlaceFrame __RPC_FAR* __RPC_FAR* ppFrame,
-	IOleInPlaceUIWindow __RPC_FAR* __RPC_FAR* ppDoc,
-	LPRECT pPR,
-	LPRECT pCR,
-	LPOLEINPLACEFRAMEINFO pFI) noexcept
+HRESULT STDMETHODCALLTYPE DcxWebControl::GetWindowContext(IOleInPlaceFrame __RPC_FAR* __RPC_FAR* ppFrame, IOleInPlaceUIWindow __RPC_FAR* __RPC_FAR* ppDoc, LPRECT pPR, LPRECT pCR, LPOLEINPLACEFRAMEINFO pFI) noexcept
 {
 	*ppFrame = nullptr;
 	*ppDoc = nullptr;

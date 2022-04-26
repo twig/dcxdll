@@ -53,14 +53,13 @@ public:
 	LRESULT OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed) final;
 	LRESULT ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bParsed) noexcept final;
 
-	//void parseInfoRequest(const TString & input, PTCHAR szReturnValue) const final;
 	void parseInfoRequest(const TString& input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>& szReturnValue) const final;
 	void parseCommandRequest(const TString& input) final;
 	dcxWindowStyles parseControlStyles(const TString& tsStyles) final;
 
 	bool InitializeInterface() noexcept;
 
-	// IDispatch Interface
+	// IDispatch Interface (DWebBrowserEvents2)
 	HRESULT STDMETHODCALLTYPE GetTypeInfoCount(UINT __RPC_FAR* pctinfo) noexcept override { *pctinfo = NULL; return S_OK; }
 	HRESULT STDMETHODCALLTYPE GetTypeInfo(UINT, LCID, ITypeInfo __RPC_FAR* __RPC_FAR*) noexcept override { return E_NOTIMPL; }
 	HRESULT STDMETHODCALLTYPE GetIDsOfNames(REFIID, LPOLESTR __RPC_FAR*, UINT, LCID, DISPID __RPC_FAR*) noexcept override { return E_NOTIMPL; }
@@ -84,7 +83,7 @@ public:
 	HRESULT STDMETHODCALLTYPE DiscardUndoState() noexcept override { return S_OK; }
 	HRESULT STDMETHODCALLTYPE DeactivateAndUndo() noexcept override { return S_OK; }
 	HRESULT STDMETHODCALLTYPE OnPosRectChange(LPCRECT) noexcept override { return S_OK; }
-	HRESULT STDMETHODCALLTYPE GetWindowContext(IOleInPlaceFrame __RPC_FAR* __RPC_FAR*, IOleInPlaceUIWindow __RPC_FAR* __RPC_FAR*, LPRECT, LPRECT, LPOLEINPLACEFRAMEINFO) noexcept override;
+	HRESULT STDMETHODCALLTYPE GetWindowContext(IOleInPlaceFrame __RPC_FAR* __RPC_FAR* ppFrame, IOleInPlaceUIWindow __RPC_FAR* __RPC_FAR* ppDoc, LPRECT pPR, LPRECT pCR, LPOLEINPLACEFRAMEINFO pFI) noexcept override;
 
 	// IOleWindow Interface
 	HRESULT STDMETHODCALLTYPE GetWindow(HWND __RPC_FAR* phwnd) noexcept override { *phwnd = m_Hwnd; return S_OK; }
@@ -93,7 +92,7 @@ public:
 	// IUnknown Interface
 	ULONG STDMETHODCALLTYPE AddRef() noexcept override { return 2; }
 	ULONG STDMETHODCALLTYPE Release() noexcept override { return 8; }
-	HRESULT STDMETHODCALLTYPE QueryInterface(REFIID, __RPC_FAR void* __RPC_FAR*) noexcept override;
+	HRESULT STDMETHODCALLTYPE QueryInterface(REFIID riid, void __RPC_FAR* __RPC_FAR* ppvObject) noexcept override;
 
 	inline const TString getType() const final { return TEXT("webctrl"); };
 	inline const DcxControlTypes getControlType() const noexcept final { return DcxControlTypes::WEBCTRL; }
@@ -129,7 +128,6 @@ private:
 
 	DWORD m_dwCookie{};
 	bool m_bHideEvents{ true };
-	//static IClassFactory * m_pClassFactory;
 };
 
 #endif // _DCXWEBCTRL_H_
