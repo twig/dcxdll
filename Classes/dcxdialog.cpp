@@ -428,7 +428,6 @@ void DcxDialog::parseCommandRequest(_In_ const TString& input)
 			if (numtok > 7)
 				m_pLayoutManager->AddCell(input, 3U, this);
 			else
-				//throw Dcx::dcxException("Invalid Arguments");
 				throw DcxExceptions::dcxInvalidArguments();
 		}
 		}

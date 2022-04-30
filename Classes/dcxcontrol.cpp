@@ -1287,12 +1287,13 @@ DcxControl* DcxControl::controlFactory(gsl::strict_not_null<DcxDialog* const> p_
 
 			//ctrl_p->InitializeInterface();
 
-			//if (!ctrl_p->InitializeInterface())
-			//{
-			//	//DestroyWindow(ctrl_p->getHwnd());
-			//	//delete ctrl_p;
-			//	//throw Dcx::dcxException("Unable To Create Browser Window");
-			//}
+			if (!ctrl_p->InitializeInterface())
+			{
+				DestroyWindow(ctrl_p->getHwnd());
+				//delete ctrl_p;
+				//throw Dcx::dcxException("Unable To Create Browser Window");
+				throw DcxExceptions::dcxUnableToCreateWindow();
+			}
 
 			return ctrl_p;
 		}

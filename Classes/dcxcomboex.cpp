@@ -169,7 +169,6 @@ void DcxComboEx::parseInfoRequest(const TString& input, const refString<TCHAR, M
 	case L"text"_hash:
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Invalid number of arguments");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		if (const auto nItem = input.getnexttok().to_int() - 1; nItem > -1)
