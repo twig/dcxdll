@@ -86,7 +86,7 @@ UINT DcxDPIModule::dcxGetDpiForSystem() noexcept
 */
 UINT DcxDPIModule::dcxGetDpiForWindow(_In_ HWND hwnd) noexcept
 {
-	if (GetDpiForWindowUx)
+	if (hwnd && GetDpiForWindowUx)
 		return GetDpiForWindowUx(hwnd);
 	return dcxGetDpiForSystem();
 }
@@ -104,18 +104,13 @@ UINT DcxDPIModule::dcxGetSystemMetricsForDpi(_In_ int nIndex, _In_ UINT dpi) noe
 }
 
 /// <summary>
-/// Get the system metrtics for a specific window, based on its current dpi.
+/// Get the system metrics for a specific window, based on its current dpi.
 /// </summary>
 /// <param name="hwnd"></param>
 /// <param name="nIndex"></param>
 /// <returns></returns>
 UINT DcxDPIModule::dcxGetWindowMetrics(_In_ HWND hwnd, _In_ int nIndex) noexcept
 {
-	if (GetSystemMetricsForDpiUx)
-	{
-		const auto dpi = dcxGetDpiForWindow(hwnd);
-
-		return GetSystemMetricsForDpiUx(nIndex, dpi);
-	}
-	return GetSystemMetrics(nIndex);
+	const auto dpi = dcxGetDpiForWindow(hwnd);
+	return dcxGetSystemMetricsForDpi(nIndex, dpi);
 }

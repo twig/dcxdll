@@ -180,6 +180,9 @@ void LayoutCellPane::getMinMaxInfo(CellMinMaxInfo* const pCMMI) const noexcept
 
 void LayoutCellPane::toXml(TiXmlElement* const xml)
 {
+	if (!xml)
+		return;
+
 	if (this->m_nType == LayoutCellPane::PaneType::HORZ)
 		xml->SetAttribute("cascade", "h");
 	else if (this->m_nType == LayoutCellPane::PaneType::VERT)
@@ -189,10 +192,12 @@ void LayoutCellPane::toXml(TiXmlElement* const xml)
 	{
 		if (lc)
 		{
-			const auto inner = lc->toXml();
-			if (weight != 0)
-				inner->SetAttribute("weight", gsl::narrow_cast<int>(weight));
-			xml->LinkEndChild(inner);
+			if (const auto inner = lc->toXml(); inner)
+			{
+				if (weight != 0)
+					inner->SetAttribute("weight", gsl::narrow_cast<int>(weight));
+				xml->LinkEndChild(inner);
+			}
 		}
 	}
 }
@@ -212,8 +217,7 @@ TiXmlElement* LayoutCellPane::toXml(void)
 
 void LayoutCellPane::AdjustMinSize(UINT& nSizeLeft, UINT& nTotalWeight) noexcept
 {
-	RECT rc{}, rect{};
-	getClientRect(rc);
+	const RECT rc = getClientRect();
 
 	int nSize = 0;
 
@@ -237,7 +241,7 @@ void LayoutCellPane::AdjustMinSize(UINT& nSizeLeft, UINT& nTotalWeight) noexcept
 		CellMinMaxInfo cmmiChild{ 0,0,rc.right - rc.left,rc.bottom - rc.top };
 
 		pChild->getMinMaxInfo(&cmmiChild);
-		pChild->getRect(rect);
+		RECT rect = pChild->getRect();
 
 		if (m_nType == PaneType::HORZ)
 		{
@@ -264,8 +268,7 @@ void LayoutCellPane::AdjustMinSize(UINT& nSizeLeft, UINT& nTotalWeight) noexcept
 
 void LayoutCellPane::AdjustSize(UINT& nSizeLeft, UINT& nTotalWeight) noexcept
 {
-	RECT rc{};
-	this->getClientRect(rc);
+	const RECT rc = this->getClientRect();
 
 	UINT nNewTotalWeight = 0U;
 	auto nNewSizeLeft = nSizeLeft;
@@ -281,9 +284,7 @@ void LayoutCellPane::AdjustSize(UINT& nSizeLeft, UINT& nTotalWeight) noexcept
 
 		const auto nAddSize = nSizeLeft * nWeight / nTotalWeight;
 
-		RECT rectOld{};
-
-		pChild->getRect(rectOld);
+		const RECT rectOld = pChild->getRect();
 		auto rectNew = rectOld;
 
 		if (m_nType == PaneType::HORZ)
@@ -336,8 +337,7 @@ void LayoutCellPane::AdjustSize(UINT& nSizeLeft, UINT& nTotalWeight) noexcept
 void LayoutCellPane::AdjustPos() noexcept
 {
 	int nPos = 0;
-	RECT rect{};
-	this->getClientRect(rect);
+	const RECT rect = this->getClientRect();
 
 	if (m_nType == PaneType::HORZ)
 		nPos = rect.left;
@@ -354,8 +354,7 @@ void LayoutCellPane::AdjustPos() noexcept
 		if (!pChild->isVisible())
 			continue;
 
-		RECT rectChild{};
-		pChild->getRect(rectChild);
+		RECT rectChild = pChild->getRect();
 
 		if (m_nType == PaneType::HORZ)
 		{

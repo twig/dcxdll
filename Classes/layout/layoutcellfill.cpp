@@ -89,10 +89,9 @@ HDWP LayoutCellFill::ExecuteLayout(const HDWP hdwp) noexcept
 {
 	auto hdwpdef = hdwp;
 
-	if (m_Hwnd && IsWindow(m_Hwnd))
+	if (m_Hwnd && hdwp && IsWindow(m_Hwnd))
 	{
-		RECT rc{};
-		this->getClientRect(rc);
+		const RECT rc = this->getClientRect();
 
 		hdwpdef = DeferWindowPos(hdwpdef, m_Hwnd, nullptr, rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top, SWP_NOZORDER);
 		//hdwpdef = DeferWindowPos( hdwpdef, m_Hwnd, nullptr, rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top, SWP_NOZORDER | SWP_NOREDRAW | SWP_NOACTIVATE | SWP_NOOWNERZORDER );

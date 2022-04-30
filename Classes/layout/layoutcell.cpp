@@ -80,10 +80,12 @@ LayoutCell::LayoutCell(DcxControl* dcxc) noexcept
 	m_BaseControl = dcxc;
 
 	if (dcxc)
+	{
 		m_Hwnd = dcxc->getHwnd();
 
-	if (m_Hwnd)
-		GetWindowRect(m_Hwnd, &m_rcWindow);
+		if (m_Hwnd)
+			GetWindowRect(m_Hwnd, &m_rcWindow);
+	}
 }
 /*!
  * \brief Destructor
@@ -194,6 +196,11 @@ void LayoutCell::getRect(RECT& rc) const noexcept
 	rc = m_rcWindow;
 }
 
+const RECT& LayoutCell::getRect() const noexcept
+{
+	return m_rcWindow;
+}
+
 /*!
  * \brief blah
  *
@@ -202,12 +209,29 @@ void LayoutCell::getRect(RECT& rc) const noexcept
 
 void LayoutCell::getClientRect(RECT& rc) const noexcept
 {
-	getRect(rc);
+	//getRect(rc);
+	//rc.left += this->m_rcBorders.left;
+	//rc.right -= this->m_rcBorders.right;
+	//rc.top += this->m_rcBorders.top;
+	//rc.bottom -= this->m_rcBorders.bottom;
+
+	rc = getClientRect();
+}
+
+/// <summary>
+/// Get cells client area rect
+/// </summary>
+/// <returns></returns>
+RECT LayoutCell::getClientRect() const noexcept
+{
+	RECT rc = getRect();
 
 	rc.left += this->m_rcBorders.left;
 	rc.right -= this->m_rcBorders.right;
 	rc.top += this->m_rcBorders.top;
 	rc.bottom -= this->m_rcBorders.bottom;
+
+	return rc;
 }
 
 /*!
@@ -251,6 +275,15 @@ void LayoutCell::setBorder(const int& nBorder) noexcept
 void LayoutCell::getBorder(RECT& rc) const noexcept
 {
 	rc = m_rcBorders;
+}
+
+/// <summary>
+/// Get cells border.
+/// </summary>
+/// <returns></returns>
+const RECT& LayoutCell::getBorder() const noexcept
+{
+	return m_rcBorders;
 }
 
 /*!

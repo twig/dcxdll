@@ -75,10 +75,13 @@ public:
 
 	void setRect(RECT& rc) noexcept;
 	void getRect(RECT& rc) const noexcept;
+	const RECT& getRect() const noexcept;
 	void getClientRect(RECT& rc) const noexcept;
+	RECT getClientRect() const noexcept;
 	void setBorder(const RECT& rc) noexcept;
 	void setBorder(const int& nBorder) noexcept;
 	void getBorder(RECT& rc) const noexcept;
+	const RECT& getBorder() const noexcept;
 
 	virtual void LayoutChild() = 0;
 	virtual HDWP ExecuteLayout(const HDWP hdwp) = 0;
