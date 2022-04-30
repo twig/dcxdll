@@ -54,7 +54,7 @@ public:
 
 	LayoutCell * getCell( const TString & path ) const;
 
-	void AddCell(const TString &input, const UINT iOffset = 3, DcxDialog *dialog = nullptr);
+	void AddCell(const TString &input, const UINT iOffset = 3, const DcxDialog * dialog = nullptr);
 
 	inline constexpr const size_t &size(void) const noexcept { return m_iCount; }
 	//inline constexpr bool empty(void) const noexcept { return (m_pRoot == nullptr); }

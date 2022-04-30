@@ -162,7 +162,7 @@ LayoutCell* LayoutManager::parsePath(const TString& path, const LayoutCell* cons
 	return nullptr;
 }
 
-void LayoutManager::AddCell(const TString& input, const UINT iOffset, DcxDialog* dialog)
+void LayoutManager::AddCell(const TString& input, const UINT iOffset, const DcxDialog * dialog)
 {
 	const auto tsInput(input.getfirsttok(1, TSTABCHAR));
 	const auto p2(input.getnexttok(TSTABCHAR).trim());
@@ -270,7 +270,6 @@ void LayoutManager::AddCell(const TString& input, const UINT iOffset, DcxDialog*
 				p_GetCell = getCell(path);
 
 			if (!p_GetCell)
-				//throw Dcx::dcxException("Invalid item path");
 				throw DcxExceptions::dcxInvalidPath();
 
 			if (p_GetCell->getType() != LayoutCell::CellType::PANE)
