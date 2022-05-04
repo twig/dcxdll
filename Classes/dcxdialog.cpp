@@ -2486,7 +2486,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 	case WM_INITMENU:
 	case WM_INITMENUPOPUP:
 	{
-		if (HIWORD(lParam) == FALSE && p_this->m_popup)
+		if (Dcx::dcxHIWORD(lParam) == FALSE && p_this->m_popup)
 		{
 			// let mIRC populate the menus dynamically
 			lRes = p_this->CallDefaultProc(mHwnd, uMsg, wParam, lParam);

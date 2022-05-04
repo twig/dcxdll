@@ -417,7 +417,7 @@ namespace Dcx {
 		case WM_EXITSIZEMOVE:
 		{
 			// turn off ghosting.
-			if (GetProp(mIRCLinker::getHWND(), TEXT("dcx_ghosted")))
+			if (Dcx::dcxGetProp<BOOL>(mIRCLinker::getHWND(), TEXT("dcx_ghosted")))
 			{
 				// Make this window solid
 				SetLayeredWindowAttributes(mIRCLinker::getHWND(), 0, 255, LWA_ALPHA);
@@ -463,8 +463,8 @@ namespace Dcx {
 				break;
 
 			POINT p{};
-			p.x = LOWORD(lParam);
-			p.y = HIWORD(lParam);
+			p.x = Dcx::dcxLOWORD(lParam);
+			p.y = Dcx::dcxHIWORD(lParam);
 
 			MapWindowPoints(mHwnd, nullptr, &p, 1); // ClientToScreen(hWndMain, &p);
 			ImageList_DragMove(p.x, p.y);
