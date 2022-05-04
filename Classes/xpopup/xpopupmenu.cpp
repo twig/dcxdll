@@ -80,7 +80,7 @@ void XPopupMenu::parseXPopCommand(const TString& input)
 		hMenu = parsePath(path.gettok(1, gsl::narrow_cast<int>(path_toks - 1)), m_hMenu);
 
 		if (!hMenu)
-			throw Dcx::dcxException("Invalid Menu Item Path");
+			throw DcxExceptions::dcxInvalidPath();
 	}
 
 	const auto numtok = input.numtok();
@@ -123,7 +123,7 @@ void XPopupMenu::parseXPopCommand(const TString& input)
 			mii.wID = mID;
 
 			if (!xflags[TEXT('+')])
-				throw Dcx::dcxException("Missing '+' in front of flags");
+				throw DcxExceptions::dcxInvalidFlag();
 
 			// submenu
 			if (xflags[TEXT('s')])
@@ -150,7 +150,7 @@ void XPopupMenu::parseXPopCommand(const TString& input)
 	else if (flags[TEXT('c')] && numtok > 2)
 	{
 		if (nPos < 0)
-			throw Dcx::dcxException("Invalid Path");
+			throw DcxExceptions::dcxInvalidPath();
 
 		MENUITEMINFO mii{};
 		mii.cbSize = sizeof(MENUITEMINFO);
@@ -178,7 +178,7 @@ void XPopupMenu::parseXPopCommand(const TString& input)
 	else if (flags[TEXT('d')] && numtok > 2)
 	{
 		if (nPos < 0)
-			throw Dcx::dcxException("Invalid Path");
+			throw DcxExceptions::dcxInvalidPath();
 
 		MENUITEMINFO mii{};
 		mii.cbSize = sizeof(MENUITEMINFO);
@@ -205,7 +205,7 @@ void XPopupMenu::parseXPopCommand(const TString& input)
 	else if (flags[TEXT('f')] && numtok > 2)
 	{
 		if (nPos < 0)
-			throw Dcx::dcxException("Invalid Path");
+			throw DcxExceptions::dcxInvalidPath();
 
 		MENUITEMINFO mii{};
 		mii.cbSize = sizeof(MENUITEMINFO);
@@ -231,7 +231,7 @@ void XPopupMenu::parseXPopCommand(const TString& input)
 		const auto nIcon = tsTabTwo.to_int();
 
 		if (nPos < 0)
-			throw Dcx::dcxException("Invalid Path");
+			throw DcxExceptions::dcxInvalidPath();
 
 		MENUITEMINFO mii{};
 		mii.cbSize = sizeof(MENUITEMINFO);
@@ -249,7 +249,7 @@ void XPopupMenu::parseXPopCommand(const TString& input)
 		const XSwitchFlags xflags(tsTabTwo);
 
 		if (nPos < 0)
-			throw Dcx::dcxException("Invalid Path");
+			throw DcxExceptions::dcxInvalidPath();
 
 		MENUITEMINFO mii{};
 		mii.cbSize = sizeof(MENUITEMINFO);
@@ -270,7 +270,7 @@ void XPopupMenu::parseXPopCommand(const TString& input)
 	else if (flags[TEXT('t')] && tabtoks > 1 && toks_in_tab_two > 0)
 	{
 		if (nPos < 0)
-			throw Dcx::dcxException("Invalid Path");
+			throw DcxExceptions::dcxInvalidPath();
 
 		MENUITEMINFO mii{};
 		mii.cbSize = sizeof(MENUITEMINFO);
@@ -447,7 +447,7 @@ void XPopupMenu::parseXPopIdentifier(const TString& input, const refString<TCHAR
 	const auto path(input.getlasttoks());		// tok 3, -1
 
 	if (numtok < 3)
-		throw Dcx::dcxException("Invalid Number of Arguments");
+		throw DcxExceptions::dcxInvalidArguments();
 
 	// [NAME] [ID] [PROP] [PATH]
 	switch (propHash)
@@ -477,7 +477,7 @@ void XPopupMenu::parseXPopIdentifier(const TString& input, const refString<TCHAR
 				throw Dcx::dcxException("Unable to get menu data");
 
 			if (propHash == TEXT("text"_hash))
-				szReturnValue = p_Item->getItemText(); // .to_chr();
+				szReturnValue = p_Item->getItemText().to_chr();
 			else if (propHash == TEXT("icon"_hash))
 			{
 				const auto i = p_Item->getItemIcon() + 1;
@@ -844,6 +844,7 @@ LRESULT CALLBACK XPopupMenu::XPopupWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam,
 			return OnDrawItem(mHwnd, lpdis);
 	}
 	break;
+
 	default:
 		break;
 	}
