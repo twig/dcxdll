@@ -84,7 +84,7 @@ UINT DcxDPIModule::dcxGetDpiForSystem() noexcept
 *
 *
 */
-UINT DcxDPIModule::dcxGetDpiForWindow(_In_ HWND hwnd) noexcept
+UINT DcxDPIModule::dcxGetDpiForWindow(_In_ _Maybenull_ HWND hwnd) noexcept
 {
 	if (hwnd && GetDpiForWindowUx)
 		return GetDpiForWindowUx(hwnd);
@@ -109,7 +109,7 @@ UINT DcxDPIModule::dcxGetSystemMetricsForDpi(_In_ int nIndex, _In_ UINT dpi) noe
 /// <param name="hwnd"></param>
 /// <param name="nIndex"></param>
 /// <returns></returns>
-UINT DcxDPIModule::dcxGetWindowMetrics(_In_ HWND hwnd, _In_ int nIndex) noexcept
+UINT DcxDPIModule::dcxGetWindowMetrics(_In_ _Maybenull_ HWND hwnd, _In_ int nIndex) noexcept
 {
 	const auto dpi = dcxGetDpiForWindow(hwnd);
 	return dcxGetSystemMetricsForDpi(nIndex, dpi);

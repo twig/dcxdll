@@ -30,8 +30,8 @@ public:
 	bool unload(void) noexcept final;
 
 	static UINT dcxGetDpiForSystem(void) noexcept;
-	static UINT dcxGetDpiForWindow(_In_ HWND hwnd) noexcept;
+	static UINT dcxGetDpiForWindow(_In_ _Maybenull_ HWND hwnd) noexcept;
 	static UINT dcxGetSystemMetricsForDpi(_In_ int nIndex, _In_ UINT dpi) noexcept;
-	static UINT dcxGetWindowMetrics(_In_ HWND hwnd, _In_ int nIndex) noexcept;
+	static UINT dcxGetWindowMetrics(_In_ _Maybenull_ HWND hwnd, _In_ int nIndex) noexcept;
 };
 #endif // _DCXUXMODULES_H_
