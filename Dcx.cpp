@@ -317,15 +317,6 @@ namespace Dcx {
 				mIRCLinker::signal(TEXT("size mIRC % % %"), reinterpret_cast<DWORD>(mHwnd), Dcx::dcxLOWORD(lParam), Dcx::dcxHIWORD(lParam));
 			break;
 
-			//		case WM_SYSCOMMAND:
-			//			{
-			//#define SC_SHOWSYSMENU 0xF093
-			//				if ((wParam & 0xFFF0) == SC_SHOWSYSMENU) {
-			//					GetSystemMenu(mHwnd,TRUE);
-			//				}
-			//			}
-			//			break;
-
 			//case WM_CONTEXTMENU:
 			//case WM_INITMENU:
 		case WM_INITMENUPOPUP:
@@ -354,11 +345,6 @@ namespace Dcx {
 			{
 				if (const auto p_Item = reinterpret_cast<XPopupMenuItem*>(lpmis->itemData); p_Item)
 				{
-					//const auto size = p_Item->getItemSize(mHwnd);
-					//
-					//lpmis->itemWidth = gsl::narrow_cast<UINT>(size.cx);
-					//lpmis->itemHeight = gsl::narrow_cast<UINT>(size.cy);
-
 					const auto [x, y] = p_Item->getItemSize(mHwnd);
 					lpmis->itemWidth = gsl::narrow_cast<UINT>(x);
 					lpmis->itemHeight = gsl::narrow_cast<UINT>(y);
