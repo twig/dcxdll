@@ -41,7 +41,6 @@ DcxTrackBar::DcxTrackBar(const UINT ID, gsl::strict_not_null<DcxDialog* const> p
 		this);
 
 	if (!IsWindow(m_Hwnd))
-		//throw Dcx::dcxException("Unable To Create Window");
 		throw DcxExceptions::dcxUnableToCreateWindow();
 
 	if (ws.m_NoTheme)
@@ -189,7 +188,6 @@ void DcxTrackBar::parseCommandRequest(const TString& input)
 		static_assert(CheckFreeCommand(TEXT('c')), "Command in use!");
 
 		if (numtok < 4)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto lPosition = input.getnexttok().to_<long>();	// tok 4
@@ -201,7 +199,6 @@ void DcxTrackBar::parseCommandRequest(const TString& input)
 		static_assert(CheckFreeCommand(TEXT('g')), "Command in use!");
 
 		if (numtok < 5)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto tflags = parseImageFlags(input.getnexttok());	// tok 4
@@ -230,7 +227,6 @@ void DcxTrackBar::parseCommandRequest(const TString& input)
 		static_assert(CheckFreeCommand(TEXT('j')), "Command in use!");
 
 		if (numtok < 5)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto iMin = input.getnexttok().to_<long>();	// tok 4
@@ -243,7 +239,6 @@ void DcxTrackBar::parseCommandRequest(const TString& input)
 		static_assert(CheckFreeCommand(TEXT('l')), "Command in use!");
 
 		if (numtok < 4)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto lLineSize = input.getnexttok().to_<long>();	// tok 4
@@ -255,7 +250,6 @@ void DcxTrackBar::parseCommandRequest(const TString& input)
 		static_assert(CheckFreeCommand(TEXT('m')), "Command in use!");
 
 		if (numtok < 4)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto lPageSize = input.getnexttok().to_<long>();	// tok 4
@@ -267,7 +261,6 @@ void DcxTrackBar::parseCommandRequest(const TString& input)
 		static_assert(CheckFreeCommand(TEXT('n')), "Command in use!");
 
 		if (numtok < 4)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto iTicFreq = input.getnexttok().to_<long>();	// tok 4
@@ -286,7 +279,6 @@ void DcxTrackBar::parseCommandRequest(const TString& input)
 		static_assert(CheckFreeCommand(TEXT('r')), "Command in use!");
 
 		if (numtok < 5)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto lMinRange = input.getnexttok().to_<long>();	// tok 4
@@ -301,7 +293,6 @@ void DcxTrackBar::parseCommandRequest(const TString& input)
 		static_assert(CheckFreeCommand(TEXT('o')), "Command in use!");
 
 		if (numtok < 4)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		m_colTransparent = input.getnexttok().to_<COLORREF>();	// tok 4
@@ -313,7 +304,6 @@ void DcxTrackBar::parseCommandRequest(const TString& input)
 		static_assert(CheckFreeCommand(TEXT('t')), "Command in use!");
 
 		if (numtok < 4)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		switch (std::hash<TString>{}(input.getnexttok()))
@@ -338,7 +328,6 @@ void DcxTrackBar::parseCommandRequest(const TString& input)
 		static_assert(CheckFreeCommand(TEXT('u')), "Command in use!");
 
 		if (numtok < 4)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto lLength = input.getnexttok().to_<UINT>();	// tok 4
@@ -351,7 +340,6 @@ void DcxTrackBar::parseCommandRequest(const TString& input)
 		static_assert(CheckFreeCommand(TEXT('v')), "Command in use!");
 
 		if (numtok < 4)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto lPosition = input.getnexttok().to_<long>();	// tok 4
