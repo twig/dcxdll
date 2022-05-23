@@ -82,7 +82,7 @@ public:
 		this->getAddress(&ip);
 
 		T res{};
-		if constexpr (std::is_same_v<char, T::value_type>)
+		if constexpr (std::is_same_v<char, typename T::value_type>)
 		{
 			_ts_snprintf(res, "%u.%u.%u.%u",
 				FIRST_IPADDRESS(ip),
