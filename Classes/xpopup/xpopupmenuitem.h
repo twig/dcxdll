@@ -52,7 +52,7 @@ struct XPMENUCOLORS final
 	COLORREF m_clrSelectionBorder{ RGB(0, 0, 0) };		//!< Menu Item Selection Box Border Color
 	COLORREF m_clrSelectedText{ RGB(0, 0, 0) };			//!< Menu Item Selected Text Colour
 };
-using LPXPMENUCOLORS = XPMENUCOLORS *;
+using LPXPMENUCOLORS = XPMENUCOLORS*;
 
 /*!
  * \brief blah
@@ -68,33 +68,34 @@ class XPopupMenuItem final
 {
 public:
 	XPopupMenuItem() = delete;
-	XPopupMenuItem(const XPopupMenuItem &) = delete;
-	XPopupMenuItem &operator = (const XPopupMenuItem &) = delete;
-	XPopupMenuItem(XPopupMenuItem &&) = delete;
-	XPopupMenuItem &operator = (XPopupMenuItem &&) = delete;
+	XPopupMenuItem(const XPopupMenuItem&) = delete;
+	XPopupMenuItem& operator = (const XPopupMenuItem&) = delete;
+	XPopupMenuItem(XPopupMenuItem&&) = delete;
+	XPopupMenuItem& operator = (XPopupMenuItem&&) = delete;
 
-	XPopupMenuItem( XPopupMenu * Parent, const bool bSep, ULONG_PTR dwDataBackup = NULL ) noexcept;
-	XPopupMenuItem( XPopupMenu * Parent, const TString &tsItemText, const int nIcon, const bool bSubMenu, ULONG_PTR dwDataBackup = NULL );
-	~XPopupMenuItem( ) noexcept = default;
+	XPopupMenuItem(XPopupMenu* Parent, const bool bSep, ULONG_PTR dwDataBackup = NULL) noexcept;
+	XPopupMenuItem(XPopupMenu* Parent, const TString& tsItemText, const int nIcon, const bool bSubMenu, ULONG_PTR dwDataBackup = NULL);
+	XPopupMenuItem(XPopupMenu* Parent, const TString& tsItemText, const TString& tsTooltip, const int nIcon, const bool bSubMenu, ULONG_PTR dwDataBackup = NULL);
+	~XPopupMenuItem() noexcept = default;
 
 	void DrawItem(const LPDRAWITEMSTRUCT lpdis);
-	void DrawItemBackground( const LPDRAWITEMSTRUCT lpdis, const XPMENUCOLORS *const lpcol );
-	void DrawItemBox( const LPDRAWITEMSTRUCT lpdis, const XPMENUCOLORS *const lpcol );
-	void DrawItemText( const LPDRAWITEMSTRUCT lpdis, const XPMENUCOLORS *const lpcol, const bool bDis = false );
-	void DrawItemIcon( const LPDRAWITEMSTRUCT lpdis, const XPMENUCOLORS *const lpcol, const UINT iExStyles, const bool bSel = false, const bool bDis = false ) noexcept;
-	void DrawItemSeparator( const LPDRAWITEMSTRUCT lpdis, const XPMENUCOLORS *const lpcol ) noexcept;
+	void DrawItemBackground(const LPDRAWITEMSTRUCT lpdis, const XPMENUCOLORS* const lpcol);
+	void DrawItemBox(const LPDRAWITEMSTRUCT lpdis, const XPMENUCOLORS* const lpcol);
+	void DrawItemText(const LPDRAWITEMSTRUCT lpdis, const XPMENUCOLORS* const lpcol, const bool bDis = false);
+	void DrawItemIcon(const LPDRAWITEMSTRUCT lpdis, const XPMENUCOLORS* const lpcol, const UINT iExStyles, const bool bSel = false, const bool bDis = false) noexcept;
+	void DrawItemSeparator(const LPDRAWITEMSTRUCT lpdis, const XPMENUCOLORS* const lpcol) noexcept;
 
-	SIZE getItemSize( const HWND mHwnd );
+	SIZE getItemSize(const HWND mHwnd);
 
-	static void DrawItemSelection(const LPDRAWITEMSTRUCT lpdis, const XPMENUCOLORS *const lpcol, const bool bDis = false, const bool bRounded = false) noexcept;
-	static void DrawItemCheckBox(const LPDRAWITEMSTRUCT lpdis, const XPMENUCOLORS *const lpcol, const bool bDis = false, const bool bRounded = false) noexcept;
-	static void DrawItemSubArrow(const LPDRAWITEMSTRUCT lpdis, const XPMENUCOLORS *const lpcol, const bool bDis = false) noexcept;
+	static void DrawItemSelection(const LPDRAWITEMSTRUCT lpdis, const XPMENUCOLORS* const lpcol, const bool bDis = false, const bool bRounded = false) noexcept;
+	static void DrawItemCheckBox(const LPDRAWITEMSTRUCT lpdis, const XPMENUCOLORS* const lpcol, const bool bDis = false, const bool bRounded = false) noexcept;
+	static void DrawItemSubArrow(const LPDRAWITEMSTRUCT lpdis, const XPMENUCOLORS* const lpcol, const bool bDis = false) noexcept;
 	static bool DrawMenuBitmap(const LPDRAWITEMSTRUCT lpdis, const bool bBigImage, const HBITMAP bmImage);
-	static void DrawGradient(const HDC hdc, const RECT *const lprc, const COLORREF clrStart, const COLORREF clrEnd, const bool bHorz = false) noexcept;
-	static void DrawVerticalBar( const LPDRAWITEMSTRUCT lpdis, const XPMENUCOLORS *const lpcol, const bool bReversed);
+	static void DrawGradient(const HDC hdc, const RECT* const lprc, const COLORREF clrStart, const COLORREF clrEnd, const bool bHorz = false) noexcept;
+	static void DrawVerticalBar(const LPDRAWITEMSTRUCT lpdis, const XPMENUCOLORS* const lpcol, const bool bReversed);
 
-	static COLORREF LightenColor( const UINT iScale, const COLORREF clrColor ) noexcept;
-	static COLORREF DarkenColor( const UINT iScale, const COLORREF clrColor ) noexcept;
+	static COLORREF LightenColor(const UINT iScale, const COLORREF clrColor) noexcept;
+	static COLORREF DarkenColor(const UINT iScale, const COLORREF clrColor) noexcept;
 
 	// oddly the functions below cause VS2017 15.5.1 - 15.6 to crash
 	//constexpr COLORREF LightenColor(const UINT iScale, const COLORREF clrColor) noexcept
@@ -114,21 +115,27 @@ public:
 	//	return RGB(R, G, B);
 	//}
 
-	void setSubMenu( const bool bSubMenu ) noexcept;
-	void setItemText( const TString & tsItemText );
-	void setItemIcon( const int nIcon ) noexcept;
-	const TString &getItemText( ) const noexcept;
-	const int &getItemIcon(  ) const noexcept;
+	void setSubMenu(const bool bSubMenu) noexcept;
+	void setItemText(const TString& tsItemText);
+	void setItemIcon(const int nIcon) noexcept;
+	void setItemTooltip(const TString& tsText) { m_tsTooltipText = tsText; }
 
-	const ULONG_PTR &getItemDataBackup() const noexcept
+	const TString& getItemText() const noexcept;
+	const int& getItemIcon() const noexcept;
+	const TString& getItemTooltipText() const noexcept { return m_tsTooltipText; }
+	const XPopupMenu* getParentMenu() const noexcept { return m_pXParentMenu; }
+	const ULONG_PTR& getItemDataBackup() const noexcept
 	{
 		return m_dwItemDataBackup;
 	}
+
+	bool IsTooltipsEnabled() const noexcept;
 
 protected:
 
 	TString m_tsItemText;					//!< Menu Item Text
 	TString m_tsItemCommand;				//!< Menu Item Command
+	TString m_tsTooltipText;				//!< Menu Items tooltip text (if any)
 	int m_nIcon{ -1 };						//!< Menu Item Icon Index
 	XPopupMenu* m_pXParentMenu{ nullptr };	//!< Parent XPopupMenu
 	ULONG_PTR m_dwItemDataBackup{};
@@ -138,7 +145,7 @@ protected:
 	bool m_bReserved{ false };				//!< Reserved for future use.
 };
 
-using VectorOfXPopupMenuItem = std::vector<XPopupMenuItem *>; //!< Vector of XPopupMenuItem Objects
+using VectorOfXPopupMenuItem = std::vector<XPopupMenuItem*>; //!< Vector of XPopupMenuItem Objects
 
 #ifdef __INTEL_COMPILER // Defined when using Intel C++ Compiler.
 #pragma warning( pop )

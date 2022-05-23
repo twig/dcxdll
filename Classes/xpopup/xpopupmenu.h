@@ -102,7 +102,6 @@ public:
 	~XPopupMenu();
 
 	void parseXPopCommand(const TString & input);
-	//void parseXPopIdentifier( const TString & input, TCHAR * szReturnValue ) const;
 	void parseXPopIdentifier(const TString & input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &szReturnValue) const;
 	static XPopupMenu::MenuStyle parseStyle(const TString &style) noexcept;
 
@@ -216,10 +215,12 @@ public:
 	}
 	void setBackBitmap(HBITMAP hBitmap) noexcept;
 
-	const inline bool &IsRounded(void) const noexcept { return this->m_bRoundedSel; };
+	const inline bool &IsRoundedSelector(void) const noexcept { return this->m_bRoundedSel; };
+	const inline bool& IsRoundedWindow(void) const noexcept { return this->m_bRoundedWindow; };
 	const inline std::byte &IsAlpha(void) const noexcept { return this->m_uiAlpha; };
-	constexpr void SetRounded(const bool rounded) noexcept { this->m_bRoundedSel = rounded; };
+	constexpr void SetRoundedSelector(const bool rounded) noexcept { this->m_bRoundedSel = rounded; };
 	constexpr void SetAlpha(const std::byte alpha) noexcept { this->m_uiAlpha = alpha; };
+	constexpr void SetRoundedWindow(const bool rounded) noexcept { this->m_bRoundedWindow = rounded; };
 
 	// Methods to attach and detach from mIRC menu.
 	bool attachToMenuBar(HMENU menubar, const TString &label);
@@ -234,8 +235,12 @@ public:
 	{
 		return this->m_tsMarkedText;
 	}
+	const bool& IsToolTipsEnabled() const noexcept { return m_bEnableTooltips; }
+	void setTooltipsState(bool a) noexcept { m_bEnableTooltips = a; }
 
 	bool getMenuInfo(const UINT iMask, const TString &path, MENUITEMINFO &mii) const;
+
+	const bool isItemValid(const XPopupMenuItem* const pItem) const noexcept;
 
 	VectorOfXPopupMenuItem m_vpMenuItem; //!< Vector of XPopupMenuItem Objects
 
@@ -257,7 +262,8 @@ protected:
 
 	bool m_bRoundedSel{ false };		//!< Menu has rounded selection box.
 	bool m_bAttachedToMenuBar{ false }; //!< Is the menu attached to the mIRC window menubar?
-	bool m_bReserved[2]{};				//!< Reserved for future use.
+	bool m_bEnableTooltips{ false };	//!< are tooltips enabled for this menu?
+	bool m_bRoundedWindow{ false };		//!< Menu has rounded window.
 };
 
 #ifdef __INTEL_COMPILER // Defined when using Intel C++ Compiler.

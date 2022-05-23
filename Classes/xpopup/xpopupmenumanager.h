@@ -122,6 +122,7 @@ public:
 	XPopupMenu* getMenuByHash(const std::size_t uHash, const bool bCheckSpecial) const noexcept;
 	XPopupMenu* getMenuByName(const TString &tsName, const bool bCheckSpecial) const noexcept;
 	XPopupMenu* getMenuByHandle(const HMENU hMenu) const noexcept;
+	XPopupMenuItem* getMenuItemByID(const HMENU hMenu, const int id) const noexcept;
 
 	XPopupMenu* getmIRCPopup(void) const noexcept { return m_mIRCPopupMenu.get(); }
 	XPopupMenu* getmIRCMenuBar(void) const noexcept { return m_mIRCMenuBar.get(); }
@@ -129,7 +130,7 @@ public:
 
 	const bool isCustomMenu(const HMENU hMenu) const noexcept;
 	static const bool isMenuBarMenu(const HMENU hMenu, const HMENU hMatch);
-
+	const bool isItemValid(const XPopupMenuItem* const pItem) const noexcept;
 	static constexpr bool isPatched(void) noexcept { return false; };
 
 	static void LoadPopupsFromXML(const TiXmlElement *const popups, const TiXmlElement *popup, const TString &popupName, const TString &popupDataset);
@@ -151,7 +152,13 @@ protected:
 
 #if DCX_CUSTOM_MENUS
 	static std::vector<HWND> g_winlist;
+	static std::vector<HMENU> g_menulist;
 	static WNDPROC g_OldmIRCMenusWindowProc;
+	static HWND g_toolTipWin;
+	static TOOLINFO g_toolItem;
+
+	static HWND CreateTrackingToolTip(int toolID, HWND hDlg, WCHAR* pText) noexcept;
+	static void dcxCheckMenuHover() noexcept;
 	static LRESULT CALLBACK mIRCMenusWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 #endif
 };

@@ -89,18 +89,32 @@ void XPopupMenu::parseXPopCommand(const TString& input)
 	const auto toks_in_tab_two = tsTabTwo.numtok();
 	auto nPos = path.gettok(gsl::narrow_cast<int>(path_toks)).to_int() - 1;
 
-	// xpop -a - [MENU] [SWITCH] [PATH] [TAB] [+FLAGS] [ID] [ICON] ItemText (: Command)
+	// xpop -a - [MENU] [SWITCH] [PATH] [TAB] [+FLAGS] [ID] [ICON] ItemText (: Command) ([TAB] [TOOLTIP])
 	if (flags[TEXT('a')] && tabtoks > 1 && toks_in_tab_two > 3)
 	{
-		TString itemcom;
+		const XSwitchFlags xflags(tsTabTwo.getfirsttok(1));		// tok 1 [+FLAGS]
+		const auto mID = tsTabTwo.getnexttok().to_<UINT>();		// tok 2 [ID]
+		const auto nIcon = tsTabTwo.getnexttok().to_int() - 1;	// tok 3 [ICON]
 
-		if (tsTabTwo.numtok(TEXT(':')) > 1)
-			itemcom = tsTabTwo.gettok(2, TEXT(':')).trim();
+		TString tsItemText;
+		//TString itemcom;
+		TString tsTooltip;
 
-		const XSwitchFlags xflags(tsTabTwo.getfirsttok(1));
-		const auto mID = tsTabTwo.getnexttok().to_<UINT>();			// tok 2
-		const auto nIcon = tsTabTwo.getnexttok().to_int() - 1;	// tok 3
-		const auto itemtext(tsTabTwo.getlasttoks());			// tok 4, -1
+		{
+			const auto itemtext(tsTabTwo.getlasttoks());			// tok 4, -1 ItemText....
+
+			if (tsTabTwo.numtok(TSTABCHAR) > 1)
+			{
+				tsItemText = itemtext.gettok(1, TSTABCHAR).trim();
+				tsTooltip = itemtext.getlasttoks().trim();
+			}
+			else
+				tsItemText = itemtext;
+
+			// Ook: this never seems to be used....
+			//if (tsItemText.numtok(TEXT(':')) > 1)
+			//	itemcom = tsItemText.gettok(2, TEXT(':')).trim();
+		}
 
 		if (nPos == -1)
 			nPos += GetMenuItemCount(hMenu) + 1;
@@ -110,7 +124,7 @@ void XPopupMenu::parseXPopCommand(const TString& input)
 
 		std::unique_ptr<XPopupMenuItem> p_Item;
 
-		if (itemtext == TEXT('-'))
+		if (tsItemText == TEXT('-'))
 		{
 			mii.fMask = MIIM_DATA | MIIM_FTYPE | MIIM_STATE;
 			mii.fType = MFT_OWNERDRAW | MFT_SEPARATOR;
@@ -139,7 +153,7 @@ void XPopupMenu::parseXPopCommand(const TString& input)
 			if (xflags[TEXT('g')])
 				mii.fState |= MFS_GRAYED;
 
-			p_Item = std::make_unique<XPopupMenuItem>(this, itemtext, nIcon, (mii.hSubMenu != nullptr));
+			p_Item = std::make_unique<XPopupMenuItem>(this, tsItemText, tsTooltip, nIcon, (mii.hSubMenu != nullptr));
 		}
 
 		mii.dwItemData = reinterpret_cast<ULONG_PTR>(p_Item.get());
@@ -285,6 +299,25 @@ void XPopupMenu::parseXPopCommand(const TString& input)
 		// this is to make sure system resets the measurement of the itemwidth on next display
 		DeleteMenu(hMenu, gsl::narrow_cast<UINT>(nPos), MF_BYPOSITION);
 		InsertMenuItem(hMenu, gsl::narrow_cast<UINT>(nPos), TRUE, &mii);
+	}
+	// xpop -T - [MENU] [SWITCH] [PATH] [TAB] text
+	else if (flags[TEXT('T')])
+	{
+		if (tabtoks < 2)
+			throw DcxExceptions::dcxInvalidArguments();
+
+		if (nPos < 0)
+			throw DcxExceptions::dcxInvalidPath();
+
+		MENUITEMINFO mii{};
+		mii.cbSize = sizeof(MENUITEMINFO);
+		mii.fMask = MIIM_DATA | MIIM_STATE | MIIM_SUBMENU | MIIM_FTYPE | MIIM_ID;
+
+		if (GetMenuItemInfo(hMenu, gsl::narrow_cast<UINT>(nPos), TRUE, &mii) == FALSE)
+			throw Dcx::dcxException("Unable to get menu item info");
+
+		if (const auto p_Item = reinterpret_cast<XPopupMenuItem*>(mii.dwItemData); p_Item)
+			p_Item->setItemTooltip(tsTabTwo);
 	}
 }
 
@@ -468,6 +501,7 @@ void XPopupMenu::parseXPopIdentifier(const TString& input, const refString<TCHAR
 	}
 	break;
 	case TEXT("text"_hash):
+	case TEXT("tooltip"_hash):
 	case TEXT("icon"_hash):
 	{
 		if (MENUITEMINFO mii{}; getMenuInfo(MIIM_DATA, path, mii))
@@ -478,6 +512,8 @@ void XPopupMenu::parseXPopIdentifier(const TString& input, const refString<TCHAR
 
 			if (propHash == TEXT("text"_hash))
 				szReturnValue = p_Item->getItemText().to_chr();
+			else if (propHash == TEXT("tooltip"_hash))
+				szReturnValue = p_Item->getItemTooltipText().to_chr();
 			else if (propHash == TEXT("icon"_hash))
 			{
 				const auto i = p_Item->getItemIcon() + 1;
@@ -660,6 +696,9 @@ COLORREF XPopupMenu::getColor(const MenuColours nColor) const noexcept
 
 HMENU XPopupMenu::parsePath(const TString& path, const HMENU hParent, const UINT depth)
 {
+	if (!hParent)
+		return nullptr;
+
 	const auto iItem = path.gettok(gsl::narrow_cast<int>(depth)).to_int() - 1;
 	auto hMenu = GetSubMenu(hParent, iItem);
 
@@ -722,7 +761,6 @@ void XPopupMenu::deleteMenuItemData(const XPopupMenuItem* const p_Item, LPMENUIT
 void XPopupMenu::deleteAllItemData(HMENU hMenu)
 {
 	MENUITEMINFO mii{};
-	//ZeroMemory(&mii, sizeof(MENUITEMINFO));
 	mii.cbSize = sizeof(MENUITEMINFO);
 	mii.fMask = MIIM_SUBMENU | MIIM_DATA;
 
@@ -754,78 +792,10 @@ void XPopupMenu::deleteAllItemData(HMENU hMenu)
 
 LRESULT CALLBACK XPopupMenu::XPopupWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-	//const MenuMessages mm = static_cast<MenuMessages>(uMsg);
+	//const WindowMessages mm = static_cast<WindowMessages>(uMsg);
 
 	switch (uMsg)
 	{
-//#if DCX_DEBUG_OUTPUT
-//		//	case WM_INITMENU:
-//		//		{ // never called
-//		//			TString msg;
-//		//			msg.tsprintf(TEXT("called: %d"), mHwnd);
-//		//			mIRCLinker::debug(TEXT("WM_INITMENU"),msg);
-//		//		}
-//		//		break;
-//		//	case WM_INITMENUPOPUP:
-//		//		{ // never called
-//		//			TString msg;
-//		//			msg.tsprintf(TEXT("called: %d"), mHwnd);
-//		//			mIRCLinker::debug(TEXT("WM_INITMENUPOPUP"),msg);
-//		//		}
-//		//		break;
-//		//	case WM_PARENTNOTIFY:
-//		//		{ // never called
-//		//			TString msg;
-//		//			msg.tsprintf(TEXT("called: %d"), mHwnd);
-//		//			mIRCLinker::debug(TEXT("WM_PARENTNOTIFY"),msg);
-//		//		}
-//		//		break;
-//		//
-//		//
-//		//case WM_PAINT:
-//		//{
-//		//	//BOOL bEnabled = FALSE;
-//		//	//Dcx::VistaModule.dcxDwmIsCompositionEnabled(&bEnabled);
-//		//	//if (bEnabled) {
-//		//	//	DWM_BLURBEHIND blur{DWM_BB_ENABLE, TRUE, nullptr, FALSE};
-//		//	//	Dcx::VistaModule.dcxDwmEnableBlurBehindWindow(mHwnd, &blur);
-//		//	//}
-//		//
-//		//	// playing around with menu transparency
-//		//	const BYTE alpha = 0x7F;
-//		//	
-//		//	// If alpha == 255 then menu is fully opaque so no need to change to layered.
-//		//	if (alpha < 255) {
-//		//		HWND hMenuWnd = mHwnd;
-//		//	
-//		//		if (IsWindow(hMenuWnd)) {
-//		//			DWORD dwStyle = GetWindowExStyle(hMenuWnd);
-//		//	
-//		//			if (!dcx_testflag(dwStyle, WS_EX_LAYERED))
-//		//			{
-//		//				SetWindowLong(hMenuWnd, GWL_EXSTYLE, dwStyle | WS_EX_LAYERED);
-//		//				SetLayeredWindowAttributes(hMenuWnd, 0, (BYTE)alpha, LWA_ALPHA); // 0xCC = 80% Opaque
-//		//			}
-//		//		}
-//		//	}
-//		//}
-//		//break;
-//		//
-//	//case WM_MOUSEMOVE:
-//	//{
-//	//	TString msg;
-//	//	msg.tsprintf(TEXT("called: %d"), mHwnd);
-//	//	mIRCLinker::debug(TEXT("WM_MOUSEMOVE"), msg);
-//	//}
-//	//break;
-//	//case WM_MOUSELEAVE:
-//	//{
-//	//	TString msg;
-//	//	msg.tsprintf(TEXT("called: %d"), mHwnd);
-//	//	mIRCLinker::debug(TEXT("WM_MOUSELEAVE"), msg);
-//	//}
-//	//break;
-//#endif
 
 	case WM_MEASUREITEM:
 	{
@@ -865,8 +835,13 @@ LRESULT XPopupMenu::OnMeasureItem(const HWND mHwnd, LPMEASUREITEMSTRUCT lpmis)
 		const auto size = p_Item->getItemSize(mHwnd);
 		lpmis->itemWidth = gsl::narrow_cast<UINT>(size.cx);
 		lpmis->itemHeight = gsl::narrow_cast<UINT>(size.cy);
-	}
 
+		if (auto p_Menu = p_Item->getParentMenu(); p_Menu)
+		{
+			Dcx::m_CurrentMenuAlpha = p_Menu->IsAlpha();
+			Dcx::m_CurrentMenuRounded = p_Menu->IsRoundedWindow();
+		}
+	}
 	return TRUE;
 }
 
@@ -893,7 +868,6 @@ LRESULT XPopupMenu::OnDrawItem(const HWND mHwnd, LPDRAWITEMSTRUCT lpdis)
 void XPopupMenu::convertMenu(HMENU hMenu, const BOOL bForce)
 {
 	MENUITEMINFO mii{};
-	//ZeroMemory(&mii, sizeof(MENUITEMINFO));
 	mii.cbSize = sizeof(MENUITEMINFO);
 	mii.fMask = MIIM_SUBMENU | MIIM_DATA | MIIM_FTYPE | MIIM_STRING;
 	auto string = std::make_unique<TCHAR[]>(MIRC_BUFFER_SIZE_CCH);
@@ -920,8 +894,6 @@ void XPopupMenu::convertMenu(HMENU hMenu, const BOOL bForce)
 					// fixes identifiers in the dialog menu not being resolved. 
 					// TODO Needs testing to see if it causes any other issues, like double eval's)
 
-					//if (bForce && this->getNameHash() == TEXT("dialog"_hash))
-					//	mIRCLinker::tsEval(tsItem, tsItem.to_chr()); // we can use tsItem for both args as the second arg is copied & used before the first arg is set with the return value.
 					if (bForce && this->getNameHash() == TEXT("dialog"_hash))
 						mIRCLinker::eval(tsItem, tsItem); // we can use tsItem for both args as the second arg is copied & used before the first arg is set with the return value.
 
@@ -945,7 +917,6 @@ void XPopupMenu::convertMenu(HMENU hMenu, const BOOL bForce)
 void XPopupMenu::cleanMenu(HMENU hMenu) noexcept
 {
 	MENUITEMINFO mii{};
-	//ZeroMemory(&mii, sizeof(MENUITEMINFO));
 	mii.cbSize = sizeof(MENUITEMINFO);
 	mii.fMask = MIIM_SUBMENU | MIIM_DATA | MIIM_FTYPE;
 
@@ -1039,13 +1010,26 @@ bool XPopupMenu::getMenuInfo(const UINT iMask, const TString& path, MENUITEMINFO
 	const auto nPos = path.gettok(gsl::narrow_cast<int>(path_toks)).to_int() - 1;
 
 	if (nPos < 0)
-		throw Dcx::dcxException("Invalid Path");
+		throw DcxExceptions::dcxInvalidPath();
 
 	ZeroMemory(&mii, sizeof(MENUITEMINFO));
 	mii.cbSize = sizeof(MENUITEMINFO);
 	mii.fMask = iMask;
 
 	return GetMenuItemInfo(hMenu, gsl::narrow_cast<UINT>(nPos), TRUE, &mii);
+}
+
+const bool XPopupMenu::isItemValid(const XPopupMenuItem* const pItem) const noexcept
+{
+	if (!pItem)
+		return false;
+
+	for (const auto& a : m_vpMenuItem)
+	{
+		if (a == pItem)
+			return true;
+	}
+	return false;
 }
 
 /*

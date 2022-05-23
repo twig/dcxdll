@@ -107,8 +107,10 @@ namespace Dcx
 
 	// settings
 	extern bool setting_bStaticColours;
-	extern BYTE setting_CustomMenusAlpha;
-	extern bool setting_CustomMenusRounded;
+
+	// global menu settings (only applies to currently displayed menu, used internally only)
+	extern std::byte m_CurrentMenuAlpha;
+	extern bool m_CurrentMenuRounded;
 
 	/// <summary>
 	/// Converts a Range to a std::vector.

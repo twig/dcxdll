@@ -20,9 +20,9 @@ namespace Dcx {
 
 	// static colours enabled by default.
 	bool setting_bStaticColours{ true };
-	// custom menus disabled by default.
-	BYTE setting_CustomMenusAlpha{ 255 };
-	bool setting_CustomMenusRounded{ false };
+
+	std::byte m_CurrentMenuAlpha{ 255 };
+	bool m_CurrentMenuRounded{ false };
 
 	MapOfCursors	m_vMapOfCursors;
 	MapOfAreas		m_vMapOfAreas;
@@ -343,14 +343,15 @@ namespace Dcx {
 
 			if (lpmis->CtlType == ODT_MENU)
 			{
-				if (const auto p_Item = reinterpret_cast<XPopupMenuItem*>(lpmis->itemData); p_Item)
-				{
-					const auto [x, y] = p_Item->getItemSize(mHwnd);
-					lpmis->itemWidth = gsl::narrow_cast<UINT>(x);
-					lpmis->itemHeight = gsl::narrow_cast<UINT>(y);
+				//if (const auto p_Item = reinterpret_cast<XPopupMenuItem*>(lpmis->itemData); p_Item)
+				//{
+				//	const auto [x, y] = p_Item->getItemSize(mHwnd);
+				//	lpmis->itemWidth = gsl::narrow_cast<UINT>(x);
+				//	lpmis->itemHeight = gsl::narrow_cast<UINT>(y);
+				//	return TRUE;
+				//}
 
-					return TRUE;
-				}
+				return XPopupMenu::OnMeasureItem(mHwnd, lpmis);
 			}
 			break;
 		}
