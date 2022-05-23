@@ -1648,7 +1648,7 @@ GSL_SUPPRESS(bounds) bool _ts_WildcardMatch(const TameString& pszString, const W
 	if constexpr (details::is_pod_v<std::remove_pointer_t<std::remove_cv_t<std::remove_all_extents_t<WildString>>>>)
 		return _ts_InnerWildcardMatch<std::remove_pointer_t<std::remove_cv_t<std::remove_all_extents_t<WildString>>>>(pszString, pszMatch, bCase);
 	else
-		return _ts_InnerWildcardMatch<std::remove_pointer_t<std::remove_cv_t<std::remove_all_extents_t<WildString::value_type>>>>(pszString, pszMatch, bCase);
+		return _ts_InnerWildcardMatch<std::remove_pointer_t<std::remove_cv_t<std::remove_all_extents_t<typename WildString::value_type>>>>(pszString, pszMatch, bCase);
 }
 
 template <typename T> T* _ts_AddMem(std::vector<std::shared_ptr<std::vector<char>>>& mem, std::size_t sz = sizeof(T))
