@@ -63,6 +63,9 @@ DcxDateTime::~DcxDateTime() noexcept
 
 void DcxDateTime::toXml(TiXmlElement *const xml) const
 {
+	if ((!xml) || (!m_Hwnd))
+		return;
+
 	char buf[64]{};
 	SYSTEMTIME st{};
 
@@ -218,7 +221,6 @@ void DcxDateTime::parseCommandRequest( const TString &input)
 	else if (flags[TEXT('D')])
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		if (LOGFONT lf{}; ParseCommandToLogfont(input.gettok(4, -1), &lf))
@@ -233,7 +235,6 @@ void DcxDateTime::parseCommandRequest( const TString &input)
 	else if (flags[TEXT('r')])
 	{
 		if (numtok < 5)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		DWORD dflags{};
@@ -259,7 +260,6 @@ void DcxDateTime::parseCommandRequest( const TString &input)
 	else if (flags[TEXT('t')])
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto ts(input++);	// tok 4
