@@ -392,7 +392,14 @@ void DcxDirectshow::parseCommandRequest(const TString& input)
 
 			hr = this->m_pGraph->RenderFile(filename.to_chr(), nullptr);
 			if (FAILED(hr))
+			{
+				if (!this->evalAliasEx(nullptr, 0, TEXT("loaderror,%u,%s"), getUserID(), filename.to_chr()))
+				{
+					this->ReleaseAll();
+					return;
+				}
 				throw Dcx::dcxException("Unable to render file (No codec for file format?)");
+			}
 
 			if (this->m_pWc)
 			{
