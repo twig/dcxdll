@@ -572,7 +572,7 @@ ON *:SIGNAL:Xpopup-*: {
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xpopup -R mymenu +r 1<br />/xpopup -R mymenu +a 150<br /></div></td>
+		<td><div class="example">/xpopup -R mymenu +r 1<br />/xpopup -R mymenu +a 150<br />/xpopup -R mymenu +t 1<br />/xpopup -R mymenu +R 1<br /></div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -588,12 +588,24 @@ ON *:SIGNAL:Xpopup-*: {
 		<td>This gives the menu selection indicator a rounded look.</td>
 	</tr>
 	<tr>
+		<td class="value">R</td>
+		<td>This gives the menu itself a rounded look.</td>
+	</tr>
+	<tr>
 		<td class="value">a</td>
-		<td>This sets the menu alpha value. <a class="os">(2k+)</a></td>
+		<td>This sets the menu alpha value.</td>
+	</tr>
+	<tr>
+		<td class="value">t</td>
+		<td>This enables/disables displaying tooltips for menu items.</td>
 	</tr>
 	<tr><td colspan="2"><b>Variable parameters ARGS:</b></td></tr>
 	<tr>
 		<td class="param">r</td>
+		<td><div class="syntax">[1|0]</div></td>
+	</tr>
+	<tr>
+		<td class="param">R</td>
 		<td><div class="syntax">[1|0]</div></td>
 	</tr>
 	<tr>
@@ -603,6 +615,10 @@ ON *:SIGNAL:Xpopup-*: {
 	<tr>
 		<td class="value">VALUE</td>
 		<td>The opacity to apply. Values range from <a class="value">0</a> (transparent) to <a class="value">255</a> (opaque).</td>
+	</tr>
+	<tr>
+		<td class="param">t</td>
+		<td><div class="syntax">[1|0]</div></td>
 	</tr>
 </table>
 <br />
@@ -710,6 +726,34 @@ ON *:SIGNAL:Xpopup-*: {
 <br />
 <table class="xpopupprop">
 	<tr><td colspan="2" class="flag" style="color: #CCACC7; border-color: #CCACC7;">
+			<a name="xpopupprop.isroundedmenu"></a>$xpopup().isroundedmenu	</td></tr>
+	<tr><td colspan="2">Returns wether the rounded menu style is enabled (see xpopup -R)</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xpopup(MENU).isroundedmenu</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xpopup(mymenu).isroundedmenu</div></td>
+	</tr>
+</table>
+<br />
+<table class="xpopupprop">
+	<tr><td colspan="2" class="flag" style="color: #CCACC7; border-color: #CCACC7;">
+			<a name="xpopupprop.istooltips"></a>$xpopup().istooltips	</td></tr>
+	<tr><td colspan="2">Returns wether tooltips are enabled (see xpopup -R)</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xpopup(MENU).istooltips</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xpopup(mymenu).istooltips</div></td>
+	</tr>
+</table>
+<br />
+<table class="xpopupprop">
+	<tr><td colspan="2" class="flag" style="color: #CCACC7; border-color: #CCACC7;">
 			<a name="xpopupprop.marked"></a>$xpopup().marked	</td></tr>
 	<tr><td colspan="2">This property lets you set the marked text.</td></tr>
 	<tr>
@@ -760,11 +804,11 @@ ON *:SIGNAL:Xpopup-*: {
 	<tr><td colspan="2">This command lets you add a menu item.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xpop -a [MENU] [PATH] [TAB] [+FLAGS] [ID] [ICON] (TEXT)</div></td>
+		<td><div class="syntax">/xpop -a [MENU] [PATH] [TAB] [+FLAGS] [ID] [ICON] (TEXT) ([TAB] [TOOLTIP])</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xpop -a mymenu 2 1 $chr(9) + 1 1 Menu Item 1</div></td>
+		<td><div class="example">/xpop -a mymenu 2 1 $chr(9) + 1 1 Menu Item 1 $chr(9) Tooltip!</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
@@ -795,7 +839,11 @@ ON *:SIGNAL:Xpopup-*: {
 		<td class="param">TEXT</td>
 		<td>Menu item text. It can contain mIRC $identifiers that will be evaluated the first time the menu is being displayed.</td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>If the item text is meant to be dynamic, you will need to reset the text using /xpop -t</li><li><a class="param">ID</a> must be unique.</li><li>A menu item that has a checkmark AND an icon, it displays the icon instead of the checkmark.</li><li>Remember to use mIRCs $eval($idents, 0) or $!idents to prevent the mIRC evaluation of the $idents that your text contains.</li></ul></td></tr></table>
+	<tr>
+		<td class="param">TOOLTIP</td>
+		<td>Menu items tooltip.</td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>If the item text is meant to be dynamic, you will need to reset the text using /xpop -t</li><li><a class="param">ID</a> must be unique.</li><li>A menu item that has a checkmark AND an icon, it displays the icon instead of the checkmark.</li><li>Remember to use mIRCs $eval($idents, 0) or $!idents to prevent the mIRC evaluation of the $idents that your text contains.</li><li>The [TOOLTIP] is only displayed if enabled for this menu via /xpopup -R</li><li>Tooltips are only displayed for menu items, NOT submenus</li></ul></td></tr></table>
 <br />
 <table class="xpop">
 	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
@@ -881,6 +929,20 @@ ON *:SIGNAL:Xpopup-*: {
 	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> Remember to use mIRCs $eval(expression,0) to prevent the mIRC evaluation of the $idents that your text contains.</td></tr></table>
 <br />
+<table class="xpop">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xpop.big.T"></a>/xpop -T	</td></tr>
+	<tr><td colspan="2">This command lets you add/change a menu items tooltip.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xpop -T [MENU] [PATH] [TAB] [TEXT]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xpop -T mymenu 2 1 $chr(9) This is a tooltip!</div></td>
+	</tr>
+</table>
+<br />
 <table class="description">
 	<tr><td class="heading" style="border-color: #A8B2D1; color: #A8B2D1;"><a name="xpopprop"></a>$xpop Identifier</td></tr>
 	<tr><td>The $xpop identifier is a given mIRC alias that communicates with the XPopup DLL to extract information in XPopup menu items.</td></tr>
@@ -952,6 +1014,20 @@ ON *:SIGNAL:Xpopup-*: {
 	<tr>
 		<td class="example">Example:</td>
 		<td><div class="example">$xpop(mymenu, 2 5).text</div></td>
+	</tr>
+</table>
+<br />
+<table class="xpopprops">
+	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
+			<a name="xpopprop.tooltip"></a>$xpop().tooltip	</td></tr>
+	<tr><td colspan="2">This property retrieves the menu items tooltip text (if any).</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xpop(MENU, PATH).tooltip</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xpop(mymenu, 2 5).tooltip</div></td>
 	</tr>
 </table>
 <br />
@@ -1345,6 +1421,8 @@ The only difference is that you can load multiple icons by seperating the indexe
 		<a class='flag' href="#xpopupprop.ismenu"><div>ismenu</div></a>
 		<a class='flag' href="#xpopupprop.isPatched"><div>isPatched</div></a>
 		<a class='flag' href="#xpopupprop.isrounded"><div>isrounded</div></a>
+		<a class='flag' href="#xpopupprop.isroundedmenu"><div>isroundedmenu</div></a>
+		<a class='flag' href="#xpopupprop.istooltips"><div>istooltips</div></a>
 		<a class='flag' href="#xpopupprop.marked"><div>marked</div></a>
 		<a class='flag' href="#xpopupprop.menuname"><div>menuname</div></a>
 		<a class='flag' href="#xpopupprop.style"><div>style</div></a>
@@ -1358,6 +1436,7 @@ The only difference is that you can load multiple icons by seperating the indexe
 		<a class='flag' href="#xpop.i"><div>-i</div></a>
 		<a class='flag' href="#xpop.s"><div>-s</div></a>
 		<a class='flag' href="#xpop.t"><div>-t</div></a>
+		<a class='flag' href="#xpop.big.T"><div>-T</div></a>
 	</div>
 <div class='rightmenu' style='border:1px solid #A8B2D1'>
 	<a class='header' href="#xpopprop"><div style='background:#A8B2D1;'>$xpop() Properties</div></a>
@@ -1366,6 +1445,7 @@ The only difference is that you can load multiple icons by seperating the indexe
 		<a class='flag' href="#xpopprop.num"><div>num</div></a>
 		<a class='flag' href="#xpopprop.submenu"><div>submenu</div></a>
 		<a class='flag' href="#xpopprop.text"><div>text</div></a>
+		<a class='flag' href="#xpopprop.tooltip"><div>tooltip</div></a>
 	</div>
 </td>
   </tr>
@@ -1375,7 +1455,7 @@ The only difference is that you can load multiple icons by seperating the indexe
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2022</td>
-		<td style="text-align: right;">Last Updated: 15th March, 22</td>
+		<td style="text-align: right;">Last Updated: 23rd May, 22</td>
 	</tr>
 </table>
 <div style="text-align: center;">

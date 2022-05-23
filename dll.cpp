@@ -1192,69 +1192,11 @@ mIRC(xdid)
 			const auto itEnd = IDs.end();
 			for (auto itStart = IDs.begin(TSCOMMACHAR); itStart != itEnd; ++itStart)
 			{
-				//UINT id_start = 0, id_end = 0;
-				//const TString tsID(*itStart);
-				//if (tsID.numtok(TEXT('-')) == 2)
-				//{
-				//	id_start = tsID.getfirsttok(1, TEXT('-')).to_<UINT>();
-				//	id_end = tsID.getnexttok(TEXT('-')).to_<UINT>();
-				//}
-				//else
-				//	id_start = id_end = p_Dialog->NameToUserID(tsID);
-				//
-				//if (id_end < id_start)
-				//	throw Dcx::dcxException(TEXT("Invalid ID : % (dialog : %)"), id_end, tsDname);
-				//if (id_start == 0)
-				//	throw Dcx::dcxException(TEXT("Invalid ID : % (dialog : %)"), id_start, tsDname);
-				//if (id_end == 0)
-				//	throw Dcx::dcxException(TEXT("Invalid ID : % (dialog : %)"), id_end, tsDname);
-				//
-				//for (auto id = id_start; id <= id_end; ++id)
-				//{
-				//	const auto p_Control = p_Dialog->getControlByID(id + mIRC_ID_OFFSET);
-				//
-				//	if (p_Control == nullptr)
-				//		throw Dcx::dcxException(TEXT("Unable to find control: % (dialog : %)"), id, tsDname);
-				//
-				//	TString d2(tsDname);
-				//	d2.addtok(id);
-				//	d2.addtok(tsArgs);
-				//
-				//	p_Control->parseCommandRequest(d2);
-				//}
-
 				HandleIDRange(*itStart);
 			}
 		}
 		//Single ID or single id-id
 		else {
-			//UINT id_start = 0, id_end = 0;
-			//
-			//if (IDs.numtok(TEXT('-')) == 2)
-			//{
-			//	id_start = IDs.getfirsttok(1, TEXT('-')).to_<UINT>();
-			//	id_end = IDs.getnexttok(TEXT('-')).to_<UINT>();
-			//}
-			//else
-			//	id_start = id_end = p_Dialog->NameToUserID(IDs);
-			//
-			//if (id_end < id_start)
-			//	throw Dcx::dcxException(TEXT("Invalid ID : % (dialog : %)"), id_end, tsDname);
-			//if (id_start == 0)
-			//	throw Dcx::dcxException(TEXT("Invalid ID : % (dialog : %)"), id_start, tsDname);
-			//if (id_end == 0)
-			//	throw Dcx::dcxException(TEXT("Invalid ID : % (dialog : %)"), id_end, tsDname);
-			//
-			//for (auto id = id_start; id <= id_end; ++id)
-			//{
-			//	const auto p_Control = p_Dialog->getControlByID(id + mIRC_ID_OFFSET);
-			//
-			//	if (p_Control == nullptr)
-			//		throw Dcx::dcxException(TEXT("Unable to find control: % (dialog : %)"), id, tsDname);
-			//
-			//	p_Control->parseCommandRequest(d);
-			//}
-
 			HandleIDRange(IDs);
 		}
 		return 1;
@@ -2191,12 +2133,12 @@ mIRC(SetDCXSettings)
 			Dcx::setting_bStaticColours = btmp;
 			break;
 		}
-		case L"CustomMenus"_hash:
-		{
-			Dcx::setting_CustomMenusAlpha = (d.getnexttok().to_<UINT>() & 0xFF);
-			Dcx::setting_CustomMenusRounded = (d.getnexttok().to_<UINT>() != 0);
-			break;
-		}
+		//case L"CustomMenus"_hash:
+		//{
+		//	Dcx::setting_CustomMenusAlpha = (d.getnexttok().to_<UINT>() & 0xFF);
+		//	Dcx::setting_CustomMenusRounded = (d.getnexttok().to_<UINT>() != 0);
+		//	break;
+		//}
 		default:
 			throw DcxExceptions::dcxInvalidArguments();
 		}
@@ -2238,11 +2180,11 @@ mIRC(GetDCXSettings)
 			_ts_snprintf(data, mIRCLinker::c_mIRC_Buffer_Size_cch, TEXT("%d"), Dcx::setting_bStaticColours);
 			break;
 		}
-		case L"CustomMenus"_hash:
-		{
-			_ts_snprintf(data, mIRCLinker::c_mIRC_Buffer_Size_cch, TEXT("%u"), Dcx::setting_CustomMenusAlpha);
-			break;
-		}
+		//case L"CustomMenus"_hash:
+		//{
+		//	_ts_snprintf(data, mIRCLinker::c_mIRC_Buffer_Size_cch, TEXT("%u"), Dcx::setting_CustomMenusAlpha);
+		//	break;
+		//}
 		case L"dpi"_hash:
 		{
 			_ts_snprintf(data, mIRCLinker::c_mIRC_Buffer_Size_cch, TEXT("%u"), Dcx::DpiModule.dcxGetDpiForSystem());

@@ -66,18 +66,18 @@
 	<tr><td class="heading" style="border-color: #000000; color: #000000;"><a name="intro"></a>Version History</td></tr>
 	<tr><td><a></a><b>v3.1</b>
 <ul><li><strong>New features</strong><ol>
-<li>general - changed /xdid &amp; $xdid() to support named id's</li>
+<li>general - changed /xdid &amp; $xdid() to support named id&#039;s</li>
 <li>comboex - $xdid(dname,id,0).text now works with dropdown style controls as well as dropedit ones.</li>
-<li>dialog - changed /xdialog -d to accept named id's</li>
-<li>box/pager - changed /xdid -d to support named id's</li>
-<li>dialog - changed /xdialog -j to handle named id's</li>
+<li>dialog - changed /xdialog -d to accept named id&#039;s</li>
+<li>box/pager - changed /xdid -d to support named id&#039;s</li>
+<li>dialog - changed /xdialog -j to handle named id&#039;s</li>
 <li>- changed /xdialog -q to allow setting different cursors for different parts of the dialog, border etc.. added support code for these new cursors.</li>
 <li>general - added /dcx SetDCXSettings command, atm this only has two options &quot;StaticColours&quot; &amp; &quot;UpdateColours&quot;</li>
 <li>- - StaticColours = /dcx SetDCXSettings StaticColours [1/0]</li>
-<li>- - - Enable/Disable static colours (faster drawing but doesn't update its self to changes in mIRC's colour scheme)</li>
+<li>- - - Enable/Disable static colours (faster drawing but doesn&#039;t update its self to changes in mIRC&#039;s colour scheme)</li>
 <li>- - UpdateColours = /dcx SetDCXSettings UpdateColours</li>
-<li>- - - Force dcx to update it' colour scheme even if using static colours.</li>
-<li>updown - changed /xdid -c to handle named id's</li>
+<li>- - - Force dcx to update it&#039; colour scheme even if using static colours.</li>
+<li>updown - changed /xdid -c to handle named id&#039;s</li>
 <li>webctrl - added $xdid().script to allow calling a script that returns a result.</li>
 <li>- var %result = $xdid(dname,id,scriptcommand).script</li>
 </ol></li>
@@ -86,23 +86,23 @@
 <li><strong>Fixes and changes</strong><ol>
 <li>general - added help text to /xdid/$xdid/$dcx(GetTaskbarPos)/xdialog/$xdialog/xpop/$xpop/xpopup/$xpopup/$xmenubar</li>
 <li>- changed $dcx(Version) to show the compiled date/time too</li>
-<li>general - fixed bug in /xdid -Z where the SCROLLINFO mask wasn't set, causing GetScrollInfo() to always fail.</li>
+<li>general - fixed bug in /xdid -Z where the SCROLLINFO mask wasn&#039;t set, causing GetScrollInfo() to always fail.</li>
 <li>divider - fixed bug in /xdid -l where controls were not being added correctly.</li>
 <li>dcxml - fixed bugs, should all work again</li>
 <li>dcxml - changed code to add richedit controls contents, so it now changes \c into ctrl-c &amp; \b into ctrl-b &amp; \r into ctrl-r, \u to ctrl-u, \i to ctrl-i, &amp; \o to ctrl-o, this should really be replaced with better utf loading.</li>
 </ol></li>
 <li><strong>DCX Project</strong><ol>
 <li>dcxml - changed richedit code to convert \c to ctrl-k, \b to ctrl-b, \r to ctrl-r, \u to ctrl-u, \i to ctrl-i, &amp; \o to ctrl-o</li>
-<li>general - changed some XXX::value's to be XXX_v instead.</li>
-<li>scripts - updated dc.xml, changed url's etc...</li>
+<li>general - changed some XXX::value&#039;s to be XXX_v instead.</li>
+<li>scripts - updated dc.xml, changed url&#039;s etc...</li>
 <li>- updated dcx_demo.mrc &amp; fixed some issues i had with it.</li>
 <li>panel - added check to /xdid -l to not enough args.</li>
 <li>dcxml - added DCXML_ID_OFFSET to use instead of just using 2000U</li>
 <li>- changed code to add richedit controls contents, so it now changes \c into ctrl-c &amp; \b into ctrl-b &amp; \r into ctrl-r, this should really be replaced with better utf loading.</li>
-<li>- fixed bug in registerId() where mIRC_ID_OFFSET wasn't being added.</li>
+<li>- fixed bug in registerId() where mIRC_ID_OFFSET wasn&#039;t being added.</li>
 <li>- fixed bug in parseId() where wrong id value was returned.</li>
-<li>general - fixed bug in /xdid -Z where the SCROLLINFO mask wasn't set, causing GetScrollInfo() to always fail.</li>
-<li>dialog - changed parseComControlRequestEX() to return the control id in the error message when a control can't be found.</li>
+<li>general - fixed bug in /xdid -Z where the SCROLLINFO mask wasn&#039;t set, causing GetScrollInfo() to always fail.</li>
+<li>dialog - changed parseComControlRequestEX() to return the control id in the error message when a control can&#039;t be found.</li>
 <li>divider - fixed bug in /xdid -l where controls were not being added correctly.</li>
 <li>project - added build all command to source control.</li>
 <li>dcxml - fixed bug in parseControl() where m_sParenttype was used instead of m_sType.</li>
@@ -120,9 +120,9 @@
 <li>- changed getMenuByHash()/getMenuByName()/getMenuByHandle() to be noexcept.</li>
 <li>dcxdocs - changed the renderer to the latest via the X-UA-Compatible meta.</li>
 <li>- changed some links to point at github</li>
-<li>- added directshow's author &amp; title properties.</li>
-<li>- added directshow's dshow event.</li>
-<li>- added note to treeview's /xdid -w command about -1 index.</li>
+<li>- added directshow&#039;s author &amp; title properties.</li>
+<li>- added directshow&#039;s dshow event.</li>
+<li>- added note to treeview&#039;s /xdid -w command about -1 index.</li>
 <li>- added changes upto svn960</li>
 <li>- added directshow -v command</li>
 <li>- dded some files that were missing after transfer from svn</li>
@@ -172,7 +172,7 @@
 <li>general - updated the dates</li>
 <li>- changed $dcx(GetSystemColor)/$dcx(ActiveWindow)/$xpop/xpop to use hashing if enabled.</li>
 <li>- fixed bug in /xSignal where trim() was used in the wrong place.</li>
-<li>- fixed bug in $dcx(ActiveWindow) where cbSize wasn't being set.</li>
+<li>- fixed bug in $dcx(ActiveWindow) where cbSize wasn&#039;t being set.</li>
 <li>- changed mIRCSubClassWinProc()-&gt;WM_SIZE to return unsigned numbers.</li>
 <li>gsl - updated to latest.</li>
 <li>general - removed is_Numeric struct as this is now in the string_support header.</li>
@@ -182,9 +182,9 @@
 <li>listhelper - changed matchItemText() to avoid needing a static_cast</li>
 <li>richedit - got rid of some warnings.</li>
 <li>divider - added some casts.</li>
-<li>dialogcollection - changed the default constructor as = default wasn't initializing things.</li>
+<li>dialogcollection - changed the default constructor as = default wasn&#039;t initializing things.</li>
 <li>xdock - changed $xdock to use string hashing.</li>
-<li>- added some static_cast's</li>
+<li>- added some static_cast&#039;s</li>
 <li>tstring - moved all string support functions to a new header string_support.h</li>
 <li>- updated macros to use support functions where possible.</li>
 <li>- fixed small bug in puttok()</li>
@@ -193,7 +193,7 @@
 <li>treeview - changed insertItem() to take a reference instead of a pointer.</li>
 <li>- changed matchItemText() to use DcxListHelper::matchItemText()</li>
 <li>- changed parsePath() to take a reference TString object instead of a pointer.</li>
-<li>general - added some static_cast's</li>
+<li>general - added some static_cast&#039;s</li>
 <li>- added TiXmlElement *toXml()</li>
 <li>- changed toXml() to properly save the control styles too.</li>
 <li>- added DcxIconSizes enum to set standard easy to read icon sizes.</li>
@@ -295,7 +295,7 @@
 <li>dcxml - changed /dcxml -p/parseControl()/parseDialog() to use string hashing if enabled.</li>
 <li>- renamed g_resetcla to g_bResetCLA &amp; made it a bool.</li>
 <li>- fixed bug in parseDialog() handling box type twice.</li>
-<li>refstring/simplestring - changed static_assert for type to remove const'ness first.</li>
+<li>refstring/simplestring - changed static_assert for type to remove const&#039;ness first.</li>
 <li>pager/progressbar/richedit - changed parseControlStyles() to use string hashing if enabled.</li>
 <li>mwindow/pager/panel/progressbar/rebar/richedit/statusbar/tab/toolbar/trackbar - misc style changes</li>
 <li>progressbar - changed DrawClientArea() to use Auto()</li>
@@ -314,7 +314,7 @@
 <li>- changed getIcon() to return HICON</li>
 <li>tab - changed to use DcxWindow::createImageList()</li>
 <li>toolbar - changed /xdid -a to use TSTABCHAR</li>
-<li>- changed to use dcxException's</li>
+<li>- changed to use dcxException&#039;s</li>
 <li>- changed /xdid -w to use dcxIconResource if enabled.</li>
 <li>trackbar - changed DrawTrackBarPart() to use dcxHDCBitmapResource if enabled.</li>
 <li>button/calendar/comboex/datetime - change parseControlStyles() to use string hashing if enabled.</li>
@@ -334,7 +334,7 @@
 <li>- changed to use Gdiplus::</li>
 <li>- changed var namedIds to m_NamedIds</li>
 <li>- changed var m_bDoGhostDrag to m_uGhostDragAlpha</li>
-<li>- added i_showError() to show error msg's, this may be removed/changed soon</li>
+<li>- added i_showError() to show error msg&#039;s, this may be removed/changed soon</li>
 <li>- changed parseBorderStyles()/parseBkgFlags()/parseFlashFlags()/parseTooltipFlags()/PreMultiply() to be noexcept</li>
 <li>- changed deleteControl() to use eraseIfFound()</li>
 <li>- changed /xdialog -x to not need a string any more.</li>
@@ -375,7 +375,7 @@
 <li>check - changed DrawClientArea() to use Auto()</li>
 <li>box - changed $xdid().inbox to use Auto()</li>
 <li>- added a check to toXml() for m_pLayoutManager being nullptr</li>
-<li>- changed some TCHAR buffers to be stString's</li>
+<li>- changed some TCHAR buffers to be stString&#039;s</li>
 <li>general - misc style changes.</li>
 <li>link - changed /xdid -l a little.</li>
 <li>- changed how the constructor initializes the vars.</li>
@@ -385,7 +385,7 @@
 <li>- changed DrawBMPImage() to use resource wrappers when enabled.</li>
 <li>- changed DrawClientArea() to use Auto()</li>
 <li>edit - changed /xdid -S to initialise iend to istart.</li>
-<li>- changed some TCHAR buffers to be stString's</li>
+<li>- changed some TCHAR buffers to be stString&#039;s</li>
 <li>listhelper - changed matchItemText() to take a refString arg.</li>
 <li>list - changed matchItemText() to make sure the buffer was at least MIRC_BUFFER_SIZE_CCH in size.</li>
 <li>listview - misc style changes.</li>
@@ -420,7 +420,7 @@
 <li>dcx - added make_bstr()/dcxBSTR_t/dcxBSTRResource to handle BSTR resources.</li>
 <li>- added make_filehandle()/dcxHandle_t/dcxFileHandleResource to handle HANDLE resources for files.</li>
 <li>- changed DcxResource to be constexpr</li>
-<li>- added dcxStringResource for testing, don't expect to use it.</li>
+<li>- added dcxStringResource for testing, don&#039;t expect to use it.</li>
 <li>- added dcxHDCBitmap2Resource which handles an HDC &amp; Bitmap resource pair.</li>
 <li>- changed dcxHDCBuffer to use dcxHDCBitmap2Resource instead of dcxHDCResource.</li>
 <li>- removed isFile()</li>
@@ -453,9 +453,9 @@
 <li>- changed /dcx SetmIRCCursors to use TSCOMMACHAR</li>
 <li>- added /dcx SetDCXSettings command, atm this only has two options &quot;StaticColours&quot; &amp; &quot;UpdateColours&quot;</li>
 <li>- - StaticColours = /dcx SetDCXSettings StaticColours [1/0]</li>
-<li>- - - Enable/Disable static colours (faster drawing but doesn't update its self to changes in mIRC's colour scheme)</li>
+<li>- - - Enable/Disable static colours (faster drawing but doesn&#039;t update its self to changes in mIRC&#039;s colour scheme)</li>
 <li>- - UpdateColours = /dcx SetDCXSettings UpdateColours</li>
-<li>- - - Force dcx to update it' colour scheme even if using static colours.</li>
+<li>- - - Force dcx to update it&#039; colour scheme even if using static colours.</li>
 <li>general - changed GetDirectXVersionViaFileVersions() to initialize all vars &amp; to use Dcx::countof()</li>
 <li>- changed defines.h to include the new string stuff</li>
 <li>- added DCX_USE_HASHING define to enable the use of string hashes.</li>
@@ -466,7 +466,7 @@
 <li>hashString - added some comments</li>
 <li>simpleString - added some comments</li>
 <li>refString - added some comments</li>
-<li>- added two static_assert's</li>
+<li>- added two static_assert&#039;s</li>
 <li>mdialog - changed m_DeleteByDestroy to be bool.</li>
 <li>dcxml - changed alot of var names to avoid confusion. This also allowed me to clean up some functions &amp; make them clearer.</li>
 <li>- changed the constructor &amp; destructors to be = default.</li>
@@ -489,7 +489,7 @@
 <li>- changed CreateGrayscaleIcon() to initialize the var sz all in one line.</li>
 <li>- changed IsFile() to use dcxStringResource</li>
 <li>- added getmIRCPalette() overload with no args, this only fills the palette when its empty.</li>
-<li>- changed getmIRCPalette() (with args) to only fill the palette if its empty or static colours aren't being used.</li>
+<li>- changed getmIRCPalette() (with args) to only fill the palette if its empty or static colours aren&#039;t being used.</li>
 <li>- changed DrawRotatedText() to use Auto()</li>
 <li>mirclinker - removed mIRCLinker:: from the start of functions.</li>
 <li>dialogcollection - changed the constructor/destructor to be = default.</li>
@@ -500,7 +500,7 @@
 <li>- hashString.h -&gt; Includes various functions to change a C-String into a hash value.</li>
 <li>- switchObjects.h -&gt; allows using objects in a special Switch() command.</li>
 <li>- ListHelper.h/cpp -&gt; DcxListHelper class includes various common helper functions for DcxList.... controls.</li>
-<li>updown - changed /xdid -c to handle named id's</li>
+<li>updown - changed /xdid -c to handle named id&#039;s</li>
 <li>- changed /xdid -c to check DcxControlTypes instead of getting the class name.</li>
 <li>Changed everything to require C++14 when compiling</li>
 <li>Dropped all support for &lt; Windows7</li>
@@ -516,7 +516,7 @@
 <li>- removed some old code.</li>
 <li>general - changed to use dcxException</li>
 <li>- removed some old code.</li>
-<li>- changed all CTRL_XXX defines to be UINT64's</li>
+<li>- changed all CTRL_XXX defines to be UINT64&#039;s</li>
 <li>- added enum DcxAllowControls to maybe replace defines in future.</li>
 <li>- changed enum DcxControlTypes to be enum class DcxControlTypes</li>
 <li>- added dcxExtractIcon object to wrap calls to ExtractIconEx()</li>
@@ -539,7 +539,7 @@
 <li>- changed CBN_SELENDOK handling to set m_tsSelected.</li>
 <li>-- this allows $xdid(dname,id,0).text to work with dropdown style controls as well as dropedit ones.</li>
 <li>listview - added ItemToString() function to help with saving data.</li>
-<li>box - fixed bug in /xdid -c command where the correct addControl() call wasn't being used this caused subsequent calls to fail when using named id's</li>
+<li>box - fixed bug in /xdid -c command where the correct addControl() call wasn&#039;t being used this caused subsequent calls to fail when using named id&#039;s</li>
 <li>xtreebar - changed the setitem callback to be for release build too now</li>
 <li>- changed setitem callback to have these args: $xtree_callback(&lt;item type&gt;,&lt;wid&gt;,&lt;status&gt;)</li>
 <li>xstatusbar - changed status_getImageList() to be noexcept.</li>
@@ -549,7 +549,7 @@
 <li>- added deleteNamedID() which deletes the named id based on either the name or the numerical id.</li>
 <li>- changed deleteControl() to call deleteNamedID() as well</li>
 <li>general - changed some code to use the new dcxResource stuff (Testing this method out, may not keep)</li>
-<li>tstring - fixed bug in compare() routines where length limit was used when it shouldn't have been, this led to &quot;5&quot; == &quot;50&quot;</li>
+<li>tstring - fixed bug in compare() routines where length limit was used when it shouldn&#039;t have been, this led to &quot;5&quot; == &quot;50&quot;</li>
 <li>general - added DCX_USE_WRAPPERS define to enable/disable using the resource wrapper classes.</li>
 <li>- added Dcx::dcxResource::pointer type.</li>
 <li>- added Dcx::dcxResource::element_type type.</li>
@@ -579,15 +579,15 @@
 <li>- added TString(const T (&amp;cString)[N]) constructor.</li>
 <li>- changed TString(const TCHAR *const pStart, const TCHAR *const pEnd) constructor to be a template that just calls the appropriate TString(const WCHAR/char *const cString, const size_t iLen) constructor.</li>
 <li>- moved most constructors to the tstring.h file.</li>
-<li>- changed the operator[] code to have a debug version that has some extra checks &amp; throws an exception &amp; a release version that doesn't.</li>
+<li>- changed the operator[] code to have a debug version that has some extra checks &amp; throws an exception &amp; a release version that doesn&#039;t.</li>
 <li>- changed the iswm() template to be const noexcept</li>
 <li>- commented out the non-const version of c_str()</li>
 <li>- changed _ts_WildcardMatch() to be noexcept</li>
 <li>xpopupmenu - changed GetMenuAttributeFromXML() to return a TString. This allows us to get rid of some extra TString objects later.</li>
-<li>- changed convertMenu() so it doesn't call tsEval() on a seperator.</li>
+<li>- changed convertMenu() so it doesn&#039;t call tsEval() on a seperator.</li>
 <li>tstring - added ts_strchr() macro</li>
 <li>- added numtok(TCHAR sepChar) to handle all single char separators.</li>
-<li>- made both numtok()'s noexcept.</li>
+<li>- made both numtok()&#039;s noexcept.</li>
 <li>dcxml - changed mIRCEvalToUnsignedInt() to take a TString arg.</li>
 <li>tinyxml - changed some code to do nullptr checks</li>
 <li>toolbar - changed /xdid -a/-c to use the to_&lt;&gt;() template directly</li>
@@ -596,9 +596,9 @@
 <li>tstring - changed all comparison operators &amp; functions to be noexcept</li>
 <li>- changed the move assignment operator to be noexcept</li>
 <li>- changed find() to be noexcept</li>
-<li>- changed iterator typedef's to use using instead</li>
+<li>- changed iterator typedef&#039;s to use using instead</li>
 <li>- changed isin()/isincs()/iswm()/countchar()/ishostmask() to be noexcept</li>
-<li>general - changed some typedef's to be using instead.</li>
+<li>general - changed some typedef&#039;s to be using instead.</li>
 <li>xdock - changed some typedefs to be using</li>
 <li>- changed DockWindow() to allocate &amp; set &amp; push_back() the DCXULTRADOCK structure all in one go (planning on changing how this structure is allocated &amp; stored soon)</li>
 <li>xpopup - made XPopupMenu() constructor a bit neater.</li>
@@ -611,7 +611,7 @@
 <li>tstring - added last() function which returns a pointer to the end of the string.</li>
 <li>- changed len()/length()/size() to return a reference.</li>
 <li>- added SPACECHAR/COMMACHAR/TABCHAR defines as single character versions of SPACE/COMMA/TAB</li>
-<li>- changed is_Numeric to check type isn't a pointer.</li>
+<li>- changed is_Numeric to check type isn&#039;t a pointer.</li>
 <li>- fixed bug in static string constructor where string length used was one character to long.</li>
 <li>- changed operator *() to use strchr() instead of strstr()</li>
 <li>- changed addtok() template to use SPACECHAR</li>
@@ -623,13 +623,13 @@
 <li>- added _ts_isEmpty() function template to test if a string/container is empty (supports C Strings &amp; any object with a empty() member function)</li>
 <li>tstring - changed new test versions of gettok() &amp; getfirsttok() to be templates.</li>
 <li>dialog - changed SetVerbose()/getFocusControl() to be noexcept</li>
-<li>- changed some typedef's to be using's instead.</li>
+<li>- changed some typedef&#039;s to be using&#039;s instead.</li>
 <li>- changed xdialog -R +p to use the single character versions of getfirsttok()/getnexttok()</li>
 <li>general - changed gettok()/getfirsttok()/getnexttok()/numtok() to be single character versions where possible.</li>
 <li>xdock - added specific deleted operators</li>
 <li>general - added some std::to_string() &amp; std::to_wstring() overloads</li>
 <li>- added is_Numeric to Dcx namespace</li>
-<li>- changed some typedef's to be using's instead.</li>
+<li>- changed some typedef&#039;s to be using&#039;s instead.</li>
 <li>- added numeric_cast() to Dcx namespace to handle casting anything to a number (if possible) can cast integrals, strings &amp; objects that support implicit conversion to that type.</li>
 <li>cla - changed layoutcell to be a little neater.</li>
 <li>- changed layoutcellfill to use the layoutcell constructors.</li>
@@ -660,7 +660,7 @@
 <li>- changed constructor to initialize m_bFlags &amp; m_bFlags_cap to false.</li>
 <li>- moved operator[] to include file.</li>
 <li>- changed m_bFlags &amp; m_bFlags_cap to be private instead of protected.</li>
-<li>- added m_bFalse static var for isSet()'s use on failure.</li>
+<li>- added m_bFalse static var for isSet()&#039;s use on failure.</li>
 <li>- changed de-constructor to be = default.</li>
 </ol></li>
 <li><strong>Documentation</strong><ol>
@@ -672,7 +672,7 @@
 <li>added listview /xdid -G</li>
 <li>added listview /xdid -H</li>
 <li>added webctrl $xdid().statusbar/statustext/script</li>
-<li>added note to updown /xdid -c to the effect that named id's can be used.</li>
+<li>added note to updown /xdid -c to the effect that named id&#039;s can be used.</li>
 </ol></li>
 </ul>
 <a></a><b>v3.0</b>
@@ -703,14 +703,14 @@
 </ul>
 <a></a><b>v1.4.1</b>
 <ul><li><strong>New features</strong><ol>
-<li>treeview - added some error reports to /xdid commands when the path can't be parsed.</li>
+<li>treeview - added some error reports to /xdid commands when the path can&#039;t be parsed.</li>
 <li>treeview - - added per item marking via</li>
 <li>-  /xdid -A N N N ... [TAB] [+FLAGS] [INFO]</li>
 <li>-    +M flag will mark text</li>
-<li>flags can be added to this to allow for other 'per item' info tagging</li>
+<li>flags can be added to this to allow for other &#039;per item&#039; info tagging</li>
 <li>treeview - added $xdid(path).markeditem to retrieve marked text</li>
-<li>listview - added error reports to /xdid -a for when a group id is used &amp; groups aren't enabled or the group id is invalid.</li>
-<li>listview - added some error reports to /xdid -q for when groupview isn't enabled or the group already exists.</li>
+<li>listview - added error reports to /xdid -a for when a group id is used &amp; groups aren&#039;t enabled or the group id is invalid.</li>
+<li>listview - added some error reports to /xdid -q for when groupview isn&#039;t enabled or the group already exists.</li>
 <li>xpopup - now able to create menus using dcxml</li>
 <li>/dcxml -p [MENUNAME] [DATASET] [FILE]</li>
 <li>- eg. //dcxml -p popupName mypopup $qt(G:\C++\DCX\dcx_zip\dc.xml) | xpopup -s popupName + 300 400</li>
@@ -741,7 +741,7 @@
 <li>&lt;/dcxml&gt;</li>
 <li></li>
 <li>autosize, autosizeheader, &amp; autosizemax are mutually exclusive.</li>
-<li>group, tooltip, &amp; stateicon can only be used with &lt;lvitem&gt;'s not &lt;lvsubitem&gt;'s</li>
+<li>group, tooltip, &amp; stateicon can only be used with &lt;lvitem&gt;&#039;s not &lt;lvsubitem&gt;&#039;s</li>
 <li></li>
 <li>treeview - added `stateclick` callback event this event returns `stateclick [ID] [STATE] [PATH]`</li>
 <li>general - added an `enabled/disabled` signal when the switchbar/toolbar/treebar are enabled/disabled from the view menu &amp; ONLY from view menu.</li>
@@ -756,8 +756,8 @@
 <li>control - added $xdid().styles property to get the styles of the control</li>
 <li>comboex - added -A flag to set properties of items as in listview, it is now possible to set a mark for every item in the comboex</li>
 <li>comboex - added return event to react on return key</li>
-<li>divider - added 'position' and 'isvertical' properties</li>
-<li>divider - added 'dragbegin', 'dragfinish' and 'drag' events</li>
+<li>divider - added &#039;position&#039; and &#039;isvertical&#039; properties</li>
+<li>divider - added &#039;dragbegin&#039;, &#039;dragfinish&#039; and &#039;drag&#039; events</li>
 <li>listview - added /xdid -a [NAME] [ID] [SWITCH] [N] [INDENT] +w [#ICON] [#STATE] [#OVERLAY] [#GROUPID] [COLOR] [BGCOLOR] [ITEM TEXT]</li>
 <li>- where [ITEM TEXT] is [+FLAGS] [TABLE NAME] [N|N1-N2|name]</li>
 <li>- added /xdid -a [NAME] [ID] [SWITCH] [N] [INDENT] +y [#ICON] [#STATE] [#OVERLAY] [#GROUPID] [COLOR] [BGCOLOR] [ITEM TEXT]</li>
@@ -768,9 +768,9 @@
 <li>-  +   No Flags specified. [N] provided, add a single item as text only.</li>
 <li>-  +a  item(s) contain all the flags &amp; icon info etc.. for the item(s) to be added from [INDENT] onwards.</li>
 <li>-  +A  add all items starting at N</li>
-<li>-  +n  [N1-N2] numeric range supplied. Add all items in range. (can't be used with +A)</li>
+<li>-  +n  [N1-N2] numeric range supplied. Add all items in range. (can&#039;t be used with +A)</li>
 <li>- - - N1 must be &gt; 0</li>
-<li>- - - N2 can't be 0, but can be a negative.</li>
+<li>- - - N2 can&#039;t be 0, but can be a negative.</li>
 <li>-  +i  [name] single named item to be added. (cant be used with +n or +A)</li>
 <li>xdock - added $xdock(mIRC).switchBarHwnd/toolBarHwnd/treeBarHwnd</li>
 </ol></li>
@@ -793,7 +793,7 @@
 </ol></li>
 <li><strong>Fixes and changes</strong><ol>
 <li>treeview - fixed path parsing bug caused by parsePath() &amp; correctTargetItem() together, meaning the /xdid commands couldnt work on the first item.</li>
-<li>treeview - added some error reports to /xdid commands when the path can't be parsed.</li>
+<li>treeview - added some error reports to /xdid commands when the path can&#039;t be parsed.</li>
 <li>treeview - major revamp of the way paths are passed</li>
 <li>treeview - search functionality slightly reworked</li>
 <li>treeview - added error messages to some functions which previously failed quietly (ie. missing parameters, etc)</li>
@@ -802,7 +802,7 @@
 <li>box - changed background drawing again. Should fix transparent controls in boxes showing the boxes parents background instead of the boxes.</li>
 <li>box - fixed the background drawing again, it really is fixed now honest.</li>
 <li>xpopup - fixed vertical gradient menus from not drawing correctly when scrolling is involved. (also added a whole bunch of experimental code and old code in case something breaks)</li>
-<li>toolbar - changed /xdid -a to set I_IMAGENONE when an icon isn't specified.</li>
+<li>toolbar - changed /xdid -a to set I_IMAGENONE when an icon isn&#039;t specified.</li>
 <li>toolbar - added some error reports to /xdid -w</li>
 <li>xdock - fixed a bug where you could only dock only window to a host, then every subsequent try got `Unable to find destination window` error.</li>
 <li>treeview - fixed comment for mouseitem since no path is required</li>
@@ -813,7 +813,7 @@
 <li>listview - changed /xdid -q group already exists error to show the group id.</li>
 <li>xpopup - fixed bug with /xpop -a where mii.fMask was checked for null, not mii.hSubMenu</li>
 <li>dcxml - changed some error messages</li>
-<li>dcxml - fixed 'FindNextSibling' on dialog to search for only dialogs</li>
+<li>dcxml - fixed &#039;FindNextSibling&#039; on dialog to search for only dialogs</li>
 <li>listview - fixed /xdid -a crash with dev build (strange one)</li>
 <li>listview - fixed $xdid().find for non-report view.</li>
 <li>xpopup - no longer supports utf8 text in menus. Will add a way to switch this on again at some point.</li>
@@ -821,12 +821,12 @@
 <li>general - fixed memleak bug in DCXErrorEX() caused by missing va_end() call.</li>
 <li>link - changed to use the xdid -f set font when it exists, instead of always the default gui font.</li>
 <li>xpopup - changed DrawItemText() to check if the first char of the text is $chr(12) &amp; enable utf8 support for that item if it is. (only way i could thing of to allow per-item utf8 atm)</li>
-<li>xpopup - changed /xpop -a to allow for tabs within label (but disables unimplemented 'command' feature. it can still be implemented by using the mirc way of doing things and using : instead of tab)</li>
+<li>xpopup - changed /xpop -a to allow for tabs within label (but disables unimplemented &#039;command&#039; feature. it can still be implemented by using the mirc way of doing things and using : instead of tab)</li>
 <li>xdock - fixed bug with /xdock -b +o on mIRC 6.30+ where it would always fail.</li>
 <li>button/progressbar - changed to use wide text when calculating rect needed.</li>
 <li>listview - removed the debug output from $xdid().gtext</li>
 <li>treeview - added some more error checking to /xdid -S</li>
-<li>treeview - fixed /xdid -S bug where it didn't save the dataset.</li>
+<li>treeview - fixed /xdid -S bug where it didn&#039;t save the dataset.</li>
 <li>xpopup - fixed drawing issue with custom menus when &quot;/mpopup mircbar 1&quot; is used</li>
 <li>listview - added a non-Vista version of $xdid().gnum</li>
 <li>listview - fixed a bug in xml loading which set the tooltip to the wrong item.</li>
@@ -835,11 +835,11 @@
 <li>general - changed /xdid -R +p to check that atleast 3 points are given.</li>
 <li>listview - changed /xdid -a to only apply flags as they are needed.</li>
 <li>listview - changed /xdid -j to only apply valid listview states.</li>
-<li>treeview - changed insertItem()'s checking of state icon to check for &gt; -1, this fixes the \`no state checkbox\` problem. Also fixed the same thing in xmlInsertItems()</li>
+<li>treeview - changed insertItem()&#039;s checking of state icon to check for &gt; -1, this fixes the \`no state checkbox\` problem. Also fixed the same thing in xmlInsertItems()</li>
 <li>(x)statusbar - added some (5 pixels) spacing to right of icons.</li>
 <li>text/box - changed to disable all default borders on creation.</li>
 <li>calendar - fixed bug with daystate information not being parsed correctly, thanks ook for pointing it out</li>
-<li>xtreebar - added fix/workaround for mIRC's problems with some text passed to $xtreebar_callback() alias.</li>
+<li>xtreebar - added fix/workaround for mIRC&#039;s problems with some text passed to $xtreebar_callback() alias.</li>
 <li>xpopup - fixed $xpopup().colors not returning the 11th colour.</li>
 <li>xdock - fixed /xdock &lt;flag&gt; &lt;hwnd&gt; +B .... to correctly allow the scrollbar to show without leaving a huge gap. (this flag is only intended for when docking to channel/status/query/dcc chat windows.)</li>
 <li>xpopup - added fix for dialog menus not evaluating the menus correctly.</li>
@@ -848,14 +848,14 @@
 <li>dialog - changed /dialog -x within the callback event to call a timed /xdialog -x &amp; close the dialog.</li>
 <li>xtreebar - changed /xtreebar -T error message to correctly show the alias name.</li>
 <li>dcxml - Icon images were starting at 1 instead of 0 when indexmin was not specified.</li>
-<li>dcxml - the caption attribute would default to &quot;(null)&quot; if it wasn't specified and the element had no text. Particularly annoying on the item elements.</li>
+<li>dcxml - the caption attribute would default to &quot;(null)&quot; if it wasn&#039;t specified and the element had no text. Particularly annoying on the item elements.</li>
 <li>- i.e &lt;control type=&quot;toolbar&quot;&gt;&lt;item icon=&quot;1&quot; /&gt;&lt;/control&gt; would fill &quot;(null)&quot; as the toolbar button text.</li>
 <li>dcxml - can now specify gradient fill colours (again!) gradientstart=&quot;&quot; gradientend=&quot;&quot;</li>
 <li>dcxml - progressbar colours are now set correctly.</li>
 <li>treeview - fixed a bug in -m where an endless loop occured</li>
 <li>divider - changed some error msgs to use this-&gt;getUserID()</li>
 <li>trackbar - fixed #686, missing controlid from callback</li>
-<li>dialog - removed /xdialog -k command, why was it even here? It's not a dialog command.</li>
+<li>dialog - removed /xdialog -k command, why was it even here? It&#039;s not a dialog command.</li>
 <li>treeview - fixed senseless selchange events when destroying the control</li>
 <li>toolbar - fixed a bug where the extended arrows style was set wrong</li>
 <li>dcxml - fixed that identifiers were not executed on src-attribute of an icon definition if only one icon should be loaded</li>
@@ -869,7 +869,7 @@
 <li>general - moved all shell dialog functionality (ColorDialog, OpenDialog, SaveDialog, BrowseDialog, FontDialog, MsgBox and PickIcon) into ShellDialogs.cpp</li>
 <li>general - added ShellDialogs.cpp to project.</li>
 <li>general - changed the post compile upx to use --ultra-brute</li>
-<li>dcx_tools - added code to check for multiple dcx.dll's being loaded. worth keeping? any improvements needed?</li>
+<li>dcx_tools - added code to check for multiple dcx.dll&#039;s being loaded. worth keeping? any improvements needed?</li>
 <li>treeview - return value of insertItem changed to void</li>
 <li>treeview - getItemCount() renamed to getChildCount()</li>
 <li>treeview - parsePath() rewritten from scratch, now takes less parameters and returns HTREEITEM</li>
@@ -883,7 +883,7 @@
 <li>treeview - added various trims when checking for &quot;root&quot; path</li>
 <li>treeview - added lots of comments to code</li>
 <li>treeview - formatting changes</li>
-<li>treeview - changed some things to be const's.</li>
+<li>treeview - changed some things to be const&#039;s.</li>
 <li>dialog - added redrawWindow() to WM_EXITSIZEMOVE to help with the buffered redraw bug during resize.</li>
 <li>general - moved FileDialog() into ShellDialogs.cpp</li>
 <li>general - moved dcxDialogs() into misc.cpp</li>
@@ -895,7 +895,7 @@
 <li>toolbar - changed drawing to create &amp; destroy the font for each item.</li>
 <li>toolbar - some misc formatting changes.</li>
 <li>box - changed parseLayoutFlags() to take a const arg.</li>
-<li>tstring - changed to_wchr() to detect invalid chars &amp; use CP_ACP convertion. This means accents etc.. will work again but you can't mix utf8 text in with them.</li>
+<li>tstring - changed to_wchr() to detect invalid chars &amp; use CP_ACP convertion. This means accents etc.. will work again but you can&#039;t mix utf8 text in with them.</li>
 <li>xpopup - added XPopupMenu.parseStyle() instead of manually parsing in XPopupMenuManager</li>
 <li>xpopup - to get/set colors, now uses static const for numbers (names starting with XPMC_*)</li>
 <li>xpopup - made XPopupMenu.m_vpMenuItem public (was too lazy to make this properly)</li>
@@ -948,9 +948,9 @@
 <li>&gt; excluded upx on release post-build</li>
 <li>&gt; fixed imports on some builds (they werent consistant)</li>
 <li>xpopup - changed getIemSize() &amp; DrawItem() to use a temp tstring var instead of getting the name twice.</li>
-<li>dialog - added error check to result of mirc's wm_initpopup handeling before doing our own.</li>
+<li>dialog - added error check to result of mirc&#039;s wm_initpopup handeling before doing our own.</li>
 <li>xpopup - fixed bug (twice) where an TString object was passed to wsprintf() instead of using to_chr().</li>
-<li>general - changed CreateHDCBuffer() to calc the bitmap size required from the old hdc's bitmap if a RECT isnt specified.</li>
+<li>general - changed CreateHDCBuffer() to calc the bitmap size required from the old hdc&#039;s bitmap if a RECT isnt specified.</li>
 <li>general - changed CreateHDCBuffer() to copy more settings from the old hdc &amp; to BltBit() copy the old hdc contents to the buffer.</li>
 <li>general - changed mIRC_DrawText() to use CreateHDCBuffer() to buffer the drawing &amp; maybe avoid some flicker (being tested, code not final for this yet).</li>
 <li>general - commented out the SaveDC()/RestoreDC() code within mIRC_DrawText()</li>
@@ -978,7 +978,7 @@
 <li>- NB: Intel C++ V11 Compiler causes some oddities in code when full opt is used, reasons unknown at this time.</li>
 <li>general - changed dev build number to 9</li>
 <li>dll - added DllMain() function to stop multiple copies of dcx.dll being loaded at the same time.</li>
-<li>dialog - changed flags = flags + &quot;letter&quot; to flags += 'letter' in WM_MOUSEWHEEL</li>
+<li>dialog - changed flags = flags + &quot;letter&quot; to flags += &#039;letter&#039; in WM_MOUSEWHEEL</li>
 <li>dialog - added check to disable vista style dialogs under vista when aero is enabled untill vista+ code is writen.</li>
 <li>general - changed lots of d = d.trim() back to d.trim() again, and other similar assigns.</li>
 <li>dll - added GetFullPathNameWUx() for use by PickIcon() as PickIconDlg() requires the full path name. (This function is windows 2000+)</li>
@@ -1002,7 +1002,7 @@
 <li>xpopup - changed XPopupMenuItem::XPopupMenuItem() to use TString.trim() correctly. (missed it in previous changes for .trim())</li>
 <li>listview - changed xLoadListview() to disable/enable redraw while adding items, to speed things up.</li>
 <li>tstring - changed TString.trim() to return a TString &amp; refrence to *this, no copy/new object needed.</li>
-<li>general - fixed Dcx::errorex(), wasn't calling va_end()</li>
+<li>general - fixed Dcx::errorex(), wasn&#039;t calling va_end()</li>
 <li>- changed Dcx::mark() to take const args.</li>
 <li>- changed DcxDWMModule::isAero(), DcxModule::isUseable(), mIRCLinker::isDebug(), mIRCLinker::isVersion(), mIRCLinker::isOrNewerVersion(), mIRCLinker::getSwitchbar(), mIRCLinker::getToolbar(), mIRCLinker::getTreebar(), mIRCLinker::getTreeview(), mIRCLinker::getTreeImages(), mIRCLinker::getTreeFont(), mIRCLinker::getMDIClient(), mIRCLinker::getHWND(), mIRCLinker::getVersion(), mIRCLinker::getMainVersion(), mIRCLinker::getSubVersion() to be a const function.</li>
 <li>- changed mIRCLinker::setTreeFont() to use DeleteFont() macro.</li>
@@ -1019,11 +1019,11 @@
 <li>- added DcxDialog::execAlias()</li>
 <li>- added DcxDialog::evalAlias()</li>
 <li>dcx_demo - fixed the icl file and the dcxml file (bug #731)</li>
-<li>general - changed several MapWindowPoints() to MapWindowRect() (when were these changed? I'm sure i had these as this macro alrdy)</li>
-<li>- changed Dcx::unload() to use the GetWindowFont() &amp; SetWindowFont() &amp; DeleteFont() macros. (again I'm sure i had this set previously)</li>
+<li>general - changed several MapWindowPoints() to MapWindowRect() (when were these changed? I&#039;m sure i had these as this macro alrdy)</li>
+<li>- changed Dcx::unload() to use the GetWindowFont() &amp; SetWindowFont() &amp; DeleteFont() macros. (again I&#039;m sure i had this set previously)</li>
 <li>- rewrote Dcx::errorex() to use a TString instead of a fixed buffer size.</li>
 <li>dialog - changed CreateVistaStyle() to support Vista+ as well as pre vista.</li>
-<li>- fixed toXml() to avoid allocating a TString object that's never deleted.</li>
+<li>- fixed toXml() to avoid allocating a TString object that&#039;s never deleted.</li>
 <li>- changed toXml() to take the TString arg as a const.</li>
 <li>dwmmodule - changed how the dwm functions are stored &amp; accessed so they are now part of the module &amp; special dcx functions are used to accesses them.</li>
 <li>- changed all other code to use these new functions instead of the pointers directly.</li>
@@ -1039,7 +1039,7 @@
 <li>treeview - changed NM_CLICK, NM_DBLCLK, NM_RCLICK handling, cleaned up the code abit.</li>
 <li>- changed NM_RCLICK to return TRUE &amp; stop rclick events in parent controls.</li>
 <li>general - fixed some Initialize miss spellings.</li>
-<li>- changed some GetWindowText()'s to TGetWindowText() instead. (mostly to avoid fixed buffer sizes.)</li>
+<li>- changed some GetWindowText()&#039;s to TGetWindowText() instead. (mostly to avoid fixed buffer sizes.)</li>
 <li>- changed ChangeHwndIcon() to avoid using an unneeded TString object.</li>
 <li>box - changed the DrawClientArea() code to draw the background like it used too before someone moved it.</li>
 </ol></li>
@@ -1047,10 +1047,10 @@
 <li>- moved version number right under sitenav at the top of the pages</li>
 <li>- removed unnecessary cells between page content/menus and header</li>
 <li>- aligned left and right menus</li>
-<li>- applied some of andy's style changes (zero'd left and right page margins, links to irc channels)</li>
+<li>- applied some of andy&#039;s style changes (zero&#039;d left and right page margins, links to irc channels)</li>
 <li>- fixed stupid flag +HHHHHHHHH? on listview /xdid -a</li>
 <li>- changed the line distance between pink &quot;DCX does not support&quot; and blue &quot;XPopup (special)&quot;</li>
-<li>- changed the Note's above GDI+ so Note isnt repeated 3 times</li>
+<li>- changed the Note&#039;s above GDI+ so Note isnt repeated 3 times</li>
 <li>- removed a &lt;br /&gt; in &quot;Callback Alias Events&quot;</li>
 <li>- removed a &lt;br /&gt; in the Note from Callback Alias Events</li>
 <li>- added a &lt;br /&gt; before the &lt;span class=&quot;version&gt; (twig: tweaked to use div instead of &lt;span&gt; so padding works and we dont need to print more &lt;br&gt;s)</li>
@@ -1062,12 +1062,12 @@
 <li>- changed the dialog name in /dcx Mark</li>
 <li>- changed &quot;Statusbar&quot; to &quot;StatusBar&quot; in XStatusBar page</li>
 <li>- fixed incorrect spelling of Referrence in dcxml page</li>
-<li>- changed 'M' param in $xdid(listview).find to 'COLUMN'</li>
+<li>- changed &#039;M&#039; param in $xdid(listview).find to &#039;COLUMN&#039;</li>
 <li>- added note for treeview /xdid -a to allow 0 to be at the top of branch</li>
 <li>- added notes for treeview /xdid -m and /xdid -n</li>
 <li>- moved part of description to note for treeview /xdid -t</li>
 <li>- reworded treeview /xdid -u</li>
-<li>- reworded parts of treeview 'paths' section</li>
+<li>- reworded parts of treeview &#039;paths&#039; section</li>
 <li>- documented /xdialog -t clickthrough feature (with experimental note)</li>
 <li>- added documentation for /dcxml -p (its like dcxml docs but in the xpopup page. rather ugly)</li>
 <li>- added a note to treeview .find identifier, describing how to escape specials characters</li>
@@ -1077,9 +1077,9 @@
 <ul><li><strong>New features</strong><ol>
 <li>added DCXML</li>
 <li>added /xtreebar to modify mIRCs treebar</li>
-<li>added /xstatusbar to dock a statusbar into mIRC's main window</li>
+<li>added /xstatusbar to dock a statusbar into mIRC&#039;s main window</li>
 <li>added XMenuBar to modify mIRCs menubar</li>
-<li>added a dialog callback called 'zlayershow'</li>
+<li>added a dialog callback called &#039;zlayershow&#039;</li>
 <li>added /xdid -V for listview which scrolls list to make an item visible</li>
 <li>added /xdid -P for (rich)edit to paste clipboard content</li>
 <li>added +o flag for /xdock -b to use the old style treebar docking</li>
@@ -1088,32 +1088,32 @@
 <li>added /xdid -w for stacker to add images to internal imagelist</li>
 <li>added /xdid -y for stacker which clears the internal image list</li>
 <li>added /xdid -o for image control to offset picture</li>
-<li>added general 'noformat' style to disable support for mIRC formatted text in some controls</li>
+<li>added general &#039;noformat&#039; style to disable support for mIRC formatted text in some controls</li>
 <li>added /xdid +k -1 for statusbar to reset color</li>
-<li></li>
-<li></li>
+<li>added +f flag to /xdid ï¿½t for statusbar to display formatted mIRC text</li>
+<li>added +c flag to /xdid ï¿½t for statusbar to create child controls</li>
 <li>added text support to line control</li>
 <li>added /xdid -a for text control to append text</li>
 <li>icon loading supports +a flag to show associated filetype icon if icon fails to load from specified file</li>
-<li></li>
+<li>added animate styles to /xdid -h and /xdid ï¿½s</li>
 <li>/xdid -R +f can now be combined with the +R flag so image is resized to control size before applying region</li>
-<li>added 'alpha' support to treeview</li>
-<li>added 'alpha' support to trackbar</li>
+<li>added &#039;alpha&#039; support to treeview</li>
+<li>added &#039;alpha&#039; support to trackbar</li>
 <li>added $xdid().isloaded property to directshow to determine if a file is loaded</li>
 <li>added +b flag to /xdock -n to disable scrollbars</li>
 <li>added $xdid().fname for directshow to get loaded filename</li>
 <li>added $xdid().fname for image to get loaded filename</li>
-<li>added 'closable' style for tab control to add X button on tab items</li>
-<li>added 'gradient' style for tab for gradient item background</li>
-<li>added 'closetab' event for tab control when the close button is clicked</li>
+<li>added &#039;closable&#039; style for tab control to add X button on tab items</li>
+<li>added &#039;gradient&#039; style for tab for gradient item background</li>
+<li>added &#039;closetab&#039; event for tab control when the close button is clicked</li>
 <li>added +a flag to /xdid -a for directshow which specifies audio only</li>
-<li>added 'noheadersort' style to listview</li>
+<li>added &#039;noheadersort&#039; style to listview</li>
 <li>added /xpopup -R rounded style and ability to set transparency level</li>
 <li>added $xpopup().isrounded</li>
 <li>added $xpopup().alpha</li>
 <li>added $dcx(PickIcon, index filename) to open an icon selector on XP+</li>
 <li>added $xdid().wname for docked @window control to retrieve window name</li>
-<li>added 'SelectedText' colour (index 11) to xpopup menus</li>
+<li>added &#039;SelectedText&#039; colour (index 11) to xpopup menus</li>
 <li>added +r flag for /xdid -C to set border colour</li>
 <li>added +b flag for /xdid -R to set control alpha blending level</li>
 <li>added +v flag for /xdialog -b to set vista styled dialog (2k+) (WARNING: uses extremely high processing power on older machines)</li>
@@ -1124,36 +1124,36 @@
 <li>added /xdid -l for edit to change readonly state</li>
 <li>added $xdid().isreadonly to edit control</li>
 <li>added xdid -r for text control to clear text</li>
-<li>added 'returndefault' style to ColorDialog</li>
-<li>added 'draglist' style to list control</li>
+<li>added &#039;returndefault&#039; style to ColorDialog</li>
+<li>added &#039;draglist&#039; style to list control</li>
 <li>added callbacks itemdragbegin, itemdragcancel, itemdrag, itemdragfinish to list control</li>
-<li>added 'dragline' style to list control</li>
+<li>added &#039;dragline&#039; style to list control</li>
 <li>added support for a background image via /xdid -G for treeview</li>
-<li>added 'selected' and 'deselected' events to listview</li>
-<li>added 'selchange' event to treeview</li>
-<li>added 'showsel' and 'noshowsel' to /xdock -F +s styles (now moved to /xtreebar +s)</li>
-<li>added 'sizing' event to tab control</li>
+<li>added &#039;selected&#039; and &#039;deselected&#039; events to listview</li>
+<li>added &#039;selchange&#039; event to treeview</li>
+<li>added &#039;showsel&#039; and &#039;noshowsel&#039; to /xdock -F +s styles (now moved to /xtreebar +s)</li>
+<li>added &#039;sizing&#039; event to tab control</li>
 <li>added /dcx WindowProps +r to simulate a right click</li>
 <li>added $xtreebar().item to retrieve text from mIRC Treebar</li>
 <li>changed statusbar /xdid -l to accept percentage values as valid widths. values without the % symbol are considered fix widths</li>
-<li>added 'noauto' style to statusbar</li>
-<li>added 'noauto' style to rebar</li>
+<li>added &#039;noauto&#039; style to statusbar</li>
+<li>added &#039;noauto&#039; style to rebar</li>
 <li>allowed divier to host all control types</li>
-<li>added 'showsel' style to edit</li>
+<li>added &#039;showsel&#039; style to edit</li>
 <li>allowed statusbar to host all control types</li>
-<li>added 'keydown' event to listview</li>
-<li>added general style 'hidden' to all controls except mdialog and mwindow</li>
-<li>added 'alpha' style to tab</li>
+<li>added &#039;keydown&#039; event to listview</li>
+<li>added general style &#039;hidden&#039; to all controls except mdialog and mwindow</li>
+<li>added &#039;alpha&#039; style to tab</li>
 <li>added /xdid -y to enable/disable keydown events for button being held down</li>
 <li>added listview /xdid -W This command lets you change the viewing mode</li>
 <li>added overlay icon support to treeview and listview</li>
 <li>added $xdid(listview).columnorder to get the order of the columns</li>
 <li>added listview +m flag to /xdid -n to allow manual width specification for all widths at once</li>
-<li>added dialog callback 'isverbose' which is sent as soon as a dialog is marked</li>
+<li>added dialog callback &#039;isverbose&#039; which is sent as soon as a dialog is marked</li>
 <li>added listview /xdid -o to allow user to change column order</li>
 <li>added VALUE to sclick, rclick and mousebar as they were in docs (but not included in code)</li>
 <li>when space is pressed and checkboxes enabled, stateclick event will be triggered</li>
-<li>'nospace' is accepted as a return value for 'keydown' to prevent the user from using the spacebar to change checkbox values</li>
+<li>&#039;nospace&#039; is accepted as a return value for &#039;keydown&#039; to prevent the user from using the spacebar to change checkbox values</li>
 <li>added $xdid(tab).mouseitem</li>
 <li>added $xdid(toolbar).dropdownpoint</li>
 <li>added $xdid().textcolor</li>
@@ -1162,14 +1162,14 @@
 <li>added ability to load from hash tables for listview via /xdid -a</li>
 <li>added ability to load from hash tables for treeview via /xdid -a</li>
 <li>added ability to load from hash tables and files for list via /xdid -A</li>
-<li>added 'multicol' style which allows a multi column list</li>
-<li>added 'hsbar' style to list which enabled the horizontal scrollbar</li>
-<li>added list /xdid -m command to configure 'multicol'</li>
+<li>added &#039;multicol&#039; style which allows a multi column list</li>
+<li>added &#039;hsbar&#039; style to list which enabled the horizontal scrollbar</li>
+<li>added list /xdid -m command to configure &#039;multicol&#039;</li>
 <li>added /xdialog -S</li>
 <li>added mIRC formatted text support to list</li>
-<li>added 'noformat' style to disable mIRC text formatting to list</li>
+<li>added &#039;noformat&#039; style to disable mIRC text formatting to list</li>
 <li>added $xdid(list).find support</li>
-<li>added comboex 'hscroll' style which enables the horizontal scroll bar</li>
+<li>added comboex &#039;hscroll&#039; style which enables the horizontal scroll bar</li>
 <li>changed /xpopup -s to support an optional hwnd argument that allows the popup to be opened relative to a specific window</li>
 <li>treeview - added /xdid -S to save contents to file</li>
 <li>directshow - added $xdid().state</li>
@@ -1184,13 +1184,13 @@
 <li>added /xstatusbar -f</li>
 <li>added `check` style and `checkchange` event to box</li>
 <li>added /xdialog -S to resize client area</li>
-<li>added 'check' style and 'checkchange' event to box</li>
+<li>added &#039;check&#039; style and &#039;checkchange&#039; event to box</li>
 <li>added /xdialog -S</li>
 <li>added /xpopup -M</li>
 <li>added $xpopup().marked</li>
 <li>added $xdid().selected to listview</li>
 <li>added events: close (calendar hidden), open (calendar shown), change (date/time changed) to datetimepicker</li>
-<li>added event 'showtip' to trackbar</li>
+<li>added event &#039;showtip&#039; to trackbar</li>
 <li>added +f flag for dcxLoadIcon() functions (which affects many controls) to allow loading of filetype icon</li>
 <li>added BrowseDialog</li>
 </ol></li>
@@ -1203,13 +1203,13 @@
 <li>changes to icon loading commands such as /xdid -w to support icon flags which affect most controls</li>
 <li>changed /xpopup -i to support flags</li>
 <li>/xtray now supports (and hence requires) icon flags</li>
-<li>changed $xdock(mIRC) switchBarSize, toolBarSize and treeBarSize to return 'x y w h' instead of just 'w h'</li>
+<li>changed $xdock(mIRC) switchBarSize, toolBarSize and treeBarSize to return &#039;x y w h&#039; instead of just &#039;w h&#039;</li>
 <li>changed statusbar /xdid -l to take widths instead of border offsets</li>
 <li>moved /xdock -G to /dcx GhostDrag</li>
-<li>changed $xstatusbar properties; 'isStatusBar' to 'visible', 'statusText' to 'text', 'statusParts' to 'parts' and 'statusTooltip' to 'tooltip'</li>
+<li>changed $xstatusbar properties; &#039;isStatusBar&#039; to &#039;visible&#039;, &#039;statusText&#039; to &#039;text&#039;, &#039;statusParts&#039; to &#039;parts&#039; and &#039;statusTooltip&#039; to &#039;tooltip&#039;</li>
 <li>modified (rich)edit /xdid -S to make END parameter optional (to change caretpos)</li>
 <li>mwindow now accepts HWND as well as @window name for docking</li>
-<li>the 'changing' callback event for dialogs now include sizing, moving or both to determine which event occurred and the dialog sizes.</li>
+<li>the &#039;changing&#039; callback event for dialogs now include sizing, moving or both to determine which event occurred and the dialog sizes.</li>
 <li>/dcx xSignal changed to support optional flags +dst (xdock, xstatusbar, xtray)</li>
 <li>changed treeview and listview /xdid -w to allow setting an icon as an overlay icon. READ NOTES!</li>
 <li>listview /xdid -l now supports optional parameter OVERLAY</li>
@@ -1221,9 +1221,9 @@
 <li>listview /xdid -n parameter COL is now 1-based index</li>
 <li>listview /xdid -v parameter COL is now 1-based index</li>
 <li>modified treeview /xdid -j to support overlays</li>
-<li>added header ID to listview 'trackbegin' event</li>
+<li>added header ID to listview &#039;trackbegin&#039; event</li>
 <li>switched EVENT and DCXStatusBar parameters in XStatusBar signals</li>
-<li>dialog 'close' event has been broken up into 'close' and 'scclose' to provide better control</li>
+<li>dialog &#039;close&#039; event has been broken up into &#039;close&#039; and &#039;scclose&#039; to provide better control</li>
 <li>made $xdid(listview, N, NSUB).text NSUB parameter optional (returns first column by default)</li>
 <li>listview events stateclick/sclick/dclick/rclick/rdclick/hover/selected/deselected SUBITEM index is now 1-based indexes</li>
 <li>listview event labelbegin now provides N and NSUB</li>
@@ -1232,7 +1232,7 @@
 <li>OpenDialog and SaveDialog now also return the full pathname</li>
 </ol></li>
 <li><strong>Fixes and changes</strong><ol>
-<li>added check for correct flags prefix '+' in image control xdid -i</li>
+<li>added check for correct flags prefix &#039;+&#039; in image control xdid -i</li>
 <li>added /xdid -Z as a temporary fix until the -Z listview problem is fixed</li>
 <li>changed WM_CTLCOLOR message parsing so they work correctly when a background brush is not set (fixed /xdid -C bug)</li>
 <li>changed AdjustMDIRect() to reserve space for docked dialogs only if they are visible. This has a side effect in that dialogs docked within the init event never have the visible flag set so show up wrong, This is fixed by using a timer</li>
@@ -1262,18 +1262,18 @@
 <li>changed WM_SETCURSOR code to check if the cursor to set is the same as the current before trying to set</li>
 <li>changed pager /xdid -d to remove mdialog or mwindow control from the internal list</li>
 <li>changed edit /xdid -j to set the ES_PASSWORD style before getting the char, allowing the XP style to be used instead of always setting to *</li>
-<li>small change to some xpopup if's to use a TString compare instead of doing a gettok as well</li>
+<li>small change to some xpopup if&#039;s to use a TString compare instead of doing a gettok as well</li>
 <li>added a buffer delete to IsFile() to cover the case where the search fails after having found the file the first time</li>
 <li>changed /xpopup -b to check a file exists and give an error if it doesnt</li>
-<li>changed /xpopup -b to accept 'none' or $null as a file name to remove current image</li>
+<li>changed /xpopup -b to accept &#039;none&#039; or $null as a file name to remove current image</li>
 <li>changed /xpopup -i to check a file exists and give an error if it doesnt</li>
-<li>changed $xpopup().style to support 'vertical' and 'verticalrev' styles</li>
+<li>changed $xpopup().style to support &#039;vertical&#039; and &#039;verticalrev&#039; styles</li>
 <li>changed dcxLoadIcon() to use GDI+ when +P is supplied. this allows it to load any GDI+ supported image format as an icon</li>
 <li>changed dcxLoadBitmap() to use GDI+ when it can to load the image. this allows all bitmap loading commands to load any GDI+ supported format</li>
 <li>fixed incorrect coordinates of toolbar dropdown</li>
 <li>changed ChangeHwndIcon() to avoid doing things twice when small and large icons are the same</li>
 <li>changed /xpopup -b to trim() the filename</li>
-<li>fixed rebar wasn't returning the results from child controls</li>
+<li>fixed rebar wasn&#039;t returning the results from child controls</li>
 <li>changed directshow /xdid -a to check for a min of 4 args</li>
 <li>added a check for at least 4 args in subitems to listview /xdid -a</li>
 <li>changed listview /xdid -t to use the autoSize() function</li>
@@ -1303,17 +1303,17 @@
 <li>changed /xdialog -x to only send WM_CLOSE to modal dialogs</li>
 <li>added WM_CLOSE check for escape being pressed. Fixes divider being destroyed bug</li>
 <li>fixed listview pbars within items scrolling oddly when horizontal scroll is used</li>
-<li>changed /xdialog -t alpha and /xdialog -t transparentcolor to accept 'none'</li>
+<li>changed /xdialog -t alpha and /xdialog -t transparentcolor to accept &#039;none&#039;</li>
 <li>fixed bug with /xtray -i loading the wrong icon index</li>
 <li>changed /xdid -U to remove focus from control correctly</li>
-<li>changed how the panel and box controls are registered, which fixes the 'no tooltips' and 'label edit' bugs</li>
+<li>changed how the panel and box controls are registered, which fixes the &#039;no tooltips&#039; and &#039;label edit&#039; bugs</li>
 <li>changed dcxSignal boolean into a finegrained struct</li>
 <li>changed mIRCSignalDCX() to require a boolean parameter</li>
 <li>changed SystemTimeToMircTime() to use mIRCevalEX()</li>
 <li>xtray and xstatusbar signals are now sent by default, but xdock signals are still disabled</li>
-<li>fixed calendar 'select' callback for single select</li>
+<li>fixed calendar &#039;select&#039; callback for single select</li>
 <li>fixed calendar $xdid().value returning 0 for single select</li>
-<li>added spaces between names in Version and changed '&amp;' to 'and'</li>
+<li>added spaces between names in Version and changed &#039;&amp;&#039; to &#039;and&#039;</li>
 <li>added initImageList() for listview to make icon adding code cleaner</li>
 <li>added token count checking to /xdid -j</li>
 <li>ColorDialog, OpenDialog, SaveDialog, FontDialog and MsgBox. They no longer support modeless owners due to FindOwner()</li>
@@ -1321,7 +1321,7 @@
 <li>fixed $xdid(listview).sel from appending unecessary comma at the end of list</li>
 <li>fixed /xdid -Z, but only for report view</li>
 <li>/xpopup -R +a 255 no longer causes a minor flicker when it tries to set opacity even when not supposed to</li>
-<li>fixed isverbose bug, missing ','</li>
+<li>fixed isverbose bug, missing &#039;,&#039;</li>
 <li>fixed a small delete bug in listview xdid -o</li>
 <li>changed /xdid -c/-d/-o to take item number 0 as meaning the last item in list</li>
 <li>changed activateSelectedTab() to not activate or redraw an inactive tab when sizing</li>
@@ -1381,7 +1381,7 @@
 <li>removed commented code</li>
 <li>added TGetWindowText() function which gets the window text as a TString</li>
 <li>fix possible memleak with treeview setImageList()</li>
-<li>moved some mIRC HWND's into mIRCLink</li>
+<li>moved some mIRC HWND&#039;s into mIRCLink</li>
 <li>changed $dcx(GetSystemColor), $dcx(ColorDialog), $dcx(FontDialog) and $dcx(GetTaskbarPos) to avoid an unneeded copy to set the return value</li>
 <li>made parseListviewExStyles() and createImageList() static functions</li>
 <li>added dcxDock class which handles behaviour</li>
@@ -1392,7 +1392,7 @@
 <li>updated dcx_tools.mrc /xdock alias to pass along $2-</li>
 <li>added DrawItemImage() for stacker to render the items image</li>
 <li>added mIRC_DrawText() function which draws a mIRC string using mIRC control codes</li>
-<li>changed IsFile() to do a file search before saying it can't access a file (allows it to find files in the system PATH)</li>
+<li>changed IsFile() to do a file search before saying it can&#039;t access a file (allows it to find files in the system PATH)</li>
 <li>moved a whole bunch of functions out of misc.cpp and into mircFunctions.cpp or windowFunctions.cpp</li>
 <li>changed dcx_tools.mrc /return calls to /returnex</li>
 <li>added defines to TString such as SPACE, TAB, COMMA</li>
@@ -1439,7 +1439,7 @@
 <li>changed SetupAlphaBlend() to pass on the client rect to DrawParentsBackground()</li>
 <li>changed to use TBSTYLE_xxx</li>
 <li>added WM_PRINTCLIENT to all controls, needed for AnimateWindow() and new transparency/alpha code</li>
-<li>changed DrawParentsBackground() to work in a manner similar to Vista's DrawThemeParentBackgroundEx()</li>
+<li>changed DrawParentsBackground() to work in a manner similar to Vista&#039;s DrawThemeParentBackgroundEx()</li>
 <li>added getting DrawThemeParentBackgroundEx() from uxtheme.dll on Vista</li>
 <li>streamlined updateParentCtrl() function for new parent rendering method</li>
 <li>added DrawThemeParentBackgroundEx() usage on Vista to DrawParentsBackground()</li>
@@ -1563,7 +1563,7 @@
 <li>added a note for listview /xdid -Z</li>
 <li>fixed tutorial example missing a close-brace in xpopup page</li>
 <li>removed unecessary parameters in /xtray -d</li>
-<li>removed 'alpha' from events</li>
+<li>removed &#039;alpha&#039; from events</li>
 <li>changed global style message to exlude embedded dialog/window controls</li>
 <li>added a note to comboEx styles to state the height is required for the dropdown</li>
 <li>uncommented multiple examples for $dcx(ColorDialog)</li>
@@ -1579,11 +1579,11 @@
 <li>moved part of image /xdid -o description to notes</li>
 <li>moved change log below callback section on index page</li>
 <li>renamed VALUE to PARAM on index page</li>
-<li>fixed a bug in /format_xcmd_header which caused examples with '0' values to be ignored</li>
-<li>updated 'owner' style description/notes for ColorDialog, OpenDialog, SaveDialog, FontDialog and MsgBox. They no longer support modeless owners because of FindOwner()</li>
+<li>fixed a bug in /format_xcmd_header which caused examples with &#039;0&#039; values to be ignored</li>
+<li>updated &#039;owner&#039; style description/notes for ColorDialog, OpenDialog, SaveDialog, FontDialog and MsgBox. They no longer support modeless owners because of FindOwner()</li>
 <li>updated return value to $null for OpenDialog, SaveDialog and FontDialog</li>
 <li>fixed description for ICON in listview /xdid -l</li>
-<li>fixed description for 'notrack' in listview trackbegin</li>
+<li>fixed description for &#039;notrack&#039; in listview trackbegin</li>
 <li>added diagonal examples to /xdialog -a, /xdid -h and /xdid -s</li>
 <li>added operating system note to /xdialog -a, /xdid -h and /xdid -s</li>
 <li>fixed section heading in xpopup page for Special menus and Xpopup item path</li>
@@ -1598,10 +1598,10 @@
 <li>a list of these controls can be found at http://dcx.scriptsdb.org/controls.xls</li>
 <li>updated main page PARAM = $4-</li>
 <li>removed /xdid -l NSUB being 0-based index when it isnt</li>
-<li>added comment to 'editlabel' style in listview</li>
+<li>added comment to &#039;editlabel&#039; style in listview</li>
 <li>changed note for listview grid style</li>
 <li>removed +h copy paste remnant from note in listview /xdid -t (thanks hkr)</li>
-<li>fixed xdialog 'close' details and added 'scclose' events</li>
+<li>fixed xdialog &#039;close&#039; details and added &#039;scclose&#039; events</li>
 <li>reworded parts of XTray Signals section</li>
 <li>added notes to dialog (embedded) control page and xdialog about closing docked dialogs within the close event</li>
 <li>added notes to dialog (embedded) control page and /xdialog about closing docked dialogs within the close event</li>
@@ -1611,7 +1611,7 @@
 <li>fixed listview seltext/pbar/keydown example</li>
 <li>commented out box checkchange event</li>
 <li>added error checking to see if examples exist when a command is set</li>
-<li>updated format_parameters() so it doesnt accept '0' as '__args'</li>
+<li>updated format_parameters() so it doesnt accept &#039;0&#039; as &#039;__args&#039;</li>
 <li>fixed ALOT of things in the docs such as missing parameters, outdated examples, inconsistancies with examples (big thanks to andy for spotting em out)</li>
 <li>moved directshow /xdid -V so its in alphabetical order</li>
 <li>removed a few redundant notes</li>
@@ -1619,7 +1619,7 @@
 <li>fixed C:\mIRC\ error not displaying on a few pages, simply changed it to C:/mIRC/</li>
 <li>added note to listview labelbegin event</li>
 <li>reworded some events for scroll and trackbar</li>
-<li>added some notes for 'dl_progress' for webctrl</li>
+<li>added some notes for &#039;dl_progress&#039; for webctrl</li>
 <li>renamed IS_ENABLED to ENABLED for webctrl events</li>
 <li>updated /xdid -Z on /xdid page</li>
 <li>removed /xdid -Z on listview page</li>
@@ -1641,7 +1641,7 @@
 <li>listview /xdid -j, fixed STATE/+FLAGS inconsistancy</li>
 <li>toolbar /xdid -a fixed incomplete wiki tag</li>
 <li>fixed section labelling for dcx vs mdx and CLA pages</li>
-<li>changed 'Index' to 'Home' in left menu</li>
+<li>changed &#039;Index&#039; to &#039;Home&#039; in left menu</li>
 <li>added hkr to helpers in Credits</li>
 <li>removed useless &quot;cell text is optional&quot; notes from statusbar -v and -t commands</li>
 <li>cleaned up /xdid -y for statusbar</li>
@@ -1854,7 +1854,7 @@
 <li>added /dcx xSignal command to enable/disable the DCX signal (disabled by default).</li>
 <li>added sending of DCX signal for window resizing. See /dcx xSignal and XDock Signals for more information</li>
 <li>changed /xdialog -t command parameters to allow setting an alpha transparency level and transparent color</li>
-<li>added $xdialog().parent for docked dialogs (only works if they have been Mark'd before docking)</li>
+<li>added $xdialog().parent for docked dialogs (only works if they have been Mark&#039;d before docking)</li>
 <li>added &quot;changing&quot; callback event which can be used to stop a dialog being moved and/or sized by returning either &quot;nosize&quot; or &quot;nomove&quot; or &quot;nochange&quot;</li>
 <li>&quot;nosize&quot; no longer works for the &quot;sizing&quot; event</li>
 <li>added listview /xdid -n dname +s 0 flag to set column width to min required to show everything. (without enabling auto sizing)</li>
@@ -1868,7 +1868,7 @@
 <li>*IMPORTANT* changed /xdid -w syntax for many controls to be consistant (uses flags similar to /xdid -c)</li>
 <li>*IMPORTANT* changed message handling for all controls, should be much simpler and faster now :) (needs alot of retesting)</li>
 <li>*IMPORTANT* only use /xdialog -x to close marked dialogs within callback aliases. avoid using /dialog -x if possible.</li>
-<li>removed all auto resize flags from listviews /xdid -t command, as these don't work.</li>
+<li>removed all auto resize flags from listviews /xdid -t command, as these don&#039;t work.</li>
 <li>reimplemented /xdid -r so it could be used with other commands</li>
 <li>changed m_tsToolTip to now be part of dcxcontrol.</li>
 <li>fixed richedit control was allocating memory for unneeded buffers for calllAliasEx() and never freeing them.</li>
@@ -1880,7 +1880,7 @@
 <li>changed a loop in function unfoldColor() to use mod for speed</li>
 <li>changed FindOwner() to use TString.</li>
 <li>fixed position of caret for richedit being reset when focus is set</li>
-<li>changed edit and richedit's $xdid().num to return 1 for single line controls.</li>
+<li>changed edit and richedit&#039;s $xdid().num to return 1 for single line controls.</li>
 <li>fixed bug with mwheel not ever showing down</li>
 <li>fixed bug in listview, forgot to add parseListviewExStyles() to second creator. (fixes fullrow select etc.. problems)</li>
 <li>changed listview sclick, rclick, dclick callbacks to also include subitem number</li>
@@ -1909,8 +1909,8 @@
 <li>added function GetHwndFromString() to get dialog hwnds</li>
 <li>added va_end(args) to a few misc commands.</li>
 <li>added TString.to_num() and TString.to_int() functions</li>
-<li>fixed listview /xdid -n bug where column count wasn't 0 based.</li>
-<li>changed richedit's loadmIRCPalette() to not need lstrcpy().</li>
+<li>fixed listview /xdid -n bug where column count wasn&#039;t 0 based.</li>
+<li>changed richedit&#039;s loadmIRCPalette() to not need lstrcpy().</li>
 <li>added autoSize() function to listview to size columns.</li>
 <li>fixed TString gettok(n,M,seps) bug (this also fixes the xpopups submenu items problem)</li>
 <li>fixed memory leak with CreateGrayscaleIcon()</li>
@@ -1923,14 +1923,14 @@
 <li>fixed statusbar $xdid().text always returning text to first part.</li>
 <li>fixed statusbar $xdid().parts not working.</li>
 <li>fixed statusbar /xdid -y invalidating the image list.</li>
-<li>changed dll load function to check all functions before setting XPPlus, returns error if any aren't set correctly.</li>
-<li>added setting XPPlus to FALSE if the theme dll can't load.</li>
+<li>changed dll load function to check all functions before setting XPPlus, returns error if any aren&#039;t set correctly.</li>
+<li>added setting XPPlus to FALSE if the theme dll can&#039;t load.</li>
 <li>removed some testing code in dialog</li>
 <li>added control type to /xdid command error message</li>
-<li>added incRef(), decRef(), getRefCount() to dialog's along to checks to xdialog -x, to avoid closing a dialog with its own callback event. (still crashes with /dialog -x though)</li>
+<li>added incRef(), decRef(), getRefCount() to dialog&#039;s along to checks to xdialog -x, to avoid closing a dialog with its own callback event. (still crashes with /dialog -x though)</li>
 <li>you can now use /xdialog -x within a callback (it handles timers for you)</li>
 <li>added WM_THEMECHANGED handling to box control.</li>
-<li>changed box control so it doesn't get the sys colour twice.</li>
+<li>changed box control so it doesn&#039;t get the sys colour twice.</li>
 <li>richedit now supports xp themes (using CRichEditThemed class by Patchou)</li>
 <li>and MUCH MUCH MUCH ... MUCH MUCH more!</li>
 </ol></li>
@@ -1983,7 +1983,7 @@
 <ul><li><strong>DCX Changes</strong><ol>
 <li>fixed bug that caused mIRC to crash when changing text in a listview when no progressbar exists</li>
 <li>fixed a bug where edit ctrl /xdid -o wouldnt accept 1 word</li>
-<li>added 'vertical' and 'verticalrev' styles to xpopup menus</li>
+<li>added &#039;vertical&#039; and &#039;verticalrev&#039; styles to xpopup menus</li>
 <li>got calendar select date event working properly</li>
 <li>fixed a bug causing /xdid -Q not to update removal of bold and underline from treeview item</li>
 <li>added $xdid().mouseitem for toolbar</li>
@@ -2005,7 +2005,7 @@
 <li>removed same control checks from tab/panel, was causing a loop leading to stack overflow.</li>
 <li>fixed 2 memory leaks in calendar control.</li>
 <li>fixed xdid -U lockup, fixing this also solved many others.</li>
-<li>added 'rounded' style to box control.</li>
+<li>added &#039;rounded&#039; style to box control.</li>
 <li>fixed webctrl activate crash bug.</li>
 <li>fixed comboex delete crashbug.</li>
 <li>/xdialog -d and /xdid -d (for panel/box) now removes control from internal list as well as destroying it.</li>
@@ -2063,7 +2063,7 @@
 <li>fixed a typo with /xdid -n for listview</li>
 <li>removed an unnecessary flag from /xpopup -i example in dcxdoc</li>
 <li>added daystate style and event to calendar control</li>
-<li>TODO: still a bug with dcxdoc where dialog events ID's are not 0</li>
+<li>TODO: still a bug with dcxdoc where dialog events ID&#039;s are not 0</li>
 <li>added a few more people to the credits list</li>
 <li>added download.php</li>
 <li>included a reference to the version on changes.htm</li>
@@ -2073,7 +2073,7 @@
 <li>main download link now points to archive page</li>
 <li>added zipster to credits for testing</li>
 <li>changed the way some links worked for credits (tutorials)</li>
-<li>added link to EinsteinXXL's CLA tutorial</li>
+<li>added link to EinsteinXXL&#039;s CLA tutorial</li>
 <li>added some comments at the end of long switch cases to make it easier to notice where they end</li>
 <li>fixed an error with /xpopup -x</li>
 <li>formatting of changes can now be structured to include categories</li>
@@ -2094,17 +2094,17 @@
 <li>trackbar now flickers less</li>
 <li>added /xdid -g for trackbar to set images</li>
 <li>added /xdid -o for trackbar to set opacity color</li>
-<li>added 'transparent' style to text</li>
+<li>added &#039;transparent&#039; style to text</li>
 <li>box now looks consistant with group box static controls</li>
 <li>(hopefully) fixed deletion of docked dialog bug causing mirc to crash (thanks HAPM)</li>
-<li>added 'none' style but removed 'squared' style for box control</li>
+<li>added &#039;none&#039; style but removed &#039;squared&#039; style for box control</li>
 <li>updated /xdid -C dcxdoc, +k flag no longer applies to box control border</li>
 <li>box control now draws text colors for enabled and disabled appropriately</li>
 <li>/xdid -k command for button control now only works for bitmap buttons to load bitmap images and set transparency color (Read function note for further details)</li>
 <li>moved some functionality of /xdid -k to /xdid -c for changing button control caption color</li>
 <li>fixed a bug causing toolbar separators not to apply hidden state when added</li>
 <li>added $dcx(IsThemedXP)</li>
-<li>added 'transparent' style to box control</li>
+<li>added &#039;transparent&#039; style to box control</li>
 <li>fixed bug with OpenDialog/SaveDialog functions returning error messages as values</li>
 <li>Added $xdialog(Name).ismarked to see if the name is marked already.</li>
 <li>fixed a richedit bug crashing on rapid doubleclicking</li>
@@ -2134,7 +2134,7 @@
 <li>added sclick and lbup events to richedit</li>
 <li>fixed a bug with richedit not accepting return keypresses when using multiline style</li>
 <li>fixed richedit $xdid().text bug not returning manually entered text</li>
-<li>added 'themechanged' event to dialog</li>
+<li>added &#039;themechanged&#039; event to dialog</li>
 <li>added /xdid -B to begin label editing mode on listview and treeview controls (NOTE: listview requires focus to begin editing)</li>
 <li>added progress bars to listview</li>
 <li>fixed dcxdoc errors (thanks dJabba, PYERO)</li>
@@ -2150,7 +2150,7 @@
 <li>Fixed a bug causing /xdid -j to not work on edit ctrl</li>
 <li>Added $dcx(FontDialog)</li>
 <li>Added /xdid -t to panel</li>
-<li>Added link to old dcxdoc on 'latest changes' description</li>
+<li>Added link to old dcxdoc on &#039;latest changes&#039; description</li>
 <li>Changed /xdid -q to /xdid -Q for treeview item style changing command</li>
 <li>Implemented sclick event for treeview and listview when mouse clicked on no item</li>
 <li>Added quickfixes to ipaddress and comboex, to be drawn correctly when created with &quot;disabled&quot; style</li>
@@ -2162,7 +2162,7 @@
 <li>Fixed up example in /xdid -f dcxdoc to include CHARSET</li>
 <li>Readded Mpdreamz back to credits! oops! =P</li>
 <li>Changed contact irc network from IrcSuper to Americhat (stupid Shiek) =P</li>
-<li>Added a link to j0x's tutorial (french only)</li>
+<li>Added a link to j0x&#039;s tutorial (french only)</li>
 <li>Fixed example with /xdid -C (rgb not showing)</li>
 </ol>
 <a name="v1.3.1"></a><b>v1.3.1</b>
@@ -2206,7 +2206,7 @@
 <li>added selstart, selend, sel, seltext properties to edit ctrl</li>
 <li>added selstart, selend, sel, seltext properties to richedit ctrl</li>
 <li>fixed a bug in /xdid -d for tab ctrl where no page would be selected after deleting current page</li>
-<li>fixed a problem with box and link ctrls where cursor command /xdid -J wouldn't apply</li>
+<li>fixed a problem with box and link ctrls where cursor command /xdid -J wouldn&#039;t apply</li>
 <li>implemented /xdid -U for removing focus from a control. (will not work if there is only one control on the dialog)</li>
 <li>added nocut, nocopy and nopaste return values to prevent cut, copy and paste events for edit ctrl</li>
 <li>richedit editable by default</li>
@@ -2230,7 +2230,7 @@ They will be reimplemented in the near future.</li>
 </ol>
 <a name="14/02/2006"></a><b>14/02/2006</b>
 <ol><li>Added the +ah flags to the /xdid -t command for listview headers</li>
-<li>Added /xdid -n to listview to resize header individually after they've been created</li>
+<li>Added /xdid -n to listview to resize header individually after they&#039;ve been created</li>
 <li>Added $xdid().hwidth, .htext and .hicon to the listview</li>
 <li>Changed the range values of the trackbar to 32 bit values</li>
 <li>Fixed the fact that an undock dialog/@window was displayed when undocked even though it was hidden just before</li>
@@ -2338,7 +2338,7 @@ They will be reimplemented in the near future.</li>
 <li>Fixed toolbar dropdown event bug</li>
 </ol>
 <a name="14/12/2005"></a><b>14/12/2005</b>
-<ol><li>Converted the box control to a CONTAINER control like the PANEL so people can use the CLA with it's controls inside</li>
+<ol><li>Converted the box control to a CONTAINER control like the PANEL so people can use the CLA with it&#039;s controls inside</li>
 <li>Added $xdialog().key general property</li>
 <li>Added $xdid().pid general property</li>
 <li>Added lbup, lbdown, lbdblclk, rbup, rbdown, rbdblclk, mbup, mbdown, mbdblclk events to dialog</li>
@@ -2375,7 +2375,7 @@ They will be reimplemented in the near future.</li>
 <ol><li>Added the $xdialog().mouseid which returns over which control ID the mouse is.</li>
 <li>Added the focus and focusout dialog events which indicate when a control has focus or when it loses it.</li>
 <li>Added the $xdialog().focusid which returns which control has the focus.</li>
-<li>Corrected the box control repainting child controls' border bugs</li>
+<li>Corrected the box control repainting child controls&#039; border bugs</li>
 </ol>
 <a name="04/12/2005"></a><b>04/12/2005</b>
 <ol><li>Added /xdid -Z vertical scrolling function that can be used in any control</li>
@@ -2397,7 +2397,7 @@ They will be reimplemented in the near future.</li>
 </ol>
 <a name="29/11/2005"></a><b>29/11/2005</b>
 <ol><li>Added $xdid().text property to the toolbar</li>
-<li>Corrected a bug with the @window not properly setting it's control ID when docked</li>
+<li>Corrected a bug with the @window not properly setting it&#039;s control ID when docked</li>
 <li>Added $xdid().hwnd general control property</li>
 </ol>
 <a name="28/11/2005"></a><b>28/11/2005</b>
@@ -2427,7 +2427,7 @@ They will be reimplemented in the near future.</li>
 <a name="24/11/2005"></a><b>24/11/2005</b>
 <ol><li>Added tracking event on the trackbar</li>
 <li>Changed the sclick event of the toolbar</li>
-<li>Rebar's /xdid -q feature has been disabled until I find a way to achieve this if it's possible</li>
+<li>Rebar&#039;s /xdid -q feature has been disabled until I find a way to achieve this if it&#039;s possible</li>
 </ol>
 <a name="23/11/2005"></a><b>23/11/2005</b>
 <ol><li>Added Regular Control: Image; with support for PNG, JPG, GIF, BMP and transparency.</li>
@@ -2659,7 +2659,7 @@ They will be reimplemented in the near future.</li>
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2022</td>
-		<td style="text-align: right;">Last Updated: 15th March, 22</td>
+		<td style="text-align: right;">Last Updated: 23rd May, 22</td>
 	</tr>
 </table>
 <div style="text-align: center;">

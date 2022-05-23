@@ -122,18 +122,18 @@ Well for one thing, mIRC events are linear and static in the way that you cannot
 <br />
 <a></a><b>v3.1</b>
 <ul><li><strong>New features</strong><ol>
-<li>general - changed /xdid &amp; $xdid() to support named id's</li>
+<li>general - changed /xdid &amp; $xdid() to support named id&#039;s</li>
 <li>comboex - $xdid(dname,id,0).text now works with dropdown style controls as well as dropedit ones.</li>
-<li>dialog - changed /xdialog -d to accept named id's</li>
-<li>box/pager - changed /xdid -d to support named id's</li>
-<li>dialog - changed /xdialog -j to handle named id's</li>
+<li>dialog - changed /xdialog -d to accept named id&#039;s</li>
+<li>box/pager - changed /xdid -d to support named id&#039;s</li>
+<li>dialog - changed /xdialog -j to handle named id&#039;s</li>
 <li>- changed /xdialog -q to allow setting different cursors for different parts of the dialog, border etc.. added support code for these new cursors.</li>
 <li>general - added /dcx SetDCXSettings command, atm this only has two options &quot;StaticColours&quot; &amp; &quot;UpdateColours&quot;</li>
 <li>- - StaticColours = /dcx SetDCXSettings StaticColours [1/0]</li>
-<li>- - - Enable/Disable static colours (faster drawing but doesn't update its self to changes in mIRC's colour scheme)</li>
+<li>- - - Enable/Disable static colours (faster drawing but doesn&#039;t update its self to changes in mIRC&#039;s colour scheme)</li>
 <li>- - UpdateColours = /dcx SetDCXSettings UpdateColours</li>
-<li>- - - Force dcx to update it' colour scheme even if using static colours.</li>
-<li>updown - changed /xdid -c to handle named id's</li>
+<li>- - - Force dcx to update it&#039; colour scheme even if using static colours.</li>
+<li>updown - changed /xdid -c to handle named id&#039;s</li>
 <li>webctrl - added $xdid().script to allow calling a script that returns a result.</li>
 <li>- var %result = $xdid(dname,id,scriptcommand).script</li>
 </ol></li>
@@ -142,23 +142,23 @@ Well for one thing, mIRC events are linear and static in the way that you cannot
 <li><strong>Fixes and changes</strong><ol>
 <li>general - added help text to /xdid/$xdid/$dcx(GetTaskbarPos)/xdialog/$xdialog/xpop/$xpop/xpopup/$xpopup/$xmenubar</li>
 <li>- changed $dcx(Version) to show the compiled date/time too</li>
-<li>general - fixed bug in /xdid -Z where the SCROLLINFO mask wasn't set, causing GetScrollInfo() to always fail.</li>
+<li>general - fixed bug in /xdid -Z where the SCROLLINFO mask wasn&#039;t set, causing GetScrollInfo() to always fail.</li>
 <li>divider - fixed bug in /xdid -l where controls were not being added correctly.</li>
 <li>dcxml - fixed bugs, should all work again</li>
 <li>dcxml - changed code to add richedit controls contents, so it now changes \c into ctrl-c &amp; \b into ctrl-b &amp; \r into ctrl-r, \u to ctrl-u, \i to ctrl-i, &amp; \o to ctrl-o, this should really be replaced with better utf loading.</li>
 </ol></li>
 <li><strong>DCX Project</strong><ol>
 <li>dcxml - changed richedit code to convert \c to ctrl-k, \b to ctrl-b, \r to ctrl-r, \u to ctrl-u, \i to ctrl-i, &amp; \o to ctrl-o</li>
-<li>general - changed some XXX::value's to be XXX_v instead.</li>
-<li>scripts - updated dc.xml, changed url's etc...</li>
+<li>general - changed some XXX::value&#039;s to be XXX_v instead.</li>
+<li>scripts - updated dc.xml, changed url&#039;s etc...</li>
 <li>- updated dcx_demo.mrc &amp; fixed some issues i had with it.</li>
 <li>panel - added check to /xdid -l to not enough args.</li>
 <li>dcxml - added DCXML_ID_OFFSET to use instead of just using 2000U</li>
 <li>- changed code to add richedit controls contents, so it now changes \c into ctrl-c &amp; \b into ctrl-b &amp; \r into ctrl-r, this should really be replaced with better utf loading.</li>
-<li>- fixed bug in registerId() where mIRC_ID_OFFSET wasn't being added.</li>
+<li>- fixed bug in registerId() where mIRC_ID_OFFSET wasn&#039;t being added.</li>
 <li>- fixed bug in parseId() where wrong id value was returned.</li>
-<li>general - fixed bug in /xdid -Z where the SCROLLINFO mask wasn't set, causing GetScrollInfo() to always fail.</li>
-<li>dialog - changed parseComControlRequestEX() to return the control id in the error message when a control can't be found.</li>
+<li>general - fixed bug in /xdid -Z where the SCROLLINFO mask wasn&#039;t set, causing GetScrollInfo() to always fail.</li>
+<li>dialog - changed parseComControlRequestEX() to return the control id in the error message when a control can&#039;t be found.</li>
 <li>divider - fixed bug in /xdid -l where controls were not being added correctly.</li>
 <li>project - added build all command to source control.</li>
 <li>dcxml - fixed bug in parseControl() where m_sParenttype was used instead of m_sType.</li>
@@ -176,9 +176,9 @@ Well for one thing, mIRC events are linear and static in the way that you cannot
 <li>- changed getMenuByHash()/getMenuByName()/getMenuByHandle() to be noexcept.</li>
 <li>dcxdocs - changed the renderer to the latest via the X-UA-Compatible meta.</li>
 <li>- changed some links to point at github</li>
-<li>- added directshow's author &amp; title properties.</li>
-<li>- added directshow's dshow event.</li>
-<li>- added note to treeview's /xdid -w command about -1 index.</li>
+<li>- added directshow&#039;s author &amp; title properties.</li>
+<li>- added directshow&#039;s dshow event.</li>
+<li>- added note to treeview&#039;s /xdid -w command about -1 index.</li>
 <li>- added changes upto svn960</li>
 <li>- added directshow -v command</li>
 <li>- dded some files that were missing after transfer from svn</li>
@@ -228,7 +228,7 @@ Well for one thing, mIRC events are linear and static in the way that you cannot
 <li>general - updated the dates</li>
 <li>- changed $dcx(GetSystemColor)/$dcx(ActiveWindow)/$xpop/xpop to use hashing if enabled.</li>
 <li>- fixed bug in /xSignal where trim() was used in the wrong place.</li>
-<li>- fixed bug in $dcx(ActiveWindow) where cbSize wasn't being set.</li>
+<li>- fixed bug in $dcx(ActiveWindow) where cbSize wasn&#039;t being set.</li>
 <li>- changed mIRCSubClassWinProc()-&gt;WM_SIZE to return unsigned numbers.</li>
 <li>gsl - updated to latest.</li>
 <li>general - removed is_Numeric struct as this is now in the string_support header.</li>
@@ -238,9 +238,9 @@ Well for one thing, mIRC events are linear and static in the way that you cannot
 <li>listhelper - changed matchItemText() to avoid needing a static_cast</li>
 <li>richedit - got rid of some warnings.</li>
 <li>divider - added some casts.</li>
-<li>dialogcollection - changed the default constructor as = default wasn't initializing things.</li>
+<li>dialogcollection - changed the default constructor as = default wasn&#039;t initializing things.</li>
 <li>xdock - changed $xdock to use string hashing.</li>
-<li>- added some static_cast's</li>
+<li>- added some static_cast&#039;s</li>
 <li>tstring - moved all string support functions to a new header string_support.h</li>
 <li>- updated macros to use support functions where possible.</li>
 <li>- fixed small bug in puttok()</li>
@@ -249,7 +249,7 @@ Well for one thing, mIRC events are linear and static in the way that you cannot
 <li>treeview - changed insertItem() to take a reference instead of a pointer.</li>
 <li>- changed matchItemText() to use DcxListHelper::matchItemText()</li>
 <li>- changed parsePath() to take a reference TString object instead of a pointer.</li>
-<li>general - added some static_cast's</li>
+<li>general - added some static_cast&#039;s</li>
 <li>- added TiXmlElement *toXml()</li>
 <li>- changed toXml() to properly save the control styles too.</li>
 <li>- added DcxIconSizes enum to set standard easy to read icon sizes.</li>
@@ -351,7 +351,7 @@ Well for one thing, mIRC events are linear and static in the way that you cannot
 <li>dcxml - changed /dcxml -p/parseControl()/parseDialog() to use string hashing if enabled.</li>
 <li>- renamed g_resetcla to g_bResetCLA &amp; made it a bool.</li>
 <li>- fixed bug in parseDialog() handling box type twice.</li>
-<li>refstring/simplestring - changed static_assert for type to remove const'ness first.</li>
+<li>refstring/simplestring - changed static_assert for type to remove const&#039;ness first.</li>
 <li>pager/progressbar/richedit - changed parseControlStyles() to use string hashing if enabled.</li>
 <li>mwindow/pager/panel/progressbar/rebar/richedit/statusbar/tab/toolbar/trackbar - misc style changes</li>
 <li>progressbar - changed DrawClientArea() to use Auto()</li>
@@ -370,7 +370,7 @@ Well for one thing, mIRC events are linear and static in the way that you cannot
 <li>- changed getIcon() to return HICON</li>
 <li>tab - changed to use DcxWindow::createImageList()</li>
 <li>toolbar - changed /xdid -a to use TSTABCHAR</li>
-<li>- changed to use dcxException's</li>
+<li>- changed to use dcxException&#039;s</li>
 <li>- changed /xdid -w to use dcxIconResource if enabled.</li>
 <li>trackbar - changed DrawTrackBarPart() to use dcxHDCBitmapResource if enabled.</li>
 <li>button/calendar/comboex/datetime - change parseControlStyles() to use string hashing if enabled.</li>
@@ -390,7 +390,7 @@ Well for one thing, mIRC events are linear and static in the way that you cannot
 <li>- changed to use Gdiplus::</li>
 <li>- changed var namedIds to m_NamedIds</li>
 <li>- changed var m_bDoGhostDrag to m_uGhostDragAlpha</li>
-<li>- added i_showError() to show error msg's, this may be removed/changed soon</li>
+<li>- added i_showError() to show error msg&#039;s, this may be removed/changed soon</li>
 <li>- changed parseBorderStyles()/parseBkgFlags()/parseFlashFlags()/parseTooltipFlags()/PreMultiply() to be noexcept</li>
 <li>- changed deleteControl() to use eraseIfFound()</li>
 <li>- changed /xdialog -x to not need a string any more.</li>
@@ -431,7 +431,7 @@ Well for one thing, mIRC events are linear and static in the way that you cannot
 <li>check - changed DrawClientArea() to use Auto()</li>
 <li>box - changed $xdid().inbox to use Auto()</li>
 <li>- added a check to toXml() for m_pLayoutManager being nullptr</li>
-<li>- changed some TCHAR buffers to be stString's</li>
+<li>- changed some TCHAR buffers to be stString&#039;s</li>
 <li>general - misc style changes.</li>
 <li>link - changed /xdid -l a little.</li>
 <li>- changed how the constructor initializes the vars.</li>
@@ -441,7 +441,7 @@ Well for one thing, mIRC events are linear and static in the way that you cannot
 <li>- changed DrawBMPImage() to use resource wrappers when enabled.</li>
 <li>- changed DrawClientArea() to use Auto()</li>
 <li>edit - changed /xdid -S to initialise iend to istart.</li>
-<li>- changed some TCHAR buffers to be stString's</li>
+<li>- changed some TCHAR buffers to be stString&#039;s</li>
 <li>listhelper - changed matchItemText() to take a refString arg.</li>
 <li>list - changed matchItemText() to make sure the buffer was at least MIRC_BUFFER_SIZE_CCH in size.</li>
 <li>listview - misc style changes.</li>
@@ -476,7 +476,7 @@ Well for one thing, mIRC events are linear and static in the way that you cannot
 <li>dcx - added make_bstr()/dcxBSTR_t/dcxBSTRResource to handle BSTR resources.</li>
 <li>- added make_filehandle()/dcxHandle_t/dcxFileHandleResource to handle HANDLE resources for files.</li>
 <li>- changed DcxResource to be constexpr</li>
-<li>- added dcxStringResource for testing, don't expect to use it.</li>
+<li>- added dcxStringResource for testing, don&#039;t expect to use it.</li>
 <li>- added dcxHDCBitmap2Resource which handles an HDC &amp; Bitmap resource pair.</li>
 <li>- changed dcxHDCBuffer to use dcxHDCBitmap2Resource instead of dcxHDCResource.</li>
 <li>- removed isFile()</li>
@@ -509,9 +509,9 @@ Well for one thing, mIRC events are linear and static in the way that you cannot
 <li>- changed /dcx SetmIRCCursors to use TSCOMMACHAR</li>
 <li>- added /dcx SetDCXSettings command, atm this only has two options &quot;StaticColours&quot; &amp; &quot;UpdateColours&quot;</li>
 <li>- - StaticColours = /dcx SetDCXSettings StaticColours [1/0]</li>
-<li>- - - Enable/Disable static colours (faster drawing but doesn't update its self to changes in mIRC's colour scheme)</li>
+<li>- - - Enable/Disable static colours (faster drawing but doesn&#039;t update its self to changes in mIRC&#039;s colour scheme)</li>
 <li>- - UpdateColours = /dcx SetDCXSettings UpdateColours</li>
-<li>- - - Force dcx to update it' colour scheme even if using static colours.</li>
+<li>- - - Force dcx to update it&#039; colour scheme even if using static colours.</li>
 <li>general - changed GetDirectXVersionViaFileVersions() to initialize all vars &amp; to use Dcx::countof()</li>
 <li>- changed defines.h to include the new string stuff</li>
 <li>- added DCX_USE_HASHING define to enable the use of string hashes.</li>
@@ -522,7 +522,7 @@ Well for one thing, mIRC events are linear and static in the way that you cannot
 <li>hashString - added some comments</li>
 <li>simpleString - added some comments</li>
 <li>refString - added some comments</li>
-<li>- added two static_assert's</li>
+<li>- added two static_assert&#039;s</li>
 <li>mdialog - changed m_DeleteByDestroy to be bool.</li>
 <li>dcxml - changed alot of var names to avoid confusion. This also allowed me to clean up some functions &amp; make them clearer.</li>
 <li>- changed the constructor &amp; destructors to be = default.</li>
@@ -545,7 +545,7 @@ Well for one thing, mIRC events are linear and static in the way that you cannot
 <li>- changed CreateGrayscaleIcon() to initialize the var sz all in one line.</li>
 <li>- changed IsFile() to use dcxStringResource</li>
 <li>- added getmIRCPalette() overload with no args, this only fills the palette when its empty.</li>
-<li>- changed getmIRCPalette() (with args) to only fill the palette if its empty or static colours aren't being used.</li>
+<li>- changed getmIRCPalette() (with args) to only fill the palette if its empty or static colours aren&#039;t being used.</li>
 <li>- changed DrawRotatedText() to use Auto()</li>
 <li>mirclinker - removed mIRCLinker:: from the start of functions.</li>
 <li>dialogcollection - changed the constructor/destructor to be = default.</li>
@@ -556,7 +556,7 @@ Well for one thing, mIRC events are linear and static in the way that you cannot
 <li>- hashString.h -&gt; Includes various functions to change a C-String into a hash value.</li>
 <li>- switchObjects.h -&gt; allows using objects in a special Switch() command.</li>
 <li>- ListHelper.h/cpp -&gt; DcxListHelper class includes various common helper functions for DcxList.... controls.</li>
-<li>updown - changed /xdid -c to handle named id's</li>
+<li>updown - changed /xdid -c to handle named id&#039;s</li>
 <li>- changed /xdid -c to check DcxControlTypes instead of getting the class name.</li>
 <li>Changed everything to require C++14 when compiling</li>
 <li>Dropped all support for &lt; Windows7</li>
@@ -572,7 +572,7 @@ Well for one thing, mIRC events are linear and static in the way that you cannot
 <li>- removed some old code.</li>
 <li>general - changed to use dcxException</li>
 <li>- removed some old code.</li>
-<li>- changed all CTRL_XXX defines to be UINT64's</li>
+<li>- changed all CTRL_XXX defines to be UINT64&#039;s</li>
 <li>- added enum DcxAllowControls to maybe replace defines in future.</li>
 <li>- changed enum DcxControlTypes to be enum class DcxControlTypes</li>
 <li>- added dcxExtractIcon object to wrap calls to ExtractIconEx()</li>
@@ -595,7 +595,7 @@ Well for one thing, mIRC events are linear and static in the way that you cannot
 <li>- changed CBN_SELENDOK handling to set m_tsSelected.</li>
 <li>-- this allows $xdid(dname,id,0).text to work with dropdown style controls as well as dropedit ones.</li>
 <li>listview - added ItemToString() function to help with saving data.</li>
-<li>box - fixed bug in /xdid -c command where the correct addControl() call wasn't being used this caused subsequent calls to fail when using named id's</li>
+<li>box - fixed bug in /xdid -c command where the correct addControl() call wasn&#039;t being used this caused subsequent calls to fail when using named id&#039;s</li>
 <li>xtreebar - changed the setitem callback to be for release build too now</li>
 <li>- changed setitem callback to have these args: $xtree_callback(&lt;item type&gt;,&lt;wid&gt;,&lt;status&gt;)</li>
 <li>xstatusbar - changed status_getImageList() to be noexcept.</li>
@@ -605,7 +605,7 @@ Well for one thing, mIRC events are linear and static in the way that you cannot
 <li>- added deleteNamedID() which deletes the named id based on either the name or the numerical id.</li>
 <li>- changed deleteControl() to call deleteNamedID() as well</li>
 <li>general - changed some code to use the new dcxResource stuff (Testing this method out, may not keep)</li>
-<li>tstring - fixed bug in compare() routines where length limit was used when it shouldn't have been, this led to &quot;5&quot; == &quot;50&quot;</li>
+<li>tstring - fixed bug in compare() routines where length limit was used when it shouldn&#039;t have been, this led to &quot;5&quot; == &quot;50&quot;</li>
 <li>general - added DCX_USE_WRAPPERS define to enable/disable using the resource wrapper classes.</li>
 <li>- added Dcx::dcxResource::pointer type.</li>
 <li>- added Dcx::dcxResource::element_type type.</li>
@@ -635,15 +635,15 @@ Well for one thing, mIRC events are linear and static in the way that you cannot
 <li>- added TString(const T (&amp;cString)[N]) constructor.</li>
 <li>- changed TString(const TCHAR *const pStart, const TCHAR *const pEnd) constructor to be a template that just calls the appropriate TString(const WCHAR/char *const cString, const size_t iLen) constructor.</li>
 <li>- moved most constructors to the tstring.h file.</li>
-<li>- changed the operator[] code to have a debug version that has some extra checks &amp; throws an exception &amp; a release version that doesn't.</li>
+<li>- changed the operator[] code to have a debug version that has some extra checks &amp; throws an exception &amp; a release version that doesn&#039;t.</li>
 <li>- changed the iswm() template to be const noexcept</li>
 <li>- commented out the non-const version of c_str()</li>
 <li>- changed _ts_WildcardMatch() to be noexcept</li>
 <li>xpopupmenu - changed GetMenuAttributeFromXML() to return a TString. This allows us to get rid of some extra TString objects later.</li>
-<li>- changed convertMenu() so it doesn't call tsEval() on a seperator.</li>
+<li>- changed convertMenu() so it doesn&#039;t call tsEval() on a seperator.</li>
 <li>tstring - added ts_strchr() macro</li>
 <li>- added numtok(TCHAR sepChar) to handle all single char separators.</li>
-<li>- made both numtok()'s noexcept.</li>
+<li>- made both numtok()&#039;s noexcept.</li>
 <li>dcxml - changed mIRCEvalToUnsignedInt() to take a TString arg.</li>
 <li>tinyxml - changed some code to do nullptr checks</li>
 <li>toolbar - changed /xdid -a/-c to use the to_&lt;&gt;() template directly</li>
@@ -652,9 +652,9 @@ Well for one thing, mIRC events are linear and static in the way that you cannot
 <li>tstring - changed all comparison operators &amp; functions to be noexcept</li>
 <li>- changed the move assignment operator to be noexcept</li>
 <li>- changed find() to be noexcept</li>
-<li>- changed iterator typedef's to use using instead</li>
+<li>- changed iterator typedef&#039;s to use using instead</li>
 <li>- changed isin()/isincs()/iswm()/countchar()/ishostmask() to be noexcept</li>
-<li>general - changed some typedef's to be using instead.</li>
+<li>general - changed some typedef&#039;s to be using instead.</li>
 <li>xdock - changed some typedefs to be using</li>
 <li>- changed DockWindow() to allocate &amp; set &amp; push_back() the DCXULTRADOCK structure all in one go (planning on changing how this structure is allocated &amp; stored soon)</li>
 <li>xpopup - made XPopupMenu() constructor a bit neater.</li>
@@ -667,7 +667,7 @@ Well for one thing, mIRC events are linear and static in the way that you cannot
 <li>tstring - added last() function which returns a pointer to the end of the string.</li>
 <li>- changed len()/length()/size() to return a reference.</li>
 <li>- added SPACECHAR/COMMACHAR/TABCHAR defines as single character versions of SPACE/COMMA/TAB</li>
-<li>- changed is_Numeric to check type isn't a pointer.</li>
+<li>- changed is_Numeric to check type isn&#039;t a pointer.</li>
 <li>- fixed bug in static string constructor where string length used was one character to long.</li>
 <li>- changed operator *() to use strchr() instead of strstr()</li>
 <li>- changed addtok() template to use SPACECHAR</li>
@@ -679,13 +679,13 @@ Well for one thing, mIRC events are linear and static in the way that you cannot
 <li>- added _ts_isEmpty() function template to test if a string/container is empty (supports C Strings &amp; any object with a empty() member function)</li>
 <li>tstring - changed new test versions of gettok() &amp; getfirsttok() to be templates.</li>
 <li>dialog - changed SetVerbose()/getFocusControl() to be noexcept</li>
-<li>- changed some typedef's to be using's instead.</li>
+<li>- changed some typedef&#039;s to be using&#039;s instead.</li>
 <li>- changed xdialog -R +p to use the single character versions of getfirsttok()/getnexttok()</li>
 <li>general - changed gettok()/getfirsttok()/getnexttok()/numtok() to be single character versions where possible.</li>
 <li>xdock - added specific deleted operators</li>
 <li>general - added some std::to_string() &amp; std::to_wstring() overloads</li>
 <li>- added is_Numeric to Dcx namespace</li>
-<li>- changed some typedef's to be using's instead.</li>
+<li>- changed some typedef&#039;s to be using&#039;s instead.</li>
 <li>- added numeric_cast() to Dcx namespace to handle casting anything to a number (if possible) can cast integrals, strings &amp; objects that support implicit conversion to that type.</li>
 <li>cla - changed layoutcell to be a little neater.</li>
 <li>- changed layoutcellfill to use the layoutcell constructors.</li>
@@ -716,7 +716,7 @@ Well for one thing, mIRC events are linear and static in the way that you cannot
 <li>- changed constructor to initialize m_bFlags &amp; m_bFlags_cap to false.</li>
 <li>- moved operator[] to include file.</li>
 <li>- changed m_bFlags &amp; m_bFlags_cap to be private instead of protected.</li>
-<li>- added m_bFalse static var for isSet()'s use on failure.</li>
+<li>- added m_bFalse static var for isSet()&#039;s use on failure.</li>
 <li>- changed de-constructor to be = default.</li>
 </ol></li>
 <li><strong>Documentation</strong><ol>
@@ -728,7 +728,7 @@ Well for one thing, mIRC events are linear and static in the way that you cannot
 <li>added listview /xdid -G</li>
 <li>added listview /xdid -H</li>
 <li>added webctrl $xdid().statusbar/statustext/script</li>
-<li>added note to updown /xdid -c to the effect that named id's can be used.</li>
+<li>added note to updown /xdid -c to the effect that named id&#039;s can be used.</li>
 </ol></li>
 </ul>
 </td></tr>
@@ -892,7 +892,7 @@ Well for one thing, mIRC events are linear and static in the way that you cannot
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2022</td>
-		<td style="text-align: right;">Last Updated: 15th March, 22</td>
+		<td style="text-align: right;">Last Updated: 23rd May, 22</td>
 	</tr>
 </table>
 <div style="text-align: center;">

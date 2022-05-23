@@ -218,12 +218,12 @@ function get_xpopup(&$XPOPUP) {
 	        '__notes' => "Use 0 if the file is a single icon file.",
 		),
 		'j' => 'This command lets you clear the menu image list.',
-	'l' => array(
+		'l' => array(
                 '__desc' => 'This command lets you set the Nth color in the menu as given by the order listed in [f]/xpopup -p[/f].',
 	        '__cmd' => '[N] [COLOR]',
 	        '__eg' => '2 $rgb(255,0,0)',
                 '__notes' => 'You can specify [v]default[/v] in [p]COLOR[/p] to reset it to the default value.',
-	),
+		),
         'm' => array(
             '__desc' => 'This command patches mIRC v6.20, allowing XPopup to work.',
             '__notes' => array(
@@ -231,19 +231,19 @@ function get_xpopup(&$XPOPUP) {
                 'This will only apply to mIRC menus, so use [v]mirc[/v] for [p]MENU[/p].'
             ),
         ),
-	'M' => array(
+		'M' => array(
                 '__desc' => 'This command lets you set the marked text, which can contain any information.',
 	        '__cmd' => '(TEXT)',
 	        '__eg' => 'additional information',
-	),
-	'p' => array(
+		),
+		'p' => array(
 	        '__desc' => 'This command lets you set the whole menu color palette in one command where [p]COLORS[/p] is a space separated list of RGB colors.',
 	        '__cmd' => '[COLOR1] [COLOR2] [COLOR...] [COLOR10]',
 	        '__eg' => '$rgb(255,0,0) $rgb(0,0,255) ... $rgb(0,255,0)',
                 '__params' => array(
                         'COLORS' => array(
-                                '__desc' => 'The colors in $rgb() format must be in this order:',
-                                '__values' => array(
+							'__desc' => 'The colors in $rgb() format must be in this order:',
+							'__values' => array(
 						'1' => 'Menu background color',
 						'2' => 'Icon box color',
 						'3' => 'Checkbox color',
@@ -259,45 +259,55 @@ function get_xpopup(&$XPOPUP) {
 				),
 			),
 	        '__notes' => array(
-                        "If you are not using the [s]checkbox[/s] style, this function can also change the state icon of an item. Be sure to insert the state icons before you use them.",
-                        'You can specify [v]default[/v] in [p]COLORS[/p] to reset it to the default value.',
-                ),
-	),
+				"If you are not using the [s]checkbox[/s] style, this function can also change the state icon of an item. Be sure to insert the state icons before you use them.",
+				'You can specify [v]default[/v] in [p]COLORS[/p] to reset it to the default value.',
+			),
+		),
 		'R' => array(
-                        '__desc' => 'This command lets you add more visual styles to your XPopup',
-                        '__cmd' => '[+FLAG] [ARGS]',
-                        '__eg' => array(
-                                '+r 1',
-                                '+a 150',
-                        ),
-                        '__params' => array(
-                                'MENU' => 'Name of the Xpopup you wish to style.',
-				 '+FLAGS' => array(
+			'__desc' => 'This command lets you add more visual styles to your XPopup',
+			'__cmd' => '[+FLAG] [ARGS]',
+			'__eg' => array(
+					'+r 1',
+					'+a 150',
+					'+t 1',
+					'+R 1',
+			),
+            '__params' => array(
+				'MENU' => 'Name of the Xpopup you wish to style.',
+				'+FLAGS' => array(
 					'__desc' => 'Menu display style flags.',
 					'__values' => array(
 						'r' => 'This gives the menu selection indicator a rounded look.',
-						'a' => 'This sets the menu alpha value. [o]2k+[/o]',
+						'R' => 'This gives the menu itself a rounded look.',
+						'a' => 'This sets the menu alpha value.',
+						't' => 'This enables/disables displaying tooltips for menu items.',
 					)
-                                ),
+                ),
 				'__args' => array(
 					'r' => array(
 						'__cmd' => '[1|0]',
 					),
+					'R' => array(
+						'__cmd' => '[1|0]',
+					),
 					'a' => array(
-                                                '__cmd' => '[VALUE]',
-                                                '__params' => array(
-							'VALUE' => 'The opacity to apply. Values range from [v]0[/v] (transparent) to [v]255[/v] (opaque).',
+						'__cmd' => '[VALUE]',
+						'__params' => array(
+						'VALUE' => 'The opacity to apply. Values range from [v]0[/v] (transparent) to [v]255[/v] (opaque).',
 						),
+					),
+					't' => array(
+						'__cmd' => '[1|0]',
 					),
 				),
 			),
 		),
 		's' => array(
-                        '__desc' => 'This command lets you display a menu.',
-                        '__cmd' => '[+FLAGS] [X] [Y] (HWND)',
-                        '__eg' => '+ 100 100',
-                        '__params' => array(
-                                '+FLAGS' => array(
+			'__desc' => 'This command lets you display a menu.',
+			'__cmd' => '[+FLAGS] [X] [Y] (HWND)',
+			'__eg' => '+ 100 100',
+			'__params' => array(
+				'+FLAGS' => array(
 					'__desc' => 'Menu display style flags.',
 					'__values' => array(
 						'b' => 'The menu is bottom aligned according to the Y value.',
@@ -309,10 +319,10 @@ function get_xpopup(&$XPOPUP) {
 						't' => 'The menu is top aligned according to the Y value.',
 						'v' => 'The menu is vertically center aligned according to the Y valued.',
 					)
-                                ),
-                                'X' => 'X coordinate where menu will popup in screen coordinates.',
-                                'Y' => 'Y coordinate where menu will popup in screen coordinates.',
-                                'HWND' => 'The popup coordinates will be displayed relative to this window.',
+				),
+				'X' => 'X coordinate where menu will popup in screen coordinates.',
+				'Y' => 'Y coordinate where menu will popup in screen coordinates.',
+				'HWND' => 'The popup coordinates will be displayed relative to this window.',
 			),
 		),
 		't' => array(
@@ -343,19 +353,21 @@ function get_xpopup(&$XPOPUP) {
 function get_xpopupprops(&$XPOPUPPROPS) {
 	$XPOPUPPROPS = array(
 		"ismenu" => 'This property retrieves if a menu exists.',
-                'isPatched' => 'This determines if mIRC 6.20 has been patched for special menus to work.',
-		'isrounded' => 'Returns wheter the rounded style is enable (see xpopup -R)',
+		'isPatched' => 'This determines if mIRC 6.20 has been patched for special menus to work.',
+		'isrounded' => 'Returns wether the rounded style is enabled (see xpopup -R)',
+		'isroundedmenu' => 'Returns wether the rounded menu style is enabled (see xpopup -R)',
+		'istooltips' => 'Returns wether tooltips are enabled (see xpopup -R)',
 		'alpha' => 'Returns the current alpha level of the menu (see xpopup -R)',
 		"style" => 'This property retrieves the menu style.',
 		"alpha" => 'This property retrieves the transparency value.',
-                'marked' => 'This property lets you set the marked text.',
+		'marked' => 'This property lets you set the marked text.',
 		"isrounded" => 'Is the rounded style enabled?',
 		"exstyle" => 'This property retrieves the menu extended styles.',
 		"colors" => 'This property retrieves the menu colors as one line (see /xpopup -p for the list).',
 		"color" => array(
-                        '__desc' => "This property retrieves Nth menu color (see /xpopup -p for the list).",
-                        '__cmd' => 'N',
-                        '__eg' => '3',
+			'__desc' => "This property retrieves Nth menu color (see /xpopup -p for the list).",
+			'__cmd' => 'N',
+			'__eg' => '3',
 		),
 		"menuname" => array(
 			'__desc' => "This property retrieves the name of the Nth menu.",
@@ -370,8 +382,8 @@ function get_xpop(&$XPOP) {
 	$XPOP = array(
 	    'a' => array(
 	        '__desc' => 'This command lets you add a menu item.',
-	        '__cmd' => '[TAB] [+FLAGS] [ID] [ICON] (TEXT)',
-	        '__eg' => '$chr(9) + 1 1 Menu Item 1',
+	        '__cmd' => '[TAB] [+FLAGS] [ID] [ICON] (TEXT) ([TAB] [TOOLTIP])',
+	        '__eg' => '$chr(9) + 1 1 Menu Item 1 $chr(9) Tooltip!',
             '__params' => array(
                 '+FLAGS' => array(
                     '__desc' => 'Menu item flags.',
@@ -384,12 +396,15 @@ function get_xpop(&$XPOP) {
                 'ID' => "Menu item ID as returned on the event handler.",
                 'ICON' => 'Menu item icon index. (Use [v]0[/v] for no icon)',
 				'TEXT' => 'Menu item text. It can contain mIRC $identifiers that will be evaluated the first time the menu is being displayed.',
+				'TOOLTIP' => 'Menu items tooltip.',
 			),
 			'__notes' => array(
 			    'If the item text is meant to be dynamic, you will need to reset the text using /xpop -t',
 			    '[p]ID[/p] must be unique.',
 				'A menu item that has a checkmark AND an icon, it displays the icon instead of the checkmark.',
 				'Remember to use mIRCs $eval($idents, 0) or $!idents to prevent the mIRC evaluation of the $idents that your text contains.',
+				'The [TOOLTIP] is only displayed if enabled for this menu via /xpopup -R',
+				'Tooltips are only displayed for menu items, NOT submenus',
 			),
 		),
 		'c' => array(
@@ -414,6 +429,11 @@ function get_xpop(&$XPOP) {
 	        '__eg' => '$chr(9) $eval($me, 0)',
 	        '__notes' => 'Remember to use mIRCs $eval(expression,0) to prevent the mIRC evaluation of the $idents that your text contains.',
 		),
+		'T' => array(
+	        '__desc' => 'This command lets you add/change a menu items tooltip.',
+	        '__cmd' => '[TAB] [TEXT]',
+	        '__eg' => '$chr(9) This is a tooltip!',
+		),
 	);
 }
 
@@ -424,6 +444,7 @@ function get_xpopprops(&$XPOPPROPS) {
 	        '__notes' => '[p]PATH[/p] can be [v]root[/v] to find the number of items on the root menu.'
 		),
 		"text" => 'This property retrieves the menu item text.',
+		"tooltip" => 'This property retrieves the menu items tooltip text (if any).',
 		"icon" => 'This property retrieves the menu item icon index number.',
 		"enabled" => 'This property retrieves if a menu item is enabled or disabled.',
 		"submenu" => 'This property retrieves if a menu item has a submenu or not.',

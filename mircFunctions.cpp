@@ -52,9 +52,6 @@ long SystemTimeToMircTime(const LPSYSTEMTIME pst)
 		return 0;
 	}
 
-	//TCHAR sRet[100];
-	//stString<100U> sRet;
-
 	static const TCHAR *months[12] = {
 		TEXT("January"),
 		TEXT("Feburary"),
@@ -69,35 +66,6 @@ long SystemTimeToMircTime(const LPSYSTEMTIME pst)
 		TEXT("November"),
 		TEXT("December")
 	};
-
-	//mIRCLinker::evalex(sRet, static_cast<int>(Dcx::countof(sRet)), TEXT("$ctime(%u:%u:%u %u %s %u)"),
-	//	pst->wHour,
-	//	pst->wMinute,
-	//	pst->wSecond,
-	//	pst->wDay,
-	//	months[pst->wMonth -1],
-	//	pst->wYear);
-
-	//mIRCLinker::eval(sRet, TEXT("$ctime(%:%:% % % %)"),
-	//	pst->wHour,
-	//	pst->wMinute,
-	//	pst->wSecond,
-	//	pst->wDay,
-	//	months[pst->wMonth - 1],
-	//	pst->wYear);
-	//
-	//return dcx_atoi(sRet.data());
-
-	
-
-	//if (const auto[bOk, iNum] = mIRCLinker::uEval<long>(TEXT("$ctime(%:%:% % % %)"),
-	//	pst->wHour,
-	//	pst->wMinute,
-	//	pst->wSecond,
-	//	pst->wDay,
-	//	months[pst->wMonth - 1],
-	//	pst->wYear); bOk)
-	//	return iNum;
 
 	if (const auto iNum = mIRCLinker::uEval<long>(TEXT("$ctime(%:%:% % % %)"),
 		pst->wHour,

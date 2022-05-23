@@ -335,6 +335,7 @@ function get_xdid_listview(&$XDID) {
 			'__cmd' => '[COL] [+FLAGS] (WIDTH ...)',
 			'__eg' => array(
 				'2 + 100',
+				'1,3-6 + 100',
 				'0 +m 150 100 200',
 			),
 			'__params' => array(
@@ -355,6 +356,7 @@ function get_xdid_listview(&$XDID) {
 			'__notes' => array(
 				'If the flag [f]+h[/f] is used for the last column, the column will be resized to the width of the control.',
 				'[f]+m[/f] flag cannot be used with the [f]+a[/f], [f]+h[/f] or [f]+S[/f] flags.',
+				'If no flags are used then [COL] can be a single column or a group of columns eg: 1,2,8-12',
 			),
 		),
 		'o' => array(
