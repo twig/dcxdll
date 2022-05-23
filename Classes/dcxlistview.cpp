@@ -1464,7 +1464,7 @@ void DcxListView::parseCommandRequest(const TString& input)
 		if (numtok < 5)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		auto nColumn = (input.getnexttok().to_int() - 1);	// tok 4
+		auto tsColumn = input.getnexttok(); // tok 4
 		const XSwitchFlags xflags(input.getnexttok());		// tok 5
 		const UINT iTotal = gsl::narrow_cast<UINT>(this->getColumnCount());
 
@@ -1488,6 +1488,8 @@ void DcxListView::parseCommandRequest(const TString& input)
 			if ((numtok - 6) < iTotal)
 				throw Dcx::dcxException("Insufficient number of widths specified for +d flag");
 
+			const auto nColumn = (tsColumn.to_int() - 1);	// tok 4
+
 			if ((nColumn < 0) || (gsl::narrow_cast<UINT>(nColumn) >= iTotal))
 				throw Dcx::dcxException(TEXT("Invalid column specified: %"), nColumn + 1);
 
@@ -1509,23 +1511,59 @@ void DcxListView::parseCommandRequest(const TString& input)
 		else {
 			const auto iFlags = this->parseHeaderFlags2(xflags);
 			const auto iWidth = input.getnexttok().to_int();	// tok 6
-			UINT iCount = 0;
 
 			if ((iFlags == 0) && (numtok < 6))
 				throw Dcx::dcxException("No width specified");
 
-			if (nColumn > -1 && gsl::narrow_cast<UINT>(nColumn) < iTotal)	// set width for a single specific column
-				iCount = 1;			// set a single column to a set width:			/xdid -n dname id column + width
+			const auto HandleColumn = [=](const TString tsColumns) {
+				UINT id_start = 0, id_end = 0;
+				if (tsColumns.numtok(TEXT('-')) == 2)
+				{
+					id_start = tsColumns.getfirsttok(1, TEXT('-')).to_<UINT>() - 1;
+					id_end = tsColumns.getnexttok(TEXT('-')).to_<UINT>() - 1;
+				}
+				else
+					id_start = id_end = tsColumns.to_<UINT>() - 1;
+
+				if (id_end < id_start)
+					throw Dcx::dcxException(TEXT("Invalid Column : % (dialog : %)"), id_end + 1, this->getParentDialog()->getName());
+
+				for (auto nColumn = id_start; nColumn <= id_end; ++nColumn)
+				{
+					this->autoSize(nColumn, iFlags, iWidth);
+				}
+			};
+			if (tsColumn.numtok(TSCOMMACHAR) > 1)
+			{
+				// column == 1,2,3-4....
+				const auto itEnd = tsColumn.end();
+				for (auto itStart = tsColumn.begin(TSCOMMACHAR); itStart != itEnd; ++itStart)
+				{
+					HandleColumn(*itStart);
+				}
+			}
 			else {
-				iCount = iTotal;	// set all columns to a single width:			/xdid -n dname id -1 + width
-				nColumn = 0;		// or set all columns to an auto sized width:	/xdid -n dname id -1 +ahsFp
+				// column = 3-4
+				HandleColumn(tsColumn);
 			}
 
-			for (auto n = decltype(iCount){0}; n < iCount; ++n)
-			{
-				this->autoSize(nColumn, iFlags, iWidth);
-				++nColumn;
-			}
+			//const auto iFlags = this->parseHeaderFlags2(xflags);
+			//const auto iWidth = input.getnexttok().to_int();	// tok 6
+			//auto nColumn = (tsColumn.to_int() - 1);	// tok 4
+			//UINT iCount = 0;
+			//if ((iFlags == 0) && (numtok < 6))
+			//	throw Dcx::dcxException("No width specified");
+			//if (nColumn > -1 && gsl::narrow_cast<UINT>(nColumn) < iTotal)	// set width for a single specific column
+			//	iCount = 1;			// set a single column to a set width:			/xdid -n dname id column + width
+			//else {
+			//	iCount = iTotal;	// set all columns to a single width:			/xdid -n dname id -1 + width
+			//	nColumn = 0;		// or set all columns to an auto sized width:	/xdid -n dname id -1 +ahsFp
+			//}
+			//for (auto n = decltype(iCount){0}; n < iCount; ++n)
+			//{
+			//	this->autoSize(nColumn, iFlags, iWidth);
+			//	++nColumn;
+			//}
 		}
 	}
 	// xdid -o [NAME] [ID] [SWITCH] [ORDER ...]
