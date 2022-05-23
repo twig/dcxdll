@@ -1042,36 +1042,78 @@ enum class WindowMessages
 enum class WindowStyle
 	: DWORD
 {
+	// General styles
 	None,
+	Overlapped = WS_OVERLAPPED,
+	OverlappedWindow = WS_OVERLAPPEDWINDOW,
+	Popup = WS_POPUP,
+	PopupWindow = WS_POPUPWINDOW,
 	Child = WS_CHILD,
-	Border = WS_BORDER,
-	Caption = WS_CAPTION,
+	Minimize = WS_MINIMIZE,
+	Visible = WS_VISIBLE,
+	Disabled = WS_DISABLED,
+	ClipSiblings = WS_CLIPSIBLINGS,
 	ClipChildren = WS_CLIPCHILDREN,
+	Maximize = WS_MAXIMIZE,
+	Caption = WS_CAPTION,
+	Border = WS_BORDER,
+	DLGFrame = WS_DLGFRAME,
+	VScroll = WS_VSCROLL,
+	HScroll = WS_HSCROLL,
+	SYSMenu = WS_SYSMENU,
+	ThickFrame = WS_THICKFRAME,
+	Group = WS_GROUP,
 	TabStop = WS_TABSTOP,
+	MinimizeBox = WS_MINIMIZEBOX,
+	MaximizeBox = WS_MAXIMIZEBOX,
+
+	// ListBox
 	LBS_MultiSel = LBS_MULTIPLESEL,
 	LBS_ExtendedSel = LBS_EXTENDEDSEL,
 	LBS_UseTabStops = LBS_USETABSTOPS,
+
+	// Button
 	BS_Bitmap = BS_BITMAP,
 	BS_OwnerDraw = BS_OWNERDRAW,
+
+	// Static
 	SS_EndEllipsis = SS_ENDELLIPSIS,
 	SS_PathEllipsis = SS_PATHELLIPSIS,
 	SS_NoPrefix = SS_NOPREFIX,
 	SS_LeftNoWordWrap = SS_LEFTNOWORDWRAP,
 	SS_Center = SS_CENTER,
 	SS_Right = SS_RIGHT,
+
+	// Edit
 	ES_MultiLine = ES_MULTILINE,
 	ES_Password = ES_PASSWORD,
 	ES_ReadOnly = ES_READONLY,
+
+	// Treeview
 	TVS_CheckBoxes = TVS_CHECKBOXES,
+
+	// ?
 	CCS_NoParentAlign = CCS_NOPARENTALIGN,
 	CCS_NoResize = CCS_NORESIZE,
+
+	// Tab
 	TCS_ForceLeftAlign = TCS_FORCELABELLEFT,
+
+	// ProgressBar
 	PBS_Vertical = PBS_VERTICAL,
+
+	// Month Calander
 	MCS_MultiSelect = MCS_MULTISELECT,
+
+	// ListView
 	LVS_SingleSelect = LVS_SINGLESEL,
 	LVS_ShowSelAlways = LVS_SHOWSELALWAYS,
+
+	// ComboBox
 	CBS_DropDown = CBS_DROPDOWN,
 	CBS_Simple = CBS_SIMPLE,
+
+	// DateTime
 	DTS_ShowNone = DTS_SHOWNONE
 };
 
