@@ -193,7 +193,7 @@ dcxWindowStyles DcxControl::parseGeneralControlStyles(const TString& styles)
 
 GSL_SUPPRESS(type.3)
 GSL_SUPPRESS(es.47)
-bool DcxControl::evalAliasEx(TCHAR* const szReturn, const int maxlen, const TCHAR* const szFormat, ...) const
+bool DcxControl::evalAliasEx(TCHAR* const szReturn, const int maxlen, _Printf_format_string_ const TCHAR* const szFormat, ...) const
 {
 	TString parms;
 	va_list args = nullptr;
@@ -208,7 +208,7 @@ bool DcxControl::evalAliasEx(TCHAR* const szReturn, const int maxlen, const TCHA
 
 GSL_SUPPRESS(type.3)
 GSL_SUPPRESS(es.47)
-bool DcxControl::execAliasEx(const TCHAR* const szFormat, ...) const
+bool DcxControl::execAliasEx(_Printf_format_string_ const TCHAR* const szFormat, ...) const
 {
 	TString parms;
 	va_list args = nullptr;

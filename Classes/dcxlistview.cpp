@@ -1525,6 +1525,9 @@ void DcxListView::parseCommandRequest(const TString& input)
 				else
 					id_start = id_end = tsColumns.to_<UINT>() - 1;
 
+				if (id_start < 0)
+					throw Dcx::dcxException(TEXT("Invalid Column : % (dialog : %)"), id_start + 1, this->getParentDialog()->getName());
+
 				if (id_end < id_start)
 					throw Dcx::dcxException(TEXT("Invalid Column : % (dialog : %)"), id_end + 1, this->getParentDialog()->getName());
 
