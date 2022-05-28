@@ -1546,8 +1546,15 @@ void DcxListView::parseCommandRequest(const TString& input)
 				}
 			}
 			else {
-				// column = 3-4
-				HandleColumn(tsColumn);
+				if (tsColumn == TEXT('0'))
+				{
+					// column = 0 == set all columns to single width
+					for (UINT n{}; n < iTotal; ++n)
+						this->autoSize(n, iFlags, iWidth);
+				}
+				else
+					// column = 3-4
+					HandleColumn(tsColumn);
 			}
 
 			//const auto iFlags = this->parseHeaderFlags2(xflags);
