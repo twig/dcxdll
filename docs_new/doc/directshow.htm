@@ -619,6 +619,25 @@
 <br />
 <table class="event">
 	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
+			<a name="events.loaderror"></a>loaderror	</td></tr>
+	<tr><td colspan="2">When the media has failed to load, Usually unsupported codec.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/cb_alias DNAME loaderror ID FILENAME</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/cb_alias dcx loaderror 4 file.avi</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">FILENAME</td>
+		<td>Filename that failed to load.</td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> Dont call any DCX commands within the callback, use a timer instead.</td></tr></table>
+<br />
+<table class="event">
+	<tr><td colspan="2" class="flag" style="color: #74C043; border-color: #74C043;">
 			<a name="events.rbdown"></a>rbdown	</td></tr>
 	<tr><td colspan="2">When the right mouse button is pressed.</td></tr>
 	<tr>
@@ -695,6 +714,7 @@
 	<a class='header' href="#events"><div style='background:#74C043;'>Events</div></a>
 		<a class='flag' href="#events.dshow"><div>dshow</div></a>
 		<a class='flag' href="#events.help"><div>help</div></a>
+		<a class='flag' href="#events.loaderror"><div>loaderror</div></a>
 		<a class='flag' href="#events.rbdown"><div>rbdown</div></a>
 		<a class='flag' href="#events.rbup"><div>rbup</div></a>
 		<a class='flag' href="#events.rclick"><div>rclick</div></a>
@@ -707,7 +727,7 @@
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2022</td>
-		<td style="text-align: right;">Last Updated: 23rd May, 22</td>
+		<td style="text-align: right;">Last Updated: 30th May, 22</td>
 	</tr>
 </table>
 <div style="text-align: center;">

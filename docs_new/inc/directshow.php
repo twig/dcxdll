@@ -218,6 +218,15 @@ function get_events_directshow(&$EVENTS) {
 				'EVENT' => 'Media event that triggered.',
 			),
 		),
+		'loaderror' => array(
+			'__desc' => 'When the media has failed to load, Usually unsupported codec.',
+			'__cmd' => 'FILENAME',
+			'__eg' => 'file.avi',
+			'__params' => array(
+				'FILENAME' => 'Filename that failed to load.',
+			),
+            '__notes' => 'Dont call any DCX commands within the callback, use a timer instead.',
+		),
 	);
 }
 ?>

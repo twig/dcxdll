@@ -1515,7 +1515,7 @@ void DcxListView::parseCommandRequest(const TString& input)
 			if ((iFlags == 0) && (numtok < 6))
 				throw Dcx::dcxException("No width specified");
 
-			const auto HandleColumn = [=](const TString tsColumns) {
+			const auto HandleColumn = [=](const TString &tsColumns) {
 				UINT id_start = 0, id_end = 0;
 				if (tsColumns.numtok(TEXT('-')) == 2)
 				{
