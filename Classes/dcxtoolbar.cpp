@@ -62,7 +62,6 @@ DcxToolBar::DcxToolBar(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_D
 	this->setToolTipHWND(reinterpret_cast<HWND>(SendMessage(m_Hwnd, TB_GETTOOLTIPS, NULL, NULL)));
 	if (styles.istok(TEXT("balloon")) && IsWindow(getToolTipHWND()))
 	{
-		//SetWindowLong(this->m_ToolTipHWND, GWL_STYLE, gsl::narrow_cast<LONG>(GetWindowStyle(this->m_ToolTipHWND) | TTS_BALLOON));
 		dcxSetWindowStyle(getToolTipHWND(), dcxGetWindowStyle(getToolTipHWND()) | TTS_BALLOON);
 	}
 	//SendMessage( m_Hwnd, TB_SETPARENT, (WPARAM)mParentHwnd, NULL);
@@ -369,7 +368,6 @@ void DcxToolBar::parseCommandRequest(const TString& input)
 	if (flags[TEXT('a')])
 	{
 		if (numtok < 5)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		auto nPos = input.getnexttok().to_int() - 1;	// tok 4
@@ -467,7 +465,6 @@ void DcxToolBar::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('c')])
 	{
 		if (numtok < 7)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto iButton = input.getnexttok().to_int() - 1;						// tok 4
@@ -485,7 +482,6 @@ void DcxToolBar::parseCommandRequest(const TString& input)
 		else {
 
 			if (iButton < 0 && iButton >= this->getButtonCount())
-				//throw Dcx::dcxException("Insufficient parameters");
 				throw DcxExceptions::dcxInvalidArguments();
 
 			if (auto lpdcxtbb = getButtonData(iButton); lpdcxtbb)
@@ -545,7 +541,6 @@ void DcxToolBar::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('d')])
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto nButton = input.getnexttok().to_int() - 1;	// tok 4
@@ -557,7 +552,6 @@ void DcxToolBar::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('i')])
 	{
 		if (numtok < 5)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto nButton = input.getnexttok().to_int() - 1;	// tok 4
@@ -577,7 +571,6 @@ void DcxToolBar::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('j')])
 	{
 		if (numtok < 5)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto nMin = input.getnexttok().to_int();	// tok 4
@@ -589,7 +582,6 @@ void DcxToolBar::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('l')])
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto size = NumToIconSize(input.getnexttok().to_<UINT>());	// tok 4
@@ -611,7 +603,6 @@ void DcxToolBar::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('m')])
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		m_bAutoStretch = (input.getnexttok() == TEXT('1'));	// tok 4
@@ -623,13 +614,11 @@ void DcxToolBar::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('q')])
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto nButton = input.getnexttok().to_int() - 1;	// tok 4
 
 		if (nButton < 0 && nButton >= this->getButtonCount())
-			//throw Dcx::dcxException("Out of Range");
 			throw DcxExceptions::dcxOutOfRange();
 
 		if (auto lpdcxtbb = getButtonData(nButton); lpdcxtbb)
@@ -649,22 +638,60 @@ void DcxToolBar::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('t')])
 	{
 		if (numtok < 5)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto nButton = input.getnexttok().to_int() - 1;				// tok 4
+		//const auto nButton = input.getnexttok().to_int() - 1;				// tok 4
+		//const auto fStates = parseButtonStateFlags(input.getnexttok());	// tok 5
+		//
+		//const auto idButton = this->getIndexToCommand(nButton);
+		//
+		//if (idButton > 0)
+		//	this->setButtonState(idButton, fStates);
+
+		const auto tsButton = input.getnexttok();						// tok 4
 		const auto fStates = parseButtonStateFlags(input.getnexttok());	// tok 5
+		const auto HandleButton = [=](const TString& tsButtons) {
+			UINT id_start = 0, id_end = 0;
+			if (tsButtons.numtok(TEXT('-')) == 2)
+			{
+				id_start = tsButtons.getfirsttok(1, TEXT('-')).to_<UINT>() - 1;
+				id_end = tsButtons.getnexttok(TEXT('-')).to_<UINT>() - 1;
+			}
+			else
+				id_start = id_end = tsButtons.to_<UINT>() - 1;
 
-		const auto idButton = this->getIndexToCommand(nButton);
+			if (id_start < 0)
+				throw Dcx::dcxException(TEXT("Invalid Button : % (dialog : %)"), id_start + 1, this->getParentDialog()->getName());
 
-		if (idButton > 0)
-			this->setButtonState(idButton, fStates);
+			if (id_end < id_start)
+				throw Dcx::dcxException(TEXT("Invalid Button : % (dialog : %)"), id_end + 1, this->getParentDialog()->getName());
+
+			for (auto nButton = id_start; nButton <= id_end; ++nButton)
+			{
+				if (const auto idButton = this->getIndexToCommand(nButton); idButton > 0)
+					this->setButtonState(idButton, fStates);
+			}
+		};
+
+		if (tsButton.numtok(TSCOMMACHAR) > 1)
+		{
+			// button == 1,2,3-4....
+			const auto itEnd = tsButton.end();
+			for (auto itStart = tsButton.begin(TSCOMMACHAR); itStart != itEnd; ++itStart)
+			{
+				HandleButton(*itStart);
+			}
+		}
+		else {
+			// button = 3-4 or 3
+			HandleButton(tsButton);
+		}
+
 	}
 	// xdid -u [NAME] [ID] [SWITCH] [DX] [DY]
 	else if (flags[TEXT('u')])
 	{
 		if (numtok < 5)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto dxButton = input.getnexttok().to_int();		// tok 4
@@ -676,13 +703,11 @@ void DcxToolBar::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('v')])
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto nButton = input.getnexttok().to_int() - 1;		// tok 4
 
 		if (nButton < 0 && nButton >= this->getButtonCount())
-			//throw Dcx::dcxException("Out of Range");
 			throw DcxExceptions::dcxOutOfRange();
 
 		const auto nIndex = this->getIndexToCommand(nButton);
@@ -712,14 +737,12 @@ void DcxToolBar::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('w')])
 	{
 		if (numtok < 6)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto tsFlags(input.getnexttok());	// tok 4
 		const auto iFlags = this->parseImageListFlags(tsFlags);
 
 		if (tsFlags[0] != TEXT('+'))
-			//throw Dcx::dcxException("Invalid Flags");
 			throw DcxExceptions::dcxInvalidFlag();
 
 		const auto index = input.getnexttok().to_int();	// tok 5

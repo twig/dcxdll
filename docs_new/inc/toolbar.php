@@ -132,7 +132,10 @@ function get_xdid_toolbar(&$XDID) {
 		't' => array(
 	        '__desc' => 'This command lets you change the state of a toolbar button.',
 	        '__cmd' => '[N] [+FLAGS]',
-	        '__eg' => "2 +d",
+	        '__eg' => array(
+				'2 +d',
+				'2-7 +d',
+			),
 	        '__params' => array(
 	            'N' => 'Button index number',
 				'+FLAGS' => array(
@@ -147,7 +150,10 @@ function get_xdid_toolbar(&$XDID) {
 					),
 				),
 			),
-	        '__notes' => "A flags value of [v]+[/v] resets the button to it's normal state.",
+	        '__notes' => array(
+				"A flags value of [v]+[/v] resets the button to it's normal state.",
+				'[N] can be a single button or a range of buttons eg: 1,2,8-12',
+			),
 		),
 		'u' => array(
 	        '__desc' => 'This command lets change the toolbar default button size.',
