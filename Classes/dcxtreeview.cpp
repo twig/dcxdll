@@ -254,14 +254,14 @@ void DcxTreeView::parseInfoRequest(const TString& input, const refString<TCHAR, 
 	// [NAME] [ID] [PROP]
 	case L"seltext"_hash:
 	{
-		if (auto hItem = TreeView_GetSelection(m_Hwnd); hItem)
+		if (auto hItem = TV_GetSelection(m_Hwnd); hItem)
 			this->getItemText(hItem, szReturnValue, MIRC_BUFFER_SIZE_CCH);
 	}
 	break;
 	// [NAME] [ID] [PROP]
 	case L"selpath"_hash:
 	{
-		if (auto hItem = TreeView_GetSelection(m_Hwnd); hItem)
+		if (auto hItem = TV_GetSelection(m_Hwnd); hItem)
 			szReturnValue = getPathFromItem(hItem).to_chr();
 	}
 	break;
@@ -2201,7 +2201,7 @@ LRESULT DcxTreeView::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 		{
 			if (dcxlParam(const LPNMTVKEYDOWN, ptvkd); ptvkd && ptvkd->wVKey == VK_SPACE)
 			{
-				if (const auto htvi = TreeView_GetSelection(m_Hwnd); htvi)
+				if (const auto htvi = TV_GetSelection(m_Hwnd); htvi)
 				{
 					const auto state = TreeView_GetCheckState(m_Hwnd, htvi);
 					//this->execAliasEx(TEXT("%s,%d,%d,%d"), TEXT("stateclick"), this->getUserID( ), (state ? 0 : 1), TreeView_MapHTREEITEMToAccID(m_Hwnd, htvi) );

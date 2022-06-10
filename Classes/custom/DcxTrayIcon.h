@@ -25,7 +25,7 @@ public:
 	DcxTrayIcon(DcxTrayIcon&&) = delete;
 	DcxTrayIcon& operator=(DcxTrayIcon&&) = delete;
 
-	explicit operator bool() const noexcept { return (m_hwnd); }
+	explicit operator bool() const noexcept { return (m_hwnd != nullptr); }
 
 	const inline HWND &GetHwnd() const noexcept
 	{

@@ -380,7 +380,7 @@ void DrawXorBar(HDC hdc, const int x1, const int y1, const int width, const int 
 		{
 			Auto(DeleteObject(hbr));
 
-			SetBrushOrgEx(hdc, x1, y1, 0);
+			SetBrushOrgEx(hdc, x1, y1, nullptr);
 			const auto hbrushOld = Dcx::dcxSelectObject<HBRUSH>(hdc, hbr);
 			Auto(Dcx::dcxSelectObject<HBRUSH>(hdc, hbrushOld));
 

@@ -174,7 +174,7 @@ mIRC(xstatusbar)
 			if (numtok < 4)
 				throw DcxExceptions::dcxInvalidArguments();
 
-			if (const auto nPos = (input.getnexttok().to_int() - 1); (nPos > -1 && gsl::narrow_cast<UINT>(nPos) < DcxDock::status_getParts(SB_MAX_PARTSD, 0)))
+			if (const auto nPos = (input.getnexttok().to_int() - 1); (nPos > -1 && gsl::narrow_cast<UINT>(nPos) < DcxDock::status_getParts(SB_MAX_PARTSD, nullptr)))
 			{
 				TString itemtext;
 				const auto bkgClr = input.getnexttok().to_<COLORREF>();	// tok 3
@@ -291,7 +291,7 @@ mIRC(_xstatusbar)
 		break;
 		case TEXT("text"_hash):
 		{
-			if (const auto iPart = (d.getnexttok().to_int() - 1), nParts = gsl::narrow_cast<int>(DcxDock::status_getParts(SB_MAX_PARTSD, 0)); (iPart > -1 && iPart < nParts))
+			if (const auto iPart = (d.getnexttok().to_int() - 1), nParts = gsl::narrow_cast<int>(DcxDock::status_getParts(SB_MAX_PARTSD, nullptr)); (iPart > -1 && iPart < nParts))
 			{
 				if (const auto iFlags = DcxDock::status_getPartFlags(iPart); dcx_testflag(iFlags, SBT_OWNERDRAW))
 				{
@@ -316,7 +316,7 @@ mIRC(_xstatusbar)
 		case TEXT("parts"_hash):
 		{
 			INT parts[SB_MAX_PARTSD] = { 0 };
-			const auto nParts = DcxDock::status_getParts(SB_MAX_PARTSD, 0);
+			const auto nParts = DcxDock::status_getParts(SB_MAX_PARTSD, nullptr);
 
 			DcxDock::status_getParts(SB_MAX_PARTSD, &parts[0]);
 
@@ -330,7 +330,7 @@ mIRC(_xstatusbar)
 		break;
 		case TEXT("tooltip"_hash):
 		{
-			if (const auto iPart = d.getnexttok().to_int(), nParts = gsl::narrow_cast<int>(DcxDock::status_getParts(SB_MAX_PARTSD, 0)); (iPart > -1 && iPart < nParts))
+			if (const auto iPart = d.getnexttok().to_int(), nParts = gsl::narrow_cast<int>(DcxDock::status_getParts(SB_MAX_PARTSD, nullptr)); (iPart > -1 && iPart < nParts))
 				DcxDock::status_getTipText(iPart, mIRCLinker::c_mIRC_Buffer_Size_cch, data);
 		}
 		break;

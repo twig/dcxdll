@@ -261,11 +261,11 @@ namespace Dcx
 	}
 	inline BOOL dcxListView_GetItemRect(_In_ HWND hwnd, const int i, _Inout_ LPRECT prc, const int code) noexcept
 	{
-		return ListView_GetItemRect(hwnd, i, prc, code);
+		GSL_SUPPRESS(es.47) return ListView_GetItemRect(hwnd, i, prc, code);
 	}
 	inline BOOL dcxListView_GetSubItemRect(_In_ HWND hwnd, const int i, const int iSub, const int code, _Inout_ LPRECT prc) noexcept
 	{
-		return ListView_GetSubItemRect(hwnd, i, iSub, code, prc);
+		GSL_SUPPRESS(es.47) return ListView_GetSubItemRect(hwnd, i, iSub, code, prc);
 	}
 	inline BOOL dcxListView_GetColumn(_In_ HWND hwnd, const int iCol, _Inout_ LPLVCOLUMN lc) noexcept
 	{
@@ -278,12 +278,12 @@ namespace Dcx
 	GSL_SUPPRESS(lifetime.4)
 	inline HWND dcxListView_GetHeader(_In_ HWND hwnd) noexcept
 	{
-		return ListView_GetHeader(hwnd);
+		GSL_SUPPRESS(lifetime.4) return ListView_GetHeader(hwnd);
 	}
 	GSL_SUPPRESS(lifetime.4)
 	inline HWND dcxListView_GetToolTips(_In_ HWND hwnd) noexcept
 	{
-		return ListView_GetToolTips(hwnd);
+		GSL_SUPPRESS(lifetime.4) return ListView_GetToolTips(hwnd);
 	}
 	inline int dcxListView_GetTopIndex(_In_ HWND hwnd) noexcept
 	{

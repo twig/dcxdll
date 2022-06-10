@@ -993,7 +993,7 @@ void MultiCombo_OnPaint(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept
 			iStateId = CBXS_HOT;
 		}
 
-		Dcx::UXModule.dcxDrawThemeBackground(lpmcdata->m_hTheme, hdc, CP_DROPDOWNBUTTON, iStateId, &lpmcdata->m_rcButton, 0);
+		Dcx::UXModule.dcxDrawThemeBackground(lpmcdata->m_hTheme, hdc, CP_DROPDOWNBUTTON, iStateId, &lpmcdata->m_rcButton, nullptr);
 	}
 	else {
 		DrawFrameControl(hdc, &lpmcdata->m_rcButton, DFC_SCROLL,

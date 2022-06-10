@@ -240,6 +240,10 @@ protected:
 		_ms_TVi.stateMask = mask;
 		SNDMSG(m_Hwnd, TVM_SETITEM, 0, reinterpret_cast<LPARAM>(std::addressof(_ms_TVi)));
 	}
+	inline HTREEITEM TV_GetSelection(HWND hwnd) const noexcept
+	{
+		GSL_SUPPRESS(es.47) return TreeView_GetSelection(hwnd);
+	}
 
 	HIMAGELIST TV_GetNormalImageList() noexcept
 	{

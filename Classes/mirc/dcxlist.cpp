@@ -1284,21 +1284,21 @@ void DcxList::DrawDragLine(const int location) noexcept
 		// get width
 		const auto lWidth = (rc.right - rc.left);
 
-		MoveToEx(hDC, 0, rc.top, 0);
+		MoveToEx(hDC, 0, rc.top, nullptr);
 		LineTo(hDC, lWidth, rc.top);
-		MoveToEx(hDC, 0, rc.top - 1, 0);
+		MoveToEx(hDC, 0, rc.top - 1, nullptr);
 		LineTo(hDC, lWidth, rc.top - 1);
 
 		// Spitze links:
-		MoveToEx(hDC, 0, rc.top - 3, 0);
+		MoveToEx(hDC, 0, rc.top - 3, nullptr);
 		LineTo(hDC, 0, rc.top + 3);
-		MoveToEx(hDC, 1, rc.top - 2, 0);
+		MoveToEx(hDC, 1, rc.top - 2, nullptr);
 		LineTo(hDC, 1, rc.top + 2);
 
 		// Spitze rechts:
-		MoveToEx(hDC, lWidth - 1, rc.top - 3, 0);
+		MoveToEx(hDC, lWidth - 1, rc.top - 3, nullptr);
 		LineTo(hDC, lWidth - 1, rc.top + 3);
-		MoveToEx(hDC, lWidth - 2, rc.top - 2, 0);
+		MoveToEx(hDC, lWidth - 2, rc.top - 2, nullptr);
 		LineTo(hDC, lWidth - 2, rc.top + 2);
 	}
 }

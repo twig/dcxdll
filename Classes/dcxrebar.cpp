@@ -330,14 +330,13 @@ void DcxReBar::parseCommandRequest(const TString& input)
 	if (flags[TEXT('a')])
 	{
 		if (numtok < 10)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		REBARBANDINFO rbBand{};
 		if (Dcx::VistaModule.isUseable()) // NB: when rbBand.cbSize is set to the Vista size on XP the insertband will FAIL!! fucking MS!
 			rbBand.cbSize = sizeof(REBARBANDINFO);
 		else
-			rbBand.cbSize = REBARBANDINFO_V6_SIZE;
+			GSL_SUPPRESS(es.47) rbBand.cbSize = REBARBANDINFO_V6_SIZE;
 
 		rbBand.fMask = RBBIM_STYLE | RBBIM_LPARAM;
 
@@ -438,7 +437,6 @@ void DcxReBar::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('A')])
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto n = input.getnexttok().to_int() - 1;	// tok 4
@@ -458,7 +456,6 @@ void DcxReBar::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('d')])
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto nIndex = input.getnexttok().to_int() - 1;	// tok 4
@@ -472,7 +469,6 @@ void DcxReBar::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('i')])
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto nIndex = input.getnexttok().to_int() - 1;	// tok 4
@@ -486,7 +482,6 @@ void DcxReBar::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('j')])
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto nIndex = input.getnexttok().to_int() - 1;	// tok 4
@@ -500,7 +495,6 @@ void DcxReBar::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('k')])
 	{
 		if (numtok < 5)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		REBARBANDINFO rbBand{};
@@ -521,7 +515,6 @@ void DcxReBar::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('l')])
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		REBARBANDINFO rbBand{};
@@ -556,7 +549,6 @@ void DcxReBar::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('m')])
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto nIndex = input.getnexttok().to_int() - 1;	// tok 4
@@ -570,7 +562,6 @@ void DcxReBar::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('n')])
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto nIndex = input.getnexttok().to_int() - 1;	// tok 4
@@ -584,7 +575,6 @@ void DcxReBar::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('q')])
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto nRows = input.getnexttok().to_int();	// tok 4
@@ -596,7 +586,6 @@ void DcxReBar::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('t')])
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		REBARBANDINFO rbBand{};
@@ -618,7 +607,6 @@ void DcxReBar::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('u')])
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		REBARBANDINFO rbBand{};
@@ -653,7 +641,6 @@ void DcxReBar::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('v')])
 	{
 		if (numtok < 5)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto nIndexFrom = input.getnexttok().to_int() - 1;	// tok 4
@@ -669,7 +656,6 @@ void DcxReBar::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('w')])
 	{
 		if (numtok < 6)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto flag(input.getnexttok());		// tok 4

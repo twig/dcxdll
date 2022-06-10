@@ -159,7 +159,7 @@ void DcxDock::UnDockWindowPtr(const gsl::owner<LPDCXULTRADOCK> ud) noexcept
 
 			RemStyles(ud->hwnd, GWL_STYLE, WS_CHILD);
 			SetParent(ud->hwnd, nullptr);
-			SetWindowPos(ud->hwnd, HWND_TOP, ud->rc.left, ud->rc.top, ud->rc.right - ud->rc.left, ud->rc.bottom - ud->rc.top, SWP_NOZORDER | SWP_FRAMECHANGED | SWP_NOACTIVATE);
+			GSL_SUPPRESS(es.47) SetWindowPos(ud->hwnd, HWND_TOP, ud->rc.left, ud->rc.top, ud->rc.right - ud->rc.left, ud->rc.bottom - ud->rc.top, SWP_NOZORDER | SWP_FRAMECHANGED | SWP_NOACTIVATE);
 		}
 		delete ud;
 	}

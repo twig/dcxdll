@@ -46,6 +46,7 @@ void TraverseChildren(const HTREEITEM hParent, TString& buf, TString& res, LPTVI
 }
 
 GSL_SUPPRESS(type.4)
+GSL_SUPPRESS(es.47)
 void TraverseTreebarItems(void)
 {
 	SetWindowRedraw(mIRCLinker::getTreeview(), FALSE);

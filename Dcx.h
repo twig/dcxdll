@@ -1078,6 +1078,7 @@ namespace Dcx
 			, m_Item{ TreeView_GetChild(hWin, hParent) }
 		{
 		}
+		GSL_SUPPRESS(es.47)
 		explicit dcxTreeItem(HWND hWin) noexcept
 			: m_Window{ hWin }
 			, m_Item{ TreeView_GetRoot(hWin) }
