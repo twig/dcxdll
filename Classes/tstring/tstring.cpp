@@ -1380,16 +1380,6 @@ bool TString::ishostmask(void) const noexcept
 
 TString TString::toupper(void) const
 {
-	//TString tmp(*this);
-	//UINT c = 0;
-	//char *p = tmp.to_chr();
-	//const UINT l = tmp.len();
-	//
-	//while (c < l) {
-	//	p[c] = (char)rfc_toupper(p[c]);
-	//	c++;
-	//}
-
 	auto tmp(*this);
 	UINT c = 0;
 	const auto l = tmp.len();
@@ -1400,14 +1390,6 @@ TString TString::toupper(void) const
 }
 TString TString::tolower(void) const
 {
-	//TString tmp(*this);
-	//UINT c = 0;
-	//char *p = tmp.to_chr();
-	//while (c < tmp.len()) {
-	//	p[c] = (char)rfc_tolower(p[c]);
-	//	c++;
-	//}
-
 	auto tmp(*this);
 	const auto l = tmp.len();
 	auto c = decltype(l){0};
@@ -1432,27 +1414,12 @@ TString TString::mid(const int pos, int n) const
 		return {};
 	++n;
 
-	//TString tmp((UINT)n);
-	//
-	//ts_strcpyn_throw(tmp.m_pString, &this->m_pString[pos], n);
-	//
-	//return tmp;
 	return TString(&this->m_pString[pos], &this->m_pString[pos + n]);
 }
 
 // if n > string length its truncated, n can be < 0
 TString TString::left(int n) const
 {
-	//const auto l = ts_strlen(this->m_pString);
-	//if ((l == 0) || (n == 0))
-	//	return TEXT("");
-	//if (n < 0)
-	//	n = l + n;
-	//if (n > l)
-	//	n = l;
-	//n++;
-	//return TString(this->m_pString, (this->m_pString + n));
-
 	return this->mid(0, n);
 }
 
@@ -1473,36 +1440,18 @@ TString TString::right(int n) const
 		len = (l - start) + 1;
 	}
 
-	//TString tmp((UINT)len);
-	//
-	//ts_strcpyn(tmp.m_pString, &this->m_pString[start], len);
-	//
-	//return tmp;
 	return TString(&this->m_pString[start], &this->m_pString[start + len]);
-
-	//const int l = this->len();
-	//return this->mid(l - n,l);
 }
 
 // Ook - match() function taken from aircdll.dll by Tabo source.
 /* taken from the hybrid-5.3p7 source */
 inline int TString::rfc_tolower(const int c) noexcept
 {
-	//TCHAR tmp[2];
-	//tmp[0] = (TCHAR)c;
-	//tmp[1] = 0;
-	//_wcslwr(tmp);
-	//return (int)tmp[0];
 	return ::tolower(c);
 }
 
 inline int TString::rfc_toupper(const int c) noexcept
 {
-	//TCHAR tmp[2];
-	//tmp[0] = (TCHAR)c;
-	//tmp[1] = 0;
-	//_wcsupr(tmp);
-	//return (int)tmp[0];
 	return ::toupper(c);
 }
 
@@ -1732,7 +1681,7 @@ UINT TString::nwildtok(const_pointer_const wildString, const_pointer_const sepCh
 
 GSL_SUPPRESS(es.47)
 GSL_SUPPRESS(type.3)
-int TString::tsprintf(const_pointer_const fmt, ...)
+int TString::tsprintf(_Printf_format_string_ const_pointer_const fmt, ...)
 {
 	va_list args = nullptr;
 	va_start(args, fmt);
@@ -1741,7 +1690,7 @@ int TString::tsprintf(const_pointer_const fmt, ...)
 	return cnt;
 }
 
-int TString::tvprintf(const_pointer_const fmt, va_list args)
+int TString::tvprintf(_Printf_format_string_ const_pointer_const fmt, va_list args)
 {
 	const auto cnt = ts_vscprintf(fmt, args);
 	if (cnt > 0)

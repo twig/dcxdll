@@ -805,31 +805,225 @@ const DcxColourFlags DcxControl::parseColorFlags(const TString& flags) noexcept
  */
 bool DcxControl::parseGlobalInfoRequest(const TString& input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>& szReturnValue) const
 {
+//	switch (std::hash<TString>{}(input.getfirsttok(3)))
+//	{
+//	case L"hwnd"_hash:
+//	{
+//		_ts_snprintf(szReturnValue, TEXT("%lu"), (DWORD)m_Hwnd);	// can't use %p as this gives a hex result.
+//		return true;
+//	}
+//	break;
+//	case L"visible"_hash:
+//	{
+//		szReturnValue = dcx_truefalse((IsWindowVisible(m_Hwnd) != FALSE));
+//		return true;
+//	}
+//	break;
+//	case L"enabled"_hash:
+//	{
+//		szReturnValue = dcx_truefalse((IsWindowEnabled(m_Hwnd) != FALSE));
+//		return true;
+//	}
+//	break;
+//	case L"pos"_hash:
+//	{
+//		const auto rc = getWindowPosition();
+//		_ts_snprintf(szReturnValue, TEXT("%d %d %d %d"), rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top);
+//		return true;
+//	}
+//	break;
+//	case L"dpos"_hash:
+//	{
+//#if DCX_USE_WRAPPERS
+//		const Dcx::dcxWindowRect rc(m_Hwnd, getParentDialog()->getHwnd());
+//
+//		_ts_snprintf(szReturnValue, TEXT("%d %d %d %d"), rc.left, rc.top, rc.Width(), rc.Height());
+//#else
+//		if (RECT rc{}; GetWindowRect(m_Hwnd, &rc))
+//		{
+//			MapWindowRect(nullptr, getParentDialog()->getHwnd(), &rc);
+//
+//			_ts_snprintf(szReturnValue, TEXT("%d %d %d %d"), rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top);
+//		}
+//#endif
+//		return true;
+//	}
+//	break;
+//	case L"mark"_hash:
+//	{
+//		szReturnValue = m_tsMark.to_chr();
+//		return true;
+//	}
+//	break;
+//	case L"mouse"_hash:
+//	{
+//#if DCX_USE_WRAPPERS
+//		if (const Dcx::dcxCursorPos pt(m_Hwnd); pt)
+//		{
+//			_ts_snprintf(szReturnValue, TEXT("%d %d"), pt.x, pt.y);
+//			return true;
+//		}
+//#else
+//		if (POINT pt{}; GetCursorPos(&pt))
+//		{
+//			MapWindowPoints(nullptr, m_Hwnd, &pt, 1);
+//			_ts_snprintf(szReturnValue, TEXT("%d %d"), pt.x, pt.y);
+//			return true;
+//		}
+//#endif
+//	}
+//	break;
+//	case L"pid"_hash:
+//	{
+//#if DCX_USE_WRAPPERS
+//		auto hParent = GetParent(m_Hwnd);
+//
+//		if (const Dcx::dcxClassName sClassname(hParent); sClassname == TEXT("#32770"))
+//			szReturnValue = TEXT('0');
+//		else
+//			_ts_snprintf(szReturnValue, TEXT("%u"), getParentDialog()->getControlByHWND(hParent)->getUserID());
+//
+//		return true;
+//#else
+//		stString<257> sClassname;
+//
+//		auto hParent = GetParent(m_Hwnd);
+//		GetClassName(hParent, sClassname, gsl::narrow_cast<int>(sClassname.size()));
+//
+//		if (sClassname == TEXT("#32770"))
+//			szReturnValue = TEXT('0');
+//		else
+//			_ts_snprintf(szReturnValue, TEXT("%u"), getParentDialog()->getControlByHWND(hParent)->getUserID());
+//
+//		return true;
+//#endif
+//	}
+//	break;
+//	case L"type"_hash:
+//	{
+//		szReturnValue = getType().to_chr();
+//		return true;
+//	}
+//	break;
+//	case L"styles"_hash:
+//	{
+//		szReturnValue = getStyles().to_chr();
+//		return true;
+//	}
+//	break;
+//	case L"font"_hash:
+//	{
+//		auto hFontControl = getControlFont();
+//
+//		if (!hFontControl)
+//			hFontControl = Dcx::dcxGetStockObject<HFONT>(DEFAULT_GUI_FONT);
+//
+//		if (hFontControl)
+//		{
+//			if (auto [code, lfCurrent] = Dcx::dcxGetObject<LOGFONT>(hFontControl); code != 0)
+//			{
+//				szReturnValue = ParseLogfontToCommand(&lfCurrent).to_chr();
+//				return true;
+//			}
+//		}
+//	}
+//	break;
+//	// [NAME] [ID] [PROP]
+//	case L"tooltipbgcolor"_hash:
+//	{
+//		COLORREF cref = CLR_INVALID;
+//
+//		if (m_ToolTipHWND)
+//			cref = gsl::narrow_cast<COLORREF>(SendMessage(m_ToolTipHWND, TTM_GETTIPBKCOLOR, NULL, NULL));
+//
+//		_ts_snprintf(szReturnValue, TEXT("%lu"), cref);
+//		return true;
+//	}
+//	break;
+//	// [NAME] [ID] [PROP]
+//	case L"tooltiptextcolor"_hash:
+//	{
+//		COLORREF cref = CLR_INVALID;
+//
+//		if (m_ToolTipHWND)
+//			cref = gsl::narrow_cast<COLORREF>(SendMessage(m_ToolTipHWND, TTM_GETTIPTEXTCOLOR, NULL, NULL));
+//
+//		_ts_snprintf(szReturnValue, TEXT("%lu"), cref);
+//		return true;
+//	}
+//	// [NAME] [ID] [PROP]
+//	case L"alpha"_hash:
+//	{
+//		szReturnValue = dcx_truefalse(m_bAlphaBlend);
+//		return true;
+//	}
+//	break;
+//	// [NAME] [ID] [PROP]
+//	case L"textcolor"_hash:
+//	{
+//		_ts_snprintf(szReturnValue, TEXT("%u"), m_clrText);
+//		return true;
+//	}
+//	break;
+//	// [NAME] [ID] [PROP]
+//	case L"textbgcolor"_hash:
+//	{
+//		_ts_snprintf(szReturnValue, TEXT("%u"), m_clrBackText);
+//		return true;
+//	}
+//	break;
+//	// [NAME] [ID] [PROP]
+//	case L"bgcolor"_hash:
+//	{
+//		_ts_snprintf(szReturnValue, TEXT("%u"), m_clrBackground);
+//		return true;
+//	}
+//	default:
+//		throw Dcx::dcxException("Invalid property or number of arguments");
+//		break;
+//	}
+//	return false;
+
+	szReturnValue = parseGlobalInfoRequest(input).to_chr();
+	return true;
+}
+
+/// <summary>
+/// Get general information on a control.
+/// throws on error.
+/// </summary>
+/// <param name="input">- Property to get from control.</param>
+/// <returns></returns>
+TString DcxControl::parseGlobalInfoRequest(const TString& input) const
+{
+	//TString tsResult((UINT)MIRC_BUFFER_SIZE_CCH);
+	//const mIRCResultString szref(tsResult.to_chr());
+	//parseGlobalInfoRequest(input, szref);
+	//return tsResult;
+
+	TString tsResult((UINT)MIRC_BUFFER_SIZE_CCH);
+
 	switch (std::hash<TString>{}(input.getfirsttok(3)))
 	{
 	case L"hwnd"_hash:
 	{
-		_ts_snprintf(szReturnValue, TEXT("%lu"), (DWORD)m_Hwnd);	// can't use %p as this gives a hex result.
-		return true;
+		tsResult += (DWORD)m_Hwnd;
 	}
 	break;
 	case L"visible"_hash:
 	{
-		szReturnValue = dcx_truefalse((IsWindowVisible(m_Hwnd) != FALSE));
-		return true;
+		tsResult = dcx_truefalse((IsWindowVisible(m_Hwnd) != FALSE));
 	}
 	break;
 	case L"enabled"_hash:
 	{
-		szReturnValue = dcx_truefalse((IsWindowEnabled(m_Hwnd) != FALSE));
-		return true;
+		tsResult = dcx_truefalse((IsWindowEnabled(m_Hwnd) != FALSE));
 	}
 	break;
 	case L"pos"_hash:
 	{
 		const auto rc = getWindowPosition();
-		_ts_snprintf(szReturnValue, TEXT("%d %d %d %d"), rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top);
-		return true;
+		tsResult.tsprintf(TEXT("%d %d %d %d"), rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top);
 	}
 	break;
 	case L"dpos"_hash:
@@ -837,23 +1031,20 @@ bool DcxControl::parseGlobalInfoRequest(const TString& input, const refString<TC
 #if DCX_USE_WRAPPERS
 		const Dcx::dcxWindowRect rc(m_Hwnd, getParentDialog()->getHwnd());
 
-		_ts_snprintf(szReturnValue, TEXT("%d %d %d %d"), rc.left, rc.top, rc.Width(), rc.Height());
+		tsResult.tsprintf(TEXT("%d %d %d %d"), rc.left, rc.top, rc.Width(), rc.Height());
 #else
 		if (RECT rc{}; GetWindowRect(m_Hwnd, &rc))
 		{
 			MapWindowRect(nullptr, getParentDialog()->getHwnd(), &rc);
 
-			_ts_snprintf(szReturnValue, TEXT("%d %d %d %d"), rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top);
-			return true;
+			tsResult.tsprintf(TEXT("%d %d %d %d"), rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top);
 		}
 #endif
-		return true;
 	}
 	break;
 	case L"mark"_hash:
 	{
-		szReturnValue = m_tsMark.to_chr();
-		return true;
+		tsResult = m_tsMark;
 	}
 	break;
 	case L"mouse"_hash:
@@ -861,15 +1052,13 @@ bool DcxControl::parseGlobalInfoRequest(const TString& input, const refString<TC
 #if DCX_USE_WRAPPERS
 		if (const Dcx::dcxCursorPos pt(m_Hwnd); pt)
 		{
-			_ts_snprintf(szReturnValue, TEXT("%d %d"), pt.x, pt.y);
-			return true;
+			tsResult.tsprintf(TEXT("%d %d"), pt.x, pt.y);
 		}
 #else
 		if (POINT pt{}; GetCursorPos(&pt))
 		{
 			MapWindowPoints(nullptr, m_Hwnd, &pt, 1);
-			_ts_snprintf(szReturnValue, TEXT("%d %d"), pt.x, pt.y);
-			return true;
+			tsResult.tsprintf(TEXT("%d %d"), pt.x, pt.y);
 		}
 #endif
 	}
@@ -880,11 +1069,9 @@ bool DcxControl::parseGlobalInfoRequest(const TString& input, const refString<TC
 		auto hParent = GetParent(m_Hwnd);
 
 		if (const Dcx::dcxClassName sClassname(hParent); sClassname == TEXT("#32770"))
-			szReturnValue = TEXT('0');
+			tsResult = TEXT('0');
 		else
-			_ts_snprintf(szReturnValue, TEXT("%u"), getParentDialog()->getControlByHWND(hParent)->getUserID());
-
-		return true;
+			tsResult += getParentDialog()->getControlByHWND(hParent)->getUserID();
 #else
 		stString<257> sClassname;
 
@@ -892,24 +1079,20 @@ bool DcxControl::parseGlobalInfoRequest(const TString& input, const refString<TC
 		GetClassName(hParent, sClassname, gsl::narrow_cast<int>(sClassname.size()));
 
 		if (sClassname == TEXT("#32770"))
-			szReturnValue = TEXT('0');
+			tsResult = TEXT('0');
 		else
-			_ts_snprintf(szReturnValue, TEXT("%u"), getParentDialog()->getControlByHWND(hParent)->getUserID());
-
-		return true;
+			tsResult += getParentDialog()->getControlByHWND(hParent)->getUserID();
 #endif
 	}
 	break;
 	case L"type"_hash:
 	{
-		szReturnValue = getType().to_chr();
-		return true;
+		tsResult = getType();
 	}
 	break;
 	case L"styles"_hash:
 	{
-		szReturnValue = getStyles().to_chr();
-		return true;
+		tsResult = getStyles();
 	}
 	break;
 	case L"font"_hash:
@@ -923,8 +1106,7 @@ bool DcxControl::parseGlobalInfoRequest(const TString& input, const refString<TC
 		{
 			if (auto [code, lfCurrent] = Dcx::dcxGetObject<LOGFONT>(hFontControl); code != 0)
 			{
-				szReturnValue = ParseLogfontToCommand(&lfCurrent).to_chr();
-				return true;
+				tsResult = ParseLogfontToCommand(&lfCurrent);
 			}
 		}
 	}
@@ -937,8 +1119,7 @@ bool DcxControl::parseGlobalInfoRequest(const TString& input, const refString<TC
 		if (m_ToolTipHWND)
 			cref = gsl::narrow_cast<COLORREF>(SendMessage(m_ToolTipHWND, TTM_GETTIPBKCOLOR, NULL, NULL));
 
-		_ts_snprintf(szReturnValue, TEXT("%lu"), cref);
-		return true;
+		tsResult += cref;
 	}
 	break;
 	// [NAME] [ID] [PROP]
@@ -949,46 +1130,36 @@ bool DcxControl::parseGlobalInfoRequest(const TString& input, const refString<TC
 		if (m_ToolTipHWND)
 			cref = gsl::narrow_cast<COLORREF>(SendMessage(m_ToolTipHWND, TTM_GETTIPTEXTCOLOR, NULL, NULL));
 
-		_ts_snprintf(szReturnValue, TEXT("%lu"), cref);
-		return true;
+		tsResult += cref;
 	}
 	// [NAME] [ID] [PROP]
 	case L"alpha"_hash:
 	{
-		szReturnValue = dcx_truefalse(m_bAlphaBlend);
-		return true;
+		tsResult = dcx_truefalse(m_bAlphaBlend);
 	}
 	break;
 	// [NAME] [ID] [PROP]
 	case L"textcolor"_hash:
 	{
-		_ts_snprintf(szReturnValue, TEXT("%u"), m_clrText);
-		return true;
+		tsResult += m_clrText;
 	}
 	break;
 	// [NAME] [ID] [PROP]
 	case L"textbgcolor"_hash:
 	{
-		_ts_snprintf(szReturnValue, TEXT("%u"), m_clrBackText);
-		return true;
+		tsResult += m_clrBackText;
 	}
 	break;
 	// [NAME] [ID] [PROP]
 	case L"bgcolor"_hash:
 	{
-		_ts_snprintf(szReturnValue, TEXT("%u"), m_clrBackground);
-		return true;
+		tsResult += m_clrBackground;
 	}
 	default:
 		throw Dcx::dcxException("Invalid property or number of arguments");
 		break;
 	}
-	return false;
-}
-
-TString DcxControl::parseGlobalInfoRequest(const TString& input) const
-{
-	return TString();
+	return tsResult;
 }
 
 void DcxControl::HandleDragDrop(int x, int y) noexcept
@@ -1012,8 +1183,6 @@ void DcxControl::HandleDragDrop(int x, int y) noexcept
  */
 LRESULT CALLBACK DcxControl::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-	//auto pthis = static_cast<DcxControl*>(GetProp(mHwnd, TEXT("dcx_cthis")));
-
 	DcxControl* pthis{};
 
 	if (uMsg == WM_NCCREATE)
@@ -1026,6 +1195,9 @@ LRESULT CALLBACK DcxControl::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LP
 
 						  // get control object
 		pthis = static_cast<DcxControl*>(cs->lpCreateParams);
+		if (!pthis)
+			return FALSE; // cause CreateWindowEx() to fail.
+
 		// set this control objects hwnd.
 		pthis->m_Hwnd = mHwnd;
 

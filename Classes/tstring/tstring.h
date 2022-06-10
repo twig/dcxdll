@@ -1967,8 +1967,8 @@ public:
 	TString left(int n) const;
 	TString right(int n) const;
 
-	int tsprintf(const_pointer_const fmt, ...);
-	int tvprintf(const_pointer_const fmt, va_list args);
+	int tsprintf(_Printf_format_string_ const_pointer_const fmt, ...);
+	int tvprintf(_Printf_format_string_ const_pointer_const fmt, va_list args);
 
 	[[nodiscard]] pointer to_chr() noexcept { m_bDirty = true;  return m_pString; };	// returns the string in the projects current format. (string can be altered)
 	//gsl::strict_not_null<pointer> to_chr() noexcept { m_bDirty = true;  return gsl::make_strict_not_null(m_pString); };	// returns the string in the projects current format. (string can be altered)
