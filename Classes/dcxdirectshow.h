@@ -297,6 +297,15 @@ struct MyCOMClass<IDispatch> final
 //	}
 //};
 
+/// <summary>
+/// Normalized range, Min is always zero and Min LE Value LE Max
+/// </summary>
+struct NormalizedRange
+{
+	UINT Value{};
+	UINT MaxValue{};
+};
+
 /*!
  * \brief blah
  *
@@ -355,6 +364,8 @@ protected:
 	float getVolume(void) const;
 	HRESULT setBalance(const long vol);
 	long getBalance(void) const;
+
+	static NormalizedRange NormalizeValue(float fValue, float fMin, float fMax, float fStep) noexcept;
 
 #define WM_GRAPHNOTIFY  WM_APP + 1
 

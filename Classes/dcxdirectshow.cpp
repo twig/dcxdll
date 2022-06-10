@@ -192,8 +192,9 @@ void DcxDirectshow::parseInfoRequest(const TString& input, const refString<TCHAR
 				DX_ERR(prop.to_chr(), nullptr, hr);
 				throw Dcx::dcxException("Unable to get Video Information");
 			}
+			const auto nr = NormalizeValue(acr.DefaultValue, acr.MinValue, acr.MaxValue, acr.StepSize);
 
-			_ts_snprintf(szReturnValue, TEXT("%f %f %f %f"), acr.DefaultValue, acr.MinValue, acr.MaxValue, acr.StepSize);
+			_ts_snprintf(szReturnValue, TEXT("%f %f %f %f %u %u"), acr.DefaultValue, acr.MinValue, acr.MaxValue, acr.StepSize, nr.Value, nr.MaxValue);
 			// NB: wnsprintf() doesn't support %f
 		}
 		break;
@@ -208,7 +209,9 @@ void DcxDirectshow::parseInfoRequest(const TString& input, const refString<TCHAR
 				throw Dcx::dcxException("Unable to get Video Information");
 			}
 
-			_ts_snprintf(szReturnValue, TEXT("%f %f %f %f"), acr.DefaultValue, acr.MinValue, acr.MaxValue, acr.StepSize);
+			const auto nr = NormalizeValue(acr.DefaultValue, acr.MinValue, acr.MaxValue, acr.StepSize);
+
+			_ts_snprintf(szReturnValue, TEXT("%f %f %f %f %u %u"), acr.DefaultValue, acr.MinValue, acr.MaxValue, acr.StepSize, nr.Value, nr.MaxValue);
 			// NB: wnsprintf() doesn't support %f
 		}
 		break;
@@ -223,7 +226,9 @@ void DcxDirectshow::parseInfoRequest(const TString& input, const refString<TCHAR
 				throw Dcx::dcxException("Unable to get Video Information");
 			}
 
-			_ts_snprintf(szReturnValue, TEXT("%f %f %f %f"), acr.DefaultValue, acr.MinValue, acr.MaxValue, acr.StepSize);
+			const auto nr = NormalizeValue(acr.DefaultValue, acr.MinValue, acr.MaxValue, acr.StepSize);
+
+			_ts_snprintf(szReturnValue, TEXT("%f %f %f %f %u %u"), acr.DefaultValue, acr.MinValue, acr.MaxValue, acr.StepSize, nr.Value, nr.MaxValue);
 			// NB: wnsprintf() doesn't support %f
 		}
 		break;
@@ -238,7 +243,9 @@ void DcxDirectshow::parseInfoRequest(const TString& input, const refString<TCHAR
 				throw Dcx::dcxException("Unable to get Video Information");
 			}
 
-			_ts_snprintf(szReturnValue, TEXT("%f %f %f %f"), acr.DefaultValue, acr.MinValue, acr.MaxValue, acr.StepSize);
+			const auto nr = NormalizeValue(acr.DefaultValue, acr.MinValue, acr.MaxValue, acr.StepSize);
+
+			_ts_snprintf(szReturnValue, TEXT("%f %f %f %f %u %u"), acr.DefaultValue, acr.MinValue, acr.MaxValue, acr.StepSize, nr.Value, nr.MaxValue);
 			// NB: wnsprintf() doesn't support %f
 		}
 		break;
@@ -1394,6 +1401,24 @@ long DcxDirectshow::getBalance(void) const
 #pragma warning(pop)
 	}
 	return vol;
+}
+
+/// <summary>
+/// Normalize a range into a zero range
+/// </summary>
+/// <param name="fValue">- The current value.</param>
+/// <param name="fMin">- The min value allowed.</param>
+/// <param name="fMax">- The max value allowed.</param>
+/// <param name="fStep">- The amount the value can be changed by (changes must be multiples of this amount).</param>
+/// <returns>All values are shifted into a zero range where the min is zero and the step is one.</returns>
+NormalizedRange DcxDirectshow::NormalizeValue(float fValue, float fMin, float fMax, float fStep) noexcept
+{
+	fValue = std::clamp(fValue, fMin, fMax);
+	const auto fTotalSteps = (fMax - fMin) / fStep;
+	const auto fValueStep = abs(fValue + fMin) / fStep;
+	//const auto fValuePrecentage = (fValueStep / fTotalSteps) * 100;
+
+	return { gsl::narrow_cast<UINT>(fValueStep), gsl::narrow_cast<UINT>(fTotalSteps) };
 }
 
 void DcxDirectshow::toXml(TiXmlElement* const xml) const
