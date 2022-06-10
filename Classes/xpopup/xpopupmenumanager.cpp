@@ -32,6 +32,10 @@ public:
 			stop();
 		};
 	}
+	CallBackTimer(const CallBackTimer&) = delete;
+	CallBackTimer(CallBackTimer&&) = delete;
+	CallBackTimer& operator =(const CallBackTimer&) = delete;
+	CallBackTimer& operator =(CallBackTimer&&) = delete;
 
 	void setstop() noexcept
 	{
