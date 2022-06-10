@@ -1132,6 +1132,7 @@ TString DcxControl::parseGlobalInfoRequest(const TString& input) const
 
 		tsResult += cref;
 	}
+	break;
 	// [NAME] [ID] [PROP]
 	case L"alpha"_hash:
 	{
@@ -1155,6 +1156,7 @@ TString DcxControl::parseGlobalInfoRequest(const TString& input) const
 	{
 		tsResult += m_clrBackground;
 	}
+	break;
 	default:
 		throw Dcx::dcxException("Invalid property or number of arguments");
 		break;
