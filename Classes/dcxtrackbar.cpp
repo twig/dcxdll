@@ -560,10 +560,14 @@ LRESULT DcxTrackBar::setThumbLength(const UINT iLength) noexcept
 * blah
 */
 
-LRESULT DcxTrackBar::setSel(const LONG iLowLim, const LONG iHighLim) noexcept
+void DcxTrackBar::setSel(const LONG iLowLim, const LONG iHighLim) noexcept
 {
-	//return SendMessage(m_Hwnd, TBM_SETSEL, 1U, MAKELPARAM(iLowLim, iHighLim));
-	return SendMessage(m_Hwnd, TBM_SETSEL, 1U, Dcx::dcxMAKELPARAM(iLowLim, iHighLim));
+	// this works fine, but is limited to a 16bit range
+	//SendMessage(m_Hwnd, TBM_SETSEL, 1U, Dcx::dcxMAKELPARAM(iLowLim, iHighLim));
+
+	// this allows a 32bit range.
+	SendMessage(m_Hwnd, TBM_SETSELSTART, 0U, iLowLim);
+	SendMessage(m_Hwnd, TBM_SETSELEND, 1U, iHighLim);
 }
 
 /*!

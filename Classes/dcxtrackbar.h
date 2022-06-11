@@ -83,7 +83,7 @@ public:
 	LRESULT setLineSize(const LONG lLineSize) noexcept;
 	LRESULT getLineSize() const noexcept;
 	LRESULT setThumbLength(const UINT iLength) noexcept;
-	LRESULT setSel(const LONG iLowLim, const LONG iHighLim) noexcept;
+	void setSel(const LONG iLowLim, const LONG iHighLim) noexcept;
 	LRESULT getSelStart() const noexcept;
 	LRESULT getSelEnd() const noexcept;
 	HWND setBuddy(const HWND mHwnd, bool bLeft) noexcept;
