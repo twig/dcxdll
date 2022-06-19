@@ -625,7 +625,7 @@ void DcxRichEdit::parseCommandRequest(const TString& input)
 		if (numtok < 5)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto nColor = input.getnexttok().to_int() - 1;	// tok 4
+		const auto nColor = input.getnexttok().to_int();	// tok 4
 
 		if (nColor < 0 || nColor > gsl::narrow_cast<int>(std::size(m_aColorPalette) - 1))
 			throw Dcx::dcxException("Invalid Colour");
