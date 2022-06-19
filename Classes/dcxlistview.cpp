@@ -1232,12 +1232,20 @@ void DcxListView::parseCommandRequest(const TString& input)
 				const auto tsLine(*itStart);
 				const auto nItemCnt = Dcx::dcxListView_GetItemCount(m_Hwnd);
 
-				const auto [iStart, iEnd] = getItemRange2(tsLine, nItemCnt);	// uses structured binding...
+				//const auto [iStart, iEnd] = getItemRange2(tsLine, nItemCnt);	// uses structured binding...
 
-				if ((iStart < 0) || (iEnd < iStart) || (iStart >= nItemCnt) || (iEnd >= nItemCnt))
+				//if ((iStart < 0) || (iEnd < iStart) || (iStart >= nItemCnt) || (iEnd >= nItemCnt))
+				//	throw Dcx::dcxException(TEXT("Invalid index %."), tsLine);
+
+				//for (auto nItem = iStart; nItem <= iEnd; ++nItem)
+				//	Dcx::dcxListView_DeleteItem(m_Hwnd, nItem);
+
+				const auto r = getItemRange2(tsLine, nItemCnt);
+
+				if ((r.b < 0) || (r.e < r.b) || (r.b >= nItemCnt) || (r.e >= nItemCnt))
 					throw Dcx::dcxException(TEXT("Invalid index %."), tsLine);
 
-				for (auto nItem = iStart; nItem <= iEnd; ++nItem)
+				for (auto nItem : r)
 					Dcx::dcxListView_DeleteItem(m_Hwnd, nItem);
 			}
 		}
@@ -1516,22 +1524,12 @@ void DcxListView::parseCommandRequest(const TString& input)
 				throw Dcx::dcxException("No width specified");
 
 			const auto HandleColumn = [=](const TString &tsColumns) {
-				UINT id_start = 0, id_end = 0;
-				if (tsColumns.numtok(TEXT('-')) == 2)
-				{
-					id_start = tsColumns.getfirsttok(1, TEXT('-')).to_<UINT>() - 1;
-					id_end = tsColumns.getnexttok(TEXT('-')).to_<UINT>() - 1;
-				}
-				else
-					id_start = id_end = tsColumns.to_<UINT>() - 1;
+				const auto r = getItemRange2(tsColumn, this->getColumnCount());
 
-				if (id_start < 0)
-					throw Dcx::dcxException(TEXT("Invalid Column : % (dialog : %)"), id_start + 1, this->getParentDialog()->getName());
+				if ((r.b < 0) || (r.e < r.b))
+					throw DcxExceptions::dcxOutOfRange();
 
-				if (id_end < id_start)
-					throw Dcx::dcxException(TEXT("Invalid Column : % (dialog : %)"), id_end + 1, this->getParentDialog()->getName());
-
-				for (auto nColumn = id_start; nColumn <= id_end; ++nColumn)
+				for (auto nColumn: r)
 				{
 					this->autoSize(nColumn, iFlags, iWidth);
 				}
@@ -1556,24 +1554,6 @@ void DcxListView::parseCommandRequest(const TString& input)
 					// column = 3-4
 					HandleColumn(tsColumn);
 			}
-
-			//const auto iFlags = this->parseHeaderFlags2(xflags);
-			//const auto iWidth = input.getnexttok().to_int();	// tok 6
-			//auto nColumn = (tsColumn.to_int() - 1);	// tok 4
-			//UINT iCount = 0;
-			//if ((iFlags == 0) && (numtok < 6))
-			//	throw Dcx::dcxException("No width specified");
-			//if (nColumn > -1 && gsl::narrow_cast<UINT>(nColumn) < iTotal)	// set width for a single specific column
-			//	iCount = 1;			// set a single column to a set width:			/xdid -n dname id column + width
-			//else {
-			//	iCount = iTotal;	// set all columns to a single width:			/xdid -n dname id -1 + width
-			//	nColumn = 0;		// or set all columns to an auto sized width:	/xdid -n dname id -1 +ahsFp
-			//}
-			//for (auto n = decltype(iCount){0}; n < iCount; ++n)
-			//{
-			//	this->autoSize(nColumn, iFlags, iWidth);
-			//	++nColumn;
-			//}
 		}
 	}
 	// xdid -o [NAME] [ID] [SWITCH] [ORDER ...]

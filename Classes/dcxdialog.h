@@ -194,7 +194,7 @@ public:
 	/// <returns>HCURSOR - Current cursor for specified zone. Returns nullptr on failure.</returns>
 	inline const HCURSOR& getCursor(const WORD wHitCode) const noexcept
 	{
-		GSL_SUPPRESS(bounds) if (wHitCode < std::size(m_hCursorList)) return gsl::at(m_hCursorList,wHitCode).cursor;
+		GSL_SUPPRESS(bounds) if (wHitCode < std::size(m_hCursorList)) return gsl::at(m_hCursorList, wHitCode).cursor;
 		return m_hCursor.cursor;
 	};
 	inline const HWND& getToolTip(void) const noexcept { return m_ToolTipHWND; };
@@ -470,7 +470,7 @@ private:
 
 	void i_showError(const TCHAR* const cType, const TCHAR* const prop, const TCHAR* const cmd, const TCHAR* const err) const;
 	void PreloadData(void) noexcept;
-	
+
 	WNDPROC m_hDefaultDialogProc{ nullptr }; //!< Old Window Procedure
 	LRESULT CallDefaultProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept;
 

@@ -51,10 +51,9 @@ DcxRichEdit::DcxRichEdit(const UINT ID, gsl::strict_not_null<DcxDialog* const> p
 
 	setNoThemed(ws.m_NoTheme);
 
-	this->m_clrBackText = GetSysColor(COLOR_WINDOW);
-	this->m_clrText = GetSysColor(COLOR_WINDOWTEXT);
+	this->setBackColor(GetSysColor(COLOR_WINDOW));
+	this->setTextColor(GetSysColor(COLOR_WINDOWTEXT));
 
-	//getmIRCPalette(&m_aColorPalette[0], std::size(m_aColorPalette));
 	getmIRCPalette(gsl::span<COLORREF>(m_aColorPalette), true);
 
 	this->setContentsFont();
@@ -413,6 +412,7 @@ void DcxRichEdit::parseCommandRequest(const TString& input)
 
 		CopyToClipboard(m_Hwnd, this->m_tsText);
 	}
+
 	//// xdid -C [NAME] [ID] [SWITCH] [POS]
 	//else if (flags[TEXT('C')])
 	//{
@@ -429,6 +429,7 @@ void DcxRichEdit::parseCommandRequest(const TString& input)
 	//	}
 	//	this->setCaretPos(gsl::narrow_cast<DWORD>(pos));
 	//}
+
 	// xdid -d [NAME] [ID] [SWITCH] [N,N2,N3-N4...]
 	else if (flags[TEXT('d')])
 	{
@@ -453,18 +454,24 @@ void DcxRichEdit::parseCommandRequest(const TString& input)
 			const auto itEnd = tsLines.end();
 			for (auto itStart = tsLines.begin(TSCOMMACHAR); itStart != itEnd; ++itStart)
 			{
+				//const TString tsLineRange(*itStart);
+				//UINT nStartLine{}, nEndLine{};
+				//if (tsLineRange.numtok(TEXT('-')) == 2)
+				//{
+				//	nStartLine = tsLineRange.getfirsttok(1, TEXT('-')).to_<UINT>();
+				//	nEndLine = tsLineRange.getnexttok(TEXT('-')).to_<UINT>();
+				//}
+				//else {
+				//	nStartLine = nEndLine = tsLineRange.to_<UINT>();
+				//}
+				//// delete lines from the back of the text so it doesnt change the position of other lines.
+				//for (auto nLine = nEndLine; nLine >= nStartLine; --nLine)
+				//	this->m_tsText.deltok(nLine, TEXT("\r\n"));
+
 				const TString tsLineRange(*itStart);
-				UINT nStartLine{}, nEndLine{};
-				if (tsLineRange.numtok(TEXT('-')) == 2)
-				{
-					nStartLine = tsLineRange.getfirsttok(1, TEXT('-')).to_<UINT>();
-					nEndLine = tsLineRange.getnexttok(TEXT('-')).to_<UINT>();
-				}
-				else {
-					nStartLine = nEndLine = tsLineRange.to_<UINT>();
-				}
+				const auto r = Dcx::make_range(tsLineRange, this->m_tsText.numtok(TEXT("\r\n")));
 				// delete lines from the back of the text so it doesnt change the position of other lines.
-				for (auto nLine = nEndLine; nLine >= nStartLine; --nLine)
+				for (auto nLine = r.e; nLine >= r.b; --nLine)
 					this->m_tsText.deltok(nLine, TEXT("\r\n"));
 			}
 		}
@@ -611,12 +618,15 @@ void DcxRichEdit::parseCommandRequest(const TString& input)
 		const auto clrColor = input.getnexttok().to_<COLORREF>();	// tok 4
 
 		if (clrColor == CLR_INVALID)
-			//SendMessage(m_Hwnd, EM_SETBKGNDCOLOR, 1, gsl::narrow_cast<LPARAM>(GetSysColor(COLOR_WINDOWTEXT)));
+		{
 			SendMessage(m_Hwnd, EM_SETBKGNDCOLOR, 1, 0);
+			this->setBackColor(GetSysColor(COLOR_WINDOWTEXT));
+		}
 		else
+		{
 			SendMessage(m_Hwnd, EM_SETBKGNDCOLOR, 0, gsl::narrow_cast<LPARAM>(clrColor));
-
-		this->m_clrBackText = clrColor;
+			this->setBackColor(clrColor);
+		}
 		this->redrawWindow();
 	}
 	// xdid -l [NAME] [ID] [SWITCH] [N] [COLOR]

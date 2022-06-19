@@ -543,10 +543,32 @@ void DcxToolBar::parseCommandRequest(const TString& input)
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto nButton = input.getnexttok().to_int() - 1;	// tok 4
+		//if (const auto nButton = input.getnexttok().to_int() - 1; nButton > -1)
+		//	this->deleteButton(nButton);
 
-		if (nButton > -1)
-			this->deleteButton(nButton);
+		const TString tsButton(input.getnexttok());
+		const auto HandleButton = [=](const TString& tsButtons) {
+			const auto r = Dcx::make_range(tsButtons, this->getButtonCount());
+
+			if ((r.b < 0) || (r.e < r.b))
+				throw DcxExceptions::dcxOutOfRange();
+
+			for (auto nButton : r)
+				this->deleteButton(nButton);
+		};
+		if (tsButton.numtok(TSCOMMACHAR) > 1)
+		{
+			// button == 1,2,3-4
+			const auto itEnd = tsButton.end();
+			for (auto itStart = tsButton.begin(TSCOMMACHAR); itStart != itEnd; ++itStart)
+			{
+				HandleButton(*itStart);
+			}
+		}
+		else {
+			// button == 3-4 or 3
+			HandleButton(tsButton);
+		}
 	}
 	// xdid -i [NAME] [ID] [SWITCH] [N] [IMAGE]
 	else if (flags[TEXT('i')])
@@ -554,18 +576,52 @@ void DcxToolBar::parseCommandRequest(const TString& input)
 		if (numtok < 5)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto nButton = input.getnexttok().to_int() - 1;	// tok 4
-		auto iImage = input.getnexttok().to_int() - 1;			// tok 5
+		//const auto nButton = input.getnexttok().to_int() - 1;	// tok 4
+		//auto iImage = input.getnexttok().to_int() - 1;			// tok 5
+		//
+		//if (iImage < 0)
+		//	iImage = I_IMAGENONE;
+		//
+		//TBBUTTONINFO tbbi{};
+		//tbbi.cbSize = sizeof(TBBUTTONINFO);
+		//tbbi.dwMask = TBIF_IMAGE | TBIF_BYINDEX;
+		//tbbi.iImage = iImage;
+		//
+		//this->setButtonInfo(nButton /*this->getIndexToCommand( nButton )*/, &tbbi);
 
+		const TString tsButton(input.getnexttok());
+		auto iImage = input.getnexttok().to_int() - 1;			// tok 5
+		
 		if (iImage < 0)
 			iImage = I_IMAGENONE;
 
-		TBBUTTONINFO tbbi{};
-		tbbi.cbSize = sizeof(TBBUTTONINFO);
-		tbbi.dwMask = TBIF_IMAGE | TBIF_BYINDEX;
-		tbbi.iImage = iImage;
+		const auto HandleButton = [=](const TString& tsButtons) {
+			const auto r = Dcx::make_range(tsButtons, this->getButtonCount());
 
-		this->setButtonInfo(nButton /*this->getIndexToCommand( nButton )*/, &tbbi);
+			if ((r.b < 0) || (r.e < r.b))
+				throw DcxExceptions::dcxOutOfRange();
+
+			TBBUTTONINFO tbbi{};
+			tbbi.cbSize = sizeof(TBBUTTONINFO);
+			tbbi.dwMask = TBIF_IMAGE | TBIF_BYINDEX;
+			tbbi.iImage = iImage;
+			
+			for (auto nButton: r)
+				this->setButtonInfo(nButton, &tbbi);
+		};
+		if (tsButton.numtok(TSCOMMACHAR) > 1)
+		{
+			// button == 1,2,3-4
+			const auto itEnd = tsButton.end();
+			for (auto itStart = tsButton.begin(TSCOMMACHAR); itStart != itEnd; ++itStart)
+			{
+				HandleButton(*itStart);
+			}
+		}
+		else {
+			// button == 3-4 or 3
+			HandleButton(tsButton);
+		}
 	}
 	// xdid -j -> [NAME] [ID] -j [MIN] [MAX]
 	else if (flags[TEXT('j')])
@@ -651,22 +707,12 @@ void DcxToolBar::parseCommandRequest(const TString& input)
 		const auto tsButton = input.getnexttok();						// tok 4
 		const auto fStates = parseButtonStateFlags(input.getnexttok());	// tok 5
 		const auto HandleButton = [=](const TString& tsButtons) {
-			UINT id_start = 0, id_end = 0;
-			if (tsButtons.numtok(TEXT('-')) == 2)
-			{
-				id_start = tsButtons.getfirsttok(1, TEXT('-')).to_<UINT>() - 1;
-				id_end = tsButtons.getnexttok(TEXT('-')).to_<UINT>() - 1;
-			}
-			else
-				id_start = id_end = tsButtons.to_<UINT>() - 1;
+			const auto r = Dcx::make_range(tsButtons, this->getButtonCount());
 
-			if (id_start < 0)
-				throw Dcx::dcxException(TEXT("Invalid Button : % (dialog : %)"), id_start + 1, this->getParentDialog()->getName());
+			if ((r.b < 0) || (r.e < r.b))
+				throw DcxExceptions::dcxOutOfRange();
 
-			if (id_end < id_start)
-				throw Dcx::dcxException(TEXT("Invalid Button : % (dialog : %)"), id_end + 1, this->getParentDialog()->getName());
-
-			for (auto nButton = id_start; nButton <= id_end; ++nButton)
+			for (auto nButton: r)
 			{
 				if (const auto idButton = this->getIndexToCommand(nButton); idButton > 0)
 					this->setButtonState(idButton, fStates);

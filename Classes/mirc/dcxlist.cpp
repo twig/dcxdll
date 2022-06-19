@@ -33,6 +33,10 @@ namespace Dcx {
 
 		return tsBuf;
 	}
+	inline int dcxListBox_InsertString(HWND hwnd, int nPos, const TString& txt) noexcept
+	{
+		return ListBox_InsertString(hwnd, nPos, txt.to_chr());
+	}
 }
 
  /*!
@@ -420,7 +424,7 @@ void DcxList::parseCommandRequest(const TString& input)
 		if (nPos == -1)
 			nPos = ListBox_GetCount(m_Hwnd);
 
-		ListBox_InsertString(m_Hwnd, nPos, tsItem.to_chr());
+		Dcx::dcxListBox_InsertString(m_Hwnd, nPos, tsItem);
 
 		// Now update the horizontal scroller
 		//const int nHorizExtent = ListBox_GetHorizontalExtent( m_Hwnd );
@@ -460,7 +464,7 @@ void DcxList::parseCommandRequest(const TString& input)
 			//mIRCLinker::tsEvalex(tsRes, TEXT("$hget(%s,%s)"), itemtext.getfirsttok(1).to_chr(), itemtext.getnexttok().to_chr());	// tok 1 then 2
 			mIRCLinker::eval(tsRes, TEXT("$hget(%,%)"), itemtext.getfirsttok(1), itemtext.getnexttok());	// tok 1 then 2
 
-			if (ListBox_InsertString(m_Hwnd, nPos, tsRes.to_chr()) < 0)
+			if (Dcx::dcxListBox_InsertString(m_Hwnd, nPos, tsRes) < 0)
 				throw Dcx::dcxException(TEXT("Error Adding item: %"), tsRes);
 		}
 		else if (xOpts[TEXT('n')]) // [TEXT] == [table] [N]
@@ -471,7 +475,7 @@ void DcxList::parseCommandRequest(const TString& input)
 			//mIRCLinker::tsEvalex(tsRes, TEXT("$hget(%s,%s).data"), itemtext.getfirsttok(1).to_chr(), itemtext.getnexttok().to_chr());	// tok 1 then 2
 			mIRCLinker::eval(tsRes, TEXT("$hget(%,%).data"), itemtext.getfirsttok(1), itemtext.getnexttok());	// tok 1 then 2
 
-			if (ListBox_InsertString(m_Hwnd, nPos, tsRes.to_chr()) < 0)
+			if (Dcx::dcxListBox_InsertString(m_Hwnd, nPos, tsRes) < 0)
 				throw Dcx::dcxException(TEXT("Error Adding item: %"), tsRes);
 		}
 		else if (xOpts[TEXT('t')]) // [TEXT] == [table] [startN] [endN]
@@ -523,7 +527,7 @@ void DcxList::parseCommandRequest(const TString& input)
 				//mIRCLinker::tsEvalex(tsRes, TEXT("$hget(%s,%d).data"), htable.to_chr(), i);
 				mIRCLinker::eval(tsRes, TEXT("$hget(%,%).data"), htable, i);
 
-				if (ListBox_InsertString(m_Hwnd, nPos++, tsRes.to_chr()) < 0)
+				if (Dcx::dcxListBox_InsertString(m_Hwnd, nPos++, tsRes) < 0)
 					throw Dcx::dcxException(TEXT("Error Adding item: %"), tsRes);
 			}
 		}
@@ -588,7 +592,7 @@ void DcxList::parseCommandRequest(const TString& input)
 				{
 					itemtext = (*itStart);
 
-					if (ListBox_InsertString(m_Hwnd, nPos++, itemtext.to_chr()) < 0)
+					if (Dcx::dcxListBox_InsertString(m_Hwnd, nPos++, itemtext) < 0)
 						throw Dcx::dcxException(TEXT("Error Adding item: %"), itemtext);
 				}
 			}
@@ -612,14 +616,14 @@ void DcxList::parseCommandRequest(const TString& input)
 				{
 					itemtext = (*itStart);
 
-					if (ListBox_InsertString(m_Hwnd, nPos++, itemtext.to_chr()) < 0)
+					if (Dcx::dcxListBox_InsertString(m_Hwnd, nPos++, itemtext) < 0)
 						throw Dcx::dcxException(TEXT("Error Adding item: %"), itemtext);
 				}
 			}
 		}
 		else
 		{
-			if (ListBox_InsertString(m_Hwnd, nPos, itemtext.to_chr()) < 0)
+			if (Dcx::dcxListBox_InsertString(m_Hwnd, nPos, itemtext) < 0)
 				throw Dcx::dcxException(TEXT("Error Adding item: %"), itemtext);
 		}
 		// Now update the horizontal scroller
@@ -781,7 +785,7 @@ void DcxList::parseCommandRequest(const TString& input)
 			throw DcxExceptions::dcxOutOfRange();
 
 		ListBox_DeleteString(m_Hwnd, nPos);
-		ListBox_InsertString(m_Hwnd, nPos, input.getlasttoks().to_chr());	// tok 5, -1
+		Dcx::dcxListBox_InsertString(m_Hwnd, nPos, input.getlasttoks());	// tok 5, -1
 	}
 	//xdid -z [NAME] [ID]
 	// update horiz scrollbar
