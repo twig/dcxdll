@@ -2174,8 +2174,8 @@ void DcxListView::parseCommandRequest(const TString& input)
 		// +c save to custom @window [@window] (data is appended to the bottom of the window, window must exist)
 		const auto count = Dcx::dcxListView_GetItemCount(m_Hwnd);
 		const auto tsFlags(input.getnexttok().trim());		// tok 4
-		const auto iN1 = input.getnexttok().to_int();			// tok 5
-		auto iN2 = input.getnexttok().to_int();					// tok 6
+		const auto iN1 = input.getnexttok().to_int() -1;			// tok 5 adjusted from 1-based to be zero based
+		auto iN2 = input.getnexttok().to_int() -1;					// tok 6 adjusted from 1-based to be zero based
 		const auto tsArgs(input.getlasttoks().trim());		// tok 7, -1
 
 		if ((tsFlags[0] != TEXT('+')) || (tsFlags.len() < 2))
@@ -2184,31 +2184,13 @@ void DcxListView::parseCommandRequest(const TString& input)
 
 		// make sure N1-N2 are within the range of items in listview.
 		// adjust iN2 if its < 0, so its an offset from the last item.
-		if (iN2 == 0)
-			iN2 = count;
-		else if (iN2 < 0)
+		if (iN2 == -1)
+			iN2 += count;
+		else if (iN2 < -1)
 			iN2 += count;
 
-		if ((iN1 < 1) || (iN1 > count) || (iN2 < 0) || (iN2 < iN1))
+		if ((iN1 < 0) || (iN1 >= count) || (iN2 < 0) || (iN2 < iN1))
 			throw Dcx::dcxException("Invalid Range: N1-N2 Must be in range of items in listview");
-
-		//switch (tsFlags[1])
-		//{
-		//case TEXT('c'):
-		//	xSaveListview(iN1, iN2, tsArgs, TEXT("$window(%s)"), TEXT("/echo %s %s"));
-		//	break;
-		//case TEXT('f'):
-		//	//xSaveListview(iN1, iN2, tsArgs, TEXT("$window(%s)"), TEXT("echo %s %s"));
-		//	break;
-		//case TEXT('h'):
-		//	xSaveListview(iN1, iN2, tsArgs, TEXT("$hget(%s)"), TEXT("/hadd %s %s"));
-		//	break;
-		//case TEXT('x'):
-		//	//xSaveListview(iN1, iN2, tsArgs, TEXT("$window(%s)"), TEXT("echo %s %s"));
-		//	break;
-		//default:
-		//	throw Dcx::dcxException(TEXT("Invalid Flags: %"), tsFlags);
-		//}
 
 		switch (tsFlags[1])
 		{
@@ -2216,7 +2198,7 @@ void DcxListView::parseCommandRequest(const TString& input)
 			xSaveListview(iN1, iN2, tsArgs, TEXT("$window(%)"), TEXT("/echo % %"));
 			break;
 		case TEXT('f'):
-			//xSaveListview(iN1, iN2, tsArgs, TEXT("$window(%)"), TEXT("echo % %"));
+			xSaveListview(iN1, iN2, tsArgs, TEXT("$isfile(%)"), TEXT("/write -m1 % %"));
 			break;
 		case TEXT('h'):
 			xSaveListview(iN1, iN2, tsArgs, TEXT("$hget(%)"), TEXT("/hadd % %"));
@@ -2225,7 +2207,6 @@ void DcxListView::parseCommandRequest(const TString& input)
 			//xSaveListview(iN1, iN2, tsArgs, TEXT("$window(%)"), TEXT("echo % %"));
 			break;
 		default:
-			//throw Dcx::dcxException(TEXT("Invalid Flags: %"), tsFlags);
 			throw DcxExceptions::dcxInvalidFlag();
 		}
 	}
