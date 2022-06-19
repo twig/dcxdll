@@ -321,6 +321,7 @@ constexpr auto DCX_MAX_GDI_ERRORS = 21;
 #include <qnetwork.h>
 #include <d3d9.h>
 #include <vmr9.h>
+#include <evr.h>
 #if __has_include(<dxerr/dxerr.h>)
 #ifdef DCX_DX_ERR
 #include <dxerr/dxerr.h>
@@ -924,10 +925,10 @@ int queryIntAttribute(const TiXmlElement* element, const char* attribute, const 
 //int queryIntAttribute(gsl::not_null<const TiXmlElement *> element, gsl::not_null<const char *> attribute, const int defaultValue = 0);
 //std::optional<int> queryIntAttribute(gsl::not_null<const TiXmlElement *> element, gsl::not_null<const char *> attribute);
 
-void getmIRCPalette();
-void getmIRCPalette(COLORREF* const Palette, const UINT PaletteItems);
-void getmIRCPalette(gsl::span<COLORREF> Palette);
-void getmIRCPaletteMask(COLORREF* const Palette, const UINT PaletteItems, uint16_t uMask);
+void getmIRCPalette(bool bForce = false);
+void getmIRCPalette(COLORREF* const Palette, const UINT PaletteItems, bool bForce = false);
+void getmIRCPalette(gsl::span<COLORREF> Palette, bool bForce = false);
+void getmIRCPaletteMask(COLORREF* const Palette, const UINT PaletteItems, uint16_t uMask, bool bForce = false);
 int unfoldColor(const WCHAR* color) noexcept;
 
 // UltraDock

@@ -155,7 +155,7 @@ TString DcxBox::parseInfoRequest(const TString& input) const
 				oldFont = Dcx::dcxSelectObject<HFONT>(hdc, f);
 
 			const TString text(TGetWindowText(m_Hwnd));
-			DrawText(hdc, text.to_chr(), gsl::narrow_cast<int>(text.len()), &rcText, DT_CALCRECT);
+			DrawText(hdc, text.to_chr(), gsl::narrow_cast<int>(text.len()), &rcText, DT_CALCRECT); // we only want the height, so calling DrawText() with DT_CALCRECT is fine.
 
 			if (oldFont)
 				Dcx::dcxSelectObject<HFONT>(hdc, oldFont);
@@ -205,7 +205,6 @@ void DcxBox::parseCommandRequest(const TString& input)
 	if (flags[TEXT('c')])
 	{
 		if (numtok < 9)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		getParentDialog()->addControl(input, 4, DcxAllowControls::ALLOW_ALL, m_Hwnd);
@@ -215,28 +214,28 @@ void DcxBox::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('d')])
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
+		const auto pDialog = getParentDialog();
 		const auto tsID(input.getnexttok());	// tok 4
-		const auto ID = getParentDialog()->NameToID(tsID);
+		const auto ID = pDialog->NameToID(tsID);
 
-		if (!getParentDialog()->isIDValid(ID))
-			throw Dcx::dcxException(TEXT("Unknown control with ID %(%) (dialog %)"), tsID, ID - mIRC_ID_OFFSET, this->getParentDialog()->getName());
+		if (!pDialog->isIDValid(ID))
+			throw Dcx::dcxException(TEXT("Unknown control with ID %(%) (dialog %)"), tsID, ID - mIRC_ID_OFFSET, pDialog->getName());
 
-		const auto p_Control = getParentDialog()->getControlByID(ID);
+		const auto p_Control = pDialog->getControlByID(ID);
 
 		if (!p_Control)
-			throw Dcx::dcxException(TEXT("Unable to get control with ID %(%) (dialog %)"), tsID, ID - mIRC_ID_OFFSET, this->getParentDialog()->getName());
+			throw Dcx::dcxException(TEXT("Unable to get control with ID %(%) (dialog %)"), tsID, ID - mIRC_ID_OFFSET, pDialog->getName());
 
 		if (const auto dct = p_Control->getControlType(); (dct == DcxControlTypes::DIALOG || dct == DcxControlTypes::WINDOW))
 			delete p_Control;
 		else {
 			if (p_Control->getRefCount() != 0)
-				throw Dcx::dcxException(TEXT("Can't delete control with ID \"%\" when it is inside it's own event (dialog %)"), p_Control->getUserID(), this->getParentDialog()->getName());
+				throw Dcx::dcxException(TEXT("Can't delete control with ID \"%\" when it is inside it's own event (dialog %)"), p_Control->getUserID(), pDialog->getName());
 
 			auto cHwnd = p_Control->getHwnd();
-			getParentDialog()->deleteControl(p_Control); // remove from internal list!
+			pDialog->deleteControl(p_Control); // remove from internal list!
 			DestroyWindow(cHwnd);
 		}
 	}
@@ -252,7 +251,6 @@ void DcxBox::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('l')])
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		if (m_pLayoutManager == nullptr)

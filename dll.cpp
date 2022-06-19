@@ -2125,12 +2125,7 @@ mIRC(SetDCXSettings)
 		}
 		case L"UpdateColours"_hash:
 		{
-			const auto btmp = Dcx::setting_bStaticColours;
-
-			Dcx::setting_bStaticColours = false;
-			getmIRCPalette();
-
-			Dcx::setting_bStaticColours = btmp;
+			getmIRCPalette(true);
 			break;
 		}
 		//case L"CustomMenus"_hash:
@@ -2154,7 +2149,8 @@ mIRC(SetDCXSettings)
 	}
 
 	mIRCLinker::echo(TEXT("/dcx SetDCXSettings [option] (option args)"));
-	mIRCLinker::echo(TEXT("[option] = StaticColours,UpdateColours,CustomMenus"));
+	//mIRCLinker::echo(TEXT("[option] = StaticColours,UpdateColours,CustomMenus"));
+	mIRCLinker::echo(TEXT("[option] = StaticColours,UpdateColours"));
 	mIRCLinker::echo(TEXT("(option args) = optional, args contents depends on the option used."));
 	return 0;
 }

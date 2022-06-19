@@ -55,7 +55,7 @@ DcxRichEdit::DcxRichEdit(const UINT ID, gsl::strict_not_null<DcxDialog* const> p
 	this->m_clrText = GetSysColor(COLOR_WINDOWTEXT);
 
 	//getmIRCPalette(&m_aColorPalette[0], std::size(m_aColorPalette));
-	getmIRCPalette(m_aColorPalette);
+	getmIRCPalette(gsl::span<COLORREF>(m_aColorPalette), true);
 
 	this->setContentsFont();
 
@@ -636,8 +636,7 @@ void DcxRichEdit::parseCommandRequest(const TString& input)
 	// xdid -m [NAME] [ID] [SWITCH]
 	else if (flags[TEXT('m')])
 	{
-		//getmIRCPalette(&m_aColorPalette[0], std::size(m_aColorPalette));
-		getmIRCPalette(m_aColorPalette);
+		getmIRCPalette(gsl::span<COLORREF>(m_aColorPalette), true);
 
 		this->parseContents(TRUE);
 	}

@@ -889,6 +889,26 @@ update for 32bpp icons & rewrite
 //COLORREF defaultGrayPalette[256];
 //bool bGrayPaletteSet = false;
 
+// Taken from: https://www.codespeedy.com/make-a-grayscale-image-in-cpp-using-opencv/
+//#include<opencv2/opencv.hpp>
+//using namespace cv;
+//int main()
+//{
+//	string file_name = "D/bcup/DSC_0195.jpg";//all these three strings are part of CV and not the C++ library
+//	cv::string window_original = "original_image";
+//	cv::string window_gray = "gray_image";
+//	cv::mat img = cv::imread(file_name);//It returns a matrix object
+//
+//	cv::mat graymat;
+//	cvtcolor(img.graymat, cv::COLOR_BGR2GRAY);
+//	cv::namdwindiw(window_original, cv::WINDOW_AUTOSIZE);
+//	cv::imshow(window_original, img);
+//	cv::namedwindow(windwindow_gray, cv::WINDOW_AUTOSIZE);
+//	cv::imshow(windwindow_gray, graymat);
+//	cv::waitkey(0);
+//	return 0;
+//}
+
 HICON CreateGrayscaleIcon(HICON hIcon, const COLORREF* const pPalette) noexcept
 {
 	if ((!hIcon) || (!pPalette))
@@ -1303,9 +1323,9 @@ COLORREF staticPalette[mIRC_PALETTE_SIZE] = {
 * If staticPalette[0] == CLR_INVALID - Fills the staticPalette with all mIRC's colours.
 * otherwise does nothing.
 */
-void getmIRCPalette()
+void getmIRCPalette(bool bForce)
 {
-	if ((staticPalette[0] == CLR_INVALID) || (!Dcx::setting_bStaticColours))
+	if ((bForce) || (staticPalette[0] == CLR_INVALID) || (!Dcx::setting_bStaticColours))
 	{
 		// max length = (number of colours * max colour string result) + spaces between colours + zero char
 		// max result length = (16 * 10) + 15 + 1 = 160 + 16 = 176
@@ -1333,12 +1353,12 @@ void getmIRCPalette()
 *
 * Copies the staticPalette to Palette (updates staticPalette if needed)
 */
-void getmIRCPalette(COLORREF* const Palette, const UINT PaletteItems)
+void getmIRCPalette(COLORREF* const Palette, const UINT PaletteItems, bool bForce)
 {
 	if ((PaletteItems > mIRC_PALETTE_SIZE) || (Palette == std::addressof(staticPalette[0])))
 		return;
 
-	getmIRCPalette();
+	getmIRCPalette(bForce);
 
 	CopyMemory(Palette, std::addressof(staticPalette[0]), sizeof(COLORREF) * PaletteItems);
 }
@@ -1348,9 +1368,9 @@ void getmIRCPalette(COLORREF* const Palette, const UINT PaletteItems)
 *
 * Copies the staticPalette to Palette (updates staticPalette if needed)
 */
-void getmIRCPalette(gsl::span<COLORREF> Palette)
+void getmIRCPalette(gsl::span<COLORREF> Palette, bool bForce)
 {
-	getmIRCPalette();
+	getmIRCPalette(bForce);
 
 	gsl::copy(gsl::span<COLORREF>(staticPalette), Palette);
 }
@@ -1362,12 +1382,12 @@ void getmIRCPalette(gsl::span<COLORREF> Palette)
 //
 // Copies staticPalette to Palette based on a 16bit mask, one bit for every colour (updates staticPalette if needed)
 // NB: This ONLY updates the first 16 colours, not the full 99, > 16 are static anyway...
-void getmIRCPaletteMask(COLORREF* const Palette, const UINT PaletteItems, uint16_t uMask)
+void getmIRCPaletteMask(COLORREF* const Palette, const UINT PaletteItems, uint16_t uMask, bool bForce)
 {
 	if ((!Palette) || (PaletteItems < 16) || (PaletteItems > std::size(staticPalette)))
 		return;
 
-	getmIRCPalette();
+	getmIRCPalette(bForce);
 
 	for (uint32_t count = 0; count < PaletteItems; ++count)
 	{
@@ -2467,5 +2487,4 @@ COLORREF GetContrastColour(COLORREF sRGB) noexcept
 	// black
 	return RGB(0, 0, 0);
 }
-
 
