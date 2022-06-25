@@ -738,7 +738,7 @@ HICON DcxStatusBar::getIcon(const int iPart) const noexcept
 
 UINT DcxStatusBar::getPartFlags(const int iPart) const noexcept
 {
-	return gsl::narrow_cast<UINT>(HIWORD(SendMessage(m_Hwnd, SB_GETTEXTLENGTH, gsl::narrow_cast<WPARAM>(iPart), NULL)));
+	return gsl::narrow_cast<UINT>(Dcx::dcxHIWORD(SendMessage(m_Hwnd, SB_GETTEXTLENGTH, gsl::narrow_cast<WPARAM>(iPart), 0)));
 }
 
 /*!

@@ -24,6 +24,7 @@
  //#include <qnetwork.h>
  //#include <d3d9.h>
  //#include <vmr9.h>
+ //#include <evr.h>
  //#include <DXGIDebug.h> // win8 only
 
 class DcxDialog;
@@ -101,7 +102,7 @@ struct MyBaseCOMClass {
 		}
 		catch (...)
 		{
-			mHR = NULL;
+			mHR = 0;
 		}
 	}
 	MyBaseCOMClass(IGraphBuilder* obj, const WCHAR* pName) noexcept
@@ -111,7 +112,7 @@ struct MyBaseCOMClass {
 		}
 		catch (...)
 		{
-			mHR = NULL;
+			mHR = 0;
 		}
 	}
 	virtual ~MyBaseCOMClass() noexcept
@@ -157,6 +158,18 @@ struct MyBaseCOMClass {
 template <class T>
 struct MyCOMClass {};
 
+// for VMR-7 Display
+template <>
+struct MyCOMClass<IVMRWindowlessControl> final
+	: MyBaseCOMClass<IVMRWindowlessControl>
+{
+	explicit MyCOMClass(IUnknown* obj) noexcept
+		: MyBaseCOMClass(obj, IID_IVMRWindowlessControl)
+	{
+	}
+};
+
+// basic audio
 template <>
 struct MyCOMClass<IBasicAudio> final
 	: MyBaseCOMClass<IBasicAudio>
@@ -177,6 +190,7 @@ struct MyCOMClass<IBasicVideo> final
 	}
 };
 
+// for VMR-9 Display
 template <>
 struct MyCOMClass<IVMRMixerControl9> final
 	: MyBaseCOMClass<IVMRMixerControl9>
@@ -242,6 +256,18 @@ struct MyCOMClass<IDispatch> final
 	{
 	}
 };
+
+// for EVR display
+template <>
+struct MyCOMClass<IMFVideoDisplayControl> final
+	: MyBaseCOMClass<IMFVideoDisplayControl>
+{
+	explicit MyCOMClass(IUnknown* obj) noexcept
+		: MyBaseCOMClass(obj, IID_IMFVideoDisplayControl)
+	{
+	}
+};
+
 //template <>
 //struct MyCOMClass<IHTMLDocument2> final
 //	: MyBaseCOMClass<IHTMLDocument2>

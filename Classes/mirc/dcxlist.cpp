@@ -325,8 +325,8 @@ void DcxList::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC
 		if (!GetClientRect(m_Hwnd, &rc))
 			throw Dcx::dcxException("Unable to get client rect!");
 
-		const auto top = SendMessage(m_Hwnd, LB_GETTOPINDEX, NULL, NULL);
-		const auto height = SendMessage(m_Hwnd, LB_GETITEMHEIGHT, NULL, NULL);
+		const auto top = SendMessage(m_Hwnd, LB_GETTOPINDEX, 0, 0);
+		const auto height = SendMessage(m_Hwnd, LB_GETITEMHEIGHT, 0, 0);
 
 		auto bottom = top + ((rc.bottom - rc.top) / height);
 
@@ -750,7 +750,7 @@ void DcxList::parseCommandRequest(const TString& input)
 			{
 				const auto nTab = Ns.to_int();
 				if (nTab < 0)
-					ListBox_SetTabStops(m_Hwnd, NULL, nullptr);
+					ListBox_SetTabStops(m_Hwnd, 0, nullptr);
 				else
 					ListBox_SetTabStops(m_Hwnd, 1, &nTab);
 			}
@@ -1109,7 +1109,7 @@ LRESULT DcxList::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPars
 		//wParam	The HIWORD specifies the current position of the scroll box if the LOWORD is SB_THUMBPOSITION or SB_THUMBTRACK; otherwise, this word is not used.
 		//			The LOWORD specifies a scroll bar value that indicates the user's scrolling request.This parameter can be one of the following values.
 		//lParam	If the message is sent by a scroll bar control, this parameter is the handle to the scroll bar control.
-		//			If the message is sent by a standard scroll bar, this parameter is NULL.
+		//			If the message is sent by a standard scroll bar, this parameter is zero.
 		//if ((Dcx::dcxLOWORD(wParam) == SB_THUMBPOSITION) || (Dcx::dcxLOWORD(wParam) == SB_THUMBTRACK))
 		if ((wParam & 0x0000fffe) == SB_THUMBPOSITION)
 		{

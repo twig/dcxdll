@@ -394,7 +394,7 @@ void DcxControl::parseGlobalCommandRequest(const TString& input, const XSwitchFl
 
 			si.nPos = pos;
 			SetScrollInfo(m_Hwnd, SB_VERT, &si, TRUE);
-			SendMessage(m_Hwnd, WM_VSCROLL, MAKEWPARAM(SB_THUMBPOSITION, si.nPos), NULL);
+			SendMessage(m_Hwnd, WM_VSCROLL, MAKEWPARAM(SB_THUMBPOSITION, si.nPos), 0);
 		}
 	}
 	// xdid -b [NAME] [ID]
@@ -452,7 +452,7 @@ void DcxControl::parseGlobalCommandRequest(const TString& input, const XSwitchFl
 		//
 		//if (hNextCtrl && (hNextCtrl != m_Hwnd))
 		//	SendMessage(this->getParentDialog()->getHwnd(), WM_NEXTDLGCTL, (WPARAM) hNextCtrl, TRUE);
-		////::PostMessage(this->getParentDialog()->getHwnd(), WM_NEXTDLGCTL, NULL, FALSE);
+		////::PostMessage(this->getParentDialog()->getHwnd(), WM_NEXTDLGCTL, 0, FALSE);
 		//else
 		//	SetFocus(nullptr);
 
@@ -934,7 +934,7 @@ bool DcxControl::parseGlobalInfoRequest(const TString& input, const refString<TC
 //		COLORREF cref = CLR_INVALID;
 //
 //		if (m_ToolTipHWND)
-//			cref = gsl::narrow_cast<COLORREF>(SendMessage(m_ToolTipHWND, TTM_GETTIPBKCOLOR, NULL, NULL));
+//			cref = gsl::narrow_cast<COLORREF>(SendMessage(m_ToolTipHWND, TTM_GETTIPBKCOLOR, 0, 0));
 //
 //		_ts_snprintf(szReturnValue, TEXT("%lu"), cref);
 //		return true;
@@ -946,7 +946,7 @@ bool DcxControl::parseGlobalInfoRequest(const TString& input, const refString<TC
 //		COLORREF cref = CLR_INVALID;
 //
 //		if (m_ToolTipHWND)
-//			cref = gsl::narrow_cast<COLORREF>(SendMessage(m_ToolTipHWND, TTM_GETTIPTEXTCOLOR, NULL, NULL));
+//			cref = gsl::narrow_cast<COLORREF>(SendMessage(m_ToolTipHWND, TTM_GETTIPTEXTCOLOR, 0, 0));
 //
 //		_ts_snprintf(szReturnValue, TEXT("%lu"), cref);
 //		return true;
@@ -1117,7 +1117,7 @@ TString DcxControl::parseGlobalInfoRequest(const TString& input) const
 		COLORREF cref = CLR_INVALID;
 
 		if (m_ToolTipHWND)
-			cref = gsl::narrow_cast<COLORREF>(SendMessage(m_ToolTipHWND, TTM_GETTIPBKCOLOR, NULL, NULL));
+			cref = gsl::narrow_cast<COLORREF>(SendMessage(m_ToolTipHWND, TTM_GETTIPBKCOLOR, 0, 0));
 
 		tsResult += cref;
 	}
@@ -1128,7 +1128,7 @@ TString DcxControl::parseGlobalInfoRequest(const TString& input) const
 		COLORREF cref = CLR_INVALID;
 
 		if (m_ToolTipHWND)
-			cref = gsl::narrow_cast<COLORREF>(SendMessage(m_ToolTipHWND, TTM_GETTIPTEXTCOLOR, NULL, NULL));
+			cref = gsl::narrow_cast<COLORREF>(SendMessage(m_ToolTipHWND, TTM_GETTIPTEXTCOLOR, 0, 0));
 
 		tsResult += cref;
 	}
@@ -1797,7 +1797,7 @@ void DcxControl::DrawControl(HDC hDC, HWND hwnd)
 
 	const Dcx::dcxHDCBitmapResource hdcMemory(hDC, hBitmap.get());
 
-	::SendMessage(hwnd, WM_ERASEBKGND, reinterpret_cast<WPARAM>(hdcMemory.get()), 1L); // HACK: using 1L instead of NULL as a workaround for stacker.
+	::SendMessage(hwnd, WM_ERASEBKGND, reinterpret_cast<WPARAM>(hdcMemory.get()), 1L); // HACK: using 1L instead of zero as a workaround for stacker.
 	::SendMessage(hwnd, WM_PRINT, reinterpret_cast<WPARAM>(hdcMemory.get()), gsl::narrow_cast<LPARAM>(PRF_NONCLIENT | PRF_CLIENT | PRF_CHILDREN | PRF_CHECKVISIBLE /*| PRF_ERASEBKGND*/));
 
 	BitBlt(hDC, rc.left, rc.top, w, h, hdcMemory.get(), 0, 0, SRCCOPY);
@@ -1847,7 +1847,7 @@ void DcxControl::DrawControl(HDC hDC, HWND hwnd)
 
 	Auto(Dcx::dcxSelectObject<HBITMAP>(hdcMemory, hbmpOld));
 
-	::SendMessage(hwnd, WM_ERASEBKGND, reinterpret_cast<WPARAM>(hdcMemory), 1L); // HACK: using 1L instead of NULL as a workaround for stacker.
+	::SendMessage(hwnd, WM_ERASEBKGND, reinterpret_cast<WPARAM>(hdcMemory), 1L); // HACK: using 1L instead of zero as a workaround for stacker.
 	::SendMessage(hwnd, WM_PRINT, reinterpret_cast<WPARAM>(hdcMemory), gsl::narrow_cast<LPARAM>(PRF_NONCLIENT | PRF_CLIENT | PRF_CHILDREN | PRF_CHECKVISIBLE /*| PRF_ERASEBKGND*/));
 
 	BitBlt(hDC, rc.left, rc.top, w, h, hdcMemory, 0, 0, SRCCOPY);
@@ -1994,7 +1994,7 @@ void DcxControl::DrawParentsBackground(const HDC hdc, const RECT* const rcBounds
 	// Sending WM_ERASEBKGND followed by WM_PRINTCLIENT emulates the method used by DrawThemeParentBackgroundEx() on vista.
 	m_bInPrint = true; // this helps prevent long drawing loops
 	// fill in the parents image
-	::SendMessage(m_pParentHWND, WM_ERASEBKGND, reinterpret_cast<WPARAM>(hdcbkg.get()), 1L); // HACK: using 1L instead of NULL as a workaround for stacker.
+	::SendMessage(m_pParentHWND, WM_ERASEBKGND, reinterpret_cast<WPARAM>(hdcbkg.get()), 1L); // HACK: using 1L instead of zero as a workaround for stacker.
 	::SendMessage(m_pParentHWND, WM_PRINTCLIENT, reinterpret_cast<WPARAM>(hdcbkg.get()), PRF_CLIENT);
 
 	for (auto hChild = GetWindow(m_Hwnd, GW_HWNDPREV); hChild; hChild = GetWindow(hChild, GW_HWNDPREV))
@@ -2022,7 +2022,7 @@ void DcxControl::DrawParentsBackground(const HDC hdc, const RECT* const rcBounds
 	// Sending WM_ERASEBKGND followed by WM_PRINTCLIENT emulates the method used by DrawThemeParentBackgroundEx() on vista.
 	this->m_bInPrint = true; // this helps prevent long drawing loops
 							 // fill in the parents image
-	::SendMessage(this->m_pParentHWND, WM_ERASEBKGND, reinterpret_cast<WPARAM>(*hdcbkg), 1L); // HACK: using 1L instead of NULL as a workaround for stacker.
+	::SendMessage(this->m_pParentHWND, WM_ERASEBKGND, reinterpret_cast<WPARAM>(*hdcbkg), 1L); // HACK: using 1L instead of zero as a workaround for stacker.
 	::SendMessage(this->m_pParentHWND, WM_PRINTCLIENT, reinterpret_cast<WPARAM>(*hdcbkg), PRF_CLIENT);
 
 	//::SendMessage(this->m_pParentHWND, WM_PRINT, (WPARAM)*hdcbkg,PRF_CLIENT|PRF_ERASEBKGND);

@@ -381,8 +381,8 @@ int DcxStacker::getItemID(void) const noexcept
 
 	MapWindowPoints(nullptr, m_Hwnd, &pt, 1);
 #endif
-	//return gsl::narrow_cast<int>(LOWORD(gsl::narrow_cast<DWORD>(SendMessage(m_Hwnd, LB_ITEMFROMPOINT, NULL, MAKELPARAM(pt.x, pt.y)))) + 1);
-	return gsl::narrow_cast<int>(Dcx::dcxLOWORD(SendMessage(m_Hwnd, LB_ITEMFROMPOINT, NULL, Dcx::dcxMAKELPARAM(pt.x, pt.y))) + 1);
+	//return gsl::narrow_cast<int>(LOWORD(gsl::narrow_cast<DWORD>(SendMessage(m_Hwnd, LB_ITEMFROMPOINT, 0, MAKELPARAM(pt.x, pt.y)))) + 1);
+	return gsl::narrow_cast<int>(Dcx::dcxLOWORD(SendMessage(m_Hwnd, LB_ITEMFROMPOINT, 0, Dcx::dcxMAKELPARAM(pt.x, pt.y))) + 1);
 }
 
 int DcxStacker::getSelItemID(void) const noexcept
@@ -565,7 +565,7 @@ void DcxStacker::DrawSItem(const LPDRAWITEMSTRUCT idata)
 	else if (sitem->clrBack != CLR_INVALID)
 	{
 		SetBkColor(memDC, sitem->clrBack);
-		ExtTextOut(memDC, rcText.left, rcText.top, ETO_CLIPPED | ETO_OPAQUE, &rcText, TEXT(""), NULL, nullptr);
+		ExtTextOut(memDC, rcText.left, rcText.top, ETO_CLIPPED | ETO_OPAQUE, &rcText, TEXT(""), 0, nullptr);
 	}
 
 	// draw GDI+ image if any, we draw the image after the  colour fill to allow for alpha in pics.
@@ -971,7 +971,7 @@ LRESULT DcxStacker::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bP
 		if (lastID == LB_ERR)
 			break;
 		lastID--;
-		if ((lastID == 0) || (lParam != NULL))
+		if ((lastID == 0) || (lParam != 0))
 			DrawParentsBackground(reinterpret_cast<HDC>(wParam));
 		else {
 			if (RECT rcClient{}; GetClientRect(m_Hwnd, &rcClient))

@@ -703,7 +703,7 @@ TString TString::gettok(int N, const_pointer_const sepChars) const
  *				If Zero returns an empty string
  *				If -1 returns all tokens untill the end of string.
  * sepChars	-	The token seperator string
- *				If NULL returns the whole current string.
+ *				If nullptr returns the whole current string.
  */
 
 TString TString::gettok(int N, int M, const_pointer_const sepChars) const
@@ -786,7 +786,7 @@ TString TString::gettok(int N, int M, const_pointer_const sepChars) const
 *				If Zero - returns an empty string.
 *				If Negative gets adjusted to N + (total number of tokens + 1)
 * sepChars	-	The token seperator string
-*				If NULL returns the whole current string.
+*				If nullptr returns the whole current string.
 */
 TString TString::getfirsttok(const UINT N, const_pointer_const sepChars) const
 {
@@ -884,7 +884,7 @@ TString TString::getfirsttok(const size_type N, const_reference sepChar) const
 *
 * params
 * sepChars	-	The token seperator string
-*				If NULL returns the whole current string.
+*				If nullptr returns the whole current string.
 */
 TString TString::getnexttok(const_pointer_const sepChars) const
 {
@@ -953,11 +953,11 @@ TString TString::getlasttoks() const
 
 	// set current token to the last one.
 	m_savedcurrenttok = m_savedtotaltoks;
-	// get saved position (this can be NULL)
+	// get saved position (this can be nullptr)
 	const_pointer_const p_cStart = m_savedpos;
-	// set saved position to NULL
+	// set saved position to nullptr
 	m_savedpos = nullptr;
-	// return end of string (can be NULL as constructor handles this)
+	// return end of string (can be nullptr as constructor handles this)
 	return TString(p_cStart);
 }
 
@@ -1734,7 +1734,7 @@ bool TString::iswmcs(const_pointer_const a) const noexcept
 
 //int wildcmp(const TCHAR *wild, const TCHAR *string) {
 //	// Written by Jack Handy - jakkhandy@hotmail.com
-//	const TCHAR *cp = NULL, *mp = NULL;
+//	const TCHAR *cp = nullptr, *mp = nullptr;
 //
 //	while ((*string) && (*wild != TEXT('*'))) {
 //		if ((*wild != *string) && (*wild != TEXT('?'))) {

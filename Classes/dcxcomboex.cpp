@@ -45,7 +45,7 @@ DcxComboEx::DcxComboEx(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_D
 	if (ws.m_NoTheme)
 	{
 		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
-		//SendMessage( m_Hwnd, CBEM_SETWINDOWTHEME, NULL, (LPARAM)(LPCWSTR)L" "); // do this instead?
+		//SendMessage( m_Hwnd, CBEM_SETWINDOWTHEME, 0, (LPARAM)(LPCWSTR)L" "); // do this instead?
 	}
 
 	setNoThemed(ws.m_NoTheme);
@@ -339,12 +339,12 @@ void DcxComboEx::parseCommandRequest(const TString& input)
 				throw Dcx::dcxException("Unable to add item.");
 			}
 			// Now update the horizontal scroller
-			if (const auto combo = reinterpret_cast<HWND>(SendMessage(m_Hwnd, CBEM_GETCOMBOCONTROL, NULL, NULL)); IsWindow(combo))
+			if (const auto combo = reinterpret_cast<HWND>(SendMessage(m_Hwnd, CBEM_GETCOMBOCONTROL, 0, 0)); IsWindow(combo))
 			{
 				// Get Font sizes (best way i can find atm, if you know something better then please let me know)
 
 				//int nMaxStrlen = itemtext.len();
-				//const int nHorizExtent = (int)SendMessage( combo, CB_GETHORIZONTALEXTENT, NULL, NULL );
+				//const int nHorizExtent = (int)SendMessage( combo, CB_GETHORIZONTALEXTENT, 0, 0 );
 				//
 				//HDC hdc = GetDC( m_Hwnd );
 				//TEXTMETRIC tm;
@@ -364,7 +364,7 @@ void DcxComboEx::parseCommandRequest(const TString& input)
 				//nMaxStrlen += (tm.tmAveCharWidth * 2);
 				//
 				//if (nMaxStrlen > nHorizExtent)
-				//	SendMessage(combo, CB_SETHORIZONTALEXTENT, nMaxStrlen, NULL);
+				//	SendMessage(combo, CB_SETHORIZONTALEXTENT, nMaxStrlen, 0);
 
 				if (const auto hdc = GetDC(m_Hwnd); hdc)
 				{
@@ -378,8 +378,8 @@ void DcxComboEx::parseCommandRequest(const TString& input)
 
 					if (SIZE sz{}; GetTextExtentPoint32(hdc, itemtext.to_chr(), gsl::narrow_cast<int>(itemtext.len()), &sz))
 					{
-						if (sz.cx > gsl::narrow_cast<long>(SendMessage(combo, CB_GETHORIZONTALEXTENT, NULL, NULL)))
-							SendMessage(combo, CB_SETHORIZONTALEXTENT, gsl::narrow_cast<WPARAM>(sz.cx), NULL);
+						if (sz.cx > gsl::narrow_cast<long>(SendMessage(combo, CB_GETHORIZONTALEXTENT, 0, 0)))
+							SendMessage(combo, CB_SETHORIZONTALEXTENT, gsl::narrow_cast<WPARAM>(sz.cx), 0);
 					}
 
 					if (hFont)
@@ -494,7 +494,7 @@ void DcxComboEx::parseCommandRequest(const TString& input)
 
 		const BOOL enabled = (input.getnexttok().to_int() > 0);	// tok 4
 		if (auto hEdit = this->getEditControl(); hEdit)
-			SendMessage(hEdit, EM_SETREADONLY, gsl::narrow_cast<WPARAM>(enabled), NULL);
+			SendMessage(hEdit, EM_SETREADONLY, gsl::narrow_cast<WPARAM>(enabled), 0);
 	}
 	// This is to avoid invalid flag message.
 	// xdid -r [NAME] [ID] [SWITCH]
@@ -800,7 +800,7 @@ LRESULT DcxComboEx::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL&
 				break;
 
 			auto lpdcxcbi = reinterpret_cast<LPDCXCBITEM>(lpcb->ceItem.lParam);
-			lpcb->ceItem.lParam = NULL;
+			lpcb->ceItem.lParam = 0;
 
 			delete lpdcxcbi;
 

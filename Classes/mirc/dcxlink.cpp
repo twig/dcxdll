@@ -502,7 +502,7 @@ void DcxLink::DrawClientArea(HDC hdc)
 			if (this->m_hIcon)
 			{
 				const auto y = ((rect.top + rect.bottom - 16) / 2);
-				DrawIconEx(hdc, rect.left, y, this->m_hIcon, 0, 0, NULL, nullptr, DI_NORMAL);
+				DrawIconEx(hdc, rect.left, y, this->m_hIcon, 0, 0, 0, nullptr, DI_NORMAL);
 
 				OffsetRect(&rect, 20, 0);
 			}
@@ -555,7 +555,7 @@ void DcxLink::DrawClientArea(HDC hdc)
 	//		if (this->m_hIcon != nullptr) {
 	//
 	//			const auto y = ((rect.top + rect.bottom - 16) / 2);
-	//			DrawIconEx(hdc, rect.left, y, this->m_hIcon, 0, 0, NULL, nullptr, DI_NORMAL);
+	//			DrawIconEx(hdc, rect.left, y, this->m_hIcon, 0, 0, 0, nullptr, DI_NORMAL);
 	//
 	//			OffsetRect(&rect, 20, 0);
 	//		}

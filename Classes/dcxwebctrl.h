@@ -60,7 +60,7 @@ public:
 	bool InitializeInterface() noexcept;
 
 	// IDispatch Interface (DWebBrowserEvents2)
-	HRESULT STDMETHODCALLTYPE GetTypeInfoCount(UINT __RPC_FAR* pctinfo) noexcept override { *pctinfo = NULL; return S_OK; }
+	HRESULT STDMETHODCALLTYPE GetTypeInfoCount(UINT __RPC_FAR* pctinfo) noexcept override { *pctinfo = 0; return S_OK; }
 	HRESULT STDMETHODCALLTYPE GetTypeInfo(UINT, LCID, ITypeInfo __RPC_FAR* __RPC_FAR*) noexcept override { return E_NOTIMPL; }
 	HRESULT STDMETHODCALLTYPE GetIDsOfNames(REFIID, LPOLESTR __RPC_FAR*, UINT, LCID, DISPID __RPC_FAR*) noexcept override { return E_NOTIMPL; }
 	HRESULT STDMETHODCALLTYPE Invoke(DISPID, REFIID, LCID, WORD, DISPPARAMS __RPC_FAR*, VARIANT __RPC_FAR*, EXCEPINFO __RPC_FAR*, UINT __RPC_FAR*) override;

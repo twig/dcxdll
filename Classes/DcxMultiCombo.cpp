@@ -452,7 +452,7 @@ void DcxMultiCombo::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('m')])
 	{
 		COLORREF plt[mIRC_PALETTE_SIZE]{ CLR_INVALID };
-		getmIRCPalette(&plt[0], std::size(plt));
+		getmIRCPalette(&plt[0], std::size(plt), false);
 		SendMessage(m_Hwnd, MC_WM_FILLCOLOURS, (WPARAM)std::size(plt), (LPARAM)&plt[0]);
 	}
 	// xdid -o [NAME] [ID] [SWITCH] [N] [RGB] (TEXT)

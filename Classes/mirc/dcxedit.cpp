@@ -52,7 +52,7 @@ DcxEdit::DcxEdit(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialog,
 
 	Edit_LimitText(m_Hwnd, 0);
 
-	//SendMessage(m_Hwnd, CCM_SETUNICODEFORMAT, TRUE, NULL);
+	//SendMessage(m_Hwnd, CCM_SETUNICODEFORMAT, TRUE, 0);
 
 	if (styles.istok(TEXT("tooltips")))
 	{
@@ -267,9 +267,9 @@ void DcxEdit::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC
 		if (this->isStyle(WindowStyle::ES_MultiLine))
 		{
 			// current line
-			const auto iLinePos = SendMessage(m_Hwnd, EM_LINEFROMCHAR, gsl::narrow_cast<WPARAM>(-1), NULL) + 1;
+			const auto iLinePos = SendMessage(m_Hwnd, EM_LINEFROMCHAR, gsl::narrow_cast<WPARAM>(-1), 0) + 1;
 			// line offset
-			const auto CharPos = (dwAbsoluteStartSelPos - gsl::narrow_cast<int>(SendMessage(m_Hwnd, EM_LINEINDEX, gsl::narrow_cast<WPARAM>(-1), NULL)));
+			const auto CharPos = (dwAbsoluteStartSelPos - gsl::narrow_cast<int>(SendMessage(m_Hwnd, EM_LINEINDEX, gsl::narrow_cast<WPARAM>(-1), 0)));
 
 			_ts_snprintf(szReturnValue, TEXT("%d %u %u"), iLinePos, CharPos, dwAbsoluteStartSelPos);
 		}
@@ -284,7 +284,7 @@ void DcxEdit::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC
 	{
 		DWORD dwSelStart{}; // selection range starting position
 
-		SendMessage(m_Hwnd, EM_GETSEL, reinterpret_cast<WPARAM>(&dwSelStart), NULL);
+		SendMessage(m_Hwnd, EM_GETSEL, reinterpret_cast<WPARAM>(&dwSelStart), 0);
 		_ts_snprintf(szReturnValue, TEXT("%u"), dwSelStart);
 	}
 	break;
@@ -293,7 +293,7 @@ void DcxEdit::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC
 	{
 		DWORD dwSelEnd{};   // selection range ending position
 
-		SendMessage(m_Hwnd, EM_GETSEL, NULL, reinterpret_cast<LPARAM>(&dwSelEnd));
+		SendMessage(m_Hwnd, EM_GETSEL, 0, reinterpret_cast<LPARAM>(&dwSelEnd));
 		_ts_snprintf(szReturnValue, TEXT("%u"), dwSelEnd);
 	}
 	break;
@@ -583,7 +583,7 @@ void DcxEdit::parseCommandRequest(const TString& input)
 
 		const BOOL enabled = (input.getnexttok().to_int() > 0);	// tok 4
 
-		SendMessage(m_Hwnd, EM_SETREADONLY, gsl::narrow_cast<WPARAM>(enabled), NULL);
+		SendMessage(m_Hwnd, EM_SETREADONLY, gsl::narrow_cast<WPARAM>(enabled), 0);
 	}
 	// xdid -o [NAME] [ID] [SWITCH] [N] [TEXT]
 	else if (flags[TEXT('o')])
@@ -603,7 +603,7 @@ void DcxEdit::parseCommandRequest(const TString& input)
 	// xdid -P [NAME] [ID]
 	else if (flags[TEXT('P')])
 	{
-		SendMessage(this->getHwnd(), WM_PASTE, NULL, NULL);
+		SendMessage(this->getHwnd(), WM_PASTE, 0, 0);
 	}
 	// xdid -q [NAME] [ID] [SWITCH] [SIZE]
 	else if (flags[TEXT('q')])
@@ -645,7 +645,7 @@ void DcxEdit::parseCommandRequest(const TString& input)
 	// xdid -V [NAME] [ID]
 	else if (flags[TEXT('V')])
 	{
-		SendMessage(m_Hwnd, EM_SCROLLCARET, NULL, NULL);
+		SendMessage(m_Hwnd, EM_SCROLLCARET, 0, 0);
 	}
 	// xdid -S [NAME] [ID] [SWITCH] [START] (END)
 	else if (flags[TEXT('S')])
@@ -657,7 +657,7 @@ void DcxEdit::parseCommandRequest(const TString& input)
 		const auto iend = (numtok > 4) ? input.getnexttok().to_int() : istart;
 
 		SendMessage(m_Hwnd, EM_SETSEL, gsl::narrow_cast<WPARAM>(istart), gsl::narrow_cast<LPARAM>(iend));
-		SendMessage(m_Hwnd, EM_SCROLLCARET, NULL, NULL);
+		SendMessage(m_Hwnd, EM_SCROLLCARET, 0, 0);
 	}
 	// xdid -E [NAME] [ID] [SWITCH] [CUE TEXT]
 	else if (flags[TEXT('E')])

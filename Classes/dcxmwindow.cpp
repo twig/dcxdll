@@ -41,7 +41,7 @@ DcxMWindow::DcxMWindow(const HWND cHwnd, const HWND pHwnd, const UINT ID, gsl::s
 	this->addStyle(WindowStyle::Child);
 
 	SetParent(m_Hwnd, pHwnd);
-	SetWindowPos(m_Hwnd, nullptr, rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top, NULL);
+	SetWindowPos(m_Hwnd, nullptr, rc->left, rc->top, rc->right - rc->left, rc->bottom - rc->top, 0);
 	ShowWindow(m_Hwnd, SW_SHOWNOACTIVATE);
 	UpdateWindow(m_Hwnd);
 

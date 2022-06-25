@@ -46,7 +46,7 @@ DcxReBar::DcxReBar(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialo
 
 	if (ws.m_NoTheme)
 	{
-		//SendMessage( m_Hwnd, RB_SETWINDOWTHEME, NULL, L" ");
+		//SendMessage( m_Hwnd, RB_SETWINDOWTHEME, 0, L" ");
 		Dcx::UXModule.dcxSetWindowTheme(m_Hwnd, L" ", L" ");
 	}
 

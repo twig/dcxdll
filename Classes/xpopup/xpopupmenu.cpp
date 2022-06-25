@@ -932,7 +932,7 @@ void XPopupMenu::cleanMenu(HMENU hMenu) noexcept
 			if (dcx_testflag(mii.fType, MFT_OWNERDRAW))
 			{
 				mii.fType &= ~MFT_OWNERDRAW;
-				mii.dwItemData = NULL;
+				mii.dwItemData = 0;
 				SetMenuItemInfo(hMenu, gsl::narrow_cast<UINT>(i), TRUE, &mii);
 			}
 		}

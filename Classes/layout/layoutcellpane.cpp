@@ -48,7 +48,7 @@ LayoutCellPane::~LayoutCellPane() noexcept
 LayoutCell* LayoutCellPane::addChild(gsl::owner<LayoutCell*> p_Cell, const UINT nWeight)
 {
 	//if (p_Cell == nullptr) // this should never happen :)
-	//	throw Dcx::dcxException("addChild() - NULL Cell supplied");
+	//	throw Dcx::dcxException("addChild() - nullptr Cell supplied");
 
 	if (m_vpCells.empty())
 		m_FirstChild = p_Cell;

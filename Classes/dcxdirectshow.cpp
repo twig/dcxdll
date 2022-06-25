@@ -840,7 +840,7 @@ void DcxDirectshow::ReleaseAll() noexcept
 			this->m_pControl->Release();
 		if (this->m_pEvent)
 		{
-			this->m_pEvent->SetNotifyWindow(NULL, 0, 0);
+			this->m_pEvent->SetNotifyWindow((OAHWND)0, 0, 0);
 			this->m_pEvent->Release();
 		}
 		if (this->m_pSeek)
@@ -1084,6 +1084,7 @@ HRESULT DcxDirectshow::setVideo(const TString& flags, const float brightness, co
 
 	const XSwitchFlags xflags(flags);
 	DWORD dwflags{};
+
 	if (xflags[TEXT('b')])
 		dwflags |= ProcAmpControl9_Brightness;
 	if (xflags[TEXT('c')])
@@ -1092,6 +1093,13 @@ HRESULT DcxDirectshow::setVideo(const TString& flags, const float brightness, co
 		dwflags |= ProcAmpControl9_Hue;
 	if (xflags[TEXT('s')])
 		dwflags |= ProcAmpControl9_Saturation;
+
+	//if (xflags[TEXT('N')])
+	//{
+	//	// Inputs are normalized, must be changed to native ranges.
+	//	// meaning inputs are 0 - max
+	//	auto fNativeBrightness = brightness;
+	//}
 
 	if (dwflags != 0)
 	{

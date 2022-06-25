@@ -494,9 +494,9 @@ namespace details {
 	struct _impl_strcpyn<char> {
 		char* operator()(char* const pDest, const char* const pSrc, const size_t length) noexcept
 		{
-			//auto t = strncpy(pDest, pSrc, length);	// doesn't guarantee NULL termination!
+			//auto t = strncpy(pDest, pSrc, length);	// doesn't guarantee zero termination!
 			//if (t)
-			//	t[length - 1] = 0;	// make sure it ends in NULL
+			//	t[length - 1] = 0;	// make sure it ends in zero
 			//return t;
 
 			return lstrcpynA(pDest, pSrc, gsl::narrow_cast<int>(length));
@@ -506,9 +506,9 @@ namespace details {
 	struct _impl_strcpyn<wchar_t> {
 		wchar_t* operator()(wchar_t* const pDest, const wchar_t* const pSrc, const size_t length) noexcept
 		{
-			//auto t = wcsncpy(pDest, pSrc, length); // doesn't guarantee NULL termination!
+			//auto t = wcsncpy(pDest, pSrc, length); // doesn't guarantee zero termination!
 			//if (t)
-			//	t[length - 1] = 0;	// make sure it ends in NULL
+			//	t[length - 1] = 0;	// make sure it ends in zero
 			//return t;
 
 			return lstrcpynW(pDest, pSrc, gsl::narrow_cast<int>(length));

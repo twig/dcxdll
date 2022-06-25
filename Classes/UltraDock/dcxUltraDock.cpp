@@ -15,7 +15,7 @@ std::unique_ptr<DcxDock> g_dockToolbar = nullptr; // needed to adjust size for s
 // force a window update.
 void UpdatemIRC(void) noexcept
 {
-	SendMessage(mIRCLinker::getHWND(), WM_SIZE, NULL, NULL);
+	SendMessage(mIRCLinker::getHWND(), WM_SIZE, 0, 0);
 }
 
 /*
@@ -39,7 +39,7 @@ void InitUltraDock(void)
 GSL_SUPPRESS(type.4)
 void CloseUltraDock(void) noexcept
 {
-	EnumChildWindows(mIRCLinker::getHWND(),EnumDocked, NULL);
+	EnumChildWindows(mIRCLinker::getHWND(),EnumDocked, 0);
 
 	DcxDock::UnInitStatusbar();
 
@@ -174,7 +174,7 @@ const SwitchBarPos SwitchbarPos(const DockTypes type) noexcept
 //
 //// force a window update.
 //void UpdatemIRC(void) {
-//	SendMessage(mIRCLinker::getHWND(), WM_SIZE, nullptr, NULL);
+//	SendMessage(mIRCLinker::getHWND(), WM_SIZE, 0, 0);
 //}
 ///*
 //	* Setup Everything for UltraDock

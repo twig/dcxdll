@@ -54,12 +54,12 @@ DcxRichEdit::DcxRichEdit(const UINT ID, gsl::strict_not_null<DcxDialog* const> p
 	this->setBackColor(GetSysColor(COLOR_WINDOW));
 	this->setTextColor(GetSysColor(COLOR_WINDOWTEXT));
 
-	getmIRCPalette(gsl::span<COLORREF>(m_aColorPalette), true);
+	getmIRCPalette(gsl::span<COLORREF>(m_aColorPalette), false);
 
 	this->setContentsFont();
 
-	SendMessage(m_Hwnd, EM_SETEVENTMASK, NULL, (ENM_SELCHANGE | ENM_CHANGE | ENM_LINK));
-	//SendMessage(m_Hwnd, CCM_SETUNICODEFORMAT, TRUE, NULL);
+	SendMessage(m_Hwnd, EM_SETEVENTMASK, 0, (ENM_SELCHANGE | ENM_CHANGE | ENM_LINK));
+	//SendMessage(m_Hwnd, CCM_SETUNICODEFORMAT, TRUE, 0);
 
 	if (styles.istok(TEXT("tooltips")))
 	{
@@ -146,9 +146,9 @@ void DcxRichEdit::parseInfoRequest(const TString& input, const refString<TCHAR, 
 			throw Dcx::dcxException("Invalid line number.");
 
 		// get index of first character in line
-		const auto offset = SendMessage(m_Hwnd, EM_LINEINDEX, gsl::narrow_cast<WPARAM>(line), NULL);
+		const auto offset = SendMessage(m_Hwnd, EM_LINEINDEX, gsl::narrow_cast<WPARAM>(line), 0);
 		// get length of the line we want to copy
-		const auto len = SendMessage(m_Hwnd, EM_LINELENGTH, gsl::narrow_cast<WPARAM>(offset), NULL) + 1;
+		const auto len = SendMessage(m_Hwnd, EM_LINELENGTH, gsl::narrow_cast<WPARAM>(offset), 0) + 1;
 		// create and fill the buffer
 		auto p = std::make_unique<TCHAR[]>(len);
 		*(reinterpret_cast<LPWORD>(p.get())) = gsl::narrow_cast<WORD>(len);
@@ -181,9 +181,9 @@ void DcxRichEdit::parseInfoRequest(const TString& input, const refString<TCHAR, 
 		if (this->isStyle(WindowStyle::ES_MultiLine))
 		{
 			// current line
-			const auto iLinePos = SendMessage(m_Hwnd, EM_LINEFROMCHAR, gsl::narrow_cast<WPARAM>(-1), NULL) + 1;
+			const auto iLinePos = SendMessage(m_Hwnd, EM_LINEFROMCHAR, gsl::narrow_cast<WPARAM>(-1), 0) + 1;
 			// line offset
-			const auto CharPos = (dwAbsoluteStartSelPos - gsl::narrow_cast<int>(SendMessage(m_Hwnd, EM_LINEINDEX, gsl::narrow_cast<WPARAM>(-1), NULL)));
+			const auto CharPos = (dwAbsoluteStartSelPos - gsl::narrow_cast<int>(SendMessage(m_Hwnd, EM_LINEINDEX, gsl::narrow_cast<WPARAM>(-1), 0)));
 
 			_ts_snprintf(szReturnValue, TEXT("%d %u %u"), iLinePos, CharPos, dwAbsoluteStartSelPos);
 		}
@@ -198,7 +198,7 @@ void DcxRichEdit::parseInfoRequest(const TString& input, const refString<TCHAR, 
 	{
 		CHARRANGE c{};
 
-		SendMessage(m_Hwnd, EM_EXGETSEL, NULL, reinterpret_cast<LPARAM>(&c));
+		SendMessage(m_Hwnd, EM_EXGETSEL, 0, reinterpret_cast<LPARAM>(&c));
 		_ts_snprintf(szReturnValue, TEXT("%d"), c.cpMin);
 	}
 	break;
@@ -207,7 +207,7 @@ void DcxRichEdit::parseInfoRequest(const TString& input, const refString<TCHAR, 
 	{
 		CHARRANGE c{};
 
-		SendMessage(m_Hwnd, EM_EXGETSEL, NULL, reinterpret_cast<LPARAM>(&c));
+		SendMessage(m_Hwnd, EM_EXGETSEL, 0, reinterpret_cast<LPARAM>(&c));
 		_ts_snprintf(szReturnValue, TEXT("%d"), c.cpMax);
 	}
 	break;
@@ -216,7 +216,7 @@ void DcxRichEdit::parseInfoRequest(const TString& input, const refString<TCHAR, 
 	{
 		CHARRANGE c{};
 
-		SendMessage(m_Hwnd, EM_EXGETSEL, NULL, reinterpret_cast<LPARAM>(&c));
+		SendMessage(m_Hwnd, EM_EXGETSEL, 0, reinterpret_cast<LPARAM>(&c));
 		_ts_snprintf(szReturnValue, TEXT("%d %d"), c.cpMin, c.cpMax);
 	}
 	break;
@@ -225,10 +225,10 @@ void DcxRichEdit::parseInfoRequest(const TString& input, const refString<TCHAR, 
 	{
 		CHARRANGE c{};
 
-		SendMessage(m_Hwnd, EM_EXGETSEL, NULL, reinterpret_cast<LPARAM>(&c));
+		SendMessage(m_Hwnd, EM_EXGETSEL, 0, reinterpret_cast<LPARAM>(&c));
 		auto buffer = std::make_unique<TCHAR[]>(c.cpMax - c.cpMin);
 
-		SendMessage(m_Hwnd, EM_GETSELTEXT, NULL, reinterpret_cast<LPARAM>(buffer.get()));
+		SendMessage(m_Hwnd, EM_GETSELTEXT, 0, reinterpret_cast<LPARAM>(buffer.get()));
 		szReturnValue = buffer.get();
 	}
 	break;
@@ -678,7 +678,7 @@ void DcxRichEdit::parseCommandRequest(const TString& input)
 	// xdid -P [NAME] [ID]
 	else if (flags[TEXT('P')])
 	{
-		SendMessage(this->getHwnd(), WM_PASTE, NULL, NULL);
+		SendMessage(this->getHwnd(), WM_PASTE, 0, 0);
 	}
 	// xdid -q -> [NAME] [ID] -q [COLOR1] ... [COLOR16]
 	else if (flags[TEXT('q')])
@@ -818,13 +818,13 @@ void DcxRichEdit::parseCommandRequest(const TString& input)
 		c.cpMin = input.getnexttok().to_int();	// tok 4
 		c.cpMax = (numtok > 4) ? input.getnexttok().to_int() : c.cpMin;	// tok 5
 
-		SendMessage(m_Hwnd, EM_EXSETSEL, NULL, reinterpret_cast<LPARAM>(&c));
-		SendMessage(m_Hwnd, EM_SCROLLCARET, NULL, NULL);
+		SendMessage(m_Hwnd, EM_EXSETSEL, 0, reinterpret_cast<LPARAM>(&c));
+		SendMessage(m_Hwnd, EM_SCROLLCARET, 0, 0);
 	}
 	// xdid -V [NAME] [ID]
 	else if (flags[TEXT('V')])
 	{
-		SendMessage(m_Hwnd, EM_SCROLLCARET, NULL, NULL);
+		SendMessage(m_Hwnd, EM_SCROLLCARET, 0, 0);
 	}
 	// xdid -y [NAME] [ID] [SWITCH] [0|1|-] [0|1]
 	else if (flags[TEXT('y')])
@@ -1446,7 +1446,7 @@ void DcxRichEdit::setCaretPos(DWORD pos) noexcept
 
 	CHARRANGE c{ gsl::narrow_cast<long>(pos), gsl::narrow_cast<long>(pos) };
 
-	SendMessage(m_Hwnd, EM_EXSETSEL, NULL, reinterpret_cast<LPARAM>(&c));
+	SendMessage(m_Hwnd, EM_EXSETSEL, 0, reinterpret_cast<LPARAM>(&c));
 }
 
 /*!
@@ -1650,7 +1650,7 @@ LRESULT DcxRichEdit::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 					auto str = std::make_unique<TCHAR[]>(strlen);
 
 					tr.lpstrText = str.get();
-					SendMessage(m_Hwnd, EM_GETTEXTRANGE, NULL, reinterpret_cast<LPARAM>(&tr));
+					SendMessage(m_Hwnd, EM_GETTEXTRANGE, 0, reinterpret_cast<LPARAM>(&tr));
 
 					TString tsEvent;
 					if (enl->msg == WM_LBUTTONDOWN)
@@ -1686,7 +1686,7 @@ LRESULT DcxRichEdit::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 					// get information about selected text
 					tr.chrg = sel->chrg;
 					tr.lpstrText = str.get();
-					SendMessage(m_Hwnd, EM_GETTEXTRANGE, NULL, reinterpret_cast<LPARAM>(&tr));
+					SendMessage(m_Hwnd, EM_GETTEXTRANGE, 0, reinterpret_cast<LPARAM>(&tr));
 
 					this->execAliasEx(TEXT("selchange,%u,%d,%d,%s"), getUserID(), sel->chrg.cpMin, sel->chrg.cpMax, tr.lpstrText);
 				}

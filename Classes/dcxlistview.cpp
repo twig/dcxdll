@@ -4015,7 +4015,7 @@ LRESULT CALLBACK DcxListView::EditLabelProc(HWND mHwnd, UINT uMsg, WPARAM wParam
 DcxControl* DcxListView::CreatePbar(LPLVITEM lvi, const TString& styles)
 {
 	// can only create progress for an existing item
-	if (!lvi || lvi->lParam == NULL)
+	if (!lvi || lvi->lParam == 0)
 		return nullptr;
 
 	const auto lpdcxlvi = reinterpret_cast<LPDCXLVITEM>(lvi->lParam);

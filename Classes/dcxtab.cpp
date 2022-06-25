@@ -924,7 +924,7 @@ LRESULT DcxTab::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPa
 
 		TCHAR szLabel[MIRC_BUFFER_SIZE_CCH]{};
 
-		TCITEM tci{ TCIF_TEXT | TCIF_IMAGE | TCIF_STATE, 0, TCIS_HIGHLIGHTED, &szLabel[0], MIRC_BUFFER_SIZE_CCH, 0, NULL };
+		TCITEM tci{ TCIF_TEXT | TCIF_IMAGE | TCIF_STATE, 0, TCIS_HIGHLIGHTED, &szLabel[0], MIRC_BUFFER_SIZE_CCH, 0, 0 };
 
 		if (!TabCtrl_GetItem(getHwnd(), nTabIndex, &tci))
 		{

@@ -1081,7 +1081,7 @@ public:
 	// remove sub string from string
 	TString& remove(const TString& subString);
 	UINT replace(const_pointer_const subString, const_pointer_const rString);	// replace subString with rString
-	UINT replace(const_pointer_const subString, constvalue_type rchr);			// replace subString with rchr
+	UINT replace(const_pointer_const subString, const_value_type rchr);			// replace subString with rchr
 	UINT replace(const_value_type chr, const_pointer_const rString);				// replace chr with rString
 	UINT replace(const_value_type chr, const_value_type rchr);						// replace chr with rchr
 	UINT mreplace(const_value_type chr, const_pointer_const fmt);					// replace any char in fmt with chr
@@ -1666,7 +1666,7 @@ public:
 	*
 	* params
 	* sepChars	-	The token seperator string/character
-	*				If NULL returns zero.
+	*				If nullptr returns zero.
 	*/
 	template <TStringConcepts::IsNumeric T, TStringConcepts::IsSupportedSeperatorType TSepChar = const_reference>
 	T getnexttokas(TSepChar sepChars = SPACECHAR/*, bool bReCount = false*/) const
@@ -1700,7 +1700,7 @@ public:
 	*
 	* params
 	* sepChars	-	The token seperator string
-	*				If NULL returns the whole current string.
+	*				If nullptr returns the whole current string.
 	*/
 	template <TStringConcepts::IsSupportedSeperatorType TSepChar = const_reference>
 	TString getnexttok(TSepChar sepChars = SPACECHAR/*, bool bReCount = false*/) const

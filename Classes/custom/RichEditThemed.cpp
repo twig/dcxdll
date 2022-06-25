@@ -303,7 +303,7 @@ bool CRichEditThemed::OnNCPaint() noexcept
 
 					if (!IsWindowEnabled(m_hRichEdit))
 						nState = ETS_DISABLED;
-					else if (SendMessage(m_hRichEdit, EM_GETOPTIONS, NULL, NULL) & ECO_READONLY)
+					else if (SendMessage(m_hRichEdit, EM_GETOPTIONS, 0, 0) & ECO_READONLY)
 						nState = ETS_READONLY;
 
 					pDrawThemeBackground(hTheme, hdc, EP_EDITTEXT, nState, &rcBorder, nullptr);

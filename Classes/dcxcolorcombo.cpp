@@ -308,7 +308,7 @@ void DcxColorCombo::setmIRCPalette()
 	//}
 
 #if DCX_USE_WRAPPERS
-	getmIRCPalette(); // get mIRC palette
+	getmIRCPalette(false); // get mIRC palette
 
 	for (const auto& col : staticPalette)
 	{
@@ -447,13 +447,13 @@ BOOL DcxColorCombo::DrawItem(LPDRAWITEMSTRUCT lpdis)
 		SetBkColor(lpdis->hDC, GetSysColor(COLOR_MENUHILIGHT));
 	else
 		SetBkColor(lpdis->hDC, GetSysColor(COLOR_WINDOW));
-	ExtTextOut(lpdis->hDC, rcItem.left, rcItem.top, ETO_CLIPPED | ETO_OPAQUE, &rcItem, TEXT(""), NULL, nullptr);
+	ExtTextOut(lpdis->hDC, rcItem.left, rcItem.top, ETO_CLIPPED | ETO_OPAQUE, &rcItem, TEXT(""), 0, nullptr);
 
 	InflateRect(&rcItem, -4, -2);
 
 	SetBkColor(lpdis->hDC, lpdcxcci->clrItem);
 
-	ExtTextOut(lpdis->hDC, rcItem.left, rcItem.top, ETO_CLIPPED | ETO_OPAQUE, &rcItem, TEXT(""), NULL, nullptr);
+	ExtTextOut(lpdis->hDC, rcItem.left, rcItem.top, ETO_CLIPPED | ETO_OPAQUE, &rcItem, TEXT(""), 0, nullptr);
 
 	TString txt(lpdcxcci->tsItemText);
 

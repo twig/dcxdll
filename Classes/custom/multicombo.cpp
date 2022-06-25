@@ -1178,13 +1178,13 @@ BOOL MultiCombo_DrawItem(HWND mHwnd, LPDRAWITEMSTRUCT lpdis)
 			SetBkColor(lpdis->hDC, clr);
 		}
 
-		ExtTextOut(lpdis->hDC, rcItem.left, rcItem.top, ETO_CLIPPED | ETO_OPAQUE, &rcItem, TEXT(""), NULL, nullptr);
+		ExtTextOut(lpdis->hDC, rcItem.left, rcItem.top, ETO_CLIPPED | ETO_OPAQUE, &rcItem, TEXT(""), 0, nullptr);
 
 		InflateRect(&rcItem, -4, -2);
 
 		SetBkColor(lpdis->hDC, lpdcxcci->m_clrItem);
 
-		ExtTextOut(lpdis->hDC, rcItem.left, rcItem.top, ETO_CLIPPED | ETO_OPAQUE, &rcItem, TEXT(""), NULL, nullptr);
+		ExtTextOut(lpdis->hDC, rcItem.left, rcItem.top, ETO_CLIPPED | ETO_OPAQUE, &rcItem, TEXT(""), 0, nullptr);
 
 		TString txt(lpdcxcci->m_tsItemText);
 

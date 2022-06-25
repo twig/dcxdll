@@ -544,7 +544,7 @@ LRESULT CALLBACK DcxDock::mIRCDockWinProc(HWND mHwnd, UINT uMsg, WPARAM wParam, 
 
 	case WM_WINDOWPOSCHANGING:
 	{
-		if ((lParam != NULL) && (pthis->m_iType != DockTypes::DOCK_TYPE_MDI) && DcxDock::IsStatusbar())
+		if ((lParam != 0) && (pthis->m_iType != DockTypes::DOCK_TYPE_MDI) && DcxDock::IsStatusbar())
 		{
 			dcxlParam(LPWINDOWPOS, wp);
 
@@ -943,7 +943,7 @@ bool DcxDock::InitStatusbar(const TString& styles)
 		if (bNoTheme)
 			Dcx::UXModule.dcxSetWindowTheme(g_StatusBar, L" ", L" ");
 
-		//SendMessage(g_StatusBar, SB_SETUNICODEFORMAT, TRUE, NULL);
+		//SendMessage(g_StatusBar, SB_SETUNICODEFORMAT, TRUE, 0);
 		return true;
 	}
 	return false;
@@ -1059,12 +1059,12 @@ void DcxDock::status_setText(const int iPart, const int Style, const WCHAR* cons
 
 UINT DcxDock::status_getTextLength(const int iPart) noexcept
 {
-	return gsl::narrow_cast<UINT>(Dcx::dcxLOWORD(SendMessage(g_StatusBar, SB_GETTEXTLENGTHW, gsl::narrow_cast<WPARAM>(iPart), NULL)));
+	return gsl::narrow_cast<UINT>(Dcx::dcxLOWORD(SendMessage(g_StatusBar, SB_GETTEXTLENGTHW, gsl::narrow_cast<WPARAM>(iPart), 0)));
 }
 
 UINT DcxDock::status_getPartFlags(const int iPart) noexcept
 {
-	return gsl::narrow_cast<UINT>(Dcx::dcxHIWORD(SendMessage(g_StatusBar, SB_GETTEXTLENGTHW, gsl::narrow_cast<WPARAM>(iPart), NULL)));
+	return gsl::narrow_cast<UINT>(Dcx::dcxHIWORD(SendMessage(g_StatusBar, SB_GETTEXTLENGTHW, gsl::narrow_cast<WPARAM>(iPart), 0)));
 }
 
 LRESULT DcxDock::status_getText(const int iPart, LPWSTR lpstr) noexcept

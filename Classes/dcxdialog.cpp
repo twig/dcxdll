@@ -462,35 +462,35 @@ void DcxDialog::parseCommandRequest(_In_ const TString& input)
 			//TCHAR sRet[32];
 			//mIRCLinker::evalex(sRet, Dcx::countof(sRet), TEXT("$dialog(%s).modal"), this->m_tsName.to_chr());
 			//if (ts_strcmp(sRet, TEXT("$true")) == 0) // Modal Dialog
-			//	SendMessage(m_Hwnd,WM_CLOSE,NULL,NULL); // this allows the dialogs WndProc to EndDialog() if needed.
+			//	SendMessage(m_Hwnd, WM_CLOSE, 0, 0); // this allows the dialogs WndProc to EndDialog() if needed.
 			//else // Modeless Dialog
 			//	DestroyWindow(m_Hwnd);
 
 			//stString<32> sRet;
 			//mIRCLinker::evalex(sRet, sRet.size(), TEXT("$dialog(%s).modal"), m_tsName.to_chr());
 			//if (sRet == TEXT("$true")) // Modal Dialog
-			//	SendMessage(m_Hwnd, WM_CLOSE, NULL, NULL); // this allows the dialogs WndProc to EndDialog() if needed.
+			//	SendMessage(m_Hwnd, WM_CLOSE, 0, 0); // this allows the dialogs WndProc to EndDialog() if needed.
 			//else // Modeless Dialog
 			//	DestroyWindow(m_Hwnd);
 
 			//if (mIRCLinker::evalex(nullptr, 0, TEXT("$dialog(%s).modal"), m_tsName.to_chr())) // Modal Dialog
-			//	SendMessage(m_Hwnd, WM_CLOSE, NULL, NULL); // this allows the dialogs WndProc to EndDialog() if needed.
+			//	SendMessage(m_Hwnd, WM_CLOSE, 0, 0); // this allows the dialogs WndProc to EndDialog() if needed.
 			//else // Modeless Dialog
 			//	DestroyWindow(m_Hwnd);
 
 			//if (mIRCLinker::eval(nullptr, TEXT("$dialog(%).modal"), m_tsName)) // Modal Dialog
-			//	SendMessage(m_Hwnd, WM_CLOSE, NULL, NULL); // this allows the dialogs WndProc to EndDialog() if needed.
+			//	SendMessage(m_Hwnd, WM_CLOSE, 0, 0); // this allows the dialogs WndProc to EndDialog() if needed.
 			//else // Modeless Dialog
 			//	DestroyWindow(m_Hwnd);
 
 			if (mIRCLinker::o_eval<TString>(TEXT("$dialog(%).modal"), m_tsName).has_value()) // Modal Dialog
-				SendMessage(m_Hwnd, WM_CLOSE, NULL, NULL); // this allows the dialogs WndProc to EndDialog() if needed.
+				SendMessage(m_Hwnd, WM_CLOSE, 0, 0); // this allows the dialogs WndProc to EndDialog() if needed.
 			else // Modeless Dialog
 				DestroyWindow(m_Hwnd);
 
 			//GetLastActivePopup(GetParent(m_Hwnd));
 			//if (!IsWindowEnabled(GetParent(m_Hwnd)))	// detect if dialog is modal, better than doing an eval?
-			//	SendMessage(m_Hwnd, WM_CLOSE, NULL, NULL); // this allows the dialogs WndProc to EndDialog() if needed.
+			//	SendMessage(m_Hwnd, WM_CLOSE, 0, 0); // this allows the dialogs WndProc to EndDialog() if needed.
 			//else // Modeless Dialog
 			//	DestroyWindow(m_Hwnd);
 		}
@@ -1759,7 +1759,7 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 	}
 	case WM_COMMAND:
 	{
-		if ((Dcx::dcxHIWORD(wParam) == 0) && (Dcx::dcxLOWORD(wParam) == 2) && (lParam == NULL))
+		if ((Dcx::dcxHIWORD(wParam) == 0) && (Dcx::dcxLOWORD(wParam) == 2) && (lParam == 0))
 		{
 			if (p_this->getRefCount() > 0)
 			{

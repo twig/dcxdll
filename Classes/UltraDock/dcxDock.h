@@ -151,7 +151,7 @@ public:
 	void UnDockWindow(const HWND hwnd);
 	void UnDockWindowPtr(const gsl::owner<LPDCXULTRADOCK> ud) noexcept;
 	void UnDockAll() noexcept;
-	void UpdateLayout() const noexcept { SendMessage(this->m_hParent, WM_SIZE, NULL, NULL); };
+	void UpdateLayout() const noexcept { SendMessage(this->m_hParent, WM_SIZE, 0, 0); };
 	bool FindDock(const HWND hwnd) const;
 	bool isDocked(const HWND hwnd) const;
 	LPDCXULTRADOCK GetDock(const HWND hwnd) const;

@@ -306,7 +306,7 @@ LRESULT DcxPanel::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPar
 	break;
 	case WM_WINDOWPOSCHANGING:
 	{
-		if (lParam != NULL)
+		if (lParam != 0)
 		{
 			dcxlParam(LPWINDOWPOS, wp);
 

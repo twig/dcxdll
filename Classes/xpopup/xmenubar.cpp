@@ -130,7 +130,7 @@ void XMenuBar::parseXMenuBarCommand(const TString& input)
 		const auto mID = menuName.to_<UINT>();
 
 		// MAKEWPARAM((# = Menu ID), (0 = Menu command));
-		SendMessage(mIRCLinker::getHWND(), WM_COMMAND, MAKEWPARAM(mID, 0), NULL);
+		SendMessage(mIRCLinker::getHWND(), WM_COMMAND, MAKEWPARAM(mID, 0), 0);
 		return;
 	}
 

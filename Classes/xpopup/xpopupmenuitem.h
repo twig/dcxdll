@@ -73,9 +73,9 @@ public:
 	XPopupMenuItem(XPopupMenuItem&&) = delete;
 	XPopupMenuItem& operator = (XPopupMenuItem&&) = delete;
 
-	XPopupMenuItem(XPopupMenu* Parent, const bool bSep, ULONG_PTR dwDataBackup = NULL) noexcept;
-	XPopupMenuItem(XPopupMenu* Parent, const TString& tsItemText, const int nIcon, const bool bSubMenu, ULONG_PTR dwDataBackup = NULL);
-	XPopupMenuItem(XPopupMenu* Parent, const TString& tsItemText, const TString& tsTooltip, const int nIcon, const bool bSubMenu, ULONG_PTR dwDataBackup = NULL);
+	XPopupMenuItem(XPopupMenu* Parent, const bool bSep, ULONG_PTR dwDataBackup = 0) noexcept;
+	XPopupMenuItem(XPopupMenu* Parent, const TString& tsItemText, const int nIcon, const bool bSubMenu, ULONG_PTR dwDataBackup = 0);
+	XPopupMenuItem(XPopupMenu* Parent, const TString& tsItemText, const TString& tsTooltip, const int nIcon, const bool bSubMenu, ULONG_PTR dwDataBackup = 0);
 	~XPopupMenuItem() noexcept = default;
 
 	void DrawItem(const LPDRAWITEMSTRUCT lpdis);
