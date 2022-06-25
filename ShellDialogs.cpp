@@ -190,7 +190,7 @@ TString FileDialog(const TString& data, const TString& method, const HWND pWnd)
 	TString tsCurrentDir(tsBufSize);
 	GetCurrentDirectory(tsBufSize, tsCurrentDir.to_chr());
 
-	// format the filter into the format WinAPI wants, with double NULL TERMINATOR at end
+	// format the filter into the format WinAPI wants, with double zero TERMINATOR at end
 	if (filter.empty())
 		filter = TEXT("All Files (*.*)|*.*");
 
@@ -509,7 +509,7 @@ int CALLBACK BrowseFolderCallback(HWND hwnd, UINT uMsg, LPARAM lParam, LPARAM lp
 		//}
 		//else {
 		//	SendMessage(hwnd, BFFM_ENABLEOK, TRUE, FALSE);
-		//	SendMessage(hwnd, BFFM_SETSTATUSTEXT, 0, NULL);
+		//	SendMessage(hwnd, BFFM_SETSTATUSTEXT, 0, 0);
 		//}
 
 		const stString<MAX_PATH> sPath;
@@ -521,7 +521,7 @@ int CALLBACK BrowseFolderCallback(HWND hwnd, UINT uMsg, LPARAM lParam, LPARAM lp
 		}
 		else {
 			SendMessage(hwnd, BFFM_ENABLEOK, TRUE, FALSE);
-			SendMessage(hwnd, BFFM_SETSTATUSTEXT, 0, NULL);
+			SendMessage(hwnd, BFFM_SETSTATUSTEXT, 0, 0);
 		}
 		break;
 	}

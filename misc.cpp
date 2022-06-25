@@ -66,11 +66,11 @@ int dcx_round(const float x) noexcept
 //		// to convert wide characters to multi-byte
 //
 //		// get calculated buffer size
-//		nLength = WideCharToMultiByte(CP_UTF8, 0, pwStr, -1, NULL, 0, NULL, NULL);
+//		nLength = WideCharToMultiByte(CP_UTF8, 0, pwStr, -1, nullptr, 0, nullptr, nullptr);
 //		// obtain a new buffer for the converted characters
 //		ptText = new TCHAR[nLength];
 //		// convert to multi-byte characters
-//		nLength = WideCharToMultiByte(CP_UTF8, 0, pwStr, -1, ptText, nLength, NULL, NULL);
+//		nLength = WideCharToMultiByte(CP_UTF8, 0, pwStr, -1, ptText, nLength, nullptr, nullptr);
 //#else
 //		nLength = wcslen(pwStr) + 1;    // if Unicode, then copy the input text
 //		ptText = new WCHAR[nLength];    // to a new output buffer
@@ -86,7 +86,7 @@ int dcx_round(const float x) noexcept
 //		// multi-byte or Ansi characters to Unicode.
 //
 //		// get calculated buffer size
-//		nLength = MultiByteToWideChar(CP_UTF8, 0, reinterpret_cast<PCSTR>(pBuffer), -1, NULL, 0);
+//		nLength = MultiByteToWideChar(CP_UTF8, 0, reinterpret_cast<PCSTR>(pBuffer), -1, nullptr, 0);
 //		// obtain a new buffer for the converted characters
 //		ptText = new TCHAR[nLength];
 //		// convert to Unicode characters
@@ -545,13 +545,13 @@ TString ParseLogfontToCommand(const LPLOGFONT lf)
 //
 //	if (!xflags[TEXT('+')]) {
 //		Dcx::error(TEXT("dcxLoadIcon"), TEXT("Invalid Flags"));
-//		return NULL;
+//		return nullptr;
 //	}
 //
 //	// index is -1
 //	if (index < 0) {
 //		Dcx::error(TEXT("dcxLoadIcon"), TEXT("Invalid Index"));
-//		return NULL;
+//		return nullptr;
 //	}
 //
 //	// This doesnt require a valid filename.
@@ -566,27 +566,27 @@ TString ParseLogfontToCommand(const LPLOGFONT lf)
 //			return shfi.hIcon;
 //
 //		Dcx::error(TEXT("dcxLoadIcon"), TEXT("Unable to get filetype icon"));
-//		return NULL;
+//		return nullptr;
 //	}
 //
 //	// Check for valid filename
 //	if (!IsFile(filename)) {
 //		Dcx::errorex(TEXT("dcxLoadIcon"), TEXT("Could Not Access File: %s"), filename.to_chr());
-//		return NULL;
+//		return nullptr;
 //	}
 //
-//	HICON icon = NULL;
+//	HICON icon = nullptr;
 //
 //	if (xflags[TEXT('a')]) {
 //		WORD wIndex = (WORD)index;
-//		icon = ExtractAssociatedIcon(NULL, filename.to_chr(), &wIndex);
+//		icon = ExtractAssociatedIcon(nullptr, filename.to_chr(), &wIndex);
 //	}
 //#ifdef DCX_USE_GDIPLUS
 //	else if (xflags[TEXT('P')]) {
 //		if (!Dcx::GDIModule.isUseable())
 //		{
 //			Dcx::error(TEXT("dcxLoadIcon"), TEXT("Invalid +P without GDI+."));
-//			return NULL;
+//			return nullptr;
 //		}
 //
 //		try {
@@ -607,7 +607,7 @@ TString ParseLogfontToCommand(const LPLOGFONT lf)
 //				//	h = GetSystemMetrics(SM_CYSMICON);
 //				//}
 //				//Bitmap *p_Thumb = p_Img->GetThumbnailImage(w,h);
-//				//if (p_Thumb != NULL) {
+//				//if (p_Thumb != nullptr) {
 //				//	p_Thumb->GetHICON(&icon);
 //				//	delete p_Thumb;
 //				//}
@@ -620,18 +620,18 @@ TString ParseLogfontToCommand(const LPLOGFONT lf)
 //		}
 //		catch (const std::bad_alloc)
 //		{
-//			return NULL;
+//			return nullptr;
 //		}
 //	}
 //#endif
 //	else {
 //		if (large)
-//			ExtractIconEx(filename.to_chr(), index, &icon, NULL, 1);
+//			ExtractIconEx(filename.to_chr(), index, &icon, nullptr, 1);
 //		else
-//			ExtractIconEx(filename.to_chr(), index, NULL, &icon, 1);
+//			ExtractIconEx(filename.to_chr(), index, nullptr, &icon, 1);
 //	}
 //
-//	if (xflags[TEXT('g')] && icon != NULL)
+//	if (xflags[TEXT('g')] && icon != nullptr)
 //		icon = CreateGrayscaleIcon(icon);
 //
 //	return icon;
@@ -808,33 +808,33 @@ update for 32bpp icons & rewrite
 // Return value:
 //      If the function succeeds, the return value is the handle to 
 //      the newly created grayscale icon.
-//      If the function fails, the return value is NULL.
+//      If the function fails, the return value is nullptr.
 //
 //HICON CreateGrayscaleIcon(HICON hIcon) {
-//	HICON		hGrayIcon = NULL;
-//	HDC		hMainDC = NULL, hMemDC1 = NULL, hMemDC2 = NULL;
+//	HICON		hGrayIcon = nullptr;
+//	HDC		hMainDC = nullptr, hMemDC1 = nullptr, hMemDC2 = nullptr;
 //	BITMAP	bmp;
-//	HBITMAP	hOldBmp1 = NULL, hOldBmp2 = NULL;
+//	HBITMAP	hOldBmp1 = nullptr, hOldBmp2 = nullptr;
 //	ICONINFO	csII, csGrayII;
 //	//BOOL		bRetValue = FALSE;
 //
 //	if (!GetIconInfo(hIcon, &csII))
-//		return NULL;
+//		return nullptr;
 //
 //	ZeroMemory(&csGrayII, sizeof(ICONINFO));
 //
-//	hMainDC = GetDC(NULL);
+//	hMainDC = GetDC(nullptr);
 //	hMemDC1 = CreateCompatibleDC(hMainDC);
 //	hMemDC2 = CreateCompatibleDC(hMainDC);
 //
-//	if (hMainDC == NULL || hMemDC1 == NULL || hMemDC2 == NULL)
-//		return NULL;
+//	if (hMainDC == nullptr || hMemDC1 == nullptr || hMemDC2 == nullptr)
+//		return nullptr;
 //
 //	if (GetObject(csII.hbmColor, sizeof(BITMAP), &bmp)) {
 //		DWORD dwWidth = csII.xHotspot*2;
 //		DWORD dwHeight = csII.yHotspot*2;
 //
-//		csGrayII.hbmColor = CreateBitmap(dwWidth, dwHeight, bmp.bmPlanes, bmp.bmBitsPixel, NULL);
+//		csGrayII.hbmColor = CreateBitmap(dwWidth, dwHeight, bmp.bmPlanes, bmp.bmBitsPixel, nullptr);
 //			HBITMAP tmp = csII.hbmMask;
 //
 //		if (csGrayII.hbmColor) {
@@ -879,7 +879,7 @@ update for 32bpp icons & rewrite
 //	DeleteObject(csII.hbmMask);
 //	DeleteDC(hMemDC1);
 //	DeleteDC(hMemDC2);
-//	ReleaseDC(NULL, hMainDC);
+//	ReleaseDC(nullptr, hMainDC);
 //
 //	DestroyIcon(hIcon);
 //
@@ -921,8 +921,8 @@ HICON CreateGrayscaleIcon(HICON hIcon, const COLORREF* const pPalette) noexcept
 	ICONINFO   icInfo{};
 	ICONINFO   icGrayInfo{};
 
-	//LPDWORD    lpBits         = NULL;
-	//LPBYTE     lpBitsPtr      = NULL;
+	//LPDWORD    lpBits         = nullptr;
+	//LPBYTE     lpBitsPtr      = nullptr;
 	//SIZE sz;
 	//DWORD c1 = 0;
 
@@ -1091,7 +1091,7 @@ void AddToolTipToolInfo(const HWND tiphwnd, const HWND ctrl) noexcept
 	ti.uId = reinterpret_cast<UINT_PTR>(ctrl);
 	ti.lpszText = LPSTR_TEXTCALLBACK;
 
-	SendMessage(tiphwnd, TTM_ADDTOOL, NULL, reinterpret_cast<LPARAM>(&ti));
+	SendMessage(tiphwnd, TTM_ADDTOOL, 0, reinterpret_cast<LPARAM>(&ti));
 }
 
 void dcxDrawShadowText(HDC hdc, LPCWSTR pszText, UINT cch, RECT* pRect, DWORD dwFlags, COLORREF crText, COLORREF crShadow, int ixOffset, int iyOffset) noexcept
@@ -1167,7 +1167,7 @@ constexpr const TCHAR* GetLastStatusStr(Gdiplus::Status status) noexcept
 //	PathUnquoteSpaces(filename.to_chr()); // Removes any "" around the path.
 //
 //	// try & access the filename as is first.
-//	HANDLE hFile = CreateFile(filename.to_chr(), GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+//	HANDLE hFile = CreateFile(filename.to_chr(), GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
 //
 //	if (hFile != INVALID_HANDLE_VALUE) {
 //		CloseHandle(hFile);
@@ -1176,29 +1176,29 @@ constexpr const TCHAR* GetLastStatusStr(Gdiplus::Status status) noexcept
 //
 //	filename.strip(); // remove ctrl codes from name. this allows ctrl codes to be added to a filename that uses double spaces.
 //
-//	hFile = CreateFile(filename.to_chr(), GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+//	hFile = CreateFile(filename.to_chr(), GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
 //	if (hFile != INVALID_HANDLE_VALUE) {
 //		CloseHandle(hFile);
 //		return true;
 //	}
 //
 //	// if that fails try & search for the file.
-//	TCHAR *buf = NULL, *f;
+//	TCHAR *buf = nullptr, *f;
 //
 //	// find buffer size needed.
-//	DWORD res = SearchPath(NULL,filename.to_chr(),NULL,0,NULL,NULL);
+//	DWORD res = SearchPath(nullptr,filename.to_chr(),nullptr,0,nullptr,nullptr);
 //	if (res > 0) {
 //		// found file, alloc buffer & fill with path/file.
 //		buf = new TCHAR[res + 1];
 //
-//		res = SearchPath(NULL,filename.to_chr(),NULL,res,buf,&f);
+//		res = SearchPath(nullptr,filename.to_chr(),nullptr,res,buf,&f);
 //	}
 //	if (res == 0) {// if find failed, exit
 //		delete [] buf;
 //		return false;
 //	}
 //	// now try & access the file we found.
-//	hFile = CreateFile(buf, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+//	hFile = CreateFile(buf, GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
 //	if (hFile != INVALID_HANDLE_VALUE) {
 //		CloseHandle(hFile);
 //		filename = buf; // alter the filename to contain the full path.
@@ -1325,6 +1325,7 @@ COLORREF staticPalette[mIRC_PALETTE_SIZE] = {
 */
 void getmIRCPalette(bool bForce)
 {
+	// if forced update set or staticPalette hasnt been filled, or static colours disabled...
 	if ((bForce) || (staticPalette[0] == CLR_INVALID) || (!Dcx::setting_bStaticColours))
 	{
 		// max length = (number of colours * max colour string result) + spaces between colours + zero char
@@ -1419,7 +1420,7 @@ int unfoldColor(const WCHAR* color) noexcept
 //		const WCHAR *wtxt = txt.to_chr();
 //		UINT pos = 0, len = (UINT)txt.len();
 //
-//		if ((len == 0) || (wtxt == NULL))
+//		if ((len == 0) || (wtxt == nullptr))
 //			return;
 //
 //		// strip out ctrl codes to correctly position text.
@@ -1528,7 +1529,7 @@ void mIRC_DrawText(HDC hdc, const TString& txt, LPRECT rc, const UINT style, con
 	COLORREF clrFG = origFG, clrBG = origBG;
 	COLORREF cPalette[mIRC_PALETTE_SIZE] = { CLR_INVALID }; // mIRC palette
 
-	getmIRCPalette(cPalette); // get mIRC palette
+	getmIRCPalette(gsl::span<COLORREF>(cPalette), false); // get mIRC palette
 
 	auto [code, lf] = Dcx::dcxGetObject<LOGFONT>(Dcx::dcxGetCurrentObject<HFONT>(hdc, OBJ_FONT));
 	if (code == 0)
@@ -1968,7 +1969,7 @@ TString TGetWindowText(HWND hwnd)
 HMODULE UXModule{ nullptr };         //!< UxTheme.dll Module Handle
 #ifdef DCX_USE_GDIPLUS
 HMODULE GDIPlusModule{ nullptr };	//!< gdiplus.dll Module Handle
-ULONG_PTR gdi_token{ NULL };
+ULONG_PTR gdi_token{};
 #endif
 HMODULE DWMModule{ nullptr };		//!< dwmapi.dll Module Handle
 
@@ -2295,7 +2296,7 @@ void DrawRotatedText(const TString& strDraw, const LPCRECT rc, const HDC hDC, co
 //	SetBkMode(hdc, TRANSPARENT);
 //	ExtTextOut(hdc, rect->left + (rect->right - rect->left) / 2 - rcenter.x,
 //		rect->top + (rect->bottom - rect->top) / 2 + rcenter.y,
-//		nOptions, rect, str, len, NULL);
+//		nOptions, rect, str, len, nullptr);
 //}
 
 const char* queryAttribute(const TiXmlElement* element, const char* attribute, const char* defaultValue) noexcept

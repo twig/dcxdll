@@ -51,7 +51,7 @@ DcxTrackBar::DcxTrackBar(const UINT ID, gsl::strict_not_null<DcxDialog* const> p
 	// Keep track of the tooltip
 	if (dcx_testflag(ws.m_Styles, TBS_TOOLTIPS))
 	{
-		if (const auto tooltip = reinterpret_cast<HWND>(SendMessage(m_Hwnd, TBM_GETTOOLTIPS, NULL, NULL)); tooltip)
+		if (const auto tooltip = reinterpret_cast<HWND>(SendMessage(m_Hwnd, TBM_GETTOOLTIPS, 0, 0)); tooltip)
 			this->m_ToolTipHWND = tooltip;
 	}
 
@@ -789,7 +789,7 @@ LRESULT DcxTrackBar::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& b
 			//	ti.lpszText = buff.to_chr();
 			//
 			//	this->m_bUpdatingTooltip = true;
-			//	SendMessage(this->m_ToolTipHWND, TTM_UPDATETIPTEXT, NULL, reinterpret_cast<LPARAM>(&ti));
+			//	SendMessage(this->m_ToolTipHWND, TTM_UPDATETIPTEXT, 0, reinterpret_cast<LPARAM>(&ti));
 			//	this->m_bUpdatingTooltip = false;
 			//}
 
@@ -808,7 +808,7 @@ LRESULT DcxTrackBar::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& b
 				ti.lpszText = buff.data();
 
 				this->m_bUpdatingTooltip = true;
-				SendMessage(this->m_ToolTipHWND, TTM_UPDATETIPTEXT, NULL, reinterpret_cast<LPARAM>(&ti));
+				SendMessage(this->m_ToolTipHWND, TTM_UPDATETIPTEXT, 0, reinterpret_cast<LPARAM>(&ti));
 				this->m_bUpdatingTooltip = false;
 			}
 		}

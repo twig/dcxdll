@@ -59,12 +59,12 @@ DcxToolBar::DcxToolBar(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_D
 
 	SendMessage(m_Hwnd, TB_BUTTONSTRUCTSIZE, sizeof(TBBUTTON), 0L);
 
-	this->setToolTipHWND(reinterpret_cast<HWND>(SendMessage(m_Hwnd, TB_GETTOOLTIPS, NULL, NULL)));
+	this->setToolTipHWND(reinterpret_cast<HWND>(SendMessage(m_Hwnd, TB_GETTOOLTIPS, 0, 0)));
 	if (styles.istok(TEXT("balloon")) && IsWindow(getToolTipHWND()))
 	{
 		dcxSetWindowStyle(getToolTipHWND(), dcxGetWindowStyle(getToolTipHWND()) | TTS_BALLOON);
 	}
-	//SendMessage( m_Hwnd, TB_SETPARENT, (WPARAM)mParentHwnd, NULL);
+	//SendMessage( m_Hwnd, TB_SETPARENT, (WPARAM)mParentHwnd, 0);
 
 	this->autoSize();
 
@@ -232,7 +232,7 @@ void DcxToolBar::parseInfoRequest(const TString& input, const refString<TCHAR, M
 		break;
 		// [NAME] [ID] [PROP]
 	case L"mouseitem"_hash:
-		_ts_snprintf(szReturnValue, TEXT("%d"), SendMessage(m_Hwnd, TB_GETHOTITEM, NULL, NULL));
+		_ts_snprintf(szReturnValue, TEXT("%d"), SendMessage(m_Hwnd, TB_GETHOTITEM, 0, 0));
 		break;
 		// [NAME] [ID] [PROP]
 	case L"text"_hash:
@@ -475,9 +475,9 @@ void DcxToolBar::parseCommandRequest(const TString& input)
 		if (iButton == -1 && this->m_ToolTipHWND)
 		{
 			if (dcx_testflag(buttonStyles, dcxToolBar_Styles::BTNS_TBKGCOLOR))
-				SendMessage(this->m_ToolTipHWND, TTM_SETTIPBKCOLOR, gsl::narrow_cast<WPARAM>(clrColor), NULL);
+				SendMessage(this->m_ToolTipHWND, TTM_SETTIPBKCOLOR, gsl::narrow_cast<WPARAM>(clrColor), 0);
 			else if (dcx_testflag(buttonStyles, dcxToolBar_Styles::BTNS_TTXTCOLOR))
-				SendMessage(this->m_ToolTipHWND, TTM_SETTIPTEXTCOLOR, gsl::narrow_cast<WPARAM>(clrColor), NULL);
+				SendMessage(this->m_ToolTipHWND, TTM_SETTIPTEXTCOLOR, gsl::narrow_cast<WPARAM>(clrColor), 0);
 		}
 		else {
 
@@ -591,7 +591,7 @@ void DcxToolBar::parseCommandRequest(const TString& input)
 
 		const TString tsButton(input.getnexttok());
 		auto iImage = input.getnexttok().to_int() - 1;			// tok 5
-		
+
 		if (iImage < 0)
 			iImage = I_IMAGENONE;
 
@@ -605,8 +605,8 @@ void DcxToolBar::parseCommandRequest(const TString& input)
 			tbbi.cbSize = sizeof(TBBUTTONINFO);
 			tbbi.dwMask = TBIF_IMAGE | TBIF_BYINDEX;
 			tbbi.iImage = iImage;
-			
-			for (auto nButton: r)
+
+			for (auto nButton : r)
 				this->setButtonInfo(nButton, &tbbi);
 		};
 		if (tsButton.numtok(TSCOMMACHAR) > 1)
@@ -712,7 +712,7 @@ void DcxToolBar::parseCommandRequest(const TString& input)
 			if ((r.b < 0) || (r.e < r.b))
 				throw DcxExceptions::dcxOutOfRange();
 
-			for (auto nButton: r)
+			for (auto nButton : r)
 			{
 				if (const auto idButton = this->getIndexToCommand(nButton); idButton > 0)
 					this->setButtonState(idButton, fStates);

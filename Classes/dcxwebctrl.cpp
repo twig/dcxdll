@@ -1006,7 +1006,7 @@ TString DcxWebControl::CallScript(const TString& tsCmd) const
 
 				Dcx::dcxVariant v;
 
-				if (FAILED(idisp->Invoke(dispid, IID_NULL, 0, DISPATCH_METHOD, &params, &v, NULL, NULL)))
+				if (FAILED(idisp->Invoke(dispid, IID_NULL, 0, DISPATCH_METHOD, &params, &v, nullptr, nullptr)))
 					throw Dcx::dcxException("Invoke: failed.");
 
 				switch (v.vt)
@@ -1058,7 +1058,7 @@ TString DcxWebControl::CallScript(const TString& tsCmd) const
 				VariantInit(&v);
 				Auto(VariantClear(&v));
 
-				if (FAILED(idisp->Invoke(dispid, IID_NULL, 0, DISPATCH_METHOD, &params, &v, NULL, NULL)))
+				if (FAILED(idisp->Invoke(dispid, IID_NULL, 0, DISPATCH_METHOD, &params, &v, nullptr, nullptr)))
 					throw Dcx::dcxException("Invoke: failed.");
 
 				switch (v.vt)

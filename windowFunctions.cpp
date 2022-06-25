@@ -154,7 +154,7 @@ void AddStyles(const HWND hwnd, const int parm, const long AddStyles) noexcept
 //	// We create an empty region
 //	HRGN		hRegion = nullptr;
 //	
-//	// If the passed bitmap is NULL, go away!
+//	// If the passed bitmap is nullptr, go away!
 //	if (hBitmap == nullptr)
 //		return nullptr;
 //	
@@ -374,7 +374,7 @@ void AddStyles(const HWND hwnd, const int parm, const long AddStyles) noexcept
 //			GlobalFree(hData);
 //			SelectObject(hDC, hPrevBmpOrg); // don't del prev bitmap, as its our supplied one.
 //			DeleteDC(hDC);
-//		}	// if (hData != NULL)
+//		}	// if (hData != nullptr)
 //
 //	}// if (hDC)
 //
@@ -385,7 +385,7 @@ void AddStyles(const HWND hwnd, const int parm, const long AddStyles) noexcept
 HRGN BitmapRegion(HBITMAP hBitmap, const COLORREF cTransparentColor, const bool bIsTransparent)
 {
 #if DCX_USE_WRAPPERS
-	// If the passed bitmap is NULL, go away!
+	// If the passed bitmap is nullptr, go away!
 	if (!hBitmap)
 		return nullptr;
 
@@ -447,7 +447,7 @@ HRGN BitmapRegion(HBITMAP hBitmap, const COLORREF cTransparentColor, const bool 
 	// We create an empty region
 	HRGN		hRegion = nullptr;
 
-	// If the passed bitmap is NULL, go away!
+	// If the passed bitmap is nullptr, go away!
 	if (!hBitmap)
 		return nullptr;
 

@@ -1024,11 +1024,10 @@ namespace Dcx
 
 	struct dcxPalette final
 	{
-		dcxPalette() noexcept
+		dcxPalette(bool bForce = false) noexcept
 		{
 			try {
-				//getmIRCPalette(&m_Palette[0], m_size); // get mIRC palette
-				getmIRCPalette(m_Palette); // get mIRC palette
+				getmIRCPalette(gsl::span<COLORREF>(m_Palette), bForce); // get mIRC palette
 			}
 			catch (...)
 			{
@@ -1052,7 +1051,7 @@ namespace Dcx
 
 		struct iter
 		{
-			COLORREF operator * () const noexcept { return itr_Palette[n]; }
+			COLORREF operator * () const noexcept { if (!itr_Palette) return CLR_INVALID; return itr_Palette[n]; }
 			iter& operator ++() noexcept { ++n; return *this; }
 			friend
 				bool operator != (iter const& lhs, iter const& rhs) noexcept
