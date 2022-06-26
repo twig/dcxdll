@@ -1074,6 +1074,9 @@ XPopupMenu::MenuStyle XPopupMenu::parseStyle(const TString& tsStyle) noexcept
 	case TEXT("button"_hash):
 		style = MenuStyle::XPMS_BUTTON;
 		break;
+	case TEXT("buttonrev"_hash):
+		style = MenuStyle::XPMS_BUTTON_REV;
+		break;
 	case TEXT("custombig"_hash):
 		style = MenuStyle::XPMS_CUSTOMBIG;
 		break;

@@ -2101,7 +2101,6 @@ mIRC(SetmIRCCursors)
 *
 * Argument \b data contains -> ...
 */
-
 mIRC(SetDCXSettings)
 {
 	TString d(data);
@@ -2125,15 +2124,9 @@ mIRC(SetDCXSettings)
 		}
 		case L"UpdateColours"_hash:
 		{
-			getmIRCPalette(true);
+			getmIRCPalette(true); // force colours to update
 			break;
 		}
-		//case L"CustomMenus"_hash:
-		//{
-		//	Dcx::setting_CustomMenusAlpha = (d.getnexttok().to_<UINT>() & 0xFF);
-		//	Dcx::setting_CustomMenusRounded = (d.getnexttok().to_<UINT>() != 0);
-		//	break;
-		//}
 		default:
 			throw DcxExceptions::dcxInvalidArguments();
 		}
@@ -2149,7 +2142,6 @@ mIRC(SetDCXSettings)
 	}
 
 	mIRCLinker::echo(TEXT("/dcx SetDCXSettings [option] (option args)"));
-	//mIRCLinker::echo(TEXT("[option] = StaticColours,UpdateColours,CustomMenus"));
 	mIRCLinker::echo(TEXT("[option] = StaticColours,UpdateColours"));
 	mIRCLinker::echo(TEXT("(option args) = optional, args contents depends on the option used."));
 	return 0;

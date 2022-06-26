@@ -270,6 +270,7 @@ void XPopupMenuItem::DrawItemBackground(const LPDRAWITEMSTRUCT lpdis, const XPME
 	case XPopupMenu::MenuStyle::XPMS_OFFICE2003_REV:
 	case XPopupMenu::MenuStyle::XPMS_OFFICE2003:
 	case XPopupMenu::MenuStyle::XPMS_BUTTON:
+	case XPopupMenu::MenuStyle::XPMS_BUTTON_REV:
 	case XPopupMenu::MenuStyle::XPMS_VERTICAL:
 	case XPopupMenu::MenuStyle::XPMS_VERTICAL_REV:
 	default:
@@ -342,6 +343,32 @@ void XPopupMenuItem::DrawItemBox(const LPDRAWITEMSTRUCT lpdis, const XPMENUCOLOR
 		DrawFrameControl(lpdis->hDC, &lpdis->rcItem, DFC_BUTTON, uiStyle);
 		if (bSelected)
 			this->DrawItemSelection(lpdis, lpcol, bGrayed, false);
+
+		lpdis->rcItem = rc;
+	}
+	break;
+
+	case XPopupMenu::MenuStyle::XPMS_BUTTON_REV:
+	{
+		if (this->m_bSep)
+			break;
+
+		const RECT rc = lpdis->rcItem;
+
+		UINT uiStyle = DFCS_BUTTONPUSH | DFCS_ADJUSTRECT;
+		const auto bGrayed = dcx_testflag(lpdis->itemState, ODS_GRAYED);
+		const auto bSelected = dcx_testflag(lpdis->itemState, ODS_SELECTED);
+
+		if (bSelected)
+			uiStyle |= DFCS_PUSHED;
+		if (bGrayed)
+			uiStyle |= DFCS_INACTIVE;
+
+		if (bSelected)
+		{
+			DrawFrameControl(lpdis->hDC, &lpdis->rcItem, DFC_BUTTON, uiStyle);
+			this->DrawItemSelection(lpdis, lpcol, bGrayed, false);
+		}
 
 		lpdis->rcItem = rc;
 	}
