@@ -204,7 +204,7 @@ ON *:SIGNAL:Xpopup-*: {
 <table class="xpopup">
 	<tr><td colspan="2" class="flag" style="color: #A9729F; border-color: #A9729F;">
 			<a name="xpopup.b"></a>/xpopup -b	</td></tr>
-	<tr><td colspan="2">This command lets you set the menu item background image in <a class="style">custom</a> style.</td></tr>
+	<tr><td colspan="2">This command lets you set the menu item background image in <a class="style">custom</a> or <a class="style">custombig</a> style.</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
 		<td><div class="syntax">/xpopup -b [MENU] (IMAGEFILE)</div></td>
@@ -213,7 +213,7 @@ ON *:SIGNAL:Xpopup-*: {
 		<td class="example">Example:</td>
 		<td><div class="example">/xpopup -b mymenu mc.bmp</div></td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>Please take note that the image is stretched to fit the menu item rectangle.</li><li>Only BMP images are supported through this command if GDI+ is not available.</li><li>If <a class="param">IMAGEFILE</a> is not specified, then the current image will be removed.</li></ul></td></tr></table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>Please take note that the image is stretched to fit the menu item rectangle.</li><li>Only BMP images are supported through this command if GDI+ is not available.</li><li>If <a class="param">IMAGEFILE</a> is not specified, then the current image will be removed.</li><li>In <a class="style">custombig</a> style the image is stretched over the whole menu not the individual items.</li></ul></td></tr></table>
 <br />
 <table class="xpopup">
 	<tr><td colspan="2" class="flag" style="color: #A9729F; border-color: #A9729F;">
@@ -275,6 +275,18 @@ ON *:SIGNAL:Xpopup-*: {
 	<tr>
 		<td class="value">custom</td>
 		<td>Lets you apply a custom background item image (see /xpopup -b).</td>
+	</tr>
+	<tr>
+		<td class="value">custombig</td>
+		<td>Lets you apply a custom background image (see /xpopup -b).</td>
+	</tr>
+	<tr>
+		<td class="value">button</td>
+		<td>Items look like buttons (raised).</td>
+	</tr>
+	<tr>
+		<td class="value">buttonrev</td>
+		<td>Items look like buttons (sunken).</td>
 	</tr>
 <tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>This command will fail if the menu already exists, use $xpopup().ismenu to check if the menu exists.</li><li>Some colors are not used in certain menu styles.</li></ul></td></tr></table>
 <br />
@@ -1455,7 +1467,7 @@ The only difference is that you can load multiple icons by seperating the indexe
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2022</td>
-		<td style="text-align: right;">Last Updated: 31st May, 22</td>
+		<td style="text-align: right;">Last Updated: 26th June, 22</td>
 	</tr>
 </table>
 <div style="text-align: center;">

@@ -169,13 +169,14 @@ The image below is an example of a mIRC menubar popup menu skinned with XPopup w
 function get_xpopup(&$XPOPUP) {
 	$XPOPUP = array(
 	    'b' => array(
-	        '__desc' => 'This command lets you set the menu item background image in [s]custom[/s] style.',
+	        '__desc' => 'This command lets you set the menu item background image in [s]custom[/s] or [s]custombig[/s] style.',
 	        '__cmd' => '(IMAGEFILE)',
 	        '__eg' => 'mc.bmp',
 			'__notes' => array(
 			    'Please take note that the image is stretched to fit the menu item rectangle.',
 			    'Only BMP images are supported through this command if GDI+ is not available.',
 			    'If [p]IMAGEFILE[/p] is not specified, then the current image will be removed.',
+				'In [s]custombig[/s] style the image is stretched over the whole menu not the individual items.',
 			),
 		),
 		'c' => array(
@@ -197,6 +198,9 @@ function get_xpopup(&$XPOPUP) {
 						'vertical' => 'Vertically Gradient menu style.',
 						'verticalrev' => 'Vertically Gradient Reverse menu style.',
 						'custom' => 'Lets you apply a custom background item image (see /xpopup -b).',
+						'custombig' => 'Lets you apply a custom background image (see /xpopup -b).',
+						'button' => 'Items look like buttons (raised).',
+						'buttonrev' => 'Items look like buttons (sunken).',
 					),
 				),
 			),
