@@ -8,7 +8,6 @@ The <a>Color Palette</a> is the richedit's internal color list of 16 values used
 
 function get_styles_richedit(&$STYLES) {
 	$STYLES = array(
-//        'alpha' => 'Control is alpha blended.',
 		"multi" => "Enables a multiline richedit.",
 		"center" => "Text is centered.",
 		"readonly" => "Text cannot be edited manually.",
@@ -19,6 +18,7 @@ function get_styles_richedit(&$STYLES) {
 		'vsbar' => 'Displays a vertical scrollbar.',
 		'tooltips' => 'The richedit will have a tooltip.',
 		'showlinenumbers' => 'Show line numbers in a multi line control',
+		'unlockgutter' => 'Allow resizing the gutter area.',
 	);
 }
 
@@ -149,10 +149,11 @@ function get_xdid_richedit(&$XDID) {
 		),
 		'g' => array(
 			'__desc' => 'This command lets you set the colours to use for line numbers',
-			'__cmd' => '[Selected line Background Colour|-] (Background Colour|-) (Selected Line Text Colour|-) (Text Colour|-) (Border Colour|-)',
+			'__cmd' => '[Selected line Background Colour|-] (Background Colour|-) (Selected Line Text Colour|-) (Text Colour|-) (Border Colour|-) (Unlock Gutter 0|1|-) (Gutter Size|-) (Gutter Border Size|-)',
 			'__eg' => '$rgb(255,0,0) $rgb(16,24,5) - $rgb(12,34,0)',
 			'__notes' => array(
 				'A value of [v]-[/v] will cause an option to be ignored.',
+				'atm the Gutter Border Size option isnt implemented.',
 			),
 		),
 	);

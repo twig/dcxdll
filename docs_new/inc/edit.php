@@ -23,6 +23,7 @@ function get_styles_edit(&$STYLES) {
 		'showsel' => 'When the control loses focus, the selection is still displayed.',
 		'alpha' => 'Control is alpha blended.',
 		'showlinenumbers' => 'Show line numbers in a multi line control',
+		'unlockgutter' => 'Allow resizing the gutter area.',
 		'__notes' => array(
 			'Even with [s]number[/s] style, it is still possible to paste non-digits into the edit control.',
 			'[s]password[/s] does not work with [s]multi[/s] style.',
@@ -125,10 +126,11 @@ function get_xdid_edit(&$XDID) {
 		),
 		'g' => array(
 			'__desc' => 'This command lets you set the colours to use for line numbers',
-			'__cmd' => '[Selected line Background Colour|-] (Background Colour|-) (Selected Line Text Colour|-) (Text Colour|-) (Border Colour|-)',
+			'__cmd' => '[Selected line Background Colour|-] (Background Colour|-) (Selected Line Text Colour|-) (Text Colour|-) (Border Colour|-) (Unlock Gutter 0|1|-) (Gutter Size|-) (Gutter Border Size|-)',
 			'__eg' => '$rgb(255,0,0) $rgb(16,24,5) - $rgb(12,34,0)',
 			'__notes' => array(
 				'A value of [v]-[/v] will cause an option to be ignored.',
+				'atm the Gutter Border Size option isnt implemented.',
 			),
 		),
 	);

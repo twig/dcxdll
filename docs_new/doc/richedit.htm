@@ -114,6 +114,10 @@ The <a>Color Palette</a> is the richedit's internal color list of 16 values used
 		<td>The richedit will have a tooltip.</td>
 	</tr>
 	<tr>
+		<td class="style"><a name="style.unlockgutter" class="style">unlockgutter</a></td>
+		<td>Allow resizing the gutter area.</td>
+	</tr>
+	<tr>
 		<td class="style"><a name="style.vsbar" class="style">vsbar</a></td>
 		<td>Displays a vertical scrollbar.</td>
 	</tr>
@@ -171,13 +175,13 @@ The <a>Color Palette</a> is the richedit's internal color list of 16 values used
 	<tr><td colspan="2">This command lets you set the colours to use for line numbers</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xdid -g [DNAME] [ID] [Selected line Background Colour|-] (Background Colour|-) (Selected Line Text Colour|-) (Text Colour|-) (Border Colour|-)</div></td>
+		<td><div class="syntax">/xdid -g [DNAME] [ID] [Selected line Background Colour|-] (Background Colour|-) (Selected Line Text Colour|-) (Text Colour|-) (Border Colour|-) (Unlock Gutter 0|1|-) (Gutter Size|-) (Gutter Border Size|-)</div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
 		<td><div class="example">/xdid -g dcx 4 $rgb(255,0,0) $rgb(16,24,5) - $rgb(12,34,0)</div></td>
 	</tr>
-<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> A value of <a class="value">-</a> will cause an option to be ignored.</td></tr></table>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>A value of <a class="value">-</a> will cause an option to be ignored.</li><li>atm the Gutter Border Size option isnt implemented.</li></ul></td></tr></table>
 <br />
 <table class="xdid">
 	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
@@ -700,6 +704,7 @@ The <a>Color Palette</a> is the richedit's internal color list of 16 values used
 		<a class='flag' href="#style.right"><div>right</div></a>
 		<a class='flag' href="#style.showlinenumbers"><div>showlinenumbers</div></a>
 		<a class='flag' href="#style.tooltips"><div>tooltips</div></a>
+		<a class='flag' href="#style.unlockgutter"><div>unlockgutter</div></a>
 		<a class='flag' href="#style.vsbar"><div>vsbar</div></a>
 	</div>
 <div class='rightmenu' style='border:1px solid #6A7CB0'>
@@ -756,7 +761,7 @@ The <a>Color Palette</a> is the richedit's internal color list of 16 values used
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2022</td>
-		<td style="text-align: right;">Last Updated: 26th June, 22</td>
+		<td style="text-align: right;">Last Updated: 2nd July, 22</td>
 	</tr>
 </table>
 <div style="text-align: center;">
