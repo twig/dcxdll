@@ -169,9 +169,11 @@ void LayoutManager::AddCell(const TString& input, const UINT iOffset, const DcxD
 
 	const auto com = std::hash<TString>{}(tsInput.getfirsttok(gsl::narrow_cast<int>(iOffset)).trim());		// 3
 	const auto path(tsInput.getlasttoks().trim());	// 4
+	const TString tsFlags(p2.getfirsttok(1).trim());
+	if (tsFlags[0] != TEXT('+'))
+		throw DcxExceptions::dcxInvalidFlag();
 
-	const auto iflags = parseLayoutFlags(p2.getfirsttok(1));
-	//const auto ID = p2.getnexttok().to_<UINT>();	// tok 2
+	const auto iflags = parseLayoutFlags(tsFlags);
 
 	const TString tsID(p2.getnexttok());
 
