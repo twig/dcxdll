@@ -40,7 +40,6 @@ DcxStatusBar::DcxStatusBar(const UINT ID, gsl::strict_not_null<DcxDialog* const>
 		this);
 
 	if (!IsWindow(m_Hwnd))
-		//throw Dcx::dcxException("Unable To Create Window");
 		throw DcxExceptions::dcxUnableToCreateWindow();
 
 	if (ws.m_NoTheme)
@@ -146,7 +145,6 @@ void DcxStatusBar::parseInfoRequest(const TString& input, const refString<TCHAR,
 	case L"text"_hash:
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Invalid number of arguments");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const int iPart = input.getnexttok().to_int() - 1, nParts = getParts(DCX_STATUSBAR_MAX_PARTS, nullptr);	// tok 4
@@ -188,7 +186,6 @@ void DcxStatusBar::parseInfoRequest(const TString& input, const refString<TCHAR,
 	case L"tooltip"_hash:
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Invalid number of arguments");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const int iPart = input.getnexttok().to_int(), nParts = getParts(DCX_STATUSBAR_MAX_PARTS, nullptr);	// tok 4
@@ -249,7 +246,6 @@ void DcxStatusBar::parseCommandRequest(const TString& input)
 	if (flags[TEXT('k')])
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto col = input.getnexttok().to_<COLORREF>();	// tok 4
@@ -262,7 +258,6 @@ void DcxStatusBar::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('l')])
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto nParts = numtok - 3;
@@ -297,7 +292,6 @@ void DcxStatusBar::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('t')])
 	{
 		if (numtok < 6)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto nPos = input.getnexttok().to_int() - 1;	// tok 4
@@ -409,7 +403,6 @@ void DcxStatusBar::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('v')])
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto nPos = input.getnexttok().to_int() - 1;	// tok 4
@@ -438,7 +431,6 @@ void DcxStatusBar::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('w')])
 	{
 		if (numtok < 6)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto flag(input.getnexttok());			// tok 4

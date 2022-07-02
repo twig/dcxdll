@@ -129,7 +129,6 @@ mIRC(xstatusbar)
 			const auto txtClr = tsTabOne.getnexttok().to_<COLORREF>();			// tok 6
 
 			if (flags[0] != TEXT('+'))
-				//throw Dcx::dcxException("Invalid Flags");
 				throw DcxExceptions::dcxInvalidFlag();
 
 			const auto iFlags = DcxDock::status_parseItemFlags(flags);
