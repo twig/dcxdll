@@ -182,8 +182,8 @@ using LPALPHAINFO = ALPHAINFO*;
 xclass() = delete; \
 xclass(const xclass &other) = delete; \
 xclass &operator =(const xclass &) = delete; \
-xclass(xclass &&other) = delete; \
-xclass &operator =(xclass &&) = delete;
+xclass(xclass &&other) noexcept = delete; \
+xclass &operator =(xclass &&) noexcept = delete;
 
 template <class T, std::size_t N>
 GSL_SUPPRESS(bounds)

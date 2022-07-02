@@ -112,6 +112,9 @@ dcxWindowStyles DcxRichEdit::parseControlStyles(const TString& tsStyles)
 		case L"showlinenumbers"_hash:
 			m_bShowLineNumbers = true;
 			break;
+		case L"unlockgutter"_hash:
+			m_bLockGutter = false;
+			break;
 		default:
 			break;
 		}
@@ -530,7 +533,7 @@ void DcxRichEdit::parseCommandRequest(const TString& input)
 		this->m_bIgnoreInput = false;
 		this->redrawWindow();
 	}
-	// xdid -g [NAME] [ID] [SWITCH] [Selected line Background Colour|-] (Background Colour|-) (Selected Line Text Colour|-) (Text Colour|-) (Border Colour|-)
+	// xdid -g [NAME] [ID] [SWITCH] [Selected line Background Colour|-] (Background Colour|-) (Selected Line Text Colour|-) (Text Colour|-) (Border Colour|-) (Unlock Gutter 0|1|-) (Gutter Size|-) (Gutter Border Size|-)
 	else if (flags[TEXT('g')])
 	{
 		static_assert(CheckFreeCommand(TEXT('g')), "Command in use!");
@@ -538,36 +541,98 @@ void DcxRichEdit::parseCommandRequest(const TString& input)
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		auto tsClr(input.getnexttok());
-		if (tsClr != TEXT('-'))
-			this->m_clrGutter_selbkg = tsClr.to_<COLORREF>();
+		//auto tsClr(input.getnexttok());
+		//if (tsClr != TEXT('-'))
+		//	this->m_clrGutter_selbkg = tsClr.to_<COLORREF>();
+		//
+		//if (numtok > 4)
+		//{
+		//	tsClr = input.getnexttok();
+		//	if (tsClr != TEXT('-'))
+		//		this->m_clrGutter_bkg = tsClr.to_<COLORREF>();
+		//
+		//	if (numtok > 5)
+		//	{
+		//		tsClr = input.getnexttok();
+		//		if (tsClr != TEXT('-'))
+		//			this->m_clrGutter_seltxt = tsClr.to_<COLORREF>();
+		//
+		//		if (numtok > 6)
+		//		{
+		//			tsClr = input.getnexttok();
+		//			if (tsClr != TEXT('-'))
+		//				this->m_clrGutter_txt = tsClr.to_<COLORREF>();
+		//
+		//			if (numtok > 7)
+		//			{
+		//				tsClr = input.getnexttok();
+		//				if (tsClr != TEXT('-'))
+		//					this->m_clrGutter_border = tsClr.to_<COLORREF>();
+		//			}
+		//		}
+		//	}
+		//}
 
-		if (numtok > 4)
+		int argcnt{ 4 };
+		const TString tsArgs(input.getlasttoks());
+		for (const auto& a : tsArgs)
 		{
-			tsClr = input.getnexttok();
-			if (tsClr != TEXT('-'))
-				this->m_clrGutter_bkg = tsClr.to_<COLORREF>();
-
-			if (numtok > 5)
+			if (a != TEXT('-'))
 			{
-				tsClr = input.getnexttok();
-				if (tsClr != TEXT('-'))
-					this->m_clrGutter_seltxt = tsClr.to_<COLORREF>();
-
-				if (numtok > 6)
+				switch (argcnt)
 				{
-					tsClr = input.getnexttok();
-					if (tsClr != TEXT('-'))
-						this->m_clrGutter_txt = tsClr.to_<COLORREF>();
-
-					if (numtok > 7)
-					{
-						tsClr = input.getnexttok();
-						if (tsClr != TEXT('-'))
-							this->m_clrGutter_border = tsClr.to_<COLORREF>();
-					}
+				case 4:
+				{
+					// set gutter selected background colour.
+					this->m_clrGutter_selbkg = a.to_<COLORREF>();
+				}
+				break;
+				case 5:
+				{
+					// set gutter background colour.
+					this->m_clrGutter_bkg = a.to_<COLORREF>();
+				}
+				break;
+				case 6:
+				{
+					// set gutter selected text colour.
+					this->m_clrGutter_seltxt = a.to_<COLORREF>();
+				}
+				break;
+				case 7:
+				{
+					// set gutter text colour.
+					this->m_clrGutter_txt = a.to_<COLORREF>();
+				}
+				break;
+				case 8:
+				{
+					// set gutter border colour.
+					this->m_clrGutter_border = a.to_<COLORREF>();
+				}
+				break;
+				case 9:
+				{
+					// set gutter lock state.
+					this->m_bLockGutter = (a.to_int() == 0);
+				}
+				break;
+				case 10:
+				{
+					// set gutter size.
+					this->m_GutterWidth = a.to_<UINT>();
+				}
+				break;
+				case 11:
+				{
+					// set gutter border size.
+				}
+				break;
+				default:
+					break;
 				}
 			}
+			++argcnt;
 		}
 	}
 	// xdid -i [NAME] [ID] [SWITCH] [N] [TEXT]
@@ -839,7 +904,10 @@ void DcxRichEdit::parseCommandRequest(const TString& input)
 			if (this->isStyle(WindowStyle::ES_MultiLine))
 			{
 				this->m_bShowLineNumbers = (input.getnexttok().to_int() > 0);	// tok 5
-				setFmtRect(!m_bShowLineNumbers);
+				if (m_bShowLineNumbers)
+					setFmtRect();
+				else
+					resetFmtRect();
 				InvalidateRect(m_Hwnd, nullptr, TRUE);
 			}
 		}
@@ -1328,13 +1396,18 @@ void DcxRichEdit::DrawGutter(HDC hdc)
 	if (!hdc || !m_Hwnd)
 		return;
 
-	RECT rcClient{};
 	const RECT rcFmt = getFmtRect();
 
-	GetClientRect(m_Hwnd, &rcClient);
+	//RECT rcClient{};
+	//GetClientRect(m_Hwnd, &rcClient);
+	//RECT m_FRGutter = rcClient;
+	//m_FRGutter.right = std::max(rcFmt.left - 3, 0L);
 
-	RECT m_FRGutter = rcClient;
-	m_FRGutter.right = std::max(rcFmt.left - 3, 0L);
+	RECT m_FRGutter{};
+	m_FRGutter.top = rcFmt.top;
+	m_FRGutter.bottom = rcFmt.bottom;
+	m_FRGutter.right = std::max(rcFmt.left, 0L);
+	m_FRGutter.left = 0;
 
 	// gutter doesnt exist...
 	if (m_FRGutter.right == 0)
@@ -1400,7 +1473,8 @@ void DcxRichEdit::DrawGutter(HDC hdc)
 			RNumber.top += letter_height;
 			RNumber.bottom = RNumber.top + letter_height;
 		}
-		BitBlt(hdc, 0, 0, rcClient.right, rcClient.bottom, *hdcbuf, 0, 0, SRCCOPY);
+		//BitBlt(hdc, 0, 0, rcClient.right, rcClient.bottom, *hdcbuf, 0, 0, SRCCOPY);
+		BitBlt(hdc, 0, 0, rcFmt.right, rcFmt.bottom, *hdcbuf, 0, 0, SRCCOPY);
 	}
 }
 
@@ -1845,37 +1919,6 @@ LRESULT DcxRichEdit::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& b
 	}
 	break;
 
-	//case WM_PRINT:
-	//	{
-	//		HDC hdc = (HDC)wParam;
-	//		bParsed = TRUE;
-	//
-	//		if (lParam & PRF_ERASEBKGND)
-	//			SendMessage(m_Hwnd, WM_ERASEBKGND, wParam, 0L);
-	//
-	//		if (lParam & PRF_CLIENT)
-	//			SendMessage(m_Hwnd, WM_PRINTCLIENT, wParam, 0L);
-	//
-	//	}
-	//	break;
-	//
-	//case WM_PRINTCLIENT:
-	//	{
-	//		HDC hdc = (HDC)wParam;
-	//		bParsed = TRUE;
-	//
-	//		HDC tHDC = GetDC(m_Hwnd);
-	//		BITMAP bm;
-	//		HBITMAP cBmp = (HBITMAP)GetCurrentObject(hdc, OBJ_BITMAP);
-	//
-	//		GetObject(cBmp, sizeof(BITMAP), &bm);
-	//
-	//		BitBlt(hdc,0,0,bm.bmWidth, bm.bmHeight, tHDC,0,0, SRCCOPY);
-	//
-	//		ReleaseDC(m_Hwnd, tHDC);
-	//	}
-	//	break;
-
 	case WM_SIZE:
 	{
 		bParsed = TRUE;
@@ -1901,6 +1944,97 @@ LRESULT DcxRichEdit::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& b
 				DrawGutter();
 		}
 		return 0;
+	}
+	break;
+
+	case WM_SETCURSOR:
+	{
+		if ((!m_bLockGutter) && (Dcx::dcxLOWORD(lParam) == HTCLIENT) && (reinterpret_cast<HWND>(wParam) == m_Hwnd) && (IsCursorOnGutterBorder()))
+		{
+			if (auto hCursor = LoadCursor(nullptr, IDC_SIZEWE); GetCursor() != hCursor)
+				SetCursor(hCursor);
+			bParsed = TRUE;
+			return TRUE;
+		}
+		return this->CommonMessage(uMsg, wParam, lParam, bParsed);
+	}
+	break;
+
+	case WM_LBUTTONDOWN:
+	{
+		if (IsCursorOnGutterBorder())
+		{
+			m_bDraggingGutter = true;
+			SetCapture(m_Hwnd);
+
+			bParsed = TRUE;
+			return 0L;
+		}
+		return this->CommonMessage(uMsg, wParam, lParam, bParsed);
+	}
+	break;
+	case WM_LBUTTONUP:
+	{
+		if (m_bDraggingGutter)
+		{
+			const POINT pt{ Dcx::dcxLOWORD(lParam), Dcx::dcxHIWORD(lParam) };
+			RECT rcClient{};
+			GetClientRect(m_Hwnd, &rcClient);
+			if (!PtInRect(&rcClient, pt))
+			{
+				// outside ctrl, reset to default width.
+				m_GutterWidth = DCX_EDIT_GUTTER_WIDTH;
+			}
+			setFmtRect();
+			ReleaseCapture();
+			m_bDraggingGutter = false;
+
+			bParsed = TRUE;
+			return 0L;
+		}
+		return this->CommonMessage(uMsg, wParam, lParam, bParsed);
+	}
+	break;
+	case WM_MOUSEMOVE:
+	{
+		if (m_bDraggingGutter)
+		{
+			const POINT pt{ GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam) };
+
+			m_GutterWidth = std::max<long>(DCX_EDIT_GUTTER_WIDTH, pt.x);
+
+			setFmtRect();
+
+			//setFmtRect(false);
+
+			//if (auto hdc = GetDC(m_Hwnd); hdc)
+			//{
+			//	Auto(ReleaseDC(m_Hwnd, hdc));
+			//	DrawGutter(hdc);
+			//	SendMessage(m_Hwnd, WM_PRINTCLIENT, reinterpret_cast<WPARAM>(hdc), PRF_CLIENT|PRF_ERASEBKGND);
+			//	SendMessage(m_Hwnd, WM_PAINT, reinterpret_cast<WPARAM>(hdc), 0);
+			//}
+
+			//this->redrawBufferedWindowClient();
+
+			//if (auto hdc = GetDC(m_Hwnd); hdc)
+			//{
+			//	Auto(ReleaseDC(m_Hwnd, hdc));
+			//	RECT rcClient{};
+			//	GetClientRect(m_Hwnd, &rcClient);
+			//	if (auto hdcbuf = CreateHDCBuffer(hdc, &rcClient); hdcbuf)
+			//	{
+			//		Auto(DeleteHDCBuffer(hdcbuf));
+			//		DrawGutter(*hdcbuf);
+			//		SendMessage(m_Hwnd, WM_PRINTCLIENT, reinterpret_cast<WPARAM>(*hdcbuf), PRF_CLIENT|PRF_ERASEBKGND);
+			//		BitBlt(hdc, 0, 0, rcClient.right, rcClient.bottom, *hdcbuf, 0, 0, SRCCOPY);
+			//	}
+			//}
+
+			bParsed = TRUE;
+			return 0L;
+		}
+		return this->CommonMessage(uMsg, wParam, lParam, bParsed);
 	}
 	break;
 

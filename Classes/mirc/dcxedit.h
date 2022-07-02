@@ -64,15 +64,18 @@ private:
 
 	bool m_bIgnoreRepeat{ false };
 
+#define WM_DRAW_NUMBERS (WM_USER + 1000)
+#define DCX_EDIT_GUTTER_WIDTH 35
+
 	bool m_bShowLineNumbers{ false };
+	bool m_bLockGutter{ true };
+	bool m_bDraggingGutter{ false };
+	UINT m_GutterWidth{ DCX_EDIT_GUTTER_WIDTH };
 	COLORREF m_clrGutter_selbkg{ RGB(0xFF, 0xf0, 0xff) };
 	COLORREF m_clrGutter_bkg{ RGB(0xFF, 0xf0, 0xff) };
 	COLORREF m_clrGutter_txt{ RGB(0xAF, 0xAF, 0xAF) };
 	COLORREF m_clrGutter_seltxt{ RGB(0x0F, 0x0F, 0x0F) };
 	COLORREF m_clrGutter_border{ RGB(0xFF, 0xFF, 0xFF) };
-
-#define WM_DRAW_NUMBERS (WM_USER + 1000)
-#define DCX_EDIT_GUTTER_WIDTH 35
 
 	void DrawClientRect(HDC hdc, unsigned int uMsg, LPARAM lParam);
 	void DrawGutter();
@@ -83,34 +86,67 @@ private:
 		Edit_GetRect(m_Hwnd, &rc);
 		return rc;
 	}
-	void setFmtRect(bool bReset = false) noexcept
+	void resetFmtRect() noexcept
 	{
-		//if (!m_bShowLineNumbers)
-		//	return;
+		Edit_SetRect(m_Hwnd, nullptr);
+	}
 
-		RECT rcClient{};
-		GetClientRect(m_Hwnd, &rcClient);
-		if (bReset)
-		{
-			Edit_SetRect(m_Hwnd, &rcClient);
-		}
-		else {
-			rcClient.left += DCX_EDIT_GUTTER_WIDTH;
-			RECT rcFmt = getFmtRect();
-			//if (!EqualRect(&rcClient, &rcFmt))
-			if (rcFmt.left <= 5)
+	//void setFmtRect(bool bReset = false) noexcept
+	//{
+	//	if (bReset)
+	//		resetFmtRect();
+	//	else if (getFmtRect().left <= 5)
+	//	{
+	//		RECT rcClient{};
+	//		GetClientRect(m_Hwnd, &rcClient);
+	//
+	//		rcClient.left += DCX_EDIT_GUTTER_WIDTH;
+	//		Edit_SetRect(m_Hwnd, &rcClient);
+	//	}
+	//}
+
+	void setFmtRect(bool bRedraw = true) noexcept
+	{
+			if (gsl::narrow_cast<UINT>(getFmtRect().left) != (m_GutterWidth + 1)) // Edit ctrl is +1!!
 			{
-				rcFmt = rcClient;
-				Edit_SetRect(m_Hwnd, &rcFmt);
+				// edit ctrl will shrink the fmt rect for some reason, so use client rect each time.
+				RECT rcClient{};
+				GetClientRect(m_Hwnd, &rcClient);
+
+				rcClient.left += m_GutterWidth;
+				if (bRedraw)
+					Edit_SetRect(m_Hwnd, &rcClient);
+				else
+					Edit_SetRectNoPaint(m_Hwnd, &rcClient);
 			}
-		}
 	}
 	RECT getGutterRect() const noexcept
 	{
 		const RECT rcFmt{ getFmtRect() };
-		//RECT rcClient{};
-		//GetClientRect(m_Hwnd, &rcClient);
 		return { 0,0,rcFmt.left,rcFmt.bottom };
+	}
+	bool IsCursorOnGutter() const noexcept
+	{
+		if (!m_bShowLineNumbers)
+			return false;
+
+		const auto rc = getGutterRect();
+		const Dcx::dcxCursorPos pt(m_Hwnd);
+
+		return PtInRect(&rc, pt);
+	}
+	bool IsCursorOnGutterBorder() const noexcept
+	{
+		if (!m_bShowLineNumbers)
+			return false;
+
+		auto rc = getFmtRect();
+		constexpr int iBorderWidth = 5;
+		const Dcx::dcxCursorPos pt(m_Hwnd);
+		rc.right = rc.left;
+		rc.left -= iBorderWidth;
+
+		return PtInRect(&rc, pt);
 	}
 
 	Dcx::range_t<DWORD> GetVisibleRange() const noexcept;
