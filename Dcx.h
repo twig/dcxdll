@@ -1165,6 +1165,28 @@ namespace Dcx
 		}
 		return{ iStart, iEnd };
 	}
+	template< DcxConcepts::IsNumeric T > range_t<T>  make_inclusive_range(T b, T e) noexcept { return{ b, e + 1}; }
+	template< DcxConcepts::IsNumeric T > range_t<T>  make_inclusive_range(const TString& tsItems, T nItemCnt)
+	{
+		T iStart{}, iEnd{};
+		if (tsItems.numtok(TEXT('-')) == 2)
+		{
+			iStart = tsItems.getfirsttok(1, TEXT('-')).to_<T>() - 1;
+			iEnd = tsItems.getnexttok(TEXT('-')).to_<T>() - 1;
+
+			if (iEnd == -1)	// special case
+				iEnd = nItemCnt - 1;
+		}
+		else {
+			iEnd = tsItems.to_<T>() - 1;
+
+			if (iEnd == -1)	// special case
+				iStart = iEnd = nItemCnt - 1;
+			else
+				iStart = iEnd;
+		}
+		return{ iStart, iEnd + 1 };
+	}
 
 	// not for use in code, just for testing
 	template <DcxConcepts::IsNumeric T>

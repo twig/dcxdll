@@ -788,6 +788,7 @@ namespace Dcx {
 	{
 		if (!hdc || !prc)
 			return;
+		//SetDCBrushColor()
 
 		if (const auto br = CreateSolidBrush(clr); br)
 		{

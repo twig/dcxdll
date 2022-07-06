@@ -1135,7 +1135,6 @@ void DcxListView::parseCommandRequest(const TString& input)
 		const auto info(input++);		// tok 7, -1
 
 		if (!xflag[TEXT('+')])
-			//throw Dcx::dcxException("Missing '+' in flags");
 			throw DcxExceptions::dcxInvalidFlag();
 
 		if (!xflag[TEXT('M')])	// mark info

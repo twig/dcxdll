@@ -23,7 +23,7 @@ std::pair<int, int> DcxListHelper::getItemRange(const TString& tsItems, const in
 	//}
 	//return { iStart, iEnd };
 
-	const auto rng = Dcx::make_range(tsItems, nItemCnt);
+	const auto rng = Dcx::make_inclusive_range(tsItems, nItemCnt);
 	return { rng.b, rng.e };
 }
 
@@ -48,7 +48,7 @@ Dcx::range_t<int> DcxListHelper::getItemRange2(const TString& tsItems, const int
 	//}
 	//return Dcx::make_range(iStart, iEnd);
 
-	return Dcx::make_range(tsItems, nItemCnt);
+	return Dcx::make_inclusive_range(tsItems, nItemCnt);
 }
 
 //bool DcxListHelper::matchItemText(const refString<TCHAR, MIRC_BUFFER_SIZE_CCH> &sItemText, const TString &search, const DcxSearchTypes &SearchType)

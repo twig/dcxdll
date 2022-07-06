@@ -548,7 +548,7 @@ void DcxToolBar::parseCommandRequest(const TString& input)
 
 		const TString tsButton(input.getnexttok());
 		const auto HandleButton = [=](const TString& tsButtons) {
-			const auto r = Dcx::make_range(tsButtons, this->getButtonCount());
+			const auto r = Dcx::make_inclusive_range(tsButtons, this->getButtonCount());
 
 			if ((r.b < 0) || (r.e < r.b))
 				throw DcxExceptions::dcxOutOfRange();
@@ -596,7 +596,7 @@ void DcxToolBar::parseCommandRequest(const TString& input)
 			iImage = I_IMAGENONE;
 
 		const auto HandleButton = [=](const TString& tsButtons) {
-			const auto r = Dcx::make_range(tsButtons, this->getButtonCount());
+			const auto r = Dcx::make_inclusive_range(tsButtons, this->getButtonCount());
 
 			if ((r.b < 0) || (r.e < r.b))
 				throw DcxExceptions::dcxOutOfRange();
@@ -707,13 +707,12 @@ void DcxToolBar::parseCommandRequest(const TString& input)
 		const auto tsButton = input.getnexttok();						// tok 4
 		const auto fStates = parseButtonStateFlags(input.getnexttok());	// tok 5
 		const auto HandleButton = [=](const TString& tsButtons) {
-			auto r = Dcx::make_range(tsButtons, this->getButtonCount());
+			auto r = Dcx::make_inclusive_range(tsButtons, this->getButtonCount());
 
 			if (tsButtons == TEXT("0"))
 			{
 				// special case, do all button when zero is supplied by its self.
 				r.b = 0;
-				//r.e = this->getButtonCount() - 1;
 			}
 
 			if ((r.b < 0) || (r.e < r.b))
