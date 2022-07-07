@@ -1188,12 +1188,20 @@ void DcxListView::parseCommandRequest(const TString& input)
 				{
 					const auto tsLine(*itStart);
 
-					const auto [iStart, iEnd] = getItemRange2(tsLine, nItemCnt);	// uses structured binding...
+					//const auto [iStart, iEnd] = getItemRange2(tsLine, nItemCnt);	// uses structured binding...
+					//
+					//if ((iStart < 0) || (iEnd < 0) || (iStart >= nItemCnt) || (iEnd >= nItemCnt))
+					//	throw Dcx::dcxException(TEXT("Invalid index %."), tsLine);
+					//
+					//for (auto nItem = iStart; nItem <= iEnd; nItem++)
+					//	Dcx::dcxListView_SetItemState(m_Hwnd, nItem, LVIS_SELECTED, LVIS_SELECTED);
 
-					if ((iStart < 0) || (iEnd < 0) || (iStart >= nItemCnt) || (iEnd >= nItemCnt))
+					const auto r = getItemRange2(tsLine, nItemCnt);
+
+					if ((r.b < 0) || (r.e < 0) || (r.b >= nItemCnt) || (r.e > nItemCnt))
 						throw Dcx::dcxException(TEXT("Invalid index %."), tsLine);
 
-					for (auto nItem = iStart; nItem <= iEnd; nItem++)
+					for (auto nItem : r)
 						Dcx::dcxListView_SetItemState(m_Hwnd, nItem, LVIS_SELECTED, LVIS_SELECTED);
 				}
 			}
@@ -1207,7 +1215,8 @@ void DcxListView::parseCommandRequest(const TString& input)
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto Ns(input.getnexttok());	// tok 4
+		//const auto Ns(input.getnexttok());	// tok 4
+		auto Ns(input.getnexttok());	// tok 4
 		const XSwitchFlags xFlags(input.getnexttok());	// tok 5
 
 		if (xFlags[TEXT('+')])
@@ -1225,26 +1234,26 @@ void DcxListView::parseCommandRequest(const TString& input)
 			}
 		}
 		else {
+			// reverse sort the token list so we start at the end.
+			TString::SortOptions srt;
+			srt.bNumeric = true;
+			srt.bReverse = true;
+
+			Ns.sorttok(srt, TSCOMMA);
+
 			const auto itEnd = Ns.end();
 			for (auto itStart = Ns.begin(TSCOMMACHAR); itStart != itEnd; ++itStart)
 			{
 				const auto tsLine(*itStart);
 				const auto nItemCnt = Dcx::dcxListView_GetItemCount(m_Hwnd);
 
-				//const auto [iStart, iEnd] = getItemRange2(tsLine, nItemCnt);	// uses structured binding...
+				const auto [iStart, iEnd] = getItemRange(tsLine, nItemCnt);
 
-				//if ((iStart < 0) || (iEnd < iStart) || (iStart >= nItemCnt) || (iEnd >= nItemCnt))
-				//	throw Dcx::dcxException(TEXT("Invalid index %."), tsLine);
-
-				//for (auto nItem = iStart; nItem <= iEnd; ++nItem)
-				//	Dcx::dcxListView_DeleteItem(m_Hwnd, nItem);
-
-				const auto r = getItemRange2(tsLine, nItemCnt);
-
-				if ((r.b < 0) || (r.e < r.b) || (r.b >= nItemCnt) || (r.e >= nItemCnt))
+				if ((iStart < 0) || (iEnd < iStart) || (iStart >= nItemCnt) || (iEnd >= nItemCnt))
 					throw Dcx::dcxException(TEXT("Invalid index %."), tsLine);
 
-				for (auto nItem : r)
+				// delete from highest number to lowest
+				for (auto nItem = iEnd; nItem >= iStart; --nItem)
 					Dcx::dcxListView_DeleteItem(m_Hwnd, nItem);
 			}
 		}
@@ -1391,12 +1400,20 @@ void DcxListView::parseCommandRequest(const TString& input)
 		{
 			const auto tsLine(*itStart);
 
-			const auto [iStart, iEnd] = getItemRange2(tsLine, nItemCnt);
+			//const auto [iStart, iEnd] = getItemRange2(tsLine, nItemCnt);
+			//
+			//if ((iStart < 0) || (iEnd < 0) || (iStart >= nItemCnt) || (iEnd >= nItemCnt))
+			//	throw Dcx::dcxException(TEXT("Invalid index %."), tsLine);
+			//
+			//for (auto nItem = iStart; nItem <= iEnd; ++nItem)
+			//	Dcx::dcxListView_SetItemState(m_Hwnd, nItem, INDEXTOSTATEIMAGEMASK(gsl::narrow_cast<UINT>(state)), LVIS_STATEIMAGEMASK);
 
-			if ((iStart < 0) || (iEnd < 0) || (iStart >= nItemCnt) || (iEnd >= nItemCnt))
+			const auto r = getItemRange2(tsLine, nItemCnt);
+
+			if ((r.b < 0) || (r.e < 0) || (r.b >= nItemCnt) || (r.e > nItemCnt))
 				throw Dcx::dcxException(TEXT("Invalid index %."), tsLine);
 
-			for (auto nItem = iStart; nItem <= iEnd; ++nItem)
+			for (auto nItem : r)
 				Dcx::dcxListView_SetItemState(m_Hwnd, nItem, INDEXTOSTATEIMAGEMASK(gsl::narrow_cast<UINT>(state)), LVIS_STATEIMAGEMASK);
 		}
 	}
@@ -1522,13 +1539,13 @@ void DcxListView::parseCommandRequest(const TString& input)
 			if ((iFlags == 0) && (numtok < 6))
 				throw Dcx::dcxException("No width specified");
 
-			const auto HandleColumn = [=](const TString &tsColumns) {
+			const auto HandleColumn = [=](const TString& tsColumns) {
 				const auto r = getItemRange2(tsColumn, this->getColumnCount());
 
 				if ((r.b < 0) || (r.e < r.b))
 					throw DcxExceptions::dcxOutOfRange();
 
-				for (auto nColumn: r)
+				for (auto nColumn : r)
 				{
 					this->autoSize(nColumn, iFlags, iWidth);
 				}
@@ -2153,8 +2170,8 @@ void DcxListView::parseCommandRequest(const TString& input)
 		// +c save to custom @window [@window] (data is appended to the bottom of the window, window must exist)
 		const auto count = Dcx::dcxListView_GetItemCount(m_Hwnd);
 		const auto tsFlags(input.getnexttok().trim());		// tok 4
-		const auto iN1 = input.getnexttok().to_int() -1;			// tok 5 adjusted from 1-based to be zero based
-		auto iN2 = input.getnexttok().to_int() -1;					// tok 6 adjusted from 1-based to be zero based
+		const auto iN1 = input.getnexttok().to_int() - 1;			// tok 5 adjusted from 1-based to be zero based
+		auto iN2 = input.getnexttok().to_int() - 1;					// tok 6 adjusted from 1-based to be zero based
 		const auto tsArgs(input.getlasttoks().trim());		// tok 7, -1
 
 		if ((tsFlags[0] != TEXT('+')) || (tsFlags.len() < 2))
@@ -2214,12 +2231,25 @@ void DcxListView::parseCommandRequest(const TString& input)
 			{
 				const auto col(*itStart);
 
-				const auto [col_start, col_end] = getItemRange2(col, col_count);
+				//const auto [col_start, col_end] = getItemRange2(col, col_count);
+				//
+				//if ((col_start < 0) || (col_end < 0) || (col_start >= col_count) || (col_end >= col_count))
+				//	throw Dcx::dcxException(TEXT("Invalid column index %."), col);
+				//
+				//for (auto nCol = col_start; nCol <= col_end; ++nCol)
+				//{
+				//	if (!xflag['s'])	// change header style
+				//		throw Dcx::dcxException(TEXT("Unknown flags %"), input.gettok(5));
+				//
+				//	setHeaderStyle(h, nCol, info);
+				//}
 
-				if ((col_start < 0) || (col_end < 0) || (col_start >= col_count) || (col_end >= col_count))
+				const auto r = getItemRange2(col, col_count);
+
+				if ((r.b < 0) || (r.e < 0) || (r.b >= col_count) || (r.e > col_count))
 					throw Dcx::dcxException(TEXT("Invalid column index %."), col);
 
-				for (auto nCol = col_start; nCol <= col_end; ++nCol)
+				for (auto nCol : r)
 				{
 					if (!xflag['s'])	// change header style
 						throw Dcx::dcxException(TEXT("Unknown flags %"), input.gettok(5));
@@ -5021,7 +5051,7 @@ bool DcxListView::xSaveListview(const int nStartPos, const int nEndPos, const TS
 	return true;
 }
 
-void DcxListView::DrawEmpty(HDC hdc, const TString &tsBuf)
+void DcxListView::DrawEmpty(HDC hdc, const TString& tsBuf)
 {
 	// Setup alpha blend if any.
 	auto ai = SetupAlphaBlend(&hdc);

@@ -23,7 +23,7 @@ std::pair<int, int> DcxListHelper::getItemRange(const TString& tsItems, const in
 	//}
 	//return { iStart, iEnd };
 
-	const auto rng = Dcx::make_inclusive_range(tsItems, nItemCnt);
+	const auto rng = Dcx::make_range(tsItems, nItemCnt);
 	return { rng.b, rng.e };
 }
 
