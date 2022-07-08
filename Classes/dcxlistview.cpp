@@ -1235,11 +1235,13 @@ void DcxListView::parseCommandRequest(const TString& input)
 		}
 		else {
 			// reverse sort the token list so we start at the end.
-			TString::SortOptions srt;
-			srt.bNumeric = true;
-			srt.bReverse = true;
+			{
+				TString::SortOptions srt;
+				srt.bNumeric = true;
+				srt.bReverse = true;
 
-			Ns.sorttok(srt, TSCOMMA);
+				Ns.sorttok(srt, TSCOMMA);
+			}
 
 			const auto itEnd = Ns.end();
 			for (auto itStart = Ns.begin(TSCOMMACHAR); itStart != itEnd; ++itStart)

@@ -546,19 +546,24 @@ void DcxToolBar::parseCommandRequest(const TString& input)
 		//if (const auto nButton = input.getnexttok().to_int() - 1; nButton > -1)
 		//	this->deleteButton(nButton);
 
-		const TString tsButton(input.getnexttok());
+		TString tsButton(input.getnexttok());
 		const auto HandleButton = [=](const TString& tsButtons) {
-			const auto r = Dcx::make_inclusive_range(tsButtons, this->getButtonCount());
+			const auto r = Dcx::make_range(tsButtons, this->getButtonCount(), 1L);
 
 			if ((r.b < 0) || (r.e < r.b))
 				throw DcxExceptions::dcxOutOfRange();
 
-			for (auto nButton : r)
-				this->deleteButton(nButton);
+			//for (auto nButton : r)
+			//	this->deleteButton(nButton);
+
+			for (auto it = r.rbegin(); it <= r.rend(); ++it)
+				this->deleteButton(*it);
 		};
 		if (tsButton.numtok(TSCOMMACHAR) > 1)
 		{
 			// button == 1,2,3-4
+			tsButton.sorttok(TEXT("nr"), TSCOMMA);
+
 			const auto itEnd = tsButton.end();
 			for (auto itStart = tsButton.begin(TSCOMMACHAR); itStart != itEnd; ++itStart)
 			{
@@ -596,7 +601,7 @@ void DcxToolBar::parseCommandRequest(const TString& input)
 			iImage = I_IMAGENONE;
 
 		const auto HandleButton = [=](const TString& tsButtons) {
-			const auto r = Dcx::make_inclusive_range(tsButtons, this->getButtonCount());
+			const auto r = Dcx::make_range(tsButtons, this->getButtonCount(), 1L);
 
 			if ((r.b < 0) || (r.e < r.b))
 				throw DcxExceptions::dcxOutOfRange();
@@ -707,7 +712,7 @@ void DcxToolBar::parseCommandRequest(const TString& input)
 		const auto tsButton = input.getnexttok();						// tok 4
 		const auto fStates = parseButtonStateFlags(input.getnexttok());	// tok 5
 		const auto HandleButton = [=](const TString& tsButtons) {
-			auto r = Dcx::make_inclusive_range(tsButtons, this->getButtonCount());
+			auto r = Dcx::make_range(tsButtons, this->getButtonCount(), 1L);
 
 			if (tsButtons == TEXT("0"))
 			{

@@ -468,17 +468,24 @@ void DcxEdit::parseCommandRequest(const TString& input)
 			for (auto itStart = tsLines.begin(TSCOMMACHAR); itStart != itEnd; ++itStart)
 			{
 				const TString tsLineRange(*itStart);
-				UINT nStartLine{}, nEndLine{};
-				if (tsLineRange.numtok(TEXT('-')) == 2)
-				{
-					nStartLine = tsLineRange.getfirsttok(1, TEXT('-')).to_<UINT>();
-					nEndLine = tsLineRange.getnexttok(TEXT('-')).to_<UINT>();
-				}
-				else {
-					nStartLine = nEndLine = tsLineRange.to_<UINT>();
-				}
+
+				//UINT nStartLine{}, nEndLine{};
+				//if (tsLineRange.numtok(TEXT('-')) == 2)
+				//{
+				//	nStartLine = tsLineRange.getfirsttok(1, TEXT('-')).to_<UINT>();
+				//	nEndLine = tsLineRange.getnexttok(TEXT('-')).to_<UINT>();
+				//}
+				//else {
+				//	nStartLine = nEndLine = tsLineRange.to_<UINT>();
+				//}
+				//// delete lines from the back of the text so it doesnt change the position of other lines.
+				//for (auto nLine = nEndLine; nLine >= nStartLine; --nLine)
+				//	this->m_tsText.deltok(nLine, TEXT("\r\n"));
+
+				const auto r = Dcx::make_range(tsLineRange, this->m_tsText.numtok(TEXT("\r\n")));
+
 				// delete lines from the back of the text so it doesnt change the position of other lines.
-				for (auto nLine = nEndLine; nLine >= nStartLine; --nLine)
+				for (auto nLine = r.e; nLine >= r.b; --nLine)
 					this->m_tsText.deltok(nLine, TEXT("\r\n"));
 			}
 			SetWindowTextW(m_Hwnd, this->m_tsText.to_wchr());

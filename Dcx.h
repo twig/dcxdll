@@ -844,7 +844,7 @@ namespace Dcx
 			//GetBrushOrgEx
 			//SetWindowOrgEx
 			//GetWindowOrgEx
-			
+
 			// copy contents of hdc within area to buffer.
 			GSL_SUPPRESS(type.4) BitBlt(this->get(), 0, 0, getWidth(), getHeight(), hdc, rc.left, rc.top, SRCCOPY);
 
@@ -1078,7 +1078,7 @@ namespace Dcx
 		{
 		}
 		GSL_SUPPRESS(es.47)
-		explicit dcxTreeItem(HWND hWin) noexcept
+			explicit dcxTreeItem(HWND hWin) noexcept
 			: m_Window{ hWin }
 			, m_Item{ TreeView_GetRoot(hWin) }
 		{
@@ -1129,63 +1129,92 @@ namespace Dcx
 			{
 				return lhs.n != rhs.n;
 			}
+			friend
+				bool operator <= (iter const& lhs, iter const& rhs) noexcept
+			{
+				return lhs.n <= rhs.n;
+			}
+
+			T n;
+		};
+		struct reverse_iter
+		{
+			T operator * () const noexcept { return n; }
+			reverse_iter& operator ++() noexcept { --n; return *this; }
+			friend
+				bool operator != (reverse_iter const& lhs, reverse_iter const& rhs) noexcept
+			{
+				return lhs.n != rhs.n;
+			}
+			friend
+				bool operator <= (reverse_iter const& lhs, reverse_iter const& rhs) noexcept
+			{
+				return lhs.n >= rhs.n;
+			}
 
 			T n;
 		};
 
 		iter begin() const noexcept { return{ b }; }
-		iter end() const noexcept { return{ e }; }
-		T length() const noexcept { return e - b; }
-		bool inRange(T f) noexcept
+		iter end() const noexcept { return{ e + 1 }; }
+		reverse_iter rbegin() const noexcept { return{ e }; }
+		reverse_iter rend() const noexcept { return{ b }; }
+
+		T length() const noexcept { return (e - b) + 1; }
+		bool inRange(T f) const noexcept
 		{
-			return ((b <= f) && (e > f));
+			return ((b <= f) && (e >= f));
 		}
 
 		T b, e;
 	};
 	template< DcxConcepts::IsNumeric T > range_t<T>  make_range(T b, T e) noexcept { return{ b, e }; }
-	template< DcxConcepts::IsNumeric T > range_t<T>  make_range(const TString& tsItems, T nItemCnt)
+
+	template< DcxConcepts::IsNumeric T > range_t<T>  make_range(const TString& tsItems, T nItemCnt, T nAdjust)
 	{
 		T iStart{}, iEnd{};
 		if (tsItems.numtok(TEXT('-')) == 2)
 		{
-			iStart = tsItems.getfirsttok(1, TEXT('-')).to_<T>() - 1;
-			iEnd = tsItems.getnexttok(TEXT('-')).to_<T>() - 1;
+			iStart = tsItems.getfirsttok(1, TEXT('-')).to_<T>() - nAdjust;
+			iEnd = tsItems.getnexttok(TEXT('-')).to_<T>() - nAdjust;
 
 			if (iEnd == -1)	// special case
-				iEnd = nItemCnt - 1;
+				iEnd = nItemCnt - nAdjust;
 		}
 		else {
-			iEnd = tsItems.to_<T>() - 1;
+			iEnd = tsItems.to_<T>() - nAdjust;
 
 			if (iEnd == -1)	// special case
-				iStart = iEnd = nItemCnt - 1;
+				iStart = iEnd = nItemCnt - nAdjust;
 			else
 				iStart = iEnd;
 		}
 		return{ iStart, iEnd };
 	}
-	template< DcxConcepts::IsNumeric T > range_t<T>  make_inclusive_range(T b, T e) noexcept { return{ b, e + 1}; }
-	template< DcxConcepts::IsNumeric T > range_t<T>  make_inclusive_range(const TString& tsItems, T nItemCnt)
+	template< DcxConcepts::IsNumeric T > range_t<T>  make_range(const TString& tsItems, T nItemCnt)
 	{
 		T iStart{}, iEnd{};
 		if (tsItems.numtok(TEXT('-')) == 2)
 		{
-			iStart = tsItems.getfirsttok(1, TEXT('-')).to_<T>() - 1;
-			iEnd = tsItems.getnexttok(TEXT('-')).to_<T>() - 1;
+			iStart = tsItems.getfirsttok(1, TEXT('-')).to_<T>();
+			iEnd = tsItems.getnexttok(TEXT('-')).to_<T>();
 
 			if (iEnd == -1)	// special case
-				iEnd = nItemCnt - 1;
+				iEnd = nItemCnt;
 		}
 		else {
-			iEnd = tsItems.to_<T>() - 1;
+			iEnd = tsItems.to_<T>();
 
 			if (iEnd == -1)	// special case
-				iStart = iEnd = nItemCnt - 1;
+				iStart = iEnd = nItemCnt;
 			else
 				iStart = iEnd;
 		}
-		return{ iStart, iEnd + 1 };
+		return{ iStart, iEnd };
+	}
+	template< DcxConcepts::IsNumeric T > range_t<T> adjust_range(const range_t<T>& r, int nAdjustment) noexcept
+	{
+		return { r.b + nAdjustment, r.e + nAdjustment };
 	}
 
 	// not for use in code, just for testing
