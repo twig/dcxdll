@@ -888,7 +888,7 @@ bool CopyToClipboard(const HWND owner, const TString& str) noexcept;
 [[nodiscard("Memory Leak")]] HRGN BitmapRegion(HBITMAP hBitmap, const COLORREF cTransparentColor, const bool bIsTransparent);
 
 void ChangeHwndIcon(const HWND hwnd, const TString& flags, const int index, TString& filename);
-void AddFileIcons(HIMAGELIST himl, TString& filename, const bool bLarge, const int iIndex, const int iStart = 0, const int iEnd = -1);
+void AddFileIcons(HIMAGELIST himl, TString& filename, const bool bLarge, const int iIndex, const int iStart = 0, int iEnd = -1);
 int dcxPickIconDlg(const HWND hwnd, LPWSTR pszIconPath, const UINT& cchIconPath, int* piIconIndex) noexcept;
 
 BOOL dcxGetWindowRect(const HWND hWnd, const LPRECT lpRect) noexcept;

@@ -2156,13 +2156,62 @@ bool isRegexMatch(const TCHAR* matchtext, const dcxSearchData &srch_data)
 //	return rOpts;
 //}
 
-void AddFileIcons(HIMAGELIST himl, TString& filename, const bool bLarge, const int iIndex, const int iStart, const int iEnd)
+// taken from: https://stackoverflow.com/questions/71009055/extract-all-icons-of-a-file
+//BOOL CALLBACK EnumIcons(HMODULE hmodule, LPCTSTR type, LPTSTR lpszName,
+//	LONG_PTR ptr)
+//{
+//	if (!ptr)
+//		return FALSE;
+//	auto pvec = (std::vector<HICON>*)ptr;
+//	auto hRes = FindResource(hmodule, lpszName, type);
+//	if (!hRes)
+//		return TRUE;
+//	auto size = SizeofResource(hmodule, hRes);
+//	auto hg = LoadResource(hmodule, hRes);
+//	if (!hg)
+//		return TRUE;
+//	auto bytes = (BYTE*)LockResource(hg);
+//	auto hicon = CreateIconFromResourceEx(bytes, size, TRUE, 0x00030000,
+//		0, 0, LR_SHARED);
+//	if (hicon)
+//		pvec->push_back(hicon);
+//	return TRUE;
+//}
+//
+//int main()
+//{
+//	std::vector<HICON> vec;
+//	const char* modulepath = "file.exe";
+//	HMODULE hmodule = LoadLibraryEx(modulepath, NULL,
+//		LOAD_LIBRARY_AS_IMAGE_RESOURCE);
+//	if (!hmodule)
+//		return 0;
+//
+//	EnumResourceNames(hmodule, RT_ICON, (ENUMRESNAMEPROC)EnumIcons, (LONG_PTR)&vec);
+//	for (auto e : vec)
+//	{
+//		ICONINFOEX ii = { sizeof(ii) };
+//		if (!GetIconInfoEx(e, &ii) || !ii.hbmColor)
+//			continue;
+//		BITMAP bm;
+//		GetObject(ii.hbmColor, sizeof(bm), &bm);
+//		printf("%d %d %d\n", bm.bmWidth, bm.bmHeight, bm.bmBitsPixel);
+//	}
+//
+//	//free icons...
+//	return 0;
+//}
+
+void AddFileIcons(HIMAGELIST himl, TString& filename, const bool bLarge, const int iIndex, const int iStart, int iEnd)
 {
 	if ((!himl) || (iStart < 0) || (iEnd != -1 && iStart > iEnd))
 		throw DcxExceptions::dcxInvalidArguments();
 
 	if (!IsFile(filename))
 		throw Dcx::dcxException(TEXT("Unable to Access file: %"), filename);
+
+	if (iEnd == -1)
+		iEnd = (ExtractIconEx(filename.to_chr(), -1, nullptr, nullptr, 0) - 1);
 
 #if DCX_USE_WRAPPERS
 	for (auto FileIndex{ iStart }, IconIndex{ iIndex }; FileIndex <= iEnd; ++FileIndex)
