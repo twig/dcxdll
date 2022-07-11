@@ -89,9 +89,14 @@ function get_xdid_richedit(&$XDID) {
 		'o' => array(
 	        '__desc' => 'This command lets you overwrite the Nth line in the richedit.',
 	        '__cmd' => '[N] [TEXT]',
-	        '__eg' => '5 New Text',
-	        '__notes' => array(
-	            "If the [s]multi[/s] style is not used, overwrites all text."
+			'__eg' => array(
+				'5 New multi line Text',
+				'0 New single line Text',
+			),
+			'__notes' => array(
+				"If the [s]multi[/s] style is not used, will overwrite the whole text.",
+				"[N] must be supplied even if the control is single line",
+				"For a multi line control [N] must be > zero",
 			),
 		),
 		'P' => array(

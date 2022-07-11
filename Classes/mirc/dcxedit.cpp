@@ -601,9 +601,13 @@ void DcxEdit::parseCommandRequest(const TString& input)
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
+		const auto nLine = input.getnexttok().to_<UINT>();	// tok 4
+
 		if (this->isStyle(WindowStyle::ES_MultiLine))
 		{
-			const auto nLine = input.getnexttok().to_<UINT>();	// tok 4
+			if (nLine == 0)
+				throw DcxExceptions::dcxInvalidArguments();
+
 			this->m_tsText.puttok(input.getlasttoks(), nLine, TEXT("\r\n"));	// tok 5, -1
 		}
 		else

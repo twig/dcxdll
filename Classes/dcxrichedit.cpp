@@ -734,7 +734,12 @@ void DcxRichEdit::parseCommandRequest(const TString& input)
 		const auto nLine = input.getnexttok().to_<UINT>();	// tok 4
 
 		if (this->isStyle(WindowStyle::ES_MultiLine))
+		{
+			if (nLine == 0)
+				throw DcxExceptions::dcxInvalidArguments();
+
 			this->m_tsText.puttok(input.getlasttoks(), nLine, TEXT("\r\n"));	// tok 5, -1
+		}
 		else
 			this->m_tsText = input.getlasttoks();	// tok 5, -1
 
