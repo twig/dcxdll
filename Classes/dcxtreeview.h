@@ -131,17 +131,17 @@ public:
 	void parseCommandRequest(const TString& input) final;
 	dcxWindowStyles parseControlStyles(const TString& tsStyles) final;
 
-	HIMAGELIST getImageList(const int type) const noexcept;
+	[[nodiscard]] HIMAGELIST getImageList(const int type) const noexcept;
 	void setImageList(const HIMAGELIST himl, const int type) noexcept;
-	HIMAGELIST createImageList() noexcept;
+	[[nodiscard]] HIMAGELIST createImageList() noexcept;
 
 	void insertItem(const TString& tsPath, const TString& tsData, const TString& tsTooltip);
 
 	void getItemText(const HTREEITEM hItem, TCHAR* szBuffer, const int cchTextMax) const noexcept;
-	TString getItemText(const HTREEITEM hItem) const;
-	int getChildCount(const HTREEITEM hParent) const noexcept;
-	LPDCXTVITEM getItemParam(const HTREEITEM hItem) const noexcept;
-	int getItemImageID(const HTREEITEM hItem) const noexcept;
+	[[nodiscard]] TString getItemText(const HTREEITEM hItem) const;
+	[[nodiscard]] int getChildCount(const HTREEITEM hParent) const noexcept;
+	[[nodiscard]] LPDCXTVITEM getItemParam(const HTREEITEM hItem) const noexcept;
+	[[nodiscard]] int getItemImageID(const HTREEITEM hItem) const noexcept;
 
 	inline const TString getType() const final { return TEXT("treeview"); };
 	inline const DcxControlTypes getControlType() const noexcept final { return DcxControlTypes::TREEVIEW; }
@@ -166,28 +166,28 @@ protected:
 
 	/* *** */
 
-	HTREEITEM parsePath(const TString& path, HTREEITEM* hParent = nullptr, HTREEITEM* hInsertAt = nullptr) const;
-	TString getPathFromItem(const HTREEITEM item) const;
+	[[nodiscard]] HTREEITEM parsePath(const TString& path, HTREEITEM* hParent = nullptr, HTREEITEM* hInsertAt = nullptr) const;
+	[[nodiscard]] TString getPathFromItem(const HTREEITEM item) const;
 
-	bool matchItemText(const HTREEITEM hItem, const TString& search, const DcxSearchTypes& SearchType) const;
-	std::optional<HTREEITEM> findItemText(const HTREEITEM hStart, const TString& queryText, const int n, int& matchCount, const DcxSearchTypes& SearchType) const;
+	[[nodiscard]] bool matchItemText(const HTREEITEM hItem, const TString& search, const DcxSearchTypes& SearchType) const;
+	[[nodiscard]] std::optional<HTREEITEM> findItemText(const HTREEITEM hStart, const TString& queryText, const int n, int& matchCount, const DcxSearchTypes& SearchType) const;
 
-	bool matchItemText(const HTREEITEM hItem, const dcxSearchData &srch_data) const;
-	std::optional<HTREEITEM> findItemText(const HTREEITEM hStart, const int n, int& matchCount, const dcxSearchData& srch_data) const;
+	[[nodiscard]] bool matchItemText(const HTREEITEM hItem, const dcxSearchData &srch_data) const;
+	[[nodiscard]] std::optional<HTREEITEM> findItemText(const HTREEITEM hStart, const int n, int& matchCount, const dcxSearchData& srch_data) const;
 
 	void expandAllItems(const HTREEITEM hStart, const UINT expandOption) noexcept;
 
-	HTREEITEM cloneItem(const HTREEITEM hItem, const HTREEITEM hParentTo, const HTREEITEM hAfterTo);
+	[[nodiscard]] HTREEITEM cloneItem(const HTREEITEM hItem, const HTREEITEM hParentTo, const HTREEITEM hAfterTo);
 	void copyAllItems(const HTREEITEM hItem, const HTREEITEM hParentTo);
 	HTREEITEM copyAllItems(const TString& pathFrom, const TString& pathTo);
 
-	static UINT parseIconFlagOptions(const TString& flags) noexcept;
-	static UINT parseItemFlags(const TString& flags) noexcept;
-	static UINT parseSortFlags(const TString& flags) noexcept;
-	static UINT parseColorFlags(const TString& flags) noexcept;
-	static UINT parseToggleFlags(const TString& flags) noexcept;
+	[[nodiscard]] static UINT parseIconFlagOptions(const TString& flags) noexcept;
+	[[nodiscard]] static UINT parseItemFlags(const TString& flags) noexcept;
+	[[nodiscard]] static UINT parseSortFlags(const TString& flags) noexcept;
+	[[nodiscard]] static UINT parseColorFlags(const TString& flags) noexcept;
+	[[nodiscard]] static UINT parseToggleFlags(const TString& flags) noexcept;
 	static int CALLBACK sortItemsEx(LPARAM lParam1, LPARAM lParam2, LPARAM lParamSort);
-	WindowExStyle parseTreeViewExStyles(const TString& styles) const;
+	[[nodiscard]] WindowExStyle parseTreeViewExStyles(const TString& styles) const;
 	static LRESULT CALLBACK EditLabelProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept;
 
 	HFONT m_hItemFont{ nullptr }; // Font used for specific item changes.
@@ -214,19 +214,28 @@ protected:
 #endif
 
 	void xmlSaveTree(HTREEITEM hFromItem, const TString& name, TString& filename);
-	bool xmlGetItems(const HTREEITEM hFirstSibling, TiXmlElement* xElm, TCHAR* buf);
+	[[nodiscard]] bool xmlGetItems(const HTREEITEM hFirstSibling, TiXmlElement* xElm, TCHAR* buf);
 	HTREEITEM xmlLoadTree(HTREEITEM hInsertAfter, HTREEITEM hParent, const TString& name, TString& filename);
 	const TiXmlElement* xmlInsertItems(HTREEITEM hParent, HTREEITEM& hInsertAfter, const TiXmlElement* xElm);
 
-	const size_t size() const noexcept
+	[[nodiscard]] const size_t TV_GetCount() const noexcept
 	{
 		if (!m_Hwnd)
-			return 0;
+			return 0U;
 
 		// NB: This macro returns values 0 - 32767 ok, but 32768 - 65536 are returned as negatives, & anything > 65536 returns as zero & the treeview fails to display.
-		return TreeView_GetCount(m_Hwnd);
+		const auto cnt = gsl::narrow_cast<int>(TreeView_GetCount(m_Hwnd));
+		if (cnt < 0)
+			return (abs(cnt) + 32767U);
+
+		return gsl::narrow_cast<DWORD>(cnt);
 	}
-	HTREEITEM TV_GetLastSibling(HTREEITEM child) const noexcept;
+	[[nodiscard]] const size_t size() const noexcept
+	{
+		// NB: This macro returns values 0 - 32767 ok, but 32768 - 65536 are returned as negatives, & anything > 65536 returns as zero & the treeview fails to display.
+		return TV_GetCount();
+	}
+	[[nodiscard]] HTREEITEM TV_GetLastSibling(HTREEITEM child) const noexcept;
 	void TV_SetItemState(HTREEITEM hItem, UINT data, UINT mask) noexcept
 	{
 		if (!m_Hwnd)
@@ -240,12 +249,12 @@ protected:
 		_ms_TVi.stateMask = mask;
 		SNDMSG(m_Hwnd, TVM_SETITEM, 0, reinterpret_cast<LPARAM>(std::addressof(_ms_TVi)));
 	}
-	inline HTREEITEM TV_GetSelection(HWND hwnd) const noexcept
+	[[nodiscard]] inline HTREEITEM TV_GetSelection(HWND hwnd) const noexcept
 	{
-		GSL_SUPPRESS(es.47) return TreeView_GetSelection(hwnd);
+		GSL_SUPPRESS(es.47) GSL_SUPPRESS(lifetime.4) return TreeView_GetSelection(hwnd);
 	}
 
-	HIMAGELIST TV_GetNormalImageList() noexcept
+	[[nodiscard]] HIMAGELIST TV_GetNormalImageList() noexcept
 	{
 		auto himl = this->getImageList(TVSIL_NORMAL);
 		if (!himl)
@@ -257,7 +266,7 @@ protected:
 		}
 		return himl;
 	}
-	HIMAGELIST TV_GetStateImageList() noexcept
+	[[nodiscard]] HIMAGELIST TV_GetStateImageList() noexcept
 	{
 		auto himl = this->getImageList(TVSIL_STATE);
 		if (!himl)
@@ -284,6 +293,26 @@ protected:
 			ImageList_Destroy(himl);
 			this->setImageList(nullptr, TVSIL_STATE);
 		}
+	}
+	bool TV_DeleteItem(const HTREEITEM item) noexcept
+	{
+		// If the window style for a tree-view control contains TVS_SCROLL and all items are deleted,
+		// new items are not displayed until the window styles are reset.
+		// The following code shows one way to ensure that items are always displayed.
+		const auto styles = dcxGetWindowStyle(m_Hwnd);
+		Auto(dcxSetWindowStyle(m_Hwnd, styles));
+
+		return (TreeView_DeleteItem(m_Hwnd, item) != FALSE);
+	}
+	bool TV_DeleteAllItems() noexcept
+	{
+		// If the window style for a tree-view control contains TVS_SCROLL and all items are deleted,
+		// new items are not displayed until the window styles are reset.
+		// The following code shows one way to ensure that items are always displayed.
+		const auto styles = dcxGetWindowStyle(m_Hwnd);
+		Auto(dcxSetWindowStyle(m_Hwnd, styles));
+
+		return (TreeView_DeleteAllItems(m_Hwnd) != FALSE);
 	}
 };
 

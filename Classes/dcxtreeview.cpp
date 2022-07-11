@@ -419,14 +419,7 @@ void DcxTreeView::parseCommandRequest(const TString& input)
 	// xdid -r [NAME] [ID] [SWITCH]
 	if (flags[TEXT('r')])
 	{
-		// If the window style for a tree-view control contains TVS_SCROLL and all items are deleted,
-		// new items are not displayed until the window styles are reset.
-		// The following code shows one way to ensure that items are always displayed.
-		const auto styles = dcxGetWindowStyle(m_Hwnd);
-
-		TreeView_DeleteAllItems(m_Hwnd);
-
-		dcxSetWindowStyle(m_Hwnd, styles);
+		TV_DeleteAllItems();
 	}
 
 	// xdid -a [NAME] [ID] [SWITCH] N N N ... N[TAB][+FLAGS] [#ICON] [#SICON] [#OVERLAY] [#STATE] [#INTEGRAL] [COLOR] [BKGCOLOR] Text[TAB]Tooltip Text
@@ -517,12 +510,12 @@ void DcxTreeView::parseCommandRequest(const TString& input)
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto path(input.getlasttoks());	// tok 4, -1
-		const auto* const item = this->parsePath(path);
+		const auto item = this->parsePath(path);
 
 		if (!item)
 			throw Dcx::dcxException(TEXT("Invalid Path: %"), path);
 
-		TreeView_DeleteItem(m_Hwnd, item);
+		TV_DeleteItem(item);
 	}
 	// xdid -g [NAME] [ID] [SWITCH] [HEIGHT]
 	else if (flags[TEXT('g')])
@@ -530,7 +523,7 @@ void DcxTreeView::parseCommandRequest(const TString& input)
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		if (const auto iHeight = input.getnexttok().to_int(); iHeight > -2)
+		if (const auto iHeight = input.getnexttok().to_int(); iHeight > -2) // NB: -1 height means reset to defaults
 			TreeView_SetItemHeight(m_Hwnd, iHeight);
 	}
 	// xdid -i [NAME] [ID] [SWITCH] [+FLAGS] [COLOR]
@@ -666,9 +659,9 @@ void DcxTreeView::parseCommandRequest(const TString& input)
 		const auto pathFrom(input.getfirsttok(1, TSTABCHAR).gettok(4, -1).trim());
 		const auto pathTo(input.getnexttok(TSTABCHAR).trim());	// tok 2
 
-		const auto* const item = this->copyAllItems(pathFrom, pathTo);
+		const auto item = this->copyAllItems(pathFrom, pathTo);
 
-		TreeView_DeleteItem(m_Hwnd, item);
+		TV_DeleteItem(item);
 	}
 	// xdid -n [NAME] [ID] [SWITCH] N N N{TAB}N N N
 	else if (flags[TEXT('n')])
@@ -1104,7 +1097,7 @@ void DcxTreeView::insertItem(const TString& tsPath, const TString& tsData, const
 	}
 	else
 		tvi.iIntegral = 1;
-	
+
 	// TODO: Add Expanded Image support (TVIF_EXPANDEDIMAGE)
 
 	iFlags &= ~TVIS_DCXMASK; // exclude DCX flags, they were messing up state & overlay icon settings, found when saved data didnt match what was set.
@@ -1309,8 +1302,8 @@ int CALLBACK DcxTreeView::sortItemsEx(LPARAM lParam1, LPARAM lParam2, LPARAM lPa
 	if ((!ptvsort) || (!lptvi1) || (!lptvi2))
 		return 0;
 
-	ptvsort->pthis->getItemText(lptvi1->hHandle, &ptvsort->itemtext1[0], MIRC_BUFFER_SIZE_CCH);
-	ptvsort->pthis->getItemText(lptvi2->hHandle, &ptvsort->itemtext2[0], MIRC_BUFFER_SIZE_CCH);
+	ptvsort->pthis->getItemText(lptvi1->hHandle, &ptvsort->itemtext1[0], std::size(ptvsort->itemtext1));
+	ptvsort->pthis->getItemText(lptvi2->hHandle, &ptvsort->itemtext2[0], std::size(ptvsort->itemtext2));
 
 	// CUSTOM Sort
 	if (dcx_testflag(ptvsort->iSortFlags, TVSS_CUSTOM))
@@ -1321,8 +1314,13 @@ int CALLBACK DcxTreeView::sortItemsEx(LPARAM lParam1, LPARAM lParam2, LPARAM lPa
 		//TCHAR sRes[20];
 		//mIRCLinker::evalex( sRes, static_cast<int>(sRes.size()), TEXT("$%s(%s,%s)"), ptvsort->tsCustomAlias.to_chr( ), &ptvsort->itemtext1[0], &ptvsort->itemtext2[0] );
 
+		//stString<20> sRes;
+		//mIRCLinker::eval(sRes, TEXT("$%(%,%)"), ptvsort->tsCustomAlias, &ptvsort->itemtext1[0], &ptvsort->itemtext2[0]);
+
 		stString<20> sRes;
-		mIRCLinker::eval(sRes, TEXT("$%(%,%)"), ptvsort->tsCustomAlias, &ptvsort->itemtext1[0], &ptvsort->itemtext2[0]);
+		mIRCLinker::exec(TEXT("/!set -nu1 \\%dcx_1sort% %"), (LONG_PTR)&ptvsort->itemtext1[0], &ptvsort->itemtext1[0]);
+		mIRCLinker::exec(TEXT("/!set -nu1 \\%dcx_2sort% %"), (LONG_PTR)&ptvsort->itemtext2[0], &ptvsort->itemtext2[0]);
+		mIRCLinker::eval(sRes, TEXT("$%(\\%dcx_1sort%,\\%dcx_2sort%)"), ptvsort->tsCustomAlias, (LONG_PTR)&ptvsort->itemtext1[0], (LONG_PTR)&ptvsort->itemtext2[0]);
 
 		auto ires = dcx_atoi(sRes.data());
 
@@ -1943,34 +1941,34 @@ LRESULT DcxTreeView::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 				//	redrawBufferedWindow();
 			}
 
-//#ifdef USE_CUSTOM_TREE_DRAWING
-//			if (Dcx::GDIModule.isUseable() && m_pImage && m_Hwnd)
-//			{
-//				if (HDC hdc = GetDC(m_Hwnd); hdc)
-//				{
-//					Auto(ReleaseDC(m_Hwnd, hdc));
-//
-//					DrawClientArea(hdc, WM_PRINTCLIENT, PRF_CLIENT);
-//				}
-//			}
-//#endif
+			//#ifdef USE_CUSTOM_TREE_DRAWING
+			//			if (Dcx::GDIModule.isUseable() && m_pImage && m_Hwnd)
+			//			{
+			//				if (HDC hdc = GetDC(m_Hwnd); hdc)
+			//				{
+			//					Auto(ReleaseDC(m_Hwnd, hdc));
+			//
+			//					DrawClientArea(hdc, WM_PRINTCLIENT, PRF_CLIENT);
+			//				}
+			//			}
+			//#endif
 
 			bParsed = TRUE;
 		}
 		break;
 
-//#ifdef USE_CUSTOM_TREE_DRAWING
-//		case WM_CTLCOLORSCROLLBAR:
-//		{
-//			if (m_bCustomDraw)
-//			{
-//				const auto lRes = CallDefaultClassProc(uMsg, wParam, lParam);
-//				bParsed = TRUE;
-//				return (LRESULT)GetStockBrush(BLACK_BRUSH);
-//			}
-//		}
-//		break;
-//#endif
+		//#ifdef USE_CUSTOM_TREE_DRAWING
+		//		case WM_CTLCOLORSCROLLBAR:
+		//		{
+		//			if (m_bCustomDraw)
+		//			{
+		//				const auto lRes = CallDefaultClassProc(uMsg, wParam, lParam);
+		//				bParsed = TRUE;
+		//				return (LRESULT)GetStockBrush(BLACK_BRUSH);
+		//			}
+		//		}
+		//		break;
+		//#endif
 
 		case TVN_BEGINLABELEDIT:
 		{
@@ -2017,18 +2015,18 @@ LRESULT DcxTreeView::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 			case CDDS_PREPAINT:
 				return (CDRF_NOTIFYPOSTPAINT | CDRF_NOTIFYITEMDRAW);
 
-			//case CDDS_ITEMPREERASE:
-			//{
-			//	const auto lpdcxtvi = reinterpret_cast<LPDCXTVITEM>(lpntvcd->nmcd.lItemlParam);
-			//	return CDRF_DODEFAULT;
-			//}
-			//break;
-			//case CDDS_ITEMPOSTERASE:
-			//{
-			//	const auto lpdcxtvi = reinterpret_cast<LPDCXTVITEM>(lpntvcd->nmcd.lItemlParam);
-			//	return CDRF_DODEFAULT;
-			//}
-			//break;
+				//case CDDS_ITEMPREERASE:
+				//{
+				//	const auto lpdcxtvi = reinterpret_cast<LPDCXTVITEM>(lpntvcd->nmcd.lItemlParam);
+				//	return CDRF_DODEFAULT;
+				//}
+				//break;
+				//case CDDS_ITEMPOSTERASE:
+				//{
+				//	const auto lpdcxtvi = reinterpret_cast<LPDCXTVITEM>(lpntvcd->nmcd.lItemlParam);
+				//	return CDRF_DODEFAULT;
+				//}
+				//break;
 
 			case CDDS_ITEMPREPAINT:
 			{
@@ -2243,18 +2241,18 @@ LRESULT DcxTreeView::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& b
 	break;
 
 #ifdef USE_CUSTOM_TREE_DRAWING
-//#ifdef DCX_USE_GDIPLUS
-//	case WM_ERASEBKGND:
-//	{
-//		if (Dcx::GDIModule.isUseable() && m_pImage)
-//		{
-//			DrawGDIPlusImage(reinterpret_cast<HDC>(wParam));
-//			bParsed = TRUE;
-//			return TRUE;
-//		}
-//	}
-//	break;
-//#endif
+	//#ifdef DCX_USE_GDIPLUS
+	//	case WM_ERASEBKGND:
+	//	{
+	//		if (Dcx::GDIModule.isUseable() && m_pImage)
+	//		{
+	//			DrawGDIPlusImage(reinterpret_cast<HDC>(wParam));
+	//			bParsed = TRUE;
+	//			return TRUE;
+	//		}
+	//	}
+	//	break;
+	//#endif
 
 	case WM_HSCROLL:
 	{

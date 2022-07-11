@@ -1198,7 +1198,7 @@ void DcxListView::parseCommandRequest(const TString& input)
 
 					const auto r = getItemRange2(tsLine, nItemCnt);
 
-					if ((r.b < 0) || (r.e < 0) || (r.b >= nItemCnt) || (r.e > nItemCnt))
+					if ((r.b < 0) || (r.e < 0) || (r.b > r.e))
 						throw Dcx::dcxException(TEXT("Invalid index %."), tsLine);
 
 					for (auto nItem : r)
@@ -1412,7 +1412,7 @@ void DcxListView::parseCommandRequest(const TString& input)
 
 			const auto r = getItemRange2(tsLine, nItemCnt);
 
-			if ((r.b < 0) || (r.e < 0) || (r.b >= nItemCnt) || (r.e > nItemCnt))
+			if ((r.b < 0) || (r.e < 0) || (r.b > r.e))
 				throw Dcx::dcxException(TEXT("Invalid index %."), tsLine);
 
 			for (auto nItem : r)
@@ -2108,7 +2108,7 @@ void DcxListView::parseCommandRequest(const TString& input)
 		//it.iItem = lvi.iItem;
 		//it.iSubItem = lvi.iSubItem;
 
-		LVSETINFOTIP it{ sizeof(LVSETINFOTIP), 0, lpmylvi->tsTipText.to_chr(), lvi.iItem,lvi.iSubItem };
+		LVSETINFOTIP it{ sizeof(LVSETINFOTIP), 0, lpmylvi->tsTipText.to_chr(), lvi.iItem, lvi.iSubItem };
 
 		Dcx::dcxListView_SetInfoTip(m_Hwnd, &it);
 	}
@@ -2151,7 +2151,10 @@ void DcxListView::parseCommandRequest(const TString& input)
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		if (const auto nItem = input.getnexttok().to_int() - 1; nItem > -1)
+		//if (const auto nItem = input.getnexttok().to_int() - 1; nItem > -1)
+		//	Dcx::dcxListView_EnsureVisible(m_Hwnd, nItem, FALSE);
+
+		if (const auto nItem = StringToItemNumber(input.getnexttok()); nItem > -1)
 			Dcx::dcxListView_EnsureVisible(m_Hwnd, nItem, FALSE);
 	}
 	// xdid -S [NAME] [ID] [+FLAGS] [N1] [N2] [ARGS]
@@ -2267,18 +2270,41 @@ void DcxListView::parseCommandRequest(const TString& input)
 		if (numtok != 6)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto gid = input.getnexttok().to_int();
-
-		if (!Dcx::dcxListView_HasGroup(m_Hwnd, gsl::narrow_cast<WPARAM>(gid)))
-			throw Dcx::dcxException(TEXT("Group doesn't exist: %"), gid);
-
 		if (!Dcx::VistaModule.isVista())
 			throw Dcx::dcxException("This Command is Vista+ Only!");
 
+		//const auto gid = input.getnexttok().to_int();
+		//
+		//if (!Dcx::dcxListView_HasGroup(m_Hwnd, gid))
+		//	throw Dcx::dcxException(TEXT("Group doesn't exist: %"), gid);
+		//
+		//const auto iMask = this->parseGroupState(input.getnexttok());	// tok 5
+		//const auto iState = this->parseGroupState(input.getnexttok());	// tok 6
+		//
+		//Dcx::dcxListView_SetGroupState(m_Hwnd, gid, iMask, iState);
+
+		const auto tsGID = input.getnexttok();							// tok 4
 		const auto iMask = this->parseGroupState(input.getnexttok());	// tok 5
 		const auto iState = this->parseGroupState(input.getnexttok());	// tok 6
 
-		Dcx::dcxListView_SetGroupState(m_Hwnd, gid, iMask, iState);
+		const auto gid_count = Dcx::dcxListView_GetGroupCount(m_Hwnd);
+		const auto itEnd = tsGID.end();
+		for (auto itStart = tsGID.begin(TSCOMMACHAR); itStart != itEnd; ++itStart)
+		{
+			const auto tsLine(*itStart);
+			const auto r = Dcx::make_range(tsLine, gid_count);
+
+			if ((r.b < 0) || (r.e < 0) || (r.b > r.e))
+				throw DcxExceptions::dcxInvalidArguments();
+
+			for (auto nGID : r)
+			{
+				if (!Dcx::dcxListView_HasGroup(m_Hwnd, nGID))
+					throw Dcx::dcxException(TEXT("Group doesn't exist: %"), nGID);
+
+				Dcx::dcxListView_SetGroupState(m_Hwnd, nGID, iMask, iState);
+			}
+		}
 	}
 	else
 		this->parseGlobalCommandRequest(input, flags); // bCefFhJMpURsTxz
@@ -2397,10 +2423,7 @@ UINT DcxListView::parseIconFlagOptions(const TString& flags)
 	const XSwitchFlags xflags(flags);
 
 	// no +sign, missing params
-	//if (!xflags[TEXT('+')])
-	//	return iFlags;
 	if (!xflags[TEXT('+')])
-		//throw Dcx::dcxException("Invalid Icon flags used, + missing!");
 		throw DcxExceptions::dcxInvalidFlag();
 
 	if (xflags[TEXT('n')])
@@ -2423,10 +2446,7 @@ UINT DcxListView::parseItemFlags(const TString& flags)
 	UINT iFlags = 0;
 
 	// no +sign, missing params
-	//if (!xflags[TEXT('+')])
-	//	return iFlags;
 	if (!xflags[TEXT('+')])
-		//throw Dcx::dcxException("Invalid Item flags used, + missing!");
 		throw DcxExceptions::dcxInvalidFlag();
 
 	if (xflags[TEXT('b')])
@@ -2479,10 +2499,7 @@ UINT DcxListView::parseMassItemFlags(const TString& flags)
 	UINT iFlags = 0;
 
 	// no +sign, missing params
-	//if (!xflags[TEXT('+')])
-	//	return iFlags;
 	if (!xflags[TEXT('+')])
-		//throw Dcx::dcxException("Invalid Mass Item flags used, + missing!");
 		throw DcxExceptions::dcxInvalidFlag();
 
 	if (xflags[TEXT('a')])
@@ -2508,10 +2525,7 @@ UINT DcxListView::parseHeaderFlags(const TString& flags)
 	const XSwitchFlags xflags(flags);
 	UINT iFlags = 0;
 
-	//if (!xflags[TEXT('+')])
-	//	return 0;
 	if (!xflags[TEXT('+')])
-		//throw Dcx::dcxException("Invalid Header flags used, + missing!");
 		throw DcxExceptions::dcxInvalidFlag();
 
 	// 'a' use by flags2
@@ -2597,10 +2611,7 @@ UINT DcxListView::parseSortFlags(const TString& flags)
 	UINT iFlags{};
 
 	// no +sign, missing params
-	//if (!xflags[TEXT('+')])
-	//	return iFlags;
 	if (!xflags[TEXT('+')])
-		//throw Dcx::dcxException("Invalid Sort flags used, + missing!");
 		throw DcxExceptions::dcxInvalidFlag();
 
 	if (xflags[TEXT('a')])
@@ -2633,10 +2644,7 @@ UINT DcxListView::parseGroupFlags(const TString& flags)
 	UINT iFlags{};
 
 	// no +sign, missing params
-	//if (!xflags[TEXT('+')])
-	//	return iFlags;
 	if (!xflags[TEXT('+')])
-		//throw Dcx::dcxException("Invalid Group flags used, + missing!");
 		throw DcxExceptions::dcxInvalidFlag();
 
 	if (xflags[TEXT('c')])
@@ -2655,10 +2663,7 @@ UINT DcxListView::parseGroupState(const TString& flags)
 	UINT iFlags{};
 
 	// no +sign, missing params
-	//if (!xflags[TEXT('+')])
-	//	return iFlags;
 	if (!xflags[TEXT('+')])
-		//throw Dcx::dcxException("Invalid Group State used, + missing!");
 		throw DcxExceptions::dcxInvalidFlag();
 
 	if (xflags[TEXT('C')])
@@ -2687,10 +2692,7 @@ UINT DcxListView::parseColorFlags(const TString& flags)
 	UINT iFlags{};
 
 	// no +sign, missing params
-	//if (!xflags[TEXT('+')])
-	//	return iFlags;
 	if (!xflags[TEXT('+')])
-		//throw Dcx::dcxException("Invalid Color flags used, + missing!");
 		throw DcxExceptions::dcxInvalidFlag();
 
 	if (xflags[TEXT('b')])
@@ -2717,10 +2719,7 @@ UINT DcxListView::parseImageFlags(const TString& flags)
 	UINT iFlags{};
 
 	// no +sign, missing params
-	//if (!xflags[TEXT('+')])
-	//	return iFlags;
 	if (!xflags[TEXT('+')])
-		//throw Dcx::dcxException("Invalid Image flags used, + missing!");
 		throw DcxExceptions::dcxInvalidFlag();
 
 	if (xflags[TEXT('n')])
@@ -2844,7 +2843,6 @@ int CALLBACK DcxListView::sortItemsEx(LPARAM lParam1, LPARAM lParam2, LPARAM lPa
 		if (plvsort->tsCustomAlias.empty())
 			return 0;
 
-		//TCHAR sRes[20];
 		stString<20> sRes;
 
 		// testing new sort call... new ver doesnt pass item text directly via alias, but instead sets a %var with the text & passes the %var name to the alias.
@@ -2855,9 +2853,9 @@ int CALLBACK DcxListView::sortItemsEx(LPARAM lParam1, LPARAM lParam2, LPARAM lPa
 		////
 		////mIRCLinker::evalex( sRes, Dcx::countof(sRes), TEXT("$%s(%s,%s)"), plvsort->tsCustomAlias.to_chr( ), itemtext1, itemtext2 );
 
-		mIRCLinker::exec(TEXT("/!set -nu1 \\%dcx_1sort% %"), &plvsort->itemtext1[0], &plvsort->itemtext1[0]);
-		mIRCLinker::exec(TEXT("/!set -nu1 \\%dcx_2sort% %"), &plvsort->itemtext2[0], &plvsort->itemtext2[0]);
-		mIRCLinker::eval(sRes, TEXT("$%(\\%dcx_1sort%,\\%dcx_2sort%)"), plvsort->tsCustomAlias, &plvsort->itemtext1[0], &plvsort->itemtext2[0]);
+		mIRCLinker::exec(TEXT("/!set -nu1 \\%dcx_1sort% %"), (LONG_PTR)&plvsort->itemtext1[0], &plvsort->itemtext1[0]);
+		mIRCLinker::exec(TEXT("/!set -nu1 \\%dcx_2sort% %"), (LONG_PTR)&plvsort->itemtext2[0], &plvsort->itemtext2[0]);
+		mIRCLinker::eval(sRes, TEXT("$%(\\%dcx_1sort%,\\%dcx_2sort%)"), plvsort->tsCustomAlias, (LONG_PTR)&plvsort->itemtext1[0], (LONG_PTR)&plvsort->itemtext2[0]);
 
 		auto ires = _ts_atoi(sRes.data());
 

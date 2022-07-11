@@ -231,7 +231,7 @@ namespace Dcx
 	{
 		ListView_GetItemText(hwnd, nItem, nSubItem, Buf, nBufSize);
 	}
-	inline int dcxListView_GetNextItem(_In_ HWND hwnd, int i, unsigned int flags) noexcept
+	[[nodiscard]] inline int dcxListView_GetNextItem(_In_ HWND hwnd, int i, unsigned int flags) noexcept
 	{
 		return ListView_GetNextItem(hwnd, i, flags);
 	}
@@ -239,23 +239,23 @@ namespace Dcx
 	{
 		return ListView_GetColumnOrderArray(hwnd, nCnt, p);
 	}
-	inline int dcxListView_GetColumnWidth(_In_ HWND hwnd, const int iCol) noexcept
+	[[nodiscard]] inline int dcxListView_GetColumnWidth(_In_ HWND hwnd, const int iCol) noexcept
 	{
 		return ListView_GetColumnWidth(hwnd, iCol);
 	}
-	inline int dcxListView_GetItemCount(_In_ HWND hwnd) noexcept
+	[[nodiscard]] inline int dcxListView_GetItemCount(_In_ HWND hwnd) noexcept
 	{
 		return ListView_GetItemCount(hwnd);
 	}
-	inline unsigned int dcxListView_GetSelectedCount(_In_ HWND hwnd) noexcept
+	[[nodiscard]] inline unsigned int dcxListView_GetSelectedCount(_In_ HWND hwnd) noexcept
 	{
 		return ListView_GetSelectedCount(hwnd);
 	}
-	inline unsigned int dcxListView_GetItemState(_In_ HWND hwnd, const int i, const unsigned int mask) noexcept
+	[[nodiscard]] inline unsigned int dcxListView_GetItemState(_In_ HWND hwnd, const int i, const unsigned int mask) noexcept
 	{
 		return ListView_GetItemState(hwnd, i, mask);
 	}
-	inline DWORD dcxListView_GetExtendedListViewStyle(_In_ HWND hwnd) noexcept
+	[[nodiscard]] inline DWORD dcxListView_GetExtendedListViewStyle(_In_ HWND hwnd) noexcept
 	{
 		return ListView_GetExtendedListViewStyle(hwnd);
 	}
@@ -276,16 +276,16 @@ namespace Dcx
 		return ListView_InsertColumn(hwnd, iCol, pCol);
 	}
 	GSL_SUPPRESS(lifetime.4)
-	inline HWND dcxListView_GetHeader(_In_ HWND hwnd) noexcept
+		[[nodiscard]] inline HWND dcxListView_GetHeader(_In_ HWND hwnd) noexcept
 	{
 		GSL_SUPPRESS(lifetime.4) return ListView_GetHeader(hwnd);
 	}
 	GSL_SUPPRESS(lifetime.4)
-	inline HWND dcxListView_GetToolTips(_In_ HWND hwnd) noexcept
+		[[nodiscard]] inline HWND dcxListView_GetToolTips(_In_ HWND hwnd) noexcept
 	{
 		GSL_SUPPRESS(lifetime.4) return ListView_GetToolTips(hwnd);
 	}
-	inline int dcxListView_GetTopIndex(_In_ HWND hwnd) noexcept
+	[[nodiscard]] inline int dcxListView_GetTopIndex(_In_ HWND hwnd) noexcept
 	{
 		return ListView_GetTopIndex(hwnd);
 	}
@@ -293,11 +293,11 @@ namespace Dcx
 	{
 		return ListView_GetGroupInfo(hwnd, gid, pgrp);
 	}
-	inline LRESULT dcxListView_GetGroupCount(_In_ HWND hwnd) noexcept
+	[[nodiscard]] inline LRESULT dcxListView_GetGroupCount(_In_ HWND hwnd) noexcept
 	{
 		return ListView_GetGroupCount(hwnd);
 	}
-	inline unsigned int dcxListView_GetGroupState(_In_ HWND hwnd, const int gid, const DWORD mask) noexcept
+	[[nodiscard]] inline unsigned int dcxListView_GetGroupState(_In_ HWND hwnd, const int gid, const DWORD mask) noexcept
 	{
 		return ListView_GetGroupState(hwnd, gid, mask);
 	}
@@ -321,11 +321,11 @@ namespace Dcx
 	{
 		return ListView_SetView(hwnd, mode);
 	}
-	inline LRESULT dcxListView_HasGroup(_In_ HWND hwnd, const int group) noexcept
+	[[nodiscard]] inline LRESULT dcxListView_HasGroup(_In_ HWND hwnd, const int group) noexcept
 	{
 		return ListView_HasGroup(hwnd, group);
 	}
-	inline BOOL dcxListView_IsGroupViewEnabled(_In_ HWND hwnd) noexcept
+	[[nodiscard]] inline BOOL dcxListView_IsGroupViewEnabled(_In_ HWND hwnd) noexcept
 	{
 		return ListView_IsGroupViewEnabled(hwnd);
 	}
@@ -377,15 +377,15 @@ namespace Dcx
 	{
 		return ListView_Scroll(hwnd, dx, dy);
 	}
-	inline int dcxListView_GetCountPerPage(_In_ HWND hwnd) noexcept
+	[[nodiscard]] inline int dcxListView_GetCountPerPage(_In_ HWND hwnd) noexcept
 	{
 		return ListView_GetCountPerPage(hwnd);
 	}
-	inline HWND dcxListView_GetEditControl(_In_ HWND hwnd) noexcept
+	[[nodiscard]] inline HWND dcxListView_GetEditControl(_In_ HWND hwnd) noexcept
 	{
 		return ListView_GetEditControl(hwnd);
 	}
-	inline COLORREF dcxListView_GetBkColor(_In_ HWND hwnd) noexcept
+	[[nodiscard]] inline COLORREF dcxListView_GetBkColor(_In_ HWND hwnd) noexcept
 	{
 		return ListView_GetBkColor(hwnd);
 	}
@@ -413,7 +413,7 @@ namespace Dcx
 	{
 		return ListView_CreateDragImage(hwnd, i, pt);
 	}
-	inline BOOL dcxListView_IsItemVisible(_In_ HWND hwnd, int i) noexcept
+	[[nodiscard]] inline BOOL dcxListView_IsItemVisible(_In_ HWND hwnd, int i) noexcept
 	{
 		return ListView_IsItemVisible(hwnd, i);
 	}
@@ -447,18 +447,18 @@ public:
 	void parseCommandRequest(const TString& input) final;
 	dcxWindowStyles parseControlStyles(const TString& tsStyles) final;
 
-	HIMAGELIST getImageList(const int iImageList) const noexcept;
+	[[nodiscard]] HIMAGELIST getImageList(const int iImageList) const noexcept;
 	void setImageList(const HIMAGELIST himl, const int iImageList) noexcept;
 
-	bool isListViewStyle(const WindowStyle dwView) const noexcept;
+	[[nodiscard]] bool isListViewStyle(const WindowStyle dwView) const noexcept;
 
-	const int& getColumnCount() const noexcept;
+	[[nodiscard]] const int& getColumnCount() const noexcept;
 
 	inline const TString getType() const final { return TEXT("listview"); };
 	inline const DcxControlTypes getControlType() const noexcept final { return DcxControlTypes::LISTVIEW; }
 
-	int getTopIndex() const noexcept;
-	int getBottomIndex() const noexcept;
+	[[nodiscard]] int getTopIndex() const noexcept;
+	[[nodiscard]] int getBottomIndex() const noexcept;
 
 	void toXml(TiXmlElement* const xml) const final;
 	TiXmlElement* toXml(void) const final;
@@ -475,19 +475,19 @@ protected:
 
 	WNDPROC m_OrigEditProc{ nullptr }; //!< Label Edit Control Orignal Procedure
 
-	static UINT parseIconFlagOptions(const TString& flags);
-	static UINT parseItemFlags(const TString& flags);
-	static UINT parseHeaderFlags(const TString& flags);
-	static INT parseHeaderFlags2(const TString& flags);
-	static INT parseHeaderFlags2(const XSwitchFlags& xflags);
-	static UINT parseSortFlags(const TString& flags);
-	static UINT parseColorFlags(const TString& flags);
-	static UINT parseImageFlags(const TString& flags);
-	static UINT parseGroupFlags(const TString& flags);
-	static UINT parseGroupState(const TString& flags);
+	[[nodiscard]] static UINT parseIconFlagOptions(const TString& flags);
+	[[nodiscard]] static UINT parseItemFlags(const TString& flags);
+	[[nodiscard]] static UINT parseHeaderFlags(const TString& flags);
+	[[nodiscard]] static INT parseHeaderFlags2(const TString& flags);
+	[[nodiscard]] static INT parseHeaderFlags2(const XSwitchFlags& xflags);
+	[[nodiscard]] static UINT parseSortFlags(const TString& flags);
+	[[nodiscard]] static UINT parseColorFlags(const TString& flags);
+	[[nodiscard]] static UINT parseImageFlags(const TString& flags);
+	[[nodiscard]] static UINT parseGroupFlags(const TString& flags);
+	[[nodiscard]] static UINT parseGroupState(const TString& flags);
 
-	bool matchItemText(const int nItem, const int nSubItem, const TString& search, const DcxSearchTypes& SearchType) const;
-	bool matchItemText(const int nItem, const int nSubItem, const dcxSearchData &srch_data) const;
+	[[nodiscard]] bool matchItemText(const int nItem, const int nSubItem, const TString& search, const DcxSearchTypes& SearchType) const;
+	[[nodiscard]] bool matchItemText(const int nItem, const int nSubItem, const dcxSearchData &srch_data) const;
 
 	void autoSize(const int nColumn, const TString& flags);
 	void autoSize(const int nColumn, const int iFlags, const int iWidth = 0) noexcept;
@@ -495,10 +495,10 @@ protected:
 	bool m_bAllowDrag{ false }; //!< Dragging Items ?
 
 private:
-	DcxControl* CreatePbar(LPLVITEM lvi, const TString& style);
+	DcxControl * CreatePbar(LPLVITEM lvi, const TString & style);
 	void ScrollPbars(const int row, const int nCols, const int iTop, const int iBottom, LPLVITEM lvi) noexcept;
 	void UpdateScrollPbars(void);
-	HIMAGELIST initImageList(const int iImageList);
+	[[nodiscard]] HIMAGELIST initImageList(const int iImageList);
 	bool xmlLoadListview(const int nPos, const TString& dataset, TString& filename);
 	void xmlSetItem(const int nItem, const int nSubItem, const TiXmlElement* xNode, LPLVITEM lvi, LPDCXLVITEM lpmylvi, TString& tsBuf);
 	bool ctrlLoadListview(const int nPos, const TString& tsData) noexcept;
@@ -506,7 +506,7 @@ private:
 	void massSetItem(const int nPos, const TString& input);
 	void setHeaderStyle(HWND h, const int nCol, const TString& info);
 	void DeleteColumns(const int nColumn) noexcept;
-	TString ItemToString(int nItem, int iColumns);
+	[[nodiscard]] TString ItemToString(int nItem, int iColumns);
 	bool xSaveListview(const int nStartPos, const int nEndPos, const TString& tsData, const TCHAR* sTestCommand, const TCHAR* sStoreCommand);
 
 	void DrawEmpty(HDC hdc, const TString &tsBuf);
@@ -518,7 +518,7 @@ private:
 	//static void getItemRange(const TString &tsItems, const int nItemCnt, int *iStart_range, int *iEnd_range);
 	//static std::pair<int, int> getItemRange(const TString &tsItems, const int nItemCnt);
 
-	static UINT parseMassItemFlags(const TString& flags);
+	[[nodiscard]] static UINT parseMassItemFlags(const TString& flags);
 	static void parseText2Item(const TString& tsTxt, TString& tsItem, const TString& tsData);
 	static int CALLBACK sortItemsEx(LPARAM lParam1, LPARAM lParam2, LPARAM lParamSort);
 	static LRESULT CALLBACK EditLabelProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept;
@@ -526,14 +526,14 @@ private:
 	//static HIMAGELIST createImageList(const bool bIcons);
 	//static void parseListviewExStyles(const TString & styles, LONG * ExStyles) noexcept;
 
-	static const WindowExStyle parseListviewExStyles(const TString& styles) noexcept;
+	[[nodiscard]] static const WindowExStyle parseListviewExStyles(const TString& styles) noexcept;
 
 	/// <summary>
 	/// Convert a string to an item number.
 	/// </summary>
 	/// <param name="ts">- The string to convert.</param>
 	/// <returns>A zero index item number</returns>
-	int StringToItemNumber(const TString& ts) const
+	[[nodiscard]] int StringToItemNumber(const TString& ts) const
 	{
 		auto nItem = ts.to_int() - 1;
 
@@ -549,7 +549,7 @@ private:
 	/// </summary>
 	/// <param name="c">- The character to check.</param>
 	/// <returns>A rank value >= 0</returns>
-	static int GetRank(TCHAR c) noexcept
+	[[nodiscard]] static int GetRank(TCHAR c) noexcept
 	{
 		for (const auto& a : m_ranks)
 		{
