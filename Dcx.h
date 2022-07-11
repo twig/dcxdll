@@ -1189,7 +1189,7 @@ namespace Dcx
 			else
 				iStart = iEnd;
 		}
-		return{ iStart, iEnd };
+		return{ std::min(iStart, nItemCnt - nAdjust), std::min(iEnd, nItemCnt - nAdjust) };
 	}
 	template< DcxConcepts::IsNumeric T > range_t<T>  make_range(const TString& tsItems, T nItemCnt)
 	{
@@ -1210,7 +1210,7 @@ namespace Dcx
 			else
 				iStart = iEnd;
 		}
-		return{ iStart, iEnd };
+		return{ std::min(iStart, nItemCnt), std::min(iEnd, nItemCnt) };
 	}
 	template< DcxConcepts::IsNumeric T > range_t<T> adjust_range(const range_t<T>& r, int nAdjustment) noexcept
 	{
