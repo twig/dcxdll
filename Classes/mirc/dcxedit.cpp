@@ -501,9 +501,13 @@ void DcxEdit::parseCommandRequest(const TString& input)
 
 		const auto pos = this->GetCaretPos();
 
+		const auto nLine = input.getnexttok().to_<UINT>();	// tok 4
+
 		if (this->isStyle(WindowStyle::ES_MultiLine))
 		{
-			const auto nLine = input.getnexttok().to_<UINT>();	// tok 4
+			if (nLine == 0)
+				throw DcxExceptions::dcxInvalidArguments();
+
 			this->m_tsText.instok(input.getlasttoks(), nLine, TEXT("\r\n"));	// tok 5, -1
 		}
 		else
