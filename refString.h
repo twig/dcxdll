@@ -146,11 +146,7 @@ public:
 
 	constexpr void assign(const refString<T, N>& other) const noexcept
 	{
-		//std::swap(m_data, other.m_data);
-
 		const_cast<refString*>(this)->swap(other);
-
-		//swap(other);
 	}
 	void swap(const refString<T, N>& other) noexcept
 	{
