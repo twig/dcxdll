@@ -778,7 +778,6 @@ mIRC(MsgBox)
 		d.trim();
 
 		if (d.numtok(TSTABCHAR) < 3)
-			//throw Dcx::dcxException("invalid parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		DWORD			style = MB_DEFBUTTON1;
@@ -982,14 +981,12 @@ mIRC(PickIcon)
 		d.trim();
 
 		if (d.numtok() < 2)
-			//throw Dcx::dcxException("Invalid parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		auto index = d.getfirsttok(1).to_int();	// tok 1
 		auto tsFilename(d.getlasttoks());			// tok 2, -1
 
 		if (!IsFile(tsFilename))
-			//throw Dcx::dcxException("Invalid filename");
 			throw DcxExceptions::dcxInvalidFilename();
 
 		////TCHAR iconPath[MAX_PATH + 1];
@@ -1046,11 +1043,9 @@ mIRC(CountIcons)
 		filename.trim();
 
 		if (filename.empty())
-			//throw Dcx::dcxException("Invalid parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		if (!IsFile(filename))
-			//throw Dcx::dcxException("Invalid filename");
 			throw DcxExceptions::dcxInvalidFilename();
 
 		_ts_snprintf(data, mIRCLinker::m_dwCharacters, TEXT("D_OK %u %s"), ExtractIconEx(filename.to_chr(), -1, nullptr, nullptr, 0), filename.to_chr());
