@@ -92,6 +92,11 @@
 
 #include "string_support.h"
 
+//#if __has_include("StrToNum/StrToNum.h")
+//#define TSTRING_STRTONUM 1
+//#include "StrToNum/StrToNum.h"
+//#endif
+
 // pre-defined for concepts
 class TString;
 
@@ -245,6 +250,11 @@ constexpr auto ts_tolower(T c) { return ((((c) >= TEXT('A')) && ((c) <= TEXT('Z'
 #else
 #pragma message ("### TString OPTION: Internal Buffer - Disabled")
 #endif
+#if TSTRING_STRTONUM
+#pragma message ("### TString OPTION: StrToNum - Enabled")
+#else
+#pragma message ("### TString OPTION: StrToNum - Disabled")
+#endif
 
 /*!
  * \brief String and Token Management Class
@@ -279,7 +289,7 @@ private:
 	/// <param name="size">- The desired buffer size in bytes, buffer is guaranteed to be atleast this big.</param>
 	/// <returns></returns>
 	GSL_SUPPRESS(bounds.3)
-		void setup_buffer(const size_type size)
+		void setup_buffer(_In_ const size_type size)
 	{
 		m_InternalBuffer[0] = TEXT('\0');
 		if (size <= TSTRING_INTERNALBUFFERSIZE_BYTES)
@@ -321,7 +331,7 @@ private:
 	/// <typeparam name="T">Any Numeric type as defined by is_Numeric_v</typeparam>
 	/// <param name="N">- The offset to be checked</param>
 	template <TStringConcepts::IsNumeric T>
-	void CheckRange(const T& N) const
+	void CheckRange(_In_ const T& N) const
 	{
 		static_assert(is_Numeric_v<T>, "Only Numeric Types accepted.");
 
@@ -788,8 +798,8 @@ public:
 	/// </summary>
 	/// <returns>The actual string data.</returns>
 	[[nodiscard]] const_pointer_const data() const noexcept { return m_pString; }
-	//gsl::strict_not_null<const_pointer_const> data() const noexcept { return gsl::make_strict_not_null(m_pString); }
-	//pointer data() const noexcept { return m_pString; }
+	//[[nodiscard]] gsl::strict_not_null<const_pointer_const> data() const noexcept { return gsl::make_strict_not_null(m_pString); }
+	//[[nodiscard]] pointer data() const noexcept { return m_pString; }
 
 	/// <summary>
 	/// Get length of string in characters.
@@ -882,7 +892,7 @@ public:
 	/// </summary>
 	/// <param name="N">- The character offset.</param>
 	/// <returns>A reference to the character.</returns>
-	reference at(const size_type N)
+	reference at(_In_ const size_type N)
 	{
 		CheckRange(N);
 		return m_pString[N];
@@ -893,7 +903,7 @@ public:
 	/// </summary>
 	/// <param name="N">- The character offset.</param>
 	/// <returns>A copy of the character.</returns>
-	value_type at(const size_type N) const
+	value_type at(_In_ const size_type N) const
 	{
 		CheckRange(N);
 		return m_pString[N];
@@ -946,7 +956,7 @@ public:
 	/// <param name="array">- The array to compare against</param>
 	/// <returns>The index of the matching item, or zero for failure, Index is One based.</returns>
 	template <TStringConcepts::IsSupportedCompareType T, UINT iArraySize>
-	UINT acompare(const T(&array)[iArraySize]) const noexcept
+	UINT acompare(_In_z_ const T(&array)[iArraySize]) const noexcept
 	{
 		for (auto i = decltype(iArraySize){0}; i < iArraySize; ++i)
 		{
@@ -972,7 +982,7 @@ public:
 	/// <param name="N">- Nth substring to search (N = 0 > Total number of matches)</param>
 	/// <returns><para>Number of occurrences (N = 0),</para><para>Starting position of substring,</para><para>-1 if function fails or no substring was found</para></returns>
 	template <TStringConcepts::IsSupportedCompareType T>
-	int find(const T& substring, const int N) const noexcept
+	int find(_In_ const T& substring, _In_ const int N) const noexcept
 	{
 		if (!_ts_isEmpty(substring) && !_ts_isEmpty(m_pString))
 		{
@@ -1004,7 +1014,7 @@ public:
 	/// <param name="N">- The character offset to start from.</param>
 	/// <param name="M">- The character offset to finish at.</param>
 	/// <returns>A new object containing the substring</returns>
-	TString sub(int N, int M) const;
+	[[nodiscard]] TString sub(int N, int M) const;
 
 	/// <summary>
 	/// Remove extra spaces at the start and end of the string.
@@ -1023,7 +1033,7 @@ public:
 	//		rString		-	String to replace subString with (can be any of the types supported but doesnt have to be the same type as subString)
 	//						rString can also be zero, if zero then this function does a remove.
 	template <TStringConcepts::IsSupportedRemoveType T, TStringConcepts::IsSupportedRemoveType M>
-	UINT replace(const T& subString, const M& rString)
+	UINT replace(_In_ const T& subString, _In_ const M& rString)
 	{
 		if (empty())
 			return 0U;
@@ -1066,7 +1076,7 @@ public:
 	UINT mreplace(const_value_type chr, const_pointer_const fmt) noexcept;					// replace any char in fmt with chr
 
 	template <TStringConcepts::IsSupportedRemoveType T>
-	TString& remove(const T& str)
+	TString& remove(_In_ const T& str)
 	{
 		const_value_type sTmp[2]{};
 		replace(str, &sTmp[0]);
@@ -1259,7 +1269,7 @@ public:
 	size_t numtok(const_reference sepChar = SPACECHAR) const noexcept;
 #else
 	template <TStringConcepts::IsSupportedAddType T, TStringConcepts::IsSupportedSeperatorType TSepChars = const_reference>
-	void addtok(const T& tToken, TSepChars sepChars = SPACECHAR)
+	void addtok(_In_ const T& tToken, _In_ TSepChars sepChars = SPACECHAR)
 	{
 		// allows adding zero number & empty tokens.
 		if (_ts_isEmpty(sepChars))
@@ -1272,7 +1282,7 @@ public:
 	}
 
 	template <TStringConcepts::IsSupportedCompareType T, TStringConcepts::IsNumeric R = size_t, TStringConcepts::IsSupportedSeperatorType TSepChars = const_reference>
-	R findtok(const T& cToken, const UINT N, TSepChars sepChars = SPACECHAR) const
+	R findtok(_In_ const T& cToken, _In_ const UINT N, _In_ TSepChars sepChars = SPACECHAR) const
 	{
 		const auto itEnd = end();
 
@@ -1292,16 +1302,16 @@ public:
 	}
 
 	template <TStringConcepts::IsSupportedCompareType T, TStringConcepts::IsSupportedSeperatorType TSepChars = const_reference>
-	void remtok(const T& cToken, const UINT N, TSepChars sepChars = SPACECHAR)
+	void remtok(_In_ const T& cToken, _In_ const UINT N, _In_ TSepChars sepChars = SPACECHAR)
 	{
 		deltok(findtok(cToken, N, sepChars), sepChars);
 	}
 
 	template <TStringConcepts::IsSupportedCompareType T, TStringConcepts::IsSupportedSeperatorType TSepChars = const_reference>
-	auto istok(const T& cToken, TSepChars sepChars = SPACECHAR) const { return findtok<T, bool>(cToken, 1, sepChars); }
+	auto istok(_In_ const T& cToken, _In_ TSepChars sepChars = SPACECHAR) const { return findtok<T, bool>(cToken, 1, sepChars); }
 
 	template <TStringConcepts::IsSupportedAddType T, TStringConcepts::IsSupportedSeperatorType TSepChars = const_reference>
-	void instok(const T& cToken, const UINT N, TSepChars sepChars = SPACECHAR)
+	void instok(_In_ const T& cToken, _In_ const UINT N, _In_ TSepChars sepChars = SPACECHAR)
 	{
 		if (_ts_isEmpty(sepChars))
 			return;
@@ -1339,7 +1349,7 @@ public:
 	}
 
 	template <TStringConcepts::IsSupportedAddType T, TStringConcepts::IsSupportedSeperatorType TSepChars = const_reference>
-	void puttok(const T& cToken, const UINT N, TSepChars sepChars = SPACECHAR)
+	void puttok(_In_ const T& cToken, _In_ const UINT N, _In_ TSepChars sepChars = SPACECHAR)
 	{
 		if (const auto nToks = numtok(sepChars); N == 1)
 		{
@@ -1376,7 +1386,7 @@ public:
 	}
 
 	template <TStringConcepts::IsSupportedCompareType T, TStringConcepts::IsSupportedAddType M, TStringConcepts::IsSupportedSeperatorType TSepChars = const_reference>
-	void reptok(const T& cToken, const M& newToken, const UINT N, TSepChars sepChars = SPACECHAR)
+	void reptok(_In_ const T& cToken, _In_ const M& newToken, _In_ const UINT N, _In_ TSepChars sepChars = SPACECHAR)
 	{
 		if (const auto pos = findtok(cToken, N, sepChars); pos > 0)
 			puttok(newToken, pos, sepChars);
@@ -1389,7 +1399,7 @@ public:
 	*/
 
 	template <TStringConcepts::IsSupportedSeperatorType TSepChars = const_reference>
-	void deltok(const UINT N, TSepChars sepChars = SPACECHAR)
+	void deltok(_In_ const UINT N, _In_ TSepChars sepChars = SPACECHAR)
 	{
 		if (_ts_isEmpty(sepChars) || N < 1 || empty())
 			return;
@@ -1445,7 +1455,7 @@ public:
 		swap(tmp);
 	}
 
-	TString getlasttoks() const;															// gets all remaining tokens after a getfirsttok()/getnexttok() call.
+	[[nodiscard]] TString getlasttoks() const;															// gets all remaining tokens after a getfirsttok()/getnexttok() call.
 	const bool moretokens() const noexcept { return (m_savedpos != nullptr); }
 	void resettokens() const noexcept
 	{
@@ -1460,7 +1470,7 @@ public:
 	* blah
 	*/
 	template <TStringConcepts::IsSupportedSeperatorType TSepChars = const_reference>
-	TString matchtok(const_pointer_const mString, UINT N, TSepChars sepChars = SPACECHAR) const
+	[[nodiscard]] TString matchtok(_In_z_ const_pointer_const mString, _In_ const UINT N, _In_ TSepChars sepChars = SPACECHAR) const
 	{
 		auto count = decltype(N){0};
 
@@ -1485,7 +1495,7 @@ public:
 	*	sepChars = The token seperator.
 	*/
 	template <TStringConcepts::IsSupportedSeperatorType T = const_reference>
-	size_t numtok(T sepChars = SPACECHAR) const noexcept
+	size_t numtok(_In_ T sepChars = SPACECHAR) const noexcept
 	{
 		if (_ts_isEmpty(sepChars) || empty())
 			return 0U;
@@ -1502,69 +1512,8 @@ public:
 		return iCount + 1U;
 	}
 
-	//const tuple_type gettokenrange(const int nStart, const int nEnd, const_pointer sepChars) const;
-	//const tuple_type gettokenrange(const int nStart, const int nEnd, const_reference sepChars = SPACECHAR) const;
-	//template <typename TSepChars = const_reference>
-	//const TString::tuple_type gettokenrange(const int nStart, const int nEnd, TSepChars sepChars = SPACECHAR) const noexcept
-	//{
-	//	const_pointer p_cStart = m_pString, p_cEnd = nullptr, p_fEnd = last();
-	//
-	//	if (_ts_isEmpty(sepChars))
-	//		return { p_cStart, p_fEnd, decltype(m_savedtotaltoks){1} };
-	//
-	//	const auto nToks = numtok(sepChars);
-	//	auto iStart = nStart;
-	//
-	//	if (iStart < 0)
-	//		iStart += (nToks + 1);
-	//
-	//	if (p_cStart == nullptr || p_fEnd == nullptr || iStart < 1 || ((nEnd < iStart) && (nEnd != -1)) || static_cast<size_t>(iStart) > nToks)
-	//		return { nullptr, nullptr, decltype(m_savedtotaltoks){0} };
-	//
-	//	const auto bFullstring = ((static_cast<size_t>(nEnd) >= nToks) || (nEnd < 0));
-	//
-	//	const_pointer p_cFirst = nullptr, p_cLast = nullptr;
-	//	auto iCount = 0;
-	//	const auto sepl = _ts_strlen(sepChars);
-	//
-	//	while ((p_cEnd = _ts_find(p_cStart, sepChars)) != nullptr)
-	//	{
-	//		++iCount;
-	//
-	//		if (iCount == iStart)
-	//		{
-	//			p_cFirst = p_cStart;
-	//
-	//			if (bFullstring)
-	//				break;
-	//		}
-	//
-	//		if (iCount == nEnd)
-	//		{
-	//			p_cLast = p_cEnd;
-	//			break;
-	//		}
-	//
-	//		p_cStart = p_cEnd + sepl;
-	//		if (p_cStart >= p_fEnd)	// look out for overrun...
-	//			break;
-	//	}
-	//
-	//	if (bFullstring)
-	//	{
-	//		if (static_cast<size_t>(iCount) == (nToks - 1))
-	//			p_cFirst = p_cStart;
-	//
-	//		p_cLast = p_fEnd;
-	//	}
-	//	else if (static_cast<size_t>(iCount) == (nToks - 1))
-	//		p_cLast = p_cEnd;
-	//
-	//	return { p_cFirst, p_cLast, nToks };
-	//}
-
 	template <TStringConcepts::IsSupportedSeperatorType TSepChars = const_reference>
-	const TokenRange gettokenrange(const int nStart, const int nEnd, TSepChars sepChars = SPACECHAR) const noexcept
+	[[nodiscard]] const TokenRange gettokenrange(_In_ const int nStart, _In_ const int nEnd, _In_ TSepChars sepChars = SPACECHAR) const noexcept
 	{
 		const_pointer p_cStart = m_pString, p_cEnd = nullptr, p_fEnd = last();
 
@@ -1623,31 +1572,20 @@ public:
 	}
 
 	template <TStringConcepts::IsSupportedSeperatorType T = const_reference>
-	inline TString gettok(const int N, const int M, T sepChars = SPACECHAR) const
+	[[nodiscard]] inline TString gettok(_In_ const int N, _In_ const int M, _In_ T sepChars = SPACECHAR) const
 	{
 		return TString(gettokenrange(N, M, sepChars));
 	}
 
 	template <TStringConcepts::IsSupportedSeperatorType T = const_reference>
-	inline TString gettok(const int N, T sepChars = SPACECHAR) const
+	[[nodiscard]] inline TString gettok(_In_ const int N, _In_ T sepChars = SPACECHAR) const
 	{
 		return TString(gettokenrange(N, N, sepChars));
 	}
 
 	template <TStringConcepts::IsSupportedSeperatorType T = const_reference>
-	inline TString getfirsttok(const int N, T sepChars = SPACECHAR) const
+	[[nodiscard]] inline TString getfirsttok(_In_ const int N, _In_ T sepChars = SPACECHAR) const
 	{
-		//const auto rng = gettokenrange(N, N, sepChars);
-		//
-		//m_savedcurrenttok = static_cast<UINT>(N);
-		//m_savedtotaltoks = std::get<2>(rng);
-		//m_savedpos = std::get<1>(rng);
-		//
-		//if (m_savedpos != nullptr)
-		//	++m_savedpos;
-		//
-		//return rng;
-
 		const auto rng = gettokenrange(N, N, sepChars);
 
 		m_savedcurrenttok = gsl::narrow_cast<UINT>(N);
@@ -1669,14 +1607,9 @@ public:
 	*				If nullptr returns zero.
 	*/
 	template <TStringConcepts::IsNumeric T, TStringConcepts::IsSupportedSeperatorType TSepChar = const_reference>
-	T getnexttokas(TSepChar sepChars = SPACECHAR/*, bool bReCount = false*/) const
+	T getnexttokas(_In_ TSepChar sepChars = SPACECHAR) const
 	{
-		//return getnexttok(sepChars).to_<T>();
-
 		++m_savedcurrenttok;
-
-		//if (bReCount)
-		//	m_savedtotaltoks = numtok(sepChars);
 
 		if (_ts_isEmpty(sepChars) || !m_pString || !m_savedpos || m_savedcurrenttok > m_savedtotaltoks)
 			return T();
@@ -1703,15 +1636,12 @@ public:
 	*				If nullptr returns the whole current string.
 	*/
 	template <TStringConcepts::IsSupportedSeperatorType TSepChar = const_reference>
-	TString getnexttok(TSepChar sepChars = SPACECHAR/*, bool bReCount = false*/) const
+	[[nodiscard]] TString getnexttok(_In_ TSepChar sepChars = SPACECHAR) const
 	{
 		++m_savedcurrenttok;
 
 		if (_ts_isEmpty(sepChars) || !m_pString)
 			return *this;
-
-		//if (bReCount)
-		//	m_savedtotaltoks = numtok(sepChars);
 
 		if (!m_savedpos || m_savedcurrenttok > m_savedtotaltoks)
 			return TString();
@@ -1742,7 +1672,7 @@ public:
 	void sorttok(const_pointer_const sortOptions, const_pointer_const sepChars = SPACE);	// The default is an alphabetic sort, however you can specify n = numeric sort, c = channel nick prefix sort, r = reverse sort, a = alphanumeric sort.
 	void sorttok(const SortOptions& sortOptions, const_pointer_const sepChars = SPACE);		// The default is an alphabetic sort, however you can specify n = numeric sort, c = channel nick prefix sort, r = reverse sort, a = alphanumeric sort.
 
-	TString wildtok(const_pointer_const wildString, const UINT N, const_pointer_const sepChars = SPACE) const;
+	[[nodiscard]] TString wildtok(const_pointer_const wildString, const UINT N, const_pointer_const sepChars = SPACE) const;
 	UINT nwildtok(const_pointer_const wildString, const_pointer_const sepChars = SPACE) const;
 
 	template <TStringConcepts::IsTString tsType, TStringConcepts::IsPODText T = const TCHAR>
@@ -1891,8 +1821,8 @@ public:
 		//	return std::wstring_view(m_savedStart, m_savedEnd - m_savedStart);
 		//}
 
-		tsType* getPtr() const noexcept { return m_ptr; }
-		const tsType* getConstPtr() const noexcept { return m_ptr; }
+		[[nodiscard]] tsType* getPtr() const noexcept { return m_ptr; }
+		[[nodiscard]] const tsType* getConstPtr() const noexcept { return m_ptr; }
 		const size_t& getIndex() const noexcept { return m_iIndex; }
 
 		//protected:
@@ -1912,17 +1842,17 @@ public:
 	using const_iterator = tsIterator<const TString, const_value_type>;
 
 	inline iterator begin() noexcept { return iterator(this); }
-	inline iterator begin(const_pointer_const sepChars) noexcept { return iterator(this, sepChars); }
-	inline iterator begin(const_reference sepChar) noexcept { return iterator(this, sepChar); }
+	inline iterator begin(_In_z_ const_pointer_const sepChars) noexcept { return iterator(this, sepChars); }
+	inline iterator begin(_In_ const_reference sepChar) noexcept { return iterator(this, sepChar); }
 	inline iterator end() noexcept { return iterator(); }
 	inline const const_iterator begin() const noexcept { return const_iterator(this); };
-	inline const const_iterator begin(const_pointer_const sepChars) const noexcept { return const_iterator(this, sepChars); }
-	inline const const_iterator begin(const_reference sepChar) const noexcept { return const_iterator(this, sepChar); }
+	inline const const_iterator begin(_In_z_ const_pointer_const sepChars) const noexcept { return const_iterator(this, sepChars); }
+	inline const const_iterator begin(_In_ const_reference sepChar) const noexcept { return const_iterator(this, sepChar); }
 	inline const const_iterator end() const noexcept { return const_iterator(); }
 
 	// add the contents of any container class to the TString using the specified seperator (can also add other TString's like this)
 	template <TStringConcepts::IsContainer T, TStringConcepts::IsSupportedSeperatorType TS = const_reference>
-	auto& join(const T& Cont, const TS sepChars = SPACECHAR)
+	auto& join(_In_ const T& Cont, _In_ const TS sepChars = SPACECHAR)
 	{
 		for (const auto& x : Cont)
 		{
@@ -1933,7 +1863,7 @@ public:
 
 	// fill a container class with a split up TString
 	template <TStringConcepts::IsContainer T, TStringConcepts::IsSupportedSeperatorType TS = const_reference>
-	void expand(T& Cont, const TS sepChars = SPACECHAR)
+	void expand(_Inout_ T& Cont, _In_ const TS sepChars = SPACECHAR) const
 	{
 		for (auto itStart = begin(sepChars), itEnd = end(); itStart != itEnd; ++itStart)
 		{
@@ -1955,17 +1885,17 @@ public:
 #endif
 
 #if TSTRING_TESTCODE
-	template <TStringConcepts::IsSupportedCompareType T> bool iswm(const T& a) const noexcept(std::is_nothrow_move_assignable_v<T>) { return _ts_WildcardMatch(*this, a); }
-	template <TStringConcepts::IsSupportedCompareType T> bool iswmcs(const T& a) const noexcept(std::is_nothrow_move_assignable_v<T>) { return _ts_WildcardMatch(*this, a, true); }
+	template <TStringConcepts::IsSupportedCompareType T> bool iswm(_In_ const T& a) const noexcept(std::is_nothrow_move_assignable_v<T>) { return _ts_WildcardMatch(*this, a); }
+	template <TStringConcepts::IsSupportedCompareType T> bool iswmcs(_In_ const T& a) const noexcept(std::is_nothrow_move_assignable_v<T>) { return _ts_WildcardMatch(*this, a, true); }
 #else
 	bool iswm(const_pointer_const a) const noexcept;
 	bool iswmcs(const_pointer_const a) const noexcept;
 #endif
 
 	// extract left/right/mid
-	TString mid(const int pos, int n) const;
-	TString left(int n) const;
-	TString right(int n) const;
+	[[nodiscard]] TString mid(const int pos, int n) const;
+	[[nodiscard]] TString left(int n) const;
+	[[nodiscard]] TString right(int n) const;
 
 	int tsprintf(_Printf_format_string_ const_pointer_const fmt, ...);
 	int tvprintf(_Printf_format_string_ const_pointer_const fmt, va_list args);
@@ -1985,31 +1915,50 @@ public:
 		MakeTemp();
 		return m_pTempString.get();
 	}
-	ULONG to_addr() const;
+	[[nodiscard]] ULONG to_addr() const;
 
+	/// <summary>
+	/// Convert to pointer...
+	/// </summary>
+	/// <typeparam name="T"></typeparam>
+	/// <returns></returns>
 	template <TStringConcepts::IsPointer T>
-	T to_() const noexcept
+	[[nodiscard]] T to_() const noexcept
 	{
 		static_assert(std::is_pointer_v<T>, "Type T must be a pointer.");
 
 		return reinterpret_cast<T>(m_pString);
 	}
+
+	/// <summary>
+	/// Convert to numeric type
+	/// </summary>
+	/// <typeparam name="T"></typeparam>
+	/// <returns></returns>
 	template <TStringConcepts::IsNumeric T>
-	T to_() const
+	[[nodiscard]] T to_() const
 	{
 		static_assert(is_Numeric_v<T>, "Type T must be (int, long, float, double, ....)");
 
+#ifdef TSTRING_STRTONUM
+		if (!m_pString)
+			return 0;
+
+		// NB: StrToNum() has an issue with converting signed numbers into unsigned types, it will just fail.
+		return stn::StrToNum<T>(m_pString).value_or(0); // no copy made.
+#else
 		std::basic_istringstream<value_type> ss(m_pString);	// makes copy of string :(
 		T result{};
 		return ss >> result ? result : T();
+#endif
 	}
-	auto to_int() const { return to_<int>(); };
-	auto to_num() const { return to_<__int64>(); };
-	auto to_float() const { return to_<float>(); };
-	auto to_dword() const { return to_<DWORD>(); };
+	[[nodiscard]] auto to_int() const { return to_<int>(); };
+	[[nodiscard]] auto to_num() const { return to_<__int64>(); };
+	[[nodiscard]] auto to_float() const { return to_<float>(); };
+	[[nodiscard]] auto to_dword() const { return to_<DWORD>(); };
 
 	template <TStringConcepts::IsNumeric T>
-	TString& append_number(T Number)
+	TString& append_number(_In_ T Number)
 	{
 		static_assert(is_Numeric_v<T>, "Type T must be (int, long, float, double, ....)");
 
