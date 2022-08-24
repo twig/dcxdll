@@ -568,6 +568,7 @@ mIRC(_xtreebar)
 		if (d.numtok() != 3)
 			throw Dcx::dcxException("Invalid Args: An Index & a Prop are required.");
 
+		// NB: This macro returns values 0 - 32767 ok, but 32768 - 65536 are returned as negatives, & anything > 65536 returns as zero & the treeview fails to display.
 		const auto cnt = TreeView_GetCount(mIRCLinker::getTreeview());
 		const auto nHash = std::hash<TString>{}(d.getfirsttok(2));
 		auto index = d.getnexttok().to_<UINT>();
