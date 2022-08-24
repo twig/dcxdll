@@ -1112,6 +1112,7 @@ TString DcxControl::parseGlobalInfoRequest(const TString& input) const
 	}
 	break;
 	// [NAME] [ID] [PROP]
+	case L"tooltipbgcolour"_hash:
 	case L"tooltipbgcolor"_hash:
 	{
 		COLORREF cref = CLR_INVALID;
@@ -1123,6 +1124,7 @@ TString DcxControl::parseGlobalInfoRequest(const TString& input) const
 	}
 	break;
 	// [NAME] [ID] [PROP]
+	case L"tooltiptextcolour"_hash:
 	case L"tooltiptextcolor"_hash:
 	{
 		COLORREF cref = CLR_INVALID;
@@ -1140,18 +1142,21 @@ TString DcxControl::parseGlobalInfoRequest(const TString& input) const
 	}
 	break;
 	// [NAME] [ID] [PROP]
+	case L"textcolour"_hash:
 	case L"textcolor"_hash:
 	{
 		tsResult += m_clrText;
 	}
 	break;
 	// [NAME] [ID] [PROP]
+	case L"textbgcolour"_hash:
 	case L"textbgcolor"_hash:
 	{
 		tsResult += m_clrBackText;
 	}
 	break;
 	// [NAME] [ID] [PROP]
+	case L"bgcolour"_hash:
 	case L"bgcolor"_hash:
 	{
 		tsResult += m_clrBackground;

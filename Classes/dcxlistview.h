@@ -19,7 +19,7 @@
 #include "Classes/dcxcontrol.h"
 #include "Classes/dcxprogressbar.h"
 #include "Classes/tinyxml/tinyxml.h"
-#include "Classes\custom\ListHelper.h"
+#include "Classes/custom/ListHelper.h"
 
 #ifndef LVM_RESETEMPTYTEXT
 // Needed to reset the empty listview text.

@@ -238,8 +238,8 @@ public:
 
 	virtual dcxWindowStyles parseControlStyles(const TString& tsStyles) = 0;
 
-	dcxWindowStyles parseGeneralControlStyles(const TString& styles, dcxWindowStyles& ws);
-	dcxWindowStyles parseGeneralControlStyles(const TString& styles);
+	[[nodiscard]] dcxWindowStyles parseGeneralControlStyles(const TString& styles, dcxWindowStyles& ws);
+	[[nodiscard]] dcxWindowStyles parseGeneralControlStyles(const TString& styles);
 
 	bool evalAliasEx(TCHAR* const szReturn, const int maxlen, _Printf_format_string_ const TCHAR* const szFormat, ...) const;
 
@@ -259,7 +259,7 @@ public:
 	//	getParentDialog()->execAlias(_ts_sprintf(tsBuf, fmt, val, args...).to_chr());
 	//}
 
-	const UINT& getUserID() const noexcept
+	[[nodiscard]] const UINT& getUserID() const noexcept
 	{
 		return m_UserID;
 	}
@@ -293,78 +293,78 @@ public:
 	void setShadowTextState(const bool b) noexcept { m_bShadowText = b; }
 	void setControlCodeTextState(const bool b) noexcept { m_bCtrlCodeText = b; }
 
-	HFONT getFont() const noexcept;
-	const HFONT& getControlFont() const noexcept
+	[[nodiscard]] HFONT getFont() const noexcept;
+	[[nodiscard]] const HFONT& getControlFont() const noexcept
 	{
 		return this->m_hFont;
 	}
-	const HBRUSH& getBackClrBrush() const noexcept
+	[[nodiscard]] const HBRUSH& getBackClrBrush() const noexcept
 	{
 		return this->m_hBackBrush;
 	}
-	const COLORREF& getBackColor() const noexcept
+	[[nodiscard]] const COLORREF& getBackColor() const noexcept
 	{
 		return this->m_clrBackground;
 	}
-	const COLORREF& getBackTextColor() const noexcept
+	[[nodiscard]] const COLORREF& getBackTextColor() const noexcept
 	{
 		return this->m_clrBackText;
 	}
-	const COLORREF& getTextColor() const noexcept
+	[[nodiscard]] const COLORREF& getTextColor() const noexcept
 	{
 		return this->m_clrText;
 	}
-	const COLORREF& getStartGradientColor() const noexcept
+	[[nodiscard]] const COLORREF& getStartGradientColor() const noexcept
 	{
 		return m_clrStartGradient;
 	};
-	const COLORREF& getEndGradientColor() const noexcept
+	[[nodiscard]] const COLORREF& getEndGradientColor() const noexcept
 	{
 		return m_clrEndGradient;
 	};
-	const RECT getWindowPosition() const noexcept;
-	//DcxDialog* const getParentDialog() const noexcept
+	[[nodiscard]] const RECT getWindowPosition() const noexcept;
+	//[[nodiscard]] DcxDialog* const getParentDialog() const noexcept
 	//{
 	//	return m_pParentDialog;
 	//}
-	gsl::strict_not_null<DcxDialog* const> getParentDialog() const noexcept
+	[[nodiscard]] gsl::strict_not_null<DcxDialog* const> getParentDialog() const noexcept
 	{
 		return m_pParentDialog;
 	}
-	const HWND& getParentHWND() const noexcept
+	[[nodiscard]] const HWND& getParentHWND() const noexcept
 	{
 		return m_pParentHWND;
 	}
-	const HWND& getToolTipHWND() const noexcept
+	[[nodiscard]] const HWND& getToolTipHWND() const noexcept
 	{
 		return m_ToolTipHWND;
 	}
-	const HCURSOR& getControlCursor() const noexcept
+	[[nodiscard]] const HCURSOR& getControlCursor() const noexcept
 	{
 		return m_hCursor.cursor;
 	}
 
-	const inline bool& IsAlphaBlend() const noexcept
+	[[nodiscard]] const inline bool& IsAlphaBlend() const noexcept
 	{
 		return m_bAlphaBlend;
 	}
-	const inline bool IsThemed() const noexcept
+	[[nodiscard]] const inline bool IsThemed() const noexcept
 	{
 		return !m_bNoThemed;
 	}
-	const inline bool& IsShadowTextEnabled() const noexcept
+	[[nodiscard]] const inline bool& IsShadowTextEnabled() const noexcept
 	{
 		return m_bShadowText;
 	}
-	const inline bool& IsControlCodeTextEnabled() const noexcept
+	[[nodiscard]] const inline bool& IsControlCodeTextEnabled() const noexcept
 	{
 		return m_bCtrlCodeText;
 	}
-	const inline bool& IsGradientFillEnabled() const noexcept
+	[[nodiscard]] const inline bool& IsGradientFillEnabled() const noexcept
 	{
 		return m_bGradientFill;
 	}
-	const inline bool& IsGradientFillVertical() const noexcept
+	[[nodiscard]] const inline bool& IsGradientFillVertical() const noexcept
 	{
 		return m_bGradientVertical;
 	}
@@ -377,7 +377,7 @@ public:
 	{
 		--m_iRefCount;
 	};
-	inline const UINT& getRefCount() const noexcept
+	[[nodiscard]] inline const UINT& getRefCount() const noexcept
 	{
 		return m_iRefCount;
 	};
@@ -399,10 +399,10 @@ public:
 	static LRESULT CALLBACK WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 	[[nodiscard("Memory Leak")]] static DcxControl* controlFactory(gsl::strict_not_null<DcxDialog* const> p_Dialog, const UINT mID, const TString& input, const UINT offset, const DcxAllowControls mask, HWND hParent = nullptr);
 	static void DrawCtrlBackground(const HDC hdc, const DcxControl* const p_this, const RECT* const rwnd = nullptr, HTHEME hTheme = nullptr, const int iPartId = 0, const int iStateId = 0) noexcept;
-	static HBITMAP resizeBitmap(HBITMAP srcBM, const RECT* const rc) noexcept;
-	static DcxControlTypes TSTypeToControlType(const TString& t);
+	[[nodiscard]] static HBITMAP resizeBitmap(HBITMAP srcBM, const RECT* const rc) noexcept;
+	[[nodiscard]] static DcxControlTypes TSTypeToControlType(const TString& t);
 	// Convert a number into the closest icon size
-	static DcxIconSizes NumToIconSize(const int& num) noexcept;
+	[[nodiscard]] static DcxIconSizes NumToIconSize(const int& num) noexcept;
 
 	static void InitializeDcxControls();
 	static void UnInitializeDcxControls() noexcept;
@@ -481,7 +481,7 @@ protected:
 	void calcTextRect(HDC hdc, const TString& txt, LPRECT rc, const UINT style);
 
 	static void InvalidateParentRect(HWND hwnd) noexcept;
-	static const DcxColourFlags parseColorFlags(const TString& flags) noexcept;
+	[[nodiscard]] static const DcxColourFlags parseColorFlags(const TString& flags) noexcept;
 };
 
 template <class T>
