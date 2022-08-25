@@ -19,7 +19,7 @@
 #include "Dcx.h"
 
 namespace Dcx {
-	TString dcxListBox_GetText(HWND hwnd, int i)
+	[[nodiscard]] TString dcxListBox_GetText(HWND hwnd, int i)
 	{
 		TString tsBuf;
 

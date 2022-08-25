@@ -1825,7 +1825,8 @@ void mIRC_DrawText(HDC hdc, const TString& txt, LPRECT rc, const UINT style, con
 //	tmp.Render(hdc, rc, ri);
 //}
 
-struct HDCBuffer {
+struct HDCBuffer
+{
 	HDC m_hHDC{};
 	HBITMAP m_hOldBitmap{};
 	HBITMAP m_hBitmap{};
@@ -1933,19 +1934,6 @@ void DeleteHDCBuffer(gsl::owner<HDC*> hBuffer) noexcept
 
 int TGetWindowText(HWND hwnd, TString& txt)
 {
-	//if (!hwnd)
-	//	return 0;
-	//
-	//// NB: needs to include space for end 0
-	//if (const auto nText = GetWindowTextLength(hwnd) + 2; nText > 2)
-	//{
-	//	txt.reserve(gsl::narrow_cast<UINT>(nText));
-	//	if (GetWindowText(hwnd, txt.to_chr(), nText) != 0)
-	//		return nText;
-	//}
-	//txt.clear();	// txt = TEXT("");
-	//return 0;
-
 	txt = TGetWindowText(hwnd);
 	return txt.len();
 }
@@ -2000,161 +1988,6 @@ void FreeOSCompatibility() noexcept
 		DWMModule = nullptr;
 	}
 }
-
-bool isRegexMatch(const TCHAR* matchtext, const TCHAR* pattern)
-{
-	if ((!matchtext) || (!pattern))
-		return false;
-
-	const dcxSearchData srch_data(pattern, DcxSearchTypes::SEARCH_R);
-	return isRegexMatch(matchtext, srch_data);
-}
-
-bool isRegexMatch(const TCHAR* matchtext, const dcxSearchData &srch_data)
-{
-	if (!matchtext)
-		return false;
-
-	// NB: CREGEX version is incomplete
-#if DCX_USE_CREGEX
-	try {
-		if (srch_data.m_regexOpts.m_Option_S)
-		{
-			TString tsMatchText(matchtext);
-
-			std::basic_regex<TCHAR> r(srch_data.m_Opts.m_tsPattern.to_chr(), std::regex_constants::awk);
-			return std::regex_search(tsMatchText.strip().to_chr(), r);
-		}
-		else {
-			std::basic_regex<TCHAR> r(srch_data.m_Opts.m_tsPattern.to_chr(), std::regex_constants::awk);
-			return std::regex_search(tsMatchText.to_chr(), r);
-		}
-	}
-	catch (const std::regex_error) {
-	}
-	return false;
-#else
-#if DCX_USE_PCRE2
-	if (srch_data.m_regexOpts.m_UsePCRE2)
-	{
-		int res{};
-
-		if (srch_data.m_regexOpts.m_Option_S)
-		{
-			TString tsMatchText(matchtext);
-
-			res = pcre2_match(srch_data.m_regexOpts.m_re, tsMatchText.strip().to_<PCRE2_SPTR>(), PCRE2_ZERO_TERMINATED, 0, 0, srch_data.m_regexOpts.m_Match_data, nullptr);
-		}
-		else {
-			res = pcre2_match(srch_data.m_regexOpts.m_re, reinterpret_cast<PCRE2_SPTR>(matchtext), PCRE2_ZERO_TERMINATED, 0, 0, srch_data.m_regexOpts.m_Match_data, nullptr);
-		}
-		return (res > 0);
-	}
-	else {
-		stString<10> res;
-		mIRCLinker::exec(TEXT("/set -nu1 \\%dcx_text %"), matchtext);
-		mIRCLinker::exec(TEXT("/set -nu1 \\%dcx_regex %"), srch_data.m_tsSearch);
-		mIRCLinker::eval(res, TEXT("$regex(%dcx_text,%dcx_regex)"));
-
-		return (dcx_atoi(res.data()) > 0);
-	}
-#else
-	stString<10> res;
-	mIRCLinker::exec(TEXT("/set -nu1 \\%dcx_text %"), matchtext);
-	mIRCLinker::exec(TEXT("/set -nu1 \\%dcx_regex %"), srch_data.m_tsSearch);
-	mIRCLinker::eval(res, TEXT("$regex(%dcx_text,%dcx_regex)"));
-
-	return (dcx_atoi(res.data()) > 0);
-#endif
-#endif // DCX_USE_CREGEX
-}
-
-//regexOptions parseRegexOptions(const TString& tsPattern)
-//{
-//	regexOptions rOpts;
-//
-//	if (tsPattern[0] != TEXT('/'))
-//	{
-//		rOpts.m_tsPattern = tsPattern;
-//		return rOpts;
-//	}
-//	rOpts.m_tsPattern = tsPattern.gettok(2, tsPattern.numtok(TEXT('/')) - 1, TEXT('/'));
-//
-//#if DCX_USE_PCRE2
-//	UINT res{};
-//	const TString opts(tsPattern.gettok(tsPattern.numtok(TEXT('/')), TEXT('/')));
-//	for (UINT i = 0; i < opts.len(); ++i)
-//	{
-//		//	g - continue after first match
-//		//	i - case insensitive match
-//		//	m - multiple lines match
-//		//	s - dot matches newlines
-//		//	x - ignore white spaces
-//
-//		//	A - anchored - match start of string
-//		//	E / D - $ dollar matches only at end
-//		//	U - ungreedy - reverses * and*?
-//		//	u - enables UTF - 8 and UCP
-//		//	X - strict escape parsing
-//
-//		//And the following mIRC - specific modifiers :
-//		//	S - strip bold, underline, reverse, and color control codes
-//		//	F - make back - references refer to () capture groups, which is how standard regex works.
-//
-//		switch (opts[i])
-//		{
-//		case TEXT('g'):
-//			rOpts.m_Option_g = true;	// not a pcre flag, need a match loop
-//			break;
-//		case TEXT('i'):
-//			res |= PCRE2_CASELESS;
-//			break;
-//		case TEXT('m'):
-//			res |= PCRE2_MULTILINE;
-//			break;
-//		case TEXT('s'):
-//			res |= PCRE2_DOTALL;
-//			break;
-//		case TEXT('x'):
-//			res |= PCRE2_EXTENDED;
-//			break;
-//		case TEXT('A'):
-//			res |= PCRE2_ANCHORED;
-//			break;
-//		case TEXT('E'):
-//			res |= PCRE2_ENDANCHORED;
-//			break;
-//		case TEXT('D'):
-//			res |= PCRE2_DOLLAR_ENDONLY;
-//			break;
-//		case TEXT('U'):
-//			res |= PCRE2_UNGREEDY;
-//			break;
-//		case TEXT('u'):
-//			res |= PCRE2_UTF | PCRE2_UCP;
-//			break;
-//		case TEXT('S'):
-//			rOpts.m_Option_S = true;	// not a pcre flag
-//			break;
-//		case TEXT('F'):
-//			res |= 0; // ??
-//			break;
-//		case TEXT('X'):
-//			res |= 0; // ??
-//			break;
-//		case TEXT('P'):
-//			rOpts.m_UsePCRE2 = true;	// not a pcre flag
-//			break;
-//
-//		default:
-//			break;
-//		}
-//	}
-//	rOpts.m_Opts = res;
-//#endif
-//
-//	return rOpts;
-//}
 
 // taken from: https://stackoverflow.com/questions/71009055/extract-all-icons-of-a-file
 //BOOL CALLBACK EnumIcons(HMODULE hmodule, LPCTSTR type, LPTSTR lpszName,

@@ -282,6 +282,25 @@ void DcxRichEdit::parseInfoRequest(const TString& input, const refString<TCHAR, 
 		_ts_snprintf(szReturnValue, TEXT("%u %u %u %u %u"), m_clrGutter_selbkg, m_clrGutter_bkg, m_clrGutter_seltxt, m_clrGutter_txt, m_clrGutter_border);
 	}
 	break;
+	// [NAME] [ID] [PROP] {TAB}[MATCHTEXT]{TAB} [T] [N] [LINE] [SUBCHAR]
+	// [NAME] [ID] [PROP] {TAB}[MATCHTEXT]{TAB} [T] [N] [CHAR]
+	case L"find"_hash:
+	{
+		if (input.numtok() < 7)
+			throw DcxExceptions::dcxInvalidArguments();
+
+		const auto matchtext(input.getfirsttok(2, TSTABCHAR).trim());
+		if (matchtext.empty())
+			throw Dcx::dcxException("No Match text supplied");
+
+		const auto params(input.getnexttok(TSTABCHAR).trim());	// tok 3
+
+		if ((params.numtok() < 3) || (params.numtok() > 4))
+			throw DcxExceptions::dcxInvalidArguments();
+
+		szReturnValue = findTextRange(m_tsText, matchtext, params).to_chr();
+	}
+	break;
 	default:
 		parseGlobalInfoRequest(input, szReturnValue);
 	}

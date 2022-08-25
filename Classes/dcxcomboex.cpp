@@ -220,7 +220,6 @@ void DcxComboEx::parseInfoRequest(const TString& input, const refString<TCHAR, M
 	case L"find"_hash:
 	{
 		if (numtok < 6)
-			//throw Dcx::dcxException("Invalid number of arguments");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		if (const auto matchtext(input.getfirsttok(2, TSTABCHAR).trim()); !matchtext.empty())
@@ -266,7 +265,6 @@ void DcxComboEx::parseInfoRequest(const TString& input, const refString<TCHAR, M
 	case L"markeditem"_hash:
 	{
 		if (numtok != 4)
-			//throw Dcx::dcxException("Invalid number of arguments");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto nItem = input.getnexttok().to_int() - 1;	// tok 4

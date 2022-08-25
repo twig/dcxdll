@@ -142,18 +142,18 @@ public:
 	explicit DcxWindow(const UINT mID) noexcept;
 	virtual ~DcxWindow() noexcept;
 
-	bool isStyle(const WindowStyle Styles) const noexcept;
+	[[nodiscard]] bool isStyle(const WindowStyle Styles) const noexcept;
 	WindowStyle removeStyle(const WindowStyle Styles) noexcept;
 	WindowStyle addStyle(const WindowStyle Styles) noexcept;
 	WindowStyle setStyle(const WindowStyle Styles) noexcept;
-	bool isExStyle(const WindowExStyle Styles) const noexcept;
+	[[nodiscard]] bool isExStyle(const WindowExStyle Styles) const noexcept;
 	WindowExStyle removeExStyle(const WindowExStyle Styles) noexcept;
 	WindowExStyle addExStyle(const WindowExStyle Styles) noexcept;
 	WindowExStyle setExStyle(const WindowExStyle Styles) noexcept;
 
-	const HWND& getHwnd() const noexcept;
-	const UINT& getID() const noexcept;
-	const bool IsValidWindow() const noexcept { return (m_Hwnd && IsWindow(m_Hwnd)); }
+	[[nodiscard]] const HWND& getHwnd() const noexcept;
+	[[nodiscard]] const UINT& getID() const noexcept;
+	[[nodiscard]] const bool IsValidWindow() const noexcept { return (m_Hwnd && IsWindow(m_Hwnd)); }
 
 	void redrawWindow() const noexcept;
 	void redrawBufferedWindow();
@@ -169,11 +169,11 @@ public:
 		return TString();
 	}
 
-	static PTCHAR parseCursorType(const TString& cursor);
-	static DcxResourceFlags parseCursorFlags(const TString& flags) noexcept;
-	static UINT parseCursorArea(const TString& flags) noexcept;
+	[[nodiscard]] static PTCHAR parseCursorType(const TString& cursor);
+	[[nodiscard]] static DcxResourceFlags parseCursorFlags(const TString& flags) noexcept;
+	[[nodiscard]] static UINT parseCursorArea(const TString& flags) noexcept;
 	[[nodiscard("Memory Leak")]] static HIMAGELIST createImageList(bool bBigIcons = false) noexcept;
-	static dcxWindowStyles parseBorderStyles(const TString& tsFlags) noexcept;
+	[[nodiscard]] static dcxWindowStyles parseBorderStyles(const TString& tsFlags) noexcept;
 
 protected:
 	HWND m_Hwnd{ nullptr };

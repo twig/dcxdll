@@ -17,6 +17,7 @@
 
 #include "defines.h"
 #include "Classes/dcxcontrol.h"
+#include "Classes/custom/SearchHelper.h"
 
 class DcxDialog;
 
@@ -28,6 +29,7 @@ class DcxDialog;
 
 class DcxEdit final
 	: public DcxControl
+	, public DcxSearchHelper
 {
 public:
 	DcxEdit() = delete;
@@ -80,7 +82,7 @@ private:
 	void DrawClientRect(HDC hdc, unsigned int uMsg, LPARAM lParam);
 	void DrawGutter();
 	void DrawGutter(HDC hdc);
-	RECT getFmtRect() const noexcept
+	[[nodiscard]] RECT getFmtRect() const noexcept
 	{
 		RECT rc{};
 		Edit_GetRect(m_Hwnd, &rc);
@@ -107,25 +109,25 @@ private:
 
 	void setFmtRect(bool bRedraw = true) noexcept
 	{
-			if (gsl::narrow_cast<UINT>(getFmtRect().left) != (m_GutterWidth + 1)) // Edit ctrl is +1!!
-			{
-				// edit ctrl will shrink the fmt rect for some reason, so use client rect each time.
-				RECT rcClient{};
-				GetClientRect(m_Hwnd, &rcClient);
+		if (gsl::narrow_cast<UINT>(getFmtRect().left) != (m_GutterWidth + 1)) // Edit ctrl is +1!!
+		{
+			// edit ctrl will shrink the fmt rect for some reason, so use client rect each time.
+			RECT rcClient{};
+			GetClientRect(m_Hwnd, &rcClient);
 
-				rcClient.left += m_GutterWidth;
-				if (bRedraw)
-					Edit_SetRect(m_Hwnd, &rcClient);
-				else
-					Edit_SetRectNoPaint(m_Hwnd, &rcClient);
-			}
+			rcClient.left += m_GutterWidth;
+			if (bRedraw)
+				Edit_SetRect(m_Hwnd, &rcClient);
+			else
+				Edit_SetRectNoPaint(m_Hwnd, &rcClient);
+		}
 	}
-	RECT getGutterRect() const noexcept
+	[[nodiscard]] RECT getGutterRect() const noexcept
 	{
 		const RECT rcFmt{ getFmtRect() };
 		return { 0,0,rcFmt.left,rcFmt.bottom };
 	}
-	bool IsCursorOnGutter() const noexcept
+	[[nodiscard]] bool IsCursorOnGutter() const noexcept
 	{
 		if (!m_bShowLineNumbers)
 			return false;
@@ -135,7 +137,7 @@ private:
 
 		return PtInRect(&rc, pt);
 	}
-	bool IsCursorOnGutterBorder() const noexcept
+	[[nodiscard]] bool IsCursorOnGutterBorder() const noexcept
 	{
 		if (!m_bShowLineNumbers)
 			return false;
@@ -149,25 +151,38 @@ private:
 		return PtInRect(&rc, pt);
 	}
 
-	Dcx::range_t<DWORD> GetVisibleRange() const noexcept;
-	DWORD GetCaretPos() const noexcept;
-	DWORD GetCaretLine() const noexcept;
+	[[nodiscard]] Dcx::range_t<DWORD> GetVisibleRange() const noexcept;
+	[[nodiscard]] DWORD GetCaretPos() const noexcept;
+	[[nodiscard]] DWORD GetCaretLine() const noexcept;
 	void setCaretPos(DWORD pos) noexcept;
 
-	DWORD GetLineIndex(DWORD iLine) const noexcept
+	[[nodiscard]] DWORD GetLineIndex(DWORD iLine) const noexcept
 	{
 		if (!m_Hwnd)
 			return 0;
 
 		return SendMessage(m_Hwnd, EM_LINEINDEX, iLine, 0);
 	}
-	POINTL GetPosFromChar(DWORD iLineChar) const noexcept
+	[[nodiscard]] POINTL GetPosFromChar(DWORD iLineChar) const noexcept
 	{
 		POINTL pl{};
 		if (m_Hwnd)
 			SendMessage(m_Hwnd, EM_POSFROMCHAR, reinterpret_cast<WPARAM>(&pl), gsl::narrow_cast<LPARAM>(iLineChar));
 		return pl;
 	}
+
+	//struct Edit_SearchResults
+	//{
+	//	bool m_MatchFound{};
+	//	size_t m_nStart{};
+	//	size_t m_nEnd{};
+	//};
+
+	//[[nodiscard]] const DcxSearchTypes CharToSearchType(const TCHAR& cType) const noexcept;
+	//[[nodiscard]] std::optional<Edit_SearchResults> matchText(const UINT nLine, const UINT nSubChar, const TString& search, const DcxSearchTypes& SearchType) const;
+	//[[nodiscard]] std::optional<Edit_SearchResults> matchText(const UINT nChar, const TString& search, const DcxSearchTypes& SearchType) const;
+	//[[nodiscard]] std::optional<Edit_SearchResults> matchText(const UINT nChar, const dcxSearchData& srch_data) const;
+
 };
 
 #endif // _DCXEDIT_H_

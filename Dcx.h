@@ -1016,7 +1016,8 @@ namespace Dcx
 		// Gets the class name for hwnd
 		explicit dcxClassName(HWND hwnd) noexcept
 		{
-			GetClassName(hwnd, this->data(), gsl::narrow_cast<int32_t>(this->size()));
+			if (hwnd)
+				GetClassName(hwnd, this->data(), gsl::narrow_cast<int32_t>(this->size()));
 		}
 
 		~dcxClassName() = default;

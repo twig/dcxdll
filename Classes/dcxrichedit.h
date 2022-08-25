@@ -17,6 +17,7 @@
 
 #include "defines.h"
 #include "Classes/dcxcontrol.h"
+#include "Classes/custom/SearchHelper.h"
 #include <richedit.h>
 #include <sstream>
 
@@ -44,6 +45,7 @@ using LPDCXSTREAM = DCXSTREAM*;
 
 class DcxRichEdit final
 	: public DcxControl
+	, public DcxSearchHelper
 {
 public:
 	DcxRichEdit() = delete;
