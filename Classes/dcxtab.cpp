@@ -296,7 +296,6 @@ void DcxTab::parseCommandRequest(const TString& input)
 	if (xflags[TEXT('a')])
 	{
 		if (numtok < 5)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		TCITEM tci{};
@@ -372,13 +371,11 @@ void DcxTab::parseCommandRequest(const TString& input)
 	else if (xflags[TEXT('c')])
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto nItem = input.getnexttok().to_int() - 1;	// tok 4
 
 		if (nItem < 0 && nItem >= TabCtrl_GetItemCount(m_Hwnd))
-			//throw Dcx::dcxException("Invalid Item");
 			throw DcxExceptions::dcxInvalidItem();
 
 		TabCtrl_SetCurSel(m_Hwnd, nItem);
@@ -388,14 +385,12 @@ void DcxTab::parseCommandRequest(const TString& input)
 	else if (xflags[TEXT('d')])
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto nItem = input.getnexttok().to_int() - 1;	// tok 4
 
 		// if a valid item to delete
 		if (nItem < 0 && nItem >= TabCtrl_GetItemCount(m_Hwnd))
-			//throw Dcx::dcxException("Invalid Item");
 			throw DcxExceptions::dcxInvalidItem();
 
 		const auto curSel = TabCtrl_GetCurSel(m_Hwnd);
@@ -429,14 +424,12 @@ void DcxTab::parseCommandRequest(const TString& input)
 	else if (xflags[TEXT('l')])
 	{
 		if (numtok < 5)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto nItem = input.getnexttok().to_int() - 1;	// tok 4
 		const auto nIcon = input.getnexttok().to_int() - 1;	// tok 5
 
 		if (nItem < 0 && nItem >= TabCtrl_GetItemCount(m_Hwnd))
-			//throw Dcx::dcxException("Invalid Item");
 			throw DcxExceptions::dcxInvalidItem();
 
 		TCITEM tci{};
@@ -449,7 +442,6 @@ void DcxTab::parseCommandRequest(const TString& input)
 	else if (xflags[TEXT('m')])
 	{
 		if (numtok < 5)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto X = input.getnexttok().to_int();	// tok 4
@@ -466,13 +458,11 @@ void DcxTab::parseCommandRequest(const TString& input)
 	else if (xflags[TEXT('t')])
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto nItem = input.getnexttok().to_int() - 1;	// tok 4
 
 		if (nItem < 0 && nItem >= TabCtrl_GetItemCount(m_Hwnd))
-			//throw Dcx::dcxException("Invalid Item");
 			throw DcxExceptions::dcxInvalidItem();
 
 		TString itemtext;
@@ -490,29 +480,26 @@ void DcxTab::parseCommandRequest(const TString& input)
 	else if (xflags[TEXT('v')])
 	{
 		if (numtok < 5)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto nItem = input.getnexttok().to_int() - 1;		// tok 4
 		const auto pos = input.getnexttok().to_int() - 1;	// tok 5
-		bool adjustDelete = false;
+		//bool adjustDelete = false;
 
-		if (nItem < 0 && nItem >= TabCtrl_GetItemCount(m_Hwnd))
-			//throw Dcx::dcxException("Invalid Item");
+		if (nItem < 0 || nItem >= TabCtrl_GetItemCount(m_Hwnd))
 			throw DcxExceptions::dcxInvalidItem();
 
-		if (pos < 0 && pos >= TabCtrl_GetItemCount(m_Hwnd))
-			//throw Dcx::dcxException("Invalid Item");
+		if (pos < 0 || pos >= TabCtrl_GetItemCount(m_Hwnd))
 			throw DcxExceptions::dcxInvalidItem();
 
 		if (nItem == pos)
 			return;
 
 		// does the nItem index get shifted after we insert
-		if (nItem > pos)
-			adjustDelete = true;
+		//if (nItem > pos)
+		//	adjustDelete = true;
 
-		auto curSel = TabCtrl_GetCurSel(m_Hwnd);
+		auto curSel = TabCtrl_GetCurSel(m_Hwnd); // make zero based
 		if (curSel == nItem)
 			curSel = pos;
 		else if (curSel > nItem)
@@ -523,18 +510,35 @@ void DcxTab::parseCommandRequest(const TString& input)
 
 		TCITEM tci{ (TCIF_IMAGE | TCIF_PARAM | TCIF_TEXT | TCIF_STATE), 0,0,text.get(), MIRC_BUFFER_SIZE_CCH, 0, 0 };
 
-		TabCtrl_GetItem(m_Hwnd, nItem, &tci);
+		//if (!TabCtrl_GetItem(m_Hwnd, nItem, &tci))
+		//	throw DcxExceptions::dcxInvalidItem();
+		//
+		//// insert it into the new position
+		//if (TabCtrl_InsertItem(m_Hwnd, pos, &tci) == -1)
+		//	throw DcxExceptions::dcxInvalidItem();
+		//
+		//// remove the old tab item
+		//if (!TabCtrl_DeleteItem(m_Hwnd, (adjustDelete ? nItem + 1 : nItem)))
+		//	throw DcxExceptions::dcxInvalidItem();
 
-		// insert it into the new position
-		TabCtrl_InsertItem(m_Hwnd, pos, &tci);
+		if (!TabCtrl_GetItem(m_Hwnd, nItem, &tci))
+			throw DcxExceptions::dcxInvalidItem();
 
 		// remove the old tab item
-		TabCtrl_DeleteItem(m_Hwnd, (adjustDelete ? nItem + 1 : nItem));
+		if (!TabCtrl_DeleteItem(m_Hwnd, nItem))
+			throw DcxExceptions::dcxInvalidItem();
+
+		// insert it into the new position
+		if (TabCtrl_InsertItem(m_Hwnd, pos, &tci) == -1)
+			throw DcxExceptions::dcxInvalidItem();
 
 		// select the next tab item if its the current one
 		if (curSel >= 0)
 		{
 			TabCtrl_SetCurSel(m_Hwnd, curSel);
+
+			//if (TabCtrl_SetCurSel(m_Hwnd, curSel) == -1)
+			//	throw DcxExceptions::dcxInvalidItem();
 
 			this->activateSelectedTab();
 		}
@@ -543,7 +547,6 @@ void DcxTab::parseCommandRequest(const TString& input)
 	else if (xflags[TEXT('w')])
 	{
 		if (numtok < 6)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto flag(input.getnexttok());		// tok 4
@@ -584,7 +587,6 @@ void DcxTab::parseCommandRequest(const TString& input)
 	else if (xflags[TEXT('m')])
 	{
 		if (numtok < 5)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const XSwitchFlags xFlags(input.getnexttok());	// tok 4
