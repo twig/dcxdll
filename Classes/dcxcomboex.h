@@ -81,13 +81,14 @@ public:
 
 	LRESULT insertItem( const PCOMBOBOXEXITEM lpcCBItem ) noexcept;
 	LRESULT getItem( const PCOMBOBOXEXITEM lpcCBItem ) const noexcept;
-	HWND getEditControl( ) const noexcept;
+	[[nodiscard]] HWND getEditControl( ) const noexcept;
+	[[nodiscard]] HWND getComboControl() const noexcept;
 	LRESULT deleteItem( const int iIndex ) noexcept;
 	LRESULT setCurSel( const int iIndex )  noexcept;
 	LRESULT getCurSel( ) const noexcept;
 	LRESULT getLBText( const int iIndex, LPSTR lps ) noexcept;
 	LRESULT resetContent( ) noexcept;
-	LRESULT getCount( ) const noexcept;
+	[[nodiscard]] LRESULT getCount( ) const noexcept;
 	LRESULT limitText( const int iLimit ) noexcept;
 
 	static LRESULT CALLBACK ComboExEditProc( HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam ) noexcept;

@@ -76,7 +76,7 @@ public:
 
 	void deleteLParamInfo( const int nItem ) noexcept;
 	void activateSelectedTab( );
-	void getTab(const int index, const LPTCITEM tcItem) const noexcept;
+	bool getTab(const int index, const LPTCITEM tcItem) const noexcept;
 	int getTabCount() const noexcept;
 
 #if DCX_USE_GDIPLUS

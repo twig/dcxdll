@@ -69,7 +69,7 @@ DcxTab::~DcxTab() noexcept
 {
 	ImageList_Destroy(this->getImageList());
 
-	const auto nItems = TabCtrl_GetItemCount(m_Hwnd);
+	const auto nItems = getTabCount();
 	for (auto n = decltype(nItems){0}; n < nItems; ++n)
 		this->deleteLParamInfo(n);
 }
@@ -169,16 +169,16 @@ void DcxTab::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC_
 
 		const auto nItem = input.getnexttok().to_int() - 1;	// tok 4
 
-		if (nItem < 0 || nItem >= TabCtrl_GetItemCount(m_Hwnd))
+		if (nItem < 0 || nItem >= getTabCount())
 			throw DcxExceptions::dcxInvalidItem();
 
 		TCITEM tci{ TCIF_TEXT,0,0, szReturnValue, MIRC_BUFFER_SIZE_CCH,0,0 };
 
-		TabCtrl_GetItem(m_Hwnd, nItem, &tci);
+		getTab(nItem, &tci);
 	}
 	break;
 	case L"num"_hash:
-		_ts_snprintf(szReturnValue, TEXT("%d"), TabCtrl_GetItemCount(m_Hwnd));
+		_ts_snprintf(szReturnValue, TEXT("%d"), getTabCount());
 		break;
 		// [NAME] [ID] [PROP] [N]
 	case L"icon"_hash:
@@ -188,12 +188,12 @@ void DcxTab::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC_
 
 		const auto iTab = input.getnexttok().to_int() - 1;		// tok 4
 
-		if (iTab < 0 || iTab >= TabCtrl_GetItemCount(m_Hwnd))
+		if (iTab < 0 || iTab >= getTabCount())
 			throw DcxExceptions::dcxInvalidItem();
 
 		TCITEM tci{ TCIF_IMAGE,0U,0U, nullptr, 0, 0, 0 };
 
-		TabCtrl_GetItem(m_Hwnd, iTab, &tci);
+		getTab(iTab, &tci);
 
 		_ts_snprintf(szReturnValue, TEXT("%d"), tci.iImage + 1);
 	}
@@ -202,7 +202,7 @@ void DcxTab::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC_
 	{
 		const auto nItem = TabCtrl_GetCurSel(m_Hwnd);
 
-		if (nItem < 0 || nItem >= TabCtrl_GetItemCount(m_Hwnd))
+		if (nItem < 0 || nItem >= getTabCount())
 			throw DcxExceptions::dcxInvalidItem();
 
 		_ts_snprintf(szReturnValue, TEXT("%d"), nItem + 1);
@@ -212,12 +212,12 @@ void DcxTab::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC_
 	{
 		const auto nItem = TabCtrl_GetCurSel(m_Hwnd);
 
-		if (nItem < 0 || nItem >= TabCtrl_GetItemCount(m_Hwnd))
+		if (nItem < 0 || nItem >= getTabCount())
 			throw DcxExceptions::dcxInvalidItem();
 
 		TCITEM tci{ TCIF_TEXT,0U,0U, szReturnValue, MIRC_BUFFER_SIZE_CCH, 0, 0 };
 
-		TabCtrl_GetItem(m_Hwnd, nItem, &tci);
+		getTab(nItem, &tci);
 	}
 	break;
 	case L"childid"_hash:
@@ -227,12 +227,12 @@ void DcxTab::parseInfoRequest(const TString& input, const refString<TCHAR, MIRC_
 
 		const auto nItem = input.getnexttok().to_int() - 1;	// tok 4
 
-		if (nItem < 0 || nItem >= TabCtrl_GetItemCount(m_Hwnd))
+		if (nItem < 0 || nItem >= getTabCount())
 			throw DcxExceptions::dcxInvalidItem();
 
 		TCITEM tci{ TCIF_PARAM,0U,0U, nullptr, 0, 0, 0 };
 
-		if (TabCtrl_GetItem(m_Hwnd, nItem, &tci))
+		if (getTab(nItem, &tci))
 		{
 			if (const auto lpdtci = reinterpret_cast<LPDCXTCITEM>(tci.lParam); lpdtci)
 			{
@@ -271,7 +271,7 @@ void DcxTab::parseCommandRequest(const TString& input)
 	if (xflags[TEXT('r')])
 	{
 		TCITEM tci{};
-		const auto nItems = TabCtrl_GetItemCount(m_Hwnd);
+		const auto nItems = getTabCount();
 
 		for (auto n = decltype(nItems){0}; n < nItems; ++n)
 		{
@@ -279,7 +279,7 @@ void DcxTab::parseCommandRequest(const TString& input)
 
 			tci.mask = TCIF_PARAM;
 
-			if (TabCtrl_GetItem(m_Hwnd, n, &tci))
+			if (getTab(n, &tci))
 			{
 				if (auto lpdtci = reinterpret_cast<LPDCXTCITEM>(tci.lParam); lpdtci != nullptr && lpdtci->mChildHwnd != nullptr && IsWindow(lpdtci->mChildHwnd))
 				{
@@ -318,7 +318,7 @@ void DcxTab::parseCommandRequest(const TString& input)
 		auto nIndex = data.getfirsttok(4).to_int() - 1;
 
 		if (nIndex < 0)
-			nIndex = TabCtrl_GetItemCount(m_Hwnd);
+			nIndex = getTabCount();
 
 		tci.iImage = data.getnexttok().to_int() - 1;	// tok 5
 
@@ -375,7 +375,7 @@ void DcxTab::parseCommandRequest(const TString& input)
 
 		const auto nItem = input.getnexttok().to_int() - 1;	// tok 4
 
-		if (nItem < 0 && nItem >= TabCtrl_GetItemCount(m_Hwnd))
+		if (nItem < 0 && nItem >= getTabCount())
 			throw DcxExceptions::dcxInvalidItem();
 
 		TabCtrl_SetCurSel(m_Hwnd, nItem);
@@ -390,7 +390,7 @@ void DcxTab::parseCommandRequest(const TString& input)
 		const auto nItem = input.getnexttok().to_int() - 1;	// tok 4
 
 		// if a valid item to delete
-		if (nItem < 0 && nItem >= TabCtrl_GetItemCount(m_Hwnd))
+		if (nItem < 0 && nItem >= getTabCount())
 			throw DcxExceptions::dcxInvalidItem();
 
 		const auto curSel = TabCtrl_GetCurSel(m_Hwnd);
@@ -398,7 +398,7 @@ void DcxTab::parseCommandRequest(const TString& input)
 
 		tci.mask = TCIF_PARAM;
 
-		if (TabCtrl_GetItem(m_Hwnd, nItem, &tci))
+		if (getTab(nItem, &tci))
 		{
 			if (auto lpdtci = reinterpret_cast<LPDCXTCITEM>(tci.lParam); lpdtci && lpdtci->mChildHwnd && IsWindow(lpdtci->mChildHwnd))
 			{
@@ -410,7 +410,7 @@ void DcxTab::parseCommandRequest(const TString& input)
 		TabCtrl_DeleteItem(m_Hwnd, nItem);
 
 		// select the next tab item if its the current one
-		if (const auto iTotal = TabCtrl_GetItemCount(m_Hwnd); ((curSel == nItem) && (iTotal > 0)))
+		if (const auto iTotal = getTabCount(); ((curSel == nItem) && (iTotal > 0)))
 		{
 			if (nItem < iTotal)
 				TabCtrl_SetCurSel(m_Hwnd, nItem);
@@ -429,7 +429,7 @@ void DcxTab::parseCommandRequest(const TString& input)
 		const auto nItem = input.getnexttok().to_int() - 1;	// tok 4
 		const auto nIcon = input.getnexttok().to_int() - 1;	// tok 5
 
-		if (nItem < 0 && nItem >= TabCtrl_GetItemCount(m_Hwnd))
+		if (nItem < 0 && nItem >= getTabCount())
 			throw DcxExceptions::dcxInvalidItem();
 
 		TCITEM tci{};
@@ -462,7 +462,7 @@ void DcxTab::parseCommandRequest(const TString& input)
 
 		const auto nItem = input.getnexttok().to_int() - 1;	// tok 4
 
-		if (nItem < 0 && nItem >= TabCtrl_GetItemCount(m_Hwnd))
+		if (nItem < 0 && nItem >= getTabCount())
 			throw DcxExceptions::dcxInvalidItem();
 
 		TString itemtext;
@@ -486,10 +486,10 @@ void DcxTab::parseCommandRequest(const TString& input)
 		const auto pos = input.getnexttok().to_int() - 1;	// tok 5
 		//bool adjustDelete = false;
 
-		if (nItem < 0 || nItem >= TabCtrl_GetItemCount(m_Hwnd))
+		if (nItem < 0 || nItem >= getTabCount())
 			throw DcxExceptions::dcxInvalidItem();
 
-		if (pos < 0 || pos >= TabCtrl_GetItemCount(m_Hwnd))
+		if (pos < 0 || pos >= getTabCount())
 			throw DcxExceptions::dcxInvalidItem();
 
 		if (nItem == pos)
@@ -521,7 +521,7 @@ void DcxTab::parseCommandRequest(const TString& input)
 		//if (!TabCtrl_DeleteItem(m_Hwnd, (adjustDelete ? nItem + 1 : nItem)))
 		//	throw DcxExceptions::dcxInvalidItem();
 
-		if (!TabCtrl_GetItem(m_Hwnd, nItem, &tci))
+		if (!getTab(nItem, &tci))
 			throw DcxExceptions::dcxInvalidItem();
 
 		// remove the old tab item
@@ -635,7 +635,7 @@ void DcxTab::deleteLParamInfo(const int nItem) noexcept
 {
 	TCITEM tci{ TCIF_PARAM, 0,0,nullptr, 0, 0, 0 };
 
-	if (TabCtrl_GetItem(m_Hwnd, nItem, &tci))
+	if (getTab(nItem, &tci))
 	{
 		const auto lpdtci = reinterpret_cast<LPDCXTCITEM>(tci.lParam);
 
@@ -651,7 +651,7 @@ void DcxTab::deleteLParamInfo(const int nItem) noexcept
 
 void DcxTab::activateSelectedTab()
 {
-	auto nTab = TabCtrl_GetItemCount(m_Hwnd);
+	auto nTab = getTabCount();
 	const auto nSel = TabCtrl_GetCurSel(m_Hwnd);
 
 	if (nTab <= 0)
@@ -680,7 +680,7 @@ void DcxTab::activateSelectedTab()
 
 	while (nTab-- > 0)
 	{
-		if (!TabCtrl_GetItem(m_Hwnd, nTab, &tci))
+		if (!getTab(nTab, &tci))
 			continue;
 
 		if (auto lpdtci = reinterpret_cast<LPDCXTCITEM>(tci.lParam); lpdtci)
@@ -716,13 +716,19 @@ void DcxTab::activateSelectedTab()
 		EndDeferWindowPos(hdwp);
 }
 
-void DcxTab::getTab(const int index, const LPTCITEM tcItem) const noexcept
+bool DcxTab::getTab(const int index, const LPTCITEM tcItem) const noexcept
 {
-	TabCtrl_GetItem(m_Hwnd, index, tcItem);
+	if (!m_Hwnd)
+		return false;
+
+	return (TabCtrl_GetItem(m_Hwnd, index, tcItem) != FALSE);
 }
 
 int DcxTab::getTabCount() const noexcept
 {
+	if (!m_Hwnd)
+		return -1;
+
 	return TabCtrl_GetItemCount(m_Hwnd);
 }
 
@@ -798,7 +804,7 @@ void DcxTab::toXml(TiXmlElement* const xml) const
 		tci.cchTextMax = MIRC_BUFFER_SIZE_CCH - 1;
 		tci.pszText = buf.get();
 		tci.mask |= TCIF_TEXT;
-		if (TabCtrl_GetItem(m_Hwnd, i, &tci))
+		if (getTab(i, &tci))
 		{
 			if (const auto lpdtci = reinterpret_cast<LPDCXTCITEM>(tci.lParam); lpdtci)
 			{
@@ -928,7 +934,7 @@ LRESULT DcxTab::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPa
 
 		TCITEM tci{ TCIF_TEXT | TCIF_IMAGE | TCIF_STATE, 0, TCIS_HIGHLIGHTED, &szLabel[0], MIRC_BUFFER_SIZE_CCH, 0, 0 };
 
-		if (!TabCtrl_GetItem(getHwnd(), nTabIndex, &tci))
+		if (!getTab(nTabIndex, &tci))
 		{
 			showError(nullptr, TEXT("DcxTab Fatal Error"), TEXT("Invalid item"));
 			break;

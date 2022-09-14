@@ -65,7 +65,7 @@ DcxComboEx::DcxComboEx(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_D
 		SetWindowLongPtr(this->m_EditHwnd, GWLP_USERDATA, reinterpret_cast<LONG>(&this->m_exEdit));
 	}
 
-	this->m_hComboHwnd = reinterpret_cast<HWND>(SendMessage(m_Hwnd, CBEM_GETCOMBOCONTROL, 0, 0));
+	this->m_hComboHwnd = getComboControl();
 	if (IsWindow(this->m_hComboHwnd))
 	{
 		if (ws.m_NoTheme)
@@ -337,7 +337,7 @@ void DcxComboEx::parseCommandRequest(const TString& input)
 				throw Dcx::dcxException("Unable to add item.");
 			}
 			// Now update the horizontal scroller
-			if (const auto combo = reinterpret_cast<HWND>(SendMessage(m_Hwnd, CBEM_GETCOMBOCONTROL, 0, 0)); IsWindow(combo))
+			if (const auto combo = getComboControl(); IsWindow(combo))
 			{
 				// Get Font sizes (best way i can find atm, if you know something better then please let me know)
 
@@ -601,6 +601,9 @@ bool DcxComboEx::matchItemText(const int nItem, const dcxSearchData &srch_data) 
 
 LRESULT DcxComboEx::insertItem(const PCOMBOBOXEXITEM lpcCBItem) noexcept
 {
+	if (!m_Hwnd)
+		return -1;
+
 	return SendMessage(m_Hwnd, CBEM_INSERTITEM, 0U, reinterpret_cast<LPARAM>(lpcCBItem));
 }
 
@@ -612,6 +615,9 @@ LRESULT DcxComboEx::insertItem(const PCOMBOBOXEXITEM lpcCBItem) noexcept
 
 LRESULT DcxComboEx::getItem(const PCOMBOBOXEXITEM lpcCBItem) const noexcept
 {
+	if (!m_Hwnd)
+		return 0;
+
 	return SendMessage(m_Hwnd, CBEM_GETITEM, 0U, reinterpret_cast<LPARAM>(lpcCBItem));
 }
 
@@ -623,7 +629,18 @@ LRESULT DcxComboEx::getItem(const PCOMBOBOXEXITEM lpcCBItem) const noexcept
 
 HWND DcxComboEx::getEditControl() const noexcept
 {
+	if (!m_Hwnd)
+		return nullptr;
+
 	return reinterpret_cast<HWND>(SendMessage(m_Hwnd, CBEM_GETEDITCONTROL, 0U, 0));
+}
+
+HWND DcxComboEx::getComboControl() const noexcept
+{
+	if (!m_Hwnd)
+		return nullptr;
+
+	return reinterpret_cast<HWND>(SendMessage(m_Hwnd, CBEM_GETCOMBOCONTROL, 0, 0));
 }
 
 /*!
@@ -634,6 +651,9 @@ HWND DcxComboEx::getEditControl() const noexcept
 
 LRESULT DcxComboEx::deleteItem(const int iIndex) noexcept
 {
+	if (!m_Hwnd)
+		return CB_ERR;
+
 	return SendMessage(m_Hwnd, CBEM_DELETEITEM, gsl::narrow_cast<WPARAM>(iIndex), 0);
 }
 
@@ -645,6 +665,9 @@ LRESULT DcxComboEx::deleteItem(const int iIndex) noexcept
 
 LRESULT DcxComboEx::setCurSel(const int iIndex) noexcept
 {
+	if (!m_Hwnd)
+		return CB_ERR;
+
 	return SendMessage(m_Hwnd, CB_SETCURSEL, gsl::narrow_cast<WPARAM>(iIndex), 0);
 }
 
@@ -656,6 +679,9 @@ LRESULT DcxComboEx::setCurSel(const int iIndex) noexcept
 
 LRESULT DcxComboEx::getCurSel() const noexcept
 {
+	if (!m_Hwnd)
+		return CB_ERR;
+
 	return SendMessage(m_Hwnd, CB_GETCURSEL, 0U, 0);
 }
 
@@ -667,6 +693,9 @@ LRESULT DcxComboEx::getCurSel() const noexcept
 
 LRESULT DcxComboEx::getLBText(const int iIndex, LPSTR lps) noexcept
 {
+	if (!m_Hwnd)
+		return CB_ERR;
+
 	return SendMessage(m_Hwnd, CB_GETLBTEXT, gsl::narrow_cast<WPARAM>(iIndex), reinterpret_cast<LPARAM>(lps));
 }
 
@@ -678,6 +707,9 @@ LRESULT DcxComboEx::getLBText(const int iIndex, LPSTR lps) noexcept
 
 LRESULT DcxComboEx::resetContent() noexcept
 {
+	if (!m_Hwnd)
+		return CB_OKAY;
+
 	return SendMessage(m_Hwnd, CB_RESETCONTENT, 0U, 0);
 }
 
@@ -689,6 +721,9 @@ LRESULT DcxComboEx::resetContent() noexcept
 
 LRESULT DcxComboEx::getCount() const noexcept
 {
+	if (!m_Hwnd)
+		return CB_ERR;
+
 	return SendMessage(m_Hwnd, CB_GETCOUNT, 0U, 0);
 }
 
@@ -700,6 +735,9 @@ LRESULT DcxComboEx::getCount() const noexcept
 
 LRESULT DcxComboEx::limitText(const int iLimit) noexcept
 {
+	if (!m_Hwnd)
+		return TRUE;
+
 	return SendMessage(m_Hwnd, CB_LIMITTEXT, gsl::narrow_cast<WPARAM>(iLimit), 0);
 }
 
