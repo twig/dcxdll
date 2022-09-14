@@ -523,9 +523,9 @@ void DcxComboEx::parseCommandRequest(const TString& input)
 
 		if (himl)
 		{
-			const auto flag(input++);				// tok 4
-			const auto index = input++.to_<int>();	// tok 5
-			auto filename(input++);					// tok 6, -1
+			const auto flag(input.getnexttok());				// tok 4
+			const auto index = input.getnexttok().to_<int>();	// tok 5
+			auto filename(input.getlasttoks());					// tok 6, -1
 #if DCX_USE_WRAPPERS
 			const Dcx::dcxIconResource icon(index, filename, false, flag);
 
