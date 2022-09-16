@@ -649,6 +649,8 @@ void DcxReBar::parseCommandRequest(const TString& input)
 
 		if (this->moveBand(gsl::narrow_cast<UINT>(nIndexFrom), gsl::narrow_cast<UINT>(nIndexTo)) == 0)
 			throw Dcx::dcxException("Move failed");
+
+		SendMessage(m_Hwnd, WM_SIZE, 0, 0); // NB: redraw does nothing here, needs a size to force the update.
 	}
 	// xdid -w [NAME] [ID] [SWITCH] [+FLAGS] [INDEX] [FILENAME]
 	else if (flags[TEXT('w')])
