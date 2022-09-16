@@ -41,7 +41,6 @@ DcxReBar::DcxReBar(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialo
 		this);
 
 	if (!IsWindow(m_Hwnd))
-		//throw Dcx::dcxException("Unable To Create Window");
 		throw DcxExceptions::dcxUnableToCreateWindow();
 
 	if (ws.m_NoTheme)
@@ -260,13 +259,12 @@ void DcxReBar::parseInfoRequest(const TString& input, const refString<TCHAR, MIR
 	case L"text"_hash:
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Invalid number of arguments");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto nIndex = input.getnexttok().to_int() - 1;	// tok 4
 
 		if (nIndex < 0 || nIndex >= this->getBandCount())
-			throw Dcx::dcxException("Invalid Index");
+			throw DcxExceptions::dcxInvalidItem();
 
 		REBARBANDINFO rbBand{};
 		rbBand.cbSize = sizeof(REBARBANDINFO);
@@ -280,13 +278,12 @@ void DcxReBar::parseInfoRequest(const TString& input, const refString<TCHAR, MIR
 	case L"childid"_hash:
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Invalid number of arguments");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto n = input.getnexttok().to_int() - 1; // tok 4
 
 		if (n < 0 || n >= this->getBandCount())
-			throw Dcx::dcxException("Invalid Index");
+			throw DcxExceptions::dcxInvalidItem();
 
 		if (const auto* const c = this->getControl(n); c)
 			_ts_snprintf(szReturnValue, TEXT("%u"), c->getUserID());
@@ -298,7 +295,7 @@ void DcxReBar::parseInfoRequest(const TString& input, const refString<TCHAR, MIR
 		const auto n = input.getnexttok().to_int() - 1;	// tok 4
 
 		if (n < 0 || n >= this->getBandCount())
-			throw Dcx::dcxException("Invalid Index");
+			throw DcxExceptions::dcxInvalidItem();
 
 		REBARBANDINFO rbi{};
 		rbi.cbSize = sizeof(REBARBANDINFO);
@@ -442,7 +439,7 @@ void DcxReBar::parseCommandRequest(const TString& input)
 		const auto n = input.getnexttok().to_int() - 1;	// tok 4
 
 		if (n < 0 || n >= getBandCount())
-			throw Dcx::dcxException("Invalid Index");
+			throw DcxExceptions::dcxInvalidItem();
 
 		REBARBANDINFO rbi{};
 		rbi.cbSize = sizeof(REBARBANDINFO);
@@ -461,7 +458,7 @@ void DcxReBar::parseCommandRequest(const TString& input)
 		const auto nIndex = input.getnexttok().to_int() - 1;	// tok 4
 
 		if (nIndex < 0 || nIndex >= this->getBandCount())
-			throw Dcx::dcxException("Invalid Index");
+			throw DcxExceptions::dcxInvalidItem();
 
 		this->deleteBand(gsl::narrow_cast<UINT>(nIndex));
 	}
@@ -474,7 +471,7 @@ void DcxReBar::parseCommandRequest(const TString& input)
 		const auto nIndex = input.getnexttok().to_int() - 1;	// tok 4
 
 		if (nIndex < 0 || nIndex >= this->getBandCount())
-			throw Dcx::dcxException("Invalid Index");
+			throw DcxExceptions::dcxInvalidItem();
 
 		this->showBand(gsl::narrow_cast<UINT>(nIndex), FALSE);
 	}
@@ -487,7 +484,7 @@ void DcxReBar::parseCommandRequest(const TString& input)
 		const auto nIndex = input.getnexttok().to_int() - 1;	// tok 4
 
 		if (nIndex < 0 || nIndex >= this->getBandCount())
-			throw Dcx::dcxException("Invalid Index");
+			throw DcxExceptions::dcxInvalidItem();
 
 		this->showBand(gsl::narrow_cast<UINT>(nIndex), TRUE);
 	}
@@ -505,7 +502,7 @@ void DcxReBar::parseCommandRequest(const TString& input)
 		const auto nIcon = input.getnexttok().to_int() - 1;	// tok 5
 
 		if (nIndex < 0 || nIcon < -1 || nIndex >= this->getBandCount())
-			throw Dcx::dcxException("Invalid Index");
+			throw DcxExceptions::dcxInvalidItem();
 
 		// Ook: TODO add check for nIcon being valid
 		rbBand.iImage = nIcon;
@@ -539,7 +536,7 @@ void DcxReBar::parseCommandRequest(const TString& input)
 			const auto nIndex = tsItem.to_int() - 1;
 
 			if (nIndex < 0 || nIndex >= nItems || this->getBandInfo(nIndex, &rbBand) == 0)
-				throw Dcx::dcxException("Invalid Index");
+				throw DcxExceptions::dcxInvalidItem();
 
 			rbBand.fStyle |= RBBS_NOGRIPPER;
 			this->setBandInfo(nIndex, &rbBand);
@@ -554,7 +551,7 @@ void DcxReBar::parseCommandRequest(const TString& input)
 		const auto nIndex = input.getnexttok().to_int() - 1;	// tok 4
 
 		if (nIndex < 0 || nIndex >= this->getBandCount())
-			throw Dcx::dcxException("Invalid Index");
+			throw DcxExceptions::dcxInvalidItem();
 
 		this->maxBand(nIndex, FALSE);
 	}
@@ -567,7 +564,7 @@ void DcxReBar::parseCommandRequest(const TString& input)
 		const auto nIndex = input.getnexttok().to_int() - 1;	// tok 4
 
 		if (nIndex < 0 || nIndex >= this->getBandCount())
-			throw Dcx::dcxException("Invalid Index");
+			throw DcxExceptions::dcxInvalidItem();
 
 		this->minBand(nIndex, FALSE);
 	}
@@ -594,7 +591,7 @@ void DcxReBar::parseCommandRequest(const TString& input)
 
 		const auto nIndex = input.getnexttok().to_int() - 1;	// tok 4
 		if (nIndex < 0 || nIndex >= this->getBandCount())
-			throw Dcx::dcxException("Invalid Index");
+			throw DcxExceptions::dcxInvalidItem();
 
 		TString itemtext;
 		if (numtok > 4)
@@ -631,7 +628,7 @@ void DcxReBar::parseCommandRequest(const TString& input)
 			const auto nIndex = tsItem.to_int() - 1;
 
 			if (nIndex < 0 || nIndex >= nItems || this->getBandInfo(gsl::narrow_cast<UINT>(nIndex), &rbBand) == 0)
-				throw Dcx::dcxException("Invalid Index");
+				throw DcxExceptions::dcxInvalidItem();
 
 			rbBand.fStyle &= ~RBBS_NOGRIPPER;
 			this->setBandInfo(gsl::narrow_cast<UINT>(nIndex), &rbBand);
@@ -648,9 +645,10 @@ void DcxReBar::parseCommandRequest(const TString& input)
 		const auto nItems = this->getBandCount();
 
 		if (nIndexFrom < 0 || nIndexFrom >= nItems || nIndexTo < 0 || nIndexTo >= nItems)
-			throw Dcx::dcxException("Invalid Index");
+			throw DcxExceptions::dcxInvalidItem();
 
-		this->moveBand(gsl::narrow_cast<UINT>(nIndexFrom), gsl::narrow_cast<UINT>(nIndexTo));
+		if (this->moveBand(gsl::narrow_cast<UINT>(nIndexFrom), gsl::narrow_cast<UINT>(nIndexTo)) == 0)
+			throw Dcx::dcxException("Move failed");
 	}
 	// xdid -w [NAME] [ID] [SWITCH] [+FLAGS] [INDEX] [FILENAME]
 	else if (flags[TEXT('w')])
