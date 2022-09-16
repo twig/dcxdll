@@ -88,6 +88,12 @@
     <Filter Include="Header Files\pcre2">
       <UniqueIdentifier>{d365003a-cb1c-4a32-8b17-957807c1acf7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\DirectShow">
+      <UniqueIdentifier>{cb450104-2e58-444b-a117-f03f14829fb7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Directshow">
+      <UniqueIdentifier>{8b1631f5-3af6-4f19-aaaf-efc8a6257cba}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Dcx.cpp">
@@ -329,6 +335,12 @@
     </ClCompile>
     <ClCompile Include="DcxDPIModule.cpp">
       <Filter>Source Files\Modules</Filter>
+    </ClCompile>
+    <ClCompile Include="Classes\Directshow\video.cpp">
+      <Filter>Source Files\DirectShow</Filter>
+    </ClCompile>
+    <ClCompile Include="Classes\custom\SearchHelper.cpp">
+      <Filter>Source Files\Controls\Custom</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -577,6 +589,15 @@
     </ClInclude>
     <ClInclude Include="pcre2\pcre2.h">
       <Filter>Header Files\pcre2</Filter>
+    </ClInclude>
+    <ClInclude Include="Classes\Directshow\video.h">
+      <Filter>Header Files\Directshow</Filter>
+    </ClInclude>
+    <ClInclude Include="Classes\Directshow\dshowutil.h">
+      <Filter>Header Files\Directshow</Filter>
+    </ClInclude>
+    <ClInclude Include="Classes\custom\SearchHelper.h">
+      <Filter>Header Files\Controls\Custom</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

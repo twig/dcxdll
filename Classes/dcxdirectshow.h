@@ -374,9 +374,9 @@ protected:
 	HRESULT SetVideoPos(void);
 	void ReleaseAll(void) noexcept;
 
-	enum Properties : UINT { PROP_AUTHOR = 0, PROP_TITLE, PROP_RATING, PROP_DESCRIPTION };
+	enum class Properties : UINT { PROP_AUTHOR = 0, PROP_TITLE, PROP_RATING, PROP_DESCRIPTION };
 
-	HRESULT getProperty(const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>& prop, const int type) const noexcept;
+	HRESULT getProperty(const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>& prop, const Properties type) const noexcept;
 	HRESULT setAlpha(float alpha);
 	HRESULT setVideo(const TString& flags, const float brightness, const float contrast, const float hue, const float saturation);
 	HRESULT getVideo(VMR9ProcAmpControl* amc) const;

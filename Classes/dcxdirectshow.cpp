@@ -151,11 +151,11 @@ void DcxDirectshow::parseInfoRequest(const TString& input, const refString<TCHAR
 		break;
 		// [NAME] [ID] [PROP]
 		case L"author"_hash:
-			getProperty(szReturnValue, PROP_AUTHOR);
+			getProperty(szReturnValue, Properties::PROP_AUTHOR);
 			break;
 			// [NAME] [ID] [PROP]
 		case L"title"_hash:
-			getProperty(szReturnValue, PROP_TITLE);
+			getProperty(szReturnValue, Properties::PROP_TITLE);
 			break;
 			// [NAME] [ID] [PROP]
 		case L"video"_hash:
@@ -861,7 +861,7 @@ void DcxDirectshow::ReleaseAll() noexcept
 
 // getProperty() is non-functional atm. Where do i get this interface from? or a similar one.
 GSL_SUPPRESS(type.4)
-HRESULT DcxDirectshow::getProperty(const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>& prop, const int type) const noexcept
+HRESULT DcxDirectshow::getProperty(const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>& prop, const Properties type) const noexcept
 {
 	//IAMMediaContent *iam = nullptr;
 	//auto hr = this->m_pGraph->QueryInterface(IID_IAMMediaContent, (void **)&iam);
@@ -905,16 +905,16 @@ HRESULT DcxDirectshow::getProperty(const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>&
 		BSTR com_prop = nullptr;
 		switch (type)
 		{
-		case PROP_AUTHOR:
+		case Properties::PROP_AUTHOR:
 			hr = iam->get_AuthorName(&com_prop);
 			break;
-		case PROP_TITLE:
+		case Properties::PROP_TITLE:
 			hr = iam->get_Title(&com_prop);
 			break;
-		case PROP_RATING:
+		case Properties::PROP_RATING:
 			hr = iam->get_Rating(&com_prop);
 			break;
-		case PROP_DESCRIPTION:
+		case Properties::PROP_DESCRIPTION:
 			hr = iam->get_Description(&com_prop);
 			break;
 		default:
@@ -1312,7 +1312,7 @@ HRESULT DcxDirectshow::setVolume(const float vol)
 	//	return hr;
 
 	if (MyCOMClass<IBasicAudio> myCom(this->m_pGraph); myCom)
-		return myCom.mData->put_Volume(PercentageToRange(vol));
+		return myCom->put_Volume(PercentageToRange(vol));
 
 	return E_FAIL;
 }
@@ -1343,7 +1343,7 @@ float DcxDirectshow::getVolume() const
 	{
 #pragma warning(push,3)
 #pragma warning(disable:4244)
-		if (long t{}; SUCCEEDED(myCom.mData->get_Volume(&t)))
+		if (long t{}; SUCCEEDED(myCom->get_Volume(&t)))
 			vol = RangeToPercentage(t);
 #pragma warning(pop)
 	}
@@ -1373,7 +1373,7 @@ HRESULT DcxDirectshow::setBalance(const long vol)
 	//	return hr;
 
 	if (MyCOMClass<IBasicAudio> myCom(this->m_pGraph); myCom)
-		return myCom.mData->put_Balance(vol);
+		return myCom->put_Balance(vol);
 
 	return E_FAIL;
 }
@@ -1404,7 +1404,7 @@ long DcxDirectshow::getBalance(void) const
 	{
 #pragma warning(push,3)
 #pragma warning(disable:4244)
-		if (long t{}; SUCCEEDED(myCom.mData->get_Balance(&t)))
+		if (long t{}; SUCCEEDED(myCom->get_Balance(&t)))
 			vol = t;
 #pragma warning(pop)
 	}
@@ -1431,6 +1431,9 @@ NormalizedRange DcxDirectshow::NormalizeValue(float fValue, float fMin, float fM
 
 void DcxDirectshow::toXml(TiXmlElement* const xml) const
 {
+	if (!xml)
+		return;
+
 	__super::toXml(xml);
 
 	xml->SetAttribute("styles", getStyles().c_str());
@@ -1445,6 +1448,9 @@ TiXmlElement* DcxDirectshow::toXml(void) const
 
 LRESULT DcxDirectshow::CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept
 {
+	if (!m_Hwnd)
+		return 0;
+
 	if (m_hDefaultClassProc)
 		return CallWindowProc(m_hDefaultClassProc, this->m_Hwnd, uMsg, wParam, lParam);
 
