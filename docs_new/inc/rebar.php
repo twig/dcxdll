@@ -119,7 +119,7 @@ function get_xdid_rebar(&$XDID) {
 	        '__cmd' => '[N|all]',
 	        '__eg' => 'all',
 		),
-		'u' => array(
+		'v' => array(
 	        '__desc' => "This command lets you move the Nth rebar band to the Mth position.",
 	        '__cmd' => '[N] [M]',
 	        '__eg' => '3 1',
