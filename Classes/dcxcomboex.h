@@ -44,6 +44,26 @@ struct DCXCBITEM
 };
 using LPDCXCBITEM = DCXCBITEM *;
 
+namespace Dcx
+{
+	inline DWORD dcxComboEx_SetExtendedStyles(_In_ HWND hwnd, const WPARAM mask, const LPARAM dw) noexcept
+	{
+		return gsl::narrow_cast<DWORD>(SendMessage(hwnd, CBEM_SETEXTENDEDSTYLE, mask, dw));
+	}
+	inline DWORD dcxComboEx_GetExtendedStyles(_In_ HWND hwnd) noexcept
+	{
+		return gsl::narrow_cast<DWORD>(SendMessage(hwnd, CBEM_GETEXTENDEDSTYLE, 0, 0));
+	}
+	inline DWORD dcxCombo_SetHorizExtent(_In_ HWND hwnd, const WPARAM iWidth) noexcept
+	{
+		return gsl::narrow_cast<DWORD>(SendMessage(hwnd, CB_SETHORIZONTALEXTENT, iWidth, 0));
+	}
+	inline DWORD dcxCombo_GetHorizExtent(_In_ HWND hwnd) noexcept
+	{
+		return gsl::narrow_cast<DWORD>(SendMessage(hwnd, CB_GETHORIZONTALEXTENT, 0, 0));
+	}
+}
+
 /*!
  * \brief blah
  *
@@ -79,6 +99,7 @@ public:
 	bool matchItemText( const int nItem, const TString &search, const DcxSearchTypes &SearchType ) const;
 	bool matchItemText(const int nItem, const dcxSearchData &srch_data) const;
 
+	bool setItem(const PCOMBOBOXEXITEM lpcCBItem) noexcept;
 	LRESULT insertItem( const PCOMBOBOXEXITEM lpcCBItem ) noexcept;
 	LRESULT getItem( const PCOMBOBOXEXITEM lpcCBItem ) const noexcept;
 	[[nodiscard]] HWND getEditControl( ) const noexcept;
@@ -109,6 +130,8 @@ protected:
 	HWND				m_hComboHwnd{ nullptr };	//!< Combo's handle
 private:
 	DCXCOMBOEXEDIT		m_exEdit{};
+
+	[[nodiscard]] static const WindowExStyle parseComboExStyles(const TString& tsStyles) noexcept;
 
 };
 

@@ -50,6 +50,13 @@ DcxComboEx::DcxComboEx(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_D
 
 	setNoThemed(ws.m_NoTheme);
 
+	{
+		// setting an extended style with e CBS_SIMPLE control may cause repaint issues. (this is a WC_COMBOEX control issue)
+		const auto cbExStyles = parseComboExStyles(styles);
+
+		Dcx::dcxComboEx_SetExtendedStyles(m_Hwnd, gsl::narrow_cast<WPARAM>(cbExStyles), gsl::narrow_cast<LPARAM>(cbExStyles));
+	}
+
 	this->m_EditHwnd = getEditControl();
 
 	if (IsWindow(this->m_EditHwnd))
@@ -124,8 +131,6 @@ dcxWindowStyles DcxComboEx::parseControlStyles(const TString& tsStyles)
 {
 	dcxWindowStyles ws;
 
-	//ws.m_ExStyles |= CBES_EX_NOSIZELIMIT;
-
 	for (const auto& tsStyle : tsStyles)
 	{
 		switch (std::hash<TString>{}(tsStyle))
@@ -142,6 +147,7 @@ dcxWindowStyles DcxComboEx::parseControlStyles(const TString& tsStyles)
 		case L"sort"_hash:
 			ws.m_Styles |= CBS_SORT;
 			break;
+
 		default:
 			break;
 		}
@@ -325,15 +331,22 @@ void DcxComboEx::parseCommandRequest(const TString& input)
 #endif
 		const auto itemtext(input.getlasttoks());			// tok 9, -1
 
-		if (nPos < -1)
+		if (nPos == -1)	// pos was given as zero, which is invalid here.
+			throw DcxExceptions::dcxInvalidArguments();
+
+		if (nPos < -1)	// pos was given as -1, which means edit control in dropedit style.
 		{
+			if (!dcx_testflag(dcxGetWindowStyle(m_Hwnd), CBS_DROPDOWN))
+				throw DcxExceptions::dcxInvalidArguments();
+
 			//if (IsWindow(this->m_EditHwnd))
 			//	SetWindowText(this->m_EditHwnd, itemtext.to_chr());
 
-			COMBOBOXEXITEM cbi{ (CBEIF_TEXT | CBEIF_INDENT | CBEIF_IMAGE | CBEIF_SELECTEDIMAGE), -1,const_cast<TCHAR*>(itemtext.to_chr()), gsl::narrow_cast<int>(itemtext.len()),icon,state,overlay,indent, 0 };
+			//COMBOBOXEXITEM cbi{ (CBEIF_TEXT | CBEIF_INDENT | CBEIF_IMAGE | CBEIF_SELECTEDIMAGE), -1,const_cast<TCHAR*>(itemtext.to_chr()), gsl::narrow_cast<int>(itemtext.len()),icon,state,overlay,indent, 0 };
+			COMBOBOXEXITEM cbi{ (CBEIF_TEXT | CBEIF_IMAGE | CBEIF_SELECTEDIMAGE), -1,const_cast<TCHAR*>(itemtext.to_chr()), gsl::narrow_cast<int>(itemtext.len()),icon,state,overlay,indent, 0 };
 
-			if (SendMessage(m_Hwnd, CBEM_SETITEM, 0, (LPARAM)&cbi) == 0)
-				throw Dcx::dcxException("Unable to add item.");
+			if (!setItem(&cbi))
+				throw Dcx::dcxException("Unable to set edit control.");
 		}
 		else {
 			if (COMBOBOXEXITEM cbi{ (CBEIF_TEXT | CBEIF_INDENT | CBEIF_IMAGE | CBEIF_SELECTEDIMAGE | CBEIF_LPARAM),nPos,const_cast<TCHAR*>(itemtext.to_chr()),0,icon,state,overlay,indent, reinterpret_cast<LPARAM>(new DCXCBITEM) }; this->insertItem(&cbi) < 0)
@@ -381,8 +394,8 @@ void DcxComboEx::parseCommandRequest(const TString& input)
 
 					if (SIZE sz{}; GetTextExtentPoint32(hdc, itemtext.to_chr(), gsl::narrow_cast<int>(itemtext.len()), &sz))
 					{
-						if (sz.cx > gsl::narrow_cast<long>(SendMessage(combo, CB_GETHORIZONTALEXTENT, 0, 0)))
-							SendMessage(combo, CB_SETHORIZONTALEXTENT, gsl::narrow_cast<WPARAM>(sz.cx), 0);
+						if (sz.cx > gsl::narrow_cast<long>(Dcx::dcxCombo_GetHorizExtent(combo)))
+							Dcx::dcxCombo_SetHorizExtent(combo, gsl::narrow_cast<WPARAM>(sz.cx));
 					}
 
 					if (hFont)
@@ -604,6 +617,14 @@ bool DcxComboEx::matchItemText(const int nItem, const dcxSearchData& srch_data) 
 * blah
 */
 
+bool DcxComboEx::setItem(const PCOMBOBOXEXITEM lpcCBItem) noexcept
+{
+	if (!m_Hwnd)
+		return false;
+
+	return (SendMessage(m_Hwnd, CBEM_SETITEM, 0, (LPARAM)lpcCBItem) != 0);
+}
+
 LRESULT DcxComboEx::insertItem(const PCOMBOBOXEXITEM lpcCBItem) noexcept
 {
 	if (!m_Hwnd)
@@ -749,14 +770,30 @@ LRESULT DcxComboEx::limitText(const int iLimit) noexcept
 const TString DcxComboEx::getStyles(void) const
 {
 	auto styles(__super::getStyles());
-	const auto Styles = dcxGetWindowStyle(m_Hwnd);
 
-	if (dcx_testflag(Styles, CBS_SIMPLE))
-		styles.addtok(TEXT("simple"));
-	if (dcx_testflag(Styles, CBS_DROPDOWNLIST))
-		styles.addtok(TEXT("dropdown"));
-	if (dcx_testflag(Styles, CBS_DROPDOWN))
-		styles.addtok(TEXT("dropedit"));
+	{
+		const auto Styles = dcxGetWindowStyle(m_Hwnd);
+
+		if (dcx_testflag(Styles, CBS_SIMPLE))
+			styles.addtok(TEXT("simple"));
+		if (dcx_testflag(Styles, CBS_DROPDOWNLIST))
+			styles.addtok(TEXT("dropdown"));
+		if (dcx_testflag(Styles, CBS_DROPDOWN))
+			styles.addtok(TEXT("dropedit"));
+	}
+	{
+		const auto exstyles = Dcx::dcxComboEx_GetExtendedStyles(m_Hwnd);
+		if (dcx_testflag(exstyles, CBES_EX_CASESENSITIVE))
+			styles.addtok(TEXT("case"));
+		if (dcx_testflag(exstyles, CBES_EX_NOEDITIMAGE))
+			styles.addtok(TEXT("noeditimage"));
+		if (dcx_testflag(exstyles, CBES_EX_NOEDITIMAGEINDENT))
+			styles.addtok(TEXT("noeditindent"));
+		if (dcx_testflag(exstyles, CBES_EX_NOSIZELIMIT))
+			styles.addtok(TEXT("nosizelimit"));
+		if (dcx_testflag(exstyles, CBES_EX_TEXTENDELLIPSIS))
+			styles.addtok(TEXT("endellipsis"));
+	}
 
 	return styles;
 }
@@ -1036,4 +1073,36 @@ LRESULT DcxComboEx::CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM 
 		return CallWindowProc(m_hDefaultClassProc, this->m_Hwnd, uMsg, wParam, lParam);
 
 	return DefWindowProc(this->m_Hwnd, uMsg, wParam, lParam);
+}
+
+const WindowExStyle DcxComboEx::parseComboExStyles(const TString& tsStyles) noexcept
+{
+	WindowExStyle ws{};
+
+	for (const auto& tsStyle : tsStyles)
+	{
+		switch (std::hash<TString>{}(tsStyle))
+		{
+		case L"case"_hash:
+			ws |= CBES_EX_CASESENSITIVE;
+			break;
+		case L"noeditimage"_hash:
+			ws |= CBES_EX_NOEDITIMAGE;
+			break;
+		case L"noeditindent"_hash:
+			ws |= CBES_EX_NOEDITIMAGEINDENT;
+			break;
+		case L"nosizelimit"_hash:
+			ws |= CBES_EX_NOSIZELIMIT;
+			break;
+		case L"endellipsis"_hash:
+			ws |= CBES_EX_TEXTENDELLIPSIS;
+			break;
+
+		default:
+			break;
+		}
+	}
+
+	return ws;
 }
