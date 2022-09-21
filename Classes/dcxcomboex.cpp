@@ -311,13 +311,13 @@ void DcxComboEx::parseCommandRequest(const TString& input)
 			throw DcxExceptions::dcxInvalidArguments();
 
 #if TSTRING_TESTCODE
-		const auto nPos = input.getnexttokas<int>() - 1;			// tok 4
+		const auto nPos = input.getnexttokas<int>() - 1;	// tok 4
 		const auto indent = input.getnexttokas<int>();		// tok 5
 		const auto icon = input.getnexttokas<int>() - 1;	// tok 6
 		const auto state = input.getnexttokas<int>() - 1;	// tok 7
 		const auto overlay = input.getnexttokas<int>();		// tok 8		(never used, here for spacing only atm)
 #else
-		const auto nPos = input.getnexttok().to_int() - 1;		// tok 4
+		const auto nPos = input.getnexttok().to_int() - 1;	// tok 4
 		const auto indent = input.getnexttok().to_int();	// tok 5
 		const auto icon = input.getnexttok().to_int() - 1;	// tok 6
 		const auto state = input.getnexttok().to_int() - 1;	// tok 7
@@ -327,8 +327,13 @@ void DcxComboEx::parseCommandRequest(const TString& input)
 
 		if (nPos < -1)
 		{
-			if (IsWindow(this->m_EditHwnd))
-				SetWindowText(this->m_EditHwnd, itemtext.to_chr());
+			//if (IsWindow(this->m_EditHwnd))
+			//	SetWindowText(this->m_EditHwnd, itemtext.to_chr());
+
+			COMBOBOXEXITEM cbi{ (CBEIF_TEXT | CBEIF_INDENT | CBEIF_IMAGE | CBEIF_SELECTEDIMAGE), -1,const_cast<TCHAR*>(itemtext.to_chr()), gsl::narrow_cast<int>(itemtext.len()),icon,state,overlay,indent, 0 };
+
+			if (SendMessage(m_Hwnd, CBEM_SETITEM, 0, (LPARAM)&cbi) == 0)
+				throw Dcx::dcxException("Unable to add item.");
 		}
 		else {
 			if (COMBOBOXEXITEM cbi{ (CBEIF_TEXT | CBEIF_INDENT | CBEIF_IMAGE | CBEIF_SELECTEDIMAGE | CBEIF_LPARAM),nPos,const_cast<TCHAR*>(itemtext.to_chr()),0,icon,state,overlay,indent, reinterpret_cast<LPARAM>(new DCXCBITEM) }; this->insertItem(&cbi) < 0)
@@ -537,8 +542,8 @@ void DcxComboEx::parseCommandRequest(const TString& input)
 				DestroyIcon(icon);
 			}
 #endif
+		}
 	}
-}
 	// xdid -y [NAME] [ID] [SWITCH] [+FLAGS]
 	else if (flags[TEXT('y')])
 	{
@@ -582,7 +587,7 @@ bool DcxComboEx::matchItemText(const int nItem, const TString& search, const Dcx
 	return DcxListHelper::matchItemText(cbi.pszText, search, SearchType);
 }
 
-bool DcxComboEx::matchItemText(const int nItem, const dcxSearchData &srch_data) const
+bool DcxComboEx::matchItemText(const int nItem, const dcxSearchData& srch_data) const
 {
 	auto itemtext = std::make_unique<TCHAR[]>(MIRC_BUFFER_SIZE_CCH);
 

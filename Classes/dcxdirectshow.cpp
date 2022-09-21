@@ -667,11 +667,15 @@ LRESULT DcxDirectshow::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL&
 			{
 			case EC_COMPLETE:
 			{
-				LONGLONG rtNow{}; // seek to start.
-				this->m_pSeek->SetPositions(&rtNow, AM_SEEKING_AbsolutePositioning, nullptr, AM_SEEKING_NoPositioning);
+				if (this->m_pSeek)
+				{
+					LONGLONG rtNow{}; // seek to start.
+					this->m_pSeek->SetPositions(&rtNow, AM_SEEKING_AbsolutePositioning, nullptr, AM_SEEKING_NoPositioning);
+				}
 				if (!this->m_bLoop)
 				{
-					this->m_pControl->StopWhenReady();
+					if (this->m_pControl)
+						this->m_pControl->StopWhenReady();
 					this->execAliasEx(TEXT("dshow,%u,completed"), getUserID());
 				}
 			}
@@ -1218,7 +1222,7 @@ std::optional<VMR9ProcAmpControlRange> DcxDirectshow::getVideoRange(VMR9ProcAmpC
 	{
 		if (MyCOMClass<IVMRMixerControl9> pMixer(pVmr.mData); pMixer)
 		{
-			if (VMR9ProcAmpControlRange acr{ sizeof(VMR9ProcAmpControlRange), prop }; SUCCEEDED(pMixer.mData->GetProcAmpControlRange(0, std::addressof(acr))))
+			if (VMR9ProcAmpControlRange acr{ sizeof(VMR9ProcAmpControlRange), prop }; SUCCEEDED(pMixer->GetProcAmpControlRange(0, std::addressof(acr))))
 				return acr;
 		}
 	}
