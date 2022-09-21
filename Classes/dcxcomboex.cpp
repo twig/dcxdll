@@ -331,9 +331,6 @@ void DcxComboEx::parseCommandRequest(const TString& input)
 #endif
 		const auto itemtext(input.getlasttoks());			// tok 9, -1
 
-		if (nPos == -1)	// pos was given as zero, which is invalid here.
-			throw DcxExceptions::dcxInvalidArguments();
-
 		if (nPos < -1)	// pos was given as -1, which means edit control in dropedit style.
 		{
 			if (!dcx_testflag(dcxGetWindowStyle(m_Hwnd), CBS_DROPDOWN))

@@ -84,8 +84,24 @@
 		<td>Dropdown combo with an editbox.</td>
 	</tr>
 	<tr>
+		<td class="style"><a name="style.endellipsis" class="style">endellipsis</a></td>
+		<td>Place ellipsis at the end of text if it extends past the edge of the control.</td>
+	</tr>
+	<tr>
 		<td class="style"><a name="style.hscroll" class="style">hscroll</a></td>
 		<td>Enables the horizontal scroll bar in the listbox part.</td>
+	</tr>
+	<tr>
+		<td class="style"><a name="style.noeditimage" class="style">noeditimage</a></td>
+		<td>No icon is show in edit control with <a class="style">dropedit</a> style</td>
+	</tr>
+	<tr>
+		<td class="style"><a name="style.noeditindent" class="style">noeditindent</a></td>
+		<td>The icon in the edit control isn`t indented.</td>
+	</tr>
+	<tr>
+		<td class="style"><a name="style.nosizelimit" class="style">nosizelimit</a></td>
+		<td>No limit on how small the control can be (can ofcourse lead to display oddness)</td>
 	</tr>
 	<tr>
 		<td class="style"><a name="style.simple" class="style">simple</a></td>
@@ -161,6 +177,20 @@
 	<tr>
 		<td class="example">Example:</td>
 		<td><div class="example">/xdid -d dcx 4 6</div></td>
+	</tr>
+</table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xdid.l"></a>/xdid -l	</td></tr>
+	<tr><td colspan="2">This command lets you set the controls read only state.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -l [DNAME] [ID] [0|1]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -l dcx 4 1</div></td>
 	</tr>
 </table>
 <br />
@@ -248,6 +278,33 @@
 		<td><div class="example">/xdid -y dcx 4</div></td>
 	</tr>
 </table>
+<br />
+<table class="xdid">
+	<tr><td colspan="2" class="flag" style="color: #6A7CB0; border-color: #6A7CB0;">
+			<a name="xdid.big.A"></a>/xdid -A	</td></tr>
+	<tr><td colspan="2">This command lets you add custom info to items.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">/xdid -A [DNAME] [ID] [ROW] [+FLAGS] [INFO]</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">/xdid -A dcx 4 13 +M Yetis are real</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">ROW</td>
+		<td>row</td>
+	</tr>
+	<tr>
+		<td class="param">+FLAGS</td>
+		<td>M - Mark info</td>
+	</tr>
+	<tr>
+		<td class="param">INFO</td>
+		<td>Info</td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a> Only +M flag is supported atm.</td></tr></table>
 <br />
 <table class="description">
 	<tr><td class="heading" style="border-color: #A8B2D1; color: #A8B2D1;"><a name="xdidprop"></a>$xdid() Properties</td></tr>
@@ -480,7 +537,11 @@
 	<a class='header' href="#style"><div style='background:#B49696;'>Control Styles</div></a>
 		<a class='flag' href="#style.dropdown"><div>dropdown</div></a>
 		<a class='flag' href="#style.dropedit"><div>dropedit</div></a>
+		<a class='flag' href="#style.endellipsis"><div>endellipsis</div></a>
 		<a class='flag' href="#style.hscroll"><div>hscroll</div></a>
+		<a class='flag' href="#style.noeditimage"><div>noeditimage</div></a>
+		<a class='flag' href="#style.noeditindent"><div>noeditindent</div></a>
+		<a class='flag' href="#style.nosizelimit"><div>nosizelimit</div></a>
 		<a class='flag' href="#style.simple"><div>simple</div></a>
 		<a class='flag' href="#style.sort"><div>sort</div></a>
 	</div>
@@ -489,10 +550,12 @@
 		<a class='flag' href="#xdid.a"><div>-a</div></a>
 		<a class='flag' href="#xdid.c"><div>-c</div></a>
 		<a class='flag' href="#xdid.d"><div>-d</div></a>
+		<a class='flag' href="#xdid.l"><div>-l</div></a>
 		<a class='flag' href="#xdid.r"><div>-r</div></a>
 		<a class='flag' href="#xdid.u"><div>-u</div></a>
 		<a class='flag' href="#xdid.w"><div>-w</div></a>
 		<a class='flag' href="#xdid.y"><div>-y</div></a>
+		<a class='flag' href="#xdid.big.A"><div>-A</div></a>
 	</div>
 <div class='rightmenu' style='border:1px solid #A8B2D1'>
 	<a class='header' href="#xdidprop"><div style='background:#A8B2D1;'>$xdid() Properties</div></a>
@@ -521,7 +584,7 @@
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2022</td>
-		<td style="text-align: right;">Last Updated: 16th September, 22</td>
+		<td style="text-align: right;">Last Updated: 21st September, 22</td>
 	</tr>
 </table>
 <div style="text-align: center;">

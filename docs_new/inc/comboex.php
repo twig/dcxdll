@@ -12,7 +12,11 @@ function get_styles_comboex(&$STYLES) {
 		'hscroll' => 'Enables the horizontal scroll bar in the listbox part.',
 		'sort' => 'Sort the contents of the listbox part. (untested)',
 
-		
+		'noeditimage' => 'No icon is show in edit control with [s]dropedit[/s] style',
+		'noeditindent' => "The icon in the edit control isn`t indented.",
+		'nosizelimit' => 'No limit on how small the control can be (can ofcourse lead to display oddness)',
+		'endellipsis' => 'Place ellipsis at the end of text if it extends past the edge of the control.',
+
 		'__notes' => 'When creating a ComboEx control, it is important to remember that the height of the control <strong>includes</strong> the dropdown list portion.',
 	);
 }
@@ -48,6 +52,11 @@ function get_xdid_comboex(&$XDID) {
 	        '__cmd' => '[N]',
 	        '__eg' => "6",
 		),
+		'l' => array(
+	        '__desc' => 'This command lets you set the controls read only state.',
+	        '__cmd' => "[0|1]",
+	        '__eg' => "1",
+		),
 		'u' => array(
 	        '__desc' => 'This command makes the currently selected comboex item unselected.',
 		),
@@ -64,6 +73,17 @@ function get_xdid_comboex(&$XDID) {
 		),
 		'y' => 'This command lets you clear the comboex image list.',
 		'r' => 'This command lets you clear all the comboex items.',
+		'A' => array(
+	        '__desc' => 'This command lets you add custom info to items.',
+	        '__cmd' => "[ROW] [+FLAGS] [INFO]",
+	        '__eg' => "13 +M Yetis are real",
+            '__params' => array(
+				'ROW' => "row",
+				'+FLAGS' => "M - Mark info",
+				'INFO' => "Info",
+			),
+	        '__notes' => "Only +M flag is supported atm.",
+		),
 	);
 	
 	writeDcxLoadIcon($XDID, 'w', '+FLAGS', 1);
@@ -113,7 +133,7 @@ function get_xdidprops_comboex(&$XDIDPROPS) {
 
 function get_events_comboex(&$EVENTS) {
 	$EVENTS = array(
-                "sclick" => array(
+        "sclick" => array(
 			'__desc' => "When an item is selected in the comboex.",
 			'__cmd' => 'ITEM',
                         '__eg' => '6',
