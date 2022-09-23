@@ -442,9 +442,7 @@ void DcxComboEx::parseCommandRequest(const TString& input)
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto nItem = input.getnexttok().to_int() - 1;	// tok 4
-
-		if (nItem > -1)
+		if (const auto nItem = input.getnexttok().to_int() - 1; nItem > -1)
 			this->setCurSel(nItem);
 	}
 	// xdid -d [NAME] [ID] [SWITCH] [N]
@@ -570,8 +568,12 @@ void DcxComboEx::parseCommandRequest(const TString& input)
 * blah
 */
 
+GSL_SUPPRESS(lifetime.4)
 HIMAGELIST DcxComboEx::getImageList() const noexcept
 {
+	if (!m_Hwnd)
+		return nullptr;
+
 	return reinterpret_cast<HIMAGELIST>(SendMessage(m_Hwnd, CBEM_GETIMAGELIST, 0U, 0));
 }
 
@@ -583,7 +585,8 @@ HIMAGELIST DcxComboEx::getImageList() const noexcept
 
 void DcxComboEx::setImageList(const HIMAGELIST himl) noexcept
 {
-	SendMessage(m_Hwnd, CBEM_SETIMAGELIST, 0U, reinterpret_cast<LPARAM>(himl));
+	if (m_Hwnd)
+		SendMessage(m_Hwnd, CBEM_SETIMAGELIST, 0U, reinterpret_cast<LPARAM>(himl));
 }
 
 bool DcxComboEx::matchItemText(const int nItem, const TString& search, const DcxSearchTypes& SearchType) const
@@ -619,7 +622,7 @@ bool DcxComboEx::setItem(const PCOMBOBOXEXITEM lpcCBItem) noexcept
 	if (!m_Hwnd)
 		return false;
 
-	return (SendMessage(m_Hwnd, CBEM_SETITEM, 0, (LPARAM)lpcCBItem) != 0);
+	return Dcx::dcxComboEx_SetItem(m_Hwnd, lpcCBItem);
 }
 
 LRESULT DcxComboEx::insertItem(const PCOMBOBOXEXITEM lpcCBItem) noexcept
@@ -627,7 +630,7 @@ LRESULT DcxComboEx::insertItem(const PCOMBOBOXEXITEM lpcCBItem) noexcept
 	if (!m_Hwnd)
 		return -1;
 
-	return SendMessage(m_Hwnd, CBEM_INSERTITEM, 0U, reinterpret_cast<LPARAM>(lpcCBItem));
+	return Dcx::dcxComboEx_InsertItem(m_Hwnd, lpcCBItem);
 }
 
 /*!
@@ -641,7 +644,7 @@ LRESULT DcxComboEx::getItem(const PCOMBOBOXEXITEM lpcCBItem) const noexcept
 	if (!m_Hwnd)
 		return 0;
 
-	return SendMessage(m_Hwnd, CBEM_GETITEM, 0U, reinterpret_cast<LPARAM>(lpcCBItem));
+	return Dcx::dcxComboEx_GetItem(m_Hwnd, lpcCBItem);
 }
 
 /*!
@@ -655,7 +658,7 @@ HWND DcxComboEx::getEditControl() const noexcept
 	if (!m_Hwnd)
 		return nullptr;
 
-	return reinterpret_cast<HWND>(SendMessage(m_Hwnd, CBEM_GETEDITCONTROL, 0U, 0));
+	return Dcx::dcxComboEx_GetEditControl(m_Hwnd);
 }
 
 HWND DcxComboEx::getComboControl() const noexcept
@@ -663,7 +666,7 @@ HWND DcxComboEx::getComboControl() const noexcept
 	if (!m_Hwnd)
 		return nullptr;
 
-	return reinterpret_cast<HWND>(SendMessage(m_Hwnd, CBEM_GETCOMBOCONTROL, 0, 0));
+	return Dcx::dcxComboEx_GetComboControl(m_Hwnd);
 }
 
 /*!

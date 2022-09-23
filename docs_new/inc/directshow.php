@@ -62,12 +62,13 @@ function get_xdid_directshow(&$XDID) {
 		),
         'v' => array(
             '__desc' => "This command sets the brightness, contrast, hue, & saturation",
-            '__cmd' => '[+FLAGS] [BRIGHTNESS] [CONTRAST] [HUE] [SATURATION] ',
-            '__eg' => '+b 80.00 0 0 0',
+            '__cmd' => '[+FLAGS] [BRIGHTNESS] [CONTRAST] [HUE] [SATURATION] [ALPHA] ',
+            '__eg' => '+ab 80.00 0 0 0 0.5',
             '__params' => array(
                 '+FLAGS' => array(
                     '__desc' => "Command switches.",
                     '__values' => array(
+                        'a' => "Sets the alpha blend with the background, accepts values between [v]1.0[/v] & [v]0[/v] (fractions are valid values).",
 		                'b' => "Sets the brightness level as a percentage between [v]0.00[/v] & [v]100.00[/v] (fractions are valid values).",
 		                'c' => "Sets the contrast level as a percentage between [v]0.00[/v] & [v]100.00[/v] (fractions are valid values).",
 		                'h' => "Sets the hue level as a percentage between [v]0.00[/v] & [v]100.00[/v] (fractions are valid values).",

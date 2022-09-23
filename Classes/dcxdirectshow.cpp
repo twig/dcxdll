@@ -513,7 +513,7 @@ void DcxDirectshow::parseCommandRequest(const TString& input)
 			throw DcxExceptions::dcxInvalidCommand();
 		}
 	}
-	// xdid -v [NAME] [ID] [SWITCH] [+FLAGS] [BRIGHTNESS] [CONTRAST] [HUE] [SATURATION]
+	// xdid -v [NAME] [ID] [SWITCH] [+FLAGS] [BRIGHTNESS] [CONTRAST] [HUE] [SATURATION] [ALPHA]
 	else if (flags[TEXT('v')])
 	{
 		if (numtok < 8)
@@ -527,8 +527,9 @@ void DcxDirectshow::parseCommandRequest(const TString& input)
 		const auto fContrast(input.getnexttok().to_<float>());
 		const auto fHue(input.getnexttok().to_<float>());
 		const auto fSaturation(input.getnexttok().to_<float>());
+		const auto fAlpha(input.getnexttokas<float>());
 
-		if (const auto hr = setVideo(tsFlags, fBrightness, fContrast, fHue, fSaturation); FAILED(hr))
+		if (const auto hr = setVideo(tsFlags, fBrightness, fContrast, fHue, fSaturation, fAlpha); FAILED(hr))
 		{
 			DX_ERR(nullptr, TEXT("-v"), hr);
 			throw Dcx::dcxException("Unable to set video");
@@ -813,7 +814,7 @@ IVMRWindowlessControl9* DcxDirectshow::InitWindowlessVMR(const HWND hwndApp, IGr
 GSL_SUPPRESS(type.4)
 HRESULT DcxDirectshow::SetVideoPos(void)
 {
-	if (!this->m_pWc)
+	if ((!this->m_pWc) || (!m_Hwnd))
 		return E_POINTER;
 
 	long lWidth{}, lHeight{};
@@ -941,6 +942,9 @@ HRESULT DcxDirectshow::getProperty(const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>&
 GSL_SUPPRESS(type.4)
 HRESULT DcxDirectshow::setAlpha(float alpha)
 {
+	if (!m_Hwnd)
+		return E_POINTER;
+
 	if ((alpha < 0) || (alpha > 1.0))
 		alpha = 1.0;
 
@@ -1034,7 +1038,7 @@ HRESULT DcxDirectshow::setAlpha(float alpha)
 }
 
 GSL_SUPPRESS(type.4)
-HRESULT DcxDirectshow::setVideo(const TString& flags, const float brightness, const float contrast, const float hue, const float saturation)
+HRESULT DcxDirectshow::setVideo(const TString& flags, const float brightness, const float contrast, const float hue, const float saturation, const float alpha)
 {
 	//IBaseFilter* pVmr{};
 	//
@@ -1089,6 +1093,11 @@ HRESULT DcxDirectshow::setVideo(const TString& flags, const float brightness, co
 	const XSwitchFlags xflags(flags);
 	DWORD dwflags{};
 
+	if (xflags[TEXT('a')])
+	{
+		// set video alpha value.
+		setAlpha(alpha);
+	}
 	if (xflags[TEXT('b')])
 		dwflags |= ProcAmpControl9_Brightness;
 	if (xflags[TEXT('c')])

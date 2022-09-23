@@ -186,16 +186,20 @@
 	<tr><td colspan="2">This command sets the brightness, contrast, hue, & saturation</td></tr>
 	<tr>
 		<td class="syntax">Syntax:</td>
-		<td><div class="syntax">/xdid -v [DNAME] [ID] [+FLAGS] [BRIGHTNESS] [CONTRAST] [HUE] [SATURATION] </div></td>
+		<td><div class="syntax">/xdid -v [DNAME] [ID] [+FLAGS] [BRIGHTNESS] [CONTRAST] [HUE] [SATURATION] [ALPHA] </div></td>
 	</tr>
 	<tr>
 		<td class="example">Example:</td>
-		<td><div class="example">/xdid -v dcx 4 +b 80.00 0 0 0</div></td>
+		<td><div class="example">/xdid -v dcx 4 +ab 80.00 0 0 0 0.5</div></td>
 	</tr>
 	<tr><td colspan="2"><b>Parameters:</b></td></tr>
 	<tr>
 		<td class="param">+FLAGS</td>
 		<td>Command switches.</td>
+	</tr>
+	<tr>
+		<td class="value">a</td>
+		<td>Sets the alpha blend with the background, accepts values between <a class="value">1.0</a> & <a class="value">0</a> (fractions are valid values).</td>
 	</tr>
 	<tr>
 		<td class="value">b</td>
@@ -727,7 +731,7 @@
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2022</td>
-		<td style="text-align: right;">Last Updated: 21st September, 22</td>
+		<td style="text-align: right;">Last Updated: 23rd September, 22</td>
 	</tr>
 </table>
 <div style="text-align: center;">
