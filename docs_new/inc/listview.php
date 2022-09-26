@@ -535,7 +535,7 @@ function get_xdid_listview(&$XDID) {
 				),
 			),
 			'__notes' => array(
-				'This command is incomplete. Only +c & +h work at this time.',
+				'This command is incomplete. +x does not work at this time.',
 			),
 		),
 		'y' => array(

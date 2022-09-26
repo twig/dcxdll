@@ -381,7 +381,6 @@ void DcxListView::parseInfoRequest(const TString& input, const refString<TCHAR, 
 
 																	// invalid column
 		if ((col < -1) || (col >= count) || (count <= 0))
-			//throw Dcx::dcxException("Out of Range");
 			throw DcxExceptions::dcxOutOfRange();
 
 		auto val = std::make_unique<int[]>(gsl::narrow_cast<UINT>(count));
@@ -412,7 +411,6 @@ void DcxListView::parseInfoRequest(const TString& input, const refString<TCHAR, 
 	case L"text"_hash:
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Invalid number of arguments");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto nItem = input++.to_int() - 1;		// tok 4
@@ -421,7 +419,6 @@ void DcxListView::parseInfoRequest(const TString& input, const refString<TCHAR, 
 		if (numtok > 4)
 			nSubItem = input++.to_int() - 1;			// tok 5
 		if ((nItem < 0) || (nSubItem < 0) || (nItem >= Dcx::dcxListView_GetItemCount(m_Hwnd)))
-			//throw Dcx::dcxException("Out of Range");
 			throw DcxExceptions::dcxOutOfRange();
 
 		Dcx::dcxListView_GetItemText(m_Hwnd, nItem, nSubItem, szReturnValue, MIRC_BUFFER_SIZE_CCH);
@@ -431,14 +428,12 @@ void DcxListView::parseInfoRequest(const TString& input, const refString<TCHAR, 
 	case L"icon"_hash:
 	{
 		if (numtok < 5)
-			//throw Dcx::dcxException("Invalid number of arguments");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto nItem = input++.to_int() - 1;	// tok 4
 		const auto nSubItem = input++.to_int() - 1;	// tok 5
 
 		if ((nItem < 0) || (nSubItem < 0) || (nItem >= Dcx::dcxListView_GetItemCount(m_Hwnd)) || (nSubItem >= this->getColumnCount()))
-			//throw Dcx::dcxException("Out of Range");
 			throw DcxExceptions::dcxOutOfRange();
 
 		LVITEM lvi{};
@@ -454,13 +449,11 @@ void DcxListView::parseInfoRequest(const TString& input, const refString<TCHAR, 
 	case L"selected"_hash:
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Invalid number of arguments");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto nItem = input++.to_int() - 1;	// tok 4
 													// In range
 		if ((nItem < 0) || (nItem >= Dcx::dcxListView_GetItemCount(m_Hwnd)))
-			//throw Dcx::dcxException("Out of Range");
 			throw DcxExceptions::dcxOutOfRange();
 
 		szReturnValue = dcx_truefalse(dcx_testflag(Dcx::dcxListView_GetItemState(m_Hwnd, nItem, LVIS_SELECTED), LVIS_SELECTED));
@@ -536,12 +529,10 @@ void DcxListView::parseInfoRequest(const TString& input, const refString<TCHAR, 
 	case L"state"_hash:
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Invalid number of arguments");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto nItem = input++.to_int() - 1;	// tok 4
 		if ((nItem < 0) || (nItem >= Dcx::dcxListView_GetItemCount(m_Hwnd)))
-			//throw Dcx::dcxException("Out of Range");
 			throw DcxExceptions::dcxOutOfRange();
 
 		if (this->isListViewStyle(to_WindowStyle(LVS_REPORT)))
@@ -790,7 +781,6 @@ void DcxListView::parseInfoRequest(const TString& input, const refString<TCHAR, 
 	case L"gtext"_hash:
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Invalid number of arguments");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto GID = input.getnexttok().to_<UINT>();	// tok 4
@@ -810,14 +800,12 @@ void DcxListView::parseInfoRequest(const TString& input, const refString<TCHAR, 
 	case L"pbar"_hash:
 	{
 		if (numtok < 6)
-			//throw Dcx::dcxException("Invalid number of arguments");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto nItem = input.getnexttok().to_int() - 1;	// tok 4
 		const auto nSubItem = input.getnexttok().to_int() - 1;	// tok 5
 
 		if (nItem < 0 || nSubItem < 0 || nItem >= Dcx::dcxListView_GetItemCount(m_Hwnd))
-			//throw Dcx::dcxException("Out of Range");
 			throw DcxExceptions::dcxOutOfRange();
 
 		LVITEM lvi{ LVIF_PARAM, nItem };
