@@ -2703,8 +2703,6 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 	{
 		if (IsWindow(mHwnd))
 		{
-			//if (Dcx::dcxGetWindowProc(mHwnd) == DcxDialog::WindowProc)
-			//	SubclassWindow(mHwnd, p_this->m_hDefaultWindowProc);
 			if (Dcx::dcxGetWindowProc(mHwnd) == DcxDialog::WindowProc)
 				SubclassWindow(mHwnd, p_this->m_hDefaultDialogProc);
 		}
@@ -2730,7 +2728,6 @@ LRESULT WINAPI DcxDialog::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARA
 	if (bParsed)
 		return lRes;
 
-	//return CallWindowProc(p_this->m_hOldWindowProc, mHwnd, uMsg, wParam, lParam);
 	return p_this->CallDefaultProc(mHwnd, uMsg, wParam, lParam);
 }
 
