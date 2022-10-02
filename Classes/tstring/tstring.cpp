@@ -6,7 +6,7 @@
  * comparisons and token manipulations as done in the mIRC scripting language.
  *
  * \author David Legault ( clickhere at scriptsdb dot org )
- * \version 1.12
+ * \version 1.21
  *
  * \b Revisions
  *	1.1
@@ -60,6 +60,16 @@
  *
  *  1.18
  *		Fixed constructor bug.
+ *
+ *  1.19
+ *		Fixed issue with getnexttok() when changing tokens used.
+ *
+ *	1.20
+ *		Added IsPointer concept
+ *		Added to_<T>() for changing the data to other pointer types.
+ *
+ *  1.21
+ *      Added some SAL
  *
  * © ScriptsDB.org - 2005-2016
  */
@@ -1681,7 +1691,7 @@ UINT TString::nwildtok(const_pointer_const wildString, const_pointer_const sepCh
 
 GSL_SUPPRESS(es.47)
 GSL_SUPPRESS(type.3)
-int TString::tsprintf(_Printf_format_string_ const_pointer_const fmt, ...)
+int TString::tsprintf(_In_z_ _Printf_format_string_ const_pointer_const fmt, ...)
 {
 	va_list args = nullptr;
 	va_start(args, fmt);
@@ -1690,7 +1700,7 @@ int TString::tsprintf(_Printf_format_string_ const_pointer_const fmt, ...)
 	return cnt;
 }
 
-int TString::tvprintf(_Printf_format_string_ const_pointer_const fmt, va_list args)
+int TString::tvprintf(_In_z_ _Printf_format_string_ const_pointer_const fmt, _In_ va_list args)
 {
 	const auto cnt = ts_vscprintf(fmt, args);
 	if (cnt > 0)

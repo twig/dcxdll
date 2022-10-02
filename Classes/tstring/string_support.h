@@ -1,6 +1,6 @@
 #pragma once
 // support functions for TString & c-string handling...
-// v1.18
+// v1.19
 
 #include <tchar.h>
 #include <cstdlib>
@@ -183,10 +183,19 @@ namespace details {
 	};
 
 	template <class T>
+	concept HasCapacityFunction = requires(T t)
+	{
+		static_cast<std::size_t>(t.capacity_cch());
+	};
+
+	template <class T>
 	concept HasDataSizeNoChr = HasDataFunction<T> && HasSizeFunction<T> && !HasChrFunction<T>;
 
 	template <class T>
 	concept HasDataSizeChr = HasDataFunction<T> && HasSizeFunction<T> && HasChrFunction<T>;
+
+	template <class T>
+	concept HasCapacityChr = HasCapacityFunction<T> && HasChrFunction<T>;
 
 	constexpr WCHAR make_upper(_In_ const WCHAR c) noexcept
 	{
@@ -627,7 +636,7 @@ namespace details {
 	template <>
 	struct _impl_vscprintf<char> {
 		GSL_SUPPRESS(f.55)
-		const int operator()(_In_z_ _Printf_format_string_ const char* const fmt, const va_list args) noexcept
+		_Check_return_ const int operator()(_In_z_ _Printf_format_string_ const char* const fmt, _In_ const va_list args) noexcept
 		{
 			return _vscprintf(fmt, args);
 		}
@@ -635,7 +644,7 @@ namespace details {
 	template <>
 	struct _impl_vscprintf<wchar_t> {
 		GSL_SUPPRESS(f.55)
-		const int operator()(_In_z_ _Printf_format_string_ const wchar_t* const fmt, const va_list args) noexcept
+			_Success_(return >= 0) _Check_return_ const int operator()(_In_z_ _Printf_format_string_ const wchar_t* const fmt, const va_list args) noexcept
 		{
 			return _vscwprintf(fmt, args);
 		}
@@ -647,7 +656,7 @@ namespace details {
 	template <>
 	struct _impl_vsprintf<char> {
 		GSL_SUPPRESS(f.55)
-			const int operator()(_Out_writes_opt_(nCount) _Always_(_Post_z_) char* const buf, _In_ size_t nCount, _In_z_ _Printf_format_string_ const char* const fmt, const va_list args) noexcept
+			_Success_(return >= 0) _Check_return_opt_ const int operator()(_Out_writes_opt_(nCount) _Always_(_Post_z_) char* const buf, _In_ size_t const nCount, _In_z_ _Printf_format_string_ const char* const fmt, const va_list args) noexcept
 		{
 			return vsnprintf(buf, nCount, fmt, args);
 		}
@@ -655,7 +664,7 @@ namespace details {
 	template <>
 	struct _impl_vsprintf<wchar_t> {
 		GSL_SUPPRESS(f.55)
-			const int operator()(_Out_writes_opt_(nCount) _Always_(_Post_z_) wchar_t* const buf, _In_ size_t nCount, _In_z_ _Printf_format_string_ const wchar_t* const fmt, const va_list args) noexcept
+			_Success_(return >= 0) _Check_return_opt_ const int operator()(_Out_writes_opt_(nCount) _Always_(_Post_z_) wchar_t* const buf, _In_ size_t const nCount, _In_z_ _Printf_format_string_ const wchar_t* const fmt, const va_list args) noexcept
 		{
 			return vswprintf(buf, nCount, fmt, args);
 		}
@@ -666,14 +675,14 @@ namespace details {
 	};
 	template <typename... Arguments>
 	struct _impl_snprintf<char, char, Arguments...> {
-		const int operator()(_Out_writes_opt_(nCount) _Always_(_Post_z_) char* const buf, _In_ const size_t nCount, _In_z_ _Printf_format_string_ const char* const fmt, _In_ const Arguments&&... args) noexcept
+		_Success_(return >= 0) _Check_return_opt_ const int operator()(_Out_writes_opt_(nCount) _Always_(_Post_z_) char* const buf, _In_ const size_t nCount, _In_z_ _Printf_format_string_ const char* const fmt, _In_ const Arguments&&... args) noexcept
 		{
 			return snprintf(buf, nCount, fmt, args...);
 		}
 	};
 	template <typename... Arguments>
 	struct _impl_snprintf<wchar_t, wchar_t, Arguments...> {
-		const int operator()(_Out_writes_opt_(nCount) _Always_(_Post_z_) wchar_t* const buf, _In_ const size_t nCount, _In_z_ _Printf_format_string_ const wchar_t* const fmt, _In_ const Arguments&&... args) noexcept
+		_Success_(return >= 0) _Check_return_opt_ const int operator()(_Out_writes_opt_(nCount) _Always_(_Post_z_) wchar_t* const buf, _In_ const size_t nCount, _In_z_ _Printf_format_string_ const wchar_t* const fmt, _In_ const Arguments&&... args) noexcept
 		{
 			return _snwprintf(buf, nCount, fmt, args...);
 		}
@@ -681,7 +690,7 @@ namespace details {
 
 	template <HasDataSizeNoChr T, typename... Arguments>
 	struct _impl_snprintf<T, typename T::value_type, Arguments...> {
-		const int operator()(_Out_ T& buf, _In_z_ _Printf_format_string_ const typename T::value_type* const fmt, _In_ const Arguments&&... args) noexcept
+		_Success_(return >= 0) _Check_return_opt_ const int operator()(_Out_ T& buf, _In_z_ _Printf_format_string_ const typename T::value_type* const fmt, _In_ const Arguments&&... args) noexcept
 		{
 			if constexpr (std::is_same_v<char, T::value_type>)
 				return snprintf(buf.data(), buf.size(), fmt, args...);
@@ -689,14 +698,14 @@ namespace details {
 				return _snwprintf(buf.data(), buf.size(), fmt, args...);
 		}
 	};
-	template <HasDataSizeChr T, typename... Arguments>
+	template <HasCapacityChr T, typename... Arguments>
 	struct _impl_snprintf<T, typename T::value_type, Arguments...> {
-		const int operator()(_Out_ T& buf, _In_z_ _Printf_format_string_ const typename T::value_type* const fmt, _In_ const Arguments&&... args) noexcept
+		_Success_(return >= 0) _Check_return_opt_ const int operator()(_Out_ T& buf, _In_z_ _Printf_format_string_ const typename T::value_type* const fmt, _In_ const Arguments&&... args) noexcept
 		{
 			if constexpr (std::is_same_v<char, T::value_type>)
-				return snprintf(buf.to_chr(), buf.size(), fmt, args...);
+				return snprintf(buf.to_chr(), buf.capacity_cch(), fmt, args...);
 			else
-				return _snwprintf(buf.to_chr(), buf.size(), fmt, args...);
+				return _snwprintf(buf.to_chr(), buf.capacity_cch(), fmt, args...);
 		}
 	};
 
@@ -976,7 +985,7 @@ int _ts_stricmp(_In_z_ const T* const sDest, _In_z_ const T* const sSrc) noexcep
 }
 
 template <details::IsPODText T>
-int _ts_vscprintf(_In_z_ _Printf_format_string_ const T* const _Format, va_list _ArgList) noexcept
+_Check_return_ int _ts_vscprintf(_In_z_ _Printf_format_string_ const T* const _Format, _In_ va_list _ArgList) noexcept
 {
 	static_assert(details::IsPODText<T>, "Only char & wchar_t supported...");
 
@@ -984,7 +993,7 @@ int _ts_vscprintf(_In_z_ _Printf_format_string_ const T* const _Format, va_list 
 }
 
 template <details::IsPODText T>
-int _ts_vsprintf(_Out_writes_opt_(nCount) _Always_(_Post_z_) T* const buf, _In_ size_t nCount, _In_z_ _Printf_format_string_ const T* const fmt, const va_list args) noexcept
+_Success_(return >= 0) _Check_return_opt_ int _ts_vsprintf(_Out_writes_opt_(nCount) _Always_(_Post_z_) T* const buf, _In_ size_t nCount, _In_z_ _Printf_format_string_ const T* const fmt, const va_list args) noexcept
 {
 	static_assert(details::IsPODText<T>, "Only char & wchar_t supported...");
 
@@ -992,7 +1001,7 @@ int _ts_vsprintf(_Out_writes_opt_(nCount) _Always_(_Post_z_) T* const buf, _In_ 
 }
 
 template <details::IsPODText T, typename Format, typename... Arguments>
-int _ts_snprintf(_Out_writes_opt_(nCount) _Always_(_Post_z_) T* const buf, _In_ const size_t nCount, _In_z_ _Printf_format_string_ const Format* const fmt, _In_ Arguments&&... args) noexcept
+_Success_(return >= 0) _Check_return_opt_ int _ts_snprintf(_Out_writes_opt_(nCount) _Always_(_Post_z_) T* const buf, _In_ const size_t nCount, _In_z_ _Printf_format_string_ const Format* const fmt, _In_ Arguments&&... args) noexcept
 {
 	static_assert(details::IsPODText<T>, "Only char & wchar_t supported...");
 	static_assert(std::is_same_v<std::remove_cv_t<T>, std::remove_cv_t<Format>>, "Buffer & format must have same type.");
@@ -1001,7 +1010,7 @@ int _ts_snprintf(_Out_writes_opt_(nCount) _Always_(_Post_z_) T* const buf, _In_ 
 }
 
 template <typename T, details::IsPODText Format, typename... Arguments>
-int _ts_snprintf(_Out_ T& buf, _In_z_ _Printf_format_string_ const Format* const fmt, _In_ Arguments&&... args) noexcept
+_Success_(return >= 0) _Check_return_opt_ int _ts_snprintf(_Out_ T& buf, _In_z_ _Printf_format_string_ const Format* const fmt, _In_ Arguments&&... args) noexcept
 {
 	static_assert(details::IsPODText<Format>, "Only char & wchar_t supported...");
 

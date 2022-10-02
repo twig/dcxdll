@@ -6,7 +6,7 @@
  * comparisons and token manipulations as done in the mIRC scripting language.
  *
  * \author David Legault ( clickhere at scriptsdb dot org )
- * \version 1.20
+ * \version 1.21
  *
  * \b Revisions
  *	1.1
@@ -57,15 +57,19 @@
  *
  *  1.17
  *      Changed to use cstdio & cstdlib
- * 
+ *
  *  1.18
  *		Fixed constructor bug.
- * 
+ *
  *  1.19
  *		Fixed issue with getnexttok() when changing tokens used.
+ *
  *	1.20
  *		Added IsPointer concept
  *		Added to_<T>() for changing the data to other pointer types.
+ * 
+ *  1.21
+ *      Added some SAL
  * 
  * © ScriptsDB.org - 2005-2021
  */
@@ -100,7 +104,8 @@
 // pre-defined for concepts
 class TString;
 
-namespace TStringConcepts {
+namespace TStringConcepts
+{
 	template <class T>
 	concept IsCharText = std::is_same_v<std::remove_cvref_t<std::remove_all_extents_t<T>>, char>;
 
@@ -1897,14 +1902,18 @@ public:
 	[[nodiscard]] TString left(int n) const;
 	[[nodiscard]] TString right(int n) const;
 
-	int tsprintf(_Printf_format_string_ const_pointer_const fmt, ...);
-	int tvprintf(_Printf_format_string_ const_pointer_const fmt, va_list args);
+	int tsprintf(_In_z_ _Printf_format_string_ const_pointer_const fmt, ...);
+	int tvprintf(_In_z_ _Printf_format_string_ const_pointer_const fmt, _In_ va_list args);
 
 	[[nodiscard]] pointer to_chr() noexcept { m_bDirty = true;  return m_pString; };	// returns the string in the projects current format. (string can be altered)
-	//gsl::strict_not_null<pointer> to_chr() noexcept { m_bDirty = true;  return gsl::make_strict_not_null(m_pString); };	// returns the string in the projects current format. (string can be altered)
 	[[nodiscard]] const_pointer to_chr() const noexcept { return m_pString; };		// returns the string in the projects current format. (string can't be altered)
 	[[nodiscard]] WCHAR* to_wchr() noexcept { m_bDirty = true;  return m_pString; };	// returns the string in wide format (string can be altered)
 	[[nodiscard]] const WCHAR* const to_wchr() const noexcept { return m_pString; };	// returns the string in wide format (string can't be altered)
+	//[[nodiscard]] gsl::strict_not_null<pointer> to_chr() noexcept { m_bDirty = true;  return gsl::make_strict_not_null(m_pString); };	// returns the string in the projects current format. (string can be altered)
+	//[[nodiscard]] gsl::strict_not_null<const_pointer> to_chr() const noexcept { return gsl::make_strict_not_null(m_pString); };		// returns the string in the projects current format. (string can't be altered)
+	//[[nodiscard]] gsl::strict_not_null<WCHAR*> to_wchr() noexcept { m_bDirty = true;  return gsl::make_strict_not_null(m_pString); };	// returns the string in wide format (string can be altered)
+	//[[nodiscard]] gsl::strict_not_null<const WCHAR* const> to_wchr() const noexcept { return gsl::make_strict_not_null(m_pString); };	// returns the string in wide format (string can't be altered)
+
 	//char * c_str(void)														// returns the string as a char * (string can be altered)
 	//{
 	//	MakeTemp();
