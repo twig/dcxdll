@@ -2074,7 +2074,7 @@ void AddFileIcons(HIMAGELIST himl, TString& filename, const bool bLarge, const i
 		//Auto(DestroyIcon(hIcon));
 
 		// auto free handle hIcon when going out of scope or throwing an exception (testing)
-		auto IconGuard = gsl::finally([hIcon]() { DestroyIcon(hIcon); });
+		auto IconGuard = gsl::finally([hIcon]() noexcept { DestroyIcon(hIcon); });
 
 		if (ImageList_ReplaceIcon(himl, IconIndex, hIcon) == -1)
 			throw Dcx::dcxException(TEXT("Unable to Add %'s Icon %"), filename, FileIndex);
@@ -2087,6 +2087,9 @@ void AddFileIcons(HIMAGELIST himl, TString& filename, const bool bLarge, const i
 
 BOOL dcxGetWindowRect(const HWND hWnd, const LPRECT lpRect) noexcept
 {
+	if ((!hWnd) || (!lpRect))
+		return FALSE;
+
 	// as described in a comment at http://msdn.microsoft.com/en-us/library/ms633519(VS.85).aspx
 	// GetWindowRect does not return the real size of a window if you are using vista with areo glass
 	// using DwmGetWindowAttribute now to fix that (fixes bug 685)
@@ -2100,25 +2103,29 @@ BOOL dcxGetWindowRect(const HWND hWnd, const LPRECT lpRect) noexcept
 */
 void DrawRotatedText(const TString& strDraw, const LPCRECT rc, const HDC hDC, const int nAngleLine/* = 0*/, const bool bEnableAngleChar /*= false*/, const int nAngleChar /*= 0*/) noexcept
 {
-	if ((nAngleLine == 0) && (!bEnableAngleChar))
-	{
-		TextOut(hDC, rc->left, rc->bottom, strDraw.to_chr(), gsl::narrow_cast<int>(strDraw.len()));
-		//DrawText(hDC, strDraw.to_chr(), strDraw.len(), rc, styles);
-		return;
-	}
-	//LOGFONT lf{};
-	//
-	//if (GetObject(Dcx::dcxGetCurrentObject<HFONT>(hDC, OBJ_FONT), sizeof(LOGFONT), &lf) == 0)
-	//	return;
-
-	auto [code, lf] = Dcx::dcxGetObject<LOGFONT>(Dcx::dcxGetCurrentObject<HFONT>(hDC, OBJ_FONT));
-	if (code == 0)
+	if ((!rc) || (!hDC))
 		return;
 
 	// Set the background mode to transparent for the
 	// text-output operation.
 	const auto nOldBkMode = SetBkMode(hDC, TRANSPARENT);
 	Auto(SetBkMode(hDC, nOldBkMode));
+
+	if ((nAngleLine == 0) && (!bEnableAngleChar))
+	{
+		TextOut(hDC, rc->left, rc->bottom, strDraw.to_chr(), gsl::narrow_cast<int>(strDraw.len()));
+		//DrawText(hDC, strDraw.to_chr(), strDraw.len(), rc, styles);
+		return;
+	}
+
+	auto [code, lf] = Dcx::dcxGetObject<LOGFONT>(Dcx::dcxGetCurrentObject<HFONT>(hDC, OBJ_FONT));
+	if (code == 0)
+		return;
+
+	//// Set the background mode to transparent for the
+	//// text-output operation.
+	//const auto nOldBkMode = SetBkMode(hDC, TRANSPARENT);
+	//Auto(SetBkMode(hDC, nOldBkMode));
 
 	// Specify the angle to draw line
 	lf.lfEscapement = nAngleLine * 10;

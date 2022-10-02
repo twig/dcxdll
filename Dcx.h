@@ -1584,7 +1584,7 @@ namespace Dcx
 
 	template <class T>
 	GSL_SUPPRESS(lifetime)
-		inline auto dcxGetProp(_In_ HWND hwnd, _In_ const TCHAR* const str) noexcept
+		inline auto dcxGetProp(_In_ HWND hwnd, _In_z_ const TCHAR* const str) noexcept
 	{
 		if constexpr (std::is_integral_v<T>)
 			return reinterpret_cast<T>(GetProp(hwnd, str));
@@ -1596,7 +1596,7 @@ namespace Dcx
 
 	template <class T, class Window>
 	GSL_SUPPRESS(lifetime)
-		inline auto dcxGetProp(_In_ Window hwnd, _In_ const TCHAR* const str) noexcept
+		inline auto dcxGetProp(_In_ Window hwnd, _In_z_ const TCHAR* const str) noexcept
 	{
 		if constexpr (std::is_integral_v<T>)
 			return reinterpret_cast<T>(GetProp(reinterpret_cast<HWND>(hwnd), str));
