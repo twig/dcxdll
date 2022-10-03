@@ -425,6 +425,53 @@
 <br />
 <table class="xdidprop">
 	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
+			<a name="xdidprop.find"></a>$xdid().find	</td></tr>
+	<tr><td colspan="2">This property lets you retreive the character offset of the Nth found match to the input search patern.</td></tr>
+	<tr>
+		<td class="syntax">Syntax:</td>
+		<td><div class="syntax">$xdid(dialog, ID, [TAB]Matchtext[TAB], T, N, LINE, SUBCHAR).find</div></td>
+	</tr>
+	<tr>
+		<td class="example">Example:</td>
+		<td><div class="example">$xdid(dcx, 4, $chr(9) *Item* $chr(9), W, 3, 1, 30).find</div></td>
+	</tr>
+	<tr><td colspan="2"><b>Parameters:</b></td></tr>
+	<tr>
+		<td class="param">MATCHTEXT</td>
+		<td>String composed of wildcards or regex paterns used for the search.</td>
+	</tr>
+	<tr>
+		<td class="param">T</td>
+		<td>Value indicating if the search is using a regex patern or wildcard string.</td>
+	</tr>
+	<tr>
+		<td class="value">W</td>
+		<td>Matchtext is a wildcard string.</td>
+	</tr>
+	<tr>
+		<td class="value">R</td>
+		<td>Matchtext is a regex patern.</td>
+	</tr>
+	<tr>
+		<td class="value">E</td>
+		<td>Matchtext is an exact match</td>
+	</tr>
+	<tr>
+		<td class="param">N</td>
+		<td>Parameter indicating to return the Nth match.</td>
+	</tr>
+	<tr>
+		<td class="param">LINE</td>
+		<td>The line to start the search at.</td>
+	</tr>
+	<tr>
+		<td class="param">SUBCHAR</td>
+		<td>The character within the line to start the search at.</td>
+	</tr>
+<tr><td colspan='2'>&nbsp;</td></tr><tr><td colspan='2'><a class="note">Note.</a><ul><li>If <a class="param">N</a> is <a class="value">0</a>, returns the total number of matching items.</li><li>The [TAB] characters surrounding the matchtext are mandatory or else it wont work.</li></ul></td></tr></table>
+<br />
+<table class="xdidprop">
+	<tr><td colspan="2" class="flag" style="color: #A8B2D1; border-color: #A8B2D1;">
 			<a name="xdidprop.guttercolours"></a>$xdid().guttercolours	</td></tr>
 	<tr><td colspan="2">This returns the colours used to draw line numbers.</td></tr>
 	<tr>
@@ -772,6 +819,7 @@
 	<a class='header' href="#xdidprop"><div style='background:#A8B2D1;'>$xdid() Properties</div></a>
 		<a class='flag' href="#xdidprop.caretpos"><div>caretpos</div></a>
 		<a class='flag' href="#xdidprop.cue"><div>cue</div></a>
+		<a class='flag' href="#xdidprop.find"><div>find</div></a>
 		<a class='flag' href="#xdidprop.guttercolours"><div>guttercolours</div></a>
 		<a class='flag' href="#xdidprop.ispass"><div>ispass</div></a>
 		<a class='flag' href="#xdidprop.isreadonly"><div>isreadonly</div></a>
@@ -805,7 +853,7 @@
 	<tr>
 	    <td><a href="mailto:clickhere@scriptsdb.org">Contact</a></td>
 		<td style="text-align: center;">© 2005-2022</td>
-		<td style="text-align: right;">Last Updated: 23rd September, 22</td>
+		<td style="text-align: right;">Last Updated: 3rd October, 22</td>
 	</tr>
 </table>
 <div style="text-align: center;">
