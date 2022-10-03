@@ -59,6 +59,27 @@ constexpr inline float RangeToPercentage(long range) noexcept
 	return gsl::narrow_cast<float>((gsl::narrow_cast<double>(-(range)) / 10000.0) * 100.0);
 }
 
+/// <summary>
+/// Safely relase a COM object and set the pointer to nullptr
+/// </summary>
+/// <typeparam name="T">Some COM type.</typeparam>
+/// <param name="ptr">- Pointer to the COM object to release.</param>
+/// <returns></returns>
+template <typename T>
+void dcxSafeRelease(__maybenull T** ptr) noexcept
+{
+	if (!ptr)
+		return;
+
+	try {
+		if (*ptr)
+			(*ptr)->Release();
+	}
+	catch (...) {}
+
+	*ptr = nullptr;
+}
+
 //template <class T>
 //struct MyCOMClass {
 //	using value_type = T *;
@@ -86,7 +107,8 @@ constexpr inline float RangeToPercentage(long range) noexcept
 //};
 
 template <class T>
-struct MyBaseCOMClass {
+struct MyBaseCOMClass
+{
 	using value_type = T*;
 
 	MyBaseCOMClass() noexcept = default;
@@ -117,14 +139,16 @@ struct MyBaseCOMClass {
 	}
 	virtual ~MyBaseCOMClass() noexcept
 	{
-		try {
-			if (mData)
-				mData->Release();
-		}
-		catch (...)
-		{
-		}
-		mData = nullptr;
+		//try {
+		//	if (mData)
+		//		mData->Release();
+		//}
+		//catch (...)
+		//{
+		//}
+		//mData = nullptr;
+
+		dcxSafeRelease<T>(&mData);
 	}
 
 	explicit operator bool() const noexcept
@@ -374,7 +398,7 @@ protected:
 	HRESULT SetVideoPos(void);
 	void ReleaseAll(void) noexcept;
 
-	enum class Properties : UINT { PROP_AUTHOR = 0, PROP_TITLE, PROP_RATING, PROP_DESCRIPTION };
+	enum class Properties : UINT { PROP_AUTHOR = 0, PROP_TITLE, PROP_RATING, PROP_DESCRIPTION, PROP_COPYRIGHT, PROP_MOREINFO };
 
 	HRESULT getProperty(const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>& prop, const Properties type) const noexcept;
 	HRESULT setAlpha(float alpha);

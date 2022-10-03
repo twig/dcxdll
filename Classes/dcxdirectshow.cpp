@@ -137,6 +137,9 @@ void DcxDirectshow::parseInfoRequest(const TString& input, const refString<TCHAR
 			// [NAME] [ID] [PROP]
 		case L"size"_hash:
 		{
+			if (!m_pWc)
+				throw Dcx::dcxException("No IVMRWindowlessControl9 set.");
+
 			long lWidth{}, lHeight{}, lARWidth{}, lARHeight{};
 
 			if (const auto hr = m_pWc->GetNativeVideoSize(&lWidth, &lHeight, &lARWidth, &lARHeight); FAILED(hr))
@@ -156,6 +159,18 @@ void DcxDirectshow::parseInfoRequest(const TString& input, const refString<TCHAR
 			// [NAME] [ID] [PROP]
 		case L"title"_hash:
 			getProperty(szReturnValue, Properties::PROP_TITLE);
+			break;
+			// [NAME] [ID] [PROP]
+		case L"description"_hash:
+			getProperty(szReturnValue, Properties::PROP_DESCRIPTION);
+			break;
+			// [NAME] [ID] [PROP]
+		case L"copyright"_hash:
+			getProperty(szReturnValue, Properties::PROP_COPYRIGHT);
+			break;
+			// [NAME] [ID] [PROP]
+		case L"moreinfo"_hash:
+			getProperty(szReturnValue, Properties::PROP_MOREINFO);
 			break;
 			// [NAME] [ID] [PROP]
 		case L"video"_hash:
@@ -283,6 +298,9 @@ void DcxDirectshow::parseInfoRequest(const TString& input, const refString<TCHAR
 			and anything else you can think of i guess
 			*/
 
+			if (!m_pControl)
+				throw Dcx::dcxException("No IMediaControl set.");
+
 			OAFilterState pfs = State_Stopped;
 
 			if (const auto hr = this->m_pControl->GetState(1000, &pfs); SUCCEEDED(hr))
@@ -359,19 +377,19 @@ void DcxDirectshow::parseCommandRequest(const TString& input)
 			// Create the Filter Graph Manager and query for interfaces.
 			hr = CoCreateInstance(CLSID_FilterGraph, nullptr, CLSCTX_INPROC_SERVER, IID_IGraphBuilder, reinterpret_cast<void**>(&this->m_pGraph));
 
-			if (FAILED(hr))
+			if (FAILED(hr) || !this->m_pGraph)
 				throw Dcx::dcxException("Unable to Create FilterGraph");
 
 			hr = this->m_pGraph->QueryInterface(IID_IMediaControl, reinterpret_cast<void**>(&this->m_pControl));
-			if (FAILED(hr))
+			if (FAILED(hr) || !this->m_pControl)
 				throw Dcx::dcxException("Unable to Get IMediaControl");
 
 			hr = this->m_pGraph->QueryInterface(IID_IMediaEventEx, reinterpret_cast<void**>(&this->m_pEvent));
-			if (FAILED(hr))
+			if (FAILED(hr) || !this->m_pEvent)
 				throw Dcx::dcxException("Unable to Get IMediaEventEx");
 
 			hr = this->m_pGraph->QueryInterface(IID_IMediaSeeking, reinterpret_cast<void**>(&this->m_pSeek));
-			if (FAILED(hr))
+			if (FAILED(hr) || !this->m_pSeek)
 				throw Dcx::dcxException("Unable to Get IMediaSeeking");
 
 			hr = this->m_pEvent->SetNotifyWindow(reinterpret_cast<OAHWND>(m_Hwnd), WM_GRAPHNOTIFY, 0);
@@ -727,7 +745,8 @@ IVMRWindowlessControl9* DcxDirectshow::InitWindowlessVMR(const HWND hwndApp, IGr
 		if (FAILED(hr))
 			throw Dcx::dcxException("InitWindowlessVMR() - Unable to Create Video Mixing Renderer9");
 
-		Auto(pVmr->Release());
+		//Auto(pVmr->Release());
+		Auto(dcxSafeRelease(&pVmr));
 
 		// Add the VMR to the filter graph.
 		hr = pGraph->AddFilter(pVmr, L"Video Mixing Renderer");	// dont use TEXT() here.
@@ -845,7 +864,7 @@ void DcxDirectshow::ReleaseAll() noexcept
 			this->m_pControl->Release();
 		if (this->m_pEvent)
 		{
-			this->m_pEvent->SetNotifyWindow((OAHWND)0, 0, 0);
+			this->m_pEvent->SetNotifyWindow(0, 0, 0);
 			this->m_pEvent->Release();
 		}
 		if (this->m_pSeek)
@@ -921,6 +940,12 @@ HRESULT DcxDirectshow::getProperty(const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>&
 			break;
 		case Properties::PROP_DESCRIPTION:
 			hr = iam->get_Description(&com_prop);
+			break;
+		case Properties::PROP_COPYRIGHT:
+			hr = iam->get_Copyright(&com_prop);
+			break;
+		case Properties::PROP_MOREINFO:
+			hr = iam->get_MoreInfoText(&com_prop);
 			break;
 		default:
 			break;
