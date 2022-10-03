@@ -168,6 +168,29 @@ function get_xdidprops_edit(&$XDIDPROPS) {
 		    '__desc' => 'This returns the colours used to draw line numbers.',
 		    '__notes' => 'The return value is [p]Selected line Background Colour[/p] [p]Background Colour[/p] [p]Selected Line Text Colour[/p] [p]Text Colour[/p] [p]Border Colour[/p]',
 		),
+		"find" => array(
+            '__desc' => "This property lets you retreive the character offset of the Nth found match to the input search patern.",
+            '__cmd' => '[TAB]Matchtext[TAB], T, N, LINE, SUBCHAR',
+            '__eg' => '$chr(9) *Item* $chr(9), W, 3, 1, 30',
+            '__params' => array(
+                    'MATCHTEXT' => 'String composed of wildcards or regex paterns used for the search.',
+                    'T' => array(
+                            '__desc' => 'Value indicating if the search is using a regex patern or wildcard string.',
+                            '__values' => array(
+                                    'W' => 'Matchtext is a wildcard string.',
+                                    'R' => 'Matchtext is a regex patern.',
+									'E' => 'Matchtext is an exact match',
+                            ),
+                    ),
+                    'N' => 'Parameter indicating to return the Nth match.',
+                    'LINE' => 'The line to start the search at.',
+                    'SUBCHAR' => 'The character within the line to start the search at.',
+            ),
+			'__notes' => array(
+				'If [p]N[/p] is [v]0[/v], returns the total number of matching items.',
+				'The [TAB] characters surrounding the matchtext are mandatory or else it wont work.',
+			),
+		),
 	);
 }
 

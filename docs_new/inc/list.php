@@ -119,27 +119,27 @@ function get_xdid_list(&$XDID) {
 
 function get_xdidprops_list(&$XDIDPROPS) {
 	$XDIDPROPS = array(
-                "find" => array(
-                        '__desc' => "This property lets you retreive the listview item index and column index of the Nth found listview item matching the input search patern.",
-                        '__cmd' => '[TAB]Matchtext[TAB], T, N',
-                        '__eg' => '$chr(9) *Item* $chr(9), W, 3',
-                        '__params' => array(
-                                'MATCHTEXT' => 'String composed of wildcards or regex paterns used for the search.',
-                                'T' => array(
-                                        '__desc' => 'Value indicating if the search is using a regex patern or wildcard string.',
-                                        '__values' => array(
-                                                'W' => 'Matchtext is a wildcard string.',
-                                                'R' => 'Matchtext is a regex patern.',
-												'E' => 'Matchtext is an exact match',
-                                        ),
+        "find" => array(
+                '__desc' => "This property lets you retreive the list item index and column index of the Nth found list item matching the input search patern.",
+                '__cmd' => '[TAB]Matchtext[TAB], T, N',
+                '__eg' => '$chr(9) *Item* $chr(9), W, 3',
+                '__params' => array(
+                        'MATCHTEXT' => 'String composed of wildcards or regex paterns used for the search.',
+                        'T' => array(
+                                '__desc' => 'Value indicating if the search is using a regex patern or wildcard string.',
+                                '__values' => array(
+                                        'W' => 'Matchtext is a wildcard string.',
+                                        'R' => 'Matchtext is a regex patern.',
+										'E' => 'Matchtext is an exact match',
                                 ),
-                                'N' => 'Parameter indicating to return the Nth match.'
                         ),
-			'__notes' => array(
-				'If [p]N[/p] is [v]0[/v], returns the total number of matching items.',
-				'The [TAB] characters surrounding the matchtext are mandatory or else it wont work.',
-				'The global search iterates line by line, starting at the top.',
-			),
+                        'N' => 'Parameter indicating to return the Nth match.'
+                ),
+				'__notes' => array(
+					'If [p]N[/p] is [v]0[/v], returns the total number of matching items.',
+					'The [TAB] characters surrounding the matchtext are mandatory or else it wont work.',
+					'The global search iterates line by line, starting at the top.',
+				),
 		),
 		"text" => array(
 		    '__desc' => "This property lets you retreive the Nth listbox item text.",
