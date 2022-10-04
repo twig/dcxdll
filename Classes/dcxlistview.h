@@ -69,6 +69,27 @@ class DcxDialog;
 
 #define LVSCW_AUTOSIZE_MAX	-3	// Max of LVSCW_AUTOSIZE & LVSCW_AUTOSIZE_USEHEADER
 
+#ifndef LVSIL_FOOTER
+#define LVSIL_FOOTER 4	// The image list for the footer. (undocumented)
+#endif
+
+// undocumented methods
+#ifndef LVM_EDITSUBITEM
+#define LVM_EDITSUBITEM  0x10B7 // 6.10 and higher translates to EditSubItem method
+#endif
+#ifndef LVM_ENSURESUBITEMVISIBLE
+#define LVM_ENSURESUBITEMVISIBLE 0x10B8 // 6.10 and higher translates to EnsureSubItemVisible method
+#endif
+#ifndef LVM_QUERYINTERFACE
+#define LVM_QUERYINTERFACE (LVM_FIRST + 189) // 6.10 and higher passes wParam and lParam to QueryInterface method;  returns TRUE for success, else FALSE
+#endif
+#ifndef LVM_SETVIEWMARGIN
+#define LVM_SETVIEWMARGIN  0x105A // 6.00 and higher passes lParam to SetViewMargin method; returns TRUE for success, else FALSE
+#endif
+#ifndef LVM_GETVIEWMARGIN
+#define LVM_GETVIEWMARGIN  0x105B // 6.00 and higher passes lParam to GetViewMargin method; returns TRUE for success, else FALSE
+#endif
+
 struct CharRank
 {
 	TCHAR c{};
@@ -417,6 +438,33 @@ namespace Dcx
 	{
 		return ListView_IsItemVisible(hwnd, i);
 	}
+	inline LRESULT dcxListView_EditSubItem(_In_ HWND hwnd, _In_ int iItem, _In_ int iSubItem) noexcept
+	{
+		return SendMessage(hwnd, LVM_EDITSUBITEM, iItem, iSubItem);
+}
+	inline LRESULT dcxListView_EnsureSubItemVisible(_In_ HWND hwnd, _In_ int iItem, _In_ int iSubItem) noexcept
+	{
+		return SendMessage(hwnd, LVM_ENSURESUBITEMVISIBLE, iItem, iSubItem);
+	}
+	inline BOOL dcxListView_QueryInterface(_In_ HWND hwnd, _In_ REFIID iid, IUnknown** pUnkn) noexcept
+	{
+		if ((!hwnd) || (!pUnkn))
+			return FALSE;
+
+		return gsl::narrow_cast<BOOL>(SendMessage(hwnd, LVM_QUERYINTERFACE, reinterpret_cast<WPARAM>(&iid), reinterpret_cast<LPARAM>(pUnkn)));
+	}
+	inline BOOL dcxListView_SetViewMargin(_In_ HWND hwnd, LPCRECT pRC) noexcept
+	{
+		return gsl::narrow_cast<BOOL>(SendMessage(hwnd, LVM_SETVIEWMARGIN, 0, reinterpret_cast<LPARAM>(pRC)));
+	}
+	inline BOOL dcxListView_GetViewMargin(_In_ HWND hwnd, LPRECT pRC) noexcept
+	{
+		return gsl::narrow_cast<BOOL>(SendMessage(hwnd, LVM_GETVIEWMARGIN, 0, reinterpret_cast<LPARAM>(pRC)));
+	}
+	inline BOOL dcxListView_GetViewRect(_In_ HWND hwnd, LPRECT pRC) noexcept
+	{
+		return gsl::narrow_cast<BOOL>(SendMessage(hwnd, LVM_GETVIEWRECT, 0, reinterpret_cast<LPARAM>(pRC)));
+	}
 }
 
 /*!
@@ -560,11 +608,11 @@ private:
 	}
 
 	//
-	HFONT m_hItemFont{ nullptr };					// Font used for specific item changes.
-	HFONT m_hOldItemFont{ nullptr };				// Font used for specific item changes.
+	HFONT m_hItemFont{ nullptr };		// Font used for specific item changes.
+	HFONT m_hOldItemFont{ nullptr };	// Font used for specific item changes.
 	int m_iSelectedItem{};				// Items currently selected.
-	int m_iSelectedSubItem{};				// SubItems currently selected.
-	mutable int m_iColumnCount{ -1 };			// the number of columns in the listview, a -1 value mean "dont know"
+	int m_iSelectedSubItem{};			// SubItems currently selected.
+	mutable int m_iColumnCount{ -1 };	// the number of columns in the listview, a -1 value mean "dont know"
 	VectorOfColumnInfo	m_vWidths;		// column widths for dynamic sizing of columns.
 	//(qaohvV)~&@%+-
 	static constexpr CharRank m_ranks[7] = {

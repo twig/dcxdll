@@ -494,7 +494,7 @@ void DcxListView::parseInfoRequest(const TString& input, const refString<TCHAR, 
 				if (n > nSelItems)
 					return;
 
-				// return total count of selected files
+				// return total count of selected items
 				if (n == 0)
 				{
 					_ts_snprintf(szReturnValue, TEXT("%u"), nSelItems);
@@ -659,6 +659,8 @@ void DcxListView::parseInfoRequest(const TString& input, const refString<TCHAR, 
 	// [NAME] [ID] [PROP]
 	case L"tbitem"_hash:
 	{
+		// Only gives usefull results when in report or list views & groups are disabled.
+		// 
 		//if (this->isStyle(LVS_REPORT) || this->isStyle(LVS_LIST))	// applies to all views??
 		_ts_snprintf(szReturnValue, TEXT("%d %d"), this->getTopIndex() + 1, this->getBottomIndex() + 1);
 	}
@@ -1587,8 +1589,6 @@ void DcxListView::parseCommandRequest(const TString& input)
 				(gsl::narrow_cast<UINT>(tmp) > count)) // out of array bounds
 				throw Dcx::dcxException(TEXT("Invalid index %."), tmp);
 
-			//std::clamp(gsl::narrow_cast<UINT>(tmp), 0U, count);
-
 			gsl::at(indexes, i++) = tmp - 1;
 		}
 
@@ -1965,12 +1965,13 @@ void DcxListView::parseCommandRequest(const TString& input)
 		}
 	}
 	// xdid -W [NAME] [ID] [SWITCH] [STYLE]
+	// xdid -W [NAME] [ID] [SWITCH] [STYLE|nochange] (CONTROL EXTENDED STYLES)
 	else if (flags[TEXT('W')])
 	{
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		auto mode = LV_VIEW_DETAILS;
+		DWORD mode = MAXDWORD;
 
 		switch (std::hash<TString>{}(input.getnexttok()))
 		{
@@ -1989,11 +1990,23 @@ void DcxListView::parseCommandRequest(const TString& input)
 		case TEXT("tile"_hash):
 			mode = LV_VIEW_TILE;
 			break;
+		case TEXT("nochange"_hash):
 		default:
+			mode = MAXDWORD;
 			break;
 		}
 
+		if (mode != MAXDWORD)
 		Dcx::dcxListView_SetView(m_Hwnd, mode);
+
+		if (const auto tsStyles = input.getnexttok(); !tsStyles.empty())
+		{
+			//const auto styles = parseControlStyles(tsStyles);
+			const auto lvExStyles = parseListviewExStyles(tsStyles);
+
+			const auto currentExStyles = Dcx::dcxListView_GetExtendedListViewStyle(m_Hwnd);
+			Dcx::dcxListView_SetExtendedListViewStyleEx(m_Hwnd, gsl::narrow_cast<WPARAM>(lvExStyles), gsl::narrow_cast<LPARAM>(~currentExStyles));
+	}
 	}
 	// xdid -y [NAME] [ID] [SWITCH] [+FLAGS]
 	else if (flags[TEXT('y')])
@@ -2059,12 +2072,6 @@ void DcxListView::parseCommandRequest(const TString& input)
 		if (numtok < 5)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		//LVITEM lvi{};
-		//
-		//lvi.mask = LVIF_PARAM;
-		//lvi.iItem = input.getnexttok( ).to_int() -1;	// tok 4
-		//lvi.iSubItem = input.getnexttok( ).to_int();	// tok 5
-
 		LVITEM lvi{ LVIF_PARAM, input.getnexttok().to_int() - 1, input.getnexttok().to_int() };
 
 		// check if item supplied was 0 (now -1), last item in list.
@@ -2088,13 +2095,6 @@ void DcxListView::parseCommandRequest(const TString& input)
 			throw Dcx::dcxException("Unable to get DCX Item Information, something very wrong!");
 
 		lpmylvi->tsTipText = (numtok > 5 ? input.getlasttoks() : TEXT(""));	// tok 6, -1
-
-		//LVSETINFOTIP it{};
-		//it.cbSize = sizeof(it);
-		//it.dwFlags = 0;
-		//it.pszText = lpmylvi->tsTipText.to_chr();
-		//it.iItem = lvi.iItem;
-		//it.iSubItem = lvi.iSubItem;
 
 		LVSETINFOTIP it{ sizeof(LVSETINFOTIP), 0, lpmylvi->tsTipText.to_chr(), lvi.iItem, lvi.iSubItem };
 
@@ -2138,9 +2138,6 @@ void DcxListView::parseCommandRequest(const TString& input)
 	{
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
-
-		//if (const auto nItem = input.getnexttok().to_int() - 1; nItem > -1)
-		//	Dcx::dcxListView_EnsureVisible(m_Hwnd, nItem, FALSE);
 
 		if (const auto nItem = StringToItemNumber(input.getnexttok()); nItem > -1)
 			Dcx::dcxListView_EnsureVisible(m_Hwnd, nItem, FALSE);
@@ -2223,20 +2220,6 @@ void DcxListView::parseCommandRequest(const TString& input)
 			for (auto itStart = tsCols.begin(TSCOMMACHAR); itStart != itEnd; ++itStart)
 			{
 				const auto col(*itStart);
-
-				//const auto [col_start, col_end] = getItemRange2(col, col_count);
-				//
-				//if ((col_start < 0) || (col_end < 0) || (col_start >= col_count) || (col_end >= col_count))
-				//	throw Dcx::dcxException(TEXT("Invalid column index %."), col);
-				//
-				//for (auto nCol = col_start; nCol <= col_end; ++nCol)
-				//{
-				//	if (!xflag['s'])	// change header style
-				//		throw Dcx::dcxException(TEXT("Unknown flags %"), input.gettok(5));
-				//
-				//	setHeaderStyle(h, nCol, info);
-				//}
-
 				const auto r = getItemRange2(col, col_count);
 
 				if ((r.b < 0) || (r.e < 0) || (r.b >= col_count) || (r.e > col_count))
@@ -2252,7 +2235,7 @@ void DcxListView::parseCommandRequest(const TString& input)
 			}
 		}
 	}
-	// xdid -G [NAME] [ID] [SWITCH] [GID] [+MASK] [+STATES]
+	// xdid -G [NAME] [ID] [SWITCH] [GID,GID2,GID3-GIDn] [+MASK] [+STATES]
 	else if (flags[TEXT('G')])
 	{
 		if (numtok != 6)
@@ -2260,16 +2243,6 @@ void DcxListView::parseCommandRequest(const TString& input)
 
 		if (!Dcx::VistaModule.isVista())
 			throw Dcx::dcxException("This Command is Vista+ Only!");
-
-		//const auto gid = input.getnexttok().to_int();
-		//
-		//if (!Dcx::dcxListView_HasGroup(m_Hwnd, gid))
-		//	throw Dcx::dcxException(TEXT("Group doesn't exist: %"), gid);
-		//
-		//const auto iMask = this->parseGroupState(input.getnexttok());	// tok 5
-		//const auto iState = this->parseGroupState(input.getnexttok());	// tok 6
-		//
-		//Dcx::dcxListView_SetGroupState(m_Hwnd, gid, iMask, iState);
 
 		const auto tsGID = input.getnexttok();							// tok 4
 		const auto iMask = this->parseGroupState(input.getnexttok());	// tok 5
@@ -2441,36 +2414,36 @@ UINT DcxListView::parseItemFlags(const TString& flags)
 		iFlags |= LVIS_BOLD;
 	if (xflags[TEXT('c')])
 		iFlags |= LVIS_COLOR;
+	if (xflags[TEXT('C')])
+		iFlags |= LVIS_CENTERICON;
 	if (xflags[TEXT('d')])
 		iFlags |= LVIS_DROPHILITED;
 	if (xflags[TEXT('f')])
 		iFlags |= LVIS_FOCUSED;
+	if (xflags[TEXT('H')])
+		iFlags |= LVIS_HASHITEM;
 	if (xflags[TEXT('i')])
 		iFlags |= LVIS_ITALIC;
 	if (xflags[TEXT('k')])
 		iFlags |= LVIS_BGCOLOR;
+	if (xflags[TEXT('n')])
+		iFlags |= LVIS_HASHNUMBER;
+	if (xflags[TEXT('p')])
+		iFlags |= LVIS_PBAR;
+	if (xflags[TEXT('u')])
+		iFlags |= LVIS_UNDERLINE;
 	if (xflags[TEXT('s')])
 		iFlags |= LVIS_SELECTED;
 	if (xflags[TEXT('t')])
 		iFlags |= LVIS_CUT;
-	if (xflags[TEXT('u')])
-		iFlags |= LVIS_UNDERLINE;
-	if (xflags[TEXT('p')])
-		iFlags |= LVIS_PBAR;
-	if (xflags[TEXT('H')])
-		iFlags |= LVIS_HASHITEM;
-	if (xflags[TEXT('n')])
-		iFlags |= LVIS_HASHNUMBER;
-	if (xflags[TEXT('x')])
-		iFlags |= LVIS_XML;
 	if (xflags[TEXT('w')])
 		iFlags |= LVIS_HASHTABLE;
+	if (xflags[TEXT('x')])
+		iFlags |= LVIS_XML;
 	if (xflags[TEXT('y')])
 		iFlags |= LVIS_WINDOW;
 	if (xflags[TEXT('z')])
 		iFlags |= LVIS_CONTROL;
-	if (xflags[TEXT('C')])
-		iFlags |= LVIS_CENTERICON;
 
 	return iFlags;
 }
@@ -5041,6 +5014,9 @@ bool DcxListView::xSaveListview(const int nStartPos, const int nEndPos, const TS
 
 void DcxListView::DrawEmpty(HDC hdc, const TString& tsBuf)
 {
+	if ((!m_Hwnd) || (!hdc))
+		return;
+
 	// Setup alpha blend if any.
 	auto ai = SetupAlphaBlend(&hdc);
 	Auto(FinishAlphaBlend(ai));
