@@ -430,6 +430,14 @@ namespace Dcx
 	{
 		return ListView_HitTest(hwnd, lvhti);
 	}
+	inline BOOL dcxListView_Update(_In_ HWND hwnd, _In_ int nItem) noexcept
+	{
+		return ListView_Update(hwnd, nItem);
+	}
+	inline BOOL dcxListView_RedrawItems(_In_ HWND hwnd, _In_ int nFirst, _In_ int nLast) noexcept
+	{
+		return ListView_RedrawItems(hwnd, nFirst, nLast);
+	}
 	[[nodiscard("Memory leak")]] inline HIMAGELIST dcxListView_CreateDragImage(_In_ HWND hwnd, int i, _Inout_ LPPOINT pt) noexcept
 	{
 		return ListView_CreateDragImage(hwnd, i, pt);
