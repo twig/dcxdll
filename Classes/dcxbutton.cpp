@@ -119,10 +119,7 @@ TString DcxButton::parseInfoRequest(const TString& input) const
 {
 	// [NAME] [ID] [PROP]
 	if (input.gettok(3) == TEXT("text"))
-	{
-		// if copy fails drop through
 		return m_tsCaption;
-	}
 
 	return parseGlobalInfoRequest(input);
 }

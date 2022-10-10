@@ -46,9 +46,6 @@ public:
 
 	const bool updateLayout(RECT & rc);
 
-	//void setRoot( gsl::owner<LayoutCell *> p_Root );
-	//constexpr LayoutCell * getRoot() const noexcept { return m_pRoot.get(); }
-
 	void setRoot(std::unique_ptr<LayoutCell> p_Root) noexcept;
 	LayoutCell * getRoot() const noexcept { return m_pRoot.get(); }
 
@@ -57,7 +54,6 @@ public:
 	void AddCell(const TString &input, const UINT iOffset = 3, const DcxDialog * dialog = nullptr);
 
 	inline constexpr const size_t &size(void) const noexcept { return m_iCount; }
-	//inline constexpr bool empty(void) const noexcept { return (m_pRoot == nullptr); }
 	inline bool empty(void) const noexcept { return (m_pRoot == nullptr); }
 
 	static LayoutCell * parsePath(const TString & path, const LayoutCell *const hParent, const UINT depth);

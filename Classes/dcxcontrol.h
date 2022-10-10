@@ -204,7 +204,7 @@ consteval bool CheckFreeCommand(TCHAR cmd)
 // check if this command is valid & not in use globally.
 template <TCHAR c>
 GSL_SUPPRESS(bounds)
-bool IsThisCommand(const XSwitchFlags& xflags) noexcept
+inline bool IsThisCommand(const XSwitchFlags& xflags) noexcept
 {
 	static_assert(CheckFreeCommand(c), "Command in use!");
 

@@ -82,16 +82,16 @@ public:
 	~DcxDialog() noexcept;
 
 	void parseCommandRequest(_In_ const TString& input) final;
-	void parseCommandRequestEX(_Printf_format_string_ const TCHAR* const szFormat, ...);
-	void parseComControlRequestEX(_In_ const UINT id, _Printf_format_string_ const TCHAR* const szFormat, ...);
+	void parseCommandRequestEX(_In_z_ _Printf_format_string_ const TCHAR* const szFormat, ...);
+	void parseComControlRequestEX(_In_ const UINT id, _In_z_ _Printf_format_string_ const TCHAR* const szFormat, ...);
 	//void parseInfoRequest( const TString & input, TCHAR * szReturnValue ) const;
 	void parseInfoRequest(const TString& input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>& szReturnValue) const override;
 
 	//bool evalAliasEx( TCHAR *const szReturn, const int maxlen, const TCHAR *const szFormat, ... );
 	//bool evalAlias( TCHAR *const szReturn, const int maxlen, const TCHAR *const szArgs);
-	bool evalAliasEx(const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>& szReturn, _In_ const int maxlen, _Printf_format_string_ const TCHAR* const szFormat, ...) const;
+	bool evalAliasEx(const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>& szReturn, _In_ const int maxlen, _In_z_ _Printf_format_string_ const TCHAR* const szFormat, ...) const;
 	bool evalAlias(const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>& szReturn, _In_ const int maxlen, _In_z_ const TCHAR* const szArgs) const;
-	bool execAliasEx(_Printf_format_string_ const TCHAR* const szFormat, ...) const;
+	bool execAliasEx(_In_z_ _Printf_format_string_ const TCHAR* const szFormat, ...) const;
 	bool execAlias(_In_z_ const TCHAR* const szArgs) const;
 
 	template <typename Format, typename Value, typename... Arguments>

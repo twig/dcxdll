@@ -1177,15 +1177,6 @@ void DcxListView::parseCommandRequest(const TString& input)
 				for (auto itStart = Ns.begin(TSCOMMACHAR); itStart != itEnd; ++itStart)
 				{
 					const auto tsLine(*itStart);
-
-					//const auto [iStart, iEnd] = getItemRange2(tsLine, nItemCnt);	// uses structured binding...
-					//
-					//if ((iStart < 0) || (iEnd < 0) || (iStart >= nItemCnt) || (iEnd >= nItemCnt))
-					//	throw Dcx::dcxException(TEXT("Invalid index %."), tsLine);
-					//
-					//for (auto nItem = iStart; nItem <= iEnd; nItem++)
-					//	Dcx::dcxListView_SetItemState(m_Hwnd, nItem, LVIS_SELECTED, LVIS_SELECTED);
-
 					const auto r = getItemRange2(tsLine, nItemCnt);
 
 					if ((r.b < 0) || (r.e < 0) || (r.b > r.e))
@@ -1205,7 +1196,6 @@ void DcxListView::parseCommandRequest(const TString& input)
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		//const auto Ns(input.getnexttok());	// tok 4
 		auto Ns(input.getnexttok());	// tok 4
 		const XSwitchFlags xFlags(input.getnexttok());	// tok 5
 
@@ -1321,31 +1311,14 @@ void DcxListView::parseCommandRequest(const TString& input)
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto nItem = StringToItemNumber(input++);	// tok 4
-
-		//auto nItem = input++.to_int() - 1;						// tok 4
-		//if (nItem == -1)
-		//{
-		//	nItem = Dcx::dcxListView_GetItemCount(m_Hwnd) - 1;
-		//
-		//	if (nItem < 0)
-		//		throw Dcx::dcxException("Invalid Item: No Items in list");
-		//}
-
 		const auto nCol = input++.to_int() - 1;					// tok 5
 		const auto lviflags = this->parseItemFlags(input++);	// tok 6
 		const auto clrText = input++.to_<COLORREF>();	// tok 7
 		const auto clrBack = input++.to_<COLORREF>();	// tok 8
 
-
 		// invalid info
 		if ((nItem < 0) || (nCol < 0) || (nCol >= this->getColumnCount()))
 			throw DcxExceptions::dcxInvalidItem();
-
-		//LVITEM lvi{};
-		//
-		//lvi.mask = LVIF_PARAM | LVIF_STATE;
-		//lvi.iItem = nItem;
-		//lvi.iSubItem = nCol;
 
 		LVITEM lvi{ LVIF_PARAM | LVIF_STATE, nItem, nCol };
 
@@ -1375,6 +1348,7 @@ void DcxListView::parseCommandRequest(const TString& input)
 			ri->m_cBg = CLR_INVALID;
 
 		Dcx::dcxListView_SetItemState(m_Hwnd, nItem, lviflags, LVIS_DROPHILITED | LVIS_FOCUSED | LVIS_SELECTED | LVIS_CUT);
+		Dcx::dcxListView_Update(m_Hwnd, nItem);
 	}
 	// xdid -k [NAME] [ID] [SWITCH] [STATE] [N,N2,N3-N4...]
 	// xdid -k -> [NAME] [ID] -k [STATE] [N,N2,N3-N4...]

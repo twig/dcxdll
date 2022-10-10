@@ -205,7 +205,7 @@ void DcxDialog::PreloadData() noexcept
 /// <param name=""></param>
 GSL_SUPPRESS(es.47)
 GSL_SUPPRESS(type.3)
-void DcxDialog::parseCommandRequestEX(_Printf_format_string_ const TCHAR* const szFormat, ...)
+void DcxDialog::parseCommandRequestEX(_In_z_ _Printf_format_string_ const TCHAR* const szFormat, ...)
 {
 	TString msg;
 
@@ -225,7 +225,7 @@ void DcxDialog::parseCommandRequestEX(_Printf_format_string_ const TCHAR* const 
 /// <param name=""></param>
 GSL_SUPPRESS(es.47)
 GSL_SUPPRESS(type.3)
-void DcxDialog::parseComControlRequestEX(_In_ const UINT id, _Printf_format_string_ const TCHAR* const szFormat, ...)
+void DcxDialog::parseComControlRequestEX(_In_ const UINT id, _In_z_ _Printf_format_string_ const TCHAR* const szFormat, ...)
 {
 	auto p_Control = getControlByID(id + mIRC_ID_OFFSET);
 	if (!p_Control)
@@ -1588,7 +1588,7 @@ void DcxDialog::parseInfoRequest(const TString& input, const refString<TCHAR, MI
 
 GSL_SUPPRESS(es.47)
 GSL_SUPPRESS(type.3)
-bool DcxDialog::evalAliasEx(const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>& szReturn, _In_ const int maxlen, _Printf_format_string_ const TCHAR* const szFormat, ...) const
+bool DcxDialog::evalAliasEx(const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>& szReturn, _In_ const int maxlen, _In_z_ _Printf_format_string_ const TCHAR* const szFormat, ...) const
 {
 	TString line;
 	va_list args = nullptr;
@@ -1611,7 +1611,7 @@ bool DcxDialog::evalAlias(const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>& szReturn
 
 GSL_SUPPRESS(es.47)
 GSL_SUPPRESS(type.3)
-bool DcxDialog::execAliasEx(_Printf_format_string_ const TCHAR* const szFormat, ...) const
+bool DcxDialog::execAliasEx(_In_z_ _Printf_format_string_ const TCHAR* const szFormat, ...) const
 {
 	TString line;
 	va_list args = nullptr;
