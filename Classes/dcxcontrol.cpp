@@ -193,7 +193,7 @@ dcxWindowStyles DcxControl::parseGeneralControlStyles(const TString& styles)
 
 GSL_SUPPRESS(type.3)
 GSL_SUPPRESS(es.47)
-bool DcxControl::evalAliasEx(TCHAR* const szReturn, const int maxlen, _Printf_format_string_ const TCHAR* const szFormat, ...) const
+bool DcxControl::evalAliasEx(TCHAR* const szReturn, const int maxlen, _In_z_ _Printf_format_string_ const TCHAR* const szFormat, ...) const
 {
 	TString parms;
 	va_list args = nullptr;
@@ -208,7 +208,7 @@ bool DcxControl::evalAliasEx(TCHAR* const szReturn, const int maxlen, _Printf_fo
 
 GSL_SUPPRESS(type.3)
 GSL_SUPPRESS(es.47)
-bool DcxControl::execAliasEx(_Printf_format_string_ const TCHAR* const szFormat, ...) const
+bool DcxControl::execAliasEx(_In_z_ _Printf_format_string_ const TCHAR* const szFormat, ...) const
 {
 	TString parms;
 	va_list args = nullptr;
@@ -2307,7 +2307,7 @@ LRESULT DcxControl::CommonMessage(const UINT uMsg, WPARAM wParam, LPARAM lParam,
 
 	case WM_SETCURSOR:
 	{
-		if ((Dcx::dcxLOWORD(lParam) == HTCLIENT) && (reinterpret_cast<HWND>(wParam) == m_Hwnd) && (m_hCursor))
+		if ((Dcx::dcxLOWORD(lParam) == HTCLIENT) && (reinterpret_cast<HWND>(wParam) == m_Hwnd) && (m_hCursor.cursor))
 		{
 			if (GetCursor() != m_hCursor.cursor)
 				SetCursor(m_hCursor.cursor);
@@ -2443,35 +2443,10 @@ LRESULT DcxControl::CommonMessage(const UINT uMsg, WPARAM wParam, LPARAM lParam,
 
 		if (!files)
 			break;
+		
+		bParsed = TRUE;
 
-		//TCHAR filename[500];
-		//const auto count = DragQueryFile(files, 0xFFFFFFFF, filename, Dcx::countof(filename));
-		//
-		//if (count > 0) {
-		//	if (dcx_testflag(getParentDialog()->getEventMask(), DCX_EVENT_DRAG)) {
-		//		TCHAR ret[20];
-		//
-		//		evalAliasEx(ret, Dcx::countof(ret), TEXT("dragbegin,%u,%u"), getUserID(), count);
-		//
-		//		// cancel drag drop event
-		//		if (lstrcmpi(ret, TEXT("cancel")) == 0) {
-		//			DragFinish(files);
-		//			return 0L;
-		//		}
-		//
-		//		// for each file, send callback message
-		//		for (auto i = decltype(count){0}; i < count; i++) {
-		//			if (DragQueryFile(files, i, filename, Dcx::countof(filename)))
-		//				execAliasEx(TEXT("dragfile,%u,%s"), getUserID(), filename);
-		//		}
-		//
-		//		execAliasEx(TEXT("dragfinish,%u"), getUserID());
-		//	}
-		//}
-		//
-		//DragFinish(files);
-
-		const stString<500> sFilename;
+		const stString<MIRC_BUFFER_SIZE_CCH> sFilename;
 
 		if (const auto count = DragQueryFile(files, 0xFFFFFFFF, sFilename, std::size(sFilename)); count > 0)
 		{

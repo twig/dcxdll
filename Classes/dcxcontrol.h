@@ -241,7 +241,7 @@ public:
 	[[nodiscard]] dcxWindowStyles parseGeneralControlStyles(const TString& styles, dcxWindowStyles& ws);
 	[[nodiscard]] dcxWindowStyles parseGeneralControlStyles(const TString& styles);
 
-	bool evalAliasEx(TCHAR* const szReturn, const int maxlen, _Printf_format_string_ const TCHAR* const szFormat, ...) const;
+	bool evalAliasEx(TCHAR* const szReturn, const int maxlen, _In_z_ _Printf_format_string_ const TCHAR* const szFormat, ...) const;
 
 	//template <typename Format, typename Value, typename... Arguments>
 	//bool evalAliasEx(TCHAR *const szReturn, const int maxlen, const Format &fmt, const Value val, Arguments&&... args) const
@@ -250,7 +250,7 @@ public:
 	//	getParentDialog()->evalAlias(szReturn, maxlen, _ts_sprintf(tsBuf, fmt, val, args...).to_chr());
 	//}
 
-	bool execAliasEx(_Printf_format_string_ const TCHAR* const szFormat, ...) const;
+	bool execAliasEx(_In_z_ _Printf_format_string_ const TCHAR* const szFormat, ...) const;
 
 	//template <typename Format, typename Value, typename... Arguments>
 	//bool execAliasEx(const Format &fmt, const Value val, Arguments&&... args) const
