@@ -273,7 +273,7 @@ function get_xdid_listview(&$XDID) {
 			'__cmd' => '[N] [NSUB] [STATE] (COLOR BGCOLOR)',
 			'__eg' => array(
 				'2 5 +bt',
-				'7 1 +u $rgb(255, 0, 0) $rgb(0, 255, 0)',
+				'7 1 +uck $rgb(255, 0, 0) $rgb(0, 255, 0)',
 			),
 			'__params' => array(
 				'N' => 'The row index for the item.',
@@ -282,9 +282,11 @@ function get_xdid_listview(&$XDID) {
 					'__desc' => "Item flags",
 					'__values' => array(
 						'b' => 'The item is bold.',
+						'c' => 'The items text colour.',
 						'd' => 'The item appears selected like a drop target.',
 						'f' => 'The item has focus thus having a dotted box around it.',
 						'i' => 'The item is italic.',
+						'k' => 'The items background colour.',
 						's' => 'The item is selected.',
 						't' => 'The item appears as 50% opaque, looks like it has a "ghost" effect.',
 						'u' => 'The item is underlined.',
