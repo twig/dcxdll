@@ -10,7 +10,6 @@
 #include "Classes/DcxDialog.h"
 #include "Classes\UltraDock\dcxDock.h"
 
-//#include <sys/stat.h> 
 #include <detours.h>
 
 #include <concepts>
@@ -36,51 +35,6 @@
 #else
 #pragma message ("### DCX OPTION: Use Wrappers - Disabled")
 #endif
-
-//namespace std
-//{
-//	inline string to_string(const wstring& wstr)
-//	{
-//		//string str;
-//		//str.assign(wstr.begin(), wstr.end());
-//		//return str;
-//
-//		using convert_type = std::codecvt_utf8<wchar_t>;
-//		std::wstring_convert<convert_type, wchar_t> converter;
-//
-//		//use converter (.to_bytes: wstr->str, .from_bytes: str->wstr)
-//		return converter.to_bytes(wstr);
-//	}
-//
-//	inline wstring to_wstring(const string& str)
-//	{
-//		wstring wstr;
-//		wstr.assign(str.begin(), str.end());
-//		return wstr;
-//	}
-//
-//	inline string to_string(const TString& wstr)
-//	{
-//		string str(wstr.c_str());
-//		return str;
-//	}
-//
-//	inline wstring to_wstring(const TString& str)
-//	{
-//		wstring wstr(str.to_wchr());
-//		return wstr;
-//	}
-//
-//	inline string to_string(const std::byte& num)
-//	{
-//		return to_string(gsl::narrow_cast<uint8_t>(num));
-//	}
-//
-//	inline wstring to_wstring(const std::byte& num)
-//	{
-//		return to_wstring(gsl::narrow_cast<uint8_t>(num));
-//	}
-//}
 
 namespace Dcx
 {
@@ -120,7 +74,7 @@ namespace Dcx
 	/// <param name="r">- The range to convert</param>
 	/// <returns>a std::vector</returns>
 	template <class T>
-	auto to_vector(const T& r)
+	[[nodiscard]] auto to_vector(const T& r)
 	{
 		std::vector<std::ranges::range_value_t<decltype(r)>> v;
 
@@ -130,18 +84,43 @@ namespace Dcx
 		std::ranges::copy(r, std::back_inserter(v));
 		return v;
 	}
-	constexpr int32_t dcxMulDiv32(const int32_t iNum, const int32_t iMul, const int32_t iDiv) noexcept
+
+	/// <summary>
+	/// 32bit Multiply and divide
+	/// </summary>
+	/// <param name="iNum"></param>
+	/// <param name="iMul"></param>
+	/// <param name="iDiv"></param>
+	/// <returns></returns>
+	[[nodiscard]] constexpr int32_t dcxMulDiv32(const int32_t iNum, const int32_t iMul, const int32_t iDiv) noexcept
 	{
 		return gsl::narrow_cast<int32_t>((gsl::narrow_cast<int64_t>(iNum) * gsl::narrow_cast<int64_t>(iMul)) / iDiv);
 	}
+
+	/// <summary>
+	/// Multiply and divide
+	/// Takes any bit width input & gives that bitwidth output. (max 64bit)
+	/// </summary>
+	/// <typeparam name="T"></typeparam>
+	/// <param name="iNum"></param>
+	/// <param name="iMul"></param>
+	/// <param name="iDiv"></param>
+	/// <returns></returns>
 	template <DcxConcepts::IsNumeric T>
-	constexpr T dcxMulDiv(const T& iNum, const T& iMul, const T& iDiv) noexcept
+	[[nodiscard]] constexpr T dcxMulDiv(const T& iNum, const T& iMul, const T& iDiv) noexcept
 	{
 		return gsl::narrow_cast<T>((gsl::narrow_cast<int64_t>(iNum) * gsl::narrow_cast<int64_t>(iMul)) / iDiv);
 	}
 
+	/// <summary>
+	/// Rounds a number.
+	/// </summary>
+	/// <typeparam name="Result"></typeparam>
+	/// <typeparam name="Input"></typeparam>
+	/// <param name="in"></param>
+	/// <returns></returns>
 	template <DcxConcepts::IsNumeric Result, DcxConcepts::IsNumeric Input>
-	constexpr Result dcxRound(const Input in) noexcept
+	[[nodiscard]] constexpr Result dcxRound(const Input in) noexcept
 	{
 		const auto t = gsl::narrow_cast<Result>(in);
 		if ((in - gsl::narrow_cast<Input>(t)) > 0.5)
@@ -621,198 +600,6 @@ namespace Dcx
 		int m_Width, m_Height;
 	};
 
-	//struct dcxCursor
-	//{
-	//	dcxCursor() = delete;
-	//	dcxCursor(const dcxCursor &) = delete;
-	//	dcxCursor &operator =(const dcxCursor &) = delete;	// No assignments!
-	//
-	//	dcxCursor(const TString &tsFilename)
-	//		: m_uni(make_cursor(tsFilename))
-	//	{
-	//	}
-	//
-	//	operator HCURSOR() { return m_uni.get(); }
-	//	HCURSOR release() noexcept { return m_uni.release(); }
-	//private:
-	//	dcxCursor_t	m_uni;
-	//};
-	//
-	//struct dcxIcon
-	//{
-	//	dcxIcon() = delete;								// no default
-	//	dcxIcon(const dcxIcon &) = delete;				// no copy!
-	//	dcxIcon &operator =(const dcxIcon &) = delete;	// No assignments!
-	//
-	//	dcxIcon(const int index, TString &filename, const bool large, const TString &flags)
-	//		: m_uni(make_icon(index, filename, large, flags))
-	//	{
-	//	}
-	//	operator HICON() { return m_uni.get(); }
-	//
-	//private:
-	//	dcxIcon_t	m_uni;
-	//};
-	//
-	//struct dcxFile
-	//{
-	//	dcxFile() = delete;
-	//	dcxFile(const dcxFile &) = delete;
-	//	dcxFile &operator =(const dcxFile &) = delete;	// No assignments!
-	//
-	//	dcxFile(const TCHAR *tsFilename, const TCHAR *tsMode)
-	//		: m_uni(make_file(tsFilename, tsMode))
-	//	{
-	//	}
-	//	operator FILE *() { return m_uni.get(); }
-	//
-	//private:
-	//	dcxFile_t	m_uni;
-	//};
-	//
-	//struct dcxHDC
-	//{
-	//	dcxHDC() = delete;
-	//	dcxHDC(const dcxHDC &) = delete;
-	//	dcxHDC &operator =(const dcxHDC &) = delete;	// No assignments!
-	//
-	//	dcxHDC(HDC hdc)
-	//		: m_uni(make_hdc(hdc))
-	//	{
-	//	}
-	//	//dcxHDC(HDC hdc)
-	//	//	: m_uni(make_hdc(hdcTypes::CreateCompatiableDCType, hdc, nullptr, nullptr, nullptr, nullptr))
-	//	//{
-	//	//}
-	//	//dcxHDC(LPCTSTR lpszDriver, LPCTSTR lpszDevice, LPCTSTR lpszOutput, const DEVMODE *lpInitData)
-	//	//	: m_uni(make_hdc(hdcTypes::CreateDCType, nullptr, lpszDriver, lpszDevice, lpszOutput, lpInitData))
-	//	//{
-	//	//}
-	//	operator HDC() { return m_uni.get(); }
-	//
-	//private:
-	//	dcxHDC_t	m_uni;
-	//};
-	//
-	//struct dcxBitmap
-	//{
-	//	dcxBitmap() = delete;
-	//	dcxBitmap(const dcxBitmap &) = delete;
-	//	dcxBitmap &operator =(const dcxBitmap &) = delete;	// No assignments!
-	//
-	//	dcxBitmap(HDC hdc, int x, int y)
-	//		: m_uni(make_bitmap(hdc,x,y))
-	//	{
-	//	}
-	//	operator HBITMAP() { return m_uni.get(); }
-	//
-	//private:
-	//	dcxBitmap_t	m_uni;
-	//};
-	//
-	//struct dcxExtractIcon {
-	//	dcxExtractIcon() = delete;
-	//	dcxExtractIcon(const dcxExtractIcon &) = delete;
-	//	dcxExtractIcon &operator =(const dcxExtractIcon &) = delete;
-	//
-	//	dcxExtractIcon(const TString &filename, const int iIndex, const bool bLarge)
-	//		: m_hIcon(nullptr)
-	//	{
-	//		if (bLarge)
-	//			ExtractIconEx(filename.to_chr(), iIndex, &m_hIcon, nullptr, 1);
-	//		else
-	//			ExtractIconEx(filename.to_chr(), iIndex, nullptr, &m_hIcon, 1);
-//
-	//	}
-	//	~dcxExtractIcon()
-	//	{
-	//		if (m_hIcon != nullptr)
-	//			DestroyIcon(m_hIcon);
-	//	}
-	//	operator HICON() const noexcept { return m_hIcon; }
-	//	explicit operator bool() const noexcept { return (m_hIcon != nullptr); }
-	//	HICON release() noexcept { HICON hTmp = m_hIcon; m_hIcon = nullptr; return hTmp; }
-	//private:
-	//	HICON m_hIcon;
-	//};
-
-	//struct dcxHDCBuffer : dcxHDCResource {
-	//	dcxHDCBuffer() = delete;
-	//	dcxHDCBuffer(const dcxHDCBuffer &) = delete;
-	//	dcxHDCBuffer &operator = (const dcxHDCBuffer &) = delete;
-//
-	//	dcxHDCBuffer(const HDC hdc, RECT *rc)
-	//		: dcxHDCResource(hdc)
-	//		, m_hBitmap(nullptr)
-	//		, m_hOldBitmap(nullptr)
-	//		, m_hOldFont(nullptr)
-	//	{
-	//		// get size of bitmap to alloc.
-	//		int x = 0, y = 0, w = 0, h = 0;
-//
-	//		if (rc == nullptr) {
-	//			// no size specified, use hdc's bitmap size.
-	//			BITMAP bm = { 0 };
-	//			if (GetObject((HBITMAP)GetCurrentObject(hdc, OBJ_BITMAP), sizeof(BITMAP), &bm) == 0)
-	//				throw Dcx::dcxException("dcxHDCBuffer - Unable to get hdc's bitmap");
-	//			w = bm.bmWidth;
-	//			h = bm.bmHeight;
-	//		}
-	//		else {
-	//			// use size specified.
-	//			w = (rc->right - rc->left);
-	//			h = (rc->bottom - rc->top);
-	//			x = rc->left;
-	//			y = rc->top;
-	//		}
-//
-	//		// alloc bitmap for buffer.
-	//		m_hBitmap = CreateCompatibleBitmap(hdc, w, h);
-//
-	//		if (m_hBitmap == nullptr)
-	//			throw Dcx::dcxException("dcxHDCBuffer - Unable to create bitmap");
-	//		
-	//			// select bitmap into hdc
-	//		m_hOldBitmap = SelectBitmap(*this, m_hBitmap);
-//
-	//		// copy settings from hdc to buffer's hdc.
-	//		SetDCBrushColor(*this, GetDCBrushColor(hdc));
-	//		SetDCPenColor(*this, GetDCPenColor(hdc));
-	//		SetLayout(*this, GetLayout(hdc));
-	//		m_hOldFont = SelectFont(*this, GetCurrentObject(hdc, OBJ_FONT));
-	//		SetTextColor(*this, GetTextColor(hdc));
-	//		SetBkColor(*this, GetBkColor(hdc));
-	//		SetBkMode(*this, GetBkMode(hdc));
-	//		SetROP2(*this, GetROP2(hdc));
-	//		SetMapMode(*this, GetMapMode(hdc));
-	//		SetPolyFillMode(*this, GetPolyFillMode(hdc));
-	//		SetStretchBltMode(*this, GetStretchBltMode(hdc));
-	//		SetGraphicsMode(*this, GetGraphicsMode(hdc));
-//
-	//		// copy contents of hdc within area to buffer.
-	//		BitBlt(*this, 0, 0, w, h, hdc, x, y, SRCCOPY);
-//
-	//		// buffer is an exact duplicate of the hdc within the area specified.
-	//	}
-	//	~dcxHDCBuffer()
-	//	{
-	//		GdiFlush();
-	//		if (*this != nullptr)
-	//		{
-	//			if (m_hOldFont != nullptr)
-	//				SelectFont(*this, m_hOldFont);
-	//			if (m_hOldBitmap != nullptr)
-	//				SelectBitmap(*this, m_hOldBitmap);
-	//		}
-	//		if (m_hBitmap != nullptr)
-	//			DeleteBitmap(m_hBitmap);
-	//	}
-	//private:
-	//	HBITMAP m_hOldBitmap;
-	//	HBITMAP m_hBitmap;
-	//	HFONT m_hOldFont;
-	//};
-
 	struct dcxHDCBuffer final
 		: dcxHDCBitmap2Resource
 	{
@@ -839,6 +626,7 @@ namespace Dcx
 			SetPolyFillMode(this->get(), GetPolyFillMode(hdc));
 			SetStretchBltMode(this->get(), GetStretchBltMode(hdc));
 			SetGraphicsMode(this->get(), GetGraphicsMode(hdc));
+			SetTextAlign(this->get(), GetTextAlign(hdc));
 
 			//SetBrushOrgEx(this->get(), );
 			//GetBrushOrgEx
@@ -1305,66 +1093,6 @@ namespace Dcx
 
 	namespace details
 	{
-		//	// Casts any numeric type as another numeric type.
-		//	template < typename tResult, typename tInput >
-		//	std::enable_if_t<is_Numeric_v<tInput>, inline constexpr tResult> numeric_cast(tInput &in) noexcept
-		//	{
-		//		static_assert(is_Numeric_v<tResult>, "A Numeric return type is required");
-		//		return gsl::narrow_cast<tResult>(in);
-		//	}
-	//
-		//	// Casts any string as a number
-		//	template < typename tResult, typename tInput >
-		//	std::enable_if_t<!is_Numeric_v<tInput> && !std::is_convertible_v<tInput, tResult>, tResult> numeric_cast(tInput &in)
-		//	{
-		//		static_assert(is_Numeric_v<tResult>, "A Numeric return type is required");
-		//		std::stringstream buf;
-		//		buf << in;
-		//		tResult result;
-		//		buf >> result;
-		//		return result;
-		//	}
-	//
-		//	// Converts any object to a numeric using implicit-conversion.
-		//	template < typename tResult, typename tInput >
-		//	std::enable_if_t<!is_Numeric_v<tInput> && std::is_convertible_v<tInput, tResult>, inline constexpr tResult> numeric_cast(tInput &in)
-		//	{
-		//		static_assert(is_Numeric_v<tResult>, "A Numeric return type is required");
-		//		return in;
-		//	}
-		//}
-	//
-		//// Converts any object to a numeric.
-		////template < typename tResult, typename tInput >
-		////inline constexpr tResult numeric_cast(tInput &in)
-		////{
-		////	static_assert(is_Numeric_v<tResult>, "A Numeric return type is required");
-		////	return details::numeric_cast<tResult>(in);
-		////}
-	//
-		//template < typename tResult, typename tInput >
-		//inline constexpr tResult numeric_cast(tInput &&in)
-		//{
-		//	static_assert(is_Numeric_v<tResult>, "A Numeric return type is required");
-		//	return details::numeric_cast<tResult>(std::forward<tInput>(in));
-		//}
-	//
-		//// Converts any pointer to a numeric.
-		//template < typename tResult, typename tInput, typename = std::enable_if_t<!std::is_same_v<std::remove_cv_t<tInput>,char> && !std::is_same_v<std::remove_cv_t<tInput>,wchar_t> > >
-		//inline constexpr tResult numeric_cast(tInput *in)
-		//{
-		//	static_assert(is_Numeric_v<tResult>, "A Numeric return type is required");
-		//	return reinterpret_cast<tResult>(in);
-		//}
-	//
-		////// Converts any calculation to a numeric.
-		////template < typename tResult, typename tInput, typename = std::enable_if_t<std::is_arithmetic_v<tInput> > >
-		////inline constexpr tResult numeric_cast(tInput in)
-		////{
-		////	static_assert(is_Numeric_v<tResult>, "A Numeric return type is required");
-		////	return gsl::narrow_cast<tResult>(in);
-		////}
-
 		template < DcxConcepts::IsNumeric tResult, typename tInput >
 		inline constexpr tResult numeric_cast(tInput& in) noexcept
 		{
@@ -1393,47 +1121,7 @@ namespace Dcx
 			}
 		}
 
-		//template < typename tResult, typename tInput >
-		//requires requires(tResult out, tInput in)
-		//{
-		//	{is_Numeric_v<tResult>};
-		//	{is_Numeric_v<tInput>};
-		//	{std::is_convertible_v<tInput, tResult>};
-		//}
-		//inline constexpr tResult numeric_cast(tInput& in) noexcept
-		//{
-		//	// Casts any numeric type as another numeric type.
-		//	//static_assert(in == gsl::narrow_cast<tInput>(gsl::narrow_cast<tResult>(in)), "A Numeric return type is required");
-		//	return gsl::narrow_cast<tResult>(in);
-		//}
-		//template < typename tResult, typename tInput >
-		//requires requires(tResult out, tInput in)
-		//{
-		//	{is_Numeric_v<tResult>};
-		//	{!is_Numeric_v<tInput>};
-		//	{!std::is_convertible_v<tInput, tResult>};
-		//}
-		//inline constexpr tResult numeric_cast(tInput& in) noexcept
-		//{
-		//	// Casts any string as a number
-		//	std::stringstream buf;
-		//	if constexpr (std::is_array_v<tInput>)
-		//		buf << &in[0];
-		//	else
-		//		buf << in;
-		//	tResult result{};
-		//	buf >> result;
-		//	return result;
-		//}
 	}
-
-	// Converts any object to a numeric.
-	//template < typename tResult, typename tInput >
-	//inline constexpr tResult numeric_cast(tInput &in)
-	//{
-	//	static_assert(is_Numeric_v<tResult>, "A Numeric return type is required");
-	//	return details::numeric_cast<tResult>(in);
-	//}
 
 	template < DcxConcepts::IsNumeric tResult, typename tInput >
 	inline constexpr tResult numeric_cast(tInput&& in) noexcept
@@ -1605,30 +1293,6 @@ namespace Dcx
 		else
 			return static_cast<T>(GetProp(reinterpret_cast<HWND>(hwnd), str));
 	}
-
-	//template <class T, std::size_t N>
-	//inline T dcxGetProp(HWND hwnd, const TCHAR(&str)[N])
-	//{
-	//	return dcxGetProp<T>(hwnd, &str[0]);
-	//}
-
-	//template <DcxConcepts::ImplementsDataFunction T>
-	//GSL_SUPPRESS(lifetime)
-	//	inline auto dcxGetWindowText(HWND hwnd)
-	//{
-	//	T txt;
-	//
-	//	if (!hwnd)
-	//		return txt;
-	//
-	//	// NB: needs to include space for end 0
-	//	if (const auto nText = GetWindowTextLength(hwnd) + 2; nText > 2)
-	//	{
-	//		txt.reserve(gsl::narrow_cast<UINT>(nText));
-	//		GetWindowText(hwnd, txt.to_chr(), nText);
-	//	}
-	//	return txt;
-	//}
 
 #if DCX_USE_CREGEX
 	template <class Input>

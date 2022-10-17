@@ -789,7 +789,7 @@ namespace Dcx {
 		if (!hdc || !prc)
 			return;
 		//SetDCBrushColor()
-
+		//dcxDrawRect()
 		if (const auto br = CreateSolidBrush(clr); br)
 		{
 			FillRect(hdc, prc, br);

@@ -111,11 +111,17 @@ enum class XSwitchValues
 };
 struct XSwitchFlags final
 {
-	XSwitchFlags() = delete;
-	XSwitchFlags(const XSwitchFlags&) = delete;
-	XSwitchFlags& operator =(const XSwitchFlags&) = delete;
-	XSwitchFlags(XSwitchFlags&&) = delete;
-	XSwitchFlags& operator =(XSwitchFlags&&) = delete;
+	//XSwitchFlags() = delete;
+	//XSwitchFlags(const XSwitchFlags&) = delete;
+	//XSwitchFlags& operator =(const XSwitchFlags&) = delete;
+	//XSwitchFlags(XSwitchFlags&&) = delete;
+	//XSwitchFlags& operator =(XSwitchFlags&&) = delete;
+
+	XSwitchFlags() = default;
+	XSwitchFlags(const XSwitchFlags&) = default;
+	XSwitchFlags& operator =(const XSwitchFlags&) = default;
+	XSwitchFlags(XSwitchFlags&&) = default;
+	XSwitchFlags& operator =(XSwitchFlags&&) = default;
 
 	explicit XSwitchFlags(const TString& switches) noexcept;
 	XSwitchFlags(const TCHAR* const switches, size_t len) noexcept;

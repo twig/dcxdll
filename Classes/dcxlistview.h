@@ -438,6 +438,22 @@ namespace Dcx
 	{
 		return ListView_RedrawItems(hwnd, nFirst, nLast);
 	}
+	inline COLORREF dcxListView_SetTextColor(_In_ HWND hwnd, _In_ COLORREF clr) noexcept
+	{
+		return ListView_SetTextColor(hwnd, clr);
+	}
+	inline COLORREF dcxListView_SetTextBkColor(_In_ HWND hwnd, _In_ COLORREF clr) noexcept
+	{
+		return ListView_SetTextBkColor(hwnd, clr);
+	}
+	inline COLORREF dcxListView_SetBkColor(_In_ HWND hwnd, _In_ COLORREF clr) noexcept
+	{
+		return ListView_SetBkColor(hwnd, clr);
+	}
+	inline COLORREF dcxListView_SetOutlineColor(_In_ HWND hwnd, _In_ COLORREF clr) noexcept
+	{
+		return ListView_SetOutlineColor(hwnd, clr);
+	}
 	[[nodiscard("Memory leak")]] inline HIMAGELIST dcxListView_CreateDragImage(_In_ HWND hwnd, int i, _Inout_ LPPOINT pt) noexcept
 	{
 		return ListView_CreateDragImage(hwnd, i, pt);
@@ -446,14 +462,38 @@ namespace Dcx
 	{
 		return ListView_IsItemVisible(hwnd, i);
 	}
+	/// <summary>
+	/// Undocumented message.
+	/// Set a subitem for editing (used mostly when setting embeded control in explorer)
+	/// </summary>
+	/// <param name="hwnd"></param>
+	/// <param name="iItem"></param>
+	/// <param name="iSubItem"></param>
+	/// <returns></returns>
 	inline LRESULT dcxListView_EditSubItem(_In_ HWND hwnd, _In_ int iItem, _In_ int iSubItem) noexcept
 	{
 		return SendMessage(hwnd, LVM_EDITSUBITEM, iItem, iSubItem);
 }
+	/// <summary>
+	/// Undocumented message.
+	/// Ensure a specified subitem is visible.
+	/// </summary>
+	/// <param name="hwnd"></param>
+	/// <param name="iItem"></param>
+	/// <param name="iSubItem"></param>
+	/// <returns></returns>
 	inline LRESULT dcxListView_EnsureSubItemVisible(_In_ HWND hwnd, _In_ int iItem, _In_ int iSubItem) noexcept
 	{
 		return SendMessage(hwnd, LVM_ENSURESUBITEMVISIBLE, iItem, iSubItem);
 	}
+	/// <summary>
+	/// Undocumented message.
+	/// Get the ListViews COM interface.
+	/// </summary>
+	/// <param name="hwnd"></param>
+	/// <param name="iid"></param>
+	/// <param name="pUnkn"></param>
+	/// <returns></returns>
 	inline BOOL dcxListView_QueryInterface(_In_ HWND hwnd, _In_ REFIID iid, IUnknown** pUnkn) noexcept
 	{
 		if ((!hwnd) || (!pUnkn))
@@ -461,14 +501,34 @@ namespace Dcx
 
 		return gsl::narrow_cast<BOOL>(SendMessage(hwnd, LVM_QUERYINTERFACE, reinterpret_cast<WPARAM>(&iid), reinterpret_cast<LPARAM>(pUnkn)));
 	}
+	/// <summary>
+	/// Undocumented message.
+	/// Set the ListViews left, right, top, bottom margins.
+	/// </summary>
+	/// <param name="hwnd"></param>
+	/// <param name="pRC"></param>
+	/// <returns></returns>
 	inline BOOL dcxListView_SetViewMargin(_In_ HWND hwnd, LPCRECT pRC) noexcept
 	{
 		return gsl::narrow_cast<BOOL>(SendMessage(hwnd, LVM_SETVIEWMARGIN, 0, reinterpret_cast<LPARAM>(pRC)));
 	}
+	/// <summary>
+	/// Undocumented message.
+	/// Get the ListViews left, right, top, bottom margins.
+	/// </summary>
+	/// <param name="hwnd"></param>
+	/// <param name="pRC"></param>
+	/// <returns></returns>
 	inline BOOL dcxListView_GetViewMargin(_In_ HWND hwnd, LPRECT pRC) noexcept
 	{
 		return gsl::narrow_cast<BOOL>(SendMessage(hwnd, LVM_GETVIEWMARGIN, 0, reinterpret_cast<LPARAM>(pRC)));
 	}
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="hwnd"></param>
+	/// <param name="pRC"></param>
+	/// <returns></returns>
 	inline BOOL dcxListView_GetViewRect(_In_ HWND hwnd, LPRECT pRC) noexcept
 	{
 		return gsl::narrow_cast<BOOL>(SendMessage(hwnd, LVM_GETVIEWRECT, 0, reinterpret_cast<LPARAM>(pRC)));

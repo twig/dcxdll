@@ -1894,6 +1894,7 @@ gsl::owner<HDC*> CreateHDCBuffer(HDC hdc, const LPRECT rc)
 	SetLayout(buf->m_hHDC, GetLayout(hdc));
 	buf->m_hOldFont = Dcx::dcxSelectObject(buf->m_hHDC, Dcx::dcxGetCurrentObject<HFONT>(hdc, OBJ_FONT));
 	SetTextColor(buf->m_hHDC, GetTextColor(hdc));
+	SetTextAlign(buf->m_hHDC, GetTextAlign(hdc));
 	SetBkColor(buf->m_hHDC, GetBkColor(hdc));
 	SetBkMode(buf->m_hHDC, GetBkMode(hdc));
 	SetROP2(buf->m_hHDC, GetROP2(hdc));

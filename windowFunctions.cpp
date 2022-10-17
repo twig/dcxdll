@@ -733,6 +733,9 @@ void ChangeHwndIcon(const HWND hwnd, const TString& flags, const int index, TStr
 
 bool GetWindowRectParent(const HWND hwnd, RECT* rcWin) noexcept
 {
+	if ((!hwnd) || (!rcWin))
+		return false;
+
 #if DCX_USE_WRAPPERS
 	const Dcx::dcxWindowRect rc(hwnd, GetParent(hwnd));
 	return (CopyRect(rcWin, &rc) != FALSE);

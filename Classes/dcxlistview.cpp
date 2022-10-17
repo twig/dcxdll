@@ -1290,16 +1290,16 @@ void DcxListView::parseCommandRequest(const TString& input)
 		const auto clrColor = (tsClr == TEXT("none")) ? CLR_NONE : tsClr.to_<COLORREF>();
 
 		if (dcx_testflag(iColorFlags, LVCS_TEXT))
-			ListView_SetTextColor(m_Hwnd, clrColor);
+			Dcx::dcxListView_SetTextColor(m_Hwnd, clrColor);
 
 		if (dcx_testflag(iColorFlags, LVCS_BKG))
-			ListView_SetBkColor(m_Hwnd, clrColor);
+			Dcx::dcxListView_SetBkColor(m_Hwnd, clrColor);
 
 		if (dcx_testflag(iColorFlags, LVCS_BKGTEXT))
-			ListView_SetTextBkColor(m_Hwnd, clrColor);
+			Dcx::dcxListView_SetTextBkColor(m_Hwnd, clrColor);
 
 		if (dcx_testflag(iColorFlags, LVCS_OUTLINE))
-			ListView_SetOutlineColor(m_Hwnd, clrColor);
+			Dcx::dcxListView_SetOutlineColor(m_Hwnd, clrColor);
 
 		this->redrawWindow();
 	}
@@ -1358,21 +1358,13 @@ void DcxListView::parseCommandRequest(const TString& input)
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto state = input.getnexttok().to_int();	// tok 4
-		const auto Ns(input.getnexttok());	// tok 5
+		const auto Ns(input.getnexttok());				// tok 5
 		const auto nItemCnt = Dcx::dcxListView_GetItemCount(m_Hwnd);
 
 		const auto itEnd = Ns.end();
 		for (auto itStart = Ns.begin(TSCOMMACHAR); itStart != itEnd; ++itStart)
 		{
 			const auto tsLine(*itStart);
-
-			//const auto [iStart, iEnd] = getItemRange2(tsLine, nItemCnt);
-			//
-			//if ((iStart < 0) || (iEnd < 0) || (iStart >= nItemCnt) || (iEnd >= nItemCnt))
-			//	throw Dcx::dcxException(TEXT("Invalid index %."), tsLine);
-			//
-			//for (auto nItem = iStart; nItem <= iEnd; ++nItem)
-			//	Dcx::dcxListView_SetItemState(m_Hwnd, nItem, INDEXTOSTATEIMAGEMASK(gsl::narrow_cast<UINT>(state)), LVIS_STATEIMAGEMASK);
 
 			const auto r = getItemRange2(tsLine, nItemCnt);
 
@@ -1383,45 +1375,104 @@ void DcxListView::parseCommandRequest(const TString& input)
 				Dcx::dcxListView_SetItemState(m_Hwnd, nItem, INDEXTOSTATEIMAGEMASK(gsl::narrow_cast<UINT>(state)), LVIS_STATEIMAGEMASK);
 		}
 	}
-	// xdid -l [NAME] [ID] [SWITCH] [N] [M] [ICON] (OVERLAY)
+	// xdid -l [NAME] [ID] [SWITCH] [N,N2,N3-N4...] [M,M2,M3-M4...] [ICON] (OVERLAY)
 	else if (flags[TEXT('l')])
 	{
+		//if (numtok < 6)
+		//	throw DcxExceptions::dcxInvalidArguments();
+		//
+		//const auto nItem = StringToItemNumber(input.getnexttok());	// tok 4
+		//const auto nSubItem = input.getnexttok().to_int() - 1;					// tok 5
+		//const auto nIcon = input.getnexttok().to_int() - 1;					// tok 6
+		//const auto nOverlay = (numtok > 6 ? input.getnexttok().to_int() : -1);	// tok 7
+		//
+		//// invalid item
+		//if ((nItem < 0) || (nSubItem < 0) || (nSubItem >= this->getColumnCount()))
+		//	throw DcxExceptions::dcxInvalidItem();
+		//
+		///*
+		//	nIcon = 0 (use no icon)
+		//	nIcon = -1 (ignore value, just change overlay)
+		//
+		//	overlay = 0 (no icon)
+		//*/
+		//// no icon to change
+		//if ((nIcon < -1) && (nOverlay < 0))
+		//	return;	// not an error, just do nothing.
+		//
+		//LVITEM lvi{};
+		//
+		//lvi.iItem = nItem;
+		//lvi.iSubItem = nSubItem;
+		//
+		//// theres an icon to change
+		//if (nIcon > -2)
+		//{
+		//	lvi.mask = LVIF_IMAGE;
+		//	lvi.iImage = nIcon;
+		//}
+		//
+		//if (nOverlay > -1)
+		//{
+		//	lvi.mask |= LVIF_STATE;
+		//	lvi.stateMask = LVIS_OVERLAYMASK;
+		//	lvi.state = gsl::narrow_cast<UINT>(INDEXTOOVERLAYMASK(nOverlay));
+		//}
+		//
+		//Dcx::dcxListView_SetItem(m_Hwnd, &lvi);
+
 		if (numtok < 6)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto nItem = StringToItemNumber(input.getnexttok());	// tok 4
+		const auto tsItems(input.getnexttok());									// tok 4
+		const auto tsSubItems(input.getnexttok());								// tok 5
+		const auto nIcon = input.getnexttokas<int>() - 1;						// tok 6
+		const auto nOverlay = (numtok > 6 ? input.getnexttokas<int>() : -1);	// tok 7
 
-		//auto nItem = input.getnexttok().to_int() - 1;							// tok 4
-		//// check if item supplied was 0 (now -1), last item in list.
-		//if (nItem == -1)
-		//{
-		//	nItem = Dcx::dcxListView_GetItemCount(m_Hwnd) - 1;
-		//
-		//	if (nItem < 0)
-		//		throw Dcx::dcxException("Invalid Item: No Items in list");
-		//}
-
-		const auto nSubItem = input.getnexttok().to_int() - 1;					// tok 5
-		const auto nIcon = input.getnexttok().to_int() - 1;					// tok 6
-		const auto nOverlay = (numtok > 6 ? input.getnexttok().to_int() : -1);	// tok 7
-
-		// invalid item
-		if ((nItem < 0) || (nSubItem < 0) || (nSubItem >= this->getColumnCount()))
-			throw DcxExceptions::dcxInvalidItem();
-
-		/*
-			nIcon = 0 (use no icon)
-			nIcon = -1 (ignore value, just change overlay)
-
-			overlay = 0 (no icon)
-		*/
 		// no icon to change
 		if ((nIcon < -1) && (nOverlay < 0))
 			return;	// not an error, just do nothing.
 
+		// get total items
+		const auto nItemCnt = Dcx::dcxListView_GetItemCount(m_Hwnd);
+		// get total subitems
+		const auto nSubItemCnt = this->getColumnCount();
+
+		// iterate through all item ranges supplied
+		const auto itEnd = tsItems.end();
+		for (auto itStart = tsItems.begin(TSCOMMACHAR); itStart != itEnd; ++itStart)
+		{
+			const auto tsLine(*itStart);
+
+			const auto ItemRange = getItemRange2(tsLine, nItemCnt);
+
+			if ((ItemRange.b < 0) || (ItemRange.e < 0) || (ItemRange.b > ItemRange.e))
+				throw Dcx::dcxException(TEXT("Invalid Item Range %."), tsLine);
+
+			// iterate through this range
+			for (auto nItem : ItemRange)
+			{
 		LVITEM lvi{};
 
 		lvi.iItem = nItem;
+
+				// iterate through all subitem ranges supplied (must be done for each item)
+				const auto itSubEnd = tsItems.end();
+				for (auto itSubStart = tsSubItems.begin(TSCOMMACHAR); itSubStart != itSubEnd; ++itSubStart)
+				{
+					const auto tsSubLine(*itSubStart);
+					const auto SubItemRange = getItemRange2(tsSubLine, nSubItemCnt);
+
+					if ((SubItemRange.b < 0) || (SubItemRange.e < 0) || (SubItemRange.b > SubItemRange.e))
+						throw Dcx::dcxException(TEXT("Invalid SubItem Range %."), tsSubLine);
+
+					// iterate through this subitem range.
+					for (auto nSubItem : SubItemRange)
+					{
+						// invalid item
+						if ((nItem < 0) || (nSubItem < 0) || (nSubItem >= nSubItemCnt))
+							throw DcxExceptions::dcxInvalidItem();
+
 		lvi.iSubItem = nSubItem;
 
 		// theres an icon to change
@@ -1438,7 +1489,12 @@ void DcxListView::parseCommandRequest(const TString& input)
 			lvi.state = gsl::narrow_cast<UINT>(INDEXTOOVERLAYMASK(nOverlay));
 		}
 
+						// finally set the items icons
 		Dcx::dcxListView_SetItem(m_Hwnd, &lvi);
+	}
+				}
+			}
+		}
 	}
 	// xdid -m [NAME] [ID] [SWITCH] [0|1]
 	else if (flags[TEXT('m')])
@@ -2107,14 +2163,22 @@ void DcxListView::parseCommandRequest(const TString& input)
 		Dcx::dcxListView_EnsureVisible(m_Hwnd, 0, FALSE);
 		Dcx::dcxListView_Scroll(m_Hwnd, 0, pos);
 	}
-	// xdid -V [NAME] [ID] [SWITCH] [nItem]
+	// xdid -V [NAME] [ID] [SWITCH] [nItem] (subitem)
 	else if (flags[TEXT('V')])
 	{
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
+		//if (const auto nItem = StringToItemNumber(input.getnexttok()); nItem > -1)
+		//	Dcx::dcxListView_EnsureVisible(m_Hwnd, nItem, FALSE);
+
 		if (const auto nItem = StringToItemNumber(input.getnexttok()); nItem > -1)
+		{
 			Dcx::dcxListView_EnsureVisible(m_Hwnd, nItem, FALSE);
+
+			if (const auto nSub = input.getnexttokas<int>(); nSub)
+				Dcx::dcxListView_EnsureSubItemVisible(m_Hwnd, nItem, nSub);
+	}
 	}
 	// xdid -S [NAME] [ID] [+FLAGS] [N1] [N2] [ARGS]
 	else if (flags[TEXT('S')])
@@ -2134,8 +2198,8 @@ void DcxListView::parseCommandRequest(const TString& input)
 		// +c save to custom @window [@window] (data is appended to the bottom of the window, window must exist)
 		const auto count = Dcx::dcxListView_GetItemCount(m_Hwnd);
 		const auto tsFlags(input.getnexttok().trim());		// tok 4
-		const auto iN1 = input.getnexttok().to_int() - 1;			// tok 5 adjusted from 1-based to be zero based
-		auto iN2 = input.getnexttok().to_int() - 1;					// tok 6 adjusted from 1-based to be zero based
+		const auto iN1 = input.getnexttok().to_int() - 1;	// tok 5 adjusted from 1-based to be zero based
+		auto iN2 = input.getnexttok().to_int() - 1;			// tok 6 adjusted from 1-based to be zero based
 		const auto tsArgs(input.getlasttoks().trim());		// tok 7, -1
 
 		if ((tsFlags[0] != TEXT('+')) || (tsFlags.len() < 2))
@@ -3348,8 +3412,43 @@ LRESULT DcxListView::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 
 			// Ok, now we create a drag-image for all selected items
 			bool bFirst = true;
-			int iPos = Dcx::dcxListView_GetNextItem(m_Hwnd, -1, LVNI_SELECTED);
-			while (iPos != -1)
+			//int iPos = Dcx::dcxListView_GetNextItem(m_Hwnd, -1, LVNI_SELECTED);
+			//while (iPos != -1)
+			//{
+			//	if (bFirst)
+			//	{
+			//		// For the first selected item,
+			//		// we simply create a single-line drag image
+			//		Dcx::m_hDragImage = Dcx::dcxListView_CreateDragImage(m_Hwnd, iPos, &p);
+			//		if (!Dcx::m_hDragImage)
+			//			break;
+			//
+			//		ImageList_GetImageInfo(Dcx::m_hDragImage, 0, &imf);
+			//		iHeight = imf.rcImage.bottom;
+			//		bFirst = false;
+			//	}
+			//	else {
+			//		// For the rest selected items,
+			//		// we create a single-line drag image, then
+			//		// append it to the bottom of the complete drag image
+			//		if (auto hOneImageList = Dcx::dcxListView_CreateDragImage(m_Hwnd, iPos, &p); hOneImageList)
+			//		{
+			//			if (auto hTempImageList = ImageList_Merge(Dcx::m_hDragImage, 0, hOneImageList, 0, 0, iHeight); hTempImageList)
+			//			{
+			//				ImageList_Destroy(Dcx::m_hDragImage);
+			//				Dcx::m_hDragImage = hTempImageList;
+			//				if (!Dcx::m_hDragImage)
+			//					break;
+			//			}
+			//			ImageList_Destroy(hOneImageList);
+			//		}
+			//		ImageList_GetImageInfo(Dcx::m_hDragImage, 0, &imf);
+			//		iHeight = imf.rcImage.bottom;
+			//	}
+			//	iPos = Dcx::dcxListView_GetNextItem(m_Hwnd, iPos, LVNI_SELECTED);
+			//}
+
+			for (auto iPos = Dcx::dcxListView_GetNextItem(m_Hwnd, -1, LVNI_SELECTED); (iPos != -1); iPos = Dcx::dcxListView_GetNextItem(m_Hwnd, iPos, LVNI_SELECTED))
 			{
 				if (bFirst)
 				{
@@ -3364,6 +3463,9 @@ LRESULT DcxListView::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 					bFirst = false;
 				}
 				else {
+					if (!Dcx::m_hDragImage)
+						break;
+
 					// For the rest selected items,
 					// we create a single-line drag image, then
 					// append it to the bottom of the complete drag image
@@ -3381,9 +3483,10 @@ LRESULT DcxListView::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 					ImageList_GetImageInfo(Dcx::m_hDragImage, 0, &imf);
 					iHeight = imf.rcImage.bottom;
 				}
-				iPos = Dcx::dcxListView_GetNextItem(m_Hwnd, iPos, LVNI_SELECTED);
 			}
 
+			if (Dcx::m_hDragImage)
+			{
 			// Now we can initialize then start the drag action
 			ImageList_BeginDrag(Dcx::m_hDragImage, 0, 0, 0);
 
@@ -3396,7 +3499,9 @@ LRESULT DcxListView::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 			Dcx::m_pDragSourceCtrl = this;
 
 			// Don't forget to capture the mouse
+				if (mIRCLinker::m_mIRCHWND)
 			SetCapture(mIRCLinker::m_mIRCHWND);
+		}
 		}
 		break;
 

@@ -150,7 +150,7 @@ function get_xdid_listview(&$XDID) {
 		),
 		'c' => array(
 	        '__desc' => 'This command lets you select listview items.',
-	        '__cmd' => '[N(,N,N-N,...)]',
+	        '__cmd' => '[N(,N2,N3-N4,...)]',
 	        '__eg' => '1,3,5,10-30',
 	        '__notes' => 'In a [s]singlesel[/s] listview, there is only one value for [p]N[/p].'
 		),
@@ -297,8 +297,8 @@ function get_xdid_listview(&$XDID) {
 		),
 		'k' => array(
 	        '__desc' => 'This command lets you change the check state on the Nth listview item.',
-	        '__cmd' => '[STATE] [N]',
-	        '__eg' => '2 5',
+	        '__cmd' => '[STATE] [N(,N2,N3-N4...)]',
+	        '__eg' => '2 1,3,5,10-30',
             '__params' => array(
                 'STATE' => array(
                     '__desc' => "Check State",
@@ -308,23 +308,24 @@ function get_xdid_listview(&$XDID) {
 						'2' => 'Checked',
 					),
 				),
-                'N' => 'The state to set the item to.',
+                'N(,N2,N3-N4...)' => 'The item(s) to change the state of.',
 			),
 	        '__notes' => "If you are not using the [s]checkbox[/s] style, this function can also change the state icon of an item. Be sure to insert the state icons before you use them.",
 		),
 		'l' => array(
 			'__desc' => 'This command lets you change the listview item icon.',
-			'__cmd' => '[N] [NSUB] [ICON] (OVERLAY)',
-			'__eg' => '1 2 5 3',
+			'__cmd' => '[N(,N2,N3-N4...)] [NSUB(,NSUB2,NSUB3-NSUB4...)] [ICON] (OVERLAY)',
+			'__eg' => '1,3,5,10-30 2-4 5 3',
 			'__params' => array(
-				'N' => 'Item index.',
-				'NSUB' => 'Column index.',
+				'N(,N2,N3-N4...)' => 'Item index.',
+				'NSUB(,NSUB2,NSUB3-NSUB4...)' => 'Column index.',
 				'ICON' => 'Icon index',
 				'OVERLAY' => 'Overlay icon index',
 			),
 			'__notes' => array(
 				'Use [v]0[/v] for [p]ICON[/p] and [p]OVERLAY[/p] to display no icon.',
 				'If you only want to change the overlay, use [v]-1[/v] for [p]ICON[/p].',
+				'The [p]NSUB[/p] ranges are changed for each item in the supplied [p]N[/p] ranges.',
 			),
 		),
 		'm' => array(
@@ -446,13 +447,13 @@ function get_xdid_listview(&$XDID) {
 		),
 		'u' => 'This command makes the currently selected listview item unselected.',
 		'v' => array(
-			'__desc' => 'This command lets you change the listview item text. If the target item is a DCX ProgressBar, then this allows you to send /xdid commands to the embedded ProgressBar.',
+			'__desc' => 'This command lets you change the listview item text. If the target item is a DCX control, then this allows you to send /xdid commands to the embedded control.',
 			'__cmd' => '[N] [NSUB] (TEXT)',
 			'__eg' => '1 2 5',
 			'__params' => array(
 				'N' => 'Item row.',
 				'NSUB' => 'Column index.',
-				'TEXT' => 'Item Text, or command to send to ProgressBar.',
+				'TEXT' => 'Item Text, or command to send to control.',
 			),
 			'__notes' => array(
 				'Use [p]TEXT[/p] as [v]-v 80[/v] to set the value of a progress bar.',
@@ -462,10 +463,14 @@ function get_xdid_listview(&$XDID) {
 		),
 		'V' => array(
 	        '__desc' => 'This command lets you scroll to the item specified.',
-	        '__cmd' => '[N]',
-	        '__eg' => '5',
+	        '__cmd' => '[N] (NSUB)',
+	        '__eg' => array(
+				'5',
+				'5 3',
+			),
 	        '__params' => array(
                 'N' => 'Item row to make visible.',
+				'NSUB' => 'Optional subitem to make visible.',
 			),
 		),
 		'w' => array(
