@@ -188,7 +188,7 @@ constexpr auto TS_wgetmemsize(T x) noexcept { return (TS_getmemsize((x) * sizeof
 // internal buffer size in characters
 #define TSTRING_INTERNALBUFFERSIZE_CCH TS_getmemsize(64)
 // internal buffer size in bytes
-#define TSTRING_INTERNALBUFFERSIZE_BYTES (TSTRING_INTERNALBUFFERSIZE_CCH*sizeof(TCHAR))
+#define TSTRING_INTERNALBUFFERSIZE_BYTES (TSTRING_INTERNALBUFFERSIZE_CCH*sizeof(value_type))
 
 #define SPACE m_cSpace
 #define SPACECHAR m_cSpace[0]
@@ -296,11 +296,11 @@ private:
 	GSL_SUPPRESS(bounds.3)
 		void setup_buffer(_In_ const size_type size)
 	{
-		m_InternalBuffer[0] = TEXT('\0');
+		m_InternalBuffer[0] = value_type{};
 		if (size <= TSTRING_INTERNALBUFFERSIZE_BYTES)
 		{
 			m_bUsingInternal = true;
-			m_buffersize = std::size(m_InternalBuffer) * sizeof(TCHAR);
+			m_buffersize = std::size(m_InternalBuffer) * sizeof(value_type);
 			m_pString = &m_InternalBuffer[0];
 			m_buffer.reset(nullptr);
 		}
@@ -309,7 +309,7 @@ private:
 			m_bUsingInternal = false;
 
 			m_buffersize = TS_getmemsize(size);
-			m_buffer = std::make_unique<TCHAR[]>(m_buffersize / sizeof(TCHAR));
+			m_buffer = std::make_unique<value_type[]>(m_buffersize / sizeof(value_type));
 			m_pString = m_buffer.get();
 		}
 		ts_zeromem(m_pString, m_buffersize);
@@ -382,9 +382,9 @@ private:
 
 public:
 
-	static inline const_pointer_const m_cSpace = TEXT(" ");
-	static inline const_pointer_const m_cComma = TEXT(",");
-	static inline const_pointer_const m_cTab = TEXT("\t");
+	static inline const_pointer_const m_cSpace = L" ";
+	static inline const_pointer_const m_cComma = L",";
+	static inline const_pointer_const m_cTab = L"\t";
 
 	/// <summary>
 	/// Default constructor
@@ -484,7 +484,7 @@ public:
 	TString(const_pointer_const cString, const size_type iLen)
 		: TString(iLen + 1U)
 	{
-		if ((cString) && (cString[0] != TEXT('\0')) && iLen > 0)
+		if ((cString) && (cString[0] != value_type{}) && iLen > 0)
 		{
 			ts_strcpyn_throw(m_pString, cString, iLen + 1);
 			//_ts_strcpyn(m_pString, cString, iLen + 1);
@@ -889,7 +889,7 @@ public:
 	/// Test if the string is empty.
 	/// </summary>
 	/// <returns>true/false</returns>
-	const bool empty() const noexcept { return (!m_pString || m_pString[0] == TEXT('\0')); };
+	const bool empty() const noexcept { return (!m_pString || m_pString[0] == value_type{}); };
 
 	/// <summary>
 	/// Get a reference to the character at N.

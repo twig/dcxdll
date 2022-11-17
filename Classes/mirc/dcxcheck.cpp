@@ -257,7 +257,7 @@ void DcxCheck::parseCommandRequest(const TString& input)
 
 		// now do checkbox specific ones.
 		const auto iFlags = this->parseColorFlags(input.getfirsttok(4));
-		const auto clrColor = input.getnexttok().to_<COLORREF>();	// tok 5
+		const auto clrColor = input.getnexttokas<COLORREF>();	// tok 5
 
 		if (dcx_testflag(iFlags, DcxColourFlags::CHECKBOXDISABLED))
 		{

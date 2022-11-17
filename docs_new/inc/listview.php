@@ -369,7 +369,7 @@ function get_xdid_listview(&$XDID) {
 				'3 2 1',
 				'1 3 2 4',
 			),
-			'__notes' => 'This command can be used to set the move the first column, which is editable. There can only be one editable column at any time.',
+			'__notes' => 'This command can be used to set/move the first column, which is editable. There can only be one editable column at any time.',
 		),
 		'q' => array(
 	        '__desc' => 'This command lets you add a group to the listview. [o]XP+[/o]',
@@ -415,7 +415,7 @@ function get_xdid_listview(&$XDID) {
 		't' => array(
 			'__desc' => 'This command lets you set the different column header text, width and alignment.',
 			'__cmd' => '[+FLAGS] [#ICON] [WIDTH] (TEXT) [TAB] [+FLAGS] [#ICON] [WIDTH] (TEXT) [TAB] ...',
-			'__eg' => '+l 2 130 column 1 $chr(9) +c 1 130 column 2 $chr(9) +rb 2 130 column 3',
+			'__eg' => '+l 2 130 column 1 $chr(9) +cd 1 130 column 2 $chr(9) +rb 2 130 column 3',
 			'__params' => array(
 				'+FLAGS' => array(
 					'__desc' => "Item flags.",
@@ -426,7 +426,7 @@ function get_xdid_listview(&$XDID) {
 						'r' => 'Header text is right justified.',
 						'f' => 'Header is a fixed width. (Column can\'t be resized)',
 						'q' => 'Header is a fixed ratio.',
-						'd' => 'Header is a split button.',
+						'd' => 'Header is a split button. (only works on subitems)',
 						'e' => 'Header has a sort down arrow.',
 						'g' => 'Header has a sort up arrow.',
 					),
@@ -458,7 +458,7 @@ function get_xdid_listview(&$XDID) {
 			'__notes' => array(
 				'Use [p]TEXT[/p] as [v]-v 80[/v] to set the value of a progress bar.',
 				'If N == -1 then sets the empty listview text which is displayed when the listview contains no items.',
-				'If NSUB == 1 when N == -1 then redraw after setting empty text.'
+				'If NSUB == 2 when N == -1 then redraw after setting empty text.'
 			),
 		),
 		'V' => array(

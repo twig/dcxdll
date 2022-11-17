@@ -285,6 +285,7 @@ constexpr auto DCX_MAX_GDI_ERRORS = 21;
 
 #include <dwmapi.h>
 
+// GDIPlus support
 #ifdef DCX_USE_GDIPLUS
 // VS 2015 generates C4458 errors in GDI+ includes
 //c:\program files\windows kits\10\include\10.0.10240.0\um\GdiplusHeaders.h(701): warning C4458: declaration of 'nativeCap' hides class member
@@ -296,10 +297,10 @@ constexpr auto DCX_MAX_GDI_ERRORS = 21;
 #pragma warning(disable: 4365)
 #include <gdiplus.h>
 #pragma warning(pop)
-//using namespace Gdiplus;
 #pragma comment(lib, "gdiplus.lib")
 #endif
 
+// DirectX Support
 #ifdef DCX_USE_DXSDK
 #include <dshow.h>
 #include <initguid.h>
@@ -331,10 +332,12 @@ constexpr auto DCX_MAX_GDI_ERRORS = 21;
 #endif
 #endif
 
-// max() macro causes issues with GSL, just use std::max/min instead
+// min/max() macros causes issues with GSL, just use std::max/min instead
 #undef max
 #undef min
-//#define GSL_THROW_ON_CONTRACT_VIOLATION 1
+#if !__has_include(<GSL\gsl>)
+#error "Microsoft GSL Required!"
+#endif
 #include <GSL\gsl>
 
 namespace gsl {
@@ -352,6 +355,7 @@ namespace gsl {
 	}
 }
 
+// std::is_pod is removed in C++20
 namespace Dcx {
 	template<class _Ty>
 	struct is_pod

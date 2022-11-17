@@ -83,7 +83,7 @@ TString::TString(const WCHAR chr) noexcept
 	: TString()
 {
 	m_pString[0] = chr;
-	m_pString[1] = TEXT('\0');
+	m_pString[1] = value_type{};
 
 	m_bDirty = false;
 	m_iLen = 1;
@@ -639,10 +639,10 @@ UINT TString::mreplace(const_value_type chr, const_pointer_const fmt) noexcept
 	if (fmt == nullptr)
 		return cnt;
 
-	for (auto p = m_pString; p && *p != TEXT('\0'); ++p)
+	for (auto p = m_pString; p && *p != value_type{}; ++p)
 	{
 		auto i = 0U;
-		for (auto rchr = fmt[0]; rchr != TEXT('\0'); rchr = fmt[i])
+		for (auto rchr = fmt[0]; rchr != value_type{}; rchr = fmt[i])
 		{
 			if (*p == rchr)
 			{
@@ -1137,23 +1137,23 @@ void TString::sorttok(const_pointer_const sortOptions, const_pointer_const sepCh
 	{
 		switch (*p)
 		{
-		case TEXT('a'):
+		case L'a':
 		{
 			opts.bAlpha = true;
 			opts.bNumeric = true;
 			break;
 		}
-		case TEXT('n'):
+		case L'n':
 		{
 			opts.bNumeric = true;
 			break;
 		}
-		case TEXT('c'):
+		case L'c':
 		{
 			opts.bPrefix = true;
 			break;
 		}
-		case TEXT('r'):
+		case L'r':
 		{
 			opts.bReverse = true;
 			break;
@@ -1251,18 +1251,18 @@ TString& TString::trim()
 	const auto* const oldEnd = end;
 
 	// Trim from start
-	while (start != end && *start == TEXT(' '))
+	while (start != end && *start == L' ')
 		++start;
 
 	// Trim from end
-	while (end != start && *(--end) == TEXT(' '));
+	while (end != start && *(--end) == L' ');
 
 	// only alloc new string if string changed.
 
 	++end;	// end must be increased by one to account for the previous decrement
 
 	if (end != oldEnd)
-		*end = TEXT('\0');	// place zero at new ending
+		*end = value_type{};	// place zero at new ending
 
 	// only allocate new string if start of string modified.
 	if (start != m_pString)
@@ -2007,11 +2007,11 @@ TString& TString::strip()
 	const auto* end = this->m_pString + this->len();
 
 	// Trim from start
-	while (start != end && *start == TEXT(' '))
+	while (start != end && *start == L' ')
 		++start;
 
 	// Trim from end
-	while (end != start && *(--end) == TEXT(' '));
+	while (end != start && *(--end) == L' ');
 
 	const size_t new_len = gsl::narrow_cast<size_t>((end - start) + 1);	// add one to take into account the previous decrement
 
@@ -2038,23 +2038,23 @@ TString& TString::strip()
 			while (wtxt[pos + 1] == 3)
 				++pos; // remove multiple consecutive ctrl-k's
 
-			if (wtxt[pos + 1] >= TEXT('0') && wtxt[pos + 1] <= TEXT('9'))
+			if (wtxt[pos + 1] >= L'0' && wtxt[pos + 1] <= L'9')
 			{
 				++pos;
 
-				if (wtxt[pos + 1] >= TEXT('0') && wtxt[pos + 1] <= TEXT('9'))
+				if (wtxt[pos + 1] >= L'0' && wtxt[pos + 1] <= L'9')
 					++pos;
 
 				// maybe a background color
-				if (wtxt[pos + 1] == TEXT(','))
+				if (wtxt[pos + 1] == L',')
 				{
 					++pos;
 
-					if (wtxt[pos + 1] >= TEXT('0') && wtxt[pos + 1] <= TEXT('9'))
+					if (wtxt[pos + 1] >= L'0' && wtxt[pos + 1] <= L'9')
 					{
 						++pos;
 
-						if (wtxt[pos + 1] >= TEXT('0') && wtxt[pos + 1] <= TEXT('9'))
+						if (wtxt[pos + 1] >= L'0' && wtxt[pos + 1] <= L'9')
 							++pos;
 					}
 				}
@@ -2101,7 +2101,7 @@ void TString::swap(TString& second) noexcept
 	swap(this->m_iLen, second.m_iLen);
 
 	swap(this->m_bUsingInternal, second.m_bUsingInternal);
-	m_InternalBuffer[0] = TEXT('\0');
+	m_InternalBuffer[0] = value_type{};
 
 	if (this->m_bUsingInternal)
 	{
@@ -2121,7 +2121,7 @@ void TString::swap(TString& second) noexcept
 		second.m_savedpos = nullptr;
 		second.m_iLen = 0;
 		second.m_bDirty = false;
-		second.m_InternalBuffer[0] = TEXT('\0');
+		second.m_InternalBuffer[0] = value_type{};
 	}
 }
 
@@ -2137,7 +2137,7 @@ int TString::compare(const TString& other) const noexcept
 
 int TString::compare(const_reference other) const noexcept
 {
-	const_value_type tmp[] = { other, TEXT('\0') };
+	const_value_type tmp[] = { other, value_type{} };
 	return this->compare(&tmp[0]);
 }
 
@@ -2179,10 +2179,10 @@ int TString::compare(const_pointer_const other, const size_t iLength) const noex
 
 ULONG TString::to_addr() const
 {
-	const BYTE first = gsl::narrow_cast<BYTE>(getfirsttok(1, TEXT('.')).to_int() & 0xFF);
-	const BYTE second = gsl::narrow_cast<BYTE>(getnexttok(TEXT('.')).to_int() & 0xFF);
-	const BYTE third = gsl::narrow_cast<BYTE>(getnexttok(TEXT('.')).to_int() & 0xFF);
-	const BYTE forth = gsl::narrow_cast<BYTE>(getnexttok(TEXT('.')).to_int() & 0xFF);
+	const BYTE first = gsl::narrow_cast<BYTE>(getfirsttok(1, L'.').to_int() & 0xFF);
+	const BYTE second = gsl::narrow_cast<BYTE>(getnexttok(L'.').to_int() & 0xFF);
+	const BYTE third = gsl::narrow_cast<BYTE>(getnexttok(L'.').to_int() & 0xFF);
+	const BYTE forth = gsl::narrow_cast<BYTE>(getnexttok(L'.').to_int() & 0xFF);
 
 	//return gsl::narrow_cast<ULONG>(MAKELONG(MAKEWORD(first,second),MAKEWORD(third,forth)));
 	//return gsl::narrow_cast<ULONG>(MAKELONG(MAKEWORD(forth, third), MAKEWORD(second, first)));

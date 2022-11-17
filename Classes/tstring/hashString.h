@@ -647,6 +647,7 @@ namespace std {
 		_NODISCARD result_type operator()(argument_type const& s) const noexcept
 		{
 			return dcx_hash(s.to_chr(), s.len());
+			//return dcx_hash(s.to_chr().get(), s.len());
 		}
 	};
 #endif

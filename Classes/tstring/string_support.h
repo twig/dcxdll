@@ -1,6 +1,6 @@
 #pragma once
 // support functions for TString & c-string handling...
-// v1.19
+// v1.20
 
 #include <tchar.h>
 #include <cstdlib>
@@ -692,7 +692,7 @@ namespace details {
 	struct _impl_snprintf<T, typename T::value_type, Arguments...> {
 		_Success_(return >= 0) _Check_return_opt_ const int operator()(_Out_ T& buf, _In_z_ _Printf_format_string_ const typename T::value_type* const fmt, _In_ const Arguments&&... args) noexcept
 		{
-			if constexpr (std::is_same_v<char, T::value_type>)
+			if constexpr (std::is_same_v<char, typename T::value_type>)
 				return snprintf(buf.data(), buf.size(), fmt, args...);
 			else
 				return _snwprintf(buf.data(), buf.size(), fmt, args...);
@@ -702,7 +702,7 @@ namespace details {
 	struct _impl_snprintf<T, typename T::value_type, Arguments...> {
 		_Success_(return >= 0) _Check_return_opt_ const int operator()(_Out_ T& buf, _In_z_ _Printf_format_string_ const typename T::value_type* const fmt, _In_ const Arguments&&... args) noexcept
 		{
-			if constexpr (std::is_same_v<char, T::value_type>)
+			if constexpr (std::is_same_v<char, typename T::value_type>)
 				return snprintf(buf.to_chr(), buf.capacity_cch(), fmt, args...);
 			else
 				return _snwprintf(buf.to_chr(), buf.capacity_cch(), fmt, args...);
