@@ -949,6 +949,15 @@ void DcxListView::parseInfoRequest(const TString& input, const refString<TCHAR, 
 		_ts_snprintf(szReturnValue, TEXT("%u"), iCount);
 	}
 	break;
+	// [NAME] [ID] [PROP] [flags]
+	case L"margin"_hash:
+	{
+		RECT rc{};
+		if (Dcx::dcxListView_GetViewMargin(m_Hwnd, &rc))
+			_ts_snprintf(szReturnValue, TEXT("%d %d %d %d"), rc.left, rc.right, rc.top, rc.bottom);
+		else
+			szReturnValue = TEXT("-1 -1 -1 -1");
+	}
 	default:
 		parseGlobalInfoRequest(input, szReturnValue);
 	}
@@ -1623,6 +1632,46 @@ void DcxListView::parseCommandRequest(const TString& input)
 		}
 
 		Dcx::dcxListView_SetColumnOrderArray(m_Hwnd, count, indexes.get());
+	}
+	// xdid -O [NAME] [ID] [FLAGS] [N,N2,N3-N4...] [M]
+	// Move item or range of items...
+	// [NAME] [ID] -O [FLAGS] [N,N2,N3-N4...] [M]
+	else if (flags[TEXT('O')])
+	{
+		static_assert(CheckFreeCommand(TEXT('O')), "Command in use!");
+
+		if (numtok < 6)
+			throw DcxExceptions::dcxInvalidArguments();
+
+		const auto tsFlags(input.getnexttok());
+		const auto tsItems(input.getnexttok());
+		const auto nDestItem = StringToItemNumber(input++);
+
+		// get total items
+		const auto nItemCnt = Dcx::dcxListView_GetItemCount(m_Hwnd);
+
+		// invalid info
+		if ((nDestItem < 0) || (nDestItem >= nItemCnt))
+			throw DcxExceptions::dcxInvalidItem();
+
+		// iterate through all item ranges supplied
+		const auto itEnd = tsItems.end();
+		for (auto itStart = tsItems.begin(TSCOMMACHAR); itStart != itEnd; ++itStart)
+		{
+			const auto tsLine(*itStart);
+
+			const auto ItemRange = getItemRange2(tsLine, nItemCnt);
+
+			if ((ItemRange.b < 0) || (ItemRange.e < 0) || (ItemRange.b > ItemRange.e))
+				throw Dcx::dcxException(TEXT("Invalid Item Range %."), tsLine);
+
+			// iterate through this range
+			for (auto nItem : ItemRange)
+			{
+				MoveItem(nItem, nDestItem);
+			}
+		}
+
 	}
 	// xdid -q [NAME] [ID] [SWITCH] [N] [+FLAGS] [GID] [Group Text]
 	else if (flags[TEXT('q')])
@@ -5202,14 +5251,18 @@ void DcxListView::MoveItem(int iSrc, int iDest) noexcept
 	lvi.iSubItem = 0;
 	lvi.cchTextMax = MIRC_BUFFER_SIZE_CCH;
 	lvi.pszText = &szBuf[0];
-	lvi.stateMask = 0; //~gsl::narrow_cast<UINT>(LVIS_SELECTED); // dont want selected state
-	lvi.mask = /*LVIF_STATE |*/ LVIF_IMAGE | LVIF_INDENT | LVIF_PARAM | LVIF_TEXT | LVIF_GROUPID | LVIF_COLUMNS;
+	lvi.stateMask = UINT_MAX; //~gsl::narrow_cast<UINT>(LVIS_SELECTED); // dont want selected state
+	lvi.mask = LVIF_STATE | LVIF_IMAGE | LVIF_INDENT | LVIF_PARAM | LVIF_TEXT | LVIF_GROUPID | LVIF_COLUMNS;
 
 	// Get source item details
 	if (Dcx::dcxListView_GetItem(m_Hwnd, &lvi))
 	{
 		// change to dest pos
 		lvi.iItem = iDest;
+		
+		lvi.state &= ~gsl::narrow_cast<UINT>(LVIS_SELECTED);
+		lvi.stateMask &= ~gsl::narrow_cast<UINT>(LVIS_SELECTED);
+
 		// Insert the main item
 		const int iRet = Dcx::dcxListView_InsertItem(m_Hwnd, &lvi);
 		if (iRet <= iSrc)
