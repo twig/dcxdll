@@ -1270,6 +1270,11 @@ namespace Dcx
 		return gsl::narrow_cast<LPARAM>(dcxLOWORD(l) | (gsl::narrow_cast<DWORD>(dcxLOWORD(h)) << 16));
 	}
 
+	inline bool dcxSetProp(_In_ HWND hwnd, _In_z_ const TCHAR* const str, _In_ DcxControl *data) noexcept
+	{
+		return SetPropW(hwnd, str, data);
+	}
+
 	template <class T>
 	GSL_SUPPRESS(lifetime)
 		inline auto dcxGetProp(_In_ HWND hwnd, _In_z_ const TCHAR* const str) noexcept

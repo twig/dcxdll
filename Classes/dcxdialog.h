@@ -419,15 +419,11 @@ private:
 	UINT m_uStyleBg{ DBS_BKGNORMAL };
 	mutable UINT m_iRefCount{};
 
-	XPopupMenu* m_popup{ nullptr };
+	//XPopupMenu* m_popup{ nullptr };
+	std::unique_ptr<XPopupMenu> m_popup;
 
 	std::unique_ptr<LayoutManager> m_pLayoutManager; //!< Layout Manager Object
 
-	//HCURSOR m_hCursor{ nullptr };  //!< Cursor Handle
-	//bool m_bCursorFromFile{ false }; //!< Cursor comes from a file?
-
-	//CursorPair m_hCursor{};
-	//CursorPair m_hCursorList[22]{};
 	CursorPair m_hCursor;
 	CursorPair m_hCursorList[22];
 

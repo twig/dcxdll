@@ -395,6 +395,7 @@ public:
 	}
 
 	virtual void HandleDragDrop(int x, int y) noexcept;
+	virtual void HandleDragMove(int x, int y) noexcept;
 
 	static LRESULT CALLBACK WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 	[[nodiscard("Memory Leak")]] static DcxControl* controlFactory(gsl::strict_not_null<DcxDialog* const> p_Dialog, const UINT mID, const TString& input, const UINT offset, const DcxAllowControls mask, HWND hParent = nullptr);

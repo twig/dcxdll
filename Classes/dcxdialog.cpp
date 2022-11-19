@@ -67,7 +67,8 @@ DcxDialog::DcxDialog(const HWND mHwnd, const TString& tsName, const TString& tsA
 /// <returns></returns>
 DcxDialog::~DcxDialog() noexcept
 {
-	delete m_popup;
+	//delete m_popup;
+	m_popup.reset();
 
 	PreloadData();
 
@@ -294,7 +295,6 @@ void DcxDialog::parseCommandRequest(_In_ const TString& input)
 		catch (const std::exception& e)
 		{
 			showErrorEx(nullptr, TEXT("-c"), TEXT("Unable To Create Control (%S)"), e.what());
-			//showError(nullptr, TEXT("-c"), TEXT("Unable To Create Control (%)"), e.what());
 			throw;
 		}
 	}
@@ -925,22 +925,22 @@ void DcxDialog::parseCommandRequest(_In_ const TString& input)
 	else if (flags[TEXT('P')])
 	{
 		// create the menu
-		if (m_popup == nullptr)
+		if (!m_popup)
 		{
 			auto menu = GetMenu(m_Hwnd);
 
-			if (menu == nullptr)
+			if (!menu)
 				throw Dcx::dcxException("Menu Does Not Exist");
 
-			m_popup = new XPopupMenu(TEXT("dialog"_ts), menu);
-			//m_popup = std::make_unique<XPopupMenu>(TEXT("dialog"_ts), menu);
+			//m_popup = new XPopupMenu(TEXT("dialog"_ts), menu);
+			m_popup = std::make_unique<XPopupMenu>(TEXT("dialog"_ts), menu);
 		}
-		if (m_popup != nullptr)
+		if (m_popup)
 		{
 			auto menuargs(TEXT("dialog "_ts) + input.getlasttoks());
 			//menuargs += input.getlasttoks();
 
-			Dcx::XPopups.parseCommand(menuargs, m_popup);
+			Dcx::XPopups.parseCommand(menuargs, m_popup.get());
 		}
 	}
 	// xdialog -R [NAME] [SWITCH] [FLAG] [ARGS]

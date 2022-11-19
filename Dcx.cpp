@@ -453,8 +453,14 @@ namespace Dcx {
 			p.x = Dcx::dcxLOWORD(lParam);
 			p.y = Dcx::dcxHIWORD(lParam);
 
-			MapWindowPoints(mHwnd, nullptr, &p, 1); // ClientToScreen(hWndMain, &p);
+			MapWindowPoints(mHwnd, nullptr, &p, 1);
 			ImageList_DragMove(p.x, p.y);
+
+			// TODO: add code to highlite item we are above...
+			if (!m_pDragSourceCtrl)
+				break;
+
+			m_pDragSourceCtrl->HandleDragMove(p.x, p.y);
 		}
 		break;
 

@@ -454,6 +454,18 @@ namespace Dcx
 	{
 		return ListView_SetOutlineColor(hwnd, clr);
 	}
+	inline BOOL dcxListView_SetInsertMark(_In_ HWND hwnd, _In_ LPLVINSERTMARK lplvim) noexcept
+	{
+		return ListView_SetInsertMark(hwnd, lplvim);
+	}
+	inline BOOL dcxListView_ClearInsertMark(_In_ HWND hwnd) noexcept
+	{
+		LVINSERTMARK lvim{};
+		lvim.cbSize = sizeof(LVINSERTMARK);
+		lvim.iItem = -1;
+
+		return Dcx::dcxListView_SetInsertMark(hwnd, &lvim);
+	}
 	[[nodiscard("Memory leak")]] inline HIMAGELIST dcxListView_CreateDragImage(_In_ HWND hwnd, int i, _Inout_ LPPOINT pt) noexcept
 	{
 		return ListView_CreateDragImage(hwnd, i, pt);
@@ -583,6 +595,7 @@ public:
 	const TString getStyles(void) const final;
 
 	void HandleDragDrop(int x, int y) noexcept override;
+	void HandleDragMove(int x, int y) noexcept override;
 
 	static inline WNDPROC m_hDefaultClassProc{ nullptr };	//!< Default window procedure
 	LRESULT CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept final;

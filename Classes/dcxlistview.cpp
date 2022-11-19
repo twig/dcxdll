@@ -1006,6 +1006,8 @@ void DcxListView::HandleDragDrop(int x, int y) noexcept
 	MapWindowPoints(mIRCLinker::m_mIRCHWND, m_Hwnd, &lvhti.pt, 1);
 	Dcx::dcxListView_HitTest(m_Hwnd, &lvhti);
 
+	Dcx::dcxListView_ClearInsertMark(m_Hwnd);
+
 	// Out of the ListView?
 	if (lvhti.iItem == -1)
 		return;
@@ -1023,6 +1025,34 @@ void DcxListView::HandleDragDrop(int x, int y) noexcept
 
 	//if (dcx_testflag(getParentDialog()->getEventMask(), DCX_EVENT_DRAG))
 	//	execAliasEx(TEXT("enddrag,%u"), getUserID()); // allow blocking the drag?
+}
+
+void DcxListView::HandleDragMove(int x, int y) noexcept
+{
+	if (!m_Hwnd)
+		return;
+
+	// Determine the dropped item
+	LVHITTESTINFO lvhti{};
+	lvhti.pt.x = x;
+	lvhti.pt.y = y;
+
+	// X & Y are relative to screen area.
+	MapWindowPoints(nullptr, m_Hwnd, &lvhti.pt, 1);
+	Dcx::dcxListView_HitTest(m_Hwnd, &lvhti);
+
+	// Out of the ListView?
+	if (lvhti.iItem == -1)
+		return;
+	// Not in an item?
+	if (!dcx_testflag(lvhti.flags, LVHT_ONITEMICON) && !dcx_testflag(lvhti.flags, LVHT_ONITEMLABEL) && !dcx_testflag(lvhti.flags, LVHT_ONITEMSTATEICON))
+		return;
+
+	LVINSERTMARK lvim{};
+	lvim.cbSize = sizeof(LVINSERTMARK);
+	lvim.iItem = lvhti.iItem;
+
+	Dcx::dcxListView_SetInsertMark(m_Hwnd, &lvim);
 }
 
 /*!
@@ -1110,13 +1140,6 @@ void DcxListView::parseCommandRequest(const TString& input)
 		// Convert to 0-based index.
 		nRow--;
 		nCol--;
-
-		//LVITEM lvi = { 0 };
-		////ZeroMemory(&lvi, sizeof(LVITEM));
-		//
-		//lvi.mask = LVIF_PARAM;
-		//lvi.iItem = nRow;
-		//lvi.iSubItem = nCol;
 
 		//LVITEM lvi{ LVIF_PARAM, nRow, nCol, 0U, 0U, nullptr, 0, 0, 0U, 0, 0, 0U, nullptr, nullptr, 0 };
 		LVITEM lvi{ LVIF_PARAM, nRow, nCol };
@@ -1343,18 +1366,18 @@ void DcxListView::parseCommandRequest(const TString& input)
 		if (gsl::narrow_cast<UINT>(nCol) >= lviDcx->vInfo.size())
 			throw Dcx::dcxException("No Render Information for SubItem, More subitems than columns?");
 
-		const auto ri = gsl::at(lviDcx->vInfo, gsl::narrow_cast<UINT>(nCol));
+		auto& ri = gsl::at(lviDcx->vInfo, gsl::narrow_cast<UINT>(nCol));
 
-		ri->m_dFlags = lviflags;
+		ri.m_dFlags = lviflags;
 		if (dcx_testflag(lviflags, LVIS_COLOR))
-			ri->m_cText = clrText;
+			ri.m_cText = clrText;
 		else
-			ri->m_cText = CLR_INVALID;
+			ri.m_cText = CLR_INVALID;
 
 		if (dcx_testflag(lviflags, LVIS_BGCOLOR))
-			ri->m_cBg = clrBack;
+			ri.m_cBg = clrBack;
 		else
-			ri->m_cBg = CLR_INVALID;
+			ri.m_cBg = CLR_INVALID;
 
 		Dcx::dcxListView_SetItemState(m_Hwnd, nItem, lviflags, LVIS_DROPHILITED | LVIS_FOCUSED | LVIS_SELECTED | LVIS_CUT);
 		Dcx::dcxListView_Update(m_Hwnd, nItem);
@@ -3232,11 +3255,11 @@ LRESULT DcxListView::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 				if ((gsl::narrow_cast<UINT>(lplvcd->iSubItem) >= lpdcxlvi->vInfo.size()) || (lplvcd->iSubItem < 0))
 					return CDRF_DODEFAULT;
 
-				const auto ri = gsl::at(lpdcxlvi->vInfo, gsl::narrow_cast<UINT>(lplvcd->iSubItem));
-				if (ri->m_cText != CLR_INVALID)
-					lplvcd->clrText = ri->m_cText;
-				if (ri->m_cBg != CLR_INVALID)
-					lplvcd->clrTextBk = ri->m_cBg;
+				const auto &ri = gsl::at(lpdcxlvi->vInfo, gsl::narrow_cast<UINT>(lplvcd->iSubItem));
+				if (ri.m_cText != CLR_INVALID)
+					lplvcd->clrText = ri.m_cText;
+				if (ri.m_cBg != CLR_INVALID)
+					lplvcd->clrTextBk = ri.m_cBg;
 
 				//if (ri->m_cText != CLR_INVALID)
 				//{
@@ -3249,7 +3272,7 @@ LRESULT DcxListView::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 				//	lplvcd->clrTextBk = ri->m_cBg;
 				//}
 
-				if (dcx_testflag(ri->m_dFlags, LVIS_UNDERLINE) || dcx_testflag(ri->m_dFlags, LVIS_BOLD) || dcx_testflag(ri->m_dFlags, LVIS_ITALIC))
+				if (dcx_testflag(ri.m_dFlags, LVIS_UNDERLINE) || dcx_testflag(ri.m_dFlags, LVIS_BOLD) || dcx_testflag(ri.m_dFlags, LVIS_ITALIC))
 				{
 					//if (LOGFONT lf{}; GetObject(GetWindowFont(m_Hwnd), sizeof(LOGFONT), &lf) != 0)
 					//{
@@ -3267,11 +3290,11 @@ LRESULT DcxListView::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 
 					if (auto [code, lf] = Dcx::dcxGetObject<LOGFONT>(GetWindowFont(m_Hwnd)); code != 0)
 					{
-						if (dcx_testflag(ri->m_dFlags, LVIS_BOLD))
+						if (dcx_testflag(ri.m_dFlags, LVIS_BOLD))
 							lf.lfWeight |= FW_BOLD;
-						if (dcx_testflag(ri->m_dFlags, LVIS_UNDERLINE))
+						if (dcx_testflag(ri.m_dFlags, LVIS_UNDERLINE))
 							lf.lfUnderline = 1;
-						if (dcx_testflag(ri->m_dFlags, LVIS_ITALIC))
+						if (dcx_testflag(ri.m_dFlags, LVIS_ITALIC))
 							lf.lfItalic = 1;
 
 						this->m_hItemFont = CreateFontIndirect(&lf);
@@ -3279,7 +3302,7 @@ LRESULT DcxListView::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 							this->m_hOldItemFont = Dcx::dcxSelectObject(lplvcd->nmcd.hdc, this->m_hItemFont);
 					}
 				}
-				if (dcx_testflag(ri->m_dFlags, LVIS_CENTERICON))
+				if (dcx_testflag(ri.m_dFlags, LVIS_CENTERICON))
 				{
 					// test code for centering an image in an item when it has no text
 					const stString<MIRC_BUFFER_SIZE_CCH> sBuf;
@@ -3323,8 +3346,8 @@ LRESULT DcxListView::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 										}
 									}
 									else {
-										if (ri->m_cBg != CLR_INVALID)
-											Dcx::FillRectColour(lplvcd->nmcd.hdc, &rcBounds, ri->m_cBg);
+										if (ri.m_cBg != CLR_INVALID)
+											Dcx::FillRectColour(lplvcd->nmcd.hdc, &rcBounds, ri.m_cBg);
 									}
 									if (int iSizeX = 0, iSizeY = 0; ImageList_GetIconSize(himl, &iSizeX, &iSizeY))
 									{
@@ -3433,10 +3456,10 @@ LRESULT DcxListView::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 				if (lpdcxlvi->pbar)
 					DestroyWindow(lpdcxlvi->pbar->getHwnd());
 
-				for (auto& x : lpdcxlvi->vInfo)
-					delete x;
-
-				lpdcxlvi->vInfo.clear();
+				//for (auto& x : lpdcxlvi->vInfo)
+				//	delete x;
+				//
+				//lpdcxlvi->vInfo.clear();
 
 				delete lpdcxlvi;
 			}
@@ -4471,7 +4494,8 @@ void DcxListView::xmlSetItem(const int nItem, const int nSubItem, const TiXmlEle
 		//auto ri = new DCXLVRENDERINFO;
 		//ZeroMemory(ri, sizeof(DCXLVRENDERINFO));
 
-		auto ri = std::make_unique<DCXLVRENDERINFO>();
+		//auto ri = std::make_unique<DCXLVRENDERINFO>();
+		DCXLVRENDERINFO ri{};
 
 		lvi->iItem = nItem;
 		lvi->iSubItem = nSubItem;
@@ -4484,37 +4508,38 @@ void DcxListView::xmlSetItem(const int nItem, const int nSubItem, const TiXmlEle
 		// Is Item text in Bold?
 		auto attr = xNode->Attribute("textbold", &i);
 		if (i > 0)
-			ri->m_dFlags |= LVIS_BOLD;
+			ri.m_dFlags |= LVIS_BOLD;
 
 		// Is Item text Underlined?
 		attr = xNode->Attribute("textunderline", &i);
 		if (i > 0)
-			ri->m_dFlags |= LVIS_UNDERLINE;
+			ri.m_dFlags |= LVIS_UNDERLINE;
 
 		// Items text colour.
 		attr = xNode->Attribute("textcolor", &i);
 		if (attr && i > -1)
 		{
-			ri->m_cText = gsl::narrow_cast<COLORREF>(i);
-			ri->m_dFlags |= LVIS_COLOR;
+			ri.m_cText = gsl::narrow_cast<COLORREF>(i);
+			ri.m_dFlags |= LVIS_COLOR;
 		}
 		else
-			ri->m_cText = CLR_INVALID;
+			ri.m_cText = CLR_INVALID;
 
 		// Items background colour.
 		attr = xNode->Attribute("backgroundcolor", &i);
 		if (attr && i > -1)
 		{
-			ri->m_cBg = gsl::narrow_cast<COLORREF>(i);
-			ri->m_dFlags |= LVIS_BGCOLOR;
+			ri.m_cBg = gsl::narrow_cast<COLORREF>(i);
+			ri.m_dFlags |= LVIS_BGCOLOR;
 		}
 		else
-			ri->m_cBg = CLR_INVALID;
+			ri.m_cBg = CLR_INVALID;
 
-		lvi->state = ri->m_dFlags;
+		lvi->state = ri.m_dFlags;
 		lvi->stateMask = (LVIS_FOCUSED | LVIS_SELECTED | LVIS_CUT | LVIS_DROPHILITED); // only alter the controls flags, ignore our custom ones.
 
-		lpmylvi->vInfo.push_back(ri.release());
+		//lpmylvi->vInfo.push_back(ri.release());
+		lpmylvi->vInfo.push_back(ri);
 	}
 
 	// Items icon.
@@ -4723,25 +4748,27 @@ void DcxListView::massSetItem(const int nPos, const TString& input)
 
 	auto lpmylvi = std::make_unique<DCXLVITEM>();
 	{
-		auto ri = std::make_unique<DCXLVRENDERINFO>();
+		//auto ri = std::make_unique<DCXLVRENDERINFO>();
+		DCXLVRENDERINFO ri{};
 
 		lpmylvi->iPbarCol = 0;
 		lpmylvi->pbar = nullptr;
 		lpmylvi->vInfo.clear();
 
 		// setup colum zero
-		ri->m_dFlags = stateFlags;
+		ri.m_dFlags = stateFlags;
 		if (dcx_testflag(stateFlags, LVIS_COLOR))
-			ri->m_cText = clrText;
+			ri.m_cText = clrText;
 		else
-			ri->m_cText = CLR_INVALID;
+			ri.m_cText = CLR_INVALID;
 
 		if (dcx_testflag(stateFlags, LVIS_BGCOLOR))
-			ri->m_cBg = clrBack;
+			ri.m_cBg = clrBack;
 		else
-			ri->m_cBg = CLR_INVALID;
+			ri.m_cBg = CLR_INVALID;
 
-		lpmylvi->vInfo.push_back(ri.release());
+		//lpmylvi->vInfo.push_back(ri.release());
+		lpmylvi->vInfo.push_back(ri);
 	}
 	TString itemtext;
 	if (data.numtok() > 9U)
@@ -4833,15 +4860,17 @@ void DcxListView::massSetItem(const int nPos, const TString& input)
 
 			// setup colum #
 			{
-				auto ri = std::make_unique<DCXLVRENDERINFO>();
+				//auto ri = std::make_unique<DCXLVRENDERINFO>();
+				DCXLVRENDERINFO ri{};
 
-				ri->m_dFlags = stateFlags;
+				ri.m_dFlags = stateFlags;
 
-				ri->m_cText = (dcx_testflag(stateFlags, LVIS_COLOR) ? clrText : CLR_INVALID);
+				ri.m_cText = (dcx_testflag(stateFlags, LVIS_COLOR) ? clrText : CLR_INVALID);
 
-				ri->m_cBg = (dcx_testflag(stateFlags, LVIS_BGCOLOR) ? clrBack : CLR_INVALID);
+				ri.m_cBg = (dcx_testflag(stateFlags, LVIS_BGCOLOR) ? clrBack : CLR_INVALID);
 
-				tmp_lpmylvi->vInfo.push_back(ri.release());
+				//tmp_lpmylvi->vInfo.push_back(ri.release());
+				tmp_lpmylvi->vInfo.push_back(ri);
 			}
 			lvi.iSubItem = Dcx::numeric_cast<int>(i) - 1;
 			lvi.mask = LVIF_TEXT | LVIF_IMAGE;
@@ -5026,22 +5055,24 @@ TString DcxListView::ItemToString(int nItem, int iColumns)
 		{
 			if (!lpmylvi->vInfo.empty())
 			{
-				if (auto ri = gsl::at(lpmylvi->vInfo, 0); ri)
+				//if (auto ri = gsl::at(lpmylvi->vInfo, 0); ri)
 				{
-					bgclr = ri->m_cBg;
-					fgclr = ri->m_cText;
+					auto& ri = gsl::at(lpmylvi->vInfo, 0);
+
+					bgclr = ri.m_cBg;
+					fgclr = ri.m_cText;
 					//auto stateFlags = this->parseItemFlags(data++);
-					if (dcx_testflag(ri->m_dFlags, LVIS_COLOR))
+					if (dcx_testflag(ri.m_dFlags, LVIS_COLOR))
 						res += TEXT('c');
-					if (dcx_testflag(ri->m_dFlags, LVIS_BGCOLOR))
+					if (dcx_testflag(ri.m_dFlags, LVIS_BGCOLOR))
 						res += TEXT('k');
-					if (dcx_testflag(ri->m_dFlags, LVIS_BOLD))
+					if (dcx_testflag(ri.m_dFlags, LVIS_BOLD))
 						res += TEXT('b');
-					if (dcx_testflag(ri->m_dFlags, LVIS_CENTERICON))
+					if (dcx_testflag(ri.m_dFlags, LVIS_CENTERICON))
 						res += TEXT('C');
-					if (dcx_testflag(ri->m_dFlags, LVIS_ITALIC))
+					if (dcx_testflag(ri.m_dFlags, LVIS_ITALIC))
 						res += TEXT('i');
-					if (dcx_testflag(ri->m_dFlags, LVIS_UNDERLINE))
+					if (dcx_testflag(ri.m_dFlags, LVIS_UNDERLINE))
 						res += TEXT('u');
 				}
 			}
@@ -5087,10 +5118,11 @@ TString DcxListView::ItemToString(int nItem, int iColumns)
 				{
 					if (nSubItem < gsl::narrow_cast<int>(std::size(lpmylvi->vInfo)))
 					{
-						if (auto ri = gsl::at(lpmylvi->vInfo, gsl::narrow_cast<size_t>(nSubItem)); ri)
+						//if (auto ri = gsl::at(lpmylvi->vInfo, gsl::narrow_cast<size_t>(nSubItem)); ri)
 						{
-							bgclr = ri->m_cBg;
-							fgclr = ri->m_cText;
+							const auto &ri = gsl::at(lpmylvi->vInfo, gsl::narrow_cast<size_t>(nSubItem));
+							bgclr = ri.m_cBg;
+							fgclr = ri.m_cText;
 						}
 					}
 				}

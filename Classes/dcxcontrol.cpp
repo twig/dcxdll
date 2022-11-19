@@ -86,7 +86,8 @@ DcxControl::DcxControl(const UINT mID, gsl::strict_not_null<DcxDialog* const> p_
  */
 DcxControl::~DcxControl() noexcept
 {
-	RemoveProp(m_Hwnd, TEXT("dcx_cthis"));
+	if (m_Hwnd)
+		RemovePropW(m_Hwnd, TEXT("dcx_cthis"));
 
 	// Reverse to old font
 	setControlFont(nullptr, FALSE);
@@ -1182,6 +1183,20 @@ void DcxControl::HandleDragDrop(int x, int y) noexcept
 	}
 }
 
+void DcxControl::HandleDragMove(int x, int y) noexcept
+{
+	switch (getControlType())
+	{
+	case DcxControlTypes::LISTVIEW:
+	{
+		((DcxListView*)this)->HandleDragMove(x, y);
+	}
+	break;
+	default:
+		break;
+	}
+}
+
 /*!
  * \brief blah
  *
@@ -1208,7 +1223,7 @@ LRESULT CALLBACK DcxControl::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LP
 		pthis->m_Hwnd = mHwnd;
 
 		// save control object to this hwnd
-		if (!SetProp(mHwnd, TEXT("dcx_cthis"), pthis))
+		if (!Dcx::dcxSetProp(mHwnd, TEXT("dcx_cthis"), pthis))
 			return FALSE;	// SetProp() failed, cause CreateWindowEx() to fail.
 	}
 	else
@@ -1677,18 +1692,38 @@ LRESULT DcxControl::setRedraw(const BOOL fView) noexcept
 GSL_SUPPRESS(type.4)
 void DcxControl::setControlFont(const HFONT hFont, const BOOL fRedraw) noexcept
 {
+	//if (auto hControlFont = this->getFont(); hControlFont != Dcx::dcxGetStockObject<HFONT>(DEFAULT_GUI_FONT))
+	//{
+	//	if (hControlFont)
+	//	{
+	//		DeleteFont(hControlFont);
+	//		this->m_hFont = nullptr;
+	//	}
+	//	else if (this->m_hFont)
+	//	{
+	//		DeleteFont(this->m_hFont);
+	//		this->m_hFont = nullptr;
+	//	}
+	//}
+	//
+	//this->setFont(hFont, fRedraw);
+	//this->m_hFont = hFont;
+
 	if (auto hControlFont = this->getFont(); hControlFont != Dcx::dcxGetStockObject<HFONT>(DEFAULT_GUI_FONT))
 	{
 		if (hControlFont)
 		{
 			DeleteFont(hControlFont);
-			this->m_hFont = nullptr;
 		}
-		else if (this->m_hFont)
-		{
-			DeleteFont(this->m_hFont);
+
+		if (this->m_hFont == hControlFont)
 			this->m_hFont = nullptr;
-		}
+	}
+
+	if (this->m_hFont)
+	{
+		DeleteFont(this->m_hFont);
+		this->m_hFont = nullptr;
 	}
 
 	this->setFont(hFont, fRedraw);
