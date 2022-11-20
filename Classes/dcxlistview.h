@@ -166,7 +166,7 @@ struct DCXLVRENDERINFO
 };
 using LPDCXLVRENDERINFO = DCXLVRENDERINFO*;
 
-using VectorOfRenderInfo = std::vector<LPDCXLVRENDERINFO>;
+using VectorOfRenderInfo = std::vector<DCXLVRENDERINFO>;
 
 /*!
 * \brief blah
