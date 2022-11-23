@@ -213,11 +213,11 @@ namespace Dcx
 	{
 		return ListView_SetItem(hwnd, plvi);
 	}
-	inline void dcxListView_SetItemText(_In_ HWND hwnd, const int i, const int iSub, _In_z_ PTCHAR str) noexcept
+	inline void dcxListView_SetItemText(_In_ HWND hwnd, _In_ const int i, _In_ const int iSub, _In_z_ PTCHAR str) noexcept
 	{
 		ListView_SetItemText(hwnd, i, iSub, str);
 	}
-	inline void dcxListView_SetItemState(_In_ HWND hwnd, const int item, const unsigned int state, const unsigned int statemask) noexcept
+	inline void dcxListView_SetItemState(_In_ HWND hwnd, _In_ const int item, _In_ const unsigned int state, _In_ const unsigned int statemask) noexcept
 	{
 		ListView_SetItemState(hwnd, item, state, statemask);
 	}
@@ -225,11 +225,11 @@ namespace Dcx
 	{
 		return ListView_SetInfoTip(hwnd, lvit);
 	}
-	inline void dcxListView_SetCheckState(_In_ HWND hwnd, const int i, const int fCheck) noexcept
+	inline void dcxListView_SetCheckState(_In_ HWND hwnd, _In_ const int i, _In_ const int fCheck) noexcept
 	{
 		ListView_SetCheckState(hwnd, i, fCheck);
 	}
-	inline DWORD dcxListView_SetExtendedListViewStyleEx(_In_ HWND hwnd, const WPARAM mask, const LPARAM dw) noexcept
+	inline DWORD dcxListView_SetExtendedListViewStyleEx(_In_ HWND hwnd, _In_ const WPARAM mask, _In_ const LPARAM dw) noexcept
 	{
 		return ListView_SetExtendedListViewStyleEx(hwnd, mask, dw);
 	}
@@ -248,19 +248,19 @@ namespace Dcx
 	{
 		return ListView_GetItem(hwnd, plvi);
 	}
-	inline void dcxListView_GetItemText(_In_ HWND hwnd, const int nItem, const int nSubItem, _Inout_z_ PTCHAR const Buf, const size_t nBufSize) noexcept
+	inline void dcxListView_GetItemText(_In_ HWND hwnd, _In_ const int nItem, _In_ const int nSubItem, _Inout_z_ PTCHAR const Buf, _In_ const size_t nBufSize) noexcept
 	{
 		ListView_GetItemText(hwnd, nItem, nSubItem, Buf, nBufSize);
 	}
-	[[nodiscard]] inline int dcxListView_GetNextItem(_In_ HWND hwnd, int i, unsigned int flags) noexcept
+	[[nodiscard]] inline int dcxListView_GetNextItem(_In_ HWND hwnd, _In_ int i, _In_ unsigned int flags) noexcept
 	{
 		return ListView_GetNextItem(hwnd, i, flags);
 	}
-	inline BOOL dcxListView_GetColumnOrderArray(_In_ HWND hwnd, const int nCnt, _Inout_ int* const p) noexcept
+	inline BOOL dcxListView_GetColumnOrderArray(_In_ HWND hwnd, _In_ const int nCnt, _Inout_ int* const p) noexcept
 	{
 		return ListView_GetColumnOrderArray(hwnd, nCnt, p);
 	}
-	[[nodiscard]] inline int dcxListView_GetColumnWidth(_In_ HWND hwnd, const int iCol) noexcept
+	[[nodiscard]] inline int dcxListView_GetColumnWidth(_In_ HWND hwnd, _In_ const int iCol) noexcept
 	{
 		return ListView_GetColumnWidth(hwnd, iCol);
 	}
@@ -272,7 +272,7 @@ namespace Dcx
 	{
 		return ListView_GetSelectedCount(hwnd);
 	}
-	[[nodiscard]] inline unsigned int dcxListView_GetItemState(_In_ HWND hwnd, const int i, const unsigned int mask) noexcept
+	[[nodiscard]] inline unsigned int dcxListView_GetItemState(_In_ HWND hwnd, _In_ const int i, _In_ const unsigned int mask) noexcept
 	{
 		return ListView_GetItemState(hwnd, i, mask);
 	}
@@ -280,19 +280,19 @@ namespace Dcx
 	{
 		return ListView_GetExtendedListViewStyle(hwnd);
 	}
-	inline BOOL dcxListView_GetItemRect(_In_ HWND hwnd, const int i, _Inout_ LPRECT prc, const int code) noexcept
+	inline BOOL dcxListView_GetItemRect(_In_ HWND hwnd, _In_ const int i, _Inout_ LPRECT prc, _In_ const int code) noexcept
 	{
 		GSL_SUPPRESS(es.47) return ListView_GetItemRect(hwnd, i, prc, code);
 	}
-	inline BOOL dcxListView_GetSubItemRect(_In_ HWND hwnd, const int i, const int iSub, const int code, _Inout_ LPRECT prc) noexcept
+	inline BOOL dcxListView_GetSubItemRect(_In_ HWND hwnd, _In_ const int i, _In_ const int iSub, _In_ const int code, _Inout_ LPRECT prc) noexcept
 	{
 		GSL_SUPPRESS(es.47) return ListView_GetSubItemRect(hwnd, i, iSub, code, prc);
 	}
-	inline BOOL dcxListView_GetColumn(_In_ HWND hwnd, const int iCol, _Inout_ LPLVCOLUMN lc) noexcept
+	inline BOOL dcxListView_GetColumn(_In_ HWND hwnd, _In_ const int iCol, _Inout_ LPLVCOLUMN lc) noexcept
 	{
 		return ListView_GetColumn(hwnd, iCol, lc);
 	}
-	inline int dcxListView_InsertColumn(_In_ HWND hwnd, const int iCol, _In_ LPLVCOLUMN pCol) noexcept
+	inline int dcxListView_InsertColumn(_In_ HWND hwnd, _In_ const int iCol, _In_ LPLVCOLUMN pCol) noexcept
 	{
 		return ListView_InsertColumn(hwnd, iCol, pCol);
 	}
@@ -310,7 +310,7 @@ namespace Dcx
 	{
 		return ListView_GetTopIndex(hwnd);
 	}
-	inline LRESULT dcxListView_GetGroupInfo(_In_ HWND hwnd, const unsigned int gid, _Inout_ PLVGROUP pgrp) noexcept
+	inline LRESULT dcxListView_GetGroupInfo(_In_ HWND hwnd, _In_ const unsigned int gid, _Inout_ PLVGROUP pgrp) noexcept
 	{
 		return ListView_GetGroupInfo(hwnd, gid, pgrp);
 	}
@@ -318,11 +318,11 @@ namespace Dcx
 	{
 		return ListView_GetGroupCount(hwnd);
 	}
-	[[nodiscard]] inline unsigned int dcxListView_GetGroupState(_In_ HWND hwnd, const int gid, const DWORD mask) noexcept
+	[[nodiscard]] inline unsigned int dcxListView_GetGroupState(_In_ HWND hwnd, _In_ const int gid, _In_ const DWORD mask) noexcept
 	{
 		return ListView_GetGroupState(hwnd, gid, mask);
 	}
-	inline BOOL dcxListView_GetEmptyText(_In_ HWND hwnd, _Inout_z_ PTCHAR str, const int sz) noexcept
+	inline BOOL dcxListView_GetEmptyText(_In_ HWND hwnd, _Inout_z_ PTCHAR str, _In_ const int sz) noexcept
 	{
 		return ListView_GetEmptyText(hwnd, str, sz);
 	}
@@ -330,19 +330,19 @@ namespace Dcx
 	{
 		return ListView_SubItemHitTest(hwnd, lvht);
 	}
-	inline BOOL dcxListView_SetColumnWidth(_In_ HWND hwnd, const int iCol, const int cx) noexcept
+	inline BOOL dcxListView_SetColumnWidth(_In_ HWND hwnd, _In_ const int iCol, _In_ const int cx) noexcept
 	{
 		return ListView_SetColumnWidth(hwnd, iCol, cx);
 	}
-	inline BOOL dcxListView_SetColumnOrderArray(_In_ HWND hwnd, const int iCount, const int *pi) noexcept
+	inline BOOL dcxListView_SetColumnOrderArray(_In_ HWND hwnd, _In_ const int iCount, _In_ const int *pi) noexcept
 	{
 		return ListView_SetColumnOrderArray(hwnd, iCount, pi);
 	}
-	inline DWORD dcxListView_SetView(_In_ HWND hwnd, DWORD mode) noexcept
+	inline DWORD dcxListView_SetView(_In_ HWND hwnd, _In_ DWORD mode) noexcept
 	{
 		return ListView_SetView(hwnd, mode);
 	}
-	[[nodiscard]] inline LRESULT dcxListView_HasGroup(_In_ HWND hwnd, const int group) noexcept
+	[[nodiscard]] inline LRESULT dcxListView_HasGroup(_In_ HWND hwnd, _In_ const int group) noexcept
 	{
 		return ListView_HasGroup(hwnd, group);
 	}
@@ -350,23 +350,23 @@ namespace Dcx
 	{
 		return ListView_IsGroupViewEnabled(hwnd);
 	}
-	inline BOOL dcxListView_EnableGroupView(_In_ HWND hwnd, bool fEnable) noexcept
+	inline BOOL dcxListView_EnableGroupView(_In_ HWND hwnd, _In_ bool fEnable) noexcept
 	{
 		return ListView_EnableGroupView(hwnd, fEnable);
 	}
-	inline void dcxListView_SetGroupState(_In_ HWND hwnd, const int gid, const unsigned int mask, const unsigned int state) noexcept
+	inline void dcxListView_SetGroupState(_In_ HWND hwnd, _In_ const int gid, _In_ const unsigned int mask, _In_ const unsigned int state) noexcept
 	{
 		ListView_SetGroupState(hwnd, gid, mask, state);
 	}
-	inline void dcxListView_InsertGroup(_In_ HWND hwnd, const int index, _In_ PLVGROUP pgrp) noexcept
+	inline void dcxListView_InsertGroup(_In_ HWND hwnd, _In_ const int index, _In_ PLVGROUP pgrp) noexcept
 	{
 		ListView_InsertGroup(hwnd, index, pgrp);
 	}
-	inline void dcxListView_MoveGroup(_In_ HWND hwnd, const int gid, const int index) noexcept
+	inline void dcxListView_MoveGroup(_In_ HWND hwnd, _In_ const int gid, _In_ const int index) noexcept
 	{
 		ListView_MoveGroup(hwnd, gid, index);
 	}
-	inline void dcxListView_RemoveGroup(_In_ HWND hwnd, const int gid) noexcept
+	inline void dcxListView_RemoveGroup(_In_ HWND hwnd, _In_ const int gid) noexcept
 	{
 		ListView_RemoveGroup(hwnd, gid);
 	}
@@ -374,7 +374,7 @@ namespace Dcx
 	{
 		ListView_RemoveAllGroups(hwnd);
 	}
-	inline BOOL dcxListView_DeleteColumn(_In_ HWND hwnd, const int column) noexcept
+	inline BOOL dcxListView_DeleteColumn(_In_ HWND hwnd, _In_ const int column) noexcept
 	{
 		return ListView_DeleteColumn(hwnd, column);
 	}
@@ -382,7 +382,7 @@ namespace Dcx
 	{
 		return ListView_DeleteAllItems(hwnd);
 	}
-	inline BOOL dcxListView_DeleteItem(_In_ HWND hwnd, const int i) noexcept
+	inline BOOL dcxListView_DeleteItem(_In_ HWND hwnd, _In_ const int i) noexcept
 	{
 		return ListView_DeleteItem(hwnd, i);
 	}
@@ -390,11 +390,11 @@ namespace Dcx
 	{
 		return ListView_SortItemsEx(hwnd, pFn, data);
 	}
-	inline BOOL dcxListView_EnsureVisible(_In_ HWND hwnd, const int i, BOOL partialOK) noexcept
+	inline BOOL dcxListView_EnsureVisible(_In_ HWND hwnd, _In_ const int i, _In_ BOOL partialOK) noexcept
 	{
 		return ListView_EnsureVisible(hwnd, i, partialOK);
 	}
-	inline BOOL dcxListView_Scroll(_In_ HWND hwnd, const int dx, const int dy) noexcept
+	inline BOOL dcxListView_Scroll(_In_ HWND hwnd, _In_ const int dx, _In_ const int dy) noexcept
 	{
 		return ListView_Scroll(hwnd, dx, dy);
 	}
@@ -414,21 +414,25 @@ namespace Dcx
 	{
 		return SendMessage(hwnd, HDM_HITTEST, 0U, reinterpret_cast<LPARAM>(hdti));
 	}
-	inline HWND dcxListView_EditLabel(_In_ HWND hwnd, const int i) noexcept
+	inline HWND dcxListView_EditLabel(_In_ HWND hwnd, _In_ const int i) noexcept
 	{
 		return ListView_EditLabel(hwnd, i);
 	}
-	inline BOOL dcxHeader_GetItem(_In_ HWND hwnd, const int i, _Inout_ LPHDITEM phi) noexcept
+	inline BOOL dcxHeader_GetItem(_In_ HWND hwnd, _In_ const int i, _Inout_ LPHDITEM phi) noexcept
 	{
 		return Header_GetItem(hwnd, i, phi);
 	}
-	inline BOOL dcxHeader_SetItem(_In_ HWND hwnd, const int i, _In_ const LPHDITEM phi) noexcept
+	inline BOOL dcxHeader_SetItem(_In_ HWND hwnd, _In_ const int i, _In_ const LPHDITEM phi) noexcept
 	{
 		return Header_SetItem(hwnd, i, phi);
 	}
 	inline int dcxListView_HitTest(_In_ HWND hwnd, _Inout_ LPLVHITTESTINFO lvhti) noexcept
 	{
 		return ListView_HitTest(hwnd, lvhti);
+	}
+	inline int dcxListView_HitTestEx(_In_ HWND hwnd, _Inout_ LPLVHITTESTINFO lvhti) noexcept
+	{
+		return ListView_HitTestEx(hwnd, lvhti);
 	}
 	inline BOOL dcxListView_Update(_In_ HWND hwnd, _In_ int nItem) noexcept
 	{
@@ -466,11 +470,11 @@ namespace Dcx
 
 		return Dcx::dcxListView_SetInsertMark(hwnd, &lvim);
 	}
-	[[nodiscard("Memory leak")]] inline HIMAGELIST dcxListView_CreateDragImage(_In_ HWND hwnd, int i, _Inout_ LPPOINT pt) noexcept
+	[[nodiscard("Memory leak")]] inline HIMAGELIST dcxListView_CreateDragImage(_In_ HWND hwnd, _In_ int i, _Inout_ LPPOINT pt) noexcept
 	{
 		return ListView_CreateDragImage(hwnd, i, pt);
 	}
-	[[nodiscard]] inline BOOL dcxListView_IsItemVisible(_In_ HWND hwnd, int i) noexcept
+	[[nodiscard]] inline BOOL dcxListView_IsItemVisible(_In_ HWND hwnd, _In_ int i) noexcept
 	{
 		return ListView_IsItemVisible(hwnd, i);
 	}
@@ -506,7 +510,7 @@ namespace Dcx
 	/// <param name="iid"></param>
 	/// <param name="pUnkn"></param>
 	/// <returns></returns>
-	inline BOOL dcxListView_QueryInterface(_In_ HWND hwnd, _In_ REFIID iid, IUnknown** pUnkn) noexcept
+	inline BOOL dcxListView_QueryInterface(_In_ HWND hwnd, _In_ REFIID iid, _Inout_ IUnknown** pUnkn) noexcept
 	{
 		if ((!hwnd) || (!pUnkn))
 			return FALSE;
@@ -520,7 +524,7 @@ namespace Dcx
 	/// <param name="hwnd"></param>
 	/// <param name="pRC"></param>
 	/// <returns></returns>
-	inline BOOL dcxListView_SetViewMargin(_In_ HWND hwnd, LPCRECT pRC) noexcept
+	inline BOOL dcxListView_SetViewMargin(_In_ HWND hwnd, _In_ LPCRECT pRC) noexcept
 	{
 		return gsl::narrow_cast<BOOL>(SendMessage(hwnd, LVM_SETVIEWMARGIN, 0, reinterpret_cast<LPARAM>(pRC)));
 	}
@@ -531,7 +535,7 @@ namespace Dcx
 	/// <param name="hwnd"></param>
 	/// <param name="pRC"></param>
 	/// <returns></returns>
-	inline BOOL dcxListView_GetViewMargin(_In_ HWND hwnd, LPRECT pRC) noexcept
+	inline BOOL dcxListView_GetViewMargin(_In_ HWND hwnd, _Inout_ LPRECT pRC) noexcept
 	{
 		return gsl::narrow_cast<BOOL>(SendMessage(hwnd, LVM_GETVIEWMARGIN, 0, reinterpret_cast<LPARAM>(pRC)));
 	}
@@ -541,7 +545,7 @@ namespace Dcx
 	/// <param name="hwnd"></param>
 	/// <param name="pRC"></param>
 	/// <returns></returns>
-	inline BOOL dcxListView_GetViewRect(_In_ HWND hwnd, LPRECT pRC) noexcept
+	inline BOOL dcxListView_GetViewRect(_In_ HWND hwnd, _Inout_ LPRECT pRC) noexcept
 	{
 		return gsl::narrow_cast<BOOL>(SendMessage(hwnd, LVM_GETVIEWRECT, 0, reinterpret_cast<LPARAM>(pRC)));
 	}
@@ -640,12 +644,68 @@ private:
 
 	void DrawEmpty(HDC hdc, const TString &tsBuf);
 
+	/// <summary>
+	/// Only called inside NM_CUSTOMDRAW.
+	/// Draws the current item.
+	/// </summary>
+	/// <param name="lplvcd"></param>
+	/// <returns></returns>
+	LRESULT DrawItem(LPNMLVCUSTOMDRAW lplvcd);
+
+	/// <summary>
+	/// Only called inside NM_CUSTOMDRAW.
+	/// Draw current group.
+	/// </summary>
+	/// <param name="lplvcd"></param>
+	/// <returns></returns>
+	LRESULT DrawGroup(LPNMLVCUSTOMDRAW lplvcd);
+
+	/// <summary>
+	/// Only called inside NM_CUSTOMDRAW.
+	/// </summary>
+	/// <returns>Draw state of current group</returns>
+	int getGroupDrawState() noexcept;
+
+	/// <summary>
+	/// Get the groups header text if any.
+	/// </summary>
+	/// <param name="gid"></param>
+	/// <returns>The header text</returns>
+	TString getGroupHeader(int gid);
+
+	void addGroup(const TString &tsInput);
+
+	/// <summary>
+	/// Only called inside NM_CUSTOMDRAW.
+	/// Draw current groups selection rect if any.
+	/// </summary>
+	/// <param name="hTheme"></param>
+	/// <param name="hdc"></param>
+	/// <param name="rc"></param>
+	/// <param name="iStateId"></param>
+	void DrawGroupSelectionRect(HTHEME hTheme, HDC hdc, LPCRECT rc, int iStateId) noexcept;
+
+	/// <summary>
+	/// Copy iSrc to iDest.
+	/// iSrc is maintained.
+	/// </summary>
+	/// <param name="iSrc"></param>
+	/// <param name="iDest"></param>
 	void CopyItem(int iSrc, int iDest);
+
+	/// <summary>
+	/// Move iSrc to iDest.
+	/// iSrc is deleted.
+	/// </summary>
+	/// <param name="iSrc"></param>
+	/// <param name="iDest"></param>
 	void MoveItem(int iSrc, int iDest) noexcept;
 
-	// static functions.
-	//static void getItemRange(const TString &tsItems, const int nItemCnt, int *iStart_range, int *iEnd_range);
-	//static std::pair<int, int> getItemRange(const TString &tsItems, const int nItemCnt);
+	/// <summary>
+	/// Get the margin rect.
+	/// </summary>
+	/// <returns></returns>
+	RECT getListRect() const noexcept;
 
 	[[nodiscard]] static UINT parseMassItemFlags(const TString& flags);
 	static void parseText2Item(const TString& tsTxt, TString& tsItem, const TString& tsData);
@@ -688,6 +748,34 @@ private:
 		return gsl::at(m_ranks, std::size(m_ranks) - 1).rank;
 	}
 
+	static COLORREF getThemeGroupTextColour(HTHEME hTheme, int iStateId) noexcept
+	{
+		COLORREF clr{ RGB(0, 51, 153) };
+		Dcx::UXModule.dcxGetThemeColor(hTheme, LISTVIEWPARTS::LVP_GROUPHEADER, iStateId, TMT_HEADING1TEXTCOLOR, &clr);
+		return clr;
+	}
+	static COLORREF getThemeGroupBkgFillColour(HTHEME hTheme, int iStateId) noexcept
+	{
+		COLORREF clr{ RGB(185, 229, 242) };
+		Dcx::UXModule.dcxGetThemeColor(hTheme, LISTVIEWPARTS::LVP_GROUPHEADER, iStateId, TMT_ACCENTCOLORHINT, &clr);
+		return clr;
+	}
+	static COLORREF getThemeGroupBkgBorderColour(HTHEME hTheme, int iStateId) noexcept
+	{
+		COLORREF clr{ RGB(94, 131, 191) };
+		Dcx::UXModule.dcxGetThemeColor(hTheme, LISTVIEWPARTS::LVP_GROUPHEADER, iStateId, TMT_FILLCOLORHINT, &clr);
+		return clr;
+	}
+	static HFONT getThemeGroupFont(HTHEME hTheme, int iStateId, HDC hdc) noexcept
+	{
+		LOGFONT logFont{};
+
+		if (Dcx::UXModule.dcxGetThemeFont(hTheme, hdc, LISTVIEWPARTS::LVP_GROUPHEADER, iStateId, TMT_HEADING1FONT, &logFont) == S_OK)
+			return CreateFontIndirectW(&logFont);
+
+		return nullptr;
+	}
+
 	//
 	HFONT m_hItemFont{ nullptr };		// Font used for specific item changes.
 	HFONT m_hOldItemFont{ nullptr };	// Font used for specific item changes.
@@ -705,8 +793,26 @@ private:
 	{ TEXT('-'), 5},	// not allowed voice in channel?
 	{ 0,6 }				// all other characters
 	};
+	struct dcxListViewMarginSideData
+	{
+		COLORREF m_clrBkg{ RGB(155, 55, 55) };
+		COLORREF m_clrTxt{ RGB(0, 255, 0) };
+		COLORREF m_clrBorder{ RGB(100, 100, 0) };
+		DcxControl* m_Ctrl{};
+		TString m_Text;
+	};
+	struct dcxListViewMarginData
+	{
+		dcxListViewMarginSideData m_Left;
+		dcxListViewMarginSideData m_Right;
+		dcxListViewMarginSideData m_Top;
+		dcxListViewMarginSideData m_Bottom;
+	};
+	dcxListViewMarginData m_MarginData;
+
 	bool m_bHasPBars{ false };					// true if listview has pbars at all, if it does, a slower update is used that checks & moves pbars. (better system needed)
-	bool m_bReserved[3]{ false };
+	bool m_bCustomGroups{ false };
+	bool m_bReserved[2]{ false };
 };
 
 #endif // _DCXLISTVIEW_H_

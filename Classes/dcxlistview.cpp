@@ -87,6 +87,7 @@ DcxListView::DcxListView(const UINT ID, gsl::strict_not_null<DcxDialog* const> p
 
 DcxListView::~DcxListView() noexcept
 {
+	if (m_Hwnd)
 	Dcx::dcxListView_DeleteAllItems(m_Hwnd);
 
 	ImageList_Destroy(getImageList(LVSIL_NORMAL));
@@ -180,6 +181,10 @@ const TString DcxListView::getStyles(void) const
 		styles.addtok(TEXT("snaptogrid"));
 	if (dcx_testflag(ExStyles, LVS_EX_AUTOAUTOARRANGE))
 		styles.addtok(TEXT("autoautoarrange"));
+	if (m_bAllowDrag)
+		styles.addtok(TEXT("drag"));
+	if (m_bCustomGroups)
+		styles.addtok(TEXT("groups"));
 
 	return styles;
 }
@@ -250,6 +255,9 @@ dcxWindowStyles DcxListView::parseControlStyles(const TString& tsStyles)
 			break;
 		case L"drag"_hash:
 			m_bAllowDrag = true;
+			break;
+		case L"groups"_hash:
+			m_bCustomGroups = true;
 			break;
 		default:
 			break;
@@ -1001,8 +1009,6 @@ void DcxListView::HandleDragDrop(int x, int y) noexcept
 	lvhti.pt.x = x;
 	lvhti.pt.y = y;
 
-	//ClientToScreen(hWndMain, &lvhti.pt);
-	//ScreenToClient(hListView, &lvhti.pt);
 	MapWindowPoints(mIRCLinker::m_mIRCHWND, m_Hwnd, &lvhti.pt, 1);
 	Dcx::dcxListView_HitTest(m_Hwnd, &lvhti);
 
@@ -1697,42 +1703,19 @@ void DcxListView::parseCommandRequest(const TString& input)
 
 	}
 	// xdid -q [NAME] [ID] [SWITCH] [N] [+FLAGS] [GID] [Group Text]
+	// xdid -q [NAME] [ID] [SWITCH] [N] [+FLAGS] [GID] [Group Text] ([tab] Group column2 text)...
 	else if (flags[TEXT('q')])
 	{
 		if (numtok < 7)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto index = input++.to_int() - 1;						// tok 4
-		const auto tsflags(input++);									// tok 5
-		const auto gid = input++.to_int();								// tok 6
-		const auto iFlags = this->parseGroupFlags(tsflags);
-
-		if (index < 0 || gid <= 0)
-			throw DcxExceptions::dcxInvalidArguments();
-
-		if (Dcx::dcxListView_HasGroup(m_Hwnd, gsl::narrow_cast<WPARAM>(gid)))
-			throw Dcx::dcxException(TEXT("Group already exists: %"), gid);
-
-		auto text(input.getlasttoks());				// tok 7, -1
-		const auto iState = this->parseGroupState(tsflags);
-
-		LVGROUP lvg{};
-		lvg.cbSize = sizeof(LVGROUP);
-		lvg.mask = LVGF_ALIGN | LVGF_HEADER | LVGF_GROUPID | LVGF_STATE;
-
-		lvg.pszHeader = text.to_chr();
-		lvg.iGroupId = gid;
-
-		lvg.stateMask = iState;
-		lvg.state = iState;
-		lvg.uAlign = iFlags;
-
-		ListView_InsertGroup(m_Hwnd, index, &lvg);
+		addGroup(input);
 	}
 	// xdid -Q [NAME] [ID] [SWITCH] [Add|Move|Del] ....
-	// xdid -Q [NAME] [ID] [SWITCH] Add [N] [+FLAGS] [GID] [Group Text]
+	// xdid -Q [NAME] [ID] [SWITCH] Add [N] [+FLAGS] [GID] [Group Text] ([tab] Group column2 text)...
 	// xdid -Q [NAME] [ID] [SWITCH] Move [GID] [N]
 	// xdid -Q [NAME] [ID] [SWITCH] Del [GID]
+	// xdid -Q [NAME] [ID] [SWITCH] Setup [GID,GID2,GID3-GIDn] [+FLAGS]
 	else if (flags[TEXT('Q')])
 	{
 		if (numtok < 4)
@@ -1742,40 +1725,19 @@ void DcxListView::parseCommandRequest(const TString& input)
 
 		switch (std::hash<TString>()(tsCmd))
 		{
+		// xdid -Q [NAME] [ID] [SWITCH] Add [N] [+FLAGS] [GID] [Group Text] ([tab] Group column2 text)...
 		case TEXT("Add"_hash):
+		case TEXT("add"_hash):
 		{
 			if (numtok < 8)
 				throw DcxExceptions::dcxInvalidArguments();
 
-			const auto index = input++.to_int() - 1;						// tok 5
-			const auto tsflags(input++);									// tok 6
-			const auto gid = input++.to_int();								// tok 7
-			const auto iFlags = this->parseGroupFlags(tsflags);
-
-			if (index < 0 || gid <= 0)
-				throw DcxExceptions::dcxInvalidArguments();
-
-			if (Dcx::dcxListView_HasGroup(m_Hwnd, gsl::narrow_cast<WPARAM>(gid)))
-				throw Dcx::dcxException(TEXT("Group already exists: %"), gid);
-
-			auto text(input.getlasttoks());				// tok 8, -1
-			const auto iState = this->parseGroupState(tsflags);
-
-			LVGROUP lvg{};
-			lvg.cbSize = sizeof(LVGROUP);
-			lvg.mask = LVGF_ALIGN | LVGF_HEADER | LVGF_GROUPID | LVGF_STATE;
-
-			lvg.pszHeader = text.to_chr();
-			lvg.iGroupId = gid;
-
-			lvg.stateMask = iState;
-			lvg.state = iState;
-			lvg.uAlign = iFlags;
-
-			Dcx::dcxListView_InsertGroup(m_Hwnd, index, std::addressof(lvg));
+			addGroup(input);
 			break;
 		}
+		// xdid -Q [NAME] [ID] [SWITCH] Move [GID] [N]
 		case TEXT("Move"_hash):
+		case TEXT("move"_hash):
 		{
 			if (numtok < 6)
 				throw DcxExceptions::dcxInvalidArguments();
@@ -1789,7 +1751,9 @@ void DcxListView::parseCommandRequest(const TString& input)
 			Dcx::dcxListView_MoveGroup(m_Hwnd, gid, index);
 			break;
 		}
+		// xdid -Q [NAME] [ID] [SWITCH] Del [GID]
 		case TEXT("Del"_hash):
+		case TEXT("del"_hash):
 		{
 			if (numtok < 5)
 				throw DcxExceptions::dcxInvalidArguments();
@@ -3231,209 +3195,10 @@ LRESULT DcxListView::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 			if (!lplvcd)
 				return CDRF_DODEFAULT;
 
-			//if (!ListView_IsItemVisible(m_Hwnd, lplvcd->nmcd.dwItemSpec))
-			//	return CDRF_DODEFAULT;
-
-			switch (lplvcd->nmcd.dwDrawStage)
-			{
-			case CDDS_PREPAINT:
-				return (CDRF_NOTIFYITEMDRAW | CDRF_NOTIFYSUBITEMDRAW | CDRF_NOTIFYPOSTPAINT);
-
-			case CDDS_ITEMPREPAINT:
-				return CDRF_NOTIFYSUBITEMDRAW;
-
-			case CDDS_SUBITEM | CDDS_ITEMPREPAINT:
-			{
-				auto lpdcxlvi = reinterpret_cast<LPDCXLVITEM>(lplvcd->nmcd.lItemlParam);
-
-				if (!lpdcxlvi)
-					return CDRF_DODEFAULT;
-
-				if ((lpdcxlvi->pbar) && (lplvcd->iSubItem == lpdcxlvi->iPbarCol))
-					return CDRF_SKIPDEFAULT;
-
-				if ((gsl::narrow_cast<UINT>(lplvcd->iSubItem) >= lpdcxlvi->vInfo.size()) || (lplvcd->iSubItem < 0))
-					return CDRF_DODEFAULT;
-
-				const auto &ri = gsl::at(lpdcxlvi->vInfo, gsl::narrow_cast<UINT>(lplvcd->iSubItem));
-				if (ri.m_cText != CLR_INVALID)
-					lplvcd->clrText = ri.m_cText;
-				if (ri.m_cBg != CLR_INVALID)
-					lplvcd->clrTextBk = ri.m_cBg;
-
-				//if (ri->m_cText != CLR_INVALID)
-				//{
-				//	ri->m_cOrigText = lplvcd->clrText;
-				//	lplvcd->clrText = ri->m_cText;
-				//}
-				//if (ri->m_cBg != CLR_INVALID)
-				//{
-				//	ri->m_cOrigBg = lplvcd->clrTextBk;
-				//	lplvcd->clrTextBk = ri->m_cBg;
-				//}
-
-				if (dcx_testflag(ri.m_dFlags, LVIS_UNDERLINE) || dcx_testflag(ri.m_dFlags, LVIS_BOLD) || dcx_testflag(ri.m_dFlags, LVIS_ITALIC))
-				{
-					//if (LOGFONT lf{}; GetObject(GetWindowFont(m_Hwnd), sizeof(LOGFONT), &lf) != 0)
-					//{
-					//	if (dcx_testflag(ri->m_dFlags, LVIS_BOLD))
-					//		lf.lfWeight |= FW_BOLD;
-					//	if (dcx_testflag(ri->m_dFlags, LVIS_UNDERLINE))
-					//		lf.lfUnderline = 1;
-					//	if (dcx_testflag(ri->m_dFlags, LVIS_ITALIC))
-					//		lf.lfItalic = 1;
-					//
-					//	this->m_hItemFont = CreateFontIndirect(&lf);
-					//	if (this->m_hItemFont != nullptr)
-					//		this->m_hOldItemFont = SelectFont(lplvcd->nmcd.hdc, this->m_hItemFont);
-					//}
-
-					if (auto [code, lf] = Dcx::dcxGetObject<LOGFONT>(GetWindowFont(m_Hwnd)); code != 0)
-					{
-						if (dcx_testflag(ri.m_dFlags, LVIS_BOLD))
-							lf.lfWeight |= FW_BOLD;
-						if (dcx_testflag(ri.m_dFlags, LVIS_UNDERLINE))
-							lf.lfUnderline = 1;
-						if (dcx_testflag(ri.m_dFlags, LVIS_ITALIC))
-							lf.lfItalic = 1;
-
-						this->m_hItemFont = CreateFontIndirect(&lf);
-						if (this->m_hItemFont)
-							this->m_hOldItemFont = Dcx::dcxSelectObject(lplvcd->nmcd.hdc, this->m_hItemFont);
-					}
-				}
-				if (dcx_testflag(ri.m_dFlags, LVIS_CENTERICON))
-				{
-					// test code for centering an image in an item when it has no text
-					const stString<MIRC_BUFFER_SIZE_CCH> sBuf;
-
-					LVITEM lvi{ LVIF_IMAGE | LVIF_TEXT | LVIF_STATE, gsl::narrow_cast<int>(lplvcd->nmcd.dwItemSpec), lplvcd->iSubItem, 0U, LVIS_SELECTED | LVIS_FOCUSED, sBuf, gsl::narrow_cast<int>(sBuf.size()), 0,0,0,0,0U, nullptr, nullptr, 0 };
-
-					if (Dcx::dcxListView_GetItem(m_Hwnd, &lvi))
-					{
-						if ((lvi.iImage > I_IMAGECALLBACK) && sBuf.empty())
-						{
-							// no text, but has image, so center image in item
-							if (auto himl = getImageList(LVSIL_SMALL); himl)
-							{
-								if (RECT rcBounds{}; Dcx::dcxListView_GetSubItemRect(m_Hwnd, lplvcd->nmcd.dwItemSpec, lplvcd->iSubItem, LVIR_BOUNDS, &rcBounds))
-								{
-									UINT iDrawFlags = ILD_NORMAL | ILD_TRANSPARENT;
-
-									if (dcx_testflag(lvi.state, LVIS_SELECTED))
-									{
-										const auto exStyles = Dcx::dcxListView_GetExtendedListViewStyle(m_Hwnd);
-
-										if (!dcx_testflag(exStyles, LVS_EX_BORDERSELECT))
-										{
-											// fill background with selected colour. Only if not border select mode
-											iDrawFlags |= ILD_BLEND50;	// blend icon image with select colour
-											if (getParentDialog()->isDialogActive())
-											{
-												if (getParentDialog()->getFocusControl() == getUserID())
-													FillRect(lplvcd->nmcd.hdc, &rcBounds, GetSysColorBrush(COLOR_HIGHLIGHT));
-												else if (isStyle(WindowStyle::LVS_ShowSelAlways)) // item greyed...
-													FillRect(lplvcd->nmcd.hdc, &rcBounds, GetSysColorBrush(COLOR_MENU));
-											}
-											else if (isStyle(WindowStyle::LVS_ShowSelAlways))
-												FillRect(lplvcd->nmcd.hdc, &rcBounds, GetSysColorBrush(COLOR_MENU));
-										}
-										if (!dcx_testflag(exStyles, LVS_EX_FULLROWSELECT))
-										{
-											// draw focus rect around selected item. Only if not fullrow select
-											if (dcx_testflag(lvi.state, LVIS_FOCUSED))
-												DrawFocusRect(lplvcd->nmcd.hdc, &rcBounds);
-										}
-									}
-									else {
-										if (ri.m_cBg != CLR_INVALID)
-											Dcx::FillRectColour(lplvcd->nmcd.hdc, &rcBounds, ri.m_cBg);
-									}
-									if (int iSizeX = 0, iSizeY = 0; ImageList_GetIconSize(himl, &iSizeX, &iSizeY))
-									{
-										if (ImageList_Draw(himl, lvi.iImage, lplvcd->nmcd.hdc, rcBounds.left + ((rcBounds.right - rcBounds.left) / 2) - (iSizeX / 2), rcBounds.top, iDrawFlags))
-											return (CDRF_SKIPDEFAULT | CDRF_NOTIFYPOSTPAINT);
-									}
-								}
-							}
-						}
-					}
-				}
-				// NB: CDRF_NOTIFYPOSTPAINT required to get the post paint message.
-				return (CDRF_NEWFONT | CDRF_NOTIFYPOSTPAINT);
-			}
-			break;
-
-			case CDDS_ITEMPOSTPAINT | CDDS_SUBITEM:
-			{
-				const auto lpdcxlvi = reinterpret_cast<LPDCXLVITEM>(lplvcd->nmcd.lItemlParam);
-
-				if (!lpdcxlvi)
-					return CDRF_DODEFAULT;
-
-				//const auto ri = lpdcxlvi->vInfo[gsl::narrow_cast<UINT>(lplvcd->iSubItem)];
-				//if (ri->m_cText != CLR_INVALID)
-				//{
-				//	lplvcd->clrText = ri->m_cOrigText;
-				//	SetTextColor(lplvcd->nmcd.hdc, ri->m_cOrigText);
-				//}
-				//if (ri->m_cBg != CLR_INVALID)
-				//{
-				//	lplvcd->clrTextBk = ri->m_cOrigBg;
-				//	SetBkColor(lplvcd->nmcd.hdc, ri->m_cOrigBg);
-				//}
-
-				if (!lpdcxlvi->pbar)
-				{
-					if (m_hOldItemFont)
-					{
-						Dcx::dcxSelectObject(lplvcd->nmcd.hdc, m_hOldItemFont);
-						m_hOldItemFont = nullptr;
-					}
-					if (m_hItemFont)
-					{
-						DeleteObject(m_hItemFont);
-						m_hItemFont = nullptr;
-					}
-				}
-				//else if (lpdcxlvi->iPbarCol == lplvcd->iSubItem) {
-				//
-				//	//this->isListViewStyle(LVS_REPORT)
-				//	auto pbarHwnd = lpdcxlvi->pbar->getHwnd();
-				//
-				//	ShowWindow(pbarHwnd, SW_SHOW);
-				//
-				//	RECT rItem, rcWin;
-				//
-				//	CopyRect(&rItem, &lplvcd->nmcd.rc);
-				//
-				//	// show borders correctly
-				//	rItem.bottom--;
-				//	rItem.top++;
-				//	rItem.left++;
-				//	rItem.right--;
-				//
-				//	GetWindowRect(pbarHwnd, &rcWin);
-				//	MapWindowRect(nullptr, m_Hwnd, &rcWin);
-				//	if (!EqualRect(&rcWin, &rItem)) {
-				//		MoveWindow(pbarHwnd, rItem.left, rItem.top, (rItem.right - rItem.left), (rItem.bottom - rItem.top), FALSE);
-				//		InvalidateRect(pbarHwnd, nullptr, TRUE);
-				//	}
-				//}
-				return CDRF_DODEFAULT;
-			}
-
-			case CDDS_POSTPAINT:
-			{
-				// update the pbar positions
-				//ScrollPbars((int)lplvcd->nmcd.dwItemSpec);
-				// NB: This method updates all progress bars each time ANY item is drawn, to do this it itterates ALL items!! This is VERY slow!
-				UpdateScrollPbars();
-			}
-			[[fallthrough]];
-			default:
-				return CDRF_DODEFAULT;
-			}
+			if (lplvcd->dwItemType == LVCDI_GROUP)
+				return DrawGroup(lplvcd);
+			else
+				return DrawItem(lplvcd);
 		}
 		break;
 
@@ -5120,7 +4885,7 @@ TString DcxListView::ItemToString(int nItem, int iColumns)
 					{
 						//if (auto ri = gsl::at(lpmylvi->vInfo, gsl::narrow_cast<size_t>(nSubItem)); ri)
 						{
-							const auto &ri = gsl::at(lpmylvi->vInfo, gsl::narrow_cast<size_t>(nSubItem));
+							const auto& ri = gsl::at(lpmylvi->vInfo, gsl::narrow_cast<size_t>(nSubItem));
 							bgclr = ri.m_cBg;
 							fgclr = ri.m_cText;
 						}
@@ -5217,6 +4982,416 @@ void DcxListView::DrawEmpty(HDC hdc, const TString& tsBuf)
 			mIRC_DrawText(hdc, tsBuf, &rc, DT_CENTER | DT_VCENTER | DT_WORDBREAK | DT_NOPREFIX | DT_NOCLIP, false);
 		else
 			DrawText(hdc, tsBuf.to_chr(), -1, &rc, DT_CENTER | DT_VCENTER | DT_WORDBREAK | DT_NOPREFIX | DT_NOCLIP);
+	}
+}
+
+LRESULT DcxListView::DrawItem(LPNMLVCUSTOMDRAW lplvcd)
+{
+	if (!lplvcd)
+		return CDRF_DODEFAULT;
+
+	switch (lplvcd->nmcd.dwDrawStage)
+	{
+	case CDDS_PREPAINT:
+		return (CDRF_NOTIFYITEMDRAW | CDRF_NOTIFYSUBITEMDRAW | CDRF_NOTIFYPOSTPAINT);
+
+	case CDDS_ITEMPREPAINT:
+		return CDRF_NOTIFYSUBITEMDRAW;
+
+	case CDDS_SUBITEM | CDDS_ITEMPREPAINT:
+	{
+		auto lpdcxlvi = reinterpret_cast<LPDCXLVITEM>(lplvcd->nmcd.lItemlParam);
+
+		if (!lpdcxlvi)
+			return CDRF_DODEFAULT;
+
+		if ((lpdcxlvi->pbar) && (lplvcd->iSubItem == lpdcxlvi->iPbarCol))
+			return CDRF_SKIPDEFAULT;
+
+		if ((gsl::narrow_cast<UINT>(lplvcd->iSubItem) >= lpdcxlvi->vInfo.size()) || (lplvcd->iSubItem < 0))
+			return CDRF_DODEFAULT;
+
+		const auto& ri = gsl::at(lpdcxlvi->vInfo, gsl::narrow_cast<UINT>(lplvcd->iSubItem));
+		if (ri.m_cText != CLR_INVALID)
+			lplvcd->clrText = ri.m_cText;
+		if (ri.m_cBg != CLR_INVALID)
+			lplvcd->clrTextBk = ri.m_cBg;
+
+		if (dcx_testflag(ri.m_dFlags, LVIS_UNDERLINE) || dcx_testflag(ri.m_dFlags, LVIS_BOLD) || dcx_testflag(ri.m_dFlags, LVIS_ITALIC))
+		{
+			if (auto [code, lf] = Dcx::dcxGetObject<LOGFONT>(GetWindowFont(m_Hwnd)); code != 0)
+			{
+				if (dcx_testflag(ri.m_dFlags, LVIS_BOLD))
+					lf.lfWeight |= FW_BOLD;
+				if (dcx_testflag(ri.m_dFlags, LVIS_UNDERLINE))
+					lf.lfUnderline = 1;
+				if (dcx_testflag(ri.m_dFlags, LVIS_ITALIC))
+					lf.lfItalic = 1;
+
+				this->m_hItemFont = CreateFontIndirect(&lf);
+				if (this->m_hItemFont)
+					this->m_hOldItemFont = Dcx::dcxSelectObject(lplvcd->nmcd.hdc, this->m_hItemFont);
+			}
+		}
+		if (dcx_testflag(ri.m_dFlags, LVIS_CENTERICON))
+		{
+			// test code for centering an image in an item when it has no text
+			const stString<MIRC_BUFFER_SIZE_CCH> sBuf;
+
+			LVITEM lvi{ LVIF_IMAGE | LVIF_TEXT | LVIF_STATE, gsl::narrow_cast<int>(lplvcd->nmcd.dwItemSpec), lplvcd->iSubItem, 0U, LVIS_SELECTED | LVIS_FOCUSED, sBuf, gsl::narrow_cast<int>(sBuf.size()), 0,0,0,0,0U, nullptr, nullptr, 0 };
+
+			if (Dcx::dcxListView_GetItem(m_Hwnd, &lvi))
+			{
+				if ((lvi.iImage > I_IMAGECALLBACK) && sBuf.empty())
+				{
+					// no text, but has image, so center image in item
+					if (auto himl = getImageList(LVSIL_SMALL); himl)
+					{
+						if (RECT rcBounds{}; Dcx::dcxListView_GetSubItemRect(m_Hwnd, lplvcd->nmcd.dwItemSpec, lplvcd->iSubItem, LVIR_BOUNDS, &rcBounds))
+						{
+							UINT iDrawFlags = ILD_NORMAL | ILD_TRANSPARENT;
+
+							if (dcx_testflag(lvi.state, LVIS_SELECTED))
+							{
+								const auto exStyles = Dcx::dcxListView_GetExtendedListViewStyle(m_Hwnd);
+
+								if (!dcx_testflag(exStyles, LVS_EX_BORDERSELECT))
+								{
+									// fill background with selected colour. Only if not border select mode
+									iDrawFlags |= ILD_BLEND50;	// blend icon image with select colour
+									if (getParentDialog()->isDialogActive())
+									{
+										if (getParentDialog()->getFocusControl() == getUserID())
+											FillRect(lplvcd->nmcd.hdc, &rcBounds, GetSysColorBrush(COLOR_HIGHLIGHT));
+										else if (isStyle(WindowStyle::LVS_ShowSelAlways)) // item greyed...
+											FillRect(lplvcd->nmcd.hdc, &rcBounds, GetSysColorBrush(COLOR_MENU));
+									}
+									else if (isStyle(WindowStyle::LVS_ShowSelAlways))
+										FillRect(lplvcd->nmcd.hdc, &rcBounds, GetSysColorBrush(COLOR_MENU));
+								}
+								if (!dcx_testflag(exStyles, LVS_EX_FULLROWSELECT))
+								{
+									// draw focus rect around selected item. Only if not fullrow select
+									if (dcx_testflag(lvi.state, LVIS_FOCUSED))
+										DrawFocusRect(lplvcd->nmcd.hdc, &rcBounds);
+								}
+							}
+							else {
+								if (ri.m_cBg != CLR_INVALID)
+									Dcx::FillRectColour(lplvcd->nmcd.hdc, &rcBounds, ri.m_cBg);
+							}
+							if (int iSizeX = 0, iSizeY = 0; ImageList_GetIconSize(himl, &iSizeX, &iSizeY))
+							{
+								if (ImageList_Draw(himl, lvi.iImage, lplvcd->nmcd.hdc, rcBounds.left + ((rcBounds.right - rcBounds.left) / 2) - (iSizeX / 2), rcBounds.top, iDrawFlags))
+									return (CDRF_SKIPDEFAULT | CDRF_NOTIFYPOSTPAINT);
+							}
+						}
+					}
+				}
+			}
+		}
+		// NB: CDRF_NOTIFYPOSTPAINT required to get the post paint message.
+		return (CDRF_NEWFONT | CDRF_NOTIFYPOSTPAINT);
+	}
+	break;
+
+	case CDDS_ITEMPOSTPAINT | CDDS_SUBITEM:
+	{
+		const auto lpdcxlvi = reinterpret_cast<LPDCXLVITEM>(lplvcd->nmcd.lItemlParam);
+
+		if (!lpdcxlvi)
+			return CDRF_DODEFAULT;
+
+		if (!lpdcxlvi->pbar)
+		{
+			if (m_hOldItemFont)
+			{
+				Dcx::dcxSelectObject(lplvcd->nmcd.hdc, m_hOldItemFont);
+				m_hOldItemFont = nullptr;
+			}
+			if (m_hItemFont)
+			{
+				DeleteObject(m_hItemFont);
+				m_hItemFont = nullptr;
+			}
+		}
+		//else if (lpdcxlvi->iPbarCol == lplvcd->iSubItem) {
+		//
+		//	//this->isListViewStyle(LVS_REPORT)
+		//	auto pbarHwnd = lpdcxlvi->pbar->getHwnd();
+		//
+		//	ShowWindow(pbarHwnd, SW_SHOW);
+		//
+		//	RECT rItem, rcWin;
+		//
+		//	CopyRect(&rItem, &lplvcd->nmcd.rc);
+		//
+		//	// show borders correctly
+		//	rItem.bottom--;
+		//	rItem.top++;
+		//	rItem.left++;
+		//	rItem.right--;
+		//
+		//	GetWindowRect(pbarHwnd, &rcWin);
+		//	MapWindowRect(nullptr, m_Hwnd, &rcWin);
+		//	if (!EqualRect(&rcWin, &rItem)) {
+		//		MoveWindow(pbarHwnd, rItem.left, rItem.top, (rItem.right - rItem.left), (rItem.bottom - rItem.top), FALSE);
+		//		InvalidateRect(pbarHwnd, nullptr, TRUE);
+		//	}
+		//}
+		return CDRF_DODEFAULT;
+	}
+
+	case CDDS_POSTPAINT:
+	{
+		// update the pbar positions
+		//ScrollPbars((int)lplvcd->nmcd.dwItemSpec);
+		// NB: This method updates all progress bars each time ANY item is drawn, to do this it itterates ALL items!! This is VERY slow!
+		UpdateScrollPbars();
+
+#ifndef NDEBUG
+		// test code for putting stuff in magins...
+		//DrawMargin(lplvcd->nmcd.hdc);
+#endif
+	}
+	[[fallthrough]];
+	default:
+		break;
+	}
+	return CDRF_DODEFAULT;
+}
+
+LRESULT DcxListView::DrawGroup(LPNMLVCUSTOMDRAW lplvcd)
+{
+	if ((!m_Hwnd) || (!lplvcd) || (!m_bCustomGroups))
+		return CDRF_DODEFAULT;
+
+	switch (lplvcd->nmcd.dwDrawStage)
+	{
+	default:
+		return CDRF_DODEFAULT;
+
+	case CDDS_PREPAINT:
+	{
+		// get group text if any.
+		const TString tsBuf(getGroupHeader(lplvcd->nmcd.dwItemSpec));
+
+		// bail out if no tab seperated text
+		if (tsBuf.numtok(TSTABCHAR) == 1)
+			return CDRF_DODEFAULT;
+
+		// open theme
+		auto hTheme = Dcx::UXModule.dcxOpenThemeData(m_Hwnd, L"ListView;ListViewStyle");
+		Auto(Dcx::UXModule.dcxCloseThemeData(hTheme));
+
+		const int iStateId = getGroupDrawState();
+
+		// draw selection rect if any.
+		DrawGroupSelectionRect(hTheme, lplvcd->nmcd.hdc, &lplvcd->rcText, iStateId);
+
+		// calc line size.
+		//RECT rcLine = lplvcd->rcText;
+		//rcLine.left += 5;
+		//rcLine.right -= 5;
+		//rcLine.top += ((rcLine.bottom - rcLine.top) / 2) - 1;
+		//rcLine.bottom = rcLine.top + 1;
+		//Dcx::UXModule.dcxDrawThemeBackground(hTheme, lplvcd->nmcd.hdc, LISTVIEWPARTS::LVP_GROUPHEADERLINE, iStateId, &rcLine, nullptr);
+
+		//const RECT rcMargin = this->getListRect();
+
+		// setup text flags
+		constexpr UINT iTextFlags = DT_LEFT | DT_SINGLELINE | DT_NOPREFIX | DT_VCENTER;
+
+		const bool bCustomText = (this->IsControlCodeTextEnabled() || !this->IsThemed());
+
+		if (bCustomText)
+		{
+			SetTextColor(lplvcd->nmcd.hdc, this->getThemeGroupTextColour(hTheme, iStateId));
+
+			if (HFONT hFont = this->getThemeGroupFont(hTheme, iStateId, lplvcd->nmcd.hdc); hFont)
+			{
+				this->m_hItemFont = hFont;
+				this->m_hOldItemFont = Dcx::dcxSelectObject(lplvcd->nmcd.hdc, hFont);
+			}
+		}
+
+		int iLeft = lplvcd->rcText.left;
+		const auto iColTotal = this->getColumnCount();
+		for (int iCol{}; iCol < iColTotal; ++iCol)
+		{
+			auto iWidth = Dcx::dcxListView_GetColumnWidth(m_Hwnd, iCol);
+			if (iCol == 0)
+				iWidth -= iLeft;
+
+			const RECT rcText{ iLeft, lplvcd->rcText.top, iLeft + iWidth, lplvcd->rcText.bottom };
+			//rcText.left = iLeft;
+			//rcText.top = lplvcd->rcText.top;
+			//rcText.right = iLeft + iWidth;
+			//rcText.bottom = lplvcd->rcText.bottom;
+
+			RECT rcRgn = rcText;
+
+			if (const TString tsHeader(tsBuf.gettok(iCol + 1, TSTABCHAR)); !tsHeader.empty())
+			{
+				// calc the min rect for the text
+				if (bCustomText)
+					calcTextRect(lplvcd->nmcd.hdc, tsHeader, &rcRgn, iTextFlags);
+				else
+					Dcx::UXModule.dcxGetThemeTextExtent(hTheme, lplvcd->nmcd.hdc, LISTVIEWPARTS::LVP_GROUPHEADER, iStateId, tsHeader.to_chr(), -1, iTextFlags, &rcText, &rcRgn);
+
+				// offset rect for group settings.
+				if (dcx_testflag(lplvcd->uAlign, LVGA_HEADER_CENTER))
+				{
+					OffsetRect(&rcRgn, ((rcText.right - rcText.left) / 2) - ((rcRgn.right - rcRgn.left) / 2), 0);
+					rcRgn.right += 5;
+				}
+				else if (dcx_testflag(lplvcd->uAlign, LVGA_HEADER_RIGHT))
+				{
+					OffsetRect(&rcRgn, (rcText.right - rcText.left) - (rcRgn.right - rcRgn.left), 0);
+					rcRgn.left -= 5;
+				}
+				if (rcRgn.left < rcText.left)
+					rcRgn.left = rcText.left;
+				if (rcRgn.right > rcText.right)
+					rcRgn.right = rcText.right;
+
+				// draw text
+				if (bCustomText)
+					ctrlDrawText(lplvcd->nmcd.hdc, tsHeader, &rcRgn, iTextFlags);
+				else
+					Dcx::UXModule.dcxDrawThemeText(hTheme, lplvcd->nmcd.hdc, LISTVIEWPARTS::LVP_GROUPHEADER, iStateId, tsHeader.to_chr(), -1, iTextFlags, 0, &rcRgn);
+
+				// exclude text rect from line (drawn bellow)
+				ExcludeClipRect(lplvcd->nmcd.hdc, rcRgn.left, rcRgn.top, rcRgn.right, rcRgn.bottom);
+			}
+
+			iLeft += iWidth;
+		}
+
+		{
+			// calc line size.
+			RECT rcLine = lplvcd->rcText;
+			rcLine.left += 5;
+			rcLine.right -= 5;
+			rcLine.top += ((rcLine.bottom - rcLine.top) / 2) - 1;
+			rcLine.bottom = rcLine.top + 1;
+
+			// draw line through group. (excluding text areas)
+			Dcx::UXModule.dcxDrawThemeBackground(hTheme, lplvcd->nmcd.hdc, LISTVIEWPARTS::LVP_GROUPHEADERLINE, iStateId, &rcLine, nullptr);
+		}
+
+		return CDRF_SKIPDEFAULT;
+	}
+	break;
+
+	case CDDS_POSTPAINT:
+	{
+		if (m_hOldItemFont)
+		{
+			Dcx::dcxSelectObject(lplvcd->nmcd.hdc, m_hOldItemFont);
+			m_hOldItemFont = nullptr;
+		}
+		if (m_hItemFont)
+		{
+			DeleteObject(m_hItemFont);
+			m_hItemFont = nullptr;
+		}
+	}
+	break;
+	}
+	return CDRF_DODEFAULT;
+}
+
+int DcxListView::getGroupDrawState() noexcept
+{
+	// get mouse pos
+	const Dcx::dcxCursorPos pos(m_Hwnd);
+
+	// find where that is relative to the group
+	LVHITTESTINFO lvhti{};
+	lvhti.pt.x = pos.x;
+	lvhti.pt.y = pos.y;
+
+	Dcx::dcxListView_HitTestEx(m_Hwnd, &lvhti);
+
+	// check if mouse pointer is over group area
+	if (dcx_testflag(lvhti.flags, LVHT_EX_GROUP_HEADER))
+		return GROUPHEADERSTATES::LVGH_OPENHOT;
+
+	return GROUPHEADERSTATES::LVGH_OPEN;
+}
+
+TString DcxListView::getGroupHeader(int gid)
+{
+	TString tsBuf((UINT)mIRCLinker::c_mIRC_Buffer_Size_cch);
+
+	LVGROUP gInfo{};
+	gInfo.cbSize = sizeof(LVGROUP);
+
+	// check if group HAS a header.
+	gInfo.mask = LVGF_STATE;
+	gInfo.stateMask = LVGS_NOHEADER;
+
+	if (Dcx::dcxListView_GetGroupInfo(m_Hwnd, gid, &gInfo) == -1)
+		return tsBuf;
+
+	if (dcx_testflag(gInfo.state, LVGS_NOHEADER))
+		return tsBuf;
+
+	gInfo.mask = LVGF_HEADER;
+	gInfo.stateMask = 0;
+	gInfo.state = 0;
+	gInfo.pszHeader = tsBuf.to_chr();
+	gInfo.cchHeader = tsBuf.capacity_cch();
+
+	if (Dcx::dcxListView_GetGroupInfo(m_Hwnd, gid, &gInfo) == -1)
+		return tsBuf;
+
+	return tsBuf;
+}
+
+void DcxListView::addGroup(const TString& tsInput)
+{
+	const auto index = tsInput.getnexttokas<int>() - 1;
+	const auto tsflags(tsInput.getnexttok());
+	const auto gid = tsInput.getnexttokas<int>();
+	const auto iFlags = this->parseGroupFlags(tsflags);
+
+	if (index < 0 || gid <= 0)
+		throw DcxExceptions::dcxInvalidArguments();
+
+	if (Dcx::dcxListView_HasGroup(m_Hwnd, gsl::narrow_cast<WPARAM>(gid)))
+		throw Dcx::dcxException(TEXT("Group already exists: %"), gid);
+
+	auto text(tsInput.getlasttoks());
+	const auto iState = this->parseGroupState(tsflags);
+
+	LVGROUP lvg{};
+	lvg.cbSize = sizeof(LVGROUP);
+	lvg.mask = LVGF_ALIGN | LVGF_HEADER | LVGF_GROUPID | LVGF_STATE;
+
+	lvg.pszHeader = text.to_chr();
+	lvg.iGroupId = gid;
+
+	lvg.stateMask = iState;
+	lvg.state = iState;
+	lvg.uAlign = iFlags;
+
+	Dcx::dcxListView_InsertGroup(m_Hwnd, index, std::addressof(lvg));
+}
+
+void DcxListView::DrawGroupSelectionRect(HTHEME hTheme, HDC hdc, LPCRECT rc, int iStateId) noexcept
+{
+	// NB: Non themed groups dont show a `hot` rect
+	if (hTheme)
+	{
+		if (Dcx::UXModule.dcxDrawThemeBackground(hTheme, hdc, LISTVIEWPARTS::LVP_GROUPHEADER, iStateId, rc, nullptr) != S_OK)
+		{
+			// if themed drawing fails try our own draw routine
+			constexpr COLORREF clrBkg = RGB(185, 229, 242);
+			constexpr COLORREF clrBorder = RGB(94, 131, 191);
+			dcxDrawTranslucentRect(hdc, rc, clrBkg, clrBorder, false);
+		}
 	}
 }
 
@@ -5328,6 +5503,50 @@ void DcxListView::MoveItem(int iSrc, int iDest) noexcept
 		// Delete from original position
 		Dcx::dcxListView_DeleteItem(m_Hwnd, iSrc);
 	}
+}
+
+RECT DcxListView::getListRect() const noexcept
+{
+	//RECT rcClient{};
+	//GetClientRect(m_Hwnd, &rcClient);
+	//
+	//if (auto hHeader = Dcx::dcxListView_GetHeader(m_Hwnd); IsWindowVisible(hHeader))
+	//{
+	//	if (RECT rcHeader{}; GetWindowRectParent(hHeader, &rcHeader))
+	//	{
+	//		rcClient.top += (rcHeader.bottom - rcHeader.top);
+	//	}
+	//}
+	//return rcClient;
+
+	if (!m_Hwnd)
+		return {};
+
+	RECT rcClient{};
+	if (!GetClientRect(m_Hwnd, &rcClient))
+		return {};
+
+	RECT rcView{};
+	if (!Dcx::dcxListView_GetViewRect(m_Hwnd, &rcView))
+		return {};
+
+	RECT mOffsets{};
+	if (!Dcx::dcxListView_GetViewMargin(m_Hwnd, &mOffsets))
+		return {};
+
+	RECT rcMargin{};
+	rcMargin.right = rcView.left;
+	rcMargin.left = rcView.left - mOffsets.left;
+
+	if (auto hHeader = Dcx::dcxListView_GetHeader(m_Hwnd); hHeader && IsWindowVisible(hHeader))
+	{
+		if (RECT rcHeader{}; GetWindowRectParent(hHeader, &rcHeader))
+			rcMargin.top = rcClient.top + (rcHeader.bottom - rcHeader.top) + 1;
+	}
+
+	rcMargin.bottom = rcClient.bottom;
+
+	return rcMargin;
 }
 
 void DcxListView::toXml(TiXmlElement* const xml) const
