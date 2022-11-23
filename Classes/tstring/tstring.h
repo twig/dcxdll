@@ -96,10 +96,14 @@
 
 #include "string_support.h"
 
+// use the StrToNum library for number conversions.
 //#if __has_include("StrToNum/StrToNum.h")
 //#define TSTRING_STRTONUM 1
 //#include "StrToNum/StrToNum.h"
 //#endif
+
+// use _ts_strtoul() for number conversions.
+#define TSTRING_STRTOUL 0
 
 // pre-defined for concepts
 class TString;
@@ -1945,7 +1949,7 @@ public:
 	/// <typeparam name="T"></typeparam>
 	/// <returns></returns>
 	template <TStringConcepts::IsNumeric T>
-	[[nodiscard]] T to_() const
+	[[nodiscard]] T to_() const noexcept(TSTRING_STRTOUL)
 	{
 		static_assert(is_Numeric_v<T>, "Type T must be (int, long, float, double, ....)");
 
@@ -1955,6 +1959,9 @@ public:
 
 		// NB: StrToNum() has an issue with converting signed numbers into unsigned types, it will just fail.
 		return stn::StrToNum<T>(m_pString).value_or(0); // no copy made.
+#elif TSTRING_STRTOUL
+		// no floats etc..
+		return gsl::narrow_cast<T>(_ts_strtoul<value_type>(m_pString, nullptr, 10));
 #else
 		std::basic_istringstream<value_type> ss(m_pString);	// makes copy of string :(
 		T result{};

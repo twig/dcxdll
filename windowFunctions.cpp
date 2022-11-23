@@ -1011,7 +1011,7 @@ bool dcxDrawTranslucentRect(HDC hDC, LPCRECT rc, COLORREF clr, COLORREF clrBorde
 		return false;
 
 	if (!Dcx::UXModule.IsBufferedPaintSupported())
-		return false;
+		return dcxDrawRect(hDC, rc, clr, clrBorder, bRounded);
 
 	// 0x7f half of 0xff = 50% transparency
 	// 0xCC = 80% Opaque
@@ -1024,6 +1024,12 @@ bool dcxDrawTranslucentRect(HDC hDC, LPCRECT rc, COLORREF clr, COLORREF clrBorde
 		return false;
 
 	Auto(Dcx::UXModule.dcxEndBufferedPaint(ai_Buffer, TRUE));
+
+	//Dcx::UXModule.dcxBufferedPaintClear(ai_Buffer, rc);
+
+	//dcxDrawRect(hdc, rc, GetBkColor(hDC), GetBkColor(hDC), false);
+	//const auto oldMode = SetBkMode(hdc, TRANSPARENT);
+	//Auto(SetBkMode(hdc, oldMode));
 
 	return dcxDrawRect(hdc, rc, clr, clrBorder, bRounded);
 }

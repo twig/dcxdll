@@ -15,10 +15,13 @@ PFNGETTHEMEBACKGROUNDCONTENTRECT DcxUXModule::GetThemeBackgroundContentRectUx = 
 PFNISTHEMEBACKGROUNDPARTIALLYTRANSPARENT DcxUXModule::IsThemeBackgroundPartiallyTransparentUx = nullptr;
 PFNDRAWTHEMEPARENTBACKGROUND DcxUXModule::DrawThemeParentBackgroundUx = nullptr;
 PFNDRAWTHEMETEXT DcxUXModule::DrawThemeTextUx = nullptr;
+PFNDRAWTHEMETEXTEX DcxUXModule::DrawThemeTextExUx = nullptr;
 PFNGETTHEMEBACKGROUNDREGION DcxUXModule::GetThemeBackgroundRegionUx = nullptr;
 PFNGETWINDOWTHEME DcxUXModule::GetWindowThemeUx = nullptr;
 PFNDRAWTHEMEEDGE DcxUXModule::DrawThemeEdgeUx = nullptr;
 PFNGETTHEMECOLOR DcxUXModule::GetThemeColorUx = nullptr;
+PFNGETTHEMEFONT DcxUXModule::GetThemeFontUx = nullptr;
+PFNGETTHEMETEXTEXTENT DcxUXModule::GetThemeTextExtentUx = nullptr;
 PFNDRAWTHEMEPARENTBACKGROUNDEX DcxUXModule::DrawThemeParentBackgroundExUx = nullptr;
 //PFNGETTHEMEBITMAP DcxUXModule::GetThemeBitmapUx = nullptr;
 // Vista Function pointers.
@@ -27,6 +30,7 @@ PFNBUFFEREDPAINTUNINIT DcxUXModule::BufferedPaintUnInitUx = nullptr;
 PFNBEGINBUFFEREDPAINT DcxUXModule::BeginBufferedPaintUx = nullptr;
 PFNENDBUFFEREDPAINT DcxUXModule::EndBufferedPaintUx = nullptr;
 PFBUFFEREDPAINTSETALPHA DcxUXModule::BufferedPaintSetAlphaUx = nullptr;
+PFBUFFEREDPAINTCLEAR DcxUXModule::BufferedPaintClearUx = nullptr;
 
 bool DcxUXModule::m_bBufferedPaintEnabled = false;
 
@@ -60,10 +64,13 @@ bool DcxUXModule::load()
 		IsThemeBackgroundPartiallyTransparentUx = (PFNISTHEMEBACKGROUNDPARTIALLYTRANSPARENT) GetProcAddress(m_hModule, "IsThemeBackgroundPartiallyTransparent");
 		DrawThemeParentBackgroundUx = (PFNDRAWTHEMEPARENTBACKGROUND) GetProcAddress(m_hModule, "DrawThemeParentBackground");
 		DrawThemeTextUx = (PFNDRAWTHEMETEXT) GetProcAddress(m_hModule, "DrawThemeText");
+		DrawThemeTextExUx = (PFNDRAWTHEMETEXTEX)GetProcAddress(m_hModule, "DrawThemeTextEx");
 		GetThemeBackgroundRegionUx = (PFNGETTHEMEBACKGROUNDREGION) GetProcAddress(m_hModule, "GetThemeBackgroundRegion");
 		GetWindowThemeUx = (PFNGETWINDOWTHEME) GetProcAddress(m_hModule, "GetWindowTheme");
 		DrawThemeEdgeUx = (PFNDRAWTHEMEEDGE) GetProcAddress(m_hModule, "DrawThemeEdge");
 		GetThemeColorUx = (PFNGETTHEMECOLOR) GetProcAddress(m_hModule, "GetThemeColor");
+		GetThemeFontUx = (PFNGETTHEMEFONT)GetProcAddress(m_hModule, "GetThemeFont");
+		GetThemeTextExtentUx = (PFNGETTHEMETEXTEXTENT)GetProcAddress(m_hModule, "GetThemeTextExtent");
 
 		// Get Vista function pointers.
 		DrawThemeParentBackgroundExUx = (PFNDRAWTHEMEPARENTBACKGROUNDEX) GetProcAddress(m_hModule, "DrawThemeParentBackgroundEx"); // Vista ONLY!
@@ -73,16 +80,19 @@ bool DcxUXModule::load()
 		BeginBufferedPaintUx = (PFNBEGINBUFFEREDPAINT) GetProcAddress(m_hModule, "BeginBufferedPaint");
 		EndBufferedPaintUx = (PFNENDBUFFEREDPAINT) GetProcAddress(m_hModule, "EndBufferedPaint");
 		BufferedPaintSetAlphaUx = (PFBUFFEREDPAINTSETALPHA)GetProcAddress(m_hModule, "BufferedPaintSetAlpha");
+		BufferedPaintClearUx = (PFBUFFEREDPAINTCLEAR)GetProcAddress(m_hModule, "BufferedPaintClear");
 
 #pragma warning(pop)
 
 		// NB: DONT count vista functions in XP+ check.
 		if (SetWindowThemeUx && IsThemeActiveUx && OpenThemeDataUx && CloseThemeDataUx &&
 			DrawThemeBackgroundUx && GetThemeBackgroundContentRectUx && IsThemeBackgroundPartiallyTransparentUx &&
-			DrawThemeParentBackgroundUx && DrawThemeTextUx && GetThemeBackgroundRegionUx && GetWindowThemeUx && DrawThemeEdgeUx && GetThemeColorUx)
+			DrawThemeParentBackgroundUx && DrawThemeTextUx && DrawThemeTextExUx && GetThemeBackgroundRegionUx &&
+			GetWindowThemeUx && DrawThemeEdgeUx && GetThemeColorUx && GetThemeFontUx && GetThemeTextExtentUx)
 		{
 			DCX_DEBUG(mIRCLinker::debug, __FUNCTIONW__, TEXT("Found XP+ Theme Functions"));
-			if (DrawThemeParentBackgroundExUx && BufferedPaintInitUx && BufferedPaintUnInitUx && BeginBufferedPaintUx && EndBufferedPaintUx && BufferedPaintSetAlphaUx)
+			if (DrawThemeParentBackgroundExUx && BufferedPaintInitUx && BufferedPaintUnInitUx
+				&& BeginBufferedPaintUx && EndBufferedPaintUx && BufferedPaintSetAlphaUx && BufferedPaintClearUx)
 			{
 				DCX_DEBUG(mIRCLinker::debug, __FUNCTIONW__, TEXT("Found Vista Theme Functions"));
 				if (!m_bBufferedPaintEnabled)
@@ -90,27 +100,34 @@ bool DcxUXModule::load()
 			}
 		}
 		else {
-			FreeLibrary(m_hModule);
-			m_hModule = nullptr;
-			// make sure all functions are nullptr
-			SetWindowThemeUx = nullptr;
-			IsThemeActiveUx = nullptr;
-			OpenThemeDataUx = nullptr;
-			CloseThemeDataUx = nullptr;
-			DrawThemeBackgroundUx = nullptr;
-			GetThemeBackgroundContentRectUx = nullptr;
-			IsThemeBackgroundPartiallyTransparentUx = nullptr;
-			DrawThemeParentBackgroundUx = nullptr;
-			DrawThemeTextUx = nullptr;
-			GetThemeBackgroundRegionUx = nullptr;
-			GetWindowThemeUx = nullptr;
-			DrawThemeEdgeUx = nullptr;
-			GetThemeColorUx = nullptr;
-			DrawThemeParentBackgroundExUx = nullptr;
-			BufferedPaintInitUx = nullptr;
-			BufferedPaintUnInitUx = nullptr;
-			BeginBufferedPaintUx = nullptr;
-			EndBufferedPaintUx = nullptr;
+			unload();
+
+			//FreeLibrary(m_hModule);
+			//m_hModule = nullptr;
+			//// make sure all functions are nullptr
+			//SetWindowThemeUx = nullptr;
+			//IsThemeActiveUx = nullptr;
+			//OpenThemeDataUx = nullptr;
+			//CloseThemeDataUx = nullptr;
+			//DrawThemeBackgroundUx = nullptr;
+			//GetThemeBackgroundContentRectUx = nullptr;
+			//IsThemeBackgroundPartiallyTransparentUx = nullptr;
+			//DrawThemeParentBackgroundUx = nullptr;
+			//DrawThemeTextUx = nullptr;
+			//DrawThemeTextExUx = nullptr;
+			//GetThemeBackgroundRegionUx = nullptr;
+			//GetWindowThemeUx = nullptr;
+			//DrawThemeEdgeUx = nullptr;
+			//GetThemeColorUx = nullptr;
+			//GetThemeFontUx = nullptr;
+			//GetThemeTextExtentUx = nullptr;
+			//DrawThemeParentBackgroundExUx = nullptr;
+			//BufferedPaintInitUx = nullptr;
+			//BufferedPaintUnInitUx = nullptr;
+			//BeginBufferedPaintUx = nullptr;
+			//EndBufferedPaintUx = nullptr;
+			//BufferedPaintSetAlphaUx = nullptr;
+			//BufferedPaintClearUx = nullptr;
 
 			throw Dcx::dcxException("There was a problem loading Theme Library");
 		}
@@ -138,15 +155,20 @@ bool DcxUXModule::unload() noexcept
 		IsThemeBackgroundPartiallyTransparentUx = nullptr;
 		DrawThemeParentBackgroundUx = nullptr;
 		DrawThemeTextUx = nullptr;
+		DrawThemeTextExUx = nullptr;
 		GetThemeBackgroundRegionUx = nullptr;
 		GetWindowThemeUx = nullptr;
 		DrawThemeEdgeUx = nullptr;
 		GetThemeColorUx = nullptr;
+		GetThemeFontUx = nullptr;
+		GetThemeTextExtentUx = nullptr;
 		DrawThemeParentBackgroundExUx = nullptr;
 		BufferedPaintInitUx = nullptr;
 		BufferedPaintUnInitUx = nullptr;
 		BeginBufferedPaintUx = nullptr;
 		EndBufferedPaintUx = nullptr;
+		BufferedPaintSetAlphaUx = nullptr;
+		BufferedPaintClearUx = nullptr;
 	}
 	return isUseable();
 }
@@ -241,6 +263,13 @@ HRESULT DcxUXModule::dcxDrawThemeText(HTHEME hTheme, HDC hdc, int iPartId, int i
 	return E_NOTIMPL;
 }
 
+HRESULT DcxUXModule::dcxDrawThemeTextEx(HTHEME hTheme, HDC hdc, _In_ int iPartId, _In_ int iStateId, _In_z_ LPCWSTR pszText, _In_ int cchText, _In_ DWORD dwTextFlags, _Inout_ LPRECT pRect, _In_ const DTTOPTS* pOptions) noexcept
+{
+	if (DrawThemeTextExUx)
+		return DrawThemeTextExUx(hTheme, hdc, iPartId, iStateId, pszText, cchText, dwTextFlags, pRect, pOptions);
+	return E_NOTIMPL;
+}
+
 [[gsl::suppress(lifetime)]] HRESULT DcxUXModule::dcxGetThemeBackgroundRegion(HTHEME hTheme, HDC hdc, int iPartId, int iStateId, LPCRECT pRect, HRGN *pRegion) noexcept
 {
 	if (GetThemeBackgroundRegionUx)
@@ -262,6 +291,20 @@ HRESULT DcxUXModule::dcxGetThemeColor(HTHEME hTheme, int iPartId, int iStateId, 
 	return E_NOTIMPL;
 }
 
+HRESULT DcxUXModule::dcxGetThemeFont(HTHEME hTheme, HDC hdc, int iPartId, int iStateId, int iPropId, LPLOGFONT plog) noexcept
+{
+	if (GetThemeFontUx)
+		return GetThemeFontUx(hTheme, hdc, iPartId, iStateId, iPropId, plog);
+	return E_NOTIMPL;
+}
+
+HRESULT DcxUXModule::dcxGetThemeTextExtent(HTHEME hTheme, HDC hdc, _In_ int iPartId, _In_ int iStateId, _In_z_ LPCWSTR pszText, _In_ int cchCharCount, _In_ DWORD dwTextFlags, _In_ LPCRECT pBoundingRect, _Inout_ LPRECT pExtentRect) noexcept
+{
+	if (GetThemeTextExtentUx)
+		return GetThemeTextExtentUx(hTheme, hdc, iPartId, iStateId, pszText, cchCharCount, dwTextFlags, pBoundingRect, pExtentRect);
+	return E_NOTIMPL;
+}
+
 HRESULT DcxUXModule::dcxDrawThemeParentBackgroundEx(HWND hwnd, HDC hdc, DWORD dwFlags, const RECT *prc) noexcept
 {
 	if (DrawThemeParentBackgroundExUx)
@@ -278,7 +321,7 @@ HRESULT DcxUXModule::dcxDrawThemeParentBackgroundEx(HWND hwnd, HDC hdc, DWORD dw
 
 #pragma warning(push)
 #pragma warning(disable: 26422)
-HRESULT DcxUXModule::dcxEndBufferedPaint(gsl::owner<HPAINTBUFFER> hBufferedPaint, BOOL fUpdateTarget) noexcept
+HRESULT DcxUXModule::dcxEndBufferedPaint(gsl::owner<HPAINTBUFFER> hBufferedPaint, _In_ BOOL fUpdateTarget) noexcept
 {
 	if (EndBufferedPaintUx)
 		return EndBufferedPaintUx(hBufferedPaint, fUpdateTarget);
@@ -286,7 +329,7 @@ HRESULT DcxUXModule::dcxEndBufferedPaint(gsl::owner<HPAINTBUFFER> hBufferedPaint
 }
 #pragma warning(pop)
 
-HRESULT DcxUXModule::dcxBufferedPaintSetAlpha(HPAINTBUFFER hBufferedPaint, _In_ const RECT * prc, BYTE alpha) noexcept
+HRESULT DcxUXModule::dcxBufferedPaintSetAlpha(HPAINTBUFFER hBufferedPaint, _In_ const RECT * prc, _In_ BYTE alpha) noexcept
 {
 	if (BufferedPaintSetAlphaUx)
 		return BufferedPaintSetAlphaUx(hBufferedPaint, prc, alpha);
@@ -304,5 +347,12 @@ HRESULT DcxUXModule::dcxBufferedPaintUnInit(void) noexcept
 {
 	if (BufferedPaintUnInitUx)
 		return BufferedPaintUnInitUx();
+	return E_NOTIMPL;
+}
+
+HRESULT DcxUXModule::dcxBufferedPaintClear(HPAINTBUFFER hBufferedPaint, _In_ const RECT* prc) noexcept
+{
+	if (BufferedPaintClearUx)
+		return BufferedPaintClearUx(hBufferedPaint, prc);
 	return E_NOTIMPL;
 }
