@@ -93,6 +93,8 @@ DcxListView::~DcxListView() noexcept
 	ImageList_Destroy(getImageList(LVSIL_NORMAL));
 	ImageList_Destroy(getImageList(LVSIL_SMALL));
 	ImageList_Destroy(getImageList(LVSIL_STATE));
+
+	ImageList_Destroy(getImageList(LVSIL_FOOTER));
 }
 
 const TString DcxListView::getStyles(void) const
@@ -952,6 +954,11 @@ void DcxListView::parseInfoRequest(const TString& input, const refString<TCHAR, 
 		if (dcx_testflag(iFlags, LVSIL_STATE))
 		{
 			if (auto himl = getImageList(LVSIL_STATE); himl)
+				iCount += ImageList_GetImageCount(himl);
+		}
+		if (dcx_testflag(iFlags, LVSIL_FOOTER))
+		{
+			if (auto himl = getImageList(LVSIL_FOOTER); himl)
 				iCount += ImageList_GetImageCount(himl);
 		}
 		_ts_snprintf(szReturnValue, TEXT("%u"), iCount);
@@ -2029,6 +2036,31 @@ void DcxListView::parseCommandRequest(const TString& input)
 #endif
 			}
 		}
+
+		// footer icons
+		if (dcx_testflag(iFlags, LVSIL_FOOTER))
+		{
+			if (auto himl = this->initImageList(LVSIL_FOOTER); index < 0)
+			{
+				AddFileIcons(himl, filename, false, -1);
+			}
+			else {
+#if DCX_USE_WRAPPERS
+				const Dcx::dcxIconResource icon(index, filename, false, tflags);
+
+				ImageList_AddIcon(himl, icon.get());
+#else
+				const HICON icon = dcxLoadIcon(index, filename, false, tflags);
+
+				if (!icon)
+					throw Dcx::dcxException("Unable to load footer icon");
+
+				ImageList_AddIcon(himl, icon);
+
+				DestroyIcon(icon);
+#endif
+			}
+		}
 	}
 	// xdid -W [NAME] [ID] [SWITCH] [STYLE]
 	// xdid -W [NAME] [ID] [SWITCH] [STYLE|nochange] (CONTROL EXTENDED STYLES)
@@ -2102,6 +2134,14 @@ void DcxListView::parseCommandRequest(const TString& input)
 			if (const auto himl = this->getImageList(LVSIL_STATE); himl)
 			{
 				this->setImageList(nullptr, LVSIL_STATE);
+				ImageList_Destroy(himl);
+			}
+		}
+		if (dcx_testflag(iFlags, LVSIL_FOOTER))
+		{
+			if (const auto himl = this->getImageList(LVSIL_FOOTER); himl)
+			{
+				this->setImageList(nullptr, LVSIL_FOOTER);
 				ImageList_Destroy(himl);
 			}
 		}
@@ -2465,6 +2505,8 @@ UINT DcxListView::parseIconFlagOptions(const TString& flags)
 		iFlags |= LVSIL_SMALL;
 	if (xflags[TEXT('s')])
 		iFlags |= LVSIL_STATE;
+	if (xflags[TEXT('f')])
+		iFlags |= LVSIL_FOOTER;
 
 	return iFlags;
 }
@@ -2810,8 +2852,23 @@ bool DcxListView::matchItemText(const int nItem, const int nSubItem, const dcxSe
 
 const int& DcxListView::getColumnCount() const noexcept
 {
+	//if (m_iColumnCount < 0)
+	//{
+	//	LVCOLUMN lvc{};
+	//	lvc.mask = LVCF_WIDTH;
+	//	auto i = 0;
+	//	while (Dcx::dcxListView_GetColumn(m_Hwnd, i, &lvc) != FALSE)
+	//		++i;
+	//	m_iColumnCount = i;
+	//}
+	//return m_iColumnCount;
+
 	if (m_iColumnCount < 0)
 	{
+		if (auto hHeader = Dcx::dcxListView_GetHeader(m_Hwnd); hHeader)
+			m_iColumnCount = Header_GetItemCount(hHeader);
+		else
+		{
 		LVCOLUMN lvc{};
 		lvc.mask = LVCF_WIDTH;
 
@@ -2820,6 +2877,7 @@ const int& DcxListView::getColumnCount() const noexcept
 			++i;
 
 		m_iColumnCount = i;
+	}
 	}
 	return m_iColumnCount;
 }
@@ -3123,10 +3181,11 @@ LRESULT DcxListView::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 
 			Dcx::dcxListView_SetItemState(m_Hwnd, lplvdi->item.iItem, LVIS_SELECTED, LVIS_SELECTED);
 
-			auto edit_hwnd = Dcx::dcxListView_GetEditControl(m_Hwnd);
-
+			if (auto edit_hwnd = Dcx::dcxListView_GetEditControl(m_Hwnd); edit_hwnd)
+			{
 			m_OrigEditProc = SubclassWindow(edit_hwnd, DcxListView::EditLabelProc);
-			SetProp(edit_hwnd, TEXT("dcx_pthis"), this);
+				Dcx::dcxSetProp(edit_hwnd, TEXT("dcx_pthis"), this);
+			}
 
 			//TCHAR ret[256];
 			//evalAliasEx(ret, Dcx::countof(ret), TEXT("labelbegin,%u,%d,%d"), getUserID(), lplvdi->item.iItem +1, lplvdi->item.iSubItem +1);
@@ -3295,8 +3354,6 @@ LRESULT DcxListView::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 					if (!Dcx::m_hDragImage)
 						break;
 
-					ImageList_GetImageInfo(Dcx::m_hDragImage, 0, &imf);
-					iHeight = imf.rcImage.bottom;
 					bFirst = false;
 				}
 				else {
@@ -3317,10 +3374,10 @@ LRESULT DcxListView::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 						}
 						ImageList_Destroy(hOneImageList);
 					}
+				}
 					ImageList_GetImageInfo(Dcx::m_hDragImage, 0, &imf);
 					iHeight = imf.rcImage.bottom;
 				}
-			}
 
 			if (Dcx::m_hDragImage)
 			{
@@ -3328,7 +3385,7 @@ LRESULT DcxListView::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 			ImageList_BeginDrag(Dcx::m_hDragImage, 0, 0, 0);
 
 			POINT pt = ((NM_LISTVIEW*)((LPNMHDR)lParam))->ptAction;
-			MapWindowPoints(m_Hwnd, nullptr, &pt, 1); // ClientToScreen(hListView, &pt);
+				MapWindowPoints(m_Hwnd, nullptr, &pt, 1);
 
 			ImageList_DragEnter(GetDesktopWindow(), pt.x, pt.y);
 
