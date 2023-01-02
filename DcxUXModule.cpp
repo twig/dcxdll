@@ -190,21 +190,21 @@ BOOL DcxUXModule::dcxIsThemeActive() noexcept
 *
 * Used to remove theme on controls
 */
-HRESULT DcxUXModule::dcxSetWindowTheme(const HWND hwnd, const LPCWSTR pszSubAppName, const LPCWSTR pszSubIdList) noexcept
+HRESULT DcxUXModule::dcxSetWindowTheme(_In_ const HWND hwnd, _In_opt_ const LPCWSTR pszSubAppName, _In_opt_ const LPCWSTR pszSubIdList) noexcept
 {
 	if (SetWindowThemeUx)
 		return SetWindowThemeUx(hwnd, pszSubAppName, pszSubIdList);
 	return E_NOTIMPL;
 }
 
-[[gsl::suppress(lifetime)]] HTHEME DcxUXModule::dcxGetWindowTheme(HWND hWnd) noexcept
+[[gsl::suppress(lifetime)]] HTHEME DcxUXModule::dcxGetWindowTheme(_In_ HWND hWnd) noexcept
 {
 	if (GetWindowThemeUx)
 		return GetWindowThemeUx(hWnd);
 	return nullptr;
 }
 
-[[gsl::suppress(lifetime)]] gsl::owner<HTHEME> DcxUXModule::dcxOpenThemeData(HWND hwnd, LPCWSTR pszClassList) noexcept
+[[gsl::suppress(lifetime)]] gsl::owner<HTHEME> DcxUXModule::dcxOpenThemeData(_In_ HWND hwnd, _In_ LPCWSTR pszClassList) noexcept
 {
 	if (OpenThemeDataUx)
 		return OpenThemeDataUx(hwnd, pszClassList);
@@ -213,7 +213,7 @@ HRESULT DcxUXModule::dcxSetWindowTheme(const HWND hwnd, const LPCWSTR pszSubAppN
 
 #pragma warning(push)
 #pragma warning(disable: 26422)
-HRESULT DcxUXModule::dcxCloseThemeData(gsl::owner<HTHEME> hTheme) noexcept
+HRESULT DcxUXModule::dcxCloseThemeData(_In_ gsl::owner<HTHEME> hTheme) noexcept
 {
 	if (CloseThemeDataUx)
 		return CloseThemeDataUx(hTheme);
@@ -228,91 +228,91 @@ HRESULT DcxUXModule::dcxCloseThemeData(gsl::owner<HTHEME> hTheme) noexcept
 //	return nullptr;
 //}
 
-BOOL DcxUXModule::dcxIsThemeBackgroundPartiallyTransparent(HTHEME hTheme, int iPartId, int iStateId) noexcept
+BOOL DcxUXModule::dcxIsThemeBackgroundPartiallyTransparent(_In_ HTHEME hTheme, _In_ int iPartId, _In_ int iStateId) noexcept
 {
 	if (IsThemeBackgroundPartiallyTransparentUx)
 		return IsThemeBackgroundPartiallyTransparentUx(hTheme, iPartId, iStateId);
 	return FALSE;
 }
 
-HRESULT DcxUXModule::dcxDrawThemeBackground(HTHEME hTheme, HDC hdc, int iPartId, int iStateId, LPCRECT pRect, LPCRECT pClipRect) noexcept
+HRESULT DcxUXModule::dcxDrawThemeBackground(_In_ HTHEME hTheme, _In_ HDC hdc, _In_ int iPartId, _In_ int iStateId, _In_ LPCRECT pRect, _In_opt_ LPCRECT pClipRect) noexcept
 {
 	if (DrawThemeBackgroundUx)
 		return DrawThemeBackgroundUx(hTheme, hdc, iPartId, iStateId, pRect, pClipRect);
 	return E_NOTIMPL;
 }
 
-HRESULT DcxUXModule::dcxGetThemeBackgroundContentRect(HTHEME hTheme, HDC hdc, int iPartId, int iStateId, LPCRECT pBoundingRect, LPRECT pContentRect) noexcept
+HRESULT DcxUXModule::dcxGetThemeBackgroundContentRect(_In_ HTHEME hTheme, _In_opt_ HDC hdc, _In_ int iPartId, _In_ int iStateId, _In_ LPCRECT pBoundingRect, _Out_ LPRECT pContentRect) noexcept
 {
 	if (GetThemeBackgroundContentRectUx)
 		return GetThemeBackgroundContentRectUx(hTheme, hdc, iPartId, iStateId, pBoundingRect, pContentRect);
 	return E_NOTIMPL;
 }
 
-HRESULT DcxUXModule::dcxDrawThemeParentBackground(HWND hwnd, HDC hdc, const RECT *prc) noexcept
+HRESULT DcxUXModule::dcxDrawThemeParentBackground(_In_ HWND hwnd, _In_ HDC hdc, _In_opt_ LPCRECT prc) noexcept
 {
 	if (DrawThemeParentBackgroundUx)
 		return DrawThemeParentBackgroundUx(hwnd, hdc, prc);
 	return E_NOTIMPL;
 }
 
-HRESULT DcxUXModule::dcxDrawThemeText(HTHEME hTheme, HDC hdc, int iPartId, int iStateId, LPCWSTR pszText, int cchText, DWORD dwTextFlags, DWORD dwTextFlags2, LPCRECT pRect) noexcept
+HRESULT DcxUXModule::dcxDrawThemeText(_In_ HTHEME hTheme, _In_ HDC hdc, _In_ int iPartId, _In_ int iStateId, _In_reads_(cchText) LPCWSTR pszText, _In_ int cchText, _In_ DWORD dwTextFlags, _In_ DWORD dwTextFlags2, _In_ LPCRECT pRect) noexcept
 {
 	if (DrawThemeTextUx)
 		return DrawThemeTextUx(hTheme, hdc, iPartId, iStateId, pszText, cchText, dwTextFlags, dwTextFlags2, pRect);
 	return E_NOTIMPL;
 }
 
-HRESULT DcxUXModule::dcxDrawThemeTextEx(HTHEME hTheme, HDC hdc, _In_ int iPartId, _In_ int iStateId, _In_z_ LPCWSTR pszText, _In_ int cchText, _In_ DWORD dwTextFlags, _Inout_ LPRECT pRect, _In_ const DTTOPTS* pOptions) noexcept
+HRESULT DcxUXModule::dcxDrawThemeTextEx(_In_ HTHEME hTheme, _In_ HDC hdc, _In_ int iPartId, _In_ int iStateId, _In_reads_(cchText) LPCWSTR pszText, _In_ int cchText, _In_ DWORD dwTextFlags, _Inout_ LPRECT pRect, _In_opt_ const DTTOPTS* pOptions) noexcept
 {
 	if (DrawThemeTextExUx)
 		return DrawThemeTextExUx(hTheme, hdc, iPartId, iStateId, pszText, cchText, dwTextFlags, pRect, pOptions);
 	return E_NOTIMPL;
 }
 
-[[gsl::suppress(lifetime)]] HRESULT DcxUXModule::dcxGetThemeBackgroundRegion(HTHEME hTheme, HDC hdc, int iPartId, int iStateId, LPCRECT pRect, HRGN *pRegion) noexcept
+[[gsl::suppress(lifetime)]] HRESULT DcxUXModule::dcxGetThemeBackgroundRegion(_In_ HTHEME hTheme, _In_opt_ HDC hdc, _In_ int iPartId, _In_ int iStateId, _In_ LPCRECT pRect, _Out_ HRGN *pRegion) noexcept
 {
 	if (GetThemeBackgroundRegionUx)
 		return GetThemeBackgroundRegionUx(hTheme, hdc, iPartId, iStateId, pRect, pRegion);
 	return E_NOTIMPL;
 }
 
-HRESULT DcxUXModule::dcxDrawThemeEdge(HTHEME hTheme, HDC hdc, int iPartId, int iStateId, LPCRECT pDestRect, UINT uEdge, UINT uFlags, LPRECT pContentRect) noexcept
+HRESULT DcxUXModule::dcxDrawThemeEdge(_In_ HTHEME hTheme, _In_ HDC hdc, _In_ int iPartId, _In_ int iStateId, _In_ LPCRECT pDestRect, _In_ UINT uEdge, _In_ UINT uFlags, _Out_opt_ LPRECT pContentRect) noexcept
 {
 	if (DrawThemeEdgeUx)
 		return DrawThemeEdgeUx(hTheme, hdc, iPartId, iStateId, pDestRect, uEdge, uFlags, pContentRect);
 	return E_NOTIMPL;
 }
 
-HRESULT DcxUXModule::dcxGetThemeColor(HTHEME hTheme, int iPartId, int iStateId, int iPropId, COLORREF *pColor) noexcept
+HRESULT DcxUXModule::dcxGetThemeColor(_In_ HTHEME hTheme, _In_ int iPartId, _In_ int iStateId, _In_ int iPropId, _Out_ COLORREF *pColor) noexcept
 {
 	if (GetThemeColorUx)
 		return GetThemeColorUx(hTheme, iPartId, iStateId, iPropId, pColor);
 	return E_NOTIMPL;
 }
 
-HRESULT DcxUXModule::dcxGetThemeFont(HTHEME hTheme, HDC hdc, int iPartId, int iStateId, int iPropId, LPLOGFONT plog) noexcept
+HRESULT DcxUXModule::dcxGetThemeFont(_In_ HTHEME hTheme, _In_opt_ HDC hdc, _In_ int iPartId, _In_ int iStateId, _In_ int iPropId, _Out_ LPLOGFONT plog) noexcept
 {
 	if (GetThemeFontUx)
 		return GetThemeFontUx(hTheme, hdc, iPartId, iStateId, iPropId, plog);
 	return E_NOTIMPL;
 }
 
-HRESULT DcxUXModule::dcxGetThemeTextExtent(HTHEME hTheme, HDC hdc, _In_ int iPartId, _In_ int iStateId, _In_z_ LPCWSTR pszText, _In_ int cchCharCount, _In_ DWORD dwTextFlags, _In_ LPCRECT pBoundingRect, _Inout_ LPRECT pExtentRect) noexcept
+HRESULT DcxUXModule::dcxGetThemeTextExtent(_In_ HTHEME hTheme, _In_ HDC hdc, _In_ int iPartId, _In_ int iStateId, _In_reads_(cchCharCount) LPCWSTR pszText, _In_ int cchCharCount, _In_ DWORD dwTextFlags, _In_opt_ LPCRECT pBoundingRect, _Out_ LPRECT pExtentRect) noexcept
 {
 	if (GetThemeTextExtentUx)
 		return GetThemeTextExtentUx(hTheme, hdc, iPartId, iStateId, pszText, cchCharCount, dwTextFlags, pBoundingRect, pExtentRect);
 	return E_NOTIMPL;
 }
 
-HRESULT DcxUXModule::dcxDrawThemeParentBackgroundEx(HWND hwnd, HDC hdc, DWORD dwFlags, const RECT *prc) noexcept
+HRESULT DcxUXModule::dcxDrawThemeParentBackgroundEx(_In_ HWND hwnd, _In_ HDC hdc, _In_ DWORD dwFlags, _In_opt_ LPCRECT prc) noexcept
 {
 	if (DrawThemeParentBackgroundExUx)
 		return DrawThemeParentBackgroundExUx(hwnd, hdc, dwFlags, prc);
 	return E_NOTIMPL;
 }
 
-[[gsl::suppress(lifetime,Enum.3)]] gsl::owner<HPAINTBUFFER> DcxUXModule::dcxBeginBufferedPaint(HDC hdcTarget, const RECT *prcTarget, BP_BUFFERFORMAT dwFormat, BP_PAINTPARAMS *pPaintParams, HDC *phdc) noexcept
+[[gsl::suppress(lifetime,Enum.3)]] _Success_(return != NULL) gsl::owner<HPAINTBUFFER> DcxUXModule::dcxBeginBufferedPaint(_In_ HDC hdcTarget, _In_ LPCRECT prcTarget, _In_ BP_BUFFERFORMAT dwFormat, _In_opt_ BP_PAINTPARAMS *pPaintParams, _Out_ HDC *phdc) noexcept
 {
 	if (BeginBufferedPaintUx)
 		return BeginBufferedPaintUx(hdcTarget, prcTarget, dwFormat, pPaintParams, phdc);
@@ -321,7 +321,7 @@ HRESULT DcxUXModule::dcxDrawThemeParentBackgroundEx(HWND hwnd, HDC hdc, DWORD dw
 
 #pragma warning(push)
 #pragma warning(disable: 26422)
-HRESULT DcxUXModule::dcxEndBufferedPaint(gsl::owner<HPAINTBUFFER> hBufferedPaint, _In_ BOOL fUpdateTarget) noexcept
+HRESULT DcxUXModule::dcxEndBufferedPaint(_In_ gsl::owner<HPAINTBUFFER> hBufferedPaint, _In_ BOOL fUpdateTarget) noexcept
 {
 	if (EndBufferedPaintUx)
 		return EndBufferedPaintUx(hBufferedPaint, fUpdateTarget);
@@ -329,7 +329,7 @@ HRESULT DcxUXModule::dcxEndBufferedPaint(gsl::owner<HPAINTBUFFER> hBufferedPaint
 }
 #pragma warning(pop)
 
-HRESULT DcxUXModule::dcxBufferedPaintSetAlpha(HPAINTBUFFER hBufferedPaint, _In_ const RECT * prc, _In_ BYTE alpha) noexcept
+HRESULT DcxUXModule::dcxBufferedPaintSetAlpha(_In_ HPAINTBUFFER hBufferedPaint, _In_opt_ LPCRECT prc, _In_ BYTE alpha) noexcept
 {
 	if (BufferedPaintSetAlphaUx)
 		return BufferedPaintSetAlphaUx(hBufferedPaint, prc, alpha);
@@ -350,7 +350,7 @@ HRESULT DcxUXModule::dcxBufferedPaintUnInit(void) noexcept
 	return E_NOTIMPL;
 }
 
-HRESULT DcxUXModule::dcxBufferedPaintClear(HPAINTBUFFER hBufferedPaint, _In_ const RECT* prc) noexcept
+HRESULT DcxUXModule::dcxBufferedPaintClear(_In_ HPAINTBUFFER hBufferedPaint, _In_opt_ LPCRECT prc) noexcept
 {
 	if (BufferedPaintClearUx)
 		return BufferedPaintClearUx(hBufferedPaint, prc);
