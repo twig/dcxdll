@@ -322,7 +322,7 @@ TString& TString::operator *=(const int& N)
 	\return String length
 */
 
-const size_t& TString::len() const noexcept
+const TString::size_type& TString::len() const noexcept
 {
 	if (empty())	// check for zero length string.
 		m_iLen = 0U;

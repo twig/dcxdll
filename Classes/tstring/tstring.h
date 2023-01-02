@@ -6,7 +6,7 @@
  * comparisons and token manipulations as done in the mIRC scripting language.
  *
  * \author David Legault ( clickhere at scriptsdb dot org )
- * \version 1.21
+ * \version 1.22
  *
  * \b Revisions
  *	1.1
@@ -70,6 +70,9 @@
  * 
  *  1.21
  *      Added some SAL
+ * 
+ *  1.22
+ *		Fixed toupper & tolower
  * 
  * © ScriptsDB.org - 2005-2021
  */
@@ -216,9 +219,9 @@ constexpr auto TS_wgetmemsize(T x) noexcept { return (TS_getmemsize((x) * sizeof
 #define ts_strcat(x,y) _ts_strcat((x),(y))
 #define ts_strncat(x,y,z) _ts_strncat((x),(y),gsl::narrow_cast<size_t>(z))
 template<TStringConcepts::IsPODText T>
-constexpr auto ts_toupper(T c) { return ((((c) >= TEXT('a')) && ((c) <= TEXT('z'))) ? _toupper((c)) : (c)); }
+constexpr auto ts_toupper(T c) { return ((((c) >= TEXT('a')) && ((c) <= TEXT('z'))) ? static_cast<T>(_toupper((c))) : (c)); }
 template<TStringConcepts::IsPODText T>
-constexpr auto ts_tolower(T c) { return ((((c) >= TEXT('A')) && ((c) <= TEXT('Z'))) ? _tolower((c)) : (c)); }
+constexpr auto ts_tolower(T c) { return ((((c) >= TEXT('A')) && ((c) <= TEXT('Z'))) ? static_cast<T>(_tolower((c))) : (c)); }
 #define ts_strcpyn(dest,src,len) _ts_strcpyn((dest),(src),gsl::narrow_cast<size_t>(len))
 #define ts_strcpy(dest,src) _ts_strcpy((dest),(src))
 //#define ts_strcpyn(dest,src,len) lstrcpyn((dest),(src),gsl::narrow_cast<size_t>(len))
@@ -814,22 +817,22 @@ public:
 	/// Get length of string in characters.
 	/// </summary>
 	/// <returns>The size of the string in characters.</returns>
-	const size_t& len() const noexcept;
+	const size_type& len() const noexcept;
 	/// <summary>
 	/// Alias for len()
 	/// </summary>
 	/// <returns>The size of the string in characters.</returns>
-	inline const size_t& length() const noexcept { return len(); };
+	inline const size_type& length() const noexcept { return len(); };
 	/// <summary>
 	/// Alias for len()
 	/// </summary>
 	/// <returns>The size of the string in characters.</returns>
-	inline const size_t& size() const noexcept { return len(); };
+	inline const size_type& size() const noexcept { return len(); };
 	/// <summary>
 	/// Get the capacity of buffer in bytes.
 	/// </summary>
 	/// <returns>Capacity of buffer in bytes.</returns>
-	const size_t& capacity() const noexcept { return m_buffersize; }
+	const size_type& capacity() const noexcept { return m_buffersize; }
 	/// <summary>
 	/// Get the capacity of buffer in characters.
 	/// </summary>
