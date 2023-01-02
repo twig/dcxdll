@@ -134,7 +134,7 @@ dcxWindowStyles DcxCheck::parseControlStyles(const TString& tsStyles)
 
 	for (const auto& tsStyle : tsStyles)
 	{
-		switch (std::hash<TString>{}(tsStyle.to_chr()))
+		switch (std::hash<TString>{}(tsStyle))
 		{
 		case L"rjustify"_hash:
 			ws.m_Styles |= BS_RIGHT;

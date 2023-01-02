@@ -1119,7 +1119,7 @@ LRESULT DcxList::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPars
 			si.fMask = SIF_ALL | SIF_DISABLENOSCROLL;
 			GetScrollInfo(m_Hwnd, SB_VERT, &si); // 'Get valid 32bit position
 			si.nPos = si.nTrackPos;
-			SetScrollInfo(m_Hwnd, SB_VERT, &si, TRUE); // 'Fix scrollbar thumb position avoiding the Lisbox 16 bit engine.
+			SetScrollInfo(m_Hwnd, SB_VERT, &si, TRUE); // 'Fix scrollbar thumb position avoiding the Listbox 16 bit engine.
 			SendMessage(m_Hwnd, LB_SETTOPINDEX, si.nTrackPos, 0); // 'Scroll listbox
 			bParsed = TRUE;
 		}
@@ -1129,11 +1129,11 @@ LRESULT DcxList::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPars
 		//if ((Dcx::dcxLOWORD(wParam) == SB_ENDSCROLL) && isExStyle(WindowExStyle::Transparent) && !getParentDialog()->isExStyle(WindowExStyle::Composited))
 		//{
 		//	bParsed = TRUE;
-
+		//
 		//	const auto lRes = CallDefaultClassProc(uMsg, wParam, lParam);
-
+		//
 		//	redrawBufferedWindowClient();
-
+		//
 		//	return lRes;
 		//}
 #endif
@@ -1145,11 +1145,11 @@ LRESULT DcxList::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bPars
 	//	if (isExStyle(WindowExStyle::Transparent) && !getParentDialog()->isExStyle(WindowExStyle::Composited))
 	//	{
 	//		bParsed = TRUE;
-
+//
 	//		const auto lRes = CallDefaultClassProc(uMsg, wParam, lParam);
-
+//
 	//		redrawBufferedWindowClient();
-
+//
 	//		return lRes;
 	//	}
 	//}

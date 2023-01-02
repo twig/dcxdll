@@ -79,6 +79,12 @@ const bool LayoutManager::updateLayout(RECT& rc)
 	if (empty())
 		return false;
 
+	//if (empty())
+	//{
+	//	TileWindows(m_Hwnd, MDITILE_HORIZONTAL, &rc, 0, nullptr);
+	//	return false;
+	//}
+
 	m_pRoot->setRect(rc);
 	m_pRoot->LayoutChild();
 	return (EndDeferWindowPos(m_pRoot->ExecuteLayout(BeginDeferWindowPos(gsl::narrow_cast<int>(m_iCount)))) != FALSE);
