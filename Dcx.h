@@ -242,7 +242,7 @@ namespace Dcx
 		//return make_resource(dcxCreateFile, [](ULONG_PTR *file){ CloseHandle((HANDLE)file); }, file, dAccess, dShareMode, lpSecurity, dCreation, dflags, templateFile);
 		return make_resource(
 			[](const TCHAR* file, DWORD dAccess, DWORD dShareMode, LPSECURITY_ATTRIBUTES lpSecurity, DWORD dCreation, DWORD dflags, HANDLE templateFile) noexcept { return static_cast<ULONG_PTR*>(CreateFile(file, dAccess, dShareMode, lpSecurity, dCreation, dflags, templateFile)); },
-			[](ULONG_PTR* file) noexcept { CloseHandle(file); }, file, dAccess, dShareMode, lpSecurity, dCreation, dflags, templateFile);
+			[](ULONG_PTR* file) noexcept { if ((file) && (file != INVALID_HANDLE_VALUE)) CloseHandle(file); }, file, dAccess, dShareMode, lpSecurity, dCreation, dflags, templateFile);
 	}
 
 	/// <summary>
