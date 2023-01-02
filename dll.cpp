@@ -826,20 +826,14 @@ mIRC(Version)
 
 #ifdef DCX_DEV_BUILD
 	if (mIRCLinker::isUnicode())
-	{
 		_ts_strcpyn<wchar_t >(data, _T("DCX (XPopup) DLL " GIT_DESCRIBEA " " DLL_STATE DLL_DEV_BUILD " UTF by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2005 Compiled on " __DATE__ " " __TIME__), mIRCLinker::m_dwCharacters);
-	}
-	else {
+	else
 		_ts_strcpyn<char>((char*)data, "DCX (XPopup) DLL " GIT_DESCRIBEA " " DLL_STATE DLL_DEV_BUILD " UTF by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2005 Compiled on " __DATE__ " " __TIME__, mIRCLinker::m_dwBytes);
-	}
 #else
 	if (mIRCLinker::isUnicode())
-	{
 		_ts_strcpyn<wchar_t>(data, _T("DCX (XPopup) DLL " GIT_DESCRIBEA " " DLL_STATE " ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2005 Compiled on " __DATE__ " " __TIME__), mIRCLinker::m_dwCharacters);
-	}
-	else {
+	else
 		_ts_strcpyn<char>(reinterpret_cast<char*>(data), "DCX (XPopup) DLL " GIT_DESCRIBEA " " DLL_STATE " ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2005 Compiled on " __DATE__ " " __TIME__, mIRCLinker::m_dwBytes);
-	}
 #endif
 	return 3;
 }
@@ -848,36 +842,14 @@ mIRC(Version)
 {
 #ifdef DCX_DEV_BUILD
 	if (mIRCLinker::isUnicode())
-	{
-		//_ts_snprintf(data, MIRC_BUFFER_SIZE_CCH,
-		//	TEXT("DCX (XPopup) DLL %s %s%d UTF by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2005 Compiled on " __DATE__ " " __TIME__),
-		//	DLL_VERSION, DLL_STATE, DLL_DEV_BUILD);
-
 		_ts_strcpyn<wchar_t >(data, _T("DCX (XPopup) DLL " GIT_DESCRIBEA " " DLL_STATE DLL_DEV_BUILD " UTF by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2005 Compiled on " __DATE__ " " __TIME__), mIRCLinker::m_dwCharacters);
-	}
-	else {
-		//_ts_snprintf((char *)data, MIRC_BUFFER_SIZE_CCH,
-		//	"DCX (XPopup) DLL %S %S%d UTF by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2005 Compiled on " __DATE__ " " __TIME__,
-		//	DLL_VERSION, DLL_STATE, DLL_DEV_BUILD);
-
+	else
 		_ts_strcpyn<char>(reinterpret_cast<char*>(data), "DCX (XPopup) DLL " GIT_DESCRIBEA " " DLL_STATE DLL_DEV_BUILD " UTF by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2005 Compiled on " __DATE__ " " __TIME__, mIRCLinker::m_dwBytes);
-	}
 #else
 	if (mIRCLinker::isUnicode())
-	{
-		//_ts_snprintf(data, MIRC_BUFFER_SIZE_CCH,
-		//	TEXT("DCX (XPopup) DLL %s %s UTF by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2005 Compiled on " __DATE__ " " __TIME__),
-		//	DLL_VERSION, DLL_STATE);
-
 		_ts_strcpyn<wchar_t>(data, _T("DCX (XPopup) DLL " GIT_DESCRIBEA " " DLL_STATE " ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2005 Compiled on " __DATE__ " " __TIME__), mIRCLinker::m_dwCharacters);
-	}
-	else {
-		//_ts_snprintf((char *)data, MIRC_BUFFER_SIZE_CCH,
-		//	"DCX (XPopup) DLL %S %S UTF by ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2005 Compiled on " __DATE__ " " __TIME__,
-		//	DLL_VERSION, DLL_STATE);
-
+	else
 		_ts_strcpyn<char>(reinterpret_cast<char*>(data), "DCX (XPopup) DLL " GIT_DESCRIBEA " " DLL_STATE " ClickHeRe, twig*, Ook, andy and Mpdreamz  ©2005 Compiled on " __DATE__ " " __TIME__, mIRCLinker::m_dwBytes);
-	}
 #endif
 	return 3;
 }

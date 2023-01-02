@@ -212,6 +212,8 @@ constexpr auto DCX_MAX_GDI_ERRORS = 21;
 #define DLL_STATE      "Development Build"
 // Link with DirectX error lib, enables extra error reporting.
 #define DCX_DX_ERR	1
+// use test code?
+#define DCX_USE_TESTCODE 1
 #else
 // Release Build, disable debug info.
 #define DCX_DEBUG_OUTPUT 0
@@ -568,7 +570,7 @@ enum class SwitchBarPos
 // DLL stuff
 // --------------------------------------------------
 // mIRC Function Alias
-#define mIRC(x) _INTEL_DLL_ int WINAPI x(HWND mWnd, HWND aWnd, TCHAR *const data, const TCHAR *const parms, BOOL, BOOL)
+#define mIRC(x) _INTEL_DLL_ int WINAPI x(_In_ HWND mWnd, _In_ HWND aWnd, _Inout_z_ TCHAR *const data, _In_z_ const TCHAR *const parms, _In_ BOOL, _In_ BOOL)
 
 // Return String DLL Alias (data is limited to mIRCLinker::m_dwBytes)
 #define ret(x) { if (ts_strcpyn(data, (x), mIRCLinker::m_dwCharacters) == nullptr) data[0] = 0; return 3; }
@@ -722,9 +724,34 @@ void dcxDrawCheckBox(HDC hDC, const LPCRECT rcBox, const clrCheckBox* lpcol, con
 void dcxDrawEdge(HDC hdc, const LPRECT rc, COLORREF clr) noexcept;
 void dcxDrawBorder(HDC hdc, LPCRECT lprc, DWORD dwBorder, COLORREF clr) noexcept;
 HWND dcxGetRealParent(HWND hWnd) noexcept;
+
+/// <summary>
+/// Draws a solid rect of the specified size and colour
+/// </summary>
+/// <param name="hDC">- The drawing surface</param>
+/// <param name="rc">- The bounding rectangle</param>
+/// <param name="clr">- the fill colour</param>
+/// <param name="clrBorder">- The border colour</param>
+/// <param name="bRounded">- Should the rectangle have rounded corners?</param>
+/// <returns></returns>
 bool dcxDrawRect(HDC hDC, LPCRECT rc, COLORREF clr, COLORREF clrBorder, bool bRounded) noexcept;
+
+/// <summary>
+/// Draws a translucent rect of the specified size and colour
+/// </summary>
+/// <param name="hDC">- The drawing surface</param>
+/// <param name="rc">- The bounding rectangle</param>
+/// <param name="clr">- the fill colour</param>
+/// <param name="clrBorder">- The border colour</param>
+/// <param name="bRounded">- Should the rectangle have rounded corners?</param>
+/// <returns></returns>
 bool dcxDrawTranslucentRect(HDC hDC, LPCRECT rc, COLORREF clr, COLORREF clrBorder, bool bRounded) noexcept;
 
+/// <summary>
+/// Get a colour that contrasts nicely with the supplied colour.
+/// </summary>
+/// <param name="sRGB"></param>
+/// <returns></returns>
 COLORREF GetContrastColour(COLORREF sRGB) noexcept;
 
 extern SIGNALSWITCH dcxSignal;
