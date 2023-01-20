@@ -237,7 +237,7 @@ public:
 	static void SetCondenseWhiteSpace(bool condense) noexcept { condenseWhiteSpace = condense; }
 
 	/// Return the current white space setting.
-	static bool IsWhiteSpaceCondensed() noexcept { return condenseWhiteSpace; }
+	static const bool& IsWhiteSpaceCondensed() noexcept { return condenseWhiteSpace; }
 
 	/** Return the position, in the original source file, of this node or attribute.
 		The row and column are 1-based. (That is the first row and first column is
@@ -544,7 +544,7 @@ public:
 	TiXmlNode* FirstChild() noexcept { return firstChild; }
 	const TiXmlNode* FirstChild(const char* value) const noexcept;			///< The first child of this node with the matching 'value'. Will be null if none found.
 	/// The first child of this node with the matching 'value'. Will be null if none found.
-	[[gsl::suppress(type.3)]] TiXmlNode* FirstChild(const char* _value) noexcept
+	GSL_SUPPRESS(type.3) TiXmlNode* FirstChild(const char* _value) noexcept
 	{
 		// Call through to the const version - safe since nothing is changed. Exiting syntax: cast this to a const (always safe)
 		// call the method, cast the return back to non-const.
@@ -556,7 +556,7 @@ public:
 	TiXmlNode* LastChild() noexcept { return lastChild; }
 
 	const TiXmlNode* LastChild(const char* value) const noexcept;			/// The last child of this node matching 'value'. Will be null if there are no children.
-	[[gsl::suppress(type.3)]] TiXmlNode* LastChild(const char* _value) noexcept
+	GSL_SUPPRESS(type.3) TiXmlNode* LastChild(const char* _value) noexcept
 	{
 		return const_cast<TiXmlNode*> ((const_cast<const TiXmlNode*>(this))->LastChild(_value));
 	}
@@ -585,14 +585,14 @@ public:
 	first. IterateChildren will return null when done.
 */
 	const TiXmlNode* IterateChildren(const TiXmlNode* previous) const noexcept;
-	[[gsl::suppress(type.3)]] TiXmlNode* IterateChildren(const TiXmlNode* previous) noexcept
+	GSL_SUPPRESS(type.3) TiXmlNode* IterateChildren(const TiXmlNode* previous) noexcept
 	{
 		return const_cast<TiXmlNode*>((const_cast<const TiXmlNode*>(this))->IterateChildren(previous));
 	}
 
 	/// This flavor of IterateChildren searches for children with a particular 'value'
 	const TiXmlNode* IterateChildren(const char* value, const TiXmlNode* previous) const noexcept;
-	[[gsl::suppress(type.3)]] TiXmlNode* IterateChildren(const char* _value, const TiXmlNode* previous) noexcept
+	GSL_SUPPRESS(type.3) TiXmlNode* IterateChildren(const char* _value, const TiXmlNode* previous) noexcept
 	{
 		return const_cast<TiXmlNode*>((const_cast<const TiXmlNode*>(this))->IterateChildren(_value, previous));
 	}
@@ -643,7 +643,7 @@ public:
 
 	/// Navigate to a sibling node.
 	const TiXmlNode* PreviousSibling(const char*) const noexcept;
-	[[gsl::suppress(type.3)]] TiXmlNode* PreviousSibling(const char* _prev) noexcept
+	GSL_SUPPRESS(type.3) TiXmlNode* PreviousSibling(const char* _prev) noexcept
 	{
 		return const_cast<TiXmlNode*>((const_cast<const TiXmlNode*>(this))->PreviousSibling(_prev));
 	}
@@ -681,7 +681,7 @@ public:
 		nodes. Returns 0 if there is not another m_pElement.
 	*/
 	const TiXmlElement* NextSiblingElement(const char*) const noexcept;
-	[[gsl::suppress(type.3)]] TiXmlElement* NextSiblingElement(const char* _next) noexcept
+	GSL_SUPPRESS(type.3) TiXmlElement* NextSiblingElement(const char* _next) noexcept
 	{
 		return const_cast<TiXmlElement*>((const_cast<const TiXmlNode*>(this))->NextSiblingElement(_next));
 	}
@@ -693,14 +693,14 @@ public:
 
 /// Convenience function to get through elements.
 	const TiXmlElement* FirstChildElement()	const noexcept;
-	[[gsl::suppress(type.3)]] TiXmlElement* FirstChildElement() noexcept
+	GSL_SUPPRESS(type.3) TiXmlElement* FirstChildElement() noexcept
 	{
 		return const_cast<TiXmlElement*>((const_cast<const TiXmlNode*>(this))->FirstChildElement());
 	}
 
 	/// Convenience function to get through elements.
 	const TiXmlElement* FirstChildElement(const char* _value) const noexcept;
-	[[gsl::suppress(type.3)]] TiXmlElement* FirstChildElement(const char* _value) noexcept
+	GSL_SUPPRESS(type.3) TiXmlElement* FirstChildElement(const char* _value) noexcept
 	{
 		return const_cast<TiXmlElement*>((const_cast<const TiXmlNode*>(this))->FirstChildElement(_value));
 	}
@@ -720,7 +720,7 @@ public:
 		Returns null if not in a document.
 	*/
 	const TiXmlDocument* GetDocument() const noexcept;
-	[[gsl::suppress(type.3)]] TiXmlDocument* GetDocument() noexcept
+	GSL_SUPPRESS(type.3) TiXmlDocument* GetDocument() noexcept
 	{
 		return const_cast<TiXmlDocument*>((const_cast<const TiXmlNode*>(this))->GetDocument());
 	}
@@ -874,14 +874,14 @@ public:
 
 	/// Get the next sibling attribute in the DOM. Returns null at end.
 	const TiXmlAttribute* Next() const noexcept;
-	[[gsl::suppress(type.3)]] TiXmlAttribute* Next() noexcept
+	GSL_SUPPRESS(type.3) TiXmlAttribute* Next() noexcept
 	{
 		return const_cast<TiXmlAttribute*>((const_cast<const TiXmlAttribute*>(this))->Next());
 	}
 
 	/// Get the previous sibling attribute in the DOM. Returns null at beginning.
 	const TiXmlAttribute* Previous() const noexcept;
-	[[gsl::suppress(type.3)]] TiXmlAttribute* Previous() noexcept
+	GSL_SUPPRESS(type.3) TiXmlAttribute* Previous() noexcept
 	{
 		return const_cast<TiXmlAttribute*>((const_cast<const TiXmlAttribute*>(this))->Previous());
 	}
@@ -1047,7 +1047,8 @@ public:
 		const auto result = QueryDoubleAttribute(name, &d);
 		if (result == TiXmlReturns::TIXML_SUCCESS)
 		{
-			*_value = gsl::narrow_cast<float>(d);
+			if (_value)
+				*_value = gsl::narrow_cast<float>(d);
 		}
 		return result;
 	}
@@ -1056,10 +1057,10 @@ public:
 	/// QueryStringAttribute examines the attribute - see QueryIntAttribute().
 	int QueryStringAttribute(const char* name, std::string* _value) const
 	{
-		const char* cstr = Attribute(name);
-		if (cstr)
+		if (const char* cstr = Attribute(name); cstr)
 		{
-			*_value = std::string(cstr);
+			if (_value)
+				*_value = std::string(cstr);
 			return TIXML_SUCCESS;
 		}
 		return TIXML_NO_ATTRIBUTE;
