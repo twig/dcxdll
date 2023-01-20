@@ -66,3 +66,7 @@ Release Dll
 /svnBuild.h
 /.vs/dcx_VS2016utf/v17
 /.vs/dcx_VS2016utf
+/Classes/.vshistory
+/.vshistory/Dcx.h
+/Classes/tstring/.vshistory
+/Classes/tinyxml/.vshistory/tinyxml.h
