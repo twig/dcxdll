@@ -7,28 +7,31 @@ General
 	3: add ability to dock a dialog between editbox & static text control in channels/queries/custom
 	4: add grid control, maybe...
 	5: fix flicker of controls.
-
-Progressbar
-	1: Find better way of updating progressbar's positions upon scroll etc...
+	6: look into TileWindows() for arranging non cla controls...
+	7: fix any mem leaks.
 
 WebCtrl
 	1: WebCtrl has an odd crash, when the object is destroyed & the browser is set as IE11, but not when its set as IE7 (the default). Doesnt crash every time tho, sometimes only on the third try.
-	2: webctrl fails with msft edge installed.
+	2: webctrl fails with msft edge installed. (fixed?)
 		Maybe use WebView2 for msft Edge.
 
 RichEdit
 	1: change how control loads text to allow loading from xml.
 	2: change how control saves text to allow saving to xml.
+	3: add the ability to drag the gutter area to resize it. (mostly done, some redraw flicker to sort)
+	4: add a $xdid().find (mostly done)
+
+Edit
+	1: add a $xdid().find (mostly done)
 
 Button
 	1: rewrite button/check/radio controls to be a single button control that supports diff styles.
-	2: make check controls more versitile. (allow changing colours, styles etc..)
+
+Check
+	1: make check controls more versatile. (allow changing colours, styles etc.. mostly done)
 
 Link
 	1: change control to use WC_LINK instead of WC_STATIC
-
-Menus
-	1: Find a better way of integrating CustomMenus into mpopup instead of a seperate global setting.
 
 Tab
 	14: Add glow effect to tab controls with hottrack.
@@ -42,5 +45,9 @@ Image
 Listview
 	1: Add support for more control types in listview items (partially done, needs testing)
 		1b: Possibly do away with child controls for listview & instead simply custom draw the item/subitem
-	2: add command to move items.
-	3: add drag & drop support.
+	2: add command to move items. (mostly done)
+	3: add drag & drop support. (partially done)
+	4: Find better way of updating child control's positions upon scroll etc...
+	5: add code to highlite item we are above when dragging. (done when in non group mode)
+	6: fix item position when drag&drop & groups are enabled.
+	7: add drag & drop between diff listviews.
