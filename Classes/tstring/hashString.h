@@ -1,6 +1,6 @@
 //
 // By Ook
-// v2.4
+// v2.5
 //
 
 #pragma once
@@ -8,6 +8,7 @@
 #define HASH_USE_CRC32 0
 #define HASH_USE_FNV 1
 #define HASH_USE_ZOB 0
+#define HASH_USE_XXH 0
 #define HASH_ENABLE_STRING 1
 #define HASH_ENABLE_CSTRING 0
 
@@ -65,7 +66,8 @@
 #endif
 
 #ifdef __cpp_lib_concepts
-namespace HashConcepts {
+namespace HashConcepts
+{
 	template <class T>
 	concept IsCharText = std::is_same_v<std::remove_cvref_t<std::remove_all_extents_t<T>>, char>;
 
@@ -82,13 +84,15 @@ namespace HashConcepts {
 
 // mostly taken from https://stackoverflow.com/questions/2111667/compile-time-string-hashing or based on this.
 
-namespace CRC32 {
+namespace CRC32
+{
 	// create a crc8 of a const string.
-	uint32_t tcrc8(const char * str) noexcept;
+	uint32_t tcrc8(const char* str) noexcept;
 	// create a crc32
 	uint32_t crc32_1byte(const void* data, size_t length, uint32_t previousCrc32 = 0) noexcept;
 
-	namespace detail {
+	namespace detail
+	{
 		// CRC32 Table (zlib polynomial)
 		static constexpr unsigned int crc_table[256] = {
 			0x00000000, 0x77073096, 0xee0e612c, 0x990951ba, 0x076dc419, 0x706af48f,
@@ -150,7 +154,7 @@ namespace CRC32 {
 			crc32_helper(&v[1], c - 1, crc32_char(v[0], crc));
 	}
 
-	constexpr unsigned int crc32_helper(const wchar_t * v, const unsigned int c, const unsigned int crc) noexcept
+	constexpr unsigned int crc32_helper(const wchar_t* v, const unsigned int c, const unsigned int crc) noexcept
 	{
 		return c == 0 ?
 			~crc :
@@ -169,7 +173,8 @@ constexpr size_t operator""_crc32(const wchar_t* p, size_t N)
 	return CRC32::crc32_helper(p, N, 0xFFFFFFFF);
 }
 
-namespace ZobHash {
+namespace ZobHash
+{
 	constexpr uint32_t RotateLeft(const uint32_t value, const int32_t count) noexcept
 	{
 		const int32_t r = count % 32;
@@ -442,7 +447,7 @@ namespace ZobHash {
 	static constexpr uint32_t RandomStart = 0x7ED5052A;
 	static constexpr uint64_t RandomLongStart = 0xFCDD00A8D5D2FC6E;
 
-	constexpr uint32_t ZobHash(const char *const data, const int32_t length) noexcept
+	constexpr uint32_t ZobHash(const char* const data, const int32_t length) noexcept
 	{
 		auto hash = RandomStart;
 		for (int32_t i = 0; i < length; ++i)
@@ -450,7 +455,7 @@ namespace ZobHash {
 		return hash;
 	}
 
-	constexpr uint64_t ZobHashLong(const char *const data, const int32_t length) noexcept
+	constexpr uint64_t ZobHashLong(const char* const data, const int32_t length) noexcept
 	{
 		auto hash = RandomLongStart;
 		for (int32_t i = 0; i < length; ++i)
@@ -465,7 +470,8 @@ constexpr unsigned int operator "" _zob(const char* v, size_t c)
 	return ZobHash::ZobHash(v, c);
 }
 
-namespace FNV1a {
+namespace FNV1a
+{
 	// From https://github.com/foonathan/string_id. As usually, thanks Jonathan.
 
 #if defined(_WIN64)
@@ -515,6 +521,263 @@ _CONSTEVAL FNV1a::hash_t operator""_fnv1a(const wchar_t* p, size_t N)
 	return FNV1a::cfnv1a_hash(p);
 }
 
+namespace XXH3
+{
+	// Taken from https://cyan4973.github.io/xxHash/
+
+	namespace detail
+	{
+		constexpr uint32_t rotl32(uint32_t v, int x)
+		{
+			return std::rotl(v, x);
+		}
+
+		constexpr uint64_t rotl64(uint64_t v, int x)
+		{
+			return std::rotl(v, x);
+		}
+
+		constexpr uint8_t read_u8(const char* input, int inputLen, int pos)
+		{
+			if (pos >= inputLen)
+				return 0;
+
+			return static_cast<uint8_t>(input[pos]);
+		}
+		constexpr uint32_t read_u32le(const char* input, int inputLen, int pos)
+		{
+			const uint32_t b0 = read_u8(input, inputLen, pos + 0);
+			const uint32_t b1 = read_u8(input, inputLen, pos + 1);
+			const uint32_t b2 = read_u8(input, inputLen, pos + 2);
+			const uint32_t b3 = read_u8(input, inputLen, pos + 3);
+			return b0 | (b1 << 8) | (b2 << 16) | (b3 << 24);
+		}
+
+		constexpr uint64_t read_u64le(const char* input, int inputLen, int pos)
+		{
+			const uint64_t l0 = read_u32le(input, inputLen, pos + 0);
+			const uint64_t l1 = read_u32le(input, inputLen, pos + 4);
+			return l0 | (l1 << 32);
+		}
+		namespace xxh32
+		{
+			constexpr uint32_t prime32_1 = 0x9E3779B1U;
+			constexpr uint32_t prime32_2 = 0x85EBCA77U;
+			constexpr uint32_t prime32_3 = 0xC2B2AE3DU;
+			constexpr uint32_t prime32_4 = 0x27D4EB2FU;
+			constexpr uint32_t prime32_5 = 0x165667B1U;
+			constexpr uint32_t default_seed = 0;
+
+			constexpr uint32_t xxh32_round(uint32_t acc, const uint32_t d32)
+			{
+				acc += d32 * prime32_2;
+				acc = rotl32(acc, 13) * prime32_1;
+				return acc;
+			}
+
+			constexpr uint32_t xxh32_avalanche(uint32_t h32)
+			{
+				h32 ^= h32 >> 15;
+				h32 *= prime32_2;
+				h32 ^= h32 >> 13;
+				h32 *= prime32_3;
+				h32 ^= h32 >> 16;
+				return h32;
+			}
+
+			constexpr uint32_t xxh32_finalize(const char* input, int inputLen, int pos, uint32_t h32)
+			{
+				// XXH_PROCESS4
+				while ((inputLen - pos) >= 4)
+				{
+					const uint32_t d32 = read_u32le(input, inputLen, pos);
+					pos += 4;
+					h32 += d32 * prime32_3;
+					h32 = rotl32(h32, 17) * prime32_4;
+				}
+				// XXH_PROCESS1
+				while ((inputLen - pos) > 0)
+				{
+					const uint32_t d8 = read_u8(input, inputLen, pos);
+					pos += 1;
+					h32 += d8 * prime32_5;
+					h32 = rotl32(h32, 11) * prime32_1;
+				}
+				return h32;
+			}
+
+			constexpr uint32_t xxh32_digest(
+				const char* input, int inputLen, int pos,
+				uint32_t v1, uint32_t v2, uint32_t v3, uint32_t v4
+			)
+			{
+				uint32_t h32 = 0;
+				if (inputLen >= 16)
+				{
+					h32 = rotl32(v1, 1) + rotl32(v2, 7) + rotl32(v3, 12) + rotl32(v4, 18);
+				}
+				else {
+					h32 = v3 + prime32_5;
+				}
+				h32 += inputLen;
+				h32 = xxh32_finalize(input, inputLen, pos, h32);
+				return xxh32_avalanche(h32);
+			}
+
+			constexpr uint32_t xxh32(const char* input, int inputLen, uint32_t seed)
+			{
+				uint32_t v1 = seed + prime32_1 + prime32_2;
+				uint32_t v2 = seed + prime32_2;
+				uint32_t v3 = seed;
+				uint32_t v4 = seed - prime32_1;
+				int pos = 0;
+				while (pos + 16 <= inputLen)
+				{
+					v1 = xxh32_round(v1, read_u32le(input, inputLen, pos + 0 * 4));
+					v2 = xxh32_round(v2, read_u32le(input, inputLen, pos + 1 * 4));
+					v3 = xxh32_round(v3, read_u32le(input, inputLen, pos + 2 * 4));
+					v4 = xxh32_round(v4, read_u32le(input, inputLen, pos + 3 * 4));
+					pos += 16;
+				}
+				return xxh32_digest(input, inputLen, pos, v1, v2, v3, v4);
+			}
+
+		}
+		namespace xxh64
+		{
+			constexpr uint64_t prime64_1 = 0x9E3779B185EBCA87ULL;
+			constexpr uint64_t prime64_2 = 0xC2B2AE3D27D4EB4FULL;
+			constexpr uint64_t prime64_3 = 0x165667B19E3779F9ULL;
+			constexpr uint64_t prime64_4 = 0x85EBCA77C2B2AE63ULL;
+			constexpr uint64_t prime64_5 = 0x27D4EB2F165667C5ULL;
+			constexpr uint64_t default_seed = 0;
+
+			constexpr uint64_t xxh64_round(uint64_t acc, uint64_t d64)
+			{
+				acc += d64 * prime64_2;
+				acc = rotl64(acc, 31);
+				acc *= prime64_1;
+				return acc;
+			}
+
+			constexpr uint64_t xxh64_mergeRound(uint64_t acc, uint64_t val)
+			{
+				val = xxh64_round(0, val);
+				acc ^= val;
+				acc = acc * prime64_1 + prime64_4;
+				return acc;
+			}
+
+			constexpr uint64_t xxh64_avalanche(uint64_t h64)
+			{
+				// XXH64_avalanche
+				h64 ^= h64 >> 33;
+				h64 *= prime64_2;
+				h64 ^= h64 >> 29;
+				h64 *= prime64_3;
+				h64 ^= h64 >> 32;
+				return h64;
+			}
+
+			constexpr uint64_t xxh64_finalize(const char* input, int inputLen, int pos, uint64_t h64)
+			{
+				// XXH_PROCESS8_64
+				while ((inputLen - pos) >= 8)
+				{
+					const uint64_t d64 = read_u64le(input, inputLen, pos);
+					pos += 8;
+					h64 ^= xxh64_round(0, d64);
+					h64 = rotl64(h64, 27) * prime64_1 + prime64_4;
+				}
+				// XXH_PROCESS4_64
+				while ((inputLen - pos) >= 4)
+				{
+					const uint64_t d32 = read_u32le(input, inputLen, pos);
+					pos += 4;
+					h64 ^= d32 * prime64_1;
+					h64 = rotl64(h64, 23) * prime64_2 + prime64_3;
+				}
+				// XXH_PROCESS1_64
+				while ((inputLen - pos) > 0)
+				{
+					const uint64_t d8 = read_u8(input, inputLen, pos);
+					pos += 1;
+					h64 ^= d8 * prime64_5;
+					h64 = rotl64(h64, 11) * prime64_1;
+				}
+				return xxh64_avalanche(h64);
+			}
+
+			constexpr uint64_t xxh64_digest(
+				const char* input, int inputLen, int pos,
+				uint64_t v1, uint64_t v2, uint64_t v3, uint64_t v4
+			)
+			{
+				uint64_t h64 = 0;
+				if (inputLen >= 32)
+				{
+					h64 = rotl64(v1, 1) + rotl64(v2, 7) + rotl64(v3, 12) + rotl64(v4, 18);
+					h64 = xxh64_mergeRound(h64, v1);
+					h64 = xxh64_mergeRound(h64, v2);
+					h64 = xxh64_mergeRound(h64, v3);
+					h64 = xxh64_mergeRound(h64, v4);
+				}
+				else {
+					h64 = v3 + prime64_5;
+				}
+				h64 += inputLen;
+				return xxh64_finalize(input, inputLen, pos, h64);
+			}
+
+			constexpr uint64_t xxh64(const char* input, int inputLen, uint64_t seed)
+			{
+				// XXH64_reset
+				uint64_t v1 = seed + prime64_1 + prime64_2;
+				uint64_t v2 = seed + prime64_2;
+				uint64_t v3 = seed;
+				uint64_t v4 = seed - prime64_1;
+
+				// XXH64_update
+				int pos = 0;
+				while (pos + 32 <= inputLen)
+				{
+					v1 = xxh64_round(v1, read_u64le(input, inputLen, pos + 0 * 8));
+					v2 = xxh64_round(v2, read_u64le(input, inputLen, pos + 1 * 8));
+					v3 = xxh64_round(v3, read_u64le(input, inputLen, pos + 2 * 8));
+					v4 = xxh64_round(v4, read_u64le(input, inputLen, pos + 3 * 8));
+					pos += 32;
+				}
+				return xxh64_digest(input, inputLen, pos, v1, v2, v3, v4);
+			}
+		}
+	}
+	constexpr uint32_t xxh32(const char* input, int inputLen, uint32_t seed)
+	{
+		return detail::xxh32::xxh32(input, inputLen, seed);
+	}
+
+	constexpr uint64_t xxh64(const char* input, int inputLen, uint64_t seed)
+	{
+		return detail::xxh64::xxh64(input, inputLen, seed);
+	}
+
+}
+
+// _xxh32 suffix for string which provides compile time string to XXH32 conversion
+_CONSTEVAL uint32_t operator "" _xxh32(const char* p, size_t N)
+{
+	const uint32_t seed = 0;
+	return XXH3::xxh32(p, N - 1, seed);
+}
+
+
+// _xxh64 suffix for string which provides compile time string to XXH64 conversion
+_CONSTEVAL uint64_t operator "" _xxh64(const char* p, size_t N)
+{
+	const uint64_t seed = 0;
+	return XXH3::xxh64(p, N - 1, seed);
+}
+
 /// <summary>
 /// Create a compile time hash of a const string. (no overflow bug, but causes dll size increase) 
 /// </summary>
@@ -525,7 +788,7 @@ template <HashConcepts::IsPODText T>
 #else
 template <class T>
 #endif
-_NODISCARD constexpr size_t const_hash(const T *const input) noexcept
+_NODISCARD constexpr size_t const_hash(const T* const input) noexcept
 {
 	return *input ?
 		(static_cast<size_t>(*input) + 33U) + CRC32::detail::crc_table[((const_hash(input + 1) ^ static_cast<size_t>(*input)) & 0xFF)] :
@@ -544,7 +807,7 @@ template <HashConcepts::IsPODText T>
 #else
 template <class T>
 #endif
-_NODISCARD size_t dcx_hash(const T *const input, const size_t &N) noexcept
+_NODISCARD size_t dcx_hash(const T* const input, const size_t& N) noexcept
 {
 	static_assert(std::is_same_v<char, std::remove_cv_t<T>> || std::is_same_v<wchar_t, std::remove_cv_t<T>>, "Type must be char or wchar_t");
 #if defined(HASH_USE_CRC32) && HASH_USE_CRC32
@@ -559,7 +822,13 @@ _NODISCARD size_t dcx_hash(const T *const input, const size_t &N) noexcept
 #if defined(HASH_USE_ZOB) && HASH_USE_ZOB
 	return ZobHash::ZobHash(input, N);
 #else
+#if defined(HASH_USE_XXH) && HASH_USE_XXH
+	constexpr uint32_t seed = 0;
+
+	return XXH3::xxh3(input, N, seed);
+#else
 #error "No Hash functions selected!"
+#endif
 #endif
 #endif
 #endif
@@ -576,7 +845,7 @@ template <HashConcepts::IsPODText T>
 #else
 template <class T>
 #endif
-_NODISCARD size_t dcx_hash(const T *const input) noexcept
+_NODISCARD size_t dcx_hash(const T* const input) noexcept
 {
 	static_assert(std::is_same_v<char, std::remove_cv_t<T>> || std::is_same_v<wchar_t, std::remove_cv_t<T>>, "Type must be char or wchar_t");
 #if defined(HASH_USE_CRC32) && HASH_USE_CRC32
@@ -590,14 +859,18 @@ _NODISCARD size_t dcx_hash(const T *const input) noexcept
 #if defined(HASH_USE_ZOB) && HASH_USE_ZOB
 	return dcx_hash(input, _ts_strlen(input));
 #else
+#if defined(HASH_USE_XXH) && HASH_USE_XXH
+	return dcx_hash(input, _ts_strlen(input));
+#else
 #error "No Hash functions selected!"
+#endif
 #endif
 #endif
 #endif
 }
 
 // turns a literal string into a hash number at compile time.
-_CONSTEVAL size_t operator""_hash(const char * p, size_t N)
+_CONSTEVAL size_t operator""_hash(const char* p, size_t N)
 {
 #if defined(HASH_USE_CRC32) && HASH_USE_CRC32
 	return CRC32::crc32_helper(p, N, 0xFFFFFFFF);
@@ -608,14 +881,20 @@ _CONSTEVAL size_t operator""_hash(const char * p, size_t N)
 #if defined(HASH_USE_ZOB) && HASH_USE_ZOB
 	return ZobHash::ZobHash(p, N);
 #else
+#if defined(HASH_USE_XXH) && HASH_USE_XXH
+	constexpr uint32_t seed = 0;
+
+	return XXH3::xxh3(input, N, seed);
+#else
 #error "No Hash functions selected!"
+#endif
 #endif
 #endif
 #endif
 }
 
 // turns a literal string into a hash number at compile time.
-_CONSTEVAL size_t operator""_hash(const wchar_t * p, size_t N)
+_CONSTEVAL size_t operator""_hash(const wchar_t* p, size_t N)
 {
 #if defined(HASH_USE_CRC32) && HASH_USE_CRC32
 	return CRC32::crc32_helper(p, N, 0xFFFFFFFF);
@@ -626,7 +905,13 @@ _CONSTEVAL size_t operator""_hash(const wchar_t * p, size_t N)
 #if defined(HASH_USE_ZOB) && HASH_USE_ZOB
 	return ZobHash::ZobHash(p, N);
 #else
+#if defined(HASH_USE_XXH) && HASH_USE_XXH
+	constexpr uint32_t seed = 0;
+
+	return XXH3::xxh3(input, N, seed);
+#else
 #error "No Hash functions selected!"
+#endif
 #endif
 #endif
 #endif
@@ -634,7 +919,8 @@ _CONSTEVAL size_t operator""_hash(const wchar_t * p, size_t N)
 
 // This gives us runtime hashing...
 
-namespace std {
+namespace std
+{
 #if defined(HASH_ENABLE_TSTRING) && HASH_ENABLE_TSTRING
 	// STRUCT TEMPLATE SPECIALIZATION hash for TString
 	template<> struct hash<TString>
@@ -643,8 +929,8 @@ namespace std {
 		typedef std::size_t result_type;
 
 		GSL_SUPPRESS(r.30)
-		GSL_SUPPRESS(r.36)
-		_NODISCARD result_type operator()(argument_type const& s) const noexcept
+			GSL_SUPPRESS(r.36)
+			_NODISCARD result_type operator()(argument_type const& s) const noexcept
 		{
 			return dcx_hash(s.to_chr(), s.len());
 			//return dcx_hash(s.to_chr().get(), s.len());
@@ -658,10 +944,10 @@ namespace std {
 	{
 		typedef CString argument_type;
 		typedef size_t result_type;
-	
+
 		GSL_SUPPRESS(r.30)
-		GSL_SUPPRESS(r.36)
-		_NODISCARD result_type operator()(argument_type const& s) const noexcept
+			GSL_SUPPRESS(r.36)
+			_NODISCARD result_type operator()(argument_type const& s) const noexcept
 		{
 			return dcx_hash(s.GetString(), s.GetLength());
 		}
