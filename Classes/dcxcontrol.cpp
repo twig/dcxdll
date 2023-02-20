@@ -475,7 +475,7 @@ void DcxControl::parseGlobalCommandRequest(const TString& input, const XSwitchFl
 		if (!xflags[TEXT('+')])
 			throw DcxExceptions::dcxInvalidFlag();
 
-		HRGN m_Region = nullptr;
+		HRGN hRegion = nullptr;
 		auto RegionMode = 0;
 		auto noRegion = false;
 
@@ -512,13 +512,13 @@ void DcxControl::parseGlobalCommandRequest(const TString& input, const XSwitchFl
 
 			if (xflags[TEXT('R')]) // now resize image to match control.
 				bitmapRgn = resizeBitmap(bitmapRgn, &rc);
-			m_Region = BitmapRegion(bitmapRgn, tCol, (tCol != CLR_INVALID));
+			hRegion = BitmapRegion(bitmapRgn, tCol, (tCol != CLR_INVALID));
 		}
 		else if (xflags[TEXT('r')]) // rounded rect - radius args (optional)
 		{
 			const auto radius = (numtok > 4) ? input.getnexttok().to_int() : 20;	// tok 5
 
-			m_Region = CreateRoundRectRgn(0, 0, rc.right - rc.left, rc.bottom - rc.top, radius, radius);
+			hRegion = CreateRoundRectRgn(0, 0, rc.right - rc.left, rc.bottom - rc.top, radius, radius);
 		}
 		else if (xflags[TEXT('c')]) // circle - radius arg (optional)
 		{
@@ -529,10 +529,10 @@ void DcxControl::parseGlobalCommandRequest(const TString& input, const XSwitchFl
 					radius = 100; // handle cases where arg isnt a number or is a negative.
 				const auto cx = ((rc.right - rc.left) / 2);
 				const auto cy = ((rc.bottom - rc.top) / 2);
-				m_Region = CreateEllipticRgn(cx - radius, cy - radius, cx + radius, cy + radius);
+				hRegion = CreateEllipticRgn(cx - radius, cy - radius, cx + radius, cy + radius);
 			}
 			else
-				m_Region = CreateEllipticRgn(0, 0, rc.right - rc.left, rc.bottom - rc.top);
+				hRegion = CreateEllipticRgn(0, 0, rc.right - rc.left, rc.bottom - rc.top);
 		}
 		else if (xflags[TEXT('p')]) // polygon
 		{
@@ -556,7 +556,7 @@ void DcxControl::parseGlobalCommandRequest(const TString& input, const XSwitchFl
 				++cnt;
 			}
 
-			m_Region = CreatePolygonRgn(pnts.get(), gsl::narrow_cast<int>(tPoints), WINDING);
+			hRegion = CreatePolygonRgn(pnts.get(), gsl::narrow_cast<int>(tPoints), WINDING);
 		}
 		else if (xflags[TEXT('b')])
 		{ // alpha [1|0] [level]
@@ -582,19 +582,19 @@ void DcxControl::parseGlobalCommandRequest(const TString& input, const XSwitchFl
 
 		if (!noRegion)
 		{
-			if (!m_Region)
+			if (!hRegion)
 				throw Dcx::dcxException("Unable to create region.");
 
 			if (RegionMode != 0)
 			{
 				if (auto wrgn = CreateRectRgn(0, 0, 0, 0); wrgn)
 				{
-					Auto(DeleteObject(wrgn));
+					Auto(DeleteRgn(wrgn));
 					if (GetWindowRgn(m_Hwnd, wrgn) != ERROR)
-						CombineRgn(m_Region, m_Region, wrgn, RegionMode);
+						CombineRgn(hRegion, hRegion, wrgn, RegionMode);
 				}
 			}
-			SetWindowRgn(m_Hwnd, m_Region, FALSE);	// redraw at end
+			SetWindowRgn(m_Hwnd, hRegion, FALSE);	// redraw at end
 		}
 		redrawWindow();
 	}

@@ -432,12 +432,12 @@ protected:
 	HBRUSH m_hBackBrush{ nullptr };			//!< Background control color
 	HBRUSH m_hBorderBrush{ nullptr };		//!< Controls Border Colour.
 
-	HBITMAP m_bitmapBg{ nullptr };			//!< Background bitmap
+	//HBITMAP m_bitmapBg{ nullptr };			//!< Background bitmap
 
 	CursorPair m_hCursor;
 
-	HWND m_ToolTipHWND{ nullptr };			//!< Tooltip window (if any)
-	HWND m_pParentHWND{ nullptr };
+	HWND m_ToolTipHWND{ nullptr };			//!< Tooltip window (if any) (this is a copy of the dialogs tooltip window, dont free)
+	HWND m_pParentHWND{ nullptr };			// temp storage, dont free
 
 	UINT m_iRefCount{};						//!< Controls reference counter
 	UINT m_UserID{};						//!< controls User ID (ID - mIRC_ID_OFFSET)
