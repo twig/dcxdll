@@ -116,7 +116,7 @@ public:
 			_ts_sprintf(tsArgs, TEXT("$%(%,%)"), getAliasName(), getName(), MakeTextmIRCSafe(val));
 
 		incRef();
-		Auto(decRef());
+		GSL_SUPPRESS(lifetime.1) Auto(decRef());
 
 		const auto bRes = mIRCLinker::eval(tsRes, tsArgs);
 
@@ -419,7 +419,6 @@ private:
 	UINT m_uStyleBg{ DBS_BKGNORMAL };
 	mutable UINT m_iRefCount{};
 
-	//XPopupMenu* m_popup{ nullptr };
 	std::unique_ptr<XPopupMenu> m_popup;
 
 	std::unique_ptr<LayoutManager> m_pLayoutManager; //!< Layout Manager Object
@@ -456,9 +455,9 @@ private:
 	static inline bool m_bIsSysMenu{ false };
 	bool m_bReserved{ false };				//!< Reserved for future use.
 
-	PVOID m_pVistaBits{ nullptr };
+	PVOID m_pVistaBits{ nullptr };	// gfx buffer, doesnt need freed.
 
-	HDC m_hVistaHDC{ nullptr };
+	HDC m_hVistaHDC{ nullptr };	// temp hdc storage, doesnt need freed.
 
 	SIZE m_sVistaOffsets{};
 

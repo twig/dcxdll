@@ -29,7 +29,6 @@
 #include "Classes/layout/layoutcellfill.h"
 #include "Classes/layout/layoutcellpane.h"
 
- //#include <math.h>
 #include <cmath>
 
 #include "Classes/xpopup\xpopupmenumanager.h"
@@ -49,11 +48,13 @@ DcxDialog::DcxDialog(const HWND mHwnd, const TString& tsName, const TString& tsA
 	, m_tsAliasName(tsAliasName)
 	, m_pLayoutManager(std::make_unique<LayoutManager>(m_Hwnd))
 {
+	if (!m_Hwnd)
+		return;
+
 	addStyle(WindowStyle::ClipChildren);
 
 	//addExStyle(WS_EX_TRANSPARENT); // WS_EX_TRANSPARENT|WS_EX_LAYERED gives a window u can click through to the win behind.
 
-	//m_hDefaultWindowProc = SubclassWindow(m_Hwnd, DcxDialog::WindowProc);
 	m_hDefaultDialogProc = SubclassWindow(m_Hwnd, DcxDialog::WindowProc);
 
 	SetProp(m_Hwnd, TEXT("dcx_this"), this);
@@ -67,7 +68,6 @@ DcxDialog::DcxDialog(const HWND mHwnd, const TString& tsName, const TString& tsA
 /// <returns></returns>
 DcxDialog::~DcxDialog() noexcept
 {
-	//delete m_popup;
 	m_popup.reset();
 
 	PreloadData();
@@ -75,7 +75,7 @@ DcxDialog::~DcxDialog() noexcept
 	RemoveVistaStyle();
 
 	if (m_hCursor)
-		DestroyCursor(m_hCursor.cursor);
+		GSL_SUPPRESS(lifetime.1) DestroyCursor(m_hCursor.cursor);
 
 	for (const auto& [hCursor, bLoaded] : m_hCursorList)
 	{
@@ -83,7 +83,14 @@ DcxDialog::~DcxDialog() noexcept
 			DestroyCursor(hCursor);
 	}
 
-	RemoveProp(m_Hwnd, TEXT("dcx_this"));
+	if (m_hBackBrush)
+		DeleteObject(m_hBackBrush);
+
+	if (m_ToolTipHWND)
+		DestroyWindow(m_ToolTipHWND);
+
+	if (m_Hwnd)
+		GSL_SUPPRESS(lifetime.1) RemoveProp(m_Hwnd, TEXT("dcx_this"));
 }
 
 /// <summary>
@@ -117,7 +124,6 @@ DcxControl* DcxDialog::addControl(const TString& input, const UINT offset, const
 
 	auto p_ctrl = DcxControl::controlFactory(gsl::make_strict_not_null(this), ID, input, offset + 1, mask, hParent);
 
-	//addControl(p_ctrl);
 	m_vpControls.push_back(p_ctrl);
 
 	AddNamedId(tsID, ID);	// NB: adds numbers as names too: "200" == 6200 allowing it to track all used id's
@@ -175,15 +181,18 @@ DcxControl* DcxDialog::getControlByID(const UINT ID) const noexcept
 //
 DcxControl* DcxDialog::getControlByHWND(const HWND mHwnd) const noexcept
 {
-	for (const auto& x : m_vpControls)
-	{
-		if (x->getHwnd() == mHwnd)
-			return x;
-	}
-	return nullptr;
+	if (!mHwnd)
+		return nullptr;
+
+	//for (const auto& x : m_vpControls)
+	//{
+	//	if (x->getHwnd() == mHwnd)
+	//		return x;
+	//}
+	//return nullptr;
 
 	// Ook: this instead?
-	//return Dcx::dcxGetProp<DcxControl*>(mHwnd, TEXT("dcx_cthis"));
+	return Dcx::dcxGetProp<DcxControl*>(mHwnd, TEXT("dcx_cthis"));
 }
 
 /// <summary>
@@ -206,11 +215,12 @@ void DcxDialog::PreloadData() noexcept
 /// <param name=""></param>
 GSL_SUPPRESS(es.47)
 GSL_SUPPRESS(type.3)
+GSL_SUPPRESS(f.55)
 void DcxDialog::parseCommandRequestEX(_In_z_ _Printf_format_string_ const TCHAR* const szFormat, ...)
 {
 	TString msg;
 
-	va_list args;
+	va_list args{};
 	va_start(args, szFormat);
 	msg.tvprintf(szFormat, args);
 	va_end(args);
@@ -226,6 +236,7 @@ void DcxDialog::parseCommandRequestEX(_In_z_ _Printf_format_string_ const TCHAR*
 /// <param name=""></param>
 GSL_SUPPRESS(es.47)
 GSL_SUPPRESS(type.3)
+GSL_SUPPRESS(f.55)
 void DcxDialog::parseComControlRequestEX(_In_ const UINT id, _In_z_ _Printf_format_string_ const TCHAR* const szFormat, ...)
 {
 	auto p_Control = getControlByID(id + mIRC_ID_OFFSET);
@@ -234,7 +245,7 @@ void DcxDialog::parseComControlRequestEX(_In_ const UINT id, _In_z_ _Printf_form
 
 	TString msg;
 
-	va_list args;
+	va_list args{};
 	va_start(args, szFormat);
 	msg.tvprintf(szFormat, args);
 	va_end(args);
@@ -416,8 +427,6 @@ void DcxDialog::parseCommandRequest(_In_ const TString& input)
 		break;
 		case TEXT("clear"_hash):
 		{
-			//delete m_pLayoutManager;
-			//m_pLayoutManager = new LayoutManager(m_Hwnd);
 			m_pLayoutManager = std::make_unique<LayoutManager>(m_Hwnd);
 
 			//this->redrawWindow(); // dont redraw here, leave that for an `update` cmd
@@ -457,7 +466,7 @@ void DcxDialog::parseCommandRequest(_In_ const TString& input)
 		if (getRefCount() == 0)
 		{
 			//DestroyWindow(m_Hwnd);
-			//SendMessage(m_Hwnd,WM_CLOSE,nullptr,nullptr); // this allows the dialogs WndProc to EndDialog() if needed.
+			//SendMessage(m_Hwnd,WM_CLOSE,0,0); // this allows the dialogs WndProc to EndDialog() if needed.
 
 			//TCHAR sRet[32];
 			//mIRCLinker::evalex(sRet, Dcx::countof(sRet), TEXT("$dialog(%s).modal"), this->m_tsName.to_chr());
@@ -646,7 +655,7 @@ void DcxDialog::parseCommandRequest(_In_ const TString& input)
 			m_Hwnd,
 			nullptr, GetModuleHandle(nullptr), nullptr);
 
-		if (IsWindow(this->m_ToolTipHWND))
+		if (this->m_ToolTipHWND && IsWindow(this->m_ToolTipHWND))
 		{ // MUST set a limit before $crlf will give multiline tips.
 			SendMessage(this->m_ToolTipHWND, TTM_SETMAXTIPWIDTH, 0, 400); // 400 seems a good limit for now, we could also add an option to set this.
 			//if (input.gettok( 3 ).find(TEXT('T'),0)) {
@@ -955,7 +964,7 @@ void DcxDialog::parseCommandRequest(_In_ const TString& input)
 		if (!dcxGetWindowRect(m_Hwnd, &rc))
 			throw Dcx::dcxException("Unable to get window rect!");
 
-		HRGN m_Region = nullptr;
+		HRGN hRegion = nullptr;
 		auto RegionMode = 0;
 		auto noRegion = false;
 
@@ -982,16 +991,16 @@ void DcxDialog::parseCommandRequest(_In_ const TString& input)
 			auto filename(input.getlasttoks());								// tok 5, -1
 			m_bitmapBg = dcxLoadBitmap(m_bitmapBg, filename);
 
-			if (m_bitmapBg == nullptr)
+			if (!m_bitmapBg)
 				throw Dcx::dcxException("Unable To Load Image file.");
 
-			m_Region = BitmapRegion(m_bitmapBg, m_colTransparentBg, true);
+			hRegion = BitmapRegion(m_bitmapBg, m_colTransparentBg, true);
 		}
 		else if (xflags[TEXT('r')]) // rounded rect - radius args (optional)
 		{
 			const auto radius = (numtok > 3) ? input.getnexttok().to_int() : 20;	// tok 4
 
-			m_Region = CreateRoundRectRgn(0, 0, rc.right - rc.left, rc.bottom - rc.top, radius, radius);
+			hRegion = CreateRoundRectRgn(0, 0, rc.right - rc.left, rc.bottom - rc.top, radius, radius);
 		}
 		else if (xflags[TEXT('c')]) // circle - radius arg (optional)
 		{
@@ -1003,10 +1012,10 @@ void DcxDialog::parseCommandRequest(_In_ const TString& input)
 				const auto cx = ((rc.right - rc.left) / 2);
 				const auto cy = ((rc.bottom - rc.top) / 2);
 
-				m_Region = CreateEllipticRgn(cx - radius, cy - radius, cx + radius, cy + radius);
+				hRegion = CreateEllipticRgn(cx - radius, cy - radius, cx + radius, cy + radius);
 			}
 			else
-				m_Region = CreateEllipticRgn(0, 0, rc.right - rc.left, rc.bottom - rc.top);
+				hRegion = CreateEllipticRgn(0, 0, rc.right - rc.left, rc.bottom - rc.top);
 		}
 		else if (xflags[TEXT('p')]) // polygon
 		{
@@ -1029,7 +1038,7 @@ void DcxDialog::parseCommandRequest(_In_ const TString& input)
 				gsl::at(pnts, cnt).y = strPoint.getnexttok(TSCOMMACHAR).to_<LONG>();	// tok 2
 				++cnt;
 			}
-			m_Region = CreatePolygonRgn(pnts.get(), gsl::narrow_cast<int>(tPoints), WINDING);
+			hRegion = CreatePolygonRgn(pnts.get(), gsl::narrow_cast<int>(tPoints), WINDING);
 		}
 		else if (xflags[TEXT('d')]) // drag - <1|0>
 		{
@@ -1057,7 +1066,7 @@ void DcxDialog::parseCommandRequest(_In_ const TString& input)
 
 		if (!noRegion)
 		{
-			if (!m_Region)
+			if (!hRegion)
 				throw Dcx::dcxException("Unable to create region.");
 
 			if (RegionMode != 0)
@@ -1065,11 +1074,11 @@ void DcxDialog::parseCommandRequest(_In_ const TString& input)
 				if (auto wrgn = CreateRectRgn(0, 0, 0, 0); wrgn)
 				{
 					if (GetWindowRgn(m_Hwnd, wrgn) != ERROR)
-						CombineRgn(m_Region, m_Region, wrgn, RegionMode);
+						CombineRgn(hRegion, hRegion, wrgn, RegionMode);
 					DeleteRgn(wrgn);
 				}
 			}
-			SetWindowRgn(m_Hwnd, m_Region, TRUE);
+			SetWindowRgn(m_Hwnd, hRegion, TRUE);
 		}
 		redrawWindow();
 	}
@@ -3042,9 +3051,9 @@ const bool DcxDialog::CreateVistaStyleBitmap(const SIZE& szWin) noexcept
 void DcxDialog::RemoveVistaStyle(void) noexcept
 {
 	m_bVistaStyle = false;
-	if (IsWindow(m_hFakeHwnd))
+	if (m_hFakeHwnd && IsWindow(m_hFakeHwnd))
 	{
-		if (isExStyle(WindowExStyle::Layered))
+		if (m_Hwnd && isExStyle(WindowExStyle::Layered))
 			SetLayeredWindowAttributes(m_Hwnd, 0, std::to_integer<BYTE>(m_iAlphaLevel), LWA_ALPHA);
 		DestroyWindow(m_hFakeHwnd);
 	}
@@ -3061,10 +3070,12 @@ void DcxDialog::DrawCaret(Gdiplus::Graphics& graph)
 	if (!pWnd || !IsWindow(pWnd))
 		return;
 
-	const stString<MAX_PATH> strClassName;
-	::GetClassName(pWnd, strClassName, gsl::narrow_cast<int>(strClassName.size()));
+	//const stString<MAX_PATH> strClassName;
+	//::GetClassName(pWnd, strClassName.data(), gsl::narrow_cast<int>(strClassName.size()));
+	//if (strClassName != WC_EDIT)
+	//	return;
 
-	if (strClassName != WC_EDIT)
+	if (Dcx::dcxClassName strClassName(pWnd); strClassName != WC_EDIT)
 		return;
 
 	POINT pt{};
@@ -3078,6 +3089,9 @@ void DcxDialog::DrawCaret(Gdiplus::Graphics& graph)
 
 void DcxDialog::DrawDialog(Gdiplus::Graphics& graphics, HDC hDC)
 {
+	if (!m_Hwnd)
+		return;
+
 #if DCX_USE_WRAPPERS
 	const Dcx::dcxWindowRect rc(m_Hwnd);
 
