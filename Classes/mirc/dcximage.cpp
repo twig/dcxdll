@@ -50,7 +50,7 @@ DcxImage::DcxImage(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialo
 
 	setNoThemed(ws.m_NoTheme);
 
-	if (p_Dialog->getToolTip())
+	//if (p_Dialog->getToolTip())
 	{
 		if (styles.istok(TEXT("tooltips")))
 		{
