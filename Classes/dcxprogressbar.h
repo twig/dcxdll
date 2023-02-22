@@ -69,9 +69,12 @@ public:
 
 	auto getPredictedPos(LPARAM lParam, const int iLower, const int iHigher) const noexcept
 	{
-		const auto nXPos = LOWORD(lParam);
-		const auto nYPos = HIWORD(lParam);
+		const auto nXPos = Dcx::dcxLOWORD(lParam);
+		const auto nYPos = Dcx::dcxHIWORD(lParam);
 		auto nPos = 0;
+
+		if (!m_Hwnd)
+			return nPos;
 
 		if (RECT rc{}; GetClientRect(m_Hwnd, &rc))
 		{

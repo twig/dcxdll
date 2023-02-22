@@ -67,6 +67,8 @@ DcxProgressBar::DcxProgressBar(_In_ const UINT ID, _In_ gsl::strict_not_null<Dcx
 
 DcxProgressBar::~DcxProgressBar() noexcept
 {
+	if (m_hfontVertical)
+		DeleteObject(m_hfontVertical);
 }
 
 const TString DcxProgressBar::getStyles(void) const
@@ -273,7 +275,6 @@ void DcxProgressBar::parseCommandRequest(const TString& input)
 	else if (flags[TEXT('o')])
 	{
 		if (numtok < 4)
-			//throw Dcx::dcxException("Insufficient parameters");
 			throw DcxExceptions::dcxInvalidArguments();
 
 		const auto angle = input.getnexttok().to_int();	// tok 4
@@ -634,7 +635,9 @@ void DcxProgressBar::DrawClientArea(HDC hdc, const UINT uMsg, LPARAM lParam)
 			rc.top = ((rc.bottom - rc.top) + w + h) / 2;
 			rc.right = rc.left + h;
 			rc.bottom = rc.top + w;
-			Dcx::dcxSelectObject(hdc, m_hfontVertical);
+			
+			if (auto hTmp = Dcx::dcxSelectObject(hdc, m_hfontVertical); !oldfont)
+				oldfont = hTmp;
 		}
 		else {
 			rc.left = ((rc.right - rc.left) - w) / 2;
