@@ -532,7 +532,10 @@ UINT DcxStatusBar::parseItemFlags(const TString& flags) noexcept
 void DcxStatusBar::cleanPartIcons() noexcept
 {
 	for (auto n = 0; n < DCX_STATUSBAR_MAX_PARTS; ++n)
-		DestroyIcon(getIcon(n));
+	{
+		if (auto hIcon = getIcon(n); hIcon)
+			DestroyIcon(hIcon);
+	}
 }
 
 void DcxStatusBar::toXml(TiXmlElement* const xml) const
