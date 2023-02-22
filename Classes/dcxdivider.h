@@ -63,9 +63,9 @@ public:
 	static inline WNDPROC m_hDefaultClassProc{ nullptr };	//!< Default window procedure
 	LRESULT CallDefaultClassProc(const UINT uMsg, WPARAM wParam, LPARAM lParam) noexcept final;
 
-protected:
-	HWND m_leftPane{ nullptr };
-	HWND m_rightPane{ nullptr };
+//protected:
+//	HWND m_leftPane{ nullptr };
+//	HWND m_rightPane{ nullptr };
 };
 
 #endif // _DCXDIVIDER_H_
