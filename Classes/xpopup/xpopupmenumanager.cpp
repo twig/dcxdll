@@ -189,8 +189,7 @@ void XPopupMenuManager::unload(void) noexcept
 
 	if (XPopupMenuManager::g_OldmIRCMenusWindowProc != nullptr)
 	{
-		HWND tmp_hwnd = CreateWindowEx(0, TEXT("#32768"), nullptr, WS_POPUP, 0, 0, 1, 1, nullptr, nullptr, GetModuleHandle(nullptr), nullptr);
-		if (tmp_hwnd != nullptr)
+		if (HWND tmp_hwnd = CreateWindowEx(0, TEXT("#32768"), nullptr, WS_POPUP, 0, 0, 1, 1, nullptr, nullptr, GetModuleHandle(nullptr), nullptr); tmp_hwnd)
 		{
 			SetClassLongPtr(tmp_hwnd, GCLP_WNDPROC, (LONG_PTR)XPopupMenuManager::g_OldmIRCMenusWindowProc);
 			DestroyWindow(tmp_hwnd);

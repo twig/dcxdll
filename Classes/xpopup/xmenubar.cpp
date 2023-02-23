@@ -166,6 +166,35 @@ void XMenuBar::parseXMenuBarCommand(const TString& input)
 
 void XMenuBar::parseXMenuBarInfo(const TString& input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>& szReturnValue) const
 {
+	//const auto prop(input.getfirsttok(1));
+	//
+	//// Iterate through the names of menus added to XMenuBar.
+	//// N = 0 returns total number of menus
+	//// $xmenubar() [menu] [N]
+	//if (prop == TEXT("menu"))
+	//{
+	//	const auto iSize = m_vpXMenuBar.size();
+	//	const auto i = input.getnexttok().to_<VectorOfXPopupMenu::size_type>();	// tok 2
+	//
+	//	if (i > iSize)
+	//		throw Dcx::dcxException(TEXT("Invalid index: %"), i);
+	//
+	//	// Return number of menus in menubar.
+	//	if (i == 0)
+	//		_ts_snprintf(szReturnValue, TEXT("%u"), iSize);
+	//	// Return name of specified menu.
+	//	else
+	//		szReturnValue = gsl::at(m_vpXMenuBar, i - 1)->getName().to_chr();
+	//}
+	//else
+	//	throw Dcx::dcxException(TEXT("Unknown prop \"%\""), prop);
+
+	szReturnValue = parseXMenuBarInfo(input).to_chr();
+}
+
+TString XMenuBar::parseXMenuBarInfo(const TString& input) const
+{
+	TString tsRes;
 	const auto prop(input.getfirsttok(1));
 
 	// Iterate through the names of menus added to XMenuBar.
@@ -181,13 +210,15 @@ void XMenuBar::parseXMenuBarInfo(const TString& input, const refString<TCHAR, MI
 
 		// Return number of menus in menubar.
 		if (i == 0)
-			_ts_snprintf(szReturnValue, TEXT("%u"), iSize);
+			tsRes += iSize;
 		// Return name of specified menu.
 		else
-			szReturnValue = gsl::at(m_vpXMenuBar, i - 1)->getName().to_chr();
+			tsRes = gsl::at(m_vpXMenuBar, i - 1)->getName();
 	}
 	else
 		throw Dcx::dcxException(TEXT("Unknown prop \"%\""), prop);
+
+	return tsRes;
 }
 
 /*
@@ -351,10 +382,7 @@ const bool XMenuBar::parseCallback(const UINT menuID)
 {
 	TString result;
 
-	//mIRCLinker::tsEvalex(result, TEXT("$%s(%d)"), this->m_callback.to_chr(), menuID);
 	mIRCLinker::eval(result, TEXT("$%(%)"), m_callback, menuID);
 
 	return (result == TEXT("$true"));
-
-	//return mIRCLinker::evalex(nullptr, 0, TEXT("$%s(%d)"), m_callback.to_chr(), menuID);
 }

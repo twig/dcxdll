@@ -124,10 +124,7 @@ public:
 	const int& getItemIcon() const noexcept;
 	const TString& getItemTooltipText() const noexcept { return m_tsTooltipText; }
 	const XPopupMenu* getParentMenu() const noexcept { return m_pXParentMenu; }
-	const ULONG_PTR& getItemDataBackup() const noexcept
-	{
-		return m_dwItemDataBackup;
-	}
+	const ULONG_PTR& getItemDataBackup() const noexcept	{ return m_dwItemDataBackup; }
 
 	bool IsTooltipsEnabled() const noexcept;
 

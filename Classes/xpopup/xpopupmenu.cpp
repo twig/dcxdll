@@ -53,12 +53,14 @@ XPopupMenu::~XPopupMenu()
 		this->detachFromMenuBar(nullptr);
 
 	this->clearAllMenuItems();
-
+	
 	if (this->m_hBitmap)
 		DeleteBitmap(this->m_hBitmap);
 
 	if (m_hMenu && m_menuNameHash != TEXT("mircbar"_hash) && m_menuNameHash != TEXT("dialog"_hash))
 		DestroyMenu(this->m_hMenu);
+
+	destroyImageList();
 }
 
 /*!
