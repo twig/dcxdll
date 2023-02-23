@@ -281,9 +281,11 @@ void DcxTab::parseCommandRequest(const TString& input)
 
 			if (getTab(n, &tci))
 			{
-				if (auto lpdtci = reinterpret_cast<LPDCXTCITEM>(tci.lParam); lpdtci != nullptr && lpdtci->mChildHwnd != nullptr && IsWindow(lpdtci->mChildHwnd))
+				if (auto lpdtci = reinterpret_cast<LPDCXTCITEM>(tci.lParam); lpdtci)
 				{
-					DestroyWindow(lpdtci->mChildHwnd);
+					if (lpdtci->mChildHwnd && IsWindow(lpdtci->mChildHwnd))
+						DestroyWindow(lpdtci->mChildHwnd);
+
 					delete lpdtci;
 				}
 			}
@@ -400,9 +402,11 @@ void DcxTab::parseCommandRequest(const TString& input)
 
 		if (getTab(nItem, &tci))
 		{
-			if (auto lpdtci = reinterpret_cast<LPDCXTCITEM>(tci.lParam); lpdtci && lpdtci->mChildHwnd && IsWindow(lpdtci->mChildHwnd))
+			if (auto lpdtci = reinterpret_cast<LPDCXTCITEM>(tci.lParam); lpdtci)
 			{
-				DestroyWindow(lpdtci->mChildHwnd);
+				if (lpdtci->mChildHwnd && IsWindow(lpdtci->mChildHwnd))
+					DestroyWindow(lpdtci->mChildHwnd);
+			
 				delete lpdtci;
 			}
 		}

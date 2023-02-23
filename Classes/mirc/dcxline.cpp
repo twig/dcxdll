@@ -40,7 +40,6 @@ DcxLine::DcxLine(const UINT ID, gsl::strict_not_null<DcxDialog* const> p_Dialog,
 		this);
 
 	if (!IsWindow(m_Hwnd))
-		//throw Dcx::dcxException("Unable To Create Window");
 		throw DcxExceptions::dcxUnableToCreateWindow();
 
 	if (ws.m_NoTheme)
