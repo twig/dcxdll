@@ -1073,9 +1073,9 @@ void DcxDialog::parseCommandRequest(_In_ const TString& input)
 			{
 				if (auto wrgn = CreateRectRgn(0, 0, 0, 0); wrgn)
 				{
+					Auto(DeleteRgn(wrgn));
 					if (GetWindowRgn(m_Hwnd, wrgn) != ERROR)
 						CombineRgn(hRegion, hRegion, wrgn, RegionMode);
-					DeleteRgn(wrgn);
 				}
 			}
 			SetWindowRgn(m_Hwnd, hRegion, TRUE);
