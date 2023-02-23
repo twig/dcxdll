@@ -805,184 +805,184 @@ const DcxColourFlags DcxControl::parseColorFlags(const TString& flags) noexcept
  */
 bool DcxControl::parseGlobalInfoRequest(const TString& input, const refString<TCHAR, MIRC_BUFFER_SIZE_CCH>& szReturnValue) const
 {
-//	switch (std::hash<TString>{}(input.getfirsttok(3)))
-//	{
-//	case L"hwnd"_hash:
-//	{
-//		_ts_snprintf(szReturnValue, TEXT("%lu"), (DWORD)m_Hwnd);	// can't use %p as this gives a hex result.
-//		return true;
-//	}
-//	break;
-//	case L"visible"_hash:
-//	{
-//		szReturnValue = dcx_truefalse((IsWindowVisible(m_Hwnd) != FALSE));
-//		return true;
-//	}
-//	break;
-//	case L"enabled"_hash:
-//	{
-//		szReturnValue = dcx_truefalse((IsWindowEnabled(m_Hwnd) != FALSE));
-//		return true;
-//	}
-//	break;
-//	case L"pos"_hash:
-//	{
-//		const auto rc = getWindowPosition();
-//		_ts_snprintf(szReturnValue, TEXT("%d %d %d %d"), rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top);
-//		return true;
-//	}
-//	break;
-//	case L"dpos"_hash:
-//	{
-//#if DCX_USE_WRAPPERS
-//		const Dcx::dcxWindowRect rc(m_Hwnd, getParentDialog()->getHwnd());
-//
-//		_ts_snprintf(szReturnValue, TEXT("%d %d %d %d"), rc.left, rc.top, rc.Width(), rc.Height());
-//#else
-//		if (RECT rc{}; GetWindowRect(m_Hwnd, &rc))
-//		{
-//			MapWindowRect(nullptr, getParentDialog()->getHwnd(), &rc);
-//
-//			_ts_snprintf(szReturnValue, TEXT("%d %d %d %d"), rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top);
-//		}
-//#endif
-//		return true;
-//	}
-//	break;
-//	case L"mark"_hash:
-//	{
-//		szReturnValue = m_tsMark.to_chr();
-//		return true;
-//	}
-//	break;
-//	case L"mouse"_hash:
-//	{
-//#if DCX_USE_WRAPPERS
-//		if (const Dcx::dcxCursorPos pt(m_Hwnd); pt)
-//		{
-//			_ts_snprintf(szReturnValue, TEXT("%d %d"), pt.x, pt.y);
-//			return true;
-//		}
-//#else
-//		if (POINT pt{}; GetCursorPos(&pt))
-//		{
-//			MapWindowPoints(nullptr, m_Hwnd, &pt, 1);
-//			_ts_snprintf(szReturnValue, TEXT("%d %d"), pt.x, pt.y);
-//			return true;
-//		}
-//#endif
-//	}
-//	break;
-//	case L"pid"_hash:
-//	{
-//#if DCX_USE_WRAPPERS
-//		auto hParent = GetParent(m_Hwnd);
-//
-//		if (const Dcx::dcxClassName sClassname(hParent); sClassname == TEXT("#32770"))
-//			szReturnValue = TEXT('0');
-//		else
-//			_ts_snprintf(szReturnValue, TEXT("%u"), getParentDialog()->getControlByHWND(hParent)->getUserID());
-//
-//		return true;
-//#else
-//		stString<257> sClassname;
-//
-//		auto hParent = GetParent(m_Hwnd);
-//		GetClassName(hParent, sClassname, gsl::narrow_cast<int>(sClassname.size()));
-//
-//		if (sClassname == TEXT("#32770"))
-//			szReturnValue = TEXT('0');
-//		else
-//			_ts_snprintf(szReturnValue, TEXT("%u"), getParentDialog()->getControlByHWND(hParent)->getUserID());
-//
-//		return true;
-//#endif
-//	}
-//	break;
-//	case L"type"_hash:
-//	{
-//		szReturnValue = getType().to_chr();
-//		return true;
-//	}
-//	break;
-//	case L"styles"_hash:
-//	{
-//		szReturnValue = getStyles().to_chr();
-//		return true;
-//	}
-//	break;
-//	case L"font"_hash:
-//	{
-//		auto hFontControl = getControlFont();
-//
-//		if (!hFontControl)
-//			hFontControl = Dcx::dcxGetStockObject<HFONT>(DEFAULT_GUI_FONT);
-//
-//		if (hFontControl)
-//		{
-//			if (auto [code, lfCurrent] = Dcx::dcxGetObject<LOGFONT>(hFontControl); code != 0)
-//			{
-//				szReturnValue = ParseLogfontToCommand(&lfCurrent).to_chr();
-//				return true;
-//			}
-//		}
-//	}
-//	break;
-//	// [NAME] [ID] [PROP]
-//	case L"tooltipbgcolor"_hash:
-//	{
-//		COLORREF cref = CLR_INVALID;
-//
-//		if (m_ToolTipHWND)
-//			cref = gsl::narrow_cast<COLORREF>(SendMessage(m_ToolTipHWND, TTM_GETTIPBKCOLOR, 0, 0));
-//
-//		_ts_snprintf(szReturnValue, TEXT("%lu"), cref);
-//		return true;
-//	}
-//	break;
-//	// [NAME] [ID] [PROP]
-//	case L"tooltiptextcolor"_hash:
-//	{
-//		COLORREF cref = CLR_INVALID;
-//
-//		if (m_ToolTipHWND)
-//			cref = gsl::narrow_cast<COLORREF>(SendMessage(m_ToolTipHWND, TTM_GETTIPTEXTCOLOR, 0, 0));
-//
-//		_ts_snprintf(szReturnValue, TEXT("%lu"), cref);
-//		return true;
-//	}
-//	// [NAME] [ID] [PROP]
-//	case L"alpha"_hash:
-//	{
-//		szReturnValue = dcx_truefalse(m_bAlphaBlend);
-//		return true;
-//	}
-//	break;
-//	// [NAME] [ID] [PROP]
-//	case L"textcolor"_hash:
-//	{
-//		_ts_snprintf(szReturnValue, TEXT("%u"), m_clrText);
-//		return true;
-//	}
-//	break;
-//	// [NAME] [ID] [PROP]
-//	case L"textbgcolor"_hash:
-//	{
-//		_ts_snprintf(szReturnValue, TEXT("%u"), m_clrBackText);
-//		return true;
-//	}
-//	break;
-//	// [NAME] [ID] [PROP]
-//	case L"bgcolor"_hash:
-//	{
-//		_ts_snprintf(szReturnValue, TEXT("%u"), m_clrBackground);
-//		return true;
-//	}
-//	default:
-//		throw Dcx::dcxException("Invalid property or number of arguments");
-//		break;
-//	}
-//	return false;
+	//	switch (std::hash<TString>{}(input.getfirsttok(3)))
+	//	{
+	//	case L"hwnd"_hash:
+	//	{
+	//		_ts_snprintf(szReturnValue, TEXT("%lu"), (DWORD)m_Hwnd);	// can't use %p as this gives a hex result.
+	//		return true;
+	//	}
+	//	break;
+	//	case L"visible"_hash:
+	//	{
+	//		szReturnValue = dcx_truefalse((IsWindowVisible(m_Hwnd) != FALSE));
+	//		return true;
+	//	}
+	//	break;
+	//	case L"enabled"_hash:
+	//	{
+	//		szReturnValue = dcx_truefalse((IsWindowEnabled(m_Hwnd) != FALSE));
+	//		return true;
+	//	}
+	//	break;
+	//	case L"pos"_hash:
+	//	{
+	//		const auto rc = getWindowPosition();
+	//		_ts_snprintf(szReturnValue, TEXT("%d %d %d %d"), rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top);
+	//		return true;
+	//	}
+	//	break;
+	//	case L"dpos"_hash:
+	//	{
+	//#if DCX_USE_WRAPPERS
+	//		const Dcx::dcxWindowRect rc(m_Hwnd, getParentDialog()->getHwnd());
+	//
+	//		_ts_snprintf(szReturnValue, TEXT("%d %d %d %d"), rc.left, rc.top, rc.Width(), rc.Height());
+	//#else
+	//		if (RECT rc{}; GetWindowRect(m_Hwnd, &rc))
+	//		{
+	//			MapWindowRect(nullptr, getParentDialog()->getHwnd(), &rc);
+	//
+	//			_ts_snprintf(szReturnValue, TEXT("%d %d %d %d"), rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top);
+	//		}
+	//#endif
+	//		return true;
+	//	}
+	//	break;
+	//	case L"mark"_hash:
+	//	{
+	//		szReturnValue = m_tsMark.to_chr();
+	//		return true;
+	//	}
+	//	break;
+	//	case L"mouse"_hash:
+	//	{
+	//#if DCX_USE_WRAPPERS
+	//		if (const Dcx::dcxCursorPos pt(m_Hwnd); pt)
+	//		{
+	//			_ts_snprintf(szReturnValue, TEXT("%d %d"), pt.x, pt.y);
+	//			return true;
+	//		}
+	//#else
+	//		if (POINT pt{}; GetCursorPos(&pt))
+	//		{
+	//			MapWindowPoints(nullptr, m_Hwnd, &pt, 1);
+	//			_ts_snprintf(szReturnValue, TEXT("%d %d"), pt.x, pt.y);
+	//			return true;
+	//		}
+	//#endif
+	//	}
+	//	break;
+	//	case L"pid"_hash:
+	//	{
+	//#if DCX_USE_WRAPPERS
+	//		auto hParent = GetParent(m_Hwnd);
+	//
+	//		if (const Dcx::dcxClassName sClassname(hParent); sClassname == TEXT("#32770"))
+	//			szReturnValue = TEXT('0');
+	//		else
+	//			_ts_snprintf(szReturnValue, TEXT("%u"), getParentDialog()->getControlByHWND(hParent)->getUserID());
+	//
+	//		return true;
+	//#else
+	//		stString<257> sClassname;
+	//
+	//		auto hParent = GetParent(m_Hwnd);
+	//		GetClassName(hParent, sClassname, gsl::narrow_cast<int>(sClassname.size()));
+	//
+	//		if (sClassname == TEXT("#32770"))
+	//			szReturnValue = TEXT('0');
+	//		else
+	//			_ts_snprintf(szReturnValue, TEXT("%u"), getParentDialog()->getControlByHWND(hParent)->getUserID());
+	//
+	//		return true;
+	//#endif
+	//	}
+	//	break;
+	//	case L"type"_hash:
+	//	{
+	//		szReturnValue = getType().to_chr();
+	//		return true;
+	//	}
+	//	break;
+	//	case L"styles"_hash:
+	//	{
+	//		szReturnValue = getStyles().to_chr();
+	//		return true;
+	//	}
+	//	break;
+	//	case L"font"_hash:
+	//	{
+	//		auto hFontControl = getControlFont();
+	//
+	//		if (!hFontControl)
+	//			hFontControl = Dcx::dcxGetStockObject<HFONT>(DEFAULT_GUI_FONT);
+	//
+	//		if (hFontControl)
+	//		{
+	//			if (auto [code, lfCurrent] = Dcx::dcxGetObject<LOGFONT>(hFontControl); code != 0)
+	//			{
+	//				szReturnValue = ParseLogfontToCommand(&lfCurrent).to_chr();
+	//				return true;
+	//			}
+	//		}
+	//	}
+	//	break;
+	//	// [NAME] [ID] [PROP]
+	//	case L"tooltipbgcolor"_hash:
+	//	{
+	//		COLORREF cref = CLR_INVALID;
+	//
+	//		if (m_ToolTipHWND)
+	//			cref = gsl::narrow_cast<COLORREF>(SendMessage(m_ToolTipHWND, TTM_GETTIPBKCOLOR, 0, 0));
+	//
+	//		_ts_snprintf(szReturnValue, TEXT("%lu"), cref);
+	//		return true;
+	//	}
+	//	break;
+	//	// [NAME] [ID] [PROP]
+	//	case L"tooltiptextcolor"_hash:
+	//	{
+	//		COLORREF cref = CLR_INVALID;
+	//
+	//		if (m_ToolTipHWND)
+	//			cref = gsl::narrow_cast<COLORREF>(SendMessage(m_ToolTipHWND, TTM_GETTIPTEXTCOLOR, 0, 0));
+	//
+	//		_ts_snprintf(szReturnValue, TEXT("%lu"), cref);
+	//		return true;
+	//	}
+	//	// [NAME] [ID] [PROP]
+	//	case L"alpha"_hash:
+	//	{
+	//		szReturnValue = dcx_truefalse(m_bAlphaBlend);
+	//		return true;
+	//	}
+	//	break;
+	//	// [NAME] [ID] [PROP]
+	//	case L"textcolor"_hash:
+	//	{
+	//		_ts_snprintf(szReturnValue, TEXT("%u"), m_clrText);
+	//		return true;
+	//	}
+	//	break;
+	//	// [NAME] [ID] [PROP]
+	//	case L"textbgcolor"_hash:
+	//	{
+	//		_ts_snprintf(szReturnValue, TEXT("%u"), m_clrBackText);
+	//		return true;
+	//	}
+	//	break;
+	//	// [NAME] [ID] [PROP]
+	//	case L"bgcolor"_hash:
+	//	{
+	//		_ts_snprintf(szReturnValue, TEXT("%u"), m_clrBackground);
+	//		return true;
+	//	}
+	//	default:
+	//		throw Dcx::dcxException("Invalid property or number of arguments");
+	//		break;
+	//	}
+	//	return false;
 
 	szReturnValue = parseGlobalInfoRequest(input).to_chr();
 	return true;
@@ -1214,7 +1214,7 @@ LRESULT CALLBACK DcxControl::WindowProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LP
 		if ((!cs) || (!cs->lpCreateParams))
 			return FALSE; // cause CreateWindowEx() to fail.
 
-						  // get control object
+		// get control object
 		pthis = static_cast<DcxControl*>(cs->lpCreateParams);
 		if (!pthis)
 			return FALSE; // cause CreateWindowEx() to fail.
@@ -1734,14 +1734,14 @@ void DcxControl::setControlFont(const HFONT hFont, const BOOL fRedraw) noexcept
 		if ((hControlFont) && (this->m_hFont != hControlFont))
 			DeleteFont(hControlFont);
 	}
-	
+
 	if (this->m_hFont)
 	{
 		// its OK to delete stock font.
 		DeleteFont(this->m_hFont);
 		this->m_hFont = nullptr;
 	}
-	
+
 	this->setFont(hFont, fRedraw);
 	this->m_hFont = hFont;
 }
@@ -1775,53 +1775,54 @@ void DcxControl::DrawCtrlBackground(const HDC hdc, const DcxControl* const p_thi
 	if ((!hdc) || (!p_this))
 		return;
 
+	// if transparent, do nothing...
+	if (p_this->isExStyle(WindowExStyle::Transparent))
+		return;
+
 	// fill background.
-	if (!p_this->isExStyle(WindowExStyle::Transparent))
+	RECT rc{};
+	if (!rwnd)
 	{
-		RECT rc{};
-		if (!rwnd)
+		if (!GetClientRect(p_this->getHwnd(), &rc))
+			return;
+	}
+	else
+		CopyRect(&rc, rwnd);
+
+	if (!IsWindowEnabled(p_this->m_Hwnd))
+	{// use disabled colouring when windows disabled.
+		if (hTheme && p_this->IsThemed() && Dcx::UXModule.dcxIsThemeActive())
 		{
-			if (!GetClientRect(p_this->getHwnd(), &rc))
-				return;
+			if (Dcx::UXModule.dcxIsThemeBackgroundPartiallyTransparent(hTheme, iPartId, iStateId))
+				Dcx::UXModule.dcxDrawThemeParentBackground(p_this->m_Hwnd, hdc, &rc);
+			Dcx::UXModule.dcxDrawThemeBackground(hTheme, hdc, iPartId, iStateId, &rc, nullptr);
 		}
 		else
-			CopyRect(&rc, rwnd);
+			FillRect(hdc, &rc, GetSysColorBrush(COLOR_3DFACE));
+	}
+	else if (p_this->m_bGradientFill)
+	{
+		const auto clrStart = (p_this->getStartGradientColor() != CLR_INVALID) ? p_this->getStartGradientColor() : GetSysColor(COLOR_3DFACE);
+		const auto clrEnd = (p_this->getEndGradientColor() != CLR_INVALID) ? p_this->getEndGradientColor() : GetSysColor(COLOR_GRADIENTACTIVECAPTION);
 
-		if (!IsWindowEnabled(p_this->m_Hwnd))
-		{// use disabled colouring when windows disabled.
+		XPopupMenuItem::DrawGradient(hdc, &rc, clrStart, clrEnd, p_this->m_bGradientVertical);
+	}
+	else {
+		auto hBrush = p_this->getBackClrBrush();
+		if (!hBrush)
+		{
 			if (hTheme && p_this->IsThemed() && Dcx::UXModule.dcxIsThemeActive())
 			{
 				if (Dcx::UXModule.dcxIsThemeBackgroundPartiallyTransparent(hTheme, iPartId, iStateId))
 					Dcx::UXModule.dcxDrawThemeParentBackground(p_this->m_Hwnd, hdc, &rc);
 				Dcx::UXModule.dcxDrawThemeBackground(hTheme, hdc, iPartId, iStateId, &rc, nullptr);
+				return;
 			}
 			else
-				FillRect(hdc, &rc, GetSysColorBrush(COLOR_3DFACE));
+				hBrush = GetSysColorBrush(COLOR_3DFACE);
 		}
-		else if (p_this->m_bGradientFill)
-		{
-			const auto clrStart = (p_this->getStartGradientColor() != CLR_INVALID) ? p_this->getStartGradientColor() : GetSysColor(COLOR_3DFACE);
-			const auto clrEnd = (p_this->getEndGradientColor() != CLR_INVALID) ? p_this->getEndGradientColor() : GetSysColor(COLOR_GRADIENTACTIVECAPTION);
-
-			XPopupMenuItem::DrawGradient(hdc, &rc, clrStart, clrEnd, p_this->m_bGradientVertical);
-		}
-		else {
-			auto hBrush = p_this->getBackClrBrush();
-			if (!hBrush)
-			{
-				if (hTheme && p_this->IsThemed() && Dcx::UXModule.dcxIsThemeActive())
-				{
-					if (Dcx::UXModule.dcxIsThemeBackgroundPartiallyTransparent(hTheme, iPartId, iStateId))
-						Dcx::UXModule.dcxDrawThemeParentBackground(p_this->m_Hwnd, hdc, &rc);
-					Dcx::UXModule.dcxDrawThemeBackground(hTheme, hdc, iPartId, iStateId, &rc, nullptr);
-					return;
-				}
-				else
-					hBrush = GetSysColorBrush(COLOR_3DFACE);
-			}
-			if (hBrush)
-				FillRect(hdc, &rc, hBrush);
-		}
+		if (hBrush)
+			FillRect(hdc, &rc, hBrush);
 	}
 }
 
@@ -2076,7 +2077,7 @@ void DcxControl::DrawParentsBackground(const HDC hdc, const RECT* const rcBounds
 
 	// Sending WM_ERASEBKGND followed by WM_PRINTCLIENT emulates the method used by DrawThemeParentBackgroundEx() on vista.
 	this->m_bInPrint = true; // this helps prevent long drawing loops
-							 // fill in the parents image
+	// fill in the parents image
 	::SendMessage(this->m_pParentHWND, WM_ERASEBKGND, reinterpret_cast<WPARAM>(*hdcbkg), 1L); // HACK: using 1L instead of zero as a workaround for stacker.
 	::SendMessage(this->m_pParentHWND, WM_PRINTCLIENT, reinterpret_cast<WPARAM>(*hdcbkg), PRF_CLIENT);
 
@@ -2494,7 +2495,7 @@ LRESULT DcxControl::CommonMessage(const UINT uMsg, WPARAM wParam, LPARAM lParam,
 
 		if (!files)
 			break;
-		
+
 		bParsed = TRUE;
 
 		const stString<MIRC_BUFFER_SIZE_CCH> sFilename;
