@@ -1709,23 +1709,39 @@ void DcxControl::setControlFont(const HFONT hFont, const BOOL fRedraw) noexcept
 	//this->setFont(hFont, fRedraw);
 	//this->m_hFont = hFont;
 
+	//if (auto hControlFont = this->getFont(); hControlFont != Dcx::dcxGetStockObject<HFONT>(DEFAULT_GUI_FONT))
+	//{
+	//	if (hControlFont)
+	//	{
+	//		DeleteFont(hControlFont);
+	//	}
+	//
+	//	if (this->m_hFont == hControlFont)
+	//		this->m_hFont = nullptr;
+	//}
+	//
+	//if (this->m_hFont)
+	//{
+	//	DeleteFont(this->m_hFont);
+	//	this->m_hFont = nullptr;
+	//}
+	//
+	//this->setFont(hFont, fRedraw);
+	//this->m_hFont = hFont;
+
 	if (auto hControlFont = this->getFont(); hControlFont != Dcx::dcxGetStockObject<HFONT>(DEFAULT_GUI_FONT))
 	{
-		if (hControlFont)
-		{
+		if ((hControlFont) && (this->m_hFont != hControlFont))
 			DeleteFont(hControlFont);
-		}
-
-		if (this->m_hFont == hControlFont)
-			this->m_hFont = nullptr;
 	}
-
+	
 	if (this->m_hFont)
 	{
+		// its OK to delete stock font.
 		DeleteFont(this->m_hFont);
 		this->m_hFont = nullptr;
 	}
-
+	
 	this->setFont(hFont, fRedraw);
 	this->m_hFont = hFont;
 }
