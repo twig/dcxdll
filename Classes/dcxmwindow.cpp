@@ -32,6 +32,10 @@ DcxMWindow::DcxMWindow(const HWND cHwnd, const HWND pHwnd, const UINT ID, gsl::s
 	parseControlStyles(styles);
 
 	m_Hwnd = cHwnd;
+
+	if (!IsWindow(m_Hwnd) || !rc)
+		throw DcxExceptions::dcxUnableToCreateWindow();
+
 	this->m_OrigParentHwnd = GetParent(m_Hwnd);
 
 	this->m_OrigStyles = this->removeStyle(WindowStyle::Caption | DS_FIXEDSYS | DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_SYSMENU | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_THICKFRAME);
@@ -47,7 +51,7 @@ DcxMWindow::DcxMWindow(const HWND cHwnd, const HWND pHwnd, const UINT ID, gsl::s
 
 	this->m_OrigID = dcxSetWindowID(m_Hwnd, ID);
 
-	SetProp(this->m_Hwnd, TEXT("dcx_cthis"), this);
+	Dcx::dcxSetProp(this->m_Hwnd, TEXT("dcx_cthis"), this);
 }
 
 /*!
