@@ -1,6 +1,6 @@
 #pragma once
 // support functions for TString & c-string handling...
-// v1.20
+// v1.21
 
 #include <tchar.h>
 #include <cstdlib>
@@ -839,6 +839,43 @@ namespace details {
 		}
 	};
 }
+
+#if 0 && __has_include(<ranges>) && __has_include(<algorithm>) && __has_include(<string>)
+#include <ranges>
+#include <algorithm>
+//#include <string>
+
+template <details::IsPODText T>
+bool iequals(const std::basic_string_view<T>& lhs, const std::basic_string_view<T>& rhs)
+{
+	auto to_lower{ std::ranges::views::transform(std::tolower) };
+	return std::ranges::equal(lhs | to_lower, rhs | to_lower);
+}
+#else
+template <details::IsPODText T>
+bool iequals(const std::basic_string<T>& a, const std::basic_string<T>& b)
+{
+	const std::locale loc("");	// needs to be ""
+	return std::equal(a.begin(), a.end(),
+		b.begin(), b.end(),
+		[loc](T a, T b) noexcept {
+			return std::tolower<T>(a, loc) == std::tolower<T>(b, loc);
+		});
+}
+
+//bool iequals(const std::string& a, const std::string& b)
+//{
+//	const unsigned int sz = a.size();
+//	if (b.size() != sz)
+//		return false;
+//	for (unsigned int i = 0; i < sz; ++i)
+//		if (tolower(a[i]) != tolower(b[i]))
+//			return false;
+//	return true;
+//}
+//
+
+#endif
 
 // Check string bounds, make sure dest is not within the source string & vice versa (this could be a possible reason for some strcpyn() fails we see)
 template <details::IsPODText T>
