@@ -450,43 +450,118 @@ void DcxReBar::parseCommandRequest(const TString& input)
 			pdcxrbb->tsMarkText = (numtok > 4 ? input.getlasttoks() : TEXT(""));	// tok 5, -1
 	}
 	// xdid -d [NAME] [ID] [SWITCH] [N]
+	// xdid -d [NAME] [ID] [SWITCH] [N,N2,N3-N4...]
 	else if (flags[TEXT('d')])
 	{
+		//if (numtok < 4)
+		//	throw DcxExceptions::dcxInvalidArguments();
+		//
+		//const auto nIndex = input.getnexttok().to_int() - 1;	// tok 4
+		//
+		//if (nIndex < 0 || nIndex >= this->getBandCount())
+		//	throw DcxExceptions::dcxInvalidItem();
+		//
+		//this->deleteBand(gsl::narrow_cast<UINT>(nIndex));
+
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto nIndex = input.getnexttok().to_int() - 1;	// tok 4
+		auto Ns(input.getnexttok());	// tok 4
 
-		if (nIndex < 0 || nIndex >= this->getBandCount())
-			throw DcxExceptions::dcxInvalidItem();
+		// reverse sort the token list so we start at the end.
+		{
+			TString::SortOptions srt;
+			srt.bNumeric = true;
+			srt.bReverse = true;
 
-		this->deleteBand(gsl::narrow_cast<UINT>(nIndex));
+			Ns.sorttok(srt, TSCOMMA);
+		}
+
+		const auto itEnd = Ns.end();
+		for (auto itStart = Ns.begin(TSCOMMACHAR); itStart != itEnd; ++itStart)
+		{
+			const auto tsLine(*itStart);
+			const auto nItemCnt = this->getBandCount();
+
+			const auto [iStart, iEnd] = getItemRange(tsLine, nItemCnt);
+
+			if ((iStart < 0) || (iEnd < iStart) || (iStart >= nItemCnt) || (iEnd >= nItemCnt))
+				throw Dcx::dcxException(TEXT("Invalid index %."), tsLine);
+
+			// delete from highest number to lowest
+			for (auto nItem = iEnd; nItem >= iStart; --nItem)
+				this->deleteBand(nItem);
+		}
 	}
 	// xdid -i [NAME] [ID] [SWITCH] [N]
+	// xdid -i [NAME] [ID] [SWITCH] [N,N2,N3-N4...]
 	else if (flags[TEXT('i')])
 	{
+		//if (numtok < 4)
+		//	throw DcxExceptions::dcxInvalidArguments();
+		//
+		//const auto nIndex = input.getnexttok().to_int() - 1;	// tok 4
+		//
+		//if (nIndex < 0 || nIndex >= this->getBandCount())
+		//	throw DcxExceptions::dcxInvalidItem();
+		//
+		//this->showBand(gsl::narrow_cast<UINT>(nIndex), FALSE);
+
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto nIndex = input.getnexttok().to_int() - 1;	// tok 4
+		const auto Ns(input.getnexttok());	// tok 4
 
-		if (nIndex < 0 || nIndex >= this->getBandCount())
-			throw DcxExceptions::dcxInvalidItem();
+		const auto nItemCnt = this->getBandCount();
+		const auto itEnd = Ns.end();
 
-		this->showBand(gsl::narrow_cast<UINT>(nIndex), FALSE);
+		for (auto itStart = Ns.begin(TSCOMMACHAR); itStart != itEnd; ++itStart)
+		{
+			const auto tsLine(*itStart);
+
+			const auto r = getItemRange2(tsLine, nItemCnt);
+
+			if ((r.b < 0) || (r.e < 0) || (r.b > r.e))
+				throw Dcx::dcxException(TEXT("Invalid index %."), tsLine);
+
+			for (auto nItem: r)
+				this->showBand(gsl::narrow_cast<UINT>(nItem), FALSE);
+		}
 	}
 	// xdid -j [NAME] [ID] [SWITCH] [N]
+	// xdid -j [NAME] [ID] [SWITCH] [N,N2,N3-N4...]
 	else if (flags[TEXT('j')])
 	{
+		//if (numtok < 4)
+		//	throw DcxExceptions::dcxInvalidArguments();
+		//
+		//const auto nIndex = input.getnexttok().to_int() - 1;	// tok 4
+		//
+		//if (nIndex < 0 || nIndex >= this->getBandCount())
+		//	throw DcxExceptions::dcxInvalidItem();
+		//
+		//this->showBand(gsl::narrow_cast<UINT>(nIndex), TRUE);
+
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto nIndex = input.getnexttok().to_int() - 1;	// tok 4
+		const auto Ns(input.getnexttok());	// tok 4
 
-		if (nIndex < 0 || nIndex >= this->getBandCount())
-			throw DcxExceptions::dcxInvalidItem();
+		const auto nItemCnt = this->getBandCount();
+		const auto itEnd = Ns.end();
 
-		this->showBand(gsl::narrow_cast<UINT>(nIndex), TRUE);
+		for (auto itStart = Ns.begin(TSCOMMACHAR); itStart != itEnd; ++itStart)
+		{
+			const auto tsLine(*itStart);
+
+			const auto r = getItemRange2(tsLine, nItemCnt);
+
+			if ((r.b < 0) || (r.e < 0) || (r.b > r.e))
+				throw Dcx::dcxException(TEXT("Invalid index %."), tsLine);
+
+			for (auto nItem : r)
+				this->showBand(gsl::narrow_cast<UINT>(nItem), TRUE);
+		}
 	}
 	// xdid -k [NAME] [ID] [SWITCH] [N] [ICON]
 	else if (flags[TEXT('k')])

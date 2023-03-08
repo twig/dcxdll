@@ -17,6 +17,7 @@
 
 #include "defines.h"
 #include "Classes/dcxcontrol.h"
+#include "Classes/custom/ListHelper.h"
 
 class DcxDialog;
 
@@ -47,6 +48,7 @@ using LPDCXRBBAND = DCXRBBAND *;
 
 class DcxReBar final
 	: public DcxControl
+	, virtual public DcxListHelper
 {
 public:
 	DcxReBar() = delete;
