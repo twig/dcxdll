@@ -211,6 +211,18 @@ inline bool IsThisCommand(const XSwitchFlags& xflags) noexcept
 	return xflags[c];
 }
 
+inline RECT TSToRect(const TString& tsInput)
+{
+	RECT rc{};
+
+	rc.left = tsInput.getnexttokas<LONG>();
+	rc.top = tsInput.getnexttokas<LONG>();
+	rc.right = rc.left + tsInput.getnexttokas<LONG>();
+	rc.bottom = rc.top + tsInput.getnexttokas<LONG>();
+
+	return rc;
+}
+
 /*!
  * \brief blah
  *

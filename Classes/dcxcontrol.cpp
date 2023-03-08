@@ -112,14 +112,14 @@ DcxControl::~DcxControl() noexcept
 	//	m_hCursor = nullptr;
 	//}
 
-	// check if we need to destroy the cursor (do not destroy if same cursor as parent dialog, parent will destroy this for us)
-	if (m_hCursor && m_hCursor.cursor != getParentDialog()->getCursor())
-	{
-		DestroyCursor(m_hCursor.cursor);
-	}
-
 	if (const auto pd = getParentDialog(); pd)
+	{
+		// check if we need to destroy the cursor (do not destroy if same cursor as parent dialog, parent will destroy this for us)
+		if (m_hCursor && m_hCursor.cursor != pd->getCursor())
+			DestroyCursor(m_hCursor.cursor);
+
 		pd->deleteControl(this);
+	}
 }
 
 /*!
@@ -709,6 +709,8 @@ HBITMAP DcxControl::resizeBitmap(HBITMAP srcBM, const RECT* const rc) noexcept
 /// <returns></returns>
 DcxControlTypes DcxControl::TSTypeToControlType(const TString& t)
 {
+	// Ook: change to a switch statement...?
+
 	const static std::map<std::hash<TString>::result_type, DcxControlTypes> dcxTypesMap{
 		{TEXT("box"_hash), DcxControlTypes::BOX},
 		{TEXT("check"_hash), DcxControlTypes::CHECK},
@@ -996,11 +998,6 @@ bool DcxControl::parseGlobalInfoRequest(const TString& input, const refString<TC
 /// <returns></returns>
 TString DcxControl::parseGlobalInfoRequest(const TString& input) const
 {
-	//TString tsResult((UINT)MIRC_BUFFER_SIZE_CCH);
-	//const mIRCResultString szref(tsResult.to_chr());
-	//parseGlobalInfoRequest(input, szref);
-	//return tsResult;
-
 	TString tsResult((UINT)MIRC_BUFFER_SIZE_CCH);
 
 	switch (std::hash<TString>{}(input.getfirsttok(3)))
@@ -1280,12 +1277,13 @@ DcxControl* DcxControl::controlFactory(gsl::strict_not_null<DcxDialog* const> p_
 
 	const auto type(tsInput.getfirsttok(gsl::narrow_cast<int>(offset)));
 
-	RECT rc{};
+	//RECT rc{};
+	//rc.left = tsInput.getnexttok().to_<LONG>();
+	//rc.top = tsInput.getnexttok().to_<LONG>();
+	//rc.right = rc.left + tsInput.getnexttok().to_<LONG>();
+	//rc.bottom = rc.top + tsInput.getnexttok().to_<LONG>();
 
-	rc.left = tsInput.getnexttok().to_<LONG>();
-	rc.top = tsInput.getnexttok().to_<LONG>();
-	rc.right = rc.left + tsInput.getnexttok().to_<LONG>();
-	rc.bottom = rc.top + tsInput.getnexttok().to_<LONG>();
+	const RECT rc = TSToRect(tsInput);
 
 	const auto styles(tsInput.getlasttoks());
 
