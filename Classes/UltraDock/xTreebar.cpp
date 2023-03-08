@@ -122,7 +122,6 @@ mIRC(xtreebar)
 		case TEXT('f'): // [+FONTFLAGS] [CHARSET] [SIZE] [FONTNAME]
 		{
 			if (numtok < 5)
-				//throw Dcx::dcxException("Invalid Font Args");
 				throw DcxExceptions::dcxInvalidArguments();
 
 			if (LOGFONT lf{}; ParseCommandToLogfont(input.getlasttoks(), &lf))	// tok 2, -1
@@ -135,7 +134,6 @@ mIRC(xtreebar)
 		case TEXT('s'): // [STYLES]
 		{
 			if (numtok < 2)
-				//throw Dcx::dcxException("Invalid Style Args");
 				throw DcxExceptions::dcxInvalidArguments();
 
 			auto stylef = dcxGetWindowStyle(mIRCLinker::getTreeview());
@@ -400,7 +398,6 @@ mIRC(xtreebar)
 		case TEXT('c'): // [COLOUR FLAGS] [COLOUR]
 		{
 			if (numtok < 3)
-				//throw Dcx::dcxException("Invalid Colour Args");
 				throw DcxExceptions::dcxInvalidArguments();
 
 			const auto cflag(input.getnexttok());						// tok 2
