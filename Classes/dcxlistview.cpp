@@ -90,6 +90,10 @@ DcxListView::~DcxListView() noexcept
 	if (m_Hwnd)
 	Dcx::dcxListView_DeleteAllItems(m_Hwnd);
 
+	for (const auto& a : this->m_vWidths)
+		delete a;
+	this->m_vWidths.clear();
+
 	ImageList_Destroy(getImageList(LVSIL_NORMAL));
 	ImageList_Destroy(getImageList(LVSIL_SMALL));
 	ImageList_Destroy(getImageList(LVSIL_STATE));
@@ -1222,7 +1226,7 @@ void DcxListView::parseCommandRequest(const TString& input)
 				for (auto itStart = Ns.begin(TSCOMMACHAR); itStart != itEnd; ++itStart)
 				{
 					const auto tsLine(*itStart);
-					const auto r = getItemRange2(tsLine, nItemCnt);
+					const auto r = Dcx::getItemRange2(tsLine, nItemCnt);
 
 					if ((r.b < 0) || (r.e < 0) || (r.b > r.e))
 						throw Dcx::dcxException(TEXT("Invalid index %."), tsLine);
@@ -1274,7 +1278,7 @@ void DcxListView::parseCommandRequest(const TString& input)
 				const auto tsLine(*itStart);
 				const auto nItemCnt = Dcx::dcxListView_GetItemCount(m_Hwnd);
 
-				const auto [iStart, iEnd] = getItemRange(tsLine, nItemCnt);
+				const auto [iStart, iEnd] = Dcx::getItemRange(tsLine, nItemCnt);
 
 				if ((iStart < 0) || (iEnd < iStart) || (iStart >= nItemCnt) || (iEnd >= nItemCnt))
 					throw Dcx::dcxException(TEXT("Invalid index %."), tsLine);
@@ -1411,7 +1415,7 @@ void DcxListView::parseCommandRequest(const TString& input)
 		{
 			const auto tsLine(*itStart);
 
-			const auto r = getItemRange2(tsLine, nItemCnt);
+			const auto r = Dcx::getItemRange2(tsLine, nItemCnt);
 
 			if ((r.b < 0) || (r.e < 0) || (r.b > r.e))
 				throw Dcx::dcxException(TEXT("Invalid index %."), tsLine);
@@ -1489,7 +1493,7 @@ void DcxListView::parseCommandRequest(const TString& input)
 		{
 			const auto tsLine(*itStart);
 
-			const auto ItemRange = getItemRange2(tsLine, nItemCnt);
+			const auto ItemRange = Dcx::getItemRange2(tsLine, nItemCnt);
 
 			if ((ItemRange.b < 0) || (ItemRange.e < 0) || (ItemRange.b > ItemRange.e))
 				throw Dcx::dcxException(TEXT("Invalid Item Range %."), tsLine);
@@ -1506,7 +1510,7 @@ void DcxListView::parseCommandRequest(const TString& input)
 				for (auto itSubStart = tsSubItems.begin(TSCOMMACHAR); itSubStart != itSubEnd; ++itSubStart)
 				{
 					const auto tsSubLine(*itSubStart);
-					const auto SubItemRange = getItemRange2(tsSubLine, nSubItemCnt);
+					const auto SubItemRange = Dcx::getItemRange2(tsSubLine, nSubItemCnt);
 
 					if ((SubItemRange.b < 0) || (SubItemRange.e < 0) || (SubItemRange.b > SubItemRange.e))
 						throw Dcx::dcxException(TEXT("Invalid SubItem Range %."), tsSubLine);
@@ -1607,7 +1611,7 @@ void DcxListView::parseCommandRequest(const TString& input)
 				throw Dcx::dcxException("No width specified");
 
 			const auto HandleColumn = [=](const TString& tsColumns) {
-				const auto r = getItemRange2(tsColumn, this->getColumnCount());
+				const auto r = Dcx::getItemRange2(tsColumn, this->getColumnCount());
 
 				if ((r.b < 0) || (r.e < r.b))
 					throw DcxExceptions::dcxOutOfRange();
@@ -1696,7 +1700,7 @@ void DcxListView::parseCommandRequest(const TString& input)
 		{
 			const auto tsLine(*itStart);
 
-			const auto ItemRange = getItemRange2(tsLine, nItemCnt);
+			const auto ItemRange = Dcx::getItemRange2(tsLine, nItemCnt);
 
 			if ((ItemRange.b < 0) || (ItemRange.e < 0) || (ItemRange.b > ItemRange.e))
 				throw Dcx::dcxException(TEXT("Invalid Item Range %."), tsLine);
@@ -1964,7 +1968,7 @@ void DcxListView::parseCommandRequest(const TString& input)
 		if (dcx_testflag(iFlags, LVSIL_SMALL))
 		{
 			// load normal icon
-			if (auto himl = this->initImageList(LVSIL_NORMAL); index < 0)
+			if (const auto himl = this->initImageList(LVSIL_NORMAL); index < 0)
 			{
 				AddFileIcons(himl, filename, true, -1);
 			}
@@ -1988,7 +1992,7 @@ void DcxListView::parseCommandRequest(const TString& input)
 			}
 
 			// load small icon
-			if (auto himl = this->initImageList(LVSIL_SMALL); index < 0)
+			if (const auto himl = this->initImageList(LVSIL_SMALL); index < 0)
 			{
 				AddFileIcons(himl, filename, false, -1);
 			}
@@ -2015,7 +2019,7 @@ void DcxListView::parseCommandRequest(const TString& input)
 		// state icon
 		if (dcx_testflag(iFlags, LVSIL_STATE))
 		{
-			if (auto himl = this->initImageList(LVSIL_STATE); index < 0)
+			if (const auto himl = this->initImageList(LVSIL_STATE); index < 0)
 			{
 				AddFileIcons(himl, filename, false, -1);
 			}
@@ -2040,7 +2044,7 @@ void DcxListView::parseCommandRequest(const TString& input)
 		// footer icons
 		if (dcx_testflag(iFlags, LVSIL_FOOTER))
 		{
-			if (auto himl = this->initImageList(LVSIL_FOOTER); index < 0)
+			if (const auto himl = this->initImageList(LVSIL_FOOTER); index < 0)
 			{
 				AddFileIcons(himl, filename, false, -1);
 			}
@@ -2062,7 +2066,6 @@ void DcxListView::parseCommandRequest(const TString& input)
 			}
 		}
 	}
-	// xdid -W [NAME] [ID] [SWITCH] [STYLE]
 	// xdid -W [NAME] [ID] [SWITCH] [STYLE|nochange] (CONTROL EXTENDED STYLES)
 	else if (flags[TEXT('W')])
 	{
@@ -2334,7 +2337,7 @@ void DcxListView::parseCommandRequest(const TString& input)
 			for (auto itStart = tsCols.begin(TSCOMMACHAR); itStart != itEnd; ++itStart)
 			{
 				const auto col(*itStart);
-				const auto r = getItemRange2(col, col_count);
+				const auto r = Dcx::getItemRange2(col, col_count);
 
 				if ((r.b < 0) || (r.e < 0) || (r.b >= col_count) || (r.e > col_count))
 					throw Dcx::dcxException(TEXT("Invalid column index %."), col);
@@ -2841,7 +2844,7 @@ bool DcxListView::matchItemText(const int nItem, const int nSubItem, const dcxSe
 
 	Dcx::dcxListView_GetItemText(m_Hwnd, nItem, nSubItem, itemtext.get(), MIRC_BUFFER_SIZE_CCH);
 
-	return DcxListHelper::matchItemText(itemtext.get(), srch_data);
+	return DcxSearchHelper::matchItemText(itemtext.get(), srch_data);
 }
 
 /*!
@@ -3305,6 +3308,8 @@ LRESULT DcxListView::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 			POINT p{ 8,8 };
 			IMAGEINFO imf{};
 			LONG iHeight{};
+
+			//DragDetect();
 
 			// Ok, now we create a drag-image for all selected items
 			bool bFirst = true;
@@ -3815,6 +3820,12 @@ LRESULT DcxListView::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& b
 	}
 	break;
 
+	//case WM_MOUSEMOVE:
+	//{
+	//	lRes = CommonMessage(uMsg, wParam, lParam, bParsed);
+	//}
+	//break;
+
 	case WM_HSCROLL:
 	case WM_VSCROLL:
 	{
@@ -3846,7 +3857,6 @@ LRESULT DcxListView::OurMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& b
 
 				if (dcx_testflag(Dcx::dcxListView_GetExtendedListViewStyle(m_Hwnd), LVS_EX_GRIDLINES))
 					redrawWindow();
-
 			}
 		}
 		break;
@@ -3955,6 +3965,8 @@ LRESULT CALLBACK DcxListView::EditLabelProc(HWND mHwnd, UINT uMsg, WPARAM wParam
 	const auto* const pthis = Dcx::dcxGetProp<DcxListView*>(mHwnd, TEXT("dcx_pthis"));
 
 	if (!pthis)
+		return DefWindowProc(mHwnd, uMsg, wParam, lParam);
+	if (!pthis->m_OrigEditProc)
 		return DefWindowProc(mHwnd, uMsg, wParam, lParam);
 
 	switch (uMsg)
@@ -5065,6 +5077,13 @@ LRESULT DcxListView::DrawItem(LPNMLVCUSTOMDRAW lplvcd)
 		if ((lpdcxlvi->pbar) && (lplvcd->iSubItem == lpdcxlvi->iPbarCol))
 			return CDRF_SKIPDEFAULT;
 
+		//if ((lpdcxlvi->pbar) && (lplvcd->iSubItem == lpdcxlvi->iPbarCol))
+		//{
+		//	//DrawControl(lplvcd->nmcd.hdc, lpdcxlvi->pbar->getHwnd());
+		//	SendMessage(lpdcxlvi->pbar->getHwnd(), WM_PRINT, (WPARAM)lplvcd->nmcd.hdc, gsl::narrow_cast<LPARAM>(PRF_NONCLIENT | PRF_CLIENT | PRF_CHILDREN));
+		//	return CDRF_SKIPDEFAULT;
+		//}
+
 		if ((gsl::narrow_cast<UINT>(lplvcd->iSubItem) >= lpdcxlvi->vInfo.size()) || (lplvcd->iSubItem < 0))
 			return CDRF_DODEFAULT;
 
@@ -5238,21 +5257,16 @@ LRESULT DcxListView::DrawGroup(LPNMLVCUSTOMDRAW lplvcd)
 			return CDRF_DODEFAULT;
 
 		// open theme
-		auto hTheme = Dcx::UXModule.dcxOpenThemeData(m_Hwnd, L"ListView;ListViewStyle");
-		Auto(Dcx::UXModule.dcxCloseThemeData(hTheme));
+		GSL_SUPPRESS(r.3) GSL_SUPPRESS(lifetime.1) auto hTheme = Dcx::UXModule.dcxOpenThemeData(m_Hwnd, L"ListView;ListViewStyle");
+		if (!hTheme)
+			return CDRF_DODEFAULT;
+
+		Auto(GSL_SUPPRESS(lifetime.1) Dcx::UXModule.dcxCloseThemeData(hTheme));
 
 		const int iStateId = getGroupDrawState();
 
 		// draw selection rect if any.
 		DrawGroupSelectionRect(hTheme, lplvcd->nmcd.hdc, &lplvcd->rcText, iStateId);
-
-		// calc line size.
-		//RECT rcLine = lplvcd->rcText;
-		//rcLine.left += 5;
-		//rcLine.right -= 5;
-		//rcLine.top += ((rcLine.bottom - rcLine.top) / 2) - 1;
-		//rcLine.bottom = rcLine.top + 1;
-		//Dcx::UXModule.dcxDrawThemeBackground(hTheme, lplvcd->nmcd.hdc, LISTVIEWPARTS::LVP_GROUPHEADERLINE, iStateId, &rcLine, nullptr);
 
 		//const RECT rcMargin = this->getListRect();
 

@@ -462,13 +462,6 @@ void DcxComboEx::parseCommandRequest(const TString& input)
 			// have flags, so its a match text delete
 			const auto tsMatchText(input.getnexttok());
 
-			//const auto SearchType = FlagsToSearchType(xFlags);
-			//for (auto nPos = Ns.to_int(); nPos < nItems; ++nPos)
-			//{
-			//	if (this->matchItemText(nPos, tsMatchText, SearchType))
-			//		this->deleteItem(nPos--);		// NB: we do nPos-- here as a lines just been removed so we have to check the same nPos again
-			//}
-
 			const dcxSearchData srch_data(tsMatchText, FlagsToSearchType(xFlags));
 			for (auto nPos = Ns.to_int(); nPos < nItems; ++nPos)
 			{
@@ -477,20 +470,18 @@ void DcxComboEx::parseCommandRequest(const TString& input)
 			}
 		}
 		else {
+			const auto itEnd = Ns.end();
+			for (auto itStart = Ns.begin(TSCOMMACHAR); itStart != itEnd; ++itStart)
 			{
-				const auto itEnd = Ns.end();
-				for (auto itStart = Ns.begin(TSCOMMACHAR); itStart != itEnd; ++itStart)
-				{
-					const TString tsLine(*itStart);
+				const TString tsLine(*itStart);
 
-					const auto [iStart, iEnd] = getItemRange(tsLine, nItems);
+				const auto [iStart, iEnd] = Dcx::getItemRange(tsLine, nItems);
 
-					if ((iStart < 0) || (iEnd < 0) || (iStart >= nItems) || (iEnd >= nItems))
-						throw Dcx::dcxException(TEXT("Invalid index %."), tsLine);
+				if ((iStart < 0) || (iEnd < 0) || (iStart >= nItems) || (iEnd >= nItems))
+					throw Dcx::dcxException(TEXT("Invalid index %."), tsLine);
 
-					for (auto nPos = iStart; nPos <= iEnd; ++nPos)
-						this->deleteItem(nPos);
-				}
+				for (auto nPos = iStart; nPos <= iEnd; ++nPos)
+					this->deleteItem(nPos);
 			}
 		}
 
@@ -521,6 +512,37 @@ void DcxComboEx::parseCommandRequest(const TString& input)
 	// xdid -w [NAME] [ID] [SWITCH] [+FLAGS] [INDEX] [FILENAME]
 	else if (flags[TEXT('w')])
 	{
+		//		if (numtok < 6)
+		//			throw DcxExceptions::dcxInvalidArguments();
+		//
+		//		auto himl = this->getImageList();
+		//
+		//		if (!himl)
+		//		{
+		//			himl = this->createImageList();
+		//
+		//			if (himl)
+		//				this->setImageList(himl);
+		//		}
+		//
+		//		if (himl)
+		//		{
+		//			const auto flag(input.getnexttok());				// tok 4
+		//			const auto index = input.getnexttok().to_<int>();	// tok 5
+		//			auto filename(input.getlasttoks());					// tok 6, -1
+		//#if DCX_USE_WRAPPERS
+		//			const Dcx::dcxIconResource icon(index, filename, false, flag);
+		//
+		//			ImageList_AddIcon(himl, icon.get());
+		//#else
+		//			if (auto icon = dcxLoadIcon(index, filename, false, flag); icon)
+		//			{
+		//				ImageList_AddIcon(himl, icon);
+		//				DestroyIcon(icon);
+		//			}
+		//#endif
+		//		}
+
 		if (numtok < 6)
 			throw DcxExceptions::dcxInvalidArguments();
 
@@ -534,23 +556,14 @@ void DcxComboEx::parseCommandRequest(const TString& input)
 				this->setImageList(himl);
 		}
 
-		if (himl)
-		{
-			const auto flag(input.getnexttok());				// tok 4
-			const auto index = input.getnexttok().to_<int>();	// tok 5
-			auto filename(input.getlasttoks());					// tok 6, -1
-#if DCX_USE_WRAPPERS
-			const Dcx::dcxIconResource icon(index, filename, false, flag);
+		if (!himl)
+			throw Dcx::dcxException("Unable to get imagelist");
 
-			ImageList_AddIcon(himl, icon.get());
-#else
-			if (auto icon = dcxLoadIcon(index, filename, false, flag); icon)
-			{
-				ImageList_AddIcon(himl, icon);
-				DestroyIcon(icon);
-			}
-#endif
-		}
+		const auto flag(input.getnexttok());		// tok 4
+		const auto tsRanges(input.getnexttok());	// tok 5
+		auto filename(input.getlasttoks());			// tok 6, -1
+
+		Dcx::dcxLoadIconRange(himl, filename, false, flag, tsRanges);
 	}
 	// xdid -y [NAME] [ID] [SWITCH] [+FLAGS]
 	else if (flags[TEXT('y')])
@@ -597,7 +610,7 @@ bool DcxComboEx::matchItemText(const int nItem, const TString& search, const Dcx
 
 	getItem(&cbi);
 
-	return DcxListHelper::matchItemText(cbi.pszText, search, SearchType);
+	return DcxSearchHelper::matchItemText(cbi.pszText, search, SearchType);
 }
 
 bool DcxComboEx::matchItemText(const int nItem, const dcxSearchData& srch_data) const
@@ -608,7 +621,7 @@ bool DcxComboEx::matchItemText(const int nItem, const dcxSearchData& srch_data) 
 
 	getItem(&cbi);
 
-	return DcxListHelper::matchItemText(cbi.pszText, srch_data);
+	return DcxSearchHelper::matchItemText(cbi.pszText, srch_data);
 }
 
 /*!

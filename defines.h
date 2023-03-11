@@ -433,7 +433,7 @@ namespace Dcx {
 // stand alone flag used by mIRC 7.33Beta+ to get info about mIRC
 #define MIRCF_INFO		-1
 // mIRC v7.33Beta+ SendMessage() enhanced error codes
-//The return values are: 0 = success, 1 = failure or'd with 2 = bad mapfile name, 4 = bad mapfile size, 8 = bad eventid, 16 = bad server, 32 = bad script.
+//The return values are: 0 = success, 1 = failure or'd with 2 = bad mapfile name, 4 = bad mapfile size, 8 = bad eventid, 16 = bad server, 32 = bad script, 64 = SendMessage() support disabled.
 #define MIRCF_ERR_FAILED		1
 #define MIRCF_ERR_MAP_NAME		2
 #define MIRCF_ERR_MAP_SIZE		4

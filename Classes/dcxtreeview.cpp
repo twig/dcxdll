@@ -50,7 +50,7 @@ DcxTreeView::DcxTreeView(const UINT ID, gsl::strict_not_null<DcxDialog* const> p
 
 	setNoThemed(ws.m_NoTheme);
 
-	SendMessage(m_Hwnd, CCM_SETVERSION, 6U, 0);
+	SendMessage(m_Hwnd, CCM_SETVERSION, COMCTL32_VERSION, 0);
 
 	// Ook: ExStyle or Style needs checked...
 	if ((ws.m_Styles & WindowStyle::TVS_CheckBoxes) != WindowStyle::None)
@@ -87,6 +87,7 @@ DcxTreeView::~DcxTreeView() noexcept
 	// make sure that there are no sensless events called when deleting all items
 	m_bDestroying = true;
 	// clear all items
+	if (m_Hwnd)
 	TreeView_DeleteAllItems(m_Hwnd);
 
 	ImageList_Destroy(this->getImageList(TVSIL_NORMAL));
@@ -923,6 +924,9 @@ void DcxTreeView::parseCommandRequest(const TString& input)
 
 			if (!this->m_bTransparent)
 				this->setExStyle(WindowExStyle::Transparent);
+
+			// setting clr none here is required for the image to display properly.
+			TreeView_SetBkColor(m_Hwnd, CLR_NONE);
 		}
 		this->redrawWindow();
 	}
@@ -948,7 +952,7 @@ void DcxTreeView::parseCommandRequest(const TString& input)
 			throw Dcx::dcxException("Invalid dataset");
 
 		if (path.empty())
-			throw Dcx::dcxException("Invalid path");
+			throw DcxExceptions::dcxInvalidPath();
 
 		const auto item = this->parsePath(path);
 
@@ -1248,6 +1252,8 @@ UINT DcxTreeView::parseColorFlags(const TString& flags) noexcept
 		iFlags |= TVCOLOR_L;
 	if (xflags[TEXT('s')])
 		iFlags |= TVCOLOR_S;
+	if (xflags[TEXT('S')])
+		iFlags |= TVCOLOR_SB;
 	if (xflags[TEXT('t')])
 		iFlags |= TVCOLOR_T;
 
@@ -1540,7 +1546,7 @@ bool DcxTreeView::matchItemText(const HTREEITEM hItem, const TString& search, co
 
 	getItemText(hItem, itemtext.get(), MIRC_BUFFER_SIZE_CCH);
 
-	return DcxListHelper::matchItemText(itemtext.get(), search, SearchType);
+	return DcxSearchHelper::matchItemText(itemtext.get(), search, SearchType);
 
 	//auto itemtext = std::make_unique<TCHAR[]>(MIRC_BUFFER_SIZE_CCH);
 	//gsl::at(itemtext, 0) = TEXT('\0');
@@ -1596,7 +1602,7 @@ bool DcxTreeView::matchItemText(const HTREEITEM hItem, const dcxSearchData& srch
 
 	getItemText(hItem, itemtext.get(), MIRC_BUFFER_SIZE_CCH);
 
-	return DcxListHelper::matchItemText(itemtext.get(), srch_data);
+	return DcxSearchHelper::matchItemText(itemtext.get(), srch_data);
 }
 
 std::optional<HTREEITEM> DcxTreeView::findItemText(const HTREEITEM hStart, const int n, int& matchCount, const dcxSearchData& srch_data) const
@@ -1981,7 +1987,7 @@ LRESULT DcxTreeView::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 				if (const auto edit_hwnd = TreeView_GetEditControl(m_Hwnd); edit_hwnd)
 				{
 					m_OrigEditProc = SubclassWindow(edit_hwnd, DcxTreeView::EditLabelProc);
-					SetProp(edit_hwnd, TEXT("dcx_pthis"), this);
+					Dcx::dcxSetProp(edit_hwnd, TEXT("dcx_pthis"), this);
 				}
 			}
 
@@ -2047,7 +2053,7 @@ LRESULT DcxTreeView::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 
 				if (lpdcxtvi->bUline || lpdcxtvi->bBold || lpdcxtvi->bItalic)
 				{
-					if (const auto hFont = GetWindowFont(m_Hwnd); hFont)
+					if (const auto hFont = this->getFont(); hFont)
 					{
 						if (auto [code, lf] = Dcx::dcxGetObject<LOGFONT>(hFont); code != 0)
 						{
@@ -2154,7 +2160,7 @@ LRESULT DcxTreeView::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 								DrawTextW(lpntvcd->nmcd.hdc, tsItem.to_wchr(), tsItem.len(), std::addressof(rcTxt), TextSyles);
 						}
 						else
-							mIRC_DrawText(lpntvcd->nmcd.hdc, tsItem, std::addressof(rcTxt), TextSyles, ((bSelected && this->IsShadowTextEnabled()) ? true : false));
+							mIRC_DrawText(lpntvcd->nmcd.hdc, tsItem, std::addressof(rcTxt), TextSyles, (bSelected && this->IsShadowTextEnabled()));
 					}
 
 					// restore HDC's context
@@ -2200,17 +2206,22 @@ LRESULT DcxTreeView::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 				if (const auto htvi = TV_GetSelection(m_Hwnd); htvi)
 				{
 					const auto state = TreeView_GetCheckState(m_Hwnd, htvi);
-					//this->execAliasEx(TEXT("%s,%d,%d,%d"), TEXT("stateclick"), this->getUserID( ), (state ? 0 : 1), TreeView_MapHTREEITEMToAccID(m_Hwnd, htvi) );
 					this->execAliasEx(TEXT("stateclick,%u,%d,%s"), getUserID(), (state ? 0 : 1), getPathFromItem(htvi).to_chr());
 				}
 			}
 		}
 		break;
-		//case TVN_ITEMCHANGED: // vista only :/
-		//	{
-		//		NMTVITEMCHANGE  *pnm = (NMTVITEMCHANGE *)lParam;
-		//	}
-		//	break;
+		case TVN_ITEMCHANGED: // vista+ only
+		{
+			//Returns FALSE to accept the change, or TRUE to prevent the change.
+
+			dcxlParam(NMTVITEMCHANGE*, pnm);
+			if (!pnm)
+				break;
+			if (this->execAliasEx(TEXT("itemchange,%u,%u,%u,%s"), getUserID(), pnm->uStateOld, pnm->uStateNew, getPathFromItem(pnm->hItem).to_chr()))
+				return TRUE;
+		}
+		break;
 
 		default:
 			break;

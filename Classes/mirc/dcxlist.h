@@ -17,7 +17,7 @@
 
 #include "defines.h"
 #include "Classes/dcxcontrol.h"
-#include "Classes\custom\ListHelper.h"
+#include "Classes\custom\SearchHelper.h"
 
 // Test fix for drawing when transparent.
 #define USE_FIX_01 1
@@ -38,7 +38,7 @@ namespace Dcx {
 
 class DcxList final
 	: public DcxControl
-	, public DcxListHelper
+	, virtual public DcxSearchHelper
 {
 
 public:

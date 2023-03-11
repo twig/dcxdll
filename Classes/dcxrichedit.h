@@ -45,7 +45,7 @@ using LPDCXSTREAM = DCXSTREAM*;
 
 class DcxRichEdit final
 	: public DcxControl
-	, public DcxSearchHelper
+	, virtual public DcxSearchHelper
 {
 public:
 	DcxRichEdit() = delete;
@@ -135,12 +135,14 @@ protected:
 	RECT getFmtRect() const noexcept
 	{
 		RECT rc{};
-		Edit_GetRect(m_Hwnd, &rc);
+		if (m_Hwnd)
+			Edit_GetRect(m_Hwnd, &rc);
 		return rc;
 	}
 	void resetFmtRect() noexcept
 	{
-		Edit_SetRect(m_Hwnd, nullptr);
+		if (m_Hwnd)
+			Edit_SetRect(m_Hwnd, nullptr);
 	}
 
 	//void setFmtRect(bool bReset = false) noexcept
@@ -159,6 +161,9 @@ protected:
 
 	void setFmtRect(bool bRedraw = true) noexcept
 	{
+		if (!m_Hwnd)
+			return;
+		
 		if (RECT rcFmt = getFmtRect(); gsl::narrow_cast<UINT>(rcFmt.left) != (m_GutterWidth - 1)) // richedit is -1!!
 		{
 			rcFmt.left = m_GutterWidth;

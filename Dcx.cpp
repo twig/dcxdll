@@ -802,4 +802,54 @@ namespace Dcx {
 			DeleteBrush(br);
 		}
 	}
+
+	std::pair<int, int> getItemRange(const TString& tsItems, const int nItemCnt)
+	{
+		const auto rng = make_range(tsItems, nItemCnt, 1);
+		return { rng.b, rng.e };
+	}
+
+	range_t<int> getItemRange2(const TString& tsItems, const int nItemCnt)
+	{
+		return make_range(tsItems, nItemCnt, 1);
+	}
+
+	void dcxLoadIconRange(HIMAGELIST himl, TString& tsFilename, const bool bLarge, const TString& tsFlags, const range_t<int>& Range)
+	{
+		if ((Range.b < 0) || (Range.e < 0) || (Range.b > Range.e))
+			throw dcxException(TEXT("Invalid range % to %."), Range.b, Range.e);
+
+		for (auto nItem : Range)
+		{
+#if DCX_USE_WRAPPERS
+			const dcxIconResource icon(nItem, tsFilename, bLarge, tsFlags);
+			ImageList_AddIcon(himl, icon.get());
+#else
+			if (const HICON icon = dcxLoadIcon(nItem, tsFilename, bLarge, tsFlags); icon)
+			{
+				ImageList_AddIcon(himl, icon);
+				DestroyIcon(icon);
+			}
+#endif
+		}
+	}
+
+	void dcxLoadIconRange(HIMAGELIST himl, TString& tsFilename, const bool bLarge, const TString& tsFlags, const TString& tsRanges)
+	{
+		const auto nItemCnt = ExtractIconEx(tsFilename.to_chr(), -1, nullptr, nullptr, 0);
+		const auto itEnd = tsRanges.end();
+
+		for (auto itStart = tsRanges.begin(TSCOMMACHAR); itStart != itEnd; ++itStart)
+		{
+			const auto tsLine(*itStart);
+
+			const auto r = getItemRange2(tsLine, nItemCnt);
+
+			if ((r.b < 0) || (r.e < 0) || (r.b > r.e))
+				throw dcxException(TEXT("Invalid range %."), tsLine);
+
+			dcxLoadIconRange(himl, tsFilename, bLarge, tsFlags, r);
+		}
+	}
+
 }

@@ -648,7 +648,7 @@ void DcxList::parseCommandRequest(const TString& input)
 				{
 					const TString tsLine(*itStart);
 
-					const auto [iStart, iEnd] = getItemRange(tsLine, nItems);
+					const auto [iStart, iEnd] = Dcx::getItemRange(tsLine, nItems);
 
 					if ((iStart < 0) || (iEnd < 0) || (iStart >= nItems) || (iEnd >= nItems))
 						throw Dcx::dcxException(TEXT("Invalid index %."), tsLine);
@@ -707,7 +707,7 @@ void DcxList::parseCommandRequest(const TString& input)
 				{
 					const TString tsLine(*itStart);
 
-					const auto [iStart, iEnd] = getItemRange(tsLine, nItems);
+					const auto [iStart, iEnd] = Dcx::getItemRange(tsLine, nItems);
 
 					if ((iStart < 0) || (iEnd < 0) || (iStart >= nItems) || (iEnd >= nItems))
 						throw Dcx::dcxException(TEXT("Invalid index %."), tsLine);
@@ -912,7 +912,7 @@ LRESULT DcxList::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bP
 		}
 		break;
 
-		// current dragging, as mirc if it needs to change the cursor or not
+		// current dragging, ask mirc if it needs to change the cursor or not
 		case DL_DRAGGING:
 		{
 			const auto item = LBItemFromPt(m_Hwnd, dli->ptCursor, TRUE);
@@ -1383,14 +1383,14 @@ bool DcxList::matchItemText(const int nItem, const TString& search, const DcxSea
 {
 	const auto itemtext(Dcx::dcxListBox_GetText(m_Hwnd, nItem));
 
-	return DcxListHelper::matchItemText(itemtext.to_chr(), search, SearchType);
+	return DcxSearchHelper::matchItemText(itemtext.to_chr(), search, SearchType);
 }
 
 bool DcxList::matchItemText(const int nItem, const dcxSearchData& srch_data) const
 {
 	const auto itemtext(Dcx::dcxListBox_GetText(m_Hwnd, nItem));
 
-	return DcxListHelper::matchItemText(itemtext.to_chr(), srch_data);
+	return DcxSearchHelper::matchItemText(itemtext.to_chr(), srch_data);
 }
 
 //void DcxList::StrLenToExtent(int *nLineExtent)

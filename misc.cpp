@@ -1930,7 +1930,7 @@ void DeleteHDCBuffer(gsl::owner<HDC*> hBuffer) noexcept
 			DeleteObject(buf->m_hBitmap);
 		DeleteDC(buf->m_hHDC);
 	}
-	delete buf;
+	GSL_SUPPRESS(r.11) delete buf;
 }
 
 int TGetWindowText(HWND hwnd, TString& txt)

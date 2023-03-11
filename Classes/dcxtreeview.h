@@ -17,7 +17,7 @@
 
 #include "defines.h"
 #include "Classes/dcxcontrol.h"
-#include "Classes\custom\ListHelper.h"
+#include "Classes\custom\SearchHelper.h"
 
 #include <string>
 
@@ -48,6 +48,7 @@ class DcxTreeView;
 #define TVCOLOR_L 0x02        //!< TreeView Line Color
 #define TVCOLOR_T 0x04        //!< TreeView Text Color
 #define TVCOLOR_S 0x08        //!< TreeView Selection Color
+#define TVCOLOR_SB 0x10        //!< TreeView Selection Border Color
 
 #define TVIS_DCXMASK		0xFF0000
 #define TVIS_UNDERLINE		0x010000 //!< TreeView Caption Underline Style
@@ -57,6 +58,12 @@ class DcxTreeView;
 #define TVIS_HASHITEM		0x100000 //!< TreeView item text is taken from a hash table item
 #define TVIS_HASHNUMBER		0x200000 //!< TreeView item text is taken from a hash tabel item number
 #define TVIS_XML			0x400000 //!< TreeView item text is taken from an xml file.
+
+#define TVIS_UNDOC			0x1000	//!< Undocumented extended style
+
+#ifndef TVIS_EX_HWND
+#define TVIS_EX_HWND		0x04	//!< Undefined extended state
+#endif
 
 #define TVIE_EXP     0x01     //!< TreeView Expand Branch Option
 #define TVIE_EXPALL  0x02     //!< TreeView Expandall Branch Option
@@ -78,8 +85,8 @@ class DcxTreeView;
 struct DCXTVSORT
 {
 	TString		tsCustomAlias;						//!< Custom Sorting Alias
-	UINT		iSortFlags{};							//!< Sorting Flags
-	DcxTreeView* pthis{ nullptr };								//!< TreeView control object pointer
+	UINT		iSortFlags{};						//!< Sorting Flags
+	DcxTreeView* pthis{ nullptr };					//!< TreeView control object pointer
 	TCHAR		itemtext1[MIRC_BUFFER_SIZE_CCH]{};	// Item text buffer One
 	TCHAR		itemtext2[MIRC_BUFFER_SIZE_CCH]{};	// Item Text Buffer Two
 };
@@ -91,18 +98,26 @@ using LPDCXTVSORT = DCXTVSORT*;
  * blah
  */
 
+// text, background, line, insert colours alrdy set elsewhere.
+struct DCXTVCOLOURS
+{
+	COLORREF	m_clrSelected{ CLR_INVALID };		//!< Colour of selection box.
+	COLORREF	m_clrSelectionBorder{ CLR_INVALID };//!< Colour of selection boxes border.
+};
+
 struct DCXTVITEM
 {
-	TString		tsTipText;	//!< Tooltip text
-	TString		tsMark;		// Marked item text.
+	TString		tsTipText;				//!< Tooltip text
+	TString		tsMark;					//!< Marked item text.
 	COLORREF	clrText{ CLR_INVALID };	//!< Item Caption Color
-	COLORREF	clrBkg{ CLR_INVALID };		//!< Item background colour.
-	HTREEITEM	hHandle{ nullptr };	//!< TreeView Item Handle (used for sorting)
-	bool		bBold{ false };		//!< Is Item Caption Bold ?
+	COLORREF	clrBkg{ CLR_INVALID };	//!< Item background colour.
+	HTREEITEM	hHandle{ nullptr };		//!< TreeView Item Handle (used for sorting)
+	bool		bBold{ false };			//!< Is Item Caption Bold ?
 	bool		bUline{ false };		//!< Is Item Caption Underlined
-	bool		bItalic{ false };	//!< Is Item Caption Italicised
+	bool		bItalic{ false };		//!< Is Item Caption Italicised
 };
 using LPDCXTVITEM = DCXTVITEM*;
+
 
 /*!
  * \brief blah
@@ -112,7 +127,7 @@ using LPDCXTVITEM = DCXTVITEM*;
 
 class DcxTreeView final
 	: public DcxControl
-	, public DcxListHelper
+	, virtual public DcxSearchHelper
 {
 public:
 	DcxTreeView() = delete;
@@ -228,11 +243,10 @@ protected:
 		if (cnt < 0)
 			return (abs(cnt) + 32767U);
 
-		return gsl::narrow_cast<DWORD>(cnt);
+		return gsl::narrow_cast<size_t>(cnt);
 	}
 	[[nodiscard]] const size_t size() const noexcept
 	{
-		// NB: This macro returns values 0 - 32767 ok, but 32768 - 65536 are returned as negatives, & anything > 65536 returns as zero & the treeview fails to display.
 		return TV_GetCount();
 	}
 	[[nodiscard]] HTREEITEM TV_GetLastSibling(HTREEITEM child) const noexcept;
@@ -251,6 +265,9 @@ protected:
 	}
 	[[nodiscard]] inline HTREEITEM TV_GetSelection(HWND hwnd) const noexcept
 	{
+		if (!hwnd)
+			return nullptr;
+
 		GSL_SUPPRESS(es.47) GSL_SUPPRESS(lifetime.4) return TreeView_GetSelection(hwnd);
 	}
 
@@ -296,6 +313,9 @@ protected:
 	}
 	bool TV_DeleteItem(const HTREEITEM item) noexcept
 	{
+		if (!m_Hwnd)
+			return false;
+
 		// If the window style for a tree-view control contains TVS_SCROLL and all items are deleted,
 		// new items are not displayed until the window styles are reset.
 		// The following code shows one way to ensure that items are always displayed.
@@ -306,6 +326,9 @@ protected:
 	}
 	bool TV_DeleteAllItems() noexcept
 	{
+		if (!m_Hwnd)
+			return false;
+
 		// If the window style for a tree-view control contains TVS_SCROLL and all items are deleted,
 		// new items are not displayed until the window styles are reset.
 		// The following code shows one way to ensure that items are always displayed.

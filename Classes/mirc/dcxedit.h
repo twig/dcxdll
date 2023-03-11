@@ -29,7 +29,7 @@ class DcxDialog;
 
 class DcxEdit final
 	: public DcxControl
-	, public DcxSearchHelper
+	, virtual public DcxSearchHelper
 {
 public:
 	DcxEdit() = delete;
@@ -85,12 +85,14 @@ private:
 	[[nodiscard]] RECT getFmtRect() const noexcept
 	{
 		RECT rc{};
-		Edit_GetRect(m_Hwnd, &rc);
+		if (m_Hwnd)
+			Edit_GetRect(m_Hwnd, &rc);
 		return rc;
 	}
 	void resetFmtRect() noexcept
 	{
-		Edit_SetRect(m_Hwnd, nullptr);
+		if (m_Hwnd)
+			Edit_SetRect(m_Hwnd, nullptr);
 	}
 
 	//void setFmtRect(bool bReset = false) noexcept
@@ -109,6 +111,9 @@ private:
 
 	void setFmtRect(bool bRedraw = true) noexcept
 	{
+		if (!m_Hwnd)
+			return;
+
 		if (gsl::narrow_cast<UINT>(getFmtRect().left) != (m_GutterWidth + 1)) // Edit ctrl is +1!!
 		{
 			// edit ctrl will shrink the fmt rect for some reason, so use client rect each time.

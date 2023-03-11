@@ -407,7 +407,7 @@ HRGN BitmapRegion(HBITMAP hBitmap, const COLORREF cTransparentColor, const bool 
 	// create a bitmap with 32bit depth color and with the
 	// size of the loaded bitmap!
 
-	BITMAPINFO RGB32BITSBITMAPINFO{
+	const BITMAPINFO RGB32BITSBITMAPINFO{
 		sizeof(BITMAPINFOHEADER),
 		bmBitmap.bmWidth,
 		bmBitmap.bmHeight,
@@ -479,7 +479,7 @@ HRGN BitmapRegion(HBITMAP hBitmap, const COLORREF cTransparentColor, const bool 
 	//	1,32,BI_RGB,0,0,0,0,0 
 	//};
 
-	BITMAPINFO RGB32BITSBITMAPINFO = {
+	const BITMAPINFO RGB32BITSBITMAPINFO = {
 		sizeof(BITMAPINFOHEADER),
 		bmBitmap.bmWidth,
 		bmBitmap.bmHeight,
@@ -516,8 +516,6 @@ HRGN BitmapRegion(HBITMAP hBitmap, const COLORREF cTransparentColor, const bool 
 
 	Auto(DeleteDC(hDC));
 
-	//Dcx::dcxHDCResource hDC((HDC)hMemDC);
-
 	// We compute the number of bytes per row that the bitmap contains, rounding to 32 bit-multiples
 	BITMAP		bmNewBitmap;
 
@@ -542,7 +540,7 @@ HRGN BitmapRegion(HBITMAP hBitmap, const COLORREF cTransparentColor, const bool 
 	// iteration, until the entire bitmap is analyzed.
 
 	// Also, in order to not saturate the Windows API with calls for reserving
-	// memory, we wait until NUMRECT rectangles are stores in order to claim
+	// memory, we wait until NUMRECT rectangles are stored in order to claim
 	// for another NUMRECT memory space!
 #define NUMRECT	100U			
 	DWORD maxRect = NUMRECT;

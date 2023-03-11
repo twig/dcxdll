@@ -19,7 +19,7 @@
 #include "Classes/dcxcontrol.h"
 #include "Classes/dcxprogressbar.h"
 #include "Classes/tinyxml/tinyxml.h"
-#include "Classes/custom/ListHelper.h"
+#include "Classes/custom/SearchHelper.h"
 
 #ifndef LVM_RESETEMPTYTEXT
 // Needed to reset the empty listview text.
@@ -206,6 +206,8 @@ struct DCXLVITEM
 	VectorOfRenderInfo	vInfo;	//!< Render Info for each column
 };
 using LPDCXLVITEM = DCXLVITEM*;
+using VectorOfDcxItems = std::vector<DCXLVITEM>;
+using MapOfDcxItems = std::map<LPARAM, DCXLVITEM>;
 
 namespace Dcx
 {
@@ -559,7 +561,7 @@ namespace Dcx
 
 class DcxListView final
 	: public DcxControl
-	, public DcxListHelper
+	, virtual public DcxSearchHelper
 {
 public:
 	DcxListView() = delete;
@@ -631,7 +633,7 @@ private:
 	DcxControl * CreatePbar(LPLVITEM lvi, const TString & style);
 	void ScrollPbars(const int row, const int nCols, const int iTop, const int iBottom, LPLVITEM lvi) noexcept;
 	void UpdateScrollPbars(void);
-	[[nodiscard]] HIMAGELIST initImageList(const int iImageList);
+	[[nodiscard]] gsl::strict_not_null<HIMAGELIST> initImageList(const int iImageList);
 	bool xmlLoadListview(const int nPos, const TString& dataset, TString& filename);
 	void xmlSetItem(const int nItem, const int nSubItem, const TiXmlElement* xNode, LPLVITEM lvi, LPDCXLVITEM lpmylvi, TString& tsBuf);
 	bool ctrlLoadListview(const int nPos, const TString& tsData) noexcept;
@@ -751,12 +753,14 @@ private:
 	static COLORREF getThemeGroupTextColour(HTHEME hTheme, int iStateId) noexcept
 	{
 		COLORREF clr{ RGB(0, 51, 153) };
+		if (hTheme)
 		Dcx::UXModule.dcxGetThemeColor(hTheme, LISTVIEWPARTS::LVP_GROUPHEADER, iStateId, TMT_HEADING1TEXTCOLOR, &clr);
 		return clr;
 	}
 	static COLORREF getThemeGroupBkgFillColour(HTHEME hTheme, int iStateId) noexcept
 	{
 		COLORREF clr{ RGB(185, 229, 242) };
+		if (hTheme)
 		Dcx::UXModule.dcxGetThemeColor(hTheme, LISTVIEWPARTS::LVP_GROUPHEADER, iStateId, TMT_ACCENTCOLORHINT, &clr);
 		return clr;
 	}
@@ -766,13 +770,15 @@ private:
 		Dcx::UXModule.dcxGetThemeColor(hTheme, LISTVIEWPARTS::LVP_GROUPHEADER, iStateId, TMT_FILLCOLORHINT, &clr);
 		return clr;
 	}
-	static HFONT getThemeGroupFont(HTHEME hTheme, int iStateId, HDC hdc) noexcept
+	[[nodiscard("Memory Leak")]] static HFONT getThemeGroupFont(HTHEME hTheme, int iStateId, HDC hdc) noexcept
+	{
+		if (hTheme)
 	{
 		LOGFONT logFont{};
 
 		if (Dcx::UXModule.dcxGetThemeFont(hTheme, hdc, LISTVIEWPARTS::LVP_GROUPHEADER, iStateId, TMT_HEADING1FONT, &logFont) == S_OK)
 			return CreateFontIndirectW(&logFont);
-
+		}
 		return nullptr;
 	}
 

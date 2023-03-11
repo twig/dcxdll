@@ -978,7 +978,8 @@ namespace Dcx
 			else
 				iStart = iEnd;
 		}
-		return{ std::min(iStart, nItemCnt - nAdjust), std::min(iEnd, nItemCnt - nAdjust) };
+		const T iRes{ nItemCnt - nAdjust };
+		return{ std::min(iStart, iRes), std::min(iEnd, iRes) };
 	}
 	template< DcxConcepts::IsNumeric T > range_t<T>  make_range(const TString& tsItems, T nItemCnt)
 	{
@@ -1005,6 +1006,9 @@ namespace Dcx
 	{
 		return { r.b + nAdjustment, r.e + nAdjustment };
 	}
+
+	std::pair<int, int> getItemRange(const TString& tsItems, const int nItemCnt);
+	range_t<int> getItemRange2(const TString& tsItems, const int nItemCnt);
 
 	// not for use in code, just for testing
 	template <DcxConcepts::IsNumeric T>
@@ -1070,6 +1074,8 @@ namespace Dcx
 	PVOID PatchAPI(const char* const c_szDllName, const char* const c_szApiName, PVOID newfPtr) noexcept;
 	void RemovePatch(PVOID fPtr, PVOID newfPtr) noexcept;
 	void FillRectColour(HDC hdc, LPCRECT prc, COLORREF clr) noexcept;
+	void dcxLoadIconRange(HIMAGELIST himl, TString& tsFilename, const bool bLarge, const TString& tsFlags, const range_t<int>& Range);
+	void dcxLoadIconRange(HIMAGELIST himl, TString& tsFilename, const bool bLarge, const TString& tsFlags, const TString& tsRanges);
 
 	//typedef HCURSOR(WINAPI *PFNSETCURSOR)(HCURSOR hCursor);
 	using PFNSETCURSOR = HCURSOR(WINAPI*)(HCURSOR hCursor);

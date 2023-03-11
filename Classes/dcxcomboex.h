@@ -17,7 +17,7 @@
 
 #include "defines.h"
 #include "Classes/dcxcontrol.h"
-#include "Classes\custom\ListHelper.h"
+#include "Classes\custom\SearchHelper.h"
 
 class DcxDialog;
 
@@ -94,7 +94,7 @@ namespace Dcx
 
 class DcxComboEx final
 	: public DcxControl
-	, public DcxListHelper
+	, virtual public DcxSearchHelper
 {
 public:
 	DcxComboEx() = delete;
