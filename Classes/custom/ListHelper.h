@@ -6,7 +6,7 @@
 // TODO: Change this to a namespace
 
 class DcxListHelper
-	: public DcxSearchHelper
+	: virtual public DcxSearchHelper
 {
 public:
 	static std::pair<int, int> getItemRange(const TString& tsItems, const int nItemCnt);
