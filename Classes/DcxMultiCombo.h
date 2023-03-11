@@ -4,11 +4,13 @@
 #include "defines.h"
 #include "Classes/dcxcontrol.h"
 #include "Classes/custom/multicombo.h"
+#include "Classes\custom\SearchHelper.h"
 
 class DcxDialog;
 
 class DcxMultiCombo final
 	: public DcxControl
+	, virtual public DcxSearchHelper
 {
 public:
 	DcxMultiCombo() = delete;
@@ -86,5 +88,8 @@ public:
 	{
 		SendMessage(m_Hwnd, MC_WM_RESETCONTENT, 0, 0);
 	}
+
+	bool matchItemText(const int nItem, const dcxSearchData& srch_data) const;
+
 };
 

@@ -407,17 +407,54 @@ void DcxMultiCombo::parseCommandRequest(const TString& input)
 			SendMessage(m_Hwnd, MC_WM_ADDCHILD, 0, (LPARAM)p_Control->getHwnd());
 	}
 	// xdid -d [NAME] [ID] [SWITCH] [N]
+	//xdid -d -> [NAME] [ID] -d [N](,[N],[N1]-N2],...)
+	//xdid -d -> [NAME] [ID] -d [N] [+flags] [match text]
 	else if (flags[TEXT('d')])
 	{
+		//if (numtok < 4)
+		//	throw DcxExceptions::dcxInvalidArguments();
+		//
+		//const auto nItem = input.getnexttok().to_int() - 1;	// tok 4
+		//
+		//if ((nItem < 0) || (nItem >= this->getCount()))
+		//	throw DcxExceptions::dcxInvalidItem();
+		//
+		//SendMessage(m_Hwnd, MC_WM_DELETEITEM, nItem, 0);
+
 		if (numtok < 4)
 			throw DcxExceptions::dcxInvalidArguments();
 
-		const auto nItem = input.getnexttok().to_int() - 1;	// tok 4
+		const auto Ns(input.getnexttok());			// tok 4
+		const XSwitchFlags xFlags(input.getnexttok());	// tok 5
+		const auto nItems = this->getCount();
 
-		if ((nItem < 0) || (nItem >= this->getCount()))
-			throw DcxExceptions::dcxInvalidItem();
+		if (xFlags[TEXT('+')])
+		{
+			// have flags, so its a match text delete
+			const auto tsMatchText(input.getnexttok());
 
-		SendMessage(m_Hwnd, MC_WM_DELETEITEM, nItem, 0);
+			const dcxSearchData srch_data(tsMatchText, FlagsToSearchType(xFlags));
+			for (auto nPos = Ns.to_int(); nPos < nItems; ++nPos)
+			{
+				if (this->matchItemText(nPos, srch_data))
+					SendMessage(m_Hwnd, MC_WM_DELETEITEM, nPos--, 0); // NB: we do nPos-- here as a lines just been removed so we have to check the same nPos again
+			}
+		}
+		else {
+			const auto itEnd = Ns.end();
+			for (auto itStart = Ns.begin(TSCOMMACHAR); itStart != itEnd; ++itStart)
+			{
+				const TString tsLine(*itStart);
+
+				const auto [iStart, iEnd] = Dcx::getItemRange(tsLine, nItems);
+
+				if ((iStart < 0) || (iEnd < 0) || (iStart >= nItems) || (iEnd >= nItems))
+					throw Dcx::dcxException(TEXT("Invalid index %."), tsLine);
+
+				for (auto nPos = iStart; nPos <= iEnd; ++nPos)
+					SendMessage(m_Hwnd, MC_WM_DELETEITEM, nPos, 0);
+			}
+		}
 	}
 	// xdid -D [NAME] [ID] [SWITCH]
 	else if (flags[TEXT('D')])
@@ -528,6 +565,13 @@ void DcxMultiCombo::parseCommandRequest(const TString& input)
 	}
 	else
 		parseGlobalCommandRequest(input, flags);
+}
+
+bool DcxMultiCombo::matchItemText(const int nItem, const dcxSearchData& srch_data) const
+{
+	const MCOMBO_ITEM res = getListBoxItem(nItem);
+
+	return DcxSearchHelper::matchItemText(res.m_tsItemText.to_chr(), srch_data);
 }
 
 void DcxMultiCombo::toXml(TiXmlElement* const xml) const

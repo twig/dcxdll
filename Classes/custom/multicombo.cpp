@@ -684,6 +684,9 @@ LRESULT CALLBACK MultiComboWndProc(HWND mHwnd, UINT uMsg, WPARAM wParam, LPARAM 
 
 void MultiCombo_SizeBaseWindowContents(HWND mHwnd, WORD cx, WORD cy) noexcept
 {
+	if (!mHwnd)
+		return;
+
 	const auto lpmcdata = Dcx::dcxGetProp<LPMCOMBO_DATA>(mHwnd, TEXT("mc_data"));
 	if (!lpmcdata)
 		return;
@@ -704,6 +707,9 @@ void MultiCombo_SizeBaseWindowContents(HWND mHwnd, WORD cx, WORD cy) noexcept
 
 void MultiCombo_OnLButtonDown(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept
 {
+	if (!mHwnd)
+		return;
+
 	const auto lpmcdata = Dcx::dcxGetProp<LPMCOMBO_DATA>(mHwnd, TEXT("mc_data"));
 	if (!lpmcdata)
 		return;
@@ -716,6 +722,9 @@ void MultiCombo_OnLButtonDown(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept
 
 void MultiCombo_OnLButtonUp(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept
 {
+	if (!mHwnd)
+		return;
+
 	const auto lpmcdata = Dcx::dcxGetProp<LPMCOMBO_DATA>(mHwnd, TEXT("mc_data"));
 	if (!lpmcdata)
 		return;
@@ -740,6 +749,9 @@ void MultiCombo_OnLButtonUp(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept
 
 void MultiCombo_OnMouseMove(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept
 {
+	if (!mHwnd)
+		return;
+
 	const auto lpmcdata = Dcx::dcxGetProp<LPMCOMBO_DATA>(mHwnd, TEXT("mc_data"));
 	if (!lpmcdata)
 		return;
@@ -758,6 +770,9 @@ void MultiCombo_OnMouseMove(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept
 
 void MultiCombo_OnMouseLeave(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept
 {
+	if (!mHwnd)
+		return;
+
 	const auto lpmcdata = Dcx::dcxGetProp<LPMCOMBO_DATA>(mHwnd, TEXT("mc_data"));
 	if (!lpmcdata)
 		return;
@@ -770,6 +785,9 @@ void MultiCombo_OnMouseLeave(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept
 
 void MultiCombo_SetFocus(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept
 {
+	if (!mHwnd)
+		return;
+
 	const auto lpmcdata = Dcx::dcxGetProp<LPMCOMBO_DATA>(mHwnd, TEXT("mc_data"));
 	if (!lpmcdata)
 		return;
@@ -780,6 +798,9 @@ void MultiCombo_SetFocus(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept
 
 void MultiCombo_OnThemeChange(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept
 {
+	if (!mHwnd)
+		return;
+
 	const auto lpmcdata = Dcx::dcxGetProp<LPMCOMBO_DATA>(mHwnd, TEXT("mc_data"));
 	if (!lpmcdata)
 		return;
@@ -795,6 +816,9 @@ void MultiCombo_OnThemeChange(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept
 
 RECT MultiCombo_GetEditRect(LPCRECT rcBase) noexcept
 {
+	if (!rcBase)
+		return {};
+
 	RECT rc{ *rcBase };
 
 	rc.right -= MCOMBO_EDIT_WIDTH;
@@ -804,6 +828,9 @@ RECT MultiCombo_GetEditRect(LPCRECT rcBase) noexcept
 
 RECT MultiCombo_GetButtonRect(LPCRECT rcBase) noexcept
 {
+	if (!rcBase)
+		return {};
+
 	RECT rc{ *rcBase };
 
 	rc.left = rc.right - MCOMBO_EDIT_WIDTH;
@@ -814,6 +841,9 @@ RECT MultiCombo_GetButtonRect(LPCRECT rcBase) noexcept
 RECT MultiCombo_GetDropRect(HWND mHwnd, UINT mID) noexcept
 {
 	RECT rc{};
+	if (!mHwnd)
+		return rc;
+
 	MEASUREITEMSTRUCT mis{};
 
 	mis.CtlType = MCOMBO_TYPE;
@@ -832,6 +862,9 @@ RECT MultiCombo_GetDropRect(HWND mHwnd, UINT mID) noexcept
 
 LRESULT MultiCombo_OnCreate(HWND mHwnd, WPARAM wParam, LPARAM lParam)
 {
+	if (!mHwnd)
+		return -1L;
+
 	dcxlParam(LPCREATESTRUCT,cs);
 
 	const RECT rc{ 0,0,cs->x + cs->cx,cs->y + cs->cy };
@@ -899,6 +932,9 @@ LRESULT MultiCombo_OnCreate(HWND mHwnd, WPARAM wParam, LPARAM lParam)
 	{
 		const auto lpmcdata = Dcx::dcxGetProp<LPMCOMBO_DATA>(mHwnd, TEXT("mc_data"));
 
+		if (!mHwnd)
+			return -1L;
+
 		switch (lpmcdata->m_Styles)
 		{
 		default:
@@ -929,6 +965,9 @@ LRESULT MultiCombo_OnCreate(HWND mHwnd, WPARAM wParam, LPARAM lParam)
 
 void MultiCombo_OnPaint(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept
 {
+	if (!mHwnd)
+		return;
+
 	const auto lpmcdata = Dcx::dcxGetProp<LPMCOMBO_DATA>(mHwnd, TEXT("mc_data"));
 	if (!lpmcdata || !mHwnd)
 		return;
@@ -1008,6 +1047,9 @@ void MultiCombo_OnPaint(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept
 
 void MultiCombo_SetFont(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept
 {
+	if (!mHwnd)
+		return;
+
 	const auto lpmcdata = Dcx::dcxGetProp<LPMCOMBO_DATA>(mHwnd, TEXT("mc_data"));
 	if (!lpmcdata)
 		return;
@@ -1024,6 +1066,9 @@ void MultiCombo_SetFont(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept
 
 void MultiCombo_ParentNotify(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept
 {
+	if (!mHwnd)
+		return;
+
 	const auto lpmcdata = Dcx::dcxGetProp<LPMCOMBO_DATA>(mHwnd, TEXT("mc_data"));
 	if (!lpmcdata)
 		return;
@@ -1067,6 +1112,9 @@ void MultiCombo_AdjustDropRectPos(HWND mHwnd, LPMCOMBO_DATA lpmcdata) noexcept
 
 void MultiCombo_AdjustDropRectPos(HWND mHwnd) noexcept
 {
+	if (!mHwnd)
+		return;
+
 	const auto lpmcdata = Dcx::dcxGetProp<LPMCOMBO_DATA>(mHwnd, TEXT("mc_data"));
 	if (!lpmcdata)
 		return;
@@ -1076,6 +1124,9 @@ void MultiCombo_AdjustDropRectPos(HWND mHwnd) noexcept
 
 void MultiCombo_OnMove(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept
 {
+	if (!mHwnd)
+		return;
+
 	const auto lpmcdata = Dcx::dcxGetProp<LPMCOMBO_DATA>(mHwnd, TEXT("mc_data"));
 	if (!lpmcdata)
 		return;
@@ -1086,6 +1137,9 @@ void MultiCombo_OnMove(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept
 
 void MultiCombo_Drop_ShowWindow(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept
 {
+	if (!mHwnd)
+		return;
+
 	const auto lpmcdata = Dcx::dcxGetProp<LPMCOMBO_DATA>(mHwnd, TEXT("mc_data"));
 	if (!lpmcdata)
 		return;
@@ -1117,6 +1171,9 @@ void MultiCombo_Drop_ShowWindow(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexce
 
 void MultiCombo_ShowWindow(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept
 {
+	if (!mHwnd)
+		return;
+
 	const auto lpmcdata = Dcx::dcxGetProp<LPMCOMBO_DATA>(mHwnd, TEXT("mc_data"));
 	if (!lpmcdata)
 		return;
@@ -1127,6 +1184,9 @@ void MultiCombo_ShowWindow(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept
 
 void MultiCombo_RemoveChild(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept
 {
+	if (!mHwnd)
+		return;
+
 	const auto lpmcdata = Dcx::dcxGetProp<LPMCOMBO_DATA>(mHwnd, TEXT("mc_data"));
 	if (!lpmcdata)
 		return;
@@ -1141,6 +1201,9 @@ void MultiCombo_RemoveChild(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept
 
 BOOL MultiCombo_DrawItem(HWND mHwnd, LPDRAWITEMSTRUCT lpdis)
 {
+	if (!mHwnd)
+		return FALSE;
+
 	const auto lpmcdata = Dcx::dcxGetProp<LPMCOMBO_DATA>(mHwnd, TEXT("mc_data"));
 	if (!lpmcdata)
 		return FALSE;
@@ -1217,6 +1280,9 @@ BOOL MultiCombo_DrawItem(HWND mHwnd, LPDRAWITEMSTRUCT lpdis)
 
 BOOL MultiCombo_MeasureItem(HWND mHwnd, LPMEASUREITEMSTRUCT lpmis) noexcept
 {
+	if (!mHwnd)
+		return FALSE;
+
 	const auto lpmcdata = Dcx::dcxGetProp<LPMCOMBO_DATA>(mHwnd, TEXT("mc_data"));
 	if (!lpmcdata)
 		return FALSE;
@@ -1232,6 +1298,9 @@ BOOL MultiCombo_MeasureItem(HWND mHwnd, LPMEASUREITEMSTRUCT lpmis) noexcept
 
 BOOL MultiCombo_FillColours(HWND mHwnd, WPARAM wParam, LPARAM lParam)
 {
+	if (!mHwnd)
+		return FALSE;
+
 	// wParam = count
 	// lParam = array of COLORREFS
 	const auto lpmcdata = Dcx::dcxGetProp<LPMCOMBO_DATA>(mHwnd, TEXT("mc_data"));
@@ -1256,6 +1325,9 @@ BOOL MultiCombo_FillColours(HWND mHwnd, WPARAM wParam, LPARAM lParam)
 
 int MultiCombo_GetItemCount(HWND mHwnd) noexcept
 {
+	if (!mHwnd)
+		return UINT_MAX;
+
 	const auto lpmcdata = Dcx::dcxGetProp<LPMCOMBO_DATA>(mHwnd, TEXT("mc_data"));
 	if (!lpmcdata)
 		return UINT_MAX;
@@ -1281,6 +1353,9 @@ int MultiCombo_GetItemCount(HWND mHwnd) noexcept
 
 int MultiCombo_GetSelected(HWND mHwnd) noexcept
 {
+	if (!mHwnd)
+		return UINT_MAX;
+
 	const auto lpmcdata = Dcx::dcxGetProp<LPMCOMBO_DATA>(mHwnd, TEXT("mc_data"));
 	if (!lpmcdata)
 		return UINT_MAX;
@@ -1309,6 +1384,9 @@ int MultiCombo_GetSelected(HWND mHwnd) noexcept
 
 BOOL MultiCombo_GetItem(HWND mHwnd, WPARAM wParam, LPARAM lParam)
 {
+	if (!mHwnd)
+		return FALSE;
+
 	const auto lpmcdata = Dcx::dcxGetProp<LPMCOMBO_DATA>(mHwnd, TEXT("mc_data"));
 	if (!lpmcdata)
 		return FALSE;
@@ -1402,6 +1480,9 @@ BOOL MultiCombo_GetItem(HWND mHwnd, WPARAM wParam, LPARAM lParam)
 
 BOOL MultiCombo_AddItem(HWND mHwnd, WPARAM wParam, LPARAM lParam)
 {
+	if (!mHwnd)
+		return FALSE;
+
 	if (lParam == 0)
 		return FALSE;
 
@@ -1483,6 +1564,9 @@ BOOL MultiCombo_AddItem(HWND mHwnd, WPARAM wParam, LPARAM lParam)
 
 BOOL MultiCombo_InsertItem(HWND mHwnd, WPARAM wParam, LPARAM lParam)
 {
+	if (!mHwnd)
+		return FALSE;
+
 	if (lParam == 0)
 		return FALSE;
 
@@ -1536,6 +1620,9 @@ BOOL MultiCombo_InsertItem(HWND mHwnd, WPARAM wParam, LPARAM lParam)
 
 void MultiCombo_SetEditToCurSel(HWND mHwnd) noexcept
 {
+	if (!mHwnd)
+		return;
+
 	const auto lpmcdata = Dcx::dcxGetProp<LPMCOMBO_DATA>(mHwnd, TEXT("mc_data"));
 	if (!lpmcdata)
 		return;
@@ -1590,6 +1677,9 @@ void MultiCombo_SetEditToCurSel(HWND mHwnd) noexcept
 
 LRESULT MultiCombo_Drop_Command(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept
 {
+	if (!mHwnd)
+		return 0;
+
 	const auto lpmcdata = Dcx::dcxGetProp<LPMCOMBO_DATA>(mHwnd, TEXT("mc_data"));
 	if (!lpmcdata)
 		return DefWindowProc(mHwnd, WM_COMMAND, wParam, lParam);
@@ -1659,6 +1749,9 @@ LRESULT MultiCombo_Drop_Command(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexce
 
 LRESULT MultiCombo_Command(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept
 {
+	if (!mHwnd)
+		return 0;
+
 	const auto lpmcdata = Dcx::dcxGetProp<LPMCOMBO_DATA>(mHwnd, TEXT("mc_data"));
 	if (!lpmcdata)
 		return DefWindowProc(mHwnd, WM_COMMAND, wParam, lParam);
@@ -1682,11 +1775,14 @@ LRESULT MultiCombo_Command(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept
 
 void MultiCombo_ResetContent(HWND mHwnd) noexcept
 {
+	if (!mHwnd)
+		return;
+
 	const auto lpmcdata = Dcx::dcxGetProp<LPMCOMBO_DATA>(mHwnd, TEXT("mc_data"));
 	if (!lpmcdata)
 		return;
 
-	if (!IsWindow(lpmcdata->m_hDropChild))
+	if ((!lpmcdata->m_hDropChild) || (!IsWindow(lpmcdata->m_hDropChild)))
 		return;
 
 	switch (lpmcdata->m_Styles)
@@ -1702,11 +1798,14 @@ void MultiCombo_ResetContent(HWND mHwnd) noexcept
 
 void MultiCombo_SetSel(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept
 {
+	if (!mHwnd)
+		return;
+
 	const auto lpmcdata = Dcx::dcxGetProp<LPMCOMBO_DATA>(mHwnd, TEXT("mc_data"));
 	if (!lpmcdata)
 		return;
 
-	if (!IsWindow(lpmcdata->m_hDropChild))
+	if ((!lpmcdata->m_hDropChild) || (!IsWindow(lpmcdata->m_hDropChild)))
 		return;
 
 	switch (lpmcdata->m_Styles)
@@ -1726,11 +1825,14 @@ void MultiCombo_SetSel(HWND mHwnd, WPARAM wParam, LPARAM lParam) noexcept
 
 void MultiCombo_DeleteItem(HWND mHwnd, WPARAM wParam) noexcept
 {
+	if (!mHwnd)
+		return;
+
 	const auto lpmcdata = Dcx::dcxGetProp<LPMCOMBO_DATA>(mHwnd, TEXT("mc_data"));
 	if (!lpmcdata)
 		return;
 
-	if (!IsWindow(lpmcdata->m_hDropChild))
+	if ((!lpmcdata->m_hDropChild) || (!IsWindow(lpmcdata->m_hDropChild)))
 		return;
 
 	switch (lpmcdata->m_Styles)
