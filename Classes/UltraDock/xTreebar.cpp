@@ -455,7 +455,7 @@ mIRC(xtreebar)
 			}
 		}
 		break;
-		case TEXT('w'): // [clear|default|mirc] | [index] [+flags] [icon index] [filename]
+		case TEXT('w'): // [clear|default] | [index] [+flags] [icon index] [filename]
 		{
 			if (!mIRCLinker::getTreeImages())
 				throw Dcx::dcxException("No Valid TreeView Image List");
@@ -563,7 +563,7 @@ mIRC(_xtreebar)
 		d.trim();
 
 		if (d.numtok() != 3)
-			throw Dcx::dcxException("Invalid Args: An Index & a Prop are required.");
+			throw DcxExceptions::dcxInvalidArguments(); // Dcx::dcxException("Invalid Args: An Index & a Prop are required.");
 
 		// NB: This macro returns values 0 - 32767 ok, but 32768 - 65536 are returned as negatives, & anything > 65536 returns as zero & the treeview fails to display.
 		const auto cnt = TreeView_GetCount(mIRCLinker::getTreeview());
@@ -571,7 +571,7 @@ mIRC(_xtreebar)
 		auto index = d.getnexttok().to_<UINT>();
 
 		if (index > cnt)
-			throw Dcx::dcxException("Invalid Item Index");
+			throw DcxExceptions::dcxInvalidItem(); // Dcx::dcxException("Invalid Item Index");
 
 		TVITEMEX item{};
 
@@ -586,7 +586,7 @@ mIRC(_xtreebar)
 				item.hItem = TreeView_MapAccIDToHTREEITEM(mIRCLinker::getTreeview(), index);
 				item.mask = TVIF_TEXT;
 				item.pszText = szbuf;	// PVS-Studio reports `V507 pointer stored outside of scope` this is fine.
-				item.cchTextMax = szbuf.capacity_cch();  //MIRC_BUFFER_SIZE_CCH;
+				item.cchTextMax = szbuf.capacity_cch();
 				if (!TreeView_GetItem(mIRCLinker::getTreeview(), &item))
 					throw Dcx::dcxException("Unable To Get Item");
 
@@ -604,7 +604,7 @@ mIRC(_xtreebar)
 			if (!TreeView_GetItem(mIRCLinker::getTreeview(), &item))
 				throw Dcx::dcxException("Unable To Get Item");
 
-			_ts_snprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d"), item.iImage, item.iSelectedImage);
+			_ts_snprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d %d"), item.iImage, item.iSelectedImage, item.iExpandedImage);
 		}
 		break;
 		default:	// error
