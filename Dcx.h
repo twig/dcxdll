@@ -842,6 +842,7 @@ namespace Dcx
 		{
 			COLORREF operator * () const noexcept { if (!itr_Palette) return CLR_INVALID; return itr_Palette[n]; }
 			iter& operator ++() noexcept { ++n; return *this; }
+			iter& operator --() noexcept { --n; return *this; }
 			friend
 				bool operator != (iter const& lhs, iter const& rhs) noexcept
 			{
@@ -880,11 +881,29 @@ namespace Dcx
 
 		struct iter
 		{
-			HTREEITEM operator * () const noexcept { return itr_Item; }
+			//HTREEITEM operator * () const noexcept { return itr_Item; }
+			dcxTreeItem operator * () const noexcept { return dcxTreeItem{ itr_Window,itr_Item }; }
 			iter& operator ++() noexcept
 			{
 				itr_Item = TreeView_GetNextSibling(itr_Window, itr_Item);
 				return *this;
+			}
+			iter& operator --() noexcept
+			{
+				itr_Item = TreeView_GetPrevSibling(itr_Window, itr_Item);
+				return *this;
+			}
+			iter operator ++(int) noexcept
+			{
+				iter res{ *this };
+				itr_Item = TreeView_GetNextSibling(itr_Window, itr_Item);
+				return res;
+			}
+			iter operator --(int) noexcept
+			{
+				iter res{ *this };
+				itr_Item = TreeView_GetPrevSibling(itr_Window, itr_Item);
+				return res;
 			}
 			friend
 				bool operator != (iter const& lhs, iter const& rhs) noexcept
@@ -898,6 +917,157 @@ namespace Dcx
 
 		GSL_SUPPRESS(lifetime.4) iter begin() const noexcept { return{ m_Window, TreeView_GetChild(m_Window, m_Item) }; }
 		GSL_SUPPRESS(lifetime.4) iter end() const noexcept { return{ m_Window, nullptr }; }
+
+		dcxTreeItem GetChild() const noexcept
+		{
+			if (!m_Window || !m_Item)
+				return { nullptr, nullptr };
+
+			return { m_Window, TreeView_GetChild(m_Window, m_Item) };
+		}
+		dcxTreeItem GetParent() const noexcept
+		{
+			if (!m_Window || !m_Item)
+				return { nullptr, nullptr };
+
+			return { m_Window, TreeView_GetParent(m_Window, m_Item) };
+		}
+		dcxTreeItem GetPrev() const noexcept
+		{
+			if (!m_Window || !m_Item)
+				return { nullptr, nullptr };
+
+			return { m_Window, TreeView_GetPrevSibling(m_Window, m_Item) };
+		}
+		dcxTreeItem GetNext() const noexcept
+		{
+			if (!m_Window || !m_Item)
+				return { nullptr, nullptr };
+
+			return { m_Window, TreeView_GetNextSibling(m_Window, m_Item) };
+		}
+		TVITEMEX GetItemEx(UINT uMask) const noexcept
+		{
+			TVITEMEX item{};
+			if (!m_Window || !m_Item)
+				return item;
+			
+			item.hItem = m_Item;
+			// exclude text flag as no buffer set.
+			item.mask = (uMask & ~TVIF_TEXT);
+
+			TreeView_GetItem(m_Window, &item);
+
+			return item;
+		}
+		bool SetItemEx(const LPTVITEMEX pItem) noexcept
+		{
+			if (!pItem)
+				return false;
+			if (!m_Window || !m_Item)
+				return false;
+
+			TVITEMEX item{ *pItem };
+			item.hItem = m_Item;
+
+			return (TreeView_SetItem(m_Window, &item) != FALSE);
+		}
+		TString GetItemText() const
+		{
+			if (!m_Window || !m_Item)
+				return {};
+
+			//NB: item text can be any length BUT treeview control only displays first 260 characters.
+			TString tsRes(gsl::narrow_cast<UINT>(mIRCLinker::c_mIRC_Buffer_Size_cch));
+			TVITEMEX item{};
+			item.hItem = m_Item;
+			item.pszText = tsRes.to_chr();
+			item.cchTextMax = tsRes.capacity_cch();
+			item.mask = TVIF_TEXT;
+			if (TreeView_GetItem(m_Window, &item))
+				return TString(item.pszText);
+
+			return tsRes;
+		}
+		void SetItemText(const TString& tsStr) noexcept
+		{
+			if (!m_Window || !m_Item)
+				return;
+
+			//NB: item text can be any length BUT treeview control only displays first 260 characters.
+			TVITEMEX item{};
+			item.hItem = m_Item;
+			item.pszText = const_cast<TCHAR*>(tsStr.to_chr());
+			item.cchTextMax = tsStr.len();
+			item.mask = TVIF_TEXT;
+
+			TreeView_SetItem(m_Window, &item);
+		}
+		template <class T>
+		T GetItemParam() const noexcept
+		{
+			if (!m_Window || !m_Item)
+				return {};
+
+			TVITEMEX item{};
+			item.hItem = m_Item;
+			item.mask = TVIF_PARAM;
+			if (TreeView_GetItem(m_Window, &item))
+			{
+				if constexpr (std::is_same_v<T, LPARAM>)		// if we ant an LPARAM, just return it
+					return item.lParam;
+				else if constexpr (std::is_pointer_v<T>)
+					return reinterpret_cast<T>(item.lParam);	// if we want a pointer, cast it
+				else
+					return gsl::narrow_cast<T>(item.lParam);	// otherwise its a number type conversion.
+			}
+			return {};
+		}
+		template <class T>
+		void SetItemParam(T obj) noexcept
+		{
+			if (!m_Window || !m_Item)
+				return;
+
+			TVITEMEX item{};
+			item.hItem = m_Item;
+			item.mask = TVIF_PARAM;
+
+			if constexpr (std::is_same_v<T, LPARAM>)			// if we are an LPARAM, just assign it
+				item.lParam = obj;
+			else if constexpr (std::is_pointer_v<T>)
+				item.lParam = reinterpret_cast<LPARAM>(obj);	// if we are a pointer, cast it
+			else
+				item.lParam = gsl::narrow_cast<LPARAM>(obj);	// otherwise its a number type conversion.
+
+			TreeView_SetItem(m_Window, &item);
+		}
+		void SetItemImages(int iImage, int iSelected, int iExpanded) noexcept
+		{
+			if (!m_Window || !m_Item)
+				return;
+
+			//NB: item text can be any length BUT treeview control only displays first 260 characters.
+			TVITEMEX item{};
+			item.hItem = m_Item;
+			item.mask = TVIF_IMAGE | TVIF_SELECTEDIMAGE | TVIF_EXPANDEDIMAGE;
+
+			item.iImage = (iImage < 0) ? I_IMAGENONE : iImage;
+			item.iSelectedImage = (iSelected < 0) ? item.iImage : iSelected;
+			item.iExpandedImage = (iExpanded < 0) ? item.iImage : iExpanded;
+
+			TreeView_SetItem(m_Window, &item);
+		}
+		RECT GetItemRect(bool bTextAreaOnly) const noexcept
+		{
+			RECT rc{};
+			if (!m_Window || !m_Item)
+				return rc;
+
+			TreeView_GetItemRect(m_Window, m_Item, &rc, bTextAreaOnly);
+
+			return rc;
+		}
 
 		HWND		m_Window{};
 		HTREEITEM	m_Item{};
@@ -1276,7 +1446,7 @@ namespace Dcx
 		return gsl::narrow_cast<LPARAM>(dcxLOWORD(l) | (gsl::narrow_cast<DWORD>(dcxLOWORD(h)) << 16));
 	}
 
-	inline bool dcxSetProp(_In_ HWND hwnd, _In_z_ const TCHAR* const str, _In_ DcxControl *data) noexcept
+	inline bool dcxSetProp(_In_ HWND hwnd, _In_z_ const TCHAR* const str, _In_ DcxControl* data) noexcept
 	{
 		return SetPropW(hwnd, str, data);
 	}
@@ -1318,7 +1488,7 @@ namespace Dcx
 		_ts_strcpyn(tmp.get(), pattern + 1, patlen - 2);
 		return std::basic_regex<TCHAR>(tmp.get(), rType);
 
-}
+	}
 #endif
 
 }
