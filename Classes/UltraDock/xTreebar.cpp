@@ -6,8 +6,11 @@
 #include "Dcx.h"
 
 GSL_SUPPRESS(type.4)
-void TraverseChildren(const HTREEITEM hParent, TString& buf, TString& res, LPTVITEMEX pitem)
+static void TraverseChildren(const HTREEITEM hParent, TString& buf, TString& res, LPTVITEMEX pitem)
+//static void TraverseChildren(const HTREEITEM hParent)
 {
+	if (!hParent || !pitem)
+		return;
 	ZeroMemory(pitem, sizeof(TVITEMEX));
 	for (auto ptvitem = TreeView_GetChild(mIRCLinker::getTreeview(), hParent); ptvitem; ptvitem = TreeView_GetNextSibling(mIRCLinker::getTreeview(), ptvitem))
 	{
@@ -19,35 +22,97 @@ void TraverseChildren(const HTREEITEM hParent, TString& buf, TString& res, LPTVI
 		{
 			{
 				TString tsType(DcxDock::getTreebarItemType(pitem->lParam));
-
+	
 				//mIRCLinker::execex(TEXT("/!set -nu1 %%dcx_%d %s"), pitem->lParam, pitem->pszText );
 				//mIRCLinker::tsEvalex(res, TEXT("$xtreebar_callback(geticons,%s,%%dcx_%d)"), tsType.to_chr(), pitem->lParam);
 				mIRCLinker::exec(TEXT("/!set -nu1 \\%dcx_% %"), pitem->lParam, pitem->pszText);
 				mIRCLinker::eval(res, TEXT("$xtreebar_callback(geticons,%,\\%dcx_%)"), tsType, pitem->lParam);
 			}
 			pitem->mask = TVIF_IMAGE | TVIF_SELECTEDIMAGE | TVIF_EXPANDEDIMAGE;
-
+	
 			// image
 			auto i = res.getfirsttok(1).to_int() - 1;
 			pitem->iImage = (i < 0) ? I_IMAGENONE : i;
-
+	
 			// selected image (if none supplied use the standard image)
 			i = res.getnexttok().to_int() - 1;
 			pitem->iSelectedImage = (i < 0) ? pitem->iImage : i;
-
+	
 			// expanded image (if none supplied use the standard image)
 			i = res.getnexttok().to_int() - 1;
 			pitem->iExpandedImage = (i < 0) ? pitem->iImage : i;
-
+	
 			TreeView_SetItem(mIRCLinker::getTreeview(), pitem);
 		}
 		TraverseChildren(ptvitem, buf, res, pitem);
 	}
+
+	//ZeroMemory(pitem, sizeof(TVITEMEX));
+	//for (auto ptvitem: Dcx::dcxTreeItem(mIRCLinker::getTreeview(), hParent))
+	//{
+	//	pitem->hItem = (HTREEITEM)ptvitem;
+	//	pitem->pszText = buf.to_chr();
+	//	pitem->cchTextMax = buf.capacity_cch();
+	//	pitem->mask = TVIF_TEXT | TVIF_PARAM;
+	//	if (TreeView_GetItem(mIRCLinker::getTreeview(), pitem))
+	//	{
+	//		{
+	//			const TString tsType(DcxDock::getTreebarItemType(pitem->lParam));
+	//
+	//			mIRCLinker::exec(TEXT("/!set -nu1 \\%dcx_% %"), pitem->lParam, pitem->pszText);
+	//			mIRCLinker::eval(res, TEXT("$xtreebar_callback(geticons,%,\\%dcx_%)"), tsType, pitem->lParam);
+	//		}
+	//		pitem->mask = TVIF_IMAGE | TVIF_SELECTEDIMAGE | TVIF_EXPANDEDIMAGE;
+	//
+	//		// image
+	//		auto i = res.getfirsttok(1).to_int() - 1;
+	//		pitem->iImage = (i < 0) ? I_IMAGENONE : i;
+	//
+	//		// selected image (if none supplied use the standard image)
+	//		i = res.getnexttok().to_int() - 1;
+	//		pitem->iSelectedImage = (i < 0) ? pitem->iImage : i;
+	//
+	//		// expanded image (if none supplied use the standard image)
+	//		i = res.getnexttok().to_int() - 1;
+	//		pitem->iExpandedImage = (i < 0) ? pitem->iImage : i;
+	//
+	//		TreeView_SetItem(mIRCLinker::getTreeview(), pitem);
+	//	}
+	//	TraverseChildren((HTREEITEM)ptvitem, buf, res, pitem);
+	//}
+
+	//for (auto ptvitem : Dcx::dcxTreeItem(mIRCLinker::getTreeview(), hParent))
+	//{
+	//	{	// limit the scope of these objects
+	//		const TString tsItem(ptvitem.GetItemText());
+	//		const LPARAM lparam = ptvitem.GetItemParam<LPARAM>();
+	//		const TString tsType(DcxDock::getTreebarItemType(lparam));
+	//		TString res;
+	//
+	//		mIRCLinker::exec(TEXT("/!set -nu1 \\%dcx_% %"), lparam, tsItem);
+	//		mIRCLinker::eval(res, TEXT("$xtreebar_callback(geticons,%,\\%dcx_%)"), tsType, lparam);
+	//		if (!res.empty())
+	//		{
+	//			// image
+	//			const auto iImage = res.getfirsttok(1).to_int() - 1;
+	//
+	//			// selected image (if none supplied use the standard image)
+	//			const auto iSelected = res.getnexttok().to_int() - 1;
+	//
+	//			// expanded image (if none supplied use the standard image)
+	//			const auto iExpanded = res.getnexttok().to_int() - 1;
+	//
+	//			ptvitem.SetItemImages(iImage, iSelected, iExpanded);
+	//		}
+	//	}
+	//
+	//	TraverseChildren((HTREEITEM)ptvitem);
+	//}
 }
 
 GSL_SUPPRESS(type.4)
 GSL_SUPPRESS(es.47)
-void TraverseTreebarItems(void)
+static void TraverseTreebarItems(void)
 {
 	SetWindowRedraw(mIRCLinker::getTreeview(), FALSE);
 	Auto(SetWindowRedraw(mIRCLinker::getTreeview(), TRUE));
@@ -66,30 +131,130 @@ void TraverseTreebarItems(void)
 		{
 			{
 				TString tsType(DcxDock::getTreebarItemType(item.lParam));
-
+	
 				//mIRCLinker::execex(TEXT("/!set -nu1 %%dcx_%d %s"), item.lParam, item.pszText );
 				//mIRCLinker::tsEvalex(res, TEXT("$xtreebar_callback(geticons,%s,%%dcx_%d)"), tsType.to_chr(), item.lParam);
 				mIRCLinker::exec(TEXT("/!set -nu1 \\%dcx_% %"), item.lParam, item.pszText);
 				mIRCLinker::eval(res, TEXT("$xtreebar_callback(geticons,%,\\%dcx_%)"), tsType, item.lParam);
 			}
 			item.mask = TVIF_IMAGE | TVIF_SELECTEDIMAGE | TVIF_EXPANDEDIMAGE;
-
+	
 			// image
 			auto i = res.getfirsttok(1).to_int() - 1;
 			item.iImage = (i < 0) ? I_IMAGENONE : i;
-
+	
 			// selected image (if none supplied use the standard image)
 			i = res.getnexttok().to_int() - 1;
 			item.iSelectedImage = (i < 0) ? item.iImage : i;
-
+	
 			// expanded image (if none supplied use the standard image)
 			i = res.getnexttok().to_int() - 1;
 			item.iExpandedImage = (i < 0) ? item.iImage : i;
-
+	
 			TreeView_SetItem(mIRCLinker::getTreeview(), &item);
 		}
 		TraverseChildren(ptvitem, buf, res, &item);
 	}
+
+	//for (auto ptvitem : Dcx::dcxTreeItem(mIRCLinker::getTreeview()))
+	//{
+	//	item.hItem = (HTREEITEM)ptvitem;
+	//	item.pszText = buf.to_chr();
+	//	item.cchTextMax = buf.capacity_cch();
+	//	item.mask = TVIF_TEXT | TVIF_PARAM;
+	//	if (TreeView_GetItem(mIRCLinker::getTreeview(), &item))
+	//	{
+	//		{
+	//			const TString tsType(DcxDock::getTreebarItemType(item.lParam));
+	//
+	//			mIRCLinker::exec(TEXT("/!set -nu1 \\%dcx_% %"), item.lParam, item.pszText);
+	//			mIRCLinker::eval(res, TEXT("$xtreebar_callback(geticons,%,\\%dcx_%)"), tsType, item.lParam);
+	//		}
+	//
+	//		if (!res.empty())
+	//		{
+	//			item.mask = TVIF_IMAGE | TVIF_SELECTEDIMAGE | TVIF_EXPANDEDIMAGE;
+	//
+	//			// image
+	//			auto i = res.getfirsttok(1).to_int() - 1;
+	//			item.iImage = (i < 0) ? I_IMAGENONE : i;
+	//
+	//			// selected image (if none supplied use the standard image)
+	//			i = res.getnexttok().to_int() - 1;
+	//			item.iSelectedImage = (i < 0) ? item.iImage : i;
+	//
+	//			// expanded image (if none supplied use the standard image)
+	//			i = res.getnexttok().to_int() - 1;
+	//			item.iExpandedImage = (i < 0) ? item.iImage : i;
+	//
+	//			TreeView_SetItem(mIRCLinker::getTreeview(), &item);
+	//		}
+	//	}
+	//	TraverseChildren((HTREEITEM)ptvitem, buf, res, &item);
+	//}
+
+	//for (auto ptvitem : Dcx::dcxTreeItem(mIRCLinker::getTreeview()))
+	//{
+	//	{	// limit the scope of these objects
+	//		const TString tsItem(ptvitem.GetItemText());
+	//		const LPARAM lparam = ptvitem.GetItemParam<LPARAM>();
+	//		const TString tsType(DcxDock::getTreebarItemType(lparam));
+	//		TString res;
+	//
+	//		mIRCLinker::exec(TEXT("/!set -nu1 \\%dcx_% %"), lparam, tsItem);
+	//		mIRCLinker::eval(res, TEXT("$xtreebar_callback(geticons,%,\\%dcx_%)"), tsType, lparam);
+	//		if (!res.empty())
+	//		{
+	//			// image
+	//			const auto iImage = res.getfirsttok(1).to_int() - 1;
+	//
+	//			// selected image (if none supplied use the standard image)
+	//			const auto iSelected = res.getnexttok().to_int() - 1;
+	//
+	//			// expanded image (if none supplied use the standard image)
+	//			const auto iExpanded = res.getnexttok().to_int() - 1;
+	//
+	//			ptvitem.SetItemImages(iImage, iSelected, iExpanded);
+	//		}
+	//	}
+	//	TraverseChildren((HTREEITEM)ptvitem);
+	//}
+}
+
+static HTREEITEM WalkChildItems(HWND mHwnd, HTREEITEM hParent, size_t &nCnt, size_t &nIndex) noexcept
+{
+	if ((!mHwnd) || (!hParent))
+		return nullptr;
+
+	for (auto hItem = TreeView_GetChild(mHwnd, hParent); hItem; hItem = TreeView_GetNextSibling(mHwnd, hItem))
+	{
+		if (++nCnt == nIndex)
+			return hItem;
+
+		if (auto hRes = WalkChildItems(mHwnd, hItem, nCnt, nIndex); hRes)
+			return hRes;
+	}
+	return nullptr;
+}
+
+static HTREEITEM MapIndexToItem(size_t nIndex) noexcept
+{
+	HWND mHwnd{ mIRCLinker::getTreeview() };
+	if ((!mHwnd) || (!IsWindow(mHwnd)))
+		return nullptr;
+
+	size_t nCnt{};
+
+	for (auto hItem = TreeView_GetRoot(mHwnd); hItem; hItem = TreeView_GetNextSibling(mHwnd, hItem))
+	{
+		if (++nCnt == nIndex)
+			return hItem;
+
+		if (auto hRes = WalkChildItems(mHwnd, hItem, nCnt, nIndex); hRes)
+			return hRes;
+	}
+
+	return nullptr;
 }
 
 // [SWITCH] [OPTIONS]
@@ -455,6 +620,8 @@ mIRC(xtreebar)
 			}
 		}
 		break;
+		// [clear|default]
+		// [index] [+flags] [N1,N2-N3] [filename]
 		case TEXT('w'): // [clear|default] | [index] [+flags] [icon index] [filename]
 		{
 			if (!mIRCLinker::getTreeImages())
@@ -583,7 +750,8 @@ mIRC(_xtreebar)
 				_ts_snprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), cnt);
 			else {
 				const stString<MIRC_BUFFER_SIZE_CCH> szbuf;
-				item.hItem = TreeView_MapAccIDToHTREEITEM(mIRCLinker::getTreeview(), index);
+				//item.hItem = TreeView_MapAccIDToHTREEITEM(mIRCLinker::getTreeview(), index);
+				item.hItem = MapIndexToItem(index);
 				item.mask = TVIF_TEXT;
 				item.pszText = szbuf;	// PVS-Studio reports `V507 pointer stored outside of scope` this is fine.
 				item.cchTextMax = szbuf.capacity_cch();
@@ -597,9 +765,10 @@ mIRC(_xtreebar)
 		case TEXT("icons"_hash):
 		{
 			if (index < 1) // if index < 1 make it the last item.
-				index = cnt;
+				index = cnt - 1;
 
-			item.hItem = TreeView_MapAccIDToHTREEITEM(mIRCLinker::getTreeview(), index);
+			//item.hItem = TreeView_MapAccIDToHTREEITEM(mIRCLinker::getTreeview(), index);
+			item.hItem = MapIndexToItem(index);
 			item.mask = TVIF_IMAGE | TVIF_SELECTEDIMAGE | TVIF_EXPANDEDIMAGE;
 			if (!TreeView_GetItem(mIRCLinker::getTreeview(), &item))
 				throw Dcx::dcxException("Unable To Get Item");

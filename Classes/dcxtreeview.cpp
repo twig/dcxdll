@@ -253,14 +253,14 @@ void DcxTreeView::parseInfoRequest(const TString& input, const refString<TCHAR, 
 	// [NAME] [ID] [PROP]
 	case L"seltext"_hash:
 	{
-		if (auto hItem = TV_GetSelection(m_Hwnd); hItem)
+		if (auto hItem = TV_GetSelection(); hItem)
 			this->getItemText(hItem, szReturnValue, MIRC_BUFFER_SIZE_CCH);
 	}
 	break;
 	// [NAME] [ID] [PROP]
 	case L"selpath"_hash:
 	{
-		if (auto hItem = TV_GetSelection(m_Hwnd); hItem)
+		if (auto hItem = TV_GetSelection(); hItem)
 			szReturnValue = getPathFromItem(hItem).to_chr();
 	}
 	break;
@@ -1647,11 +1647,16 @@ void DcxTreeView::expandAllItems(const HTREEITEM hStart, const UINT expandOption
 		TreeView_Expand(m_Hwnd, hCurrentItem, expandOption);
 	}
 
-	//Dcx::dcxTreeItem tr(m_Hwnd, hStart);
-	//for (const auto& hCurrentItem : tr)
+	//for (const auto& hCurrentItem : Dcx::dcxTreeItem(m_Hwnd, hStart))
 	//{
 	//	expandAllItems(hCurrentItem, expandOption);
 	//	TreeView_Expand(m_Hwnd, hCurrentItem, expandOption);
+	//}
+
+	//for (const auto& hCurrentItem : Dcx::dcxTreeItem(m_Hwnd, hStart))
+	//{
+	//	expandAllItems(hCurrentItem.m_Item, expandOption);
+	//	TreeView_Expand(m_Hwnd, hCurrentItem.m_Item, expandOption);
 	//}
 }
 
@@ -2085,6 +2090,8 @@ LRESULT DcxTreeView::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 				{
 					// save HDC's context
 					const auto savedDC = SaveDC(lpntvcd->nmcd.hdc);
+					// restore HDC's context
+					Auto(RestoreDC(lpntvcd->nmcd.hdc, savedDC));
 
 					// make sure font is correct first (this is in an unknown state when we get here)
 					if (m_hItemFont)
@@ -2093,16 +2100,19 @@ LRESULT DcxTreeView::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 						Dcx::dcxSelectObject(lpntvcd->nmcd.hdc, m_hFont); // if no item font, set to controls font if it exists.
 
 					const auto bSelected = (dcx_testflag(lpntvcd->nmcd.uItemState, CDIS_SELECTED));
-					TVITEMEX tvitem{};
-					TCHAR buf[MIRC_BUFFER_SIZE_CCH]{};
-					auto hItem = reinterpret_cast<HTREEITEM>(lpntvcd->nmcd.dwItemSpec);
-					tvitem.hItem = hItem;
-					tvitem.mask = TVIF_TEXT;
-					tvitem.pszText = &buf[0];
-					tvitem.cchTextMax = std::size(buf);
-					if (TreeView_GetItem(m_Hwnd, &tvitem))
+					//TVITEMEX tvitem{};
+					//TCHAR buf[MIRC_BUFFER_SIZE_CCH]{};
+					//auto hItem = reinterpret_cast<HTREEITEM>(lpntvcd->nmcd.dwItemSpec);
+					//tvitem.hItem = hItem;
+					//tvitem.mask = TVIF_TEXT;
+					//tvitem.pszText = &buf[0];
+					//tvitem.cchTextMax = std::size(buf);
+					//if (TreeView_GetItem(m_Hwnd, &tvitem))
+					//{
+					//	TString tsItem(tvitem.pszText);
+
 					{
-						TString tsItem(buf);
+					auto hItem = reinterpret_cast<HTREEITEM>(lpntvcd->nmcd.dwItemSpec);
 						RECT rcTxt{};
 						RECT rcItem{};
 						TreeView_GetItemRect(m_Hwnd, hItem, &rcTxt, TRUE);
@@ -2131,7 +2141,17 @@ LRESULT DcxTreeView::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 #else
 						Dcx::FillRectColour(lpntvcd->nmcd.hdc, std::addressof(rcClear), bgClr);
 #endif
+						const auto DrawSelected = [](HDC hdc, const RECT &rcItem, const RECT &rcTxt, COLORREF clrTextBk) noexcept {
+							RECT rcSelected = rcTxt;
+							rcSelected.left = std::max(rcSelected.left - 2, rcItem.left);
+							rcSelected.right = std::min(rcSelected.right + 5, rcItem.right);
 
+							if (!dcxDrawTranslucentRect(hdc, std::addressof(rcSelected), clrTextBk, GetSysColor(COLOR_3DHIGHLIGHT), false))
+								dcxDrawRect(hdc, std::addressof(rcSelected), clrTextBk, GetSysColor(COLOR_3DHIGHLIGHT), false);
+						};
+
+						if (TString tsItem(TV_GetItemText(hItem)); !tsItem.empty())
+						{
 						constexpr UINT TextSyles = /*DT_WORD_ELLIPSIS |*/ DT_LEFT | DT_SINGLELINE | DT_VCENTER;
 
 						if (!this->IsControlCodeTextEnabled())
@@ -2140,14 +2160,7 @@ LRESULT DcxTreeView::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 						calcTextRect(lpntvcd->nmcd.hdc, tsItem, std::addressof(rcTxt), TextSyles);
 
 						if (bSelected)
-						{
-							RECT rcSelected = rcTxt;
-							rcSelected.left = std::max(rcSelected.left - 2, rcItem.left);
-							rcSelected.right = std::min(rcSelected.right + 5, rcItem.right);
-
-							if (!dcxDrawTranslucentRect(lpntvcd->nmcd.hdc, std::addressof(rcSelected), lpntvcd->clrTextBk, GetSysColor(COLOR_3DHIGHLIGHT), false))
-								dcxDrawRect(lpntvcd->nmcd.hdc, std::addressof(rcSelected), lpntvcd->clrTextBk, GetSysColor(COLOR_3DHIGHLIGHT), false);
-						}
+								DrawSelected(lpntvcd->nmcd.hdc, rcItem, rcTxt, lpntvcd->clrTextBk);
 
 						SetTextColor(lpntvcd->nmcd.hdc, lpntvcd->clrText);
 
@@ -2162,9 +2175,11 @@ LRESULT DcxTreeView::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 						else
 							mIRC_DrawText(lpntvcd->nmcd.hdc, tsItem, std::addressof(rcTxt), TextSyles, (bSelected && this->IsShadowTextEnabled()));
 					}
-
-					// restore HDC's context
-					RestoreDC(lpntvcd->nmcd.hdc, savedDC);
+						else {
+							if (bSelected)
+								DrawSelected(lpntvcd->nmcd.hdc, rcItem, rcTxt, lpntvcd->clrTextBk);
+						}
+					}
 				}
 #endif
 
@@ -2203,7 +2218,7 @@ LRESULT DcxTreeView::ParentMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 		{
 			if (dcxlParam(const LPNMTVKEYDOWN, ptvkd); ptvkd && ptvkd->wVKey == VK_SPACE)
 			{
-				if (const auto htvi = TV_GetSelection(m_Hwnd); htvi)
+				if (const auto htvi = TV_GetSelection(); htvi)
 				{
 					const auto state = TreeView_GetCheckState(m_Hwnd, htvi);
 					this->execAliasEx(TEXT("stateclick,%u,%d,%s"), getUserID(), (state ? 0 : 1), getPathFromItem(htvi).to_chr());

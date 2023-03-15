@@ -263,12 +263,32 @@ protected:
 		_ms_TVi.stateMask = mask;
 		SNDMSG(m_Hwnd, TVM_SETITEM, 0, reinterpret_cast<LPARAM>(std::addressof(_ms_TVi)));
 	}
-	[[nodiscard]] inline HTREEITEM TV_GetSelection(HWND hwnd) const noexcept
+	[[nodiscard]] inline HTREEITEM TV_GetSelection() const noexcept
 	{
-		if (!hwnd)
+		if (!m_Hwnd)
 			return nullptr;
 
-		GSL_SUPPRESS(es.47) GSL_SUPPRESS(lifetime.4) return TreeView_GetSelection(hwnd);
+		GSL_SUPPRESS(es.47) GSL_SUPPRESS(lifetime.4) return TreeView_GetSelection(m_Hwnd);
+	}
+
+	/// <summary>
+	/// Get an items text.
+	/// </summary>
+	/// <param name="hItem"></param>
+	/// <returns></returns>
+	TString TV_GetItemText(HTREEITEM hItem) const
+	{
+		TString tsRes;
+		TVITEMEX tvitem{};
+		TCHAR buf[MIRC_BUFFER_SIZE_CCH]{};
+		tvitem.hItem = hItem;
+		tvitem.mask = TVIF_TEXT;
+		tvitem.pszText = &buf[0];
+		tvitem.cchTextMax = std::size(buf);
+		if (TreeView_GetItem(m_Hwnd, &tvitem))
+			tsRes = tvitem.pszText;
+
+		return tsRes;
 	}
 
 	[[nodiscard]] HIMAGELIST TV_GetNormalImageList() noexcept
