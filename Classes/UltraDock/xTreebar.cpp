@@ -600,7 +600,7 @@ mIRC(_xtreebar)
 				index = cnt;
 
 			item.hItem = TreeView_MapAccIDToHTREEITEM(mIRCLinker::getTreeview(), index);
-			item.mask = TVIF_IMAGE | TVIF_SELECTEDIMAGE;
+			item.mask = TVIF_IMAGE | TVIF_SELECTEDIMAGE | TVIF_EXPANDEDIMAGE;
 			if (!TreeView_GetItem(mIRCLinker::getTreeview(), &item))
 				throw Dcx::dcxException("Unable To Get Item");
 
