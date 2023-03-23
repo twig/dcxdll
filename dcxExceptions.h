@@ -33,7 +33,41 @@ namespace Dcx {
 		}
 		const TCHAR *const reason() const noexcept { return !tsErr.empty() ? tsErr.to_chr() : &sUnknown_Err[0]; }
 	private:
-		static TString tsErr;
+		inline static TString tsErr;
+		static constexpr TCHAR sUnknown_Err[] = TEXT("Unknown Exception");
+	};
+
+
+	class dcxException2 final
+	{
+	public:
+		explicit dcxException2(const TCHAR* const msg)
+		{
+			tsErr.clear();
+			if (msg)
+				tsErr = msg;
+		}
+		explicit dcxException2(const std::wstring& msg)
+		{
+			tsErr.clear();
+			if (!msg.empty())
+				tsErr = msg;
+		}
+
+		//template <class... Arguments>
+		//dcxException2(std::format_string<Arguments...> fmt, Arguments&&... args)
+		//{
+		//	auto s = std::format(fmt, std::forward<Arguments>(args)...);
+		//}
+
+		//template <class... Arguments>
+		//dcxException2(std::wformat_string<Arguments...> fmt, Arguments&&... args)
+		//{
+		//	tsErr = std::format(fmt, std::forward<Arguments>(args)...);
+		//}
+		const TCHAR* const reason() const noexcept { return !tsErr.empty() ? tsErr.c_str() : &sUnknown_Err[0]; }
+	private:
+		inline static std::basic_string<TCHAR> tsErr;
 		static constexpr TCHAR sUnknown_Err[] = TEXT("Unknown Exception");
 	};
 }
@@ -110,6 +144,38 @@ namespace DcxExceptions
 	public:
 		dcxIDAlreadyExists() noexcept
 			: exception("Invalid ID, already exists")
+		{}
+	};
+	class dcxUnableToCreateImageList final
+		: public std::exception
+	{
+	public:
+		dcxUnableToCreateImageList() noexcept
+			: exception("Unable To Create ImageList")
+		{}
+	};
+	class dcxUnableToLoadIcon final
+		: public std::exception
+	{
+	public:
+		dcxUnableToLoadIcon() noexcept
+			: exception("Unable To Load Icon")
+		{}
+	};
+	class dcxUnableToAddImage final
+		: public std::exception
+	{
+	public:
+		dcxUnableToAddImage() noexcept
+			: exception("Unable To Add Image to ImageList")
+		{}
+	};
+	class dcxUnableToGetItem final
+		: public std::exception
+	{
+	public:
+		dcxUnableToGetItem() noexcept
+			: exception("Unable To Get Item")
 		{}
 	};
 }

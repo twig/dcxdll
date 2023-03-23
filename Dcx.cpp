@@ -27,7 +27,8 @@ namespace Dcx {
 	MapOfCursors	m_vMapOfCursors;
 	MapOfAreas		m_vMapOfAreas;
 	PFNSETCURSOR SetCursorUx = nullptr;
-	TString dcxException::tsErr;
+	//TString dcxException::tsErr;
+	//std::basic_string<TCHAR> dcxException2::tsErr;
 
 	// dragging
 	bool m_bShowingDragImage{ false };	// true if currently showing a drag image.

@@ -954,7 +954,7 @@ namespace Dcx
 			
 			item.hItem = m_Item;
 			// exclude text flag as no buffer set.
-			item.mask = (uMask & ~TVIF_TEXT);
+			item.mask = (uMask & ~TVIF_TEXT) | TVIF_HANDLE;
 
 			TreeView_GetItem(m_Window, &item);
 
@@ -969,6 +969,7 @@ namespace Dcx
 
 			TVITEMEX item{ *pItem };
 			item.hItem = m_Item;
+			item.mask |= TVIF_HANDLE;
 
 			return (TreeView_SetItem(m_Window, &item) != FALSE);
 		}
@@ -983,7 +984,7 @@ namespace Dcx
 			item.hItem = m_Item;
 			item.pszText = tsRes.to_chr();
 			item.cchTextMax = tsRes.capacity_cch();
-			item.mask = TVIF_TEXT;
+			item.mask = TVIF_TEXT | TVIF_HANDLE;
 			if (TreeView_GetItem(m_Window, &item))
 				return TString(item.pszText);
 
@@ -999,7 +1000,7 @@ namespace Dcx
 			item.hItem = m_Item;
 			item.pszText = const_cast<TCHAR*>(tsStr.to_chr());
 			item.cchTextMax = tsStr.len();
-			item.mask = TVIF_TEXT;
+			item.mask = TVIF_TEXT | TVIF_HANDLE;
 
 			TreeView_SetItem(m_Window, &item);
 		}
@@ -1011,7 +1012,7 @@ namespace Dcx
 
 			TVITEMEX item{};
 			item.hItem = m_Item;
-			item.mask = TVIF_PARAM;
+			item.mask = TVIF_PARAM | TVIF_HANDLE;
 			if (TreeView_GetItem(m_Window, &item))
 			{
 				if constexpr (std::is_same_v<T, LPARAM>)		// if we ant an LPARAM, just return it
@@ -1031,7 +1032,7 @@ namespace Dcx
 
 			TVITEMEX item{};
 			item.hItem = m_Item;
-			item.mask = TVIF_PARAM;
+			item.mask = TVIF_PARAM | TVIF_HANDLE;
 
 			if constexpr (std::is_same_v<T, LPARAM>)			// if we are an LPARAM, just assign it
 				item.lParam = obj;
@@ -1050,7 +1051,7 @@ namespace Dcx
 			//NB: item text can be any length BUT treeview control only displays first 260 characters.
 			TVITEMEX item{};
 			item.hItem = m_Item;
-			item.mask = TVIF_IMAGE | TVIF_SELECTEDIMAGE | TVIF_EXPANDEDIMAGE;
+			item.mask = TVIF_IMAGE | TVIF_SELECTEDIMAGE | TVIF_EXPANDEDIMAGE | TVIF_HANDLE;
 
 			item.iImage = (iImage < 0) ? I_IMAGENONE : iImage;
 			item.iSelectedImage = (iSelected < 0) ? item.iImage : iSelected;
