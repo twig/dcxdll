@@ -17,18 +17,16 @@ static void TraverseChildren(const HTREEITEM hParent, TString& buf, TString& res
 		pitem->hItem = ptvitem;
 		pitem->pszText = buf.to_chr();
 		pitem->cchTextMax = buf.capacity_cch();
-		pitem->mask = TVIF_TEXT | TVIF_PARAM;
+		pitem->mask = TVIF_TEXT | TVIF_PARAM | TVIF_HANDLE;
 		if (TreeView_GetItem(mIRCLinker::getTreeview(), pitem))
 		{
 			{
-				TString tsType(DcxDock::getTreebarItemType(pitem->lParam));
+				const TString tsType(DcxDock::getTreebarItemType(pitem->lParam));
 	
-				//mIRCLinker::execex(TEXT("/!set -nu1 %%dcx_%d %s"), pitem->lParam, pitem->pszText );
-				//mIRCLinker::tsEvalex(res, TEXT("$xtreebar_callback(geticons,%s,%%dcx_%d)"), tsType.to_chr(), pitem->lParam);
 				mIRCLinker::exec(TEXT("/!set -nu1 \\%dcx_% %"), pitem->lParam, pitem->pszText);
 				mIRCLinker::eval(res, TEXT("$xtreebar_callback(geticons,%,\\%dcx_%)"), tsType, pitem->lParam);
 			}
-			pitem->mask = TVIF_IMAGE | TVIF_SELECTEDIMAGE | TVIF_EXPANDEDIMAGE;
+			pitem->mask = TVIF_IMAGE | TVIF_SELECTEDIMAGE | TVIF_EXPANDEDIMAGE | TVIF_HANDLE;
 	
 			// image
 			auto i = res.getfirsttok(1).to_int() - 1;
@@ -126,7 +124,7 @@ static void TraverseTreebarItems(void)
 		item.hItem = ptvitem;
 		item.pszText = buf.to_chr();
 		item.cchTextMax = buf.capacity_cch(); //MIRC_BUFFER_SIZE_CCH;
-		item.mask = TVIF_TEXT | TVIF_PARAM;
+		item.mask = TVIF_TEXT | TVIF_PARAM | TVIF_HANDLE;
 		if (TreeView_GetItem(mIRCLinker::getTreeview(), &item))
 		{
 			{
@@ -137,7 +135,7 @@ static void TraverseTreebarItems(void)
 				mIRCLinker::exec(TEXT("/!set -nu1 \\%dcx_% %"), item.lParam, item.pszText);
 				mIRCLinker::eval(res, TEXT("$xtreebar_callback(geticons,%,\\%dcx_%)"), tsType, item.lParam);
 			}
-			item.mask = TVIF_IMAGE | TVIF_SELECTEDIMAGE | TVIF_EXPANDEDIMAGE;
+			item.mask = TVIF_IMAGE | TVIF_SELECTEDIMAGE | TVIF_EXPANDEDIMAGE | TVIF_HANDLE;
 	
 			// image
 			auto i = res.getfirsttok(1).to_int() - 1;
@@ -276,7 +274,8 @@ mIRC(xtreebar)
 		const auto switches(input.getfirsttok(1));		// tok 1
 
 		if (switches[0] != TEXT('-'))
-			throw Dcx::dcxException("Invalid Switch");
+			//throw Dcx::dcxException("Invalid Switch");
+			throw DcxExceptions::dcxInvalidCommand();
 
 		switch (switches[1])
 		{
@@ -569,7 +568,8 @@ mIRC(xtreebar)
 			const auto clr = input.getnexttok().to_<COLORREF>();	// tok 3
 
 			if (cflag[0] != TEXT('+'))
-				throw Dcx::dcxException("Invalid Colour flag");
+				//throw Dcx::dcxException("Invalid Colour flag");
+				throw DcxExceptions::dcxInvalidFlag();
 
 			switch (cflag[1])
 			{
@@ -616,7 +616,8 @@ mIRC(xtreebar)
 				gsl::at(DcxDock::g_clrTreebarColours, gsl::narrow_cast<UINT>(TreeBarColours::TREEBAR_COLOUR_HOT_BKG)) = clr;
 				break;
 			default:
-				throw Dcx::dcxException("Invalid Colour flag");
+				//throw Dcx::dcxException("Invalid Colour flag");
+				throw DcxExceptions::dcxInvalidFlag();
 			}
 		}
 		break;
@@ -652,7 +653,8 @@ mIRC(xtreebar)
 						TreeView_SetImageList(mIRCLinker::getTreeview(), himl, TVSIL_NORMAL);
 				}
 				if (!himl)
-					throw Dcx::dcxException("Unable to Create ImageList");
+					//throw Dcx::dcxException("Unable to Create ImageList");
+					throw DcxExceptions::dcxUnableToCreateImageList();
 
 				auto iIndex = tsIndex.to_int() - 1;
 				const auto cflag(input.getnexttok().trim());	// tok 3
@@ -661,7 +663,8 @@ mIRC(xtreebar)
 
 				// check index is within range.
 				if (iCnt < iIndex)
-					throw Dcx::dcxException("Image Index Out Of Range");
+					//throw Dcx::dcxException("Image Index Out Of Range");
+					throw DcxExceptions::dcxOutOfRange();
 
 				if (iIndex < 0)
 					iIndex = -1; // append to end of list. make sure its only -1
@@ -678,7 +681,8 @@ mIRC(xtreebar)
 #else
 					HICON hIcon = dcxLoadIcon(fIndex, filename, false, cflag);
 					if (!hIcon)
-						throw Dcx::dcxException("Unable to load icon");
+						//throw Dcx::dcxException("Unable to load icon");
+						throw DcxExceptions::dcxUnableToLoadIcon();
 
 					ImageList_ReplaceIcon(himl, iIndex, hIcon);
 					DestroyIcon(hIcon);
@@ -702,7 +706,8 @@ mIRC(xtreebar)
 		}
 		break;
 		default:
-			throw Dcx::dcxException("Invalid Flag");
+			//throw Dcx::dcxException("Invalid Flag");
+			throw DcxExceptions::dcxInvalidFlag();
 		}
 		RedrawWindow(mIRCLinker::getTreeview(), nullptr, nullptr, RDW_INTERNALPAINT | RDW_ALLCHILDREN | RDW_INVALIDATE | RDW_ERASE);
 		return 1;
@@ -747,18 +752,29 @@ mIRC(_xtreebar)
 		case TEXT("item"_hash):
 		{
 			if (index < 1) // if index < 1 return total items.
-				_ts_snprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%u"), cnt);
+				_ts_snprintf(data, mIRCLinker::m_dwCharacters, TEXT("%u"), cnt);
 			else {
-				const stString<MIRC_BUFFER_SIZE_CCH> szbuf;
-				//item.hItem = TreeView_MapAccIDToHTREEITEM(mIRCLinker::getTreeview(), index);
+				//const stString<MIRC_BUFFER_SIZE_CCH> szbuf;
+				////item.hItem = TreeView_MapAccIDToHTREEITEM(mIRCLinker::getTreeview(), index);
+				//item.hItem = MapIndexToItem(index);
+				//item.mask = TVIF_TEXT;
+				//item.pszText = szbuf;	// PVS-Studio reports `V507 pointer stored outside of scope` this is fine.
+				//item.cchTextMax = szbuf.capacity_cch();
+				//if (!TreeView_GetItem(mIRCLinker::getTreeview(), &item))
+				//	throw Dcx::dcxException("Unable To Get Item");
+				//
+				//dcx_strcpyn(data, item.pszText, mIRCLinker::m_dwCharacters);
+
 				item.hItem = MapIndexToItem(index);
 				item.mask = TVIF_TEXT;
-				item.pszText = szbuf;	// PVS-Studio reports `V507 pointer stored outside of scope` this is fine.
-				item.cchTextMax = szbuf.capacity_cch();
+				item.pszText = data;
+				item.cchTextMax = mIRCLinker::m_dwCharacters;
 				if (!TreeView_GetItem(mIRCLinker::getTreeview(), &item))
-					throw Dcx::dcxException("Unable To Get Item");
+					//throw Dcx::dcxException("Unable To Get Item");
+					throw DcxExceptions::dcxUnableToGetItem();
 
-				dcx_strcpyn(data, item.pszText, MIRC_BUFFER_SIZE_CCH);
+				if (data != item.pszText) // item.pszText can be changed from the buffer supplied.
+					dcx_strcpyn(data, item.pszText, mIRCLinker::m_dwCharacters);
 			}
 		}
 		break;
@@ -771,9 +787,10 @@ mIRC(_xtreebar)
 			item.hItem = MapIndexToItem(index);
 			item.mask = TVIF_IMAGE | TVIF_SELECTEDIMAGE | TVIF_EXPANDEDIMAGE;
 			if (!TreeView_GetItem(mIRCLinker::getTreeview(), &item))
-				throw Dcx::dcxException("Unable To Get Item");
+				//throw Dcx::dcxException("Unable To Get Item");
+				throw DcxExceptions::dcxUnableToGetItem();
 
-			_ts_snprintf(data, MIRC_BUFFER_SIZE_CCH, TEXT("%d %d %d"), item.iImage, item.iSelectedImage, item.iExpandedImage);
+			_ts_snprintf(data, mIRCLinker::m_dwCharacters, TEXT("%d %d %d"), item.iImage, item.iSelectedImage, item.iExpandedImage);
 		}
 		break;
 		default:	// error
