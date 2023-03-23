@@ -57,13 +57,15 @@ void TiXmlBase::EncodeString(const TIXML_STRING& str, TIXML_STRING* outString)
 
 	while (i < str.length())
 	{
-		const unsigned char c = gsl::narrow_cast<unsigned char>(gsl::at(str, i));
-		//const unsigned char c = gsl::narrow_cast<unsigned char>(str[i]);
+		//const unsigned char c = gsl::narrow_cast<unsigned char>(gsl::at(str, i));
+		const unsigned char c = gsl::narrow_cast<unsigned char>(str[i]);
 
 		if (c == '&'
 			&& i < (str.length() - 2)
-			&& gsl::at(str, i + 1) == '#'
-			&& gsl::at(str, i + 2) == 'x')
+			//&& gsl::at(str, i + 1) == '#' //NB: gsl:at() crashes here!!
+			//&& gsl::at(str, i + 2) == 'x')
+			&& str[i + 1] == '#'
+			&& str[i + 2] == 'x')
 		{
 			// Hexadecimal character reference.
 			// Pass through unchanged.
@@ -79,7 +81,8 @@ void TiXmlBase::EncodeString(const TIXML_STRING& str, TIXML_STRING* outString)
 			{
 				outString->append(str.c_str() + i, 1);
 				++i;
-				if (gsl::at(str, i) == ';')
+				//if (gsl::at(str, i) == ';')
+				if (str[i] == ';')
 					break;
 			}
 		}

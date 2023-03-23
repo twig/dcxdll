@@ -97,7 +97,8 @@ public:
 	TIXML_EXPLICIT TiXmlString(const char* str, size_type len)
 	{
 		init(len);
-		memcpy(start(), str, len);
+		if (str)
+			memcpy(start(), str, len);
 	}
 
 	// TiXmlString destructor
@@ -109,6 +110,11 @@ public:
 	// = operator
 	TiXmlString& operator = (const char* copy)
 	{
+		if (!copy)
+		{
+			clear();
+			return *this;
+		}
 		return assign(copy, gsl::narrow_cast<size_type>(_ts_strlen(copy)));
 	}
 
@@ -132,6 +138,9 @@ public:
 	// += operator. Maps to append
 	TiXmlString& operator += (const char* suffix)
 	{
+		if (!suffix)
+			return *this;
+
 		return append(suffix, gsl::narrow_cast<size_type>(_ts_strlen(suffix)));
 	}
 
