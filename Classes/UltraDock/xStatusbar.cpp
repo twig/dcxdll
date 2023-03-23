@@ -48,7 +48,8 @@ mIRC(xstatusbar)
 			if (input.getnexttok().to_int() > 0)					// tok 2
 			{
 				if (!DcxDock::InitStatusbar(input.getlasttoks()))	// tok 3, -1
-					throw Dcx::dcxException("Unable to Create Statusbar");
+					//throw Dcx::dcxException("Unable to Create Statusbar");
+					throw DcxExceptions::dcxUnableToCreateWindow();
 			}
 			else
 				DcxDock::UnInitStatusbar();
@@ -198,7 +199,8 @@ mIRC(xstatusbar)
 						DcxDock::status_setPartInfo(nPos, gsl::narrow_cast<int>(iFlags), pPart);
 					}
 					else
-						throw Dcx::dcxException("Unable to set item text");
+						//throw Dcx::dcxException("Unable to set item text");
+						throw DcxExceptions::dcxInvalidItem();
 				}
 				else {
 					auto text = std::make_unique<WCHAR[]>(DcxDock::status_getTextLength(nPos) + 1);
@@ -227,22 +229,26 @@ mIRC(xstatusbar)
 			}
 
 			if (!himl)
-				throw Dcx::dcxException("Unable To Create ImageList");
+				//throw Dcx::dcxException("Unable To Create ImageList");
+				throw DcxExceptions::dcxUnableToCreateImageList();
 
 #if DCX_USE_WRAPPERS
 			Dcx::dcxIconResource icon(index, filename, false, flags);
 
 			if (ImageList_AddIcon(himl, icon.get()) == -1)
-				throw Dcx::dcxException("Unable To Add Image to ImageList");
+				//throw Dcx::dcxException("Unable To Add Image to ImageList");
+				throw DcxExceptions::dcxUnableToAddImage();
 #else
 			auto icon = dcxLoadIcon(index, filename, false, flags);
 			Auto(DestroyIcon(icon));
 
 			if (!icon)
-				throw Dcx::dcxException("Unable To Load Icon");
+				//throw Dcx::dcxException("Unable To Load Icon");
+				throw DcxExceptions::dcxUnableToLoadIcon();
 
 			if (ImageList_AddIcon(himl, icon) == -1)
-				throw Dcx::dcxException("Unable To Add Image to ImageList");
+				//throw Dcx::dcxException("Unable To Add Image to ImageList");
+				throw DcxExceptions::dcxUnableToAddImage();
 #endif
 		}
 		break;
@@ -253,7 +259,8 @@ mIRC(xstatusbar)
 		}
 		break;
 		default:
-			throw Dcx::dcxException("Invalid Switch");
+			//throw Dcx::dcxException("Invalid Switch");
+			throw DcxExceptions::dcxInvalidCommand();
 		}
 		return 1;
 	}
@@ -298,7 +305,7 @@ mIRC(_xstatusbar)
 					//	refData = pPart->m_Text;
 
 					if (const auto* const pPart = xstatus_GetPart(iPart); pPart)
-						refData = pPart->m_Text;
+						refData = pPart->m_Text.to_chr();
 				}
 				else {
 					//const auto len = DcxDock::status_getTextLength(iPart);
@@ -307,7 +314,7 @@ mIRC(_xstatusbar)
 					//DcxDock::status_getText(iPart, text.get());
 					//refData = text.get();
 
-					refData = xstatus_GetText(iPart);
+					refData = xstatus_GetText(iPart).to_chr();
 				}
 			}
 		}
@@ -319,22 +326,23 @@ mIRC(_xstatusbar)
 
 			DcxDock::status_getParts(SB_MAX_PARTSD, &parts[0]);
 
-			TString tsOut(gsl::narrow_cast<UINT>(mIRCLinker::c_mIRC_Buffer_Size_cch));
+			TString tsOut(gsl::narrow_cast<UINT>(mIRCLinker::m_dwCharacters));
 
 			for (auto i = decltype(nParts){0}; i < nParts; ++i)
 				tsOut.addtok(gsl::at(parts,i));
 
-			refData = tsOut;
+			refData = tsOut.to_chr();
 		}
 		break;
 		case TEXT("tooltip"_hash):
 		{
 			if (const auto iPart = d.getnexttok().to_int(), nParts = gsl::narrow_cast<int>(DcxDock::status_getParts(SB_MAX_PARTSD, nullptr)); (iPart > -1 && iPart < nParts))
-				DcxDock::status_getTipText(iPart, mIRCLinker::c_mIRC_Buffer_Size_cch, data);
+				DcxDock::status_getTipText(iPart, mIRCLinker::m_dwCharacters, data);
 		}
 		break;
 		default:	// error
 			throw Dcx::dcxException(TEXT("Invalid prop ().%"), d.gettok(2));
+			//throw Dcx::dcxException(std::format(L"Invalid prop ().{}", d.gettok(2).to_chr()).c_str());
 		}
 		return 3;
 	}
