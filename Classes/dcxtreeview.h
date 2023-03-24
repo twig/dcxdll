@@ -58,6 +58,7 @@ class DcxTreeView;
 #define TVIS_HASHITEM		0x100000 //!< TreeView item text is taken from a hash table item
 #define TVIS_HASHNUMBER		0x200000 //!< TreeView item text is taken from a hash tabel item number
 #define TVIS_XML			0x400000 //!< TreeView item text is taken from an xml file.
+#define TVIS_EXPANDEDICON	0x800000 //!< TreeView item has an expended icon defined.
 
 #define TVIS_UNDOC			0x1000	//!< Undocumented extended style
 
@@ -353,6 +354,12 @@ protected:
 		// new items are not displayed until the window styles are reset.
 		// The following code shows one way to ensure that items are always displayed.
 		const auto styles = dcxGetWindowStyle(m_Hwnd);
+		if (!dcx_testflag(styles, TVS_NOSCROLL))
+		{
+			// If a TreeView control doesn't have the TVS_NOSCROLL style it can loose the scrollbars when all items are deleted.
+			// This fixes that.
+			dcxSetWindowStyle(m_Hwnd, styles | TVS_NOSCROLL);
+		}
 		Auto(dcxSetWindowStyle(m_Hwnd, styles));
 
 		return (TreeView_DeleteAllItems(m_Hwnd) != FALSE);

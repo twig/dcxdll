@@ -276,7 +276,7 @@ void DcxTreeView::parseInfoRequest(const TString& input, const refString<TCHAR, 
 		if (matchtext.empty())
 			throw Dcx::dcxException("No matchtext specified.");
 
-		auto SearchType = CharToSearchType(params++[0]);
+		const auto SearchType = CharToSearchType(params++[0]);
 		HTREEITEM startingPoint = TVI_ROOT;
 
 		const auto n = params++.to_int();	// tok 2
@@ -1019,10 +1019,13 @@ void DcxTreeView::insertItem(const TString& tsPath, const TString& tsData, const
 
 	auto iFlags = this->parseItemFlags(tsData.getfirsttok(1));	// tok 1
 	const auto icon = tsData.getnexttok().to_int() - 1;			// tok 2
-	const auto sicon = tsData.getnexttok().to_int() - 1;			// tok 3
-	const auto overlay = tsData.getnexttok().to_int();				// tok 4
-	const auto state = tsData.getnexttok().to_int();				// tok 5
-	const auto integral = tsData.getnexttok().to_int() + 1;			// tok 6
+	const auto sicon = tsData.getnexttok().to_int() - 1;		// tok 3
+	int eicon = 0;
+	if (dcx_testflag(iFlags, TVIS_EXPANDEDICON))
+		eicon = tsData.getnexttok().to_int() - 1;				// tok 4
+	const auto overlay = tsData.getnexttok().to_int();			// tok 4
+	const auto state = tsData.getnexttok().to_int();			// tok 5
+	const auto integral = tsData.getnexttok().to_int() + 1;		// tok 6
 	const auto clrText = tsData.getnexttok().to_<COLORREF>();	// tok 7
 	const auto clrBkg = tsData.getnexttok().to_<COLORREF>();	// tok 8
 
@@ -1057,10 +1060,6 @@ void DcxTreeView::insertItem(const TString& tsPath, const TString& tsData, const
 	lpmytvi->clrBkg = (dcx_testflag(iFlags, TVIS_BKG)) ? clrBkg : CLR_INVALID;
 
 	{
-		//if ((dcx_testflag(iFlags, TVIS_HASHITEM)) && (itemtext.numtok() == 2))
-		//	mIRCLinker::tsEvalex(itemtext, TEXT("$hget(%s,%s)"), itemtext.gettok( 1 ).to_chr(), itemtext.gettok( 2 ).to_chr());
-		//else if ((dcx_testflag(iFlags, TVIS_HASHNUMBER)) && (itemtext.numtok() == 2))
-		//	mIRCLinker::tsEvalex(itemtext,  TEXT("$hget(%s,%s).data"), itemtext.gettok( 1 ).to_chr(), itemtext.gettok( 2 ).to_chr());
 		if ((dcx_testflag(iFlags, TVIS_HASHITEM)) && (itemtext.numtok() == 2))
 			mIRCLinker::eval(itemtext, TEXT("$hget(%,%)"), itemtext.getfirsttok(1), itemtext.getnexttok());
 		else if ((dcx_testflag(iFlags, TVIS_HASHNUMBER)) && (itemtext.numtok() == 2))
@@ -1086,12 +1085,14 @@ void DcxTreeView::insertItem(const TString& tsPath, const TString& tsData, const
 	if (sicon > -1)
 		tvi.iSelectedImage = sicon;
 
-	// test code for expanded image...
 	tvi.iExpandedImage = I_IMAGENONE;
-	if (icon > -1)
+	if (dcx_testflag(iFlags, TVIS_EXPANDEDICON))
+	{
+		if (eicon > -1)
 	{
 		tvi.mask |= TVIF_EXPANDEDIMAGE;
-		tvi.iExpandedImage = icon;
+			tvi.iExpandedImage = eicon;
+	}
 	}
 
 	if (integral > 1)
@@ -1192,6 +1193,8 @@ UINT DcxTreeView::parseItemFlags(const TString& flags) noexcept
 		iFlags |= TVIS_HASHNUMBER;
 	if (xflags[TEXT('x')])
 		iFlags |= TVIS_XML;
+	if (xflags[TEXT('E')])
+		iFlags |= TVIS_EXPANDEDICON;
 
 	return iFlags;
 }
@@ -1668,6 +1671,9 @@ void DcxTreeView::expandAllItems(const HTREEITEM hStart, const UINT expandOption
 
 HTREEITEM DcxTreeView::cloneItem(const HTREEITEM hItem, const HTREEITEM hParentTo, const HTREEITEM hAfterTo)
 {
+	if ((!m_Hwnd) || (!hItem))
+		return nullptr;
+
 	// Move the root node
 	TCHAR itemtext[MIRC_BUFFER_SIZE_CCH]{};
 	TVITEMEX tvi{};
@@ -1691,7 +1697,7 @@ HTREEITEM DcxTreeView::cloneItem(const HTREEITEM hItem, const HTREEITEM hParentT
 	tvi.mask = TVIF_TEXT | TVIF_IMAGE | TVIF_SELECTEDIMAGE | TVIF_EXPANDEDIMAGE | TVIF_STATE | TVIF_INTEGRAL | TVIF_PARAM;
 	tvi.lParam = reinterpret_cast<LPARAM>(lpdcxtvitem2.get());
 
-	TVINSERTSTRUCT tvin{ hParentTo, hAfterTo, tvi };
+	const TVINSERTSTRUCT tvin{ hParentTo, hAfterTo, tvi };
 
 	const auto item = TreeView_InsertItem(m_Hwnd, &tvin);
 	if (item)
